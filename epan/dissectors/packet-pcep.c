@@ -676,7 +676,7 @@ dissect_subobj_ipv4(proto_tree *pcep_subobj_tree, tvbuff_t *tvb, int offset, int
 	guint8 resvd;
 	guint l;
 
-	ti = proto_tree_add_item(pcep_subobj_tree, pcep_filter[PCEPF_SUBOBJ_IPv4], tvb, offset, length, FALSE);
+	ti = proto_tree_add_item(pcep_subobj_tree, pcep_filter[PCEPF_SUBOBJ_IPv4], tvb, offset, length, ENC_NA);
 	pcep_subobj_ipv4 = proto_item_add_subtree(ti, ett_pcep_obj);
 
 	if (length != 8) {
@@ -748,7 +748,7 @@ dissect_subobj_ipv6(proto_tree *pcep_subobj_tree, tvbuff_t *tvb, int offset, int
 	guint8 resv;
 	int l;
 
-	ti = proto_tree_add_item(pcep_subobj_tree, pcep_filter[PCEPF_SUBOBJ_IPv6], tvb, offset, length, FALSE);
+	ti = proto_tree_add_item(pcep_subobj_tree, pcep_filter[PCEPF_SUBOBJ_IPv6], tvb, offset, length, ENC_NA);
 	pcep_subobj_ipv6 = proto_item_add_subtree(ti, ett_pcep_obj);
 
 	if (length != 20) {
@@ -820,7 +820,7 @@ dissect_subobj_label_control(proto_tree *pcep_subobj_tree,  tvbuff_t *tvb,  int 
 	int l;
 	int u;
 
-	ti = proto_tree_add_item(pcep_subobj_tree, pcep_filter[PCEPF_SUBOBJ_LABEL_CONTROL], tvb, offset, length, FALSE);
+	ti = proto_tree_add_item(pcep_subobj_tree, pcep_filter[PCEPF_SUBOBJ_LABEL_CONTROL], tvb, offset, length, ENC_NA);
 	pcep_subobj_label_control = proto_item_add_subtree(ti, ett_pcep_obj);
 
 	if (length < 5) {
@@ -878,7 +878,7 @@ dissect_subobj_unnumb_interfaceID(proto_tree *pcep_subobj_tree, tvbuff_t *tvb, i
 	guint16 reserved_flags;
 	int l;
 
-	ti = proto_tree_add_item(pcep_subobj_tree, pcep_filter[PCEPF_SUBOBJ_UNNUM_INTERFACEID], tvb, offset, length, FALSE);
+	ti = proto_tree_add_item(pcep_subobj_tree, pcep_filter[PCEPF_SUBOBJ_UNNUM_INTERFACEID], tvb, offset, length, ENC_NA);
 	pcep_subobj_unnumb_interfaceID = proto_item_add_subtree(ti, ett_pcep_obj);
 
 	if (length != 12) {
@@ -955,7 +955,7 @@ dissect_subobj_autonomous_sys_num(proto_tree *pcep_subobj_tree, tvbuff_t *tvb, i
 		attribute = tvb_get_guint8(tvb, offset+3);
 		AS_number = tvb_get_ntohs(tvb, offset+6);
 
-		ti = proto_tree_add_item(pcep_subobj_tree, pcep_filter[PCEPF_SUBOBJ_AUTONOMOUS_SYS_NUM], tvb, offset, length, FALSE);
+		ti = proto_tree_add_item(pcep_subobj_tree, pcep_filter[PCEPF_SUBOBJ_AUTONOMOUS_SYS_NUM], tvb, offset, length, ENC_NA);
 		pcep_subobj_autonomous_sys_num = proto_item_add_subtree(ti, ett_pcep_obj);
 		if (length != 8) {
 			proto_tree_add_text(pcep_subobj_autonomous_sys_num, tvb, offset, length,
@@ -974,7 +974,7 @@ dissect_subobj_autonomous_sys_num(proto_tree *pcep_subobj_tree, tvbuff_t *tvb, i
 	} else {
 		AS_number = tvb_get_ntohs(tvb, offset+2);
 
-		ti = proto_tree_add_item(pcep_subobj_tree, pcep_filter[PCEPF_SUBOBJ_AUTONOMOUS_SYS_NUM], tvb, offset, length, FALSE);
+		ti = proto_tree_add_item(pcep_subobj_tree, pcep_filter[PCEPF_SUBOBJ_AUTONOMOUS_SYS_NUM], tvb, offset, length, ENC_NA);
 		pcep_subobj_autonomous_sys_num = proto_item_add_subtree(ti, ett_pcep_obj);
 
 		if (length != 4) {
@@ -1006,7 +1006,7 @@ dissect_subobj_srlg(proto_tree *pcep_subobj_tree, tvbuff_t *tvb, int offset, gui
 	reserved = tvb_get_guint8(tvb, offset+6);
 	attribute = tvb_get_guint8(tvb, offset+7);
 
-	ti = proto_tree_add_item(pcep_subobj_tree, pcep_filter[PCEPF_SUBOBJ_SRLG], tvb, offset, length, FALSE);
+	ti = proto_tree_add_item(pcep_subobj_tree, pcep_filter[PCEPF_SUBOBJ_SRLG], tvb, offset, length, ENC_NA);
 	pcep_subobj_srlg = proto_item_add_subtree(ti, ett_pcep_obj);
 
 	if (length != 8) {
@@ -1036,7 +1036,7 @@ dissect_subobj_exrs(proto_tree *pcep_subobj_tree, tvbuff_t *tvb, int offset, int
 	guint offset_exrs = 0;
 	guint l;
 
-	ti = proto_tree_add_item(pcep_subobj_tree, pcep_filter[PCEPF_SUBOBJ_EXRS], tvb, offset, length, FALSE);
+	ti = proto_tree_add_item(pcep_subobj_tree, pcep_filter[PCEPF_SUBOBJ_EXRS], tvb, offset, length, ENC_NA);
 	pcep_subobj_exrs = proto_item_add_subtree(ti, ett_pcep_obj);
 
 	if (length < 4) {
@@ -1107,7 +1107,7 @@ dissect_subobj_pksv4(proto_tree *pcep_subobj_tree, tvbuff_t *tvb, int offset, gi
 	guint16 path_key;
 	int l;
 
-	ti = proto_tree_add_item(pcep_subobj_tree, pcep_filter[PCEPF_SUBOBJ_PKSv4], tvb, offset, length, FALSE);
+	ti = proto_tree_add_item(pcep_subobj_tree, pcep_filter[PCEPF_SUBOBJ_PKSv4], tvb, offset, length, ENC_NA);
 	pcep_subobj_pksv4 = proto_item_add_subtree(ti, ett_pcep_obj);
 
 	if (length != 8) {
@@ -1134,7 +1134,7 @@ dissect_subobj_pksv6(proto_tree *pcep_subobj_tree, tvbuff_t *tvb, int offset, gi
 	guint16 path_key;
 	int l;
 
-	ti = proto_tree_add_item(pcep_subobj_tree, pcep_filter[PCEPF_SUBOBJ_PKSv6], tvb, offset, length, FALSE);
+	ti = proto_tree_add_item(pcep_subobj_tree, pcep_filter[PCEPF_SUBOBJ_PKSv6], tvb, offset, length, ENC_NA);
 	pcep_subobj_pksv6 = proto_item_add_subtree(ti, ett_pcep_obj);
 
 	if (length != 20) {
@@ -2086,92 +2086,92 @@ dissect_pcep_obj_tree(proto_tree *pcep_tree, tvbuff_t *tvb, int len, int offset,
 	switch (obj_class) {
 
 	case PCEP_OPEN_OBJ:
-		pcep_object_item = proto_tree_add_item(pcep_tree, pcep_filter[PCEPF_OBJ_OPEN], tvb, offset, -1, FALSE);
+		pcep_object_item = proto_tree_add_item(pcep_tree, pcep_filter[PCEPF_OBJ_OPEN], tvb, offset, -1, ENC_NA);
 		pcep_object_tree = proto_item_add_subtree(pcep_object_item, ett_pcep_obj_open);
 		break;
 
 	case PCEP_RP_OBJ:
-		pcep_object_item = proto_tree_add_item(pcep_tree, pcep_filter[PCEPF_OBJ_RP], tvb, offset, -1, FALSE);
+		pcep_object_item = proto_tree_add_item(pcep_tree, pcep_filter[PCEPF_OBJ_RP], tvb, offset, -1, ENC_NA);
 		pcep_object_tree = proto_item_add_subtree(pcep_object_item, ett_pcep_obj_request_parameters);
 		break;
 
 	case PCEP_NO_PATH_OBJ:
-		pcep_object_item = proto_tree_add_item(pcep_tree, pcep_filter[PCEPF_OBJ_NO_PATH], tvb, offset, -1, FALSE);
+		pcep_object_item = proto_tree_add_item(pcep_tree, pcep_filter[PCEPF_OBJ_NO_PATH], tvb, offset, -1, ENC_NA);
 		pcep_object_tree = proto_item_add_subtree(pcep_object_item, ett_pcep_obj_no_path);
 		break;
 
 	case PCEP_END_POINT_OBJ:
-		pcep_object_item = proto_tree_add_item(pcep_tree, pcep_filter[PCEPF_OBJ_END_POINT], tvb, offset, -1, FALSE);
+		pcep_object_item = proto_tree_add_item(pcep_tree, pcep_filter[PCEPF_OBJ_END_POINT], tvb, offset, -1, ENC_NA);
 		pcep_object_tree = proto_item_add_subtree(pcep_object_item, ett_pcep_obj_end_point);
 		break;
 
 	case PCEP_BANDWIDTH_OBJ:
-		pcep_object_item = proto_tree_add_item(pcep_tree, pcep_filter[PCEPF_OBJ_BANDWIDTH], tvb, offset, -1, FALSE);
+		pcep_object_item = proto_tree_add_item(pcep_tree, pcep_filter[PCEPF_OBJ_BANDWIDTH], tvb, offset, -1, ENC_NA);
 		pcep_object_tree = proto_item_add_subtree(pcep_object_item, ett_pcep_obj_bandwidth);
 		break;
 
 	case PCEP_METRIC_OBJ:
-		pcep_object_item = proto_tree_add_item(pcep_tree, pcep_filter[PCEPF_OBJ_METRIC], tvb, offset, -1, FALSE);
+		pcep_object_item = proto_tree_add_item(pcep_tree, pcep_filter[PCEPF_OBJ_METRIC], tvb, offset, -1, ENC_NA);
 		pcep_object_tree = proto_item_add_subtree(pcep_object_item, ett_pcep_obj_metric);
 		break;
 
 	case PCEP_EXPLICIT_ROUTE_OBJ:
-		pcep_object_item = proto_tree_add_item(pcep_tree, pcep_filter[PCEPF_OBJ_EXPLICIT_ROUTE], tvb, offset, -1, FALSE);
+		pcep_object_item = proto_tree_add_item(pcep_tree, pcep_filter[PCEPF_OBJ_EXPLICIT_ROUTE], tvb, offset, -1, ENC_NA);
 		pcep_object_tree = proto_item_add_subtree(pcep_object_item, ett_pcep_obj_explicit_route);
 		break;
 
 	case PCEP_RECORD_ROUTE_OBJ:
-		pcep_object_item = proto_tree_add_item(pcep_tree, pcep_filter[PCEPF_OBJ_RECORD_ROUTE], tvb, offset, -1, FALSE);
+		pcep_object_item = proto_tree_add_item(pcep_tree, pcep_filter[PCEPF_OBJ_RECORD_ROUTE], tvb, offset, -1, ENC_NA);
 		pcep_object_tree = proto_item_add_subtree(pcep_object_item, ett_pcep_obj_record_route);
 		break;
 
 	case PCEP_LSPA_OBJ:
-		pcep_object_item = proto_tree_add_item(pcep_tree, pcep_filter[PCEPF_OBJ_LSPA], tvb, offset, -1, FALSE);
+		pcep_object_item = proto_tree_add_item(pcep_tree, pcep_filter[PCEPF_OBJ_LSPA], tvb, offset, -1, ENC_NA);
 		pcep_object_tree = proto_item_add_subtree(pcep_object_item, ett_pcep_obj_lspa);
 		break;
 
 	case PCEP_IRO_OBJ:
-		pcep_object_item = proto_tree_add_item(pcep_tree, pcep_filter[PCEPF_OBJ_IRO], tvb, offset, -1, FALSE);
+		pcep_object_item = proto_tree_add_item(pcep_tree, pcep_filter[PCEPF_OBJ_IRO], tvb, offset, -1, ENC_NA);
 		pcep_object_tree = proto_item_add_subtree(pcep_object_item, ett_pcep_obj_iro);
 		break;
 
 	case PCEP_SVEC_OBJ:
-		pcep_object_item = proto_tree_add_item(pcep_tree, pcep_filter[PCEPF_OBJ_SVEC], tvb, offset, -1, FALSE);
+		pcep_object_item = proto_tree_add_item(pcep_tree, pcep_filter[PCEPF_OBJ_SVEC], tvb, offset, -1, ENC_NA);
 		pcep_object_tree = proto_item_add_subtree(pcep_object_item, ett_pcep_obj_svec);
 		break;
 
 	case PCEP_NOTIFICATION_OBJ:
-		pcep_object_item = proto_tree_add_item(pcep_tree, pcep_filter[PCEPF_OBJ_NOTIFICATION], tvb, offset, -1, FALSE);
+		pcep_object_item = proto_tree_add_item(pcep_tree, pcep_filter[PCEPF_OBJ_NOTIFICATION], tvb, offset, -1, ENC_NA);
 		pcep_object_tree = proto_item_add_subtree(pcep_object_item, ett_pcep_obj_notification);
 		break;
 
 	case PCEP_PCEP_ERROR_OBJ:
-		pcep_object_item = proto_tree_add_item(pcep_tree, pcep_filter[PCEPF_OBJ_PCEP_ERROR], tvb, offset, -1, FALSE);
+		pcep_object_item = proto_tree_add_item(pcep_tree, pcep_filter[PCEPF_OBJ_PCEP_ERROR], tvb, offset, -1, ENC_NA);
 		pcep_object_tree = proto_item_add_subtree(pcep_object_item, ett_pcep_obj_error);
 		break;
 
 	case PCEP_LOAD_BALANCING_OBJ:
-		pcep_object_item = proto_tree_add_item(pcep_tree, pcep_filter[PCEPF_OBJ_LOAD_BALANCING], tvb, offset, -1, FALSE);
+		pcep_object_item = proto_tree_add_item(pcep_tree, pcep_filter[PCEPF_OBJ_LOAD_BALANCING], tvb, offset, -1, ENC_NA);
 		pcep_object_tree = proto_item_add_subtree(pcep_object_item, ett_pcep_obj_load_balancing);
 		break;
 
 	case PCEP_CLOSE_OBJ:
-		pcep_object_item = proto_tree_add_item(pcep_tree, pcep_filter[PCEPF_OBJ_CLOSE], tvb, offset, -1, FALSE);
+		pcep_object_item = proto_tree_add_item(pcep_tree, pcep_filter[PCEPF_OBJ_CLOSE], tvb, offset, -1, ENC_NA);
 		pcep_object_tree = proto_item_add_subtree(pcep_object_item, ett_pcep_obj_close);
 		break;
 
 	case PCEP_PATH_KEY_OBJ:
-		pcep_object_item = proto_tree_add_item(pcep_tree, pcep_filter[PCEPF_OBJ_PATH_KEY], tvb, offset, -1, FALSE);
+		pcep_object_item = proto_tree_add_item(pcep_tree, pcep_filter[PCEPF_OBJ_PATH_KEY], tvb, offset, -1, ENC_NA);
 		pcep_object_tree = proto_item_add_subtree(pcep_object_item, ett_pcep_obj_path_key);
 		break;
 
 	case PCEP_XRO_OBJ:
-		pcep_object_item = proto_tree_add_item(pcep_tree, pcep_filter[PCEPF_OBJ_XRO], tvb, offset, -1, FALSE);
+		pcep_object_item = proto_tree_add_item(pcep_tree, pcep_filter[PCEPF_OBJ_XRO], tvb, offset, -1, ENC_NA);
 		pcep_object_tree = proto_item_add_subtree(pcep_object_item, ett_pcep_obj_xro);
 		break;
 
 	case PCEP_OF_OBJ:
-		pcep_object_item = proto_tree_add_item(pcep_tree, pcep_filter[PCEPF_OBJ_OF], tvb, offset, -1, FALSE);
+		pcep_object_item = proto_tree_add_item(pcep_tree, pcep_filter[PCEPF_OBJ_OF], tvb, offset, -1, ENC_NA);
 		pcep_object_tree = proto_item_add_subtree(pcep_object_item, ett_pcep_obj_of);
 		break;
 

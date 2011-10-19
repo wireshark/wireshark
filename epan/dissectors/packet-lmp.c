@@ -1018,7 +1018,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		  l = tvb_get_ntohs(tvb, offset2);
 		  ti2 = proto_tree_add_item(lmp_object_tree,
 					    hf_lmp_filter[LMPF_VAL_BEGIN_VERIFY_FLAGS],
-					    tvb, offset2, 2, FALSE);
+					    tvb, offset2, 2, ENC_BIG_ENDIAN);
 
 		  lmp_flags_tree = proto_item_add_subtree(ti2,
 							  lmp_subtree[LMP_TREE_BEGIN_VERIFY_FLAGS]);
@@ -1036,7 +1036,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				      tvb_get_ntohl(tvb, offset2+4));
 		  proto_tree_add_item(lmp_object_tree,
 				      hf_lmp_filter[LMPF_VAL_BEGIN_VERIFY_ENCTYPE],
-				      tvb, offset2+8, 1, FALSE);
+				      tvb, offset2+8, 1, ENC_BIG_ENDIAN);
 		  proto_tree_add_text(lmp_object_tree, tvb, offset2+10, 2,
 				      "Verify Transport Mechanism: 0x%0x",
 				      tvb_get_ntohs(tvb, offset2+10));
@@ -1123,10 +1123,10 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					 tvb_ip_to_str(tvb, offset2+8));
 		  proto_tree_add_item(lmp_object_tree,
 				      hf_lmp_filter[LMPF_VAL_TE_LINK_LOCAL_IPV4],
-				      tvb, offset2+4, 4, FALSE);
+				      tvb, offset2+4, 4, ENC_BIG_ENDIAN);
 		  proto_tree_add_item(lmp_object_tree,
 				      hf_lmp_filter[LMPF_VAL_TE_LINK_REMOTE_IPV4],
-				      tvb, offset2+8, 4, FALSE);
+				      tvb, offset2+8, 4, ENC_BIG_ENDIAN);
 		  break;
 
 	      case 2:
@@ -1148,11 +1148,11 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		  proto_tree_add_item(lmp_object_tree,
 				      hf_lmp_filter[LMPF_VAL_TE_LINK_LOCAL_UNNUM],
-				      tvb, offset2+4, 4, FALSE);
+				      tvb, offset2+4, 4, ENC_BIG_ENDIAN);
 
 		  proto_tree_add_item(lmp_object_tree,
 				      hf_lmp_filter[LMPF_VAL_TE_LINK_REMOTE_UNNUM],
-				      tvb, offset2+8, 4, FALSE);
+				      tvb, offset2+8, 4, ENC_BIG_ENDIAN);
 		  break;
 	      default:
 		  proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
@@ -1188,11 +1188,11 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		  proto_tree_add_item(lmp_object_tree,
 				      hf_lmp_filter[LMPF_VAL_DATA_LINK_LOCAL_IPV4],
-				      tvb, offset2+4, 4, FALSE);
+				      tvb, offset2+4, 4, ENC_BIG_ENDIAN);
 
 		  proto_tree_add_item(lmp_object_tree,
 				      hf_lmp_filter[LMPF_VAL_DATA_LINK_REMOTE_IPV4],
-				      tvb, offset2+8, 4, FALSE);
+				      tvb, offset2+8, 4, ENC_BIG_ENDIAN);
 		  l = 12;
 		  break;
 
@@ -1215,9 +1215,9 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					 tvb_get_ntohl(tvb, offset2+8));
 		  proto_tree_add_item(lmp_object_tree,
 				      hf_lmp_filter[LMPF_VAL_DATA_LINK_LOCAL_UNNUM],
-				      tvb, offset2+4, 4, FALSE);
+				      tvb, offset2+4, 4, ENC_BIG_ENDIAN);
 		  proto_tree_add_item(lmp_object_tree, hf_lmp_filter[LMPF_VAL_DATA_LINK_REMOTE_UNNUM],
-				      tvb, offset2+8, 4, FALSE);
+				      tvb, offset2+8, 4, ENC_BIG_ENDIAN);
 		  l = 12;
 		  break;
 
@@ -1231,7 +1231,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		  mylen = tvb_get_guint8(tvb, offset2+l+1);
 		  ti2 = proto_tree_add_item(lmp_object_tree,
 					    hf_lmp_filter[LMPF_VAL_DATA_LINK_SUBOBJ],
-					    tvb, offset2+l, mylen, FALSE);
+					    tvb, offset2+l, mylen, ENC_NA);
 		  lmp_subobj_tree = proto_item_add_subtree(ti2,
 							   lmp_subtree[LMP_TREE_DATA_LINK_SUBOBJ]);
 		  proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l, 1,
@@ -1255,10 +1255,10 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					  tvb_get_ntohieee_float(tvb, offset2+l+8)*8/1000000);
 		      proto_tree_add_item(lmp_subobj_tree,
 					  hf_lmp_filter[LMPF_VAL_DATA_LINK_SUBOBJ_SWITCHING_TYPE],
-					  tvb, offset2+l+2, 1, FALSE);
+					  tvb, offset2+l+2, 1, ENC_BIG_ENDIAN);
 		      proto_tree_add_item(lmp_subobj_tree,
 					  hf_lmp_filter[LMPF_VAL_DATA_LINK_SUBOBJ_LSP_ENCODING],
-					  tvb, offset2+l+3, 1, FALSE);
+					  tvb, offset2+l+3, 1, ENC_BIG_ENDIAN);
 		      proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l+4, 4,
 					  "Minimum Reservable Bandwidth: %.3f Mbps",
 					  tvb_get_ntohieee_float(tvb, offset2+l+4)*8/1000000);
@@ -1750,7 +1750,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		  proto_tree_add_item(lmp_object_tree,
 				      hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_INTERFACE_ID],
-				      tvb, offset2+12, 4, FALSE);
+				      tvb, offset2+12, 4, ENC_BIG_ENDIAN);
 
 		  break;
 
@@ -1865,28 +1865,28 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		  proto_item_append_text(ti, ": IPv4");
 		  proto_tree_add_item(lmp_object_tree,
 				      hf_lmp_filter[LMPF_VAL_LOCAL_LAD_INFO_NODE_ID],
-				      tvb, offset2, 4, FALSE);
+				      tvb, offset2, 4, ENC_BIG_ENDIAN);
 		  proto_tree_add_item(lmp_object_tree,
 				      hf_lmp_filter[LMPF_VAL_LOCAL_LAD_INFO_AREA_ID],
-				      tvb, offset2+4, 4, FALSE);
+				      tvb, offset2+4, 4, ENC_BIG_ENDIAN);
 		  proto_tree_add_item(lmp_object_tree,
 				      hf_lmp_filter[LMPF_VAL_LOCAL_LAD_INFO_TE_LINK_ID],
-				      tvb, offset2+8, 4, FALSE);
+				      tvb, offset2+8, 4, ENC_BIG_ENDIAN);
 		  proto_tree_add_item(lmp_object_tree,
 				      hf_lmp_filter[LMPF_VAL_LOCAL_LAD_INFO_COMPONENT_ID],
-				      tvb, offset2+12, 4, FALSE);
+				      tvb, offset2+12, 4, ENC_BIG_ENDIAN);
 		  proto_tree_add_item(lmp_object_tree,
 				      hf_lmp_filter[LMPF_VAL_LOCAL_LAD_INFO_SC_PC_ID],
-				      tvb, offset2+16, 4, FALSE);
+				      tvb, offset2+16, 4, ENC_BIG_ENDIAN);
 		  proto_tree_add_item(lmp_object_tree,
 				      hf_lmp_filter[LMPF_VAL_LOCAL_LAD_INFO_SC_PC_ADDR],
-				      tvb, offset2+20, 4, FALSE);
+				      tvb, offset2+20, 4, ENC_BIG_ENDIAN);
 		  l = 24;
 		  while (l < obj_length - 4) {
 		    mylen = tvb_get_guint8(tvb, offset2+l+1);
 		    ti2 = proto_tree_add_item(lmp_object_tree,
 					    hf_lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ],
-					    tvb, offset2+l, mylen, FALSE);
+					    tvb, offset2+l, mylen, ENC_NA);
 		    lmp_subobj_tree = proto_item_add_subtree(ti2,
 							     lmp_subtree[LMP_TREE_LAD_INFO_SUBOBJ]);
 		    proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l, 1,
@@ -1912,13 +1912,13 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					    tvb_ip_to_str(tvb, offset2+l+12));
 			proto_tree_add_item(lmp_subobj_tree,
 					    hf_lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_PRI_AREA_ID],
-					    tvb, offset2+l+4, 4, FALSE);
+					    tvb, offset2+l+4, 4, ENC_BIG_ENDIAN);
 			proto_tree_add_item(lmp_subobj_tree,
 					    hf_lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_PRI_RC_PC_ID],
-					    tvb, offset2+l+8, 4, FALSE);
+					    tvb, offset2+l+8, 4, ENC_BIG_ENDIAN);
 			proto_tree_add_item(lmp_subobj_tree,
 					    hf_lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_PRI_RC_PC_ADDR],
-					    tvb, offset2+l+12, 4, FALSE);
+					    tvb, offset2+l+12, 4, ENC_BIG_ENDIAN);
 			break;
 
 		      case 251:
@@ -1930,13 +1930,13 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					    tvb_ip_to_str(tvb, offset2+l+12));
 			proto_tree_add_item(lmp_subobj_tree,
 					    hf_lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_SEC_AREA_ID],
-					    tvb, offset2+l+4, 4, FALSE);
+					    tvb, offset2+l+4, 4, ENC_BIG_ENDIAN);
 			proto_tree_add_item(lmp_subobj_tree,
 					    hf_lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_SEC_RC_PC_ID],
-					    tvb, offset2+l+8, 4, FALSE);
+					    tvb, offset2+l+8, 4, ENC_BIG_ENDIAN);
 			proto_tree_add_item(lmp_subobj_tree,
 					    hf_lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_SEC_RC_PC_ADDR],
-					    tvb, offset2+l+12, 4, FALSE);
+					    tvb, offset2+l+12, 4, ENC_BIG_ENDIAN);
 			break;
 
 		      case 252:
@@ -1948,10 +1948,10 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						       gmpls_lsp_enc_rvals, "Unknown (%d)"));
 			proto_tree_add_item(lmp_subobj_tree,
 					    hf_lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_SWITCHING_TYPE],
-					    tvb, offset2+l+4, 1, FALSE);
+					    tvb, offset2+l+4, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(lmp_subobj_tree,
 					    hf_lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_LSP_ENCODING],
-					    tvb, offset2+l+5, 1, FALSE);
+					    tvb, offset2+l+5, 1, ENC_BIG_ENDIAN);
 
 			for (j = 0; j < (mylen - 8) / 4; j++) {
 			  proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l+8+(j*4), 4,

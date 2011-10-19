@@ -589,7 +589,7 @@ mikey_dissector_lookup(const struct mikey_dissector_entry *map, int type)
 static void
 add_next_payload(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-	proto_tree_add_item(tree, hf_mikey[POS_NEXT_PAYLOAD], tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_mikey[POS_NEXT_PAYLOAD], tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 
@@ -612,9 +612,9 @@ dissect_payload_cs_id_srtp(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo
 		id_ti = proto_tree_add_none_format(tree, hf_mikey[POS_ID_SRTP], tvb, 0, 9, "SRTP ID: Policy: %d, SSRC: 0x%x, ROC: 0x%x", no, ssrc, roc);
 		id_tree = proto_item_add_subtree(id_ti, ett_mikey_hdr_id);
 
-		proto_tree_add_item(id_tree, hf_mikey[POS_ID_SRTP_NO], tvb, 0, 1, FALSE);
-		proto_tree_add_item(id_tree, hf_mikey[POS_ID_SRTP_SSRC], tvb, 1, 4, FALSE);
-		proto_tree_add_item(id_tree, hf_mikey[POS_ID_SRTP_ROC], tvb, 5, 4, FALSE);
+		proto_tree_add_item(id_tree, hf_mikey[POS_ID_SRTP_NO], tvb, 0, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(id_tree, hf_mikey[POS_ID_SRTP_SSRC], tvb, 1, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(id_tree, hf_mikey[POS_ID_SRTP_ROC], tvb, 5, 4, ENC_BIG_ENDIAN);
 	}
 	return 9;
 }
@@ -656,21 +656,21 @@ dissect_payload_hdr(mikey_t *mikey, tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 	if (tree) {
 		proto_tree_add_item(tree, hf_mikey[POS_HDR_VERSION],
-					tvb, offset+0, 1, FALSE);
+					tvb, offset+0, 1, ENC_BIG_ENDIAN);
 
-		proto_tree_add_item(tree, hf_mikey[POS_HDR_DATA_TYPE], tvb, offset+1, 1, FALSE);
+		proto_tree_add_item(tree, hf_mikey[POS_HDR_DATA_TYPE], tvb, offset+1, 1, ENC_BIG_ENDIAN);
 		parent = proto_tree_get_parent(tree);
 		proto_item_append_text(parent, " Type: %s", val_to_str(mikey->type, data_type_vals, "Unknown"));
 
 		add_next_payload(tvb, tree, offset+2);
 
-		proto_tree_add_item(tree, hf_mikey[POS_HDR_V], tvb, offset+3, 1, FALSE);
-		proto_tree_add_item(tree, hf_mikey[POS_HDR_PRF_FUNC], tvb, offset+3, 1, FALSE);
+		proto_tree_add_item(tree, hf_mikey[POS_HDR_V], tvb, offset+3, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_mikey[POS_HDR_PRF_FUNC], tvb, offset+3, 1, ENC_BIG_ENDIAN);
 
-		proto_tree_add_item(tree, hf_mikey[POS_HDR_CSB_ID], tvb, offset+4, 4, FALSE);
+		proto_tree_add_item(tree, hf_mikey[POS_HDR_CSB_ID], tvb, offset+4, 4, ENC_BIG_ENDIAN);
 
-		proto_tree_add_item(tree, hf_mikey[POS_HDR_CS_COUNT], tvb, offset+8, 1, FALSE);
-		proto_tree_add_item(tree, hf_mikey[POS_HDR_CS_ID_MAP_TYPE], tvb, offset+9, 1, FALSE);
+		proto_tree_add_item(tree, hf_mikey[POS_HDR_CS_COUNT], tvb, offset+8, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_mikey[POS_HDR_CS_ID_MAP_TYPE], tvb, offset+9, 1, ENC_BIG_ENDIAN);
 	}
 
 	offset += 10;
@@ -709,21 +709,21 @@ dissect_payload_kemac(mikey_t *mikey, tvbuff_t *tvb, packet_info *pinfo, proto_t
 	mac_alg = tvb_get_guint8(tvb, offset+4+encr_length);
 
 	if (tree) {
-		proto_tree_add_item(tree, hf_mikey[POS_KEMAC_ENCR_ALG], tvb, 1, 1, FALSE);
-		proto_tree_add_item(tree, hf_mikey[POS_KEMAC_ENCR_DATA_LEN], tvb, 2, 2, FALSE);
+		proto_tree_add_item(tree, hf_mikey[POS_KEMAC_ENCR_ALG], tvb, 1, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_mikey[POS_KEMAC_ENCR_DATA_LEN], tvb, 2, 2, ENC_BIG_ENDIAN);
 		/* TODO: Add key decode for MIKEY_TYPE_PK_INIT and MIKEY_TYPE_RSA_R_RESP with NULL encryption */
 		if (encr_alg == ENCR_NULL && mikey->type == MIKEY_TYPE_PSK_INIT && encr_length > 0) {
 			/* We can decode easily the Key Data if NULL encryption is used */
-			key_data_item = proto_tree_add_item(tree, hf_mikey_pl[PL_KEY_DATA], tvb, 4, encr_length, FALSE);
+			key_data_item = proto_tree_add_item(tree, hf_mikey_pl[PL_KEY_DATA], tvb, 4, encr_length, ENC_NA);
 			key_data_tree = proto_item_add_subtree(key_data_item, ett_mikey_enc_data);
 
 			sub_tvb = tvb_new_subset(tvb, offset+4, encr_length, encr_length);
 			dissect_payload(PL_KEY_DATA, mikey, sub_tvb, pinfo, key_data_tree);
 		} else {
 			/* If Key Data is encrypted, show only the encr_data */
-			proto_tree_add_item(tree, hf_mikey[POS_KEMAC_ENCR_DATA], tvb, 4, encr_length, FALSE);
+			proto_tree_add_item(tree, hf_mikey[POS_KEMAC_ENCR_DATA], tvb, 4, encr_length, ENC_NA);
 		}
-		proto_tree_add_item(tree, hf_mikey[POS_KEMAC_MAC_ALG], tvb, 4+encr_length, 1, FALSE);
+		proto_tree_add_item(tree, hf_mikey[POS_KEMAC_MAC_ALG], tvb, 4+encr_length, 1, ENC_BIG_ENDIAN);
 	}
 
 	switch (mac_alg) {
@@ -739,7 +739,7 @@ dissect_payload_kemac(mikey_t *mikey, tvbuff_t *tvb, packet_info *pinfo, proto_t
 
 	tvb_ensure_bytes_exist(tvb, offset+4+encr_length+1, mac_length);
 	if (tree) {
-		proto_tree_add_item(tree, hf_mikey[POS_KEMAC_MAC], tvb, 4+encr_length+1, mac_length, FALSE);
+		proto_tree_add_item(tree, hf_mikey[POS_KEMAC_MAC], tvb, 4+encr_length+1, mac_length, ENC_NA);
 	}
 
 	return 4+encr_length+1+mac_length;
@@ -756,14 +756,14 @@ dissect_payload_pke(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, p
 		tvb_get_guint8(tvb, offset+2);
 
 	if (tree) {
-		proto_tree_add_item(tree, hf_mikey[POS_PKE_C], tvb, 1, 2, FALSE);
+		proto_tree_add_item(tree, hf_mikey[POS_PKE_C], tvb, 1, 2, ENC_BIG_ENDIAN);
 
-		proto_tree_add_item(tree, hf_mikey[POS_PKE_DATA_LEN], tvb, 1, 2, FALSE);
+		proto_tree_add_item(tree, hf_mikey[POS_PKE_DATA_LEN], tvb, 1, 2, ENC_BIG_ENDIAN);
 	}
 
 	tvb_ensure_bytes_exist(tvb, offset+3, length);
 	if (tree) {
-		proto_tree_add_item(tree, hf_mikey[POS_PKE_DATA], tvb, 3, length, FALSE);
+		proto_tree_add_item(tree, hf_mikey[POS_PKE_DATA], tvb, 3, length, ENC_NA);
 	}
 	return 3 + length;
 }
@@ -797,10 +797,10 @@ dissect_payload_dh(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, pr
 	kv = tvb_get_guint8(tvb, offset+2+dh_length) & 0x0f;
 
 	if (tree) {
-		proto_tree_add_item(tree, hf_mikey[POS_DH_GROUP], tvb, 1, 1, FALSE);
-		proto_tree_add_item(tree, hf_mikey[POS_DH_VALUE], tvb, 2, dh_length, FALSE);
-		proto_tree_add_item(tree, hf_mikey[POS_DH_RESERV], tvb, 2+dh_length, 1, FALSE);
-		proto_tree_add_item(tree, hf_mikey[POS_DH_KV], tvb, 2+dh_length, 1, FALSE);
+		proto_tree_add_item(tree, hf_mikey[POS_DH_GROUP], tvb, 1, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_mikey[POS_DH_VALUE], tvb, 2, dh_length, ENC_NA);
+		proto_tree_add_item(tree, hf_mikey[POS_DH_RESERV], tvb, 2+dh_length, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_mikey[POS_DH_KV], tvb, 2+dh_length, 1, ENC_BIG_ENDIAN);
 	}
 
 	if (kv != 0) {
@@ -820,13 +820,13 @@ dissect_payload_sign(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, 
 	length = ((tvb_get_guint8(tvb, offset+0) & 0x0f) << 8) + tvb_get_guint8(tvb, offset+1);
 
 	if (tree) {
-		proto_tree_add_item(tree, hf_mikey[POS_SIGN_S_TYPE], tvb, 0, 2, FALSE);
+		proto_tree_add_item(tree, hf_mikey[POS_SIGN_S_TYPE], tvb, 0, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_uint(tree, hf_mikey[POS_SIGNATURE_LEN], tvb, 0, 2, length);
 	}
 
 	tvb_ensure_bytes_exist(tvb, offset+2, length);
 	if (tree) {
-		proto_tree_add_item(tree, hf_mikey[POS_SIGNATURE], tvb, 2, length, FALSE);
+		proto_tree_add_item(tree, hf_mikey[POS_SIGNATURE], tvb, 2, length, ENC_NA);
 	}
 	return 2 + length;
 }
@@ -845,7 +845,7 @@ dissect_payload_t(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, pro
 	if (tree) {
 		parent = proto_tree_get_parent(tree);
 		proto_item_append_text(parent, " Type: %s", val_to_str(ts_type, ts_type_vals, "Unknown"));
-		proto_tree_add_item(tree, hf_mikey[POS_TS_TYPE], tvb, offset+1, 1, FALSE);
+		proto_tree_add_item(tree, hf_mikey[POS_TS_TYPE], tvb, offset+1, 1, ENC_BIG_ENDIAN);
 	}
 
 	switch (ts_type) {
@@ -877,13 +877,13 @@ dissect_payload_id(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, pr
 	type = tvb_get_guint8(tvb, offset+1);
 	length = tvb_get_ntohs(tvb, offset+2);
 	if (tree) {
-		proto_tree_add_item(tree, hf_mikey[POS_ID_TYPE], tvb, 1, 1, FALSE);
-		proto_tree_add_item(tree, hf_mikey[POS_ID_LEN], tvb, 2, 2, FALSE);
+		proto_tree_add_item(tree, hf_mikey[POS_ID_TYPE], tvb, 1, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_mikey[POS_ID_LEN], tvb, 2, 2, ENC_BIG_ENDIAN);
 	}
 
 	tvb_ensure_bytes_exist(tvb, offset+4, length);
 	if (tree) {
-		proto_tree_add_item(tree, hf_mikey[POS_ID], tvb, 4, length, FALSE);
+		proto_tree_add_item(tree, hf_mikey[POS_ID], tvb, 4, length, ENC_ASCII|ENC_NA);
 
 		parent = proto_tree_get_parent(tree);
 		proto_item_append_text(parent, " %s: %s", val_to_str(type, id_type_vals, "Unknown"), tvb_get_ephemeral_string(tvb, 4, length));
@@ -911,8 +911,8 @@ dissect_payload_cert(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo, prot
 
 	if (tree) {
 		parent = proto_tree_get_parent(tree);
-		proto_tree_add_item(tree, hf_mikey[POS_CERT_TYPE], tvb, 1, 1, FALSE);
-		proto_tree_add_item(tree, hf_mikey[POS_CERT_LEN], tvb, 1, 2, FALSE);
+		proto_tree_add_item(tree, hf_mikey[POS_CERT_TYPE], tvb, 1, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_mikey[POS_CERT_LEN], tvb, 1, 2, ENC_BIG_ENDIAN);
 
 		proto_item_append_text(parent, " Type: %s", val_to_str(type, cert_type_vals, "Unknown"));
 	}
@@ -934,7 +934,7 @@ dissect_payload_v(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, pro
 	alg = tvb_get_guint8(tvb, offset+1);
 
 	if (tree) {
-		proto_tree_add_item(tree, hf_mikey[POS_V_AUTH_ALG], tvb, 1, 1, FALSE);
+		proto_tree_add_item(tree, hf_mikey[POS_V_AUTH_ALG], tvb, 1, 1, ENC_BIG_ENDIAN);
 	}
 
 	switch (alg) {
@@ -950,7 +950,7 @@ dissect_payload_v(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, pro
 
 	tvb_ensure_bytes_exist(tvb, offset+2, length);
 	if (tree) {
-		proto_tree_add_item(tree, hf_mikey[POS_V_DATA], tvb, 2, length, FALSE);
+		proto_tree_add_item(tree, hf_mikey[POS_V_DATA], tvb, 2, length, ENC_NA);
 	}
 
 	return 2 + length;
@@ -985,9 +985,9 @@ dissect_payload_sp_param(enum sp_prot_t proto, tvbuff_t *tvb, proto_tree *tree)
 		param_ti = proto_tree_add_item(tree, hfindex, tvb, 2, length, FALSE);
 		param_tree = proto_item_add_subtree(param_ti, ett_mikey_sp_param);
 
-		proto_tree_add_item(param_tree, hf_mikey[POS_SP_PARAM_F_TYPE], tvb, 0, 1, FALSE);
-		proto_tree_add_item(param_tree, hf_mikey[POS_SP_PARAM_F_LEN], tvb, 1, 1, FALSE);
-		proto_tree_add_item(param_tree, hf_mikey[POS_SP_PARAM_F_VALUE], tvb, 2, length, FALSE);
+		proto_tree_add_item(param_tree, hf_mikey[POS_SP_PARAM_F_TYPE], tvb, 0, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(param_tree, hf_mikey[POS_SP_PARAM_F_LEN], tvb, 1, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(param_tree, hf_mikey[POS_SP_PARAM_F_VALUE], tvb, 2, length, ENC_NA);
 	}
 
 	return 2+length;
@@ -1010,9 +1010,9 @@ dissect_payload_sp(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, pr
 
 	if (tree) {
 		parent = proto_tree_get_parent(tree);
-		proto_tree_add_item(tree, hf_mikey[POS_SP_NO], tvb, 1, 1, FALSE);
-		proto_tree_add_item(tree, hf_mikey[POS_SP_TYPE], tvb, 2, 1, FALSE);
-		proto_tree_add_item(tree, hf_mikey[POS_SP_PARAM_LEN], tvb, 3, 2, FALSE);
+		proto_tree_add_item(tree, hf_mikey[POS_SP_NO], tvb, 1, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_mikey[POS_SP_TYPE], tvb, 2, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_mikey[POS_SP_PARAM_LEN], tvb, 3, 2, ENC_BIG_ENDIAN);
 
 		proto_item_append_text(parent, " No: %d, Type: %s", no, val_to_str(type, sp_prot_type_vals, "Unknown"));
 	}
@@ -1049,13 +1049,13 @@ dissect_payload_rand(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, 
 	length = tvb_get_guint8(tvb, offset+1);
 
 	if (tree) {
-		proto_tree_add_item(tree, hf_mikey[POS_RAND_LEN], tvb, 1, 1, FALSE);
+		proto_tree_add_item(tree, hf_mikey[POS_RAND_LEN], tvb, 1, 1, ENC_BIG_ENDIAN);
 	}
 
 	tvb_ensure_bytes_exist(tvb, offset+2, length);
 
 	if (tree) {
-		proto_tree_add_item(tree, hf_mikey[POS_RAND], tvb, 2, length, FALSE);
+		proto_tree_add_item(tree, hf_mikey[POS_RAND], tvb, 2, length, ENC_NA);
 	}
 	return 2 + length;
 }
@@ -1070,8 +1070,8 @@ dissect_payload_err(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, p
 	err_no = tvb_get_guint8(tvb, 1);
 
 	if (tree) {
-		proto_tree_add_item(tree, hf_mikey[POS_ERR_NO], tvb, 1, 1, FALSE);
-		proto_tree_add_item(tree, hf_mikey[POS_ERR_RESERVED], tvb, 2, 2, FALSE);
+		proto_tree_add_item(tree, hf_mikey[POS_ERR_NO], tvb, 1, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_mikey[POS_ERR_RESERVED], tvb, 2, 2, ENC_NA);
 	}
 	parent = proto_tree_get_parent(tree);
 	proto_item_append_text(parent, ": %s", val_to_str(err_no, err_vals, "Unknown"));
@@ -1102,10 +1102,10 @@ dissect_payload_keydata(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U
 	offset += 4;
 
 	if (tree) {
-		proto_tree_add_item(tree, hf_mikey[POS_KEY_DATA_TYPE], tvb, 1, 1, FALSE);
-		proto_tree_add_item(tree, hf_mikey[POS_KEY_DATA_KV], tvb, 1, 1, FALSE);
-		proto_tree_add_item(tree, hf_mikey[POS_KEY_DATA_LEN], tvb, 2, 2, FALSE);
-		proto_tree_add_item(tree, hf_mikey[POS_KEY_DATA], tvb, 4, data_len, FALSE);
+		proto_tree_add_item(tree, hf_mikey[POS_KEY_DATA_TYPE], tvb, 1, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_mikey[POS_KEY_DATA_KV], tvb, 1, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_mikey[POS_KEY_DATA_LEN], tvb, 2, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_mikey[POS_KEY_DATA], tvb, 4, data_len, ENC_NA);
 
 		parent = proto_tree_get_parent(tree);
 		proto_item_append_text(parent, " Type: %s", val_to_str(key_type, kd_vals, "Unknown"));
@@ -1117,8 +1117,8 @@ dissect_payload_keydata(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U
 			salt_len = tvb_get_ntohs(tvb, offset);
 			if (salt_len>0) {
 				tvb_ensure_bytes_exist(tvb, offset+2, salt_len);
-				proto_tree_add_item(tree, hf_mikey[POS_KEY_SALT_LEN], tvb, offset, 2, FALSE);
-				proto_tree_add_item(tree, hf_mikey[POS_KEY_SALT], tvb, offset+2, salt_len, FALSE);
+				proto_tree_add_item(tree, hf_mikey[POS_KEY_SALT_LEN], tvb, offset, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tree, hf_mikey[POS_KEY_SALT], tvb, offset+2, salt_len, ENC_NA);
 			}
 			offset += 2+salt_len;
 		}
@@ -1127,28 +1127,28 @@ dissect_payload_keydata(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U
 		if (kv_type == KV_INTERVAL) {
 			tvb_ensure_bytes_exist(tvb, offset, 1);
 			kv_from_len = tvb_get_guint8(tvb, offset);
-			proto_tree_add_item(tree, hf_mikey[POS_KEY_KV_FROM_LEN], tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_mikey[POS_KEY_KV_FROM_LEN], tvb, offset, 1, ENC_BIG_ENDIAN);
 			if (kv_from_len > 0) {
 				tvb_ensure_bytes_exist(tvb, offset+1, kv_from_len);
-				proto_tree_add_item(tree, hf_mikey[POS_KEY_KV_FROM], tvb, offset+1, kv_from_len, FALSE);
+				proto_tree_add_item(tree, hf_mikey[POS_KEY_KV_FROM], tvb, offset+1, kv_from_len, ENC_NA);
 			}
 			offset += 1+kv_from_len;
 
 			tvb_ensure_bytes_exist(tvb, offset, 1);
 			kv_to_len = tvb_get_guint8(tvb, offset);
-			proto_tree_add_item(tree, hf_mikey[POS_KEY_KV_TO_LEN], tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_mikey[POS_KEY_KV_TO_LEN], tvb, offset, 1, ENC_BIG_ENDIAN);
 			if (kv_to_len > 0) {
 				tvb_ensure_bytes_exist(tvb, offset+1, kv_to_len);
-				proto_tree_add_item(tree, hf_mikey[POS_KEY_KV_TO], tvb, offset+1, kv_to_len, FALSE);
+				proto_tree_add_item(tree, hf_mikey[POS_KEY_KV_TO], tvb, offset+1, kv_to_len, ENC_NA);
 			}
 			offset += 1+kv_to_len;
 		} else if (kv_type == KV_SPI) {
 			tvb_ensure_bytes_exist(tvb, offset, 1);
 			kv_spi_len = tvb_get_guint8(tvb, offset);
-			proto_tree_add_item(tree, hf_mikey[POS_KEY_KV_SPI_LEN], tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_mikey[POS_KEY_KV_SPI_LEN], tvb, offset, 1, ENC_BIG_ENDIAN);
 			if (kv_spi_len > 0) {
 				tvb_ensure_bytes_exist(tvb, offset+1, kv_spi_len);
-				proto_tree_add_item(tree, hf_mikey[POS_KEY_KV_SPI], tvb, offset+1, kv_spi_len, FALSE);
+				proto_tree_add_item(tree, hf_mikey[POS_KEY_KV_SPI], tvb, offset+1, kv_spi_len, ENC_NA);
 			}
 			offset += 1+kv_spi_len;
 		}
@@ -1169,8 +1169,8 @@ dissect_payload_general_ext(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinf
 	data_len = tvb_get_ntohs(tvb, offset+2);
 
 	if (tree) {
-		proto_tree_add_item(tree, hf_mikey[POS_GENERAL_EXT_TYPE], tvb, 1, 1, FALSE);
-		proto_tree_add_item(tree, hf_mikey[POS_GENERAL_EXT_LEN], tvb, 2, 2, FALSE);
+		proto_tree_add_item(tree, hf_mikey[POS_GENERAL_EXT_TYPE], tvb, 1, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_mikey[POS_GENERAL_EXT_LEN], tvb, 2, 2, ENC_BIG_ENDIAN);
 	}
 
 	tvb_ensure_bytes_exist(tvb, offset+3, data_len);
@@ -1180,9 +1180,9 @@ dissect_payload_general_ext(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinf
 		parent = proto_tree_get_parent(tree);
 		if (type==1) {
 			/* For SDP-IDs, show a string instead of raw bytes */
-			proto_tree_add_item(tree, hf_mikey[POS_GENERAL_EXT_VALUE], tvb, 4, data_len, FALSE);
+			proto_tree_add_item(tree, hf_mikey[POS_GENERAL_EXT_VALUE], tvb, 4, data_len, ENC_ASCII|ENC_NA);
 		} else {
-			proto_tree_add_item(tree, hf_mikey[POS_GENERAL_EXT_DATA], tvb, 4, data_len, FALSE);
+			proto_tree_add_item(tree, hf_mikey[POS_GENERAL_EXT_DATA], tvb, 4, data_len, ENC_NA);
 		}
 		proto_item_append_text(parent, " Type: %s", val_to_str(type, genext_type_vals, "Unknown"));
 	}

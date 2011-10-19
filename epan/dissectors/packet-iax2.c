@@ -1123,7 +1123,7 @@ static proto_item *dissect_datetime_ie(tvbuff_t *tvb, guint32 offset, proto_tree
   guint32 ie_val;
   nstime_t datetime;
 
-  proto_tree_add_item (ies_tree, hf_iax2_ies[IAX_IE_DATETIME], tvb, offset + 2, 4, FALSE);
+  proto_tree_add_item (ies_tree, hf_iax2_ies[IAX_IE_DATETIME], tvb, offset + 2, 4, ENC_BIG_ENDIAN);
   ie_val = tvb_get_ntohl(tvb, offset+2);
 
   /* who's crazy idea for a time encoding was this? */

@@ -988,7 +988,7 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_text(ospf_header_tree, tvb, 0, 1, "OSPF Version: %u",
                             version);
         proto_tree_add_item(ospf_header_tree, hf_ospf_filter[OSPFF_MSG_TYPE],
-                            tvb, 1, 1, FALSE);
+                            tvb, 1, 1, ENC_BIG_ENDIAN);
         if (ospf_msg_type_to_filter(packet_type) != -1) {
             hidden_item = proto_tree_add_item(ospf_header_tree,
                                               hf_ospf_filter[ospf_msg_type_to_filter(packet_type)],
@@ -998,7 +998,7 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_text(ospf_header_tree, tvb, 2, 2, "Packet Length: %u",
                             ospflen);
         proto_tree_add_item(ospf_header_tree, hf_ospf_filter[OSPFF_SRC_ROUTER],
-                            tvb, 4, 4, FALSE);
+                            tvb, 4, 4, ENC_BIG_ENDIAN);
         areaid=tvb_get_ntohl(tvb,8);
         proto_tree_add_text(ospf_header_tree, tvb, 8, 4, "Area ID: %s%s",
                             tvb_ip_to_str(tvb, 8), areaid == 0 ? " (Backbone)" : "");
@@ -1275,31 +1275,31 @@ dissect_ospfv3_lls_tlv(tvbuff_t *tvb, int offset, proto_tree *tree)
     switch(type) {
     case LLS_V3_EXT_OPT:
         ti = proto_tree_add_item(tree, hf_ospf_filter[OSPFF_V3_LLS_EXT_OPTIONS_TLV], tvb,
-                                 offset, length + 4, FALSE);
+                                 offset, length + 4, ENC_NA);
        break;
     case LLS_V3_STATE_CHECK:
         ti = proto_tree_add_item(tree, hf_ospf_filter[OSPFF_V3_LLS_STATE_TLV], tvb,
-                                 offset, length + 4, FALSE);
+                                 offset, length + 4, ENC_NA);
         break;
     case LLS_V3_NBR_DROP:
         ti = proto_tree_add_item(tree, hf_ospf_filter[OSPFF_V3_LLS_DROP_TLV], tvb,
-                                 offset, length + 4, FALSE);
+                                 offset, length + 4, ENC_NA);
         break;
     case LLS_V3_RELAYS:
         ti = proto_tree_add_item(tree, hf_ospf_filter[OSPFF_V3_LLS_RELAY_TLV], tvb,
-                                 offset, length + 4, FALSE);
+                                 offset, length + 4, ENC_NA);
         break;
     case LLS_V3_WILLING:
         ti = proto_tree_add_item(tree, hf_ospf_filter[OSPFF_V3_LLS_WILLINGNESS_TLV], tvb,
-                                 offset, length + 4, FALSE);
+                                 offset, length + 4, ENC_NA);
         break;
     case LLS_V3_RQST_FROM:
          ti = proto_tree_add_item(tree, hf_ospf_filter[OSPFF_V3_LLS_RF_TLV], tvb,
-                                  offset, length + 4, FALSE);
+                                  offset, length + 4, ENC_NA);
          break;
     case LLS_V3_FULL_STATE:
         ti = proto_tree_add_item(tree, hf_ospf_filter[OSPFF_V3_LLS_FSF_TLV], tvb,
-                                 offset, length + 4, FALSE);
+                                 offset, length + 4, ENC_NA);
         break;
     default:
         ti = proto_tree_add_text(tree, tvb, offset, length + 4, "%s",
@@ -1324,7 +1324,7 @@ dissect_ospfv3_lls_tlv(tvbuff_t *tvb, int offset, proto_tree *tree)
         break;
     case LLS_V3_STATE_CHECK:
         proto_tree_add_item(ospf_lls_tlv_tree, hf_ospf_filter[OSPFF_V3_LLS_STATE_SCS],
-                            tvb, offset+4, 2, FALSE);
+                            tvb, offset+4, 2, ENC_BIG_ENDIAN);
 
         dissect_ospf_bitfield(ospf_lls_tlv_tree, tvb, offset + 6,
                               &bfinfo_v3_lls_state_options);
@@ -1342,7 +1342,7 @@ dissect_ospfv3_lls_tlv(tvbuff_t *tvb, int offset, proto_tree *tree)
     case LLS_V3_RELAYS:
         relays_added = tvb_get_guint8(tvb, offset+4);
         proto_tree_add_item(ospf_lls_tlv_tree, hf_ospf_filter[OSPFF_V3_LLS_RELAY_ADDED],
-                            tvb, offset+4, 1, FALSE);
+                            tvb, offset+4, 1, ENC_BIG_ENDIAN);
         dissect_ospf_bitfield(ospf_lls_tlv_tree, tvb, offset + 5,
                               &bfinfo_v3_lls_relay_options);
         offset += 8;
@@ -1362,7 +1362,7 @@ dissect_ospfv3_lls_tlv(tvbuff_t *tvb, int offset, proto_tree *tree)
         break;
     case LLS_V3_WILLING:
         proto_tree_add_item(ospf_lls_tlv_tree, hf_ospf_filter[OSPFF_V3_LLS_WILLINGNESS],
-                            tvb, offset+4, 1, FALSE);
+                            tvb, offset+4, 1, ENC_BIG_ENDIAN);
 
         break;
     case LLS_V3_RQST_FROM:
@@ -1573,7 +1573,7 @@ dissect_ospf_ls_req(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version,
 
         case OSPF_VERSION_2:
             proto_tree_add_item(ospf_lsr_tree, hf_ospf_filter[OSPFF_LS_TYPE],
-                                tvb, offset, 4, FALSE);
+                                tvb, offset, 4, ENC_BIG_ENDIAN);
             break;
         case OSPF_VERSION_3:
             reserved = tvb_get_ntohs(tvb, offset);
@@ -1590,7 +1590,7 @@ dissect_ospf_ls_req(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version,
         proto_tree_add_text(ospf_lsr_tree, tvb, offset + 4, 4, "Link State ID: %s",
                             tvb_ip_to_str(tvb, offset + 4));
         proto_tree_add_item(ospf_lsr_tree, hf_ospf_filter[OSPFF_ADV_ROUTER],
-                            tvb, offset + 8, 4, FALSE);
+                            tvb, offset + 8, 4, ENC_BIG_ENDIAN);
 
         offset += 12;
     }
@@ -1743,7 +1743,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
     ti = proto_tree_add_text(tree, tvb, offset, length,
                              "MPLS Traffic Engineering LSA");
     hidden_item = proto_tree_add_item(tree, hf_ospf_filter[OSPFF_LS_MPLS],
-                                      tvb, offset, 2, FALSE);
+                                      tvb, offset, 2, ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
     mpls_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls);
 
@@ -1763,7 +1763,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
             proto_tree_add_text(tlv_tree, tvb, offset+2, 2, "TLV Length: %u",
                                 tlv_length);
             proto_tree_add_item(tlv_tree, hf_ospf_filter[OSPFF_LS_MPLS_ROUTERID],
-                                tvb, offset+4, 4, FALSE);
+                                tvb, offset+4, 4, ENC_BIG_ENDIAN);
             break;
 
         case MPLS_TLV_LINK:
@@ -1794,7 +1794,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
                     proto_tree_add_text(stlv_tree, tvb, stlv_offset+2, 2, "TLV Length: %u",
                                         stlv_len);
                     proto_tree_add_item(stlv_tree, hf_ospf_filter[OSPFF_LS_MPLS_LINKTYPE],
-                                        tvb, stlv_offset+4, 1,FALSE);
+                                        tvb, stlv_offset+4, 1,ENC_BIG_ENDIAN);
                     break;
 
                 case MPLS_LINK_ID:
@@ -1807,7 +1807,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
                     proto_tree_add_text(stlv_tree, tvb, stlv_offset+2, 2, "TLV Length: %u",
                                         stlv_len);
                     proto_tree_add_item(stlv_tree, hf_ospf_filter[OSPFF_LS_MPLS_LINKID],
-                                        tvb, stlv_offset+4, 4, FALSE);
+                                        tvb, stlv_offset+4, 4, ENC_BIG_ENDIAN);
                     break;
 
                 case MPLS_LINK_LOCAL_IF:
@@ -1854,7 +1854,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
                     stlv_admingrp = tvb_get_ntohl(tvb, stlv_offset + 4);
                     mask = 1;
                     ti = proto_tree_add_item(stlv_tree, hf_ospf_filter[OSPFF_LS_MPLS_LINKCOLOR],
-                                             tvb, stlv_offset+4, 4, FALSE);
+                                             tvb, stlv_offset+4, 4, ENC_BIG_ENDIAN);
                     stlv_admingrp_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv_admingrp);
                     if (stlv_admingrp_tree == NULL)
                         return;
@@ -1928,7 +1928,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
                                         stlv_len);
 
                     proto_tree_add_item(stlv_tree, hf_ospf_filter[OSPFF_LS_MPLS_BC_MODEL_ID],
-                                        tvb, stlv_offset+4, 1, FALSE);
+                                        tvb, stlv_offset+4, 1, ENC_BIG_ENDIAN);
 
                     /* 3 octets reserved +5, +6 and +7 (all 0x00) */
                     if(tvb_memeql(tvb, stlv_offset+5, allzero, 3) == -1) {
@@ -1980,10 +1980,10 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
                                         stlv_len);
                     proto_tree_add_item(stlv_tree,
                                         hf_ospf_filter[OSPFF_LS_MPLS_LOCAL_IFID],
-                                        tvb, stlv_offset+4, 4, FALSE);
+                                        tvb, stlv_offset+4, 4, ENC_BIG_ENDIAN);
                     proto_tree_add_item(stlv_tree,
                                         hf_ospf_filter[OSPFF_LS_MPLS_REMOTE_IFID],
-                                        tvb, stlv_offset+8, 4, FALSE);
+                                        tvb, stlv_offset+8, 4, ENC_BIG_ENDIAN);
                     break;
 
                 case MPLS_LINK_IF_SWITCHING_DESC:
@@ -2066,7 +2066,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
                                         stlv_len);
                     proto_tree_add_item(stlv_tree,
                                         hf_ospf_filter[OSPFF_LS_OIF_LOCAL_NODE_ID],
-                                        tvb, stlv_offset + 4, 4, FALSE);
+                                        tvb, stlv_offset + 4, 4, ENC_BIG_ENDIAN);
                     break;
 
                 case OIF_REMOTE_NODE_ID:
@@ -2080,7 +2080,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
                                         stlv_len);
                     proto_tree_add_item(stlv_tree,
                                         hf_ospf_filter[OSPFF_LS_OIF_REMOTE_NODE_ID],
-                                        tvb, stlv_offset + 4, 4, FALSE);
+                                        tvb, stlv_offset + 4, 4, ENC_BIG_ENDIAN);
                     break;
 
                 case OIF_SONET_SDH_SWITCHING_CAPABILITY:
@@ -2247,7 +2247,7 @@ static void dissect_ospf_lsa_grace_tlv (tvbuff_t *tvb, int offset,
         tlv_length_with_pad = tlv_length + 4 + ((4 - (tlv_length % 4)) % 4);
 
         tree_item = proto_tree_add_item(tree, hf_ospf_filter[OSPFF_V2_GRACE_TLV], tvb, offset,
-                                        tlv_length_with_pad, FALSE);
+                                        tlv_length_with_pad, ENC_NA);
         tlv_tree = proto_item_add_subtree(tree_item, ett_ospf_lsa_grace_tlv);
         proto_tree_add_text(tlv_tree, tvb, offset, 2, "Type: %s (%u)",
                             val_to_str(tlv_type, grace_tlv_type_vals, "Unknown grace-LSA TLV"), tlv_type);
@@ -2257,14 +2257,14 @@ static void dissect_ospf_lsa_grace_tlv (tvbuff_t *tvb, int offset,
         case GRACE_TLV_PERIOD:
             grace_period = tvb_get_ntohl(tvb, offset + 4);
             grace_tree_item = proto_tree_add_item(tlv_tree, hf_ospf_filter[OSPFF_V2_GRACE_PERIOD], tvb,
-                                                  offset + 4, tlv_length, FALSE);
+                                                  offset + 4, tlv_length, ENC_BIG_ENDIAN);
             proto_item_append_text(grace_tree_item, " seconds");
             proto_item_set_text(tree_item, "Grace Period: %u seconds", grace_period);
             break;
         case GRACE_TLV_REASON:
             restart_reason = tvb_get_guint8(tvb, offset + 4);
             proto_tree_add_item(tlv_tree, hf_ospf_filter[OSPFF_V2_GRACE_REASON], tvb, offset + 4,
-                                tlv_length, FALSE);
+                                tlv_length, ENC_BIG_ENDIAN);
             proto_item_set_text(tree_item, "Restart Reason: %s (%u)",
                                 val_to_str(restart_reason, restart_reason_vals, "Unknown Restart Reason"),
                                 restart_reason);
@@ -2272,7 +2272,7 @@ static void dissect_ospf_lsa_grace_tlv (tvbuff_t *tvb, int offset,
         case GRACE_TLV_IP:
             restart_ip = tvb_get_ipv4(tvb, offset + 4);
             proto_tree_add_item(tlv_tree, hf_ospf_filter[OSPFF_V2_GRACE_IP], tvb, offset + 4,
-                                tlv_length, FALSE);
+                                tlv_length, ENC_BIG_ENDIAN);
             proto_item_set_text(tree_item, "Restart IP: %s (%s)",
                                 get_hostname(restart_ip), ip_to_str((guint8 *)&restart_ip));
             break;
@@ -2362,7 +2362,7 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
     options = tvb_get_guint8 (tvb, offset + 2);
     dissect_ospf_bitfield(ospf_lsa_tree, tvb, offset + 2, &bfinfo_v2_options);
     proto_tree_add_item(ospf_lsa_tree, hf_ospf_filter[OSPFF_LS_TYPE], tvb,
-                        offset + 3, 1, FALSE);
+                        offset + 3, 1, ENC_BIG_ENDIAN);
     if (ospf_ls_type_to_filter(ls_type) != -1) {
         hidden_item = proto_tree_add_item(ospf_lsa_tree,
                                           hf_ospf_filter[ospf_ls_type_to_filter(ls_type)], tvb,
@@ -2387,7 +2387,7 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
             proto_tree_add_text(ospf_lsa_tree, tvb, offset + 5, 1, "Link State ID TE-LSA Reserved: %u",
                                 tvb_get_guint8(tvb, offset + 5));
             proto_tree_add_item(ospf_lsa_tree, hf_ospf_filter[OSPFF_LS_MPLS_TE_INSTANCE],
-                                tvb, offset + 6, 2, FALSE);
+                                tvb, offset + 6, 2, ENC_BIG_ENDIAN);
             break;
 
         default:
@@ -2402,7 +2402,7 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
     }
 
     proto_tree_add_item(ospf_lsa_tree, hf_ospf_filter[OSPFF_ADV_ROUTER],
-                        tvb, offset + 8, 4, FALSE);
+                        tvb, offset + 8, 4, ENC_BIG_ENDIAN);
     proto_tree_add_text(ospf_lsa_tree, tvb, offset + 12, 4, "LS Sequence Number: 0x%08x",
                         tvb_get_ntohl(tvb, offset + 12));
     proto_tree_add_text(ospf_lsa_tree, tvb, offset + 16, 2, "LS Checksum: 0x%04x",
@@ -2679,7 +2679,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
                         tvb_ip_to_str(tvb, offset + 4));
 
     proto_tree_add_item(ospf_lsa_tree, hf_ospf_filter[OSPFF_ADV_ROUTER],
-                        tvb, offset + 8, 4, FALSE);
+                        tvb, offset + 8, 4, ENC_BIG_ENDIAN);
     proto_tree_add_text(ospf_lsa_tree, tvb, offset + 12, 4, "LS Sequence Number: 0x%08x",
                         tvb_get_ntohl(tvb, offset + 12));
     proto_tree_add_text(ospf_lsa_tree, tvb, offset + 16, 2, "LS Checksum: 0x%04x",
