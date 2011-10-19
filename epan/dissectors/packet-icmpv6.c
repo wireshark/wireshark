@@ -1547,7 +1547,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                  * remaining 16 bits indicate the number of 1/64K fractions of a
                  * second.
                  */
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_timestamp, tvb, opt_offset + 2, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_timestamp, tvb, opt_offset + 2, 4, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
                 opt_offset += 8;
                 break;
             case ND_OPT_NONCE: /* Nonce option (14) */
