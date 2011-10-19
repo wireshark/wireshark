@@ -4336,12 +4336,12 @@ dissect_spotlight(tvbuff_t *tvb, proto_tree *tree, gint offset)
 	/* ToC */
 	offset += (gint)toc_offset;
 	if (toc_entries < 1) {
-		item_toc = proto_tree_add_text(tree,
-					       tvb,
-					       offset,
-					       (gint)querylen - (gint)toc_offset,
-					       "Complex types ToC (%u < 1 - bogus)",
-					       toc_entries);
+		proto_tree_add_text(tree,
+				    tvb,
+				    offset,
+				    (gint)querylen - (gint)toc_offset,
+				    "Complex types ToC (%u < 1 - bogus)",
+				    toc_entries);
 		return -1;
 	}
 	toc_entries -= 1;
