@@ -828,11 +828,12 @@ WSLUA_CLASS_DEFINE(PrivateTable,NOP,NOP);
 
 WSLUA_METAMETHOD PrivateTable__tostring(lua_State* L) {
     PrivateTable priv = checkPrivateTable(L,1);
-    GString *key_string = g_string_new ("");
+    GString *key_string;
     GList *keys, *key;
 
     if (!priv) return 0;
 
+    key_string = g_string_new ("");
     keys = g_hash_table_get_keys (priv->table);
     key = g_list_first (keys);
     while (key) {
@@ -899,7 +900,11 @@ static int PrivateTable__newindex(lua_State* L) {
         return 0;
     }
 
-    g_hash_table_replace (priv->table, (gpointer) name, (gpointer) string);
+    if (string) {
+      g_hash_table_replace (priv->table, (gpointer) ep_strdup(name), (gpointer) ep_strdup(string));
+    } else {
+      g_hash_table_remove (priv->table, (gpointer) name);
+    }
 
     return 1;
 }
