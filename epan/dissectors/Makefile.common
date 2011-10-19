@@ -700,7 +700,7 @@ DISSECTOR_SRC = \
 	packet-mrdisc.c		\
 	packet-mrp-mmrp.c	\
 	packet-mrp-msrp.c	\
-	packet-mrp-msrp.c	\
+	packet-mrp-mvrp.c	\
 	packet-ms-mms.c		\
 	packet-msdp.c		\
 	packet-msn-messenger.c	\
