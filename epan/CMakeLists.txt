@@ -782,6 +782,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-mrdisc.c
 	dissectors/packet-mrp-mmrp.c
 	dissectors/packet-mrp-msrp.c
+	dissectors/packet-mrp-mvrp.c
 	dissectors/packet-msdp.c
 	dissectors/packet-msnlb.c
 	dissectors/packet-msn-messenger.c
