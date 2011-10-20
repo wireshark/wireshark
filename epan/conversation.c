@@ -409,21 +409,48 @@ conversation_match_no_addr2_or_port2(gconstpointer v, gconstpointer w)
 }
 
 /*
+ * Free the proto_data.  The conversation itself is se_allocated.
+ */
+void
+free_data_list(gpointer key _U_, gpointer value, gpointer user_data _U_)
+{
+	conversation_t *conv = value;
+
+	/* TODO: se_slist? */
+	g_slist_free(conv->data_list);
+
+	/* Not really necessary, but... */
+	conv->data_list = NULL;
+
+}
+
+/*
  * Destroy all existing conversations
  */
 void
 conversation_cleanup(void)
 {
-	/* The conversation keys are se_ allocated so they are already gone */
+	/*  Clean up the hash tables, but only after freeing any proto_data
+	 *  that may be hanging off the conversations.
+	 *  The conversation keys are se_ allocated so we don't have to clean them up.
+	 */
 	conversation_keys = NULL;
-	if (conversation_hashtable_exact != NULL)
+	if (conversation_hashtable_exact != NULL) {
+		g_hash_table_foreach(conversation_hashtable_exact, free_data_list, NULL);
 		g_hash_table_destroy(conversation_hashtable_exact);
-	if (conversation_hashtable_no_addr2 != NULL)
+	}
+	if (conversation_hashtable_no_addr2 != NULL) {
+		g_hash_table_foreach(conversation_hashtable_no_addr2, free_data_list, NULL);
 		g_hash_table_destroy(conversation_hashtable_no_addr2);
-	if (conversation_hashtable_no_port2 != NULL)
+	}
+	if (conversation_hashtable_no_port2 != NULL) {
+		g_hash_table_foreach(conversation_hashtable_no_port2, free_data_list, NULL);
 		g_hash_table_destroy(conversation_hashtable_no_port2);
-	if (conversation_hashtable_no_addr2_or_port2 != NULL)
+	}
+	if (conversation_hashtable_no_addr2_or_port2 != NULL) {
+		g_hash_table_foreach(conversation_hashtable_no_addr2_or_port2, free_data_list, NULL);
 		g_hash_table_destroy(conversation_hashtable_no_addr2_or_port2);
+	}
 
 	conversation_hashtable_exact = NULL;
 	conversation_hashtable_no_addr2 = NULL;
