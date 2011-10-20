@@ -32,13 +32,24 @@ use Getopt::Long;
 # Conversion "Requests"
 
 # Standard conversions
-my $searchReplaceHRef =
+my $searchReplaceFalseTrueHRef =
   {
    "FALSE"              => "ENC_BIG_ENDIAN",
    "0"                  => "ENC_BIG_ENDIAN",
    "TRUE"               => "ENC_LITTLE_ENDIAN",
    "1"                  => "ENC_LITTLE_ENDIAN"
   };
+
+my $searchReplaceEncNAHRef =
+   {
+    "FALSE"             => "ENC_NA",
+    "0"                 => "ENC_NA",
+    "TRUE"              => "ENC_NA",
+    "1"                 => "ENC_NA",
+    "ENC_LITTLE_ENDIAN" => "ENC_NA",
+    "ENC_BIG_ENDIAN"    => "ENC_NA"
+   };
+
 
 # Conversion "request" structure
 # (
@@ -48,28 +59,21 @@ my $searchReplaceHRef =
 
 my @types_NA  =
   (
-   [ qw (FT_NONE FT_BYTES FT_IPv6 FT_IPXNET FT_OID)],
-   {
-    "FALSE"             => "ENC_NA",
-    "0"                 => "ENC_NA",
-    "TRUE"              => "ENC_NA",
-    "1"                 => "ENC_NA",
-    "ENC_LITTLE_ENDIAN" => "ENC_NA",
-    "ENC_BIG_ENDIAN"    => "ENC_NA"
-   }
+   [ qw (FT_NONE FT_BYTES FT_ETHER FT_IPv6 FT_IPXNET FT_OID)],
+   $searchReplaceEncNAHRef
   );
 
 my @types_INT =
   (
    [ qw (FT_UINT8 FT_UINT16 FT_UINT24 FT_UINT32 FT_UINT64 FT_INT8
          FT_INT16 FT_INT24 FT_INT32 FT_INT64 FT_FLOAT FT_DOUBLE)],
-   $searchReplaceHRef
+   $searchReplaceFalseTrueHRef
   );
 
 my @types_MISC =
   (
    [ qw (FT_BOOLEAN FT_IPv4 FT_GUID FT_EUI64)],
-   $searchReplaceHRef
+   $searchReplaceFalseTrueHRef
   );
 
 my @types_STRING =
@@ -111,6 +115,12 @@ my @types_UINT_STRING =
    }
   );
 
+my @types_REG_PROTO  =
+  (
+   [ qw (REG_PROTO)],
+   $searchReplaceEncNAHRef
+  );
+
 # For searching with no substitutions
 my @types_TIME =  (
                     [qw (FT_ABSOLUTE_TIME FT_RELATIVE_TIME)],
@@ -135,7 +145,11 @@ my @types_ALL =
            FT_INT64
            FT_FLOAT
            FT_DOUBLE
+           FT_ABSOLUTE_TIME
            FT_RELATIVE_TIME
+           FT_STRING
+           FT_STRINGZ
+           FT_UINT_STRING
            FT_ETHER
            FT_BYTES
            FT_UINT_BYTES
@@ -147,7 +161,6 @@ my @types_ALL =
            FT_GUID
            FT_OID
            FT_EUI64
-           FT_NUM_TYPES
       )],
    {# valid encoding args
     "a"=>"ENC_NA",
@@ -227,13 +240,15 @@ while (my $fileName = $ARGV[0]) {
 
     my $found = 0;
 
-    # Find and replace: alters proto_tree_add_item() encoding arg in $fileContents for hf[] entries
-    #   with specified field types.
+    # Find and replace: alters proto_tree_add_item() encoding arg in $fileContents for:
+    #     - hf[] entries with specified field types;
+    #     - 'proto' as returned from proto_register_protocol()
     $found += fix_encoding_args(1, \@types_NA,          \$fileContents, $hfArrayEntryFieldTypeHRef, $fileName);
     $found += fix_encoding_args(1, \@types_INT,         \$fileContents, $hfArrayEntryFieldTypeHRef, $fileName);
     $found += fix_encoding_args(1, \@types_MISC,        \$fileContents, $hfArrayEntryFieldTypeHRef, $fileName);
     $found += fix_encoding_args(1, \@types_STRING,      \$fileContents, $hfArrayEntryFieldTypeHRef, $fileName);
     $found += fix_encoding_args(1, \@types_UINT_STRING, \$fileContents, $hfArrayEntryFieldTypeHRef, $fileName);
+    $found += fix_encoding_args(1, \@types_REG_PROTO,   \$fileContents, $hfArrayEntryFieldTypeHRef, $fileName);
 
     # If desired and if any changes, write out the changed version to a file
     if (($writeFlag) && ($found > 0)) {
@@ -263,6 +278,7 @@ while (my $fileName = $ARGV[0]) {
 #==================================================================================
 
 # Create a hash containing an entry (hf_index_name => field_type) for each hf[]entry.
+# also: create an entry in the hash for the 'protocol name' variable (proto... => FT_PROTOCOL)
 # returns: ref to the hash
 
 sub find_hf_array_entries {
@@ -304,6 +320,31 @@ sub find_hf_array_entries {
             $hfArrayEntryFieldType{$1} = "???"; # prevent any substitutions for this hf_index_name
         } else {
             $hfArrayEntryFieldType{$1} = $2;
+        }
+    }
+
+    # RegEx to get "proto" variable name
+    my $protoRegEx = qr /
+                            ^ \s*                     # note m modifier below
+                            (
+                                [a-zA-Z0-9_]+
+                            )
+                            \s*
+                            =
+                            \s*
+                            proto_register_protocol
+                            \s*
+                            \(
+                        /xoms;
+
+    # Find all registered protocols
+    while ($fileContentsWithoutComments =~ m { $protoRegEx }xgioms ) {
+        ##print "$1\n";
+        if (exists $hfArrayEntryFieldType{$1}) {
+            printf "%-35.35s: ? duplicate 'proto': no fixes done for: $1; manual action may be req'd\n", $fileName;
+            $hfArrayEntryFieldType{$1} = "???"; # prevent any substitutions for this protocol
+        } else {
+            $hfArrayEntryFieldType{$1} = "REG_PROTO";
         }
     }
 
