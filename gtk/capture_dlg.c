@@ -184,8 +184,6 @@ static GtkWidget *cap_open_w = NULL, *opt_edit_w = NULL, *ok_bt;
 static gboolean   cap_open_complete;  /* valid only if cap_open_w != NULL */
 
 static GHashTable *cap_settings_history=NULL;
-static gint16 num_selected;
-static GArray *rows = NULL;
 static gint marked_row;
 
 #ifdef HAVE_PCAP_REMOTE
@@ -219,9 +217,6 @@ static gboolean
 capture_dlg_prep(gpointer parent_w);
 
 extern gint if_list_comparator_alph (const void *first_arg, const void *second_arg);
-
-static void
-make_and_fill_rows(void);
 
 /* stop the currently running capture */
 void
@@ -816,7 +811,7 @@ error_list_remote_interface_cb (gpointer dialog _U_, gint btn _U_, gpointer data
 
 void insert_new_rows(GList *list)
 {
-  interface_row row;
+  interface_t device;
   GtkTreeIter iter;
   GList *if_entry;
   if_info_t *if_info;
@@ -827,7 +822,7 @@ void insert_new_rows(GList *list)
   cap_settings_t cap_settings;
   GSList *curr_addr;
   int ips = 0;
-  guint i, count=0;
+  guint i;
   if_addr_t *addr;
   GList *lt_entry;
   data_link_info_t *data_link_info;
@@ -836,21 +831,19 @@ void insert_new_rows(GList *list)
   GString *ip_str;
   GtkTreeView  *if_cb;
   GtkTreeModel *model;
-  interface_options interface_opts;
   link_row *link = NULL;
 
   if_cb = (GtkTreeView *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
   model = gtk_tree_view_get_model(if_cb);
-  count = rows->len;
   /* Scan through the list and build a list of strings to display. */
   for (if_entry = g_list_first(list); if_entry != NULL; if_entry = g_list_next(if_entry)) {
     if_info = if_entry->data;
 #ifdef HAVE_PCAP_REMOTE
     add_interface_to_remote_list(if_info);
 #endif
-    for (i = 0; i < count; i++) {
-      row = g_array_index(rows, interface_row, i);
-      if (strcmp(row.name, if_info->name) == 0) {
+    for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+      device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+      if (strcmp(device.name, if_info->name) == 0) {
         found = TRUE;
         break;
       }
@@ -862,7 +855,7 @@ void insert_new_rows(GList *list)
     ip_str = g_string_new("");
     str = "";
     ips = 0;
-    row.name = g_strdup(if_info->name);
+    device.name = g_strdup(if_info->name);
     /* Is this interface hidden and, if so, should we include it
        anyway? */
     descr = capture_dev_user_descr_find(if_info->name);
@@ -882,37 +875,17 @@ void insert_new_rows(GList *list)
       }
     } /* else descr != NULL */
     if (if_info->loopback) {
-      row.display_name = g_strdup_printf("%s (loopback)", if_string);
+      device.display_name = g_strdup_printf("%s (loopback)", if_string);
     } else {
-      row.display_name = g_strdup(if_string);
+      device.display_name = g_strdup(if_string);
     }
-    found = FALSE;
-    for (i = 0; i < global_capture_opts.ifaces->len; i++) {
-      interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
-      if (strcmp(interface_opts.name, (char*)row.name)!=0)
-        continue;
-      else {
-        found = TRUE;
-        break;
-      }
-    }
-    if (found) {
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-      row.buffer = interface_opts.buffer_size;
+    device.buffer = global_capture_opts.default_options.buffer_size;
 #endif
-      row.pmode = interface_opts.promisc_mode;
-      row.has_snaplen = interface_opts.has_snaplen;
-      row.snaplen = interface_opts.snaplen;
-      row.cfilter = g_strdup(interface_opts.cfilter);
-    } else {
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-      row.buffer = global_capture_opts.default_options.buffer_size;
-#endif
-      row.pmode = global_capture_opts.default_options.promisc_mode;
-      row.has_snaplen = global_capture_opts.default_options.has_snaplen;
-      row.snaplen = global_capture_opts.default_options.snaplen;
-      row.cfilter = g_strdup(global_capture_opts.default_options.cfilter);
-    }
+    device.pmode = global_capture_opts.default_options.promisc_mode;
+    device.has_snaplen = global_capture_opts.default_options.has_snaplen;
+    device.snaplen = global_capture_opts.default_options.snaplen;
+    device.cfilter = g_strdup(global_capture_opts.default_options.cfilter);
     cap_settings = capture_get_cap_settings(if_string);
     caps = capture_get_if_capabilities(if_string, cap_settings.monitor_mode, NULL);
     gtk_list_store_append (GTK_LIST_STORE(model), &iter);
@@ -935,11 +908,11 @@ void insert_new_rows(GList *list)
       }
     } /* for curr_addr */
     linktype_count = 0;
-    row.links = NULL;
+    device.links = NULL;
     if (caps != NULL) {
 #ifdef HAVE_PCAP_CREATE
-      row.monitor_mode_enabled = cap_settings.monitor_mode;
-      row.monitor_mode_supported = caps->can_set_rfmon;
+      device.monitor_mode_enabled = cap_settings.monitor_mode;
+      device.monitor_mode_supported = caps->can_set_rfmon;
 #endif
       for (lt_entry = caps->data_link_types; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
         data_link_info = lt_entry->data;
@@ -950,63 +923,62 @@ void insert_new_rows(GList *list)
         }
         if (linktype_count == 0) {
           link_type_name = g_strdup(str);
-          row.active_dlt = data_link_info->dlt;
+          device.active_dlt = data_link_info->dlt;
         }
         link = (link_row *)g_malloc(sizeof(link_row));
         link->dlt = data_link_info->dlt;
         link->name = g_strdup(str);
-        row.links = g_list_append(row.links, link);
+        device.links = g_list_append(device.links, link);
         linktype_count++;
       } /* for link_types */
     } else {
       cap_settings.monitor_mode = FALSE;
 #if defined(HAVE_PCAP_CREATE)
-      row.monitor_mode_enabled = FALSE;
-      row.monitor_mode_supported = FALSE;
+      device.monitor_mode_enabled = FALSE;
+      device.monitor_mode_supported = FALSE;
 #endif
-      row.active_dlt = -1;
+      device.active_dlt = -1;
       link_type_name = g_strdup("default");
     }
-    row.addresses = g_strdup(ip_str->str);
-    row.no_addresses = ips;
+    device.addresses = g_strdup(ip_str->str);
+    device.no_addresses = ips;
     if (ips == 0) {
-      temp = g_strdup_printf("<b>%s</b>", row.display_name);
+      temp = g_strdup_printf("<b>%s</b>", device.display_name);
     } else {
-      temp = g_strdup_printf("<b>%s</b>\n<span size='small'>%s</span>", row.display_name, row.addresses);
+      temp = g_strdup_printf("<b>%s</b>\n<span size='small'>%s</span>", device.display_name, device.addresses);
     }
 #ifdef HAVE_PCAP_REMOTE
-    row.remote_opts.src_type= global_remote_opts.src_type;
-    row.remote_opts.remote_host_opts.remote_host = g_strdup(global_remote_opts.remote_host_opts.remote_host);
-    row.remote_opts.remote_host_opts.remote_port = g_strdup(global_remote_opts.remote_host_opts.remote_port);
-    row.remote_opts.remote_host_opts.auth_type = global_remote_opts.remote_host_opts.auth_type;
-    row.remote_opts.remote_host_opts.auth_username = g_strdup(global_remote_opts.remote_host_opts.auth_username);
-    row.remote_opts.remote_host_opts.auth_password = g_strdup(global_remote_opts.remote_host_opts.auth_password);
-    row.remote_opts.remote_host_opts.datatx_udp = global_remote_opts.remote_host_opts.datatx_udp;
-    row.remote_opts.remote_host_opts.nocap_rpcap = global_remote_opts.remote_host_opts.nocap_rpcap;
-    row.remote_opts.remote_host_opts.nocap_local = global_remote_opts.remote_host_opts.nocap_local;
+    device.remote_opts.src_type= global_remote_opts.src_type;
+    device.remote_opts.remote_host_opts.remote_host = g_strdup(global_remote_opts.remote_host_opts.remote_host);
+    device.remote_opts.remote_host_opts.remote_port = g_strdup(global_remote_opts.remote_host_opts.remote_port);
+    device.remote_opts.remote_host_opts.auth_type = global_remote_opts.remote_host_opts.auth_type;
+    device.remote_opts.remote_host_opts.auth_username = g_strdup(global_remote_opts.remote_host_opts.auth_username);
+    device.remote_opts.remote_host_opts.auth_password = g_strdup(global_remote_opts.remote_host_opts.auth_password);
+    device.remote_opts.remote_host_opts.datatx_udp = global_remote_opts.remote_host_opts.datatx_udp;
+    device.remote_opts.remote_host_opts.nocap_rpcap = global_remote_opts.remote_host_opts.nocap_rpcap;
+    device.remote_opts.remote_host_opts.nocap_local = global_remote_opts.remote_host_opts.nocap_local;
 #endif
 #ifdef HAVE_PCAP_SETSAMPLING
-    row.remote_opts.sampling_method = global_remote_opts.sampling_method;
-    row.remote_opts.sampling_param = global_remote_opts.sampling_param;
+    device.remote_opts.sampling_method = global_remote_opts.sampling_method;
+    device.remote_opts.sampling_param = global_remote_opts.sampling_param;
 #endif
-    g_array_append_val(rows, row);
-    if (row.has_snaplen) {
-      snaplen_string = g_strdup_printf("%d", row.snaplen);
+    g_array_append_val(global_capture_opts.all_ifaces, device);
+    if (device.has_snaplen) {
+      snaplen_string = g_strdup_printf("%d", device.snaplen);
     } else {
       snaplen_string = g_strdup("default");
     }
 
 #if defined(HAVE_PCAP_CREATE)
-    gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, INTERFACE, temp, LINK, link_type_name, PMODE, (row.pmode?"enabled":"disabled"), SNAPLEN, snaplen_string, BUFFER, (guint) global_capture_opts.default_options.buffer_size, MONITOR, "no",FILTER, "",-1);
+    gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp, LINK, link_type_name, PMODE, (device.pmode?"enabled":"disabled"), SNAPLEN, snaplen_string, BUFFER, (guint) global_capture_opts.default_options.buffer_size, MONITOR, "no",FILTER, "",-1);
 #elif defined(_WIN32) && !defined(HAVE_PCAP_CREATE)
-    gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, INTERFACE, temp, LINK, link_type_name, PMODE, (row.pmode?"enabled":"disabled"), SNAPLEN, snaplen_string, BUFFER, (guint) global_capture_opts.default_options.buffer_size, FILTER, "",-1);
+    gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp, LINK, link_type_name, PMODE, (device.pmode?"enabled":"disabled"), SNAPLEN, snaplen_string, BUFFER, (guint) global_capture_opts.default_options.buffer_size, FILTER, "",-1);
  #else
-    gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, INTERFACE, temp, LINK, link_type_name, PMODE, (row.pmode?"enabled":"disabled"), SNAPLEN, snaplen_string, -1);
+    gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp, LINK, link_type_name, PMODE, (device.pmode?"enabled":"disabled"), SNAPLEN, snaplen_string, -1);
 #endif
-    count++;
     g_string_free(ip_str, TRUE);
 #ifdef HAVE_PCAP_REMOTE
-    add_interface_to_list(if_info->name, if_info->description, &row.remote_opts);
+    add_interface_to_list(global_capture_opts.all_ifaces->len-1);
 #endif
   } /*for*/
   gtk_tree_view_set_model(GTK_TREE_VIEW(if_cb), model);
@@ -1332,19 +1304,19 @@ options_remote_ok_cb(GtkWidget *win _U_, GtkWidget *parent_w)
   GtkWidget *samp_none_rb, *samp_count_rb, *samp_timer_rb,
             *samp_count_sb, *samp_timer_sb;
 #endif
-  interface_row row;
+  interface_t device;
 
   if (parent_w == NULL)
     return;
 
-  row = g_array_index(rows, interface_row, marked_row);
-  g_array_remove_index(rows, marked_row);
+  device = g_array_index(global_capture_opts.all_ifaces, interface_t, marked_row);
+  g_array_remove_index(global_capture_opts.all_ifaces, marked_row);
   datatx_udp_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_DATATX_UDP_CB_KEY);
   nocap_rpcap_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_NOCAP_RPCAP_CB_KEY);
 
-  row.remote_opts.remote_host_opts.datatx_udp =
+  device.remote_opts.remote_host_opts.datatx_udp =
     gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(datatx_udp_cb));
-  row.remote_opts.remote_host_opts.nocap_rpcap =
+  device.remote_opts.remote_host_opts.nocap_rpcap =
     gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(nocap_rpcap_cb));
 
 #ifdef HAVE_PCAP_SETSAMPLING
@@ -1355,16 +1327,16 @@ options_remote_ok_cb(GtkWidget *win _U_, GtkWidget *parent_w)
   samp_timer_sb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_SAMP_TIMER_SB_KEY);
 
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(samp_none_rb)))
-    row.remote_opts.sampling_method = CAPTURE_SAMP_NONE;
+    device.remote_opts.sampling_method = CAPTURE_SAMP_NONE;
   else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(samp_count_rb))) {
-    row.remote_opts.sampling_method = CAPTURE_SAMP_BY_COUNT;
-    row.remote_opts.sampling_param = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(samp_count_sb));
+    device.remote_opts.sampling_method = CAPTURE_SAMP_BY_COUNT;
+    device.remote_opts.sampling_param = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(samp_count_sb));
   } else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(samp_timer_rb))) {
-    row.remote_opts.sampling_method = CAPTURE_SAMP_BY_TIMER;
-    row.remote_opts.sampling_param = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(samp_timer_sb));
+    device.remote_opts.sampling_method = CAPTURE_SAMP_BY_TIMER;
+    device.remote_opts.sampling_param = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(samp_timer_sb));
   }
 #endif /* HAVE_PCAP_SETSAMPLING*/
-  g_array_insert_val(rows, marked_row, row);
+  g_array_insert_val(global_capture_opts.all_ifaces, marked_row, device);
   window_destroy(GTK_WIDGET(parent_w));
 }
 #endif /*HAVE_PCAP_REMOTE*/
@@ -1406,7 +1378,7 @@ options_remote_cb(GtkWidget *w _U_, gpointer d _U_)
   GtkAdjustment *samp_count_adj, *samp_timer_adj;
   GSList        *samp_group;
 #endif
-  interface_row row;
+  interface_t device;
 
   caller = gtk_widget_get_toplevel(w);
   opt_remote_w = g_object_get_data(G_OBJECT(caller), E_OPT_REMOTE_DIALOG_PTR_KEY);
@@ -1415,7 +1387,7 @@ options_remote_cb(GtkWidget *w _U_, gpointer d _U_)
     return;
   }
 
-  row = g_array_index(rows, interface_row, marked_row);
+  device = g_array_index(global_capture_opts.all_ifaces, interface_t, marked_row);
   opt_remote_w = dlg_window_new("Remote Capture Settings");
   g_object_set_data(G_OBJECT(opt_remote_w), E_OPT_REMOTE_CALLER_PTR_KEY, caller);
   g_object_set_data(G_OBJECT(caller), E_OPT_REMOTE_DIALOG_PTR_KEY, opt_remote_w);
@@ -1434,12 +1406,12 @@ options_remote_cb(GtkWidget *w _U_, gpointer d _U_)
 
   nocap_rpcap_cb = gtk_check_button_new_with_mnemonic("Do not capture own RPCAP traffic");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(nocap_rpcap_cb),
-          row.remote_opts.remote_host_opts.nocap_rpcap);
+          device.remote_opts.remote_host_opts.nocap_rpcap);
   gtk_container_add(GTK_CONTAINER(capture_vb), nocap_rpcap_cb);
 
   datatx_udp_cb = gtk_check_button_new_with_mnemonic("Use UDP for data transfer");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(datatx_udp_cb),
-          row.remote_opts.remote_host_opts.datatx_udp);
+          device.remote_opts.remote_host_opts.datatx_udp);
   gtk_container_add(GTK_CONTAINER(capture_vb), datatx_udp_cb);
 
 #ifdef HAVE_PCAP_SETSAMPLING
@@ -1458,7 +1430,7 @@ options_remote_cb(GtkWidget *w _U_, gpointer d _U_)
 
   /* "No sampling" row */
   samp_none_rb = gtk_radio_button_new_with_label(NULL, "None");
-  if (row.remote_opts.sampling_method == CAPTURE_SAMP_NONE)
+  if (device.remote_opts.sampling_method == CAPTURE_SAMP_NONE)
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(samp_none_rb), TRUE);
   g_signal_connect(samp_none_rb, "toggled",
                  G_CALLBACK(options_prep_adjust_sensitivity), opt_remote_w);
@@ -1467,14 +1439,14 @@ options_remote_cb(GtkWidget *w _U_, gpointer d _U_)
   /* "Sampling by counter" row */
   samp_group = gtk_radio_button_get_group(GTK_RADIO_BUTTON(samp_none_rb));
   samp_count_rb = gtk_radio_button_new_with_label(samp_group, "1 of");
-  if (row.remote_opts.sampling_method == CAPTURE_SAMP_BY_COUNT)
+  if (device.remote_opts.sampling_method == CAPTURE_SAMP_BY_COUNT)
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(samp_count_rb), TRUE);
   g_signal_connect(samp_count_rb, "toggled",
                  G_CALLBACK(options_prep_adjust_sensitivity), opt_remote_w);
   gtk_table_attach_defaults(GTK_TABLE(sampling_tb), samp_count_rb, 0, 1, 1, 2);
 
   samp_count_adj = (GtkAdjustment *) gtk_adjustment_new(
-                        (gfloat)row.remote_opts.sampling_param,
+                        (gfloat)device.remote_opts.sampling_param,
                         1, (gfloat)INT_MAX, 1.0, 10.0, 0.0);
   samp_count_sb = gtk_spin_button_new(samp_count_adj, 0, 0);
   gtk_spin_button_set_wrap(GTK_SPIN_BUTTON(samp_count_sb), TRUE);
@@ -1487,14 +1459,14 @@ options_remote_cb(GtkWidget *w _U_, gpointer d _U_)
   /* "Sampling by timer" row */
   samp_group = gtk_radio_button_get_group(GTK_RADIO_BUTTON(samp_count_rb));
   samp_timer_rb = gtk_radio_button_new_with_label(samp_group, "1 every");
-  if (row.remote_opts.sampling_method == CAPTURE_SAMP_BY_TIMER)
+  if (device.remote_opts.sampling_method == CAPTURE_SAMP_BY_TIMER)
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(samp_timer_rb), TRUE);
   g_signal_connect(samp_timer_rb, "toggled",
                  G_CALLBACK(options_prep_adjust_sensitivity), opt_remote_w);
   gtk_table_attach_defaults(GTK_TABLE(sampling_tb), samp_timer_rb, 0, 1, 2, 3);
 
   samp_timer_adj = (GtkAdjustment *) gtk_adjustment_new(
-                        (gfloat)row.remote_opts.sampling_param,
+                        (gfloat)device.remote_opts.sampling_param,
                         1, (gfloat)INT_MAX, 1.0, 10.0, 0.0);
   samp_timer_sb = gtk_spin_button_new(samp_timer_adj, 0, 0);
   gtk_spin_button_set_wrap(GTK_SPIN_BUTTON(samp_timer_sb), TRUE);
@@ -1689,10 +1661,7 @@ options_edit_destroy_cb(GtkWidget *win, gpointer user_data _U_)
 static void
 update_options_table(gint index)
 {
-  guint i;
-  gboolean found = FALSE;
-  interface_row row;
-  interface_options interface_opts;
+  interface_t  device;
   GtkTreePath  *path;
   GtkTreeView  *if_cb;
   GtkTreeModel *model;
@@ -1702,121 +1671,77 @@ update_options_table(gint index)
   link_row *link = NULL;
   gboolean enabled;
 
-  row = g_array_index(rows, interface_row, index);
+  device = g_array_index(global_capture_opts.all_ifaces, interface_t, index);
 
-  if (global_capture_opts.ifaces->len > 0) {
-    for (i = 0; i < global_capture_opts.ifaces->len; i++) {
-      interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
-      if (strcmp(interface_opts.name, row.name) == 0) {
-        found = TRUE;
+  if (!device.hidden) {
+    if (device.no_addresses == 0) {
+      temp = g_strdup_printf("<b>%s</b>", device.display_name);
+    } else {
+      temp = g_strdup_printf("<b>%s</b>\n<span size='small'>%s</span>", device.display_name, device.addresses);
+    }
+    for (list=device.links; list!=NULL; list=g_list_next(list))
+    {
+      link = (link_row*)(list->data);
+      if (link->dlt == device.active_dlt) {
         break;
       }
     }
-    if (found) {
-      global_capture_opts.ifaces = g_array_remove_index(global_capture_opts.ifaces, i);
-      g_free(interface_opts.cfilter);
-      interface_opts.linktype = row.active_dlt;
-      interface_opts.promisc_mode = row.pmode;
-      interface_opts.has_snaplen = row.has_snaplen;
-      interface_opts.snaplen = row.snaplen;
-      interface_opts.cfilter = g_strdup(row.cfilter);
-#ifdef HAVE_PCAP_CREATE
-      interface_opts.monitor_mode = row.monitor_mode_enabled;
-#else
-      interface_opts.monitor_mode = FALSE;
-#endif
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-      interface_opts.buffer_size = row.buffer;
-#endif
-      g_array_insert_val(global_capture_opts.ifaces, i, interface_opts);
-    }
-  }
-  if (!found || global_capture_opts.ifaces->len == 0) {
-    interface_opts.name = g_strdup(row.name);
-    interface_opts.descr = get_interface_descriptive_name(interface_opts.name);
-    interface_opts.linktype = row.active_dlt;
-    interface_opts.promisc_mode = row.pmode;
-    interface_opts.has_snaplen = row.has_snaplen;
-    interface_opts.snaplen = row.snaplen;
-    interface_opts.cfilter = g_strdup(row.cfilter);
-#ifdef HAVE_PCAP_CREATE
-    interface_opts.monitor_mode = row.monitor_mode_enabled;
-#else
-    interface_opts.monitor_mode = FALSE;
-#endif
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-    interface_opts.buffer_size = row.buffer;
-#endif
-#ifdef HAVE_PCAP_REMOTE
-    interface_opts.src_type = global_capture_opts.default_options.src_type;
-    interface_opts.remote_host = g_strdup(global_capture_opts.default_options.remote_host);
-    interface_opts.remote_port = g_strdup(global_capture_opts.default_options.remote_port);
-    interface_opts.auth_type = global_capture_opts.default_options.auth_type;
-    interface_opts.auth_username = g_strdup(global_capture_opts.default_options.auth_username);
-    interface_opts.auth_password = g_strdup(global_capture_opts.default_options.auth_password);
-    interface_opts.datatx_udp = global_capture_opts.default_options.datatx_udp;
-    interface_opts.nocap_rpcap = global_capture_opts.default_options.nocap_rpcap;
-    interface_opts.nocap_local = global_capture_opts.default_options.nocap_local;
-#endif
-#ifdef HAVE_PCAP_SETSAMPLING
-    interface_opts.sampling_method = global_capture_opts.default_options.sampling_method;
-    interface_opts.sampling_param  = global_capture_opts.default_options.sampling_param;
-#endif
-    g_array_append_val(global_capture_opts.ifaces, interface_opts);
-  }
-  if (row.no_addresses == 0) {
-    temp = g_strdup_printf("<b>%s</b>", row.display_name);
-  } else {
-    temp = g_strdup_printf("<b>%s</b>\n<span size='small'>%s</span>", row.display_name, row.addresses);
-  }
-  for (list=row.links; list!=NULL; list=g_list_next(list))
-  {
-    link = (link_row*)(list->data);
-    if (link->dlt == row.active_dlt) {
-      break;
-    }
-  }
-  if (row.has_snaplen) {
-    snaplen_string = g_strdup_printf("%d", row.snaplen);
-  } else {
-    snaplen_string = g_strdup("default");
-  }
-  if (cap_open_w) {
-    if_cb      = (GtkTreeView *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
-    path_str = g_strdup_printf("%d", marked_row);
-    path = gtk_tree_path_new_from_string(path_str);
-    model = gtk_tree_view_get_model(if_cb);
-    gtk_tree_model_get_iter (model, &iter, path);
-    gtk_tree_model_get(model, &iter, CAPTURE, &enabled, -1);
-    if (enabled == FALSE) {
-      num_selected++;
-    }
-
-#if defined(HAVE_PCAP_CREATE)
-    gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, TRUE, INTERFACE, temp, LINK, link->name,  PMODE, row.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, BUFFER, (guint) row.buffer, MONITOR, row.monitor_mode_supported?(row.monitor_mode_enabled?"enabled":"disabled"):"n/a", FILTER, row.cfilter, -1);
-#elif defined(_WIN32) && !defined(HAVE_PCAP_CREATE)
-    gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, TRUE, INTERFACE, temp,LINK, link->name,  PMODE, row.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, BUFFER, (guint) row.buffer, FILTER, row.cfilter, -1);
-#else
-    gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, TRUE, INTERFACE, temp,LINK, link->name,  PMODE, row.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, FILTER, row.cfilter, -1);
-#endif
-#ifdef USE_THREADS
-    if (num_selected > 0) {
-#else
-    if (num_selected == 1) {
-#endif
-      gtk_widget_set_sensitive(ok_bt, TRUE);
+    if (device.has_snaplen) {
+      snaplen_string = g_strdup_printf("%d", device.snaplen);
     } else {
-      gtk_widget_set_sensitive(ok_bt, FALSE);
+      snaplen_string = g_strdup("default");
     }
-    gtk_tree_path_free (path);
-  }
-  if (interfaces_dialog_window_present()) {
-    update_selected_interface(g_strdup(row.name), TRUE);
-  }
-  if (get_welcome_window() != NULL) {
-    change_interface_selection(g_strdup(row.name), TRUE);
+    if (cap_open_w) {
+      if_cb      = (GtkTreeView *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
+      path_str = g_strdup_printf("%d", marked_row);
+      path = gtk_tree_path_new_from_string(path_str);
+      model = gtk_tree_view_get_model(if_cb);
+      gtk_tree_model_get_iter (model, &iter, path);
+      gtk_tree_model_get(model, &iter, CAPTURE, &enabled, -1);
+      if (enabled == FALSE) {
+        device.selected = TRUE;
+        global_capture_opts.num_selected++;
+        global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, index);
+        g_array_insert_val(global_capture_opts.all_ifaces, index, device);
+      }
+  
+  #if defined(HAVE_PCAP_CREATE)
+      gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, device.selected, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp, LINK, link->name,  PMODE, device.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, BUFFER, (guint) device.buffer, MONITOR, device.monitor_mode_supported?(device.monitor_mode_enabled?"enabled":"disabled"):"n/a", FILTER, device.cfilter, -1);
+  #elif defined(_WIN32) && !defined(HAVE_PCAP_CREATE)
+      gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, device.selected, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp,LINK, link->name,  PMODE, device.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, BUFFER, (guint) device.buffer, FILTER, device.cfilter, -1);
+  #else
+      gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, device.selected, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp,LINK, link->name,  PMODE, device.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, FILTER, device.cfilter, -1);
+  #endif
+  #ifdef USE_THREADS
+      if (global_capture_opts.num_selected > 0) {
+  #else
+      if (global_capture_opts.num_selected == 1) {
+  #endif
+        gtk_widget_set_sensitive(ok_bt, TRUE);
+      } else {
+        gtk_widget_set_sensitive(ok_bt, FALSE);
+      }
+      gtk_tree_path_free (path);
+    }
+    if (interfaces_dialog_window_present()) {
+      update_selected_interface(g_strdup(device.name));
+    }
+    if (get_welcome_window() != NULL) {
+      change_interface_selection(g_strdup(device.name), device.selected);
+    }
   }
 }
+
+
+void
+update_all_rows(void) 
+{
+    GtkTreeView *view;
+  
+    view = (GtkTreeView *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
+    create_and_fill_model(GTK_TREE_VIEW(view));
+}
+
 
 static void
 save_options_cb(GtkWidget *win _U_, gpointer user_data _U_)
@@ -1830,13 +1755,13 @@ save_options_cb(GtkWidget *win _U_, gpointer user_data _U_)
   GtkWidget *buffer_size_sb;
 #endif
 
-  interface_row row;
+  interface_t device;
   gpointer  ptr;
   int       dlt;
   const gchar *filter_text;
 
-  row = g_array_index(rows, interface_row, marked_row);
-  rows = g_array_remove_index(rows, marked_row);
+  device = g_array_index(global_capture_opts.all_ifaces, interface_t, marked_row);
+  global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, marked_row);
   snap_cb    = (GtkWidget *) g_object_get_data(G_OBJECT(opt_edit_w), E_CAP_SNAP_CB_KEY);
   snap_sb    = (GtkWidget *) g_object_get_data(G_OBJECT(opt_edit_w), E_CAP_SNAP_SB_KEY);
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
@@ -1856,31 +1781,31 @@ save_options_cb(GtkWidget *win _U_, gpointer user_data _U_)
   if ((dlt = GPOINTER_TO_INT(ptr)) == -1) {
     g_assert_not_reached();  /* Programming error: somehow managed to select an "unsupported" entry */
   }
-  row.active_dlt = dlt;
+  device.active_dlt = dlt;
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-  row.buffer = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(buffer_size_sb));
+  device.buffer = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(buffer_size_sb));
 #endif
-  row.pmode = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(promisc_cb));
-  row.has_snaplen = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(snap_cb));
-  if (row.has_snaplen) {
-    row.snaplen = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(snap_sb));
-    if (row.snaplen < 1)
-      row.snaplen = WTAP_MAX_PACKET_SIZE;
-    else if (row.snaplen < MIN_PACKET_SIZE)
-      row.snaplen = MIN_PACKET_SIZE;
+  device.pmode = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(promisc_cb));
+  device.has_snaplen = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(snap_cb));
+  if (device.has_snaplen) {
+    device.snaplen = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(snap_sb));
+    if (device.snaplen < 1)
+      device.snaplen = WTAP_MAX_PACKET_SIZE;
+    else if (device.snaplen < MIN_PACKET_SIZE)
+      device.snaplen = MIN_PACKET_SIZE;
   } else {
-    row.snaplen = WTAP_MAX_PACKET_SIZE;
+    device.snaplen = WTAP_MAX_PACKET_SIZE;
   }
 
   filter_text = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(filter_cm));
-  if (row.cfilter)
-    g_free(row.cfilter);
+  if (device.cfilter)
+    g_free(device.cfilter);
   g_assert(filter_text != NULL);
-  row.cfilter = g_strdup(filter_text);
+  device.cfilter = g_strdup(filter_text);
 #ifdef HAVE_PCAP_CREATE
-  row.monitor_mode_enabled = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(monitor_cb));
+  device.monitor_mode_enabled = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(monitor_cb));
 #endif
-  g_array_insert_val(rows, marked_row, row);
+  g_array_insert_val(global_capture_opts.all_ifaces, marked_row, device);
   window_destroy(opt_edit_w);
   update_options_table(marked_row);
 }
@@ -1889,10 +1814,10 @@ static void
 adjust_snap_sensitivity(GtkWidget *tb _U_, gpointer parent_w _U_)
 {
   GtkWidget *snap_cb, *snap_sb;
-  interface_row row;
+  interface_t device;
 
-  row = g_array_index(rows, interface_row, marked_row);
-  rows = g_array_remove_index(rows, marked_row);
+  device = g_array_index(global_capture_opts.all_ifaces, interface_t, marked_row);
+  global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, marked_row);
 
   snap_cb = (GtkWidget *) g_object_get_data(G_OBJECT(opt_edit_w), E_CAP_SNAP_CB_KEY);
   snap_sb = (GtkWidget *) g_object_get_data(G_OBJECT(opt_edit_w), E_CAP_SNAP_SB_KEY);
@@ -1901,8 +1826,8 @@ adjust_snap_sensitivity(GtkWidget *tb _U_, gpointer parent_w _U_)
      to" checkbox is on. */
   gtk_widget_set_sensitive(GTK_WIDGET(snap_sb),
       gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(snap_cb)));
-  row.has_snaplen = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(snap_cb));
-  g_array_insert_val(rows, marked_row, row);
+  device.has_snaplen = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(snap_cb));
+  g_array_insert_val(global_capture_opts.all_ifaces, marked_row, device);
 }
 
 void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColumn *column _U_, gpointer userdata)
@@ -1940,14 +1865,12 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
  #ifdef HAVE_AIRPCAP
   GtkWidget     *advanced_bt;
 #endif
-  interface_row row;
-  displayed_interface d_interface;
+  interface_t   device;
   GtkTreeModel  *model;
   GtkTreeIter   iter;
   link_row      *temp;
   gboolean      found = FALSE;
   gint          num_supported_link_types;
-  guint         i;
   gchar         *tok;
   GtkCellRenderer *renderer;
   GtkListStore    *store;
@@ -1960,43 +1883,30 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
     return;
   }
 
-  row.name = NULL;
-  row.display_name = NULL;
-  row.no_addresses = 0;
-  row.addresses = NULL;
-  row.links = NULL;
-  row.active_dlt = -1;
-  row.pmode = FALSE;
+  device.name = NULL;
+  device.display_name = NULL;
+  device.no_addresses = 0;
+  device.addresses = NULL;
+  device.links = NULL;
+  device.active_dlt = -1;
+  device.pmode = FALSE;
 #ifdef HAVE_PCAP_CREATE
-  row.monitor_mode_enabled = FALSE;
-  row.monitor_mode_supported = FALSE;
+  device.monitor_mode_enabled = FALSE;
+  device.monitor_mode_supported = FALSE;
 #endif
-  row.has_snaplen = FALSE;
-  row.snaplen = 65535;
-  row.cfilter = NULL;
+  device.has_snaplen = FALSE;
+  device.snaplen = 65535;
+  device.cfilter = NULL;
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-  row.buffer = 1;
+  device.buffer = 1;
 #endif
 
   model = gtk_tree_view_get_model(view);
   gtk_tree_model_get_iter (model, &iter, path);
   marked_row = atoi(gtk_tree_path_to_string(path));
-
-  if (cap_open_w) {
-    row = g_array_index(rows, interface_row, marked_row);
-  } else if (get_welcome_window() != NULL) {
-    d_interface = get_interface_data(marked_row);
-    if (!rows || rows->len == 0) {
-      make_and_fill_rows();
-    }
-    for (i = 0; i < rows->len; i++) {
-     row = g_array_index(rows, interface_row, i);
-     if (strcmp(row.name, (char*)d_interface.name)==0) {
-       marked_row = i;
-       break;
-     }
-    }
-  }
+ 
+  device = g_array_index(global_capture_opts.all_ifaces, interface_t, marked_row);
+  
   opt_edit_w = dlg_window_new("Edit Interface Settings");
   g_object_set_data(G_OBJECT(opt_edit_w), E_OPT_EDIT_CALLER_PTR_KEY, caller);
   g_object_set_data(G_OBJECT(caller), E_OPT_EDIT_DIALOG_PTR_KEY, opt_edit_w);
@@ -2020,7 +1930,7 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   if_lb = gtk_label_new("Interface:  ");
   gtk_box_pack_start(GTK_BOX(if_hb), if_lb, FALSE, FALSE, 3);
 
-  if_lb_name = gtk_label_new(row.display_name);
+  if_lb_name = gtk_label_new(device.display_name);
   gtk_box_pack_start(GTK_BOX(if_hb), if_lb_name, FALSE, FALSE, 3);
 
   /* IP addresses row */
@@ -2035,9 +1945,8 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   if_ip_lb = gtk_label_new("IP address:");
   gtk_misc_set_alignment(GTK_MISC(if_ip_lb), 0, 0); /* Left justified */
   gtk_box_pack_start(GTK_BOX(if_vb_left), if_ip_lb, FALSE, FALSE, 0);
-
-  if (row.no_addresses > 0) {
-    gchar *temp_addresses = g_strdup(row.addresses);
+  if (device.no_addresses > 0) {
+    gchar *temp_addresses = g_strdup(device.addresses);
     gtk_box_pack_start(GTK_BOX(capture_vb), if_ip_hb, TRUE, TRUE, 0);
     gtk_box_pack_start(GTK_BOX(if_ip_hb), if_vb_right, TRUE, TRUE, 3);
     swindow = gtk_scrolled_window_new (NULL, NULL);
@@ -2118,7 +2027,7 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   gtk_box_pack_start (GTK_BOX(linktype_hb), linktype_combo_box, FALSE, FALSE, 0);
   g_object_set_data(G_OBJECT(opt_edit_w), E_CAP_LT_CBX_KEY, linktype_combo_box);
   num_supported_link_types = 0;
-  for (list=row.links; list!=NULL; list=g_list_next(list))
+  for (list=device.links; list!=NULL; list=g_list_next(list))
   {
     temp = (link_row*)(list->data);
     ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(linktype_combo_box),
@@ -2126,7 +2035,7 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
                                                   GINT_TO_POINTER(temp->dlt)  /* Flag as "not supported" */
                                                   );
     num_supported_link_types++;
-    if (temp->dlt == row.active_dlt) {
+    if (temp->dlt == device.active_dlt) {
       ws_combo_box_set_active(GTK_COMBO_BOX(linktype_combo_box), num_supported_link_types - 1);
       found = TRUE;
     }
@@ -2142,7 +2051,7 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   promisc_cb = gtk_check_button_new_with_mnemonic(
       "Capture packets in _promiscuous mode");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(promisc_cb),
-                               row.pmode);
+                               device.pmode);
   gtk_widget_set_tooltip_text(promisc_cb,
     "Usually a network adapter will only capture the traffic sent to its own network address. "
     "If you want to capture all traffic that the network adapter can \"see\", mark this option. "
@@ -2153,8 +2062,8 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
 #ifdef HAVE_PCAP_CREATE
   /* Monitor mode row */
   monitor_cb = gtk_check_button_new_with_mnemonic( "Capture packets in monitor mode");
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(monitor_cb), row.monitor_mode_enabled);
-  gtk_widget_set_sensitive(monitor_cb, row.monitor_mode_supported);
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(monitor_cb), device.monitor_mode_enabled);
+  gtk_widget_set_sensitive(monitor_cb, device.monitor_mode_supported);
   g_signal_connect(monitor_cb, "toggled", G_CALLBACK(capture_prep_monitor_changed_cb), NULL);
 
   gtk_widget_set_tooltip_text(monitor_cb,
@@ -2180,14 +2089,14 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
 
   snap_cb = gtk_check_button_new_with_mnemonic("_Limit each packet to");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(snap_cb),
-                               row.has_snaplen);
+                               device.has_snaplen);
   g_signal_connect(snap_cb, "toggled", G_CALLBACK(adjust_snap_sensitivity), NULL);
   gtk_widget_set_tooltip_text(snap_cb,
     "Limit the maximum number of bytes to be captured from each packet. This size includes the "
     "link-layer header and all subsequent headers. ");
   gtk_box_pack_start(GTK_BOX(snap_hb), snap_cb, FALSE, FALSE, 0);
 
-  snap_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat) row.snaplen,
+  snap_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat) device.snaplen,
     MIN_PACKET_SIZE, WTAP_MAX_PACKET_SIZE, 1.0, 10.0, 0.0);
   snap_sb = gtk_spin_button_new (snap_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (snap_sb), TRUE);
@@ -2199,7 +2108,7 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   snap_lb = gtk_label_new("bytes");
   gtk_misc_set_alignment(GTK_MISC(snap_lb), 0, 0.5f);
   gtk_box_pack_start(GTK_BOX(snap_hb), snap_lb, FALSE, FALSE, 0);
-  gtk_widget_set_sensitive(GTK_WIDGET(snap_sb), row.has_snaplen);
+  gtk_widget_set_sensitive(GTK_WIDGET(snap_sb), device.has_snaplen);
 
   /* Filter row */
   filter_hb = gtk_hbox_new(FALSE, 3);
@@ -2232,8 +2141,8 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   if (global_capture_opts.default_options.cfilter && (strlen(global_capture_opts.default_options.cfilter) > 0)) {
     gtk_combo_box_text_prepend_text(GTK_COMBO_BOX_TEXT(filter_cm), global_capture_opts.default_options.cfilter);
   }
-  if (row.cfilter && (strlen(row.cfilter) > 0)) {
-    gtk_combo_box_text_prepend_text(GTK_COMBO_BOX_TEXT(filter_cm), row.cfilter);
+  if (device.cfilter && (strlen(device.cfilter) > 0)) {
+    gtk_combo_box_text_prepend_text(GTK_COMBO_BOX_TEXT(filter_cm), device.cfilter);
     gtk_combo_box_set_active(GTK_COMBO_BOX(filter_cm), 0);
   }
 
@@ -2260,10 +2169,10 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   buffer_size_lb = gtk_label_new("Buffer size:");
   gtk_box_pack_start (GTK_BOX(buffer_size_hb), buffer_size_lb, FALSE, FALSE, 0);
 
-  buffer_size_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat) row.buffer,
+  buffer_size_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat) device.buffer,
     1, 65535, 1.0, 10.0, 0.0);
   buffer_size_sb = gtk_spin_button_new (buffer_size_adj, 0, 0);
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON (buffer_size_sb), (gfloat) row.buffer);
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON (buffer_size_sb), (gfloat) device.buffer);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (buffer_size_sb), TRUE);
   gtk_widget_set_size_request(buffer_size_sb, 80, -1);
   gtk_widget_set_tooltip_text(buffer_size_sb,
@@ -2287,7 +2196,7 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   /* Both the callback and the data are global */
   g_signal_connect(remote_bt, "clicked", G_CALLBACK(options_remote_cb), NULL);
   g_object_set_data(G_OBJECT(opt_edit_w), E_OPT_REMOTE_BT_KEY, remote_bt);
-  if (strncmp (row.name, "rpcap://", 8) == 0)  {
+  if (strncmp (device.name, "rpcap://", 8) == 0)  {
     gtk_widget_set_sensitive(remote_bt, TRUE);
   } else {
     gtk_widget_set_sensitive(remote_bt, FALSE);
@@ -2302,7 +2211,7 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   /* Both the callback and the data are global */
   g_signal_connect(advanced_bt,"clicked", G_CALLBACK(options_airpcap_advanced_cb), airpcap_tb);
   g_object_set_data(G_OBJECT(top_level),AIRPCAP_OPTIONS_ADVANCED_KEY, advanced_bt);
-  airpcap_if_selected = get_airpcap_if_from_name(airpcap_if_list, row.name);
+  airpcap_if_selected = get_airpcap_if_from_name(airpcap_if_list, device.name);
   if (airpcap_if_selected != NULL) {
     /* It is an airpcap interface */
     gtk_widget_set_sensitive(advanced_bt, TRUE);
@@ -2347,198 +2256,94 @@ static void toggle_callback(GtkCellRendererToggle *cell _U_,
   GtkTreeView  *if_cb;
   GtkTreeModel *model;
   GtkTreePath *path = gtk_tree_path_new_from_string (path_str);
-  gboolean enabled, found = FALSE;
+  gboolean enabled;
   GtkWidget *pcap_ng_cb;
-  interface_options interface_opts;
-  interface_row row;
-  int index = atoi(path_str);
+  interface_t device;
+  gchar *name;
+  gint index = -1;
   guint i;
 
   if_cb = (GtkTreeView *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
   model = gtk_tree_view_get_model(if_cb);
   gtk_tree_model_get_iter (model, &iter, path);
-  gtk_tree_model_get (model, &iter, CAPTURE, &enabled, -1);
-  row = g_array_index(rows, interface_row, index);
-  if (enabled == FALSE)
-    num_selected++;
-  else
-    num_selected--;
-  enabled ^= 1;
-  pcap_ng_cb = (GtkWidget *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_PCAP_NG_KEY);
-  if (num_selected >= 2) {
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(pcap_ng_cb), TRUE);
-    gtk_widget_set_sensitive(pcap_ng_cb, FALSE);
-  } else {
-    gtk_widget_set_sensitive(pcap_ng_cb, TRUE);
-  }
-#ifdef USE_THREADS
-  if (num_selected > 0) {
-#else
-  if (num_selected == 1) {
-#endif
-    gtk_widget_set_sensitive(ok_bt, TRUE);
-  } else {
-    gtk_widget_set_sensitive(ok_bt, FALSE);
-  }
-  /* do something with the new enabled value, and set the new
-     enabled value in your treemodel */
-  gtk_list_store_set(GTK_LIST_STORE(model), &iter, CAPTURE, enabled, -1);
-
-  if (global_capture_opts.ifaces->len > 0) {
-    for (i = 0; i < global_capture_opts.ifaces->len; i++) {
-      interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
-      if (strcmp(interface_opts.name, row.name) == 0) {
-        found = TRUE;
-        break;
-      }
-    }
-    if (found) {
-      global_capture_opts.ifaces = g_array_remove_index(global_capture_opts.ifaces, i);
-      g_free(interface_opts.cfilter);
-      if (enabled) {
-        interface_opts.linktype = row.active_dlt;
-        interface_opts.promisc_mode = row.pmode;
-        interface_opts.has_snaplen = row.has_snaplen;
-        interface_opts.snaplen = row.snaplen;
-        interface_opts.cfilter = g_strdup(row.cfilter);
-#ifdef HAVE_PCAP_CREATE
-        interface_opts.monitor_mode = row.monitor_mode_enabled;
-#else
-        interface_opts.monitor_mode = FALSE;
-#endif
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-        interface_opts.buffer_size = row.buffer;
-#endif
-#ifdef HAVE_PCAP_REMOTE
-        interface_opts.src_type = row.remote_opts.src_type;
-        if (interface_opts.src_type == CAPTURE_IFREMOTE) {
-          interface_opts.remote_host = g_strdup(row.remote_opts.remote_host_opts.remote_host);
-          interface_opts.remote_port = g_strdup(row.remote_opts.remote_host_opts.remote_port);
-          interface_opts.auth_type = row.remote_opts.remote_host_opts.auth_type;
-          interface_opts.auth_username = g_strdup(row.remote_opts.remote_host_opts.auth_username);
-          interface_opts.auth_password = g_strdup(row.remote_opts.remote_host_opts.auth_password);
-          interface_opts.datatx_udp = row.remote_opts.remote_host_opts.datatx_udp;
-          interface_opts.nocap_rpcap = row.remote_opts.remote_host_opts.nocap_rpcap;
-          interface_opts.nocap_local = row.remote_opts.remote_host_opts.nocap_local;
-#ifdef HAVE_PCAP_SETSAMPLING
-          interface_opts.sampling_method = row.remote_opts.sampling_method;
-          interface_opts.sampling_param  = row.remote_opts.sampling_param;
-#endif
-        } else {
-          interface_opts.remote_host = g_strdup(global_capture_opts.default_options.remote_host);
-          interface_opts.remote_port = g_strdup(global_capture_opts.default_options.remote_port);
-          interface_opts.auth_type = global_capture_opts.default_options.auth_type;
-          interface_opts.auth_username = g_strdup(global_capture_opts.default_options.auth_username);
-          interface_opts.auth_password = g_strdup(global_capture_opts.default_options.auth_password);
-          interface_opts.datatx_udp = global_capture_opts.default_options.datatx_udp;
-          interface_opts.nocap_rpcap = global_capture_opts.default_options.nocap_rpcap;
-          interface_opts.nocap_local = global_capture_opts.default_options.nocap_local;
-#ifdef HAVE_PCAP_SETSAMPLING
-          interface_opts.sampling_method = global_capture_opts.default_options.sampling_method;
-          interface_opts.sampling_param  = global_capture_opts.default_options.sampling_param;
-#endif
-        }
-#endif
-        g_array_insert_val(global_capture_opts.ifaces, i, interface_opts);
-      } else { /* not enabled */
-        if (interfaces_dialog_window_present()) {
-          update_selected_interface(g_strdup(interface_opts.name), FALSE);
-        }
-        if (get_welcome_window() != NULL) {
-          change_interface_selection(g_strdup(interface_opts.name), FALSE);
-        }
-      }
-    }
-  }
-  if (!found && enabled) {
-    interface_opts.name = g_strdup(row.name);
-    interface_opts.descr = get_interface_descriptive_name(interface_opts.name);
-    interface_opts.linktype = row.active_dlt;
-    interface_opts.promisc_mode = row.pmode;
-    interface_opts.has_snaplen = row.has_snaplen;
-    interface_opts.snaplen = row.snaplen;
-    interface_opts.cfilter = g_strdup(row.cfilter);
-#ifdef HAVE_PCAP_CREATE
-    interface_opts.monitor_mode = row.monitor_mode_enabled;
-#else
-    interface_opts.monitor_mode = FALSE;
-#endif
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-    interface_opts.buffer_size = row.buffer;
-#endif
-#ifdef HAVE_PCAP_REMOTE
-    interface_opts.src_type = row.remote_opts.src_type;
-    if (interface_opts.src_type == CAPTURE_IFREMOTE) {
-      interface_opts.remote_host = g_strdup(row.remote_opts.remote_host_opts.remote_host);
-      interface_opts.remote_port = g_strdup(row.remote_opts.remote_host_opts.remote_port);
-      interface_opts.auth_type = row.remote_opts.remote_host_opts.auth_type;
-      interface_opts.auth_username = g_strdup(row.remote_opts.remote_host_opts.auth_username);
-      interface_opts.auth_password = g_strdup(row.remote_opts.remote_host_opts.auth_password);
-      interface_opts.datatx_udp = row.remote_opts.remote_host_opts.datatx_udp;
-      interface_opts.nocap_rpcap = row.remote_opts.remote_host_opts.nocap_rpcap;
-      interface_opts.nocap_local = row.remote_opts.remote_host_opts.nocap_local;
-#ifdef HAVE_PCAP_SETSAMPLING
-      interface_opts.sampling_method = row.remote_opts.sampling_method;
-      interface_opts.sampling_param  = row.remote_opts.sampling_param;
-#endif
-    } else {
-      interface_opts.remote_host = g_strdup(global_capture_opts.default_options.remote_host);
-      interface_opts.remote_port = g_strdup(global_capture_opts.default_options.remote_port);
-      interface_opts.auth_type = global_capture_opts.default_options.auth_type;
-      interface_opts.auth_username = g_strdup(global_capture_opts.default_options.auth_username);
-      interface_opts.auth_password = g_strdup(global_capture_opts.default_options.auth_password);
-      interface_opts.datatx_udp = global_capture_opts.default_options.datatx_udp;
-      interface_opts.nocap_rpcap = global_capture_opts.default_options.nocap_rpcap;
-      interface_opts.nocap_local = global_capture_opts.default_options.nocap_local;
-#ifdef HAVE_PCAP_SETSAMPLING
-      interface_opts.sampling_method = global_capture_opts.default_options.sampling_method;
-      interface_opts.sampling_param  = global_capture_opts.default_options.sampling_param;
-#endif
-    }
-#endif
-    g_array_append_val(global_capture_opts.ifaces, interface_opts);
-    if (interfaces_dialog_window_present()) {
-      update_selected_interface(g_strdup(interface_opts.name), TRUE);
-    }
-    if (get_welcome_window() != NULL) {
-      change_interface_selection(g_strdup(interface_opts.name), TRUE);
-    }
-  }
-  gtk_tree_path_free (path);
-}
-
-void enable_selected_interface(gchar *name, gboolean enable)
-{
-  guint i;
-  interface_row row;
-  GtkTreeIter  iter;
-  GtkTreeView  *if_cb;
-  GtkTreeModel *model;
-  gchar *path_str;
-  gboolean enabled;
-
-  for (i = 0; i < rows->len; i++) {
-    row = g_array_index(rows, interface_row, i);
-    if (strcmp(name, row.name) == 0) {
-      if_cb      = (GtkTreeView *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
-      model = gtk_tree_view_get_model(if_cb);
-      path_str = g_strdup_printf("%d", i);
-      gtk_tree_model_get_iter_from_string(model, &iter, path_str);
-      gtk_tree_model_get (model, &iter, CAPTURE, &enabled, -1);
-      if ((enabled == TRUE) && (enable == FALSE)) {
-        num_selected--;
-      }
-      if ((enabled == FALSE) && (enable == TRUE)) {
-        num_selected++;
-      }
-      gtk_list_store_set(GTK_LIST_STORE(model), &iter, CAPTURE, enable, -1);
+  gtk_tree_model_get (model, &iter, CAPTURE, &enabled, IFACE_HIDDEN_NAME, &name, -1);
+  /* Look for the right interface. The number of interfaces shown might be less 
+   * than the real number. Therefore the path index does not correspond 
+   * necessarily to the position in the list */
+  for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+    device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+    if (strcmp(device.name, name) == 0) {
+      index = i;
       break;
     }
   }
+  if (!device.locked) {
+    if (enabled == FALSE) {
+      device.selected = TRUE;
+      global_capture_opts.num_selected++;
+    } else {
+      device.selected = FALSE;
+      global_capture_opts.num_selected--;
+    }
+    device.locked = TRUE;
+  }
+  if (index != -1) {
+    global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, index);
+    g_array_insert_val(global_capture_opts.all_ifaces, index, device);
+    pcap_ng_cb = (GtkWidget *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_PCAP_NG_KEY);
+    if (global_capture_opts.num_selected >= 2) {
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(pcap_ng_cb), TRUE);
+      gtk_widget_set_sensitive(pcap_ng_cb, FALSE);
+    } else {
+      gtk_widget_set_sensitive(pcap_ng_cb, TRUE);
+    }
 #ifdef USE_THREADS
-  if (num_selected > 0) {
+    if (global_capture_opts.num_selected > 0) {
 #else
-  if (num_selected == 1) {
+    if (global_capture_opts.num_selected == 1) {
+#endif
+      gtk_widget_set_sensitive(ok_bt, TRUE);
+    } else {
+      gtk_widget_set_sensitive(ok_bt, FALSE);
+    }
+  /* do something with the new enabled value, and set the new
+     enabled value in your treemodel */
+    gtk_list_store_set(GTK_LIST_STORE(model), &iter, CAPTURE, device.selected, -1);
+    if (interfaces_dialog_window_present()) {
+      update_selected_interface(g_strdup(device.name));
+    }
+    if (get_welcome_window() != NULL) {
+      change_interface_selection(g_strdup(device.name), device.selected);
+    }
+  }
+  device.locked = FALSE;
+  global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, index);
+  g_array_insert_val(global_capture_opts.all_ifaces, index, device);
+  gtk_tree_path_free (path);
+}
+
+void enable_selected_interface(gchar *name, gboolean selected)
+{
+  GtkTreeIter  iter;
+  GtkTreeView  *if_cb;
+  GtkTreeModel *model;
+  gchar *name_str;
+
+  if_cb      = (GtkTreeView *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
+  model = gtk_tree_view_get_model(if_cb);
+  gtk_tree_model_get_iter_first(model, &iter);
+  do {
+    gtk_tree_model_get(model, &iter, IFACE_HIDDEN_NAME, &name_str, -1);
+    if (strcmp(name, name_str) == 0) {
+    gtk_list_store_set(GTK_LIST_STORE(model), &iter, CAPTURE, selected, -1);
+    break;
+    }
+  }
+  while (gtk_tree_model_iter_next(model, &iter));
+#ifdef USE_THREADS
+  if (global_capture_opts.num_selected > 0) {
+#else
+  if (global_capture_opts.num_selected == 1) {
 #endif
     gtk_widget_set_sensitive(ok_bt, TRUE);
   } else {
@@ -2564,17 +2369,17 @@ static void capture_all_cb(GtkToggleButton *button, gpointer d _U_)
     do {
       gtk_tree_model_get (model, &iter, CAPTURE, &capture_set, -1);
       if (!capture_set && enabled) {
-        num_selected++;
+        global_capture_opts.num_selected++;
       } else if (capture_set && !enabled) {
-        num_selected--;
+        global_capture_opts.num_selected--;
       }
       gtk_list_store_set(GTK_LIST_STORE(model), &iter, CAPTURE, enabled, -1);
     } while (gtk_tree_model_iter_next(model, &iter));
   }
-  if (num_selected >= 2) {
+  if (global_capture_opts.num_selected >= 2) {
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(pcap_ng_cb), TRUE);
     gtk_widget_set_sensitive(pcap_ng_cb, FALSE);
-  } else if (num_selected <= 1) {
+  } else if (global_capture_opts.num_selected <= 1) {
     gtk_widget_set_sensitive(pcap_ng_cb, TRUE);
   }
   if (interfaces_dialog_window_present()) {
@@ -2584,9 +2389,9 @@ static void capture_all_cb(GtkToggleButton *button, gpointer d _U_)
     change_selection_for_all(enabled);
   }
 #ifdef USE_THREADS
-  if (num_selected > 0) {
+  if (global_capture_opts.num_selected > 0) {
 #else
-  if (num_selected == 1) {
+  if (global_capture_opts.num_selected == 1) {
 #endif
     gtk_widget_set_sensitive(ok_bt, TRUE);
   } else {
@@ -2601,7 +2406,7 @@ static void promisc_mode_callback(GtkToggleButton *button, gpointer d _U_)
   GtkTreeView  *if_cb;
   GtkTreeModel *model;
   gboolean enabled = FALSE;
-  interface_row row;
+  interface_t device;
   interface_options interface_opts;
   guint i;
 
@@ -2616,11 +2421,11 @@ static void promisc_mode_callback(GtkToggleButton *button, gpointer d _U_)
     } while (gtk_tree_model_iter_next(model, &iter));
   }
 
-  for (i = 0; i < rows->len; i++) {
-    row = g_array_index(rows, interface_row, i);
-    rows = g_array_remove_index(rows, i);
-    row.pmode = (enabled?TRUE:FALSE);
-    g_array_insert_val(rows, i, row);
+  for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+    device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+    global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
+    device.pmode = (enabled?TRUE:FALSE);
+    g_array_insert_val(global_capture_opts.all_ifaces, i, device);
   }
 
   for (i = 0; i < global_capture_opts.ifaces->len; i++) {
@@ -2716,6 +2521,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
                 *help_bt;
 #ifdef HAVE_AIRPCAP
   GtkWidget     *decryption_cb;
+  int           err;
+  gchar         *err_str;
 #endif
 #ifdef HAVE_PCAP_REMOTE
   GtkWidget     *iftype_cbx;
@@ -2724,10 +2531,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   GtkAdjustment *ringbuffer_nbf_adj,
                 *stop_packets_adj, *stop_filesize_adj, *stop_duration_adj, *stop_files_adj,
                 *ring_filesize_adj, *file_duration_adj;
-  GList           *if_list;
   int              row;
-  int              err;
-  gchar            *err_str;
   guint32          value;
   gchar            *cap_title;
   GtkWidget        *view;
@@ -2758,7 +2562,6 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     return;
   }
 #endif
-  num_selected = 0;
   /* use user-defined title if preference is set */
 
   cap_title = create_user_window_title("Wireshark: Capture Options");
@@ -2767,13 +2570,6 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   cap_open_w = dlg_window_new(cap_title);
   g_free(cap_title);
 
-  if_list = capture_interface_list(&err, &err_str);
-
-  if (if_list == NULL && err == CANT_GET_INTERFACE_LIST) {
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);
-    g_free(err_str);
-  }
-  if_list = g_list_sort (if_list, if_list_comparator_alph);
 #ifdef HAVE_AIRPCAP
   /* update airpcap interface list */
 
@@ -2824,6 +2620,13 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   g_object_set (GTK_TREE_VIEW(view), "has-tooltip", TRUE, NULL);
   g_signal_connect (GTK_TREE_VIEW(view), "query-tooltip", G_CALLBACK (query_tooltip_tree_view_cb), NULL);
 
+  renderer = gtk_cell_renderer_text_new();
+  column = gtk_tree_view_column_new_with_attributes ("",
+                                               GTK_CELL_RENDERER(renderer),
+                                               "text", IFACE_HIDDEN_NAME,
+                                               NULL);
+  gtk_tree_view_append_column(GTK_TREE_VIEW(view), column);
+  gtk_tree_view_column_set_visible(column, FALSE);
   renderer = gtk_cell_renderer_text_new ();
   gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW (view), -1, "Interface", renderer, "markup", INTERFACE, NULL);
   column = gtk_tree_view_get_column(GTK_TREE_VIEW (view), INTERFACE);
@@ -2874,7 +2677,6 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_container_add (GTK_CONTAINER (swindow), view);
   gtk_box_pack_start(GTK_BOX(capture_vb), swindow, TRUE, TRUE, 0);
 
-  free_interface_list(if_list);
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY, view);
 
   main_hb = gtk_hbox_new(FALSE, 5);
@@ -3244,9 +3046,9 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   g_signal_connect(ok_bt, "clicked", G_CALLBACK(capture_start_cb), NULL);
   gtk_widget_set_tooltip_text(ok_bt, "Start the capture process.");
 #ifdef USE_THREADS
-  if (num_selected > 0) {
+  if (global_capture_opts.num_selected > 0) {
 #else
-  if (num_selected == 1) {
+  if (global_capture_opts.num_selected == 1) {
 #endif
     gtk_widget_set_sensitive(ok_bt, TRUE);
   } else {
@@ -3328,7 +3130,7 @@ capture_start_confirmed(void)
   guint i;
 
   /* did the user ever select a capture interface before? */
-  if(global_capture_opts.ifaces->len == 0 && prefs.capture_device == NULL) {
+  if(global_capture_opts.num_selected == 0 && prefs.capture_device == NULL) {
     simple_dialog(ESD_TYPE_CONFIRMATION,
                   ESD_BTN_OK,
                   "%sNo capture interface selected!%s\n\n"
@@ -3380,10 +3182,6 @@ void
 capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
 {
   gpointer  dialog;
-  gchar *if_name;
-  cap_settings_t *cap_settings_p = NULL;
-  interface_options interface_opts;
-  guint i;
 
 #ifdef HAVE_AIRPCAP
   airpcap_if_active = airpcap_if_selected;
@@ -3419,60 +3217,10 @@ capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
     if (!success)
       return;   /* error in options dialog */
   }
-
-  if (global_capture_opts.ifaces->len == 0) {
-    if (prefs.capture_device == NULL) {
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+  if (global_capture_opts.num_selected == 0) {
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
         "You didn't specify an interface on which to capture packets.");
-      return;
-    }
-    interface_opts.name = g_strdup(get_if_name(prefs.capture_device));
-    interface_opts.descr = get_interface_descriptive_name(interface_opts.name);
-#ifdef HAVE_PCAP_CREATE
-    interface_opts.monitor_mode = prefs_capture_device_monitor_mode(interface_opts.name);
-#else
-    interface_opts.monitor_mode = FALSE;
-#endif
-    interface_opts.linktype = capture_dev_user_linktype_find(interface_opts.name);
-    interface_opts.cfilter = g_strdup(global_capture_opts.default_options.cfilter);
-    interface_opts.snaplen = global_capture_opts.default_options.snaplen;
-    interface_opts.has_snaplen = global_capture_opts.default_options.has_snaplen;
-    interface_opts.promisc_mode = global_capture_opts.default_options.promisc_mode;
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-    interface_opts.buffer_size =  global_capture_opts.default_options.buffer_size;
-#endif
-#ifdef HAVE_PCAP_REMOTE
-    interface_opts.src_type = global_capture_opts.default_options.src_type;
-    interface_opts.remote_host = g_strdup(global_capture_opts.default_options.remote_host);
-    interface_opts.remote_port = g_strdup(global_capture_opts.default_options.remote_port);
-    interface_opts.auth_type = global_capture_opts.default_options.auth_type;
-    interface_opts.auth_username = g_strdup(global_capture_opts.default_options.auth_username);
-    interface_opts.auth_password = g_strdup(global_capture_opts.default_options.auth_password);
-    interface_opts.datatx_udp = global_capture_opts.default_options.datatx_udp;
-    interface_opts.nocap_rpcap = global_capture_opts.default_options.nocap_rpcap;
-    interface_opts.nocap_local = global_capture_opts.default_options.nocap_local;
- #endif
- #ifdef HAVE_PCAP_SETSAMPLING
-    interface_opts.sampling_method = global_capture_opts.default_options.sampling_method;
-    interface_opts.sampling_param  = global_capture_opts.default_options.sampling_param;
- #endif
-    g_array_insert_val(global_capture_opts.ifaces, 0, interface_opts);
-  }
-
-  if (cap_settings_history != NULL) {
-    for (i = 0; i < global_capture_opts.ifaces->len; i++) {
-      interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
-      if_name = g_strdup(interface_opts.name);
-      cap_settings_p = g_hash_table_lookup(cap_settings_history, if_name);
-      if (cap_settings_p == NULL) {
-        cap_settings_p = g_malloc(sizeof (cap_settings_t));
-        g_hash_table_insert(cap_settings_history, if_name, cap_settings_p);
-      } else {
-        g_free(if_name);
-      }
-      cap_settings_p->monitor_mode = interface_opts.monitor_mode;
-      cap_settings_p->linktype = interface_opts.linktype;
-    }
+    return;
   }
 
   if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
@@ -3495,18 +3243,18 @@ select_link_type_cb(GtkWidget *linktype_combo_box, gpointer data _U_)
 {
   gpointer  ptr;
   int       dlt;
-  interface_row row;
+  interface_t device;
 
-  row = g_array_index(rows, interface_row, marked_row);
-  rows = g_array_remove_index(rows, marked_row);
+  device = g_array_index(global_capture_opts.all_ifaces, interface_t, marked_row);
+  global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, marked_row);
   if (! ws_combo_box_get_active_pointer(GTK_COMBO_BOX(linktype_combo_box), &ptr)) {
     g_assert_not_reached();  /* Programming error: somehow nothing is active */
   }
   if ((dlt = GPOINTER_TO_INT(ptr)) == -1) {
     g_assert_not_reached();  /* Programming error: somehow managed to select an "unsupported" entry */
   }
-  row.active_dlt = dlt;
-  g_array_insert_val(rows, marked_row, row);
+  device.active_dlt = dlt;
+  g_array_insert_val(global_capture_opts.all_ifaces, marked_row, device);
   capture_filter_check_syntax_cb(linktype_combo_box, data);
 }
 
@@ -3564,7 +3312,7 @@ capture_dlg_prep(gpointer parent_w) {
   n_resolv_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_N_RESOLVE_KEY);
   t_resolv_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_T_RESOLVE_KEY);
 
-  if (global_capture_opts.ifaces->len == 0) {
+  if (global_capture_opts.num_selected == 0) {
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
       "You didn't specify an interface on which to capture packets.");
     return FALSE;
@@ -3708,219 +3456,50 @@ capture_dlg_prep(gpointer parent_w) {
   return TRUE;
 }
 
-static void
-make_and_fill_rows(void)
-{
-  GList *if_entry, *if_list;
-  if_info_t *if_info;
-  char *if_string="";
-  gchar *descr;
-  if_capabilities_t *caps=NULL;
-  gint linktype_count;
-  cap_settings_t cap_settings;
-  GSList *curr_addr;
-  int ips = 0, err;
-  guint i;
-  if_addr_t *addr;
-  GList *lt_entry;
-  link_row *link = NULL;
-  data_link_info_t *data_link_info;
-  gchar *str, *err_str = NULL;
-  interface_row row;
-  interface_options interface_opts;
-  gboolean found = FALSE;
-  GString *ip_str;
-
-  rows = g_array_new(TRUE, TRUE, sizeof(interface_row));
-  /* Scan through the list and build a list of strings to display. */
-  if_list = capture_interface_list(&err, &err_str);
-  if_list = g_list_sort (if_list, if_list_comparator_alph);
-  if (if_list == NULL && err == CANT_GET_INTERFACE_LIST) {
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);
-    g_free(err_str);
-    return;
-  } else if (err_str) {
-    g_free(err_str);
-  }
-  for (if_entry = if_list; if_entry != NULL; if_entry = g_list_next(if_entry)) {
-    if_info = if_entry->data;
-    ip_str = g_string_new("");
-    str = "";
-    ips = 0;
-    row.name = g_strdup(if_info->name);
-    /* Is this interface hidden and, if so, should we include it anyway? */
-    if (!prefs_is_capture_device_hidden(if_info->name)) {
-      /* It's not hidden, or it is but we should include it in the list. */
-      /* Do we have a user-supplied description? */
-      descr = capture_dev_user_descr_find(if_info->name);
-      if (descr != NULL) {
-        /* Yes, we have a user-supplied description; use it. */
-        if_string = g_strdup_printf("%s: %s", descr, if_info->name);
-        g_free(descr);
-      } else {
-        /* No, we don't have a user-supplied description; did we get
-           one from the OS or libpcap? */
-        if (if_info->description != NULL) {
-          /* Yes - use it. */
-          if_string = g_strdup_printf("%s: %s", if_info->description, if_info->name);
-        } else {
-          /* No. */
-          if_string = g_strdup(if_info->name);
-        }
-      }
-      if (if_info->loopback) {
-        row.display_name = g_strdup_printf("%s (loopback)", if_string);
-      } else {
-        row.display_name = g_strdup(if_string);
-      }
-      found = FALSE;
-      for (i = 0; i < global_capture_opts.ifaces->len; i++) {
-        interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
-        if (!interface_opts.name || strcmp(interface_opts.name, (char*)row.name)!=0) {
-          continue;
-        } else {
-          found = TRUE;
-          break;
-        }
-      }
-      if (found) {
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-        row.buffer = interface_opts.buffer_size;
-#endif
-        row.pmode = interface_opts.promisc_mode;
-        row.has_snaplen = interface_opts.has_snaplen;
-        row.snaplen = interface_opts.snaplen;
-        row.cfilter = g_strdup(interface_opts.cfilter);
-      } else {
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-        row.buffer = global_capture_opts.default_options.buffer_size;
-#endif
-        row.pmode = global_capture_opts.default_options.promisc_mode;
-        row.has_snaplen = global_capture_opts.default_options.has_snaplen;
-        row.snaplen = global_capture_opts.default_options.snaplen;
-        row.cfilter = g_strdup(global_capture_opts.default_options.cfilter);
-      }
-      cap_settings = capture_get_cap_settings(if_info->name);
-      caps = capture_get_if_capabilities(if_info->name, cap_settings.monitor_mode, NULL);
-      for (; (curr_addr = g_slist_nth(if_info->addrs, ips)) != NULL; ips++) {
-        if (ips != 0) {
-          g_string_append(ip_str, "\n");
-        }
-        addr = (if_addr_t *)curr_addr->data;
-        switch (addr->ifat_type) {
-          case IF_AT_IPv4:
-            g_string_append(ip_str, ip_to_str((guint8 *)&addr->addr.ip4_addr));
-            break;
-          case IF_AT_IPv6:
-            g_string_append(ip_str,  ip6_to_str((struct e_in6_addr *)&addr->addr.ip6_addr));
-            break;
-          default:
-            /* In case we add non-IP addresses */
-            break;
-        }
-      }
-      linktype_count = 0;
-      row.links = NULL;
-      if (caps != NULL) {
-#ifdef HAVE_PCAP_CREATE
-        row.monitor_mode_enabled = cap_settings.monitor_mode;
-        row.monitor_mode_supported = caps->can_set_rfmon;
-#endif
-        for (lt_entry = caps->data_link_types; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
-          data_link_info = lt_entry->data;
-          if (data_link_info->description != NULL) {
-            str = g_strdup_printf("%s", data_link_info->description);
-          } else {
-            str = g_strdup_printf("%s (not supported)", data_link_info->name);
-          }
-          if (linktype_count == 0) {
-            row.active_dlt = data_link_info->dlt;
-          }
-          link = (link_row *)g_malloc(sizeof(link_row));
-          link->dlt = data_link_info->dlt;
-          link->name = g_strdup(str);
-          row.links = g_list_append(row.links, link);
-          linktype_count++;
-        }
-      } else {
-        cap_settings.monitor_mode = FALSE;
-#ifdef HAVE_PCAP_CREATE
-        row.monitor_mode_enabled = FALSE;
-        row.monitor_mode_supported = FALSE;
-#endif
-        row.active_dlt = -1;
-      }
-      row.addresses = g_strdup(ip_str->str);
-      row.no_addresses = ips;
-      g_array_append_val(rows, row);
-      if (caps != NULL) {
-        free_if_capabilities(caps);
-      }
-    }
-    g_string_free(ip_str, TRUE);
-  }
-}
-
 GtkTreeModel *create_and_fill_model(GtkTreeView *view)
 {
   GtkListStore *store;
   GtkTreeIter iter;
   GList *list;
   char *temp="", *snaplen_string;
-  guint i, j;
+  guint i;
   link_row *link = NULL;
-  interface_row row;
-  interface_options interface_opts;
-  gboolean found = FALSE;
+  interface_t device;
 
 #if defined(HAVE_PCAP_CREATE)
-  store = gtk_list_store_new (8, G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_UINT, G_TYPE_STRING, G_TYPE_STRING);
+  store = gtk_list_store_new (9, G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_UINT, G_TYPE_STRING, G_TYPE_STRING);
 #elif defined(_WIN32) && !defined (HAVE_PCAP_CREATE)
-  store = gtk_list_store_new (7, G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_UINT, G_TYPE_STRING);
+  store = gtk_list_store_new (8, G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_UINT, G_TYPE_STRING);
 #else
-  store = gtk_list_store_new (6, G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
+  store = gtk_list_store_new (7, G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
 #endif
 
-  if (!rows || rows->len == 0) {
-    make_and_fill_rows();
-  }
-  if (rows && rows->len > 0) {
-    for (i = 0; i < rows->len; i++) {
-      row = g_array_index(rows, interface_row, i);
-      found = FALSE;
-      for (j = 0; j < global_capture_opts.ifaces->len; j++) {
-        interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, j);
-        if (!interface_opts.name || strcmp(interface_opts.name, (char*)row.name)!=0) {
-          continue;
-        } else {
-          found = TRUE;
-          num_selected++;
-          break;
-        }
-      }
-      if (row.no_addresses == 0) {
-        temp = g_strdup_printf("<b>%s</b>", row.display_name);
+  for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+    device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+    if (!device.hidden) {
+      if (device.no_addresses == 0) {
+        temp = g_strdup_printf("<b>%s</b>", device.display_name);
       } else {
-        temp = g_strdup_printf("<b>%s</b>\n<span size='small'>%s</span>", row.display_name, row.addresses);
+        temp = g_strdup_printf("<b>%s</b>\n<span size='small'>%s</span>", device.display_name, device.addresses);
       }
-      for (list = row.links; list != NULL; list = g_list_next(list)) {
+      for (list = device.links; list != NULL; list = g_list_next(list)) {
         link = (link_row*)(list->data);
-        if (link->dlt == row.active_dlt) {
-          break;
+        if (link->dlt == device.active_dlt) {
+        break;
         }
       }
-      if (row.has_snaplen) {
-        snaplen_string = g_strdup_printf("%d", row.snaplen);
+      if (device.has_snaplen) {
+        snaplen_string = g_strdup_printf("%d", device.snaplen);
       } else {
         snaplen_string = g_strdup("default");
       }
       gtk_list_store_append (store, &iter);
 #if defined(HAVE_PCAP_CREATE)
-      gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, link->name,  PMODE, row.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, BUFFER, (guint) row.buffer, MONITOR, row.monitor_mode_supported?(row.monitor_mode_enabled?"enabled":"disabled"):"n/a", FILTER, row.cfilter, -1);
+      gtk_list_store_set (store, &iter, CAPTURE, device.selected, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp, LINK, link->name,  PMODE, device.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, BUFFER, (guint) device.buffer, MONITOR, device.monitor_mode_supported?(device.monitor_mode_enabled?"enabled":"disabled"):"n/a", FILTER, device.cfilter, -1);
 #elif defined(_WIN32) && !defined(HAVE_PCAP_CREATE)
-      gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, link->name,  PMODE, row.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, BUFFER, (guint) row.buffer, FILTER, row.cfilter, -1);
+      gtk_list_store_set (store, &iter, CAPTURE, device.selected, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp, LINK, link->name,  PMODE, device.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, BUFFER, (guint) device.buffer, FILTER, device.cfilter, -1);
 #else
-      gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, link->name,  PMODE, row.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, FILTER, row.cfilter, -1);
+      gtk_list_store_set (store, &iter, CAPTURE, device.selected, IFACE_HIDDEN_NAME, device.name, INTERFACE, temp, LINK, link->name,  PMODE, device.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, FILTER, device.cfilter, -1);
 #endif
     }
   }
@@ -4007,13 +3586,13 @@ gboolean query_tooltip_tree_view_cb (GtkWidget  *widget,
 void activate_monitor (GtkTreeViewColumn *tree_column _U_, GtkCellRenderer *renderer,
                               GtkTreeModel *tree_model, GtkTreeIter *iter, gpointer data _U_)
 {
-  interface_row row;
+  interface_t device;
   GtkTreePath *path = gtk_tree_model_get_path(tree_model, iter);
   int index = atoi(gtk_tree_path_to_string(path));
 
-  row = g_array_index(rows, interface_row, index);
+  device = g_array_index(global_capture_opts.all_ifaces, interface_t, index);
 
-  if (row.monitor_mode_supported==TRUE) {
+  if (device.monitor_mode_supported==TRUE) {
     g_object_set(G_OBJECT(renderer), "mode", GTK_CELL_RENDERER_MODE_ACTIVATABLE, NULL);
   } else {
     g_object_set(G_OBJECT(renderer), "mode", GTK_CELL_RENDERER_MODE_INERT, NULL);
@@ -4074,16 +3653,16 @@ capture_prep_monitor_changed_cb(GtkWidget *monitor, gpointer argp _U_)
   if_capabilities_t *caps=NULL;
   gint linktype_count = 0, i;
   data_link_info_t *data_link_info;
-  interface_row row;
+  interface_t device;
   link_row *link;
   GtkWidget *linktype_combo_box = (GtkWidget *) g_object_get_data(G_OBJECT(opt_edit_w), E_CAP_LT_CBX_KEY);
   GtkWidget *linktype_lb = g_object_get_data(G_OBJECT(linktype_combo_box), E_CAP_LT_CBX_LABEL_KEY);
 
-  row = g_array_index(rows, interface_row, marked_row);
-  rows = g_array_remove_index(rows, marked_row);
+  device = g_array_index(global_capture_opts.all_ifaces, interface_t, marked_row);
+  global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, marked_row);
 
 
-  if_string = g_strdup(row.name);
+  if_string = g_strdup(device.name);
   cap_settings = capture_get_cap_settings(if_string);
   cap_settings.monitor_mode = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(monitor));
   caps = capture_get_if_capabilities(if_string, cap_settings.monitor_mode, NULL);
@@ -4091,15 +3670,15 @@ capture_prep_monitor_changed_cb(GtkWidget *monitor, gpointer argp _U_)
   if (caps != NULL) {
     g_signal_handlers_disconnect_by_func(linktype_combo_box, G_CALLBACK(select_link_type_cb), NULL );
     ws_combo_box_clear_text_and_pointer(GTK_COMBO_BOX(linktype_combo_box));
-    for (i = (gint)g_list_length(row.links)-1; i >= 0; i--) {
-      GList* rem = g_list_nth(row.links, i);
-      row.links = g_list_remove_link(row.links, rem);
+    for (i = (gint)g_list_length(device.links)-1; i >= 0; i--) {
+      GList* rem = g_list_nth(device.links, i);
+      device.links = g_list_remove_link(device.links, rem);
       g_list_free_1(rem);
     }
-    row.active_dlt = -1;
+    device.active_dlt = -1;
     linktype_count = 0;
-    row.monitor_mode_supported = caps->can_set_rfmon;
-    row.monitor_mode_enabled = cap_settings.monitor_mode;
+    device.monitor_mode_supported = caps->can_set_rfmon;
+    device.monitor_mode_enabled = cap_settings.monitor_mode;
     for (lt_entry = caps->data_link_types; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
       link = (link_row *)g_malloc(sizeof(link_row));
       data_link_info = lt_entry->data;
@@ -4109,7 +3688,7 @@ capture_prep_monitor_changed_cb(GtkWidget *monitor, gpointer argp _U_)
                                              GINT_TO_POINTER(data_link_info->dlt));
         link->dlt = data_link_info->dlt;
         if (linktype_count == 0) {
-          row.active_dlt = data_link_info->dlt;
+          device.active_dlt = data_link_info->dlt;
         }
         link->name = g_strdup(data_link_info->description);
       } else {
@@ -4125,7 +3704,7 @@ capture_prep_monitor_changed_cb(GtkWidget *monitor, gpointer argp _U_)
         link->name = g_strdup(str);
         g_free(str);
       }
-      row.links = g_list_append(row.links, link);
+      device.links = g_list_append(device.links, link);
       linktype_count++;
     }
     free_if_capabilities(caps);
@@ -4133,13 +3712,13 @@ capture_prep_monitor_changed_cb(GtkWidget *monitor, gpointer argp _U_)
     /* We don't know whether this supports monitor mode or not;
     don't ask for monitor mode. */
     cap_settings.monitor_mode = FALSE;
-    row.monitor_mode_enabled = FALSE;
-    row.monitor_mode_supported = FALSE;
+    device.monitor_mode_enabled = FALSE;
+    device.monitor_mode_supported = FALSE;
   }
   gtk_widget_set_sensitive(linktype_lb, linktype_count >= 2);
   gtk_widget_set_sensitive(linktype_combo_box, linktype_count >= 2);
   ws_combo_box_set_active(GTK_COMBO_BOX(linktype_combo_box),0);
-  g_array_insert_val(rows, marked_row, row);
+  g_array_insert_val(global_capture_opts.all_ifaces, marked_row, device);
 }
 #endif
 

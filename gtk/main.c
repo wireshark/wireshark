@@ -114,6 +114,7 @@
 #include "../capture_ifinfo.h"
 #include "../capture.h"
 #include "../capture_sync.h"
+extern gint if_list_comparator_alph (const void *first_arg, const void *second_arg);
 #endif
 
 #ifdef _WIN32
@@ -512,16 +513,16 @@ selected_ptree_ref_cb(GtkWidget *widget _U_, gpointer data _U_)
 static gboolean
 is_address_column (gint column)
 {
-  if (((cfile.cinfo.col_fmt[column] == COL_DEF_SRC) ||
-       (cfile.cinfo.col_fmt[column] == COL_RES_SRC) ||
-       (cfile.cinfo.col_fmt[column] == COL_DEF_DST) ||
-       (cfile.cinfo.col_fmt[column] == COL_RES_DST)) &&
-      strlen(cfile.cinfo.col_expr.col_expr_val[column]))
-  {
-    return TRUE;
-  }
+    if (((cfile.cinfo.col_fmt[column] == COL_DEF_SRC) ||
+         (cfile.cinfo.col_fmt[column] == COL_RES_SRC) ||
+         (cfile.cinfo.col_fmt[column] == COL_DEF_DST) ||
+         (cfile.cinfo.col_fmt[column] == COL_RES_DST)) &&
+          strlen(cfile.cinfo.col_expr.col_expr_val[column]))
+    {
+        return TRUE;
+    }
 
-  return FALSE;
+    return FALSE;
 }
 
 GList *
@@ -547,17 +548,17 @@ get_ip_address_list_from_packet_list_row(gpointer data)
         epan_dissect_run(&edt, &cfile.pseudo_header, cfile.pd, fdata, &cfile.cinfo);
         epan_dissect_fill_in_columns(&edt, TRUE, TRUE);
 
-	/* First check selected column */
-	if (is_address_column (column)) {
-	  addr_list = g_list_append (addr_list, se_strdup_printf("%s", cfile.cinfo.col_expr.col_expr_val[column]));
+        /* First check selected column */
+        if (is_address_column (column)) {
+            addr_list = g_list_append (addr_list, se_strdup_printf("%s", cfile.cinfo.col_expr.col_expr_val[column]));
         }
 
-	for (col = 0; col < cfile.cinfo.num_cols; col++) {
-	  /* Then check all columns except the selected */
-	  if ((col != column) && (is_address_column (col))) {
-	    addr_list = g_list_append (addr_list, se_strdup_printf("%s", cfile.cinfo.col_expr.col_expr_val[col]));
-	  }
-	}
+        for (col = 0; col < cfile.cinfo.num_cols; col++) {
+            /* Then check all columns except the selected */
+            if ((col != column) && (is_address_column (col))) {
+                addr_list = g_list_append (addr_list, se_strdup_printf("%s", cfile.cinfo.col_expr.col_expr_val[col]));
+            }
+        }
 
         epan_dissect_cleanup(&edt);
     }
@@ -694,7 +695,7 @@ set_frame_reftime(gboolean set, frame_data *frame, gint row) {
     return;
   if (set) {
     frame->flags.ref_time=1;
-	cfile.ref_time_count++;
+    cfile.ref_time_count++;
   } else {
     frame->flags.ref_time=0;
     cfile.ref_time_count--;
@@ -716,8 +717,8 @@ static void reftime_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_
     case(ESD_BTN_YES):
         timestamp_set_type(TS_RELATIVE);
         recent.gui_time_format  = TS_RELATIVE;
-		cf_timestamp_auto_precision(&cfile);
-		new_packet_list_queue_draw();
+        cf_timestamp_auto_precision(&cfile);
+        new_packet_list_queue_draw();
         break;
     case(ESD_BTN_NO):
         break;
@@ -727,7 +728,7 @@ static void reftime_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_
 
     if (cfile.current_frame) {
       set_frame_reftime(!cfile.current_frame->flags.ref_time,
-			cfile.current_frame, cfile.current_row);
+      cfile.current_frame, cfile.current_row);
     }
 }
 
@@ -1399,6 +1400,9 @@ npf_warning_dialog_cb(gpointer dialog, gint btn _U_, gpointer data _U_)
 static void
 main_cf_cb_file_closing(capture_file *cf)
 {
+#ifdef HAVE_LIBPCAP
+    int i;
+#endif
 
     /* if we have more than 10000 packets, show a splash screen while closing */
     /* XXX - don't know a better way to decide whether to show or not,
@@ -1417,6 +1421,14 @@ main_cf_cb_file_closing(capture_file *cf)
     destroy_packet_wins();
     file_save_as_destroy();
 
+#ifdef HAVE_LIBPCAP
+    if (global_capture_opts.ifaces && global_capture_opts.ifaces->len > 0) {
+        for (i = (int)global_capture_opts.ifaces->len-1; i >= 0; i--) {
+            global_capture_opts.ifaces = g_array_remove_index(global_capture_opts.ifaces, i);
+        }
+    } 
+#endif
+    
     /* Restore the standard title bar message. */
     set_main_window_name("The Wireshark Network Analyzer");
 
@@ -2174,8 +2186,8 @@ main(int argc, char *argv[])
   recent_read_static(&rf_path, &rf_open_errno);
   if (rf_path != NULL && rf_open_errno != 0) {
     simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-		  "Could not open common recent file\n\"%s\": %s.",
-		  rf_path, g_strerror(rf_open_errno));
+      "Could not open common recent file\n\"%s\": %s.",
+      rf_path, g_strerror(rf_open_errno));
   }
 
   /* "pre-scan" the command line parameters, if we have "console only"
@@ -2194,13 +2206,13 @@ main(int argc, char *argv[])
   while ((opt = getopt(argc, argv, optstring)) != -1) {
     switch (opt) {
       case 'C':        /* Configuration Profile */
-	if (profile_exists (optarg, FALSE)) {
-	  set_profile_name (optarg);
-	} else {
-	  cmdarg_err("Configuration Profile \"%s\" does not exist", optarg);
-	  exit(1);
-	}
-	break;
+        if (profile_exists (optarg, FALSE)) {
+          set_profile_name (optarg);
+        } else {
+          cmdarg_err("Configuration Profile \"%s\" does not exist", optarg);
+          exit(1);
+        }
+        break;
       case 'D':        /* Print a list of capture devices and exit */
 #ifdef HAVE_LIBPCAP
         if_list = capture_interface_list(&err, &err_str);
@@ -2269,8 +2281,8 @@ main(int argc, char *argv[])
   recent_read_profile_static(&rf_path, &rf_open_errno);
   if (rf_path != NULL && rf_open_errno != 0) {
     simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-		  "Could not open recent file\n\"%s\": %s.",
-		  rf_path, g_strerror(rf_open_errno));
+      "Could not open recent file\n\"%s\": %s.",
+      rf_path, g_strerror(rf_open_errno));
   }
 
   if (recent.gui_fileopen_remembered_dir &&
@@ -2443,6 +2455,11 @@ main(int argc, char *argv[])
   /* Fill in capture options with values from the preferences */
   prefs_to_capture_opts();
 
+#ifdef HAVE_LIBPCAP
+  if (global_capture_opts.all_ifaces->len == 0) {
+    scan_local_interfaces(&global_capture_opts);
+  }
+#endif
   /* Now get our args */
   while ((opt = getopt(argc, argv, optstring)) != -1) {
     switch (opt) {
@@ -2453,7 +2470,6 @@ main(int argc, char *argv[])
       case 'f':        /* capture filter */
       case 'k':        /* Start capture immediately */
       case 'H':        /* Hide capture info dialog box */
-      case 'i':        /* Use interface xxx */
       case 'p':        /* Don't capture in promiscuous mode */
 #ifdef HAVE_PCAP_CREATE
       case 'I':        /* Capture in monitor mode, if available */
@@ -2483,13 +2499,25 @@ main(int argc, char *argv[])
         break;
 #endif
 
+#ifdef HAVE_LIBPCAP
+      case 'i':       /* Use interface xxx */
+        status = capture_opts_select_iface(&global_capture_opts, optarg);
+        if (status != 0) {
+            exit(status);
+        }
+#else
+        capture_option_specified = TRUE;
+        arg_error = TRUE;
+#endif
+        break;
+        
       /*** all non capture option specific ***/
       case 'C':
         /* Configuration profile settings were already processed just ignore them this time*/
-	break;
+        break;
       case 'd':
-	dfilter = optarg;
-	break;
+        dfilter = optarg;
+        break;
       case 'j':        /* Search backwards for a matching packet from filter in option J */
         jump_backwards = TRUE;
         break;
@@ -2528,7 +2556,7 @@ main(int argc, char *argv[])
         badopt = string_to_name_resolve(optarg, &gbl_resolv_flags);
         if (badopt != '\0') {
           cmdarg_err("-N specifies unknown resolving option '%c'; valid options are 'm', 'n', and 't'",
-			badopt);
+            badopt);
           exit(1);
         }
         break;
@@ -2553,7 +2581,7 @@ main(int argc, char *argv[])
             case PREFS_SET_NO_SUCH_PREF:
             case PREFS_SET_OBSOLETE:
               cmdarg_err("-o flag \"%s\" specifies unknown preference/recent value",
-	            optarg);
+                optarg);
               exit(1);
               break;
             default:
@@ -2562,7 +2590,7 @@ main(int argc, char *argv[])
           break;
         case PREFS_SET_OBSOLETE:
           cmdarg_err("-o flag \"%s\" specifies obsolete preference",
-			optarg);
+            optarg);
           exit(1);
           break;
         default:
@@ -2573,9 +2601,9 @@ main(int argc, char *argv[])
         /* Path settings were already processed just ignore them this time*/
         break;
       case 'r':        /* Read capture file xxx */
-	/* We may set "last_open_dir" to "cf_name", and if we change
-	   "last_open_dir" later, we free the old value, so we have to
-	   set "cf_name" to something that's been allocated. */
+        /* We may set "last_open_dir" to "cf_name", and if we change
+        "last_open_dir" later, we free the old value, so we have to
+        set "cf_name" to something that's been allocated. */
         cf_name = g_strdup(optarg);
         break;
       case 'R':        /* Read file filter */
@@ -2626,11 +2654,11 @@ main(int argc, char *argv[])
            part of a tap filter.  Instead, we just add the argument
            to a list of stat arguments. */
         if (!process_stat_cmd_arg(optarg)) {
-	  cmdarg_err("Invalid -z argument.");
-	  cmdarg_err_cont("  -z argument must be one of :");
-	  list_stat_cmd_args();
-	  exit(1);
-	}
+          cmdarg_err("Invalid -z argument.");
+          cmdarg_err_cont("  -z argument must be one of :");
+          list_stat_cmd_args();
+          exit(1);
+        }
         break;
       default:
       case '?':        /* Bad flag - print usage message */
@@ -2717,23 +2745,18 @@ main(int argc, char *argv[])
        sense? */
     if (global_capture_opts.multi_files_on) {
       /* Ring buffer works only under certain conditions:
-	 a) ring buffer does not work with temporary files;
-	 b) real_time_mode and multi_files_on are mutually exclusive -
-	    real_time_mode takes precedence;
-	 c) it makes no sense to enable the ring buffer if the maximum
-	    file size is set to "infinite". */
+      a) ring buffer does not work with temporary files;
+      b) real_time_mode and multi_files_on are mutually exclusive -
+         real_time_mode takes precedence;
+      c) it makes no sense to enable the ring buffer if the maximum
+         file size is set to "infinite". */
       if (global_capture_opts.save_file == NULL) {
-	cmdarg_err("Ring buffer requested, but capture isn't being saved to a permanent file.");
-	global_capture_opts.multi_files_on = FALSE;
+        cmdarg_err("Ring buffer requested, but capture isn't being saved to a permanent file.");
+        global_capture_opts.multi_files_on = FALSE;
       }
-/*      if (global_capture_opts.real_time_mode) {
-	cmdarg_err("Ring buffer requested, but an \"Update list of packets in real time\" capture is being done.");
-	global_capture_opts.multi_files_on = FALSE;
-      }*/
       if (!global_capture_opts.has_autostop_filesize && !global_capture_opts.has_file_duration) {
-	cmdarg_err("Ring buffer requested, but no maximum capture file size or duration were specified.");
-/* XXX - this must be redesigned as the conditions changed */
-/*	global_capture_opts.multi_files_on = FALSE;*/
+        cmdarg_err("Ring buffer requested, but no maximum capture file size or duration were specified.");
+        /* XXX - this must be redesigned as the conditions changed */
       }
     }
   }
@@ -2750,23 +2773,24 @@ main(int argc, char *argv[])
     /* Get the list of link-layer types for the capture devices. */
     if_capabilities_t *caps;
     guint i;
-    interface_options interface_opts;
+    interface_t device;
+    for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
 
-    for (i = 0; i < global_capture_opts.ifaces->len; i++) {
-
-      interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
-      caps = capture_get_if_capabilities(interface_opts.name, interface_opts.monitor_mode, &err_str);
-      if (caps == NULL) {
-        cmdarg_err("%s", err_str);
-        g_free(err_str);
-        exit(2);
+      device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+      if (device.selected) {
+        caps = capture_get_if_capabilities(device.name, device.monitor_mode_supported, &err_str);
+        if (caps == NULL) {
+          cmdarg_err("%s", err_str);
+          g_free(err_str);
+          exit(2);
+        }
+        if (caps->data_link_types == NULL) {
+          cmdarg_err("The capture device \"%s\" has no data link types.", device.name);
+          exit(2);
+        }
+        capture_opts_print_if_capabilities(caps, device.name, device.monitor_mode_supported);
+        free_if_capabilities(caps);
       }
-      if (caps->data_link_types == NULL) {
-        cmdarg_err("The capture device \"%s\" has no data link types.", interface_opts.name);
-        exit(2);
-      }
-      capture_opts_print_if_capabilities(caps, interface_opts.name, interface_opts.monitor_mode);
-      free_if_capabilities(caps);
     }
     exit(0);
   }
@@ -2787,52 +2811,19 @@ main(int argc, char *argv[])
     exit(2);
   }
 #endif
-  if ((global_capture_opts.ifaces->len == 0) &&
+  if ((global_capture_opts.num_selected == 0) &&
       (prefs.capture_device != NULL)) {
-    GList *curr, *combo_list;
-    gboolean found = FALSE;
-
-    if_list = capture_interface_list(&err, NULL);
-    if (g_list_length(if_list) > 0) {
-      combo_list = build_capture_combo_list(if_list, FALSE);
-      free_interface_list(if_list);
-      for (curr = combo_list; curr; curr = g_list_next(curr)) {
-        if (strcmp(curr->data, prefs.capture_device) == 0) {
-          found = TRUE;
-          break;
-        }
+    guint i;
+    interface_t device;
+    for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+      device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+      if (!device.hidden && strcmp(device.display_name, prefs.capture_device) == 0) {
+        device.selected = TRUE;
+        global_capture_opts.num_selected++;
+        global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
+        g_array_insert_val(global_capture_opts.all_ifaces, i, device);
+        break;
       }
-    }
-    if (found) {
-      interface_options interface_opts;
-
-      interface_opts.name = g_strdup(get_if_name(prefs.capture_device));
-      interface_opts.descr = get_interface_descriptive_name(interface_opts.name);
-      interface_opts.monitor_mode = prefs_capture_device_monitor_mode(interface_opts.name);
-      interface_opts.linktype = capture_dev_user_linktype_find(interface_opts.name);
-      interface_opts.cfilter = g_strdup(global_capture_opts.default_options.cfilter);
-      interface_opts.snaplen = global_capture_opts.default_options.snaplen;
-      interface_opts.has_snaplen = global_capture_opts.default_options.has_snaplen;
-      interface_opts.promisc_mode = global_capture_opts.default_options.promisc_mode;
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-      interface_opts.buffer_size =  global_capture_opts.default_options.buffer_size;
-#endif
-#ifdef HAVE_PCAP_REMOTE
-      interface_opts.src_type = global_capture_opts.default_options.src_type;
-      interface_opts.remote_host = g_strdup(global_capture_opts.default_options.remote_host);
-      interface_opts.remote_port = g_strdup(global_capture_opts.default_options.remote_port);
-      interface_opts.auth_type = global_capture_opts.default_options.auth_type;
-      interface_opts.auth_username = g_strdup(global_capture_opts.default_options.auth_username);
-      interface_opts.auth_password = g_strdup(global_capture_opts.default_options.auth_password);
-      interface_opts.datatx_udp = global_capture_opts.default_options.datatx_udp;
-      interface_opts.nocap_rpcap = global_capture_opts.default_options.nocap_rpcap;
-      interface_opts.nocap_local = global_capture_opts.default_options.nocap_local;
- #endif
- #ifdef HAVE_PCAP_SETSAMPLING
-      interface_opts.sampling_method = global_capture_opts.default_options.sampling_method;
-      interface_opts.sampling_param  = global_capture_opts.default_options.sampling_param;
- #endif
-      g_array_insert_val(global_capture_opts.ifaces, 0, interface_opts);
     }
   }
 #endif
@@ -2875,8 +2866,8 @@ main(int argc, char *argv[])
   recent_read_dynamic(&rf_path, &rf_open_errno);
   if (rf_path != NULL && rf_open_errno != 0) {
     simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-		  "Could not open recent file\n\"%s\": %s.",
-		  rf_path, g_strerror(rf_open_errno));
+      "Could not open recent file\n\"%s\": %s.",
+      rf_path, g_strerror(rf_open_errno));
   }
 
   color_filters_enable(recent.packet_list_colorize);
@@ -2998,15 +2989,15 @@ main(int argc, char *argv[])
           break;
         }
 
-	/* If the filename is not the absolute path, prepend the current dir. This happens
-	   when wireshark is invoked from a cmd shell (e.g.,'wireshark -r file.pcap'). */
-	if (!g_path_is_absolute(cf_name)) {
-	  char *old_cf_name = cf_name;
-	  char *pwd = g_get_current_dir();
-	  cf_name = g_strdup_printf("%s%s%s", pwd, G_DIR_SEPARATOR_S, cf_name);
-	  g_free(old_cf_name);
-	  g_free(pwd);
-	}
+        /* If the filename is not the absolute path, prepend the current dir. This happens
+        when wireshark is invoked from a cmd shell (e.g.,'wireshark -r file.pcap'). */
+        if (!g_path_is_absolute(cf_name)) {
+          char *old_cf_name = cf_name;
+          char *pwd = g_get_current_dir();
+          cf_name = g_strdup_printf("%s%s%s", pwd, G_DIR_SEPARATOR_S, cf_name);
+          g_free(old_cf_name);
+          g_free(pwd);
+        }
 
         /* Save the name of the containing directory specified in the
            path name, if any; we can write over cf_name, which is a
@@ -3021,7 +3012,7 @@ main(int argc, char *argv[])
           dfilter_free(rfcode);
         cfile.rfcode = NULL;
         show_main_window(FALSE);
-	/* Don't call check_and_warn_user_startup(): we did it above */
+        /* Don't call check_and_warn_user_startup(): we did it above */
         set_menus_for_capture_in_progress(FALSE);
         set_capture_if_dialog_for_capture_in_progress(FALSE);
       }
@@ -3041,10 +3032,10 @@ main(int argc, char *argv[])
       check_and_warn_user_startup(cf_name);
       if (capture_start(&global_capture_opts)) {
         /* The capture started.  Open stat windows; we do so after creating
-	   the main window, to avoid GTK warnings, and after successfully
-	   opening the capture file, so we know we have something to compute
-	   stats on, and after registering all dissectors, so that MATE will
-	   have registered its field array and we can have a tap filter with
+           the main window, to avoid GTK warnings, and after successfully
+           opening the capture file, so we know we have something to compute
+           stats on, and after registering all dissectors, so that MATE will
+           have registered its field array and we can have a tap filter with
            one of MATE's late-registered fields as part of the filter. */
         start_requested_stats();
       }
@@ -3550,7 +3541,6 @@ main_widgets_show_or_hide(void)
     if (!have_capture_file) {
         if(welcome_pane) {
             gtk_widget_show(welcome_pane);
-            select_ifaces();
         }
     } else {
         gtk_widget_hide(welcome_pane);
@@ -3858,3 +3848,218 @@ void redissect_packets(void)
     cf_redissect_packets(&cfile);
     status_expert_update();
 }
+
+#ifdef HAVE_LIBPCAP
+void
+scan_local_interfaces(capture_options* capture_opts)
+{
+    GList             *if_entry, *lt_entry, *if_list;
+    if_info_t         *if_info, *temp;
+    char              *if_string="";
+    gchar             *descr, *str, *err_str = NULL;
+    if_capabilities_t *caps=NULL;
+    gint              linktype_count;
+    cap_settings_t    cap_settings;
+    GSList            *curr_addr;
+    int               ips = 0, err, i;
+    guint             count = 0;
+    if_addr_t         *addr, *temp_addr;
+    link_row          *link = NULL;
+    data_link_info_t  *data_link_info;
+    interface_t       device;
+    GString           *ip_str;
+
+    if (capture_opts->all_ifaces->len > 0) {
+        for (i = (int)capture_opts->all_ifaces->len-1; i >= 0; i--) {
+            device = g_array_index(capture_opts->all_ifaces, interface_t, i);
+            if (device.type == IF_LOCAL) {
+                capture_opts->all_ifaces = g_array_remove_index(capture_opts->all_ifaces, i);
+            }
+        }
+    }
+    /* Scan through the list and build a list of strings to display. */
+    if_list = capture_interface_list(&err, &err_str);
+    if (if_list == NULL) {
+    switch (err) {
+
+    case CANT_GET_INTERFACE_LIST:
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);
+      g_free(err_str);
+      break;
+
+    case NO_INTERFACES_FOUND:
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                    "There are no interfaces on which a capture can be done.");
+      break;
+    }
+    return;
+  }
+    count = 0;
+    for (if_entry = if_list; if_entry != NULL; if_entry = g_list_next(if_entry)) {
+        if_info = if_entry->data;
+        ip_str = g_string_new("");
+        str = "";
+        ips = 0;
+        device.name = g_strdup(if_info->name);
+        device.hidden = FALSE;
+        device.locked = FALSE;
+        temp = g_malloc0(sizeof(if_info_t));
+        temp->name = g_strdup(if_info->name);
+        temp->description = g_strdup(if_info->description);
+        temp->loopback = if_info->loopback;
+        /* Is this interface hidden and, if so, should we include it anyway? */
+
+        /* Do we have a user-supplied description? */
+        descr = capture_dev_user_descr_find(if_info->name);
+        if (descr != NULL) {
+            /* Yes, we have a user-supplied description; use it. */
+            if_string = g_strdup_printf("%s: %s", descr, if_info->name);
+            g_free(descr);
+        } else {
+            /* No, we don't have a user-supplied description; did we get
+            one from the OS or libpcap? */
+            if (if_info->description != NULL) {
+                /* Yes - use it. */
+                if_string = g_strdup_printf("%s: %s", if_info->description, if_info->name);
+            } else {
+                /* No. */
+                if_string = g_strdup(if_info->name);
+            }
+        }
+        if (if_info->loopback) {
+            device.display_name = g_strdup_printf("%s (loopback)", if_string);
+        } else {
+            device.display_name = g_strdup(if_string);
+        }
+        device.selected = FALSE;
+        if (prefs_is_capture_device_hidden(if_info->name)) {
+            device.hidden = TRUE;
+        } 
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+        device.buffer = capture_opts->default_options.buffer_size;
+#endif
+        device.pmode = capture_opts->default_options.promisc_mode;
+        device.has_snaplen = capture_opts->default_options.has_snaplen;
+        device.snaplen = capture_opts->default_options.snaplen;
+        device.cfilter = g_strdup(capture_opts->default_options.cfilter);
+        cap_settings = capture_get_cap_settings(if_info->name);
+        caps = capture_get_if_capabilities(if_info->name, cap_settings.monitor_mode, NULL);
+        for (; (curr_addr = g_slist_nth(if_info->addrs, ips)) != NULL; ips++) {
+            temp_addr = g_malloc0(sizeof(if_addr_t));
+            if (ips != 0) {
+                g_string_append(ip_str, "\n");
+            }
+            addr = (if_addr_t *)curr_addr->data;
+            if (addr) {
+                temp_addr->ifat_type = addr->ifat_type;
+                switch (addr->ifat_type) {
+                    case IF_AT_IPv4:
+                        temp_addr->addr.ip4_addr = addr->addr.ip4_addr;
+                        g_string_append(ip_str, ip_to_str((guint8 *)&addr->addr.ip4_addr));
+                        break;
+                    case IF_AT_IPv6:
+                        memcpy(temp_addr->addr.ip6_addr, addr->addr.ip6_addr, sizeof(addr->addr));
+                        g_string_append(ip_str,  ip6_to_str((struct e_in6_addr *)&addr->addr.ip6_addr));
+                        break;
+                    default:
+                        /* In case we add non-IP addresses */
+                        break;
+                }
+            } else {
+                g_free(temp_addr);
+                temp_addr = NULL;
+            }
+            if (temp_addr) {
+                temp->addrs = g_slist_append(temp->addrs, temp_addr);
+            }
+        }
+#ifdef HAVE_PCAP_REMOTE
+        device.remote_opts.src_type = CAPTURE_IFLOCAL;
+#endif
+        linktype_count = 0;
+        device.links = NULL;
+        if (caps != NULL) {
+#ifdef HAVE_PCAP_CREATE
+            device.monitor_mode_enabled = cap_settings.monitor_mode;
+            device.monitor_mode_supported = caps->can_set_rfmon;
+#endif 
+            for (lt_entry = caps->data_link_types; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
+                data_link_info = lt_entry->data;
+                if (data_link_info->description != NULL) {
+                    str = g_strdup_printf("%s", data_link_info->description);
+                } else {
+                    str = g_strdup_printf("%s (not supported)", data_link_info->name);
+                }
+                if (linktype_count == 0) {
+                    device.active_dlt = data_link_info->dlt;
+                }
+                link = (link_row *)g_malloc(sizeof(link_row));
+                link->dlt = data_link_info->dlt;
+                link->name = g_strdup(str);
+                device.links = g_list_append(device.links, link);
+                linktype_count++;
+            }
+        } else {
+            cap_settings.monitor_mode = FALSE;
+#ifdef HAVE_PCAP_CREATE
+            device.monitor_mode_enabled = FALSE;
+            device.monitor_mode_supported = FALSE;
+#endif
+            device.active_dlt = -1;
+        }
+        device.addresses = g_strdup(ip_str->str);
+        device.no_addresses = ips;
+        device.type = IF_LOCAL;
+        device.if_info = *temp;
+        device.last_packets = 0;
+
+        if (capture_opts->all_ifaces->len <= count) {
+            g_array_append_val(capture_opts->all_ifaces, device);
+            count = capture_opts->all_ifaces->len;
+        } else {
+            g_array_insert_val(capture_opts->all_ifaces, count, device);
+        }
+        if (caps != NULL) {
+            free_if_capabilities(caps);
+        }
+            
+        g_string_free(ip_str, TRUE);
+        count++;
+    }
+    free_interface_list(if_list);
+}
+
+void hide_interface(gchar* new_hide)
+{
+    gchar       *tok;
+    guint       i;
+    interface_t device;
+    gboolean    found = FALSE;
+    GList       *hidden_devices = NULL, *entry;
+    if (new_hide != NULL) {
+        for (tok = strtok (new_hide, ","); tok; tok = strtok(NULL, ",")) {
+            hidden_devices = g_list_append(hidden_devices, tok);
+        }
+    }
+    for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+        device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+        found = FALSE;
+        for (entry = hidden_devices; entry != NULL; entry = g_list_next(entry)) {
+            if (strcmp(entry->data, device.name)==0) {
+                device.hidden = TRUE;
+                if (device.selected) {
+                    device.selected = FALSE;
+                    global_capture_opts.num_selected--;
+                }
+                found = TRUE;
+                break;
+            }
+        } 
+        if (!found) {
+            device.hidden = FALSE;
+        }
+        global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
+        g_array_insert_val(global_capture_opts.all_ifaces, i, device);
+    }
+}
+#endif

@@ -51,7 +51,7 @@ GtkWidget *
 capture_get_if_icon(const if_info_t* if_info);
 
 void
-update_selected_interface(gchar *name, gboolean activate);
+update_selected_interface(gchar *name);
 
 gboolean
 interfaces_dialog_window_present(void);
@@ -64,6 +64,9 @@ select_all_interfaces(gboolean enable);
 
 void
 destroy_if_window(void);
+
+gint 
+if_list_comparator_alph (const void *first_arg, const void *second_arg);
 
 #endif /* HAVE_LIBPCAP */
 
