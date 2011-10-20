@@ -2539,15 +2539,14 @@ dis_field_ud_iei(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 }
 
 /* 9.2.3.24 */
-#define NUM_FILL_BITS_MASKS 6
 #define SMS_MAX_MESSAGE_SIZE 160
 static char    messagebuf[SMS_MAX_MESSAGE_SIZE+1];
 static void
 dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gboolean udhi, guint8 udl,
     gboolean seven_bit, gboolean eight_bit, gboolean ucs2, gboolean compressed)
 {
-    static guint8	fill_bits_mask[NUM_FILL_BITS_MASKS] =
-	{ 0x80, 0xc0, 0xe0, 0xf0, 0xf8, 0xfc };
+    static guint8	fill_bits_mask[7] =
+	{ 0x0, 0x01, 0x03, 0x07, 0x0f, 0x1f, 0x3f };
     proto_item	*item;
     proto_item	*udh_item;
     proto_tree	*subtree = NULL;
@@ -2611,8 +2610,8 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
         {
             /* step over fill bits ? */
 
-            fill_bits = 7 - (((oct + 1) * 8) % 7);
-            if (fill_bits < NUM_FILL_BITS_MASKS)
+            fill_bits = 6 - ((oct * 8) % 7);
+            if (fill_bits)
             {
                 oct = tvb_get_guint8(tvb, offset);
 
@@ -2621,6 +2620,7 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
                                     tvb, offset, 1,
                                     "%s :  Fill bits",
                                     bigbuf);
+                /* Note: Could add an expert item here if ((oct & fill_bits_mask[fill_bits]) != 0) */
             }
         }
     }
