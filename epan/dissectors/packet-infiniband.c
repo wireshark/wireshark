@@ -1624,9 +1624,12 @@ dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     struct e_in6_addr DSTgid;
     gint crc_length = 0;
 
-    /* allocate space for source/destination addresses. we will fill them in later */
-    src_addr = ep_alloc(ADDR_MAX_LEN);
-    dst_addr = ep_alloc(ADDR_MAX_LEN);
+    /* allocate space for source/destination addresses if not allocated already. we will fill them in later */
+    if (!src_addr)
+        src_addr = ep_alloc(ADDR_MAX_LEN);
+
+    if (!dst_addr)
+        dst_addr = ep_alloc(ADDR_MAX_LEN);
 
     pinfo->srcport = pinfo->destport = 0xffffffff;  /* set the src/dest QPN to something impossible instead of the default 0,
                                                        so we don't mistake it for a MAD. (QP is only 24bit, so can't be 0xffffffff)*/
@@ -2057,6 +2060,13 @@ dissect_infiniband_link(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item *operand_item = NULL;
     gint offset = 0;                /* Current Offset */
     guint8 operand;                 /* Link packet Operand */
+
+    /* allocate space for source/destination addresses if not allocated already. we will fill them in later */
+    if (!src_addr)
+        src_addr = ep_alloc(ADDR_MAX_LEN);
+
+    if (!dst_addr)
+        dst_addr = ep_alloc(ADDR_MAX_LEN);
 
     operand =  tvb_get_guint8(tvb, offset);
     operand = (operand & 0xF0) >> 4;
