@@ -341,7 +341,7 @@ dissect_dcd_clid (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
 	      if (length == 6)
 		{
 		  proto_tree_add_item (dcd_tree, hf_docsis_dcd_clid_known_mac_addr, tvb,
-				       pos, length, FALSE);
+				       pos, length, ENC_NA);
 		}
 	      else
 		{
@@ -426,7 +426,7 @@ dissect_dcd_dsg_rule (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
 	      if (length == 6)
 		{
 	          proto_tree_add_item (dcd_tree, hf_docsis_dcd_rule_tunl_addr, tvb,
-				   pos, length, FALSE);
+				   pos, length, ENC_NA);
 		}
               else 
 		{

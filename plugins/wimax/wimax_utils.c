@@ -1988,14 +1988,14 @@ void wimax_convengence_service_parameter_encoding_rules_decoder(guint sfe_type, 
 							case CST_PKT_CLASS_RULE_DST_MAC:
 								ti_tree = add_tlv_subtree(&tlv_info, ett_wimax_cst_encoding_rules, tlv_tree, hf_cst_pkt_class_rule_dest_mac_address, tvb, tlv_offset, length, FALSE);
 								/* add TLV subtree */
-								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_dest_mac, tvb, tlv_offset, 6, FALSE);
-								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_mask_mac, tvb, tlv_offset + 6, 6, FALSE);
+								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_dest_mac, tvb, tlv_offset, 6, ENC_NA);
+								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_mask_mac, tvb, tlv_offset + 6, 6, ENC_NA);
 							break;
 							case CST_PKT_CLASS_RULE_SRC_MAC:
 								/* add TLV subtree */
 								ti_tree = add_tlv_subtree(&tlv_info, ett_wimax_cst_encoding_rules, tlv_tree, hf_cst_pkt_class_rule_src_mac_address, tvb, tlv_offset, length, FALSE);
-								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_src_mac, tvb, tlv_offset, 6, FALSE);
-								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_mask_mac, tvb, tlv_offset + 6, 6, FALSE);
+								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_src_mac, tvb, tlv_offset, 6, ENC_NA);
+								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_mask_mac, tvb, tlv_offset + 6, 6, ENC_NA);
 							break;
 							case CST_PKT_CLASS_RULE_ETHERTYPE:
 								/* add TLV subtree */
@@ -2528,7 +2528,7 @@ void wimax_cmac_tuple_decoder(proto_tree *tree, tvbuff_t *tvb, guint offset, gui
 	cmac_offset++;
 	if(length > 13)
 	{
-		proto_tree_add_item(cmac_tree, hf_cmac_tuple_bsid, tvb, cmac_offset, 6, FALSE);
+		proto_tree_add_item(cmac_tree, hf_cmac_tuple_bsid, tvb, cmac_offset, 6, ENC_NA);
 		cmac_offset += 6;
 	}
 	proto_tree_add_item(cmac_tree, hf_packet_number_counter, tvb, cmac_offset, 4, ENC_BIG_ENDIAN);
@@ -2937,7 +2937,7 @@ void wimax_pkm_tlv_encoded_attributes_decoder(tvbuff_t *tvb, packet_info *pinfo,
 			break;
 			case PKM_ATTR_MS_MAC_ADDRESS:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_attr_ms_mac_address, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_attr_ms_mac_address, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_attr_ms_mac_address, tvb, offset, tlv_len, ENC_NA);
 			break;
 			case PKM_ATTR_CMAC_DIGEST:
 				/* add TLV subtree */

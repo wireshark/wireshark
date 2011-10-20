@@ -382,10 +382,10 @@ void dissect_mac_mgmt_msg_rng_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					if (tlv_len == 6)
 					{
 						sub_tree = add_tlv_subtree(&tlv_info, ett_rng_rsp_message_tree, rng_rsp_tree, hf_rng_rsp_ss_mac_address, tvb, tlv_offset, 6, FALSE);
-						ss_mac_address_item = proto_tree_add_item(sub_tree, hf_rng_rsp_ss_mac_address, tvb, tlv_offset, 6, FALSE);
+						ss_mac_address_item = proto_tree_add_item(sub_tree, hf_rng_rsp_ss_mac_address, tvb, tlv_offset, 6, ENC_NA);
 					} else {
 						sub_tree = add_tlv_subtree(&tlv_info, ett_rng_rsp_message_tree, rng_rsp_tree, hf_rng_invalid_tlv, tvb, tlv_offset, tlv_len, FALSE);
-						proto_tree_add_item(sub_tree, hf_rng_rsp_ss_mac_address, tvb, tlv_offset, 6, FALSE);
+						proto_tree_add_item(sub_tree, hf_rng_rsp_ss_mac_address, tvb, tlv_offset, 6, ENC_NA);
 					}
 					break;
 				case RNG_RSP_BASIC_CID:

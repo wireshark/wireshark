@@ -175,9 +175,9 @@ dissect_macmgmt (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                                         "Mac Management");
       mgt_hdr_tree = proto_item_add_subtree (mgt_hdr_it, ett_docsis_mgmt);
       proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_dst_addr, tvb, 0, 6,
-                           FALSE);
+                           ENC_NA);
       proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_src_addr, tvb, 6, 6,
-                           FALSE);
+                           ENC_NA);
       proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_msg_len, tvb, 12, 2,
                            ENC_BIG_ENDIAN);
       proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_dsap, tvb, 14, 1,

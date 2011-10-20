@@ -559,7 +559,7 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 				case DCD_BS_ID:
 				{
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, hf_dcd_bs_id, tvb, offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_dcd_bs_id, tvb, offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_dcd_bs_id, tvb, offset, tlv_len, ENC_NA);
 					break;
 				}
 				case DCD_FRAME_DURATION_CODE:

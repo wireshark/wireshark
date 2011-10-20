@@ -578,7 +578,7 @@ dissect_basic_phone(proto_tree *msg_tree,
       case 0x11:
    /*Phone Ethernet address*/
          proto_tree_add_item(msg_tree,hf_basic_ether_address,
-                             tvb,offset,msg_len,FALSE);
+                             tvb,offset,msg_len,ENC_NA);
          offset+=msg_len;
          break;
       case 0x0b:

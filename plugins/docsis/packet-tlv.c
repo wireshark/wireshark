@@ -1331,7 +1331,7 @@ dissect_eth_clsfr (tvbuff_t * tvb, proto_tree * tree, int start,
           if (length == 6)
             {
               proto_tree_add_item (ethclsfr_tree, hf_docsis_tlv_ethclsfr_dmac,
-                                   tvb, pos, length, FALSE);
+                                   tvb, pos, length, ENC_NA);
             }
           else
             {
@@ -1342,7 +1342,7 @@ dissect_eth_clsfr (tvbuff_t * tvb, proto_tree * tree, int start,
           if (length == 6)
             {
               proto_tree_add_item (ethclsfr_tree, hf_docsis_tlv_ethclsfr_smac,
-                                   tvb, pos, length, FALSE);
+                                   tvb, pos, length, ENC_NA);
             }
           else
             {
@@ -4011,7 +4011,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
             if (length == 6)
               {
                 proto_tree_add_item (tlv_tree, hf_docsis_tlv_cpe_ethernet,
-                                     tvb, pos, length, FALSE);
+                                     tvb, pos, length, ENC_NA);
               }
             else
               {
@@ -4202,7 +4202,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
             if (length == 6)
               {
                 proto_tree_add_item(tlv_tree, hf_docsis_tlv_mc_mac_address,
-                                    tvb, pos, length, FALSE);
+                                    tvb, pos, length, ENC_NA);
               }
             else
               {

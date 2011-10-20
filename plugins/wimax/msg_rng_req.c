@@ -278,7 +278,7 @@ void dissect_mac_mgmt_msg_rng_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					break;
 				case RNG_REQ_SS_MAC_ADDRESS:
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, rng_req_tree, hf_rng_req_ss_mac_address, tvb, tlv_offset, 6, FALSE);
-					proto_tree_add_item(tlv_tree, hf_rng_req_ss_mac_address, tvb, tlv_offset, 6, FALSE);
+					proto_tree_add_item(tlv_tree, hf_rng_req_ss_mac_address, tvb, tlv_offset, 6, ENC_NA);
 					break;
 				case RNG_REQ_RANGING_ANOMALIES:
 					/* add TLV subtree */
@@ -293,7 +293,7 @@ void dissect_mac_mgmt_msg_rng_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					break;
 				case RNG_REQ_SERVING_BS_ID:
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, rng_req_tree, hf_rng_req_serving_bs_id, tvb, tlv_offset, 6, FALSE);
-					proto_tree_add_item(tlv_tree, hf_rng_req_serving_bs_id, tvb, tlv_offset, 6, FALSE);
+					proto_tree_add_item(tlv_tree, hf_rng_req_serving_bs_id, tvb, tlv_offset, 6, ENC_NA);
 					break;
 				case RNG_REQ_RANGING_PURPOSE_INDICATION:
 					/* display the Ranging Purpose Flags */

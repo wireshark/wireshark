@@ -350,7 +350,7 @@ void dissect_extended_tlv(proto_tree *reg_req_tree, gint tlv_type, tvbuff_t *tvb
 			break;
 		case REG_MAC_ADDRESS:
 			tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, hf_reg_mac_address, tvb, tlv_offset, tlv_len, FALSE);
-			proto_tree_add_item(tlv_tree, hf_reg_mac_address, tvb, tlv_offset, 6, FALSE);
+			proto_tree_add_item(tlv_tree, hf_reg_mac_address, tvb, tlv_offset, 6, ENC_NA);
 			break;
 		case REG_TLV_T_20_MAX_MAC_DATA_PER_FRAME_SUPPORT:
 			/* display Maximum MAC level data per frame info */

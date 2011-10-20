@@ -158,7 +158,7 @@ static void dissect_dreg_tlv(proto_tree *dreg_tree, gint tlv_type, tvbuff_t *tvb
 			proto_tree_add_item(dreg_tree, hf_dreg_req_duration, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 			break;
 		case DREG_PAGING_CONTROLLER_ID:
-			proto_tree_add_item(dreg_tree, hf_paging_controller_id, tvb, tlv_offset, 6, FALSE);
+			proto_tree_add_item(dreg_tree, hf_paging_controller_id, tvb, tlv_offset, 6, ENC_NA);
 			break;
 		case DREG_IDLE_MODE_RETAIN_INFO:
 			proto_tree_add_item(dreg_tree, hf_dreg_retain_ms_service_sbc, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
