@@ -2778,7 +2778,11 @@ main(int argc, char *argv[])
 
       device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
       if (device.selected) {
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
         caps = capture_get_if_capabilities(device.name, device.monitor_mode_supported, &err_str);
+#else
+        caps = capture_get_if_capabilities(device.name, FALSE, &err_str);
+#endif
         if (caps == NULL) {
           cmdarg_err("%s", err_str);
           g_free(err_str);
@@ -2788,7 +2792,11 @@ main(int argc, char *argv[])
           cmdarg_err("The capture device \"%s\" has no data link types.", device.name);
           exit(2);
         }
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
         capture_opts_print_if_capabilities(caps, device.name, device.monitor_mode_supported);
+#else
+        capture_opts_print_if_capabilities(caps, device.name, FALSE);
+#endif
         free_if_capabilities(caps);
       }
     }
