@@ -1113,7 +1113,7 @@ dissect_snmp_engineid(proto_tree *tree, tvbuff_t *tvb, int offset, int len)
 	}
 	/* 6-byte MAC address */
 	if (len_remain==6) {
-	  proto_tree_add_item(tree, hf_snmp_engineid_mac, tvb, offset, 6, ENC_BIG_ENDIAN);
+	  proto_tree_add_item(tree, hf_snmp_engineid_mac, tvb, offset, 6, ENC_NA);
 	  offset+=6;
 	  len_remain=0;
 	}
