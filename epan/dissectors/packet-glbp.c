@@ -531,8 +531,8 @@ proto_register_glbp(void)
         0x0, NULL, HFILL }},
 
     /* type = 3 - auth */
-    { &hf_glbp_auth_authtyp   e,
-      { "Authtype",        "glbp.auth.authtype", FT_UINT8, BASE_DEC, VALS(glbp_auth_type_vals),
+    { &hf_glbp_auth_authtype,
+      { "Authtype",           "glbp.auth.authtype", FT_UINT8, BASE_DEC, VALS(glbp_auth_type_vals),
         0x0, NULL, HFILL }},
 
     { &hf_glbp_auth_authlength,
