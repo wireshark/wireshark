@@ -83,11 +83,11 @@ dissect_cgmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		while (count != 0) {
 			proto_tree_add_item(cgmp_tree, hf_cgmp_gda, tvb, offset, 6,
-			    FALSE);
+			    ENC_NA);
 			offset += 6;
 
 			proto_tree_add_item(cgmp_tree, hf_cgmp_usa, tvb, offset, 6,
-			    FALSE);
+			    ENC_NA);
 			offset += 6;
 
 			count--;

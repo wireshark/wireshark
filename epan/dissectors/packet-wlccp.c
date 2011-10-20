@@ -820,10 +820,10 @@ dissect_wlccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			type = tvb_get_ntohs(tvb, 2);
 
 			proto_tree_add_item(wlccp_tree, hf_wlccp_dstmac,
-					    tvb, 4, 6, ENC_BIG_ENDIAN);
+					    tvb, 4, 6, ENC_NA);
 
 			proto_tree_add_item(wlccp_tree, hf_wlccp_srcmac,
-					    tvb, 10, 6, ENC_BIG_ENDIAN);
+					    tvb, 10, 6, ENC_NA);
 
 			if(type == 0x4081) {
 				proto_tree_add_item(wlccp_tree, hf_wlccp_ipv4_address,
@@ -1148,7 +1148,7 @@ static guint dissect_wlccp_ccm_msg(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 	_offset += 2;
 
 	proto_tree_add_item(_tree, hf_wlccp_originator,
-			    _tvb, _offset, 6, ENC_BIG_ENDIAN);
+			    _tvb, _offset, 6, ENC_NA);
 	_offset += 6;
 
 	proto_tree_add_item(_tree, hf_wlccp_responder_node_type,
@@ -1156,7 +1156,7 @@ static guint dissect_wlccp_ccm_msg(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 	_offset += 2;
 
 	proto_tree_add_item(_tree, hf_wlccp_responder,
-			    _tvb, _offset, 6, ENC_BIG_ENDIAN);
+			    _tvb, _offset, 6, ENC_NA);
 	_offset += 6;
 
 	if(_relay_flag)
@@ -1166,7 +1166,7 @@ static guint dissect_wlccp_ccm_msg(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 		_offset += 2;
 
 		proto_tree_add_item(_tree, hf_wlccp_relay_node_id,
-				    _tvb, _offset, 6, ENC_BIG_ENDIAN);
+				    _tvb, _offset, 6, ENC_NA);
 		_offset += 6;
 
 	} /* if _relay_flag */
@@ -1178,7 +1178,7 @@ static guint dissect_wlccp_ccm_msg(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 		case 0x01:
 		{
 			proto_tree_add_item(_tree, hf_wlccp_scm_hop_address,
-					    _tvb, _offset, 6, ENC_BIG_ENDIAN);
+					    _tvb, _offset, 6, ENC_NA);
 			_offset += 6;
 
 /* Decode the SCM Flags Field */
@@ -1244,7 +1244,7 @@ static guint dissect_wlccp_ccm_msg(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 /* End Decode the SCM Bridge Priority Flags Field */
 
 			proto_tree_add_item(_tree, hf_wlccp_scm_node_id,
-					    _tvb, _offset, 6, ENC_BIG_ENDIAN);
+					    _tvb, _offset, 6, ENC_NA);
 			_offset += 6;
 
 			proto_tree_add_item(_tree, hf_wlccp_scm_unknown_short,
@@ -1331,7 +1331,7 @@ static guint dissect_wlccp_ccm_msg(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 			_offset += 2;
 
 			proto_tree_add_item(_tree, hf_wlccp_requ_node_id,
-					    _tvb, _offset, 6, ENC_BIG_ENDIAN);
+					    _tvb, _offset, 6, ENC_NA);
 			_offset += 6;
 
 			/*kan - according to the patent applicatoin these fields vary based
@@ -1415,7 +1415,7 @@ handle things. To be investigated further */
 			_offset += 2;
 
 			proto_tree_add_item(_tree, hf_wlccp_requ_node_id,
-					    _tvb, _offset, 6, ENC_BIG_ENDIAN);
+					    _tvb, _offset, 6, ENC_NA);
 			_offset += 6;
 
 			/*kan - there's a reserved alignment byte right here*/
@@ -1526,7 +1526,7 @@ static guint dissect_wlccp_rrm_msg(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 	_offset += 2;
 
 	proto_tree_add_item(_tree, hf_wlccp_originator,
-			    _tvb, _offset, 6, ENC_BIG_ENDIAN);
+			    _tvb, _offset, 6, ENC_NA);
 	_offset += 6;
 
 	proto_tree_add_item(_tree, hf_wlccp_responder_node_type,
@@ -1534,7 +1534,7 @@ static guint dissect_wlccp_rrm_msg(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 	_offset += 2;
 
 	proto_tree_add_item(_tree, hf_wlccp_responder,
-			    _tvb, _offset, 6, ENC_BIG_ENDIAN);
+			    _tvb, _offset, 6, ENC_NA);
 	_offset += 6;
 
 
@@ -1650,7 +1650,7 @@ static guint dissect_wlccp_nm_msg(proto_tree *_tree, tvbuff_t *_tvb, guint _offs
 	_offset += 2;
 
 	proto_tree_add_item(_tree, hf_wlccp_originator,
-			    _tvb, _offset, 6, ENC_BIG_ENDIAN);
+			    _tvb, _offset, 6, ENC_NA);
 	_offset += 6;
 
 	proto_tree_add_item(_tree, hf_wlccp_responder_node_type,
@@ -1658,7 +1658,7 @@ static guint dissect_wlccp_nm_msg(proto_tree *_tree, tvbuff_t *_tvb, guint _offs
 	_offset += 2;
 
 	proto_tree_add_item(_tree, hf_wlccp_responder,
-			    _tvb, _offset, 6, ENC_BIG_ENDIAN);
+			    _tvb, _offset, 6, ENC_NA);
 	_offset += 6;
 
 
@@ -1717,7 +1717,7 @@ static guint dissect_wlccp_nm_msg(proto_tree *_tree, tvbuff_t *_tvb, guint _offs
 			_offset += 2;
 
 			proto_tree_add_item(_wlccp_ap_node_id_tree, hf_wlccp_ap_node_id_address,
-					_tvb, _offset, 6, ENC_BIG_ENDIAN);
+					_tvb, _offset, 6, ENC_NA);
 			_offset += 6;
 
 			break;
@@ -2125,13 +2125,13 @@ static guint dissect_wlccp_sec_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 			proto_tree_add_item(_tree, hf_wlccp_dest_node_type, _tvb, _offset, 2, ENC_BIG_ENDIAN);
 			_offset += 2;
 
-			proto_tree_add_item(_tree, hf_wlccp_dest_node_id, _tvb, _offset, 6, ENC_BIG_ENDIAN);
+			proto_tree_add_item(_tree, hf_wlccp_dest_node_id, _tvb, _offset, 6, ENC_NA);
 			_offset += 6;
 
 			proto_tree_add_item(_tree, hf_wlccp_supp_node_type, _tvb, _offset, 2, ENC_BIG_ENDIAN);
 			_offset += 2;
 
-			proto_tree_add_item(_tree, hf_wlccp_supp_node_id, _tvb, _offset, 6, ENC_BIG_ENDIAN);
+			proto_tree_add_item(_tree, hf_wlccp_supp_node_id, _tvb, _offset, 6, ENC_NA);
 			_offset += 6;
 
 			/* skip unused bytes */
@@ -2155,13 +2155,13 @@ static guint dissect_wlccp_sec_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 			proto_tree_add_item(_tree, hf_wlccp_dest_node_type, _tvb, _offset, 2, ENC_BIG_ENDIAN);
 			_offset += 2;
 
-			proto_tree_add_item(_tree, hf_wlccp_dest_node_id, _tvb, _offset, 6, ENC_BIG_ENDIAN);
+			proto_tree_add_item(_tree, hf_wlccp_dest_node_id, _tvb, _offset, 6, ENC_NA);
 			_offset += 6;
 
 			proto_tree_add_item(_tree, hf_wlccp_src_node_type, _tvb, _offset, 2, ENC_BIG_ENDIAN);
 			_offset += 2;
 
-			proto_tree_add_item(_tree, hf_wlccp_src_node_id, _tvb, _offset, 6, ENC_BIG_ENDIAN);
+			proto_tree_add_item(_tree, hf_wlccp_src_node_id, _tvb, _offset, 6, ENC_NA);
 			_offset += 6;
 
 			proto_tree_add_item(_tree, hf_wlccp_key_seq_count, _tvb, _offset, 4, ENC_BIG_ENDIAN);
@@ -2211,13 +2211,13 @@ static guint dissect_wlccp_sec_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 			proto_tree_add_item(_tree, hf_wlccp_dest_node_type, _tvb, _offset, 2, ENC_BIG_ENDIAN);
 			_offset += 2;
 
-			proto_tree_add_item(_tree, hf_wlccp_dest_node_id, _tvb, _offset, 6, ENC_BIG_ENDIAN);
+			proto_tree_add_item(_tree, hf_wlccp_dest_node_id, _tvb, _offset, 6, ENC_NA);
 			_offset += 6;
 
 			proto_tree_add_item(_tree, hf_wlccp_supp_node_type, _tvb, _offset, 2, ENC_BIG_ENDIAN);
 			_offset += 2;
 
-			proto_tree_add_item(_tree, hf_wlccp_supp_node_id, _tvb, _offset, 6, ENC_BIG_ENDIAN);
+			proto_tree_add_item(_tree, hf_wlccp_supp_node_id, _tvb, _offset, 6, ENC_NA);
 			_offset += 6;
 
 			proto_tree_add_item(_tree, hf_wlccp_nonce, _tvb, _offset, 32, ENC_NA);
@@ -2274,10 +2274,10 @@ static guint dissect_wlccp_rrm_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 			proto_tree_add_item(_tree, hf_wlccp_sta_type, _tvb, _offset, 1, ENC_BIG_ENDIAN);
 			_offset += 1;
 
-			proto_tree_add_item(_tree, hf_wlccp_bssid, _tvb, _offset, 6, ENC_BIG_ENDIAN);
+			proto_tree_add_item(_tree, hf_wlccp_bssid, _tvb, _offset, 6, ENC_NA);
 			_offset += 6;
 
-			proto_tree_add_item(_tree, hf_wlccp_stamac, _tvb, _offset, 6, ENC_BIG_ENDIAN);
+			proto_tree_add_item(_tree, hf_wlccp_stamac, _tvb, _offset, 6, ENC_NA);
 			_offset += 6;
 
 			break;
@@ -2341,7 +2341,7 @@ static guint dissect_wlccp_rrm_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 			for (_counter=0; _counter < _count; _counter++)
 			{
 
-				proto_tree_add_item(_tree, hf_wlccp_bssid, _tvb, _offset, 6, ENC_BIG_ENDIAN);
+				proto_tree_add_item(_tree, hf_wlccp_bssid, _tvb, _offset, 6, ENC_NA);
 				_offset += 6;
 
 			} /* for _counter=0 */
@@ -2393,10 +2393,10 @@ static guint dissect_wlccp_rrm_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 					proto_tree_add_item(_fr_elems_tree, hf_wlccp_rss, _tvb, _offset, 1, ENC_BIG_ENDIAN);
 					_offset += 1;
 
-					proto_tree_add_item(_fr_elems_tree, hf_wlccp_bssid, _tvb, _offset, 6, ENC_BIG_ENDIAN);
+					proto_tree_add_item(_fr_elems_tree, hf_wlccp_bssid, _tvb, _offset, 6, ENC_NA);
 					_offset += 6;
 
-					proto_tree_add_item(_fr_elems_tree, hf_wlccp_stamac, _tvb, _offset, 6, ENC_BIG_ENDIAN);
+					proto_tree_add_item(_fr_elems_tree, hf_wlccp_stamac, _tvb, _offset, 6, ENC_NA);
 					_offset += 6;
 
 				} /* for _counter=0 */
@@ -2552,7 +2552,7 @@ static guint dissect_wlccp_rrm_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 			proto_tree_add_item(_tree, hf_wlccp_phy_type, _tvb, _offset, 1, ENC_BIG_ENDIAN);
 			_offset += 1;
 
-			proto_tree_add_item(_tree, hf_wlccp_bssid, _tvb, _offset, 6, ENC_BIG_ENDIAN);
+			proto_tree_add_item(_tree, hf_wlccp_bssid, _tvb, _offset, 6, ENC_NA);
 			_offset += 6;
 
 			proto_tree_add_item(_tree, hf_wlccp_beacon_interval, _tvb, _offset, 2, ENC_BIG_ENDIAN);
@@ -2676,10 +2676,10 @@ static guint dissect_wlccp_rrm_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 					proto_tree_add_item(_tree, hf_wlccp_ipv4_address, _tvb, _offset, 4, ENC_BIG_ENDIAN);
 					_offset += 4;
 
-					proto_tree_add_item(_tree, hf_wlccp_bssid, _tvb, _offset, 6, ENC_BIG_ENDIAN);
+					proto_tree_add_item(_tree, hf_wlccp_bssid, _tvb, _offset, 6, ENC_NA);
 					_offset += 6;
 
-					proto_tree_add_item(_tree, hf_wlccp_stamac, _tvb, _offset, 6, ENC_BIG_ENDIAN);
+					proto_tree_add_item(_tree, hf_wlccp_stamac, _tvb, _offset, 6, ENC_NA);
 					_offset += 6;
 
 				} /* for _counter=0 */
@@ -2709,7 +2709,7 @@ static guint dissect_wlccp_rrm_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 					proto_tree_add_item(_tree, hf_wlccp_ipv4_address, _tvb, _offset, 4, ENC_BIG_ENDIAN);
 					_offset += 4;
 
-					proto_tree_add_item(_tree, hf_wlccp_bssid, _tvb, _offset, 6, ENC_BIG_ENDIAN);
+					proto_tree_add_item(_tree, hf_wlccp_bssid, _tvb, _offset, 6, ENC_NA);
 					_offset += 6;
 
 					proto_tree_add_item(_tree, hf_wlccp_status, _tvb, _offset, 1, ENC_BIG_ENDIAN);
@@ -2750,7 +2750,7 @@ static guint dissect_wlccp_rrm_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 			proto_tree_add_item(_tree, hf_wlccp_ipv4_address, _tvb, _offset, 4, ENC_BIG_ENDIAN);
 			_offset += 4;
 
-			proto_tree_add_item(_tree, hf_wlccp_bssid, _tvb, _offset, 6, ENC_BIG_ENDIAN);
+			proto_tree_add_item(_tree, hf_wlccp_bssid, _tvb, _offset, 6, ENC_NA);
 			_offset += 6;
 
 			proto_tree_add_item(_tree, hf_wlccp_mfpflags, _tvb, _offset, 2, ENC_BIG_ENDIAN);
@@ -2824,13 +2824,13 @@ static guint dissect_wlccp_nm_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _offs
 
 			proto_item_append_text(_ti, "     nmClientEventIntoWDS");
 
-			proto_tree_add_item(_tree, hf_wlccp_clientmac, _tvb, _offset, 6, ENC_BIG_ENDIAN);
+			proto_tree_add_item(_tree, hf_wlccp_clientmac, _tvb, _offset, 6, ENC_NA);
 			_offset += 6;
 
 			proto_tree_add_item(_tree, hf_time_elapsed, _tvb, _offset, 2, ENC_BIG_ENDIAN);
 			_offset += 2;
 
-			proto_tree_add_item(_tree, hf_wlccp_parent_ap_mac, _tvb, _offset, 6, ENC_BIG_ENDIAN);
+			proto_tree_add_item(_tree, hf_wlccp_parent_ap_mac, _tvb, _offset, 6, ENC_NA);
 			_offset += 6;
 
 			proto_tree_add_item(_tree, hf_reg_lifetime, _tvb, _offset, 1, ENC_BIG_ENDIAN);
@@ -2864,13 +2864,13 @@ static guint dissect_wlccp_nm_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _offs
 		{
 			proto_item_append_text(_ti, "     nmClientEventOutOfWDS");
 
-			proto_tree_add_item(_tree, hf_wlccp_clientmac, _tvb, _offset, 6, ENC_BIG_ENDIAN);
+			proto_tree_add_item(_tree, hf_wlccp_clientmac, _tvb, _offset, 6, ENC_NA);
 			_offset += 6;
 
 			proto_tree_add_item(_tree, hf_time_elapsed, _tvb, _offset, 2, ENC_BIG_ENDIAN);
 			_offset += 2;
 
-			proto_tree_add_item(_tree, hf_wlccp_parent_ap_mac, _tvb, _offset, 6, ENC_BIG_ENDIAN);
+			proto_tree_add_item(_tree, hf_wlccp_parent_ap_mac, _tvb, _offset, 6, ENC_NA);
 			_offset += 6;
 
 			proto_tree_add_item(_tree, hf_wds_reason, _tvb, _offset, 1, ENC_BIG_ENDIAN);
@@ -2886,13 +2886,13 @@ static guint dissect_wlccp_nm_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _offs
 		{
 			proto_item_append_text(_ti, "     nmClientEventIntraWDS");
 
-			proto_tree_add_item(_tree, hf_wlccp_clientmac, _tvb, _offset, 6, ENC_BIG_ENDIAN);
+			proto_tree_add_item(_tree, hf_wlccp_clientmac, _tvb, _offset, 6, ENC_NA);
 			_offset += 6;
 
 			proto_tree_add_item(_tree, hf_time_elapsed, _tvb, _offset, 2, ENC_BIG_ENDIAN);
 			_offset += 2;
 
-			proto_tree_add_item(_tree, hf_wlccp_parent_ap_mac, _tvb, _offset, 6, ENC_BIG_ENDIAN);
+			proto_tree_add_item(_tree, hf_wlccp_parent_ap_mac, _tvb, _offset, 6, ENC_NA);
 			_offset += 6;
 
 			proto_tree_add_item(_tree, hf_reg_lifetime, _tvb, _offset, 1, ENC_BIG_ENDIAN);
@@ -2915,13 +2915,13 @@ static guint dissect_wlccp_nm_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _offs
 		{
 			proto_item_append_text(_ti, "     nmClientEventIPAddressUpdate");
 
-			proto_tree_add_item(_tree, hf_wlccp_clientmac, _tvb, _offset, 6, ENC_BIG_ENDIAN);
+			proto_tree_add_item(_tree, hf_wlccp_clientmac, _tvb, _offset, 6, ENC_NA);
 			_offset += 6;
 
 			proto_tree_add_item(_tree, hf_time_elapsed, _tvb, _offset, 2, ENC_BIG_ENDIAN);
 			_offset += 2;
 
-			proto_tree_add_item(_tree, hf_wlccp_parent_ap_mac, _tvb, _offset, 6, ENC_BIG_ENDIAN);
+			proto_tree_add_item(_tree, hf_wlccp_parent_ap_mac, _tvb, _offset, 6, ENC_NA);
 			_offset += 6;
 
 			/* skip some unused bytes */
@@ -2941,13 +2941,13 @@ static guint dissect_wlccp_nm_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _offs
 
 			proto_item_append_text(_ti, "     nmClientEventRefresh");
 
-			proto_tree_add_item(_tree, hf_wlccp_clientmac, _tvb, _offset, 6, ENC_BIG_ENDIAN);
+			proto_tree_add_item(_tree, hf_wlccp_clientmac, _tvb, _offset, 6, ENC_NA);
 			_offset += 6;
 
 			proto_tree_add_item(_tree, hf_time_elapsed, _tvb, _offset, 2, ENC_BIG_ENDIAN);
 			_offset += 2;
 
-			proto_tree_add_item(_tree, hf_wlccp_parent_ap_mac, _tvb, _offset, 6, ENC_BIG_ENDIAN);
+			proto_tree_add_item(_tree, hf_wlccp_parent_ap_mac, _tvb, _offset, 6, ENC_NA);
 			_offset += 6;
 
 			proto_tree_add_item(_tree, hf_reg_lifetime, _tvb, _offset, 1, ENC_BIG_ENDIAN);

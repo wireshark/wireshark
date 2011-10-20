@@ -413,8 +413,8 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					/* MEDIA ADDRESS */
 					if (size == 6) {
 						/* Most likely ETHERNET */
-						proto_tree_add_item(conn_header_tree, hf_linx_conn_dstmac, linx_tvb, offset, 6, FALSE);
-						proto_tree_add_item(conn_header_tree, hf_linx_conn_srcmac, linx_tvb, offset + 6, 6, FALSE);
+						proto_tree_add_item(conn_header_tree, hf_linx_conn_dstmac, linx_tvb, offset, 6, ENC_NA);
+						proto_tree_add_item(conn_header_tree, hf_linx_conn_srcmac, linx_tvb, offset + 6, 6, ENC_NA);
 					}
 
 					offset += (2*size);

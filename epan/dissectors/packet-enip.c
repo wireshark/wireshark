@@ -1296,7 +1296,7 @@ dissect_dlr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* Add each node in the list */
       for( nCnt = 0, nOffset = DLR_SO_NODE_1_MAC; nCnt < nNumNodes; nCnt++ )
       {
-         proto_tree_add_item( dlr_tree, hf_dlr_somac, tvb, nOffset, 6, ENC_BIG_ENDIAN );
+         proto_tree_add_item( dlr_tree, hf_dlr_somac, tvb, nOffset, 6, ENC_NA );
          nOffset += 6;
          proto_tree_add_item( dlr_tree, hf_dlr_soip, tvb, nOffset, 4, ENC_BIG_ENDIAN );
          nOffset += 4;

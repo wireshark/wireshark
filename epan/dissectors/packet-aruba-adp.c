@@ -84,7 +84,7 @@ dissect_aruba_adp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   switch(type){
     case ADP_REQUEST:
 
-      proto_tree_add_item(aruba_adp_tree, hf_adp_mac, tvb, 6, 6, ENC_BIG_ENDIAN);
+      proto_tree_add_item(aruba_adp_tree, hf_adp_mac, tvb, 6, 6, ENC_NA);
       mac_str = tvb_ether_to_str(tvb, 6);
 
       col_add_fstr(pinfo->cinfo, COL_INFO, "ADP Request Src MAC: %s", mac_str);

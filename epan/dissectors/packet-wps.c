@@ -1126,7 +1126,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       break;
 
     case WPS_TLV_TYPE_MAC_ADDRESS:
-      tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_mac_address, tvb, offset+4, 6, FALSE);
+      tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_mac_address, tvb, offset+4, 6, ENC_NA);
       hfindex = hf_eapwps_tlv_mac_address;
 
       break;
@@ -1470,7 +1470,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
           proto_tree_add_item(tlv_root, hf_eapwps_tlv_primary_device_type_subcategory[dev_cat-1], tvb, offset+10, 2, FALSE);
         }
       }
-      
+
       break;
 
     case WPS_TLV_TYPE_SECONDARY_DEVICE_TYPE_LIST:

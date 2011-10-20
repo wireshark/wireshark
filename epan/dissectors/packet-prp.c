@@ -156,11 +156,11 @@ dissect_prp_supervision_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     proto_tree_add_item(prp_tree, hf_prp_supervision_frame_source_mac_address_A,
                         tvb, PRP_SOURCEMACADDRESSA_OFFSET, PRP_SOURCE_LENGTH,
-                       FALSE);
+                       ENC_NA);
 
     proto_tree_add_item(prp_tree, hf_prp_supervision_frame_source_mac_address_B,
                         tvb, PRP_SOURCEMACADDRESSB_OFFSET, PRP_SOURCE_LENGTH,
-                        FALSE);
+                        ENC_NA);
 
 
     tlv2 = tvb_get_ntohs(tvb, PRP_TYPE2_OFFSET);
@@ -177,13 +177,13 @@ dissect_prp_supervision_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         {
             proto_tree_add_item(prp_tree, hf_prp_supervision_frame_red_box_mac_address,
                                 tvb, PRP_REDBOXVDANMACADDRESS_OFFSET, PRP_SOURCE_LENGTH,
-                                FALSE);
+                                ENC_NA);
         }
         else
         {
             proto_tree_add_item(prp_tree, hf_prp_supervision_frame_vdan_mac_address,
                                 tvb, PRP_REDBOXVDANMACADDRESS_OFFSET, PRP_SOURCE_LENGTH,
-                                FALSE);
+                                ENC_NA);
         }
 
      }

@@ -169,7 +169,7 @@ dissect_rpl_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		case 0x4006:
 			proto_tree_add_item(tree, hf_rpl_lmac,
-				tvb, offset, 6, FALSE);
+				tvb, offset, 6, ENC_NA);
 			offset += 6;
 			break;
 
@@ -199,7 +199,7 @@ dissect_rpl_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		case 0x400c:
 			proto_tree_add_item(tree, hf_rpl_smac,
-				tvb, offset, 6, FALSE);
+				tvb, offset, 6, ENC_NA);
 			offset += 6;
 			break;
 

@@ -741,7 +741,7 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, guint offset, proto_tree *tree)
   offset += 4;
 
   proto_tree_add_item(tree, hf_artnet_poll_reply_mac,
-                        tvb, offset, 6, ENC_BIG_ENDIAN);
+                        tvb, offset, 6, ENC_NA);
 
   offset += 6;
 

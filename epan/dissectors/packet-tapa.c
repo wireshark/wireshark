@@ -382,11 +382,11 @@ dissect_tapa_tunnel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += 8;
 
 		proto_tree_add_item(tapa_tunnel_tree, hf_tapa_tunnel_dmac, tvb, offset, 6,
-			ENC_BIG_ENDIAN);
+			ENC_NA);
 		offset += 6;
 
 		proto_tree_add_item(tapa_tunnel_tree, hf_tapa_tunnel_smac, tvb, offset, 6,
-			ENC_BIG_ENDIAN);
+			ENC_NA);
 		offset += 6;
 
 		switch (type) {

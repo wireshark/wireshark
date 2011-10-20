@@ -490,7 +490,7 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 			offset++;
                 			proto_tree_add_item(group_state_tlv, hf_hsrp2_group, tvb, offset, 2, ENC_BIG_ENDIAN);
                 			offset+=2;
-                			proto_tree_add_item(group_state_tlv, hf_hsrp2_identifier, tvb, offset, 6, FALSE);
+                			proto_tree_add_item(group_state_tlv, hf_hsrp2_identifier, tvb, offset, 6, ENC_NA);
                 			offset+=6;
                 			proto_tree_add_item(group_state_tlv, hf_hsrp2_priority, tvb, offset, 4, ENC_BIG_ENDIAN);
                 			offset+=4;

@@ -418,7 +418,7 @@ static void dissect_device_id(proto_item *tlv_root, proto_item *tlv_item,
 {
   guint8 addr[6];
   proto_tree_add_item(tlv_root, hf_p2p_attr_device_id, tvb,
-                      offset + 3, 6, FALSE);
+                      offset + 3, 6, ENC_NA);
   tvb_memcpy(tvb, addr, offset + 3, 6);
   proto_item_append_text(tlv_item, ": %s", ether_to_str(addr));
 }
@@ -517,7 +517,7 @@ static void dissect_wifi_p2p_device_info(packet_info *pinfo,
   s_offset = offset + 3;
 
   proto_tree_add_item(tlv_root, hf_p2p_attr_dev_info_p2p_dev_addr, tvb,
-                      s_offset, 6, FALSE);
+                      s_offset, 6, ENC_NA);
   s_offset += 6;
 
   proto_tree_add_item(tlv_root, hf_p2p_attr_dev_info_config_methods,
@@ -622,7 +622,7 @@ static void dissect_intended_interface_addr(proto_item *tlv_root,
 {
   guint8 addr[6];
   proto_tree_add_item(tlv_root, hf_p2p_attr_intended_interface_addr, tvb,
-                      offset + 3, 6, FALSE);
+                      offset + 3, 6, ENC_NA);
   tvb_memcpy(tvb, addr, offset + 3, 6);
   proto_item_append_text(tlv_item, ": %s", ether_to_str(addr));
 }
@@ -651,7 +651,7 @@ static void dissect_wifi_p2p_group_id(proto_item *tlv_root,
 
   s_offset = offset + 3;
   proto_tree_add_item(tlv_root, hf_p2p_attr_p2p_group_id_dev_addr, tvb,
-                      s_offset, 6, FALSE);
+                      s_offset, 6, ENC_NA);
   tvb_memcpy(tvb, addr, offset + 3, 6);
   proto_item_append_text(tlv_item, ": %s", ether_to_str(addr));
   s_offset += 6;
@@ -675,7 +675,7 @@ static void dissect_wifi_p2p_group_bssid(packet_info *pinfo,
 
   s_offset = offset + 3;
   proto_tree_add_item(tlv_root, hf_p2p_attr_p2p_group_bssid, tvb,
-                      s_offset, 6, FALSE);
+                      s_offset, 6, ENC_NA);
   tvb_memcpy(tvb, addr, offset + 3, 6);
   proto_item_append_text(tlv_item, ": %s", ether_to_str(addr));
 }
@@ -748,11 +748,11 @@ static void dissect_wifi_p2p_group_info(packet_info *pinfo,
     next_offset = s_offset + ci_len;
 
     proto_tree_add_item(tlv_root, hf_p2p_attr_gi_p2p_dev_addr, tvb, s_offset,
-                        6, FALSE);
+                        6, ENC_NA);
     s_offset += 6;
 
     proto_tree_add_item(tlv_root, hf_p2p_attr_gi_p2p_iface_addr, tvb, s_offset,
-                        6, FALSE);
+                        6, ENC_NA);
     s_offset += 6;
 
     proto_tree_add_item(tlv_root, hf_p2p_attr_gi_dev_capab, tvb, s_offset, 1,

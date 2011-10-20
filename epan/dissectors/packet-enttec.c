@@ -127,7 +127,7 @@ static gint
 dissect_enttec_poll_reply(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_enttec_poll_reply_mac, tvb,
-					offset, 6, FALSE);
+					offset, 6, ENC_NA);
 	offset += 6;
 
 	proto_tree_add_item(tree, hf_enttec_poll_reply_node_type, tvb,
@@ -141,7 +141,7 @@ dissect_enttec_poll_reply(tvbuff_t *tvb, guint offset, proto_tree *tree)
 	proto_tree_add_item(tree, hf_enttec_poll_reply_switch, tvb,
 					offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	
+
 	proto_tree_add_item(tree, hf_enttec_poll_reply_name, tvb,
 					offset, 10, ENC_ASCII|ENC_NA);
 	offset += 10;
@@ -149,11 +149,11 @@ dissect_enttec_poll_reply(tvbuff_t *tvb, guint offset, proto_tree *tree)
 	proto_tree_add_item(tree, hf_enttec_poll_reply_option, tvb,
 					offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	
+
 	proto_tree_add_item(tree, hf_enttec_poll_reply_tos, tvb,
 					offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	
+
 	proto_tree_add_item(tree, hf_enttec_poll_reply_ttl, tvb,
 					offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
@@ -211,7 +211,7 @@ dissect_enttec_dmx_data(tvbuff_t *tvb, guint offset, proto_tree *tree)
 					offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	type = tvb_get_guint8(tvb, offset);	
+	type = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(tree, hf_enttec_dmx_data_type, tvb,
 					offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
@@ -246,7 +246,7 @@ dissect_enttec_dmx_data(tvbuff_t *tvb, guint offset, proto_tree *tree)
 				}
 			} else if (v == 0xFD) {
 				ci++;
-				v = tvb_get_guint8(tvb, offset+ci);				
+				v = tvb_get_guint8(tvb, offset+ci);
 				dmx_data[ui] = v;
 				dmx_data_offset[ui] = ci;
 				ci++;
@@ -265,7 +265,7 @@ dissect_enttec_dmx_data(tvbuff_t *tvb, guint offset, proto_tree *tree)
 			dmx_data_offset[ui] = ui;
 		}
 		dmx_data_offset[ui] = ui;
-	} 
+	}
 
 
 	if ((type == ENTTEC_DATA_TYPE_DMX || type == ENTTEC_DATA_TYPE_RLE) && global_disp_col_count > 0) {
@@ -277,7 +277,7 @@ dissect_enttec_dmx_data(tvbuff_t *tvb, guint offset, proto_tree *tree)
 					ENC_NA);
 
 		si = proto_item_add_subtree(hi, ett_enttec);
-			
+
 		row_count = (ui/global_disp_col_count) + ((ui%global_disp_col_count) == 0 ? 0 : 1);
 		dmx_epstr = ep_strbuf_new_label(NULL);
 		for (r=0; r < row_count;r++) {
@@ -299,19 +299,19 @@ dissect_enttec_dmx_data(tvbuff_t *tvb, guint offset, proto_tree *tree)
 			}
 
 			start_offset = dmx_data_offset[(r*global_disp_col_count)];
-			end_offset = dmx_data_offset[(r*global_disp_col_count)+c];		
+			end_offset = dmx_data_offset[(r*global_disp_col_count)+c];
 
 			proto_tree_add_none_format(si,hf_enttec_dmx_data_dmx_data, tvb,
-						offset+start_offset, 
+						offset+start_offset,
 						end_offset-start_offset,
 						string_format[global_disp_chan_nr_type], (r*global_disp_col_count)+1, dmx_epstr->str);
 			ep_strbuf_truncate(dmx_epstr, 0);
 		}
-		
+
 		item = proto_tree_add_item(si, hf_enttec_dmx_data_data_filter, tvb,
 				offset, length, ENC_NA );
 		PROTO_ITEM_SET_HIDDEN(item);
-		
+
 		offset += length;
 	} else if (type == ENTTEC_DATA_TYPE_CHAN_VAL) {
 		proto_tree_add_item(tree, hf_enttec_dmx_data_data_filter, tvb,
@@ -321,10 +321,10 @@ dissect_enttec_dmx_data(tvbuff_t *tvb, guint offset, proto_tree *tree)
 		proto_tree_add_item(tree, hf_enttec_dmx_data_data_filter, tvb,
 					offset, length, ENC_NA);
 		offset += length;
-	}		
+	}
 
-	
-		
+
+
 	return offset;
 }
 
@@ -343,7 +343,7 @@ dissect_enttec_reset(tvbuff_t *tvb _U_, guint offset, proto_tree *tree _U_)
 }
 
 static void
-dissect_enttec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) 
+dissect_enttec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	gint offset = 0;
 	guint32 head = 0;
@@ -400,7 +400,7 @@ dissect_enttec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 void
-proto_register_enttec(void) 
+proto_register_enttec(void)
 {
 	static hf_register_info hf[] = {
 		/* General */
@@ -554,7 +554,7 @@ proto_reg_handoff_enttec(void) {
 	}
 
 	udp_port_enttec = global_udp_port_enttec;
-	tcp_port_enttec = global_tcp_port_enttec;  
+	tcp_port_enttec = global_tcp_port_enttec;
 
 	dissector_add_uint("udp.port",global_udp_port_enttec,enttec_handle);
 	dissector_add_uint("tcp.port",global_tcp_port_enttec,enttec_handle);

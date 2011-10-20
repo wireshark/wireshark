@@ -2346,7 +2346,7 @@ print_address(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
     {
     case 0x00000000:
         proto_tree_add_item(ndps_tree, hf_ndps_net, tvb, foffset, 4, ENC_NA);
-        proto_tree_add_item(ndps_tree, hf_ndps_node, tvb, foffset+4, 6, FALSE);
+        proto_tree_add_item(ndps_tree, hf_ndps_node, tvb, foffset+4, 6, ENC_NA);
         proto_tree_add_item(ndps_tree, hf_ndps_socket, tvb, foffset+10, 2, ENC_BIG_ENDIAN);
         break;
     case 0x00000001:

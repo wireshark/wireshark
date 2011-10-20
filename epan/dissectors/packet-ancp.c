@@ -463,10 +463,10 @@ dissect_ancp_adj_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ancp_tree,
     col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
             val_to_str(adjcode, adj_code_names, "Unknown (0x%02x)"));
 
-    proto_tree_add_item(ancp_tree, hf_ancp_sender_name, tvb, offset, 6, FALSE);
+    proto_tree_add_item(ancp_tree, hf_ancp_sender_name, tvb, offset, 6, ENC_NA);
     offset += 6;
 
-    proto_tree_add_item(ancp_tree, hf_ancp_receiver_name, tvb,offset, 6, FALSE);
+    proto_tree_add_item(ancp_tree, hf_ancp_receiver_name, tvb,offset, 6, ENC_NA);
     offset += 6;
 
     proto_tree_add_item(ancp_tree, hf_ancp_sender_port, tvb, offset, 4, ENC_BIG_ENDIAN);

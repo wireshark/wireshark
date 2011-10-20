@@ -945,7 +945,7 @@ dissect_wassp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			switch (subtype) {
 			case 1:
 				proto_tree_add_item(wassp_tree, hf_wassp_ether, tvb, offset, 6,
-					ENC_BIG_ENDIAN);
+					ENC_NA);
 				offset += 6;
 				break;
 			case 2:
@@ -959,11 +959,11 @@ dissect_wassp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_item(wassp_tree, hf_wassp_seqno, tvb, offset, 1,
 				ENC_BIG_ENDIAN);
 			offset += 1;
-	
+
 			proto_tree_add_item(wassp_tree, hf_wassp_flags, tvb, offset, 1,
 				ENC_BIG_ENDIAN);
 			offset += 1;
-	
+
 			proto_tree_add_item(wassp_tree, hf_wassp_sessionid, tvb, offset, 2,
 				ENC_BIG_ENDIAN);
 			offset += 2;

@@ -288,7 +288,7 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				} else {
 					proto_tree_add_item(option_tree,
 					    hf_ipxwan_node_number, tvb,
-					    offset, 6, FALSE);
+					    offset, 6, ENC_NA);
 				}
 				break;
 

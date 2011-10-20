@@ -1691,7 +1691,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 			if (byte == ARPHRD_ETHER || byte == ARPHRD_IEEE802)
 				proto_tree_add_item(v_tree,
 				    hf_bootp_hw_ether_addr, tvb, optoff+1, 6,
-				    ENC_BIG_ENDIAN);
+				    ENC_NA);
 			else
 				proto_tree_add_text(v_tree, tvb, optoff+1, 6,
 					"Client hardware address: %s",
@@ -1802,7 +1802,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 			if (byte == ARPHRD_ETHER || byte == ARPHRD_IEEE802)
 				proto_tree_add_item(v_tree,
 				    hf_bootp_hw_ether_addr, tvb, optoff+1, 6,
-				    ENC_BIG_ENDIAN);
+				    ENC_NA);
 			else
 				proto_tree_add_text(v_tree, tvb, optoff+1, 6,
 					"Client hardware address: %s",
@@ -2862,7 +2862,7 @@ dissect_vendor_cablelabs_suboption(packet_info *pinfo, proto_item *v_ti, proto_t
 				break;
 			}
 
-			proto_tree_add_item(o43cl_v_tree, hf_bootp_option43_cl_mta_mac_address, tvb, suboptoff, 6, ENC_BIG_ENDIAN);
+			proto_tree_add_item(o43cl_v_tree, hf_bootp_option43_cl_mta_mac_address, tvb, suboptoff, 6, ENC_NA);
 			break;
 		default:
 			if (o43cablelabs_opt[subopt].phf != NULL)
@@ -4698,7 +4698,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (hlen > 0 && hlen <= 16) {
 		if ((htype == ARPHRD_ETHER || htype == ARPHRD_IEEE802)
 		    && hlen == 6)
-			proto_tree_add_item(bp_tree, hf_bootp_hw_ether_addr, tvb, 28, 6, ENC_BIG_ENDIAN);
+			proto_tree_add_item(bp_tree, hf_bootp_hw_ether_addr, tvb, 28, 6, ENC_NA);
 		else
 			/* The chaddr element is 16 bytes in length,
 			   although only the first hlen bytes are used */

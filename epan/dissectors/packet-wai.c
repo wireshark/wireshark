@@ -317,8 +317,8 @@ dissect_addid(tvbuff_t *tvb, guint offset, proto_tree *tree)
     mac_item = proto_tree_add_string(tree, hf_wai_addid, tvb, offset, 12, "AE MAC and ASUE MAC addresses");
 
     mac_tree = proto_item_add_subtree(mac_item, ett_wai_mac);
-    proto_tree_add_item(mac_tree, hf_wai_ae_mac, tvb, offset, 6, FALSE);
-    proto_tree_add_item(mac_tree, hf_wai_asue_mac, tvb, offset+6, 6, FALSE);
+    proto_tree_add_item(mac_tree, hf_wai_ae_mac, tvb, offset, 6, ENC_NA);
+    proto_tree_add_item(mac_tree, hf_wai_asue_mac, tvb, offset+6, 6, ENC_NA);
 }
 
 static guint16

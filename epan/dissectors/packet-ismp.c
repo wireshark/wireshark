@@ -267,11 +267,11 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 		offset += 2;
 		proto_tree_add_item(edp_tree, hf_ismp_edp_module_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
-		proto_tree_add_item(edp_tree, hf_ismp_edp_module_mac, tvb, offset, 6, FALSE);
+		proto_tree_add_item(edp_tree, hf_ismp_edp_module_mac, tvb, offset, 6, ENC_NA);
 		offset += 6;
 		proto_tree_add_item(edp_tree, hf_ismp_edp_module_port, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
-		proto_tree_add_item(edp_tree, hf_ismp_edp_chassis_mac, tvb, offset, 6, FALSE);
+		proto_tree_add_item(edp_tree, hf_ismp_edp_chassis_mac, tvb, offset, 6, ENC_NA);
 		offset += 6;
 		proto_tree_add_item(edp_tree, hf_ismp_edp_chassis_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;

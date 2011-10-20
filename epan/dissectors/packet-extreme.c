@@ -667,7 +667,7 @@ dissect_esrp_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 	offset += 4;
 
 	proto_tree_add_item(esrp_tree, hf_edp_esrp_sysmac, tvb, offset, 6,
-		ENC_BIG_ENDIAN);
+		ENC_NA);
 	offset += 6;
 
 	proto_tree_add_item(esrp_tree, hf_edp_esrp_hello, tvb, offset, 2,
@@ -718,7 +718,7 @@ dissect_eaps_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length _U_, 
 	offset += 4;
 
 	proto_tree_add_item(eaps_tree, hf_edp_eaps_sysmac, tvb, offset, 6,
-		ENC_BIG_ENDIAN);
+		ENC_NA);
 	offset += 6;
 
 	proto_tree_add_item(eaps_tree, hf_edp_eaps_hello, tvb, offset, 2,
@@ -794,7 +794,7 @@ dissect_esl_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto
 	length -= 4;
 
 	proto_tree_add_item(esl_tree, hf_edp_esl_sysmac, tvb, offset, 6,
-		ENC_BIG_ENDIAN);
+		ENC_NA);
 	offset += 6;
 	length -= 6;
 
@@ -1041,7 +1041,7 @@ dissect_edp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += 2;
 
 		proto_tree_add_item(edp_tree, hf_edp_midmac, tvb, offset, 6,
-			ENC_BIG_ENDIAN);
+			ENC_NA);
 		offset += 6;
 
 		/* Decode the individual TLVs */

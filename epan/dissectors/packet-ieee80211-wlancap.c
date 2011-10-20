@@ -510,7 +510,7 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item(wlan_tree, hf_wlan_drops, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset+=4;
       if (tree)
-        proto_tree_add_item(wlan_tree, hf_wlan_receiver_addr, tvb, offset, 6, ENC_BIG_ENDIAN);
+        proto_tree_add_item(wlan_tree, hf_wlan_receiver_addr, tvb, offset, 6, ENC_NA);
       offset+=6;
       if (tree)
         proto_tree_add_item(wlan_tree, hf_wlan_padding, tvb, offset, 2, ENC_NA);

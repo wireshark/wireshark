@@ -251,7 +251,7 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* Ethernet MAC */
 			proto_tree_add_item(bacnet_tree,
 				hf_bacnet_dadr_eth, tvb, offset,
-				bacnet_dlen, FALSE);
+				bacnet_dlen, ENC_NA);
 			offset += bacnet_dlen;
 		} else if (bacnet_dlen==1) {
 			proto_tree_add_uint(bacnet_tree, hf_bacnet_dlen,
@@ -298,7 +298,7 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* Ethernet MAC */
 			proto_tree_add_item(bacnet_tree,
 				hf_bacnet_sadr_eth, tvb, offset,
-				bacnet_slen, FALSE);
+				bacnet_slen, ENC_NA);
 			offset += bacnet_slen;
 		} else if (bacnet_slen==1) {
 			/* SLEN */

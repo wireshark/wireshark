@@ -454,7 +454,7 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             subtree = proto_item_add_subtree(item, ett_fip_dt_mac);
             fip_desc_type_len(subtree, desc_tvb);
             proto_tree_add_item(subtree, hf_fip_desc_mac, desc_tvb,
-                    2, 6, FALSE);
+                    2, 6, ENC_NA);
             proto_item_append_text(item, "%s",
                     tvb_bytes_to_str_punct(desc_tvb, 2, 6, ':'));
             break;
@@ -508,7 +508,7 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             subtree = proto_item_add_subtree(item, ett_fip_dt_vn);
             fip_desc_type_len(subtree, desc_tvb);
             proto_tree_add_item(subtree, hf_fip_desc_vn_mac, desc_tvb,
-                    2, 6, FALSE);
+                    2, 6, ENC_NA);
             proto_tree_add_item(subtree, hf_fip_desc_vn_fid, desc_tvb,
                     9, 3, ENC_BIG_ENDIAN);
             text = tvb_fcwwn_to_str(desc_tvb, 12);

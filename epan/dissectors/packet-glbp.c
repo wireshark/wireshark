@@ -95,76 +95,76 @@ static gint ett_glbp = -1;
 static gint ett_glbp_tlv = -1;
 
 static const value_string glbp_type_vals[] = {
-	{ 1,	"Hello" },
-	{ 2,	"Request/Response?" },
-	{ 3,	"Auth" },
+  { 1,  "Hello" },
+  { 2,  "Request/Response?" },
+  { 3,  "Auth" },
 
-	{ 0, NULL }
+  { 0, NULL }
 };
 
 #if 0
 static const value_string glbp_reqresp_forwarder_vals[] = {
-	{ 0,	"Request?" },
-	{ 2,	"Response?" },
+  { 0,  "Request?" },
+  { 2,  "Response?" },
 
-	{ 0, NULL }
+  { 0, NULL }
 };
 #endif
 
 static const value_string glbp_addr_type_vals[] = {
-	{ 1,	"IPv4" },
-	{ 2,	"IPv6" },
+  { 1,  "IPv4" },
+  { 2,  "IPv6" },
 
-	{ 0, NULL }
+  { 0, NULL }
 };
 
 static const value_string glbp_auth_type_vals[] = {
-	{ 0,	"None" },
-	{ 1,	"Plain text" },
-	{ 2,	"MD5 string" },
-	{ 3,	"MD5 chain" },
+  { 0,  "None" },
+  { 1,  "Plain text" },
+  { 2,  "MD5 string" },
+  { 3,  "MD5 chain" },
 
-	{ 0, NULL }
+  { 0, NULL }
 };
 
 #if 0
 static const value_string glbp_loadbalancing_vals[] = {
-	{ x,	"None (AVG only)" },
-	{ x,	"Weighted" },
-	{ x,	"Host dependent" },
-	{ x,	"Round robin" },
+  { x,  "None (AVG only)" },
+  { x,  "Weighted" },
+  { x,  "Host dependent" },
+  { x,  "Round robin" },
 
-	{ 0, NULL }
+  { 0, NULL }
 };
 #endif
 
 static const value_string glbp_vgstate_vals[] = {
 #if 0
-	{ x,	"Disabled" },
-	{ x,	"Initial" },
+  {    x,  "Disabled" },
+  {    x,  "Initial" },
 #endif
-	{ 4,	"Listen" },
-	{ 8,	"Speak" },
-	{ 0x10,	"Standby" },
-	{ 0x20,	"Active" },
+  {    4,  "Listen" },
+  {    8,  "Speak" },
+  { 0x10,  "Standby" },
+  { 0x20,  "Active" },
 
-	{ 0, NULL }
+  { 0, NULL }
 };
 
 static const value_string glbp_vfstate_vals[] = {
 #if 0
-	{ x,	"Disabled" },
-	{ x,	"Initial" },
+  {    x,  "Disabled" },
+  {    x,  "Initial" },
 #endif
-	{ 4,	"Listen" },
-	{ 0x20,	"Active" },
+  {    4,  "Listen" },
+  { 0x20,  "Active" },
 
-	{ 0, NULL }
+  { 0, NULL }
 };
 
 static int
 dissect_glbp_hello(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tlv_tree)
+        packet_info *pinfo, proto_tree *tlv_tree)
 {
   guint8 addrtype;
   guint8 addrlen;
@@ -225,7 +225,7 @@ dissect_glbp_hello(tvbuff_t *tvb, int offset,
 
 static int
 dissect_glbp_reqresp(tvbuff_t *tvb, int offset,
-	packet_info *pinfo _U_, proto_tree *tlv_tree)
+        packet_info *pinfo _U_, proto_tree *tlv_tree)
 {
   proto_tree_add_item(tlv_tree, hf_glbp_reqresp_forwarder, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset++;
@@ -239,7 +239,7 @@ dissect_glbp_reqresp(tvbuff_t *tvb, int offset,
   offset++;
   proto_tree_add_item(tlv_tree, hf_glbp_reqresp_unknown22, tvb, offset, 7, ENC_NA);
   offset += 7;
-  proto_tree_add_item(tlv_tree, hf_glbp_reqresp_virtualmac, tvb, offset, 6, ENC_BIG_ENDIAN);
+  proto_tree_add_item(tlv_tree, hf_glbp_reqresp_virtualmac, tvb, offset, 6, ENC_NA);
   offset += 6;
 
   return offset;
@@ -247,7 +247,7 @@ dissect_glbp_reqresp(tvbuff_t *tvb, int offset,
 
 static int
 dissect_glbp_auth(tvbuff_t *tvb, int offset,
-	packet_info *pinfo _U_, proto_tree *tlv_tree)
+        packet_info *pinfo _U_, proto_tree *tlv_tree)
 {
   guint8 authtype;
   guint8 authlength;
@@ -283,7 +283,7 @@ dissect_glbp_auth(tvbuff_t *tvb, int offset,
 
 static int
 dissect_glbp_unknown(tvbuff_t *tvb, int offset, guint32 length,
-	packet_info *pinfo _U_, proto_tree *tlv_tree)
+        packet_info *pinfo _U_, proto_tree *tlv_tree)
 {
   proto_tree_add_item(tlv_tree, hf_glbp_unknown_data, tvb, offset, length, ENC_NA);
   offset += length;
@@ -321,15 +321,15 @@ dissect_glbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += 2;
     proto_tree_add_item(glbp_tree, hf_glbp_unknown2, tvb, offset, 2,  ENC_NA);
     offset += 2;
-    proto_tree_add_item(glbp_tree, hf_glbp_ownerid, tvb, offset, 6, ENC_BIG_ENDIAN);
+    proto_tree_add_item(glbp_tree, hf_glbp_ownerid, tvb, offset, 6, ENC_NA);
     offset += 6;
     while (tvb_length_remaining(tvb, offset) > 0) {
 
       type = tvb_get_guint8(tvb, offset);
       length = tvb_get_guint8(tvb, offset+1);
       if (length < 2) {
-	expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "Length %u too small", length);
-	return offset;
+        expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "Length %u too small", length);
+        return offset;
       }
       length -= 2;
 
@@ -344,25 +344,25 @@ dissect_glbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       offset++;
       col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
         val_to_str(type, glbp_type_vals, "%d"));
-  
+
       lastoffset = offset;
       switch(type) {
         case 1: /* Hello */
-	  offset = dissect_glbp_hello(tvb, offset, pinfo, tlv_tree);
-  	break;
+          offset = dissect_glbp_hello(tvb, offset, pinfo, tlv_tree);
+        break;
         case 2: /* Request/Response */
-	  offset = dissect_glbp_reqresp(tvb, offset, pinfo, tlv_tree);
-  	break;
+          offset = dissect_glbp_reqresp(tvb, offset, pinfo, tlv_tree);
+        break;
         case 3: /* Plaintext auth */
-	  offset = dissect_glbp_auth(tvb, offset, pinfo, tlv_tree);
-  	break;
+          offset = dissect_glbp_auth(tvb, offset, pinfo, tlv_tree);
+        break;
         default:
-	  offset = dissect_glbp_unknown(tvb, offset, length, pinfo, tlv_tree);
-  	break;
+          offset = dissect_glbp_unknown(tvb, offset, length, pinfo, tlv_tree);
+        break;
       }
       if (lastoffset >= offset) {
-	expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "Zero or negative length");
-	return lastoffset;
+        expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "Zero or negative length");
+        return lastoffset;
       }
       /* Skip over trailing bytes before starting with the next element */
       if (lastoffset + length > offset)
@@ -375,31 +375,31 @@ dissect_glbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static gboolean
 test_glbp(tvbuff_t *tvb, packet_info *pinfo)
 {
-	guint32 unknown1;
-	if ( tvb_length(tvb) < 2)
-		return FALSE;
-	unknown1 = tvb_get_guint8(tvb, 1);
-	if (tvb_get_guint8(tvb, 0) != 1 /* version? */
-		|| unknown1 > 4
-		|| pinfo->srcport != pinfo->destport
+  guint32 unknown1;
+  if ( tvb_length(tvb) < 2)
+    return FALSE;
+  unknown1 = tvb_get_guint8(tvb, 1);
+  if (tvb_get_guint8(tvb, 0) != 1 /* version? */
+      || unknown1 > 4
+      || pinfo->srcport != pinfo->destport
 #if 0 /* XXX */
-		|| unknown1 == 0 && pinfo->net_dst != ipv4:224.0.0.102
-		                 && pinfo->net_dst != ipv6:...
-		|| unknown1 == 0 && pinfo->dl_src != ether:c2-00-7c-b8-00-00
+      || unknown1 == 0 && pinfo->net_dst != ipv4:224.0.0.102
+      && pinfo->net_dst != ipv6:...
+      || unknown1 == 0 && pinfo->dl_src != ether:c2-00-7c-b8-00-00
 #endif
-	) {
-		return FALSE;
-	}
-	return TRUE;
+    ) {
+    return FALSE;
+  }
+  return TRUE;
 }
 
 static int
 dissect_glbp_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	if ( !test_glbp(tvb, pinfo) ) {
-		return 0;
-	}
-	return dissect_glbp(tvb, pinfo, tree);
+  if ( !test_glbp(tvb, pinfo) ) {
+    return 0;
+  }
+  return dissect_glbp(tvb, pinfo, tree);
 }
 
 
@@ -407,162 +407,162 @@ void
 proto_register_glbp(void)
 {
   static hf_register_info hf[] = {
-	/* Header */
-	{ &hf_glbp_version,
-	   { "Version?",	"glbp.version", FT_UINT8, BASE_DEC, NULL,
-	     0x0, NULL, HFILL }},
+    /* Header */
+    { &hf_glbp_version,
+      { "Version?",           "glbp.version", FT_UINT8, BASE_DEC, NULL,
+        0x0, NULL, HFILL }},
 
-	{ &hf_glbp_unknown1,
-	   { "Unknown1",	"glbp.unknown1", FT_UINT8, BASE_DEC, NULL,
-	     0x0, NULL, HFILL }},
+    { &hf_glbp_unknown1,
+      { "Unknown1",           "glbp.unknown1", FT_UINT8, BASE_DEC, NULL,
+        0x0, NULL, HFILL }},
 
-	{ &hf_glbp_group,
-	   { "Group",		"glbp.group", FT_UINT16, BASE_DEC, NULL,
-	     0x0, NULL, HFILL }},
+    { &hf_glbp_group,
+      { "Group",              "glbp.group", FT_UINT16, BASE_DEC, NULL,
+        0x0, NULL, HFILL }},
 
-	{ &hf_glbp_unknown2,
-	   { "Unknown2",      "glbp.unknown2", FT_BYTES, BASE_NONE, NULL,
-	     0x0, NULL, HFILL }},
+    { &hf_glbp_unknown2,
+      { "Unknown2",           "glbp.unknown2", FT_BYTES, BASE_NONE, NULL,
+        0x0, NULL, HFILL }},
 
-	{ &hf_glbp_ownerid,
-	   { "Owner ID",       "glbp.ownerid", FT_ETHER, BASE_NONE, NULL,
-	     0x0, NULL, HFILL }},
+    { &hf_glbp_ownerid,
+      { "Owner ID",           "glbp.ownerid", FT_ETHER, BASE_NONE, NULL,
+        0x0, NULL, HFILL }},
 
-	{ &hf_glbp_tlv,
-	   { "TLV",       "glbp.tlv", FT_PROTOCOL, BASE_NONE, NULL,
-	     0x0, NULL, HFILL }},
+    { &hf_glbp_tlv,
+      { "TLV",                "glbp.tlv", FT_PROTOCOL, BASE_NONE, NULL,
+        0x0, NULL, HFILL }},
 
-	{ &hf_glbp_type,
-	   { "Type",         "glbp.type", FT_UINT8, BASE_DEC, VALS(glbp_type_vals),
-	     0x0, NULL, HFILL }},
+    { &hf_glbp_type,
+      { "Type",               "glbp.type", FT_UINT8, BASE_DEC, VALS(glbp_type_vals),
+        0x0, NULL, HFILL }},
 
-	{ &hf_glbp_length,
-	   { "Length",       "glbp.length", FT_UINT8, BASE_DEC, NULL,
-	     0x0, NULL, HFILL }},
+    { &hf_glbp_length,
+      { "Length",             "glbp.length", FT_UINT8, BASE_DEC, NULL,
+        0x0, NULL, HFILL }},
 
-	/* type = 1 - hello */
-	{ &hf_glbp_hello_unknown10,
-	   { "Unknown1-0",      "glbp.hello.unknown10", FT_BYTES, BASE_NONE, NULL,
-	     0x0, NULL, HFILL }},
+    /* type = 1 - hello */
+    { &hf_glbp_hello_unknown10,
+      { "Unknown1-0",         "glbp.hello.unknown10", FT_BYTES, BASE_NONE, NULL,
+        0x0, NULL, HFILL }},
 
-	{ &hf_glbp_hello_vgstate,
-	   { "VG state?",      "glbp.hello.vgstate", FT_UINT8, BASE_DEC, VALS(glbp_vgstate_vals),
-	     0x0, NULL, HFILL }},
+    { &hf_glbp_hello_vgstate,
+      { "VG state?",          "glbp.hello.vgstate", FT_UINT8, BASE_DEC, VALS(glbp_vgstate_vals),
+        0x0, NULL, HFILL }},
 
-	{ &hf_glbp_hello_unknown11,
-	   { "Unknown1-1",      "glbp.hello.unknown11", FT_BYTES, BASE_NONE, NULL,
-	     0x0, NULL, HFILL }},
+    { &hf_glbp_hello_unknown11,
+      { "Unknown1-1",         "glbp.hello.unknown11", FT_BYTES, BASE_NONE, NULL,
+        0x0, NULL, HFILL }},
 
-	{ &hf_glbp_hello_priority,
-	   { "Priority",      "glbp.hello.priority", FT_UINT8, BASE_DEC, NULL,
-	     0x0, NULL, HFILL }},
+    { &hf_glbp_hello_priority,
+      { "Priority",           "glbp.hello.priority", FT_UINT8, BASE_DEC, NULL,
+        0x0, NULL, HFILL }},
 
-	{ &hf_glbp_hello_unknown12,
-	   { "Unknown1-2",      "glbp.hello.unknown12", FT_BYTES, BASE_NONE, NULL,
-	     0x0, NULL, HFILL }},
+    { &hf_glbp_hello_unknown12,
+      { "Unknown1-2",         "glbp.hello.unknown12", FT_BYTES, BASE_NONE, NULL,
+        0x0, NULL, HFILL }},
 
-	{ &hf_glbp_hello_helloint,
-	   { "Helloint",      "glbp.hello.helloint", FT_UINT32, BASE_DEC, NULL,
-	     0x0, "Hello interval [msec]", HFILL }},
+    { &hf_glbp_hello_helloint,
+      { "Helloint",           "glbp.hello.helloint", FT_UINT32, BASE_DEC, NULL,
+        0x0, "Hello interval [msec]", HFILL }},
 
-	{ &hf_glbp_hello_holdint,
-	   { "Holdint",      "glbp.hello.holdint", FT_UINT32, BASE_DEC, NULL,
-	     0x0, "Hold interval [msec]", HFILL }},
+    { &hf_glbp_hello_holdint,
+      { "Holdint",            "glbp.hello.holdint", FT_UINT32, BASE_DEC, NULL,
+        0x0, "Hold interval [msec]", HFILL }},
 
-	{ &hf_glbp_hello_redirect,
-	   { "Redirect",      "glbp.hello.redirect", FT_UINT16, BASE_DEC, NULL,
-	     0x0, "Redirect interval [sec]", HFILL }},
+    { &hf_glbp_hello_redirect,
+      { "Redirect",           "glbp.hello.redirect", FT_UINT16, BASE_DEC, NULL,
+        0x0, "Redirect interval [sec]", HFILL }},
 
-	{ &hf_glbp_hello_timeout,
-	   { "Timeout",      "glbp.hello.timeout", FT_UINT16, BASE_DEC, NULL,
-	     0x0, "Forwarder timeout interval [sec]", HFILL }},
+    { &hf_glbp_hello_timeout,
+      { "Timeout",            "glbp.hello.timeout", FT_UINT16, BASE_DEC, NULL,
+        0x0, "Forwarder timeout interval [sec]", HFILL }},
 
-	{ &hf_glbp_hello_unknown13,
-	   { "Unknown1-3",      "glbp.hello.unknown13", FT_BYTES, BASE_NONE, NULL,
-	     0x0, NULL, HFILL }},
+    { &hf_glbp_hello_unknown13,
+      { "Unknown1-3",         "glbp.hello.unknown13", FT_BYTES, BASE_NONE, NULL,
+        0x0, NULL, HFILL }},
 
-	{ &hf_glbp_hello_addrtype,
-	   { "Address type",      "glbp.hello.addrtype", FT_UINT8, BASE_DEC, VALS(glbp_addr_type_vals),
-	     0x0, NULL, HFILL }},
+    { &hf_glbp_hello_addrtype,
+      { "Address type",       "glbp.hello.addrtype", FT_UINT8, BASE_DEC, VALS(glbp_addr_type_vals),
+        0x0, NULL, HFILL }},
 
-	{ &hf_glbp_hello_addrlen,
-	   { "Address length",      "glbp.hello.addrlen", FT_UINT8, BASE_DEC, NULL,
-	     0x0, NULL, HFILL }},
+    { &hf_glbp_hello_addrlen,
+      { "Address length",     "glbp.hello.addrlen", FT_UINT8, BASE_DEC, NULL,
+        0x0, NULL, HFILL }},
 
-	{ &hf_glbp_hello_virtualipv4,
-	   { "Virtual IPv4",      "glbp.hello.virtualipv4", FT_IPv4, BASE_NONE, NULL,
-	     0x0, NULL, HFILL }},
+    { &hf_glbp_hello_virtualipv4,
+      { "Virtual IPv4",       "glbp.hello.virtualipv4", FT_IPv4, BASE_NONE, NULL,
+        0x0, NULL, HFILL }},
 
-	{ &hf_glbp_hello_virtualipv6,
-	   { "Virtual IPv6",      "glbp.hello.virtualipv6", FT_IPv6, BASE_NONE, NULL,
-	     0x0, NULL, HFILL }},
+    { &hf_glbp_hello_virtualipv6,
+      { "Virtual IPv6",       "glbp.hello.virtualipv6", FT_IPv6, BASE_NONE, NULL,
+        0x0, NULL, HFILL }},
 
-	{ &hf_glbp_hello_virtualunk,
-	   { "Virtual Unknown",      "glbp.hello.virtualunk", FT_BYTES, BASE_NONE, NULL,
-	     0x0, NULL, HFILL }},
+    { &hf_glbp_hello_virtualunk,
+      { "Virtual Unknown",    "glbp.hello.virtualunk", FT_BYTES, BASE_NONE, NULL,
+        0x0, NULL, HFILL }},
 
-	/* type = 2 - request/response??? */
-	{ &hf_glbp_reqresp_forwarder,
-	   { "Forwarder?",      "glbp.reqresp.forwarder", FT_UINT8, BASE_DEC, NULL,
-	     0x0, NULL, HFILL }},
+    /* type = 2 - request/response??? */
+    { &hf_glbp_reqresp_forwarder,
+      { "Forwarder?",         "glbp.reqresp.forwarder", FT_UINT8, BASE_DEC, NULL,
+        0x0, NULL, HFILL }},
 
-	{ &hf_glbp_reqresp_vfstate,
-	   { "VF state?",      "glbp.reqresp.vfstate", FT_UINT8, BASE_DEC, VALS(glbp_vfstate_vals),
-	     0x0, NULL, HFILL }},
+    { &hf_glbp_reqresp_vfstate,
+      { "VF state?",          "glbp.reqresp.vfstate", FT_UINT8, BASE_DEC, VALS(glbp_vfstate_vals),
+        0x0, NULL, HFILL }},
 
-	{ &hf_glbp_reqresp_unknown21,
-	   { "Unknown2-1",      "glbp.reqresp.unknown21", FT_BYTES, BASE_NONE, NULL,
-	     0x0, NULL, HFILL }},
+    { &hf_glbp_reqresp_unknown21,
+      { "Unknown2-1",         "glbp.reqresp.unknown21", FT_BYTES, BASE_NONE, NULL,
+        0x0, NULL, HFILL }},
 
-	{ &hf_glbp_reqresp_priority,
-	   { "Priority",          "glbp.reqresp.priority", FT_UINT8, BASE_DEC, NULL,
-	     0x0, NULL, HFILL }},
+    { &hf_glbp_reqresp_priority,
+      { "Priority",           "glbp.reqresp.priority", FT_UINT8, BASE_DEC, NULL,
+        0x0, NULL, HFILL }},
 
-	{ &hf_glbp_reqresp_weight,
-	   { "Weight",          "glbp.reqresp.weight", FT_UINT8, BASE_DEC, NULL,
-	     0x0, NULL, HFILL }},
+    { &hf_glbp_reqresp_weight,
+      { "Weight",             "glbp.reqresp.weight", FT_UINT8, BASE_DEC, NULL,
+        0x0, NULL, HFILL }},
 
-	{ &hf_glbp_reqresp_unknown22,
-	   { "Unknown2-2",      "glbp.reqresp.unknown22", FT_BYTES, BASE_NONE, NULL,
-	     0x0, NULL, HFILL }},
+    { &hf_glbp_reqresp_unknown22,
+      { "Unknown2-2",         "glbp.reqresp.unknown22", FT_BYTES, BASE_NONE, NULL,
+        0x0, NULL, HFILL }},
 
-	{ &hf_glbp_reqresp_virtualmac,
-	   { "Virtualmac",       "glbp.reqresp.virtualmac", FT_ETHER, BASE_NONE, NULL,
-	     0x0, NULL, HFILL }},
+    { &hf_glbp_reqresp_virtualmac,
+      { "Virtualmac",         "glbp.reqresp.virtualmac", FT_ETHER, BASE_NONE, NULL,
+        0x0, NULL, HFILL }},
 
-	/* type = 3 - auth */
-	{ &hf_glbp_auth_authtype,
-	   { "Authtype",         "glbp.auth.authtype", FT_UINT8, BASE_DEC, VALS(glbp_auth_type_vals),
-	     0x0, NULL, HFILL }},
+    /* type = 3 - auth */
+    { &hf_glbp_auth_authtyp   e,
+      { "Authtype",        "glbp.auth.authtype", FT_UINT8, BASE_DEC, VALS(glbp_auth_type_vals),
+        0x0, NULL, HFILL }},
 
-	{ &hf_glbp_auth_authlength,
-	   { "Authlength",       "glbp.auth.authlength", FT_UINT8, BASE_DEC, NULL,
-	     0x0, NULL, HFILL }},
+    { &hf_glbp_auth_authlength,
+      { "Authlength",         "glbp.auth.authlength", FT_UINT8, BASE_DEC, NULL,
+        0x0, NULL, HFILL }},
 
-	{ &hf_glbp_auth_plainpass,
-	   { "Plain pass",       "glbp.auth.plainpass", FT_STRING, BASE_NONE, NULL,
-	     0x0, NULL, HFILL }},
+    { &hf_glbp_auth_plainpass,
+      { "Plain pass",         "glbp.auth.plainpass", FT_STRING, BASE_NONE, NULL,
+        0x0, NULL, HFILL }},
 
-	{ &hf_glbp_auth_md5hash,
-	   { "MD5-string hash",       "glbp.auth.md5hash", FT_BYTES, BASE_NONE, NULL,
-	     0x0, NULL, HFILL }},
+    { &hf_glbp_auth_md5hash,
+      { "MD5-string hash",    "glbp.auth.md5hash", FT_BYTES, BASE_NONE, NULL,
+        0x0, NULL, HFILL }},
 
-	{ &hf_glbp_auth_md5chainindex,
-	   { "MD5-chain index",       "glbp.auth.md5chainindex", FT_UINT32, BASE_DEC, NULL,
-	     0x0, NULL, HFILL }},
+    { &hf_glbp_auth_md5chainindex,
+      { "MD5-chain index",    "glbp.auth.md5chainindex", FT_UINT32, BASE_DEC, NULL,
+        0x0, NULL, HFILL }},
 
-	{ &hf_glbp_auth_md5chainhash,
-	   { "MD5-chain hash",       "glbp.auth.md5chainhash", FT_BYTES, BASE_NONE, NULL,
-	     0x0, NULL, HFILL }},
+    { &hf_glbp_auth_md5chainhash,
+      { "MD5-chain hash",     "glbp.auth.md5chainhash", FT_BYTES, BASE_NONE, NULL,
+        0x0, NULL, HFILL }},
 
-	{ &hf_glbp_auth_authunknown,
-	   { "Unknown auth value",       "glbp.auth.authunknown", FT_BYTES, BASE_NONE, NULL,
-	     0x0, NULL, HFILL }},
+    { &hf_glbp_auth_authunknown,
+      { "Unknown auth value", "glbp.auth.authunknown", FT_BYTES, BASE_NONE, NULL,
+        0x0, NULL, HFILL }},
 
-	/* type = unknown */
-	{ &hf_glbp_unknown_data,
-	   { "Unknown TLV data",      "glbp.unknown.data", FT_BYTES, BASE_NONE, NULL,
-	     0x0, NULL, HFILL }},
+    /* type = unknown */
+    { &hf_glbp_unknown_data,
+      { "Unknown TLV data",   "glbp.unknown.data", FT_BYTES, BASE_NONE, NULL,
+        0x0, NULL, HFILL }},
 
   };
   static gint *ett[] = {
@@ -571,7 +571,7 @@ proto_register_glbp(void)
   };
 
   proto_glbp = proto_register_protocol(
-	"Gateway Load Balancing Protocol", "GLBP", "glbp");
+        "Gateway Load Balancing Protocol", "GLBP", "glbp");
   proto_register_field_array(proto_glbp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }

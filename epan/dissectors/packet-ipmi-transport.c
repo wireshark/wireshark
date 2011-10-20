@@ -630,7 +630,7 @@ static const value_string serial30_snoopctl_vals[] = {
 	{ 0, NULL }
 };
 
-static const value_string serial30_negoctl_vals[] = { 
+static const value_string serial30_negoctl_vals[] = {
 	{ 0x00, "On initial connection and mux switch" },
 	{ 0x01, "On initial connection" },
 	{ 0x02, "Never" },
@@ -760,7 +760,7 @@ lan_04(tvbuff_t *tvb, proto_tree *tree)
 static void
 lan_05(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_trn_lan05_ether, tvb, 0, 6, FALSE);
+	proto_tree_add_item(tree, hf_ipmi_trn_lan05_ether, tvb, 0, 6, ENC_NA);
 }
 
 static void
@@ -815,7 +815,7 @@ lan_12(tvbuff_t *tvb, proto_tree *tree)
 static void
 lan_13(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_trn_lan13_def_gw_mac, tvb, 0, 6, FALSE);
+	proto_tree_add_item(tree, hf_ipmi_trn_lan13_def_gw_mac, tvb, 0, 6, ENC_NA);
 }
 
 static void
@@ -827,7 +827,7 @@ lan_14(tvbuff_t *tvb, proto_tree *tree)
 static void
 lan_15(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_trn_lan15_bkp_gw_mac, tvb, 0, 6, FALSE);
+	proto_tree_add_item(tree, hf_ipmi_trn_lan15_bkp_gw_mac, tvb, 0, 6, ENC_NA);
 }
 
 static void
@@ -872,7 +872,7 @@ lan_19(tvbuff_t *tvb, proto_tree *tree)
 	if (v == 0) {
 		proto_tree_add_bitmask_text(tree, tvb, 2, 1, NULL, NULL, ett_ipmi_trn_lan19_byte3, byte3, TRUE, 0);
 		proto_tree_add_item(tree, hf_ipmi_trn_lan19_ip, tvb, 3, 4, ENC_BIG_ENDIAN);
-		proto_tree_add_item(tree, hf_ipmi_trn_lan19_mac, tvb, 7, 6, FALSE);
+		proto_tree_add_item(tree, hf_ipmi_trn_lan19_mac, tvb, 7, 6, ENC_NA);
 		return;
 	}
 
@@ -1285,7 +1285,7 @@ serial_10(tvbuff_t *tvb, proto_tree *tree)
 static void
 serial_11(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_trn_serial11_esc_seq, tvb, 0, 5, ENC_ASCII|ENC_NA); 
+	proto_tree_add_item(tree, hf_ipmi_trn_serial11_esc_seq, tvb, 0, 5, ENC_ASCII|ENC_NA);
 }
 
 static void

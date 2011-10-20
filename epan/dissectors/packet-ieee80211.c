@@ -1210,34 +1210,34 @@ static const value_string anqp_info_id_vals[] =
 
 /* IEEE 802.11v - WNM Action field values */
 enum wnm_action {
-	WNM_EVENT_REQ = 0,
-	WNM_EVENT_REPORT = 1,
-	WNM_DIAGNOSTIC_REQ = 2,
-	WNM_DIAGNOSTIC_REPORT = 3,
-	WNM_LOCATION_CFG_REQ = 4,
-	WNM_LOCATION_CFG_RESP = 5,
-	WNM_BSS_TRANS_MGMT_QUERY = 6,
-	WNM_BSS_TRANS_MGMT_REQ = 7,
-	WNM_BSS_TRANS_MGMT_RESP = 8,
-	WNM_FMS_REQ = 9,
-	WNM_FMS_RESP = 10,
-	WNM_COLLOCATED_INTERFERENCE_REQ = 11,
-	WNM_COLLOCATED_INTERFERENCE_REPORT = 12,
-	WNM_TFS_REQ = 13,
-	WNM_TFS_RESP = 14,
-	WNM_TFS_NOTIFY = 15,
-	WNM_SLEEP_MODE_REQ = 16,
-	WNM_SLEEP_MODE_RESP = 17,
-	WNM_TIM_BROADCAST_REQ = 18,
-	WNM_TIM_BROADCAST_RESP = 19,
-	WNM_QOS_TRAFFIC_CAPAB_UPDATE = 20,
-	WNM_CHANNEL_USAGE_REQ = 21,
-	WNM_CHANNEL_USAGE_RESP = 22,
-	WNM_DMS_REQ = 23,
-	WNM_DMS_RESP = 24,
-	WNM_TIMING_MEASUREMENT_REQ = 25,
-	WNM_NOTIFICATION_REQ = 26,
-	WNM_NOTIFICATION_RESP = 27
+  WNM_EVENT_REQ = 0,
+  WNM_EVENT_REPORT = 1,
+  WNM_DIAGNOSTIC_REQ = 2,
+  WNM_DIAGNOSTIC_REPORT = 3,
+  WNM_LOCATION_CFG_REQ = 4,
+  WNM_LOCATION_CFG_RESP = 5,
+  WNM_BSS_TRANS_MGMT_QUERY = 6,
+  WNM_BSS_TRANS_MGMT_REQ = 7,
+  WNM_BSS_TRANS_MGMT_RESP = 8,
+  WNM_FMS_REQ = 9,
+  WNM_FMS_RESP = 10,
+  WNM_COLLOCATED_INTERFERENCE_REQ = 11,
+  WNM_COLLOCATED_INTERFERENCE_REPORT = 12,
+  WNM_TFS_REQ = 13,
+  WNM_TFS_RESP = 14,
+  WNM_TFS_NOTIFY = 15,
+  WNM_SLEEP_MODE_REQ = 16,
+  WNM_SLEEP_MODE_RESP = 17,
+  WNM_TIM_BROADCAST_REQ = 18,
+  WNM_TIM_BROADCAST_RESP = 19,
+  WNM_QOS_TRAFFIC_CAPAB_UPDATE = 20,
+  WNM_CHANNEL_USAGE_REQ = 21,
+  WNM_CHANNEL_USAGE_RESP = 22,
+  WNM_DMS_REQ = 23,
+  WNM_DMS_RESP = 24,
+  WNM_TIMING_MEASUREMENT_REQ = 25,
+  WNM_NOTIFICATION_REQ = 26,
+  WNM_NOTIFICATION_RESP = 27
 };
 
 static const value_string wnm_action_codes[] =
@@ -3335,7 +3335,7 @@ dissect_vendor_action_marvell(proto_tree *tree, tvbuff_t *tvb, int offset)
               offset++;
               proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_rreqid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
               offset+= 4;
-              proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_sa, tvb, offset, 6, ENC_BIG_ENDIAN);
+              proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_sa, tvb, offset, 6, ENC_NA);
               offset+= 6;
               proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_ssn, tvb, offset, 4, ENC_LITTLE_ENDIAN);
               offset+= 4;
@@ -3347,7 +3347,7 @@ dissect_vendor_action_marvell(proto_tree *tree, tvbuff_t *tvb, int offset)
               offset++;
               proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
               offset++;
-              proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_da, tvb, offset, 6, ENC_BIG_ENDIAN);
+              proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_da, tvb, offset, 6, ENC_NA);
               offset+= 6;
               proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_dsn, tvb, offset, 4, ENC_LITTLE_ENDIAN);
               offset+= 4;
@@ -3361,7 +3361,7 @@ dissect_vendor_action_marvell(proto_tree *tree, tvbuff_t *tvb, int offset)
               offset++;
               proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_ttl, tvb, offset, 1, ENC_LITTLE_ENDIAN);
               offset++;
-              proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_da, tvb, offset, 6, ENC_BIG_ENDIAN);
+              proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_da, tvb, offset, 6, ENC_NA);
               offset+= 6;
               proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_dsn, tvb, offset, 4, ENC_LITTLE_ENDIAN);
               offset+= 4;
@@ -3369,7 +3369,7 @@ dissect_vendor_action_marvell(proto_tree *tree, tvbuff_t *tvb, int offset)
               offset+= 4;
               proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_metric, tvb, offset, 4, ENC_LITTLE_ENDIAN);
               offset+= 4;
-              proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_sa, tvb, offset, 6, ENC_BIG_ENDIAN);
+              proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_sa, tvb, offset, 6, ENC_NA);
               offset+= 6;
               proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_ssn, tvb, offset, 4, ENC_LITTLE_ENDIAN);
               offset+= 4;
@@ -3381,7 +3381,7 @@ dissect_vendor_action_marvell(proto_tree *tree, tvbuff_t *tvb, int offset)
               offset++;
               proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_dstcount, tvb, offset, 1, ENC_LITTLE_ENDIAN);
               offset++;
-              proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_da, tvb, offset, 6, ENC_BIG_ENDIAN);
+              proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_da, tvb, offset, 6, ENC_NA);
               offset+= 6;
               proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_dsn, tvb, offset, 4, ENC_LITTLE_ENDIAN);
               offset+= 4;
@@ -4270,7 +4270,7 @@ static guint
 add_ff_current_ap_addr(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
   proto_tree_add_item(tree, hf_ieee80211_ff_current_ap, tvb, offset, 6,
-                      ENC_BIG_ENDIAN);
+                      ENC_NA);
   return 6;
 }
 
@@ -4432,15 +4432,15 @@ add_ff_mesh_control(proto_tree *tree, tvbuff_t *tvb, int offset)
   switch (tvb_get_guint8(tvb, offset) & 0x03) {
   case 1:
     proto_tree_add_item(tree, hf_ieee80211_ff_mesh_addr4, tvb, offset, 6,
-                        ENC_BIG_ENDIAN);
+                        ENC_NA);
     offset += 6;
     break;
   case 2:
     proto_tree_add_item(tree, hf_ieee80211_ff_mesh_addr5, tvb, offset, 6,
-                        ENC_BIG_ENDIAN);
+                        ENC_NA);
     offset += 6;
     proto_tree_add_item(tree, hf_ieee80211_ff_mesh_addr6, tvb, offset, 6,
-                        ENC_BIG_ENDIAN);
+                        ENC_NA);
     offset += 6;
     break;
   case 3:
@@ -4474,7 +4474,7 @@ static guint
 add_ff_dst_mac_addr(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
   proto_tree_add_item(tree, hf_ieee80211_ff_dst_mac_addr, tvb, offset, 6,
-                      ENC_LITTLE_ENDIAN);
+                      ENC_NA);
   return 6;
 }
 
@@ -4482,7 +4482,7 @@ static guint
 add_ff_src_mac_addr(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
   proto_tree_add_item(tree, hf_ieee80211_ff_src_mac_addr, tvb, offset, 6,
-                      ENC_LITTLE_ENDIAN);
+                      ENC_NA);
   return 6;
 }
 
@@ -5378,7 +5378,7 @@ static guint
 add_ff_sta_address(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
   proto_tree_add_item(tree, hf_ieee80211_ff_sta_address, tvb, offset, 6,
-                      ENC_BIG_ENDIAN);
+                      ENC_NA);
   return 6;
 }
 
@@ -5386,7 +5386,7 @@ static guint
 add_ff_target_ap_address(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
   proto_tree_add_item(tree, hf_ieee80211_ff_target_ap_address, tvb, offset, 6,
-                      ENC_BIG_ENDIAN);
+                      ENC_NA);
   return 6;
 }
 
@@ -6698,11 +6698,11 @@ dissect_link_identifier(proto_tree *tree, tvbuff_t *tvb, int offset,
   }
 
   proto_tree_add_item(tree, hf_ieee80211_tag_link_id_bssid, tvb,
-                      offset, 6, ENC_BIG_ENDIAN);
+                      offset, 6, ENC_NA);
   proto_tree_add_item(tree, hf_ieee80211_tag_link_id_init_sta, tvb,
-                      offset + 6, 6, ENC_BIG_ENDIAN);
+                      offset + 6, 6, ENC_NA);
   proto_tree_add_item(tree, hf_ieee80211_tag_link_id_resp_sta, tvb,
-                      offset + 12, 6, ENC_BIG_ENDIAN);
+                      offset + 12, 6, ENC_NA);
 }
 
 static void
@@ -7570,7 +7570,7 @@ dissect_interworking(packet_info *pinfo, proto_tree *tree, proto_item *item,
 
   if (len == 1 + 6 || len == 1 + 2 + 6) {
     proto_tree_add_item(tree, hf_ieee80211_tag_interworking_hessid,
-                        tvb, offset, 6, ENC_BIG_ENDIAN);
+                        tvb, offset, 6, ENC_NA);
     offset += 6;
   }
 
@@ -8235,10 +8235,10 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
       switch (type)
         {
           case 0:
-            proto_tree_add_item(tree, hf_ieee80211_tclas_src_mac_addr, tvb, offset, 6, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_ieee80211_tclas_src_mac_addr, tvb, offset, 6, ENC_NA);
             offset += 6;
 
-            proto_tree_add_item(tree, hf_ieee80211_tclas_dst_mac_addr, tvb, offset, 6, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_ieee80211_tclas_dst_mac_addr, tvb, offset, 6, ENC_NA);
             offset += 6;
 
             proto_tree_add_item(tree, hf_ieee80211_tclas_ether_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -9317,13 +9317,13 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
         offset += 1;
         proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_pdid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset += 4;
-        proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_orig_sta, tvb, offset, 6, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_orig_sta, tvb, offset, 6, ENC_NA);
         offset += 6;
         proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_orig_sn, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset += 4;
 
         if (flags & (1<<6)) {
-          proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_orig_ext, tvb, offset, 6, ENC_BIG_ENDIAN);
+          proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_orig_ext, tvb, offset, 6, ENC_NA);
           offset += 6;
         }
         proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_lifetime, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -9339,7 +9339,7 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
           proto_tree_add_boolean(subtree, hf_ieee80211_ff_hwmp_targ_to_flags, tvb, offset, 1, flags);
           proto_tree_add_boolean(subtree, hf_ieee80211_ff_hwmp_targ_usn_flags, tvb, offset, 1, flags);
           offset += 1;
-          proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_targ_sta, tvb, offset, 6, ENC_BIG_ENDIAN);
+          proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_targ_sta, tvb, offset, 6, ENC_NA);
           offset += 6;
           proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_targ_sn, tvb, offset, 4, ENC_LITTLE_ENDIAN);
           offset += 4;
@@ -9357,19 +9357,19 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
         offset += 1;
         proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_ttl, tvb, offset , 1, ENC_LITTLE_ENDIAN);
         offset += 1;
-        proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_targ_sta, tvb, offset, 6, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_targ_sta, tvb, offset, 6, ENC_NA);
         offset += 6;
         proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_targ_sn, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset += 4;
         if (flags & (1<<6)) {
-          proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_targ_ext, tvb, offset, 6, ENC_BIG_ENDIAN);
+          proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_targ_ext, tvb, offset, 6, ENC_NA);
           offset += 6;
         }
         proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_lifetime, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset += 4;
         proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_metric, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset += 4;
-        proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_orig_sta, tvb, offset, 6, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_orig_sta, tvb, offset, 6, ENC_NA);
         offset += 6;
         proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_orig_sn, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset += 4;
@@ -9391,12 +9391,12 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
 
           proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_targ_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
           offset += 1;
-          proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_targ_sta, tvb, offset, 6, ENC_BIG_ENDIAN);
+          proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_targ_sta, tvb, offset, 6, ENC_NA);
           offset += 6;
           proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_targ_sn, tvb, offset, 4, ENC_LITTLE_ENDIAN);
           offset += 4;
           if (flags & (1<<6)) {
-            proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_targ_ext, tvb, offset, 6, ENC_BIG_ENDIAN);
+            proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_targ_ext, tvb, offset, 6, ENC_NA);
             offset += 6;
           }
           offset += add_fixed_field(tree, tvb, offset, FIELD_REASON_CODE);
@@ -9413,7 +9413,7 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
         offset += 1;
         proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_ttl, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
-        proto_tree_add_item (tree, hf_ieee80211_rann_root_sta, tvb, offset, 6, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tree, hf_ieee80211_rann_root_sta, tvb, offset, 6, ENC_NA);
         offset += 6;
         proto_tree_add_item (tree, hf_ieee80211_rann_sn, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset += 4;
@@ -10210,7 +10210,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
           src = tvb_get_ptr (tvb, offset, 6);
           set_src_addr_cols(pinfo, src, "BSSID");
           if (tree) {
-            proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_BIG_ENDIAN);
+            proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_NA);
           }
           break;
         }
@@ -10220,7 +10220,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
           src = tvb_get_ptr (tvb, offset, 6);
           set_src_addr_cols(pinfo, src, "TA");
           if (tree) {
-            proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_BIG_ENDIAN);
+            proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_NA);
           }
           break;
         }
@@ -10243,7 +10243,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
             proto_item *bar_parent_item;
             proto_tree *bar_sub_tree;
 
-            proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_BIG_ENDIAN);
+            proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_NA);
             offset += 6;
 
             bar_control = tvb_get_letohs(tvb, offset);
@@ -10331,7 +10331,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
             proto_item *ba_parent_item;
             proto_tree *ba_sub_tree;
 
-            proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_BIG_ENDIAN);
+            proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_NA);
             offset += 6;
 
             ba_control = tvb_get_letohs(tvb, offset);
@@ -15964,32 +15964,32 @@ proto_register_ieee80211 (void)
       NULL, 0, "TCLAS Processing", HFILL }},
 
     {&hf_ieee80211_qos_info_field_vo_uapsd,
-     {"AC_VO U-APSD Flag", "wlan_mgt.tag.qos_cap.qos_info.vo_uapsd", 
+     {"AC_VO U-APSD Flag", "wlan_mgt.tag.qos_cap.qos_info.vo_uapsd",
        FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01, NULL, HFILL }},
 
     {&hf_ieee80211_qos_info_field_vi_uapsd,
-     {"AC_VI U-APSD Flag", "wlan_mgt.tag.qos_cap.qos_info.vi_uapsd", 
+     {"AC_VI U-APSD Flag", "wlan_mgt.tag.qos_cap.qos_info.vi_uapsd",
        FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x02, NULL, HFILL }},
 
     {&hf_ieee80211_qos_info_field_bk_uapsd,
-     {"AC_BK U-APSD Flag", "wlan_mgt.tag.qos_cap.qos_info.bk_uapsd", 
+     {"AC_BK U-APSD Flag", "wlan_mgt.tag.qos_cap.qos_info.bk_uapsd",
        FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x04, NULL, HFILL }},
 
     {&hf_ieee80211_qos_info_field_be_uapsd,
-     {"AC_BE U-APSD Flag", "wlan_mgt.tag.qos_cap.qos_info.be_uapsd", 
+     {"AC_BE U-APSD Flag", "wlan_mgt.tag.qos_cap.qos_info.be_uapsd",
        FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x08, NULL, HFILL }},
 
     {&hf_ieee80211_qos_info_field_qack,
-     {"Q-ACK", "wlan_mgt.tag.qos_cap.qos_info.qack", 
+     {"Q-ACK", "wlan_mgt.tag.qos_cap.qos_info.qack",
        FT_BOOLEAN, 8, TFS(&qos_info_field_qack_flags), 0x10, NULL, HFILL }},
 
     {&hf_ieee80211_qos_info_field_max_sp_length,
-     {"Max SP-Lenght", "wlan_mgt.tag.qos_cap.qos_info.max_sp_length", 
+     {"Max SP-Lenght", "wlan_mgt.tag.qos_cap.qos_info.max_sp_length",
        FT_UINT8, BASE_HEX, VALS(qos_info_field_max_sp_lenght_flags),
        0x60, NULL , HFILL }},
 
     {&hf_ieee80211_qos_info_field_more_data_ack,
-     {"More Data Ack", "wlan_mgt.tag.qos_cap.qos_info.more_data_ack", 
+     {"More Data Ack", "wlan_mgt.tag.qos_cap.qos_info.more_data_ack",
        FT_BOOLEAN, 8, TFS(&qos_info_field_more_data_ack_flags) , 0x80, NULL, HFILL }},
 
     {&hf_ieee80211_qos_info_field_edca_upd_cnt,

@@ -1622,7 +1622,7 @@ dissect_ptp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             hf_ptp_sourcecommunicationtechnology, tvb, PTP_SOURCECOMMUNICATIONTECHNOLOGY_OFFSET, 1, ENC_BIG_ENDIAN);
 
         proto_tree_add_item(ptp_tree,
-            hf_ptp_sourceuuid, tvb, PTP_SOURCEUUID_OFFSET, 6, FALSE);
+            hf_ptp_sourceuuid, tvb, PTP_SOURCEUUID_OFFSET, 6, ENC_NA);
 
         proto_tree_add_item(ptp_tree,
             hf_ptp_sourceportid, tvb, PTP_SOURCEPORTID_OFFSET, 2, ENC_BIG_ENDIAN);
@@ -1695,7 +1695,7 @@ dissect_ptp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         PTP_SDR_GRANDMASTERCOMMUNICATIONTECHNOLOGY_OFFSET, 1, ENC_BIG_ENDIAN);
 
                 proto_tree_add_item(ptp_tree,
-                        hf_ptp_sdr_grandmasterclockuuid, tvb, PTP_SDR_GRANDMASTERCLOCKUUID_OFFSET, 6, FALSE);
+                        hf_ptp_sdr_grandmasterclockuuid, tvb, PTP_SDR_GRANDMASTERCLOCKUUID_OFFSET, 6, ENC_NA);
 
                 proto_tree_add_item(ptp_tree,
                         hf_ptp_sdr_grandmasterportid, tvb, PTP_SDR_GRANDMASTERPORTID_OFFSET, 2, ENC_BIG_ENDIAN);
@@ -1739,7 +1739,7 @@ dissect_ptp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         PTP_SDR_PARENTCOMMUNICATIONTECHNOLOGY_OFFSET, 1, ENC_BIG_ENDIAN);
 
                 proto_tree_add_item(ptp_tree,
-                        hf_ptp_sdr_parentuuid, tvb, PTP_SDR_PARENTUUID_OFFSET, 6, FALSE);
+                        hf_ptp_sdr_parentuuid, tvb, PTP_SDR_PARENTUUID_OFFSET, 6, ENC_NA);
 
                 proto_tree_add_item(ptp_tree,
                         hf_ptp_sdr_parentportfield, tvb, PTP_SDR_PARENTPORTFIELD_OFFSET, 2, ENC_BIG_ENDIAN);
@@ -1799,7 +1799,7 @@ dissect_ptp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     PTP_DR_REQUESTINGSOURCECOMMUNICATIONTECHNOLOGY_OFFSET, 1, ENC_BIG_ENDIAN);
 
                 proto_tree_add_item(ptp_tree,
-                        hf_ptp_dr_requestingsourceuuid, tvb, PTP_DR_REQUESTINGSOURCEUUID_OFFSET, 6, FALSE);
+                        hf_ptp_dr_requestingsourceuuid, tvb, PTP_DR_REQUESTINGSOURCEUUID_OFFSET, 6, ENC_NA);
 
                 proto_tree_add_item(ptp_tree,
                         hf_ptp_dr_requestingsourceportid, tvb, PTP_DR_REQUESTINGSOURCEPORTID_OFFSET, 2, ENC_BIG_ENDIAN);
@@ -1814,7 +1814,7 @@ dissect_ptp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         PTP_MM_TARGETCOMMUNICATIONTECHNOLOGY_OFFSET, 1, ENC_BIG_ENDIAN);
 
                 proto_tree_add_item(ptp_tree,
-                        hf_ptp_mm_targetuuid, tvb, PTP_MM_TARGETUUID_OFFSET, 6, FALSE);
+                        hf_ptp_mm_targetuuid, tvb, PTP_MM_TARGETUUID_OFFSET, 6, ENC_NA);
 
                 proto_tree_add_item(ptp_tree,
                         hf_ptp_mm_targetportid, tvb, PTP_MM_TARGETPORTID_OFFSET, 2, ENC_BIG_ENDIAN);
@@ -1839,7 +1839,7 @@ dissect_ptp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                 PTP_MM_CLOCK_IDENTITY_CLOCKCOMMUNICATIONTECHNOLOGY_OFFSET, 1, ENC_BIG_ENDIAN);
 
                         proto_tree_add_item(ptp_tree, hf_ptp_mm_clock_identity_clockuuidfield, tvb,
-                                PTP_MM_CLOCK_IDENTITY_CLOCKUUIDFIELD_OFFSET, 6, FALSE);
+                                PTP_MM_CLOCK_IDENTITY_CLOCKUUIDFIELD_OFFSET, 6, ENC_NA);
 
                         proto_tree_add_item(ptp_tree, hf_ptp_mm_clock_identity_clockportfield, tvb,
                                 PTP_MM_CLOCK_IDENTITY_CLOCKPORTFIELD_OFFSET, 2, ENC_BIG_ENDIAN);
@@ -1864,7 +1864,7 @@ dissect_ptp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                  1, ENC_BIG_ENDIAN);
 
                         proto_tree_add_item(ptp_tree, hf_ptp_mm_default_data_set_clockuuidfield, tvb,
-                                PTP_MM_DEFAULT_DATA_SET_CLOCKUUIDFIELD_OFFSET, 6, FALSE);
+                                PTP_MM_DEFAULT_DATA_SET_CLOCKUUIDFIELD_OFFSET, 6, ENC_NA);
 
                         proto_tree_add_item(ptp_tree, hf_ptp_mm_default_data_set_clockportfield, tvb,
                                 PTP_MM_DEFAULT_DATA_SET_CLOCKPORTFIELD_OFFSET, 2, ENC_BIG_ENDIAN);
@@ -1981,7 +1981,7 @@ dissect_ptp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                 1, ENC_BIG_ENDIAN);
 
                         proto_tree_add_item(ptp_tree, hf_ptp_mm_parent_data_set_parentuuid, tvb,
-                                PTP_MM_PARENT_DATA_SET_PARENTUUID_OFFSET, 6, FALSE);
+                                PTP_MM_PARENT_DATA_SET_PARENTUUID_OFFSET, 6, ENC_NA);
 
                         proto_tree_add_item(ptp_tree, hf_ptp_mm_parent_data_set_parentportid, tvb,
                                 PTP_MM_PARENT_DATA_SET_PARENTPORTID_OFFSET, 2, ENC_BIG_ENDIAN);
@@ -2017,7 +2017,7 @@ dissect_ptp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                 ENC_BIG_ENDIAN);
 
                         proto_tree_add_item(ptp_tree, hf_ptp_mm_parent_data_set_grandmasteruuidfield, tvb,
-                                PTP_MM_PARENT_DATA_SET_GRANDMASTERUUIDFIELD_OFFSET, 6, FALSE);
+                                PTP_MM_PARENT_DATA_SET_GRANDMASTERUUIDFIELD_OFFSET, 6, ENC_NA);
 
                         proto_tree_add_item(ptp_tree, hf_ptp_mm_parent_data_set_grandmasterportidfield, tvb,
                                 PTP_MM_PARENT_DATA_SET_GRANDMASTERPORTIDFIELD_OFFSET, 2, ENC_BIG_ENDIAN);
@@ -2059,7 +2059,7 @@ dissect_ptp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                 PTP_MM_PORT_DATA_SET_PORTCOMMUNICATIONTECHNOLOGY_OFFSET, 1, ENC_BIG_ENDIAN);
 
                         proto_tree_add_item(ptp_tree, hf_ptp_mm_port_data_set_portuuidfield, tvb,
-                                PTP_MM_PORT_DATA_SET_PORTUUIDFIELD_OFFSET, 6, FALSE);
+                                PTP_MM_PORT_DATA_SET_PORTUUIDFIELD_OFFSET, 6, ENC_NA);
 
                         proto_tree_add_item(ptp_tree, hf_ptp_mm_port_data_set_portidfield, tvb,
                                 PTP_MM_PORT_DATA_SET_PORTIDFIELD_OFFSET, 2, ENC_BIG_ENDIAN);
@@ -2155,7 +2155,7 @@ dissect_ptp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                 ENC_BIG_ENDIAN);
 
                         proto_tree_add_item(ptp_tree, hf_ptp_mm_foreign_data_set_foreignmasteruuidfield, tvb,
-                                PTP_MM_FOREIGN_DATA_SET_FOREIGNMASTERUUIDFIELD_OFFSET, 6, FALSE);
+                                PTP_MM_FOREIGN_DATA_SET_FOREIGNMASTERUUIDFIELD_OFFSET, 6, ENC_NA);
 
                         proto_tree_add_item(ptp_tree, hf_ptp_mm_foreign_data_set_foreignmasterportidfield, tvb,
                                 PTP_MM_FOREIGN_DATA_SET_FOREIGNMASTERPORTIDFIELD_OFFSET, 2, ENC_BIG_ENDIAN);

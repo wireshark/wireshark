@@ -425,7 +425,7 @@ static int dissect_cfm_ccm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 						tvb, maid_offset, cfm_maid_md_name_length, ENC_NA);
 				} else {
 					proto_tree_add_item(cfm_ccm_maid_tree, hf_cfm_maid_md_name_mac,
-						tvb, maid_offset, 6, ENC_BIG_ENDIAN);
+						tvb, maid_offset, 6, ENC_NA);
 					proto_tree_add_item(cfm_ccm_maid_tree, hf_cfm_maid_md_name_mac_id,
 						tvb, maid_offset+6, 2, ENC_NA);
 				}
@@ -533,9 +533,9 @@ static int dissect_cfm_ltm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	offset += 4;
 	proto_tree_add_item(cfm_pdu_tree, hf_cfm_lt_ttl, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(cfm_pdu_tree, hf_cfm_ltm_orig_addr, tvb, offset, 6, ENC_BIG_ENDIAN);
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_ltm_orig_addr, tvb, offset, 6, ENC_NA);
 	offset += 6;
-	proto_tree_add_item(cfm_pdu_tree, hf_cfm_ltm_targ_addr, tvb, offset, 6, ENC_BIG_ENDIAN);
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_ltm_targ_addr, tvb, offset, 6, ENC_NA);
 	offset += 6;
 	return offset;
 }
@@ -697,7 +697,7 @@ static int dissect_cfm_raps(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	proto_tree_add_item(raps_flag_tree, hf_cfm_raps_flags_dnf, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	proto_tree_add_item(cfm_pdu_tree, hf_cfm_raps_node_id, tvb, offset, 6, ENC_BIG_ENDIAN);
+	proto_tree_add_item(cfm_pdu_tree, hf_cfm_raps_node_id, tvb, offset, 6, ENC_NA);
 	offset += 6;
 
 	proto_tree_add_item(cfm_pdu_tree, hf_cfm_raps_reserved, tvb, offset, 24, ENC_NA);
@@ -1066,7 +1066,7 @@ static int dissect_cfm_slm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	offset += 4;
 	proto_tree_add_item(cfm_pdu_tree, hf_cfm_slr_txfcb, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	
+
 	return offset;
 }
 
@@ -1098,7 +1098,7 @@ static int dissect_cfm_slr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	offset += 4;
 	proto_tree_add_item(cfm_pdu_tree, hf_cfm_slr_txfcb, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	
+
 	return offset;
 }
 
@@ -1324,7 +1324,7 @@ static void dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 								       	tvb, tlv_data_offset, 1, ENC_BIG_ENDIAN);
 							tlv_data_offset += 1;
 							proto_tree_add_item(cfm_tlv_tree, hf_tlv_reply_ingress_mac_address,
-								       	tvb, tlv_data_offset, 6, ENC_BIG_ENDIAN);
+								       	tvb, tlv_data_offset, 6, ENC_NA);
 							tlv_data_offset += 6;
 
 							/* For the IEEE standard if the TLV length is greater than 7 then we have
@@ -1352,7 +1352,7 @@ static void dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 								       	tvb, tlv_data_offset, 1, ENC_BIG_ENDIAN);
 							tlv_data_offset += 1;
 							proto_tree_add_item(cfm_tlv_tree, hf_tlv_reply_egress_mac_address,
-								       	tvb, tlv_data_offset, 6, ENC_BIG_ENDIAN);
+								       	tvb, tlv_data_offset, 6, ENC_NA);
 							tlv_data_offset += 6;
 
 							/* For the IEEE standard if the TLV length is greater than 7 then we have
@@ -1380,7 +1380,7 @@ static void dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 								       	tvb, tlv_data_offset, 2, ENC_NA);
 							tlv_data_offset += 2;
 							proto_tree_add_item(cfm_tlv_tree, hf_tlv_ltm_egress_id_mac,
-								       	tvb, tlv_data_offset, 6, ENC_BIG_ENDIAN);
+								       	tvb, tlv_data_offset, 6, ENC_NA);
 							tlv_data_offset += 6;
 							break;
 						case LTR_EGR_ID_TLV:
@@ -1388,13 +1388,13 @@ static void dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 								       	tvb, tlv_data_offset, 2, ENC_NA);
 							tlv_data_offset += 2;
 							proto_tree_add_item(cfm_tlv_tree, hf_tlv_ltr_egress_last_id_mac,
-								       	tvb, tlv_data_offset, 6, ENC_BIG_ENDIAN);
+								       	tvb, tlv_data_offset, 6, ENC_NA);
 							tlv_data_offset += 6;
 							proto_tree_add_item(cfm_tlv_tree, hf_tlv_ltr_egress_next_id_unique_identifier,
 								       	tvb, tlv_data_offset, 2, ENC_NA);
 							tlv_data_offset += 2;
 							proto_tree_add_item(cfm_tlv_tree, hf_tlv_ltr_egress_next_id_mac,
-								       	tvb, tlv_data_offset, 6, ENC_BIG_ENDIAN);
+								       	tvb, tlv_data_offset, 6, ENC_NA);
 							tlv_data_offset += 6;
 							break;
 						case ORG_SPEC_TLV:

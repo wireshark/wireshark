@@ -1532,7 +1532,7 @@ dissect_tlv_mac(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
     val_tree=proto_item_add_subtree(ti, ett_ldp_tlv_val);
 
     for(ix=1; rem >= 6; ix++, offset += 6, rem -= 6) {
-        proto_tree_add_item(val_tree, hf_ldp_tlv_mac, tvb, offset, 6, FALSE);
+        proto_tree_add_item(val_tree, hf_ldp_tlv_mac, tvb, offset, 6, ENC_NA);
     }
     if (rem)
         proto_tree_add_text(val_tree, tvb, offset, rem,

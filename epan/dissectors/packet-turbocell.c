@@ -26,7 +26,7 @@
 /* This dissector was written entirely from reverse engineering captured
  * packets. No documentation was used or supplied by Karlnet. Hence, this
  * dissector is very incomplete. If you have any insight into decoding
- * these packets, or if you can supply packet captures from turbocell 
+ * these packets, or if you can supply packet captures from turbocell
  * networks, contact kiltedtaco@xxxxxxxxx */
 
 /* 2008-08-05 : Added support for aggregate frames.
@@ -155,15 +155,15 @@ static void dissect_turbocell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
         /* it seem when we have this magic number,that means an alternate header version */
 
-        if (tvb_get_bits64(tvb, 64,48,FALSE) != G_GINT64_CONSTANT(0x000001fe23dc45ba)){ 
+        if (tvb_get_bits64(tvb, 64,48,FALSE) != G_GINT64_CONSTANT(0x000001fe23dc45ba)){
         proto_tree_add_item(turbocell_tree, hf_turbocell_counter, tvb, 0x02, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(turbocell_tree, hf_turbocell_dst, tvb, 0x04, 6, FALSE);
+        proto_tree_add_item(turbocell_tree, hf_turbocell_dst, tvb, 0x04, 6, ENC_NA);
         proto_tree_add_item(turbocell_tree, hf_turbocell_timestamp, tvb, 0x0A, 3, ENC_BIG_ENDIAN);
 
         } else {
         proto_tree_add_item(turbocell_tree, hf_turbocell_timestamp, tvb, 0x02, 3, ENC_BIG_ENDIAN);
         proto_tree_add_item(turbocell_tree, hf_turbocell_counter, tvb, 0x05, 3, ENC_BIG_ENDIAN);
-        proto_tree_add_item(turbocell_tree, hf_turbocell_dst, tvb, 0x08, 6, FALSE);
+        proto_tree_add_item(turbocell_tree, hf_turbocell_dst, tvb, 0x08, 6, ENC_NA);
         }
 
         proto_tree_add_item(turbocell_tree, hf_turbocell_unknown, tvb, 0x0E, 2, ENC_BIG_ENDIAN);
@@ -184,7 +184,7 @@ static void dissect_turbocell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                 network_tree = proto_item_add_subtree(name_item, ett_network);
 
                 str_name=tvb_get_ephemeral_stringz(tvb, 0x14, &str_len);
-                if (check_col (pinfo->cinfo, COL_INFO) && str_len > 0) 
+                if (check_col (pinfo->cinfo, COL_INFO) && str_len > 0)
                     col_append_fstr(pinfo->cinfo, COL_INFO, ", Network=\"%s\"",format_text(str_name, str_len-1));
 
                 while(tvb_get_guint8(tvb, 0x34 + 8*i)==0x00 && (tvb_length_remaining(tvb,0x34 + 8*i) > 6) && (i<32)) {
@@ -340,11 +340,11 @@ void proto_register_turbocell(void)
     };
 
     proto_turbocell = proto_register_protocol("Turbocell Header", "Turbocell", "turbocell");
-    
+
     proto_aggregate = proto_register_protocol("Turbocell Aggregate Data",
     "Turbocell Aggregate Data", "turbocell_aggregate");
     proto_register_field_array(proto_aggregate, aggregate_fields, array_length(aggregate_fields));
-    
+
     register_dissector("turbocell", dissect_turbocell, proto_turbocell);
 
     proto_register_field_array(proto_turbocell, hf, array_length(hf));

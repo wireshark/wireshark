@@ -1270,8 +1270,8 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 const gchar *link_str;
                 /* if the opt len is 8, the Link Addr is MAC Address */
                 if(opt_len == 8){
-                    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_linkaddr_mac, tvb, opt_offset, 6, ENC_BIG_ENDIAN);
-                    ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_src_linkaddr_mac, tvb, opt_offset, 6, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_linkaddr_mac, tvb, opt_offset, 6, ENC_NA);
+                    ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_src_linkaddr_mac, tvb, opt_offset, 6, ENC_NA);
                     PROTO_ITEM_SET_HIDDEN(ti_opt);
 
                     link_str = tvb_ether_to_str(tvb, opt_offset);
@@ -1303,8 +1303,8 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 const gchar *link_str;
                 /* if the opt len is 8, the Link Addr is MAC Address */
                 if(opt_len == 8){
-                    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_linkaddr_mac, tvb, opt_offset, 6, ENC_BIG_ENDIAN);
-                    ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_target_linkaddr_mac, tvb, opt_offset, 6, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_linkaddr_mac, tvb, opt_offset, 6, ENC_NA);
+                    ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_target_linkaddr_mac, tvb, opt_offset, 6, ENC_NA);
                     PROTO_ITEM_SET_HIDDEN(ti_opt);
 
                     link_str = tvb_ether_to_str(tvb, opt_offset);

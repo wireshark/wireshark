@@ -165,13 +165,13 @@ dissect_dec_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    proto_tree_add_item(bpdu_tree, hf_dec_bpdu_root_pri, tvb,
 				BPDU_ROOT_PRI, 2, ENC_BIG_ENDIAN);
 	    proto_tree_add_item(bpdu_tree, hf_dec_bpdu_root_mac, tvb,
-				BPDU_ROOT_MAC, 6, ENC_BIG_ENDIAN);
+				BPDU_ROOT_MAC, 6, ENC_NA);
 	    proto_tree_add_item(bpdu_tree, hf_dec_bpdu_root_cost, tvb,
 				BPDU_ROOT_PATH_COST, 2, ENC_BIG_ENDIAN);
 	    proto_tree_add_item(bpdu_tree, hf_dec_bpdu_bridge_pri, tvb,
 				BPDU_BRIDGE_PRI, 2, ENC_BIG_ENDIAN);
 	    proto_tree_add_item(bpdu_tree, hf_dec_bpdu_bridge_mac, tvb,
-				BPDU_BRIDGE_MAC, 6, ENC_BIG_ENDIAN);
+				BPDU_BRIDGE_MAC, 6, ENC_NA);
 	    proto_tree_add_item(bpdu_tree, hf_dec_bpdu_port_id, tvb,
 				BPDU_PORT_IDENTIFIER, 1, ENC_BIG_ENDIAN);
 	    proto_tree_add_item(bpdu_tree, hf_dec_bpdu_msg_age, tvb,

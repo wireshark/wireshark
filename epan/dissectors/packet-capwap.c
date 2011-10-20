@@ -870,7 +870,7 @@ dissect_capwap_board_data(tvbuff_t *tvb, proto_tree *board_data_type_tree, guint
 		break;
 
 	case BOARD_DATA_BASE_MAC_ADDRESS:
-		proto_tree_add_item(sub_board_data_type_tree, hf_capwap_msg_element_type_wtp_board_data_base_mac_address, tvb, offset+4, 6, ENC_BIG_ENDIAN);
+		proto_tree_add_item(sub_board_data_type_tree, hf_capwap_msg_element_type_wtp_board_data_base_mac_address, tvb, offset+4, 6, ENC_NA);
 		break;
 
 	default:
@@ -1110,7 +1110,7 @@ dissect_capwap_message_element_type(tvbuff_t *tvb, proto_tree *msg_element_type_
 		break;
 
 	case IEEE80211_STATION_SESSION_KEY: /* ieee80211 Station Session Key (1038) */
-		proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_station_session_key_mac, tvb, offset+4, 6, ENC_BIG_ENDIAN);
+		proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_station_session_key_mac, tvb, offset+4, 6, ENC_NA);
 		proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_station_session_key_flags, tvb, offset+10, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_station_session_key_flags_a, tvb, offset+10, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_station_session_key_flags_c, tvb, offset+10, 2, ENC_BIG_ENDIAN);
@@ -1260,7 +1260,7 @@ dissect_capwap_header(tvbuff_t *tvb, proto_tree *capwap_control_tree, guint offs
 		proto_tree_add_item(capwap_header_tree, hf_capwap_header_mac_length, tvb, offset+plen, 1, ENC_BIG_ENDIAN);
 		plen += 1;
 		if (maclength == 6) {
-			proto_tree_add_item(capwap_header_tree, hf_capwap_header_mac_eui48, tvb, offset+plen, maclength, ENC_BIG_ENDIAN);
+			proto_tree_add_item(capwap_header_tree, hf_capwap_header_mac_eui48, tvb, offset+plen, maclength, ENC_NA);
 
 		} else if (maclength == 8) {
 			proto_tree_add_item(capwap_header_tree, hf_capwap_header_mac_eui64, tvb, offset+plen, maclength, ENC_BIG_ENDIAN);

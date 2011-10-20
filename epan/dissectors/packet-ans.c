@@ -91,7 +91,7 @@ dissect_ans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(ans_tree, hf_ans_rev_id, tvb, 2, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(ans_tree, hf_ans_seq_num, tvb, 4, 4, ENC_BIG_ENDIAN);
 		proto_tree_add_item(ans_tree, hf_ans_sender_id, tvb, 8, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(ans_tree, hf_ans_team_id, tvb, 10, 6, ENC_BIG_ENDIAN);
+		proto_tree_add_item(ans_tree, hf_ans_team_id, tvb, 10, 6, ENC_NA);
 	}
 }
 

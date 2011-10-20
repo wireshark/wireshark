@@ -290,7 +290,7 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					{
 						/* Group Membership */
 						proto_tree_add_item(gmrp_tree, hf_gmrp_attribute_value_group_membership,
-							tvb, offset, (6*sizeof(guint8)), FALSE);
+							tvb, offset, (6*sizeof(guint8)), ENC_NA);
 
 						offset += 6*sizeof(guint8);
 						length -= 6*sizeof(guint8);

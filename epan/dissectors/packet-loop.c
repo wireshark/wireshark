@@ -85,7 +85,7 @@ dissect_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     val_to_str(function, function_vals, "Unknown function (%u)"));
       }
       if (tree)
-        proto_tree_add_text(loop_tree, tvb, offset, 2, "Relevant function:"); 
+        proto_tree_add_text(loop_tree, tvb, offset, 2, "Relevant function:");
       set_info = FALSE;
     }
     if (tree)
@@ -104,7 +104,7 @@ dissect_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case FUNC_FORWARD_DATA:
       if (tree)
         proto_tree_add_item(loop_tree, hf_loop_forwarding_address, tvb, offset,
-                            6, FALSE);
+                            6, ENC_NA);
       offset += 6;
       more_function = TRUE;
       break;

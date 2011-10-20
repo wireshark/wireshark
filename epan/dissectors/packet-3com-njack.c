@@ -461,7 +461,7 @@ dissect_tlvs(tvbuff_t *tvb, proto_tree *njack_tree, guint32 offset)
 			break;
 		case NJACK_CMD_MACADDRESS:
 			proto_tree_add_item(tlv_tree, hf_njack_tlv_devicemac,
-				tvb, offset, 6, ENC_BIG_ENDIAN);
+				tvb, offset, 6, ENC_NA);
 			offset += 6;
 			break;
 		case NJACK_CMD_VERSION:

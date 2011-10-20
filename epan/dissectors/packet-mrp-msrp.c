@@ -329,7 +329,7 @@ dissect_msrp_talker_common(proto_tree *first_value_tree, tvbuff_t *tvb, int msg_
 {
 
     proto_tree_add_item(first_value_tree, hf_msrp_stream_da, tvb,
-                        MSRP_STREAM_DA_OFFSET + msg_offset, 6, FALSE);
+                        MSRP_STREAM_DA_OFFSET + msg_offset, 6, ENC_NA);
     proto_tree_add_item(first_value_tree, hf_msrp_vlan_id, tvb,
                         MSRP_VLAN_ID_OFFSET + msg_offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(first_value_tree, hf_msrp_tspec_max_frame_size, tvb,
@@ -543,7 +543,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 vect_attr_ti = proto_tree_add_item(attr_list_tree, hf_msrp_vector_attribute, tvb,
                                                    MSRP_VECTOR_ATTRIBUTE_GROUP_OFFSET + msg_offset + vect_offset,
                                                    vect_attr_len, ENC_NA);
- 
+
                 vect_attr_tree = proto_item_add_subtree(vect_attr_ti, ett_vect_attr);
 
                 dissect_msrp_common2(vect_attr_tree, tvb, msg_offset + vect_offset);

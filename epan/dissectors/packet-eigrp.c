@@ -1468,7 +1468,7 @@ dissect_eigrp_ipx_extdata (proto_tree *tree, tvbuff_t *tvb, int offset)
 
     /* Decode the external route source info */
     proto_tree_add_item(sub_tree, hf_eigrp_ipx_extdata_routerid, sub_tvb,
-			sub_offset, 6, ENC_BIG_ENDIAN);
+			sub_offset, 6, ENC_NA);
     sub_offset += 6;
     proto_tree_add_item(sub_tree, hf_eigrp_extdata_as, sub_tvb,
 			sub_offset, 4, ENC_BIG_ENDIAN);
@@ -1602,7 +1602,7 @@ dissect_eigrp_nexthop (proto_tree *tree, tvbuff_t *tvb, guint16 afi, int offset)
 			    ENC_NA);
 	offset += 4;
 	proto_tree_add_item(tree, hf_eigrp_ipx_nexthop_host, tvb, offset, 6,
-			    ENC_BIG_ENDIAN);
+			    ENC_NA);
 	offset += 6;
 	break;
 
