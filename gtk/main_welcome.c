@@ -767,7 +767,7 @@ gboolean on_selection_changed(GtkTreeSelection *selection _U_,
                 g_array_insert_val(global_capture_opts.all_ifaces, i, device);
 
                 if (dlg_window_present()) {
-                    enable_selected_interface(strdup(if_name), device.selected);
+                    enable_selected_interface(g_strdup(if_name), device.selected);
                 }
                 if (interfaces_dialog_window_present()) {
                     update_selected_interface(g_strdup(if_name));
