@@ -143,7 +143,6 @@ capture_start(capture_options *capture_opts)
   /* close the currently loaded capture file */
   cf_close(capture_opts->cf);
 
-  collect_ifaces(capture_opts);
   g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Start ...");
 
 #ifdef _WIN32
@@ -652,9 +651,6 @@ capture_input_closed(capture_options *capture_opts, gchar *msg)
         }
 
         /* ... and start the capture again */
-        if (capture_opts->ifaces->len == 0) {
-            collect_ifaces(capture_opts);
-        }
         capture_start(capture_opts);
     } else {
         /* We're not doing a capture any more, so we don't have a save file. */
@@ -664,13 +660,13 @@ capture_input_closed(capture_options *capture_opts, gchar *msg)
 }
 
 if_stat_cache_t *
-capture_stat_start(capture_options *capture_opts) {
+capture_stat_start(GList *if_list) {
     int stat_fd, fork_child;
     gchar *msg;
     if_stat_cache_t *sc = NULL;
+    GList *if_entry;
+    if_info_t *if_info;
     if_stat_cache_item_t *sc_item;
-    guint i;
-    interface_t device;
 
     /* Fire up dumpcap. */
     /*
@@ -698,11 +694,11 @@ capture_stat_start(capture_options *capture_opts) {
         sc->cache_list = NULL;
 
         /* Initialize the cache */
-        for (i = 0; i < capture_opts->all_ifaces->len; i++) {
-            device = g_array_index(capture_opts->all_ifaces, interface_t, i);
-            if (&(device.if_info)) {
+        for (if_entry = if_list; if_entry != NULL; if_entry = g_list_next(if_entry)) {
+            if_info = if_entry->data;
+            if (if_info) {
                 sc_item = g_malloc0(sizeof(if_stat_cache_item_t));
-                sc_item->name = g_strdup(device.if_info.name);
+                sc_item->name = g_strdup(if_info->name);
                 sc->cache_list = g_list_append(sc->cache_list, sc_item);
             }
         }

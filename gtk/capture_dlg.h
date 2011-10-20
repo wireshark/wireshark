@@ -32,12 +32,60 @@
  *  @ingroup dialog_group
  */
 #include "capture_opts.h"
-#include <gtk/gtk.h>
+
+#ifdef HAVE_PCAP_REMOTE
+struct remote_host {
+    gchar *remote_host;          /**< Host name or network address for remote capturing */
+    gchar *remote_port;          /**< TCP port of remote RPCAP server */
+    gint auth_type;              /**< Authentication type */
+    gchar *auth_username;        /**< Remote authentication parameters */
+    gchar *auth_password;        /**< Remote authentication parameters */
+    gboolean datatx_udp;
+    gboolean nocap_rpcap;
+    gboolean nocap_local;
+};
+
+typedef struct remote_options_tag {
+    capture_source src_type;
+    struct remote_host remote_host_opts;
+#ifdef HAVE_PCAP_SETSAMPLING
+    capture_sampling sampling_method;
+    int sampling_param;
+#endif
+} remote_options;
+#endif /* HAVE_PCAP_REMOTE */
+
+typedef struct row_options_tag {
+    gchar *name;
+    gchar *display_name;
+    gchar *addresses;
+    gint no_addresses;
+    gchar *cfilter;
+    GList *links;
+    gint active_dlt;
+    gboolean pmode;
+#ifdef HAVE_PCAP_CREATE
+    gboolean monitor_mode_enabled;
+    gboolean monitor_mode_supported;
+#endif
+    gboolean has_snaplen;
+    guint snaplen;
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+    gint buffer;
+#endif
+#ifdef HAVE_PCAP_REMOTE
+    remote_options remote_opts;
+#endif
+} interface_row;
+
+typedef struct link_row_tag {
+    gchar *name;
+    gint dlt;
+} link_row;
 
 enum
 {
     CAPTURE = 0,
-	IFACE_HIDDEN_NAME, 
     INTERFACE,
     LINK,
     PMODE,
@@ -95,7 +143,6 @@ void capture_start_confirmed(void);
 void
 capture_air_cb(GtkWidget *widget, gpointer data);
 
-#if 0
 /*
  * We remember the capture settings for each interface when a capture
  * is started on it; the next time we select that interface we start
@@ -116,7 +163,6 @@ typedef struct {
  */
 cap_settings_t
 capture_get_cap_settings (gchar *if_name);
-#endif
 
 GtkTreeModel*
 create_and_fill_model (GtkTreeView *view);
@@ -156,12 +202,9 @@ gboolean
 dlg_window_present(void);
 
 void
-enable_selected_interface(gchar *name, gboolean selected);
+enable_selected_interface(gchar *name, gboolean enable);
 
 void
 options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColumn *column _U_, gpointer userdata);
-
-void
-update_all_rows(void);
 
 #endif /* capture_dlg.h */

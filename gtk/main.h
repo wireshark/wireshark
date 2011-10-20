@@ -26,7 +26,6 @@
 #define __MAIN_H__
 
 #include "globals.h"
-#include "capture_opts.h"
 
 /** @defgroup main_window_group Main window
  * The main window has the following submodules:
@@ -365,7 +364,5 @@ extern void redissect_packets(void);
 extern GList *get_ip_address_list_from_packet_list_row(gpointer data);
 
 extern GtkWidget *pkt_scrollw;
-
-void hide_interface(gchar* new_hide);
 
 #endif /* __MAIN_H__ */
