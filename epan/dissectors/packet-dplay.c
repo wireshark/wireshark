@@ -1069,19 +1069,19 @@ static void dissect_dplay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         switch(message_type)
         {
             case 0x0001:
-                offset = dissect_type01_message(dplay_data, tvb, offset);
+                dissect_type01_message(dplay_data, tvb, offset);
                 break;
             case 0x0002:
-                offset = dissect_type02_message(dplay_data, tvb, offset);
+                dissect_type02_message(dplay_data, tvb, offset);
                 break;
             case 0x0004:
                 /* We should not get here. */
                 break;
             case 0x0005:
-                offset = dissect_type05_message(dplay_data, tvb, offset);
+                dissect_type05_message(dplay_data, tvb, offset);
                 break;
             case 0x0007:
-                offset = dissect_type07_message(dplay_data, tvb, offset);
+                dissect_type07_message(dplay_data, tvb, offset);
                 break;
             case 0x0008:
             case 0x0009:
@@ -1092,29 +1092,29 @@ static void dissect_dplay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             case 0x000e:
             case 0x002e:
             case 0x0038:
-                offset = dissect_player_message(dplay_data, tvb, offset);
+                dissect_player_message(dplay_data, tvb, offset);
                 break;
             case 0x000f:
-                offset = dissect_type0f_message(dplay_data, tvb, offset);
+                dissect_type0f_message(dplay_data, tvb, offset);
                 break;
             case 0x0013:
-                offset = dissect_type13_message(dplay_data, tvb, offset);
+                dissect_type13_message(dplay_data, tvb, offset);
                 break;
             case 0x0015:
-                offset = dissect_type15_message(dplay_data, tvb, offset);
+                dissect_type15_message(dplay_data, tvb, offset);
                 break;
             case 0x0016:
             case 0x0017:
-                offset = dissect_ping_message(dplay_data, tvb, offset);
+                dissect_ping_message(dplay_data, tvb, offset);
                 break;
             case 0x001a:
-                offset = dissect_type1a_message(dplay_data, tvb, offset);
+                dissect_type1a_message(dplay_data, tvb, offset);
                 break;
             case 0x0029:
-                offset = dissect_type29_message(dplay_data, tvb, offset);
+                dissect_type29_message(dplay_data, tvb, offset);
                 break;
             case 0x002f:
-                offset = dissect_type2f_message(dplay_data, tvb, offset);
+                dissect_type2f_message(dplay_data, tvb, offset);
                 break;
         }
     }
