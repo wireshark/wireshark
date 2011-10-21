@@ -42,8 +42,6 @@
 # include "config.h"
 #endif
 
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/stats_tree.h>
 #include <epan/asn1.h>
@@ -2026,12 +2024,17 @@ dissect_isup_called_party_number_parameter(tvbuff_t *parameter_tvb, proto_tree *
   proto_tree_add_uint(parameter_tree, hf_isup_numbering_plan_indicator, parameter_tvb, 1, 1, indicators2);
   offset = 2;
 
+  if (tvb_reported_length_remaining(parameter_tvb, offset) == 0) {
+    proto_tree_add_text(parameter_tree, parameter_tvb, offset, 0, "Called Number (empty)");
+    proto_item_set_text(parameter_item, "Called Number: (empty)");
+    return;
+  }
+
   address_digits_item = proto_tree_add_text(parameter_tree, parameter_tvb,
-                                            offset, -1,
-                                            "Called Party Number");
+                                            offset, -1, "Called Party Number");
   address_digits_tree = proto_item_add_subtree(address_digits_item, ett_isup_address_digits);
 
-  while((length = tvb_reported_length_remaining(parameter_tvb, offset)) > 0){
+  while((length = tvb_reported_length_remaining(parameter_tvb, offset)) > 0) {
     address_digit_pair = tvb_get_guint8(parameter_tvb, offset);
     proto_tree_add_uint(address_digits_tree, hf_isup_called_party_odd_address_signal_digit, parameter_tvb, offset, 1, address_digit_pair);
     called_number[i++] = number_to_char(address_digit_pair & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK);
@@ -2045,7 +2048,7 @@ dissect_isup_called_party_number_parameter(tvbuff_t *parameter_tvb, proto_tree *
     }
     offset++;
   }
-  if  (((indicators1 & 0x80) == 0) && (tvb_length(parameter_tvb) > 0)){ /* Even Indicator set -> last even digit is valid & has be displayed */
+  if  (((indicators1 & 0x80) == 0) && (tvb_length(parameter_tvb) > 0)) { /* Even Indicator set -> last even digit is valid */
     proto_tree_add_uint(address_digits_tree, hf_isup_called_party_even_address_signal_digit, parameter_tvb, offset - 1, 1, address_digit_pair);
     called_number[i++] = number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
     if (i > MAXDIGITS)
@@ -3820,50 +3823,55 @@ dissect_isup_calling_party_number_parameter(tvbuff_t *parameter_tvb, proto_tree 
   offset = 2;
 
   length = tvb_length_remaining(parameter_tvb, offset);
-  if (length > 0) {
-    address_digits_item = proto_tree_add_text(parameter_tree, parameter_tvb,
-                                              offset, -1,
-                                              "Calling Party Number");
-    address_digits_tree = proto_item_add_subtree(address_digits_item, ett_isup_address_digits);
+  if (length == 0) {
+    proto_tree_add_text(parameter_tree, parameter_tvb, offset, 0, "Calling Number (empty)");
+    proto_item_set_text(parameter_item, "Calling Number: (empty)");
+    return;
+  }
 
-    while(length > 0){
-      address_digit_pair = tvb_get_guint8(parameter_tvb, offset);
-      proto_tree_add_uint(address_digits_tree, hf_isup_calling_party_odd_address_signal_digit, parameter_tvb, offset, 1, address_digit_pair);
-      calling_number[i++] = number_to_char(address_digit_pair & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK);
-      if (i > MAXDIGITS)
-        THROW(ReportedBoundsError);
-      if ((length - 1) > 0 ){
-        proto_tree_add_uint(address_digits_tree, hf_isup_calling_party_even_address_signal_digit, parameter_tvb, offset, 1, address_digit_pair);
-        calling_number[i++] = number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
-        if (i > MAXDIGITS)
-          THROW(ReportedBoundsError);
-      }
-      offset++;
-      length = tvb_length_remaining(parameter_tvb, offset);
-    }
+  address_digits_item = proto_tree_add_text(parameter_tree, parameter_tvb,
+                                            offset, -1,
+                                            "Calling Party Number");
+  address_digits_tree = proto_item_add_subtree(address_digits_item, ett_isup_address_digits);
 
-    if  (((indicators1 & 0x80) == 0) && (tvb_length(parameter_tvb) > 0)){ /* Even Indicator set -> last even digit is valid & has be displayed */
-      proto_tree_add_uint(address_digits_tree, hf_isup_calling_party_even_address_signal_digit, parameter_tvb, offset - 1, 1, address_digit_pair);
+  while(length > 0){
+    address_digit_pair = tvb_get_guint8(parameter_tvb, offset);
+    proto_tree_add_uint(address_digits_tree, hf_isup_calling_party_odd_address_signal_digit, parameter_tvb, offset, 1, address_digit_pair);
+    calling_number[i++] = number_to_char(address_digit_pair & ISUP_ODD_ADDRESS_SIGNAL_DIGIT_MASK);
+    if (i > MAXDIGITS)
+      THROW(ReportedBoundsError);
+    if ((length - 1) > 0 ){
+      proto_tree_add_uint(address_digits_tree, hf_isup_calling_party_even_address_signal_digit, parameter_tvb, offset, 1, address_digit_pair);
       calling_number[i++] = number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
       if (i > MAXDIGITS)
         THROW(ReportedBoundsError);
     }
-    proto_item_set_text(address_digits_item, "Calling Party Number: %s", calling_number);
-    calling_number[i++] = '\0';
-    if ( number_plan == 1 ) {
-      e164_info.e164_number_type = CALLING_PARTY_NUMBER;
-      e164_info.nature_of_address = indicators1 & 0x7f;
-      e164_info.E164_number_str = calling_number;
-      e164_info.E164_number_length = i - 1;
-      dissect_e164_number(parameter_tvb, address_digits_tree, 2, (offset - 2), e164_info);
-      hidden_item = proto_tree_add_string(address_digits_tree, hf_isup_calling, parameter_tvb,
-                                          offset - length, length, calling_number);
-      PROTO_ITEM_SET_HIDDEN(hidden_item);
-    } else {
-      proto_tree_add_string(address_digits_tree, hf_isup_calling, parameter_tvb,
-                            offset - length, length, calling_number);
-    }
+    offset++;
+    length = tvb_length_remaining(parameter_tvb, offset);
   }
+
+  if  (((indicators1 & 0x80) == 0) && (tvb_length(parameter_tvb) > 0)){ /* Even Indicator set -> last even digit is valid & has be displayed */
+    proto_tree_add_uint(address_digits_tree, hf_isup_calling_party_even_address_signal_digit, parameter_tvb, offset - 1, 1, address_digit_pair);
+    calling_number[i++] = number_to_char((address_digit_pair & ISUP_EVEN_ADDRESS_SIGNAL_DIGIT_MASK) / 0x10);
+    if (i > MAXDIGITS)
+      THROW(ReportedBoundsError);
+  }
+  proto_item_set_text(address_digits_item, "Calling Party Number: %s", calling_number);
+  calling_number[i++] = '\0';
+  if ( number_plan == 1 ) {
+    e164_info.e164_number_type = CALLING_PARTY_NUMBER;
+    e164_info.nature_of_address = indicators1 & 0x7f;
+    e164_info.E164_number_str = calling_number;
+    e164_info.E164_number_length = i - 1;
+    dissect_e164_number(parameter_tvb, address_digits_tree, 2, (offset - 2), e164_info);
+    hidden_item = proto_tree_add_string(address_digits_tree, hf_isup_calling, parameter_tvb,
+                                        offset - length, length, calling_number);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
+  } else {
+    proto_tree_add_string(address_digits_tree, hf_isup_calling, parameter_tvb,
+                          offset - length, length, calling_number);
+  }
+
   proto_item_set_text(parameter_item, "Calling Party Number: %s", calling_number);
   tap_calling_number = ep_strdup(calling_number);
 }
