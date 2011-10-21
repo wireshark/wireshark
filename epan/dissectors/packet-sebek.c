@@ -162,7 +162,7 @@ dissect_sebek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		/* Adding Sebek item and subtree */
-		ti = proto_tree_add_item(tree, proto_sebek, tvb, 0, -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_sebek, tvb, 0, -1, ENC_NA);
 		sebek_tree = proto_item_add_subtree(ti, ett_sebek);
 
 		/* check for minimum length before deciding where to go*/

@@ -51,7 +51,7 @@ dissect_ax4000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti;
 	proto_tree *ax4000_tree;
-	
+
 	guint8  ax_port;
 	guint8  ax_chassis;
 	guint16 ax_index;
@@ -67,14 +67,14 @@ dissect_ax4000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ax_index = tvb_get_ntohs(tvb, 2) & 0x0FFF;
 	ax_timestamp = tvb_get_letohl(tvb, 6);
 	ax_seq = tvb_get_letohl(tvb, 10);
-	
+
 	col_append_fstr(pinfo->cinfo, COL_INFO,
 			"Chss:%u Prt:%u Idx:%u Seq:0x%08x TS:%.6f[msec]",
 			ax_chassis, ax_port, ax_index, ax_seq, ax_timestamp*1e-5);
-	
+
 	if (tree) {
 		/* create display subtree for the protocol */
-		ti = proto_tree_add_item(tree, proto_ax4000, tvb, 0, -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_ax4000, tvb, 0, -1, ENC_NA);
 
 		ax4000_tree = proto_item_add_subtree(ti, ett_ax4000);
 

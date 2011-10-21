@@ -239,7 +239,7 @@ dissect_evrc_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, evrc_varia
 
     len = tvb_length(tvb);
 
-    item = proto_tree_add_item(tree, proto_evrc, tvb, 0, -1, FALSE);
+    item = proto_tree_add_item(tree, proto_evrc, tvb, 0, -1, ENC_NA);
 
     evrc_tree = proto_item_add_subtree(item, ett_evrc);
 

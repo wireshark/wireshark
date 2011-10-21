@@ -573,7 +573,7 @@ dissect_ancp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree *ancp_tree = NULL;
         guint8  byte;
 
-        ti = proto_tree_add_item(tree, proto_ancp, tvb, 0, -1, FALSE);
+        ti = proto_tree_add_item(tree, proto_ancp, tvb, 0, -1, ENC_NA);
 
         ancp_tree = proto_item_add_subtree(ti, ett_ancp_len);
 

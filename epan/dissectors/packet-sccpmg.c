@@ -281,7 +281,7 @@ dissect_sccpmg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tree) {
 		/* create the sccpmg protocol tree */
 		sccpmg_item = proto_tree_add_item(tree, proto_sccpmg, tvb, 0,
-						  -1, FALSE);
+						  -1, ENC_NA);
 		sccpmg_tree = proto_item_add_subtree(sccpmg_item, ett_sccpmg);
 	}
 

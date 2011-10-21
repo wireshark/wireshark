@@ -155,7 +155,7 @@ dissect_brp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tree) { /* we are being asked for details */
 
         /* Here we add our tree/subtree so we can have a collapsible branch. */
-        brp_item = proto_tree_add_item( tree, proto_brp, tvb, 0, -1, ENC_BIG_ENDIAN );
+        brp_item = proto_tree_add_item( tree, proto_brp, tvb, 0, -1, ENC_NA );
         brp_tree = proto_item_add_subtree( brp_item, ett_brp);
 
         /* We use tvb_get_guint8 to get our type value out. */
@@ -394,7 +394,7 @@ void proto_register_brp (void)
     proto_brp = proto_register_protocol ("BRP Protocol", "BRP", "brp");
     proto_register_field_array (proto_brp, hf, array_length (hf));
     proto_register_subtree_array (ett, array_length (ett));
-    
+
     /* Register preferences module */
     brp_module = prefs_register_protocol(proto_brp, proto_reg_handoff_brp);
 

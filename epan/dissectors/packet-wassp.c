@@ -915,7 +915,7 @@ dissect_wassp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tree) {
 		/* Header dissection */
 		ti = proto_tree_add_item(tree, proto_wassp, tvb, offset, -1,
-		    ENC_BIG_ENDIAN);
+		    ENC_NA);
 		wassp_tree = proto_item_add_subtree(ti, ett_wassp);
 
 		proto_tree_add_item(wassp_tree, hf_wassp_version, tvb, offset, 1,

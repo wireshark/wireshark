@@ -2950,7 +2950,7 @@ static void dissect_edonkey_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "eDonkey");
 
     if (tree) {
-        ti = proto_tree_add_item(tree, proto_edonkey, tvb, 0, -1, FALSE);
+        ti = proto_tree_add_item(tree, proto_edonkey, tvb, 0, -1, ENC_NA);
         edonkey_tree = proto_item_add_subtree(ti, ett_edonkey);
     }
 
@@ -3072,7 +3072,7 @@ static void dissect_edonkey_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     col_set_str(pinfo->cinfo, COL_INFO, "eDonkey UDP Message");
 
     if (tree) {
-        ti = proto_tree_add_item(tree, proto_edonkey, tvb, 0, -1, FALSE);
+        ti = proto_tree_add_item(tree, proto_edonkey, tvb, 0, -1, ENC_NA);
         edonkey_tree = proto_item_add_subtree(ti, ett_edonkey);
     }
 

@@ -208,7 +208,7 @@ dissect_yhoo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_yhoo, tvb, offset, -1,
-			FALSE);
+			ENC_NA);
 		yhoo_tree = proto_item_add_subtree(ti, ett_yhoo);
 
 		proto_tree_add_item(yhoo_tree, hf_yhoo_version, tvb,

@@ -135,9 +135,9 @@ dissect_pcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "PCAP");
 
 	/* create the pcap protocol tree */
-	pcap_item = proto_tree_add_item(tree, proto_pcap, tvb, 0, -1, FALSE);
+	pcap_item = proto_tree_add_item(tree, proto_pcap, tvb, 0, -1, ENC_NA);
 	pcap_tree = proto_item_add_subtree(pcap_item, ett_pcap);
-	
+
 	dissect_PCAP_PDU_PDU(tvb, pinfo, pcap_tree);
 }
 
@@ -201,7 +201,7 @@ void proto_register_pcap(void) {
   proto_register_subtree_array(ett, array_length(ett));
 
   pcap_module = prefs_register_protocol(proto_pcap, proto_reg_handoff_pcap);
- 
+
   /* Register dissector */
   register_dissector("pcap", dissect_pcap, proto_pcap);
 

@@ -797,7 +797,7 @@ static void dissect_bittorrent_tcp_pdu (tvbuff_t *tvb, packet_info *pinfo, proto
 
    col_set_str(pinfo->cinfo, COL_INFO, "BitTorrent ");
 
-   ti = proto_tree_add_item (tree, proto_bittorrent, tvb, 0, -1, ENC_BIG_ENDIAN);
+   ti = proto_tree_add_item (tree, proto_bittorrent, tvb, 0, -1, ENC_NA);
    tree = proto_item_add_subtree(ti, ett_bittorrent);
 
    if (tvb_get_guint8(tvb, 0) == 19 &&

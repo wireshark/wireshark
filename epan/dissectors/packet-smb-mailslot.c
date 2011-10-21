@@ -147,7 +147,7 @@ dissect_mailslot_smb(tvbuff_t *mshdr_tvb, tvbuff_t *setup_tvb,
 	if(mshdr_tvb && setup_tvb){
 		if (parent_tree) {
 			item = proto_tree_add_item(parent_tree, proto_smb_msp,
-						   mshdr_tvb, 0, -1, FALSE);
+						   mshdr_tvb, 0, -1, ENC_NA);
 			tree = proto_item_add_subtree(item, ett_smb_msp);
 		}
 

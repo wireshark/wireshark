@@ -617,7 +617,7 @@ void dissect_11_or_aal5_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
 	if (tree)
 	{
 		proto_item* item;
-		item = proto_tree_add_item(tree, proto_11_or_aal5_pdu, tvb, 0, -1, FALSE);
+		item = proto_tree_add_item(tree, proto_11_or_aal5_pdu, tvb, 0, -1, ENC_NA);
 		/*overwrite heading line*/
 		proto_item_set_text(item, proto_name_tree, 0/*-warn gcc 3.4.4*/);
 		pwc_item_append_text_n_items(item,cells,"good ATM cell");
@@ -855,7 +855,7 @@ void dissect_aal5_sdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	if (tree)
 	{
 		proto_item* item;
-		item = proto_tree_add_item(tree, proto_aal5_sdu, tvb, 0, -1, FALSE);
+		item = proto_tree_add_item(tree, proto_aal5_sdu, tvb, 0, -1, ENC_NA);
 		{
 			proto_tree* tree2;
 			tree2 = proto_item_add_subtree(item, ett_encaps);
@@ -1030,7 +1030,7 @@ void dissect_n1_cw(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	if (tree)
 	{
 		proto_item* item;
-		item = proto_tree_add_item(tree, proto_n1_cw, tvb, 0, -1, FALSE);
+		item = proto_tree_add_item(tree, proto_n1_cw, tvb, 0, -1, ENC_NA);
 		pwc_item_append_text_n_items(item,cells,"good ATM cell");
 		{
 			proto_tree* tree2;
@@ -1110,7 +1110,7 @@ void dissect_n1_nocw(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	if (tree)
 	{
 		proto_item* item;
-		item = proto_tree_add_item(tree, proto_n1_nocw, tvb, 0, -1, FALSE);
+		item = proto_tree_add_item(tree, proto_n1_nocw, tvb, 0, -1, ENC_NA);
 		pwc_item_append_text_n_items(item,cells,"ATM cell");
 		{
 			proto_tree* tree2;
@@ -1194,7 +1194,7 @@ void dissect_control_word(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
 			if (tree)
 			{
 				proto_item  *item;
-				item = proto_tree_add_item(tree, proto_control_word, tvb, 0, -1, FALSE);
+				item = proto_tree_add_item(tree, proto_control_word, tvb, 0, -1, ENC_NA);
 				expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
 					"Packet (size: %d) is too small to carry MPLS PW Control Word"
 					,(int)size);
@@ -1206,7 +1206,7 @@ void dissect_control_word(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
 	if (tree)
 	{
 		proto_item* item_top;
-		item_top = proto_tree_add_item(tree, proto_control_word, tvb, 0, -1, FALSE);
+		item_top = proto_tree_add_item(tree, proto_control_word, tvb, 0, -1, ENC_NA);
 		pwc_item_append_cw(item_top,tvb_get_ntohl(tvb, 0),FALSE);
 
 		{
@@ -1490,7 +1490,7 @@ int dissect_cell_header(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		item = proto_tree_add_item(tree, proto_cell_header, tvb
 			,0
 			,dissect_size
-			,FALSE);
+			,ENC_NA);
 		if (PWATM_MODE_AAL5_PDU == pd->mode)
 		{
 			proto_item_set_text(item, "Third byte of Control Word"); /*overwrite heading line*/
@@ -1653,7 +1653,7 @@ int dissect_cell(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	if (tree)
 	{
 		proto_item* item;
-		item = proto_tree_add_item(tree, proto_cell, tvb, 0, dissect_size, FALSE);
+		item = proto_tree_add_item(tree, proto_cell, tvb, 0, dissect_size, ENC_NA);
 		{
 			pwatm_private_data_t * pd;
 			pd = pinfo->private_data;

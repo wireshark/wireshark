@@ -99,7 +99,7 @@ static gboolean dissect_lanforge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
         /* create display subtree for the protocol */
 
-        ti = proto_tree_add_item(tree, proto_lanforge, tvb, 0, -1, FALSE);
+        ti = proto_tree_add_item(tree, proto_lanforge, tvb, 0, -1, ENC_NA);
 
         lanforge_tree = proto_item_add_subtree(ti, ett_lanforge);
 

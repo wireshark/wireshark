@@ -1140,7 +1140,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     if (tree) { /* we are being asked for details */
-        ti = proto_tree_add_item(tree, proto_omron_fins, tvb, 0, -1, FALSE);
+        ti = proto_tree_add_item(tree, proto_omron_fins, tvb, 0, -1, ENC_NA);
         omron_tree = proto_item_add_subtree(ti, ett_omron);
 
         ti = proto_tree_add_text(omron_tree, tvb, 0, 12, "Omron Header");

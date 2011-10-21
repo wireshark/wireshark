@@ -236,7 +236,7 @@ dissect_png(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	col_append_str(pinfo->cinfo, COL_INFO, " (PNG)");
 
 	if(parent_tree){
-		ti=proto_tree_add_item(parent_tree, proto_png, tvb, offset, -1, FALSE);
+		ti=proto_tree_add_item(parent_tree, proto_png, tvb, offset, -1, ENC_NA);
 		tree=proto_item_add_subtree(ti, ett_png);
 	}
 

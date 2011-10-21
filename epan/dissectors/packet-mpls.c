@@ -366,7 +366,7 @@ dissect_pw_ach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     res = tvb_get_guint8(tvb, 1);
     channel_type = tvb_get_ntohs(tvb, 2);
     if (tree) {
-        ti = proto_tree_add_item(tree, proto_pw_ach, tvb, 0, 4, FALSE);
+        ti = proto_tree_add_item(tree, proto_pw_ach, tvb, 0, 4, ENC_NA);
         mpls_pw_ach_tree = proto_item_add_subtree(ti, ett_mpls_pw_ach);
         if (mpls_pw_ach_tree == NULL)
             return;
@@ -471,7 +471,7 @@ dissect_pw_mcw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     length = tvb_get_guint8(tvb, 1) & 0x3F;
     sequence_number = tvb_get_ntohs(tvb, 2);
     if (tree) {
-        ti = proto_tree_add_item(tree, proto_pw_mcw, tvb, 0, 4, FALSE);
+        ti = proto_tree_add_item(tree, proto_pw_mcw, tvb, 0, 4, ENC_NA);
         mpls_pw_mcw_tree = proto_item_add_subtree(ti, ett_mpls_pw_mcw);
         if (mpls_pw_mcw_tree == NULL)
             return;
@@ -719,7 +719,7 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         if (tree) {
 
-            ti = proto_tree_add_item(tree, proto_mpls, tvb, offset, 4, FALSE);
+            ti = proto_tree_add_item(tree, proto_mpls, tvb, offset, 4, ENC_NA);
             mpls_tree = proto_item_add_subtree(ti, ett_mpls);
 
             proto_item_append_text(ti, ", Label: %u", label);

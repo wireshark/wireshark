@@ -832,7 +832,7 @@ static guint32 get_best_guess_mstimeofday(tvbuff_t *tvb, gint offset, guint32 co
 
     if (be_ts < MSPERDAY && le_ts < MSPERDAY) {
         guint32 saved_be_ts = be_ts;
-        guint32 saved_le_ts = le_ts;        
+        guint32 saved_le_ts = le_ts;
 
         /* Is this a rollover to a new day, clocks not synchronized, different
          * timezones between originate and receive/transmit, .. what??? */
@@ -930,7 +930,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   length = tvb_length(tvb);
   reported_length = tvb_reported_length(tvb);
 
-  ti = proto_tree_add_item(tree, proto_icmp, tvb, 0, length, FALSE);
+  ti = proto_tree_add_item(tree, proto_icmp, tvb, 0, length, ENC_NA);
   icmp_tree = proto_item_add_subtree(ti, ett_icmp);
 
   ti = proto_tree_add_item(icmp_tree, hf_icmp_type, tvb, 0, 1, ENC_BIG_ENDIAN);
@@ -1082,7 +1082,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
           }
 
-          /* Make sure we have enough bytes in the payload before trying to 
+          /* Make sure we have enough bytes in the payload before trying to
            * see if the data looks like a timestamp; otherwise we'll get
            * malformed packets as we try to access data that isn't there. */
           if (tvb_length_remaining(tvb, 8) < 8) {
@@ -1093,7 +1093,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
           /* Interpret the first 8 bytes of the icmp data as a timestamp
            * But only if it does look like it's a timestamp.
-           * 
+           *
            * FIXME:
            *    Timestamps could be in different formats depending on the OS
            */
@@ -1143,9 +1143,9 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       {
         guint32 frame_ts, orig_ts;
 
-        frame_ts = ((pinfo->fd->abs_ts.secs * 1000) + 
+        frame_ts = ((pinfo->fd->abs_ts.secs * 1000) +
           (pinfo->fd->abs_ts.nsecs / 1000000)) % 86400000;
-       
+
         orig_ts = get_best_guess_mstimeofday(tvb, 8, frame_ts);
         proto_tree_add_text(icmp_tree, tvb, 8, 4,
           "Originate timestamp: %s after midnight UTC",

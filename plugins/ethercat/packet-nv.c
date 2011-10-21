@@ -8,17 +8,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -82,11 +82,11 @@ static void NvPublisherFormater(tvbuff_t *tvb, gint offset, char *szText, int nM
       tvb_get_guint8(tvb, nvOffset+2),
       tvb_get_guint8(tvb, nvOffset+3),
       tvb_get_guint8(tvb, nvOffset+4),
-      tvb_get_guint8(tvb, nvOffset+5));    
+      tvb_get_guint8(tvb, nvOffset+5));
 }
 
 static void NvVarHeaderFormater(tvbuff_t *tvb, gint offset, char *szText, int nMax)
-{ 
+{
    g_snprintf ( szText, nMax, "Variable - Id = %d, Length = %d",
       tvb_get_letohs(tvb, offset),
       tvb_get_letohs(tvb, offset+4));
@@ -101,19 +101,19 @@ static void dissect_nv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    int nMax = sizeof(szText)-1;
 
    gint i;
- 
+
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "TC-NV");
 
    col_clear(pinfo->cinfo, COL_INFO);
-   
+
    NvSummaryFormater(tvb, offset, szText, nMax);
    col_append_str(pinfo->cinfo, COL_INFO, szText);
 
-   if (tree) 
+   if (tree)
    {
       guint16 nv_count;
 
-      ti = proto_tree_add_item(tree, proto_nv, tvb, 0, -1, TRUE);
+      ti = proto_tree_add_item(tree, proto_nv, tvb, 0, -1, ENC_NA);
       nv_tree = proto_item_add_subtree(ti, ett_nv);
       proto_item_append_text(ti,": %s",szText);
 
@@ -158,9 +158,9 @@ static void dissect_nv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          offset+=sizeof(guint16);
 
          proto_tree_add_item(nv_var_tree, hf_nv_data, tvb, offset, var_length, ENC_NA);
-         offset+=var_length;            
+         offset+=var_length;
       }
-   }   
+   }
 }
 
 void proto_register_nv(void)
@@ -236,6 +236,6 @@ void proto_reg_handoff_nv(void)
 {
    dissector_handle_t nv_handle;
 
-   nv_handle = create_dissector_handle(dissect_nv, proto_nv);  
+   nv_handle = create_dissector_handle(dissect_nv, proto_nv);
    dissector_add_uint("ecatf.type", 4, nv_handle);
 }

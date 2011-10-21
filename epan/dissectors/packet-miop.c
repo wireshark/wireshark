@@ -154,7 +154,7 @@ static void dissect_miop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
                     version_major, version_minor);
       if (tree)
         {
-          ti = proto_tree_add_item (tree, proto_miop, tvb, 0, -1, FALSE);
+          ti = proto_tree_add_item (tree, proto_miop, tvb, 0, -1, ENC_NA);
           miop_tree = proto_item_add_subtree (ti, ett_miop);
           proto_tree_add_text (miop_tree, tvb, 0, -1,
                                "Version %u.%u",
@@ -190,7 +190,7 @@ static void dissect_miop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
   if (tree)
     {
 
-      ti = proto_tree_add_item (tree, proto_miop, tvb, 0, -1, FALSE);
+      ti = proto_tree_add_item (tree, proto_miop, tvb, 0, -1, ENC_NA);
       miop_tree = proto_item_add_subtree (ti, ett_miop);
 
       /* XXX - Should we bail out if we don't have the right magic number? */

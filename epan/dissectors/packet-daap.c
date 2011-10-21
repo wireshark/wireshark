@@ -421,7 +421,7 @@ dissect_daap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    }
 
    if (tree) {
-      ti = proto_tree_add_item(tree, proto_daap, tvb, 0, -1, ENC_BIG_ENDIAN);
+      ti = proto_tree_add_item(tree, proto_daap, tvb, 0, -1, ENC_NA);
       daap_tree = proto_item_add_subtree(ti, ett_daap);
       dissect_daap_one_tag(daap_tree, tvb);
    }
@@ -458,7 +458,7 @@ dissect_daap_one_tag(proto_tree *tree, tvbuff_t *tvb)
 
       offset += 8;
 
-      len = reported_length - offset; /* should be >= 0 since no exception above */ 
+      len = reported_length - offset; /* should be >= 0 since no exception above */
       DISSECTOR_ASSERT(len >= 0);
       if (tagsize <= (unsigned)len) {
          len = tagsize;
@@ -685,7 +685,7 @@ dissect_daap_one_tag(proto_tree *tree, tvbuff_t *tvb)
          /* now playing */
          /* bytes  4-7  contain uint32 playlist id */
          /* bytes 12-15 contain uint32 track id */
-         proto_item_append_text(ti, 
+         proto_item_append_text(ti,
                                 "; unknown: %d, playlist id: %d, unknown: %d, track id: %d",
                                 tvb_get_ntohl(tvb, offset),
                                 tvb_get_ntohl(tvb, offset+4),
@@ -741,6 +741,6 @@ proto_reg_handoff_daap(void)
 
    daap_handle = create_dissector_handle(dissect_daap, proto_daap);
    http_dissector_add(TCP_PORT_DAAP, daap_handle);
-   
+
    png_handle = find_dissector("png");
 }

@@ -299,7 +299,7 @@ dissect_trmac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		mv_length = tvb_get_ntohs(tvb, 0);
-		ti = proto_tree_add_item(tree, proto_trmac, tvb, 0, mv_length, FALSE);
+		ti = proto_tree_add_item(tree, proto_trmac, tvb, 0, mv_length, ENC_NA);
 		mac_tree = proto_item_add_subtree(ti, ett_tr_mac);
 
 		proto_tree_add_uint(mac_tree, hf_trmac_mv, tvb, 3, 1, mv_val);

@@ -309,7 +309,7 @@ dissect_glbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_add_fstr(pinfo->cinfo, COL_INFO, "G: %d", group);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_glbp, tvb, 0, -1, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(tree, proto_glbp, tvb, 0, -1, ENC_NA);
     glbp_tree = proto_item_add_subtree(ti, ett_glbp);
 
     /* glbp header? */

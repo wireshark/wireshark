@@ -124,7 +124,7 @@ dissect_calcappprotocol(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *t
      necessary to generate protocol tree items. */
   if (tree) {
     /* create the calcappprotocol protocol tree */
-    calcappprotocol_item = proto_tree_add_item(tree, proto_calcappprotocol, message_tvb, 0, -1, ENC_BIG_ENDIAN);
+    calcappprotocol_item = proto_tree_add_item(tree, proto_calcappprotocol, message_tvb, 0, -1, ENC_NA);
     calcappprotocol_tree = proto_item_add_subtree(calcappprotocol_item, ett_calcappprotocol);
   } else {
     calcappprotocol_tree = NULL;

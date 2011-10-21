@@ -648,7 +648,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Create display subtree for SSL as a whole */
     if (tree)
     {
-        ti = proto_tree_add_item(tree, proto_ssl, tvb, 0, -1, ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item(tree, proto_ssl, tvb, 0, -1, ENC_NA);
         ssl_tree = proto_item_add_subtree(ti, ett_ssl);
     }
     /* iterate through the records in this tvbuff */

@@ -6595,7 +6595,7 @@ dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
 	return offset;
     }
 
-    dcm_pitem = proto_tree_add_item(tree, proto_dcm, tvb, offset, -1, FALSE);
+    dcm_pitem = proto_tree_add_item(tree, proto_dcm, tvb, offset, -1, ENC_NA);
     dcm_ptree = proto_item_add_subtree(dcm_pitem, ett_dcm);
 
     pdu_type = tvb_get_guint8(tvb, offset);

@@ -74,7 +74,7 @@ dissect_3com_xns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_3com_xns, tvb, 0, 4, FALSE);
+		ti = proto_tree_add_item(tree, proto_3com_xns, tvb, 0, 4, ENC_NA);
 		subtree = proto_item_add_subtree(ti, ett_3com_xns);
 	}
 
@@ -112,7 +112,7 @@ proto_register_3com_xns(void)
 	};
 
 	proto_3com_xns = proto_register_protocol("3Com XNS Encapsulation", "3COMXNS", "3comxns");
-	proto_register_field_array(proto_3com_xns, hf, array_length(hf)); 
+	proto_register_field_array(proto_3com_xns, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
 

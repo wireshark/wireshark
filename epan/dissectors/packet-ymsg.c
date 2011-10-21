@@ -160,7 +160,7 @@ enum yahoo_service { /* these are easier to see in hex */
 	YAHOO_SERVICE_AUDIBLE = 0xd0,
 	YAHOO_SERVICE_Y7_PHOTO_SHARING = 0xd2,
 	YAHOO_SERVICE_Y7_CONTACT_DETAILS = 0xd3,/* YMSG13 */
-	YAHOO_SERVICE_Y7_CHAT_SESSION = 0xd4,	
+	YAHOO_SERVICE_Y7_CHAT_SESSION = 0xd4,
 	YAHOO_SERVICE_Y7_AUTHORIZATION = 0xd6,	/* YMSG13 */
 	YAHOO_SERVICE_Y7_FILETRANSFER = 0xdc,	/* YMSG13 */
 	YAHOO_SERVICE_Y7_FILETRANSFERINFO,	/* YMSG13 */
@@ -258,7 +258,7 @@ static const value_string ymsg_service_vals[] = {
 	{YAHOO_SERVICE_VOICECHAT, "Voice Chat"},
 	{YAHOO_SERVICE_NOTIFY, "Notify"},
 	{YAHOO_SERVICE_VERIFY, "Verify"},
-	{YAHOO_SERVICE_P2PFILEXFER, "P2P File Transfer"}, 
+	{YAHOO_SERVICE_P2PFILEXFER, "P2P File Transfer"},
 	{YAHOO_SERVICE_PEERTOPEER, "Peer To Peer"},
 	{YAHOO_SERVICE_WEBCAM, "WebCam"},
 	{YAHOO_SERVICE_AUTHRESP, "Authentication Response"},
@@ -348,7 +348,7 @@ dissect_ymsg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Not a Yahoo Messenger packet. */
     return FALSE;
   }
-  
+
   tcp_dissect_pdus(tvb, pinfo, tree, ymsg_desegment, 8, get_ymsg_pdu_len,
                    dissect_ymsg_pdu);
   return TRUE;
@@ -398,7 +398,7 @@ dissect_ymsg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_ymsg, tvb, offset, -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_ymsg, tvb, offset, -1, ENC_NA);
 		ymsg_tree = proto_item_add_subtree(ti, ett_ymsg);
 
 		offset += 4; /* skip the YMSG string */
@@ -443,20 +443,20 @@ dissect_ymsg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* Each entry consists of:
 			   <key string> <delimiter> <value string> <delimiter>
 			*/
-			
+
 			/* Parse and show each line of the contents */
 			for (;;)
 			{
 				proto_item  *ti_2;
 				proto_tree  *content_line_tree;
-				
+
 				/* Don't continue unless there is room for another whole item.
 				   (including 2 2-byte delimiters */
 				if (offset >= (headersize+content_len-4))
 				{
 					break;
 				}
-				
+
 				/* Get the length of the key */
 				keylen = get_content_item_length(tvb, offset);
 				/* Extract the key */

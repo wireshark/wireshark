@@ -90,7 +90,7 @@ dissect_vmlab(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "VMLAB");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    ti = proto_tree_add_item(tree, proto_vmlab, tvb, 0, 24, FALSE);
+    ti = proto_tree_add_item(tree, proto_vmlab, tvb, 0, 24, ENC_NA);
     vmlab_tree = proto_item_add_subtree(ti, ett_vmlab);
 
     /* Flags*/

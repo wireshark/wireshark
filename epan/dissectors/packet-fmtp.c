@@ -88,7 +88,7 @@ dissect_fmtp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Clear out stuff in the info column */
     col_clear(pinfo->cinfo, COL_INFO);
 
-    ti = proto_tree_add_item(tree, proto_fmtp, tvb, 0, -1, ENC_LITTLE_ENDIAN);
+    ti = proto_tree_add_item(tree, proto_fmtp, tvb, 0, -1, ENC_NA);
     proto_item_append_text(ti, ", %s",
         val_to_str(packet_type, packet_type_names, "Unknown (0x%02x)"));
 

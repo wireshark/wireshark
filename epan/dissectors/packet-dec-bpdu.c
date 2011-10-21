@@ -128,7 +128,7 @@ dissect_dec_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       if (tree) {
 	    ti = proto_tree_add_item(tree, proto_dec_bpdu, tvb, 0, DEC_BPDU_SIZE,
-			    	ENC_BIG_ENDIAN);
+			    	ENC_NA);
 	    bpdu_tree = proto_item_add_subtree(ti, ett_dec_bpdu);
 
 	    proto_tree_add_item(bpdu_tree, hf_dec_bpdu_proto_id, tvb,

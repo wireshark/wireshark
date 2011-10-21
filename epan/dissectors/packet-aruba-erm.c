@@ -75,7 +75,7 @@ dissect_aruba_erm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_INFO, PROTO_SHORT_NAME ":");
 
     if (tree) {
-        ti = proto_tree_add_item(tree, proto_aruba_erm, tvb, 0, -1, FALSE);
+        ti = proto_tree_add_item(tree, proto_aruba_erm, tvb, 0, -1, ENC_NA);
         aruba_erm_tree = proto_item_add_subtree(ti, ett_aruba_erm);
 
         ts.secs = tvb_get_ntohl(tvb, 0);

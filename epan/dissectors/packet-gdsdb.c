@@ -1247,7 +1247,7 @@ dissect_gdsdb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gdsdb_tree = NULL; /* So the opcode functions can check on if(tree) */
 	nopi.cinfo = NULL;
 
-	if (tvb_length(tvb) < 4) 
+	if (tvb_length(tvb) < 4)
 		return 0;
 
 	opcode = tvb_get_ntohl(tvb, 0);
@@ -1264,7 +1264,7 @@ dissect_gdsdb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_gdsdb, tvb, 0, -1,
-								   FALSE);
+								   ENC_NA);
 		gdsdb_tree = proto_item_add_subtree(ti, ett_gdsdb);
 		proto_tree_add_item(gdsdb_tree, hf_gdsdb_opcode, tvb,
 							0, 4, ENC_BIG_ENDIAN);

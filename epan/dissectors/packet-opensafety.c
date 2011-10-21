@@ -1385,7 +1385,7 @@ opensafety_package_dissector(const gchar * protocolName, const gchar * sub_diss_
             if ( tree )
             {
                 /* create the opensafety protocol tree */
-                opensafety_item = proto_tree_add_item(tree, proto_opensafety, message_tvb, frameOffset, frameLength, ENC_BIG_ENDIAN);
+                opensafety_item = proto_tree_add_item(tree, proto_opensafety, message_tvb, frameOffset, frameLength, ENC_NA);
                 opensafety_tree = proto_item_add_subtree(opensafety_item, ett_opensafety);
 
                 if ( dissect_opensafety_message(frameStart1, frameStart2, type, next_tvb, pinfo, opensafety_tree, found) == TRUE )

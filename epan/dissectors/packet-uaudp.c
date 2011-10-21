@@ -97,7 +97,7 @@ static int dissect_uaudp(tvbuff_t *pTvb, packet_info *pInfo, proto_tree *pTree)
     col_set_str(pInfo->cinfo, COL_INFO, val_to_str_const(u8Opcode, szUaOpcode, "Unknown"));
 
     /* opcode "UA/UDP Protocol, ..." */
-    pUAUDP = proto_tree_add_item(pTree, proto_uaudp, pTvb, 0, -1, ENC_BIG_ENDIAN);
+    pUAUDP = proto_tree_add_item(pTree, proto_uaudp, pTvb, 0, -1, ENC_NA);
     proto_item_append_text(pUAUDP, ", %s (%d)", val_to_str_const(u8Opcode, szUaOpcode, "Unknown"), u8Opcode);
 
     pHeaderSubTree = proto_item_add_subtree(pUAUDP, ett_uaudp_header);

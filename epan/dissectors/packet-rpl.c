@@ -281,7 +281,7 @@ dissect_rpl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_rpl, tvb, 0,
-			rpl_len, FALSE);
+			rpl_len, ENC_NA);
 		rpl_tree = proto_item_add_subtree(ti, ett_rpl);
 		hidden_item = proto_tree_add_uint(rpl_tree, hf_rpl_type, tvb, 2, 2,
 			rpl_type);

@@ -154,7 +154,7 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Cisco SM Packet (%s)",
 		val_to_str(sm_message_type, sm_message_type_value_info,"reserved"));
 
-	ti = proto_tree_add_item(tree, proto_sm, tvb, offset, 0, ENC_BIG_ENDIAN);
+	ti = proto_tree_add_item(tree, proto_sm, tvb, offset, 0, ENC_NA);
 	sm_tree = proto_item_add_subtree(ti, ett_sm);
 
 	proto_tree_add_uint_format(sm_tree, hf_sm_sm_msg_type, tvb, offset, 4, sm_message_type,

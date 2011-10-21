@@ -496,8 +496,8 @@ dissect_dvmrp_v3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 				tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 
-			while ((tvb_reported_length_remaining(tvb, offset)>=4) 
-				&& (neighbor_count>0)) { 
+			while ((tvb_reported_length_remaining(tvb, offset)>=4)
+				&& (neighbor_count>0)) {
 				proto_tree_add_item(parent_tree, hf_neighbor,
 					tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
@@ -697,7 +697,7 @@ dissect_dvmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int of
 		return offset+tvb_length_remaining(tvb, offset);
 	}
 
-	item = proto_tree_add_item(parent_tree, proto_dvmrp, tvb, offset, -1, FALSE);
+	item = proto_tree_add_item(parent_tree, proto_dvmrp, tvb, offset, -1, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_dvmrp);
 
 

@@ -194,7 +194,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                    format_text(line, linelen));
   }
 
-  ti = proto_tree_add_item(tree, proto_pop, tvb, offset, -1, FALSE);
+  ti = proto_tree_add_item(tree, proto_pop, tvb, offset, -1, ENC_NA);
   pop_tree = proto_item_add_subtree(ti, ett_pop);
 
   if (is_continuation) {

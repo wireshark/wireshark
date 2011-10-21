@@ -448,7 +448,7 @@ dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
         else {
             ti = proto_tree_add_item(tree, proto_flip, flip_tvb, 0,
-                                     flip_len, FALSE);
+                                     flip_len, ENC_NA);
         }
         flip_tree = proto_item_add_subtree(ti, ett_flip);
 

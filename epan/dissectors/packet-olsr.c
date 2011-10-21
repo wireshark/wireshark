@@ -573,7 +573,7 @@ static int dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
   /*-----------------Fetching Info from IP Packet and Adding to Tree------------------------*/
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_olsr, tvb, 0, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_olsr, tvb, 0, -1, ENC_NA);
     olsr_tree = proto_item_add_subtree(ti, ett_olsr);
 
     proto_tree_add_item(olsr_tree, hf_olsr_packet_len, tvb, 0, 2, ENC_BIG_ENDIAN);

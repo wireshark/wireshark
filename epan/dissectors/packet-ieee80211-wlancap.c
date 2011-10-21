@@ -373,7 +373,7 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Dissect the AVS header */
     if (tree) {
-      ti = proto_tree_add_item(tree, proto_wlancap, tvb, 0, length, ENC_BIG_ENDIAN);
+      ti = proto_tree_add_item(tree, proto_wlancap, tvb, 0, length, ENC_NA);
       wlan_tree = proto_item_add_subtree(ti, ett_radio);
       proto_tree_add_item(wlan_tree, hf_wlan_magic, tvb, offset, 4, ENC_BIG_ENDIAN);
       proto_tree_add_item(wlan_tree, hf_wlan_version, tvb, offset, 4, ENC_BIG_ENDIAN);

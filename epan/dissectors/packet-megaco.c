@@ -409,7 +409,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Build the info tree if we've been given a root */
     /* Create megaco subtree */
-    ti = proto_tree_add_item(tree,proto_megaco,tvb, 0, -1, FALSE);
+    ti = proto_tree_add_item(tree,proto_megaco,tvb, 0, -1, ENC_NA);
     megaco_tree = proto_item_add_subtree(ti, ett_megaco);
 
     /*  Format of 'message' is = MegacopToken SLASH Version SEP mId SEP messageBody */
@@ -682,7 +682,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             break;
         default :
-            ti = proto_tree_add_item(tree,proto_megaco,tvb, 0, -1, FALSE);
+            ti = proto_tree_add_item(tree,proto_megaco,tvb, 0, -1, ENC_NA);
             megaco_tree = proto_item_add_subtree(ti, ett_megaco);
             proto_tree_add_text(megaco_tree, tvb, 0, -1,
             "Sorry, can't understand errorDescriptor / transactionList = %s, can't parse it pos %u",

@@ -150,7 +150,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PIMv1");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    ti = proto_tree_add_item(tree, proto_pim, tvb, offset, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_pim, tvb, offset, -1, ENC_NA);
     pim_tree = proto_item_add_subtree(ti, ett_pim);
 
     /* Put IGMP type, 0x14, into the tree */
@@ -654,7 +654,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     if (check_col(pinfo->cinfo, COL_INFO))
         col_add_str(pinfo->cinfo, COL_INFO, typestr);
 
-    ti = proto_tree_add_item(tree, proto_pim, tvb, offset, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_pim, tvb, offset, -1, ENC_NA);
     pim_tree = proto_item_add_subtree(ti, ett_pim);
 
     proto_tree_add_item(pim_tree, hf_pim_version, tvb, offset, 1, ENC_BIG_ENDIAN);

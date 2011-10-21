@@ -53,7 +53,7 @@
  * 0000030:                     1002 0001 0000 0380 <-- ERSPAN header (01: erspan-id)
  * 0000040: 00d0 b7a7 7480 0015 c721 75c0 0800 4500 <-- Ethernet packet
  * ...
- * 
+ *
  *
  */
 
@@ -130,7 +130,7 @@ dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_erspan, tvb, offset, -1,
-		    ENC_BIG_ENDIAN);
+		    ENC_NA);
 		erspan_tree = proto_item_add_subtree(ti, ett_erspan);
 
 		version = tvb_get_ntohs(tvb, offset) >> 12;

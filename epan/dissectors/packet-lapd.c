@@ -460,7 +460,7 @@ dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_item *direction_ti;
 
 		lapd_ti = proto_tree_add_item(tree, proto_lapd, tvb, 0, -1,
-		    FALSE);
+		    ENC_NA);
 		lapd_tree = proto_item_add_subtree(lapd_ti, ett_lapd);
 
 		/*

@@ -122,9 +122,9 @@ dissect_rua(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RUA");
 
     /* create the rua protocol tree */
-    rua_item = proto_tree_add_item(tree, proto_rua, tvb, 0, -1, FALSE);
+    rua_item = proto_tree_add_item(tree, proto_rua, tvb, 0, -1, ENC_NA);
     rua_tree = proto_item_add_subtree(rua_item, ett_rua);
-    
+
     dissect_RUA_PDU_PDU(tvb, pinfo, rua_tree);
 }
 
@@ -151,7 +151,7 @@ module_t *rua_module;
   /* Register fields and subtrees */
   proto_register_field_array(proto_rua, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
- 
+
   /* Register dissector */
   register_dissector("rua", dissect_rua, proto_rua);
 
@@ -161,7 +161,7 @@ module_t *rua_module;
   rua_proc_imsg_dissector_table = register_dissector_table("rua.proc.imsg", "RUA-ELEMENTARY-PROCEDURE InitiatingMessage", FT_UINT32, BASE_DEC);
   rua_proc_sout_dissector_table = register_dissector_table("rua.proc.sout", "RUA-ELEMENTARY-PROCEDURE SuccessfulOutcome", FT_UINT32, BASE_DEC);
   rua_proc_uout_dissector_table = register_dissector_table("rua.proc.uout", "RUA-ELEMENTARY-PROCEDURE UnsuccessfulOutcome", FT_UINT32, BASE_DEC);
- 
+
   rua_module = prefs_register_protocol(proto_rua, proto_reg_handoff_rua);
   prefs_register_uint_preference(rua_module, "port", "RUA SCTP Port", "Set the port for RUA messages (Default of 29169)", 10, &global_sctp_port);
 

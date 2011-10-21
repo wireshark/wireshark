@@ -7510,7 +7510,7 @@ dissect_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * necessary to generate protocol tree items.
    */
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_isup, tvb, 0, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_isup, tvb, 0, -1, ENC_NA);
     isup_tree = proto_item_add_subtree(ti, ett_isup);
 
 
@@ -7564,7 +7564,7 @@ dissect_bicc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * necessary to generate protocol tree items.
    */
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_bicc, tvb, 0, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_bicc, tvb, 0, -1, ENC_NA);
     bicc_tree = proto_item_add_subtree(ti, ett_bicc);
 
 
@@ -7598,7 +7598,7 @@ dissect_application_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* In the interest of speed, if "tree" is NULL, don't do any work not
    necessary to generate protocol tree items. */
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_isup, tvb, 0, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_isup, tvb, 0, -1, ENC_NA);
     isup_tree = proto_item_add_subtree(ti, ett_isup);
   }
 

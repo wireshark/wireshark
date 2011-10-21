@@ -124,7 +124,7 @@ static gboolean dissect_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_set_str(pinfo->cinfo, COL_INFO, "S5: ");
   if (tree)
     {
-      ti = proto_tree_add_item (tree, proto_h1, tvb, offset, 16, FALSE);
+      ti = proto_tree_add_item (tree, proto_h1, tvb, offset, 16, ENC_NA);
       h1_tree = proto_item_add_subtree (ti, ett_h1);
       proto_tree_add_uint (h1_tree, hf_h1_header, tvb, offset, 2,
 			   tvb_get_ntohs(tvb,offset));

@@ -2659,7 +2659,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, proto_smb_lanman,
-			pd_tvb, 0, -1, FALSE);
+			pd_tvb, 0, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lanman);
 	}
 
@@ -3559,7 +3559,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 		sp_len = 0;
 	if (tree) {
 		pipe_item = proto_tree_add_item(tree, proto_smb_pipe,
-		    sp_tvb, 0, sp_len, FALSE);
+		    sp_tvb, 0, sp_len, ENC_NA);
 		pipe_tree = proto_item_add_subtree(pipe_item, ett_smb_pipe);
 	}
 	offset = 0;

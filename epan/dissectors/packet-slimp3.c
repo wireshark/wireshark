@@ -260,7 +260,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (tree) {
 
-	ti = proto_tree_add_item(tree, proto_slimp3, tvb, offset, -1, FALSE);
+	ti = proto_tree_add_item(tree, proto_slimp3, tvb, offset, -1, ENC_NA);
 	slimp3_tree = proto_item_add_subtree(ti, ett_slimp3);
 
 	proto_tree_add_uint(slimp3_tree, hf_slimp3_opcode, tvb,

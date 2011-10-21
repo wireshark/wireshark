@@ -1292,7 +1292,7 @@ dissect_rdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "RDP");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  item = proto_tree_add_item(parent_tree, proto_rdp, tvb, 0, tvb_length(tvb), FALSE);
+  item = proto_tree_add_item(parent_tree, proto_rdp, tvb, 0, tvb_length(tvb), ENC_NA);
   tree = proto_item_add_subtree(item, ett_rdp);
 
   return tree;

@@ -132,7 +132,7 @@ static void dissect_xcsl_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     /* Create display tree for the xcsl protocol */
     if (tree) {
         proto_item  *xcsl_item;
-        xcsl_item = proto_tree_add_item(tree, proto_xcsl, tvb, offset, -1, FALSE);
+        xcsl_item = proto_tree_add_item(tree, proto_xcsl, tvb, offset, -1, ENC_NA);
         xcsl_tree = proto_item_add_subtree(xcsl_item, ett_xcsl);
     }
 

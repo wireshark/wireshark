@@ -1310,7 +1310,7 @@ dissect_h223 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* add the 'h223' tree to the main tree */
     if (tree) {
-        h223_item = proto_tree_add_item (tree, proto_h223, tvb, 0, -1, FALSE);
+        h223_item = proto_tree_add_item (tree, proto_h223, tvb, 0, -1, ENC_NA);
         h223_tree = proto_item_add_subtree (h223_item, ett_h223);
     }
 

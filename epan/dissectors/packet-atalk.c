@@ -598,7 +598,7 @@ dissect_rtmp_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
               val_to_str(function, rtmp_function_vals, "Unknown function (%02x)"));
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_rtmp, tvb, 0, 1, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(tree, proto_rtmp, tvb, 0, 1, ENC_NA);
     rtmp_tree = proto_item_add_subtree(ti, ett_rtmp);
 
     proto_tree_add_uint(rtmp_tree, hf_rtmp_function, tvb, 0, 1, function);
@@ -632,7 +632,7 @@ dissect_rtmp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                net, nodelen_bits, node);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_rtmp, tvb, offset, -1, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(tree, proto_rtmp, tvb, offset, -1, ENC_NA);
     rtmp_tree = proto_item_add_subtree(ti, ett_rtmp);
 
     proto_tree_add_uint(rtmp_tree, hf_rtmp_net, tvb, offset, 2, net);
@@ -710,7 +710,7 @@ dissect_nbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     val_to_str(op, nbp_op_vals, "Unknown (0x%01x)"), count);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_nbp, tvb, offset, -1, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(tree, proto_nbp, tvb, offset, -1, ENC_NA);
     nbp_tree = proto_item_add_subtree(ti, ett_nbp);
 
     info_item = proto_tree_add_uint_format(nbp_tree, hf_nbp_info, tvb, offset, 1,
@@ -847,7 +847,7 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     col_append_str(pinfo->cinfo, COL_INFO, " [fragment]");
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_atp, tvb, offset, -1, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(tree, proto_atp, tvb, offset, -1, ENC_NA);
     atp_tree = proto_item_add_subtree(ti, ett_atp);
     proto_item_set_len(atp_tree, aspinfo.release?8:ATP_HDRSIZE -1);
 
@@ -1192,7 +1192,7 @@ dissect_pap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_clear(pinfo->cinfo, COL_INFO);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_pap, tvb, offset, -1, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(tree, proto_pap, tvb, offset, -1, ENC_NA);
     pap_tree = proto_item_add_subtree(ti, ett_pap);
   }
 
@@ -1335,7 +1335,7 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                  val_to_str_ext(fn, &asp_func_vals_ext, "Unknown (0x%01x)"), aspinfo->seq);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_asp, tvb, offset, -1, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(tree, proto_asp, tvb, offset, -1, ENC_NA);
     asp_tree = proto_item_add_subtree(ti, ett_asp);
   }
   if (!aspinfo->reply) {
@@ -1481,7 +1481,7 @@ dissect_atp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (!tree)
     return;
 
-  ti = proto_tree_add_item(tree, proto_zip, tvb, offset, -1, ENC_BIG_ENDIAN);
+  ti = proto_tree_add_item(tree, proto_zip, tvb, offset, -1, ENC_NA);
   zip_tree = proto_item_add_subtree(ti, ett_zip);
 
   if (!aspinfo->reply) {
@@ -1550,7 +1550,7 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (!tree)
     return;
 
-  ti = proto_tree_add_item(tree, proto_zip, tvb, 0, -1, ENC_BIG_ENDIAN);
+  ti = proto_tree_add_item(tree, proto_zip, tvb, 0, -1, ENC_NA);
   zip_tree = proto_item_add_subtree(ti, ett_zip);
 
   proto_tree_add_item(zip_tree, hf_zip_function, tvb, offset, 1,ENC_BIG_ENDIAN);
@@ -1669,7 +1669,7 @@ dissect_ddp_short(tvbuff_t *tvb, packet_info *pinfo, guint8 dnode,
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_ddp, tvb, 0, DDP_SHORT_HEADER_SIZE,
-                             ENC_BIG_ENDIAN);
+                             ENC_NA);
     ddp_tree = proto_item_add_subtree(ti, ett_ddp);
   }
   len = tvb_get_ntohs(tvb, 0);
@@ -1751,7 +1751,7 @@ dissect_ddp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_ddp, tvb, 0, DDP_HEADER_SIZE,
-                             ENC_BIG_ENDIAN);
+                             ENC_NA);
     ddp_tree = proto_item_add_subtree(ti, ett_ddp);
 
     hidden_item = proto_tree_add_string(ddp_tree, hf_ddp_src, tvb,
@@ -1821,7 +1821,7 @@ dissect_llap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_clear(pinfo->cinfo, COL_INFO);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_llap, tvb, 0, 3, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(tree, proto_llap, tvb, 0, 3, ENC_NA);
     llap_tree = proto_item_add_subtree(ti, ett_llap);
   }
 

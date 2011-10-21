@@ -857,7 +857,7 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	size = tvb_reported_length(tvb);
 
 	/* create the collectd protocol tree */
-	pi = proto_tree_add_item(tree, proto_collectd, tvb, 0, -1, FALSE);
+	pi = proto_tree_add_item(tree, proto_collectd, tvb, 0, -1, ENC_NA);
 	collectd_tree = proto_item_add_subtree(pi, ett_collectd);
 
 	memset (&tap_data, 0, sizeof (tap_data));

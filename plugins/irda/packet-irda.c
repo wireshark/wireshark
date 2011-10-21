@@ -475,7 +475,7 @@ static unsigned dissect_ttp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root,
     if (root)
     {
         /* create display subtree for the protocol */
-        proto_item* ti   = proto_tree_add_item(root, proto_ttp, tvb, 0, -1, FALSE);
+        proto_item* ti   = proto_tree_add_item(root, proto_ttp, tvb, 0, -1, ENC_NA);
         proto_tree* tree = proto_item_add_subtree(ti, ett_ttp);
 
         if (data)
@@ -610,7 +610,7 @@ static void dissect_iap_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* r
     if (root)
     {
         /* create display subtree for the protocol */
-        proto_item* ti   = proto_tree_add_item(root, proto_iap, tvb, 0, -1, FALSE);
+        proto_item* ti   = proto_tree_add_item(root, proto_iap, tvb, 0, -1, ENC_NA);
         proto_tree* tree = proto_item_add_subtree(ti, ett_iap);
 
         proto_tree* ctl_tree;
@@ -757,7 +757,7 @@ static void dissect_iap_result(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
     if (root)
     {
         /* create display subtree for the protocol */
-        proto_item* ti   = proto_tree_add_item(root, proto_iap, tvb, 0, -1, FALSE);
+        proto_item* ti   = proto_tree_add_item(root, proto_iap, tvb, 0, -1, ENC_NA);
         proto_tree* tree = proto_item_add_subtree(ti, ett_iap);
 
         proto_tree* ctl_tree;
@@ -1070,7 +1070,7 @@ static void dissect_irlmp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
     if (root)
     {
         /* create display subtree for the protocol */
-        proto_item* ti   = proto_tree_add_item(root, proto_irlmp, tvb, 0, -1, FALSE);
+        proto_item* ti   = proto_tree_add_item(root, proto_irlmp, tvb, 0, -1, ENC_NA);
         proto_tree* tree = proto_item_add_subtree(ti, ett_irlmp);
 
         proto_tree* dst_tree;
@@ -1536,7 +1536,7 @@ static void dissect_xid(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, pro
 
         if (root)
         {
-            ti = proto_tree_add_item(root, proto_irlmp, tvb, offset, -1, FALSE);
+            ti = proto_tree_add_item(root, proto_irlmp, tvb, offset, -1, ENC_NA);
             lmp_tree = proto_item_add_subtree(ti, ett_irlmp);
 	}
 
@@ -1666,7 +1666,7 @@ static void dissect_log(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
 
     if (root)
     {
-        proto_item* ti   = proto_tree_add_item(root, proto_log, tvb, 0, -1, FALSE);
+        proto_item* ti   = proto_tree_add_item(root, proto_log, tvb, 0, -1, ENC_NA);
         proto_tree* tree = proto_item_add_subtree(ti, ett_log);
 
         if (pinfo->pseudo_header->irda.pkttype == IRDA_MISSED_MSG)
@@ -1727,7 +1727,7 @@ static void dissect_irlap(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
         proto_item* addr_item;
 
         /* create display subtree for the protocol */
-        ti   = proto_tree_add_item(root, proto_irlap, tvb, 0, -1, FALSE);
+        ti   = proto_tree_add_item(root, proto_irlap, tvb, 0, -1, ENC_NA);
         tree = proto_item_add_subtree(ti, ett_irlap);
 
         /* create subtree for the address field */

@@ -785,8 +785,8 @@ dissect_rsl_ie_ch_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, in
 
     ie_offset = offset;
 
-    /* 3GPP TS 44.018 "Channel Description" 
-	 * the whole of the 3GPP TS 44.018 element including the element identifier and 
+    /* 3GPP TS 44.018 "Channel Description"
+	 * the whole of the 3GPP TS 44.018 element including the element identifier and
 	 * length should be included.
 	 * XXX Hmm a type 3 IE (TV).
 	 */
@@ -3517,7 +3517,7 @@ dissect_rsl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     top_tree = tree;
     if (tree) {
-        ti = proto_tree_add_item(tree, proto_rsl, tvb, 0, -1, ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item(tree, proto_rsl, tvb, 0, -1, ENC_NA);
         rsl_tree = proto_item_add_subtree(ti, ett_rsl);
 
         /* 9.1 Message discriminator */

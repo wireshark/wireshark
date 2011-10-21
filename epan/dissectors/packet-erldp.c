@@ -452,7 +452,7 @@ static void dissect_erldp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
 
-  ti = proto_tree_add_item(tree, proto_erldp, tvb, 0, -1, FALSE);
+  ti = proto_tree_add_item(tree, proto_erldp, tvb, 0, -1, ENC_NA);
   erldp_tree = proto_item_add_subtree(ti, ett_erldp);
 
   if (is_handshake(tvb, 0)) {

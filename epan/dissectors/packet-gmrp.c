@@ -124,7 +124,7 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (tree)
     {
-	ti = proto_tree_add_item(tree, proto_gmrp, tvb, 0, length, FALSE);
+	ti = proto_tree_add_item(tree, proto_gmrp, tvb, 0, length, ENC_NA);
 
 	gmrp_tree = proto_item_add_subtree(ti, ett_gmrp);
 

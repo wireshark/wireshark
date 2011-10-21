@@ -829,7 +829,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	orig_offset = offset;
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_rtsp, tvb, offset,	-1,
-		    ENC_BIG_ENDIAN);
+		    ENC_NA);
 		rtsp_tree = proto_item_add_subtree(ti, ett_rtsp);
 	}
 
@@ -1515,7 +1515,7 @@ proto_reg_handoff_rtsp(void)
 
 	saved_rtsp_tcp_port = global_rtsp_tcp_port;
 	saved_rtsp_tcp_alternate_port = global_rtsp_tcp_alternate_port;
-	
+
 	stats_tree_register("rtsp","rtsp","RTSP/Packet Counter", 0, rtsp_stats_tree_packet, rtsp_stats_tree_init, NULL );
 
 }

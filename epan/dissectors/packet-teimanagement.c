@@ -73,14 +73,14 @@ dissect_teimanagement(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *tei_tree = NULL;
     proto_item *tei_ti;
     guint8 message;
-    
+
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "TEI");
     col_clear(pinfo->cinfo, COL_INFO);
-    
+
     if (tree) {
-	tei_ti = proto_tree_add_item(tree, proto_tei, tvb, 0, 5, FALSE);
+	tei_ti = proto_tree_add_item(tree, proto_tei, tvb, 0, 5, ENC_NA);
 	tei_tree = proto_item_add_subtree(tei_ti, lm_subtree);
-	
+
 	proto_tree_add_item(tei_tree, lm_entity_id, tvb, 0, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tei_tree, lm_reference,  tvb, 1, 2, ENC_BIG_ENDIAN);
     }
@@ -102,7 +102,7 @@ proto_register_teimanagement(void)
     static gint *subtree[]={
 	&lm_subtree
     };
-    
+
     static hf_register_info hf[] = {
 	{ &lm_entity_id,
 	  { "Entity", "tei.entity", FT_UINT8, BASE_HEX, NULL, 0x0,

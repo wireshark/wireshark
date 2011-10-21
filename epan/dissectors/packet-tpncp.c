@@ -284,7 +284,7 @@ static void dissect_tpncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     }
 
     if (tree) {
-        item = proto_tree_add_item(tree, proto_tpncp, tvb, 0, -1, FALSE);
+        item = proto_tree_add_item(tree, proto_tpncp, tvb, 0, -1, ENC_NA);
         tpncp_tree = proto_item_add_subtree(item, ett_tpncp);
 
         proto_tree_add_uint(tpncp_tree, hf_tpncp_version, tvb, 0, 2, ver);

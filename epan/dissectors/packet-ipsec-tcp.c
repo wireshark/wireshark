@@ -103,7 +103,7 @@ packet_is_tcpencap(tvbuff_t *tvb, packet_info *pinfo, guint32 offset)
 }
 
 /*
- * TCP Encapsulation of IPsec Packets	
+ * TCP Encapsulation of IPsec Packets
  * as supported by the cisco vpn3000 concentrator series
  */
 static int
@@ -130,7 +130,7 @@ dissect_tcpencap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* If the first 4 bytes are 0x01f401f4 (udp src and dst port = 500)
 	   we most likely have UDP (isakmp) traffic */
-	
+
 	if (tvb_get_ntohl(tvb, 0) == 0x01f401f4) { /* UDP means ISAKMP */
 		protocol = TCP_ENCAP_P_UDP;
 	} else { /* Hopefully ESP */
@@ -138,7 +138,7 @@ dissect_tcpencap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (tree) {
-		tree_item = proto_tree_add_item(tree, proto_tcpencap, tvb, 0, -1, ENC_BIG_ENDIAN);
+		tree_item = proto_tree_add_item(tree, proto_tcpencap, tvb, 0, -1, ENC_NA);
 		tcpencap_tree = proto_item_add_subtree(tree_item, ett_tcpencap);
 
 		/* Dissect the trailer following the encapsulated IPSEC/ISAKMP packet */

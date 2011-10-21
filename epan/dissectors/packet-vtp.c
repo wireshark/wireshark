@@ -144,7 +144,7 @@ dissect_vtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_vtp, tvb, offset, -1,
-		    FALSE);
+		    ENC_NA);
 		vtp_tree = proto_item_add_subtree(ti, ett_vtp);
 
 		proto_tree_add_item(vtp_tree, hf_vtp_version, tvb, offset, 1,

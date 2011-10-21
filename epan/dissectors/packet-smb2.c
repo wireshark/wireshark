@@ -4216,7 +4216,7 @@ dissect_smb2_FSCTL_SET_COMPRESSION(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 	return offset;
 }
 
-static int 
+static int
 dissect_smb2_FSCTL_SET_OBJECT_ID(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean data_in)
 {
 
@@ -6263,7 +6263,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, proto_smb2, tvb, offset,
-			-1, FALSE);
+			-1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_smb2);
 	}
 

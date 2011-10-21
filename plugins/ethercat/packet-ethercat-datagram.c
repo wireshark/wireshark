@@ -490,7 +490,7 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
    if( tree )
    {
       /* Create the EtherCAT datagram(s) subtree */
-      ti = proto_tree_add_item(tree, proto_ecat_datagram, tvb, 0, -1, TRUE);
+      ti = proto_tree_add_item(tree, proto_ecat_datagram, tvb, 0, -1, ENC_NA);
       ecat_datagrams_tree = proto_item_add_subtree(ti, ett_ecat);
 
       proto_item_append_text(ti,": %s", szText);

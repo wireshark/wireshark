@@ -126,7 +126,7 @@ dissect_tsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		tsp_item = proto_tree_add_item(tree, proto_tsp,
-				tvb, 0, -1, FALSE);
+				tvb, 0, -1, ENC_NA);
 		if (tsp_item)
 			tsp_tree = proto_item_add_subtree(tsp_item, ett_tsp);
 	}

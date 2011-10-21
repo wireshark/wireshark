@@ -200,7 +200,7 @@ dissect_ipp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_ipp, tvb, offset, -1,
-		    FALSE);
+		    ENC_NA);
 		ipp_tree = proto_item_add_subtree(ti, ett_ipp);
 
 		proto_tree_add_text(ipp_tree, tvb, offset, 2, "Version: %u.%u",
@@ -583,7 +583,7 @@ add_integer_value(const gchar *tag_desc, proto_tree *tree, tvbuff_t *tvb,
 				ns.secs=tvb_get_ntohl(tvb, offset);
 				ns.nsecs=0;
 				proto_tree_add_time(tree, hf_ipp_timestamp, tvb, offset, 4, &ns);
-			} 
+			}
             else if((name_length > 5) && name_val && !strcmp(name_val, "printer-state")){
                 guint32 printer_state_reason;
 

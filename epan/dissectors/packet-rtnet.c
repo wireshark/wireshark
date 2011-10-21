@@ -409,7 +409,7 @@ dissect_rtnet_tdma_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root) {
   }
 
   if (root) {
-    ti = proto_tree_add_item(root, proto_tdma, tvb, 0, -1, FALSE);
+    ti = proto_tree_add_item(root, proto_tdma, tvb, 0, -1, ENC_NA);
     tree = proto_item_add_subtree(ti, ett_tdma);
 
     proto_item_append_text(ti, ", Version 1, %s",
@@ -526,7 +526,7 @@ dissect_rtnet_tdma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root) {
   }
 
   if (root) {
-    ti = proto_tree_add_item(root, proto_tdma, tvb, 0, -1, FALSE);
+    ti = proto_tree_add_item(root, proto_tdma, tvb, 0, -1, ENC_NA);
     tree = proto_item_add_subtree(ti, ett_tdma);
 
     proto_item_append_text(ti, ", %s", val_to_str(msg, tdma_msg_vals, "Unknown (0x%04x)"));
@@ -586,7 +586,7 @@ dissect_rtmac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     dissector = data_handle;
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_rtmac, tvb, offset, 4, FALSE);
+    ti = proto_tree_add_item(tree, proto_rtmac, tvb, offset, 4, ENC_NA);
     rtmac_tree = proto_item_add_subtree(ti, ett_rtmac);
     proto_item_append_text(ti, ", Version %d", ver);
   }
@@ -681,7 +681,7 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   col_clear(pinfo->cinfo, COL_INFO);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_rtcfg, tvb, offset, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_rtcfg, tvb, offset, -1, ENC_NA);
     rtcfg_tree = proto_item_add_subtree(ti, ett_rtcfg);
   }
 

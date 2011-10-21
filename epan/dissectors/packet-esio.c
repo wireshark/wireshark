@@ -83,7 +83,7 @@ static const value_string esio_sts_types[] = {
 static gboolean
 is_esio_pdu(tvbuff_t *tvb)
 {
-       /* we need at least 8 bytes to determine whether this is 
+       /* we need at least 8 bytes to determine whether this is
           Ether-S-I/O or not*/
        /* minimal length is 20 bytes*/
        if (tvb_length(tvb) < 20) {
@@ -173,7 +173,7 @@ dissect_esio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* create display subtree for the protocol */
        if (tree) {
               offset =0;
-              ti = proto_tree_add_item(tree, proto_esio, tvb, offset, -1, FALSE);
+              ti = proto_tree_add_item(tree, proto_esio, tvb, offset, -1, ENC_NA);
               esio_tree = proto_item_add_subtree(ti, ett_esio);
 /*Add subtree for Ether-S-I/O header*/
               et = proto_tree_add_text(esio_tree, tvb, offset, 12, "Ether-S-I/O header");

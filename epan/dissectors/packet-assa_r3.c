@@ -5708,7 +5708,7 @@ static void dissect_r3_message (tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
   if (tree)
   {
-    r3_item = proto_tree_add_item (tree, proto_r3, tvb, 0, -1, TRUE);
+    r3_item = proto_tree_add_item (tree, proto_r3, tvb, 0, -1, ENC_NA);
     r3_tree = proto_item_add_subtree (r3_item, ett_r3);
   }
 

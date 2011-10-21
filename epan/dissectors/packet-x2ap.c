@@ -32,7 +32,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
- * Ref: 
+ * Ref:
  * 3GPP TS 36.423 V9.2.0 (2010-03)
  */
 
@@ -4611,9 +4611,9 @@ dissect_x2ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "X2AP");
 
 	/* create the x2ap protocol tree */
-	x2ap_item = proto_tree_add_item(tree, proto_x2ap, tvb, 0, -1, FALSE);
+	x2ap_item = proto_tree_add_item(tree, proto_x2ap, tvb, 0, -1, ENC_NA);
 	x2ap_tree = proto_item_add_subtree(x2ap_item, ett_x2ap);
-	
+
 	dissect_X2AP_PDU_PDU(tvb, pinfo, x2ap_tree);
 }
 
@@ -5843,7 +5843,7 @@ void proto_register_x2ap(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_x2ap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
- 
+
   /* Register dissector */
   register_dissector("x2ap", dissect_x2ap, proto_x2ap);
 

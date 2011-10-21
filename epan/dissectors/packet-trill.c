@@ -48,7 +48,7 @@ static int hf_trill_ingress_nick = -1 ;
 /* TODO For now we will just add all the options into a byte field.
    Later this should be parsed out into a sub-tree with all the option
    details. */
-static int hf_trill_options= -1 ; 
+static int hf_trill_options= -1 ;
 
 static dissector_handle_t eth_dissector ;
 
@@ -106,7 +106,7 @@ dissect_trill( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
   op_len = tvb_get_bits( tvb, 5, 5, FALSE ) * TRILL_OP_LENGTH_BYTE_UNITS ;
   if (tree) {
-    ti = proto_tree_add_item( tree, proto_trill, tvb, 0, -1, FALSE ) ;
+    ti = proto_tree_add_item( tree, proto_trill, tvb, 0, -1, ENC_NA ) ;
     trill_tree = proto_item_add_subtree( ti, ett_trill ) ;
 
     /* Parse the bit fields, i.e. V, R, M, Op-Length, Hop Count. */
@@ -117,7 +117,7 @@ dissect_trill( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
     proto_tree_add_item( trill_tree, hf_trill_multi_dst, tvb, offset,
       TRILL_BIT_FIELDS_LEN, ENC_BIG_ENDIAN ) ;
     proto_tree_add_item( trill_tree, hf_trill_op_len, tvb, offset,
-      TRILL_BIT_FIELDS_LEN, ENC_BIG_ENDIAN ) ;  
+      TRILL_BIT_FIELDS_LEN, ENC_BIG_ENDIAN ) ;
     proto_tree_add_item( trill_tree, hf_trill_hop_cnt, tvb, offset,
       TRILL_BIT_FIELDS_LEN, ENC_BIG_ENDIAN ) ;
 
@@ -133,7 +133,7 @@ dissect_trill( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
     /* Parse the options field. */
     offset += TRILL_NICKNAME_LEN  ;
-    if( op_len != 0 ) {    
+    if( op_len != 0 ) {
       proto_tree_add_item( trill_tree, hf_trill_options, tvb,
         offset, op_len, ENC_NA ) ;
     }
@@ -149,7 +149,7 @@ dissect_trill( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 /* Register the protocol with Wireshark */
 void
 proto_register_trill(void)
-{  
+{
   static hf_register_info hf[] = {
     { &hf_trill_version,
       { "Version", "trill.version",

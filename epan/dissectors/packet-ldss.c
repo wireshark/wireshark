@@ -336,7 +336,7 @@ dissect_ldss_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * instead of just filling out the columns), then give more detail. */
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_ldss,
-					 tvb, 0, (tvb_length(tvb) > 72) ? tvb_length(tvb) : 72, FALSE);
+					 tvb, 0, (tvb_length(tvb) > 72) ? tvb_length(tvb) : 72, ENC_NA);
 		ldss_tree = proto_item_add_subtree(ti, ett_ldss_broadcast);
 
 		proto_tree_add_item(ldss_tree, hf_ldss_message_id,
@@ -504,7 +504,7 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		if (tree) {
 			ti = proto_tree_add_item(tree, proto_ldss,
-						 tvb, 0, tvb_reported_length(tvb), FALSE);
+						 tvb, 0, tvb_reported_length(tvb), ENC_NA);
 			ldss_tree = proto_item_add_subtree(ti, ett_ldss_transfer);
 		}
 
@@ -691,7 +691,7 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		if (tree) {
 			ti = proto_tree_add_item(tree, proto_ldss,
-						 tvb, 0, tvb_reported_length(tvb), FALSE);
+						 tvb, 0, tvb_reported_length(tvb), ENC_NA);
 			ldss_tree = proto_item_add_subtree(ti, ett_ldss_transfer);
 			proto_tree_add_bytes_format(ldss_tree, hf_ldss_file_data,
 						    tvb, 0, tvb_length(tvb), NULL,

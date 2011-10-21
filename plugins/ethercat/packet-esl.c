@@ -190,7 +190,7 @@ dissect_esl_header(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree) {
         {
             guint16 flags;
 
-            ti = proto_tree_add_item(tree, proto_esl, tvb, 0, SIZEOF_ESLHEADER, TRUE);
+            ti = proto_tree_add_item(tree, proto_esl, tvb, 0, SIZEOF_ESLHEADER, ENC_NA);
             esl_header_tree = proto_item_add_subtree(ti, ett_esl);
             offset+=6;
 

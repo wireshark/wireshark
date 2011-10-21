@@ -305,7 +305,7 @@ dissect_tapa_discover(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_tapa, tvb, offset, -1,
-			ENC_BIG_ENDIAN);
+			ENC_NA);
 		tapa_discover_tree = proto_item_add_subtree(ti, ett_tapa_discover);
 
 		proto_tree_add_item(tapa_discover_tree, hf_tapa_discover_type, tvb, offset, 1,
@@ -364,7 +364,7 @@ dissect_tapa_tunnel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_tapa, tvb, offset, -1,
-			ENC_BIG_ENDIAN);
+			ENC_NA);
 		tapa_tunnel_tree = proto_item_add_subtree(ti, ett_tapa_tunnel);
 
 		proto_tree_add_item(tapa_tunnel_tree, hf_tapa_tunnel_version, tvb, offset, 1,

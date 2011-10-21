@@ -290,7 +290,7 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 
-		ti = proto_tree_add_item(tree, proto_ipx, tvb, 0, IPX_HEADER_LEN, FALSE);
+		ti = proto_tree_add_item(tree, proto_ipx, tvb, 0, IPX_HEADER_LEN, ENC_NA);
 		ipx_tree = proto_item_add_subtree(ti, ett_ipx);
 	}
 
@@ -588,7 +588,7 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_INFO, "SPX");
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_spx, tvb, 0, SPX_HEADER_LEN, FALSE);
+		ti = proto_tree_add_item(tree, proto_spx, tvb, 0, SPX_HEADER_LEN, ENC_NA);
 		spx_tree = proto_item_add_subtree(ti, ett_spx);
 	}
 
@@ -846,7 +846,7 @@ dissect_ipxmsg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_ipxmsg, tvb, 0, -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_ipxmsg, tvb, 0, -1, ENC_NA);
 		msg_tree = proto_item_add_subtree(ti, ett_ipxmsg);
 
 		proto_tree_add_uint(msg_tree, hf_msg_conn, tvb, 0, 1, conn_number);
@@ -881,7 +881,7 @@ dissect_ipxrip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_ipxrip, tvb, 0, -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_ipxrip, tvb, 0, -1, ENC_NA);
 		rip_tree = proto_item_add_subtree(ti, ett_ipxrip);
 
 		if (operation < 2) {
@@ -943,7 +943,7 @@ dissect_serialization(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_serialization, tvb, 0, -1,
-		    FALSE);
+		    ENC_NA);
 		ser_tree = proto_item_add_subtree(ti, ett_serialization);
 	}
 
@@ -1227,7 +1227,7 @@ dissect_ipxsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_sap, tvb, 0, -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_sap, tvb, 0, -1, ENC_NA);
 		sap_tree = proto_item_add_subtree(ti, ett_ipxsap);
 
 		if (query.query_type >= 1 && query.query_type <= 4) {

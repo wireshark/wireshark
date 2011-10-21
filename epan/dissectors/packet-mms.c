@@ -7070,7 +7070,7 @@ dissect_mms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
 	if(parent_tree){
-		item = proto_tree_add_item(parent_tree, proto_mms, tvb, 0, -1, FALSE);
+		item = proto_tree_add_item(parent_tree, proto_mms, tvb, 0, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_mms);
 	}
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MMS");
@@ -7090,7 +7090,7 @@ dissect_mms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 /*--- proto_register_mms -------------------------------------------*/
 void proto_register_mms(void) {
-	
+
 	/* List of fields */
   static hf_register_info hf[] =
   {
@@ -9998,7 +9998,7 @@ void proto_register_mms(void) {
 
 static gboolean
 dissect_mms_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
-{	
+{
 	/* must check that this really is an mms packet */
 	int offset = 0;
 	guint32 length = 0 ;
@@ -10008,40 +10008,40 @@ dissect_mms_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	gint8 tmp_class;
 	gboolean tmp_pc;
 	gint32 tmp_tag;
-	
+
 		/* first, check do we have at least 2 bytes (pdu) */
 	if (!tvb_bytes_exist(tvb, 0, 2))
 		return FALSE;	/* no */
-	
+
 	/* can we recognize MMS PDU ? Return FALSE if  not */
 	/*   get MMS PDU type */
 	offset = get_ber_identifier(tvb, offset, &tmp_class, &tmp_pc, &tmp_tag);
-	
+
 	/* check MMS type */
-	
-	/* Class should be constructed */ 
+
+	/* Class should be constructed */
 	if (tmp_class!=BER_CLASS_CON)
 		return FALSE;
-	
+
 	/* see if the tag is a valid MMS PDU */
 	match_strval_idx(tmp_tag, mms_MMSpdu_vals, &idx);
-	if  (idx == -1) { 
+	if  (idx == -1) {
 	 	return FALSE;  /* no, it isn't an MMS PDU */
 	}
-	
+
 	/* check MMS length  */
 	oct = tvb_get_guint8(tvb, offset)& 0x7F;
 	if (oct==0)
 		/* MMS requires length after tag so not MMS if indefinite length*/
 		return FALSE;
-						
+
 	offset = get_ber_length(tvb, offset, &length, NULL);
 	/* do we have enough bytes? */
 	if (!tvb_bytes_exist(tvb, offset, length))
-		return FALSE; 
-		
+		return FALSE;
+
 	dissect_mms(tvb, pinfo, parent_tree);
-	return TRUE;	
+	return TRUE;
 }
 
 /*--- proto_reg_handoff_mms --- */

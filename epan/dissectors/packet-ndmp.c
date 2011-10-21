@@ -3279,7 +3279,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 * Add the record marker information to the tree
 			 */
 			if (tree) {
-				ndmp_item = proto_tree_add_item(tree, proto_ndmp, tvb, 0, -1, FALSE);
+				ndmp_item = proto_tree_add_item(tree, proto_ndmp, tvb, 0, -1, ENC_NA);
 				ndmp_tree = proto_item_add_subtree(ndmp_item, ett_ndmp);
 			}
 			hdr_item = proto_tree_add_text(ndmp_tree, tvb, 0, 4,
@@ -3341,7 +3341,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDMP");
 	col_clear(pinfo->cinfo, COL_INFO);
 	if (tree) {
-		ndmp_item = proto_tree_add_item(tree, proto_ndmp, tvb, 0, -1, FALSE);
+		ndmp_item = proto_tree_add_item(tree, proto_ndmp, tvb, 0, -1, ENC_NA);
 		ndmp_tree = proto_item_add_subtree(ndmp_item, ett_ndmp);
 	}
 

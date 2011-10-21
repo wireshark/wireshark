@@ -67,9 +67,9 @@ typedef struct {
 	guint8 th_cidlen;
 	guint8 th_authdlen;
 	guint8 th_nonce[8];
-	guint8 th_conf; 
+	guint8 th_conf;
 
-	guint8 th_ip_v_hl;  
+	guint8 th_ip_v_hl;
 	guint16 th_header;
 	guint16 th_orgport;
 	guint32 th_iporgaddr;
@@ -109,7 +109,7 @@ parse_teredo_auth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		ti = proto_tree_add_item(tree, hf_teredo_auth, tvb, offset-4,
 						13 + idlen + aulen, ENC_NA);
 		tree = proto_item_add_subtree(ti, ett_teredo_auth);
-	
+
 		proto_tree_add_item(tree, hf_teredo_auth_idlen, tvb,
 					offset - 2, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tree, hf_teredo_auth_aulen, tvb,
@@ -210,7 +210,7 @@ decode_teredo_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,proto_tree *tr
 	if (dissector_try_uint(teredo_dissector_table, th_header, next_tvb, pinfo, tree))
 		return;
 
-	call_dissector(data_handle,next_tvb, pinfo, tree);  
+	call_dissector(data_handle,next_tvb, pinfo, tree);
 }
 
 static void
@@ -232,7 +232,7 @@ dissect_teredo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_teredo, tvb, 0, -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_teredo, tvb, 0, -1, ENC_NA);
 		teredo_tree = proto_item_add_subtree(ti, ett_teredo);
 	}
 	else
@@ -256,7 +256,7 @@ dissect_teredo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	teredoh->th_ip_v_hl = tvb_get_guint8(tvb, offset);
 
 	decode_teredo_ports(tvb, offset, pinfo, tree, teredoh->th_header /* , teredoh->th_orgport*/);
-	tap_queue_packet(teredo_tap, pinfo, teredoh);    
+	tap_queue_packet(teredo_tap, pinfo, teredoh);
 }
 
 
@@ -304,7 +304,7 @@ dissect_teredo_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		val = tvb_get_ntohs(tvb, offset);
 	}
 
-	/* 
+	/*
 	 * We have to check upper-layer packet a little bit otherwise we will
 	 * match -almost- *ANY* packet.
 	 * These checks are in the Teredo specification by the way.
@@ -340,7 +340,7 @@ proto_register_teredo(void)
 		{ "Teredo Authentication header", "teredo.auth",
 		  FT_NONE, BASE_NONE, NULL, 0x0,
 		  NULL, HFILL }},
-  
+
 		{ &hf_teredo_auth_idlen,
 		{ "Client identifier length", "teredo.auth.idlen",
 		  FT_UINT8, BASE_DEC, NULL, 0x0,

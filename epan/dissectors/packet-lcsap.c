@@ -33,7 +33,7 @@
  * References:
  * ETSI TS 129 171 V9.2.0 (2010-10)
  */
- 
+
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -2050,9 +2050,9 @@ dissect_lcsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "LCSAP");
 
 	/* create the lcsap protocol tree */
-	lcsap_item = proto_tree_add_item(tree, proto_lcsap, tvb, 0, -1, FALSE);
+	lcsap_item = proto_tree_add_item(tree, proto_lcsap, tvb, 0, -1, ENC_NA);
 	lcsap_tree = proto_item_add_subtree(lcsap_item, ett_lcsap);
-	
+
 	dissect_LCS_AP_PDU_PDU(tvb, pinfo, lcsap_tree);
 }
 
@@ -2066,7 +2066,7 @@ proto_reg_handoff_lcsap(void)
 
 	if (!Initialized) {
 		lcsap_handle = find_dissector("lcsap");
-		
+
 		dissector_add_handle("sctp.port", lcsap_handle);   /* for "decode-as"  */
 		dissector_add_uint("sctp.ppi", LCS_AP_PAYLOAD_PROTOCOL_ID,   lcsap_handle);
 		Initialized=TRUE;
@@ -2625,13 +2625,13 @@ void proto_register_lcsap(void) {
 
   /* Register dissector tables */
   lcsap_ies_dissector_table = register_dissector_table("lcsap.ies", "LCS-AP-PROTOCOL-IES", FT_UINT32, BASE_DEC);
-  
+
 
   lcsap_extension_dissector_table = register_dissector_table("lcsap.extension", "LCS-AP-PROTOCOL-EXTENSION", FT_UINT32, BASE_DEC);
   lcsap_proc_imsg_dissector_table = register_dissector_table("lcsap.proc.imsg", "LCS-AP-ELEMENTARY-PROCEDURE InitiatingMessage", FT_UINT32, BASE_DEC);
   lcsap_proc_sout_dissector_table = register_dissector_table("lcsap.proc.sout", "LCS-AP-ELEMENTARY-PROCEDURE SuccessfulOutcome", FT_UINT32, BASE_DEC);
   lcsap_proc_uout_dissector_table = register_dissector_table("lcsap.proc.uout", "LCS-AP-ELEMENTARY-PROCEDURE UnsuccessfulOutcome", FT_UINT32, BASE_DEC);
-  
+
   /* Register configuration options for ports */
   lcsap_module = prefs_register_protocol(proto_lcsap, proto_reg_handoff_lcsap);
 

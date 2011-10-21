@@ -161,7 +161,7 @@ dissect_nsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_INFO, "NSRP Protocol");
 
     if (tree) {
-			ti = proto_tree_add_item(tree, proto_nsrp, tvb, 0, -1, FALSE);
+			ti = proto_tree_add_item(tree, proto_nsrp, tvb, 0, -1, ENC_NA);
 			nsrp_tree = proto_item_add_subtree(ti, ett_nsrp);
 
 

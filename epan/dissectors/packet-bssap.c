@@ -605,7 +605,7 @@ dissect_bssap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*
      * create the bssap protocol tree
      */
-    hidden_item = proto_tree_add_item(tree, proto_bssap, tvb, 0, -1, ENC_BIG_ENDIAN);
+    hidden_item = proto_tree_add_item(tree, proto_bssap, tvb, 0, -1, ENC_NA);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
     bssap_item = proto_tree_add_text(tree, tvb, 0, -1, (bssap_or_bsap_global == BSSAP) ? "BSSAP" : "BSAP");
     bssap_tree = proto_item_add_subtree(bssap_item, ett_bssap);
@@ -1647,7 +1647,7 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         pinfo->sccp_info->data.co.assoc->payload = SCCP_PLOAD_BSSAP;
 
     /* create the BSSAP+ protocol tree */
-    bssap_item = proto_tree_add_item(tree, proto_bssap, tvb, 0, -1, ENC_BIG_ENDIAN);
+    bssap_item = proto_tree_add_item(tree, proto_bssap, tvb, 0, -1, ENC_NA);
     bssap_tree = proto_item_add_subtree(bssap_item, ett_bssap);
 
     message_type = tvb_get_guint8(tvb,offset);

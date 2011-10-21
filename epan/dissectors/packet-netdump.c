@@ -1,6 +1,6 @@
 /* packet-netdump.c
  * Routines for Netdump dissection
- * Copyright 2009, Neil Horman <nhorman@tuxdriver.com> 
+ * Copyright 2009, Neil Horman <nhorman@tuxdriver.com>
  *
  * $Id$
  *
@@ -104,7 +104,7 @@ dissect_netdump(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tree) { /* we are being asked for details */
 		proto_item *ti = NULL;
 		proto_tree *netdump_tree = NULL;
-		ti = proto_tree_add_item(tree, proto_netdump, tvb, 0, -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_netdump, tvb, 0, -1, ENC_NA);
 		netdump_tree = proto_item_add_subtree(ti, ett_netdump);
 		if (tvb_reported_length(tvb) == 24) {
 			/* Its a request format packet */

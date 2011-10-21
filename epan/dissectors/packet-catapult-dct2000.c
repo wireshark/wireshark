@@ -1769,7 +1769,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Create root (protocol) tree. */
     if (tree) {
-        ti = proto_tree_add_item(tree, proto_catapult_dct2000, tvb, offset, -1, FALSE);
+        ti = proto_tree_add_item(tree, proto_catapult_dct2000, tvb, offset, -1, ENC_NA);
         dct2000_tree = proto_item_add_subtree(ti, ett_catapult_dct2000);
     }
 

@@ -500,7 +500,7 @@ static void dissect_fp_hint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	channel_type = tvb_get_guint8(tvb, 3);
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_fp_hint, tvb, 0, hdrlen, TRUE);
+		ti = proto_tree_add_item(tree, proto_fp_hint, tvb, 0, hdrlen, ENC_NA);
 		fph_tree = proto_item_add_subtree(ti, ett_fph);
 		proto_tree_add_uint(fph_tree, hf_fph_frametype, tvb, 2, 1, frame_type);
 		proto_tree_add_uint(fph_tree, hf_fph_channeltype, tvb, 3, 1, channel_type);

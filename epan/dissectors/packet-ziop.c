@@ -221,7 +221,7 @@ dissect_ziop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
                     giop_version_major, giop_version_minor);
       if (tree)
         {
-          ti = proto_tree_add_item (tree, proto_ziop, tvb, 0, -1, FALSE);
+          ti = proto_tree_add_item (tree, proto_ziop, tvb, 0, -1, ENC_NA);
           ziop_tree = proto_item_add_subtree (ti, ett_ziop);
           proto_tree_add_text (ziop_tree, tvb, 4, 2,
                                "Version %u.%u not supported",
@@ -245,7 +245,7 @@ dissect_ziop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
       gboolean little_endian;
       emem_strbuf_t *flags_strbuf = ep_strbuf_new_label("none");
 
-      ti = proto_tree_add_item (tree, proto_ziop, tvb, 0, -1, FALSE);
+      ti = proto_tree_add_item (tree, proto_ziop, tvb, 0, -1, ENC_NA);
       ziop_tree = proto_item_add_subtree (ti, ett_ziop);
 
       proto_tree_add_item(ziop_tree, hf_ziop_magic, tvb, offset, 4, ENC_ASCII|ENC_NA);

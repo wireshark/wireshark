@@ -405,7 +405,7 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
         /* Lets add a subtree to our dissection to display the info */
-        ti = proto_tree_add_item(tree, proto_pnrp, tvb, 0, -1, FALSE);
+        ti = proto_tree_add_item(tree, proto_pnrp, tvb, 0, -1, ENC_NA);
         proto_item_append_text(ti, ", Message Type %s",
                                val_to_str(message_type, messageType, "Unknown (0x%02x)"));
         /* Get a main tree for the whole protocol */

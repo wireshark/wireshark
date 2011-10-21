@@ -600,7 +600,7 @@ filter_address_match(gchar *addr, gchar *filter, gint typ)
   guint addr_len = (guint)strlen(addr);
   guint filter_len = (guint)strlen(filter);
 
-  if(addr_len != filter_len) 
+  if(addr_len != filter_len)
      return FALSE;
 
   /* No length specified */
@@ -609,7 +609,7 @@ filter_address_match(gchar *addr, gchar *filter, gint typ)
    {
       for(i = 0; i < addr_len; i++)
       {
-         if((filter[i] != IPSEC_SA_WILDCARDS_ANY) && (filter[i] != addr[i])) 
+         if((filter[i] != IPSEC_SA_WILDCARDS_ANY) && (filter[i] != addr[i]))
             return FALSE;
       }
       return TRUE;
@@ -618,11 +618,11 @@ filter_address_match(gchar *addr, gchar *filter, gint typ)
    {
       for(i = 0; i < (filter_len/4); i++)
       {
-         if((filter[i] != IPSEC_SA_WILDCARDS_ANY) && (filter[i] != addr[i])) 
+         if((filter[i] != IPSEC_SA_WILDCARDS_ANY) && (filter[i] != addr[i]))
             return FALSE;
       }
 
-      if(filter[i] == IPSEC_SA_WILDCARDS_ANY) 
+      if(filter[i] == IPSEC_SA_WILDCARDS_ANY)
          return TRUE;
       else if (filter_len  % 4 != 0)
       {
@@ -667,7 +667,7 @@ filter_spi_match(gchar *spi, gchar *filter)
       return FALSE;
 
    for(i = 0; filter[i]; i++)
-      if((filter[i] != IPSEC_SA_WILDCARDS_ANY) && (filter[i] != spi[i])) 
+      if((filter[i] != IPSEC_SA_WILDCARDS_ANY) && (filter[i] != spi[i]))
          return FALSE;
 
    return TRUE;
@@ -894,7 +894,7 @@ dissect_ah_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   if (tree) {
     /* !!! specify length */
-    ti = proto_tree_add_item(tree, proto_ah, tvb, 0, advance, FALSE);
+    ti = proto_tree_add_item(tree, proto_ah, tvb, 0, advance, ENC_NA);
     ah_tree = proto_item_add_subtree(ti, ett_ah);
 
     proto_tree_add_text(ah_tree, tvb,
@@ -1086,7 +1086,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     decrypt_dissect_ok = FALSE;
     i = 0;
 
-    ti = proto_tree_add_item(tree, proto_esp, tvb, 0, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_esp, tvb, 0, -1, ENC_NA);
     esp_tree = proto_item_add_subtree(ti, ett_esp);
     proto_tree_add_uint(esp_tree, hf_esp_spi, tvb,
 			offsetof(struct newesp, esp_spi), 4,
@@ -1911,9 +1911,9 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	      g_free(ip_src);
 	      g_free(ip_dst);
-	      if(esp_auth_key_len != 0) 
+	      if(esp_auth_key_len != 0)
             g_free(esp_auth_key);
-	      if(esp_crypt_key_len != 0) 
+	      if(esp_crypt_key_len != 0)
             g_free(esp_crypt_key);
       }
      }
@@ -2031,7 +2031,7 @@ dissect_ipcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (tree) {
     tvbuff_t *data, *decomp;
 
-    ti = proto_tree_add_item(tree, proto_ipcomp, tvb, 0, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_ipcomp, tvb, 0, -1, ENC_NA);
     ipcomp_tree = proto_item_add_subtree(ti, ett_ipcomp);
 
     proto_tree_add_text(ipcomp_tree, tvb,
@@ -2146,13 +2146,13 @@ proto_register_ipsec(void)
   };
 
   static uat_field_t esp_uat_flds[] = {
-      UAT_FLD_VS(uat_esp_sa_records, protocol, "Protocol", esp_proto_type_vals, "Protocol used"), 
+      UAT_FLD_VS(uat_esp_sa_records, protocol, "Protocol", esp_proto_type_vals, "Protocol used"),
       UAT_FLD_CSTRING(uat_esp_sa_records, srcIP, "Src IP", "Source Address"),
       UAT_FLD_CSTRING(uat_esp_sa_records, dstIP, "Dest IP", "Destination Address"),
       UAT_FLD_CSTRING(uat_esp_sa_records, spi, "SPI", "SPI"),
-      UAT_FLD_VS(uat_esp_sa_records, encryption_algo, "Encryption", esp_encryption_type_vals, "Encryption algorithm"), 
+      UAT_FLD_VS(uat_esp_sa_records, encryption_algo, "Encryption", esp_encryption_type_vals, "Encryption algorithm"),
       UAT_FLD_CSTRING(uat_esp_sa_records, encryption_key, "Encryption Key", "Encryption Key"),
-      UAT_FLD_VS(uat_esp_sa_records, authentication_algo, "Authentication", esp_authentication_type_vals, "Authentication algorithm"), 
+      UAT_FLD_VS(uat_esp_sa_records, authentication_algo, "Authentication", esp_authentication_type_vals, "Authentication algorithm"),
       UAT_FLD_CSTRING(uat_esp_sa_records, authentication_key, "Authentication Key", "Authentication Key"),
       UAT_END_FIELDS
     };
@@ -2215,7 +2215,7 @@ proto_register_ipsec(void)
             NULL,                       /* post update callback */
             esp_uat_flds);             /* UAT field definitions */
 
-    prefs_register_uat_preference(esp_module, 
+    prefs_register_uat_preference(esp_module,
                                    "sa_table",
                                    "ESP SAs",
                                    "Preconfigured ESP Security Associations",

@@ -1150,7 +1150,7 @@ dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if ( tree) {
-		ti = proto_tree_add_item(tree, proto_netbios, tvb, 0, hdr_len, FALSE);
+		ti = proto_tree_add_item(tree, proto_netbios, tvb, 0, hdr_len, ENC_NA);
 		netb_tree = proto_item_add_subtree(ti, ett_netb);
 
 		proto_tree_add_uint_format(netb_tree, hf_netb_hdr_len, tvb, offset, 2, hdr_len,

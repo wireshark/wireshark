@@ -991,7 +991,7 @@ dissect_xtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_xtp, tvb, 0, -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_xtp, tvb, 0, -1, ENC_NA);
 		/** add summary **/
 		proto_item_append_text(ti,
 				", Key: 0x%016" G_GINT64_MODIFIER "X", xtph->key);

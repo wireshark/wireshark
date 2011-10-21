@@ -193,7 +193,7 @@ dissect_dcp_etsi (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
   if(tree) {
     proto_item *ti = NULL;
-    ti = proto_tree_add_item (tree, proto_dcp_etsi, tvb, 0, -1, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item (tree, proto_dcp_etsi, tvb, 0, -1, ENC_NA);
     dcp_tree = proto_item_add_subtree (ti, ett_edcp);
   }
 
@@ -448,7 +448,7 @@ dissect_pft(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "DCP-PFT");
 
   if (tree) {                   /* we are being asked for details */
-    ti = proto_tree_add_item (tree, proto_pft, tvb, 0, -1, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item (tree, proto_pft, tvb, 0, -1, ENC_NA);
     pft_tree = proto_item_add_subtree (ti, ett_pft);
     proto_tree_add_item (pft_tree, hf_edcp_sync, tvb, offset, 2, ENC_ASCII|ENC_NA);
   }
@@ -550,7 +550,7 @@ dissect_af (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "DCP-AF");
 
   if (tree) {                   /* we are being asked for details */
-    ti = proto_tree_add_item (tree, proto_af, tvb, 0, -1, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item (tree, proto_af, tvb, 0, -1, ENC_NA);
     af_tree = proto_item_add_subtree (ti, ett_af);
     proto_tree_add_item (af_tree, hf_edcp_sync, tvb, offset, 2, ENC_ASCII|ENC_NA);
   }
@@ -624,7 +624,7 @@ dissect_tpl(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
   if(tree) {
     proto_item *ti = NULL;
-    ti = proto_tree_add_item (tree, proto_tpl, tvb, 0, -1, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item (tree, proto_tpl, tvb, 0, -1, ENC_NA);
     tpl_tree = proto_item_add_subtree (ti, ett_tpl);
   }
   while(offset<tvb_length(tvb)) {

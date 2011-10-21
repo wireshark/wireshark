@@ -505,7 +505,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16 frame_len;
 	dlci_state_t *dlci_state = NULL;
 
-	ti = proto_tree_add_item(tree, proto_btrfcomm, tvb, offset, -1, ENC_LITTLE_ENDIAN);
+	ti = proto_tree_add_item(tree, proto_btrfcomm, tvb, offset, -1, ENC_NA);
 	rfcomm_tree = proto_item_add_subtree(ti, ett_btrfcomm);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RFCOMM");
@@ -840,7 +840,7 @@ dissect_bthf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "HANDSFREE");
 
-	ti = proto_tree_add_item(tree, proto_bthf, tvb, 0, -1, ENC_BIG_ENDIAN);
+	ti = proto_tree_add_item(tree, proto_bthf, tvb, 0, -1, ENC_NA);
 	st = proto_item_add_subtree(ti, ett_bthf);
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s \"%s\"",
@@ -896,7 +896,7 @@ dissect_btdun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DUN");
 
-	ti = proto_tree_add_item(tree, proto_btdun, tvb, 0, -1, ENC_BIG_ENDIAN);
+	ti = proto_tree_add_item(tree, proto_btdun, tvb, 0, -1, ENC_NA);
 	st = proto_item_add_subtree(ti, ett_btdun);
 
 	is_at_cmd = TRUE;
@@ -972,7 +972,7 @@ dissect_btspp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SPP");
 
-	ti = proto_tree_add_item(tree, proto_btspp, tvb, 0, -1, ENC_BIG_ENDIAN);
+	ti = proto_tree_add_item(tree, proto_btspp, tvb, 0, -1, ENC_NA);
 	st = proto_item_add_subtree(ti, ett_btspp);
 
 	length = MIN(length,60);

@@ -4514,7 +4514,7 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* make entry in the Protocol column on summary display */
     col_append_str(pinfo->cinfo, COL_PROTOCOL, "/NAS-EPS");
 
-    item = proto_tree_add_item(tree, proto_nas_eps, tvb, 0, -1, ENC_BIG_ENDIAN);
+    item = proto_tree_add_item(tree, proto_nas_eps, tvb, 0, -1, ENC_NA);
     nas_eps_tree = proto_item_add_subtree(item, ett_nas_eps);
 
     /* Security header type Security header type 9.3.1 M V 1/2 */
@@ -4554,10 +4554,10 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 /* Integrity protected and ciphered = 2, Integrity protected and ciphered with new EPS security context = 4 */
                 pd = tvb_get_guint8(tvb,offset)&0x0f;
 #if 0
-				/* Does not work see Bug https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6348 
+				/* Does not work see Bug https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6348
 				 * 9.2 Protocol discriminator
 				 * :
-				 * The protocol discriminator in the header (see 3GPP TS 24.007 [12]) of a 
+				 * The protocol discriminator in the header (see 3GPP TS 24.007 [12]) of a
 				 * security protected NAS message is encoded as "EPS mobility management messages".
 				 * XXX Should we check for PD == 7?
 				 */
@@ -4628,7 +4628,7 @@ dissect_nas_eps_plain(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* make entry in the Protocol column on summary display */
     col_append_str(pinfo->cinfo, COL_PROTOCOL, "/NAS-EPS");
 
-    item = proto_tree_add_item(tree, proto_nas_eps, tvb, 0, -1, ENC_BIG_ENDIAN);
+    item = proto_tree_add_item(tree, proto_nas_eps, tvb, 0, -1, ENC_NA);
     nas_eps_tree = proto_item_add_subtree(item, ett_nas_eps);
 
     pd = tvb_get_guint8(tvb,offset)&0x0f;

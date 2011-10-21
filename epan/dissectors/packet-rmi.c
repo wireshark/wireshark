@@ -176,7 +176,7 @@ dissect_rmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     if (tree) {
-	ti = proto_tree_add_item(tree, proto_rmi, tvb, 0, -1, FALSE);
+	ti = proto_tree_add_item(tree, proto_rmi, tvb, 0, -1, ENC_NA);
 	rmi_tree = proto_item_add_subtree(ti, ett_rmi);
 	switch(rmitype) {
 	case RMI_OUTPUTSTREAM:
@@ -255,7 +255,7 @@ dissect_ser(tvbuff_t *tvb, proto_tree *tree)
     offset = 0;
 
     if(tree) {
-	ti = proto_tree_add_item(tree, proto_ser, tvb, 0, -1, FALSE);
+	ti = proto_tree_add_item(tree, proto_ser, tvb, 0, -1, ENC_NA);
 	ser_tree = proto_item_add_subtree(ti, ett_ser);
 	proto_tree_add_item(ser_tree, hf_ser_magic,
 			    tvb, offset,     2, ENC_BIG_ENDIAN);

@@ -400,7 +400,7 @@ static gint dissect_msmms_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     /* Create MSMMS control protocol tree */
     if (tree)
     {
-        ti = proto_tree_add_item(tree, proto_msmms, tvb, offset, -1, FALSE);
+        ti = proto_tree_add_item(tree, proto_msmms, tvb, offset, -1, ENC_NA);
         msmms_tree = proto_item_add_subtree(ti, ett_msmms_command);
     }
 
@@ -582,7 +582,7 @@ static gint dissect_msmms_data_udp_command(tvbuff_t *tvb, packet_info *pinfo, pr
     /* Create MSMMS data protocol tree */
     if (tree)
     {
-        ti = proto_tree_add_item(tree, proto_msmms, tvb, offset, -1, FALSE);
+        ti = proto_tree_add_item(tree, proto_msmms, tvb, offset, -1, ENC_NA);
         msmms_tree = proto_item_add_subtree(ti, ett_msmms_data);
     }
 
@@ -669,7 +669,7 @@ static gint dissect_msmms_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     /* Create MSMMS data protocol tree */
     if (tree)
     {
-        ti = proto_tree_add_item(tree, proto_msmms, tvb, offset, -1, FALSE);
+        ti = proto_tree_add_item(tree, proto_msmms, tvb, offset, -1, ENC_NA);
         msmms_tree = proto_item_add_subtree(ti, ett_msmms_data);
     }
 

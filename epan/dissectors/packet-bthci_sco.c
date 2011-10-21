@@ -15,12 +15,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -46,16 +46,16 @@ static gint ett_btsco = -1;
 
 
 /* Code to actually dissect the packets */
-static void 
+static void
 dissect_btsco(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
   proto_item *ti;
   proto_tree *btsco_tree;
   int offset=0;
 
-  ti = proto_tree_add_item(tree, proto_btsco, tvb, offset, -1, FALSE);
+  ti = proto_tree_add_item(tree, proto_btsco, tvb, offset, -1, ENC_NA);
   btsco_tree = proto_item_add_subtree(ti, ett_btsco);
-  
+
 
   proto_tree_add_item(btsco_tree, hf_btsco_chandle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
   offset+=2;
@@ -69,21 +69,21 @@ dissect_btsco(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
 void
 proto_register_btsco(void)
-{                 
+{
 	static hf_register_info hf[] = {
 		{ &hf_btsco_chandle,
 			{ "Connection Handle",           "bthci_sco.chandle",
-			FT_UINT16, BASE_HEX, NULL, 0x0FFF,          
+			FT_UINT16, BASE_HEX, NULL, 0x0FFF,
 			NULL, HFILL }
 		},
 		{ &hf_btsco_length,
 			{ "Data Total Length",           "bthci_sco.length",
-			FT_UINT8, BASE_DEC, NULL, 0x0,          
+			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_btsco_data,
 			{ "Data",           "bthci_sco.data",
-			FT_NONE, BASE_NONE, NULL, 0x0,          
+			FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }
 		},
 	};
@@ -103,7 +103,7 @@ proto_register_btsco(void)
 }
 
 
-void 
+void
 proto_reg_handoff_btsco(void)
 {
 	dissector_handle_t bthci_sco_handle;

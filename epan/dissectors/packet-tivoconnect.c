@@ -14,17 +14,17 @@
  * Copyright 1998 Gerald Combs
  *
  * Copied from README.developer
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -87,7 +87,7 @@ dissect_tivoconnect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "TiVoConnect");
-    
+
     /* make a distinction between UDP and TCP packets */
     proto_name = pinfo->ipproto == IP_PROTO_TCP ?
                     "Discovery Connection" :
@@ -105,7 +105,7 @@ dissect_tivoconnect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         gchar * field = NULL;
 
         /* create display subtree for the protocol */
-        ti = proto_tree_add_item(tree, proto_tivoconnect, tvb, 0, -1, FALSE);
+        ti = proto_tree_add_item(tree, proto_tivoconnect, tvb, 0, -1, ENC_NA);
 
         tivoconnect_tree = proto_item_add_subtree(ti, ett_tivoconnect);
 
@@ -170,7 +170,7 @@ dissect_tivoconnect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* Adjust "Info" column and top of tree into more useful info */
         if (packet_machine) {
             proto_item_append_text(ti, ", %s", packet_machine);
-            if (check_col(pinfo->cinfo, COL_INFO)) 
+            if (check_col(pinfo->cinfo, COL_INFO))
                 col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
                                             proto_name, packet_machine);
         }
@@ -179,12 +179,12 @@ dissect_tivoconnect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         packet_machine ? " (%s)" : ", ID:%s",
                         packet_identity);
             if (packet_machine) {
-                if (check_col(pinfo->cinfo, COL_INFO)) 
+                if (check_col(pinfo->cinfo, COL_INFO))
                     col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s (%s)",
                                  proto_name, packet_machine, packet_identity);
             }
             else {
-                if (check_col(pinfo->cinfo, COL_INFO)) 
+                if (check_col(pinfo->cinfo, COL_INFO))
                     col_add_fstr(pinfo->cinfo, COL_INFO, "%s ID:%s",
                                  proto_name, packet_identity);
             }
@@ -206,36 +206,36 @@ dissect_tivoconnect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 void
 proto_register_tivoconnect(void)
-{                 
+{
     /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
         { &hf_tivoconnect_flavor,
             { "Flavor",           "tivoconnect.flavor",
-            FT_STRINGZ, BASE_NONE, NULL, 0,          
+            FT_STRINGZ, BASE_NONE, NULL, 0,
             "Protocol Flavor supported by the originator", HFILL }},
         { &hf_tivoconnect_method,
             { "Method",           "tivoconnect.method",
-            FT_STRINGZ, BASE_NONE, NULL, 0,          
+            FT_STRINGZ, BASE_NONE, NULL, 0,
             "Packet was delivered via UDP(broadcast) or TCP(connected)", HFILL }},
         { &hf_tivoconnect_platform,
             { "Platform",           "tivoconnect.platform",
-            FT_STRINGZ, BASE_NONE, NULL, 0,          
+            FT_STRINGZ, BASE_NONE, NULL, 0,
             "System platform, either tcd(TiVo) or pc(Computer)", HFILL }},
         { &hf_tivoconnect_machine,
             { "Machine",           "tivoconnect.machine",
-            FT_STRINGZ, BASE_NONE, NULL, 0,          
+            FT_STRINGZ, BASE_NONE, NULL, 0,
             "Human-readable system name", HFILL }},
         { &hf_tivoconnect_identity,
             { "Identity",           "tivoconnect.identity",
-            FT_STRINGZ, BASE_NONE, NULL, 0,          
+            FT_STRINGZ, BASE_NONE, NULL, 0,
             "Unique serial number for the system", HFILL }},
         { &hf_tivoconnect_services,
             { "Services",           "tivoconnect.services",
-            FT_STRINGZ, BASE_NONE, NULL, 0,          
+            FT_STRINGZ, BASE_NONE, NULL, 0,
             "List of available services on the system", HFILL }},
         { &hf_tivoconnect_version,
             { "Version",           "tivoconnect.version",
-            FT_STRINGZ, BASE_NONE, NULL, 0,          
+            FT_STRINGZ, BASE_NONE, NULL, 0,
             "System software version", HFILL }},
     };
 

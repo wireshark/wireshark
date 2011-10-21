@@ -170,7 +170,7 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			return tvb_reported_length(tvb);	/* XXX - reject? */
 		}
 		ti = proto_tree_add_item(tree, proto_bvlc, tvb, 0,
-			bvlc_length, FALSE);
+			bvlc_length, ENC_NA);
 		bvlc_tree = proto_item_add_subtree(ti, ett_bvlc);
 		proto_tree_add_uint(bvlc_tree, hf_bvlc_type, tvb, offset, 1,
 			bvlc_type);
@@ -180,10 +180,10 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset ++;
 		if (length_remaining != packet_length)
 			proto_tree_add_uint_format_value(bvlc_tree, hf_bvlc_length, tvb, offset,
-				2, bvlc_length, 
+				2, bvlc_length,
 				"%d of %d bytes (invalid length - expected %d bytes)",
 				bvlc_length, packet_length, length_remaining);
-		else		
+		else
 			proto_tree_add_uint_format_value(bvlc_tree, hf_bvlc_length, tvb, offset,
 				2, bvlc_length, "%d of %d bytes BACnet packet length",
 				bvlc_length, packet_length);
@@ -206,7 +206,7 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case 0x03: /* Read-Broadcast-Distribution-Table-Ack */
 			/* List of BDT Entries:	N*10-octet */
 			ti_bdt = proto_tree_add_item(bvlc_tree, proto_bvlc, tvb,
-				offset, bvlc_length-4, FALSE);
+				offset, bvlc_length-4, ENC_NA);
 			bdt_tree = proto_item_add_subtree(ti_bdt, ett_bdt);
 			/* List of BDT Entries:	N*10-octet */
 			while ((bvlc_length - offset) > 9) {
@@ -246,7 +246,7 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 * the registrant's FDT entry if no re-registration occurs.
 			 */
 			ti_fdt = proto_tree_add_item(bvlc_tree, proto_bvlc, tvb,
-				offset, bvlc_length -4, FALSE);
+				offset, bvlc_length -4, ENC_NA);
 			fdt_tree = proto_item_add_subtree(ti_fdt, ett_fdt);
 			/* List of FDT Entries:	N*10-octet */
 			while ((bvlc_length - offset) > 9) {
@@ -424,7 +424,7 @@ proto_reg_handoff_bvlc(void)
 	static gboolean bvlc_initialized = FALSE;
 	static dissector_handle_t bvlc_handle;
 	static guint additional_bvlc_udp_port;
-	
+
 	if (!bvlc_initialized)
 	{
 		bvlc_handle = find_dissector("bvlc");

@@ -1048,7 +1048,7 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 			    val_to_str(type, ses_vals, "Unknown SPDU type (0x%02x)"));
 		if (tree) {
 			ti = proto_tree_add_item(tree, proto_clses, tvb, offset,
-				-1, FALSE);
+				-1, ENC_NA);
 			ses_tree = proto_item_add_subtree(ti, ett_ses);
 			proto_tree_add_uint(ses_tree, hf_ses_type, tvb,
 				offset, 1, type);
@@ -1060,7 +1060,7 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 			    val_to_str(type, ses_category0_vals, "Unknown SPDU type (0x%02x)"));
 		if (tree) {
 			ti = proto_tree_add_item(tree, proto_ses, tvb, offset,
-			    -1, FALSE);
+			    -1, ENC_NA);
 			ses_tree = proto_item_add_subtree(ti, ett_ses);
 			proto_tree_add_uint(ses_tree, hf_ses_type_0, tvb,
 			    offset, 1, type);
@@ -1070,7 +1070,7 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 			    val_to_str(type, ses_vals, "Unknown SPDU type (0x%02x)"));
 		if (tree) {
 			ti = proto_tree_add_item(tree, proto_ses, tvb, offset,
-				-1, FALSE);
+				-1, ENC_NA);
 			ses_tree = proto_item_add_subtree(ti, ett_ses);
 			proto_tree_add_uint(ses_tree, hf_ses_type, tvb,
 				offset, 1, type);

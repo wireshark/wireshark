@@ -519,7 +519,7 @@ dissect_smrse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		return 0;
 
 	if(parent_tree){
-		item = proto_tree_add_item(parent_tree, proto_smrse, tvb, 0, -1, FALSE);
+		item = proto_tree_add_item(parent_tree, proto_smrse, tvb, 0, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_smrse);
 	}
 

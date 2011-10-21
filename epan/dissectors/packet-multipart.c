@@ -833,7 +833,7 @@ static void dissect_multipart(tvbuff_t *tvb, packet_info *pinfo,
 	if (tree) {
 		proto_item *type_ti;
 		ti = proto_tree_add_item(tree, proto_multipart,
-				tvb, 0, -1, ENC_BIG_ENDIAN);
+				tvb, 0, -1, ENC_NA);
 		subtree = proto_item_add_subtree(ti, ett_multipart);
 		proto_item_append_text(ti, ", Type: %s, Boundary: \"%s\"",
 				m_info->type, m_info->boundary);

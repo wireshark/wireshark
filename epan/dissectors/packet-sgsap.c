@@ -1397,7 +1397,7 @@ dissect_sgsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Make entry in the Protocol column on summary display */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
 
-	item = proto_tree_add_item(tree, proto_sgsap, tvb, 0, -1, FALSE);
+	item = proto_tree_add_item(tree, proto_sgsap, tvb, 0, -1, ENC_NA);
 	sgsap_tree = proto_item_add_subtree(item, ett_sgsap);
 
 	/* Messge type IE*/

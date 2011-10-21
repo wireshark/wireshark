@@ -132,11 +132,11 @@ static void dissect_1722(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_INFO, "AVB Transportation Protocol");
 
     if (tree) {
-        ti = proto_tree_add_item(tree, proto_1722, tvb, 0, -1, FALSE);
+        ti = proto_tree_add_item(tree, proto_1722, tvb, 0, -1, ENC_NA);
 
         ieee1722_tree = proto_item_add_subtree(ti, ett_1722);
 
-        /* Add the CD and Subtype fields 
+        /* Add the CD and Subtype fields
          * CD field is 1 bit
          * Subtype field is 7 bits
          */
@@ -156,7 +156,7 @@ static void dissect_1722(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item(ieee1722_tree, hf_1722_tufield, tvb,
                             IEEE_1722_TU_FIELD_OFFSET, 1, ENC_BIG_ENDIAN);
 
-        proto_tree_add_item(ieee1722_tree, hf_1722_stream_id, tvb, 
+        proto_tree_add_item(ieee1722_tree, hf_1722_stream_id, tvb,
                             IEEE_1722_STREAM_ID_OFFSET, 8, ENC_BIG_ENDIAN);
 
         proto_tree_add_item(ieee1722_tree, hf_1722_avbtp_timestamp, tvb,
@@ -170,10 +170,10 @@ static void dissect_1722(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         proto_tree_add_item(ieee1722_tree, hf_1722_tag, tvb,
                             IEEE_1722_TAG_OFFSET, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(ieee1722_tree, hf_1722_channel, tvb, 
+        proto_tree_add_item(ieee1722_tree, hf_1722_channel, tvb,
                             IEEE_1722_TAG_OFFSET, 1, ENC_BIG_ENDIAN);
 
-        proto_tree_add_item(ieee1722_tree, hf_1722_tcode, tvb, 
+        proto_tree_add_item(ieee1722_tree, hf_1722_tcode, tvb,
                             IEEE_1722_TCODE_OFFSET, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(ieee1722_tree, hf_1722_sy, tvb,
                             IEEE_1722_TCODE_OFFSET, 1, ENC_BIG_ENDIAN);
@@ -203,13 +203,13 @@ static void dissect_1722(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item(ieee1722_tree, hf_1722_syt, tvb,
                             IEEE_1722_SYT_OFFSET, 2, ENC_BIG_ENDIAN);
 
-        /* Calculate the remaining size by subtracting the CIP header size 
+        /* Calculate the remaining size by subtracting the CIP header size
            from the value in the packet data length field */
         datalen = tvb_get_ntohs(tvb, IEEE_1722_PKT_DATA_LENGTH_OFFSET);
         datalen -= IEEE_1722_CIP_HEADER_SIZE;
 
         /* Make the Audio sample tree. */
-        ti = proto_tree_add_item(ieee1722_tree, hf_1722_data, tvb, 
+        ti = proto_tree_add_item(ieee1722_tree, hf_1722_data, tvb,
                                  IEEE_1722_DATA_OFFSET, datalen, ENC_NA);
 
         audio_tree = proto_item_add_subtree(ti, ett_1722_audio);
@@ -240,36 +240,36 @@ static void dissect_1722(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 /* Register the protocol with Wireshark */
-void proto_register_1722(void) 
+void proto_register_1722(void)
 {
     static hf_register_info hf[] = {
         { &hf_1722_cdfield,
-            { "Control/Data Indicator", "ieee1722.cdfield", 
-              FT_BOOLEAN, 8, NULL, IEEE_1722_CD_MASK, NULL, HFILL } 
+            { "Control/Data Indicator", "ieee1722.cdfield",
+              FT_BOOLEAN, 8, NULL, IEEE_1722_CD_MASK, NULL, HFILL }
         },
         { &hf_1722_subtype,
             { "AVBTP Subtype", "ieee1722.subtype",
-              FT_UINT8, BASE_HEX, NULL, IEEE_1722_SUBTYPE_MASK, NULL, HFILL } 
+              FT_UINT8, BASE_HEX, NULL, IEEE_1722_SUBTYPE_MASK, NULL, HFILL }
         },
         { &hf_1722_svfield,
             { "AVBTP Stream ID Valid", "ieee1722.svfield",
-              FT_BOOLEAN, 8, NULL, IEEE_1722_SV_MASK, NULL, HFILL } 
+              FT_BOOLEAN, 8, NULL, IEEE_1722_SV_MASK, NULL, HFILL }
         },
         { &hf_1722_verfield,
             { "AVBTP Version", "ieee1722.verfield",
-              FT_UINT8, BASE_HEX, NULL, IEEE_1722_VER_MASK, NULL, HFILL } 
+              FT_UINT8, BASE_HEX, NULL, IEEE_1722_VER_MASK, NULL, HFILL }
         },
         { &hf_1722_mrfield,
             { "AVBTP Media Reset", "ieee1722.mrfield",
-              FT_UINT8, BASE_DEC, NULL, IEEE_1722_MR_MASK, NULL, HFILL } 
+              FT_UINT8, BASE_DEC, NULL, IEEE_1722_MR_MASK, NULL, HFILL }
         },
         { &hf_1722_gvfield,
             { "AVBTP Gateway Info Valid", "ieee1722.gvfield",
-              FT_BOOLEAN, 8, NULL, IEEE_1722_GV_MASK, NULL, HFILL } 
+              FT_BOOLEAN, 8, NULL, IEEE_1722_GV_MASK, NULL, HFILL }
         },
         { &hf_1722_tvfield,
             { "Source Timestamp Valid", "ieee1722.tvfield",
-              FT_BOOLEAN, 8, NULL, IEEE_1722_TV_MASK, NULL, HFILL } 
+              FT_BOOLEAN, 8, NULL, IEEE_1722_TV_MASK, NULL, HFILL }
             },
         { &hf_1722_seqnum,
             { "Sequence Number", "ieee1722.seqnum",
@@ -375,7 +375,7 @@ void proto_register_1722(void)
     proto_register_subtree_array(ett, array_length(ett));
 }
 
-void proto_reg_handoff_1722(void) 
+void proto_reg_handoff_1722(void)
 {
     dissector_handle_t avbtp_handle;
 

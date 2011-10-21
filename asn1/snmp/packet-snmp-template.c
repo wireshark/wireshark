@@ -1781,7 +1781,7 @@ dissect_smux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMUX");
 
 	if (tree) {
-		item = proto_tree_add_item(tree, proto_smux, tvb, 0, -1, ENC_BIG_ENDIAN);
+		item = proto_tree_add_item(tree, proto_smux, tvb, 0, -1, ENC_NA);
 		smux_tree = proto_item_add_subtree(item, ett_smux);
 	}
 

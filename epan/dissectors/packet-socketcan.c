@@ -103,7 +103,7 @@ dissect_socketcan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tree)
 	{
 		proto_tree *can_tree = NULL;
-		proto_item *ti = proto_tree_add_item(tree, proto_can, tvb, 0, 1 , FALSE );
+		proto_item *ti = proto_tree_add_item(tree, proto_can, tvb, 0, 1 , ENC_NA );
 		can_tree = proto_item_add_subtree(ti, ett_can);
 
 		proto_tree_add_item(can_tree, hf_can_ident, tvb, 0, 4, ENC_BIG_ENDIAN );

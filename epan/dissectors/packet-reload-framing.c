@@ -247,7 +247,7 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     reload_frame->req_time = pinfo->fd->abs_ts;
   }
 
-  ti = proto_tree_add_item(tree, proto_reload_framing, tvb, 0, -1, FALSE);
+  ti = proto_tree_add_item(tree, proto_reload_framing, tvb, 0, -1, ENC_NA);
 
   reload_framing_tree = proto_item_add_subtree(ti, ett_reload_framing);
 

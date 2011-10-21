@@ -807,7 +807,7 @@ dissect_gsm_bsslap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_append_str(pinfo->cinfo, COL_PROTOCOL, "/BSSLAP");
 	if (tree) {
 		octet = tvb_get_guint8(tvb, offset);
-		item = proto_tree_add_item(tree, proto_gsm_bsslap, tvb, 0, -1, FALSE);
+		item = proto_tree_add_item(tree, proto_gsm_bsslap, tvb, 0, -1, ENC_NA);
 		sub_tree = proto_item_add_subtree(item, ett_gsm_bsslap);
 
 		/* Message Type IE / 5.1 M V 1 */

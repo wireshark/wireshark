@@ -210,7 +210,7 @@ static void msproxy_sub_dissector( tvbuff_t *tvb, packet_info *pinfo,
 
 	if ( tree) {
     		ti = proto_tree_add_item( tree, proto_msproxy, tvb, 0, 0,
-    			FALSE );
+    			ENC_NA );
 
 		msp_tree = proto_item_add_subtree(ti, ett_msproxy);
 
@@ -1110,7 +1110,7 @@ static void dissect_msproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {				/* if proto tree, decode data */
     		ti = proto_tree_add_item( tree, proto_msproxy, tvb, 0, -1,
-    				FALSE );
+    				ENC_NA );
 
 		msproxy_tree = proto_item_add_subtree(ti, ett_msproxy);
 	}

@@ -114,7 +114,7 @@ dissect_raw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* populate a tree in the second pane with the status of the link
      layer (ie none) */
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_raw, tvb, 0, 0, FALSE);
+    ti = proto_tree_add_item(tree, proto_raw, tvb, 0, 0, ENC_NA);
     fh_tree = proto_item_add_subtree(ti, ett_raw);
     proto_tree_add_text(fh_tree, tvb, 0, 0, "No link information available");
   }

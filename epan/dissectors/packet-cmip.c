@@ -4411,7 +4411,7 @@ dissect_cmip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	}
 
 	if(parent_tree){
-		item = proto_tree_add_item(parent_tree, proto_cmip, tvb, 0, -1, FALSE);
+		item = proto_tree_add_item(parent_tree, proto_cmip, tvb, 0, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_cmip);
 	}
 
@@ -5809,7 +5809,7 @@ void proto_reg_handoff_cmip(void) {
 	register_ber_oid_dissector("2.9.0.0.2", dissect_cmip, proto_cmip, "cmip");
 	register_ber_oid_dissector("2.9.1.1.4", dissect_cmip, proto_cmip, "joint-iso-itu-t(2) ms(9) cmip(1) cmip-pci(1) abstractSyntax(4)");
 
-	oid_add_from_string("2.9.3.2.3.1","managedObjectClass(3) alarmRecord(1)");  
+	oid_add_from_string("2.9.3.2.3.1","managedObjectClass(3) alarmRecord(1)");
 	oid_add_from_string("2.9.3.2.3.2","managedObjectClass(3) attributeValueChangeRecord(2)");
 	oid_add_from_string("2.9.3.2.3.3","managedObjectClass(3) discriminator(3)");
 	oid_add_from_string("2.9.3.2.3.4","managedObjectClass(3) eventForwardingDiscriminator(4)");

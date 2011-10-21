@@ -16311,7 +16311,7 @@ dissect_ansi_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*
      * create the ansi_map protocol tree
      */
-    ansi_map_item = proto_tree_add_item(tree, proto_ansi_map, tvb, 0, -1, FALSE);
+    ansi_map_item = proto_tree_add_item(tree, proto_ansi_map, tvb, 0, -1, ENC_NA);
     ansi_map_tree = proto_item_add_subtree(ansi_map_item, ett_ansi_map);
     ansi_map_is_invoke = FALSE;
     is683_ota = FALSE;

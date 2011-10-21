@@ -131,7 +131,7 @@ static void dissect_auto_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 guint16 holdtime;
 
                 offset = 0;
-                ti = proto_tree_add_item(tree, proto_auto_rp, tvb, offset, -1, ENC_BIG_ENDIAN);
+                ti = proto_tree_add_item(tree, proto_auto_rp, tvb, offset, -1, ENC_NA);
                 auto_rp_tree = proto_item_add_subtree(ti, ett_auto_rp);
 
                 tv = proto_tree_add_text(auto_rp_tree, tvb, offset, 1, "Version: %s, Packet type: %s",

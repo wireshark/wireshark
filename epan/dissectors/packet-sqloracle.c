@@ -574,7 +574,7 @@ dissect_sqloracle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if ( tree )
     {
-        ti = proto_tree_add_item(tree, proto_sqloracle, tvb, 0, -1, FALSE);
+        ti = proto_tree_add_item(tree, proto_sqloracle, tvb, 0, -1, ENC_NA);
         sqloracle_tree = proto_item_add_subtree(ti, ett_sqloracle);
         proto_tree_add_uint(sqloracle_tree, hf_sqloracle_operation, tvb, offset, 1,header_operation);
         if (func_type && header_operation !=NET8_TYPE_ROWTRANSFER)

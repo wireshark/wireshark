@@ -140,7 +140,7 @@ static void dissect_alc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tree)
 	{
 		/* Create subtree for the ALC protocol */
-		ti = proto_tree_add_item(tree, proto, tvb, offset, -1, FALSE);
+		ti = proto_tree_add_item(tree, proto, tvb, offset, -1, ENC_NA);
 		alc_tree = proto_item_add_subtree(ti, ett.main);
 
 		/* Fill the ALC subtree */

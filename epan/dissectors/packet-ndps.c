@@ -4303,7 +4303,7 @@ dissect_ndps_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_clear(pinfo->cinfo, COL_INFO);
 
     if (tree) {
-        ti = proto_tree_add_item(tree, proto_ndps, tvb, 0, -1, FALSE);
+        ti = proto_tree_add_item(tree, proto_ndps, tvb, 0, -1, ENC_NA);
         ndps_tree = proto_item_add_subtree(ti, ett_ndps);
     }
     dissect_ndps(tvb, pinfo, ndps_tree);
@@ -4494,7 +4494,7 @@ dissect_ndps_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_clear(pinfo->cinfo, COL_INFO);
 
     if (tree) {
-        ti = proto_tree_add_item(tree, proto_ndps, tvb, 0, -1, FALSE);
+        ti = proto_tree_add_item(tree, proto_ndps, tvb, 0, -1, ENC_NA);
         ndps_tree = proto_item_add_subtree(ti, ett_ndps);
     }
     ndps_defrag(tvb, pinfo, ndps_tree);

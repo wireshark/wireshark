@@ -935,7 +935,7 @@ dissect_lwres(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if(tree)
     {
-        lwres_item = proto_tree_add_item(tree,proto_lwres, tvb,0, -1, FALSE);
+        lwres_item = proto_tree_add_item(tree,proto_lwres, tvb,0, -1, ENC_NA);
         lwres_tree = proto_item_add_subtree(lwres_item, ett_lwres);
     }
     else return;

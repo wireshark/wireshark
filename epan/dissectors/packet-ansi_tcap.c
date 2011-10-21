@@ -1338,7 +1338,7 @@ dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
     /* create display subtree for the protocol */
     if(parent_tree){
-      item = proto_tree_add_item(parent_tree, proto_ansi_tcap, tvb, 0, -1, FALSE);
+      item = proto_tree_add_item(parent_tree, proto_ansi_tcap, tvb, 0, -1, ENC_NA);
       tree = proto_item_add_subtree(item, ett_tcap);
       tcap_stat_item=item;
       tcap_stat_tree=tree;
@@ -1682,7 +1682,7 @@ proto_register_ansi_tcap(void)
 
 	static enum_val_t ansi_tcap_response_matching_type_values[] = {
 		{"Only Transaction ID will be used in Invoke/response matching",					"Transaction ID only", 0},
-		{"Transaction ID and Source will be used in Invoke/response matching",				"Transaction ID and Source", 1}, 
+		{"Transaction ID and Source will be used in Invoke/response matching",				"Transaction ID and Source", 1},
 		{"Transaction ID Source and Destination will be used in Invoke/response matching",	"Transaction ID Source and Destination", 2},
 		{NULL, NULL, -1}
 	};

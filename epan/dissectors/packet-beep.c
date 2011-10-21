@@ -888,7 +888,7 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
   /* "tvb_format_text()" is passed a value that won't go past the end
-   * of the packet, so it won't throw an exception. 
+   * of the packet, so it won't throw an exception.
    */
    col_add_str(pinfo->cinfo, COL_INFO, tvb_format_text(tvb, offset, tvb_length_remaining(tvb, offset)));
 
@@ -904,7 +904,7 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (tree) {  /* Build the tree info ... */
 
-    ti = proto_tree_add_item(tree, proto_beep, tvb, offset, -1, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(tree, proto_beep, tvb, offset, -1, ENC_NA);
 
     beep_tree = proto_item_add_subtree(ti, ett_beep);
 

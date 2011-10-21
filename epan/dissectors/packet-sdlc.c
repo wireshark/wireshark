@@ -103,7 +103,7 @@ dissect_sdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		sdlc_ti = proto_tree_add_item(tree, proto_sdlc, tvb, 0, -1,
-		    FALSE);
+		    ENC_NA);
 		sdlc_tree = proto_item_add_subtree(sdlc_ti, ett_sdlc);
 
 		proto_tree_add_uint(sdlc_tree, hf_sdlc_address, tvb, 0, 1,

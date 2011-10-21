@@ -2,7 +2,7 @@
  * Routines for kpasswd packet dissection
  *    Ronnie Sahlberg 2003
  *
- * See RFC 3244 
+ * See RFC 3244
  *
  * $Id$
  *
@@ -92,9 +92,9 @@ static int dissect_kpasswd_newpassword(proto_tree *tree, tvbuff_t *tvb, int offs
 static ber_old_sequence_t ChangePasswdData_sequence[] = {
 	{ BER_CLASS_CON, 0, 0,
 		dissect_kpasswd_newpassword },
-	{ BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, 
+	{ BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL,
 		dissect_krb5_cname },
-	{ BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, 
+	{ BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL,
 		dissect_krb5_realm },
 	{ 0, 0, 0, NULL }
 };
@@ -147,13 +147,13 @@ dissect_kpasswd_user_data_reply(packet_info *pinfo, tvbuff_t *tvb, proto_tree *t
     proto_tree_add_uint(tree, hf_kpasswd_result, tvb, offset, 2, result);
     offset+=2;
     if (check_col(pinfo->cinfo, COL_INFO))
-        col_add_str(pinfo->cinfo, COL_INFO, 
+        col_add_str(pinfo->cinfo, COL_INFO,
                    val_to_str(result, kpasswd_result_types, "Result: %u"));
 
-   
+
     /* optional result string */
     if(tvb_length_remaining(tvb, offset)){
-        proto_tree_add_item(tree, hf_kpasswd_result_string, tvb, offset, tvb_length_remaining(tvb, offset), ENC_ASCII|ENC_NA); 
+        proto_tree_add_item(tree, hf_kpasswd_result_string, tvb, offset, tvb_length_remaining(tvb, offset), ENC_ASCII|ENC_NA);
 	offset+=tvb_length_remaining(tvb, offset);
     }
 
@@ -231,7 +231,7 @@ dissect_kpasswd_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboo
 	version=tvb_get_ntohs(tvb, offset+2);
 	ap_req_len=tvb_get_ntohs(tvb, offset+4);
 	if(tree){
-		kpasswd_item=proto_tree_add_item(tree, proto_kpasswd, tvb, offset-krb_rm_size, message_len+krb_rm_size, FALSE);
+		kpasswd_item=proto_tree_add_item(tree, proto_kpasswd, tvb, offset-krb_rm_size, message_len+krb_rm_size, ENC_NA);
 		kpasswd_tree=proto_item_add_subtree(kpasswd_item, ett_kpasswd);
                 if (have_rm) {
                     show_krb_recordmark(kpasswd_tree, tvb, offset-krb_rm_size, krb_rm);

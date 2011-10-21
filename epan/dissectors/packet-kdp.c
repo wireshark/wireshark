@@ -100,7 +100,7 @@ static void dissect_kdp(tvbuff_t *tvb,
     kdp_tree = NULL;
     flags_tree = NULL;
 
-    ti = proto_tree_add_item(tree, proto_kdp, tvb, 0, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_kdp, tvb, 0, -1, ENC_NA);
     kdp_tree = proto_item_add_subtree(ti, ett_kdp);
 
     version = tvb_get_guint8(tvb, 0);

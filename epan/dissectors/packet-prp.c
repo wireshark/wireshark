@@ -141,7 +141,7 @@ dissect_prp_supervision_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     /* create display subtree for the protocol */
     ti = proto_tree_add_item(tree, proto_prp, tvb, 0, PRP_TOTAL_LENGTH,
-                 FALSE);
+                 ENC_NA);
 
     prp_tree = proto_item_add_subtree(ti, ett_prp_supervision_frame);
 
@@ -246,7 +246,7 @@ dissect_prp_redundancy_control_trailer(tvbuff_t *tvb, packet_info *pinfo _U_, pr
     {
         /* create display subtree for the protocol */
         ti = proto_tree_add_item(tree, proto_prp, tvb, trailer_offset - 4,
-                     trailer_offset, FALSE);
+                     trailer_offset, ENC_NA);
 
         prp_tree = proto_item_add_subtree(ti, ett_prp_redundancy_control_trailer);
 

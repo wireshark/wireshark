@@ -69,7 +69,7 @@ dissect_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_clear(pinfo->cinfo, COL_INFO);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_loop, tvb, offset, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_loop, tvb, offset, -1, ENC_NA);
     loop_tree = proto_item_add_subtree(ti, ett_loop);
 
     proto_tree_add_item(loop_tree, hf_loop_skipcount, tvb, offset, 2, ENC_LITTLE_ENDIAN);

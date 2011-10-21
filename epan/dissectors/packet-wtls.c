@@ -352,7 +352,7 @@ dissect_wtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_wtls, tvb, offset_wtls,
-				 -1, ENC_LITTLE_ENDIAN);
+				 -1, ENC_NA);
 		wtls_tree = proto_item_add_subtree(ti, ett_wtls);
 
 		for (offset_wtls=0; offset_wtls < (tvb_reported_length(tvb)-1);) {
@@ -456,7 +456,7 @@ add_session_id(proto_tree *tree, int hf, int hf_str, tvbuff_t *tvb, int offset)
 	guint count;
 	guint i;
 	guint64 session_id;
-	header_field_info *hfinfo; 
+	header_field_info *hfinfo;
 
 	count = tvb_get_guint8(tvb, offset);
 	if (count == 0)

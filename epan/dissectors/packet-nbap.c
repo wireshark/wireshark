@@ -52895,9 +52895,9 @@ dissect_nbap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NBAP");
 
 	/* create the nbap protocol tree */
-	nbap_item = proto_tree_add_item(tree, proto_nbap, tvb, 0, -1, FALSE);
+	nbap_item = proto_tree_add_item(tree, proto_nbap, tvb, 0, -1, ENC_NA);
 	nbap_tree = proto_item_add_subtree(nbap_item, ett_nbap);
-	
+
 	dissect_NBAP_PDU_PDU(tvb, pinfo, nbap_tree);
 }
 
@@ -67696,7 +67696,7 @@ void proto_register_nbap(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_nbap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
- 
+
   /* Register dissector */
   register_dissector("nbap", dissect_nbap, proto_nbap);
 

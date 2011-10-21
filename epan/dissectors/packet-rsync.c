@@ -116,7 +116,7 @@ dissect_rsync_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     conversation_set_dissector(conversation, rsync_handle);
 
-    ti = proto_tree_add_item(tree, proto_rsync, tvb, 0, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_rsync, tvb, 0, -1, ENC_NA);
 
     rsync_tree = proto_item_add_subtree(ti, ett_rsync);
 

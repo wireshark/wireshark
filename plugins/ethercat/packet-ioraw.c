@@ -8,17 +8,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -60,18 +60,18 @@ static void dissect_ioraw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    int nMax = sizeof(szText)-1;
 
    guint ioraw_length = tvb_reported_length(tvb);
-   
+
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "IO-RAW");
 
    col_clear(pinfo->cinfo, COL_INFO);
 
-      
+
    IoRawSummaryFormater(szText, nMax);
    col_append_str(pinfo->cinfo, COL_INFO, szText);
 
-   if (tree) 
-   {      
-      ti = proto_tree_add_item(tree, proto_ioraw, tvb, 0, -1, TRUE);
+   if (tree)
+   {
+      ti = proto_tree_add_item(tree, proto_ioraw, tvb, 0, -1, ENC_NA);
       ioraw_tree = proto_item_add_subtree(ti, ett_ioraw);
 
       proto_item_append_text(ti,": %s",szText);
@@ -79,7 +79,7 @@ static void dissect_ioraw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       offset+=IoRawParserHDR_Len;
 
       proto_tree_add_item(ioraw_tree, hf_ioraw_data, tvb, offset, ioraw_length - offset, ENC_NA);
-   }   
+   }
 }
 
 void proto_register_ioraw(void)

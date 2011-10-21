@@ -135,7 +135,7 @@ dissect_rrc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RRC");
 
 	/* create the rrc protocol tree */
-	rrc_item = proto_tree_add_item(tree, proto_rrc, tvb, 0, -1, FALSE);
+	rrc_item = proto_tree_add_item(tree, proto_rrc, tvb, 0, -1, ENC_NA);
 	rrc_tree = proto_item_add_subtree(rrc_item, ett_rrc);
 
 	if (rrcinf) {

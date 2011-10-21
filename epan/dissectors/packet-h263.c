@@ -190,13 +190,13 @@ dissect_h263_group_of_blocks_layer( tvbuff_t *tvb, proto_tree *tree, gint offset
 		proto_tree_add_bits_item(tree, hf_h263_gbsc, tvb, offset_in_bits, 1, ENC_BIG_ENDIAN);
 		offset_in_bits++;
 	}else{
-		/* Group of Block Start Code (GBSC) (17 bits) 
+		/* Group of Block Start Code (GBSC) (17 bits)
 		 * A word of 17 bits. Its value is 0000 0000 0000 0000 1.
 		 */
 		proto_tree_add_bits_item(tree, hf_h263_gbsc, tvb, offset_in_bits, 17, ENC_BIG_ENDIAN);
 		offset_in_bits = offset_in_bits +17;
 	}
-	/* 
+	/*
 	 * Group Number (GN) (5 bits)
 	 */
 	proto_tree_add_bits_item(tree, hf_h263_GN, tvb, offset_in_bits, 5, ENC_BIG_ENDIAN);
@@ -204,7 +204,7 @@ dissect_h263_group_of_blocks_layer( tvbuff_t *tvb, proto_tree *tree, gint offset
 	/* 5.2.4 GOB Sub-Bitstream Indicator (GSBI) (2 bits)
 	 * A fixed length codeword of 2 bits that is only present if CPM is "1" in the picture header.
 	 */
-	/* 
+	/*
 	 * 5.2.5 GOB Frame ID (GFID) (2 bits)
 	 */
 	/*
@@ -238,12 +238,12 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	guint64 pei;
 
 	if(is_rfc4626){
-		/* PC 1000 00xx */ 
+		/* PC 1000 00xx */
 		proto_tree_add_bits_item(tree, hf_h263_psc, tvb, offset_in_bits, 6, ENC_BIG_ENDIAN);
 		offset_in_bits = offset_in_bits +6;
 
 	}else{
-	/* Check for PSC, PSC is a word of 22 bits. 
+	/* Check for PSC, PSC is a word of 22 bits.
 	 * Its value is 0000 0000 0000 0000' 1000 00xx xxxx xxxx.
 	 */
 		proto_tree_add_bits_item(tree, hf_h263_psc, tvb, offset_in_bits, 22, ENC_BIG_ENDIAN);
@@ -253,7 +253,7 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree_add_bits_item(tree, hf_h263_TR, tvb, offset_in_bits, 8, ENC_BIG_ENDIAN);
 	offset_in_bits = offset_in_bits +8;
 	/*
-	 * Bit 1: Always "1", in order to avoid start code emulation. 
+	 * Bit 1: Always "1", in order to avoid start code emulation.
 	 * Bit 2: Always "0", for distinction with Recommendation H.261.
 	 */
 	offset_in_bits = offset_in_bits +2;
@@ -290,14 +290,14 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		proto_tree_add_bits_ret_val( tree, hf_h263_PB_frames_mode, tvb, offset_in_bits, 1, &PB_frames_mode, ENC_BIG_ENDIAN);
 		offset_in_bits++;
 	}else{
-		/* Extended PTYPE 
+		/* Extended PTYPE
 		 * Update Full Extended PTYPE (UFEP) (3 bits)
 		 */
 		/* .... ..xx x... .... */
 		proto_tree_add_bits_ret_val( tree, hf_h263_UFEP, tvb, offset_in_bits, 3, &ufep, ENC_BIG_ENDIAN);
 		offset_in_bits = offset_in_bits +3;
 		if(ufep==1){
-			/* The Optional Part of PLUSPTYPE (OPPTYPE) (18 bits) 
+			/* The Optional Part of PLUSPTYPE (OPPTYPE) (18 bits)
 			 */
 			 /*  .xxx xxxx  xxxx xxxx  xxx. .... */
 			opptype_item = proto_tree_add_bits_item( tree, hf_h263_opptype, tvb, offset_in_bits, 18, ENC_BIG_ENDIAN);
@@ -309,7 +309,7 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			 */
 			proto_tree_add_bits_item( h263_opptype_tree, hf_h263_ext_source_format, tvb, offset_in_bits, 3, ENC_BIG_ENDIAN);
 			offset_in_bits+=3;
-			
+
 			/*
 			 *  Bit 4 Optional Custom PCF, "0" CIF PCF, "1" custom PCF;
 			 */
@@ -373,7 +373,7 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			 */
 			offset_in_bits++;
 			proto_tree_add_bits_item( h263_opptype_tree, hf_h263_not_dissected, tvb, saved_bit_offset, offset_in_bits-saved_bit_offset, ENC_NA);
-			
+
 		}
 		/*
 		 * 5.1.4.3 The mandatory part of PLUSPTYPE when PLUSPTYPE present (MPPTYPE) (9 bits)
@@ -417,7 +417,7 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		offset_in_bits++;
 		proto_tree_add_bits_item( tree, hf_h263_not_dissected, tvb, saved_bit_offset, offset_in_bits-saved_bit_offset, ENC_NA);
 		/* The picture header location of CPM (1 bit) and PSBI (2 bits)
-		 * the picture header depends on whether or not PLUSPTYPE is present 
+		 * the picture header depends on whether or not PLUSPTYPE is present
 		 * (see 5.1.20 and 5.1.21). If PLUSPTYPE is present, then CPM follows
 		 * immediately after PLUSPTYPE in the picture header.
 		 */
@@ -586,7 +586,7 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	offset_in_bits++;
 	while(pei==1)
 	{
-		/*5.1.25 Supplemental Enhancement Information (PSUPP) (0/8/16 ... bits) 
+		/*5.1.25 Supplemental Enhancement Information (PSUPP) (0/8/16 ... bits)
 		 * If PEI is set to "1", then 9 bits follow consisting of 8 bits of data (PSUPP) and then another PEI bit
 		 * to indicate if a further 9 bits follow and so on. Encoders shall use PSUPP as specified in Annex L.
 		 */
@@ -641,14 +641,14 @@ static void dissect_h263_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	col_append_str( pinfo->cinfo, COL_INFO, "H263 payload ");
 
 	if( tree ) {
-	  h263_payload_item = proto_tree_add_item( tree, proto_h263_data, tvb, offset, -1, FALSE );
+	  h263_payload_item = proto_tree_add_item( tree, proto_h263_data, tvb, offset, -1, ENC_NA );
 	  h263_payload_tree = proto_item_add_subtree( h263_payload_item, ett_h263_payload );
 	}
 
 	/* Check for PSC, PSC is a word of 22 bits. Its value is 0000 0000 0000 0000' 1000 00xx xxxx xxxx. */
 	data = tvb_get_ntohl(tvb, offset);
-	
-	if (( data & 0xffff8000) == 0x00008000 ) { 
+
+	if (( data & 0xffff8000) == 0x00008000 ) {
 		/* Start Code found
 		 *
 		 * Startc code holds bit 17 -23 of the codeword
@@ -657,7 +657,7 @@ static void dissect_h263_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 		if (startcode & 0x80){
 			switch(startcode){
 			case 0xf8:
-				/* End Of Sub-Bitstream code (EOSBS) 
+				/* End Of Sub-Bitstream code (EOSBS)
 				 * ( 1111 100. )
 				 */
 				break;

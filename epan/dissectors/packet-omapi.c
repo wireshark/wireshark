@@ -112,7 +112,7 @@ dissect_omapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   col_clear(pinfo->cinfo, COL_INFO);
 
-  ti = proto_tree_add_item(tree, proto_omapi, tvb, 0, -1, FALSE);
+  ti = proto_tree_add_item(tree, proto_omapi, tvb, 0, -1, ENC_NA);
   omapi_tree = proto_item_add_subtree(ti, ett_omapi);
   cursor = ptvcursor_new(omapi_tree, tvb, 0);
 
@@ -128,7 +128,7 @@ dissect_omapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ptvcursor_add(cursor, hf_omapi_hlength, 4, FALSE);
 
     col_set_str(pinfo->cinfo, COL_INFO, "Status message");
-    proto_item_append_text(ti, ", Status message"); 
+    proto_item_append_text(ti, ", Status message");
 
     return;
   }
@@ -142,19 +142,19 @@ dissect_omapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     {
       col_append_str(pinfo->cinfo, COL_INFO, "Status message");
     }
-    proto_item_append_text(ti, ", Status message"); 
+    proto_item_append_text(ti, ", Status message");
   }
 
   ptvcursor_add(cursor, hf_omapi_auth_id, 4, FALSE);
   authlength = tvb_get_ntohl(tvb, ptvcursor_current_offset(cursor));
   ptvcursor_add(cursor, hf_omapi_auth_len, 4, FALSE);
 
-  if (check_col(pinfo->cinfo, COL_INFO)) 
+  if (check_col(pinfo->cinfo, COL_INFO))
   {
     col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
       val_to_str(tvb_get_ntohl(tvb, ptvcursor_current_offset(cursor)), omapi_opcode_vals, "Unknown opcode (0x%04x)"));
   }
-  proto_item_append_text(ti, ", Opcode: %s", 
+  proto_item_append_text(ti, ", Opcode: %s",
     val_to_str(tvb_get_ntohl(tvb, ptvcursor_current_offset(cursor)), omapi_opcode_vals, "Unknown opcode (0x%04x)"));
 
   ptvcursor_add(cursor, hf_omapi_opcode, 4, FALSE);
@@ -177,7 +177,7 @@ dissect_omapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     else if (msglength == (guint32)~0)
     {
       proto_tree_add_text(omapi_tree, tvb, 0, 0, "No value");
-    }        
+    }
     else
     {
       ptvcursor_add(cursor, hf_omapi_msg_value, msglength, FALSE);
@@ -204,7 +204,7 @@ dissect_omapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     else if (objlength == (guint32)~0)
     {
       proto_tree_add_text(omapi_tree, tvb, 0, 0, "No value");
-    }        
+    }
     else
     {
       ptvcursor_add(cursor, hf_omapi_obj_value, objlength, FALSE);

@@ -35,11 +35,11 @@
 #include <epan/prefs.h>
 
 /* http://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xml
- * 
+ *
  * exlm-agent     3002
  * cgms           3003
  * ii-admin       3006
- * vrml-multi-use 4200-4299 
+ * vrml-multi-use 4200-4299
  * commplex-main  5000
  */
 #define IPA_TCP_PORTS "3002,3003,3006,4249,4250,5000"
@@ -189,7 +189,7 @@ dissect_ipaccess(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	                val_to_str(msg_type, ipaccess_msgtype_vals,
 	                           "unknown 0x%02x"));
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_ipaccess, tvb, 0, -1, ENC_BIG_ENDIAN);
+		ti = proto_tree_add_item(tree, proto_ipaccess, tvb, 0, -1, ENC_NA);
 		ipaccess_tree = proto_item_add_subtree(ti, ett_ipaccess);
 		proto_tree_add_item(ipaccess_tree, hf_ipaccess_msgtype,
 				    tvb, 0, 1, ENC_BIG_ENDIAN);

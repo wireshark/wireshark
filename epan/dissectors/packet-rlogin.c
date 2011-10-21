@@ -194,7 +194,7 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
 	proto_item      *user_info_item, *window_info_item;
 
 	/* Create rlogin subtree */
-	ti = proto_tree_add_item(tree, proto_rlogin, tvb, 0, -1, FALSE);
+	ti = proto_tree_add_item(tree, proto_rlogin, tvb, 0, -1, ENC_NA);
 	rlogin_tree = proto_item_add_subtree(ti, ett_rlogin);
 
 	/* Return if data empty */

@@ -137,7 +137,7 @@ dissect_hnbap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "HNBAP");
 
     /* create the hnbap protocol tree */
-    hnbap_item = proto_tree_add_item(tree, proto_hnbap, tvb, 0, -1, FALSE);
+    hnbap_item = proto_tree_add_item(tree, proto_hnbap, tvb, 0, -1, ENC_NA);
     hnbap_tree = proto_item_add_subtree(hnbap_item, ett_hnbap);
 
     dissect_HNBAP_PDU_PDU(tvb, pinfo, hnbap_tree);

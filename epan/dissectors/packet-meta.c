@@ -444,7 +444,7 @@ dissect_meta(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     reserved = tvb_get_letohs(tvb, 6);
 
     if (tree) {
-        ti = proto_tree_add_item(tree, proto_meta, tvb, 0, hdrlen + 4, FALSE);
+        ti = proto_tree_add_item(tree, proto_meta, tvb, 0, hdrlen + 4, ENC_NA);
         meta_tree = proto_item_add_subtree(ti, ett_meta);
         proto_tree_add_uint(meta_tree, hf_meta_schema, tvb, 0, 2, schema);
         proto_tree_add_uint(meta_tree, hf_meta_hdrlen, tvb, 2, 2, hdrlen);

@@ -170,7 +170,7 @@ dissect_componentstatusprotocol_componentstatusreport_message(tvbuff_t *message_
      association_item = proto_tree_add_text(message_tree, message_tvb, offset, COMPONENTASSOCIATION_LENGTH,
          "Association #%d", i++);
      association_tree = proto_item_add_subtree(association_item, ett_association);
-     association_tvb  = tvb_new_subset(message_tvb, offset, 
+     association_tvb  = tvb_new_subset(message_tvb, offset,
                                        MIN(COMPONENTASSOCIATION_LENGTH, tvb_length_remaining(message_tvb, offset)),
                                        COMPONENTASSOCIATION_LENGTH);
 
@@ -230,7 +230,7 @@ dissect_componentstatusprotocol(tvbuff_t *message_tvb, packet_info *pinfo, proto
      necessary to generate protocol tree items. */
   if (tree) {
     /* create the componentstatusprotocol protocol tree */
-    componentstatusprotocol_item = proto_tree_add_item(tree, proto_componentstatusprotocol, message_tvb, 0, -1, ENC_BIG_ENDIAN);
+    componentstatusprotocol_item = proto_tree_add_item(tree, proto_componentstatusprotocol, message_tvb, 0, -1, ENC_NA);
     componentstatusprotocol_tree = proto_item_add_subtree(componentstatusprotocol_item, ett_componentstatusprotocol);
   } else {
     componentstatusprotocol_tree = NULL;

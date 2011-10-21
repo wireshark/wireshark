@@ -360,7 +360,7 @@ dissect_stun_message_channel_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		ti = proto_tree_add_item(
 			tree, proto_stun, tvb, 0,
 			CHANNEL_DATA_HDR_LEN,
-			ENC_BIG_ENDIAN);
+			ENC_NA);
 		proto_item_append_text(ti, ", TURN ChannelData Message");
 		stun_tree = proto_item_add_subtree(ti, ett_stun);
 		proto_tree_add_item(stun_tree, hf_stun_channel, tvb, 0, 2, ENC_BIG_ENDIAN);
@@ -511,7 +511,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
 		     msg_method_str, msg_class_str);
 
-	ti = proto_tree_add_item(tree, proto_stun, tvb, 0, -1, ENC_BIG_ENDIAN);
+	ti = proto_tree_add_item(tree, proto_stun, tvb, 0, -1, ENC_NA);
 
 	stun_tree = proto_item_add_subtree(ti, ett_stun);
 

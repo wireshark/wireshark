@@ -244,14 +244,14 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (fix_marker(tvb, 0) != 0) {
         /* not a fix packet start but it's a fix packet */
         col_set_str(pinfo->cinfo, COL_INFO, "[FIX continuation]");
-        ti = proto_tree_add_item(tree, proto_fix, tvb, 0, -1, FALSE);
+        ti = proto_tree_add_item(tree, proto_fix, tvb, 0, -1, ENC_NA);
         fix_tree = proto_item_add_subtree(ti, ett_fix);
         proto_tree_add_item(fix_tree, hf_fix_data, tvb, 0, -1, ENC_NA);
         return;
     }
 
     pdu_len = tvb_reported_length(tvb);
-    ti = proto_tree_add_item(tree, proto_fix, tvb, 0, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_fix, tvb, 0, -1, ENC_NA);
     fix_tree = proto_item_add_subtree(ti, ett_fix);
 
     /* begin string */

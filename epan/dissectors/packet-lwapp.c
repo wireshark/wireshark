@@ -292,7 +292,7 @@ static void dissect_control(tvbuff_t *tvb, packet_info *pinfo,
     if (tree) {
 	/* create display subtree for the protocol */
 	ti = proto_tree_add_item(tree, proto_lwapp_control, tvb, offset,
-				 -1, FALSE);
+				 -1, ENC_NA);
 	control_tree = proto_item_add_subtree(ti, ett_lwapp_control);
 
 	proto_tree_add_uint(control_tree, hf_lwapp_control_type,
@@ -335,7 +335,7 @@ static void dissect_lwapp_l3(tvbuff_t *tvb, packet_info *pinfo,
     if (tree) {
 	/* create display subtree for the protocol */
 	ti = proto_tree_add_item(tree, proto_lwapp_l3, tvb, offset,
-				 -1, FALSE);
+				 -1, ENC_NA);
 	lwapp_tree = proto_item_add_subtree(ti, ett_lwapp_l3);
     } else {
         lwapp_tree = NULL;
@@ -411,7 +411,7 @@ static void dissect_lwapp(tvbuff_t *tvb, packet_info *pinfo,
     if (tree) {
 
 	/* create display subtree for the protocol */
-	ti = proto_tree_add_item(tree, proto_lwapp, tvb, offset, -1, FALSE);
+	ti = proto_tree_add_item(tree, proto_lwapp, tvb, offset, -1, ENC_NA);
 	lwapp_tree = proto_item_add_subtree(ti, ett_lwapp);
 
         if (have_destmac) {

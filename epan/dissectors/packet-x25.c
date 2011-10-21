@@ -1676,7 +1676,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     if (tree) {
-        ti = proto_tree_add_item(tree, proto_x25, tvb, 0, x25_pkt_len, FALSE);
+        ti = proto_tree_add_item(tree, proto_x25, tvb, 0, x25_pkt_len, ENC_NA);
         x25_tree = proto_item_add_subtree(ti, ett_x25);
         ti = proto_tree_add_item(x25_tree, hf_x25_gfi, tvb, 0, 2, ENC_BIG_ENDIAN);
         gfi_tree = proto_item_add_subtree(ti, ett_x25_gfi);
@@ -2320,7 +2320,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		     */
 		    frag_key |= 0x10000;
 		}
-		fd_head = fragment_add_seq_next(tvb, localoffset, 
+		fd_head = fragment_add_seq_next(tvb, localoffset,
 						pinfo, frag_key,
 						x25_segment_table,
 						x25_reassembled_table,
@@ -2338,14 +2338,14 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		        proto_item *frag_tree_item;
 
 		        /* This is the last packet */
-			next_tvb = tvb_new_child_real_data(tvb, fd_head->data, 
+			next_tvb = tvb_new_child_real_data(tvb, fd_head->data,
 						     fd_head->len,
 						     fd_head->len);
 			add_new_data_source(pinfo, next_tvb, "Reassembled X.25");
                         if (x25_tree) {
-                           show_fragment_seq_tree(fd_head, 
-                                                  &x25_frag_items, 
-                                                  x25_tree, 
+                           show_fragment_seq_tree(fd_head,
+                                                  &x25_frag_items,
+                                                  x25_tree,
                                                   pinfo, next_tvb, &frag_tree_item);
                         }
 		    }
@@ -2622,35 +2622,35 @@ proto_register_x25(void)
 	{ &hf_x25_segment_overlap,
 	  { "Fragment overlap",	"x25.fragment.overlap", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 	    "Fragment overlaps with other fragments", HFILL }},
-	
+
 	{ &hf_x25_segment_overlap_conflict,
 	  { "Conflicting data in fragment overlap",	"x25.fragment.overlap.conflict", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 	    "Overlapping fragments contained conflicting data", HFILL }},
-	
+
 	{ &hf_x25_segment_multiple_tails,
 	  { "Multiple tail fragments found",	"x25.fragment.multipletails", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 	    "Several tails were found when defragmenting the packet", HFILL }},
-	
+
 	{ &hf_x25_segment_too_long_segment,
 	  { "Fragment too long",	"x25.fragment.toolongfragment", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 	    "Fragment contained data past end of packet", HFILL }},
-	
+
 	{ &hf_x25_segment_error,
 	  { "Defragmentation error", "x25.fragment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 	    "Defragmentation error due to illegal fragments", HFILL }},
-	
+
 	{ &hf_x25_segment_count,
 	  { "Fragment count", "x25.fragment.count", FT_UINT32, BASE_DEC, NULL, 0x0,
 	    NULL, HFILL }},
-	
+
 	{ &hf_x25_reassembled_length,
 	  { "Reassembled X.25 length", "x25.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0,
 	    "The total length of the reassembled payload", HFILL }},
-	
+
 	{ &hf_x25_segment,
 	  { "X.25 Fragment", "x25.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 	    "X25 Fragment", HFILL }},
-	
+
 	{ &hf_x25_segments,
 	  { "X.25 Fragments", "x25.fragments", FT_NONE, BASE_NONE, NULL, 0x0,
 	    NULL, HFILL }},

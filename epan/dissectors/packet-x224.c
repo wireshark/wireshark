@@ -193,7 +193,7 @@ dissect_x224(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	length = tvb_get_guint8(tvb, offset);
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, proto_x224, tvb, offset, length+1, FALSE);
+		item = proto_tree_add_item(parent_tree, proto_x224, tvb, offset, length+1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_x224);
 	}
 

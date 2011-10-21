@@ -833,7 +833,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_add_str(pinfo->cinfo, COL_INFO,
             val_to_str(function, srvloc_functions, "Unknown Function (%u)"));
 
-    ti = proto_tree_add_item(tree, proto_srvloc, tvb, offset, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_srvloc, tvb, offset, -1, ENC_NA);
     srvloc_tree = proto_item_add_subtree(ti, ett_srvloc);
 
     proto_tree_add_uint(srvloc_tree, hf_srvloc_version, tvb, offset, 1,
@@ -1422,7 +1422,7 @@ dissect_srvloc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_clear(pinfo->cinfo, COL_INFO);
 
     if (tree) {
-        ti = proto_tree_add_item(tree, proto_srvloc, tvb, 0, -1, FALSE);
+        ti = proto_tree_add_item(tree, proto_srvloc, tvb, 0, -1, ENC_NA);
         srvloc_tree = proto_item_add_subtree(ti, ett_srvloc);
     }
     dissect_srvloc(tvb, pinfo, srvloc_tree);

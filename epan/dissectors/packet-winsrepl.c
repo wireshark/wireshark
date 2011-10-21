@@ -646,7 +646,7 @@ dissect_winsrepl_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	if (parent_tree) {
-		winsrepl_item = proto_tree_add_item(parent_tree, proto_winsrepl, tvb, offset, -1, FALSE);
+		winsrepl_item = proto_tree_add_item(parent_tree, proto_winsrepl, tvb, offset, -1, ENC_NA);
 		winsrepl_tree = proto_item_add_subtree(winsrepl_item, ett_winsrepl);
 	}
 

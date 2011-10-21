@@ -74,7 +74,7 @@ dissect_ipnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* populate a tree in the second pane with the IPNET header data */
   if(tree) {
-    ti = proto_tree_add_item (tree, proto_ipnet, tvb, 0, 24, FALSE);
+    ti = proto_tree_add_item (tree, proto_ipnet, tvb, 0, 24, ENC_NA);
     fh_tree = proto_item_add_subtree(ti, ett_raw);
 
     proto_tree_add_item(fh_tree, hf_version, tvb, 0, 1, ENC_BIG_ENDIAN);

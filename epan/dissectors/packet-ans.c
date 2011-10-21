@@ -84,7 +84,7 @@ dissect_ans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		seq_num, sender_id, ether_to_str(team_id));
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_ans, tvb, 0, -1, ENC_BIG_ENDIAN);
+		ti = proto_tree_add_item(tree, proto_ans, tvb, 0, -1, ENC_NA);
 		ans_tree = proto_item_add_subtree(ti, ett_ans);
 
 		proto_tree_add_item(ans_tree, hf_ans_app_id, tvb, 0, 2, ENC_BIG_ENDIAN);

@@ -256,7 +256,7 @@ capture_null( const guchar *pd, int len, packet_counts *ld )
    *
    * If it's an IRIX or UNICOS/mp DLT_NULL header, the upper 4 hex
    * digits would be zero and the next 2 hex digits would not be zero.
-   * Furthermore, the third hex digit from the bottom would be < 
+   * Furthermore, the third hex digit from the bottom would be <
    */
   if (!BYTES_ARE_IN_FRAME(0, len, 2)) {
     ld->other++;
@@ -423,7 +423,7 @@ dissect_null(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     if (null_header > IEEE_802_3_MAX_LEN) {
       if (tree) {
-        ti = proto_tree_add_item(tree, proto_null, tvb, 0, 4, FALSE);
+        ti = proto_tree_add_item(tree, proto_null, tvb, 0, 4, ENC_NA);
         fh_tree = proto_item_add_subtree(ti, ett_null);
         proto_tree_add_uint(fh_tree, hf_null_etype, tvb, 0, 4,
           (guint16) null_header);
@@ -437,7 +437,7 @@ dissect_null(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* populate a tree in the second pane with the status of the link
          layer (ie none) */
       if (tree) {
-        ti = proto_tree_add_item(tree, proto_null, tvb, 0, 4, FALSE);
+        ti = proto_tree_add_item(tree, proto_null, tvb, 0, 4, ENC_NA);
         fh_tree = proto_item_add_subtree(ti, ett_null);
         proto_tree_add_uint(fh_tree, hf_null_family, tvb, 0, 4, null_header);
       }

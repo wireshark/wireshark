@@ -1393,7 +1393,7 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
                     if (!createdChannel) {
                         /* Ahead of expected SN. Assume frames have been missed */
                         p_report_in_frame->state = SN_Missing;
-    
+
                         p_report_in_frame->firstSN = expectedSequenceNumber;
                         p_report_in_frame->lastSN = (1024 + sequenceNumber-1) % 1024;
                     }
@@ -2416,7 +2416,7 @@ static void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RLC-LTE");
 
     /* Create protocol tree. */
-    top_ti = proto_tree_add_item(tree, proto_rlc_lte, tvb, offset, -1, FALSE);
+    top_ti = proto_tree_add_item(tree, proto_rlc_lte, tvb, offset, -1, ENC_NA);
     rlc_lte_tree = proto_item_add_subtree(top_ti, ett_rlc_lte);
 
 

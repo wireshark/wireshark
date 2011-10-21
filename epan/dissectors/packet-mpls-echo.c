@@ -994,7 +994,7 @@ dissect_mpls_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		((MSGTYPE_MPLS_ECHO(msgtype)) && (rem < 32)) ) {
                 col_set_str(pinfo->cinfo, COL_INFO, "Malformed Message");
                 if(tree) {
-			ti = proto_tree_add_item(tree, proto_mpls_echo, tvb, 0, -1, FALSE);
+			ti = proto_tree_add_item(tree, proto_mpls_echo, tvb, 0, -1, ENC_NA);
 			mpls_echo_tree = proto_item_add_subtree(ti, ett_mpls_echo);
                         proto_tree_add_text(mpls_echo_tree, tvb, offset, rem,
                             "Error processing Message: length is %d, should be >= %u",
@@ -1011,7 +1011,7 @@ dissect_mpls_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (tree) {
 
                 /* Add subtree and dissect the fixed part of the message */
-                ti = proto_tree_add_item(tree, proto_mpls_echo, tvb, 0, -1, FALSE);
+                ti = proto_tree_add_item(tree, proto_mpls_echo, tvb, 0, -1, ENC_NA);
                 mpls_echo_tree = proto_item_add_subtree(ti, ett_mpls_echo);
 
                 proto_tree_add_item(mpls_echo_tree,

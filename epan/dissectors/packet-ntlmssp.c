@@ -2133,7 +2133,7 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (tree) {
     tf = proto_tree_add_item (tree,
                               proto_ntlmssp,
-                              tvb, offset, -1, FALSE);
+                              tvb, offset, -1, ENC_NA);
 
     ntlmssp_tree = proto_item_add_subtree (tf,
                                            ett_ntlmssp);
@@ -2213,7 +2213,7 @@ dissect_ntlmssp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     dissect_ntlmssp(tvb, pinfo, parent_tree);
     return TRUE;
   }
-  
+
   return FALSE;
 }
 

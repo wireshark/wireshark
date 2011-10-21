@@ -245,7 +245,7 @@ dissect_wol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    offset to the end of the packet. */
 
 /* create display subtree for the protocol */
-        ti = proto_tree_add_item(tree, proto_wol, tvb, 0, len, FALSE);
+        ti = proto_tree_add_item(tree, proto_wol, tvb, 0, len, ENC_NA);
         proto_item_append_text(ti, ", MAC: %s (%s)", get_ether_name(mac),
             ether_to_str(mac));
         if ( passwd )

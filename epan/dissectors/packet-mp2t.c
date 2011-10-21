@@ -776,7 +776,7 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
 	proto_tree *mp2t_af_tree = NULL;
 	proto_tree *mp2t_analysis_tree = NULL;
 
-	ti = proto_tree_add_item( tree, proto_mp2t, tvb, offset, MP2T_PACKET_SIZE, FALSE );
+	ti = proto_tree_add_item( tree, proto_mp2t, tvb, offset, MP2T_PACKET_SIZE, ENC_NA );
 	mp2t_tree = proto_item_add_subtree( ti, ett_mp2t );
 
 	header = tvb_get_ntohl(tvb, offset);

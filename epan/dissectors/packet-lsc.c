@@ -213,7 +213,7 @@ dissect_lsc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (tree) {
     /* Create display subtree for the protocol */
-    ti = proto_tree_add_item(tree, proto_lsc, tvb, 0, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_lsc, tvb, 0, -1, ENC_NA);
     lsc_tree = proto_item_add_subtree(ti, ett_lsc);
 
     /* Add already fetched items to the tree */

@@ -232,7 +232,7 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_clear(pinfo->cinfo, COL_INFO);
 
     if(tree) {
-        ti = proto_tree_add_item(tree, proto_prism, tvb, 0, 144, ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item(tree, proto_prism, tvb, 0, 144, ENC_NA);
         prism_tree = proto_item_add_subtree(ti, ett_prism);
     }
 

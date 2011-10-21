@@ -415,7 +415,7 @@ dissect_sigcomp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 try_again:
     /* create display subtree for the protocol */
-    ti = proto_tree_add_item(tree, proto_sigcomp, tvb, 0, -1, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(tree, proto_sigcomp, tvb, 0, -1, ENC_NA);
     sigcomp_tree = proto_item_add_subtree(ti, ett_sigcomp);
     i=0;
     end_off_message = FALSE;
@@ -531,7 +531,7 @@ dissect_sigcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     top_tree = tree;
 
     /* create display subtree for the protocol */
-    ti = proto_tree_add_item(tree, proto_sigcomp, tvb, 0, -1, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(tree, proto_sigcomp, tvb, 0, -1, ENC_NA);
     sigcomp_tree = proto_item_add_subtree(ti, ett_sigcomp);
 
     return dissect_sigcomp_common(tvb, pinfo, sigcomp_tree);
@@ -2228,7 +2228,7 @@ tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree)
     int offset, next_offset, linelen;
 
     if(tree) {
-        ti = proto_tree_add_item(tree, proto_raw_sigcomp, tvb, 0, -1, ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item(tree, proto_raw_sigcomp, tvb, 0, -1, ENC_NA);
         raw_tree = proto_item_add_subtree(ti, ett_raw_text);
     }
 

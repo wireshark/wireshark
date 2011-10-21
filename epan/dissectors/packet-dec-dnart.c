@@ -389,7 +389,7 @@ dissect_dec_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += 2;
     msg_flags = tvb_get_guint8(tvb, offset);
     ti = proto_tree_add_item(tree, proto_dec_rt, tvb, 0, -1,
-                TRUE);
+                ENC_NA);
     rt_tree = proto_item_add_subtree(ti, ett_dec_rt);
     /* When padding, the first byte after the padding has
        the real routing flags */

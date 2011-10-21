@@ -166,10 +166,10 @@ static void dissect_mac_fdd_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	proto_item *channel_type;
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MAC");
 	col_set_str(pinfo->cinfo, COL_INFO, "PCCH");
-		
+
 	if (tree) {
 		proto_item *ti;
-		ti = proto_tree_add_item(tree, proto_umts_mac, tvb, 0, -1, ENC_BIG_ENDIAN);
+		ti = proto_tree_add_item(tree, proto_umts_mac, tvb, 0, -1, ENC_NA);
 		pch_tree = proto_item_add_subtree(ti, ett_mac_pch);
 		proto_item_append_text(ti, " (PCCH)");
 		channel_type = proto_tree_add_uint(pch_tree, hf_mac_channel, tvb, 0, 0, MAC_PCCH);
@@ -199,7 +199,7 @@ static void dissect_mac_fdd_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	col_add_str(pinfo->cinfo, COL_INFO,
 		val_to_str(tctf, rach_fdd_tctf_vals, "Unknown TCTF"));
 
-	ti = proto_tree_add_item(tree, proto_umts_mac, tvb, 0, -1, ENC_BIG_ENDIAN);
+	ti = proto_tree_add_item(tree, proto_umts_mac, tvb, 0, -1, ENC_NA);
 	rach_tree = proto_item_add_subtree(ti, ett_mac_rach);
 
 	macinf = p_get_proto_data(pinfo->fd, proto_umts_mac);
@@ -280,7 +280,7 @@ static void dissect_mac_fdd_fach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	col_add_str(pinfo->cinfo, COL_INFO,
 		val_to_str(tctf, fach_fdd_tctf_vals, "Unknown TCTF"));
 
-	ti = proto_tree_add_item(tree, proto_umts_mac, tvb, 0, -1, ENC_BIG_ENDIAN);
+	ti = proto_tree_add_item(tree, proto_umts_mac, tvb, 0, -1, ENC_NA);
 	fach_tree = proto_item_add_subtree(ti, ett_mac_fach);
 
 	macinf = p_get_proto_data(pinfo->fd, proto_umts_mac);
@@ -360,7 +360,7 @@ static void dissect_mac_fdd_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MAC");
 
-	ti = proto_tree_add_item(tree, proto_umts_mac, tvb, 0, -1, ENC_BIG_ENDIAN);
+	ti = proto_tree_add_item(tree, proto_umts_mac, tvb, 0, -1, ENC_NA);
 	dch_tree = proto_item_add_subtree(ti, ett_mac_dch);
 
 	macinf = p_get_proto_data(pinfo->fd, proto_umts_mac);
@@ -415,10 +415,10 @@ static void dissect_mac_fdd_edch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MAC");
 
-	ti = proto_tree_add_item(tree, proto_umts_mac, tvb, 0, -1, ENC_BIG_ENDIAN);
+	ti = proto_tree_add_item(tree, proto_umts_mac, tvb, 0, -1, ENC_NA);
 	edch_tree = proto_item_add_subtree(ti, ett_mac_edch);
 
-	fpinf = p_get_proto_data(pinfo->fd, proto_fp); 
+	fpinf = p_get_proto_data(pinfo->fd, proto_fp);
 	macinf = p_get_proto_data(pinfo->fd, proto_umts_mac);
 	pos = fpinf->cur_tb;
 	if (!macinf) {
@@ -468,7 +468,7 @@ static void dissect_mac_fdd_hsdsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MAC");
 
-	ti = proto_tree_add_item(tree, proto_umts_mac, tvb, 0, -1, ENC_BIG_ENDIAN);
+	ti = proto_tree_add_item(tree, proto_umts_mac, tvb, 0, -1, ENC_NA);
 	hsdsch_tree = proto_item_add_subtree(ti, ett_mac_hsdsch);
 
 	fpinf = p_get_proto_data(pinfo->fd, proto_fp);

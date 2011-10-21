@@ -35,7 +35,7 @@
  * dissector from here.
  *
  * Here are some links:
- * 
+ *
  * http://www.watersprings.org/pub/id/draft-ietf-sigtran-reliable-udp-00.txt
  * http://www.javvin.com/protocolRUDP.html
  * http://www.cisco.com/univercd/cc/td/doc/product/access/sc/rel7/omts/omts_apb.htm#30052
@@ -52,7 +52,7 @@
 
 /* Disable rudp by default. The previously hardcoded value of
  * 7000 (used by Cisco) collides with afs and as the draft states:
- * "RUDP doesn't place any restrictions on which UDP port numbers are used.  
+ * "RUDP doesn't place any restrictions on which UDP port numbers are used.
  *  Valid port numbers are ports not defined in RFC 1700."
  */
 /* FIXME: The proper solution would be to convert this dissector into
@@ -110,7 +110,7 @@ dissect_rudp(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_rudp, tvb, 0, hlen, FALSE);
+		ti = proto_tree_add_item(tree, proto_rudp, tvb, 0, hlen, ENC_NA);
 		rudp_tree = proto_item_add_subtree(ti, ett_rudp);
 
 		ti = proto_tree_add_item(rudp_tree, hf_rudp_flags, tvb, 0, 1, ENC_BIG_ENDIAN);

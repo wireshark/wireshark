@@ -375,7 +375,7 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         gchar auth_buf[8 + 1];
 
                         offset = 0;
-                        ti = proto_tree_add_item(tree, proto_hsrp, tvb, offset, -1, FALSE);
+                        ti = proto_tree_add_item(tree, proto_hsrp, tvb, offset, -1, ENC_NA);
                         hsrp_tree = proto_item_add_subtree(ti, ett_hsrp);
 
                         proto_tree_add_item(hsrp_tree, hf_hsrp_version, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -443,7 +443,7 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 col_set_str(pinfo->cinfo, COL_PROTOCOL, "HSRPv2");
 
                 if (tree) {
-                        ti = proto_tree_add_item(tree, proto_hsrp, tvb, offset, -1, FALSE);
+                        ti = proto_tree_add_item(tree, proto_hsrp, tvb, offset, -1, ENC_NA);
                         hsrp_tree = proto_item_add_subtree(ti, ett_hsrp);
 		}
 

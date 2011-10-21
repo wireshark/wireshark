@@ -327,7 +327,7 @@ dissect_tcp_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 more_frags = TRUE;
             }
             ci = proto_tree_add_item(tree, proto_tcp_conv, tvb,
-                                                        frame_offset, -1, FALSE);
+                                                        frame_offset, -1, ENC_NA);
             conv_proto_tree = proto_item_add_subtree(ci, ett_tcp_conv);
             dissect_tcp_convergence_data_header(tvb, conv_proto_tree);
 
@@ -344,7 +344,7 @@ dissect_tcp_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_item *ti;
 
                 ti = proto_tree_add_item(tree, proto_bundle, tvb,
-                                                        frame_offset, -1, FALSE);
+                                                        frame_offset, -1, ENC_NA);
                 bundle_tree = proto_item_add_subtree(ti, ett_bundle);
                 new_tvb = process_reassembled_data(tvb,
                                                    frame_offset + convergence_hdr_size,
@@ -393,7 +393,7 @@ dissect_tcp_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             if(frame_offset == 0) {
                 ci = proto_tree_add_item(tree, proto_tcp_conv, tvb,
-                                                        frame_offset, -1, FALSE);
+                                                        frame_offset, -1, ENC_NA);
                 conv_proto_tree = proto_item_add_subtree(ci, ett_tcp_conv);
             }
 
@@ -519,7 +519,7 @@ dissect_udp_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Clear out stuff in the info column */
     col_clear(pinfo->cinfo,COL_INFO);
 
-    ti = proto_tree_add_item(tree, proto_bundle, tvb, 0, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_bundle, tvb, 0, -1, ENC_NA);
     bundle_tree = proto_item_add_subtree(ti, ett_bundle);
 
     primary_item = proto_tree_add_text(bundle_tree, tvb, 0, -1,
@@ -1755,7 +1755,7 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset)
 
         timestamp_sequence = evaluate_sdnv(tvb, offset, &sdnv_length);
         timestamp_sequence_item = proto_tree_add_text(admin_record_tree, tvb, offset, sdnv_length, " ");
-        
+
         if(timestamp_sequence < 0) {
             gint64 ts_seq;
 
@@ -1845,7 +1845,7 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset)
 
         timestamp_sequence = evaluate_sdnv(tvb, offset, &sdnv_length);
         timestamp_sequence_item = proto_tree_add_text(admin_record_tree, tvb, offset, sdnv_length, " ");
-        
+
         if(timestamp_sequence < 0) {
             gint64 ts_seq;
 

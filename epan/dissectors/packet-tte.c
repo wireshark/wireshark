@@ -93,7 +93,7 @@ dissect_tte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /* create display subtree for the protocol */
         tte_root_item = proto_tree_add_item(tree, proto_tte, tvb, 0,
-            TTE_HEADER_LENGTH, FALSE);
+            TTE_HEADER_LENGTH, ENC_NA);
 
         tte_tree = proto_item_add_subtree(tte_root_item, ett_tte);
 

@@ -106,7 +106,7 @@ dissect_who(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		who_ti = proto_tree_add_item(tree, proto_who, tvb, offset, -1,
-		    FALSE);
+		    ENC_NA);
 		who_tree = proto_item_add_subtree(who_ti, ett_who);
 	}
 

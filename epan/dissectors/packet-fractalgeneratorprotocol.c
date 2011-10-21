@@ -185,7 +185,7 @@ dissect_fractalgeneratorprotocol(tvbuff_t *message_tvb, packet_info *pinfo, prot
      necessary to generate protocol tree items. */
   if (tree) {
     /* create the fractalgeneratorprotocol protocol tree */
-    fractalgeneratorprotocol_item = proto_tree_add_item(tree, proto_fractalgeneratorprotocol, message_tvb, 0, -1, FALSE);
+    fractalgeneratorprotocol_item = proto_tree_add_item(tree, proto_fractalgeneratorprotocol, message_tvb, 0, -1, ENC_NA);
     fractalgeneratorprotocol_tree = proto_item_add_subtree(fractalgeneratorprotocol_item, ett_fractalgeneratorprotocol);
   } else {
     fractalgeneratorprotocol_tree = NULL;

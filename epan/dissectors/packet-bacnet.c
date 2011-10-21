@@ -201,7 +201,7 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	i = 0;
 
 	/* I don't know the length of the NPDU yet; Setting the length after dissection */
-	ti = proto_tree_add_item(tree, proto_bacnet, tvb, 0, -1, FALSE);
+	ti = proto_tree_add_item(tree, proto_bacnet, tvb, 0, -1, ENC_NA);
 
 	bacnet_tree = proto_item_add_subtree(ti, ett_bacnet);
 

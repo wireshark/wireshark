@@ -3956,7 +3956,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     conversation_add_proto_data(conversation, proto_reload, reload_info);
   }
 
-  ti = proto_tree_add_item(tree, proto_reload, tvb, 0, -1, FALSE);
+  ti = proto_tree_add_item(tree, proto_reload, tvb, 0, -1, ENC_NA);
 
   reload_tree = proto_item_add_subtree(ti, ett_reload);
 

@@ -52,7 +52,7 @@ dissect_daytime(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (tree) {
 
-    ti = proto_tree_add_item(tree, proto_daytime, tvb, 0, -1, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(tree, proto_daytime, tvb, 0, -1, ENC_NA);
     daytime_tree = proto_item_add_subtree(ti, ett_daytime);
 
     proto_tree_add_text(daytime_tree, tvb, 0, 0,

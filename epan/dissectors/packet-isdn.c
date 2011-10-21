@@ -98,7 +98,7 @@ dissect_isdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	pinfo->circuit_id = pinfo->pseudo_header->isdn.channel;
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_isdn, tvb, 0, 0, FALSE);
+		ti = proto_tree_add_item(tree, proto_isdn, tvb, 0, 0, ENC_NA);
 		isdn_tree = proto_item_add_subtree(ti, ett_isdn);
 
 		proto_tree_add_uint(isdn_tree, hf_isdn_channel, tvb, 0, 0,

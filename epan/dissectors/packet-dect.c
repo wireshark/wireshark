@@ -1959,7 +1959,7 @@ dissect_dect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return;
 	}
 
-	ti=proto_tree_add_item(tree, proto_dect, tvb, 0, -1, FALSE);
+	ti=proto_tree_add_item(tree, proto_dect, tvb, 0, -1, ENC_NA);
 	DectTree=proto_item_add_subtree(ti, ett_dect);
 
 	proto_tree_add_item(DectTree, hf_dect_transceivermode, tvb, offset, 1, ENC_BIG_ENDIAN);

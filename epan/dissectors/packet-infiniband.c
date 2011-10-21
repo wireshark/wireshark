@@ -1668,7 +1668,7 @@ dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     }
 
     /* Top Level Packet */
-    infiniband_packet = proto_tree_add_item(tree, proto_infiniband, tvb, offset, -1, FALSE);
+    infiniband_packet = proto_tree_add_item(tree, proto_infiniband, tvb, offset, -1, ENC_NA);
 
     /* Headers Level Tree */
     all_headers_tree = proto_item_add_subtree(infiniband_packet, ett_all_headers);
@@ -2096,7 +2096,7 @@ dissect_infiniband_link(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /* Top Level Packet */
-    infiniband_link_packet = proto_tree_add_item(tree, proto_infiniband_link, tvb, offset, -1, FALSE);
+    infiniband_link_packet = proto_tree_add_item(tree, proto_infiniband_link, tvb, offset, -1, ENC_NA);
 
     /* Headers Level Tree */
     link_tree = proto_item_add_subtree(infiniband_link_packet, ett_link);

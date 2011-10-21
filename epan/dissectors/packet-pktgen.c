@@ -91,7 +91,7 @@ static gboolean dissect_pktgen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 	/* create display subtree for the protocol */
 
-	ti = proto_tree_add_item(tree, proto_pktgen, tvb, 0, -1, FALSE);
+	ti = proto_tree_add_item(tree, proto_pktgen, tvb, 0, -1, ENC_NA);
 
 	pktgen_tree = proto_item_add_subtree(ti, ett_pktgen);
 

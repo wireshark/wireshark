@@ -90,13 +90,13 @@ dissect_msnms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/*
 		 * Put the first line from the buffer into the summary.
 		 */
-		col_add_str(pinfo->cinfo, COL_INFO, 
+		col_add_str(pinfo->cinfo, COL_INFO,
 			    format_text(line, linelen));
 	}
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_msnms, tvb, offset, -1,
-		    FALSE);
+		    ENC_NA);
 		msnms_tree = proto_item_add_subtree(ti, ett_msnms);
 
 		/*

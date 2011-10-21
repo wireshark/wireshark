@@ -67,7 +67,7 @@ dissect_hpext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	sxsap = tvb_get_ntohs(tvb, 5);
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_hpext, tvb, 0, 7, FALSE);
+		ti = proto_tree_add_item(tree, proto_hpext, tvb, 0, 7, ENC_NA);
 		hpext_tree = proto_item_add_subtree(ti, ett_hpext);
 		proto_tree_add_text(hpext_tree, tvb, 0, 3, "Reserved");
 		proto_tree_add_uint(hpext_tree, hf_hpext_dxsap, tvb, 3,

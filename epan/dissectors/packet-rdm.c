@@ -24,13 +24,13 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor
  * Boston, MA  02110-1301, USA.
  */
-/* 
+/*
  * ANSI E1.20-2006, Entertainment Technology
  * Remote Device Management over USITT DMX512, describes a method of
  * bi-directional communications over a USITT DMX512/1990 data link
@@ -92,7 +92,7 @@ dissect_rdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_item *item;
 
 		proto_tree *ti = proto_tree_add_item(tree, proto_rdm, tvb,
-				offset, -1, FALSE);
+				offset, -1, ENC_NA);
 		proto_tree *rdm_tree = proto_item_add_subtree(ti, ett_rdm);
 
 		proto_tree_add_item(rdm_tree, hf_rdm_start_code, tvb,

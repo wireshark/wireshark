@@ -2620,7 +2620,7 @@ dissect_ldp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_clear(pinfo->cinfo, COL_INFO);
 
     if (tree) {
-        ti=proto_tree_add_item(tree, proto_ldp, tvb, 0, -1, FALSE);
+        ti=proto_tree_add_item(tree, proto_ldp, tvb, 0, -1, ENC_NA);
         pdu_tree = proto_item_add_subtree(ti, ett_ldp);
 
         proto_tree_add_item(pdu_tree, hf_ldp_version, tvb, offset, 2, ENC_BIG_ENDIAN);

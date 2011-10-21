@@ -1354,7 +1354,7 @@ dissect_capwap_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CAPWAP");
 	col_set_str(pinfo->cinfo, COL_INFO, "CAPWAP-Control");
 
-	ti = proto_tree_add_item(tree, proto_capwap, tvb, 0, -1, ENC_BIG_ENDIAN);
+	ti = proto_tree_add_item(tree, proto_capwap, tvb, 0, -1, ENC_NA);
 	capwap_control_tree = proto_item_add_subtree(ti, ett_capwap);
 
 	/* CAPWAP Preamble */
@@ -1437,7 +1437,7 @@ dissect_capwap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CAPWAP");
 	col_set_str(pinfo->cinfo, COL_INFO, "CAPWAP-Data");
 
-	ti = proto_tree_add_item(tree, proto_capwap, tvb, 0, -1, ENC_BIG_ENDIAN);
+	ti = proto_tree_add_item(tree, proto_capwap, tvb, 0, -1, ENC_NA);
 	capwap_data_tree = proto_item_add_subtree(ti, ett_capwap);
 
 	/* CAPWAP Preamble */

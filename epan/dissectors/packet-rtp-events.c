@@ -115,7 +115,7 @@ dissect_rtp_events( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		    val_to_str( rtp_evt, rtp_event_type_values, "Unknown (%u)" ));
 	}
 
-	ti = proto_tree_add_item( tree, proto_rtp_events, tvb, offset, -1, FALSE );
+	ti = proto_tree_add_item( tree, proto_rtp_events, tvb, offset, -1, ENC_NA );
 	rtp_events_tree = proto_item_add_subtree( ti, ett_rtp_events );
 
 	proto_tree_add_uint ( rtp_events_tree, hf_rtp_events_event, tvb, offset, 1, rtp_evt);
@@ -129,7 +129,7 @@ dissect_rtp_events( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	/* The duration field indicates the duration of the event or segment
 	 * being reported, in timestamp units.
 	 */
-	rtp_event_info.info_duration = tvb_get_ntohs(tvb, offset); 
+	rtp_event_info.info_duration = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_item ( rtp_events_tree, hf_rtp_events_duration, tvb, offset, 2, ENC_BIG_ENDIAN);
 
 	/* set the end info for the tap */

@@ -67,7 +67,7 @@ dissect_rsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_rsh, tvb, offset, -1,
-		    FALSE);
+		    ENC_NA);
 		rsh_tree = proto_item_add_subtree(ti, ett_rsh);
 
 		/*

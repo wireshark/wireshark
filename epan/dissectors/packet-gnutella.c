@@ -357,7 +357,7 @@ static void dissect_gnutella_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 			tvb,
 			0,
 			-1,
-			FALSE);
+			ENC_NA);
 		gnutella_tree = proto_item_add_subtree(ti, ett_gnutella);
 
 		size = tvb_get_letohl(
@@ -548,7 +548,7 @@ static void dissect_gnutella(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 					tvb,
 					0,
 					-1,
-					FALSE);
+					ENC_NA);
 				gnutella_tree = proto_item_add_subtree(ti,
 					ett_gnutella);
 

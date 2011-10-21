@@ -870,7 +870,7 @@ dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*@param proto_mux27010: Protocol name*/
     /*@param tvb: Buffer to dissect (data for protocol)*/
     /*@param "0" and "-1": All data is for the protocol*/
-    ti = proto_tree_add_item(tree, proto_mux27010, tvb, 0, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_mux27010, tvb, 0, -1, ENC_NA);
 
     /*Add a subtree to the protocol tree (child node)*/
     mux27010_tree = proto_item_add_subtree(ti, ett_mux27010);

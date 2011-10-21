@@ -54,14 +54,14 @@ static int proto_turnchannel = -1;
 static int hf_turnchannel_id = -1;
 static int hf_turnchannel_len = -1;
 
-#define TURNCHANNEL_HDR_LEN	((guint)4)	
+#define TURNCHANNEL_HDR_LEN	((guint)4)
 
 
 /* Initialize the subtree pointers */
 static gint ett_turnchannel = -1;
 
 static int
-dissect_turnchannel_message(tvbuff_t *tvb, packet_info *pinfo, 
+dissect_turnchannel_message(tvbuff_t *tvb, packet_info *pinfo,
 			    proto_tree *tree)
 {
   	guint   len;
@@ -93,29 +93,29 @@ dissect_turnchannel_message(tvbuff_t *tvb, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 	  col_add_fstr(pinfo->cinfo, COL_INFO, "Channel Id 0x%x", channel_id);
 
-	ti = proto_tree_add_item(tree, proto_turnchannel, tvb, 0, -1, FALSE);
+	ti = proto_tree_add_item(tree, proto_turnchannel, tvb, 0, -1, ENC_NA);
 
 	turnchannel_tree = proto_item_add_subtree(ti, ett_turnchannel);
 
 	proto_tree_add_uint(turnchannel_tree, hf_turnchannel_id, tvb, 0, 2, channel_id);
 	proto_tree_add_uint(turnchannel_tree, hf_turnchannel_len, tvb, 2, 2, data_len);
 
-	
+
 	if (len > TURNCHANNEL_HDR_LEN) {
 	  tvbuff_t *next_tvb;
 	  guint reported_len, new_len;
 
 	  new_len = tvb_length_remaining(tvb, TURNCHANNEL_HDR_LEN);
-	  reported_len = tvb_reported_length_remaining(tvb, 
+	  reported_len = tvb_reported_length_remaining(tvb,
 						       TURNCHANNEL_HDR_LEN);
 	  if (data_len < reported_len) {
 	    reported_len = data_len;
 	  }
-	  next_tvb = tvb_new_subset(tvb, TURNCHANNEL_HDR_LEN, new_len, 
+	  next_tvb = tvb_new_subset(tvb, TURNCHANNEL_HDR_LEN, new_len,
 				    reported_len);
 
 
-	  if (!dissector_try_heuristic(heur_subdissector_list, 
+	  if (!dissector_try_heuristic(heur_subdissector_list,
 				       next_tvb, pinfo, tree)) {
 	    call_dissector(data_handle,next_tvb, pinfo, tree);
 	  }

@@ -656,7 +656,7 @@ dissect_ntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	/* Adding NTP item and subtree */
-	ti = proto_tree_add_item(tree, proto_ntp, tvb, 0, -1, ENC_BIG_ENDIAN);
+	ti = proto_tree_add_item(tree, proto_ntp, tvb, 0, -1, ENC_NA);
 	ntp_tree = proto_item_add_subtree(ti, ett_ntp);
 
 	/* Show version and mode in info column and NTP root */

@@ -108,7 +108,7 @@ dissect_ddtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_clear (pinfo->cinfo, COL_INFO);
 
     if (tree) {
-	ti = proto_tree_add_item(tree, proto_ddtp, tvb, 0, -1, FALSE);
+	ti = proto_tree_add_item(tree, proto_ddtp, tvb, 0, -1, ENC_NA);
 	ddtp_tree = proto_item_add_subtree(ti, ett_ddtp);
 
 	proto_tree_add_item(ddtp_tree, hf_ddtp_version, tvb, 0, 4, ENC_BIG_ENDIAN);

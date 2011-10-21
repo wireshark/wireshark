@@ -223,7 +223,7 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (cnf_proto_id == NLPID_NULL) {
     col_set_str(pinfo->cinfo, COL_INFO, "Inactive subset");
     if (tree) {
-      ti = proto_tree_add_item(tree, proto_clnp, tvb, P_CLNP_PROTO_ID, 1, ENC_BIG_ENDIAN);
+      ti = proto_tree_add_item(tree, proto_clnp, tvb, P_CLNP_PROTO_ID, 1, ENC_NA);
       clnp_tree = proto_item_add_subtree(ti, ett_clnp);
       proto_tree_add_uint_format(clnp_tree, hf_clnp_id, tvb, P_CLNP_PROTO_ID, 1,
                                  cnf_proto_id,
@@ -247,7 +247,7 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   opt_len = cnf_hdr_len;
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_clnp, tvb, 0, cnf_hdr_len, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(tree, proto_clnp, tvb, 0, cnf_hdr_len, ENC_NA);
     clnp_tree = proto_item_add_subtree(ti, ett_clnp);
     proto_tree_add_uint(clnp_tree, hf_clnp_id, tvb, P_CLNP_PROTO_ID, 1,
                         cnf_proto_id);

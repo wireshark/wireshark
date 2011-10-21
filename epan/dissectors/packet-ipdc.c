@@ -761,7 +761,7 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (!tree)
 			return;
 
-		ti = proto_tree_add_item(tree, proto_ipdc, tvb, 0, -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_ipdc, tvb, 0, -1, ENC_NA);
 		ipdc_tree = proto_item_add_subtree(ti, ett_ipdc);
 		proto_tree_add_item(ipdc_tree, hf_ipdc_nr, tvb, 0, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(ipdc_tree, hf_ipdc_ns, tvb, 1, 1, ENC_BIG_ENDIAN);
@@ -786,7 +786,7 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					   TEXT_UNDEFINED));
 
 
-	ti = proto_tree_add_item(tree, proto_ipdc, tvb, 0, -1, FALSE);
+	ti = proto_tree_add_item(tree, proto_ipdc, tvb, 0, -1, ENC_NA);
 	ipdc_tree = proto_item_add_subtree(ti, ett_ipdc);
 
 	proto_tree_add_item(ipdc_tree, hf_ipdc_nr, tvb, 0, 1, ENC_BIG_ENDIAN);

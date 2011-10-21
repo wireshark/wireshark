@@ -72,7 +72,7 @@ dissect_goose(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
 	if (parent_tree){
-		item = proto_tree_add_item(parent_tree, proto_goose, tvb, 0, -1, FALSE);
+		item = proto_tree_add_item(parent_tree, proto_goose, tvb, 0, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_goose);
 	}
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, PNAME);
@@ -153,6 +153,6 @@ void proto_reg_handoff_goose(void) {
 
 	dissector_handle_t goose_handle;
 	goose_handle = find_dissector("goose");
-	
+
 	dissector_add_uint("ethertype", ETHERTYPE_IEC61850_GOOSE, goose_handle);
 }

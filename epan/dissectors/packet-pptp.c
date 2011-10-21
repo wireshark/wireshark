@@ -583,7 +583,7 @@ dissect_pptp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item *ti, *item;
     proto_tree *pptp_tree;
 
-    ti = proto_tree_add_item(tree, proto_pptp, tvb, offset, len, FALSE);
+    ti = proto_tree_add_item(tree, proto_pptp, tvb, offset, len, ENC_NA);
     pptp_tree = proto_item_add_subtree(ti, ett_pptp);
 
     proto_tree_add_item(pptp_tree, hf_pptp_length, tvb, offset, 2, ENC_BIG_ENDIAN);

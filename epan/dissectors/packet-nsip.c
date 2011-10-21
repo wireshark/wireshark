@@ -1006,7 +1006,7 @@ dissect_nsip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
   if (tree) {
     bi.ti = proto_tree_add_item(tree, proto_nsip, tvb, 0, -1,
-                             FALSE);
+                             ENC_NA);
     nsip_tree = proto_item_add_subtree(bi.ti, ett_nsip);
     proto_tree_add_uint_format(nsip_tree, hf_nsip_pdu_type, tvb, 0, 1,
                                pdu_type,

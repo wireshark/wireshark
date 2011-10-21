@@ -779,7 +779,7 @@ dissect_jfif(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_jfif,
-				tvb, 0, -1, FALSE);
+				tvb, 0, -1, ENC_NA);
 		subtree = proto_item_add_subtree(ti, ett_jfif);
 		proto_tree_add_item(subtree, hf_marker, tvb, 0, 2, ENC_BIG_ENDIAN);
 	}

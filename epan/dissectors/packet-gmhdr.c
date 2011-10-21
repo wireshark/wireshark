@@ -166,7 +166,7 @@ dissect_gmhdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   length = tvb_get_guint8(tvb, offset); /* Length of the Gigamon header */
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_gmhdr, tvb, offset, length, FALSE);
+    ti = proto_tree_add_item(tree, proto_gmhdr, tvb, offset, length, ENC_NA);
 
     if (gmhdr_summary_in_tree) {
       proto_item_append_text(ti, ", Length: %u", length);
@@ -244,7 +244,7 @@ dissect_gmtrailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
   /* OK: We appear to have a Gigamon trailer */
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_gmhdr, tvb, offset, length + 5, FALSE);
+    ti = proto_tree_add_item(tree, proto_gmhdr, tvb, offset, length + 5, ENC_NA);
 
     if (gmhdr_summary_in_tree) {
         proto_item_append_text(ti, ", Length: %u, Checksum: 0x%x", length, cksum);

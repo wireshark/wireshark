@@ -354,7 +354,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_ftp, tvb, offset, -1,
-		    FALSE);
+		    ENC_NA);
 		ftp_tree = proto_item_add_subtree(ti, ett_ftp);
 
 		if (is_request) {
@@ -647,7 +647,7 @@ dissect_ftpdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		data_length = tvb_length(tvb);
 
 		ti = proto_tree_add_item(tree, proto_ftp_data, tvb, 0, -1,
-		    FALSE);
+		    ENC_NA);
 		ftp_data_tree = proto_item_add_subtree(ti, ett_ftp_data);
 
 		/*

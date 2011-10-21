@@ -214,7 +214,7 @@ dissect_sndcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* create display subtree for the protocol
    */
   if (tree) {
-    ti         = proto_tree_add_item(tree, proto_sndcp, tvb, 0, -1, FALSE);
+    ti         = proto_tree_add_item(tree, proto_sndcp, tvb, 0, -1, ENC_NA);
     sndcp_tree = proto_item_add_subtree(ti, ett_sndcp);
   }
 

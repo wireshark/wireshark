@@ -1871,7 +1871,7 @@ dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(msgtype, msgtype_vals, "Message Type %u"));
 
     if (tree) {
-        ti = proto_tree_add_item(tree, proto_dhcpv6, tvb, off, eoff - off, FALSE);
+        ti = proto_tree_add_item(tree, proto_dhcpv6, tvb, off, eoff - off, ENC_NA);
         bp_tree = proto_item_add_subtree(ti, ett_dhcpv6);
     }
 

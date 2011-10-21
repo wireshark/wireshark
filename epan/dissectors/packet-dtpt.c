@@ -460,7 +460,7 @@ dissect_dtpt_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		dtpt_item = proto_tree_add_item(tree, proto_dtpt,
-				tvb, 0, -1, FALSE);
+				tvb, 0, -1, ENC_NA);
 		if (dtpt_item)
 			dtpt_tree = proto_item_add_subtree(dtpt_item, ett_dtpt);
 	}
@@ -734,7 +734,7 @@ dissect_dtpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		dtpt_item = proto_tree_add_item(tree, proto_dtpt,
-				tvb, 0, -1, FALSE);
+				tvb, 0, -1, ENC_NA);
 		if (dtpt_item)
 			dtpt_tree = proto_item_add_subtree(dtpt_item, ett_dtpt);
 	}

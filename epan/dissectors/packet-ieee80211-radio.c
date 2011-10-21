@@ -66,7 +66,7 @@ dissect_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         pinfo->pseudo_header->ieee_802_11.signal_level);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_radio, tvb, 0, 0, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(tree, proto_radio, tvb, 0, 0, ENC_NA);
     radio_tree = proto_item_add_subtree (ti, ett_radio);
 
     proto_tree_add_uint64_format(radio_tree, hf_data_rate, tvb, 0, 0,

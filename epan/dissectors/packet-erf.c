@@ -654,7 +654,7 @@ channelised_fill_sdh_g707_format(sdh_g707_format_t* in_fmt, guint16 bit_flds, gu
       /* check the value in bit flds */
       aug_n_index = ((bit_flds >> (2 *i))& 0x3) +1;
     }
-    else                                                                                                                           
+    else
     {
       aug_n_index = 0;
     }
@@ -669,7 +669,7 @@ channelised_fill_vc_id_string(char* out_string, int maxstrlen, sdh_g707_format_t
   int i = 0;
   int cur_len = 0, print_index = 0;
   guint8 is_printed = 0;
-  static char* g_vc_size_strings[] =  { 
+  static char* g_vc_size_strings[] =  {
                   "unknown", /* 0x0 */
                   "VC3", /*0x1*/
                   "VC4", /*0x2*/
@@ -715,7 +715,7 @@ channelised_fill_vc_id_string(char* out_string, int maxstrlen, sdh_g707_format_t
   }
   g_snprintf(out_string+print_index, maxstrlen, ")");
   return;
-} 
+}
 
 static void
 dissect_channelised_ex_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *pseudo_hdr_tree, int idx)
@@ -1130,7 +1130,7 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   if (tree) {
-    erf_item = proto_tree_add_item(tree, proto_erf, tvb, 0, -1, FALSE);
+    erf_item = proto_tree_add_item(tree, proto_erf, tvb, 0, -1, ENC_NA);
     erf_tree = proto_item_add_subtree(erf_item, ett_erf);
 
     dissect_erf_pseudo_header(tvb, pinfo, erf_tree);

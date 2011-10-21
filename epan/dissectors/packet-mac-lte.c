@@ -2597,7 +2597,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             default:
                 proto_item_append_text(pdu_subheader_ti, ", length=%u)",
                                        pdu_lengths[number_of_headers]);
-                proto_item_append_text(pdu_header_ti, " (%s:%u)", 
+                proto_item_append_text(pdu_header_ti, " (%s:%u)",
                                        val_to_str_const(lcids[number_of_headers],
                                                         (direction == DIRECTION_UPLINK) ? ulsch_lcid_vals : dlsch_lcid_vals,
                                                         "Unknown"),
@@ -3195,7 +3195,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MAC-LTE");
 
     /* Create protocol tree. */
-    pdu_ti = proto_tree_add_item(tree, proto_mac_lte, tvb, offset, -1, FALSE);
+    pdu_ti = proto_tree_add_item(tree, proto_mac_lte, tvb, offset, -1, ENC_NA);
     proto_item_append_text(pdu_ti, " ");
     mac_lte_tree = proto_item_add_subtree(pdu_ti, ett_mac_lte);
 
@@ -3276,7 +3276,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 for (n=0; n < p_mac_lte_info->number_of_srs; n++) {
                     proto_item *sr_ti;
                     proto_tree *sr_tree;
-                                                     
+
                     /* SR event is subtree */
                     sr_ti = proto_tree_add_item(mac_lte_tree, hf_mac_lte_oob_send_sr,
                                                 tvb, 0, 0, ENC_NA);

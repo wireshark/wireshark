@@ -139,7 +139,7 @@ static void dissect_2dparityfec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
       proto_tree *tree_2dparityfec = NULL;
       gint offset = 0;
 
-      ti = proto_tree_add_item(tree, proto_2dparityfec, tvb, 0, -1, FALSE);
+      ti = proto_tree_add_item(tree, proto_2dparityfec, tvb, 0, -1, ENC_NA);
       tree_2dparityfec = proto_item_add_subtree(ti, ett_2dparityfec);
 
       proto_tree_add_item(tree_2dparityfec, hf_2dparityfec_snbase_low,      tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;

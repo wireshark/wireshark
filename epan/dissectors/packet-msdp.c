@@ -191,7 +191,7 @@ dissect_msdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 guint8 type;
                 guint16 length;
 
-                ti = proto_tree_add_item(tree, proto_msdp, tvb, 0, -1, FALSE);
+                ti = proto_tree_add_item(tree, proto_msdp, tvb, 0, -1, ENC_NA);
                 msdp_tree = proto_item_add_subtree(ti, ett_msdp);
 
                 offset = 0;

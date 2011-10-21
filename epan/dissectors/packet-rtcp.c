@@ -53,12 +53,12 @@
  */
 
 /*
- * The part of this dissector for IDMS XR blocks was written by 
+ * The part of this dissector for IDMS XR blocks was written by
  * Torsten Loebner (loebnert@googlemail.com) in the context of a graduation
  * project with the research organization TNO in Delft, Netherland.
- * The extension is based on the RTCP XR block specified in 
+ * The extension is based on the RTCP XR block specified in
  * ETSI TS 182 063 v3.5.2 Annex W (http://www.etsi.org/deliver/etsi_ts/183000_183099/183063/),
- * which was registered by IANA as RTCP XR Block Type 12 
+ * which was registered by IANA as RTCP XR Block Type 12
  * (http://www.iana.org/assignments/rtcp-xr-block-types/rtcp-xr-block-types.xml).
  */
 
@@ -1806,13 +1806,13 @@ static gboolean validate_xr_block_length(tvbuff_t *tvb, packet_info *pinfo, int 
 			expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN,
 			                      "Invalid block length, should be 8");
         return FALSE;
-	
+
     case RTCP_XR_IDMS:
         if (block_len != 7)
 			expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN,
 			                      "Invalid block length, should be 7");
         return FALSE;
-    
+
     default:
         break;
     }
@@ -2191,32 +2191,32 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
         }
         case RTCP_XR_IDMS:
 	    offset -= 3;
-	    proto_tree_add_item(content_tree, hf_rtcp_xr_idms_spst, tvb, offset, 1, ENC_BIG_ENDIAN); 
+	    proto_tree_add_item(content_tree, hf_rtcp_xr_idms_spst, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset+=3;
-	    proto_tree_add_item(content_tree, hf_rtcp_xr_idms_pt, tvb, offset, 1, ENC_BIG_ENDIAN); 
+	    proto_tree_add_item(content_tree, hf_rtcp_xr_idms_pt, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset+=4;
-	    proto_tree_add_item(content_tree, hf_rtcp_xr_idms_msci, tvb, offset, 4, ENC_BIG_ENDIAN); 
+	    proto_tree_add_item(content_tree, hf_rtcp_xr_idms_msci, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset+=4;
-	    proto_tree_add_item(content_tree, hf_rtcp_xr_idms_source_ssrc, tvb, offset, 4, ENC_BIG_ENDIAN); 
+	    proto_tree_add_item(content_tree, hf_rtcp_xr_idms_source_ssrc, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset+=4;
-	    proto_tree_add_item(content_tree, hf_rtcp_xr_idms_ntp_rcv_ts_msw, tvb, offset, 4, ENC_BIG_ENDIAN); 
+	    proto_tree_add_item(content_tree, hf_rtcp_xr_idms_ntp_rcv_ts_msw, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset+=4;
-	    proto_tree_add_item(content_tree, hf_rtcp_xr_idms_ntp_rcv_ts_lsw, tvb, offset, 4, ENC_BIG_ENDIAN); 
+	    proto_tree_add_item(content_tree, hf_rtcp_xr_idms_ntp_rcv_ts_lsw, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset+=4;
 	    item = proto_tree_add_item(content_tree, hf_rtcp_ntp, tvb, offset-8, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
 	    PROTO_ITEM_SET_GENERATED(item);
 
-	    proto_tree_add_item(content_tree, hf_rtcp_xr_idms_rtp_ts, tvb, offset, 4, ENC_BIG_ENDIAN); 
+	    proto_tree_add_item(content_tree, hf_rtcp_xr_idms_rtp_ts, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset+=4;
-	    proto_tree_add_item(content_tree, hf_rtcp_xr_idms_ntp_pres_ts, tvb, offset, 4, ENC_BIG_ENDIAN); 
+	    proto_tree_add_item(content_tree, hf_rtcp_xr_idms_ntp_pres_ts, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset+=4;
-	    
+
 	    tmp_ts = tvb_get_ntohl(tvb,offset-4);
 	    hour 	= ( (int) ( tmp_ts >> 16 ) ) / 3600;
-	    min		= (( (int) ( tmp_ts >> 16 ) ) - hour * 3600) / 60; 
+	    min		= (( (int) ( tmp_ts >> 16 ) ) - hour * 3600) / 60;
 	    sec		= (( (int) ( tmp_ts >> 16 ) ) - hour * 3600 - min * 60);
 	    msec	= ( (int) ( tmp_ts & 0x0000FFFF ) ) / 66;
-	    
+
 	    item = proto_tree_add_text( content_tree, tvb, offset-4, 4, "short NTP timestamp of presentation: %d:%02d:%02d:%03d [h:m:s:ms] ", hour,min,sec,msec);
 	    PROTO_ITEM_SET_GENERATED(item);
 	break;
@@ -2787,7 +2787,7 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
         packet_length = ( tvb_get_ntohs( tvb, offset + 2 ) + 1 ) * 4;
         total_packet_length += packet_length;
 
-        ti = proto_tree_add_item(tree, proto_rtcp, tvb, offset, packet_length, FALSE );
+        ti = proto_tree_add_item(tree, proto_rtcp, tvb, offset, packet_length, ENC_NA );
         proto_item_append_text(ti, " (%s)",
                                val_to_str(packet_type,
                                           rtcp_packet_type_vals,

@@ -30,14 +30,14 @@
  *  "Traffic Mirroring" in Appendix B of the HP manual
  *   "Management and Configuration Guide for the ProCurve Series
  *    3500, 3500yl, 5400zl, 6200yl, 6600, and 8200zl Switches (September 2009)"
- * 
+ *
  * Format:
  *  The above manual indicates that the encapsulatedmirrored frame is transmitted
  *  on the network as a [UDP] packet which has 54 bytes preceding the mirrored frame.
- *  Examining a sample capture shows that this means that the data payload 
- *  of the UDP packet consists of a 12 byte "header" followed by the 
+ *  Examining a sample capture shows that this means that the data payload
+ *  of the UDP packet consists of a 12 byte "header" followed by the
  *  byes of the mirrored frame.
- * 
+ *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -70,7 +70,7 @@ dissect_hp_erm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_INFO, PROTO_SHORT_NAME ":");
 
     if (tree) {
-        ti = proto_tree_add_item(tree, proto_hp_erm, tvb, 0, -1, FALSE);
+        ti = proto_tree_add_item(tree, proto_hp_erm, tvb, 0, -1, ENC_NA);
         hp_erm_tree = proto_item_add_subtree(ti, ett_hp_erm);
         proto_tree_add_item(hp_erm_tree, hf_hp_erm_unknown, tvb, 0, 12, ENC_NA);
     }

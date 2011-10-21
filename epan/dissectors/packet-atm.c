@@ -1688,7 +1688,7 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   case AAL_1:
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "AAL1");
     col_clear(pinfo->cinfo, COL_INFO);
-    ti = proto_tree_add_item(tree, proto_aal1, tvb, offset, -1, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(tree, proto_aal1, tvb, offset, -1, ENC_NA);
     aal_tree = proto_item_add_subtree(ti, ett_aal1);
     octet = tvb_get_guint8(tvb, offset);
     proto_tree_add_text(aal_tree, tvb, offset, 1, "CSI: %u", octet >> 7);
@@ -1711,7 +1711,7 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "AAL3/4");
     col_clear(pinfo->cinfo, COL_INFO);
-    ti = proto_tree_add_item(tree, proto_aal3_4, tvb, offset, -1, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(tree, proto_aal3_4, tvb, offset, -1, ENC_NA);
     aal_tree = proto_item_add_subtree(ti, ett_aal3_4);
     aal3_4_hdr = tvb_get_ntohs(tvb, offset);
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s, sequence number = %u",
@@ -1745,7 +1745,7 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       col_set_str(pinfo->cinfo, COL_PROTOCOL, "OAM AAL");
       col_clear(pinfo->cinfo, COL_INFO);
     }
-    ti = proto_tree_add_item(tree, proto_oamaal, tvb, offset, -1, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(tree, proto_oamaal, tvb, offset, -1, ENC_NA);
     aal_tree = proto_item_add_subtree(ti, ett_oamaal);
     octet = tvb_get_guint8(tvb, offset);
     if (NULL == pwpd || pwpd->enable_fill_columns_by_atm_dissector)
@@ -1842,7 +1842,7 @@ dissect_atm_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
 
   if (tree) {
-    atm_ti = proto_tree_add_item(tree, proto_atm, tvb, 0, -1, ENC_BIG_ENDIAN);
+    atm_ti = proto_tree_add_item(tree, proto_atm, tvb, 0, -1, ENC_NA);
     atm_tree = proto_item_add_subtree(atm_ti, ett_atm);
 
     if (!pseudowire_mode) {

@@ -4377,7 +4377,7 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
     offset = start_offset;
     tvb_ensure_bytes_exist(tvb, offset, 16);
     if (tree) {
-        ti = proto_tree_add_item (tree, proto_dcerpc, tvb, offset, hdr.frag_len, FALSE);
+        ti = proto_tree_add_item (tree, proto_dcerpc, tvb, offset, hdr.frag_len, ENC_NA);
         dcerpc_tree = proto_item_add_subtree (ti, ett_dcerpc);
     }
 
@@ -5213,7 +5213,7 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     hdr.serial_lo = tvb_get_guint8 (tvb, offset++);
 
     if (tree) {
-        ti = proto_tree_add_item (tree, proto_dcerpc, tvb, 0, -1, FALSE);
+        ti = proto_tree_add_item (tree, proto_dcerpc, tvb, 0, -1, ENC_NA);
         if (ti) {
             dcerpc_tree = proto_item_add_subtree(ti, ett_dcerpc);
             proto_item_append_text(ti, " %s, Seq: %u, Serial: %u, Frag: %u, FragLen: %u",

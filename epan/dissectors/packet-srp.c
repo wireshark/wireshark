@@ -84,13 +84,13 @@ static void dissect_ccsrl(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
 
     /* add the 'ccsrl' tree to the main tree */
     if (tree) {
-	ccsrl_item = proto_tree_add_item (tree, proto_ccsrl, tvb, 0, -1, FALSE);
+	ccsrl_item = proto_tree_add_item (tree, proto_ccsrl, tvb, 0, -1, ENC_NA);
 	ccsrl_tree = proto_item_add_subtree (ccsrl_item, ett_ccsrl);
 	proto_tree_add_uint(ccsrl_tree,hf_ccsrl_ls,tvb,0,1,lastseg);
     }
 
     /* XXX add support for reassembly of fragments */
-    
+
     /* XXX currently, we always dissect as H245. It's not necessarily
         that though.
     */
@@ -122,10 +122,10 @@ static void dissect_srp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     proto_item *hidden_item;
 
     guint8 header = tvb_get_guint8(tvb,0);
-    
+
     /* add the 'srp' tree to the main tree */
     if (tree) {
-	srp_item = proto_tree_add_item (tree, proto_srp, tvb, 0, -1, FALSE);
+	srp_item = proto_tree_add_item (tree, proto_srp, tvb, 0, -1, ENC_NA);
 	srp_tree = proto_item_add_subtree (srp_item, ett_srp);
 	proto_tree_add_uint(srp_tree,hf_srp_header,tvb,0,1,header);
     }
@@ -154,7 +154,7 @@ static void dissect_srp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 	/* crc includes the header */
 	calc_crc = crc16_ccitt_tvb(tvb,crc_offset);
-	
+
 	if( crc == calc_crc ) {
 	    proto_tree_add_uint_format(srp_tree, hf_srp_crc, tvb,
 				       crc_offset, 2, crc,

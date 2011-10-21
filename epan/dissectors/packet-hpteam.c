@@ -65,7 +65,7 @@ dissect_hpteam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	strPtr = ether_to_str(mac_addr);
 	HP_Mac = "03:00:c7:00:00:ee";
 	/*
-	 * Check to see if SNAP frame is a HP Teaming frame or 
+	 * Check to see if SNAP frame is a HP Teaming frame or
 	 * if it is really just SNAP
 	 */
 	if (memcmp(strPtr, HP_Mac, 17) == 0) {
@@ -77,7 +77,7 @@ dissect_hpteam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_append_fstr(pinfo->cinfo, COL_INFO, "Port MAC = %s ", strPtr);
 
 		if (tree) { /* we are being asked for details */
-			hpteam_item = proto_tree_add_item(tree, proto_hpteam, tvb, 0, -1, FALSE);
+			hpteam_item = proto_tree_add_item(tree, proto_hpteam, tvb, 0, -1, ENC_NA);
 			hpteam_tree = proto_item_add_subtree(hpteam_item, ett_hpteam);
 			proto_tree_add_item(hpteam_tree, hf_hpteam, tvb, offset, 58, ENC_NA);
 		}
@@ -107,7 +107,7 @@ void proto_register_hpteam(void)
 
 	proto_hpteam = proto_register_protocol ("HP NIC Teaming Heartbeat", "HPTEAM", "hpteam");
 
-	/*Tied into the LLC dissector so register the OUI with LLC*/	
+	/*Tied into the LLC dissector so register the OUI with LLC*/
 	llc_add_oui(OUI_HP_2, "llc.hpteam_pid", "Hewlett Packard OUI PID", &hf_pid);
 	proto_register_field_array(proto_hpteam, hf_data, array_length(hf_data));
 	proto_register_subtree_array(ett, array_length(ett));

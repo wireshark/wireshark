@@ -115,7 +115,7 @@ static void dissect_egd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     memset(&egd_time, 0, sizeof(nstime_t));
     offset = 0;
 
-    ti = proto_tree_add_item(tree, proto_egd, tvb, 0, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_egd, tvb, 0, -1, ENC_NA);
     egd_tree = proto_item_add_subtree(ti, ett_egd);
     proto_tree_add_item(egd_tree, hf_egd_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset++;

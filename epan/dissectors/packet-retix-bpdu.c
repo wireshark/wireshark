@@ -72,7 +72,7 @@ dissect_retix_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   retix_bpdu_tree = NULL;
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_retix_bpdu, tvb, 0, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_retix_bpdu, tvb, 0, -1, ENC_NA);
     retix_bpdu_tree = proto_item_add_subtree(ti, ett_retix_bpdu);
   }
 

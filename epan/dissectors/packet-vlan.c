@@ -111,7 +111,7 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   vlan_tree = NULL;
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_vlan, tvb, 0, 4, FALSE);
+    ti = proto_tree_add_item(tree, proto_vlan, tvb, 0, 4, ENC_NA);
 
     if (vlan_summary_in_tree) {
         proto_item_append_text(ti, ", PRI: %u, CFI: %u, ID: %u",

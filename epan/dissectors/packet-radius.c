@@ -1351,7 +1351,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Forces load of header fields, if not already done so */
 		DISSECTOR_ASSERT(proto_registrar_get_byname("radius.code"));
 
-		ti = proto_tree_add_item(tree,proto_radius, tvb, 0, rh.rh_pktlength, FALSE);
+		ti = proto_tree_add_item(tree,proto_radius, tvb, 0, rh.rh_pktlength, ENC_NA);
 		radius_tree = proto_item_add_subtree(ti, ett_radius);
 		proto_tree_add_uint(radius_tree,hf_radius_code, tvb, 0, 1, rh.rh_code);
 		proto_tree_add_uint_format(radius_tree,hf_radius_id, tvb, 1, 1, rh.rh_ident,

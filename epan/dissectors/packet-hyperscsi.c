@@ -6,7 +6,7 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * Copyright 2002 Richard Sharpe <rsharpe@richardsharpe.com> 
+ * Copyright 2002 Richard Sharpe <rsharpe@richardsharpe.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -40,7 +40,7 @@ static int hf_hs_tagno = -1;
 static int hf_hs_lastfrag = -1;
 static int hf_hs_fragno = -1;
 
-static gint ett_hyperscsi = -1; 
+static gint ett_hyperscsi = -1;
 static gint ett_hs_hdr = -1;
 static gint ett_hs_pdu = -1;
 
@@ -65,7 +65,7 @@ static const true_false_string tfs_lastfrag = {
 #define HSCSI_OPCODE_REMOTE_REPLY             0x35
 
 static const value_string hscsi_opcodes[] = {
-  { HSCSI_OPCODE_REQUEST,         "Command Block Encap Request"}, 
+  { HSCSI_OPCODE_REQUEST,         "Command Block Encap Request"},
   { HSCSI_OPCODE_REPLY,           "Command Block Encap Reply"},
   { HSCSI_OPCODE_DEV_DISCOVERY,   "Device Discovery Reply"},
   { HSCSI_OPCODE_ADN_REQUEST,     "Auth/Device Neg Request"},
@@ -95,9 +95,9 @@ dissect_hyperscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_clear(pinfo->cinfo, COL_INFO);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_hyperscsi, tvb, offset, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_hyperscsi, tvb, offset, -1, ENC_NA);
     hs_tree = proto_item_add_subtree(ti, ett_hyperscsi);
-  } 
+  }
 
   hs_hdr1 = tvb_get_guint8(tvb, offset);
   offset++;
@@ -129,8 +129,8 @@ dissect_hyperscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   }
 
-  /* 
-   * Now, add the PDU 
+  /*
+   * Now, add the PDU
    */
 
   hs_ver = tvb_get_guint8(tvb, offset++);
@@ -160,8 +160,8 @@ proto_register_hyperscsi(void)
 {
 
   static hf_register_info hf[] = {
-    { &hf_hs_res, 
-      { "Reserved", "hyperscsi.reserved", FT_UINT8, BASE_DEC, NULL, 0x0, 
+    { &hf_hs_res,
+      { "Reserved", "hyperscsi.reserved", FT_UINT8, BASE_DEC, NULL, 0x0,
 	NULL, HFILL}},
 
     { &hf_hs_tagno,
@@ -171,16 +171,16 @@ proto_register_hyperscsi(void)
     { &hf_hs_lastfrag,
       { "Last Fragment", "hyperscsi.lastfrag", FT_BOOLEAN, 8, TFS(&tfs_lastfrag), 0x04, NULL, HFILL}},
 
-    { &hf_hs_fragno, 
+    { &hf_hs_fragno,
       { "Fragment No", "hyperscsi.fragno", FT_UINT16, BASE_DEC, NULL, 0x0,
 	NULL, HFILL}},
 
     { &hf_hs_ver,
-      { "HyperSCSI Version", "hyperscsi.version", FT_UINT8, BASE_DEC, NULL, 
+      { "HyperSCSI Version", "hyperscsi.version", FT_UINT8, BASE_DEC, NULL,
 	0x0, NULL, HFILL}},
 
     { &hf_hs_cmd,
-      { "HyperSCSI Command", "hyperscsi.cmd", FT_UINT8, BASE_DEC, VALS(hscsi_opcodes), 0x0, 
+      { "HyperSCSI Command", "hyperscsi.cmd", FT_UINT8, BASE_DEC, VALS(hscsi_opcodes), 0x0,
 	NULL, HFILL}},
   };
 
@@ -189,7 +189,7 @@ proto_register_hyperscsi(void)
     &ett_hs_hdr,
     &ett_hs_pdu,
   };
-  
+
   proto_hyperscsi = proto_register_protocol("HyperSCSI", "HyperSCSI", "hyperscsi");
   proto_register_field_array(proto_hyperscsi, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

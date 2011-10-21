@@ -71,7 +71,7 @@ dissect_wsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (tree) {
 
                 /* create display subtree for the protocol */
-                ti = proto_tree_add_item(tree, proto_wsmp, tvb, 0, -1, FALSE);
+                ti = proto_tree_add_item(tree, proto_wsmp, tvb, 0, -1, ENC_NA);
 
                 wsmp_tree = proto_item_add_subtree(ti, ett_wsmp);
 
@@ -104,20 +104,20 @@ dissect_wsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree_add_item(wsmp_tree,
                                 hf_wsmp_acmlength, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset ++;
-				
+
                 proto_tree_add_item(wsmp_tree, hf_wsmp_acm, tvb, offset, acmlength, ENC_ASCII|ENC_NA);
                 offset +=acmlength;
 
                 wsmlength = tvb_get_letohs( tvb, offset);
                 proto_tree_add_item(wsmp_tree,
                                 hf_wsmp_wsmlength, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                offset += 2; 
-                
+                offset += 2;
+
                 wsmdata_item = proto_tree_add_text (wsmp_tree, tvb, offset, wsmlength,
                                                     "Wave Short Message");
                 wsmdata_tree = proto_item_add_subtree(wsmdata_item, ett_wsmdata);
 
-                /* TODO: Branch on the application context and display accordingly 
+                /* TODO: Branch on the application context and display accordingly
                  * Default call the data dissector
                  */
                 wsmdata_tvb = tvb_new_subset(tvb, offset,wsmlength, wsmlength);
@@ -135,42 +135,42 @@ dissect_wsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 void
 proto_register_wsmp(void)
-{                 
+{
         /* Setup list of header fields  See Section 1.6.1 for details*/
         static hf_register_info hf[] = {
                 { &hf_wsmp_version,
-                        { "Version",           "wsmp.version", FT_UINT8, BASE_DEC, NULL, 0x0,          
+                        { "Version",           "wsmp.version", FT_UINT8, BASE_DEC, NULL, 0x0,
                                 NULL, HFILL }},
 
                 { &hf_wsmp_security,
-                        { "Security",           "wsmp.security", FT_UINT8, BASE_DEC, NULL, 0x0,          
+                        { "Security",           "wsmp.security", FT_UINT8, BASE_DEC, NULL, 0x0,
                                 NULL, HFILL }},
 
                 { &hf_wsmp_channel,
-                        { "Channel", "wsmp.channel", FT_UINT8, BASE_DEC, NULL, 0x0,          
+                        { "Channel", "wsmp.channel", FT_UINT8, BASE_DEC, NULL, 0x0,
                                 NULL, HFILL }},
 
                 { &hf_wsmp_rate,
-                        { "Rate", "wsmp.rate", FT_UINT8, BASE_DEC, NULL, 0x0,          
+                        { "Rate", "wsmp.rate", FT_UINT8, BASE_DEC, NULL, 0x0,
                                 NULL, HFILL }},
 
                 { &hf_wsmp_txpower,
-                        { "Transmit power", "wsmp.txpower", FT_UINT8, BASE_DEC, NULL, 0x0,          
+                        { "Transmit power", "wsmp.txpower", FT_UINT8, BASE_DEC, NULL, 0x0,
                                 NULL, HFILL }},
 
                 { &hf_wsmp_appclass,
-                        { "App class", "wsmp.appclass", FT_UINT8, BASE_DEC, NULL, 0x0,          
+                        { "App class", "wsmp.appclass", FT_UINT8, BASE_DEC, NULL, 0x0,
                                 NULL, HFILL }},
 
                 { &hf_wsmp_acmlength,
-                        { "Acm Length", "wsmp.acmlength", FT_UINT8, BASE_DEC, NULL, 0x0,     
+                        { "Acm Length", "wsmp.acmlength", FT_UINT8, BASE_DEC, NULL, 0x0,
                                 NULL, HFILL }},
 
                 { &hf_wsmp_acm,
                         { "Application Context Data", "wsmp.acm", FT_STRING,
                                 BASE_NONE, NULL, 0x0, "Acm", HFILL }},
                 { &hf_wsmp_wsmlength,
-                        { "WSM Length", "wsmp.wsmlength", FT_UINT16, BASE_DEC, NULL, 0x0,     
+                        { "WSM Length", "wsmp.wsmlength", FT_UINT16, BASE_DEC, NULL, 0x0,
                                 NULL, HFILL }},
         };
 
@@ -180,7 +180,7 @@ proto_register_wsmp(void)
 				&ett_wsmdata,
         };
 
-        /* Register the protocol name and description */ 
+        /* Register the protocol name and description */
         proto_wsmp = proto_register_protocol("Wave Short Message Protocol(IEEE P1609.3)",
                         "WSMP", "wsmp");
 
@@ -191,7 +191,7 @@ proto_register_wsmp(void)
 }
 
 /* If this dissector uses sub-dissector registration add a registration routine.
-   This exact format is required because a script is used to find these routines 
+   This exact format is required because a script is used to find these routines
    and create the code that calls these routines.
  */
 

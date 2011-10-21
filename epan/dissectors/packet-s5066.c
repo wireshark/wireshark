@@ -1311,7 +1311,7 @@ dissect_s5066_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		pdu_size = tvb_get_ntohs(tvb, s5066_size_offset) + s5066_header_size;
 
-		ti_s5066 = proto_tree_add_item(tree, proto_s5066, tvb, 0, -1, FALSE);
+		ti_s5066 = proto_tree_add_item(tree, proto_s5066, tvb, 0, -1, ENC_NA);
 		proto_item_append_text(ti_s5066, ", PDU type %s", val_to_str(pdu_type, s5066_pdu_type, "Unknown (0x%02x)"));
 		s5066_tree = proto_item_add_subtree(ti_s5066, ett_s5066);
 		proto_tree_add_item(s5066_tree, hf_s5066_sync_word, tvb, offset, 2, ENC_BIG_ENDIAN); offset +=2;

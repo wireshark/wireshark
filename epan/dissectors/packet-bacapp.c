@@ -7304,7 +7304,7 @@ fEventParameter (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offs
 
 		case 7: /* buffer-ready */
 			/* deprecated
-			while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) { 
+			while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {
 				lastoffset = offset;
 				switch (fTagNo(tvb, offset)) {
 				case 0:
@@ -7427,7 +7427,7 @@ fEventParameter (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offs
 		default:
 			break;
 		}
-	
+
 	/* Closing tag for parameter choice */
 	offset += fTagHeaderTree(tvb, subtree, offset, &tag_no, &tag_info, &lvt);
 	return offset;
@@ -9777,7 +9777,7 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	save_fragmented = pinfo->fragmented;
 
-	ti = proto_tree_add_item(tree, proto_bacapp, tvb, offset, -1, FALSE);
+	ti = proto_tree_add_item(tree, proto_bacapp, tvb, offset, -1, ENC_NA);
 	bacapp_tree = proto_item_add_subtree(ti, ett_bacapp);
 
 	if (!fragment)

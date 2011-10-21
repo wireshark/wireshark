@@ -152,7 +152,7 @@ dissect_mpeg1( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
 	if ( tree )
 	  {
-	    ti = proto_tree_add_item( tree, proto_mpg, tvb, offset, -1, FALSE );
+	    ti = proto_tree_add_item( tree, proto_mpg, tvb, offset, -1, ENC_NA );
 	    mpg_tree = proto_item_add_subtree( ti, ett_mpg );
 
 	    proto_tree_add_uint( mpg_tree, hf_rtp_mpg_mbz, tvb, offset, 1, mpg_mbz );

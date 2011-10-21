@@ -286,7 +286,7 @@ dissect_esis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
    tvb_memcpy(tvb, (guint8 *)&ehdr, 0, sizeof ehdr);
 
    if (tree) {
-     ti = proto_tree_add_item(tree, proto_esis, tvb, 0, -1, FALSE);
+     ti = proto_tree_add_item(tree, proto_esis, tvb, 0, -1, ENC_NA);
      esis_tree = proto_item_add_subtree(ti, ett_esis);
 
      if (ehdr.esis_version != ESIS_REQUIRED_VERSION){

@@ -211,7 +211,7 @@ dissect_gryphon_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     if (!is_msgresp_add) {
-        ti = proto_tree_add_item(tree, proto_gryphon, tvb, 0, -1, FALSE);
+        ti = proto_tree_add_item(tree, proto_gryphon, tvb, 0, -1, ENC_NA);
         gryphon_tree = proto_item_add_subtree(ti, ett_gryphon);
     } else
         gryphon_tree = tree;

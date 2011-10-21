@@ -64,7 +64,7 @@ dissect_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (tree) {
 
-    ti = proto_tree_add_item(tree, proto_time, tvb, 0, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_time, tvb, 0, -1, ENC_NA);
     time_tree = proto_item_add_subtree(ti, ett_time);
 
     proto_tree_add_text(time_tree, tvb, 0, 0,

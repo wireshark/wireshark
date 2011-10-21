@@ -1829,7 +1829,7 @@ dissect_cip_class_generic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    if( tree )
    {
       /* Create display subtree for the protocol */
-      ti = proto_tree_add_item(tree, proto_cip_class_generic, tvb, 0, -1, ENC_BIG_ENDIAN);
+      ti = proto_tree_add_item(tree, proto_cip_class_generic, tvb, 0, -1, ENC_NA);
       class_tree = proto_item_add_subtree( ti, ett_cip_class_generic );
 
       dissect_cip_generic_data( class_tree, tvb, 0, tvb_length(tvb), pinfo, ti );
@@ -2142,7 +2142,7 @@ dissect_cip_class_mr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    if( tree )
    {
       /* Create display subtree for the protocol */
-      ti = proto_tree_add_item(tree, proto_cip_class_mr, tvb, 0, -1, ENC_BIG_ENDIAN);
+      ti = proto_tree_add_item(tree, proto_cip_class_mr, tvb, 0, -1, ENC_NA);
       class_tree = proto_item_add_subtree( ti, ett_cip_class_mr );
 
       dissect_cip_mr_data( class_tree, tvb, 0, tvb_length(tvb), pinfo );
@@ -2774,7 +2774,7 @@ dissect_cip_class_cm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    if( tree )
    {
       /* Create display subtree for the protocol */
-      ti = proto_tree_add_item(tree, proto_cip_class_cm, tvb, 0, -1, ENC_BIG_ENDIAN);
+      ti = proto_tree_add_item(tree, proto_cip_class_cm, tvb, 0, -1, ENC_NA);
       class_tree = proto_item_add_subtree( ti, ett_cip_class_cm );
 
       dissect_cip_cm_data( class_tree, tvb, 0, tvb_length(tvb), pinfo );
@@ -3268,7 +3268,7 @@ dissect_cip_class_cco(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    if( tree )
    {
       /* Create display subtree for the protocol */
-      ti = proto_tree_add_item(tree, proto_cip_class_cco, tvb, 0, -1, ENC_BIG_ENDIAN);
+      ti = proto_tree_add_item(tree, proto_cip_class_cco, tvb, 0, -1, ENC_NA);
       class_tree = proto_item_add_subtree( ti, ett_cip_class_cco );
 
       dissect_cip_cco_data( class_tree, tvb, 0, tvb_length(tvb), pinfo );
@@ -3306,7 +3306,7 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info 
    p_add_proto_data(pinfo->fd, proto_cip, preq_info);
 
    /* Create display subtree for the protocol */
-   ti = proto_tree_add_item(item_tree, proto_cip, tvb, 0, -1, ENC_BIG_ENDIAN);
+   ti = proto_tree_add_item(item_tree, proto_cip, tvb, 0, -1, ENC_NA);
    cip_tree = proto_item_add_subtree( ti, ett_cip );
 
    /* Add Service code & Request/Response tree */

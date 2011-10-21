@@ -124,7 +124,7 @@ typedef struct {
 	gboolean OFF;
 	gboolean ON;
 
-	gboolean UP;  
+	gboolean UP;
 	gboolean DOWN;
 
 	/* QOC qualifier-bits */
@@ -1118,7 +1118,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 	/*** *** DISSECT 'Packet Details' *** ***/
 
-	it104 = proto_tree_add_item(tree, proto_iec104asdu, tvb, 0, -1, FALSE);
+	it104 = proto_tree_add_item(tree, proto_iec104asdu, tvb, 0, -1, ENC_NA);
 
 	/* 'Packet Details': ROOT ITEM */
 	proto_item_append_text(it104, ": %s'%s'", res->str, Len >= ASDU_HEAD_LEN ? val_to_str(asduh->TypeId, asdu_lngtypes, "<Unknown TypeId>") : "");
@@ -1176,7 +1176,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 		case C_CS_NA_1:
 
 			/* create subtree for the signal values ... */
-			itSignal = proto_tree_add_item( trHead, proto_iec104asdu, tvb, offset, -1, FALSE );
+			itSignal = proto_tree_add_item( trHead, proto_iec104asdu, tvb, offset, -1, ENC_NA );
 			proto_item_append_text(itSignal, ": Value");
 
 			trSignal = proto_item_add_subtree( itSignal, ett_asdu );
@@ -1606,7 +1606,7 @@ static void dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 	/*** *** DISSECT 'Packet Details' *** ***/
 
-	it104 = proto_tree_add_item(tree, proto_iec104apci, tvb, 0, Off+ APCI_LEN, FALSE);
+	it104 = proto_tree_add_item(tree, proto_iec104apci, tvb, 0, Off+ APCI_LEN, ENC_NA);
 
 	/* 'Packet Details': ROOT ITEM */
 	proto_item_append_text(it104, ": %s", res->str);

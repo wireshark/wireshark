@@ -398,7 +398,7 @@ dissect_qsig_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     return offset;
   service = get_service(opcode);
 
-  ti = proto_tree_add_item(tree, proto_qsig, tvb, offset, tvb_length(tvb), FALSE);
+  ti = proto_tree_add_item(tree, proto_qsig, tvb, offset, tvb_length(tvb), ENC_NA);
   qsig_tree = proto_item_add_subtree(ti, ett_qsig);
 
   proto_tree_add_uint(qsig_tree, hf_qsig_operation, tvb, 0, 0, opcode);
@@ -449,7 +449,7 @@ dissect_qsig_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     return offset;
   service = get_service(opcode);
 
-  ti = proto_tree_add_item(tree, proto_qsig, tvb, offset, tvb_length(tvb), FALSE);
+  ti = proto_tree_add_item(tree, proto_qsig, tvb, offset, tvb_length(tvb), ENC_NA);
   qsig_tree = proto_item_add_subtree(ti, ett_qsig);
 
   proto_tree_add_uint(qsig_tree, hf_qsig_operation, tvb, 0, 0, opcode);
@@ -499,7 +499,7 @@ dissect_qsig_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   if (!err_ptr)
     return offset;
 
-  ti = proto_tree_add_item(tree, proto_qsig, tvb, offset, tvb_length(tvb), FALSE);
+  ti = proto_tree_add_item(tree, proto_qsig, tvb, offset, tvb_length(tvb), ENC_NA);
   qsig_tree = proto_item_add_subtree(ti, ett_qsig);
 
   proto_tree_add_uint(qsig_tree, hf_qsig_error, tvb, 0, 0, errcode);
@@ -547,7 +547,7 @@ dissect_qsig_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int codeset
 
   offset = 0;
 
-  ti = proto_tree_add_item(tree, proto_qsig, tvb, offset, -1, FALSE);
+  ti = proto_tree_add_item(tree, proto_qsig, tvb, offset, -1, ENC_NA);
   PROTO_ITEM_SET_HIDDEN(ti);
 
   ie_type = tvb_get_guint8(tvb, offset);

@@ -221,7 +221,7 @@ dissect_itdm_125usec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (tree)
   {
-	itdm_item = proto_tree_add_item(tree, proto_itdm, tvb, 0, -1, FALSE);
+	itdm_item = proto_tree_add_item(tree, proto_itdm, tvb, 0, -1, ENC_NA);
 	itdm_tree = proto_item_add_subtree(itdm_item, ett_itdm);
 
 	proto_tree_add_item(itdm_tree, hf_itdm_timestamp, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -316,7 +316,7 @@ dissect_itdm_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (tree)
   {
-	itdm_ctl_item = proto_tree_add_item(tree, proto_itdm, tvb, 0, -1, FALSE);
+	itdm_ctl_item = proto_tree_add_item(tree, proto_itdm, tvb, 0, -1, ENC_NA);
 	itdm_ctl_tree = proto_item_add_subtree(itdm_ctl_item, ett_itdm_ctl);
 
 	/* These eventually should go into a SFP.0 dissector... */
@@ -369,7 +369,7 @@ dissect_itdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   guint32 flowid;
 
-	/* ZZZ for now, 125 usec mode and I-TDM control protocol 
+	/* ZZZ for now, 125 usec mode and I-TDM control protocol
 	 * need to add 1ms mode */
 	if (tvb_length(tvb) < 18)
 		return;

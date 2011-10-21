@@ -1896,7 +1896,7 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *opcode_tree;
 
 	if(tree){
-		ti_cmd = proto_tree_add_item(tree, proto_bthci_cmd, tvb, offset, -1, ENC_BIG_ENDIAN);
+		ti_cmd = proto_tree_add_item(tree, proto_bthci_cmd, tvb, offset, -1, ENC_NA);
 		bthci_cmd_tree = proto_item_add_subtree(ti_cmd, ett_bthci_cmd);
 	}
 

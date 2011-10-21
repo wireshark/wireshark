@@ -1383,7 +1383,7 @@ dissect_h248(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.248");
 
     if (tree) {
-        h248_item = proto_tree_add_item(tree, proto_h248, tvb, 0, -1, FALSE);
+        h248_item = proto_tree_add_item(tree, proto_h248, tvb, 0, -1, ENC_NA);
         h248_tree = proto_item_add_subtree(h248_item, ett_h248);
     }
 

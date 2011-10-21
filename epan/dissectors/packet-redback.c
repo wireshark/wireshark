@@ -69,7 +69,7 @@ dissect_redback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	l3off = tvb_get_ntohs(tvb, 22);
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_redback, tvb, 0, -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_redback, tvb, 0, -1, ENC_NA);
 		rbtree = proto_item_add_subtree(ti, ett_redback);
 
 		proto_tree_add_item(rbtree, hf_redback_context, tvb, 0, 4, ENC_BIG_ENDIAN);
@@ -105,7 +105,7 @@ dissect_redback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case 0x02:
 			/*
 			 * This is ISIS - Either incoming with ethernet FCS
-			 * and CLNP - passed to the eth dissector or in case 
+			 * and CLNP - passed to the eth dissector or in case
 			 * of outgoing its pure ISIS and the linecard attaches
 			 * the ethernet and CLNP headers ...
 			 *

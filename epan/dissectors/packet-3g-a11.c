@@ -1622,7 +1622,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                      tvb_ip_to_str(tvb, 12));
 
         if (tree) {
-            ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_BIG_ENDIAN);
+            ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_NA);
             a11_tree = proto_item_add_subtree(ti, ett_a11);
 
             /* type */
@@ -1671,7 +1671,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         if (tree) {
             /* Add Subtree */
-            ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_BIG_ENDIAN);
+            ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_NA);
             a11_tree = proto_item_add_subtree(ti, ett_a11);
 
             /* Type */
@@ -1705,7 +1705,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                      tvb_ip_to_str(tvb, 8));
         if (tree) {
             /* Add Subtree */
-            ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_BIG_ENDIAN);
+            ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_NA);
             a11_tree = proto_item_add_subtree(ti, ett_a11);
 
             /* Type */
@@ -1735,7 +1735,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                      tvb_get_guint8(tvb,3));
         if (tree) {
             /* Add Subtree */
-            ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_BIG_ENDIAN);
+            ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_NA);
             a11_tree = proto_item_add_subtree(ti, ett_a11);
 
             /* Type */
@@ -1768,7 +1768,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                      tvb_ip_to_str(tvb, 8));
         if (tree) {
             /* Add Subtree */
-            ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_BIG_ENDIAN);
+            ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_NA);
             a11_tree = proto_item_add_subtree(ti, ett_a11);
 
             /* Type */
@@ -1798,7 +1798,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                      tvb_get_guint8(tvb,3));
         if (tree) {
             /* Add Subtree */
-            ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_BIG_ENDIAN);
+            ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_NA);
             a11_tree = proto_item_add_subtree(ti, ett_a11);
 
             /* Type */
@@ -1832,7 +1832,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                      tvb_ip_to_str(tvb, 12));
         if (tree) {
             /* Add Subtree */
-            ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_BIG_ENDIAN);
+            ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_NA);
             a11_tree = proto_item_add_subtree(ti, ett_a11);
 
             /* Type */
@@ -1865,7 +1865,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                      tvb_ip_to_str(tvb, 8));
         if (tree) {
             /* Add Subtree */
-            ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_BIG_ENDIAN);
+            ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_NA);
             a11_tree = proto_item_add_subtree(ti, ett_a11);
 
             /* Type */

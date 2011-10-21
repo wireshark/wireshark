@@ -2044,7 +2044,7 @@ dissect_q2931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_q2931, tvb, offset, -1,
-		    FALSE);
+		    ENC_NA);
 		q2931_tree = proto_item_add_subtree(ti, ett_q2931);
 
 		proto_tree_add_uint(q2931_tree, hf_q2931_discriminator, tvb, offset, 1, tvb_get_guint8(tvb, offset));

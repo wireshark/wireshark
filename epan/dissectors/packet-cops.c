@@ -920,7 +920,7 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         guint8 ver_flags;
         gint garbage;
 
-        ti = proto_tree_add_item(tree, proto_cops, tvb, offset, -1, FALSE);
+        ti = proto_tree_add_item(tree, proto_cops, tvb, offset, -1, ENC_NA);
         cops_tree = proto_item_add_subtree(ti, ett_cops);
 
         /* Version and flags share the same byte, put them in a subtree */

@@ -2226,7 +2226,7 @@ dissect_wimaxasncp(
     {
         packet_item = proto_tree_add_item(
             tree, proto_wimaxasncp,
-            tvb, 0, MIN(WIMAXASNCP_HEADER_LENGTH_END, tvb_length(tvb)), FALSE);
+            tvb, 0, MIN(WIMAXASNCP_HEADER_LENGTH_END, tvb_length(tvb)), ENC_NA);
 
         wimaxasncp_tree = proto_item_add_subtree(
             packet_item, ett_wimaxasncp);

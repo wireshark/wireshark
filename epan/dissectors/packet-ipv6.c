@@ -1650,7 +1650,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item *ipv6_tc;
     const char *name;
 
-    ipv6_item = proto_tree_add_item(tree, proto_ipv6, tvb, offset, -1, FALSE);
+    ipv6_item = proto_tree_add_item(tree, proto_ipv6, tvb, offset, -1, ENC_NA);
     ipv6_tree = proto_item_add_subtree(ipv6_item, ett_ipv6);
 
     /* !!! warning: (4-bit) version, (6-bit) DSCP, (1-bit) ECN-ECT, (1-bit) ECN-CE and (20-bit) Flow */

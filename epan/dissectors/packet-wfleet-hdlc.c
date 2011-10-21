@@ -65,7 +65,7 @@ dissect_wfleet_hdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   cmd = tvb_get_guint8(tvb, 1);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_wfleet_hdlc, tvb, 0, 2, FALSE);
+    ti = proto_tree_add_item(tree, proto_wfleet_hdlc, tvb, 0, 2, ENC_NA);
     fh_tree = proto_item_add_subtree(ti, ett_wfleet_hdlc);
 
     proto_tree_add_uint(fh_tree, hf_wfleet_hdlc_addr, tvb, 0, 1, addr);
@@ -74,7 +74,7 @@ dissect_wfleet_hdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   /*
-   * Build a tvb of the piece past the first two bytes and call the 
+   * Build a tvb of the piece past the first two bytes and call the
    * ethernet dissector
    */
 
@@ -115,7 +115,7 @@ proto_reg_handoff_wfleet_hdlc(void)
   wfleet_hdlc_handle = find_dissector("wfleet_hdlc");
   dissector_add_uint("wtap_encap", WTAP_ENCAP_WFLEET_HDLC, wfleet_hdlc_handle);
 
-  /* 
+  /*
    * Find the eth dissector and save a ref to it
    */
 

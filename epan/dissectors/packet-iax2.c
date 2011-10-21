@@ -1037,7 +1037,7 @@ dissect_iax2 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   /* add the 'iax2' tree to the main tree */
   if (tree)
     {
-      iax2_item = proto_tree_add_item (tree, proto_iax2, tvb, offset, -1, FALSE);
+      iax2_item = proto_tree_add_item (tree, proto_iax2, tvb, offset, -1, ENC_NA);
       iax2_tree = proto_item_add_subtree (iax2_item, ett_iax2);
     }
 

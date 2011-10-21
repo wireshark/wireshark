@@ -63,18 +63,18 @@ dissect_paltalk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Detect if this TCP session is a Paltalk one */
 	/* TODO: Optimize detection logic if possible */
 
-	if ((pinfo->net_src.type != AT_IPv4) 
+	if ((pinfo->net_src.type != AT_IPv4)
 	    || (pinfo->net_dst.type != AT_IPv4)
 	    || (pinfo->net_src.len != 4)
 	    || (pinfo->net_dst.len != 4)
-	    || !pinfo->net_src.data 
+	    || !pinfo->net_src.data
 	    || !pinfo->net_dst.data)
 		return FALSE;
 
 	memcpy((guint8 *)&src32, pinfo->net_src.data, 4); /* *Network* order */
 	memcpy((guint8 *)&dst32, pinfo->net_dst.data, 4); /* *Network* order */
 
-	if ( ((src32 & PALTALK_SERVERS_NETMASK) != PALTALK_SERVERS_ADDRESS) 
+	if ( ((src32 & PALTALK_SERVERS_NETMASK) != PALTALK_SERVERS_ADDRESS)
 	     &&
 	     ((dst32 & PALTALK_SERVERS_NETMASK) != PALTALK_SERVERS_ADDRESS))
 		return FALSE;
@@ -102,7 +102,7 @@ dissect_paltalk_desegmented(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree)		/* we are being asked for details */
 	{
-		ti = proto_tree_add_item(tree, proto_paltalk, tvb, 0, -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_paltalk, tvb, 0, -1, ENC_NA);
 		pt_tree = proto_item_add_subtree(ti, ett_paltalk);
 		proto_tree_add_item(pt_tree, hf_paltalk_pdu_type, tvb, 0, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(pt_tree, hf_paltalk_version, tvb, 2, 2, ENC_BIG_ENDIAN);
@@ -115,7 +115,7 @@ void
 proto_register_paltalk(void)
 {
 	static hf_register_info hf[] = {
-		{ &hf_paltalk_pdu_type, { "Packet Type", "paltalk.type", 
+		{ &hf_paltalk_pdu_type, { "Packet Type", "paltalk.type",
 					  FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL }},
 		{ &hf_paltalk_version,  { "Protocol Version", "paltalk.version",
 					  FT_INT16, BASE_DEC, NULL, 0x00, NULL, HFILL }},

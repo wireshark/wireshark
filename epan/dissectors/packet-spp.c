@@ -122,7 +122,7 @@ dissect_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_INFO, "SPP");
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_spp, tvb, 0, SPP_HEADER_LEN, FALSE);
+		ti = proto_tree_add_item(tree, proto_spp, tvb, 0, SPP_HEADER_LEN, ENC_NA);
 		spp_tree = proto_item_add_subtree(ti, ett_spp);
 	}
 

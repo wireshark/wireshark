@@ -1521,7 +1521,7 @@ process_l2tpv3_data_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	sid = tvb_get_ntohl(tvb, idx);
 
 	if (tree) {
-		l2tp_item = proto_tree_add_item(tree, proto_l2tp, tvb, 0, -1, FALSE);
+		l2tp_item = proto_tree_add_item(tree, proto_l2tp, tvb, 0, -1, ENC_NA);
 		l2tp_tree = proto_item_add_subtree(l2tp_item, ett_l2tp);
 		proto_item_append_text(l2tp_item, " version 3");
 
@@ -1558,7 +1558,7 @@ process_l2tpv3_data_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	sid = tvb_get_ntohl(tvb, idx);
 
 	if (tree) {
-		l2tp_item = proto_tree_add_item(tree, proto_l2tp, tvb, 0, -1, FALSE);
+		l2tp_item = proto_tree_add_item(tree, proto_l2tp, tvb, 0, -1, ENC_NA);
 		l2tp_tree = proto_item_add_subtree(l2tp_item, ett_l2tp);
 		proto_item_append_text(l2tp_item, " version 3");
 
@@ -1653,7 +1653,7 @@ process_l2tpv3_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 	}
 
 	if (tree) {
-		l2tp_item = proto_tree_add_item(tree, proto_l2tp, tvb, 0, -1, FALSE);
+		l2tp_item = proto_tree_add_item(tree, proto_l2tp, tvb, 0, -1, ENC_NA);
 		l2tp_tree = proto_item_add_subtree(l2tp_item, ett_l2tp);
 		proto_item_append_text(l2tp_item, " version 3");
 
@@ -1840,7 +1840,7 @@ dissect_l2tp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (tree) {
-		l2tp_item = proto_tree_add_item(tree,proto_l2tp, tvb, 0, -1, FALSE);
+		l2tp_item = proto_tree_add_item(tree,proto_l2tp, tvb, 0, -1, ENC_NA);
 		l2tp_tree = proto_item_add_subtree(l2tp_item, ett_l2tp);
 
 		ti = proto_tree_add_text(l2tp_tree, tvb, 0, 2,

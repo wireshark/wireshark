@@ -1371,7 +1371,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   hlen = lo_nibble(iph->ip_v_hl) * 4;	/* IP header length, in bytes */
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_ip, tvb, offset, hlen, FALSE);
+    ti = proto_tree_add_item(tree, proto_ip, tvb, offset, hlen, ENC_NA);
     ip_tree = proto_item_add_subtree(ti, ett_ip);
 
     proto_tree_add_uint(ip_tree, hf_ip_version, tvb, offset, 1,

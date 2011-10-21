@@ -94,7 +94,7 @@ dissect_hpsw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tree) {
 		guint16 offset =0;
 
-		ti = proto_tree_add_item(tree, proto_hpsw, tvb, 0, -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_hpsw, tvb, 0, -1, ENC_NA);
 		hp_tree = proto_item_add_subtree(ti, ett_hpsw);
 		proto_tree_add_uint(hp_tree, hf_hpsw_version, tvb, 0, 1, version);
 		offset++;

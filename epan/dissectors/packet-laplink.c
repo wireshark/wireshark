@@ -12,12 +12,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -99,9 +99,9 @@ dissect_laplink_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_add_str(pinfo->cinfo, COL_INFO, udp_ident_string);
-    
+
 	if (tree){
-		ti = proto_tree_add_item(tree, proto_laplink, tvb, 0, -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_laplink, tvb, 0, -1, ENC_NA);
 		laplink_tree = proto_item_add_subtree(ti, ett_laplink);
 
 		proto_tree_add_uint(laplink_tree, hf_laplink_udp_ident, tvb, offset, 4, udp_ident);
@@ -130,9 +130,9 @@ dissect_laplink_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_add_str(pinfo->cinfo, COL_INFO,
 			    val_to_str(tcp_ident, laplink_tcp_magic, "TCP TBA (%u)"));
 	}
-    
+
 	if (tree){
-		ti = proto_tree_add_item(tree, proto_laplink, tvb, 0, -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_laplink, tvb, 0, -1, ENC_NA);
 
 
 		laplink_tree = proto_item_add_subtree(ti, ett_laplink);
@@ -168,7 +168,7 @@ static void
 dissect_laplink_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	tcp_dissect_pdus(tvb, pinfo, tree, laplink_desegment,
-			 6, get_laplink_pdu_len, 
+			 6, get_laplink_pdu_len,
 			 dissect_laplink_tcp_pdu);
 }
 
@@ -177,33 +177,33 @@ dissect_laplink_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 void
 proto_register_laplink(void)
-{                 
+{
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
 	static hf_register_info hf[] = {
 		{ &hf_laplink_udp_ident,
 			{ "UDP Ident", "laplink.udp_ident",
-			FT_UINT32, BASE_HEX, VALS(laplink_udp_magic), 0x0,          
+			FT_UINT32, BASE_HEX, VALS(laplink_udp_magic), 0x0,
 			"Unknown magic", HFILL }
 		},
 		{ &hf_laplink_udp_name,
 			{ "UDP Name", "laplink.udp_name",
-			FT_STRINGZ, BASE_NONE, NULL, 0x0,          
+			FT_STRINGZ, BASE_NONE, NULL, 0x0,
 			"Machine name", HFILL }
 		},
 		{ &hf_laplink_tcp_ident,
 			{ "TCP Ident", "laplink.tcp_ident",
-			FT_UINT32, BASE_HEX, VALS(laplink_tcp_magic), 0x0,          
+			FT_UINT32, BASE_HEX, VALS(laplink_tcp_magic), 0x0,
 			"Unknown magic", HFILL }
 		},
 		{ &hf_laplink_tcp_length,
 			{ "TCP Data payload length", "laplink.tcp_length",
-			FT_UINT16, BASE_DEC, NULL, 0x0,          
+			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"Length of remaining payload", HFILL }
 		},
 		{ &hf_laplink_tcp_data,
 			{ "Unknown TCP data", "laplink.tcp_data",
-			FT_BYTES, BASE_NONE, NULL, 0x0,          
+			FT_BYTES, BASE_NONE, NULL, 0x0,
 			"TCP data", HFILL }
 		},
 	};

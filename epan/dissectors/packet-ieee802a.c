@@ -95,7 +95,7 @@ dissect_ieee802a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_ieee802a, tvb, 0, -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_ieee802a, tvb, 0, -1, ENC_NA);
 		ieee802a_tree = proto_item_add_subtree(ti, ett_ieee802a);
 	} else
 		ieee802a_tree = NULL;

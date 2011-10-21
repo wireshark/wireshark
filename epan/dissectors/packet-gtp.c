@@ -6673,7 +6673,7 @@ static void dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
     col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext_const(gtp_hdr.message, &message_type_ext, "Unknown"));
 
     if (tree) {
-        ti = proto_tree_add_item(tree, proto_gtp, tvb, 0, -1, ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item(tree, proto_gtp, tvb, 0, -1, ENC_NA);
         gtp_tree = proto_item_add_subtree(ti, ett_gtp);
 
         tf = proto_tree_add_uint(gtp_tree, hf_gtp_flags, tvb, 0, 1, gtp_hdr.flags);
@@ -6748,14 +6748,14 @@ static void dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
                     /* proto_tree_add_uint(gtp_tree, hf_gtp_next, tvb, offset, 1, next_hdr); */
 
                     offset++;
-                    
+
                     /* Change to while? */
                     if (next_hdr) {
 
                         /* TODO Add support for more than one extension header */
-                        
+
                         noOfExtHdrs++;
-                        
+
                         tf = proto_tree_add_uint(gtp_tree, hf_gtp_ext_hdr, tvb, offset, 4, next_hdr);
                         ext_tree = proto_item_add_subtree(tf, ett_gtp_ext_hdr);
 
@@ -6772,7 +6772,7 @@ static void dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
                          * Wireshark Note: TS 29.060 does not define bit 5-6 as spare, so no check is possible unless a preference is used.
 						 */
                         if (next_hdr == GTP_EXT_HDR_PDCP_SN) {
-                                                                                  
+
                             /* First byte is length (should be 1) */
                         	ext_hdr_length = tvb_get_guint8(tvb, offset);
                         	if (ext_hdr_length != 1) {
@@ -6783,7 +6783,7 @@ static void dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
 
                             proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_pdcpsn, tvb, offset, 2, ENC_BIG_ENDIAN);
                             offset += 2;
-                            
+
                             /* Last is next_hdr */
                             next_hdr = tvb_get_guint8(tvb, offset);
                             item = proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_next, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -6791,9 +6791,9 @@ static void dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
                             if (next_hdr) {
                             	expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "Can't decode more than one extension header.");
                             }
-                            offset++;                            
+                            offset++;
                          }
-                    }   
+                    }
                 }
                 break;
             default:

@@ -95,18 +95,18 @@ dissect_tali_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   char opcode[TALI_OPCODE_LENGTH+1]; /* TALI opcode */
   guint16 length; /* TALI length */
   tvbuff_t *payload_tvb = NULL;
-  
+
   /* Set up structures needed to add the protocol subtree and manage it */
   proto_item *tali_item = NULL;
   proto_tree *tali_tree = NULL;
-  
+
   tvb_memcpy(tvb, (guint8*)opcode, TALI_SYNC_LENGTH, TALI_OPCODE_LENGTH);
   opcode[TALI_OPCODE_LENGTH] = '\0';
   length = tvb_get_letohs(tvb, TALI_SYNC_LENGTH + TALI_OPCODE_LENGTH);
 
   /* Make entries in Protocol column on summary display */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "TALI");
-  
+
   if (check_col(pinfo->cinfo, COL_INFO)) {
     col_set_str(pinfo->cinfo, COL_INFO, "");
     col_append_fstr(pinfo->cinfo, COL_INFO, "[%s] packet, [%u] bytes in payload", opcode, length);
@@ -114,7 +114,7 @@ dissect_tali_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (tree) {
     /* create display subtree for the protocol */
-    tali_item = proto_tree_add_item(tree, proto_tali, tvb, 0, TALI_HEADER_LENGTH, TRUE);
+    tali_item = proto_tree_add_item(tree, proto_tali, tvb, 0, TALI_HEADER_LENGTH, ENC_NA);
     tali_tree = proto_item_add_subtree(tali_item, ett_tali);
     proto_tree_add_string(tali_tree, hf_tali_sync_indicator,   tvb, 0, TALI_SYNC_LENGTH, TALI_SYNC);
     proto_tree_add_string(tali_tree, hf_tali_opcode_indicator, tvb, TALI_SYNC_LENGTH, TALI_OPCODE_LENGTH, opcode);
@@ -196,7 +196,7 @@ proto_register_tali(void)
   proto_tali = proto_register_protocol("Transport Adapter Layer Interface v1.0, RFC 3094", "TALI", "tali");
   register_dissector("tali", dissect_tali, proto_tali);
   tali_handle = create_dissector_handle(dissect_tali, proto_tali);
-  
+
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_tali, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

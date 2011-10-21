@@ -569,7 +569,7 @@ static void dissect_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		guint16	 framesize;
 		tvbuff_t *sub_tvb;
 
-		temp_item = proto_tree_add_item(tree, proto_synphasor, tvb, 0, -1, FALSE);
+		temp_item = proto_tree_add_item(tree, proto_synphasor, tvb, 0, -1, ENC_NA);
 		proto_item_append_text(temp_item, ", %s", val_to_str(frame_type, typenames,
 								     ", invalid packet type"));
 

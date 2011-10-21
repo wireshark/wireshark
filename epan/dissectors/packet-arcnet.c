@@ -151,7 +151,7 @@ dissect_arcnet_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
   SET_ADDRESS(&pinfo->dl_dst,	AT_ARCNET, 1, tvb_get_ptr(tvb, 1, 1));
   SET_ADDRESS(&pinfo->dst,	AT_ARCNET, 1, tvb_get_ptr(tvb, 1, 1));
 
-  ti = proto_tree_add_item (tree, proto_arcnet, tvb, 0, -1, ENC_BIG_ENDIAN);
+  ti = proto_tree_add_item (tree, proto_arcnet, tvb, 0, -1, ENC_NA);
 
   arcnet_tree = proto_item_add_subtree (ti, ett_arcnet);
 

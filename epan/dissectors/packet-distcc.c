@@ -13,12 +13,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -135,7 +135,7 @@ dissect_distcc_argc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int
 static int
 dissect_distcc_argv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gint parameter)
 {
-	char argv[256]; 
+	char argv[256];
 	int argv_len;
 	gint len=parameter;
 
@@ -164,7 +164,7 @@ dissect_distcc_argv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int
 static int
 dissect_distcc_serr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gint parameter)
 {
-	char argv[256]; 
+	char argv[256];
 	int argv_len;
 	gint len=parameter;
 
@@ -193,7 +193,7 @@ dissect_distcc_serr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int
 static int
 dissect_distcc_sout(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gint parameter)
 {
-	char argv[256]; 
+	char argv[256];
 	int argv_len;
 	gint len=parameter;
 
@@ -271,7 +271,7 @@ dissect_distcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_item *item=NULL;
 	char token[4];
 	guint32 parameter;
-	
+
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DISTCC ");
 
@@ -279,12 +279,12 @@ dissect_distcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, proto_distcc, tvb, offset,
-			-1, ENC_BIG_ENDIAN);
+			-1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_distcc);
 	}
 
 	while(1){
-		/* we must have at least 12 bytes so we can read the 
+		/* we must have at least 12 bytes so we can read the
 		   token and the parameter */
 		if(tvb_length_remaining(tvb, offset)<12){
 			return;
@@ -320,7 +320,7 @@ dissect_distcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		} else {
 			call_dissector(data_handle, tvb, pinfo, tree);
 			return;
-		}		
+		}
 	}
 
 

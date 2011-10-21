@@ -312,7 +312,7 @@ dissect_eap_mschapv2(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
 	/* OpCode (1 byte), MS-CHAPv2-ID (1 byte), MS-Length (2 bytes), Data */
 	opcode = tvb_get_guint8(tvb, offset);
 	proto_tree_add_text(eap_tree, tvb, offset, 1,
-			    "OpCode: %d (%s)", 
+			    "OpCode: %d (%s)",
 			    opcode, val_to_str(opcode, opcodes, "Unknown"));
 	offset++;
 	left--;
@@ -461,7 +461,7 @@ dissect_eap_sim(proto_tree *eap_tree, tvbuff_t *tvb, int offset, gint size)
 
 	subtype = tvb_get_guint8(tvb, offset);
 	proto_tree_add_text(eap_tree, tvb, offset, 1,
-			    "subtype: %d (%s)", 
+			    "subtype: %d (%s)",
 			    subtype, val_to_str(subtype, subtypes, "Unknown"));
 
 	offset++;
@@ -487,7 +487,7 @@ dissect_eap_sim(proto_tree *eap_tree, tvbuff_t *tvb, int offset, gint size)
 		aleft = 4 * length;
 
 		pi = proto_tree_add_text(eap_tree, tvb, aoffset, aleft,
-					 "Attribute: %s", 
+					 "Attribute: %s",
 					 val_to_str(type, attributes,
 						    "Unknown %u"));
 		attr_tree = proto_item_add_subtree(pi, ett_eap_sim_attr);
@@ -564,7 +564,7 @@ dissect_eap_aka(proto_tree *eap_tree, tvbuff_t *tvb, int offset, gint size)
 
 	subtype = tvb_get_guint8(tvb, offset);
 	proto_tree_add_text(eap_tree, tvb, offset, 1,
-			    "subtype: %d (%s)", 
+			    "subtype: %d (%s)",
 			    subtype, val_to_str(subtype, subtypes, "Unknown"));
 
 	offset++;
@@ -590,7 +590,7 @@ dissect_eap_aka(proto_tree *eap_tree, tvbuff_t *tvb, int offset, gint size)
 		aleft = 4 * length;
 
 		pi = proto_tree_add_text(eap_tree, tvb, aoffset, aleft,
-					 "Attribute: %s", 
+					 "Attribute: %s",
 					 val_to_str(type, attributes,
 						    "Unknown %u"));
 		attr_tree = proto_item_add_subtree(pi, ett_eap_aka_attr);
@@ -709,7 +709,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   len = eap_len;
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_eap, tvb, 0, len, FALSE);
+    ti = proto_tree_add_item(tree, proto_eap, tvb, 0, len, ENC_NA);
     eap_tree = proto_item_add_subtree(ti, ett_eap);
 
     proto_tree_add_uint(eap_tree, hf_eap_code, tvb, 0, 1, eap_code);

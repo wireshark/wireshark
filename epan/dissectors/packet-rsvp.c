@@ -6272,7 +6272,7 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     message_type = tvb_get_guint8(tvb, 1);
 
     ti = proto_tree_add_item(tree, proto_rsvp, tvb, offset, msg_length,
-			     FALSE);
+			     ENC_NA);
     rsvp_tree = proto_item_add_subtree(ti, tree_mode);
     if (pinfo->ipproto == IP_PROTO_RSVPE2EI)
 	proto_item_append_text(rsvp_tree, " (E2E-IGNORE)");

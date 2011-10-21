@@ -7,17 +7,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -57,7 +57,7 @@ static int ett_g723 = -1;
 
  */
 static const value_string g723_frame_size_and_codec_type_value[] = {
-	{0,			"High-rate speech (6.3 kb/s)"}, 
+	{0,			"High-rate speech (6.3 kb/s)"},
 	{1,			"Low-rate speech  (5.3 kb/s)"}, /* Not coded */
 	{2,			"SID frame"},
 	{3,			"Reserved"},
@@ -79,16 +79,16 @@ dissect_g723(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* Make entries in Protocol column and Info column on summary display */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "G.723.1");
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_g723, tvb, 0, -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_g723, tvb, 0, -1, ENC_NA);
 
 		g723_tree = proto_item_add_subtree(ti, ett_g723);
 
 		octet = tvb_get_guint8(tvb,offset);
 		proto_tree_add_item(g723_tree, hf_g723_frame_size_and_codec, tvb, offset, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(g723_tree, hf_g723_lpc_B5_B0, tvb, offset, 1, ENC_BIG_ENDIAN);
-	
+
 		if ((octet & 0x1) == 1 ) /* Low rate */
-			return; 
+			return;
 	}/* if tree */
 
 }
@@ -103,7 +103,7 @@ void
 proto_reg_handoff_g723(void)
 {
 	dissector_handle_t g723_handle;
-	
+
 	g723_handle = create_dissector_handle(dissect_g723, proto_g723);
 
 	dissector_add_uint("rtp.pt", PT_G723, g723_handle);
@@ -116,19 +116,19 @@ proto_reg_handoff_g723(void)
 
 void
 proto_register_g723(void)
-{                 
+{
 
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
 	static hf_register_info hf[] = {
 		{ &hf_g723_frame_size_and_codec,
 			{ "Frame size and codec type", "g723.frame_size_and_codec",
-			FT_UINT8, BASE_HEX, VALS(g723_frame_size_and_codec_type_value), 0x03,          
+			FT_UINT8, BASE_HEX, VALS(g723_frame_size_and_codec_type_value), 0x03,
 			"RATEFLAG_B0", HFILL }
 		},
 		{ &hf_g723_lpc_B5_B0,
 			{ "LPC_B5...LPC_B0",           "g723.lpc.b5b0",
-			FT_UINT8, BASE_HEX, NULL, 0xfc,          
+			FT_UINT8, BASE_HEX, NULL, 0xfc,
 			NULL, HFILL }
 		},
 

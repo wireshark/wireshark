@@ -391,7 +391,7 @@ parse_gsm_sms_ud_message(proto_tree *sm_tree, tvbuff_t *tvb, packet_info *pinfo,
 				if ( prevent_subdissectors_changing_columns && col_get_writable(pinfo->cinfo) ) {
 					disallow_write = TRUE;
 					col_set_writable(pinfo->cinfo, FALSE);
-				}				
+				}
 
 				if ( port_number_udh_means_wsp ) {
 					call_dissector (wsp_handle, sm_tvb, pinfo, top_tree);
@@ -407,7 +407,7 @@ parse_gsm_sms_ud_message(proto_tree *sm_tree, tvbuff_t *tvb, packet_info *pinfo,
 						}
 					}
 				}
-				
+
 				if ( disallow_write )
 					col_set_writable(pinfo->cinfo, TRUE);
 			} else { /* No ports IE */
@@ -433,7 +433,7 @@ dissect_gsm_sms_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti;
 	proto_tree *subtree;
-	ti = proto_tree_add_item(tree, proto_gsm_sms_ud, tvb, 0, -1, TRUE);
+	ti = proto_tree_add_item(tree, proto_gsm_sms_ud, tvb, 0, -1, ENC_NA);
 	subtree = proto_item_add_subtree(ti, ett_gsm_sms);
 	parse_gsm_sms_ud_message(subtree, tvb, pinfo, tree);
 }

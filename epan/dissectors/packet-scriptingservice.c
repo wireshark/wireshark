@@ -190,7 +190,7 @@ dissect_ssprotocol(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
      necessary to generate protocol tree items. */
   if (tree) {
     /* create the ssprotocol protocol tree */
-    ssprotocol_item = proto_tree_add_item(tree, proto_ssprotocol, message_tvb, 0, -1, FALSE);
+    ssprotocol_item = proto_tree_add_item(tree, proto_ssprotocol, message_tvb, 0, -1, ENC_NA);
     ssprotocol_tree = proto_item_add_subtree(ssprotocol_item, ett_ssprotocol);
   } else {
     ssprotocol_tree = NULL;

@@ -858,7 +858,7 @@ dissect_agentx_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if(!tree)
 		return;
 
-	/*t_item = proto_tree_add_item(tree, proto_agentx, tvb, 0, -1, FALSE);*/
+	/*t_item = proto_tree_add_item(tree, proto_agentx, tvb, 0, -1, ENC_NA);*/
 	t_item = proto_tree_add_protocol_format(tree, proto_agentx, tvb, 0, -1,
 			"Agent Extensibility (AgentX) Protocol: %s, sid=%d, tid=%d, packid=%d, plen=%d",
 			val_to_str(type, type_values, "unknown"),

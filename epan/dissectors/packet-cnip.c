@@ -100,7 +100,7 @@ static void dissect_cnip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset = 0;
 
 		/* Take whole packet for now, we'll adjust it later */
-		ti = proto_tree_add_item(tree, proto_cnip, tvb, offset, -1, ENC_BIG_ENDIAN);
+		ti = proto_tree_add_item(tree, proto_cnip, tvb, offset, -1, ENC_NA);
 		cnip_tree = proto_item_add_subtree(ti, ett_cnip);
 
 		proto_tree_add_item(cnip_tree, hf_cnip_len, tvb, offset, 2, ENC_BIG_ENDIAN);

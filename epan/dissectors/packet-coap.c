@@ -468,7 +468,7 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	coap_content_type = NULL;
 	coap_content_type_value = ~0;
 
-	coap_root = proto_tree_add_item(parent_tree, proto_coap, tvb, offset, -1, FALSE);
+	coap_root = proto_tree_add_item(parent_tree, proto_coap, tvb, offset, -1, ENC_NA);
 	coap_tree = proto_item_add_subtree(coap_root, ett_coap);
 
 	proto_tree_add_item(coap_tree, hf_coap_version, tvb, offset, 1, ENC_BIG_ENDIAN);

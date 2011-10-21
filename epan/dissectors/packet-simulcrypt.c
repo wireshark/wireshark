@@ -1223,7 +1223,7 @@ dissect_simulcrypt_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		guint32 offset = 0;
 		guint32 msg_length;
 
-		simulcrypt_item = proto_tree_add_item(tree, proto_simulcrypt, tvb, 0, -1, FALSE);
+		simulcrypt_item = proto_tree_add_item(tree, proto_simulcrypt, tvb, 0, -1, ENC_NA);
 		simulcrypt_tree = proto_item_add_subtree(simulcrypt_item, ett_simulcrypt);
 
 		proto_item_append_text(simulcrypt_item, ", Interface: %s", val_to_str(iftype, interfacenames, "Unknown (0x%02x)"));

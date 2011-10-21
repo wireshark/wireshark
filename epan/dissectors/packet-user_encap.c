@@ -92,7 +92,7 @@ static void dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
         }
     }
 
-    item = proto_tree_add_item(tree,proto_user_encap,tvb,0,-1,FALSE);
+    item = proto_tree_add_item(tree,proto_user_encap,tvb,0,-1,ENC_NA);
     if (!encap) {
         char* msg = ep_strdup_printf("User encapsulation not handled: DLT=%d, "
                                      "check your Preferences->Protocols->DLT_USER",

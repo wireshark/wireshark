@@ -130,7 +130,7 @@ dissect_kismet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_kismet, tvb, offset, -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_kismet, tvb, offset, -1, ENC_NA);
 		kismet_tree = proto_item_add_subtree(ti, ett_kismet);
 	}
 
@@ -262,7 +262,7 @@ dissect_kismet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		}
 		offset = next_offset;
 	}
-  
+
 	return TRUE;
 }
 
@@ -283,11 +283,11 @@ proto_register_kismet(void)
 {
 	static hf_register_info hf[] = {
 		{&hf_kismet_response,
-		{"Response", "kismet.response", FT_BOOLEAN, BASE_NONE, 
+		{"Response", "kismet.response", FT_BOOLEAN, BASE_NONE,
 		NULL, 0x0, "TRUE if kismet response", HFILL}},
 
 		{&hf_kismet_request,
-		{"Request", "kismet.request", FT_BOOLEAN, BASE_NONE, 
+		{"Request", "kismet.request", FT_BOOLEAN, BASE_NONE,
 		NULL, 0x0, "TRUE if kismet request", HFILL}}
 	};
 

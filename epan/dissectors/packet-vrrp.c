@@ -113,7 +113,7 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		guint16 cksum, computed_cksum;
 		guint8 auth_buf[VRRP_AUTH_DATA_LEN + 1];
 
-		ti = proto_tree_add_item(tree, proto_vrrp, tvb, 0, -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_vrrp, tvb, 0, -1, ENC_NA);
 		vrrp_tree = proto_item_add_subtree(ti, ett_vrrp);
 
 		tv = proto_tree_add_uint_format(vrrp_tree, hf_vrrp_ver_type,

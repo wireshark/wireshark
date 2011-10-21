@@ -95,7 +95,7 @@ dissect_qllc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_clear(pinfo->cinfo, COL_INFO);
 
     if (tree) {
-	qllc_ti = proto_tree_add_item(tree, proto_qllc, tvb, 0, -1, FALSE);
+	qllc_ti = proto_tree_add_item(tree, proto_qllc, tvb, 0, -1, ENC_NA);
 	qllc_tree = proto_item_add_subtree(qllc_ti, ett_qllc);
     }
 

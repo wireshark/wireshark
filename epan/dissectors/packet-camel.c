@@ -37,8 +37,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  * References: ETSI 300 374
  */
-/* 
- * Indentation logic: this file is indented with 2 spaces indentation. 
+/*
+ * Indentation logic: this file is indented with 2 spaces indentation.
  *                    there are no tabs.
  */
 #ifdef HAVE_CONFIG_H
@@ -82,7 +82,7 @@ static guint32 errorCode=0;
 /* ROSE context */
 static rose_ctx_t camel_rose_ctx;
 
-static int hf_digit = -1; 
+static int hf_digit = -1;
 static int hf_camel_extension_code_local = -1;
 static int hf_camel_error_code_local = -1;
 static int hf_camel_cause_indicator = -1;
@@ -872,8 +872,8 @@ static const value_string digit_value[] = {
     { 12, "spare"},
     { 13, "spare"},
     { 0,  NULL}};
-  
-  
+
+
 static const value_string camel_nature_of_addr_indicator_values[] = {
   {   0x00,  "unknown" },
   {   0x01,  "International Number" },
@@ -1233,7 +1233,7 @@ static char camel_number_to_char(int number)
 
 /*
  * 24.011 8.2.5.4
- */   
+ */
 static guint8
 dissect_RP_cause_ie(tvbuff_t *tvb, guint32 offset, _U_ guint len,
 		    proto_tree *tree, int hf_cause_value, guint8 *cause_value)
@@ -1241,21 +1241,21 @@ dissect_RP_cause_ie(tvbuff_t *tvb, guint32 offset, _U_ guint len,
   guint8	oct;
   guint32	curr_offset;
   static char a_bigbuf[1024];
-  
+
   curr_offset = offset;
   oct = tvb_get_guint8(tvb, curr_offset);
 
-  *cause_value = oct & 0x7f; 
-  
+  *cause_value = oct & 0x7f;
+
   other_decode_bitfield_value(a_bigbuf, oct, 0x7f, 8);
   proto_tree_add_uint_format(tree, hf_cause_value,
 			     tvb, curr_offset, 1, *cause_value,
 			     "%s : %s",
 			     a_bigbuf,
-			     val_to_str(*cause_value, camel_RP_Cause_values, 
+			     val_to_str(*cause_value, camel_RP_Cause_values,
 					"Unknown Cause (%u), treated as (41) \"Temporary failure\" for MO-SMS or (111) \"Protocol error,unspecified\" for MT-SMS"));
   curr_offset++;
-  
+
   if ((oct & 0x80)) {
     oct = tvb_get_guint8(tvb, curr_offset);
     proto_tree_add_uint_format(tree, hf_cause_value,
@@ -7078,14 +7078,14 @@ dissect_camel_camelPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn
   opcode = 0;
   application_context_version = 0;
   if (actx->pinfo->private_data != NULL){
-    p_private_tcap=actx->pinfo->private_data; 
-    
+    p_private_tcap=actx->pinfo->private_data;
+
     if (p_private_tcap->acv==TRUE ){
       version_ptr = strrchr(p_private_tcap->oid,'.');
       if (version_ptr)
 	application_context_version = atoi(version_ptr+1);
     }
-    gp_camelsrt_info->tcap_context=p_private_tcap->context; 
+    gp_camelsrt_info->tcap_context=p_private_tcap->context;
     if (p_private_tcap->context)
       gp_camelsrt_info->tcap_session_id
 
@@ -7121,14 +7121,14 @@ dissect_camel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
   /* create display subtree for the protocol */
   if(parent_tree){
-     item = proto_tree_add_item(parent_tree, proto_camel, tvb, 0, -1, FALSE);
+     item = proto_tree_add_item(parent_tree, proto_camel, tvb, 0, -1, ENC_NA);
      tree = proto_item_add_subtree(item, ett_camel);
   }
   /* camelsrt reset counter, and initialise global pointer
      to store service response time related data */
   gp_camelsrt_info=camelsrt_razinfo();
   dissect_camel_camelPDU(FALSE, tvb, 0, &asn1_ctx , tree, -1);
-  
+
   /* If a Tcap context is associated to this transaction */
   if (gcamel_HandleSRT &&
       gp_camelsrt_info->tcap_context ) {
@@ -7175,7 +7175,7 @@ void proto_reg_handoff_camel(void) {
     register_ber_oid_dissector_handle("0.4.0.0.1.21.3.61",camel_handle, proto_camel, "cap3-sms-AC" );
     register_ber_oid_dissector_handle("0.4.0.0.1.23.3.4",camel_handle, proto_camel, "capssf-scfGenericAC" );
     register_ber_oid_dissector_handle("0.4.0.0.1.23.3.61",camel_handle, proto_camel, "cap4-sms-AC" );
-	
+
 
 
 /*--- Included file: packet-camel-dis-tab.c ---*/
@@ -7194,7 +7194,7 @@ void proto_reg_handoff_camel(void) {
   ssn_range = range_copy(global_ssn_range);
 
   range_foreach(ssn_range, range_add_callback);
-  
+
 }
 
 void proto_register_camel(void) {
@@ -7240,12 +7240,12 @@ void proto_register_camel(void) {
       { "RP Cause",  "camel.RP_Cause",
         FT_UINT8, BASE_DEC, NULL, 0,
 	"RP Cause Value", HFILL }},
-    
+
     { &hf_camel_CAMEL_AChBillingChargingCharacteristics,
       { "CAMEL-AChBillingChargingCharacteristics", "camel.CAMEL_AChBillingChargingCharacteristics",
         FT_UINT32, BASE_DEC,  VALS(camel_CAMEL_AChBillingChargingCharacteristics_vals), 0,
-        NULL, HFILL }}, 
-    
+        NULL, HFILL }},
+
     { &hf_camel_CAMEL_FCIBillingChargingCharacteristics,
       { "CAMEL-FCIBillingChargingCharacteristics", "camel.CAMEL_FCIBillingChargingCharacteristics",
         FT_UINT32, BASE_DEC, VALS(camel_CAMEL_FCIBillingChargingCharacteristics_vals), 0,
@@ -9479,15 +9479,15 @@ void proto_register_camel(void) {
   rose_ctx_init(&camel_rose_ctx);
 
   /* Register dissector tables */
-  camel_rose_ctx.arg_local_dissector_table = register_dissector_table("camel.ros.local.arg", 
-                                                                      "CAMEL Operation Argument (local opcode)", 
-                                                                      FT_UINT32, BASE_HEX); 
-  camel_rose_ctx.res_local_dissector_table = register_dissector_table("camel.ros.local.res", 
-                                                                      "CAMEL Operation Result (local opcode)", 
-                                                                      FT_UINT32, BASE_HEX); 
-  camel_rose_ctx.err_local_dissector_table = register_dissector_table("camel.ros.local.err", 
-                                                                      "CAMEL Error (local opcode)", 
-                                                                      FT_UINT32, BASE_HEX); 
+  camel_rose_ctx.arg_local_dissector_table = register_dissector_table("camel.ros.local.arg",
+                                                                      "CAMEL Operation Argument (local opcode)",
+                                                                      FT_UINT32, BASE_HEX);
+  camel_rose_ctx.res_local_dissector_table = register_dissector_table("camel.ros.local.res",
+                                                                      "CAMEL Operation Result (local opcode)",
+                                                                      FT_UINT32, BASE_HEX);
+  camel_rose_ctx.err_local_dissector_table = register_dissector_table("camel.ros.local.err",
+                                                                      "CAMEL Error (local opcode)",
+                                                                      FT_UINT32, BASE_HEX);
 
   /* Register our configuration options, particularly our ssn:s */
   /* Set default SSNs */
@@ -9498,8 +9498,8 @@ void proto_register_camel(void) {
   prefs_register_enum_preference(camel_module, "date.format", "Date Format",
                                   "The date format: (DD/MM) or (MM/DD)",
                                   &date_format, date_options, FALSE);
-  
-  
+
+
   prefs_register_range_preference(camel_module, "tcap.ssn",
     "TCAP SSNs",
     "TCAP Subsystem numbers used for Camel",
@@ -9514,8 +9514,8 @@ void proto_register_camel(void) {
 				 "Persistent stats for SRT",
 				 "Statistics for Response Time",
 				 &gcamel_PersistentSRT);
-  
-  /* Routine for statistic */ 
+
+  /* Routine for statistic */
   register_init_routine(&camelsrt_init_routine);
   camel_tap=register_tap(PSNAME);
 }

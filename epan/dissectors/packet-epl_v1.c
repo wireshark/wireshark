@@ -406,7 +406,7 @@ dissect_epl_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if(tree){
 		/* create display subtree for the protocol */
-		ti = proto_tree_add_item(tree, proto_epl_v1, tvb, 0, -1, TRUE);
+		ti = proto_tree_add_item(tree, proto_epl_v1, tvb, 0, -1, ENC_NA);
 
 		epl_v1_tree = proto_item_add_subtree(ti, ett_epl_v1);
 	}

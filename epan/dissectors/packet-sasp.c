@@ -381,7 +381,7 @@ dissect_sasp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SASP");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	ti = proto_tree_add_item(tree,proto_sasp,tvb,offset,-1,FALSE);
+	ti = proto_tree_add_item(tree,proto_sasp,tvb,offset,-1,ENC_NA);
 	sasp_tree = proto_item_add_subtree(ti,ett_sasp_header);
 
 	hdr_type = tvb_get_ntohs(tvb, offset);

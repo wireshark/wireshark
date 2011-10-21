@@ -339,7 +339,7 @@ dissect_ccsds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		else
 			length = ccsds_length;
 
-		ccsds_packet = proto_tree_add_item(tree, proto_ccsds, tvb, 0, length, FALSE);
+		ccsds_packet = proto_tree_add_item(tree, proto_ccsds, tvb, 0, length, ENC_NA);
 		ccsds_tree = proto_item_add_subtree(ccsds_packet, ett_ccsds);
 
                 /* build the ccsds primary header tree */

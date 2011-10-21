@@ -218,7 +218,7 @@ dissect_unistim(tvbuff_t *tvb,packet_info *pinfo,proto_tree *tree){
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNISTIM");
    /* Clear out stuff in the info column */
    col_clear(pinfo->cinfo, COL_INFO);
-   ti = proto_tree_add_item(tree,proto_unistim,tvb,offset,-1,FALSE);
+   ti = proto_tree_add_item(tree,proto_unistim,tvb,offset,-1,ENC_NA);
    overall_unistim_tree = proto_item_add_subtree(ti,ett_unistim);
    ti1=proto_tree_add_text(overall_unistim_tree,tvb,offset,5,"Reliable UDP");
    rudpm_tree=proto_item_add_subtree(ti1,ett_unistim);

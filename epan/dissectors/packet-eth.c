@@ -368,7 +368,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
                 get_ether_name(dst_addr), ether_to_str(dst_addr));
       }
       else {
-            ti = proto_tree_add_item(parent_tree, proto_eth, tvb, 0, ETH_HEADER_SIZE, FALSE);
+            ti = proto_tree_add_item(parent_tree, proto_eth, tvb, 0, ETH_HEADER_SIZE, ENC_NA);
       }
       fh_tree = proto_item_add_subtree(ti, ett_ether2);
     }

@@ -1212,7 +1212,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		    "Unknown RTP version %u", version);
 
 		if ( tree ) {
-			ti = proto_tree_add_item( tree, proto_rtp, tvb, offset, -1, FALSE );
+			ti = proto_tree_add_item( tree, proto_rtp, tvb, offset, -1, ENC_NA );
 			rtp_tree = proto_item_add_subtree( ti, ett_rtp );
 
 			proto_tree_add_uint( rtp_tree, hf_rtp_version, tvb,
@@ -1330,7 +1330,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	if ( tree ) {
 		proto_tree *item;
 		/* Create RTP protocol tree */
-		ti = proto_tree_add_item(tree, proto_rtp, tvb, offset, -1, FALSE );
+		ti = proto_tree_add_item(tree, proto_rtp, tvb, offset, -1, ENC_NA );
 		rtp_tree = proto_item_add_subtree(ti, ett_rtp );
 
 		/* Conversation setup info */
@@ -1621,7 +1621,7 @@ dissect_pkt_ccc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *pkt_ccc_tree      = NULL;
 
 	if ( tree ) {
-		ti = proto_tree_add_item(tree, proto_pkt_ccc, tvb, 0, 12, FALSE);
+		ti = proto_tree_add_item(tree, proto_pkt_ccc, tvb, 0, 12, ENC_NA);
 		pkt_ccc_tree = proto_item_add_subtree(ti, ett_pkt_ccc);
 
 		proto_tree_add_item(pkt_ccc_tree, hf_pkt_ccc_id, tvb, 0, 4, ENC_BIG_ENDIAN);

@@ -695,7 +695,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tree) {
 	msg_length = tvb_get_ntohs(tvb, offset+4);
 	ti = proto_tree_add_item(tree, proto_lmp, tvb, offset, msg_length,
-	    FALSE);
+	    ENC_NA);
 	lmp_tree = proto_item_add_subtree(ti, lmp_subtree[LMP_TREE_MAIN]);
 	ti = proto_tree_add_text(lmp_tree, tvb, offset, 12, "LMP Header. %s",
 				 val_to_str(message_type, message_type_vals,

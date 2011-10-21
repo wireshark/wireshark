@@ -537,7 +537,7 @@ dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_dsi, tvb, 0, -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_dsi, tvb, 0, -1, ENC_NA);
 		dsi_tree = proto_item_add_subtree(ti, ett_dsi);
 
 		proto_tree_add_uint(dsi_tree, hf_dsi_flags, tvb,

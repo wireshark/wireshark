@@ -4728,7 +4728,7 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             col_set_str(pinfo->cinfo, COL_PROTOCOL, "KRB5");
         }
         if (tree) {
-            item = proto_tree_add_item(tree, proto_kerberos, tvb, 0, -1, FALSE);
+            item = proto_tree_add_item(tree, proto_kerberos, tvb, 0, -1, ENC_NA);
             kerberos_tree = proto_item_add_subtree(item, ett_krb_kerberos);
         }
         show_krb_recordmark(kerberos_tree, tvb, offset, krb_rm);
@@ -4779,7 +4779,7 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             col_clear(pinfo->cinfo, COL_INFO);
         }
         if (tree) {
-            item = proto_tree_add_item(tree, proto_kerberos, tvb, 0, -1, FALSE);
+            item = proto_tree_add_item(tree, proto_kerberos, tvb, 0, -1, ENC_NA);
             kerberos_tree = proto_item_add_subtree(item, ett_krb_kerberos);
         }
     }

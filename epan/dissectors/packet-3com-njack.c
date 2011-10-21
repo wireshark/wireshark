@@ -581,7 +581,7 @@ dissect_njack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_njack, tvb, offset, -1,
-		    ENC_BIG_ENDIAN);
+		    ENC_NA);
 		njack_tree = proto_item_add_subtree(ti, ett_njack);
 
 		proto_tree_add_item(njack_tree, hf_njack_magic, tvb, offset, 5,

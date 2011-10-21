@@ -57,7 +57,7 @@ static int hf_tte_pcf_tc = -1;
 /* Initialize the subtree pointers */
 static gint ett_tte_pcf = -1;
 
-static const value_string pcf_type_str_vals[] = 
+static const value_string pcf_type_str_vals[] =
     { {2, "integration frame"}
     , {4, "coldstart frame"}
     , {8, "coldstart ack frame"}
@@ -100,7 +100,7 @@ dissect_tte_pcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /* create display subtree for the protocol */
         tte_pcf_root_item = proto_tree_add_item(tree, proto_tte_pcf, tvb, 0,
-            TTE_PCF_LENGTH, FALSE);
+            TTE_PCF_LENGTH, ENC_NA);
 
         tte_pcf_tree = proto_item_add_subtree(tte_pcf_root_item, ett_tte_pcf);
 

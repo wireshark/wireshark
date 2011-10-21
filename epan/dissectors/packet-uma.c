@@ -1694,7 +1694,7 @@ dissect_uma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "UMA");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	ti = proto_tree_add_item(tree, proto_uma, tvb, 0, -1, FALSE);
+	ti = proto_tree_add_item(tree, proto_uma, tvb, 0, -1, ENC_NA);
 	uma_tree = proto_item_add_subtree(ti, ett_uma);
 
 /* add an item to the subtree, see section 1.6 for more information */
@@ -1772,7 +1772,7 @@ dissect_uma_urlc_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "UMA");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	ti = proto_tree_add_item(tree, proto_uma, tvb, 0, -1, FALSE);
+	ti = proto_tree_add_item(tree, proto_uma, tvb, 0, -1, ENC_NA);
 	uma_tree = proto_item_add_subtree(ti, ett_uma);
 
 	octet = tvb_get_guint8(tvb,offset);

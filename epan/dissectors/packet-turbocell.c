@@ -145,7 +145,7 @@ static void dissect_turbocell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     }
 
     if (tree) {
-        ti = proto_tree_add_item(tree, proto_turbocell, tvb, 0, 20, FALSE);
+        ti = proto_tree_add_item(tree, proto_turbocell, tvb, 0, 20, ENC_NA);
 
         turbocell_tree = proto_item_add_subtree(ti, ett_turbocell);
 

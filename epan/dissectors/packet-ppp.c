@@ -3313,7 +3313,7 @@ dissect_vsncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if(tree)
   {
-    ti = proto_tree_add_item(tree, proto_vsncp, tvb, 0, length, FALSE);
+    ti = proto_tree_add_item(tree, proto_vsncp, tvb, 0, length, ENC_NA);
     fh_tree = proto_item_add_subtree(ti, ett_vsncp);
     proto_tree_add_text(fh_tree, tvb, 0, 1, "Code: %s (0x%02x)", val_to_str_const(code, cp_vals, "Unknown"), code);
     proto_tree_add_text(fh_tree, tvb, 1, 1, "Identifier: 0x%02x", id);
@@ -3363,7 +3363,7 @@ dissect_vsnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (tree) /* we are being asked for details */
   {
-    vsnp_item = proto_tree_add_item(tree, proto_vsnp, tvb, 0, -1, FALSE);
+    vsnp_item = proto_tree_add_item(tree, proto_vsnp, tvb, 0, -1, ENC_NA);
     vsnp_tree = proto_item_add_subtree(vsnp_item, ett_vsnp);
 
     proto_tree_add_item(vsnp_tree, hf_vsnp_pdnid, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3432,7 +3432,7 @@ dissect_bcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_clear(pinfo->cinfo, COL_INFO);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_bcp, tvb, 0, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_bcp, tvb, 0, -1, ENC_NA);
     bcp_tree = proto_item_add_subtree(ti, ett_bcp);
   }
 
@@ -3573,7 +3573,7 @@ dissect_bap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 val_to_str_const(type, bap_vals, "Unknown"));
 
   if(tree) {
-    ti = proto_tree_add_item(tree, proto_bap, tvb, 0, length, FALSE);
+    ti = proto_tree_add_item(tree, proto_bap, tvb, 0, length, ENC_NA);
     fh_tree = proto_item_add_subtree(ti, ett_bap_options);
     proto_tree_add_text(fh_tree, tvb, 0, 1, "Type: %s (0x%02x)",
                         val_to_str_const(type, bap_vals, "Unknown"), type);
@@ -3617,7 +3617,7 @@ dissect_comp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_set_str(pinfo->cinfo, COL_INFO, "Compressed data");
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_comp_data, tvb, 0, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_comp_data, tvb, 0, -1, ENC_NA);
     comp_data_tree = proto_item_add_subtree(ti, ett_comp_data);
   }
 }
@@ -3630,7 +3630,7 @@ dissect_comp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_set_str(pinfo->cinfo, COL_INFO, "Compressed data");
 
   if (tree) {
-    proto_tree_add_item(tree, proto_comp_data, tvb, 0, -1, FALSE);
+    proto_tree_add_item(tree, proto_comp_data, tvb, 0, -1, ENC_NA);
   }
 }
 #endif
@@ -3669,7 +3669,7 @@ dissect_pppmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   length_remaining = tvb_reported_length(tvb);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_pppmux, tvb, 0, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_pppmux, tvb, 0, -1, ENC_NA);
     mux_tree = proto_item_add_subtree(ti,ett_pppmux);
 
     while (length_remaining > 0) {
@@ -4058,7 +4058,7 @@ dissect_mp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_set_str(pinfo->cinfo, COL_INFO, "PPP Multilink");
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_mp, tvb, 0, mp_short_seqno ? 2 : 4, FALSE);
+    ti = proto_tree_add_item(tree, proto_mp, tvb, 0, mp_short_seqno ? 2 : 4, ENC_NA);
     mp_tree = proto_item_add_subtree(ti, ett_mp);
   }
 
@@ -4113,7 +4113,7 @@ dissect_ppp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
   proto_tree *fh_tree = NULL;
 
   if(tree) {
-    ti = proto_tree_add_item(tree, proto_ppp, tvb, 0, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_ppp, tvb, 0, -1, ENC_NA);
     fh_tree = proto_item_add_subtree(ti, ett_ppp);
   }
 
@@ -4142,7 +4142,7 @@ dissect_ppp_hdlc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* load the top pane info. This should be overwritten by
      the next protocol in the stack */
   if(tree) {
-    ti = proto_tree_add_item(tree, proto_ppp, tvb, 0, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_ppp, tvb, 0, -1, ENC_NA);
     fh_tree = proto_item_add_subtree(ti, ett_ppp);
     if (byte0 == 0xff) {
       proto_tree_add_item(fh_tree, hf_ppp_address, tvb, 0, 1, ENC_BIG_ENDIAN);
@@ -4257,7 +4257,7 @@ dissect_ppp_raw_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP");
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_ppp_hdlc, tvb, 0, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_ppp_hdlc, tvb, 0, -1, ENC_NA);
     bs_tree = proto_item_add_subtree(ti, ett_ppp_hdlc_data);
   }
 
@@ -4470,7 +4470,7 @@ dissect_pap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
     col_add_str(pinfo->cinfo, COL_INFO, val_to_str_const(code, pap_vals, "Unknown"));
 
   if(tree) {
-    ti = proto_tree_add_item(tree, proto_pap, tvb, 0, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_pap, tvb, 0, -1, ENC_NA);
     fh_tree = proto_item_add_subtree(ti, ett_pap);
     /* Code */
     proto_tree_add_item(fh_tree, hf_pap_code, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -4552,7 +4552,7 @@ dissect_chap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
 
   if(tree) {
     /* Create CHAP protocol tree */
-    ti = proto_tree_add_item(tree, proto_chap, tvb, 0, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_chap, tvb, 0, -1, ENC_NA);
     fh_tree = proto_item_add_subtree(ti, ett_chap);
 
     /* Code */

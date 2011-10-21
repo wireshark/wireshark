@@ -217,7 +217,7 @@ static void dissect_roofnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   if (tree) {
-    it = proto_tree_add_item(tree, proto_roofnet, tvb, offset, -1, FALSE);
+    it = proto_tree_add_item(tree, proto_roofnet, tvb, offset, -1, ENC_NA);
     roofnet_tree = proto_item_add_subtree(it, ett_roofnet);
   }
 

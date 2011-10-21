@@ -582,7 +582,7 @@ dissect_isns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *tpayload;
 
 	/* create display subtree for the protocol */
-	ti = proto_tree_add_item(tree, proto_isns, tvb, 0, -1, ENC_BIG_ENDIAN);
+	ti = proto_tree_add_item(tree, proto_isns, tvb, 0, -1, ENC_NA);
 	isns_tree = proto_item_add_subtree(ti, ett_isns);
 
 	/* OK... Sort out the header */

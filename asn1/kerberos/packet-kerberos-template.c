@@ -1318,9 +1318,9 @@ dissect_krb5_PW_SALT(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 /* Make wrappers around exported functions for now */
 int
 dissect_krb5_Checksum(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
-{	
+{
 	return dissect_kerberos_Checksum(FALSE, tvb, offset, actx, tree, hf_kerberos_cksum);
-	
+
 }
 
 int
@@ -1330,12 +1330,12 @@ dissect_krb5_ctime(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx
 }
 
 
-int 
+int
 dissect_krb5_cname(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
 	return dissect_kerberos_PrincipalName(FALSE, tvb, offset, actx, tree, hf_kerberos_cname);
 }
-int 
+int
 dissect_krb5_realm(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
 	return dissect_kerberos_Realm(FALSE, tvb, offset, actx, tree, hf_kerberos_realm);
@@ -1375,7 +1375,7 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             col_set_str(pinfo->cinfo, COL_PROTOCOL, "KRB5");
 	}
         if (tree) {
-            item = proto_tree_add_item(tree, proto_kerberos, tvb, 0, -1, FALSE);
+            item = proto_tree_add_item(tree, proto_kerberos, tvb, 0, -1, ENC_NA);
             kerberos_tree = proto_item_add_subtree(item, ett_kerberos);
         }
 	show_krb_recordmark(kerberos_tree, tvb, offset, krb_rm);
@@ -1426,7 +1426,7 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             col_clear(pinfo->cinfo, COL_INFO);
         }
         if (tree) {
-            item = proto_tree_add_item(tree, proto_kerberos, tvb, 0, -1, FALSE);
+            item = proto_tree_add_item(tree, proto_kerberos, tvb, 0, -1, ENC_NA);
             kerberos_tree = proto_item_add_subtree(item, ett_kerberos);
         }
     }

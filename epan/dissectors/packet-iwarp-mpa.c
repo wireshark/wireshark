@@ -481,7 +481,7 @@ dissect_mpa_req_rep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	if (tree) {
 		mpa_item = proto_tree_add_item(tree, proto_iwarp_mpa, tvb, 0,
-				-1, FALSE);
+				-1, ENC_NA);
 		mpa_tree = proto_item_add_subtree(mpa_item, ett_mpa);
 
 		if (message_type == MPA_REQUEST_FRAME) {
@@ -735,7 +735,7 @@ dissect_mpa_fpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 
 		mpa_item = proto_tree_add_item(tree, proto_iwarp_mpa, tvb, 0,
-				-1, FALSE);
+				-1, ENC_NA);
 		mpa_tree = proto_item_add_subtree(mpa_item, ett_mpa);
 
 		mpa_header_item = proto_tree_add_item(mpa_tree, hf_mpa_fpdu,

@@ -1127,7 +1127,7 @@ static void dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree *cfm_tree;
 
 		/* isolate the payload of the packet */
-		ti = proto_tree_add_item(tree, proto_cfm, tvb, 0, -1, ENC_BIG_ENDIAN);
+		ti = proto_tree_add_item(tree, proto_cfm, tvb, 0, -1, ENC_NA);
 
 
 		/* report type of CFM packet to base of dissection tree */

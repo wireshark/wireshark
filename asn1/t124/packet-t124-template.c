@@ -88,7 +88,7 @@ register_t124_ns_dissector(const char *nsKey, dissector_t dissector, int proto)
 void register_t124_sd_dissector(packet_info *pinfo _U_, guint32 channelId, dissector_t dissector, int proto)
 {
   /* XXX: we should keep the sub-dissectors list per conversation
-     as the same channels may be used. 
+     as the same channels may be used.
      While we are just using RDP over T.124, then we can get away with it.
   */
 
@@ -131,7 +131,7 @@ dissect_t124_new(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree)
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "T.125");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  item = proto_tree_add_item(parent_tree, proto_t124, tvb, 0, tvb_length(tvb), FALSE);
+  item = proto_tree_add_item(parent_tree, proto_t124, tvb, 0, tvb_length(tvb), ENC_NA);
   tree = proto_item_add_subtree(item, ett_t124);
 
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
@@ -157,7 +157,7 @@ dissect_t124_heur(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree
 
   (void) dissect_per_sequence(tvb, 0, &asn1_ctx, NULL, -1, -1, t124Heur_sequence);
 
-  if((t124Identifier != NULL) && 
+  if((t124Identifier != NULL) &&
      (strcmp(t124Identifier, "0.0.20.124.0.1") == 0)) {
 
     dissect_t124(tvb, pinfo, parent_tree);
@@ -209,7 +209,7 @@ void proto_register_t124(void) {
   /* suppress some warnings */
   warning_suppressor = dissect_t124_GCCPDU;
   warning_suppressor = dissect_t124_ConnectMCSPDU;
-  
+
 }
 
 void

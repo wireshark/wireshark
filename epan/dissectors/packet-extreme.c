@@ -976,7 +976,7 @@ dissect_edp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_edp, tvb, offset, -1,
-		    ENC_BIG_ENDIAN);
+		    ENC_NA);
 		edp_tree = proto_item_add_subtree(ti, ett_edp);
 
 		proto_tree_add_item(edp_tree, hf_edp_version, tvb, offset, 1,

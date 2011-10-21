@@ -143,7 +143,7 @@ dissect_igap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int off
 	return offset + tvb_length_remaining(tvb, offset);
     }
 
-    item = proto_tree_add_item(parent_tree, proto_igap, tvb, offset, -1, FALSE);
+    item = proto_tree_add_item(parent_tree, proto_igap, tvb, offset, -1, ENC_NA);
     tree = proto_item_add_subtree(item, ett_igap);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IGAP");

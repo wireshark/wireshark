@@ -86,7 +86,7 @@ dissect_cwids(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	cwids_tree = NULL;
 
 	while(tvb_length_remaining(tvb, offset) > 0) {
-		ti = proto_tree_add_item(tree, proto_cwids, tvb, offset, 28, ENC_BIG_ENDIAN);
+		ti = proto_tree_add_item(tree, proto_cwids, tvb, offset, 28, ENC_NA);
 		cwids_tree = proto_item_add_subtree(ti, ett_cwids);
 
 		proto_tree_add_item(cwids_tree, hf_cwids_version, tvb, offset, 2, ENC_BIG_ENDIAN);

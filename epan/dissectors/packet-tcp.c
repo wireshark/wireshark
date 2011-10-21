@@ -3761,7 +3761,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                 get_tcp_port(tcph->th_dport), tcph->th_dport);
         }
         else {
-            ti = proto_tree_add_item(tree, proto_tcp, tvb, 0, -1, FALSE);
+            ti = proto_tree_add_item(tree, proto_tcp, tvb, 0, -1, ENC_NA);
         }
         tcp_tree = proto_item_add_subtree(ti, ett_tcp);
         pinfo->tcp_tree=tcp_tree;
@@ -3982,7 +3982,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
         }
     }
-    
+
     if (tcph->th_flags & TH_ACK) {
         if (tree) {
             if (tcp_relative_seq){

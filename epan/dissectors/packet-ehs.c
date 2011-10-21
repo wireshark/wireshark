@@ -13,12 +13,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -866,7 +866,7 @@ static void aoslos_data_zone_dissector ( proto_tree* ehs_tree, tvbuff_t* tvb, in
    * The AOS/LOS packet data zone is only 2 bytes in
    * length and only 2 bits in the first byte are
    * meaningful -- Ku band or S band and AOS or LOS
-   * 
+   *
    * 7-2 - unused
    * 1-0 - band + AOS/LOS indicator
    *
@@ -1064,7 +1064,7 @@ dissect_ehs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "EHS");
         col_set_str(pinfo->cinfo, COL_INFO, "EHS");
 
-        ehs_packet = proto_tree_add_item ( tree, proto_ehs, tvb, 0, -1, FALSE );
+        ehs_packet = proto_tree_add_item ( tree, proto_ehs, tvb, 0, -1, ENC_NA );
         ehs_tree = proto_item_add_subtree ( ehs_packet, ett_ehs );
 
         /* build the ehs primary header tree */

@@ -666,7 +666,7 @@ dissect_ltp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return 0;
 	}
 
-	ti = proto_tree_add_item(tree, proto_ltp, tvb, 0, -1, FALSE);
+	ti = proto_tree_add_item(tree, proto_ltp, tvb, 0, -1, ENC_NA);
 	ltp_tree = proto_item_add_subtree(ti, ett_ltp);
 
 	/* Adding Header Subtree */

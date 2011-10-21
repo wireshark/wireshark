@@ -69,15 +69,15 @@ static range_t *nasdaq_soup_tcp_range = NULL;
 /* Initialize the subtree pointers */
 static gint ett_nasdaq_soup = -1;
 
-static int hf_nasdaq_soup_packet_type = -1; 
-static int hf_nasdaq_soup_message = -1; 
-static int hf_nasdaq_soup_text = -1; 
-static int hf_nasdaq_soup_packet_eol = -1; 
-static int hf_nasdaq_soup_username = -1; 
-static int hf_nasdaq_soup_password = -1; 
-static int hf_nasdaq_soup_session = -1; 
-static int hf_nasdaq_soup_seq_number = -1; 
-static int hf_nasdaq_soup_reject_code = -1; 
+static int hf_nasdaq_soup_packet_type = -1;
+static int hf_nasdaq_soup_message = -1;
+static int hf_nasdaq_soup_text = -1;
+static int hf_nasdaq_soup_packet_eol = -1;
+static int hf_nasdaq_soup_username = -1;
+static int hf_nasdaq_soup_password = -1;
+static int hf_nasdaq_soup_session = -1;
+static int hf_nasdaq_soup_seq_number = -1;
+static int hf_nasdaq_soup_reject_code = -1;
 
 static void
 dissect_nasdaq_soup_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, proto_tree *tree, int offset, int linelen)
@@ -194,7 +194,7 @@ dissect_nasdaq_soup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
       counter++;
       if (tree) {
-          ti = proto_tree_add_item(tree, proto_nasdaq_soup, tvb, offset, linelen +1, FALSE);
+          ti = proto_tree_add_item(tree, proto_nasdaq_soup, tvb, offset, linelen +1, ENC_NA);
           nasdaq_soup_tree = proto_item_add_subtree(ti, ett_nasdaq_soup);
       }
       dissect_nasdaq_soup_packet(tvb, pinfo, tree, nasdaq_soup_tree, offset, linelen);
@@ -211,7 +211,7 @@ static void range_add_nasdaq_soup_tcp_callback(guint32 port) {
     dissector_add_uint("tcp.port", port, nasdaq_soup_handle);
 }
 
-static void nasdaq_soup_prefs(void) 
+static void nasdaq_soup_prefs(void)
 {
     range_foreach(nasdaq_soup_tcp_range, range_delete_nasdaq_soup_tcp_callback);
     g_free(nasdaq_soup_tcp_range);
@@ -226,7 +226,7 @@ proto_register_nasdaq_soup(void)
 /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
 
-    { &hf_nasdaq_soup_packet_type, 
+    { &hf_nasdaq_soup_packet_type,
       { "Packet Type",       "nasdaq-soup.packet_type",
         FT_UINT8, BASE_DEC, VALS(message_types_val), 0x0,
         NULL, HFILL }},

@@ -1,5 +1,5 @@
 /* packet-pn-mrp.c
- * Routines for PN-MRP (PROFINET Media Redundancy Protocol) 
+ * Routines for PN-MRP (PROFINET Media Redundancy Protocol)
  * packet dissection.
  *
  * $Id$
@@ -7,17 +7,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -111,7 +111,7 @@ static const value_string pn_mrp_prio_vals[] = {
 
 
 static int
-dissect_PNMRP_Common(tvbuff_t *tvb, int offset, 
+dissect_PNMRP_Common(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, proto_item *item)
 {
     guint16 sequence_id;
@@ -133,7 +133,7 @@ dissect_PNMRP_Common(tvbuff_t *tvb, int offset,
 
 
 static int
-dissect_PNMRP_LinkUp(tvbuff_t *tvb, int offset, 
+dissect_PNMRP_LinkUp(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, proto_item *item)
 {
     guint8 mac[6];
@@ -165,7 +165,7 @@ dissect_PNMRP_LinkUp(tvbuff_t *tvb, int offset,
 
 
 static int
-dissect_PNMRP_LinkDown(tvbuff_t *tvb, int offset, 
+dissect_PNMRP_LinkDown(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, proto_item *item)
 {
     guint8 mac[6];
@@ -197,7 +197,7 @@ dissect_PNMRP_LinkDown(tvbuff_t *tvb, int offset,
 
 
 static int
-dissect_PNMRP_Test(tvbuff_t *tvb, int offset, 
+dissect_PNMRP_Test(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, proto_item *item)
 {
     guint16 prio;
@@ -238,7 +238,7 @@ dissect_PNMRP_Test(tvbuff_t *tvb, int offset,
 
 
 static int
-dissect_PNMRP_TopologyChange(tvbuff_t *tvb, int offset, 
+dissect_PNMRP_TopologyChange(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, proto_item *item)
 {
     guint16 prio;
@@ -267,7 +267,7 @@ dissect_PNMRP_TopologyChange(tvbuff_t *tvb, int offset,
 
 
 static int
-dissect_PNMRP_Option(tvbuff_t *tvb, int offset, 
+dissect_PNMRP_Option(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 length)
 {
     guint32 oui;
@@ -276,7 +276,7 @@ dissect_PNMRP_Option(tvbuff_t *tvb, int offset,
     /* OUI (organizational unique id) */
     offset = dissect_pn_oid(tvb, offset, pinfo,tree, hf_pn_mrp_oui, &oui);
     length -= 3;
-	
+
     switch (oui)
 	{
 	case OUI_SIEMENS:
@@ -308,7 +308,7 @@ dissect_PNMRP_Option(tvbuff_t *tvb, int offset,
 
 
 static int
-dissect_PNMRP_PDU(tvbuff_t *tvb, int offset, 
+dissect_PNMRP_PDU(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, proto_item *item)
 {
     guint16 version;
@@ -382,22 +382,22 @@ dissect_PNMRP(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *ti = NULL;
     proto_tree *mrp_tree = NULL;
-	
+
     guint32 offset = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PN-MRP");
-		
+
     /* Clear the information column on summary display */
     col_clear(pinfo->cinfo, COL_INFO);
 
-    if (tree) 
+    if (tree)
     {
-        ti = proto_tree_add_item(tree, proto_pn_mrp, tvb, offset, -1, FALSE);
+        ti = proto_tree_add_item(tree, proto_pn_mrp, tvb, offset, -1, ENC_NA);
         mrp_tree = proto_item_add_subtree(ti, ett_pn_mrp);
     }
 
     dissect_PNMRP_PDU(tvb, offset, pinfo, mrp_tree, ti);
-}	
+}
 
 
 void

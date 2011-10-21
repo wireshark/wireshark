@@ -81,7 +81,7 @@ dissect_dtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_INFO, "Dynamic Trunking Protocol");
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_dtp, tvb, offset, -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_dtp, tvb, offset, -1, ENC_NA);
 		dtp_tree = proto_item_add_subtree(ti, ett_dtp);
 	}
 
@@ -95,12 +95,12 @@ dissect_dtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		type = tvb_get_ntohs(tvb, offset);
 		length = tvb_get_ntohs(tvb, offset + 2);
 		valuelength = (length-4);
-    
+
 		/* make sure still in valid tlv  */
 		if ((valuelength < 1) || ( length > tvb_length_remaining(tvb, offset) ))
 			break;
 
-		ti = proto_tree_add_text(dtp_tree, tvb, offset, length, "%s", 
+		ti = proto_tree_add_text(dtp_tree, tvb, offset, length, "%s",
                     val_to_str(type, dtp_tlv_type_vals, "Unknown TLV type: 0x%02x"));
 
 		tlv_tree = proto_item_add_subtree(ti, ett_dtp_tlv);
@@ -198,19 +198,19 @@ proto_register_dtp(void)
 {
 	static hf_register_info hf[] = {
 	{ &hf_dtp_version,
-		{ "Version",	"dtp.version", FT_UINT8, BASE_HEX, 
+		{ "Version",	"dtp.version", FT_UINT8, BASE_HEX,
 		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_dtp_tlvtype,
-		{ "Type",	"dtp.tlv_type", FT_UINT16, BASE_HEX, 
+		{ "Type",	"dtp.tlv_type", FT_UINT16, BASE_HEX,
 		VALS(dtp_tlv_type_vals), 0x0, NULL, HFILL }},
 
 	{ &hf_dtp_tlvlength,
-		{ "Length",	"dtp.tlv_len", FT_UINT16, BASE_DEC, 
+		{ "Length",	"dtp.tlv_len", FT_UINT16, BASE_DEC,
 		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_dtp_some_mac,
-		{ "Neighbor", "dtp.neighbor", FT_ETHER, BASE_NONE, 
+		{ "Neighbor", "dtp.neighbor", FT_ETHER, BASE_NONE,
 		NULL, 0x0, "MAC Address of neighbor", HFILL }},
 
         };

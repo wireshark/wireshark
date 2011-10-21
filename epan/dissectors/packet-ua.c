@@ -286,7 +286,7 @@ static int DissectUA(tvbuff_t *pTvb, packet_info *pInfo, proto_tree *pTree)
     if(pTree)
     {
         /* root element "UA Protocol, ..." */
-        pRootUA = proto_tree_add_item(pTree, proto_ua, pTvb, 0, -1, FALSE);
+        pRootUA = proto_tree_add_item(pTree, proto_ua, pTvb, 0, -1, ENC_NA);
         pSubTreeUA = proto_item_add_subtree(pRootUA, ett_ua);
 
         /* NOE items */

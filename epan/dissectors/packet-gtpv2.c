@@ -3712,7 +3712,7 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     col_add_str(pinfo->cinfo, COL_INFO, val_to_str(message_type, gtpv2_message_type_vals, "Unknown"));
 
 
-    proto_tree_add_item(tree, proto_gtpv2, tvb, offset, -1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, proto_gtpv2, tvb, offset, -1, ENC_NA);
 
     if (tree) {
         ti = proto_tree_add_text(tree, tvb, offset, -1, "%s", val_to_str(message_type, gtpv2_message_type_vals, "Unknown"));

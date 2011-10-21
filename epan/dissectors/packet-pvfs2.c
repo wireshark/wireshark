@@ -888,7 +888,7 @@ dissect_pvfs_opaque_data(tvbuff_t *tvb, int offset,
 			}
 		} else {
 			if (string_data) {
-				string_buffer_print = 
+				string_buffer_print =
 				    ep_strdup(format_text((guint8 *) string_buffer,
 								 (int)strlen(string_buffer)));
 			} else {
@@ -3117,7 +3117,7 @@ dissect_pvfs_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 	if (parent_tree)
 	{
-		item = proto_tree_add_item(parent_tree, proto_pvfs, tvb, 0, -1, FALSE);
+		item = proto_tree_add_item(parent_tree, proto_pvfs, tvb, 0, -1, ENC_NA);
 
 		if (item)
 			pvfs_tree = proto_item_add_subtree(item, ett_pvfs);

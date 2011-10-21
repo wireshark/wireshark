@@ -73,7 +73,7 @@ dissect_t125(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree)
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "T.125");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  item = proto_tree_add_item(parent_tree, proto_t125, tvb, 0, tvb_length(tvb), FALSE);
+  item = proto_tree_add_item(parent_tree, proto_t125, tvb, 0, tvb_length(tvb), ENC_NA);
   tree = proto_item_add_subtree(item, ett_t125);
 
   get_ber_identifier(tvb, 0, &class, &pc, &tag);
@@ -104,7 +104,7 @@ dissect_t125_heur(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree
   /* or PER */
   dissect_per_constrained_integer(tvb, 0, &asn1_ctx,
 				  NULL, hf_t125_heur, 0, 42,
-				  &choice_index, FALSE); 
+				  &choice_index, FALSE);
 
   /* is this strong enough ? */
   if ( ((class==BER_CLASS_APP) && ((tag>=101) && (tag<=104))) ||

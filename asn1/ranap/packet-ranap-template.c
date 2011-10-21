@@ -237,7 +237,7 @@ dissect_ranap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RANAP");
 
 	/* create the ranap protocol tree */
-	ranap_item = proto_tree_add_item(tree, proto_ranap, tvb, 0, -1, FALSE);
+	ranap_item = proto_tree_add_item(tree, proto_ranap, tvb, 0, -1, ENC_NA);
 	ranap_tree = proto_item_add_subtree(ranap_item, ett_ranap);
 
 	dissect_RANAP_PDU_PDU(tvb, pinfo, ranap_tree);

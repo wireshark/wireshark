@@ -12965,7 +12965,7 @@ dissect_ff(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	length = tvb_get_ntohl(tvb, 8);
 
 	if(tree) {
-		ti = proto_tree_add_item(tree, proto_ff, tvb, offset, length, FALSE);
+		ti = proto_tree_add_item(tree, proto_ff, tvb, offset, length, ENC_NA);
 		sub_tree = proto_item_add_subtree(ti, ett_ff);
 	}
 

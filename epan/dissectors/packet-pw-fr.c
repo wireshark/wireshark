@@ -88,7 +88,7 @@ dissect_pw_fr( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree )
 		if (tree)
 		{
 			proto_item  *item;
-			item = proto_tree_add_item(tree, proto_encaps, tvb, 0, -1, FALSE);
+			item = proto_tree_add_item(tree, proto_encaps, tvb, 0, -1, ENC_NA);
 			expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
 				"PW packet (%d) is smaller than PW encapsulation header (%d)"
 				,(int)packet_size,(int)encaps_size);
@@ -186,7 +186,7 @@ dissect_pw_fr( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree )
 		proto_item* item_headline;
 		proto_item* item;
 
-		item_headline = proto_tree_add_item(tree, proto_encaps, tvb, 0, 4, FALSE);
+		item_headline = proto_tree_add_item(tree, proto_encaps, tvb, 0, 4, ENC_NA);
 		proto_item_append_text(item_headline, ": 0x%.8" G_GINT32_MODIFIER "x", tvb_get_ntohl(tvb, 0));
 		subtree = proto_item_add_subtree(item_headline, ett_encaps);
 

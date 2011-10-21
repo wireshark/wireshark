@@ -104,7 +104,7 @@ dissect_lisp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /* create display subtree for the protocol */
         ti = proto_tree_add_item(tree, proto_lisp_data, tvb, 0,
-                LISP_DATA_HEADER_LEN, FALSE);
+                LISP_DATA_HEADER_LEN, ENC_NA);
 
         lisp_data_tree = proto_item_add_subtree(ti, ett_lisp_data);
 

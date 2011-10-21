@@ -1602,7 +1602,7 @@ dissect_ptp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tree) {
 
         /* create display subtree for the protocol */
-        ti = proto_tree_add_item(tree, proto_ptp, tvb, 0, -1, FALSE);
+        ti = proto_tree_add_item(tree, proto_ptp, tvb, 0, -1, ENC_NA);
 
         ptp_tree = proto_item_add_subtree(ti, ett_ptp);
 
@@ -2327,7 +2327,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
    if (tree) {
 
-        ti = proto_tree_add_item(tree, proto_ptp, tvb, 0, -1, FALSE);
+        ti = proto_tree_add_item(tree, proto_ptp, tvb, 0, -1, ENC_NA);
 
         ptp_tree = proto_item_add_subtree(ti, ett_ptp_v2);
 

@@ -9653,7 +9653,7 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 
   CHECK_DISPLAY_AS_X(data_handle,proto_wlan_mgt, tvb, pinfo, tree);
 
-  ti = proto_tree_add_item (tree, proto_wlan_mgt, tvb, 0, -1, ENC_BIG_ENDIAN);
+  ti = proto_tree_add_item (tree, proto_wlan_mgt, tvb, 0, -1, ENC_NA);
   mgt_tree = proto_item_add_subtree (ti, ett_80211_mgt);
 
   switch (COMPOSE_FRAME_TYPE(fcf))

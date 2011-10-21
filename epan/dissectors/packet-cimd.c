@@ -612,7 +612,7 @@ dissect_cimd_operation(tvbuff_t *tvb, proto_tree *tree, gint etxp, guint16 check
   if (tree)
   {
     /* create display subtree for the protocol */
-    cimd_item = proto_tree_add_item(tree, proto_cimd, tvb, 0, etxp + 1, ENC_LITTLE_ENDIAN);
+    cimd_item = proto_tree_add_item(tree, proto_cimd, tvb, 0, etxp + 1, ENC_NA);
     cimd_tree = proto_item_add_subtree(cimd_item, ett_cimd);
     proto_tree_add_uint(cimd_tree, hf_cimd_opcode_indicator, tvb, CIMD_OC_OFFSET, CIMD_OC_LENGTH, OC);
     proto_tree_add_uint(cimd_tree, hf_cimd_packet_number_indicator, tvb, CIMD_PN_OFFSET, CIMD_PN_LENGTH, PN);

@@ -6,10 +6,10 @@
  *
  * OICQ is an IM software,which is popular in China. And,
  * OICQ has more than 10 millions users at present.
- * The Protocol showed in this file, is found by investigating OICQ's 
+ * The Protocol showed in this file, is found by investigating OICQ's
  * Packets  as a black box.
  *
- * The OICQ client software is always changing,and the protocol of 
+ * The OICQ client software is always changing,and the protocol of
  * communication is also.
  *
  * Wireshark - Network traffic analyzer
@@ -46,7 +46,7 @@
         Sequence Number:   16bit unsigned
         OICQ  Number:      32bit unsigned
         Data:              Variable Length data
-        
+
  *
  */
 
@@ -134,12 +134,12 @@ dissect_oicq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_oicq, tvb, 0, -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_oicq, tvb, 0, -1, ENC_NA);
 		oicq_tree = proto_item_add_subtree(ti, ett_oicq);
 
 		proto_tree_add_item(oicq_tree, hf_oicq_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
-		
+
 		proto_tree_add_item(oicq_tree, hf_oicq_version, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
@@ -152,12 +152,12 @@ dissect_oicq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		proto_tree_add_item(oicq_tree, hf_oicq_qqid, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
-		
+
 		proto_tree_add_item(oicq_tree, hf_oicq_data, tvb, offset, -1, ENC_ASCII|ENC_NA);
-		
-		
+
+
 	}
-	
+
 	return tvb_length(tvb);
 }
 

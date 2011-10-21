@@ -801,7 +801,7 @@ dissect_wlccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		/* create display subtree for the protocol */
-		ti = proto_tree_add_item(tree, proto_wlccp, tvb, 0, -1, ENC_BIG_ENDIAN);
+		ti = proto_tree_add_item(tree, proto_wlccp, tvb, 0, -1, ENC_NA);
 		wlccp_tree = proto_item_add_subtree(ti, ett_wlccp);
 
 		proto_tree_add_item(wlccp_tree, hf_wlccp_version,

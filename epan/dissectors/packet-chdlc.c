@@ -187,7 +187,7 @@ dissect_chdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto = tvb_get_ntohs(tvb, 2);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_chdlc, tvb, 0, 4, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(tree, proto_chdlc, tvb, 0, 4, ENC_NA);
     fh_tree = proto_item_add_subtree(ti, ett_chdlc);
 
     proto_tree_add_uint(fh_tree, hf_chdlc_addr, tvb, 0, 1, addr);
@@ -275,7 +275,7 @@ dissect_slarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   code = tvb_get_ntohl(tvb, 0);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_slarp, tvb, 0, 14, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(tree, proto_slarp, tvb, 0, 14, ENC_NA);
     slarp_tree = proto_item_add_subtree(ti, ett_slarp);
   }
 

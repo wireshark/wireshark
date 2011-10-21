@@ -1324,7 +1324,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* In the interest of speed, if "tree" is NULL, don't do any work not
    * necessary to generate protocol tree items. */
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_skinny, tvb, offset, hdr_data_length+8, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(tree, proto_skinny, tvb, offset, hdr_data_length+8, ENC_NA);
     skinny_tree = proto_item_add_subtree(ti, ett_skinny);
     proto_tree_add_uint(skinny_tree, hf_skinny_data_length, tvb, offset, 4, hdr_data_length);
     proto_tree_add_uint(skinny_tree, hf_skinny_hdr_version, tvb, offset+4, 4, hdr_version);

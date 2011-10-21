@@ -402,7 +402,7 @@ dissect_npmp(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
      necessary to generate protocol tree items. */
   if (tree) {
     /* create the npmp protocol tree */
-    npmp_item = proto_tree_add_item(tree, proto_npmp, message_tvb, 0, -1, FALSE);
+    npmp_item = proto_tree_add_item(tree, proto_npmp, message_tvb, 0, -1, ENC_NA);
     npmp_tree = proto_item_add_subtree(npmp_item, ett_npmp);
   } else {
     npmp_tree = NULL;

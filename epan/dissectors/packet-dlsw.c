@@ -229,7 +229,7 @@ dissect_dlsw_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
  if (tree)
  {
-   ti = proto_tree_add_item(tree, proto_dlsw, tvb, 0, -1, ENC_BIG_ENDIAN);
+   ti = proto_tree_add_item(tree, proto_dlsw, tvb, 0, -1, ENC_NA);
    dlsw_tree = proto_item_add_subtree(ti, ett_dlsw);
 
    hlen=tvb_get_guint8(tvb,1);

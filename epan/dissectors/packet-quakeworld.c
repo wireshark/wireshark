@@ -690,7 +690,7 @@ dissect_quakeworld(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tree) {
 		proto_item	*quakeworld_item;
 		quakeworld_item = proto_tree_add_item(tree, proto_quakeworld,
-				tvb, 0, -1, FALSE);
+				tvb, 0, -1, ENC_NA);
 		quakeworld_tree = proto_item_add_subtree(quakeworld_item, ett_quakeworld);
 		proto_tree_add_uint_format(quakeworld_tree,
 					   direction == DIR_S2C ?

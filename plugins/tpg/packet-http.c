@@ -52,7 +52,7 @@ static void dissect_http(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree
     http_info_value_t* msgdata = ep_alloc0(sizeof(http_info_value_t));
     tvbparse_elem_t* reqresp;
     tpg_parser_data_t* tpg;
-    proto_item* pi = proto_tree_add_item(tree,proto_http,tvb,0,-1,FALSE);
+    proto_item* pi = proto_tree_add_item(tree,proto_http,tvb,0,-1,ENC_NA);
     proto_tree* pt = proto_item_add_subtree(pi,ett_http);
 
     tpg = tpg_start(pt,tvb,0,-1,http_tpg_data.wanted_http_sp, msgdata);

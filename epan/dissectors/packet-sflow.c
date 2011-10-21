@@ -884,7 +884,7 @@ dissect_sflow_245_address_type(tvbuff_t *tvb, proto_tree *tree, gint offset,
         break;
     default:
         /* acferen:  November 10, 2010
-         * 
+         *
          * We should never get here, but if we do we don't know
          * the length for this address type.  Not knowing the
          * length this default case is doomed to failure.  Might
@@ -2672,7 +2672,7 @@ dissect_sflow_245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 
     /* create display subtree for the protocol */
-    ti = proto_tree_add_item(tree, proto_sflow, tvb, 0, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_sflow, tvb, 0, -1, ENC_NA);
 
     sflow_245_tree = proto_item_add_subtree(ti, ett_sflow_245);
 

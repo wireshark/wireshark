@@ -211,7 +211,7 @@ static gboolean http_decompress_body = FALSE;
 
 /* Simple Service Discovery Protocol
  * SSDP is implemented atop HTTP (yes, it really *does* run over UDP).
- * SSDP is the discovery protocol of Universal Plug and Play 
+ * SSDP is the discovery protocol of Universal Plug and Play
  * UPnP   http://www.upnp.org/specs/arch/UPnP-arch-DeviceArchitecture-v1.1.pdf
  */
 #define TCP_PORT_SSDP			1900
@@ -688,7 +688,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	orig_offset = offset;
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_http, tvb, offset, -1,
-		    FALSE);
+		    ENC_NA);
 		http_tree = proto_item_add_subtree(ti, ett_http);
 	}
 
@@ -1599,7 +1599,7 @@ http_payload_subdissector(tvbuff_t *tvb, proto_tree *tree,
 		 * Create a proxy-connect subtree
 		 */
 		if(tree) {
-			item = proto_tree_add_item(tree, proto_http, tvb, 0, -1, FALSE);
+			item = proto_tree_add_item(tree, proto_http, tvb, 0, -1, ENC_NA);
 			proxy_tree = proto_item_add_subtree(item, ett_http);
 
 			item = proto_tree_add_string(proxy_tree, hf_http_proxy_connect_host,
@@ -2674,7 +2674,7 @@ dissect_message_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_append_str(pinfo->cinfo, COL_INFO, " (message/http)");
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_message_http,
-				tvb, 0, -1, FALSE);
+				tvb, 0, -1, ENC_NA);
 		subtree = proto_item_add_subtree(ti, ett_message_http);
 		while (tvb_reported_length_remaining(tvb, offset) != 0) {
 			len = tvb_find_line_end(tvb, offset,

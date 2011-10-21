@@ -1076,7 +1076,7 @@ dissect_slow_protocols(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (tree)
             {
                 pdu_item = proto_tree_add_item(tree, proto_slow, tvb,
-                        0, -1, FALSE);
+                        0, -1, ENC_NA);
                 pdu_tree = proto_item_add_subtree(pdu_item, ett_pdu);
 
                 /* Subtype */

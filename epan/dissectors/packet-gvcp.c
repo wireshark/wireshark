@@ -256,7 +256,7 @@ dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item *ti = NULL;
     proto_tree *gvcp_tree = NULL;
 
-    ti = proto_tree_add_item(tree, proto_gvcp, tvb, 0, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_gvcp, tvb, 0, -1, ENC_NA);
     gvcp_tree = proto_item_add_subtree(ti, ett_gvcp);
     proto_tree_add_item(gvcp_tree, hf_gvcp_type, tvb, 0, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(gvcp_tree, hf_gvcp_opcode, tvb, 2, 2, ENC_BIG_ENDIAN);

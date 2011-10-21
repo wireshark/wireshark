@@ -88,7 +88,7 @@ dissect_e100(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_item *ti = NULL;
                 proto_tree *e100_tree = NULL;
 
-                ti = proto_tree_add_item(tree, proto_e100, tvb, 0, e100_encap_len, FALSE);
+                ti = proto_tree_add_item(tree, proto_e100, tvb, 0, e100_encap_len, ENC_NA);
                 e100_tree = proto_item_add_subtree(ti, ett_e100);
 
                 proto_tree_add_item(e100_tree, hf_e100_header, tvb,

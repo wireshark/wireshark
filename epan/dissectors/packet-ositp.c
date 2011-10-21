@@ -288,7 +288,7 @@ const enum_val_t tsap_display_options[] = {
 static void cotp_frame_end(void)
 {
   if (!cotp_last_fragment) {
-    /* Last COTP in frame is not fragmented.  
+    /* Last COTP in frame is not fragmented.
      * No need for incrementing the dst_ref, so we decrement it here.
      */
     cotp_dst_ref--;
@@ -743,7 +743,7 @@ static int ositp_decode_DR(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 		 src_ref, dst_ref);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, ENC_NA);
     cotp_tree = proto_item_add_subtree(ti, ett_cotp);
     proto_tree_add_uint(cotp_tree, hf_cotp_li, tvb, offset, 1,li);
     proto_tree_add_uint(cotp_tree, hf_cotp_type, tvb, offset +  1, 1, tpdu);
@@ -838,7 +838,7 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
         p_add_proto_data (pinfo->fd, proto_clnp, prev_dst_ref);
       } else if (cotp_frame_reset) {
         cotp_dst_ref = *prev_dst_ref;
-      } 
+      }
       cotp_frame_reset = FALSE;
       cotp_last_fragment = fragment;
       dst_ref = cotp_dst_ref;
@@ -872,7 +872,7 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   }
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, ENC_NA);
     cotp_tree = proto_item_add_subtree(ti, ett_cotp);
     proto_tree_add_uint(cotp_tree, hf_cotp_li, tvb, offset, 1,li);
   }
@@ -921,7 +921,7 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   fragment_length = tvb_length(next_tvb);
   if (check_col(pinfo->cinfo, COL_INFO)) {
       if(fragment) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " [COTP fragment, %u byte%s]", 
+        col_append_fstr(pinfo->cinfo, COL_INFO, " [COTP fragment, %u byte%s]",
             fragment_length, plurality(fragment_length, "", "s"));
       } else {
         col_append_fstr(pinfo->cinfo, COL_INFO, " EOT");
@@ -1058,7 +1058,7 @@ static int ositp_decode_ED(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 		 tpdu_nr, dst_ref);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, ENC_NA);
     cotp_tree = proto_item_add_subtree(ti, ett_cotp);
     proto_tree_add_uint(cotp_tree, hf_cotp_li, tvb, offset, 1,li);
   }
@@ -1135,7 +1135,7 @@ static int ositp_decode_RJ(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 		 tpdu_nr, dst_ref);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, ENC_NA);
     cotp_tree = proto_item_add_subtree(ti, ett_cotp);
     proto_tree_add_uint(cotp_tree, hf_cotp_li, tvb, offset, 1,li);
     item = proto_tree_add_uint(cotp_tree, hf_cotp_type, tvb, offset +  1, 1, tpdu);
@@ -1196,7 +1196,7 @@ static int ositp_decode_CC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 		 dst_ref);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, ENC_NA);
     cotp_tree = proto_item_add_subtree(ti, ett_cotp);
     proto_tree_add_uint(cotp_tree, hf_cotp_li, tvb, offset, 1,li);
   }
@@ -1279,7 +1279,7 @@ static int ositp_decode_DC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 		 dst_ref);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, ENC_NA);
     cotp_tree = proto_item_add_subtree(ti, ett_cotp);
     proto_tree_add_uint(cotp_tree, hf_cotp_li, tvb, offset, 1,li);
   }
@@ -1335,7 +1335,7 @@ static int ositp_decode_AK(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 		   tpdu_nr, dst_ref);
 
     if (tree) {
-      ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, ENC_BIG_ENDIAN);
+      ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, ENC_NA);
       cotp_tree = proto_item_add_subtree(ti, ett_cotp);
       proto_tree_add_uint(cotp_tree, hf_cotp_li, tvb, offset, 1,li);
     }
@@ -1377,7 +1377,7 @@ static int ositp_decode_AK(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 		   tpdu_nr, dst_ref, cdt_in_ak);
 
     if (tree) {
-      ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, ENC_BIG_ENDIAN);
+      ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, ENC_NA);
       cotp_tree = proto_item_add_subtree(ti, ett_cotp);
       proto_tree_add_uint(cotp_tree, hf_cotp_li, tvb, offset, 1,li);
     }
@@ -1469,7 +1469,7 @@ static int ositp_decode_EA(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 		 "EA TPDU (%u) dst-ref: 0x%04x", tpdu_nr, dst_ref);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, ENC_NA);
     cotp_tree = proto_item_add_subtree(ti, ett_cotp);
     proto_tree_add_uint(cotp_tree, hf_cotp_li, tvb, offset, 1,li);
   }
@@ -1545,7 +1545,7 @@ static int ositp_decode_ER(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
     col_append_fstr(pinfo->cinfo, COL_INFO, "ER TPDU dst-ref: 0x%04x", dst_ref);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, ENC_NA);
     cotp_tree = proto_item_add_subtree(ti, ett_cotp);
     proto_tree_add_uint(cotp_tree, hf_cotp_li, tvb, offset, 1,li);
     proto_tree_add_uint(cotp_tree, hf_cotp_type, tvb, offset +  1, 1, tpdu);
@@ -1571,7 +1571,7 @@ static int ositp_decode_UD(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   col_append_str(pinfo->cinfo, COL_INFO, "UD TPDU");
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_cltp, tvb, offset, li + 1, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(tree, proto_cltp, tvb, offset, li + 1, ENC_NA);
     cltp_tree = proto_item_add_subtree(ti, ett_cltp);
     proto_tree_add_uint(cltp_tree, hf_cltp_li, tvb, offset, 1,li);
   }

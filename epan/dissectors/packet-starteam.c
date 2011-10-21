@@ -527,7 +527,7 @@ dissect_starteam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree *starteamroot_tree;
       proto_item *ti;
 
-      ti = proto_tree_add_item(tree, proto_starteam, tvb, offset, -1, FALSE);
+      ti = proto_tree_add_item(tree, proto_starteam, tvb, offset, -1, ENC_NA);
       if (bRequest) proto_item_append_text(ti, " (%s)",
                                            val_to_str_ext(iCommand, &starteam_opcode_vals_ext, "Unknown (0x%02x)"));
       starteamroot_tree = proto_item_add_subtree(ti, ett_starteam);

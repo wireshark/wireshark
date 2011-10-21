@@ -260,7 +260,7 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_nbipx, tvb, 0,
-		    -1, FALSE);
+		    -1, ENC_NA);
 		nbipx_tree = proto_item_add_subtree(ti, ett_nbipx);
 	}
 
@@ -404,7 +404,7 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	case NBIPX_DIRECTED_DATAGRAM:
 		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_str(pinfo->cinfo, COL_INFO, 
+			col_add_str(pinfo->cinfo, COL_INFO,
 				val_to_str(packet_type, nbipx_data_stream_type_vals, "Unknown"));
 		}
 		dissect_conn_control(tvb, offset, nbipx_tree);
@@ -431,7 +431,7 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	default:
 		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_str(pinfo->cinfo, COL_INFO, 
+			col_add_str(pinfo->cinfo, COL_INFO,
 				val_to_str(packet_type, nbipx_data_stream_type_vals, "Unknown"));
 		}
 
@@ -676,7 +676,7 @@ dissect_nmpi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_nmpi, tvb, offset, 68,
-		    FALSE);
+		    ENC_NA);
 		nmpi_tree = proto_item_add_subtree(ti, ett_nmpi);
 
 		add_routers(nmpi_tree, tvb, offset);

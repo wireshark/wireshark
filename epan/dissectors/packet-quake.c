@@ -446,7 +446,7 @@ dissect_quake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tree) {
 		proto_item *quake_item;
 		quake_item = proto_tree_add_item(tree, proto_quake,
-				tvb, 0, -1, FALSE);
+				tvb, 0, -1, ENC_NA);
 		quake_tree = proto_item_add_subtree(quake_item, ett_quake);
 	}
 

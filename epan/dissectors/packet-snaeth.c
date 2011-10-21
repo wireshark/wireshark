@@ -59,7 +59,7 @@ dissect_snaeth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		snaeth_ti = proto_tree_add_item(tree, proto_snaeth, tvb, 0, 3,
-		    FALSE);
+		    ENC_NA);
 		snaeth_tree = proto_item_add_subtree(snaeth_ti, ett_snaeth);
 		proto_tree_add_uint(snaeth_tree, hf_snaeth_len, tvb, 0, 2, len);
 		proto_tree_add_text(snaeth_tree, tvb, 2, 1, "Padding");

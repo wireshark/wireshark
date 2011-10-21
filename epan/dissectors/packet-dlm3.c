@@ -798,7 +798,7 @@ dissect_dlm3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     offset = 0;
 
     item = proto_tree_add_item(parent_tree, proto_dlm3, tvb, offset,
-                               -1, ENC_LITTLE_ENDIAN);
+                               -1, ENC_NA);
     tree = proto_item_add_subtree(item, ett_dlm3);
 
     sub_item = proto_tree_add_uint(tree,

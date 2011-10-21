@@ -61,7 +61,7 @@ dissect_media(tvbuff_t *tvb, packet_info *pinfo , proto_tree *tree)
     if (tree) {
         if ( (bytes = tvb_length(tvb)) > 0 )
         {
-            ti = proto_tree_add_item(tree, proto_media, tvb, 0, -1, FALSE);
+            ti = proto_tree_add_item(tree, proto_media, tvb, 0, -1, ENC_NA);
             media_tree = proto_item_add_subtree(ti, ett_media);
 
             if (pinfo->private_data) {

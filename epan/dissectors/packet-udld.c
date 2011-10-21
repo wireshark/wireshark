@@ -116,7 +116,7 @@ dissect_udld(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     	proto_item *flags_ti;
 	proto_tree *flags_tree;
 
-        ti = proto_tree_add_item(tree, proto_udld, tvb, offset, -1, FALSE);
+        ti = proto_tree_add_item(tree, proto_udld, tvb, offset, -1, ENC_NA);
 	udld_tree = proto_item_add_subtree(ti, ett_udld);
 
 	/* UDLD header */
@@ -196,7 +196,7 @@ dissect_udld(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    "Port ID: %s  ",
 				    tvb_format_stringzpad(tvb, offset + 4, length - 4));
 
-		if (tree) { 
+		if (tree) {
 		    tlvi = proto_tree_add_text(udld_tree, tvb, offset,
 			    real_length, "Port ID: %s",
 			    tvb_format_text(tvb, offset + 4, real_length - 4));

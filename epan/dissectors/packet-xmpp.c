@@ -1,7 +1,7 @@
 /* packet-xmpp.c
  * Routines for XMPP packet dissection
  * Copyright 2003, Brad Hards <bradh@frogmouth.net>
- * Heavily based in packet-acap.c, which in turn is heavily based on 
+ * Heavily based in packet-acap.c, which in turn is heavily based on
  * packet-imap.c, Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
  * $Id$
@@ -86,7 +86,7 @@ dissect_xmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_xmpp, tvb, offset, -1,
-		    ENC_BIG_ENDIAN) ;
+		    ENC_NA) ;
 		xmpp_tree = proto_item_add_subtree(ti, ett_xmpp);
 
 		if (is_request) {

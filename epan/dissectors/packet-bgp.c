@@ -449,7 +449,7 @@ static gint bgp_asn_len = 0;
  * Detect IPv4 prefixes  conform to BGP Additional Path but NOT conform to standard BGP
  *
  * A real BGP speaker would rely on the BGP Additional Path in the BGP Open messages.
- * But it is not suitable for a packet analyse because the BGP sessions are not supposed to 
+ * But it is not suitable for a packet analyse because the BGP sessions are not supposed to
  * restart very often, and Open messages from both sides of the session would be needed
  * to determine the result of the capability negociation.
  * Code inspired from the decode_prefix4 function
@@ -1261,7 +1261,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                 plen =  tvb_get_ntohs(tvb,offset);
                 rd_type=tvb_get_ntohs(tvb,offset+2);
 
-                /* RFC6074 Section 7 BGP-AD and VPLS-BGP Interoperability 
+                /* RFC6074 Section 7 BGP-AD and VPLS-BGP Interoperability
                    Both BGP-AD and VPLS-BGP [RFC4761] use the same AFI/SAFI.  In order
                    for both BGP-AD and VPLS-BGP to co-exist, the NLRI length must be
                    used as a demultiplexer.
@@ -1736,7 +1736,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
         if( detect_add_path_prefix4(tvb, o, end) ) {
             /* IPv4 prefixes with Path Id */
             while (o < end) {
-                i = decode_path_prefix4(subtree, hf_bgp_nlri_path_id, hf_bgp_withdrawn_prefix, tvb, o, 
+                i = decode_path_prefix4(subtree, hf_bgp_nlri_path_id, hf_bgp_withdrawn_prefix, tvb, o,
                     "Withdrawn route");
                 if (i < 0)
                     return;
@@ -1835,13 +1835,13 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                                 length = tvb_get_guint8(tvb, k++);
 
                                 /* Check for invalid ASN */
-                                for (d = 0; d < length; d++) 
+                                for (d = 0; d < length; d++)
                                 {
                                     if(tvb_get_ntohs(tvb, k) == 0)
                                         asn_is_null = 1;
                                     k += 2;
                                 }
-                            }                        
+                            }
                             if(k != end || unknown_segment_type || asn_is_null)
                                 asn_len = 4;
                         }
@@ -2775,7 +2775,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
             if( detect_add_path_prefix4(tvb, o, end) ) {
                 /* IPv4 prefixes with Path Id */
                 while (o < end) {
-                    i = decode_path_prefix4(subtree, hf_bgp_nlri_path_id, hf_bgp_nlri_prefix, tvb, o, 
+                    i = decode_path_prefix4(subtree, hf_bgp_nlri_path_id, hf_bgp_nlri_prefix, tvb, o,
                                             "NLRI");
                     if (i < 0)
                        return;
@@ -3001,7 +3001,7 @@ dissect_bgp_pdu(tvbuff_t *volatile tvb, packet_info *pinfo, proto_tree *tree,
         col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", typ);
 
     if (tree) {
-        ti = proto_tree_add_item(tree, proto_bgp, tvb, 0, -1, FALSE);
+        ti = proto_tree_add_item(tree, proto_bgp, tvb, 0, -1, ENC_NA);
         proto_item_append_text(ti, " - %s", typ);
 
         /* add a different tree for each message type */
@@ -3131,7 +3131,7 @@ dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * If we skipped any bytes, mark it as a BGP continuation.
      */
     if (offset > 0) {
-        ti = proto_tree_add_item(tree, proto_bgp, tvb, 0, -1, FALSE);
+        ti = proto_tree_add_item(tree, proto_bgp, tvb, 0, -1, ENC_NA);
         bgp_tree = proto_item_add_subtree(ti, ett_bgp);
 
         proto_tree_add_text(bgp_tree, tvb, 0, offset, "Continuation");

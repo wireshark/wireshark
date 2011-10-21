@@ -337,7 +337,7 @@ dissect_mstp_wtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		mstp_frame_source, mstp_frame_destination,
 		mstp_frame_type_text(mstp_frame_type));
 #else
-	ti = proto_tree_add_item(tree, proto_mstp, tvb, offset, 8, FALSE);
+	ti = proto_tree_add_item(tree, proto_mstp, tvb, offset, 8, ENC_NA);
 #endif
 	subtree = proto_item_add_subtree(ti, ett_bacnet_mstp);
 	proto_tree_add_item(subtree, hf_mstp_preamble_55, tvb,

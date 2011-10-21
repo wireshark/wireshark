@@ -86,7 +86,7 @@ dissect_interlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tree) {
 		proto_item	*il_item;
 		il_item = proto_tree_add_item(tree, proto_interlink,
-								tvb, 0, 16, FALSE);
+								tvb, 0, 16, ENC_NA);
 		if (il_item)
 			il_tree = proto_item_add_subtree(il_item, ett_interlink);
 	}

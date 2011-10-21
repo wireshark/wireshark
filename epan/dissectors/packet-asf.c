@@ -167,7 +167,7 @@ dissect_asf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		val_to_str(type, asf_type_vals, "Unknown (0x%02x)"));
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_asf, tvb, 0, 8,ENC_BIG_ENDIAN);
+		ti = proto_tree_add_item(tree, proto_asf, tvb, 0, 8,ENC_NA);
 		asf_tree = proto_item_add_subtree(ti, ett_asf);
 		proto_tree_add_item(asf_tree, hf_asf_iana, tvb, 0, 4,ENC_BIG_ENDIAN);
 		proto_tree_add_item(asf_tree, hf_asf_type, tvb, 4, 1,ENC_BIG_ENDIAN);

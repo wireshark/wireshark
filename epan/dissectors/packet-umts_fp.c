@@ -386,7 +386,7 @@ static const value_string dch_control_frame_type_vals[] = {
 #define COMMON_TIMING_ADJUSTMENT                       2
 #define COMMON_DL_SYNCHRONISATION                      3
 #define COMMON_UL_SYNCHRONISATION                      4
-                                                       
+
 #define COMMON_DL_NODE_SYNCHRONISATION                 6
 #define COMMON_UL_NODE_SYNCHRONISATION                 7
 #define COMMON_DYNAMIC_PUSCH_ASSIGNMENT                8
@@ -1394,7 +1394,7 @@ static void dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_t
                                     ext_rx_sync_ul_timing_deviation_present = TRUE;
                                     proto_tree_add_item(new_ie_flags_tree, hf_fp_rach_ext_rx_sync_ul_timing_deviation_present,
                                                         tvb, offset, 1, ENC_BIG_ENDIAN);
-        
+
                                     break;
                                 default:
                                     /* Not defined */
@@ -1466,7 +1466,7 @@ static void dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_t
                     case Division_TDD_768:
                         bits_to_extend = 2;
                         break;
-    
+
                     default:
                         /* TODO: report unexpected division type */
                         bits_to_extend = 1;
@@ -2569,7 +2569,7 @@ static void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_
                     maces_tree = proto_item_add_subtree(ti, ett_fp_edch_maces);
                 }
                 for (macd_idx = 0; macd_idx < subframes[n].number_of_mac_d_pdus[i]; macd_idx++) {
- 
+
                     if (preferences_call_mac_dissectors) {
                         tvbuff_t *next_tvb;
                         pinfo->fd->subnum = macd_idx; /* set subframe number to current TB */
@@ -2802,7 +2802,7 @@ static void dissect_e_dch_t2_or_common_channel_info(tvbuff_t *tvb, packet_info *
 
             proto_item *macis_pdu_ti;
             proto_tree *macis_pdu_tree;
-    
+
             /* Add subframe header subtree */
             macis_pdu_ti = proto_tree_add_string_format(tree, hf_fp_edch_subframe_header, tvb, offset, 0,
                                                         "", "MAC-is PDU (SFN=%u PDU %u)",
@@ -3199,7 +3199,7 @@ static gboolean heur_dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     if (!p_fp_info->srcport || !p_fp_info->destport) {
         p_fp_info->srcport = pinfo->srcport;
         p_fp_info->destport = pinfo->destport;
-    }    
+    }
 
     /* discriminate 'lower' UDP layer from 'user data' UDP layer
      * (i.e. if an FP over UDP packet contains a user UDP packet */
@@ -3226,7 +3226,7 @@ void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FP");
 
     /* Create fp tree. */
-    ti = proto_tree_add_item(tree, proto_fp, tvb, offset, -1, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(tree, proto_fp, tvb, offset, -1, ENC_NA);
     fp_tree = proto_item_add_subtree(ti, ett_fp);
 
     top_level_tree = tree;

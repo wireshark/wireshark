@@ -13,17 +13,17 @@
  * don't bother with the "Copied from" - you don't even need to put
  * in a "Copied from" if you copied an existing dissector, especially
  * if the bulk of the code in the new dissector is your code)
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -67,7 +67,7 @@ dissect_newmail(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_INFO, "Microsoft Exchange new mail notification");
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_newmail, tvb, 0, -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_newmail, tvb, 0, -1, ENC_NA);
 
 		newmail_tree = proto_item_add_subtree(ti, ett_newmail);
 
@@ -79,13 +79,13 @@ dissect_newmail(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* Register the protocol with Wireshark */
 void
 proto_register_newmail(void)
-{                 
+{
 
 	/* Setup list of header fields  See Section 1.6.1 for details*/
 	static hf_register_info hf[] = {
 		{ &hf_newmail_payload,
 		  { "Notification payload", "newmail.notification_payload",
-		    FT_BYTES, BASE_NONE, NULL, 0x0,          
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
 		    "Payload requested by client in the MAPI register push notification packet", HFILL }
 		},
 	};
@@ -107,7 +107,7 @@ proto_register_newmail(void)
 
 	/* Register the dissector without a port yet */
 	register_dissector("newmail", dissect_newmail, proto_newmail);
-        
+
 	/* Register preferences module */
 	newmail_module = prefs_register_protocol(proto_newmail,
 						 proto_reg_handoff_newmail);
@@ -117,7 +117,7 @@ proto_register_newmail(void)
 				       "Default UDP port (optional)",
 				       "Always dissect this port's traffic as newmail notifications.  Additional ports will be dynamically registered as they are seen in MAPI register push notification packets.",
 				       10, &preference_default_port);
-	
+
 }
 
 void
@@ -135,9 +135,9 @@ proto_reg_handoff_newmail(void)
                 if (preference_default_port_last != 0) {
                         dissector_delete_uint("udp.port", preference_default_port_last, newmail_handle);
                 }
-        }	
+        }
 
-	if(preference_default_port != 0) {	
+	if(preference_default_port != 0) {
 		dissector_add_uint("udp.port", preference_default_port, newmail_handle);
 	}
         preference_default_port_last = preference_default_port;

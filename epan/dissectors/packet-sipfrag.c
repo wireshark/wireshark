@@ -64,7 +64,7 @@ static void dissect_sipfrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_append_str(pinfo->cinfo, COL_INFO, ", with Sipfrag");
 
     /* Create sipfrag tree. */
-    ti = proto_tree_add_item(tree, proto_sipfrag, tvb, offset, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_sipfrag, tvb, offset, -1, ENC_NA);
     sipfrag_tree = proto_item_add_subtree(ti, ett_sipfrag);
 
     /* Show the sipfrag message a line at a time. */

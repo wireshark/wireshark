@@ -447,7 +447,7 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* Create display subtree for SSL as a whole */
   if (tree)
     {
-      ti = proto_tree_add_item(tree, proto_dtls, tvb, 0, -1, FALSE);
+      ti = proto_tree_add_item(tree, proto_dtls, tvb, 0, -1, ENC_NA);
       dtls_tree = proto_item_add_subtree(ti, ett_dtls);
     }
 

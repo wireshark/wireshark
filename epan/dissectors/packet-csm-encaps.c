@@ -262,7 +262,7 @@ dissect_csm_encaps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_csm_encaps, tvb, 0, -1, ENC_BIG_ENDIAN);
+		ti = proto_tree_add_item(tree, proto_csm_encaps, tvb, 0, -1, ENC_NA);
 		csm_encaps_tree = proto_item_add_subtree(ti, ett_csm_encaps);
 
 

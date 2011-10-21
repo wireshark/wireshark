@@ -1305,7 +1305,7 @@ static void dissect_ecat_mailbox(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
          if( tree )
          {
             /* Create the mailbox sub tree */
-            anItem = proto_tree_add_item(tree, proto_ecat_mailbox, tvb, 0, ETHERCAT_MBOX_HEADER_LEN+hdr.Length, TRUE);
+            anItem = proto_tree_add_item(tree, proto_ecat_mailbox, tvb, 0, ETHERCAT_MBOX_HEADER_LEN+hdr.Length, ENC_NA);
             ecat_mailbox_tree = proto_item_add_subtree(anItem, ett_ecat_mailbox);
 
             /* Create a mailbox header subtree */

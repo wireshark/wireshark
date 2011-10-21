@@ -70,7 +70,7 @@ dissect_h501_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
 
-  ti = proto_tree_add_item(tree, proto_h501, tvb, 0, -1, FALSE);
+  ti = proto_tree_add_item(tree, proto_h501, tvb, 0, -1, ENC_NA);
   h501_tree = proto_item_add_subtree(ti, ett_h501);
 
   return dissect_Message_PDU(tvb, pinfo, h501_tree);
@@ -131,7 +131,7 @@ void proto_register_h501(void) {
 }
 
 /*--- proto_reg_handoff_h501 -------------------------------------------*/
-void proto_reg_handoff_h501(void) 
+void proto_reg_handoff_h501(void)
 {
   static gboolean h501_prefs_initialized = FALSE;
   static dissector_handle_t h501_udp_handle;

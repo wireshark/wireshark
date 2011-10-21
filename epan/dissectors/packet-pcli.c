@@ -61,7 +61,7 @@ static int hf_pcli_cccid = -1;
 
 static int ett_pcli = -1;
 
-/* 
+/*
  * Here are the global variables associated with the preferences
  * for pcli
  */
@@ -71,9 +71,9 @@ static guint global_udp_port_pcli = UDP_PORT_PCLI;
 /* A static handle for the ip dissector */
 static dissector_handle_t ip_handle;
 
-static void 
+static void
 dissect_pcli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
-  
+
   guint32 cccid;
   proto_tree *ti,*pcli_tree;
   tvbuff_t * next_tvb;
@@ -89,13 +89,13 @@ dissect_pcli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     col_add_fstr(pinfo->cinfo, COL_INFO, "CCCID: %u",cccid);
   }
 
-  /* 
+  /*
    *If we have a non-null tree (ie we are building the proto_tree
    * instead of just filling out the columns ), then add a PLCI
    * tree node and put a CCCID header element under it.
    */
   if(tree) {
-    ti = proto_tree_add_item(tree,proto_pcli,tvb,0,0,FALSE);
+    ti = proto_tree_add_item(tree,proto_pcli,tvb,0,0,ENC_NA);
     pcli_tree = proto_item_add_subtree(ti,ett_pcli);
     proto_tree_add_uint(pcli_tree,hf_pcli_cccid,tvb,
 			0,4,cccid);
@@ -108,7 +108,7 @@ dissect_pcli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   call_dissector(ip_handle,next_tvb,pinfo,tree);
 }
 
-void 
+void
 proto_register_pcli(void) {
   static hf_register_info hf[] = {
     { &hf_pcli_cccid,
@@ -155,6 +155,6 @@ proto_reg_handoff_pcli(void) {
   }
 
   udp_port_pcli = global_udp_port_pcli;
-  
+
   dissector_add_uint("udp.port",global_udp_port_pcli,pcli_handle);
 }

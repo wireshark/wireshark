@@ -164,7 +164,7 @@ dissect_cups(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_cups, tvb, offset, -1,
-		    ENC_BIG_ENDIAN);
+		    ENC_NA);
 		cups_tree = proto_item_add_subtree(ti, ett_cups);
 	}
 

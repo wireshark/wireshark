@@ -3945,7 +3945,7 @@ static void dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree
     }
     if (tree)
     {
-      ti = proto_tree_add_item (tree, proto_giop, tvb, 0, -1, FALSE);
+      ti = proto_tree_add_item (tree, proto_giop, tvb, 0, -1, ENC_NA);
       clnp_tree = proto_item_add_subtree (ti, ett_giop);
       proto_tree_add_text (clnp_tree, giop_header_tvb, 0, -1,
                            "Version %u.%u not supported",
@@ -3981,7 +3981,7 @@ static void dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree
 
   if (tree)
   {
-    ti = proto_tree_add_item (tree, proto_giop, tvb, 0, -1, FALSE);
+    ti = proto_tree_add_item (tree, proto_giop, tvb, 0, -1, ENC_NA);
     clnp_tree = proto_item_add_subtree (ti, ett_giop);
     proto_tree_add_text (clnp_tree, giop_header_tvb, offset, 4,
                          "Magic number: %s", GIOP_MAGIC);

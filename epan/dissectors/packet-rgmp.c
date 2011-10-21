@@ -23,8 +23,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-/* 
- Based on RFC3488 
+/*
+ Based on RFC3488
 
  This is a setup for RGMP dissection, a simple protocol bolted on IGMP.
  The trick is to have IGMP dissector call this function (which by itself is not
@@ -74,7 +74,7 @@ dissect_rgmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int off
 	return offset + tvb_length_remaining(tvb, offset);
     }
 
-    item = proto_tree_add_item(parent_tree, proto_rgmp, tvb, offset, -1, FALSE);
+    item = proto_tree_add_item(parent_tree, proto_rgmp, tvb, offset, -1, ENC_NA);
     tree = proto_item_add_subtree(item, ett_rgmp);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RGMP");
@@ -82,7 +82,7 @@ dissect_rgmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int off
 
     type = tvb_get_guint8(tvb, offset);
     if (check_col(pinfo->cinfo, COL_INFO)) {
-	col_add_str(pinfo->cinfo, COL_INFO, 
+	col_add_str(pinfo->cinfo, COL_INFO,
 		     val_to_str(type, rgmp_types, "Unknown Type: 0x%02x"));
     }
     proto_tree_add_uint(tree, hf_type, tvb, offset, 1, type);

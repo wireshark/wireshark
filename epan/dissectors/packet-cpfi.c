@@ -354,7 +354,7 @@ dissect_cpfi(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
      necessary to generate protocol tree items. */
   if (tree) {
     /* create the protocol tree */
-    cpfi_item = proto_tree_add_item(tree, proto_cpfi, message_tvb, 0, -1, ENC_BIG_ENDIAN);
+    cpfi_item = proto_tree_add_item(tree, proto_cpfi, message_tvb, 0, -1, ENC_NA);
     cpfi_tree = proto_item_add_subtree(cpfi_item, ett_cpfi);
   }
 

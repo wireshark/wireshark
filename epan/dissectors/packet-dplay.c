@@ -1052,7 +1052,7 @@ static void dissect_dplay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree *dplay_data = NULL;
         gint offset = 0;
 
-        dplay_item = proto_tree_add_item(tree, proto_dplay, tvb, 0, -1, ENC_BIG_ENDIAN);
+        dplay_item = proto_tree_add_item(tree, proto_dplay, tvb, 0, -1, ENC_NA);
         dplay_tree = proto_item_add_subtree(dplay_item, ett_dplay);
         header_item = proto_tree_add_text(dplay_tree, tvb, offset, DPLAY_HEADER_OFFSET, "DirectPlay header");
         dplay_header = proto_item_add_subtree(header_item, ett_dplay_header);
@@ -1136,7 +1136,7 @@ static void dissect_dplay_player_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tr
         proto_tree *data_tree = NULL;
         gint offset = 0;
 
-        dplay_item = proto_tree_add_item(tree, proto_dplay, tvb, offset, -1, ENC_BIG_ENDIAN);
+        dplay_item = proto_tree_add_item(tree, proto_dplay, tvb, offset, -1, ENC_NA);
         dplay_tree = proto_item_add_subtree(dplay_item, ett_dplay);
         data_item  = proto_tree_add_text(dplay_tree, tvb, offset, -1, "Message content");
         data_tree  = proto_item_add_subtree(data_item, ett_dplay_data);

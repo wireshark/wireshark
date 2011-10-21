@@ -2930,7 +2930,7 @@ static void dissect_x11_initial_conn(tvbuff_t *tvb, packet_info *pinfo,
       guint16 auth_proto_name_length, auth_proto_data_length;
       gint left;
 
-      ti = proto_tree_add_item(tree, proto_x11, tvb, 0, -1, FALSE);
+      ti = proto_tree_add_item(tree, proto_x11, tvb, 0, -1, ENC_NA);
       proto_item_append_text(ti, ", Request, Initial connection request");
       t = proto_item_add_subtree(ti, ett_x11);
 
@@ -2980,7 +2980,7 @@ static void dissect_x11_initial_reply(tvbuff_t *tvb, packet_info *pinfo,
       proto_item *ti;
       proto_tree *t;
 
-      ti = proto_tree_add_item(tree, proto_x11, tvb, 0, -1, FALSE);
+      ti = proto_tree_add_item(tree, proto_x11, tvb, 0, -1, ENC_NA);
       proto_item_append_text(ti, ", Reply, Initial connection reply");
       t = proto_item_add_subtree(ti, ett_x11);
 
@@ -3183,7 +3183,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       next_offset = offset + length;
 
-      ti = proto_tree_add_item(tree, proto_x11, tvb, 0, -1, FALSE);
+      ti = proto_tree_add_item(tree, proto_x11, tvb, 0, -1, ENC_NA);
       t = proto_item_add_subtree(ti, ett_x11);
 
       if (PACKET_IS_NEW(pinfo))
@@ -4382,7 +4382,7 @@ static void dissect_x11_requests(tvbuff_t *tvb, packet_info *pinfo,
                    * Give up.
                    */
                   ti = proto_tree_add_item(tree, proto_x11, tvb, offset, -1,
-                  FALSE);
+                  ENC_NA);
                   t = proto_item_add_subtree(ti, ett_x11);
                   proto_tree_add_text(t, tvb, offset, -1,
                   "Bogus request length (0)");
@@ -4798,7 +4798,7 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       proto_item *ti;
       proto_tree *t;
 
-      ti = proto_tree_add_item(tree, proto_x11, tvb, 0, -1, FALSE);
+      ti = proto_tree_add_item(tree, proto_x11, tvb, 0, -1, ENC_NA);
       t = proto_item_add_subtree(ti, ett_x11);
 
 
@@ -5196,7 +5196,7 @@ dissect_x11_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       proto_item *ti;
       proto_tree *t;
 
-      ti = proto_tree_add_item(tree, proto_x11, tvb, 0, -1, FALSE);
+      ti = proto_tree_add_item(tree, proto_x11, tvb, 0, -1, ENC_NA);
       t = proto_item_add_subtree(ti, ett_x11);
 
       eventcode = tvb_get_guint8(tvb, 0);
@@ -5541,7 +5541,7 @@ dissect_x11_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       proto_item *ti;
       proto_tree *t;
 
-      ti = proto_tree_add_item(tree, proto_x11, tvb, 0, -1, FALSE);
+      ti = proto_tree_add_item(tree, proto_x11, tvb, 0, -1, ENC_NA);
       t = proto_item_add_subtree(ti, ett_x11);
 
       CARD8(error);

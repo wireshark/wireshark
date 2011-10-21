@@ -81,7 +81,7 @@ dissect_sscf_nni(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   reported_length = tvb_reported_length(tvb);	/* frame length */
 
   if (tree) {
-    sscf_item = proto_tree_add_item(tree, proto_sscf, tvb, 0, -1, FALSE);
+    sscf_item = proto_tree_add_item(tree, proto_sscf, tvb, 0, -1, ENC_NA);
     sscf_tree = proto_item_add_subtree(sscf_item, ett_sscf);
   }
 

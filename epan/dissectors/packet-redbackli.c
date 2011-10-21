@@ -91,10 +91,10 @@ redbackli_dissect_avp(guint8 avptype, guint8 avplen, tvbuff_t *tvb, gint offset,
 
         /* XXX: ToDo: Validate the length (avplen) of the fixed length fields
                 before calling proto_tree_add_item().
-                Note that the field lengths have been validated when 
+                Note that the field lengths have been validated when
                 dissect_avp() is called from redbackli_dissect_heur().
          */
-                 
+
 	switch(avptype) {
 		case(RB_AVP_SEQNO):
 			proto_tree_add_item(st, hf_redbackli_seqno, tvb,
@@ -146,7 +146,7 @@ redbackli_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_redbackli,
-					 tvb, 0, -1, FALSE);
+					 tvb, 0, -1, ENC_NA);
 		redbackli_tree = proto_item_add_subtree(ti, ett_redbackli);
 	}
 
@@ -249,7 +249,7 @@ void proto_register_redbackli(void) {
 			"Session Identifier", HFILL }},
 		{ &hf_redbackli_dir,
 #if 0 /* XXX: If one goes by the heuristic then this field can be variable length ??
-         In the absence of any documentation We'll assume that's the case 
+         In the absence of any documentation We'll assume that's the case
          (even though 'direction' sounds like a fixed length field */
 			{ "Direction", "redbackli.dir", FT_UINT8, BASE_DEC, NULL, 0x0,
 #endif

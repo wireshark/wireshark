@@ -69,7 +69,7 @@ dissect_hci_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	type = pinfo->pseudo_header->bthci.channel;
 
 	if(tree){
-		ti = proto_tree_add_item(tree, proto_hci_h1, tvb, 0, 0, FALSE);
+		ti = proto_tree_add_item(tree, proto_hci_h1, tvb, 0, 0, ENC_NA);
 		hci_h1_tree = proto_item_add_subtree(ti, ett_hci_h1);
 
 		if(pinfo->p2p_dir == P2P_DIR_SENT ||

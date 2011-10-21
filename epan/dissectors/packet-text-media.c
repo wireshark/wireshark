@@ -69,7 +69,7 @@ dissect_text_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8		word[6];
 	int length = tvb_length(tvb);
 
-	/* Check if this is actually xml 
+	/* Check if this is actually xml
 	 * If there is less than 38 characters this is not XML
 	 * <?xml version="1.0" encoding="UTF-8"?>
 	 */
@@ -101,7 +101,7 @@ dissect_text_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_text_lines,
-				tvb, 0, -1, FALSE);
+				tvb, 0, -1, ENC_NA);
 		if (data_name)
 			proto_item_append_text(ti, ": %s", data_name);
 		subtree = proto_item_add_subtree(ti, ett_text_lines);

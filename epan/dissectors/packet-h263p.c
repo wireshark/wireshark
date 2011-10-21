@@ -88,9 +88,9 @@ dissect_h263P( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.263 RFC4629 ");
 
 	if ( tree ) {
-	  ti = proto_tree_add_item( tree, proto_h263P, tvb, offset, -1, FALSE );
+	  ti = proto_tree_add_item( tree, proto_h263P, tvb, offset, -1, ENC_NA );
 	  h263P_tree = proto_item_add_subtree( ti, ett_h263P );
-          
+
 	  data16 = tvb_get_ntohs(tvb,offset);
 	  proto_tree_add_item( h263P_tree, hf_h263P_rr, tvb, offset, 2, ENC_BIG_ENDIAN );
 	  proto_tree_add_item( h263P_tree, hf_h263P_pbit, tvb, offset, 2, ENC_BIG_ENDIAN );
@@ -108,7 +108,7 @@ dissect_h263P( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	   */
 
 	  if ((data16&0x0200)==0x0200){
-		  /* V bit = 1 
+		  /* V bit = 1
 		   *   The format of the VRC header extension is as follows:
 		   *
 		   *         0 1 2 3 4 5 6 7
@@ -136,7 +136,7 @@ dissect_h263P( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		   *
 		   *   S: 1 bit
 		   *
-		   *   A bit that indicates that the packet content is for a sync frame.  
+		   *   A bit that indicates that the packet content is for a sync frame.
 		   *   :
 		   */
 		  proto_tree_add_item( h263P_tree, hf_h263P_tid, tvb, offset, 1, ENC_BIG_ENDIAN );
@@ -151,7 +151,7 @@ dissect_h263P( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		  extra_hdr_item = proto_tree_add_item( h263P_tree, hf_h263P_extra_hdr, tvb, offset, plen, ENC_NA );
 		  h263P_extr_hdr_tree = proto_item_add_subtree( extra_hdr_item, ett_h263P_extra_hdr );
 		  dissect_h263_picture_layer( tvb, pinfo, h263P_extr_hdr_tree, offset, plen, TRUE);
-		  offset += plen;		
+		  offset += plen;
 	  }
 	  if ((data16&0x0400)!=0){
 		  /* P bit = 1 */
@@ -165,7 +165,7 @@ dissect_h263P( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 			   */
 			  switch(startcode){
 			  case 0xf8:
-				  /* End Of Sub-Bitstream code (EOSBS) 
+				  /* End Of Sub-Bitstream code (EOSBS)
 				   * EOSBS codes shall be byte aligned
 				   * ( 1111 100. )
 				   */

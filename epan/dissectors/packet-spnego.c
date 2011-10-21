@@ -1726,7 +1726,7 @@ dissect_spnego_wrap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 	item = proto_tree_add_item(tree, proto_spnego, tvb, offset,
-				   -1, FALSE);
+				   -1, ENC_NA);
 
 	subtree = proto_item_add_subtree(item, ett_spnego);
 	/*
@@ -1779,7 +1779,7 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	}
 
 	item = proto_tree_add_item(parent_tree, proto_spnego, tvb, offset,
-				   -1, FALSE);
+				   -1, ENC_NA);
 
 	subtree = proto_item_add_subtree(item, ett_spnego);
 

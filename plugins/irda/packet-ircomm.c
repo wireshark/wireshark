@@ -12,12 +12,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
@@ -190,7 +190,7 @@ static void dissect_cooked_ircomm(tvbuff_t* tvb, packet_info* pinfo, proto_tree*
     if (root)
     {
         /* create display subtree for the protocol */
-        proto_item* ti   = proto_tree_add_item(root, proto_ircomm, tvb, 0, -1, FALSE);
+        proto_item* ti   = proto_tree_add_item(root, proto_ircomm, tvb, 0, -1, ENC_NA);
         proto_tree* tree = proto_item_add_subtree(ti, ett_ircomm);
 
         proto_tree* ctrl_tree;
@@ -232,7 +232,7 @@ static void dissect_raw_ircomm(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
     if (root)
     {
         /* create display subtree for the protocol */
-        proto_item* ti   = proto_tree_add_item(root, proto_ircomm, tvb, 0, -1, FALSE);
+        proto_item* ti   = proto_tree_add_item(root, proto_ircomm, tvb, 0, -1, ENC_NA);
         proto_tree* tree = proto_item_add_subtree(ti, ett_ircomm);
 
         call_dissector(data_handle, tvb, pinfo, tree);

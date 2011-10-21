@@ -757,7 +757,7 @@ static void dissect_ts2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_item *ti = NULL;
 		proto_tree *ts2_tree = NULL;
 
-		ti = proto_tree_add_item(tree, proto_ts2, tvb, 0, -1, TRUE);
+		ti = proto_tree_add_item(tree, proto_ts2, tvb, 0, -1, ENC_NA);
 		ts2_tree = proto_item_add_subtree(ti, ett_ts2);
 
 		proto_tree_add_item(ts2_tree, hf_ts2_class, tvb, 0, 2, ENC_LITTLE_ENDIAN);

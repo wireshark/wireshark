@@ -485,7 +485,7 @@ dissect_sndcp_xid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
 	/* create display subtree for the protocol
 	*/
-	ti = proto_tree_add_item(tree, proto_sndcp_xid, tvb, 0, -1, FALSE);
+	ti = proto_tree_add_item(tree, proto_sndcp_xid, tvb, 0, -1, ENC_NA);
 	sndcp_tree = proto_item_add_subtree(ti, ett_sndcp_xid);
 	l3_param_len = tvb_reported_length(tvb);
 

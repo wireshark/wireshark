@@ -102,7 +102,7 @@ void dissect_pw_cesopsn( tvbuff_t * tvb_original
 		if (tree)
 		{
 			proto_item  *item;
-			item = proto_tree_add_item(tree, proto, tvb_original, 0, -1, FALSE);
+			item = proto_tree_add_item(tree, proto, tvb_original, 0, -1, ENC_NA);
 			expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
 				"PW packet size (%d) is too small to carry sensible information"
 				,(int)packet_size);
@@ -259,7 +259,7 @@ void dissect_pw_cesopsn( tvbuff_t * tvb_original
 
 	{
 		proto_item* item;
-		item = proto_tree_add_item(tree, proto, tvb_original, 0, -1, FALSE);
+		item = proto_tree_add_item(tree, proto, tvb_original, 0, -1, ENC_NA);
 		pwc_item_append_cw(item,tvb_get_ntohl(tvb_original, 0),TRUE);
 		pwc_item_append_text_n_items(item,(int)payload_size,"octet");
 		{

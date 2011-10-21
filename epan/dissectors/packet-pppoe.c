@@ -708,7 +708,7 @@ static void dissect_pppoed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree)
 	{
-		ti = proto_tree_add_item(tree, proto_pppoed, tvb, 0, reported_payload_length+6, FALSE);
+		ti = proto_tree_add_item(tree, proto_pppoed, tvb, 0, reported_payload_length+6, ENC_NA);
 		pppoe_tree = proto_item_add_subtree(ti, ett_pppoed);
 
 		/* Dissect fixed fields */
@@ -1072,7 +1072,7 @@ static void dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree)
 	{
-		ti = proto_tree_add_item(tree, proto_pppoes, tvb, 0, 6, FALSE);
+		ti = proto_tree_add_item(tree, proto_pppoes, tvb, 0, 6, ENC_NA);
 		pppoe_tree = proto_item_add_subtree(ti, ett_pppoe);
 
 		proto_tree_add_item(pppoe_tree, hf_pppoe_version, tvb, 0, 1, ENC_BIG_ENDIAN);

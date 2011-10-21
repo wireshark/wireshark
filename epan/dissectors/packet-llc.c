@@ -426,7 +426,7 @@ dissect_basicxid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	format = tvb_get_guint8(tvb, 0);
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_basicxid, tvb, 0, -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_basicxid, tvb, 0, -1, ENC_NA);
 		xid_tree = proto_item_add_subtree(ti, ett_llc_basicxid);
 		proto_tree_add_uint(xid_tree, hf_llc_xid_format, tvb, 0,
 			1, format);
@@ -472,7 +472,7 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	dsap = tvb_get_guint8(tvb, 0);
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_llc, tvb, 0, -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_llc, tvb, 0, -1, ENC_NA);
 		llc_tree = proto_item_add_subtree(ti, ett_llc);
 		proto_tree_add_uint(llc_tree, hf_llc_dsap, tvb, 0,
 			1, dsap & SAP_MASK);

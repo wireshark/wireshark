@@ -182,7 +182,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
 		    val_to_str(opcode, tftp_opcode_vals, "Unknown (0x%04x)"));
 
 	if (tree) {
-	  ti = proto_tree_add_item(tree, proto_tftp, tvb, offset, -1, ENC_BIG_ENDIAN);
+	  ti = proto_tree_add_item(tree, proto_tftp, tvb, offset, -1, ENC_NA);
 	  tftp_tree = proto_item_add_subtree(ti, ett_tftp);
 
 	  if (tftp_info->source_file) {

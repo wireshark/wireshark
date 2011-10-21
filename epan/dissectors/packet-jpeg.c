@@ -88,7 +88,7 @@ dissect_jpeg( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	col_set_str(pinfo->cinfo, COL_INFO, "JPEG message");
 
 	if ( tree ) {
-		ti = proto_tree_add_item( tree, proto_jpeg, tvb, offset, -1, FALSE );
+		ti = proto_tree_add_item( tree, proto_jpeg, tvb, offset, -1, ENC_NA );
 		jpeg_tree = proto_item_add_subtree( ti, ett_jpeg );
 
 		ti = proto_tree_add_item(jpeg_tree, hf_rtp_jpeg_main_hdr, tvb, offset, 8, ENC_NA);

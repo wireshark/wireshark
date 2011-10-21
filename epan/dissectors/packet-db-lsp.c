@@ -168,7 +168,7 @@ dissect_db_lsp_disc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_set_str (pinfo->cinfo, COL_PROTOCOL, PSNAME_DISC);
   col_set_str (pinfo->cinfo, COL_INFO, PNAME_DISC);
 
-  db_lsp_item = proto_tree_add_item (tree, proto_db_lsp_disc, tvb, offset, -1, ENC_BIG_ENDIAN);
+  db_lsp_item = proto_tree_add_item (tree, proto_db_lsp_disc, tvb, offset, -1, ENC_NA);
   db_lsp_tree = proto_item_add_subtree (db_lsp_item, ett_db_lsp);
 
   proto_tree_add_item (db_lsp_tree, hf_text, tvb, offset, -1, ENC_ASCII|ENC_NA);

@@ -147,7 +147,7 @@ dissect_lmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_lmi, tvb, 0, 3, FALSE);
+		ti = proto_tree_add_item(tree, proto_lmi, tvb, 0, 3, ENC_NA);
 		lmi_tree = proto_item_add_subtree(ti, ett_lmi_ele);
 
 		proto_tree_add_item(lmi_tree, hf_lmi_call_ref, tvb, 0, 1, ENC_BIG_ENDIAN);

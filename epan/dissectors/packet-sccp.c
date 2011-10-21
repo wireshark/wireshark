@@ -2885,7 +2885,7 @@ dissect_sccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      necessary to generate protocol tree items. */
   if (tree) {
     /* create the sccp protocol tree */
-    sccp_item = proto_tree_add_item(tree, proto_sccp, tvb, 0, -1, ENC_BIG_ENDIAN);
+    sccp_item = proto_tree_add_item(tree, proto_sccp, tvb, 0, -1, ENC_NA);
     sccp_tree = proto_item_add_subtree(sccp_item, ett_sccp);
   }
 

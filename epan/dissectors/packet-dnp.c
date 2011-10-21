@@ -2761,7 +2761,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "len=%u, %s", dl_len, func_code_str);
 
   /* create display subtree for the protocol */
-  ti = proto_tree_add_item(tree, proto_dnp3, tvb, offset, -1, ENC_BIG_ENDIAN);
+  ti = proto_tree_add_item(tree, proto_dnp3, tvb, offset, -1, ENC_NA);
   dnp3_tree = proto_item_add_subtree(ti, ett_dnp3);
 
   /* Create Subtree for Data Link Layer */

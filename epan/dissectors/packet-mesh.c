@@ -13,12 +13,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
@@ -49,24 +49,24 @@ dissect_mesh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* Set up structures needed to add the protocol subtree and manage it */
   proto_item *ti;
   proto_tree *mesh_tree;
-  guint8 mesh_ttl; 
-  guint16 mesh_e2eseq; 
-  
+  guint8 mesh_ttl;
+  guint16 mesh_e2eseq;
+
   /* Make entries in Protocol column and Info column on summary display */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "Mesh");
-  
+
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_mesh, tvb, 0, 5, FALSE);
+    ti = proto_tree_add_item(tree, proto_mesh, tvb, 0, 5, ENC_NA);
     mesh_tree = proto_item_add_subtree(ti, ett_mesh);
 
     /* add an item to the subtree, see section 1.6 for more information */
     mesh_ttl = tvb_get_guint8(tvb, 2);
     proto_tree_add_uint(mesh_tree, hf_mesh_ttl, tvb, 2, 1, mesh_ttl);
-  
+
     mesh_e2eseq = tvb_get_ntohs(tvb, 3);
     proto_tree_add_uint(mesh_tree, hf_mesh_e2eseq, tvb, 3, 2, mesh_e2eseq);
   }
-  
+
   /* Return the amount of data this dissector was able to dissect */
   return 5;
 }
@@ -80,7 +80,7 @@ dissect_mesh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 void
 proto_register_mesh(void)
-{                 
+{
   /* Setup list of header fields  See Section 1.6.1 for details*/
   static hf_register_info hf[] = {
     { &hf_mesh_ttl,

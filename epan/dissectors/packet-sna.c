@@ -2572,7 +2572,7 @@ dissect_sna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Don't bother setting length. We'll set it later after we find
 		 * the lengths of TH/RH/RU */
 		sna_ti = proto_tree_add_item(tree, proto_sna, tvb, 0, -1,
-		    FALSE);
+		    ENC_NA);
 		sna_tree = proto_item_add_subtree(sna_ti, ett_sna);
 	}
 
@@ -2607,7 +2607,7 @@ dissect_sna_xid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Don't bother setting length. We'll set it later after we find
 		 * the lengths of XID */
 		sna_ti = proto_tree_add_item(tree, proto_sna_xid, tvb, 0, -1,
-		    FALSE);
+		    ENC_NA);
 		sna_tree = proto_item_add_subtree(sna_ti, ett_sna);
 	}
 	dissect_xid(tvb, pinfo, sna_tree, tree);

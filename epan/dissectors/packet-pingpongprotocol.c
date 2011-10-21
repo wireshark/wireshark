@@ -157,7 +157,7 @@ dissect_pingpongprotocol(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *
      necessary to generate protocol tree items. */
   if (tree) {
     /* create the pingpongprotocol protocol tree */
-    pingpongprotocol_item = proto_tree_add_item(tree, proto_pingpongprotocol, message_tvb, 0, -1, FALSE);
+    pingpongprotocol_item = proto_tree_add_item(tree, proto_pingpongprotocol, message_tvb, 0, -1, ENC_NA);
     pingpongprotocol_tree = proto_item_add_subtree(pingpongprotocol_item, ett_pingpongprotocol);
   } else {
     pingpongprotocol_tree = NULL;

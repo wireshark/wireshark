@@ -471,7 +471,7 @@ dissect_netsync_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return;
 
 	while (tvb_reported_length_remaining(tvb, offset)  > 0) {
-		ti = proto_tree_add_item(tree, proto_netsync, tvb, offset, -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_netsync, tvb, offset, -1, ENC_NA);
 		netsync_tree = proto_item_add_subtree(ti, ett_netsync);
 
 		version = tvb_get_guint8(tvb, offset);

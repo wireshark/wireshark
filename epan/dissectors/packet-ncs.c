@@ -23,8 +23,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
- 
- 
+
+
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -44,9 +44,9 @@ dissect_ncs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree	    *ncs_tree = NULL;
     proto_item	    *ti;
-    
+
     if (tree) {
-        ti = proto_tree_add_item(tree, proto_ncs, tvb, 0, -1, FALSE);
+        ti = proto_tree_add_item(tree, proto_ncs, tvb, 0, -1, ENC_NA);
         ncs_tree = proto_item_add_subtree(ti, ett_ncs);
     }
 

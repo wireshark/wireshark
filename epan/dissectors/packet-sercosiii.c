@@ -11,7 +11,7 @@
  *   Michael Mann * Copyright 2011
  *
  * $Id$
- * 
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -920,7 +920,7 @@ static void dissect_siii_mdt_cp3_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree
    * this data could be extracted from svc communication during CP2
    */
   proto_tree_add_text(tree, tvb, 0, 0, "Service Channels");
-  
+
   proto_tree_add_text(tree, tvb, 0, 0, "Device Controls");
 }
 
@@ -1111,7 +1111,7 @@ static void dissect_siii_at_cp3_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
   /* offsets of service channel, device status and connections are unknown
    * this data could be extracted from svc communication during CP2
    */
-  proto_tree_add_text(tree, tvb, 0, 0, "Service Channels");  
+  proto_tree_add_text(tree, tvb, 0, 0, "Service Channels");
   proto_tree_add_text(tree, tvb, 0, 0, "Device Status");
 }
 
@@ -1210,7 +1210,7 @@ dissect_siii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   col_append_fstr(pinfo->cinfo, COL_INFO, "%s%u Channel=%s", tel_type, tel_no, tel_ch);
 
-  ti = proto_tree_add_item(tree, proto_siii, tvb, 0, -1, FALSE);
+  ti = proto_tree_add_item(tree, proto_siii, tvb, 0, -1, ENC_NA);
 
   siii_tree = proto_item_add_subtree(ti, ett_siii);
 

@@ -168,9 +168,9 @@ dissect_s1ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "S1AP");
 
 	/* create the s1ap protocol tree */
-	s1ap_item = proto_tree_add_item(tree, proto_s1ap, tvb, 0, -1, FALSE);
+	s1ap_item = proto_tree_add_item(tree, proto_s1ap, tvb, 0, -1, ENC_NA);
 	s1ap_tree = proto_item_add_subtree(s1ap_item, ett_s1ap);
-	
+
 	dissect_S1AP_PDU_PDU(tvb, pinfo, s1ap_tree);
 }
 
@@ -238,7 +238,7 @@ void proto_register_s1ap(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_s1ap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
- 
+
   /* Register dissector */
   register_dissector("s1ap", dissect_s1ap, proto_s1ap);
 
@@ -250,7 +250,7 @@ void proto_register_s1ap(void) {
   s1ap_proc_imsg_dissector_table = register_dissector_table("s1ap.proc.imsg", "S1AP-ELEMENTARY-PROCEDURE InitiatingMessage", FT_UINT32, BASE_DEC);
   s1ap_proc_sout_dissector_table = register_dissector_table("s1ap.proc.sout", "S1AP-ELEMENTARY-PROCEDURE SuccessfulOutcome", FT_UINT32, BASE_DEC);
   s1ap_proc_uout_dissector_table = register_dissector_table("s1ap.proc.uout", "S1AP-ELEMENTARY-PROCEDURE UnsuccessfulOutcome", FT_UINT32, BASE_DEC);
-  
+
   /* Register configuration options for ports */
   s1ap_module = prefs_register_protocol(proto_s1ap, proto_reg_handoff_s1ap);
 

@@ -609,7 +609,7 @@ dissect_rohc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_append_str(pinfo->cinfo, COL_INFO, " ");
 	}
 	/*if (tree) {*/
-		ti = proto_tree_add_item(tree, proto_rohc, tvb, 0, -1, ENC_BIG_ENDIAN);
+		ti = proto_tree_add_item(tree, proto_rohc, tvb, 0, -1, ENC_NA);
 		rohc_tree = proto_item_add_subtree(ti, ett_rohc);
 		/*    1) If the first octet is a Padding Octet (11100000),
 		 *       strip away all initial Padding Octets and goto next step.

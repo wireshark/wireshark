@@ -697,7 +697,7 @@ static void dissect_packetbb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     proto_tree *packetbb_tree = NULL;
     guint offset;
 
-    ti = proto_tree_add_item(tree, proto_packetbb, tvb, 0, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_packetbb, tvb, 0, -1, ENC_NA);
     packetbb_tree = proto_item_add_subtree(ti, ett_packetbb);
 
     offset = dissect_pbb_header(tvb, packetbb_tree);

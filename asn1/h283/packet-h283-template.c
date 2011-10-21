@@ -47,9 +47,9 @@ static int ett_h283 = -1;
 #include "packet-h283-ett.c"
 
 /* Subdissectors */
-static dissector_handle_t rdc_pdu_handle; 
-static dissector_handle_t rdc_device_list_handle; 
-static dissector_handle_t data_handle; 
+static dissector_handle_t rdc_pdu_handle;
+static dissector_handle_t rdc_device_list_handle;
+static dissector_handle_t data_handle;
 
 static gboolean info_is_set;
 
@@ -65,7 +65,7 @@ dissect_h283_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   info_is_set = FALSE;
 
-  ti = proto_tree_add_item(tree, proto_h283, tvb, 0, -1, FALSE);
+  ti = proto_tree_add_item(tree, proto_h283, tvb, 0, -1, ENC_NA);
   h283_tree = proto_item_add_subtree(ti, ett_h283);
 
   return dissect_LCTPDU_PDU(tvb, pinfo, h283_tree);
@@ -97,12 +97,12 @@ void proto_register_h283(void) {
 }
 
 /*--- proto_reg_handoff_h283 -------------------------------------------*/
-void proto_reg_handoff_h283(void) 
+void proto_reg_handoff_h283(void)
 {
-  dissector_handle_t h283_udp_handle; 
+  dissector_handle_t h283_udp_handle;
 
   h283_udp_handle = find_dissector(PFNAME);
-  dissector_add_handle("udp.port", h283_udp_handle); 
+  dissector_add_handle("udp.port", h283_udp_handle);
 
   rdc_pdu_handle = find_dissector("rdc");
   rdc_device_list_handle = find_dissector("rdc.device_list");

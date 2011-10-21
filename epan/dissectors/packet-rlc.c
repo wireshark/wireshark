@@ -1599,7 +1599,7 @@ dissect_rlc_pcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* PCCH is always RLC TM */
 	if (tree) {
 		proto_item *ti;
-		ti = proto_tree_add_item(tree, proto_rlc, tvb, 0, -1, ENC_BIG_ENDIAN);
+		ti = proto_tree_add_item(tree, proto_rlc, tvb, 0, -1, ENC_NA);
 		subtree = proto_item_add_subtree(ti, ett_rlc);
 		proto_item_append_text(ti, " TM (PCCH)");
 	}
@@ -1620,7 +1620,7 @@ dissect_rlc_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (!fpi) return; /* dissection failure */
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_rlc, tvb, 0, -1, ENC_BIG_ENDIAN);
+		ti = proto_tree_add_item(tree, proto_rlc, tvb, 0, -1, ENC_NA);
 		subtree = proto_item_add_subtree(ti, ett_rlc);
 	}
 
@@ -1650,7 +1650,7 @@ dissect_rlc_ctch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (!fpi) return; /* dissection failure */
 
     if (tree) {
-        ti = proto_tree_add_item(tree, proto_rlc, tvb, 0, -1, ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item(tree, proto_rlc, tvb, 0, -1, ENC_NA);
         subtree = proto_item_add_subtree(ti, ett_rlc);
     }
 
@@ -1682,7 +1682,7 @@ dissect_rlc_dcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_rlc, tvb, 0, -1, ENC_BIG_ENDIAN);
+		ti = proto_tree_add_item(tree, proto_rlc, tvb, 0, -1, ENC_NA);
 		subtree = proto_item_add_subtree(ti, ett_rlc);
 	}
 
@@ -1717,7 +1717,7 @@ dissect_rlc_ps_dtch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (!fpi || !rlci) return;
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_rlc, tvb, 0, -1, ENC_BIG_ENDIAN);
+		ti = proto_tree_add_item(tree, proto_rlc, tvb, 0, -1, ENC_NA);
 		subtree = proto_item_add_subtree(ti, ett_rlc);
 	}
 
@@ -1860,7 +1860,7 @@ dissect_rlc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			col_clear(pinfo->cinfo, COL_INFO);
 
 			if (tree) {
-				ti = proto_tree_add_item(tree, proto_rlc, rlc_tvb, 0, -1, ENC_BIG_ENDIAN);
+				ti = proto_tree_add_item(tree, proto_rlc, rlc_tvb, 0, -1, ENC_NA);
 				subtree = proto_item_add_subtree(ti, ett_rlc);
 			}
 

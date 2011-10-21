@@ -1066,7 +1066,7 @@ dissect_nbns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_nbns, tvb, offset, -1,
-		    FALSE);
+		    ENC_NA);
 		nbns_tree = proto_item_add_subtree(ti, ett_nbns);
 
 		proto_tree_add_uint(nbns_tree, hf_nbns_transaction_id, tvb,
@@ -1251,7 +1251,7 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_nbdgm, tvb, offset, -1,
-		    FALSE);
+		    ENC_NA);
 		nbdgm_tree = proto_item_add_subtree(ti, ett_nbdgm);
 
 		proto_tree_add_uint(nbdgm_tree, hf_nbdgm_type, tvb,
@@ -1489,7 +1489,7 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	msg_type = tvb_get_guint8(tvb, offset);
 
 	if (tree) {
-	  ti = proto_tree_add_item(tree, proto_nbss, tvb, offset, length + 4, FALSE);
+	  ti = proto_tree_add_item(tree, proto_nbss, tvb, offset, length + 4, ENC_NA);
 	  nbss_tree = proto_item_add_subtree(ti, ett_nbss);
 
 	  proto_tree_add_item(nbss_tree, hf_nbss_type, tvb, offset, 1, ENC_NA);
@@ -1831,7 +1831,7 @@ continuation:
 	col_set_str(pinfo->cinfo, COL_INFO, "NBSS Continuation Message");
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_nbss, tvb, 0, -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_nbss, tvb, 0, -1, ENC_NA);
 		nbss_tree = proto_item_add_subtree(ti, ett_nbss);
 		proto_tree_add_text(nbss_tree, tvb, 0, -1, "Continuation data");
 	}

@@ -1879,7 +1879,7 @@ dissect_telnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	is_tn3270 = find_tn3270_conversation(pinfo);
 	is_tn5250 = find_tn5250_conversation(pinfo);
 
-	ti = proto_tree_add_item(tree, proto_telnet, tvb, offset, -1, FALSE);
+	ti = proto_tree_add_item(tree, proto_telnet, tvb, offset, -1, ENC_NA);
 	telnet_tree = proto_item_add_subtree(ti, ett_telnet);
 
 	/*

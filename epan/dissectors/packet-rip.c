@@ -132,7 +132,7 @@ dissect_rip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    val_to_str(command, command_vals, "Unknown command (%u)"));
 
     if (tree) {
-	ti = proto_tree_add_item(tree, proto_rip, tvb, 0, -1, FALSE);
+	ti = proto_tree_add_item(tree, proto_rip, tvb, 0, -1, ENC_NA);
 	rip_tree = proto_item_add_subtree(ti, ett_rip);
 
 	proto_tree_add_uint(rip_tree, hf_rip_command, tvb, 0, 1, command);

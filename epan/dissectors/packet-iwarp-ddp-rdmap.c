@@ -503,7 +503,7 @@ dissect_iwarp_ddp_rdmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		/* DDP/RDMA protocol tree */
 		ddp_rdma_item = proto_tree_add_item(tree, proto_iwarp_ddp_rdmap,
-				tvb, offset, header_end, FALSE);
+				tvb, offset, header_end, ENC_NA);
 		ddp_rdma_tree = proto_item_add_subtree(ddp_rdma_item,
 				ett_iwarp_ddp_rdmap);
 

@@ -603,7 +603,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, proto_smb_browse, tvb, offset, -1, TRUE);
+		item = proto_tree_add_item(parent_tree, proto_smb_browse, tvb, offset, -1, ENC_NA);
 
 		tree = proto_item_add_subtree(item, ett_browse);
 	}
@@ -861,7 +861,7 @@ dissect_mailslot_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, proto_smb_browse, tvb, offset, -1, TRUE);
+		item = proto_tree_add_item(parent_tree, proto_smb_browse, tvb, offset, -1, ENC_NA);
 
 		tree = proto_item_add_subtree(item, ett_browse);
 	}

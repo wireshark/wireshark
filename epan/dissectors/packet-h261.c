@@ -70,7 +70,7 @@ dissect_h261( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	col_set_str(pinfo->cinfo, COL_INFO, "H.261 message");
 
 	if ( tree ) {
-		ti = proto_tree_add_item( tree, proto_h261, tvb, offset, -1, FALSE );
+		ti = proto_tree_add_item( tree, proto_h261, tvb, offset, -1, ENC_NA );
 		h261_tree = proto_item_add_subtree( ti, ett_h261 );
 		/* SBIT 1st octet, 3 bits */
 		proto_tree_add_uint( h261_tree, hf_h261_sbit, tvb, offset, 1, tvb_get_guint8( tvb, offset ) >> 5 );

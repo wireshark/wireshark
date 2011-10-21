@@ -5613,7 +5613,7 @@ dissect_amqp_0_10_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             col_append_str(pinfo->cinfo, COL_INFO, strbuf->str);
             col_set_fence(pinfo->cinfo, COL_INFO);
 
-            ti = proto_tree_add_item(tree, proto_amqp, tvb, 0, -1, ENC_BIG_ENDIAN);
+            ti = proto_tree_add_item(tree, proto_amqp, tvb, 0, -1, ENC_NA);
             amqp_tree = proto_item_add_subtree(ti, ett_amqp_init);
             proto_tree_add_item(amqp_tree, hf_amqp_init_protocol, tvb, 0, 4, ENC_ASCII|ENC_NA);
             proto_tree_add_item(amqp_tree, hf_amqp_init_id_major, tvb, 4, 1, ENC_BIG_ENDIAN);
@@ -5625,7 +5625,7 @@ dissect_amqp_0_10_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
 
         /* Protocol frame */
-        ti = proto_tree_add_item(tree, proto_amqp, tvb, 0, -1, ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item(tree, proto_amqp, tvb, 0, -1, ENC_NA);
         amqp_tree = proto_item_add_subtree(ti, ett_amqp);
         proto_tree_add_item(amqp_tree, hf_amqp_0_10_format, tvb, 0, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(amqp_tree, hf_amqp_0_10_position, tvb, 0, 1, ENC_BIG_ENDIAN);
@@ -5759,7 +5759,7 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             col_append_str(pinfo->cinfo, COL_INFO, strbuf->str);
             col_set_fence(pinfo->cinfo, COL_INFO);
 
-            ti = proto_tree_add_item(tree, proto_amqp, tvb, 0, -1, ENC_BIG_ENDIAN);
+            ti = proto_tree_add_item(tree, proto_amqp, tvb, 0, -1, ENC_NA);
             amqp_tree = proto_item_add_subtree(ti, ett_amqp_init);
             proto_tree_add_item(amqp_tree, hf_amqp_init_protocol, tvb, 0, 4, ENC_ASCII|ENC_NA);
             proto_tree_add_item(amqp_tree, hf_amqp_init_id_major, tvb, 4, 1, ENC_BIG_ENDIAN);
@@ -5770,7 +5770,7 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             return;
         }
 
-        ti = proto_tree_add_item(tree, proto_amqp, tvb, 0, -1, ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item(tree, proto_amqp, tvb, 0, -1, ENC_NA);
         amqp_tree = proto_item_add_subtree(ti, ett_amqp);
         frame_type = tvb_get_guint8(tvb, 0);
         proto_tree_add_item(amqp_tree, hf_amqp_0_9_type, tvb, 0, 1, ENC_BIG_ENDIAN);
@@ -5790,7 +5790,7 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 ti = proto_tree_add_item(amqp_tree, hf_amqp_method_arguments,
                     tvb, 11, length - 4, ENC_NA);
                 args_tree = proto_item_add_subtree(ti, ett_args);
-				col_append_fstr(pinfo->cinfo, COL_INFO, "Connection.%s", 
+				col_append_fstr(pinfo->cinfo, COL_INFO, "Connection.%s",
 					val_to_str( method_id, amqp_method_connection_methods, "Unknown (%u)"));
                 col_set_fence(pinfo->cinfo, COL_INFO);
                 switch (method_id) {
@@ -5853,7 +5853,7 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     tvb, 11, length - 4, ENC_NA);
                 args_tree = proto_item_add_subtree(ti, ett_args);
 
-				col_append_fstr(pinfo->cinfo, COL_INFO, "Channel.%s", 
+				col_append_fstr(pinfo->cinfo, COL_INFO, "Channel.%s",
 					val_to_str( method_id, amqp_method_channel_methods, "Unknown (%u)"));
                 col_set_fence(pinfo->cinfo, COL_INFO);
 
@@ -5941,7 +5941,7 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 ti = proto_tree_add_item(amqp_tree, hf_amqp_method_arguments,
                     tvb, 11, length - 4, ENC_NA);
                 args_tree = proto_item_add_subtree(ti, ett_args);
-				col_append_fstr(pinfo->cinfo, COL_INFO, "Exchange.%s", 
+				col_append_fstr(pinfo->cinfo, COL_INFO, "Exchange.%s",
 					val_to_str( method_id, amqp_method_exchange_methods, "Unknown (%u)"));
                 col_set_fence(pinfo->cinfo, COL_INFO);
                 switch (method_id) {
@@ -5983,7 +5983,7 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 ti = proto_tree_add_item(amqp_tree, hf_amqp_method_arguments,
                     tvb, 11, length - 4, ENC_NA);
                 args_tree = proto_item_add_subtree(ti, ett_args);
-				col_append_fstr(pinfo->cinfo, COL_INFO, "Queue.%s", 
+				col_append_fstr(pinfo->cinfo, COL_INFO, "Queue.%s",
 					val_to_str( method_id, amqp_method_queue_methods, "Unknown (%u)"));
                 col_set_fence(pinfo->cinfo, COL_INFO);
 
@@ -6043,7 +6043,7 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     tvb, 11, length - 4, ENC_NA);
                 args_tree = proto_item_add_subtree(ti, ett_args);
 
-				col_append_fstr(pinfo->cinfo, COL_INFO, "Basic.%s", 
+				col_append_fstr(pinfo->cinfo, COL_INFO, "Basic.%s",
 					val_to_str( method_id, amqp_method_basic_methods, "Unknown (%u)"));
                 col_set_fence(pinfo->cinfo, COL_INFO);
 
@@ -6123,7 +6123,7 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     tvb, 11, length - 4, ENC_NA);
                 args_tree = proto_item_add_subtree(ti, ett_args);
 
-				col_append_fstr(pinfo->cinfo, COL_INFO, "File.%s", 
+				col_append_fstr(pinfo->cinfo, COL_INFO, "File.%s",
 					val_to_str( method_id, amqp_method_file_methods, "Unknown (%u)"));
                 col_set_fence(pinfo->cinfo, COL_INFO);
 
@@ -6199,7 +6199,7 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     tvb, 11, length - 4, ENC_NA);
                 args_tree = proto_item_add_subtree(ti, ett_args);
 
-				col_append_fstr(pinfo->cinfo, COL_INFO, "Stream.%s", 
+				col_append_fstr(pinfo->cinfo, COL_INFO, "Stream.%s",
 					val_to_str( method_id, amqp_method_stream_methods, "Unknown (%u)"));
                 col_set_fence(pinfo->cinfo, COL_INFO);
 
@@ -6255,7 +6255,7 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     tvb, 11, length - 4, ENC_NA);
                 args_tree = proto_item_add_subtree(ti, ett_args);
 
-				col_append_fstr(pinfo->cinfo, COL_INFO, "Tx.%s", 
+				col_append_fstr(pinfo->cinfo, COL_INFO, "Tx.%s",
 					val_to_str( method_id, amqp_method_tx_methods, "Unknown (%u)"));
                 col_set_fence(pinfo->cinfo, COL_INFO);
 
@@ -6299,7 +6299,7 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     tvb, 11, length - 4, ENC_NA);
                 args_tree = proto_item_add_subtree(ti, ett_args);
 
-				col_append_fstr(pinfo->cinfo, COL_INFO, "Dtx.%s", 
+				col_append_fstr(pinfo->cinfo, COL_INFO, "Dtx.%s",
 					val_to_str( method_id, amqp_method_dtx_methods, "Unknown (%u)"));
                 col_set_fence(pinfo->cinfo, COL_INFO);
 

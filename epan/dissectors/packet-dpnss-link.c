@@ -111,7 +111,7 @@ dissect_dpnss_link(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_DEF_SRC, uton?"TE":"NT");
 	col_set_str(pinfo->cinfo, COL_DEF_DST, uton?"NT":"TE");
 
-	item = proto_tree_add_item(tree, proto_dpnss_link, tvb, 0, -1, ENC_BIG_ENDIAN);
+	item = proto_tree_add_item(tree, proto_dpnss_link, tvb, 0, -1, ENC_NA);
 	dpnss_link_tree = proto_item_add_subtree(item, ett_dpnss_link);
 	proto_tree_add_item(dpnss_link_tree, hf_dpnss_link_address_framegroup,
 			    tvb, 0, 1, ENC_BIG_ENDIAN);

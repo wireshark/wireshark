@@ -109,7 +109,7 @@ dissect_macctrl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   opcode = tvb_get_ntohs(tvb, 0);
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_macctrl, tvb, 0, 46, FALSE);
+    ti = proto_tree_add_item(tree, proto_macctrl, tvb, 0, 46, ENC_NA);
     macctrl_tree = proto_item_add_subtree(ti, ett_macctrl);
 
     proto_tree_add_uint(macctrl_tree, hf_macctrl_opcode, tvb, 0, 2, opcode);

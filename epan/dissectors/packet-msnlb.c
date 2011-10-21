@@ -59,7 +59,7 @@ dissect_msnlb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_set_str(pinfo->cinfo, COL_INFO, "MS NLB heartbeat");
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_msnlb, tvb, 0, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_msnlb, tvb, 0, -1, ENC_NA);
     msnlb_tree = proto_item_add_subtree(ti, ett_msnlb);
 
     type = tvb_get_guint8(tvb, offset);

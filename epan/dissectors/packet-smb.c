@@ -17366,7 +17366,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, proto_smb, tvb, offset,
-			-1, FALSE);
+			-1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_smb);
 
 		hitem = proto_tree_add_text(tree, tvb, offset, 32,

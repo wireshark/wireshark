@@ -1821,7 +1821,7 @@ dissect_cipmotion(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
       /* Create display subtree for the protocol by creating an item and then
        * creating a subtree from the item, the subtree must have been registered
        * in proto_register_cipmotion already */
-      proto_item_top = proto_tree_add_item( tree, proto_cipmotion, tvb, 0, -1, ENC_LITTLE_ENDIAN );
+      proto_item_top = proto_tree_add_item( tree, proto_cipmotion, tvb, 0, -1, ENC_NA );
       proto_tree_top = proto_item_add_subtree( proto_item_top, ett_cipmotion );
 
       /* Add the CIP class 1 sequence number to the tree */

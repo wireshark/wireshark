@@ -177,7 +177,7 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	 * items to the protocol tree.
 	 */
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_gif, tvb, 0, -1, TRUE);
+		ti = proto_tree_add_item(tree, proto_gif, tvb, 0, -1, ENC_NA);
 		proto_item_append_text(ti, ", Version: %s", str);
 		gif_tree = proto_item_add_subtree(ti, ett_gif);
 		/* GIF signature */

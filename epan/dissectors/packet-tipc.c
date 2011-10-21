@@ -2127,7 +2127,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 	}
 
-	ti = proto_tree_add_item(tree, proto_tipc, tipc_tvb, offset, -1, FALSE);
+	ti = proto_tree_add_item(tree, proto_tipc, tipc_tvb, offset, -1, ENC_NA);
 	tipc_tree = proto_item_add_subtree(ti, ett_tipc);
 	if (version == TIPCv2) {
 		dissect_tipc_v2(tipc_tvb, tipc_tree, pinfo, offset, user, msg_size, hdr_size, datatype_hdr);

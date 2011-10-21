@@ -3,15 +3,15 @@
 **
 ** Copyright (C) 2006-2007 ascolab GmbH. All Rights Reserved.
 ** Web: http://www.ascolab.com
-** 
+**
 ** This program is free software; you can redistribute it and/or
 ** modify it under the terms of the GNU General Public License
 ** as published by the Free Software Foundation; either version 2
 ** of the License, or (at your option) any later version.
-** 
+**
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-** 
+**
 ** Project: OpcUa Wireshark Plugin
 **
 ** Description: OpcUa Protocol Decoder.
@@ -105,7 +105,7 @@ void proto_register_opcua(void)
         "OpcUa",                 /* short name */
         "opcua"                  /* abbrev */
         );
-  
+
     registerTransportLayerTypes(proto_opcua);
     registerSecurityLayerTypes(proto_opcua);
     registerApplicationLayerTypes(proto_opcua);
@@ -115,7 +115,7 @@ void proto_register_opcua(void)
     registerServiceTypes();
     registerFieldTypes(proto_opcua);
 
-    proto_register_subtree_array(ett, array_length(ett));    
+    proto_register_subtree_array(ett, array_length(ett));
 
     range_convert_str(&global_tcp_ports_opcua, ep_strdup_printf("%u", OPCUA_PORT),  65535);
 
@@ -204,7 +204,7 @@ static void dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     {
         msgtype = MSG_INVALID;
     }
-    
+
     /* Clear out stuff in the info column */
     col_set_str(pinfo->cinfo, COL_INFO, g_szMessageTypes[msgtype]);
 
@@ -217,7 +217,7 @@ static void dissect_opcua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         proto_item *ti = NULL;
         proto_tree *transport_tree = NULL;
 
-        ti = proto_tree_add_item(tree, proto_opcua, tvb, 0, -1, FALSE);
+        ti = proto_tree_add_item(tree, proto_opcua, tvb, 0, -1, ENC_NA);
         transport_tree = proto_item_add_subtree(ti, ett_opcua_transport);
 
         /* call the transport message dissector */
@@ -261,9 +261,9 @@ void proto_reg_handoff_opcua(void)
   {
     opcua_handle = create_dissector_handle(dissect_opcua, proto_opcua);
     opcua_initialized = TRUE;
-  } 
-  else 
-  {	
+  }
+  else
+  {
     /* clean up ports and their lists */
     if (tcp_ports_opcua != NULL)
     {

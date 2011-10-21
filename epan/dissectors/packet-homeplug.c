@@ -1324,7 +1324,7 @@ dissect_homeplug(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   homeplug_offset = 0;
 
   if (tree) {
-    it = proto_tree_add_item(tree, proto_homeplug, tvb, homeplug_offset, -1, FALSE);
+    it = proto_tree_add_item(tree, proto_homeplug, tvb, homeplug_offset, -1, ENC_NA);
     homeplug_tree = proto_item_add_subtree(it, ett_homeplug);
     cursor = ptvcursor_new(homeplug_tree, tvb, 0);
   }

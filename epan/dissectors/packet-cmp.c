@@ -1506,7 +1506,7 @@ static int dissect_cmp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 	col_set_str(pinfo->cinfo, COL_INFO, "PKIXCMP");
 
 	if(parent_tree){
-		item=proto_tree_add_item(parent_tree, proto_cmp, tvb, 0, -1, FALSE);
+		item=proto_tree_add_item(parent_tree, proto_cmp, tvb, 0, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_cmp);
 	}
 
@@ -1515,7 +1515,7 @@ static int dissect_cmp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 
 	if (pdu_type < 10) {
 		/* RFC2510 TCP transport */
-		ti = proto_tree_add_item(tree, proto_cmp, tvb, offset, 5, FALSE);
+		ti = proto_tree_add_item(tree, proto_cmp, tvb, offset, 5, ENC_NA);
 		tcptrans_tree = proto_item_add_subtree(ti, ett_cmp);
 		proto_tree_add_item(tree, hf_cmp_tcptrans_len, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
@@ -1671,7 +1671,7 @@ dissect_cmp_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	col_set_str(pinfo->cinfo, COL_INFO, "PKIXCMP");
 
 	if(parent_tree){
-		item=proto_tree_add_item(parent_tree, proto_cmp, tvb, 0, -1, FALSE);
+		item=proto_tree_add_item(parent_tree, proto_cmp, tvb, 0, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_cmp);
 	}
 

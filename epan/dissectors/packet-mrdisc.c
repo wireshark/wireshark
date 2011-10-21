@@ -197,7 +197,7 @@ dissect_mrdisc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int o
 		return offset+tvb_length_remaining(tvb, offset);
 	}
 
-	item = proto_tree_add_item(parent_tree, proto_mrdisc, tvb, offset, 0, FALSE);
+	item = proto_tree_add_item(parent_tree, proto_mrdisc, tvb, offset, 0, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_mrdisc);
 
 

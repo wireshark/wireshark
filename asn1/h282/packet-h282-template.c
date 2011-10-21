@@ -60,7 +60,7 @@ dissect_h282(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
 
-  ti = proto_tree_add_item(tree, proto_h282, tvb, 0, -1, FALSE);
+  ti = proto_tree_add_item(tree, proto_h282, tvb, 0, -1, ENC_NA);
   h282_tree = proto_item_add_subtree(ti, ett_h282);
 
   return dissect_RDCPDU_PDU(tvb, pinfo, h282_tree);
@@ -93,7 +93,7 @@ void proto_register_h282(void) {
 }
 
 /*--- proto_reg_handoff_h282 -------------------------------------------*/
-void proto_reg_handoff_h282(void) 
+void proto_reg_handoff_h282(void)
 {
 
 }

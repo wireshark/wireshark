@@ -26,7 +26,7 @@
  * ---------------------------------
  * 02.03.2009 Initial implementation, supports:
  * - HDLC mode (rfc4618 5.1), no CW, payload is PPP (PPP in HDLC-like Framing (rfc1662)).
- * - FR port mode (rfc4618 5.2), no CW.       
+ * - FR port mode (rfc4618 5.2), no CW.
  *
  * [informative: Not supported yet:
  * - All kinds of HDLC PW with CW.
@@ -88,7 +88,7 @@ static void dissect_pw_hdlc_nocw_hdlc_ppp( tvbuff_t * tvb, packet_info * pinfo, 
 		addr	= tvb_get_guint8(tvb, 0);
 		control	= tvb_get_guint8(tvb, 1);
 
-		item = proto_tree_add_item( tree, proto_pw_hdlc_nocw_hdlc_ppp, tvb, 0, 2, FALSE );
+		item = proto_tree_add_item( tree, proto_pw_hdlc_nocw_hdlc_ppp, tvb, 0, 2, ENC_NA );
 
 		tr = proto_item_add_subtree( item, ett_pw_hdlc );
 

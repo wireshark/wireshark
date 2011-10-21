@@ -340,7 +340,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     ncp_hdr = &header;
 
-    ti = proto_tree_add_item(tree, proto_ncp, tvb, 0, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_ncp, tvb, 0, -1, ENC_NA);
     ncp_tree = proto_item_add_subtree(ti, ett_ncp);
     if (is_tcp) {
         if (tvb_get_ntohl(tvb, hdr_offset) != NCPIP_RQST && tvb_get_ntohl(tvb, hdr_offset) != NCPIP_RPLY)

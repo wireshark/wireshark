@@ -68,7 +68,7 @@ dissect_aruba_adp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_aruba_adp, tvb, 0, 0, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(tree, proto_aruba_adp, tvb, 0, 0, ENC_NA);
     aruba_adp_tree = proto_item_add_subtree(ti, ett_aruba_adp);
 
     proto_tree_add_item(aruba_adp_tree, hf_adp_version, tvb, 0, 2, ENC_BIG_ENDIAN);

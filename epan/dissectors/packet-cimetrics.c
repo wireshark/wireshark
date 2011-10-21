@@ -74,7 +74,7 @@ dissect_cimetrics_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		mstp_frame_source, mstp_frame_destination,
 		mstp_frame_type_text(mstp_frame_type));
 #else
-	ti = proto_tree_add_item(tree, proto_cimetrics_mstp, tvb, offset, 9, FALSE);
+	ti = proto_tree_add_item(tree, proto_cimetrics_mstp, tvb, offset, 9, ENC_NA);
 #endif
 	subtree = proto_item_add_subtree(ti, ett_cimetrics_mstp);
 	proto_tree_add_item(subtree, hf_cimetrics_mstp_timer, tvb,
@@ -119,7 +119,7 @@ proto_register_cimetrics(void)
 
 	register_dissector("cimetrics", dissect_cimetrics_mstp,
 		proto_cimetrics_mstp);
-	
+
 	llc_add_oui(OUI_CIMETRICS, "llc.cimetrics_pid",
 		"Cimetrics OUI PID", hf2);
 }

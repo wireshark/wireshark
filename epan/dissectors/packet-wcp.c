@@ -326,7 +326,7 @@ static void dissect_wcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_wcp, tvb, 0, wcp_header_len, FALSE);
+		ti = proto_tree_add_item(tree, proto_wcp, tvb, 0, wcp_header_len, ENC_NA);
 
 		wcp_tree = proto_item_add_subtree(ti, ett_wcp);
 

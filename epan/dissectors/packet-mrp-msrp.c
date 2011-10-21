@@ -471,7 +471,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         int msg_offset;  /* Use when handling multiple messages.  This points to current msg being decoded. */
         int vect_offset; /* Use when handling multiple vector attributes.  This points to the current vector attribute being decoded. */
 
-        ti = proto_tree_add_item(tree, proto_msrp, tvb, 0, -1, FALSE);
+        ti = proto_tree_add_item(tree, proto_msrp, tvb, 0, -1, ENC_NA);
         msrp_tree = proto_item_add_subtree(ti, ett_msrp);
 
         proto_tree_add_item(msrp_tree, hf_msrp_proto_id, tvb, MSRP_PROTOCOL_VERSION_OFFSET, 1, ENC_BIG_ENDIAN);

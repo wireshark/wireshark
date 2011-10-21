@@ -1906,7 +1906,7 @@ dissect_q933(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_q933, tvb, offset, -1,
-		    FALSE);
+		    ENC_NA);
 		q933_tree = proto_item_add_subtree(ti, ett_q933);
 
 		dissect_q933_protocol_discriminator(tvb, offset, q933_tree);

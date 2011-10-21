@@ -8517,7 +8517,7 @@ static gboolean dissect_rtps(tvbuff_t *tvb,
 
   if (tree) {
     /* create display subtree for the protocol */
-    ti = proto_tree_add_item(tree, proto_rtps, tvb, 0, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_rtps, tvb, 0, -1, ENC_NA);
     rtps_tree = proto_item_add_subtree(ti, ett_rtps);
 
     /*  Protocol Version */

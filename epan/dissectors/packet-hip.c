@@ -436,7 +436,7 @@ dissect_hip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /* populate a tree in the second pane with the status of the link layer (i.e. none) */
         if(tree) {
-                ti = proto_tree_add_item(tree, proto_hip, tvb, 0, -1, FALSE);
+                ti = proto_tree_add_item(tree, proto_hip, tvb, 0, -1, ENC_NA);
 
                 hip_tree = proto_item_add_subtree(ti, ett_hip);
                 proto_tree_add_item(hip_tree, hf_hip_proto, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -660,7 +660,7 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
                                         /* Locator */
                                         proto_tree_add_item(ti_loc, hf_hip_tlv_locator_address,
                                                             tvb, newoffset, 16, ENC_NA);
-                                        newoffset += 16;                                       
+                                        newoffset += 16;
                                         tlv_len -= 24;
                                 } else if (locator_type == 1) {
                                         /* Locator types 1 and 0 RFC 5206 section 4.2.*/
@@ -671,7 +671,7 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
                                         /* Locator */
                                         proto_tree_add_item(ti_loc, hf_hip_tlv_locator_address,
                                                             tvb, newoffset, 16, ENC_NA);
-                                        newoffset += 16;                                       
+                                        newoffset += 16;
                                         tlv_len -= 28;
                                 } else if (locator_type == 2) {
                                         /* Locator type 2 RFC 5770 section 5.7. */

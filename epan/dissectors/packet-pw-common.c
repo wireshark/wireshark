@@ -38,7 +38,7 @@ pwc_vals_cw_l_bit[] = {
 	{ 0x1,	"Attachment Circuit Fault" },
 	{ 0,	NULL }
 };
-	
+
 
 const value_string
 pwc_vals_cw_r_bit[] = {
@@ -98,7 +98,7 @@ void dissect_pw_padding(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		gint size;
 		proto_item* item;
 		size = tvb_reported_length_remaining(tvb, 0);
-		item = proto_tree_add_item(tree, proto_pw_padding, tvb, 0, -1, FALSE);
+		item = proto_tree_add_item(tree, proto_pw_padding, tvb, 0, -1, ENC_NA);
 		pwc_item_append_text_n_items(item,size,"byte");
 		{
 			proto_tree* tree_p;

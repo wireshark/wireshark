@@ -1879,7 +1879,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 	}
 
 	if (tree) {
-		ts = proto_tree_add_item(tree, proto_sip, tvb, offset, -1, FALSE);
+		ts = proto_tree_add_item(tree, proto_sip, tvb, offset, -1, ENC_NA);
 		sip_tree = proto_item_add_subtree(ts, ett_sip);
 	}
 
@@ -3103,7 +3103,7 @@ tvb_raw_text_add(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 	char *str;
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_raw_sip, tvb, offset, length, FALSE);
+		ti = proto_tree_add_item(tree, proto_raw_sip, tvb, offset, length, ENC_NA);
 		raw_tree = proto_item_add_subtree(ti, ett_raw_text);
 	}
 

@@ -180,7 +180,7 @@ dissect_access_tokens(tvbuff_t *tvb, proto_tree *hdfsdata_tree, int *offset)
   /* token id = amount of bytes in previous */
   proto_tree_add_item(hdfsdata_tree, hf_hdfsdata_tokenid, tvb, *offset, len, ENC_ASCII|ENC_NA);
   *offset += len;
-  
+
   len = tvb_get_guint8(tvb, *offset);
   proto_tree_add_item(hdfsdata_tree, hf_hdfsdata_tokenlen, tvb, *offset, 1, ENC_BIG_ENDIAN);
   *offset += 1;
@@ -198,7 +198,7 @@ dissect_access_tokens(tvbuff_t *tvb, proto_tree *hdfsdata_tree, int *offset)
   *offset += len;
 
   len = tvb_get_guint8(tvb, *offset);
-  proto_tree_add_item(hdfsdata_tree, hf_hdfsdata_tokenlen, tvb, *offset, 1, ENC_BIG_ENDIAN); 
+  proto_tree_add_item(hdfsdata_tree, hf_hdfsdata_tokenlen, tvb, *offset, 1, ENC_BIG_ENDIAN);
   *offset += 1;
 
   /* token service = amount of bytes in previous; */
@@ -269,11 +269,11 @@ dissect_read_request(tvbuff_t *tvb, proto_tree *hdfsdata_tree, int *offset)
 {
 
   /* 8 bytes = start offset */
-  proto_tree_add_item(hdfsdata_tree, hf_hdfsdata_startoffset, tvb, *offset, 8, ENC_BIG_ENDIAN); 
+  proto_tree_add_item(hdfsdata_tree, hf_hdfsdata_startoffset, tvb, *offset, 8, ENC_BIG_ENDIAN);
   *offset += 8;
 
   /* 8 bytes = block length */
-  proto_tree_add_item(hdfsdata_tree, hf_hdfsdata_blocklen, tvb, *offset, 8, ENC_BIG_ENDIAN); 
+  proto_tree_add_item(hdfsdata_tree, hf_hdfsdata_blocklen, tvb, *offset, 8, ENC_BIG_ENDIAN);
   *offset += 8;
 
 }
@@ -342,7 +342,7 @@ dissect_header(tvbuff_t *tvb, proto_tree *hdfsdata_tree, int* offset){
 
 /* decodes the write response messages */
 static void
-dissect_write_response(tvbuff_t *tvb, proto_tree *hdfsdata_tree, int offset) 
+dissect_write_response(tvbuff_t *tvb, proto_tree *hdfsdata_tree, int offset)
 {
   /* 4 bytes = packetsize */
   proto_tree_add_item(hdfsdata_tree, hf_hdfsdata_packetsize, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -405,7 +405,7 @@ dissect_hdfsdata_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item *ti = NULL;
     proto_tree *hdfsdata_tree = NULL;
 
-    ti = proto_tree_add_item(tree, proto_hdfsdata, tvb, offset, -1, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(tree, proto_hdfsdata, tvb, offset, -1, ENC_NA);
     hdfsdata_tree = proto_item_add_subtree(ti, ett_hdfsdata);
 
     /* if only 1 bytes packet must just contain just the pipeline status */
@@ -466,7 +466,7 @@ dissect_hdfsdata_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       /* write responses store the data length in the first 4 bytes. This length does not
          include 21 bits of header */
-      } else if (tvb_reported_length(tvb) >= 4 && tvb_get_ntohl(tvb, 0) == 
+      } else if (tvb_reported_length(tvb) >= 4 && tvb_get_ntohl(tvb, 0) ==
         tvb_reported_length(tvb) - WRITE_RESP_HEAD_LEN) {
 
         dissect_write_response(tvb, hdfsdata_tree, offset);

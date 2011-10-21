@@ -8,17 +8,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -380,10 +380,10 @@ static void dissect_ams(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    proto_item *ti, *anItem;
    proto_tree *ams_tree = NULL, *ams_adstree, *ams_statetree;
    gint offset = 0;
-   guint ams_length = tvb_reported_length(tvb); 
+   guint ams_length = tvb_reported_length(tvb);
    guint16 stateflags = 0;
    guint16 cmdId = 0;
-   
+
    char szText[200];
    int nMax = sizeof(szText)-1;
 
@@ -405,9 +405,9 @@ static void dissect_ams(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (tree)
   {
-     ti = proto_tree_add_item(tree, proto_ams, tvb, 0, -1, TRUE);
+     ti = proto_tree_add_item(tree, proto_ams, tvb, 0, -1, ENC_NA);
      ams_tree = proto_item_add_subtree(ti, ett_ams);
-     
+
      NetIdFormater(tvb, offset, szText, nMax);
      proto_tree_add_string(ams_tree, hf_ams_targetnetid, tvb, offset, AmsNetId_Len, szText);
      offset += AmsNetId_Len;
@@ -461,7 +461,7 @@ static void dissect_ams(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      {
         /* Request */
         switch ( cmdId )
-        {          
+        {
         case ADSSRVID_READ:
            {
               col_append_str(pinfo->cinfo, COL_INFO, "ADS Read Request");
@@ -643,7 +643,7 @@ static void dissect_ams(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
               {
                  /*guint32 cbLength;
                  guint32 nStamps;*/
-                 
+
                  anItem = proto_tree_add_item(ams_tree, hf_ams_adsdnrequest, tvb, offset, ams_length-offset, ENC_NA);
                  if( ams_length-offset >= TAdsDeviceNotificationReq_Len )
                  {

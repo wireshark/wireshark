@@ -227,7 +227,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 
 	item = proto_tree_add_item(
-		tree, proto_gssapi, tvb, offset, -1, FALSE);
+		tree, proto_gssapi, tvb, offset, -1, ENC_NA);
 
 	subtree = proto_item_add_subtree(item, ett_gssapi);
 
