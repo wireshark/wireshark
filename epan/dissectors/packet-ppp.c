@@ -3084,7 +3084,7 @@ dissect_cp( tvbuff_t *tvb, int proto_id, int proto_subtree_index,
                 val_to_str_const(code, proto_vals, "Unknown"));
 
   if(tree) {
-    ti = proto_tree_add_item(tree, proto_id, tvb, 0, length, FALSE);
+    ti = proto_tree_add_item(tree, proto_id, tvb, 0, length, ENC_NA);
     fh_tree = proto_item_add_subtree(ti, proto_subtree_index);
     proto_tree_add_text(fh_tree, tvb, 0, 1, "Code: %s (0x%02x)",
                         val_to_str_const(code, proto_vals, "Unknown"), code);
@@ -3996,7 +3996,7 @@ dissect_iphc_crtp_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tvb_ensure_bytes_exist(tvb, offset, length);
 
     while (offset < length) {
-      proto_tree_add_item(cs_tree, hf, tvb, offset, cid_size, FALSE);
+      proto_tree_add_item(cs_tree, hf, tvb, offset, cid_size, ENC_BIG_ENDIAN);
       offset += cid_size;
       proto_tree_add_item(cs_tree, hf_iphc_crtp_cs_invalid, tvb, offset, 1, ENC_BIG_ENDIAN);
       proto_tree_add_item(cs_tree, hf_iphc_crtp_seq, tvb, offset, 1, ENC_BIG_ENDIAN);
