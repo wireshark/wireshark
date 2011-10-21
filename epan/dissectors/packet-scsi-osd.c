@@ -875,7 +875,7 @@ dissect_osd_partition_id(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tr
 	guint32 partition_id[2];
 
 	/* partition id */
-	item=proto_tree_add_item(tree, hf_index, tvb, offset, 8, 0);
+	item=proto_tree_add_item(tree, hf_index, tvb, offset, 8, ENC_BIG_ENDIAN);
 	partition_id[0]=tvb_get_ntohl(tvb, offset);
 	partition_id[1]=tvb_get_ntohl(tvb, offset+4);
 	if(!partition_id[0] && !partition_id[1]){
@@ -2605,7 +2605,7 @@ dissect_osd_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/* dissecting the CDB */
 	if (isreq && iscdb) {
-		proto_tree_add_item (tree, hf_scsi_control, tvb, offset, 1, 0);
+		proto_tree_add_item (tree, hf_scsi_control, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 
 		/* 5 reserved bytes */

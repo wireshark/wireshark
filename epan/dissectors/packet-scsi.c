@@ -3426,7 +3426,7 @@ dissect_scsi_modepage (tvbuff_t *tvb, packet_info *pinfo,
     tree = proto_item_add_subtree (ti, ett_scsi_page);
     proto_tree_add_text (tree, tvb, offset, 1, "PS: %u", (pcode & 0x80) >> 7);
 
-    proto_tree_add_item (tree, hf_pagecode, tvb, offset, 1, 0);
+    proto_tree_add_item (tree, hf_pagecode, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_text (tree, tvb, offset+1, 1, "Page Length: %u",
                          plen);
 

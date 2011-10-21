@@ -3178,7 +3178,7 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_item(ssl_record_tree,
                             (*conv_version == SSL_VER_PCT)
                             ? hf_pct_msg_type : hf_ssl2_msg_type,
-                            tvb, offset, 1, 0);
+                            tvb, offset, 1, ENC_BIG_ENDIAN);
     }
     offset++;                   /* move past msg_type byte */
 
