@@ -257,6 +257,7 @@ while (my $fileName = $ARGV[0]) {
         print FCO "$fileContents";
         close(FCO);
     }
+    exit $found;
 
 # Optional searches:
 # search for (and output) proto_tree_add_item() statements with invalid encoding arg for specified field types
