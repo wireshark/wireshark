@@ -88,7 +88,7 @@
 #  define __USE_XOPEN
 #endif
 #ifndef _XOPEN_SOURCE
-#  define _XOPEN_SOURCE
+#  define _XOPEN_SOURCE 600
 #endif
 
 /*
@@ -435,7 +435,7 @@ write_current_packet (void)
         /* Write UDP header */
         if (hdr_udp) {
             vec_t cksum_vector[3];
-            
+
             HDR_UDP.source_port = g_htons(hdr_src_port);
             HDR_UDP.dest_port = g_htons(hdr_dest_port);
             HDR_UDP.length = g_htons(proto_length);
@@ -453,7 +453,7 @@ write_current_packet (void)
         /* Write TCP header */
         if (hdr_tcp) {
             vec_t cksum_vector[3];
-            
+
             HDR_TCP.source_port = g_htons(hdr_src_port);
             HDR_TCP.dest_port = g_htons(hdr_dest_port);
             /* HDR_TCP.seq_num already correct */
@@ -518,7 +518,7 @@ write_current_packet (void)
             /* Write the packet */
             struct wtap_pkthdr pkthdr;
             int err;
-       
+
             pkthdr.ts.secs = (guint32)ts_sec;
             pkthdr.ts.nsecs = ts_usec * 1000;
             if (ts_fmt == NULL) { ts_usec++; }  /* fake packet counter */
@@ -865,7 +865,7 @@ text_import_setup(text_import_info_t *info)
         fprintf(stderr, "FATAL ERROR: no memory for packet buffer");
         exit(-1);
     }
-    
+
     /* Lets start from the beginning */
     state = INIT;
     curr_offset = 0;

@@ -90,7 +90,7 @@
 #  define __USE_XOPEN
 #endif
 #ifndef _XOPEN_SOURCE
-#  define _XOPEN_SOURCE
+#  define _XOPEN_SOURCE 600
 #endif
 
 /*
@@ -275,7 +275,7 @@ typedef struct {
     guint32 dest_addr;
 } hdr_ip_t;
 
-static hdr_ip_t HDR_IP = {0x45, 0, 0, 0x3412, 0, 0, 0xff, 0, 0, 
+static hdr_ip_t HDR_IP = {0x45, 0, 0, 0x3412, 0, 0, 0xff, 0, 0,
 #ifdef WORDS_BIGENDIAN
 0x0a010101, 0x0a020202
 #else
@@ -944,7 +944,7 @@ parse_token (token_t token, char *str)
         fprintf(stderr, "(%s, %s \"%s\") -> (",
                 state_str[state], token_str[token], str ? str : "");
     }
-    
+
     /* First token must be treated as a timestamp if time strip format is
        not empty */
     if (state == INIT || state == START_OF_LINE) {
@@ -1074,11 +1074,11 @@ parse_token (token_t token, char *str)
             if (identify_ascii) {
                 /* Here a line of pkt bytes reading is finished
                    compare the ascii and hex to avoid such situation:
-                   "61 62 20 ab ", when ab is ascii dump then it should 
+                   "61 62 20 ab ", when ab is ascii dump then it should
                    not be treat as byte */
                 rollback = 0;
-                /* s2 is the ASCII string, s1 is the HEX string, e.g, when 
-                   s2 = "ab ", s1 = "616220" 
+                /* s2 is the ASCII string, s1 is the HEX string, e.g, when
+                   s2 = "ab ", s1 = "616220"
                    we should find out the largest tail of s1 matches the head
                    of s2, it means the matched part in tail is the ASCII dump
                    of the head byte. These matched should be rollback */
@@ -1104,7 +1104,7 @@ parse_token (token_t token, char *str)
                 }
                 /* If packet line start contains possible byte pattern, the line end
                    should contain the matched pattern if the user open the -a flag.
-                   The packet will be possible invalid if the byte pattern cannot find 
+                   The packet will be possible invalid if the byte pattern cannot find
                    a matched one in the line of packet buffer.*/
                 if (rollback > 0) {
                     if (strncmp(pkt_lnstart+line_size-rollback, s2, rollback) == 0) {
