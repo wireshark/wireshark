@@ -364,6 +364,14 @@ static int erf_read_header(FILE_T fh,
     return FALSE;
   }
 
+  if (*packet_size == 0) {
+    /* Again a corrupt packet, bail out */
+   *err = WTAP_ERR_BAD_RECORD;
+   *err_info = g_strdup_printf("erf: File has 0 byte packet");
+
+   return FALSE;
+  }
+
   if (phdr != NULL) {
     guint64 ts = pletohll(&erf_header->ts);
 
@@ -468,6 +476,18 @@ static int erf_read_header(FILE_T fh,
     phdr->caplen = MIN( g_htons(erf_header->wlen),
 			g_htons(erf_header->rlen) - (guint32)sizeof(*erf_header) - skiplen );
   }
+
+  if (*packet_size > WTAP_MAX_PACKET_SIZE) {
+    /*
+     * Probably a corrupt capture file; don't blow up trying
+     * to allocate space for an immensely-large packet.
+     */
+    *err = WTAP_ERR_BAD_RECORD;
+    *err_info = g_strdup_printf("erf: File has %u-byte packet, bigger than maximum of %u",
+                                *packet_size, WTAP_MAX_PACKET_SIZE);
+    return FALSE;
+  }
+
   return TRUE;
 }
 
