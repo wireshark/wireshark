@@ -415,7 +415,6 @@ set(DISSECTOR_SRC
 	dissectors/packet-cosine.c
 	dissectors/packet-cpfi.c
 	dissectors/packet-cpha.c
-	dissectors/packet-csg.c	
 	dissectors/packet-csm-encaps.c
 	dissectors/packet-ctdb.c
 	dissectors/packet-cups.c
