@@ -193,8 +193,7 @@ void proto_register_t124(void) {
 	  &ett_t124_connectGCCPDU,
 #include "packet-t124-ettarr.c"
   };
-  per_type_fn warning_suppressor;
-
+  
   /* Register protocol */
   proto_t124 = proto_register_protocol(PNAME, PSNAME, PFNAME);
   /* Register fields and subtrees */
@@ -205,10 +204,6 @@ void proto_register_t124(void) {
   t124_sd_dissector_table = register_dissector_table("t124.sd", "T.124 H.221 Send Data Dissectors", FT_UINT32, BASE_NONE);
 
   new_register_dissector("t124", dissect_t124_new, proto_t124);
-
-  /* suppress some warnings */
-  warning_suppressor = dissect_t124_GCCPDU;
-  warning_suppressor = dissect_t124_ConnectMCSPDU;
 
 }
 

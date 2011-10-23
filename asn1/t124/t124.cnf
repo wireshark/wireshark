@@ -8,6 +8,10 @@ ConnectData
 ConnectGCCPDU
 #.END
 
+#.OMIT_ASSIGNMENT
+GCCPDU
+ConnectMCSPDU
+
 #.PDU
 #----------------------------------------------------------------------------------------
 

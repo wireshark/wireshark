@@ -363,8 +363,6 @@ static int hf_t124_conferenceJoinRequest = -1;    /* ConferenceJoinRequest */
 static int hf_t124_conferenceJoinResponse = -1;   /* ConferenceJoinResponse */
 static int hf_t124_conferenceInviteRequest = -1;  /* ConferenceInviteRequest */
 static int hf_t124_conferenceInviteResponse = -1;  /* ConferenceInviteResponse */
-static int hf_t124_response = -1;                 /* ResponsePDU */
-static int hf_t124_indication = -1;               /* IndicationPDU */
 static int hf_t124_conferenceAddRequest = -1;     /* ConferenceAddRequest */
 static int hf_t124_conferenceLockRequest = -1;    /* ConferenceLockRequest */
 static int hf_t124_conferenceUnlockRequest = -1;  /* ConferenceUnlockRequest */
@@ -476,10 +474,6 @@ static int hf_t124_segmentation = -1;             /* Segmentation */
 static int hf_t124_userData_02 = -1;              /* T_userData */
 static int hf_t124_userData_03 = -1;              /* T_userData_01 */
 static int hf_t124_tokenStatus = -1;              /* TokenStatus */
-static int hf_t124_connect_initial = -1;          /* Connect_Initial */
-static int hf_t124_connect_response = -1;         /* Connect_Response */
-static int hf_t124_connect_additional = -1;       /* Connect_Additional */
-static int hf_t124_connect_result = -1;           /* Connect_Result */
 static int hf_t124_plumbDomainIndication = -1;    /* PlumbDomainIndication */
 static int hf_t124_erectDomainRequest = -1;       /* ErectDomainRequest */
 static int hf_t124_mergeChannelsRequest = -1;     /* MergeChannelsRequest */
@@ -697,7 +691,6 @@ static gint ett_t124_FunctionNotSupportedResponse = -1;
 static gint ett_t124_NonStandardPDU = -1;
 static gint ett_t124_ConnectData = -1;
 static gint ett_t124_ConnectGCCPDU = -1;
-static gint ett_t124_GCCPDU = -1;
 static gint ett_t124_RequestPDU = -1;
 static gint ett_t124_ResponsePDU = -1;
 static gint ett_t124_IndicationPDU = -1;
@@ -766,7 +759,6 @@ static gint ett_t124_TokenReleaseRequest = -1;
 static gint ett_t124_TokenReleaseConfirm = -1;
 static gint ett_t124_TokenTestRequest = -1;
 static gint ett_t124_TokenTestConfirm = -1;
-static gint ett_t124_ConnectMCSPDU = -1;
 static gint ett_t124_DomainMCSPDU = -1;
 
 /*--- End of included file: packet-t124-ett.c ---*/
@@ -838,7 +830,7 @@ dissect_t124_Handle(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 
 static int
 dissect_t124_H221NonStandardIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 136 "../../asn1/t124/t124.cnf"
+#line 140 "../../asn1/t124/t124.cnf"
 
       offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        4, 255, FALSE, &t124NSIdentifier);
@@ -972,7 +964,7 @@ dissect_t124_ExtraDiallingString(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 static int
 dissect_t124_T_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 68 "../../asn1/t124/t124.cnf"
+#line 72 "../../asn1/t124/t124.cnf"
     tvbuff_t	*next_tvb = NULL;
     guint8      *ns = NULL;
 
@@ -4138,7 +4130,7 @@ dissect_t124_FunctionNotSupportedResponse(tvbuff_t *tvb _U_, int offset _U_, asn
 
 static int
 dissect_t124_T_connectPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 42 "../../asn1/t124/t124.cnf"
+#line 46 "../../asn1/t124/t124.cnf"
     tvbuff_t	*next_tvb = NULL;
     proto_tree	*next_tree = NULL;
     int		old_offset = 0;
@@ -4315,34 +4307,10 @@ dissect_t124_IndicationPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 }
 
 
-static const value_string t124_GCCPDU_vals[] = {
-  {   0, "request" },
-  {   1, "response" },
-  {   2, "indication" },
-  { 0, NULL }
-};
-
-static const per_choice_t GCCPDU_choice[] = {
-  {   0, &hf_t124_request        , ASN1_NO_EXTENSIONS     , dissect_t124_RequestPDU },
-  {   1, &hf_t124_response       , ASN1_NO_EXTENSIONS     , dissect_t124_ResponsePDU },
-  {   2, &hf_t124_indication     , ASN1_NO_EXTENSIONS     , dissect_t124_IndicationPDU },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_t124_GCCPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_t124_GCCPDU, GCCPDU_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
 
 static int
 dissect_t124_ChannelId(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 142 "../../asn1/t124/t124.cnf"
+#line 146 "../../asn1/t124/t124.cnf"
 
       offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 65535U, &channelId, FALSE);
@@ -5258,7 +5226,7 @@ dissect_t124_ChannelExpelIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
 static int
 dissect_t124_T_userData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 85 "../../asn1/t124/t124.cnf"
+#line 89 "../../asn1/t124/t124.cnf"
     tvbuff_t	*next_tvb = NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -5298,7 +5266,7 @@ dissect_t124_SendDataRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
 static int
 dissect_t124_T_userData_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 98 "../../asn1/t124/t124.cnf"
+#line 102 "../../asn1/t124/t124.cnf"
     tvbuff_t	*next_tvb = NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -5593,32 +5561,6 @@ dissect_t124_TokenTestConfirm(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 }
 
 
-static const value_string t124_ConnectMCSPDU_vals[] = {
-  {   0, "connect-initial" },
-  {   1, "connect-response" },
-  {   2, "connect-additional" },
-  {   3, "connect-result" },
-  { 0, NULL }
-};
-
-static const per_choice_t ConnectMCSPDU_choice[] = {
-  {   0, &hf_t124_connect_initial, ASN1_NO_EXTENSIONS     , dissect_t124_Connect_Initial },
-  {   1, &hf_t124_connect_response, ASN1_NO_EXTENSIONS     , dissect_t124_Connect_Response },
-  {   2, &hf_t124_connect_additional, ASN1_NO_EXTENSIONS     , dissect_t124_Connect_Additional },
-  {   3, &hf_t124_connect_result , ASN1_NO_EXTENSIONS     , dissect_t124_Connect_Result },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_t124_ConnectMCSPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_t124_ConnectMCSPDU, ConnectMCSPDU_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
 static const value_string t124_DomainMCSPDU_vals[] = {
   {   0, "plumbDomainIndication" },
   {   1, "erectDomainRequest" },
@@ -5715,7 +5657,7 @@ static const per_choice_t DomainMCSPDU_choice[] = {
 
 static int
 dissect_t124_DomainMCSPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 112 "../../asn1/t124/t124.cnf"
+#line 116 "../../asn1/t124/t124.cnf"
   	gint domainmcs_value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -7067,14 +7009,6 @@ void proto_register_t124(void) {
       { "conferenceInviteResponse", "t124.conferenceInviteResponse",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_t124_response,
-      { "response", "t124.response",
-        FT_UINT32, BASE_DEC, VALS(t124_ResponsePDU_vals), 0,
-        "ResponsePDU", HFILL }},
-    { &hf_t124_indication,
-      { "indication", "t124.indication",
-        FT_UINT32, BASE_DEC, VALS(t124_IndicationPDU_vals), 0,
-        "IndicationPDU", HFILL }},
     { &hf_t124_conferenceAddRequest,
       { "conferenceAddRequest", "t124.conferenceAddRequest",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -7519,22 +7453,6 @@ void proto_register_t124(void) {
       { "tokenStatus", "t124.tokenStatus",
         FT_UINT32, BASE_DEC, VALS(t124_TokenStatus_vals), 0,
         NULL, HFILL }},
-    { &hf_t124_connect_initial,
-      { "connect-initial", "t124.connect_initial",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_connect_response,
-      { "connect-response", "t124.connect_response",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_connect_additional,
-      { "connect-additional", "t124.connect_additional",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_connect_result,
-      { "connect-result", "t124.connect_result",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
     { &hf_t124_plumbDomainIndication,
       { "plumbDomainIndication", "t124.plumbDomainIndication",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -7876,7 +7794,6 @@ void proto_register_t124(void) {
     &ett_t124_NonStandardPDU,
     &ett_t124_ConnectData,
     &ett_t124_ConnectGCCPDU,
-    &ett_t124_GCCPDU,
     &ett_t124_RequestPDU,
     &ett_t124_ResponsePDU,
     &ett_t124_IndicationPDU,
@@ -7945,14 +7862,12 @@ void proto_register_t124(void) {
     &ett_t124_TokenReleaseConfirm,
     &ett_t124_TokenTestRequest,
     &ett_t124_TokenTestConfirm,
-    &ett_t124_ConnectMCSPDU,
     &ett_t124_DomainMCSPDU,
 
 /*--- End of included file: packet-t124-ettarr.c ---*/
 #line 195 "../../asn1/t124/packet-t124-template.c"
   };
-  per_type_fn warning_suppressor;
-
+  
   /* Register protocol */
   proto_t124 = proto_register_protocol(PNAME, PSNAME, PFNAME);
   /* Register fields and subtrees */
@@ -7963,10 +7878,6 @@ void proto_register_t124(void) {
   t124_sd_dissector_table = register_dissector_table("t124.sd", "T.124 H.221 Send Data Dissectors", FT_UINT32, BASE_NONE);
 
   new_register_dissector("t124", dissect_t124_new, proto_t124);
-
-  /* suppress some warnings */
-  warning_suppressor = dissect_t124_GCCPDU;
-  warning_suppressor = dissect_t124_ConnectMCSPDU;
 
 }
 
