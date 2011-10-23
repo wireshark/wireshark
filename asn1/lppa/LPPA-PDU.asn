@@ -1,0 +1,290 @@
+-- 3GPP TS 36.455 V9.4.1 (2011-03)
+-- $Id$
+--
+
+-- **************************************************************
+--
+-- PDU definitions for LPPa.
+--
+-- **************************************************************
+
+LPPA-PDU-Contents {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+eps-Access (21) modules (3) lppa (6) version1 (1) lppa-PDU-Contents (1) }
+
+DEFINITIONS AUTOMATIC TAGS ::= 
+
+BEGIN
+
+-- **************************************************************
+--
+-- IE parameter types from other modules.
+--
+-- **************************************************************
+
+IMPORTS		
+	
+	Cause,
+	CriticalityDiagnostics,
+	E-CID-MeasurementResult,
+	OTDOACells,
+	OTDOA-Information-Item,
+	Measurement-ID,
+	MeasurementPeriodicity,
+	MeasurementQuantities,
+	ReportCharacteristics	
+	
+FROM LPPA-IEs
+
+	PrivateIE-Container{},
+	ProtocolExtensionContainer{},
+	ProtocolIE-Container{},
+	ProtocolIE-ContainerList{},
+	ProtocolIE-ContainerPair{},
+	ProtocolIE-ContainerPairList{},
+	ProtocolIE-Single-Container{},
+	LPPA-PRIVATE-IES,
+	LPPA-PROTOCOL-EXTENSION,
+	LPPA-PROTOCOL-IES,
+	LPPA-PROTOCOL-IES-PAIR
+FROM LPPA-Containers
+
+	
+	maxnoOTDOAtypes,
+	id-Cause,
+	id-CriticalityDiagnostics,
+	id-E-SMLC-UE-Measurement-ID,
+	id-OTDOACells,
+	id-OTDOA-Information-Type-Group,
+	id-OTDOA-Information-Type-Item,
+	id-ReportCharacteristics,
+	id-MeasurementPeriodicity,
+	id-MeasurementQuantities,
+	id-eNB-UE-Measurement-ID,
+	id-E-CID-MeasurementResult
+	
+	
+FROM LPPA-Constants;
+
+-- **************************************************************
+--
+-- E-CID MEASUREMENT INITIATION REQUEST
+--
+-- **************************************************************
+
+E-CIDMeasurementInitiationRequest ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{E-CIDMeasurementInitiationRequest-IEs}},
+	...
+}
+
+E-CIDMeasurementInitiationRequest-IEs LPPA-PROTOCOL-IES ::= {
+	{ ID id-E-SMLC-UE-Measurement-ID	CRITICALITY reject	TYPE Measurement-ID					PRESENCE mandatory}|
+	{ ID id-ReportCharacteristics		CRITICALITY reject	TYPE ReportCharacteristics			PRESENCE mandatory}|
+	{ ID id-MeasurementPeriodicity		CRITICALITY reject	TYPE MeasurementPeriodicity			PRESENCE conditional}|
+-- The IE shall be present if the Report Characteritics IE is set to "periodic" --
+	{ ID id-MeasurementQuantities		CRITICALITY reject	TYPE MeasurementQuantities			PRESENCE mandatory},
+	...
+}
+
+
+-- **************************************************************
+--
+-- E-CID MEASUREMENT INITIATION RESPONSE
+--
+-- **************************************************************
+
+E-CIDMeasurementInitiationResponse ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{E-CIDMeasurementInitiationResponse-IEs}},
+	...
+}
+
+E-CIDMeasurementInitiationResponse-IEs LPPA-PROTOCOL-IES ::= {
+	{ ID id-E-SMLC-UE-Measurement-ID	CRITICALITY reject	TYPE Measurement-ID					PRESENCE mandatory}|
+	{ ID id-eNB-UE-Measurement-ID		CRITICALITY reject	TYPE Measurement-ID					PRESENCE mandatory}|
+	{ ID id-E-CID-MeasurementResult		CRITICALITY ignore	TYPE E-CID-MeasurementResult		PRESENCE optional}|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional},
+	...
+}
+
+
+
+-- **************************************************************
+--
+-- E-CID MEASUREMENT INITIATION FAILURE
+--
+-- **************************************************************
+
+E-CIDMeasurementInitiationFailure ::= SEQUENCE {
+	protocolIEs						ProtocolIE-Container		{{E-CIDMeasurementInitiationFailure-IEs}},
+	...
+}
+
+
+E-CIDMeasurementInitiationFailure-IEs LPPA-PROTOCOL-IES ::= {
+	{ ID id-E-SMLC-UE-Measurement-ID		CRITICALITY reject	TYPE Measurement-ID				PRESENCE mandatory}|
+	{ ID id-Cause							CRITICALITY ignore	TYPE Cause						PRESENCE mandatory}|
+	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional },
+	...
+}
+
+
+-- **************************************************************
+--
+-- E-CID MEASUREMENT FAILURE INDICATION
+--
+-- **************************************************************
+
+E-CIDMeasurementFailureIndication ::= SEQUENCE {
+	protocolIEs						ProtocolIE-Container		{{E-CIDMeasurementFailureIndication-IEs}},
+	...
+}
+
+
+E-CIDMeasurementFailureIndication-IEs LPPA-PROTOCOL-IES ::= {
+	{ ID id-E-SMLC-UE-Measurement-ID		CRITICALITY reject	TYPE Measurement-ID				PRESENCE mandatory}|
+	{ ID id-eNB-UE-Measurement-ID			CRITICALITY reject	TYPE Measurement-ID				PRESENCE mandatory}|
+	{ ID id-Cause							CRITICALITY ignore	TYPE Cause						PRESENCE mandatory},
+	...
+}
+
+-- **************************************************************
+--
+-- E-CID MEASUREMENT REPORT
+--
+-- **************************************************************
+
+E-CIDMeasurementReport ::= SEQUENCE {
+	protocolIEs						ProtocolIE-Container		{{E-CIDMeasurementReport-IEs}},
+	...
+}
+
+
+E-CIDMeasurementReport-IEs LPPA-PROTOCOL-IES ::= {
+	{ ID id-E-SMLC-UE-Measurement-ID		CRITICALITY reject	TYPE Measurement-ID				PRESENCE mandatory}|
+	{ ID id-eNB-UE-Measurement-ID			CRITICALITY reject	TYPE Measurement-ID				PRESENCE mandatory}|
+	{ ID id-E-CID-MeasurementResult			CRITICALITY ignore	TYPE E-CID-MeasurementResult	PRESENCE mandatory},
+	...
+}
+
+-- **************************************************************
+--
+-- E-CID MEASUREMENT TERMINATION 
+--
+-- **************************************************************
+
+E-CIDMeasurementTerminationCommand ::= SEQUENCE {
+	protocolIEs						ProtocolIE-Container		{{E-CIDMeasurementTerminationCommand-IEs}},
+	...
+}
+
+
+E-CIDMeasurementTerminationCommand-IEs LPPA-PROTOCOL-IES ::= {
+	{ ID id-E-SMLC-UE-Measurement-ID		CRITICALITY reject	TYPE Measurement-ID				PRESENCE mandatory}|
+	{ ID id-eNB-UE-Measurement-ID			CRITICALITY reject	TYPE Measurement-ID				PRESENCE mandatory},
+	...
+}
+
+
+-- **************************************************************
+--
+-- OTDOA INFORMATION REQUEST
+--
+-- **************************************************************
+
+OTDOAInformationRequest ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{OTDOAInformationRequest-IEs}},
+	...
+}
+
+OTDOAInformationRequest-IEs LPPA-PROTOCOL-IES ::= {
+	{ ID id-OTDOA-Information-Type-Group		CRITICALITY reject	TYPE OTDOA-Information-Type			PRESENCE mandatory},
+	...
+}
+
+OTDOA-Information-Type ::= SEQUENCE (SIZE(1..maxnoOTDOAtypes)) OF ProtocolIE-Single-Container { { OTDOA-Information-TypeIEs} }
+
+OTDOA-Information-TypeIEs	LPPA-PROTOCOL-IES ::= {
+	{ ID id-OTDOA-Information-Type-Item CRITICALITY reject 	TYPE OTDOA-Information-Type-Item	PRESENCE mandatory },
+	...
+}
+
+OTDOA-Information-Type-Item ::= SEQUENCE {
+	oTDOA-Information-Type-Item 	OTDOA-Information-Item,
+	iE-Extensions					ProtocolExtensionContainer { { OTDOA-Information-Type-ItemExtIEs} } OPTIONAL,
+	...
+}
+
+OTDOA-Information-Type-ItemExtIEs LPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+-- **************************************************************
+--
+-- OTDOA INFORMATION RESPONSE
+--
+-- **************************************************************
+
+OTDOAInformationResponse ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{OTDOAInformationResponse-IEs}},
+	...
+}
+
+OTDOAInformationResponse-IEs LPPA-PROTOCOL-IES ::= {
+	{ ID id-OTDOACells						CRITICALITY ignore	TYPE OTDOACells					PRESENCE mandatory}|
+	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional },
+	...
+}
+
+-- **************************************************************
+--
+-- OTDOA INFORMATION FAILURE
+--
+-- **************************************************************
+
+OTDOAInformationFailure ::= SEQUENCE {
+	protocolIEs						ProtocolIE-Container		{{OTDOAInformationFailure-IEs}},
+	...
+}
+
+
+OTDOAInformationFailure-IEs LPPA-PROTOCOL-IES ::= {
+	{ ID id-Cause							CRITICALITY ignore	TYPE Cause						PRESENCE mandatory}|
+	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional },
+	...
+}
+
+
+-- **************************************************************
+--
+-- ERROR INDICATION
+--
+-- **************************************************************
+
+ErrorIndication ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{ErrorIndication-IEs}},
+	...
+}
+
+ErrorIndication-IEs LPPA-PROTOCOL-IES ::= {
+	
+	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE optional} |
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional} ,
+	...
+}
+
+-- **************************************************************
+--
+-- PRIVATE MESSAGE
+--
+-- **************************************************************
+
+PrivateMessage ::= SEQUENCE {
+	privateIEs		PrivateIE-Container  {{PrivateMessage-IEs}},
+	...
+}
+
+PrivateMessage-IEs LPPA-PRIVATE-IES ::= {
+	...
+}
+
+END

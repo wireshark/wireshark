@@ -1,0 +1,198 @@
+-- 3GPP TS 36.455 V9.4.1 (2011-03)
+-- $Id$
+--
+
+-- **************************************************************
+--
+-- Container definitions
+--
+-- **************************************************************
+
+LPPA-Containers {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+eps-Access (21) modules (3) lppa (6) version1 (1) lppa-Containers (5)  }
+
+DEFINITIONS AUTOMATIC TAGS ::= 
+
+BEGIN
+
+-- **************************************************************
+--
+-- IE parameter types from other modules.
+--
+-- **************************************************************
+
+IMPORTS
+	maxPrivateIEs,
+	maxProtocolExtensions,
+	maxProtocolIEs,
+	Criticality,
+	Presence,
+	PrivateIE-ID,
+	ProtocolIE-ID	
+FROM LPPA-CommonDataTypes;
+
+-- **************************************************************
+--
+-- Class Definition for Protocol IEs
+--
+-- **************************************************************
+
+LPPA-PROTOCOL-IES ::= CLASS {
+	&id				ProtocolIE-ID 			UNIQUE,
+	&criticality	Criticality,
+	&Value,
+	&presence		Presence
+}
+WITH SYNTAX {
+	ID				&id
+	CRITICALITY		&criticality
+	TYPE			&Value
+	PRESENCE		&presence
+}
+
+-- **************************************************************
+--
+-- Class Definition for Protocol IEs
+--
+-- **************************************************************
+
+LPPA-PROTOCOL-IES-PAIR ::= CLASS {
+	&id						ProtocolIE-ID 		UNIQUE,
+	&firstCriticality		Criticality,
+	&FirstValue,
+	&secondCriticality		Criticality,
+	&SecondValue,
+	&presence				Presence
+}
+WITH SYNTAX {
+	ID						&id
+	FIRST CRITICALITY 		&firstCriticality
+	FIRST TYPE				&FirstValue
+	SECOND CRITICALITY 		&secondCriticality
+	SECOND TYPE				&SecondValue
+	PRESENCE				&presence
+}
+
+-- **************************************************************
+--
+-- Class Definition for Protocol Extensions
+--
+-- **************************************************************
+
+LPPA-PROTOCOL-EXTENSION ::= CLASS {
+	&id					ProtocolIE-ID 		UNIQUE,
+	&criticality		Criticality,
+	&Extension,
+	&presence			Presence
+}
+WITH SYNTAX {
+	ID					&id
+	CRITICALITY			&criticality
+	EXTENSION			&Extension
+	PRESENCE			&presence
+}
+
+-- **************************************************************
+--
+-- Class Definition for Private IEs
+--
+-- **************************************************************
+
+LPPA-PRIVATE-IES ::= CLASS {
+	&id					PrivateIE-ID,
+	&criticality		Criticality,
+	&Value,
+	&presence			Presence
+}
+WITH SYNTAX {
+	ID					&id
+	CRITICALITY			&criticality
+	TYPE				&Value
+	PRESENCE			&presence
+}
+
+-- **************************************************************
+--
+-- Container for Protocol IEs
+--
+-- **************************************************************
+
+ProtocolIE-Container { LPPA-PROTOCOL-IES : IEsSetParam} ::= 
+	SEQUENCE (SIZE (0..maxProtocolIEs)) OF
+	ProtocolIE-Field {{IEsSetParam}}
+
+ProtocolIE-Single-Container { LPPA-PROTOCOL-IES : IEsSetParam} ::= 
+	ProtocolIE-Field {{IEsSetParam}}
+
+ProtocolIE-Field { LPPA-PROTOCOL-IES : IEsSetParam} ::= SEQUENCE {
+	id				LPPA-PROTOCOL-IES.&id					({IEsSetParam}),
+	criticality		LPPA-PROTOCOL-IES.&criticality			({IEsSetParam}{@id}),
+	value			LPPA-PROTOCOL-IES.&Value	        	({IEsSetParam}{@id})
+}
+
+-- **************************************************************
+--
+-- Container for Protocol IE Pairs
+--
+-- **************************************************************
+
+ProtocolIE-ContainerPair { LPPA-PROTOCOL-IES-PAIR : IEsSetParam} ::= 
+	SEQUENCE (SIZE (0..maxProtocolIEs)) OF
+	ProtocolIE-FieldPair {{IEsSetParam}}
+
+ProtocolIE-FieldPair { LPPA-PROTOCOL-IES-PAIR : IEsSetParam} ::= SEQUENCE {
+	id					LPPA-PROTOCOL-IES-PAIR.&id					({IEsSetParam}),
+	firstCriticality	LPPA-PROTOCOL-IES-PAIR.&firstCriticality	({IEsSetParam}{@id}),
+	firstValue			LPPA-PROTOCOL-IES-PAIR.&FirstValue	        ({IEsSetParam}{@id}),
+	secondCriticality	LPPA-PROTOCOL-IES-PAIR.&secondCriticality	({IEsSetParam}{@id}),
+	secondValue			LPPA-PROTOCOL-IES-PAIR.&SecondValue	        ({IEsSetParam}{@id})
+}
+
+-- **************************************************************
+--
+-- Container Lists for Protocol IE Containers
+--
+-- **************************************************************
+
+ProtocolIE-ContainerList {INTEGER : lowerBound, INTEGER : upperBound, LPPA-PROTOCOL-IES : IEsSetParam} ::=
+	SEQUENCE (SIZE (lowerBound..upperBound)) OF
+	ProtocolIE-Container {{IEsSetParam}}
+
+ProtocolIE-ContainerPairList {INTEGER : lowerBound, INTEGER : upperBound, LPPA-PROTOCOL-IES-PAIR : IEsSetParam} ::=
+	SEQUENCE (SIZE (lowerBound..upperBound)) OF
+	ProtocolIE-ContainerPair {{IEsSetParam}}
+
+-- **************************************************************
+--
+-- Container for Protocol Extensions
+--
+-- **************************************************************
+
+ProtocolExtensionContainer { LPPA-PROTOCOL-EXTENSION : ExtensionSetParam} ::= 
+	SEQUENCE (SIZE (1..maxProtocolExtensions)) OF
+	ProtocolExtensionField {{ExtensionSetParam}}
+
+ProtocolExtensionField { LPPA-PROTOCOL-EXTENSION : ExtensionSetParam} ::= SEQUENCE {
+	id					LPPA-PROTOCOL-EXTENSION.&id				({ExtensionSetParam}),
+	criticality			LPPA-PROTOCOL-EXTENSION.&criticality	({ExtensionSetParam}{@id}),
+	extensionValue		LPPA-PROTOCOL-EXTENSION.&Extension		({ExtensionSetParam}{@id})
+}
+
+-- **************************************************************
+--
+-- Container for Private IEs
+--
+-- **************************************************************
+
+PrivateIE-Container { LPPA-PRIVATE-IES : IEsSetParam} ::= 
+	SEQUENCE (SIZE (1..maxPrivateIEs)) OF
+	PrivateIE-Field {{IEsSetParam}}
+
+PrivateIE-Field { LPPA-PRIVATE-IES : IEsSetParam} ::= SEQUENCE {
+	id				LPPA-PRIVATE-IES.&id			({IEsSetParam}),
+	criticality		LPPA-PRIVATE-IES.&criticality	({IEsSetParam}{@id}),
+	value			LPPA-PRIVATE-IES.&Value			({IEsSetParam}{@id})
+}
+
+END

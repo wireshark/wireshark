@@ -1,0 +1,197 @@
+-- 3GPP TS 36.455 V9.4.1 (2011-03)
+-- $Id$
+--
+
+-- **************************************************************
+--
+-- Elementary Procedure definitions
+--
+-- **************************************************************
+
+LPPA-PDU-Descriptions {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+eps-Access (21) modules (3) lppa (6) version1 (1) lppa-PDU-Descriptions (0) }
+
+DEFINITIONS AUTOMATIC TAGS ::= 
+
+BEGIN
+
+-- **************************************************************
+--
+-- IE parameter types from other modules.
+--
+-- **************************************************************
+
+IMPORTS
+	Criticality,
+	ProcedureCode,
+	LPPATransactionID
+
+FROM LPPA-CommonDataTypes
+
+
+	ErrorIndication,
+	PrivateMessage,
+	E-CIDMeasurementInitiationRequest,
+	E-CIDMeasurementInitiationResponse,
+	E-CIDMeasurementInitiationFailure,
+	E-CIDMeasurementFailureIndication,
+	E-CIDMeasurementReport,
+	E-CIDMeasurementTerminationCommand,
+	OTDOAInformationRequest,
+	OTDOAInformationResponse,
+	OTDOAInformationFailure
+
+
+FROM LPPA-PDU-Contents
+
+	id-errorIndication,
+	id-privateMessage,
+	id-e-CIDMeasurementInitiation,
+	id-e-CIDMeasurementFailureIndication,
+	id-e-CIDMeasurementReport,
+	id-e-CIDMeasurementTermination,
+	id-oTDOAInformationExchange
+
+
+FROM LPPA-Constants;
+
+-- **************************************************************
+--
+-- Interface Elementary Procedure Class
+--
+-- **************************************************************
+
+LPPA-ELEMENTARY-PROCEDURE ::= CLASS {
+	&InitiatingMessage				,
+	&SuccessfulOutcome				OPTIONAL,
+	&UnsuccessfulOutcome				OPTIONAL,
+	&procedureCode			ProcedureCode 	UNIQUE,
+	&criticality			Criticality 	DEFAULT ignore
+}
+WITH SYNTAX {
+	INITIATING MESSAGE		&InitiatingMessage
+	[SUCCESSFUL OUTCOME		&SuccessfulOutcome]
+	[UNSUCCESSFUL OUTCOME		&UnsuccessfulOutcome]
+	PROCEDURE CODE			&procedureCode
+	[CRITICALITY			&criticality]
+}
+
+-- **************************************************************
+--
+-- Interface PDU Definition
+--
+-- **************************************************************
+
+LPPA-PDU ::= CHOICE {
+	initiatingMessage	InitiatingMessage,
+	successfulOutcome	SuccessfulOutcome,
+	unsuccessfulOutcome	UnsuccessfulOutcome,
+	...
+}
+
+InitiatingMessage ::= SEQUENCE {
+	procedureCode		LPPA-ELEMENTARY-PROCEDURE.&procedureCode		({LPPA-ELEMENTARY-PROCEDURES}),
+	criticality			LPPA-ELEMENTARY-PROCEDURE.&criticality			({LPPA-ELEMENTARY-PROCEDURES}{@procedureCode}),
+	lppatransactionID	LPPATransactionID,
+	value				LPPA-ELEMENTARY-PROCEDURE.&InitiatingMessage	({LPPA-ELEMENTARY-PROCEDURES}{@procedureCode})
+}
+
+SuccessfulOutcome ::= SEQUENCE {
+	procedureCode		LPPA-ELEMENTARY-PROCEDURE.&procedureCode		({LPPA-ELEMENTARY-PROCEDURES}),
+	criticality			LPPA-ELEMENTARY-PROCEDURE.&criticality			({LPPA-ELEMENTARY-PROCEDURES}{@procedureCode}),
+	lppatransactionID	LPPATransactionID,
+	value				LPPA-ELEMENTARY-PROCEDURE.&SuccessfulOutcome	({LPPA-ELEMENTARY-PROCEDURES}{@procedureCode})
+}
+
+UnsuccessfulOutcome ::= SEQUENCE {
+	procedureCode		LPPA-ELEMENTARY-PROCEDURE.&procedureCode		({LPPA-ELEMENTARY-PROCEDURES}),
+	criticality			LPPA-ELEMENTARY-PROCEDURE.&criticality			({LPPA-ELEMENTARY-PROCEDURES}{@procedureCode}),
+	lppatransactionID	LPPATransactionID,
+	value				LPPA-ELEMENTARY-PROCEDURE.&UnsuccessfulOutcome	({LPPA-ELEMENTARY-PROCEDURES}{@procedureCode})
+}
+
+
+-- **************************************************************
+--
+-- Interface Elementary Procedure List
+--
+-- **************************************************************
+
+LPPA-ELEMENTARY-PROCEDURES LPPA-ELEMENTARY-PROCEDURE ::= {
+	LPPA-ELEMENTARY-PROCEDURES-CLASS-1			|
+	LPPA-ELEMENTARY-PROCEDURES-CLASS-2			,
+	...
+}
+
+LPPA-ELEMENTARY-PROCEDURES-CLASS-1 LPPA-ELEMENTARY-PROCEDURE ::= {
+	e-CIDMeasurementInitiation |
+	oTDOAInformationExchange   ,
+	...
+}
+
+LPPA-ELEMENTARY-PROCEDURES-CLASS-2 LPPA-ELEMENTARY-PROCEDURE ::= {
+	e-CIDMeasurementFailureIndication		|
+	e-CIDMeasurementReport					|
+	e-CIDMeasurementTermination				|
+	errorIndication							|
+	privateMessage							,
+	...
+}
+
+
+-- **************************************************************
+--
+-- Interface Elementary Procedures
+--
+-- **************************************************************
+
+e-CIDMeasurementInitiation LPPA-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		E-CIDMeasurementInitiationRequest
+	SUCCESSFUL OUTCOME		E-CIDMeasurementInitiationResponse
+	UNSUCCESSFUL OUTCOME	E-CIDMeasurementInitiationFailure
+	PROCEDURE CODE			id-e-CIDMeasurementInitiation
+	CRITICALITY				reject
+}
+
+e-CIDMeasurementFailureIndication LPPA-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		E-CIDMeasurementFailureIndication
+	PROCEDURE CODE			id-e-CIDMeasurementFailureIndication
+	CRITICALITY				ignore
+}
+
+e-CIDMeasurementReport LPPA-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		E-CIDMeasurementReport
+	PROCEDURE CODE			id-e-CIDMeasurementReport
+	CRITICALITY				ignore
+}
+
+e-CIDMeasurementTermination LPPA-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		E-CIDMeasurementTerminationCommand
+	PROCEDURE CODE			id-e-CIDMeasurementTermination
+	CRITICALITY				reject
+}
+
+oTDOAInformationExchange LPPA-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		OTDOAInformationRequest
+	SUCCESSFUL OUTCOME		OTDOAInformationResponse
+	UNSUCCESSFUL OUTCOME	OTDOAInformationFailure
+	PROCEDURE CODE			id-oTDOAInformationExchange
+	CRITICALITY				reject
+}
+
+
+errorIndication LPPA-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		ErrorIndication
+	PROCEDURE CODE			id-errorIndication
+	CRITICALITY				ignore
+}
+
+
+privateMessage			LPPA-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		PrivateMessage
+	PROCEDURE CODE			id-privateMessage
+	CRITICALITY				ignore
+}
+
+END

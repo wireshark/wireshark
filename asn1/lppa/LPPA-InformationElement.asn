@@ -1,0 +1,378 @@
+-- 3GPP TS 36.455 V9.4.1 (2011-03)
+-- $Id$
+--
+
+-- **************************************************************
+--
+-- Information Element Definitions
+--
+-- **************************************************************
+
+LPPA-IEs {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+eps-Access (21) modules (3) lppa (6) version1 (1) lppa-IEs (2) }
+
+DEFINITIONS AUTOMATIC TAGS ::= 
+
+BEGIN
+
+IMPORTS	
+	
+	id-MeasurementQuantities-Item,
+	maxCellineNB,
+	maxCellReport,
+	maxNrOfErrors,
+	maxNoMeas,
+	maxnoOTDOAtypes
+
+FROM LPPA-Constants
+
+	Criticality,
+	LPPATransactionID,
+	ProcedureCode,
+	ProtocolIE-ID,
+	TriggeringMessage
+
+FROM LPPA-CommonDataTypes
+
+	ProtocolExtensionContainer{},
+	ProtocolIE-Single-Container{},
+	
+	LPPA-PROTOCOL-EXTENSION,
+	LPPA-PROTOCOL-IES
+FROM LPPA-Containers;
+
+-- A
+-- B
+
+-- C
+
+Cause ::= CHOICE {
+	radioNetwork		CauseRadioNetwork,
+	protocol			CauseProtocol,
+	misc				CauseMisc,
+	...
+}
+
+CauseMisc ::= ENUMERATED {
+	unspecified,
+	...
+}
+
+CauseProtocol ::= ENUMERATED {
+	transfer-syntax-error,
+	abstract-syntax-error-reject,
+	abstract-syntax-error-ignore-and-notify,
+	message-not-compatible-with-receiver-state,
+	semantic-error,
+	unspecified,
+	abstract-syntax-error-falsely-constructed-message,
+	...
+}
+
+CauseRadioNetwork ::= ENUMERATED {
+	unspecified, 
+	requested-item-not-supported,
+	requested-item-temporarily-not-available,
+	...
+
+}
+
+CPLength ::= ENUMERATED {
+	normal,
+	extended,
+	...
+}
+
+CriticalityDiagnostics ::= SEQUENCE {
+	procedureCode					ProcedureCode					OPTIONAL,
+	triggeringMessage				TriggeringMessage				OPTIONAL,
+	procedureCriticality			Criticality						OPTIONAL,
+	lppatransactionID				LPPATransactionID				OPTIONAL,
+	iEsCriticalityDiagnostics		CriticalityDiagnostics-IE-List	OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { {CriticalityDiagnostics-ExtIEs} }	OPTIONAL,
+	...
+}
+
+
+CriticalityDiagnostics-ExtIEs LPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+CriticalityDiagnostics-IE-List ::= SEQUENCE (SIZE (1..maxNrOfErrors)) OF
+	SEQUENCE {
+		iECriticality			Criticality,
+		iE-ID					ProtocolIE-ID,
+		typeOfError				TypeOfError,
+		iE-Extensions			ProtocolExtensionContainer { {CriticalityDiagnostics-IE-List-ExtIEs} } OPTIONAL,
+		...
+}
+
+CriticalityDiagnostics-IE-List-ExtIEs LPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+-- D
+-- E
+
+E-CID-MeasurementResult ::= SEQUENCE {
+	servingCell-ID					ECGI,
+	servingCellTAC					TAC,
+	e-UTRANAccessPointPosition		E-UTRANAccessPointPosition	OPTIONAL,
+	measuredResults					MeasuredResults 	OPTIONAL, 
+	...
+}
+
+ECGI ::= SEQUENCE {
+	pLMN-Identity				PLMN-Identity,
+	eUTRANcellIdentifier		EUTRANCellIdentifier,
+	iE-Extensions				ProtocolExtensionContainer { {ECGI-ExtIEs} } OPTIONAL,
+	...
+}
+
+ECGI-ExtIEs LPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+EUTRANCellIdentifier ::= BIT STRING (SIZE (28))
+
+EARFCN ::= INTEGER (0..65535, ...)
+
+E-UTRANAccessPointPosition ::= SEQUENCE {
+	latitudeSign				ENUMERATED {north, south},
+	latitude					INTEGER (0..8388607),
+	longitude					INTEGER (-8388608..8388607),
+	directionOfAltitude			ENUMERATED {height, depth},
+	altitude					INTEGER (0..32767),
+	uncertaintySemi-major		INTEGER (0..127),
+	uncertaintySemi-minor		INTEGER (0..127),
+	orientationOfMajorAxis		INTEGER (0..179),
+	uncertaintyAltitude			INTEGER (0..127),
+	confidence					INTEGER (0..100),
+	...
+}
+
+-- F
+-- G
+-- H
+-- I
+-- J
+-- K
+-- L
+-- M
+
+Measurement-ID ::= INTEGER (1..15, ...)
+
+MeasurementPeriodicity ::= ENUMERATED {
+	ms120,
+	ms240,
+	ms480,
+	ms640,
+	ms1024,
+	ms2048,
+	ms5120,
+	ms10240,
+	min1,
+	min6,
+	min12,
+	min30,
+	min60,
+	...
+}
+
+MeasurementQuantities ::= SEQUENCE (SIZE (1.. maxNoMeas)) OF ProtocolIE-Single-Container { {MeasurementQuantities-ItemIEs} }
+
+MeasurementQuantities-ItemIEs LPPA-PROTOCOL-IES ::= {
+	{ ID id-MeasurementQuantities-Item	CRITICALITY reject	TYPE MeasurementQuantities-Item 	PRESENCE mandatory	}
+}
+
+MeasurementQuantities-Item ::= SEQUENCE {
+	measurementQuantitiesValue							MeasurementQuantitiesValue,
+	iE-Extensions										ProtocolExtensionContainer { { MeasurementQuantitiesValue-ExtIEs} } OPTIONAL,
+	...
+}
+
+MeasurementQuantitiesValue-ExtIEs LPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+MeasurementQuantitiesValue ::= ENUMERATED {
+	cell-ID,
+	angleOfArrival,
+	timingAdvanceType1,
+	timingAdvanceType2,
+	rSRP,
+	rSRQ,
+	...
+}
+
+MeasuredResults ::= SEQUENCE (SIZE (1.. maxNoMeas)) OF MeasuredResultsValue
+
+
+MeasuredResultsValue ::= CHOICE { 
+	valueAngleOfArrival				INTEGER (0..719),
+	valueTimingAdvanceType1			INTEGER (0..7690),
+	valueTimingAdvanceType2			INTEGER (0..7690),
+	resultRSRP						ResultRSRP,
+	resultRSRQ						ResultRSRQ,
+	...
+}
+
+-- N
+
+NumberOfAntennaPorts ::= ENUMERATED {
+		n1-or-n2,
+	 	n4,
+		...
+}
+
+NumberOfDlFrames ::= ENUMERATED {
+		sf1,
+	 	sf2,
+		sf4,
+	 	sf6,
+		...
+}
+
+-- O
+
+OTDOACells ::= SEQUENCE (SIZE (1.. maxCellineNB)) OF SEQUENCE {
+	oTDOACellInfo					OTDOACell-Information,
+	iE-Extensions					ProtocolExtensionContainer { {OTDOACells-ExtIEs} } OPTIONAL,
+	...
+}
+
+OTDOACells-ExtIEs LPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+OTDOACell-Information ::= SEQUENCE (SIZE (1..maxnoOTDOAtypes)) OF OTDOACell-Information-Item
+
+OTDOACell-Information-Item ::= CHOICE {
+	pCI							PCI,
+	cellId						ECGI,
+	tAC							TAC,
+	eARFCN						EARFCN,
+	pRS-Bandwidth				PRS-Bandwidth,
+	pRS-ConfigurationIndex		PRS-Configuration-Index, 
+	cPLength					CPLength,
+	numberOfDlFrames			NumberOfDlFrames,
+	numberOfAntennaPorts		NumberOfAntennaPorts,
+	sFNInitialisationTime		SFNInitialisationTime,
+	e-UTRANAccessPointPosition	E-UTRANAccessPointPosition,
+	...,
+	pRSMutingConfiguration		PRSMutingConfiguration
+}
+
+OTDOA-Information-Item ::= ENUMERATED {
+		pci,
+	 	cellid,
+		tac,
+	 	earfcn,
+		prsBandwidth,
+		prsConfigIndex,
+		cpLength,
+		noDlFrames,
+		noAntennaPorts,
+		sFNInitTime,
+		...,
+		e-UTRANAccessPointPosition,
+		prsmutingconfiguration
+}
+
+-- P
+
+PCI ::= INTEGER (0..503, ...)
+
+PLMN-Identity ::= OCTET STRING (SIZE(3))
+
+PRS-Bandwidth ::= ENUMERATED {
+		bw6,
+	 	bw15,
+		bw25,
+	 	bw50,
+		bw75,
+		bw100,
+		...
+}
+
+PRS-Configuration-Index ::= INTEGER (0..4095, ...)
+
+PRSMutingConfiguration ::= CHOICE {
+	two 			BIT STRING (SIZE (2)),
+	four 			BIT STRING (SIZE (4)),
+	eight 			BIT STRING (SIZE (8)),
+	sixteen 		BIT STRING (SIZE (16)),
+	...
+}
+
+
+-- Q
+-- R
+
+ReportCharacteristics ::= ENUMERATED {
+	onDemand,
+	periodic,
+	...
+}
+
+ResultRSRP ::= SEQUENCE (SIZE (1.. maxCellReport)) OF ResultRSRP-Item
+
+ResultRSRP-Item ::= SEQUENCE {
+	pCI				PCI,
+	eARFCN			EARFCN,
+	eCGI			ECGI OPTIONAL,
+	valueRSRP		ValueRSRP,
+	iE-Extensions	ProtocolExtensionContainer { { ResultRSRP-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+ResultRSRP-Item-ExtIEs LPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+ResultRSRQ ::= SEQUENCE (SIZE (1.. maxCellReport)) OF ResultRSRQ-Item
+
+ResultRSRQ-Item ::= SEQUENCE {
+	pCI				PCI,
+	eARFCN			EARFCN,
+	eCGI			ECGI OPTIONAL,
+	valueRSRQ		ValueRSRQ,
+	iE-Extensions	ProtocolExtensionContainer { { ResultRSRQ-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+ResultRSRQ-Item-ExtIEs LPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+-- S
+
+SFNInitialisationTime ::= BIT STRING (SIZE (64))
+
+-- T
+
+TAC ::= OCTET STRING (SIZE(2))
+
+
+TypeOfError ::= ENUMERATED {
+	not-understood,
+	missing,
+	...
+}
+
+
+
+-- U
+-- V
+
+ValueRSRP ::= INTEGER (0..97, ...)
+
+ValueRSRQ ::= INTEGER (0..34, ...)
+
+-- W
+-- X
+-- Y
+-- Z
+
+END

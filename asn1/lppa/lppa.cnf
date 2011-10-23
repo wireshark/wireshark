@@ -1,0 +1,117 @@
+# lppa.cnf
+# llpa conformation file
+# Copyright 2011 Pascal Quantin 
+# $Id$
+
+#.OPT
+PER
+ALIGNED
+#.END
+
+#.MAKE_ENUM
+ProcedureCode
+ProtocolIE-ID
+
+#.OMIT_ASSIGNMENT
+Presence
+ProtocolIE-ContainerList
+ProtocolIE-ContainerPairList
+ProtocolIE-ContainerPair
+ProtocolIE-FieldPair
+
+#.PDU_NEW
+LPPA-PDU
+
+#.TYPE_RENAME
+InitiatingMessage/value InitiatingMessage_value
+SuccessfulOutcome/value SuccessfulOutcome_value
+UnsuccessfulOutcome/value UnsuccessfulOutcome_value
+
+#.FIELD_RENAME
+InitiatingMessage/value initiatingMessagevalue
+UnsuccessfulOutcome/value unsuccessfulOutcome_value
+SuccessfulOutcome/value successfulOutcome_value
+ProtocolIE-Field/value ie_field_value
+
+#.FN_PARS ProtocolIE-ID  VAL_PTR=&ProtocolIE_ID
+#.FN_FTR ProtocolIE-ID
+  if (tree) {
+    proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str(ProtocolIE_ID, VALS(lppa_ProtocolIE_ID_vals), "unknown (%d)"));
+  }
+#.END
+
+#.FN_PARS  ProcedureCode  VAL_PTR = &ProcedureCode
+#.FN_FTR ProcedureCode
+     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
+                 val_to_str(ProcedureCode, lppa_ProcedureCode_vals,
+                            "unknown message"));
+#.END
+
+#.FN_PARS ProtocolIE-Field/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldValue 
+
+#.FN_PARS InitiatingMessage/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_InitiatingMessageValue
+
+#.FN_PARS SuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_SuccessfulOutcomeValue
+
+#.FN_PARS UnsuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_UnsuccessfulOutcomeValue
+	
+#.FN_HDR LPPA-PDU
+	
+  proto_tree_add_item(tree, proto_lppa, tvb, 0, -1, ENC_NA);
+
+  col_append_sep_str(actx->pinfo->cinfo, COL_PROTOCOL, "/", "LPPa");
+#.END
+
+#.TYPE_ATTR
+# ProcedureCode
+id-errorIndication                   ProcedureCode
+id-privateMessage                    ProcedureCode
+id-e-CIDMeasurementInitiation        ProcedureCode
+id-e-CIDMeasurementFailureIndication ProcedureCode
+id-e-CIDMeasurementReport            ProcedureCode
+id-e-CIDMeasurementTermination       ProcedureCode
+id-oTDOAInformationExchange          ProcedureCode
+
+# ProtocolIE-ID
+id-Cause                        ProtocolIE-ID
+id-CriticalityDiagnostics       ProtocolIE-ID
+id-E-SMLC-UE-Measurement-ID     ProtocolIE-ID
+id-ReportCharacteristics        ProtocolIE-ID
+id-MeasurementPeriodicity       ProtocolIE-ID
+id-MeasurementQuantities        ProtocolIE-ID
+id-eNB-UE-Measurement-ID        ProtocolIE-ID
+id-E-CID-MeasurementResult      ProtocolIE-ID
+id-OTDOACells                   ProtocolIE-ID
+id-OTDOA-Information-Type-Group ProtocolIE-ID
+id-OTDOA-Information-Type-Item  ProtocolIE-ID
+id-MeasurementQuantities-Item   ProtocolIE-ID
+
+#.REGISTER_NEW
+
+#LPPA-PROTOCOL-IES
+MeasurementQuantities-Item  N lppa.ies id-MeasurementQuantities-Item
+ReportCharacteristics       N lppa.ies id-ReportCharacteristics
+MeasurementPeriodicity      N lppa.ies id-MeasurementPeriodicity
+MeasurementQuantities       N lppa.ies id-MeasurementQuantities
+E-CID-MeasurementResult     N lppa.ies id-E-CID-MeasurementResult
+OTDOA-Information-Type      N lppa.ies id-OTDOA-Information-Type-Group
+OTDOA-Information-Type-Item N lppa.ies id-OTDOA-Information-Type-Item
+OTDOACells                  N lppa.ies id-OTDOACells
+Cause                       N lppa.ies id-Cause
+CriticalityDiagnostics      N lppa.ies id-CriticalityDiagnostics
+Measurement-ID              N lppa.ies id-E-SMLC-UE-Measurement-ID
+Measurement-ID              N lppa.ies id-eNB-UE-Measurement-ID
+
+#LPPA-ELEMENTARY-PROCEDURE
+E-CIDMeasurementInitiationRequest  N lppa.proc.imsg id-e-CIDMeasurementInitiation
+E-CIDMeasurementInitiationResponse N lppa.proc.sout id-e-CIDMeasurementInitiation
+E-CIDMeasurementInitiationFailure  N lppa.proc.uout id-e-CIDMeasurementInitiation
+E-CIDMeasurementFailureIndication  N lppa.proc.imsg id-e-CIDMeasurementFailureIndication
+E-CIDMeasurementReport             N lppa.proc.imsg id-e-CIDMeasurementReport
+E-CIDMeasurementTerminationCommand N lppa.proc.imsg id-e-CIDMeasurementTermination
+OTDOAInformationRequest            N lppa.proc.imsg id-oTDOAInformationExchange
+OTDOAInformationResponse           N lppa.proc.sout id-oTDOAInformationExchange
+OTDOAInformationFailure            N lppa.proc.uout id-oTDOAInformationExchange
+ErrorIndication                    N lppa.proc.imsg id-errorIndication
+PrivateMessage                     N lppa.proc.imsg id-privateMessage
+

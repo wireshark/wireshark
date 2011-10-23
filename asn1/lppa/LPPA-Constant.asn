@@ -1,0 +1,78 @@
+-- 3GPP TS 36.455 V9.4.1 (2011-03)
+-- $Id$
+--
+
+-- **************************************************************
+--
+-- Constant definitions
+--
+-- **************************************************************
+
+LPPA-Constants {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+eps-Access (21) modules (3) lppa (6) version1 (1) lppa-Constants (4) }
+
+DEFINITIONS AUTOMATIC TAGS ::= 
+
+BEGIN
+
+IMPORTS
+	ProcedureCode,
+	ProtocolIE-ID
+FROM LPPA-CommonDataTypes;
+
+-- **************************************************************
+--
+-- Elementary Procedures
+--
+-- **************************************************************
+
+id-errorIndication												ProcedureCode ::= 0
+id-privateMessage												ProcedureCode ::= 1
+id-e-CIDMeasurementInitiation									ProcedureCode ::= 2
+id-e-CIDMeasurementFailureIndication							ProcedureCode ::= 3
+id-e-CIDMeasurementReport										ProcedureCode ::= 4
+id-e-CIDMeasurementTermination									ProcedureCode ::= 5
+id-oTDOAInformationExchange										ProcedureCode ::= 6
+
+
+
+
+
+
+-- **************************************************************
+--
+-- Lists
+--
+-- **************************************************************
+
+maxNrOfErrors								INTEGER ::= 256
+maxCellineNB								INTEGER ::= 256
+maxNoMeas									INTEGER ::= 63
+maxCellReport								INTEGER ::= 9
+maxnoOTDOAtypes								INTEGER ::= 63
+		
+
+
+
+-- **************************************************************
+--
+-- IEs
+--
+-- **************************************************************
+
+id-Cause																	ProtocolIE-ID ::= 0
+id-CriticalityDiagnostics													ProtocolIE-ID ::= 1
+id-E-SMLC-UE-Measurement-ID													ProtocolIE-ID ::= 2
+id-ReportCharacteristics													ProtocolIE-ID ::= 3
+id-MeasurementPeriodicity													ProtocolIE-ID ::= 4
+id-MeasurementQuantities													ProtocolIE-ID ::= 5
+id-eNB-UE-Measurement-ID													ProtocolIE-ID ::= 6
+id-E-CID-MeasurementResult													ProtocolIE-ID ::= 7
+id-OTDOACells																ProtocolIE-ID ::= 8
+id-OTDOA-Information-Type-Group												ProtocolIE-ID ::= 9
+id-OTDOA-Information-Type-Item												ProtocolIE-ID ::= 10
+id-MeasurementQuantities-Item												ProtocolIE-ID ::= 11
+
+
+END
