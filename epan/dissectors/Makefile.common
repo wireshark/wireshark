@@ -126,6 +126,7 @@ ASN1_DISSECTOR_SRC = \
 	packet-HI2Operations.c \
 	packet-hnbap.c \
 	packet-lcsap.c \
+	packet-lppa.c \
 	packet-idmp.c \
 	packet-inap.c \
 	packet-logotypecertextn.c \
@@ -1047,7 +1048,7 @@ DISSECTOR_SRC = \
 	packet-zebra.c		\
 	packet-zep.c		\
 	packet-ziop.c		\
-	packet-zrtp.c
+	packet-zrtp.c           \
 
 #
 # Headers for dissectors.
@@ -1094,6 +1095,7 @@ DISSECTOR_INCLUDES =	\
 	packet-cms.h	\
 	packet-credssp.h \
 	packet-crmf.h	\
+	packet-csg.c	\
 	packet-csn1.h	\
 	packet-dap.h	\
 	packet-data.h	\

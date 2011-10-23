@@ -67,6 +67,7 @@ SUBDIRS = 		\
 	ldap		\
 	logotypecertextn \
 	lpp \
+	lppa \
 	lte-rrc		\
 	mms		\
 	mpeg-audio	\

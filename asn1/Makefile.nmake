@@ -121,6 +121,7 @@ PER_LIST= \
 	hnbap			\
 	lcsap			\
 	lpp				\
+	lppa			\
 	lte-rrc			\
 	nbap			\
 	mpeg-audio		\

@@ -60,6 +60,34 @@ ProtocolIE-Field/value ie_field_value
 #.FN_PARS ProtocolExtensionID  VAL_PTR=&ProtocolExtensionID
 #.FN_PARS ProtocolExtensionField/extensionValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolExtensionFieldExtensionValue
 
+#.FN_PARS Payload-Type VAL_PTR=&PayloadType
+
+#.FN_BODY APDU VAL_PTR = &parameter_tvb
+
+  tvbuff_t *parameter_tvb=NULL;
+  
+%(DEFAULT_BODY)s
+
+  if (parameter_tvb) {
+    switch (PayloadType) {
+    case 0:
+      /* LPP */
+      if (lpp_handle) {
+        call_dissector(lpp_handle, parameter_tvb, %(ACTX)s->pinfo, tree);
+      }
+      break;
+    case 1:
+      /* LPPa */
+      if (lppa_handle) {
+        call_dissector(lppa_handle, parameter_tvb, %(ACTX)s->pinfo, tree);
+      }
+      break;
+    default:
+      break;
+    }
+  }
+  PayloadType = -1;
+
 #.FN_PARS  ProcedureCode  VAL_PTR = &ProcedureCode
 #.FN_FTR ProcedureCode
 

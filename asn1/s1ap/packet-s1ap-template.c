@@ -59,6 +59,7 @@
 #define SCTP_PORT_S1AP	36412
 
 static dissector_handle_t nas_eps_handle;
+static dissector_handle_t lppa_handle;
 
 #include "packet-s1ap-val.h"
 
@@ -186,6 +187,7 @@ proto_reg_handoff_s1ap(void)
 
 	if (!Initialized) {
 		nas_eps_handle = find_dissector("nas-eps");
+		lppa_handle = find_dissector("lppa");
 		dissector_add_handle("sctp.port", s1ap_handle);   /* for "decode-as"  */
 		dissector_add_uint("sctp.ppi", S1AP_PAYLOAD_PROTOCOL_ID,   s1ap_handle);
 		Initialized=TRUE;

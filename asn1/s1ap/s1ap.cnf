@@ -237,6 +237,15 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
   if ((tvb_length(parameter_tvb)>0)&&(nas_eps_handle))
     call_dissector(nas_eps_handle,parameter_tvb,%(ACTX)s->pinfo, tree);
 
+#.FN_BODY LPPa-PDU VAL_PTR = &parameter_tvb
+
+  tvbuff_t *parameter_tvb=NULL;
+  
+%(DEFAULT_BODY)s
+
+  if ((tvb_length(parameter_tvb)>0)&&(lppa_handle))
+    call_dissector(lppa_handle, parameter_tvb, %(ACTX)s->pinfo, tree);
+
 #.FN_BODY TransportLayerAddress VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb=NULL;
   proto_tree *subtree;

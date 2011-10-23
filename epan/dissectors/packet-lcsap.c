@@ -63,6 +63,9 @@
 #define PSNAME "LCSAP"
 #define PFNAME "lcsap"
 
+static dissector_handle_t lpp_handle;
+static dissector_handle_t lppa_handle;
+
 #define SCTP_PORT_LCSAP 9082
 
 /*--- Included file: packet-lcsap-val.h ---*/
@@ -107,7 +110,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-lcsap-val.h ---*/
-#line 60 "../../asn1/lcsap/packet-lcsap-template.c"
+#line 63 "../../asn1/lcsap/packet-lcsap-template.c"
 /* Strcture to hold ProcedureCode */
 struct pro_code {
         guint8 code;
@@ -226,7 +229,7 @@ static int hf_lcsap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
 static int hf_lcsap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
 
 /*--- End of included file: packet-lcsap-hf.c ---*/
-#line 68 "../../asn1/lcsap/packet-lcsap-template.c"
+#line 71 "../../asn1/lcsap/packet-lcsap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_lcsap = -1;
@@ -281,12 +284,13 @@ static gint ett_lcsap_SuccessfulOutcome = -1;
 static gint ett_lcsap_UnsuccessfulOutcome = -1;
 
 /*--- End of included file: packet-lcsap-ett.c ---*/
-#line 73 "../../asn1/lcsap/packet-lcsap-template.c"
+#line 76 "../../asn1/lcsap/packet-lcsap-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
 static guint32 ProtocolIE_ID;
 static guint32 ProtocolExtensionID;
+static guint32 PayloadType = -1;
 static guint gbl_lcsapSctpPort=SCTP_PORT_LCSAP;
 
 /* Dissector tables */
@@ -340,7 +344,7 @@ dissect_lcsap_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &ProcedureCode, FALSE);
 
-#line 65 "../../asn1/lcsap/lcsap.cnf"
+#line 93 "../../asn1/lcsap/lcsap.cnf"
 
 	if (check_col(actx->pinfo->cinfo, COL_INFO))
 	{
@@ -508,8 +512,35 @@ dissect_lcsap_ProtocolExtensionContainer(tvbuff_t *tvb _U_, int offset _U_, asn1
 
 static int
 dissect_lcsap_APDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 66 "../../asn1/lcsap/lcsap.cnf"
+
+  tvbuff_t *parameter_tvb=NULL;
+  
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, NULL);
+                                       NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
+
+
+  if (parameter_tvb) {
+    switch (PayloadType) {
+    case 0:
+      /* LPP */
+      if (lpp_handle) {
+        call_dissector(lpp_handle, parameter_tvb, actx->pinfo, tree);
+      }
+      break;
+    case 1:
+      /* LPPa */
+      if (lppa_handle) {
+        call_dissector(lppa_handle, parameter_tvb, actx->pinfo, tree);
+      }
+      break;
+    default:
+      break;
+    }
+  }
+  PayloadType = -1;
+
+
 
   return offset;
 }
@@ -646,7 +677,7 @@ dissect_lcsap_DegreesLongitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_lcsap_PLMN_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 136 "../../asn1/lcsap/lcsap.cnf"
+#line 164 "../../asn1/lcsap/lcsap.cnf"
   tvbuff_t *parameter_tvb=NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        3, 3, FALSE, &parameter_tvb);
@@ -1448,7 +1479,7 @@ static const value_string lcsap_Payload_Type_vals[] = {
 static int
 dissect_lcsap_Payload_Type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, &PayloadType, TRUE, 0, NULL);
 
   return offset;
 }
@@ -2010,7 +2041,7 @@ static int dissect_LCS_AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-lcsap-fn.c ---*/
-#line 96 "../../asn1/lcsap/packet-lcsap-template.c"
+#line 100 "../../asn1/lcsap/packet-lcsap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -2066,7 +2097,8 @@ proto_reg_handoff_lcsap(void)
 
 	if (!Initialized) {
 		lcsap_handle = find_dissector("lcsap");
-
+		lpp_handle = find_dissector("lpp");
+		lppa_handle = find_dissector("lppa");
 		dissector_add_handle("sctp.port", lcsap_handle);   /* for "decode-as"  */
 		dissector_add_uint("sctp.ppi", LCS_AP_PAYLOAD_PROTOCOL_ID,   lcsap_handle);
 		Initialized=TRUE;
@@ -2107,7 +2139,7 @@ proto_reg_handoff_lcsap(void)
 
 
 /*--- End of included file: packet-lcsap-dis-tab.c ---*/
-#line 156 "../../asn1/lcsap/packet-lcsap-template.c"
+#line 161 "../../asn1/lcsap/packet-lcsap-template.c"
 	} else {
 		if (SctpPort != 0) {
 			dissector_delete_uint("sctp.port", SctpPort, lcsap_handle);
@@ -2554,7 +2586,7 @@ void proto_register_lcsap(void) {
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-lcsap-hfarr.c ---*/
-#line 174 "../../asn1/lcsap/packet-lcsap-template.c"
+#line 179 "../../asn1/lcsap/packet-lcsap-template.c"
   };
 
   /* List of subtrees */
@@ -2610,7 +2642,7 @@ void proto_register_lcsap(void) {
     &ett_lcsap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-lcsap-ettarr.c ---*/
-#line 180 "../../asn1/lcsap/packet-lcsap-template.c"
+#line 185 "../../asn1/lcsap/packet-lcsap-template.c"
  };
 
   module_t *lcsap_module;

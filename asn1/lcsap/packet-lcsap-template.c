@@ -55,6 +55,9 @@
 #define PSNAME "LCSAP"
 #define PFNAME "lcsap"
 
+static dissector_handle_t lpp_handle;
+static dissector_handle_t lppa_handle;
+
 #define SCTP_PORT_LCSAP 9082
 #include "packet-lcsap-val.h"
 /* Strcture to hold ProcedureCode */
@@ -75,6 +78,7 @@ static int ett_lcsap = -1;
 static guint32 ProcedureCode;
 static guint32 ProtocolIE_ID;
 static guint32 ProtocolExtensionID;
+static guint32 PayloadType = -1;
 static guint gbl_lcsapSctpPort=SCTP_PORT_LCSAP;
 
 /* Dissector tables */
@@ -148,7 +152,8 @@ proto_reg_handoff_lcsap(void)
 
 	if (!Initialized) {
 		lcsap_handle = find_dissector("lcsap");
-
+		lpp_handle = find_dissector("lpp");
+		lppa_handle = find_dissector("lppa");
 		dissector_add_handle("sctp.port", lcsap_handle);   /* for "decode-as"  */
 		dissector_add_uint("sctp.ppi", LCS_AP_PAYLOAD_PROTOCOL_ID,   lcsap_handle);
 		Initialized=TRUE;
