@@ -1048,7 +1048,7 @@ DISSECTOR_SRC = \
 	packet-zebra.c		\
 	packet-zep.c		\
 	packet-ziop.c		\
-	packet-zrtp.c           \
+	packet-zrtp.c
 
 #
 # Headers for dissectors.
