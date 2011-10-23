@@ -108,11 +108,12 @@ hex. This corresponds to the C<-A> option for I<od>.
 
 =item -l
 
-Specify the link-layer type of this packet. Default is Ethernet
-(1). See I<net/bpf.h> for the complete list of possible
-encapsulations. Note that this option should be used if your dump is a
-complete hex dump of an encapsulated packet and you wish to specify
-the exact type of encapsulation. Example: I<-l 7> for ARCNet packets.
+Specify the link-layer header type of this packet.  Default is Ethernet
+(1).  See L<http://www.tcpdump.org/linktypes.html> for the complete list
+of possible encapsulations.  Note that this option should be used if
+your dump is a complete hex dump of an encapsulated packet and you wish
+to specify the exact type of encapsulation.  Example: I<-l 7> for ARCNet
+packets.
 
 =item -e E<lt>l3pidE<gt>
 
