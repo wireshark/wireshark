@@ -1907,7 +1907,7 @@ adjust_snap_sensitivity(GtkWidget *tb _U_, gpointer parent_w _U_)
 
 void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColumn *column _U_, gpointer userdata)
 {
-  GtkWidget     *caller, *window, *swindow=NULL, *if_view,
+  GtkWidget     *caller, *window, *swindow=NULL,
                 *main_vb, *if_hb, *if_lb, *if_lb_name,
                 *main_hb, *left_vb,
 #if defined (HAVE_AIRPCAP) || defined (HAVE_PCAP_REMOTE) || defined (HAVE_PCAP_CREATE)
@@ -1949,8 +1949,6 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   gint          num_supported_link_types;
   guint         i;
   gchar         *tok;
-  GtkCellRenderer *renderer;
-  GtkListStore    *store;
 
   window = (GtkWidget *)userdata;
   caller = gtk_widget_get_toplevel(GTK_WIDGET(window));
@@ -2037,28 +2035,20 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   gtk_box_pack_start(GTK_BOX(if_vb_left), if_ip_lb, FALSE, FALSE, 0);
 
   if (row.no_addresses > 0) {
+    GtkWidget *if_ip_list = gtk_vbox_new(FALSE, 0);
     gchar *temp_addresses = g_strdup(row.addresses);
     gtk_box_pack_start(GTK_BOX(capture_vb), if_ip_hb, TRUE, TRUE, 0);
-    gtk_box_pack_start(GTK_BOX(if_ip_hb), if_vb_right, TRUE, TRUE, 3);
+    gtk_box_pack_start(GTK_BOX(if_ip_hb), if_vb_right, TRUE, TRUE, 0);
     swindow = gtk_scrolled_window_new (NULL, NULL);
-    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(swindow), GTK_SHADOW_IN);
+    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(swindow), GTK_SHADOW_NONE);
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(swindow), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-    gtk_widget_set_size_request(GTK_WIDGET(swindow),-1, 50);
-    if_view = gtk_tree_view_new ();
-    g_object_set(G_OBJECT(if_view), "headers-visible", FALSE, NULL);
-    renderer = gtk_cell_renderer_text_new();
-    column = gtk_tree_view_column_new_with_attributes ("",
-                    GTK_CELL_RENDERER(renderer),
-                    "text", 0,
-                    NULL);
-    gtk_tree_view_append_column(GTK_TREE_VIEW(if_view), column);
-    store = gtk_list_store_new(1, G_TYPE_STRING);
+    gtk_widget_set_size_request(GTK_WIDGET(swindow), -1, 50);
     for (tok = strtok (temp_addresses, "\n"); tok; tok = strtok(NULL, "\n")) {
-      gtk_list_store_append (store, &iter);
-      gtk_list_store_set (store, &iter, 0, tok, -1);
+      if_ip_name = gtk_label_new(tok);
+      gtk_misc_set_alignment(GTK_MISC(if_ip_name), 0, 0); /* Left justified */
+      gtk_box_pack_start(GTK_BOX(if_ip_list), if_ip_name, FALSE, FALSE, 3);
     }
-    gtk_tree_view_set_model(GTK_TREE_VIEW(if_view), GTK_TREE_MODEL (store));
-    gtk_container_add (GTK_CONTAINER (swindow), if_view);
+    gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW(swindow), if_ip_list);
     gtk_box_pack_start(GTK_BOX(if_vb_right), swindow, TRUE, TRUE, 0);
     g_free(temp_addresses);
   } else {
@@ -2332,6 +2322,7 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_CAPTURE_OPTIONS_DIALOG);
   gtk_widget_grab_default(ok_bt);
   dlg_set_activate(filter_te, ok_bt);
+  gtk_widget_grab_focus(filter_te);
   g_signal_connect(opt_edit_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
   g_signal_connect(opt_edit_w, "destroy", G_CALLBACK(options_edit_destroy_cb), NULL);
   gtk_widget_show_all(opt_edit_w);
