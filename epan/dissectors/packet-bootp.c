@@ -1368,9 +1368,9 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 	const guchar		*dns_name;
 	gboolean		option_handled = TRUE;
 	struct basic_types_hfs default_hfs = {&hf_bootp_option_value, &hf_bootp_option_value_ip_address, &hf_bootp_option_value_ip_address,
-										  &hf_bootp_option_value_stringz, &hf_bootp_option_value_boolean, &hf_bootp_option_value_8,
-										  &hf_bootp_option_value_16, &hf_bootp_option_value_16,
-										  &hf_bootp_option_value_u32, &hf_bootp_option_value_i32, &hf_bootp_option_value_u32 };
+					      &hf_bootp_option_value_stringz, &hf_bootp_option_value_boolean, &hf_bootp_option_value_8,
+					      &hf_bootp_option_value_16, &hf_bootp_option_value_16,
+					      &hf_bootp_option_value_u32, &hf_bootp_option_value_i32, &hf_bootp_option_value_u32 };
 
 	/* Options whose length isn't "optlen + 2". */
 	switch (code) {
@@ -2302,7 +2302,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 	}
 
 	basictype_consumed = bootp_handle_basic_types(pinfo, v_tree, vti, tvb, ftype,
-												  optoff, optlen, opt->phf, &default_hfs);
+						      optoff, optlen, opt->phf, &default_hfs);
 
 	if ((basictype_consumed == 0) && (option_handled == FALSE) &&
 	    (opt->phf == NULL) && (optlen > 0)) {
@@ -2340,8 +2340,8 @@ bootp_dhcp_decode_agent_info(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 	proto_tree *o82_v_tree, *o82_9_tree;
 	guint8 tag, tag_len;
 	struct basic_types_hfs default_hfs = {&hf_bootp_option82_value, &hf_bootp_option82_value_ip_address, &hf_bootp_option82_value_ip_address,
-										 &hf_bootp_option82_value_stringz, NULL, &hf_bootp_option82_value_8,
-										 NULL, NULL, &hf_bootp_option82_value_32, NULL, NULL};
+					      &hf_bootp_option82_value_stringz, NULL, &hf_bootp_option82_value_8,
+					      NULL, NULL, &hf_bootp_option82_value_32, NULL, NULL};
 
 	static struct opt_info o82_opt[]= {
 		/* 0 */ {"nop", bytes, &hf_bootp_option82_padding},	/* dummy */
@@ -2454,7 +2454,7 @@ bootp_dhcp_decode_agent_info(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 	}
 	else {
 		if (bootp_handle_basic_types(pinfo, o82_v_tree, vti, tvb, o82_opt[subopt].ftype,
-							suboptoff, subopt_len, o82_opt[subopt].phf, &default_hfs) == 0) {
+					     suboptoff, subopt_len, o82_opt[subopt].phf, &default_hfs) == 0) {
 			expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "ERROR, please report: Unknown subopt type handler %d", subopt);
 		}
 	}
@@ -3171,8 +3171,8 @@ dissect_vendor_cl_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_
 	proto_tree *o125_v_tree;
 	proto_item *vti;
 	struct basic_types_hfs default_hfs = {&hf_bootp_option125_value, &hf_bootp_option125_value_ip_address, &hf_bootp_option125_value_ip_address,
-                                         &hf_bootp_option125_value_stringz, NULL, &hf_bootp_option125_value_8,
-                                         &hf_bootp_option125_value_16, NULL, NULL, NULL, NULL};
+					      &hf_bootp_option125_value_stringz, NULL, &hf_bootp_option125_value_8,
+					      &hf_bootp_option125_value_16, NULL, NULL, NULL, NULL};
 
 	static struct opt_info o125_cl_opt[]= {
 		/* 0 */ {"nop", special, NULL},	/* dummy */
