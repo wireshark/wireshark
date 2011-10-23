@@ -494,9 +494,9 @@ dissect_usb_hid_report_item(packet_info *pinfo _U_, proto_tree *parent_tree, tvb
 
 		item = proto_tree_add_text(subtree, tvb, offset, 1, "Header");
 		tree = proto_item_add_subtree(item, ett_usb_hid_item_header);
-		proto_tree_add_item(tree, hf_usb_hid_item_bSize, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-		proto_tree_add_item(tree, hf_usb_hid_item_bType, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-		proto_tree_add_item(tree, hf_usb_hid_curitem_bTag, tvb, offset, 1, TRUE);
+		proto_tree_add_item(tree, hf_usb_hid_item_bSize, tvb, offset,   1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_usb_hid_item_bType, tvb, offset,   1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_usb_hid_curitem_bTag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset++;
 		if ((bType == 3) && (bTag == 16)) {
 			/* Long item */

@@ -1835,7 +1835,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
     proto_tree *sub_tree = NULL;
     proto_item *item = NULL, *length_item = NULL;
 
-    item = proto_tree_add_item(tree, hf, tvb, *offset, 0, TRUE);
+    item = proto_tree_add_item(tree, hf, tvb, *offset, 0, ENC_NA);
     sub_tree = proto_item_add_subtree(item, ett_tds_type_varbyte);
 
     if(plp) {

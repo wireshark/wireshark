@@ -1704,7 +1704,7 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 
 	if (rid) {
 		item = proto_tree_add_item (subtree,
-			(sid_display_hex ? hf_nt_sid_rid_hex : hf_nt_sid_rid_dec), tvb, rid_offset, 4, TRUE);
+			(sid_display_hex ? hf_nt_sid_rid_hex : hf_nt_sid_rid_dec), tvb, rid_offset, 4, ENC_LITTLE_ENDIAN);
 		proto_item_append_text(item, "  (%s)", mapped_rid);
 	}
 
