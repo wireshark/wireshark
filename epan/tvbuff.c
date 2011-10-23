@@ -2303,6 +2303,7 @@ tvb_fake_unicode(tvbuff_t *tvb, int offset, const int len, const gboolean little
  * You do not have to free this buffer, it will be automatically freed
  * when wireshark starts decoding the next packet.
  */
+/* XXX: This has been replaced by tvb_get_ephemeral_unicode_string() */
 char *
 tvb_get_ephemeral_faked_unicode(tvbuff_t *tvb, int offset, const int len, const gboolean little_endian)
 {
