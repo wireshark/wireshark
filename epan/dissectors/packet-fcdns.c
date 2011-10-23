@@ -27,12 +27,6 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
 #ifdef HAVE_NETINET_IN_H
 # include <netinet/in.h>
 #endif
@@ -364,7 +358,7 @@ dissect_fc4type (proto_tree *parent_tree, tvbuff_t *tvb, int offset, int hfindex
 
     if(parent_tree){
         item=proto_tree_add_item(parent_tree, hfindex, tvb, offset,
-                                 32, TRUE);
+                                 32, ENC_NA);
         tree=proto_item_add_subtree(item, ett_fc4flags);
     }
 
