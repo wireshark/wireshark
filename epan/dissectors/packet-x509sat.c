@@ -1518,7 +1518,7 @@ dissect_x509sat_SyntaxBMPString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 	if (! wide_tvb) {
 		return offset;
 	}
-	string = tvb_get_ephemeral_faked_unicode (wide_tvb, 0, tvb_length(wide_tvb) / 2, FALSE);
+	string = tvb_get_ephemeral_unicode_string (wide_tvb, 0, tvb_length(wide_tvb) / 2, ENC_BIG_ENDIAN);
 	proto_item_append_text(actx->created_item, " %s", string);	
 
 
