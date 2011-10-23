@@ -161,9 +161,9 @@ fp_get_hmac_addr (guint64 hmac, guint16 *swid, guint16 *sswid, guint16 *lid) {
     return;
   }
 
-  *swid = (guint16) ((hmac & FP_HMAC_SWID_MASK) >> 24);
+  *swid  = (guint16) ((hmac & FP_HMAC_SWID_MASK) >> 24);
   *sswid = (guint16) ((hmac & FP_HMAC_SSWID_MASK) >> 16);
-  *lid = (guint16) (hmac & FP_HMAC_LID_MASK);
+  *lid   = (guint16)  (hmac & FP_HMAC_LID_MASK);
 }
 
 static void
@@ -172,10 +172,6 @@ fp_add_hmac (tvbuff_t *tvb, proto_tree *tree, int offset) {
   guint16 eid;
 
   if (!tree) {
-    return;
-  }
-
-  if (!tvb || !tree) {
     return;
   }
 
