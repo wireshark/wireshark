@@ -2034,7 +2034,7 @@ ndps_string(tvbuff_t* tvb, int hfinfo, proto_tree *ndps_tree, int offset, char *
         /*
          * Unicode.
          */
-        string = tvb_get_ephemeral_faked_unicode(tvb, foffset, str_length/2, TRUE);
+        string = tvb_get_ephemeral_unicode_string(tvb, foffset, str_length/2, ENC_LITTLE_ENDIAN);
     }
     foffset += str_length;
     proto_tree_add_string(ndps_tree, hfinfo, tvb, offset, str_length + 4, string);

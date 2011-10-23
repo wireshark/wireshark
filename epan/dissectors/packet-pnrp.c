@@ -685,7 +685,7 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         /* Entry Length: Must be 0x0002 */
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_classifier_entryLength, tvb, offset + 10, 2, ENC_BIG_ENDIAN);
                         /* The actual classifier String */
-                        proto_tree_add_text(pnrp_message_tree, tvb, offset + 12, tvb_get_ntohs(tvb,offset+6)-8, "Classifier: %s",tvb_get_ephemeral_faked_unicode(tvb, offset + 12, (tvb_get_ntohs(tvb,offset+6)-8)/2, FALSE));
+                        proto_tree_add_text(pnrp_message_tree, tvb, offset + 12, tvb_get_ntohs(tvb,offset+6)-8, "Classifier: %s",tvb_get_ephemeral_unicode_string(tvb, offset + 12, (tvb_get_ntohs(tvb,offset+6)-8)/2, ENC_BIG_ENDIAN));
                     }
 
                     /* There might be padding, so fill up to the next byte */

@@ -1296,9 +1296,9 @@ void cb_wstr_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 	 * some way we can get that string, rather than duplicating the
 	 * efforts of that routine?
 	 */
-	s = tvb_get_ephemeral_faked_unicode(
+	s = tvb_get_ephemeral_unicode_string(
 		tvb, start_offset + 12, (end_offset - start_offset - 12) / 2,
-		TRUE);
+		ENC_LITTLE_ENDIAN);
 
 	/* Append string to COL_INFO */
 
