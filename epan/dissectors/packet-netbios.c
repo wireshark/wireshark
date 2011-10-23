@@ -530,7 +530,7 @@ static void nb_data1(int hf, tvbuff_t *tvb, int offset, proto_tree *tree)
 
 {/* add the DATA1 to tree with specified hf_ value */
 
-	proto_tree_add_item( tree, hf, tvb, offset + NB_DATA1, 1, TRUE);
+	proto_tree_add_item( tree, hf, tvb, offset + NB_DATA1, 1, ENC_LITTLE_ENDIAN);
 
 }
 
@@ -539,7 +539,7 @@ static void nb_data2(int hf, tvbuff_t *tvb, int offset, proto_tree *tree)
 
 {/* add the DATA2 to tree with specified hf_ value */
 
-	proto_tree_add_item( tree, hf, tvb, offset + NB_DATA2, 2, TRUE);
+	proto_tree_add_item( tree, hf, tvb, offset + NB_DATA2, 2, ENC_LITTLE_ENDIAN);
 
 }
 

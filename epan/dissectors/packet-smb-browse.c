@@ -701,7 +701,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		proto_tree_add_item(tree,
 			(cmd==BROWSE_DOMAIN_ANNOUNCEMENT)?
 			    hf_mb_server_name : hf_server_comment,
-			tvb, offset, namelen, TRUE);
+			tvb, offset, namelen, ENC_ASCII|ENC_NA);
 		offset += namelen;
 		break;
 	}
@@ -922,7 +922,7 @@ dissect_mailslot_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		proto_tree_add_item(tree,
 			(cmd==BROWSE_DOMAIN_ANNOUNCEMENT)?
 			    hf_mb_server_name : hf_server_comment,
-			tvb, offset, namelen, TRUE);
+			tvb, offset, namelen, ENC_ASCII|ENC_NA);
 		offset += namelen;
 		break;
 	}

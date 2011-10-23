@@ -2847,7 +2847,7 @@ rs2d(tvbuff_t *tvb, proto_tree *tree)
 		s_tree = proto_item_add_subtree(ti, *tsel[i]);
 		for (j = 7; j >= 0; j--) {
 			if (bsel[i][j]) {
-				proto_tree_add_item(s_tree, *bsel[i][j], tvb, i + 2, 1, TRUE);
+				proto_tree_add_item(s_tree, *bsel[i][j], tvb, i + 2, 1, ENC_LITTLE_ENDIAN);
 			}
 		}
 	}

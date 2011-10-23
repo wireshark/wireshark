@@ -469,7 +469,7 @@ static gint dissect_msmms_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                         (command_dir == TO_SERVER) ?
                             hf_msmms_command_to_server_id :
                             hf_msmms_command_to_client_id,
-                        tvb, offset, 2, TRUE);
+                        tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
     /* Direction */
