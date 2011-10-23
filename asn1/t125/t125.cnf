@@ -6,6 +6,10 @@
 #----------------------------------------------------------------------------------------
 #.END
 
+#.OMIT_ASSIGNMENT
+# dissecected in t124
+DomainMCSPDU
+
 #.PDU
 #----------------------------------------------------------------------------------------
 
@@ -17,22 +21,23 @@ ConnectMCSPDU
 #.VIRTUAL_ASSGN
 #----------------------------------------------------------------------------------------
 
-#.FN_BODY DomainMCSPDU  VAL_PTR = &domainmcs_value
-  	gint domainmcs_value;
-
-%(DEFAULT_BODY)s
-	switch(domainmcs_value) {
-	case 25: /* sendDataRequest */
-	case 26: /* sendDataIndication */
-	case 27: /* uniformSendDataRequest */
-	case 28: /* uniformSendDataIndication */
-		/* Do nothing */
-		break;
-	default:
-		col_append_sep_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, " ", "MCS: %%s ", val_to_str(domainmcs_value, t125_DomainMCSPDU_vals, "Unknown"));
-		break;
-	}
-#.END
+# dissecected in t124
+# FN_BODY DomainMCSPDU  VAL_PTR = &domainmcs_value
+#  	gint domainmcs_value;
+#
+#%(DEFAULT_BODY)s
+#	switch(domainmcs_value) {
+#	case 25: /* sendDataRequest */
+#	case 26: /* sendDataIndication */
+#	case 27: /* uniformSendDataRequest */
+#	case 28: /* uniformSendDataIndication */
+#		/* Do nothing */
+#		break;
+#	default:
+#		col_append_sep_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, " ", "MCS: %%s ", val_to_str(domainmcs_value, t125_DomainMCSPDU_vals, "Unknown"));
+#		break;
+#	}
+# END
 
 #.FN_BODY Connect-Initial/_untag/userData VAL_PTR  = &next_tvb
 #.FN_BODY Connect-Initial/_untag/userData

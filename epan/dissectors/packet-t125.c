@@ -129,49 +129,6 @@ static int hf_t125_connect_initial = -1;          /* Connect_Initial */
 static int hf_t125_connect_response = -1;         /* Connect_Response */
 static int hf_t125_connect_additional = -1;       /* Connect_Additional */
 static int hf_t125_connect_result = -1;           /* Connect_Result */
-static int hf_t125_plumbDomainIndication = -1;    /* PlumbDomainIndication */
-static int hf_t125_erectDomainRequest = -1;       /* ErectDomainRequest */
-static int hf_t125_mergeChannelsRequest = -1;     /* MergeChannelsRequest */
-static int hf_t125_mergeChannelsConfirm = -1;     /* MergeChannelsConfirm */
-static int hf_t125_purgeChannelsIndication = -1;  /* PurgeChannelsIndication */
-static int hf_t125_mergeTokensRequest = -1;       /* MergeTokensRequest */
-static int hf_t125_mergeTokensConfirm = -1;       /* MergeTokensConfirm */
-static int hf_t125_purgeTokensIndication = -1;    /* PurgeTokensIndication */
-static int hf_t125_disconnectProviderUltimatum = -1;  /* DisconnectProviderUltimatum */
-static int hf_t125_rejectMCSPDUUltimatum = -1;    /* RejectMCSPDUUltimatum */
-static int hf_t125_attachUserRequest = -1;        /* AttachUserRequest */
-static int hf_t125_attachUserConfirm = -1;        /* AttachUserConfirm */
-static int hf_t125_detachUserRequest = -1;        /* DetachUserRequest */
-static int hf_t125_detachUserIndication = -1;     /* DetachUserIndication */
-static int hf_t125_channelJoinRequest = -1;       /* ChannelJoinRequest */
-static int hf_t125_channelJoinConfirm = -1;       /* ChannelJoinConfirm */
-static int hf_t125_channelLeaveRequest = -1;      /* ChannelLeaveRequest */
-static int hf_t125_channelConveneRequest = -1;    /* ChannelConveneRequest */
-static int hf_t125_channelConveneConfirm = -1;    /* ChannelConveneConfirm */
-static int hf_t125_channelDisbandRequest = -1;    /* ChannelDisbandRequest */
-static int hf_t125_channelDisbandIndication = -1;  /* ChannelDisbandIndication */
-static int hf_t125_channelAdmitRequest = -1;      /* ChannelAdmitRequest */
-static int hf_t125_channelAdmitIndication = -1;   /* ChannelAdmitIndication */
-static int hf_t125_channelExpelRequest = -1;      /* ChannelExpelRequest */
-static int hf_t125_channelExpelIndication = -1;   /* ChannelExpelIndication */
-static int hf_t125_sendDataRequest = -1;          /* SendDataRequest */
-static int hf_t125_sendDataIndication = -1;       /* SendDataIndication */
-static int hf_t125_uniformSendDataRequest = -1;   /* UniformSendDataRequest */
-static int hf_t125_uniformSendDataIndication = -1;  /* UniformSendDataIndication */
-static int hf_t125_tokenGrabRequest = -1;         /* TokenGrabRequest */
-static int hf_t125_tokenGrabConfirm = -1;         /* TokenGrabConfirm */
-static int hf_t125_tokenInhibitRequest = -1;      /* TokenInhibitRequest */
-static int hf_t125_tokenInhibitConfirm = -1;      /* TokenInhibitConfirm */
-static int hf_t125_tokenGiveRequest = -1;         /* TokenGiveRequest */
-static int hf_t125_tokenGiveIndication = -1;      /* TokenGiveIndication */
-static int hf_t125_tokenGiveResponse = -1;        /* TokenGiveResponse */
-static int hf_t125_tokenGiveConfirm = -1;         /* TokenGiveConfirm */
-static int hf_t125_tokenPleaseRequest = -1;       /* TokenPleaseRequest */
-static int hf_t125_tokenPleaseIndication = -1;    /* TokenPleaseIndication */
-static int hf_t125_tokenReleaseRequest = -1;      /* TokenReleaseRequest */
-static int hf_t125_tokenReleaseConfirm = -1;      /* TokenReleaseConfirm */
-static int hf_t125_tokenTestRequest = -1;         /* TokenTestRequest */
-static int hf_t125_tokenTestConfirm = -1;         /* TokenTestConfirm */
 /* named bits */
 static int hf_t125_Segmentation_begin = -1;
 static int hf_t125_Segmentation_end = -1;
@@ -254,7 +211,6 @@ static gint ett_t125_TokenReleaseConfirm_U = -1;
 static gint ett_t125_TokenTestRequest_U = -1;
 static gint ett_t125_TokenTestConfirm_U = -1;
 static gint ett_t125_ConnectMCSPDU = -1;
-static gint ett_t125_DomainMCSPDU = -1;
 
 /*--- End of included file: packet-t125-ett.c ---*/
 #line 57 "../../asn1/t125/packet-t125-template.c"
@@ -439,7 +395,7 @@ dissect_t125_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 static int
 dissect_t125_T_userData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 39 "../../asn1/t125/t125.cnf"
+#line 44 "../../asn1/t125/t125.cnf"
     tvbuff_t	*next_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &next_tvb);
@@ -516,7 +472,7 @@ dissect_t125_Result(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 static int
 dissect_t125_T_userData_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 48 "../../asn1/t125/t125.cnf"
+#line 53 "../../asn1/t125/t125.cnf"
     tvbuff_t	*next_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &next_tvb);
@@ -2030,126 +1986,6 @@ dissect_t125_ConnectMCSPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
   return offset;
 }
 
-
-static const value_string t125_DomainMCSPDU_vals[] = {
-  {   0, "plumbDomainIndication" },
-  {   1, "erectDomainRequest" },
-  {   2, "mergeChannelsRequest" },
-  {   3, "mergeChannelsConfirm" },
-  {   4, "purgeChannelsIndication" },
-  {   5, "mergeTokensRequest" },
-  {   6, "mergeTokensConfirm" },
-  {   7, "purgeTokensIndication" },
-  {   8, "disconnectProviderUltimatum" },
-  {   9, "rejectMCSPDUUltimatum" },
-  {  10, "attachUserRequest" },
-  {  11, "attachUserConfirm" },
-  {  12, "detachUserRequest" },
-  {  13, "detachUserIndication" },
-  {  14, "channelJoinRequest" },
-  {  15, "channelJoinConfirm" },
-  {  16, "channelLeaveRequest" },
-  {  17, "channelConveneRequest" },
-  {  18, "channelConveneConfirm" },
-  {  19, "channelDisbandRequest" },
-  {  20, "channelDisbandIndication" },
-  {  21, "channelAdmitRequest" },
-  {  22, "channelAdmitIndication" },
-  {  23, "channelExpelRequest" },
-  {  24, "channelExpelIndication" },
-  {  25, "sendDataRequest" },
-  {  26, "sendDataIndication" },
-  {  27, "uniformSendDataRequest" },
-  {  28, "uniformSendDataIndication" },
-  {  29, "tokenGrabRequest" },
-  {  30, "tokenGrabConfirm" },
-  {  31, "tokenInhibitRequest" },
-  {  32, "tokenInhibitConfirm" },
-  {  33, "tokenGiveRequest" },
-  {  34, "tokenGiveIndication" },
-  {  35, "tokenGiveResponse" },
-  {  36, "tokenGiveConfirm" },
-  {  37, "tokenPleaseRequest" },
-  {  38, "tokenPleaseIndication" },
-  {  39, "tokenReleaseRequest" },
-  {  40, "tokenReleaseConfirm" },
-  {  41, "tokenTestRequest" },
-  {  42, "tokenTestConfirm" },
-  { 0, NULL }
-};
-
-static const ber_choice_t DomainMCSPDU_choice[] = {
-  {   0, &hf_t125_plumbDomainIndication, BER_CLASS_APP, 0, BER_FLAGS_NOOWNTAG, dissect_t125_PlumbDomainIndication },
-  {   1, &hf_t125_erectDomainRequest, BER_CLASS_APP, 1, BER_FLAGS_NOOWNTAG, dissect_t125_ErectDomainRequest },
-  {   2, &hf_t125_mergeChannelsRequest, BER_CLASS_APP, 2, BER_FLAGS_NOOWNTAG, dissect_t125_MergeChannelsRequest },
-  {   3, &hf_t125_mergeChannelsConfirm, BER_CLASS_APP, 3, BER_FLAGS_NOOWNTAG, dissect_t125_MergeChannelsConfirm },
-  {   4, &hf_t125_purgeChannelsIndication, BER_CLASS_APP, 4, BER_FLAGS_NOOWNTAG, dissect_t125_PurgeChannelsIndication },
-  {   5, &hf_t125_mergeTokensRequest, BER_CLASS_APP, 5, BER_FLAGS_NOOWNTAG, dissect_t125_MergeTokensRequest },
-  {   6, &hf_t125_mergeTokensConfirm, BER_CLASS_APP, 6, BER_FLAGS_NOOWNTAG, dissect_t125_MergeTokensConfirm },
-  {   7, &hf_t125_purgeTokensIndication, BER_CLASS_APP, 7, BER_FLAGS_NOOWNTAG, dissect_t125_PurgeTokensIndication },
-  {   8, &hf_t125_disconnectProviderUltimatum, BER_CLASS_APP, 8, BER_FLAGS_NOOWNTAG, dissect_t125_DisconnectProviderUltimatum },
-  {   9, &hf_t125_rejectMCSPDUUltimatum, BER_CLASS_APP, 9, BER_FLAGS_NOOWNTAG, dissect_t125_RejectMCSPDUUltimatum },
-  {  10, &hf_t125_attachUserRequest, BER_CLASS_APP, 10, BER_FLAGS_NOOWNTAG, dissect_t125_AttachUserRequest },
-  {  11, &hf_t125_attachUserConfirm, BER_CLASS_APP, 11, BER_FLAGS_NOOWNTAG, dissect_t125_AttachUserConfirm },
-  {  12, &hf_t125_detachUserRequest, BER_CLASS_APP, 12, BER_FLAGS_NOOWNTAG, dissect_t125_DetachUserRequest },
-  {  13, &hf_t125_detachUserIndication, BER_CLASS_APP, 13, BER_FLAGS_NOOWNTAG, dissect_t125_DetachUserIndication },
-  {  14, &hf_t125_channelJoinRequest, BER_CLASS_APP, 14, BER_FLAGS_NOOWNTAG, dissect_t125_ChannelJoinRequest },
-  {  15, &hf_t125_channelJoinConfirm, BER_CLASS_APP, 15, BER_FLAGS_NOOWNTAG, dissect_t125_ChannelJoinConfirm },
-  {  16, &hf_t125_channelLeaveRequest, BER_CLASS_APP, 16, BER_FLAGS_NOOWNTAG, dissect_t125_ChannelLeaveRequest },
-  {  17, &hf_t125_channelConveneRequest, BER_CLASS_APP, 17, BER_FLAGS_NOOWNTAG, dissect_t125_ChannelConveneRequest },
-  {  18, &hf_t125_channelConveneConfirm, BER_CLASS_APP, 18, BER_FLAGS_NOOWNTAG, dissect_t125_ChannelConveneConfirm },
-  {  19, &hf_t125_channelDisbandRequest, BER_CLASS_APP, 19, BER_FLAGS_NOOWNTAG, dissect_t125_ChannelDisbandRequest },
-  {  20, &hf_t125_channelDisbandIndication, BER_CLASS_APP, 20, BER_FLAGS_NOOWNTAG, dissect_t125_ChannelDisbandIndication },
-  {  21, &hf_t125_channelAdmitRequest, BER_CLASS_APP, 21, BER_FLAGS_NOOWNTAG, dissect_t125_ChannelAdmitRequest },
-  {  22, &hf_t125_channelAdmitIndication, BER_CLASS_APP, 22, BER_FLAGS_NOOWNTAG, dissect_t125_ChannelAdmitIndication },
-  {  23, &hf_t125_channelExpelRequest, BER_CLASS_APP, 23, BER_FLAGS_NOOWNTAG, dissect_t125_ChannelExpelRequest },
-  {  24, &hf_t125_channelExpelIndication, BER_CLASS_APP, 24, BER_FLAGS_NOOWNTAG, dissect_t125_ChannelExpelIndication },
-  {  25, &hf_t125_sendDataRequest, BER_CLASS_APP, 25, BER_FLAGS_NOOWNTAG, dissect_t125_SendDataRequest },
-  {  26, &hf_t125_sendDataIndication, BER_CLASS_APP, 26, BER_FLAGS_NOOWNTAG, dissect_t125_SendDataIndication },
-  {  27, &hf_t125_uniformSendDataRequest, BER_CLASS_APP, 27, BER_FLAGS_NOOWNTAG, dissect_t125_UniformSendDataRequest },
-  {  28, &hf_t125_uniformSendDataIndication, BER_CLASS_APP, 28, BER_FLAGS_NOOWNTAG, dissect_t125_UniformSendDataIndication },
-  {  29, &hf_t125_tokenGrabRequest, BER_CLASS_APP, 29, BER_FLAGS_NOOWNTAG, dissect_t125_TokenGrabRequest },
-  {  30, &hf_t125_tokenGrabConfirm, BER_CLASS_APP, 30, BER_FLAGS_NOOWNTAG, dissect_t125_TokenGrabConfirm },
-  {  31, &hf_t125_tokenInhibitRequest, BER_CLASS_APP, 31, BER_FLAGS_NOOWNTAG, dissect_t125_TokenInhibitRequest },
-  {  32, &hf_t125_tokenInhibitConfirm, BER_CLASS_APP, 32, BER_FLAGS_NOOWNTAG, dissect_t125_TokenInhibitConfirm },
-  {  33, &hf_t125_tokenGiveRequest, BER_CLASS_APP, 33, BER_FLAGS_NOOWNTAG, dissect_t125_TokenGiveRequest },
-  {  34, &hf_t125_tokenGiveIndication, BER_CLASS_APP, 34, BER_FLAGS_NOOWNTAG, dissect_t125_TokenGiveIndication },
-  {  35, &hf_t125_tokenGiveResponse, BER_CLASS_APP, 35, BER_FLAGS_NOOWNTAG, dissect_t125_TokenGiveResponse },
-  {  36, &hf_t125_tokenGiveConfirm, BER_CLASS_APP, 36, BER_FLAGS_NOOWNTAG, dissect_t125_TokenGiveConfirm },
-  {  37, &hf_t125_tokenPleaseRequest, BER_CLASS_APP, 37, BER_FLAGS_NOOWNTAG, dissect_t125_TokenPleaseRequest },
-  {  38, &hf_t125_tokenPleaseIndication, BER_CLASS_APP, 38, BER_FLAGS_NOOWNTAG, dissect_t125_TokenPleaseIndication },
-  {  39, &hf_t125_tokenReleaseRequest, BER_CLASS_APP, 39, BER_FLAGS_NOOWNTAG, dissect_t125_TokenReleaseRequest },
-  {  40, &hf_t125_tokenReleaseConfirm, BER_CLASS_APP, 40, BER_FLAGS_NOOWNTAG, dissect_t125_TokenReleaseConfirm },
-  {  41, &hf_t125_tokenTestRequest, BER_CLASS_APP, 41, BER_FLAGS_NOOWNTAG, dissect_t125_TokenTestRequest },
-  {  42, &hf_t125_tokenTestConfirm, BER_CLASS_APP, 42, BER_FLAGS_NOOWNTAG, dissect_t125_TokenTestConfirm },
-  { 0, NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_t125_DomainMCSPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 21 "../../asn1/t125/t125.cnf"
-  	gint domainmcs_value;
-
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 DomainMCSPDU_choice, hf_index, ett_t125_DomainMCSPDU,
-                                 &domainmcs_value);
-
-	switch(domainmcs_value) {
-	case 25: /* sendDataRequest */
-	case 26: /* sendDataIndication */
-	case 27: /* uniformSendDataRequest */
-	case 28: /* uniformSendDataIndication */
-		/* Do nothing */
-		break;
-	default:
-		col_append_sep_fstr(actx->pinfo->cinfo, COL_INFO, " ", "MCS: %s ", val_to_str(domainmcs_value, t125_DomainMCSPDU_vals, "Unknown"));
-		break;
-	}
-
-
-  return offset;
-}
-
 /*--- PDUs ---*/
 
 static int dissect_ConnectMCSPDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
@@ -2532,178 +2368,6 @@ void proto_register_t125(void) {
       { "connect-result", "t125.connect_result",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_t125_plumbDomainIndication,
-      { "plumbDomainIndication", "t125.plumbDomainIndication",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_erectDomainRequest,
-      { "erectDomainRequest", "t125.erectDomainRequest",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_mergeChannelsRequest,
-      { "mergeChannelsRequest", "t125.mergeChannelsRequest",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_mergeChannelsConfirm,
-      { "mergeChannelsConfirm", "t125.mergeChannelsConfirm",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_purgeChannelsIndication,
-      { "purgeChannelsIndication", "t125.purgeChannelsIndication",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_mergeTokensRequest,
-      { "mergeTokensRequest", "t125.mergeTokensRequest",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_mergeTokensConfirm,
-      { "mergeTokensConfirm", "t125.mergeTokensConfirm",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_purgeTokensIndication,
-      { "purgeTokensIndication", "t125.purgeTokensIndication",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_disconnectProviderUltimatum,
-      { "disconnectProviderUltimatum", "t125.disconnectProviderUltimatum",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_rejectMCSPDUUltimatum,
-      { "rejectMCSPDUUltimatum", "t125.rejectMCSPDUUltimatum",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_attachUserRequest,
-      { "attachUserRequest", "t125.attachUserRequest",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_attachUserConfirm,
-      { "attachUserConfirm", "t125.attachUserConfirm",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_detachUserRequest,
-      { "detachUserRequest", "t125.detachUserRequest",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_detachUserIndication,
-      { "detachUserIndication", "t125.detachUserIndication",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_channelJoinRequest,
-      { "channelJoinRequest", "t125.channelJoinRequest",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_channelJoinConfirm,
-      { "channelJoinConfirm", "t125.channelJoinConfirm",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_channelLeaveRequest,
-      { "channelLeaveRequest", "t125.channelLeaveRequest",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_channelConveneRequest,
-      { "channelConveneRequest", "t125.channelConveneRequest",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_channelConveneConfirm,
-      { "channelConveneConfirm", "t125.channelConveneConfirm",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_channelDisbandRequest,
-      { "channelDisbandRequest", "t125.channelDisbandRequest",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_channelDisbandIndication,
-      { "channelDisbandIndication", "t125.channelDisbandIndication",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_channelAdmitRequest,
-      { "channelAdmitRequest", "t125.channelAdmitRequest",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_channelAdmitIndication,
-      { "channelAdmitIndication", "t125.channelAdmitIndication",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_channelExpelRequest,
-      { "channelExpelRequest", "t125.channelExpelRequest",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_channelExpelIndication,
-      { "channelExpelIndication", "t125.channelExpelIndication",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_sendDataRequest,
-      { "sendDataRequest", "t125.sendDataRequest",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_sendDataIndication,
-      { "sendDataIndication", "t125.sendDataIndication",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_uniformSendDataRequest,
-      { "uniformSendDataRequest", "t125.uniformSendDataRequest",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_uniformSendDataIndication,
-      { "uniformSendDataIndication", "t125.uniformSendDataIndication",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_tokenGrabRequest,
-      { "tokenGrabRequest", "t125.tokenGrabRequest",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_tokenGrabConfirm,
-      { "tokenGrabConfirm", "t125.tokenGrabConfirm",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_tokenInhibitRequest,
-      { "tokenInhibitRequest", "t125.tokenInhibitRequest",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_tokenInhibitConfirm,
-      { "tokenInhibitConfirm", "t125.tokenInhibitConfirm",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_tokenGiveRequest,
-      { "tokenGiveRequest", "t125.tokenGiveRequest",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_tokenGiveIndication,
-      { "tokenGiveIndication", "t125.tokenGiveIndication",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_tokenGiveResponse,
-      { "tokenGiveResponse", "t125.tokenGiveResponse",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_tokenGiveConfirm,
-      { "tokenGiveConfirm", "t125.tokenGiveConfirm",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_tokenPleaseRequest,
-      { "tokenPleaseRequest", "t125.tokenPleaseRequest",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_tokenPleaseIndication,
-      { "tokenPleaseIndication", "t125.tokenPleaseIndication",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_tokenReleaseRequest,
-      { "tokenReleaseRequest", "t125.tokenReleaseRequest",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_tokenReleaseConfirm,
-      { "tokenReleaseConfirm", "t125.tokenReleaseConfirm",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_tokenTestRequest,
-      { "tokenTestRequest", "t125.tokenTestRequest",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_tokenTestConfirm,
-      { "tokenTestConfirm", "t125.tokenTestConfirm",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
     { &hf_t125_Segmentation_begin,
       { "begin", "t125.begin",
         FT_BOOLEAN, 8, NULL, 0x80,
@@ -2789,7 +2453,6 @@ void proto_register_t125(void) {
     &ett_t125_TokenTestRequest_U,
     &ett_t125_TokenTestConfirm_U,
     &ett_t125_ConnectMCSPDU,
-    &ett_t125_DomainMCSPDU,
 
 /*--- End of included file: packet-t125-ettarr.c ---*/
 #line 142 "../../asn1/t125/packet-t125-template.c"
