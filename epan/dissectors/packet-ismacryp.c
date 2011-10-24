@@ -381,7 +381,7 @@ static void dissect_ismacryp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 			totalbit_offset = (poffset->offset_bytes)*8+poffset->offset_bits; /* offset in bits */
 			nbpadding_bits = (8-poffset->offset_bits); /* number of padding bits for byte alignment */
 			ismacryp_item = proto_tree_add_bits_item(ismacryp_tree, hf_ismacryp_padding,
-								 tvb, totalbit_offset, nbpadding_bits , FALSE); /* padding bits */
+								 tvb, totalbit_offset, nbpadding_bits , ENC_BIG_ENDIAN); /* padding bits */
 			proto_item_append_text(ismacryp_item, ": Length=%d bits",nbpadding_bits); /* add padding info */
 			add_bits(poffset, nbpadding_bits);
 		}
@@ -506,11 +506,11 @@ static offset_struct* dissect_auheader( tvbuff_t *tvb, offset_struct *poffset, p
 		bit_offset = (poffset->offset_bytes)*8+poffset->offset_bits; /* offset in bits */
 		if (selective_encryption){ /* bit used */
 			proto_tree_add_bits_item(ismacryp_header_byte_tree, hf_ismacryp_au_is_encrypted,
-						 tvb, bit_offset, 1, FALSE); /*fetch 1 bit AU_is_encrypted */
+						 tvb, bit_offset, 1, ENC_BIG_ENDIAN); /*fetch 1 bit AU_is_encrypted */
 		}
 		else { /* bit unused */
 			proto_tree_add_bits_item(ismacryp_header_byte_tree, hf_ismacryp_unused_bits,
-						 tvb, bit_offset, 1, FALSE); /*fetch 1 bit unused */
+						 tvb, bit_offset, 1, ENC_BIG_ENDIAN); /*fetch 1 bit unused */
 		}
 		switch (set_version){ /* ISMACryp version? */
 			case V11:
@@ -518,7 +518,7 @@ static offset_struct* dissect_auheader( tvbuff_t *tvb, offset_struct *poffset, p
 				add_bits(poffset, -7); /* move back 7 bits for reserved bits */
 				bit_offset = (poffset->offset_bytes)*8+poffset->offset_bits; /* offset in bits */
 				proto_tree_add_bits_item(ismacryp_header_byte_tree, hf_ismacryp_reserved_bits,
-							 tvb, bit_offset, 7, FALSE); /*fetch 7 bits reserved */
+							 tvb, bit_offset, 7, ENC_BIG_ENDIAN); /*fetch 7 bits reserved */
 				add_bits(poffset,8);   /* offset to next byte */
 				break;
 			case V20:
@@ -527,11 +527,11 @@ static offset_struct* dissect_auheader( tvbuff_t *tvb, offset_struct *poffset, p
 				bit_offset = (poffset->offset_bytes)*8+poffset->offset_bits; /* offset in bits */
 				if (slice_indication){
 					proto_tree_add_bits_item(ismacryp_header_byte_tree, hf_ismacryp_slice_start,
-								 tvb, bit_offset, 1, FALSE); /*fetch 1 bit slice_start */
+								 tvb, bit_offset, 1, ENC_BIG_ENDIAN); /*fetch 1 bit slice_start */
 				}
 				else { /* bit unused */
 					proto_tree_add_bits_item(ismacryp_header_byte_tree, hf_ismacryp_unused_bits,
-								 tvb, bit_offset, 1, FALSE); /*fetch 1 bit unused */
+								 tvb, bit_offset, 1, ENC_BIG_ENDIAN); /*fetch 1 bit unused */
 				}
 				add_bits(poffset, -1); /* move back 1 bit for slice_end */
 
@@ -539,11 +539,11 @@ static offset_struct* dissect_auheader( tvbuff_t *tvb, offset_struct *poffset, p
 				bit_offset = (poffset->offset_bytes)*8+poffset->offset_bits; /* offset in bits */
 				if (slice_indication){
 					proto_tree_add_bits_item(ismacryp_header_byte_tree, hf_ismacryp_slice_end,
-								 tvb, bit_offset, 1, FALSE); /*fetch 1 bit Slice_end */
+								 tvb, bit_offset, 1, ENC_BIG_ENDIAN); /*fetch 1 bit Slice_end */
 				}
 				else { /* bit unused */
 					proto_tree_add_bits_item(ismacryp_header_byte_tree, hf_ismacryp_unused_bits,
-								 tvb, bit_offset, 1, FALSE); /*fetch 1 bit unused */
+								 tvb, bit_offset, 1, ENC_BIG_ENDIAN); /*fetch 1 bit unused */
 				}
 				add_bits(poffset, -3); /* move back 3 bits for padding_bitcount */
 
@@ -551,18 +551,18 @@ static offset_struct* dissect_auheader( tvbuff_t *tvb, offset_struct *poffset, p
 				bit_offset = (poffset->offset_bytes)*8+poffset->offset_bits; /* offset in bits */
 				if (padding_indication){
 					proto_tree_add_bits_item(ismacryp_header_byte_tree, hf_ismacryp_padding_bitcount,
-								 tvb, bit_offset, 3, FALSE); /*fetch 3 bits padding_bitcount */
+								 tvb, bit_offset, 3, ENC_BIG_ENDIAN); /*fetch 3 bits padding_bitcount */
 				}
 				else { /* bits unused */
 					proto_tree_add_bits_item(ismacryp_header_byte_tree, hf_ismacryp_unused_bits,
-								 tvb, bit_offset, 3, FALSE); /*fetch 3 bits unused */
+								 tvb, bit_offset, 3, ENC_BIG_ENDIAN); /*fetch 3 bits unused */
 				}
 				add_bits(poffset, -2); /* move back 2 bits for reserved bits */
 
 				/* Reserved bits */
 				bit_offset = (poffset->offset_bytes)*8+poffset->offset_bits; /* offset in bits */
 				proto_tree_add_bits_item(ismacryp_header_byte_tree, hf_ismacryp_reserved_bits,
-							 tvb, bit_offset, 2, FALSE); /*fetch 2 bits reserved */
+							 tvb, bit_offset, 2, ENC_BIG_ENDIAN); /*fetch 2 bits reserved */
 				add_bits(poffset,8); /* offset to next byte */
 				break;
 			default:
@@ -611,7 +611,7 @@ static offset_struct* dissect_auheader( tvbuff_t *tvb, offset_struct *poffset, p
 	{
 		bit_offset = (poffset->offset_bytes)*8+poffset->offset_bits; /* offset in bits */
 		ismacryp_item = proto_tree_add_bits_item(ismacryp_header_tree,hf_ismacryp_au_size,
-							 tvb, bit_offset, au_size_length, FALSE);
+							 tvb, bit_offset, au_size_length, ENC_BIG_ENDIAN);
 		proto_item_append_text(ismacryp_item, " bytes: Length=%d bits",au_size_length); /* add AU size info */
 		bit_offset+=au_size_length;
 		add_bits(poffset, au_size_length);
@@ -621,7 +621,7 @@ static offset_struct* dissect_auheader( tvbuff_t *tvb, offset_struct *poffset, p
 	{
 		bit_offset = (poffset->offset_bytes)*8+poffset->offset_bits; /* offset in bits */
 		ismacryp_item = proto_tree_add_bits_item(ismacryp_header_tree,hf_ismacryp_au_index,
-							 tvb, bit_offset, au_index_length, FALSE);
+							 tvb, bit_offset, au_index_length, ENC_BIG_ENDIAN);
 		proto_item_append_text(ismacryp_item, " bits: Length=%d bits",au_index_length); /* add AU index info */
 		bit_offset+=au_index_length;
 		add_bits(poffset, au_index_length);
@@ -631,7 +631,7 @@ static offset_struct* dissect_auheader( tvbuff_t *tvb, offset_struct *poffset, p
 	{
 		bit_offset = (poffset->offset_bytes)*8+poffset->offset_bits; /* offset in bits */
 		ismacryp_item = proto_tree_add_bits_item(ismacryp_header_tree,hf_ismacryp_au_index_delta,
-							 tvb, bit_offset, au_index_delta_length, FALSE);
+							 tvb, bit_offset, au_index_delta_length, ENC_BIG_ENDIAN);
 		proto_item_append_text(ismacryp_item, ": Length=%d bits", au_index_delta_length); /* add AU index info */
 		bit_offset+=au_index_delta_length;
 		add_bits(poffset, au_index_delta_length);
@@ -641,14 +641,14 @@ static offset_struct* dissect_auheader( tvbuff_t *tvb, offset_struct *poffset, p
 	{
 		bit_offset = (poffset->offset_bytes)*8+poffset->offset_bits; /* offset in bits */
 		proto_tree_add_bits_item(ismacryp_header_tree, hf_ismacryp_cts_flag,
-					 tvb, bit_offset, 1, FALSE); /* read CTS flag */
+					 tvb, bit_offset, 1, ENC_BIG_ENDIAN); /* read CTS flag */
 		add_bits(poffset, 1);
 		if (cts_flag==1)
 		{
 			/* now fetch CTS delta value (remember offset 1 bit due to CTS flag) */
 			bit_offset = (poffset->offset_bytes)*8+poffset->offset_bits; /* offset in bits */
 			ismacryp_item = proto_tree_add_bits_item(ismacryp_header_tree, hf_ismacryp_cts_delta,
-								 tvb, bit_offset, cts_delta_length, FALSE); /* read CTS delta value */
+								 tvb, bit_offset, cts_delta_length, ENC_BIG_ENDIAN); /* read CTS delta value */
 			proto_item_append_text(ismacryp_item, ": Length=%d bits",cts_delta_length); /* add CTS delta info */
 			add_bits(poffset, cts_delta_length);
 		}
@@ -658,7 +658,7 @@ static offset_struct* dissect_auheader( tvbuff_t *tvb, offset_struct *poffset, p
 	{
 		bit_offset = (poffset->offset_bytes)*8+poffset->offset_bits; /* offset in bits */
 		proto_tree_add_bits_item(ismacryp_header_tree, hf_ismacryp_dts_flag,
-					 tvb, bit_offset, 1, FALSE); /* read DTS flag */
+					 tvb, bit_offset, 1, ENC_BIG_ENDIAN); /* read DTS flag */
 		add_bits(poffset, 1);
 
 		/* now fetch DTS delta value (remember offset x bits due to DTS flag) */
@@ -666,7 +666,7 @@ static offset_struct* dissect_auheader( tvbuff_t *tvb, offset_struct *poffset, p
 		{
 			bit_offset = (poffset->offset_bytes)*8+poffset->offset_bits; /* offset in bits */
 			ismacryp_item = proto_tree_add_bits_item(ismacryp_header_tree, hf_ismacryp_dts_delta,
-								 tvb, bit_offset, dts_delta_length, FALSE); /* read DTS delta value */
+								 tvb, bit_offset, dts_delta_length, ENC_BIG_ENDIAN); /* read DTS delta value */
 			proto_item_append_text(ismacryp_item, ": Length=%d bits",dts_delta_length); /* add DTS delta info */
 			add_bits(poffset, dts_delta_length);
 		}
@@ -676,7 +676,7 @@ static offset_struct* dissect_auheader( tvbuff_t *tvb, offset_struct *poffset, p
 	{
 		bit_offset = (poffset->offset_bytes)*8+poffset->offset_bits; /* offset in bits */
 		proto_tree_add_bits_item(ismacryp_header_tree, hf_ismacryp_rap_flag,
-					 tvb, bit_offset, 1, FALSE); /* read RAP flag */
+					 tvb, bit_offset, 1, ENC_BIG_ENDIAN); /* read RAP flag */
 		add_bits(poffset, 1);
 	}
 	/*STREAM STATE */
@@ -684,7 +684,7 @@ static offset_struct* dissect_auheader( tvbuff_t *tvb, offset_struct *poffset, p
 	{
 		bit_offset = (poffset->offset_bytes)*8+poffset->offset_bits; /* offset in bits */
 		proto_tree_add_bits_item(ismacryp_header_tree, hf_ismacryp_stream_state,
-					 tvb, bit_offset, stream_state_indication, FALSE); /* read stream state */
+					 tvb, bit_offset, stream_state_indication, ENC_BIG_ENDIAN); /* read stream state */
 		add_bits(poffset, stream_state_indication);
 	}
 	/* end header details */

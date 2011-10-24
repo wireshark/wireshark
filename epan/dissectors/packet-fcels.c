@@ -1186,7 +1186,7 @@ dissect_fcels_rec (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                                  offset+16, 4, ENC_BIG_ENDIAN);
             proto_tree_add_bitmask (rec_tree, tvb, offset+20, hf_fcels_estat,
                                     ett_fcels_estat, hf_fcels_estat_fields,
-                                    FALSE);
+                                    ENC_BIG_ENDIAN);
         }
     }
 }

@@ -155,7 +155,7 @@ static void dissect_turbocell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
         /* it seem when we have this magic number,that means an alternate header version */
 
-        if (tvb_get_bits64(tvb, 64,48,FALSE) != G_GINT64_CONSTANT(0x000001fe23dc45ba)){
+        if (tvb_get_bits64(tvb, 64,48,ENC_BIG_ENDIAN) != G_GINT64_CONSTANT(0x000001fe23dc45ba)){
         proto_tree_add_item(turbocell_tree, hf_turbocell_counter, tvb, 0x02, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(turbocell_tree, hf_turbocell_dst, tvb, 0x04, 6, ENC_NA);
         proto_tree_add_item(turbocell_tree, hf_turbocell_timestamp, tvb, 0x0A, 3, ENC_BIG_ENDIAN);

@@ -2372,7 +2372,7 @@ dissect_spc_inquiry (tvbuff_t *tvb, packet_info *pinfo,
             cdata->itlq->alloc_len=tvb_get_guint8(tvb_v, offset_v+3);
         }
         proto_tree_add_bitmask(tree, tvb_v, offset_v+4, hf_scsi_inq_control,
-            ett_scsi_inq_control, inq_control_fields, FALSE);
+            ett_scsi_inq_control, inq_control_fields, ENC_BIG_ENDIAN);
     } else if (!isreq) {
         if (!cdata) {
             return;
@@ -2393,11 +2393,11 @@ dissect_spc_inquiry (tvbuff_t *tvb, packet_info *pinfo,
         TRY_SCSI_CDB_ALLOC_LEN(pinfo, tvb_v, offset_v, cdata->itlq->alloc_len);
 
         /* Qualifier and DeviceType */
-        proto_tree_add_bitmask(tree, tvb_v, offset_v, hf_scsi_inq_peripheral, ett_scsi_inq_peripheral, peripheral_fields, FALSE);
+        proto_tree_add_bitmask(tree, tvb_v, offset_v, hf_scsi_inq_peripheral, ett_scsi_inq_peripheral, peripheral_fields, ENC_BIG_ENDIAN);
         offset_v+=1;
 
         /* RMB */
-        proto_tree_add_bitmask(tree, tvb_v, offset_v, hf_scsi_inq_rmbflags, ett_scsi_inq_rmbflags, rmb_fields, FALSE);
+        proto_tree_add_bitmask(tree, tvb_v, offset_v, hf_scsi_inq_rmbflags, ett_scsi_inq_rmbflags, rmb_fields, ENC_BIG_ENDIAN);
         offset_v+=1;
 
         /* Version */
@@ -2405,7 +2405,7 @@ dissect_spc_inquiry (tvbuff_t *tvb, packet_info *pinfo,
         offset_v+=1;
 
         /* aca flags */
-        proto_tree_add_bitmask(tree, tvb_v, offset_v, hf_scsi_inq_acaflags, ett_scsi_inq_acaflags, aca_fields, FALSE);
+        proto_tree_add_bitmask(tree, tvb_v, offset_v, hf_scsi_inq_acaflags, ett_scsi_inq_acaflags, aca_fields, ENC_BIG_ENDIAN);
         offset_v+=1;
 
         /* Additional Length */
@@ -2497,7 +2497,7 @@ dissect_scsi_log_page (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     }
 
     /* page code */
-    proto_tree_add_bitmask(log_tree, tvb, offset, hf_scsi_log_pc_flags, ett_scsi_log_pc, pcflags_fields, FALSE);
+    proto_tree_add_bitmask(log_tree, tvb, offset, hf_scsi_log_pc_flags, ett_scsi_log_pc, pcflags_fields, ENC_BIG_ENDIAN);
     offset+=1;
 
     /* reserved byte */
@@ -2531,7 +2531,7 @@ dissect_scsi_log_page (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         offset+=2;
 
         /* flags */
-        proto_tree_add_bitmask(log_tree, tvb, offset, hf_scsi_log_param_flags, ett_scsi_log_param, paramflags_fields, FALSE);
+        proto_tree_add_bitmask(log_tree, tvb, offset, hf_scsi_log_param_flags, ett_scsi_log_param, paramflags_fields, ENC_BIG_ENDIAN);
         offset+=1;
 
         /* parameter length */
@@ -2593,11 +2593,11 @@ dissect_spc_logselect (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
     if (isreq && iscdb) {
         proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_log_ppc_flags,
-            ett_scsi_log_ppc, ppcflags_fields, FALSE);
-        proto_tree_add_bitmask(tree, tvb, offset+1, hf_scsi_log_pc_flags, ett_scsi_log_pc, pcflags_fields, FALSE);
+            ett_scsi_log_ppc, ppcflags_fields, ENC_BIG_ENDIAN);
+        proto_tree_add_bitmask(tree, tvb, offset+1, hf_scsi_log_pc_flags, ett_scsi_log_pc, pcflags_fields, ENC_BIG_ENDIAN);
         proto_tree_add_item (tree, hf_scsi_paramlen16, tvb, offset+6, 2, ENC_BIG_ENDIAN);
         proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
-            ett_scsi_control, cdb_control_fields, FALSE);
+            ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
     }
     else {
     }
@@ -2637,14 +2637,14 @@ dissect_spc_logsense (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (isreq && iscdb) {
         proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_log_ppc_flags,
-            ett_scsi_log_ppc, ppcflags_fields, FALSE);
+            ett_scsi_log_ppc, ppcflags_fields, ENC_BIG_ENDIAN);
         proto_tree_add_bitmask(tree, tvb, offset+1, hf_scsi_log_pc_flags,
-            ett_scsi_log_pc, pcflags_fields, FALSE);
+            ett_scsi_log_pc, pcflags_fields, ENC_BIG_ENDIAN);
         proto_tree_add_item (tree, hf_scsi_log_parameter_ptr, tvb, offset+4,
             2, ENC_BIG_ENDIAN);
         proto_tree_add_item (tree, hf_scsi_alloclen16, tvb, offset+6, 2, ENC_BIG_ENDIAN);
         proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
-            ett_scsi_control, cdb_control_fields, FALSE);
+            ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
     } else if (!isreq) {
         if (!cdata) {
             return;
@@ -3463,7 +3463,7 @@ dissect_spc_modeselect6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                     flags & 0x1);
         proto_tree_add_item (tree, hf_scsi_paramlen, tvb, offset+3, 1, ENC_BIG_ENDIAN);
         proto_tree_add_bitmask(tree, tvb, offset+4, hf_scsi_control,
-            ett_scsi_control, cdb_control_fields, FALSE);
+            ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
     }
     else {
         /* Mode Parameter has the following format:
@@ -3557,7 +3557,7 @@ dissect_spc_modeselect10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                     flags & 0x1);
         proto_tree_add_item (tree, hf_scsi_paramlen16, tvb, offset+6, 2, ENC_BIG_ENDIAN);
         proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
-            ett_scsi_control, cdb_control_fields, FALSE);
+            ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
     }
     else {
         /* Mode Parameter has the following format:
@@ -3707,7 +3707,7 @@ dissect_spc_modesense6 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         dissect_scsi_pagecode (tvb, pinfo, tree, offset+1, cdata);
         proto_tree_add_item (tree, hf_scsi_alloclen, tvb, offset+3, 1, ENC_BIG_ENDIAN);
         proto_tree_add_bitmask(tree, tvb, offset+4, hf_scsi_control,
-            ett_scsi_control, cdb_control_fields, FALSE);
+            ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
     }
     else {
         /* Mode sense response has the following format:
@@ -3797,7 +3797,7 @@ dissect_spc_modesense10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         dissect_scsi_pagecode (tvb, pinfo, tree, offset+1, cdata);
         proto_tree_add_item (tree, hf_scsi_alloclen16, tvb, offset+6, 2, ENC_BIG_ENDIAN);
         proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
-            ett_scsi_control, cdb_control_fields, FALSE);
+            ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
     }
     else {
         /* Mode sense response has the following format:
@@ -3885,7 +3885,7 @@ dissect_spc_preventallowmediaremoval (tvbuff_t *tvb, packet_info *pinfo _U_, pro
                              "Persistent: %u, Prevent: %u",
                              flags & 0x02, flags & 0x01);
         proto_tree_add_bitmask(tree, tvb, offset+4, hf_scsi_control,
-            ett_scsi_control, cdb_control_fields, FALSE);
+            ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
     }
 }
 
@@ -3905,7 +3905,7 @@ dissect_spc_persistentreservein (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
         proto_tree_add_item (tree, hf_scsi_persresvin_svcaction, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item (tree, hf_scsi_alloclen16, tvb, offset+6, 2, ENC_BIG_ENDIAN);
         proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
-            ett_scsi_control, cdb_control_fields, FALSE);
+            ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
         /* We store the service action since we want to interpret the data */
         cdata->itlq->flags = tvb_get_guint8 (tvb, offset);
     }
@@ -3962,7 +3962,7 @@ dissect_spc_persistentreserveout (tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
         proto_tree_add_item (tree, hf_scsi_persresv_type, tvb, offset+1, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item (tree, hf_scsi_paramlen16, tvb, offset+6, 2, ENC_BIG_ENDIAN);
         proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
-            ett_scsi_control, cdb_control_fields, FALSE);
+            ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
         /* We store the service action since we want to interpret the params */
         cdata->itlq->flags = tvb_get_guint8 (tvb, offset);
     }
@@ -3982,7 +3982,7 @@ dissect_spc_persistentreserveout (tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
                                  offset+16, 1, ENC_NA);
             proto_tree_add_bitmask(tree, tvb, offset+17,
                 hf_scsi_persresvout_control, ett_persresv_control,
-                persresv_fields, FALSE);
+                persresv_fields, ENC_BIG_ENDIAN);
         }
         else {
             const int *persresv_fields[] = {
@@ -3998,7 +3998,7 @@ dissect_spc_persistentreserveout (tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
                                  offset+16, 4, ENC_NA);
             proto_tree_add_bitmask(tree, tvb, offset+20,
                 hf_scsi_persresvout_control, ett_persresv_control,
-                persresv_fields, FALSE);
+                persresv_fields, ENC_BIG_ENDIAN);
         }
     }
     else {
@@ -4015,7 +4015,7 @@ dissect_spc_release6 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
     if (isreq && iscdb) {
         proto_tree_add_bitmask(tree, tvb, offset+4, hf_scsi_control,
-            ett_scsi_control, cdb_control_fields, FALSE);
+            ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
     }
 }
 
@@ -4041,7 +4041,7 @@ dissect_spc_release10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         }
         proto_tree_add_item (tree, hf_scsi_paramlen16, tvb, offset+6, 2, ENC_BIG_ENDIAN);
         proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
-            ett_scsi_control, cdb_control_fields, FALSE);
+            ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
     }
 }
 
@@ -4071,7 +4071,7 @@ dissect_spc_reportluns (tvbuff_t *tvb, packet_info *pinfo _U_,
             cdata->itlq->alloc_len=tvb_get_ntohl(tvb_v, offset_v+5);
         }
         proto_tree_add_bitmask(tree, tvb, offset_v+10, hf_scsi_control,
-            ett_scsi_control, cdb_control_fields, FALSE);
+            ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
     } else if (!isreq) {
         if (!cdata) {
             return;
@@ -4141,7 +4141,7 @@ dissect_spc_requestsense (tvbuff_t * tvb, packet_info *pinfo _U_, proto_tree *tr
     if (isreq && iscdb) {
         proto_tree_add_item (tree, hf_scsi_alloclen, tvb, offset+3, 1, ENC_BIG_ENDIAN);
         proto_tree_add_bitmask(tree, tvb, offset+4, hf_scsi_control,
-            ett_scsi_control, cdb_control_fields, FALSE);
+            ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
     }
     else if (!isreq)
         dissect_scsi_fix_snsinfo(tvb, tree, offset);
@@ -4157,7 +4157,7 @@ dissect_spc_reserve6 (tvbuff_t * tvb, packet_info *pinfo _U_, proto_tree *tree,
 
     if (isreq && iscdb) {
         proto_tree_add_bitmask(tree, tvb, offset+4, hf_scsi_control,
-            ett_scsi_control, cdb_control_fields, FALSE);
+            ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
     }
 }
 
@@ -4183,7 +4183,7 @@ dissect_spc_reserve10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         }
         proto_tree_add_item (tree, hf_scsi_paramlen16, tvb, offset+6, 2, ENC_BIG_ENDIAN);
         proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
-            ett_scsi_control, cdb_control_fields, FALSE);
+            ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
     }
 }
 
@@ -4198,7 +4198,7 @@ dissect_spc_testunitready (tvbuff_t * tvb, packet_info *pinfo _U_, proto_tree *t
 
     if (isreq && iscdb) {
         proto_tree_add_bitmask(tree, tvb, offset+4, hf_scsi_control,
-            ett_scsi_control, cdb_control_fields, FALSE);
+            ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
     }
 }
 
@@ -4222,7 +4222,7 @@ dissect_spc_senddiagnostic (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     proto_tree_add_boolean (tree, hf_scsi_senddiag_unitoff, tvb, offset, 1, 0);
     proto_tree_add_uint (tree, hf_scsi_paramlen16, tvb, offset+2, 2, 0);
     proto_tree_add_bitmask(tree, tvb, offset+4, hf_scsi_control,
-        ett_scsi_control, cdb_control_fields, FALSE);
+        ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
 }
 
 void
@@ -4238,7 +4238,7 @@ dissect_spc_writebuffer (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     proto_tree_add_uint (tree, hf_scsi_wb_bufoffset, tvb, offset+2, 3, 0);
     proto_tree_add_uint (tree, hf_scsi_paramlen24, tvb, offset+5, 3, 0);
     proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
-        ett_scsi_control, cdb_control_fields, FALSE);
+        ett_scsi_control, cdb_control_fields, ENC_BIG_ENDIAN);
 }
 
 static void

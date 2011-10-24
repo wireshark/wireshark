@@ -505,7 +505,7 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
                         switch (message_type) {
                             case INQUIRE:
-                                proto_tree_add_bitmask(pnrp_message_tree, tvb, offset+4, hf_pnrp_message_inquire_flags, ett_pnrp_message_inquire_flags, inquire_flags, FALSE);
+                                proto_tree_add_bitmask(pnrp_message_tree, tvb, offset+4, hf_pnrp_message_inquire_flags, ett_pnrp_message_inquire_flags, inquire_flags, ENC_BIG_ENDIAN);
                                 proto_tree_add_text(pnrp_message_tree, tvb, offset + 6, 2, "Padding : %d - 2 Bytes",tvb_get_ntohs(tvb,offset+6));
                                 offset += data_length+2;
 
@@ -513,13 +513,13 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                             case ACK:
                                 /* Reserved 0 - 14 bits */
-                                proto_tree_add_bits_item(pnrp_message_tree, hf_pnrp_message_ack_flags_reserved, tvb, (offset + 4)*8, 15, FALSE);
+                                proto_tree_add_bits_item(pnrp_message_tree, hf_pnrp_message_ack_flags_reserved, tvb, (offset + 4)*8, 15, ENC_BIG_ENDIAN);
                                 /* N - Bit */
-                                proto_tree_add_bits_item(pnrp_message_tree, hf_pnrp_message_ack_flags_Nbit, tvb,((offset + 4)*8)+15, 1, FALSE);
+                                proto_tree_add_bits_item(pnrp_message_tree, hf_pnrp_message_ack_flags_Nbit, tvb,((offset + 4)*8)+15, 1, ENC_BIG_ENDIAN);
                                 offset += data_length;
                                 break;
                             case AUTHORITY:
-                                proto_tree_add_bitmask(pnrp_message_tree, tvb, offset+4, hf_pnrp_message_authority_flags, ett_pnrp_message_authority_flags, authority_flags, FALSE);
+                                proto_tree_add_bitmask(pnrp_message_tree, tvb, offset+4, hf_pnrp_message_authority_flags, ett_pnrp_message_authority_flags, authority_flags, ENC_BIG_ENDIAN);
                                 /* Check if the Flags Field is the last message part. If so, no padding of 2 bytes is added */
                                 if(tvb_reported_length_remaining(tvb, offset+data_length)==0)
                                 {
@@ -552,9 +552,9 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_type, tvb, offset , 2, ENC_BIG_ENDIAN);
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
                         /* Reserved 1 - 15 bits */
-                        proto_tree_add_bits_item(pnrp_message_tree, hf_pnrp_message_flood_flags_reserved1, tvb, (offset + 4)*8, 15, FALSE);
+                        proto_tree_add_bits_item(pnrp_message_tree, hf_pnrp_message_flood_flags_reserved1, tvb, (offset + 4)*8, 15, ENC_BIG_ENDIAN);
                         /* D - Bit */
-                        proto_tree_add_bits_item(pnrp_message_tree, hf_pnrp_message_flood_flags_Dbit, tvb,((offset + 4)*8)+15, 1, FALSE);
+                        proto_tree_add_bits_item(pnrp_message_tree, hf_pnrp_message_flood_flags_Dbit, tvb,((offset + 4)*8)+15, 1, ENC_BIG_ENDIAN);
                         /* Reserved 2 */
                         proto_tree_add_text(pnrp_message_tree, tvb, offset + 6, 1, "Reserved 2: %d",tvb_get_guint8(tvb,offset+6));
                         /* Padding 1 */
@@ -587,7 +587,7 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_type, tvb, offset , 2, ENC_BIG_ENDIAN);
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
                         /* 2 Bytes of Flags */
-                        proto_tree_add_bitmask(pnrp_message_tree, tvb, offset+4, hf_pnrp_message_lookupControls_flags, ett_pnrp_message_lookupControls_flags, lookupControls_flags, FALSE);
+                        proto_tree_add_bitmask(pnrp_message_tree, tvb, offset+4, hf_pnrp_message_lookupControls_flags, ett_pnrp_message_lookupControls_flags, lookupControls_flags, ENC_BIG_ENDIAN);
                         /* Precision Bytes */
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_lookupControls_precision, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
                         /* Resolve Criteria */
@@ -924,7 +924,7 @@ static void dissect_encodedCPA_structure(tvbuff_t *tvb, gint offset, gint length
         /* PNRP Major Version */
         proto_tree_add_item(pnrp_encodedCPA_tree, hf_pnrp_header_versionMajor, tvb, offset+5, 1, ENC_BIG_ENDIAN);
         /* Flags Field */
-        proto_tree_add_bitmask(pnrp_encodedCPA_tree, tvb, offset+6, hf_pnrp_encodedCPA_flags, ett_pnrp_message_encodedCPA_flags, encodedCPA_flags, FALSE);
+        proto_tree_add_bitmask(pnrp_encodedCPA_tree, tvb, offset+6, hf_pnrp_encodedCPA_flags, ett_pnrp_message_encodedCPA_flags, encodedCPA_flags, ENC_BIG_ENDIAN);
         flagsField = tvb_get_guint8(tvb,offset+6);
         /* Reserved */
         proto_tree_add_text(pnrp_encodedCPA_tree, tvb, offset + 7, 1, "Reserved");

@@ -3677,7 +3677,7 @@ dissect_mode3(tvbuff_t *tvb, int offset, proto_tree *tree, guint32 *mode)
 		*mode=tvb_get_ntohl(tvb, offset+0);
 	}
 
-	proto_tree_add_bitmask(tree, tvb, offset, hf_nfs_mode3, ett_nfs_mode3, mode_bits, FALSE);
+	proto_tree_add_bitmask(tree, tvb, offset, hf_nfs_mode3, ett_nfs_mode3, mode_bits, ENC_BIG_ENDIAN);
 
 	offset += 4;
 	return offset;

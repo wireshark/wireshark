@@ -1219,7 +1219,7 @@ dissect_capwap_header(tvbuff_t *tvb, proto_tree *capwap_control_tree, guint offs
 	plen++;
 
 	/* Flags : 9 Bits */
-	flags = tvb_get_bits16(tvb, (offset+plen)*8+7, 9, 0);
+	flags = tvb_get_bits16(tvb, (offset+plen)*8+7, 9, ENC_BIG_ENDIAN);
 	ti_flag = proto_tree_add_uint_format(capwap_header_tree, hf_capwap_header_flags, tvb, offset+plen, 1, 0, "Header flags");
 	capwap_header_flags_tree = proto_item_add_subtree(ti_flag, ett_capwap);
 
@@ -1247,8 +1247,8 @@ dissect_capwap_header(tvbuff_t *tvb, proto_tree *capwap_control_tree, guint offs
 
 	/* Fragment offset : 13 Bits */
 	/* FIXME: Use _item and mask in hf element */
-	proto_tree_add_uint(capwap_header_tree, hf_capwap_header_fragment_offset, tvb, offset+plen, 2, tvb_get_bits16(tvb, (offset+plen)*8, 13, 0));
-	*fragment_offset = 8 * (guint32)tvb_get_bits16(tvb, (offset+plen)*8, 13, 0);
+	proto_tree_add_uint(capwap_header_tree, hf_capwap_header_fragment_offset, tvb, offset+plen, 2, tvb_get_bits16(tvb, (offset+plen)*8, 13, ENC_BIG_ENDIAN));
+	*fragment_offset = 8 * (guint32)tvb_get_bits16(tvb, (offset+plen)*8, 13, ENC_BIG_ENDIAN);
 
 	/* Reserved 3 Bits */
 	/* FIXME: Use _item and mask in hf element */

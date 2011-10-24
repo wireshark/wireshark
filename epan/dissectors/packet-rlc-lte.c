@@ -637,13 +637,13 @@ static int dissect_rlc_lte_extension_header(tvbuff_t *tvb, packet_info *pinfo _U
         proto_tree_add_bits_ret_val(extension_part_tree, hf_rlc_lte_extension_e, tvb,
                                     (offset*8) + ((isOdd) ? 4 : 0),
                                     1,
-                                    &extension, FALSE);
+                                    &extension, ENC_BIG_ENDIAN);
 
         /* Read length field */
         proto_tree_add_bits_ret_val(extension_part_tree, hf_rlc_lte_extension_li, tvb,
                                     (offset*8) + ((isOdd) ? 5 : 1),
                                     11,
-                                    &length, FALSE);
+                                    &length, ENC_BIG_ENDIAN);
 
         proto_item_append_text(extension_part_tree, " (length=%u)", (guint16)length);
 
@@ -1758,17 +1758,17 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
         /* Framing info (2 bits) */
         proto_tree_add_bits_ret_val(um_header_tree, hf_rlc_lte_um_fi,
                                     tvb, offset*8, 2,
-                                    &framing_info, FALSE);
+                                    &framing_info, ENC_BIG_ENDIAN);
 
         /* Extension (1 bit) */
         proto_tree_add_bits_ret_val(um_header_tree, hf_rlc_lte_um_fixed_e, tvb,
                                     (offset*8) + 2, 1,
-                                    &fixed_extension, FALSE);
+                                    &fixed_extension, ENC_BIG_ENDIAN);
 
         /* Sequence Number (5 bit) */
         proto_tree_add_bits_ret_val(um_header_tree, hf_rlc_lte_um_sn, tvb,
                                     (offset*8) + 3, 5,
-                                    &sn, FALSE);
+                                    &sn, ENC_BIG_ENDIAN);
         offset++;
     }
     else if (p_rlc_lte_info->UMSequenceNumberLength == UM_SN_LENGTH_10_BITS) {
@@ -1786,17 +1786,17 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
         /* Framing info (2 bits) */
         proto_tree_add_bits_ret_val(um_header_tree, hf_rlc_lte_um_fi,
                                     tvb, (offset*8)+3, 2,
-                                    &framing_info, FALSE);
+                                    &framing_info, ENC_BIG_ENDIAN);
 
         /* Extension (1 bit) */
         proto_tree_add_bits_ret_val(um_header_tree, hf_rlc_lte_um_fixed_e, tvb,
                                     (offset*8) + 5, 1,
-                                    &fixed_extension, FALSE);
+                                    &fixed_extension, ENC_BIG_ENDIAN);
 
         /* Sequence Number (10 bits) */
         proto_tree_add_bits_ret_val(um_header_tree, hf_rlc_lte_um_sn, tvb,
                                     (offset*8) + 6, 10,
-                                    &sn, FALSE);
+                                    &sn, ENC_BIG_ENDIAN);
         offset += 2;
     }
     else {
@@ -1939,7 +1939,7 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
 
     /* ACK SN */
     proto_tree_add_bits_ret_val(tree, hf_rlc_lte_am_ack_sn, tvb,
-                                bit_offset, 10, &ack_sn, FALSE);
+                                bit_offset, 10, &ack_sn, ENC_BIG_ENDIAN);
     bit_offset += 10;
     write_pdu_label_and_info(top_ti, status_ti, pinfo, "  ACK_SN=%-4u", (guint16)ack_sn);
 
@@ -1947,7 +1947,7 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
 
     /* E1 */
     proto_tree_add_bits_ret_val(tree, hf_rlc_lte_am_e1, tvb,
-                                bit_offset, 1, &e1, FALSE);
+                                bit_offset, 1, &e1, ENC_BIG_ENDIAN);
 
     /* Skip another bit to byte-align the next bit... */
     bit_offset++;
@@ -1962,7 +1962,7 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
 
             /* NACK_SN */
             nack_ti = proto_tree_add_bits_ret_val(tree, hf_rlc_lte_am_nack_sn, tvb,
-                                                  bit_offset, 10, &nack_sn, FALSE);
+                                                  bit_offset, 10, &nack_sn, ENC_BIG_ENDIAN);
             bit_offset += 10;
             write_pdu_label_and_info(top_ti, NULL, pinfo, "  NACK_SN=%-4u", (guint16)nack_sn);
 
@@ -1984,12 +1984,12 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
 
             /* E1 */
             proto_tree_add_bits_ret_val(tree, hf_rlc_lte_am_e1, tvb,
-                                        bit_offset, 1, &e1, FALSE);
+                                        bit_offset, 1, &e1, ENC_BIG_ENDIAN);
             bit_offset++;
 
             /* E2 */
             proto_tree_add_bits_ret_val(tree, hf_rlc_lte_am_e2, tvb,
-                                        bit_offset, 1, &e2, FALSE);
+                                        bit_offset, 1, &e2, ENC_BIG_ENDIAN);
 
             /* Report as expert info */
             if (e2) {
@@ -2011,11 +2011,11 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
         if (e2) {
             /* Read SOstart, SOend */
             proto_tree_add_bits_ret_val(tree, hf_rlc_lte_am_so_start, tvb,
-                                        bit_offset, 15, &so_start, FALSE);
+                                        bit_offset, 15, &so_start, ENC_BIG_ENDIAN);
             bit_offset += 15;
 
             proto_tree_add_bits_ret_val(tree, hf_rlc_lte_am_so_end, tvb,
-                                        bit_offset, 15, &so_end, FALSE);
+                                        bit_offset, 15, &so_end, ENC_BIG_ENDIAN);
             bit_offset += 15;
 
 

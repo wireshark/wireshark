@@ -2216,13 +2216,13 @@ vnc_tight_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 
 	/* least significant bits 0-3 are "reset compression stream N" */
 	bit_offset = *offset * 8;
-	proto_tree_add_bits_item(tree, hf_vnc_tight_reset_stream0, tvb, bit_offset + 7, 1, FALSE);
-	proto_tree_add_bits_item(tree, hf_vnc_tight_reset_stream1, tvb, bit_offset + 6, 1, FALSE);
-	proto_tree_add_bits_item(tree, hf_vnc_tight_reset_stream2, tvb, bit_offset + 5, 1, FALSE);
-	proto_tree_add_bits_item(tree, hf_vnc_tight_reset_stream3, tvb, bit_offset + 4, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_vnc_tight_reset_stream0, tvb, bit_offset + 7, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_bits_item(tree, hf_vnc_tight_reset_stream1, tvb, bit_offset + 6, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_bits_item(tree, hf_vnc_tight_reset_stream2, tvb, bit_offset + 5, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_bits_item(tree, hf_vnc_tight_reset_stream3, tvb, bit_offset + 4, 1, ENC_BIG_ENDIAN);
 
 	/* most significant bits 4-7 are "compression type" */
-	compression_type_ti = proto_tree_add_bits_item(tree, hf_vnc_tight_rect_type, tvb, bit_offset + 0, 4, FALSE);
+	compression_type_ti = proto_tree_add_bits_item(tree, hf_vnc_tight_rect_type, tvb, bit_offset + 0, 4, ENC_BIG_ENDIAN);
 
 	comp_ctl = tvb_get_guint8(tvb, *offset);
 	*offset += 1;
@@ -2267,7 +2267,7 @@ vnc_tight_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 
 		proto_item_append_text(compression_type_ti, " (basic encoding)");
 
-		proto_tree_add_bits_item(tree, hf_vnc_tight_filter_flag, tvb, bit_offset + 1, 1, FALSE);
+		proto_tree_add_bits_item(tree, hf_vnc_tight_filter_flag, tvb, bit_offset + 1, 1, ENC_BIG_ENDIAN);
 
 		bits_per_pixel = per_packet_info->depth;
 

@@ -4051,9 +4051,9 @@ de_tp_epc_ue_tl_a_lb_setup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 	while ((count < nb_lb) && (count < 8)){
 		item = proto_tree_add_text(tree, tvb, curr_offset, 3, "LB entity %d", count);
 		lb_setup_tree = proto_item_add_subtree(item, ett_epc_ue_tl_a_lb_setup);
-		proto_tree_add_bits_item(lb_setup_tree, hf_gsm_a_dtap_epc_ue_tl_a_ul_sdu_size, tvb, curr_offset<<3, 16, ENC_NA);
+		proto_tree_add_bits_item(lb_setup_tree, hf_gsm_a_dtap_epc_ue_tl_a_ul_sdu_size, tvb, curr_offset<<3, 16, ENC_BIG_ENDIAN);
 		curr_offset += 2;
-		proto_tree_add_bits_item(lb_setup_tree, hf_gsm_a_dtap_epc_ue_tl_a_drb, tvb, (curr_offset<<3)+3, 5, ENC_NA);
+		proto_tree_add_bits_item(lb_setup_tree, hf_gsm_a_dtap_epc_ue_tl_a_drb, tvb, (curr_offset<<3)+3, 5, ENC_BIG_ENDIAN);
 		curr_offset++;
 		count++;
 	}
@@ -4070,7 +4070,7 @@ de_tp_epc_ue_tl_b_lb_setup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 
 	curr_offset = offset;
 
-	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_epc_ue_tl_b_ip_pdu_delay, tvb, curr_offset<<3, 8, ENC_NA);
+	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_epc_ue_tl_b_ip_pdu_delay, tvb, curr_offset<<3, 8, ENC_BIG_ENDIAN);
 	curr_offset++;
 
 	return(curr_offset - offset);

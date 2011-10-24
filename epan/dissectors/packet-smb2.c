@@ -2078,7 +2078,7 @@ dissect_smb2_share_flags(proto_tree *tree, tvbuff_t *tvb, int offset)
 	proto_item *item;
 	guint32 cp;
 
-	item = proto_tree_add_bitmask(tree, tvb, offset, hf_smb2_share_flags, ett_smb2_share_flags, sf_fields, TRUE);
+	item = proto_tree_add_bitmask(tree, tvb, offset, hf_smb2_share_flags, ett_smb2_share_flags, sf_fields, ENC_LITTLE_ENDIAN);
 
 	cp = tvb_get_letohl(tvb, offset);
 	cp &= 0x00000030;
@@ -2102,7 +2102,7 @@ dissect_smb2_share_caps(proto_tree *tree, tvbuff_t *tvb, int offset)
 		NULL
 	};
 
-	proto_tree_add_bitmask(tree, tvb, offset, hf_smb2_share_caps, ett_smb2_share_caps, sc_fields, TRUE);
+	proto_tree_add_bitmask(tree, tvb, offset, hf_smb2_share_caps, ett_smb2_share_caps, sc_fields, ENC_LITTLE_ENDIAN);
 
 	offset += 4;
 
@@ -2519,7 +2519,7 @@ dissect_smb2_find_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	offset += 1;
 
 	/* find flags */
-	proto_tree_add_bitmask(tree, tvb, offset, hf_smb2_find_flags, ett_smb2_find_flags, f_fields, TRUE);
+	proto_tree_add_bitmask(tree, tvb, offset, hf_smb2_find_flags, ett_smb2_find_flags, f_fields, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
 	/* file index */
@@ -3674,7 +3674,7 @@ dissect_smb2_lock_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 		offset += 8;
 
 		/* flags */
-		proto_tree_add_bitmask(lock_tree, tvb, offset, hf_smb2_lock_flags, ett_smb2_lock_flags, lf_fields, TRUE);
+		proto_tree_add_bitmask(lock_tree, tvb, offset, hf_smb2_lock_flags, ett_smb2_lock_flags, lf_fields, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
 		/* reserved */
@@ -3783,7 +3783,7 @@ dissect_smb2_write_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset += 2;
 
 	/* flags */
-	proto_tree_add_bitmask(tree, tvb, offset, hf_smb2_write_flags, ett_smb2_write_flags, f_fields, TRUE);
+	proto_tree_add_bitmask(tree, tvb, offset, hf_smb2_write_flags, ett_smb2_write_flags, f_fields, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* data or dcerpc ?*/
@@ -4730,7 +4730,7 @@ dissect_smb2_DH2Q_buffer_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
 	/* flags */
 	proto_tree_add_bitmask(sub_tree, tvb, offset, hf_smb2_dh2x_buffer_flags,
-				ett_smb2_dh2x_flags, dh2x_flags_fields, TRUE);
+				ett_smb2_dh2x_flags, dh2x_flags_fields, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* reserved */
@@ -4942,11 +4942,11 @@ dissect_SMB2_CREATE_LEASE_VX(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	offset += 16;
 
 	proto_tree_add_bitmask(sub_tree, tvb, offset, hf_smb2_lease_state,
-			       ett_smb2_lease_state, lease_state_fields, TRUE);
+			       ett_smb2_lease_state, lease_state_fields, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	proto_tree_add_bitmask(sub_tree, tvb, offset, hf_smb2_lease_flags,
-			       ett_smb2_lease_flags, lease_flags_fields, TRUE);
+			       ett_smb2_lease_flags, lease_flags_fields, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	proto_tree_add_item(sub_tree, hf_smb2_lease_duration, tvb, offset, 8, ENC_LITTLE_ENDIAN);
@@ -5223,7 +5223,7 @@ dissect_smb2_create_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	/* reserved */
 	proto_tree_add_bitmask(tree, tvb, offset, hf_smb2_create_rep_flags,
-			       ett_smb2_create_rep_flags, create_rep_flags_fields, TRUE);
+			       ett_smb2_create_rep_flags, create_rep_flags_fields, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
 	/* create action */
@@ -5370,7 +5370,7 @@ dissect_smb2_break_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 		/* lease flags */
 		proto_tree_add_bitmask(tree, tvb, offset, hf_smb2_lease_flags,
-				       ett_smb2_lease_flags, lease_flags_fields, TRUE);
+				       ett_smb2_lease_flags, lease_flags_fields, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
 		/* lease key */
@@ -5379,7 +5379,7 @@ dissect_smb2_break_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 		/* lease state */
 		proto_tree_add_bitmask(tree, tvb, offset, hf_smb2_lease_state,
-				       ett_smb2_lease_state, lease_state_fields, TRUE);
+				       ett_smb2_lease_state, lease_state_fields, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
 		proto_tree_add_item(tree, hf_smb2_lease_duration, tvb, offset, 8, ENC_LITTLE_ENDIAN);
@@ -5438,7 +5438,7 @@ dissect_smb2_break_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		/* lease flags */
 		proto_tree_add_bitmask(tree, tvb, offset, hf_smb2_lease_flags,
-				       ett_smb2_lease_flags, lease_flags_fields, TRUE);
+				       ett_smb2_lease_flags, lease_flags_fields, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
 		/* lease key */
@@ -5447,7 +5447,7 @@ dissect_smb2_break_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		/* current lease state */
 		item = proto_tree_add_bitmask(tree, tvb, offset, hf_smb2_lease_state,
-					      ett_smb2_lease_state, lease_state_fields, TRUE);
+					      ett_smb2_lease_state, lease_state_fields, ENC_LITTLE_ENDIAN);
 		if (item) {
 			proto_item_prepend_text(item, "Current ");
 		}
@@ -5455,7 +5455,7 @@ dissect_smb2_break_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		/* new lease state */
 		item = proto_tree_add_bitmask(tree, tvb, offset, hf_smb2_lease_state,
-					      ett_smb2_lease_state, lease_state_fields, TRUE);
+					      ett_smb2_lease_state, lease_state_fields, ENC_LITTLE_ENDIAN);
 		if (item) {
 			proto_item_prepend_text(item, "New ");
 		}
@@ -5485,7 +5485,7 @@ dissect_smb2_break_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		/* lease flags */
 		proto_tree_add_bitmask(tree, tvb, offset, hf_smb2_lease_flags,
-				       ett_smb2_lease_flags, lease_flags_fields, TRUE);
+				       ett_smb2_lease_flags, lease_flags_fields, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
 		/* lease key */
@@ -5494,7 +5494,7 @@ dissect_smb2_break_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		/* lease state */
 		proto_tree_add_bitmask(tree, tvb, offset, hf_smb2_lease_state,
-				       ett_smb2_lease_state, lease_state_fields, TRUE);
+				       ett_smb2_lease_state, lease_state_fields, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
 		proto_tree_add_item(tree, hf_smb2_lease_duration, tvb, offset, 8, ENC_LITTLE_ENDIAN);

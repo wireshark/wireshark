@@ -131,7 +131,7 @@ dissect_macctrl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       if (tree) {
         int i;
         proto_tree_add_bitmask(macctrl_tree, tvb, 2, hf_macctrl_cbfc_enbv,
-                               ett_macctrl_cbfc_enbv, macctrl_cbfc_enbv_list, FALSE);
+                               ett_macctrl_cbfc_enbv, macctrl_cbfc_enbv_list, ENC_BIG_ENDIAN);
 
         ti = proto_tree_add_text(macctrl_tree, tvb, 4, 8*2, "CBFC Class Pause Times");
         pause_times_tree = proto_item_add_subtree(ti, ett_macctrl_cbfc_pause_times);

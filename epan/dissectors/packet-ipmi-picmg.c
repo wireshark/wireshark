@@ -1537,7 +1537,7 @@ rs36(tvbuff_t *tvb, proto_tree *tree)
 				fail, "0x%02x (must be 0x00)",
 				fail);
 	} else if (res == 0x57) {
-		proto_tree_add_bitmask(tree, tvb, 1, hf_ipmi_picmg_36_fail, ett_ipmi_picmg_36_byte2, byte2, TRUE);
+		proto_tree_add_bitmask(tree, tvb, 1, hf_ipmi_picmg_36_fail, ett_ipmi_picmg_36_byte2, byte2, ENC_LITTLE_ENDIAN);
 	} else if (res == 0x60) {
 		add_component_bits(tree, tvb, 1, "Failed components: ");
 	} else {

@@ -934,7 +934,7 @@ dissect_xmcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   xmcp_tree = proto_item_add_subtree(ti, ett_xmcp);
 
   ti = proto_tree_add_bitmask(xmcp_tree, tvb, 0, hf_xmcp_type, ett_xmcp_type,
-                              xmcp_type_fields, FALSE);
+                              xmcp_type_fields, ENC_BIG_ENDIAN);
 
   if (msg_type & XMCP_TYPE_RESERVED) {
     expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN,

@@ -231,7 +231,7 @@ dissect_lon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			NULL
 		};
 		proto_tree_add_bitmask(lon_tree, tvb, offset, hf_lon_ppdu,
-					ett_ppdu, ppdu_fields, ENC_NA);
+					ett_ppdu, ppdu_fields, ENC_BIG_ENDIAN);
 		offset++;
 	}
 	{
@@ -243,7 +243,7 @@ dissect_lon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			NULL
 		};
 		proto_tree_add_bitmask(lon_tree, tvb, offset, hf_lon_npdu,
-					ett_npdu, npdu_fields, ENC_NA);
+					ett_npdu, npdu_fields, ENC_BIG_ENDIAN);
 
 		pdu_fmt  = (tvb_get_guint8(tvb, offset) >> 4) & 0x03;
 		addr_fmt = (tvb_get_guint8(tvb, offset) >> 2) & 0x03;
@@ -319,7 +319,7 @@ dissect_lon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			NULL
 		};
 		proto_tree_add_bitmask(lon_tree, tvb, offset, hf_lon_tpdu,
-					ett_tpdu, tpdu_fields, ENC_NA);
+					ett_tpdu, tpdu_fields, ENC_BIG_ENDIAN);
 
 		pdutype = (tvb_get_guint8(tvb, offset)>>4)& 0x07;
 		offset++;
@@ -351,7 +351,7 @@ dissect_lon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			NULL
 		};
 		proto_tree_add_bitmask(lon_tree, tvb, offset, hf_lon_spdu,
-					ett_spdu, spdu_fields, ENC_NA);
+					ett_spdu, spdu_fields, ENC_BIG_ENDIAN);
 		pdutype = (tvb_get_guint8(tvb, offset)>>4)& 0x07;
 		offset++;
 		if (pdutype == 0) { /* REQUEST */
@@ -383,7 +383,7 @@ dissect_lon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			NULL
 		};
 		proto_tree_add_bitmask(lon_tree, tvb, offset, hf_lon_authpdu,
-					ett_authpdu, authpdu_fields, ENC_NA);
+					ett_authpdu, authpdu_fields, ENC_BIG_ENDIAN);
 
 		pdutype = (tvb_get_guint8(tvb, offset)>>4)& 0x03;
 		offset++;
@@ -427,7 +427,7 @@ dissect_apdu(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 			NULL
 		};
 		proto_tree_add_bitmask(tree, tvb, offset, hf_lon_app,
-					ett_app, app_fields, ENC_NA);
+					ett_app, app_fields, ENC_BIG_ENDIAN);
 		offset++;
 	} else if ((dest_type&0xe0) == 0x60) { /* Network Management */
 		static const gint *nm_fields[] = {
@@ -435,7 +435,7 @@ dissect_apdu(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 			NULL
 		};
 		proto_tree_add_bitmask(tree, tvb, offset, hf_lon_nm,
-					ett_nm, nm_fields, ENC_NA);
+					ett_nm, nm_fields, ENC_BIG_ENDIAN);
 		offset++;
 
 		if (dest_type == 0x7F) {
@@ -451,7 +451,7 @@ dissect_apdu(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 			NULL
 		};
 		proto_tree_add_bitmask(tree, tvb, offset, hf_lon_nd,
-					ett_nd, nd_fields, ENC_NA);
+					ett_nd, nd_fields, ENC_BIG_ENDIAN);
 		offset++;
 	} else if ((dest_type&0xf0) == 0x40) { /* Foreign Frame */
 		static const gint *ff_fields[] = {
@@ -459,7 +459,7 @@ dissect_apdu(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 			NULL
 		};
 		proto_tree_add_bitmask(tree, tvb, offset, hf_lon_ff,
-					ett_ff, ff_fields, ENC_NA);
+					ett_ff, ff_fields, ENC_BIG_ENDIAN);
 		offset++;
 	} else { /* Shouldn't get here */
 		expert_add_info_format(pinfo, tree, PI_MALFORMED, PI_WARN, "Malformed APDU destin&type %i", dest_type);

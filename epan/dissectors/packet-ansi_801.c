@@ -221,7 +221,7 @@ for_req_pseudo_meas(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 	bit_offset = offset << 3;
 
 	/* PREF_RESP_QUAL */
-	proto_tree_add_bits_item(tree, hf_ansi_801_pref_resp_qual, tvb, bit_offset, 3, FALSE);
+	proto_tree_add_bits_item(tree, hf_ansi_801_pref_resp_qual, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
 	bit_offset += 3;
 
 	/* NUM_FIXES */
@@ -235,12 +235,12 @@ for_req_pseudo_meas(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 	bit_offset += 8;
 
 	/* OFFSET_REQ */
-	proto_tree_add_bits_item(tree, hf_ansi_801_offset_req, tvb, bit_offset++, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_ansi_801_offset_req, tvb, bit_offset++, 1, ENC_BIG_ENDIAN);
 
 	if(bit_offset & 0x07)
 	{
 		spare_bits = 8 - (bit_offset & 0x07);
-		proto_tree_add_bits_item(tree, hf_ansi_801_reserved_bits, tvb, bit_offset, spare_bits, FALSE);
+		proto_tree_add_bits_item(tree, hf_ansi_801_reserved_bits, tvb, bit_offset, spare_bits, ENC_BIG_ENDIAN);
 		bit_offset += spare_bits;
 	}
 
@@ -756,20 +756,20 @@ pr_loc_response(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 	bit_offset = offset << 3;
 
 	/* TIME_REF_CDMA */
-	value = tvb_get_bits16(tvb, bit_offset, 14, FALSE);
+	value = tvb_get_bits16(tvb, bit_offset, 14, ENC_BIG_ENDIAN);
 	proto_tree_add_uint_bits_format_value(tree, hf_ansi_801_time_ref_cdma, tvb, bit_offset, 14, value * 50,
 		"%u frames (0x%04x)", value * 50, value);
 	bit_offset += 14;
 
 	/* LAT */
-	value = tvb_get_bits32(tvb, bit_offset, 25, FALSE);
+	value = tvb_get_bits32(tvb, bit_offset, 25, ENC_BIG_ENDIAN);
 	fl_value = (float)(-90.0 + ((float)value * 180 / 33554432));
 	proto_tree_add_float_bits_format_value(tree, hf_ansi_801_lat, tvb, bit_offset, 25, fl_value,
 		"%.5f degrees %s (0x%08x)", fabs(fl_value), fl_value < 0 ? "South" : "North", value);
 	bit_offset += 25;
 
 	/* LONG */
-	value = tvb_get_bits32(tvb, bit_offset, 26, FALSE);
+	value = tvb_get_bits32(tvb, bit_offset, 26, ENC_BIG_ENDIAN);
 	fl_value = (float)(-180.0 + ((float)value * 180 / 33554432));
 	proto_tree_add_float_bits_format_value(tree, hf_ansi_801_long, tvb, bit_offset, 26, fl_value,
 		"%.5f degrees %s (0x%08x)", fabs(fl_value), fl_value < 0 ? "West" : "East", value);
@@ -815,23 +815,23 @@ pr_loc_response(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 	bit_offset += 5;
 
 	/* FIX_TYPE */
-	proto_tree_add_bits_ret_val(tree, hf_ansi_801_fix_type, tvb, bit_offset++, 1, &fix_type, FALSE);
+	proto_tree_add_bits_ret_val(tree, hf_ansi_801_fix_type, tvb, bit_offset++, 1, &fix_type, ENC_BIG_ENDIAN);
 
 	/* VELOCITY_INCL */
-	proto_tree_add_bits_ret_val(tree, hf_ansi_801_velocity_incl, tvb, bit_offset++, 1, &velocity_incl, FALSE);
+	proto_tree_add_bits_ret_val(tree, hf_ansi_801_velocity_incl, tvb, bit_offset++, 1, &velocity_incl, ENC_BIG_ENDIAN);
 
 
 	if(velocity_incl)
 	{
 		/* VELOCITY_HOR */
-		value = tvb_get_bits16(tvb, bit_offset, 9, FALSE);
+		value = tvb_get_bits16(tvb, bit_offset, 9, ENC_BIG_ENDIAN);
 		fl_value = (float)(0.25 * value);
 		proto_tree_add_float_bits_format_value(tree, hf_ansi_801_velocity_hor, tvb, bit_offset, 9, fl_value,
 			"%.2f m/s (0x%04x)", fl_value, value);
 		bit_offset += 9;
 
 		/* HEADING */
-		value = tvb_get_bits16(tvb, bit_offset, 10, FALSE);
+		value = tvb_get_bits16(tvb, bit_offset, 10, ENC_BIG_ENDIAN);
 		fl_value = (float)value * 360 / 1024;
 		proto_tree_add_float_bits_format_value(tree, hf_ansi_801_heading, tvb, bit_offset, 10, fl_value,
 			"%.3f degrees (0x%04x)", fl_value, value);
@@ -849,30 +849,30 @@ pr_loc_response(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 	}
 
 	/* CLOCK_INCL */
-	proto_tree_add_bits_ret_val(tree, hf_ansi_801_clock_incl, tvb, bit_offset++, 1, &clock_incl, FALSE);
+	proto_tree_add_bits_ret_val(tree, hf_ansi_801_clock_incl, tvb, bit_offset++, 1, &clock_incl, ENC_BIG_ENDIAN);
 
 	if(clock_incl)
 	{
 		/* CLOCK_BIAS */
-		value = tvb_get_bits32(tvb, bit_offset, 18, FALSE);
+		value = tvb_get_bits32(tvb, bit_offset, 18, ENC_BIG_ENDIAN);
 		proto_tree_add_int_bits_format_value(tree, hf_ansi_801_clock_bias, tvb, bit_offset, 18, (gint32)value - 13000,
 			"%d ns (0x%06x)", (gint32)value - 13000, value);
 		bit_offset += 18;
 
 		/* CLOCK_DRIFT */
-		value = tvb_get_bits16(tvb, bit_offset, 16, FALSE);
+		value = tvb_get_bits16(tvb, bit_offset, 16, ENC_BIG_ENDIAN);
 		proto_tree_add_int_bits_format_value(tree, hf_ansi_801_clock_drift, tvb, bit_offset, 16, (gint16)value,
 			"%d ppb (ns/s) (0x%04x)", (gint16)value, value);
 		bit_offset += 16;
 	}
 
 	/* HEIGHT_INCL */
-	proto_tree_add_bits_ret_val(tree, hf_ansi_801_height_incl, tvb, bit_offset++, 1, &height_incl, FALSE);
+	proto_tree_add_bits_ret_val(tree, hf_ansi_801_height_incl, tvb, bit_offset++, 1, &height_incl, ENC_BIG_ENDIAN);
 
 	if(height_incl)
 	{
 		/* HEIGHT */
-		value = tvb_get_bits16(tvb, bit_offset, 14, FALSE);
+		value = tvb_get_bits16(tvb, bit_offset, 14, ENC_BIG_ENDIAN);
 		proto_tree_add_int_bits_format_value(tree, hf_ansi_801_height, tvb, bit_offset, 14, (gint32)value - 500,
 			"%d m (0x%04x)", (gint32)value - 500, value);
 		bit_offset += 14;
@@ -897,7 +897,7 @@ pr_loc_response(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 	if(bit_offset & 0x07)
 	{
 		spare_bits = 8 - (bit_offset & 0x07);
-		proto_tree_add_bits_item(tree, hf_ansi_801_reserved_bits, tvb, bit_offset, spare_bits, FALSE);
+		proto_tree_add_bits_item(tree, hf_ansi_801_reserved_bits, tvb, bit_offset, spare_bits, ENC_BIG_ENDIAN);
 		bit_offset += spare_bits;
 	}
 
@@ -925,7 +925,7 @@ for_pr_gps_sat_health(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset
 	bit_offset = offset << 3;
 	
 	/* BAD_SV_PRESENT */
-	proto_tree_add_bits_ret_val(tree, hf_ansi_801_bad_sv_present, tvb, bit_offset++, 1, &bad_sv_present, FALSE);
+	proto_tree_add_bits_ret_val(tree, hf_ansi_801_bad_sv_present, tvb, bit_offset++, 1, &bad_sv_present, ENC_BIG_ENDIAN);
 
 	if (bad_sv_present)
 	{
@@ -948,7 +948,7 @@ for_pr_gps_sat_health(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset
 	if(bit_offset & 0x07)
 	{
 		spare_bits = 8 - (bit_offset & 0x07);
-		proto_tree_add_bits_item(tree, hf_ansi_801_reserved_bits, tvb, bit_offset, spare_bits, FALSE);
+		proto_tree_add_bits_item(tree, hf_ansi_801_reserved_bits, tvb, bit_offset, spare_bits, ENC_BIG_ENDIAN);
 		bit_offset += spare_bits;
 	}
 
@@ -967,11 +967,11 @@ rev_req_gps_acq_ass(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 	saved_offset = offset;
 	bit_offset = offset << 3;
 
-	proto_tree_add_bits_item(tree, hf_ansi_801_dopp_req, tvb, bit_offset++, 1, FALSE);
-	proto_tree_add_bits_item(tree, hf_ansi_801_add_dopp_req, tvb, bit_offset++, 1, FALSE);
-	proto_tree_add_bits_item(tree, hf_ansi_801_code_ph_par_req, tvb, bit_offset++, 1, FALSE);
-	proto_tree_add_bits_item(tree, hf_ansi_801_az_el_req, tvb, bit_offset++, 1, FALSE);
-	proto_tree_add_bits_item(tree, hf_ansi_801_reserved_bits, tvb, bit_offset, 4, FALSE);
+	proto_tree_add_bits_item(tree, hf_ansi_801_dopp_req, tvb, bit_offset++, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_bits_item(tree, hf_ansi_801_add_dopp_req, tvb, bit_offset++, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_bits_item(tree, hf_ansi_801_code_ph_par_req, tvb, bit_offset++, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_bits_item(tree, hf_ansi_801_az_el_req, tvb, bit_offset++, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_bits_item(tree, hf_ansi_801_reserved_bits, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 	offset++;
 
 	EXTRANEOUS_DATA_CHECK(len, offset - saved_offset);

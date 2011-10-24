@@ -1570,7 +1570,7 @@ tn3270_add_hf_items(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset,
                             fields[i].encoding);
     } else {
       proto_tree_add_bitmask(tn3270_tree, tvb, offset, fields[i].hf,
-          fields[i].bitmask_ett, fields[i].bitmask, FALSE);
+          fields[i].bitmask_ett, fields[i].bitmask, ENC_BIG_ENDIAN);
     }
     offset+=fields[i].length;
   }
@@ -1712,7 +1712,7 @@ dissect_3270_field_attribute(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset
 
 
   proto_tree_add_bitmask(tn3270_tree, tvb, offset, hf_tn3270_field_attribute,
-      ett_tn3270_field_attribute, byte, FALSE);
+      ett_tn3270_field_attribute, byte, ENC_BIG_ENDIAN);
 
   offset++;
   return (offset - start);
@@ -1736,7 +1736,7 @@ dissect_ccc(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset)
 
 
   proto_tree_add_bitmask(tn3270_tree, tvb, offset, hf_tn3270_ccc,
-      ett_tn3270_ccc, byte, FALSE);
+      ett_tn3270_ccc, byte, ENC_BIG_ENDIAN);
 
   offset++;
   return (offset - start);

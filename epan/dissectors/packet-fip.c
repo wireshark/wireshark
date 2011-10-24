@@ -309,10 +309,10 @@ fip_desc_fc4f(tvbuff_t *tvb, proto_tree *tree, proto_item *item)
      */
     offset = 4;
     proto_tree_add_bitmask(tree, tvb, offset, hf_fip_desc_fc4f_types,
-            ett_fip_dt_fc4f_types, types_word0, FALSE);
+            ett_fip_dt_fc4f_types, types_word0, ENC_BIG_ENDIAN);
     offset += 4;
     proto_tree_add_bitmask(tree, tvb, offset, hf_fip_desc_fc4f_types,
-            ett_fip_dt_fc4f_types, types_word1, FALSE);
+            ett_fip_dt_fc4f_types, types_word1, ENC_BIG_ENDIAN);
     offset += 256 / 8 - 4;   /* skip to end of bitmask (32 bytes) */
 
     /*
@@ -321,7 +321,7 @@ fip_desc_fc4f(tvbuff_t *tvb, proto_tree *tree, proto_item *item)
      */
     offset += 8 / 2;        /* skip first 8 types, 2 types per byte */
     proto_tree_add_bitmask(tree, tvb, offset, hf_fip_desc_fcp_feat,
-            ett_fip_dt_fcp_feat, fcp_feat, FALSE);
+            ett_fip_dt_fcp_feat, fcp_feat, ENC_BIG_ENDIAN);
     mask = tvb_get_ntohl(tvb, offset);
     if (mask & 1) {
         proto_item_append_text(item, "FCP Target ");
@@ -418,7 +418,7 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(fip_tree, hf_fip_dlen, tvb, 6, 2, ENC_BIG_ENDIAN);
 
     proto_tree_add_bitmask(fip_tree, tvb, 8, hf_fip_flags,
-            ett_fip_flags, hf_fip_flags_fields, FALSE);
+            ett_fip_flags, hf_fip_flags_fields, ENC_BIG_ENDIAN);
 
     desc_offset = FIP_HEADER_LEN;
     rlen *= FIP_BPW;

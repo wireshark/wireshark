@@ -1147,7 +1147,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         omron_header_tree = proto_item_add_subtree(ti, ett_omron_header);
 
         proto_tree_add_bitmask(omron_header_tree, tvb, offset, hf_omron_icf,
-                               ett_omron_icf_fields, omron_icf_fields, FALSE);
+                               ett_omron_icf_fields, omron_icf_fields, ENC_BIG_ENDIAN);
 
         /* Byte 2 RSV */
         offset = offset + 1;
@@ -1900,7 +1900,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     proto_tree_add_item(io_data_tree, hf_omron_io_data_num_sysmac_2, tvb, (offset+67), 1, ENC_BIG_ENDIAN);
                     /* PC status */
                     proto_tree_add_bitmask(command_tree, tvb, (offset+68), hf_omron_pc_status,
-                        ett_pc_status_fields, pc_status_fields, FALSE);
+                        ett_pc_status_fields, pc_status_fields, ENC_BIG_ENDIAN);
                     offset = offset + 69;
                 }
 
@@ -1948,7 +1948,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     proto_tree_add_item(io_data_tree, hf_omron_io_data_num_sysmac_2, tvb, (offset+159), 1, ENC_BIG_ENDIAN);
                     /* PC status */
                     proto_tree_add_bitmask(command_tree, tvb, (offset+160), hf_omron_pc_status,
-                        ett_pc_status_fields, pc_status_fields, FALSE);
+                        ett_pc_status_fields, pc_status_fields, ENC_BIG_ENDIAN);
                     offset = offset + 161;
                 }
             }
@@ -2005,13 +2005,13 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     proto_tree_add_item(command_tree, hf_omron_mode_code, tvb, (offset+3), 1, ENC_BIG_ENDIAN);
                     /* Add bitmask for Fatal error data */
                     proto_tree_add_bitmask(command_tree, tvb, (offset+4), hf_omron_fatal_error_data,
-                        ett_fatal_fields, fatal_error_fields, FALSE);
+                        ett_fatal_fields, fatal_error_fields, ENC_BIG_ENDIAN);
                     /* Add bitmask for non fatal error data */
                     proto_tree_add_bitmask(command_tree, tvb, (offset+6), hf_omron_non_fatal_error_data,
-                        ett_non_fatal_fields, non_fatal_error_fields, FALSE);
+                        ett_non_fatal_fields, non_fatal_error_fields, ENC_BIG_ENDIAN);
                     /* add bitmask for message yes/no data */
                     proto_tree_add_bitmask(command_tree, tvb, (offset+8), hf_omron_message,
-                        ett_message_fields, message_fields, FALSE);
+                        ett_message_fields, message_fields, ENC_BIG_ENDIAN);
                     /* Add rest of fields */
                     proto_tree_add_item(command_tree, hf_omron_fals, tvb, (offset+10), 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(command_tree, hf_omron_error_message, tvb, (offset+12), 16, ENC_ASCII|ENC_NA);
@@ -2078,21 +2078,21 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         proto_item_add_subtree(netw_nodes_non_fatal_err_sts, ett_omron_netw_nodes_non_fatal_err_sts);
 
                     proto_tree_add_bitmask(netw_nodes_non_fatal_err_sts_tree, tvb, (offset+0), hf_omron_cyclic_label_1,
-                        ett_omron_cyclic_fields, cyclic_non_fatal_1_fields, FALSE);
+                        ett_omron_cyclic_fields, cyclic_non_fatal_1_fields, ENC_BIG_ENDIAN);
                     proto_tree_add_bitmask(netw_nodes_non_fatal_err_sts_tree, tvb, (offset+1), hf_omron_cyclic_label_2,
-                        ett_omron_cyclic_fields, cyclic_non_fatal_2_fields, FALSE);
+                        ett_omron_cyclic_fields, cyclic_non_fatal_2_fields, ENC_BIG_ENDIAN);
                     proto_tree_add_bitmask(netw_nodes_non_fatal_err_sts_tree, tvb, (offset+2), hf_omron_cyclic_label_3,
-                        ett_omron_cyclic_fields, cyclic_non_fatal_3_fields, FALSE);
+                        ett_omron_cyclic_fields, cyclic_non_fatal_3_fields, ENC_BIG_ENDIAN);
                     proto_tree_add_bitmask(netw_nodes_non_fatal_err_sts_tree, tvb, (offset+3), hf_omron_cyclic_label_4,
-                        ett_omron_cyclic_fields, cyclic_non_fatal_4_fields, FALSE);
+                        ett_omron_cyclic_fields, cyclic_non_fatal_4_fields, ENC_BIG_ENDIAN);
                     proto_tree_add_bitmask(netw_nodes_non_fatal_err_sts_tree, tvb, (offset+4), hf_omron_cyclic_label_5,
-                        ett_omron_cyclic_fields, cyclic_non_fatal_5_fields, FALSE);
+                        ett_omron_cyclic_fields, cyclic_non_fatal_5_fields, ENC_BIG_ENDIAN);
                     proto_tree_add_bitmask(netw_nodes_non_fatal_err_sts_tree, tvb, (offset+5), hf_omron_cyclic_label_6,
-                        ett_omron_cyclic_fields, cyclic_non_fatal_6_fields, FALSE);
+                        ett_omron_cyclic_fields, cyclic_non_fatal_6_fields, ENC_BIG_ENDIAN);
                     proto_tree_add_bitmask(netw_nodes_non_fatal_err_sts_tree, tvb, (offset+6), hf_omron_cyclic_label_7,
-                        ett_omron_cyclic_fields, cyclic_non_fatal_7_fields, FALSE);
+                        ett_omron_cyclic_fields, cyclic_non_fatal_7_fields, ENC_BIG_ENDIAN);
                     proto_tree_add_bitmask(netw_nodes_non_fatal_err_sts_tree, tvb, (offset+7), hf_omron_cyclic_label_8,
-                        ett_omron_cyclic_fields, cyclic_non_fatal_8_fields, FALSE);
+                        ett_omron_cyclic_fields, cyclic_non_fatal_8_fields, ENC_BIG_ENDIAN);
 
                     offset = offset + 8;
 
@@ -2435,7 +2435,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         /* "MESSAGE READ" / "MESSAGE CLEAR" */
                         /* add bitmask for message yes/no data */
                         proto_tree_add_bitmask(command_tree, tvb, offset, hf_omron_message,
-                                               ett_message_fields, message_yes_no_fields, FALSE);
+                                               ett_message_fields, message_yes_no_fields, ENC_BIG_ENDIAN);
                     }
                     offset = offset + 2;
                 }
@@ -2460,7 +2460,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
                     /* add bitmask for message yes/no data */
                     proto_tree_add_bitmask(command_tree, tvb, (offset+2), hf_omron_message,
-                                           ett_message_fields, message_yes_no_fields, FALSE);
+                                           ett_message_fields, message_yes_no_fields, ENC_BIG_ENDIAN);
 
                     offset = offset + 4;
                     reported_length_remaining = reported_length_remaining - 4;
@@ -3037,7 +3037,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     while(reported_length_remaining >= 2)
                     {
                         proto_tree_add_bitmask(command_tree, tvb, offset, hf_omron_data_type,
-                            ett_omron_data_type, data_type_fields, FALSE);
+                            ett_omron_data_type, data_type_fields, ENC_BIG_ENDIAN);
                         proto_tree_add_item(command_tree, hf_omron_control_data, tvb, (offset+1), 1, ENC_BIG_ENDIAN);
                         offset = offset + 2;
                         reported_length_remaining = reported_length_remaining - 2;
@@ -3064,7 +3064,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 {
                     proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
                     proto_tree_add_bitmask(command_tree, tvb, (offset+2), hf_omron_data_type,
-                        ett_omron_data_type, data_type_fields, FALSE);
+                        ett_omron_data_type, data_type_fields, ENC_BIG_ENDIAN);
                     proto_tree_add_item(command_tree, hf_omron_control_data, tvb, (offset+3), 1, ENC_BIG_ENDIAN);
                     proto_tree_add_item(command_tree, hf_omron_data, tvb, (offset+4), -1, ENC_NA);
                     offset = offset + reported_length_remaining;
@@ -3080,7 +3080,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 if(reported_length_remaining >= 4)
                 {
                     proto_tree_add_bitmask(command_tree, tvb, offset, hf_omron_data_type,
-                        ett_omron_data_type, data_type_fields, FALSE);
+                        ett_omron_data_type, data_type_fields, ENC_BIG_ENDIAN);
                     proto_tree_add_item(command_tree, hf_omron_control_data, tvb, (offset+1), 1, ENC_BIG_ENDIAN);
                     proto_tree_add_item(command_tree, hf_omron_block_num, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(command_tree, hf_omron_data, tvb, (offset+4), -1, ENC_NA);

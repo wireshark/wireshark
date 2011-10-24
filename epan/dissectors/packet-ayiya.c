@@ -112,12 +112,12 @@ dissect_ayiya(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 											 offset, ayiya_len, "AYIYA" );
 		ayiya_tree = proto_item_add_subtree(ti, ett_ayiya);
 
-		proto_tree_add_bits_item(ayiya_tree, hf_id_len, tvb, 0, 4, FALSE);
-		proto_tree_add_bits_item(ayiya_tree, hf_id_type, tvb, 4, 4, FALSE);
-		proto_tree_add_bits_item(ayiya_tree, hf_sig_len, tvb, 8, 4, FALSE);
-		proto_tree_add_bits_item(ayiya_tree, hf_hash_method, tvb, 12, 4, FALSE);
-		proto_tree_add_bits_item(ayiya_tree, hf_auth_method, tvb, 16, 4, FALSE);
-		proto_tree_add_bits_item(ayiya_tree, hf_opcode, tvb, 20, 4, FALSE);
+		proto_tree_add_bits_item(ayiya_tree, hf_id_len, tvb, 0, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_bits_item(ayiya_tree, hf_id_type, tvb, 4, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_bits_item(ayiya_tree, hf_sig_len, tvb, 8, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_bits_item(ayiya_tree, hf_hash_method, tvb, 12, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_bits_item(ayiya_tree, hf_auth_method, tvb, 16, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_bits_item(ayiya_tree, hf_opcode, tvb, 20, 4, ENC_BIG_ENDIAN);
 		proto_tree_add_uint_format(ayiya_tree, hf_next_header, tvb,
 								   3, 1, next_header,
 								   "Next header: %s (0x%02x)",

@@ -372,7 +372,7 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			 *  Bit 18 Reserved, shall be equal to "0".
 			 */
 			offset_in_bits++;
-			proto_tree_add_bits_item( h263_opptype_tree, hf_h263_not_dissected, tvb, saved_bit_offset, offset_in_bits-saved_bit_offset, ENC_NA);
+			proto_tree_add_bits_item( h263_opptype_tree, hf_h263_not_dissected, tvb, saved_bit_offset, offset_in_bits-saved_bit_offset, ENC_BIG_ENDIAN);
 
 		}
 		/*
@@ -415,7 +415,7 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 *  Bit 9 Equal to "1" to prevent start code emulation.
 		 */
 		offset_in_bits++;
-		proto_tree_add_bits_item( tree, hf_h263_not_dissected, tvb, saved_bit_offset, offset_in_bits-saved_bit_offset, ENC_NA);
+		proto_tree_add_bits_item( tree, hf_h263_not_dissected, tvb, saved_bit_offset, offset_in_bits-saved_bit_offset, ENC_BIG_ENDIAN);
 		/* The picture header location of CPM (1 bit) and PSBI (2 bits)
 		 * the picture header depends on whether or not PLUSPTYPE is present
 		 * (see 5.1.20 and 5.1.21). If PLUSPTYPE is present, then CPM follows

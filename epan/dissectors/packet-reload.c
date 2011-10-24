@@ -2897,10 +2897,10 @@ static int dissect_forwardingoption(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     ti_flags = proto_tree_add_uint(option_tree, hf_reload_forwarding_option_flags, tvb, offset+local_offset+1, 1, option_flags);
     flags_tree = proto_item_add_subtree(ti_flags, ett_reload_forwarding_option_flags);
     bit_offset = 8*(offset+local_offset+1);
-    proto_tree_add_bits_item(flags_tree, hf_reload_forwarding_option_flag_ignore_state_keeping, tvb, bit_offset+4, 1, FALSE);
-    proto_tree_add_bits_item(flags_tree, hf_reload_forwarding_option_flag_response_copy, tvb, bit_offset+5, 1, FALSE);
-    proto_tree_add_bits_item(flags_tree, hf_reload_forwarding_option_flag_destination_critical, tvb, bit_offset+6, 1, FALSE);
-    proto_tree_add_bits_item(flags_tree, hf_reload_forwarding_option_flag_forward_critical, tvb, bit_offset+7, 1, FALSE);
+    proto_tree_add_bits_item(flags_tree, hf_reload_forwarding_option_flag_ignore_state_keeping, tvb, bit_offset+4, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(flags_tree, hf_reload_forwarding_option_flag_response_copy, tvb, bit_offset+5, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(flags_tree, hf_reload_forwarding_option_flag_destination_critical, tvb, bit_offset+6, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(flags_tree, hf_reload_forwarding_option_flag_forward_critical, tvb, bit_offset+7, 1, ENC_BIG_ENDIAN);
   }
   proto_tree_add_uint(option_tree, hf_reload_length_uint16, tvb, offset+local_offset+2, 2, option_length);
   local_offset += 4;
@@ -2934,7 +2934,7 @@ static int dissect_dmflag(tvbuff_t *tvb, proto_tree *tree, guint16 offset) {
 
   for (i=0; i<(sizeof(reload_dmflag_items)/sizeof(gint *)); i++) {
     if (reload_dmflag_items[i]!=NULL) {
-      proto_tree_add_bits_item(local_tree, *(reload_dmflag_items[i]), tvb, bit_offset+63-i, 1, FALSE);
+      proto_tree_add_bits_item(local_tree, *(reload_dmflag_items[i]), tvb, bit_offset+63-i, 1, ENC_BIG_ENDIAN);
     }
   }
   return 8;
@@ -4003,9 +4003,9 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_item_append_text(ti_fragment, " (Last)");
       last_fragment = TRUE;
     }
-    proto_tree_add_bits_item(fragment_tree, hf_reload_fragment_fragmented, tvb, bit_offset, 1, FALSE);
-    proto_tree_add_bits_item(fragment_tree, hf_reload_fragment_last_fragment, tvb, bit_offset+1, 1, FALSE);
-    proto_tree_add_bits_item(fragment_tree, hf_reload_fragment_reserved, tvb, bit_offset+2, 6, FALSE);
+    proto_tree_add_bits_item(fragment_tree, hf_reload_fragment_fragmented, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(fragment_tree, hf_reload_fragment_last_fragment, tvb, bit_offset+1, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(fragment_tree, hf_reload_fragment_reserved, tvb, bit_offset+2, 6, ENC_BIG_ENDIAN);
     fragment = fragment & 0x00ffffff;
     proto_tree_add_uint(fragment_tree, hf_reload_fragment_offset, tvb, 13, 3, fragment);
   }

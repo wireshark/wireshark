@@ -12544,7 +12544,7 @@ dissect_qspi_unix_acl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		COUNT_BYTES_SUBR(1);
 
 		CHECK_BYTE_COUNT_SUBR(1);
-		proto_tree_add_bitmask(tr, tvb, offset, hf_smb_posix_ace_flags, ett_smb_posix_ace_perms, perm_fields, FALSE);
+		proto_tree_add_bitmask(tr, tvb, offset, hf_smb_posix_ace_flags, ett_smb_posix_ace_perms, perm_fields, ENC_BIG_ENDIAN);
 		COUNT_BYTES_SUBR(1);
 
 		switch(ace_type){

@@ -309,7 +309,7 @@ static void
 dissect_msrp_common2(proto_tree *vect_attr_tree, tvbuff_t *tvb, int msg_offset)
 {
     proto_tree_add_bitmask(vect_attr_tree, tvb, MSRP_VECTOR_HEADER_OFFSET + msg_offset,
-                           hf_msrp_vector_header, ett_vector_header, vector_header_fields, FALSE);
+                           hf_msrp_vector_header, ett_vector_header, vector_header_fields, ENC_BIG_ENDIAN);
 }
 
 
@@ -337,7 +337,7 @@ dissect_msrp_talker_common(proto_tree *first_value_tree, tvbuff_t *tvb, int msg_
     proto_tree_add_item(first_value_tree, hf_msrp_tspec_max_interval_frames, tvb,
                         MSRP_TSPEC_MAX_INTERVAL_FRAMES_OFFSET + msg_offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_bitmask(first_value_tree, tvb, MSRP_PRIORITY_AND_RANK_OFFSET + msg_offset,
-                           hf_msrp_priority_and_rank, ett_priority_and_rank, priority_and_rank_fields, FALSE);
+                           hf_msrp_priority_and_rank, ett_priority_and_rank, priority_and_rank_fields, ENC_BIG_ENDIAN);
     proto_tree_add_item(first_value_tree, hf_msrp_accumulated_latency, tvb,
                         MSRP_ACCUMULATED_LATENCY_OFFSET + msg_offset, 4, ENC_BIG_ENDIAN);
 }

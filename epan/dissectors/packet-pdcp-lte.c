@@ -811,7 +811,7 @@ static int dissect_pdcp_dynamic_chain(proto_tree *tree,
         if (tis) {
             /* Assume encoded in two bytes for now... */
             proto_tree_add_bits_ret_val(dynamic_rtp_tree, hf_pdcp_lte_rohc_dynamic_rtp_ts_stride,
-                                        tvb, offset*8 + 2, 14, &ts_stride, FALSE);
+                                        tvb, offset*8 + 2, 14, &ts_stride, ENC_BIG_ENDIAN);
             offset += 2;
         }
 

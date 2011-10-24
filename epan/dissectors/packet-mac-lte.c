@@ -2539,14 +2539,14 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 if (format) {
                     /* >= 128 - use 15 bits */
                     proto_tree_add_bits_ret_val(pdu_subheader_tree, hf_mac_lte_sch_length,
-                                                tvb, offset*8 + 1, 15, &length, FALSE);
+                                                tvb, offset*8 + 1, 15, &length, ENC_BIG_ENDIAN);
 
                     offset += 2;
                 }
                 else {
                     /* Less than 128 - only 7 bits */
                     proto_tree_add_bits_ret_val(pdu_subheader_tree, hf_mac_lte_sch_length,
-                                                tvb, offset*8 + 1, 7, &length, FALSE);
+                                                tvb, offset*8 + 1, 7, &length, ENC_BIG_ENDIAN);
                     offset++;
                 }
                 pdu_lengths[number_of_headers] = (gint16)length;

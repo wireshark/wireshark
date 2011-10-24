@@ -820,7 +820,7 @@ dissect_6lowpan_ipv6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
     /* Get and display the pattern. */
     if (tree) {
-        proto_tree_add_bits_item(tree, hf_6lowpan_pattern, tvb, 0, LOWPAN_PATTERN_IPV6_BITS, FALSE);
+        proto_tree_add_bits_item(tree, hf_6lowpan_pattern, tvb, 0, LOWPAN_PATTERN_IPV6_BITS, ENC_BIG_ENDIAN);
     }
 
     /* Create a tvbuff subset for the ipv6 datagram. */
@@ -870,7 +870,7 @@ dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dg
         hc_tree = proto_item_add_subtree(ti, ett_6lowpan_hc1);
 
         /* Get and display the pattern. */
-        proto_tree_add_bits_item(hc_tree, hf_6lowpan_pattern, tvb, 0, LOWPAN_PATTERN_HC1_BITS, FALSE);
+        proto_tree_add_bits_item(hc_tree, hf_6lowpan_pattern, tvb, 0, LOWPAN_PATTERN_HC1_BITS, ENC_BIG_ENDIAN);
     }
     offset += sizeof(guint8);
 
@@ -1008,7 +1008,7 @@ dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dg
         bit_offset += LOWPAN_IPV6_TRAFFIC_CLASS_BITS;
 
         /* Parse the flow label. */
-        ipv6.ip6_flow = tvb_get_bits32(tvb, bit_offset, LOWPAN_IPV6_FLOW_LABEL_BITS, FALSE);
+        ipv6.ip6_flow = tvb_get_bits32(tvb, bit_offset, LOWPAN_IPV6_FLOW_LABEL_BITS, ENC_BIG_ENDIAN);
         if (tree) {
             proto_tree_add_uint(tree, hf_6lowpan_flow_label, tvb, bit_offset>>3,
                     BITS_TO_BYTE_LEN(bit_offset, LOWPAN_IPV6_FLOW_LABEL_BITS), ipv6.ip6_flow);
@@ -1054,7 +1054,7 @@ dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dg
             bit_offset += LOWPAN_UDP_PORT_COMPRESSED_BITS;
         }
         else {
-            udp.src_port = tvb_get_bits16(tvb, bit_offset, LOWPAN_UDP_PORT_BITS, FALSE);
+            udp.src_port = tvb_get_bits16(tvb, bit_offset, LOWPAN_UDP_PORT_BITS, ENC_BIG_ENDIAN);
             bit_offset += LOWPAN_UDP_PORT_BITS;
         }
         if (tree) {
@@ -1070,7 +1070,7 @@ dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dg
             bit_offset += LOWPAN_UDP_PORT_COMPRESSED_BITS;
         }
         else {
-            udp.dst_port = tvb_get_bits16(tvb, bit_offset, LOWPAN_UDP_PORT_BITS, FALSE);
+            udp.dst_port = tvb_get_bits16(tvb, bit_offset, LOWPAN_UDP_PORT_BITS, ENC_BIG_ENDIAN);
             bit_offset += LOWPAN_UDP_PORT_BITS;
         }
         if (tree) {
@@ -1081,7 +1081,7 @@ dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dg
 
         /* Parse the length, if present. */
         if (!(hc_udp_encoding & LOWPAN_HC2_UDP_LENGTH)) {
-            udp.length = tvb_get_bits16(tvb, bit_offset, LOWPAN_UDP_LENGTH_BITS, FALSE);
+            udp.length = tvb_get_bits16(tvb, bit_offset, LOWPAN_UDP_LENGTH_BITS, ENC_BIG_ENDIAN);
             if (tree) {
                 proto_tree_add_uint(tree, hf_6lowpan_udp_len, tvb, bit_offset>>3,
                         BITS_TO_BYTE_LEN(bit_offset, LOWPAN_UDP_LENGTH_BITS), udp.length);
@@ -1106,7 +1106,7 @@ dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dg
         udp.length = g_ntohs(udp.length);
 
         /* Parse the checksum. */
-        udp.checksum = tvb_get_bits16(tvb, bit_offset, LOWPAN_UDP_CHECKSUM_BITS, FALSE);
+        udp.checksum = tvb_get_bits16(tvb, bit_offset, LOWPAN_UDP_CHECKSUM_BITS, ENC_BIG_ENDIAN);
         if (tree) {
             proto_tree_add_uint(tree, hf_6lowpan_udp_checksum, tvb, bit_offset>>3,
                     BITS_TO_BYTE_LEN(bit_offset, LOWPAN_UDP_CHECKSUM_BITS), udp.checksum);
@@ -1205,7 +1205,7 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
         iphc_tree = proto_item_add_subtree(ti, ett_6lowpan_iphc);
 
         /* Display the pattern. */
-        proto_tree_add_bits_item(iphc_tree, hf_6lowpan_pattern, tvb, 0, LOWPAN_PATTERN_IPHC_BITS, FALSE);
+        proto_tree_add_bits_item(iphc_tree, hf_6lowpan_pattern, tvb, 0, LOWPAN_PATTERN_IPHC_BITS, ENC_BIG_ENDIAN);
     }
 
     /*=====================================================
@@ -1284,9 +1284,9 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
     if ((iphc_traffic == LOWPAN_IPHC_FLOW_CLASS_LABEL) || (iphc_traffic == LOWPAN_IPHC_FLOW_ECN_LABEL)) {
         /* Pad to 4-bits past the start of the byte. */
         offset += ((4 - offset) & 0x7);
-        ipv6.ip6_flow = tvb_get_bits32(tvb, offset, LOWPAN_IPHC_LABEL_BITS, FALSE);
+        ipv6.ip6_flow = tvb_get_bits32(tvb, offset, LOWPAN_IPHC_LABEL_BITS, ENC_BIG_ENDIAN);
         if (tree) {
-            proto_tree_add_bits_item(tree, hf_6lowpan_flow_label, tvb, offset, LOWPAN_IPHC_LABEL_BITS, FALSE);
+            proto_tree_add_bits_item(tree, hf_6lowpan_flow_label, tvb, offset, LOWPAN_IPHC_LABEL_BITS, ENC_BIG_ENDIAN);
         }
         offset += LOWPAN_IPHC_LABEL_BITS;
     }
@@ -1568,7 +1568,7 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
             ti = proto_tree_add_text(tree, tvb, offset, sizeof(guint16), "IPv6 extension header");
             nhc_tree = proto_item_add_subtree(ti, ett_6lowpan_nhc_ext);
             /* Display the NHC-UDP pattern. */
-            proto_tree_add_bits_item(nhc_tree, hf_6lowpan_nhc_pattern, tvb, offset<<3, LOWPAN_NHC_PATTERN_EXT_BITS, FALSE);
+            proto_tree_add_bits_item(nhc_tree, hf_6lowpan_nhc_pattern, tvb, offset<<3, LOWPAN_NHC_PATTERN_EXT_BITS, ENC_BIG_ENDIAN);
         }
 
         /* Get and display the extension header compression flags. */
@@ -1613,7 +1613,7 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
             ti = proto_tree_add_text(tree, tvb, offset, sizeof(guint16), "IPv6 extension header");
             nhc_tree = proto_item_add_subtree(ti, ett_6lowpan_nhc_ext);
             /* Display the NHC-UDP pattern. */
-            proto_tree_add_bits_item(nhc_tree, hf_6lowpan_nhc_pattern, tvb, offset<<3, LOWPAN_NHC_PATTERN_EXT_BITS, FALSE);
+            proto_tree_add_bits_item(nhc_tree, hf_6lowpan_nhc_pattern, tvb, offset<<3, LOWPAN_NHC_PATTERN_EXT_BITS, ENC_BIG_ENDIAN);
         }
 
         /* Get and display the extension header compression flags. */
@@ -1725,7 +1725,7 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
             ti = proto_tree_add_text(tree, tvb, 0, sizeof(guint8), "UDP header compression");
             nhc_tree = proto_item_add_subtree(ti, ett_6lowpan_nhc_udp);
             /* Display the NHC-UDP pattern. */
-            proto_tree_add_bits_item(nhc_tree, hf_6lowpan_nhc_pattern, tvb, offset<<3, LOWPAN_NHC_PATTERN_UDP_BITS, FALSE);
+            proto_tree_add_bits_item(nhc_tree, hf_6lowpan_nhc_pattern, tvb, offset<<3, LOWPAN_NHC_PATTERN_UDP_BITS, ENC_BIG_ENDIAN);
         }
 
         /* Get and display the UDP header compression options */
@@ -1892,7 +1892,7 @@ dissect_6lowpan_bc0(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
         bcast_tree = proto_item_add_subtree(ti, ett_6lowpan_bcast);
 
         /* Get and display the pattern. */
-        proto_tree_add_bits_item(bcast_tree, hf_6lowpan_pattern, tvb, 0, LOWPAN_PATTERN_BC0_BITS, FALSE);
+        proto_tree_add_bits_item(bcast_tree, hf_6lowpan_pattern, tvb, 0, LOWPAN_PATTERN_BC0_BITS, ENC_BIG_ENDIAN);
 
         /* Get and display the sequence number. */
         seqnum = tvb_get_guint8(tvb, sizeof(guint8));
@@ -1944,7 +1944,7 @@ dissect_6lowpan_mesh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         flag_tree = proto_item_add_subtree(flag_item, ett_6lowpan_mesh);
 
         /* Add the mesh header fields. */
-        proto_tree_add_bits_item(flag_tree, hf_6lowpan_pattern, tvb, offset * 8, LOWPAN_PATTERN_MESH_BITS, FALSE);
+        proto_tree_add_bits_item(flag_tree, hf_6lowpan_pattern, tvb, offset * 8, LOWPAN_PATTERN_MESH_BITS, ENC_BIG_ENDIAN);
         proto_tree_add_boolean(flag_tree, hf_6lowpan_mesh_v, tvb, offset, sizeof(guint8), mesh_header & LOWPAN_MESH_HEADER_V);
         proto_tree_add_boolean(flag_tree, hf_6lowpan_mesh_f, tvb, offset, sizeof(guint8), mesh_header & LOWPAN_MESH_HEADER_F);
         if ((mesh_header & LOWPAN_MESH_HEADER_HOPS)==15)
@@ -2057,9 +2057,9 @@ dissect_6lowpan_frag_first(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     }
 
     /* Get and display the pattern and datagram size. */
-    dgram_size = tvb_get_bits16(tvb, (offset * 8) + LOWPAN_PATTERN_FRAG_BITS, LOWPAN_FRAG_DGRAM_SIZE_BITS, FALSE);
+    dgram_size = tvb_get_bits16(tvb, (offset * 8) + LOWPAN_PATTERN_FRAG_BITS, LOWPAN_FRAG_DGRAM_SIZE_BITS, ENC_BIG_ENDIAN);
     if (tree) {
-        proto_tree_add_bits_item(frag_tree, hf_6lowpan_pattern, tvb, offset * 8, LOWPAN_PATTERN_FRAG_BITS, FALSE);
+        proto_tree_add_bits_item(frag_tree, hf_6lowpan_pattern, tvb, offset * 8, LOWPAN_PATTERN_FRAG_BITS, ENC_BIG_ENDIAN);
         length_item = proto_tree_add_uint(frag_tree, hf_6lowpan_frag_dgram_size, tvb, offset, sizeof(guint16), dgram_size);
     }
     offset += sizeof(guint16);
@@ -2183,9 +2183,9 @@ dissect_6lowpan_frag_middle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /* Get and display the pattern and datagram size. */
-    dgram_size = tvb_get_bits16(tvb, (offset * 8) + LOWPAN_PATTERN_FRAG_BITS, LOWPAN_FRAG_DGRAM_SIZE_BITS, FALSE);
+    dgram_size = tvb_get_bits16(tvb, (offset * 8) + LOWPAN_PATTERN_FRAG_BITS, LOWPAN_FRAG_DGRAM_SIZE_BITS, ENC_BIG_ENDIAN);
     if (tree) {
-        proto_tree_add_bits_item(frag_tree, hf_6lowpan_pattern, tvb, offset * 8, LOWPAN_PATTERN_FRAG_BITS, FALSE);
+        proto_tree_add_bits_item(frag_tree, hf_6lowpan_pattern, tvb, offset * 8, LOWPAN_PATTERN_FRAG_BITS, ENC_BIG_ENDIAN);
         proto_tree_add_uint(frag_tree, hf_6lowpan_frag_dgram_size, tvb, offset, sizeof(guint16), dgram_size);
     }
     offset += sizeof(guint16);
@@ -2257,7 +2257,7 @@ dissect_6lowpan_unknown(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Get and display the pattern. */
     if (tree) {
-        proto_tree_add_bits_item(tree, hf_6lowpan_pattern, tvb, 0, 8, FALSE);
+        proto_tree_add_bits_item(tree, hf_6lowpan_pattern, tvb, 0, 8, ENC_BIG_ENDIAN);
     }
 
     /* Create a tvbuff subset for the remaining data. */

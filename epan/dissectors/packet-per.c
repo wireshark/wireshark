@@ -1474,7 +1474,7 @@ DEBUG_ENTRY("dissect_per_constrained_integer_64b");
 		num_bytes =tvb_get_bits8(tvb, offset, n_bits);
 		num_bytes++;  /* lower bound for length determinant is 1 */
 		if (display_internal_per_fields){
-			int_item = proto_tree_add_bits_item(tree, hf_per_const_int_len, tvb, offset,n_bits, FALSE);
+			int_item = proto_tree_add_bits_item(tree, hf_per_const_int_len, tvb, offset,n_bits, ENC_BIG_ENDIAN);
 			proto_item_append_text(int_item,"+1=%u bytes, Range = (%" G_GINT64_MODIFIER "u)",num_bytes, range);
 		}
 		offset = offset+n_bits;
@@ -1995,29 +1995,29 @@ static tvbuff_t *dissect_per_bit_string_display(tvbuff_t *tvb, guint32 offset, a
 			if (length<=8) {
 				value = tvb_get_bits8(out_tvb, 0, length);
 			}else if (length<=16) {
-				value = tvb_get_bits16(out_tvb, 0, length, FALSE);
+				value = tvb_get_bits16(out_tvb, 0, length, ENC_BIG_ENDIAN);
 			}else if (length<=24) { /* first read 16 and then the remaining bits */
-				value = tvb_get_bits16(out_tvb, 0, 16, FALSE);
+				value = tvb_get_bits16(out_tvb, 0, 16, ENC_BIG_ENDIAN);
 				value <<= 8;
 				value |= tvb_get_bits8(out_tvb, 16, length - 16);
 			}else if (length<=32) {
-				value = tvb_get_bits32(out_tvb, 0, length, FALSE);
+				value = tvb_get_bits32(out_tvb, 0, length, ENC_BIG_ENDIAN);
 			}else if (length<=40) { /* first read 32 and then the remaining bits */
-				value = tvb_get_bits32(out_tvb, 0, 32, FALSE);
+				value = tvb_get_bits32(out_tvb, 0, 32, ENC_BIG_ENDIAN);
 				value <<= 8;
 				value |= tvb_get_bits8(out_tvb, 32, length - 32);
 			}else if (length<=48) { /* first read 32 and then the remaining bits */
-				value = tvb_get_bits32(out_tvb, 0, 32, FALSE);
+				value = tvb_get_bits32(out_tvb, 0, 32, ENC_BIG_ENDIAN);
 				value <<= 16;
-				value |= tvb_get_bits16(out_tvb, 32, length - 32, FALSE);
+				value |= tvb_get_bits16(out_tvb, 32, length - 32, ENC_BIG_ENDIAN);
 			}else if (length<=56) { /* first read 32 and 16 then the remaining bits */
-				value = tvb_get_bits32(out_tvb, 0, 32, FALSE);
+				value = tvb_get_bits32(out_tvb, 0, 32, ENC_BIG_ENDIAN);
 				value <<= 16;
-				value |= tvb_get_bits16(out_tvb, 32, 16, FALSE);
+				value |= tvb_get_bits16(out_tvb, 32, 16, ENC_BIG_ENDIAN);
 				value <<= 8;
 				value |= tvb_get_bits8(out_tvb, 48, length - 48);
 			}else {
-				value = tvb_get_bits64(out_tvb, 0, length, FALSE);
+				value = tvb_get_bits64(out_tvb, 0, length, ENC_BIG_ENDIAN);
 			}
 			proto_item_append_text(actx->created_item, ", %s decimal value %" G_GINT64_MODIFIER "u",
 				decode_bits_in_field(0, length, value), value);

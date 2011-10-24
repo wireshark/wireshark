@@ -4811,9 +4811,9 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 
 			case 0x02:
 				proto_tree_add_text(tf_tree, tvb, curr_offset, 2, "Media Component number value: 0x%x",
-			                        tvb_get_bits16(tvb, curr_offset<<3, 16, FALSE));
+			                        tvb_get_bits16(tvb, curr_offset<<3, 16, ENC_BIG_ENDIAN));
 				proto_tree_add_text(tf_tree, tvb, curr_offset+2, 2, "IP flow number: 0x%x",
-			                        tvb_get_bits16(tvb, (curr_offset+2)<<3, 16, FALSE));
+			                        tvb_get_bits16(tvb, (curr_offset+2)<<3, 16, ENC_BIG_ENDIAN));
 				break;
 
 			case 0x03:

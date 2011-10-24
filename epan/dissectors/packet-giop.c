@@ -3995,7 +3995,7 @@ static void dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree
     case 1:
       ti = proto_tree_add_bitmask(clnp_tree, giop_header_tvb, 6,
                                   hf_giop_message_flags, ett_giop_message_flags,
-                                  giop_message_flags, FALSE);
+                                  giop_message_flags, ENC_BIG_ENDIAN);
       if ((header.flags & GIOP_MESSAGE_FLAGS_ENDIANNESS) == 0)
         proto_item_append_text(ti, ", (Big Endian)");  /* hack to show "Big Endian" when endianness flag == 0 */
       break;

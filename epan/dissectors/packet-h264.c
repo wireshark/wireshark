@@ -519,9 +519,9 @@ dissect_h264_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint
 	if (leading_zero_bits > 32)
 		DISSECTOR_ASSERT_NOT_REACHED();
 	else if (leading_zero_bits > 16)
-		value = tvb_get_bits32(tvb, bit_offset,leading_zero_bits, FALSE);
+		value = tvb_get_bits32(tvb, bit_offset,leading_zero_bits, ENC_BIG_ENDIAN);
 	else if (leading_zero_bits > 8)
-		value = tvb_get_bits16(tvb, bit_offset,leading_zero_bits, FALSE);
+		value = tvb_get_bits16(tvb, bit_offset,leading_zero_bits, ENC_BIG_ENDIAN);
 	else
 		value = tvb_get_bits8(tvb, bit_offset,leading_zero_bits );
 	codenum = (codenum-1) + value;
@@ -1698,7 +1698,7 @@ startover:
 	/* In decoder configuration start code may be pressent
 	 * B.1.1 Byte stream NAL unit syntax
 	 */
-	dword = tvb_get_bits32(tvb, offset<<3, 32, FALSE);
+	dword = tvb_get_bits32(tvb, offset<<3, 32, ENC_BIG_ENDIAN);
 	if(dword==1){
 		/* zero_byte + start_code_prefix_one_3bytes */
 		offset+=4;
@@ -1902,7 +1902,7 @@ dissect_h264_par_profile(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 
   proto_tree_add_bitmask(tree, tvb, offset,
                          hf_h264_par_profile, ett_h264_par_profile,
-                         profile_fields, FALSE);
+                         profile_fields, ENC_BIG_ENDIAN);
   offset += 1;
   return offset;
 }
@@ -1918,7 +1918,7 @@ dissect_h264_par_AdditionalModesSupported(tvbuff_t *tvb, packet_info *pinfo _U_,
 
   proto_tree_add_bitmask(tree, tvb, offset,
                          hf_h264_par_AdditionalModesSupported, ett_h264_par_AdditionalModesSupported,
-                         AdditionalModesSupported_fields, FALSE);
+                         AdditionalModesSupported_fields, ENC_BIG_ENDIAN);
   offset += 1;
   return offset;
 }
@@ -1939,7 +1939,7 @@ dissect_h264_ProfileIOP(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
   proto_tree_add_bitmask(tree, tvb, offset,
                          hf_h264_par_ProfileIOP, ett_h264_par_ProfileIOP,
-                         ProfileIOP_fields, FALSE);
+                         ProfileIOP_fields, ENC_BIG_ENDIAN);
   offset += 1;
   return offset;
 }

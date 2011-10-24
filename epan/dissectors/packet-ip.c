@@ -1488,18 +1488,18 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     field_tree = proto_item_add_subtree(tf, ett_ip_off);
     if (ip_security_flag) {
       proto_item *sf;
-      sf = proto_tree_add_bits_item(field_tree, hf_ip_flags_sf, tvb, bit_offset + 0, 1, FALSE);
+      sf = proto_tree_add_bits_item(field_tree, hf_ip_flags_sf, tvb, bit_offset + 0, 1, ENC_BIG_ENDIAN);
       if (iph->ip_off & IP_RF) {
         proto_item_append_text(tf, " (Evil packet!)");
         expert_add_info_format(pinfo, sf, PI_SECURITY, PI_WARN, "This is an Evil packet (RFC 3514)");
       }
     } else {
-      proto_tree_add_bits_item(field_tree, hf_ip_flags_rf, tvb, bit_offset + 0, 1, TRUE);
+      proto_tree_add_bits_item(field_tree, hf_ip_flags_rf, tvb, bit_offset + 0, 1, ENC_LITTLE_ENDIAN);
     }
     if (iph->ip_off & IP_DF) proto_item_append_text(tf, " (Don't Fragment)");
-    proto_tree_add_bits_item(field_tree, hf_ip_flags_df, tvb, bit_offset + 1, 1, FALSE);
+    proto_tree_add_bits_item(field_tree, hf_ip_flags_df, tvb, bit_offset + 1, 1, ENC_BIG_ENDIAN);
     if (iph->ip_off & IP_MF) proto_item_append_text(tf, " (More Fragments)");
-    proto_tree_add_bits_item(field_tree, hf_ip_flags_mf, tvb, bit_offset + 2, 1, FALSE);
+    proto_tree_add_bits_item(field_tree, hf_ip_flags_mf, tvb, bit_offset + 2, 1, ENC_BIG_ENDIAN);
 
     proto_tree_add_uint(ip_tree, hf_ip_frag_offset, tvb, offset + 6, 2,
       (iph->ip_off & IP_OFFSET)*8);

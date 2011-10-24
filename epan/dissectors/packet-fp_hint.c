@@ -215,8 +215,8 @@ static guint16 assign_rb_info(tvbuff_t *tvb, packet_info *pinfo, guint16 offset,
 
 			if (urnti)
 				proto_tree_add_uint(subtree, hf_fph_urnti, tvb, offset, 4, urnti);
-			proto_tree_add_bits_item(subtree, hf_fph_content, tvb, (offset+4)*8+4, 2, TRUE);
-			proto_tree_add_bits_item(subtree, hf_fph_rlcmode, tvb, (offset+4)*8+6, 2, TRUE);
+			proto_tree_add_bits_item(subtree, hf_fph_content, tvb, (offset+4)*8+4, 2, ENC_LITTLE_ENDIAN);
+			proto_tree_add_bits_item(subtree, hf_fph_rlcmode, tvb, (offset+4)*8+6, 2, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(subtree, hf_fph_rbid, tvb, (offset+4), 2, ENC_LITTLE_ENDIAN);
 			proto_tree_add_boolean(subtree, hf_fph_ctmux, tvb, offset+5, 1, ctmux);
 			proto_tree_add_boolean(subtree, hf_fph_ciphered, tvb, offset+5, 1, ciphered);
@@ -366,9 +366,9 @@ static void assign_fph_hsdsch(tvbuff_t *tvb, packet_info *pinfo, guint16 offset,
 
 	if (tree) {
 		proto_tree_add_bits_item(tree, hf_fph_macehs, tvb,
-			offset*8+4, 1, TRUE);
+			offset*8+4, 1, ENC_LITTLE_ENDIAN);
 		proto_tree_add_bits_item(tree, hf_fph_macdflowid, tvb,
-			offset*8+5, 3, TRUE);
+			offset*8+5, 3, ENC_LITTLE_ENDIAN);
 	}
 
 	offset++;

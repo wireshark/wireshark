@@ -261,13 +261,13 @@ dissect_mp4ves_user_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	int start_bit_offset;
 
 	/* user_data_start_code */
-	proto_tree_add_bits_item(tree, hf_mp4ves_start_code_prefix, tvb, bit_offset, 24, FALSE);
+	proto_tree_add_bits_item(tree, hf_mp4ves_start_code_prefix, tvb, bit_offset, 24, ENC_BIG_ENDIAN);
 	bit_offset+=24;
-	proto_tree_add_bits_item(tree, hf_mp4ves_start_code, tvb, bit_offset, 8, FALSE);
+	proto_tree_add_bits_item(tree, hf_mp4ves_start_code, tvb, bit_offset, 8, ENC_BIG_ENDIAN);
 	bit_offset+=8;
 	start_bit_offset = bit_offset;
 	/* while( next_bits() != '000 0000 0000 0000 0000 0001') { */
-	while ( tvb_get_bits32(tvb,bit_offset, 24, FALSE) != 1){
+	while ( tvb_get_bits32(tvb,bit_offset, 24, ENC_BIG_ENDIAN) != 1){
 		bit_offset+=8;
 		/* user_data 8 bits */
 	}
@@ -304,7 +304,7 @@ dissect_mp4ves_next_start_code(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 		bit_offset++;
 	}
 
-	proto_tree_add_bits_item(tree, hf_mp4ves_stuffing, tvb, start_bit_offset, bit_offset-start_bit_offset, FALSE);
+	proto_tree_add_bits_item(tree, hf_mp4ves_stuffing, tvb, start_bit_offset, bit_offset-start_bit_offset, ENC_BIG_ENDIAN);
 
 	return bit_offset;
 }
@@ -331,7 +331,7 @@ dissect_mp4ves_visual_object_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 	guint8 video_signal_type, colour_description;
 
 	video_signal_type = tvb_get_bits8(tvb,bit_offset,1);
-	proto_tree_add_bits_item(tree, hf_mp4ves_video_signal_type, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_mp4ves_video_signal_type, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset++;
 	if (video_signal_type) {
 		/* video_format 3 bits */
@@ -399,7 +399,7 @@ dissect_mp4ves_VideoObjectLayer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	guint8 video_object_layer_shape, video_object_layer_verid = 0;
 
 	/* if(next_bits() == video_object_layer_start_code) { */
-	dword = tvb_get_bits32(tvb,bit_offset, 24, FALSE);
+	dword = tvb_get_bits32(tvb,bit_offset, 24, ENC_BIG_ENDIAN);
 	if (dword != 1){
 		return bit_offset;
 	}
@@ -410,21 +410,21 @@ dissect_mp4ves_VideoObjectLayer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 		return bit_offset;
 	}
 	/* video_object_layer_start_code */
-	proto_tree_add_bits_item(tree, hf_mp4ves_start_code_prefix, tvb, bit_offset, 24, FALSE);
+	proto_tree_add_bits_item(tree, hf_mp4ves_start_code_prefix, tvb, bit_offset, 24, ENC_BIG_ENDIAN);
 	bit_offset+=24;
-	proto_tree_add_bits_item(tree, hf_mp4ves_start_code, tvb, bit_offset, 8, FALSE);
+	proto_tree_add_bits_item(tree, hf_mp4ves_start_code, tvb, bit_offset, 8, ENC_BIG_ENDIAN);
 	bit_offset+= 8;
 
 	/* short_video_header = 0 */
 	/* random_accessible_vol 1 */
-	proto_tree_add_bits_item(tree, hf_mp4ves_random_accessible_vol, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_mp4ves_random_accessible_vol, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset++;
 	/* video_object_type_indication 8 */
-	proto_tree_add_bits_item(tree, hf_mp4ves_video_object_type_indication, tvb, bit_offset, 8, FALSE);
+	proto_tree_add_bits_item(tree, hf_mp4ves_video_object_type_indication, tvb, bit_offset, 8, ENC_BIG_ENDIAN);
 	bit_offset+= 8;
 	/* is_object_layer_identifier 1 */
 	is_object_layer_identifier = tvb_get_bits8(tvb,bit_offset, 1);
-	proto_tree_add_bits_item(tree, hf_mp4ves_is_object_layer_identifier, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_mp4ves_is_object_layer_identifier, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset++;
 	if(is_object_layer_identifier) {
 		/* video_object_layer_verid 4 uimsbf */
@@ -434,7 +434,7 @@ dissect_mp4ves_VideoObjectLayer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	}
 	/* aspect_ratio_info 4 uimsbf */
 	aspect_ratio_info = tvb_get_bits8(tvb,bit_offset, 1);
-	proto_tree_add_bits_item(tree, hf_mp4ves_aspect_ratio_info, tvb, bit_offset, 4, FALSE);
+	proto_tree_add_bits_item(tree, hf_mp4ves_aspect_ratio_info, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 	if (aspect_ratio_info == 0xf /*"extended_PAR"*/ ) {
 		/* par_width 8 uimsbf */
 		bit_offset+=8;
@@ -444,7 +444,7 @@ dissect_mp4ves_VideoObjectLayer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	/* vol_control_parameters 1 bslbf */
 	/* vol_control_parameters 1 bslbf */
 	vol_control_parameters = tvb_get_bits8(tvb,bit_offset, 1);
-	proto_tree_add_bits_item(tree, hf_mp4ves_vol_control_parameters, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_mp4ves_vol_control_parameters, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset++;
 	current_bit_offset = bit_offset;
 	if (vol_control_parameters) {
@@ -484,7 +484,7 @@ dissect_mp4ves_VideoObjectLayer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 		proto_tree_add_text(tree, tvb, current_bit_offset>>3, (bit_offset+7)>>3, "Not dissected bits");
 	/* video_object_layer_shape 2 uimsbf */
 	video_object_layer_shape = tvb_get_bits8(tvb,bit_offset, 2);
-	proto_tree_add_bits_item(tree, hf_mp4ves_video_object_layer_shape, tvb, bit_offset, 2, FALSE);
+	proto_tree_add_bits_item(tree, hf_mp4ves_video_object_layer_shape, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
 	bit_offset+=2;
 	if (video_object_layer_shape == 3/*"grayscale"*/&& video_object_layer_verid != 1){
 		/* video_object_layer_shape_extension 4 uimsbf */
@@ -548,7 +548,7 @@ dissect_mp4ves_VisualObject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	guint8 octet;
 
 	is_visual_object_identifier = tvb_get_bits8(tvb,bit_offset,1);
-	proto_tree_add_bits_item(tree, hf_mp4ves_is_visual_object_identifier, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_mp4ves_is_visual_object_identifier, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset++;
 	if(is_visual_object_identifier){
 		/* visual_object_verid 4 bits*/
@@ -558,7 +558,7 @@ dissect_mp4ves_VisualObject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 	/* visual_object_type 4 bits*/
 	visual_object_type = tvb_get_bits8(tvb,bit_offset,4);
-	proto_tree_add_bits_item(tree, hf_mp4ves_visual_object_type, tvb, bit_offset, 4, FALSE);
+	proto_tree_add_bits_item(tree, hf_mp4ves_visual_object_type, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 	bit_offset+=4;
 	if ((visual_object_type == 1/*"Video ID"*/) || (visual_object_type == 2/*"still textureID"*/)) {
 		/* video_signal_type() */
@@ -566,7 +566,7 @@ dissect_mp4ves_VisualObject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 	/* next_start_code() */
 	bit_offset = dissect_mp4ves_next_start_code(tvb, pinfo, tree, bit_offset);
-	dword = tvb_get_bits32(tvb,bit_offset, 32, FALSE);
+	dword = tvb_get_bits32(tvb,bit_offset, 32, ENC_BIG_ENDIAN);
 /*
 	while ( next_bits()== user_data_start_code){
 		user_data()
@@ -574,13 +574,13 @@ dissect_mp4ves_VisualObject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 */
 	while(dword==0x1b2){
 		bit_offset = dissect_mp4ves_user_data(tvb, pinfo, tree, bit_offset);
-		dword = tvb_get_bits32(tvb,bit_offset, 32, FALSE);
+		dword = tvb_get_bits32(tvb,bit_offset, 32, ENC_BIG_ENDIAN);
 	}
 	if (visual_object_type == 1/*"Video ID"*/) {
 		/*
 		 * video_object_start_code
 		 */
-		dword = tvb_get_bits32(tvb,bit_offset, 24, FALSE);
+		dword = tvb_get_bits32(tvb,bit_offset, 24, ENC_BIG_ENDIAN);
 		if (dword != 1){
 			/* no start code */
 			return -1;
@@ -590,9 +590,9 @@ dissect_mp4ves_VisualObject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			/* Error */
 			return -1;
 		}
-		proto_tree_add_bits_item(tree, hf_mp4ves_start_code_prefix, tvb, bit_offset, 24, FALSE);
+		proto_tree_add_bits_item(tree, hf_mp4ves_start_code_prefix, tvb, bit_offset, 24, ENC_BIG_ENDIAN);
 		bit_offset+=24;
-		proto_tree_add_bits_item(tree, hf_mp4ves_start_code, tvb, bit_offset, 8, FALSE);
+		proto_tree_add_bits_item(tree, hf_mp4ves_start_code, tvb, bit_offset, 8, ENC_BIG_ENDIAN);
 		bit_offset+= 8;
 		if(tvb_length_remaining(tvb,(bit_offset>>3))==0){
 			item = proto_tree_add_text(tree, tvb, 0, -1, "Config string to short");
@@ -619,29 +619,29 @@ dissect_mp4ves_VisualObjectSequence(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	*/
 
 	/* Get start code prefix */
-	dword = tvb_get_bits32(tvb,bit_offset, 32, FALSE);
+	dword = tvb_get_bits32(tvb,bit_offset, 32, ENC_BIG_ENDIAN);
 	if ((dword & 0x00000100) != 0x00000100){
 		/* No start code prefix */
 		return -1;
 	}
-	proto_tree_add_bits_item(tree, hf_mp4ves_start_code_prefix, tvb, bit_offset, 24, FALSE);
+	proto_tree_add_bits_item(tree, hf_mp4ves_start_code_prefix, tvb, bit_offset, 24, ENC_BIG_ENDIAN);
 	bit_offset+= 24;
 
-	proto_tree_add_bits_item(tree, hf_mp4ves_start_code, tvb, bit_offset, 8, FALSE);
+	proto_tree_add_bits_item(tree, hf_mp4ves_start_code, tvb, bit_offset, 8, ENC_BIG_ENDIAN);
 	bit_offset+= 8;
 
 	/* Expect visual_object_sequence_start_code */
 	if(dword != 0x1b0)
 		return -1;
 	/* 	profile_and_level_indication */
-	proto_tree_add_bits_item(tree, hf_mp4ves_profile_and_level_indication, tvb, bit_offset, 8, FALSE);
+	proto_tree_add_bits_item(tree, hf_mp4ves_profile_and_level_indication, tvb, bit_offset, 8, ENC_BIG_ENDIAN);
 	bit_offset+= 8;
 
 	/* 	while ( next_bits()== user_data_start_code){
 		user_data()
 	}
 	*/
-	dword = tvb_get_bits32(tvb,bit_offset, 32, FALSE);
+	dword = tvb_get_bits32(tvb,bit_offset, 32, ENC_BIG_ENDIAN);
 	bit_offset+= 32;
 	if ((dword & 0x00000100) != 0x00000100){
 		/* No start code prefix */
@@ -747,7 +747,7 @@ dissect_mp4ves(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_text(mp4ves_tree, tvb, bit_offset>>3, -1, "Data");
 			return;
 		}
-		dword = tvb_get_bits32(tvb,bit_offset, 24, FALSE);
+		dword = tvb_get_bits32(tvb,bit_offset, 24, ENC_BIG_ENDIAN);
 		if (dword != 1){
 			/* if it's not 23 zeros followed by 1 it isn't a start code */
 			proto_tree_add_text(mp4ves_tree, tvb, bit_offset>>3, -1, "Data");
@@ -758,17 +758,17 @@ dissect_mp4ves(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		switch(dword){
 		/* vop_start_code */
 		case 0xb6:
-			proto_tree_add_bits_item(mp4ves_tree, hf_mp4ves_start_code_prefix, tvb, bit_offset, 24, FALSE);
+			proto_tree_add_bits_item(mp4ves_tree, hf_mp4ves_start_code_prefix, tvb, bit_offset, 24, ENC_BIG_ENDIAN);
 			bit_offset = bit_offset+24;
 			/* vop_coding_type 2 bits */
-			proto_tree_add_bits_item(mp4ves_tree, hf_mp4ves_vop_coding_type, tvb, bit_offset, 2, FALSE);
+			proto_tree_add_bits_item(mp4ves_tree, hf_mp4ves_vop_coding_type, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
 			break;
 		case 0xb0:
 			/* VS start code */
 			bit_offset = dissect_mp4ves_VisualObjectSequence(tvb, pinfo, mp4ves_tree, 0);
 			break;
 		default:
-			proto_tree_add_bits_item(mp4ves_tree, hf_mp4ves_start_code_prefix, tvb, bit_offset, 24, FALSE);
+			proto_tree_add_bits_item(mp4ves_tree, hf_mp4ves_start_code_prefix, tvb, bit_offset, 24, ENC_BIG_ENDIAN);
 			bit_offset = bit_offset+24;
 			break;
 		}

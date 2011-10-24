@@ -2977,7 +2977,7 @@ tn5250_add_hf_items(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset,
                           fields[i].length, fields[i].encoding);
     } else {
       proto_tree_add_bitmask(tn5250_tree, tvb, offset, fields[i].hf,
-                             fields[i].bitmask_ett, fields[i].bitmask, FALSE);
+                             fields[i].bitmask_ett, fields[i].bitmask, ENC_BIG_ENDIAN);
     }
     DISSECTOR_ASSERT(fields[i].length > 0);
     offset+=fields[i].length;
@@ -3166,7 +3166,7 @@ dissect_field_attribute_pair(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset
   switch (attribute_type) {
     case EXTENDED_PRIMARY_ATTRIBUTES:
       proto_tree_add_bitmask(tn5250_tree, tvb, offset, hf_tn5250_wea_prim_attr,
-                             ett_tn5250_wea_prim_attr, byte, FALSE);
+                             ett_tn5250_wea_prim_attr, byte, ENC_BIG_ENDIAN);
       offset++;
       break;
     case EXTENDED_FOREGROUND_COLOR_ATTRIBUTES:
@@ -3260,7 +3260,7 @@ dissect_start_of_field(proto_tree *tn5250_tree, tvbuff_t *tvb, gint offset)
 
   if (fa & FA_ID) {
     proto_tree_add_bitmask(tn5250_tree, tvb, offset, hf_tn5250_fa,
-                           ett_tn5250_wea_prim_attr, fabyte, FALSE);
+                           ett_tn5250_wea_prim_attr, fabyte, ENC_BIG_ENDIAN);
     offset++;
   } else {
     proto_tree_add_item(tn5250_tree, hf_tn5250_fa_color, tvb, offset,

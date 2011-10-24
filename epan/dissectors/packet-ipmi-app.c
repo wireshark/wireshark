@@ -480,7 +480,7 @@ rs04(tvbuff_t *tvb, proto_tree *tree)
 		return;
 	}
 
-	proto_tree_add_bitmask(tree, tvb, 1, hf_ipmi_app_04_fail, ett_ipmi_app_04_byte2, byte2, TRUE);
+	proto_tree_add_bitmask(tree, tvb, 1, hf_ipmi_app_04_fail, ett_ipmi_app_04_byte2, byte2, ENC_LITTLE_ENDIAN);
 }
 
 /* Manufacturing Test On.

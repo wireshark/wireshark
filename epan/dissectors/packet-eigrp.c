@@ -893,7 +893,7 @@ static void
 dissect_eigrp_peer_stubinfo (tvbuff_t *tvb, proto_tree *tree)
 {
     proto_tree_add_bitmask(tree, tvb, 0, hf_eigrp_stub_flags, ett_eigrp_stub_flags,
-			   eigrp_stub_flag_fields, FALSE);
+			   eigrp_stub_flag_fields, ENC_BIG_ENDIAN);
 }
 
 /**
@@ -2509,7 +2509,7 @@ dissect_eigrp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Decode the EIGRP Flags Field */
 	proto_tree_add_bitmask(eigrp_tree, tvb, 4, hf_eigrp_flags, ett_eigrp_flags,
-			       eigrp_flag_fields, FALSE);
+			       eigrp_flag_fields, ENC_BIG_ENDIAN);
 
 	proto_tree_add_item(eigrp_tree, hf_eigrp_sequence, tvb, 8, 4,
 			    ENC_BIG_ENDIAN);

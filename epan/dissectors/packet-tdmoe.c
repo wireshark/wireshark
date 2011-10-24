@@ -93,7 +93,7 @@ dissect_tdmoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset++;
 
 		/* Yellow alarm & "Sig bits present" bits (1 byte) */
-		proto_tree_add_bitmask(tdmoe_tree, tvb, offset, hf_tdmoe_flags, ett_tdmoe_flags, flags, ENC_NA/*??*/);
+		proto_tree_add_bitmask(tdmoe_tree, tvb, offset, hf_tdmoe_flags, ett_tdmoe_flags, flags, ENC_BIG_ENDIAN);
 		offset++;
 
 		/* Packet counter (2 bytes) */
