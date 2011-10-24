@@ -219,6 +219,8 @@ if (!$result || $helpFlag || !$ARGV[0]) {
 # Note: The proto_tree_add_item() encoding arg will be converted only if
 #        the hf_index_name referenced is in one of the entries in hf[] in the same file
 
+my $found_total = 0;
+
 while (my $fileName = $ARGV[0]) {
     shift;
     my $fileContents = '';
@@ -257,7 +259,7 @@ while (my $fileName = $ARGV[0]) {
         print FCO "$fileContents";
         close(FCO);
     }
-    exit $found;
+    $found_total += $found;
 
 # Optional searches:
 # search for (and output) proto_tree_add_item() statements with invalid encoding arg for specified field types
@@ -274,7 +276,9 @@ while (my $fileName = $ARGV[0]) {
 #  and output same highlighting the encoding arg
 #    find_all(\$fileContents, $fileName);
 
-}
+} # while
+
+exit $found_total;
 
 #==================================================================================
 
