@@ -1055,6 +1055,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-vicp.c
 	dissectors/packet-vines.c
 	dissectors/packet-vj.c
+	dissectors/packet-vlan.c
 	dissectors/packet-vmlab.c
 	dissectors/packet-vnc.c
 	dissectors/packet-vrrp.c

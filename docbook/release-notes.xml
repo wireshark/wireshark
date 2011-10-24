@@ -91,6 +91,24 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Ethernet packets with both VLAN tag and LLC header no longer displayed correctly.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5645">Bug
+          5645</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          SLL encapsuled 802.1Q VLAN is not dissected.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5680">Bug
+          5680</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Dissection fails for frames with Gigamon Header and VLAN.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6305">Bug
+          6305</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           RTP Stream Analysis does not work for TURN-encapsulated RTP.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6322">Bug
           6322</ulink>)
@@ -132,6 +150,12 @@ Wireshark Info
           6362</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          Inner tag of 802.1ad frames not parsed properly.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6366">Bug
+          6366</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
@@ -161,8 +185,10 @@ ASN.1 PER,
 BACnet,
 CSN.1,
 DTN,
+Ethernet,
 ICMPv6,
 IEEE 802.11,
+IEEE 802.1q,
 PCEP,
 RTP,
 SSL

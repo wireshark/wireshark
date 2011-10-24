@@ -852,6 +852,14 @@ prefs_set_preference_obsolete(pref_t *pref)
 	return PREFS_SET_NO_SUCH_PREF;
 }
 
+/* Return the value assigned to the given uint preference. */
+guint prefs_get_uint_preference(pref_t *pref)
+{
+	if (pref && pref->type == PREF_UINT)
+		return *pref->varp.uint;
+	return 0;
+}
+
 /*
  * Call a callback function, with a specified argument, for each preference
  * in a given module.
@@ -1942,7 +1950,7 @@ try_convert_to_custom_column(gpointer *el_data)
         gint el;
         gchar *col_expr;
     } migrated_columns[] = {
-        { COL_COS_VALUE, "eth.vlan.pri" },
+        { COL_COS_VALUE, "vlan.priority" },
         { COL_CIRCUIT_ID, "iax2.call" },
         { COL_BSSGP_TLLI, "bssgp.tlli" },
         { COL_HPUX_SUBSYS, "nettl.subsys" },
@@ -2429,8 +2437,6 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_,
          *
          * We also renamed "dcp" to "dccp", "x.25" to "x25" and "nsip" to "gprs_ns".
 	 *
-	 * The vlan dissector was integrated into the Ethernet dissector.
-	 *
 	 * The SynOptics Network Management Protocol (SONMP) is now known by
 	 * its modern name, the Nortel Discovery Protocol (NDP).
 	 *
@@ -2449,8 +2455,6 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_,
             module = prefs_find_module("dccp");
           else if (strcmp(pref_name, "x.25") == 0)
             module = prefs_find_module("x25");
-	  else if (strcmp(pref_name, "vlan") == 0)
-	    module = prefs_find_module("eth");
           else if (strcmp(pref_name, "nsip") == 0)
             module = prefs_find_module("gprs-ns");
           else if (strcmp(pref_name, "sonmp") == 0)
@@ -2683,6 +2687,15 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_,
             value = "mtp2";
           else if (strcmp(value, "raw") == 0 || strcmp(value, "Raw data") == 0)
             value = "guess";
+        }
+      } else if (strcmp(module->name, "eth") == 0) {
+        /* "eth.qinq_ethertype" has been changed(restored) to "vlan.qinq.ethertype" */
+        if (strcmp(dotp, "qinq_ethertype") == 0) {
+          module_t *new_module = prefs_find_module("vlan");
+          if(new_module) {
+            pref = prefs_find_preference(new_module, "qinq_ethertype");
+            module = new_module;
+          }
         }
       }
     }
