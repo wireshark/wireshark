@@ -246,8 +246,9 @@ PARTICULAR PURPOSE.]]>
     <section>
       <title>Toolchain Package Alternatives</title>
       <para>
-        The official Wireshark 1.4.x and 1.2.x releases are compiled using
-        Microsoft Visual C++ 2008 SP1. Past releases, including the 1.0 branch,
+        The official Wireshark 1.6.x and 1.4.x releases are compiled using
+        Microsoft Visual C++ 2008 SP1. (The no longer supported 1.2.x release
+        was also compiled with Microsoft Visual C++ 2008 SP1). Other past releases, including the 1.0 branch,
         were compiled using Microsoft Visual C++ 6.0. Using the release
         compilers is recommended for Wireshark development work. "Express
         Edition" compilers such as Visual C++ 2008 Express Edition SP1 can be
@@ -380,7 +381,8 @@ PARTICULAR PURPOSE.]]>
                 <para>Yes</para>
               </entry>
               <entry>
-                <para>Commercial</para>
+                <para>Commercial
+                <superscript>1</superscript></para>
               </entry>
               <entry>
                 <para>MSVC2005</para>
@@ -830,6 +832,25 @@ PARTICULAR PURPOSE.]]>
                 <para>Visual Studio 2008 Express Edition</para>
               </entry>
             </row>
+            <row>
+              <entry>
+                <para>Visual Studio 2010</para>
+              </entry>
+              <entry align="center" morerows="1" valign="middle">
+                <para>10.0</para>
+              </entry>
+              <entry align="center" morerows="1" valign="middle">
+                <para>1600</para>
+              </entry>
+              <entry align="center" morerows="1" valign="middle">
+                <para>msvcr100.dll</para>
+              </entry>
+            </row>
+            <row>
+              <entry>
+                <para>Visual Studio 2010 Express Edition</para>
+              </entry>
+            </row>
           </tbody>
         </tgroup>
       </informaltable>
@@ -841,8 +862,8 @@ PARTICULAR PURPOSE.]]>
       </para>
       <para>should result in something like:
       <programlisting>
-<![CDATA[Microsoft (R) 32-bit C/C++ Optimizing Compiler Version 12.00.8804 for 80x86
-Copyright (C) Microsoft Corp 1984-1998. All rights reserved.
+<![CDATA[Microsoft (R) 32-bit C/C++ Optimizing Compiler Version 15.00.30729.01 for 80x86
+Copyright (C) Microsoft Corp. All rights reserved.
 
 usage: cl [ option... ] filename... [ /link linkoption... ]]>
       </programlisting>However, the version string may vary.</para>
@@ -1037,9 +1058,25 @@ Stop.]]>
         find a different version number!</para>
       </section>
       <section>
-        <title>Version 10.0 (2010)?</title>
-        <para>As the corresponding C compiler is preliminary, it's
-        too early to say!</para>
+        <title>msvcr100.dll / vcredist_x86.exe - Version 10.0 (2010)</title>
+        <para>
+          <itemizedlist>
+            <listitem>
+              <para>
+              <command>10.0.30319.1</command>, from: "Microsoft Visual C++
+			  2010 Redistributable Package (x86)":
+              <ulink url="http://www.microsoft.com/download/en/details.aspx?displaylang=en&amp;id=5555" /></para>
+            </listitem>
+            <listitem>
+              <para>
+              <command>10.0.40219.1</command>, from: "Microsoft Visual C++
+			  2010 SP1 Redistributable Package (x86)":
+              <ulink url="http://www.microsoft.com/download/en/details.aspx?displaylang=en&amp;id=8328" /></para>
+            </listitem>
+          </itemizedlist>
+        </para>
+        <para>Please report to the developer mailing list, if you
+        find a different version number!</para>
       </section>
     </section>
     <section>
