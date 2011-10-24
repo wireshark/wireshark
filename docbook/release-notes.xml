@@ -73,6 +73,12 @@ Wireshark Info
 -->
 
         <listitem><para>
+          Assertion failed when doing File-&gt;Quit-&gt;Save during live capture.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1710">Bug
+          1710</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Wrong PCEP XRO sub-object decoding.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3778">Bug
           3778</ulink>)
@@ -91,6 +97,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          wireshark-1.4.2 crashes when testing the example python dissector because of a dissector count assertion.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5431">Bug
+          5431</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Ethernet packets with both VLAN tag and LLC header no longer displayed correctly.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5645">Bug
           5645</ulink>)
@@ -100,6 +112,12 @@ Wireshark Info
           SLL encapsuled 802.1Q VLAN is not dissected.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5680">Bug
           5680</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Adding and removing custom HTTP headers requires a restart.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6241">Bug
+          6241</ulink>)
         </para></listitem>
 
         <listitem><para>
@@ -156,6 +174,24 @@ Wireshark Info
           6366</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          Added cursor type decoding to MySQL dissector.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6396">Bug
+          6396</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Incorrect identification of UDP-encapsulated NAT-keepalive packets.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6414">Bug
+          6414</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          S1AP protocol can't decode IPv6 transportLayerAddress.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6435">Bug
+          6435</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
@@ -189,8 +225,12 @@ Ethernet,
 ICMPv6,
 IEEE 802.11,
 IEEE 802.1q,
+IPsec,
+MySQL,
 PCEP,
+PN-RT,
 RTP,
+S1AP,
 SSL
 
     </para>

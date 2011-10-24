@@ -196,6 +196,9 @@ display_simple_dialog(gint type, gint btn_mask, char *message)
   case(ESD_BTNS_SAVE_QUIT_DONTSAVE_CANCEL):
     bbox = dlg_button_row_new(GTK_STOCK_SAVE, WIRESHARK_STOCK_QUIT_DONT_SAVE, GTK_STOCK_CANCEL, NULL);
     break;
+  case (ESD_BTNS_QUIT_DONTSAVE_CANCEL):
+    bbox = dlg_button_row_new(WIRESHARK_STOCK_QUIT_DONT_SAVE, GTK_STOCK_CANCEL, NULL);
+    break;
   case(ESD_BTNS_YES_NO):
     bbox = dlg_button_row_new(GTK_STOCK_YES, GTK_STOCK_NO, NULL);
     break;

@@ -52,12 +52,12 @@ dissect_udpencap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_clear(pinfo->cinfo, COL_INFO);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_udpencap, tvb, 0, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_udpencap, tvb, 0, -1, ENC_NA);
     udpencap_tree = proto_item_add_subtree(ti, ett_udpencap);
   }
 
-  /* First byte of 0 iindicates NAT-keepalive */
-  if (tvb_get_guint8(tvb, 0) == 0xff) {
+  /* 1 byte of 0xFF indicates NAT-keepalive */
+  if ((tvb_length(tvb) == 1) && (tvb_get_guint8(tvb, 0) == 0xff)) {
     col_set_str(pinfo->cinfo, COL_INFO, "NAT-keepalive");
     if (tree)
       proto_tree_add_text(udpencap_tree, tvb, 0, 1, "NAT-keepalive packet");

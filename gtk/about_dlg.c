@@ -181,7 +181,7 @@ splash_update(register_action_e action, const char *message, gpointer client_dat
     if (win == NULL) return;
 
     g_get_current_time(&cur_tv);
-    if (cur_tv.tv_sec <= next_tv.tv_sec && cur_tv.tv_usec <= next_tv.tv_usec && ul_sofar < ul_count - 1) {
+    if (last_action == action && cur_tv.tv_sec <= next_tv.tv_sec && cur_tv.tv_usec <= next_tv.tv_usec && ul_sofar < ul_count - 1) {
       /* Only update every splash_register_freq milliseconds */
       ul_sofar++;
       return;
@@ -208,11 +208,20 @@ splash_update(register_action_e action, const char *message, gpointer client_dat
       case RA_PLUGIN_REGISTER:
 	action_msg = "Registering plugins ...";
 	break;
+      case RA_PYTHON_REGISTER:
+	action_msg = "Registering Python dissectors ...";
+	break;
       case RA_HANDOFF:
 	action_msg = "Handing off dissector ...";
 	break;
       case RA_PLUGIN_HANDOFF:
 	action_msg = "Handing off plugins ...";
+	break;
+      case RA_PYTHON_HANDOFF:
+	action_msg = "Handing off Python dissectors ...";
+	break;
+      case RA_LUA_PLUGINS:
+	action_msg = "Loading Lua plugins ...";
 	break;
       case RA_PREFERENCES:
 	action_msg = "Loading module preferences ...";
@@ -228,11 +237,18 @@ splash_update(register_action_e action, const char *message, gpointer client_dat
       last_action = action;
     }
 
-    if(ul_count == 0) /* get the count of dissectors */
+    if(ul_count == 0) { /* get the count of dissectors */
       ul_count = register_count() + 6; /* additional 6 for:
 					  dissectors, listeners,
 					  registering plugins, handingoff plugins,
 					  preferences and configuration */
+#ifdef HAVE_LUA_5_1
+      ul_count++;   /* additional one for lua plugins */
+#endif
+#ifdef HAVE_PYTHON
+      ul_count += 2;   /* additional 2 for python register and handoff */
+#endif
+    }
 
     main_lb = g_object_get_data(G_OBJECT(win), "protocol_label");
     /* make_dissector_reg.py changed -

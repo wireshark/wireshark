@@ -395,7 +395,9 @@ proto_init(void (register_all_protocols_func)(register_cb cb, gpointer client_da
 	register_all_protocols_func(cb, client_data);
 #ifdef HAVE_PYTHON
 	/* Now scan for python protocols */
-	register_all_py_protocols_func(cb, client_data);
+	if(cb)
+		(*cb)(RA_PYTHON_REGISTER, NULL, client_data);
+	register_all_py_protocols_func();
 #endif
 
 #ifdef HAVE_PLUGINS
@@ -415,7 +417,9 @@ proto_init(void (register_all_protocols_func)(register_cb cb, gpointer client_da
 
 #ifdef HAVE_PYTHON
 	/* Now do the same with python dissectors */
-	register_all_py_handoffs_func(cb, client_data);
+	if(cb)
+		(*cb)(RA_PYTHON_HANDOFF, NULL, client_data);
+	register_all_py_handoffs_func();
 #endif
 
 #ifdef HAVE_PLUGINS
@@ -4724,6 +4728,34 @@ proto_register_field_array(const int parent, hf_register_info *hf, const int num
 		}
 		field_id = proto_register_field_init(&ptr->hfinfo, parent);
 		*ptr->p_id = field_id;
+	}
+}
+
+/* unregister already registered fields */
+void
+proto_unregister_field (const int parent, gint hf_id)
+{
+	hf_register_info *hf;
+	protocol_t  *proto;
+	GList *field;
+
+	if (hf_id == -1 || hf_id == 0)
+		return;
+
+	proto = find_protocol_by_id (parent);
+	if (!proto || !proto->fields) {
+		return;
+	}
+
+	for (field = g_list_first (proto->fields); field; field = g_list_next (field)) {
+		hf = field->data;
+		if (*hf->p_id == hf_id) {
+			/* Found the hf_id in this protocol */
+			g_tree_steal (gpa_name_tree, hf->hfinfo.abbrev);
+			proto->fields = g_list_remove_link (proto->fields, field);
+			proto->last_field = g_list_last (proto->fields);
+			break;
+		}
 	}
 }
 
