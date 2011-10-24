@@ -73,6 +73,12 @@ Wireshark Info
 -->
 
         <listitem><para>
+          Wrong PCEP XRO sub-object decoding.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3778">Bug
+          3778</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Wireshark window takes very long time to show up if invalid network file path is at recent file list
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3810">Bug
           3810</ulink>)
@@ -114,6 +120,18 @@ Wireshark Info
           6347</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          ICMPv6 router advertisement Prefix Information Flag R &quot;Router Address&quot; missing.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6350">Bug
+          6350</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Export -&gt; Object -&gt; HTTP -&gt; save all: Error on saving files.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6362">Bug
+          6362</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
@@ -143,8 +161,11 @@ ASN.1 PER,
 BACnet,
 CSN.1,
 DTN,
+ICMPv6,
 IEEE 802.11,
+PCEP,
 RTP,
+SSL
 
     </para>
     </section>

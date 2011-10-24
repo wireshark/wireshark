@@ -3173,12 +3173,12 @@ ssl_parse_key_list(const ssldecrypt_assoc_t * uats, GHashTable *key_hash, GTree*
         private_key = ssl_load_pkcs12(fp, uats->password);
     }
 
+    fclose(fp);
+
     if (!private_key) {
         fprintf(stderr,"Can't load private key from %s\n", uats->keyfile);
         return;
     }
-
-    fclose(fp);
 
     for (at = 0; at < 2; at++) {
         memset(addr_data, 0, sizeof(addr_data));

@@ -16,7 +16,7 @@
  *
  * RPL support added by Colin O'Flynn & Owen Kirby.
  *
- * Enhance ICMPv6 dissector by Alexis La Goutte 
+ * Enhance ICMPv6 dissector by Alexis La Goutte
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -79,6 +79,7 @@
  * RFC 5075/5175: IPv6 Router Advertisement Flags Option
  * RFC 5269: Distributing a Symmetric Fast Mobile IPv6 (FMIPv6) Handover Key Using SEcure Neighbor Discovery (SEND)
  * RFC 5271: Mobile IPv6 Fast Handovers for 3G CDMA Networks
+ * RFC 6275: Mobility Support in IPv6
  * draft-ieft-roll-rpl-19.txt: RPL: IPv6 Routing Protocol for Low power and Lossy Networks
  * draft-ietf-csi-proxy-send-05: Secure Proxy ND Support for SEND
  * draft-ietf-6lowpan-nd-17: Neighbor Discovery Optimization for Low Power and Lossy Networks (6LoWPAN)
@@ -135,6 +136,7 @@ static int hf_icmpv6_opt_prefix_len = -1;
 static int hf_icmpv6_opt_prefix_flag = -1;
 static int hf_icmpv6_opt_prefix_flag_l = -1;
 static int hf_icmpv6_opt_prefix_flag_a = -1;
+static int hf_icmpv6_opt_prefix_flag_r = -1;
 static int hf_icmpv6_opt_prefix_flag_reserved = -1;
 static int hf_icmpv6_opt_prefix_valid_lifetime = -1;
 static int hf_icmpv6_opt_prefix_preferred_lifetime = -1;
@@ -1309,6 +1311,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
                 proto_tree_add_item(flag_tree, hf_icmpv6_opt_prefix_flag_l, tvb, opt_offset, 1, FALSE);
                 proto_tree_add_item(flag_tree, hf_icmpv6_opt_prefix_flag_a, tvb, opt_offset, 1, FALSE);
+                proto_tree_add_item(flag_tree, hf_icmpv6_opt_prefix_flag_r, tvb, opt_offset, 1, FALSE);
                 proto_tree_add_item(flag_tree, hf_icmpv6_opt_prefix_flag_reserved, tvb, opt_offset, 1, FALSE);
                 opt_offset += 1;
 
@@ -3789,8 +3792,11 @@ proto_register_icmpv6(void)
         { &hf_icmpv6_opt_prefix_flag_a,
           { "Autonomous address-configuration flag(A)", "icmpv6.opt.prefix.flag.a", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x40,
             "When set indicates that this prefix can be used for stateless address configuration", HFILL }},
+        { &hf_icmpv6_opt_prefix_flag_r,
+          { "Router address flag(R)", "icmpv6.opt.prefix.flag.r", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x20,
+            "When set indicates that the Prefix field contains a complete IP address assigned to the sending router", HFILL }},
         { &hf_icmpv6_opt_prefix_flag_reserved,
-          { "Reserved", "icmpv6.opt.prefix.flag.reserved", FT_UINT8, BASE_DEC, NULL, 0x3f,
+          { "Reserved", "icmpv6.opt.prefix.flag.reserved", FT_UINT8, BASE_DEC, NULL, 0x1f,
             NULL, HFILL }},
         { &hf_icmpv6_opt_prefix_valid_lifetime,
           { "Valid Lifetime", "icmpv6.opt.prefix.valid_lifetime", FT_UINT32, BASE_DEC, NULL, 0x00,
