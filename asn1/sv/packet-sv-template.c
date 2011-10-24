@@ -169,7 +169,7 @@ dissect_PhsMeas1(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tv
 			qual = tvb_get_ntohl(tvb, offset + 4);
 
 			proto_tree_add_item(subtree, hf_sv_phmeas_instmag_i, tvb, offset, 4, ENC_BIG_ENDIAN);
-			proto_tree_add_bitmask(subtree, tvb, offset + 4, hf_sv_phsmeas_q, ett_phsmeas_q, q_flags, FALSE);
+			proto_tree_add_bitmask(subtree, tvb, offset + 4, hf_sv_phsmeas_q, ett_phsmeas_q, q_flags, ENC_BIG_ENDIAN);
 
 			if (i < IEC61850_SV_MAX_PHSMEAS_ENTRIES) {
 				sv_data.phsMeas[i].value = value;
