@@ -47,35 +47,42 @@ def plugin_import(name):
   except KeyError:
     pass
 
-  return __import__(name)
+  r = __import__(name)
+  return r
 
-def register_dissectors(dir):
+def register_dissectors(wspython_dir,  plugins_pers_dir=None):
   #append dir to be able to import py_lib
-  sys.path.append(dir)
+  sys.path.append(wspython_dir)
   from wspy_libws import get_libws_handle
   libws = get_libws_handle()
 
-  dissectors_dir = os.path.join(dir, "wspy_dissectors")
-
-  #Check if we have the dissectors directory
-  if not os.path.isdir(dissectors_dir):
-    return []
-
-  #append dir to be able to import python dissectors
-  sys.path.append(dissectors_dir)
+  dissectors_dirs = [
+    os.path.join(wspython_dir, 'wspy_dissectors'),
+    plugins_pers_dir
+  ]
 
   registered_protocols = []
-  #Read all python dissectors
-  try:
-    dissectors = get_plugin_list(dissectors_dir, "(?P<plugin>.*)\.py$")
-  #For each dissector, register it and put it in the list of registered
-  #protocols
-    for dissector in dissectors:
-      d = plugin_import(dissector)
-      registered_protocol = d.register_protocol()
-      if registered_protocol:
-        registered_protocols.append(registered_protocol)
-  except Exception, e:
-    print e
+  for dissectors_dir in dissectors_dirs:
+      print 'looking for dissectors in', dissectors_dir
+      #Check if we have the dissectors directory
+      if not os.path.isdir(dissectors_dir):
+        continue
 
+      #append dir to be able to import python dissectors
+      sys.path.append(dissectors_dir)
+
+      #Read all python dissectors
+      dissectors = get_plugin_list(dissectors_dir, "(?P<plugin>.*)\.py$")
+
+      #For each dissector, register it and put it in the list of registered
+      #protocols
+      for dissector in dissectors:
+          try:
+              d = plugin_import(dissector)
+              registered_protocol = d.register_protocol()
+              if registered_protocol:
+                registered_protocols.append(registered_protocol)
+          except Exception, e:
+              print 'register dissector %s exception %s' % (dissector, e)
+  print 'registered protocols', registered_protocols
   return registered_protocols

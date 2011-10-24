@@ -152,7 +152,7 @@ void register_all_py_protocols_func(void)
 
   /* Execute the python register function */
   /* This function returns a sequence of python dissectors objects */
-  py_args = Py_BuildValue("(s)", get_wspython_dir());
+  py_args = Py_BuildValue("ss",  get_wspython_dir(), get_plugins_pers_dir());
   py_dissectors = PyObject_CallObject(register_fn, py_args);
 
   /* Check that the py_dissectors is really a sequence */
