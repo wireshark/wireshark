@@ -180,18 +180,7 @@ static tvbuff_t *new_octet_aligned_subset(tvbuff_t *tvb, guint32 offset, asn1_ct
   return sub_tvb;
 }
 
-static const guint16 bit_mask16[] = {
-    0xffff,
-    0x7fff,
-    0x3fff,
-    0x1fff,
-    0x0fff,
-    0x07ff,
-    0x03ff,
-    0x01ff
-};
-
-static const guint16 bit_mask16_unalligned[] = {
+static const guint16 bit_mask16_unaligned[] = {
     0xff00,
     0x8000,
     0xc000,
@@ -217,7 +206,7 @@ tvbuff_t *new_octet_aligned_subset_bits(tvbuff_t *tvb, guint32 boffset, asn1_ctx
   guint32	new_length, check_length;
   guint32	remainderval, tvb_bits;
 
-  /* Calculate the size reqired */
+  /* Calculate the size required */
 
   new_length = no_of_bits/8;
   remainderval = no_of_bits % 8;
@@ -232,8 +221,7 @@ tvbuff_t *new_octet_aligned_subset_bits(tvbuff_t *tvb, guint32 boffset, asn1_ctx
   /* The bits can be contained in two "extra octets" .... .xxx [xxxx]*n xx... ....*/
   tvb_bits = (boffset & 7)+ no_of_bits;
   check_length = tvb_bits/8;
-  remainderval = tvb_bits % 8; /* not no_of_bits % 8 */
-  if(remainderval){
+  if(tvb_bits % 8){
 	  check_length++;
   }
 
@@ -265,7 +253,7 @@ tvbuff_t *new_octet_aligned_subset_bits(tvbuff_t *tvb, guint32 boffset, asn1_ctx
   }else{
     word = tvb_get_guint8(tvb,offset+i) << (shift1 + 8);
   }
-  word = word & bit_mask16_unalligned[remainderval];
+  word = word & bit_mask16_unaligned[remainderval];
   word = word >> 8;
   buf[i] = (guint8) (word & 0x00ff);
 

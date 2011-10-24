@@ -440,17 +440,19 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Clear out stuff in the info column */
 		col_set_str(pinfo->cinfo, COL_INFO, "ChannelData TURN Message");
 
-		if (!tree)
-			return tvb_length(tvb);
-		ti = proto_tree_add_item(
-			tree, proto_stun, tvb, 0,
-			CHANNEL_DATA_HDR_LEN,
-			FALSE);
-		proto_item_append_text(ti, ", TURN ChannelData Message");
-		stun_tree = proto_item_add_subtree(ti, ett_stun);
-		proto_tree_add_item(stun_tree, hf_stun_channel, tvb, offset, 2, FALSE); offset += 2;
-		data_length = tvb_get_ntohs(tvb, 2);
-		proto_tree_add_item(stun_tree, hf_stun_length,  tvb, offset, 2, FALSE); offset += 2;
+		if (tree) {
+			ti = proto_tree_add_item(
+				tree, proto_stun, tvb, 0,
+				CHANNEL_DATA_HDR_LEN,
+				FALSE);
+			proto_item_append_text(ti, ", TURN ChannelData Message");
+			stun_tree = proto_item_add_subtree(ti, ett_stun);
+			proto_tree_add_item(stun_tree, hf_stun_channel, tvb, offset, 2, FALSE); offset += 2;
+			data_length = tvb_get_ntohs(tvb, 2);
+			proto_tree_add_item(stun_tree, hf_stun_length,  tvb, offset, 2, FALSE); offset += 2;
+		} else {
+			data_length = tvb_get_ntohs(tvb, 2);
+		}
 
 
 		new_len = tvb_length_remaining(tvb, CHANNEL_DATA_HDR_LEN);

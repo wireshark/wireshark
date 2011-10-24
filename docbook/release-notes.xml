@@ -78,6 +78,42 @@ Wireshark Info
           3810</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          Decoding [Status Records] Timestamp Sequence Field in Bundle Protocol fails if over 32 bits.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4109">Bug
+          4109</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          RTP Stream Analysis does not work for TURN-encapsulated RTP.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6322">Bug
+          6322</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          packet-csn1.c doesn't process CSN_CHOICE entries properly.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6328">Bug
+          6328</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          BACnet property time-synchronization-interval (204) name shown incorrectly as time-synchronization-recipients.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6336">Bug
+          6336</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          GUI crash on invalid IEEE 802.11 GAS frame.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6345">Bug
+          6345</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          [ASN.1 PER] Incorrect decoding of BIT STRING type.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6347">Bug
+          6347</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
@@ -103,7 +139,12 @@ There are no new protocols in this release.
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title> <para>
 
 <!-- Sort alphabetically -->
-
+ASN.1 PER,
+BACnet,
+CSN.1,
+DTN,
+IEEE 802.11,
+RTP,
 
     </para>
     </section>

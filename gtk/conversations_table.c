@@ -2081,7 +2081,7 @@ draw_ct_table_data(conversations_table *ct)
             first = FALSE;
         }
         duration_s = nstime_to_sec(&conversation->stop_time) - nstime_to_sec(&conversation->start_time);
-        g_snprintf(start_time, COL_STR_LEN, "%s", rel_time_to_secs_str(&conversation->start_time));
+        g_snprintf(start_time, COL_STR_LEN, "%.9f", nstime_to_sec(&conversation->start_time));
         g_snprintf(duration, COL_STR_LEN, "%.4f", duration_s);
 
         if (duration_s > 0 && conversation->tx_frames > 1) {
@@ -2211,7 +2211,7 @@ csv_handle(GtkTreeModel *model, GtkTreePath *path _U_, GtkTreeIter *iter,
             g_string_append_printf(csv->CSV_str, "\"%" G_GINT64_MODIFIER "u\"", value);
             break;
         case START_COLUMN:
-            g_string_append_printf(csv->CSV_str, "\"%s\"", rel_time_to_secs_str(&conv->start_time));
+            g_string_append_printf(csv->CSV_str, "\"%.9f\"", nstime_to_sec(&conv->start_time));
             break;
         case DURATION_COLUMN:
             g_string_append_printf(csv->CSV_str, "\"%.4f\"", duration_s);
@@ -2244,7 +2244,6 @@ static void
 copy_as_csv_cb(GtkWindow *copy_bt, gpointer data _U_)
 {
     GtkClipboard      *cb;
-    char              *savelocale;
     GList             *columns, *list;
     GtkTreeViewColumn *column;
     GtkListStore      *store;
@@ -2254,8 +2253,6 @@ copy_as_csv_cb(GtkWindow *copy_bt, gpointer data _U_)
     if (!csv.talkers)
         return;
 
-    savelocale = setlocale(LC_NUMERIC, NULL);
-    setlocale(LC_NUMERIC, "C");
     csv.CSV_str = g_string_new("");
 
     columns = gtk_tree_view_get_columns(GTK_TREE_VIEW(csv.talkers->table));
@@ -2281,7 +2278,6 @@ copy_as_csv_cb(GtkWindow *copy_bt, gpointer data _U_)
     /* Now that we have the CSV data, copy it into the default clipboard */
     cb = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);      /* Get the default clipboard */
     gtk_clipboard_set_text(cb, csv.CSV_str->str, -1);    /* Copy the CSV data into the clipboard */
-    setlocale(LC_NUMERIC, savelocale);
     g_string_free(csv.CSV_str, TRUE);                    /* Free the memory */
 }
 
