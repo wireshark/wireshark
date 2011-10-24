@@ -263,11 +263,13 @@ class Dissector(object):
     '''private method executed right before dissect in order to retrieve some
     internal information and enabling the possibility to add the base tree of
     this protocol dissection to the tree without any user intervention'''
-    self.__tvb = self.__wsl.py_tvbuff()
-    self.__pinfo = self.__wsl.py_pinfo()
-    self.__tree = self.__wsl.py_tree()
 
-    #self.__wsl.print_current_proto(py_object(pinfo))
+    self.__tvb = ct.c_void_p()
+    self.__pinfo = ct.c_void_p()
+    self.__tree = ct.c_void_p()
+    self.__wsl.py_dissector_args(ct.byref(self.__tvb), ct.byref(self.__pinfo), ct.byref(self.__tree))
+    # print self.__tvb, self.__pinfo, self.__tree
+    #self.__wsl.print_current_proto(ct.py_object(pinfo))
     subt = self.subtrees
     try:
       if not subt.has_user_defined_protocol_tree():
@@ -282,13 +284,6 @@ class Dissector(object):
     the parameters of dissector_add(). This function MUST be defined when
     implementing the dissector of a specific protocol.'''
     return [ (None, 0, None) ]
-
-  def create_dissector_handle(self, protocol=None):
-    '''create_dissector_handle : see proto.h'''
-    gdissector = self.__wsl.py_generic_dissector()
-    if not protocol:
-      protocol = self.__protocol
-    return self.__wsl.create_dissector_handle(gdissector, protocol)
 
   def find_dissector(self, protocol):
     '''find_dissector : see proto.h'''
@@ -307,8 +302,7 @@ class Dissector(object):
           continue
         if not handle:
           if not private_handle:
-            handle = \
-              self.create_dissector_handle(self.__protocol)
+            handle = self.__wsl.py_create_dissector_handle(self.__protocol)
           else:
             handle = private_handle
         self.__wsl.dissector_add_uint(type, protocol_id, handle)

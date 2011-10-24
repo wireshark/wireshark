@@ -173,19 +173,11 @@ void register_all_py_protocols_func(void)
   }
 }
 
-tvbuff_t *py_tvbuff(void)
+void py_dissector_args(tvbuff_t ** tvb, packet_info ** pinfo, proto_tree ** tree)
 {
-  return g_tvb;
-}
-
-packet_info * py_pinfo(void)
-{
-  return g_pinfo;
-}
-
-proto_tree * py_tree(void)
-{
-  return g_tree;
+	*tvb = g_tvb;
+	*pinfo = g_pinfo;
+	*tree = g_tree;
 }
 
 /*
@@ -214,17 +206,9 @@ void py_dissect(tvbuff_t * tvb, packet_info * pinfo,
   PyObject_CallMethod(py_dissector, "pre_dissect", NULL);
 }
 
-/*
- * Return the pointer to the generic python dissector
- *
- * One could think that it could be a PyCObject but it is a
- * workaround because ctypes is used and it complains later -not
- * knowing how to conver the parameter - in the Python code when
- * calling back a C function with a PyCObject as parameter
- */
-dissector_t py_generic_dissector(void)
+dissector_handle_t py_create_dissector_handle(const int proto)
 {
-  return &py_dissect;
+		return create_dissector_handle(&py_dissect, proto);
 }
 
 static void register_all_py_handoffs_foreach(gpointer key _U_, gpointer value, gpointer user_data _U_)
