@@ -94,6 +94,8 @@ static GtkWidget *welcome_if_panel_vb = NULL;
 
 static GSList *status_messages = NULL;
 
+static GMutex *recent_mtx = NULL;
+
 /* The "scroll box dynamic" is a (complicated) pseudo widget to */
 /* place a vertically list of widgets in (currently the interfaces and recent files). */
 /* Once this list get's higher than a specified amount, */
@@ -424,6 +426,123 @@ welcome_topic_new(const char *header, GtkWidget **to_fill)
     return topic_eb;
 }
 
+typedef struct _recent_item_status {
+    gchar     *filename;
+    GtkWidget *label;
+    GObject   *menu_item;
+    GString   *str;
+    gboolean   stat_done;
+    int        err;
+    guint      timer;
+} recent_item_status;
+
+/*
+ * Fetch the status of a file.
+ * This function might be called as a thread. We can't use any drawing
+ * routines here: http://developer.gnome.org/gdk/2.24/gdk-Threads.html
+ */
+static void *get_recent_item_status(void *data)
+{
+    recent_item_status *ri_stat = (recent_item_status *) data;
+    ws_statb64 stat_buf;
+    int err;
+
+    if (!ri_stat) {
+        return NULL;
+    }
+
+    /*
+     * Add file size. We use binary prefixes instead of IEC because that's what
+     * most OSes use.
+     */
+    err = ws_stat64(ri_stat->filename, &stat_buf);
+    g_mutex_lock(recent_mtx);
+    ri_stat->err = err;
+    if(err == 0) {
+        if (stat_buf.st_size/1024/1024/1024 > 10) {
+            g_string_append_printf(ri_stat->str, " (%" G_GINT64_MODIFIER "d GB)", (gint64) (stat_buf.st_size/1024/1024/1024));
+        } else if (stat_buf.st_size/1024/1024 > 10) {
+            g_string_append_printf(ri_stat->str, " (%" G_GINT64_MODIFIER "d MB)", (gint64) (stat_buf.st_size/1024/1024));
+        } else if (stat_buf.st_size/1024 > 10) {
+            g_string_append_printf(ri_stat->str, " (%" G_GINT64_MODIFIER "d KB)", (gint64) (stat_buf.st_size/1024));
+        } else {
+            g_string_append_printf(ri_stat->str, " (%" G_GINT64_MODIFIER "d Bytes)", (gint64) (stat_buf.st_size));
+        }
+        /* pango format string */
+        g_string_prepend(ri_stat->str, "<span foreground='blue'>");
+        g_string_append(ri_stat->str, "</span>");
+    } else {
+        g_string_append(ri_stat->str, " [not found]");
+    }
+
+    if (!ri_stat->label) { /* The widget went away while we were busy. */
+	g_free(ri_stat->filename);
+	g_string_free(ri_stat->str, TRUE);
+	g_free(ri_stat);
+    } else {
+        ri_stat->stat_done = TRUE;
+    }
+    g_mutex_unlock(recent_mtx);
+
+    return NULL;
+}
+
+/* Timeout callback for recent items */
+static gboolean
+update_recent_items(gpointer data)
+{
+    recent_item_status *ri_stat = (recent_item_status *) data;
+    gboolean again = TRUE;
+
+    if (!ri_stat) {
+        return FALSE;
+    }
+
+    g_mutex_lock(recent_mtx);
+
+    if (ri_stat->stat_done) {
+        again = FALSE;
+        gtk_label_set_markup(GTK_LABEL(ri_stat->label), ri_stat->str->str);
+	if (ri_stat->err == 0) {
+	    gtk_widget_set_sensitive(ri_stat->label, TRUE);
+#ifdef MAIN_MENU_USE_UIMANAGER
+	    gtk_action_set_sensitive(GtkAction *) ri_stat->menu_item, TRUE);
+#else
+	    gtk_widget_set_sensitive(GTK_WIDGET(ri_stat->menu_item), TRUE);
+#endif
+	}
+        ri_stat->timer = 0;
+    }
+    /* Else append some sort of Unicode or ASCII animation to the label? */
+    g_mutex_unlock(recent_mtx);
+
+    return again;
+}
+
+static void welcome_filename_destroy_cb(GtkWidget *w _U_, gpointer data) {
+    recent_item_status *ri_stat = (recent_item_status *) data;
+
+    if (!ri_stat) {
+	return;
+    }
+
+    g_mutex_lock(recent_mtx);
+    if (ri_stat->timer) {
+	g_source_remove(ri_stat->timer);
+	ri_stat->timer = 0;
+    }
+
+    g_object_unref(ri_stat->menu_item);
+
+    if (ri_stat->stat_done) {
+	g_free(ri_stat->filename);
+	g_string_free(ri_stat->str, TRUE);
+	g_free(ri_stat);
+    } else {
+        ri_stat->label = NULL;
+    }
+    g_mutex_unlock(recent_mtx);
+}
 
 /* a file link was pressed */
 static gboolean
@@ -434,10 +553,9 @@ welcome_filename_link_press_cb(GtkWidget *widget _U_, GdkEventButton *event _U_,
     return FALSE;
 }
 
-
 /* create a "file link widget" */
 static GtkWidget *
-welcome_filename_link_new(const gchar *filename, GtkWidget **label)
+welcome_filename_link_new(const gchar *filename, GtkWidget **label, GObject *menu_item)
 {
     GtkWidget   *w;
     GtkWidget   *eb;
@@ -446,8 +564,7 @@ welcome_filename_link_new(const gchar *filename, GtkWidget **label)
     glong        uni_len;
     gsize        uni_start, uni_end;
     const glong  max = 60;
-    int          err;
-    ws_statb64   stat_buf;
+    recent_item_status *ri_stat;
     GtkTooltips *tooltips;
 
 
@@ -468,53 +585,42 @@ welcome_filename_link_new(const gchar *filename, GtkWidget **label)
     /* escape the possibly shortened filename before adding pango language */
     str_escaped=g_markup_escape_text(str->str, -1);
     g_string_free(str, TRUE);
-    str=g_string_new(str_escaped);
-    g_free(str_escaped);
-
-    /*
-     * Add file size. We use binary prefixes instead of IEC because that's what
-     * most OSes use.
-     */
-    err = ws_stat64(filename, &stat_buf);
-    if(err == 0) {
-        if (stat_buf.st_size/1024/1024/1024 > 10) {
-            g_string_append_printf(str, " (%" G_GINT64_MODIFIER "d GB)", (gint64) (stat_buf.st_size/1024/1024/1024));
-        } else if (stat_buf.st_size/1024/1024 > 10) {
-            g_string_append_printf(str, " (%" G_GINT64_MODIFIER "d MB)", (gint64) (stat_buf.st_size/1024/1024));
-        } else if (stat_buf.st_size/1024 > 10) {
-            g_string_append_printf(str, " (%" G_GINT64_MODIFIER "d KB)", (gint64) (stat_buf.st_size/1024));
-        } else {
-            g_string_append_printf(str, " (%" G_GINT64_MODIFIER "d Bytes)", (gint64) (stat_buf.st_size));
-        }
-    } else {
-        g_string_append(str, " [not found]");
-    }
-
-    /* pango format string */
-    if(err == 0) {
-        g_string_prepend(str, "<span foreground='blue'>");
-        g_string_append(str, "</span>");
-    }
 
     /* label */
-    w = gtk_label_new(str->str);
+    w = gtk_label_new(str_escaped);
     *label = w;
-    gtk_label_set_markup(GTK_LABEL(w), str->str);
     gtk_misc_set_padding(GTK_MISC(w), 5, 2);
+    gtk_misc_set_alignment (GTK_MISC(w), 0.0f, 0.0f);
+    gtk_widget_set_sensitive(w, FALSE);
+
+    ri_stat = g_malloc(sizeof(recent_item_status));
+    ri_stat->filename = g_strdup(filename);
+    ri_stat->label = w;
+    ri_stat->menu_item = menu_item;
+    ri_stat->str = g_string_new(str_escaped);
+    ri_stat->stat_done = FALSE;
+    ri_stat->timer = 0;
+    g_object_ref(G_OBJECT(menu_item));
+    g_signal_connect(w, "destroy", G_CALLBACK(welcome_filename_destroy_cb), ri_stat);
+    g_free(str_escaped);
+
+#ifdef USE_THREADS
+    g_thread_create(get_recent_item_status, ri_stat, FALSE, NULL);
+    ri_stat->timer = g_timeout_add(200, update_recent_items, ri_stat);
+#else
+    get_recent_item_status(ri_stat);
+    update_recent_items(ri_stat);
+#endif
 
     /* event box */
     eb = gtk_event_box_new();
+    gtk_widget_modify_bg(eb, GTK_STATE_NORMAL, &topic_item_idle_bg);
     gtk_container_add(GTK_CONTAINER(eb), w);
     gtk_tooltips_set_tip(tooltips, eb, filename, "");
-    if(err != 0) {
-        gtk_widget_set_sensitive(w, FALSE);
-    }
 
     g_signal_connect(eb, "enter-notify-event", G_CALLBACK(welcome_item_enter_cb), w);
     g_signal_connect(eb, "leave-notify-event", G_CALLBACK(welcome_item_leave_cb), w);
     g_signal_connect(eb, "button-press-event", G_CALLBACK(welcome_filename_link_press_cb), (gchar *) filename);
-
-    g_string_free(str, TRUE);
 
     return eb;
 }
@@ -546,16 +652,14 @@ main_welcome_reset_recent_capture_files(void)
 
 /* add a new file to the list of recent files */
 void
-main_welcome_add_recent_capture_files(const char *widget_cf_name)
+main_welcome_add_recent_capture_file(const char *widget_cf_name, GObject *menu_item)
 {
     GtkWidget *w;
     GtkWidget *child_box;
     GtkWidget *label;
 
 
-    w = welcome_filename_link_new(widget_cf_name, &label);
-    gtk_widget_modify_bg(w, GTK_STATE_NORMAL, &topic_item_idle_bg);
-    gtk_misc_set_alignment (GTK_MISC(label), 0.0f, 0.0f);
+    w = welcome_filename_link_new(widget_cf_name, &label, menu_item);
     child_box = scroll_box_dynamic_add(welcome_file_panel_vb);
     gtk_box_pack_start(GTK_BOX(child_box), w, FALSE, FALSE, 0);
     gtk_widget_show_all(w);
@@ -1002,6 +1106,7 @@ welcome_new(void)
                                           welcome_eb);
     gtk_widget_show_all(welcome_scrollw);
 
+    recent_mtx = g_mutex_new();
+
     return welcome_scrollw;
 }
-

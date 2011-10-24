@@ -126,10 +126,6 @@ FILE *debug_log;   /* for logging debug messages to  */
                    /*  is defined                    */
 #endif
 
-#ifdef _WIN32
-#define USE_THREADS
-#endif
-
 static gboolean capture_child = FALSE; /* FALSE: standalone call, TRUE: this is an Wireshark capture child */
 #ifdef _WIN32
 static gchar *sig_pipe_name = NULL;

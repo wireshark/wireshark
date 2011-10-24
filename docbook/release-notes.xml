@@ -72,6 +72,12 @@ Wireshark Info
         </para></listitem>
 -->
 
+        <listitem><para>
+          Wireshark window takes very long time to show up if invalid network file path is at recent file list
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3810">Bug
+          3810</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
