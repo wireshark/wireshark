@@ -236,7 +236,7 @@ proto_tree_set_eui64_tvb(field_info *fi, tvbuff_t *tvb, gint start, const guint 
 static gboolean
 proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 			    const int len, const gint ett, const gint **fields,
-			    const gboolean little_endian, const int flags,
+			    const guint encoding, const int flags,
 			    gboolean first);
 
 static int proto_register_field_init(header_field_info *hfinfo, const int parent);
@@ -7055,10 +7055,17 @@ proto_construct_match_selected_string(field_info *finfo, epan_dissect_t *edt)
 /* This function is common code for both proto_tree_add_bitmask() and
  *	proto_tree_add_bitmask_text() functions.
  */
+
+/* NOTE: to support code written when proto_tree_add_bitmask() and
+ * proto_tree_add_bitmask_text took a
+ * gboolean as its last argument, with FALSE meaning "big-endian"
+ * and TRUE meaning "little-endian", we treat any non-zero value of
+ * "encoding" as meaning "little-endian".
+ */
 static gboolean
 proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 			    const int len, const gint ett, const int **fields,
-			    const gboolean little_endian, const int flags,
+			    const guint encoding, const int flags,
 			    gboolean first)
 {
 	guint32 value = 0, tmpval;
@@ -7071,15 +7078,15 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 		value = tvb_get_guint8(tvb, offset);
 		break;
 	case 2:
-		value = little_endian ? tvb_get_letohs(tvb, offset) :
+		value = encoding ? tvb_get_letohs(tvb, offset) :
 			tvb_get_ntohs(tvb, offset);
 		break;
 	case 3:
-		value = little_endian ? tvb_get_letoh24(tvb, offset) :
+		value = encoding ? tvb_get_letoh24(tvb, offset) :
 			tvb_get_ntoh24(tvb, offset);
 		break;
 	case 4:
-		value = little_endian ? tvb_get_letohl(tvb, offset) :
+		value = encoding ? tvb_get_letohl(tvb, offset) :
 			tvb_get_ntohl(tvb, offset);
 		break;
 	default:
@@ -7088,7 +7095,7 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 
 	tree = proto_item_add_subtree(item, ett);
 	while (*fields) {
-		proto_tree_add_item(tree, **fields, tvb, offset, len, little_endian);
+		proto_tree_add_item(tree, **fields, tvb, offset, len, encoding);
 		if (flags & BMT_NO_APPEND) {
 			fields++;
 			continue;
@@ -7200,7 +7207,7 @@ proto_item *
 proto_tree_add_bitmask(proto_tree *parent_tree, tvbuff_t *tvb,
 		       const guint offset, const int hf_hdr,
 		       const gint ett, const int **fields,
-		       const gboolean little_endian)
+		       const guint encoding)
 {
 	proto_item *item = NULL;
 	header_field_info *hf;
@@ -7211,8 +7218,8 @@ proto_tree_add_bitmask(proto_tree *parent_tree, tvbuff_t *tvb,
 	len = ftype_length(hf->type);
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_hdr, tvb, offset, len, little_endian);
-		proto_item_add_bitmask_tree(item, tvb, offset, len, ett, fields, little_endian,
+		item = proto_tree_add_item(parent_tree, hf_hdr, tvb, offset, len, encoding);
+		proto_item_add_bitmask_tree(item, tvb, offset, len, ett, fields, encoding,
 					    BMT_NO_INT|BMT_NO_TFS, FALSE);
 	}
 
@@ -7225,13 +7232,13 @@ proto_tree_add_bitmask_text(proto_tree *parent_tree, tvbuff_t *tvb,
 			    const guint offset, const guint len,
 			    const char *name, const char *fallback,
 			    const gint ett, const int **fields,
-			    const gboolean little_endian, const int flags)
+			    const guint encoding, const int flags)
 {
 	proto_item *item = NULL;
 
 	if (parent_tree) {
 		item = proto_tree_add_text(parent_tree, tvb, offset, len, "%s", name ? name : "");
-		if (proto_item_add_bitmask_tree(item, tvb, offset, len, ett, fields, little_endian,
+		if (proto_item_add_bitmask_tree(item, tvb, offset, len, ett, fields, encoding,
 					flags, TRUE) && fallback) {
 			/* Still at first item - append 'fallback' text if any */
 			proto_item_append_text(item, "%s", fallback);

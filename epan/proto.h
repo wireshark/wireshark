@@ -1828,11 +1828,11 @@ proto_find_field_from_offset(proto_tree *tree, guint offset, tvbuff_t *tvb);
         FT_BOOLEAN bits that are set to 1 will have the name added to the expansion.
         FT_integer fields that have a value_string attached will have the
         matched string displayed on the expansion line.
- @param little_endian big or little endian byte representation
+ @param encoding big or little endian byte representation (ENC_BIG_ENDIAN/ENC_LITTLE_ENDIAN)
  @return the newly created item */
 extern proto_item *
 proto_tree_add_bitmask(proto_tree *tree, tvbuff_t *tvb, const guint offset,
-		const int hf_hdr, const gint ett, const int **fields, const gboolean little_endian);
+		const int hf_hdr, const gint ett, const int **fields, const guint encoding);
 
 /** Add a text with a subtree of bitfields.
  @param tree the tree to append this item to
@@ -1843,13 +1843,13 @@ proto_tree_add_bitmask(proto_tree *tree, tvbuff_t *tvb, const guint offset,
  @param fallback field name if none of bitfields were usable
  @param ett subtree index
  @param fields NULL-terminated array of bitfield indexes
- @param little_endian big or little endian byte representation
+ @param encoding big or little endian byte representation (ENC_BIG_ENDIAN/ENC_LITTLE_ENDIAN)
  @param flags
  @return the newly created item */
 extern proto_item *
 proto_tree_add_bitmask_text(proto_tree *tree, tvbuff_t *tvb, const guint offset, const guint len,
 		const char *name, const char *fallback,
-		const gint ett, const int **fields, const gboolean little_endian, const int flags);
+		const gint ett, const int **fields, const guint encoding, const int flags);
 
 #define BMT_NO_APPEND	0x01	/**< Don't change the title at all */
 #define BMT_NO_INT	0x02	/**< Don't add integral (non-boolean) fields to title */
