@@ -2663,7 +2663,7 @@ Douglas Pratley		<Douglas.pratley [AT] detica.com> {
 	Epoch timestamps
 }
 
-Giorgio Tino		<giorgio.tino [AT] tinoshi@gmail.com> {
+Giorgio Tino		<giorgio.tino [AT] cacetech.com> {
 	AirPcap support
 	WPA UI support
 	Static text preferences
@@ -3136,7 +3136,7 @@ David Perez		<david [AT] taddong.com> {
 	Routines for exporting SMB objects
 }
 
-Håkon Nessjøen		<haakon.nessjoen@gmail.com> {
+Håkon Nessjøen		<haakon.nessjoen [AT] gmail.com> {
 	Mikrotik RouterOS protocol dissector
 	Digium TDMoE protocol dissector
 }
