@@ -673,6 +673,13 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
         luaL_argerror(L, 3, "Base must be either BASE_DEC, BASE_HEX, BASE_OCT,"
                       " BASE_DEC_HEX, BASE_DEC_HEX or BASE_HEX_DEC");
         return 0;
+    } else if (vs && (type == FT_INT64 || type == FT_UINT64)) {
+      luaL_argerror(L, 4, "This type does not support value string");
+      return 0;
+    } else if ((base == BASE_HEX || base == BASE_HEX_DEC || base == BASE_OCT) &&
+	       (type == FT_INT8 || type == FT_INT16 || type == FT_INT24 || type == FT_INT32 || type == FT_INT64)) {
+      luaL_argerror(L, 3, "This type does not display as hexadecimal");
+      return 0;
     }
 
     if (proto_check_field_name(abbr)) {
