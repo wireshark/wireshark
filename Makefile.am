@@ -1033,7 +1033,7 @@ checkapi: checkapi_local
 # prevents make-version from looking for SVN details in the source tarball,
 # failing, and then labelling the build as from "SVN version unknown."
 dist-hook:
-	if test -f $(top_srcdir)/version.conf; then \
+	if test -f $(top_srcdir)/version.conf -a ! -f $(top_distdir)/version.conf ; then \
 		cp $(top_srcdir)/version.conf $(top_distdir); \
 		echo "is_release: 1" >> $(top_distdir)/version.conf; \
 	fi
