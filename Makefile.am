@@ -1035,5 +1035,8 @@ checkapi: checkapi_local
 dist-hook:
 	if test -f $(top_srcdir)/version.conf -a ! -f $(top_distdir)/version.conf ; then \
 		cp $(top_srcdir)/version.conf $(top_distdir); \
-		echo "is_release: 1" >> $(top_distdir)/version.conf; \
+		if grep "^is_release: *1" $(top_distdir)/version.conf ; then :; \
+		else \
+			echo "is_release: 1" >> $(top_distdir)/version.conf; \
+		fi ; \
 	fi
