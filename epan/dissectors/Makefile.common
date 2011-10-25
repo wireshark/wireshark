@@ -23,6 +23,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
+include Custom.nmake
+
 # "BUILT_SOURCES" are built before any "make all" or "make check" targets.
 BUILT_C_FILES = \
 	register.c
@@ -1048,7 +1050,8 @@ DISSECTOR_SRC = \
 	packet-zebra.c		\
 	packet-zep.c		\
 	packet-ziop.c		\
-	packet-zrtp.c
+	packet-zrtp.c	\
+	$(CUSTOM_DISSECTOR_SRC)
 
 #
 # Headers for dissectors.
@@ -1433,5 +1436,4 @@ ALL_DISSECTORS_SRC = \
 	$(PIDL_DISSECTOR_SRC) \
 	$(DIRTY_PIDL_DISSECTOR_SRC) \
 	$(ASN1_DISSECTOR_SRC) \
-	$(DIRTY_ASN1_DISSECTOR_SRC) \
-	$(CUSTOM_DISSECTOR_SRC)
+	$(DIRTY_ASN1_DISSECTOR_SRC)

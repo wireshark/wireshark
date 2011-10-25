@@ -3,6 +3,6 @@
 ## Here you can add custom dissectors
 #
 
-CUSTOM_DISSECTOR_SRC = \
+CUSTOM_DISSECTOR_SRC = 
 
-CUSTOM_HEADER_FILES = \
+CUSTOM_HEADER_FILES = 
