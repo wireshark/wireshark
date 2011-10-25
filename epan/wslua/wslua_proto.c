@@ -669,6 +669,8 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
     if (type == FT_FRAMENUM) {
 	if (base != BASE_NONE)
 	    luaL_argerror(L, 3, "FT_FRAMENUMs must use BASE_NONE");
+	else if (mask)
+	    luaL_argerror(L, 3, "FT_FRAMENUMs can not have a bitmask");
     } else if (base < BASE_DEC || base > BASE_HEX_DEC) {
         luaL_argerror(L, 3, "Base must be either BASE_DEC, BASE_HEX, BASE_OCT,"
                       " BASE_DEC_HEX, BASE_DEC_HEX or BASE_HEX_DEC");
