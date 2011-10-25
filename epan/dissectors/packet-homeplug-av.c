@@ -1098,7 +1098,7 @@ dissect_homeplug_av_mmhdr(ptvcursor_t *cursor)
   guint8 lsb, msb;
   guint16 homeplug_av_mmtype;
 
-  ti = ptvcursor_add_no_advance(cursor, hf_homeplug_av_mmhdr, 3, FALSE);
+  ti = ptvcursor_add_no_advance(cursor, hf_homeplug_av_mmhdr, 3, ENC_NA);
 
   lsb = tvb_get_guint8(ptvcursor_tvbuff(cursor),
 	ptvcursor_current_offset(cursor) + 1);
@@ -1112,13 +1112,13 @@ dissect_homeplug_av_mmhdr(ptvcursor_t *cursor)
 
   ptvcursor_push_subtree(cursor, ti, ett_homeplug_av_mmhdr);
   {
-     ptvcursor_add(cursor, hf_homeplug_av_mmhdr_mmver, 1, FALSE);
-     ti_mmtype = ptvcursor_add_no_advance(cursor, hf_homeplug_av_mmhdr_mmtype, 2, TRUE);
+     ptvcursor_add(cursor, hf_homeplug_av_mmhdr_mmver, 1, ENC_BIG_ENDIAN);
+     ti_mmtype = ptvcursor_add_no_advance(cursor, hf_homeplug_av_mmhdr_mmtype, 2, ENC_LITTLE_ENDIAN);
 
      ptvcursor_push_subtree(cursor, ti_mmtype, ett_homeplug_av_mmtype);
      {
-	ptvcursor_add(cursor, hf_homeplug_av_mmhdr_mmtype_lsb, 1, FALSE);
-	ptvcursor_add(cursor, hf_homeplug_av_mmhdr_mmtype_msb, 1, FALSE);
+	ptvcursor_add(cursor, hf_homeplug_av_mmhdr_mmtype_lsb, 1, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_homeplug_av_mmhdr_mmtype_msb, 1, ENC_BIG_ENDIAN);
      }
      ptvcursor_pop_subtree(cursor);
   }
@@ -1126,23 +1126,23 @@ dissect_homeplug_av_mmhdr(ptvcursor_t *cursor)
 
   if (homeplug_av_mmtype_msb_is_vendor(msb))
   {
-     ti_vendor = ptvcursor_add_no_advance(cursor, hf_homeplug_av_vendor, -1, FALSE);
+     ti_vendor = ptvcursor_add_no_advance(cursor, hf_homeplug_av_vendor, -1, ENC_NA);
 
      ptvcursor_push_subtree(cursor, ti_vendor, ett_homeplug_av_vendor);
      {
-	ptvcursor_add(cursor, hf_homeplug_av_vendor_oui, 3, TRUE);
+	ptvcursor_add(cursor, hf_homeplug_av_vendor_oui, 3, ENC_NA);
      }
      ptvcursor_pop_subtree(cursor);
   }
   else
   {
-     ti_public = ptvcursor_add_no_advance(cursor, hf_homeplug_av_public, -1, FALSE);
+     ti_public = ptvcursor_add_no_advance(cursor, hf_homeplug_av_public, -1, ENC_NA);
 
      ptvcursor_push_subtree(cursor, ti_public, ett_homeplug_av_public);
      {
-	ptvcursor_add_no_advance(cursor, hf_homeplug_av_public_frag_count, 1, FALSE);
-	ptvcursor_add(cursor, hf_homeplug_av_public_frag_index, 1, FALSE);
-	ptvcursor_add(cursor, hf_homeplug_av_public_frag_seqnum, 1, FALSE);
+	ptvcursor_add_no_advance(cursor, hf_homeplug_av_public_frag_count, 1, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_homeplug_av_public_frag_index, 1, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_homeplug_av_public_frag_seqnum, 1, ENC_BIG_ENDIAN);
      }
      ptvcursor_pop_subtree(cursor);
   }
@@ -1159,19 +1159,19 @@ dissect_homeplug_av_beacon(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
      return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_bcn, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_bcn, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_bcn);
    {
-      ptvcursor_add_no_advance(cursor, hf_homeplug_av_nw_info_del_type, 1, FALSE);
-      ptvcursor_add_no_advance(cursor, hf_homeplug_av_nw_info_access, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_snid, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_bcn_bts, 4, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_bcn_bto_0, 2, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_bcn_bto_1, 2, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_bcn_bto_2, 2, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_bcn_bto_3, 2, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_fccs_av, 3, FALSE);
+      ptvcursor_add_no_advance(cursor, hf_homeplug_av_nw_info_del_type, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add_no_advance(cursor, hf_homeplug_av_nw_info_access, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_nw_info_snid, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_bcn_bts, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_bcn_bto_0, 2, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_bcn_bto_1, 2, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_bcn_bto_2, 2, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_bcn_bto_3, 2, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_nw_info_fccs_av, 3, ENC_NA);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -1185,39 +1185,39 @@ dissect_homeplug_av_frame_control(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
      return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_fc, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_fc, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_fc);
    {
-     ptvcursor_add_no_advance(cursor, hf_homeplug_av_nw_info_del_type, 1, FALSE);
-     ptvcursor_add_no_advance(cursor, hf_homeplug_av_nw_info_access, 1, FALSE);
-     ptvcursor_add(cursor, hf_homeplug_av_nw_info_snid, 1, FALSE);
-     ptvcursor_add(cursor, hf_homeplug_av_fc_stei, 1, FALSE);
-     ptvcursor_add(cursor, hf_homeplug_av_fc_dtei, 1, FALSE);
-     ptvcursor_add(cursor, hf_homeplug_av_fc_lid, 1, FALSE);
-     ptvcursor_add_no_advance(cursor, hf_homeplug_av_fc_cfs, 1, FALSE);
-     ptvcursor_add_no_advance(cursor, hf_homeplug_av_fc_bdf, 1, FALSE);
-     ptvcursor_add_no_advance(cursor, hf_homeplug_av_fc_hp10df, 1, FALSE);
-     ptvcursor_add_no_advance(cursor, hf_homeplug_av_fc_hp11df, 1, FALSE);
-     ptvcursor_add(cursor, hf_homeplug_av_nw_info_peks, 1, FALSE);
-     ptvcursor_add(cursor, hf_homeplug_av_fc_ppb, 1, FALSE);
-     ptvcursor_add(cursor, hf_homeplug_av_fc_ble, 1, FALSE);
-     ptvcursor_add_no_advance(cursor, hf_homeplug_av_fc_pbsz, 1, FALSE);
-     ptvcursor_add_no_advance(cursor, hf_homeplug_av_fc_num_sym, 1, FALSE);
-     ptvcursor_add(cursor, hf_homeplug_av_fc_tmi_av, 1, FALSE);
-     ptvcursor_add_no_advance(cursor, hf_homeplug_av_fc_mpdu_cnt, 2, FALSE);
-     ptvcursor_add_no_advance(cursor, hf_homeplug_av_fc_burst_cnt, 2, FALSE);
-     ptvcursor_add(cursor, hf_homeplug_av_fc_fl_av, 2, TRUE);
-     ptvcursor_add_no_advance(cursor, hf_homeplug_av_fc_clst, 1, FALSE);
-     ptvcursor_add(cursor, hf_homeplug_av_fc_rg_len, 1, FALSE);
-     ptvcursor_add_no_advance(cursor, hf_homeplug_av_fc_mfs_cmd_mgmt, 1, FALSE);
-     ptvcursor_add_no_advance(cursor, hf_homeplug_av_fc_mfs_cmd_data, 1, FALSE);
-     ptvcursor_add(cursor, hf_homeplug_av_fc_rsr, 1, FALSE);
-     ptvcursor_add_no_advance(cursor, hf_homeplug_av_fc_mcf, 1, FALSE);
-     ptvcursor_add_no_advance(cursor, hf_homeplug_av_fc_dccpcf, 1, FALSE);
-     ptvcursor_add_no_advance(cursor, hf_homeplug_av_fc_mnbf, 1, FALSE);
-     ptvcursor_add(cursor, hf_homeplug_av_reserved, 1, FALSE);
-     ptvcursor_add(cursor, hf_homeplug_av_nw_info_fccs_av, 3, TRUE);
+     ptvcursor_add_no_advance(cursor, hf_homeplug_av_nw_info_del_type, 1, ENC_BIG_ENDIAN);
+     ptvcursor_add_no_advance(cursor, hf_homeplug_av_nw_info_access, 1, ENC_BIG_ENDIAN);
+     ptvcursor_add(cursor, hf_homeplug_av_nw_info_snid, 1, ENC_BIG_ENDIAN);
+     ptvcursor_add(cursor, hf_homeplug_av_fc_stei, 1, ENC_BIG_ENDIAN);
+     ptvcursor_add(cursor, hf_homeplug_av_fc_dtei, 1, ENC_BIG_ENDIAN);
+     ptvcursor_add(cursor, hf_homeplug_av_fc_lid, 1, ENC_BIG_ENDIAN);
+     ptvcursor_add_no_advance(cursor, hf_homeplug_av_fc_cfs, 1, ENC_BIG_ENDIAN);
+     ptvcursor_add_no_advance(cursor, hf_homeplug_av_fc_bdf, 1, ENC_BIG_ENDIAN);
+     ptvcursor_add_no_advance(cursor, hf_homeplug_av_fc_hp10df, 1, ENC_BIG_ENDIAN);
+     ptvcursor_add_no_advance(cursor, hf_homeplug_av_fc_hp11df, 1, ENC_BIG_ENDIAN);
+     ptvcursor_add(cursor, hf_homeplug_av_nw_info_peks, 1, ENC_BIG_ENDIAN);
+     ptvcursor_add(cursor, hf_homeplug_av_fc_ppb, 1, ENC_BIG_ENDIAN);
+     ptvcursor_add(cursor, hf_homeplug_av_fc_ble, 1, ENC_BIG_ENDIAN);
+     ptvcursor_add_no_advance(cursor, hf_homeplug_av_fc_pbsz, 1, ENC_BIG_ENDIAN);
+     ptvcursor_add_no_advance(cursor, hf_homeplug_av_fc_num_sym, 1, ENC_BIG_ENDIAN);
+     ptvcursor_add(cursor, hf_homeplug_av_fc_tmi_av, 1, ENC_BIG_ENDIAN);
+     ptvcursor_add_no_advance(cursor, hf_homeplug_av_fc_mpdu_cnt, 2, ENC_BIG_ENDIAN);
+     ptvcursor_add_no_advance(cursor, hf_homeplug_av_fc_burst_cnt, 2, ENC_BIG_ENDIAN);
+     ptvcursor_add(cursor, hf_homeplug_av_fc_fl_av, 2, ENC_LITTLE_ENDIAN);
+     ptvcursor_add_no_advance(cursor, hf_homeplug_av_fc_clst, 1, ENC_BIG_ENDIAN);
+     ptvcursor_add(cursor, hf_homeplug_av_fc_rg_len, 1, ENC_BIG_ENDIAN);
+     ptvcursor_add_no_advance(cursor, hf_homeplug_av_fc_mfs_cmd_mgmt, 1, ENC_BIG_ENDIAN);
+     ptvcursor_add_no_advance(cursor, hf_homeplug_av_fc_mfs_cmd_data, 1, ENC_BIG_ENDIAN);
+     ptvcursor_add(cursor, hf_homeplug_av_fc_rsr, 1, ENC_BIG_ENDIAN);
+     ptvcursor_add_no_advance(cursor, hf_homeplug_av_fc_mcf, 1, ENC_BIG_ENDIAN);
+     ptvcursor_add_no_advance(cursor, hf_homeplug_av_fc_dccpcf, 1, ENC_BIG_ENDIAN);
+     ptvcursor_add_no_advance(cursor, hf_homeplug_av_fc_mnbf, 1, ENC_BIG_ENDIAN);
+     ptvcursor_add(cursor, hf_homeplug_av_reserved, 1, ENC_NA);
+     ptvcursor_add(cursor, hf_homeplug_av_nw_info_fccs_av, 3, ENC_NA);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -1230,17 +1230,17 @@ dissect_homeplug_av_nw_info_sta(ptvcursor_t *cursor, gboolean vendor)
    if (!ptvcursor_tree(cursor))
      return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_nw_info_sta_info, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_nw_info_sta_info, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_nw_info_sta_info);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_sta_da, 6, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_nw_info_sta_da, 6, ENC_NA);
       if (vendor) {
-	ptvcursor_add(cursor, hf_homeplug_av_nw_info_sta_tei, 1, FALSE);
-	ptvcursor_add(cursor, hf_homeplug_av_nw_info_sta_bda, 6, FALSE);
+	ptvcursor_add(cursor, hf_homeplug_av_nw_info_sta_tei, 1, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_homeplug_av_nw_info_sta_bda, 6, ENC_NA);
       }
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_sta_phy_dr_tx, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_sta_phy_dr_rx, 1, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_nw_info_sta_phy_dr_tx, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_nw_info_sta_phy_dr_rx, 1, ENC_BIG_ENDIAN);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -1253,22 +1253,22 @@ dissect_homeplug_av_nw_info_net(ptvcursor_t *cursor, gboolean vendor)
    if (!ptvcursor_tree(cursor))
      return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_nw_info_net_info, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_nw_info_net_info, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_nw_info_net_info);
    {
-     ptvcursor_add(cursor, hf_homeplug_av_nw_info_nid, 7, FALSE);
-     ptvcursor_add(cursor, hf_homeplug_av_nw_info_snid, 1, FALSE);
-     ptvcursor_add(cursor, hf_homeplug_av_nw_info_tei, 1, FALSE);
-     ptvcursor_add(cursor, hf_homeplug_av_nw_info_sta_role, 1, FALSE);
-     ptvcursor_add(cursor, hf_homeplug_av_nw_info_cco_mac, 6, FALSE);
+     ptvcursor_add(cursor, hf_homeplug_av_nw_info_nid, 7, ENC_NA);
+     ptvcursor_add(cursor, hf_homeplug_av_nw_info_snid, 1, ENC_BIG_ENDIAN);
+     ptvcursor_add(cursor, hf_homeplug_av_nw_info_tei, 1, ENC_BIG_ENDIAN);
+     ptvcursor_add(cursor, hf_homeplug_av_nw_info_sta_role, 1, ENC_BIG_ENDIAN);
+     ptvcursor_add(cursor, hf_homeplug_av_nw_info_cco_mac, 6, ENC_NA);
      if (vendor) {
-       ptvcursor_add(cursor, hf_homeplug_av_nw_info_cco_tei, 1, FALSE);
+       ptvcursor_add(cursor, hf_homeplug_av_nw_info_cco_tei, 1, ENC_BIG_ENDIAN);
      }
      else
      {
-       ptvcursor_add(cursor, hf_homeplug_av_nw_info_access, 1, FALSE);
-       ptvcursor_add(cursor, hf_homeplug_av_nw_info_num_coord, 1, FALSE);
+       ptvcursor_add(cursor, hf_homeplug_av_nw_info_access, 1, ENC_BIG_ENDIAN);
+       ptvcursor_add(cursor, hf_homeplug_av_nw_info_num_coord, 1, ENC_BIG_ENDIAN);
      }
    }
    ptvcursor_pop_subtree(cursor);
@@ -1283,17 +1283,17 @@ dissect_homeplug_av_cc_sta_info(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
      return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_cc_sta_info, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_cc_sta_info, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_cc_sta_info);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_cc_sta_info_mac, 6, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_cc_sta_info_tei, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_cc_sta_info_same_net, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_snid, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_cco_cap, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_cc_sta_info_sig_level, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_cc_sta_info_avg_ble, 1, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_cc_sta_info_mac, 6, ENC_NA);
+      ptvcursor_add(cursor, hf_homeplug_av_cc_sta_info_tei, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_cc_sta_info_same_net, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_nw_info_snid, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_nw_info_cco_cap, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_cc_sta_info_sig_level, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_cc_sta_info_avg_ble, 1, ENC_BIG_ENDIAN);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -1306,16 +1306,16 @@ dissect_homeplug_av_cc_net_info(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
      return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_cc_net_info, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_cc_net_info, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_cc_net_info);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_nid, 7, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_snid, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_cc_net_info_hyb_mode, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_cc_net_info_bcn_slots, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_cc_net_info_cco_sts, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_cc_net_info_bcn_ofs, 2, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_nw_info_nid, 7, ENC_NA);
+      ptvcursor_add(cursor, hf_homeplug_av_nw_info_snid, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_cc_net_info_hyb_mode, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_cc_net_info_bcn_slots, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_cc_net_info_cco_sts, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_cc_net_info_bcn_ofs, 2, ENC_BIG_ENDIAN);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -1332,13 +1332,13 @@ dissect_homeplug_av_cc_disc_list_cnf(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
      return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_cc_disc_list_cnf, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_cc_disc_list_cnf, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_cc_disc_list_cnf);
    {
       num_stas = tvb_get_guint8(ptvcursor_tvbuff(cursor),
       		ptvcursor_current_offset(cursor));
-      ptvcursor_add(cursor, hf_homeplug_av_cc_disc_list_sta_cnt, 1, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_cc_disc_list_sta_cnt, 1, ENC_BIG_ENDIAN);
 
       for (sta = 0; sta < num_stas; sta++) {
 	dissect_homeplug_av_cc_sta_info(cursor);
@@ -1346,7 +1346,7 @@ dissect_homeplug_av_cc_disc_list_cnf(ptvcursor_t *cursor)
 
       num_nets = tvb_get_guint8(ptvcursor_tvbuff(cursor),
 				ptvcursor_current_offset(cursor));
-      ptvcursor_add(cursor, hf_homeplug_av_cc_disc_list_net_cnt, 1, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_cc_disc_list_net_cnt, 1, ENC_BIG_ENDIAN);
 
       for (net = 0; net < num_nets; net++) {
 	dissect_homeplug_av_cc_net_info(cursor);
@@ -1364,27 +1364,27 @@ dissect_homeplug_av_cm_enc_pld_ind(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
      return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_cm_enc_pld_ind, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_cm_enc_pld_ind, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_cm_enc_pld_ind);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_peks, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_cm_enc_pld_ind_avlns, 1, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_nw_info_peks, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_cm_enc_pld_ind_avlns, 1, ENC_BIG_ENDIAN);
       pid = tvb_get_guint8(ptvcursor_tvbuff(cursor),
 		ptvcursor_current_offset(cursor));
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_pid, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_prn, 2, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_pmn, 1, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_nw_info_pid, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_nw_info_prn, 2, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_nw_info_pmn, 1, ENC_BIG_ENDIAN);
       if (pid == HOMEPLUG_AV_PID_HLE) {
-	ptvcursor_add(cursor, hf_homeplug_av_cm_enc_pld_ind_iv, 16, TRUE);
+	ptvcursor_add(cursor, hf_homeplug_av_cm_enc_pld_ind_iv, 16, ENC_NA);
       } else {
-	ptvcursor_add(cursor, hf_homeplug_av_cm_enc_pld_ind_uuid, 16, TRUE);
+	ptvcursor_add(cursor, hf_homeplug_av_cm_enc_pld_ind_uuid, 16, ENC_LITTLE_ENDIAN);
       }
-      ptvcursor_add(cursor, hf_homeplug_av_cm_enc_pld_ind_len, 2, TRUE);
+      ptvcursor_add(cursor, hf_homeplug_av_cm_enc_pld_ind_len, 2, ENC_LITTLE_ENDIAN);
 
       /* Encrypted payload follows */
       if (pid != HOMEPLUG_AV_PID_HLE) {
-	ptvcursor_add(cursor, hf_homeplug_av_cm_enc_pld_ind_pld, -1, FALSE);
+	ptvcursor_add(cursor, hf_homeplug_av_cm_enc_pld_ind_pld, -1, ENC_NA);
       }
    }
    ptvcursor_pop_subtree(cursor);
@@ -1398,13 +1398,13 @@ dissect_homeplug_av_cm_enc_pld_rsp(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
       return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_cm_enc_pld_rsp, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_cm_enc_pld_rsp, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_cm_enc_pld_rsp);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_cm_enc_pld_rsp_result, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_pid, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_prn, 2, TRUE);
+      ptvcursor_add(cursor, hf_homeplug_av_cm_enc_pld_rsp_result, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_nw_info_pid, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_nw_info_prn, 2, ENC_LITTLE_ENDIAN);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -1417,20 +1417,20 @@ dissect_homeplug_av_cm_set_key_req(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
      return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_cm_set_key_req, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_cm_set_key_req, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_cm_set_key_req);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_key_type, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_my_nonce, 4, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_your_nonce, 4, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_pid, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_prn, 2, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_pmn, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_cco_cap, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_nid, 7, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_peks, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_cm_set_key_req_nw_key, -1, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_nw_info_key_type, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_nw_info_my_nonce, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_nw_info_your_nonce, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_nw_info_pid, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_nw_info_prn, 2, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_nw_info_pmn, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_nw_info_cco_cap, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_nw_info_nid, 7, ENC_NA);
+      ptvcursor_add(cursor, hf_homeplug_av_nw_info_peks, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_cm_set_key_req_nw_key, -1, ENC_NA);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -1443,17 +1443,17 @@ dissect_homeplug_av_cm_set_key_cnf(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
       return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_cm_set_key_cnf, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_cm_set_key_cnf, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_cm_set_key_cnf);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_cm_set_key_cnf_result, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_my_nonce, 4, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_your_nonce, 4, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_pid, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_prn, 2, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_pmn, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_cco_cap, 1, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_cm_set_key_cnf_result, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_nw_info_my_nonce, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_nw_info_your_nonce, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_nw_info_pid, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_nw_info_prn, 2, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_nw_info_pmn, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_nw_info_cco_cap, 1, ENC_BIG_ENDIAN);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -1467,22 +1467,22 @@ dissect_homeplug_av_cm_get_key_req(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
      return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_cm_get_key_req, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_cm_get_key_req, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_cm_get_key_req);
    {
 
-      ptvcursor_add(cursor, hf_homeplug_av_cm_get_key_req_type, 1, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_cm_get_key_req_type, 1, ENC_BIG_ENDIAN);
       key_type = tvb_get_guint8(ptvcursor_tvbuff(cursor),
 				ptvcursor_current_offset(cursor));
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_key_type, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_nid, 7, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_my_nonce, 4, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_pid, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_prn, 2, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_pmn, 1, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_nw_info_key_type, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_nw_info_nid, 7, ENC_NA);
+      ptvcursor_add(cursor, hf_homeplug_av_nw_info_my_nonce, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_nw_info_pid, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_nw_info_prn, 2, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_nw_info_pmn, 1, ENC_BIG_ENDIAN);
       if (key_type == HOMEPLUG_AV_KEY_TYPE_HASH) {
-	ptvcursor_add(cursor, hf_homeplug_av_cm_get_key_req_has_key, -1, FALSE);
+	ptvcursor_add(cursor, hf_homeplug_av_cm_get_key_req_has_key, -1, ENC_NA);
       }
    }
    ptvcursor_pop_subtree(cursor);
@@ -1496,20 +1496,20 @@ dissect_homeplug_av_cm_get_key_cnf(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
      return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_cm_get_key_cnf, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_cm_get_key_cnf, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_cm_get_key_cnf);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_cm_get_key_cnf_result, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_cm_get_key_cnf_rtype, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_my_nonce, 4, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_your_nonce, 4, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_nid, 7, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_peks, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_pid, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_prn, 2, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_pmn, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_cm_get_key_cnf_key, -1, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_cm_get_key_cnf_result, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_cm_get_key_cnf_rtype, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_nw_info_my_nonce, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_nw_info_your_nonce, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_nw_info_nid, 7, ENC_NA);
+      ptvcursor_add(cursor, hf_homeplug_av_nw_info_peks, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_nw_info_pid, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_nw_info_prn, 2, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_nw_info_pmn, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_cm_get_key_cnf_key, -1, ENC_NA);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -1525,23 +1525,23 @@ dissect_homeplug_av_get_brg_infos_cnf(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
      return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_brg_infos_cnf, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_brg_infos_cnf, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_brg_infos_cnf);
    {
       bridging = tvb_get_guint8(ptvcursor_tvbuff(cursor),
 		ptvcursor_current_offset(cursor));
-      ptvcursor_add(cursor, hf_homeplug_av_brg_infos_cnf_brd, 1, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_brg_infos_cnf_brd, 1, ENC_BIG_ENDIAN);
 
       if (bridging) {
-	ptvcursor_add(cursor, hf_homeplug_av_brg_infos_cnf_btei, 1, FALSE);
+	ptvcursor_add(cursor, hf_homeplug_av_brg_infos_cnf_btei, 1, ENC_BIG_ENDIAN);
 
 	num_stas = tvb_get_guint8(ptvcursor_tvbuff(cursor),
 				  ptvcursor_current_offset(cursor));
-	ptvcursor_add(cursor, hf_homeplug_av_brg_infos_cnf_num_stas, 1, FALSE);
+	ptvcursor_add(cursor, hf_homeplug_av_brg_infos_cnf_num_stas, 1, ENC_BIG_ENDIAN);
 
 	for (sta = 0; sta < num_stas; sta++) {
-	  ptvcursor_add(cursor, hf_homeplug_av_brg_infos_cnf_mac, 6, FALSE);
+	  ptvcursor_add(cursor, hf_homeplug_av_brg_infos_cnf_mac, 6, ENC_NA);
 	}
       }
    }
@@ -1558,13 +1558,13 @@ dissect_homeplug_av_nw_infos_cnf(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
      return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_cm_nw_infos_cnf, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_cm_nw_infos_cnf, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_cm_nw_infos_cnf);
    {
       num_avlns = tvb_get_guint8(ptvcursor_tvbuff(cursor),
 		ptvcursor_current_offset(cursor));
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_num_avlns, 1, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_nw_info_num_avlns, 1, ENC_BIG_ENDIAN);
 
       for (net = 0; net < num_avlns; net++) {
 	dissect_homeplug_av_nw_info_net(cursor, FALSE);
@@ -1583,13 +1583,13 @@ dissect_homeplug_av_nw_stats_cnf(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
      return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_nw_stats_cnf, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_nw_stats_cnf, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_nw_stats_cnf);
    {
       num_stas = tvb_get_guint8(ptvcursor_tvbuff(cursor),
 		ptvcursor_current_offset(cursor));
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_num_stas, 1, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_nw_info_num_stas, 1, ENC_BIG_ENDIAN);
 
       for (sta = 0; sta < num_stas; sta++) {
 	dissect_homeplug_av_nw_info_sta(cursor, FALSE);
@@ -1607,15 +1607,15 @@ dissect_homeplug_av_get_sw_cnf(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
      return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_get_sw_cnf, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_get_sw_cnf, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_get_sw_cnf);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_get_sw_cnf_status, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_get_sw_cnf_dev_id, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_get_sw_cnf_ver_len, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_get_sw_cnf_ver_str, 64, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_get_sw_cnf_upg, 1, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_get_sw_cnf_status, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_get_sw_cnf_dev_id, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_get_sw_cnf_ver_len, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_get_sw_cnf_ver_str, 64, ENC_ASCII|ENC_NA);
+      ptvcursor_add(cursor, hf_homeplug_av_get_sw_cnf_upg, 1, ENC_BIG_ENDIAN);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -1628,13 +1628,13 @@ dissect_homeplug_av_wr_mem_req(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
       return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_wr_mem_req, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_wr_mem_req, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_wr_mem_req);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_mem_addr, 4, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_mem_len_32bits, 4, TRUE);
-      ptvcursor_add_no_advance(cursor, hf_homeplug_av_mem_data, -1, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_mem_addr, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_mem_len_32bits, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add_no_advance(cursor, hf_homeplug_av_mem_data, -1, ENC_NA);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -1647,13 +1647,13 @@ dissect_homeplug_av_wr_mem_cnf(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
       return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_wr_mem_cnf, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_wr_mem_cnf, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_wr_mem_cnf);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_mem_status, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_mem_addr, 4, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_mem_len_32bits, 4, TRUE);
+      ptvcursor_add(cursor, hf_homeplug_av_mem_status, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_mem_addr, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_mem_len_32bits, 4, ENC_LITTLE_ENDIAN);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -1666,12 +1666,12 @@ dissect_homeplug_av_rd_mem_req(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
      return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_rd_mem_req, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_rd_mem_req, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_rd_mem_req);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_mem_addr, 4, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_mem_len_32bits, 4, TRUE);
+      ptvcursor_add(cursor, hf_homeplug_av_mem_addr, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_mem_len_32bits, 4, ENC_LITTLE_ENDIAN);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -1684,14 +1684,14 @@ dissect_homeplug_av_rd_mem_cnf(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
       return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_rd_mem_cnf, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_rd_mem_cnf, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_rd_mem_cnf);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_mem_status, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_mem_addr, 4, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_mem_len_32bits, 4, TRUE);
-      ptvcursor_add_no_advance(cursor, hf_homeplug_av_mem_data, -1, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_mem_status, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_mem_addr, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_mem_len_32bits, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add_no_advance(cursor, hf_homeplug_av_mem_data, -1, ENC_NA);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -1704,16 +1704,16 @@ dissect_homeplug_av_st_mac_req(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
       return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_st_mac_req, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_st_mac_req, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_st_mac_req);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_mac_module_id, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_reserved, 3, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_st_mac_req_img_load, 4, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_st_mac_req_img_len, 4, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_st_mac_req_img_chksum, 4, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_st_mac_req_img_start, 4, TRUE);
+      ptvcursor_add(cursor, hf_homeplug_av_mac_module_id, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_reserved, 3, ENC_NA);
+      ptvcursor_add(cursor, hf_homeplug_av_st_mac_req_img_load, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_st_mac_req_img_len, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_st_mac_req_img_chksum, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_st_mac_req_img_start, 4, ENC_LITTLE_ENDIAN);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -1727,12 +1727,12 @@ dissect_homeplug_av_st_mac_cnf(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
       return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_st_mac_cnf, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_st_mac_cnf, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_st_mac_cnf);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_st_mac_cnf_status, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_mac_module_id, 1, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_st_mac_cnf_status, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_mac_module_id, 1, ENC_BIG_ENDIAN);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -1745,15 +1745,15 @@ dissect_homeplug_av_get_nvm_cnf(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
       return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_get_nvm_cnf, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_get_nvm_cnf, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_get_nvm_cnf);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_get_nvm_cnf_status, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_get_nvm_cnf_nvm_type, 4, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_get_nvm_cnf_nvm_page, 4, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_get_nvm_cnf_nvm_block, 4, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_get_nvm_cnf_nvm_size, 4, TRUE);
+      ptvcursor_add(cursor, hf_homeplug_av_get_nvm_cnf_status, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_get_nvm_cnf_nvm_type, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_get_nvm_cnf_nvm_page, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_get_nvm_cnf_nvm_block, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_get_nvm_cnf_nvm_size, 4, ENC_LITTLE_ENDIAN);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -1766,11 +1766,11 @@ dissect_homeplug_av_rs_dev_cnf(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
       return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_rs_dev_cnf, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_rs_dev_cnf, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_rs_dev_cnf);
    {
-     ptvcursor_add(cursor, hf_homeplug_av_rs_dev_cnf_status, 1, FALSE);
+     ptvcursor_add(cursor, hf_homeplug_av_rs_dev_cnf_status, 1, ENC_BIG_ENDIAN);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -1782,16 +1782,16 @@ static void dissect_homeplug_av_wr_mod_req(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
       return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_wr_mod_req, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_wr_mod_req, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_wr_mod_req);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_mac_module_id, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_reserved, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_mem_len_16bits, 2, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_mem_offset, 4, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_mem_checksum, 4, TRUE);
-      ptvcursor_add_no_advance(cursor, hf_homeplug_av_mem_data, -1, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_mac_module_id, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_reserved, 1, ENC_NA);
+      ptvcursor_add(cursor, hf_homeplug_av_mem_len_16bits, 2, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_mem_offset, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_mem_checksum, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add_no_advance(cursor, hf_homeplug_av_mem_data, -1, ENC_NA);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -1803,15 +1803,15 @@ static void dissect_homeplug_av_wr_mod_cnf(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
       return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_wr_mod_cnf, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_wr_mod_cnf, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_wr_mod_cnf);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_wr_mod_cnf_status, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_mac_module_id, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_reserved, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_mem_len_16bits, 2, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_mem_offset, 4, TRUE);
+      ptvcursor_add(cursor, hf_homeplug_av_wr_mod_cnf_status, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_mac_module_id, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_reserved, 1, ENC_NA);
+      ptvcursor_add(cursor, hf_homeplug_av_mem_len_16bits, 2, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_mem_offset, 4, ENC_LITTLE_ENDIAN);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -1823,12 +1823,12 @@ static void dissect_homeplug_av_wr_mod_ind(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
       return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_wr_mod_ind, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_wr_mod_ind, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_wr_mod_ind);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_wr_mod_ind_status, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_mac_module_id, 1, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_wr_mod_ind_status, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_mac_module_id, 1, ENC_BIG_ENDIAN);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -1841,14 +1841,14 @@ dissect_homeplug_av_rd_mod_req(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
      return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_rd_mod_req, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_rd_mod_req, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_rd_mod_req);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_mac_module_id, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_reserved, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_mem_len_16bits, 2, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_mem_offset, 4, TRUE);
+      ptvcursor_add(cursor, hf_homeplug_av_mac_module_id, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_reserved, 1, ENC_NA);
+      ptvcursor_add(cursor, hf_homeplug_av_mem_len_16bits, 2, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_mem_offset, 4, ENC_LITTLE_ENDIAN);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -1861,18 +1861,18 @@ dissect_homeplug_av_rd_mod_cnf(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
      return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_rd_mod_cnf, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_rd_mod_cnf, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_rd_mod_cnf);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_rd_mod_cnf_status, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_reserved, 3, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_mac_module_id, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_reserved, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_mem_len_16bits, 2, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_mem_offset, 4, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_mem_checksum, 4, TRUE);
-      ptvcursor_add_no_advance(cursor, hf_homeplug_av_mem_data, -1, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_rd_mod_cnf_status, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_reserved, 3, ENC_NA);
+      ptvcursor_add(cursor, hf_homeplug_av_mac_module_id, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_reserved, 1, ENC_NA);
+      ptvcursor_add(cursor, hf_homeplug_av_mem_len_16bits, 2, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_mem_offset, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_mem_checksum, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add_no_advance(cursor, hf_homeplug_av_mem_data, -1, ENC_NA);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -1885,11 +1885,11 @@ dissect_homeplug_av_mod_nvm_req(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
       return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_mod_nvm_req, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_mod_nvm_req, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_mod_nvm_req);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_mac_module_id, 1, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_mac_module_id, 1, ENC_BIG_ENDIAN);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -1902,12 +1902,12 @@ dissect_homeplug_av_mod_nvm_cnf(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
       return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_mod_nvm_cnf, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_mod_nvm_cnf, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_mod_nvm_cnf);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_mod_nvm_cnf_status, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_mac_module_id, 1, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_mod_nvm_cnf_status, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_mac_module_id, 1, ENC_BIG_ENDIAN);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -1920,12 +1920,12 @@ dissect_homeplug_av_wd_rpt_req(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
       return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_wd_rpt_req, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_wd_rpt_req, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_wd_rpt_req);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_wd_rpt_req_session_id, 2, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_wd_rpt_req_clr, 1, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_wd_rpt_req_session_id, 2, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_wd_rpt_req_clr, 1, ENC_BIG_ENDIAN);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -1938,17 +1938,17 @@ dissect_homeplug_av_wd_rpt_ind(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
       return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_wd_rpt_ind, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_wd_rpt_ind, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_wd_rpt_ind);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_wd_rpt_ind_status, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_wd_rpt_ind_session_id, 2, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_wd_rpt_ind_num_parts, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_wd_rpt_ind_curr_part, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_wd_rpt_ind_rdata_len, 2, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_wd_rpt_ind_rdata_ofs, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_wd_rpt_ind_rdata, -1, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_wd_rpt_ind_status, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_wd_rpt_ind_session_id, 2, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_wd_rpt_ind_num_parts, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_wd_rpt_ind_curr_part, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_wd_rpt_ind_rdata_len, 2, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_wd_rpt_ind_rdata_ofs, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_wd_rpt_ind_rdata, -1, ENC_NA);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -1961,14 +1961,14 @@ dissect_homeplug_av_lnk_stats_req(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
       return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_lnk_stats_req, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_lnk_stats_req, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_lnk_stats_req);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_lnk_stats_req_mcontrol, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_lnk_stats_req_dir, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_lnk_stats_req_lid, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_lnk_stats_req_macaddr, 6, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_lnk_stats_req_mcontrol, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_lnk_stats_req_dir, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_lnk_stats_req_lid, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_lnk_stats_req_macaddr, 6, ENC_NA);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -1981,15 +1981,15 @@ dissect_homeplug_av_lnk_stats_tx(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
      return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_lnk_stats_tx, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_lnk_stats_tx, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_lnk_stats_tx);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_lnk_stats_tx_mpdu_ack, 8, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_lnk_stats_tx_mpdu_col, 8, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_lnk_stats_tx_mpdu_fai, 8, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_lnk_stats_tx_pbs_pass, 8, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_lnk_stats_tx_pbs_fail, 8, TRUE);
+      ptvcursor_add(cursor, hf_homeplug_av_lnk_stats_tx_mpdu_ack, 8, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_lnk_stats_tx_mpdu_col, 8, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_lnk_stats_tx_mpdu_fai, 8, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_lnk_stats_tx_pbs_pass, 8, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_lnk_stats_tx_pbs_fail, 8, ENC_LITTLE_ENDIAN);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -2002,15 +2002,15 @@ dissect_homeplug_av_lnk_stats_rx_interval(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
      return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_rx_inv_stats, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_rx_inv_stats, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_lnk_stats_rx_inv);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_rx_inv_phy_rate, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_rx_inv_pbs_pass, 8, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_rx_inv_pbs_fail, 8, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_rx_inv_tb_pass, 8, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_rx_inv_tb_fail, 8, TRUE);
+      ptvcursor_add(cursor, hf_homeplug_av_rx_inv_phy_rate, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_rx_inv_pbs_pass, 8, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_rx_inv_pbs_fail, 8, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_rx_inv_tb_pass, 8, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_rx_inv_tb_fail, 8, ENC_LITTLE_ENDIAN);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -2025,19 +2025,19 @@ dissect_homeplug_av_lnk_stats_rx(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
      return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_lnk_stats_rx, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_lnk_stats_rx, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_lnk_stats_rx);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_lnk_stats_rx_mpdu_ack, 8, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_lnk_stats_rx_mpdu_fai, 8, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_lnk_stats_rx_pbs_pass, 8, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_lnk_stats_rx_pbs_fail, 8, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_lnk_stats_rx_tb_pass, 8, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_lnk_stats_rx_tb_fail, 8, TRUE);
+      ptvcursor_add(cursor, hf_homeplug_av_lnk_stats_rx_mpdu_ack, 8, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_lnk_stats_rx_mpdu_fai, 8, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_lnk_stats_rx_pbs_pass, 8, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_lnk_stats_rx_pbs_fail, 8, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_lnk_stats_rx_tb_pass, 8, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_lnk_stats_rx_tb_fail, 8, ENC_LITTLE_ENDIAN);
       num_rx_interval = tvb_get_guint8(ptvcursor_tvbuff(cursor),
 					ptvcursor_current_offset(cursor));
-      ptvcursor_add(cursor, hf_homeplug_av_lnk_stats_rx_num_int, 1, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_lnk_stats_rx_num_int, 1, ENC_BIG_ENDIAN);
 
       for (interval = 0; interval < num_rx_interval; interval++) {
 	dissect_homeplug_av_lnk_stats_rx_interval(cursor);
@@ -2056,22 +2056,22 @@ dissect_homeplug_av_lnk_stats_cnf(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
       return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_lnk_stats_cnf, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_lnk_stats_cnf, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_lnk_stats_cnf);
    {
       status = tvb_get_guint8(ptvcursor_tvbuff(cursor),
 					ptvcursor_current_offset(cursor));
-      ptvcursor_add(cursor, hf_homeplug_av_lnk_stats_cnf_status, 1, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_lnk_stats_cnf_status, 1, ENC_BIG_ENDIAN);
 
       direction = tvb_get_guint8(ptvcursor_tvbuff(cursor),
 					ptvcursor_current_offset(cursor));
-      ptvcursor_add(cursor, hf_homeplug_av_lnk_stats_cnf_dir, 1, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_lnk_stats_cnf_dir, 1, ENC_BIG_ENDIAN);
 
-      ptvcursor_add(cursor, hf_homeplug_av_lnk_stats_cnf_lid, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_lnk_stats_cnf_tei, 1, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_lnk_stats_cnf_lid, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_lnk_stats_cnf_tei, 1, ENC_BIG_ENDIAN);
 
-      ptvcursor_add_no_advance(cursor, hf_homeplug_av_lnk_stats_cnf_lstats, -1, FALSE);
+      ptvcursor_add_no_advance(cursor, hf_homeplug_av_lnk_stats_cnf_lstats, -1, ENC_NA);
 
       if (status == HOMEPLUG_AV_LNK_STATS_STATUS_SUCCESS)
       {
@@ -2100,12 +2100,12 @@ dissect_homeplug_av_sniffer_req(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
       return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_sniffer_req, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_sniffer_req, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_sniffer_req);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_sniffer_req_ctrl, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_reserved, 4, TRUE);
+      ptvcursor_add(cursor, hf_homeplug_av_sniffer_req_ctrl, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_reserved, 4, ENC_NA);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -2118,13 +2118,13 @@ dissect_homeplug_av_sniffer_cnf(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
       return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_sniffer_cnf, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_sniffer_cnf, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_sniffer_cnf);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_sniffer_cnf_status, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_sniffer_cnf_state, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_sniffer_cnf_da, 6, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_sniffer_cnf_status, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_sniffer_cnf_state, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_sniffer_cnf_da, 6, ENC_NA);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -2138,19 +2138,19 @@ dissect_homeplug_av_sniffer_ind(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
      return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_sniffer_ind, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_sniffer_ind, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_sniffer_ind);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_sniffer_ind_type, 1, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_sniffer_ind_type, 1, ENC_BIG_ENDIAN);
 
-      it_data = ptvcursor_add_no_advance(cursor, hf_homeplug_av_sniffer_ind_data, -1, FALSE);
+      it_data = ptvcursor_add_no_advance(cursor, hf_homeplug_av_sniffer_ind_data, -1, ENC_NA);
 
       ptvcursor_push_subtree(cursor, it_data, ett_homeplug_av_sniffer_ind_data);
       {
-	ptvcursor_add(cursor, hf_homeplug_av_sniffer_data_dir, 1, FALSE);
-	ptvcursor_add(cursor, hf_homeplug_av_sniffer_data_systime, 8, TRUE);
-	ptvcursor_add(cursor, hf_homeplug_av_sniffer_data_bc_time, 4, TRUE);
+	ptvcursor_add(cursor, hf_homeplug_av_sniffer_data_dir, 1, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_homeplug_av_sniffer_data_systime, 8, ENC_LITTLE_ENDIAN);
+	ptvcursor_add(cursor, hf_homeplug_av_sniffer_data_bc_time, 4, ENC_LITTLE_ENDIAN);
 	dissect_homeplug_av_frame_control(cursor);
 	 dissect_homeplug_av_beacon(cursor);
       }
@@ -2170,19 +2170,19 @@ dissect_homeplug_av_nw_info_cnf(ptvcursor_t *cursor)
     if (!ptvcursor_tree(cursor))
       return;
 
-    it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_nw_info_cnf, -1, FALSE);
+    it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_nw_info_cnf, -1, ENC_NA);
 
     ptvcursor_push_subtree(cursor, it, ett_homeplug_av_nw_info_cnf);
     {
        num_avlns = tvb_get_guint8(ptvcursor_tvbuff(cursor),
 					ptvcursor_current_offset(cursor));
-       ptvcursor_add(cursor, hf_homeplug_av_nw_info_num_avlns, 1, FALSE);
+       ptvcursor_add(cursor, hf_homeplug_av_nw_info_num_avlns, 1, ENC_BIG_ENDIAN);
 
        if (num_avlns) {
 	   dissect_homeplug_av_nw_info_net(cursor, TRUE);
 	   num_stas = tvb_get_guint8(ptvcursor_tvbuff(cursor),
 					    ptvcursor_current_offset(cursor));
-	   ptvcursor_add(cursor, hf_homeplug_av_nw_info_num_stas, 1, FALSE);
+	   ptvcursor_add(cursor, hf_homeplug_av_nw_info_num_stas, 1, ENC_BIG_ENDIAN);
 
 	   for (sta = 0; sta < num_stas; sta++) {
 	      dissect_homeplug_av_nw_info_sta(cursor, TRUE);
@@ -2200,12 +2200,12 @@ dissect_homeplug_av_cp_rpt_req(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
      return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_cp_rpt_req, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_cp_rpt_req, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_cp_rpt_req);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_cp_rpt_req_session_id, 2, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_cp_rpt_req_clr, 1, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_cp_rpt_req_session_id, 2, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_cp_rpt_req_clr, 1, ENC_BIG_ENDIAN);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -2218,23 +2218,23 @@ dissect_homeplug_av_cp_rpt_ind(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
      return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_cp_rpt_ind, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_cp_rpt_ind, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_cp_rpt_ind);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_cp_rpt_ind_status, 1, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_cp_rpt_ind_major_ver, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_cp_rpt_ind_minor_ver, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_reserved, 14, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_cp_rpt_ind_session_id, 2, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_cp_rpt_ind_total_size, 4, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_cp_rpt_ind_blk_offset, 4, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_cp_rpt_ind_byte_index, 4, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_cp_rpt_ind_num_parts, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_cp_rpt_ind_curr_part, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_cp_rpt_ind_data_len, 2, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_cp_rpt_ind_data_ofs, 1, TRUE);
-      ptvcursor_add_no_advance(cursor, hf_homeplug_av_cp_rpt_ind_data, -1, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_cp_rpt_ind_status, 1, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_cp_rpt_ind_major_ver, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_cp_rpt_ind_minor_ver, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_reserved, 14, ENC_NA);
+      ptvcursor_add(cursor, hf_homeplug_av_cp_rpt_ind_session_id, 2, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_cp_rpt_ind_total_size, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_cp_rpt_ind_blk_offset, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_cp_rpt_ind_byte_index, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_cp_rpt_ind_num_parts, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_cp_rpt_ind_curr_part, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_cp_rpt_ind_data_len, 2, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_cp_rpt_ind_data_ofs, 1, ENC_LITTLE_ENDIAN);
+      ptvcursor_add_no_advance(cursor, hf_homeplug_av_cp_rpt_ind_data, -1, ENC_NA);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -2247,14 +2247,14 @@ dissect_homeplug_av_fr_lbk_req(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
       return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_fr_lbk_req, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_fr_lbk_req, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_fr_lbk_req);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_fr_lbk_duration, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_reserved, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_fr_lbk_len, 2, FALSE);
-      ptvcursor_add_no_advance(cursor, hf_homeplug_av_fr_lbk_req_data, -1, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_fr_lbk_duration, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_reserved, 1, ENC_NA);
+      ptvcursor_add(cursor, hf_homeplug_av_fr_lbk_len, 2, ENC_BIG_ENDIAN);
+      ptvcursor_add_no_advance(cursor, hf_homeplug_av_fr_lbk_req_data, -1, ENC_NA);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -2267,13 +2267,13 @@ dissect_homeplug_av_fr_lbk_cnf(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
       return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_fr_lbk_cnf, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_fr_lbk_cnf, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_fr_lbk_cnf);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_fr_lbk_cnf_status, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_fr_lbk_duration, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_fr_lbk_len, 2, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_fr_lbk_cnf_status, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_fr_lbk_duration, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_fr_lbk_len, 2, ENC_BIG_ENDIAN);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -2286,12 +2286,12 @@ dissect_homeplug_av_lbk_stat_cnf(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
      return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_lbk_stat_cnf, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_lbk_stat_cnf, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_lbk_stat_cnf);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_lbk_stat_cnf_status, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_lbk_stat_cnf_lbk_stat, 1, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_lbk_stat_cnf_status, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_lbk_stat_cnf_lbk_stat, 1, ENC_BIG_ENDIAN);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -2304,15 +2304,15 @@ dissect_homeplug_av_set_key_req(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
      return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_set_key_req, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_set_key_req, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_set_key_req);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_set_key_req_eks, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_set_key_req_nmk, 16, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_nw_info_peks, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_set_key_req_rda, 6, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_set_key_req_dak, 16, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_set_key_req_eks, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_set_key_req_nmk, 16, ENC_NA);
+      ptvcursor_add(cursor, hf_homeplug_av_nw_info_peks, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_set_key_req_rda, 6, ENC_NA);
+      ptvcursor_add(cursor, hf_homeplug_av_set_key_req_dak, 16, ENC_NA);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -2325,11 +2325,11 @@ dissect_homeplug_av_set_key_cnf(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
       return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_set_key_cnf, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_set_key_cnf, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_set_key_cnf);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_set_key_cnf_status, 1, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_set_key_cnf_status, 1, ENC_BIG_ENDIAN);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -2342,13 +2342,13 @@ dissect_homeplug_av_mfg_string_cnf(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
       return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_mfg_string_cnf, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_mfg_string_cnf, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_mfg_string_cnf);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_mfg_string_cnf_status, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_mfg_string_cnf_len, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_mfg_string_cnf_string, 64, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_mfg_string_cnf_status, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_mfg_string_cnf_len, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_mfg_string_cnf_string, 64, ENC_ASCII|ENC_NA);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -2361,19 +2361,19 @@ dissect_homeplug_av_cblock_hdr(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
       return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_cblock_hdr, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_cblock_hdr, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_cblock_hdr);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_cblock_hdr_ver, 4, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_cblock_img_rom_addr, 4, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_cblock_img_addr, 4, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_cblock_img_len, 4, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_cblock_img_chksum, 4, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_cblock_entry_point, 4, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_reserved, 12, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_cblock_next_hdr, 4, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_cblock_hdr_chksum, 4, TRUE);
+      ptvcursor_add(cursor, hf_homeplug_av_cblock_hdr_ver, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_cblock_img_rom_addr, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_cblock_img_addr, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_cblock_img_len, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_cblock_img_chksum, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_cblock_entry_point, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_reserved, 12, ENC_NA);
+      ptvcursor_add(cursor, hf_homeplug_av_cblock_next_hdr, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_cblock_hdr_chksum, 4, ENC_LITTLE_ENDIAN);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -2386,18 +2386,18 @@ dissect_homeplug_av_cblock(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
      return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_cblock, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_cblock, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_cblock);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_cblock_sdram_size, 4, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_cblock_sdram_conf, 4, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_cblock_sdram_tim0, 4, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_cblock_sdram_tim1, 4, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_cblock_sdram_cntrl, 4, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_cblock_sdram_refresh, 4, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_cblock_mac_clock, 4, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_reserved, 4, TRUE);
+      ptvcursor_add(cursor, hf_homeplug_av_cblock_sdram_size, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_cblock_sdram_conf, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_cblock_sdram_tim0, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_cblock_sdram_tim1, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_cblock_sdram_cntrl, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_cblock_sdram_refresh, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_cblock_mac_clock, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_reserved, 4, ENC_NA);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -2410,12 +2410,12 @@ dissect_homeplug_av_rd_cblock_cnf(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
      return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_rd_cblock_cnf, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_rd_cblock_cnf, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_rd_cblock_cnf);
    {
-     ptvcursor_add(cursor, hf_homeplug_av_rd_cblock_cnf_status, 1, FALSE);
-     ptvcursor_add(cursor, hf_homeplug_av_rd_cblock_cnf_len, 1, FALSE);
+     ptvcursor_add(cursor, hf_homeplug_av_rd_cblock_cnf_status, 1, ENC_BIG_ENDIAN);
+     ptvcursor_add(cursor, hf_homeplug_av_rd_cblock_cnf_len, 1, ENC_BIG_ENDIAN);
      dissect_homeplug_av_cblock_hdr(cursor);
      dissect_homeplug_av_cblock(cursor);
    }
@@ -2430,12 +2430,12 @@ dissect_homeplug_av_set_sdram_req(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
       return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_set_sdram_req, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_set_sdram_req, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_set_sdram_req);
    {
       dissect_homeplug_av_cblock(cursor);
-      ptvcursor_add(cursor, hf_homeplug_av_set_sdram_req_chksum, 4, TRUE);
+      ptvcursor_add(cursor, hf_homeplug_av_set_sdram_req_chksum, 4, ENC_LITTLE_ENDIAN);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -2448,11 +2448,11 @@ dissect_homeplug_av_set_sdram_cnf(ptvcursor_t *cursor)
     if (!ptvcursor_tree(cursor))
       return;
 
-    it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_set_sdram_cnf, -1, FALSE);
+    it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_set_sdram_cnf, -1, ENC_NA);
 
     ptvcursor_push_subtree(cursor, it, ett_homeplug_av_set_sdram_cnf);
     {
-       ptvcursor_add(cursor, hf_homeplug_av_set_sdram_cnf_status, 1, FALSE);
+       ptvcursor_add(cursor, hf_homeplug_av_set_sdram_cnf_status, 1, ENC_BIG_ENDIAN);
     }
     ptvcursor_pop_subtree(cursor);
 }
@@ -2465,11 +2465,11 @@ dissect_homeplug_av_host_action_ind(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
      return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_host_action_ind, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_host_action_ind, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_host_action_ind);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_host_action_ind_act, 1, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_host_action_ind_act, 1, ENC_BIG_ENDIAN);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -2482,11 +2482,11 @@ dissect_homeplug_av_host_action_rsp(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
      return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_host_action_rsp, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_host_action_rsp, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_host_action_rsp);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_host_action_rsp_sts, 1, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_host_action_rsp_sts, 1, ENC_BIG_ENDIAN);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -2499,12 +2499,12 @@ dissect_homeplug_av_op_attr_req(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
      return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_op_attr_req, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_op_attr_req, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_op_attr_req);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_op_attr_cookie, 4, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_op_attr_rep_type, 1, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_op_attr_cookie, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_op_attr_rep_type, 1, ENC_BIG_ENDIAN);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -2517,19 +2517,19 @@ dissect_homeplug_av_op_attr_bin_report(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
      return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_op_attr_cnf_data, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_op_attr_cnf_data, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_op_attr_data);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_op_attr_data_hw, 16, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_op_attr_data_sw, 16, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_op_attr_data_sw_major, 4, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_op_attr_data_sw_minor, 4, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_op_attr_data_sw_sub, 4, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_op_attr_data_sw_num, 4, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_reserved, 8, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_op_attr_data_sw_date, 8, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_op_attr_data_sw_rel, 12, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_op_attr_data_hw, 16, ENC_ASCII|ENC_NA);
+      ptvcursor_add(cursor, hf_homeplug_av_op_attr_data_sw, 16, ENC_ASCII|ENC_NA);
+      ptvcursor_add(cursor, hf_homeplug_av_op_attr_data_sw_major, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_op_attr_data_sw_minor, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_op_attr_data_sw_sub, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_op_attr_data_sw_num, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_reserved, 8, ENC_NA);
+      ptvcursor_add(cursor, hf_homeplug_av_op_attr_data_sw_date, 8, ENC_ASCII|ENC_NA);
+      ptvcursor_add(cursor, hf_homeplug_av_op_attr_data_sw_rel, 12, ENC_ASCII|ENC_NA);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -2542,14 +2542,14 @@ dissect_homeplug_av_op_attr_cnf(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
      return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_op_attr_cnf, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_op_attr_cnf, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_op_attr_cnf);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_op_attr_cnf_status, 2, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_op_attr_cookie, 4, TRUE);
-      ptvcursor_add(cursor, hf_homeplug_av_op_attr_rep_type, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_op_attr_cnf_size, 2, TRUE);
+      ptvcursor_add(cursor, hf_homeplug_av_op_attr_cnf_status, 2, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_op_attr_cookie, 4, ENC_LITTLE_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_op_attr_rep_type, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_op_attr_cnf_size, 2, ENC_LITTLE_ENDIAN);
       dissect_homeplug_av_op_attr_bin_report(cursor);
    }
    ptvcursor_pop_subtree(cursor);
@@ -2563,13 +2563,13 @@ dissect_homeplug_av_get_enet_phy_req(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
       return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_enet_phy_req, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_enet_phy_req, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_enet_phy_req);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_enet_phy_req_mcontrol, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_enet_phy_req_addcaps, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_reserved, 3, TRUE);
+      ptvcursor_add(cursor, hf_homeplug_av_enet_phy_req_mcontrol, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_enet_phy_req_addcaps, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_reserved, 3, ENC_NA);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -2582,13 +2582,13 @@ dissect_homeplug_av_get_enet_phy_cnf(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
       return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_enet_phy_cnf, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_enet_phy_cnf, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_enet_phy_cnf);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_enet_phy_cnf_status, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_enet_phy_cnf_speed, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_enet_phy_cnf_duplex, 1, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_enet_phy_cnf_status, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_enet_phy_cnf_speed, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_enet_phy_cnf_duplex, 1, ENC_BIG_ENDIAN);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -2601,12 +2601,12 @@ dissect_homeplug_av_tone_map_req(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
      return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_tone_map_req, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_tone_map_req, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_tone_map_req);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_tone_map_req_mac, 6, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_tone_map_req_slot, 1, FALSE);
+      ptvcursor_add(cursor, hf_homeplug_av_tone_map_req_mac, 6, ENC_NA);
+      ptvcursor_add(cursor, hf_homeplug_av_tone_map_req_slot, 1, ENC_BIG_ENDIAN);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -2619,12 +2619,12 @@ dissect_homeplug_av_tone_map_carrier(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
      return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_tone_map_carrier, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_tone_map_carrier, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_tone_map_carrier);
    {
-      ptvcursor_add_no_advance(cursor, hf_homeplug_av_tone_map_carrier_lo, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_tone_map_carrier_hi, 1, FALSE);
+      ptvcursor_add_no_advance(cursor, hf_homeplug_av_tone_map_carrier_lo, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_tone_map_carrier_hi, 1, ENC_BIG_ENDIAN);
    }
    ptvcursor_pop_subtree(cursor);
 }
@@ -2638,14 +2638,14 @@ dissect_homeplug_av_tone_map_cnf(ptvcursor_t *cursor)
    if (!ptvcursor_tree(cursor))
      return;
 
-   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_tone_map_cnf, -1, FALSE);
+   it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_tone_map_cnf, -1, ENC_NA);
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_tone_map_cnf);
    {
-      ptvcursor_add(cursor, hf_homeplug_av_tone_map_cnf_status, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_tone_map_cnf_slot, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_tone_map_cnf_num_tms, 1, FALSE);
-      ptvcursor_add(cursor, hf_homeplug_av_tone_map_cnf_num_act, 2, TRUE);
+      ptvcursor_add(cursor, hf_homeplug_av_tone_map_cnf_status, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_tone_map_cnf_slot, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_tone_map_cnf_num_tms, 1, ENC_BIG_ENDIAN);
+      ptvcursor_add(cursor, hf_homeplug_av_tone_map_cnf_num_act, 2, ENC_LITTLE_ENDIAN);
 
       for (i = 0; i < HOMEPLUG_AV_MAX_CARRIERS; i++) {
 	dissect_homeplug_av_tone_map_carrier(cursor);

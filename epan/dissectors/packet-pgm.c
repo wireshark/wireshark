@@ -376,9 +376,9 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 		"%s Options (Total Length %d)", pktname, opts_total_len);
 	opts_tree = proto_item_add_subtree(tf, ett_pgm_opts);
 	ptvcursor_set_tree(cursor, opts_tree);
-	ptvcursor_add(cursor, hf_pgm_opt_type, 1, FALSE);
-	ptvcursor_add(cursor, hf_pgm_opt_len, 1, FALSE);
-	ptvcursor_add(cursor, hf_pgm_opt_tlen, 2, FALSE);
+	ptvcursor_add(cursor, hf_pgm_opt_type, 1, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_pgm_opt_len, 1, ENC_BIG_ENDIAN);
+	ptvcursor_add(cursor, hf_pgm_opt_tlen, 2, ENC_BIG_ENDIAN);
 
 	for (opts_total_len -= 4; !theend && opts_total_len != 0;){
 		if (opts_total_len < 4) {
@@ -418,8 +418,8 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_join);
 			ptvcursor_set_tree(cursor, opt_tree);
 
-			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, FALSE);
-			ptvcursor_add(cursor, hf_pgm_genopt_type, 1, FALSE);
+			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_genopt_type, 1, ENC_BIG_ENDIAN);
 
 			if (genopts_len < PGM_OPT_JOIN_SIZE) {
 				proto_tree_add_uint_format(opt_tree, hf_pgm_genopt_len, tvb,
@@ -428,10 +428,10 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 					genopts_len, PGM_OPT_JOIN_SIZE);
 				break;
 			}
-			ptvcursor_add(cursor, hf_pgm_genopt_len, 1, FALSE);
-			ptvcursor_add(cursor, hf_pgm_genopt_opx, 1, FALSE);
-			ptvcursor_add(cursor, hf_pgm_opt_join_res, 1, FALSE);
-			ptvcursor_add(cursor, hf_pgm_opt_join_minjoin, 4, FALSE);
+			ptvcursor_add(cursor, hf_pgm_genopt_len, 1, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_genopt_opx, 1, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_opt_join_res, 1, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_opt_join_minjoin, 4, ENC_BIG_ENDIAN);
 
 			break;
 		}
@@ -441,8 +441,8 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_parityprm);
 			ptvcursor_set_tree(cursor, opt_tree);
 
-			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, FALSE);
-			ptvcursor_add(cursor, hf_pgm_genopt_type, 1, FALSE);
+			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_genopt_type, 1, ENC_BIG_ENDIAN);
 
 
 			if (genopts_len < PGM_OPT_PARITY_PRM_SIZE) {
@@ -452,15 +452,15 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 					genopts_len, PGM_OPT_PARITY_PRM_SIZE);
 				break;
 			}
-			ptvcursor_add(cursor, hf_pgm_genopt_len, 1, FALSE);
-			ptvcursor_add(cursor, hf_pgm_genopt_opx, 1, FALSE);
+			ptvcursor_add(cursor, hf_pgm_genopt_len, 1, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_genopt_opx, 1, ENC_BIG_ENDIAN);
 			optdata_po = tvb_get_guint8(tvb, ptvcursor_current_offset(cursor));
 			proto_tree_add_uint_format(opt_tree, hf_pgm_opt_parity_prm_po, tvb,
 				ptvcursor_current_offset(cursor), 1, optdata_po, "Parity Parameters: %s (0x%x)",
 				paritystr(optdata_po), optdata_po);
 			ptvcursor_advance(cursor, 1);
 
-			ptvcursor_add(cursor, hf_pgm_opt_parity_prm_prmtgsz, 4, FALSE);
+			ptvcursor_add(cursor, hf_pgm_opt_parity_prm_prmtgsz, 4, ENC_BIG_ENDIAN);
 
 			break;
 		}
@@ -468,8 +468,8 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_paritygrp);
 			ptvcursor_set_tree(cursor, opt_tree);
 
-			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, FALSE);
-			ptvcursor_add(cursor, hf_pgm_genopt_type, 1, FALSE);
+			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_genopt_type, 1, ENC_BIG_ENDIAN);
 
 			if (genopts_len < PGM_OPT_PARITY_GRP_SIZE) {
 				proto_tree_add_uint_format(opt_tree, hf_pgm_genopt_len, tvb,
@@ -478,10 +478,10 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 					genopts_len, PGM_OPT_PARITY_GRP_SIZE);
 				break;
 			}
-			ptvcursor_add(cursor, hf_pgm_genopt_len, 1, FALSE);
-			ptvcursor_add(cursor, hf_pgm_genopt_opx, 1, FALSE);
-			ptvcursor_add(cursor, hf_pgm_opt_parity_grp_res, 1, FALSE);
-			ptvcursor_add(cursor, hf_pgm_opt_parity_grp_prmgrp, 4, FALSE);
+			ptvcursor_add(cursor, hf_pgm_genopt_len, 1, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_genopt_opx, 1, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_opt_parity_grp_res, 1, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_opt_parity_grp_prmgrp, 4, ENC_BIG_ENDIAN);
 
 			break;
 		}
@@ -495,13 +495,13 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_naklist);
 			ptvcursor_set_tree(cursor, opt_tree);
 
-			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, FALSE);
-			ptvcursor_add(cursor, hf_pgm_genopt_type, 1, FALSE);
+			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_genopt_type, 1, ENC_BIG_ENDIAN);
 
 			optdata_len = tvb_get_guint8(tvb, ptvcursor_current_offset(cursor));
-			ptvcursor_add(cursor, hf_pgm_genopt_len, 1, FALSE);
-			ptvcursor_add(cursor, hf_pgm_genopt_opx, 1, FALSE);
-			ptvcursor_add(cursor, hf_pgm_opt_nak_res, 1, FALSE);
+			ptvcursor_add(cursor, hf_pgm_genopt_len, 1, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_genopt_opx, 1, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_opt_nak_res, 1, ENC_BIG_ENDIAN);
 
 			optdata_len -= PGM_OPT_NAK_LIST_SIZE;
 			tvb_memcpy(tvb, (guint8 *)naklist, ptvcursor_current_offset(cursor), optdata_len);
@@ -554,8 +554,8 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_ccdata);
 			ptvcursor_set_tree(cursor, opt_tree);
 
-			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, FALSE);
-			ptvcursor_add(cursor, hf_pgm_genopt_type, 1, FALSE);
+			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_genopt_type, 1, ENC_BIG_ENDIAN);
 
 			if (genopts_len < PGM_OPT_PGMCC_DATA_SIZE) {
 				proto_tree_add_uint_format(opt_tree, hf_pgm_genopt_len, tvb,
@@ -564,22 +564,22 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 					genopts_len, PGM_OPT_PGMCC_DATA_SIZE);
 				break;
 			}
-			ptvcursor_add(cursor, hf_pgm_genopt_len, 1, FALSE);
-			ptvcursor_add(cursor, hf_pgm_genopt_opx, 1, FALSE);
-			ptvcursor_add(cursor, hf_pgm_opt_ccdata_res, 1, FALSE);
-			ptvcursor_add(cursor, hf_pgm_opt_ccdata_tsp, 4, FALSE);
+			ptvcursor_add(cursor, hf_pgm_genopt_len, 1, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_genopt_opx, 1, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_opt_ccdata_res, 1, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_opt_ccdata_tsp, 4, ENC_BIG_ENDIAN);
 			optdata_afi = tvb_get_ntohs(tvb, ptvcursor_current_offset(cursor));
-			ptvcursor_add(cursor, hf_pgm_opt_ccdata_afi, 2, FALSE);
-			ptvcursor_add(cursor, hf_pgm_opt_ccdata_res2, 2, FALSE);
+			ptvcursor_add(cursor, hf_pgm_opt_ccdata_afi, 2, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_opt_ccdata_res2, 2, ENC_BIG_ENDIAN);
 
 			switch (optdata_afi) {
 
 			case AFNUM_INET:
-				ptvcursor_add(cursor, hf_pgm_opt_ccdata_acker, 4, FALSE);
+				ptvcursor_add(cursor, hf_pgm_opt_ccdata_acker, 4, ENC_BIG_ENDIAN);
 				break;
 
 			case AFNUM_INET6:
-				ptvcursor_add(cursor, hf_pgm_opt_ccdata_acker6, 16, FALSE);
+				ptvcursor_add(cursor, hf_pgm_opt_ccdata_acker6, 16, ENC_NA);
 				break;
 
 			default:
@@ -596,8 +596,8 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_ccdata);
 			ptvcursor_set_tree(cursor, opt_tree);
 
-			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, FALSE);
-			ptvcursor_add(cursor, hf_pgm_genopt_type, 1, FALSE);
+			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_genopt_type, 1, ENC_BIG_ENDIAN);
 
 			if (genopts_len < PGM_OPT_PGMCC_FEEDBACK_SIZE) {
 				proto_tree_add_uint_format(opt_tree, hf_pgm_genopt_len, tvb,
@@ -606,22 +606,22 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 					genopts_len, PGM_OPT_PGMCC_FEEDBACK_SIZE);
 				break;
 			}
-			ptvcursor_add(cursor, hf_pgm_genopt_len, 1, FALSE);
-			ptvcursor_add(cursor, hf_pgm_genopt_opx, 1, FALSE);
-			ptvcursor_add(cursor, hf_pgm_opt_ccfeedbk_res, 1, FALSE);
-			ptvcursor_add(cursor, hf_pgm_opt_ccfeedbk_tsp, 4, FALSE);
+			ptvcursor_add(cursor, hf_pgm_genopt_len, 1, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_genopt_opx, 1, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_opt_ccfeedbk_res, 1, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_opt_ccfeedbk_tsp, 4, ENC_BIG_ENDIAN);
 			optdata_afi = tvb_get_ntohs(tvb, ptvcursor_current_offset(cursor));
-			ptvcursor_add(cursor, hf_pgm_opt_ccfeedbk_afi, 2, FALSE);
-			ptvcursor_add(cursor, hf_pgm_opt_ccfeedbk_lossrate, 2, FALSE);
+			ptvcursor_add(cursor, hf_pgm_opt_ccfeedbk_afi, 2, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_opt_ccfeedbk_lossrate, 2, ENC_BIG_ENDIAN);
 
 			switch (optdata_afi) {
 
 			case AFNUM_INET:
-				ptvcursor_add(cursor, hf_pgm_opt_ccfeedbk_acker, 4, FALSE);
+				ptvcursor_add(cursor, hf_pgm_opt_ccfeedbk_acker, 4, ENC_BIG_ENDIAN);
 				break;
 
 			case AFNUM_INET6:
-				ptvcursor_add(cursor, hf_pgm_opt_ccfeedbk_acker6, 16, FALSE);
+				ptvcursor_add(cursor, hf_pgm_opt_ccfeedbk_acker6, 16, ENC_NA);
 				break;
 
 			default:
@@ -636,8 +636,8 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_nak_bo_ivl);
 			ptvcursor_set_tree(cursor, opt_tree);
 
-			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, FALSE);
-			ptvcursor_add(cursor, hf_pgm_genopt_type, 1, FALSE);
+			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_genopt_type, 1, ENC_BIG_ENDIAN);
 
 			if (genopts_len < PGM_OPT_NAK_BO_IVL_SIZE) {
 				proto_tree_add_uint_format(opt_tree, hf_pgm_genopt_len, tvb,
@@ -646,11 +646,11 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 					genopts_len, PGM_OPT_NAK_BO_IVL_SIZE);
 				break;
 			}
-			ptvcursor_add(cursor, hf_pgm_genopt_len, 1, FALSE);
-			ptvcursor_add(cursor, hf_pgm_genopt_opx, 1, FALSE);
-			ptvcursor_add(cursor, hf_pgm_opt_nak_bo_ivl_res, 1, FALSE);
-			ptvcursor_add(cursor, hf_pgm_opt_nak_bo_ivl_bo_ivl, 4, FALSE);
-			ptvcursor_add(cursor, hf_pgm_opt_nak_bo_ivl_bo_ivl_sqn, 4, FALSE);
+			ptvcursor_add(cursor, hf_pgm_genopt_len, 1, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_genopt_opx, 1, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_opt_nak_bo_ivl_res, 1, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_opt_nak_bo_ivl_bo_ivl, 4, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_opt_nak_bo_ivl_bo_ivl_sqn, 4, ENC_BIG_ENDIAN);
 
 			break;
 		}
@@ -658,8 +658,8 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_nak_bo_rng);
 			ptvcursor_set_tree(cursor, opt_tree);
 
-			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, FALSE);
-			ptvcursor_add(cursor, hf_pgm_genopt_type, 1, FALSE);
+			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_genopt_type, 1, ENC_BIG_ENDIAN);
 
 			if (genopts_len < PGM_OPT_NAK_BO_RNG_SIZE) {
 				proto_tree_add_uint_format(opt_tree, hf_pgm_genopt_len, tvb,
@@ -668,11 +668,11 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 					genopts_len, PGM_OPT_NAK_BO_RNG_SIZE);
 				break;
 			}
-			ptvcursor_add(cursor, hf_pgm_genopt_len, 1, FALSE);
-			ptvcursor_add(cursor, hf_pgm_genopt_opx, 1, FALSE);
-			ptvcursor_add(cursor, hf_pgm_opt_nak_bo_rng_res, 1, FALSE);
-			ptvcursor_add(cursor, hf_pgm_opt_nak_bo_rng_min_bo_ivl, 4, FALSE);
-			ptvcursor_add(cursor, hf_pgm_opt_nak_bo_rng_max_bo_ivl, 4, FALSE);
+			ptvcursor_add(cursor, hf_pgm_genopt_len, 1, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_genopt_opx, 1, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_opt_nak_bo_rng_res, 1, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_opt_nak_bo_rng_min_bo_ivl, 4, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_opt_nak_bo_rng_max_bo_ivl, 4, ENC_BIG_ENDIAN);
 
 			break;
 		}
@@ -682,8 +682,8 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_redirect);
 			ptvcursor_set_tree(cursor, opt_tree);
 
-			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, FALSE);
-			ptvcursor_add(cursor, hf_pgm_genopt_type, 1, FALSE);
+			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_genopt_type, 1, ENC_BIG_ENDIAN);
 
 			if (genopts_len < PGM_OPT_REDIRECT_SIZE) {
 				proto_tree_add_uint_format(opt_tree, hf_pgm_genopt_len, tvb,
@@ -692,21 +692,21 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 					genopts_len, PGM_OPT_REDIRECT_SIZE);
 				break;
 			}
-			ptvcursor_add(cursor, hf_pgm_genopt_len, 1, FALSE);
-			ptvcursor_add(cursor, hf_pgm_genopt_opx, 1, FALSE);
-			ptvcursor_add(cursor, hf_pgm_opt_redirect_res, 1, FALSE);
+			ptvcursor_add(cursor, hf_pgm_genopt_len, 1, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_genopt_opx, 1, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_opt_redirect_res, 1, ENC_BIG_ENDIAN);
 			optdata_afi = tvb_get_ntohs(tvb, ptvcursor_current_offset(cursor));
-			ptvcursor_add(cursor, hf_pgm_opt_redirect_afi, 2, FALSE);
-			ptvcursor_add(cursor, hf_pgm_opt_redirect_res2, 2, FALSE);
+			ptvcursor_add(cursor, hf_pgm_opt_redirect_afi, 2, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_opt_redirect_res2, 2, ENC_BIG_ENDIAN);
 
 			switch (optdata_afi) {
 
 			case AFNUM_INET:
-				ptvcursor_add(cursor, hf_pgm_opt_redirect_dlr, 4, FALSE);
+				ptvcursor_add(cursor, hf_pgm_opt_redirect_dlr, 4, ENC_BIG_ENDIAN);
 				break;
 
 			case AFNUM_INET6:
-				ptvcursor_add(cursor, hf_pgm_opt_redirect_dlr6, 16, FALSE);
+				ptvcursor_add(cursor, hf_pgm_opt_redirect_dlr6, 16, ENC_NA);
 				break;
 
 			default:
@@ -721,8 +721,8 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 			opt_tree = proto_item_add_subtree(tf, ett_pgm_opts_fragment);
 			ptvcursor_set_tree(cursor, opt_tree);
 
-			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, FALSE);
-			ptvcursor_add(cursor, hf_pgm_genopt_type, 1, FALSE);
+			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_genopt_type, 1, ENC_BIG_ENDIAN);
 
 			if (genopts_len < PGM_OPT_FRAGMENT_SIZE) {
 				proto_tree_add_uint_format(opt_tree, hf_pgm_genopt_len, tvb,
@@ -731,12 +731,12 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 					genopts_len, PGM_OPT_FRAGMENT_SIZE);
 				break;
 			}
-			ptvcursor_add(cursor, hf_pgm_genopt_len, 1, FALSE);
-			ptvcursor_add(cursor, hf_pgm_genopt_opx, 1, FALSE);
-			ptvcursor_add(cursor, hf_pgm_opt_fragment_res, 1, FALSE);
-			ptvcursor_add(cursor, hf_pgm_opt_fragment_first_sqn, 4, FALSE);
-			ptvcursor_add(cursor, hf_pgm_opt_fragment_offset, 4, FALSE);
-			ptvcursor_add(cursor, hf_pgm_opt_fragment_total_length, 4, FALSE);
+			ptvcursor_add(cursor, hf_pgm_genopt_len, 1, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_genopt_opx, 1, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_opt_fragment_res, 1, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_opt_fragment_first_sqn, 4, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_opt_fragment_offset, 4, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_opt_fragment_total_length, 4, ENC_BIG_ENDIAN);
 
 			break;
 		}
@@ -901,9 +901,9 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		PROTO_ITEM_SET_HIDDEN(hidden_item);
 		hidden_item = proto_tree_add_item(pgm_tree, hf_pgm_port, tvb, 2, 2, ENC_BIG_ENDIAN);
 		PROTO_ITEM_SET_HIDDEN(hidden_item);
-		ptvcursor_add(cursor, hf_pgm_main_sport, 2, FALSE);
-		ptvcursor_add(cursor, hf_pgm_main_dport, 2, FALSE);
-		ptvcursor_add(cursor, hf_pgm_main_type, 1, FALSE);
+		ptvcursor_add(cursor, hf_pgm_main_sport, 2, ENC_BIG_ENDIAN);
+		ptvcursor_add(cursor, hf_pgm_main_dport, 2, ENC_BIG_ENDIAN);
+		ptvcursor_add(cursor, hf_pgm_main_type, 1, ENC_BIG_ENDIAN);
 
 		tf = proto_tree_add_uint_format(pgm_tree, hf_pgm_main_opts, tvb,
 			ptvcursor_current_offset(cursor), 1, pgmhdr_opts, "Options: %s (0x%x)",
@@ -911,10 +911,10 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		opt_tree = proto_item_add_subtree(tf, ett_pgm_optbits);
 		ptvcursor_set_tree(cursor, opt_tree);
 
-		ptvcursor_add_no_advance(cursor, hf_pgm_main_opts_opt, 1, FALSE);
-		ptvcursor_add_no_advance(cursor, hf_pgm_main_opts_netsig, 1, FALSE);
-		ptvcursor_add_no_advance(cursor, hf_pgm_main_opts_varlen, 1, FALSE);
-		ptvcursor_add(cursor, hf_pgm_main_opts_parity, 1, FALSE);
+		ptvcursor_add_no_advance(cursor, hf_pgm_main_opts_opt, 1, ENC_BIG_ENDIAN);
+		ptvcursor_add_no_advance(cursor, hf_pgm_main_opts_netsig, 1, ENC_BIG_ENDIAN);
+		ptvcursor_add_no_advance(cursor, hf_pgm_main_opts_varlen, 1, ENC_BIG_ENDIAN);
+		ptvcursor_add(cursor, hf_pgm_main_opts_parity, 1, ENC_BIG_ENDIAN);
 		ptvcursor_set_tree(cursor, pgm_tree);
 
 		/* Checksum may be 0 (not available), but not for DATA packets */
@@ -945,13 +945,13 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						pgmhdr_cksum, in_cksum_shouldbe(pgmhdr_cksum, computed_cksum));
 				}
 			} else {
-				ptvcursor_add_no_advance(cursor, hf_pgm_main_cksum, 2, FALSE);
+				ptvcursor_add_no_advance(cursor, hf_pgm_main_cksum, 2, ENC_BIG_ENDIAN);
 			}
 		}
 		ptvcursor_advance(cursor, 2);
 
-		ptvcursor_add(cursor, hf_pgm_main_gsi, 6, FALSE);
-		ptvcursor_add(cursor, hf_pgm_main_tsdulen, 2, FALSE);
+		ptvcursor_add(cursor, hf_pgm_main_gsi, 6, ENC_NA);
+		ptvcursor_add(cursor, hf_pgm_main_tsdulen, 2, ENC_BIG_ENDIAN);
 
 		tf = proto_tree_add_text(pgm_tree, tvb, ptvcursor_current_offset(cursor), plen, "%s Packet", pktname);
 		switch(pgmhdr_type) {
@@ -959,20 +959,20 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			type_tree = proto_item_add_subtree(tf, ett_pgm_spm);
 			ptvcursor_set_tree(cursor, type_tree);
 
-			ptvcursor_add(cursor, hf_pgm_spm_sqn, 4, FALSE);
-			ptvcursor_add(cursor, hf_pgm_spm_trail, 4, FALSE);
-			ptvcursor_add(cursor, hf_pgm_spm_lead, 4, FALSE);
+			ptvcursor_add(cursor, hf_pgm_spm_sqn, 4, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_spm_trail, 4, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_spm_lead, 4, ENC_BIG_ENDIAN);
 			afi = tvb_get_ntohs(tvb, ptvcursor_current_offset(cursor));
-			ptvcursor_add(cursor, hf_pgm_spm_pathafi, 2, FALSE);
-			ptvcursor_add(cursor, hf_pgm_spm_res, 2, FALSE);
+			ptvcursor_add(cursor, hf_pgm_spm_pathafi, 2, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_spm_res, 2, ENC_BIG_ENDIAN);
 
 			switch (afi) {
 			case AFNUM_INET:
-				ptvcursor_add(cursor, hf_pgm_spm_path, 4, FALSE);
+				ptvcursor_add(cursor, hf_pgm_spm_path, 4, ENC_BIG_ENDIAN);
 				break;
 
 			case AFNUM_INET6:
-				ptvcursor_add(cursor, hf_pgm_spm_path6, 16, FALSE);
+				ptvcursor_add(cursor, hf_pgm_spm_path6, 16, ENC_NA);
 				break;
 
 			default:
@@ -986,8 +986,8 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			type_tree = proto_item_add_subtree(tf, ett_pgm_data);
 			ptvcursor_set_tree(cursor, type_tree);
 
-			ptvcursor_add(cursor, hf_pgm_spm_sqn, 4, FALSE);
-			ptvcursor_add(cursor, hf_pgm_spm_trail, 4, FALSE);
+			ptvcursor_add(cursor, hf_pgm_spm_sqn, 4, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_spm_trail, 4, ENC_BIG_ENDIAN);
 			break;
 		case PGM_NAK_PCKT:
 		case PGM_NNAK_PCKT:
@@ -995,18 +995,18 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			type_tree = proto_item_add_subtree(tf, ett_pgm_nak);
 			ptvcursor_set_tree(cursor, type_tree);
 
-			ptvcursor_add(cursor, hf_pgm_nak_sqn, 4, FALSE);
+			ptvcursor_add(cursor, hf_pgm_nak_sqn, 4, ENC_BIG_ENDIAN);
 			afi = tvb_get_ntohs(tvb, ptvcursor_current_offset(cursor));
-			ptvcursor_add(cursor, hf_pgm_nak_srcafi, 2, FALSE);
-			ptvcursor_add(cursor, hf_pgm_nak_srcres, 2, FALSE);
+			ptvcursor_add(cursor, hf_pgm_nak_srcafi, 2, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_nak_srcres, 2, ENC_BIG_ENDIAN);
 
 			switch (afi) {
 			case AFNUM_INET:
-				ptvcursor_add(cursor, hf_pgm_nak_src, 4, FALSE);
+				ptvcursor_add(cursor, hf_pgm_nak_src, 4, ENC_BIG_ENDIAN);
 				break;
 
 			case AFNUM_INET6:
-				ptvcursor_add(cursor, hf_pgm_nak_src6, 16, FALSE);
+				ptvcursor_add(cursor, hf_pgm_nak_src6, 16, ENC_NA);
 				break;
 
 			default:
@@ -1016,16 +1016,16 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 
 			afi = tvb_get_ntohs(tvb, ptvcursor_current_offset(cursor));
-			ptvcursor_add(cursor, hf_pgm_nak_grpafi, 2, FALSE);
-			ptvcursor_add(cursor, hf_pgm_nak_grpres, 2, FALSE);
+			ptvcursor_add(cursor, hf_pgm_nak_grpafi, 2, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_nak_grpres, 2, ENC_BIG_ENDIAN);
 
 			switch (afi) {
 			case AFNUM_INET:
-				ptvcursor_add(cursor, hf_pgm_nak_grp, 4, FALSE);
+				ptvcursor_add(cursor, hf_pgm_nak_grp, 4, ENC_BIG_ENDIAN);
 				break;
 
 			case AFNUM_INET6:
-				ptvcursor_add(cursor, hf_pgm_nak_grp6, 16, FALSE);
+				ptvcursor_add(cursor, hf_pgm_nak_grp6, 16, ENC_NA);
 				break;
 
 			default:
@@ -1038,20 +1038,20 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			type_tree = proto_item_add_subtree(tf, ett_pgm_poll);
 			ptvcursor_set_tree(cursor, type_tree);
 
-			ptvcursor_add(cursor, hf_pgm_poll_sqn, 4, FALSE);
-			ptvcursor_add(cursor, hf_pgm_poll_round, 2, FALSE);
-			ptvcursor_add(cursor, hf_pgm_poll_subtype, 2, FALSE);
+			ptvcursor_add(cursor, hf_pgm_poll_sqn, 4, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_poll_round, 2, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_poll_subtype, 2, ENC_BIG_ENDIAN);
 			afi = tvb_get_ntohs(tvb, ptvcursor_current_offset(cursor));
-			ptvcursor_add(cursor, hf_pgm_poll_pathafi, 2, FALSE);
-			ptvcursor_add(cursor, hf_pgm_poll_res, 2, FALSE);
+			ptvcursor_add(cursor, hf_pgm_poll_pathafi, 2, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_poll_res, 2, ENC_BIG_ENDIAN);
 
 			switch (afi) {
 			case AFNUM_INET:
-				ptvcursor_add(cursor, hf_pgm_poll_path, 4, FALSE);
+				ptvcursor_add(cursor, hf_pgm_poll_path, 4, ENC_BIG_ENDIAN);
 				break;
 
 			case AFNUM_INET6:
-				ptvcursor_add(cursor, hf_pgm_poll_path6, 16, FALSE);
+				ptvcursor_add(cursor, hf_pgm_poll_path6, 16, ENC_NA);
 				break;
 
 			default:
@@ -1060,24 +1060,24 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				break;
 			}
 
-			ptvcursor_add(cursor, hf_pgm_poll_backoff_ivl, 4, FALSE);
-			ptvcursor_add(cursor, hf_pgm_poll_rand_str, 4, FALSE);
-			ptvcursor_add(cursor, hf_pgm_poll_matching_bmask, 4, FALSE);
+			ptvcursor_add(cursor, hf_pgm_poll_backoff_ivl, 4, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_poll_rand_str, 4, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_poll_matching_bmask, 4, ENC_BIG_ENDIAN);
 			break;
 		case PGM_POLR_PCKT:
 			type_tree = proto_item_add_subtree(tf, ett_pgm_polr);
 			ptvcursor_set_tree(cursor, type_tree);
 
-			ptvcursor_add(cursor, hf_pgm_polr_sqn, 4, FALSE);
-			ptvcursor_add(cursor, hf_pgm_polr_round, 2, FALSE);
-			ptvcursor_add(cursor, hf_pgm_polr_res, 2, FALSE);
+			ptvcursor_add(cursor, hf_pgm_polr_sqn, 4, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_polr_round, 2, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_polr_res, 2, ENC_BIG_ENDIAN);
 			break;
 		case PGM_ACK_PCKT:
 			type_tree = proto_item_add_subtree(tf, ett_pgm_ack);
 			ptvcursor_set_tree(cursor, type_tree);
 
-			ptvcursor_add(cursor, hf_pgm_ack_sqn, 4, FALSE);
-			ptvcursor_add(cursor, hf_pgm_ack_bitmap, 4, FALSE);
+			ptvcursor_add(cursor, hf_pgm_ack_sqn, 4, ENC_BIG_ENDIAN);
+			ptvcursor_add(cursor, hf_pgm_ack_bitmap, 4, ENC_BIG_ENDIAN);
 			break;
 		}
 

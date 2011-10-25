@@ -113,16 +113,16 @@ static void dissect_roofnet_header(proto_tree *tree, tvbuff_t *tvb, guint *offse
 {
   ptvcursor_t *cursor = ptvcursor_new(tree, tvb, *offset);
 
-  ptvcursor_add(cursor, hf_roofnet_version, 1, FALSE);
-  ptvcursor_add(cursor, hf_roofnet_type, 1, FALSE);
-  ptvcursor_add(cursor, hf_roofnet_nlinks, 1, FALSE);
-  ptvcursor_add(cursor, hf_roofnet_next, 1, FALSE);
-  ptvcursor_add(cursor, hf_roofnet_ttl, 2, FALSE);
-  ptvcursor_add(cursor, hf_roofnet_cksum, 2, FALSE);
-  ptvcursor_add(cursor, hf_roofnet_flags, 2, FALSE);
-  ptvcursor_add(cursor, hf_roofnet_data_length, 2, FALSE);
-  ptvcursor_add(cursor, hf_roofnet_query_dst, 4, FALSE);
-  ptvcursor_add(cursor, hf_roofnet_seq, 4, FALSE);
+  ptvcursor_add(cursor, hf_roofnet_version, 1, ENC_BIG_ENDIAN);
+  ptvcursor_add(cursor, hf_roofnet_type, 1, ENC_BIG_ENDIAN);
+  ptvcursor_add(cursor, hf_roofnet_nlinks, 1, ENC_BIG_ENDIAN);
+  ptvcursor_add(cursor, hf_roofnet_next, 1, ENC_BIG_ENDIAN);
+  ptvcursor_add(cursor, hf_roofnet_ttl, 2, ENC_BIG_ENDIAN);
+  ptvcursor_add(cursor, hf_roofnet_cksum, 2, ENC_BIG_ENDIAN);
+  ptvcursor_add(cursor, hf_roofnet_flags, 2, ENC_BIG_ENDIAN);
+  ptvcursor_add(cursor, hf_roofnet_data_length, 2, ENC_BIG_ENDIAN);
+  ptvcursor_add(cursor, hf_roofnet_query_dst, 4, ENC_BIG_ENDIAN);
+  ptvcursor_add(cursor, hf_roofnet_seq, 4, ENC_BIG_ENDIAN);
 
   *offset = ptvcursor_current_offset(cursor);
   ptvcursor_free(cursor);
@@ -156,10 +156,10 @@ static void dissect_roofnet_link(proto_tree *tree, tvbuff_t *tvb, guint *offset,
 
   cursor = ptvcursor_new(subtree, tvb, *offset);
 
-  ptvcursor_add(cursor, hf_roofnet_link_forward, 4, FALSE);
-  ptvcursor_add(cursor, hf_roofnet_link_rev, 4, FALSE);
-  ptvcursor_add(cursor, hf_roofnet_link_seq, 4, FALSE);
-  ptvcursor_add(cursor, hf_roofnet_link_age, 4, FALSE);
+  ptvcursor_add(cursor, hf_roofnet_link_forward, 4, ENC_BIG_ENDIAN);
+  ptvcursor_add(cursor, hf_roofnet_link_rev, 4, ENC_BIG_ENDIAN);
+  ptvcursor_add(cursor, hf_roofnet_link_seq, 4, ENC_BIG_ENDIAN);
+  ptvcursor_add(cursor, hf_roofnet_link_age, 4, ENC_BIG_ENDIAN);
 
   ptvcursor_free(cursor);
 

@@ -124,8 +124,8 @@ dissect_omapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   else if (tvb_reported_length_remaining(tvb, 0) < 24)
   {
     /* This is a startup message */
-    ptvcursor_add(cursor, hf_omapi_version, 4, FALSE);
-    ptvcursor_add(cursor, hf_omapi_hlength, 4, FALSE);
+    ptvcursor_add(cursor, hf_omapi_version, 4, ENC_BIG_ENDIAN);
+    ptvcursor_add(cursor, hf_omapi_hlength, 4, ENC_BIG_ENDIAN);
 
     col_set_str(pinfo->cinfo, COL_INFO, "Status message");
     proto_item_append_text(ti, ", Status message");
@@ -135,8 +135,8 @@ dissect_omapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   else if ( !(tvb_get_ntohl(tvb, 8) || tvb_get_ntohl(tvb, 12)) )
   {
     /* This is a startup message, and more */
-    ptvcursor_add(cursor, hf_omapi_version, 4, FALSE);
-    ptvcursor_add(cursor, hf_omapi_hlength, 4, FALSE);
+    ptvcursor_add(cursor, hf_omapi_version, 4, ENC_BIG_ENDIAN);
+    ptvcursor_add(cursor, hf_omapi_hlength, 4, ENC_BIG_ENDIAN);
 
     if (check_col(pinfo->cinfo, COL_INFO))
     {
@@ -145,9 +145,9 @@ dissect_omapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item_append_text(ti, ", Status message");
   }
 
-  ptvcursor_add(cursor, hf_omapi_auth_id, 4, FALSE);
+  ptvcursor_add(cursor, hf_omapi_auth_id, 4, ENC_BIG_ENDIAN);
   authlength = tvb_get_ntohl(tvb, ptvcursor_current_offset(cursor));
-  ptvcursor_add(cursor, hf_omapi_auth_len, 4, FALSE);
+  ptvcursor_add(cursor, hf_omapi_auth_len, 4, ENC_BIG_ENDIAN);
 
   if (check_col(pinfo->cinfo, COL_INFO))
   {
@@ -157,18 +157,18 @@ dissect_omapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item_append_text(ti, ", Opcode: %s",
     val_to_str(tvb_get_ntohl(tvb, ptvcursor_current_offset(cursor)), omapi_opcode_vals, "Unknown opcode (0x%04x)"));
 
-  ptvcursor_add(cursor, hf_omapi_opcode, 4, FALSE);
-  ptvcursor_add(cursor, hf_omapi_handle, 4, FALSE);
-  ptvcursor_add(cursor, hf_omapi_id, 4, FALSE);
-  ptvcursor_add(cursor, hf_omapi_rid, 4, FALSE);
+  ptvcursor_add(cursor, hf_omapi_opcode, 4, ENC_BIG_ENDIAN);
+  ptvcursor_add(cursor, hf_omapi_handle, 4, ENC_BIG_ENDIAN);
+  ptvcursor_add(cursor, hf_omapi_id, 4, ENC_BIG_ENDIAN);
+  ptvcursor_add(cursor, hf_omapi_rid, 4, ENC_BIG_ENDIAN);
 
   msglength = tvb_get_ntohs(tvb, ptvcursor_current_offset(cursor));
   while (msglength)
   {
-    ptvcursor_add(cursor, hf_omapi_msg_name_len, 2, FALSE);
-    ptvcursor_add(cursor, hf_omapi_msg_name, msglength, FALSE);
+    ptvcursor_add(cursor, hf_omapi_msg_name_len, 2, ENC_BIG_ENDIAN);
+    ptvcursor_add(cursor, hf_omapi_msg_name, msglength, ENC_ASCII|ENC_NA);
     msglength = tvb_get_ntohl(tvb, ptvcursor_current_offset(cursor));
-    ptvcursor_add(cursor, hf_omapi_msg_value_len, 4, FALSE);
+    ptvcursor_add(cursor, hf_omapi_msg_value_len, 4, ENC_BIG_ENDIAN);
 
     if (msglength == 0)
     {
@@ -180,7 +180,7 @@ dissect_omapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     else
     {
-      ptvcursor_add(cursor, hf_omapi_msg_value, msglength, FALSE);
+      ptvcursor_add(cursor, hf_omapi_msg_value, msglength, ENC_ASCII|ENC_NA);
     }
 
     msglength = tvb_get_ntohs(tvb, ptvcursor_current_offset(cursor));
@@ -192,10 +192,10 @@ dissect_omapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   objlength = tvb_get_ntohs(tvb, ptvcursor_current_offset(cursor));
   while (objlength)
   {
-    ptvcursor_add(cursor, hf_omapi_obj_name_len, 2, FALSE);
-    ptvcursor_add(cursor, hf_omapi_obj_name, objlength, FALSE);
+    ptvcursor_add(cursor, hf_omapi_obj_name_len, 2, ENC_BIG_ENDIAN);
+    ptvcursor_add(cursor, hf_omapi_obj_name, objlength, ENC_ASCII|ENC_NA);
     objlength = tvb_get_ntohl(tvb, ptvcursor_current_offset(cursor));
-    ptvcursor_add(cursor, hf_omapi_obj_value_len, 4, FALSE);
+    ptvcursor_add(cursor, hf_omapi_obj_value_len, 4, ENC_BIG_ENDIAN);
 
     if (objlength == 0)
     {
@@ -207,7 +207,7 @@ dissect_omapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     else
     {
-      ptvcursor_add(cursor, hf_omapi_obj_value, objlength, FALSE);
+      ptvcursor_add(cursor, hf_omapi_obj_value, objlength, ENC_NA);
     }
 
     objlength = tvb_get_ntohs(tvb, ptvcursor_current_offset(cursor));
@@ -217,7 +217,7 @@ dissect_omapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   ptvcursor_advance(cursor, 2);
 
   if (authlength > 0) {
-    ptvcursor_add(cursor, hf_omapi_signature, authlength, FALSE);
+    ptvcursor_add(cursor, hf_omapi_signature, authlength, ENC_NA);
   }
 }
 

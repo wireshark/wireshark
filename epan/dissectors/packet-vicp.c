@@ -66,18 +66,18 @@ static void dissect_vicp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    vicp_tree = proto_item_add_subtree(ti, ett_vicp);
    cursor = ptvcursor_new(vicp_tree, tvb, 0);
 
-   ptvcursor_add(cursor, hf_vicp_operation, 1, FALSE);
-   ptvcursor_add(cursor, hf_vicp_version,   1, FALSE);
-   ptvcursor_add(cursor, hf_vicp_sequence,  1, FALSE);
-   ptvcursor_add(cursor, hf_vicp_unused,    1, FALSE);
+   ptvcursor_add(cursor, hf_vicp_operation, 1, ENC_BIG_ENDIAN);
+   ptvcursor_add(cursor, hf_vicp_version,   1, ENC_BIG_ENDIAN);
+   ptvcursor_add(cursor, hf_vicp_sequence,  1, ENC_BIG_ENDIAN);
+   ptvcursor_add(cursor, hf_vicp_unused,    1, ENC_BIG_ENDIAN);
 
    len=tvb_get_ntohl(tvb, ptvcursor_current_offset(cursor));
-   ptvcursor_add(cursor, hf_vicp_length, 4, FALSE);
+   ptvcursor_add(cursor, hf_vicp_length, 4, ENC_BIG_ENDIAN);
 
    if(len==0)
       proto_tree_add_text(vicp_tree, tvb, 0, 0, "No data");
    else
-      ptvcursor_add(cursor, hf_vicp_data, len, FALSE);
+      ptvcursor_add(cursor, hf_vicp_data, len, ENC_NA);
 
    ptvcursor_free(cursor);
 }

@@ -454,8 +454,8 @@ add_ppi_field_header(tvbuff_t *tvb, proto_tree *tree, int *offset)
     ptvcursor_t *csr = NULL;
 
     csr = ptvcursor_new(tree, tvb, *offset);
-    ptvcursor_add(csr, hf_ppi_field_type, 2, TRUE);
-    ptvcursor_add(csr, hf_ppi_field_len, 2, TRUE);
+    ptvcursor_add(csr, hf_ppi_field_type, 2, ENC_LITTLE_ENDIAN);
+    ptvcursor_add(csr, hf_ppi_field_len, 2, ENC_LITTLE_ENDIAN);
     ptvcursor_free(csr);
     *offset=ptvcursor_current_offset(csr);
 }
@@ -494,10 +494,10 @@ dissect_80211_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 
     ptvcursor_add_with_subtree(csr, hf_80211_common_flags, 2, TRUE,
                                ett_dot11_common_flags);
-    ptvcursor_add_no_advance(csr, hf_80211_common_flags_fcs, 2, TRUE);
-    ptvcursor_add_no_advance(csr, hf_80211_common_flags_tsft, 2, TRUE);
-    ptvcursor_add_no_advance(csr, hf_80211_common_flags_fcs_valid, 2, TRUE);
-    ptvcursor_add(csr, hf_80211_common_flags_phy_err, 2, TRUE);
+    ptvcursor_add_no_advance(csr, hf_80211_common_flags_fcs, 2, ENC_LITTLE_ENDIAN);
+    ptvcursor_add_no_advance(csr, hf_80211_common_flags_tsft, 2, ENC_LITTLE_ENDIAN);
+    ptvcursor_add_no_advance(csr, hf_80211_common_flags_fcs_valid, 2, ENC_LITTLE_ENDIAN);
+    ptvcursor_add(csr, hf_80211_common_flags_phy_err, 2, ENC_LITTLE_ENDIAN);
     ptvcursor_pop_subtree(csr);
 
     rate_kbps = tvb_get_letohs(tvb, ptvcursor_current_offset(csr)) * 500;
@@ -523,19 +523,19 @@ dissect_80211_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 
     ptvcursor_add_with_subtree(csr, hf_80211_common_chan_flags, 2, TRUE,
                                ett_dot11_common_channel_flags);
-    ptvcursor_add_no_advance(csr, hf_80211_common_chan_flags_turbo, 2, TRUE);
-    ptvcursor_add_no_advance(csr, hf_80211_common_chan_flags_cck, 2, TRUE);
-    ptvcursor_add_no_advance(csr, hf_80211_common_chan_flags_ofdm, 2, TRUE);
-    ptvcursor_add_no_advance(csr, hf_80211_common_chan_flags_2ghz, 2, TRUE);
-    ptvcursor_add_no_advance(csr, hf_80211_common_chan_flags_5ghz, 2, TRUE);
-    ptvcursor_add_no_advance(csr, hf_80211_common_chan_flags_passive, 2, TRUE);
-    ptvcursor_add_no_advance(csr, hf_80211_common_chan_flags_dynamic, 2, TRUE);
-    ptvcursor_add(csr, hf_80211_common_chan_flags_gfsk, 2, TRUE);
+    ptvcursor_add_no_advance(csr, hf_80211_common_chan_flags_turbo, 2, ENC_LITTLE_ENDIAN);
+    ptvcursor_add_no_advance(csr, hf_80211_common_chan_flags_cck, 2, ENC_LITTLE_ENDIAN);
+    ptvcursor_add_no_advance(csr, hf_80211_common_chan_flags_ofdm, 2, ENC_LITTLE_ENDIAN);
+    ptvcursor_add_no_advance(csr, hf_80211_common_chan_flags_2ghz, 2, ENC_LITTLE_ENDIAN);
+    ptvcursor_add_no_advance(csr, hf_80211_common_chan_flags_5ghz, 2, ENC_LITTLE_ENDIAN);
+    ptvcursor_add_no_advance(csr, hf_80211_common_chan_flags_passive, 2, ENC_LITTLE_ENDIAN);
+    ptvcursor_add_no_advance(csr, hf_80211_common_chan_flags_dynamic, 2, ENC_LITTLE_ENDIAN);
+    ptvcursor_add(csr, hf_80211_common_chan_flags_gfsk, 2, ENC_LITTLE_ENDIAN);
     ptvcursor_pop_subtree(csr);
 
 
-    ptvcursor_add(csr, hf_80211_common_fhss_hopset, 1, TRUE);
-    ptvcursor_add(csr, hf_80211_common_fhss_pattern, 1, TRUE);
+    ptvcursor_add(csr, hf_80211_common_fhss_hopset, 1, ENC_LITTLE_ENDIAN);
+    ptvcursor_add(csr, hf_80211_common_fhss_pattern, 1, ENC_LITTLE_ENDIAN);
 
     if (check_col(pinfo->cinfo, COL_RSSI)) {
         col_add_fstr(pinfo->cinfo, COL_RSSI, "%d",
@@ -574,20 +574,20 @@ dissect_80211n_mac(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int 
 
     ptvcursor_add_with_subtree(csr, hf_80211n_mac_flags, 4, TRUE,
                                ett_dot11n_mac_flags);
-    ptvcursor_add_no_advance(csr, hf_80211n_mac_flags_greenfield, 4, TRUE);
-    ptvcursor_add_no_advance(csr, hf_80211n_mac_flags_ht20_40, 4, TRUE);
-    ptvcursor_add_no_advance(csr, hf_80211n_mac_flags_rx_guard_interval, 4, TRUE);
-    ptvcursor_add_no_advance(csr, hf_80211n_mac_flags_duplicate_rx, 4, TRUE);
-    ptvcursor_add_no_advance(csr, hf_80211n_mac_flags_aggregate, 4, TRUE);
-    ptvcursor_add_no_advance(csr, hf_80211n_mac_flags_more_aggregates, 4, TRUE);
-    ptvcursor_add(csr, hf_80211n_mac_flags_delimiter_crc_after, 4, TRUE); /* Last */
+    ptvcursor_add_no_advance(csr, hf_80211n_mac_flags_greenfield, 4, ENC_LITTLE_ENDIAN);
+    ptvcursor_add_no_advance(csr, hf_80211n_mac_flags_ht20_40, 4, ENC_LITTLE_ENDIAN);
+    ptvcursor_add_no_advance(csr, hf_80211n_mac_flags_rx_guard_interval, 4, ENC_LITTLE_ENDIAN);
+    ptvcursor_add_no_advance(csr, hf_80211n_mac_flags_duplicate_rx, 4, ENC_LITTLE_ENDIAN);
+    ptvcursor_add_no_advance(csr, hf_80211n_mac_flags_aggregate, 4, ENC_LITTLE_ENDIAN);
+    ptvcursor_add_no_advance(csr, hf_80211n_mac_flags_more_aggregates, 4, ENC_LITTLE_ENDIAN);
+    ptvcursor_add(csr, hf_80211n_mac_flags_delimiter_crc_after, 4, ENC_LITTLE_ENDIAN); /* Last */
     ptvcursor_pop_subtree(csr);
 
-    ptvcursor_add(csr, hf_80211n_mac_ampdu_id, 4, TRUE);
-    ptvcursor_add(csr, hf_80211n_mac_num_delimiters, 1, TRUE);
+    ptvcursor_add(csr, hf_80211n_mac_ampdu_id, 4, ENC_LITTLE_ENDIAN);
+    ptvcursor_add(csr, hf_80211n_mac_num_delimiters, 1, ENC_LITTLE_ENDIAN);
 
     if (add_subtree) {
-        ptvcursor_add(csr, hf_80211n_mac_reserved, 3, TRUE);
+        ptvcursor_add(csr, hf_80211n_mac_reserved, 3, ENC_LITTLE_ENDIAN);
     }
 
     ptvcursor_free(csr);
@@ -619,7 +619,7 @@ dissect_80211n_mac_phy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
     csr = ptvcursor_new(ftree, tvb, offset);
 
     ptvcursor_add_invalid_check(csr, hf_80211n_mac_phy_mcs, 1, 255);
-    ti = ptvcursor_add(csr, hf_80211n_mac_phy_num_streams, 1, TRUE);
+    ti = ptvcursor_add(csr, hf_80211n_mac_phy_num_streams, 1, ENC_LITTLE_ENDIAN);
     if (tvb_get_guint8(tvb, ptvcursor_current_offset(csr) - 1) == 0)
         proto_item_append_text(ti, " (unknown)");
     ptvcursor_add_invalid_check(csr, hf_80211n_mac_phy_rssi_combined, 1, 255);
@@ -641,14 +641,14 @@ dissect_80211n_mac_phy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 
     ptvcursor_add_with_subtree(csr, hf_80211n_mac_phy_ext_chan_flags, 2, TRUE,
                                ett_dot11n_mac_phy_ext_channel_flags);
-    ptvcursor_add_no_advance(csr, hf_80211n_mac_phy_ext_chan_flags_turbo, 2, TRUE);
-    ptvcursor_add_no_advance(csr, hhf_80211n_mac_phy_ext_chan_flags_cck, 2, TRUE);
-    ptvcursor_add_no_advance(csr, hf_80211n_mac_phy_ext_chan_flags_ofdm, 2, TRUE);
-    ptvcursor_add_no_advance(csr, hhf_80211n_mac_phy_ext_chan_flags_2ghz, 2, TRUE);
-    ptvcursor_add_no_advance(csr, hf_80211n_mac_phy_ext_chan_flags_5ghz, 2, TRUE);
-    ptvcursor_add_no_advance(csr, hf_80211n_mac_phy_ext_chan_flags_passive, 2, TRUE);
-    ptvcursor_add_no_advance(csr, hf_80211n_mac_phy_ext_chan_flags_dynamic, 2, TRUE);
-    ptvcursor_add(csr, hf_80211n_mac_phy_ext_chan_flags_gfsk, 2, TRUE);
+    ptvcursor_add_no_advance(csr, hf_80211n_mac_phy_ext_chan_flags_turbo, 2, ENC_LITTLE_ENDIAN);
+    ptvcursor_add_no_advance(csr, hhf_80211n_mac_phy_ext_chan_flags_cck, 2, ENC_LITTLE_ENDIAN);
+    ptvcursor_add_no_advance(csr, hf_80211n_mac_phy_ext_chan_flags_ofdm, 2, ENC_LITTLE_ENDIAN);
+    ptvcursor_add_no_advance(csr, hhf_80211n_mac_phy_ext_chan_flags_2ghz, 2, ENC_LITTLE_ENDIAN);
+    ptvcursor_add_no_advance(csr, hf_80211n_mac_phy_ext_chan_flags_5ghz, 2, ENC_LITTLE_ENDIAN);
+    ptvcursor_add_no_advance(csr, hf_80211n_mac_phy_ext_chan_flags_passive, 2, ENC_LITTLE_ENDIAN);
+    ptvcursor_add_no_advance(csr, hf_80211n_mac_phy_ext_chan_flags_dynamic, 2, ENC_LITTLE_ENDIAN);
+    ptvcursor_add(csr, hf_80211n_mac_phy_ext_chan_flags_gfsk, 2, ENC_LITTLE_ENDIAN);
     ptvcursor_pop_subtree(csr);
 
     ptvcursor_add_invalid_check(csr, hf_80211n_mac_phy_dbm_ant0signal, 1, 0x80); /* -128 */
@@ -686,7 +686,7 @@ dissect_aggregation_extension(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 
     csr = ptvcursor_new(ftree, tvb, offset);
 
-    ptvcursor_add(csr, hf_aggregation_extension_interface_id, 4, TRUE); /* Last */
+    ptvcursor_add(csr, hf_aggregation_extension_interface_id, 4, ENC_LITTLE_ENDIAN); /* Last */
     ptvcursor_free(csr);
 }
 
@@ -710,14 +710,14 @@ dissect_8023_extension(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
     csr = ptvcursor_new(ftree, tvb, offset);
 
     ptvcursor_add_with_subtree(csr, hf_8023_extension_flags, 4, TRUE, ett_8023_extension_flags);
-    ptvcursor_add(csr, hf_8023_extension_flags_fcs_present, 4, TRUE);
+    ptvcursor_add(csr, hf_8023_extension_flags_fcs_present, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_pop_subtree(csr);
 
     ptvcursor_add_with_subtree(csr, hf_8023_extension_errors, 4, TRUE, ett_8023_extension_errors);
-    ptvcursor_add_no_advance(csr, hf_8023_extension_errors_fcs, 4, TRUE);
-    ptvcursor_add_no_advance(csr, hf_8023_extension_errors_sequence, 4, TRUE);
-    ptvcursor_add_no_advance(csr, hf_8023_extension_errors_symbol, 4, TRUE);
-    ptvcursor_add(csr, hf_8023_extension_errors_data, 4, TRUE);
+    ptvcursor_add_no_advance(csr, hf_8023_extension_errors_fcs, 4, ENC_LITTLE_ENDIAN);
+    ptvcursor_add_no_advance(csr, hf_8023_extension_errors_sequence, 4, ENC_LITTLE_ENDIAN);
+    ptvcursor_add_no_advance(csr, hf_8023_extension_errors_symbol, 4, ENC_LITTLE_ENDIAN);
+    ptvcursor_add(csr, hf_8023_extension_errors_data, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_pop_subtree(csr);
 
     ptvcursor_free(csr);
