@@ -187,9 +187,27 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          WPA IE pairwise cipher suite dissector uses incorrect value_string list.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6420">Bug
+          6420</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           S1AP protocol can't decode IPv6 transportLayerAddress.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6435">Bug
           6435</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          packet-ajp13 fix, cleanup, and enhancement.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6452">Bug
+          6452</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          The Network Instruments Observer file format bugs.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6453">Bug
+          6453</ulink>)
         </para></listitem>
 
       </itemizedlist>
@@ -217,6 +235,7 @@ There are no new protocols in this release.
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title> <para>
 
 <!-- Sort alphabetically -->
+AJP13,
 ASN.1 PER,
 BACnet,
 CSN.1,

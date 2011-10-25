@@ -244,7 +244,11 @@ ajp13_get_nstring(tvbuff_t *tvb, gint offset, guint16* ret_len)
   len = tvb_get_ntohs(tvb, offset);
 
   if (ret_len)
-    *ret_len = len;
+    *ret_len = len+1;
+
+  /* a size of 0xFFFF indicates a null string - no data follows */
+  if (len == 0xFFFF)
+    len = 0;
 
   return tvb_format_text(tvb, offset+2, MIN(len, ITEM_LABEL_LENGTH));
 }
@@ -331,9 +335,7 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_con
       guint8 hid;
       const gchar *hval;
       guint16 hval_len, hname_len;
-      int orig_pos = pos;
       const gchar* hname = NULL;
-      int dp = 0;
       /* int cl = 0; TODO: Content-Length header (encoded by 0x08) is special */
 
       /* HEADER CODE/NAME
@@ -357,18 +359,17 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_con
         pos+=hname_len+2;
       }
 
-      dp = pos-orig_pos;
-
       /* HEADER VALUE
        */
-      orig_pos = pos;
       hval = ajp13_get_nstring(tvb, pos, &hval_len);
 
-      pos+=hval_len+2;
-      dp = pos - orig_pos;
+      pos+=2; /* skip over size */
       if (ajp13_tree) {
-        proto_tree_add_string_format(ajp13_tree, hf_ajp13_hval, tvb, orig_pos, dp, "%s : %s", hname, hval);
+        proto_tree_add_string_format(ajp13_tree, hf_ajp13_hval,
+                                     tvb, pos, hval_len, hname,
+                                     "%s: %s", hname, hval);
       }
+      pos+=hval_len;
     }
 
   } else if (mcode == 6) {
@@ -434,7 +435,7 @@ display_req_body(tvbuff_t *tvb, proto_tree *ajp13_tree, ajp13_conv_data* cd)
    */
   content_length = tvb_get_ntohs( tvb, pos);
   cd->content_length -= content_length;
-  proto_tree_add_item(ajp13_tree, hf_ajp13_data, tvb, pos+2, content_length-1, 0);
+  proto_tree_add_item(ajp13_tree, hf_ajp13_data, tvb, pos+2, content_length, ENC_UTF_8|ENC_BIG_ENDIAN);
 }
 
 
@@ -576,9 +577,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
 
     guint8 hcd;
     guint8 hid;
-    int orig_pos = pos;
     const gchar* hname = NULL;
-    int dp = 0;
     int cl = 0;
     const gchar *hval;
     guint16 hval_len, hname_len;
@@ -600,20 +599,17 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
       pos+=hname_len+2;
     }
 
-    dp = pos-orig_pos;
-
     /* HEADER VALUE
      */
-    orig_pos = pos;
     hval = ajp13_get_nstring(tvb, pos, &hval_len);
 
-    pos+=hval_len+2;
-    dp = pos - orig_pos;
+    pos+=2; /* skip over size */
     if (ajp13_tree) {
       proto_tree_add_string_format(ajp13_tree, hf_ajp13_hval,
-                                   tvb, orig_pos, dp, hname,
+                                   tvb, pos, hval_len, hname,
                                    "%s: %s", hname, hval);
     }
+    pos+=hval_len;
     if (cl) {
       cl = atoi(hval);
       cd->content_length = cl;
