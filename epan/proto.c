@@ -4913,7 +4913,6 @@ static void tmp_fld_check_assert(header_field_info *hfinfo) {
 		 *	FT_INT*.
 		 */
 		if (hfinfo->display == BASE_HEX ||
-		    hfinfo->display == BASE_HEX_DEC ||
 		    hfinfo->display == BASE_OCT)
 			g_error("Field '%s' (%s) is signed (%s) but is being displayed unsigned (%s)\n",
 				hfinfo->name, hfinfo->abbrev,
@@ -6678,18 +6677,23 @@ hfinfo_numeric_format(const header_field_info *hfinfo)
 			case BASE_HEX_DEC:
 				switch(hfinfo->type) {
 					case FT_UINT8:
+					case FT_INT8:
 						format = "%s == 0x%02x";
 						break;
 					case FT_UINT16:
+					case FT_INT16:
 						format = "%s == 0x%04x";
 						break;
 					case FT_UINT24:
+					case FT_INT24:
 						format = "%s == 0x%06x";
 						break;
 					case FT_UINT32:
+					case FT_INT32:
 						format = "%s == 0x%08x";
 						break;
 					case FT_UINT64:
+					case FT_INT64:
 						format = "%s == 0x%016" G_GINT64_MODIFIER "x";
 						break;
 					default:
@@ -6752,18 +6756,23 @@ hfinfo_numeric_value_format(const header_field_info *hfinfo)
 			case BASE_HEX_DEC:
 				switch(hfinfo->type) {
 					case FT_UINT8:
+					case FT_INT8:
 						format = "0x%02x";
 						break;
 					case FT_UINT16:
+					case FT_INT16:
 						format = "0x%04x";
 						break;
 					case FT_UINT24:
+					case FT_INT24:
 						format = "0x%06x";
 						break;
 					case FT_UINT32:
+					case FT_INT32:
 						format = "0x%08x";
 						break;
 					case FT_UINT64:
+					case FT_INT64:
 						format = "0x%016" G_GINT64_MODIFIER "x";
 						break;
 					default:

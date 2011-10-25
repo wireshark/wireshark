@@ -678,7 +678,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
     } else if (vs && (type == FT_INT64 || type == FT_UINT64)) {
       luaL_argerror(L, 4, "This type does not support value string");
       return 0;
-    } else if ((base == BASE_HEX || base == BASE_HEX_DEC || base == BASE_OCT) &&
+    } else if ((base == BASE_HEX || base == BASE_OCT) &&
 	       (type == FT_INT8 || type == FT_INT16 || type == FT_INT24 || type == FT_INT32 || type == FT_INT64)) {
       luaL_argerror(L, 3, "This type does not display as hexadecimal");
       return 0;
