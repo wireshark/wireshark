@@ -4924,6 +4924,7 @@ static void tmp_fld_check_assert(header_field_info *hfinfo) {
 	case FT_UINT16:
 	case FT_UINT24:
 	case FT_UINT32:
+	case FT_UINT64:
 		if (hfinfo->strings == NULL) {
 			/*  Require integral types (other than frame number,
 			 *  which is always displayed in decimal) to have a
@@ -4933,13 +4934,6 @@ static void tmp_fld_check_assert(header_field_info *hfinfo) {
 					hfinfo->name, hfinfo->abbrev,
 					val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"));
 		}
-		break;
-
-	case FT_UINT64:
-		if (hfinfo->display == BASE_NONE)
-			g_error("Field '%s' (%s) is an integral value (%s) but is being displayed as BASE_NONE\n",
-				hfinfo->name, hfinfo->abbrev,
-				val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"));
 		break;
 
 	case FT_PROTOCOL:
