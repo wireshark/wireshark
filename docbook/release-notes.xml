@@ -71,6 +71,24 @@ Wireshark Info
           </para> -->
         </listitem>
 
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2011-19.html">wnpa-sec-2011-19</ulink>
+          </para>
+          <para>
+            Huzaifa Sidhpurwala of Red Hat Security Response Team discovered a
+            buffer overflow in the ERF file reader.
+            <!-- Fixed in trunk: r39508 -->
+            <!-- Fixed in trunk-1.6: r39585 -->
+            <!-- Fixed in trunk-1.4: r????? -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6479">Bug
+            6479</ulink>)
+          </para>
+          <para>Versions affected: 1.6.0 to 1.6.2.</para>
+          <!-- <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-????">CVE-2011-????</ulink>
+          </para> -->
+        </listitem>
       </itemizedlist>
 
     </para>
@@ -263,6 +281,7 @@ Ethernet,
 ICMPv6,
 IEEE 802.11,
 IEEE 802.1q,
+Infiniband,
 IPsec,
 MySQL,
 PCEP,
@@ -277,7 +296,7 @@ SSL
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-.
+Endace ERF.
 
     </para>
     </section>
