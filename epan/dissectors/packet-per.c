@@ -2012,7 +2012,7 @@ static tvbuff_t *dissect_per_bit_string_display(tvbuff_t *tvb, guint32 offset, a
 				value |= tvb_get_bits16(out_tvb, 32, length - 32, ENC_BIG_ENDIAN);
 			}else if (length<=56) { /* first read 32 and 16 then the remaining bits */
 				value = tvb_get_bits32(out_tvb, 0, 32, ENC_BIG_ENDIAN);
-				value <<= 16
+				value <<= 16;
 				value |= tvb_get_bits16(out_tvb, 32, 16, ENC_BIG_ENDIAN);
 				value <<= 8 - pad_length;
 				value |= tvb_get_bits8(out_tvb, 48, length - 48);
