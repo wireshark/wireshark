@@ -249,7 +249,7 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (tree) { /* we are being asked for details */
         proto_item *ti = NULL;
-        ti = proto_tree_add_item(tree, proto_foo, tvb, 0, -1, FALSE);
+        ti = proto_tree_add_item(tree, proto_foo, tvb, 0, -1, ENC_NA);
     }
 }]]>
    </programlisting></example>
@@ -265,7 +265,8 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	Therefore, we add the new tree node with <function>proto_tree_add_item()</function>,
 	adding it to the passed in tree, label it with the protocol, use the passed in
 	tvb buffer as the data, and consume from 0 to the end (-1) of this data.
-	The FALSE we'll ignore for now.
+	ENC_NA ("not applicable") is specified as the "encoding" parameter.
+
 	</para>
 	<para>
 	After this change, there should be a label in the detailed display for the protocol,
@@ -330,9 +331,9 @@ static gint ett_foo = -1;]]>
         proto_item *ti = NULL;
         proto_tree *foo_tree = NULL;
 
-        ti = proto_tree_add_item(tree, proto_foo, tvb, 0, -1, FALSE);
+        ti = proto_tree_add_item(tree, proto_foo, tvb, 0, -1, ENC_NA);
         foo_tree = proto_item_add_subtree(ti, ett_foo);
-        proto_tree_add_item(foo_tree, hf_foo_pdu_type, tvb, 0, 1, FALSE);
+        proto_tree_add_item(foo_tree, hf_foo_pdu_type, tvb, 0, 1, ENC_BIG_ENDIAN);
     }]]>
    </programlisting></example>
 	<para>
@@ -350,8 +351,10 @@ static gint ett_foo = -1;]]>
 	A call to <function>proto_tree_add_item()</function> in the <varname>foo_tree</varname>,
 	this time using the <varname>hf_foo_pdu_type</varname> to control the formatting
 	of the item. The pdu type is one byte of data, starting at 0. We assume it is
-	in network order, so that is why we use FALSE. Although for 1 byte there is
-	no order issue it's best to keep this correct.
+	in network order (also called big endian), so that is why we use ENC_BIG_ENDIAN.
+	For a 1-byte quantity, there is no order issue, but it is good practice to
+	make this the same as any multibyte fields that may be present, and as we will
+	see in the next section, this particular protocol uses network order.
 	</para>
 	<para>
 	If we look in detail at the <varname>hf_foo_pdu_type</varname> declaration in
@@ -369,7 +372,7 @@ static gint ett_foo = -1;]]>
 	as foo.type=1 into the filter box.
 	</para></listitem>
 	<listitem><para>
-	FT_UNIT8 - this specifies this item is an 8bit unsigned integer.
+	FT_UINT8 - this specifies this item is an 8bit unsigned integer.
 	This tallies with our call above where we tell it to only look at one byte.
 	</para></listitem>
 	<listitem><para>
@@ -407,12 +410,16 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_item *ti = NULL;
         proto_tree *foo_tree = NULL;
 
-        ti = proto_tree_add_item(tree, proto_foo, tvb, 0, -1, FALSE);
+        ti = proto_tree_add_item(tree, proto_foo, tvb, 0, -1, ENC_NA);
         foo_tree = proto_item_add_subtree(ti, ett_foo);
-        proto_tree_add_item(foo_tree, hf_foo_pdu_type, tvb, offset, 1, FALSE); offset += 1;
-        proto_tree_add_item(foo_tree, hf_foo_flags, tvb, offset, 1, FALSE); offset += 1;
-        proto_tree_add_item(foo_tree, hf_foo_sequenceno, tvb, offset, 2, FALSE); offset += 2;
-        proto_tree_add_item(foo_tree, hf_foo_initialip, tvb, offset, 4, FALSE); offset += 4;
+        proto_tree_add_item(foo_tree, hf_foo_pdu_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        proto_tree_add_item(foo_tree, hf_foo_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        proto_tree_add_item(foo_tree, hf_foo_sequenceno, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+        proto_tree_add_item(foo_tree, hf_foo_initialip, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
     }
     ...
 }
@@ -500,10 +507,11 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     ...
         ...
-        proto_tree_add_item(foo_tree, hf_foo_flags, tvb, offset, 1, FALSE);
-        proto_tree_add_item(foo_tree, hf_foo_startflag, tvb, offset, 1, FALSE);
-        proto_tree_add_item(foo_tree, hf_foo_endflag, tvb, offset, 1, FALSE);
-        proto_tree_add_item(foo_tree, hf_foo_priorityflag, tvb, offset, 1, FALSE); offset += 1;
+        proto_tree_add_item(foo_tree, hf_foo_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(foo_tree, hf_foo_startflag, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(foo_tree, hf_foo_endflag, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(foo_tree, hf_foo_priorityflag, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
         ...
     ...
 }
@@ -573,11 +581,11 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree *foo_tree = NULL;
         gint offset = 0;
 
-        ti = proto_tree_add_item(tree, proto_foo, tvb, 0, -1, FALSE);
+        ti = proto_tree_add_item(tree, proto_foo, tvb, 0, -1, ENC_NA);
         proto_item_append_text(ti, ", Type %s",
             val_to_str(packet_type, packettypenames, "Unknown (0x%02x)"));
         foo_tree = proto_item_add_subtree(ti, ett_foo);
-        proto_tree_add_item(foo_tree, hf_foo_pdu_type, tvb, offset, 1, FALSE);
+        proto_tree_add_item(foo_tree, hf_foo_pdu_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
     }
 }]]>
