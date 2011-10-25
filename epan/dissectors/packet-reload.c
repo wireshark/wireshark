@@ -1073,7 +1073,7 @@ dissect_opaque_string_or_data(tvbuff_t *tvb, packet_info *pinfo,proto_tree *tree
   gint32 length = -1;
   int hf = hf_reload_opaque;
   int hf_data = hf_reload_opaque_data;
-
+  guint hf_data_encoding = ENC_NA;
 
   if (anchor_index>=0) {
     hf=anchor_index;
@@ -1081,6 +1081,7 @@ dissect_opaque_string_or_data(tvbuff_t *tvb, packet_info *pinfo,proto_tree *tree
 
   if (is_string) {
     hf_data = hf_reload_opaque_string;
+    hf_data_encoding = ENC_ASCII|ENC_NA;
   }
 
   switch (length_size) {
@@ -1107,7 +1108,7 @@ dissect_opaque_string_or_data(tvbuff_t *tvb, packet_info *pinfo,proto_tree *tree
 
   if (length_index < 0) return 0;
 
-  ti_anchor = proto_tree_add_item(tree, hf, tvb, offset, length_size + length, FALSE);
+  ti_anchor = proto_tree_add_item(tree, hf, tvb, offset, length_size + length, ENC_NA);
 
   if (max_field_length > 0) {
     if ((length + length_size) > max_field_length) {
@@ -1119,7 +1120,7 @@ dissect_opaque_string_or_data(tvbuff_t *tvb, packet_info *pinfo,proto_tree *tree
   opaque_tree = proto_item_add_subtree(ti_anchor, ett_reload_opaque);
   proto_tree_add_uint(opaque_tree, length_index, tvb, offset, length_size, (guint)length);
   if (length) {
-    proto_tree_add_item(opaque_tree, hf_data, tvb, offset + length_size, length, FALSE);
+    proto_tree_add_item(opaque_tree, hf_data, tvb, offset + length_size, length, hf_data_encoding);
   }
   if (hf != hf_reload_opaque) {
     proto_item_append_text(ti_anchor, " (opaque<%d>)", length);
@@ -1180,12 +1181,12 @@ static int dissect_resourceid(int anchor, tvbuff_t *tvb, packet_info *pinfo, pro
 
   /* We don't know the node ID. Just assume that all the data is part of it */
   if (length < local_length+1) {
-    ti_local = proto_tree_add_item(tree, hf, tvb, offset, length, FALSE);
+    ti_local = proto_tree_add_item(tree, hf, tvb, offset, length, ENC_NA);
     expert_add_info_format(pinfo, ti_local, PI_PROTOCOL, PI_ERROR, "Truncated ResourceId");
     return length;
   }
 
-  ti_local = proto_tree_add_item(tree, hf, tvb, offset, 1+local_length, FALSE);
+  ti_local = proto_tree_add_item(tree, hf, tvb, offset, 1+local_length, ENC_NA);
   local_tree = proto_item_add_subtree(ti_local, ett_reload_resourceid);
   proto_tree_add_item(local_tree, hf_reload_length_uint8, tvb, offset, 1, ENC_BIG_ENDIAN);
   proto_tree_add_item(local_tree, hf_reload_opaque_data, tvb, offset+1, local_length, ENC_NA);
@@ -1211,12 +1212,12 @@ static int dissect_nodeid(int anchor, tvbuff_t *tvb, packet_info *pinfo, proto_t
 
   /* We don't know the node ID. Just assume that all the data is part of it */
   if (length < reload_nodeid_length) {
-    ti_nodeid = proto_tree_add_item(tree, hf, tvb, offset, length, FALSE);
+    ti_nodeid = proto_tree_add_item(tree, hf, tvb, offset, length, ENC_NA);
     expert_add_info_format(pinfo, ti_nodeid, PI_PROTOCOL, PI_ERROR, "Truncated NodeId");
     return length;
   }
 
-  ti_nodeid = proto_tree_add_item(tree, hf, tvb, offset, reload_nodeid_length, FALSE);
+  ti_nodeid = proto_tree_add_item(tree, hf, tvb, offset, reload_nodeid_length, ENC_NA);
   {
     gboolean allZeros=TRUE;
     gboolean allOnes=TRUE;
@@ -1264,7 +1265,7 @@ dissect_destination(int anchor, tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
   if (destination_type & 0x80) {
     /* simple compressed case */
-    ti_destination = proto_tree_add_item(tree, hf, tvb, offset, 2, FALSE);
+    ti_destination = proto_tree_add_item(tree, hf, tvb, offset, 2, ENC_NA);
     if (hf==anchor) {
       proto_item_append_text(ti_destination, " (Destination)");
     }
@@ -1277,7 +1278,7 @@ dissect_destination(int anchor, tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     /* normal case */
 
     destination_length = tvb_get_guint8(tvb,offset+1);
-    ti_destination = proto_tree_add_item(tree, hf, tvb, offset, 2+destination_length, FALSE);
+    ti_destination = proto_tree_add_item(tree, hf, tvb, offset, 2+destination_length, ENC_NA);
     if (hf==anchor) {
       proto_item_append_text(ti_destination, " (Destination)");
     }
@@ -1400,7 +1401,7 @@ dissect_ipaddressport(int anchor, tvbuff_t *tvb, proto_tree *tree, guint16 offse
   }
 
   ipaddressport_length = tvb_get_guint8(tvb, offset+1);
-  ti_ipaddressport = proto_tree_add_item(tree, hf, tvb, offset, ipaddressport_length+2, FALSE);
+  ti_ipaddressport = proto_tree_add_item(tree, hf, tvb, offset, ipaddressport_length+2, ENC_NA);
   if (hf==anchor) proto_item_append_text(ti_ipaddressport, " (IpAddressPort)");
   ipaddressport_type = tvb_get_guint8(tvb, offset);
   proto_item_append_text(ti_ipaddressport, ": %s", val_to_str(ipaddressport_type, ipaddressporttypes,"Unknown Type"));
@@ -1795,12 +1796,12 @@ static int dissect_datavalue(int anchor, tvbuff_t *tvb, packet_info *pinfo, prot
     }
 
     if (1+4+value_length > length) {
-      ti_datavalue = proto_tree_add_item(tree, hf, tvb, offset, length, FALSE);
+      ti_datavalue = proto_tree_add_item(tree, hf, tvb, offset, length, ENC_NA);
       expert_add_info_format(pinfo, ti_datavalue, PI_PROTOCOL, PI_ERROR, "Truncated DataValue");
       return length;
     }
 
-    ti_datavalue = proto_tree_add_item(tree,  hf, tvb, offset,1+4+value_length, FALSE);
+    ti_datavalue = proto_tree_add_item(tree,  hf, tvb, offset,1+4+value_length, ENC_NA);
     datavalue_tree = proto_item_add_subtree(ti_datavalue,ett_reload_datavalue);
     proto_tree_add_item(datavalue_tree, hf_reload_datavalue_exists, tvb, offset, 1, ENC_BIG_ENDIAN);
     if (kind != NULL) {
@@ -1875,12 +1876,12 @@ static int dissect_datavalue(int anchor, tvbuff_t *tvb, packet_info *pinfo, prot
 
 
     if (1+4+1+1+hash_length > length) {
-      ti_datavalue = proto_tree_add_item(tree, hf, tvb, offset, length, FALSE);
+      ti_datavalue = proto_tree_add_item(tree, hf, tvb, offset, length, ENC_NA);
       expert_add_info_format(pinfo, ti_datavalue, PI_PROTOCOL, PI_ERROR, "Truncated MetaData");
       return length;
     }
 
-    ti_datavalue = proto_tree_add_item(tree,  hf, tvb, offset,1+4+1+1+hash_length, FALSE);
+    ti_datavalue = proto_tree_add_item(tree,  hf, tvb, offset,1+4+1+1+hash_length, ENC_NA);
     datavalue_tree = proto_item_add_subtree(ti_datavalue,ett_reload_datavalue);
     proto_tree_add_item(datavalue_tree, hf_reload_datavalue_exists, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(datavalue_tree, hf_reload_metadata_value_length, tvb, offset+1, 4, ENC_BIG_ENDIAN);
@@ -1919,12 +1920,12 @@ static int dissect_arrayentry(int anchor, tvbuff_t *tvb, packet_info *pinfo, pro
   }
 
   if (4+data_length > length) {
-    ti_arrayentry = proto_tree_add_item(tree, hf, tvb, offset, length, FALSE);
+    ti_arrayentry = proto_tree_add_item(tree, hf, tvb, offset, length, ENC_NA);
     expert_add_info_format(pinfo, ti_arrayentry, PI_PROTOCOL, PI_ERROR, "Truncated ArrayEntry");
     return length;
   }
 
-  ti_arrayentry = proto_tree_add_item(tree,  hf, tvb, offset,4+data_length, FALSE);
+  ti_arrayentry = proto_tree_add_item(tree,  hf, tvb, offset,4+data_length, ENC_NA);
   arrayentry_tree = proto_item_add_subtree(ti_arrayentry,ett_reload_arrayentry);
   ti_index = proto_tree_add_item(arrayentry_tree, hf_reload_arrayentry_index, tvb, offset, 4, ENC_BIG_ENDIAN);
   if (0xffffffff == (guint32) tvb_get_ntohl(tvb, offset)) {
@@ -1951,7 +1952,7 @@ static int dissect_dictionaryentry(int anchor, tvbuff_t *tvb, packet_info *pinfo
   }
 
   if (length < 2) {
-    ti_dictionaryentry = proto_tree_add_item(tree, hf, tvb, offset, length, FALSE);
+    ti_dictionaryentry = proto_tree_add_item(tree, hf, tvb, offset, length, ENC_NA);
     expert_add_info_format(pinfo, ti_dictionaryentry, PI_PROTOCOL, PI_ERROR, "Truncated ArrayEntry");
     return length;
   }
@@ -1959,7 +1960,7 @@ static int dissect_dictionaryentry(int anchor, tvbuff_t *tvb, packet_info *pinfo
 
 
   if (length < (key_length +2)) {
-    ti_dictionaryentry = proto_tree_add_item(tree, hf, tvb, offset, length, FALSE);
+    ti_dictionaryentry = proto_tree_add_item(tree, hf, tvb, offset, length, ENC_NA);
     expert_add_info_format(pinfo, ti_dictionaryentry, PI_PROTOCOL, PI_ERROR, "Truncated ArrayEntry");
     return length;
   }
@@ -1967,10 +1968,10 @@ static int dissect_dictionaryentry(int anchor, tvbuff_t *tvb, packet_info *pinfo
   {
     int data_length = getDataValueLength(tvb, offset+2+key_length, meta);
     if (length < (key_length+2+data_length)) {
-      ti_dictionaryentry = proto_tree_add_item(tree, hf, tvb, offset, length, FALSE);
+      ti_dictionaryentry = proto_tree_add_item(tree, hf, tvb, offset, length, ENC_NA);
     }
     else {
-      ti_dictionaryentry = proto_tree_add_item(tree, hf, tvb, offset, 2+key_length+1+4+data_length, FALSE);
+      ti_dictionaryentry = proto_tree_add_item(tree, hf, tvb, offset, 2+key_length+1+4+data_length, ENC_NA);
     }
   }
 
@@ -2128,13 +2129,13 @@ dissect_storeddata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 
   local_offset += 4;
 
   if (storeddata_length + 4 > length) {
-    ti_storeddata = proto_tree_add_item(tree, hf, tvb, offset, length, FALSE);
+    ti_storeddata = proto_tree_add_item(tree, hf, tvb, offset, length, ENC_NA);
     expert_add_info_format(pinfo, ti_storeddata, PI_PROTOCOL, PI_ERROR, "Truncated StoredData");
     return length;
   }
 
   local_offset = 0;
-  ti_storeddata = proto_tree_add_item(tree, hf, tvb, offset, 4 + storeddata_length, FALSE);
+  ti_storeddata = proto_tree_add_item(tree, hf, tvb, offset, 4 + storeddata_length, ENC_NA);
   storeddata_tree = proto_item_add_subtree(ti_storeddata, ett_reload_storeddata);
 
   proto_tree_add_uint(storeddata_tree, hf_reload_length_uint32, tvb, offset + local_offset, 4, storeddata_length);
@@ -2196,7 +2197,7 @@ dissect_kindid(int anchor, tvbuff_t *tvb, proto_tree *tree, guint16 offset, kind
 
   kindid = tvb_get_ntohl(tvb, offset);
   *kind = getKindFromId(kindid);
-  ti_kindid = proto_tree_add_item(tree, hf, tvb, offset, 4, FALSE);
+  ti_kindid = proto_tree_add_item(tree, hf, tvb, offset, 4, ENC_BIG_ENDIAN);
   if ((NULL != (*kind)) && ((*kind)->name != NULL)) {
     proto_item_append_text(ti_kindid, " (%s)", (*kind)->name);
   }
@@ -2221,11 +2222,11 @@ dissect_kinddata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 of
 
   values_length = tvb_get_ntohl(tvb, offset + 4 + 8);
   if (12 + values_length > length) {
-    ti_kinddata = proto_tree_add_item(tree, hf, tvb, offset, length, FALSE);
+    ti_kinddata = proto_tree_add_item(tree, hf, tvb, offset, length, ENC_NA);
     expert_add_info_format(pinfo, ti_kinddata, PI_PROTOCOL, PI_ERROR, "Truncated kind data");
     return length;
   }
-  ti_kinddata = proto_tree_add_item(tree, hf, tvb, offset, 16+values_length, FALSE);
+  ti_kinddata = proto_tree_add_item(tree, hf, tvb, offset, 16+values_length, ENC_NA);
   kinddata_tree = proto_item_add_subtree(ti_kinddata, ett_reload_kinddata);
 
   local_offset += dissect_kindid(hf_reload_kinddata_kind,tvb, kinddata_tree, offset+local_offset, &kind);
@@ -2277,10 +2278,10 @@ static int dissect_nodeid_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   list_length= (guint16) get_opaque_length(tvb, offset, length_size);
 
   if (list_length+length_size>length) {
-    ti_local = proto_tree_add_item(tree, hf, tvb, offset, length, FALSE);
+    ti_local = proto_tree_add_item(tree, hf, tvb, offset, length, ENC_NA);
     expert_add_info_format(pinfo, ti_local, PI_PROTOCOL, PI_ERROR, "Truncated NodeId list");
   }
-  ti_local = proto_tree_add_item(tree, hf, tvb, offset,  list_length+length_size, FALSE);
+  ti_local = proto_tree_add_item(tree, hf, tvb, offset,  list_length+length_size, ENC_NA);
   proto_item_append_text(ti_local, " (NodeId<%d>)", list_length);
 
   local_tree =  proto_item_add_subtree(ti_local, ett_reload_nodeid_list);
@@ -2551,12 +2552,12 @@ dissect_fetchreq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 of
   specifiers_length = get_opaque_length(tvb, offset+1+resourceid_length, 2);
 
   if (1+ resourceid_length+ 2 + specifiers_length > length) {
-    ti_fetchreq = proto_tree_add_item(tree, hf, tvb, offset, length, FALSE);
+    ti_fetchreq = proto_tree_add_item(tree, hf, tvb, offset, length, ENC_NA);
     expert_add_info_format(pinfo, ti_fetchreq, PI_PROTOCOL, PI_ERROR, "Truncated FetchReq");
     return length;
   }
   local_length =  1+ resourceid_length+ 2 + specifiers_length;
-  ti_fetchreq = proto_tree_add_item(tree, hf, tvb, offset, local_length, FALSE);
+  ti_fetchreq = proto_tree_add_item(tree, hf, tvb, offset, local_length, ENC_NA);
   fetchreq_tree = proto_item_add_subtree(ti_fetchreq, ett_reload_fetchreq);
 
   local_offset +=
@@ -2601,7 +2602,7 @@ dissect_fetchans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 of
   ti_fetchans = proto_tree_add_item(tree, hf_reload_fetchans, tvb, offset, 4 + kind_responses_length, ENC_NA);
   fetchans_tree = proto_item_add_subtree(ti_fetchans, ett_reload_fetchans);
 
-  proto_tree_add_uint(fetchans_tree, hf_reload_length_uint16, tvb, offset, 4, FALSE);
+  proto_tree_add_uint(fetchans_tree, hf_reload_length_uint32, tvb, offset, 4, kind_responses_length);
 
   while (kind_responses_offset < kind_responses_length) {
     guint32 kind_responses_increment;
@@ -2969,7 +2970,7 @@ static int dissect_diagnosticrequest(int anchor, tvbuff_t *tvb, packet_info *pin
     hf = anchor;
   }
 
-  ti_local = proto_tree_add_item(tree, hf, tvb, offset, length, FALSE);
+  ti_local = proto_tree_add_item(tree, hf, tvb, offset, length, ENC_NA);
   local_tree = proto_item_add_subtree(ti_local, ett_reload_diagnosticrequest);
 
   proto_tree_add_item(local_tree, hf_reload_diagnostic_expiration, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
@@ -3195,7 +3196,7 @@ static int dissect_diagnosticresponse(int anchor, tvbuff_t *tvb, packet_info *pi
     hf = anchor;
   }
 
-  ti_local = proto_tree_add_item(tree, hf, tvb, offset, length, FALSE);
+  ti_local = proto_tree_add_item(tree, hf, tvb, offset, length, ENC_NA);
   local_tree = proto_item_add_subtree(ti_local, ett_reload_diagnosticresponse);
 
   proto_tree_add_item(local_tree, hf_reload_diagnostic_expiration, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
@@ -3476,7 +3477,7 @@ extern gint dissect_reload_messagecontents(tvbuff_t *tvb, packet_info *pinfo, pr
             hf =  hf_reload_appattachreq;
             message_type_str = "AttachAppReq";
           }
-          ti_appattach = proto_tree_add_item(message_body_tree, hf, tvb, offset+local_offset, message_body_length, FALSE);
+          ti_appattach = proto_tree_add_item(message_body_tree, hf, tvb, offset+local_offset, message_body_length, ENC_NA);
           appattach_tree  = proto_item_add_subtree(ti_appattach, ett_reload_appattach);
           local_offset += dissect_opaque_string(tvb, pinfo,appattach_tree, hf_reload_ufrag,offset+local_offset, 1, message_body_length-local_offset);
           local_offset += dissect_opaque_string(tvb, pinfo,appattach_tree, hf_reload_password,offset+local_offset, 1, message_body_length-local_offset);
