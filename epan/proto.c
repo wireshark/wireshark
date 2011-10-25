@@ -7486,6 +7486,11 @@ _proto_tree_add_bits_format_value(proto_tree *tree, const int hf_index,
 				"%s: %s", str, value_str);
 		break;
 
+	case FT_INT64:
+		return proto_tree_add_int64_format(tree, hf_index, tvb, offset, length, *(gint64 *)value_ptr,
+				"%s: %s", str, value_str);
+		break;
+
 	case FT_FLOAT:
 		return proto_tree_add_float_format(tree, hf_index, tvb, offset, length, *(float *)value_ptr,
 				"%s: %s", str, value_str);
