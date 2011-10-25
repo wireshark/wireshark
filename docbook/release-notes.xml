@@ -134,6 +134,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          ISUP party number dissection.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5221">Bug
+          5221</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           wireshark-1.4.2 crashes when testing the example python dissector because of a dissector count assertion.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5431">Bug
           5431</ulink>)
@@ -149,6 +155,12 @@ Wireshark Info
           SLL encapsuled 802.1Q VLAN is not dissected.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5680">Bug
           5680</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wireshark crashes when attempting to open a file via drag &amp; drop when there's already a file open.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5987">Bug
+          5987</ulink>)
         </para></listitem>
 
         <listitem><para>
@@ -236,6 +248,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          RTPS2 dissector doesn't handle 0 in the octestToNextHeader field.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6449">Bug
+          6449</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           packet-ajp13 fix, cleanup, and enhancement.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6452">Bug
           6452</ulink>)
@@ -245,6 +263,24 @@ Wireshark Info
           The Network Instruments Observer file format bugs.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6453">Bug
           6453</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wireshark crashes when using &quot;Open Recent&quot; 2 times in a row.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6457">Bug
+          6457</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wireshark packet_gsm-sms, display bug: Filler bits in TP-User Data Header.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6469">Bug
+          6469</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          wireshark unable to decode NetFlow options which have system scope size != 4 bytes.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6471">Bug
+          6471</ulink>)
         </para></listitem>
 
       </itemizedlist>
