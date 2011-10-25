@@ -157,7 +157,7 @@ static guint dissect_grrtetc(proto_tree *tree, tvbuff_t *tvb, guint offset)
 	guint8 backoff;
 	double gsizex;
 	double grtt;
-	proto_tree_add_item(tree, hf.instance_id, tvb, offset, 2, FALSE); offset+=2;
+	proto_tree_add_item(tree, hf.instance_id, tvb, offset, 2, ENC_BIG_ENDIAN); offset+=2;
 	grtt = UnquantizeRtt(tvb_get_guint8(tvb, offset));
 	proto_tree_add_double(tree, hf.grtt, tvb, offset, 1, grtt); offset++;
 	backoff = hi_nibble(tvb_get_guint8(tvb, offset));
@@ -180,11 +180,11 @@ static guint dissect_feccode(struct _norm *norm, struct _fec_ptr *f, proto_tree 
 
 	norm->fec.encoding_id = tvb_get_guint8(tvb, offset);
 	norm->fec.encoding_id_present = 1;
-	proto_tree_add_item(tree, hf.fec.encoding_id, tvb, offset, 1, FALSE); offset++;
+	proto_tree_add_item(tree, hf.fec.encoding_id, tvb, offset, 1, ENC_BIG_ENDIAN); offset++;
 	if (reserved) {
-		proto_tree_add_item(tree, hf.reserved, tvb, offset, 1, FALSE); offset++;
+		proto_tree_add_item(tree, hf.reserved, tvb, offset, 1, ENC_NA); offset++;
 	}
-	proto_tree_add_item(tree, hf.object_transport_id, tvb, offset, 2, FALSE); offset+=2;
+	proto_tree_add_item(tree, hf.object_transport_id, tvb, offset, 2, ENC_BIG_ENDIAN); offset+=2;
 
 	if (norm->fec.encoding_id_present &&
 	    tvb_reported_length_remaining(tvb, offset) > 0) {
@@ -243,17 +243,17 @@ static guint dissect_nack_data(struct _norm *norm, proto_tree *tree,
 	guint16 len;
 	ti = proto_tree_add_text(tree, tvb, offset, -1, "NACK Data");
 	nack_tree = proto_item_add_subtree(ti, ett.nackdata);
-	proto_tree_add_item(nack_tree, hf.nack_form, tvb, offset, 1, FALSE); offset += 1;
+	proto_tree_add_item(nack_tree, hf.nack_form, tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
 
-	tif = proto_tree_add_item(nack_tree, hf.nack_flags, tvb, offset, 1, FALSE);
+	tif = proto_tree_add_item(nack_tree, hf.nack_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
 	flag_tree = proto_item_add_subtree(tif, ett.flags);
-	proto_tree_add_item(flag_tree, hf.nack_flags_segment, tvb, offset, 1, FALSE);
-	proto_tree_add_item(flag_tree, hf.nack_flags_block, tvb, offset, 1, FALSE);
-	proto_tree_add_item(flag_tree, hf.nack_flags_info, tvb, offset, 1, FALSE);
-	proto_tree_add_item(flag_tree, hf.nack_flags_object, tvb, offset, 1, FALSE);
+	proto_tree_add_item(flag_tree, hf.nack_flags_segment, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(flag_tree, hf.nack_flags_block, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(flag_tree, hf.nack_flags_info, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(flag_tree, hf.nack_flags_object, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 	len = tvb_get_ntohs(tvb, offset);
-	proto_tree_add_item(nack_tree, hf.nack_length, tvb, offset, 2, FALSE); offset += 2;
+	proto_tree_add_item(nack_tree, hf.nack_length, tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
 	proto_item_set_len(ti, 4+len);
 	if (len > 4) {
 		struct _fec_ptr f;
@@ -276,16 +276,16 @@ static void dissect_norm_data(struct _norm *norm, proto_tree *tree,
 	offset = dissect_grrtetc(tree, tvb, offset);
 
 
-	ti = proto_tree_add_item(tree, hf.flags, tvb, offset, 1, FALSE);
+	ti = proto_tree_add_item(tree, hf.flags, tvb, offset, 1, ENC_BIG_ENDIAN);
 	flags = tvb_get_guint8(tvb, offset);
 	flag_tree = proto_item_add_subtree(ti, ett.flags);
-	proto_tree_add_item(flag_tree, hf.flag.repair, tvb, offset, 1, FALSE);
-	proto_tree_add_item(flag_tree, hf.flag.explicit, tvb, offset, 1, FALSE);
-	proto_tree_add_item(flag_tree, hf.flag.info, tvb, offset, 1, FALSE);
-	proto_tree_add_item(flag_tree, hf.flag.unreliable, tvb, offset, 1, FALSE);
-	proto_tree_add_item(flag_tree, hf.flag.file, tvb, offset, 1, FALSE);
-	proto_tree_add_item(flag_tree, hf.flag.stream, tvb, offset, 1, FALSE);
-	proto_tree_add_item(flag_tree, hf.flag.msgstart, tvb, offset, 1, FALSE);
+	proto_tree_add_item(flag_tree, hf.flag.repair, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(flag_tree, hf.flag.explicit, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(flag_tree, hf.flag.info, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(flag_tree, hf.flag.unreliable, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(flag_tree, hf.flag.file, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(flag_tree, hf.flag.stream, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(flag_tree, hf.flag.msgstart, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
 	offset = dissect_feccode(norm, &f, tree, tvb, offset, pinfo, 0);
@@ -296,9 +296,9 @@ static void dissect_norm_data(struct _norm *norm, proto_tree *tree,
 	if (flags & NORM_FLAG_STREAM) {
 		ti = proto_tree_add_text(tree, tvb, offset, 8, "Stream Data");
 		flag_tree = proto_item_add_subtree(ti, ett.streampayload);
-		proto_tree_add_item(flag_tree, hf.reserved, tvb, offset, 2, FALSE); offset+=2;
-		proto_tree_add_item(flag_tree, hf.payload_len, tvb, offset, 2, FALSE); offset+=2;
-		proto_tree_add_item(flag_tree, hf.payload_offset, tvb, offset, 4, FALSE); offset+=4;
+		proto_tree_add_item(flag_tree, hf.reserved, tvb, offset, 2, ENC_NA); offset+=2;
+		proto_tree_add_item(flag_tree, hf.payload_len, tvb, offset, 2, ENC_BIG_ENDIAN); offset+=2;
+		proto_tree_add_item(flag_tree, hf.payload_offset, tvb, offset, 4, ENC_BIG_ENDIAN); offset+=4;
 
 	}
 	if (tvb_reported_length_remaining(tvb, offset) > 0)
@@ -315,21 +315,21 @@ static void dissect_norm_info(struct _norm *norm, proto_tree *tree,
 
 	offset = dissect_grrtetc(tree, tvb, offset);
 
-	ti = proto_tree_add_item(tree, hf.flags, tvb, offset, 1, FALSE);
+	ti = proto_tree_add_item(tree, hf.flags, tvb, offset, 1, ENC_BIG_ENDIAN);
 	flag_tree = proto_item_add_subtree(ti, ett.flags);
-	proto_tree_add_item(flag_tree, hf.flag.repair, tvb, offset, 1, FALSE);
-	proto_tree_add_item(flag_tree, hf.flag.explicit, tvb, offset, 1, FALSE);
-	proto_tree_add_item(flag_tree, hf.flag.info, tvb, offset, 1, FALSE);
-	proto_tree_add_item(flag_tree, hf.flag.unreliable, tvb, offset, 1, FALSE);
-	proto_tree_add_item(flag_tree, hf.flag.file, tvb, offset, 1, FALSE);
-	proto_tree_add_item(flag_tree, hf.flag.stream, tvb, offset, 1, FALSE);
-	proto_tree_add_item(flag_tree, hf.flag.msgstart, tvb, offset, 1, FALSE);
+	proto_tree_add_item(flag_tree, hf.flag.repair, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(flag_tree, hf.flag.explicit, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(flag_tree, hf.flag.info, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(flag_tree, hf.flag.unreliable, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(flag_tree, hf.flag.file, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(flag_tree, hf.flag.stream, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(flag_tree, hf.flag.msgstart, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
 	norm->fec.encoding_id = tvb_get_guint8(tvb, offset);
 	norm->fec.encoding_id_present = 1;
-	proto_tree_add_item(tree, hf.fec.encoding_id, tvb, offset, 1, FALSE); offset++;
-	proto_tree_add_item(tree, hf.object_transport_id, tvb, offset, 2, FALSE); offset+=2;
+	proto_tree_add_item(tree, hf.fec.encoding_id, tvb, offset, 1, ENC_BIG_ENDIAN); offset++;
+	proto_tree_add_item(tree, hf.object_transport_id, tvb, offset, 2, ENC_BIG_ENDIAN); offset+=2;
 
 	if (offset < hdrlen2bytes(norm->hlen)) {
 		struct _fec_ptr f;
@@ -360,8 +360,8 @@ static guint dissect_norm_cmd_flush(struct _norm *norm, proto_tree *tree,
 static guint dissect_norm_cmd_repairadv(struct _norm *norm, proto_tree *tree,
 	tvbuff_t *tvb, guint offset, packet_info *pinfo)
 {
-	proto_tree_add_item(tree, hf.flags, tvb, offset, 1, FALSE); offset ++;
-	proto_tree_add_item(tree, hf.reserved, tvb, offset, 2, FALSE); offset +=2;
+	proto_tree_add_item(tree, hf.flags, tvb, offset, 1, ENC_BIG_ENDIAN); offset ++;
+	proto_tree_add_item(tree, hf.reserved, tvb, offset, 2, ENC_NA); offset +=2;
 
 	if (offset < hdrlen2bytes(norm->hlen)) {
 		struct _fec_ptr f;
@@ -382,11 +382,11 @@ static guint dissect_norm_cmd_repairadv(struct _norm *norm, proto_tree *tree,
 static guint dissect_norm_cmd_cc(struct _norm *norm, proto_tree *tree,
 	tvbuff_t *tvb, guint offset, packet_info *pinfo _U_)
 {
-	proto_tree_add_item(tree, hf.reserved, tvb, offset, 1, FALSE); offset ++;
-	proto_tree_add_item(tree, hf.cc_sequence, tvb, offset, 2, FALSE); offset += 2;
+	proto_tree_add_item(tree, hf.reserved, tvb, offset, 1, ENC_NA); offset ++;
+	proto_tree_add_item(tree, hf.cc_sequence, tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
 
-	proto_tree_add_item(tree, hf.cc_sts, tvb, offset, 4, FALSE); offset += 4;
-	proto_tree_add_item(tree, hf.cc_stus, tvb, offset, 4, FALSE); offset += 4;
+	proto_tree_add_item(tree, hf.cc_sts, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
+	proto_tree_add_item(tree, hf.cc_stus, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
 	if (offset < hdrlen2bytes(norm->hlen)) {
 		struct _fec_ptr f;
 		memset(&f, 0, sizeof f);
@@ -402,14 +402,14 @@ static guint dissect_norm_cmd_cc(struct _norm *norm, proto_tree *tree,
 		double grtt;
 		ti = proto_tree_add_text(tree, tvb, offset, 8, "Congestion Control");
 		cc_tree = proto_item_add_subtree(ti, ett.congestioncontrol);
-		proto_tree_add_item(cc_tree, hf.cc_node_id, tvb, offset, 4, FALSE); offset += 4;
-		tif = proto_tree_add_item(cc_tree, hf.cc_flags, tvb, offset, 1, FALSE);
+		proto_tree_add_item(cc_tree, hf.cc_node_id, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
+		tif = proto_tree_add_item(cc_tree, hf.cc_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
 		flag_tree = proto_item_add_subtree(tif, ett.flags);
-		proto_tree_add_item(flag_tree, hf.cc_flags_clr, tvb, offset, 1, FALSE);
-		proto_tree_add_item(flag_tree, hf.cc_flags_plr, tvb, offset, 1, FALSE);
-		proto_tree_add_item(flag_tree, hf.cc_flags_rtt, tvb, offset, 1, FALSE);
-		proto_tree_add_item(flag_tree, hf.cc_flags_start, tvb, offset, 1, FALSE);
-		proto_tree_add_item(flag_tree, hf.cc_flags_leave, tvb, offset, 1, FALSE);
+		proto_tree_add_item(flag_tree, hf.cc_flags_clr, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(flag_tree, hf.cc_flags_plr, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(flag_tree, hf.cc_flags_rtt, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(flag_tree, hf.cc_flags_start, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(flag_tree, hf.cc_flags_leave, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 		grtt = UnquantizeRtt(tvb_get_guint8(tvb, offset));
 		proto_tree_add_double(cc_tree, hf.cc_rtt, tvb, offset, 1, grtt); offset += 1;
@@ -427,7 +427,7 @@ static guint dissect_norm_cmd_squelch(struct _norm *norm, proto_tree *tree,
 	offset = dissect_feccode(norm, &f, tree, tvb, offset, pinfo, 0);
 
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
-		proto_tree_add_item(tree, hf.cc_transport_id, tvb, offset, 4, FALSE); offset += 2;
+		proto_tree_add_item(tree, hf.cc_transport_id, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 2;
 	}
 	return offset;
 }
@@ -436,9 +436,9 @@ static guint dissect_norm_cmd_squelch(struct _norm *norm, proto_tree *tree,
 static guint dissect_norm_cmd_ackreq(struct _norm *norm _U_, proto_tree *tree,
 	tvbuff_t *tvb, guint offset, packet_info *pinfo _U_)
 {
-	proto_tree_add_item(tree, hf.reserved, tvb, offset, 1, FALSE); offset ++;
-	proto_tree_add_item(tree, hf.ack_type, tvb, offset, 1, FALSE); offset += 1;
-	proto_tree_add_item(tree, hf.ack_id, tvb, offset, 1, FALSE); offset += 1;
+	proto_tree_add_item(tree, hf.reserved, tvb, offset, 1, ENC_NA); offset ++;
+	proto_tree_add_item(tree, hf.ack_type, tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
+	proto_tree_add_item(tree, hf.ack_id, tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
 	return offset;
 }
 
@@ -453,7 +453,7 @@ static void dissect_norm_cmd(struct _norm *norm, proto_tree *tree,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_sep_str(pinfo->cinfo, COL_INFO, " ",
 		val_to_str(flavor, string_norm_cmd_type, "Unknown Cmd Type (0x%04x)"));
-	proto_tree_add_item(tree, hf.cmd_flavor, tvb, offset, 1, FALSE); offset ++;
+	proto_tree_add_item(tree, hf.cmd_flavor, tvb, offset, 1, ENC_BIG_ENDIAN); offset ++;
 	switch(flavor) {
 	case NORM_CMD_CC:
 		offset = dissect_norm_cmd_cc(norm, tree, tvb, offset, pinfo);
@@ -481,16 +481,16 @@ static void dissect_norm_ack(struct _norm *norm, proto_tree *tree,
 {
 	guint8 acktype;
 
-	proto_tree_add_item(tree, hf.ack_source, tvb, offset, 4, FALSE); offset += 4;
-	proto_tree_add_item(tree, hf.instance_id, tvb, offset, 2, FALSE); offset += 2;
+	proto_tree_add_item(tree, hf.ack_source, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
+	proto_tree_add_item(tree, hf.instance_id, tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
 	acktype = tvb_get_guint8(tvb, offset);
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_sep_str(pinfo->cinfo, COL_INFO, " ",
 		val_to_str(acktype, string_norm_ack_type, "Unknown Ack Type (0x%04x)"));
-	proto_tree_add_item(tree, hf.ack_type, tvb, offset, 1, FALSE); offset += 1;
-	proto_tree_add_item(tree, hf.ack_id, tvb, offset, 1, FALSE); offset += 1;
-	proto_tree_add_item(tree, hf.ack_grtt_sec, tvb, offset, 4, FALSE); offset += 4;
-	proto_tree_add_item(tree, hf.ack_grtt_usec, tvb, offset, 4, FALSE); offset += 4;
+	proto_tree_add_item(tree, hf.ack_type, tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
+	proto_tree_add_item(tree, hf.ack_id, tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
+	proto_tree_add_item(tree, hf.ack_grtt_sec, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
+	proto_tree_add_item(tree, hf.ack_grtt_usec, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
 	if (offset < hdrlen2bytes(norm->hlen)) {
 		struct _fec_ptr f;
 		memset(&f, 0, sizeof f);
@@ -512,11 +512,11 @@ static void dissect_norm_ack(struct _norm *norm, proto_tree *tree,
 static void dissect_norm_nack(struct _norm *norm, proto_tree *tree,
 	tvbuff_t *tvb, guint offset, packet_info *pinfo)
 {
-	proto_tree_add_item(tree, hf.nack_server, tvb, offset, 4, FALSE); offset += 4;
-	proto_tree_add_item(tree, hf.instance_id, tvb, offset, 2, FALSE); offset += 2;
-	proto_tree_add_item(tree, hf.reserved, tvb, offset, 2, FALSE); offset += 2;
-	proto_tree_add_item(tree, hf.nack_grtt_sec, tvb, offset, 4, FALSE); offset += 4;
-	proto_tree_add_item(tree, hf.nack_grtt_usec, tvb, offset, 4, FALSE); offset += 4;
+	proto_tree_add_item(tree, hf.nack_server, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
+	proto_tree_add_item(tree, hf.instance_id, tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
+	proto_tree_add_item(tree, hf.reserved, tvb, offset, 2, ENC_NA); offset += 2;
+	proto_tree_add_item(tree, hf.nack_grtt_sec, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
+	proto_tree_add_item(tree, hf.nack_grtt_usec, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
 	if (offset < hdrlen2bytes(norm->hlen)) {
 		struct _fec_ptr f;
 		memset(&f, 0, sizeof f);
@@ -595,7 +595,7 @@ static void dissect_norm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_uint(norm_tree, hf.type, tvb, offset, 1, norm.type);
 			proto_tree_add_uint(norm_tree, hf.hlen, tvb, offset+1, 1, norm.hlen);
 			proto_tree_add_uint(norm_tree, hf.sequence, tvb, offset+2, 2, norm.sequence);
-			proto_tree_add_item(norm_tree, hf.source_id, tvb, offset+4, 4, FALSE);
+			proto_tree_add_item(norm_tree, hf.source_id, tvb, offset+4, 4, ENC_BIG_ENDIAN);
 		}
 
 		offset += 8;
