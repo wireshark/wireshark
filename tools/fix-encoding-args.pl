@@ -2,7 +2,21 @@
 #
 # Copyright 2011, William Meier <wmeier[AT]newsguy.com>
 #
-# A program to fix proto_tree_add_item() encoding args from TRUE/FALSE to ENC_?? as appropriate (and possible)
+# A program to fix encoding args for certain Wireshark API function calls
+#   from TRUE/FALSE to ENC_?? as appropriate (and possible)
+#   - proto_tree_add_item
+#   - proto_tree_add_bits_item
+#   - proto_tree_add_bits_ret_val
+#   - proto_tree_add_bitmask
+#   - proto_tree_add_bitmask_text  !! ToDo: encoding arg not last arg
+#   - tvb_get_bits
+#   - tvb_get_bits16
+#   - tvb_get_bits24
+#   - tvb_get_bits32
+#   - tvb_get_bits64
+#   - ptvcursor_add
+#   - ptvcursor_add_no_advance
+#   - ptvcursor_add_with_subtree   !! ToDo: encoding arg not last arg
 #
 #
 # $Id$
@@ -51,6 +65,7 @@ my $searchReplaceEncNAHRef =
    };
 
 
+# ---------------------------------------------------------------------
 # Conversion "request" structure
 # (
 #   [ <list of field types for which this conversion request applies> ],
@@ -121,7 +136,9 @@ my @types_REG_PROTO  =
    $searchReplaceEncNAHRef
   );
 
-# For searching with no substitutions
+# ---------------------------------------------------------------------
+# For searching (and doing no substitutions) (obsolete ?)
+
 my @types_TIME =  (
                     [qw (FT_ABSOLUTE_TIME FT_RELATIVE_TIME)],
                     {}
@@ -181,22 +198,58 @@ my @types_ALL =
    }
   );
 
+# ---------------------------------------------------------------------
+
+my @findAllFunctionList =
+##         proto_tree_add_bitmask_text  !! ToDo: encoding arg not last arg
+##         ptvcursor_add_with_subtree   !! ToDo: encoding Arg not last arg
+  qw (
+         proto_tree_add_item
+         proto_tree_add_bits_item
+         proto_tree_add_bits_ret_val
+         proto_tree_add_bitmask
+         tvb_get_bits
+         tvb_get_bits16
+         tvb_get_bits24
+         tvb_get_bits32
+         tvb_get_bits64
+         ptvcursor_add
+         ptvcursor_add_no_advance
+    );
+
+# ---------------------------------------------------------------------
 #
 # MAIN
 #
 my $writeFlag = '';
 my $helpFlag  = '';
+my $action    = 'fix-all';
 
 my $result = GetOptions(
-                        'write'   => \$writeFlag,
-                        'help|?'  => \$helpFlag
-			);
+                        'action=s' => \$action,
+                        'write'    => \$writeFlag,
+                        'help|?'   => \$helpFlag
+                       );
 
 if (!$result || $helpFlag || !$ARGV[0]) {
-	print "\nUsage: $0 [--write] FILENAME [...]\n\n";
-        print "  Fix proto_tree_add_item() encoding arg when possible in file(s)\n";
-        print "  Fixes (if any) are listed on stdout)\n\n";
+    usage();
+}
+
+if (($action ne 'fix-all') && ($action ne 'find-all')) {
+    usage();
+}
+
+sub usage {
+	print "\nUsage: $0 [--action=fix-all|find-all] [--write] FILENAME [...]\n\n";
+        print "  --action = fix-all (default)\n";
+        print "    Fix <certain-fcn-names>() encoding arg when possible in FILENAME(s)\n";
+        print "    Fixes (if any) are listed on stdout)\n\n";
         print "  --write     create FILENAME.encoding-arg-fixes (original file with fixes)\n";
+        print "              (effective only for fix-all)\n";
+        print "\n";
+        print "  --action = find-all\n";
+        print "    Find all occurrences of <certain-fcn-names>() statements)\n";
+        print "     highlighting the 'encoding' arg\n";
 	exit(1);
 }
 
@@ -240,48 +293,60 @@ while (my $fileName = $ARGV[0]) {
     # Create a hash of the hf[] entries (name_index_name=>field_type)
     my $hfArrayEntryFieldTypeHRef = find_hf_array_entries(\$fileContents, $fileName);
 
-    my $found = 0;
+    if ($action eq "fix-all") {
 
-    # Find and replace: alters proto_tree_add_item() encoding arg in $fileContents for:
-    #     - hf[] entries with specified field types;
-    #     - 'proto' as returned from proto_register_protocol()
-    $found += fix_encoding_args(1, \@types_NA,          \$fileContents, $hfArrayEntryFieldTypeHRef, $fileName);
-    $found += fix_encoding_args(1, \@types_INT,         \$fileContents, $hfArrayEntryFieldTypeHRef, $fileName);
-    $found += fix_encoding_args(1, \@types_MISC,        \$fileContents, $hfArrayEntryFieldTypeHRef, $fileName);
-    $found += fix_encoding_args(1, \@types_STRING,      \$fileContents, $hfArrayEntryFieldTypeHRef, $fileName);
-    $found += fix_encoding_args(1, \@types_UINT_STRING, \$fileContents, $hfArrayEntryFieldTypeHRef, $fileName);
-    $found += fix_encoding_args(1, \@types_REG_PROTO,   \$fileContents, $hfArrayEntryFieldTypeHRef, $fileName);
+        # Find and replace: <fcn_name_pattern>() encoding arg in $fileContents for:
+        #     - hf[] entries with specified field types;
+        #     - 'proto' as returned from proto_register_protocol()
+        my $fcn_name = "(?:proto_tree_add_item|ptvcursor_add(?:_no_advance)?)";
+        my $found = 0;
+        $found += fix_encoding_args_by_hf_type(1, \@types_NA,          $fcn_name, \$fileContents, $hfArrayEntryFieldTypeHRef, $fileName);
+        $found += fix_encoding_args_by_hf_type(1, \@types_INT,         $fcn_name, \$fileContents, $hfArrayEntryFieldTypeHRef, $fileName);
+        $found += fix_encoding_args_by_hf_type(1, \@types_MISC,        $fcn_name, \$fileContents, $hfArrayEntryFieldTypeHRef, $fileName);
+        $found += fix_encoding_args_by_hf_type(1, \@types_STRING,      $fcn_name, \$fileContents, $hfArrayEntryFieldTypeHRef, $fileName);
+        $found += fix_encoding_args_by_hf_type(1, \@types_UINT_STRING, $fcn_name, \$fileContents, $hfArrayEntryFieldTypeHRef, $fileName);
+        $found += fix_encoding_args_by_hf_type(1, \@types_REG_PROTO,   $fcn_name, \$fileContents, $hfArrayEntryFieldTypeHRef, $fileName);
 
-    # If desired and if any changes, write out the changed version to a file
-    if (($writeFlag) && ($found > 0)) {
-        open(FCO, ">", $fileName . ".encoding-arg-fixes");
+        # Find and replace: alters <fcn_name>() encoding arg in $fileContents
+        $found += fix_encoding_args(1, $searchReplaceFalseTrueHRef, "proto_tree_add_bits_(?:item|ret_val)",      \$fileContents, $fileName);
+        $found += fix_encoding_args(1, $searchReplaceFalseTrueHRef, "proto_tree_add_bitmask",                    \$fileContents, $fileName);
+        $found += fix_encoding_args(1, $searchReplaceFalseTrueHRef, "tvb_get_bits(?:16|24|32|64)?",              \$fileContents, $fileName);
+        $found += fix_encoding_args(1, $searchReplaceFalseTrueHRef, "tvb_get_(?:ephemeral_)?unicode_string[z]?", \$fileContents, $fileName);
+
+        # If desired and if any changes, write out the changed version to a file
+        if (($writeFlag) && ($found > 0)) {
+            open(FCO, ">", $fileName . ".encoding-arg-fixes");
 #        open(FCO, ">", $fileName );
-        print FCO "$fileContents";
-        close(FCO);
+            print FCO "$fileContents";
+            close(FCO);
+        }
+        $found_total += $found;
     }
-    $found_total += $found;
 
-# Optional searches:
+    if ($action eq "find-all") {
+        # Find all proto_tree_add_item() statements
+        #  and output same highlighting the encoding arg
+        $found_total += find_all(\@findAllFunctionList, \$fileContents, $fileName);
+    }
+
+# Optional searches: (kind of obsolete ?)
 # search for (and output) proto_tree_add_item() statements with invalid encoding arg for specified field types
-#    fix_encoding_args(2, \@types_NA,          \$fileContents, $hfArrayEntryFieldTypeHRef, $fileName);
-#    fix_encoding_args(2, \@types_INT,         \$fileContents, $hfArrayEntryFieldTypeHRef, $fileName);
-#    fix_encoding_args(2, \@types_MISC,        \$fileContents, $hfArrayEntryFieldTypeHRef, $fileName);
-#    fix_encoding_args(2, \@types_STRING,      \$fileContents, $hfArrayEntryFieldTypeHRef, $fileName);
-#    fix_encoding_args(2, \@types_UINT_STRING, \$fileContents, $hfArrayEntryFieldTypeHRef, $fileName);
-#    fix_encoding_args(2, \@types_ALL,         \$fileContents, $hfArrayEntryFieldTypeHRef, $fileName);
-# search for (and output) proto_tree_add_item() statements with any encoding arg for specified field types
-#    fix_encoding_args(3, \@types_TIME,        \$fileContents, $hfArrayEntryFieldTypeHRef, $fileName);
+#    $fcn_name = "proto_tree_add_item";
+#    fix_encoding_args(2, \@types_NA,          $fcn_name, \$fileContents, $hfArrayEntryFieldTypeHRef, $fileName);
+#    fix_encoding_args(2, \@types_INT,         $fcn_name, \$fileContents, $hfArrayEntryFieldTypeHRef, $fileName);
+#    fix_encoding_args(2, \@types_MISC,        $fcn_name, \$fileContents, $hfArrayEntryFieldTypeHRef, $fileName);
+#    fix_encoding_args(2, \@types_STRING,      $fcn_name, \$fileContents, $hfArrayEntryFieldTypeHRef, $fileName);
+#    fix_encoding_args(2, \@types_UINT_STRING, $fcn_name, \$fileContents, $hfArrayEntryFieldTypeHRef, $fileName);
+#    fix_encoding_args(2, \@types_ALL,         $fcn_name, \$fileContents, $hfArrayEntryFieldTypeHRef, $fileName);
+# search for (and output) proto_tree_add_item()$fcn_name,  statements with any encoding arg for specified field types
+#    fix_encoding_args(3, \@types_TIME,        $fcn_name, \$fileContents, $hfArrayEntryFieldTypeHRef, $fileName);
 #
-# Find all proto_tree_add_item() statements
-#  and output same highlighting the encoding arg
-#    find_all(\$fileContents, $fileName);
 
 } # while
 
 exit $found_total;
 
-#==================================================================================
-
+# ---------------------------------------------------------------------
 # Create a hash containing an entry (hf_index_name => field_type) for each hf[]entry.
 # also: create an entry in the hash for the 'protocol name' variable (proto... => FT_PROTOCOL)
 # returns: ref to the hash
@@ -356,15 +421,91 @@ sub find_hf_array_entries {
     return \%hfArrayEntryFieldType;
 }
 
-{  # block begin
+# ---------------------------------------------------------------------
+# fix_encoding_args
+# Substitute new values for the specified <fcn_name>() encoding arg values
+#    when the encoding arg is the *last* arg of the call to fcn_name
+# args:
+#   substitute_flag: 1: replace specified encoding arg values by a new value (keys/values in search hash);
+#   ref to hash containing search (keys) and replacement (values) for encoding arg
+#   fcn_name string
+#   ref to string containing file contents
+#   filename string
+#
+{ # block begin
 
-# shared variables
+    # shared variables
     my $fileName;
     my $searchReplaceHRef;
     my $found;
-    my $hf_field_type;
 
-# Substitute new values for certain proto_tree_add_item() encoding arg values (for specified hf field types)
+    sub fix_encoding_args {
+        (my $subFlag, $searchReplaceHRef, my $fcn_name, my $fileContentsRef, $fileName) = @_;
+
+        my $encArgPat;
+
+        if ($subFlag == 1) {
+            # just match for <fcn_name>() statements which have an encoding arg matching one of the
+            #   keys in the searchReplace hash.
+            # Escape any "|" characters in the keys
+            #  and then create "alternatives" string containing all the values (A|B|C\|D|...)
+            $encArgPat = join "|",  map { s{ ( \| ) }{\\$1}gx; $_ } keys %$searchReplaceHRef;
+        } elsif ($subFlag == 3) {
+            # match for <fcn_name>() statements for any value of the encoding parameter
+            # IOW: find all the <fcn_name> statements
+            $encArgPat = qr / [^,)]+? /x;
+        }
+
+        # build the complete pattern
+        my $patRegEx = qr /
+                              ( # part 1: $1
+                                  (?:^|=)            # don't try to handle fcn_name call when arg of another fcn call
+                                  \s*
+                                  $fcn_name \s* \(
+                                  [^;]+?             # a bit dangerous
+                                  ,\s*
+                              )
+                              ( # part 2: $2
+                                  $encArgPat
+                              )
+                              ( # part 3: $3
+                                  \s* \)
+                                  \s* ;
+                              )
+                          /xms;  # m for ^ above
+
+        ##print "$patRegEx\n";
+
+        ## Match and substitute as specified
+        $found = 0;
+
+        $$fileContentsRef =~ s/ $patRegEx /patsubx($1,$2,$3)/xges;
+
+        return $found;
+    }
+
+    # Called from fix_encoding_args to determine replacement string when a regex match is encountered
+    #  $_[0]: part 1
+    #  $_[1]: part 2: encoding arg
+    #  $_[2]: part 3
+    #  lookup the desired replacement value for the encoding arg
+    #  print match string showing and highlighting the encoding arg replacement
+    #  return "replacement" string
+    sub patsubx {
+        $found += 1;
+        my $substr = exists $$searchReplaceHRef{$_[1]} ? $$searchReplaceHRef{$_[1]} : "???";
+        my $str = sprintf("%s[[%s]-->[%s]]%s", $_[0], $_[1], $substr,  $_[2]);
+        $str =~ tr/\t\n\r/ /d;
+        printf "%s: $str\n", $fileName;
+        return $_[0] . $substr . $_[2];
+    }
+} # block end
+
+# ---------------------------------------------------------------------
+# fix_encoding_args_by_hf_type
+#
+# Substitute new values for certain proto_tree_add_item() encoding arg
+#     values (for specified hf field types)
 #  Variants: search for and display for "exceptions" to allowed encoding arg values;
 #            search for and display all encoding arg values
 # args:
@@ -374,13 +515,22 @@ sub find_hf_array_entries {
 #   ref to array containing two elements:
 #      - ref to array containing hf[] types to be processed (FT_STRING, etc)
 #      - ref to hash containing search (keys) and replacement (values) for encoding arg
+#   fcn_name string
 #   ref to hfArrayEntries hash (key: hf name; value: field type)
 #   ref to string containing file contents
-#   filename
+#   filename string
 
-    sub fix_encoding_args {
+{  # block begin
 
-        (my $subFlag, my $mapArg, my $fileContentsRef, my $hfArrayEntryFieldTypeHRef, $fileName) = @_;
+# shared variables
+    my $fileName;
+    my $searchReplaceHRef;
+    my $found;
+    my $hf_field_type;
+
+    sub fix_encoding_args_by_hf_type {
+
+        (my $subFlag, my $mapArg, my $fcn_name, my $fileContentsRef, my $hfArrayEntryFieldTypeHRef, $fileName) = @_;
 
         my $hf_index_name;
         my $hfTypesARef;
@@ -394,15 +544,15 @@ sub find_hf_array_entries {
 
         # set up the encoding arg match pattern
         if ($subFlag == 1) {
-            # just match for proto_tree_add_item() statements which have an encoding arg matching one of the
+            # just match for <fcn_name>() statements which have an encoding arg matching one of the
             #   keys in the searchReplace hash.
             # Escape any "|" characters in the keys
             #  and then create "alternatives" string containing all the values (A|B|C\|D|...)
             $encArgPat = join "|",  map { s{ ( \| ) }{\\$1}gx; $_ } keys %$searchReplaceHRef;
         } elsif ($subFlag == 2) {
-            # Find all the proto_tree_add_item statements wherein the encoding arg is a value other than
+            # Find all the <fcn_name>() statements wherein the encoding arg is a value other than
             #      one of the "replace" values.
-            #  Uses zero-length negative-lookahead to find proto_tree_add_item statements for which the encoding
+            #  Uses zero-length negative-lookahead to find <fcn_name>() statements for which the encoding
             #    arg is something other than one of the the provided replace values.
             # Escape any "|" characters in the values to be matched
             #  and then create "alternatives" string containing all the values (A|B|C\|D|...)
@@ -417,7 +567,7 @@ sub find_hf_array_entries {
                                                      #   match to end of the arg
                             /x;
         } elsif ($subFlag == 3) {
-            # match for proto_tree_add_item statements for any value of the encoding parameter
+            # match for <fcn_name>() statements for any value of the encoding parameter
             # IOW: find all the proto_tree_add_item statements with an hf entry of the desired types
             $encArgPat = qr / [^,)]+? /x;
         }
@@ -435,7 +585,7 @@ sub find_hf_array_entries {
             # build the complete pattern
             my $patRegEx = qr /
                                   ( # part 1: $1
-                                      proto_tree_add_item \s* \(
+                                      $fcn_name \s* \(
                                       [^;]+?
                                       ,\s*
                                       $hf_index_name
@@ -479,15 +629,19 @@ sub find_hf_array_entries {
     }
 }  # block end
 
-
-# Find all proto_tree_add_item() statements
+# ---------------------------------------------------------------------
+# Find all <fcnList> statements
 #  and output same highlighting the encoding arg
-sub find_all {
-    my( $fileContentsRef, $fileName) = @_;
+#  Currently: encoding arg is matched as the *last* arg of the function call
 
+sub find_all {
+    my( $fcnListARef, $fileContentsRef, $fileName) = @_;
+
+    my $found = 0;
+    my $fcnListPat = join "|", @$fcnListARef;
     my $pat = qr /
                      (
-                         proto_tree_add_item \s* \(
+                         (?:$fcnListPat) \s* \(
                          [^;]+
                          , \s*
                      )
@@ -505,6 +659,8 @@ sub find_all {
         $str =~ tr/\t\n\r/ /d;
         $str =~ s/ \s+ / /xg;
         print "$fileName: $str\n";
+        $found += 1;
     }
+    return $found;
 }
 
