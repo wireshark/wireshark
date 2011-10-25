@@ -3844,6 +3844,9 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
                                 break;
 
                         case FT_INT64:
+                                g_snprintf(result+offset_r, size-offset_r, "%" G_GINT64_MODIFIER "d", fvalue_get_integer64(&finfo->value));
+                                offset_r = (int)strlen(result);
+                                break;
                         case FT_UINT64:
                                 g_snprintf(result+offset_r, size-offset_r, "%" G_GINT64_MODIFIER "u", fvalue_get_integer64(&finfo->value));
                                 offset_r = (int)strlen(result);
