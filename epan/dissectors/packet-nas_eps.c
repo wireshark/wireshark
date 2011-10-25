@@ -2432,7 +2432,7 @@ de_esm_pdn_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
              * of the IPv6 interface identifier and bit 1 of octet 11 the least significant bit.
              */
             proto_tree_add_item(tree, hf_nas_eps_esm_pdn_ipv6_if_id, tvb, curr_offset, 8, ENC_NA);
-            offset+=8;
+            curr_offset+=8;
             break;
         case 3:
             /* IPv4/IPv6 3GPP TS 24.301 version 9.4.0 Release 9
