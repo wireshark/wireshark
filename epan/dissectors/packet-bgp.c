@@ -269,6 +269,7 @@ static const value_string bgpattr_nlri_safi[] = {
     { SAFNUM_MULCAST, "Multicast" },
     { SAFNUM_UNIMULC, "Unicast+Multicast" },
     { SAFNUM_MPLS_LABEL, "Labeled Unicast"},
+    { SAFNUM_MCAST_VPN, "MCAST-VPN"},
     { SAFNUM_TUNNEL, "Tunnel"},
     { SAFNUM_VPLS, "VPLS"},
     { SAFNUM_LAB_VPNUNICAST, "Labeled VPN Unicast" },        /* draft-rosen-rfc2547bis-03 */
@@ -337,6 +338,16 @@ static const value_string bgpcap_action[] = {
     { 0, NULL }
 };
 
+static const value_string mcast_vpn_route_type[] = {
+    { MCAST_VPN_RTYPE_INTRA_AS_IPMSI_AD, "Intra-AS I-PMSI A-D route" },
+    { MCAST_VPN_RTYPE_INTER_AS_IPMSI_AD, "Inter-AS I-PMSI A-D route" },
+    { MCAST_VPN_RTYPE_SPMSI_AD         , "S-PMSI A-D route" },
+    { MCAST_VPN_RTYPE_LEAF_AD          , "Leaf A-D route" },
+    { MCAST_VPN_RTYPE_SOURCE_ACTIVE_AD , "Source Active A-D route" },
+    { MCAST_VPN_RTYPE_SHARED_TREE_JOIN , "Shared Tree Join route" },
+    { MCAST_VPN_RTYPE_SOURCE_TREE_JOIN , "Source Tree Join route" },
+    { 0, NULL }
+};
 
 /* Maximal size of an IP address string */
 #define MAX_SIZE_OF_IP_ADDR_STRING      16
@@ -409,6 +420,20 @@ static int hf_bgp_mp_nlri_tnl_id = -1;
 static int hf_bgp_withdrawn_prefix = -1;
 static int hf_bgp_nlri_prefix = -1;
 static int hf_bgp_nlri_path_id = -1;
+static int hf_bgp_mcast_vpn_nlri_t = -1;
+static int hf_bgp_mcast_vpn_nlri_route_type = -1;
+static int hf_bgp_mcast_vpn_nlri_length = -1;
+static int hf_bgp_mcast_vpn_nlri_rd = -1;
+static int hf_bgp_mcast_vpn_nlri_origin_router_ipv4 = -1;
+static int hf_bgp_mcast_vpn_nlri_origin_router_ipv6 = -1;
+static int hf_bgp_mcast_vpn_nlri_source_as = -1;
+static int hf_bgp_mcast_vpn_nlri_source_length = -1;
+static int hf_bgp_mcast_vpn_nlri_group_length = -1;
+static int hf_bgp_mcast_vpn_nlri_source_addr_ipv4 = -1;
+static int hf_bgp_mcast_vpn_nlri_source_addr_ipv6 = -1;
+static int hf_bgp_mcast_vpn_nlri_group_addr_ipv4 = -1;
+static int hf_bgp_mcast_vpn_nlri_group_addr_ipv6 = -1;
+static int hf_bgp_mcast_vpn_nlri_route_key = -1;
 
 static gint ett_bgp = -1;
 static gint ett_bgp_prefix = -1;
@@ -439,6 +464,7 @@ static gint ett_bgp_ssa = -1;           /* safi specific attribute */
 static gint ett_bgp_ssa_subtree = -1;   /* safi specific attribute Subtrees */
 static gint ett_bgp_orf = -1;           /* orf (outbound route filter) tree */
 static gint ett_bgp_orf_entry = -1;     /* orf entry tree */
+static gint ett_bgp_mcast_vpn_nlri = -1;
 
 /* desegmentation */
 static gboolean bgp_desegment = TRUE;
@@ -628,7 +654,213 @@ decode_prefix6(proto_tree *tree, int hf_addr, tvbuff_t *tvb, gint offset,
     return(1 + length);
 }
 
+static char*
+decode_bgp_rd(tvbuff_t *tvb, gint offset)
+{
+    guint16 rd_type;
+    emem_strbuf_t *strbuf;
 
+    rd_type = tvb_get_ntohs(tvb,offset);
+    strbuf = ep_strbuf_new_label(NULL);
+
+    switch (rd_type) {
+        case FORMAT_AS2_LOC:
+            ep_strbuf_printf(strbuf, "%u:%u", tvb_get_ntohs(tvb, offset + 2),
+                             tvb_get_ntohl(tvb, offset + 4));
+            break;
+        case FORMAT_IP_LOC:
+            ep_strbuf_printf(strbuf, "%s:%u", tvb_ip_to_str(tvb, offset + 2),
+                             tvb_get_ntohs(tvb, offset + 6));
+            break ;
+        case FORMAT_AS4_LOC:
+            ep_strbuf_printf(strbuf, "%u:%u", tvb_get_ntohl(tvb, offset + 2),
+                             tvb_get_ntohs(tvb, offset + 6));
+            break ;
+        default:
+            ep_strbuf_printf(strbuf, "Unknown (0x%04x) RD type",rd_type);
+            break;
+    } /* switch (rd_type) */
+
+    return strbuf->str;
+}
+
+static int
+decode_mcast_vpn_nlri_addresses(proto_tree *tree, tvbuff_t *tvb,
+                                gint offset)
+{
+    guint8 addr_len;
+
+    /* Multicast Source Address */
+    proto_tree_add_item(tree, hf_bgp_mcast_vpn_nlri_source_length, tvb, offset,
+                        1, ENC_BIG_ENDIAN);
+    addr_len = tvb_get_guint8(tvb, offset);
+    if (addr_len != 32 && addr_len != 128)
+        return -1;
+    offset++;
+    if (addr_len == 32) {
+        proto_tree_add_item(tree, hf_bgp_mcast_vpn_nlri_source_addr_ipv4, tvb,
+                            offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+    } else {
+        proto_tree_add_item(tree, hf_bgp_mcast_vpn_nlri_source_addr_ipv6, tvb,
+                            offset, 16, ENC_NA);
+        offset += 16;
+    }
+
+    /* Multicast Group Address */
+    proto_tree_add_item(tree, hf_bgp_mcast_vpn_nlri_group_length, tvb, offset,
+                        1, ENC_BIG_ENDIAN);
+    addr_len = tvb_get_guint8(tvb, offset);
+    if (addr_len != 32 && addr_len != 128)
+        return -1;
+    offset++;
+    if (addr_len == 32) {
+        proto_tree_add_item(tree, hf_bgp_mcast_vpn_nlri_group_addr_ipv4, tvb,
+                            offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+    } else {
+        proto_tree_add_item(tree, hf_bgp_mcast_vpn_nlri_group_addr_ipv6, tvb,
+                            offset, 16, ENC_NA);
+        offset += 16;
+    }
+
+    return offset;
+}
+
+/*
+ * Decode an MCAST-VPN nlri as defined in draft-ietf-l3vpn-2547bis-mcast-bgp-08.txt .
+ */
+static int
+decode_mcast_vpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 afi)
+{
+    guint8 route_type, length, ip_length;
+    proto_item *item;
+    proto_tree *nlri_tree;
+    guint32 route_key_length;
+    int ret;
+
+    ip_length = (afi == AFNUM_INET) ? 4 : 16;
+
+    route_type = tvb_get_guint8(tvb, offset);
+    item = proto_tree_add_item(tree, hf_bgp_mcast_vpn_nlri_route_type, tvb,
+                               offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    length = tvb_get_guint8(tvb, offset);
+    item = proto_tree_add_item(tree, hf_bgp_mcast_vpn_nlri_length, tvb, offset,
+                               1, ENC_BIG_ENDIAN);
+    offset++;
+
+    if (length < tvb_reported_length_remaining(tvb, offset))
+        return -1;
+
+    item = proto_tree_add_item(tree, hf_bgp_mcast_vpn_nlri_t, tvb, offset,
+                               length, ENC_NA);
+    proto_item_set_text(item, "%s (%u byte%s)",
+                        val_to_str(route_type, mcast_vpn_route_type,
+                                   "Unknown"),
+                        length, plurality(length, "", "s"));
+
+    nlri_tree = proto_item_add_subtree(item, ett_bgp_mcast_vpn_nlri);
+
+    switch (route_type) {
+        case MCAST_VPN_RTYPE_INTRA_AS_IPMSI_AD:
+            item = proto_tree_add_item(nlri_tree, hf_bgp_mcast_vpn_nlri_rd, tvb,
+                                       offset, BGP_ROUTE_DISTINGUISHER_SIZE,
+                                       ENC_NA);
+            proto_item_set_text(item, "Route Distinguisher: %s",
+                                decode_bgp_rd(tvb, offset));
+            offset += BGP_ROUTE_DISTINGUISHER_SIZE;
+
+            if (afi == AFNUM_INET)
+                item = proto_tree_add_item(nlri_tree,
+                                           hf_bgp_mcast_vpn_nlri_origin_router_ipv4,
+                                           tvb, offset, ip_length, ENC_BIG_ENDIAN);
+            else
+                item = proto_tree_add_item(nlri_tree,
+                                           hf_bgp_mcast_vpn_nlri_origin_router_ipv6,
+                                           tvb, offset, ip_length, ENC_NA);
+            break;
+
+        case MCAST_VPN_RTYPE_INTER_AS_IPMSI_AD:
+            item = proto_tree_add_item(nlri_tree, hf_bgp_mcast_vpn_nlri_rd, tvb,
+                                       offset, BGP_ROUTE_DISTINGUISHER_SIZE,
+                                       ENC_NA);
+            proto_item_set_text(item, "Route Distinguisher: %s",
+                                decode_bgp_rd(tvb, offset));
+            offset += BGP_ROUTE_DISTINGUISHER_SIZE;
+
+            proto_tree_add_item(nlri_tree, hf_bgp_mcast_vpn_nlri_source_as, tvb,
+                                offset, 4, ENC_BIG_ENDIAN);
+            break;
+
+        case MCAST_VPN_RTYPE_SPMSI_AD:
+            item = proto_tree_add_item(nlri_tree, hf_bgp_mcast_vpn_nlri_rd, tvb,
+                                       offset, BGP_ROUTE_DISTINGUISHER_SIZE,
+                                       ENC_NA);
+            proto_item_set_text(item, "Route Distinguisher: %s",
+                                decode_bgp_rd(tvb, offset));
+            offset += BGP_ROUTE_DISTINGUISHER_SIZE;
+
+            ret = decode_mcast_vpn_nlri_addresses(nlri_tree, tvb, offset);
+            if (ret < 0)
+                return -1;
+            break;
+
+        case MCAST_VPN_RTYPE_LEAF_AD:
+            route_key_length = length - ip_length;
+            item = proto_tree_add_item(nlri_tree,
+                                       hf_bgp_mcast_vpn_nlri_route_key, tvb,
+                                       offset, route_key_length, ENC_NA);
+            proto_item_set_text(item, "Route Key (%u byte%s)", route_key_length,
+                                plurality(route_key_length, "", "s"));
+            offset += route_key_length;
+
+            if (afi == AFNUM_INET)
+                item = proto_tree_add_item(nlri_tree,
+                                           hf_bgp_mcast_vpn_nlri_origin_router_ipv4,
+                                           tvb, offset, ip_length, ENC_BIG_ENDIAN);
+            else
+                item = proto_tree_add_item(nlri_tree,
+                                           hf_bgp_mcast_vpn_nlri_origin_router_ipv6,
+                                           tvb, offset, ip_length, ENC_NA);
+            break;
+
+        case MCAST_VPN_RTYPE_SOURCE_ACTIVE_AD:
+            item = proto_tree_add_item(nlri_tree, hf_bgp_mcast_vpn_nlri_rd, tvb,
+                                       offset, BGP_ROUTE_DISTINGUISHER_SIZE,
+                                       ENC_NA);
+            proto_item_set_text(item, "Route Distinguisher: %s",
+                                decode_bgp_rd(tvb, offset));
+            offset += BGP_ROUTE_DISTINGUISHER_SIZE;
+
+            ret = decode_mcast_vpn_nlri_addresses(nlri_tree, tvb, offset);
+            if (ret < 0)
+                return -1;
+            break;
+
+        case MCAST_VPN_RTYPE_SHARED_TREE_JOIN:
+        case MCAST_VPN_RTYPE_SOURCE_TREE_JOIN:
+            item = proto_tree_add_item(nlri_tree, hf_bgp_mcast_vpn_nlri_rd, tvb,
+                                       offset, BGP_ROUTE_DISTINGUISHER_SIZE,
+                                       ENC_NA);
+            proto_item_set_text(item, "Route Distinguisher: %s",
+                                decode_bgp_rd(tvb, offset));
+            offset += BGP_ROUTE_DISTINGUISHER_SIZE;
+
+            proto_tree_add_item(nlri_tree, hf_bgp_mcast_vpn_nlri_source_as, tvb,
+                                offset, 4, ENC_NA);
+            offset += 4;
+
+            ret = decode_mcast_vpn_nlri_addresses(nlri_tree, tvb, offset);
+            if (ret < 0)
+                return -1;
+            break;
+    }
+
+    /* route type field (1 byte) + length field (1 byte) + length */
+    return 2 + length;
+}
 
 /*
  * Decode an MPLS label stack
@@ -895,7 +1127,11 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                 }
                 total_length = (1 + labnum*3) + length;
                 break;
-
+            case SAFNUM_MCAST_VPN:
+                total_length = decode_mcast_vpn_nlri(tree, tvb, offset, afi);
+                if (total_length < 0)
+                    return -1;
+                break;
             case SAFNUM_TUNNEL:
                 plen =  tvb_get_guint8(tvb, offset);
                 if (plen <= 16){
@@ -3393,7 +3629,6 @@ proto_register_bgp(void)
       { &hf_bgp_cap_orf_sendreceive,
         { "Send Receive", "bgp.cap.orf.type", FT_UINT8, BASE_DEC,
           VALS(orf_send_recv_vals), 0x0, NULL, HFILL }},
-
       { &hf_bgp_aggregator_as,
         { "Aggregator AS", "bgp.aggregator_as", FT_UINT16, BASE_DEC,
           NULL, 0x0, NULL, HFILL}},
@@ -3474,7 +3709,49 @@ proto_register_bgp(void)
           NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_cluster_list,
         { "Cluster List", "bgp.cluster_list", FT_BYTES, BASE_NONE,
-          NULL, 0x0, NULL, HFILL}}
+          NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_mcast_vpn_nlri_t,
+        { "MCAST-VPN nlri", "bgp.mcast_vpn_nlri", FT_BYTES, BASE_NONE,
+          NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_mcast_vpn_nlri_route_type,
+        { "Route Type", "bgp.mcast_vpn_nlri_route_type", FT_UINT8,
+          BASE_DEC, VALS(mcast_vpn_route_type), 0x0, NULL, HFILL}},
+      { &hf_bgp_mcast_vpn_nlri_length,
+        { "Length", "bgp.mcast_vpn_nlri_length", FT_UINT8,
+          BASE_DEC, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_mcast_vpn_nlri_rd,
+        { "Route Distinguisher", "bgp.mcast_vpn_nlri_rd", FT_BYTES,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_mcast_vpn_nlri_origin_router_ipv4,
+        { "Originating Router", "bgp.mcast_vpn_nlri_origin_router_ipv4", FT_IPv4,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_mcast_vpn_nlri_origin_router_ipv6,
+        { "Originating Router", "bgp.mcast_vpn_nlri_origin_router_ipv6", FT_IPv6,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_mcast_vpn_nlri_source_as,
+        { "Source AS", "bgp.mcast_vpn_nlri_source_as", FT_UINT16,
+          BASE_DEC, NULL, 0x0, NULL, HFILL}},
+       { &hf_bgp_mcast_vpn_nlri_source_length,
+        { "Multicast Source Length", "bgp.mcast_vpn_nlri_source_length", FT_UINT8,
+          BASE_DEC, NULL, 0x0, NULL, HFILL}},
+       { &hf_bgp_mcast_vpn_nlri_group_length,
+        { "Multicast Group Length", "bgp.mcast_vpn_nlri_group_length", FT_UINT8,
+          BASE_DEC, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_mcast_vpn_nlri_source_addr_ipv4,
+        { "Multicast Source Address", "bgp.mcast_vpn_nlri_source_addr_ipv4", FT_IPv4,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_mcast_vpn_nlri_source_addr_ipv6,
+        { "Multicast Source Address", "bgp.mcast_vpn_nlri_source_addr_ipv6", FT_IPv6,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_mcast_vpn_nlri_group_addr_ipv4,
+        { "Multicast Group Address", "bgp.mcast_vpn_nlri_group_addr_ipv4", FT_IPv4,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_mcast_vpn_nlri_group_addr_ipv6,
+        { "Group Address", "bgp.mcast_vpn_nlri_group_addr_ipv6", FT_IPv6,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_mcast_vpn_nlri_route_key,
+        { "Route Key", "bgp.mcast_vpn_nlri_route_key", FT_BYTES,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
     };
 
     static gint *ett[] = {
@@ -3506,7 +3783,8 @@ proto_register_bgp(void)
       &ett_bgp_ssa,
       &ett_bgp_ssa_subtree,
       &ett_bgp_orf,
-      &ett_bgp_orf_entry
+      &ett_bgp_orf_entry,
+      &ett_bgp_mcast_vpn_nlri,
     };
     module_t *bgp_module;
     static enum_val_t asn_len[] = {

@@ -34,6 +34,7 @@
 #define BGP_MIN_NOTIFICATION_MSG_SIZE    21
 #define BGP_MIN_KEEPALVE_MSG_SIZE    BGP_HEADER_SIZE
 #define BGP_TCP_PORT            179
+#define BGP_ROUTE_DISTINGUISHER_SIZE 8
 
 /* BGP message types */
 #define BGP_OPEN          1
@@ -211,7 +212,8 @@ struct bgp_attr {
 #define SAFNUM_MULCAST  2
 #define SAFNUM_UNIMULC  3
 #define SAFNUM_MPLS_LABEL 4     /* rfc3107 */
-#define SAFNUM_TUNNEL    64    /* draft-nalawade-kapoor-tunnel-safi-02.txt */
+#define SAFNUM_MCAST_VPN  5 /* draft-ietf-l3vpn-2547bis-mcast-bgp-08.txt */
+#define SAFNUM_TUNNEL   64  /* draft-nalawade-kapoor-tunnel-safi-02.txt */
 #define SAFNUM_VPLS     65
 #define SAFNUM_LAB_VPNUNICAST  128    /* Draft-rosen-rfc2547bis-03 */
 #define SAFNUM_LAB_VPNMULCAST  129
@@ -221,6 +223,14 @@ struct bgp_attr {
 #define BGP_ADDPATH_RECEIVE  0x01
 #define BGP_ADDPATH_SEND     0x02
 
+/* mcast-vpn route types draft-ietf-l3vpn-2547bis-mcast-bgp-08.txt */
+#define MCAST_VPN_RTYPE_INTRA_AS_IPMSI_AD 1
+#define MCAST_VPN_RTYPE_INTER_AS_IPMSI_AD 2
+#define MCAST_VPN_RTYPE_SPMSI_AD          3
+#define MCAST_VPN_RTYPE_LEAF_AD           4
+#define MCAST_VPN_RTYPE_SOURCE_ACTIVE_AD  5
+#define MCAST_VPN_RTYPE_SHARED_TREE_JOIN  6
+#define MCAST_VPN_RTYPE_SOURCE_TREE_JOIN  7
 
 #ifndef offsetof
 #define offsetof(type, member)  ((size_t)(&((type *)0)->member))
