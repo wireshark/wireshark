@@ -4833,12 +4833,10 @@ static void tmp_fld_check_assert(header_field_info *hfinfo) {
 	    (hfinfo->type == FT_UINT16) ||
 	    (hfinfo->type == FT_UINT24) ||
 	    (hfinfo->type == FT_UINT32) ||
-	    (hfinfo->type == FT_UINT64) ||
 	    (hfinfo->type == FT_INT8) ||
 	    (hfinfo->type == FT_INT16) ||
 	    (hfinfo->type == FT_INT24) ||
 	    (hfinfo->type == FT_INT32) ||
-	    (hfinfo->type == FT_INT64) ||
 	    (hfinfo->type == FT_BOOLEAN) ||
 	    (hfinfo->type == FT_PROTOCOL) ||
 	    (hfinfo->type == FT_FRAMENUM) ))
