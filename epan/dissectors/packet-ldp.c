@@ -2589,7 +2589,7 @@ dissect_msg(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
             default:
                 hf_tmp = 0;
             }
-            proto_tree_add_item(msg_tree, hf_tmp, tvb, offset+8, extra, FALSE);
+            proto_tree_add_item(msg_tree, hf_tmp, tvb, offset+8, extra, ENC_BIG_ENDIAN);
         }
     }
 
@@ -2755,53 +2755,53 @@ dissect_subtlv_interface_parameters(tvbuff_t *tvb, guint offset, proto_tree *tre
     proto_tree *vcintparam_tree = proto_item_add_subtree(ti, ett_ldp_fec_vc_interfaceparam);
 
     guint8  intparam_len = rem;
-    proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[3],tvb,offset,1,FALSE);
-    proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[0],tvb, offset+1, 1, FALSE);
+    proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[3],tvb,offset,1,ENC_BIG_ENDIAN);
+    proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[0],tvb, offset+1, 1, ENC_BIG_ENDIAN);
 
     switch (tvb_get_guint8(tvb, offset)) {
     case FEC_VC_INTERFACEPARAM_MTU:
         proto_item_append_text(ti,": MTU %u", tvb_get_ntohs(tvb,offset+2));
-        proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[1],tvb, offset+2, 2, FALSE);
+        proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[1],tvb, offset+2, 2, ENC_BIG_ENDIAN);
         break;
     case FEC_VC_INTERFACEPARAM_TDMBPS:
         /* draft-ietf-pwe3-control-protocol-06.txt */
         proto_item_append_text(ti,": BPS %u", tvb_get_ntohl(tvb,offset+2));
-        proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[2],tvb, offset+2, 4, FALSE);
+        proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[2],tvb, offset+2, 4, ENC_BIG_ENDIAN);
         break;
     case FEC_VC_INTERFACEPARAM_MAXCATMCELLS:
         proto_item_append_text(ti,": Max ATM Concat Cells %u", tvb_get_ntohs(tvb,offset+2));
-        proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[4],tvb, offset+2, 2, FALSE);
+        proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[4],tvb, offset+2, 2, ENC_BIG_ENDIAN);
         break;
     case FEC_VC_INTERFACEPARAM_DESCRIPTION:
         proto_item_append_text(ti,": Description");
-        proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[5],tvb, offset+2, (intparam_len -2), FALSE);
+        proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[5],tvb, offset+2, (intparam_len -2), ENC_ASCII|ENC_NA);
         break;
     case FEC_VC_INTERFACEPARAM_CEPBYTES:
         proto_item_append_text(ti,": CEP/TDM Payload Bytes %u", tvb_get_ntohs(tvb,offset+2));
-        proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[6],tvb, offset+2, 2, FALSE);
+        proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[6],tvb, offset+2, 2, ENC_BIG_ENDIAN);
         break;
     case FEC_VC_INTERFACEPARAM_CEPOPTIONS:
         /* draft-ietf-pwe3-sonet-05.txt */
         proto_item_append_text(ti,": CEP Options");
         ti = proto_tree_add_text(vcintparam_tree, tvb, offset + 2, 2, "CEP Options");
         cepopt_tree = proto_item_add_subtree(ti, ett_ldp_fec_vc_interfaceparam_cepopt);
-        proto_tree_add_item(cepopt_tree, *interface_parameters_hf[7], tvb, offset + 2, 2, FALSE);
-        proto_tree_add_item(cepopt_tree, *interface_parameters_hf[8], tvb, offset + 2, 2, FALSE);
-        proto_tree_add_item(cepopt_tree, *interface_parameters_hf[9], tvb, offset + 2, 2, FALSE);
-        proto_tree_add_item(cepopt_tree, *interface_parameters_hf[10], tvb, offset + 2, 2, FALSE);
-        proto_tree_add_item(cepopt_tree, *interface_parameters_hf[11], tvb, offset + 2, 2, FALSE);
-        proto_tree_add_item(cepopt_tree, *interface_parameters_hf[12], tvb, offset + 2, 2, FALSE);
-        proto_tree_add_item(cepopt_tree, *interface_parameters_hf[13], tvb, offset + 2, 2, FALSE);
-        proto_tree_add_item(cepopt_tree, *interface_parameters_hf[14], tvb, offset + 2, 2, FALSE);
-        proto_tree_add_item(cepopt_tree, *interface_parameters_hf[15], tvb, offset + 2, 2, FALSE);
+        proto_tree_add_item(cepopt_tree, *interface_parameters_hf[7], tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(cepopt_tree, *interface_parameters_hf[8], tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(cepopt_tree, *interface_parameters_hf[9], tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(cepopt_tree, *interface_parameters_hf[10], tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(cepopt_tree, *interface_parameters_hf[11], tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(cepopt_tree, *interface_parameters_hf[12], tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(cepopt_tree, *interface_parameters_hf[13], tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(cepopt_tree, *interface_parameters_hf[14], tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(cepopt_tree, *interface_parameters_hf[15], tvb, offset + 2, 2, ENC_BIG_ENDIAN);
         break;
     case FEC_VC_INTERFACEPARAM_VLANID:
         proto_item_append_text(ti,": VLAN Id %u", tvb_get_ntohs(tvb,offset+2));
-        proto_tree_add_item(vcintparam_tree, *interface_parameters_hf[16], tvb, offset+2, 2, FALSE);
+        proto_tree_add_item(vcintparam_tree, *interface_parameters_hf[16], tvb, offset+2, 2, ENC_BIG_ENDIAN);
         break;
     case FEC_VC_INTERFACEPARAM_FRDLCILEN:
         proto_item_append_text(ti,": DLCI Length %u", tvb_get_ntohs(tvb,offset+2));
-        proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[17], tvb, offset+2, 2, FALSE);
+        proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[17], tvb, offset+2, 2, ENC_BIG_ENDIAN);
         break;
     case FEC_VC_INTERFACEPARAM_FRAGIND:
         /* draft-ietf-pwe3-fragmentation-05.txt */
@@ -2810,22 +2810,22 @@ dissect_subtlv_interface_parameters(tvbuff_t *tvb, guint offset, proto_tree *tre
     case FEC_VC_INTERFACEPARAM_FCSRETENT:
         /* draft-ietf-pwe3-fcs-retention-02.txt */
         proto_item_append_text(ti,": FCS retention, FCS Length %u Bytes", tvb_get_ntohs(tvb,offset+2));
-        proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[18], tvb, offset+2, 2, FALSE);
+        proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[18], tvb, offset+2, 2, ENC_BIG_ENDIAN);
         break;
     case FEC_VC_INTERFACEPARAM_TDMOPTION:
         /* draft-vainshtein-pwe3-tdm-control-protocol-extensions */
         proto_item_append_text(ti,": TDM Options");
-        proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[19], tvb, offset+2, 2, FALSE);
-        proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[20], tvb, offset+2, 2, FALSE);
-        proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[21], tvb, offset+2, 2, FALSE);
-        proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[22], tvb, offset+2, 2, FALSE);
+        proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[19], tvb, offset+2, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[20], tvb, offset+2, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[21], tvb, offset+2, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[22], tvb, offset+2, 2, ENC_BIG_ENDIAN);
         if (intparam_len >= 8){
-            proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[23], tvb, offset+4, 1, FALSE);
-            proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[24], tvb, offset+5, 1, FALSE);
-            proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[25], tvb, offset+6, 2, FALSE);
+            proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[23], tvb, offset+4, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[24], tvb, offset+5, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[25], tvb, offset+6, 2, ENC_BIG_ENDIAN);
         }
         if (intparam_len >= 12){
-            proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[26], tvb, offset+8, 4, FALSE);
+            proto_tree_add_item(vcintparam_tree,*interface_parameters_hf[26], tvb, offset+8, 4, ENC_BIG_ENDIAN);
         }
         break;
     case FEC_VC_INTERFACEPARAM_VCCV:
@@ -2833,14 +2833,14 @@ dissect_subtlv_interface_parameters(tvbuff_t *tvb, guint offset, proto_tree *tre
         proto_item_append_text(ti,": VCCV");
         ti = proto_tree_add_text(vcintparam_tree, tvb, offset + 2, 1, "CC Type");
         vccvtype_tree = proto_item_add_subtree(ti, ett_ldp_fec_vc_interfaceparam_vccvtype);
-        proto_tree_add_item(vccvtype_tree, *interface_parameters_hf[27], tvb, offset+2, 1, FALSE);
-        proto_tree_add_item(vccvtype_tree, *interface_parameters_hf[28], tvb, offset+2, 1, FALSE);
-        proto_tree_add_item(vccvtype_tree, *interface_parameters_hf[29], tvb, offset+2, 1, FALSE);
+        proto_tree_add_item(vccvtype_tree, *interface_parameters_hf[27], tvb, offset+2, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(vccvtype_tree, *interface_parameters_hf[28], tvb, offset+2, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(vccvtype_tree, *interface_parameters_hf[29], tvb, offset+2, 1, ENC_BIG_ENDIAN);
         ti = proto_tree_add_text(vcintparam_tree, tvb, offset + 3, 1, "CV Type");
         vccvtype_tree = proto_item_add_subtree(ti, ett_ldp_fec_vc_interfaceparam_vccvtype);
-        proto_tree_add_item(vccvtype_tree, *interface_parameters_hf[30], tvb, offset+3, 1, FALSE);
-        proto_tree_add_item(vccvtype_tree, *interface_parameters_hf[31], tvb, offset+3, 1, FALSE);
-        proto_tree_add_item(vccvtype_tree, *interface_parameters_hf[32], tvb, offset+3, 1, FALSE);
+        proto_tree_add_item(vccvtype_tree, *interface_parameters_hf[30], tvb, offset+3, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(vccvtype_tree, *interface_parameters_hf[31], tvb, offset+3, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(vccvtype_tree, *interface_parameters_hf[32], tvb, offset+3, 1, ENC_BIG_ENDIAN);
         break;
     default: /* unknown */
         proto_item_append_text(ti," unknown");
