@@ -443,7 +443,7 @@ ptvcursor_add_invalid_check(ptvcursor_t *csr, int hf, gint len, guint64 invalid_
             DISSECTOR_ASSERT_NOT_REACHED();
     }
 
-    ti = ptvcursor_add(csr, hf, len, TRUE);
+    ti = ptvcursor_add(csr, hf, len, ENC_LITTLE_ENDIAN);
     if (val == invalid_val)
         proto_item_append_text(ti, " [invalid]");
 }
