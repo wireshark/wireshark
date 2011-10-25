@@ -734,7 +734,6 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gshort ns = tvb_get_guint8(tvb,1);
 	guint payload_len = get_ipdc_pdu_len(pinfo,tvb,0);
 
-	gshort protocol_id;
 	gshort trans_id_size;
 	guint32 trans_id;
 	guint16 message_code;
@@ -772,7 +771,6 @@ dissect_ipdc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	/* IPDC tags present - display message code and trans. ID */
-	protocol_id = tvb_get_guint8(tvb,4);
 	trans_id_size = TRANS_ID_SIZE_IPDC; /* tvb_get_guint8(tvb,5); */
 	trans_id = tvb_get_ntohl(tvb,6);
 	message_code = tvb_get_ntohs(tvb,6+trans_id_size);

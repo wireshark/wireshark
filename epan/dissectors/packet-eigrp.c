@@ -651,7 +651,7 @@ dissect_eigrp_parameter (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
 			 proto_item *ti)
 {
     int offset = 0;
-    guint8 k1, k2, k3, k4, k5, k6;
+    guint8 k1, k2, k3, k4, k5;
 
     k1 = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_eigrp_par_k1, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -673,7 +673,6 @@ dissect_eigrp_parameter (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     proto_tree_add_item(tree, hf_eigrp_par_k5, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     offset += 1;
-    k6 = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_eigrp_par_k6, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     offset += 1;

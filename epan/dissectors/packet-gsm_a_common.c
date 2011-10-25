@@ -2263,14 +2263,11 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guin
 guint16
 de_ms_cm_1(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint8	oct;
 	guint32	curr_offset;
 	proto_tree	*subtree;
 	proto_item	*item;
 
 	curr_offset = offset;
-
-	oct = tvb_get_guint8(tvb, curr_offset);
 
 	item =
 	proto_tree_add_text(tree,

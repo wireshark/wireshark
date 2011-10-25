@@ -2328,7 +2328,6 @@ dissect_v9_pdu_scope(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pdutree,
 		     struct v9_v10_template *tplt)
 {
 	int             orig_offset;
-	proto_item     *ti;
 	int             i;
 
 	DISSECTOR_ASSERT(tplt->fields[TF_SCOPES] != NULL);
@@ -2345,11 +2344,11 @@ dissect_v9_pdu_scope(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pdutree,
 		switch (type) {
 			/* XXX: template length fields should be validated during template processing ... */
 		case 1: /* system */
-			ti = proto_tree_add_item(pdutree, hf_cflow_scope_system,
+			proto_tree_add_item(pdutree, hf_cflow_scope_system,
 						 tvb, offset, length, ENC_NA);
 			break;
 		case 2: /* interface */
-			ti = proto_tree_add_item(pdutree, hf_cflow_scope_interface,
+			proto_tree_add_item(pdutree, hf_cflow_scope_interface,
 						 tvb, offset, length, ENC_NA);
 			break;
 		case 3: /* linecard */

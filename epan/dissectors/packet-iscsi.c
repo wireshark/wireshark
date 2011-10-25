@@ -536,13 +536,12 @@ iscsi_dissect_TargetAddress(packet_info *pinfo, proto_tree *tree _U_,char *val)
 	address *addr = NULL;
 	int port;
 	char *value = ep_strdup(val);
-	char *a = NULL, *p = NULL, *pgt = NULL;
+	char *p = NULL, *pgt = NULL;
 
 	if (value[0] == '[') {
 		/* this looks like an ipv6 address */
 		p = strchr(value, ']');
 		if (p != NULL) {
-			a = value+1;
 			*p = 0;
 			p += 2;	/* skip past "]:" */
 
@@ -560,7 +559,6 @@ iscsi_dissect_TargetAddress(packet_info *pinfo, proto_tree *tree _U_,char *val)
 			/* looks like a ipv4 address */
 			p = strchr(value, ':');
 			if (p != NULL) {
-				a = value;
 				*p++ = 0;
 
 				pgt = strchr(p, ',');
