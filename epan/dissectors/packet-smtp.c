@@ -52,8 +52,11 @@ static int proto_smtp = -1;
 
 static int hf_smtp_req = -1;
 static int hf_smtp_rsp = -1;
+static int hf_smtp_message = -1;
+static int hf_smtp_command_line = -1;
 static int hf_smtp_req_command = -1;
 static int hf_smtp_req_parameter = -1;
+static int hf_smtp_response = -1;
 static int hf_smtp_rsp_code = -1;
 static int hf_smtp_rsp_parameter = -1;
 
@@ -234,9 +237,8 @@ dissect_smtp_data(tvbuff_t *tvb, int offset, proto_tree *smtp_tree)
       /*
        * Put this line.
        */
-      proto_tree_add_text(smtp_tree, tvb, offset, next_offset - offset,
-                          "Message: %s",
-                          tvb_format_text(tvb, offset, next_offset - offset));
+      proto_tree_add_item(smtp_tree, hf_smtp_message, tvb,
+                          offset, next_offset - offset, ENC_ASCII|ENC_NA);
 
       /*
        * Step to the next line.
@@ -716,9 +718,8 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /*
          * Put the command line into the protocol tree.
          */
-        ti = proto_tree_add_text(smtp_tree, tvb, loffset, next_offset - loffset,
-                                 "Command: %s",
-                                 tvb_format_text(tvb, loffset, next_offset - loffset));
+        ti =  proto_tree_add_item(smtp_tree, hf_smtp_command_line, tvb,
+                          loffset, next_offset - loffset, ENC_ASCII|ENC_NA);
         cmdresp_tree = proto_item_add_subtree(ti, ett_smtp_cmdresp);
 
         proto_tree_add_item(cmdresp_tree, hf_smtp_req_command, tvb,
@@ -782,10 +783,8 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /*
          * Put it into the protocol tree.
          */
-        ti = proto_tree_add_text(smtp_tree, tvb, offset,
-                                 next_offset - offset, "Response: %s",
-                                 tvb_format_text(tvb, offset,
-                                                 next_offset - offset));
+        ti =  proto_tree_add_item(smtp_tree, hf_smtp_response, tvb,
+                          offset, next_offset - offset, ENC_ASCII|ENC_NA);
         cmdresp_tree = proto_item_add_subtree(ti, ett_smtp_cmdresp);
       } else
         cmdresp_tree = NULL;
@@ -855,6 +854,14 @@ proto_register_smtp(void)
       { "Response", "smtp.rsp",
         FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
+    { &hf_smtp_message,
+      { "Message", "smtp.message",
+        FT_STRING,  BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+    { &hf_smtp_command_line,
+      { "Command Line", "smtp.command_line",
+        FT_STRING,  BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
     { &hf_smtp_req_command,
       { "Command", "smtp.req.command",
         FT_STRING,  BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -862,6 +869,10 @@ proto_register_smtp(void)
     { &hf_smtp_req_parameter,
       { "Request parameter", "smtp.req.parameter",
         FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+    { &hf_smtp_response,
+      { "Response", "smtp.response",
+        FT_STRING,  BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_smtp_rsp_code,
       { "Response code", "smtp.response.code",
