@@ -4914,7 +4914,6 @@ static void tmp_fld_check_assert(header_field_info *hfinfo) {
 		 */
 		if (hfinfo->display == BASE_HEX ||
 		    hfinfo->display == BASE_HEX_DEC ||
-		    hfinfo->display == BASE_DEC_HEX ||
 		    hfinfo->display == BASE_OCT)
 			g_error("Field '%s' (%s) is signed (%s) but is being displayed unsigned (%s)\n",
 				hfinfo->name, hfinfo->abbrev,
