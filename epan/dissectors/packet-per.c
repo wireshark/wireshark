@@ -2039,23 +2039,23 @@ static tvbuff_t *dissect_per_bit_string_display(tvbuff_t *tvb, guint32 offset, a
 				value = tvb_get_bits16(out_tvb, 0, length, FALSE);
 			}else if (length<=24) { /* first read 16 and then the remaining bits */
 				value = tvb_get_bits16(out_tvb, 0, 16, FALSE);
-				value <<= 8;
+				value <<= 8 - pad_length;
 				value |= tvb_get_bits8(out_tvb, 16, length - 16);
 			}else if (length<=32) {
 				value = tvb_get_bits32(out_tvb, 0, length, FALSE);
 			}else if (length<=40) { /* first read 32 and then the remaining bits */
 				value = tvb_get_bits32(out_tvb, 0, 32, FALSE);
-				value <<= 8;
+				value <<= 8 - pad_length;
 				value |= tvb_get_bits8(out_tvb, 32, length - 32);
 			}else if (length<=48) { /* first read 32 and then the remaining bits */
 				value = tvb_get_bits32(out_tvb, 0, 32, FALSE);
-				value <<= 16;
+				value <<= 16 - pad_length;
 				value |= tvb_get_bits16(out_tvb, 32, length - 32, FALSE);
 			}else if (length<=56) { /* first read 32 and 16 then the remaining bits */
 				value = tvb_get_bits32(out_tvb, 0, 32, FALSE);
 				value <<= 16;
 				value |= tvb_get_bits16(out_tvb, 32, 16, FALSE);
-				value <<= 8;
+				value <<= 8 - pad_length;
 				value |= tvb_get_bits8(out_tvb, 48, length - 48);
 			}else {
 				value = tvb_get_bits64(out_tvb, 0, length, FALSE);
