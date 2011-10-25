@@ -377,35 +377,6 @@ static int hf_t124_registryDeleteEntryRequest = -1;  /* RegistryDeleteEntryReque
 static int hf_t124_registryMonitorEntryRequest = -1;  /* RegistryMonitorEntryRequest */
 static int hf_t124_registryAllocateHandleRequest = -1;  /* RegistryAllocateHandleRequest */
 static int hf_t124_nonStandardRequest = -1;       /* NonStandardPDU */
-static int hf_t124_conferenceAddResponse = -1;    /* ConferenceAddResponse */
-static int hf_t124_conferenceLockResponse = -1;   /* ConferenceLockResponse */
-static int hf_t124_conferenceUnlockResponse = -1;  /* ConferenceUnlockResponse */
-static int hf_t124_conferenceTerminateResponse = -1;  /* ConferenceTerminateResponse */
-static int hf_t124_conferenceEjectUserResponse = -1;  /* ConferenceEjectUserResponse */
-static int hf_t124_conferenceTransferResponse = -1;  /* ConferenceTransferResponse */
-static int hf_t124_registryResponse = -1;         /* RegistryResponse */
-static int hf_t124_registryAllocateHandleResponse = -1;  /* RegistryAllocateHandleResponse */
-static int hf_t124_functionNotSupportedResponse = -1;  /* FunctionNotSupportedResponse */
-static int hf_t124_nonStandardResponse = -1;      /* NonStandardPDU */
-static int hf_t124_userIDIndication = -1;         /* UserIDIndication */
-static int hf_t124_conferenceLockIndication = -1;  /* ConferenceLockIndication */
-static int hf_t124_conferenceUnlockIndication = -1;  /* ConferenceUnlockIndication */
-static int hf_t124_conferenceTerminateIndication = -1;  /* ConferenceTerminateIndication */
-static int hf_t124_conferenceEjectUserIndication = -1;  /* ConferenceEjectUserIndication */
-static int hf_t124_conferenceTransferIndication = -1;  /* ConferenceTransferIndication */
-static int hf_t124_rosterUpdateIndication = -1;   /* RosterUpdateIndication */
-static int hf_t124_applicationInvokeIndication = -1;  /* ApplicationInvokeIndication */
-static int hf_t124_registryMonitorEntryIndication = -1;  /* RegistryMonitorEntryIndication */
-static int hf_t124_conductorAssignIndication = -1;  /* ConductorAssignIndication */
-static int hf_t124_conductorReleaseIndication = -1;  /* ConductorReleaseIndication */
-static int hf_t124_conductorPermissionAskIndication = -1;  /* ConductorPermissionAskIndication */
-static int hf_t124_conductorPermissionGrantIndication = -1;  /* ConductorPermissionGrantIndication */
-static int hf_t124_conferenceTimeRemainingIndication = -1;  /* ConferenceTimeRemainingIndication */
-static int hf_t124_conferenceTimeInquireIndication = -1;  /* ConferenceTimeInquireIndication */
-static int hf_t124_conferenceTimeExtendIndication = -1;  /* ConferenceTimeExtendIndication */
-static int hf_t124_conferenceAssistanceIndication = -1;  /* ConferenceAssistanceIndication */
-static int hf_t124_textMessageIndication = -1;    /* TextMessageIndication */
-static int hf_t124_nonStandardIndication = -1;    /* NonStandardPDU */
 static int hf_t124_maxChannelIds = -1;            /* INTEGER_0_MAX */
 static int hf_t124_maxUserIds = -1;               /* INTEGER_0_MAX */
 static int hf_t124_maxTokenIds = -1;              /* INTEGER_0_MAX */
@@ -414,17 +385,10 @@ static int hf_t124_minThroughput = -1;            /* INTEGER_0_MAX */
 static int hf_t124_maxHeight = -1;                /* INTEGER_0_MAX */
 static int hf_t124_maxMCSPDUsize = -1;            /* INTEGER_0_MAX */
 static int hf_t124_protocolVersion = -1;          /* INTEGER_0_MAX */
-static int hf_t124_callingDomainSelector = -1;    /* OCTET_STRING */
-static int hf_t124_calledDomainSelector = -1;     /* OCTET_STRING */
-static int hf_t124_upwardFlag = -1;               /* BOOLEAN */
-static int hf_t124_targetParameters = -1;         /* DomainParameters */
-static int hf_t124_minimumParameters = -1;        /* DomainParameters */
-static int hf_t124_maximumParameters = -1;        /* DomainParameters */
-static int hf_t124_userData_01 = -1;              /* OCTET_STRING */
 static int hf_t124_result_02 = -1;                /* Result */
 static int hf_t124_calledConnectId = -1;          /* INTEGER_0_MAX */
 static int hf_t124_domainParameters = -1;         /* DomainParameters */
-static int hf_t124_dataPriority = -1;             /* DataPriority */
+static int hf_t124_userData_01 = -1;              /* OCTET_STRING */
 static int hf_t124_heightLimit = -1;              /* INTEGER_0_MAX */
 static int hf_t124_subHeight = -1;                /* INTEGER_0_MAX */
 static int hf_t124_subInterval = -1;              /* INTEGER_0_MAX */
@@ -470,6 +434,7 @@ static int hf_t124_channelId_03 = -1;             /* ChannelId */
 static int hf_t124_requested = -1;                /* ChannelId */
 static int hf_t124_channelIds = -1;               /* SET_OF_ChannelId */
 static int hf_t124_channelIds_item = -1;          /* ChannelId */
+static int hf_t124_dataPriority = -1;             /* DataPriority */
 static int hf_t124_segmentation = -1;             /* Segmentation */
 static int hf_t124_userData_02 = -1;              /* T_userData */
 static int hf_t124_userData_03 = -1;              /* T_userData_01 */
@@ -692,14 +657,9 @@ static gint ett_t124_NonStandardPDU = -1;
 static gint ett_t124_ConnectData = -1;
 static gint ett_t124_ConnectGCCPDU = -1;
 static gint ett_t124_RequestPDU = -1;
-static gint ett_t124_ResponsePDU = -1;
-static gint ett_t124_IndicationPDU = -1;
 static gint ett_t124_Segmentation = -1;
 static gint ett_t124_DomainParameters = -1;
-static gint ett_t124_Connect_Initial = -1;
 static gint ett_t124_Connect_Response = -1;
-static gint ett_t124_Connect_Additional = -1;
-static gint ett_t124_Connect_Result = -1;
 static gint ett_t124_PlumbDomainIndication = -1;
 static gint ett_t124_ErectDomainRequest = -1;
 static gint ett_t124_ChannelAttributes = -1;
@@ -830,7 +790,7 @@ dissect_t124_Handle(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 
 static int
 dissect_t124_H221NonStandardIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 140 "../../asn1/t124/t124.cnf"
+#line 146 "../../asn1/t124/t124.cnf"
 
       offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        4, 255, FALSE, &t124NSIdentifier);
@@ -964,7 +924,7 @@ dissect_t124_ExtraDiallingString(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 static int
 dissect_t124_T_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 72 "../../asn1/t124/t124.cnf"
+#line 78 "../../asn1/t124/t124.cnf"
     tvbuff_t	*next_tvb = NULL;
     guint8      *ns = NULL;
 
@@ -4130,7 +4090,7 @@ dissect_t124_FunctionNotSupportedResponse(tvbuff_t *tvb _U_, int offset _U_, asn
 
 static int
 dissect_t124_T_connectPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 46 "../../asn1/t124/t124.cnf"
+#line 52 "../../asn1/t124/t124.cnf"
     tvbuff_t	*next_tvb = NULL;
     proto_tree	*next_tree = NULL;
     int		old_offset = 0;
@@ -4211,106 +4171,10 @@ dissect_t124_ConnectGCCPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 }
 
 
-static const value_string t124_ResponsePDU_vals[] = {
-  {   0, "conferenceJoinResponse" },
-  {   1, "conferenceAddResponse" },
-  {   2, "conferenceLockResponse" },
-  {   3, "conferenceUnlockResponse" },
-  {   4, "conferenceTerminateResponse" },
-  {   5, "conferenceEjectUserResponse" },
-  {   6, "conferenceTransferResponse" },
-  {   7, "registryResponse" },
-  {   8, "registryAllocateHandleResponse" },
-  {   9, "functionNotSupportedResponse" },
-  {  10, "nonStandardResponse" },
-  { 0, NULL }
-};
-
-static const per_choice_t ResponsePDU_choice[] = {
-  {   0, &hf_t124_conferenceJoinResponse, ASN1_EXTENSION_ROOT    , dissect_t124_ConferenceJoinResponse },
-  {   1, &hf_t124_conferenceAddResponse, ASN1_EXTENSION_ROOT    , dissect_t124_ConferenceAddResponse },
-  {   2, &hf_t124_conferenceLockResponse, ASN1_EXTENSION_ROOT    , dissect_t124_ConferenceLockResponse },
-  {   3, &hf_t124_conferenceUnlockResponse, ASN1_EXTENSION_ROOT    , dissect_t124_ConferenceUnlockResponse },
-  {   4, &hf_t124_conferenceTerminateResponse, ASN1_EXTENSION_ROOT    , dissect_t124_ConferenceTerminateResponse },
-  {   5, &hf_t124_conferenceEjectUserResponse, ASN1_EXTENSION_ROOT    , dissect_t124_ConferenceEjectUserResponse },
-  {   6, &hf_t124_conferenceTransferResponse, ASN1_EXTENSION_ROOT    , dissect_t124_ConferenceTransferResponse },
-  {   7, &hf_t124_registryResponse, ASN1_EXTENSION_ROOT    , dissect_t124_RegistryResponse },
-  {   8, &hf_t124_registryAllocateHandleResponse, ASN1_EXTENSION_ROOT    , dissect_t124_RegistryAllocateHandleResponse },
-  {   9, &hf_t124_functionNotSupportedResponse, ASN1_EXTENSION_ROOT    , dissect_t124_FunctionNotSupportedResponse },
-  {  10, &hf_t124_nonStandardResponse, ASN1_EXTENSION_ROOT    , dissect_t124_NonStandardPDU },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_t124_ResponsePDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_t124_ResponsePDU, ResponsePDU_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const value_string t124_IndicationPDU_vals[] = {
-  {   0, "userIDIndication" },
-  {   1, "conferenceLockIndication" },
-  {   2, "conferenceUnlockIndication" },
-  {   3, "conferenceTerminateIndication" },
-  {   4, "conferenceEjectUserIndication" },
-  {   5, "conferenceTransferIndication" },
-  {   6, "rosterUpdateIndication" },
-  {   7, "applicationInvokeIndication" },
-  {   8, "registryMonitorEntryIndication" },
-  {   9, "conductorAssignIndication" },
-  {  10, "conductorReleaseIndication" },
-  {  11, "conductorPermissionAskIndication" },
-  {  12, "conductorPermissionGrantIndication" },
-  {  13, "conferenceTimeRemainingIndication" },
-  {  14, "conferenceTimeInquireIndication" },
-  {  15, "conferenceTimeExtendIndication" },
-  {  16, "conferenceAssistanceIndication" },
-  {  17, "textMessageIndication" },
-  {  18, "nonStandardIndication" },
-  { 0, NULL }
-};
-
-static const per_choice_t IndicationPDU_choice[] = {
-  {   0, &hf_t124_userIDIndication, ASN1_EXTENSION_ROOT    , dissect_t124_UserIDIndication },
-  {   1, &hf_t124_conferenceLockIndication, ASN1_EXTENSION_ROOT    , dissect_t124_ConferenceLockIndication },
-  {   2, &hf_t124_conferenceUnlockIndication, ASN1_EXTENSION_ROOT    , dissect_t124_ConferenceUnlockIndication },
-  {   3, &hf_t124_conferenceTerminateIndication, ASN1_EXTENSION_ROOT    , dissect_t124_ConferenceTerminateIndication },
-  {   4, &hf_t124_conferenceEjectUserIndication, ASN1_EXTENSION_ROOT    , dissect_t124_ConferenceEjectUserIndication },
-  {   5, &hf_t124_conferenceTransferIndication, ASN1_EXTENSION_ROOT    , dissect_t124_ConferenceTransferIndication },
-  {   6, &hf_t124_rosterUpdateIndication, ASN1_EXTENSION_ROOT    , dissect_t124_RosterUpdateIndication },
-  {   7, &hf_t124_applicationInvokeIndication, ASN1_EXTENSION_ROOT    , dissect_t124_ApplicationInvokeIndication },
-  {   8, &hf_t124_registryMonitorEntryIndication, ASN1_EXTENSION_ROOT    , dissect_t124_RegistryMonitorEntryIndication },
-  {   9, &hf_t124_conductorAssignIndication, ASN1_EXTENSION_ROOT    , dissect_t124_ConductorAssignIndication },
-  {  10, &hf_t124_conductorReleaseIndication, ASN1_EXTENSION_ROOT    , dissect_t124_ConductorReleaseIndication },
-  {  11, &hf_t124_conductorPermissionAskIndication, ASN1_EXTENSION_ROOT    , dissect_t124_ConductorPermissionAskIndication },
-  {  12, &hf_t124_conductorPermissionGrantIndication, ASN1_EXTENSION_ROOT    , dissect_t124_ConductorPermissionGrantIndication },
-  {  13, &hf_t124_conferenceTimeRemainingIndication, ASN1_EXTENSION_ROOT    , dissect_t124_ConferenceTimeRemainingIndication },
-  {  14, &hf_t124_conferenceTimeInquireIndication, ASN1_EXTENSION_ROOT    , dissect_t124_ConferenceTimeInquireIndication },
-  {  15, &hf_t124_conferenceTimeExtendIndication, ASN1_EXTENSION_ROOT    , dissect_t124_ConferenceTimeExtendIndication },
-  {  16, &hf_t124_conferenceAssistanceIndication, ASN1_EXTENSION_ROOT    , dissect_t124_ConferenceAssistanceIndication },
-  {  17, &hf_t124_textMessageIndication, ASN1_EXTENSION_ROOT    , dissect_t124_TextMessageIndication },
-  {  18, &hf_t124_nonStandardIndication, ASN1_EXTENSION_ROOT    , dissect_t124_NonStandardPDU },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_t124_IndicationPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_t124_IndicationPDU, IndicationPDU_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
 
 static int
 dissect_t124_ChannelId(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 146 "../../asn1/t124/t124.cnf"
+#line 152 "../../asn1/t124/t124.cnf"
 
       offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 65535U, &channelId, FALSE);
@@ -4452,26 +4316,6 @@ dissect_t124_DomainParameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 }
 
 
-static const per_sequence_t Connect_Initial_sequence[] = {
-  { &hf_t124_callingDomainSelector, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_OCTET_STRING },
-  { &hf_t124_calledDomainSelector, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_OCTET_STRING },
-  { &hf_t124_upwardFlag     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_BOOLEAN },
-  { &hf_t124_targetParameters, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_DomainParameters },
-  { &hf_t124_minimumParameters, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_DomainParameters },
-  { &hf_t124_maximumParameters, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_DomainParameters },
-  { &hf_t124_userData_01    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_OCTET_STRING },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_Connect_Initial(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_Connect_Initial, Connect_Initial_sequence);
-
-  return offset;
-}
-
-
 static const value_string t124_Result_vals[] = {
   {   0, "rt-successful" },
   {   1, "rt-domain-merging" },
@@ -4514,35 +4358,6 @@ static int
 dissect_t124_Connect_Response(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_t124_Connect_Response, Connect_Response_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t Connect_Additional_sequence[] = {
-  { &hf_t124_calledConnectId, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_INTEGER_0_MAX },
-  { &hf_t124_dataPriority   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_DataPriority },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_Connect_Additional(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_Connect_Additional, Connect_Additional_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t Connect_Result_sequence[] = {
-  { &hf_t124_result_02      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_Result },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_Connect_Result(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_Connect_Result, Connect_Result_sequence);
 
   return offset;
 }
@@ -5226,7 +5041,7 @@ dissect_t124_ChannelExpelIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
 static int
 dissect_t124_T_userData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 89 "../../asn1/t124/t124.cnf"
+#line 95 "../../asn1/t124/t124.cnf"
     tvbuff_t	*next_tvb = NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -5266,7 +5081,7 @@ dissect_t124_SendDataRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
 static int
 dissect_t124_T_userData_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 102 "../../asn1/t124/t124.cnf"
+#line 108 "../../asn1/t124/t124.cnf"
     tvbuff_t	*next_tvb = NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -5657,7 +5472,7 @@ static const per_choice_t DomainMCSPDU_choice[] = {
 
 static int
 dissect_t124_DomainMCSPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 116 "../../asn1/t124/t124.cnf"
+#line 122 "../../asn1/t124/t124.cnf"
   	gint domainmcs_value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -7065,122 +6880,6 @@ void proto_register_t124(void) {
       { "nonStandardRequest", "t124.nonStandardRequest",
         FT_NONE, BASE_NONE, NULL, 0,
         "NonStandardPDU", HFILL }},
-    { &hf_t124_conferenceAddResponse,
-      { "conferenceAddResponse", "t124.conferenceAddResponse",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_conferenceLockResponse,
-      { "conferenceLockResponse", "t124.conferenceLockResponse",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_conferenceUnlockResponse,
-      { "conferenceUnlockResponse", "t124.conferenceUnlockResponse",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_conferenceTerminateResponse,
-      { "conferenceTerminateResponse", "t124.conferenceTerminateResponse",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_conferenceEjectUserResponse,
-      { "conferenceEjectUserResponse", "t124.conferenceEjectUserResponse",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_conferenceTransferResponse,
-      { "conferenceTransferResponse", "t124.conferenceTransferResponse",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_registryResponse,
-      { "registryResponse", "t124.registryResponse",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_registryAllocateHandleResponse,
-      { "registryAllocateHandleResponse", "t124.registryAllocateHandleResponse",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_functionNotSupportedResponse,
-      { "functionNotSupportedResponse", "t124.functionNotSupportedResponse",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_nonStandardResponse,
-      { "nonStandardResponse", "t124.nonStandardResponse",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "NonStandardPDU", HFILL }},
-    { &hf_t124_userIDIndication,
-      { "userIDIndication", "t124.userIDIndication",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_conferenceLockIndication,
-      { "conferenceLockIndication", "t124.conferenceLockIndication",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_conferenceUnlockIndication,
-      { "conferenceUnlockIndication", "t124.conferenceUnlockIndication",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_conferenceTerminateIndication,
-      { "conferenceTerminateIndication", "t124.conferenceTerminateIndication",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_conferenceEjectUserIndication,
-      { "conferenceEjectUserIndication", "t124.conferenceEjectUserIndication",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_conferenceTransferIndication,
-      { "conferenceTransferIndication", "t124.conferenceTransferIndication",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_rosterUpdateIndication,
-      { "rosterUpdateIndication", "t124.rosterUpdateIndication",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_applicationInvokeIndication,
-      { "applicationInvokeIndication", "t124.applicationInvokeIndication",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_registryMonitorEntryIndication,
-      { "registryMonitorEntryIndication", "t124.registryMonitorEntryIndication",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_conductorAssignIndication,
-      { "conductorAssignIndication", "t124.conductorAssignIndication",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_conductorReleaseIndication,
-      { "conductorReleaseIndication", "t124.conductorReleaseIndication",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_conductorPermissionAskIndication,
-      { "conductorPermissionAskIndication", "t124.conductorPermissionAskIndication",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_conductorPermissionGrantIndication,
-      { "conductorPermissionGrantIndication", "t124.conductorPermissionGrantIndication",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_conferenceTimeRemainingIndication,
-      { "conferenceTimeRemainingIndication", "t124.conferenceTimeRemainingIndication",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_conferenceTimeInquireIndication,
-      { "conferenceTimeInquireIndication", "t124.conferenceTimeInquireIndication",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_conferenceTimeExtendIndication,
-      { "conferenceTimeExtendIndication", "t124.conferenceTimeExtendIndication",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_conferenceAssistanceIndication,
-      { "conferenceAssistanceIndication", "t124.conferenceAssistanceIndication",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_textMessageIndication,
-      { "textMessageIndication", "t124.textMessageIndication",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_nonStandardIndication,
-      { "nonStandardIndication", "t124.nonStandardIndication",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "NonStandardPDU", HFILL }},
     { &hf_t124_maxChannelIds,
       { "maxChannelIds", "t124.maxChannelIds",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -7213,34 +6912,6 @@ void proto_register_t124(void) {
       { "protocolVersion", "t124.protocolVersion",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_MAX", HFILL }},
-    { &hf_t124_callingDomainSelector,
-      { "callingDomainSelector", "t124.callingDomainSelector",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING", HFILL }},
-    { &hf_t124_calledDomainSelector,
-      { "calledDomainSelector", "t124.calledDomainSelector",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING", HFILL }},
-    { &hf_t124_upwardFlag,
-      { "upwardFlag", "t124.upwardFlag",
-        FT_BOOLEAN, BASE_NONE, NULL, 0,
-        "BOOLEAN", HFILL }},
-    { &hf_t124_targetParameters,
-      { "targetParameters", "t124.targetParameters",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "DomainParameters", HFILL }},
-    { &hf_t124_minimumParameters,
-      { "minimumParameters", "t124.minimumParameters",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "DomainParameters", HFILL }},
-    { &hf_t124_maximumParameters,
-      { "maximumParameters", "t124.maximumParameters",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "DomainParameters", HFILL }},
-    { &hf_t124_userData_01,
-      { "userData", "t124.userData",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING", HFILL }},
     { &hf_t124_result_02,
       { "result", "t124.result",
         FT_UINT32, BASE_DEC, VALS(t124_Result_vals), 0,
@@ -7253,10 +6924,10 @@ void proto_register_t124(void) {
       { "domainParameters", "t124.domainParameters",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_t124_dataPriority,
-      { "dataPriority", "t124.dataPriority",
-        FT_UINT32, BASE_DEC, VALS(t124_DataPriority_vals), 0,
-        NULL, HFILL }},
+    { &hf_t124_userData_01,
+      { "userData", "t124.userData",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING", HFILL }},
     { &hf_t124_heightLimit,
       { "heightLimit", "t124.heightLimit",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -7436,6 +7107,10 @@ void proto_register_t124(void) {
     { &hf_t124_channelIds_item,
       { "ChannelId", "t124.ChannelId",
         FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_t124_dataPriority,
+      { "dataPriority", "t124.dataPriority",
+        FT_UINT32, BASE_DEC, VALS(t124_DataPriority_vals), 0,
         NULL, HFILL }},
     { &hf_t124_segmentation,
       { "segmentation", "t124.segmentation",
@@ -7795,14 +7470,9 @@ void proto_register_t124(void) {
     &ett_t124_ConnectData,
     &ett_t124_ConnectGCCPDU,
     &ett_t124_RequestPDU,
-    &ett_t124_ResponsePDU,
-    &ett_t124_IndicationPDU,
     &ett_t124_Segmentation,
     &ett_t124_DomainParameters,
-    &ett_t124_Connect_Initial,
     &ett_t124_Connect_Response,
-    &ett_t124_Connect_Additional,
-    &ett_t124_Connect_Result,
     &ett_t124_PlumbDomainIndication,
     &ett_t124_ErectDomainRequest,
     &ett_t124_ChannelAttributes,

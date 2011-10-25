@@ -77,9 +77,6 @@ static int hf_t125_calledConnectId = -1;          /* INTEGER_0_MAX */
 static int hf_t125_domainParameters = -1;         /* DomainParameters */
 static int hf_t125_userData_01 = -1;              /* T_userData_01 */
 static int hf_t125_dataPriority = -1;             /* DataPriority */
-static int hf_t125_heightLimit = -1;              /* INTEGER_0_MAX */
-static int hf_t125_subHeight = -1;                /* INTEGER_0_MAX */
-static int hf_t125_subInterval = -1;              /* INTEGER_0_MAX */
 static int hf_t125_static = -1;                   /* T_static */
 static int hf_t125_channelId = -1;                /* StaticChannelId */
 static int hf_t125_userId = -1;                   /* T_userId */
@@ -92,12 +89,6 @@ static int hf_t125_admitted = -1;                 /* SET_OF_UserId */
 static int hf_t125_admitted_item = -1;            /* UserId */
 static int hf_t125_assigned = -1;                 /* T_assigned */
 static int hf_t125_channelId_02 = -1;             /* AssignedChannelId */
-static int hf_t125_mergeChannels = -1;            /* SET_OF_ChannelAttributes */
-static int hf_t125_mergeChannels_item = -1;       /* ChannelAttributes */
-static int hf_t125_purgeChannelIds = -1;          /* SET_OF_ChannelId */
-static int hf_t125_purgeChannelIds_item = -1;     /* ChannelId */
-static int hf_t125_detachUserIds = -1;            /* SET_OF_UserId */
-static int hf_t125_detachUserIds_item = -1;       /* UserId */
 static int hf_t125_grabbed = -1;                  /* T_grabbed */
 static int hf_t125_tokenId = -1;                  /* TokenId */
 static int hf_t125_grabber = -1;                  /* UserId */
@@ -108,23 +99,7 @@ static int hf_t125_giving = -1;                   /* T_giving */
 static int hf_t125_recipient = -1;                /* UserId */
 static int hf_t125_ungivable = -1;                /* T_ungivable */
 static int hf_t125_given = -1;                    /* T_given */
-static int hf_t125_mergeTokens = -1;              /* SET_OF_TokenAttributes */
-static int hf_t125_mergeTokens_item = -1;         /* TokenAttributes */
-static int hf_t125_purgeTokenIds = -1;            /* SET_OF_TokenId */
-static int hf_t125_purgeTokenIds_item = -1;       /* TokenId */
-static int hf_t125_reason = -1;                   /* Reason */
-static int hf_t125_diagnostic = -1;               /* Diagnostic */
-static int hf_t125_initialOctets = -1;            /* OCTET_STRING */
 static int hf_t125_initiator = -1;                /* UserId */
-static int hf_t125_userIds = -1;                  /* SET_OF_UserId */
-static int hf_t125_userIds_item = -1;             /* UserId */
-static int hf_t125_channelId_03 = -1;             /* ChannelId */
-static int hf_t125_requested = -1;                /* ChannelId */
-static int hf_t125_channelIds = -1;               /* SET_OF_ChannelId */
-static int hf_t125_channelIds_item = -1;          /* ChannelId */
-static int hf_t125_segmentation = -1;             /* Segmentation */
-static int hf_t125_userData_02 = -1;              /* OCTET_STRING */
-static int hf_t125_tokenStatus = -1;              /* TokenStatus */
 static int hf_t125_connect_initial = -1;          /* Connect_Initial */
 static int hf_t125_connect_response = -1;         /* Connect_Response */
 static int hf_t125_connect_additional = -1;       /* Connect_Additional */
@@ -151,65 +126,19 @@ static gint ett_t125_Connect_Initial_U = -1;
 static gint ett_t125_Connect_Response_U = -1;
 static gint ett_t125_Connect_Additional_U = -1;
 static gint ett_t125_Connect_Result_U = -1;
-static gint ett_t125_PlumbDomainIndication_U = -1;
-static gint ett_t125_ErectDomainRequest_U = -1;
 static gint ett_t125_ChannelAttributes = -1;
 static gint ett_t125_T_static = -1;
 static gint ett_t125_T_userId = -1;
 static gint ett_t125_T_private = -1;
 static gint ett_t125_SET_OF_UserId = -1;
 static gint ett_t125_T_assigned = -1;
-static gint ett_t125_MergeChannelsRequest_U = -1;
-static gint ett_t125_SET_OF_ChannelAttributes = -1;
-static gint ett_t125_SET_OF_ChannelId = -1;
-static gint ett_t125_MergeChannelsConfirm_U = -1;
-static gint ett_t125_PurgeChannelsIndication_U = -1;
 static gint ett_t125_TokenAttributes = -1;
 static gint ett_t125_T_grabbed = -1;
 static gint ett_t125_T_inhibited = -1;
 static gint ett_t125_T_giving = -1;
 static gint ett_t125_T_ungivable = -1;
 static gint ett_t125_T_given = -1;
-static gint ett_t125_MergeTokensRequest_U = -1;
-static gint ett_t125_SET_OF_TokenAttributes = -1;
-static gint ett_t125_SET_OF_TokenId = -1;
-static gint ett_t125_MergeTokensConfirm_U = -1;
-static gint ett_t125_PurgeTokensIndication_U = -1;
-static gint ett_t125_DisconnectProviderUltimatum_U = -1;
-static gint ett_t125_RejectMCSPDUUltimatum_U = -1;
-static gint ett_t125_AttachUserRequest_U = -1;
-static gint ett_t125_AttachUserConfirm_U = -1;
-static gint ett_t125_DetachUserRequest_U = -1;
-static gint ett_t125_DetachUserIndication_U = -1;
-static gint ett_t125_ChannelJoinRequest_U = -1;
-static gint ett_t125_ChannelJoinConfirm_U = -1;
-static gint ett_t125_ChannelLeaveRequest_U = -1;
-static gint ett_t125_ChannelConveneRequest_U = -1;
-static gint ett_t125_ChannelConveneConfirm_U = -1;
-static gint ett_t125_ChannelDisbandRequest_U = -1;
-static gint ett_t125_ChannelDisbandIndication_U = -1;
-static gint ett_t125_ChannelAdmitRequest_U = -1;
-static gint ett_t125_ChannelAdmitIndication_U = -1;
-static gint ett_t125_ChannelExpelRequest_U = -1;
-static gint ett_t125_ChannelExpelIndication_U = -1;
-static gint ett_t125_SendDataRequest_U = -1;
-static gint ett_t125_SendDataIndication_U = -1;
-static gint ett_t125_UniformSendDataRequest_U = -1;
-static gint ett_t125_UniformSendDataIndication_U = -1;
 static gint ett_t125_TokenGrabRequest_U = -1;
-static gint ett_t125_TokenGrabConfirm_U = -1;
-static gint ett_t125_TokenInhibitRequest_U = -1;
-static gint ett_t125_TokenInhibitConfirm_U = -1;
-static gint ett_t125_TokenGiveRequest_U = -1;
-static gint ett_t125_TokenGiveIndication_U = -1;
-static gint ett_t125_TokenGiveResponse_U = -1;
-static gint ett_t125_TokenGiveConfirm_U = -1;
-static gint ett_t125_TokenPleaseRequest_U = -1;
-static gint ett_t125_TokenPleaseIndication_U = -1;
-static gint ett_t125_TokenReleaseRequest_U = -1;
-static gint ett_t125_TokenReleaseConfirm_U = -1;
-static gint ett_t125_TokenTestRequest_U = -1;
-static gint ett_t125_TokenTestConfirm_U = -1;
 static gint ett_t125_ConnectMCSPDU = -1;
 
 /*--- End of included file: packet-t125-ett.c ---*/
@@ -395,7 +324,7 @@ dissect_t125_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 static int
 dissect_t125_T_userData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 44 "../../asn1/t125/t125.cnf"
+#line 87 "../../asn1/t125/t125.cnf"
     tvbuff_t	*next_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &next_tvb);
@@ -472,7 +401,7 @@ dissect_t125_Result(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 static int
 dissect_t125_T_userData_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 53 "../../asn1/t125/t125.cnf"
+#line 96 "../../asn1/t125/t125.cnf"
     tvbuff_t	*next_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &next_tvb);
@@ -557,55 +486,6 @@ static int
 dissect_t125_Connect_Result(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
                                       hf_index, BER_CLASS_APP, 104, TRUE, dissect_t125_Connect_Result_U);
-
-  return offset;
-}
-
-
-static const ber_sequence_t PlumbDomainIndication_U_sequence[] = {
-  { &hf_t125_heightLimit    , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_INTEGER_0_MAX },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_t125_PlumbDomainIndication_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   PlumbDomainIndication_U_sequence, hf_index, ett_t125_PlumbDomainIndication_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t125_PlumbDomainIndication(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 0, TRUE, dissect_t125_PlumbDomainIndication_U);
-
-  return offset;
-}
-
-
-static const ber_sequence_t ErectDomainRequest_U_sequence[] = {
-  { &hf_t125_subHeight      , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_INTEGER_0_MAX },
-  { &hf_t125_subInterval    , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_INTEGER_0_MAX },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_t125_ErectDomainRequest_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ErectDomainRequest_U_sequence, hf_index, ett_t125_ErectDomainRequest_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t125_ErectDomainRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 1, TRUE, dissect_t125_ErectDomainRequest_U);
 
   return offset;
 }
@@ -705,107 +585,6 @@ dissect_t125_ChannelAttributes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  ChannelAttributes_choice, hf_index, ett_t125_ChannelAttributes,
                                  NULL);
-
-  return offset;
-}
-
-
-static const ber_sequence_t SET_OF_ChannelAttributes_set_of[1] = {
-  { &hf_t125_mergeChannels_item, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_t125_ChannelAttributes },
-};
-
-static int
-dissect_t125_SET_OF_ChannelAttributes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
-                                 SET_OF_ChannelAttributes_set_of, hf_index, ett_t125_SET_OF_ChannelAttributes);
-
-  return offset;
-}
-
-
-static const ber_sequence_t SET_OF_ChannelId_set_of[1] = {
-  { &hf_t125_purgeChannelIds_item, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_ChannelId },
-};
-
-static int
-dissect_t125_SET_OF_ChannelId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
-                                 SET_OF_ChannelId_set_of, hf_index, ett_t125_SET_OF_ChannelId);
-
-  return offset;
-}
-
-
-static const ber_sequence_t MergeChannelsRequest_U_sequence[] = {
-  { &hf_t125_mergeChannels  , BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_t125_SET_OF_ChannelAttributes },
-  { &hf_t125_purgeChannelIds, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_t125_SET_OF_ChannelId },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_t125_MergeChannelsRequest_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   MergeChannelsRequest_U_sequence, hf_index, ett_t125_MergeChannelsRequest_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t125_MergeChannelsRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 2, TRUE, dissect_t125_MergeChannelsRequest_U);
-
-  return offset;
-}
-
-
-static const ber_sequence_t MergeChannelsConfirm_U_sequence[] = {
-  { &hf_t125_mergeChannels  , BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_t125_SET_OF_ChannelAttributes },
-  { &hf_t125_purgeChannelIds, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_t125_SET_OF_ChannelId },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_t125_MergeChannelsConfirm_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   MergeChannelsConfirm_U_sequence, hf_index, ett_t125_MergeChannelsConfirm_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t125_MergeChannelsConfirm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 3, TRUE, dissect_t125_MergeChannelsConfirm_U);
-
-  return offset;
-}
-
-
-static const ber_sequence_t PurgeChannelsIndication_U_sequence[] = {
-  { &hf_t125_detachUserIds  , BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_t125_SET_OF_UserId },
-  { &hf_t125_purgeChannelIds, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_t125_SET_OF_ChannelId },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_t125_PurgeChannelsIndication_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   PurgeChannelsIndication_U_sequence, hf_index, ett_t125_PurgeChannelsIndication_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t125_PurgeChannelsIndication(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 4, TRUE, dissect_t125_PurgeChannelsIndication_U);
 
   return offset;
 }
@@ -915,42 +694,16 @@ dissect_t125_TokenAttributes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 }
 
 
-static const ber_sequence_t SET_OF_TokenAttributes_set_of[1] = {
-  { &hf_t125_mergeTokens_item, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_t125_TokenAttributes },
-};
-
-static int
-dissect_t125_SET_OF_TokenAttributes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
-                                 SET_OF_TokenAttributes_set_of, hf_index, ett_t125_SET_OF_TokenAttributes);
-
-  return offset;
-}
-
-
-static const ber_sequence_t SET_OF_TokenId_set_of[1] = {
-  { &hf_t125_purgeTokenIds_item, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_TokenId },
-};
-
-static int
-dissect_t125_SET_OF_TokenId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
-                                 SET_OF_TokenId_set_of, hf_index, ett_t125_SET_OF_TokenId);
-
-  return offset;
-}
-
-
-static const ber_sequence_t MergeTokensRequest_U_sequence[] = {
-  { &hf_t125_mergeTokens    , BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_t125_SET_OF_TokenAttributes },
-  { &hf_t125_purgeTokenIds  , BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_t125_SET_OF_TokenId },
+static const ber_sequence_t TokenGrabRequest_U_sequence[] = {
+  { &hf_t125_initiator      , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_UserId },
+  { &hf_t125_tokenId        , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_TokenId },
   { NULL, 0, 0, 0, NULL }
 };
 
 static int
-dissect_t125_MergeTokensRequest_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_t125_TokenGrabRequest_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   MergeTokensRequest_U_sequence, hf_index, ett_t125_MergeTokensRequest_U);
+                                   TokenGrabRequest_U_sequence, hf_index, ett_t125_TokenGrabRequest_U);
 
   return offset;
 }
@@ -958,58 +711,9 @@ dissect_t125_MergeTokensRequest_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 
 static int
-dissect_t125_MergeTokensRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_t125_TokenGrabRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 5, TRUE, dissect_t125_MergeTokensRequest_U);
-
-  return offset;
-}
-
-
-static const ber_sequence_t MergeTokensConfirm_U_sequence[] = {
-  { &hf_t125_mergeTokens    , BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_t125_SET_OF_TokenAttributes },
-  { &hf_t125_purgeTokenIds  , BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_t125_SET_OF_TokenId },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_t125_MergeTokensConfirm_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   MergeTokensConfirm_U_sequence, hf_index, ett_t125_MergeTokensConfirm_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t125_MergeTokensConfirm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 6, TRUE, dissect_t125_MergeTokensConfirm_U);
-
-  return offset;
-}
-
-
-static const ber_sequence_t PurgeTokensIndication_U_sequence[] = {
-  { &hf_t125_purgeTokenIds  , BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_t125_SET_OF_TokenId },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_t125_PurgeTokensIndication_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   PurgeTokensIndication_U_sequence, hf_index, ett_t125_PurgeTokensIndication_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t125_PurgeTokensIndication(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 7, TRUE, dissect_t125_PurgeTokensIndication_U);
+                                      hf_index, BER_CLASS_APP, 29, TRUE, dissect_t125_TokenGrabRequest_U);
 
   return offset;
 }
@@ -1029,30 +733,6 @@ static int
 dissect_t125_Reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
-
-  return offset;
-}
-
-
-static const ber_sequence_t DisconnectProviderUltimatum_U_sequence[] = {
-  { &hf_t125_reason         , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_t125_Reason },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_t125_DisconnectProviderUltimatum_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   DisconnectProviderUltimatum_U_sequence, hf_index, ett_t125_DisconnectProviderUltimatum_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t125_DisconnectProviderUltimatum(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 8, TRUE, dissect_t125_DisconnectProviderUltimatum_U);
 
   return offset;
 }
@@ -1081,881 +761,6 @@ static int
 dissect_t125_Diagnostic(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
-
-  return offset;
-}
-
-
-static const ber_sequence_t RejectMCSPDUUltimatum_U_sequence[] = {
-  { &hf_t125_diagnostic     , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_t125_Diagnostic },
-  { &hf_t125_initialOctets  , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_t125_OCTET_STRING },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_t125_RejectMCSPDUUltimatum_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   RejectMCSPDUUltimatum_U_sequence, hf_index, ett_t125_RejectMCSPDUUltimatum_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t125_RejectMCSPDUUltimatum(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 9, TRUE, dissect_t125_RejectMCSPDUUltimatum_U);
-
-  return offset;
-}
-
-
-static const ber_sequence_t AttachUserRequest_U_sequence[] = {
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_t125_AttachUserRequest_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   AttachUserRequest_U_sequence, hf_index, ett_t125_AttachUserRequest_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t125_AttachUserRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 10, TRUE, dissect_t125_AttachUserRequest_U);
-
-  return offset;
-}
-
-
-static const ber_sequence_t AttachUserConfirm_U_sequence[] = {
-  { &hf_t125_result         , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_t125_Result },
-  { &hf_t125_initiator      , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_t125_UserId },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_t125_AttachUserConfirm_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   AttachUserConfirm_U_sequence, hf_index, ett_t125_AttachUserConfirm_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t125_AttachUserConfirm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 11, TRUE, dissect_t125_AttachUserConfirm_U);
-
-  return offset;
-}
-
-
-static const ber_sequence_t DetachUserRequest_U_sequence[] = {
-  { &hf_t125_reason         , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_t125_Reason },
-  { &hf_t125_userIds        , BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_t125_SET_OF_UserId },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_t125_DetachUserRequest_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   DetachUserRequest_U_sequence, hf_index, ett_t125_DetachUserRequest_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t125_DetachUserRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 12, TRUE, dissect_t125_DetachUserRequest_U);
-
-  return offset;
-}
-
-
-static const ber_sequence_t DetachUserIndication_U_sequence[] = {
-  { &hf_t125_reason         , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_t125_Reason },
-  { &hf_t125_userIds        , BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_t125_SET_OF_UserId },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_t125_DetachUserIndication_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   DetachUserIndication_U_sequence, hf_index, ett_t125_DetachUserIndication_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t125_DetachUserIndication(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 13, TRUE, dissect_t125_DetachUserIndication_U);
-
-  return offset;
-}
-
-
-static const ber_sequence_t ChannelJoinRequest_U_sequence[] = {
-  { &hf_t125_initiator      , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_UserId },
-  { &hf_t125_channelId_03   , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_ChannelId },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_t125_ChannelJoinRequest_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ChannelJoinRequest_U_sequence, hf_index, ett_t125_ChannelJoinRequest_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t125_ChannelJoinRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 14, TRUE, dissect_t125_ChannelJoinRequest_U);
-
-  return offset;
-}
-
-
-static const ber_sequence_t ChannelJoinConfirm_U_sequence[] = {
-  { &hf_t125_result         , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_t125_Result },
-  { &hf_t125_initiator      , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_UserId },
-  { &hf_t125_requested      , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_ChannelId },
-  { &hf_t125_channelId_03   , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_t125_ChannelId },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_t125_ChannelJoinConfirm_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ChannelJoinConfirm_U_sequence, hf_index, ett_t125_ChannelJoinConfirm_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t125_ChannelJoinConfirm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 15, TRUE, dissect_t125_ChannelJoinConfirm_U);
-
-  return offset;
-}
-
-
-static const ber_sequence_t ChannelLeaveRequest_U_sequence[] = {
-  { &hf_t125_channelIds     , BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_t125_SET_OF_ChannelId },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_t125_ChannelLeaveRequest_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ChannelLeaveRequest_U_sequence, hf_index, ett_t125_ChannelLeaveRequest_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t125_ChannelLeaveRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 16, TRUE, dissect_t125_ChannelLeaveRequest_U);
-
-  return offset;
-}
-
-
-static const ber_sequence_t ChannelConveneRequest_U_sequence[] = {
-  { &hf_t125_initiator      , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_UserId },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_t125_ChannelConveneRequest_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ChannelConveneRequest_U_sequence, hf_index, ett_t125_ChannelConveneRequest_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t125_ChannelConveneRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 17, TRUE, dissect_t125_ChannelConveneRequest_U);
-
-  return offset;
-}
-
-
-static const ber_sequence_t ChannelConveneConfirm_U_sequence[] = {
-  { &hf_t125_result         , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_t125_Result },
-  { &hf_t125_initiator      , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_UserId },
-  { &hf_t125_channelId_01   , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_t125_PrivateChannelId },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_t125_ChannelConveneConfirm_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ChannelConveneConfirm_U_sequence, hf_index, ett_t125_ChannelConveneConfirm_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t125_ChannelConveneConfirm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 18, TRUE, dissect_t125_ChannelConveneConfirm_U);
-
-  return offset;
-}
-
-
-static const ber_sequence_t ChannelDisbandRequest_U_sequence[] = {
-  { &hf_t125_initiator      , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_UserId },
-  { &hf_t125_channelId_01   , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_PrivateChannelId },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_t125_ChannelDisbandRequest_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ChannelDisbandRequest_U_sequence, hf_index, ett_t125_ChannelDisbandRequest_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t125_ChannelDisbandRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 19, TRUE, dissect_t125_ChannelDisbandRequest_U);
-
-  return offset;
-}
-
-
-static const ber_sequence_t ChannelDisbandIndication_U_sequence[] = {
-  { &hf_t125_channelId_01   , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_PrivateChannelId },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_t125_ChannelDisbandIndication_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ChannelDisbandIndication_U_sequence, hf_index, ett_t125_ChannelDisbandIndication_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t125_ChannelDisbandIndication(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 20, TRUE, dissect_t125_ChannelDisbandIndication_U);
-
-  return offset;
-}
-
-
-static const ber_sequence_t ChannelAdmitRequest_U_sequence[] = {
-  { &hf_t125_initiator      , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_UserId },
-  { &hf_t125_channelId_01   , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_PrivateChannelId },
-  { &hf_t125_userIds        , BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_t125_SET_OF_UserId },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_t125_ChannelAdmitRequest_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ChannelAdmitRequest_U_sequence, hf_index, ett_t125_ChannelAdmitRequest_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t125_ChannelAdmitRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 21, TRUE, dissect_t125_ChannelAdmitRequest_U);
-
-  return offset;
-}
-
-
-static const ber_sequence_t ChannelAdmitIndication_U_sequence[] = {
-  { &hf_t125_initiator      , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_UserId },
-  { &hf_t125_channelId_01   , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_PrivateChannelId },
-  { &hf_t125_userIds        , BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_t125_SET_OF_UserId },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_t125_ChannelAdmitIndication_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ChannelAdmitIndication_U_sequence, hf_index, ett_t125_ChannelAdmitIndication_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t125_ChannelAdmitIndication(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 22, TRUE, dissect_t125_ChannelAdmitIndication_U);
-
-  return offset;
-}
-
-
-static const ber_sequence_t ChannelExpelRequest_U_sequence[] = {
-  { &hf_t125_initiator      , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_UserId },
-  { &hf_t125_channelId_01   , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_PrivateChannelId },
-  { &hf_t125_userIds        , BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_t125_SET_OF_UserId },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_t125_ChannelExpelRequest_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ChannelExpelRequest_U_sequence, hf_index, ett_t125_ChannelExpelRequest_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t125_ChannelExpelRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 23, TRUE, dissect_t125_ChannelExpelRequest_U);
-
-  return offset;
-}
-
-
-static const ber_sequence_t ChannelExpelIndication_U_sequence[] = {
-  { &hf_t125_channelId_01   , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_PrivateChannelId },
-  { &hf_t125_userIds        , BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_t125_SET_OF_UserId },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_t125_ChannelExpelIndication_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   ChannelExpelIndication_U_sequence, hf_index, ett_t125_ChannelExpelIndication_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t125_ChannelExpelIndication(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 24, TRUE, dissect_t125_ChannelExpelIndication_U);
-
-  return offset;
-}
-
-
-static const ber_sequence_t SendDataRequest_U_sequence[] = {
-  { &hf_t125_initiator      , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_UserId },
-  { &hf_t125_channelId_03   , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_ChannelId },
-  { &hf_t125_dataPriority   , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_t125_DataPriority },
-  { &hf_t125_segmentation   , BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_t125_Segmentation },
-  { &hf_t125_userData_02    , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_t125_OCTET_STRING },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_t125_SendDataRequest_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SendDataRequest_U_sequence, hf_index, ett_t125_SendDataRequest_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t125_SendDataRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 25, TRUE, dissect_t125_SendDataRequest_U);
-
-  return offset;
-}
-
-
-static const ber_sequence_t SendDataIndication_U_sequence[] = {
-  { &hf_t125_initiator      , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_UserId },
-  { &hf_t125_channelId_03   , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_ChannelId },
-  { &hf_t125_dataPriority   , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_t125_DataPriority },
-  { &hf_t125_segmentation   , BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_t125_Segmentation },
-  { &hf_t125_userData_02    , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_t125_OCTET_STRING },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_t125_SendDataIndication_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   SendDataIndication_U_sequence, hf_index, ett_t125_SendDataIndication_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t125_SendDataIndication(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 26, TRUE, dissect_t125_SendDataIndication_U);
-
-  return offset;
-}
-
-
-static const ber_sequence_t UniformSendDataRequest_U_sequence[] = {
-  { &hf_t125_initiator      , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_UserId },
-  { &hf_t125_channelId_03   , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_ChannelId },
-  { &hf_t125_dataPriority   , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_t125_DataPriority },
-  { &hf_t125_segmentation   , BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_t125_Segmentation },
-  { &hf_t125_userData_02    , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_t125_OCTET_STRING },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_t125_UniformSendDataRequest_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   UniformSendDataRequest_U_sequence, hf_index, ett_t125_UniformSendDataRequest_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t125_UniformSendDataRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 27, TRUE, dissect_t125_UniformSendDataRequest_U);
-
-  return offset;
-}
-
-
-static const ber_sequence_t UniformSendDataIndication_U_sequence[] = {
-  { &hf_t125_initiator      , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_UserId },
-  { &hf_t125_channelId_03   , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_ChannelId },
-  { &hf_t125_dataPriority   , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_t125_DataPriority },
-  { &hf_t125_segmentation   , BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_t125_Segmentation },
-  { &hf_t125_userData_02    , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_t125_OCTET_STRING },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_t125_UniformSendDataIndication_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   UniformSendDataIndication_U_sequence, hf_index, ett_t125_UniformSendDataIndication_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t125_UniformSendDataIndication(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 28, TRUE, dissect_t125_UniformSendDataIndication_U);
-
-  return offset;
-}
-
-
-static const ber_sequence_t TokenGrabRequest_U_sequence[] = {
-  { &hf_t125_initiator      , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_UserId },
-  { &hf_t125_tokenId        , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_TokenId },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_t125_TokenGrabRequest_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   TokenGrabRequest_U_sequence, hf_index, ett_t125_TokenGrabRequest_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t125_TokenGrabRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 29, TRUE, dissect_t125_TokenGrabRequest_U);
-
-  return offset;
-}
-
-
-static const ber_sequence_t TokenGrabConfirm_U_sequence[] = {
-  { &hf_t125_result         , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_t125_Result },
-  { &hf_t125_initiator      , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_UserId },
-  { &hf_t125_tokenId        , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_TokenId },
-  { &hf_t125_tokenStatus    , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_t125_TokenStatus },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_t125_TokenGrabConfirm_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   TokenGrabConfirm_U_sequence, hf_index, ett_t125_TokenGrabConfirm_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t125_TokenGrabConfirm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 30, TRUE, dissect_t125_TokenGrabConfirm_U);
-
-  return offset;
-}
-
-
-static const ber_sequence_t TokenInhibitRequest_U_sequence[] = {
-  { &hf_t125_initiator      , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_UserId },
-  { &hf_t125_tokenId        , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_TokenId },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_t125_TokenInhibitRequest_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   TokenInhibitRequest_U_sequence, hf_index, ett_t125_TokenInhibitRequest_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t125_TokenInhibitRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 31, TRUE, dissect_t125_TokenInhibitRequest_U);
-
-  return offset;
-}
-
-
-static const ber_sequence_t TokenInhibitConfirm_U_sequence[] = {
-  { &hf_t125_result         , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_t125_Result },
-  { &hf_t125_initiator      , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_UserId },
-  { &hf_t125_tokenId        , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_TokenId },
-  { &hf_t125_tokenStatus    , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_t125_TokenStatus },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_t125_TokenInhibitConfirm_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   TokenInhibitConfirm_U_sequence, hf_index, ett_t125_TokenInhibitConfirm_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t125_TokenInhibitConfirm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 32, TRUE, dissect_t125_TokenInhibitConfirm_U);
-
-  return offset;
-}
-
-
-static const ber_sequence_t TokenGiveRequest_U_sequence[] = {
-  { &hf_t125_initiator      , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_UserId },
-  { &hf_t125_tokenId        , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_TokenId },
-  { &hf_t125_recipient      , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_UserId },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_t125_TokenGiveRequest_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   TokenGiveRequest_U_sequence, hf_index, ett_t125_TokenGiveRequest_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t125_TokenGiveRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 33, TRUE, dissect_t125_TokenGiveRequest_U);
-
-  return offset;
-}
-
-
-static const ber_sequence_t TokenGiveIndication_U_sequence[] = {
-  { &hf_t125_initiator      , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_UserId },
-  { &hf_t125_tokenId        , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_TokenId },
-  { &hf_t125_recipient      , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_UserId },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_t125_TokenGiveIndication_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   TokenGiveIndication_U_sequence, hf_index, ett_t125_TokenGiveIndication_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t125_TokenGiveIndication(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 34, TRUE, dissect_t125_TokenGiveIndication_U);
-
-  return offset;
-}
-
-
-static const ber_sequence_t TokenGiveResponse_U_sequence[] = {
-  { &hf_t125_result         , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_t125_Result },
-  { &hf_t125_recipient      , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_UserId },
-  { &hf_t125_tokenId        , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_TokenId },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_t125_TokenGiveResponse_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   TokenGiveResponse_U_sequence, hf_index, ett_t125_TokenGiveResponse_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t125_TokenGiveResponse(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 35, TRUE, dissect_t125_TokenGiveResponse_U);
-
-  return offset;
-}
-
-
-static const ber_sequence_t TokenGiveConfirm_U_sequence[] = {
-  { &hf_t125_result         , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_t125_Result },
-  { &hf_t125_initiator      , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_UserId },
-  { &hf_t125_tokenId        , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_TokenId },
-  { &hf_t125_tokenStatus    , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_t125_TokenStatus },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_t125_TokenGiveConfirm_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   TokenGiveConfirm_U_sequence, hf_index, ett_t125_TokenGiveConfirm_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t125_TokenGiveConfirm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 36, TRUE, dissect_t125_TokenGiveConfirm_U);
-
-  return offset;
-}
-
-
-static const ber_sequence_t TokenPleaseRequest_U_sequence[] = {
-  { &hf_t125_initiator      , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_UserId },
-  { &hf_t125_tokenId        , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_TokenId },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_t125_TokenPleaseRequest_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   TokenPleaseRequest_U_sequence, hf_index, ett_t125_TokenPleaseRequest_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t125_TokenPleaseRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 37, TRUE, dissect_t125_TokenPleaseRequest_U);
-
-  return offset;
-}
-
-
-static const ber_sequence_t TokenPleaseIndication_U_sequence[] = {
-  { &hf_t125_initiator      , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_UserId },
-  { &hf_t125_tokenId        , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_TokenId },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_t125_TokenPleaseIndication_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   TokenPleaseIndication_U_sequence, hf_index, ett_t125_TokenPleaseIndication_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t125_TokenPleaseIndication(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 38, TRUE, dissect_t125_TokenPleaseIndication_U);
-
-  return offset;
-}
-
-
-static const ber_sequence_t TokenReleaseRequest_U_sequence[] = {
-  { &hf_t125_initiator      , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_UserId },
-  { &hf_t125_tokenId        , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_TokenId },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_t125_TokenReleaseRequest_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   TokenReleaseRequest_U_sequence, hf_index, ett_t125_TokenReleaseRequest_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t125_TokenReleaseRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 39, TRUE, dissect_t125_TokenReleaseRequest_U);
-
-  return offset;
-}
-
-
-static const ber_sequence_t TokenReleaseConfirm_U_sequence[] = {
-  { &hf_t125_result         , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_t125_Result },
-  { &hf_t125_initiator      , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_UserId },
-  { &hf_t125_tokenId        , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_TokenId },
-  { &hf_t125_tokenStatus    , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_t125_TokenStatus },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_t125_TokenReleaseConfirm_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   TokenReleaseConfirm_U_sequence, hf_index, ett_t125_TokenReleaseConfirm_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t125_TokenReleaseConfirm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 40, TRUE, dissect_t125_TokenReleaseConfirm_U);
-
-  return offset;
-}
-
-
-static const ber_sequence_t TokenTestRequest_U_sequence[] = {
-  { &hf_t125_initiator      , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_UserId },
-  { &hf_t125_tokenId        , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_TokenId },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_t125_TokenTestRequest_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   TokenTestRequest_U_sequence, hf_index, ett_t125_TokenTestRequest_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t125_TokenTestRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 41, TRUE, dissect_t125_TokenTestRequest_U);
-
-  return offset;
-}
-
-
-static const ber_sequence_t TokenTestConfirm_U_sequence[] = {
-  { &hf_t125_initiator      , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_UserId },
-  { &hf_t125_tokenId        , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_TokenId },
-  { &hf_t125_tokenStatus    , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_t125_TokenStatus },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_t125_TokenTestConfirm_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   TokenTestConfirm_U_sequence, hf_index, ett_t125_TokenTestConfirm_U);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t125_TokenTestConfirm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_index, BER_CLASS_APP, 42, TRUE, dissect_t125_TokenTestConfirm_U);
 
   return offset;
 }
@@ -2160,18 +965,6 @@ void proto_register_t125(void) {
       { "dataPriority", "t125.dataPriority",
         FT_UINT32, BASE_DEC, VALS(t125_DataPriority_vals), 0,
         NULL, HFILL }},
-    { &hf_t125_heightLimit,
-      { "heightLimit", "t125.heightLimit",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_MAX", HFILL }},
-    { &hf_t125_subHeight,
-      { "subHeight", "t125.subHeight",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_MAX", HFILL }},
-    { &hf_t125_subInterval,
-      { "subInterval", "t125.subInterval",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_MAX", HFILL }},
     { &hf_t125_static,
       { "static", "t125.static",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -2220,30 +1013,6 @@ void proto_register_t125(void) {
       { "channelId", "t125.channelId",
         FT_UINT32, BASE_DEC, NULL, 0,
         "AssignedChannelId", HFILL }},
-    { &hf_t125_mergeChannels,
-      { "mergeChannels", "t125.mergeChannels",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "SET_OF_ChannelAttributes", HFILL }},
-    { &hf_t125_mergeChannels_item,
-      { "ChannelAttributes", "t125.ChannelAttributes",
-        FT_UINT32, BASE_DEC, VALS(t125_ChannelAttributes_vals), 0,
-        NULL, HFILL }},
-    { &hf_t125_purgeChannelIds,
-      { "purgeChannelIds", "t125.purgeChannelIds",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "SET_OF_ChannelId", HFILL }},
-    { &hf_t125_purgeChannelIds_item,
-      { "ChannelId", "t125.ChannelId",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_detachUserIds,
-      { "detachUserIds", "t125.detachUserIds",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "SET_OF_UserId", HFILL }},
-    { &hf_t125_detachUserIds_item,
-      { "UserId", "t125.UserId",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
     { &hf_t125_grabbed,
       { "grabbed", "t125.grabbed",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -2284,74 +1053,10 @@ void proto_register_t125(void) {
       { "given", "t125.given",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_t125_mergeTokens,
-      { "mergeTokens", "t125.mergeTokens",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "SET_OF_TokenAttributes", HFILL }},
-    { &hf_t125_mergeTokens_item,
-      { "TokenAttributes", "t125.TokenAttributes",
-        FT_UINT32, BASE_DEC, VALS(t125_TokenAttributes_vals), 0,
-        NULL, HFILL }},
-    { &hf_t125_purgeTokenIds,
-      { "purgeTokenIds", "t125.purgeTokenIds",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "SET_OF_TokenId", HFILL }},
-    { &hf_t125_purgeTokenIds_item,
-      { "TokenId", "t125.TokenId",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_reason,
-      { "reason", "t125.reason",
-        FT_UINT32, BASE_DEC, VALS(t125_Reason_vals), 0,
-        NULL, HFILL }},
-    { &hf_t125_diagnostic,
-      { "diagnostic", "t125.diagnostic",
-        FT_UINT32, BASE_DEC, VALS(t125_Diagnostic_vals), 0,
-        NULL, HFILL }},
-    { &hf_t125_initialOctets,
-      { "initialOctets", "t125.initialOctets",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING", HFILL }},
     { &hf_t125_initiator,
       { "initiator", "t125.initiator",
         FT_UINT32, BASE_DEC, NULL, 0,
         "UserId", HFILL }},
-    { &hf_t125_userIds,
-      { "userIds", "t125.userIds",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "SET_OF_UserId", HFILL }},
-    { &hf_t125_userIds_item,
-      { "UserId", "t125.UserId",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_channelId_03,
-      { "channelId", "t125.channelId",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_requested,
-      { "requested", "t125.requested",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "ChannelId", HFILL }},
-    { &hf_t125_channelIds,
-      { "channelIds", "t125.channelIds",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "SET_OF_ChannelId", HFILL }},
-    { &hf_t125_channelIds_item,
-      { "ChannelId", "t125.ChannelId",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_segmentation,
-      { "segmentation", "t125.segmentation",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t125_userData_02,
-      { "userData", "t125.userData",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING", HFILL }},
-    { &hf_t125_tokenStatus,
-      { "tokenStatus", "t125.tokenStatus",
-        FT_UINT32, BASE_DEC, VALS(t125_TokenStatus_vals), 0,
-        NULL, HFILL }},
     { &hf_t125_connect_initial,
       { "connect-initial", "t125.connect_initial",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -2393,65 +1098,19 @@ void proto_register_t125(void) {
     &ett_t125_Connect_Response_U,
     &ett_t125_Connect_Additional_U,
     &ett_t125_Connect_Result_U,
-    &ett_t125_PlumbDomainIndication_U,
-    &ett_t125_ErectDomainRequest_U,
     &ett_t125_ChannelAttributes,
     &ett_t125_T_static,
     &ett_t125_T_userId,
     &ett_t125_T_private,
     &ett_t125_SET_OF_UserId,
     &ett_t125_T_assigned,
-    &ett_t125_MergeChannelsRequest_U,
-    &ett_t125_SET_OF_ChannelAttributes,
-    &ett_t125_SET_OF_ChannelId,
-    &ett_t125_MergeChannelsConfirm_U,
-    &ett_t125_PurgeChannelsIndication_U,
     &ett_t125_TokenAttributes,
     &ett_t125_T_grabbed,
     &ett_t125_T_inhibited,
     &ett_t125_T_giving,
     &ett_t125_T_ungivable,
     &ett_t125_T_given,
-    &ett_t125_MergeTokensRequest_U,
-    &ett_t125_SET_OF_TokenAttributes,
-    &ett_t125_SET_OF_TokenId,
-    &ett_t125_MergeTokensConfirm_U,
-    &ett_t125_PurgeTokensIndication_U,
-    &ett_t125_DisconnectProviderUltimatum_U,
-    &ett_t125_RejectMCSPDUUltimatum_U,
-    &ett_t125_AttachUserRequest_U,
-    &ett_t125_AttachUserConfirm_U,
-    &ett_t125_DetachUserRequest_U,
-    &ett_t125_DetachUserIndication_U,
-    &ett_t125_ChannelJoinRequest_U,
-    &ett_t125_ChannelJoinConfirm_U,
-    &ett_t125_ChannelLeaveRequest_U,
-    &ett_t125_ChannelConveneRequest_U,
-    &ett_t125_ChannelConveneConfirm_U,
-    &ett_t125_ChannelDisbandRequest_U,
-    &ett_t125_ChannelDisbandIndication_U,
-    &ett_t125_ChannelAdmitRequest_U,
-    &ett_t125_ChannelAdmitIndication_U,
-    &ett_t125_ChannelExpelRequest_U,
-    &ett_t125_ChannelExpelIndication_U,
-    &ett_t125_SendDataRequest_U,
-    &ett_t125_SendDataIndication_U,
-    &ett_t125_UniformSendDataRequest_U,
-    &ett_t125_UniformSendDataIndication_U,
     &ett_t125_TokenGrabRequest_U,
-    &ett_t125_TokenGrabConfirm_U,
-    &ett_t125_TokenInhibitRequest_U,
-    &ett_t125_TokenInhibitConfirm_U,
-    &ett_t125_TokenGiveRequest_U,
-    &ett_t125_TokenGiveIndication_U,
-    &ett_t125_TokenGiveResponse_U,
-    &ett_t125_TokenGiveConfirm_U,
-    &ett_t125_TokenPleaseRequest_U,
-    &ett_t125_TokenPleaseIndication_U,
-    &ett_t125_TokenReleaseRequest_U,
-    &ett_t125_TokenReleaseConfirm_U,
-    &ett_t125_TokenTestRequest_U,
-    &ett_t125_TokenTestConfirm_U,
     &ett_t125_ConnectMCSPDU,
 
 /*--- End of included file: packet-t125-ettarr.c ---*/

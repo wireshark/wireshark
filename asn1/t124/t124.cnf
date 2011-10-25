@@ -11,6 +11,12 @@ ConnectGCCPDU
 #.OMIT_ASSIGNMENT
 GCCPDU
 ConnectMCSPDU
+IndicationPDU
+ResponsePDU
+Connect-Initial
+Connect-Respons
+Connect-Additional
+Connect-Result
 
 #.PDU
 #----------------------------------------------------------------------------------------
