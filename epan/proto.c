@@ -5845,7 +5845,7 @@ hfinfo_uint64_format(const header_field_info *hfinfo)
 			format = "%s: %" G_GINT64_MODIFIER "u";
 			break;
 		case BASE_DEC_HEX:
-			format = "%s: %" G_GINT64_MODIFIER "u (%" G_GINT64_MODIFIER "x)";
+			format = "%s: %" G_GINT64_MODIFIER "u (0x%016" G_GINT64_MODIFIER "x)";
 			break;
 		case BASE_OCT: /* I'm lazy */
 			format = "%s: %#" G_GINT64_MODIFIER "o";
@@ -6028,7 +6028,7 @@ hfinfo_int64_format(const header_field_info *hfinfo)
 			format = "%s: %" G_GINT64_MODIFIER "d";
 			break;
 		case BASE_DEC_HEX:
-			format = "%s: %" G_GINT64_MODIFIER "d (%" G_GINT64_MODIFIER "x)";
+			format = "%s: %" G_GINT64_MODIFIER "d (0x%016" G_GINT64_MODIFIER "x)";
 			break;
 		case BASE_OCT: /* I'm lazy */
 			format = "%s: %#" G_GINT64_MODIFIER "o";
