@@ -69,7 +69,7 @@ num_operands(test_op_t op)
 {
 	switch(op) {
 		case TEST_OP_UNINITIALIZED:
-			g_assert_not_reached();
+			break;
 		case TEST_OP_EXISTS:
 		case TEST_OP_NOT:
 			return 1;
