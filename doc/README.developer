@@ -2335,14 +2335,14 @@ proto_register_*() function) and a value.  The value will be fetched
 from the tvbuff by proto_tree_add_item(), based on the type of the field
 and the encoding of the value as specified by the "encoding" argument.
 
-For protocols, FT_NONE fields, FT_BYTES fields fields, FT_IPv6
-fields, FT_IPXNET fields, and FT_OID fields, the encoding is not
-relevant; the 'encoding' argument should be ENC_NA (Not Applicable).
+For FT_NONE, FT_BYTES, FT_ETHER, FT_IPv6, FT_IPXNET, FT_OID fields,
+and 'protocol' fields the encoding is not relevant; the 'encoding'
+argument should be ENC_NA (Not Applicable).
 
-For integral, floating-point, Boolean, and FT_GUID, FT_EUI64 fields, the encoding
-specifies the byte order of the value; the 'encoding' argument should be
-is ENC_LITTLE_ENDIAN if the value is little-endian and ENC_BIG_ENDIAN if
-it is big-endian.
+For integral, floating-point, Boolean, FT_GUID, and FT_EUI64 fields,
+the encoding specifies the byte order of the value; the 'encoding'
+argument should be is ENC_LITTLE_ENDIAN if the value is little-endian
+and ENC_BIG_ENDIAN if it is big-endian.
 
 For FT_IPv4 fields, the encoding also specifies the byte order of the
 value.  In almost all cases, the encoding is in network byte order,
@@ -2354,9 +2354,9 @@ For string fields, the encoding specifies the character set used for the
 string and the way individual code points in that character set are
 encoded.  For FT_UINT_STRING fields, the byte order of the count must be
 specified; when support for UTF-16 encoding is added, the byte order of
-the encoding will also have to be specified.  In other cases, either
-ENC_NA, ENC_BIG_ENDIAN, or ENC_LITTLE_ENDIAN can be specified.  The
-character encodings that are currently supported are:
+the encoding will also have to be specified.  In other cases, ENC_NA
+should be used.  The character encodings that are currently
+supported are:
 
 	ENC_UTF_8 - UTF-8
 	ENC_ASCII - ASCII (currently treated as UTF-8; in the future,
