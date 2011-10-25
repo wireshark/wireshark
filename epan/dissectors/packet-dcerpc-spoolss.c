@@ -5873,7 +5873,7 @@ cb_notify_str_postprocess(packet_info *pinfo _U_,
 	len = tvb_get_letohl(tvb, start_offset);
 
 	s = tvb_get_unicode_string(
-		tvb, start_offset + 4, (end_offset - start_offset - 4), TRUE);
+		tvb, start_offset + 4, (end_offset - start_offset - 4), ENC_LITTLE_ENDIAN);
 
 	/* Append string to upper-level proto_items */
 
