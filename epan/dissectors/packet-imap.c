@@ -29,14 +29,17 @@
 # include "config.h"
 #endif
 
-#include <glib.h>
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include "packet-ssl.h"
 
 static int proto_imap = -1;
-static int hf_imap_response = -1;
+static int hf_imap_isrequest = -1;
+static int hf_imap_line = -1;
 static int hf_imap_request = -1;
+static int hf_imap_request_tag = -1;
+static int hf_imap_response = -1;
+static int hf_imap_response_tag = -1;
 
 static gint ett_imap = -1;
 static gint ett_imap_reqresp = -1;
@@ -47,9 +50,9 @@ static gint ett_imap_reqresp = -1;
 static void
 dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-        gboolean        is_request;
-        proto_tree      *imap_tree, *reqresp_tree;
-        proto_item      *ti, *hidden_item;
+	gboolean        is_request;
+	proto_tree      *imap_tree, *reqresp_tree;
+	proto_item      *ti, *hidden_item;
 	gint		offset = 0;
 	const guchar	*line;
 	gint		next_offset;
@@ -79,17 +82,10 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_imap, tvb, offset, -1,
-					 ENC_NA);
+		ti = proto_tree_add_item(tree, proto_imap, tvb, offset, -1, ENC_NA);
 		imap_tree = proto_item_add_subtree(ti, ett_imap);
 
-		if (is_request) {
-			hidden_item = proto_tree_add_boolean(imap_tree,
-						      hf_imap_request, tvb, 0, 0, TRUE);
-		} else {
-			hidden_item = proto_tree_add_boolean(imap_tree,
-						      hf_imap_response, tvb, 0, 0, TRUE);
-		}
+		hidden_item = proto_tree_add_boolean(imap_tree, hf_imap_isrequest, tvb, 0, 0, is_request);
 		PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 		while(tvb_length_remaining(tvb, offset) > 2) {
@@ -107,9 +103,9 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/*
 			 * Put the line into the protocol tree.
 			 */
-			ti = proto_tree_add_text(imap_tree, tvb, offset,
-						 next_offset - offset, "%s",
-						 tvb_format_text(tvb, offset, next_offset - offset));
+			ti = proto_tree_add_item(imap_tree, hf_imap_line, tvb, offset,
+					next_offset - offset, ENC_ASCII|ENC_NA);
+
 			reqresp_tree = proto_item_add_subtree(ti, ett_imap_reqresp);
 
 			/*
@@ -122,15 +118,9 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 */
 			tokenlen = get_token_len(line, line + linelen, &next_token);
 			if (tokenlen != 0) {
-				if (is_request) {
-					proto_tree_add_text(reqresp_tree, tvb, offset,
-							    tokenlen, "Request Tag: %s",
-							    format_text(line, tokenlen));
-				} else {
-					proto_tree_add_text(reqresp_tree, tvb, offset,
-							    tokenlen, "Response Tag: %s",
-							    format_text(line, tokenlen));
-				}
+				proto_tree_add_item(reqresp_tree, (is_request) ? hf_imap_request_tag : hf_imap_response_tag,
+									tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
+
 				offset += (gint) (next_token - line);
 				linelen -= (int) (next_token - line);
 				line = next_token;
@@ -140,15 +130,8 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 * Add the rest of the line as request or reply data.
 			 */
 			if (linelen != 0) {
-				if (is_request) {
-					proto_tree_add_text(reqresp_tree, tvb, offset,
-							    linelen, "Request: %s",
-							    format_text(line, linelen));
-				} else {
-					proto_tree_add_text(reqresp_tree, tvb, offset,
-							    linelen, "Response: %s",
-							    format_text(line, linelen));
-				}
+				proto_tree_add_item(reqresp_tree, (is_request) ? hf_imap_request : hf_imap_response,
+									tvb, offset, linelen, ENC_ASCII|ENC_NA);
 			}
 
 			offset += linelen+2; /* Skip over last line and \r\n at the end of it */
@@ -160,35 +143,33 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_imap(void)
 {
-  static hf_register_info hf[] = {
-    { &hf_imap_response,
-      { "Response",           "imap.response",
-	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-      	"TRUE if IMAP response", HFILL }},
+	static hf_register_info hf[] = {
+		{ &hf_imap_isrequest, { "Request", "imap.isrequest", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "TRUE if IMAP request, FALSE otherwise", HFILL }},
+		{ &hf_imap_line, { "Line", "imap.line", FT_STRINGZ, BASE_NONE, NULL, 0x0, "A line of an IMAP message", HFILL }},
+		{ &hf_imap_request, { "Request", "imap.request", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Remainder of request line", HFILL }},
+		{ &hf_imap_request_tag, { "Request Tag", "imap.request_tag", FT_STRINGZ, BASE_NONE, NULL, 0x0, "First token of request line", HFILL }},
+		{ &hf_imap_response, { "Response", "imap.response", FT_STRINGZ, BASE_NONE, NULL, 0x0, "Remainder of response line", HFILL }},
+		{ &hf_imap_response_tag, { "Response Tag", "imap.response_tag", FT_STRINGZ, BASE_NONE, NULL, 0x0, "First token of response line", HFILL }}
+	};
 
-    { &hf_imap_request,
-      { "Request",            "imap.request",
-	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-      	"TRUE if IMAP request", HFILL }}
-  };
-  static gint *ett[] = {
-    &ett_imap,
-    &ett_imap_reqresp,
-  };
+	static gint *ett[] = {
+	&ett_imap,
+	&ett_imap_reqresp,
+	};
 
-  proto_imap = proto_register_protocol("Internet Message Access Protocol",
-				       "IMAP", "imap");
-  register_dissector("imap", dissect_imap, proto_imap);
-  proto_register_field_array(proto_imap, hf, array_length(hf));
-  proto_register_subtree_array(ett, array_length(ett));
+	proto_imap = proto_register_protocol("Internet Message Access Protocol",
+					   "IMAP", "imap");
+	register_dissector("imap", dissect_imap, proto_imap);
+	proto_register_field_array(proto_imap, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
 proto_reg_handoff_imap(void)
 {
-  dissector_handle_t imap_handle;
+	dissector_handle_t imap_handle;
 
-  imap_handle = create_dissector_handle(dissect_imap, proto_imap);
-  dissector_add_uint("tcp.port", TCP_PORT_IMAP, imap_handle);
-  ssl_dissector_add(TCP_PORT_SSL_IMAP, "imap", TRUE);
+	imap_handle = create_dissector_handle(dissect_imap, proto_imap);
+	dissector_add_uint("tcp.port", TCP_PORT_IMAP, imap_handle);
+	ssl_dissector_add(TCP_PORT_SSL_IMAP, "imap", TRUE);
 }
