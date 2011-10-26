@@ -1186,7 +1186,7 @@ static void rtps_util_add_guid_prefix(proto_tree *tree, /* Can be NULL */
                         tvb,
                         offset,
                         8,
-                        FALSE);
+                        ENC_NA);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     /* The text node (root of the guid prefix sub-tree) */
@@ -1205,7 +1205,7 @@ static void rtps_util_add_guid_prefix(proto_tree *tree, /* Can be NULL */
                         tvb,
                         offset,
                         4,
-                        FALSE);
+                        ENC_BIG_ENDIAN);
 
     /* AppId (root of the app_id sub-tree */
     ti = proto_tree_add_item(guid_tree,
@@ -1213,7 +1213,7 @@ static void rtps_util_add_guid_prefix(proto_tree *tree, /* Can be NULL */
                         tvb,
                         offset+4,
                         4,
-                        FALSE);
+                        ENC_BIG_ENDIAN);
     appid_tree = proto_item_add_subtree(ti,
                         ett_rtps_app_id);
 
@@ -1223,14 +1223,14 @@ static void rtps_util_add_guid_prefix(proto_tree *tree, /* Can be NULL */
                         tvb,
                         offset+4,
                         3,
-                        FALSE);
+                        ENC_BIG_ENDIAN);
     /* AppKind */
     proto_tree_add_item(appid_tree,
                         hf_app_id_app_kind,
                         tvb,
                         offset+7,
                         1,
-                        FALSE);
+                        ENC_BIG_ENDIAN);
   }
 
   if (buffer != NULL) {
@@ -1302,14 +1302,14 @@ static int rtps_util_add_entity_id(proto_tree *tree,
                         tvb,
                         offset,
                         3,
-                        FALSE);
+                        ENC_BIG_ENDIAN);
 
     proto_tree_add_item(entity_tree,
                         hf_item_entity_kind,
                         tvb,
                         offset+3,
                         1,
-                        FALSE);
+                        ENC_BIG_ENDIAN);
 
   }
 
@@ -1514,7 +1514,7 @@ static void rtps_util_add_ntp_time(proto_tree *tree,    /* Can be NULL */
                         tvb,
                         offset+4,
                         4,
-                        little_endian);
+                        little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
   }
   if (buffer != NULL) {
     g_strlcpy(buffer, tempBuffer, buffer_size);
@@ -1605,7 +1605,7 @@ static void rtps_util_add_long(proto_tree *tree,        /* Can be NULL */
                         tvb,
                         offset,
                         4,
-                        little_endian);
+                        little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
     } else if (label != NULL) {
       proto_tree_add_text(tree,
                         tvb,
@@ -2716,7 +2716,7 @@ static void rtps_util_add_seq_octets(proto_tree *tree,
                         tvb,
                         original_offset+4,
                         original_seq_length,
-                        little_endian);
+                        little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
 
   }
 }
@@ -2967,7 +2967,7 @@ static gint dissect_parameter_sequence(proto_tree *tree,
                         tvb,
                         offset,
                         2,
-                        little_endian);
+                        little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
     offset += 2;
 
     /* Make sure we have enough bytes for the param value */
@@ -4337,7 +4337,7 @@ static void dissect_PAD(tvbuff_t *tvb,
                         tvb,
                         offset + 2,
                         2,
-                        little_endian);
+                        little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
 }
 
 
@@ -4440,7 +4440,7 @@ static void dissect_DATA(tvbuff_t *tvb,
                         tvb,
                         offset + 2,
                         2,
-                        little_endian);
+                        little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
   offset += 4;
 
 
@@ -4565,7 +4565,7 @@ static void dissect_DATA(tvbuff_t *tvb,
                         tvb,
                         offset,
                         octects_to_next_header - (offset - old_offset) + 4,
-                        little_endian);
+                        little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
     }
   }
 }
@@ -4653,7 +4653,7 @@ static void dissect_NOKEY_DATA(tvbuff_t *tvb,
                         tvb,
                         offset + 2,
                         2,
-                        little_endian);
+                        little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
   offset += 4;
 
   /* readerEntityId */
@@ -4706,7 +4706,7 @@ static void dissect_NOKEY_DATA(tvbuff_t *tvb,
                         tvb,
                         offset,
                         octects_to_next_header - (offset - old_offset) + 4,
-                        little_endian);
+                        little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
   }
 }
 
@@ -4772,7 +4772,7 @@ static void dissect_ACKNACK(tvbuff_t *tvb,
                         tvb,
                         offset + 2,
                         2,
-                        little_endian);
+                        little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
   offset += 4;
   original_offset = offset;
 
@@ -4924,7 +4924,7 @@ static void dissect_HEARTBEAT(tvbuff_t *tvb,
                         tvb,
                         offset + 2,
                         2,
-                        little_endian);
+                        little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
   offset += 4;
 
   /* readerEntityId */
@@ -5043,7 +5043,7 @@ static void dissect_GAP(tvbuff_t *tvb,
                         tvb,
                         offset + 2,
                         2,
-                        little_endian);
+                        little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
   offset += 4;
 
   /* readerEntityId */
@@ -5142,7 +5142,7 @@ static void dissect_INFO_TS(tvbuff_t *tvb,
                         tvb,
                         offset + 2,
                         2,
-                        little_endian);
+                        little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
   offset += 4;
 
   if ((flags & FLAG_INFO_TS_T) == 0) {
@@ -5214,7 +5214,7 @@ static void dissect_INFO_SRC(tvbuff_t *tvb,
                         tvb,
                         offset + 2,
                         2,
-                        little_endian);
+                        little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
   offset += 4;
 
   /* Ip Address */
@@ -5366,7 +5366,7 @@ static void dissect_INFO_REPLY_IP4(tvbuff_t *tvb,
                         tvb,
                         offset + 2,
                         2,
-                        little_endian);
+                        little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
   offset += 4;
 
 
@@ -5439,7 +5439,7 @@ static void dissect_INFO_DST(tvbuff_t *tvb,
                         tvb,
                         offset + 2,
                         2,
-                        little_endian);
+                        little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
   offset += 4;
 
   {
@@ -5511,7 +5511,7 @@ static void dissect_INFO_REPLY(tvbuff_t *tvb,
                         tvb,
                         offset + 2,
                         2,
-                        little_endian);
+                        little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
   offset += 4;
 
 
