@@ -36,7 +36,6 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
 #include <ctype.h>
 
 #include <glib.h>
@@ -1231,20 +1230,21 @@ display_sip_uri (tvbuff_t *tvb, proto_tree *sip_element_tree, uri_offset_info* u
 		  		    uri_offsets->display_name_end - uri_offsets->display_name_start + 1, ENC_ASCII|ENC_NA);
 	}
 
-	ti = proto_tree_add_item(sip_element_tree, *(uri->hf_sip_addr), tvb, uri_offsets->uri_start, uri_offsets->uri_end - uri_offsets->uri_start + 1, FALSE);
+	ti = proto_tree_add_item(sip_element_tree, *(uri->hf_sip_addr),
+                                 tvb, uri_offsets->uri_start, uri_offsets->uri_end - uri_offsets->uri_start + 1, ENC_ASCII|ENC_NA);
 	uri_item_tree = proto_item_add_subtree(ti, *(uri->ett_uri));
 
 	if(uri_offsets->uri_user_end > uri_offsets->uri_user_start) {
 		proto_tree_add_item(uri_item_tree, *(uri->hf_sip_user), tvb, uri_offsets->uri_user_start,
-		     		    uri_offsets->uri_user_end - uri_offsets->uri_user_start + 1, FALSE);
+		     		    uri_offsets->uri_user_end - uri_offsets->uri_user_start + 1, ENC_ASCII|ENC_NA);
 	}
 
 	proto_tree_add_item(uri_item_tree, *(uri->hf_sip_host), tvb, uri_offsets->uri_host_start,
-	 		    uri_offsets->uri_host_end - uri_offsets->uri_host_start + 1, FALSE);
+	 		    uri_offsets->uri_host_end - uri_offsets->uri_host_start + 1, ENC_ASCII|ENC_NA);
 
 	if(uri_offsets->uri_host_port_end > uri_offsets->uri_host_port_start) {
 		proto_tree_add_item(uri_item_tree, *(uri->hf_sip_port), tvb, uri_offsets->uri_host_port_start,
-				uri_offsets->uri_host_port_end - uri_offsets->uri_host_port_start + 1, FALSE);
+				uri_offsets->uri_host_port_end - uri_offsets->uri_host_port_start + 1, ENC_ASCII|ENC_NA);
 	}
 
 	return uri_item_tree;
@@ -1372,7 +1372,7 @@ dissect_sip_authorization_item(tvbuff_t *tvb, proto_tree *tree, gint start_offse
 		{
 			proto_tree_add_item(tree, *(auth_parameter->hf_item), tvb,
 			                    equals_offset+1, current_offset-equals_offset-1,
-			                    FALSE);
+			                    ENC_ASCII|ENC_NA);
 			break;
 		}
 	}
@@ -1654,13 +1654,13 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
 					{
 						proto_tree_add_item(tree, *(via_parameter->hf_item), tvb,
 											parameter_name_end+1, current_offset-parameter_name_end-1,
-											FALSE);
+											ENC_ASCII|ENC_NA);
 					}
 					else
 					{
 						proto_tree_add_item(tree, *(via_parameter->hf_item), tvb,
 											semicolon_offset+1, current_offset-semicolon_offset-1,
-											FALSE);
+											ENC_ASCII|ENC_NA);
 					}
 					break;
 				}
