@@ -804,7 +804,7 @@ dissect_url_entry_v2(tvbuff_t *tvb, int offset, proto_tree *tree)
 
 /* Packet dissection routine called by tcp & udp when port 427 detected */
 
-static void
+static int
 dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     int         offset = 0;
@@ -1395,6 +1395,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Unknown Function Type: %d", function);
         }
     }
+return offset;
 }
 
 static guint
@@ -1903,7 +1904,7 @@ void
 proto_reg_handoff_srvloc(void)
 {
     dissector_handle_t srvloc_handle, srvloc_tcp_handle;
-    srvloc_handle = create_dissector_handle(dissect_srvloc, proto_srvloc);
+    srvloc_handle = new_create_dissector_handle(dissect_srvloc, proto_srvloc);
     dissector_add_uint("udp.port", UDP_PORT_SRVLOC, srvloc_handle);
     srvloc_tcp_handle = create_dissector_handle(dissect_srvloc_tcp,
 						proto_srvloc);
