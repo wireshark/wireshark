@@ -992,7 +992,7 @@ static void rtps_util_add_extra_flags(proto_tree *tree,
                         gint offset,
                         const char *label) {
   if (tree) {
-    guint16 flags = NEXT_guint16(tvb, offset, 0); /* Always big endian */
+    guint16 flags = NEXT_guint16(tvb, offset, FALSE); /* Always big endian */
     guint8  temp_buffer[20];
     int i;
     for (i = 0; i < 16; ++i) {
@@ -1107,7 +1107,7 @@ static void rtps_util_add_vendor_id(proto_tree *tree,
 static void rtps_util_add_locator_t(proto_tree *tree,
                         tvbuff_t * tvb,
                         gint       offset,
-                        int        little_endian,
+                        gboolean   little_endian,
                         const guint8 * label,
                         guint8 *   buffer,              /* Can be NULL */
                         gint       buffer_size) {       /* Can be 0 */
@@ -1225,7 +1225,7 @@ static int rtps_util_add_locator_list(proto_tree *tree,
                         tvbuff_t * tvb,
                         gint       offset,
                         const guint8 * label,
-                        int        little_endian) {
+                        gboolean   little_endian) {
 
   proto_item *ti;
   proto_tree *locator_tree;
@@ -1273,7 +1273,7 @@ static int rtps_util_add_locator_list(proto_tree *tree,
 static void rtps_util_add_ipv4_address_t(proto_tree *tree,
                         tvbuff_t * tvb,
                         gint       offset,
-                        int        little_endian,
+                        gboolean   little_endian,
                         const guint8 * label,
                         guint8 *   buffer,              /* Can be NULL */
                         gint       buffer_size) {       /* Can be 0 */
@@ -1334,7 +1334,7 @@ static void rtps_util_add_locator_udp_v4(proto_tree *tree,
                         tvbuff_t * tvb,
                         gint       offset,
                         const guint8 * label,
-                        int        little_endian) {
+                        gboolean   little_endian) {
   if (tree) {
     proto_item * ti;
     proto_tree * locator_tree;
@@ -1449,7 +1449,7 @@ static void rtps_util_add_guid_prefix(proto_tree *tree,
                         tvb,
                         offset,
                         12,
-                        FALSE);
+                        ENC_NA);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     /* The text node (root of the guid prefix sub-tree) */
@@ -1469,7 +1469,7 @@ static void rtps_util_add_guid_prefix(proto_tree *tree,
                         tvb,
                         offset,
                         4,
-                        FALSE);
+                        ENC_BIG_ENDIAN);
 
     /* App Id */
     proto_tree_add_item(guid_tree,
@@ -1477,7 +1477,7 @@ static void rtps_util_add_guid_prefix(proto_tree *tree,
                         tvb,
                         offset+4,
                         4,
-                        FALSE);
+                        ENC_BIG_ENDIAN);
 
     /* Counter */
     proto_tree_add_item(guid_tree,
@@ -1485,7 +1485,7 @@ static void rtps_util_add_guid_prefix(proto_tree *tree,
                         tvb,
                         offset+8,
                         4,
-                        FALSE);
+                        ENC_BIG_ENDIAN);
   }
 
   if (buffer != NULL) {
@@ -1556,14 +1556,14 @@ static void rtps_util_add_entity_id(proto_tree *tree,
                         tvb,
                         offset,
                         3,
-                        FALSE);
+                        ENC_BIG_ENDIAN);
 
     proto_tree_add_item(entity_tree,
                         hf_item_entity_kind,
                         tvb,
                         offset+3,
                         1,
-                        FALSE);
+                        ENC_BIG_ENDIAN);
 
   }
 }
@@ -1689,7 +1689,7 @@ static void rtps_util_add_generic_guid(proto_tree *tree,
 static guint64 rtps_util_add_seq_number(proto_tree *tree,
                         tvbuff_t * tvb,
                         gint       offset,
-                        int        little_endian,
+                        gboolean   little_endian,
                         const char *label _U_) {
   guint64 hi = (guint64)NEXT_guint32(tvb, offset, little_endian);
   guint64 lo = (guint64)NEXT_guint32(tvb, offset+4, little_endian);
@@ -1714,7 +1714,7 @@ static guint64 rtps_util_add_seq_number(proto_tree *tree,
 static void rtps_util_add_ntp_time(proto_tree *tree,
                         tvbuff_t * tvb,
                         gint       offset,
-                        int        little_endian,
+                        gboolean   little_endian,
                         const char * label,
                         guint8 *   buffer,              /* Can be NULL */
                         gint       buffer_size) {
@@ -1751,13 +1751,13 @@ static void rtps_util_add_ntp_time(proto_tree *tree,
                         tvb,
                         offset,
                         4,
-                        little_endian);
+                        little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
     proto_tree_add_item(time_tree,
                         hf_rtps_param_ntpt_fraction,
                         tvb,
                         offset+4,
                         4,
-                        little_endian);
+                        little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
   }
   if (buffer != NULL) {
     g_strlcpy(buffer, tempBuffer, buffer_size);
@@ -1772,7 +1772,7 @@ static gint rtps_util_add_string(proto_tree *tree,
                         tvbuff_t * tvb,
                         gint       offset,
                         int        hf_item,             /* Can be -1 (if label!=NULL) */
-                        int        little_endian,
+                        gboolean   little_endian,
                         const guint8 * label,           /* Can be NULL (if hf_item!=-1) */
                         guint8 *   buffer,              /* Can be NULL */
                         size_t     buffer_size) {
@@ -1830,7 +1830,7 @@ static guint32 rtps_util_add_long(proto_tree *tree,
                         tvbuff_t * tvb,
                         gint       offset,
                         int        hf_item,             /* Can be -1 */
-                        int        little_endian,
+                        gboolean   little_endian,
                         gboolean   is_hex,              /* Format as 0x... */
                         gboolean   is_signed,           /* Signed/Unsigned */
                         const char *label,              /* Can be NULL */
@@ -1850,7 +1850,7 @@ static guint32 rtps_util_add_long(proto_tree *tree,
                         tvb,
                         offset,
                         4,
-                        little_endian);
+                        little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
     } else if (label != NULL) {
       proto_tree_add_text(tree,
                         tvb,
@@ -1874,7 +1874,7 @@ static guint16 rtps_util_add_short(proto_tree *tree,
                         tvbuff_t * tvb,
                         gint       offset,
                         int        hf_item,             /* Can be -1 */
-                        int        little_endian,
+                        gboolean   little_endian,
                         gboolean   is_hex,              /* Format as 0x... */
                         gboolean   is_signed,           /* Signed/Unsigned */
                         const char *label,              /* Can be NULL */
@@ -1893,7 +1893,7 @@ static guint16 rtps_util_add_short(proto_tree *tree,
                         tvb,
                         offset,
                         2,
-                        little_endian);
+                        little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
     } else if (label != NULL) {
       proto_tree_add_text(tree,
                         tvb,
@@ -1919,7 +1919,7 @@ static guint16 rtps_util_add_short(proto_tree *tree,
 static void rtps_util_add_port(proto_tree *tree,
                         tvbuff_t * tvb,
                         gint       offset,
-                        int        little_endian,
+                        gboolean   little_endian,
                         char *     label,
                         guint8 *   buffer,              /* Can be NULL */
                         gint       buffer_size) {
@@ -1986,7 +1986,7 @@ static void rtps_util_add_boolean(proto_tree *tree,
 static void rtps_util_add_durability_service_qos(proto_tree *tree,
                         tvbuff_t * tvb,
                         gint       offset,
-                        int        little_endian,
+                        gboolean   little_endian,
                         guint8 *   buffer,
                         gint       buffer_size) {
   guint8 temp_buffer[MAX_NTP_TIME_SIZE];
@@ -2062,7 +2062,7 @@ static void rtps_util_add_durability_service_qos(proto_tree *tree,
 static void rtps_util_add_liveliness_qos(proto_tree *tree,
                         tvbuff_t * tvb,
                         gint       offset,
-                        int        little_endian,
+                        gboolean   little_endian,
                         guint8 *   buffer,
                         gint       buffer_size) {
   guint8  temp_buffer[MAX_NTP_TIME_SIZE];
@@ -2103,7 +2103,7 @@ static void rtps_util_add_liveliness_qos(proto_tree *tree,
 static void rtps_util_add_kind_qos(proto_tree *tree,
                         tvbuff_t * tvb,
                         gint       offset,
-                        int        little_endian,
+                        gboolean   little_endian,
                         char *     label,
                         const value_string *vals,
                         guint8 *   buffer,              /* Can be NULL */
@@ -2136,7 +2136,7 @@ static void rtps_util_add_kind_qos(proto_tree *tree,
 static gint rtps_util_add_seq_string(proto_tree *tree,
                         tvbuff_t * tvb,
                         gint       offset,
-                        int        little_endian,
+                        gboolean   little_endian,
                         int        param_length,
                         char *     label,
                         guint8 *   buffer,              /* Can NOT be NULL */
@@ -2204,7 +2204,7 @@ static gint rtps_util_add_seq_string(proto_tree *tree,
 static gint rtps_util_add_seq_ulong(proto_tree *tree,
                         tvbuff_t * tvb,
                         gint       offset,
-                        int        little_endian,
+                        gboolean   little_endian,
                         int        param_length,
                         int        is_hex,
                         int        is_signed,
@@ -2302,7 +2302,7 @@ static const char * rtps_util_typecode_id_to_string(guint32 typecode_id) {
 static gint rtps_util_add_typecode(proto_tree *tree,
                         tvbuff_t * tvb,
                         gint       offset,
-                        int        little_endian,
+                        gboolean   little_endian,
                         int        indent_level,
                         int        is_pointer,
                         guint16    bitfield,
@@ -2981,7 +2981,7 @@ static gint rtps_util_add_typecode(proto_tree *tree,
 static void rtps_util_add_seq_octets(proto_tree *tree,
                         tvbuff_t * tvb,
                         gint       offset,
-                        int        little_endian,
+                        gboolean   little_endian,
                         int        param_length,
                         int        hf_id,
                         guint8 *   buffer,
@@ -3039,7 +3039,7 @@ static void rtps_util_add_seq_octets(proto_tree *tree,
                         tvb,
                         original_offset+4,
                         original_seq_length,
-                        little_endian);
+                        little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
 
   }
 }
@@ -3059,7 +3059,7 @@ static void rtps_util_add_seq_octets(proto_tree *tree,
 static int rtps_util_add_bitmap(proto_tree *tree,
                         tvbuff_t * tvb,
                         gint       offset,
-                        int        little_endian,
+                        gboolean   little_endian,
                         const char *label _U_) {
   guint64 seq_base;
   gint32 num_bits;
@@ -3157,7 +3157,7 @@ static int rtps_util_add_bitmap(proto_tree *tree,
 static int rtps_util_add_fragment_number_set(proto_tree *tree,
                         tvbuff_t * tvb,
                         gint       offset,
-                        int        little_endian,
+                        gboolean   little_endian,
                         const char *label _U_,
                         gint       section_size) {
   guint64 base;
@@ -3396,7 +3396,7 @@ static void dissect_serialized_data(proto_tree *tree,
   proto_tree * rtps_parameter_sequence_tree;
   guint16 encapsulation_id;
   guint16 encapsulation_len;
-  int encapsulation_little_endian = 0;
+  gboolean encapsulation_little_endian = FALSE;
   if (tree == NULL) {
     return;
   }
@@ -3412,7 +3412,7 @@ static void dissect_serialized_data(proto_tree *tree,
 
 
   /* Encapsulation ID */
-  encapsulation_id =  NEXT_guint16(tvb, offset, 0);   /* Always big endian */
+  encapsulation_id =  NEXT_guint16(tvb, offset, FALSE);   /* Always big endian */
 
   proto_tree_add_text(rtps_parameter_sequence_tree,
                         tvb,
@@ -3425,11 +3425,11 @@ static void dissect_serialized_data(proto_tree *tree,
   /* Sets the correct values for encapsulation_le */
   if (encapsulation_id == ENCAPSULATION_CDR_LE ||
       encapsulation_id == ENCAPSULATION_PL_CDR_LE) {
-    encapsulation_little_endian = 1;
+    encapsulation_little_endian = TRUE;
   }
 
   /* Encapsulation length (or option) */
-  encapsulation_len =  NEXT_guint16(tvb, offset, 0);    /* Always big endian */
+  encapsulation_len =  NEXT_guint16(tvb, offset, FALSE);    /* Always big endian */
   proto_tree_add_text(rtps_parameter_sequence_tree,
                         tvb,
                         offset,
@@ -3448,7 +3448,7 @@ static void dissect_serialized_data(proto_tree *tree,
                         tvb,
                         offset,
                         size,
-                        encapsulation_little_endian);
+                        encapsulation_little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
           break;
 
     case ENCAPSULATION_PL_CDR_LE:
@@ -3499,7 +3499,7 @@ static void dissect_octet_seq(proto_tree *tree,
 
 
   /* Length */
-  length =  NEXT_guint32(tvb, offset, 0);   /* Always big endian */
+  length =  NEXT_guint32(tvb, offset, FALSE);   /* Always big endian */
 
   proto_tree_add_text(rtps_parameter_sequence_tree,
                         tvb,
@@ -3547,7 +3547,7 @@ static void dissect_octet_seq(proto_tree *tree,
 static gint dissect_parameter_sequence(proto_tree *tree,
                         tvbuff_t *tvb,
                         gint offset,
-                        int  little_endian,
+                        gboolean  little_endian,
                         int  size,
                         const char * label,
                         guint32 *pStatusInfo,
@@ -3624,7 +3624,7 @@ static gint dissect_parameter_sequence(proto_tree *tree,
                         tvb,
                         offset,
                         2,
-                        little_endian);
+                        little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
     }
     offset += 2;
     /* Make sure we have enough bytes for the param value */
@@ -5550,7 +5550,7 @@ static void dissect_PAD(tvbuff_t *tvb,
                           tvb,
                           offset + 2,
                           2,
-                          little_endian);
+                          little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
   }
   info_summary_append(info_summary_text, SUBMESSAGE_PAD, NULL);
 }
@@ -5653,7 +5653,7 @@ static void dissect_DATA(tvbuff_t *tvb,
                         tvb,
                         offset + 2,
                         2,
-                        little_endian);
+                        little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
   offset += 4;
 
 
@@ -5843,7 +5843,7 @@ static void dissect_DATA_FRAG(tvbuff_t *tvb,
                         tvb,
                         offset + 2,
                         2,
-                        little_endian);
+                        little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
   offset += 4;
 
   /* readerEntityId */
@@ -6057,7 +6057,7 @@ static void dissect_NOKEY_DATA(tvbuff_t *tvb,
                         tvb,
                         offset + 2,
                         2,
-                        little_endian);
+                        little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
   offset += 4;
 
   /* readerEntityId */
@@ -6192,7 +6192,7 @@ static void dissect_NOKEY_DATA_FRAG(tvbuff_t *tvb,
                         tvb,
                         offset + 2,
                         2,
-                        little_endian);
+                        little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
   offset += 4;
 
   /* readerEntityId */
@@ -6348,7 +6348,7 @@ static void dissect_ACKNACK(tvbuff_t *tvb,
                         tvb,
                         offset + 2,
                         2,
-                        little_endian);
+                        little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
   offset += 4;
   original_offset = offset;
 
@@ -6484,7 +6484,7 @@ static void dissect_NACK_FRAG(tvbuff_t *tvb,
                         tvb,
                         offset + 2,
                         2,
-                        little_endian);
+                        little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
   offset += 4;
 
   /* readerEntityId */
@@ -6606,7 +6606,7 @@ static void dissect_HEARTBEAT(tvbuff_t *tvb,
                         tvb,
                         offset + 2,
                         2,
-                        little_endian);
+                        little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
   offset += 4;
 
   /* readerEntityId */
@@ -6733,7 +6733,7 @@ static void dissect_HEARTBEAT_BATCH(tvbuff_t *tvb,
                         tvb,
                         offset + 2,
                         2,
-                        little_endian);
+                        little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
   offset += 4;
 
   /* readerEntityId */
@@ -6865,7 +6865,7 @@ static void dissect_HEARTBEAT_FRAG(tvbuff_t *tvb,
                         tvb,
                         offset + 2,
                         2,
-                        little_endian);
+                        little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
   offset += 4;
 
   /* readerEntityId */
@@ -6986,7 +6986,7 @@ static void dissect_GAP(tvbuff_t *tvb,
                         tvb,
                         offset + 2,
                         2,
-                        little_endian);
+                        little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
   offset += 4;
 
   /* readerEntityId */
@@ -7086,7 +7086,7 @@ static void dissect_INFO_TS(tvbuff_t *tvb,
                         tvb,
                         offset + 2,
                         2,
-                        little_endian);
+                        little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
   offset += 4;
 
   if ((flags & FLAG_INFO_TS_T) == 0) {
@@ -7157,7 +7157,7 @@ static void dissect_INFO_SRC(tvbuff_t *tvb,
                         tvb,
                         offset + 2,
                         2,
-                        little_endian);
+                        little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
   offset += 4;
 
   /* Ip Address */
@@ -7285,7 +7285,7 @@ static void dissect_INFO_REPLY_IP4(tvbuff_t *tvb,
                         tvb,
                         offset + 2,
                         2,
-                        little_endian);
+                        little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
   offset += 4;
 
 
@@ -7361,7 +7361,7 @@ static void dissect_INFO_DST(tvbuff_t *tvb,
                         tvb,
                         offset + 2,
                         2,
-                        little_endian);
+                        little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
   offset += 4;
 
   rtps_util_add_guid_prefix(tree,
@@ -7438,7 +7438,7 @@ static void dissect_INFO_REPLY(tvbuff_t *tvb,
                         tvb,
                         offset + 2,
                         2,
-                        little_endian);
+                        little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
   offset += 4;
 
 
@@ -7584,7 +7584,7 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb,
                         tvb,
                         offset + 2,
                         2,
-                        little_endian);
+                        little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
   offset += 4;
 
 
@@ -7688,7 +7688,7 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb,
 
       rtps_pm_tree = proto_item_add_subtree(ti, ett_rtps_part_message_data);
       /* Encapsulation ID */
-      encapsulation_id =  NEXT_guint16(tvb, offset, 0);   /* Always big endian */
+      encapsulation_id =  NEXT_guint16(tvb, offset, FALSE);   /* Always big endian */
 
       proto_tree_add_text(rtps_pm_tree,
                         tvb,
@@ -7708,7 +7708,7 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb,
 #endif
 
       /* Encapsulation length (or option) */
-      encapsulation_len =  NEXT_guint16(tvb, offset, 0);    /* Always big endian */
+      encapsulation_len =  NEXT_guint16(tvb, offset, FALSE);    /* Always big endian */
       proto_tree_add_text(rtps_pm_tree,
                         tvb,
                         offset,
@@ -7733,7 +7733,7 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb,
       offset += 12;
 
       /* Kind */
-      kind =  NEXT_guint32(tvb, offset, 0);   /* Always big endian */
+      kind =  NEXT_guint32(tvb, offset, FALSE);   /* Always big endian */
       proto_tree_add_text(guid_tree,
             tvb,
             offset,
@@ -7867,7 +7867,7 @@ static void dissect_RTPS_DATA_FRAG(tvbuff_t *tvb,
                         tvb,
                         offset + 2,
                         2,
-                        little_endian);
+                        little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
   offset += 4;
 
 
@@ -8144,7 +8144,7 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb,
                         tvb,
                         offset + 2,
                         2,
-                        little_endian);
+                        little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
   offset += 4;
 
 
@@ -8307,7 +8307,7 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb,
                         "sampleInfo[%d]", sample_info_count);
       si_tree = proto_item_add_subtree(ti, ett_rtps_sample_info);
 
-      flags2 = NEXT_guint16(tvb, offset, 0); /* Flags are always big endian */
+      flags2 = NEXT_guint16(tvb, offset, FALSE); /* Flags are always big endian */
       sample_info_flags[sample_info_count] = flags2;
       rtps_util_decode_flags_16bit(si_tree, tvb, offset, flags2, RTPS_SAMPLE_INFO_FLAGS16);
       offset += 2;
@@ -8395,7 +8395,7 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb,
   }
 
   /* Encapsulation ID for the entire data sequence */
-  encapsulation_id =  NEXT_guint16(tvb, offset, 0);   /* Always big endian */
+  encapsulation_id =  NEXT_guint16(tvb, offset, FALSE);   /* Always big endian */
   proto_tree_add_text(tree,
                         tvb,
                         offset,
