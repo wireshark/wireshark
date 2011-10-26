@@ -850,7 +850,7 @@ static void rtps_util_add_vendor_id(proto_tree *tree,   /* Can be NULL */
 static void rtps_util_add_locator_t(proto_tree *tree, /* Can NOT be NULL */
                         tvbuff_t * tvb,
                         gint       offset,
-                        int        little_endian,
+                        gboolean   little_endian,
                         const guint8 * label,
                         guint8 *   buffer,              /* Can be NULL */
                         gint       buffer_size) {       /* Can be 0 */
@@ -966,7 +966,7 @@ static void rtps_util_add_locator_list(proto_tree *tree,
                         tvbuff_t * tvb,
                         gint       offset,
                         const guint8 * label,
-                        int        little_endian) {
+                        gboolean   little_endian) {
 
   proto_item *ti;
   proto_tree *locator_tree;
@@ -1008,7 +1008,7 @@ static void rtps_util_add_locator_list(proto_tree *tree,
 static void rtps_util_add_ipv4_address_t(proto_tree *tree, /* Can be NULL */
                         tvbuff_t * tvb,
                         gint       offset,
-                        int        little_endian,
+                        gboolean   little_endian,
                         const guint8 * label,
                         guint8 *   buffer,              /* Can be NULL */
                         gint       buffer_size) {       /* Can be 0 */
@@ -1069,7 +1069,7 @@ static void rtps_util_add_locator_udp_v4(proto_tree *tree, /* Can NOT be NULL */
                         tvbuff_t * tvb,
                         gint       offset,
                         const guint8 * label,
-                        int        little_endian) {
+                        gboolean   little_endian) {
 
   proto_item * ti;
   proto_tree * locator_tree;
@@ -1446,7 +1446,7 @@ static void rtps_util_add_generic_guid(proto_tree *tree,                /* Canno
 static guint64 rtps_util_add_seq_number(proto_tree *tree,
                         tvbuff_t * tvb,
                         gint       offset,
-                        int        little_endian,
+                        gboolean   little_endian,
                         const char *label _U_) {
   guint64 hi = (guint64)NEXT_guint32(tvb, offset, little_endian);
   guint64 lo = (guint64)NEXT_guint32(tvb, offset+4, little_endian);
@@ -1471,7 +1471,7 @@ static guint64 rtps_util_add_seq_number(proto_tree *tree,
 static void rtps_util_add_ntp_time(proto_tree *tree,    /* Can be NULL */
                         tvbuff_t * tvb,
                         gint       offset,
-                        int        little_endian,
+                        gboolean   little_endian,
                         const char * label,
                         guint8 *   buffer,              /* Can be NULL */
                         gint       buffer_size) {
@@ -1508,7 +1508,7 @@ static void rtps_util_add_ntp_time(proto_tree *tree,    /* Can be NULL */
                         tvb,
                         offset,
                         4,
-                        little_endian);
+                        little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
     proto_tree_add_item(time_tree,
                         hf_rtps_param_ntpt_fraction,
                         tvb,
@@ -1529,7 +1529,7 @@ static gint rtps_util_add_string(proto_tree *tree,      /* Can be NULL */
                         tvbuff_t * tvb,
                         gint       offset,
                         int        hf_item,             /* Can be -1 (if label!=NULL) */
-                        int        little_endian,
+                        gboolean   little_endian,
                         const guint8 * label,           /* Can be NULL (if hf_item!=-1) */
                         guint8 *   buffer,              /* Can be NULL */
                         size_t     buffer_size) {
@@ -1586,7 +1586,7 @@ static void rtps_util_add_long(proto_tree *tree,        /* Can be NULL */
                         tvbuff_t * tvb,
                         gint       offset,
                         int        hf_item,             /* Can be -1 */
-                        int        little_endian,
+                        gboolean   little_endian,
                         gboolean   is_hex,              /* Format as 0x... */
                         gboolean   is_signed,           /* Signed/Unsigned */
                         const char *label,              /* Can be NULL */
@@ -1628,7 +1628,7 @@ static void rtps_util_add_long(proto_tree *tree,        /* Can be NULL */
 static void rtps_util_add_port(proto_tree *tree,        /* Can be NULL */
                         tvbuff_t * tvb,
                         gint       offset,
-                        int        little_endian,
+                        gboolean   little_endian,
                         char *     label,
                         guint8 *   buffer,              /* Can be NULL */
                         gint       buffer_size) {
@@ -1695,7 +1695,7 @@ static void rtps_util_add_boolean(proto_tree *tree,     /* Can be NULL */
 static void rtps_util_add_durability_service_qos(proto_tree *tree,
                         tvbuff_t * tvb,
                         gint       offset,
-                        int        little_endian,
+                        gboolean   little_endian,
                         guint8 *   buffer,
                         gint       buffer_size) {
   guint8 temp_buffer[MAX_NTP_TIME_SIZE];
@@ -1771,7 +1771,7 @@ static void rtps_util_add_durability_service_qos(proto_tree *tree,
 static void rtps_util_add_liveliness_qos(proto_tree *tree,
                         tvbuff_t * tvb,
                         gint       offset,
-                        int        little_endian,
+                        gboolean   little_endian,
                         guint8 *   buffer,
                         gint       buffer_size) {
   guint8  temp_buffer[MAX_NTP_TIME_SIZE];
@@ -1811,7 +1811,7 @@ static void rtps_util_add_liveliness_qos(proto_tree *tree,
 static void rtps_util_add_kind_qos(proto_tree *tree,    /* Can be NULL */
                         tvbuff_t * tvb,
                         gint       offset,
-                        int        little_endian,
+                        gboolean   little_endian,
                         char *     label,
                         const value_string *vals,
                         guint8 *   buffer,              /* Can be NULL */
@@ -1844,7 +1844,7 @@ static void rtps_util_add_kind_qos(proto_tree *tree,    /* Can be NULL */
 static gint rtps_util_add_seq_string(proto_tree *tree,  /* Can NOT be NULL */
                         tvbuff_t * tvb,
                         gint       offset,
-                        int        little_endian,
+                        gboolean   little_endian,
                         int        param_length,
                         char *     label,
                         guint8 *   buffer,              /* Can NOT be NULL */
@@ -1907,7 +1907,7 @@ static gint rtps_util_add_seq_string(proto_tree *tree,  /* Can NOT be NULL */
 static gint rtps_util_add_seq_ulong(proto_tree *tree,   /* Can NOT be NULL */
                         tvbuff_t * tvb,
                         gint       offset,
-                        int        little_endian,
+                        gboolean   little_endian,
                         int        param_length,
                         int        is_hex,
                         int        is_signed,
@@ -2003,7 +2003,7 @@ static const char * rtps_util_typecode_id_to_string(guint32 typecode_id) {
 static gint rtps_util_add_typecode(proto_tree *tree,
                         tvbuff_t * tvb,
                         gint       offset,
-                        int        little_endian,
+                        gboolean   little_endian,
                         int        indent_level,
                         int        is_pointer,
                         guint16    bitfield,
@@ -2660,7 +2660,7 @@ static gint rtps_util_add_typecode(proto_tree *tree,
 static void rtps_util_add_seq_octets(proto_tree *tree,
                         tvbuff_t * tvb,
                         gint       offset,
-                        int        little_endian,
+                        gboolean   little_endian,
                         int        param_length,
                         int        hf_id,
                         guint8 *   buffer,
@@ -2736,7 +2736,7 @@ static void rtps_util_add_seq_octets(proto_tree *tree,
 static int rtps_util_add_bitmap(proto_tree *tree,
                         tvbuff_t * tvb,
                         gint       offset,
-                        int        little_endian,
+                        gboolean   little_endian,
                         const char *label _U_) {
   guint64 seq_base;
   gint32 num_bits;
@@ -2901,7 +2901,7 @@ static void rtps_util_decode_flags(proto_tree * tree,
 static gint dissect_parameter_sequence(proto_tree *tree,
                         tvbuff_t *tvb,
                         gint offset,
-                        int  little_endian,
+                        gboolean little_endian,
                         int octects_to_next_header,
                         const char * label) {
   proto_item * ti;
