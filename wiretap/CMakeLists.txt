@@ -24,6 +24,7 @@
 
 set(WIRETAP_FILES
 	5views.c
+	aethra.c
 	airopeek9.c
 	ascendtext.c
 	atm.c
