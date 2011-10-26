@@ -397,49 +397,49 @@ cmp_ne64(fvalue_t *a, fvalue_t *b)
 static gboolean
 u_cmp_gt64(fvalue_t *a, fvalue_t *b)
 {
-	return (gint64)a->value.integer64 > (gint64)b->value.integer64;
+	return a->value.integer64 > b->value.integer64;
 }
 
 static gboolean
 u_cmp_ge64(fvalue_t *a, fvalue_t *b)
 {
-	return (gint64)a->value.integer64 >= (gint64)b->value.integer64;
+	return a->value.integer64 >= b->value.integer64;
 }
 
 static gboolean
 u_cmp_lt64(fvalue_t *a, fvalue_t *b)
 {
-	return (gint64)a->value.integer64 < (gint64)b->value.integer64;
+	return a->value.integer64 < b->value.integer64;
 }
 
 static gboolean
 u_cmp_le64(fvalue_t *a, fvalue_t *b)
 {
-	return (gint64)a->value.integer64 <= (gint64)b->value.integer64;
+	return a->value.integer64 <= b->value.integer64;
 }
 
 static gboolean
 s_cmp_gt64(fvalue_t *a, fvalue_t *b)
 {
-	return a->value.integer64 > b->value.integer64;
+	return (gint64)a->value.integer64 > (gint64)b->value.integer64;
 }
 
 static gboolean
 s_cmp_ge64(fvalue_t *a, fvalue_t *b)
 {
-	return a->value.integer64 >= b->value.integer64;
+	return (gint64)a->value.integer64 >= (gint64)b->value.integer64;
 }
 
 static gboolean
 s_cmp_lt64(fvalue_t *a, fvalue_t *b)
 {
-	return a->value.integer64 < b->value.integer64;
+	return (gint64)a->value.integer64 < (gint64)b->value.integer64;
 }
 
 static gboolean
 s_cmp_le64(fvalue_t *a, fvalue_t *b)
 {
-	return a->value.integer64 <= b->value.integer64;
+	return (gint64)a->value.integer64 <= (gint64)b->value.integer64;
 }
 
 static gboolean
