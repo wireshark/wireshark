@@ -171,11 +171,11 @@ static const char *ha_magic_num2str(guint16 magic);
 static const char *version2str(guint16 version);
 static const char *opcode2str_short(guint16 opcode);
 static const char *opcode2str_long(guint16 opcode);
-static void dissect_my_state(tvbuff_t *, int, proto_tree *);
-static void dissect_lb_conf(tvbuff_t *, int, proto_tree *);
-static void dissect_policy_change(tvbuff_t *, int, proto_tree *);
-static void dissect_probe(tvbuff_t *, int, proto_tree *);
-static void dissect_conf_reply(tvbuff_t *, int, proto_tree *);
+static int dissect_my_state(tvbuff_t *, int, proto_tree *);
+static int dissect_lb_conf(tvbuff_t *, int, proto_tree *);
+static int dissect_policy_change(tvbuff_t *, int, proto_tree *);
+static int dissect_probe(tvbuff_t *, int, proto_tree *);
+static int dissect_conf_reply(tvbuff_t *, int, proto_tree *);
 static int is_report_ifs(guint16);
 static const char *report_code2str(guint16);
 static const char *ha_mode2str(guint16);
@@ -289,7 +289,7 @@ dissect_cpha(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   return tvb_length(tvb);
 }
 
-static void dissect_my_state(tvbuff_t * tvb, int offset, proto_tree * tree) {
+static int dissect_my_state(tvbuff_t * tvb, int offset, proto_tree * tree) {
   struct fwha_my_state_hdr hdr;
   struct fwhap_if_state_s  if_hdr;
   int i;
@@ -342,10 +342,10 @@ static void dissect_my_state(tvbuff_t * tvb, int offset, proto_tree * tree) {
 		offset += sizeof(guint8);
 	}
   }
-
+return offset;
 }
 
-static void dissect_lb_conf(tvbuff_t * tvb, int offset, proto_tree * tree) {
+static int dissect_lb_conf(tvbuff_t * tvb, int offset, proto_tree * tree) {
   struct lb_conf_hdr hdr;
 
   tvb_memcpy(tvb, (guint8 *)&hdr, offset, sizeof(hdr));
@@ -366,27 +366,31 @@ static void dissect_lb_conf(tvbuff_t * tvb, int offset, proto_tree * tree) {
   proto_tree_add_uint(tree, hf_hash_len, tvb, offset, sizeof(hdr.hash_list_len), hdr.hash_list_len);
   offset += sizeof(hdr.hash_list_len);
 
+  return offset;
 }
 
-static void dissect_policy_change(tvbuff_t * tvb, int offset, proto_tree * tree) {
+static int dissect_policy_change(tvbuff_t * tvb, int offset, proto_tree * tree) {
   guint32 status;
 
   status = tvb_get_ntohl(tvb, offset);
 
   proto_tree_add_uint(tree, hf_status, tvb, offset, sizeof(status), status);
   offset += sizeof(guint32);
+
+  return offset;
 }
 
-static void dissect_probe(tvbuff_t * tvb, int offset, proto_tree * tree) {
+static int dissect_probe(tvbuff_t * tvb, int offset, proto_tree * tree) {
   guint32 ifn;
 
   ifn = tvb_get_ntohl(tvb, offset);
 
   proto_tree_add_uint(tree, hf_ifn, tvb, offset, sizeof(ifn), ifn);
   offset += sizeof(guint32);
+return offset;
 }
 
-static void dissect_conf_reply(tvbuff_t * tvb, int offset, proto_tree * tree) {
+static int dissect_conf_reply(tvbuff_t * tvb, int offset, proto_tree * tree) {
   struct conf_reply_hdr hdr;
 
   tvb_memcpy(tvb, (guint8 *)&hdr, offset, sizeof(hdr));
@@ -403,6 +407,8 @@ static void dissect_conf_reply(tvbuff_t * tvb, int offset, proto_tree * tree) {
 
   proto_tree_add_ipv4(tree, hf_ip, tvb, offset, sizeof(hdr.ip), hdr.ip);
   offset += 4;
+
+  return offset;
 }
 
 static int
