@@ -31,12 +31,15 @@
 #include "aethra.h"
 
 /* Magic number in Aethra PC108 files. */
-static const char aethra_magic[5] = {
+#define MAGIC_SIZE	5
+
+static const guchar aethra_magic[MAGIC_SIZE] = {
 	'V', '0', '2', '0', '8'
 };
 
-/* Aethra file header (minus magic number). */
+/* Aethra file header. */
 struct aethra_hdr {
+	guchar	magic[MAGIC_SIZE];
 	guint8	unknown1[39];
 	guchar	sw_vers[60];	/* software version string, not null-terminated */
 	guint8	unknown2[118];
@@ -92,36 +95,35 @@ static gboolean aethra_read_rec_data(FILE_T fh, guint8 *pd, int length,
 int aethra_open(wtap *wth, int *err, gchar **err_info)
 {
 	int bytes_read;
-	char magic[sizeof aethra_magic];
 	struct aethra_hdr hdr;
 	struct tm tm;
 	aethra_t *aethra;
 
 	/* Read in the string that should be at the start of a "aethra" file */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(magic, sizeof magic, wth->fh);
-	if (bytes_read != sizeof magic) {
+	bytes_read = file_read(hdr.magic, sizeof hdr.magic, wth->fh);
+	if (bytes_read != sizeof hdr.magic) {
 		*err = file_error(wth->fh, err_info);
 		if (*err != 0)
 			return -1;
 		return 0;
 	}
-	wth->data_offset += sizeof magic;
+	wth->data_offset += sizeof hdr.magic;
 
-	if (memcmp(magic, aethra_magic, sizeof aethra_magic) != 0) {
+	if (memcmp(hdr.magic, aethra_magic, sizeof aethra_magic) != 0)
 		return 0;
-	}
 
 	/* Read the rest of the header. */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&hdr, sizeof hdr, wth->fh);
-	if (bytes_read != sizeof hdr) {
+	bytes_read = file_read((char *)&hdr + sizeof hdr.magic,
+	    sizeof hdr - sizeof hdr.magic, wth->fh);
+	if (bytes_read != sizeof hdr - sizeof hdr.magic) {
 		*err = file_error(wth->fh, err_info);
 		if (*err != 0)
 			return -1;
 		return 0;
 	}
-	wth->data_offset += sizeof hdr;
+	wth->data_offset += sizeof hdr - sizeof hdr.magic;
 	wth->file_type = WTAP_FILE_AETHRA;
 	aethra = (aethra_t *)g_malloc(sizeof(aethra_t));
 	wth->priv = (void *)aethra;
