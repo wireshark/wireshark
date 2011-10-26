@@ -130,7 +130,7 @@ static gint ett_brp_fltype = -1;
 /* Preferences */
 static guint global_brp_port = 0;
 
-void
+int
 dissect_brp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
@@ -320,6 +320,7 @@ dissect_brp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
 
     }
+return offset;
 }
 
 /*--- proto_register_brp ----------------------------------------------*/
@@ -404,7 +405,7 @@ void proto_register_brp (void)
 				"Set the UDP port for BRP messages",
 				10, &global_brp_port);
 
-    register_dissector("brp", dissect_brp, proto_brp);
+    new_register_dissector("brp", dissect_brp, proto_brp);
 }
 
 /*--- proto_reg_handoff_brp -------------------------------------------*/
@@ -415,7 +416,7 @@ void proto_reg_handoff_brp(void)
     static guint saved_brp_port;
 
     if (!initialized) {
-	brp_handle = create_dissector_handle(dissect_brp, proto_brp);
+	brp_handle = new_create_dissector_handle(dissect_brp, proto_brp);
 	dissector_add_handle("udp.port", brp_handle);
 	initialized = TRUE;
     } else {
