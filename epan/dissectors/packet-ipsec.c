@@ -151,7 +151,8 @@ static dissector_table_t ip_dissector_table;
 #define IPSEC_SA_IPV6 2
 #define IPSEC_SA_UNKNOWN -1
 #define IPSEC_SA_WILDCARDS_ANY '*'
-#define IPSEC_SPI_LEN_MAX 10
+/* the maximum number of bytes (10)(including the terminating nul character(11)) */
+#define IPSEC_SPI_LEN_MAX 11
 
 #endif
 
@@ -812,7 +813,7 @@ get_esp_sa(gint protocol_typ, gchar *src,  gchar *dst,  gint spi,
    gchar spi_string[IPSEC_SPI_LEN_MAX];
    gint key_len;
 
-   g_snprintf(spi_string, IPSEC_SPI_LEN_MAX,"%i", spi);
+   g_snprintf(spi_string, IPSEC_SPI_LEN_MAX,"0x%x", spi);
 
    for (i = 0; (found == FALSE) && (i < num_sa_uat); i++)
    {
