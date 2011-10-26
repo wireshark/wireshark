@@ -176,7 +176,7 @@ dissect_h263P( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 				   * ( 1000 00x.)
 				   */
 				  col_append_str( pinfo->cinfo, COL_INFO, "(PSC) ");
-				  offset = dissect_h263_picture_layer( tvb, pinfo, h263P_data_tree, offset, -1, TRUE);
+				  dissect_h263_picture_layer( tvb, pinfo, h263P_data_tree, offset, -1, TRUE);
 				  break;
 			  case 0xfc:
 			  case 0xfe:
