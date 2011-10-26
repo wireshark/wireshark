@@ -2030,11 +2030,6 @@ proto_register_enip(void)
           FT_BYTES, BASE_NONE, NULL, 0x0,
           "Connection Transport Data", HFILL }
       },
-      { &hf_enip_connection_transport_data,
-         { "Data", "enip.connection_transport_data",
-         FT_BYTES, BASE_NONE, NULL, 0x0,
-         "Connection Transport Data", HFILL }
-      },
 
       { &hf_tcpip_status, { "Status", "cip.tcpip.status", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_tcpip_status_interface_config, { "Interface Configuration Status", "cip.tcpip.status.interface_config", FT_UINT32, BASE_DEC, enip_tcpip_status_interface_config_vals, 0x0000000F, NULL, HFILL }},
