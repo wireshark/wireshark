@@ -777,7 +777,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	      ti = proto_tree_add_item(lmp_tree,
 				       hf_lmp_filter[lmp_class_to_filter_num(class)],
-				       tvb, offset, obj_length, FALSE);
+				       tvb, offset, obj_length, ENC_NA);  /* all possibilities are FT_NONE */
 	  } else {
 	      proto_tree_add_protocol_format(lmp_tree, proto_malformed, tvb,
 					     offset+1, 1,
@@ -841,14 +841,14 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		  l = LMPF_VAL_LOCAL_NODE_ID;
 		  proto_item_append_text(ti, ": %s", tvb_ip_to_str(tvb, offset2));
 		  proto_tree_add_item(lmp_object_tree, hf_lmp_filter[l], tvb,
-				      offset2, 4, FALSE);
+				      offset2, 4, ENC_BIG_ENDIAN);
 		  break;
 
 	      case 2:
 		  l = LMPF_VAL_REMOTE_NODE_ID;
 		  proto_item_append_text(ti, ": %s", tvb_ip_to_str(tvb, offset2));
 		  proto_tree_add_item(lmp_object_tree, hf_lmp_filter[l], tvb,
-				      offset2, 4, FALSE);
+				      offset2, 4, ENC_BIG_ENDIAN);
 		  break;
 
 	      default:
@@ -868,7 +868,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		      LMPF_VAL_REMOTE_LINK_ID_IPV4;
 		  proto_item_append_text(ti, ": IPv4 %s", tvb_ip_to_str(tvb, offset2));
 		  proto_tree_add_item(lmp_object_tree, hf_lmp_filter[l], tvb,
-				      offset2, 4, FALSE);
+				      offset2, 4, ENC_BIG_ENDIAN);
 		  break;
 
 	      case 3:
@@ -886,7 +886,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		  proto_item_append_text(ti, ": Unnumbered %d",
 					 tvb_get_ntohl(tvb, offset2));
 		  proto_tree_add_item(lmp_object_tree, hf_lmp_filter[l], tvb,
-				      offset2, 4, FALSE);
+				      offset2, 4, ENC_BIG_ENDIAN);
 		  break;
 
 	      default:
@@ -906,7 +906,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		      LMPF_VAL_REMOTE_INTERFACE_ID_IPV4;
 		  proto_item_append_text(ti, ": IPv4 %s", tvb_ip_to_str(tvb, offset2));
 		  proto_tree_add_item(lmp_object_tree, hf_lmp_filter[l], tvb,
-				      offset2, 4, FALSE);
+				      offset2, 4, ENC_BIG_ENDIAN);
 		  break;
 
 	      case 3:
@@ -925,7 +925,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		  proto_item_append_text(ti, ": Unnumbered %d",
 					 tvb_get_ntohl(tvb, offset2));
 		  proto_tree_add_item(lmp_object_tree, hf_lmp_filter[l], tvb,
-				      offset2, 4, FALSE);
+				      offset2, 4, ENC_BIG_ENDIAN);
 		  break;
 
 	      default:
@@ -1841,14 +1841,14 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		  l = LMPF_VAL_LOCAL_DA_DCN_ADDR;
 		  proto_item_append_text(ti, ": %s", tvb_ip_to_str(tvb, offset2));
 		  proto_tree_add_item(lmp_object_tree, hf_lmp_filter[l], tvb,
-				      offset2, 4, FALSE);
+				      offset2, 4, ENC_BIG_ENDIAN);
 		  break;
 
 	      case 2:
 		  l = LMPF_VAL_REMOTE_DA_DCN_ADDR;
 		  proto_item_append_text(ti, ": %s", tvb_ip_to_str(tvb, offset2));
 		  proto_tree_add_item(lmp_object_tree, hf_lmp_filter[l], tvb,
-				      offset2, 4, FALSE);
+				      offset2, 4, ENC_BIG_ENDIAN);
 		  break;
 
 	      default:
