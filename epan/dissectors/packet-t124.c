@@ -251,7 +251,6 @@ static int hf_t124_owned = -1;                    /* T_owned */
 static int hf_t124_nodeID = -1;                   /* UserID */
 static int hf_t124_entityID = -1;                 /* EntityID */
 static int hf_t124_notOwned = -1;                 /* NULL */
-static int hf_t124_tag = -1;                      /* INTEGER */
 static int hf_t124_convenerPassword = -1;         /* Password */
 static int hf_t124_password = -1;                 /* Password */
 static int hf_t124_listedConference = -1;         /* BOOLEAN */
@@ -265,6 +264,7 @@ static int hf_t124_nonConductedPrivileges = -1;   /* SET_OF_Privilege */
 static int hf_t124_nonConductedPrivileges_item = -1;  /* Privilege */
 static int hf_t124_callerIdentifier = -1;         /* TextString */
 static int hf_t124_conferencePriority = -1;       /* ConferencePriority */
+static int hf_t124_tag = -1;                      /* INTEGER */
 static int hf_t124_result = -1;                   /* T_result */
 static int hf_t124_asymmetryIndicator = -1;       /* AsymmetryIndicator */
 static int hf_t124_conferenceList = -1;           /* SET_OF_ConferenceDescriptor */
@@ -281,77 +281,15 @@ static int hf_t124_joinResponseResult = -1;       /* JoinResponseResult */
 static int hf_t124_inviteResponseResult = -1;     /* InviteResponseResult */
 static int hf_t124_requestingNode = -1;           /* UserID */
 static int hf_t124_addingMCU = -1;                /* UserID */
-static int hf_t124_addResponseResult = -1;        /* AddResponseResult */
-static int hf_t124_lockResponseResult = -1;       /* LockResponseResult */
-static int hf_t124_unlockResponseResult = -1;     /* UnlockResponseResult */
 static int hf_t124_terminateRequestReason = -1;   /* TerminateRequestReason */
-static int hf_t124_terminateResponseResult = -1;  /* TerminateResponseResult */
-static int hf_t124_terminateIndicationReason = -1;  /* TerminateIndicationReason */
 static int hf_t124_nodeToEject = -1;              /* UserID */
 static int hf_t124_ejectUserRequestReason = -1;   /* EjectUserRequestReason */
-static int hf_t124_ejectUserResponseResult = -1;  /* EjectUserResponseResult */
-static int hf_t124_reason = -1;                   /* T_reason */
 static int hf_t124_transferringNodes = -1;        /* SET_SIZE_1_65536_OF_UserID */
 static int hf_t124_transferringNodes_item = -1;   /* UserID */
 static int hf_t124_password_02 = -1;              /* PasswordSelector */
-static int hf_t124_transferResponseResult = -1;   /* TransferResponseResult */
-static int hf_t124_fullRefresh = -1;              /* BOOLEAN */
-static int hf_t124_nodeInformation = -1;          /* T_nodeInformation */
-static int hf_t124_nodeRecordList = -1;           /* T_nodeRecordList */
-static int hf_t124_noChange = -1;                 /* NULL */
-static int hf_t124_nodeRefresh = -1;              /* NodeRefresh */
-static int hf_t124_nodeRefresh_item = -1;         /* T_nodeRefresh_item */
-static int hf_t124_nodeRecord = -1;               /* NodeRecord */
-static int hf_t124_update = -1;                   /* T_update */
-static int hf_t124_update_item = -1;              /* T_update_item */
-static int hf_t124_nodeUpdate = -1;               /* T_nodeUpdate */
-static int hf_t124_addRecord = -1;                /* NodeRecord */
-static int hf_t124_replaceRecord = -1;            /* NodeRecord */
-static int hf_t124_removeRecord = -1;             /* NULL */
-static int hf_t124_rosterInstanceNumber = -1;     /* INTEGER_0_65535 */
-static int hf_t124_nodesAdded = -1;               /* BOOLEAN */
-static int hf_t124_nodesRemoved = -1;             /* BOOLEAN */
-static int hf_t124_applicationInformation = -1;   /* T_applicationInformation */
-static int hf_t124_applicationInformation_item = -1;  /* T_applicationInformation_item */
-static int hf_t124_applicationRecordList = -1;    /* T_applicationRecordList */
-static int hf_t124_applicationRefresh = -1;       /* ApplicationRefresh */
-static int hf_t124_applicationRefresh_item = -1;  /* T_applicationRefresh_item */
-static int hf_t124_applicationRecord = -1;        /* ApplicationRecord */
-static int hf_t124_applicationUpdate = -1;        /* ApplicationUpdate */
-static int hf_t124_applicationUpdateItem = -1;    /* ApplicationUpdateItem */
-static int hf_t124_applicationUpdate_01 = -1;     /* T_applicationUpdate */
-static int hf_t124_addRecord_01 = -1;             /* ApplicationRecord */
-static int hf_t124_replaceRecord_01 = -1;         /* ApplicationRecord */
-static int hf_t124_applicationCapabilitiesList = -1;  /* T_applicationCapabilitiesList */
-static int hf_t124_refresh = -1;                  /* T_refresh */
-static int hf_t124_refresh_item = -1;             /* T_refresh_item */
-static int hf_t124_numberOfEntities = -1;         /* INTEGER_1_65536 */
-static int hf_t124_peerEntitiesAdded = -1;        /* BOOLEAN */
-static int hf_t124_peerEntitiesRemoved = -1;      /* BOOLEAN */
-static int hf_t124_applicationProtocolEntiyList = -1;  /* SET_SIZE_1_65536_OF_ApplicationInvokeSpecifier */
-static int hf_t124_applicationProtocolEntiyList_item = -1;  /* ApplicationInvokeSpecifier */
-static int hf_t124_destinationNodes = -1;         /* SET_SIZE_1_65536_OF_UserID */
-static int hf_t124_destinationNodes_item = -1;    /* UserID */
 static int hf_t124_key_01 = -1;                   /* RegistryKey */
 static int hf_t124_modificationRights = -1;       /* RegistryModificationRights */
-static int hf_t124_item = -1;                     /* RegistryItem */
-static int hf_t124_owner = -1;                    /* RegistryEntryOwner */
 static int hf_t124_numberOfHandles = -1;          /* INTEGER_1_1024 */
-static int hf_t124_firstHandle = -1;              /* Handle */
-static int hf_t124_allocateHandleResponseResult = -1;  /* AllocateHandleResponseResult */
-static int hf_t124_primitiveType = -1;            /* T_primitiveType */
-static int hf_t124_result_01 = -1;                /* T_result_01 */
-static int hf_t124_conductingNode = -1;           /* UserID */
-static int hf_t124_grantFlag = -1;                /* BOOLEAN */
-static int hf_t124_permissionList = -1;           /* SEQUENCE_SIZE_0_65535_OF_UserID */
-static int hf_t124_permissionList_item = -1;      /* UserID */
-static int hf_t124_waitingList = -1;              /* SEQUENCE_SIZE_1_65536_OF_UserID */
-static int hf_t124_waitingList_item = -1;         /* UserID */
-static int hf_t124_timeRemaining = -1;            /* Time */
-static int hf_t124_nodeSpecificTimeFlag = -1;     /* BOOLEAN */
-static int hf_t124_timeToExtend = -1;             /* Time */
-static int hf_t124_message = -1;                  /* TextString */
-static int hf_t124_request = -1;                  /* RequestPDU */
 static int hf_t124_data_02 = -1;                  /* NonStandardParameter */
 static int hf_t124_t124Identifier = -1;           /* Key */
 static int hf_t124_connectPDU = -1;               /* T_connectPDU */
@@ -385,10 +323,6 @@ static int hf_t124_minThroughput = -1;            /* INTEGER_0_MAX */
 static int hf_t124_maxHeight = -1;                /* INTEGER_0_MAX */
 static int hf_t124_maxMCSPDUsize = -1;            /* INTEGER_0_MAX */
 static int hf_t124_protocolVersion = -1;          /* INTEGER_0_MAX */
-static int hf_t124_result_02 = -1;                /* Result */
-static int hf_t124_calledConnectId = -1;          /* INTEGER_0_MAX */
-static int hf_t124_domainParameters = -1;         /* DomainParameters */
-static int hf_t124_userData_01 = -1;              /* OCTET_STRING */
 static int hf_t124_heightLimit = -1;              /* INTEGER_0_MAX */
 static int hf_t124_subHeight = -1;                /* INTEGER_0_MAX */
 static int hf_t124_subInterval = -1;              /* INTEGER_0_MAX */
@@ -424,9 +358,10 @@ static int hf_t124_mergeTokens = -1;              /* SET_OF_TokenAttributes */
 static int hf_t124_mergeTokens_item = -1;         /* TokenAttributes */
 static int hf_t124_purgeTokenIds = -1;            /* SET_OF_TokenId */
 static int hf_t124_purgeTokenIds_item = -1;       /* TokenId */
-static int hf_t124_reason_01 = -1;                /* Reason */
+static int hf_t124_reason = -1;                   /* Reason */
 static int hf_t124_diagnostic = -1;               /* Diagnostic */
 static int hf_t124_initialOctets = -1;            /* OCTET_STRING */
+static int hf_t124_result_01 = -1;                /* Result */
 static int hf_t124_initiator = -1;                /* UserId */
 static int hf_t124_userIds = -1;                  /* SET_OF_UserId */
 static int hf_t124_userIds_item = -1;             /* UserId */
@@ -436,8 +371,9 @@ static int hf_t124_channelIds = -1;               /* SET_OF_ChannelId */
 static int hf_t124_channelIds_item = -1;          /* ChannelId */
 static int hf_t124_dataPriority = -1;             /* DataPriority */
 static int hf_t124_segmentation = -1;             /* Segmentation */
-static int hf_t124_userData_02 = -1;              /* T_userData */
-static int hf_t124_userData_03 = -1;              /* T_userData_01 */
+static int hf_t124_userData_01 = -1;              /* T_userData */
+static int hf_t124_userData_02 = -1;              /* T_userData_01 */
+static int hf_t124_userData_03 = -1;              /* OCTET_STRING */
 static int hf_t124_tokenStatus = -1;              /* TokenStatus */
 static int hf_t124_plumbDomainIndication = -1;    /* PlumbDomainIndication */
 static int hf_t124_erectDomainRequest = -1;       /* ErectDomainRequest */
@@ -581,7 +517,6 @@ static gint ett_t124_RegistryKey = -1;
 static gint ett_t124_RegistryItem = -1;
 static gint ett_t124_RegistryEntryOwner = -1;
 static gint ett_t124_T_owned = -1;
-static gint ett_t124_UserIDIndication = -1;
 static gint ett_t124_ConferenceCreateRequest = -1;
 static gint ett_t124_SET_OF_Privilege = -1;
 static gint ett_t124_ConferenceCreateResponse = -1;
@@ -593,73 +528,25 @@ static gint ett_t124_ConferenceJoinResponse = -1;
 static gint ett_t124_ConferenceInviteRequest = -1;
 static gint ett_t124_ConferenceInviteResponse = -1;
 static gint ett_t124_ConferenceAddRequest = -1;
-static gint ett_t124_ConferenceAddResponse = -1;
 static gint ett_t124_ConferenceLockRequest = -1;
-static gint ett_t124_ConferenceLockResponse = -1;
-static gint ett_t124_ConferenceLockIndication = -1;
 static gint ett_t124_ConferenceUnlockRequest = -1;
-static gint ett_t124_ConferenceUnlockResponse = -1;
-static gint ett_t124_ConferenceUnlockIndication = -1;
 static gint ett_t124_ConferenceTerminateRequest = -1;
-static gint ett_t124_ConferenceTerminateResponse = -1;
-static gint ett_t124_ConferenceTerminateIndication = -1;
 static gint ett_t124_ConferenceEjectUserRequest = -1;
-static gint ett_t124_ConferenceEjectUserResponse = -1;
-static gint ett_t124_ConferenceEjectUserIndication = -1;
 static gint ett_t124_ConferenceTransferRequest = -1;
 static gint ett_t124_SET_SIZE_1_65536_OF_UserID = -1;
-static gint ett_t124_ConferenceTransferResponse = -1;
-static gint ett_t124_ConferenceTransferIndication = -1;
-static gint ett_t124_RosterUpdateIndication = -1;
-static gint ett_t124_T_nodeInformation = -1;
-static gint ett_t124_T_nodeRecordList = -1;
-static gint ett_t124_NodeRefresh = -1;
-static gint ett_t124_T_nodeRefresh_item = -1;
-static gint ett_t124_T_update = -1;
-static gint ett_t124_T_update_item = -1;
-static gint ett_t124_T_nodeUpdate = -1;
-static gint ett_t124_T_applicationInformation = -1;
-static gint ett_t124_T_applicationInformation_item = -1;
-static gint ett_t124_T_applicationRecordList = -1;
-static gint ett_t124_ApplicationRefresh = -1;
-static gint ett_t124_T_applicationRefresh_item = -1;
-static gint ett_t124_ApplicationUpdate = -1;
-static gint ett_t124_ApplicationUpdateItem = -1;
-static gint ett_t124_T_applicationUpdate = -1;
-static gint ett_t124_T_applicationCapabilitiesList = -1;
-static gint ett_t124_T_refresh = -1;
-static gint ett_t124_T_refresh_item = -1;
-static gint ett_t124_ApplicationInvokeIndication = -1;
-static gint ett_t124_SET_SIZE_1_65536_OF_ApplicationInvokeSpecifier = -1;
 static gint ett_t124_RegistryRegisterChannelRequest = -1;
 static gint ett_t124_RegistryAssignTokenRequest = -1;
 static gint ett_t124_RegistrySetParameterRequest = -1;
 static gint ett_t124_RegistryRetrieveEntryRequest = -1;
 static gint ett_t124_RegistryDeleteEntryRequest = -1;
 static gint ett_t124_RegistryMonitorEntryRequest = -1;
-static gint ett_t124_RegistryMonitorEntryIndication = -1;
 static gint ett_t124_RegistryAllocateHandleRequest = -1;
-static gint ett_t124_RegistryAllocateHandleResponse = -1;
-static gint ett_t124_RegistryResponse = -1;
-static gint ett_t124_ConductorAssignIndication = -1;
-static gint ett_t124_ConductorReleaseIndication = -1;
-static gint ett_t124_ConductorPermissionAskIndication = -1;
-static gint ett_t124_ConductorPermissionGrantIndication = -1;
-static gint ett_t124_SEQUENCE_SIZE_0_65535_OF_UserID = -1;
-static gint ett_t124_SEQUENCE_SIZE_1_65536_OF_UserID = -1;
-static gint ett_t124_ConferenceTimeRemainingIndication = -1;
-static gint ett_t124_ConferenceTimeInquireIndication = -1;
-static gint ett_t124_ConferenceTimeExtendIndication = -1;
-static gint ett_t124_ConferenceAssistanceIndication = -1;
-static gint ett_t124_TextMessageIndication = -1;
-static gint ett_t124_FunctionNotSupportedResponse = -1;
 static gint ett_t124_NonStandardPDU = -1;
 static gint ett_t124_ConnectData = -1;
 static gint ett_t124_ConnectGCCPDU = -1;
 static gint ett_t124_RequestPDU = -1;
 static gint ett_t124_Segmentation = -1;
 static gint ett_t124_DomainParameters = -1;
-static gint ett_t124_Connect_Response = -1;
 static gint ett_t124_PlumbDomainIndication = -1;
 static gint ett_t124_ErectDomainRequest = -1;
 static gint ett_t124_ChannelAttributes = -1;
@@ -790,7 +677,7 @@ dissect_t124_Handle(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 
 static int
 dissect_t124_H221NonStandardIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 146 "../../asn1/t124/t124.cnf"
+#line 174 "../../asn1/t124/t124.cnf"
 
       offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        4, 255, FALSE, &t124NSIdentifier);
@@ -924,7 +811,7 @@ dissect_t124_ExtraDiallingString(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 static int
 dissect_t124_T_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 78 "../../asn1/t124/t124.cnf"
+#line 106 "../../asn1/t124/t124.cnf"
     tvbuff_t	*next_tvb = NULL;
     guint8      *ns = NULL;
 
@@ -2524,20 +2411,6 @@ dissect_t124_RegistryModificationRights(tvbuff_t *tvb _U_, int offset _U_, asn1_
 }
 
 
-static const per_sequence_t UserIDIndication_sequence[] = {
-  { &hf_t124_tag            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_INTEGER },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_UserIDIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_UserIDIndication, UserIDIndication_sequence);
-
-  return offset;
-}
-
-
 static const per_sequence_t SET_OF_Privilege_set_of[1] = {
   { &hf_t124_conductorPrivileges_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_Privilege },
 };
@@ -2835,44 +2708,6 @@ dissect_t124_ConferenceAddRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 }
 
 
-static const value_string t124_AddResponseResult_vals[] = {
-  {   0, "success" },
-  {   1, "invalidRequester" },
-  {   2, "invalidNetworkType" },
-  {   3, "invalidNetworkAddress" },
-  {   4, "addedNodeBusy" },
-  {   5, "networkBusy" },
-  {   6, "noPortsAvailable" },
-  {   7, "connectionUnsuccessful" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_t124_AddResponseResult(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     8, NULL, TRUE, 0, NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t ConferenceAddResponse_sequence[] = {
-  { &hf_t124_tag            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_INTEGER },
-  { &hf_t124_addResponseResult, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_AddResponseResult },
-  { &hf_t124_userData       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_UserData },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_ConferenceAddResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_ConferenceAddResponse, ConferenceAddResponse_sequence);
-
-  return offset;
-}
-
-
 static const per_sequence_t ConferenceLockRequest_sequence[] = {
   { NULL, ASN1_EXTENSION_ROOT, 0, NULL }
 };
@@ -2886,50 +2721,6 @@ dissect_t124_ConferenceLockRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 }
 
 
-static const value_string t124_LockResponseResult_vals[] = {
-  {   0, "success" },
-  {   1, "invalidRequester" },
-  {   2, "alreadyLocked" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_t124_LockResponseResult(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     3, NULL, TRUE, 0, NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t ConferenceLockResponse_sequence[] = {
-  { &hf_t124_lockResponseResult, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_LockResponseResult },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_ConferenceLockResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_ConferenceLockResponse, ConferenceLockResponse_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t ConferenceLockIndication_sequence[] = {
-  { NULL, ASN1_EXTENSION_ROOT, 0, NULL }
-};
-
-static int
-dissect_t124_ConferenceLockIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_ConferenceLockIndication, ConferenceLockIndication_sequence);
-
-  return offset;
-}
-
-
 static const per_sequence_t ConferenceUnlockRequest_sequence[] = {
   { NULL, ASN1_EXTENSION_ROOT, 0, NULL }
 };
@@ -2938,50 +2729,6 @@ static int
 dissect_t124_ConferenceUnlockRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_t124_ConferenceUnlockRequest, ConferenceUnlockRequest_sequence);
-
-  return offset;
-}
-
-
-static const value_string t124_UnlockResponseResult_vals[] = {
-  {   0, "success" },
-  {   1, "invalidRequester" },
-  {   2, "alreadyUnlocked" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_t124_UnlockResponseResult(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     3, NULL, TRUE, 0, NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t ConferenceUnlockResponse_sequence[] = {
-  { &hf_t124_unlockResponseResult, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_UnlockResponseResult },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_ConferenceUnlockResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_ConferenceUnlockResponse, ConferenceUnlockResponse_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t ConferenceUnlockIndication_sequence[] = {
-  { NULL, ASN1_EXTENSION_ROOT, 0, NULL }
-};
-
-static int
-dissect_t124_ConferenceUnlockIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_ConferenceUnlockIndication, ConferenceUnlockIndication_sequence);
 
   return offset;
 }
@@ -3017,66 +2764,6 @@ dissect_t124_ConferenceTerminateRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_
 }
 
 
-static const value_string t124_TerminateResponseResult_vals[] = {
-  {   0, "success" },
-  {   1, "invalidRequester" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_t124_TerminateResponseResult(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t ConferenceTerminateResponse_sequence[] = {
-  { &hf_t124_terminateResponseResult, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_TerminateResponseResult },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_ConferenceTerminateResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_ConferenceTerminateResponse, ConferenceTerminateResponse_sequence);
-
-  return offset;
-}
-
-
-static const value_string t124_TerminateIndicationReason_vals[] = {
-  {   0, "userInitiated" },
-  {   1, "timedConferenceTermination" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_t124_TerminateIndicationReason(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t ConferenceTerminateIndication_sequence[] = {
-  { &hf_t124_terminateIndicationReason, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_TerminateIndicationReason },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_ConferenceTerminateIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_ConferenceTerminateIndication, ConferenceTerminateIndication_sequence);
-
-  return offset;
-}
-
-
 static const value_string t124_EjectUserRequestReason_vals[] = {
   {   0, "userInitiated" },
   { 0, NULL }
@@ -3102,70 +2789,6 @@ static int
 dissect_t124_ConferenceEjectUserRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_t124_ConferenceEjectUserRequest, ConferenceEjectUserRequest_sequence);
-
-  return offset;
-}
-
-
-static const value_string t124_EjectUserResponseResult_vals[] = {
-  {   0, "success" },
-  {   1, "invalidRequester" },
-  {   2, "invalidNode" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_t124_EjectUserResponseResult(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     3, NULL, TRUE, 0, NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t ConferenceEjectUserResponse_sequence[] = {
-  { &hf_t124_nodeToEject    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_UserID },
-  { &hf_t124_ejectUserResponseResult, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_EjectUserResponseResult },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_ConferenceEjectUserResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_ConferenceEjectUserResponse, ConferenceEjectUserResponse_sequence);
-
-  return offset;
-}
-
-
-static const value_string t124_T_reason_vals[] = {
-  {   0, "userInitiated" },
-  {   1, "higherNodeDisconnected" },
-  {   2, "higherNodeEjected" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_t124_T_reason(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     3, NULL, TRUE, 0, NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t ConferenceEjectUserIndication_sequence[] = {
-  { &hf_t124_nodeToEject    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_UserID },
-  { &hf_t124_reason         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_T_reason },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_ConferenceEjectUserIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_ConferenceEjectUserIndication, ConferenceEjectUserIndication_sequence);
 
   return offset;
 }
@@ -3199,428 +2822,6 @@ static int
 dissect_t124_ConferenceTransferRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_t124_ConferenceTransferRequest, ConferenceTransferRequest_sequence);
-
-  return offset;
-}
-
-
-static const value_string t124_TransferResponseResult_vals[] = {
-  {   0, "success" },
-  {   1, "invalidRequester" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_t124_TransferResponseResult(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t ConferenceTransferResponse_sequence[] = {
-  { &hf_t124_conferenceName_01, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_ConferenceNameSelector },
-  { &hf_t124_conferenceNameModifier, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_ConferenceNameModifier },
-  { &hf_t124_transferringNodes, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_SET_SIZE_1_65536_OF_UserID },
-  { &hf_t124_transferResponseResult, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_TransferResponseResult },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_ConferenceTransferResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_ConferenceTransferResponse, ConferenceTransferResponse_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t ConferenceTransferIndication_sequence[] = {
-  { &hf_t124_conferenceName_01, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_ConferenceNameSelector },
-  { &hf_t124_conferenceNameModifier, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_ConferenceNameModifier },
-  { &hf_t124_networkAddress_02, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_NetworkAddress },
-  { &hf_t124_transferringNodes, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_SET_SIZE_1_65536_OF_UserID },
-  { &hf_t124_password_02    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_PasswordSelector },
-  { &hf_t124_networkAddressV2, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_t124_NetworkAddressV2 },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_ConferenceTransferIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_ConferenceTransferIndication, ConferenceTransferIndication_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t T_nodeRefresh_item_sequence[] = {
-  { &hf_t124_nodeID         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_UserID },
-  { &hf_t124_nodeRecord     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_NodeRecord },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_T_nodeRefresh_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_T_nodeRefresh_item, T_nodeRefresh_item_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t NodeRefresh_set_of[1] = {
-  { &hf_t124_nodeRefresh_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_T_nodeRefresh_item },
-};
-
-static int
-dissect_t124_NodeRefresh(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_set_of(tvb, offset, actx, tree, hf_index,
-                                             ett_t124_NodeRefresh, NodeRefresh_set_of,
-                                             1, 65536, FALSE);
-
-  return offset;
-}
-
-
-static const value_string t124_T_nodeUpdate_vals[] = {
-  {   0, "addRecord" },
-  {   1, "replaceRecord" },
-  {   2, "removeRecord" },
-  { 0, NULL }
-};
-
-static const per_choice_t T_nodeUpdate_choice[] = {
-  {   0, &hf_t124_addRecord      , ASN1_EXTENSION_ROOT    , dissect_t124_NodeRecord },
-  {   1, &hf_t124_replaceRecord  , ASN1_EXTENSION_ROOT    , dissect_t124_NodeRecord },
-  {   2, &hf_t124_removeRecord   , ASN1_EXTENSION_ROOT    , dissect_t124_NULL },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_t124_T_nodeUpdate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_t124_T_nodeUpdate, T_nodeUpdate_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t T_update_item_sequence[] = {
-  { &hf_t124_nodeID         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_UserID },
-  { &hf_t124_nodeUpdate     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_T_nodeUpdate },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_T_update_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_T_update_item, T_update_item_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t T_update_set_of[1] = {
-  { &hf_t124_update_item    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_T_update_item },
-};
-
-static int
-dissect_t124_T_update(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_set_of(tvb, offset, actx, tree, hf_index,
-                                             ett_t124_T_update, T_update_set_of,
-                                             1, 65536, FALSE);
-
-  return offset;
-}
-
-
-static const value_string t124_T_nodeRecordList_vals[] = {
-  {   0, "noChange" },
-  {   1, "refresh" },
-  {   2, "update" },
-  { 0, NULL }
-};
-
-static const per_choice_t T_nodeRecordList_choice[] = {
-  {   0, &hf_t124_noChange       , ASN1_EXTENSION_ROOT    , dissect_t124_NULL },
-  {   1, &hf_t124_nodeRefresh    , ASN1_EXTENSION_ROOT    , dissect_t124_NodeRefresh },
-  {   2, &hf_t124_update         , ASN1_EXTENSION_ROOT    , dissect_t124_T_update },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_t124_T_nodeRecordList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_t124_T_nodeRecordList, T_nodeRecordList_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t T_nodeInformation_sequence[] = {
-  { &hf_t124_nodeRecordList , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_T_nodeRecordList },
-  { &hf_t124_rosterInstanceNumber, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_INTEGER_0_65535 },
-  { &hf_t124_nodesAdded     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_BOOLEAN },
-  { &hf_t124_nodesRemoved   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_BOOLEAN },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_T_nodeInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_T_nodeInformation, T_nodeInformation_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t T_applicationRefresh_item_sequence[] = {
-  { &hf_t124_nodeID         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_UserID },
-  { &hf_t124_entityID       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_EntityID },
-  { &hf_t124_applicationRecord, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_ApplicationRecord },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_T_applicationRefresh_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_T_applicationRefresh_item, T_applicationRefresh_item_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t ApplicationRefresh_set_of[1] = {
-  { &hf_t124_applicationRefresh_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_T_applicationRefresh_item },
-};
-
-static int
-dissect_t124_ApplicationRefresh(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_set_of(tvb, offset, actx, tree, hf_index,
-                                             ett_t124_ApplicationRefresh, ApplicationRefresh_set_of,
-                                             0, 65535, FALSE);
-
-  return offset;
-}
-
-
-static const value_string t124_T_applicationUpdate_vals[] = {
-  {   0, "addRecord" },
-  {   1, "replaceRecord" },
-  {   2, "removeRecord" },
-  { 0, NULL }
-};
-
-static const per_choice_t T_applicationUpdate_choice[] = {
-  {   0, &hf_t124_addRecord_01   , ASN1_EXTENSION_ROOT    , dissect_t124_ApplicationRecord },
-  {   1, &hf_t124_replaceRecord_01, ASN1_EXTENSION_ROOT    , dissect_t124_ApplicationRecord },
-  {   2, &hf_t124_removeRecord   , ASN1_EXTENSION_ROOT    , dissect_t124_NULL },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_t124_T_applicationUpdate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_t124_T_applicationUpdate, T_applicationUpdate_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t ApplicationUpdateItem_sequence[] = {
-  { &hf_t124_nodeID         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_UserID },
-  { &hf_t124_entityID       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_EntityID },
-  { &hf_t124_applicationUpdate_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_T_applicationUpdate },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_ApplicationUpdateItem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_ApplicationUpdateItem, ApplicationUpdateItem_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t ApplicationUpdate_set_of[1] = {
-  { &hf_t124_applicationUpdateItem, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_ApplicationUpdateItem },
-};
-
-static int
-dissect_t124_ApplicationUpdate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_set_of(tvb, offset, actx, tree, hf_index,
-                                             ett_t124_ApplicationUpdate, ApplicationUpdate_set_of,
-                                             1, 65536, FALSE);
-
-  return offset;
-}
-
-
-static const value_string t124_T_applicationRecordList_vals[] = {
-  {   0, "noChange" },
-  {   1, "refresh" },
-  {   2, "update" },
-  { 0, NULL }
-};
-
-static const per_choice_t T_applicationRecordList_choice[] = {
-  {   0, &hf_t124_noChange       , ASN1_EXTENSION_ROOT    , dissect_t124_NULL },
-  {   1, &hf_t124_applicationRefresh, ASN1_EXTENSION_ROOT    , dissect_t124_ApplicationRefresh },
-  {   2, &hf_t124_applicationUpdate, ASN1_EXTENSION_ROOT    , dissect_t124_ApplicationUpdate },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_t124_T_applicationRecordList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_t124_T_applicationRecordList, T_applicationRecordList_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t124_INTEGER_1_65536(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 65536U, NULL, FALSE);
-
-  return offset;
-}
-
-
-static const per_sequence_t T_refresh_item_sequence[] = {
-  { &hf_t124_capabilityID   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_CapabilityID },
-  { &hf_t124_capabilityClass, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_CapabilityClass },
-  { &hf_t124_numberOfEntities, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_INTEGER_1_65536 },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_T_refresh_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_T_refresh_item, T_refresh_item_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t T_refresh_set_of[1] = {
-  { &hf_t124_refresh_item   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_T_refresh_item },
-};
-
-static int
-dissect_t124_T_refresh(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_set_of(tvb, offset, actx, tree, hf_index,
-                                 ett_t124_T_refresh, T_refresh_set_of);
-
-  return offset;
-}
-
-
-static const value_string t124_T_applicationCapabilitiesList_vals[] = {
-  {   0, "noChange" },
-  {   1, "refresh" },
-  { 0, NULL }
-};
-
-static const per_choice_t T_applicationCapabilitiesList_choice[] = {
-  {   0, &hf_t124_noChange       , ASN1_EXTENSION_ROOT    , dissect_t124_NULL },
-  {   1, &hf_t124_refresh        , ASN1_EXTENSION_ROOT    , dissect_t124_T_refresh },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_t124_T_applicationCapabilitiesList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_t124_T_applicationCapabilitiesList, T_applicationCapabilitiesList_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t T_applicationInformation_item_sequence[] = {
-  { &hf_t124_sessionKey     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_SessionKey },
-  { &hf_t124_applicationRecordList, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_T_applicationRecordList },
-  { &hf_t124_applicationCapabilitiesList, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_T_applicationCapabilitiesList },
-  { &hf_t124_rosterInstanceNumber, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_INTEGER_0_65535 },
-  { &hf_t124_peerEntitiesAdded, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_BOOLEAN },
-  { &hf_t124_peerEntitiesRemoved, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_BOOLEAN },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_T_applicationInformation_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_T_applicationInformation_item, T_applicationInformation_item_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t T_applicationInformation_set_of[1] = {
-  { &hf_t124_applicationInformation_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_T_applicationInformation_item },
-};
-
-static int
-dissect_t124_T_applicationInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_set_of(tvb, offset, actx, tree, hf_index,
-                                             ett_t124_T_applicationInformation, T_applicationInformation_set_of,
-                                             0, 65535, FALSE);
-
-  return offset;
-}
-
-
-static const per_sequence_t RosterUpdateIndication_sequence[] = {
-  { &hf_t124_fullRefresh    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_BOOLEAN },
-  { &hf_t124_nodeInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_T_nodeInformation },
-  { &hf_t124_applicationInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_T_applicationInformation },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_RosterUpdateIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_RosterUpdateIndication, RosterUpdateIndication_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t SET_SIZE_1_65536_OF_ApplicationInvokeSpecifier_set_of[1] = {
-  { &hf_t124_applicationProtocolEntiyList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_ApplicationInvokeSpecifier },
-};
-
-static int
-dissect_t124_SET_SIZE_1_65536_OF_ApplicationInvokeSpecifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_set_of(tvb, offset, actx, tree, hf_index,
-                                             ett_t124_SET_SIZE_1_65536_OF_ApplicationInvokeSpecifier, SET_SIZE_1_65536_OF_ApplicationInvokeSpecifier_set_of,
-                                             1, 65536, FALSE);
-
-  return offset;
-}
-
-
-static const per_sequence_t ApplicationInvokeIndication_sequence[] = {
-  { &hf_t124_applicationProtocolEntiyList, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_SET_SIZE_1_65536_OF_ApplicationInvokeSpecifier },
-  { &hf_t124_destinationNodes, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_SET_SIZE_1_65536_OF_UserID },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_ApplicationInvokeIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_ApplicationInvokeIndication, ApplicationInvokeIndication_sequence);
 
   return offset;
 }
@@ -3719,23 +2920,6 @@ dissect_t124_RegistryMonitorEntryRequest(tvbuff_t *tvb _U_, int offset _U_, asn1
 }
 
 
-static const per_sequence_t RegistryMonitorEntryIndication_sequence[] = {
-  { &hf_t124_key_01         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_RegistryKey },
-  { &hf_t124_item           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_RegistryItem },
-  { &hf_t124_owner          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_RegistryEntryOwner },
-  { &hf_t124_modificationRights, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_RegistryModificationRights },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_RegistryMonitorEntryIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_RegistryMonitorEntryIndication, RegistryMonitorEntryIndication_sequence);
-
-  return offset;
-}
-
-
 
 static int
 dissect_t124_INTEGER_1_1024(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -3761,256 +2945,6 @@ dissect_t124_RegistryAllocateHandleRequest(tvbuff_t *tvb _U_, int offset _U_, as
 }
 
 
-static const value_string t124_AllocateHandleResponseResult_vals[] = {
-  {   0, "successful" },
-  {   1, "noHandlesAvailable" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_t124_AllocateHandleResponseResult(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t RegistryAllocateHandleResponse_sequence[] = {
-  { &hf_t124_entityID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_EntityID },
-  { &hf_t124_numberOfHandles, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_INTEGER_1_1024 },
-  { &hf_t124_firstHandle    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_Handle },
-  { &hf_t124_allocateHandleResponseResult, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_AllocateHandleResponseResult },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_RegistryAllocateHandleResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_RegistryAllocateHandleResponse, RegistryAllocateHandleResponse_sequence);
-
-  return offset;
-}
-
-
-static const value_string t124_T_primitiveType_vals[] = {
-  {   0, "registerChannel" },
-  {   1, "assignToken" },
-  {   2, "setParameter" },
-  {   3, "retrieveEntry" },
-  {   4, "deleteEntry" },
-  {   5, "monitorEntry" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_t124_T_primitiveType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     6, NULL, TRUE, 0, NULL);
-
-  return offset;
-}
-
-
-static const value_string t124_T_result_01_vals[] = {
-  {   0, "successful" },
-  {   1, "belongsToOther" },
-  {   2, "tooManyEntries" },
-  {   3, "inconsistentType" },
-  {   4, "entryNotFound" },
-  {   5, "entryAlreadyExists" },
-  {   6, "invalidRequester" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_t124_T_result_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     7, NULL, TRUE, 0, NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t RegistryResponse_sequence[] = {
-  { &hf_t124_entityID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_EntityID },
-  { &hf_t124_primitiveType  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_T_primitiveType },
-  { &hf_t124_key_01         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_RegistryKey },
-  { &hf_t124_item           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_RegistryItem },
-  { &hf_t124_owner          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_RegistryEntryOwner },
-  { &hf_t124_modificationRights, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_RegistryModificationRights },
-  { &hf_t124_result_01      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_T_result_01 },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_RegistryResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_RegistryResponse, RegistryResponse_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t ConductorAssignIndication_sequence[] = {
-  { &hf_t124_conductingNode , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_UserID },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_ConductorAssignIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_ConductorAssignIndication, ConductorAssignIndication_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t ConductorReleaseIndication_sequence[] = {
-  { NULL, ASN1_EXTENSION_ROOT, 0, NULL }
-};
-
-static int
-dissect_t124_ConductorReleaseIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_ConductorReleaseIndication, ConductorReleaseIndication_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t ConductorPermissionAskIndication_sequence[] = {
-  { &hf_t124_grantFlag      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_BOOLEAN },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_ConductorPermissionAskIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_ConductorPermissionAskIndication, ConductorPermissionAskIndication_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t SEQUENCE_SIZE_0_65535_OF_UserID_sequence_of[1] = {
-  { &hf_t124_permissionList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_UserID },
-};
-
-static int
-dissect_t124_SEQUENCE_SIZE_0_65535_OF_UserID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
-                                                  ett_t124_SEQUENCE_SIZE_0_65535_OF_UserID, SEQUENCE_SIZE_0_65535_OF_UserID_sequence_of,
-                                                  0, 65535, FALSE);
-
-  return offset;
-}
-
-
-static const per_sequence_t SEQUENCE_SIZE_1_65536_OF_UserID_sequence_of[1] = {
-  { &hf_t124_waitingList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_UserID },
-};
-
-static int
-dissect_t124_SEQUENCE_SIZE_1_65536_OF_UserID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
-                                                  ett_t124_SEQUENCE_SIZE_1_65536_OF_UserID, SEQUENCE_SIZE_1_65536_OF_UserID_sequence_of,
-                                                  1, 65536, FALSE);
-
-  return offset;
-}
-
-
-static const per_sequence_t ConductorPermissionGrantIndication_sequence[] = {
-  { &hf_t124_permissionList , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_SEQUENCE_SIZE_0_65535_OF_UserID },
-  { &hf_t124_waitingList    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_SEQUENCE_SIZE_1_65536_OF_UserID },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_ConductorPermissionGrantIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_ConductorPermissionGrantIndication, ConductorPermissionGrantIndication_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t ConferenceTimeRemainingIndication_sequence[] = {
-  { &hf_t124_timeRemaining  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_Time },
-  { &hf_t124_nodeID         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_UserID },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_ConferenceTimeRemainingIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_ConferenceTimeRemainingIndication, ConferenceTimeRemainingIndication_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t ConferenceTimeInquireIndication_sequence[] = {
-  { &hf_t124_nodeSpecificTimeFlag, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_BOOLEAN },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_ConferenceTimeInquireIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_ConferenceTimeInquireIndication, ConferenceTimeInquireIndication_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t ConferenceTimeExtendIndication_sequence[] = {
-  { &hf_t124_timeToExtend   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_Time },
-  { &hf_t124_nodeSpecificTimeFlag, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_BOOLEAN },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_ConferenceTimeExtendIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_ConferenceTimeExtendIndication, ConferenceTimeExtendIndication_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t ConferenceAssistanceIndication_sequence[] = {
-  { &hf_t124_userData       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_UserData },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_ConferenceAssistanceIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_ConferenceAssistanceIndication, ConferenceAssistanceIndication_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t TextMessageIndication_sequence[] = {
-  { &hf_t124_message        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_TextString },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_TextMessageIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_TextMessageIndication, TextMessageIndication_sequence);
-
-  return offset;
-}
-
-
 static const per_sequence_t NonStandardPDU_sequence[] = {
   { &hf_t124_data_02        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_NonStandardParameter },
   { NULL, 0, 0, NULL }
@@ -4025,72 +2959,10 @@ dissect_t124_NonStandardPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 }
 
 
-static const value_string t124_RequestPDU_vals[] = {
-  {   0, "conferenceJoinRequest" },
-  {   1, "conferenceAddRequest" },
-  {   2, "conferenceLockRequest" },
-  {   3, "conferenceUnlockRequest" },
-  {   4, "conferenceTerminateRequest" },
-  {   5, "conferenceEjectUserRequest" },
-  {   6, "conferenceTransferRequest" },
-  {   7, "registryRegisterChannelRequest" },
-  {   8, "registryAssignTokenRequest" },
-  {   9, "registrySetParameterRequest" },
-  {  10, "registryRetrieveEntryRequest" },
-  {  11, "registryDeleteEntryRequest" },
-  {  12, "registryMonitorEntryRequest" },
-  {  13, "registryAllocateHandleRequest" },
-  {  14, "nonStandardRequest" },
-  { 0, NULL }
-};
-
-static const per_choice_t RequestPDU_choice[] = {
-  {   0, &hf_t124_conferenceJoinRequest, ASN1_EXTENSION_ROOT    , dissect_t124_ConferenceJoinRequest },
-  {   1, &hf_t124_conferenceAddRequest, ASN1_EXTENSION_ROOT    , dissect_t124_ConferenceAddRequest },
-  {   2, &hf_t124_conferenceLockRequest, ASN1_EXTENSION_ROOT    , dissect_t124_ConferenceLockRequest },
-  {   3, &hf_t124_conferenceUnlockRequest, ASN1_EXTENSION_ROOT    , dissect_t124_ConferenceUnlockRequest },
-  {   4, &hf_t124_conferenceTerminateRequest, ASN1_EXTENSION_ROOT    , dissect_t124_ConferenceTerminateRequest },
-  {   5, &hf_t124_conferenceEjectUserRequest, ASN1_EXTENSION_ROOT    , dissect_t124_ConferenceEjectUserRequest },
-  {   6, &hf_t124_conferenceTransferRequest, ASN1_EXTENSION_ROOT    , dissect_t124_ConferenceTransferRequest },
-  {   7, &hf_t124_registryRegisterChannelRequest, ASN1_EXTENSION_ROOT    , dissect_t124_RegistryRegisterChannelRequest },
-  {   8, &hf_t124_registryAssignTokenRequest, ASN1_EXTENSION_ROOT    , dissect_t124_RegistryAssignTokenRequest },
-  {   9, &hf_t124_registrySetParameterRequest, ASN1_EXTENSION_ROOT    , dissect_t124_RegistrySetParameterRequest },
-  {  10, &hf_t124_registryRetrieveEntryRequest, ASN1_EXTENSION_ROOT    , dissect_t124_RegistryRetrieveEntryRequest },
-  {  11, &hf_t124_registryDeleteEntryRequest, ASN1_EXTENSION_ROOT    , dissect_t124_RegistryDeleteEntryRequest },
-  {  12, &hf_t124_registryMonitorEntryRequest, ASN1_EXTENSION_ROOT    , dissect_t124_RegistryMonitorEntryRequest },
-  {  13, &hf_t124_registryAllocateHandleRequest, ASN1_EXTENSION_ROOT    , dissect_t124_RegistryAllocateHandleRequest },
-  {  14, &hf_t124_nonStandardRequest, ASN1_EXTENSION_ROOT    , dissect_t124_NonStandardPDU },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_t124_RequestPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_t124_RequestPDU, RequestPDU_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t FunctionNotSupportedResponse_sequence[] = {
-  { &hf_t124_request        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_RequestPDU },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_FunctionNotSupportedResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_FunctionNotSupportedResponse, FunctionNotSupportedResponse_sequence);
-
-  return offset;
-}
-
-
 
 static int
 dissect_t124_T_connectPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 52 "../../asn1/t124/t124.cnf"
+#line 80 "../../asn1/t124/t124.cnf"
     tvbuff_t	*next_tvb = NULL;
     proto_tree	*next_tree = NULL;
     int		old_offset = 0;
@@ -4171,10 +3043,58 @@ dissect_t124_ConnectGCCPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 }
 
 
+static const value_string t124_RequestPDU_vals[] = {
+  {   0, "conferenceJoinRequest" },
+  {   1, "conferenceAddRequest" },
+  {   2, "conferenceLockRequest" },
+  {   3, "conferenceUnlockRequest" },
+  {   4, "conferenceTerminateRequest" },
+  {   5, "conferenceEjectUserRequest" },
+  {   6, "conferenceTransferRequest" },
+  {   7, "registryRegisterChannelRequest" },
+  {   8, "registryAssignTokenRequest" },
+  {   9, "registrySetParameterRequest" },
+  {  10, "registryRetrieveEntryRequest" },
+  {  11, "registryDeleteEntryRequest" },
+  {  12, "registryMonitorEntryRequest" },
+  {  13, "registryAllocateHandleRequest" },
+  {  14, "nonStandardRequest" },
+  { 0, NULL }
+};
+
+static const per_choice_t RequestPDU_choice[] = {
+  {   0, &hf_t124_conferenceJoinRequest, ASN1_EXTENSION_ROOT    , dissect_t124_ConferenceJoinRequest },
+  {   1, &hf_t124_conferenceAddRequest, ASN1_EXTENSION_ROOT    , dissect_t124_ConferenceAddRequest },
+  {   2, &hf_t124_conferenceLockRequest, ASN1_EXTENSION_ROOT    , dissect_t124_ConferenceLockRequest },
+  {   3, &hf_t124_conferenceUnlockRequest, ASN1_EXTENSION_ROOT    , dissect_t124_ConferenceUnlockRequest },
+  {   4, &hf_t124_conferenceTerminateRequest, ASN1_EXTENSION_ROOT    , dissect_t124_ConferenceTerminateRequest },
+  {   5, &hf_t124_conferenceEjectUserRequest, ASN1_EXTENSION_ROOT    , dissect_t124_ConferenceEjectUserRequest },
+  {   6, &hf_t124_conferenceTransferRequest, ASN1_EXTENSION_ROOT    , dissect_t124_ConferenceTransferRequest },
+  {   7, &hf_t124_registryRegisterChannelRequest, ASN1_EXTENSION_ROOT    , dissect_t124_RegistryRegisterChannelRequest },
+  {   8, &hf_t124_registryAssignTokenRequest, ASN1_EXTENSION_ROOT    , dissect_t124_RegistryAssignTokenRequest },
+  {   9, &hf_t124_registrySetParameterRequest, ASN1_EXTENSION_ROOT    , dissect_t124_RegistrySetParameterRequest },
+  {  10, &hf_t124_registryRetrieveEntryRequest, ASN1_EXTENSION_ROOT    , dissect_t124_RegistryRetrieveEntryRequest },
+  {  11, &hf_t124_registryDeleteEntryRequest, ASN1_EXTENSION_ROOT    , dissect_t124_RegistryDeleteEntryRequest },
+  {  12, &hf_t124_registryMonitorEntryRequest, ASN1_EXTENSION_ROOT    , dissect_t124_RegistryMonitorEntryRequest },
+  {  13, &hf_t124_registryAllocateHandleRequest, ASN1_EXTENSION_ROOT    , dissect_t124_RegistryAllocateHandleRequest },
+  {  14, &hf_t124_nonStandardRequest, ASN1_EXTENSION_ROOT    , dissect_t124_NonStandardPDU },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_t124_RequestPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_t124_RequestPDU, RequestPDU_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
 
 static int
 dissect_t124_ChannelId(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 152 "../../asn1/t124/t124.cnf"
+#line 180 "../../asn1/t124/t124.cnf"
 
       offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 65535U, &channelId, FALSE);
@@ -4311,53 +3231,6 @@ static int
 dissect_t124_DomainParameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_t124_DomainParameters, DomainParameters_sequence);
-
-  return offset;
-}
-
-
-static const value_string t124_Result_vals[] = {
-  {   0, "rt-successful" },
-  {   1, "rt-domain-merging" },
-  {   2, "rt-domain-not-hierarchical" },
-  {   3, "rt-no-such-channel" },
-  {   4, "rt-no-such-domain" },
-  {   5, "rt-no-such-user" },
-  {   6, "rt-not-admitted" },
-  {   7, "rt-other-user-id" },
-  {   8, "rt-parameters-unacceptable" },
-  {   9, "rt-token-not-available" },
-  {  10, "rt-token-not-possessed" },
-  {  11, "rt-too-many-channels" },
-  {  12, "rt-too-many-tokens" },
-  {  13, "rt-too-many-users" },
-  {  14, "rt-unspecified-failure" },
-  {  15, "rt-user-rejected" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_t124_Result(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     16, NULL, FALSE, 0, NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t Connect_Response_sequence[] = {
-  { &hf_t124_result_02      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_Result },
-  { &hf_t124_calledConnectId, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_INTEGER_0_MAX },
-  { &hf_t124_domainParameters, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_DomainParameters },
-  { &hf_t124_userData_01    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_OCTET_STRING },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_Connect_Response(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_Connect_Response, Connect_Response_sequence);
 
   return offset;
 }
@@ -4756,7 +3629,7 @@ dissect_t124_Reason(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 
 
 static const per_sequence_t DisconnectProviderUltimatum_sequence[] = {
-  { &hf_t124_reason_01      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_Reason },
+  { &hf_t124_reason         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_Reason },
   { NULL, 0, 0, NULL }
 };
 
@@ -4825,8 +3698,38 @@ dissect_t124_AttachUserRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 }
 
 
+static const value_string t124_Result_vals[] = {
+  {   0, "rt-successful" },
+  {   1, "rt-domain-merging" },
+  {   2, "rt-domain-not-hierarchical" },
+  {   3, "rt-no-such-channel" },
+  {   4, "rt-no-such-domain" },
+  {   5, "rt-no-such-user" },
+  {   6, "rt-not-admitted" },
+  {   7, "rt-other-user-id" },
+  {   8, "rt-parameters-unacceptable" },
+  {   9, "rt-token-not-available" },
+  {  10, "rt-token-not-possessed" },
+  {  11, "rt-too-many-channels" },
+  {  12, "rt-too-many-tokens" },
+  {  13, "rt-too-many-users" },
+  {  14, "rt-unspecified-failure" },
+  {  15, "rt-user-rejected" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_t124_Result(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     16, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
 static const per_sequence_t AttachUserConfirm_sequence[] = {
-  { &hf_t124_result_02      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_Result },
+  { &hf_t124_result_01      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_Result },
   { &hf_t124_initiator      , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_t124_UserId },
   { NULL, 0, 0, NULL }
 };
@@ -4841,7 +3744,7 @@ dissect_t124_AttachUserConfirm(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 
 static const per_sequence_t DetachUserRequest_sequence[] = {
-  { &hf_t124_reason_01      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_Reason },
+  { &hf_t124_reason         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_Reason },
   { &hf_t124_userIds        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_SET_OF_UserId },
   { NULL, 0, 0, NULL }
 };
@@ -4856,7 +3759,7 @@ dissect_t124_DetachUserRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 
 static const per_sequence_t DetachUserIndication_sequence[] = {
-  { &hf_t124_reason_01      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_Reason },
+  { &hf_t124_reason         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_Reason },
   { &hf_t124_userIds        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_SET_OF_UserId },
   { NULL, 0, 0, NULL }
 };
@@ -4886,7 +3789,7 @@ dissect_t124_ChannelJoinRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 
 static const per_sequence_t ChannelJoinConfirm_sequence[] = {
-  { &hf_t124_result_02      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_Result },
+  { &hf_t124_result_01      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_Result },
   { &hf_t124_initiator      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_UserId },
   { &hf_t124_requested      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_ChannelId },
   { &hf_t124_channelId_03   , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_t124_ChannelId },
@@ -4931,7 +3834,7 @@ dissect_t124_ChannelConveneRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
 
 static const per_sequence_t ChannelConveneConfirm_sequence[] = {
-  { &hf_t124_result_02      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_Result },
+  { &hf_t124_result_01      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_Result },
   { &hf_t124_initiator      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_UserId },
   { &hf_t124_channelId_01   , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_t124_PrivateChannelId },
   { NULL, 0, 0, NULL }
@@ -5041,7 +3944,7 @@ dissect_t124_ChannelExpelIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
 static int
 dissect_t124_T_userData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 95 "../../asn1/t124/t124.cnf"
+#line 123 "../../asn1/t124/t124.cnf"
     tvbuff_t	*next_tvb = NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -5065,7 +3968,7 @@ static const per_sequence_t SendDataRequest_sequence[] = {
   { &hf_t124_channelId_03   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_ChannelId },
   { &hf_t124_dataPriority   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_DataPriority },
   { &hf_t124_segmentation   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_Segmentation },
-  { &hf_t124_userData_02    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_T_userData },
+  { &hf_t124_userData_01    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_T_userData },
   { NULL, 0, 0, NULL }
 };
 
@@ -5081,7 +3984,7 @@ dissect_t124_SendDataRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
 static int
 dissect_t124_T_userData_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 108 "../../asn1/t124/t124.cnf"
+#line 136 "../../asn1/t124/t124.cnf"
     tvbuff_t	*next_tvb = NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -5105,7 +4008,7 @@ static const per_sequence_t SendDataIndication_sequence[] = {
   { &hf_t124_channelId_03   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_ChannelId },
   { &hf_t124_dataPriority   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_DataPriority },
   { &hf_t124_segmentation   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_Segmentation },
-  { &hf_t124_userData_03    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_T_userData_01 },
+  { &hf_t124_userData_02    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_T_userData_01 },
   { NULL, 0, 0, NULL }
 };
 
@@ -5123,7 +4026,7 @@ static const per_sequence_t UniformSendDataRequest_sequence[] = {
   { &hf_t124_channelId_03   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_ChannelId },
   { &hf_t124_dataPriority   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_DataPriority },
   { &hf_t124_segmentation   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_Segmentation },
-  { &hf_t124_userData_01    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_OCTET_STRING },
+  { &hf_t124_userData_03    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_OCTET_STRING },
   { NULL, 0, 0, NULL }
 };
 
@@ -5141,7 +4044,7 @@ static const per_sequence_t UniformSendDataIndication_sequence[] = {
   { &hf_t124_channelId_03   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_ChannelId },
   { &hf_t124_dataPriority   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_DataPriority },
   { &hf_t124_segmentation   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_Segmentation },
-  { &hf_t124_userData_01    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_OCTET_STRING },
+  { &hf_t124_userData_03    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_OCTET_STRING },
   { NULL, 0, 0, NULL }
 };
 
@@ -5170,7 +4073,7 @@ dissect_t124_TokenGrabRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 
 static const per_sequence_t TokenGrabConfirm_sequence[] = {
-  { &hf_t124_result_02      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_Result },
+  { &hf_t124_result_01      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_Result },
   { &hf_t124_initiator      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_UserId },
   { &hf_t124_tokenId        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_TokenId },
   { &hf_t124_tokenStatus    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_TokenStatus },
@@ -5202,7 +4105,7 @@ dissect_t124_TokenInhibitRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 
 static const per_sequence_t TokenInhibitConfirm_sequence[] = {
-  { &hf_t124_result_02      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_Result },
+  { &hf_t124_result_01      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_Result },
   { &hf_t124_initiator      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_UserId },
   { &hf_t124_tokenId        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_TokenId },
   { &hf_t124_tokenStatus    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_TokenStatus },
@@ -5251,7 +4154,7 @@ dissect_t124_TokenGiveIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 
 static const per_sequence_t TokenGiveResponse_sequence[] = {
-  { &hf_t124_result_02      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_Result },
+  { &hf_t124_result_01      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_Result },
   { &hf_t124_recipient      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_UserId },
   { &hf_t124_tokenId        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_TokenId },
   { NULL, 0, 0, NULL }
@@ -5267,7 +4170,7 @@ dissect_t124_TokenGiveResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 
 static const per_sequence_t TokenGiveConfirm_sequence[] = {
-  { &hf_t124_result_02      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_Result },
+  { &hf_t124_result_01      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_Result },
   { &hf_t124_initiator      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_UserId },
   { &hf_t124_tokenId        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_TokenId },
   { &hf_t124_tokenStatus    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_TokenStatus },
@@ -5329,7 +4232,7 @@ dissect_t124_TokenReleaseRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 
 static const per_sequence_t TokenReleaseConfirm_sequence[] = {
-  { &hf_t124_result_02      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_Result },
+  { &hf_t124_result_01      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_Result },
   { &hf_t124_initiator      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_UserId },
   { &hf_t124_tokenId        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_TokenId },
   { &hf_t124_tokenStatus    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_TokenStatus },
@@ -5472,7 +4375,7 @@ static const per_choice_t DomainMCSPDU_choice[] = {
 
 static int
 dissect_t124_DomainMCSPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 122 "../../asn1/t124/t124.cnf"
+#line 150 "../../asn1/t124/t124.cnf"
   	gint domainmcs_value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -6376,10 +5279,6 @@ void proto_register_t124(void) {
       { "notOwned", "t124.notOwned",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_t124_tag,
-      { "tag", "t124.tag",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "INTEGER", HFILL }},
     { &hf_t124_convenerPassword,
       { "convenerPassword", "t124.convenerPassword",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -6432,6 +5331,10 @@ void proto_register_t124(void) {
       { "conferencePriority", "t124.conferencePriority",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_t124_tag,
+      { "tag", "t124.tag",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "INTEGER", HFILL }},
     { &hf_t124_result,
       { "result", "t124.result",
         FT_UINT32, BASE_DEC, VALS(t124_T_result_vals), 0,
@@ -6496,30 +5399,10 @@ void proto_register_t124(void) {
       { "addingMCU", "t124.addingMCU",
         FT_UINT32, BASE_DEC, NULL, 0,
         "UserID", HFILL }},
-    { &hf_t124_addResponseResult,
-      { "result", "t124.result",
-        FT_UINT32, BASE_DEC, VALS(t124_AddResponseResult_vals), 0,
-        "AddResponseResult", HFILL }},
-    { &hf_t124_lockResponseResult,
-      { "result", "t124.result",
-        FT_UINT32, BASE_DEC, VALS(t124_LockResponseResult_vals), 0,
-        "LockResponseResult", HFILL }},
-    { &hf_t124_unlockResponseResult,
-      { "result", "t124.result",
-        FT_UINT32, BASE_DEC, VALS(t124_UnlockResponseResult_vals), 0,
-        "UnlockResponseResult", HFILL }},
     { &hf_t124_terminateRequestReason,
       { "reason", "t124.reason",
         FT_UINT32, BASE_DEC, VALS(t124_TerminateRequestReason_vals), 0,
         "TerminateRequestReason", HFILL }},
-    { &hf_t124_terminateResponseResult,
-      { "result", "t124.result",
-        FT_UINT32, BASE_DEC, VALS(t124_TerminateResponseResult_vals), 0,
-        "TerminateResponseResult", HFILL }},
-    { &hf_t124_terminateIndicationReason,
-      { "reason", "t124.reason",
-        FT_UINT32, BASE_DEC, VALS(t124_TerminateIndicationReason_vals), 0,
-        "TerminateIndicationReason", HFILL }},
     { &hf_t124_nodeToEject,
       { "nodeToEject", "t124.nodeToEject",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -6528,14 +5411,6 @@ void proto_register_t124(void) {
       { "reason", "t124.reason",
         FT_UINT32, BASE_DEC, VALS(t124_EjectUserRequestReason_vals), 0,
         "EjectUserRequestReason", HFILL }},
-    { &hf_t124_ejectUserResponseResult,
-      { "result", "t124.result",
-        FT_UINT32, BASE_DEC, VALS(t124_EjectUserResponseResult_vals), 0,
-        "EjectUserResponseResult", HFILL }},
-    { &hf_t124_reason,
-      { "reason", "t124.reason",
-        FT_UINT32, BASE_DEC, VALS(t124_T_reason_vals), 0,
-        NULL, HFILL }},
     { &hf_t124_transferringNodes,
       { "transferringNodes", "t124.transferringNodes",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -6548,158 +5423,6 @@ void proto_register_t124(void) {
       { "password", "t124.password",
         FT_UINT32, BASE_DEC, VALS(t124_PasswordSelector_vals), 0,
         "PasswordSelector", HFILL }},
-    { &hf_t124_transferResponseResult,
-      { "result", "t124.result",
-        FT_UINT32, BASE_DEC, VALS(t124_TransferResponseResult_vals), 0,
-        "TransferResponseResult", HFILL }},
-    { &hf_t124_fullRefresh,
-      { "fullRefresh", "t124.fullRefresh",
-        FT_BOOLEAN, BASE_NONE, NULL, 0,
-        "BOOLEAN", HFILL }},
-    { &hf_t124_nodeInformation,
-      { "nodeInformation", "t124.nodeInformation",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_nodeRecordList,
-      { "nodeRecordList", "t124.nodeRecordList",
-        FT_UINT32, BASE_DEC, VALS(t124_T_nodeRecordList_vals), 0,
-        NULL, HFILL }},
-    { &hf_t124_noChange,
-      { "noChange", "t124.noChange",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_nodeRefresh,
-      { "refresh", "t124.refresh",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "NodeRefresh", HFILL }},
-    { &hf_t124_nodeRefresh_item,
-      { "refresh item", "t124.refresh_item",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "T_nodeRefresh_item", HFILL }},
-    { &hf_t124_nodeRecord,
-      { "nodeRecord", "t124.nodeRecord",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_update,
-      { "update", "t124.update",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_update_item,
-      { "update item", "t124.update_item",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_nodeUpdate,
-      { "nodeUpdate", "t124.nodeUpdate",
-        FT_UINT32, BASE_DEC, VALS(t124_T_nodeUpdate_vals), 0,
-        NULL, HFILL }},
-    { &hf_t124_addRecord,
-      { "addRecord", "t124.addRecord",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "NodeRecord", HFILL }},
-    { &hf_t124_replaceRecord,
-      { "replaceRecord", "t124.replaceRecord",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "NodeRecord", HFILL }},
-    { &hf_t124_removeRecord,
-      { "removeRecord", "t124.removeRecord",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_rosterInstanceNumber,
-      { "rosterInstanceNumber", "t124.rosterInstanceNumber",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_65535", HFILL }},
-    { &hf_t124_nodesAdded,
-      { "nodesAdded", "t124.nodesAdded",
-        FT_BOOLEAN, BASE_NONE, NULL, 0,
-        "BOOLEAN", HFILL }},
-    { &hf_t124_nodesRemoved,
-      { "nodesRemoved", "t124.nodesRemoved",
-        FT_BOOLEAN, BASE_NONE, NULL, 0,
-        "BOOLEAN", HFILL }},
-    { &hf_t124_applicationInformation,
-      { "applicationInformation", "t124.applicationInformation",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_applicationInformation_item,
-      { "applicationInformation item", "t124.applicationInformation_item",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_applicationRecordList,
-      { "applicationRecordList", "t124.applicationRecordList",
-        FT_UINT32, BASE_DEC, VALS(t124_T_applicationRecordList_vals), 0,
-        NULL, HFILL }},
-    { &hf_t124_applicationRefresh,
-      { "refresh", "t124.refresh",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "ApplicationRefresh", HFILL }},
-    { &hf_t124_applicationRefresh_item,
-      { "refresh item", "t124.refresh_item",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "T_applicationRefresh_item", HFILL }},
-    { &hf_t124_applicationRecord,
-      { "applicationRecord", "t124.applicationRecord",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_applicationUpdate,
-      { "update", "t124.update",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "ApplicationUpdate", HFILL }},
-    { &hf_t124_applicationUpdateItem,
-      { "update item", "t124.update_item",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "ApplicationUpdateItem", HFILL }},
-    { &hf_t124_applicationUpdate_01,
-      { "applicationUpdate", "t124.applicationUpdate",
-        FT_UINT32, BASE_DEC, VALS(t124_T_applicationUpdate_vals), 0,
-        NULL, HFILL }},
-    { &hf_t124_addRecord_01,
-      { "addRecord", "t124.addRecord",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "ApplicationRecord", HFILL }},
-    { &hf_t124_replaceRecord_01,
-      { "replaceRecord", "t124.replaceRecord",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "ApplicationRecord", HFILL }},
-    { &hf_t124_applicationCapabilitiesList,
-      { "applicationCapabilitiesList", "t124.applicationCapabilitiesList",
-        FT_UINT32, BASE_DEC, VALS(t124_T_applicationCapabilitiesList_vals), 0,
-        NULL, HFILL }},
-    { &hf_t124_refresh,
-      { "refresh", "t124.refresh",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_refresh_item,
-      { "refresh item", "t124.refresh_item",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_numberOfEntities,
-      { "numberOfEntities", "t124.numberOfEntities",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_1_65536", HFILL }},
-    { &hf_t124_peerEntitiesAdded,
-      { "peerEntitiesAdded", "t124.peerEntitiesAdded",
-        FT_BOOLEAN, BASE_NONE, NULL, 0,
-        "BOOLEAN", HFILL }},
-    { &hf_t124_peerEntitiesRemoved,
-      { "peerEntitiesRemoved", "t124.peerEntitiesRemoved",
-        FT_BOOLEAN, BASE_NONE, NULL, 0,
-        "BOOLEAN", HFILL }},
-    { &hf_t124_applicationProtocolEntiyList,
-      { "applicationProtocolEntiyList", "t124.applicationProtocolEntiyList",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "SET_SIZE_1_65536_OF_ApplicationInvokeSpecifier", HFILL }},
-    { &hf_t124_applicationProtocolEntiyList_item,
-      { "ApplicationInvokeSpecifier", "t124.ApplicationInvokeSpecifier",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_destinationNodes,
-      { "destinationNodes", "t124.destinationNodes",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "SET_SIZE_1_65536_OF_UserID", HFILL }},
-    { &hf_t124_destinationNodes_item,
-      { "UserID", "t124.UserID",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
     { &hf_t124_key_01,
       { "key", "t124.key",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -6708,78 +5431,10 @@ void proto_register_t124(void) {
       { "modificationRights", "t124.modificationRights",
         FT_UINT32, BASE_DEC, VALS(t124_RegistryModificationRights_vals), 0,
         "RegistryModificationRights", HFILL }},
-    { &hf_t124_item,
-      { "item", "t124.item",
-        FT_UINT32, BASE_DEC, VALS(t124_RegistryItem_vals), 0,
-        "RegistryItem", HFILL }},
-    { &hf_t124_owner,
-      { "owner", "t124.owner",
-        FT_UINT32, BASE_DEC, VALS(t124_RegistryEntryOwner_vals), 0,
-        "RegistryEntryOwner", HFILL }},
     { &hf_t124_numberOfHandles,
       { "numberOfHandles", "t124.numberOfHandles",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_1_1024", HFILL }},
-    { &hf_t124_firstHandle,
-      { "firstHandle", "t124.firstHandle",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "Handle", HFILL }},
-    { &hf_t124_allocateHandleResponseResult,
-      { "result", "t124.result",
-        FT_UINT32, BASE_DEC, VALS(t124_AllocateHandleResponseResult_vals), 0,
-        "AllocateHandleResponseResult", HFILL }},
-    { &hf_t124_primitiveType,
-      { "primitiveType", "t124.primitiveType",
-        FT_UINT32, BASE_DEC, VALS(t124_T_primitiveType_vals), 0,
-        NULL, HFILL }},
-    { &hf_t124_result_01,
-      { "result", "t124.result",
-        FT_UINT32, BASE_DEC, VALS(t124_T_result_01_vals), 0,
-        "T_result_01", HFILL }},
-    { &hf_t124_conductingNode,
-      { "conductingNode", "t124.conductingNode",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "UserID", HFILL }},
-    { &hf_t124_grantFlag,
-      { "grantFlag", "t124.grantFlag",
-        FT_BOOLEAN, BASE_NONE, NULL, 0,
-        "BOOLEAN", HFILL }},
-    { &hf_t124_permissionList,
-      { "permissionList", "t124.permissionList",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "SEQUENCE_SIZE_0_65535_OF_UserID", HFILL }},
-    { &hf_t124_permissionList_item,
-      { "UserID", "t124.UserID",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_waitingList,
-      { "waitingList", "t124.waitingList",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "SEQUENCE_SIZE_1_65536_OF_UserID", HFILL }},
-    { &hf_t124_waitingList_item,
-      { "UserID", "t124.UserID",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_timeRemaining,
-      { "timeRemaining", "t124.timeRemaining",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "Time", HFILL }},
-    { &hf_t124_nodeSpecificTimeFlag,
-      { "nodeSpecificTimeFlag", "t124.nodeSpecificTimeFlag",
-        FT_BOOLEAN, BASE_NONE, NULL, 0,
-        "BOOLEAN", HFILL }},
-    { &hf_t124_timeToExtend,
-      { "timeToExtend", "t124.timeToExtend",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "Time", HFILL }},
-    { &hf_t124_message,
-      { "message", "t124.message",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "TextString", HFILL }},
-    { &hf_t124_request,
-      { "request", "t124.request",
-        FT_UINT32, BASE_DEC, VALS(t124_RequestPDU_vals), 0,
-        "RequestPDU", HFILL }},
     { &hf_t124_data_02,
       { "data", "t124.data",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -6912,22 +5567,6 @@ void proto_register_t124(void) {
       { "protocolVersion", "t124.protocolVersion",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_MAX", HFILL }},
-    { &hf_t124_result_02,
-      { "result", "t124.result",
-        FT_UINT32, BASE_DEC, VALS(t124_Result_vals), 0,
-        NULL, HFILL }},
-    { &hf_t124_calledConnectId,
-      { "calledConnectId", "t124.calledConnectId",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_MAX", HFILL }},
-    { &hf_t124_domainParameters,
-      { "domainParameters", "t124.domainParameters",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_userData_01,
-      { "userData", "t124.userData",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING", HFILL }},
     { &hf_t124_heightLimit,
       { "heightLimit", "t124.heightLimit",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -7068,7 +5707,7 @@ void proto_register_t124(void) {
       { "TokenId", "t124.TokenId",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
-    { &hf_t124_reason_01,
+    { &hf_t124_reason,
       { "reason", "t124.reason",
         FT_UINT32, BASE_DEC, VALS(t124_Reason_vals), 0,
         NULL, HFILL }},
@@ -7080,6 +5719,10 @@ void proto_register_t124(void) {
       { "initialOctets", "t124.initialOctets",
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING", HFILL }},
+    { &hf_t124_result_01,
+      { "result", "t124.result",
+        FT_UINT32, BASE_DEC, VALS(t124_Result_vals), 0,
+        NULL, HFILL }},
     { &hf_t124_initiator,
       { "initiator", "t124.initiator",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -7116,14 +5759,18 @@ void proto_register_t124(void) {
       { "segmentation", "t124.segmentation",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_t124_userData_02,
+    { &hf_t124_userData_01,
       { "userData", "t124.userData",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_t124_userData_03,
+    { &hf_t124_userData_02,
       { "userData", "t124.userData",
         FT_BYTES, BASE_NONE, NULL, 0,
         "T_userData_01", HFILL }},
+    { &hf_t124_userData_03,
+      { "userData", "t124.userData",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING", HFILL }},
     { &hf_t124_tokenStatus,
       { "tokenStatus", "t124.tokenStatus",
         FT_UINT32, BASE_DEC, VALS(t124_TokenStatus_vals), 0,
@@ -7394,7 +6041,6 @@ void proto_register_t124(void) {
     &ett_t124_RegistryItem,
     &ett_t124_RegistryEntryOwner,
     &ett_t124_T_owned,
-    &ett_t124_UserIDIndication,
     &ett_t124_ConferenceCreateRequest,
     &ett_t124_SET_OF_Privilege,
     &ett_t124_ConferenceCreateResponse,
@@ -7406,73 +6052,25 @@ void proto_register_t124(void) {
     &ett_t124_ConferenceInviteRequest,
     &ett_t124_ConferenceInviteResponse,
     &ett_t124_ConferenceAddRequest,
-    &ett_t124_ConferenceAddResponse,
     &ett_t124_ConferenceLockRequest,
-    &ett_t124_ConferenceLockResponse,
-    &ett_t124_ConferenceLockIndication,
     &ett_t124_ConferenceUnlockRequest,
-    &ett_t124_ConferenceUnlockResponse,
-    &ett_t124_ConferenceUnlockIndication,
     &ett_t124_ConferenceTerminateRequest,
-    &ett_t124_ConferenceTerminateResponse,
-    &ett_t124_ConferenceTerminateIndication,
     &ett_t124_ConferenceEjectUserRequest,
-    &ett_t124_ConferenceEjectUserResponse,
-    &ett_t124_ConferenceEjectUserIndication,
     &ett_t124_ConferenceTransferRequest,
     &ett_t124_SET_SIZE_1_65536_OF_UserID,
-    &ett_t124_ConferenceTransferResponse,
-    &ett_t124_ConferenceTransferIndication,
-    &ett_t124_RosterUpdateIndication,
-    &ett_t124_T_nodeInformation,
-    &ett_t124_T_nodeRecordList,
-    &ett_t124_NodeRefresh,
-    &ett_t124_T_nodeRefresh_item,
-    &ett_t124_T_update,
-    &ett_t124_T_update_item,
-    &ett_t124_T_nodeUpdate,
-    &ett_t124_T_applicationInformation,
-    &ett_t124_T_applicationInformation_item,
-    &ett_t124_T_applicationRecordList,
-    &ett_t124_ApplicationRefresh,
-    &ett_t124_T_applicationRefresh_item,
-    &ett_t124_ApplicationUpdate,
-    &ett_t124_ApplicationUpdateItem,
-    &ett_t124_T_applicationUpdate,
-    &ett_t124_T_applicationCapabilitiesList,
-    &ett_t124_T_refresh,
-    &ett_t124_T_refresh_item,
-    &ett_t124_ApplicationInvokeIndication,
-    &ett_t124_SET_SIZE_1_65536_OF_ApplicationInvokeSpecifier,
     &ett_t124_RegistryRegisterChannelRequest,
     &ett_t124_RegistryAssignTokenRequest,
     &ett_t124_RegistrySetParameterRequest,
     &ett_t124_RegistryRetrieveEntryRequest,
     &ett_t124_RegistryDeleteEntryRequest,
     &ett_t124_RegistryMonitorEntryRequest,
-    &ett_t124_RegistryMonitorEntryIndication,
     &ett_t124_RegistryAllocateHandleRequest,
-    &ett_t124_RegistryAllocateHandleResponse,
-    &ett_t124_RegistryResponse,
-    &ett_t124_ConductorAssignIndication,
-    &ett_t124_ConductorReleaseIndication,
-    &ett_t124_ConductorPermissionAskIndication,
-    &ett_t124_ConductorPermissionGrantIndication,
-    &ett_t124_SEQUENCE_SIZE_0_65535_OF_UserID,
-    &ett_t124_SEQUENCE_SIZE_1_65536_OF_UserID,
-    &ett_t124_ConferenceTimeRemainingIndication,
-    &ett_t124_ConferenceTimeInquireIndication,
-    &ett_t124_ConferenceTimeExtendIndication,
-    &ett_t124_ConferenceAssistanceIndication,
-    &ett_t124_TextMessageIndication,
-    &ett_t124_FunctionNotSupportedResponse,
     &ett_t124_NonStandardPDU,
     &ett_t124_ConnectData,
     &ett_t124_ConnectGCCPDU,
     &ett_t124_RequestPDU,
     &ett_t124_Segmentation,
     &ett_t124_DomainParameters,
-    &ett_t124_Connect_Response,
     &ett_t124_PlumbDomainIndication,
     &ett_t124_ErectDomainRequest,
     &ett_t124_ChannelAttributes,
