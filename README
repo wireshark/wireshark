@@ -95,38 +95,10 @@ The wiretap library is a packet-capture library currently under
 development parallel to wireshark.  In the future it is hoped that
 wiretap will have more features than libpcap, but wiretap is still in
 its infancy. However, wiretap is used in wireshark for its ability
-to read multiple file types. You can read the following file
-formats:
+to read multiple file types.  See the Wireshark man page or the
+Wireshark User's Guide for a list of supported file formats.
 
-libpcap (tcpdump -w, etc.) - this is Wireshark's native format
-snoop and atmsnoop
-Shomiti/Finisar Surveyor
-Novell LANalyzer
-Network General/Network Associates DOS-based Sniffer (compressed and
-    uncompressed)
-Microsoft Network Monitor
-AIX's iptrace
-Cinco Networks NetXRay
-Network Associates Windows-based Sniffer
-AG Group/WildPackets EtherPeek/TokenPeek/AiroPeek/EtherHelp
-RADCOM's WAN/LAN Analyzer
-Lucent/Ascend access products
-HP-UX's nettl
-Toshiba's ISDN routers
-ISDN4BSD "i4btrace" utility
-Cisco Secure Intrusion Detection System iplogging facility
-pppd logs (pppdump-format files)
-VMS's TCPIPtrace utility
-DBS Etherwatch for VMS
-Traffic captures from Visual Networks' Visual UpTime
-CoSine L2 debug output
-Output from Accellent's 5Views LAN agents
-Endace Measurement Systems' ERF format
-Linux Bluez Bluetooth stack "hcidump -w" traces
-Network Instruments Observer version 9
-Trace files for the EyeSDN USB S0
-
-In addition, it can read gzipped versions of any of these files
+In addition, it can read gzipped versions of any of those files
 automatically, if you have the zlib library available when compiling
 Wireshark. Wireshark needs a modern version of zlib to be able to use
 zlib to read gzipped files; version 1.1.3 is known to work.  Versions
