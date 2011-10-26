@@ -1325,11 +1325,12 @@ with a lifetime of the current capture session. You do not need to
 free() this buffer, it will happen automatically once the a new capture or
 file is opened.
 
-tvb_fake_unicode() has been superceded by tvb_get_unicode_string(), which
+tvb_fake_unicode() has been superseded by tvb_get_unicode_string(), which
 properly handles Unicode (UTF-16) strings by converting them to UTF-8.
 
-tvb_get_ephemeral_faked_unicode() has been superceded by tvb_get_ephemeral_string(), which properly handles Unicode (UTF-16) strings by converting them
-to UTF-8.
+tvb_get_ephemeral_faked_unicode() has been superseded by
+tvb_get_ephemeral_string(), which properly handles Unicode (UTF-16) strings by
+converting them to UTF-8.
 
 Byte Array Accessors:
 
@@ -1877,15 +1878,15 @@ It requires a value_string as input.
 If all of a contiguous range of values from min to max are present in the array
 the value will be used as as a direct index into a value_string array.
 
-If the values in the array are not contiguous (ie: there are "gaps"), but are in assending order
-a binary search will be used.
+If the values in the array are not contiguous (ie: there are "gaps"), but are
+in assending order a binary search will be used.
 
-Note: "gaps" in a value_string array can be filled with "empty" entries eg: {value, "Unknown"} so that
-direct access to the array is is possible.
+Note: "gaps" in a value_string array can be filled with "empty" entries eg:
+{value, "Unknown"} so that direct access to the array is is possible.
 
-The init macro (see below) will perform a check on the value string
-the first time it is used to determine which search algorithm fits and fall back to a linear search
-if the value_string does not meet the criteria above.
+The init macro (see below) will perform a check on the value string the first
+time it is used to determine which search algorithm fits and fall back to a
+linear search if the value_string does not meet the criteria above.
 
 Use this macro to initialise the extended value_string at comile time:
 
@@ -1896,9 +1897,9 @@ Extended value strings can be created at runtime by calling
                         <total number of entries in the value_string_array>, /* include {0, NULL} entry */
                         <value_string_name>);
 
-For hf[] array FT_(U)INT* fields that need a 'valstringname_ext' struct, the 'strings' field
-would be set to '&valstringname_ext)'. Furthermore, 'display' field must be
-ORed with 'BASE_EXT_STRING' (e.g. BASE_DEC|BASE_EXT_STRING).
+For hf[] array FT_(U)INT* fields that need a 'valstringname_ext' struct, the
+'strings' field would be set to '&valstringname_ext)'. Furthermore, 'display'
+field must be ORed with 'BASE_EXT_STRING' (e.g. BASE_DEC|BASE_EXT_STRING).
 
 
 -- Ranges
