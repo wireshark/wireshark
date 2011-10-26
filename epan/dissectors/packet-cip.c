@@ -3277,7 +3277,7 @@ dissect_cip_generic_service_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
             val_to_str(service, cip_sc_vals , "Unknown Service (0x%02x)") );
 
    /* Create service tree */
-   cmd_data_item = proto_tree_add_text(tree, tvb, 0, tvb_length(tvb),
+   cmd_data_item = proto_tree_add_text(tree, tvb, 0, tvb_length(tvb), "%s",
                         val_to_str(service, cip_sc_vals , "Unknown Service (0x%02x)"));
    proto_item_append_text(cmd_data_item, " (Request)");
    cmd_data_tree = proto_item_add_subtree( cmd_data_item, ett_cmd_data );
@@ -3627,7 +3627,7 @@ dissect_cip_generic_service_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
    /* If there is any command specific data create a sub-tree for it */
    if( (item_length-4-add_stat_size ) != 0 )
    {
-      cmd_data_item = proto_tree_add_text(tree, tvb, offset+4+add_stat_size, item_length-4-add_stat_size,
+      cmd_data_item = proto_tree_add_text(tree, tvb, offset+4+add_stat_size, item_length-4-add_stat_size, "%s",
                            val_to_str(service, cip_sc_vals , "Unknown Service (0x%02x)"));
       proto_item_append_text(cmd_data_item, " (Response)");
       cmd_data_tree = proto_item_add_subtree( cmd_data_item, ett_cmd_data );
@@ -4878,7 +4878,7 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info 
       dissector = NULL;
 
       /* The class ID should already be extracted if its available */
-      if (path_info.iClass != -1)
+      if (path_info.iClass != 0xFFFFFFFF)
       {
          dissector = dissector_get_uint_handle( subdissector_class_table, path_info.iClass);
       }
