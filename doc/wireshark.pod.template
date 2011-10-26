@@ -57,10 +57,14 @@ B<Wireshark> can read / import the following file formats:
 =over 4
 
 =item *
-libpcap, tcpdump and various other tools using tcpdump's capture format
+libpcap - captures from B<Wireshark>/B<TShark>/B<dumpcap>, B<tcpdump>,
+and various other tools using libpcap's/tcpdump's capture format
 
 =item *
-B<snoop> and B<atmsnoop>
+pcap-ng - "next-generation" successor to libpcap format
+
+=item *
+B<snoop> and B<atmsnoop> captures
 
 =item *
 Shomiti/Finisar B<Surveyor> captures
@@ -138,10 +142,32 @@ Linux Bluez Bluetooth stack B<hcidump -w> traces
 Catapult DCT2000 .out files
 
 =item *
+Gammu generated text output from Nokia DCT3 phones in Netmonitor mode
+
+=item *
+IBM Series (OS/400) Comm traces (ASCII & UNICODE)
+
+=item *
+Juniper Netscreen snoop files
+
+=item *
+Symbian OS btsnoop files
+
+=item *
 TamoSoft CommView files
 
 =item *
+Textronix K12xx 32bit .rf5 format files
+
+=item *
+Textronix K12 text file format captures
+
+=item *
 Apple PacketLogger files
+
+=item *
+Files from Aethra Telecommunications' PC108 software for their test
+instruments
 
 =back
 

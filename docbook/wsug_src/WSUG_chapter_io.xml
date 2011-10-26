@@ -269,7 +269,8 @@
 	The following file formats from other capture tools can be opened by 
 	<application>Wireshark</application>:
 	<itemizedlist>
-	      <listitem><para>libpcap, tcpdump and various other tools using tcpdump's capture format</para></listitem>
+	      <listitem><para>libpcap - captures from <emphasis>Wireshark</emphasis>/<emphasis>TShark</emphasis>/<emphasis>dumpcap</emphasis>, <emphasis>tcpdump</emphasis>, and various other tools using libpcap's/tcpdump's capture format</para></listitem>
+	      <listitem><para>pcap-ng - "next-generation" successor to libpcap format</para></listitem>
 	      <listitem><para>Sun snoop and atmsnoop</para></listitem>
 	      <listitem><para>Shomiti/Finisar <emphasis>Surveyor</emphasis> captures</para></listitem>
 	      <listitem><para>Novell <emphasis>LANalyzer</emphasis> captures</para></listitem>
@@ -303,7 +304,8 @@
 	      <listitem><para>Tamosoft CommView captures</para></listitem>
 	      <listitem><para>Textronix K12xx 32bit .rf5 format captures</para></listitem>
 	      <listitem><para>Textronix K12 text file format captures</para></listitem>
-	      <listitem><para>Wireshark .pcapng captures (Experimental)</para></listitem>
+	      <listitem><para>Apple PacketLogger captures</para></listitem>
+	      <listitem><para>Captures from Aethra Telecommunications' PC108 software for their test instruments</para></listitem>
 	      <listitem><para>... new file formats are added from time to time</para></listitem>
 	</itemizedlist>
     </para>
