@@ -1055,26 +1055,26 @@ dissect_ctdb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	switch(opcode){
 	case CTDB_REQ_CALL:
-		offset=dissect_ctdb_req_call(tvb, offset, pinfo, tree, reqid, src, endianess);
+		dissect_ctdb_req_call(tvb, offset, pinfo, tree, reqid, src, endianess);
 		break;
 	case CTDB_REPLY_CALL:
-		offset=dissect_ctdb_reply_call(tvb, offset, pinfo, tree, endianess);
+		dissect_ctdb_reply_call(tvb, offset, pinfo, tree, endianess);
 		break;
 	case CTDB_REPLY_DMASTER:
-		offset=dissect_ctdb_reply_dmaster(tvb, offset, pinfo, tree, reqid, dst, endianess);
+		dissect_ctdb_reply_dmaster(tvb, offset, pinfo, tree, reqid, dst, endianess);
 		break;
 	case CTDB_REQ_DMASTER:
-		offset=dissect_ctdb_req_dmaster(tvb, offset, pinfo, tree, reqid, endianess);
+		dissect_ctdb_req_dmaster(tvb, offset, pinfo, tree, reqid, endianess);
 		break;
 	case CTDB_REPLY_ERROR:
 		break;
 	case CTDB_REQ_MESSAGE:
 		break;
 	case CTDB_REQ_CONTROL:
-		offset=dissect_ctdb_req_control(tvb, offset, pinfo, tree, reqid, src, dst, endianess);
+		dissect_ctdb_req_control(tvb, offset, pinfo, tree, reqid, src, dst, endianess);
 		break;
 	case CTDB_REPLY_CONTROL:
-		offset=dissect_ctdb_reply_control(tvb, offset, pinfo, tree, reqid, src, dst, endianess);
+		dissect_ctdb_reply_control(tvb, offset, pinfo, tree, reqid, src, dst, endianess);
 		break;
 	};
 
