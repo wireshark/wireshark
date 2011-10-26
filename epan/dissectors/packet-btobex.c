@@ -576,7 +576,7 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		}
 
-		offset = dissect_headers(st, next_tvb, offset, pinfo);
+		dissect_headers(st, next_tvb, offset, pinfo);
 	}
 	else
 	{
