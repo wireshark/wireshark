@@ -37,7 +37,22 @@ static const char aethra_magic[5] = {
 
 /* Aethra file header (minus magic number). */
 struct aethra_hdr {
-	guint8  unknown[5415];
+	guint8	unknown1[39];
+	guchar	sw_vers[60];	/* software version string, not null-terminated */
+	guint8	unknown2[118];
+	guint8	start_sec;	/* seconds of capture start time */
+	guint8	start_min;	/* minutes of capture start time */
+	guint8	start_hour;	/* hour of capture start time */
+	guint8	unknown3[5007];
+	guint8	start_year[2];	/* year of capture start date */
+	guint8	start_month[2];	/* month of capture start date */
+	guint8	unknown4[2];
+	guint8	start_day[2];	/* day of capture start date */
+	guint8	unknown5[8];
+	guchar	com_info[16];	/* COM port and speed, null-padded(?) */
+	guint8	unknown6[107];
+	guchar	xxx_vers[29];	/* unknown version string (longer, null-padded?) */
+	guint8  unknown7[20];
 };
 
 /* Aethra record header.  Yes, the alignment is weird.
@@ -60,6 +75,10 @@ struct aethrarec_hdr {
  */
 #define AETHRA_U_TO_N		0x01
 
+typedef struct {
+	time_t	start;
+} aethra_t;
+
 static gboolean aethra_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean aethra_seek_read(wtap *wth, gint64 seek_off,
@@ -75,6 +94,8 @@ int aethra_open(wtap *wth, int *err, gchar **err_info)
 	int bytes_read;
 	char magic[sizeof aethra_magic];
 	struct aethra_hdr hdr;
+	struct tm tm;
+	aethra_t *aethra;
 
 	/* Read in the string that should be at the start of a "aethra" file */
 	errno = WTAP_ERR_CANT_READ;
@@ -102,8 +123,22 @@ int aethra_open(wtap *wth, int *err, gchar **err_info)
 	}
 	wth->data_offset += sizeof hdr;
 	wth->file_type = WTAP_FILE_AETHRA;
+	aethra = (aethra_t *)g_malloc(sizeof(aethra_t));
+	wth->priv = (void *)aethra;
 	wth->subtype_read = aethra_read;
 	wth->subtype_seek_read = aethra_seek_read;
+
+	/*
+	 * Convert the time stamp to a "time_t".
+	 */
+	tm.tm_year = pletohs(&hdr.start_year) - 1900;
+	tm.tm_mon = pletohs(&hdr.start_month) - 1;
+	tm.tm_mday = pletohs(&hdr.start_day);
+	tm.tm_hour = hdr.start_hour;
+	tm.tm_min = hdr.start_min;
+	tm.tm_sec = hdr.start_sec;
+	tm.tm_isdst = -1;
+	aethra->start = mktime(&tm);
 
 	/*
 	 * We've only seen ISDN files, so, for now, we treat all
@@ -119,6 +154,7 @@ int aethra_open(wtap *wth, int *err, gchar **err_info)
 static gboolean aethra_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
+	aethra_t *aethra = (aethra_t *)wth->priv;
 	struct aethrarec_hdr hdr;
 	guint32	rec_size;
 	guint32	packet_size;
@@ -160,11 +196,8 @@ static gboolean aethra_read(wtap *wth, int *err, gchar **err_info,
 		}
 	} while (hdr.rec_type != AETHRA_PACKET);
 
-	/*
-	 * XXX - need to find start time in file header.
-	 */
 	msecs = pletohl(hdr.timestamp);
-	wth->phdr.ts.secs = msecs / 1000;
+	wth->phdr.ts.secs = aethra->start + (msecs / 1000);
 	wth->phdr.ts.nsecs = (msecs % 1000) * 1000000;
 	wth->phdr.caplen = packet_size;
 	wth->phdr.len = packet_size;
