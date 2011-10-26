@@ -152,18 +152,7 @@ static tvbuff_t *new_octet_aligned_subset(tvbuff_t *tvb, guint32 offset, asn1_ct
   return sub_tvb;
 }
 
-static const guint16 bit_mask16[] = {
-    0xffff,
-    0x7fff,
-    0x3fff,
-    0x1fff,
-    0x0fff,
-    0x07ff,
-    0x03ff,
-    0x01ff
-};
-
-static const guint16 bit_mask16_unalligned[] = {
+static const guint16 bit_mask16_unaligned[] = {
     0xff00,
     0x8000,
     0xc000,
@@ -189,11 +178,11 @@ tvbuff_t *new_octet_aligned_subset_bits(tvbuff_t *tvb, guint32 boffset, asn1_ctx
   guint32	new_length, check_length;
   guint32	remainderval, tvb_bits;
 
-  /* Calculate the size reqired */
+  /* Calculate the size required */
 
   new_length = no_of_bits/8;
   remainderval = no_of_bits % 8;
-  
+
   if(remainderval){
 	  new_length++;
   }else{
@@ -204,8 +193,7 @@ tvbuff_t *new_octet_aligned_subset_bits(tvbuff_t *tvb, guint32 boffset, asn1_ctx
   /* The bits can be contained in two "extra octets" .... .xxx [xxxx]*n xx... ....*/
   tvb_bits = (boffset & 7)+ no_of_bits;
   check_length = tvb_bits/8;
-  remainderval = tvb_bits % 8; /* not no_of_bits % 8 */
-  if(remainderval){
+  if(tvb_bits % 8){
 	  check_length++;
   }
 
@@ -254,7 +242,7 @@ tvbuff_t *new_octet_aligned_subset_bits(tvbuff_t *tvb, guint32 boffset, asn1_ctx
     }else{
       word = tvb_get_guint8(tvb,offset+i) << (shift1 + 8);
     }
-    word = word & bit_mask16_unalligned[remainderval];
+    word = word & bit_mask16_unaligned[remainderval];
     word = word >> 8;
     buf[i] = (guint8) (word & 0x00ff);
   }
@@ -678,14 +666,14 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 			bits_per_char=8;
 		}
 	}
-	/* 27.4	If the type is extensible for PER encodings (see 9.3.16), 
-	 * then a bit-field consisting of a single bit shall be added to the field-list. 
+	/* 27.4	If the type is extensible for PER encodings (see 9.3.16),
+	 * then a bit-field consisting of a single bit shall be added to the field-list.
 	 * The single bit shall be set to zero if the value is within the range of the extension root,
-	 * and to one otherwise. If the value is outside the range of the extension root, 
-	 * then the following encoding shall be as if there was no effective size constraint, 
-	 * and shall have an effective permitted-alphabet constraint that consists of the set of characters 
+	 * and to one otherwise. If the value is outside the range of the extension root,
+	 * then the following encoding shall be as if there was no effective size constraint,
+	 * and shall have an effective permitted-alphabet constraint that consists of the set of characters
 	 * of the unconstrained type.
-	 * 	NOTE - Only the known-multiplier character string types can be extensible for PER encodings. 
+	 * 	NOTE - Only the known-multiplier character string types can be extensible for PER encodings.
 	 * Extensibility markers on other character string types do not affect the PER encoding.
 	 */
 
@@ -2017,9 +2005,9 @@ static tvbuff_t *dissect_per_bit_string_display(tvbuff_t *tvb, guint32 offset, a
 	tvbuff_t *out_tvb = NULL;
 	guint32  pad_length=0;
 	guint64  value;
-	
+
 	out_tvb = new_octet_aligned_subset_bits(tvb, offset, actx, length);
-	
+
 	if (hfi) {
 		actx->created_item = proto_tree_add_item(tree, hf_index, out_tvb, 0, -1, FALSE);
 		proto_item_append_text(actx->created_item, " [bit length %u", length);
@@ -2031,7 +2019,7 @@ static tvbuff_t *dissect_per_bit_string_display(tvbuff_t *tvb, guint32 offset, a
 			proto_item_append_text(actx->created_item, ", %u LSB pad bits", pad_length);
 		}
 		}
-		
+
 		if (length<=64) { /* if read into 64 bits also handle length <= 24, 40, 48, 56 bits */
 			if (length<=8) {
 				value = tvb_get_bits8(out_tvb, 0, length);
@@ -2061,10 +2049,10 @@ static tvbuff_t *dissect_per_bit_string_display(tvbuff_t *tvb, guint32 offset, a
 				value = tvb_get_bits64(out_tvb, 0, length, FALSE);
 			}
 			if (actx->aligned){
-				proto_item_append_text(actx->created_item, ", %s decimal value %" G_GINT64_MODIFIER "u", 
+				proto_item_append_text(actx->created_item, ", %s decimal value %" G_GINT64_MODIFIER "u",
 					decode_bits_in_field(pad_length, length, value), value);
 			}else{
-				proto_item_append_text(actx->created_item, ", %s decimal value %" G_GINT64_MODIFIER "u", 
+				proto_item_append_text(actx->created_item, ", %s decimal value %" G_GINT64_MODIFIER "u",
 				decode_bits_in_field(0, length, value), value);
 		}
 		}
@@ -2093,7 +2081,7 @@ DEBUG_ENTRY("dissect_per_bit_string");
 		min_len = 0;
 	}
 	/* 15.6	If an extension marker is present in the size constraint specification of the bitstring type,
-	 * a single bit shall be added to the field-list in a bit-field of length one. 
+	 * a single bit shall be added to the field-list in a bit-field of length one.
 	 * The bit shall be set to 1 if the length of this encoding is not within the range of the extension root,
 	 * and zero otherwise.
 	 */
@@ -2635,4 +2623,3 @@ void
 proto_reg_handoff_per(void)
 {
 }
-

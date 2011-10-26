@@ -70,6 +70,48 @@ Wireshark Info
         </para></listitem>
 -->
 
+        <listitem><para>
+          Wrong PCEP XRO sub-object decoding.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3778">Bug
+          3778</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Decoding [Status Records] Timestamp Sequence Field in Bundle Protocol fails if over 32 bits.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4109">Bug
+          4109</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          wireshark-1.4.2 crashes when testing the example python dissector because of a dissector count assertion.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5431">Bug
+          5431</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Add the ability to save filters from the Filter Toolbar into buttons on the Filter Toolbar.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6207">Bug
+          6207</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          BACnet property time-synchronization-interval (204) name shown incorrectly as time-synchronization-recipients.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6336">Bug
+          6336</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          [ASN.1 PER] Incorrect decoding of BIT STRING type.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6347">Bug
+          6347</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Export -&gt; Object -&gt; HTTP -&gt; save all: Error on saving files.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6362">Bug
+          6362</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
@@ -96,7 +138,9 @@ There are no new protocols in this release.
     <para>
 
 <!-- Sort alphabetically -->
-
+BACapp,
+DTN,
+PCEP,
 
     </para>
     </section>

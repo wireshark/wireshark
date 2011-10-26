@@ -86,7 +86,7 @@ ct_port_to_str(int port_type_val, guint32 port)
     case PT_NCP:
         i = (i+1)%4;
         bp = &strp[11];
-  
+
         *bp = 0;
         do {
           *--bp = (port % 10) +'0';
@@ -360,7 +360,7 @@ ct_win_destroy_cb(GtkWindow *win _U_, gpointer data)
     g_free(conversations);
 }
 
-enum 
+enum
 {
   SRC_ADR_COLUMN,
   SRC_PORT_COLUMN,
@@ -379,7 +379,7 @@ enum
   INDEX_COLUMN,
   N_COLUMNS
 };
-  
+
 static gint
 ct_sort_func(GtkTreeModel *model,
 				GtkTreeIter *a,
@@ -401,8 +401,8 @@ ct_sort_func(GtkTreeModel *model,
     if (!ct || idx1 >= ct->num_conversations || idx2 >= ct->num_conversations)
         return 0;
 
-    conv1 = &g_array_index(ct->conversations, conv_t, idx1); 
-    conv2 = &g_array_index(ct->conversations, conv_t, idx2); 
+    conv1 = &g_array_index(ct->conversations, conv_t, idx1);
+    conv2 = &g_array_index(ct->conversations, conv_t, idx2);
 
 
     switch(data_column){
@@ -420,7 +420,7 @@ ct_sort_func(GtkTreeModel *model,
 
     duration1 = nstime_to_sec(&conv1->stop_time) - nstime_to_sec(&conv1->start_time);
     duration2 = nstime_to_sec(&conv2->stop_time) - nstime_to_sec(&conv2->start_time);
-    
+
     switch(data_column){
     case DURATION_COLUMN: /* Duration */
         CMP_NUM(duration1, duration2);
@@ -473,8 +473,8 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
     if (!gtk_tree_selection_get_selected(sel, &model, &iter))
         return;
 
-    gtk_tree_model_get (model, &iter, 
-                            INDEX_COLUMN, &idx, 
+    gtk_tree_model_get (model, &iter,
+                            INDEX_COLUMN, &idx,
                             -1);
 
     if(idx>= ct->num_conversations){
@@ -1031,24 +1031,24 @@ draw_ct_table_addresses(conversations_table *ct)
 
     if (!ct->num_conversations)
         return;
-        
-    store = GTK_LIST_STORE(gtk_tree_view_get_model(ct->table)); 
+
+    store = GTK_LIST_STORE(gtk_tree_view_get_model(ct->table));
     g_object_ref(store);
     gtk_tree_view_set_model(GTK_TREE_VIEW(ct->table), NULL);
 
     for(i=0;i<ct->num_conversations;i++){
         conv_t *conv = &g_array_index(ct->conversations, conv_t, i);
-        if (!conv->iter_valid) 
+        if (!conv->iter_valid)
             continue;
         get_ct_table_address(ct, conv, entries);
         gtk_list_store_set (store, &conv->iter,
-                  SRC_ADR_COLUMN, entries[0],	
+                  SRC_ADR_COLUMN, entries[0],
                   SRC_PORT_COLUMN, entries[1],
                   DST_ADR_COLUMN, entries[2],
                   DST_PORT_COLUMN, entries[3],
                     -1);
     }
-    
+
     gtk_tree_view_set_model(GTK_TREE_VIEW(ct->table), GTK_TREE_MODEL(store));
     g_object_unref(store);
 }
@@ -1077,8 +1077,8 @@ draw_ct_table_data(conversations_table *ct)
         }
         gtk_label_set_text(GTK_LABEL(ct->name_lb), title);
     }
-    
-    store = GTK_LIST_STORE(gtk_tree_view_get_model(ct->table)); 
+
+    store = GTK_LIST_STORE(gtk_tree_view_get_model(ct->table));
 
     for(i=0;i<ct->num_conversations;i++){
         char start_time[COL_STR_LEN], duration[COL_STR_LEN],
@@ -1089,7 +1089,7 @@ draw_ct_table_data(conversations_table *ct)
 
         if (!conversation->modified)
             continue;
-            
+
         if (first) {
             g_object_ref(store);
             gtk_tree_view_set_model(GTK_TREE_VIEW(ct->table), NULL);
@@ -1097,7 +1097,7 @@ draw_ct_table_data(conversations_table *ct)
             first = FALSE;
         }
         duration_s = nstime_to_sec(&conversation->stop_time) - nstime_to_sec(&conversation->start_time);
-        g_snprintf(start_time, COL_STR_LEN, "%s", rel_time_to_secs_str(&conversation->start_time));
+        g_snprintf(start_time, COL_STR_LEN, "%.9f", nstime_to_sec(&conversation->start_time));
         g_snprintf(duration, COL_STR_LEN, "%.4f", duration_s);
 
         if (duration_s > 0 && conversation->tx_frames > 1) {
@@ -1115,7 +1115,7 @@ draw_ct_table_data(conversations_table *ct)
         conversation->modified = FALSE;
         if (!conversation->iter_valid) {
             char *entries[4];
-        
+
             get_ct_table_address(ct, conversation, entries);
             conversation->iter_valid = TRUE;
 #if GTK_CHECK_VERSION(2,6,0)
@@ -1123,7 +1123,7 @@ draw_ct_table_data(conversations_table *ct)
 #else
             gtk_list_store_append(store, &conversation->iter);
             gtk_list_store_set (store, &conversation->iter,
-#endif        
+#endif
                   SRC_ADR_COLUMN,  entries[0],
                   SRC_PORT_COLUMN, entries[1],
                   DST_ADR_COLUMN,  entries[2],
@@ -1227,7 +1227,7 @@ csv_handle(GtkTreeModel *model, GtkTreePath *path _U_, GtkTreeIter *iter,
                 g_string_append_printf(csv->CSV_str, "%" G_GINT64_MODIFIER "u", value);
                 break;
             case START_COLUMN:
-                g_string_append_printf(csv->CSV_str, "%s", rel_time_to_secs_str(&conv->start_time));
+                g_string_append_printf(csv->CSV_str, "\"%.9f\"", nstime_to_sec(&conv->start_time));
                 break;
             case DURATION_COLUMN:
                  g_string_append_printf(csv->CSV_str, "%.4f", duration_s);
@@ -1260,7 +1260,6 @@ static void
 copy_as_csv_cb(GtkWindow *copy_bt, gpointer data _U_)
 {
     GtkClipboard    *cb;
-    char 	    *savelocale;
     GList	    *columns, *list;
     GtkTreeViewColumn *column;
     GtkListStore    *store;
@@ -1270,8 +1269,6 @@ copy_as_csv_cb(GtkWindow *copy_bt, gpointer data _U_)
     if (!csv.talkers)
         return;
 
-    savelocale = setlocale(LC_NUMERIC, NULL);
-    setlocale(LC_NUMERIC, "C");
     csv.CSV_str = g_string_new("");
 
     columns = gtk_tree_view_get_columns(GTK_TREE_VIEW(csv.talkers->table));
@@ -1297,7 +1294,6 @@ copy_as_csv_cb(GtkWindow *copy_bt, gpointer data _U_)
     /* Now that we have the CSV data, copy it into the default clipboard */
     cb = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);      /* Get the default clipboard */
     gtk_clipboard_set_text(cb, csv.CSV_str->str, -1);    /* Copy the CSV data into the clipboard */
-    setlocale(LC_NUMERIC, savelocale);
     g_string_free(csv.CSV_str, TRUE);                    /* Free the memory */
 }
 
@@ -1313,7 +1309,7 @@ init_default_col_size(GtkWidget *view)
     default_col_size[DST_PORT_COLUMN] = default_col_size[SRC_PORT_COLUMN];
     default_col_size[PACKETS_COLUMN] = get_default_col_size(view, "00 000 000");
     default_col_size[BYTES_COLUMN] = get_default_col_size(view, "0 000 000 000");
-    default_col_size[PKT_AB_COLUMN] = default_col_size[PACKETS_COLUMN]; 
+    default_col_size[PKT_AB_COLUMN] = default_col_size[PACKETS_COLUMN];
     default_col_size[PKT_BA_COLUMN] = default_col_size[PACKETS_COLUMN];
     default_col_size[BYTES_AB_COLUMN] = default_col_size[BYTES_COLUMN];
     default_col_size[BYTES_BA_COLUMN] = default_col_size[BYTES_COLUMN];
@@ -1324,7 +1320,7 @@ init_default_col_size(GtkWidget *view)
 }
 
 static gboolean
-init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean hide_ports, const char *table_name, const char *tap_name, const char *filter, 
+init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean hide_ports, const char *table_name, const char *tap_name, const char *filter,
     tap_packet_cb packet_func)
 {
     int i;
@@ -1366,7 +1362,7 @@ init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean
     g_snprintf(title, sizeof(title), "%s Conversations", table_name);
     conversations->name_lb=gtk_label_new(title);
 
-    
+
     /* Create the store */
     store = gtk_list_store_new (N_COLUMNS,  /* Total number of columns */
                                G_TYPE_STRING,   /* Address A */
@@ -1413,7 +1409,7 @@ init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean
         case 1:
         case 2:
         case 3:
-            column = gtk_tree_view_column_new_with_attributes (conversations->default_titles[i], renderer, "text", 
+            column = gtk_tree_view_column_new_with_attributes (conversations->default_titles[i], renderer, "text",
 				i, NULL);
             if(hide_ports && (i == 1 || i == 3)){
               /* hide srcport and dstport if we don't use ports */
@@ -1433,7 +1429,7 @@ init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean
             break;
         default: /* times and bps */
             g_object_set(G_OBJECT(renderer), "xalign", 1.0, NULL);
-            column = gtk_tree_view_column_new_with_attributes (conversations->default_titles[i], renderer, "text", 
+            column = gtk_tree_view_column_new_with_attributes (conversations->default_titles[i], renderer, "text",
 				i, NULL);
 
             gtk_tree_sortable_set_sort_func(sortable, i, ct_sort_func, GINT_TO_POINTER(i), NULL);
@@ -1469,7 +1465,7 @@ init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean
     ct_create_popup_menu(conversations);
 
     /* register the tap and rerun the taps on the packet list */
-    error_string=register_tap_listener(tap_name, conversations, filter, 0, reset_ct_table_data_cb, packet_func, 
+    error_string=register_tap_listener(tap_name, conversations, filter, 0, reset_ct_table_data_cb, packet_func,
         draw_ct_table_data_cb);
     if(error_string){
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
@@ -1516,11 +1512,11 @@ follow_stream_cb(GtkWidget *follow_stream_bt, gpointer data _U_)
                              ct_port_to_str(conv->port_type, conv->dst_port));
 
     apply_selected_filter (ACTYPE_SELECTED|ACTION_MATCH, filter);
-    if (strcmp(ct->name, "TCP") == 0) 
+    if (strcmp(ct->name, "TCP") == 0)
         follow_tcp_stream_cb (follow_stream_bt, data);
-    else if (strcmp(ct->name, "UDP") == 0) 
+    else if (strcmp(ct->name, "UDP") == 0)
         follow_udp_stream_cb (follow_stream_bt, data);
-    else 
+    else
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Unknown stream: %s", ct->name);
 
     g_free (filter);
@@ -1977,7 +1973,7 @@ add_conversation_table_data(conversations_table *ct, const address *src, const a
     if(conversation==NULL){
 	conv_key_t *new_key;
         conv_t conv;
-        
+
         COPY_ADDRESS(&conv.src_address, addr1);
         COPY_ADDRESS(&conv.dst_address, addr2);
         conv.sat=sat;
@@ -1990,7 +1986,7 @@ add_conversation_table_data(conversations_table *ct, const address *src, const a
         conv.tx_bytes=0;
         conv.iter_valid = FALSE;
         conv.modified = TRUE;
-        
+
         if (ts) {
             memcpy(&conv.start_time, ts, sizeof(conv.start_time));
             memcpy(&conv.stop_time, ts, sizeof(conv.stop_time));
@@ -2044,4 +2040,3 @@ add_conversation_table_data(conversations_table *ct, const address *src, const a
  * ex: set shiftwidth=4 tabstop=8 expandtab
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-

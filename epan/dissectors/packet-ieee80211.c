@@ -6812,7 +6812,7 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 
       tagged_parameter_tree_len =
         tvb_reported_length_remaining(tvb, offset);
-      if (tagged_parameter_tree_len != 0)
+      if (tagged_parameter_tree_len > 0)
       {
         tagged_tree = get_tagged_parameter_tree (mgt_tree,
             tvb,
@@ -6847,7 +6847,7 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 
       proto_item_set_len(lcl_fixed_hdr, offset);
       tagged_parameter_tree_len = tvb_reported_length_remaining(tvb, offset);
-      if (tagged_parameter_tree_len != 0)
+      if (tagged_parameter_tree_len > 0)
       {
         tagged_tree = get_tagged_parameter_tree (mgt_tree, tvb, offset,
           tagged_parameter_tree_len);
@@ -6867,7 +6867,7 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 
       proto_item_set_len(lcl_fixed_hdr, offset);
       tagged_parameter_tree_len = tvb_reported_length_remaining(tvb, offset);
-      if (tagged_parameter_tree_len != 0)
+      if (tagged_parameter_tree_len > 0)
       {
         tagged_tree = get_tagged_parameter_tree (mgt_tree, tvb, offset,
           tagged_parameter_tree_len);

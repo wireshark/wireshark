@@ -867,10 +867,10 @@ dissect_primary_header(packet_info *pinfo, proto_tree *primary_tree, tvbuff_t *t
 				dst_scheme_len + dst_ssp_len,
 				"Destination: %d.%d",dest_scheme_offset,dest_ssp_offset);
 	}
-	
+
 	/*
  	 * Source info
- 	 */ 
+ 	 */
 	proto_tree_add_text(dict_tree, tvb, 0,
 			 		0, "Source Scheme: %s",IPN_SCHEME_STR);
 	if(source_scheme_offset == 0 && source_ssp_offset == 0)
@@ -887,7 +887,7 @@ dissect_primary_header(packet_info *pinfo, proto_tree *primary_tree, tvbuff_t *t
 
 	/*
  	 * Report to info
- 	 */ 
+ 	 */
 	proto_tree_add_text(dict_tree, tvb, 0,
 			 		0, "Report Scheme: %s",IPN_SCHEME_STR);
 	if(report_scheme_offset == 0 && report_ssp_offset == 0)
@@ -904,7 +904,7 @@ dissect_primary_header(packet_info *pinfo, proto_tree *primary_tree, tvbuff_t *t
 
 	/*
  	 * Custodian info
- 	 */ 
+ 	 */
 	proto_tree_add_text(dict_tree, tvb, 0,
 			 		0, "Custodian Scheme: %s",IPN_SCHEME_STR);
 	if(cust_scheme_offset == 0 && cust_ssp_offset == 0)
@@ -962,7 +962,7 @@ dissect_primary_header(packet_info *pinfo, proto_tree *primary_tree, tvbuff_t *t
 	    /*
 	     * Source info
 	     */
-			
+
 	    string_ptr = tvb_get_ephemeral_stringz(tvb,
 					offset + source_scheme_offset, &string_length);
 	    source_scheme_item = proto_tree_add_text(dict_tree, tvb, offset+source_scheme_offset,
@@ -992,7 +992,7 @@ dissect_primary_header(packet_info *pinfo, proto_tree *primary_tree, tvbuff_t *t
 	    /*
 	     * Custodian info
 	     */
-			
+
 	    string_ptr = tvb_get_ephemeral_stringz(tvb,
 					offset + cust_scheme_offset, &string_length);
 	    cust_scheme_item = proto_tree_add_text(dict_tree, tvb, offset + cust_scheme_offset,
@@ -1004,8 +1004,8 @@ dissect_primary_header(packet_info *pinfo, proto_tree *primary_tree, tvbuff_t *t
 					(gint)strlen((char *) (dict_ptr + cust_ssp_offset)), " ");
 	    proto_item_set_text(cust_item, "Custodian: %s", string_ptr);
 
-	    /* 
-	     * Add Source/Destination to INFO Field 
+	    /*
+	     * Add Source/Destination to INFO Field
 	     */
 
 	    col_add_fstr(pinfo->cinfo, COL_INFO, "%s:%s > %s:%s",
@@ -1345,7 +1345,7 @@ dissect_version_5_primary_header(packet_info *pinfo,
     {
 	/*
  	 * Destination info
- 	 */ 
+ 	 */
 	proto_tree_add_text(dict_tree, tvb, 0,
 			 	0, "Destination Scheme: %s",IPN_SCHEME_STR);
 	if(dest_scheme_offset == 0 && dest_ssp_offset == 0)
@@ -1359,10 +1359,10 @@ dissect_version_5_primary_header(packet_info *pinfo,
 				dst_scheme_len + dst_ssp_len,
 				"Destination: %d.%d",dest_scheme_offset,dest_ssp_offset);
 	}
-	
+
 	/*
  	 * Source info
- 	 */ 
+ 	 */
 	proto_tree_add_text(dict_tree, tvb, 0,
 			 		0, "Source Scheme: %s",IPN_SCHEME_STR);
 	if(source_scheme_offset == 0 && source_ssp_offset == 0)
@@ -1379,7 +1379,7 @@ dissect_version_5_primary_header(packet_info *pinfo,
 
 	/*
  	 * Report to info
- 	 */ 
+ 	 */
 	proto_tree_add_text(dict_tree, tvb, 0,
 			 		0, "Report Scheme: %s",IPN_SCHEME_STR);
 	if(report_scheme_offset == 0 && report_ssp_offset == 0)
@@ -1396,7 +1396,7 @@ dissect_version_5_primary_header(packet_info *pinfo,
 
 	/*
  	 * Custodian info
- 	 */ 
+ 	 */
 	proto_tree_add_text(dict_tree, tvb, 0,
 			 		0, "Custodian Scheme: %s",IPN_SCHEME_STR);
 	if(cust_scheme_offset == 0 && cust_ssp_offset == 0)
@@ -1484,8 +1484,8 @@ dissect_version_5_primary_header(packet_info *pinfo,
 	    proto_tree_add_item(dict_tree, hf_bundle_custodian_ssp, tvb, offset + cust_ssp_offset,
 					(gint)strlen((char *) (dict_ptr + cust_ssp_offset)), FALSE);
 
-	    /* 
-	     * Add Source/Destination to INFO Field 
+	    /*
+	     * Add Source/Destination to INFO Field
 	     */
 
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s:%s > %s:%s",
@@ -1637,11 +1637,13 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset)
     proto_item *status_flag_item = NULL;
     proto_tree *status_flag_tree = NULL;
     proto_item *admin_record_type = NULL;
+    proto_item *timestamp_sequence_item;
     guint8 record_type;
     guint8 status;
     guint8 reason;
     int record_size = 0;
     int sdnv_length;
+    int timestamp_sequence;
     int endpoint_length;
     guint8 *string_ptr;
 
@@ -1772,11 +1774,25 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset)
 	    return 0;
 	}
 	offset += sdnv_length; record_size += sdnv_length;
-	sdnv_length = add_sdnv_to_tree(admin_record_tree, tvb, offset,
-					"Bundle Creation Timestamp Sequence");
-	if(sdnv_length <= 0) {
+
+        timestamp_sequence = evaluate_sdnv(tvb, offset, &sdnv_length);
+        timestamp_sequence_item = proto_tree_add_text(admin_record_tree, tvb, offset, sdnv_length, " ");
+        
+        if(timestamp_sequence < 0) {
+            gint64 ts_seq;
+
+            if((ts_seq = evaluate_sdnv_64(tvb, offset, &sdnv_length)) < 0) {
+               proto_item_set_text(timestamp_sequence_item, "Timestamp Sequence Number: Error");
 	    return 0;
 	}
+
+            proto_item_set_text(timestamp_sequence_item,
+                "Timestamp Sequence Number: 0x%" G_GINT64_MODIFIER "x", ts_seq);
+        }
+        else {
+            proto_item_set_text(timestamp_sequence_item,
+				"Timestamp Sequence Number: %d", timestamp_sequence);
+        }
 	offset += sdnv_length; record_size += sdnv_length;
 
 	endpoint_length = evaluate_sdnv(tvb, offset, &sdnv_length);
@@ -1848,11 +1864,26 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset)
 	    return 0;
 	}
 	offset += sdnv_length; record_size += sdnv_length;
-	sdnv_length = add_sdnv_to_tree(admin_record_tree, tvb, offset,
-							"Bundle Creation Timestamp Sequence");
-	if(sdnv_length <= 0) {
+
+        timestamp_sequence = evaluate_sdnv(tvb, offset, &sdnv_length);
+        timestamp_sequence_item = proto_tree_add_text(admin_record_tree, tvb, offset, sdnv_length, " ");
+        
+        if(timestamp_sequence < 0) {
+            gint64 ts_seq;
+
+            if((ts_seq = evaluate_sdnv_64(tvb, offset, &sdnv_length)) < 0) {
+               proto_item_set_text(timestamp_sequence_item, "Timestamp Sequence Number: Error");
 	    return 0;
 	}
+
+            proto_item_set_text(timestamp_sequence_item,
+               "Timestamp Sequence Number: 0x%" G_GINT64_MODIFIER "x", ts_seq);
+        }
+        else {
+            proto_item_set_text(timestamp_sequence_item,
+               "Timestamp Sequence Number: %d", timestamp_sequence);
+        }
+
 	offset += sdnv_length; record_size += sdnv_length;
 
 	endpoint_length = evaluate_sdnv(tvb, offset, &sdnv_length);
