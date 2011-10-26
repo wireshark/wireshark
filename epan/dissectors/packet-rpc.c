@@ -489,7 +489,7 @@ dissect_rpc_bool(tvbuff_t *tvb, proto_tree *tree,
 		 int hfindex, int offset)
 {
 	if (tree)
-		proto_tree_add_item(tree, hfindex, tvb, offset, 4, FALSE);
+		proto_tree_add_item(tree, hfindex, tvb, offset, 4, ENC_BIG_ENDIAN);
 	return offset + 4;
 }
 
@@ -499,7 +499,7 @@ dissect_rpc_uint32(tvbuff_t *tvb, proto_tree *tree,
 		   int hfindex, int offset)
 {
 	if (tree)
-		proto_tree_add_item(tree, hfindex, tvb, offset, 4, FALSE);
+		proto_tree_add_item(tree, hfindex, tvb, offset, 4, ENC_BIG_ENDIAN);
 	return offset + 4;
 }
 
@@ -513,7 +513,7 @@ dissect_rpc_uint64(tvbuff_t *tvb, proto_tree *tree,
 	hfinfo = proto_registrar_get_nth(hfindex);
 	DISSECTOR_ASSERT(hfinfo->type == FT_UINT64);
 	if (tree)
-		proto_tree_add_item(tree, hfindex, tvb, offset, 8, FALSE);
+		proto_tree_add_item(tree, hfindex, tvb, offset, 8, ENC_BIG_ENDIAN);
 
 	return offset + 8;
 }
@@ -1037,7 +1037,7 @@ dissect_rpc_authgss_token(tvbuff_t* tvb, proto_tree* tree, int offset,
 	opaque_length = tvb_get_ntohl(tvb, offset+0);
 	rounded_length = rpc_roundup(opaque_length);
 	if (tree) {
-		gitem = proto_tree_add_item(tree, hfindex, tvb, offset, 4+rounded_length, FALSE);
+		gitem = proto_tree_add_item(tree, hfindex, tvb, offset, 4+rounded_length, ENC_NA);
 		gtree = proto_item_add_subtree(gitem, ett_rpc_gss_token);
 		proto_tree_add_uint(gtree, hf_rpc_authgss_token_length,
 				    tvb, offset+0, 4, opaque_length);
@@ -2473,7 +2473,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* create here the program specific sub-tree */
 	if (tree && (flavor != FLAVOR_AUTHGSSAPI_MSG)) {
 		pitem = proto_tree_add_item(tree, proto_id, tvb, offset, -1,
-		    FALSE);
+		    ENC_NA);
 		if (pitem) {
 			ptree = proto_item_add_subtree(pitem, ett);
 		}
