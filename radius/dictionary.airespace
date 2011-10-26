@@ -14,10 +14,9 @@ ATTRIBUTE	Airespace-8021p-Tag			4	integer
 ATTRIBUTE	Airespace-Interface-Name		5	string
 ATTRIBUTE	Airespace-ACL-Name			6	string
 
-VALUE	Airespace-QOS-Level		Bronze			0
-VALUE	Airespace-QOS-Level		Silver			1
-VALUE	Airespace-QOS-Level		Gold			2
-VALUE	Airespace-QOS-Level		Platinum		3
-VALUE	Airespace-QOS-Level		Uranium			4
+VALUE	Airespace-QOS-Level		Bronze			3
+VALUE	Airespace-QOS-Level		Silver			0
+VALUE	Airespace-QOS-Level		Gold			1
+VALUE	Airespace-QOS-Level		Platinum		2
 
 END-VENDOR Airespace

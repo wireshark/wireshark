@@ -9,20 +9,25 @@
 
 VENDOR		HP				11
 
-# Management authorization
+#
+# Attributes supported by HP ProCurve wired networking devices
+#
 BEGIN-VENDOR	HP
 
+# Management authorization
 ATTRIBUTE	HP-Privilege-Level			1	integer
 ATTRIBUTE	HP-Command-String			2	string
 ATTRIBUTE	HP-Command-Exception			3	integer
 ATTRIBUTE	HP-Management-Protocol			26	integer
 
-#
-#  HP's names for some attributes
-#
-ATTRIBUTE	HP-port-priority-regeneration-table	40	string
-ATTRIBUTE	HP-EI-Status				47	string
-ATTRIBUTE	HP-nas-filter-rule			61	string
+# Dynamic port-access attributes
+ATTRIBUTE	HP-Port-Client-Limit-Dot1x		10	integer
+ATTRIBUTE	HP-Port-Client-Limit-MA			11	integer
+ATTRIBUTE	HP-Port-Client-Limit-WA			12	integer
+ATTRIBUTE	HP-Port-Auth-Mode-Dot1x			13	integer
+
+# Client QoS attributes
+ATTRIBUTE	HP-Port-Priority-Regeneration-Table	40	string
 
 # Access control
 ATTRIBUTE	HP-Cos					40	string
@@ -32,6 +37,21 @@ ATTRIBUTE	HP-Bandwidth-Max-Ingress		46	integer
 ATTRIBUTE	HP-Bandwidth-Max-Egress			48	integer
 
 ATTRIBUTE	HP-Ip-Filter-Raw			61	string
+
+# Client ACL attributes
+ATTRIBUTE	HP-Nas-Filter-Rule			61	string
+ATTRIBUTE	HP-Nas-Rules-IPv6			63	integer
+
+# VLAN assignment attributes
+ATTRIBUTE	HP-Egress-VLANID			64	integer
+ATTRIBUTE	HP-Egress-VLAN-Name			65	string
+
+# See http://wiki.freeradius.org/HP#Capability_advertisements
+ATTRIBUTE	HP-Capability-Advert			255	octets
+
+# HP-Port-Auth-Mode-Dot1x Attribute Values
+VALUE	HP-Port-Auth-Mode-Dot1x		Port-Based		1
+VALUE	HP-Port-Auth-Mode-Dot1x		User-Based		2
 
 # HP-Command-Exception Attribute Values
 VALUE	HP-Command-Exception		Permit-List		0

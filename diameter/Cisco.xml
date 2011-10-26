@@ -576,8 +576,8 @@
 				<gavp name="Charging-Rule-Trigger-Type"/>
 				<gavp name="Volume-Threshold"/>
 				<gavp name="Time-Threshold"/>
-                <gavp name="Cisco-Report-Usage"/>
-                        <gavp name="Volume-Threshold-64"/>
+        <gavp name="Cisco-Report-Usage"/>
+        <gavp name="Volume-Threshold-64"/>
 			</grouped>
 		</avp>	
 	<!--Billing-Plan-Name-->
@@ -984,16 +984,16 @@
 				<enum name="VOLUME_THRESHOLD" code="2"/>
 				<enum name="TIME_THRESHOLD" code="3"/>
 				<enum name="USER_AGENT_DETECTION" code="4"/>
-                        <enum name="Volume-Threshold-64" code="5"/>
+        <enum name="Volume-Threshold-64" code="5"/>
 		</avp>	
     <!--Cisco-Event-Trigger-->       
-        <avp name="Cisco-Event-Trigger" code="131193" vendor-id="Cisco" mandatory="mustnot" protected="mustnot" may-encrypt="yes" vendor-bit="must">
+    <avp name="Cisco-Event-Trigger" code="131193" vendor-id="Cisco" mandatory="mustnot" protected="mustnot" may-encrypt="yes" vendor-bit="must">
 			<grouped>
 				<gavp name="Cisco-Event-Trigger-Type"/>
 				<gavp name="Volume-Threshold"/>
 				<gavp name="Time-Threshold"/>
 				<gavp name="Cisco-Report-Usage"/>
-                        <gavp name="Volume-Threshold-64"/>
+        <gavp name="Volume-Threshold-64"/>
 			</grouped>
 		</avp>
     <!--TCP-SYN-->	
@@ -1002,14 +1002,14 @@
 
 		</avp>
     <!--Cisco-Event-->
-                <avp name="Cisco-Event" code="131195" vendor-id="Cisco" mandatory="mustnot" protected="mustnot" may-encrypt="yes" vendor-bit="must">
+    <avp name="Cisco-Event" code="131195" vendor-id="Cisco" mandatory="mustnot" protected="mustnot" may-encrypt="yes" vendor-bit="must">
 			<grouped>
 				<gavp name="Cisco-Event-Trigger-Type"/>
-                                <gavp name="TCP-SYN"/>
+        <gavp name="TCP-SYN"/>
 				<gavp name="Volume-Usage"/>
 				<gavp name="Time-Usage"/>
-                <gavp name="Cisco-Report-Usage"/>
-                        <gavp name="User-Agent"/>
+        <gavp name="Cisco-Report-Usage"/>
+        <gavp name="User-Agent"/>
 			</grouped>
 		</avp>
 	<!--Interleaved-->

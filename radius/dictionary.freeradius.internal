@@ -111,6 +111,7 @@ ATTRIBUTE	Response-Packet-Type			1080	integer
 ATTRIBUTE	Digest-HA1				1081	string
 ATTRIBUTE	MS-CHAP-Use-NTLM-Auth			1082	integer
 ATTRIBUTE	NTLM-User-Name				1083	string
+ATTRIBUTE	MS-CHAP-User-Name			1083	string
 ATTRIBUTE	Packet-Src-IP-Address			1084	ipaddr
 ATTRIBUTE	Packet-Dst-IP-Address			1085	ipaddr
 ATTRIBUTE	Packet-Src-Port				1086	integer
@@ -205,6 +206,16 @@ VALUE	EAP-Session-Resumed		yes			1
 #
 ATTRIBUTE	EAP-MSK					1129	octets
 ATTRIBUTE	EAP-EMSK				1130	octets
+
+#
+#	For send/recv CoA packets (like Auth-Type, Acct-Type, etc.)
+#
+ATTRIBUTE	Recv-CoA-Type				1131	integer
+ATTRIBUTE	Send-CoA-Type				1132	integer
+
+ATTRIBUTE	MS-CHAP-Password			1133	string
+ATTRIBUTE	Packet-Transmit-Counter			1134	integer
+ATTRIBUTE	Cached-Session-Policy			1135	string
 
 #
 #	Range:	1200-1279
@@ -332,6 +343,19 @@ ATTRIBUTE	Tmp-IP-Address-9			1829	ipaddr
 ATTRIBUTE	WiMAX-MN-NAI				1900	string
 ATTRIBUTE	WiMAX-FA-IP-Address			1901	ipaddr
 ATTRIBUTE	WiMAX-MN-FA				1902	octets
+
+ATTRIBUTE	TLS-Cert-Serial				1910	string
+ATTRIBUTE	TLS-Cert-Expiration			1911	string
+ATTRIBUTE	TLS-Cert-Issuer				1912	string
+ATTRIBUTE	TLS-Cert-Subject			1913	string
+ATTRIBUTE	TLS-Cert-Common-Name			1914	string
+# 1915 - 1919: reserved for future cert attributes
+ATTRIBUTE	TLS-Client-Cert-Serial			1920	string
+ATTRIBUTE	TLS-Client-Cert-Expiration		1921	string
+ATTRIBUTE	TLS-Client-Cert-Issuer			1922	string
+ATTRIBUTE	TLS-Client-Cert-Subject			1923	string
+ATTRIBUTE	TLS-Client-Cert-Common-Name		1924	string
+ATTRIBUTE	TLS-Client-Cert-Filename		1925	string
 
 #
 #	Range:	1910-2999

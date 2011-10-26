@@ -86,7 +86,7 @@ diameter_DATA = \
 	diameter/TGPPGmb.xml \
 	diameter/TGPPRx.xml \
 	diameter/TGPPSh.xml	\
-	diameter/Vodafone.xml	
+	diameter/Vodafone.xml
 
 #
 # Install the DTDs directory files in the "dtds" subdirectory
@@ -119,8 +119,11 @@ radius_DATA = \
 	radius/dictionary.3gpp  \
 	radius/dictionary.3gpp2  \
 	radius/dictionary.acc  \
+	radius/dictionary.acme \
 	radius/dictionary.airespace \
 	radius/dictionary.alcatel  \
+	radius/dictionary.alcatel.esam \
+	radius/dictionary.alcatel.sr \
 	radius/dictionary.alteon  \
 	radius/dictionary.altiga  \
 	radius/dictionary.alvarion \
@@ -129,6 +132,7 @@ radius_DATA = \
 	radius/dictionary.aruba  \
 	radius/dictionary.ascend  \
 	radius/dictionary.asn \
+	radius/dictionary.audiocodes \
 	radius/dictionary.avaya \
 	radius/dictionary.azaire \
 	radius/dictionary.bay  \
@@ -164,6 +168,7 @@ radius_DATA = \
 	radius/dictionary.h3c \
 	radius/dictionary.hp \
 	radius/dictionary.huawei \
+	radius/dictionary.iea \
 	radius/dictionary.infonet \
 	radius/dictionary.ipunplugged \
 	radius/dictionary.issanni \
@@ -180,6 +185,7 @@ radius_DATA = \
 	radius/dictionary.microsoft  \
 	radius/dictionary.mikrotik  \
 	radius/dictionary.motorola \
+	radius/dictionary.motorola.wimax \
 	radius/dictionary.navini  \
 	radius/dictionary.netscreen  \
 	radius/dictionary.networkphysics \
@@ -208,12 +214,16 @@ radius_DATA = \
 	radius/dictionary.rfc3580 \
 	radius/dictionary.rfc4072 \
 	radius/dictionary.rfc4372 \
+	radius/dictionary.rfc4603 \
 	radius/dictionary.rfc4675 \
 	radius/dictionary.rfc4679 \
 	radius/dictionary.rfc4818 \
 	radius/dictionary.rfc4849 \
 	radius/dictionary.rfc5090 \
 	radius/dictionary.rfc5176 \
+	radius/dictionary.rfc5580 \
+	radius/dictionary.rfc5607 \
+	radius/dictionary.rfc5904 \
 	radius/dictionary.riverstone \
 	radius/dictionary.roaringpenguin \
 	radius/dictionary.shasta  \
@@ -228,8 +238,7 @@ radius_DATA = \
 	radius/dictionary.telkom \
 	radius/dictionary.trapeze  \
 	radius/dictionary.tropos \
-	radius/dictionary.tunnel  \
-	radius/dictionary.unisphere  \
+	radius/dictionary.ukerna  \
 	radius/dictionary.unix  \
 	radius/dictionary.usr  \
 	radius/dictionary.utstarcom \
@@ -238,7 +247,9 @@ radius_DATA = \
 	radius/dictionary.vqp \
 	radius/dictionary.walabi \
 	radius/dictionary.waverider \
+	radius/dictionary.wichorus \
 	radius/dictionary.wimax  \
+	radius/dictionary.wimax.wichorus \
 	radius/dictionary.wispr  \
 	radius/dictionary.xedia \
 	radius/dictionary.xylan \

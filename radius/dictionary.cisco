@@ -9,7 +9,7 @@
 #
 #  For documentation on Cisco RADIUS attributes, see:
 #
-# http://www.cisco.com/univercd/cc/td/doc/product/access/acs_serv/vapp_dev/vsaig3.htm
+# http://www.cisco.com/en/US/docs/ios/sec_user_services/configuration/guide/sec_vsa_rad_discnct_ps11280_TSD_Products_Configuration_Guide_Chapter.html
 #
 #  For general documentation on Cisco RADIUS configuration, see:
 #
@@ -102,6 +102,25 @@ ATTRIBUTE	sip-hdr					150	string
 #	Extra attributes sent by the Cisco, if you configure
 #	"radius-server vsa accounting" (requires IOS11.2+).
 #
+#	According to
+#
+#		http://www.cisco.com/en/US/products/hw/iad/ps4349/products_installation_guide_chapter09186a008007e511.html
+#
+#	the first byte Command-Code value is a binary command code
+#	and the other bytes after it are an string argument to the
+#	command:
+#
+#		Command code	Command			Argument
+#
+#		\001		Account Logon		Account name
+#		\002		Account Logoff		Account name
+#		\004		Account PING		Service name
+#		\013		Service Logon		Service name
+#		\014		Service Logoff		Service name
+#		\016		Service Access Order	DNS server search order
+#							separated by semicolons
+#		\017		Service Message		Message text
+#
 ATTRIBUTE	Cisco-Multilink-ID			187	integer
 ATTRIBUTE	Cisco-Num-In-Multilink			188	integer
 ATTRIBUTE	Cisco-Pre-Input-Octets			190	integer
@@ -125,6 +144,7 @@ ATTRIBUTE	Cisco-Maximum-Channels			235	integer
 ATTRIBUTE	Cisco-Data-Filter			242	integer
 ATTRIBUTE	Cisco-Call-Filter			243	integer
 ATTRIBUTE	Cisco-Idle-Limit			244	integer
+ATTRIBUTE	Cisco-Subscriber-Password		249	string
 ATTRIBUTE	Cisco-Account-Info			250	string
 ATTRIBUTE	Cisco-Service-Info			251	string
 ATTRIBUTE	Cisco-Command-Code			252	string

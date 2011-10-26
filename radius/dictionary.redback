@@ -42,6 +42,8 @@ ATTRIBUTE	Tunnel_Domain				15	integer
 ATTRIBUTE	Tunnel_Local_Name			16	string
 ATTRIBUTE	Tunnel_Remote_Name			17	string
 ATTRIBUTE	Tunnel_Function				18	integer
+ATTRIBUTE	Tunnel-Flow-Control			19	integer
+ATTRIBUTE	Tunnel-Static				20	integer
 ATTRIBUTE	Tunnel_Max_Sessions			21	integer
 ATTRIBUTE	Tunnel_Max_Tunnels			22	integer
 ATTRIBUTE	Tunnel_Session_Auth			23	integer
@@ -91,27 +93,51 @@ ATTRIBUTE	Tunnel_Rate_Limit_Burst			66	integer
 ATTRIBUTE	Tunnel_Police_Rate			67	integer
 ATTRIBUTE	Tunnel_Police_Burst			68	integer
 ATTRIBUTE	Tunnel_L2F_Second_Password		69	string
+ATTRIBUTE	ACL-Definition				70	string
+ATTRIBUTE	PPPoE-IP-Route-Add			71	string
 ATTRIBUTE	TTY_Level_Max				72	integer
 ATTRIBUTE	TTY_Level_Start				73	integer
+ATTRIBUTE	Bind-DHCP-Context			76	string
+ATTRIBUTE	Tunnel-Mobil-Group			77	string
+ATTRIBUTE	Tunnel-Client-VPN			78	string
+ATTRIBUTE	Tunnel-Server-VPN			79	string
+ATTRIBUTE	PPP-Compression				84	integer
+ATTRIBUTE	Tunnel-Hello-Timer			85	integer
+ATTRIBUTE	Redback-Reason				86	integer
 ATTRIBUTE	Qos-Policy-Policing			87	string
 ATTRIBUTE	Qos-Policy-Metering			88	string
 ATTRIBUTE	Qos-Policy-Queuing			89	string
 ATTRIBUTE	Igmp-Service-Profile			90	string
 ATTRIBUTE	Sub-Profile-Name			91	string
 ATTRIBUTE	Forward-Policy				92	string
+ATTRIBUTE	Remote-Port				93	string
 ATTRIBUTE	Reauth-String				94	string
 ATTRIBUTE	Reauth-More				95	integer
-ATTRIBUTE	Agent-Remote-Id				96	string
-ATTRIBUTE	Agent-Circuit-Id			97	string
+
+#
+#  These next 2 seem to be copies of the DHCP options...
+#
+ATTRIBUTE	Agent-Remote-Id				96	octets
+ATTRIBUTE	Agent-Circuit-Id			97	octets
 ATTRIBUTE	Platform-Type				98	integer
 ATTRIBUTE	RB-Client-NBNS-Pri			99	ipaddr
 ATTRIBUTE	RB-Client-NBNS-Sec			100	ipaddr
 ATTRIBUTE	Shaping-Profile-Name			101	string
+ATTRIBUTE	Bridge-Profile				103	string
 ATTRIBUTE	IP-Interface				104	string
 ATTRIBUTE	NAT-Policy-Name				105	string
+ATTRIBUTE	RB-NPM-Service-Id			106	string
 ATTRIBUTE	HTTP-Redirect-Profile-Name		107	string
+ATTRIBUTE	Bind-Auto-Sub-User			108	string
+ATTRIBUTE	Bind-Auto-Sub-Context			109	string
+ATTRIBUTE	Bind-Auto-Sub-Password			110	string
+ATTRIBUTE	Circuit-Protocol-Encap			111	integer
 ATTRIBUTE	OS-Version				112	string
 ATTRIBUTE	Session-Traffic-Limit			113	string
+ATTRIBUTE	QOS-Reference				114	string
+ATTRIBUTE	DHCP-Vendor-Class-ID			125	string
+ATTRIBUTE	Qos-Rate				126	string
+ATTRIBUTE	DHCP-Vendor-Encap-Option		127	string
 ATTRIBUTE	Acct_Input_Octets_64			128	octets
 ATTRIBUTE	Acct_Output_Octets_64			129	octets
 ATTRIBUTE	Acct_Input_Packets_64			130	octets
@@ -248,6 +274,8 @@ ATTRIBUTE	Tunnel-Domain				15	integer
 ATTRIBUTE	Tunnel-Local-Name			16	string
 ATTRIBUTE	Tunnel-Remote-Name			17	string
 ATTRIBUTE	Tunnel-Function				18	integer
+ATTRIBUTE	Tunnel-Flow-Control			19	integer
+ATTRIBUTE	Tunnel-Static				20	integer
 ATTRIBUTE	Tunnel-Max-Sessions			21	integer
 ATTRIBUTE	Tunnel-Max-Tunnels			22	integer
 ATTRIBUTE	Tunnel-Session-Auth			23	integer
@@ -309,17 +337,43 @@ ATTRIBUTE	Tunnel-Client-Rhost			80	string
 ATTRIBUTE	Tunnel-Server-Rhost			81	string
 ATTRIBUTE	Tunnel-Client-Int-Addr			82	ipaddr
 ATTRIBUTE	Tunnel-Server-Int-Addr			83	ipaddr
+ATTRIBUTE	PPP-Compression				84	integer
+ATTRIBUTE	Tunnel-Hello-Timer			85	integer
+ATTRIBUTE	Redback-Reason				86	integer
+ATTRIBUTE	Qos-Policing-Profile-Name		87	string
+ATTRIBUTE	Qos-Metering-Profile-Name		88	string
+ATTRIBUTE	Qos-Policy-Queuing			89	string
+ATTRIBUTE	IGMP-Service-Profile-Name		90	string
+ATTRIBUTE	Subscriber-Profile-Name			91	string
+ATTRIBUTE	Forward-Policy				92	string
+ATTRIBUTE	Remote-Port				93	string
+ATTRIBUTE	Reauth					94	string
+ATTRIBUTE	Reauth-More				95	integer
 ATTRIBUTE	Agent-Remote-Id				96	string
 ATTRIBUTE	Agent-Circuit-Id			97	string
 ATTRIBUTE	Platform-Type				98	integer
 ATTRIBUTE	Client-NBNS-Pri				99	ipaddr
 ATTRIBUTE	Client-NBNS-Sec				100	ipaddr
+ATTRIBUTE	Shaping-Profile-Name			101	string
 ATTRIBUTE	BG-Cct-Addr-Max				103	integer
 ATTRIBUTE	IP-Interface-Name			104	string
+ATTRIBUTE	NAT-Policy-Name				105	string
+ATTRIBUTE	RB-NPM-Service-Id			106	string
+ATTRIBUTE	HTTP-Redirect-Profile-Name		107	string
+ATTRIBUTE	Bind-Auto-Sub-User			108	string
+ATTRIBUTE	Bind-Auto-Sub-Context			109	string
+ATTRIBUTE	Bind-Auto-Sub-Password			110	string
+ATTRIBUTE	Circuit-Protocol-Encap			111	integer
+ATTRIBUTE	OS-Version				112	string
+ATTRIBUTE	Session-Traffic-Limit			113	string
+ATTRIBUTE	QOS-Reference				114	string
 ATTRIBUTE	Rate-Limit-Excess-Burst			121	octets
 ATTRIBUTE	Police-Excess-Burst			122	octets
 ATTRIBUTE	Tunnel-Rate-Limit-Excess-Burst		123	octets
 ATTRIBUTE	Tunnel-Police-Excess-Burst		124	octets
+ATTRIBUTE	DHCP-Vendor-Class-ID			125	string
+ATTRIBUTE	Qos-Rate				126	string
+ATTRIBUTE	DHCP-Vendor-Encap-Option		127	string
 ATTRIBUTE	Acct-Input-Octets-64			128	octets
 ATTRIBUTE	Acct-Output-Octets-64			129	octets
 ATTRIBUTE	Acct-Input-Packets-64			130	octets
@@ -344,6 +398,60 @@ ATTRIBUTE	Acct-Mcast-Out-Octets			148	integer
 ATTRIBUTE	Acct-Mcast-In-Packets			149	integer
 ATTRIBUTE	Acct-Mcast-Out-Packets			150	integer
 ATTRIBUTE	Reauth-Session-Id			151	string
+ATTRIBUTE	QOS-Rate-Inbound			156	string
+ATTRIBUTE	QOS-Rate-Outbound			157	string
+ATTRIBUTE	Route-Tag				158	integer
+ATTRIBUTE	LI-Id					159	integer
+ATTRIBUTE	LI-Md-Address				160	ipaddr
+ATTRIBUTE	LI-Md-Port				161	integer
+ATTRIBUTE	LI-Action				162	integer
+ATTRIBUTE	LI-Profile				163	string
+ATTRIBUTE	Dynamic-Policy-Filter			164	string
+ATTRIBUTE	HTTP-Redirect-URL			165	string
+ATTRIBUTE	DSL-Actual-Rate-Up			166	integer
+ATTRIBUTE	DSL-Actual-Rate-Down			167	integer
+ATTRIBUTE	DSL-Min-Rate-Up				168	integer
+ATTRIBUTE	DSL-Min-Rate-Down			169	integer
+ATTRIBUTE	DSL-Attainable-Rate-Up			170	integer
+ATTRIBUTE	DSL-Attainable-Rate-Down		171	integer
+ATTRIBUTE	DSL-Max-Rate-Up				172	integer
+ATTRIBUTE	DSL-Max-Rate-Down			173	integer
+ATTRIBUTE	DSL-Min-Low-Power-Rate-Up		174	integer
+ATTRIBUTE	DSL-Min-Low-Power-Rate-Down		175	integer
+ATTRIBUTE	DSL-Max-Inter-Delay-Up			176	integer
+ATTRIBUTE	DSL-Actual-Inter-Delay-Up		177	integer
+ATTRIBUTE	DSL-Max-Inter-Delay-Down		178	integer
+ATTRIBUTE	DSL-Actual-Inter-Delay-Down		179	integer
+ATTRIBUTE	DSL-Line-State				180	integer
+ATTRIBUTE	DSL-L2-Encapsulation			181	integer
+ATTRIBUTE	DSL-Transmission-System			182	integer
+ATTRIBUTE	DSL-PPPOA-PPPOE-Inter-Work-Flag		183	integer
+ATTRIBUTE	DSL-Actual-Rate-Down-Factor		185	integer
+ATTRIBUTE	DSL-Combined-Line-Info			184	string
+ATTRIBUTE	Class-Volume-limit			186	string
+ATTRIBUTE	Class-Volume-In-Counter			187	string
+ATTRIBUTE	Class-Volume-Out-Counter		188	string
+ATTRIBUTE	Flow-FAC-Profile			189	string
+ATTRIBUTE	Flow-FAC-Profile			189	string
+ATTRIBUTE	Service-Name				190	string
+ATTRIBUTE	Service-Action				191	integer
+ATTRIBUTE	Service-Parameter			192	string
+ATTRIBUTE	Service-Error-Cause			193	integer
+ATTRIBUTE	Deactivate-Service-Name			194	string
+ATTRIBUTE	Qos-Profile-Overhead			195	string
+ATTRIBUTE	Dynamic-QoS-Param			196	string
+ATTRIBUTE	Acct-Alt-Session-ID			197	string
+ATTRIBUTE	Idle-Timeout-Threshold			198	integer
+ATTRIBUTE	Double-Authentication			199	integer
+ATTRIBUTE	SBC-Adjacency				200	string
+#binary in radiator
+ATTRIBUTE	DHCP-Field				201	string
+#binary in radiator
+ATTRIBUTE	DHCP-Option				202	string
+ATTRIBUTE	Security-Service			203	string
+ATTRIBUTE	Reauth-Service-Name			204	string
+ATTRIBUTE	Flow-IP-Profile				205	string
+ATTRIBUTE	Radius-Throttle-Watermark		206	integer
 
 VALUE	PVC-Encapsulation-Type		AAA-ENCAPS-ATM-RAW	1
 VALUE	PVC-Encapsulation-Type		AAA-ENCAPS-ATM-ROUTE1483 2
@@ -369,6 +477,14 @@ VALUE	PVC-Encapsulation-Type		AAA-ENCAPS-L2TP-VC-MUXED 21
 VALUE	PVC-Encapsulation-Type		AAA-ENCAPS-ETH		22
 VALUE	PVC-Encapsulation-Type		AAA-ENCAPS-ETH-PPPOE	23
 VALUE	PVC-Encapsulation-Type		AAA-ENCAPS-ETH-MULTI	24
+VALUE	PVC-Encapsulation-Type		AAA-ENCAPS-ETH-DOT1Q	25
+VALUE	PVC-Encapsulation-Type		AAA-ENCAPS-ETH-DOT1Q-PPPOE 26
+VALUE	PVC-Encapsulation-Type		AAA-ENCAPS-ATM-MULTI-PPPOE 27
+VALUE	PVC-Encapsulation-Type		AAA-ENCAPS-ATM-MULTI-IPV6OE 28
+VALUE	PVC-Encapsulation-Type		AAA-ENCAPS-ATM-MULTI-PPPOE-N-IPV6OE 29
+VALUE	PVC-Encapsulation-Type		AAA-ENCAPS-ETH-DOT1Q-TUNNEL 30
+VALUE	PVC-Encapsulation-Type		AAA-ENCAPS-ETH-DOT1Q-TUNNEL-PPPOE 31
+
 VALUE	PVC-Circuit-Padding		AAA-CIRCUIT-PADDING	1
 VALUE	PVC-Circuit-Padding		AAA-CIRCUIT-NO-PADDING	2
 VALUE	Bind-Type			AAA-AUTH-BIND		1
@@ -379,18 +495,36 @@ VALUE	Bind-Type			AAA-TUNNEL-BIND		5
 VALUE	Bind-Type			AAA-SESSION-BIND	6
 VALUE	Bind-Type			AAA-Q8021-BIND		7
 VALUE	Bind-Type			AAA-MULTI-BIND		8
+VALUE	Bind-Type			AAA-DHCP-BIND		9
+VALUE	Bind-Type			AAA-MULTI-BIND-SUB	10
+VALUE	Bind-Type			AAA-BRIDGE-GROUP-BIND	11
+VALUE	Bind-Type			AAA-VLAN-BIND		12
+VALUE	Bind-Type			AAA-VLAN-GROUP-BIND	13
+VALUE	Bind-Type			AAA-AUTO-SUBSCRIBER-BIND 14
 VALUE	Bind-Auth-Protocol		AAA-PPP-PAP		1
 VALUE	Bind-Auth-Protocol		AAA-PPP-CHAP		2
 VALUE	Bind-Auth-Protocol		AAA-PPP-CHAP-WAIT	3
 VALUE	Bind-Auth-Protocol		AAA-PPP-CHAP-PAP	4
 VALUE	Bind-Auth-Protocol		AAA-PPP-CHAP-WAIT-PAP	5
+VALUE	Bind-Auth-Protocol		AAA-PPP-EAP		6
+VALUE	Bind-Auth-Protocol		AAA-PPP-PAP-CHAP	7
+VALUE	Bind-Auth-Protocol		AAA-PPP-PAP-CHAP-WAIT	8
 
+VALUE	Source-Validation		Enabled			1
+VALUE	Source-Validation		Disabled		2
+VALUE	Tunnel-Domain			Enabled			1
+VALUE	Tunnel-Domain			Disabled		2
 VALUE	Tunnel-Function			LAC-Only		1
 VALUE	Tunnel-Function			LNS-Only		2
 VALUE	Tunnel-Function			LAC-LNS			3
 VALUE	Tunnel-Session-Auth		CHAP			1
 VALUE	Tunnel-Session-Auth		PAP			2
 VALUE	Tunnel-Session-Auth		CHAP-PAP		3
+VALUE	Tunnel-Group			Enabled			1
+VALUE	Tunnel-Group			Disabled		2
+VALUE	Tunnel-Algorithm		First			1
+VALUE	Tunnel-Algorithm		Load-Balance		2
+VALUE	Tunnel-Algorithm		WRR			3
 VALUE	Mcast-Send			NO-SEND			1
 VALUE	Mcast-Send			SEND			2
 VALUE	Mcast-Send			UNSOLICITED-SEND	3
@@ -402,11 +536,32 @@ VALUE	Tunnel-DNIS			DNIS-Only		2
 
 VALUE	Platform-Type			SMS			1
 VALUE	Platform-Type			SmartEdge-800		2
+VALUE	Platform-Type			SE-400			3
+VALUE	Platform-Type			SE-100			4
+
+VALUE	Circuit-Protocol-Encap		ENCAPS-PPPOE		27
 
 VALUE	Medium-Type			DSL			11
 VALUE	Medium-Type			Cable			12
 VALUE	Medium-Type			Wireless		13
 VALUE	Medium-Type			Satellite		14
+
+VALUE	IP-TOS-Field			normal			0
+VALUE	IP-TOS-Field			min-cost-only		1
+VALUE	IP-TOS-Field			max-reliability-only	2
+VALUE	IP-TOS-Field			max-reliability-plus-min-cost 3
+VALUE	IP-TOS-Field			max-throughput-only	4
+VALUE	IP-TOS-Field			max-throughput-plus-min-cost 5
+VALUE	IP-TOS-Field			max-throughput-plus-max-reliability 6
+VALUE	IP-TOS-Field			max-throughput-plus-max-reliability-plus-min-cost 7
+VALUE	IP-TOS-Field			min-delay-only		8
+VALUE	IP-TOS-Field			min-delay-plus-min-cost	9
+VALUE	IP-TOS-Field			min-delay-plus-max-reliability 10
+VALUE	IP-TOS-Field			min-delay-plus-max-reliability-plus-min-cost 11
+VALUE	IP-TOS-Field			min-delay-plus-max-throughput 12
+VALUE	IP-TOS-Field			min-delay-plus-max-throughput-plus-min-cost 13
+VALUE	IP-TOS-Field			min-delay-plus-max-throughput-plus-max-reliability 14
+VALUE	IP-TOS-Field			min-delay-plus-max-throughput-plus-max-reliability-plus-min-cost 15
 
 VALUE	LAC-Port-Type			NAS-PORT-TYPE-10BT	40
 VALUE	LAC-Port-Type			NAS-PORT-TYPE-100BT	41
@@ -470,5 +625,21 @@ VALUE	Acct-Update-Reason		AAA_LOAD_ACCT_ACL_TIMERED_ACTION 12
 VALUE	Acct-Update-Reason		AAA_LOAD_ACCT_ACL_ACTION 13
 VALUE	Acct-Update-Reason		AAA_LOAD_ACCT_CMD	14
 VALUE	Acct-Update-Reason		AAA_LOAD_ACCT_TEST	15
+
+VALUE	DSL-Line-State			Showtime		1
+VALUE	DSL-Line-State			Idle			2
+VALUE	DSL-Line-State			Silent			3
+
+VALUE	DSL-Transmission-System		ADSL1			1
+VALUE	DSL-Transmission-System		ADSL2			2
+VALUE	DSL-Transmission-System		ADSL2+		3
+VALUE	DSL-Transmission-System		VDSL1			4
+VALUE	DSL-Transmission-System		VDSL2			5
+VALUE	DSL-Transmission-System		SDSL			6
+VALUE	DSL-Transmission-System		UNKNOWN			7
+
+VALUE	Service-Action			DE-ACTIVATE		0
+VALUE	Service-Action			ACTIVATE-WITH-ACCT	1
+VALUE	Service-Action			ACTIVATE-WITHOUT-ACCT	2
 
 END-VENDOR	Redback

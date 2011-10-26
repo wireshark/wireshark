@@ -17,6 +17,8 @@ ATTRIBUTE	Extreme-Netlogin-Url-Desc		205	string
 ATTRIBUTE	Extreme-Netlogin-Only			206	integer
 ATTRIBUTE	Extreme-User-Location			208	string
 ATTRIBUTE	Extreme-Netlogin-Vlan-Tag		209	integer
+ATTRIBUTE	Extreme-Netlogin-Extended-Vlan		211	string
+ATTRIBUTE	Extreme-Security-Profile		212	string
 
 VALUE	Extreme-CLI-Authorization	Disabled		0
 VALUE	Extreme-CLI-Authorization	Enabled			1

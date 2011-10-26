@@ -19,23 +19,13 @@ ATTRIBUTE	Acct-Multi-Session-Id			50	string
 ATTRIBUTE	Acct-Link-Count				51	integer
 
 #	Accounting Status Types
-# http://www.iana.org/assignments/radius-types/radius-types.xml#radius-types-10
 
-VALUE	Acct-Status-Type		Start				1
-VALUE	Acct-Status-Type		Stop				2
+VALUE	Acct-Status-Type		Start			1
+VALUE	Acct-Status-Type		Stop			2
 VALUE	Acct-Status-Type		Interim-Update		3
-VALUE	Acct-Status-Type		Unassigned			4
-VALUE	Acct-Status-Type		Unassigned			5
-VALUE	Acct-Status-Type		Unassigned			6
 VALUE	Acct-Status-Type		Accounting-On		7
 VALUE	Acct-Status-Type		Accounting-Off		8
-VALUE	Acct-Status-Type		Tunnel-Start		9
-VALUE	Acct-Status-Type		Tunnel-Stop			10
-VALUE	Acct-Status-Type		Tunnel-Reject		11
-VALUE	Acct-Status-Type		Tunnel-Link-Start	12
-VALUE	Acct-Status-Type		Tunnel-Link-Stop	13
-VALUE	Acct-Status-Type		Tunnel-Link-Reject	14
-VALUE	Acct-Status-Type		Failed				15
+VALUE	Acct-Status-Type		Failed			15
 
 #	Authentication Types
 
