@@ -2176,15 +2176,10 @@ int dissect_id_revision(packet_info *pinfo, proto_tree *tree, proto_item *item, 
    return 2;
 }
 
-int dissect_msg_rout_num_classes(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, 
-                             int offset, int total_len)
+int dissect_msg_rout_num_classes(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb, 
+                             int offset, int total_len _U_)
 {
    guint16 i, num_classes;
-
-   /* Unused parameters */
-   pinfo = pinfo;
-   item = item;
-   total_len = total_len;
 
    num_classes = tvb_get_letohs( tvb, offset);
    proto_tree_add_item( tree, hf_msg_rout_num_classes, tvb, offset, 2, ENC_LITTLE_ENDIAN);
