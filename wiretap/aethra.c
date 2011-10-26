@@ -31,7 +31,9 @@
 #include "aethra.h"
 
 /* Magic number in Aethra PC108 files. */
-static const char aethra_magic[5] = "V0208";
+static const char aethra_magic[5] = {
+	'V', '0', '2', '0', '8'
+};
 
 /* Aethra file header (minus magic number). */
 struct aethra_hdr {
