@@ -44,10 +44,16 @@ struct aethra_hdr {
    All multi-byte fields are little-endian. */
 struct aethrarec_hdr {
 	guint8 rec_size[2];	/* record length, not counting the length itself */
-	guint8 unknown1;
+	guint8 rec_type;	/* record type */
 	guint8 timestamp[4];	/* milliseconds since start of capture */
 	guint8 flags;		/* low-order bit: 0 = N->U, 1 = U->N */
 };
+
+/*
+ * Record types.
+ */
+#define AETHRA_STOP_MONITOR	0	/* end of capture */
+#define AETHRA_PACKET		1	/* packet */
 
 /*
  * Flags.
@@ -118,32 +124,41 @@ static gboolean aethra_read(wtap *wth, int *err, gchar **err_info,
 	guint32	packet_size;
 	guint32	msecs;
 
-	*data_offset = wth->data_offset;
+	/*
+	 * Keep reading until we see an AETHRA_PACKET record or get
+	 * an end-of-file.
+	 */
+	do {
+		*data_offset = wth->data_offset;
 
-	/* Read record header. */
-	if (!aethra_read_rec_header(wth->fh, &hdr, &wth->pseudo_header, err,
-	    err_info))
-		return FALSE;
+		/* Read record header. */
+		if (!aethra_read_rec_header(wth->fh, &hdr, &wth->pseudo_header,
+		    err, err_info))
+			return FALSE;
 
-	rec_size = pletohs(hdr.rec_size);
-	if (rec_size < (sizeof hdr - sizeof hdr.rec_size)) {
-		/* The record is shorter than a record header. */
-		*err = WTAP_ERR_BAD_RECORD;
-		*err_info = g_strdup_printf("aethra: File has %u-byte record, less than minimum of %u",
-		    rec_size, (unsigned int)(sizeof hdr - sizeof hdr.rec_size));
-		return FALSE;
-	}
+		rec_size = pletohs(hdr.rec_size);
+		if (rec_size < (sizeof hdr - sizeof hdr.rec_size)) {
+			/* The record is shorter than a record header. */
+			*err = WTAP_ERR_BAD_RECORD;
+			*err_info = g_strdup_printf("aethra: File has %u-byte record, less than minimum of %u",
+			    rec_size, (unsigned int)(sizeof hdr - sizeof hdr.rec_size));
+			return FALSE;
+		}
+		wth->data_offset += sizeof hdr;
 
-	wth->data_offset += sizeof hdr;
-
-	packet_size = rec_size - (sizeof hdr - sizeof hdr.rec_size);
-	if (packet_size != 0) {
-		buffer_assure_space(wth->frame_buffer, packet_size);
-		if (!aethra_read_rec_data(wth->fh, buffer_start_ptr(wth->frame_buffer),
-		    packet_size, err, err_info))
-			return FALSE;	/* Read error */
-		wth->data_offset += packet_size;
-	}
+		/*
+		 * XXX - if this is big, we might waste memory by
+		 * growing the buffer to handle it.
+		 */
+		packet_size = rec_size - (sizeof hdr - sizeof hdr.rec_size);
+		if (packet_size != 0) {
+			buffer_assure_space(wth->frame_buffer, packet_size);
+			if (!aethra_read_rec_data(wth->fh, buffer_start_ptr(wth->frame_buffer),
+			    packet_size, err, err_info))
+				return FALSE;	/* Read error */
+			wth->data_offset += packet_size;
+		}
+	} while (hdr.rec_type != AETHRA_PACKET);
 
 	/*
 	 * XXX - need to find start time in file header.
