@@ -3425,8 +3425,8 @@ static gboolean parse_RMPP(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
             break;
         case RMPP_STOP:
         case RMPP_ABORT:
-            proto_tree_add_item(RMPP_header_tree, hf_infiniband_reserved32,                     tvb, local_offset, 4, FALSE); local_offset+=4;
-            proto_tree_add_item(RMPP_header_tree, hf_infiniband_reserved32,                     tvb, local_offset, 4, FALSE); local_offset+=4;
+            proto_tree_add_item(RMPP_header_tree, hf_infiniband_reserved32,                     tvb, local_offset, 4, ENC_NA); local_offset+=4;
+            proto_tree_add_item(RMPP_header_tree, hf_infiniband_reserved32,                     tvb, local_offset, 4, ENC_NA); local_offset+=4;
             proto_tree_add_item(RMPP_header_tree, hf_infiniband_optional_extended_error_data,   tvb, local_offset, 220, ENC_NA);
             break;
         default:
@@ -4775,16 +4775,16 @@ static void parse_TraceRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *offse
     proto_item_set_text(TraceRecord_header_item, "%s", "TraceRecord");
     TraceRecord_header_tree = proto_item_add_subtree(TraceRecord_header_item, ett_tracerecord);
 
-    proto_tree_add_item(TraceRecord_header_tree, hf_infiniband_TraceRecord_GIDPrefix,       tvb, local_offset, 8, FALSE); local_offset+=8;
-    proto_tree_add_item(TraceRecord_header_tree, hf_infiniband_TraceRecord_IDGeneration,    tvb, local_offset, 2, FALSE); local_offset+=2;
+    proto_tree_add_item(TraceRecord_header_tree, hf_infiniband_TraceRecord_GIDPrefix,       tvb, local_offset, 8, ENC_BIG_ENDIAN); local_offset+=8;
+    proto_tree_add_item(TraceRecord_header_tree, hf_infiniband_TraceRecord_IDGeneration,    tvb, local_offset, 2, ENC_BIG_ENDIAN); local_offset+=2;
     local_offset+=1; /* Reserved Bits */
-    proto_tree_add_item(TraceRecord_header_tree, hf_infiniband_TraceRecord_NodeType,        tvb, local_offset, 1, FALSE); local_offset+=1;
-    proto_tree_add_item(TraceRecord_header_tree, hf_infiniband_TraceRecord_NodeID,          tvb, local_offset, 8, FALSE); local_offset+=8;
-    proto_tree_add_item(TraceRecord_header_tree, hf_infiniband_TraceRecord_ChassisID,       tvb, local_offset, 8, FALSE); local_offset+=8;
-    proto_tree_add_item(TraceRecord_header_tree, hf_infiniband_TraceRecord_EntryPortID,     tvb, local_offset, 8, FALSE); local_offset+=8;
-    proto_tree_add_item(TraceRecord_header_tree, hf_infiniband_TraceRecord_ExitPortID,      tvb, local_offset, 8, FALSE); local_offset+=8;
-    proto_tree_add_item(TraceRecord_header_tree, hf_infiniband_TraceRecord_EntryPort,       tvb, local_offset, 1, FALSE); local_offset+=1;
-    proto_tree_add_item(TraceRecord_header_tree, hf_infiniband_TraceRecord_ExitPort,        tvb, local_offset, 1, FALSE); local_offset+=1;
+    proto_tree_add_item(TraceRecord_header_tree, hf_infiniband_TraceRecord_NodeType,        tvb, local_offset, 1, ENC_BIG_ENDIAN); local_offset+=1;
+    proto_tree_add_item(TraceRecord_header_tree, hf_infiniband_TraceRecord_NodeID,          tvb, local_offset, 8, ENC_BIG_ENDIAN); local_offset+=8;
+    proto_tree_add_item(TraceRecord_header_tree, hf_infiniband_TraceRecord_ChassisID,       tvb, local_offset, 8, ENC_BIG_ENDIAN); local_offset+=8;
+    proto_tree_add_item(TraceRecord_header_tree, hf_infiniband_TraceRecord_EntryPortID,     tvb, local_offset, 8, ENC_BIG_ENDIAN); local_offset+=8;
+    proto_tree_add_item(TraceRecord_header_tree, hf_infiniband_TraceRecord_ExitPortID,      tvb, local_offset, 8, ENC_BIG_ENDIAN); local_offset+=8;
+    proto_tree_add_item(TraceRecord_header_tree, hf_infiniband_TraceRecord_EntryPort,       tvb, local_offset, 1, ENC_BIG_ENDIAN); local_offset+=1;
+    proto_tree_add_item(TraceRecord_header_tree, hf_infiniband_TraceRecord_ExitPort,        tvb, local_offset, 1, ENC_BIG_ENDIAN); local_offset+=1;
 }
 /* Parse MultiPathRecord Attribute
 * IN:   parentTree - The tree to add the dissection to
@@ -5878,6 +5878,10 @@ void proto_register_infiniband(void)
         },
 
         /* RMPP ABORT/STOP */
+        { &hf_infiniband_reserved32, {
+                "Reserved (32 bits)", "infiniband.rmpp.reserved32",
+                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
         { &hf_infiniband_optional_extended_error_data, {
                 "Optional Extended Error Data", "infiniband.rmpp.extendederrordata",
                 FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
@@ -6888,6 +6892,44 @@ void proto_register_infiniband(void)
         { &hf_infiniband_MCMemberRecord_ProxyJoin, {
                 "ProxyJoin", "infiniband.mcmemberrecord.proxyjoin",
                 FT_UINT8, BASE_HEX, NULL, 0x80, NULL, HFILL}
+        },
+
+        /* TraceRecord */
+        { &hf_infiniband_TraceRecord_GIDPrefix, {
+                "GidPrefix", "infiniband.tracerecord.gidprefix",
+                FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_infiniband_TraceRecord_IDGeneration, {
+                "IDGeneration", "infiniband.tracerecord.idgeneration",
+                FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_infiniband_TraceRecord_NodeType, {
+                "NodeType", "infiniband.tracerecord.nodetype",
+                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_infiniband_TraceRecord_NodeID, {
+                "NodeID", "infiniband.tracerecord.nodeid",
+                FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_infiniband_TraceRecord_ChassisID, {
+                "ChassisID", "infiniband.tracerecord.chassisid",
+                FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_infiniband_TraceRecord_EntryPortID, {
+                "EntryPortID", "infiniband.tracerecord.entryportid",
+                FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_infiniband_TraceRecord_ExitPortID, {
+                "ExitPortID", "infiniband.tracerecord.exitportid",
+                FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_infiniband_TraceRecord_EntryPort, {
+                "EntryPort", "infiniband.tracerecord.entryport",
+                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_infiniband_TraceRecord_ExitPort, {
+                "ExitPort", "infiniband.tracerecord.exitport",
+                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
 
         /* MultiPathRecord */
