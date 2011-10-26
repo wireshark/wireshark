@@ -5384,7 +5384,7 @@ dissect_amqp_0_10_struct32(tvbuff_t *tvb,
 {
     guint8 class_code;
     guint8 struct_code;
-    guint8 flag1/*, flag2*/;
+    guint8 flag1;
     guint16 size;
     guint16 value;
     guint32 array_length;
@@ -5425,7 +5425,6 @@ dissect_amqp_0_10_struct32(tvbuff_t *tvb,
             AMQP_INCREMENT(consumed, 2, struct_length);  /* Class/type codes */
             offset += 2;
             flag1 = tvb_get_guint8(tvb, offset);
-            /*flag2 = tvb_get_guint8(tvb, offset+1);*/
             proto_tree_add_item(result, hf_amqp_0_10_argument_packing_flags,
                                 tvb, offset, 2, ENC_BIG_ENDIAN);
             AMQP_INCREMENT(consumed, 2, struct_length);
@@ -5446,7 +5445,6 @@ dissect_amqp_0_10_struct32(tvbuff_t *tvb,
             AMQP_INCREMENT(consumed, 2, struct_length);  /* Class/type codes */
             offset += 2;
             flag1 = tvb_get_guint8(tvb, offset);
-            /*flag2 = tvb_get_guint8(tvb, offset+1);*/
             proto_tree_add_item(result, hf_amqp_0_10_argument_packing_flags,
                                 tvb, offset, 2, ENC_BIG_ENDIAN);
             AMQP_INCREMENT(consumed, 2, struct_length);
@@ -5466,13 +5464,12 @@ dissect_amqp_0_10_struct32(tvbuff_t *tvb,
         case AMQP_0_10_STRUCT_DTX_XA_RESULT:
             AMQP_INCREMENT(consumed, 2, struct_length);  /* Class/type codes */
             offset += 2;
-            flag1 = tvb_get_guint8(tvb, offset);
-            /*flag2 = tvb_get_guint8(tvb, offset+1);*/
+            /*flag1 = tvb_get_guint8(tvb, offset);*/
             AMQP_INCREMENT(consumed, 2, struct_length);  /* Packing bytes */
             offset += 2;
             value = tvb_get_ntohs(tvb, offset);
             AMQP_INCREMENT(consumed, 2, struct_length);  /* xa status value */
-            offset += 2;
+            /*offset += 2;*/
             proto_item_set_text(tree, "dtx.xa-status: %s",
                                 val_to_str(value,
                                            amqp_0_10_xa_status,
@@ -5483,8 +5480,7 @@ dissect_amqp_0_10_struct32(tvbuff_t *tvb,
             proto_item_set_text(tree, "dtx.recover-result");
             AMQP_INCREMENT(consumed, 2, struct_length);  /* Class/type codes */
             offset += 2;
-            flag1 = tvb_get_guint8(tvb, offset);
-            /*flag2 = tvb_get_guint8(tvb, offset+1);*/
+            /*flag1 = tvb_get_guint8(tvb, offset);*/
             AMQP_INCREMENT(consumed, 2, struct_length);  /* Packing bytes */
             offset += 2;
             array_length = tvb_get_ntohl(tvb, offset);
@@ -5734,7 +5730,6 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8 proto_major;
     guint8 proto_minor;
     guint length;
-    int offset;
     emem_strbuf_t *strbuf;
     guint8 frame_type;
     guint16 class_id, method_id;
@@ -5795,47 +5790,47 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 col_set_fence(pinfo->cinfo, COL_INFO);
                 switch (method_id) {
                 case AMQP_0_9_METHOD_CONNECTION_START:
-                    offset = dissect_amqp_0_9_method_connection_start(tvb,
+                    dissect_amqp_0_9_method_connection_start(tvb,
                         pinfo, 11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_CONNECTION_START_OK:
-                    offset = dissect_amqp_0_9_method_connection_start_ok(tvb,
+                    dissect_amqp_0_9_method_connection_start_ok(tvb,
                         pinfo, 11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_CONNECTION_SECURE:
-                    offset = dissect_amqp_0_9_method_connection_secure(tvb,
+                    dissect_amqp_0_9_method_connection_secure(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_CONNECTION_SECURE_OK:
-                    offset = dissect_amqp_0_9_method_connection_secure_ok(tvb,
+                    dissect_amqp_0_9_method_connection_secure_ok(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_CONNECTION_TUNE:
-                    offset = dissect_amqp_0_9_method_connection_tune(tvb,
+                    dissect_amqp_0_9_method_connection_tune(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_CONNECTION_TUNE_OK:
-                    offset = dissect_amqp_0_9_method_connection_tune_ok(tvb,
+                    dissect_amqp_0_9_method_connection_tune_ok(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_CONNECTION_OPEN:
-                    offset = dissect_amqp_0_9_method_connection_open(tvb,
+                    dissect_amqp_0_9_method_connection_open(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_CONNECTION_OPEN_OK:
-                    offset = dissect_amqp_0_9_method_connection_open_ok(tvb,
+                    dissect_amqp_0_9_method_connection_open_ok(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_CONNECTION_REDIRECT:
-                    offset = dissect_amqp_0_9_method_connection_redirect(tvb,
+                    dissect_amqp_0_9_method_connection_redirect(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_CONNECTION_CLOSE:
-                    offset = dissect_amqp_0_9_method_connection_close(tvb,
+                    dissect_amqp_0_9_method_connection_close(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_CONNECTION_CLOSE_OK:
-                    offset = dissect_amqp_0_9_method_connection_close_ok(tvb,
+                    dissect_amqp_0_9_method_connection_close_ok(tvb,
                         11, args_tree);
                     break;
                 default:
@@ -5859,43 +5854,43 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 				switch (method_id) {
                 case AMQP_0_9_METHOD_CHANNEL_OPEN:
-                    offset = dissect_amqp_0_9_method_channel_open(tvb,
+                    dissect_amqp_0_9_method_channel_open(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_CHANNEL_OPEN_OK:
-                    offset = dissect_amqp_0_9_method_channel_open_ok(tvb,
+                    dissect_amqp_0_9_method_channel_open_ok(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_CHANNEL_FLOW:
-                    offset = dissect_amqp_0_9_method_channel_flow(tvb,
+                    dissect_amqp_0_9_method_channel_flow(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_CHANNEL_FLOW_OK:
-                    offset = dissect_amqp_0_9_method_channel_flow_ok(tvb,
+                    dissect_amqp_0_9_method_channel_flow_ok(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_CHANNEL_CLOSE:
-                    offset = dissect_amqp_0_9_method_channel_close(tvb,
+                    dissect_amqp_0_9_method_channel_close(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_CHANNEL_CLOSE_OK:
-                    offset = dissect_amqp_0_9_method_channel_close_ok(tvb,
+                    dissect_amqp_0_9_method_channel_close_ok(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_CHANNEL_RESUME:
-                    offset = dissect_amqp_0_9_method_channel_resume(tvb,
+                    dissect_amqp_0_9_method_channel_resume(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_CHANNEL_PING:
-                    offset = dissect_amqp_0_9_method_channel_ping(tvb,
+                    dissect_amqp_0_9_method_channel_ping(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_CHANNEL_PONG:
-                    offset = dissect_amqp_0_9_method_channel_pong(tvb,
+                    dissect_amqp_0_9_method_channel_pong(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_CHANNEL_OK:
-                    offset = dissect_amqp_0_9_method_channel_ok(tvb,
+                    dissect_amqp_0_9_method_channel_ok(tvb,
                         11, args_tree);
                     break;
                 default:
@@ -5914,14 +5909,14 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 args_tree = proto_item_add_subtree(ti, ett_args);
                 switch (method_id) {
                 case AMQP_0_9_METHOD_ACCESS_REQUEST:
-                    offset = dissect_amqp_0_9_method_access_request(tvb,
+                    dissect_amqp_0_9_method_access_request(tvb,
                         11, args_tree);
                     col_append_str(pinfo->cinfo, COL_INFO,
                         "Access.Request ");
                     col_set_fence(pinfo->cinfo, COL_INFO);
                     break;
                 case AMQP_0_9_METHOD_ACCESS_REQUEST_OK:
-                    offset = dissect_amqp_0_9_method_access_request_ok(tvb,
+                    dissect_amqp_0_9_method_access_request_ok(tvb,
                         11, args_tree);
                     col_append_str(pinfo->cinfo, COL_INFO,
                         "Access.Request-Ok ");
@@ -5946,27 +5941,27 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 col_set_fence(pinfo->cinfo, COL_INFO);
                 switch (method_id) {
                 case AMQP_0_9_METHOD_EXCHANGE_DECLARE:
-                    offset = dissect_amqp_0_9_method_exchange_declare(tvb,
+                    dissect_amqp_0_9_method_exchange_declare(tvb,
                         pinfo, 11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_EXCHANGE_DECLARE_OK:
-                    offset = dissect_amqp_0_9_method_exchange_declare_ok(tvb,
+                    dissect_amqp_0_9_method_exchange_declare_ok(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_EXCHANGE_BIND:
-                    offset = dissect_amqp_0_9_method_exchange_bind(tvb,
+                    dissect_amqp_0_9_method_exchange_bind(tvb,
                         pinfo, 11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_EXCHANGE_BIND_OK:
-                    offset = dissect_amqp_0_9_method_exchange_bind_ok(tvb,
+                    dissect_amqp_0_9_method_exchange_bind_ok(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_EXCHANGE_DELETE:
-                    offset = dissect_amqp_0_9_method_exchange_delete(tvb,
+                    dissect_amqp_0_9_method_exchange_delete(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_EXCHANGE_DELETE_OK:
-                    offset = dissect_amqp_0_9_method_exchange_delete_ok(tvb,
+                    dissect_amqp_0_9_method_exchange_delete_ok(tvb,
                         11, args_tree);
                     break;
                 default:
@@ -5989,43 +5984,43 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 switch (method_id) {
                 case AMQP_0_9_METHOD_QUEUE_DECLARE:
-                    offset = dissect_amqp_0_9_method_queue_declare(tvb,
+                    dissect_amqp_0_9_method_queue_declare(tvb,
                         pinfo, 11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_QUEUE_DECLARE_OK:
-                    offset = dissect_amqp_0_9_method_queue_declare_ok(tvb,
+                    dissect_amqp_0_9_method_queue_declare_ok(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_QUEUE_BIND:
-                    offset = dissect_amqp_0_9_method_queue_bind(tvb,
+                    dissect_amqp_0_9_method_queue_bind(tvb,
                         pinfo, 11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_QUEUE_BIND_OK:
-                    offset = dissect_amqp_0_9_method_queue_bind_ok(tvb,
+                    dissect_amqp_0_9_method_queue_bind_ok(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_QUEUE_UNBIND:
-                    offset = dissect_amqp_0_9_method_queue_unbind(tvb,
+                    dissect_amqp_0_9_method_queue_unbind(tvb,
                         pinfo, 11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_QUEUE_UNBIND_OK:
-                    offset = dissect_amqp_0_9_method_queue_unbind_ok(tvb,
+                    dissect_amqp_0_9_method_queue_unbind_ok(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_QUEUE_PURGE:
-                    offset = dissect_amqp_0_9_method_queue_purge(tvb,
+                    dissect_amqp_0_9_method_queue_purge(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_QUEUE_PURGE_OK:
-                    offset = dissect_amqp_0_9_method_queue_purge_ok(tvb,
+                    dissect_amqp_0_9_method_queue_purge_ok(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_QUEUE_DELETE:
-                    offset = dissect_amqp_0_9_method_queue_delete(tvb,
+                    dissect_amqp_0_9_method_queue_delete(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_QUEUE_DELETE_OK:
-                    offset = dissect_amqp_0_9_method_queue_delete_ok(tvb,
+                    dissect_amqp_0_9_method_queue_delete_ok(tvb,
                         11, args_tree);
                     break;
                 default:
@@ -6049,63 +6044,63 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 				switch (method_id) {
                 case AMQP_0_9_METHOD_BASIC_QOS:
-                    offset = dissect_amqp_0_9_method_basic_qos(tvb,
+                    dissect_amqp_0_9_method_basic_qos(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_BASIC_QOS_OK:
-                    offset = dissect_amqp_0_9_method_basic_qos_ok(tvb,
+                    dissect_amqp_0_9_method_basic_qos_ok(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_BASIC_CONSUME:
-                    offset = dissect_amqp_0_9_method_basic_consume(tvb,
+                    dissect_amqp_0_9_method_basic_consume(tvb,
                         pinfo, 11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_BASIC_CONSUME_OK:
-                    offset = dissect_amqp_0_9_method_basic_consume_ok(tvb,
+                    dissect_amqp_0_9_method_basic_consume_ok(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_BASIC_CANCEL:
-                    offset = dissect_amqp_0_9_method_basic_cancel(tvb,
+                    dissect_amqp_0_9_method_basic_cancel(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_BASIC_CANCEL_OK:
-                    offset = dissect_amqp_0_9_method_basic_cancel_ok(tvb,
+                    dissect_amqp_0_9_method_basic_cancel_ok(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_BASIC_PUBLISH:
-                    offset = dissect_amqp_0_9_method_basic_publish(tvb,
+                    dissect_amqp_0_9_method_basic_publish(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_BASIC_RETURN:
-                    offset = dissect_amqp_0_9_method_basic_return(tvb,
+                    dissect_amqp_0_9_method_basic_return(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_BASIC_DELIVER:
-                    offset = dissect_amqp_0_9_method_basic_deliver(tvb,
+                    dissect_amqp_0_9_method_basic_deliver(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_BASIC_GET:
-                    offset = dissect_amqp_0_9_method_basic_get(tvb,
+                    dissect_amqp_0_9_method_basic_get(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_BASIC_GET_OK:
-                    offset = dissect_amqp_0_9_method_basic_get_ok(tvb,
+                    dissect_amqp_0_9_method_basic_get_ok(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_BASIC_GET_EMPTY:
-                    offset = dissect_amqp_0_9_method_basic_get_empty(tvb,
+                    dissect_amqp_0_9_method_basic_get_empty(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_BASIC_ACK:
-                    offset = dissect_amqp_0_9_method_basic_ack(tvb,
+                    dissect_amqp_0_9_method_basic_ack(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_BASIC_REJECT:
-                    offset = dissect_amqp_0_9_method_basic_reject(tvb,
+                    dissect_amqp_0_9_method_basic_reject(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_BASIC_RECOVER:
-                    offset = dissect_amqp_0_9_method_basic_recover(tvb,
+                    dissect_amqp_0_9_method_basic_recover(tvb,
                         11, args_tree);
                     break;
                 default:
@@ -6129,59 +6124,59 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 switch (method_id) {
                 case AMQP_0_9_METHOD_FILE_QOS:
-                    offset = dissect_amqp_0_9_method_file_qos(tvb,
+                    dissect_amqp_0_9_method_file_qos(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_FILE_QOS_OK:
-                    offset = dissect_amqp_0_9_method_file_qos_ok(tvb,
+                    dissect_amqp_0_9_method_file_qos_ok(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_FILE_CONSUME:
-                    offset = dissect_amqp_0_9_method_file_consume(tvb,
+                    dissect_amqp_0_9_method_file_consume(tvb,
                         pinfo, 11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_FILE_CONSUME_OK:
-                    offset = dissect_amqp_0_9_method_file_consume_ok(tvb,
+                    dissect_amqp_0_9_method_file_consume_ok(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_FILE_CANCEL:
-                    offset = dissect_amqp_0_9_method_file_cancel(tvb,
+                    dissect_amqp_0_9_method_file_cancel(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_FILE_CANCEL_OK:
-                    offset = dissect_amqp_0_9_method_file_cancel_ok(tvb,
+                    dissect_amqp_0_9_method_file_cancel_ok(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_FILE_OPEN:
-                    offset = dissect_amqp_0_9_method_file_open(tvb,
+                    dissect_amqp_0_9_method_file_open(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_FILE_OPEN_OK:
-                    offset = dissect_amqp_0_9_method_file_open_ok(tvb,
+                    dissect_amqp_0_9_method_file_open_ok(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_FILE_STAGE:
-                    offset = dissect_amqp_0_9_method_file_stage(tvb,
+                    dissect_amqp_0_9_method_file_stage(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_FILE_PUBLISH:
-                    offset = dissect_amqp_0_9_method_file_publish(tvb,
+                    dissect_amqp_0_9_method_file_publish(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_FILE_RETURN:
-                    offset = dissect_amqp_0_9_method_file_return(tvb,
+                    dissect_amqp_0_9_method_file_return(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_FILE_DELIVER:
-                    offset = dissect_amqp_0_9_method_file_deliver(tvb,
+                    dissect_amqp_0_9_method_file_deliver(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_FILE_ACK:
-                    offset = dissect_amqp_0_9_method_file_ack(tvb,
+                    dissect_amqp_0_9_method_file_ack(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_FILE_REJECT:
-                    offset = dissect_amqp_0_9_method_file_reject(tvb,
+                    dissect_amqp_0_9_method_file_reject(tvb,
                         11, args_tree);
                     break;
                 default:
@@ -6205,39 +6200,39 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 switch (method_id) {
                 case AMQP_0_9_METHOD_STREAM_QOS:
-                    offset = dissect_amqp_0_9_method_stream_qos(tvb,
+                    dissect_amqp_0_9_method_stream_qos(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_STREAM_QOS_OK:
-                    offset = dissect_amqp_0_9_method_stream_qos_ok(tvb,
+                    dissect_amqp_0_9_method_stream_qos_ok(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_STREAM_CONSUME:
-                    offset = dissect_amqp_0_9_method_stream_consume(tvb,
+                    dissect_amqp_0_9_method_stream_consume(tvb,
                         pinfo, 11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_STREAM_CONSUME_OK:
-                    offset = dissect_amqp_0_9_method_stream_consume_ok(tvb,
+                    dissect_amqp_0_9_method_stream_consume_ok(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_STREAM_CANCEL:
-                    offset = dissect_amqp_0_9_method_stream_cancel(tvb,
+                    dissect_amqp_0_9_method_stream_cancel(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_STREAM_CANCEL_OK:
-                    offset = dissect_amqp_0_9_method_stream_cancel_ok(tvb,
+                    dissect_amqp_0_9_method_stream_cancel_ok(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_STREAM_PUBLISH:
-                    offset = dissect_amqp_0_9_method_stream_publish(tvb,
+                    dissect_amqp_0_9_method_stream_publish(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_STREAM_RETURN:
-                    offset = dissect_amqp_0_9_method_stream_return(tvb,
+                    dissect_amqp_0_9_method_stream_return(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_STREAM_DELIVER:
-                    offset = dissect_amqp_0_9_method_stream_deliver(tvb,
+                    dissect_amqp_0_9_method_stream_deliver(tvb,
                         11, args_tree);
                     break;
                 default:
@@ -6261,27 +6256,27 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 switch (method_id) {
                 case AMQP_0_9_METHOD_TX_SELECT:
-                    offset = dissect_amqp_0_9_method_tx_select(tvb,
+                    dissect_amqp_0_9_method_tx_select(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_TX_SELECT_OK:
-                    offset = dissect_amqp_0_9_method_tx_select_ok(tvb,
+                    dissect_amqp_0_9_method_tx_select_ok(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_TX_COMMIT:
-                    offset = dissect_amqp_0_9_method_tx_commit(tvb,
+                    dissect_amqp_0_9_method_tx_commit(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_TX_COMMIT_OK:
-                    offset = dissect_amqp_0_9_method_tx_commit_ok(tvb,
+                    dissect_amqp_0_9_method_tx_commit_ok(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_TX_ROLLBACK:
-                    offset = dissect_amqp_0_9_method_tx_rollback(tvb,
+                    dissect_amqp_0_9_method_tx_rollback(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_TX_ROLLBACK_OK:
-                    offset = dissect_amqp_0_9_method_tx_rollback_ok(tvb,
+                    dissect_amqp_0_9_method_tx_rollback_ok(tvb,
                         11, args_tree);
                     break;
                 default:
@@ -6305,19 +6300,19 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 switch (method_id) {
                 case AMQP_0_9_METHOD_DTX_SELECT:
-                    offset = dissect_amqp_0_9_method_dtx_select(tvb,
+                    dissect_amqp_0_9_method_dtx_select(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_DTX_SELECT_OK:
-                    offset = dissect_amqp_0_9_method_dtx_select_ok(tvb,
+                    dissect_amqp_0_9_method_dtx_select_ok(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_DTX_START:
-                    offset = dissect_amqp_0_9_method_dtx_start(tvb,
+                    dissect_amqp_0_9_method_dtx_start(tvb,
                         11, args_tree);
                     break;
                 case AMQP_0_9_METHOD_DTX_START_OK:
-                    offset = dissect_amqp_0_9_method_dtx_start_ok(tvb,
+                    dissect_amqp_0_9_method_dtx_start_ok(tvb,
                         11, args_tree);
                     break;
                 default:
@@ -6336,7 +6331,7 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 args_tree = proto_item_add_subtree(ti, ett_args);
                 switch (method_id) {
                 case AMQP_0_9_METHOD_TUNNEL_REQUEST:
-                    offset = dissect_amqp_0_9_method_tunnel_request(tvb,
+                    dissect_amqp_0_9_method_tunnel_request(tvb,
                         pinfo, 11, args_tree);
                     col_append_str(pinfo->cinfo, COL_INFO,
                         "Tunnel.Request ");
@@ -6369,23 +6364,22 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             ti = proto_tree_add_item(amqp_tree, hf_amqp_header_properties,
                 tvb, 21, length - 14, ENC_NA);
             prop_tree = proto_item_add_subtree(ti, ett_props);
-            offset = 21;
             switch (class_id) {
             case AMQP_0_9_CLASS_BASIC:
-                offset = dissect_amqp_0_9_content_header_basic(tvb,
-                    pinfo, offset, prop_tree);
+                dissect_amqp_0_9_content_header_basic(tvb,
+                    pinfo, 21, prop_tree);
                 break;
             case AMQP_0_9_CLASS_FILE:
-                offset = dissect_amqp_0_9_content_header_file(tvb,
-                    pinfo, offset, prop_tree);
+                dissect_amqp_0_9_content_header_file(tvb,
+                    pinfo, 21, prop_tree);
                 break;
             case AMQP_0_9_CLASS_STREAM:
-                offset = dissect_amqp_0_9_content_header_stream(tvb,
-                    pinfo, offset, prop_tree);
+                dissect_amqp_0_9_content_header_stream(tvb,
+                    pinfo, 21, prop_tree);
                 break;
             case AMQP_0_9_CLASS_TUNNEL:
-                offset = dissect_amqp_0_9_content_header_tunnel(tvb,
-                    pinfo, offset, prop_tree);
+                dissect_amqp_0_9_content_header_tunnel(tvb,
+                    pinfo, 21, prop_tree);
                 break;
             default:
                 expert_add_info_format(pinfo, amqp_tree,
@@ -8339,7 +8333,7 @@ dissect_amqp_0_9_content_header_basic(tvbuff_t *tvb, packet_info *pinfo,
             tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
         offset += 1 + tvb_get_guint8(tvb, offset);
     }
-    prop_flags <<= 1;
+    /*prop_flags <<= 1;*/
 
     return offset;
 }
@@ -8425,7 +8419,7 @@ dissect_amqp_0_9_content_header_file(tvbuff_t *tvb, packet_info *pinfo,
             tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
         offset += 1 + tvb_get_guint8(tvb, offset);
     }
-    prop_flags <<= 1;
+    /*prop_flags <<= 1;*/
 
     return offset;
 }
@@ -8479,7 +8473,7 @@ dissect_amqp_0_9_content_header_stream(tvbuff_t *tvb, packet_info *pinfo,
             tvb, offset, 8, ENC_BIG_ENDIAN);
         offset += 8;
     }
-    prop_flags <<= 1;
+    /*prop_flags <<= 1;*/
 
     return offset;
 }
@@ -8533,7 +8527,7 @@ dissect_amqp_0_9_content_header_tunnel(tvbuff_t *tvb, packet_info *pinfo,
             tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
     }
-    prop_flags <<= 1;
+    /*prop_flags <<= 1;*/
 
     return offset;
 }
