@@ -76,6 +76,7 @@
 #include "netscreen.h"
 #include "commview.h"
 #include "pcapng.h"
+#include "aethra.h"
 #include "btsnoop.h"
 #include "tnef.h"
 #include "dct3trace.h"
@@ -126,6 +127,7 @@ static wtap_open_routine_t open_routines_base[] = {
 	catapult_dct2000_open,
 	ber_open,
 	pcapng_open,
+	aethra_open,
 	btsnoop_open,
 	packetlogger_open, /* This type does not have a magic number, but its
 			    * files are sometimes grabbed by mpeg_open. */
@@ -650,7 +652,11 @@ static const struct file_type_info dump_open_table_base[] = {
 
 	/* WTAP_ENCAP_MIME */
 	{ "MIME File Format", "mime", NULL, NULL, FALSE, FALSE,
-	   NULL, NULL }
+	   NULL, NULL },
+
+	/* WTAP_FILE_AETHRA */
+	{ "Aethra .aps file", "aethra", "*.aps", NULL, FALSE, FALSE,
+	  NULL, NULL },
 };
 
 gint wtap_num_file_types = sizeof(dump_open_table_base) / sizeof(struct file_type_info);

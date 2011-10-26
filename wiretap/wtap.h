@@ -292,6 +292,7 @@ extern "C" {
 #define WTAP_FILE_JPEG_JFIF                     59 /* obsoleted by WTAP_FILE_MIME */
 #define WTAP_FILE_IPFIX                         60
 #define WTAP_FILE_MIME                          61
+#define WTAP_FILE_AETHRA			62
 
 #define WTAP_NUM_FILE_TYPES                     wtap_get_num_file_types()
 

@@ -30,6 +30,7 @@
 # _SOURCES variables).
 NONGENERATED_C_FILES = \
 	5views.c		\
+	aethra.c		\
 	airopeek9.c		\
 	ascendtext.c		\
 	atm.c			\
@@ -80,6 +81,7 @@ NONGENERATED_C_FILES = \
 # Header files that are not generated from other files
 NONGENERATED_HEADER_FILES = \
 	5views.h		\
+	aethra.h		\
 	airopeek9.h		\
 	ascendtext.h		\
 	ascend-int.h		\
