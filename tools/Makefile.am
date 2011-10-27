@@ -89,24 +89,24 @@ EXTRA_DIST = \
 	$(PIDL_FILES)					\
 	asn2wrs.py					\
 	checkhf.pl					\
-	colorfilters2js.pl			\
-	compare-abis.sh				\
+	colorfilters2js.pl				\
+	compare-abis.sh					\
 	checkAPIs.pl					\
 	dfilter-test.py 				\
-	extract_asn1_from_spec.pl		\
-	fixhf.pl						\
-	ftsanity.py						\
+	extract_asn1_from_spec.pl			\
+	fixhf.pl					\
+	ftsanity.py					\
 	fuzz-test.sh					\
 	html2text.py					\
-	idl2wrs.sh						\
+	idl2wrs.sh					\
 	idl2wrs.sh.in					\
-	indexcap.py						\
-	lex.py							\
-	list_protos_in_cap.sh			\
+	indexcap.py					\
+	lex.py						\
+	list_protos_in_cap.sh				\
 	Makefile.nmake					\
 	make-dissector-reg				\
-	make-dissector-reg.py			\
-	make-manuf						\
+	make-dissector-reg.py				\
+	make-manuf					\
 	make-sminmpec.pl 				\
 	make-services.pl 				\
 	make-tapreg-dotc				\
@@ -124,6 +124,7 @@ EXTRA_DIST = \
 	setuid-root.pl.in				\
 	test-fuzzed-cap.sh				\
 	textify.sh 					\
+	valgrind-wireshark.sh				\
 	win32-setup.sh					\
 	win64-setup.sh					\
 	win-setup.sh					\
