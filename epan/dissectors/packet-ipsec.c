@@ -205,9 +205,7 @@ struct ipcomp {
 typedef struct {
    guint8 protocol;
    gchar *srcIP;
-   gchar *srcFilter;
    gchar *dstIP;
-   gchar *dstFilter;
    gchar *spi;
    guint8 encryption_algo;
    gchar *encryption_key;
@@ -225,9 +223,7 @@ static void* uat_esp_sa_record_copy_cb(void* n, const void* o, size_t siz _U_) {
     const uat_esp_sa_record_t* old_rec = (uat_esp_sa_record_t *)o;
 
     new_rec->srcIP = (old_rec->srcIP) ? g_strdup(old_rec->srcIP) : NULL;
-    new_rec->srcFilter = (old_rec->srcFilter) ? g_strdup(old_rec->srcFilter) : NULL;
     new_rec->dstIP = (old_rec->dstIP) ? g_strdup(old_rec->dstIP) : NULL;
-    new_rec->dstFilter = (old_rec->dstFilter) ? g_strdup(old_rec->dstFilter) : NULL;
     new_rec->spi = (old_rec->spi) ? g_strdup(old_rec->spi) : NULL;
     new_rec->encryption_key = (old_rec->encryption_key) ? g_strdup(old_rec->encryption_key) : NULL;
     new_rec->authentication_key = (old_rec->authentication_key) ? g_strdup(old_rec->authentication_key) : NULL;
@@ -238,7 +234,7 @@ static void* uat_esp_sa_record_copy_cb(void* n, const void* o, size_t siz _U_) {
 #if 0
 static int get_full_ipv6_addr(char* ipv6_addr_expanded, char *ipv6_addr);
 static int get_full_ipv4_addr(char* ipv4_addr_expanded, char *ipv4_addr);
-#endif
+
 
 static void uat_esp_sa_record_update_cb(void* r, const char** err _U_) {
     uat_esp_sa_record_t* rec = (uat_esp_sa_record_t *)r;
@@ -259,14 +255,12 @@ static void uat_esp_sa_record_update_cb(void* r, const char** err _U_) {
       break;
     }
 }
-
+#endif
 static void uat_esp_sa_record_free_cb(void*r) {
     uat_esp_sa_record_t* rec = (uat_esp_sa_record_t*)r;
 
     g_free(rec->srcIP);
-    g_free(rec->srcFilter);
     g_free(rec->dstIP);
-    g_free(rec->dstFilter);
     g_free(rec->spi);
     g_free(rec->encryption_key);
     g_free(rec->authentication_key);
@@ -2121,18 +2115,18 @@ proto_register_ipsec(void)
 				 &g_esp_enable_authentication_check);
 
     esp_uat = uat_new("ESP SAs",
-            sizeof(uat_esp_sa_record_t),  /* record size */
-            "esp_sa",               /* filename */
-            TRUE,                       /* from_profile */
-            (void*) &uat_esp_sa_records,  /* data_ptr */
-            &num_sa_uat,           /* numitems_ptr */
-            UAT_CAT_CRYPTO,             /* category */
-            NULL,                       /* help */
-            uat_esp_sa_record_copy_cb,        /* copy callback */
-            uat_esp_sa_record_update_cb,      /* update callback */
-            uat_esp_sa_record_free_cb,        /* free callback */
-            NULL,                       /* post update callback */
-            esp_uat_flds);             /* UAT field definitions */
+            sizeof(uat_esp_sa_record_t),	/* record size */
+            "esp_sa",						/* filename */
+            TRUE,							/* from_profile */
+            (void*) &uat_esp_sa_records,	/* data_ptr */
+            &num_sa_uat,					/* numitems_ptr */
+            UAT_CAT_CRYPTO,					/* category */
+            NULL,							/* help */
+            uat_esp_sa_record_copy_cb,      /* copy callback */
+            NULL,							/* update callback */
+            uat_esp_sa_record_free_cb,      /* free callback */
+            NULL,							/* post update callback */
+            esp_uat_flds);					/* UAT field definitions */
 
     prefs_register_uat_preference(esp_module,
                                    "sa_table",
