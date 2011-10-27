@@ -3192,6 +3192,7 @@ dissect_cip_multiple_service_packet_req(tvbuff_t *tvb, packet_info *pinfo, proto
       {
          mr_mult_req_info = se_alloc(sizeof(mr_mult_req_info_t));
          mr_mult_req_info->service = SC_MULT_SERV_PACK;
+         mr_mult_req_info->num_services = 0;
          mr_mult_req_info->requests = se_alloc(sizeof(cip_req_info_t)*num_services);
          cip_req_info->pData = mr_mult_req_info;
       }
