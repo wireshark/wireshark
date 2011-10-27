@@ -876,11 +876,11 @@ dissect_sflow_245_address_type(tvbuff_t *tvb, proto_tree *tree, gint offset,
     switch (addr_type) {
     case ADDR_TYPE_IPV4:
         len = 4;
-        proto_tree_add_item(tree, hf_type->hf_addr_v4, tvb, offset, 4, FALSE);
+        proto_tree_add_item(tree, hf_type->hf_addr_v4, tvb, offset, 4, ENC_BIG_ENDIAN);
         break;
     case ADDR_TYPE_IPV6:
         len = 16;
-        proto_tree_add_item(tree, hf_type->hf_addr_v6, tvb, offset, 16, FALSE);
+        proto_tree_add_item(tree, hf_type->hf_addr_v6, tvb, offset, 16, ENC_NA);
         break;
     default:
         /* acferen:  November 10, 2010

@@ -275,7 +275,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         (is_request) ?
                             hf_pop_request_command :
                             hf_pop_response_indicator,
-                        tvb, offset, tokenlen, FALSE);
+                        tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
 
     if (data_val) {
       if (is_request) {
@@ -313,7 +313,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                           (is_request) ?
                               hf_pop_request_parameter :
                               hf_pop_response_description,
-                          tvb, offset, linelen, FALSE);
+                          tvb, offset, linelen, ENC_ASCII|ENC_NA);
     }
     offset = next_offset;
 

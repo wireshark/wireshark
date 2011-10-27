@@ -343,7 +343,7 @@ isis_dissect_ip_int_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 		}
 
 		if ( tree ) {
-			proto_tree_add_item(tree, tree_id, tvb, offset, 4, FALSE);
+			proto_tree_add_item(tree, tree_id, tvb, offset, 4, ENC_BIG_ENDIAN);
 		}
 		offset += 4;
 		length -= 4;
@@ -427,7 +427,7 @@ isis_dissect_te_router_id_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
                 return;
         }
         if ( tree ) {
-                proto_tree_add_item(tree, tree_id, tvb, offset, 4, FALSE);
+                proto_tree_add_item(tree, tree_id, tvb, offset, 4, ENC_BIG_ENDIAN);
         }
 }
 

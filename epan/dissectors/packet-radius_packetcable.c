@@ -329,7 +329,7 @@ static const gchar* dissect_packetcable_qos_descriptor(proto_tree* tree, tvbuff_
 	proto_tree_add_item(obj_tree, hf_packetcable_qos_status_indication, tvb, 0, 4, ENC_BIG_ENDIAN);
 
 	for (intval = 0; intval < PACKETCABLE_QOS_DESC_BITFIELDS; intval++) {
-		proto_tree_add_item(obj_tree, hf_packetcable_qos_desc_flags[intval], tvb, 0, 4, FALSE);
+		proto_tree_add_item(obj_tree, hf_packetcable_qos_desc_flags[intval], tvb, 0, 4, ENC_BIG_ENDIAN);
 	}
 
 	tvb_memcpy(tvb, packetcable_buf, 4, 16);
@@ -340,7 +340,7 @@ static const gchar* dissect_packetcable_qos_descriptor(proto_tree* tree, tvbuff_
 	for (intval = 0; intval < PACKETCABLE_QOS_DESC_BITFIELDS; intval++) {
 		if (packetcable_qos_flags & packetcable_qos_desc_mask[intval]) {
 			proto_tree_add_item(tree, hf_packetcable_qos_desc_fields[intval],
-								tvb, packetcable_qos_off, 4, FALSE);
+								tvb, packetcable_qos_off, 4, ENC_BIG_ENDIAN);
 			packetcable_qos_off += 4;
 		}
 	}

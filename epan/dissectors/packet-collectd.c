@@ -307,7 +307,7 @@ dissect_collectd_string (tvbuff_t *tvb, packet_info *pinfo, gint type_hf,
 	pt = proto_item_add_subtree (pi, ett_collectd_string);
 	proto_tree_add_uint (pt, hf_collectd_type, tvb, offset, 2, type);
 	proto_tree_add_uint (pt, hf_collectd_length, tvb, offset + 2, 2, length);
-	proto_tree_add_item (pt, type_hf, tvb, *ret_offset, *ret_length, FALSE);
+	proto_tree_add_item (pt, type_hf, tvb, *ret_offset, *ret_length, ENC_ASCII|ENC_NA);
 
 	return (0);
 } /* int dissect_collectd_string */
@@ -385,7 +385,7 @@ dissect_collectd_integer (tvbuff_t *tvb, packet_info *pinfo, gint type_hf,
 	proto_tree_add_uint (pt, hf_collectd_type, tvb, offset, 2, type);
 	proto_tree_add_uint (pt, hf_collectd_length, tvb, offset + 2, 2,
 			     length);
-	proto_tree_add_item (pt, type_hf, tvb, offset + 4, 8, FALSE);
+	proto_tree_add_item (pt, type_hf, tvb, offset + 4, 8, ENC_BIG_ENDIAN);
 
 	return (0);
 } /* int dissect_collectd_integer */

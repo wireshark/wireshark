@@ -221,7 +221,7 @@ dissect_aarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     if (ar_hln != 0) {
       proto_tree_add_item(aarp_tree,
 	AARP_HW_IS_ETHER(ar_hrd, ar_hln) ? hf_aarp_src_hw_mac : hf_aarp_src_hw,
-	tvb, sha_offset, ar_hln, FALSE);
+	tvb, sha_offset, ar_hln, ENC_NA);
     }
 
     if (ar_pln != 0) {
@@ -239,7 +239,7 @@ dissect_aarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     if (ar_hln != 0) {
       proto_tree_add_item(aarp_tree,
 	AARP_HW_IS_ETHER(ar_hrd, ar_hln) ? hf_aarp_dst_hw_mac : hf_aarp_dst_hw,
-	tvb, tha_offset, ar_hln, FALSE);
+	tvb, tha_offset, ar_hln, ENC_NA);
     }
 
     if (ar_pln != 0) {

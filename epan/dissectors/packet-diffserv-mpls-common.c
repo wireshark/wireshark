@@ -12,12 +12,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -61,8 +61,8 @@ const value_string phbid_bit15_vals[] = {
 };
 
 void
-dissect_diffserv_mpls_common(tvbuff_t *tvb, proto_tree *tree, int type, 
-			     int offset, int **hfindexes, gint **etts)
+dissect_diffserv_mpls_common(tvbuff_t *tvb, proto_tree *tree, int type,
+                             int offset, int **hfindexes, gint **etts)
 {
     proto_item  *ti = NULL, *sub_ti;
     proto_tree  *tree2 = NULL, *phbid_subtree;
@@ -71,43 +71,43 @@ dissect_diffserv_mpls_common(tvbuff_t *tvb, proto_tree *tree, int type,
 
     switch (type) {
     case 1:  /* E-LSP */
-	ti = proto_tree_add_item(tree, hf_map, tvb, offset, 4, FALSE);
-	tree2 = proto_item_add_subtree(ti, ett_map);
-	proto_item_set_text(ti, "MAP: ");
-	offset ++;
-	exp = tvb_get_guint8(tvb, offset) & 7;
-	proto_tree_add_uint(tree2, hf_exp, tvb, offset, 1, exp);
-	proto_item_append_text(ti, "EXP %u, ", exp);
-	offset ++;
-	break;
+        ti = proto_tree_add_item(tree, hf_map, tvb, offset, 4, ENC_NA);
+        tree2 = proto_item_add_subtree(ti, ett_map);
+        proto_item_set_text(ti, "MAP: ");
+        offset ++;
+        exp = tvb_get_guint8(tvb, offset) & 7;
+        proto_tree_add_uint(tree2, hf_exp, tvb, offset, 1, exp);
+        proto_item_append_text(ti, "EXP %u, ", exp);
+        offset ++;
+        break;
     case 2:  /* L-LSP */
-	tree2 = tree;
-	break;
+        tree2 = tree;
+        break;
     default:
-	return;
+        return;
     }
 
     /* PHBID subtree */
-    sub_ti = proto_tree_add_item(tree2, hf_phbid, tvb, offset, 2, FALSE);
+    sub_ti = proto_tree_add_item(tree2, hf_phbid, tvb, offset, 2, ENC_NA);
     phbid_subtree = proto_item_add_subtree(sub_ti, ett_map_phbid);
     proto_item_set_text(sub_ti, "%s: ", (type == 1) ? PHBID_DESCRIPTION : "PSC");
     phbid = tvb_get_ntohs(tvb, offset);
 
     if ((phbid & 1) == 0) {
-	/* Case 1 of RFC 3140 */
-	proto_tree_add_uint(phbid_subtree, hf_phbid_dscp,
-			    tvb, offset, 2, phbid);
-	if (type == 1)
-	    proto_item_append_text(ti, "DSCP %u", phbid >> 10);
-	proto_item_append_text(sub_ti, "DSCP %u", phbid >> 10);
+        /* Case 1 of RFC 3140 */
+        proto_tree_add_uint(phbid_subtree, hf_phbid_dscp,
+                            tvb, offset, 2, phbid);
+        if (type == 1)
+            proto_item_append_text(ti, "DSCP %u", phbid >> 10);
+        proto_item_append_text(sub_ti, "DSCP %u", phbid >> 10);
     }
     else {
-	/* Case 2 of RFC 3140 */
-	proto_tree_add_uint(phbid_subtree, hf_phbid_code,
-			    tvb, offset, 2, phbid);
-	if (type == 1)
-	    proto_item_append_text(ti, "PHB id code %u", phbid >> 4);
-	proto_item_append_text(sub_ti, "PHB id code %u", phbid >> 4);
+        /* Case 2 of RFC 3140 */
+        proto_tree_add_uint(phbid_subtree, hf_phbid_code,
+                            tvb, offset, 2, phbid);
+        if (type == 1)
+            proto_item_append_text(ti, "PHB id code %u", phbid >> 4);
+        proto_item_append_text(sub_ti, "PHB id code %u", phbid >> 4);
     }
     proto_tree_add_uint(phbid_subtree, hf_phbid_bit14, tvb, offset, 2, phbid);
     proto_tree_add_uint(phbid_subtree, hf_phbid_bit15, tvb, offset, 2, phbid);

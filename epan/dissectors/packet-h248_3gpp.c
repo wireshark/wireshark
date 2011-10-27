@@ -303,7 +303,7 @@ static void dissect_3GTFO_codec_mode(proto_tree* tree, tvbuff_t* tvb, packet_inf
 			dissect_codec_mode(pt, sub_tvb, 0, tvb_length(tvb));
 		}
 	} else {
-		proto_tree_add_item(tree,hfid,tvb,0,-1,FALSE);
+		proto_tree_add_item(tree,hfid,tvb,0,-1,ENC_NA);
 	}
 
 }
@@ -331,7 +331,7 @@ static void dissect_3GTFO_codec_list(proto_tree* tree, tvbuff_t* tvb, packet_inf
 			} while(offset < len);
 		}
 	} else {
-		proto_tree_add_item(tree,hfid,tvb,0,-1,FALSE);
+		proto_tree_add_item(tree,hfid,tvb,0,-1,ENC_NA);
 	}
 }
 

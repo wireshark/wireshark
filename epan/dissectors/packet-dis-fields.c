@@ -823,10 +823,10 @@ gint parseField_Enum(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNod
 
     if (dis_hf_id != -1) {
 #if 0
-       pi = proto_tree_add_item(tree, dis_hf_id, tvb, offset, numBytes, FALSE);
+       pi = proto_tree_add_item(tree, dis_hf_id, tvb, offset, numBytes, ENC_BIG_ENDIAN);
        proto_item_set_text(pi, "%s = %s", parserNode.fieldLabel, enumStr);
 #else
-       proto_tree_add_item(tree, dis_hf_id, tvb, offset, numBytes, FALSE);
+       proto_tree_add_item(tree, dis_hf_id, tvb, offset, numBytes, ENC_BIG_ENDIAN);
 #endif
     }
     else {

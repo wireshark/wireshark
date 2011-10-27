@@ -798,7 +798,7 @@ ucp_handle_string(proto_tree *tree, tvbuff_t *tvb, int field, int *offset)
     } else
         len = idx - *offset;
     if (len > 0)
-        proto_tree_add_item(tree, field, tvb, *offset, len, FALSE);
+        proto_tree_add_item(tree, field, tvb, *offset, len, ENC_ASCII|ENC_NA);
     *offset += len;
     if (idx != -1)
         *offset += 1;   /* skip terminating '/' */
