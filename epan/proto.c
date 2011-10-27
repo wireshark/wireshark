@@ -3508,6 +3508,7 @@ proto_custom_set(proto_tree* tree, const int field_id, gchar *result,
 			break;
 
 		case FT_INT64:
+			g_snprintf(result, size, "%" G_GINT64_MODIFIER "d", fvalue_get_integer64(&finfo->value));
 		case FT_UINT64:
 			g_snprintf(result, size, "%" G_GINT64_MODIFIER "u", fvalue_get_integer64(&finfo->value));
 			break;
@@ -5383,7 +5384,7 @@ hfinfo_uint64_format(const header_field_info *hfinfo)
 			format = "%s: %" G_GINT64_MODIFIER "u";
 			break;
 		case BASE_DEC_HEX:
-			format = "%s: %" G_GINT64_MODIFIER "u (%" G_GINT64_MODIFIER "x)";
+			format = "%s: %" G_GINT64_MODIFIER "u (0x%016" G_GINT64_MODIFIER "x)";
 			break;
 		case BASE_OCT: /* I'm lazy */
 			format = "%s: %#" G_GINT64_MODIFIER "o";
@@ -5566,7 +5567,7 @@ hfinfo_int64_format(const header_field_info *hfinfo)
 			format = "%s: %" G_GINT64_MODIFIER "d";
 			break;
 		case BASE_DEC_HEX:
-			format = "%s: %" G_GINT64_MODIFIER "d (%" G_GINT64_MODIFIER "x)";
+			format = "%s: %" G_GINT64_MODIFIER "d (0x%016" G_GINT64_MODIFIER "x)";
 			break;
 		case BASE_OCT: /* I'm lazy */
 			format = "%s: %#" G_GINT64_MODIFIER "o";
@@ -7064,7 +7065,7 @@ proto_tree_add_float_bits_format_value(proto_tree *tree, const int hf_index,
 	TRY_TO_FAKE_THIS_ITEM(tree, hf_index, hf_field);
 
 	DISSECTOR_ASSERT(hf_field->type == FT_FLOAT);
-	
+
 	CREATE_VALUE_STRING(dst,format,ap);
 
 	return proto_tree_add_bits_format_value(tree, hf_index, tvb, bit_offset, no_of_bits, &value, dst);
@@ -7113,7 +7114,7 @@ proto_tree_add_boolean_bits_format_value(proto_tree *tree, const int hf_index,
 	TRY_TO_FAKE_THIS_ITEM(tree, hf_index, hf_field);
 
 	DISSECTOR_ASSERT(hf_field->type == FT_BOOLEAN);
-	
+
 	CREATE_VALUE_STRING(dst,format,ap);
 
 	return proto_tree_add_bits_format_value(tree, hf_index, tvb, bit_offset, no_of_bits, &value, dst);
