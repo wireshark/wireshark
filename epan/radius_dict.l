@@ -103,6 +103,11 @@
 
 %}
 
+/* Note: FreeRadius allows VENDOR, ATTRIBUTE and VALUE names to contain any non-blank character.
+ *       Using [^[:blank:]] below for those names fails for some reason so for now the patterns for each
+ *       include those characters found in the the corresponding names in the FreeRadius dictionaries.
+ */
+
 %START WS_OUT VENDOR VENDOR_W_NAME ATTR ATTR_W_NAME ATTR_W_ID ATTR_W_TYPE ATTR_W_VENDOR VALUE VALUE_W_ATTR VALUE_W_NAME INCLUDE JUNK BEGIN_VENDOR END_VENDOR VENDOR_W_ID VENDOR_W_FORMAT VENDOR_W_TYPE_OCTETS VENDOR_W_LENGTH_OCTETS VENDOR_W_CONTINUATION BEGIN_TLV END_TLV
 %%
 [:blank:]   ;
@@ -189,7 +194,7 @@
     BEGIN WS_OUT;
 }
 
-<ATTR>[0-9a-z_/-]+			{ attr_name = g_strdup(yytext); encrypted = FALSE; has_tag = FALSE; BEGIN ATTR_W_NAME; }
+<ATTR>[0-9a-z_/\.-]+			{ attr_name = g_strdup(yytext); encrypted = FALSE; has_tag = FALSE; BEGIN ATTR_W_NAME; }
 <ATTR_W_NAME>[0-9]+			{ attr_id = g_strdup(yytext);  BEGIN ATTR_W_ID;}
 <ATTR_W_NAME>0x[0-9a-f]+		{ attr_id = g_strdup_printf("%u",(int)strtoul(yytext,NULL,16)); BEGIN ATTR_W_ID;}
 <ATTR_W_ID>integer			{ attr_type = radius_integer;  BEGIN ATTR_W_TYPE; }
@@ -308,13 +313,13 @@ void add_vendor(const gchar* name, guint32 vendor_id, guint vendor_type_octets, 
 		v->ett = -1;
 		v->name = NULL;
 	}
-        /* Assume that the dictionary knows the 'ground truth' about the 
+        /* Assume that the dictionary knows the 'ground truth' about the
          * type/length/has_flags information and thus allow the dictionary to
          * overwrite these values even for vendors that have already been loaded.
          */
 	v->type_octets = vendor_type_octets;
 	v->length_octets = vendor_length_octets;
-	v->has_flags = vendor_has_flags; 
+	v->has_flags = vendor_has_flags;
 
 	if (v->name)
 		g_free((gpointer) v->name);
@@ -406,7 +411,7 @@ void add_tlv(const gchar* name, const  gchar* codestr, radius_attr_dissector_t t
 	}
 
 	code=strtol(codestr, NULL, 10);
-		
+
 	s = g_hash_table_lookup(a->tlvs_by_id, GUINT_TO_POINTER(code));
 
 	if (!s) {
