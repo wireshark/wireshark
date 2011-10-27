@@ -3247,6 +3247,7 @@ dissect_cip_multiple_service_packet_req(tvbuff_t *tvb, packet_info *pinfo, proto
          mr_single_req_info->IOILen = 0;
          mr_single_req_info->pIOI = NULL;
          mr_single_req_info->pData = NULL;
+         mr_single_req_info->ciaData = NULL;
 
          dissect_cip_data(mult_serv_tree, next_tvb, 0, pinfo, mr_single_req_info );
       }
