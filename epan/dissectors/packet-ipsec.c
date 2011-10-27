@@ -477,107 +477,107 @@ get_full_ipv6_addr(char* ipv6_addr_expanded, char *ipv6_addr)
 static gboolean
 get_full_ipv4_addr(char* ipv4_address_expanded, char *ipv4_address)
 {
-  char addr_byte_string_tmp[4];
-  char addr_byte_string[4];
+    char addr_byte_string_tmp[4];
+    char addr_byte_string[4];
 
-  guint addr_byte = 0;
-  guint i = 0;
-  guint j = 0;
-  guint k = 0;
-  guint cpt = 0;
-  gboolean done_flag = FALSE;
+    guint addr_byte = 0;
+    guint i = 0;
+    guint j = 0;
+    guint k = 0;
+    guint cpt = 0;
+    gboolean done_flag = FALSE;
 
-  if((ipv4_address == NULL) || (strcmp(ipv4_address, "") == 0))  return done_flag;
+    if((ipv4_address == NULL) || (strcmp(ipv4_address, "") == 0))  return done_flag;
 
-  if((strlen(ipv4_address) == 1) && (ipv4_address[0] == IPSEC_SA_WILDCARDS_ANY))
+    if((strlen(ipv4_address) == 1) && (ipv4_address[0] == IPSEC_SA_WILDCARDS_ANY))
     {
-      for(i = 0; i <= IPSEC_STRLEN_IPV4; i++)
-	{
-	  ipv4_address_expanded[i] = IPSEC_SA_WILDCARDS_ANY;
-	}
-      ipv4_address_expanded[IPSEC_STRLEN_IPV4] = '\0';
-      done_flag = TRUE;
+        for(i = 0; i <= IPSEC_STRLEN_IPV4; i++)
+        {
+            ipv4_address_expanded[i] = IPSEC_SA_WILDCARDS_ANY;
+        }
+        ipv4_address_expanded[IPSEC_STRLEN_IPV4] = '\0';
+        done_flag = TRUE;
     }
 
-  else {
-    j = 0;
-    cpt = 0;
-    k = 0;
-    while((done_flag == FALSE) && (j <= strlen(ipv4_address)) && (cpt < IPSEC_STRLEN_IPV4))
-      {
-	if(j == strlen(ipv4_address))
-	  {
-	    addr_byte_string_tmp[k] = '\0';
-	    if((strlen(addr_byte_string_tmp) == 1) && (addr_byte_string_tmp[0] == IPSEC_SA_WILDCARDS_ANY))
-	      {
-		for(i = 0; i < 2; i++)
-		  {
-		    ipv4_address_expanded[cpt] = IPSEC_SA_WILDCARDS_ANY;
-		    cpt ++;
-		  }
-	      }
-	    else
-	      {
-		sscanf(addr_byte_string_tmp,"%u",&addr_byte);
-		if(addr_byte < 16) g_snprintf(addr_byte_string,4,"0%X",addr_byte);
-		else g_snprintf(addr_byte_string,4,"%X",addr_byte);
-		for(i = 0; i < strlen(addr_byte_string); i++)
-		  {
-		    ipv4_address_expanded[cpt] = addr_byte_string[i];
-		    cpt ++;
-		  }
-	      }
-	    done_flag = TRUE;
-	  }
+    else {
+        j = 0;
+        cpt = 0;
+        k = 0;
+        while((done_flag == FALSE) && (j <= strlen(ipv4_address)) && (cpt < IPSEC_STRLEN_IPV4))
+        {
+            if(j == strlen(ipv4_address))
+            {
+                addr_byte_string_tmp[k] = '\0';
+                if((strlen(addr_byte_string_tmp) == 1) && (addr_byte_string_tmp[0] == IPSEC_SA_WILDCARDS_ANY))
+                {
+                    for(i = 0; i < 2; i++)
+                    {
+                        ipv4_address_expanded[cpt] = IPSEC_SA_WILDCARDS_ANY;
+                        cpt ++;
+                    }
+                }
+                else
+                {
+                    sscanf(addr_byte_string_tmp,"%u",&addr_byte);
+                    if(addr_byte < 16) g_snprintf(addr_byte_string,4,"0%X",addr_byte);
+                    else g_snprintf(addr_byte_string,4,"%X",addr_byte);
+                    for(i = 0; i < strlen(addr_byte_string); i++)
+                    {
+                        ipv4_address_expanded[cpt] = addr_byte_string[i];
+                        cpt ++;
+                    }
+                }
+                done_flag = TRUE;
+            }
 
-	else if(ipv4_address[j] == '.')
-	  {
-	    addr_byte_string_tmp[k] = '\0';
-	    if((strlen(addr_byte_string_tmp) == 1) && (addr_byte_string_tmp[0] == IPSEC_SA_WILDCARDS_ANY))
-	      {
-		for(i = 0; i < 2; i++)
-		  {
-		    ipv4_address_expanded[cpt] = IPSEC_SA_WILDCARDS_ANY;
-		    cpt ++;
-		  }
-	      }
-	    else
-	      {
-		sscanf(addr_byte_string_tmp,"%u",&addr_byte);
-		if(addr_byte < 16) g_snprintf(addr_byte_string,4,"0%X",addr_byte);
-		else g_snprintf(addr_byte_string,4,"%X",addr_byte);
-		for(i = 0; i < strlen(addr_byte_string); i++)
-		  {
-		    ipv4_address_expanded[cpt] = addr_byte_string[i];
-		    cpt ++;
-		  }
-	      }
-	    k = 0;
-	    j++;
-	  }
-	else
-	  {
-	    if(k >= 3)
-	      {
-		/* Incorrect IPv4 Address. Erase previous Values in the Byte. (LRU mechanism) */
-		addr_byte_string_tmp[0] = ipv4_address[j];
-		k = 1;
-		j++;
-	      }
-	    else
-	      {
-		addr_byte_string_tmp[k] = ipv4_address[j];
-		k++;
-		j++;
-	      }
-	  }
+            else if(ipv4_address[j] == '.')
+            {
+                addr_byte_string_tmp[k] = '\0';
+                if((strlen(addr_byte_string_tmp) == 1) && (addr_byte_string_tmp[0] == IPSEC_SA_WILDCARDS_ANY))
+                {
+                    for(i = 0; i < 2; i++)
+                    {
+                        ipv4_address_expanded[cpt] = IPSEC_SA_WILDCARDS_ANY;
+                        cpt ++;
+                    }
+                }
+                else
+                {
+                    sscanf(addr_byte_string_tmp,"%u",&addr_byte);
+                    if(addr_byte < 16) g_snprintf(addr_byte_string,4,"0%X",addr_byte);
+                    else g_snprintf(addr_byte_string,4,"%X",addr_byte);
+                    for(i = 0; i < strlen(addr_byte_string); i++)
+                    {
+                        ipv4_address_expanded[cpt] = addr_byte_string[i];
+                        cpt ++;
+                    }
+                }
+                k = 0;
+                j++;
+            }
+            else
+            {
+                if(k >= 3)
+                {
+                    /* Incorrect IPv4 Address. Erase previous Values in the Byte. (LRU mechanism) */
+                    addr_byte_string_tmp[0] = ipv4_address[j];
+                    k = 1;
+                    j++;
+                }
+                else
+                {
+                    addr_byte_string_tmp[k] = ipv4_address[j];
+                    k++;
+                    j++;
+                }
+            }
 
-      }
+        }
 
-    ipv4_address_expanded[cpt] = '\0';
-  }
+        ipv4_address_expanded[cpt] = '\0';
+    }
 
-  return done_flag;
+    return done_flag;
 }
 #endif
 
@@ -875,119 +875,119 @@ dissect_ah(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 int
 dissect_ah_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-		  guint8 *nxt_p, proto_tree **next_tree_p)
+                  guint8 *nxt_p, proto_tree **next_tree_p)
 {
-  proto_tree *ah_tree;
-  proto_item *ti;
-  struct newah ah;
-  int advance;
+    proto_tree *ah_tree;
+    proto_item *ti;
+    struct newah ah;
+    int advance;
 
-  col_set_str(pinfo->cinfo, COL_PROTOCOL, "AH");
-  col_clear(pinfo->cinfo, COL_INFO);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "AH");
+    col_clear(pinfo->cinfo, COL_INFO);
 
-  tvb_memcpy(tvb, (guint8 *)&ah, 0, sizeof(ah));
-  advance = sizeof(ah) + ((ah.ah_len - 1) << 2);
+    tvb_memcpy(tvb, (guint8 *)&ah, 0, sizeof(ah));
+    advance = sizeof(ah) + ((ah.ah_len - 1) << 2);
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "AH (SPI=0x%08x)",
-		 (guint32)g_ntohl(ah.ah_spi));
-  }
-
-  if (tree) {
-    /* !!! specify length */
-    ti = proto_tree_add_item(tree, proto_ah, tvb, 0, advance, ENC_NA);
-    ah_tree = proto_item_add_subtree(ti, ett_ah);
-
-    proto_tree_add_text(ah_tree, tvb,
-			offsetof(struct newah, ah_nxt), 1,
-			"Next Header: %s (0x%02x)",
-			ipprotostr(ah.ah_nxt), ah.ah_nxt);
-    proto_tree_add_text(ah_tree, tvb,
-			offsetof(struct newah, ah_len), 1,
-			"Length: %u", (ah.ah_len + 2) << 2);
-    proto_tree_add_uint(ah_tree, hf_ah_spi, tvb,
-			offsetof(struct newah, ah_spi), 4,
-			(guint32)g_ntohl(ah.ah_spi));
-    proto_tree_add_uint(ah_tree, hf_ah_sequence, tvb,
-			offsetof(struct newah, ah_seq), 4,
-			(guint32)g_ntohl(ah.ah_seq));
-    proto_tree_add_item(ah_tree, hf_ah_iv, tvb,
-			sizeof(ah), (ah.ah_len) ? (ah.ah_len - 1) << 2 : 0,
-			ENC_NA);
-
-    if (next_tree_p != NULL) {
-      /* Decide where to place next protocol decode */
-      if (g_ah_payload_in_subtree) {
-	*next_tree_p = ah_tree;
-      }
-      else {
-	*next_tree_p = tree;
-      }
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+        col_add_fstr(pinfo->cinfo, COL_INFO, "AH (SPI=0x%08x)",
+            (guint32)g_ntohl(ah.ah_spi));
     }
-  } else {
-    if (next_tree_p != NULL)
-      *next_tree_p = NULL;
-  }
 
-  if (nxt_p != NULL)
-    *nxt_p = ah.ah_nxt;
+    if (tree) {
+        /* !!! specify length */
+        ti = proto_tree_add_item(tree, proto_ah, tvb, 0, advance, ENC_NA);
+        ah_tree = proto_item_add_subtree(ti, ett_ah);
 
-  /* start of the new header (could be a extension header) */
-  return advance;
+        proto_tree_add_text(ah_tree, tvb,
+            offsetof(struct newah, ah_nxt), 1,
+            "Next Header: %s (0x%02x)",
+            ipprotostr(ah.ah_nxt), ah.ah_nxt);
+        proto_tree_add_text(ah_tree, tvb,
+            offsetof(struct newah, ah_len), 1,
+            "Length: %u", (ah.ah_len + 2) << 2);
+        proto_tree_add_uint(ah_tree, hf_ah_spi, tvb,
+            offsetof(struct newah, ah_spi), 4,
+            (guint32)g_ntohl(ah.ah_spi));
+        proto_tree_add_uint(ah_tree, hf_ah_sequence, tvb,
+            offsetof(struct newah, ah_seq), 4,
+            (guint32)g_ntohl(ah.ah_seq));
+        proto_tree_add_item(ah_tree, hf_ah_iv, tvb,
+            sizeof(ah), (ah.ah_len) ? (ah.ah_len - 1) << 2 : 0,
+            ENC_NA);
+
+        if (next_tree_p != NULL) {
+            /* Decide where to place next protocol decode */
+            if (g_ah_payload_in_subtree) {
+                *next_tree_p = ah_tree;
+            }
+            else {
+                *next_tree_p = tree;
+            }
+        }
+    } else {
+        if (next_tree_p != NULL)
+            *next_tree_p = NULL;
+    }
+
+    if (nxt_p != NULL)
+        *nxt_p = ah.ah_nxt;
+
+    /* start of the new header (could be a extension header) */
+    return advance;
 }
 
 
 /*
-   Name : dissect_esp_authentication(proto_tree *tree, tvbuff_t *tvb, gint len, gint esp_auth_len, guint8 *authenticator_data_computed,
-          gboolean authentication_ok, gboolean authentication_checking_ok)
-   Description : used to print Authenticator field when linked with libgcrypt. Print the expected authenticator value
-                 if requested and if it is wrong.
-   Return : void
-   Params:
-      - proto_tree *tree : the current tree
-      - tvbuff_t *tvb : the tvbuffer
-      - gint len : length of the data availabale in tvbuff
-      - gint esp_auth_len : size of authenticator field
-      - guint8 *authenticator_data_computed : give the authenticator computed (only needed when authentication_ok and !authentication_checking_ok
-      - gboolean authentication_ok : set to true if the authentication checking has been run successfully
-      - gboolean authentication_checking_ok : set to true if the authentication was the one expected
+Name : dissect_esp_authentication(proto_tree *tree, tvbuff_t *tvb, gint len, gint esp_auth_len, guint8 *authenticator_data_computed,
+gboolean authentication_ok, gboolean authentication_checking_ok)
+Description : used to print Authenticator field when linked with libgcrypt. Print the expected authenticator value
+if requested and if it is wrong.
+Return : void
+Params:
+- proto_tree *tree : the current tree
+- tvbuff_t *tvb : the tvbuffer
+- gint len : length of the data availabale in tvbuff
+- gint esp_auth_len : size of authenticator field
+- guint8 *authenticator_data_computed : give the authenticator computed (only needed when authentication_ok and !authentication_checking_ok
+- gboolean authentication_ok : set to true if the authentication checking has been run successfully
+- gboolean authentication_checking_ok : set to true if the authentication was the one expected
 */
 #ifdef HAVE_LIBGCRYPT
 static void
 dissect_esp_authentication(proto_tree *tree, tvbuff_t *tvb, gint len, gint esp_auth_len, guint8 *authenticator_data_computed,
-			  gboolean authentication_ok, gboolean authentication_checking_ok)
+                           gboolean authentication_ok, gboolean authentication_checking_ok)
 {
-  if(esp_auth_len == 0)
+    if(esp_auth_len == 0)
     {
-      proto_tree_add_text(tree, tvb, len, 0,
-			  "NULL Authentication");
+        proto_tree_add_text(tree, tvb, len, 0,
+            "NULL Authentication");
     }
 
-  /* Make sure we have the auth trailer data */
-  else if(tvb_bytes_exist(tvb, len - esp_auth_len, esp_auth_len))
+    /* Make sure we have the auth trailer data */
+    else if(tvb_bytes_exist(tvb, len - esp_auth_len, esp_auth_len))
     {
-      if((authentication_ok) && (authentication_checking_ok))
-	{
-	  proto_tree_add_text(tree, tvb, len - esp_auth_len, esp_auth_len,
-			      "Authentication Data [correct]");
-	}
+        if((authentication_ok) && (authentication_checking_ok))
+        {
+            proto_tree_add_text(tree, tvb, len - esp_auth_len, esp_auth_len,
+                "Authentication Data [correct]");
+        }
 
-      else if((authentication_ok) && (!authentication_checking_ok))
-	{
-	  proto_tree_add_text(tree, tvb, len - esp_auth_len, esp_auth_len,
-			      "Authentication Data [incorrect, should be 0x%s]", authenticator_data_computed);
+        else if((authentication_ok) && (!authentication_checking_ok))
+        {
+            proto_tree_add_text(tree, tvb, len - esp_auth_len, esp_auth_len,
+                "Authentication Data [incorrect, should be 0x%s]", authenticator_data_computed);
 
-	  g_free(authenticator_data_computed);
-	}
+            g_free(authenticator_data_computed);
+        }
 
-      else proto_tree_add_text(tree, tvb, len - esp_auth_len, esp_auth_len,
-			       "Authentication Data");
+        else proto_tree_add_text(tree, tvb, len - esp_auth_len, esp_auth_len,
+            "Authentication Data");
     }
-  else
+    else
     {
-      /* Truncated so just display what we have */
-      proto_tree_add_text(tree, tvb, len - esp_auth_len, esp_auth_len - (len - tvb_length(tvb)),
-			  "Authentication Data (truncated)");
+        /* Truncated so just display what we have */
+        proto_tree_add_text(tree, tvb, len - esp_auth_len, esp_auth_len - (len - tvb_length(tvb)),
+            "Authentication Data (truncated)");
     }
 }
 #endif
@@ -995,924 +995,924 @@ dissect_esp_authentication(proto_tree *tree, tvbuff_t *tvb, gint len, gint esp_a
 static void
 dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_tree *esp_tree = NULL;
-  proto_item *ti;
-  struct newesp esp;
+    proto_tree *esp_tree = NULL;
+    proto_item *ti;
+    struct newesp esp;
 
-  gint len = 0;
-  gint i = 0;
+    gint len = 0;
+    gint i = 0;
 
 #ifdef HAVE_LIBGCRYPT
 
-  /* Packet Variables related */
-  gchar *ip_src = NULL;
-  gchar *ip_dst = NULL;
-  guint32 spi = 0;
+    /* Packet Variables related */
+    gchar *ip_src = NULL;
+    gchar *ip_dst = NULL;
+    guint32 spi = 0;
 #endif
 
-  guint encapsulated_protocol = 0;
-  gboolean decrypt_dissect_ok = FALSE;
+    guint encapsulated_protocol = 0;
+    gboolean decrypt_dissect_ok = FALSE;
 
 #ifdef HAVE_LIBGCRYPT
-  gboolean get_address_ok = FALSE;
-  gboolean null_encryption_decode_heuristic = FALSE;
-  guint8 *decrypted_data = NULL;
-  guint8 *encrypted_data = NULL;
-  guint8 *authenticator_data = NULL;
-  guint8 *esp_data = NULL;
-  tvbuff_t *tvb_decrypted;
+    gboolean get_address_ok = FALSE;
+    gboolean null_encryption_decode_heuristic = FALSE;
+    guint8 *decrypted_data = NULL;
+    guint8 *encrypted_data = NULL;
+    guint8 *authenticator_data = NULL;
+    guint8 *esp_data = NULL;
+    tvbuff_t *tvb_decrypted;
 
-  /* IPSEC encryption Variables related */
-  gint protocol_typ = IPSEC_SA_UNKNOWN;
-  gint esp_crypt_algo = IPSEC_ENCRYPT_NULL;
-  gint esp_auth_algo = IPSEC_AUTH_NULL;
-  gchar *esp_crypt_key = NULL;
-  gchar *esp_auth_key = NULL;
-  guint esp_crypt_key_len = 0;
-  guint esp_auth_key_len = 0;
-  gint esp_iv_len = 0;
-  gint esp_auth_len = 0;
-  gint decrypted_len = 0;
-  gboolean decrypt_ok = FALSE;
-  gboolean decrypt_using_libgcrypt = FALSE;
-  gboolean authentication_check_using_hmac_libgcrypt = FALSE;
-  gboolean authentication_ok = FALSE;
-  gboolean authentication_checking_ok = FALSE;
-  gboolean sad_is_present = FALSE;
+    /* IPSEC encryption Variables related */
+    gint protocol_typ = IPSEC_SA_UNKNOWN;
+    gint esp_crypt_algo = IPSEC_ENCRYPT_NULL;
+    gint esp_auth_algo = IPSEC_AUTH_NULL;
+    gchar *esp_crypt_key = NULL;
+    gchar *esp_auth_key = NULL;
+    guint esp_crypt_key_len = 0;
+    guint esp_auth_key_len = 0;
+    gint esp_iv_len = 0;
+    gint esp_auth_len = 0;
+    gint decrypted_len = 0;
+    gboolean decrypt_ok = FALSE;
+    gboolean decrypt_using_libgcrypt = FALSE;
+    gboolean authentication_check_using_hmac_libgcrypt = FALSE;
+    gboolean authentication_ok = FALSE;
+    gboolean authentication_checking_ok = FALSE;
+    gboolean sad_is_present = FALSE;
 #endif
-  gint esp_pad_len = 0;
+    gint esp_pad_len = 0;
 
 #ifdef HAVE_LIBGCRYPT
 
-  /* Variables for decryption and authentication checking used for libgrypt */
-  int decrypted_len_alloc = 0;
-  gcry_cipher_hd_t cypher_hd;
-  gcry_md_hd_t md_hd;
-  int md_len = 0;
-  gcry_error_t err = 0;
-  int crypt_algo_libgcrypt = 0;
-  int crypt_mode_libgcrypt = 0;
-  int auth_algo_libgcrypt = 0;
-  unsigned char *authenticator_data_computed = NULL;
-  unsigned char *authenticator_data_computed_md;
+    /* Variables for decryption and authentication checking used for libgrypt */
+    int decrypted_len_alloc = 0;
+    gcry_cipher_hd_t cypher_hd;
+    gcry_md_hd_t md_hd;
+    int md_len = 0;
+    gcry_error_t err = 0;
+    int crypt_algo_libgcrypt = 0;
+    int crypt_mode_libgcrypt = 0;
+    int auth_algo_libgcrypt = 0;
+    unsigned char *authenticator_data_computed = NULL;
+    unsigned char *authenticator_data_computed_md;
 
-  unsigned char ctr_block[16];
+    unsigned char ctr_block[16];
 
-  /*
-   * load the top pane info. This should be overwritten by
-   * the next protocol in the stack
-   */
+    /*
+    * load the top pane info. This should be overwritten by
+    * the next protocol in the stack
+    */
 
 #endif
 
-  col_set_str(pinfo->cinfo, COL_PROTOCOL, "ESP");
-  col_clear(pinfo->cinfo, COL_INFO);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ESP");
+    col_clear(pinfo->cinfo, COL_INFO);
 
-  tvb_memcpy(tvb, (guint8 *)&esp, 0, sizeof(esp));
+    tvb_memcpy(tvb, (guint8 *)&esp, 0, sizeof(esp));
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "ESP (SPI=0x%08x)",
-		 (guint32)g_ntohl(esp.esp_spi));
-  }
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+        col_add_fstr(pinfo->cinfo, COL_INFO, "ESP (SPI=0x%08x)",
+            (guint32)g_ntohl(esp.esp_spi));
+    }
 
 
-  /*
-   * populate a tree in the second pane with the status of the link layer
-   * (ie none)
-   */
+    /*
+    * populate a tree in the second pane with the status of the link layer
+    * (ie none)
+    */
 
-  if(tree) {
-    len = 0, encapsulated_protocol = 0;
-    decrypt_dissect_ok = FALSE;
-    i = 0;
+    if(tree) {
+        len = 0, encapsulated_protocol = 0;
+        decrypt_dissect_ok = FALSE;
+        i = 0;
 
-    ti = proto_tree_add_item(tree, proto_esp, tvb, 0, -1, ENC_NA);
-    esp_tree = proto_item_add_subtree(ti, ett_esp);
-    proto_tree_add_uint(esp_tree, hf_esp_spi, tvb,
-			offsetof(struct newesp, esp_spi), 4,
-			(guint32)g_ntohl(esp.esp_spi));
-    proto_tree_add_uint(esp_tree, hf_esp_sequence, tvb,
-			offsetof(struct newesp, esp_seq), 4,
-			(guint32)g_ntohl(esp.esp_seq));
-  }
+        ti = proto_tree_add_item(tree, proto_esp, tvb, 0, -1, ENC_NA);
+        esp_tree = proto_item_add_subtree(ti, ett_esp);
+        proto_tree_add_uint(esp_tree, hf_esp_spi, tvb,
+            offsetof(struct newesp, esp_spi), 4,
+            (guint32)g_ntohl(esp.esp_spi));
+        proto_tree_add_uint(esp_tree, hf_esp_sequence, tvb,
+            offsetof(struct newesp, esp_seq), 4,
+            (guint32)g_ntohl(esp.esp_seq));
+    }
 
 
 #ifdef HAVE_LIBGCRYPT
-  /* The SAD is not activated */
-  if(g_esp_enable_null_encryption_decode_heuristic &&
-    !g_esp_enable_encryption_decode)
-    null_encryption_decode_heuristic = TRUE;
+    /* The SAD is not activated */
+    if(g_esp_enable_null_encryption_decode_heuristic &&
+        !g_esp_enable_encryption_decode)
+        null_encryption_decode_heuristic = TRUE;
 
-  if(g_esp_enable_encryption_decode || g_esp_enable_authentication_check)
-  {
-      /* Get Source & Destination Addresses in gchar * with all the bytes available.  */
+    if(g_esp_enable_encryption_decode || g_esp_enable_authentication_check)
+    {
+        /* Get Source & Destination Addresses in gchar * with all the bytes available.  */
 
-	if (pinfo->src.type == AT_IPv4){
-		protocol_typ = IPSEC_SA_IPV4;
-	}else if (pinfo->src.type == AT_IPv6){
-		protocol_typ = IPSEC_SA_IPV6;
-	}
-	ip_src = ep_address_to_str(&pinfo->src);
-	ip_dst = ep_address_to_str(&pinfo->src);
-	get_address_ok = TRUE;
+        if (pinfo->src.type == AT_IPv4){
+            protocol_typ = IPSEC_SA_IPV4;
+        }else if (pinfo->src.type == AT_IPv6){
+            protocol_typ = IPSEC_SA_IPV6;
+        }
+        ip_src = ep_address_to_str(&pinfo->src);
+        ip_dst = ep_address_to_str(&pinfo->src);
+        get_address_ok = TRUE;
 
-   /* The packet cannot be decoded using the SAD */
-   if(g_esp_enable_null_encryption_decode_heuristic && !get_address_ok)
-      null_encryption_decode_heuristic = TRUE;
+        /* The packet cannot be decoded using the SAD */
+        if(g_esp_enable_null_encryption_decode_heuristic && !get_address_ok)
+            null_encryption_decode_heuristic = TRUE;
 
-   if(get_address_ok)
-	{
-      /* Get the SPI */
-      if (tvb_length(tvb) >= 4)
-      {
-         spi = tvb_get_ntohl(tvb, 0);
-      }
-
-
-	  /*
-	    PARSE the SAD and fill it. It may take some time since it will
-	    be called every times an ESP Payload is found.
-	  */
-
-	  if((sad_is_present = get_esp_sa(protocol_typ, ip_src, ip_dst, spi,
-					  &esp_crypt_algo, &esp_auth_algo,
-					  &esp_crypt_key, &esp_crypt_key_len, &esp_auth_key, &esp_auth_key_len)))
-	  {
-
-	      /* Get length of whole ESP packet. */
-	      len = tvb_reported_length(tvb);
-
-	      switch(esp_auth_algo)
-         {
-         case IPSEC_AUTH_NULL:
-            esp_auth_len = 0;
-            break;
-
-         case IPSEC_AUTH_HMAC_SHA256_128:
-         case IPSEC_AUTH_ANY_128BIT:
-            esp_auth_len = 16;
-            break;
-
-         case IPSEC_AUTH_ANY_256BIT:
-            esp_auth_len = 32;
-            break;
-
-         case IPSEC_AUTH_ANY_192BIT:
-            esp_auth_len = 24;
-            break;
-
-         case IPSEC_AUTH_HMAC_SHA1_96:
-   		case IPSEC_AUTH_HMAC_SHA256_96:
-/*		   case IPSEC_AUTH_AES_XCBC_MAC_96: */
-		   case IPSEC_AUTH_HMAC_MD5_96:
-         case IPSEC_AUTH_HMAC_RIPEMD160_96:
-         case IPSEC_AUTH_ANY_96BIT:
-         default:
-            esp_auth_len = 12;
-            break;
-         }
-
-         if(g_esp_enable_authentication_check)
-         {
-            switch(esp_auth_algo)
+        if(get_address_ok)
+        {
+            /* Get the SPI */
+            if (tvb_length(tvb) >= 4)
             {
-            case IPSEC_AUTH_HMAC_SHA1_96:
-                  /*
-               RFC 2404 : HMAC-SHA-1-96 is a secret key algorithm.
-               While no fixed key length is specified in [RFC-2104],
-               for use with either ESP or AH a fixed key length of
-               160-bits MUST be supported.  Key lengths other than
-               160-bits MUST NOT be supported (i.e. only 160-bit keys
-               are to be used by HMAC-SHA-1-96).  A key length of
-               160-bits was chosen based on the recommendations in
-               [RFC-2104] (i.e. key lengths less than the
-               authenticator length decrease security strength and
-               keys longer than the authenticator length do not
-               significantly increase security strength).
-                  */
-               auth_algo_libgcrypt = GCRY_MD_SHA1;
-               authentication_check_using_hmac_libgcrypt = TRUE;
-               break;
+                spi = tvb_get_ntohl(tvb, 0);
+            }
 
-            case IPSEC_AUTH_NULL:
-               authentication_check_using_hmac_libgcrypt = FALSE;
-               authentication_checking_ok = TRUE;
-               authentication_ok = TRUE;
-               break;
 
-		      /*
-            case IPSEC_AUTH_AES_XCBC_MAC_96:
-               auth_algo_libgcrypt =
-               authentication_check_using_libgcrypt = TRUE;
-               break;
-		      */
+            /*
+            PARSE the SAD and fill it. It may take some time since it will
+            be called every times an ESP Payload is found.
+            */
 
-            case IPSEC_AUTH_HMAC_SHA256_96:
-            case IPSEC_AUTH_HMAC_SHA256_128:
-               auth_algo_libgcrypt = GCRY_MD_SHA256;
-               authentication_check_using_hmac_libgcrypt = TRUE;
-               break;
-
-            case IPSEC_AUTH_HMAC_MD5_96:
-                  /*
-               RFC 2403 : HMAC-MD5-96 is a secret key algorithm.
-               While no fixed key length is specified in [RFC-2104],
-               for use with either ESP or AH a fixed key length of
-               128-bits MUST be supported.  Key lengths other than
-               128-bits MUST NOT be supported (i.e. only 128-bit keys
-               are to be used by HMAC-MD5-96).  A key length of
-               128-bits was chosen based on the recommendations in
-               [RFC-2104] (i.e. key lengths less than the
-               authenticator length decrease security strength and
-               keys longer than the authenticator length do not
-               significantly increase security strength).
-                  */
-               auth_algo_libgcrypt = GCRY_MD_MD5;
-               authentication_check_using_hmac_libgcrypt = TRUE;
-               break;
-
-            case IPSEC_AUTH_HMAC_RIPEMD160_96:
-                  /*
-               RFC 2857 : HMAC-RIPEMD-160-96 produces a 160-bit
-               authenticator value.  This 160-bit value can be
-               truncated as described in RFC2104.  For use with
-               either ESP or AH, a truncated value using the first
-               96 bits MUST be supported.
-                  */
-               auth_algo_libgcrypt = GCRY_MD_RMD160;
-               authentication_check_using_hmac_libgcrypt = TRUE;
-               break;
-
-            case IPSEC_AUTH_ANY_96BIT:
-            case IPSEC_AUTH_ANY_128BIT:
-            case IPSEC_AUTH_ANY_192BIT:
-            case IPSEC_AUTH_ANY_256BIT:
-            default:
-               authentication_ok = FALSE;
-               authentication_check_using_hmac_libgcrypt = FALSE;
-               break;
-
-		      }
-
-            if((authentication_check_using_hmac_libgcrypt) && (!authentication_ok))
+            if((sad_is_present = get_esp_sa(protocol_typ, ip_src, ip_dst, spi,
+                &esp_crypt_algo, &esp_auth_algo,
+                &esp_crypt_key, &esp_crypt_key_len, &esp_auth_key, &esp_auth_key_len)))
             {
-               gcry_control (GCRYCTL_DISABLE_SECMEM, 0);
-               gcry_control (GCRYCTL_INITIALIZATION_FINISHED, 0);
 
-               /* Allocate Buffers for Authenticator Field  */
-               authenticator_data = (guint8 *) g_malloc0 (( esp_auth_len + 1) * sizeof(guint8));
-               tvb_memcpy(tvb, authenticator_data, len - esp_auth_len, esp_auth_len);
+                /* Get length of whole ESP packet. */
+                len = tvb_reported_length(tvb);
 
-               esp_data = (guint8 *) g_malloc0 (( len - esp_auth_len + 1) * sizeof(guint8));
-               tvb_memcpy(tvb, esp_data, 0, len - esp_auth_len);
+                switch(esp_auth_algo)
+                {
+                case IPSEC_AUTH_NULL:
+                    esp_auth_len = 0;
+                    break;
 
-               err = gcry_md_open (&md_hd, auth_algo_libgcrypt, GCRY_MD_FLAG_HMAC);
-               if (err)
-               {
-                  fprintf (stderr, "<IPsec/ESP Dissector> Error in Algorithm %s, gcry_md_open failed: %s\n",
-                                    gcry_md_algo_name(auth_algo_libgcrypt), gpg_strerror (err));
-                  authentication_ok = FALSE;
-                  g_free(authenticator_data);
-                  g_free(esp_data);
-               }
-               else
-               {
-                  md_len = gcry_md_get_algo_dlen (auth_algo_libgcrypt);
-                  if (md_len < 1 || md_len < esp_auth_len)
-                  {
-                     fprintf (stderr, "<IPsec/ESP Dissector> Error in Algorithm %s, grcy_md_get_algo_dlen failed: %d\n",
-                                       gcry_md_algo_name(auth_algo_libgcrypt), md_len);
-                     authentication_ok = FALSE;
-                  }
-                  else
-                  {
-                     gcry_md_setkey( md_hd, esp_auth_key, esp_auth_key_len );
+                case IPSEC_AUTH_HMAC_SHA256_128:
+                case IPSEC_AUTH_ANY_128BIT:
+                    esp_auth_len = 16;
+                    break;
 
-                     gcry_md_write (md_hd, esp_data, len - esp_auth_len);
+                case IPSEC_AUTH_ANY_256BIT:
+                    esp_auth_len = 32;
+                    break;
 
-                     authenticator_data_computed_md = gcry_md_read (md_hd, auth_algo_libgcrypt);
-                     if (authenticator_data_computed_md == 0)
-                     {
-                        fprintf (stderr, "<IPsec/ESP Dissector> Error in Algorithm %s, gcry_md_read failed\n",
-                                         gcry_md_algo_name(auth_algo_libgcrypt));
+                case IPSEC_AUTH_ANY_192BIT:
+                    esp_auth_len = 24;
+                    break;
+
+                case IPSEC_AUTH_HMAC_SHA1_96:
+                case IPSEC_AUTH_HMAC_SHA256_96:
+                    /*		   case IPSEC_AUTH_AES_XCBC_MAC_96: */
+                case IPSEC_AUTH_HMAC_MD5_96:
+                case IPSEC_AUTH_HMAC_RIPEMD160_96:
+                case IPSEC_AUTH_ANY_96BIT:
+                default:
+                    esp_auth_len = 12;
+                    break;
+                }
+
+                if(g_esp_enable_authentication_check)
+                {
+                    switch(esp_auth_algo)
+                    {
+                    case IPSEC_AUTH_HMAC_SHA1_96:
+                        /*
+                        RFC 2404 : HMAC-SHA-1-96 is a secret key algorithm.
+                        While no fixed key length is specified in [RFC-2104],
+                        for use with either ESP or AH a fixed key length of
+                        160-bits MUST be supported.  Key lengths other than
+                        160-bits MUST NOT be supported (i.e. only 160-bit keys
+                        are to be used by HMAC-SHA-1-96).  A key length of
+                        160-bits was chosen based on the recommendations in
+                        [RFC-2104] (i.e. key lengths less than the
+                        authenticator length decrease security strength and
+                        keys longer than the authenticator length do not
+                        significantly increase security strength).
+                        */
+                        auth_algo_libgcrypt = GCRY_MD_SHA1;
+                        authentication_check_using_hmac_libgcrypt = TRUE;
+                        break;
+
+                    case IPSEC_AUTH_NULL:
+                        authentication_check_using_hmac_libgcrypt = FALSE;
+                        authentication_checking_ok = TRUE;
+                        authentication_ok = TRUE;
+                        break;
+
+                        /*
+                        case IPSEC_AUTH_AES_XCBC_MAC_96:
+                        auth_algo_libgcrypt =
+                        authentication_check_using_libgcrypt = TRUE;
+                        break;
+                        */
+
+                    case IPSEC_AUTH_HMAC_SHA256_96:
+                    case IPSEC_AUTH_HMAC_SHA256_128:
+                        auth_algo_libgcrypt = GCRY_MD_SHA256;
+                        authentication_check_using_hmac_libgcrypt = TRUE;
+                        break;
+
+                    case IPSEC_AUTH_HMAC_MD5_96:
+                        /*
+                        RFC 2403 : HMAC-MD5-96 is a secret key algorithm.
+                        While no fixed key length is specified in [RFC-2104],
+                        for use with either ESP or AH a fixed key length of
+                        128-bits MUST be supported.  Key lengths other than
+                        128-bits MUST NOT be supported (i.e. only 128-bit keys
+                        are to be used by HMAC-MD5-96).  A key length of
+                        128-bits was chosen based on the recommendations in
+                        [RFC-2104] (i.e. key lengths less than the
+                        authenticator length decrease security strength and
+                        keys longer than the authenticator length do not
+                        significantly increase security strength).
+                        */
+                        auth_algo_libgcrypt = GCRY_MD_MD5;
+                        authentication_check_using_hmac_libgcrypt = TRUE;
+                        break;
+
+                    case IPSEC_AUTH_HMAC_RIPEMD160_96:
+                        /*
+                        RFC 2857 : HMAC-RIPEMD-160-96 produces a 160-bit
+                        authenticator value.  This 160-bit value can be
+                        truncated as described in RFC2104.  For use with
+                        either ESP or AH, a truncated value using the first
+                        96 bits MUST be supported.
+                        */
+                        auth_algo_libgcrypt = GCRY_MD_RMD160;
+                        authentication_check_using_hmac_libgcrypt = TRUE;
+                        break;
+
+                    case IPSEC_AUTH_ANY_96BIT:
+                    case IPSEC_AUTH_ANY_128BIT:
+                    case IPSEC_AUTH_ANY_192BIT:
+                    case IPSEC_AUTH_ANY_256BIT:
+                    default:
                         authentication_ok = FALSE;
-                     }
-                     else
-                     {
-                        if(memcmp (authenticator_data_computed_md, authenticator_data, esp_auth_len))
+                        authentication_check_using_hmac_libgcrypt = FALSE;
+                        break;
+
+                    }
+
+                    if((authentication_check_using_hmac_libgcrypt) && (!authentication_ok))
+                    {
+                        gcry_control (GCRYCTL_DISABLE_SECMEM, 0);
+                        gcry_control (GCRYCTL_INITIALIZATION_FINISHED, 0);
+
+                        /* Allocate Buffers for Authenticator Field  */
+                        authenticator_data = (guint8 *) g_malloc0 (( esp_auth_len + 1) * sizeof(guint8));
+                        tvb_memcpy(tvb, authenticator_data, len - esp_auth_len, esp_auth_len);
+
+                        esp_data = (guint8 *) g_malloc0 (( len - esp_auth_len + 1) * sizeof(guint8));
+                        tvb_memcpy(tvb, esp_data, 0, len - esp_auth_len);
+
+                        err = gcry_md_open (&md_hd, auth_algo_libgcrypt, GCRY_MD_FLAG_HMAC);
+                        if (err)
                         {
-                           unsigned char authenticator_data_computed_car[3];
-                           authenticator_data_computed = (guint8 *) g_malloc (( esp_auth_len * 2 + 1) * sizeof(guint8));
-                           for (i = 0; i < esp_auth_len; i++)
-                           {
-                              g_snprintf((char *)authenticator_data_computed_car, 3,
-                                                                 "%02X", authenticator_data_computed_md[i] & 0xFF);
-                              authenticator_data_computed[i*2] = authenticator_data_computed_car[0];
-                              authenticator_data_computed[i*2 + 1] = authenticator_data_computed_car[1];
-                           }
-
-                           authenticator_data_computed[esp_auth_len * 2] ='\0';
-
-                           authentication_ok = TRUE;
-                           authentication_checking_ok = FALSE;
+                            fprintf (stderr, "<IPsec/ESP Dissector> Error in Algorithm %s, gcry_md_open failed: %s\n",
+                                gcry_md_algo_name(auth_algo_libgcrypt), gpg_strerror (err));
+                            authentication_ok = FALSE;
+                            g_free(authenticator_data);
+                            g_free(esp_data);
                         }
                         else
                         {
-                           authentication_ok = TRUE;
-                           authentication_checking_ok = TRUE;
+                            md_len = gcry_md_get_algo_dlen (auth_algo_libgcrypt);
+                            if (md_len < 1 || md_len < esp_auth_len)
+                            {
+                                fprintf (stderr, "<IPsec/ESP Dissector> Error in Algorithm %s, grcy_md_get_algo_dlen failed: %d\n",
+                                    gcry_md_algo_name(auth_algo_libgcrypt), md_len);
+                                authentication_ok = FALSE;
+                            }
+                            else
+                            {
+                                gcry_md_setkey( md_hd, esp_auth_key, esp_auth_key_len );
+
+                                gcry_md_write (md_hd, esp_data, len - esp_auth_len);
+
+                                authenticator_data_computed_md = gcry_md_read (md_hd, auth_algo_libgcrypt);
+                                if (authenticator_data_computed_md == 0)
+                                {
+                                    fprintf (stderr, "<IPsec/ESP Dissector> Error in Algorithm %s, gcry_md_read failed\n",
+                                        gcry_md_algo_name(auth_algo_libgcrypt));
+                                    authentication_ok = FALSE;
+                                }
+                                else
+                                {
+                                    if(memcmp (authenticator_data_computed_md, authenticator_data, esp_auth_len))
+                                    {
+                                        unsigned char authenticator_data_computed_car[3];
+                                        authenticator_data_computed = (guint8 *) g_malloc (( esp_auth_len * 2 + 1) * sizeof(guint8));
+                                        for (i = 0; i < esp_auth_len; i++)
+                                        {
+                                            g_snprintf((char *)authenticator_data_computed_car, 3,
+                                                "%02X", authenticator_data_computed_md[i] & 0xFF);
+                                            authenticator_data_computed[i*2] = authenticator_data_computed_car[0];
+                                            authenticator_data_computed[i*2 + 1] = authenticator_data_computed_car[1];
+                                        }
+
+                                        authenticator_data_computed[esp_auth_len * 2] ='\0';
+
+                                        authentication_ok = TRUE;
+                                        authentication_checking_ok = FALSE;
+                                    }
+                                    else
+                                    {
+                                        authentication_ok = TRUE;
+                                        authentication_checking_ok = TRUE;
+                                    }
+                                }
+                            }
+
+                            gcry_md_close (md_hd);
+                            g_free(authenticator_data);
+                            g_free(esp_data);
                         }
-                     }
-                  }
+                    }
+                }
 
-                  gcry_md_close (md_hd);
-                  g_free(authenticator_data);
-                  g_free(esp_data);
-               }
-            }
-         }
+                if(g_esp_enable_encryption_decode)
+                {
+                    /* Deactivation of the Heuristic to decrypt using the NULL encryption algorithm since the packet is matching a SA */
+                    null_encryption_decode_heuristic = FALSE;
 
-	      if(g_esp_enable_encryption_decode)
-         {
-            /* Deactivation of the Heuristic to decrypt using the NULL encryption algorithm since the packet is matching a SA */
-            null_encryption_decode_heuristic = FALSE;
+                    switch(esp_crypt_algo)
+                    {
+                    case IPSEC_ENCRYPT_3DES_CBC :
+                        /* RFC 2451 says :
+                        3DES CBC uses a key of 192 bits.
+                        The first 3DES key is taken from the first 64 bits,
+                        the second from the next 64 bits, and the third
+                        from the last 64 bits.
+                        Implementations MUST take into consideration the
+                        parity bits when initially accepting a new set of
+                        keys.  Each of the three keys is really 56 bits in
+                        length with the extra 8 bits used for parity. */
 
-            switch(esp_crypt_algo)
-            {
-            case IPSEC_ENCRYPT_3DES_CBC :
-               /* RFC 2451 says :
-               3DES CBC uses a key of 192 bits.
-               The first 3DES key is taken from the first 64 bits,
-               the second from the next 64 bits, and the third
-               from the last 64 bits.
-               Implementations MUST take into consideration the
-               parity bits when initially accepting a new set of
-               keys.  Each of the three keys is really 56 bits in
-               length with the extra 8 bits used for parity. */
+                        /* Fix parameters for 3DES-CBC */
+                        esp_iv_len = 8;
+                        crypt_algo_libgcrypt = GCRY_CIPHER_3DES;
+                        crypt_mode_libgcrypt = GCRY_CIPHER_MODE_CBC;
 
-               /* Fix parameters for 3DES-CBC */
-               esp_iv_len = 8;
-               crypt_algo_libgcrypt = GCRY_CIPHER_3DES;
-               crypt_mode_libgcrypt = GCRY_CIPHER_MODE_CBC;
+                        decrypted_len = len - sizeof(struct newesp);
 
-               decrypted_len = len - sizeof(struct newesp);
-
-               if (decrypted_len <= 0)
-                  decrypt_ok = FALSE;
-               else
-               {
-                  if(decrypted_len % esp_iv_len  == 0)
-                     decrypted_len_alloc = decrypted_len;
-                  else
-                     decrypted_len_alloc = (decrypted_len / esp_iv_len) * esp_iv_len + esp_iv_len;
-
-                  if (esp_crypt_key_len != gcry_cipher_get_algo_keylen (crypt_algo_libgcrypt))
-                  {
-                     fprintf (stderr, "<ESP Preferences> Error in Encryption Algorithm 3DES-CBC : Bad Keylen (got %i Bits, need %lu)\n",
-                                       esp_crypt_key_len * 8,
-                                       (unsigned long) gcry_cipher_get_algo_keylen (crypt_algo_libgcrypt) * 8);
-                     decrypt_ok = FALSE;
-                  }
-                  else
-                     decrypt_using_libgcrypt = TRUE;
-               }
-               break;
-
-		      case IPSEC_ENCRYPT_AES_CBC :
-               /* RFC 3602 says :
-               AES supports three key sizes: 128 bits, 192 bits,
-               and 256 bits.  The default key size is 128 bits,
-               and all implementations MUST support this key size.
-               Implementations MAY also support key sizes of 192
-               bits and 256 bits. */
-
-               /* Fix parameters for AES-CBC */
-               esp_iv_len = 16;
-               crypt_mode_libgcrypt = GCRY_CIPHER_MODE_CBC;
-
-               decrypted_len = len - sizeof(struct newesp);
-
-               if (decrypted_len <= 0)
-                  decrypt_ok = FALSE;
-               else
-               {
-                  if(decrypted_len % esp_iv_len  == 0)
-                     decrypted_len_alloc = decrypted_len;
-                  else
-                     decrypted_len_alloc = (decrypted_len / esp_iv_len) * esp_iv_len + esp_iv_len;
-
-                  switch(esp_crypt_key_len * 8)
-                  {
-                     case 128:
-                        crypt_algo_libgcrypt = GCRY_CIPHER_AES128;
-                        decrypt_using_libgcrypt = TRUE;
-                        break;
-
-                     case 192:
-                        crypt_algo_libgcrypt = GCRY_CIPHER_AES192;
-                        decrypt_using_libgcrypt = TRUE;
-                        break;
-
-                     case 256:
-                        crypt_algo_libgcrypt = GCRY_CIPHER_AES256;
-                        decrypt_using_libgcrypt = TRUE;
-                        break;
-
-                     default:
-                        fprintf (stderr, "<ESP Preferences> Error in Encryption Algorithm AES-CBC : Bad Keylen (%i Bits)\n",
-                                esp_crypt_key_len * 8);
-                        decrypt_ok = FALSE;
-                  }
-               }
-               break;
-
-            case IPSEC_ENCRYPT_CAST5_CBC :
-               /* RFC 2144 says :
-               The CAST-128 encryption algorithm has been designed to allow a key
-               size that can vary from 40 bits to 128 bits, in 8-bit increments
-               (that is, the allowable key sizes are 40, 48, 56, 64, ..., 112, 120,
-               and 128 bits.
-               We support only 128 bits. */
-
-               /* Fix parameters for CAST5-CBC */
-               esp_iv_len = 8;
-               crypt_mode_libgcrypt = GCRY_CIPHER_MODE_CBC;
-
-               decrypted_len = len - sizeof(struct newesp);
-
-               if (decrypted_len <= 0)
-                  decrypt_ok = FALSE;
-               else
-               {
-                  if(decrypted_len % esp_iv_len  == 0)
-                     decrypted_len_alloc = decrypted_len;
-                  else
-                     decrypted_len_alloc = (decrypted_len / esp_iv_len) * esp_iv_len + esp_iv_len;
-
-                  switch(esp_crypt_key_len * 8)
-                  {
-                  case 128:
-                     crypt_algo_libgcrypt = GCRY_CIPHER_CAST5;
-                     decrypt_using_libgcrypt = TRUE;
-                     break;
-                  default:
-                     fprintf (stderr, "<ESP Preferences> Error in Encryption Algorithm CAST5-CBC : Bad Keylen (%i Bits)\n",
-                             esp_crypt_key_len * 8);
-                     decrypt_ok = FALSE;
-                  }
-               }
-               break;
-
-	         case IPSEC_ENCRYPT_DES_CBC :
-               /* RFC 2405 says :
-                  DES-CBC is a symmetric secret key algorithm.
-                  The key size is 64-bits.
-                  [It is commonly known as a 56-bit key as the key
-                  has 56 significant bits; the least significant
-                  bit in every byte is the parity bit.] */
-
-               /* Fix parameters for DES-CBC */
-               esp_iv_len = 8;
-               crypt_algo_libgcrypt = GCRY_CIPHER_DES;
-               crypt_mode_libgcrypt = GCRY_CIPHER_MODE_CBC;
-               decrypted_len = len - sizeof(struct newesp);
-
-               if (decrypted_len <= 0)
-                  decrypt_ok = FALSE;
-               else
-               {
-                  if(decrypted_len % esp_iv_len == 0)
-                     decrypted_len_alloc = decrypted_len;
-                  else
-                     decrypted_len_alloc = (decrypted_len / esp_iv_len) * esp_iv_len + esp_iv_len;
-
-                  if (esp_crypt_key_len != gcry_cipher_get_algo_keylen (crypt_algo_libgcrypt))
-                  {
-                     fprintf (stderr, "<ESP Preferences> Error in Encryption Algorithm DES-CBC : Bad Keylen (%i Bits, need %lu)\n",
-                                       esp_crypt_key_len * 8, (unsigned long) gcry_cipher_get_algo_keylen (crypt_algo_libgcrypt) * 8);
-                     decrypt_ok = FALSE;
-                  }
-                  else
-                     decrypt_using_libgcrypt = TRUE;
-               }
-               break;
-
-		      case IPSEC_ENCRYPT_AES_CTR :
-               /* RFC 3686 says :
-                  AES supports three key sizes: 128 bits, 192 bits,
-                  and 256 bits.  The default key size is 128 bits,
-                  and all implementations MUST support this key
-                  size.  Implementations MAY also support key sizes
-                  of 192 bits and 256 bits. The remaining 32 bits
-                  will be used as nonce. */
-
-               /* Fix parameters for AES-CTR */
-               esp_iv_len = 8;
-               crypt_mode_libgcrypt = GCRY_CIPHER_MODE_CTR;
-
-               decrypted_len = len - sizeof(struct newesp);
-
-               if (decrypted_len <= 0)
-                  decrypt_ok = FALSE;
-               else
-               {
-                  if(decrypted_len % esp_iv_len  == 0)
-                     decrypted_len_alloc = decrypted_len;
-                  else
-                     decrypted_len_alloc = (decrypted_len / esp_iv_len) * esp_iv_len + esp_iv_len;
-
-                  switch(esp_crypt_key_len * 8)
-                  {
-                     case 160:
-                        crypt_algo_libgcrypt = GCRY_CIPHER_AES128;
-                        decrypt_using_libgcrypt = TRUE;
-                        break;
-
-                     case 224:
-                        crypt_algo_libgcrypt = GCRY_CIPHER_AES192;
-                        decrypt_using_libgcrypt = TRUE;
-                        break;
-
-                     case 288:
-                        crypt_algo_libgcrypt = GCRY_CIPHER_AES256;
-                        decrypt_using_libgcrypt = TRUE;
-                        break;
-
-                     default:
-                        fprintf (stderr, "<ESP Preferences> Error in Encryption Algorithm AES-CTR : Bad Keylen (%i Bits)\n",
-                                          esp_crypt_key_len * 8);
-                        decrypt_ok = FALSE;
-                  }
-               }
-               break;
-
-		      case IPSEC_ENCRYPT_TWOFISH_CBC :
-               /*  Twofish is a 128-bit block cipher developed by
-                   Counterpane Labs that accepts a variable-length
-                   key up to 256 bits.
-                   We will only accept key sizes of 128 and 256 bits.
-               */
-
-               /* Fix parameters for TWOFISH-CBC */
-               esp_iv_len = 16;
-               crypt_mode_libgcrypt = GCRY_CIPHER_MODE_CBC;
-
-               decrypted_len = len - sizeof(struct newesp);
-
-               if (decrypted_len <= 0)
-                  decrypt_ok = FALSE;
-               else
-               {
-                  if(decrypted_len % esp_iv_len  == 0)
-                     decrypted_len_alloc = decrypted_len;
-                  else
-                     decrypted_len_alloc = (decrypted_len / esp_iv_len) * esp_iv_len + esp_iv_len;
-
-                  switch(esp_crypt_key_len * 8)
-                  {
-                  case 128:
-                     crypt_algo_libgcrypt = GCRY_CIPHER_TWOFISH128;
-                     decrypt_using_libgcrypt = TRUE;
-                     break;
-
-                  case 256:
-                     crypt_algo_libgcrypt = GCRY_CIPHER_TWOFISH;
-                     decrypt_using_libgcrypt = TRUE;
-                     break;
-
-                  default:
-                     fprintf (stderr, "<ESP Preferences> Error in Encryption Algorithm TWOFISH-CBC : Bad Keylen (%i Bits)\n",
-                                      esp_crypt_key_len * 8);
-                     decrypt_ok = FALSE;
-                  }
-               }
-
-               break;
-
-		      case IPSEC_ENCRYPT_BLOWFISH_CBC :
-               /* Bruce Schneier of Counterpane Systems developed
-                  the Blowfish block cipher algorithm.
-                  RFC 2451 shows that Blowfish uses key sizes from
-                  40 to 448 bits. The Default size is 128 bits.
-                  We will only accept key sizes of 128 bits, because
-                  libgrypt only accept this key size.
-               */
-
-               /* Fix parameters for BLOWFISH-CBC */
-               esp_iv_len = 8;
-               crypt_algo_libgcrypt = GCRY_CIPHER_BLOWFISH;
-               crypt_mode_libgcrypt = GCRY_CIPHER_MODE_CBC;
-
-               decrypted_len = len - sizeof(struct newesp);
-
-               if (decrypted_len <= 0)
-                  decrypt_ok = FALSE;
-               else
-               {
-                  if(decrypted_len % esp_iv_len  == 0)
-                     decrypted_len_alloc = decrypted_len;
-                  else
-                     decrypted_len_alloc = (decrypted_len / esp_iv_len) * esp_iv_len + esp_iv_len;
-
-                  if (esp_crypt_key_len != gcry_cipher_get_algo_keylen (crypt_algo_libgcrypt))
-                  {
-                     fprintf (stderr, "<ESP Preferences> Error in Encryption Algorithm BLOWFISH-CBC : Bad Keylen (%i Bits, need %lu)\n",
-                                      esp_crypt_key_len * 8, (unsigned long) gcry_cipher_get_algo_keylen (crypt_algo_libgcrypt) * 8);
-                     decrypt_ok = FALSE;
-                  }
-                  else
-                     decrypt_using_libgcrypt = TRUE;
-               }
-               break;
-
-		      case IPSEC_ENCRYPT_NULL :
-		      default :
-               /* Fix parameters */
-               esp_iv_len = 0;
-               decrypted_len = len - sizeof(struct newesp);
-
-               if (decrypted_len <= 0)
-                  decrypt_ok = FALSE;
-               else
-               {
-                  /* Allocate Buffers for Encrypted and Decrypted data  */
-                  decrypted_data = (guint8 *) g_malloc ((decrypted_len + 1)* sizeof(guint8));
-                  tvb_memcpy(tvb, decrypted_data , sizeof(struct newesp), decrypted_len);
-
-                  decrypt_ok = TRUE;
-               }
-               break;
-		      }
-
-            if(decrypt_using_libgcrypt)
-            {
-               /* Allocate Buffers for Encrypted and Decrypted data  */
-               encrypted_data = (guint8 *) g_malloc0 ((decrypted_len_alloc) * sizeof(guint8));
-               decrypted_data = (guint8 *) g_malloc ((decrypted_len_alloc + esp_iv_len)* sizeof(guint8));
-               tvb_memcpy(tvb, encrypted_data , sizeof(struct newesp), decrypted_len);
-
-               err = gcry_cipher_open (&cypher_hd, crypt_algo_libgcrypt, crypt_mode_libgcrypt, 0);
-               if (err)
-               {
-                  fprintf(stderr, "<IPsec/ESP Dissector> Error in Algorithm %s Mode %d, grcy_open_cipher failed: %s\n",
-                                 gcry_cipher_algo_name(crypt_algo_libgcrypt), crypt_mode_libgcrypt, gpg_strerror (err));
-                  g_free(encrypted_data);
-                  g_free(decrypted_data);
-                  decrypt_ok = FALSE;
-			      }
-               else
-               {
-                  if (crypt_mode_libgcrypt == GCRY_CIPHER_MODE_CTR)
-                  {
-                     /* Counter mode key includes a 4 byte, (32 bit), nonce following the key */
-                     err = gcry_cipher_setkey (cypher_hd, esp_crypt_key, esp_crypt_key_len - 4);
-                  }
-                  else
-                  {
-                     err = gcry_cipher_setkey (cypher_hd, esp_crypt_key, esp_crypt_key_len);
-                  }
-
-                  if (err)
-                  {
-                     fprintf(stderr, "<IPsec/ESP Dissector> Error in Algorithm %s Mode %d, gcry_cipher_setkey(key_len=%d) failed: %s\n",
-                        gcry_cipher_algo_name(crypt_algo_libgcrypt), crypt_mode_libgcrypt, esp_crypt_key_len, gpg_strerror (err));
-                     gcry_cipher_close (cypher_hd);
-                     g_free(encrypted_data);
-                     g_free(decrypted_data);
-                     decrypt_ok = FALSE;
-                  }
-                  else
-                  {
-                     if (crypt_mode_libgcrypt == GCRY_CIPHER_MODE_CTR)
-                     {
-                        memset(ctr_block, 0, 16);
-                        memcpy(ctr_block, esp_crypt_key + esp_crypt_key_len - 4, 4);
-                        memcpy(ctr_block + 4, encrypted_data, 8);
-                        ctr_block[15] = 1;
-                        err = gcry_cipher_setctr (cypher_hd, ctr_block, 16);
-                        if (!err)
+                        if (decrypted_len <= 0)
+                            decrypt_ok = FALSE;
+                        else
                         {
-                           memcpy(decrypted_data, encrypted_data, esp_iv_len);
-                           err = gcry_cipher_decrypt (cypher_hd, decrypted_data + esp_iv_len, decrypted_len_alloc,
-                                                     encrypted_data + esp_iv_len, decrypted_len_alloc - esp_iv_len);
-                        }
-                     }
-                     else
-                     {
-                        err = gcry_cipher_decrypt (cypher_hd, decrypted_data, decrypted_len_alloc + esp_iv_len,
-                                                 encrypted_data, decrypted_len_alloc);
-                     }
+                            if(decrypted_len % esp_iv_len  == 0)
+                                decrypted_len_alloc = decrypted_len;
+                            else
+                                decrypted_len_alloc = (decrypted_len / esp_iv_len) * esp_iv_len + esp_iv_len;
 
-                     if (err)
-                     {
-                        fprintf(stderr, "<IPsec/ESP Dissector> Error in Algorithm %s, Mode %d, gcry_cipher_decrypt failed: %s\n",
-                                         gcry_cipher_algo_name(crypt_algo_libgcrypt), crypt_mode_libgcrypt, gpg_strerror (err));
-                        gcry_cipher_close (cypher_hd);
-                        g_free(encrypted_data);
+                            if (esp_crypt_key_len != gcry_cipher_get_algo_keylen (crypt_algo_libgcrypt))
+                            {
+                                fprintf (stderr, "<ESP Preferences> Error in Encryption Algorithm 3DES-CBC : Bad Keylen (got %i Bits, need %lu)\n",
+                                    esp_crypt_key_len * 8,
+                                    (unsigned long) gcry_cipher_get_algo_keylen (crypt_algo_libgcrypt) * 8);
+                                decrypt_ok = FALSE;
+                            }
+                            else
+                                decrypt_using_libgcrypt = TRUE;
+                        }
+                        break;
+
+                    case IPSEC_ENCRYPT_AES_CBC :
+                        /* RFC 3602 says :
+                        AES supports three key sizes: 128 bits, 192 bits,
+                        and 256 bits.  The default key size is 128 bits,
+                        and all implementations MUST support this key size.
+                        Implementations MAY also support key sizes of 192
+                        bits and 256 bits. */
+
+                        /* Fix parameters for AES-CBC */
+                        esp_iv_len = 16;
+                        crypt_mode_libgcrypt = GCRY_CIPHER_MODE_CBC;
+
+                        decrypted_len = len - sizeof(struct newesp);
+
+                        if (decrypted_len <= 0)
+                            decrypt_ok = FALSE;
+                        else
+                        {
+                            if(decrypted_len % esp_iv_len  == 0)
+                                decrypted_len_alloc = decrypted_len;
+                            else
+                                decrypted_len_alloc = (decrypted_len / esp_iv_len) * esp_iv_len + esp_iv_len;
+
+                            switch(esp_crypt_key_len * 8)
+                            {
+                            case 128:
+                                crypt_algo_libgcrypt = GCRY_CIPHER_AES128;
+                                decrypt_using_libgcrypt = TRUE;
+                                break;
+
+                            case 192:
+                                crypt_algo_libgcrypt = GCRY_CIPHER_AES192;
+                                decrypt_using_libgcrypt = TRUE;
+                                break;
+
+                            case 256:
+                                crypt_algo_libgcrypt = GCRY_CIPHER_AES256;
+                                decrypt_using_libgcrypt = TRUE;
+                                break;
+
+                            default:
+                                fprintf (stderr, "<ESP Preferences> Error in Encryption Algorithm AES-CBC : Bad Keylen (%i Bits)\n",
+                                    esp_crypt_key_len * 8);
+                                decrypt_ok = FALSE;
+                            }
+                        }
+                        break;
+
+                    case IPSEC_ENCRYPT_CAST5_CBC :
+                        /* RFC 2144 says :
+                        The CAST-128 encryption algorithm has been designed to allow a key
+                        size that can vary from 40 bits to 128 bits, in 8-bit increments
+                        (that is, the allowable key sizes are 40, 48, 56, 64, ..., 112, 120,
+                        and 128 bits.
+                        We support only 128 bits. */
+
+                        /* Fix parameters for CAST5-CBC */
+                        esp_iv_len = 8;
+                        crypt_mode_libgcrypt = GCRY_CIPHER_MODE_CBC;
+
+                        decrypted_len = len - sizeof(struct newesp);
+
+                        if (decrypted_len <= 0)
+                            decrypt_ok = FALSE;
+                        else
+                        {
+                            if(decrypted_len % esp_iv_len  == 0)
+                                decrypted_len_alloc = decrypted_len;
+                            else
+                                decrypted_len_alloc = (decrypted_len / esp_iv_len) * esp_iv_len + esp_iv_len;
+
+                            switch(esp_crypt_key_len * 8)
+                            {
+                            case 128:
+                                crypt_algo_libgcrypt = GCRY_CIPHER_CAST5;
+                                decrypt_using_libgcrypt = TRUE;
+                                break;
+                            default:
+                                fprintf (stderr, "<ESP Preferences> Error in Encryption Algorithm CAST5-CBC : Bad Keylen (%i Bits)\n",
+                                    esp_crypt_key_len * 8);
+                                decrypt_ok = FALSE;
+                            }
+                        }
+                        break;
+
+                    case IPSEC_ENCRYPT_DES_CBC :
+                        /* RFC 2405 says :
+                        DES-CBC is a symmetric secret key algorithm.
+                        The key size is 64-bits.
+                        [It is commonly known as a 56-bit key as the key
+                        has 56 significant bits; the least significant
+                        bit in every byte is the parity bit.] */
+
+                        /* Fix parameters for DES-CBC */
+                        esp_iv_len = 8;
+                        crypt_algo_libgcrypt = GCRY_CIPHER_DES;
+                        crypt_mode_libgcrypt = GCRY_CIPHER_MODE_CBC;
+                        decrypted_len = len - sizeof(struct newesp);
+
+                        if (decrypted_len <= 0)
+                            decrypt_ok = FALSE;
+                        else
+                        {
+                            if(decrypted_len % esp_iv_len == 0)
+                                decrypted_len_alloc = decrypted_len;
+                            else
+                                decrypted_len_alloc = (decrypted_len / esp_iv_len) * esp_iv_len + esp_iv_len;
+
+                            if (esp_crypt_key_len != gcry_cipher_get_algo_keylen (crypt_algo_libgcrypt))
+                            {
+                                fprintf (stderr, "<ESP Preferences> Error in Encryption Algorithm DES-CBC : Bad Keylen (%i Bits, need %lu)\n",
+                                    esp_crypt_key_len * 8, (unsigned long) gcry_cipher_get_algo_keylen (crypt_algo_libgcrypt) * 8);
+                                decrypt_ok = FALSE;
+                            }
+                            else
+                                decrypt_using_libgcrypt = TRUE;
+                        }
+                        break;
+
+                    case IPSEC_ENCRYPT_AES_CTR :
+                        /* RFC 3686 says :
+                        AES supports three key sizes: 128 bits, 192 bits,
+                        and 256 bits.  The default key size is 128 bits,
+                        and all implementations MUST support this key
+                        size.  Implementations MAY also support key sizes
+                        of 192 bits and 256 bits. The remaining 32 bits
+                        will be used as nonce. */
+
+                        /* Fix parameters for AES-CTR */
+                        esp_iv_len = 8;
+                        crypt_mode_libgcrypt = GCRY_CIPHER_MODE_CTR;
+
+                        decrypted_len = len - sizeof(struct newesp);
+
+                        if (decrypted_len <= 0)
+                            decrypt_ok = FALSE;
+                        else
+                        {
+                            if(decrypted_len % esp_iv_len  == 0)
+                                decrypted_len_alloc = decrypted_len;
+                            else
+                                decrypted_len_alloc = (decrypted_len / esp_iv_len) * esp_iv_len + esp_iv_len;
+
+                            switch(esp_crypt_key_len * 8)
+                            {
+                            case 160:
+                                crypt_algo_libgcrypt = GCRY_CIPHER_AES128;
+                                decrypt_using_libgcrypt = TRUE;
+                                break;
+
+                            case 224:
+                                crypt_algo_libgcrypt = GCRY_CIPHER_AES192;
+                                decrypt_using_libgcrypt = TRUE;
+                                break;
+
+                            case 288:
+                                crypt_algo_libgcrypt = GCRY_CIPHER_AES256;
+                                decrypt_using_libgcrypt = TRUE;
+                                break;
+
+                            default:
+                                fprintf (stderr, "<ESP Preferences> Error in Encryption Algorithm AES-CTR : Bad Keylen (%i Bits)\n",
+                                    esp_crypt_key_len * 8);
+                                decrypt_ok = FALSE;
+                            }
+                        }
+                        break;
+
+                    case IPSEC_ENCRYPT_TWOFISH_CBC :
+                        /*  Twofish is a 128-bit block cipher developed by
+                        Counterpane Labs that accepts a variable-length
+                        key up to 256 bits.
+                        We will only accept key sizes of 128 and 256 bits.
+                        */
+
+                        /* Fix parameters for TWOFISH-CBC */
+                        esp_iv_len = 16;
+                        crypt_mode_libgcrypt = GCRY_CIPHER_MODE_CBC;
+
+                        decrypted_len = len - sizeof(struct newesp);
+
+                        if (decrypted_len <= 0)
+                            decrypt_ok = FALSE;
+                        else
+                        {
+                            if(decrypted_len % esp_iv_len  == 0)
+                                decrypted_len_alloc = decrypted_len;
+                            else
+                                decrypted_len_alloc = (decrypted_len / esp_iv_len) * esp_iv_len + esp_iv_len;
+
+                            switch(esp_crypt_key_len * 8)
+                            {
+                            case 128:
+                                crypt_algo_libgcrypt = GCRY_CIPHER_TWOFISH128;
+                                decrypt_using_libgcrypt = TRUE;
+                                break;
+
+                            case 256:
+                                crypt_algo_libgcrypt = GCRY_CIPHER_TWOFISH;
+                                decrypt_using_libgcrypt = TRUE;
+                                break;
+
+                            default:
+                                fprintf (stderr, "<ESP Preferences> Error in Encryption Algorithm TWOFISH-CBC : Bad Keylen (%i Bits)\n",
+                                    esp_crypt_key_len * 8);
+                                decrypt_ok = FALSE;
+                            }
+                        }
+
+                        break;
+
+                    case IPSEC_ENCRYPT_BLOWFISH_CBC :
+                        /* Bruce Schneier of Counterpane Systems developed
+                        the Blowfish block cipher algorithm.
+                        RFC 2451 shows that Blowfish uses key sizes from
+                        40 to 448 bits. The Default size is 128 bits.
+                        We will only accept key sizes of 128 bits, because
+                        libgrypt only accept this key size.
+                        */
+
+                        /* Fix parameters for BLOWFISH-CBC */
+                        esp_iv_len = 8;
+                        crypt_algo_libgcrypt = GCRY_CIPHER_BLOWFISH;
+                        crypt_mode_libgcrypt = GCRY_CIPHER_MODE_CBC;
+
+                        decrypted_len = len - sizeof(struct newesp);
+
+                        if (decrypted_len <= 0)
+                            decrypt_ok = FALSE;
+                        else
+                        {
+                            if(decrypted_len % esp_iv_len  == 0)
+                                decrypted_len_alloc = decrypted_len;
+                            else
+                                decrypted_len_alloc = (decrypted_len / esp_iv_len) * esp_iv_len + esp_iv_len;
+
+                            if (esp_crypt_key_len != gcry_cipher_get_algo_keylen (crypt_algo_libgcrypt))
+                            {
+                                fprintf (stderr, "<ESP Preferences> Error in Encryption Algorithm BLOWFISH-CBC : Bad Keylen (%i Bits, need %lu)\n",
+                                    esp_crypt_key_len * 8, (unsigned long) gcry_cipher_get_algo_keylen (crypt_algo_libgcrypt) * 8);
+                                decrypt_ok = FALSE;
+                            }
+                            else
+                                decrypt_using_libgcrypt = TRUE;
+                        }
+                        break;
+
+                    case IPSEC_ENCRYPT_NULL :
+                    default :
+                        /* Fix parameters */
+                        esp_iv_len = 0;
+                        decrypted_len = len - sizeof(struct newesp);
+
+                        if (decrypted_len <= 0)
+                            decrypt_ok = FALSE;
+                        else
+                        {
+                            /* Allocate Buffers for Encrypted and Decrypted data  */
+                            decrypted_data = (guint8 *) g_malloc ((decrypted_len + 1)* sizeof(guint8));
+                            tvb_memcpy(tvb, decrypted_data , sizeof(struct newesp), decrypted_len);
+
+                            decrypt_ok = TRUE;
+                        }
+                        break;
+                    }
+
+                    if(decrypt_using_libgcrypt)
+                    {
+                        /* Allocate Buffers for Encrypted and Decrypted data  */
+                        encrypted_data = (guint8 *) g_malloc0 ((decrypted_len_alloc) * sizeof(guint8));
+                        decrypted_data = (guint8 *) g_malloc ((decrypted_len_alloc + esp_iv_len)* sizeof(guint8));
+                        tvb_memcpy(tvb, encrypted_data , sizeof(struct newesp), decrypted_len);
+
+                        err = gcry_cipher_open (&cypher_hd, crypt_algo_libgcrypt, crypt_mode_libgcrypt, 0);
+                        if (err)
+                        {
+                            fprintf(stderr, "<IPsec/ESP Dissector> Error in Algorithm %s Mode %d, grcy_open_cipher failed: %s\n",
+                                gcry_cipher_algo_name(crypt_algo_libgcrypt), crypt_mode_libgcrypt, gpg_strerror (err));
+                            g_free(encrypted_data);
+                            g_free(decrypted_data);
+                            decrypt_ok = FALSE;
+                        }
+                        else
+                        {
+                            if (crypt_mode_libgcrypt == GCRY_CIPHER_MODE_CTR)
+                            {
+                                /* Counter mode key includes a 4 byte, (32 bit), nonce following the key */
+                                err = gcry_cipher_setkey (cypher_hd, esp_crypt_key, esp_crypt_key_len - 4);
+                            }
+                            else
+                            {
+                                err = gcry_cipher_setkey (cypher_hd, esp_crypt_key, esp_crypt_key_len);
+                            }
+
+                            if (err)
+                            {
+                                fprintf(stderr, "<IPsec/ESP Dissector> Error in Algorithm %s Mode %d, gcry_cipher_setkey(key_len=%d) failed: %s\n",
+                                    gcry_cipher_algo_name(crypt_algo_libgcrypt), crypt_mode_libgcrypt, esp_crypt_key_len, gpg_strerror (err));
+                                gcry_cipher_close (cypher_hd);
+                                g_free(encrypted_data);
+                                g_free(decrypted_data);
+                                decrypt_ok = FALSE;
+                            }
+                            else
+                            {
+                                if (crypt_mode_libgcrypt == GCRY_CIPHER_MODE_CTR)
+                                {
+                                    memset(ctr_block, 0, 16);
+                                    memcpy(ctr_block, esp_crypt_key + esp_crypt_key_len - 4, 4);
+                                    memcpy(ctr_block + 4, encrypted_data, 8);
+                                    ctr_block[15] = 1;
+                                    err = gcry_cipher_setctr (cypher_hd, ctr_block, 16);
+                                    if (!err)
+                                    {
+                                        memcpy(decrypted_data, encrypted_data, esp_iv_len);
+                                        err = gcry_cipher_decrypt (cypher_hd, decrypted_data + esp_iv_len, decrypted_len_alloc,
+                                            encrypted_data + esp_iv_len, decrypted_len_alloc - esp_iv_len);
+                                    }
+                                }
+                                else
+                                {
+                                    err = gcry_cipher_decrypt (cypher_hd, decrypted_data, decrypted_len_alloc + esp_iv_len,
+                                        encrypted_data, decrypted_len_alloc);
+                                }
+
+                                if (err)
+                                {
+                                    fprintf(stderr, "<IPsec/ESP Dissector> Error in Algorithm %s, Mode %d, gcry_cipher_decrypt failed: %s\n",
+                                        gcry_cipher_algo_name(crypt_algo_libgcrypt), crypt_mode_libgcrypt, gpg_strerror (err));
+                                    gcry_cipher_close (cypher_hd);
+                                    g_free(encrypted_data);
+                                    g_free(decrypted_data);
+                                    decrypt_ok = FALSE;
+                                }
+                                else
+                                {
+                                    gcry_cipher_close (cypher_hd);
+
+                                    /* Add the Authentication which was not encrypted */
+                                    if(decrypted_len >= esp_auth_len)
+                                    {
+                                        for(i = 0; i <  esp_auth_len; i++)
+                                        {
+                                            decrypted_data[i + decrypted_len -esp_auth_len]
+                                            = encrypted_data[i + decrypted_len - esp_auth_len];
+                                        }
+                                    }
+
+                                    fprintf(stderr,"\n\n ");
+                                    g_free(encrypted_data);
+                                    decrypt_ok = TRUE;
+                                }
+                            }
+                        }
+                    }
+
+                    if(decrypt_ok && (decrypted_len > esp_iv_len))
+                    {
+                        tvb_decrypted = tvb_new_child_real_data(tvb, g_memdup(decrypted_data+sizeof(guint8)*esp_iv_len,
+                            (decrypted_len - esp_iv_len)*sizeof(guint8)),
+                            decrypted_len - esp_iv_len, decrypted_len - esp_iv_len);
                         g_free(decrypted_data);
-                        decrypt_ok = FALSE;
-                     }
-                     else
-                     {
-                        gcry_cipher_close (cypher_hd);
 
-                        /* Add the Authentication which was not encrypted */
-                        if(decrypted_len >= esp_auth_len)
+                        add_new_data_source(pinfo, tvb_decrypted, "Decrypted Data");
+
+                        /* Handler to free the Decrypted Data Buffer. */
+                        tvb_set_free_cb(tvb_decrypted,g_free);
+
+                        if(tvb_bytes_exist(tvb, 8, esp_iv_len))
                         {
-                           for(i = 0; i <  esp_auth_len; i++)
-                           {
-                              decrypted_data[i + decrypted_len -esp_auth_len]
-                                                = encrypted_data[i + decrypted_len - esp_auth_len];
-                           }
+                            if(esp_iv_len > 0)
+                                proto_tree_add_item(esp_tree, hf_esp_iv, tvb, 8, esp_iv_len, ENC_NA);
+                        }
+                        else
+                            proto_tree_add_text(esp_tree, tvb, 8, -1, "IV (truncated)");
+
+                        /* Make sure the packet is not truncated before the fields
+                        * we need to read to determine the encapsulated protocol */
+                        if(tvb_bytes_exist(tvb_decrypted, decrypted_len - esp_iv_len - esp_auth_len - 2, 2))
+                        {
+                            esp_pad_len = tvb_get_guint8(tvb_decrypted, decrypted_len - esp_iv_len - esp_auth_len - 2);
+
+                            if(decrypted_len - esp_iv_len - esp_auth_len - esp_pad_len - 2 >= 0)
+                            {
+                                /* Get the encapsulated protocol */
+                                encapsulated_protocol = tvb_get_guint8(tvb_decrypted, decrypted_len - esp_iv_len - esp_auth_len - 1);
+
+                                if(dissector_try_uint(ip_dissector_table,
+                                    encapsulated_protocol,
+                                    tvb_new_subset(tvb_decrypted, 0,
+                                    decrypted_len - esp_auth_len - esp_pad_len - esp_iv_len - 2,
+                                    decrypted_len - esp_auth_len - esp_pad_len - esp_iv_len - 2),
+                                    pinfo,
+                                    tree))
+                                {
+                                    decrypt_dissect_ok = TRUE;
+                                }
+                            }
                         }
 
-                        fprintf(stderr,"\n\n ");
-                        g_free(encrypted_data);
-                        decrypt_ok = TRUE;
-                     }
-                  }
-               }
+                        if(decrypt_dissect_ok)
+                        {
+                            if(esp_tree)
+                            {
+                                if(esp_pad_len !=0)
+                                    proto_tree_add_text(esp_tree,
+                                    tvb_decrypted,
+                                    decrypted_len - esp_iv_len - esp_auth_len - 2 - esp_pad_len,
+                                    esp_pad_len,
+                                    "Pad");
+
+                                proto_tree_add_uint(esp_tree, hf_esp_pad_len, tvb_decrypted,
+                                    decrypted_len - esp_iv_len - esp_auth_len - 2, 1,
+                                    esp_pad_len);
+
+                                proto_tree_add_uint_format(esp_tree, hf_esp_protocol, tvb_decrypted,
+                                    decrypted_len - esp_iv_len - esp_auth_len - 1, 1,
+                                    encapsulated_protocol,
+                                    "Next header: %s (0x%02x)",
+                                    ipprotostr(encapsulated_protocol), encapsulated_protocol);
+
+                                dissect_esp_authentication(esp_tree,
+                                    tvb_decrypted,
+                                    decrypted_len - esp_iv_len,
+                                    esp_auth_len,
+                                    authenticator_data_computed,
+                                    authentication_ok,
+                                    authentication_checking_ok );
+                            }
+                        }
+                        else
+                        {
+                            call_dissector(data_handle,
+                                tvb_new_subset(tvb_decrypted, 0,
+                                decrypted_len - esp_iv_len - esp_auth_len,
+                                decrypted_len - esp_iv_len - esp_auth_len),
+                                pinfo, esp_tree);
+
+                            if(esp_tree)
+                                dissect_esp_authentication(esp_tree,
+                                tvb_decrypted,
+                                decrypted_len - esp_iv_len, esp_auth_len,
+                                authenticator_data_computed, authentication_ok,
+                                authentication_checking_ok );
+                        }
+                    }
+                }
+                else
+                {
+                    /* The packet does not belong to a security Association */
+                    null_encryption_decode_heuristic = g_esp_enable_null_encryption_decode_heuristic;
+                }
+
+                if(esp_auth_key_len != 0)
+                    g_free(esp_auth_key);
+                if(esp_crypt_key_len != 0)
+                    g_free(esp_crypt_key);
             }
+        }
+    }
 
-            if(decrypt_ok && (decrypted_len > esp_iv_len))
-            {
-               tvb_decrypted = tvb_new_child_real_data(tvb, g_memdup(decrypted_data+sizeof(guint8)*esp_iv_len,
-                                                                (decrypted_len - esp_iv_len)*sizeof(guint8)),
-                                                                decrypted_len - esp_iv_len, decrypted_len - esp_iv_len);
-               g_free(decrypted_data);
-
-               add_new_data_source(pinfo, tvb_decrypted, "Decrypted Data");
-
-               /* Handler to free the Decrypted Data Buffer. */
-               tvb_set_free_cb(tvb_decrypted,g_free);
-
-               if(tvb_bytes_exist(tvb, 8, esp_iv_len))
-               {
-                  if(esp_iv_len > 0)
-                     proto_tree_add_item(esp_tree, hf_esp_iv, tvb, 8, esp_iv_len, ENC_NA);
-               }
-   		      else
-                  proto_tree_add_text(esp_tree, tvb, 8, -1, "IV (truncated)");
-
-               /* Make sure the packet is not truncated before the fields
-                * we need to read to determine the encapsulated protocol */
-               if(tvb_bytes_exist(tvb_decrypted, decrypted_len - esp_iv_len - esp_auth_len - 2, 2))
-               {
-                  esp_pad_len = tvb_get_guint8(tvb_decrypted, decrypted_len - esp_iv_len - esp_auth_len - 2);
-
-                  if(decrypted_len - esp_iv_len - esp_auth_len - esp_pad_len - 2 >= 0)
-                  {
-                     /* Get the encapsulated protocol */
-                     encapsulated_protocol = tvb_get_guint8(tvb_decrypted, decrypted_len - esp_iv_len - esp_auth_len - 1);
-
-                     if(dissector_try_uint(ip_dissector_table,
-                            encapsulated_protocol,
-                            tvb_new_subset(tvb_decrypted, 0,
-		                           decrypted_len - esp_auth_len - esp_pad_len - esp_iv_len - 2,
-		                           decrypted_len - esp_auth_len - esp_pad_len - esp_iv_len - 2),
-                            pinfo,
-                            tree))
-                     {
-                        decrypt_dissect_ok = TRUE;
-                     }
-                  }
-               }
-
-               if(decrypt_dissect_ok)
-               {
-                  if(esp_tree)
-                  {
-                     if(esp_pad_len !=0)
-                        proto_tree_add_text(esp_tree,
-                                            tvb_decrypted,
-                                            decrypted_len - esp_iv_len - esp_auth_len - 2 - esp_pad_len,
-                                            esp_pad_len,
-                                            "Pad");
-
-                     proto_tree_add_uint(esp_tree, hf_esp_pad_len, tvb_decrypted,
-                          decrypted_len - esp_iv_len - esp_auth_len - 2, 1,
-                          esp_pad_len);
-
-                     proto_tree_add_uint_format(esp_tree, hf_esp_protocol, tvb_decrypted,
-                                                decrypted_len - esp_iv_len - esp_auth_len - 1, 1,
-                                                encapsulated_protocol,
-                                                "Next header: %s (0x%02x)",
-                                                ipprotostr(encapsulated_protocol), encapsulated_protocol);
-
-                     dissect_esp_authentication(esp_tree,
-                                                tvb_decrypted,
-                                                decrypted_len - esp_iv_len,
-                                                esp_auth_len,
-                                                authenticator_data_computed,
-                                                authentication_ok,
-                                                authentication_checking_ok );
-                  }
-               }
-               else
-               {
-                  call_dissector(data_handle,
-                                 tvb_new_subset(tvb_decrypted, 0,
-                                                   decrypted_len - esp_iv_len - esp_auth_len,
-                                                   decrypted_len - esp_iv_len - esp_auth_len),
-                                 pinfo, esp_tree);
-
-                  if(esp_tree)
-                     dissect_esp_authentication(esp_tree,
-                                                tvb_decrypted,
-                                                decrypted_len - esp_iv_len, esp_auth_len,
-                                                authenticator_data_computed, authentication_ok,
-                                                authentication_checking_ok );
-               }
-            }
-         }
-	      else
-         {
-            /* The packet does not belong to a security Association */
-            null_encryption_decode_heuristic = g_esp_enable_null_encryption_decode_heuristic;
-         }
-
-	      if(esp_auth_key_len != 0)
-            g_free(esp_auth_key);
-	      if(esp_crypt_key_len != 0)
-            g_free(esp_crypt_key);
-      }
-     }
-   }
-
-   /*
+    /*
     If the packet is present in the security association database and the field g_esp_enable_authentication_check set.
-   */
-   if(!g_esp_enable_encryption_decode && g_esp_enable_authentication_check && sad_is_present)
-   {
-      sad_is_present = FALSE;
-      call_dissector(data_handle,
-           tvb_new_subset(tvb, sizeof(struct newesp), len - sizeof(struct newesp) - esp_auth_len, -1),
-           pinfo, esp_tree);
+    */
+    if(!g_esp_enable_encryption_decode && g_esp_enable_authentication_check && sad_is_present)
+    {
+        sad_is_present = FALSE;
+        call_dissector(data_handle,
+            tvb_new_subset(tvb, sizeof(struct newesp), len - sizeof(struct newesp) - esp_auth_len, -1),
+            pinfo, esp_tree);
 
-      if(esp_tree)
-         dissect_esp_authentication(esp_tree, tvb, len ,
-                                   esp_auth_len, authenticator_data_computed,
-                                   authentication_ok, authentication_checking_ok );
+        if(esp_tree)
+            dissect_esp_authentication(esp_tree, tvb, len ,
+            esp_auth_len, authenticator_data_computed,
+            authentication_ok, authentication_checking_ok );
 
-   }
+    }
 
-   /* The packet does not belong to a security association and the field g_esp_enable_null_encryption_decode_heuristic is set */
-   else if(null_encryption_decode_heuristic)
-   {
+    /* The packet does not belong to a security association and the field g_esp_enable_null_encryption_decode_heuristic is set */
+    else if(null_encryption_decode_heuristic)
+    {
 #endif
-      if(g_esp_enable_null_encryption_decode_heuristic)
-      {
-         /* Get length of whole ESP packet. */
-         len = tvb_reported_length(tvb);
+        if(g_esp_enable_null_encryption_decode_heuristic)
+        {
+            /* Get length of whole ESP packet. */
+            len = tvb_reported_length(tvb);
 
-         /* Make sure the packet is not truncated before the fields
-         * we need to read to determine the encapsulated protocol */
-         if(tvb_bytes_exist(tvb, len - 14, 2))
-         {
-            esp_pad_len = tvb_get_guint8(tvb, len - 14);
-            encapsulated_protocol = tvb_get_guint8(tvb, len - 13);
-            if(dissector_try_uint(ip_dissector_table,
-		             encapsulated_protocol,
-		             tvb_new_subset(tvb,
-				            sizeof(struct newesp),
-				            -1,
-				            len - sizeof(struct newesp) - 14 - esp_pad_len),
-		             pinfo,
-		             tree))
+            /* Make sure the packet is not truncated before the fields
+            * we need to read to determine the encapsulated protocol */
+            if(tvb_bytes_exist(tvb, len - 14, 2))
             {
-               decrypt_dissect_ok = TRUE;
+                esp_pad_len = tvb_get_guint8(tvb, len - 14);
+                encapsulated_protocol = tvb_get_guint8(tvb, len - 13);
+                if(dissector_try_uint(ip_dissector_table,
+                    encapsulated_protocol,
+                    tvb_new_subset(tvb,
+                    sizeof(struct newesp),
+                    -1,
+                    len - sizeof(struct newesp) - 14 - esp_pad_len),
+                    pinfo,
+                    tree))
+                {
+                    decrypt_dissect_ok = TRUE;
+                }
             }
-         }
-      }
+        }
 
-      if(decrypt_dissect_ok)
-      {
-         if(esp_tree)
-         {
-            proto_tree_add_uint(esp_tree, hf_esp_pad_len, tvb,
-	              len - 14, 1,
-	              esp_pad_len);
-
-            proto_tree_add_uint_format(esp_tree, hf_esp_protocol, tvb,
-	              len - 13, 1,
-	              encapsulated_protocol,
-	             "Next header: %s (0x%02x)",
-	              ipprotostr(encapsulated_protocol), encapsulated_protocol);
-
-            /* Make sure we have the auth trailer data */
-            if(tvb_bytes_exist(tvb, len - 12, 12))
+        if(decrypt_dissect_ok)
+        {
+            if(esp_tree)
             {
-               proto_tree_add_text(esp_tree, tvb, len - 12, 12, "Authentication Data");
+                proto_tree_add_uint(esp_tree, hf_esp_pad_len, tvb,
+                    len - 14, 1,
+                    esp_pad_len);
+
+                proto_tree_add_uint_format(esp_tree, hf_esp_protocol, tvb,
+                    len - 13, 1,
+                    encapsulated_protocol,
+                    "Next header: %s (0x%02x)",
+                    ipprotostr(encapsulated_protocol), encapsulated_protocol);
+
+                /* Make sure we have the auth trailer data */
+                if(tvb_bytes_exist(tvb, len - 12, 12))
+                {
+                    proto_tree_add_text(esp_tree, tvb, len - 12, 12, "Authentication Data");
+                }
+                else
+                {
+                    /* Truncated so just display what we have */
+                    proto_tree_add_text(esp_tree, tvb, len - 12, 12 - (len - tvb_length(tvb)),
+                        "Authentication Data (truncated)");
+                }
             }
-            else
-            {
-               /* Truncated so just display what we have */
-               proto_tree_add_text(esp_tree, tvb, len - 12, 12 - (len - tvb_length(tvb)),
-	                        "Authentication Data (truncated)");
-            }
-         }
-      }
+        }
 #ifdef HAVE_LIBGCRYPT
-   }
+    }
 #endif
 }
 
