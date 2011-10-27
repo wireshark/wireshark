@@ -41,8 +41,6 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
-
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/strutil.h>
@@ -310,7 +308,7 @@ dissect_evrc_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, evrc_varia
             return;
         }
 
-        proto_tree_add_item(evrc_tree, hf_mode_request, tvb, offset, 1, FALSE);
+        proto_tree_add_item(evrc_tree, hf_mode_request, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(evrc_tree, hf_evrc_frame_count, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         /*
@@ -333,7 +331,7 @@ dissect_evrc_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, evrc_varia
         {
             oct = tvb_get_guint8(tvb, offset);
 
-            proto_tree_add_item(toc_tree, hf_toc_frame_type_high, tvb, offset, 1, FALSE);
+            proto_tree_add_item(toc_tree, hf_toc_frame_type_high, tvb, offset, 1, ENC_BIG_ENDIAN);
 
             speech_data_len[i] = evrc_frame_type_to_octs((guint8)((oct & 0xf0) >> 4));
 
@@ -342,7 +340,7 @@ dissect_evrc_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, evrc_varia
 	    if (i < frame_count)
             {
                 /* even number of frames */
-                proto_tree_add_item(toc_tree, hf_toc_frame_type_low, tvb, offset, 1, FALSE);
+                proto_tree_add_item(toc_tree, hf_toc_frame_type_low, tvb, offset, 1, ENC_BIG_ENDIAN);
 
                 speech_data_len[i] = evrc_frame_type_to_octs((guint8)(oct & 0x0f));
 

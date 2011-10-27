@@ -31,8 +31,7 @@
 #endif
 
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+
 #include <glib.h>
 
 #include "packet-rpc.h"
@@ -4869,32 +4868,32 @@ display_access_items(tvbuff_t* tvb, int offset, packet_info* pinfo, proto_tree* 
 					case 0:
 						access_subitem = proto_tree_add_item (access_subtree,
 							(mtype=='S' ? hf_nfs_access_supp_read : hf_nfs_access_read),
-							tvb, offset, 4, FALSE);
+							tvb, offset, 4, ENC_BIG_ENDIAN);
 						break;
 					case 1:
 						access_subitem = proto_tree_add_item (access_subtree,
 							(mtype=='S' ? hf_nfs_access_supp_lookup : hf_nfs_access_lookup),
-							tvb, offset, 4, FALSE);
+							tvb, offset, 4, ENC_BIG_ENDIAN);
 						break;
 					case 2:
 						access_subitem = proto_tree_add_item (access_subtree,
 							(mtype=='S' ? hf_nfs_access_supp_modify : hf_nfs_access_modify),
-							tvb, offset, 4, FALSE);
+							tvb, offset, 4, ENC_BIG_ENDIAN);
 						break;
 					case 3:
 						access_subitem = proto_tree_add_item (access_subtree,
 							(mtype=='S' ? hf_nfs_access_supp_extend : hf_nfs_access_extend),
-							tvb, offset, 4, FALSE);
+							tvb, offset, 4, ENC_BIG_ENDIAN);
 						break;
 					case 4:
 						access_subitem = proto_tree_add_item (access_subtree,
 							(mtype=='S' ? hf_nfs_access_supp_delete : hf_nfs_access_delete),
-							tvb, offset, 4, FALSE);
+							tvb, offset, 4, ENC_BIG_ENDIAN);
 						break;
 					case 5:
 						access_subitem = proto_tree_add_item (access_subtree,
 							(mtype=='S' ? hf_nfs_access_supp_execute : hf_nfs_access_execute),
-							tvb, offset, 4, FALSE);
+							tvb, offset, 4, ENC_BIG_ENDIAN);
 						break;
 				}
 				if (mtype=='C') proto_item_append_text(access_subitem, "?" );

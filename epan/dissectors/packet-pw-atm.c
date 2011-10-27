@@ -474,7 +474,7 @@ gboolean too_small_packet_or_notpw(tvbuff_t * tvb
 		if (tree)
 		{
 			proto_item  *item;
-			item = proto_tree_add_item(tree, proto_handler, tvb, 0, -1, FALSE);
+			item = proto_tree_add_item(tree, proto_handler, tvb, 0, -1, ENC_NA);
 			expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
 				"PW packet size (%d) is too small to carry sensible information"
 				,(int)packet_size);
@@ -1303,7 +1303,7 @@ void dissect_control_word(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
 							if (pref_aal5_sdu_extend_cw_length_with_rsvd)
 								hf_len = hf_pref_cw_rsvlen;
 						}
-						item = proto_tree_add_item(tree2, hf_len, tvb, 1, 1, FALSE);
+						item = proto_tree_add_item(tree2, hf_len, tvb, 1, 1, ENC_BIG_ENDIAN);
 					}
 					if (pd->props & PWC_CW_BAD_LEN_MUST_BE_0)
 					{
@@ -1572,7 +1572,7 @@ int dissect_cell_header(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 						,(PWATM_MODE_AAL5_PDU == pd->mode)
 							? hf_aal5_pdu_rsv
 							: hf_cell_h_rsv
-						,tvb, 0, 1, FALSE);
+						,tvb, 0, 1, ENC_BIG_ENDIAN);
 					if (0 != pd->cwb3.rsv)
 					{
 						expert_add_info_format(pinfo, item2, PI_MALFORMED, PI_ERROR

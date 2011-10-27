@@ -1018,7 +1018,7 @@ dissect_payload_sp(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, pr
 	}
 
 	tvb_ensure_bytes_exist(tvb, offset+5, length);
-/* 	proto_tree_add_item(tree, hf_mikey[POS_SP_PARAM], tvb, 5, length, FALSE); */
+/* 	proto_tree_add_item(tree, hf_mikey[POS_SP_PARAM], tvb, 5, length, ENC_NA); */
 
 	offset += 5;
 	sub_pos = 0;
@@ -1270,7 +1270,7 @@ dissect_mikey(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (hf == -1)
 				hf = 0;
 
-			sub_ti = proto_tree_add_item(mikey_tree, hf_mikey_pl[hf], subtvb, 0, -1, FALSE);
+			sub_ti = proto_tree_add_item(mikey_tree, hf_mikey_pl[hf], subtvb, 0, -1, ENC_NA);
 
 			mikey_payload_tree = proto_item_add_subtree(sub_ti, ett_mikey_payload);
 			if (payload != PL_HDR && payload != PL_SIGN)

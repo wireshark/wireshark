@@ -2218,14 +2218,14 @@ dissect_ptp_v2_text(tvbuff_t *tvb, guint16 *cur_offset, proto_tree *tree, int hf
     if (tree)
     {
         ptptext_ti = proto_tree_add_item(tree, hf_ptp_v2_mm_ptptext, tvb,
-            *cur_offset+1, length, FALSE);
+            *cur_offset+1, length, ENC_BIG_ENDIAN);
 
         ptptext_subtree = proto_item_add_subtree(ptptext_ti, ett_ptp_v2_ptptext);
-            /* subtree */
-            proto_tree_add_item(ptptext_subtree, hf_ptp_v2_mm_ptptext_length, tvb,
-                *cur_offset, 1, FALSE);
-            proto_tree_add_item(ptptext_subtree, hf_ptp_v2_mm_ptptext, tvb,
-                *cur_offset+1, length, FALSE);
+        /* subtree */
+        proto_tree_add_item(ptptext_subtree, hf_ptp_v2_mm_ptptext_length, tvb,
+                            *cur_offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ptptext_subtree, hf_ptp_v2_mm_ptptext, tvb,
+                            *cur_offset+1, length, ENC_ASCII|ENC_NA);
 
         *cur_offset = *cur_offset + length + 1;
     }

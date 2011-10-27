@@ -98,15 +98,14 @@ dissect_tte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         tte_tree = proto_item_add_subtree(tte_root_item, ett_tte);
 
         tte_macdest_item = proto_tree_add_item(tte_tree,
-            hf_eth_dst, tvb, 0, TTE_MAC_LENGTH, FALSE);
+            hf_eth_dst, tvb, 0, TTE_MAC_LENGTH, ENC_NA);
 
         proto_tree_add_item(tte_tree,
-            hf_eth_src, tvb, TTE_MAC_LENGTH, TTE_MAC_LENGTH, FALSE);
+            hf_eth_src, tvb, TTE_MAC_LENGTH, TTE_MAC_LENGTH, ENC_NA);
 
         proto_tree_add_item(tte_tree,
             hf_eth_type, tvb, TTE_MAC_LENGTH*2, TTE_ETHERTYPE_LENGTH,
-
-            FALSE);
+            ENC_BIG_ENDIAN);
 
         tte_macdest_tree = proto_item_add_subtree(tte_macdest_item,
             ett_tte_macdest);

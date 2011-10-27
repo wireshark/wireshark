@@ -1826,7 +1826,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
                                             stlv_type==MPLS_LINK_LOCAL_IF ?
                                             hf_ospf_filter[OSPFF_LS_MPLS_LOCAL_ADDR] :
                                             hf_ospf_filter[OSPFF_LS_MPLS_REMOTE_ADDR],
-                                            tvb, stlv_offset+4+i, 4, FALSE);
+                                            tvb, stlv_offset+4+i, 4, ENC_BIG_ENDIAN);
                     break;
 
                 case MPLS_LINK_TE_METRIC:

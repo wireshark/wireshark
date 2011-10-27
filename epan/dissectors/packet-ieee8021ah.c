@@ -134,7 +134,7 @@ dissect_ieee8021ad(tvbuff_t *tvb, packet_info *pinfo,
     ieee8021ad_tree = NULL;
 
     if (tree) {
-	ptree = proto_tree_add_item(tree, proto_tree_index, tvb, 0, IEEE8021AD_LEN, FALSE);
+	ptree = proto_tree_add_item(tree, proto_tree_index, tvb, 0, IEEE8021AD_LEN, ENC_NA);
 	ieee8021ad_tree = proto_item_add_subtree(ptree, ett_ieee8021ad);
     }
 
@@ -144,7 +144,7 @@ dissect_ieee8021ad(tvbuff_t *tvb, packet_info *pinfo,
        tree to 802.1ah, pass to 1ah dissector */
     if (encap_proto == ETHERTYPE_IEEE_802_1AH) {
 	if (tree) {
-	    tagtree = proto_tree_add_item(ptree, proto_tree_index, tvb, 0, 2, FALSE);
+	    tagtree = proto_tree_add_item(ptree, proto_tree_index, tvb, 0, 2, ENC_NA);
 	    ieee8021ad_tag_tree = proto_item_add_subtree(tagtree, ett_ieee8021ad);
 
 	    /* add fields */
@@ -242,7 +242,7 @@ dissect_ieee8021ah_common(tvbuff_t *tvb, packet_info *pinfo,
 
     if (tree) {
 	/* 802.1ah I-Tag */
-	ptree = proto_tree_add_item(tree, tree_index, tvb, 0, 4, FALSE);
+	ptree = proto_tree_add_item(tree, tree_index, tvb, 0, 4, ENC_NA);
 	ieee8021ah_tag_tree = proto_item_add_subtree(ptree, ett_ieee8021ah);
 
 	/* add fields */
@@ -326,7 +326,7 @@ dissect_ieee8021ah(tvbuff_t *tvb, packet_info *pinfo,
     ieee8021ah_tree = NULL;
 
     if (tree) {
-	ptree = proto_tree_add_item(tree, proto_tree_index, tvb, 0, IEEE8021AH_LEN, FALSE);
+	ptree = proto_tree_add_item(tree, proto_tree_index, tvb, 0, IEEE8021AH_LEN, ENC_NA);
 	ieee8021ah_tree = proto_item_add_subtree(ptree, ett_ieee8021ah);
 
 	dissect_ieee8021ah_common(tvb, pinfo, ieee8021ah_tree, tree, proto_tree_index);

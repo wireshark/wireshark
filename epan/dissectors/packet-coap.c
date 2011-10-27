@@ -248,7 +248,7 @@ dissect_coap_opt_ctype(tvbuff_t *tvb, packet_info *pinfo, proto_tree *subtree, g
 	coap_content_type_value = (gint)opt_ctype;
 	coap_content_type = val_to_str(opt_ctype, vals_ctype, "Unknown %d");
 
-	proto_tree_add_item(subtree, hfindex, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hfindex, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 static void
@@ -261,7 +261,7 @@ dissect_coap_opt_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *subtree, gi
 		return;
 	}
 
-	item = proto_tree_add_item(subtree, hfindex, tvb, offset, opt_length, FALSE);
+	item = proto_tree_add_item(subtree, hfindex, tvb, offset, opt_length, ENC_BIG_ENDIAN);
 	proto_item_append_text(item, " (s)");
 
 	return;
@@ -295,7 +295,7 @@ dissect_coap_opt_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *subtree, g
 	block_mflag = val & 0x08;
 
 	proto_tree_add_int(subtree, hf_coap_opt_block_number, tvb, offset, opt_length, block_number);
-	proto_tree_add_item(subtree, hfindex, tvb, offset + opt_length - 1, 1, FALSE);
+	proto_tree_add_item(subtree, hfindex, tvb, offset + opt_length - 1, 1, ENC_BIG_ENDIAN);
 
 	block_size = 1 << (encoded_block_size + 4);
 	item = proto_tree_add_item(subtree, hf_coap_opt_block_size, tvb, offset + opt_length - 1, 1, ENC_BIG_ENDIAN);
@@ -325,7 +325,7 @@ dissect_coap_opt_port(tvbuff_t *tvb, packet_info *pinfo, proto_tree *subtree, gi
 		expert_add_info_format(pinfo, subtree, PI_MALFORMED, PI_WARN, "Invalid Option Length: %d", opt_length);
 		return;
 	}
-	(void)proto_tree_add_item(subtree, hfindex, tvb, offset, opt_length, FALSE);
+	(void)proto_tree_add_item(subtree, hfindex, tvb, offset, opt_length, ENC_BIG_ENDIAN);
 
 	/* forming a uri-string */
 	if (uri_string[0] == '\0')
