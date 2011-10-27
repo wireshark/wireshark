@@ -86,9 +86,11 @@ dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                            for deciding whether or not the packet is a MAD      */
 
     /* initialize source/destination address strings. we will fill them in later */
-    src_addr_str = ep_alloc(ADDR_STR_MAX_LEN+1);
-    dst_addr_str = ep_alloc(ADDR_STR_MAX_LEN+1);
-                                                                   
+    if (!src_addr_str)
+        src_addr_str = ep_alloc(ADDR_STR_MAX_LEN+1);
+    if (!dst_addr_str)
+        dst_addr_str = ep_alloc(ADDR_STR_MAX_LEN+1);
+
     /* Mark the Packet type as Infiniband in the wireshark UI */
     /* Clear other columns */
     if(pinfo->cinfo)
@@ -487,7 +489,7 @@ dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     {
         proto_tree_add_item(all_headers_tree, hf_infiniband_variant_crc,   tvb, offset, 2, FALSE); offset+=2;
     }
-    
+
 }
 
 static void
@@ -502,6 +504,12 @@ dissect_infiniband_link(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item *operand_item = NULL;
     gint offset = 0;                /* Current Offset */
     guint8 operand;                 /* Link packet Operand */
+
+    /* allocate space for source/destination addresses if not allocated already. we will fill them in later */
+    if (!src_addr_str)
+        src_addr_str = ep_alloc(ADDR_STR_MAX_LEN+1);
+    if (!dst_addr_str)
+        dst_addr_str = ep_alloc(ADDR_STR_MAX_LEN+1);
 
     operand =  tvb_get_guint8(tvb, offset);
     operand = (operand & 0xF0) >> 4;
@@ -536,7 +544,7 @@ dissect_infiniband_link(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Top Level Packet */
     infiniband_link_packet = proto_tree_add_item(tree, proto_infiniband_link, tvb, offset, -1, FALSE);
- 
+
     /* Headers Level Tree */
     link_tree = proto_item_add_subtree(infiniband_link_packet, ett_link);
 
@@ -555,7 +563,7 @@ dissect_infiniband_link(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	proto_tree_add_item(link_tree, hf_infiniband_link_lpcrc, tvb, offset, 2, FALSE);
 	offset += 2;
-	
+
     }
 
 }
@@ -853,7 +861,7 @@ static void parse_PAYLOAD(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
     guint16 etype, reserved;
     const char      *saved_proto;
     volatile gboolean   dissector_found = FALSE;
- 
+
     if(!tvb_bytes_exist(tvb, *offset, length)) /* previously consumed bytes + offset was all the data - none or corrupt payload */
     {
         if (check_col(pinfo->cinfo, COL_INFO))
@@ -948,18 +956,18 @@ static void parse_PAYLOAD(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
         reserved =  tvb_get_ntohs(tvb, local_offset + 2);
 
         if (reserved == 0) {
-            
+
             /* Get the captured length and reported length of the data
                after the Ethernet type. */
             captured_length = tvb_length_remaining(tvb, local_offset+4);
             reported_length = tvb_reported_length_remaining(tvb,
                                     local_offset+4);
-            
+
             next_tvb = tvb_new_subset(tvb, local_offset+4, captured_length,
                           reported_length);
-            
+
             pinfo->ethertype = etype;
-            
+
             /* Look for sub-dissector, and call it if found.
                Catch exceptions, so that if the reported length of "next_tvb"
                was reduced by some dissector before an exception was thrown,
@@ -971,17 +979,17 @@ static void parse_PAYLOAD(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
             }
             CATCH(BoundsError) {
                 /* Somebody threw BoundsError, which means that:
-                   
+
                 1) a dissector was found, so we don't need to
                 dissect the payload as data or update the
                 protocol or info columns;
-                
+
                 2) dissecting the payload found that the packet was
                 cut off by a snapshot length before the end of
                 the payload.  The trailer comes after the payload,
                 so *all* of the trailer is cut off, and we'll
                 just get another BoundsError if we add the trailer.
-                
+
                 Therefore, we just rethrow the exception so it gets
                 reported; we don't dissect the trailer or do anything
                 else. */
@@ -1003,11 +1011,11 @@ static void parse_PAYLOAD(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
                 pinfo->current_proto = saved_proto;
             }
             ENDTRY;
-            
+
             if (dissector_found) {
                 /* now create payload entry to show Ethertype */
                 PAYLOAD_header_item = proto_tree_add_item(parentTree, hf_infiniband_payload, tvb, local_offset, tvb_reported_length_remaining(tvb, local_offset)-6, FALSE);
-                proto_item_set_text(PAYLOAD_header_item, "%s", "IBA Payload - appears to be EtherType encapsulated"); 
+                proto_item_set_text(PAYLOAD_header_item, "%s", "IBA Payload - appears to be EtherType encapsulated");
                 PAYLOAD_header_tree = proto_item_add_subtree(PAYLOAD_header_item, ett_payload);
                 proto_tree_add_uint(PAYLOAD_header_tree, hf_infiniband_etype, tvb,
                             local_offset, 2,  tvb_get_ntohs(tvb, local_offset));
@@ -1018,17 +1026,17 @@ static void parse_PAYLOAD(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
                             local_offset, 2, tvb_get_ntohs(tvb, local_offset));
 
             }
-                
+
         }
-        
+
         if (!dissector_found) {
             /* No sub-dissector found.
                Label rest of packet as "Data" */
-            
+
             captured_length = tvb_length_remaining(tvb, local_offset);
             reported_length = tvb_reported_length_remaining(tvb,
                                     local_offset);
-            
+
             if (reported_length >= 6)
                 reported_length -= 6;
             if (captured_length > reported_length)
@@ -1037,14 +1045,14 @@ static void parse_PAYLOAD(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
             next_tvb = tvb_new_subset(tvb, local_offset,
                           captured_length,
                           reported_length);
-            
+
             call_dissector(data_handle, next_tvb, pinfo, top_tree);
-            
+
         }
-        
+
 
         /*parse_RWH(parentTree, tvb, &local_offset, pinfo);*/
-        
+
         /* Will contain ICRC and VCRC = 4+2 */
         local_offset = tvb_reported_length(tvb) - 6;
     }
@@ -1104,7 +1112,7 @@ static void parse_RWH(proto_tree *ah_tree, tvbuff_t *tvb, gint *offset, packet_i
     proto_item *RWH_header_item = NULL;
 
     gint captured_length, reported_length;
-    
+
     RWH_header_item = proto_tree_add_item(ah_tree, hf_infiniband_RWH, tvb, *offset, 4, FALSE);
     proto_item_set_text(RWH_header_item, "%s", "RWH - Raw Header");
     RWH_header_tree = proto_item_add_subtree(RWH_header_item, ett_rwh);
@@ -3141,7 +3149,7 @@ static void dissect_general_info(tvbuff_t *tvb, gint offset, packet_info *pinfo)
             offset += 16;
 
             tvb_get_ipv6(tvb, offset, &DSTgid);
-            
+
             /* Set destination GID in packet view. */
             g_snprintf(dst_addr_str, ADDR_STR_MAX_LEN, "DGID: %s", ip6_to_str(&DSTgid));
             SET_ADDRESS(&pinfo->dst, AT_STRINGZ, (int)strlen(dst_addr_str)+1, dst_addr_str);
@@ -3331,7 +3339,7 @@ void proto_register_infiniband(void)
         { 0,    NULL }
     };
 
-    static hf_register_info hf[] = {    
+    static hf_register_info hf[] = {
         /* Local Route Header (LRH) */
         { &hf_infiniband_LRH, {
                 "Local Route Header", "infiniband.lrh",
@@ -3373,7 +3381,7 @@ void proto_register_infiniband(void)
                 "Source Local ID", "infiniband.lrh.slid",
                 FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
-        
+
         /* Global Route Header (GRH) */
         { &hf_infiniband_GRH, {
                 "Global Route Header", "infiniband.grh",
@@ -3411,7 +3419,7 @@ void proto_register_infiniband(void)
                 "Destination GID", "infiniband.grh.dgid",
                 FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
-        
+
         /* Base Transport Header (BTH) */
         { &hf_infiniband_BTH, {
                 "Base Transport Header", "infiniband.bth",
@@ -3461,7 +3469,7 @@ void proto_register_infiniband(void)
                 "Packet Sequence Number", "infiniband.bth.psn",
                 FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
-        
+
         /* Raw Header (RWH) */
         { &hf_infiniband_RWH, {
                 "Raw Header", "infiniband.rwh",
@@ -3489,7 +3497,7 @@ void proto_register_infiniband(void)
                 "E2E Context", "infiniband.rdeth.eecnxt",
                 FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
-        
+
         /* Datagram Extended Transport Header (DETH) */
         { &hf_infiniband_DETH, {
                 "Datagram Extended Transport Header", "infiniband.deth",
@@ -3507,7 +3515,7 @@ void proto_register_infiniband(void)
                 "Source Queue Pair", "infiniband.deth.srcqp",
                 FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
-        
+
         /* RDMA Extended Transport Header (RETH) */
         { &hf_infiniband_RETH, {
                 "RDMA Extended Transport Header", "infiniband.reth",
@@ -3525,7 +3533,7 @@ void proto_register_infiniband(void)
                 "DMA Length", "infiniband.reth.dmalen",
                 FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
-        
+
         /* Atomic Extended Transport Header (AtomicETH) */
         { &hf_infiniband_AtomicETH, {
                 "Atomic Extended Transport Header", "infiniband.atomiceth",
@@ -3549,7 +3557,7 @@ void proto_register_infiniband(void)
                 "Compare Data", "infiniband.atomiceth.cmpdt",
                 FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
-        
+
         /* ACK Extended Transport Header (AETH) */
         { &hf_infiniband_AETH, {
                 "ACK Extended Transport Header", "infiniband.aeth",
@@ -3563,7 +3571,7 @@ void proto_register_infiniband(void)
                 "Message Sequence Number", "infiniband.aeth.msn",
                 FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
-        
+
         /* Atomic ACK Extended Transport Header (AtomicAckETH) */
         { &hf_infiniband_AtomicAckETH, {
                 "Atomic ACK Extended Transport Header", "infiniband.atomicacketh",
@@ -3981,7 +3989,7 @@ void proto_register_infiniband(void)
                 "CapabilityMask", "infiniband.portinfo.capabilitymask",
                 FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
-        
+
         /* Capability Mask Flags */
         { &hf_infiniband_PortInfo_CapabilityMask_SM, {
                 "SM", "infiniband.portinfo.capabilitymask.issm",
@@ -4371,7 +4379,7 @@ void proto_register_infiniband(void)
         { &hf_infiniband_LedInfo_LedMask, {
                 "LedMask", "infiniband.ledinfo.ledmask",
                 FT_UINT8, BASE_HEX, NULL, 0x80, NULL, HFILL}
-        },  
+        },
 
         /* LinkSpeedWidthPairsTable */
         { &hf_infiniband_LinkSpeedWidthPairsTable_NumTables, {
@@ -4381,19 +4389,19 @@ void proto_register_infiniband(void)
         { &hf_infiniband_LinkSpeedWidthPairsTable_PortMask, {
                 "PortMask", "infiniband.linkspeedwidthpairstable.portmask",
                 FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
-        },  
+        },
         { &hf_infiniband_LinkSpeedWidthPairsTable_SpeedTwoFive, {
                 "Speed 2.5 Gbps", "infiniband.linkspeedwidthpairstable.speedtwofive",
                 FT_UINT8, BASE_HEX, NULL, 0x80, NULL, HFILL}
-        },  
+        },
         { &hf_infiniband_LinkSpeedWidthPairsTable_SpeedFive, {
                 "Speed 5 Gbps", "infiniband.linkspeedwidthpairstable.speedfive",
                 FT_UINT8, BASE_HEX, NULL, 0x80, NULL, HFILL}
-        },  
+        },
         { &hf_infiniband_LinkSpeedWidthPairsTable_SpeedTen, {
                 "Speed 10 Gbps", "infiniband.linkspeedwidthpairstable.speedten",
                 FT_UINT8, BASE_HEX, NULL, 0x80, NULL, HFILL}
-        },  
+        },
 
         /* NodeRecord */
         /* PortInfoRecord */
@@ -5020,7 +5028,7 @@ void proto_register_infiniband(void)
         { &hf_infiniband_PortCounters_PortRcvSwitchRelayErrors, {
                 "PortRcvSwitchRelayErrors", "infiniband.portcounters.portrcvswitchrelayerrors",
                 FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Total number of packets number of packets discarded because they could not be forwarded by switch relay", 
+                "Total number of packets number of packets discarded because they could not be forwarded by switch relay",
                 HFILL}
         },
         { &hf_infiniband_PortCounters_PortXmitDiscards, {
@@ -5188,7 +5196,7 @@ void proto_register_infiniband(void)
         &ett_perfclass,
     };
 
-    static hf_register_info hf_link[] = {    
+    static hf_register_info hf_link[] = {
         { &hf_infiniband_link_op, {
                 "Operand", "infiniband_link.op",
                 FT_UINT16, BASE_DEC, VALS(Operand_Description), 0xF000, NULL, HFILL}

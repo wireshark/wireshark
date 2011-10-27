@@ -37,18 +37,21 @@ Wireshark Info
 
         <listitem>
           <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2011-17.html">wnpa-sec-2011-17</ulink>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2011-18.html">wnpa-sec-2011-18</ulink>
           </para>
           <para>
-            .
-            <!-- Fixed in trunk: r????? -->
-            <!-- Fixed in trunk-1.6: r????? -->
-            <!-- Fixed in trunk-1.4: r????? -->
+            Huzaifa Sidhpurwala of Red Hat Security Response Team discovered
+            that the Infiniband dissector could dereference a NULL pointer.
+            <!-- Fixed in trunk: r39500 -->
+            <!-- Fixed in trunk-1.6: r39584 -->
+            <!-- Fixed in trunk-1.4: r39642 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6476">Bug
+            6476</ulink>)
           </para>
           <para>Versions affected: 1.4.0 to 1.4.9, 1.6.0 to 1.6.2.</para>
-          <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-3266">CVE-2011-3266</ulink>
-          </para>
+          <!-- <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-????">CVE-2011-????</ulink>
+          </para> -->
         </listitem>
 
       </itemizedlist>
@@ -209,6 +212,7 @@ ASN.1 PER,
 BACapp,
 DTN,
 GSM SMS,
+Infiniband,
 IPsec,
 NetFlow,
 PCEP,
