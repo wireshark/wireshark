@@ -5528,7 +5528,7 @@ static void dissect_PAD(tvbuff_t *tvb,
                 int octets_to_next_header,
                 proto_tree *tree,
                 char * info_summary_text,
-                guint16 G_GNUC_UNUSED vendor_id) {
+                guint16 vendor_id _U_) {
   /* 0...2...........7...............15.............23...............31
    * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    * |   PAD         |X|X|X|X|X|X|X|E|      octetsToNextHeader       |
@@ -5537,7 +5537,7 @@ static void dissect_PAD(tvbuff_t *tvb,
   if (tree) {
     rtps_util_decode_flags(tree, tvb, offset + 1, flags, PAD_FLAGS);
 
-    if (octets_to_next_header != 0) {
+    if (NEXT_guint16(tvb, offset + 2, little_endian) != 0) {
       proto_tree_add_uint_format(tree,
                           hf_rtps_sm_octets_to_next_header,
                           tvb,
@@ -6306,7 +6306,7 @@ static void dissect_ACKNACK(tvbuff_t *tvb,
                 int octets_to_next_header,
                 proto_tree *tree,
                 char * info_summary_text,
-                guint16 G_GNUC_UNUSED vendor_id ) {
+                guint16 vendor_id _U_) {
   /*
    * 0...2...........7...............15.............23...............31
    * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -6439,7 +6439,7 @@ static void dissect_NACK_FRAG(tvbuff_t *tvb,
                 int octets_to_next_header,
                 proto_tree *tree,
                 char * info_summary_text,
-                guint16 G_GNUC_UNUSED vendor_id ) {
+                guint16 vendor_id _U_) {
   /*
    * 0...2...........7...............15.............23...............31
    * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -6560,7 +6560,7 @@ static void dissect_HEARTBEAT(tvbuff_t *tvb,
                 int octets_to_next_header,
                 proto_tree *tree,
                 char * info_summary_text,
-                guint16 G_GNUC_UNUSED vendor_id) {
+                guint16 vendor_id _U_) {
   /*
    * 0...2...........7...............15.............23...............31
    * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -6678,7 +6678,7 @@ static void dissect_HEARTBEAT_BATCH(tvbuff_t *tvb,
                 int octets_to_next_header,
                 proto_tree *tree,
                 char * info_summary_text,
-                guint16 G_GNUC_UNUSED vendor_id) {
+                guint16 vendor_id _U_) {
 
 
   /*
@@ -6821,7 +6821,7 @@ static void dissect_HEARTBEAT_FRAG(tvbuff_t *tvb,
                 int octets_to_next_header,
                 proto_tree *tree,
                 char * info_summary_text,
-                guint16 G_GNUC_UNUSED vendor_id) {
+                guint16 vendor_id _U_) {
   /*
    * 0...2...........7...............15.............23...............31
    * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -6943,7 +6943,7 @@ static void dissect_GAP(tvbuff_t *tvb,
                 int octets_to_next_header,
                 proto_tree *tree,
                 char * info_summary_text,
-                guint16 G_GNUC_UNUSED vendor_id) {
+                guint16 vendor_id _U_) {
   /*
    * 0...2...........7...............15.............23...............31
    * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -7046,7 +7046,7 @@ static void dissect_INFO_TS(tvbuff_t *tvb,
                 int octets_to_next_header,
                 proto_tree *tree,
                 char * info_summary_text,
-                guint16 G_GNUC_UNUSED vendor_id) {
+                guint16 vendor_id _U_) {
   /*
    * 0...2...........7...............15.............23...............31
    * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -7116,7 +7116,7 @@ static void dissect_INFO_SRC(tvbuff_t *tvb,
                 int octets_to_next_header,
                 proto_tree *tree,
                 char * info_summary_text,
-                guint16 G_GNUC_UNUSED vendor_id) {
+                guint16 vendor_id _U_) {
   /*
    * 0...2...........7...............15.............23...............31
    * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -7241,7 +7241,7 @@ static void dissect_INFO_REPLY_IP4(tvbuff_t *tvb,
                 int octets_to_next_header,
                 proto_tree *tree,
                 char * info_summary_text,
-                guint16 G_GNUC_UNUSED vendor_id) {
+                guint16 vendor_id _U_) {
   /*
    * 0...2...........7...............15.............23...............31
    * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -7324,7 +7324,7 @@ static void dissect_INFO_DST(tvbuff_t *tvb,
                 int octets_to_next_header,
                 proto_tree *tree,
                 char * info_summary_text,
-                guint16 G_GNUC_UNUSED vendor_id) {
+                guint16 vendor_id _U_) {
   /*
    * 0...2...........7...............15.............23...............31
    * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -7393,7 +7393,7 @@ static void dissect_INFO_REPLY(tvbuff_t *tvb,
                 int octets_to_next_header,
                 proto_tree *tree,
                 char * info_summary_text,
-                guint16 G_GNUC_UNUSED vendor_id) {
+                guint16 vendor_id _U_) {
   /*
    * 0...2...........7...............15.............23...............31
    * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -8708,7 +8708,9 @@ static gboolean dissect_rtps(tvbuff_t *tvb,
     little_endian = ((flags & FLAG_E) != 0);
 
     /* octet-to-next-header */
-    octets_to_next_header  = NEXT_guint16(tvb, offset + 2, little_endian);
+    octets_to_next_header = NEXT_guint16(tvb, offset + 2, little_endian);
+    if (octets_to_next_header == 0)
+      octets_to_next_header = tvb_reported_length_remaining(tvb, offset + 4);
     next_submsg = offset + octets_to_next_header + 4;
 
     /* Set length of this item */

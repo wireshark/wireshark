@@ -344,9 +344,7 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_con
       guint8 hid;
       guint8 hval[8192];
       guint16 hval_len;
-      int orig_pos = pos;
       const gchar* hname = NULL;
-      int dp = 0;
       int cl = 0;
       guint8 hname_bytes[1024];
 
@@ -370,23 +368,21 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_con
         hname = (gchar*)hname_bytes; /* VERY EVIL */
       }
 
-      dp = pos-orig_pos;
-
       /* HEADER VALUE
        */
-      orig_pos = pos;
       hval_len = get_nstring(tvb, pos, hval, sizeof hval);
 
-      pos+=hval_len+2;
-      dp = pos - orig_pos;
+      pos+=2; /* skip over size */
       if (ajp13_tree) {
         gchar *hname_value;
         hname_value=ep_alloc(512);
         g_snprintf(hname_value, 512, "%s : %s", hname, hval);
-        proto_tree_add_string(ajp13_tree, hf_ajp13_hval, tvb, orig_pos, dp, hname_value);
+        proto_tree_add_string_format(ajp13_tree, hf_ajp13_hval,
+                                     tvb, pos, hval_len, hname,
+                                     "%s: %s", hname, hval);
       }
+      pos+=hval_len;
     }
-
   } else if (mcode == 6) {
     guint16 rlen;
     rlen = tvb_get_ntohs(tvb, pos);
@@ -598,9 +594,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
 
     guint8 hcd;
     guint8 hid;
-    int orig_pos = pos;
     const gchar* hname = NULL;
-    int dp = 0;
     int cl = 0;
     guint8 *hval;
     guint16 hval_len;
@@ -627,21 +621,18 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
       hname = (gchar*)hname_bytes;
     }
 
-    dp = pos-orig_pos;
-
     /* HEADER VALUE
      */
-    orig_pos = pos;
     hval=ep_alloc(8192);
     hval_len = get_nstring(tvb, pos, hval, 8192);
 
-    pos+=hval_len+2;
-    dp = pos - orig_pos;
+    pos+=2; /* skip over size */
     if (ajp13_tree) {
       proto_tree_add_string_format(ajp13_tree, hf_ajp13_hval,
-                                   tvb, orig_pos, dp, hname,
+                                   tvb, pos, hval_len, hname,
                                    "%s: %s", hname, hval);
     }
+    pos+=hval_len;
     if (cl) {
       cl = atoi(hval);
       cd->content_length = cl;

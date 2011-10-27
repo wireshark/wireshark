@@ -95,6 +95,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Wireshark crashes when attempting to open a file via drag &amp; drop when there's already a file open.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5987">Bug
+          5987</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Add the ability to save filters from the Filter Toolbar into buttons on the Filter Toolbar.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6207">Bug
           6207</ulink>)
@@ -130,6 +136,48 @@ Wireshark Info
           6414</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          S1AP protocol can't decode IPv6 transportLayerAddress.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6435">Bug
+          6435</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          RTPS2 dissector doesn't handle 0 in the octestToNextHeader field.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6449">Bug
+          6449</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          packet-ajp13 fix, cleanup, and enhancement.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6452">Bug
+          6452</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Network Instruments Observer file format bugs.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6453">Bug
+          6453</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wireshark crashes when using &quot;Open Recent&quot; 2 times in a row.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6457">Bug
+          6457</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wireshark packet_gsm-sms, display bug: Filler bits in TP-User Data Header.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6469">Bug
+          6469</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          wireshark unable to decode NetFlow options which have system scope size != 4 bytes.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6471">Bug
+          6471</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
@@ -156,9 +204,15 @@ There are no new protocols in this release.
     <para>
 
 <!-- Sort alphabetically -->
+AJP13,
+ASN.1 PER,
 BACapp,
 DTN,
+GSM SMS,
+IPsec,
+NetFlow,
 PCEP,
+RTPS2,
 
     </para>
     </section>

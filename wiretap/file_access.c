@@ -524,7 +524,7 @@ static const struct file_type_info dump_open_table_base[] = {
 	  netxray_dump_can_write_encap_2_0, netxray_dump_open_2_0 },
 
 	/* WTAP_FILE_NETWORK_INSTRUMENTS_V9 */
-	{ "Network Instruments Observer (V9)", "niobserverv9", "*.bfr", ".bfr", FALSE,
+	{ "Network Instruments Observer", "niobserver", "*.bfr", ".bfr", FALSE,
 	  network_instruments_dump_can_write_encap, network_instruments_dump_open },
 
 	/* WTAP_FILE_LANALYZER */
@@ -598,7 +598,7 @@ static const struct file_type_info dump_open_table_base[] = {
 	/* WTAP_FILE_BTSNOOP */
 	{ "Symbian OS btsnoop", "btsnoop", "*.log", ".log", FALSE,
 	  btsnoop_dump_can_write_encap, btsnoop_dump_open_h4 },
-        
+
 	/* WTAP_FILE_X2E_XORAYA */
 	{ NULL, NULL, NULL, NULL, FALSE, NULL, NULL },
 

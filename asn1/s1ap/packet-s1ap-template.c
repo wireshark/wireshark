@@ -214,7 +214,7 @@ void proto_register_s1ap(void) {
         NULL, HFILL }},
     { &hf_s1ap_transportLayerAddressIPv6,
       { "transportLayerAddress(IPv6)", "s1ap.transportLayerAddressIPv6",
-        FT_IPv4, BASE_NONE, NULL, 0,
+        FT_IPv6, BASE_NONE, NULL, 0,
         NULL, HFILL }},
 
 #include "packet-s1ap-hfarr.c"

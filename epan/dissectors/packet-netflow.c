@@ -1402,7 +1402,7 @@ dissect_v9_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int of
 }
 
 static guint
-dissect_v9_pdu_scope(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, int offset,
+dissect_v9_pdu_scope(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pdutree, int offset,
     struct v9_template * tplt)
 {
 	int             orig_offset = offset;
@@ -1419,18 +1419,10 @@ dissect_v9_pdu_scope(tvbuff_t * tvb, packet_info * pinfo, proto_tree * pdutree, 
 			case 1: /* system */
 				ti = proto_tree_add_item(pdutree, hf_cflow_scope_system,
 				       tvb, offset, length, FALSE);
-				if (length > 0 && length != 4) {
-					expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_WARN,
-							       "ScopeSystem: invalid size %u", length);
-				} /* zero-length system scope is valid */
 				break;
 			case 2: /* interface */
 				ti = proto_tree_add_item(pdutree, hf_cflow_scope_interface,
 				       tvb, offset, length, FALSE);
-				if (length != 4) {
-					expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_WARN,
-							       "ScopeInterface: invalid size %u", length);
-				}
 				break;
 			case 3: /* linecard */
 				proto_tree_add_item(pdutree, hf_cflow_scope_linecard,
@@ -5829,7 +5821,7 @@ proto_register_netflow(void)
 		 */
 		{&hf_cflow_scope_system ,
 		 {"ScopeSystem", "cflow.scope_system",
-		  FT_IPv4, BASE_NONE, NULL, 0x0,
+		  FT_BYTES, BASE_NONE, NULL, 0x0,
 		  "Option Scope System", HFILL}
 		 },
 		{&hf_cflow_scope_interface ,

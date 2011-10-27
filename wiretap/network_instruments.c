@@ -18,7 +18,7 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
- 
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -389,7 +389,7 @@ read_packet_header(FILE_T fh, packet_entry_header *packet_header, int *err,
 
 		*err = WTAP_ERR_BAD_RECORD;
 		*err_info = g_strdup_printf("Observer: bad record: Invalid magic number 0x%08x",
-		    GUINT32_FROM_LE(packet_header->packet_magic));
+		    packet_header->packet_magic);
 		return -1;
 	}
 
@@ -482,7 +482,7 @@ int network_instruments_dump_can_write_encap(int encap)
 	/* per-packet encapsulations aren't supported */
 	if (encap == WTAP_ENCAP_PER_PACKET)
 		return WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
-	
+
 	if (encap < 0 || (unsigned) encap >= NUM_FROM_WTAP_ENCAPS || from_wtap_encap[encap] == OBSERVER_UNDEFINED)
 		return WTAP_ERR_UNSUPPORTED_ENCAP;
 
