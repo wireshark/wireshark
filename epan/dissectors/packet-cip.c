@@ -3263,7 +3263,7 @@ dissect_cip_multiple_service_packet_req(tvbuff_t *tvb, packet_info *pinfo, proto
        * dissect_cip_generic_service_rsp()) which expects all num_services
        * entries to be fully initialized.
        */
-      mr_mult_req_info->num_services = i;
+      mr_mult_req_info->num_services = i+1;
    }
 
 }
