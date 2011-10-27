@@ -813,13 +813,13 @@ get_esp_sa(gint protocol_typ, gchar *src,  gchar *dst,  gint spi,
    gchar spi_string[IPSEC_SPI_LEN_MAX];
    gint key_len;
 
-   g_snprintf(spi_string, IPSEC_SPI_LEN_MAX,"0x%x", spi);
+   g_snprintf(spi_string, IPSEC_SPI_LEN_MAX,"0x%08x", spi);
 
    for (i = 0; (found == FALSE) && (i < num_sa_uat); i++)
    {
       if((protocol_typ == uat_esp_sa_records[i].protocol)
-           && filter_address_match(src, uat_esp_sa_records[i].srcFilter, protocol_typ)
-           && filter_address_match(dst, uat_esp_sa_records[i].dstFilter, protocol_typ)
+           && filter_address_match(src, uat_esp_sa_records[i].srcIP, protocol_typ)
+           && filter_address_match(dst, uat_esp_sa_records[i].dstIP, protocol_typ)
            && filter_spi_match(spi_string, uat_esp_sa_records[i].spi))
       {
          found = TRUE;
@@ -1113,7 +1113,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             protocol_typ = IPSEC_SA_IPV6;
         }
         ip_src = ep_address_to_str(&pinfo->src);
-        ip_dst = ep_address_to_str(&pinfo->src);
+        ip_dst = ep_address_to_str(&pinfo->dst);
         get_address_ok = TRUE;
 
         /* The packet cannot be decoded using the SAD */
