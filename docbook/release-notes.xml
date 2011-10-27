@@ -71,6 +71,12 @@ Wireshark Info
 -->
 
         <listitem><para>
+          Assertion failed when doing File-&gt;Quit-&gt;Save during live capture.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1710">Bug
+          1710</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Wrong PCEP XRO sub-object decoding.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3778">Bug
           3778</ulink>)
@@ -95,6 +101,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Adding and removing custom HTTP headers requires a restart.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6241">Bug
+          6241</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           BACnet property time-synchronization-interval (204) name shown incorrectly as time-synchronization-recipients.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6336">Bug
           6336</ulink>)
@@ -110,6 +122,12 @@ Wireshark Info
           Export -&gt; Object -&gt; HTTP -&gt; save all: Error on saving files.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6362">Bug
           6362</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Incorrect identification of UDP-encapsulated NAT-keepalive packets.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6414">Bug
+          6414</ulink>)
         </para></listitem>
 
       </itemizedlist>

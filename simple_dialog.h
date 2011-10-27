@@ -76,6 +76,8 @@ typedef enum {
 #define ESD_BTNS_SAVE_DONTSAVE_CANCEL (ESD_BTN_DONT_SAVE|ESD_BTN_CANCEL|ESD_BTN_SAVE)
 /** Standard button combination "Quit without saving" + "Cancel" + "Save". */
 #define ESD_BTNS_SAVE_QUIT_DONTSAVE_CANCEL (ESD_BTN_QUIT_DONT_SAVE|ESD_BTN_CANCEL|ESD_BTN_SAVE)
+/** Standard button combination "Quit without saving" + "Cancel". */
+#define ESD_BTNS_QUIT_DONTSAVE_CANCEL (ESD_BTN_QUIT_DONT_SAVE|ESD_BTN_CANCEL)
 
 /** Create and show a simple dialog.
  *
