@@ -1505,7 +1505,7 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, guint3
                 /*
                  * XXX: LAZYNESS WARNING:
                  * We are assuming that the value of the sequenced item is of
-                 * the right class, the right type and the right legth.
+                 * the right class, the right type and the right length.
                  * We should check that to avoid throwing a Malformed packet and
                  * keep dissecting.
                  * We should verify the class and the tag match what we expect as well,
