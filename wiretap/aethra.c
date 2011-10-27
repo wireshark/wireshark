@@ -130,9 +130,6 @@ int aethra_open(wtap *wth, int *err, gchar **err_info)
 	wth->subtype_read = aethra_read;
 	wth->subtype_seek_read = aethra_seek_read;
 
-fprintf(stderr, "sizeof hdr.magic %" G_GINT64_MODIFIER "u, sizeof hdr %" G_GINT64_MODIFIER "u, data_offset %" G_GINT64_MODIFIER "u\n",
-(guint64)sizeof hdr.magic, (guint64)sizeof hdr, wth->data_offset);
-
 	/*
 	 * Convert the time stamp to a "time_t".
 	 */
@@ -175,13 +172,7 @@ static gboolean aethra_read(wtap *wth, int *err, gchar **err_info,
 		/* Read record header. */
 		if (!aethra_read_rec_header(wth->fh, &hdr, &wth->pseudo_header,
 		    err, err_info))
-{
-if (*err == 0)
-fprintf(stderr, "aethra_read_rec_header() got an EOF\n");
-else
-fprintf(stderr, "aethra_read_rec_header() fails: err %d\n", *err);
 			return FALSE;
-}
 
 		rec_size = pletohs(hdr.rec_size);
 		if (rec_size < (sizeof hdr - sizeof hdr.rec_size)) {
@@ -193,30 +184,18 @@ fprintf(stderr, "aethra_read_rec_header() fails: err %d\n", *err);
 		}
 		wth->data_offset += sizeof hdr;
 
-fprintf(stderr, "sizeof hdr %" G_GINT64_MODIFIER "u, data_offset %" G_GINT64_MODIFIER "u\n",
-(guint64)sizeof hdr, wth->data_offset);
-
 		/*
 		 * XXX - if this is big, we might waste memory by
 		 * growing the buffer to handle it.
 		 */
 		packet_size = rec_size - (sizeof hdr - sizeof hdr.rec_size);
-fprintf(stderr, "rec_size %u, packet_size %u, sizeof hdr.rec_size %" G_GINT64_MODIFIER "u, delta %" G_GINT64_MODIFIER "u\n",
-rec_size, packet_size, (guint64)sizeof hdr.rec_size,
-(guint64)(sizeof hdr - sizeof hdr.rec_size));
 		if (packet_size != 0) {
 			buffer_assure_space(wth->frame_buffer, packet_size);
 			if (!aethra_read_rec_data(wth->fh, buffer_start_ptr(wth->frame_buffer),
 			    packet_size, err, err_info))
-{
-fprintf(stderr, "aethra_read_rec_data() fails\n");
 				return FALSE;	/* Read error */
-}
 			wth->data_offset += packet_size;
-fprintf(stderr, "data_offset %" G_GINT64_MODIFIER "u\n",
-wth->data_offset);
 		}
-fprintf(stderr, "hdr.rec_type %u\n", hdr.rec_type);
 	} while (hdr.rec_type != AETHRA_PACKET);
 
 	msecs = pletohl(hdr.timestamp);
@@ -258,7 +237,7 @@ aethra_read_rec_header(FILE_T fh, struct aethrarec_hdr *hdr,
 
 	/* Read record header. */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(hdr, sizeof hdr, fh);
+	bytes_read = file_read(hdr, sizeof *hdr, fh);
 	if (bytes_read != sizeof *hdr) {
 		*err = file_error(fh, err_info);
 		if (*err == 0 && bytes_read != 0)
