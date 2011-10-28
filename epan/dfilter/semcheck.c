@@ -195,11 +195,6 @@ mk_fvalue_from_val_string(header_field_info *hfinfo, char *s)
 			g_assert_not_reached();
 	}
 
-	/* Reset the dfilter error message, since *something* interesting
-	 * will happen, and the error message will be more interesting than
-	 * any error message I happen to have now. */
-	dfilter_error_msg = NULL;
-
 	/* TRUE/FALSE *always* exist for FT_BOOLEAN. */
 	if (hfinfo->type == FT_BOOLEAN) {
 		if (hfinfo->strings) {
@@ -213,6 +208,7 @@ mk_fvalue_from_val_string(header_field_info *hfinfo, char *s)
 			return mk_uint32_fvalue(FALSE);
 		}
 		else {
+			dfilter_error_msg = NULL; /* Prefer this error message */
 			dfilter_fail("\"%s\" cannot be found among the possible values for %s.",
 				s, hfinfo->abbrev);
 			return NULL;
@@ -226,10 +222,14 @@ mk_fvalue_from_val_string(header_field_info *hfinfo, char *s)
 		return NULL;
 	}
 
+	/* Reset the dfilter error message, since *something* interesting
+	 * will happen, and the error message will be more interesting than
+	 * any error message I happen to have now. */
+	dfilter_error_msg = NULL;
+
 	if (hfinfo->display & BASE_RANGE_STRING) {
 		dfilter_fail("\"%s\" cannot accept [range] strings as values.",
 				hfinfo->abbrev);
-		return NULL;
 	}
 	else if (hfinfo->display == BASE_CUSTOM) {
 		/*  If a user wants to match against a custom string, we would
@@ -240,7 +240,6 @@ mk_fvalue_from_val_string(header_field_info *hfinfo, char *s)
 		 */
 		dfilter_fail("\"%s\" cannot accept [custom] strings as values.",
 				hfinfo->abbrev);
-		return NULL;
 	}
 	else {
 		const value_string *vals = hfinfo->strings;
