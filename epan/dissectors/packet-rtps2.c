@@ -7408,18 +7408,18 @@ static void dissect_INFO_REPLY(tvbuff_t *tvb,
   int min_len;
   rtps_util_decode_flags(tree, tvb, offset + 1, flags, INFO_REPLY_FLAGS);
 
-  min_len = 8;
-  if ((flags & FLAG_INFO_REPLY_M) != 0) min_len += 8;
+  min_len = 4;
+  if ((flags & FLAG_INFO_REPLY_M) != 0) min_len += 4;
 
 
-  if (octets_to_next_header != min_len) {
+  if (octets_to_next_header < min_len) {
     proto_tree_add_uint_format(tree,
                         hf_rtps_sm_octets_to_next_header,
                         tvb,
                         offset+2,
                         2,
                         octets_to_next_header,
-                        "octetsToNextHeader: %u (Error: should be == %u)",
+                        "octetsToNextHeader: %u (Error: should be >= %u)",
                         octets_to_next_header,
                         min_len);
     return;
