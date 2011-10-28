@@ -54,8 +54,7 @@ struct aethra_hdr {
 	guint8	unknown5[8];
 	guchar	com_info[16];	/* COM port and speed, null-padded(?) */
 	guint8	unknown6[107];
-	guchar	xxx_vers[29];	/* unknown version string (longer, null-padded?) */
-	guint8  unknown7[20];
+	guchar	xxx_vers[41];	/* unknown version string (longer, null-padded?) */
 };
 
 /* Aethra record header.  Yes, the alignment is weird.
@@ -69,12 +68,22 @@ struct aethrarec_hdr {
 
 /*
  * Record types.
+ *
+ * XXX - is a record type of 0 used for anything other than "end of
+ * capture"?  In at least one capture there's a record with a rec_type
+ * of 0, a timestamp of 0, and a flags value of 4, as well as a trailing
+ * record which is probably a "Stop Monitor" record with a rec_type of 0,
+ * a non-zero timestamp (not checked to see whether it gives the same
+ * time stamp as PC108 displays for the Stop Monitor record), and a
+ * flags value of 0.
  */
 #define AETHRA_STOP_MONITOR	0	/* end of capture */
 #define AETHRA_PACKET		1	/* packet */
 
 /*
  * Flags.
+ *
+ * XXX - what does this mean for AETHRA_STOP_MONITOR records?
  */
 #define AETHRA_U_TO_N		0x01
 
