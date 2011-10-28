@@ -776,7 +776,7 @@ static int nfsv4_operation_tiers[] = {
 		 1 /* 50, NFS4_OP_LAYOUTGET */,
 		 1 /* 51, NFS4_OP_LAYOUTRETURN */,
 		 1 /* 52, NFS4_OP_SECINFO_NO_NAME */,
-		 1 /* 53, NFS4_OP_SEQUENCE */,
+		 4 /* 53, NFS4_OP_SEQUENCE */,
 		 1 /* 54, NFS4_OP_SET_SSV */,
 		 1 /* 55, NFS4_OP_TEST_STATEID */,
 		 1 /* 56, NFS4_OP_WANT_DELEGATION  */,
@@ -1268,12 +1268,10 @@ dissect_fhandle_data_SVR4(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tre
 			if (12+len1+len2 == fhlen) {
 				little_endian = FALSE;
 				have_flag = FALSE;
-				found = TRUE;
 			}
 			if (16+len1+len2 == fhlen) {
 				little_endian = FALSE;
 				have_flag = TRUE;
-				found = TRUE;
 			}
 		}
 	}
@@ -1982,7 +1980,6 @@ dissect_fhandle_data_NETAPP_GX_v3(tvbuff_t* tvb, packet_info *pinfo _U_, proto_t
 					   "spin file unique id: 0x%08x (%u)", spinfile_uid, spinfile_uid);
 		/* = export point id  = */
 		export_id  = tvb_get_letohl(tvb, offset+36);
-		export_uid = tvb_get_letohl(tvb, offset+40);
 		proto_tree_add_uint_format(tree, hf_gxfh3_exportptid, tvb,
 					   offset+36, 4, spinfile_id,
 					   "  export point id: 0x%08x (%u)", export_id, export_id);
@@ -2145,7 +2142,7 @@ dissect_fhandle_data_LINUX_KNFSD_NEW(tvbuff_t* tvb, packet_info *pinfo _U_, prot
 				}
 			}
 
-			offset += 8;
+			/*offset += 8;*/
 		} break;
 		case 2: {
 			guint32 inode;
@@ -2174,7 +2171,7 @@ dissect_fhandle_data_LINUX_KNFSD_NEW(tvbuff_t* tvb, packet_info *pinfo _U_, prot
 				}
 			}
 
-			offset += 12;
+			/*offset += 12;*/
 		} break;
 		default: {
 			/* unknown fileid type */
@@ -9032,6 +9029,8 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		ftree = proto_item_add_subtree(fitem, ett_nfs_argop4);
 	}
 
+	proto_item_append_text(proto_tree_get_parent(tree), ", Ops(%d):", ops);
+
 	for (ops_counter=0; ops_counter<ops; ops_counter++)
 	{
 		op_summary[ops_counter].optext = g_string_new("");
@@ -9065,6 +9064,7 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		g_string_printf (op_summary[ops_counter].optext, "%s",
                                  val_to_str_ext_const(opcode, &names_nfsv4_operation_ext, "Unknown"));
 
+		proto_item_append_text(tree, " %s", opname);
 
 		switch(opcode)
 		{
@@ -9689,6 +9689,8 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		ftree = proto_item_add_subtree(fitem, ett_nfs_resop4);
 	}
 
+	proto_item_append_text(tree, ", Ops(%d):", ops);
+
 	for (ops_counter = 0; ops_counter < ops; ops_counter++)
 	{
 		op_summary[ops_counter].optext = g_string_new("");
@@ -9722,6 +9724,12 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		g_string_append_printf (op_summary[ops_counter].optext, "%s", opname);
 
 		offset = dissect_nfs_nfsstat4(tvb, offset, newftree, &status);
+		if (status != NFS4_OK) {
+			proto_item_append_text(tree, " %s(%s)", opname,
+				val_to_str_ext(status, &names_nfs_stat_ext, "Unknown error:%u"));
+		} else {
+			proto_item_append_text(tree, " %s", opname);
+		}
 
 		/*
 		 * With the exception of NFS4_OP_LOCK, NFS4_OP_LOCKT, and
