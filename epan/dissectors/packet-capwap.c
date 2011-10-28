@@ -1332,7 +1332,7 @@ dissect_capwap_preamble(tvbuff_t *tvb, proto_tree *capwap_control_tree, guint of
 }
 
 /* Code to actually dissect the packets */
-static void
+static int
 dissect_capwap_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	/* Set up structures needed to add the protocol subtree and manage it */
@@ -1363,7 +1363,7 @@ dissect_capwap_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (type_header == 1) {
 		next_tvb = tvb_new_subset_remaining (tvb, offset);
 		call_dissector(dtls_handle, next_tvb, pinfo, tree);
-		return;
+		return offset;
 	}
 
 	/* CAPWAP Header */
@@ -1412,6 +1412,7 @@ dissect_capwap_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += dissect_capwap_message_element(tvb, capwap_control_tree, offset);
 	}
 	pinfo->fragmented = save_fragmented;
+	return offset;
 }
 
 /* Code to actually dissect the packets */
@@ -2207,7 +2208,7 @@ proto_reg_handoff_capwap(void)
 	static guint capwap_control_udp_port, capwap_data_udp_port;
 
 	if (!inited) {
-		capwap_control_handle = create_dissector_handle(dissect_capwap_control, proto_capwap);
+		capwap_control_handle = new_create_dissector_handle(dissect_capwap_control, proto_capwap);
 		capwap_data_handle    = create_dissector_handle(dissect_capwap_data, proto_capwap);
 		dtls_handle           = find_dissector("dtls");
 		ieee8023_handle       = find_dissector("eth_withoutfcs");
