@@ -26,10 +26,9 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+#include <epan/conversation.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
-
-#define DEFAULT_UDP_PORT 55627
 
 enum {
   ST_DATA  = 0,
@@ -132,6 +131,8 @@ XXX: It appears that the above is to be interpreted as indicating
 
 #define V1_FIXED_HDR_SIZE 20
 
+static dissector_handle_t bt_utp_handle;
+
 static int hf_bt_utp_ver = -1;
 static int hf_bt_utp_type = -1;
 static int hf_bt_utp_flags = -1;
@@ -152,8 +153,6 @@ static int hf_bt_utp_ack_nr = -1;
 
 static gint ett_bt_utp = -1;
 static gint ett_bt_utp_extension = -1;
-
-static guint global_bt_utp_udp_port = DEFAULT_UDP_PORT;
 
 void proto_reg_handoff_bt_utp(void);
 
@@ -365,6 +364,23 @@ dissect_bt_utp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   return decoded_length;
 }
 
+static gboolean test_bt_utp_packet (tvbuff_t *tvb, packet_info *pinfo,
+                                        proto_tree *tree)
+{
+   conversation_t *conversation;
+
+  /* try dissecting */
+  if( tvb_get_guint8(tvb,0)=='d' )
+  {
+      conversation = find_or_create_conversation(pinfo);
+      conversation_set_dissector(conversation, bt_utp_handle);
+
+      dissect_bt_utp(tvb, pinfo, tree);
+      return TRUE;
+   }
+   return FALSE;
+}
+
 void
 proto_register_bt_utp(void)
 {
@@ -459,8 +475,6 @@ proto_register_bt_utp(void)
   /* Setup protocol subtree array */
   static gint *ett[] = { &ett_bt_utp, &ett_bt_utp_extension };
 
-  module_t *bt_utp_module;
-
   /* Register protocol */
   proto_bt_utp = proto_register_protocol (
                         "uTorrent Transport Protocol",  /* name */
@@ -470,37 +484,12 @@ proto_register_bt_utp(void)
 
   proto_register_field_array(proto_bt_utp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-  new_register_dissector("bt-utp", dissect_bt_utp, proto_bt_utp);
-
-  /* Register our configuration options */
-  bt_utp_module = prefs_register_protocol(proto_bt_utp, proto_reg_handoff_bt_utp);
-
-  prefs_register_uint_preference(bt_utp_module, "udp_port",
-                                           "uTorrent Transport Protocol UDP port",
-                                           "Set the UDP port for uTorrent Transport Protocol.",
-                                           10, &global_bt_utp_udp_port);
 }
 
 void
 proto_reg_handoff_bt_utp(void)
 {
-  static gboolean bt_utp_prefs_initialized = FALSE;
-  static dissector_handle_t bt_utp_handle;
-  static guint bt_utp_udp_port;
-
-  if (!bt_utp_prefs_initialized)
-  {
-    bt_utp_handle = new_create_dissector_handle(dissect_bt_utp, proto_bt_utp);
-    bt_utp_prefs_initialized = TRUE;
-  }
-  else
-  {
-    dissector_delete_uint("udp.port", bt_utp_udp_port, bt_utp_handle);
-  }
-
-  /* Set our port number for future use */
-  bt_utp_udp_port = global_bt_utp_udp_port;
-  dissector_add_uint("udp.port", global_bt_utp_udp_port, bt_utp_handle);
+  heur_dissector_add("udp", test_bt_utp_packet, proto_bt_utp);
 }
 /*
  * Editor modelines
