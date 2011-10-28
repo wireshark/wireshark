@@ -742,12 +742,12 @@ decode_mcast_vpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 afi)
     ip_length = (afi == AFNUM_INET) ? 4 : 16;
 
     route_type = tvb_get_guint8(tvb, offset);
-    item = proto_tree_add_item(tree, hf_bgp_mcast_vpn_nlri_route_type, tvb,
+    proto_tree_add_item(tree, hf_bgp_mcast_vpn_nlri_route_type, tvb,
                                offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     length = tvb_get_guint8(tvb, offset);
-    item = proto_tree_add_item(tree, hf_bgp_mcast_vpn_nlri_length, tvb, offset,
+    proto_tree_add_item(tree, hf_bgp_mcast_vpn_nlri_length, tvb, offset,
                                1, ENC_BIG_ENDIAN);
     offset++;
 
@@ -773,11 +773,11 @@ decode_mcast_vpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 afi)
             offset += BGP_ROUTE_DISTINGUISHER_SIZE;
 
             if (afi == AFNUM_INET)
-                item = proto_tree_add_item(nlri_tree,
+                proto_tree_add_item(nlri_tree,
                                            hf_bgp_mcast_vpn_nlri_origin_router_ipv4,
                                            tvb, offset, ip_length, ENC_BIG_ENDIAN);
             else
-                item = proto_tree_add_item(nlri_tree,
+                proto_tree_add_item(nlri_tree,
                                            hf_bgp_mcast_vpn_nlri_origin_router_ipv6,
                                            tvb, offset, ip_length, ENC_NA);
             break;
@@ -817,11 +817,11 @@ decode_mcast_vpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 afi)
             offset += route_key_length;
 
             if (afi == AFNUM_INET)
-                item = proto_tree_add_item(nlri_tree,
+                proto_tree_add_item(nlri_tree,
                                            hf_bgp_mcast_vpn_nlri_origin_router_ipv4,
                                            tvb, offset, ip_length, ENC_BIG_ENDIAN);
             else
-                item = proto_tree_add_item(nlri_tree,
+                proto_tree_add_item(nlri_tree,
                                            hf_bgp_mcast_vpn_nlri_origin_router_ipv6,
                                            tvb, offset, ip_length, ENC_NA);
             break;
