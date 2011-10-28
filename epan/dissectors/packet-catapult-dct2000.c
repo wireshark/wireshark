@@ -618,7 +618,7 @@ static void dissect_rlc_umts(tvbuff_t *tvb, gint offset,
     guint8  tag;
     gboolean ueid_set = FALSE, rbid_set=FALSE;
     guint32 ueid = 0;
-    guint16 rbid = 0;
+    guint8  rbid = 0;
     guint8  length;
     tvbuff_t   *rlc_tvb;
     dissector_handle_t rlc_umts_handle = 0;
