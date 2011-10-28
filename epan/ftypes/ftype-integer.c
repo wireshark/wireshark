@@ -145,7 +145,7 @@ sint_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogF
 	long value;
 	char *endptr;
 
-	if (!strchr (s, '-') && strtoull(s, NULL, 0) > G_MAXINT32) {
+	if (!strchr (s, '-') && strtoul(s, NULL, 0) > G_MAXINT32) {
 		/*
 		 * Probably a positive integer > G_MAXINT32, but will be
 		 * "converted in the obvious manner" by strtol().
