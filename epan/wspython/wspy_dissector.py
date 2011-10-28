@@ -21,7 +21,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-from ctypes import c_int, pointer, POINTER, py_object
+import ctypes as ct
 from wspy_libws import get_libws_handle
 
 # From epan/proto.h
@@ -99,8 +99,8 @@ class register_info(object):
     for i in xrange(lr):
       n, sd, t, d, st, bm, ld = hf[i]
       sdn = sd.replace('.', '_')
-      self.__dict__[sdn] = c_int(-1)
-      p_id = pointer(self.__dict__[sdn])
+      self.__dict__[sdn] = ct.c_int(-1)
+      p_id = ct.pointer(self.__dict__[sdn])
       self.__wsl.hf_register_info_add(chf, i, p_id, n , sd, t, d, st, bm, ld)
 
     self.__wsl.proto_register_field_array(self.__protocol, chf, lr)
@@ -129,24 +129,24 @@ class Subtree(object):
     if name == self.__protocol:
       self.__user_defined_protocol_tree = True
 
-    self.__st[name] = c_int(-1)
+    self.__st[name] = ct.c_int(-1)
 
   def has_user_defined_protocol_tree(self):
     return self.__user_defined_protocol_tree
 
   def register(self):
     if not self.__user_defined_protocol_tree:
-      self.__st[self.__protocol] = c_int(-1)
+      self.__st[self.__protocol] = ct.c_int(-1)
 
     ls = len(self.__st)
     if not ls:
       return
 
-    CSubtrees = POINTER(c_int) * ls
+    CSubtrees = ct.POINTER(ct.c_int) * ls
     p_sts = CSubtrees()
     k = self.__st.keys()
     for i in xrange(ls):
-      p_sts[i] = pointer(self.__st[k[i]])
+      p_sts[i] = ct.pointer(self.__st[k[i]])
 
     self.__wsl.proto_register_subtree_array(p_sts, ls)
 
@@ -251,13 +251,13 @@ class Dissector(object):
         self.__short)
     self.__hf.register(self.__protocol)
     #self.__hf.display()
-    self.__subtree.register()
+    self.subtrees.register()
 
   def dissect(self):
     '''point of entry when starting dissecting a packet. This method must be
     therefore overloaded by the object implementing the dissector of a specific
     protocol.'''
-    pass
+    raise AttributeError('Dissector.dissect must be overridden')
 
   def pre_dissect(self):
     '''private method executed right before dissect in order to retrieve some
@@ -274,9 +274,9 @@ class Dissector(object):
     try:
       if not subt.has_user_defined_protocol_tree():
         p_tree = self.tree.add_item(self.protocol())
-        self.__Tree = p_tree.add_subtree(subt.homeplug)
+        self.__Tree = p_tree.add_subtree(self.subtrees)
     except:
-      print e
+      print 'pre_dissect error',e
     self.dissect()
 
   def protocol_ids(self):
@@ -305,7 +305,9 @@ class Dissector(object):
             handle = self.__wsl.py_create_dissector_handle(self.__protocol)
           else:
             handle = private_handle
-        self.__wsl.dissector_add_uint(type, protocol_id, handle)
+        ct_type = ct.create_string_buffer(type)
+        ct_protocol_id = ct.c_uint(protocol_id)
+        self.__wsl.dissector_add_uint(ct_type, ct_protocol_id, handle)
     except Exception, e:
       print "creating dissector failed", e
       raise
@@ -336,8 +338,8 @@ class Tree(object):
   def add_item(self, field, offset=0, length=-1, little_endian=False, adv=True):
     '''add an item to the tree'''
     try:
-      tree = self.__wsl.proto_tree_add_item(self.__tree, \
-        field, self.__tvb, self.__dissector.offset, length, \
+      tree = self.__wsl.proto_tree_add_item(self.__tree,
+        field, self.__tvb, self.__dissector.offset, length,
         little_endian)
     except Exception, e:
       print e
