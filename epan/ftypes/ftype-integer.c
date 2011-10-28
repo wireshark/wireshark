@@ -62,7 +62,8 @@ get_sinteger(fvalue_t *fv)
 
 
 static gboolean
-uint32_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
+uint_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc,
+		   guint32 max)
 {
 	unsigned long value;
 	char    *endptr;
@@ -102,13 +103,10 @@ uint32_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, Lo
 		}
 		return FALSE;
 	}
-	if (value > G_MAXUINT32) {
-		/*
-		 * Fits in an unsigned long, but not in a guint32
-		 * (an unsigned long might be 64 bits).
-		 */
+
+	if (value > max) {
 		if (logfunc != NULL)
-			logfunc("\"%s\" causes an integer overflow.", s);
+			logfunc("\"%s\" too big for this field, maximum %u.", s, max);
 		return FALSE;
 	}
 
@@ -117,52 +115,32 @@ uint32_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, Lo
 }
 
 static gboolean
+uint32_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value, LogFunc logfunc)
+{
+	return uint_from_unparsed (fv, s, allow_partial_value, logfunc, G_MAXUINT32);
+}
+
+static gboolean
 uint24_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value, LogFunc logfunc)
 {
-	gboolean valid = uint32_from_unparsed (fv, s, allow_partial_value, logfunc);
-
-	if (valid && (fv->value.uinteger > 0xFFFFFF)) { /* G_MAXUINT24 */
-		if (logfunc != NULL)
-			logfunc("\"%s\" too big for this field, maximum %u.",
-				s, 0xFFFFFF);
-		return FALSE;
-	}
-
-	return valid;
+	return uint_from_unparsed (fv, s, allow_partial_value, logfunc, 0xFFFFFF);
 }
 
 static gboolean
 uint16_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value, LogFunc logfunc)
 {
-	gboolean valid = uint32_from_unparsed (fv, s, allow_partial_value, logfunc);
-
-	if (valid && (fv->value.uinteger > G_MAXUINT16)) {
-		if (logfunc != NULL)
-			logfunc("\"%s\" too big for this field, maximum %u.",
-				s, G_MAXUINT16);
-		return FALSE;
-	}
-
-	return valid;
+	return uint_from_unparsed (fv, s, allow_partial_value, logfunc, G_MAXUINT16);
 }
 
 static gboolean
 uint8_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value, LogFunc logfunc)
 {
-	gboolean valid = uint32_from_unparsed (fv, s, allow_partial_value, logfunc);
-
-	if (valid && (fv->value.uinteger > G_MAXUINT8)) {
-		if (logfunc != NULL)
-			logfunc("\"%s\" too big for this field, maximum %u.",
-				s, G_MAXUINT8);
-		return FALSE;
-	}
-
-	return valid;
+	return uint_from_unparsed (fv, s, allow_partial_value, logfunc, G_MAXUINT8);
 }
 
 static gboolean
-sint32_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
+sint_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc,
+		   gint32 max, gint32 min)
 {
 	long value;
 	char *endptr;
@@ -204,22 +182,16 @@ sint32_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, Lo
 		}
 		return FALSE;
 	}
-	if (value > G_MAXINT32) {
-		/*
-		 * Fits in an long, but not in a gint32
-		 * (a long might be 64 bits).
-		 */
+
+	if (value > max) {
 		if (logfunc != NULL)
-			logfunc("\"%s\" causes an integer overflow.", s);
+			logfunc("\"%s\" too big for this field, maximum %d.",
+				s, max);
 		return FALSE;
-	}
-	if (value < G_MININT32) {
-		/*
-		 * Fits in a long, but not in a gint32 (a long might be
-		 * 64 bits).
-		 */
+	} else if (value < min) {
 		if (logfunc != NULL)
-			logfunc("\"%s\" causes an integer underflow.", s);
+			logfunc("\"%s\" too small for this field, minimum %d.",
+				s, min);
 		return FALSE;
 	}
 
@@ -228,69 +200,27 @@ sint32_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, Lo
 }
 
 static gboolean
+sint32_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value, LogFunc logfunc)
+{
+	return sint_from_unparsed (fv, s, allow_partial_value, logfunc, G_MAXINT32, G_MININT32);
+}
+
+static gboolean
 sint24_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value, LogFunc logfunc)
 {
-	gboolean valid = sint32_from_unparsed (fv, s, allow_partial_value, logfunc);
-
-	if (valid) {
-		if (fv->value.sinteger > 0xFFFFFF) {  /* G_MAXINT24 */
-			if (logfunc != NULL)
-				logfunc("\"%s\" too big for this field, maximum %d.",
-					s, 0xFFFFFF);
-			return FALSE;
-		} else if (fv->value.sinteger < - (0xFFFFFF + 1)) { /* G_MININT24 */
-			if (logfunc != NULL)
-				logfunc("\"%s\" too small for this field, minimum %d.",
-					s, - (0xFFFFFF + 1));
-			return FALSE;
-		}
-	}
-
-	return valid;
+	return sint_from_unparsed (fv, s, allow_partial_value, logfunc, 0xFFFFFF, -(0xFFFFFF + 1));
 }
 
 static gboolean
 sint16_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value, LogFunc logfunc)
 {
-	gboolean valid = sint32_from_unparsed (fv, s, allow_partial_value, logfunc);
-
-	if (valid) {
-		if (fv->value.sinteger > G_MAXINT16) {
-			if (logfunc != NULL)
-				logfunc("\"%s\" too big for this field, maximum %d.",
-					s, G_MAXINT16);
-			return FALSE;
-		} else if (fv->value.sinteger < G_MININT16) {
-			if (logfunc != NULL)
-				logfunc("\"%s\" too small for this field, minimum %d.",
-					s, G_MININT16);
-			return FALSE;
-		}
-	}
-
-	return valid;
+	return sint_from_unparsed (fv, s, allow_partial_value, logfunc, G_MAXINT16, G_MININT16);
 }
 
 static gboolean
 sint8_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value, LogFunc logfunc)
 {
-	gboolean valid = sint32_from_unparsed (fv, s, allow_partial_value, logfunc);
-
-	if (valid) {
-		if (fv->value.sinteger > G_MAXINT8) {
-			if (logfunc != NULL)
-				logfunc("\"%s\" too big for this field, maximum %d.",
-					s, G_MAXINT8);
-			return FALSE;
-		} else if (fv->value.sinteger < G_MININT8) {
-			if (logfunc != NULL)
-				logfunc("\"%s\" too small for this field, minimum %d.",
-					s, G_MININT8);
-			return FALSE;
-		}
-	}
-
-	return valid;
+	return sint_from_unparsed (fv, s, allow_partial_value, logfunc, G_MAXINT8, G_MININT8);
 }
 
 static int
