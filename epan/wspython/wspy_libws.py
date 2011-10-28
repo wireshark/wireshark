@@ -22,7 +22,7 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
-from ctypes import cdll
+from ctypes import cdll, c_void_p, c_int, POINTER
 import platform
 
 __libwireshark = None
@@ -43,6 +43,12 @@ def get_libws_handle():
     if not __libwireshark:
       libname = get_libws_libname()
       __libwireshark = cdll.LoadLibrary(libname)
+      __libwireshark.py_create_dissector_handle.restype = c_void_p
+      __libwireshark.py_create_dissector_handle.argtypes = [c_int]
+      __libwireshark.py_dissector_args.argtypes = [POINTER(c_void_p),POINTER(c_void_p),POINTER(c_void_p)]
+      __libwireshark.proto_tree_add_item.argtypes = [c_void_p,
+        c_int, c_void_p, c_int, c_int, c_int]
+
     return __libwireshark
   except Exception, e:
     print e
