@@ -437,3 +437,23 @@ class TVB(object):
   #how to get this working ??? check how application uses this!
   #def new_subset(self, offset=0):
   #  return self.__wsl.tvb_get_new_subset(self.tvb, offset)
+
+if False:
+    import linecache
+    import sys
+    # Start tracing when import has finished
+    def tracer(frame, event, arg):
+        if event == "line":
+            lineno = frame.f_lineno
+            filename = frame.f_globals["__file__"]
+            if (filename.endswith(".pyc") or
+                filename.endswith(".pyo")):
+                filename = filename[:-1]
+            name = frame.f_globals["__name__"]
+            line = linecache.getline(filename, lineno)
+            print "%s:%s: %s" % (name, lineno, line.rstrip())
+        if event == "exception":
+            print "exception", arg
+        return tracer
+
+    sys.settrace(tracer)

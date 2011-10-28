@@ -86,3 +86,24 @@ def register_dissectors(wspython_dir,  plugins_pers_dir=None):
               print 'register dissector %s exception %s' % (dissector, e)
   print 'registered protocols', registered_protocols
   return registered_protocols
+
+if False:
+    import linecache
+
+    # Start tracing when import has finished
+    def tracer(frame, event, arg):
+        if event == "line":
+            lineno = frame.f_lineno
+            filename = frame.f_globals["__file__"]
+            if (filename.endswith(".pyc") or
+                filename.endswith(".pyo")):
+                filename = filename[:-1]
+            name = frame.f_globals["__name__"]
+            line = linecache.getline(filename, lineno)
+            print "%s:%s: %s" % (name, lineno, line.rstrip())
+        if event == "exception":
+            print "exception", arg
+        return tracer
+
+    sys.settrace(tracer)
+
