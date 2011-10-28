@@ -407,7 +407,7 @@ dissect_sdp_type(proto_tree *t, tvbuff_t *tvb, int offset, char **attr_val)
 	case 0:
 		proto_tree_add_text(t, tvb, start_offset, type_size, "Nil ");
 		if(strpos<MAX_SDP_LEN){
-			strpos+=g_snprintf(str+strpos, MAX_SDP_LEN-strpos, "Nil ");
+			/* strpos+= */ g_snprintf(str+strpos, MAX_SDP_LEN-strpos, "Nil ");
 		}
 		break;
 	case 1: {
@@ -415,7 +415,7 @@ dissect_sdp_type(proto_tree *t, tvbuff_t *tvb, int offset, char **attr_val)
 		proto_tree_add_text(t, tvb, start_offset, type_size,
 				    "unsigned int %d ", val);
 		if(strpos<MAX_SDP_LEN){
-			strpos+=g_snprintf(str+strpos, MAX_SDP_LEN-strpos, "%u ", val);
+			/* strpos+= */ g_snprintf(str+strpos, MAX_SDP_LEN-strpos, "%u ", val);
 		}
 		break;
 	}
@@ -424,7 +424,7 @@ dissect_sdp_type(proto_tree *t, tvbuff_t *tvb, int offset, char **attr_val)
 		proto_tree_add_text(t, tvb, start_offset, type_size,
 				    "signed int %d ", val);
 		if(strpos<MAX_SDP_LEN){
-			strpos+=g_snprintf(str+strpos, MAX_SDP_LEN-strpos, "%d ", val);
+			/* strpos+= */ g_snprintf(str+strpos, MAX_SDP_LEN-strpos, "%d ", val);
 		}
 		break;
 	}
@@ -443,7 +443,7 @@ dissect_sdp_type(proto_tree *t, tvbuff_t *tvb, int offset, char **attr_val)
 		proto_tree_add_text(t, tvb, start_offset, type_size, "%s (0x%s) ", uuid_name, ptr);
 
 		if(strpos<MAX_SDP_LEN){
-			strpos+=g_snprintf(str+strpos, MAX_SDP_LEN-strpos, ": %s", uuid_name);
+			/* strpos+= */ g_snprintf(str+strpos, MAX_SDP_LEN-strpos, ": %s", uuid_name);
 		}
 		break;
 	}
@@ -454,7 +454,7 @@ dissect_sdp_type(proto_tree *t, tvbuff_t *tvb, int offset, char **attr_val)
 		proto_tree_add_text(t, tvb, start_offset, type_size, "%s \"%s\"",
 				    type == 8 ? "URL" : "String", ptr);
 		if(strpos<MAX_SDP_LEN){
-			strpos+=g_snprintf(str+strpos, MAX_SDP_LEN-strpos, "%s ", ptr);
+			/* strpos+= */g_snprintf(str+strpos, MAX_SDP_LEN-strpos, "%s ", ptr);
 		}
 		break;
 	}
@@ -464,7 +464,7 @@ dissect_sdp_type(proto_tree *t, tvbuff_t *tvb, int offset, char **attr_val)
 		proto_tree_add_text(t, tvb, start_offset, type_size, "%s",
 				    var ? "true" : "false");
 		if(strpos<MAX_SDP_LEN){
-			strpos+=g_snprintf(str+strpos, MAX_SDP_LEN-strpos, "%s ", var?"true":"false");
+			/* strpos+= */g_snprintf(str+strpos, MAX_SDP_LEN-strpos, "%s ", var?"true":"false");
 		}
 		break;
 	}
@@ -506,7 +506,7 @@ dissect_sdp_type(proto_tree *t, tvbuff_t *tvb, int offset, char **attr_val)
 		}
 
 		if(strpos<MAX_SDP_LEN){
-			strpos+=g_snprintf(str+strpos, MAX_SDP_LEN-strpos, "} ");
+			/* strpos+= */ g_snprintf(str+strpos, MAX_SDP_LEN-strpos, "} ");
 		}
 		break;
 	}
@@ -514,6 +514,7 @@ dissect_sdp_type(proto_tree *t, tvbuff_t *tvb, int offset, char **attr_val)
 
 	/* make sure the string is 0 terminated */
 	str[MAX_SDP_LEN]=0;
+
 
 	return type_size;
 }
@@ -852,7 +853,7 @@ dissect_sdp_service_search_response(proto_tree *t, tvbuff_t *tvb, int offset)
 }
 
 
-static void
+static int
 dissect_btsdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti;
@@ -932,6 +933,7 @@ dissect_btsdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset=dissect_sdp_service_search_attribute_response(st, tvb, offset, pinfo, token);
 		break;
 	}
+return offset;
 }
 
 void
@@ -988,7 +990,7 @@ proto_register_btsdp(void)
 
 	proto_btsdp = proto_register_protocol("Bluetooth SDP Protocol", "BTSDP", "btsdp");
 
-	register_dissector("btsdp", dissect_btsdp, proto_btsdp);
+	new_register_dissector("btsdp", dissect_btsdp, proto_btsdp);
 
 	btsdp_tap = register_tap("btsdp");
 
