@@ -41,6 +41,8 @@
 
 #include <wiretap/catapult_dct2000.h>
 #include "packet-umts_fp.h"
+#include "packet-rlc.h"
+
 #include "packet-mac-lte.h"
 #include "packet-rlc-lte.h"
 #include "packet-pdcp-lte.h"
@@ -193,6 +195,8 @@ static guint outhdr_values[MAX_OUTHDR_VALUES];
 static gint outhdr_values_found = 0;
 
 extern int proto_fp;
+extern int proto_rlc;
+
 extern int proto_rlc_lte;
 extern int proto_pdcp_lte;
 
@@ -204,8 +208,12 @@ void proto_register_catapult_dct2000(void);
 
 static dissector_handle_t look_for_dissector(const char *protocol_name);
 static void parse_outhdr_string(const guchar *outhdr_string);
+
 static void attach_fp_info(packet_info *pinfo, gboolean received,
                            const char *protocol_name, int variant);
+static void attach_rlc_info(packet_info *pinfo, guint32 urnti, guint8 rbid,
+                            gboolean is_sent);
+
 static void attach_mac_lte_info(packet_info *pinfo);
 static void attach_rlc_lte_info(packet_info *pinfo);
 static void attach_pdcp_lte_info(packet_info *pinfo);
@@ -598,6 +606,105 @@ static gboolean find_sctpprim_variant3_data_offset(tvbuff_t *tvb, int *data_offs
     return FALSE;
 }
 
+
+/* Dissect a UMTS RLC frame by:
+   - parsing the primitive header
+   - passing those values + outhdeader to dissector
+   - calling the UMTS RLC dissector */
+static void dissect_rlc_umts(tvbuff_t *tvb, gint offset,
+                             packet_info *pinfo, proto_tree *tree,
+                             gboolean is_sent)
+{
+    guint8  tag;
+    gboolean ueid_set = FALSE, rbid_set=FALSE;
+    guint32 ueid = 0;
+    guint16 rbid = 0;
+    guint8  length;
+    tvbuff_t   *rlc_tvb;
+    dissector_handle_t rlc_umts_handle = 0;
+
+    /* Top-level opcode */
+    tag = tvb_get_guint8(tvb, offset++);
+    switch (tag) {
+        case 0xc0:    /* mac data request */
+        case 0xc1:    /* mac data indication */
+            break;
+
+        default:
+            /* No data to dissect */
+            return;
+    }
+
+    /* Keep going until reach data tag or end of frame */
+    /* TODO: add items to tree for these primitive header fields */
+    while ((tag != 0x41) && tvb_length_remaining(tvb, offset)) { /* i.e. Data */
+        tag = tvb_get_guint8(tvb, offset++);
+        switch (tag) {
+            case 0x72:  /* UE Id */
+                ueid = tvb_get_ntohl(tvb, offset);
+                offset += 4;
+                ueid_set = TRUE;
+                break;
+            case 0xa2:  /* RBID */
+                offset++;  /* skip length */
+                rbid = tvb_get_guint8(tvb, offset);
+                offset++;
+                rbid_set = TRUE;
+                break;
+            case 0x22:  /* CCCH-id setting rbid to CCCH! */
+                offset += 2;
+                rbid = 18;
+                break;
+            case 0xc4:  /* No CRC error */
+            case 0xc5:  /* CRC error */
+            case 0xf7:  /* Clear Tx Buffer */
+                /* No length of content for these... */
+                break;
+
+            case 0x41:  /* Data !!! */
+                offset += skipASNLength(tvb_get_guint8(tvb, offset));
+                break;
+
+            default:
+                /* For other fields, just skip length and following data */
+                length = tvb_get_guint8(tvb, offset++);
+                offset += length;
+        }
+    }
+
+    /* Have we got enough info to call dissector */
+    if ((tag == 0x41) && ueid_set && rbid_set) {
+        attach_rlc_info(pinfo, ueid, rbid, is_sent);
+
+        /* Set appropriate RLC dissector handle */
+        switch (rbid) {
+            case 1:  case 2:  case 3:  case 4:  case 5:
+            case 6:  case 7:  case 8:  case 9:  case 10:
+            case 11: case 12: case 13: case 14: case 15:
+                /* DCH channels.
+                   TODO: can't really tell if these are control or transport...
+                         maybe control with preferences between this and "dcch" ? */
+                rlc_umts_handle = find_dissector("rlc.ps_dtch");
+                break;
+            case 18:
+                rlc_umts_handle = find_dissector("rlc.ccch");
+                break;
+            case 21:
+                rlc_umts_handle = find_dissector("rlc.ctch");
+                break;
+
+            default:
+                /* Give up here */
+                return;
+        }
+
+        /* Call UMTS RLC dissector */
+        if (rlc_umts_handle != 0) {
+            rlc_tvb = tvb_new_subset(tvb, offset, -1, tvb_length_remaining(tvb, offset));
+            call_dissector_only(rlc_umts_handle, rlc_tvb, pinfo, tree);
+        }
+    }
+}
 
 
 
@@ -1182,9 +1289,11 @@ static void parse_outhdr_string(const guchar *outhdr_string)
     }
 }
 
+
+
 /* Fill in an FP packet info struct and attach it to the packet for the FP
    dissector to use */
-void attach_fp_info(packet_info *pinfo, gboolean received, const char *protocol_name, int variant)
+static void attach_fp_info(packet_info *pinfo, gboolean received, const char *protocol_name, int variant)
 {
     int  i=0;
     int  chan;
@@ -1382,6 +1491,79 @@ void attach_fp_info(packet_info *pinfo, gboolean received, const char *protocol_
     p_fp_info->iface_type = IuB_Interface;
 
     /* Store info in packet */
+    p_add_proto_data(pinfo->fd, proto_fp, p_fp_info);
+}
+
+
+/* Fill in an RLC packet info struct and attach it to the packet for the RLC
+   dissector to use */
+static void attach_rlc_info(packet_info *pinfo, guint32 urnti, guint8 rbid, gboolean is_sent)
+{
+    /* Only need to set info once per session. */
+    struct fp_info *p_fp_info = p_get_proto_data(pinfo->fd, proto_fp);
+    struct rlc_info *p_rlc_info = p_get_proto_data(pinfo->fd, proto_rlc);
+    if (p_rlc_info != NULL) {
+        return;
+    }
+
+    /* Check that the number of outhdr values looks correct */
+    if (outhdr_values_found != 2) {
+        return;
+    }
+
+    /* Allocate structs */
+    p_rlc_info = se_alloc0(sizeof(struct rlc_info));
+    p_fp_info = se_alloc0(sizeof(struct fp_info));
+
+    /* Fill in struct fields for first (only) PDU in this frame */
+
+    /* Urnti.  Just use UEId */
+    p_rlc_info->urnti[0] = urnti;
+
+    /* ciphered (off by default) */
+    p_rlc_info->ciphered[0] = FALSE;
+
+    /* deciphered (off by default) */
+    p_rlc_info->deciphered[0] = FALSE;
+
+    /* Mode. */
+    switch (outhdr_values[1]) {
+        case 1:
+            p_rlc_info->mode[0] = RLC_TM;
+            break;
+        case 2:
+            p_rlc_info->mode[0] = RLC_UM;
+            break;
+        case 3:
+            p_rlc_info->mode[0] = RLC_AM;
+            break;
+        case 4:
+            p_rlc_info->mode[0] = RLC_UM;
+            p_rlc_info->ciphered[0] = TRUE;
+            break;
+        case 5:
+            p_rlc_info->mode[0] = RLC_AM;
+            p_rlc_info->ciphered[0] = TRUE;
+            break;
+        default:
+            return;
+    }
+
+    /* rbid. TODO: does this need conversion? */
+    p_rlc_info->rbid[0] = rbid;
+
+    /* li_size */
+    p_rlc_info->li_size[0] = outhdr_values[0];
+
+    /* Store info in packet */
+    p_add_proto_data(pinfo->fd, proto_rlc, p_rlc_info);
+
+    /* Also store minimal FP info consulted by RLC dissector
+       TODO: Don't really know direction, but use S/R flag to make
+       logs in same context consistent. Will be correct for NodeB logs,
+       but RLC dissector seems to not use anyway... */
+    p_fp_info->is_uplink = is_sent;
+    p_fp_info->cur_tb = 0; /* Always the first/only one */
     p_add_proto_data(pinfo->fd, proto_fp, p_fp_info);
 }
 
@@ -1869,6 +2051,19 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         attach_fp_info(pinfo, direction, protocol_name, atoi(variant_string));
     }
 
+    /* RLC protocols need info from outhdr attached */
+    else if ((strcmp(protocol_name, "rlc") == 0) ||
+             (strcmp(protocol_name, "rlc_r4") == 0) ||
+             (strcmp(protocol_name, "rlc_r5") == 0) ||
+             (strcmp(protocol_name, "rlc_r6") == 0) ||
+             (strcmp(protocol_name, "rlc_r7") == 0) ||
+             (strcmp(protocol_name, "rlc_r8") == 0)) {
+
+        parse_outhdr_string(outhdr_string);
+        /* Can't attach info yet.  Need combination of outheader values
+           and fields parsed from primitive header... */
+    }
+
     /* LTE MAC needs info attached */
     else if ((strcmp(protocol_name, "mac_r8_lte") == 0) ||
              (strcmp(protocol_name, "mac_r9_lte") == 0)) {
@@ -1906,6 +2101,23 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     switch (encap) {
         case WTAP_ENCAP_RAW_IP:
             protocol_handle = find_dissector("ip");
+#if 0
+            /* TODO: this doesn't work yet.
+               pseudo_header isn't copied from wtap to pinfo... */
+            if ((pinfo->pseudo_header != NULL) &&
+                (pinfo->pseudo_header->dct2000.inner_pseudo_header.pdcp.ueid != 0)) {
+
+                proto_item *ti;
+
+                /* Add PDCP thread info as generated fields */
+                ti = proto_tree_add_uint(dct2000_tree, hf_catapult_dct2000_lte_ueid, tvb, 0, 0,
+                                         pinfo->pseudo_header->dct2000.inner_pseudo_header.pdcp.ueid);
+                PROTO_ITEM_SET_GENERATED(ti);
+                ti = proto_tree_add_uint(dct2000_tree, hf_catapult_dct2000_lte_drbid, tvb, 0, 0,
+                                         pinfo->pseudo_header->dct2000.inner_pseudo_header.pdcp.drbid);
+                PROTO_ITEM_SET_GENERATED(ti);
+            }
+#endif
             break;
         case WTAP_ENCAP_ETHERNET:
             protocol_handle = find_dissector("eth_withoutfcs");
@@ -1960,6 +2172,19 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             /**************************************************************************/
             /* These protocols have no encapsulation type, just look them up directly */
+
+            if ((strcmp(protocol_name, "rlc") == 0) ||
+                (strcmp(protocol_name, "rlc_r4") == 0) ||
+                (strcmp(protocol_name, "rlc_r5") == 0) ||
+                (strcmp(protocol_name, "rlc_r6") == 0) ||
+                (strcmp(protocol_name, "rlc_r7") == 0) ||
+                (strcmp(protocol_name, "rlc_r8") == 0)) {
+
+                dissect_rlc_umts(tvb, offset, pinfo, tree, direction);
+                return;
+            }
+
+            else
             if ((strcmp(protocol_name, "mac_r8_lte") == 0) ||
                 (strcmp(protocol_name, "mac_r9_lte") == 0)) {
                 protocol_handle = mac_lte_handle;

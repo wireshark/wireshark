@@ -31,7 +31,7 @@ enum rlc_li_size {
 	RLC_LI_VARIABLE,
 	RLC_LI_7BITS,
 	RLC_LI_15BITS
-	};
+};
 
 #define MAX_RLC_CHANS 64
 typedef struct rlc_info
@@ -71,12 +71,12 @@ typedef struct rlc_info
    If none of them is present, the decoding will be skipped.
    The RLC mode tag uses the values from the rlc_mode enum. */
 
-#define CHANNEL_TYPE_UNSPECIFIED 0
-#define CHANNEL_TYPE_PCCH 1
-#define CHANNEL_TYPE_CCCH 2
-#define CHANNEL_TYPE_DCCH 3
-#define CHANNEL_TYPE_PS_DTCH 4
-#define CHANNEL_TYPE_CTCH 5
+#define UMTS_CHANNEL_TYPE_UNSPECIFIED 0
+#define UMTS_CHANNEL_TYPE_PCCH 1
+#define UMTS_CHANNEL_TYPE_CCCH 2
+#define UMTS_CHANNEL_TYPE_DCCH 3
+#define UMTS_CHANNEL_TYPE_PS_DTCH 4
+#define UMTS_CHANNEL_TYPE_CTCH 5
 
 #define RLC_CHANNEL_TYPE_TAG    0x02
 /* 1 byte */

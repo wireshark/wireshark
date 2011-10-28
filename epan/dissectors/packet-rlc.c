@@ -1746,7 +1746,7 @@ dissect_rlc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	rlc_info             *rlci;
 	tvbuff_t             *rlc_tvb;
 	guint8               tag = 0;
-	guint                channelType = CHANNEL_TYPE_UNSPECIFIED;
+	guint                channelType = UMTS_CHANNEL_TYPE_UNSPECIFIED;
 	gboolean             fpInfoAlreadySet = FALSE;
 	gboolean             rlcInfoAlreadySet = FALSE;
 	gboolean             channelTypePresent = FALSE;
@@ -1854,7 +1854,7 @@ dissect_rlc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Create tvb that starts at actual RLC PDU */
     rlc_tvb = tvb_new_subset(tvb, offset, -1, tvb_reported_length(tvb)-offset);
 	switch (channelType) {
-		case CHANNEL_TYPE_UNSPECIFIED:
+		case UMTS_CHANNEL_TYPE_UNSPECIFIED:
 			/* Call relevant dissector according to RLC mode */
 			col_set_str(pinfo->cinfo, COL_PROTOCOL, "RLC");
 			col_clear(pinfo->cinfo, COL_INFO);
@@ -1875,21 +1875,22 @@ dissect_rlc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				dissect_rlc_tm(UNKNOWN, rlc_tvb, pinfo, tree, subtree);
 			}
 			break;
-		case CHANNEL_TYPE_PCCH:
+		case UMTS_CHANNEL_TYPE_PCCH:
 			dissect_rlc_pcch(rlc_tvb, pinfo, tree);
 			break;
-		case CHANNEL_TYPE_CCCH:
+		case UMTS_CHANNEL_TYPE_CCCH:
 			dissect_rlc_ccch(rlc_tvb, pinfo, tree);
 			break;
-		case CHANNEL_TYPE_DCCH:
+		case UMTS_CHANNEL_TYPE_DCCH:
 			dissect_rlc_dcch(rlc_tvb, pinfo, tree);
 			break;
-		case CHANNEL_TYPE_PS_DTCH:
+		case UMTS_CHANNEL_TYPE_PS_DTCH:
 			dissect_rlc_ps_dtch(rlc_tvb, pinfo, tree);
 			break;
-		case CHANNEL_TYPE_CTCH:
+		case UMTS_CHANNEL_TYPE_CTCH:
 			dissect_rlc_ctch(rlc_tvb, pinfo, tree);
 			break;
+
 		default:
 			/* Unknown channel type */
 			return FALSE;
