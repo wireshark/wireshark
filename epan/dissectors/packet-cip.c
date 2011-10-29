@@ -3250,20 +3250,20 @@ dissect_cip_multiple_service_packet_req(tvbuff_t *tvb, packet_info *pinfo, proto
          mr_single_req_info->ciaData = NULL;
 
          dissect_cip_data(mult_serv_tree, next_tvb, 0, pinfo, mr_single_req_info );
+
+         /* Don't set mr_mult_req_info->num_services until we're sure we've
+          * initialized the full structure for that service.  Otherwise if we
+          * happen to throw an exception here (before initializing the whole
+          * structure), we'll core someplace (like
+          * dissect_cip_generic_service_rsp()) which expects all num_services
+          * entries to be fully initialized.
+          */
+         mr_mult_req_info->num_services = i+1;
       }
       else
       {
          dissect_cip_data(mult_serv_tree, next_tvb, 0, pinfo, NULL );
       }
-
-      /* Don't set mr_mult_req_info->num_services until we're sure we've
-       * initialized the full structure for that service.  Otherwise if we
-       * happen to throw an exception here (before initializing the whole
-       * structure), we'll core someplace (like
-       * dissect_cip_generic_service_rsp()) which expects all num_services
-       * entries to be fully initialized.
-       */
-      mr_mult_req_info->num_services = i+1;
    }
 
 }
