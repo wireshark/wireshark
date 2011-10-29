@@ -208,7 +208,7 @@ sint32_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value, LogFun
 static gboolean
 sint24_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value, LogFunc logfunc)
 {
-	return sint_from_unparsed (fv, s, allow_partial_value, logfunc, 0xEFFFFF, -(0xEFFFFF + 1));
+	return sint_from_unparsed (fv, s, allow_partial_value, logfunc, 0x7FFFFF, -0x800000);
 }
 
 static gboolean
