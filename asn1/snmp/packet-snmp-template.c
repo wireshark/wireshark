@@ -824,7 +824,15 @@ indexing_done:
 				hfid = hf_snmp_unknown_value;
 				break;
 		}
-
+		if ((value_len == 9) && (tvb_get_guint8(tvb, value_offset) == 0)) {
+			/* Check if this is an unsigned int64 with a big value */
+			header_field_info *hfinfo = proto_registrar_get_nth(hfid);
+			if (hfinfo->type == FT_UINT64) {
+				/* Cheat and skip the leading 0 byte */
+				value_len--;
+				value_offset++;
+			}
+		}
 		pi_value = proto_tree_add_item(pt_varbind,hfid,tvb,value_offset,value_len,ENC_BIG_ENDIAN);
 		if (format_error != BER_NO_ERROR) {
 			expert_add_info_format(actx->pinfo, pi_value, PI_UNDECODED, PI_NOTE, "Unresolved value, Missing MIB");

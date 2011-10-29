@@ -926,7 +926,15 @@ indexing_done:
 				hfid = hf_snmp_unknown_value;
 				break;
 		}
-
+		if ((value_len == 9) && (tvb_get_guint8(tvb, value_offset) == 0)) {
+			/* Check if this is an unsigned int64 with a big value */
+			header_field_info *hfinfo = proto_registrar_get_nth(hfid);
+			if (hfinfo->type == FT_UINT64) {
+				/* Cheat and skip the leading 0 byte */
+				value_len--;
+				value_offset++;
+			}
+		}
 		pi_value = proto_tree_add_item(pt_varbind,hfid,tvb,value_offset,value_len,ENC_BIG_ENDIAN);
 		if (format_error != BER_NO_ERROR) {
 			expert_add_info_format(actx->pinfo, pi_value, PI_UNDECODED, PI_NOTE, "Unresolved value, Missing MIB");
@@ -2716,7 +2724,7 @@ static void dissect_SMUX_PDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-snmp-fn.c ---*/
-#line 1496 "../../asn1/snmp/packet-snmp-template.c"
+#line 1504 "../../asn1/snmp/packet-snmp-template.c"
 
 
 guint
@@ -3633,7 +3641,7 @@ void proto_register_snmp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 2148 "../../asn1/snmp/packet-snmp-template.c"
+#line 2156 "../../asn1/snmp/packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3673,7 +3681,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU_U,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 2164 "../../asn1/snmp/packet-snmp-template.c"
+#line 2172 "../../asn1/snmp/packet-snmp-template.c"
   };
   module_t *snmp_module;
 
