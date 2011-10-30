@@ -1290,8 +1290,9 @@ AC_DEFUN([AC_WIRESHARK_KRB5_CHECK],
 	  ac_mit_version_newdir=`grep 'Massachusetts Institute of Technology' $krb5_dir/include/krb5/krb5.h | head -n 1 | sed 's/^.*Massachusetts Institute of Technology.*$/MIT/'`
 	  ac_krb5_version="$ac_heimdal_version$ac_mit_version_olddir$ac_mit_version_newdir"
 	  if test "x$ac_krb5_version" = "xHEIMDAL"
-	      KRB5_LIBS="-L$krb5_dir/lib -lkrb5 -lasn1 $SSL_LIBS -lroken -lcrypt"
 	  then
+	      KRB5_LIBS="-L$krb5_dir/lib -lkrb5 -lasn1 $SSL_LIBS -lroken -lcrypt"
+	  else
 	      KRB5_LIBS="-L$krb5_dir/lib -lkrb5 -lk5crypto -lcom_err"
 	  fi
 	  if test "x$ac_krb5_version" = "xMIT"
