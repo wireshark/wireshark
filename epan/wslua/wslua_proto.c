@@ -1236,7 +1236,7 @@ static int Proto_set_dissector(lua_State* L) {
 
     if (lua_isfunction(L,3)) {
         /* insert the dissector into the dissectors table */
-        gchar* loname = ep_strdup(proto->name);
+        gchar* loname = g_strdup(proto->name);
         g_ascii_strdown(loname, -1);
 
         lua_rawgeti(L, LUA_REGISTRYINDEX, lua_dissectors_table_ref);
