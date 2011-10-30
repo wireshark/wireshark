@@ -2674,7 +2674,7 @@ nas_emm_attach_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
     /* 59   T3423 value GPRS timer 9.9.3.16 O   TV  2 */
     ELEM_OPT_TV(0x59, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER, " - T3423 value");
     /* 4A   Equivalent PLMNs    PLMN list 9.9.2.8   O   TLV 5-47 */
-    ELEM_OPT_TLV(0x4a, NAS_PDU_TYPE_COMMON, DE_PLMN_LIST, " - Equivalent PLMNs");
+    ELEM_OPT_TLV(0x4a, GSM_A_PDU_TYPE_COMMON, DE_PLMN_LIST, " - Equivalent PLMNs");
     /* 34   Emergency Number List 9.9.3.37  O   TLV 5-50 */
     ELEM_OPT_TLV(0x34, GSM_A_PDU_TYPE_DTAP, DE_EMERGENCY_NUM_LIST, NULL);
     /* 64   EPS network feature support EPS network feature support 9.9.3.12A   O   TLV 3 */
@@ -3413,7 +3413,7 @@ nas_emm_trac_area_upd_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
     /* 59   T3423 value GPRS timer 9.9.3.16 O   TV  2 */
     ELEM_OPT_TV(0x59, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER, " - T3423 value");
     /* 4A   Equivalent PLMNs    PLMN list 9.9.2.8   O   TLV 5-47 */
-    ELEM_OPT_TLV(0x4a, NAS_PDU_TYPE_COMMON, DE_PLMN_LIST, " - PLMN list");
+    ELEM_OPT_TLV(0x4a, GSM_A_PDU_TYPE_COMMON, DE_PLMN_LIST, " - PLMN list");
     /* 34   Emergency Number List   Emergency Number List 9.9.3.37  O   TLV 5-50 */
     ELEM_OPT_TLV(0x34, GSM_A_PDU_TYPE_DTAP, DE_EMERGENCY_NUM_LIST, NULL);
     /* 64   EPS network feature support EPS network feature support 9.9.3.12A   O   TLV 3 */
