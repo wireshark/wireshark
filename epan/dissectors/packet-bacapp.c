@@ -6151,7 +6151,7 @@ moduloDivide	[1] Unsigned
 }
 */
 static guint 
-fPrescale (tvbuff_t *tvb, packet_info *pinfo¨_U_, proto_tree *tree, guint offset)
+fPrescale (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset)
 {
 	guint8 tag_no, tag_info;
 	guint32 lvt, len;
@@ -7134,7 +7134,7 @@ fBACnetPropertyStates(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
 		break;
 	default:
 		if ( (tag_no > BACnetPropertyStatesEnums_Size) ||
-			VALS(BACnetPropertyStatesEnums[tag_no].valstr == NULL ))
+			VALS(BACnetPropertyStatesEnums[tag_no].valstr) == NULL)
 		{
 			offset = fEnumeratedTag(tvb, tree, offset, "Unknown State: ", NULL);
 			/* don't use Abstract type here because it is context tagged and therefore we don't know app type */
