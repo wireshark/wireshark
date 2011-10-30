@@ -951,8 +951,10 @@ dissect_rdp_clientNetworkData(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
       offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, def_fields);
     }
 
-    rdp_info->channels[i].strptr = NULL;
-    rdp_info->channels[i].value = -1;
+    if(rdp_info) {
+      rdp_info->channels[i].strptr = NULL;
+      rdp_info->channels[i].value = -1;
+    }
 
   }
 
