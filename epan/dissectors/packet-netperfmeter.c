@@ -104,7 +104,8 @@ INIT_FIELD(addflow_framesizerng,      129,  1)
 INIT_FIELD(addflow_rcvbuffersize,     130,  4)
 INIT_FIELD(addflow_sndbuffersize,     134,  4)
 INIT_FIELD(addflow_maxmsgsize,        138,  2)
-INIT_FIELD(addflow_padding,           140,  2)
+INIT_FIELD(addflow_cmt,               140,  1)
+INIT_FIELD(addflow_ccid,              141,  1)
 INIT_FIELD(addflow_onoffevents,       142,  2)
 INIT_FIELD(addflow_onoffeventarray,   144,  4)
 
@@ -136,6 +137,26 @@ INIT_FIELD(stop_measurementid,    8,  8)
 INIT_FIELD(results_data,          4,  0)
 
 
+/* Setup list of Transport Layer protocol types */
+static const value_string proto_type_values[] = {
+  { 6,              "TCP" },
+  { 8,              "MPTCP" },
+  { 17,             "UDP" },
+  { 33,             "DCCP" },
+  { 132,            "SCTP" },
+  { 0,              NULL }
+};
+
+/* Setup list of CMT values */
+static const value_string cmt_values[] = {
+  { 0,              "Off" },
+  { 1,              "CMT" },
+  { 2,              "CMT/RPv1" },
+  { 3,              "CMT/RPv2" },
+  { 4,              "MPTCP-Like" },
+  { 0,              NULL }
+};
+
 /* Setup list of random number generator types */
 static const value_string rng_type_values[] = {
   { 0,              "Constant" },
@@ -159,7 +180,7 @@ static hf_register_info hf[] = {
    { &hf_addflow_flowid,             { "Flow ID",               "npmp.addflow_flowid",             FT_UINT32,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
    { &hf_addflow_measurementid,      { "Measurement ID",        "npmp.addflow_measurementid",      FT_UINT64,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
    { &hf_addflow_streamid,           { "Stream ID",             "npmp.addflow_streamid",           FT_UINT16,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
-   { &hf_addflow_protocol,           { "Protocol",              "npmp.addflow_protocol",           FT_UINT8,   BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
+   { &hf_addflow_protocol,           { "Protocol",              "npmp.addflow_protocol",           FT_UINT8,   BASE_DEC,  VALS(proto_type_values),   0x0, NULL, HFILL } },
    { &hf_addflow_flags,              { "Flags",                 "npmp.addflow_flags",              FT_UINT8,   BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
    { &hf_addflow_description,        { "Description",           "npmp.addflow_description",        FT_STRING,  BASE_NONE, NULL,                      0x0, NULL, HFILL } },
    { &hf_addflow_ordered,            { "Ordered",               "npmp.addflow_ordered",            FT_DOUBLE,  BASE_NONE, NULL,                      0x0, NULL, HFILL } },
@@ -178,7 +199,8 @@ static hf_register_info hf[] = {
    { &hf_addflow_rcvbuffersize,      { "Receive Buffer Size",   "npmp.addflow_rcvbuffersize",      FT_UINT32,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
    { &hf_addflow_sndbuffersize,      { "Send Buffer Size",      "npmp.addflow_sndbuffersize",      FT_UINT32,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
    { &hf_addflow_maxmsgsize,         { "Max. Message Size",     "npmp.addflow_maxmsgsize",         FT_UINT16,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
-   { &hf_addflow_padding,            { "Padding",               "npmp.addflow_padding",            FT_UINT16,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
+   { &hf_addflow_cmt,                { "CMT",                   "npmp.addflow_cmt",                FT_UINT8,   BASE_HEX,  VALS(cmt_values),          0x0, NULL, HFILL } },
+   { &hf_addflow_ccid,               { "CCID",                  "npmp.addflow_ccid",               FT_UINT8,   BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
    { &hf_addflow_onoffevents,        { "On/Off Events",         "npmp.addflow_onoffevents",        FT_UINT16,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
    { &hf_addflow_onoffeventarray,    { "On/Off Event",          "npmp.addflow_onoffeventarray",    FT_UINT32,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
 
@@ -263,10 +285,11 @@ dissect_npmp_add_flow_message(tvbuff_t *message_tvb, proto_tree *message_tree)
   ADD_FIELD(message_tree, addflow_framesize2);
   ADD_FIELD(message_tree, addflow_framesize3);
   ADD_FIELD(message_tree, addflow_framesize4);
-  ADD_FIELD(message_tree, addflow_maxmsgsize);
   ADD_FIELD(message_tree, addflow_rcvbuffersize);
   ADD_FIELD(message_tree, addflow_sndbuffersize);
-  ADD_FIELD(message_tree, addflow_padding);
+  ADD_FIELD(message_tree, addflow_maxmsgsize);
+  ADD_FIELD(message_tree, addflow_cmt);
+  ADD_FIELD(message_tree, addflow_ccid);
 
   onoffitem = ADD_FIELD(message_tree, addflow_onoffevents);
 
