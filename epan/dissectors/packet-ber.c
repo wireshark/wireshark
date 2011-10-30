@@ -4818,7 +4818,7 @@ proto_register_ber(void)
 	    "GeneralizedTime", "ber.unknown.GeneralizedTime", FT_STRING, BASE_NONE,
 	    NULL, 0, "This is an unknown GeneralizedTime", HFILL }},
 	{ &hf_ber_unknown_INTEGER, {
-	    "INTEGER", "ber.unknown.INTEGER", FT_UINT32, BASE_DEC,
+	    "INTEGER", "ber.unknown.INTEGER", FT_INT64, BASE_DEC,
 	    NULL, 0, "This is an unknown INTEGER", HFILL }},
 	{ &hf_ber_unknown_BITSTRING, {
 	    "BITSTRING", "ber.unknown.BITSTRING", FT_BYTES, BASE_NONE,
