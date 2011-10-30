@@ -5332,9 +5332,8 @@ fCalendarEntry (tvbuff_t *tvb, proto_tree *tree, guint offset)
 }
 
 static guint
-fEventTimeStamps( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
+fEventTimeStamps( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset)
 {
-	guint8 tag_no = 0, tag_info = 0;
 	guint32 lvt = 0;
 	proto_tree* subtree = tree;
 	proto_item* ti = 0;
@@ -6152,11 +6151,11 @@ moduloDivide	[1] Unsigned
 }
 */
 static guint 
-fPrescale (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
+fPrescale (tvbuff_t *tvb, packet_info *pinfo¨_U_, proto_tree *tree, guint offset)
 {
 	guint8 tag_no, tag_info;
 	guint32 lvt, len;
-	guint lastoffset = 0, depth = 0;
+	guint lastoffset = 0;
 
 	while (tvb_reported_length_remaining(tvb, offset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
@@ -6186,11 +6185,11 @@ integerScale	[1] INTEGER
 }
 */
 static guint 
-fScale (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
+fScale (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset)
 {
 	guint8 tag_no, tag_info;
 	guint32 lvt, len;
-	guint lastoffset = 0, depth = 0;
+	guint lastoffset = 0;
 
 	while (tvb_reported_length_remaining(tvb, offset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
@@ -6227,11 +6226,11 @@ BACnetAccumulatorRecord ::= SEQUENCE {
 }
 */
 static guint 
-fLoggingRecord (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
+fLoggingRecord (tvbuff_t *tvb, packet_info *pinfo  _U_, proto_tree *tree, guint offset)
 {
 	guint8 tag_no, tag_info;
 	guint32 lvt, len;
-	guint lastoffset = 0, depth = 0;
+	guint lastoffset = 0;
 
 	while (tvb_reported_length_remaining(tvb, offset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
@@ -6269,7 +6268,7 @@ fSequenceOfEnums (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 {
 	guint8 tag_no, tag_info;
 	guint32 lvt, len;
-	guint lastoffset = 0, depth = 0;
+	guint lastoffset = 0;
 
 	while (tvb_reported_length_remaining(tvb, offset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
@@ -6292,7 +6291,7 @@ fDoorMembers (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
 	guint8 tag_no, tag_info;
 	guint32 lvt, len;
-	guint lastoffset = 0, depth = 0;
+	guint lastoffset = 0;
 
 	while (tvb_reported_length_remaining(tvb, offset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
@@ -6314,7 +6313,7 @@ fListOfGroupMembers (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
 {
 	guint8 tag_no, tag_info;
 	guint32 lvt, len;
-	guint lastoffset = 0, depth = 0;
+	guint lastoffset = 0;
 
 	while (tvb_reported_length_remaining(tvb, offset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
@@ -7116,7 +7115,7 @@ BACnetPropertyStatesEnums[] = {
 #define BACnetPropertyStatesEnums_Size 36
 
 static guint
-fBACnetPropertyStates(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
+fBACnetPropertyStates(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset)
 {
 	guint8 tag_no, tag_info;
 	guint32 lvt;
@@ -8094,7 +8093,6 @@ fConfirmedEventNotificationRequest (tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	guint lastoffset = 0;
 	guint8 tag_no, tag_info;
 	guint32 lvt;
-	proto_tree *subtree = tree;
 
 	while (tvb_reported_length_remaining(tvb, offset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
