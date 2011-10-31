@@ -502,12 +502,12 @@ address_rfc_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 {
 	char* label = ep_alloc(ITEM_LABEL_LENGTH+1);
 	address_avp_t* t = a->type_data;
-	proto_item* pi = proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length(tvb),FALSE);
+	proto_item* pi = proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length(tvb),ENC_BIG_ENDIAN);
 	proto_tree* pt = proto_item_add_subtree(pi,t->ett);
 	guint32 addr_type = tvb_get_ntohs(tvb,0);
 	guint32 len = tvb_length_remaining(tvb,2);
 
-	proto_tree_add_item(pt,t->hf_address_type,tvb,0,2,FALSE);
+	proto_tree_add_item(pt,t->hf_address_type,tvb,0,2,ENC_NA);
 	switch (addr_type ) {
 		case 1:
 			if (len != 4) {
@@ -515,7 +515,7 @@ address_rfc_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 				expert_add_info_format(c->pinfo, pi, PI_MALFORMED, PI_WARN, "Wrong length for IPv4 Address");
 				return "[Malformed]";
 			}
-			pi = proto_tree_add_item(pt,t->hf_ipv4,tvb,2,4,FALSE);
+			pi = proto_tree_add_item(pt,t->hf_ipv4,tvb,2,4,ENC_NA);
 			break;
 		case 2:
 			if (len != 16) {
@@ -523,10 +523,10 @@ address_rfc_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 				expert_add_info_format(c->pinfo, pi, PI_MALFORMED, PI_WARN, "Wrong length for IPv6 Address");
 				return "[Malformed]";
 			}
-			pi = proto_tree_add_item(pt,t->hf_ipv6,tvb,2,16,FALSE);
+			pi = proto_tree_add_item(pt,t->hf_ipv6,tvb,2,16,ENC_NA);
 			break;
 		default:
-			pi = proto_tree_add_item(pt,t->hf_other,tvb,2,-1,FALSE);
+			pi = proto_tree_add_item(pt,t->hf_other,tvb,2,-1,ENC_BIG_ENDIAN);
 			break;
 	}
 
@@ -577,19 +577,19 @@ address_v16_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 {
 	char* label = ep_alloc(ITEM_LABEL_LENGTH+1);
 	address_avp_t* t = a->type_data;
-	proto_item* pi = proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length(tvb),FALSE);
+	proto_item* pi = proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length(tvb),ENC_BIG_ENDIAN);
 	proto_tree* pt = proto_item_add_subtree(pi,t->ett);
 	guint32 len = tvb_length(tvb);
 
 	switch (len) {
 		case 4:
-			pi = proto_tree_add_item(pt,t->hf_ipv4,tvb,0,4,FALSE);
+			pi = proto_tree_add_item(pt,t->hf_ipv4,tvb,0,4,ENC_NA);
 			break;
 		case 16:
-			pi = proto_tree_add_item(pt,t->hf_ipv6,tvb,0,16,FALSE);
+			pi = proto_tree_add_item(pt,t->hf_ipv6,tvb,0,16,ENC_NA);
 			break;
 		default:
-			pi = proto_tree_add_item(pt,t->hf_other,tvb,0,len,FALSE);
+			pi = proto_tree_add_item(pt,t->hf_other,tvb,0,len,ENC_BIG_ENDIAN);
 			expert_add_info_format(c->pinfo, pi, PI_MALFORMED, PI_NOTE,
 					       "Bad Address Length (%u)", len);
 
@@ -605,7 +605,17 @@ static const char*
 simple_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 {
 	char* label = ep_alloc(ITEM_LABEL_LENGTH+1);
-	proto_item* pi = proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length(tvb),FALSE);
+	proto_item* pi = proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length(tvb),ENC_BIG_ENDIAN);
+	proto_item_fill_label(PITEM_FINFO(pi), label);
+	label = strstr(label,": ")+2;
+	return label;
+}
+
+static const char*
+utf8_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
+{
+	char* label = ep_alloc(ITEM_LABEL_LENGTH+1);
+	proto_item* pi = proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length(tvb),ENC_UTF_8|ENC_BIG_ENDIAN);
 	proto_item_fill_label(PITEM_FINFO(pi), label);
 	label = strstr(label,": ")+2;
 	return label;
@@ -620,7 +630,7 @@ integer32_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 	/* Verify length before adding */
 	gint length = tvb_length_remaining(tvb,0);
 	if (length == 4) {
-		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length_remaining(tvb,0),FALSE);
+		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length_remaining(tvb,0),ENC_BIG_ENDIAN);
 		label = ep_alloc(ITEM_LABEL_LENGTH+1);
 		proto_item_fill_label(PITEM_FINFO(pi), label);
 		label = strstr(label,": ")+2;
@@ -646,7 +656,7 @@ integer64_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 	/* Verify length before adding */
 	gint length = tvb_length_remaining(tvb,0);
 	if (length == 8) {
-		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length_remaining(tvb,0),FALSE);
+		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length_remaining(tvb,0),ENC_BIG_ENDIAN);
 		label = ep_alloc(ITEM_LABEL_LENGTH+1);
 		proto_item_fill_label(PITEM_FINFO(pi), label);
 		label = strstr(label,": ")+2;
@@ -672,7 +682,7 @@ unsigned32_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 	/* Verify length before adding */
 	gint length = tvb_length_remaining(tvb,0);
 	if (length == 4) {
-		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length_remaining(tvb,0),FALSE);
+		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length_remaining(tvb,0),ENC_BIG_ENDIAN);
 		label = ep_alloc(ITEM_LABEL_LENGTH+1);
 		proto_item_fill_label(PITEM_FINFO(pi), label);
 		label = strstr(label,": ")+2;
@@ -698,7 +708,7 @@ unsigned64_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 	/* Verify length before adding */
 	gint length = tvb_length_remaining(tvb,0);
 	if (length == 8) {
-		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length_remaining(tvb,0),FALSE);
+		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length_remaining(tvb,0),ENC_BIG_ENDIAN);
 		label = ep_alloc(ITEM_LABEL_LENGTH+1);
 		proto_item_fill_label(PITEM_FINFO(pi), label);
 		label = strstr(label,": ")+2;
@@ -724,7 +734,7 @@ float32_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 	/* Verify length before adding */
 	gint length = tvb_length_remaining(tvb,0);
 	if (length == 4) {
-		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length_remaining(tvb,0),FALSE);
+		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length_remaining(tvb,0),ENC_BIG_ENDIAN);
 		label = ep_alloc(ITEM_LABEL_LENGTH+1);
 		proto_item_fill_label(PITEM_FINFO(pi), label);
 		label = strstr(label,": ")+2;
@@ -750,7 +760,7 @@ float64_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 	/* Verify length before adding */
 	gint length = tvb_length_remaining(tvb,0);
 	if (length == 8) {
-		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length_remaining(tvb,0),FALSE);
+		pi= proto_tree_add_item(c->tree,a->hf_value,tvb,0,tvb_length_remaining(tvb,0),ENC_BIG_ENDIAN);
 		label = ep_alloc(ITEM_LABEL_LENGTH+1);
 		proto_item_fill_label(PITEM_FINFO(pi), label);
 		label = strstr(label,": ")+2;
@@ -772,7 +782,7 @@ grouped_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 {
 	int offset = 0;
 	int len = tvb_length(tvb);
-	proto_item* pi = proto_tree_add_item(c->tree, a->hf_value, tvb , 0 , -1, FALSE);
+	proto_item* pi = proto_tree_add_item(c->tree, a->hf_value, tvb , 0 , -1, ENC_BIG_ENDIAN);
 	proto_tree* pt = c->tree;
 
 	c->tree = proto_item_add_subtree(pi,a->ett);
@@ -1291,20 +1301,20 @@ build_simple_avp(const avp_type_t* type, guint32 code, const diam_vnd_t* vendor,
 
 static const avp_type_t basic_types[] = {
 	{"octetstring"				, simple_avp	, simple_avp	, FT_BYTES			, BASE_NONE		, build_simple_avp  },
-	{"utf8string"				, simple_avp	, simple_avp	, FT_STRING			, BASE_NONE		, build_simple_avp  },
-	{"grouped"				, grouped_avp	, grouped_avp	, FT_BYTES			, BASE_NONE		, build_simple_avp  },
+	{"utf8string"				, utf8_avp		, utf8_avp		, FT_STRING			, BASE_NONE		, build_simple_avp  },
+	{"grouped"					, grouped_avp	, grouped_avp	, FT_BYTES			, BASE_NONE		, build_simple_avp  },
 	{"integer32"				, integer32_avp	, integer32_avp	, FT_INT32			, BASE_DEC		, build_simple_avp  },
 	{"unsigned32"				, unsigned32_avp, unsigned32_avp, FT_UINT32			, BASE_DEC		, build_simple_avp  },
 	{"integer64"				, integer64_avp	, integer64_avp	, FT_INT64			, BASE_DEC		, build_simple_avp  },
 	{"unsigned64"				, unsigned64_avp, unsigned64_avp, FT_UINT64			, BASE_DEC		, build_simple_avp  },
-	{"float32"				, float32_avp	, float32_avp	, FT_FLOAT			, BASE_NONE		, build_simple_avp  },
-	{"float64"				, float64_avp	, float64_avp	, FT_DOUBLE			, BASE_NONE		, build_simple_avp  },
-	{"ipaddress"				,  NULL		, NULL		, FT_NONE			, BASE_NONE		, build_address_avp },
-	{"diameteruri"				, simple_avp	, simple_avp	, FT_STRING			, BASE_NONE		, build_simple_avp  },
-	{"diameteridentity"			, simple_avp	, simple_avp	, FT_STRING			, BASE_NONE		, build_simple_avp  },
-	{"ipfilterrule"				, simple_avp	, simple_avp	, FT_STRING			, BASE_NONE		, build_simple_avp  },
-	{"qosfilterrule"			, simple_avp	, simple_avp	, FT_STRING			, BASE_NONE		, build_simple_avp  },
-	{"time"					, time_avp	, time_avp	, FT_ABSOLUTE_TIME		, ABSOLUTE_TIME_UTC	, build_simple_avp  },
+	{"float32"					, float32_avp	, float32_avp	, FT_FLOAT			, BASE_NONE		, build_simple_avp  },
+	{"float64"					, float64_avp	, float64_avp	, FT_DOUBLE			, BASE_NONE		, build_simple_avp  },
+	{"ipaddress"				,  NULL			, NULL			, FT_NONE			, BASE_NONE		, build_address_avp },
+	{"diameteruri"				, utf8_avp		, utf8_avp		, FT_STRING			, BASE_NONE		, build_simple_avp  },
+	{"diameteridentity"			, utf8_avp		, utf8_avp		, FT_STRING			, BASE_NONE		, build_simple_avp  },
+	{"ipfilterrule"				, utf8_avp		, utf8_avp		, FT_STRING			, BASE_NONE		, build_simple_avp  },
+	{"qosfilterrule"			, utf8_avp		, utf8_avp		, FT_STRING			, BASE_NONE		, build_simple_avp  },
+	{"time"						, time_avp		, time_avp		, FT_ABSOLUTE_TIME	, ABSOLUTE_TIME_UTC	, build_simple_avp  },
 	{NULL, NULL, NULL, FT_NONE, BASE_NONE, NULL }
 };
 
