@@ -14,7 +14,6 @@ ConnectMCSPDU
 IndicationPDU
 ResponsePDU
 Connect-Initial
-Connect-Respons
 Connect-Additional
 Connect-Result
 UserIDIndication
@@ -45,7 +44,52 @@ ConferenceAssistanceIndication
 TextMessageIndication
 FunctionNotSupportedResponse
 Connect-Response
-
+Time
+Handle
+NodeRecord
+ApplicationRecord
+ApplicationInvokeSpecifier
+RegistryItem
+RegistryEntryOwner
+RequestPDU
+DomainParameters
+DynamicTokenID                          
+NodeProperties                                
+AlternativeNodeID                             
+ChannelType                                   
+CapabilityID                                  
+CapabilityClass                               
+ConferenceAddRequest                          
+ConferenceLockRequest                         
+ConferenceUnlockRequest                       
+ConferenceTerminateRequest                    
+ConferenceEjectUserRequest                    
+ConferenceTransferRequest                     
+RegistryRegisterChannelRequest                
+RegistryAssignTokenRequest                    
+RegistrySetParameterRequest                   
+RegistryRetrieveEntryRequest                  
+RegistryDeleteEntryRequest                    
+RegistryMonitorEntryRequest                   
+RegistryAllocateHandleRequest                 
+NonStandardPDU
+NetworkAddressV2                              
+EntityID                                      
+RegistryKey                                   
+RegistryModificationRights
+MediaList                                      
+ChannelAggregationMethod                       
+Profile                                        
+NetworkConnection                             
+SessionKey
+ChannelID                                
+GSTNConnection                                 
+ISDNConnection                                 
+CSDNConnection                                 
+PSDNConnection                                 
+ATMConnection
+ExtendedE164NetworkAddress
+TransportAddress 
 #.PDU
 #----------------------------------------------------------------------------------------
 
@@ -174,9 +218,8 @@ RegistryAllocateHandleResponse/result	AllocateHandleResponseResult
 
     %(DEFAULT_BODY)s
 
-#.FN_PARS ChannelId VAL_PTR = &channelId
 
-#.FN_BODY ChannelId
+#.FN_BODY ChannelId VAL_PTR = &channelId
 
     %(DEFAULT_BODY)s
 

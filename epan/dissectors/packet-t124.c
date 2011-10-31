@@ -133,124 +133,17 @@ static int hf_t124_transportConnection = -1;      /* T_transportConnection */
 static int hf_t124_nsapAddress = -1;              /* OCTET_STRING_SIZE_1_20 */
 static int hf_t124_transportSelector = -1;        /* OCTET_STRING */
 static int hf_t124_nonStandard = -1;              /* NonStandardParameter */
-static int hf_t124_audio = -1;                    /* BOOLEAN */
-static int hf_t124_video = -1;                    /* BOOLEAN */
-static int hf_t124_data_01 = -1;                  /* BOOLEAN */
-static int hf_t124_h221 = -1;                     /* NULL */
-static int hf_t124_h244 = -1;                     /* NULL */
-static int hf_t124_iso_iec_13871 = -1;            /* NULL */
-static int hf_t124_simpleProfile = -1;            /* T_simpleProfile */
-static int hf_t124_speech_01 = -1;                /* NULL */
-static int hf_t124_telephony_3kHz = -1;           /* NULL */
-static int hf_t124_telephony_7kHz = -1;           /* NULL */
-static int hf_t124_voice_band_01 = -1;            /* NULL */
-static int hf_t124_frameRelay = -1;               /* NULL */
-static int hf_t124_t123_pstn_basic = -1;          /* NULL */
-static int hf_t124_t123_psdn_basic = -1;          /* NULL */
-static int hf_t124_t123_b_isdn_basic = -1;        /* NULL */
-static int hf_t124_multimediaProfile = -1;        /* T_multimediaProfile */
-static int hf_t124_profile = -1;                  /* T_profile */
-static int hf_t124_h310 = -1;                     /* NULL */
-static int hf_t124_h320 = -1;                     /* NULL */
-static int hf_t124_h321 = -1;                     /* NULL */
-static int hf_t124_h322 = -1;                     /* NULL */
-static int hf_t124_h323 = -1;                     /* NULL */
-static int hf_t124_h324 = -1;                     /* NULL */
-static int hf_t124_h324m = -1;                    /* NULL */
-static int hf_t124_asvd = -1;                     /* NULL */
-static int hf_t124_dsvd = -1;                     /* NULL */
-static int hf_t124_t120Data = -1;                 /* BOOLEAN */
-static int hf_t124_dsmccDownloadProfile = -1;     /* NULL */
-static int hf_t124_networkAddress = -1;           /* ExtendedE164NetworkAddress */
-static int hf_t124_iSDNCircuitTypes = -1;         /* ISDNCircuitTypes */
-static int hf_t124_iSDNCircuitTypes_item = -1;    /* ISDNCircuitTypes_item */
-static int hf_t124_digital_64k_01 = -1;           /* NULL */
-static int hf_t124_digital_2x64k = -1;            /* NULL */
-static int hf_t124_digital_384k_01 = -1;          /* NULL */
-static int hf_t124_digital_1536 = -1;             /* NULL */
-static int hf_t124_digital_1920k_01 = -1;         /* NULL */
-static int hf_t124_multirate_base_64k = -1;       /* INTEGER_1_30 */
-static int hf_t124_iSDNHighLayerCompatibility = -1;  /* ISDNHighLayerCompatibility */
-static int hf_t124_circuitTypes = -1;             /* T_circuitTypes */
-static int hf_t124_circuitTypes_item = -1;        /* T_circuitTypes_item */
-static int hf_t124_digital_56k_01 = -1;           /* NULL */
-static int hf_t124_pSDNNetworkAddress = -1;       /* PSDNNetworkAddress */
-static int hf_t124_extendedE164NetworkAddress = -1;  /* ExtendedE164NetworkAddress */
-static int hf_t124_transportAddress = -1;         /* TransportAddress */
-static int hf_t124_networkAddress_01 = -1;        /* T_networkAddress */
-static int hf_t124_extendedE164 = -1;             /* ExtendedE164NetworkAddress */
-static int hf_t124_nsapAddress_01 = -1;           /* TransportAddress */
-static int hf_t124_maxTransferRate = -1;          /* INTEGER_0_MAX */
-static int hf_t124_gstnConnection = -1;           /* GSTNConnection */
-static int hf_t124_isdnConnection = -1;           /* ISDNConnection */
-static int hf_t124_csdnConnection = -1;           /* CSDNConnection */
-static int hf_t124_psdnConnection = -1;           /* PSDNConnection */
-static int hf_t124_atmConnection = -1;            /* ATMConnection */
-static int hf_t124_NetworkAddressV2_item = -1;    /* NetworkAddressV2_item */
-static int hf_t124_networkConnection = -1;        /* T_networkConnection */
-static int hf_t124_singleConnection = -1;         /* NetworkConnection */
-static int hf_t124_aggregatedConnections = -1;    /* T_aggregatedConnections */
-static int hf_t124_connectionList = -1;           /* T_connectionList */
-static int hf_t124_connectionList_item = -1;      /* T_connectionList_item */
-static int hf_t124_aggregationMethods = -1;       /* SET_OF_ChannelAggregationMethod */
-static int hf_t124_aggregationMethods_item = -1;  /* ChannelAggregationMethod */
-static int hf_t124_profiles = -1;                 /* SET_OF_Profile */
-static int hf_t124_profiles_item = -1;            /* Profile */
-static int hf_t124_mediaConcerned = -1;           /* MediaList */
-static int hf_t124_managementDevice = -1;         /* BOOLEAN */
-static int hf_t124_peripheralDevice = -1;         /* BOOLEAN */
 static int hf_t124_callingNode = -1;              /* NULL */
 static int hf_t124_calledNode = -1;               /* NULL */
 static int hf_t124_unknown = -1;                  /* INTEGER_0_4294967295 */
-static int hf_t124_h243NodeID = -1;               /* OCTET_STRING_SIZE_2 */
 static int hf_t124_conferenceName = -1;           /* ConferenceName */
 static int hf_t124_conferenceNameModifier = -1;   /* ConferenceNameModifier */
 static int hf_t124_conferenceDescription = -1;    /* TextString */
 static int hf_t124_lockedConference = -1;         /* BOOLEAN */
 static int hf_t124_passwordInTheClearRequired = -1;  /* BOOLEAN */
-static int hf_t124_networkAddress_02 = -1;        /* NetworkAddress */
+static int hf_t124_networkAddress = -1;           /* NetworkAddress */
 static int hf_t124_defaultConferenceFlag = -1;    /* BOOLEAN */
 static int hf_t124_conferenceMode = -1;           /* ConferenceMode */
-static int hf_t124_superiorNode = -1;             /* UserID */
-static int hf_t124_nodeType = -1;                 /* NodeType */
-static int hf_t124_nodeProperties = -1;           /* NodeProperties */
-static int hf_t124_nodeName = -1;                 /* TextString */
-static int hf_t124_participantsList = -1;         /* SEQUENCE_OF_TextString */
-static int hf_t124_participantsList_item = -1;    /* TextString */
-static int hf_t124_siteInformation = -1;          /* TextString */
-static int hf_t124_alternativeNodeID = -1;        /* AlternativeNodeID */
-static int hf_t124_userData = -1;                 /* UserData */
-static int hf_t124_nodeCategory = -1;             /* NodeCategory */
-static int hf_t124_networkAddressV2 = -1;         /* NetworkAddressV2 */
-static int hf_t124_applicationProtocolKey = -1;   /* Key */
-static int hf_t124_sessionID = -1;                /* ChannelID */
-static int hf_t124_applicationActive = -1;        /* BOOLEAN */
-static int hf_t124_conductingOperationCapable = -1;  /* BOOLEAN */
-static int hf_t124_startupChannel = -1;           /* ChannelType */
-static int hf_t124_applicationUserID = -1;        /* UserID */
-static int hf_t124_nonCollapsingCapabilities = -1;  /* T_nonCollapsingCapabilities */
-static int hf_t124_nonCollapsingCapabilities_item = -1;  /* T_nonCollapsingCapabilities_item */
-static int hf_t124_capabilityID = -1;             /* CapabilityID */
-static int hf_t124_applicationData = -1;          /* OCTET_STRING */
-static int hf_t124_standard = -1;                 /* INTEGER_0_65535 */
-static int hf_t124_nonStandard_01 = -1;           /* Key */
-static int hf_t124_logical = -1;                  /* NULL */
-static int hf_t124_unsignedMin = -1;              /* INTEGER_0_MAX */
-static int hf_t124_unsignedMax = -1;              /* INTEGER_0_MAX */
-static int hf_t124_sessionKey = -1;               /* SessionKey */
-static int hf_t124_expectedCapabilitySet = -1;    /* T_expectedCapabilitySet */
-static int hf_t124_expectedCapabilitySet_item = -1;  /* T_expectedCapabilitySet_item */
-static int hf_t124_capabilityClass = -1;          /* CapabilityClass */
-static int hf_t124_mandatoryFlag = -1;            /* BOOLEAN */
-static int hf_t124_resourceID = -1;               /* OCTET_STRING_SIZE_0_64 */
-static int hf_t124_channelID = -1;                /* DynamicChannelID */
-static int hf_t124_tokenID = -1;                  /* DynamicTokenID */
-static int hf_t124_parameter = -1;                /* OCTET_STRING_SIZE_0_64 */
-static int hf_t124_vacant = -1;                   /* NULL */
-static int hf_t124_owned = -1;                    /* T_owned */
-static int hf_t124_nodeID = -1;                   /* UserID */
-static int hf_t124_entityID = -1;                 /* EntityID */
-static int hf_t124_notOwned = -1;                 /* NULL */
 static int hf_t124_convenerPassword = -1;         /* Password */
 static int hf_t124_password = -1;                 /* Password */
 static int hf_t124_listedConference = -1;         /* BOOLEAN */
@@ -263,9 +156,12 @@ static int hf_t124_conductedPrivileges_item = -1;  /* Privilege */
 static int hf_t124_nonConductedPrivileges = -1;   /* SET_OF_Privilege */
 static int hf_t124_nonConductedPrivileges_item = -1;  /* Privilege */
 static int hf_t124_callerIdentifier = -1;         /* TextString */
+static int hf_t124_userData = -1;                 /* UserData */
 static int hf_t124_conferencePriority = -1;       /* ConferencePriority */
+static int hf_t124_nodeID = -1;                   /* UserID */
 static int hf_t124_tag = -1;                      /* INTEGER */
 static int hf_t124_result = -1;                   /* T_result */
+static int hf_t124_nodeType = -1;                 /* NodeType */
 static int hf_t124_asymmetryIndicator = -1;       /* AsymmetryIndicator */
 static int hf_t124_conferenceList = -1;           /* SET_OF_ConferenceDescriptor */
 static int hf_t124_conferenceList_item = -1;      /* ConferenceDescriptor */
@@ -275,22 +171,11 @@ static int hf_t124_noUnlistedConferenceFlag = -1;  /* BOOLEAN */
 static int hf_t124_conferenceName_01 = -1;        /* ConferenceNameSelector */
 static int hf_t124_password_01 = -1;              /* PasswordChallengeRequestResponse */
 static int hf_t124_convenerPassword_01 = -1;      /* PasswordSelector */
+static int hf_t124_nodeCategory = -1;             /* NodeCategory */
 static int hf_t124_topNodeID = -1;                /* UserID */
 static int hf_t124_conferenceNameAlias = -1;      /* ConferenceNameSelector */
 static int hf_t124_joinResponseResult = -1;       /* JoinResponseResult */
 static int hf_t124_inviteResponseResult = -1;     /* InviteResponseResult */
-static int hf_t124_requestingNode = -1;           /* UserID */
-static int hf_t124_addingMCU = -1;                /* UserID */
-static int hf_t124_terminateRequestReason = -1;   /* TerminateRequestReason */
-static int hf_t124_nodeToEject = -1;              /* UserID */
-static int hf_t124_ejectUserRequestReason = -1;   /* EjectUserRequestReason */
-static int hf_t124_transferringNodes = -1;        /* SET_SIZE_1_65536_OF_UserID */
-static int hf_t124_transferringNodes_item = -1;   /* UserID */
-static int hf_t124_password_02 = -1;              /* PasswordSelector */
-static int hf_t124_key_01 = -1;                   /* RegistryKey */
-static int hf_t124_modificationRights = -1;       /* RegistryModificationRights */
-static int hf_t124_numberOfHandles = -1;          /* INTEGER_1_1024 */
-static int hf_t124_data_02 = -1;                  /* NonStandardParameter */
 static int hf_t124_t124Identifier = -1;           /* Key */
 static int hf_t124_connectPDU = -1;               /* T_connectPDU */
 static int hf_t124_conferenceCreateRequest = -1;  /* ConferenceCreateRequest */
@@ -301,28 +186,6 @@ static int hf_t124_conferenceJoinRequest = -1;    /* ConferenceJoinRequest */
 static int hf_t124_conferenceJoinResponse = -1;   /* ConferenceJoinResponse */
 static int hf_t124_conferenceInviteRequest = -1;  /* ConferenceInviteRequest */
 static int hf_t124_conferenceInviteResponse = -1;  /* ConferenceInviteResponse */
-static int hf_t124_conferenceAddRequest = -1;     /* ConferenceAddRequest */
-static int hf_t124_conferenceLockRequest = -1;    /* ConferenceLockRequest */
-static int hf_t124_conferenceUnlockRequest = -1;  /* ConferenceUnlockRequest */
-static int hf_t124_conferenceTerminateRequest = -1;  /* ConferenceTerminateRequest */
-static int hf_t124_conferenceEjectUserRequest = -1;  /* ConferenceEjectUserRequest */
-static int hf_t124_conferenceTransferRequest = -1;  /* ConferenceTransferRequest */
-static int hf_t124_registryRegisterChannelRequest = -1;  /* RegistryRegisterChannelRequest */
-static int hf_t124_registryAssignTokenRequest = -1;  /* RegistryAssignTokenRequest */
-static int hf_t124_registrySetParameterRequest = -1;  /* RegistrySetParameterRequest */
-static int hf_t124_registryRetrieveEntryRequest = -1;  /* RegistryRetrieveEntryRequest */
-static int hf_t124_registryDeleteEntryRequest = -1;  /* RegistryDeleteEntryRequest */
-static int hf_t124_registryMonitorEntryRequest = -1;  /* RegistryMonitorEntryRequest */
-static int hf_t124_registryAllocateHandleRequest = -1;  /* RegistryAllocateHandleRequest */
-static int hf_t124_nonStandardRequest = -1;       /* NonStandardPDU */
-static int hf_t124_maxChannelIds = -1;            /* INTEGER_0_MAX */
-static int hf_t124_maxUserIds = -1;               /* INTEGER_0_MAX */
-static int hf_t124_maxTokenIds = -1;              /* INTEGER_0_MAX */
-static int hf_t124_numPriorities = -1;            /* INTEGER_0_MAX */
-static int hf_t124_minThroughput = -1;            /* INTEGER_0_MAX */
-static int hf_t124_maxHeight = -1;                /* INTEGER_0_MAX */
-static int hf_t124_maxMCSPDUsize = -1;            /* INTEGER_0_MAX */
-static int hf_t124_protocolVersion = -1;          /* INTEGER_0_MAX */
 static int hf_t124_heightLimit = -1;              /* INTEGER_0_MAX */
 static int hf_t124_subHeight = -1;                /* INTEGER_0_MAX */
 static int hf_t124_subInterval = -1;              /* INTEGER_0_MAX */
@@ -469,54 +332,8 @@ static gint ett_t124_T_aggregatedChannel = -1;
 static gint ett_t124_T_transferModes = -1;
 static gint ett_t124_T_highLayerCompatibility = -1;
 static gint ett_t124_T_transportConnection = -1;
-static gint ett_t124_MediaList = -1;
-static gint ett_t124_ChannelAggregationMethod = -1;
-static gint ett_t124_Profile = -1;
-static gint ett_t124_T_simpleProfile = -1;
-static gint ett_t124_T_multimediaProfile = -1;
-static gint ett_t124_T_profile = -1;
-static gint ett_t124_ExtendedE164NetworkAddress = -1;
-static gint ett_t124_TransportAddress = -1;
-static gint ett_t124_GSTNConnection = -1;
-static gint ett_t124_ISDNConnection = -1;
-static gint ett_t124_ISDNCircuitTypes = -1;
-static gint ett_t124_ISDNCircuitTypes_item = -1;
-static gint ett_t124_ISDNHighLayerCompatibility = -1;
-static gint ett_t124_CSDNConnection = -1;
-static gint ett_t124_T_circuitTypes = -1;
-static gint ett_t124_T_circuitTypes_item = -1;
-static gint ett_t124_PSDNConnection = -1;
-static gint ett_t124_PSDNNetworkAddress = -1;
-static gint ett_t124_ATMConnection = -1;
-static gint ett_t124_T_networkAddress = -1;
-static gint ett_t124_NetworkConnection = -1;
-static gint ett_t124_NetworkAddressV2 = -1;
-static gint ett_t124_NetworkAddressV2_item = -1;
-static gint ett_t124_T_networkConnection = -1;
-static gint ett_t124_T_aggregatedConnections = -1;
-static gint ett_t124_T_connectionList = -1;
-static gint ett_t124_T_connectionList_item = -1;
-static gint ett_t124_SET_OF_ChannelAggregationMethod = -1;
-static gint ett_t124_SET_OF_Profile = -1;
-static gint ett_t124_NodeProperties = -1;
 static gint ett_t124_AsymmetryIndicator = -1;
-static gint ett_t124_AlternativeNodeID = -1;
 static gint ett_t124_ConferenceDescriptor = -1;
-static gint ett_t124_NodeRecord = -1;
-static gint ett_t124_SEQUENCE_OF_TextString = -1;
-static gint ett_t124_SessionKey = -1;
-static gint ett_t124_ApplicationRecord = -1;
-static gint ett_t124_T_nonCollapsingCapabilities = -1;
-static gint ett_t124_T_nonCollapsingCapabilities_item = -1;
-static gint ett_t124_CapabilityID = -1;
-static gint ett_t124_CapabilityClass = -1;
-static gint ett_t124_ApplicationInvokeSpecifier = -1;
-static gint ett_t124_T_expectedCapabilitySet = -1;
-static gint ett_t124_T_expectedCapabilitySet_item = -1;
-static gint ett_t124_RegistryKey = -1;
-static gint ett_t124_RegistryItem = -1;
-static gint ett_t124_RegistryEntryOwner = -1;
-static gint ett_t124_T_owned = -1;
 static gint ett_t124_ConferenceCreateRequest = -1;
 static gint ett_t124_SET_OF_Privilege = -1;
 static gint ett_t124_ConferenceCreateResponse = -1;
@@ -527,26 +344,9 @@ static gint ett_t124_ConferenceJoinRequest = -1;
 static gint ett_t124_ConferenceJoinResponse = -1;
 static gint ett_t124_ConferenceInviteRequest = -1;
 static gint ett_t124_ConferenceInviteResponse = -1;
-static gint ett_t124_ConferenceAddRequest = -1;
-static gint ett_t124_ConferenceLockRequest = -1;
-static gint ett_t124_ConferenceUnlockRequest = -1;
-static gint ett_t124_ConferenceTerminateRequest = -1;
-static gint ett_t124_ConferenceEjectUserRequest = -1;
-static gint ett_t124_ConferenceTransferRequest = -1;
-static gint ett_t124_SET_SIZE_1_65536_OF_UserID = -1;
-static gint ett_t124_RegistryRegisterChannelRequest = -1;
-static gint ett_t124_RegistryAssignTokenRequest = -1;
-static gint ett_t124_RegistrySetParameterRequest = -1;
-static gint ett_t124_RegistryRetrieveEntryRequest = -1;
-static gint ett_t124_RegistryDeleteEntryRequest = -1;
-static gint ett_t124_RegistryMonitorEntryRequest = -1;
-static gint ett_t124_RegistryAllocateHandleRequest = -1;
-static gint ett_t124_NonStandardPDU = -1;
 static gint ett_t124_ConnectData = -1;
 static gint ett_t124_ConnectGCCPDU = -1;
-static gint ett_t124_RequestPDU = -1;
 static gint ett_t124_Segmentation = -1;
-static gint ett_t124_DomainParameters = -1;
 static gint ett_t124_PlumbDomainIndication = -1;
 static gint ett_t124_ErectDomainRequest = -1;
 static gint ett_t124_ChannelAttributes = -1;
@@ -617,16 +417,6 @@ static gint ett_t124_DomainMCSPDU = -1;
 
 
 static int
-dissect_t124_ChannelID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 65535U, NULL, FALSE);
-
-  return offset;
-}
-
-
-
-static int
 dissect_t124_DynamicChannelID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             1001U, 65535U, NULL, FALSE);
@@ -646,41 +436,12 @@ dissect_t124_UserID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 
 
 static int
-dissect_t124_DynamicTokenID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            16384U, 65535U, NULL, FALSE);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t124_Time(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            -2147483648, 2147483647U, NULL, FALSE);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t124_Handle(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 4294967295U, NULL, FALSE);
-
-  return offset;
-}
-
-
-
-static int
 dissect_t124_H221NonStandardIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 174 "../../asn1/t124/t124.cnf"
+#line 218 "../../asn1/t124/t124.cnf"
 
       offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        4, 255, FALSE, &t124NSIdentifier);
+
 
 
 
@@ -811,7 +572,7 @@ dissect_t124_ExtraDiallingString(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 static int
 dissect_t124_T_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 106 "../../asn1/t124/t124.cnf"
+#line 150 "../../asn1/t124/t124.cnf"
     tvbuff_t	*next_tvb = NULL;
     guint8      *ns = NULL;
 
@@ -1386,592 +1147,6 @@ dissect_t124_NetworkAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 }
 
 
-static const per_sequence_t MediaList_sequence[] = {
-  { &hf_t124_audio          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_BOOLEAN },
-  { &hf_t124_video          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_BOOLEAN },
-  { &hf_t124_data_01        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_BOOLEAN },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_MediaList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_MediaList, MediaList_sequence);
-
-  return offset;
-}
-
-
-static const value_string t124_ChannelAggregationMethod_vals[] = {
-  {   0, "h221" },
-  {   1, "h244" },
-  {   2, "iso-iec-13871" },
-  {   3, "nonStandard" },
-  { 0, NULL }
-};
-
-static const per_choice_t ChannelAggregationMethod_choice[] = {
-  {   0, &hf_t124_h221           , ASN1_EXTENSION_ROOT    , dissect_t124_NULL },
-  {   1, &hf_t124_h244           , ASN1_EXTENSION_ROOT    , dissect_t124_NULL },
-  {   2, &hf_t124_iso_iec_13871  , ASN1_EXTENSION_ROOT    , dissect_t124_NULL },
-  {   3, &hf_t124_nonStandard    , ASN1_EXTENSION_ROOT    , dissect_t124_NonStandardParameter },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_t124_ChannelAggregationMethod(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_t124_ChannelAggregationMethod, ChannelAggregationMethod_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const value_string t124_T_simpleProfile_vals[] = {
-  {   0, "speech" },
-  {   1, "telephony-3kHz" },
-  {   2, "telephony-7kHz" },
-  {   3, "voice-band" },
-  {   4, "frameRelay" },
-  {   5, "t123-pstn-basic" },
-  {   6, "t123-psdn-basic" },
-  {   7, "t123-b-isdn-basic" },
-  { 0, NULL }
-};
-
-static const per_choice_t T_simpleProfile_choice[] = {
-  {   0, &hf_t124_speech_01      , ASN1_NO_EXTENSIONS     , dissect_t124_NULL },
-  {   1, &hf_t124_telephony_3kHz , ASN1_NO_EXTENSIONS     , dissect_t124_NULL },
-  {   2, &hf_t124_telephony_7kHz , ASN1_NO_EXTENSIONS     , dissect_t124_NULL },
-  {   3, &hf_t124_voice_band_01  , ASN1_NO_EXTENSIONS     , dissect_t124_NULL },
-  {   4, &hf_t124_frameRelay     , ASN1_NO_EXTENSIONS     , dissect_t124_NULL },
-  {   5, &hf_t124_t123_pstn_basic, ASN1_NO_EXTENSIONS     , dissect_t124_NULL },
-  {   6, &hf_t124_t123_psdn_basic, ASN1_NO_EXTENSIONS     , dissect_t124_NULL },
-  {   7, &hf_t124_t123_b_isdn_basic, ASN1_NO_EXTENSIONS     , dissect_t124_NULL },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_t124_T_simpleProfile(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_t124_T_simpleProfile, T_simpleProfile_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const value_string t124_T_profile_vals[] = {
-  {   0, "h310" },
-  {   1, "h320" },
-  {   2, "h321" },
-  {   3, "h322" },
-  {   4, "h323" },
-  {   5, "h324" },
-  {   6, "h324m" },
-  {   7, "asvd" },
-  {   8, "dsvd" },
-  { 0, NULL }
-};
-
-static const per_choice_t T_profile_choice[] = {
-  {   0, &hf_t124_h310           , ASN1_NO_EXTENSIONS     , dissect_t124_NULL },
-  {   1, &hf_t124_h320           , ASN1_NO_EXTENSIONS     , dissect_t124_NULL },
-  {   2, &hf_t124_h321           , ASN1_NO_EXTENSIONS     , dissect_t124_NULL },
-  {   3, &hf_t124_h322           , ASN1_NO_EXTENSIONS     , dissect_t124_NULL },
-  {   4, &hf_t124_h323           , ASN1_NO_EXTENSIONS     , dissect_t124_NULL },
-  {   5, &hf_t124_h324           , ASN1_NO_EXTENSIONS     , dissect_t124_NULL },
-  {   6, &hf_t124_h324m          , ASN1_NO_EXTENSIONS     , dissect_t124_NULL },
-  {   7, &hf_t124_asvd           , ASN1_NO_EXTENSIONS     , dissect_t124_NULL },
-  {   8, &hf_t124_dsvd           , ASN1_NO_EXTENSIONS     , dissect_t124_NULL },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_t124_T_profile(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_t124_T_profile, T_profile_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t T_multimediaProfile_sequence[] = {
-  { &hf_t124_profile        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_T_profile },
-  { &hf_t124_t120Data       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_BOOLEAN },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_T_multimediaProfile(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_T_multimediaProfile, T_multimediaProfile_sequence);
-
-  return offset;
-}
-
-
-static const value_string t124_Profile_vals[] = {
-  {   0, "simpleProfile" },
-  {   1, "multimediaProfile" },
-  {   2, "dsmccDownloadProfile" },
-  {   3, "nonStandard" },
-  { 0, NULL }
-};
-
-static const per_choice_t Profile_choice[] = {
-  {   0, &hf_t124_simpleProfile  , ASN1_EXTENSION_ROOT    , dissect_t124_T_simpleProfile },
-  {   1, &hf_t124_multimediaProfile, ASN1_EXTENSION_ROOT    , dissect_t124_T_multimediaProfile },
-  {   2, &hf_t124_dsmccDownloadProfile, ASN1_EXTENSION_ROOT    , dissect_t124_NULL },
-  {   3, &hf_t124_nonStandard    , ASN1_EXTENSION_ROOT    , dissect_t124_NonStandardParameter },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_t124_Profile(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_t124_Profile, Profile_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t ExtendedE164NetworkAddress_sequence[] = {
-  { &hf_t124_internationalNumber, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_DiallingString },
-  { &hf_t124_subAddress     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_SubAddressString },
-  { &hf_t124_extraDialling  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_ExtraDiallingString },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_ExtendedE164NetworkAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_ExtendedE164NetworkAddress, ExtendedE164NetworkAddress_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t TransportAddress_sequence[] = {
-  { &hf_t124_nsapAddress    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_OCTET_STRING_SIZE_1_20 },
-  { &hf_t124_transportSelector, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_t124_OCTET_STRING },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_TransportAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_TransportAddress, TransportAddress_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t GSTNConnection_sequence[] = {
-  { &hf_t124_networkAddress , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_ExtendedE164NetworkAddress },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_GSTNConnection(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_GSTNConnection, GSTNConnection_sequence);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t124_INTEGER_1_30(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 30U, NULL, FALSE);
-
-  return offset;
-}
-
-
-static const value_string t124_ISDNCircuitTypes_item_vals[] = {
-  {   0, "digital-64k" },
-  {   1, "digital-2x64k" },
-  {   2, "digital-384k" },
-  {   3, "digital-1536" },
-  {   4, "digital-1920k" },
-  {   5, "multirate-base-64k" },
-  { 0, NULL }
-};
-
-static const per_choice_t ISDNCircuitTypes_item_choice[] = {
-  {   0, &hf_t124_digital_64k_01 , ASN1_NO_EXTENSIONS     , dissect_t124_NULL },
-  {   1, &hf_t124_digital_2x64k  , ASN1_NO_EXTENSIONS     , dissect_t124_NULL },
-  {   2, &hf_t124_digital_384k_01, ASN1_NO_EXTENSIONS     , dissect_t124_NULL },
-  {   3, &hf_t124_digital_1536   , ASN1_NO_EXTENSIONS     , dissect_t124_NULL },
-  {   4, &hf_t124_digital_1920k_01, ASN1_NO_EXTENSIONS     , dissect_t124_NULL },
-  {   5, &hf_t124_multirate_base_64k, ASN1_NO_EXTENSIONS     , dissect_t124_INTEGER_1_30 },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_t124_ISDNCircuitTypes_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_t124_ISDNCircuitTypes_item, ISDNCircuitTypes_item_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t ISDNCircuitTypes_set_of[1] = {
-  { &hf_t124_iSDNCircuitTypes_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_ISDNCircuitTypes_item },
-};
-
-static int
-dissect_t124_ISDNCircuitTypes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_set_of(tvb, offset, actx, tree, hf_index,
-                                 ett_t124_ISDNCircuitTypes, ISDNCircuitTypes_set_of);
-
-  return offset;
-}
-
-
-static const per_sequence_t ISDNHighLayerCompatibility_sequence[] = {
-  { &hf_t124_telephony3kHz  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_BOOLEAN },
-  { &hf_t124_telephony7kHz  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_BOOLEAN },
-  { &hf_t124_videotelephony , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_BOOLEAN },
-  { &hf_t124_videoconference, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_BOOLEAN },
-  { &hf_t124_audiographic   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_BOOLEAN },
-  { &hf_t124_audiovisual    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_BOOLEAN },
-  { &hf_t124_multimedia     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_BOOLEAN },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_ISDNHighLayerCompatibility(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_ISDNHighLayerCompatibility, ISDNHighLayerCompatibility_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t ISDNConnection_sequence[] = {
-  { &hf_t124_iSDNCircuitTypes, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_ISDNCircuitTypes },
-  { &hf_t124_networkAddress , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_ExtendedE164NetworkAddress },
-  { &hf_t124_iSDNHighLayerCompatibility, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_ISDNHighLayerCompatibility },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_ISDNConnection(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_ISDNConnection, ISDNConnection_sequence);
-
-  return offset;
-}
-
-
-static const value_string t124_T_circuitTypes_item_vals[] = {
-  {   0, "digital-56k" },
-  {   1, "digital-64k" },
-  { 0, NULL }
-};
-
-static const per_choice_t T_circuitTypes_item_choice[] = {
-  {   0, &hf_t124_digital_56k_01 , ASN1_NO_EXTENSIONS     , dissect_t124_NULL },
-  {   1, &hf_t124_digital_64k_01 , ASN1_NO_EXTENSIONS     , dissect_t124_NULL },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_t124_T_circuitTypes_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_t124_T_circuitTypes_item, T_circuitTypes_item_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t T_circuitTypes_set_of[1] = {
-  { &hf_t124_circuitTypes_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_T_circuitTypes_item },
-};
-
-static int
-dissect_t124_T_circuitTypes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_set_of(tvb, offset, actx, tree, hf_index,
-                                 ett_t124_T_circuitTypes, T_circuitTypes_set_of);
-
-  return offset;
-}
-
-
-static const per_sequence_t CSDNConnection_sequence[] = {
-  { &hf_t124_circuitTypes   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_T_circuitTypes },
-  { &hf_t124_networkAddress , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_ExtendedE164NetworkAddress },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_CSDNConnection(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_CSDNConnection, CSDNConnection_sequence);
-
-  return offset;
-}
-
-
-static const value_string t124_PSDNNetworkAddress_vals[] = {
-  {   0, "extendedE164NetworkAddress" },
-  {   1, "transportAddress" },
-  {   2, "nonStandard" },
-  { 0, NULL }
-};
-
-static const per_choice_t PSDNNetworkAddress_choice[] = {
-  {   0, &hf_t124_extendedE164NetworkAddress, ASN1_NO_EXTENSIONS     , dissect_t124_ExtendedE164NetworkAddress },
-  {   1, &hf_t124_transportAddress, ASN1_NO_EXTENSIONS     , dissect_t124_TransportAddress },
-  {   2, &hf_t124_nonStandard    , ASN1_NO_EXTENSIONS     , dissect_t124_NonStandardParameter },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_t124_PSDNNetworkAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_t124_PSDNNetworkAddress, PSDNNetworkAddress_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t PSDNConnection_sequence[] = {
-  { &hf_t124_pSDNNetworkAddress, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_PSDNNetworkAddress },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_PSDNConnection(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_PSDNConnection, PSDNConnection_sequence);
-
-  return offset;
-}
-
-
-static const value_string t124_T_networkAddress_vals[] = {
-  {   0, "extendedE164" },
-  {   1, "nsapAddress" },
-  {   2, "nonStandard" },
-  { 0, NULL }
-};
-
-static const per_choice_t T_networkAddress_choice[] = {
-  {   0, &hf_t124_extendedE164   , ASN1_NO_EXTENSIONS     , dissect_t124_ExtendedE164NetworkAddress },
-  {   1, &hf_t124_nsapAddress_01 , ASN1_NO_EXTENSIONS     , dissect_t124_TransportAddress },
-  {   2, &hf_t124_nonStandard    , ASN1_NO_EXTENSIONS     , dissect_t124_NonStandardParameter },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_t124_T_networkAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_t124_T_networkAddress, T_networkAddress_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t124_INTEGER_0_MAX(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, NO_BOUND, NULL, FALSE);
-
-  return offset;
-}
-
-
-static const per_sequence_t ATMConnection_sequence[] = {
-  { &hf_t124_networkAddress_01, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_T_networkAddress },
-  { &hf_t124_maxTransferRate, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_INTEGER_0_MAX },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_ATMConnection(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_ATMConnection, ATMConnection_sequence);
-
-  return offset;
-}
-
-
-static const value_string t124_NetworkConnection_vals[] = {
-  {   0, "gstnConnection" },
-  {   1, "isdnConnection" },
-  {   2, "csdnConnection" },
-  {   3, "psdnConnection" },
-  {   4, "atmConnection" },
-  {   5, "extendedE164NetworkAddress" },
-  {   6, "transportAddress" },
-  {   7, "nonStandard" },
-  { 0, NULL }
-};
-
-static const per_choice_t NetworkConnection_choice[] = {
-  {   0, &hf_t124_gstnConnection , ASN1_EXTENSION_ROOT    , dissect_t124_GSTNConnection },
-  {   1, &hf_t124_isdnConnection , ASN1_EXTENSION_ROOT    , dissect_t124_ISDNConnection },
-  {   2, &hf_t124_csdnConnection , ASN1_EXTENSION_ROOT    , dissect_t124_CSDNConnection },
-  {   3, &hf_t124_psdnConnection , ASN1_EXTENSION_ROOT    , dissect_t124_PSDNConnection },
-  {   4, &hf_t124_atmConnection  , ASN1_EXTENSION_ROOT    , dissect_t124_ATMConnection },
-  {   5, &hf_t124_extendedE164NetworkAddress, ASN1_EXTENSION_ROOT    , dissect_t124_ExtendedE164NetworkAddress },
-  {   6, &hf_t124_transportAddress, ASN1_EXTENSION_ROOT    , dissect_t124_TransportAddress },
-  {   7, &hf_t124_nonStandard    , ASN1_EXTENSION_ROOT    , dissect_t124_NonStandardParameter },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_t124_NetworkConnection(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_t124_NetworkConnection, NetworkConnection_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const value_string t124_T_connectionList_item_vals[] = {
-  {   0, "isdnConnection" },
-  {   1, "csdnConnection" },
-  { 0, NULL }
-};
-
-static const per_choice_t T_connectionList_item_choice[] = {
-  {   0, &hf_t124_isdnConnection , ASN1_EXTENSION_ROOT    , dissect_t124_ISDNConnection },
-  {   1, &hf_t124_csdnConnection , ASN1_EXTENSION_ROOT    , dissect_t124_CSDNConnection },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_t124_T_connectionList_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_t124_T_connectionList_item, T_connectionList_item_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t T_connectionList_set_of[1] = {
-  { &hf_t124_connectionList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_T_connectionList_item },
-};
-
-static int
-dissect_t124_T_connectionList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_set_of(tvb, offset, actx, tree, hf_index,
-                                             ett_t124_T_connectionList, T_connectionList_set_of,
-                                             1, 30, FALSE);
-
-  return offset;
-}
-
-
-static const per_sequence_t SET_OF_ChannelAggregationMethod_set_of[1] = {
-  { &hf_t124_aggregationMethods_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_ChannelAggregationMethod },
-};
-
-static int
-dissect_t124_SET_OF_ChannelAggregationMethod(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_set_of(tvb, offset, actx, tree, hf_index,
-                                 ett_t124_SET_OF_ChannelAggregationMethod, SET_OF_ChannelAggregationMethod_set_of);
-
-  return offset;
-}
-
-
-static const per_sequence_t T_aggregatedConnections_sequence[] = {
-  { &hf_t124_connectionList , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_T_connectionList },
-  { &hf_t124_aggregationMethods, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_SET_OF_ChannelAggregationMethod },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_T_aggregatedConnections(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_T_aggregatedConnections, T_aggregatedConnections_sequence);
-
-  return offset;
-}
-
-
-static const value_string t124_T_networkConnection_vals[] = {
-  {   0, "singleConnection" },
-  {   1, "aggregatedConnections" },
-  { 0, NULL }
-};
-
-static const per_choice_t T_networkConnection_choice[] = {
-  {   0, &hf_t124_singleConnection, ASN1_NO_EXTENSIONS     , dissect_t124_NetworkConnection },
-  {   1, &hf_t124_aggregatedConnections, ASN1_NO_EXTENSIONS     , dissect_t124_T_aggregatedConnections },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_t124_T_networkConnection(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_t124_T_networkConnection, T_networkConnection_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t SET_OF_Profile_set_of[1] = {
-  { &hf_t124_profiles_item  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_Profile },
-};
-
-static int
-dissect_t124_SET_OF_Profile(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_set_of(tvb, offset, actx, tree, hf_index,
-                                 ett_t124_SET_OF_Profile, SET_OF_Profile_set_of);
-
-  return offset;
-}
-
-
-static const per_sequence_t NetworkAddressV2_item_sequence[] = {
-  { &hf_t124_networkConnection, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_T_networkConnection },
-  { &hf_t124_profiles       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_SET_OF_Profile },
-  { &hf_t124_mediaConcerned , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_MediaList },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_NetworkAddressV2_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_NetworkAddressV2_item, NetworkAddressV2_item_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t NetworkAddressV2_set_of[1] = {
-  { &hf_t124_NetworkAddressV2_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_NetworkAddressV2_item },
-};
-
-static int
-dissect_t124_NetworkAddressV2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_set_of(tvb, offset, actx, tree, hf_index,
-                                 ett_t124_NetworkAddressV2, NetworkAddressV2_set_of);
-
-  return offset;
-}
-
-
 static const value_string t124_NodeType_vals[] = {
   {   0, "terminal" },
   {   1, "multiportTerminal" },
@@ -1984,21 +1159,6 @@ static int
 dissect_t124_NodeType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      3, NULL, TRUE, 0, NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t NodeProperties_sequence[] = {
-  { &hf_t124_managementDevice, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_BOOLEAN },
-  { &hf_t124_peripheralDevice, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_BOOLEAN },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_NodeProperties(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_NodeProperties, NodeProperties_sequence);
 
   return offset;
 }
@@ -2038,43 +1198,13 @@ dissect_t124_AsymmetryIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 }
 
 
-
-static int
-dissect_t124_OCTET_STRING_SIZE_2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       2, 2, FALSE, NULL);
-
-  return offset;
-}
-
-
-static const value_string t124_AlternativeNodeID_vals[] = {
-  {   0, "h243NodeID" },
-  { 0, NULL }
-};
-
-static const per_choice_t AlternativeNodeID_choice[] = {
-  {   0, &hf_t124_h243NodeID     , ASN1_EXTENSION_ROOT    , dissect_t124_OCTET_STRING_SIZE_2 },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_t124_AlternativeNodeID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_t124_AlternativeNodeID, AlternativeNodeID_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
 static const per_sequence_t ConferenceDescriptor_sequence[] = {
   { &hf_t124_conferenceName , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_ConferenceName },
   { &hf_t124_conferenceNameModifier, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_ConferenceNameModifier },
   { &hf_t124_conferenceDescription, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_TextString },
   { &hf_t124_lockedConference, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_BOOLEAN },
   { &hf_t124_passwordInTheClearRequired, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_BOOLEAN },
-  { &hf_t124_networkAddress_02, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_NetworkAddress },
+  { &hf_t124_networkAddress , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_NetworkAddress },
   { &hf_t124_defaultConferenceFlag, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_t124_BOOLEAN },
   { &hf_t124_conferenceMode , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_t124_ConferenceMode },
   { NULL, 0, 0, NULL }
@@ -2084,328 +1214,6 @@ static int
 dissect_t124_ConferenceDescriptor(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_t124_ConferenceDescriptor, ConferenceDescriptor_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t SEQUENCE_OF_TextString_sequence_of[1] = {
-  { &hf_t124_participantsList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_TextString },
-};
-
-static int
-dissect_t124_SEQUENCE_OF_TextString(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence_of(tvb, offset, actx, tree, hf_index,
-                                      ett_t124_SEQUENCE_OF_TextString, SEQUENCE_OF_TextString_sequence_of);
-
-  return offset;
-}
-
-
-static const per_sequence_t NodeRecord_sequence[] = {
-  { &hf_t124_superiorNode   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_UserID },
-  { &hf_t124_nodeType       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_NodeType },
-  { &hf_t124_nodeProperties , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_NodeProperties },
-  { &hf_t124_nodeName       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_TextString },
-  { &hf_t124_participantsList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_SEQUENCE_OF_TextString },
-  { &hf_t124_siteInformation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_TextString },
-  { &hf_t124_networkAddress_02, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_NetworkAddress },
-  { &hf_t124_alternativeNodeID, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_AlternativeNodeID },
-  { &hf_t124_userData       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_UserData },
-  { &hf_t124_nodeCategory   , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_t124_NodeCategory },
-  { &hf_t124_networkAddressV2, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_t124_NetworkAddressV2 },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_NodeRecord(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_NodeRecord, NodeRecord_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t SessionKey_sequence[] = {
-  { &hf_t124_applicationProtocolKey, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_Key },
-  { &hf_t124_sessionID      , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_t124_ChannelID },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_SessionKey(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_SessionKey, SessionKey_sequence);
-
-  return offset;
-}
-
-
-static const value_string t124_ChannelType_vals[] = {
-  {   0, "static" },
-  {   1, "dynamicMulticast" },
-  {   2, "dynamicPrivate" },
-  {   3, "dynamicUserId" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_t124_ChannelType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     4, NULL, FALSE, 0, NULL);
-
-  return offset;
-}
-
-
-static const value_string t124_CapabilityID_vals[] = {
-  {   0, "standard" },
-  {   1, "nonStandard" },
-  { 0, NULL }
-};
-
-static const per_choice_t CapabilityID_choice[] = {
-  {   0, &hf_t124_standard       , ASN1_NO_EXTENSIONS     , dissect_t124_INTEGER_0_65535 },
-  {   1, &hf_t124_nonStandard_01 , ASN1_NO_EXTENSIONS     , dissect_t124_Key },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_t124_CapabilityID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_t124_CapabilityID, CapabilityID_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t T_nonCollapsingCapabilities_item_sequence[] = {
-  { &hf_t124_capabilityID   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_CapabilityID },
-  { &hf_t124_applicationData, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_t124_OCTET_STRING },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_T_nonCollapsingCapabilities_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_T_nonCollapsingCapabilities_item, T_nonCollapsingCapabilities_item_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t T_nonCollapsingCapabilities_set_of[1] = {
-  { &hf_t124_nonCollapsingCapabilities_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_T_nonCollapsingCapabilities_item },
-};
-
-static int
-dissect_t124_T_nonCollapsingCapabilities(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_set_of(tvb, offset, actx, tree, hf_index,
-                                 ett_t124_T_nonCollapsingCapabilities, T_nonCollapsingCapabilities_set_of);
-
-  return offset;
-}
-
-
-static const per_sequence_t ApplicationRecord_sequence[] = {
-  { &hf_t124_applicationActive, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_BOOLEAN },
-  { &hf_t124_conductingOperationCapable, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_BOOLEAN },
-  { &hf_t124_startupChannel , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_ChannelType },
-  { &hf_t124_applicationUserID, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_UserID },
-  { &hf_t124_nonCollapsingCapabilities, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_T_nonCollapsingCapabilities },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_ApplicationRecord(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_ApplicationRecord, ApplicationRecord_sequence);
-
-  return offset;
-}
-
-
-static const value_string t124_CapabilityClass_vals[] = {
-  {   0, "logical" },
-  {   1, "unsignedMin" },
-  {   2, "unsignedMax" },
-  { 0, NULL }
-};
-
-static const per_choice_t CapabilityClass_choice[] = {
-  {   0, &hf_t124_logical        , ASN1_EXTENSION_ROOT    , dissect_t124_NULL },
-  {   1, &hf_t124_unsignedMin    , ASN1_EXTENSION_ROOT    , dissect_t124_INTEGER_0_MAX },
-  {   2, &hf_t124_unsignedMax    , ASN1_EXTENSION_ROOT    , dissect_t124_INTEGER_0_MAX },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_t124_CapabilityClass(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_t124_CapabilityClass, CapabilityClass_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t124_EntityID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 65535U, NULL, FALSE);
-
-  return offset;
-}
-
-
-static const per_sequence_t T_expectedCapabilitySet_item_sequence[] = {
-  { &hf_t124_capabilityID   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_CapabilityID },
-  { &hf_t124_capabilityClass, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_CapabilityClass },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_T_expectedCapabilitySet_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_T_expectedCapabilitySet_item, T_expectedCapabilitySet_item_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t T_expectedCapabilitySet_set_of[1] = {
-  { &hf_t124_expectedCapabilitySet_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_T_expectedCapabilitySet_item },
-};
-
-static int
-dissect_t124_T_expectedCapabilitySet(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_set_of(tvb, offset, actx, tree, hf_index,
-                                 ett_t124_T_expectedCapabilitySet, T_expectedCapabilitySet_set_of);
-
-  return offset;
-}
-
-
-static const per_sequence_t ApplicationInvokeSpecifier_sequence[] = {
-  { &hf_t124_sessionKey     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_SessionKey },
-  { &hf_t124_expectedCapabilitySet, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_T_expectedCapabilitySet },
-  { &hf_t124_startupChannel , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_ChannelType },
-  { &hf_t124_mandatoryFlag  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_BOOLEAN },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_ApplicationInvokeSpecifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_ApplicationInvokeSpecifier, ApplicationInvokeSpecifier_sequence);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t124_OCTET_STRING_SIZE_0_64(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       0, 64, FALSE, NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t RegistryKey_sequence[] = {
-  { &hf_t124_sessionKey     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_SessionKey },
-  { &hf_t124_resourceID     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_OCTET_STRING_SIZE_0_64 },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_RegistryKey(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_RegistryKey, RegistryKey_sequence);
-
-  return offset;
-}
-
-
-static const value_string t124_RegistryItem_vals[] = {
-  {   0, "channelID" },
-  {   1, "tokenID" },
-  {   2, "parameter" },
-  {   3, "vacant" },
-  { 0, NULL }
-};
-
-static const per_choice_t RegistryItem_choice[] = {
-  {   0, &hf_t124_channelID      , ASN1_EXTENSION_ROOT    , dissect_t124_DynamicChannelID },
-  {   1, &hf_t124_tokenID        , ASN1_EXTENSION_ROOT    , dissect_t124_DynamicTokenID },
-  {   2, &hf_t124_parameter      , ASN1_EXTENSION_ROOT    , dissect_t124_OCTET_STRING_SIZE_0_64 },
-  {   3, &hf_t124_vacant         , ASN1_EXTENSION_ROOT    , dissect_t124_NULL },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_t124_RegistryItem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_t124_RegistryItem, RegistryItem_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t T_owned_sequence[] = {
-  { &hf_t124_nodeID         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_UserID },
-  { &hf_t124_entityID       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_EntityID },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_T_owned(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_T_owned, T_owned_sequence);
-
-  return offset;
-}
-
-
-static const value_string t124_RegistryEntryOwner_vals[] = {
-  {   0, "owned" },
-  {   1, "notOwned" },
-  { 0, NULL }
-};
-
-static const per_choice_t RegistryEntryOwner_choice[] = {
-  {   0, &hf_t124_owned          , ASN1_NO_EXTENSIONS     , dissect_t124_T_owned },
-  {   1, &hf_t124_notOwned       , ASN1_NO_EXTENSIONS     , dissect_t124_NULL },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_t124_RegistryEntryOwner(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_t124_RegistryEntryOwner, RegistryEntryOwner_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const value_string t124_RegistryModificationRights_vals[] = {
-  {   0, "owner" },
-  {   1, "session" },
-  {   2, "public" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_t124_RegistryModificationRights(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     3, NULL, FALSE, 0, NULL);
 
   return offset;
 }
@@ -2688,281 +1496,10 @@ dissect_t124_ConferenceInviteResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 }
 
 
-static const per_sequence_t ConferenceAddRequest_sequence[] = {
-  { &hf_t124_networkAddress_02, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_NetworkAddress },
-  { &hf_t124_requestingNode , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_UserID },
-  { &hf_t124_tag            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_INTEGER },
-  { &hf_t124_addingMCU      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_UserID },
-  { &hf_t124_userData       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_UserData },
-  { &hf_t124_nodeCategory   , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_t124_NodeCategory },
-  { &hf_t124_networkAddressV2, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_t124_NetworkAddressV2 },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_ConferenceAddRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_ConferenceAddRequest, ConferenceAddRequest_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t ConferenceLockRequest_sequence[] = {
-  { NULL, ASN1_EXTENSION_ROOT, 0, NULL }
-};
-
-static int
-dissect_t124_ConferenceLockRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_ConferenceLockRequest, ConferenceLockRequest_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t ConferenceUnlockRequest_sequence[] = {
-  { NULL, ASN1_EXTENSION_ROOT, 0, NULL }
-};
-
-static int
-dissect_t124_ConferenceUnlockRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_ConferenceUnlockRequest, ConferenceUnlockRequest_sequence);
-
-  return offset;
-}
-
-
-static const value_string t124_TerminateRequestReason_vals[] = {
-  {   0, "userInitiated" },
-  {   1, "timedConferenceTermination" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_t124_TerminateRequestReason(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t ConferenceTerminateRequest_sequence[] = {
-  { &hf_t124_terminateRequestReason, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_TerminateRequestReason },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_ConferenceTerminateRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_ConferenceTerminateRequest, ConferenceTerminateRequest_sequence);
-
-  return offset;
-}
-
-
-static const value_string t124_EjectUserRequestReason_vals[] = {
-  {   0, "userInitiated" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_t124_EjectUserRequestReason(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t ConferenceEjectUserRequest_sequence[] = {
-  { &hf_t124_nodeToEject    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_UserID },
-  { &hf_t124_ejectUserRequestReason, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_EjectUserRequestReason },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_ConferenceEjectUserRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_ConferenceEjectUserRequest, ConferenceEjectUserRequest_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t SET_SIZE_1_65536_OF_UserID_set_of[1] = {
-  { &hf_t124_transferringNodes_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_UserID },
-};
-
-static int
-dissect_t124_SET_SIZE_1_65536_OF_UserID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_set_of(tvb, offset, actx, tree, hf_index,
-                                             ett_t124_SET_SIZE_1_65536_OF_UserID, SET_SIZE_1_65536_OF_UserID_set_of,
-                                             1, 65536, FALSE);
-
-  return offset;
-}
-
-
-static const per_sequence_t ConferenceTransferRequest_sequence[] = {
-  { &hf_t124_conferenceName_01, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_ConferenceNameSelector },
-  { &hf_t124_conferenceNameModifier, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_ConferenceNameModifier },
-  { &hf_t124_networkAddress_02, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_NetworkAddress },
-  { &hf_t124_transferringNodes, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_SET_SIZE_1_65536_OF_UserID },
-  { &hf_t124_password_02    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_PasswordSelector },
-  { &hf_t124_networkAddressV2, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_t124_NetworkAddressV2 },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_ConferenceTransferRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_ConferenceTransferRequest, ConferenceTransferRequest_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t RegistryRegisterChannelRequest_sequence[] = {
-  { &hf_t124_entityID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_EntityID },
-  { &hf_t124_key_01         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_RegistryKey },
-  { &hf_t124_channelID      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_DynamicChannelID },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_RegistryRegisterChannelRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_RegistryRegisterChannelRequest, RegistryRegisterChannelRequest_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t RegistryAssignTokenRequest_sequence[] = {
-  { &hf_t124_entityID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_EntityID },
-  { &hf_t124_key_01         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_RegistryKey },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_RegistryAssignTokenRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_RegistryAssignTokenRequest, RegistryAssignTokenRequest_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t RegistrySetParameterRequest_sequence[] = {
-  { &hf_t124_entityID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_EntityID },
-  { &hf_t124_key_01         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_RegistryKey },
-  { &hf_t124_parameter      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_OCTET_STRING_SIZE_0_64 },
-  { &hf_t124_modificationRights, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_t124_RegistryModificationRights },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_RegistrySetParameterRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_RegistrySetParameterRequest, RegistrySetParameterRequest_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t RegistryRetrieveEntryRequest_sequence[] = {
-  { &hf_t124_entityID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_EntityID },
-  { &hf_t124_key_01         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_RegistryKey },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_RegistryRetrieveEntryRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_RegistryRetrieveEntryRequest, RegistryRetrieveEntryRequest_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t RegistryDeleteEntryRequest_sequence[] = {
-  { &hf_t124_entityID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_EntityID },
-  { &hf_t124_key_01         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_RegistryKey },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_RegistryDeleteEntryRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_RegistryDeleteEntryRequest, RegistryDeleteEntryRequest_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t RegistryMonitorEntryRequest_sequence[] = {
-  { &hf_t124_entityID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_EntityID },
-  { &hf_t124_key_01         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_RegistryKey },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_RegistryMonitorEntryRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_RegistryMonitorEntryRequest, RegistryMonitorEntryRequest_sequence);
-
-  return offset;
-}
-
-
-
-static int
-dissect_t124_INTEGER_1_1024(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 1024U, NULL, FALSE);
-
-  return offset;
-}
-
-
-static const per_sequence_t RegistryAllocateHandleRequest_sequence[] = {
-  { &hf_t124_entityID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_EntityID },
-  { &hf_t124_numberOfHandles, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_INTEGER_1_1024 },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_RegistryAllocateHandleRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_RegistryAllocateHandleRequest, RegistryAllocateHandleRequest_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t NonStandardPDU_sequence[] = {
-  { &hf_t124_data_02        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_t124_NonStandardParameter },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_t124_NonStandardPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_NonStandardPDU, NonStandardPDU_sequence);
-
-  return offset;
-}
-
-
 
 static int
 dissect_t124_T_connectPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 80 "../../asn1/t124/t124.cnf"
+#line 124 "../../asn1/t124/t124.cnf"
     tvbuff_t	*next_tvb = NULL;
     proto_tree	*next_tree = NULL;
     int		old_offset = 0;
@@ -3043,58 +1580,10 @@ dissect_t124_ConnectGCCPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 }
 
 
-static const value_string t124_RequestPDU_vals[] = {
-  {   0, "conferenceJoinRequest" },
-  {   1, "conferenceAddRequest" },
-  {   2, "conferenceLockRequest" },
-  {   3, "conferenceUnlockRequest" },
-  {   4, "conferenceTerminateRequest" },
-  {   5, "conferenceEjectUserRequest" },
-  {   6, "conferenceTransferRequest" },
-  {   7, "registryRegisterChannelRequest" },
-  {   8, "registryAssignTokenRequest" },
-  {   9, "registrySetParameterRequest" },
-  {  10, "registryRetrieveEntryRequest" },
-  {  11, "registryDeleteEntryRequest" },
-  {  12, "registryMonitorEntryRequest" },
-  {  13, "registryAllocateHandleRequest" },
-  {  14, "nonStandardRequest" },
-  { 0, NULL }
-};
-
-static const per_choice_t RequestPDU_choice[] = {
-  {   0, &hf_t124_conferenceJoinRequest, ASN1_EXTENSION_ROOT    , dissect_t124_ConferenceJoinRequest },
-  {   1, &hf_t124_conferenceAddRequest, ASN1_EXTENSION_ROOT    , dissect_t124_ConferenceAddRequest },
-  {   2, &hf_t124_conferenceLockRequest, ASN1_EXTENSION_ROOT    , dissect_t124_ConferenceLockRequest },
-  {   3, &hf_t124_conferenceUnlockRequest, ASN1_EXTENSION_ROOT    , dissect_t124_ConferenceUnlockRequest },
-  {   4, &hf_t124_conferenceTerminateRequest, ASN1_EXTENSION_ROOT    , dissect_t124_ConferenceTerminateRequest },
-  {   5, &hf_t124_conferenceEjectUserRequest, ASN1_EXTENSION_ROOT    , dissect_t124_ConferenceEjectUserRequest },
-  {   6, &hf_t124_conferenceTransferRequest, ASN1_EXTENSION_ROOT    , dissect_t124_ConferenceTransferRequest },
-  {   7, &hf_t124_registryRegisterChannelRequest, ASN1_EXTENSION_ROOT    , dissect_t124_RegistryRegisterChannelRequest },
-  {   8, &hf_t124_registryAssignTokenRequest, ASN1_EXTENSION_ROOT    , dissect_t124_RegistryAssignTokenRequest },
-  {   9, &hf_t124_registrySetParameterRequest, ASN1_EXTENSION_ROOT    , dissect_t124_RegistrySetParameterRequest },
-  {  10, &hf_t124_registryRetrieveEntryRequest, ASN1_EXTENSION_ROOT    , dissect_t124_RegistryRetrieveEntryRequest },
-  {  11, &hf_t124_registryDeleteEntryRequest, ASN1_EXTENSION_ROOT    , dissect_t124_RegistryDeleteEntryRequest },
-  {  12, &hf_t124_registryMonitorEntryRequest, ASN1_EXTENSION_ROOT    , dissect_t124_RegistryMonitorEntryRequest },
-  {  13, &hf_t124_registryAllocateHandleRequest, ASN1_EXTENSION_ROOT    , dissect_t124_RegistryAllocateHandleRequest },
-  {  14, &hf_t124_nonStandardRequest, ASN1_EXTENSION_ROOT    , dissect_t124_NonStandardPDU },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_t124_RequestPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_t124_RequestPDU, RequestPDU_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
 
 static int
 dissect_t124_ChannelId(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 180 "../../asn1/t124/t124.cnf"
+#line 223 "../../asn1/t124/t124.cnf"
 
       offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 65535U, &channelId, FALSE);
@@ -3215,22 +1704,11 @@ dissect_t124_Segmentation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 }
 
 
-static const per_sequence_t DomainParameters_sequence[] = {
-  { &hf_t124_maxChannelIds  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_INTEGER_0_MAX },
-  { &hf_t124_maxUserIds     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_INTEGER_0_MAX },
-  { &hf_t124_maxTokenIds    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_INTEGER_0_MAX },
-  { &hf_t124_numPriorities  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_INTEGER_0_MAX },
-  { &hf_t124_minThroughput  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_INTEGER_0_MAX },
-  { &hf_t124_maxHeight      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_INTEGER_0_MAX },
-  { &hf_t124_maxMCSPDUsize  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_INTEGER_0_MAX },
-  { &hf_t124_protocolVersion, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_INTEGER_0_MAX },
-  { NULL, 0, 0, NULL }
-};
 
 static int
-dissect_t124_DomainParameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_t124_DomainParameters, DomainParameters_sequence);
+dissect_t124_INTEGER_0_MAX(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, NO_BOUND, NULL, FALSE);
 
   return offset;
 }
@@ -3944,7 +2422,7 @@ dissect_t124_ChannelExpelIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
 static int
 dissect_t124_T_userData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 123 "../../asn1/t124/t124.cnf"
+#line 167 "../../asn1/t124/t124.cnf"
     tvbuff_t	*next_tvb = NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -3984,7 +2462,7 @@ dissect_t124_SendDataRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
 static int
 dissect_t124_T_userData_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 136 "../../asn1/t124/t124.cnf"
+#line 180 "../../asn1/t124/t124.cnf"
     tvbuff_t	*next_tvb = NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -4375,7 +2853,7 @@ static const per_choice_t DomainMCSPDU_choice[] = {
 
 static int
 dissect_t124_DomainMCSPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 150 "../../asn1/t124/t124.cnf"
+#line 194 "../../asn1/t124/t124.cnf"
   	gint domainmcs_value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -4807,270 +3285,6 @@ void proto_register_t124(void) {
       { "nonStandard", "t124.nonStandard",
         FT_NONE, BASE_NONE, NULL, 0,
         "NonStandardParameter", HFILL }},
-    { &hf_t124_audio,
-      { "audio", "t124.audio",
-        FT_BOOLEAN, BASE_NONE, NULL, 0,
-        "BOOLEAN", HFILL }},
-    { &hf_t124_video,
-      { "video", "t124.video",
-        FT_BOOLEAN, BASE_NONE, NULL, 0,
-        "BOOLEAN", HFILL }},
-    { &hf_t124_data_01,
-      { "data", "t124.data",
-        FT_BOOLEAN, BASE_NONE, NULL, 0,
-        "BOOLEAN", HFILL }},
-    { &hf_t124_h221,
-      { "h221", "t124.h221",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_h244,
-      { "h244", "t124.h244",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_iso_iec_13871,
-      { "iso-iec-13871", "t124.iso_iec_13871",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_simpleProfile,
-      { "simpleProfile", "t124.simpleProfile",
-        FT_UINT32, BASE_DEC, VALS(t124_T_simpleProfile_vals), 0,
-        NULL, HFILL }},
-    { &hf_t124_speech_01,
-      { "speech", "t124.speech",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_telephony_3kHz,
-      { "telephony-3kHz", "t124.telephony_3kHz",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_telephony_7kHz,
-      { "telephony-7kHz", "t124.telephony_7kHz",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_voice_band_01,
-      { "voice-band", "t124.voice_band",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_frameRelay,
-      { "frameRelay", "t124.frameRelay",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_t123_pstn_basic,
-      { "t123-pstn-basic", "t124.t123_pstn_basic",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_t123_psdn_basic,
-      { "t123-psdn-basic", "t124.t123_psdn_basic",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_t123_b_isdn_basic,
-      { "t123-b-isdn-basic", "t124.t123_b_isdn_basic",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_multimediaProfile,
-      { "multimediaProfile", "t124.multimediaProfile",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_profile,
-      { "profile", "t124.profile",
-        FT_UINT32, BASE_DEC, VALS(t124_T_profile_vals), 0,
-        NULL, HFILL }},
-    { &hf_t124_h310,
-      { "h310", "t124.h310",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_h320,
-      { "h320", "t124.h320",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_h321,
-      { "h321", "t124.h321",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_h322,
-      { "h322", "t124.h322",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_h323,
-      { "h323", "t124.h323",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_h324,
-      { "h324", "t124.h324",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_h324m,
-      { "h324m", "t124.h324m",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_asvd,
-      { "asvd", "t124.asvd",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_dsvd,
-      { "dsvd", "t124.dsvd",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_t120Data,
-      { "t120Data", "t124.t120Data",
-        FT_BOOLEAN, BASE_NONE, NULL, 0,
-        "BOOLEAN", HFILL }},
-    { &hf_t124_dsmccDownloadProfile,
-      { "dsmccDownloadProfile", "t124.dsmccDownloadProfile",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_networkAddress,
-      { "networkAddress", "t124.networkAddress",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "ExtendedE164NetworkAddress", HFILL }},
-    { &hf_t124_iSDNCircuitTypes,
-      { "circuitTypes", "t124.circuitTypes",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "ISDNCircuitTypes", HFILL }},
-    { &hf_t124_iSDNCircuitTypes_item,
-      { "circuitTypes item", "t124.circuitTypes_item",
-        FT_UINT32, BASE_DEC, VALS(t124_ISDNCircuitTypes_item_vals), 0,
-        "ISDNCircuitTypes_item", HFILL }},
-    { &hf_t124_digital_64k_01,
-      { "digital-64k", "t124.digital_64k",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_digital_2x64k,
-      { "digital-2x64k", "t124.digital_2x64k",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_digital_384k_01,
-      { "digital-384k", "t124.digital_384k",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_digital_1536,
-      { "digital-1536", "t124.digital_1536",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_digital_1920k_01,
-      { "digital-1920k", "t124.digital_1920k",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_multirate_base_64k,
-      { "multirate-base-64k", "t124.multirate_base_64k",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_1_30", HFILL }},
-    { &hf_t124_iSDNHighLayerCompatibility,
-      { "highLayerCompatibility", "t124.highLayerCompatibility",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "ISDNHighLayerCompatibility", HFILL }},
-    { &hf_t124_circuitTypes,
-      { "circuitTypes", "t124.circuitTypes",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_circuitTypes_item,
-      { "circuitTypes item", "t124.circuitTypes_item",
-        FT_UINT32, BASE_DEC, VALS(t124_T_circuitTypes_item_vals), 0,
-        NULL, HFILL }},
-    { &hf_t124_digital_56k_01,
-      { "digital-56k", "t124.digital_56k",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_pSDNNetworkAddress,
-      { "networkAddress", "t124.networkAddress",
-        FT_UINT32, BASE_DEC, VALS(t124_PSDNNetworkAddress_vals), 0,
-        "PSDNNetworkAddress", HFILL }},
-    { &hf_t124_extendedE164NetworkAddress,
-      { "extendedE164NetworkAddress", "t124.extendedE164NetworkAddress",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_transportAddress,
-      { "transportAddress", "t124.transportAddress",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_networkAddress_01,
-      { "networkAddress", "t124.networkAddress",
-        FT_UINT32, BASE_DEC, VALS(t124_T_networkAddress_vals), 0,
-        NULL, HFILL }},
-    { &hf_t124_extendedE164,
-      { "extendedE164", "t124.extendedE164",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "ExtendedE164NetworkAddress", HFILL }},
-    { &hf_t124_nsapAddress_01,
-      { "nsapAddress", "t124.nsapAddress",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "TransportAddress", HFILL }},
-    { &hf_t124_maxTransferRate,
-      { "maxTransferRate", "t124.maxTransferRate",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_MAX", HFILL }},
-    { &hf_t124_gstnConnection,
-      { "gstnConnection", "t124.gstnConnection",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_isdnConnection,
-      { "isdnConnection", "t124.isdnConnection",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_csdnConnection,
-      { "csdnConnection", "t124.csdnConnection",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_psdnConnection,
-      { "psdnConnection", "t124.psdnConnection",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_atmConnection,
-      { "atmConnection", "t124.atmConnection",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_NetworkAddressV2_item,
-      { "NetworkAddressV2 item", "t124.NetworkAddressV2_item",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_networkConnection,
-      { "networkConnection", "t124.networkConnection",
-        FT_UINT32, BASE_DEC, VALS(t124_T_networkConnection_vals), 0,
-        NULL, HFILL }},
-    { &hf_t124_singleConnection,
-      { "singleConnection", "t124.singleConnection",
-        FT_UINT32, BASE_DEC, VALS(t124_NetworkConnection_vals), 0,
-        "NetworkConnection", HFILL }},
-    { &hf_t124_aggregatedConnections,
-      { "aggregatedConnections", "t124.aggregatedConnections",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_connectionList,
-      { "connectionList", "t124.connectionList",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_connectionList_item,
-      { "connectionList item", "t124.connectionList_item",
-        FT_UINT32, BASE_DEC, VALS(t124_T_connectionList_item_vals), 0,
-        "T_connectionList_item", HFILL }},
-    { &hf_t124_aggregationMethods,
-      { "aggregationMethods", "t124.aggregationMethods",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "SET_OF_ChannelAggregationMethod", HFILL }},
-    { &hf_t124_aggregationMethods_item,
-      { "ChannelAggregationMethod", "t124.ChannelAggregationMethod",
-        FT_UINT32, BASE_DEC, VALS(t124_ChannelAggregationMethod_vals), 0,
-        NULL, HFILL }},
-    { &hf_t124_profiles,
-      { "profiles", "t124.profiles",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "SET_OF_Profile", HFILL }},
-    { &hf_t124_profiles_item,
-      { "Profile", "t124.Profile",
-        FT_UINT32, BASE_DEC, VALS(t124_Profile_vals), 0,
-        NULL, HFILL }},
-    { &hf_t124_mediaConcerned,
-      { "mediaConcerned", "t124.mediaConcerned",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "MediaList", HFILL }},
-    { &hf_t124_managementDevice,
-      { "managementDevice", "t124.managementDevice",
-        FT_BOOLEAN, BASE_NONE, NULL, 0,
-        "BOOLEAN", HFILL }},
-    { &hf_t124_peripheralDevice,
-      { "peripheralDevice", "t124.peripheralDevice",
-        FT_BOOLEAN, BASE_NONE, NULL, 0,
-        "BOOLEAN", HFILL }},
     { &hf_t124_callingNode,
       { "callingNode", "t124.callingNode",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -5083,10 +3297,6 @@ void proto_register_t124(void) {
       { "unknown", "t124.unknown",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_4294967295", HFILL }},
-    { &hf_t124_h243NodeID,
-      { "h243NodeID", "t124.h243NodeID",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING_SIZE_2", HFILL }},
     { &hf_t124_conferenceName,
       { "conferenceName", "t124.conferenceName",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -5107,7 +3317,7 @@ void proto_register_t124(void) {
       { "passwordInTheClearRequired", "t124.passwordInTheClearRequired",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
-    { &hf_t124_networkAddress_02,
+    { &hf_t124_networkAddress,
       { "networkAddress", "t124.networkAddress",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
@@ -5118,166 +3328,6 @@ void proto_register_t124(void) {
     { &hf_t124_conferenceMode,
       { "conferenceMode", "t124.conferenceMode",
         FT_UINT32, BASE_DEC, VALS(t124_ConferenceMode_vals), 0,
-        NULL, HFILL }},
-    { &hf_t124_superiorNode,
-      { "superiorNode", "t124.superiorNode",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "UserID", HFILL }},
-    { &hf_t124_nodeType,
-      { "nodeType", "t124.nodeType",
-        FT_UINT32, BASE_DEC, VALS(t124_NodeType_vals), 0,
-        NULL, HFILL }},
-    { &hf_t124_nodeProperties,
-      { "nodeProperties", "t124.nodeProperties",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_nodeName,
-      { "nodeName", "t124.nodeName",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "TextString", HFILL }},
-    { &hf_t124_participantsList,
-      { "participantsList", "t124.participantsList",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "SEQUENCE_OF_TextString", HFILL }},
-    { &hf_t124_participantsList_item,
-      { "TextString", "t124.TextString",
-        FT_STRING, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_siteInformation,
-      { "siteInformation", "t124.siteInformation",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "TextString", HFILL }},
-    { &hf_t124_alternativeNodeID,
-      { "alternativeNodeID", "t124.alternativeNodeID",
-        FT_UINT32, BASE_DEC, VALS(t124_AlternativeNodeID_vals), 0,
-        NULL, HFILL }},
-    { &hf_t124_userData,
-      { "userData", "t124.userData",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_nodeCategory,
-      { "nodeCategory", "t124.nodeCategory",
-        FT_UINT32, BASE_DEC, VALS(t124_NodeCategory_vals), 0,
-        NULL, HFILL }},
-    { &hf_t124_networkAddressV2,
-      { "networkAddressV2", "t124.networkAddressV2",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_applicationProtocolKey,
-      { "applicationProtocolKey", "t124.applicationProtocolKey",
-        FT_UINT32, BASE_DEC, VALS(t124_Key_vals), 0,
-        "Key", HFILL }},
-    { &hf_t124_sessionID,
-      { "sessionID", "t124.sessionID",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "ChannelID", HFILL }},
-    { &hf_t124_applicationActive,
-      { "applicationActive", "t124.applicationActive",
-        FT_BOOLEAN, BASE_NONE, NULL, 0,
-        "BOOLEAN", HFILL }},
-    { &hf_t124_conductingOperationCapable,
-      { "conductingOperationCapable", "t124.conductingOperationCapable",
-        FT_BOOLEAN, BASE_NONE, NULL, 0,
-        "BOOLEAN", HFILL }},
-    { &hf_t124_startupChannel,
-      { "startupChannel", "t124.startupChannel",
-        FT_UINT32, BASE_DEC, VALS(t124_ChannelType_vals), 0,
-        "ChannelType", HFILL }},
-    { &hf_t124_applicationUserID,
-      { "applicationUserID", "t124.applicationUserID",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "UserID", HFILL }},
-    { &hf_t124_nonCollapsingCapabilities,
-      { "nonCollapsingCapabilities", "t124.nonCollapsingCapabilities",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_nonCollapsingCapabilities_item,
-      { "nonCollapsingCapabilities item", "t124.nonCollapsingCapabilities_item",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_capabilityID,
-      { "capabilityID", "t124.capabilityID",
-        FT_UINT32, BASE_DEC, VALS(t124_CapabilityID_vals), 0,
-        NULL, HFILL }},
-    { &hf_t124_applicationData,
-      { "applicationData", "t124.applicationData",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING", HFILL }},
-    { &hf_t124_standard,
-      { "standard", "t124.standard",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_65535", HFILL }},
-    { &hf_t124_nonStandard_01,
-      { "nonStandard", "t124.nonStandard",
-        FT_UINT32, BASE_DEC, VALS(t124_Key_vals), 0,
-        "Key", HFILL }},
-    { &hf_t124_logical,
-      { "logical", "t124.logical",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_unsignedMin,
-      { "unsignedMin", "t124.unsignedMin",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_MAX", HFILL }},
-    { &hf_t124_unsignedMax,
-      { "unsignedMax", "t124.unsignedMax",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_MAX", HFILL }},
-    { &hf_t124_sessionKey,
-      { "sessionKey", "t124.sessionKey",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_expectedCapabilitySet,
-      { "expectedCapabilitySet", "t124.expectedCapabilitySet",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_expectedCapabilitySet_item,
-      { "expectedCapabilitySet item", "t124.expectedCapabilitySet_item",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "T_expectedCapabilitySet_item", HFILL }},
-    { &hf_t124_capabilityClass,
-      { "capabilityClass", "t124.capabilityClass",
-        FT_UINT32, BASE_DEC, VALS(t124_CapabilityClass_vals), 0,
-        NULL, HFILL }},
-    { &hf_t124_mandatoryFlag,
-      { "mandatoryFlag", "t124.mandatoryFlag",
-        FT_BOOLEAN, BASE_NONE, NULL, 0,
-        "BOOLEAN", HFILL }},
-    { &hf_t124_resourceID,
-      { "resourceID", "t124.resourceID",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING_SIZE_0_64", HFILL }},
-    { &hf_t124_channelID,
-      { "channelID", "t124.channelID",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "DynamicChannelID", HFILL }},
-    { &hf_t124_tokenID,
-      { "tokenID", "t124.tokenID",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "DynamicTokenID", HFILL }},
-    { &hf_t124_parameter,
-      { "parameter", "t124.parameter",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING_SIZE_0_64", HFILL }},
-    { &hf_t124_vacant,
-      { "vacant", "t124.vacant",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_owned,
-      { "owned", "t124.owned",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_nodeID,
-      { "nodeID", "t124.nodeID",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "UserID", HFILL }},
-    { &hf_t124_entityID,
-      { "entityID", "t124.entityID",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_notOwned,
-      { "notOwned", "t124.notOwned",
-        FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_t124_convenerPassword,
       { "convenerPassword", "t124.convenerPassword",
@@ -5327,10 +3377,18 @@ void proto_register_t124(void) {
       { "callerIdentifier", "t124.callerIdentifier",
         FT_STRING, BASE_NONE, NULL, 0,
         "TextString", HFILL }},
+    { &hf_t124_userData,
+      { "userData", "t124.userData",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
     { &hf_t124_conferencePriority,
       { "conferencePriority", "t124.conferencePriority",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_t124_nodeID,
+      { "nodeID", "t124.nodeID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "UserID", HFILL }},
     { &hf_t124_tag,
       { "tag", "t124.tag",
         FT_INT32, BASE_DEC, NULL, 0,
@@ -5338,6 +3396,10 @@ void proto_register_t124(void) {
     { &hf_t124_result,
       { "result", "t124.result",
         FT_UINT32, BASE_DEC, VALS(t124_T_result_vals), 0,
+        NULL, HFILL }},
+    { &hf_t124_nodeType,
+      { "nodeType", "t124.nodeType",
+        FT_UINT32, BASE_DEC, VALS(t124_NodeType_vals), 0,
         NULL, HFILL }},
     { &hf_t124_asymmetryIndicator,
       { "asymmetryIndicator", "t124.asymmetryIndicator",
@@ -5375,6 +3437,10 @@ void proto_register_t124(void) {
       { "convenerPassword", "t124.convenerPassword",
         FT_UINT32, BASE_DEC, VALS(t124_PasswordSelector_vals), 0,
         "PasswordSelector", HFILL }},
+    { &hf_t124_nodeCategory,
+      { "nodeCategory", "t124.nodeCategory",
+        FT_UINT32, BASE_DEC, VALS(t124_NodeCategory_vals), 0,
+        NULL, HFILL }},
     { &hf_t124_topNodeID,
       { "topNodeID", "t124.topNodeID",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -5391,54 +3457,6 @@ void proto_register_t124(void) {
       { "result", "t124.result",
         FT_UINT32, BASE_DEC, VALS(t124_InviteResponseResult_vals), 0,
         "InviteResponseResult", HFILL }},
-    { &hf_t124_requestingNode,
-      { "requestingNode", "t124.requestingNode",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "UserID", HFILL }},
-    { &hf_t124_addingMCU,
-      { "addingMCU", "t124.addingMCU",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "UserID", HFILL }},
-    { &hf_t124_terminateRequestReason,
-      { "reason", "t124.reason",
-        FT_UINT32, BASE_DEC, VALS(t124_TerminateRequestReason_vals), 0,
-        "TerminateRequestReason", HFILL }},
-    { &hf_t124_nodeToEject,
-      { "nodeToEject", "t124.nodeToEject",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "UserID", HFILL }},
-    { &hf_t124_ejectUserRequestReason,
-      { "reason", "t124.reason",
-        FT_UINT32, BASE_DEC, VALS(t124_EjectUserRequestReason_vals), 0,
-        "EjectUserRequestReason", HFILL }},
-    { &hf_t124_transferringNodes,
-      { "transferringNodes", "t124.transferringNodes",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "SET_SIZE_1_65536_OF_UserID", HFILL }},
-    { &hf_t124_transferringNodes_item,
-      { "UserID", "t124.UserID",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_password_02,
-      { "password", "t124.password",
-        FT_UINT32, BASE_DEC, VALS(t124_PasswordSelector_vals), 0,
-        "PasswordSelector", HFILL }},
-    { &hf_t124_key_01,
-      { "key", "t124.key",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "RegistryKey", HFILL }},
-    { &hf_t124_modificationRights,
-      { "modificationRights", "t124.modificationRights",
-        FT_UINT32, BASE_DEC, VALS(t124_RegistryModificationRights_vals), 0,
-        "RegistryModificationRights", HFILL }},
-    { &hf_t124_numberOfHandles,
-      { "numberOfHandles", "t124.numberOfHandles",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_1_1024", HFILL }},
-    { &hf_t124_data_02,
-      { "data", "t124.data",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "NonStandardParameter", HFILL }},
     { &hf_t124_t124Identifier,
       { "t124Identifier", "t124.t124Identifier",
         FT_UINT32, BASE_DEC, VALS(t124_Key_vals), 0,
@@ -5479,94 +3497,6 @@ void proto_register_t124(void) {
       { "conferenceInviteResponse", "t124.conferenceInviteResponse",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_t124_conferenceAddRequest,
-      { "conferenceAddRequest", "t124.conferenceAddRequest",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_conferenceLockRequest,
-      { "conferenceLockRequest", "t124.conferenceLockRequest",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_conferenceUnlockRequest,
-      { "conferenceUnlockRequest", "t124.conferenceUnlockRequest",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_conferenceTerminateRequest,
-      { "conferenceTerminateRequest", "t124.conferenceTerminateRequest",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_conferenceEjectUserRequest,
-      { "conferenceEjectUserRequest", "t124.conferenceEjectUserRequest",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_conferenceTransferRequest,
-      { "conferenceTransferRequest", "t124.conferenceTransferRequest",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_registryRegisterChannelRequest,
-      { "registryRegisterChannelRequest", "t124.registryRegisterChannelRequest",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_registryAssignTokenRequest,
-      { "registryAssignTokenRequest", "t124.registryAssignTokenRequest",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_registrySetParameterRequest,
-      { "registrySetParameterRequest", "t124.registrySetParameterRequest",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_registryRetrieveEntryRequest,
-      { "registryRetrieveEntryRequest", "t124.registryRetrieveEntryRequest",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_registryDeleteEntryRequest,
-      { "registryDeleteEntryRequest", "t124.registryDeleteEntryRequest",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_registryMonitorEntryRequest,
-      { "registryMonitorEntryRequest", "t124.registryMonitorEntryRequest",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_registryAllocateHandleRequest,
-      { "registryAllocateHandleRequest", "t124.registryAllocateHandleRequest",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_t124_nonStandardRequest,
-      { "nonStandardRequest", "t124.nonStandardRequest",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "NonStandardPDU", HFILL }},
-    { &hf_t124_maxChannelIds,
-      { "maxChannelIds", "t124.maxChannelIds",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_MAX", HFILL }},
-    { &hf_t124_maxUserIds,
-      { "maxUserIds", "t124.maxUserIds",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_MAX", HFILL }},
-    { &hf_t124_maxTokenIds,
-      { "maxTokenIds", "t124.maxTokenIds",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_MAX", HFILL }},
-    { &hf_t124_numPriorities,
-      { "numPriorities", "t124.numPriorities",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_MAX", HFILL }},
-    { &hf_t124_minThroughput,
-      { "minThroughput", "t124.minThroughput",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_MAX", HFILL }},
-    { &hf_t124_maxHeight,
-      { "maxHeight", "t124.maxHeight",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_MAX", HFILL }},
-    { &hf_t124_maxMCSPDUsize,
-      { "maxMCSPDUsize", "t124.maxMCSPDUsize",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_MAX", HFILL }},
-    { &hf_t124_protocolVersion,
-      { "protocolVersion", "t124.protocolVersion",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_MAX", HFILL }},
     { &hf_t124_heightLimit,
       { "heightLimit", "t124.heightLimit",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -5993,54 +3923,8 @@ void proto_register_t124(void) {
     &ett_t124_T_transferModes,
     &ett_t124_T_highLayerCompatibility,
     &ett_t124_T_transportConnection,
-    &ett_t124_MediaList,
-    &ett_t124_ChannelAggregationMethod,
-    &ett_t124_Profile,
-    &ett_t124_T_simpleProfile,
-    &ett_t124_T_multimediaProfile,
-    &ett_t124_T_profile,
-    &ett_t124_ExtendedE164NetworkAddress,
-    &ett_t124_TransportAddress,
-    &ett_t124_GSTNConnection,
-    &ett_t124_ISDNConnection,
-    &ett_t124_ISDNCircuitTypes,
-    &ett_t124_ISDNCircuitTypes_item,
-    &ett_t124_ISDNHighLayerCompatibility,
-    &ett_t124_CSDNConnection,
-    &ett_t124_T_circuitTypes,
-    &ett_t124_T_circuitTypes_item,
-    &ett_t124_PSDNConnection,
-    &ett_t124_PSDNNetworkAddress,
-    &ett_t124_ATMConnection,
-    &ett_t124_T_networkAddress,
-    &ett_t124_NetworkConnection,
-    &ett_t124_NetworkAddressV2,
-    &ett_t124_NetworkAddressV2_item,
-    &ett_t124_T_networkConnection,
-    &ett_t124_T_aggregatedConnections,
-    &ett_t124_T_connectionList,
-    &ett_t124_T_connectionList_item,
-    &ett_t124_SET_OF_ChannelAggregationMethod,
-    &ett_t124_SET_OF_Profile,
-    &ett_t124_NodeProperties,
     &ett_t124_AsymmetryIndicator,
-    &ett_t124_AlternativeNodeID,
     &ett_t124_ConferenceDescriptor,
-    &ett_t124_NodeRecord,
-    &ett_t124_SEQUENCE_OF_TextString,
-    &ett_t124_SessionKey,
-    &ett_t124_ApplicationRecord,
-    &ett_t124_T_nonCollapsingCapabilities,
-    &ett_t124_T_nonCollapsingCapabilities_item,
-    &ett_t124_CapabilityID,
-    &ett_t124_CapabilityClass,
-    &ett_t124_ApplicationInvokeSpecifier,
-    &ett_t124_T_expectedCapabilitySet,
-    &ett_t124_T_expectedCapabilitySet_item,
-    &ett_t124_RegistryKey,
-    &ett_t124_RegistryItem,
-    &ett_t124_RegistryEntryOwner,
-    &ett_t124_T_owned,
     &ett_t124_ConferenceCreateRequest,
     &ett_t124_SET_OF_Privilege,
     &ett_t124_ConferenceCreateResponse,
@@ -6051,26 +3935,9 @@ void proto_register_t124(void) {
     &ett_t124_ConferenceJoinResponse,
     &ett_t124_ConferenceInviteRequest,
     &ett_t124_ConferenceInviteResponse,
-    &ett_t124_ConferenceAddRequest,
-    &ett_t124_ConferenceLockRequest,
-    &ett_t124_ConferenceUnlockRequest,
-    &ett_t124_ConferenceTerminateRequest,
-    &ett_t124_ConferenceEjectUserRequest,
-    &ett_t124_ConferenceTransferRequest,
-    &ett_t124_SET_SIZE_1_65536_OF_UserID,
-    &ett_t124_RegistryRegisterChannelRequest,
-    &ett_t124_RegistryAssignTokenRequest,
-    &ett_t124_RegistrySetParameterRequest,
-    &ett_t124_RegistryRetrieveEntryRequest,
-    &ett_t124_RegistryDeleteEntryRequest,
-    &ett_t124_RegistryMonitorEntryRequest,
-    &ett_t124_RegistryAllocateHandleRequest,
-    &ett_t124_NonStandardPDU,
     &ett_t124_ConnectData,
     &ett_t124_ConnectGCCPDU,
-    &ett_t124_RequestPDU,
     &ett_t124_Segmentation,
-    &ett_t124_DomainParameters,
     &ett_t124_PlumbDomainIndication,
     &ett_t124_ErectDomainRequest,
     &ett_t124_ChannelAttributes,

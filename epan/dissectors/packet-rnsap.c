@@ -1168,6 +1168,7 @@ static int hf_rnsap_CellCapabilityContainer_TDD_LCR_PDU = -1;  /* CellCapability
 static int hf_rnsap_CellCapabilityContainer_TDD768_PDU = -1;  /* CellCapabilityContainer_TDD768 */
 static int hf_rnsap_C_ID_PDU = -1;                /* C_ID */
 static int hf_rnsap_Cell_Capacity_Class_Value_PDU = -1;  /* Cell_Capacity_Class_Value */
+static int hf_rnsap_CellListValidityIndicator_PDU = -1;  /* CellListValidityIndicator */
 static int hf_rnsap_CellPortionID_PDU = -1;       /* CellPortionID */
 static int hf_rnsap_CellPortionLCRID_PDU = -1;    /* CellPortionLCRID */
 static int hf_rnsap_CFN_PDU = -1;                 /* CFN */
@@ -1389,7 +1390,7 @@ static int hf_rnsap_MIMO_InformationResponse_PDU = -1;  /* MIMO_InformationRespo
 static int hf_rnsap_MIMO_Mode_Indicator_PDU = -1;  /* MIMO_Mode_Indicator */
 static int hf_rnsap_MIMO_N_M_Ratio_PDU = -1;      /* MIMO_N_M_Ratio */
 static int hf_rnsap_MinimumReducedE_DPDCH_GainFactor_PDU = -1;  /* MinimumReducedE_DPDCH_GainFactor */
-static int hf_rnsap_MulticellEDCH_Information_PDU = -1;  /* MulticellEDCH_Information */
+static int hf_rnsap_MulticellEDCH_InformationItemIEs_PDU = -1;  /* MulticellEDCH_InformationItemIEs */
 static int hf_rnsap_MulticellEDCH_RL_SpecificInformationItemIEs_PDU = -1;  /* MulticellEDCH_RL_SpecificInformationItemIEs */
 static int hf_rnsap_Multiple_PLMN_List_PDU = -1;  /* Multiple_PLMN_List */
 static int hf_rnsap_MAChs_ResetIndicator_PDU = -1;  /* MAChs_ResetIndicator */
@@ -1408,6 +1409,9 @@ static int hf_rnsap_NRT_Load_Information_Value_PDU = -1;  /* NRT_Load_Informatio
 static int hf_rnsap_NRTLoadInformationValue_PDU = -1;  /* NRTLoadInformationValue */
 static int hf_rnsap_Number_Of_Supported_Carriers_PDU = -1;  /* Number_Of_Supported_Carriers */
 static int hf_rnsap_NoOfTargetCellHS_SCCH_Order_PDU = -1;  /* NoOfTargetCellHS_SCCH_Order */
+static int hf_rnsap_Non_Serving_RL_Preconfig_Setup_PDU = -1;  /* Non_Serving_RL_Preconfig_Setup */
+static int hf_rnsap_Additional_E_DCH_Non_Serving_RL_Preconfiguration_Setup_PDU = -1;  /* Additional_E_DCH_Non_Serving_RL_Preconfiguration_Setup */
+static int hf_rnsap_Additional_E_DCH_New_non_serving_RL_E_DCH_FDD_DL_Control_Channel_InfoList_PDU = -1;  /* Additional_E_DCH_New_non_serving_RL_E_DCH_FDD_DL_Control_Channel_InfoList */
 static int hf_rnsap_NeedforIdleInterval_PDU = -1;  /* NeedforIdleInterval */
 static int hf_rnsap_OnModification_PDU = -1;      /* OnModification */
 static int hf_rnsap_Out_of_Sychronization_Window_PDU = -1;  /* Out_of_Sychronization_Window */
@@ -37507,6 +37511,14 @@ static int dissect_Cell_Capacity_Class_Value_PDU(tvbuff_t *tvb _U_, packet_info 
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_CellListValidityIndicator_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_CellListValidityIndicator(tvb, offset, &asn1_ctx, tree, hf_rnsap_CellListValidityIndicator_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_CellPortionID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -39275,11 +39287,11 @@ static int dissect_MinimumReducedE_DPDCH_GainFactor_PDU(tvbuff_t *tvb _U_, packe
   offset += 7; offset >>= 3;
   return offset;
 }
-static int dissect_MulticellEDCH_Information_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_MulticellEDCH_InformationItemIEs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
-  offset = dissect_rnsap_MulticellEDCH_Information(tvb, offset, &asn1_ctx, tree, hf_rnsap_MulticellEDCH_Information_PDU);
+  offset = dissect_rnsap_MulticellEDCH_InformationItemIEs(tvb, offset, &asn1_ctx, tree, hf_rnsap_MulticellEDCH_InformationItemIEs_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -39424,6 +39436,30 @@ static int dissect_NoOfTargetCellHS_SCCH_Order_PDU(tvbuff_t *tvb _U_, packet_inf
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_rnsap_NoOfTargetCellHS_SCCH_Order(tvb, offset, &asn1_ctx, tree, hf_rnsap_NoOfTargetCellHS_SCCH_Order_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_Non_Serving_RL_Preconfig_Setup_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_Non_Serving_RL_Preconfig_Setup(tvb, offset, &asn1_ctx, tree, hf_rnsap_Non_Serving_RL_Preconfig_Setup_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_Additional_E_DCH_Non_Serving_RL_Preconfiguration_Setup_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_Additional_E_DCH_Non_Serving_RL_Preconfiguration_Setup(tvb, offset, &asn1_ctx, tree, hf_rnsap_Additional_E_DCH_Non_Serving_RL_Preconfiguration_Setup_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_Additional_E_DCH_New_non_serving_RL_E_DCH_FDD_DL_Control_Channel_InfoList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_rnsap_Additional_E_DCH_New_non_serving_RL_E_DCH_FDD_DL_Control_Channel_InfoList(tvb, offset, &asn1_ctx, tree, hf_rnsap_Additional_E_DCH_New_non_serving_RL_E_DCH_FDD_DL_Control_Channel_InfoList_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -43262,6 +43298,10 @@ void proto_register_rnsap(void) {
       { "Cell-Capacity-Class-Value", "rnsap.Cell_Capacity_Class_Value",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_rnsap_CellListValidityIndicator_PDU,
+      { "CellListValidityIndicator", "rnsap.CellListValidityIndicator",
+        FT_UINT32, BASE_DEC, VALS(rnsap_CellListValidityIndicator_vals), 0,
+        NULL, HFILL }},
     { &hf_rnsap_CellPortionID_PDU,
       { "CellPortionID", "rnsap.CellPortionID",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -44146,8 +44186,8 @@ void proto_register_rnsap(void) {
       { "MinimumReducedE-DPDCH-GainFactor", "rnsap.MinimumReducedE_DPDCH_GainFactor",
         FT_UINT32, BASE_DEC, VALS(rnsap_MinimumReducedE_DPDCH_GainFactor_vals), 0,
         NULL, HFILL }},
-    { &hf_rnsap_MulticellEDCH_Information_PDU,
-      { "MulticellEDCH-Information", "rnsap.MulticellEDCH_Information",
+    { &hf_rnsap_MulticellEDCH_InformationItemIEs_PDU,
+      { "MulticellEDCH-InformationItemIEs", "rnsap.MulticellEDCH_InformationItemIEs",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_rnsap_MulticellEDCH_RL_SpecificInformationItemIEs_PDU,
@@ -44220,6 +44260,18 @@ void proto_register_rnsap(void) {
         NULL, HFILL }},
     { &hf_rnsap_NoOfTargetCellHS_SCCH_Order_PDU,
       { "NoOfTargetCellHS-SCCH-Order", "rnsap.NoOfTargetCellHS_SCCH_Order",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_rnsap_Non_Serving_RL_Preconfig_Setup_PDU,
+      { "Non-Serving-RL-Preconfig-Setup", "rnsap.Non_Serving_RL_Preconfig_Setup",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_rnsap_Additional_E_DCH_Non_Serving_RL_Preconfiguration_Setup_PDU,
+      { "Additional-E-DCH-Non-Serving-RL-Preconfiguration-Setup", "rnsap.Additional_E_DCH_Non_Serving_RL_Preconfiguration_Setup",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_rnsap_Additional_E_DCH_New_non_serving_RL_E_DCH_FDD_DL_Control_Channel_InfoList_PDU,
+      { "Additional-E-DCH-New-non-serving-RL-E-DCH-FDD-DL-Control-Channel-InfoList", "rnsap.Additional_E_DCH_New_non_serving_RL_E_DCH_FDD_DL_Control_Channel_InfoList",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_rnsap_NeedforIdleInterval_PDU,
@@ -56046,7 +56098,7 @@ proto_reg_handoff_rnsap(void)
   dissector_add_uint("rnsap.extension", id_Additional_EDCH_Cell_Information_RL_Reconf_Req, new_create_dissector_handle(dissect_Additional_EDCH_Cell_Information_RL_Reconf_Req_PDU, proto_rnsap));
   dissector_add_uint("rnsap.extension", id_Additional_EDCH_Cell_Information_RL_Param_Upd, new_create_dissector_handle(dissect_Additional_EDCH_Cell_Information_RL_Param_Upd_PDU, proto_rnsap));
   dissector_add_uint("rnsap.extension", id_Additional_EDCH_Preconfiguration_Information, new_create_dissector_handle(dissect_Additional_EDCH_Preconfiguration_Information_PDU, proto_rnsap));
-  dissector_add_uint("rnsap.ies", id_MulticellEDCH_Information, new_create_dissector_handle(dissect_MulticellEDCH_Information_PDU, proto_rnsap));
+  dissector_add_uint("rnsap.ies", id_MulticellEDCH_Information, new_create_dissector_handle(dissect_MulticellEDCH_InformationItemIEs_PDU, proto_rnsap));
   dissector_add_uint("rnsap.extension", id_Additional_EDCH_Cell_Information_ResponseRLReconf, new_create_dissector_handle(dissect_Additional_EDCH_Cell_Information_Response_RLReconf_List_PDU, proto_rnsap));
   dissector_add_uint("rnsap.extension", id_EDCH_Indicator, new_create_dissector_handle(dissect_NULL_PDU, proto_rnsap));
   dissector_add_uint("rnsap.extension", id_DiversityMode, new_create_dissector_handle(dissect_DiversityMode_PDU, proto_rnsap));
@@ -56065,6 +56117,10 @@ proto_reg_handoff_rnsap(void)
   dissector_add_uint("rnsap.extension", id_DGNSS_ValidityPeriod, new_create_dissector_handle(dissect_DGNSS_ValidityPeriod_PDU, proto_rnsap));
   dissector_add_uint("rnsap.extension", id_TS0_HS_PDSCH_Indication_LCR, new_create_dissector_handle(dissect_TS0_HS_PDSCH_Indication_LCR_PDU, proto_rnsap));
   dissector_add_uint("rnsap.extension", id_UE_TS0_CapabilityLCR, new_create_dissector_handle(dissect_UE_TS0_CapabilityLCR_PDU, proto_rnsap));
+  dissector_add_uint("rnsap.extension", id_Non_Serving_RL_Preconfig_Setup, new_create_dissector_handle(dissect_Non_Serving_RL_Preconfig_Setup_PDU, proto_rnsap));
+  dissector_add_uint("rnsap.extension", id_Additional_E_DCH_Non_Serving_RL_Preconfiguration_Setup, new_create_dissector_handle(dissect_Additional_E_DCH_Non_Serving_RL_Preconfiguration_Setup_PDU, proto_rnsap));
+  dissector_add_uint("rnsap.extension", id_Additional_E_DCH_New_non_serving_RL_E_DCH_FDD_DL_Control_Channel_InfoList, new_create_dissector_handle(dissect_Additional_E_DCH_New_non_serving_RL_E_DCH_FDD_DL_Control_Channel_InfoList_PDU, proto_rnsap));
+  dissector_add_uint("rnsap.extension", id_CellListValidityIndicator, new_create_dissector_handle(dissect_CellListValidityIndicator_PDU, proto_rnsap));
   dissector_add_string("rnsap.proc.imsg", "id-radioLinkSetup/fdd", new_create_dissector_handle(dissect_RadioLinkSetupRequestFDD_PDU, proto_rnsap));
   dissector_add_string("rnsap.proc.sout", "id-radioLinkSetup/fdd", new_create_dissector_handle(dissect_RadioLinkSetupResponseFDD_PDU, proto_rnsap));
   dissector_add_string("rnsap.proc.uout", "id-radioLinkSetup/fdd", new_create_dissector_handle(dissect_RadioLinkSetupFailureFDD_PDU, proto_rnsap));

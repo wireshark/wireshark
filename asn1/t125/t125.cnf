@@ -38,7 +38,6 @@ SendDataRequest
 SendDataIndication
 UniformSendDataRequest
 UniformSendDataIndication
-okenGrabRequest
 TokenGrabConfirm
 TokenInhibitRequest
 TokenInhibitConfirm
@@ -52,7 +51,20 @@ TokenReleaseRequest
 TokenReleaseConfirm
 TokenTestRequest
 TokenTestConfirm
-
+TokenStatus
+Segmentation
+ChannelAttributes
+TokenAttributes
+TokenGrabRequest
+Reason
+Diagnostic
+StaticChannelId                         
+UserId                                  
+PrivateChannelId                        
+AssignedChannelId                       
+TokenId
+DynamicChannelId
+ChannelId                                                           
 #.PDU
 #----------------------------------------------------------------------------------------
 

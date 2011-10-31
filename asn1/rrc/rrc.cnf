@@ -26,6 +26,7 @@ GSMCellGroupingList
 UE-Positioning-GANSS-Data
 GANSSDecipheringKeys
 GSM-CellID
+UE-Positioning-Measurement-v920ext
 #.END
 
 #.PDU_NEW
