@@ -64,6 +64,8 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/greproto.h>
+#include <epan/prefs.h>
+#include <epan/expert.h>
 
 static int proto_erspan = -1;
 
@@ -86,6 +88,9 @@ static int hf_erspan_unknown7 = -1;
 
 #define PROTO_SHORT_NAME "ERSPAN"
 #define PROTO_LONG_NAME "Encapsulated Remote Switch Packet ANalysis"
+
+/* Global ERSPAN Preference */
+static gboolean pref_fake_erspan = FALSE;
 
 #define ERSPAN_DIRECTION_INCOMING 0
 #define ERSPAN_DIRECTION_OUTGOING 1
@@ -119,7 +124,7 @@ static void
 dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti;
-	proto_item *unknown_version;
+	proto_item *ti_ver;
 	proto_tree *erspan_tree = NULL;
 	tvbuff_t *eth_tvb;
 	guint32 offset = 0;
@@ -128,18 +133,26 @@ dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_SHORT_NAME);
         col_set_str(pinfo->cinfo, COL_INFO, PROTO_SHORT_NAME ":");
 
+
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_erspan, tvb, offset, -1,
 		    ENC_NA);
 		erspan_tree = proto_item_add_subtree(ti, ett_erspan);
+	}
 
+	if(pref_fake_erspan) {
+		/* Some vendor don't include ERSPAN Header...*/
+		eth_tvb = tvb_new_subset_remaining(tvb, offset);
+		call_dissector(ethnofcs_handle, eth_tvb, pinfo, tree);
+		return;
+	}
+
+	if (tree) {
 		version = tvb_get_ntohs(tvb, offset) >> 12;
-		proto_tree_add_item(erspan_tree, hf_erspan_version, tvb, offset, 2,
+		ti_ver = proto_tree_add_item(erspan_tree, hf_erspan_version, tvb, offset, 2,
 			ENC_BIG_ENDIAN);
 		if ((version != 1) && (version != 2 )) {
-			unknown_version = proto_tree_add_text(erspan_tree, tvb, 0, 0,
-				"Unknown version, please report");
-			PROTO_ITEM_SET_GENERATED(unknown_version);
+			expert_add_info_format(pinfo, ti_ver, PI_UNDECODED, PI_WARN, "Unknown version, please report or test to use fake ERSPAN preference");
                 	return;
 		}
 		proto_tree_add_item(erspan_tree, hf_erspan_vlan, tvb, offset, 2,
@@ -198,6 +211,8 @@ dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_erspan(void)
 {
+	module_t *erspan_module;
+
 	static hf_register_info hf[] = {
 
 		{ &hf_erspan_version,
@@ -265,6 +280,15 @@ proto_register_erspan(void)
 	    PROTO_SHORT_NAME, "erspan");
         proto_register_field_array(proto_erspan, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	/* register dissection preferences */
+	erspan_module = prefs_register_protocol(proto_erspan, NULL);
+
+	prefs_register_bool_preference(erspan_module, "fake_erspan",
+				"FORCE to decode fake ERSPAN frame",
+				"When set, dissector will FORCE to decode directly Ethernet Frame"
+				"Some vendor use fake ERSPAN frame (with not ERSPAN Header)",
+				&pref_fake_erspan);
 }
 
 void
