@@ -844,7 +844,7 @@ WSLUA_METAMETHOD PrivateTable__tostring(lua_State* L) {
         }
     }
 
-    lua_pushstring(L,ep_strdup(key_string->str));
+    lua_pushstring(L,key_string->str);
 
     g_string_free (key_string, TRUE);
     g_list_free (keys);
