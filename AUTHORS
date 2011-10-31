@@ -3340,6 +3340,10 @@ Martin Renold		<reld [AT] zhaw.ch> {
 	HSR and PRP-1 dissector
 }
 
+Iain Arnell		<iarnell [AT] epo.org> {
+	ajp13 enhancements
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
@@ -3531,7 +3535,6 @@ Michael Chen		<michaelc [AT] idssoftware.com>
 Paul Stath		<pstath [AT] axxcelera.com>
 DeCount			<aatrade [AT] libero.it>
 Andras Veres-Szentkiralyi	<vsza [AT] vsza.hu>
-Iain Arnell		<iarnell [AT] epo.org>
 
 Dan Lasley <dlasley[AT]promus.com> gave permission for his
 dumpit() hex-dump routine to be used.
