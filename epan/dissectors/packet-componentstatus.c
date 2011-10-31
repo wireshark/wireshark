@@ -67,10 +67,11 @@ static int hf_componentassociation_duration          = -1;
 static int hf_componentassociation_flags             = -1;
 static int hf_componentassociation_protocolid        = -1;
 static int hf_componentassociation_ppid              = -1;
-
+static int hf_message_flags_final_bit                = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_componentstatusprotocol = -1;
+static gint ett_message_flags           = -1;
 static gint ett_association             = -1;
 
 
@@ -128,6 +129,11 @@ static gint ett_association             = -1;
 #define COMPONENTSTATUS_COMPONENTSTATUSREPORT_MESSAGE_TYPE       0x01
 
 
+#define CSPF_FINAL (1 << 0)
+static const true_false_string message_flags_final_bit = {
+  "Final message",
+  "Not final message"
+};
 
 
 static const value_string message_type_values[] = {
@@ -183,12 +189,16 @@ dissect_componentstatusprotocol_componentstatusreport_message(tvbuff_t *message_
 static void
 dissect_componentstatusprotocol_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *componentstatusprotocol_tree)
 {
-  guint8 type;
+  proto_item* flags_item;
+  proto_tree* flags_tree;
+  guint8      type;
 
   type = tvb_get_guint8(message_tvb, MESSAGE_TYPE_OFFSET);
   col_add_str(pinfo->cinfo, COL_INFO, val_to_str(type, message_type_values, "Unknown ComponentStatusProtocol type"));
   proto_tree_add_item(componentstatusprotocol_tree, hf_message_type,            message_tvb, MESSAGE_TYPE_OFFSET,     MESSAGE_TYPE_LENGTH,     ENC_BIG_ENDIAN);
-  proto_tree_add_item(componentstatusprotocol_tree, hf_message_flags,           message_tvb, MESSAGE_FLAGS_OFFSET,    MESSAGE_FLAGS_LENGTH,    ENC_BIG_ENDIAN);
+  flags_item = proto_tree_add_item(componentstatusprotocol_tree, hf_message_flags,           message_tvb, MESSAGE_FLAGS_OFFSET, MESSAGE_FLAGS_LENGTH, ENC_BIG_ENDIAN);
+  flags_tree = proto_item_add_subtree(flags_item, ett_message_flags);
+  proto_tree_add_item(flags_tree,                   hf_message_flags_final_bit, message_tvb, MESSAGE_FLAGS_OFFSET, MESSAGE_FLAGS_LENGTH, ENC_BIG_ENDIAN);
   proto_tree_add_item(componentstatusprotocol_tree, hf_message_length,          message_tvb, MESSAGE_LENGTH_OFFSET,   MESSAGE_LENGTH_LENGTH,   ENC_BIG_ENDIAN);
   proto_tree_add_item(componentstatusprotocol_tree, hf_message_version,         message_tvb, MESSAGE_VERSION_OFFSET,  MESSAGE_VERSION_LENGTH,  ENC_BIG_ENDIAN);
   proto_tree_add_item(componentstatusprotocol_tree, hf_message_senderid,        message_tvb, MESSAGE_SENDERID_OFFSET, MESSAGE_SENDERID_LENGTH, ENC_BIG_ENDIAN);
@@ -250,6 +260,7 @@ proto_register_componentstatusprotocol(void)
   static hf_register_info hf[] = {
     { &hf_message_type,                           { "Type",             "componentstatusprotocol.message_type",                           FT_UINT8,  BASE_DEC, VALS(message_type_values), 0x0, NULL, HFILL } },
     { &hf_message_flags,                          { "Flags",            "componentstatusprotocol.message_flags",                          FT_UINT8,  BASE_DEC, NULL,                      0x0, NULL, HFILL } },
+    { &hf_message_flags_final_bit,                { "F-Bit",            "componentstatusprotocol.message_final_bit",                      FT_BOOLEAN, 8, TFS(&message_flags_final_bit),   CSPF_FINAL, NULL, HFILL } },
     { &hf_message_length,                         { "Length",           "componentstatusprotocol.message_length",                         FT_UINT16, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
     { &hf_message_version,                        { "Version",          "componentstatusprotocol.message_version",                        FT_UINT32, BASE_HEX, NULL,                      0x0, NULL, HFILL } },
     { &hf_message_senderid,                       { "SenderID",         "componentstatusprotocol.message_senderid",                       FT_UINT64, BASE_HEX, NULL,                      0x0, NULL, HFILL } },
@@ -270,6 +281,7 @@ proto_register_componentstatusprotocol(void)
   /* Setup protocol subtree array */
   static gint *ett[] = {
     &ett_componentstatusprotocol,
+    &ett_message_flags,
     &ett_association
   };
 
