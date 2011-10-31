@@ -135,6 +135,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Can't read full 64-bit SNMP values.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6295">Bug
+          6295</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           BACnet property time-synchronization-interval (204) name shown incorrectly as time-synchronization-recipients.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6336">Bug
           6336</ulink>)
@@ -198,6 +204,12 @@ Wireshark Info
           wireshark unable to decode NetFlow options which have system scope size != 4 bytes.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6471">Bug
           6471</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Display filter Expression Dialog Box Error.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6472">Bug
+          6472</ulink>)
         </para></listitem>
 
       </itemizedlist>

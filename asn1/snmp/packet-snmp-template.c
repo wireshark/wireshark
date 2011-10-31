@@ -760,13 +760,13 @@ indexing_done:
 				gint64 val=0;
 				unsigned offset = value_offset;
 				unsigned i;
-				
+
 				max_len = 5; min_len = 1;
 				if (value_len > (guint)max_len && value_len < (guint)min_len) {
 					format_error = BER_WRONG_LENGTH;
 					break;
 				}
-				
+
 				if(value_len > 0) {
 					/* extend sign bit */
 					if(tvb_get_guint8(tvb, offset)&0x80){
@@ -827,11 +827,20 @@ indexing_done:
 				break;
 		}
 
+		if ((value_len == 9) && (tvb_get_guint8(tvb, value_offset) == 0)) {
+		/* Check if this is an unsigned int64 with a big value */
+			header_field_info *hfinfo = proto_registrar_get_nth(hfid);
+			if (hfinfo->type == FT_UINT64) {
+				/* Cheat and skip the leading 0 byte */
+				value_len--;
+				value_offset++;
+			}
+		}
 		pi_value = proto_tree_add_item(pt_varbind,hfid,tvb,value_offset,value_len,FALSE);
 		if (format_error != BER_NO_ERROR) {
 			expert_add_info_format(actx->pinfo, pi_value, PI_UNDECODED, PI_NOTE, "Unresolved value, Missing MIB");
 		}
-		
+
 already_added:
 		oid_info_is_ok = FALSE;
 	}
@@ -1902,7 +1911,7 @@ static void* snmp_users_copy_cb(void* dest, const void* orig, unsigned len _U_) 
 
 	d->user.privKey.data = o->user.privKey.data ? g_memdup(o->user.privKey.data,o->user.privKey.len) : NULL;
 	d->user.privKey.len = o->user.privKey.len;
-	
+
 	return d;
 }
 
@@ -1920,7 +1929,7 @@ static void snmp_users_update_cb(void* p _U_, const char** err) {
 	snmp_ue_assoc_t* ue = p;
 	GString* es = g_string_new("");
 	unsigned i;
-	
+
 	*err = NULL;
 
 	if (num_ueas == 0)
@@ -1932,23 +1941,23 @@ static void snmp_users_update_cb(void* p _U_, const char** err) {
 
 	for (i=0; i<num_ueas-1; i++) {
 		snmp_ue_assoc_t* u = &(ueas[i]);
-		
+
 		/* RFC 3411 section 5 */
 		if ((u->engine.len > 0) && (u->engine.len < 5 || u->engine.len > 32)) {
 			g_string_append_printf(es, "Invalid engineId length (%u). Must be between 5 and 32 (10 and 64 hex digits)\n", u->engine.len);
 		}
 
-		
+
 		if ( u->user.userName.len == ue->user.userName.len
 			&& u->engine.len == ue->engine.len ) {
-			
+
 			if (u->engine.len > 0 && memcmp( u->engine.data,   ue->engine.data,  u->engine.len ) == 0) {
 				if ( memcmp( u->user.userName.data, ue->user.userName.data, ue->user.userName.len ) == 0 ) {
 					/* XXX: make a string for the engineId */
 					g_string_append_printf(es,"Duplicate key (userName='%s')\n",ue->user.userName.data);
 				}
 			}
-			
+
 			if (u->engine.len == 0) {
 				if ( memcmp( u->user.userName.data, ue->user.userName.data, ue->user.userName.len ) == 0 ) {
 					g_string_append_printf(es,"Duplicate key (userName='%s' engineId=NONE)\n",ue->user.userName.data);
@@ -1956,12 +1965,12 @@ static void snmp_users_update_cb(void* p _U_, const char** err) {
 			}
 		}
 	}
-	
+
 	if (es->len) {
 		g_string_truncate(es,es->len-2);
 		*err = ep_strdup(es->str);
 	}
-	
+
 	g_string_free(es,TRUE);
 
 	return;
@@ -2255,5 +2264,3 @@ proto_reg_handoff_smux(void)
 	smux_handle = create_dissector_handle(dissect_smux, proto_smux);
 	dissector_add("tcp.port", TCP_PORT_SMUX, smux_handle);
 }
-
-
