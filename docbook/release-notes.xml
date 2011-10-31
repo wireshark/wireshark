@@ -42,7 +42,7 @@ Wireshark Info
             The CSN.1 dissector could crash.
             <!-- Fixed in trunk: r39140 -->
             <!-- Fixed in trunk-1.6: r39544 -->
-            <!-- Fixed in trunk-1.4: r????? -->
+            <!-- Fixed in trunk-1.4: Not applicable -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6351">Bug
             6351</ulink>)
           </para>
@@ -61,11 +61,11 @@ Wireshark Info
             that the Infiniband dissector could dereference a NULL pointer.
             <!-- Fixed in trunk: r39500 -->
             <!-- Fixed in trunk-1.6: r39584 -->
-            <!-- Fixed in trunk-1.4: r????? -->
+            <!-- Fixed in trunk-1.4: r39642 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6476">Bug
             6476</ulink>)
           </para>
-          <para>Versions affected: 1.6.0 to 1.6.2.</para>
+          <para>Versions affected: 1.4.0 to 1.4.9, 1.6.0 to 1.6.2.</para>
           <!-- <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-????">CVE-2011-????</ulink>
           </para> -->
@@ -80,11 +80,11 @@ Wireshark Info
             buffer overflow in the ERF file reader.
             <!-- Fixed in trunk: r39508 -->
             <!-- Fixed in trunk-1.6: r39585 -->
-            <!-- Fixed in trunk-1.4: r????? -->
+            <!-- Fixed in trunk-1.4: r39643 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6479">Bug
             6479</ulink>)
           </para>
-          <para>Versions affected: 1.6.0 to 1.6.2.</para>
+          <para>Versions affected: 1.4.0 to 1.4.9, 1.6.0 to 1.6.2.</para>
           <!-- <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-????">CVE-2011-????</ulink>
           </para> -->
@@ -167,6 +167,12 @@ Wireshark Info
           Adding and removing custom HTTP headers requires a restart.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6241">Bug
           6241</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Can't read full 64-bit SNMP values.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6295">Bug
+          6295</ulink>)
         </para></listitem>
 
         <listitem><para>
@@ -260,7 +266,7 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
-          The Network Instruments Observer file format bugs.
+          Network Instruments Observer file format bugs.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6453">Bug
           6453</ulink>)
         </para></listitem>
@@ -281,6 +287,12 @@ Wireshark Info
           wireshark unable to decode NetFlow options which have system scope size != 4 bytes.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6471">Bug
           6471</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Display filter Expression Dialog Box Error.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6472">Bug
+          6472</ulink>)
         </para></listitem>
 
       </itemizedlist>

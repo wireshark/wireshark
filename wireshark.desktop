@@ -70,7 +70,7 @@ Comment[fr]=Analyseur de trafic réseau
 Comment[sv]=Nätverkstrafikanalysator
 Icon=wireshark.png
 TryExec=wireshark
-Exec=wireshark
+Exec=wireshark %f
 Terminal=false
 MimeType=application/vnd.tcpdump.pcap;
 # Categorie entry according to version 1.0 of
