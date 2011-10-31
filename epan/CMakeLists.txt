@@ -640,7 +640,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-hpsw.c
 	dissectors/packet-hpteam.c
 	dissectors/packet-hsr.c
-	dissectors/packet-packet-hsr-prp-supervision.c
+	dissectors/packet-hsr-prp-supervision.c
 	dissectors/packet-hsrp.c
 	dissectors/packet-http.c
 	dissectors/packet-hyperscsi.c
