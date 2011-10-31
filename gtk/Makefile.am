@@ -99,6 +99,7 @@ network_icons.h:
 	done
 
 EXTRA_DIST = \
+	$(GENERATOR_FILES)	\
 	airpcap_dlg.c			\
 	airpcap_gui_utils.c		\
 	capture_if_details_dlg_win32.c	\

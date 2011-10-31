@@ -295,6 +295,12 @@ Wireshark Info
           6472</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          text_import_scanner.l missing.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6531">Bug
+          6531</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
