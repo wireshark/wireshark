@@ -3263,6 +3263,7 @@ Roland Knall		<rknall [AT] gmail.com> {
 
 Xiao Xiangquan		<xiaoxiangquan [AT] gmail.com> {
 	BT-UTP dissector
+	BT-DHT dissector
 	Vuze-DHT dissector
 }
 
