@@ -1,6 +1,6 @@
 /* packet-uaudp.c
 * Routines for UA/UDP (Universal Alcatel UDP) packet dissection.
-* Copyright 2011
+* Copyright 2011, Marek Tews <marek@trx.com.pl>
 *
 * $Id$
 *
@@ -36,19 +36,18 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
+#include "packet-ua.h"
+
 /*
 * Here are the global variables associated with
 * the various user definable characteristics of the dissection
 */
-
+static gboolean use_heuristic_dissector = TRUE;
 static range_t *global_uaudp_port_range;
-static dissector_handle_t uaudp_handle;
-
-#define UAUDP_PORT_RANGE "5001, 32512"
-
 
 /* Define the UAUDP proto */
 static int proto_uaudp = -1;
+static dissector_handle_t uaudp_handle;
 static dissector_table_t uaudp_dissector_table;
 
 /* Define many header fields for UAUDP */
@@ -58,7 +57,6 @@ static int hf_uaudp_send = -1;
 
 /*
 * Define the trees for UAUDP
-* We need one tree for UAUDP itself and one for the pn-rt data status subtree
 */
 static int ett_uaudp_header = -1;
 
@@ -103,32 +101,95 @@ static int dissect_uaudp(tvbuff_t *pTvb, packet_info *pInfo, proto_tree *pTree)
     pHeaderSubTree = proto_item_add_subtree(pUAUDP, ett_uaudp_header);
     proto_tree_add_item(pHeaderSubTree, hf_uaudp_opcode, pTvb, 0, 1, ENC_BIG_ENDIAN);
 
-    if(u8Opcode == 7)
+    switch(u8Opcode)
     {
-        int iOffs = 1;
-
-        /* Sequence Number (expected) */
-        proto_tree_add_item(pHeaderSubTree, hf_uaudp_expected, pTvb, iOffs, 2, ENC_BIG_ENDIAN);
-        iOffs += 2;
-
-        /* Sequence Number (sent) */
-        proto_tree_add_item(pHeaderSubTree, hf_uaudp_send, pTvb, iOffs, 2, ENC_BIG_ENDIAN);
-        iOffs += 2;
-
-        /* Create the tvbuffer for the next dissector */
-        if(nLen > iOffs)
+    case 6:
         {
-            tvbuff_t *pTvbNext = tvb_new_subset_remaining(pTvb, iOffs);
-            if(dissector_try_uint(uaudp_dissector_table, 7, pTvbNext, pInfo, pTree))
-                iOffs = nLen;
-            return iOffs;
+            /* Sequence Number (expected) */
+            proto_tree_add_item(pHeaderSubTree, hf_uaudp_expected, pTvb, 1, 2, ENC_BIG_ENDIAN);
+            break;
         }
-        else
+    case 7:
         {
-            col_append_str(pInfo->cinfo, COL_INFO, " ACK");
+            int iOffs = 1;
+
+            /* Sequence Number (expected) */
+            proto_tree_add_item(pHeaderSubTree, hf_uaudp_expected, pTvb, iOffs, 2, ENC_BIG_ENDIAN);
+            iOffs += 2;
+
+            /* Sequence Number (sent) */
+            proto_tree_add_item(pHeaderSubTree, hf_uaudp_send, pTvb, iOffs, 2, ENC_BIG_ENDIAN);
+            iOffs += 2;
+
+            /* Create the tvbuffer for the next dissector */
+            if(nLen > iOffs)
+            {
+                if(dissector_try_uint(uaudp_dissector_table, 7, tvb_new_subset_remaining(pTvb, iOffs), pInfo, pTree))
+                    iOffs = nLen;
+                return iOffs;
+            }
+            else
+            {
+                col_append_str(pInfo->cinfo, COL_INFO, " ACK");
+            }
+            break;
         }
     }
     return nLen;
+}
+
+/*
+ * UAUDP-over-UDP
+ */
+static gboolean 
+dissect_uaudp_heur(tvbuff_t *pTvb, packet_info *pInfo, proto_tree *pTree)
+{
+    guint8 u8Opcode;
+
+    if(!use_heuristic_dissector)
+        return FALSE;
+
+    /* The opcode must be in range */
+    u8Opcode = tvb_get_guint8(pTvb, 0);
+    if(u8Opcode > 7)
+        return FALSE;
+
+    /* The minimum length of a UAUDP message */
+    switch(u8Opcode)
+    {
+    case 4:
+    case 5:
+        {
+            if(tvb_reported_length(pTvb) != 1)
+                return FALSE;
+            break;
+        }
+    case 6:
+        {
+            if(tvb_reported_length(pTvb) != 3)
+                return FALSE;
+            break;
+        }
+    case 7:
+        {
+            guint nLen = tvb_reported_length(pTvb);
+            if(nLen < 5)
+                return FALSE;
+
+            if(nLen > 5 && !is_ua(tvb_new_subset_remaining(pTvb, 5)))
+                return FALSE;
+
+            break;
+        }
+    /*
+     * There I met with other opcodes 
+     * and do not know how much data is transmitted.
+     */
+    default: return FALSE;
+    }
+
+    dissect_uaudp(pTvb, pInfo, pTree);
+    return TRUE;
 }
 
 /* The registration hand-off routine is called at startup */
@@ -149,6 +210,11 @@ void proto_reg_handoff_uaudp(void)
 
     if (!uaudp_initialized)
     {
+        /*
+         * For UAUDP-over-UDP.
+         */
+        heur_dissector_add("udp", dissect_uaudp_heur, proto_uaudp);
+
         uaudp_handle = find_dissector("uaudp");
         uaudp_initialized = TRUE;
     }
@@ -198,13 +264,15 @@ void proto_register_uaudp(void)
     new_register_dissector("uaudp", dissect_uaudp, proto_uaudp);
 
     /* Register our configuration options */
-    range_convert_str(&global_uaudp_port_range, UAUDP_PORT_RANGE, MAX_UDP_PORT);
-
     uaudp_module = prefs_register_protocol(proto_uaudp, proto_reg_handoff_uaudp);
+    prefs_register_bool_preference(uaudp_module, "use_heuristic_dissector",
+        "Use heuristic dissector",
+        "Use to decode a packet a heuristic dissector. "
+        "Otherwise, they are decoded only those packets that will come from the specified ports.",
+        &use_heuristic_dissector);
     prefs_register_range_preference(uaudp_module, "udp_ports",
         "UAUDP port numbers",
-        "Port numbers used for UAUDP traffic "
-        "(default " UAUDP_PORT_RANGE ")",
+        "Port numbers used for UAUDP traffic (examples: 5001, 32512)",
         &global_uaudp_port_range, MAX_UDP_PORT);
 
     uaudp_dissector_table = register_dissector_table("uaudp.opcode", "UA/UDP Opcode", FT_UINT8, BASE_DEC);

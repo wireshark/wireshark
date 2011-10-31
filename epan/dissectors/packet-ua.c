@@ -1,6 +1,6 @@
 /* packet-ua.c
 * Routines for UA (Universal Alcatel) packet dissection.
-* Copyright 2011
+* Copyright 2011, Marek Tews <marek@trx.com.pl>
 *
 * $Id$
 *
@@ -46,15 +46,16 @@
 #include <epan/strutil.h>
 
 
-static int DissectNOE(tvbuff_t *pTvb, proto_tree *pRootUA);
-static int DissectNOE_type(tvbuff_t *pTvb, proto_tree *pNoeItem, int iOffs);
-static int DissectNOE_callserver(tvbuff_t *pTvb, proto_tree *pNoeItem, int iOffs);
-static int DissectNOE_ip(tvbuff_t *pTvb, proto_tree *pNoeItem, int iOffs);
-static int DissectNOE_ip_startrtp(tvbuff_t *pTvb, proto_tree *pNoeItem, int iOffs);
-static int DissectNOE_ip_startrtp_properties(tvbuff_t *pTvb, proto_tree *pNoeItem);
+static void DissectNOE(tvbuff_t *pTvb, proto_tree *pRootUA);
+static void DissectNOE_type(tvbuff_t *pTvb, proto_tree *pNoeItem);
+static void DissectNOE_voicemode(tvbuff_t *pTvb, proto_tree *pNoeItem);
+static void DissectNOE_callserver(tvbuff_t *pTvb, proto_tree *pNoeItem);
+static void DissectNOE_ip(tvbuff_t *pTvb, proto_tree *pNoeItem);
+static void DissectNOE_ip_startrtp(tvbuff_t *pTvb, proto_tree *pNoeItem);
+static void DissectNOE_ip_startrtp_properties(tvbuff_t *pTvb, proto_tree *pNoeItem);
 
-static int DissectTLV(tvbuff_t *pTvb, proto_tree *pNoeItem);
-static int DissectTLV_data(tvbuff_t *pTvb, proto_tree *pTlv, int iOffs, guint8 u8Length, guint8 u8Property);
+static void DissectTLV(tvbuff_t *pTvb, proto_tree *pNoeItem, gboolean bIsArrIndex);
+static void DissectTLV_data(tvbuff_t *pTvb, proto_tree *pTlv, guint8 u8Property);
 
 /*
 * Here are the global variables associated with
@@ -85,6 +86,7 @@ static int hf_noe_data = -1;
 static int hf_noe_compressor = -1;
 static int hf_noe_typeofservice = -1;
 static int hf_noe_payloadconcat = -1;
+static int hf_noe_voicemode = -1;
 
 static int hf_tlv = -1;
 static int hf_tlv_property = -1;
@@ -93,6 +95,7 @@ static int hf_tlv_propsize = -1;
 static int hf_tlv_label = -1;
 static int hf_tlv_data = -1;
 static int hf_tlv_year = -1;
+static int hf_tlv_number = -1;
 
 /* Define the trees for UA (Universal Alcatel Protocol) */
 static int ett_ua = -1;
@@ -216,6 +219,14 @@ static const value_string szNoeAction[] =
     { 0, NULL }
 };
 
+static const value_string szNoeVoiceMode[] =
+{
+    { 0x10, "Disable" },
+    { 0x11, "Handset" },
+    { 0x13, "Speaker" },
+    { 0, NULL }
+};
+
 /**
 * TLV PROPERTY
 */
@@ -226,7 +237,7 @@ static const value_string szTlvProperty[] =
     { 15, "NumpadEvent" },
     { 16, "Format_16" },
     { 18, "W" },
-    { 19, "H" },
+    { 19, "Hour" },
     { 24, "Year" },
     { 25, "Month" },
     { 26, "Day" },
@@ -260,8 +271,24 @@ static const value_string szTlvProperty[] =
     { 0, NULL }
 };
 
+/************************************************************
+* Check whether it can be protocol data
+************************************************************/
+gboolean is_ua(tvbuff_t *tvb)
+{
+    gint nLen, iOffs;
+    guint16 nNoeLen;
 
-
+    nLen = tvb_length(tvb);
+    for(iOffs = 0; iOffs < nLen; )
+    {
+        nNoeLen = tvb_get_letohs(tvb, iOffs) +2;
+        if(nNoeLen > nLen -iOffs)
+            return FALSE;
+        iOffs += nNoeLen;
+    }
+    return TRUE;
+}
 
 /************************************************************
 * Dissectors
@@ -273,16 +300,20 @@ static const value_string szTlvProperty[] =
 static int DissectUA(tvbuff_t *pTvb, packet_info *pInfo, proto_tree *pTree)
 {
     gint nLen, iOffs;
+    guint16 nNoeLen;
     proto_item *pRootUA;
     proto_tree *pSubTreeUA;
     tvbuff_t *pTvbNoe;
 
-    nLen = tvb_length(pTvb);
+    /* Check whether it can be protocol data */
+    if(!is_ua(pTvb))
+        return 0;
 
     /* INFO column */
     if(check_col(pInfo->cinfo, COL_INFO))
         col_append_str(pInfo->cinfo, COL_INFO, " - UA");
 
+    nLen = tvb_length(pTvb);
     if(pTree)
     {
         /* root element "UA Protocol, ..." */
@@ -292,7 +323,6 @@ static int DissectUA(tvbuff_t *pTvb, packet_info *pInfo, proto_tree *pTree)
         /* NOE items */
         for(iOffs = 0; iOffs < nLen; )
         {
-            guint16 nNoeLen;
             nNoeLen = tvb_get_letohs(pTvb, iOffs);
             nNoeLen += 2;
 
@@ -307,7 +337,7 @@ static int DissectUA(tvbuff_t *pTvb, packet_info *pInfo, proto_tree *pTree)
 }
 
 
-/***********************************************
+/**********************************************
 * NOE section
 ***********************************************
 Noe
@@ -322,54 +352,52 @@ NoeCallServerNotify
 NoeCallServerNotifyKeyPress
 NoeCallServerNotifyKeyShortPress
 ***********************************************/
-static int DissectNOE(tvbuff_t *pTvb, proto_tree *pRootUA)
+static void DissectNOE(tvbuff_t *pTvb, proto_tree *pRootUA)
 {
-    gint iOffs = 0, nLen;
-
-    nLen = tvb_length(pTvb);
-    if(pRootUA)
+    proto_item *pNoeItem = proto_tree_add_item(pRootUA, hf_noe, pTvb, 0, -1, ENC_NA);
+    if(pNoeItem)
     {
-        proto_item *pNoeItem = proto_tree_add_item(pRootUA, hf_noe, pTvb, 0, nLen, ENC_NA);
-        if(pNoeItem)
-        {
-            proto_tree* pSubTreeNOE;
+        proto_tree* pSubTreeNOE;
 
-            pSubTreeNOE = proto_item_add_subtree(pNoeItem, ett_noe);
-            proto_tree_add_item(pSubTreeNOE, hf_noe_length, pTvb, iOffs, 2, ENC_LITTLE_ENDIAN);
-            iOffs += 2;
-
-            iOffs = DissectNOE_type(pTvb, pSubTreeNOE, iOffs);
-        }
+        pSubTreeNOE = proto_item_add_subtree(pNoeItem, ett_noe);
+        proto_tree_add_item(pSubTreeNOE, hf_noe_length, pTvb, 0, 2, ENC_LITTLE_ENDIAN);
+        DissectNOE_type(tvb_new_subset_remaining(pTvb, 2), pSubTreeNOE);
     }
-    return iOffs;
 }
 
-static int DissectNOE_type(tvbuff_t *pTvb, proto_tree *pNoeItem, int iOffs)
+static void DissectNOE_type(tvbuff_t *pTvb, proto_tree *pNoeItem)
 {
-    guint8 u8Type;
+    proto_item_append_text(pNoeItem, ": %s", val_to_str(tvb_get_guint8(pTvb, 0), szNoeType, "Unknown"));
+    proto_tree_add_item(pNoeItem, hf_noe_type, pTvb, 0, 1, ENC_NA);
 
-    u8Type = tvb_get_guint8(pTvb, iOffs);
-    proto_item_append_text(pNoeItem, ": %s", val_to_str(u8Type, szNoeType, "Unknown"));
-    proto_tree_add_item(pNoeItem, hf_noe_type, pTvb, iOffs++, 1, ENC_LITTLE_ENDIAN);
-
-    switch(u8Type)
+    switch(tvb_get_guint8(pTvb, 0))
     {
     case 0x13: /*IP*/
         {
-            iOffs = DissectNOE_ip(pTvb, pNoeItem, iOffs);
+            DissectNOE_ip(tvb_new_subset_remaining(pTvb, 1), pNoeItem);
             break;
         }
     case 0x15: /*CallServer*/
         {
-            iOffs = DissectNOE_callserver(pTvb, pNoeItem, iOffs);
+            DissectNOE_callserver(tvb_new_subset_remaining(pTvb, 1), pNoeItem);
+            break;
+        }
+    case 0x29: /*VoiceMode*/
+        {
+            DissectNOE_voicemode(tvb_new_subset_remaining(pTvb, 1), pNoeItem);
             break;
         }
     }
-
-    return iOffs;
 }
 
-static int DissectNOE_callserver(tvbuff_t *pTvb, proto_tree *pNoeItem, int iOffs)
+static void DissectNOE_voicemode(tvbuff_t *pTvb, proto_tree *pNoeItem)
+{
+    proto_tree_add_item(pNoeItem, hf_noe_voicemode, pTvb, 0, 1, ENC_NA);
+    if(tvb_length(pTvb) > 1)
+        proto_tree_add_item(pNoeItem, hf_noe_data, pTvb, 1, -1, ENC_NA);
+}
+
+static void DissectNOE_callserver(tvbuff_t *pTvb, proto_tree *pNoeItem)
 {
     tvbuff_t *pTvbTlv;
 
@@ -377,48 +405,52 @@ static int DissectNOE_callserver(tvbuff_t *pTvb, proto_tree *pNoeItem, int iOffs
     guint8 u8Method;
 
     nLen = tvb_length(pTvb);
-    u8Method = tvb_get_guint8(pTvb, iOffs);
+    u8Method = tvb_get_guint8(pTvb, 0);
 
     proto_item_append_text(pNoeItem, ", %s", val_to_str(u8Method, szCallServerMethod, "Unknown"));
-    proto_tree_add_item(pNoeItem, hf_noe_method, pTvb, iOffs++, 1, ENC_NA);
+    proto_tree_add_item(pNoeItem, hf_noe_method, pTvb, 0, 1, ENC_NA);
 
     switch(u8Method)
     {
     case 0x00: /*Create*/
+    case 0x01: /*Delete*/
     case 0x02: /*SetProperty*/
         {
-            guint8 u8Class;
+            guint8 u8Class; gint iOffs;
 
-            u8Class = tvb_get_guint8(pTvb, iOffs);
+            u8Class = tvb_get_guint8(pTvb, 1);
             proto_item_append_text(pNoeItem, ", %s", val_to_str(u8Class, szCallServerClass, "Unknown"));
-            proto_tree_add_item(pNoeItem, hf_noe_class, pTvb, iOffs++, 1, ENC_NA);
+            proto_tree_add_item(pNoeItem, hf_noe_class, pTvb, 1, 1, ENC_NA);
 
+            iOffs = 2;
             if(u8Class >= 100)
             {
-                proto_item_append_text(pNoeItem, ", Id(0x%04x)", tvb_get_ntohs(pTvb, iOffs));
-                proto_tree_add_item(pNoeItem, hf_noe_objid, pTvb, iOffs, 2, ENC_LITTLE_ENDIAN);
+                proto_item_append_text(pNoeItem, ", Id(0x%04x)", tvb_get_ntohs(pTvb, 2));
+                proto_tree_add_item(pNoeItem, hf_noe_objid, pTvb, 2, 2, ENC_LITTLE_ENDIAN);
                 iOffs += 2;
             }
 
             /* TLV items */
-            for( ; iOffs < nLen; )
+            for(; iOffs < nLen; )
             {
-                guint8 nTlvLen, nTlvProperty;
+                guint8 nTlvLen, nTlvProperty; gboolean bIsArrIndex;
 
                 nTlvProperty = tvb_get_guint8(pTvb, iOffs);
-                /* for property of more than 100 before the field is still arrindex propsize */
-                if(nTlvProperty < 100)
+                /* for property of more than 100 and equal 120 before the field is still arrindex propsize */
+                if(nTlvProperty < 100 || nTlvProperty == 120)
                 {
                     nTlvLen = tvb_get_guint8(pTvb, iOffs+1);
                     nTlvLen += 2;
+                    bIsArrIndex = FALSE;
                 }
                 else
                 {
                     nTlvLen = tvb_get_guint8(pTvb, iOffs+2);
                     nTlvLen += 3;
+                    bIsArrIndex = TRUE;
                 }
                 pTvbTlv = tvb_new_subset(pTvb, iOffs, nTlvLen, nTlvLen);
-                DissectTLV(pTvbTlv, pNoeItem);
+                DissectTLV(pTvbTlv, pNoeItem, bIsArrIndex);
 
                 iOffs += nTlvLen;
             }
@@ -428,44 +460,41 @@ static int DissectNOE_callserver(tvbuff_t *pTvb, proto_tree *pNoeItem, int iOffs
         {
             guint8 u8Event;
 
-            u8Event = tvb_get_guint8(pTvb, iOffs);
-            proto_tree_add_item(pNoeItem, hf_noe_event, pTvb, iOffs++, 1, ENC_NA);
+            u8Event = tvb_get_guint8(pTvb, 1);
+            proto_tree_add_item(pNoeItem, hf_noe_event, pTvb, 1, 1, ENC_NA);
 
             switch(u8Event)
             {
             case 2: /*KeyPress*/
                 {
-                    proto_tree_add_item(pNoeItem, hf_noe_keychar, pTvb, iOffs, nLen -iOffs, ENC_NA);
+                    proto_tree_add_item(pNoeItem, hf_noe_keychar, pTvb, 2, -1, ENC_NA);
                     break;
                 }
             case 4: /*KeyShortPress*/
                 {
-                    proto_tree_add_item(pNoeItem, hf_noe_keychar, pTvb, iOffs, 2, ENC_NA);
+                    proto_tree_add_item(pNoeItem, hf_noe_keychar, pTvb, 2, 2, ENC_NA);
                     break;
                 }
             }
             break;
         }
     }
-    return nLen;
 }
 
-static int DissectNOE_ip(tvbuff_t *pTvb, proto_tree *pNoeItem, int iOffs)
+static void DissectNOE_ip(tvbuff_t *pTvb, proto_tree *pNoeItem)
 {
-    gint nLen;
     guint8 u8Action;
 
-    nLen = tvb_length(pTvb);
     /* Action */
-    u8Action = tvb_get_guint8(pTvb, iOffs);
+    u8Action = tvb_get_guint8(pTvb, 0);
     proto_item_append_text(pNoeItem, " %s", val_to_str(u8Action, szNoeAction, "Unknown"));
-    proto_tree_add_item(pNoeItem, hf_noe_action, pTvb, iOffs++, 1, ENC_NA);
+    proto_tree_add_item(pNoeItem, hf_noe_action, pTvb, 0, 1, ENC_NA);
 
     switch(u8Action)
     {
     case 0x01: /*Start RTP*/
         {
-            DissectNOE_ip_startrtp(pTvb, pNoeItem, iOffs);
+            DissectNOE_ip_startrtp(tvb_new_subset_remaining(pTvb, 1), pNoeItem);
             break;
         }
     case 0x02: /*Stop RTP*/
@@ -473,20 +502,18 @@ static int DissectNOE_ip(tvbuff_t *pTvb, proto_tree *pNoeItem, int iOffs)
             break;
         }
     }
-
-    return nLen;
 }
 
-static int DissectNOE_ip_startrtp(tvbuff_t *pTvb, proto_tree *pNoeItem, int iOffs)
+static void DissectNOE_ip_startrtp(tvbuff_t *pTvb, proto_tree *pNoeItem)
 {
-    gint nLen;
-
+    gint nLen, iOffs;
     nLen = tvb_length(pTvb);
+
     /*Reserved*/
-    proto_tree_add_item(pNoeItem, hf_noe_reserved, pTvb, iOffs++, 1, ENC_NA);
+    proto_tree_add_item(pNoeItem, hf_noe_reserved, pTvb, 0, 1, ENC_NA);
 
     /*Properties*/
-    for(; iOffs < nLen; )
+    for(iOffs = 1; iOffs < nLen; )
     {
         guint8 u8PropSize;
         tvbuff_t *pTvbTlv;
@@ -497,13 +524,10 @@ static int DissectNOE_ip_startrtp(tvbuff_t *pTvb, proto_tree *pNoeItem, int iOff
         DissectNOE_ip_startrtp_properties(pTvbTlv, pNoeItem);
         iOffs += u8PropSize;
     }
-
-    return iOffs;
 }
 
-static int DissectNOE_ip_startrtp_properties(tvbuff_t *pTvb, proto_tree *pNoeItem)
+static void DissectNOE_ip_startrtp_properties(tvbuff_t *pTvb, proto_tree *pNoeItem)
 {
-    gint iOffs = 0;
     proto_item *pProp;
 
     pProp = proto_tree_add_item(pNoeItem, hf_noe_property, pTvb, 0, -1, ENC_NA);
@@ -514,140 +538,141 @@ static int DissectNOE_ip_startrtp_properties(tvbuff_t *pTvb, proto_tree *pNoeIte
 
         pSubTreeProp = proto_item_add_subtree(pProp, ett_noe_property);
         /*ID*/
-        u8ID = tvb_get_guint8(pTvb, iOffs);
+        u8ID = tvb_get_guint8(pTvb, 0);
         proto_item_append_text(pProp, " - %25s", val_to_str(u8ID, szStartRtpPropID, "Unknown"));
-        proto_tree_add_item(pSubTreeProp, hf_noe_id, pTvb, iOffs++, 1, ENC_NA);
+        proto_tree_add_item(pSubTreeProp, hf_noe_id, pTvb, 0, 1, ENC_NA);
 
         /*SIZE*/
-        u8Size = tvb_get_guint8(pTvb, iOffs);
-        proto_tree_add_item(pSubTreeProp, hf_noe_size, pTvb, iOffs++, 1, ENC_NA);
+        u8Size = tvb_get_guint8(pTvb, 1);
+        proto_tree_add_item(pSubTreeProp, hf_noe_size, pTvb, 1, 1, ENC_NA);
 
         /*data*/
         switch(u8ID)
         {
         default:
             {
-                proto_item_append_text(pProp, ": %s", tvb_bytes_to_str(pTvb, iOffs, u8Size));
-                proto_tree_add_item(pSubTreeProp, hf_noe_data, pTvb, iOffs, u8Size, ENC_NA);
+                proto_item_append_text(pProp, ": %s", tvb_bytes_to_str(pTvb, 2, u8Size));
+                proto_tree_add_item(pSubTreeProp, hf_noe_data, pTvb, 2, -1, ENC_NA);
                 break;
             }
         case 0x00: /*LocalUDPPort*/
             {
-                proto_item_append_text(pProp, ": %u", tvb_get_ntohs(pTvb, iOffs));
-                proto_tree_add_item(pSubTreeProp, hf_noe_local_port, pTvb, iOffs, 2, ENC_LITTLE_ENDIAN);
+                proto_item_append_text(pProp, ": %u", tvb_get_ntohs(pTvb, 2));
+                proto_tree_add_item(pSubTreeProp, hf_noe_local_port, pTvb, 2, -1, ENC_LITTLE_ENDIAN);
                 break;
             }
         case 0x01: /*RemoteIP*/
             {
-                proto_item_append_text(pProp, ": %s", tvb_ip_to_str(pTvb, iOffs));
-                proto_tree_add_item(pSubTreeProp, hf_noe_remote_ip, pTvb, iOffs, 4, ENC_NA);
+                proto_item_append_text(pProp, ": %s", tvb_ip_to_str(pTvb, 2));
+                proto_tree_add_item(pSubTreeProp, hf_noe_remote_ip, pTvb, 2, -1, ENC_NA);
                 break;
             }
         case 0x02: /*RemoteUDPPort*/
             {
-                proto_item_append_text(pProp, ": %u", tvb_get_ntohs(pTvb, iOffs));
-                proto_tree_add_item(pSubTreeProp, hf_noe_remote_port, pTvb, iOffs, 2, ENC_LITTLE_ENDIAN);
+                proto_item_append_text(pProp, ": %u", tvb_get_ntohs(pTvb, 2));
+                proto_tree_add_item(pSubTreeProp, hf_noe_remote_port, pTvb, 2, -1, ENC_LITTLE_ENDIAN);
                 break;
             }
         case 0x03: /*TypeOfService*/
             {
-                proto_item_append_text(pProp, ": %u", tvb_get_guint8(pTvb, iOffs));
-                proto_tree_add_item(pSubTreeProp, hf_noe_typeofservice, pTvb, iOffs, 1, ENC_NA);
+                proto_item_append_text(pProp, ": %u", tvb_get_guint8(pTvb, 2));
+                proto_tree_add_item(pSubTreeProp, hf_noe_typeofservice, pTvb, 2, -1, ENC_NA);
                 break;
             }
         case 0x04: /*Payload*/
             {
-                proto_item_append_text(pProp, ": %s", val_to_str(tvb_get_guint8(pTvb, iOffs), szStartRtpPayload, "Unknown"));
-                proto_tree_add_item(pSubTreeProp, hf_noe_compressor, pTvb, iOffs, 1, ENC_NA);
+                proto_item_append_text(pProp, ": %s", val_to_str(tvb_get_guint8(pTvb, 2), szStartRtpPayload, "Unknown"));
+                proto_tree_add_item(pSubTreeProp, hf_noe_compressor, pTvb, 2, -1, ENC_NA);
                 break;
             }
         case 0x05: /*PayloadConcatenation*/
             {
-                proto_item_append_text(pProp, ": %u ms", tvb_get_guint8(pTvb, iOffs));
-                proto_tree_add_item(pSubTreeProp, hf_noe_payloadconcat, pTvb, iOffs, 1, ENC_NA);
+                proto_item_append_text(pProp, ": %u ms", tvb_get_guint8(pTvb, 2));
+                proto_tree_add_item(pSubTreeProp, hf_noe_payloadconcat, pTvb, 2, -1, ENC_NA);
                 break;
             }
         }
-
-        iOffs += u8Size;
     }
-    return iOffs;
 }
 
 /***********************************************
 * TLV section
 ***********************************************/
-static int DissectTLV(tvbuff_t *pTvb, proto_tree *pNoeItem)
+static void DissectTLV(tvbuff_t *pTvb, proto_tree *pNoeItem, gboolean bIsArrIndex)
 {
-    gint iOffs = 0, nLen;
-
     proto_item *pTlv;
 
-    nLen = tvb_length(pTvb);
-    pTlv = proto_tree_add_item(pNoeItem, hf_tlv, pTvb, 0, nLen, ENC_NA);
+    pTlv = proto_tree_add_item(pNoeItem, hf_tlv, pTvb, 0, -1, ENC_NA);
     if(pTlv)
     {
+        gint iOffs;
         guint8 u8Property, u8PropSize;
         proto_tree* pSubTreeTLV;
 
+        iOffs = 0;
         pSubTreeTLV = proto_item_add_subtree(pTlv, ett_tlv);
         u8Property = tvb_get_guint8(pTvb, iOffs);
         proto_item_append_text(pTlv, "%u %s ", u8Property, val_to_str(u8Property, szTlvProperty, "Unknown"));
         proto_tree_add_item(pSubTreeTLV, hf_tlv_property, pTvb, iOffs++, 1, ENC_NA);
 
-        if(u8Property >= 100)
+        if(bIsArrIndex)
             proto_tree_add_item(pTlv, hf_tlv_arrindex, pTvb, iOffs++, 1, ENC_NA);
 
         u8PropSize = tvb_get_guint8(pTvb, iOffs);
         proto_tree_add_item(pSubTreeTLV, hf_tlv_propsize, pTvb, iOffs++, 1, ENC_NA);
 
         if(u8PropSize > 0)
-            DissectTLV_data(pTvb, pSubTreeTLV, iOffs, u8PropSize, u8Property);
+            DissectTLV_data(tvb_new_subset(pTvb, iOffs, u8PropSize, u8PropSize), pSubTreeTLV, u8Property);
     }
-    return nLen;
 }
 
 /* TLV DATA */
-static int DissectTLV_data(tvbuff_t *pTvb, proto_tree *pTlv, int iOffs, guint8 u8Length, guint8 u8Property)
+static void DissectTLV_data(tvbuff_t *pTvb, proto_tree *pTlv, guint8 u8Property)
 {
     proto_tree* pNoeItem;
     switch(u8Property)
     {
     default:
         {
-            proto_item_append_text(pTlv, "%s", tvb_bytes_to_str(pTvb, iOffs, u8Length));
-            proto_tree_add_item(pTlv, hf_tlv_data, pTvb, iOffs, u8Length, ENC_NA);
+            proto_item_append_text(pTlv, "%s", tvb_bytes_to_str(pTvb, 0, tvb_length(pTvb)));
+            proto_tree_add_item(pTlv, hf_tlv_data, pTvb, 0, -1, ENC_NA);
             break;
         }
 
     case 24: /*Year*/
         {
-            proto_item_append_text(pTlv, "%u", tvb_get_ntohs(pTvb, iOffs));
-            proto_tree_add_item(pTlv, hf_tlv_year, pTvb, iOffs, 2, ENC_BIG_ENDIAN);
+            proto_item_append_text(pTlv, "%u", tvb_get_ntohs(pTvb, 0));
+            proto_tree_add_item(pTlv, hf_tlv_year, pTvb, 0, 2, ENC_BIG_ENDIAN);
             break;
         }
 
     case 55: /*Label*/
     case 138: /*Label_138*/
         {
-            proto_item_append_text(pTlv, "'%s'", tvb_get_string(pTvb, iOffs, u8Length));
-            proto_tree_add_item(pTlv, hf_tlv_label, pTvb, iOffs, u8Length, ENC_ASCII|ENC_NA);
+            proto_item_append_text(pTlv, "'%s'", tvb_get_string(pTvb, 0, tvb_length(pTvb)));
+            proto_tree_add_item(pTlv, hf_tlv_label, pTvb, 0, -1, ENC_ASCII|ENC_NA);
 
             /* append text on NOE level */
             pNoeItem = proto_item_get_parent(pTlv);
-            proto_item_append_text(pNoeItem, ", Label='%s'", tvb_get_string(pTvb, iOffs, u8Length));
+            proto_item_append_text(pNoeItem, ", Label='%s'", tvb_get_string(pTvb, 0, tvb_length(pTvb)));
             break;
         }
+
+    case 143: /*Phone number*/
+        {
+            proto_item_append_text(pTlv, "%s", tvb_get_string(pTvb, 0, tvb_length(pTvb)));
+            proto_tree_add_item(pTlv, hf_tlv_number, pTvb, 0, -1, ENC_NA);
+            break;
+        }
+
     case 147: /*Today*/
     case 148: /*Tomorrow*/
         {
-            proto_item_append_text(pTlv, "'%s'", tvb_get_string(pTvb, iOffs, u8Length));
-            proto_tree_add_item(pTlv, hf_tlv_data, pTvb, iOffs, u8Length, ENC_NA);
+            proto_item_append_text(pTlv, "'%s'", tvb_get_string(pTvb, 0, tvb_length(pTvb)));
+            proto_tree_add_item(pTlv, hf_tlv_data, pTvb, 0, -1, ENC_NA);
             break;
         }
     }
-    iOffs += u8Length;
-    return iOffs;
 }
 
 
@@ -665,6 +690,7 @@ void proto_register_ua(void)
         { &hf_noe_objid, { "ObjectID", "ua.noe.objid", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, "Call Server object id", HFILL }},
         { &hf_noe_event, { "Event", "ua.noe.event", FT_UINT8, BASE_DEC, VALS(szCallServerEvent), 0x0, "Call Server event", HFILL }},
         { &hf_noe_keychar, { "KeyChar", "ua.noe.event.keychar", FT_BYTES, BASE_NONE, NULL, 0x0, "Event key char", HFILL }},
+        { &hf_noe_voicemode, { "VoiceMode", "ua.noe.voicemode", FT_UINT8, BASE_DEC, VALS(szNoeVoiceMode), 0x0, NULL, HFILL }},
 
         { &hf_noe_action, { "Action", "ua.noe.action", FT_UINT8, BASE_DEC, VALS(szNoeAction), 0x0, "IP action", HFILL }},
         { &hf_noe_reserved, { "Reserved", "ua.noe.action.startrtp.reserved", FT_UINT8, BASE_DEC, NULL, 0x0, "IP start rtp reserved", HFILL }},
@@ -687,6 +713,7 @@ void proto_register_ua(void)
         { &hf_tlv_data, { "Data", "ua.noe.tlv.data", FT_BYTES, BASE_NONE, NULL, 0x0, "TLV data", HFILL }},
         { &hf_tlv_label, { "Label", "ua.noe.tlv.label", FT_STRING, BASE_NONE, NULL, 0x0, "TLV label", HFILL }},
         { &hf_tlv_year, { "Year", "ua.noe.tlv.year", FT_UINT16, BASE_DEC, NULL, 0x0, "TLV year", HFILL }},
+        { &hf_tlv_number, { "Number", "ua.noe.tlv.number", FT_STRING, BASE_NONE, NULL, 0x0, "TLV remote phone number", HFILL }},
     };
     static gint *ett[] =
     {

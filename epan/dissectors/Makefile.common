@@ -975,7 +975,7 @@ DISSECTOR_SRC = \
 	packet-turnchannel.c	\
 	packet-tuxedo.c		\
 	packet-tzsp.c		\
-	packet-ua.c		\
+	packet-ua.c			\
 	packet-uaudp.c		\
 	packet-ucp.c		\
 	packet-udld.c		\
@@ -1363,6 +1363,7 @@ DISSECTOR_INCLUDES =	\
 	packet-tpkt.h	\
 	packet-tr.h	\
 	packet-tte.h \
+	packet-ua.h \
 	packet-udp.h	\
 	packet-umts_fp.h	\
 	packet-umts_mac.h	\
