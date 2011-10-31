@@ -445,7 +445,7 @@
 										/*  There are three types of application services */
 
 #ifndef ETHERTYPE_PRP
-#define ETHERTYPE_PRP			0x88FB	/* Parallel Redundancy Protocol (IEC62439 Chapter 6) */
+#define ETHERTYPE_PRP			0x88FB  /* Parallel Redundancy Protocol (IEC62439 Part 3) */
 #endif
 
 #ifndef ETHERTYPE_FLIP
@@ -478,6 +478,10 @@
 
 #ifndef ETHERTYPE_TTE_PCF
 #define ETHERTYPE_TTE_PCF		0x891D  /* TTEthernet Protocol Control Frame */
+#endif
+
+#ifndef ETHERTYPE_HSR
+#define ETHERTYPE_HSR			0x892F  /* High-availability Seamless Redundancy (IEC62439 Part 3) */
 #endif
 
 #ifndef ETHERTYPE_LOOP

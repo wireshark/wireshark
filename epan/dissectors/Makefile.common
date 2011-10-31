@@ -560,6 +560,8 @@ DISSECTOR_SRC = \
 	packet-hpext.c		\
 	packet-hpsw.c		\
 	packet-hpteam.c		\
+	packet-hsr.c		\
+	packet-hsr-prp-supervision.c		\
 	packet-hsrp.c		\
 	packet-http.c		\
 	packet-hyperscsi.c	\

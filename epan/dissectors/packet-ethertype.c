@@ -162,11 +162,12 @@ const value_string etype_vals[] = {
   { ETHERTYPE_LINX, "LINX IPC Protocol" },
   { ETHERTYPE_FIP, "FCoE Initialization Protocol" },
   { ETHERTYPE_PTP, "PTPv2 over Ethernet (IEEE1588)" },
-  { ETHERTYPE_PRP, "Parallel Redundancy Protocol (IEC62439 Chapter 6)" },
+  { ETHERTYPE_PRP, "Parallel Redundancy Protocol (PRP) and HSR Supervision (IEC62439 Part 3)" },
   { ETHERTYPE_FLIP, "Flow Layer Internal Protocol" },
   { ETHERTYPE_ROCE, "RDMA over Converged Ethernet" },
   { ETHERTYPE_TDMOE, "Digium TDM over Ethernet Protocol" },
   { ETHERTYPE_WAI, "WAI Authentication Protocol" },
+  { ETHERTYPE_HSR, "High-availability Seamless Redundancy (IEC62439 Part 3)" },
   { 0, NULL }
 };
 

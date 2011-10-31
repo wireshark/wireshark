@@ -3333,7 +3333,12 @@ Spenser Sheng           <spenser.sheng [AT] ericsson.com> {
 Benjamin Stocks		<bmstocks [AT] ra.rockwell.com> {
 	CIP Motion dissector
 }
-
+Florian Reichert	<refl [AT] zhaw.ch> {
+	HSR and PRP-1 dissector
+}
+Martin Renold		<reld [AT] zhaw.ch> {
+	HSR and PRP-1 dissector
+}
 
 and by:
 
