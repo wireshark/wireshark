@@ -1,4 +1,4 @@
-Wireshark 1.6.2 Release Notes
+Wireshark 1.6.3 Release Notes
 
    ------------------------------------------------------------------
 
@@ -14,125 +14,113 @@ What's New
 
    The following vulnerabilities have been fixed.
 
-     o wnpa-sec-2011-12
+     o wnpa-sec-2011-17
 
-       A large loop in the OpenSafety dissector could cause a crash.
-       (Bug 6138)
+       The CSN.1 dissector could crash. (Bug 6351)
 
-       Versions affected: 1.6.0 to 1.6.1.
+       Versions affected: 1.6.0 to 1.6.2.
 
-     o wnpa-sec-2011-13
+     o wnpa-sec-2011-18
 
-       A malformed IKE packet could consume excessive resources.
+       Huzaifa Sidhpurwala of Red Hat Security Response Team
+       discovered that the Infiniband dissector could dereference a
+       NULL pointer. (Bug 6476)
 
-       Versions affected: 1.4.0 to 1.4.8, 1.6.0 to 1.6.1.
+       Versions affected: 1.4.0 to 1.4.9, 1.6.0 to 1.6.2.
 
-       CVE-2011-3266
+     o wnpa-sec-2011-19
 
-     o wnpa-sec-2011-14
+       Huzaifa Sidhpurwala of Red Hat Security Response Team
+       discovered a buffer overflow in the ERF file reader. (Bug
+       6479)
 
-       A malformed capture file could result in an invalid root
-       tvbuff and cause a crash. (Bug 6135)
-
-       Versions affected: 1.6.0 to 1.6.1.
-
-     o wnpa-sec-2011-15
-
-       Wireshark could run arbitrary Lua scripts. (Bug 6136)
-
-       Versions affected: 1.4.0 to 1.4.8, 1.6.0 to 1.6.1.
-
-     o wnpa-sec-2011-16
-
-       The CSN.1 dissector could crash. (Bug 6139)
-
-       Versions affected: 1.6.0 to 1.6.1.
+       Versions affected: 1.4.0 to 1.4.9, 1.6.0 to 1.6.2.
 
    The following bugs have been fixed:
 
-     o configure ignores (partially) LDFLAGS. (Bug 5607)
+     o Assertion failed when doing File->Quit->Save during live
+       capture. (Bug 1710)
 
-     o Build fails when it tries to #include <getopt.h>, not present
-       in Solaris 9. (Bug 5608)
+     o Wrong PCEP XRO sub-object decoding. (Bug 3778)
 
-     o Unable to configure zero length SNMP Engine ID. (Bug 5731)
+     o Wireshark window takes very long time to show up if invalid
+       network file path is at recent file list (Bug 3810)
 
-     o BACnet who-is request device range values are not decoded
-       correctly in the packet details window. (Bug 5769)
+     o Decoding [Status Records] Timestamp Sequence Field in Bundle
+       Protocol fails if over 32 bits. (Bug 4109)
 
-     o H.323 RAS packets missing from packet counts in
-       "Telephony->VoIP Calls" and the "Flow Graph" for the call.
-       (Bug 5848)
+     o ISUP party number dissection. (Bug 5221)
 
-     o Wireshark crashes if sercosiii module isn't installed. (Bug
-       6006)
+     o wireshark-1.4.2 crashes when testing the example python
+       dissector because of a dissector count assertion. (Bug 5431)
 
-     o Editcap could create invalid pcap files when converting from
-       JPEG. (Bug 6010)
+     o Ethernet packets with both VLAN tag and LLC header no longer
+       displayed correctly. (Bug 5645)
 
-     o Timestamp is incorrectly decoded for ICMP Timestamp Response
-       packets from MS Windows. (Bug 6114)
+     o SLL encapsuled 802.1Q VLAN is not dissected. (Bug 5680)
 
-     o Malformed Packet in decode for BGP-AD update. (Bug 6122)
+     o Wireshark crashes when attempting to open a file via drag &
+       drop when there's already a file open. (Bug 5987)
 
-     o Wrong display of CSN_BIT in CSN.1. (Bug 6151)
+     o Adding and removing custom HTTP headers requires a restart.
+       (Bug 6241)
 
-     o Fix CSN_RECURSIVE_TARRAY last bit error in packet-csn1.c. (Bug
-       6166)
+     o Can't read full 64-bit SNMP values. (Bug 6295)
 
-     o Wireshark cannot display Reachable time & Retrans timer in
-       IPv6 RA messages. (Bug 6168)
+     o Dissection fails for frames with Gigamon Header and VLAN. (Bug
+       6305)
 
-     o ReadPropertyMultiple-ACK not correctly dissected. (Bug 6178)
+     o RTP Stream Analysis does not work for TURN-encapsulated RTP.
+       (Bug 6322)
 
-     o GTPv2 dissectors should treat gtpv2_ccrsi as optional. (Bug
-       6183)
+     o packet-csn1.c doesn't process CSN_CHOICE entries properly.
+       (Bug 6328)
 
-     o BGP : AS_PATH attribute was decode wrong. (Bug 6188)
+     o BACnet property time-synchronization-interval (204) name shown
+       incorrectly as time-synchronization-recipients. (Bug 6336)
 
-     o Fixes for SCPS TCP option. (Bug 6194)
+     o GUI crash on invalid IEEE 802.11 GAS frame. (Bug 6345)
 
-     o Offset calculated incorrectly for sFlow extended data. (Bug
-       6219)
+     o [ASN.1 PER] Incorrect decoding of BIT STRING type. (Bug 6347)
 
-     o [Enter] key behavior varies when manually typing display
-       filters. (Bug 6228)
+     o ICMPv6 router advertisement Prefix Information Flag R "Router
+       Address" missing. (Bug 6350)
 
-     o Contents of pcapng EnhancedPacketBlocks with comments aren't
-       displayed. (Bug 6229)
+     o Export -> Object -> HTTP -> save all: Error on saving files.
+       (Bug 6362)
 
-     o Misdecoding 3G Neighbour Cell Information Element in SI2quater
-       message due to a coding typo. (Bug 6237)
+     o Inner tag of 802.1ad frames not parsed properly. (Bug 6366)
 
-     o Mis-spelled word "unknown" in assorted files. (Bug 6244)
+     o Added cursor type decoding to MySQL dissector. (Bug 6396)
 
-     o tshark run with -Tpdml makes a seg fault. (Bug 6245)
+     o Incorrect identification of UDP-encapsulated NAT-keepalive
+       packets. (Bug 6414)
 
-     o btl2cap extended window shows wrong bit. (Bug 6257)
+     o WPA IE pairwise cipher suite dissector uses incorrect
+       value_string list. (Bug 6420)
 
-     o NDMP dissector incorrectly represents
-       "ndmp.bytes_left_to_read" as signed. (Bug 6262)
+     o S1AP protocol can't decode IPv6 transportLayerAddress. (Bug
+       6435)
 
-     o TShark/dumpcap skips capture duration flag occasionally. (Bug
-       6280)
+     o RTPS2 dissector doesn't handle 0 in the octestToNextHeader
+       field. (Bug 6449)
 
-     o File types with no snaplen written out with a zero snaplen in
-       pcap-ng files. (Bug 6289)
+     o packet-ajp13 fix, cleanup, and enhancement. (Bug 6452)
 
-     o Wireshark improperly parsing 802.11 Beacon Country Information
-       tag. (Bug 6264)
+     o Network Instruments Observer file format bugs. (Bug 6453)
 
-     o ERF records with extension headers not written out correctly
-       to pcap or pcap-ng files. (Bug 6265)
+     o Wireshark crashes when using "Open Recent" 2 times in a row.
+       (Bug 6457)
 
-     o RTPS2: MAX_BITMAP_SIZE is defined incorrectly. (Bug 6276)
+     o Wireshark packet_gsm-sms, display bug: Filler bits in TP-User
+       Data Header. (Bug 6469)
 
-     o Copying from RTP stream analysis copies 1st line many times.
-       (Bug 6279)
+     o wireshark unable to decode NetFlow options which have system
+       scope size != 4 bytes. (Bug 6471)
 
-     o Wrong display of CSN_BIT under CSN_UNION. (Bug 6287)
+     o Display filter Expression Dialog Box Error. (Bug 6472)
 
-     o MEGACO context tracking fix - context id reuse. (Bug 6311)
+     o text_import_scanner.l missing. (Bug 6531)
 
   New and Updated Features
 
@@ -144,13 +132,13 @@ What's New
 
   Updated Protocol Support
 
-   BACapp, Bluetooth L2CAP, CSN.1, DCERPC, GSM A RR, GTPv2, ICMP,
-   ICMPv6, IKE, MEGACO, MSISDN, NDMP, OpenSafety, RTPS2, sFlow, SNMP,
-   TCP
+   AJP13, ASN.1 PER, BACnet, CSN.1, DTN, Ethernet, ICMPv6, IEEE
+   802.11, IEEE 802.1q, Infiniband, IPsec, MySQL, PCEP, PN-RT, RTP,
+   S1AP, SSL
 
   New and Updated Capture File Support
 
-   CommView, pcap-ng, JPEG.
+   Endace ERF.
 
 Getting Wireshark
 
