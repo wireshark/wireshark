@@ -4941,6 +4941,9 @@ dissect_cip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    enip_request_info_t *enip_info;
    cip_req_info_t *preq_info;
 
+/* XXX DISABLE CIP DISSECTOR--until the fuzz failures stop */
+return 0;
+
    /* Make entries in Protocol column and Info column on summary display */
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "CIP");
 
