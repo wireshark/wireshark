@@ -36,7 +36,7 @@ enum {
   ST_STATE = 2,
   ST_RESET = 3,
   ST_SYN   = 4,
-  ST_NUM_STATES,
+  ST_NUM_STATES
 };
 
 /* V0 hdr: "flags"; V1 hdr: "type" */
@@ -53,7 +53,7 @@ enum {
   EXT_NO_EXTENSION    = 0,
   EXT_SELECTION_ACKS  = 1,
   EXT_EXTENSION_BITS  = 2,
-  EXT_NUM_EXT,
+  EXT_NUM_EXT
 };
 
 static const value_string bt_utp_extension_type_vals[] = {

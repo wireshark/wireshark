@@ -62,7 +62,7 @@ enum fip_opcode {
         FIP_OP_LS = 2,                  /* Link Service request or reply */
         FIP_OP_CTRL =   3,              /* control */
         FIP_OP_VLAN =   4,              /* VLAN request or reply */
-        FIP_OP_VN2VN =  5,              /* VN_port to VN_port operation */
+        FIP_OP_VN2VN =  5               /* VN_port to VN_port operation */
 };
 
 /*
@@ -100,7 +100,7 @@ enum fip_vn2vn_subcode {
         FIP_SC_VN_PROBE_REP = 2,        /* probe reply */
         FIP_SC_VN_CLAIM_NOTIFY = 3,     /* claim notification */
         FIP_SC_VN_CLAIM_REP = 4,        /* claim response */
-        FIP_SC_VN_BEACON = 5,           /* beacon */
+        FIP_SC_VN_BEACON = 5            /* beacon */
 };
 
 static const value_string fip_opcodes[] = {
@@ -163,7 +163,7 @@ enum fip_desc_type {
         FIP_DT_FKA =    12,             /* FIP keep-alive / advert. period */
         FIP_DT_VEND =   13,             /* Vendor-specific TLV */
         FIP_DT_VLAN =   14,             /* VLAN number */
-        FIP_DT_FC4F =   15,             /* FC-4 features */
+        FIP_DT_FC4F =   15              /* FC-4 features */
 };
 
 static const value_string fip_desc_types[] = {

@@ -59,7 +59,7 @@ typedef enum {
     MIP6_HB     = 13,
     MIP6_HI     = 14,
     MIP6_HAck   = 15,
-    MIP6_BR     = 16,
+    MIP6_BR     = 16
 } mhTypes;
 
 /* http://www.iana.org/assignments/mobility-parameters/mobility-parameters.xhtml */
@@ -134,7 +134,7 @@ typedef enum {
     MIP6_MNLLAII   = 42,        /* 42 Mobile Node Link-local Address Interface Identifier Option [RFC5949] */
     MIP6_TB        = 43,        /* 43 Transient Binding [RFC-ietf-mipshop-transient-bce-pmipv6-07] */
     MIP6_FS        = 44,        /* 44 Flow Summary Mobility Option [RFC-ietf-mext-flow-binding-11] */
-    MIP6_FI        = 45,        /* 45 Flow Identification Mobility Option [RFC-ietf-mext-flow-binding-11]] */
+    MIP6_FI        = 45         /* 45 Flow Identification Mobility Option [RFC-ietf-mext-flow-binding-11]] */
 
 } optTypes;
 

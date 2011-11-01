@@ -3176,7 +3176,7 @@ enum {
     TRPY_DST_ADDR_OFFSET      = 8,
     TRPY_SRC_PORT_OFFSET      = 12,
     TRPY_DST_PORT_OFFSET      = 14,
-    TRPY_CLIENT_PORT_OFFSET   = 16,
+    TRPY_CLIENT_PORT_OFFSET   = 16
 };
 
 /* Trpy Flags */

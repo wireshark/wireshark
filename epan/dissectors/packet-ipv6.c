@@ -557,7 +557,7 @@ enum {
   IPv6_RT_HEADER_SOURCE_ROUTING=0,
   IPv6_RT_HEADER_NIMROD,
   IPv6_RT_HEADER_MobileIP,
-  IPv6_RT_HEADER_RPL=4,
+  IPv6_RT_HEADER_RPL=4
 };
 
 /* Routeing Header Types */

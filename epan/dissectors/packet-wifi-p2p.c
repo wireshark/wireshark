@@ -52,7 +52,7 @@ enum {
   P2P_ATTR_OPERATING_CHANNEL = 17,
   P2P_ATTR_INVITATION_FLAGS = 18,
   /* 19-220 Reserved */
-  P2P_ATTR_VENDOR_SPECIFIC = 221,
+  P2P_ATTR_VENDOR_SPECIFIC = 221
   /* 222-255 Reserved */
 };
 
@@ -115,7 +115,7 @@ enum {
   P2P_ACT_DEV_DISC_REQ = 5,
   P2P_ACT_DEV_DISC_RESP = 6,
   P2P_ACT_PROV_DISC_REQ = 7,
-  P2P_ACT_PROV_DISC_RESP = 8,
+  P2P_ACT_PROV_DISC_RESP = 8
 };
 
 static const value_string p2p_public_action_subtypes[] = {
@@ -135,7 +135,7 @@ enum {
   P2P_ACT_NOA = 0,
   P2P_ACT_P2P_PRESENCE_REQ = 1,
   P2P_ACT_P2P_PRESENCE_RESP = 2,
-  P2P_ACT_GO_DISC_REQ = 3,
+  P2P_ACT_GO_DISC_REQ = 3
 };
 
 static const value_string p2p_action_subtypes[] = {
@@ -158,7 +158,7 @@ enum {
   P2P_FAIL_UNKNOWN_P2P_GROUP = 8,
   P2P_FAIL_BOTH_DEVICES_GO = 9,
   P2P_FAIL_INCOMPATIBLE_PROVISION_METHOD = 10,
-  P2P_FAIL_REJECTED_BY_USER = 11,
+  P2P_FAIL_REJECTED_BY_USER = 11
 };
 
 static const value_string p2p_status_codes[] = {
@@ -186,7 +186,7 @@ enum {
   P2P_MINOR_DISCONNECT_DUE_TO_CROSS_CONNECTION = 1,
   P2P_MINOR_DISCONNECT_DUE_TO_NOT_P2P_MANAGED = 2,
   P2P_MINOR_DISCONNECT_DUE_TO_NO_COEXISTENCE = 3,
-  P2P_MINOR_DISCONNECT_DUE_TO_OUTSIDE_POLICY = 4,
+  P2P_MINOR_DISCONNECT_DUE_TO_OUTSIDE_POLICY = 4
 };
 
 static const value_string p2p_minor_reason_codes[] = {

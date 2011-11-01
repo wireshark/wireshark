@@ -247,10 +247,10 @@ enum cip_datatype {
    cip_date_and_time,
    cip_string2,
    cip_stringN,
-   cip_stringi,
+   cip_stringi
 };
 
-typedef int attribute_dissector_func(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, 
+typedef int attribute_dissector_func(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                              int offset, int total_len);
 
 typedef struct attribute_info {

@@ -8957,7 +8957,7 @@ enum channel_dir_from_client4 {
 	CDFC4_FORE = 0x1,
 	CDFC4_BACK = 0x2,
 	CDFC4_FORE_OR_BOTH = 0x3,
-	CDFC4_BACK_OR_BOTH = 0x7,
+	CDFC4_BACK_OR_BOTH = 0x7
 };
 
 static const value_string names_channel_dir_from_client[] = {
@@ -8971,7 +8971,7 @@ static const value_string names_channel_dir_from_client[] = {
 enum channel_dir_from_server4 {
 	CDFS4_FORE = 0x1,
 	CDFS4_BACK = 0x2,
-	CDFS4_BOTH = 0x3,
+	CDFS4_BOTH = 0x3
 };
 
 static const value_string names_channel_dir_from_server[] = {

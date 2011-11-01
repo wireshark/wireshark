@@ -186,7 +186,7 @@ typedef enum _uat_text_mode_t {
 
 	PT_TXTMOD_FILENAME,
 	/* processed like a PT_TXTMOD_STRING, but shows a filename dialog */
-	PT_TXTMOD_DIRECTORYNAME,
+	PT_TXTMOD_DIRECTORYNAME
 	/* processed like a PT_TXTMOD_STRING, but shows a directory dialog */
 } uat_text_mode_t;
 
@@ -234,7 +234,7 @@ typedef struct _uat_field_t {
  * @param filename The filename to be used (either in userdir or datadir)
  * @param from_profile TRUE if profie directory to be used
  * @param data_ptr A pointer to a null terminated array of pointers to the data
- * @param num_items_ptr 
+ * @param num_items_ptr
  * @param category
  * @param help A pointer to help text
  * @param copy_cb A function that copies the data in the struct
@@ -386,7 +386,7 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out
 	{#field_name, title, PT_TXTMOD_DIRECTORYNAME,{uat_fld_chk_str,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
 
 /*
- * OID - just a CSTRING with a specific check routine 
+ * OID - just a CSTRING with a specific check routine
  */
 #define UAT_FLD_OID(basename,field_name,title,desc) \
 	{#field_name, title, PT_TXTMOD_STRING,{uat_fld_chk_oid,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}

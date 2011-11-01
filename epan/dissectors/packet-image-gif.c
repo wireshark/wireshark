@@ -81,7 +81,7 @@ static const value_string vals_extensions[] = {
 
 enum {
 	GIF_87a = 0x87,
-	GIF_89a = 0x89,
+	GIF_89a = 0x89
 };
 
 /* Initialize the protocol and registered fields */

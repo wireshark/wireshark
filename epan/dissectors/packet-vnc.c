@@ -104,7 +104,7 @@ typedef enum {
 	VNC_CLIENT_MESSAGE_TYPE_FRAMEBUF_UPDATE_REQ	= 3,
 	VNC_CLIENT_MESSAGE_TYPE_KEY_EVENT		= 4,
 	VNC_CLIENT_MESSAGE_TYPE_POINTER_EVENT		= 5,
-	VNC_CLIENT_MESSAGE_TYPE_CLIENT_CUT_TEXT		= 6,
+	VNC_CLIENT_MESSAGE_TYPE_CLIENT_CUT_TEXT		= 6
 } vnc_client_message_types_e;
 
 static const value_string vnc_client_message_types_vs[] = {
@@ -121,7 +121,7 @@ typedef enum {
 	VNC_SERVER_MESSAGE_TYPE_FRAMEBUFFER_UPDATE   = 0,
 	VNC_SERVER_MESSAGE_TYPE_SET_COLORMAP_ENTRIES = 1,
 	VNC_SERVER_MESSAGE_TYPE_RING_BELL            = 2,
-	VNC_SERVER_MESSAGE_TYPE_CUT_TEXT             = 3,
+	VNC_SERVER_MESSAGE_TYPE_CUT_TEXT             = 3
 } vnc_server_message_types_e;
 
 static const value_string vnc_server_message_types_vs[] = {

@@ -6160,15 +6160,15 @@ dissect_vendor_ie_marvell(proto_item * item _U_, proto_tree * ietree,
 
 typedef enum {
   ATHEROS_IE_ADVCAP = 1,
-  ATHEROS_IE_XR = 3,
+  ATHEROS_IE_XR = 3
 } atheros_ie_type_t;
 
 typedef enum {
-  ATHEROS_IE_ADVCAP_S = 1,
+  ATHEROS_IE_ADVCAP_S = 1
 } atheros_ie_advcap_subtype_t;
 
 typedef enum {
-  ATHEROS_IE_XR_S = 1,
+  ATHEROS_IE_XR_S = 1
 } atheros_ie_xr_subtype_t;
 
 typedef enum {

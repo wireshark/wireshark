@@ -195,7 +195,7 @@ typedef enum {
     DECRYPT_PACKET_NO_EXT_SRC_ADDR,
     DECRYPT_PACKET_NO_KEY,
     DECRYPT_PACKET_DECRYPT_FAILED,
-    DECRYPT_PACKET_MIC_CHECK_FAILED,
+    DECRYPT_PACKET_MIC_CHECK_FAILED
 } ws_decrypt_status;
 
 static tvbuff_t * dissect_ieee802154_decrypt(tvbuff_t *, guint, packet_info *, ieee802154_packet *,
