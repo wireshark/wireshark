@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "1.6.3">
+  <!ENTITY WiresharkCurrentVersion "1.6.4">
 
 ]>
 
@@ -36,59 +36,22 @@ Wireshark Info
 
         <listitem>
           <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2011-17.html">wnpa-sec-2011-17</ulink>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2011-20.html">wnpa-sec-2011-20</ulink>
           </para>
           <para>
-            The CSN.1 dissector could crash.
-            <!-- Fixed in trunk: r39140 -->
-            <!-- Fixed in trunk-1.6: r39544 -->
-            <!-- Fixed in trunk-1.4: Not applicable -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6351">Bug
-            6351</ulink>)
+            .
+            <!-- Fixed in trunk: r????? -->
+            <!-- Fixed in trunk-1.6: r????? -->
+            <!-- Fixed in trunk-1.4: r????? -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
+            ????</ulink>)
           </para>
-          <para>Versions affected: 1.6.0 to 1.6.2.</para>
+          <para>Versions affected: 1.6.0 to 1.6.3.</para>
           <!-- <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-????">CVE-2011-????</ulink>
           </para> -->
         </listitem>
 
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2011-18.html">wnpa-sec-2011-18</ulink>
-          </para>
-          <para>
-            Huzaifa Sidhpurwala of Red Hat Security Response Team discovered
-            that the Infiniband dissector could dereference a NULL pointer.
-            <!-- Fixed in trunk: r39500 -->
-            <!-- Fixed in trunk-1.6: r39584 -->
-            <!-- Fixed in trunk-1.4: r39642 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6476">Bug
-            6476</ulink>)
-          </para>
-          <para>Versions affected: 1.4.0 to 1.4.9, 1.6.0 to 1.6.2.</para>
-          <!-- <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-????">CVE-2011-????</ulink>
-          </para> -->
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2011-19.html">wnpa-sec-2011-19</ulink>
-          </para>
-          <para>
-            Huzaifa Sidhpurwala of Red Hat Security Response Team discovered a
-            buffer overflow in the ERF file reader.
-            <!-- Fixed in trunk: r39508 -->
-            <!-- Fixed in trunk-1.6: r39585 -->
-            <!-- Fixed in trunk-1.4: r39643 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6479">Bug
-            6479</ulink>)
-          </para>
-          <para>Versions affected: 1.4.0 to 1.4.9, 1.6.0 to 1.6.2.</para>
-          <!-- <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-????">CVE-2011-????</ulink>
-          </para> -->
-        </listitem>
       </itemizedlist>
 
     </para>
@@ -109,197 +72,6 @@ Wireshark Info
         </para></listitem>
 -->
 
-        <listitem><para>
-          Assertion failed when doing File-&gt;Quit-&gt;Save during live capture.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1710">Bug
-          1710</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wrong PCEP XRO sub-object decoding.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3778">Bug
-          3778</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark window takes very long time to show up if invalid network file path is at recent file list
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3810">Bug
-          3810</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Decoding [Status Records] Timestamp Sequence Field in Bundle Protocol fails if over 32 bits.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4109">Bug
-          4109</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          ISUP party number dissection.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5221">Bug
-          5221</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          wireshark-1.4.2 crashes when testing the example python dissector because of a dissector count assertion.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5431">Bug
-          5431</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Ethernet packets with both VLAN tag and LLC header no longer displayed correctly.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5645">Bug
-          5645</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          SLL encapsuled 802.1Q VLAN is not dissected.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5680">Bug
-          5680</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark crashes when attempting to open a file via drag &amp; drop when there's already a file open.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5987">Bug
-          5987</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Adding and removing custom HTTP headers requires a restart.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6241">Bug
-          6241</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Can't read full 64-bit SNMP values.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6295">Bug
-          6295</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Dissection fails for frames with Gigamon Header and VLAN.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6305">Bug
-          6305</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          RTP Stream Analysis does not work for TURN-encapsulated RTP.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6322">Bug
-          6322</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          packet-csn1.c doesn't process CSN_CHOICE entries properly.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6328">Bug
-          6328</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          BACnet property time-synchronization-interval (204) name shown incorrectly as time-synchronization-recipients.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6336">Bug
-          6336</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          GUI crash on invalid IEEE 802.11 GAS frame.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6345">Bug
-          6345</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          [ASN.1 PER] Incorrect decoding of BIT STRING type.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6347">Bug
-          6347</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          ICMPv6 router advertisement Prefix Information Flag R &quot;Router Address&quot; missing.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6350">Bug
-          6350</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Export -&gt; Object -&gt; HTTP -&gt; save all: Error on saving files.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6362">Bug
-          6362</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Inner tag of 802.1ad frames not parsed properly.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6366">Bug
-          6366</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Added cursor type decoding to MySQL dissector.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6396">Bug
-          6396</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Incorrect identification of UDP-encapsulated NAT-keepalive packets.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6414">Bug
-          6414</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          WPA IE pairwise cipher suite dissector uses incorrect value_string list.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6420">Bug
-          6420</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          S1AP protocol can't decode IPv6 transportLayerAddress.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6435">Bug
-          6435</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          RTPS2 dissector doesn't handle 0 in the octestToNextHeader field.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6449">Bug
-          6449</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          packet-ajp13 fix, cleanup, and enhancement.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6452">Bug
-          6452</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Network Instruments Observer file format bugs.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6453">Bug
-          6453</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark crashes when using &quot;Open Recent&quot; 2 times in a row.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6457">Bug
-          6457</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark packet_gsm-sms, display bug: Filler bits in TP-User Data Header.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6469">Bug
-          6469</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          wireshark unable to decode NetFlow options which have system scope size != 4 bytes.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6471">Bug
-          6471</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Display filter Expression Dialog Box Error.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6472">Bug
-          6472</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          text_import_scanner.l missing.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6531">Bug
-          6531</ulink>)
-        </para></listitem>
 
       </itemizedlist>
 
@@ -326,23 +98,7 @@ There are no new protocols in this release.
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title> <para>
 
 <!-- Sort alphabetically -->
-AJP13,
-ASN.1 PER,
-BACnet,
-CSN.1,
-DTN,
-Ethernet,
-ICMPv6,
-IEEE 802.11,
-IEEE 802.1q,
-Infiniband,
-IPsec,
-MySQL,
-PCEP,
-PN-RT,
-RTP,
-S1AP,
-SSL
+.
 
     </para>
     </section>
@@ -350,7 +106,7 @@ SSL
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-Endace ERF.
+.
 
     </para>
     </section>
