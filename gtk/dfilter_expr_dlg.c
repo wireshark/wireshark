@@ -76,8 +76,6 @@ typedef struct protocol_data {
   int  	hfinfo_index;
 } protocol_data_t;
 
-static GtkWidget *window;
-
 static void show_relations(GtkWidget *relation_list, ftenum_t ftype);
 static gboolean relation_is_presence_test(const char *string);
 static void add_relation_list(GtkWidget *relation_list, const char *relation, gboolean sensitive);
@@ -902,7 +900,7 @@ dfilter_expr_dlg_destroy_cb(GtkWidget *w, gpointer filter_te)
 GtkWidget *
 dfilter_expr_dlg_new(GtkWidget *filter_te)
 {
-    GtkWidget *main_vb, *main_hb;
+    GtkWidget *window, *main_vb, *main_hb;
 
     GtkWidget *field_vb, *field_tree_lb, *field_tree, *tree_scrolled_win;
 
@@ -927,13 +925,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     GtkListStore      *l_store;
     GtkTreeSelection  *l_sel;
 
-    if (window != NULL) {
-      /* There's already an "Expression" dialog box; reactivate it. */
-      reactivate_window(window);
-      return window;
-    }
-
-    proto_initialize_all_prefixes();
+	proto_initialize_all_prefixes();
 
     window = dlg_conf_window_new("Wireshark: Filter Expression");
     gtk_window_set_default_size(GTK_WINDOW(window), 500, 400);
