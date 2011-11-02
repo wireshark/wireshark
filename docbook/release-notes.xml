@@ -36,7 +36,7 @@ Wireshark Info
       <itemizedlist>
 
 	<listitem><para>
-	  The 64-bit Windows installer now supports OID-to-name resolution.
+	  .
 	</para></listitem>
 
       </itemizedlist>
@@ -70,7 +70,7 @@ Wireshark Info
         <listitem>
           <para>
             Decryption key management for IEEE 802.11, IPsec, and ISAKMP
-	    is now easier.
+	    is easier.
           </para>
         </listitem>
 
@@ -95,11 +95,11 @@ Wireshark Info
 
         <listitem>
           <para>
-            The tshark command-line options have changed as follows:  The
-            previously undocumented -P option is now -2 option for performing a
-            two-pass analysis; the former -S option is now the -P option for
-            printing packets even if writing to a file, and the -S option is
-            now used to specify a different line separator between packets.
+	    TShark's command-line options have changed. The previously
+	    undocumented -P option is now -2 option for performing a two-pass
+	    analysis; the former -S option is now the -P option for printing
+	    packets even if writing to a file, and the -S option is now used to
+	    specify a different line separator between packets.
           </para>
         </listitem>
 
