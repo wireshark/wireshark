@@ -102,7 +102,7 @@ static const value_string erspan_direction_vals[] = {
 
 static const value_string erspan_truncated_vals[] = {
 	{0, "Not truncated"},
-	{1, "Trunkated"},
+	{1, "Truncated"},
 	{0, NULL},
 };
 
