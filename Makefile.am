@@ -534,12 +534,18 @@ CLEANFILES =		\
 	vgcore.*
 
 #
+# We have to remove svnversion.h with "make distclean", as, otherwise,
+# "make distcheck" fails.  We still need to make the tarballs work
+# even if you do "make distclean" and try to rebuild; that's a work in
+# progress.
+#
 # XXX - "ps.c" is distributed in the source tarballs; why is it in the
 # list of files removed by "make distclean"?  (It's deliberately
 # included in that list.)
 #
 DISTCLEANFILES = \
-	ps.c
+	ps.c			\
+	svnversion.h
 
 MAINTAINERCLEANFILES =		\
 	$(GENERATED_FILES)	\
@@ -552,7 +558,6 @@ MAINTAINERCLEANFILES =		\
 	install-sh		\
 	ltmain.sh		\
 	missing			\
-	svnversion.h		\
 	ylwrap
 
 EXTRA_DIST = \
