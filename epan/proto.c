@@ -3912,7 +3912,7 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
                                 break;
 
                         case FT_FLOAT:
-                                g_snprintf(result+offset_r, size-offset_r, "%." STRINGIFY(FLT_DIG) "f", fvalue_get_floating(&finfo->value));
+                                g_snprintf(result+offset_r, size-offset_r, "%." STRINGIFY(FLT_DIG) "g", fvalue_get_floating(&finfo->value));
                                 offset_r = (int)strlen(result);
                                 break;
 
@@ -5200,7 +5200,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 
 		case FT_FLOAT:
 			g_snprintf(label_str, ITEM_LABEL_LENGTH,
-				   "%s: %." STRINGIFY(FLT_DIG) "f",
+				   "%s: %." STRINGIFY(FLT_DIG) "g",
 				   hfinfo->name, fvalue_get_floating(&fi->value));
 			break;
 
