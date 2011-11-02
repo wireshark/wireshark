@@ -1,0 +1,64 @@
+-- $Id$--
+--
+-- Hand crafted ASN1 file for the differences between latest spec and V2
+-- statments sufixed with V2 to be able to generate this with the latest ASN1 spec.
+-- .cnf and -template is used to call the statmets here.
+
+CAP-DataTypesV2 {ccitt(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) modules(3)cap-datatypes(52) version2(1)}
+
+--  This module contains the type definitions for the CAP v.2 data types.
+
+DEFINITIONS IMPLICIT TAGS ::=
+BEGIN
+	IMPORTS
+
+	NAEA-CIC
+FROM MAP-CommonDataTypes {itu-t(0) identified-organization(4) etsi(0) mobileDomain(0)
+gsm-Network(1) modules(3) map-CommonDataTypes(18) version12(12)}
+
+;
+
+--  TYPE DEFINITIONS FOR CAP v.2 DATA TYPES FOLLOW
+
+InitialDPArgExtensionV2				::= SEQUENCE {
+	naCarrierInformation				[0] NACarrierInformation				OPTIONAL,
+	gmscAddress							[1] ISDN-AddressString					OPTIONAL,
+	...
+
+	
+}
+
+-- Use of the text parameter is  network operator/equipment vendor specific.
+
+NACarrierInformation				::= SEQUENCE { 
+		naCarrierId						[0] NAEA-CIC								OPTIONAL,
+		naCICSelectionType				[1] NACarrierSelectionInfo					OPTIONAL,
+		...}
+		
+NACarrierSelectionInfo				::= OCTET STRING (SIZE (1))
+--  NA carrier selection information octet carries the same values as ANSI
+--  ISUP T1.113:		'00'H – not indicated or not explicitly provided
+--						'01'H – subscribed not dialed
+--						'02'H – subscribed and dialed
+--						'03'H – subscribed with dialing undetermined
+--						'04'H – dialed CIC not subscribed
+
+
+CAMEL-AChBillingChargingCharacteristicsV2 ::= CHOICE {
+	timeDurationCharging					[0] SEQUENCE {
+			maxCallPeriodDuration				[0] INTEGER (1..864000),
+			releaseIfdurationExceeded			[1] ReleaseIfDurationExceeded 	OPTIONAL,
+			tariffSwitchInterval				[2] INTEGER (1..86400)			OPTIONAL
+		}
+	}
+--  tariffSwitchInterval is measured in 1 second units.
+--  maxCallPeriodDuration is measured in100 millisecond units
+
+ReleaseIfDurationExceeded			::= SEQUENCE {
+		tone							BOOLEAN DEFAULT FALSE,
+		...,
+		extensions						[10] SEQUENCE SIZE(1..numOfExtensions) 			OF 
+																ExtensionField			OPTIONAL
+		}
+				
+END

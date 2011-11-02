@@ -211,6 +211,14 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
 
 # END ROS
 
+#.FN_BODY InitialDPArgExtension
+
+if((camel_ver == 2)||(camel_ver == 1)){
+	return dissect_camel_InitialDPArgExtensionV2(implicit_tag, tvb, offset, actx, tree, hf_index);
+}
+
+%(DEFAULT_BODY)s
+
 #.FN_HDR ExtensionField
 	camel_obj_id = NULL;
 	is_ExtensionField =TRUE;
@@ -227,37 +235,43 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
 #----------------------------------------------------------------------------------------
 #.FN_BODY CallingPartyNumber VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
+  proto_tree *subtree;
 
 %(DEFAULT_BODY)s
 
  if (!parameter_tvb)
 	return offset;
 
-dissect_isup_calling_party_number_parameter(parameter_tvb, tree, NULL);
+subtree = proto_item_add_subtree(actx->created_item, ett_camel_callingpartynumber);
+dissect_isup_calling_party_number_parameter(parameter_tvb, subtree, NULL);
 #.END
 
 #----------------------------------------------------------------------------------------
 #.FN_BODY CalledPartyNumber VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
+  proto_tree *subtree;
 
 %(DEFAULT_BODY)s
 
  if (!parameter_tvb)
 	return offset;
 
-dissect_isup_called_party_number_parameter(parameter_tvb, tree, NULL);
+ subtree = proto_item_add_subtree(actx->created_item, ett_camel_calledpartybcdnumber);
+ dissect_isup_called_party_number_parameter(parameter_tvb, subtree, NULL);
 #.END
 
 #----------------------------------------------------------------------------------------
 #.FN_BODY LocationNumber VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
+  proto_tree *subtree;
 
 %(DEFAULT_BODY)s
 
  if (!parameter_tvb)
         return offset;
 
-dissect_isup_location_number_parameter(parameter_tvb, tree, NULL);
+subtree = proto_item_add_subtree(actx->created_item, ett_camel_locationnumber);
+dissect_isup_location_number_parameter(parameter_tvb, subtree, NULL);
 #.END
 
 #----------------------------------------------------------------------------------------
@@ -468,10 +482,10 @@ proto_tree *subtree;
  subtree = proto_item_add_subtree(actx->created_item, ett_camel_pdptypenumber);
  switch (PDPTypeOrganization){
  case 0: /* ETSI */
-	proto_tree_add_item(tree, hf_camel_PDPTypeNumber_etsi, parameter_tvb, 0, 1, FALSE);
+	proto_tree_add_item(subtree, hf_camel_PDPTypeNumber_etsi, parameter_tvb, 0, 1, FALSE);
 	break;
  case 1: /* IETF */
-	proto_tree_add_item(tree, hf_camel_PDPTypeNumber_ietf, parameter_tvb, 0, 1, FALSE);
+	proto_tree_add_item(subtree, hf_camel_PDPTypeNumber_ietf, parameter_tvb, 0, 1, FALSE);
 	break;
  default:
 	break;
@@ -495,10 +509,10 @@ proto_tree *subtree;
  case 1: /* IETF */
 	switch(PDPTypeNumber){
 	case 0x21: /* IPv4 */
-		proto_tree_add_item(tree, hf_camel_PDPAddress_IPv4, parameter_tvb, 0, tvb_length(parameter_tvb), FALSE);
+		proto_tree_add_item(subtree, hf_camel_PDPAddress_IPv4, parameter_tvb, 0, tvb_length(parameter_tvb), FALSE);
 		break;
 	case 0x57: /* IPv6 */
-		proto_tree_add_item(tree, hf_camel_PDPAddress_IPv6, parameter_tvb, 0, tvb_length(parameter_tvb), FALSE);
+		proto_tree_add_item(subtree, hf_camel_PDPAddress_IPv6, parameter_tvb, 0, tvb_length(parameter_tvb), FALSE);
 		break;
 	default:
 		break;
@@ -535,6 +549,9 @@ proto_tree *subtree;
  if (!parameter_tvb)
 	return offset;
  subtree = proto_item_add_subtree(actx->created_item, ett_camel_CAMEL_AChBillingChargingCharacteristics);
+ if((camel_ver == 2)||(camel_ver == 1)){
+	return  dissect_camel_CAMEL_AChBillingChargingCharacteristicsV2(FALSE, parameter_tvb, 0, actx, subtree, hf_camel_CAMEL_AChBillingChargingCharacteristics);
+ }
  dissect_camel_CAMEL_AChBillingChargingCharacteristics(FALSE, parameter_tvb, 0, actx, subtree, hf_camel_CAMEL_AChBillingChargingCharacteristics);
 
 #.FN_BODY FCIBillingChargingCharacteristics VAL_PTR = &parameter_tvb

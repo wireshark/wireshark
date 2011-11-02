@@ -38,7 +38,8 @@ ASN_FILE_LIST = \
 	CAP-gsmSSF-gsmSCF-ops-args.asn \
 	CAP-gprsSSF-gsmSCF-ops-args.asn \
 	CAP-SMS-ops-args.asn \
-	CAP-U-ABORT-Data.asn
+	CAP-U-ABORT-Data.asn \
+	CamelV2diff.asn
 
 # The packet-$(PROTOCOL_NAME)-template.h and $(PROTOCOL_NAME).asn
 # files do not exist for all protocols: Please add/remove as required.
