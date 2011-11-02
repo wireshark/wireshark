@@ -26,7 +26,6 @@ EXTRA_DIST = \
 	native-gtk/config.h	\
 	native-gtk/glibconfig.h	\
 	osx-app.sh	\
-	osx-build.sh	\
 	osx-dmg.sh	\
 	Read_me_first.rtf	\
 	Resources/bin/getdisplay.sh	\
