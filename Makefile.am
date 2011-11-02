@@ -528,13 +528,7 @@ ps.c: print.ps $(srcdir)/tools/rdps.py
 services: tools/make-services.pl
 	$(PERL) $(srcdir)/tools/make-services.pl
 
-#
-# XXX - "svnversion.h" is distributed in the release tarball; should
-# we be deleting it with "make clean", or should we only do that with
-# "make maintainer-clean"?
-#
 CLEANFILES =		\
-	svnversion.h	\
 	idl2wrs		\
 	*~		\
 	vgcore.*
@@ -558,6 +552,7 @@ MAINTAINERCLEANFILES =		\
 	install-sh		\
 	ltmain.sh		\
 	missing			\
+	svnversion.h		\
 	ylwrap
 
 EXTRA_DIST = \
