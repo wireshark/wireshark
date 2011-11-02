@@ -44,6 +44,7 @@
 
 /* Assume all packets have an FCS */
 static gboolean eth_assume_fcs = FALSE;
+static gboolean eth_check_fcs = TRUE;
 /* Interpret packets as FW1 monitor file packets if they look as if they are */
 static gboolean eth_interpret_as_fw1_monitor = FALSE;
 /* Preference settings defining conditions for which the CCSDS dissector is called */
@@ -63,11 +64,15 @@ static int hf_eth_addr = -1;
 static int hf_eth_lg = -1;
 static int hf_eth_ig = -1;
 static int hf_eth_trailer = -1;
+static int hf_eth_fcs = -1;
+static int hf_eth_fcs_good = -1;
+static int hf_eth_fcs_bad = -1;
 
 static gint ett_ieee8023 = -1;
 static gint ett_ether2 = -1;
 static gint ett_ether = -1;
 static gint ett_addr = -1;
+static gint ett_eth_fcs = -1;
 
 static dissector_handle_t fw1_handle;
 static dissector_handle_t data_handle;
@@ -496,6 +501,9 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
      bytes - i.e., it was at least an FCS worth of data longer than
      the minimum payload size - assume the last 4 bytes of the trailer
      are an FCS. */
+  proto_item *item;
+  proto_tree *checksum_tree;
+
   if (trailer_tvb && fh_tree) {
     guint trailer_length, trailer_reported_length;
     gboolean has_fcs = FALSE;
@@ -552,14 +560,45 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
     }
     if (has_fcs) {
       guint32 sent_fcs = tvb_get_ntohl(trailer_tvb, trailer_length);
-      guint32 fcs = crc32_802_tvb(tvb, tvb_length(tvb) - 4);
-      if (fcs == sent_fcs) {
-        proto_tree_add_text(fh_tree, trailer_tvb, trailer_length, 4,
-          "Frame check sequence: 0x%08x [correct]", sent_fcs);
-      } else {
-        proto_tree_add_text(fh_tree, trailer_tvb, trailer_length, 4,
-          "Frame check sequence: 0x%08x [incorrect, should be 0x%08x]",
-          sent_fcs, fcs);
+      if(eth_check_fcs){
+        guint32 fcs = crc32_802_tvb(tvb, tvb_length(tvb) - 4);
+        if (fcs == sent_fcs) {
+          item = proto_tree_add_uint_format(fh_tree, hf_eth_fcs, trailer_tvb,
+                                            trailer_length, 4, sent_fcs,
+                                            "Frame check sequence: 0x%08x [correct]", sent_fcs);
+          checksum_tree = proto_item_add_subtree(item, ett_eth_fcs);
+          item = proto_tree_add_boolean(checksum_tree, hf_eth_fcs_good, tvb,
+                                        trailer_length, 2, TRUE);
+          PROTO_ITEM_SET_GENERATED(item);
+          item = proto_tree_add_boolean(checksum_tree, hf_eth_fcs_bad, tvb,
+                                        trailer_length, 2, FALSE);
+          PROTO_ITEM_SET_GENERATED(item);
+        } else {
+          item = proto_tree_add_uint_format(fh_tree, hf_eth_fcs, trailer_tvb,
+                                            trailer_length, 4, sent_fcs,
+                                            "Frame check sequence: 0x%08x [incorrect, should be 0x%08x]",
+                                            sent_fcs, fcs);
+          checksum_tree = proto_item_add_subtree(item, ett_eth_fcs);
+          item = proto_tree_add_boolean(checksum_tree, hf_eth_fcs_good, tvb,
+                                        trailer_length, 2, FALSE);
+          PROTO_ITEM_SET_GENERATED(item);
+          item = proto_tree_add_boolean(checksum_tree, hf_eth_fcs_bad, tvb,
+                                        trailer_length, 2, TRUE);
+          PROTO_ITEM_SET_GENERATED(item);
+          expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_ERROR, "Bad checksum");
+          col_append_str(pinfo->cinfo, COL_INFO, " [ETHERNET FRAME CHECK SEQUENCE INCORRECT]");
+        }
+      }else{
+        item = proto_tree_add_uint_format(fh_tree, hf_eth_fcs, trailer_tvb,
+                                          trailer_length, 4, sent_fcs,
+                                          "Frame check sequence: 0x%08x [validiation disabled]", sent_fcs);
+        checksum_tree = proto_item_add_subtree(item, ett_eth_fcs);
+        item = proto_tree_add_boolean(checksum_tree, hf_eth_fcs_good, tvb,
+                                      trailer_length, 2, FALSE);
+        PROTO_ITEM_SET_GENERATED(item);
+        item = proto_tree_add_boolean(checksum_tree, hf_eth_fcs_bad, tvb,
+                                      trailer_length, 2, FALSE);
+        PROTO_ITEM_SET_GENERATED(item);
       }
       trailer_length += 4;
     }
@@ -626,6 +665,18 @@ proto_register_eth(void)
         { "Trailer", "eth.trailer", FT_BYTES, BASE_NONE, NULL, 0x0,
             "Ethernet Trailer or Checksum", HFILL }},
 
+        { &hf_eth_fcs,
+        { "Frame check sequence", "eth.fcs", FT_UINT16, BASE_HEX, NULL, 0x0,
+            "Ethernet checksum", HFILL }},
+
+        { &hf_eth_fcs_good,
+        { "FCS Good", "eth.fcs_good", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            "True: checksum matches packet content; False: doesn't match content or not checked", HFILL }},
+
+        { &hf_eth_fcs_bad,
+        { "FCS Bad", "eth.fcs_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            "True: checksum doesn't matche packet content; False: does match content or not checked", HFILL }},
+
         { &hf_eth_lg,
         { "LG bit", "eth.lg", FT_BOOLEAN, 24,
             TFS(&lg_tfs), 0x020000,
@@ -640,7 +691,8 @@ proto_register_eth(void)
         &ett_ieee8023,
         &ett_ether2,
         &ett_ether,
-        &ett_addr
+        &ett_addr,
+        &ett_eth_fcs
     };
     module_t *eth_module;
 
@@ -661,6 +713,11 @@ proto_register_eth(void)
             "The Ethernet dissector attempts to guess whether a captured packet has an FCS, "
             "but it cannot always guess correctly.",
             &eth_assume_fcs);
+
+    prefs_register_bool_preference(eth_module, "check_fcs",
+            "Validate the Ethernet checksum if possible",
+            "Whether to validate the Frame Check Sequence",
+            &eth_check_fcs);
 
     prefs_register_bool_preference(eth_module, "interpret_as_fw1_monitor",
             "Attempt to interpret as FireWall-1 monitor file",
