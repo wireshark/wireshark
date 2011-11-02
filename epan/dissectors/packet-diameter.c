@@ -515,7 +515,7 @@ address_rfc_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 				expert_add_info_format(c->pinfo, pi, PI_MALFORMED, PI_WARN, "Wrong length for IPv4 Address");
 				return "[Malformed]";
 			}
-			pi = proto_tree_add_item(pt,t->hf_ipv4,tvb,2,4,ENC_NA);
+			pi = proto_tree_add_item(pt,t->hf_ipv4,tvb,2,4,ENC_BIG_ENDIAN);
 			break;
 		case 2:
 			if (len != 16) {
@@ -583,7 +583,7 @@ address_v16_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb)
 
 	switch (len) {
 		case 4:
-			pi = proto_tree_add_item(pt,t->hf_ipv4,tvb,0,4,ENC_NA);
+			pi = proto_tree_add_item(pt,t->hf_ipv4,tvb,0,4,ENC_BIG_ENDIAN);
 			break;
 		case 16:
 			pi = proto_tree_add_item(pt,t->hf_ipv6,tvb,0,16,ENC_NA);
