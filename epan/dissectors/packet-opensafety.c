@@ -36,6 +36,7 @@
 #include <epan/etypes.h>
 #include <epan/emem.h>
 #include <epan/expert.h>
+#include <epan/strutil.h>
 #include <epan/dissectors/packet-udp.h>
 
 #include <stdio.h>
@@ -408,7 +409,6 @@ static guint global_network_udp_port_sercosiii = UDP_PORT_SIII;
 
 /* Helper Functions & Function Prototypes */
 
-static guint8 opensafety_get_scm_udid(guint8 * scmUDID);
 static guint16 findFrame1Position ( guint8 dataLength, guint8 byteStream[] );
 static guint8 * unxorFrame(guint dataLength, guint8 byteStream[], guint16 startFrame1, guint16 startFrame2, guint8 scmUDID[]);
 
@@ -428,41 +428,8 @@ static guint8 crc8_opensafety(guint32 len, guint8 * pBuffer, guint8 initCRC);
  */
 static guint16 crc16_opensafety(guint32 len, guint8 * pBuffer, guint16 initCRC);
 
-static guint stringToBytes( const char * string, guint8 * pBuffer, guint32 length );
-
 static guint8 findSafetyFrame ( guint8 * pBuffer, guint32 length, guint u_Offset, gboolean b_frame2first, guint *u_frameOffset, guint *u_frameLength );
 
-static guint stringToBytes( const char * stringToBytes, guint8 * pBuffer, guint32 length )
-{
-    guint k;
-    guint32 byte ;
-    char * endptr ;
-    char * str, * temp, * token;
-
-    k = 0;
-
-    str = ep_strdup(stringToBytes);
-    token = strtok( str, ":" );
-    if ( token == NULL )
-    	return k;
-    temp = token;
-
-    byte = strtol ( temp, &endptr, 16 );
-    pBuffer[k] = byte;
-    k++;
-
-    for ( ; ; temp = NULL )
-    {
-        temp = strtok( NULL, ":" );
-        if ( temp == NULL || ( k == length ) )
-            break;
-        byte = strtol ( temp, &endptr, 16 );
-        pBuffer[k] = byte;
-        k++;
-    }
-
-    return k;
-}
 
 static guint16
 findFrame1PositionExtended ( guint8 dataLength, guint8 byteStream[], gboolean checkIfSlimMistake )
@@ -1150,14 +1117,6 @@ dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo , prot
     }
 }
 
-static guint8 opensafety_get_scm_udid(guint8 * scmUDID )
-{
-    if ( strlen(global_scm_udid) != (2*6 + 5) )
-        return 0;
-
-    return stringToBytes(global_scm_udid, scmUDID, 6);
-}
-
 static void
 dissect_opensafety_checksum(tvbuff_t *message_tvb, proto_tree *opensafety_tree ,
         guint8 * bytes, guint16 frameStart1 )
@@ -1200,7 +1159,8 @@ dissect_opensafety_message(guint16 frameStart1, guint16 frameStart2, guint8 type
 {
     guint8 b_ID;
     guint length;
-    guint8 * bytes, *scmUDID;
+    guint8 * bytes;
+    GByteArray *scmUDID = NULL;
     gboolean validSCMUDID;
     proto_item * item;
     gboolean messageTypeUnknown;
@@ -1227,12 +1187,11 @@ dissect_opensafety_message(guint16 frameStart1, guint16 frameStart2, guint8 type
         else
         {
             validSCMUDID = FALSE;
-            scmUDID = (guint8*)g_malloc(sizeof(guint8)*6);
-            memset(scmUDID, 0, 6);
-            if ( opensafety_get_scm_udid(scmUDID) == 6 )
+            scmUDID = g_byte_array_new();
+            if ( hex_str_to_bytes(global_scm_udid, scmUDID, TRUE) && scmUDID->len == 6 )
             {
                 validSCMUDID = TRUE;
-                bytes = unxorFrame(length, bytes, frameStart1, frameStart2, scmUDID);
+                bytes = unxorFrame(length, bytes, frameStart1, frameStart2, scmUDID->data);
                 /* Now confirm, that the xor operation was successful
                  *  The ID fields of both frames have to be the same, otherwise
                  *  perform the xor again to revert the change
@@ -1240,10 +1199,11 @@ dissect_opensafety_message(guint16 frameStart1, guint16 frameStart2, guint8 type
                 if ( ( OSS_FRAME_ID(bytes, frameStart1) ^ OSS_FRAME_ID(bytes, frameStart2 ) ) != 0 )
                 {
                     validSCMUDID = FALSE;
-                    bytes = unxorFrame(length, bytes, frameStart1, frameStart2, scmUDID);
+                    bytes = unxorFrame(length, bytes, frameStart1, frameStart2, scmUDID->data);
                 }
             }
-            g_free ( scmUDID );
+            if (scmUDID)
+                g_byte_array_free( scmUDID, TRUE);
 
             item = proto_tree_add_string(opensafety_tree, hf_oss_scm_udid, message_tvb, 0, 0, global_scm_udid);
             PROTO_ITEM_SET_GENERATED(item);
