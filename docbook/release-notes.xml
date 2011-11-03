@@ -72,6 +72,12 @@ Wireshark Info
         </para></listitem>
 -->
 
+        <listitem><para>
+          Wireshark crashes if compiled without GLib thread support.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6540">Bug
+          6540</ulink>)
+        </para></listitem>
+
 
       </itemizedlist>
 
