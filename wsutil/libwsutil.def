@@ -17,7 +17,11 @@ update_crc6_by_bytes
 ; crc10.c
 update_crc10_by_bytes
 
+; crc8.c
+crc8_0x2F
+
 ; crc16.c
+crc16_0x5935
 crc16_ccitt
 crc16_ccitt_seed
 crc16_x25_ccitt

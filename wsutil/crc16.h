@@ -61,6 +61,15 @@ extern guint16 crc16_x25_ccitt(const guint8 *buf, guint len);
  @return The CRC16 CCITT checksum (using the given seed). */
 extern guint16 crc16_ccitt_seed(const guint8 *buf, guint len, guint16 seed);
 
+/** Calculates a CRC16 checksum for the given buffer with the polynom
+ *  0x5935 using a precompiled CRC table
+ * @param pBuffer a pointer to a buffer of the given length
+ * @param len the length of the given buffer
+ * @param seed The seed to use.
+ * @return the CRC16 checksum for the buffer
+ */
+extern guint16 crc16_0x5935(const guint8 *buf, guint32 len, guint16 seed);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

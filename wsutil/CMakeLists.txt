@@ -41,6 +41,7 @@ set(WSUTIL_FILES
   crc16-plain.c
   crc32.c
   crc6.c
+  crc8.c
   crcdrm.c
   mpeg-audio.c
   privileges.c

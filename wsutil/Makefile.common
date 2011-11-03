@@ -35,6 +35,7 @@ LIBWSUTIL_SRC = 	\
 	crc16-plain.c	\
 	crc32.c		\
 	crc6.c		\
+	crc8.c		\
 	crcdrm.c	\
 	mpeg-audio.c	\
 	privileges.c	\
@@ -48,6 +49,7 @@ LIBWSUTIL_INCLUDES = 	\
 	crc16.h		\
 	crc16-plain.h	\
 	crc32.h		\
+	crc8.h		\
 	crcdrm.h	\
 	mpeg-audio.h	\
 	privileges.h	\
