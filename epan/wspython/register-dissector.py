@@ -63,7 +63,6 @@ def register_dissectors(wspython_dir,  plugins_pers_dir=None):
 
   registered_protocols = []
   for dissectors_dir in dissectors_dirs:
-      print 'looking for dissectors in', dissectors_dir
       #Check if we have the dissectors directory
       if not os.path.isdir(dissectors_dir):
         continue
@@ -84,7 +83,6 @@ def register_dissectors(wspython_dir,  plugins_pers_dir=None):
                 registered_protocols.append(registered_protocol)
           except Exception, e:
               print 'register dissector %s exception %s' % (dissector, e)
-  print 'registered protocols', registered_protocols
   return registered_protocols
 
 if False:
