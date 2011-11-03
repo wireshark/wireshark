@@ -102,6 +102,14 @@ static int hf_catapult_dct2000_lte_ccpri_opcode = -1;
 static int hf_catapult_dct2000_lte_ccpri_status = -1;
 static int hf_catapult_dct2000_lte_ccpri_channel = -1;
 
+static int hf_catapult_dct2000_ueid = -1;
+static int hf_catapult_dct2000_rbid = -1;
+static int hf_catapult_dct2000_ccch_id = -1;
+static int hf_catapult_dct2000_no_crc_error = -1;
+static int hf_catapult_dct2000_crc_error = -1;
+static int hf_catapult_dct2000_clear_tx_buffer = -1;
+
+
 /* Variables used for preferences */
 static gboolean catapult_dct2000_try_ipprim_heuristic = TRUE;
 static gboolean catapult_dct2000_try_sctpprim_heuristic = TRUE;
@@ -186,6 +194,32 @@ static const value_string ccpri_status_vals[] = {
     { 0,     "OK"},
     { 1,     "ERROR"},
     { 0,     NULL}
+};
+
+static const value_string rlc_rbid_vals[] = {
+    { 1,     "DCH1"},
+    { 2,     "DCH2"},
+    { 3,     "DCH3"},
+    { 4,     "DCH4"},
+    { 5,     "DCH5"},
+    { 6,     "DCH6"},
+    { 7,     "DCH7"},
+    { 8,     "DCH8"},
+    { 9,     "DCH9"},
+    { 10,    "DCH10"},
+    { 11,    "DCH11"},
+    { 12,    "DCH12"},
+    { 13,    "DCH13"},
+    { 14,    "DCH14"},
+    { 15,    "DCH15"},
+    { 17,    "BCCH"},
+    { 18,    "CCCH"},
+    { 19,    "PCCH"},
+    { 20,    "SHCCH"},
+    { 21,    "CTCH"},
+    { 23,    "MCCH"},
+    { 24,    "MSCH"},
+    { 25,    "MTCH"}
 };
 
 
@@ -636,29 +670,37 @@ static void dissect_rlc_umts(tvbuff_t *tvb, gint offset,
     }
 
     /* Keep going until reach data tag or end of frame */
-    /* TODO: add items to tree for these primitive header fields */
+    /* TODO: add items to tree for remaining primitive header fields */
     while ((tag != 0x41) && tvb_length_remaining(tvb, offset)) { /* i.e. Data */
         tag = tvb_get_guint8(tvb, offset++);
         switch (tag) {
             case 0x72:  /* UE Id */
                 ueid = tvb_get_ntohl(tvb, offset);
+                proto_tree_add_item(tree, hf_catapult_dct2000_ueid, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
                 ueid_set = TRUE;
                 break;
             case 0xa2:  /* RBID */
                 offset++;  /* skip length */
                 rbid = tvb_get_guint8(tvb, offset);
+                proto_tree_add_item(tree, hf_catapult_dct2000_rbid, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset++;
                 rbid_set = TRUE;
                 break;
             case 0x22:  /* CCCH-id setting rbid to CCCH! */
-                offset += 2;
+                offset++;  /* skip length */
+                proto_tree_add_item(tree, hf_catapult_dct2000_ccch_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset++;
                 rbid = 18;
                 break;
             case 0xc4:  /* No CRC error */
+                proto_tree_add_item(tree, hf_catapult_dct2000_no_crc_error, tvb, offset-1, 1, ENC_NA);
+                break;
             case 0xc5:  /* CRC error */
+                proto_tree_add_item(tree, hf_catapult_dct2000_crc_error, tvb, offset-1, 1, ENC_NA);
+                break;
             case 0xf7:  /* Clear Tx Buffer */
-                /* No length of content for these... */
+                proto_tree_add_item(tree, hf_catapult_dct2000_clear_tx_buffer, tvb, offset-1, 1, ENC_NA);
                 break;
 
             case 0x41:  /* Data !!! */
@@ -2925,6 +2967,43 @@ void proto_register_catapult_dct2000(void)
         { &hf_catapult_dct2000_lte_ccpri_channel,
             { "Channel",
               "dct2000.lte.ccpri.channel", FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
+
+        { &hf_catapult_dct2000_ueid,
+            { "UE Id",
+              "dct2000.ueid", FT_UINT32, BASE_DEC, NULL, 0x0,
+              "User Equipment Identifier", HFILL
+            }
+        },
+        { &hf_catapult_dct2000_rbid,
+            { "Channel",
+              "dct2000.rbid", FT_UINT8, BASE_DEC, VALS(rlc_rbid_vals), 0x0,
+              "Channel (rbid)", HFILL
+            }
+        },
+        { &hf_catapult_dct2000_ccch_id,
+            { "CCCH Id",
+              "dct2000.ccch-id", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "CCCH Identifier", HFILL
+            }
+        },
+        { &hf_catapult_dct2000_no_crc_error,
+            { "No CRC Error",
+              "dct2000.no-crc-error", FT_NONE, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_catapult_dct2000_crc_error,
+            { "CRC Error",
+              "dct2000.crc-error", FT_NONE, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_catapult_dct2000_clear_tx_buffer,
+            { "Clear Tx Buffer",
+              "dct2000.clear-tx-buffer", FT_NONE, BASE_NONE, NULL, 0x0,
               NULL, HFILL
             }
         },
