@@ -820,7 +820,7 @@ static void dissect_ase(tvbuff_t* tvb, int offset, guint ase_len, proto_tree* ex
       	      ti = proto_tree_add_text(ext_tree, tvb, offset+clen, 0x0D+1+6+(profile_count*2)+1+6+(reverse_profile_count*2)+1,
                    "GRE Key Entry (SRID: %d)", srid);
       	  } else if(service_option== 64){
-              ti = proto_tree_add_text(ext_tree, tvb, offset+clen, 0x0D+1+2, "GRE Key Entry (SRID: %d)", srid);
+              ti = proto_tree_add_text(ext_tree, tvb, offset+clen, 0x0D+1, "GRE Key Entry (SRID: %d)", srid);
       	  } else {
               ti = proto_tree_add_text(ext_tree, tvb, 0, 0, "Unknown service option %u (SRID: %d)", service_option, srid);
           }
@@ -923,19 +923,7 @@ static void dissect_ase(tvbuff_t* tvb, int offset, guint ase_len, proto_tree* ex
 
 
               }/*for*/
-	   }else if(service_option==0x0040){
-/*		guint8 zero =tvb_get_guint8(tvb,offset+clen);
-		zero =0;
-		proto_item* tj = proto_tree_add_text
-                        (exts_tree, tvb, offset+clen,1, "Forward ROHC Info:0",zero);
-		clen++;
-		zero =tvb_get_guint8(tvb,offset+clen);
-		proto_item* tl = proto_tree_add_text
-                        (exts_tree, tvb, offset+clen,1, "Reverse ROHC Info:0",zero);
-		clen++;
-*/
-		clen+=2;
-	  }/*else-if*/
+	   }
 
 	}/* if */
 
