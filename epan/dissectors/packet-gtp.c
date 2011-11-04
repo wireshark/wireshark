@@ -224,6 +224,7 @@ static int hf_gtp_ext_sac = -1;
 static int hf_gtp_ext_imeisv = -1;
 static int hf_gtp_targetRNC_ID = -1;
 static int hf_gtp_bssgp_cause = -1;
+static int hf_gtp_bssgp_ra_discriminator = -1;
 static int hf_gtp_sapi = -1;
 static int hf_gtp_xid_par_len = -1;
 static int hf_gtp_earp_pvi = -1;
@@ -1520,6 +1521,7 @@ static dissector_handle_t data_handle;
 static dissector_handle_t gtpcdr_handle;
 static dissector_handle_t sndcpxid_handle;
 static dissector_handle_t gtpv2_handle;
+static dissector_handle_t bssgp_handle;
 static dissector_table_t bssap_pdu_type_table;
 
 static gtp_msg_hash_t *gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint seq_nr, guint msgtype);
@@ -2562,7 +2564,7 @@ static _gtp_mess_items umts_mess_items[] = {
     {
         GTP_MSG_RAN_INFO_RELAY, {
             {GTP_EXT_RAN_TR_CONT, GTP_MANDATORY},       /* RAN Transparent Container Mandatory 7.7.43 */
-            {GTP_EXT_RIM_RA, GTP_OPTIONAL},     /* RIM Routing Address Optional 7.7.57 */
+            {GTP_EXT_RIM_RA, GTP_OPTIONAL},             /* RIM Routing Address Optional 7.7.57 */
             {GTP_EXT_PRIV_EXT, GTP_OPTIONAL},
             {0, 0}
         }
@@ -5045,7 +5047,10 @@ static int decode_gtp_chrg_addr(tvbuff_t * tvb, int offset, packet_info * pinfo 
 }
 
 /* GPRS:        ?
- * UMTS:        29.060 v6.11.0, chapter 7.7.44 RAN Transparent Container
+ * UMTS:        29.060 V9.4.0, chapter 7.7.43 RAN Transparent Container
+ * The information in the value part of the RAN Transparent Container IE contains all information elements (starting with
+ * and including the BSSGP "PDU Type") in either of the RAN INFORMATION, RAN INFORMATION REQUEST,
+ * RAN INFORMATION ACK or RAN INFORMATION ERROR messages respectively as specified in 3GPP TS 48.018
  */
 static int decode_gtp_ran_tr_cont(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
 {
@@ -5053,6 +5058,7 @@ static int decode_gtp_ran_tr_cont(tvbuff_t * tvb, int offset, packet_info * pinf
     guint16 length;
     proto_tree *ext_tree;
     proto_item *te;
+	tvbuff_t	*next_tvb;
 
     length = tvb_get_ntohs(tvb, offset + 1);
     te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s : ", val_to_str_ext_const(GTP_EXT_RAN_TR_CONT, &gtp_val_ext, "Unknown"));
@@ -5061,8 +5067,12 @@ static int decode_gtp_ran_tr_cont(tvbuff_t * tvb, int offset, packet_info * pinf
     offset++;
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
-    /* TODO add decoding of data */
-    proto_tree_add_text(ext_tree, tvb, offset, length, "Data not decoded yet");
+
+    next_tvb = tvb_new_subset(tvb, offset, length, length);
+	if (bssgp_handle){
+		col_set_fence(pinfo->cinfo, COL_INFO); 
+        call_dissector(bssgp_handle, next_tvb, pinfo, ext_tree);
+	}
 
     return 3 + length;
 
@@ -6116,6 +6126,14 @@ decode_gtp_mbms_bearer_cap(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, 
 /*
  * RIM Routing Address Discriminator    7.7.77
  */
+
+static const value_string gtp_bssgp_ra_discriminator_vals[] = {
+    { 0, "A Cell Identifier is used to identify a GERAN cell" },
+    { 1, "A Global RNC-ID is used to identify a UTRAN RNC" },
+    { 2, "An eNB identifier is used to identify an E-UTRAN eNodeB or HeNB" },
+    { 0, NULL },
+};
+
 static int
 decode_gtp_rim_ra_disc(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
 {
@@ -6131,8 +6149,10 @@ decode_gtp_rim_ra_disc(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, prot
     offset++;
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
-    /* TODO add decoding of data */
-    proto_tree_add_text(ext_tree, tvb, offset, length, "Data not decoded yet");
+    /* Octet 4 bits 4 – 1 is coded according to 3GPP TS 48.018 [20] 
+	 * RIM Routing Information IE octet 3 bits 4 - 1. Bits 8 – 5 are coded "0000".
+	 */
+    proto_tree_add_item(ext_tree, hf_gtp_bssgp_ra_discriminator, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     return 3 + length;
 
@@ -7264,6 +7284,11 @@ void proto_register_gtp(void)
          {"BSSGP Cause", "gtp.bssgp_cause",
           FT_UINT8, BASE_DEC|BASE_EXT_STRING, &bssgp_cause_vals_ext, 0,
           NULL, HFILL}},
+        { &hf_gtp_bssgp_ra_discriminator,
+          { "Routing Address Discriminator", "gtp.bssgp.rad",
+            FT_UINT8, BASE_DEC, VALS(gtp_bssgp_ra_discriminator_vals), 0x0f,
+            NULL, HFILL }
+        },
         {&hf_gtp_sapi,
          {"PS Handover XID SAPI", "gtp.ps_handover_xid_sapi",
           FT_UINT8, BASE_DEC, NULL, 0x0F,
@@ -7537,6 +7562,7 @@ void proto_reg_handoff_gtp(void)
         gtpcdr_handle = find_dissector("gtpcdr");
         sndcpxid_handle = find_dissector("sndcpxid");
         gtpv2_handle = find_dissector("gtpv2");
+		bssgp_handle = find_dissector("bssgp");
         bssap_pdu_type_table = find_dissector_table("bssap.pdu_type");
         /* AVP Code: 5 3GPP-GPRS Negotiated QoS profile */
         dissector_add_uint("diameter.3gpp", 5, new_create_dissector_handle(dissect_diameter_3gpp_qosprofile, proto_gtp));
