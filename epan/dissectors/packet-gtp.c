@@ -3004,7 +3004,7 @@ static int decode_gtp_imsi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, 
 {
     const gchar *imsi_str;
 
-	/* Octets 2 - 9 IMSI */
+    /* Octets 2 - 9 IMSI */
     imsi_str =  tvb_bcd_dig_to_ep_str( tvb, offset+1, 8, NULL, FALSE);
 
     proto_tree_add_string(tree, hf_gtp_imsi, tvb, offset+1, 8, imsi_str);
@@ -5058,7 +5058,7 @@ static int decode_gtp_ran_tr_cont(tvbuff_t * tvb, int offset, packet_info * pinf
     guint16 length;
     proto_tree *ext_tree;
     proto_item *te;
-	tvbuff_t	*next_tvb;
+    tvbuff_t    *next_tvb;
 
     length = tvb_get_ntohs(tvb, offset + 1);
     te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s : ", val_to_str_ext_const(GTP_EXT_RAN_TR_CONT, &gtp_val_ext, "Unknown"));
@@ -5069,10 +5069,10 @@ static int decode_gtp_ran_tr_cont(tvbuff_t * tvb, int offset, packet_info * pinf
     offset = offset + 2;
 
     next_tvb = tvb_new_subset(tvb, offset, length, length);
-	if (bssgp_handle){
-		col_set_fence(pinfo->cinfo, COL_INFO); 
+    if (bssgp_handle){
+        col_set_fence(pinfo->cinfo, COL_INFO); 
         call_dissector(bssgp_handle, next_tvb, pinfo, ext_tree);
-	}
+    }
 
     return 3 + length;
 
@@ -6149,9 +6149,10 @@ decode_gtp_rim_ra_disc(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, prot
     offset++;
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
-    /* Octet 4 bits 4 – 1 is coded according to 3GPP TS 48.018 [20] 
-	 * RIM Routing Information IE octet 3 bits 4 - 1. Bits 8 – 5 are coded "0000".
-	 */
+    /* Octet 4 bits 4 - 1 is coded according to 3GPP TS 48.018 [20] 
+     * RIM Routing Information IE octet 3 bits 4 - 1.
+     * Bits 8 - 5 are coded "0000".
+     */
     proto_tree_add_item(ext_tree, hf_gtp_bssgp_ra_discriminator, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     return 3 + length;
@@ -6488,10 +6489,10 @@ static int decode_gtp_data_req(tvbuff_t * tvb, int offset, packet_info * pinfo _
             /* XXX this is for release 6, may not work for higer releases */
             if(format==1){
                 dissect_gprscdr_GPRSCallEventRecord_PDU(next_tvb, pinfo, cdr_dr_tree);
-			}else{
-				/* Do we have a dissector regestering for this data format? */
-				dissector_try_uint(gtp_cdr_fmt_dissector_table, format, next_tvb, pinfo, cdr_dr_tree);
-			}
+            }else{
+                /* Do we have a dissector regestering for this data format? */
+                dissector_try_uint(gtp_cdr_fmt_dissector_table, format, next_tvb, pinfo, cdr_dr_tree);
+            }
 
             offset = offset + cdr_length;
         }
@@ -6752,7 +6753,7 @@ static void dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
                 proto_tree_add_uint(gtp_tree, hf_gtp_teid, tvb, offset, 4, teid);
                 offset += 4;
 
-				/* Are sequence number/N-PDU Number/extension header present? */
+                /* Are sequence number/N-PDU Number/extension header present? */
                 if (gtp_hdr.flags & 0x07) {
                     seq_no = tvb_get_ntohs(tvb, offset);
                     proto_tree_add_uint(gtp_tree, hf_gtp_seq_number, tvb, offset, 2, seq_no);
@@ -6762,7 +6763,7 @@ static void dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
                     proto_tree_add_uint(gtp_tree, hf_gtp_npdu_number, tvb, offset, 1, pdu_no);
                     offset++;
 
-					next_hdr = tvb_get_guint8(tvb, offset);
+                    next_hdr = tvb_get_guint8(tvb, offset);
 
                     /* Don't add extension header, we'll add a subtree for that */
                     /* proto_tree_add_uint(gtp_tree, hf_gtp_next, tvb, offset, 1, next_hdr); */
@@ -6790,15 +6791,15 @@ static void dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
                          *  The meaning of the spare bits shall be set to zero.
                          *
                          * Wireshark Note: TS 29.060 does not define bit 5-6 as spare, so no check is possible unless a preference is used.
-						 */
+                         */
                         if (next_hdr == GTP_EXT_HDR_PDCP_SN) {
 
                             /* First byte is length (should be 1) */
-                        	ext_hdr_length = tvb_get_guint8(tvb, offset);
-                        	if (ext_hdr_length != 1) {
-                        		expert_add_info_format(pinfo, ext_tree, PI_PROTOCOL, PI_WARN, "The length field for the PDCP SN Extension header should be 1.");
-                        	}
-                        	proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_length, tvb, offset,1, ENC_BIG_ENDIAN);
+                            ext_hdr_length = tvb_get_guint8(tvb, offset);
+                            if (ext_hdr_length != 1) {
+                                expert_add_info_format(pinfo, ext_tree, PI_PROTOCOL, PI_WARN, "The length field for the PDCP SN Extension header should be 1.");
+                            }
+                            proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_length, tvb, offset,1, ENC_BIG_ENDIAN);
                             offset++;
 
                             proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_pdcpsn, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -6809,7 +6810,7 @@ static void dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
                             item = proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_next, tvb, offset, 1, ENC_BIG_ENDIAN);
 
                             if (next_hdr) {
-                            	expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "Can't decode more than one extension header.");
+                                expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "Can't decode more than one extension header.");
                             }
                             offset++;
                          }
@@ -7486,7 +7487,7 @@ void proto_register_gtp(void)
         &ett_gtp_bcm,
         &ett_gtp_cdr_ver,
         &ett_gtp_cdr_dr,
-		&ett_gtp_ext_hdr,
+        &ett_gtp_ext_hdr,
     };
 
     module_t *gtp_module;
@@ -7562,7 +7563,7 @@ void proto_reg_handoff_gtp(void)
         gtpcdr_handle = find_dissector("gtpcdr");
         sndcpxid_handle = find_dissector("sndcpxid");
         gtpv2_handle = find_dissector("gtpv2");
-		bssgp_handle = find_dissector("bssgp");
+        bssgp_handle = find_dissector("bssgp");
         bssap_pdu_type_table = find_dissector_table("bssap.pdu_type");
         /* AVP Code: 5 3GPP-GPRS Negotiated QoS profile */
         dissector_add_uint("diameter.3gpp", 5, new_create_dissector_handle(dissect_diameter_3gpp_qosprofile, proto_gtp));
