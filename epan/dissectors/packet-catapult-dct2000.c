@@ -219,7 +219,8 @@ static const value_string rlc_rbid_vals[] = {
     { 21,    "CTCH"},
     { 23,    "MCCH"},
     { 24,    "MSCH"},
-    { 25,    "MTCH"}
+    { 25,    "MTCH"},
+    { 0,     NULL}
 };
 
 
