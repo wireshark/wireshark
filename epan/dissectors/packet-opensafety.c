@@ -39,6 +39,9 @@
 #include <epan/strutil.h>
 #include <epan/dissectors/packet-udp.h>
 
+#include <wsutil/crc8.h>
+#include <wsutil/crc16.h>
+
 #include <stdio.h>
 #include <string.h>
 
@@ -290,10 +293,6 @@ static const true_false_string opensafety_message_direction = { "Request", "Resp
 #define OSS_FRAME_FIELD(f, position)       (f[position])
 
 
-#define CRC8_POLY 0x2F /* CRC-8 Polynom */
-#define CRC16_POLY 0x5935 /* CRC-16 Polynom */
-
-
 static int proto_opensafety = -1;
 
 static gint ett_opensafety = -1;
@@ -367,6 +366,9 @@ static gboolean global_mbtcp_big_endian = FALSE;
 static guint global_network_udp_port = UDP_PORT_OPENSAFETY;
 static guint global_network_udp_port_sercosiii = UDP_PORT_SIII;
 
+void proto_register_opensafety(void);
+void proto_reg_handoff_opensafety(void);
+
 /* Conversation functions */
 
 /* This is defined by the specification. The Address field is 10 bits long, and the node with the number
@@ -407,32 +409,8 @@ static guint global_network_udp_port_sercosiii = UDP_PORT_SIII;
 		PACKET_RECEIVER(pinfo, recv, pos2, posnet, sdn); \
 		}
 
-/* Helper Functions & Function Prototypes */
-
-static guint16 findFrame1Position ( guint8 dataLength, guint8 byteStream[] );
-static guint8 * unxorFrame(guint dataLength, guint8 byteStream[], guint16 startFrame1, guint16 startFrame2, guint8 scmUDID[]);
-
-/*
- * @brief Calculates a CRC8 checksum for the given buffer
- * @param len the length of the given buffer
- * @param pBuffer a pointer to a buffer of the given length
- * @return the CRC8 checksum for the buffer
- */
-static guint8 crc8_opensafety(guint32 len, guint8 * pBuffer, guint8 initCRC);
-
-/*
- * @brief Calculates a CRC16 checksum for the given buffer
- * @param len the length of the given buffer
- * @param pBuffer a pointer to a buffer of the given length
- * @return the CRC16 checksum for the buffer
- */
-static guint16 crc16_opensafety(guint32 len, guint8 * pBuffer, guint16 initCRC);
-
-static guint8 findSafetyFrame ( guint8 * pBuffer, guint32 length, guint u_Offset, gboolean b_frame2first, guint *u_frameOffset, guint *u_frameLength );
-
-
 static guint16
-findFrame1PositionExtended ( guint8 dataLength, guint8 byteStream[], gboolean checkIfSlimMistake )
+findFrame1Position ( guint8 byteStream[], guint8 dataLength, gboolean checkIfSlimMistake )
 {
     guint16 i_wFrame1Position = 0;
     guint16 i_payloadLength, i_calculatedLength = 0;
@@ -455,9 +433,9 @@ findFrame1PositionExtended ( guint8 dataLength, guint8 byteStream[], gboolean ch
     if ( checkIfSlimMistake && i_calculatedLength == dataLength )
     {
         if ( dataLength > OSS_PAYLOAD_MAXSIZE_FOR_CRC8 )
-            calcCRC = crc16_opensafety(dataLength + 4, &byteStream[i_wFrame1Position], 0);
+            calcCRC = crc16_0x5935(&byteStream[i_wFrame1Position], dataLength + 4, 0);
         else
-            calcCRC = crc8_opensafety(dataLength + 4, &byteStream[i_wFrame1Position], 0);
+            calcCRC = crc8_0x2F(&byteStream[i_wFrame1Position], dataLength + 4, 0);
 
         frameCRC = byteStream[i_wFrame1Position + dataLength + OSS_FRAME_POS_DATA];
         if (dataLength > OSS_PAYLOAD_MAXSIZE_FOR_CRC8)
@@ -493,13 +471,6 @@ findFrame1PositionExtended ( guint8 dataLength, guint8 byteStream[], gboolean ch
     return i_wFrame1Position;
 }
 
-static guint16
-findFrame1Position ( guint8 dataLength, guint8 byteStream[] )
-{
-    /* To safe time, the normal search, does not take the possible mistake into consideration */
-    return ( findFrame1PositionExtended(dataLength, byteStream, FALSE) );
-}
-
 /*
  * This function applies the given UDID to the bytestream, considering the start of frame 2
  */
@@ -520,123 +491,6 @@ static guint8 * unxorFrame(guint dataLength, guint8 byteStream[], guint16 frameS
         pb_sendMemBlock [ k + frameStart2 ] = byteStream [ k + frameStart2 ] ^ scmUDID[ ( k % 6 ) ];
 
     return pb_sendMemBlock;
-}
-
-/* @brief Precompiled table for CRC8 values */
-static const guint16 crc16_opensafety_precompiled[256] =
-{
-        0x0000, 0x5935, 0xB26A, 0xEB5F, 0x3DE1, 0x64D4, 0x8F8B, 0xD6BE,
-        0x7BC2, 0x22F7, 0xC9A8, 0x909D, 0x4623, 0x1F16, 0xF449, 0xAD7C,
-        0xF784, 0xAEB1, 0x45EE, 0x1CDB, 0xCA65, 0x9350, 0x780F, 0x213A,
-        0x8C46, 0xD573, 0x3E2C, 0x6719, 0xB1A7, 0xE892, 0x03CD, 0x5AF8,
-        0xB63D, 0xEF08, 0x0457, 0x5D62, 0x8BDC, 0xD2E9, 0x39B6, 0x6083,
-        0xCDFF, 0x94CA, 0x7F95, 0x26A0, 0xF01E, 0xA92B, 0x4274, 0x1B41,
-        0x41B9, 0x188C, 0xF3D3, 0xAAE6, 0x7C58, 0x256D, 0xCE32, 0x9707,
-        0x3A7B, 0x634E, 0x8811, 0xD124, 0x079A, 0x5EAF, 0xB5F0, 0xECC5,
-        0x354F, 0x6C7A, 0x8725, 0xDE10, 0x08AE, 0x519B, 0xBAC4, 0xE3F1,
-        0x4E8D, 0x17B8, 0xFCE7, 0xA5D2, 0x736C, 0x2A59, 0xC106, 0x9833,
-        0xC2CB, 0x9BFE, 0x70A1, 0x2994, 0xFF2A, 0xA61F, 0x4D40, 0x1475,
-        0xB909, 0xE03C, 0x0B63, 0x5256, 0x84E8, 0xDDDD, 0x3682, 0x6FB7,
-        0x8372, 0xDA47, 0x3118, 0x682D, 0xBE93, 0xE7A6, 0x0CF9, 0x55CC,
-        0xF8B0, 0xA185, 0x4ADA, 0x13EF, 0xC551, 0x9C64, 0x773B, 0x2E0E,
-        0x74F6, 0x2DC3, 0xC69C, 0x9FA9, 0x4917, 0x1022, 0xFB7D, 0xA248,
-        0x0F34, 0x5601, 0xBD5E, 0xE46B, 0x32D5, 0x6BE0, 0x80BF, 0xD98A,
-        0x6A9E, 0x33AB, 0xD8F4, 0x81C1, 0x577F, 0x0E4A, 0xE515, 0xBC20,
-        0x115C, 0x4869, 0xA336, 0xFA03, 0x2CBD, 0x7588, 0x9ED7, 0xC7E2,
-        0x9D1A, 0xC42F, 0x2F70, 0x7645, 0xA0FB, 0xF9CE, 0x1291, 0x4BA4,
-        0xE6D8, 0xBFED, 0x54B2, 0x0D87, 0xDB39, 0x820C, 0x6953, 0x3066,
-        0xDCA3, 0x8596, 0x6EC9, 0x37FC, 0xE142, 0xB877, 0x5328, 0x0A1D,
-        0xA761, 0xFE54, 0x150B, 0x4C3E, 0x9A80, 0xC3B5, 0x28EA, 0x71DF,
-        0x2B27, 0x7212, 0x994D, 0xC078, 0x16C6, 0x4FF3, 0xA4AC, 0xFD99,
-        0x50E5, 0x09D0, 0xE28F, 0xBBBA, 0x6D04, 0x3431, 0xDF6E, 0x865B,
-        0x5FD1, 0x06E4, 0xEDBB, 0xB48E, 0x6230, 0x3B05, 0xD05A, 0x896F,
-        0x2413, 0x7D26, 0x9679, 0xCF4C, 0x19F2, 0x40C7, 0xAB98, 0xF2AD,
-        0xA855, 0xF160, 0x1A3F, 0x430A, 0x95B4, 0xCC81, 0x27DE, 0x7EEB,
-        0xD397, 0x8AA2, 0x61FD, 0x38C8, 0xEE76, 0xB743, 0x5C1C, 0x0529,
-        0xE9EC, 0xB0D9, 0x5B86, 0x02B3, 0xD40D, 0x8D38, 0x6667, 0x3F52,
-        0x922E, 0xCB1B, 0x2044, 0x7971, 0xAFCF, 0xF6FA, 0x1DA5, 0x4490,
-        0x1E68, 0x475D, 0xAC02, 0xF537, 0x2389, 0x7ABC, 0x91E3, 0xC8D6,
-        0x65AA, 0x3C9F, 0xD7C0, 0x8EF5, 0x584B, 0x017E, 0xEA21, 0xB314
-};
-
-/*
- * @brief Calculates a CRC16 checksum for the given buffer with the polynom
- *     x^16 + x^14 + x^12 + x^11 + x^8 + x^5 + x^4 + x^2 + 1
- * @param len the length of the given buffer
- * @param pBuffer a pointer to a buffer of the given length
- * @return the CRC16 checksum for the buffer
- */
-static guint16 crc16_opensafety(guint32 len, guint8 * pBuffer, guint16 initCRC)
-{
-    guint16 crc;
-    guint16 ulTab;
-
-    crc = initCRC;
-    while(len-- > 0)
-    {
-        ulTab = crc16_opensafety_precompiled[(*pBuffer++) ^ (crc >> 8)];
-        crc = (crc << 8) ^ ulTab;
-    }
-
-    return crc;
-}
-
-/* @brief Precompiled table for CRC8 values */
-static const guint8 crc8_opensafety_precompiled[256] =
-{
-        0x00, 0x2F, 0x5E, 0x71, 0xBC, 0x93, 0xE2, 0xCD,
-        0x57, 0x78, 0x09, 0x26, 0xEB, 0xC4, 0xB5, 0x9A,
-        0xAE, 0x81, 0xF0, 0xDF, 0x12, 0x3D, 0x4C, 0x63,
-        0xF9, 0xD6, 0xA7, 0x88, 0x45, 0x6A, 0x1B, 0x34,
-        0x73, 0x5C, 0x2D, 0x02, 0xCF, 0xE0, 0x91, 0xBE,
-        0x24, 0x0B, 0x7A, 0x55, 0x98, 0xB7, 0xC6, 0xE9,
-        0xDD, 0xF2, 0x83, 0xAC, 0x61, 0x4E, 0x3F, 0x10,
-        0x8A, 0xA5, 0xD4, 0xFB, 0x36, 0x19, 0x68, 0x47,
-        0xE6, 0xC9, 0xB8, 0x97, 0x5A, 0x75, 0x04, 0x2B,
-        0xB1, 0x9E, 0xEF, 0xC0, 0x0D, 0x22, 0x53, 0x7C,
-        0x48, 0x67, 0x16, 0x39, 0xF4, 0xDB, 0xAA, 0x85,
-        0x1F, 0x30, 0x41, 0x6E, 0xA3, 0x8C, 0xFD, 0xD2,
-        0x95, 0xBA, 0xCB, 0xE4, 0x29, 0x06, 0x77, 0x58,
-        0xC2, 0xED, 0x9C, 0xB3, 0x7E, 0x51, 0x20, 0x0F,
-        0x3B, 0x14, 0x65, 0x4A, 0x87, 0xA8, 0xD9, 0xF6,
-        0x6C, 0x43, 0x32, 0x1D, 0xD0, 0xFF, 0x8E, 0xA1,
-        0xE3, 0xCC, 0xBD, 0x92, 0x5F, 0x70, 0x01, 0x2E,
-        0xB4, 0x9B, 0xEA, 0xC5, 0x08, 0x27, 0x56, 0x79,
-        0x4D, 0x62, 0x13, 0x3C, 0xF1, 0xDE, 0xAF, 0x80,
-        0x1A, 0x35, 0x44, 0x6B, 0xA6, 0x89, 0xF8, 0xD7,
-        0x90, 0xBF, 0xCE, 0xE1, 0x2C, 0x03, 0x72, 0x5D,
-        0xC7, 0xE8, 0x99, 0xB6, 0x7B, 0x54, 0x25, 0x0A,
-        0x3E, 0x11, 0x60, 0x4F, 0x82, 0xAD, 0xDC, 0xF3,
-        0x69, 0x46, 0x37, 0x18, 0xD5, 0xFA, 0x8B, 0xA4,
-        0x05, 0x2A, 0x5B, 0x74, 0xB9, 0x96, 0xE7, 0xC8,
-        0x52, 0x7D, 0x0C, 0x23, 0xEE, 0xC1, 0xB0, 0x9F,
-        0xAB, 0x84, 0xF5, 0xDA, 0x17, 0x38, 0x49, 0x66,
-        0xFC, 0xD3, 0xA2, 0x8D, 0x40, 0x6F, 0x1E, 0x31,
-        0x76, 0x59, 0x28, 0x07, 0xCA, 0xE5, 0x94, 0xBB,
-        0x21, 0x0E, 0x7F, 0x50, 0x9D, 0xB2, 0xC3, 0xEC,
-        0xD8, 0xF7, 0x86, 0xA9, 0x64, 0x4B, 0x3A, 0x15,
-        0x8F, 0xA0, 0xD1, 0xFE, 0x33, 0x1C, 0x6D, 0x42
-};
-
-/*
- * @brief Calculates a CRC8 checksum for the given buffer with the polynom
- *     x^8 + x^5 + x^3 + x^2 + x + 1
- * @param len the length of the given buffer
- * @param pBuffer a pointer to a buffer of the given length
- * @return the CRC8 checksum for the buffer
- */
-static guint8 crc8_opensafety(guint32 len, guint8 * pBuffer, guint8 initCRC)
-{
-    guint8 crc;
-
-    crc = initCRC;
-    while(len-- > 0)
-    {
-        crc = (guint8)(*pBuffer++) ^ crc;
-        crc = crc8_opensafety_precompiled[crc];
-    }
-
-    return crc;
 }
 
 static guint8 findSafetyFrame ( guint8 * pBuffer, guint32 length, guint u_Offset, gboolean b_frame2first, guint *u_frameOffset, guint *u_frameLength )
@@ -683,10 +537,10 @@ static guint8 findSafetyFrame ( guint8 * pBuffer, guint32 length, guint u_Offset
                 crc += ( ( pBuffer [ n + 4 + b_Length ] ) << 8 );
                 crcOffset = 1;
                 if ( crc != 0x00 )
-                    calcCrc = crc16_opensafety ( b_Length + 4, &pBuffer [ n - 1 ], 0 );
+                    calcCrc = crc16_0x5935( &pBuffer [ n - 1 ], b_Length + 4, 0 );
             } else {
                 if ( crc != 0x00 )
-                    calcCrc = crc8_opensafety ( b_Length + 4, &pBuffer [ n - 1 ], 0 );
+                    calcCrc = crc8_0x2F ( &pBuffer [ n - 1 ], b_Length + 4, 0 );
             }
 
             if ( ( crc != 0x00 ) && ( crc ^ calcCrc ) == 0 )
@@ -1142,9 +996,9 @@ dissect_opensafety_checksum(tvbuff_t *message_tvb, proto_tree *opensafety_tree ,
     checksum_tree = proto_item_add_subtree(item, ett_opensafety_checksum);
 
     if ( dataLength > OSS_PAYLOAD_MAXSIZE_FOR_CRC8 )
-        calcCrc = crc16_opensafety(dataLength + 4, &bytes[frameStart1], 0);
+        calcCrc = crc16_0x5935(&bytes[frameStart1], dataLength + 4, 0);
     else
-        calcCrc = crc8_opensafety(dataLength + 4, &bytes[frameStart1], 0);
+        calcCrc = crc8_0x2F(&bytes[frameStart1], dataLength + 4, 0);
 
     item = proto_tree_add_boolean(checksum_tree, hf_oss_crc_valid, message_tvb, start, length, (frameCrc == calcCrc));
     PROTO_ITEM_SET_GENERATED(item);
@@ -1244,7 +1098,7 @@ opensafety_package_dissector(const gchar * protocolName, const gchar * sub_diss_
 		tvbuff_t *message_tvb , packet_info *pinfo , proto_tree *tree )
 {
     tvbuff_t *next_tvb;
-    guint length, len, frameOffset, frameLength, address;
+    guint length, len, frameOffset, frameLength, nodeAddress;
     guint8 *bytes, *bytesOffset;
     gboolean handled, dissectorCalled, call_sub_dissector, markAsMalformed;
     guint8 type, found, packageCounter, i, tempByte;
@@ -1325,7 +1179,7 @@ opensafety_package_dissector(const gchar * protocolName, const gchar * sub_diss_
             /* We determine a possible position for frame 1 and frame 2 */
             if ( b_frame2First )
             {
-                frameStart1 = findFrame1Position (frameLength, bytesOffset );
+                frameStart1 = findFrame1Position (bytesOffset, frameLength, FALSE );
                 frameStart2 = 0;
             }
             else
@@ -1361,7 +1215,7 @@ opensafety_package_dissector(const gchar * protocolName, const gchar * sub_diss_
                 if ( b_frame2First )
                 {
                     /* Now let's check again, but this time calculate the CRC */
-                    frameStart1 = findFrame1PositionExtended(frameLength, bytesOffset, TRUE );
+                    frameStart1 = findFrame1Position(bytesOffset, frameLength, TRUE );
                     frameStart2 = 0;
 
                     if ( ( OSS_FRAME_ID(bytesOffset, frameStart1) & OPENSAFETY_SLIM_SSDO_MESSAGE_TYPE ) == OPENSAFETY_SLIM_SSDO_MESSAGE_TYPE )
@@ -1391,8 +1245,8 @@ opensafety_package_dissector(const gchar * protocolName, const gchar * sub_diss_
              * is malformed. Instead of declining dissection, the package get's marked as malformed */
             if ( type == OPENSAFETY_SPDO_MESSAGE_TYPE )
             {
-            	address = OSS_FRAME_ADDR(bytesOffset, frameStart1);
-            	if ( address > 1024 ) {
+            	nodeAddress = OSS_FRAME_ADDR(bytesOffset, frameStart1);
+            	if ( nodeAddress > 1024 ) {
             		markAsMalformed = TRUE;
                 }
             }
