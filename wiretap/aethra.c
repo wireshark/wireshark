@@ -69,39 +69,48 @@ struct aethrarec_hdr {
 /*
  * Record types.
  *
- * XXX - is a record type of 0 used for anything other than "end of
- * capture"?  In at least one capture there's a record with a rec_type
- * of 0, a timestamp of 0, and a flags value of 4, as well as a trailing
- * record which is probably a "Stop Monitor" record with a rec_type of 0,
- * a non-zero timestamp (not checked to see whether it gives the same
- * time stamp as PC108 displays for the Stop Monitor record), and a
- * flags value of 0.
+ * As the indications from the device and signalling messages appear not
+ * to have the 8th bit set, and at least some B-channel records do, we
+ * assume, for now, that the 8th bit indicates bearer information.
+ *
+ * 0x9F is the record type seen for B31 channel records; that might be
+ * 0x80|31, so, for now, we assume that if the 8th bit is set, the B
+ * channel number is in the low 7 bits.
  */
-#define AETHRA_MONITOR		0	/* indication from the monitoring device */
-#define AETHRA_ISDN_LINK	1	/* information from the ISDN link */
+#define AETHRA_BEARER		0x80	/* bearer information */
+
+#define AETHRA_DEVICE		0x00	/* indication from the monitoring device */
+#define AETHRA_ISDN_LINK	0x01	/* information from the ISDN link */
 
 /*
- * In AETHRA_MONITOR records, the flags field has what appears to
+ * In AETHRA_DEVICE records, the flags field has what appears to
  * be a record subtype.
  */
-#define AETHRA_MONITOR_STOP		0	/* Stop Monitor */
-#define AETHRA_MONITOR_START		4	/* Start Monitor */
-#define AETHRA_MONITOR_ACTIVATION	5	/* Activation */
+#define AETHRA_DEVICE_STOP_MONITOR	0x00	/* Stop Monitor */
+#define AETHRA_DEVICE_START_MONITOR	0x04	/* Start Monitor */
+#define AETHRA_DEVICE_ACTIVATION	0x05	/* Activation */
+#define AETHRA_DEVICE_START_CAPTURE	0x5F	/* Start Capture */
 
 /*
- * In AETHRA_ISDN_LINK records, the flags field has a subtype, a direction
- * flag, and possibly some other bits.
+ * In AETHRA_ISDN_LINK and bearer channel records, the flags field has
+ * a direction flag and possibly some other bits.
  *
- * XXX - does this contain any information about B or H channels?  Does
- * a subtype of 0 mean "D channel", with other subtypes being used for
- * B or H channels?
+ * In AETHRA_ISDN_LINK records, at least some of the other bits are
+ * a subtype.
+ *
+ * In bearer channel records, there are records with data and
+ * "Constant Value" records with a single byte.  Data has a
+ * flags value of 0x14 ORed with the direction flag, and Constant Value
+ * records have a flags value of 0x16 ORed with the direction flag.
+ * There are also records of an unknown type with 0x02, probably
+ * ORed with the direction flag.
  */
+#define AETHRA_N_TO_U				0x01	/* set for NT->TE */
+
 #define AETHRA_ISDN_LINK_SUBTYPE		0xFE
 #define AETHRA_ISDN_LINK_LAPD			0x00	/* LAPD frame */
 #define AETHRA_ISDN_LINK_SA_BITS		0x2E	/* 2048K PRI Sa bits (G.704 section 2.3.2) */
 #define AETHRA_ISDN_LINK_ALL_ALARMS_CLEARED	0x30	/* All Alarms Cleared */
-
-#define AETHRA_ISDN_LINK_N_TO_U			0x01	/* set for NT->TE */
 
 typedef struct {
 	time_t	start;
@@ -177,6 +186,10 @@ int aethra_open(wtap *wth, int *err, gchar **err_info)
 	return 1;
 }
 
+#if 0
+static guint packet = 0;
+#endif
+
 /* Read the next packet */
 static gboolean aethra_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
@@ -221,15 +234,25 @@ static gboolean aethra_read(wtap *wth, int *err, gchar **err_info,
 				return FALSE;	/* Read error */
 			wth->data_offset += packet_size;
 		}
+#if 0
+packet++;
+#endif
 		switch (hdr.rec_type) {
 
 		case AETHRA_ISDN_LINK:
+#if 0
+fprintf(stderr, "Packet %u: type 0x%02x (AETHRA_ISDN_LINK)\n",
+packet, hdr.rec_type);
+#endif
 			switch (hdr.flags & AETHRA_ISDN_LINK_SUBTYPE) {
 
 			case AETHRA_ISDN_LINK_LAPD:
 				/*
 				 * The data is a LAPD frame.
 				 */
+#if 0
+fprintf(stderr, "    subtype 0x%02x (AETHRA_ISDN_LINK_LAPD)\n", hdr.flags & AETHRA_ISDN_LINK_SUBTYPE);
+#endif
 				goto found;
 
 			case AETHRA_ISDN_LINK_SA_BITS:
@@ -240,6 +263,9 @@ static gboolean aethra_read(wtap *wth, int *err, gchar **err_info,
 				 * XXX - what about stuff other than 2048K
 				 * PRI lines?
 				 */
+#if 0
+fprintf(stderr, "    subtype 0x%02x (AETHRA_ISDN_LINK_SA_BITS)\n", hdr.flags & AETHRA_ISDN_LINK_SUBTYPE);
+#endif
 				break;
 
 			case AETHRA_ISDN_LINK_ALL_ALARMS_CLEARED:
@@ -247,14 +273,25 @@ static gboolean aethra_read(wtap *wth, int *err, gchar **err_info,
 				 * No data, just an "all alarms cleared"
 				 * indication.
 				 */
+#if 0
+fprintf(stderr, "    subtype 0x%02x (AETHRA_ISDN_LINK_ALL_ALARMS_CLEARED)\n", hdr.flags & AETHRA_ISDN_LINK_SUBTYPE);
+#endif
 				break;
 
 			default:
+#if 0
+fprintf(stderr, "    subtype 0x%02x, packet_size %u, direction 0x%02x\n",
+hdr.flags & AETHRA_ISDN_LINK_SUBTYPE, packet_size, hdr.flags & AETHRA_N_TO_U);
+#endif
 				break;
 			}
 			break;
 
 		default:
+#if 0
+fprintf(stderr, "Packet %u: type 0x%02x, packet_size %u, flags 0x%02x\n",
+packet, hdr.rec_type, packet_size, hdr.flags);
+#endif
 			break;
 		}
 	}
@@ -307,7 +344,7 @@ aethra_read_rec_header(FILE_T fh, struct aethrarec_hdr *hdr,
 		return FALSE;
 	}
 
-	pseudo_header->isdn.uton = !(hdr->flags & AETHRA_ISDN_LINK_N_TO_U);
+	pseudo_header->isdn.uton = !(hdr->flags & AETHRA_N_TO_U);
 	pseudo_header->isdn.channel = 0;	/* XXX - D channel */
 
 	return TRUE;
