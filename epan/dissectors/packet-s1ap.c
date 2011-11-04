@@ -68,6 +68,7 @@
 
 static dissector_handle_t nas_eps_handle;
 static dissector_handle_t lppa_handle;
+static dissector_handle_t bssgp_handle;
 
 
 /*--- Included file: packet-s1ap-val.h ---*/
@@ -306,7 +307,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-s1ap-val.h ---*/
-#line 65 "../../asn1/s1ap/packet-s1ap-template.c"
+#line 66 "../../asn1/s1ap/packet-s1ap-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_s1ap = -1;
@@ -749,7 +750,7 @@ static int hf_s1ap_candidateCellList = -1;        /* CandidateCellList */
 static int hf_s1ap_CandidateCellList_item = -1;   /* IRAT_Cell_ID */
 
 /*--- End of included file: packet-s1ap-hf.c ---*/
-#line 72 "../../asn1/s1ap/packet-s1ap-template.c"
+#line 73 "../../asn1/s1ap/packet-s1ap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_s1ap = -1;
@@ -758,6 +759,7 @@ static int ett_s1ap_ToTargetTransparentContainer = -1;
 static int ett_s1ap_ToSourceTransparentContainer = -1;
 static int ett_s1ap_RRCContainer = -1;
 static int ett_s1ap_UERadioCapability = -1;
+static int ett_s1ap_RIMInformation = -1;
 
 
 /*--- Included file: packet-s1ap-ett.c ---*/
@@ -987,7 +989,7 @@ static gint ett_s1ap_HOReport = -1;
 static gint ett_s1ap_CandidateCellList = -1;
 
 /*--- End of included file: packet-s1ap-ett.c ---*/
-#line 82 "../../asn1/s1ap/packet-s1ap-template.c"
+#line 84 "../../asn1/s1ap/packet-s1ap-template.c"
 
 enum{
 	INITIATING_MESSAGE,
@@ -3686,8 +3688,25 @@ dissect_s1ap_RequestType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static int
 dissect_s1ap_RIMInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 491 "../../asn1/s1ap/s1ap.cnf"
+ tvbuff_t *parameter_tvb;
+ proto_tree *subtree;
+
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, NULL);
+                                       NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
+
+
+   if (!parameter_tvb)
+    return offset;
+
+   subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_RIMInformation);
+   if ((tvb_length(parameter_tvb)>0)&&(bssgp_handle)){
+    col_set_fence(actx->pinfo->cinfo, COL_INFO); 
+    call_dissector(bssgp_handle,parameter_tvb,actx->pinfo, subtree);
+   }
+
+ 
+
 
   return offset;
 }
@@ -4645,7 +4664,6 @@ dissect_s1ap_UERadioCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
         subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_UERadioCapability);
         dissect_lte_rrc_UERadioAccessCapabilityInformation_PDU(parameter_tvb, actx->pinfo, subtree);
-
 
 
 
@@ -8365,7 +8383,7 @@ int dissect_s1ap_SONtransferCause_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
 
 /*--- End of included file: packet-s1ap-fn.c ---*/
-#line 124 "../../asn1/s1ap/packet-s1ap-template.c"
+#line 126 "../../asn1/s1ap/packet-s1ap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -8433,6 +8451,7 @@ proto_reg_handoff_s1ap(void)
 	if (!Initialized) {
 		nas_eps_handle = find_dissector("nas-eps");
 		lppa_handle = find_dissector("lppa");
+		bssgp_handle = find_dissector("bssgp");
 		dissector_add_handle("sctp.port", s1ap_handle);   /* for "decode-as"  */
 		dissector_add_uint("sctp.ppi", S1AP_PAYLOAD_PROTOCOL_ID,   s1ap_handle);
 		Initialized=TRUE;
@@ -8640,7 +8659,7 @@ proto_reg_handoff_s1ap(void)
 
 
 /*--- End of included file: packet-s1ap-dis-tab.c ---*/
-#line 195 "../../asn1/s1ap/packet-s1ap-template.c"
+#line 198 "../../asn1/s1ap/packet-s1ap-template.c"
 	} else {
 		if (SctpPort != 0) {
 			dissector_delete_uint("sctp.port", SctpPort, s1ap_handle);
@@ -10397,7 +10416,7 @@ void proto_register_s1ap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-s1ap-hfarr.c ---*/
-#line 223 "../../asn1/s1ap/packet-s1ap-template.c"
+#line 226 "../../asn1/s1ap/packet-s1ap-template.c"
   };
 
   /* List of subtrees */
@@ -10408,6 +10427,7 @@ void proto_register_s1ap(void) {
 		  &ett_s1ap_ToSourceTransparentContainer,
 		  &ett_s1ap_RRCContainer,
 		  &ett_s1ap_UERadioCapability,
+		  &ett_s1ap_RIMInformation,
 
 /*--- Included file: packet-s1ap-ettarr.c ---*/
 #line 1 "../../asn1/s1ap/packet-s1ap-ettarr.c"
@@ -10636,7 +10656,7 @@ void proto_register_s1ap(void) {
     &ett_s1ap_CandidateCellList,
 
 /*--- End of included file: packet-s1ap-ettarr.c ---*/
-#line 234 "../../asn1/s1ap/packet-s1ap-template.c"
+#line 238 "../../asn1/s1ap/packet-s1ap-template.c"
   };
 
   module_t *s1ap_module;

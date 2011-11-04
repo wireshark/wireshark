@@ -60,6 +60,7 @@
 
 static dissector_handle_t nas_eps_handle;
 static dissector_handle_t lppa_handle;
+static dissector_handle_t bssgp_handle;
 
 #include "packet-s1ap-val.h"
 
@@ -77,6 +78,7 @@ static int ett_s1ap_ToTargetTransparentContainer = -1;
 static int ett_s1ap_ToSourceTransparentContainer = -1;
 static int ett_s1ap_RRCContainer = -1;
 static int ett_s1ap_UERadioCapability = -1;
+static int ett_s1ap_RIMInformation = -1;
 
 #include "packet-s1ap-ett.c"
 
@@ -188,6 +190,7 @@ proto_reg_handoff_s1ap(void)
 	if (!Initialized) {
 		nas_eps_handle = find_dissector("nas-eps");
 		lppa_handle = find_dissector("lppa");
+		bssgp_handle = find_dissector("bssgp");
 		dissector_add_handle("sctp.port", s1ap_handle);   /* for "decode-as"  */
 		dissector_add_uint("sctp.ppi", S1AP_PAYLOAD_PROTOCOL_ID,   s1ap_handle);
 		Initialized=TRUE;
@@ -230,6 +233,7 @@ void proto_register_s1ap(void) {
 		  &ett_s1ap_ToSourceTransparentContainer,
 		  &ett_s1ap_RRCContainer,
 		  &ett_s1ap_UERadioCapability,
+		  &ett_s1ap_RIMInformation,
 #include "packet-s1ap-ettarr.c"
   };
 

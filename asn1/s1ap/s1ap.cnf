@@ -485,7 +485,24 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
         subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_UERadioCapability);
         dissect_lte_rrc_UERadioAccessCapabilityInformation_PDU(parameter_tvb, actx->pinfo, subtree);
 
+# 9.2.3.24 RIM Information
+# Contains the BSSGP RIM PDU
+#.FN_BODY RIMInformation VAL_PTR = &parameter_tvb
+ tvbuff_t *parameter_tvb;
+ proto_tree *subtree;
 
+%(DEFAULT_BODY)s
+
+   if (!parameter_tvb)
+    return offset;
+
+   subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_RIMInformation);
+   if ((tvb_length(parameter_tvb)>0)&&(bssgp_handle)){
+    col_set_fence(%(ACTX)s->pinfo->cinfo, COL_INFO); 
+    call_dissector(bssgp_handle,parameter_tvb,%(ACTX)s->pinfo, subtree);
+   }
+
+ 
 #.TYPE_ATTR
 ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC|BASE_EXT_STRING STRINGS = &s1ap_ProtocolIE_ID_vals_ext
 
