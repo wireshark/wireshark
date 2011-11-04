@@ -2410,8 +2410,9 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_,
   } else if (strcmp(pref_name, PRS_CAP_SHOW_INFO) == 0) {
     prefs.capture_show_info = ((g_ascii_strcasecmp(value, "true") == 0)?TRUE:FALSE);
   } else if (strcmp(pref_name, PRS_CAP_SYNTAX_CHECK_FILTER) == 0) {
+#ifndef USE_THREADS
     prefs.capture_syntax_check_filter = ((g_ascii_strcasecmp(value, "true") == 0)?TRUE:FALSE);
-
+#endif
 /* handle the global options */
   } else if (strcmp(pref_name, PRS_NAME_RESOLVE) == 0 ||
 	     strcmp(pref_name, PRS_CAP_NAME_RESOLVE) == 0) {
@@ -3358,10 +3359,12 @@ write_prefs(char **pf_path_return)
   fprintf(pf, PRS_CAP_SHOW_INFO ": %s\n",
 	  prefs.capture_show_info == TRUE ? "TRUE" : "FALSE");
 
+#ifndef USE_THREADS
   fprintf(pf, "\n# Syntax check capture filter?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_CAP_SYNTAX_CHECK_FILTER ": %s\n",
 	  prefs.capture_syntax_check_filter == TRUE ? "TRUE" : "FALSE");
+#endif
 
   fprintf (pf, "\n######## Printing ########\n");
 
