@@ -1,5 +1,5 @@
 /* packet-dpnss-link.c
- * Routines for DPNNS/DASS2 link layer dissection
+ * Routines for DPNSS/DASS2 link layer dissection
  * Copyright 2009, Rolf Fiedler <rolf.fiedler[at]innoventif[dot]de>
  *
  * $Id$
@@ -111,6 +111,9 @@ dissect_dpnss_link(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_DEF_SRC, uton?"TE":"NT");
 	col_set_str(pinfo->cinfo, COL_DEF_DST, uton?"NT":"TE");
 
+/* Make entries in Protocol column and Info column on summary display */
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DPNSS");
+
 	item = proto_tree_add_item(tree, proto_dpnss_link, tvb, 0, -1, ENC_NA);
 	dpnss_link_tree = proto_item_add_subtree(item, ett_dpnss_link);
 	proto_tree_add_item(dpnss_link_tree, hf_dpnss_link_address_framegroup,
@@ -127,6 +130,11 @@ dissect_dpnss_link(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    tvb, 1, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(dpnss_link_tree, hf_dpnss_link_address2_extension,
 			    tvb, 1, 1, ENC_BIG_ENDIAN);
+	/*
+	 * XXX - DPNSS's layer 2 protocol appears to be Yet Another
+	 * HDLC Derivative; should this use the xDLC control field
+	 * dissector code?
+	 */
 	proto_tree_add_item(dpnss_link_tree, hf_dpnss_link_control_frameType,
 			    tvb, 2, 1, ENC_BIG_ENDIAN);
 	octet = tvb_get_guint8(tvb, 2);
