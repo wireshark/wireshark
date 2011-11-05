@@ -1,5 +1,5 @@
 /* packet-dpnss_dass2.c
- * Routines for DPNNS/DASS2 dissection
+ * Routines for DPNSS/DASS2 dissection
  * Copyright 2007, Anders Broman <anders.broman[at]ericsson.com>
  *
  * Supplementary string parameter table and testing by Tomas Muehlhoff.
