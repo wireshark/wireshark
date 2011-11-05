@@ -28,6 +28,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/prefs.h>
 #include <epan/circuit.h>
 
 static int proto_isdn = -1;
@@ -35,7 +36,22 @@ static int hf_isdn_channel = -1;
 
 static gint ett_isdn = -1;
 
+/*
+ * Protocol used on the D channel.
+ */
+#define DCHANNEL_LAPD	0	/* LAPD */
+#define DCHANNEL_DPNSS	1	/* DPNSS link layer */
+
+static enum_val_t dchannel_protocol_options[] = {
+    { "lapd", "LAPD", DCHANNEL_LAPD },
+    { "DPNSS", "DPNSS", DCHANNEL_DPNSS },
+    { NULL, NULL, 0 }
+};
+
+static int dchannel_protocol = DCHANNEL_LAPD;
+
 static dissector_handle_t lapd_handle;
+static dissector_handle_t dpnss_link_handle;
 static dissector_handle_t ppp_hdlc_handle;
 static dissector_handle_t v120_handle;
 static dissector_handle_t data_handle;
@@ -121,9 +137,21 @@ dissect_isdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		case 0:
 			/*
-			 * D-channel.  Treat it as LAPD.
+			 * D-channel.  Dissect it with whatever protocol
+			 * the user specified, or the default of LAPD if
+			 * they didn't specify one.
 			 */
-			circuit_set_dissector(circuit, lapd_handle);
+			switch (dchannel_protocol) {
+
+			case DCHANNEL_LAPD:
+				circuit_set_dissector(circuit, lapd_handle);
+				break;
+
+			case DCHANNEL_DPNSS:
+				circuit_set_dissector(circuit,
+				    dpnss_link_handle);
+				break;
+			}
 			break;
 
 		default:
@@ -186,9 +214,18 @@ proto_register_isdn(void)
 	static gint *ett[] = {
 		&ett_isdn,
 	};
+	module_t *isdn_module;
+
 	proto_isdn = proto_register_protocol("ISDN", "ISDN", "isdn");
 	proto_register_field_array(proto_isdn, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	isdn_module = prefs_register_protocol(proto_isdn, NULL);
+
+	prefs_register_enum_preference(isdn_module, "dchannel_protocol",
+	    "D-channel protocol",
+	    "The protocol running on the D channel",
+	    &dchannel_protocol, dchannel_protocol_options, FALSE);
 }
 
 void
@@ -197,9 +234,11 @@ proto_reg_handoff_isdn(void)
 	dissector_handle_t isdn_handle;
 
 	/*
-	 * Get handles for the LAPD, PPP, and V.120 dissectors.
+	 * Get handles for the LAPD, DPNSS link-layer, PPP, and V.120
+	 * dissectors.
 	 */
 	lapd_handle = find_dissector("lapd");
+	dpnss_link_handle = find_dissector("dpnss_link");
 	ppp_hdlc_handle = find_dissector("ppp_hdlc");
 	v120_handle = find_dissector("v120");
 	data_handle = find_dissector("data");
