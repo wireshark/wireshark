@@ -783,7 +783,7 @@ de_bssgp_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
  * 3GPP TS 24.008 IEI (10.5.1.1)
  */
 
-static guint16
+guint16
 de_bssgp_cell_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
     guint32 curr_offset;

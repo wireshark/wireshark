@@ -253,6 +253,7 @@ static int hf_gtp_ext_gcsi = -1;
 static int hf_gtp_ext_dti = -1;
 static int hf_gtp_ra_prio_lcs = -1;
 static int hf_gtp_bcm = -1;
+static int hf_gtp_rim_routing_addr = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_gtp = -1;
@@ -415,7 +416,7 @@ static const value_string next_extension_header_fieldvals[] = {
 #define GTPv1_EXT_RP_SPARE_MASK         0x08
 #define GTPv1_EXT_RP_MASK               0x07
 
-static const value_string message_type[] = {
+static const value_string gtp_message_type[] = {
     {GTP_MSG_UNKNOWN,             "For future use"},
     {GTP_MSG_ECHO_REQ,            "Echo request"},
     {GTP_MSG_ECHO_RESP,           "Echo response"},
@@ -546,6 +547,14 @@ static const value_string message_type[] = {
     /* 106 - 111 For future use. Shall not be sent. If received,
      * shall be treated as an Unknown message.
      */
+#if 0
+    {  106,                       "Unknown message(For future use)"},
+    {  107,                       "Unknown message(For future use)"},
+    {  108,                       "Unknown message(For future use)"},
+    {  109,                       "Unknown message(For future use)"},
+    {  110,                       "Unknown message(For future use)"},
+    {  111,                       "Unknown message(For future use)"},
+#endif
     {GTP_MBMS_REG_REQ,            "MBMS Registration Request"},
     {GTP_MBMS_REG_RES,            "MBMS Registration Response"},
     {GTP_MBMS_DE_REG_REQ,         "MBMS De-Registration Request"},
@@ -559,11 +568,51 @@ static const value_string message_type[] = {
     /* 122-127 For future use. Shall not be sent.
      * If received, shall be treated as an Unknown message.
      */
-    {GTP_MS_INFO_CNG_NOT_REQ,     "MS Info Change Notification Request"},
+#if 0
+    {  122,                       "Unknown message(For future use)"},
+    {  123,                       "Unknown message(For future use)"},
+    {  124,                       "Unknown message(For future use)"},
+    {  125,                       "Unknown message(For future use)"},
+    {  126,                       "Unknown message(For future use)"},
+    {  127,                       "Unknown message(For future use)"},
+#endif
+	{GTP_MS_INFO_CNG_NOT_REQ,     "MS Info Change Notification Request"},
     {GTP_MS_INFO_CNG_NOT_RES,     "MS Info Change Notification Response"},
     /* 130-239 For future use. Shall not be sent. If received,
      * shall be treated as an Unknown message.
      */
+#if 0
+    {  130,                       "Unknown message(For future use)"},
+    {  131,                       "Unknown message(For future use)"},
+    {  132,                       "Unknown message(For future use)"},
+    {  133,                       "Unknown message(For future use)"},
+    {  134,                       "Unknown message(For future use)"},
+    {  135,                       "Unknown message(For future use)"},
+    {  136,                       "Unknown message(For future use)"},
+    {  137,                       "Unknown message(For future use)"},
+    {  138,                       "Unknown message(For future use)"},
+    {  139,                       "Unknown message(For future use)"},
+    {  140,                       "Unknown message(For future use)"},
+    {  141,                       "Unknown message(For future use)"},
+    {  142,                       "Unknown message(For future use)"},
+    {  143,                       "Unknown message(For future use)"},
+    {  144,                       "Unknown message(For future use)"},
+    {  145,                       "Unknown message(For future use)"},
+    {  146,                       "Unknown message(For future use)"},
+    {  147,                       "Unknown message(For future use)"},
+    {  148,                       "Unknown message(For future use)"},
+    {  149,                       "Unknown message(For future use)"},
+    {  150,                       "Unknown message(For future use)"},
+    {  151,                       "Unknown message(For future use)"},
+    {  152,                       "Unknown message(For future use)"},
+    {  153,                       "Unknown message(For future use)"},
+    {  154,                       "Unknown message(For future use)"},
+    {  155,                       "Unknown message(For future use)"},
+    {  156,                       "Unknown message(For future use)"},
+    {  157,                       "Unknown message(For future use)"},
+    {  158,                       "Unknown message(For future use)"},
+    {  159,                       "Unknown message(For future use)"},
+#endif
     {GTP_MSG_DATA_TRANSF_REQ,     "Data record transfer request"},
     {GTP_MSG_DATA_TRANSF_RESP,    "Data record transfer response"},
     /* 242-253 For future use. Shall not be sent. If received,
@@ -573,7 +622,7 @@ static const value_string message_type[] = {
     {GTP_MSG_TPDU,                "T-PDU"},
     {0, NULL}
 };
-static value_string_ext message_type_ext = VALUE_STRING_EXT_INIT(message_type);
+static value_string_ext gtp_message_type_ext = VALUE_STRING_EXT_INIT(gtp_message_type);
 
 /* definitions of fields in extension header */
 #define GTP_EXT_CAUSE                 0x01
@@ -5516,11 +5565,11 @@ static int decode_gtp_rim_ra(tvbuff_t * tvb, int offset, packet_info * pinfo _U_
     offset++;
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
-    /* TODO add decoding of data */
-    proto_tree_add_text(ext_tree, tvb, offset, length, "Data not decoded yet");
+    /* To dissect the Address the Routing Address discriminator must be known */
     /*
      * Octets 4-n are coded according to 3GPP TS 48.018 [20] 11.3.77 RIM Routing Information IE octets 4-n.
      */
+	proto_tree_add_item(ext_tree, hf_gtp_rim_routing_addr, tvb, offset, length, ENC_BIG_ENDIAN);
 
     return 3 + length;
 
@@ -6691,7 +6740,7 @@ static void dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
                         break;
     }
 
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext_const(gtp_hdr.message, &message_type_ext, "Unknown"));
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext_const(gtp_hdr.message, &gtp_message_type_ext, "Unknown"));
 
     if (tree) {
         ti = proto_tree_add_item(tree, proto_gtp, tvb, 0, -1, ENC_NA);
@@ -7097,7 +7146,7 @@ void proto_register_gtp(void)
         {&hf_gtp_imsi, {"IMSI", "gtp.imsi", FT_STRING, BASE_NONE, NULL, 0, "International Mobile Subscriber Identity number", HFILL}},
         {&hf_gtp_length, {"Length", "gtp.length", FT_UINT16, BASE_DEC, NULL, 0, "Length (i.e. number of octets after TID or TEID)", HFILL}},
         {&hf_gtp_map_cause, {"MAP cause", "gtp.map_cause", FT_UINT8, BASE_DEC, VALS(gsm_old_GSMMAPLocalErrorcode_vals), 0, NULL, HFILL}},
-        {&hf_gtp_message_type, {"Message Type", "gtp.message", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &message_type_ext, 0x0, "GTP Message Type", HFILL}},
+        {&hf_gtp_message_type, {"Message Type", "gtp.message", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &gtp_message_type_ext, 0x0, "GTP Message Type", HFILL}},
         {&hf_gtp_ms_reason,
          {"MS not reachable reason", "gtp.ms_reason", FT_UINT8, BASE_DEC, VALS(ms_not_reachable_type), 0, NULL, HFILL}},
         {&hf_gtp_ms_valid, {"MS validated", "gtp.ms_valid", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL}},
@@ -7411,6 +7460,11 @@ void proto_register_gtp(void)
         { &hf_gtp_bcm,
          {"Bearer Control Mode", "gtp.bcm",
           FT_UINT8, BASE_DEC, VALS(gtp_pdp_bcm_type_vals), 0,
+          NULL, HFILL}
+        },
+		{ &hf_gtp_rim_routing_addr,
+         {"RIM Routing Address value", "gtp.rim_routing_addr_val",
+          FT_BYTES, BASE_NONE, NULL, 0,
           NULL, HFILL}
         },
     };

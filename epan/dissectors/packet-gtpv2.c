@@ -42,6 +42,7 @@
 #include "packet-e212.h"
 #include "packet-s1ap.h"
 #include "packet-ranap.h"
+#include "packet-bssgp.h"
 
 
 static dissector_handle_t nas_eps_handle;
@@ -314,6 +315,17 @@ static int hf_gtpv2_uli_ecgi_eci_spare= -1;
 static int hf_gtpv2_nsapi = -1;
 static int hf_gtpv2_bearer_control_mode= -1;
 
+static int hf_gtpv2_bss_container_phx = -1;
+static int hf_gtpv2_bss_con_sapi_flg = -1;
+static int hf_gtpv2_bss_con_rp_flg = -1;
+static int hf_gtpv2_bss_con_pfi_flg = -1;
+static int hf_gtpv2_bss_con_pfi = -1;
+static int hf_gtpv2_bss_con_rp = -1;
+static int hf_gtpv2_bss_con_sapi = -1;
+static int hf_gtpv2_bss_con_xid_len = -1;
+static int hf_gtpv2_bss_con_xid = -1;
+static int hf_gtpv2_home_enodeb_id = -1;
+static int hf_gtpv2_tac = -1;
 
 static gint ett_gtpv2 = -1;
 static gint ett_gtpv2_flags = -1;
@@ -347,6 +359,7 @@ static gint ett_gtpv2_rai = -1;
 static gint ett_gtpv2_ms_mark = -1;
 static gint ett_gtpv2_stn_sr = -1;
 static gint ett_gtpv2_supp_codec_list = -1;
+static gint ett_bss_con = -1;
 
 /* Definition of User Location Info (AVP 22) masks */
 #define GTPv2_ULI_CGI_MASK          0x01
@@ -358,8 +371,11 @@ static gint ett_gtpv2_supp_codec_list = -1;
 
 #define GTPV2_CREATE_SESSION_REQUEST     32
 #define GTPV2_CREATE_SESSION_RESPONSE    33
+#define GTPV2_CONTEXT_RESPONSE          131
 #define GTPV2_FORWARD_RELOCATION_REQ    133
 #define GTPV2_FORWARD_CTX_NOTIFICATION  137
+#define GTPV2_RAN_INFORMATION_RELAY     152
+
 static void dissect_gtpv2_ie_common(tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, gint offset, guint8 message_type);
 
 /*Message Types for GTPv2 (Refer Pg19 29.274) (SB)*/
@@ -2951,8 +2967,11 @@ static void
 dissect_gtpv2_F_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type, guint8 instance _U_)
 {
     tvbuff_t *tvb_new;
+	proto_item *bss_item;
+	proto_tree *sub_tree;
     int offset = 0;
     guint8 container_type;
+	guint8 container_flags, xid_len;
 
     /* Octets   8   7   6   5   4   3   2   1
      * 5            Spare     | Container Type
@@ -2960,6 +2979,52 @@ dissect_gtpv2_F_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
     proto_tree_add_item(tree, hf_gtpv2_container_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     container_type = tvb_get_guint8(tvb,offset);
     offset++;
+    if((message_type == GTPV2_FORWARD_RELOCATION_REQ)
+        ||(message_type == GTPV2_CONTEXT_RESPONSE)
+        ||(message_type == GTPV2_RAN_INFORMATION_RELAY)){
+        switch(container_type){
+        case 2:
+            /* BSS container */
+            bss_item = proto_tree_add_text(tree, tvb, offset, length, "BSS container");
+            sub_tree = proto_item_add_subtree(bss_item, ett_bss_con);
+            /* The flags PFI, RP, SAPI and PHX in octet 6 indicate the corresponding type of paratemer */
+            proto_tree_add_item(tree, hf_gtpv2_bss_container_phx, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_gtpv2_bss_con_sapi_flg, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_gtpv2_bss_con_rp_flg, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_gtpv2_bss_con_pfi_flg, tvb, offset, 1, ENC_BIG_ENDIAN);
+            container_flags = tvb_get_guint8(tvb,offset);
+            offset++;
+            if((container_flags&0x01)==1){
+                /* Packet Flow ID present */
+                proto_tree_add_item(tree, hf_gtpv2_bss_con_pfi, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset++;
+            }
+            if(((container_flags&0x04)==4)||((container_flags&0x02)==2)){
+                if((container_flags&0x04)==4){
+                    /* SAPI present */
+                    proto_tree_add_item(tree, hf_gtpv2_bss_con_sapi, tvb, offset, 1, ENC_BIG_ENDIAN);
+                }
+                if((container_flags&0x02)==2){
+                    /* Radio Priority present */
+                    proto_tree_add_item(tree, hf_gtpv2_bss_con_rp, tvb, offset, 1, ENC_BIG_ENDIAN);
+                }
+                offset++;
+            }
+            if((container_flags&0x08)==8){
+                /* XiD parameters length is present in Octet c.
+                 * XiD parameters are present in Octet d to n.
+                 */
+                xid_len = tvb_get_guint8(tvb,offset);
+                proto_tree_add_item(tree, hf_gtpv2_bss_con_xid_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset++;
+                proto_tree_add_item(tree, hf_gtpv2_bss_con_xid, tvb, offset, xid_len, ENC_BIG_ENDIAN);
+                offset += xid_len;
+            }
+            return;
+        default:
+            break;
+        }
+    }
     if(message_type == GTPV2_FORWARD_CTX_NOTIFICATION) {
         switch(container_type){
         case 3:
@@ -3142,10 +3207,26 @@ dissect_gtpv2_target_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
         /* Target ID field shall be same as the Octets 3 to 10 of the Cell Identifier IEI
          * in 3GPP TS 48.018 [34].
          */
+		tvb_new = tvb_new_subset_remaining(tvb, offset);
+		de_bssgp_cell_id(tvb_new, tree, pinfo, 0, 0/* not used */, NULL, 0);
+		return;
     case 3:
         /* Home eNodeB ID */
-        /* Octet 10 to 12 Home eNodeB ID */
+        tvb_new = tvb_new_subset_remaining(tvb, offset);
+        dissect_e212_mcc_mnc(tvb_new, pinfo, tree, 0, TRUE);
+        offset+=3;
+        /* Octet 10 to 12 Home eNodeB ID 
+		 * The Home eNodeB ID consists of 28 bits. See 3GPP TS 36.413 [10]. 
+		 * Bit 4 of Octet 9 is the most significant bit and bit 1 of Octet 12 is the least significant bit. 
+		 * The coding of the Home eNodeB ID is the responsibility of each administration. 
+		 * Coding using full hexadecimal representation shall be used.
+		 */
+		 proto_tree_add_item(tree, hf_gtpv2_home_enodeb_id, tvb, offset, 4 , ENC_BIG_ENDIAN);
+		 offset+=4;
         /* Octet 13 to 14 Tracking Area Code (TAC) */
+		 proto_tree_add_item(tree, hf_gtpv2_tac, tvb, offset, 2 , ENC_BIG_ENDIAN);
+		 offset+=2;
+		return;
 
     default:
         break;
@@ -5005,7 +5086,56 @@ void proto_register_gtpv2(void)
            FT_BYTES, BASE_NONE, NULL, 0x0,
            NULL, HFILL}
         },
-
+		{ &hf_gtpv2_bss_container_phx,
+          {"PHX", "gtpv2.bss_cont.phx",
+           FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x08,
+           NULL, HFILL}
+        },
+		{ &hf_gtpv2_bss_con_sapi_flg,
+          {"SAPI", "gtpv2.bss_cont.sapi_flg",
+           FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x04,
+           NULL, HFILL}
+        },
+		{ &hf_gtpv2_bss_con_rp_flg,
+          {"RP", "gtpv2.bss_cont.rp_flg",
+           FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x02,
+           NULL, HFILL}
+        },
+		{ &hf_gtpv2_bss_con_pfi_flg,
+          {"PFI", "gtpv2.bss_cont.pfi_flg",
+           FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01,
+           NULL, HFILL}
+        },
+		{ &hf_gtpv2_bss_con_pfi,
+          {"Packet Flow ID(PFI)", "gtpv2.bss_cont.pfi",
+           FT_UINT8, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+		{ &hf_gtpv2_bss_con_rp,
+          {"Radio Priority(RP)", "gtpv2.bss_cont.rp",
+           FT_UINT8, BASE_DEC, NULL, 0x07,
+           NULL, HFILL}
+        },
+		{ &hf_gtpv2_bss_con_sapi,
+          {"SAPI", "gtpv2.bss_cont.sapi",
+           FT_UINT8, BASE_DEC, NULL, 0xf0,
+           NULL, HFILL}
+        },
+		{ &hf_gtpv2_bss_con_xid_len,
+          {"XiD parameters length", "gtpv2.bss_cont.xid_len",
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL}
+        },
+		{ &hf_gtpv2_home_enodeb_id,
+          {"Home eNodeB ID", "gtpv2.home_enodeb_id",
+           FT_UINT32, BASE_HEX, NULL, 0x0fffffff,
+           NULL, HFILL}
+        },
+		{ &hf_gtpv2_tac,
+          {"Tracking Area Code (TAC)", "gtpv2.tac",
+           FT_UINT16, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
     };
 
     static gint *ett_gtpv2_array[] = {
@@ -5041,6 +5171,7 @@ void proto_register_gtpv2(void)
         &ett_gtpv2_stn_sr,
         &ett_gtpv2_ms_mark,
         &ett_gtpv2_supp_codec_list,
+		&ett_bss_con,
     };
 
     proto_gtpv2 = proto_register_protocol("GPRS Tunneling Protocol V2", "GTPv2", "gtpv2");
