@@ -3003,7 +3003,6 @@ dissect_dvbci_payload_opp(guint32 tag, gint len_field _U_,
     guint8 cap_loop_len;
     gboolean info_valid;
     guint8 char_tbl;
-    guint8 prof_name_len;
     guint8 sig_strength, sig_qual;
     proto_item *pi;
 
@@ -3071,9 +3070,7 @@ dissect_dvbci_payload_opp(guint32 tag, gint len_field _U_,
           proto_tree_add_item(tree, hf_dvbci_opp_lang_code,
                   tvb, offset, 3, ENC_ASCII|ENC_NA);
           offset += 3;
-          prof_name_len = tvb_get_guint8(tvb, offset);
-          /* don't increment offset here, leave it on the len byte,
-             hf_dvbci_prof_name is an FT_UINT_STRING */
+          /* hf_dvbci_prof_name is an FT_UINT_STRING, one leading len byte */
           proto_tree_add_item(tree, hf_dvbci_prof_name,
               tvb, offset, 1, ENC_ASCII|ENC_NA);
           break;
