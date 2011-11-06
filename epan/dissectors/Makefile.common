@@ -838,6 +838,7 @@ DISSECTOR_SRC = \
 	packet-rgmp.c		\
 	packet-rip.c		\
 	packet-ripng.c		\
+	packet-rfid-mifare.c 	\
 	packet-rlc.c		\
 	packet-rlc-lte.c	\
 	packet-rlm.c		\

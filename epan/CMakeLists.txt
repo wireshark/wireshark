@@ -917,6 +917,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-rgmp.c
 	dissectors/packet-rip.c
 	dissectors/packet-ripng.c
+	dissectors/packet-rfid-mifare.c
 	dissectors/packet-rlc.c
 	dissectors/packet-rlc-lte.c
 	dissectors/packet-rlm.c
