@@ -8,7 +8,7 @@
  * 
  * Copyright 2011, Tyson Key <tyson.key@gmail.com>
  *
- * $Id
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -193,22 +193,22 @@ proto_register_mifare(void)
 
         {&hf_mifare_command,
          { "Command", "mifare.cmd", FT_UINT8, BASE_HEX,
-           VALS(hf_mifare_commands), 0x0, "Command", HFILL }},
+           VALS(hf_mifare_commands), 0x0, NULL, HFILL }},
          {&hf_mifare_block_address,
           { "Block Address", "mifare.block.addr", FT_UINT8, BASE_DEC,
-            NULL, 0x0, "Block Address", HFILL }},
+            NULL, 0x0, NULL, HFILL }},
          {&hf_mifare_key_a,
           { "Key A", "mifare.key.a", FT_UINT64, BASE_HEX,
-            NULL, 0x0, "Key A", HFILL }},
+            NULL, 0x0, NULL, HFILL }},
          {&hf_mifare_key_b,
           { "Key B", "mifare.key.b", FT_UINT64, BASE_HEX,
-            NULL, 0x0, "Key B", HFILL }},
+            NULL, 0x0, NULL, HFILL }},
          {&hf_mifare_uid,
           { "UID", "mifare.uid", FT_UINT32, BASE_HEX,
-            NULL, 0x0, "UID", HFILL }},
+            NULL, 0x0, NULL, HFILL }},
          {&hf_mifare_operand,
           { "Operand", "mifare.operand", FT_INT32, BASE_DEC,
-            NULL, 0x0, "Operand", HFILL }}
+            NULL, 0x0, NULL, HFILL }}
     };
 
     static gint *ett[] = {
