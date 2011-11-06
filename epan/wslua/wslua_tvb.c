@@ -350,13 +350,49 @@ static GPtrArray* outstanding_TvbRange = NULL;
 #define PUSH_TVB(L,t) {g_ptr_array_add(outstanding_Tvb,t);pushTvb(L,t);}
 #define PUSH_TVBRANGE(L,t) {g_ptr_array_add(outstanding_TvbRange,t);pushTvbRange(L,t);}
 
-CLEAR_OUTSTANDING(Tvb,expired, TRUE)
+static void free_Tvb(Tvb tvb) {
+    if (!tvb) return;
+
+    if (!tvb->expired) {
+        tvb->expired = TRUE;
+    } else {
+        if (tvb->need_free)
+            tvb_free(tvb->ws_tvb);
+        g_free(tvb);
+    }
+}
+
+void clear_outstanding_Tvb(void) {
+    while (outstanding_Tvb->len) {
+        Tvb tvb = (Tvb)g_ptr_array_remove_index_fast(outstanding_Tvb,0);
+        free_Tvb(tvb);
+    }
+}
+
+static void free_TvbRange(TvbRange tvbr) {
+    if (!(tvbr && tvbr->tvb)) return;
+
+    if (!tvbr->tvb->expired) {
+        tvbr->tvb->expired = TRUE;
+    } else {
+        free_Tvb(tvbr->tvb);
+        g_free(tvbr);
+    }
+}
+
+void clear_outstanding_TvbRange(void) {
+    while (outstanding_TvbRange->len) {
+        TvbRange tvbr = (TvbRange)g_ptr_array_remove_index_fast(outstanding_TvbRange,0);
+        free_TvbRange(tvbr);
+    }
+}
 
 
 Tvb* push_Tvb(lua_State* L, tvbuff_t* ws_tvb) {
     Tvb tvb = g_malloc(sizeof(struct _wslua_tvb));
     tvb->ws_tvb = ws_tvb;
     tvb->expired = FALSE;
+    tvb->need_free = FALSE;
     g_ptr_array_add(outstanding_Tvb,tvb);
     return pushTvb(L,tvb);
 }
@@ -386,6 +422,7 @@ WSLUA_CONSTRUCTOR ByteArray_tvb (lua_State *L) {
     tvb = g_malloc(sizeof(struct _wslua_tvb));
     tvb->ws_tvb = tvb_new_real_data(data, ba->len,ba->len);
     tvb->expired = FALSE;
+    tvb->need_free = TRUE;
     tvb_set_free_cb(tvb->ws_tvb, g_free);
 
     add_new_data_source(lua_pinfo, tvb->ws_tvb, name);
@@ -409,6 +446,7 @@ WSLUA_CONSTRUCTOR TvbRange_tvb (lua_State *L) {
     if (tvb_offset_exists(tvbr->tvb->ws_tvb,  tvbr->offset + tvbr->len -1 )) {
         tvb = g_malloc(sizeof(struct _wslua_tvb));
         tvb->expired = FALSE;
+        tvb->need_free = FALSE;
         tvb->ws_tvb = tvb_new_subset(tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len, tvbr->len);
         PUSH_TVB(L, tvb);
         return 1;
@@ -439,12 +477,7 @@ WSLUA_METAMETHOD Tvb__tostring(lua_State* L) {
 static int Tvb__gc(lua_State* L) {
     Tvb tvb = checkTvb(L,1);
 
-    if (!tvb) return 0;
-
-    if (!tvb->expired)
-        tvb->expired = TRUE;
-    else
-        g_free(tvb);
+    free_Tvb(tvb);
 
     return 0;
 
@@ -554,10 +587,11 @@ static TvbRange new_TvbRange(lua_State* L, tvbuff_t* ws_tvb, int offset, int len
         return NULL;
     }
 
-    tvbr = ep_alloc(sizeof(struct _wslua_tvbrange));
+    tvbr = g_malloc(sizeof(struct _wslua_tvbrange));
     tvbr->tvb = g_malloc(sizeof(struct _wslua_tvb));
     tvbr->tvb->ws_tvb = ws_tvb;
     tvbr->tvb->expired = FALSE;
+    tvbr->tvb->need_free = FALSE;
     tvbr->offset = offset;
     tvbr->len = len;
 
@@ -1219,6 +1253,15 @@ WSLUA_METHOD TvbRange_range(lua_State* L) {
     return 0;
 }
 
+static int TvbRange__gc(lua_State* L) {
+    TvbRange tvbr = checkTvbRange(L,1);
+
+    free_TvbRange(tvbr);
+
+    return 0;
+
+}
+
 WSLUA_METHOD TvbRange_len(lua_State* L) {
 	/* Obtain the length of a TvbRange */
     TvbRange tvbr = checkTvbRange(L,1);
@@ -1228,8 +1271,8 @@ WSLUA_METHOD TvbRange_len(lua_State* L) {
         luaL_error(L,"expired tvb");
         return 0;
     }
-        lua_pushnumber(L,(lua_Number)tvbr->len);
-        return 1;
+    lua_pushnumber(L,(lua_Number)tvbr->len);
+    return 1;
 }
 
 WSLUA_METHOD TvbRange_offset(lua_State* L) {
@@ -1241,8 +1284,8 @@ WSLUA_METHOD TvbRange_offset(lua_State* L) {
         luaL_error(L,"expired tvb");
         return 0;
     }
-        lua_pushnumber(L,(lua_Number)tvbr->offset);
-        return 1;
+    lua_pushnumber(L,(lua_Number)tvbr->offset);
+    return 1;
 }
 
 
@@ -1297,6 +1340,7 @@ static const luaL_reg TvbRange_meta[] = {
     {"__tostring", TvbRange__tostring},
     {"__concat", wslua__concat},
     {"__call", TvbRange_range},
+    {"__gc", TvbRange__gc},
     { NULL, NULL }
 };
 

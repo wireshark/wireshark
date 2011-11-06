@@ -65,6 +65,7 @@
 struct _wslua_tvb {
     tvbuff_t* ws_tvb;
     gboolean expired;
+    gboolean need_free;
 };
 
 struct _wslua_pinfo {
@@ -399,6 +400,7 @@ extern int Proto_commit(lua_State* L);
 
 extern Tvb* push_Tvb(lua_State* L, tvbuff_t* tvb);
 extern void clear_outstanding_Tvb(void);
+extern void clear_outstanding_TvbRange(void);
 
 extern Pinfo* push_Pinfo(lua_State* L, packet_info* p);
 extern void clear_outstanding_Pinfo(void);

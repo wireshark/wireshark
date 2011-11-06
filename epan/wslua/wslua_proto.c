@@ -574,10 +574,10 @@ static true_false_string* true_false_string_from_table(lua_State* L, int idx) {
 
         /* arrays in LUA start with index number 1 */
         if ((guint32)lua_tonumber(L,-2) == 1)
-            tf.true_string = strdup(lua_tostring(L,-1));
+            tf.true_string = g_strdup(lua_tostring(L,-1));
 
         if ((guint32)lua_tonumber(L,-2) == 2)
-            tf.false_string = strdup(lua_tostring(L,-1));
+            tf.false_string = g_strdup(lua_tostring(L,-1));
 
         lua_pop(L, 1);
     }
