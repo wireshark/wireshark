@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2011-10-28
+# 2011-11-03
 # 
 # Note
 # 
@@ -244,7 +244,7 @@ sql-net	66/udp	# IANA assigned this           [Jack_Haverty]                    
 # This entry is an alias to "sql-net". This entry is now
 sql*net	66/udp	# Oracle SQL*NET               [Jack_Haverty]                            [Jack_Haverty]                                                                                                                                historic, not usable for use with many common service
 # discovery mechanisms.
-bootps	67/tcp	# Bootstrap Protocol Server    [Bill_Croft]                              [Bill_Croft]                                                                        [RFC951]
+bootps	67/tcp	# Bootstrap Protocol Server    [Bill_Croft]                              [Bill_Croft]                                                                        [RFC951]                                                  Defined TXT keys: None
 bootps	67/udp	# Bootstrap Protocol Server
 bootpc	68/tcp	# Bootstrap Protocol Client    [Bill_Croft]                              [Bill_Croft]
 bootpc	68/udp	# Bootstrap Protocol Client    [Bill_Croft]                              [Bill_Croft]
@@ -8314,8 +8314,8 @@ cs-remote-db	3630/tcp	# C&S Remote Database Port
 cs-remote-db	3630/udp	# C&S Remote Database Port
 cs-services	3631/tcp	# C&S Web Services Port        [Computer_Software_Gm]                    [Computer_Software_Gm]                                    2002-10
 cs-services	3631/udp	# C&S Web Services Port        [Computer_Software_Gm]                    [Computer_Software_Gm]                                    2002-10
-distcc	3632/tcp	# distributed compiler         [Martin_Pool]                             [Martin_Pool]                                             2002-11
-distcc	3632/udp	# distributed compiler         [Martin_Pool]                             [Martin_Pool]                                             2002-11
+distcc	3632/tcp	# distributed compiler         [Martin_Pool]                             [Martin_Pool]                                             2002-11                                                                             Defined TXT keys: None
+distcc	3632/udp	# distributed compiler         [Martin_Pool]                             [Martin_Pool]                                             2002-11                                                                             Defined TXT keys: None
 wacp	3633/tcp	# Wyrnix AIS port              [Harry_T_Vennik]                          [Harry_T_Vennik]                                          2002-11
 wacp	3633/udp	# Wyrnix AIS port              [Harry_T_Vennik]                          [Harry_T_Vennik]                                          2002-11
 hlibmgr	3634/tcp	# hNTSP Library Manager        [Kenji_Tetsuyama]                         [Kenji_Tetsuyama]                                         2002-11
@@ -10603,9 +10603,9 @@ smar-se-port2	4988/tcp	# SMAR Ethernet Port 2         [Delcio_Prizon]           
 smar-se-port2	4988/udp	# SMAR Ethernet Port 2         [Delcio_Prizon]                           [Delcio_Prizon]
 parallel	4989/tcp	# Parallel for GAUSS (tm)      [Matthew_Ford]                            [Matthew_Ford]                                            2003-03
 parallel	4989/udp	# Parallel for GAUSS (tm)      [Matthew_Ford]                            [Matthew_Ford]                                            2003-03
-busycal	4990/tcp	# BusySync Calendar Synch.     [David_Riggle]                            [David_Riggle]                                            2008-01-07
+busycal	4990/tcp	# BusySync Calendar Synch.     [David_Riggle]                            [David_Riggle]                                            2008-01-07                                                                          Defined TXT keys: Proprietary
 # Protocol
-busycal	4990/udp	# BusySync Calendar Synch.     [David_Riggle]                            [David_Riggle]                                            2008-01-07
+busycal	4990/udp	# BusySync Calendar Synch.     [David_Riggle]                            [David_Riggle]                                            2008-01-07                                                                          Defined TXT keys: Proprietary
 # Protocol
 vrt	4991/tcp	# VITA Radio Transport         [Sam_Bretheim]                            [Sam_Bretheim]                                            2009-01-08
 vrt	4991/udp	# VITA Radio Transport         [Sam_Bretheim]                            [Sam_Bretheim]                                            2009-01-08
@@ -11414,8 +11414,11 @@ sfm-db-server	5636/tcp	# SFMdb - SFM DB server        [De_Chih_Chien]           
 # 5636        udp    Reserved
 cssc	5637/tcp	# Symantec CSSC                [Amol_P_Tambe]                            [Amol_P_Tambe]                                            2011-02-02
 # 5637        udp    Reserved
+# 5638-5645            Unassigned
+vfmobile	5646/tcp	# Ventureforth Mobile          [Ventureforth_Inc]                        [Blakely_Snyder]                                          2011-11-03
+# 5646        udp    Reserved
 # UNAUTHORIZED
-# 5638-5670            Unassigned                                                                                                                                                                                              USE: Port
+# 5647-5670            Unassigned                                                                                                                                                                                              USE: Port
 # 5666 used by
 # SAIC NRPE
 amqps	5671/tcp	# amqp protocol over TLS/SSL   [Ted_Ross_2]                              [Ted_Ross_2]                                              2008-03-26
@@ -13843,7 +13846,9 @@ iua	9900/sctp	# IUA                          [Lyndon_Ong_2]                     
 enrp	9901/udp	# enrp server channel
 enrp-sctp	9901/sctp	# enrp server channel                                                                                                                                        [RFC5353]
 enrp-sctp-tls	9902/sctp	# enrp/tls server channel                                                                                                                                    [RFC5353]
-# 9903-9908            Unassigned
+# 9903        tcp    Reserved
+multicast-ping	9903/udp	# Multicast Ping Protocol                                                                                                                                    [RFC-ietf-mboned-ssmping-09]
+# 9904-9908            Unassigned
 domaintime	9909/tcp	# domaintime                   [Jeffry_Dwight]                           [Jeffry_Dwight]
 domaintime	9909/udp	# domaintime                   [Jeffry_Dwight]                           [Jeffry_Dwight]
 # 9910               Unassigned
@@ -14468,7 +14473,14 @@ soundsvirtual	17185/udp	# Sounds Virtual               [Richard_Snider]         
 # 17186-17218           Unassigned
 chipper	17219/tcp	# Chipper                      [Ronald_Jimmink]                          [Ronald_Jimmink]
 chipper	17219/udp	# Chipper                      [Ronald_Jimmink]                          [Ronald_Jimmink]
-# 17220-17233           Unassigned
+# 17220              Unassigned
+# IEEE 1722.1 AVB Discovery,
+avdecc	17221/tcp	# Enumeration, Connection      [IEEE_1722_1]                             [Jeffrey_Daniel_Koftinoff]                                2011-11-01
+# management, and Control
+# IEEE 1722.1 AVB Discovery,
+avdecc	17221/udp	# Enumeration, Connection      [IEEE_1722_1]                             [Jeffrey_Daniel_Koftinoff]                                2011-11-01
+# management, and Control
+# 17222-17233           Unassigned
 integrius-stp	17234/tcp	# Integrius Secure Tunnel      [Christian_Klemetsson]                    [Christian_Klemetsson]                                    2010-03-04
 # Protocol
 integrius-stp	17234/udp	# Integrius Secure Tunnel      [Christian_Klemetsson]                    [Christian_Klemetsson]                                    2010-03-04
@@ -16925,6 +16937,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Bjorn_Lantz]                                             Bjorn Lantz                                     mailto:bjorn.lantz&encode.se                                  2004-11
 # [Bjorn_Roth]                                              Bjorn Roth                FLIR Systems AB       mailto:bjorn.roth&flir.se                                     2011-10-20
 # [Bjorn_de_Bonnenfant]                                     Bjorn de Bonnenfant                             mailto:bdeb&iqobject.com                                      2003-11
+# [Blakely_Snyder]                                          Blakely Snyder            Ventureforth Inc.     mailto:bsnyder&ventureforth.com                               2011-11-03
 # [Blockade]                                                VP - Research &                                 mailto:development&blockade.com
 # Development
 # [Bob_Beard]                                               Bob Beard                                       mailto:bobb&lachman.com
@@ -18183,6 +18196,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [HYPACK_Inc]                                                                        HYPACK Inc.           mailto:mircea&hypack.com                                      2011-10-27
 # [Hywel_Morgan]                                            Hywel Morgan                                    mailto:hywelm&surfcontrol.com                                 2003-11
 # [IANA]                                                                              IANA                  mailto:iana&iana.org
+# [IEEE_1722_1]                                                                       IEEE-1722.1           mailto:jeff.koftinoff&ieee.com                                2011-11-01
 # [IESG]                                                                              IESG                  mailto:iesg&ietf.org
 # [IETF_Chair]                                              IETF Chair                IETF                  mailto:chair&ietf.org
 # [IFSF_Secretary]                                          IFSF Secretary                                  mailto:secretary&ifsf.org                                     2002-05
@@ -18404,6 +18418,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Jeffery_Chiao]                                           Jeffery Chiao                                   tel:+714-768-401
 # [Jeffrey_C_Byrd]                                          Jeffrey C. Byrd                                 mailto:admin&vspacegroup.com
 # [Jeffrey_Chiao]                                           Jeffrey Chiao                                   mailto:chiaoj&netsoft.com
+# [Jeffrey_Daniel_Koftinoff]                                Jeffrey Daniel Koftinoff  IEEE-1722.1           mailto:jeff.koftinoff&ieee.com                                2011-11-01
 # [Jeffrey_Hill]                                            Jeffrey Hill                                    mailto:johill&lanl.gov                                        2002-08
 # [Jeffrey_J_Peters]                                        Jeffrey J. Peters                               mailto:jpeters&tivo.com                                       2002-08
 # [Jeffrey_J_Walls]                                         Jeffrey J. Walls                                mailto:jeff.walls&hp.com
@@ -20827,6 +20842,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Venkat_Rangan]                                           Venkat Rangan                                   mailto:venkatr&vitalsigns.com
 # [Venkata_Krishna]                                         Venkata Krishna                                 mailto:VenkataKrishna.Bezawada&ca.com                         2010-02-24
 # [Venky_Nagar]                                             Venky Nagar                                     mailto:venky&fafner.stanford.edu
+# [Ventureforth_Inc]                                                                  Ventureforth Inc.     mailto:support&ventureforth.com                               2011-11-03
 # [Vera_Heinau]                                             Vera Heinau                                     mailto:heinau&fu-berlin.de
 # [Verek]                                                   Verek                                           mailto:info&verek.com
 # [Vick_Keshishian]                                         Vick Keshishian                                 mailto:vickenK&192.219.82.71
