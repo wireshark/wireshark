@@ -144,7 +144,7 @@ typedef enum {
  */
 extern void copy_selected_plist_cb(GtkWidget *w _U_, gpointer data, COPY_SELECTED_E action);
 
-/** Set or remove a time reference on this frame 
+/** Set or remove a time reference on this frame
  *
  * @param set TRUE = set time ref, FALSE=unset time ref
  * @param frame pointer to frame
@@ -346,7 +346,7 @@ extern gboolean main_filter_packets(capture_file *cf, const gchar *dftext,
 extern void create_console(void);
 #endif
 
-#if defined(_WIN32) || ! defined USE_THREADS
+#if defined(_WIN32)
 /** Restart the tap update display timer with new configured interval */
 extern void reset_tap_update_timer(void);
 #endif

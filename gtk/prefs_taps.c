@@ -67,7 +67,7 @@ stats_prefs_show(void)
 
         /* Tap update gap in ms */
         tap_update_interval_te = create_preference_entry(main_tb, pos++,
-            "Tap update interval in ms:", 
+            "Tap update interval in ms:",
             "Determines time between tap updates.", max_visible_str);
         g_snprintf(update_interval_str, sizeof(update_interval_str), "%d", prefs.tap_update_interval);
         gtk_entry_set_text(GTK_ENTRY(tap_update_interval_te), update_interval_str);
@@ -77,7 +77,7 @@ stats_prefs_show(void)
 #ifdef HAVE_LIBPORTAUDIO
         /* Max visible channels in RTP Player */
         rtp_player_max_visible_te = create_preference_entry(main_tb, pos++,
-            "Max visible channels in RTP Player:", 
+            "Max visible channels in RTP Player:",
             "Determines maximum height of RTP Player window.", max_visible_str);
         g_snprintf(max_visible_str, sizeof(max_visible_str), "%d", prefs.rtp_player_max_visible);
         gtk_entry_set_text(GTK_ENTRY(rtp_player_max_visible_te), max_visible_str);
@@ -124,7 +124,7 @@ stats_prefs_fetch(GtkWidget *w _U_)
 void
 stats_prefs_apply(GtkWidget *w _U_)
 {
-#if defined(_WIN32) || ! defined USE_THREADS
+#if defined(_WIN32)
         reset_tap_update_timer();
 #endif
 }
@@ -133,4 +133,3 @@ void
 stats_prefs_destroy(GtkWidget *w _U_)
 {
 }
-

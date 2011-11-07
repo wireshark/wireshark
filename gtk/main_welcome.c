@@ -111,9 +111,7 @@ static GArray *interfaces = NULL;
 
 static GSList *status_messages = NULL;
 
-#ifdef USE_THREADS
 static GMutex *recent_mtx = NULL;
-#endif
 
 /* The "scroll box dynamic" is a (complicated) pseudo widget to */
 /* place a vertically list of widgets in (currently the interfaces and recent files). */
@@ -503,9 +501,7 @@ static void *get_recent_item_status(void *data)
      * most OSes use.
      */
     err = ws_stat64(ri_stat->filename, &stat_buf);
-#ifdef USE_THREADS
     g_mutex_lock(recent_mtx);
-#endif
     ri_stat->err = err;
     if(err == 0) {
         if (stat_buf.st_size/1024/1024/1024 > 10) {
@@ -531,9 +527,7 @@ static void *get_recent_item_status(void *data)
     } else {
         ri_stat->stat_done = TRUE;
     }
-#ifdef USE_THREADS
     g_mutex_unlock(recent_mtx);
-#endif
 
     return NULL;
 }
@@ -549,9 +543,7 @@ update_recent_items(gpointer data)
         return FALSE;
     }
 
-#ifdef USE_THREADS
     g_mutex_lock(recent_mtx);
-#endif
     if (ri_stat->stat_done) {
         again = FALSE;
         gtk_label_set_markup(GTK_LABEL(ri_stat->label), ri_stat->str->str);
@@ -562,9 +554,7 @@ update_recent_items(gpointer data)
         ri_stat->timer = 0;
     }
     /* Else append some sort of Unicode or ASCII animation to the label? */
-#ifdef USE_THREADS
     g_mutex_unlock(recent_mtx);
-#endif
     return again;
 }
 
@@ -575,9 +565,7 @@ static void welcome_filename_destroy_cb(GtkWidget *w _U_, gpointer data) {
         return;
     }
 
-#ifdef USE_THREADS
     g_mutex_lock(recent_mtx);
-#endif
     if (ri_stat->timer) {
 	g_source_remove(ri_stat->timer);
 	ri_stat->timer = 0;
@@ -592,9 +580,7 @@ static void welcome_filename_destroy_cb(GtkWidget *w _U_, gpointer data) {
     } else {
         ri_stat->label = NULL;
     }
-#ifdef USE_THREADS
     g_mutex_unlock(recent_mtx);
-#endif
 }
 
 /* create a "file link widget" */
@@ -644,13 +630,8 @@ welcome_filename_link_new(const gchar *filename, GtkWidget **label, GObject *men
     g_signal_connect(w, "destroy", G_CALLBACK(welcome_filename_destroy_cb), ri_stat);
     g_free(str_escaped);
 
-#ifdef USE_THREADS
     g_thread_create(get_recent_item_status, ri_stat, FALSE, NULL);
     ri_stat->timer = g_timeout_add(200, update_recent_items, ri_stat);
-#else
-    get_recent_item_status(ri_stat);
-    update_recent_items(ri_stat);
-#endif
 
     /* event box */
     eb = gtk_event_box_new();
@@ -1022,14 +1003,14 @@ welcome_if_tree_load(void)
                     g_free (comment);
 #endif
                     gtk_list_store_set(store, &iter, ICON, gtk_image_get_pixbuf(GTK_IMAGE(icon)), IFACE_DESCR, user_descr, IFACE_NAME, if_info->name, -1);
-                    d_interface.descr = g_strdup(user_descr);               
+                    d_interface.descr = g_strdup(user_descr);
                     g_free (user_descr);
                 } else if (if_info->description) {
                     gtk_list_store_set (store, &iter, ICON, gtk_image_get_pixbuf(GTK_IMAGE(icon)), IFACE_DESCR, if_info->description, IFACE_NAME, if_info->name, -1);
                     d_interface.descr = g_strdup(if_info->description);
                 } else {
                     gtk_list_store_set (store, &iter, ICON, gtk_image_get_pixbuf(GTK_IMAGE(icon)), IFACE_DESCR, if_info->name, IFACE_NAME, if_info->name, -1);
-                    d_interface.descr = g_strdup(if_info->name); 
+                    d_interface.descr = g_strdup(if_info->name);
                 }
                 g_array_append_val(interfaces, d_interface);
             }
@@ -1084,13 +1065,6 @@ static void capture_if_start(GtkWidget *w _U_, gpointer data _U_)
       "You didn't specify an interface on which to capture packets.");
     return;
   }
-#ifndef USE_THREADS
-  if (global_capture_opts.ifaces->len > 1) {
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-      "You specified multiple interfaces for capturing which this version of Wireshark doesn't support.");
-    return;
-  }
-#endif
 
   /* XXX - remove this? */
   if (global_capture_opts.save_file) {
@@ -1237,19 +1211,11 @@ welcome_new(void)
         gtk_tree_view_column_set_visible(column, FALSE);
         selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(if_view));
         gtk_tree_selection_set_mode(selection, GTK_SELECTION_MULTIPLE);
-#ifdef USE_THREADS
         item_hb = welcome_button(WIRESHARK_STOCK_CAPTURE_START,
             "Start",
             "Choose one or more interfaces to capture from, then <b>Start</b>",
             "Same as Capture/Interfaces with default options",
             (welcome_button_callback_t)capture_if_start, (gpointer)if_view);
-#else
-        item_hb = welcome_button(WIRESHARK_STOCK_CAPTURE_START,
-            "Start",
-            "Choose exactly one interface to capture from, then <b>Start</b>",
-            "Same as Capture/Interfaces with default options",
-            (welcome_button_callback_t)capture_if_start, (gpointer)if_view);
-#endif
         gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
         welcome_if_tree_load();
         gtk_container_add (GTK_CONTAINER (swindow), if_view);
@@ -1416,9 +1382,7 @@ welcome_new(void)
                                           welcome_eb);
     gtk_widget_show_all(welcome_scrollw);
 
-#ifdef USE_THREADS
     recent_mtx = g_mutex_new();
-#endif
 
     return welcome_scrollw;
 }

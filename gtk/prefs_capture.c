@@ -101,9 +101,6 @@ capture_prefs_show(void)
 {
 	GtkWidget	*main_tb, *main_vb;
 	GtkWidget	*if_cbxe, *if_lb, *promisc_cb, *pcap_ng_cb, *sync_cb, *auto_scroll_cb, *show_info_cb;
-#ifndef USE_THREADS
-	GtkWidget	*syntax_check_filter_cb;
-#endif
 	GtkWidget	*ifopts_lb, *ifopts_bt;
 	GList		*if_list, *combo_list;
 	int		err;
@@ -208,15 +205,6 @@ capture_prefs_show(void)
 	    "Hide the capture info dialog while capturing. ",
 	    !prefs.capture_show_info);
 	g_object_set_data(G_OBJECT(main_vb), SHOW_INFO_KEY, show_info_cb);
-
-#ifndef USE_THREADS
-	/* Syntax check capture filter */
-	syntax_check_filter_cb = create_preference_check_button(main_tb, row++,
-	    "Syntax check capture filter:",
-	    "Syntax check capture filter. Turn this off if you experience delay when writing capture filters.",
-	    prefs.capture_syntax_check_filter);
-	g_object_set_data(G_OBJECT(main_vb), SYNTAX_CHECK_FILTER_KEY, syntax_check_filter_cb);
-#endif
 
 	/* Show 'em what we got */
 	gtk_widget_show_all(main_vb);

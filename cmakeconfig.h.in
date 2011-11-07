@@ -18,9 +18,6 @@
 /* Directory where plugins reside */
 #define PLUGIN_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@/plugins/${CPACK_PACKAGE_VERSION}"
 
-/* Define to 1 if we want to use threads in wireshark and dumpcap */
-#cmakedefine USE_THREADS 1
-
 /* Define to 1 if we want to use pcap-ng as our default file format */
 #cmakedefine PCAP_NG_DEFAULT 1
 

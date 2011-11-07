@@ -227,9 +227,10 @@ endif()
 # - set HAVE_XXX
 
 #The minimum package list
-set(PACKAGELIST GLIB2 GMODULE2 M LEX YACC Perl SH PythonInterp)
+set(PACKAGELIST GLIB2 GMODULE2 GTHREAD2 M LEX YACC Perl SH PythonInterp)
 set(GLIB2_FIND_REQUIRED)
 set(GLIB2_MIN_VERSION 2.14.0)
+set(GTHREAD2_REQUIRED)
 set(PCAP_REQUIRED)
 set(M_REQUIRED)
 
@@ -249,14 +250,6 @@ if(BUILD_wireshark)
 		set(GTK2_FIND_VERSION 2.12)
 		set(GTK2_DEBUG false)
 	endif()
-	if(ENABLE_THREADS)
-		set(PACKAGELIST ${PACKAGELIST} GTHREAD2)
-	endif()
-endif()
-
-if(BUILD_dumpcap)
-	set(PACKAGELIST ${PACKAGELIST} GTHREAD2)
-	set(GHTREAD2_REQUIRED)
 endif()
 
 # SMI SNMP

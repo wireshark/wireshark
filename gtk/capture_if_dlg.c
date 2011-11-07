@@ -186,7 +186,7 @@ store_selected(GtkWidget *choose_bt, gpointer if_data)
       temp->selected ^=1;
       if_data_list = g_list_remove(if_data_list, curr->data);
       if_data_list = g_list_insert(if_data_list, temp, ifs);
-      
+
       for (i = 0; i < global_capture_opts.ifaces->len; i++) {
         if (strcmp(g_array_index(global_capture_opts.ifaces, interface_options, i).name, temp->if_info.name) == 0) {
           found = TRUE;
@@ -210,8 +210,8 @@ store_selected(GtkWidget *choose_bt, gpointer if_data)
 #endif
             break;
           }
-        } 
-      } 
+        }
+      }
       if (!found && temp->selected) {
         interface_opts.name = g_strdup(temp->if_info.name);
         interface_opts.descr = get_interface_descriptive_name(interface_opts.name);
@@ -248,7 +248,7 @@ store_selected(GtkWidget *choose_bt, gpointer if_data)
           enable_selected_interface(interface_opts.name, TRUE);
         }
       }
-      
+
       if (temp->selected)
         currently_selected += 1;
       else
@@ -257,11 +257,7 @@ store_selected(GtkWidget *choose_bt, gpointer if_data)
     }
   }
   if (cap_if_w) {
-#ifdef USE_THREADS
     gtk_widget_set_sensitive(capture_bt, !gbl_capture_in_progress && (currently_selected > 0));
-#else
-    gtk_widget_set_sensitive(capture_bt, !gbl_capture_in_progress && (currently_selected == 1));
-#endif
   }
 }
 
@@ -393,11 +389,7 @@ set_capture_if_dialog_for_capture_in_progress(gboolean capture_in_progress)
   gbl_capture_in_progress = capture_in_progress;
   if (cap_if_w) {
     gtk_widget_set_sensitive(stop_bt, capture_in_progress);
-#ifdef USE_THREADS
     gtk_widget_set_sensitive(capture_bt, !capture_in_progress && (currently_selected > 0));
-#else
-    gtk_widget_set_sensitive(capture_bt, !capture_in_progress && (currently_selected == 1));
-#endif
   }
 }
 
@@ -993,13 +985,13 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
 #endif
 
     if_data_list = g_list_append(if_data_list, if_dlg_data);
-    
+
     row++;
     if (row <= 10) {
         /* Lets add up 10 rows of interfaces, otherwise the window may become too high */
       gtk_widget_get_preferred_size(GTK_WIDGET(if_dlg_data->choose_bt), &requisition, NULL);
       height += requisition.height;
-    } 
+    }
   }
 
   g_string_free(if_tool_str, TRUE);
@@ -1060,7 +1052,7 @@ void select_all_interfaces(gboolean enable)
     curr = g_list_nth(if_data_list, ifs);
     temp = (if_dlg_data_t *)(curr->data);
     update_selected_interface(temp->if_info.name, enable);
- } 
+ }
 }
 
 void destroy_if_window(void)

@@ -293,12 +293,10 @@ typedef struct capture_filter_check {
 /* We could make this smarter by caching results */
 capture_filter_check_t cfc_data;
 
-#ifdef USE_THREADS
 GMutex *pcap_compile_mtx = NULL;
 GCond *cfc_data_cond = NULL;
 GMutex *cfc_data_mtx = NULL;
 GThread *cfc_thread = NULL;
-#endif
 
 #if 0
 #define DEBUG_SYNTAX_CHECK(state1, state2) g_warning("CF state %s -> %s : %s", state1, state2, cfc_data.filter_text)
@@ -311,28 +309,25 @@ check_capture_filter_syntax(void *data _U_) {
   struct bpf_program fcode;
   int pc_err;
 
-#ifdef USE_THREADS
   while (1) {
     g_mutex_lock(cfc_data_mtx);
     while (!cfc_data.filter_text || cfc_data.state != CFC_PENDING) {
       /* Do we really need to use a mutex here? We only have one thread... */
       g_cond_wait(cfc_data_cond, cfc_data_mtx);
     }
-#endif
     cfc_data.state = CFC_UNKNOWN;
     DEBUG_SYNTAX_CHECK("pending", "unknown");
-#ifdef USE_THREADS
     g_mutex_unlock(cfc_data_mtx);
     g_mutex_lock(pcap_compile_mtx);
-#endif
+
     /* pcap_compile_nopcap will not alter the filter string, so the (char *) cast is "safe" */
     pc_err = pcap_compile_nopcap(DUMMY_SNAPLENGTH /* use a dummy snaplength for syntax-checking */,
             cfc_data.dlt, &fcode, cfc_data.filter_text, 1 /* Do optimize */,
             DUMMY_NETMASK /* use a dummy netmask for syntax-checking */);
-#ifdef USE_THREADS
+
     g_mutex_unlock(pcap_compile_mtx);
     g_mutex_lock(cfc_data_mtx);
-#endif
+
     if (cfc_data.state == CFC_UNKNOWN) { /* No more input came in */
       if (pc_err) {
         DEBUG_SYNTAX_CHECK("unknown", "known bad");
@@ -342,10 +337,8 @@ check_capture_filter_syntax(void *data _U_) {
         cfc_data.state = CFC_VALID;
       }
     }
-#ifdef USE_THREADS
     g_mutex_unlock(cfc_data_mtx);
   }
-#endif
   return NULL;
 }
 
@@ -355,9 +348,8 @@ update_capture_filter_te(gpointer data _U_) {
   if (!prefs.capture_syntax_check_filter)
     return TRUE;
 
-#ifdef USE_THREADS
   g_mutex_lock(cfc_data_mtx);
-#endif
+
   if (cfc_data.filter_text && cfc_data.filter_te) {
     if (cfc_data.state == CFC_VALID) {
       colorize_filter_te_as_valid(cfc_data.filter_te);
@@ -377,9 +369,7 @@ update_capture_filter_te(gpointer data _U_) {
       cfc_data.state = CFC_PENDING;
     }
   }
-#ifdef USE_THREADS
   g_mutex_unlock(cfc_data_mtx);
-#endif
   return TRUE;
 }
 
@@ -389,13 +379,11 @@ void capture_filter_init(void) {
   cfc_data.filter_text = NULL;
   cfc_data.filter_te = NULL;
   cfc_data.state = CFC_PENDING;
-#ifdef USE_THREADS
   pcap_compile_mtx = g_mutex_new();
   cfc_data_cond = g_cond_new();
   cfc_data_mtx = g_mutex_new();
   g_timeout_add(200, update_capture_filter_te, NULL);
   g_thread_create(check_capture_filter_syntax, NULL, FALSE, NULL);
-#endif
 }
 
 static void
@@ -431,9 +419,7 @@ capture_filter_check_syntax_cb(GtkWidget *w _U_, gpointer user_data _U_)
     return;
   }
 
-#ifdef USE_THREADS
   g_mutex_lock(cfc_data_mtx);
-#endif
   /* Ruthlessly clobber the current state. */
   if (cfc_data.filter_text != NULL) {
     g_free(cfc_data.filter_text);
@@ -442,21 +428,14 @@ capture_filter_check_syntax_cb(GtkWidget *w _U_, gpointer user_data _U_)
   cfc_data.filter_te = filter_te;
   cfc_data.state = CFC_PENDING;
   DEBUG_SYNTAX_CHECK("?", "pending");
-#ifdef USE_THREADS
   g_cond_signal(cfc_data_cond);
   g_mutex_unlock(cfc_data_mtx);
-#else
-  check_capture_filter_syntax(NULL);
-  update_capture_filter_te(NULL);
-#endif
 }
 
 static void
 capture_filter_destroy_cb(GtkWidget *w _U_, gpointer user_data _U_)
 {
-#ifdef USE_THREADS
   g_mutex_lock(cfc_data_mtx);
-#endif
   /* Reset the current state to idle. */
   if (cfc_data.filter_text != NULL) {
     g_free(cfc_data.filter_text);
@@ -464,9 +443,7 @@ capture_filter_destroy_cb(GtkWidget *w _U_, gpointer user_data _U_)
   cfc_data.filter_text = NULL;
   cfc_data.filter_te = NULL;
   cfc_data.state = CFC_PENDING;
-#ifdef USE_THREADS
   g_mutex_unlock(cfc_data_mtx);
-#endif
 }
 
 #define TIME_UNIT_SECOND    0
@@ -1638,18 +1615,14 @@ capture_filter_compile_cb(GtkWidget *w _U_, gpointer user_data _U_)
   pd = pcap_open_dead(dlt, DUMMY_SNAPLENGTH);
   filter_cm = g_object_get_data(G_OBJECT(opt_edit_w), E_CFILTER_CM_KEY);
   filter_text = gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT(filter_cm));
-#ifdef USE_THREADS
     g_mutex_lock(pcap_compile_mtx);
-#endif
   /* pcap_compile will not alter the filter string, so the (char *) cast is "safe" */
 #ifdef PCAP_NETMASK_UNKNOWN
   if (pcap_compile(pd, &fcode, (char *)filter_text, 1 /* Do optimize */, PCAP_NETMASK_UNKNOWN) < 0) {
 #else
   if (pcap_compile(pd, &fcode, (char *)filter_text, 1 /* Do optimize */, 0) < 0) {
 #endif
-#ifdef USE_THREADS
     g_mutex_unlock(pcap_compile_mtx);
-#endif
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", pcap_geterr(pd));
   } else {
     GString *bpf_code_dump = g_string_new("");
@@ -1799,11 +1772,7 @@ update_options_table(gint index)
 #else
     gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, TRUE, INTERFACE, temp,LINK, link->name,  PMODE, row.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, FILTER, row.cfilter, -1);
 #endif
-#ifdef USE_THREADS
     if (num_selected > 0) {
-#else
-    if (num_selected == 1) {
-#endif
       gtk_widget_set_sensitive(ok_bt, TRUE);
     } else {
       gtk_widget_set_sensitive(ok_bt, FALSE);
@@ -2362,11 +2331,7 @@ static void toggle_callback(GtkCellRendererToggle *cell _U_,
   } else {
     gtk_widget_set_sensitive(pcap_ng_cb, TRUE);
   }
-#ifdef USE_THREADS
   if (num_selected > 0) {
-#else
-  if (num_selected == 1) {
-#endif
     gtk_widget_set_sensitive(ok_bt, TRUE);
   } else {
     gtk_widget_set_sensitive(ok_bt, FALSE);
@@ -2526,11 +2491,7 @@ void enable_selected_interface(gchar *name, gboolean enable)
       break;
     }
   }
-#ifdef USE_THREADS
   if (num_selected > 0) {
-#else
-  if (num_selected == 1) {
-#endif
     gtk_widget_set_sensitive(ok_bt, TRUE);
   } else {
     gtk_widget_set_sensitive(ok_bt, FALSE);
@@ -2574,11 +2535,7 @@ static void capture_all_cb(GtkToggleButton *button, gpointer d _U_)
   if (get_welcome_window() != NULL) {
     change_selection_for_all(enabled);
   }
-#ifdef USE_THREADS
   if (num_selected > 0) {
-#else
-  if (num_selected == 1) {
-#endif
     gtk_widget_set_sensitive(ok_bt, TRUE);
   } else {
     gtk_widget_set_sensitive(ok_bt, FALSE);
@@ -3234,11 +3191,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   ok_bt = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_CAPTURE_START);
   g_signal_connect(ok_bt, "clicked", G_CALLBACK(capture_start_cb), NULL);
   gtk_widget_set_tooltip_text(ok_bt, "Start the capture process.");
-#ifdef USE_THREADS
   if (num_selected > 0) {
-#else
-  if (num_selected == 1) {
-#endif
     gtk_widget_set_sensitive(ok_bt, TRUE);
   } else {
     gtk_widget_set_sensitive(ok_bt, FALSE);

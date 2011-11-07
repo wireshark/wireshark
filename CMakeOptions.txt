@@ -31,7 +31,6 @@ option(ENABLE_STATIC     "Build a static version of Wireshark (not yet working)"
 option(ENABLE_PLUGINS    "Build with plugins" ON)
 option(ENABLE_GUIDES     "Build Guides" OFF)
 option(ENABLE_PCAP_NG_DEFAULT	"Enable pcap-ng as default file format" ON)
-option(ENABLE_THREADS    "Build with threads support" ON)
 
 option(ENABLE_ADNS       "Build with adns support" ON)
 option(ENABLE_PORTAUDIO  "Build with portaudio support" ON)
@@ -46,4 +45,3 @@ option(ENABLE_CAP        "Build with posix capabilities support" ON)
 option(ENABLE_CARES      "Build with c_ares support" ON)
 # todo Mostly hardcoded
 option(ENABLE_KERBEROS   "Build with Kerberos support" ON)
-

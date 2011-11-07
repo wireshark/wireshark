@@ -235,7 +235,7 @@ typedef struct _pcap_options {
 #endif
     gboolean       cap_pipe_modified;     /* TRUE if data in the pipe uses modified pcap headers */
     gboolean       cap_pipe_byte_swapped; /* TRUE if data in the pipe is byte swapped */
-#if defined(USE_THREADS) && defined(_WIN32)
+#if defined(_WIN32)
     char *         cap_pipe_buf;          /* Pointer to the data buffer we read into */
 #endif
     int            cap_pipe_bytes_to_read;/* Used by cap_pipe_dispatch */
@@ -247,7 +247,7 @@ typedef struct _pcap_options {
         STATE_READ_DATA
     } cap_pipe_state;
     enum { PIPOK, PIPEOF, PIPERR, PIPNEXIST } cap_pipe_err;
-#if defined(USE_THREADS) && defined(_WIN32)
+#if defined(_WIN32)
     GMutex *cap_pipe_read_mtx;
     GAsyncQueue *cap_pipe_pending_q, *cap_pipe_done_q;
 #endif
@@ -318,7 +318,7 @@ static gboolean need_timeout_workaround;
  * WaitForSingleObject. If it's less than 1000 WaitForSingleObject
  * will return immediately.
  */
-#if defined(USE_THREADS) && defined(_WIN32)
+#if defined(_WIN32)
 #define PIPE_READ_TIMEOUT   100000
 #else
 #define PIPE_READ_TIMEOUT   250000
@@ -415,9 +415,7 @@ print_usage(gboolean print_ver)
     fprintf(output, "  -n                       use pcapng format instead of pcap\n");
     fprintf(output, "\n");
     fprintf(output, "Miscellaneous:\n");
-#ifdef USE_THREADS
     fprintf(output, "  -t                       use a separate thread per interface\n");
-#endif
     fprintf(output, "  -q                       don't report packet capture counts\n");
     fprintf(output, "  -v                       print version information and exit\n");
     fprintf(output, "  -h                       display this help and exit\n");
@@ -1547,7 +1545,7 @@ cap_pipe_adjust_header(gboolean byte_swapped, struct pcap_hdr *hdr, struct pcapr
     }
 }
 
-#if defined(USE_THREADS) && defined(_WIN32)
+#if defined(_WIN32)
 /*
  * Thread function that reads from a pipe and pushes the data
  * to the main application thread.
@@ -1635,7 +1633,7 @@ static void *cap_pipe_read(void *arg)
 }
 #endif
 
-#if (!(defined(USE_THREADS) && defined(_WIN32))) || defined(MUST_DO_SELECT)
+#if !defined(_WIN32) || defined(MUST_DO_SELECT)
 /* Provide select() functionality for a single file descriptor
  * on UNIX/POSIX. Windows uses cap_pipe_read via a thread.
  *
@@ -1682,7 +1680,7 @@ cap_pipe_open_live(char *pipename,
     wchar_t *err_str;
 #endif
 #endif
-#if !(defined(USE_THREADS) && defined(_WIN32))
+#ifndef _WIN32
     int          sel_ret;
     unsigned int bytes_read;
 #endif
@@ -1851,7 +1849,7 @@ cap_pipe_open_live(char *pipename,
 
     pcap_opts->from_cap_pipe = TRUE;
 
-#if !(defined(USE_THREADS) && defined(_WIN32))
+#ifndef _WIN32
     /* read the pcap header */
     bytes_read = 0;
     while (bytes_read < sizeof magic) {
@@ -1926,7 +1924,7 @@ cap_pipe_open_live(char *pipename,
         goto error;
     }
 
-#if !(defined(USE_THREADS) && defined(_WIN32))
+#ifndef _WIN32
     /* Read the rest of the header */
     bytes_read = 0;
     while (bytes_read < sizeof(struct pcap_hdr)) {
@@ -2006,7 +2004,7 @@ cap_pipe_dispatch(loop_data *ld, pcap_options *pcap_opts, guchar *data, char *er
     struct pcap_pkthdr phdr;
     enum { PD_REC_HDR_READ, PD_DATA_READ, PD_PIPE_EOF, PD_PIPE_ERR,
            PD_ERR } result;
-#if defined(USE_THREADS) && defined(_WIN32)
+#ifdef _WIN32
     GTimeVal wait_time;
     gpointer q_status;
 #else
@@ -2023,7 +2021,7 @@ cap_pipe_dispatch(loop_data *ld, pcap_options *pcap_opts, guchar *data, char *er
     switch (pcap_opts->cap_pipe_state) {
 
     case STATE_EXPECT_REC_HDR:
-#if defined(USE_THREADS) && defined(_WIN32)
+#ifdef _WIN32
         if (g_mutex_trylock(pcap_opts->cap_pipe_read_mtx)) {
 #endif
 
@@ -2032,7 +2030,7 @@ cap_pipe_dispatch(loop_data *ld, pcap_options *pcap_opts, guchar *data, char *er
                 sizeof(struct pcaprec_modified_hdr) : sizeof(struct pcaprec_hdr);
             pcap_opts->cap_pipe_bytes_read = 0;
 
-#if defined(USE_THREADS) && defined(_WIN32)
+#ifdef _WIN32
             pcap_opts->cap_pipe_buf = (char *) &pcap_opts->cap_pipe_rechdr;
             g_async_queue_push(pcap_opts->cap_pipe_pending_q, pcap_opts->cap_pipe_buf);
             g_mutex_unlock(pcap_opts->cap_pipe_read_mtx);
@@ -2041,7 +2039,7 @@ cap_pipe_dispatch(loop_data *ld, pcap_options *pcap_opts, guchar *data, char *er
         /* Fall through */
 
     case STATE_READ_REC_HDR:
-#if !(defined(USE_THREADS) && defined(_WIN32))
+#ifndef _WIN32
         b = read(pcap_opts->cap_pipe_fd, ((char *)&pcap_opts->cap_pipe_rechdr)+pcap_opts->cap_pipe_bytes_read,
                  pcap_opts->cap_pipe_bytes_to_read - pcap_opts->cap_pipe_bytes_read);
         if (b <= 0) {
@@ -2073,7 +2071,7 @@ cap_pipe_dispatch(loop_data *ld, pcap_options *pcap_opts, guchar *data, char *er
         break;
 
     case STATE_EXPECT_DATA:
-#if defined(USE_THREADS) && defined(_WIN32)
+#ifdef _WIN32
         if (g_mutex_trylock(pcap_opts->cap_pipe_read_mtx)) {
 #endif
 
@@ -2081,7 +2079,7 @@ cap_pipe_dispatch(loop_data *ld, pcap_options *pcap_opts, guchar *data, char *er
             pcap_opts->cap_pipe_bytes_to_read = pcap_opts->cap_pipe_rechdr.hdr.incl_len;
             pcap_opts->cap_pipe_bytes_read = 0;
 
-#if defined(USE_THREADS) && defined(_WIN32)
+#ifdef _WIN32
             pcap_opts->cap_pipe_buf = (char *) data;
             g_async_queue_push(pcap_opts->cap_pipe_pending_q, pcap_opts->cap_pipe_buf);
             g_mutex_unlock(pcap_opts->cap_pipe_read_mtx);
@@ -2090,7 +2088,7 @@ cap_pipe_dispatch(loop_data *ld, pcap_options *pcap_opts, guchar *data, char *er
         /* Fall through */
 
     case STATE_READ_DATA:
-#if !(defined(USE_THREADS) && defined(_WIN32))
+#ifndef _WIN32
         b = read(pcap_opts->cap_pipe_fd, data+pcap_opts->cap_pipe_bytes_read,
                  pcap_opts->cap_pipe_bytes_to_read - pcap_opts->cap_pipe_bytes_read);
         if (b <= 0) {
@@ -2292,14 +2290,14 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 #endif
         pcap_opts->cap_pipe_modified = FALSE;
         pcap_opts->cap_pipe_byte_swapped = FALSE;
-#if defined(USE_THREADS) && defined(_WIN32)
+#ifdef _WIN32
         pcap_opts->cap_pipe_buf = NULL;
 #endif
         pcap_opts->cap_pipe_bytes_to_read = 0;
         pcap_opts->cap_pipe_bytes_read = 0;
         pcap_opts->cap_pipe_state = 0;
         pcap_opts->cap_pipe_err = PIPOK;
-#if defined(USE_THREADS) && defined(_WIN32)
+#ifdef _WIN32
         pcap_opts->cap_pipe_read_mtx = g_mutex_new();
         pcap_opts->cap_pipe_pending_q = g_async_queue_new();
         pcap_opts->cap_pipe_done_q = g_async_queue_new();
@@ -2636,7 +2634,7 @@ capture_loop_dispatch(loop_data *ld,
     int       inpkts;
     gint      packet_count_before;
     guchar    pcap_data[WTAP_MAX_PACKET_SIZE];
-#if !(defined(USE_THREADS) && defined(_WIN32))
+#ifndef _WIN32
     int       sel_ret;
 #endif
 
@@ -2646,7 +2644,7 @@ capture_loop_dispatch(loop_data *ld,
 #ifdef LOG_CAPTURE_VERBOSE
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_dispatch: from capture pipe");
 #endif
-#if !(defined(USE_THREADS) && defined(_WIN32))
+#ifndef _WIN32
         sel_ret = cap_pipe_select(pcap_opts->cap_pipe_fd);
         if (sel_ret <= 0) {
             if (sel_ret < 0 && errno != EINTR) {
@@ -2664,7 +2662,7 @@ capture_loop_dispatch(loop_data *ld,
             if (inpkts < 0) {
                 ld->go = FALSE;
             }
-#if !(defined(USE_THREADS) && defined(_WIN32))
+#ifndef _WIN32
         }
 #endif
     }
@@ -3856,10 +3854,8 @@ main(int argc, char *argv[])
     global_ld.pcaps = g_array_new(FALSE, FALSE, sizeof(pcap_options *));
 
     /* Initialize the thread system */
-#ifdef USE_THREADS
-    if (!g_thread_supported())
-        g_thread_init(NULL);
-#endif
+    g_thread_init(NULL);
+
 #ifdef _WIN32
     /* Load wpcap if possible. Do this before collecting the run-time version information */
     load_wpcap();
@@ -4076,11 +4072,9 @@ main(int argc, char *argv[])
         case 'q':        /* Quiet */
             quiet = TRUE;
             break;
-#ifdef USE_THREADS
         case 't':
             use_threads = TRUE;
             break;
-#endif
             /*** all non capture option specific ***/
         case 'D':        /* Print a list of capture devices and exit */
             list_interfaces = TRUE;
@@ -4148,12 +4142,10 @@ main(int argc, char *argv[])
     } else {
         /* We're supposed to capture traffic; */
         /* Are we capturing on multiple interface? If so, use threads and pcapng. */
-#ifdef USE_THREADS
         if (global_capture_opts.ifaces->len > 1) {
             use_threads = TRUE;
             global_capture_opts.use_pcapng = TRUE;
         }
-#endif
         /* Was the ring buffer option specified and, if so, does it make sense? */
         if (global_capture_opts.multi_files_on) {
             /* Ring buffer works only under certain conditions:

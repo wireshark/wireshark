@@ -2316,9 +2316,7 @@ main(int argc, char *argv[])
   optind = optind_initial;
   opterr = 1;
 
-#ifdef USE_THREADS
   g_thread_init(NULL);
-#endif
 
   /* Set the current locale according to the program environment.
    * We haven't localized anything, but some GTK widgets are localized
@@ -2781,12 +2779,6 @@ main(int argc, char *argv[])
   prefs_apply_all();
 
 #ifdef HAVE_LIBPCAP
-#ifndef USE_THREADS
-  if ((global_capture_opts.ifaces->len > 1) && start_capture) {
-    cmdarg_err("You specified multiple interfaces for capturing which this version of Wireshark doesn't support.");
-    exit(2);
-  }
-#endif
   if ((global_capture_opts.ifaces->len == 0) &&
       (prefs.capture_device != NULL)) {
     GList *curr, *combo_list;

@@ -153,11 +153,6 @@ get_compiled_version_info(GString *str, void (*prepend_info)(GString *),
 #else /* HAVE_LIBCAP */
 	g_string_append(str, "without POSIX capabilities");
 #endif /* HAVE_LIBCAP */
-#ifdef USE_THREADS
-	g_string_append_printf(str, ", with threads support");
-#else
-	g_string_append_printf(str, ", without threads support");
-#endif
 
 	/* Additional application-dependent information */
 	if (append_info)
