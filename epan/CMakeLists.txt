@@ -1069,6 +1069,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-umts_mac.c
 	dissectors/packet-usb.c
 	dissectors/packet-usb-at.c
+	dissectors/packet-usb-ccid.c
 	dissectors/packet-usb-hid.c
 	dissectors/packet-usb-hub.c
 	dissectors/packet-usb-masstorage.c
