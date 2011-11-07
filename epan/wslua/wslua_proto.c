@@ -1699,6 +1699,7 @@ WSLUA_METHOD DissectorTable_try (lua_State *L) {
     Pinfo pinfo = checkPinfo(L,4);
     TreeItem ti = checkTreeItem(L,5);
     ftenum_t type;
+    gboolean handled = FALSE;
     gchar *volatile error = NULL;
 
     if (! (dt && tvb && tvb->ws_tvb && pinfo && ti) ) return 0;
@@ -1710,22 +1711,24 @@ WSLUA_METHOD DissectorTable_try (lua_State *L) {
         if (type == FT_STRING) {
             const gchar* pattern = luaL_checkstring(L,2);
 
-            if (!pattern) return 0;
+            if (!pattern)
+                handled = TRUE;
 
-            if (dissector_try_string(dt->table,pattern,tvb->ws_tvb,pinfo->ws_pinfo,ti->tree))
-                return 0;
+            else if (dissector_try_string(dt->table,pattern,tvb->ws_tvb,pinfo->ws_pinfo,ti->tree))
+                handled = TRUE;
 
         } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
-          int port = luaL_checkint(L, 2);
+            int port = luaL_checkint(L, 2);
 
-          if (dissector_try_uint(dt->table,port,tvb->ws_tvb,pinfo->ws_pinfo,ti->tree))
-              return 0;
+            if (dissector_try_uint(dt->table,port,tvb->ws_tvb,pinfo->ws_pinfo,ti->tree))
+                handled = TRUE;
 
         } else {
-          luaL_error(L,"No such type of dissector_table");
+            luaL_error(L,"No such type of dissector_table");
         }
 
-        call_dissector(lua_data_handle,tvb->ws_tvb,pinfo->ws_pinfo,ti->tree);
+        if (!handled)
+            call_dissector(lua_data_handle,tvb->ws_tvb,pinfo->ws_pinfo,ti->tree);
 
         /* XXX Are we sure about this??? is this the right/only thing to catch */
     } CATCH(ReportedBoundsError) {
