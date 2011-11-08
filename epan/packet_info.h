@@ -66,6 +66,9 @@ typedef struct _packet_info {
   const char *noreassembly_reason;  /* reason why reassembly wasn't done, if any */
   gboolean fragmented;		/* TRUE if the protocol is only a fragment */
   gboolean in_error_pkt;	/* TRUE if we're inside an {ICMP,CLNP,...} error packet */
+  struct {
+    guint32 in_gre_pkt:1;	/* TRUE if we're encapsulated inside a GRE packet */
+  } flags;
   port_type ptype;		/* type of the following two port numbers */
   guint32 srcport;		/* source port */
   guint32 destport;		/* destination port */

@@ -1065,6 +1065,8 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           if ( icmp_type == ICMP_ECHOREPLY ) {
             if ( !pinfo->in_error_pkt ) {
               conv_key[0] = (guint32)tvb_get_ntohs(tvb, 2);
+              if (pinfo->flags.in_gre_pkt)
+                conv_key[0] |= 0x00010000; /* set a bit for "in GRE" */
               conv_key[1] = (guint32)((tvb_get_ntohs(tvb, 4) << 16) |
                 tvb_get_ntohs(tvb, 6));
               trans = transaction_end(pinfo, icmp_tree, conv_key);
@@ -1076,6 +1078,8 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
               tmp[0] = ~tvb_get_ntohs(tvb, 2);
               tmp[1] = ~0x0800; /* The difference between echo request & reply */
               conv_key[0] = ip_checksum((guint8 *)&tmp, sizeof(tmp));
+              if (pinfo->flags.in_gre_pkt)
+                conv_key[0] |= 0x00010000; /* set a bit for "in GRE" */
               conv_key[1] = (guint32)((tvb_get_ntohs(tvb, 4) << 16) |
                 tvb_get_ntohs(tvb, 6));
               trans = transaction_start(pinfo, icmp_tree, conv_key);
