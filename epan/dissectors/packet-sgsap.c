@@ -367,7 +367,7 @@ de_sgsap_mme_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
  * as defined in subclause 7.2 of 3GPP TS 24.011 [10]
  */
 static guint16
-de_sgsap_nas_msg_container(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_sgsap_nas_msg_container(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	tvbuff_t *new_tvb;
 	guint32	curr_offset;
@@ -377,7 +377,7 @@ de_sgsap_nas_msg_container(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 	/* Octets 3 to 253 contain the SMS message (i.e. CP DATA, CP ACK or CP ERROR)
 	 * as defined in subclause 7.2 of 3GPP TS 24.011 [10]
 	 */
-	new_tvb = tvb_new_subset_remaining(tvb, curr_offset);
+	new_tvb = tvb_new_subset(tvb, curr_offset,len, len);
 	if(gsm_a_dtap_handle){
 		call_dissector(gsm_a_dtap_handle,new_tvb,gpinfo, tree);
 	}
