@@ -135,8 +135,6 @@ dissect_sbc_ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
         proto_item      *sbc_ap_item = NULL;
         proto_tree      *sbc_ap_tree = NULL;
-        int                     offset = 0;
-
 
         /* make entry in the Protocol column on summary display */
         if (check_col(pinfo->cinfo, COL_PROTOCOL))
