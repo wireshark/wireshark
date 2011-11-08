@@ -9029,7 +9029,8 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		ftree = proto_item_add_subtree(fitem, ett_nfs_argop4);
 	}
 
-	proto_item_append_text(proto_tree_get_parent(tree), ", Ops(%d):", ops);
+	if (ops)
+		proto_item_append_text(proto_tree_get_parent(tree), ", Ops(%d):", ops);
 
 	for (ops_counter=0; ops_counter<ops; ops_counter++)
 	{
@@ -9062,9 +9063,10 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 		g_string_append_printf (op_summary[ops_counter].optext, "%s", opname);
 		g_string_printf (op_summary[ops_counter].optext, "%s",
-                                 val_to_str_ext_const(opcode, &names_nfsv4_operation_ext, "Unknown"));
+			val_to_str_ext_const(opcode, &names_nfsv4_operation_ext, "Unknown"));
 
-		proto_item_append_text(tree, " %s", opname);
+		proto_item_append_text(proto_tree_get_parent(tree),
+			"%s%s", ops_counter ? ", " : " ", opname);
 
 		switch(opcode)
 		{
