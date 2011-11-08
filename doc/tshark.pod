@@ -856,7 +856,7 @@ This will count the total number of SIDs seen in each 10ms interval.
 
 B<SUM(I<field>)I<field> [and I<filter>]> - Unlike COUNT, the I<values> of the
 specified field are summed per time interval.
-''I<field>'' can only be a named integer or relative time field.
+''I<field>'' can only be a named integer, float, double or relative time field.
 
 Example: B<-z io,stat,0.010,E<34>SUM(frame.len)frame.lenE<34>>
 
@@ -864,8 +864,8 @@ Reports the total number of bytes that were transmitted bidirectionally in
 all the packets within a 10 millisecond interval.
 
 B<MIN/MAX/AVG(I<field>)I<field> [and I<filter>]> - The minimum, maximum, or average field value
-in each interval is calculated.  The specified field must be a named integer
-or relative time field.  For relative time fields, the output is presented in
+in each interval is calculated.  The specified field must be a named integer,
+float, double or relative time field.  For relative time fields, the output is presented in
 seconds with six decimal digits of precision rounded to the nearest microsecond.
 
 In the following example, the time of the first Read_AndX call, the last Read_AndX
