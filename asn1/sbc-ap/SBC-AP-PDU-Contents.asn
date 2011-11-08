@@ -1,0 +1,184 @@
+-- SBC-AP-PDU-Contents.asn
+--
+-- Taken from 3GPP TS 29.168 V9.3.0 (2010-12)
+-- http://www.3gpp.org/ftp/Specs/archive/29_series/29.168/29168-930.zip
+--
+-- 4.4.4	PDU Definitions
+--
+-- $Id$??
+--
+
+-- **************************************************************
+--
+-- PDU definitions for SBC-AP.
+--
+-- **************************************************************
+
+SBC-AP-PDU-Contents {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+eps-Access (21) modules (3) sbc-AP (3) version1 (1) sbc-AP-PDU-Contents (1)}
+
+DEFINITIONS AUTOMATIC TAGS ::= 
+
+BEGIN
+
+-- **************************************************************
+--
+-- IE parameter types from other modules.
+--
+-- **************************************************************
+
+IMPORTS
+	
+	Cause,
+	Concurrent-Warning-Message-Indicator,
+	Criticality-Diagnostics,
+	Data-Coding-Scheme,
+	Message-Identifier,
+	Serial-Number,
+	List-of-TAIs,
+	Warning-Area-List, 
+	Omc-Id,
+	Repetition-Period, 
+	Extended-Repetition-Period,
+	Number-of-Broadcasts-Requested,
+	Warning-Type,
+	Warning-Security-Information,
+	Warning-Message-Content
+FROM SBC-AP-IEs
+
+	ProtocolExtensionContainer{},
+	ProtocolIE-Container{},
+	SBC-AP-PROTOCOL-EXTENSION,
+	SBC-AP-PROTOCOL-IES
+FROM SBC-AP-Containers
+
+	id-Concurrent-Warning-Message-Indicator,
+	id-Criticality-Diagnostics,
+	id-Cause,
+	id-Data-Coding-Scheme,
+	id-List-of-TAIs,
+	id-Message-Identifier,
+	id-Serial-Number,
+	id-Number-of-Broadcasts-Requested, 
+	id-Omc-Id,
+	id-Radio-Resource-Loading-List,
+	id-Recovery-Indication,
+	id-Repetition-Period, 
+	id-Extended-Repetition-Period,
+	id-Warning-Area-List,
+	id-Warning-Message-Content,
+	id-Warning-Security-Information,
+	id-Warning-Type
+FROM SBC-AP-Constants;
+
+-- **************************************************************
+--
+-- Write-Replace-Warning-Request
+--
+-- **************************************************************
+
+Write-Replace-Warning-Request ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container      { {Write-Replace-Warning-Request-IEs} },
+	protocolExtensions		ProtocolExtensionContainer { {Write-Replace-Warning-Request-Extensions} } OPTIONAL,
+	...
+}
+
+Write-Replace-Warning-Request-IEs SBC-AP-PROTOCOL-IES ::= {
+	{ ID id-Message-Identifier	CRITICALITY reject	TYPE Message-Identifier		PRESENCE mandatory } |
+	{ ID id-Serial-Number	CRITICALITY reject	TYPE Serial-Number		PRESENCE mandatory } |
+	{ ID id-List-of-TAIs		CRITICALITY reject	TYPE List-of-TAIs		PRESENCE optional } |
+	{ ID id-Warning-Area-List	CRITICALITY ignore	TYPE Warning-Area-List		PRESENCE optional } |
+	{ ID id-Repetition-Period	CRITICALITY reject	TYPE Repetition-Period		PRESENCE mandatory  } |
+	{ ID id-Extended-Repetition-Period	CRITICALITY reject	TYPE Repetition-Period		PRESENCE optional  } |
+
+	{ ID id-Number-of-Broadcasts-Requested
+					CRITICALITY reject	TYPE Number-of-Broadcasts-Requested	PRESENCE mandatory } |
+	{ ID id-Warning-Type		CRITICALITY ignore	TYPE Warning-Type		PRESENCE optional } |
+	{ ID id-Warning-Security-Information		CRITICALITY ignore	TYPE Warning-Security-Information		PRESENCE optional } |
+	{ ID id-Data-Coding-Scheme	CRITICALITY ignore	TYPE Data-Coding-Scheme		PRESENCE optional } |
+	{ ID id-Warning-Message-Content
+					CRITICALITY ignore	TYPE Warning-Message-Content	PRESENCE optional } |
+	{ ID id-Omc-Id  CRITICALITY ignore TYPE Omc-Id PRESENCE optional } |
+	{ ID id-Concurrent-Warning-Message-Indicator  CRITICALITY reject TYPE Concurrent-Warning-Message-Indicator PRESENCE optional }
+	...
+}
+
+Write-Replace-Warning-Request-Extensions SBC-AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+-- **************************************************************
+--
+-- Write-Replace-Warning-Response
+--
+-- **************************************************************
+
+Write-Replace-Warning-Response ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { {Write-Replace-Warning-Response-IEs} },
+	protocolExtensions		ProtocolExtensionContainer { {Write-Replace-Warning-Response-Extensions} } OPTIONAL,
+	...
+}
+
+Write-Replace-Warning-Response-IEs SBC-AP-PROTOCOL-IES ::= {
+	{ ID id-Message-Identifier	CRITICALITY reject	TYPE Message-Identifier		PRESENCE mandatory } |
+	{ ID id-Serial-Number	CRITICALITY reject	TYPE Serial-Number		PRESENCE mandatory } |
+	{ ID id-Cause				CRITICALITY ignore	TYPE Cause					PRESENCE mandatory }	|
+	{ ID id-Criticality-Diagnostics		CRITICALITY ignore	TYPE Criticality-Diagnostics	PRESENCE optional },
+	...
+}
+
+Write-Replace-Warning-Response-Extensions SBC-AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+-- **************************************************************
+--
+-- Stop-Warning-Request
+--
+-- **************************************************************
+
+Stop-Warning-Request ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container      { {Stop-Warning-Request-IEs} },
+	protocolExtensions		ProtocolExtensionContainer { {Stop-Warning-Request-Extensions} } OPTIONAL,
+	...
+}
+
+Stop-Warning-Request-IEs SBC-AP-PROTOCOL-IES ::= {
+	{ ID id-Message-Identifier	CRITICALITY reject	TYPE Message-Identifier		PRESENCE mandatory } |
+	{ ID id-Serial-Number	CRITICALITY reject	TYPE Serial-Number		PRESENCE mandatory } |
+	{ ID id-List-of-TAIs		CRITICALITY reject	TYPE List-of-TAIs		PRESENCE optional } |
+	{ ID id-Warning-Area-List	CRITICALITY ignore	TYPE Warning-Area-List		PRESENCE optional }|
+	{ ID id-Omc-Id  CRITICALITY ignore TYPE Omc-Id PRESENCE optional },
+	...	
+}
+
+Stop-Warning-Request-Extensions SBC-AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+-- **************************************************************
+--
+-- Stop-Warning-Response
+--
+-- **************************************************************
+
+Stop-Warning-Response ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { {Stop-Warning-Response-IEs} },
+	protocolExtensions		ProtocolExtensionContainer { {Stop-Warning-Response-Extensions} } OPTIONAL,
+	...
+}
+
+Stop-Warning-Response-IEs SBC-AP-PROTOCOL-IES ::= {
+	{ ID id-Message-Identifier	CRITICALITY reject	TYPE Message-Identifier		PRESENCE mandatory } |
+	{ ID id-Serial-Number	CRITICALITY reject	TYPE Serial-Number		PRESENCE mandatory } |
+	{ ID id-Cause				CRITICALITY ignore	TYPE Cause					PRESENCE mandatory }	|
+	{ ID id-Criticality-Diagnostics		CRITICALITY ignore	TYPE Criticality-Diagnostics	PRESENCE optional },
+	...
+}
+
+Stop-Warning-Response-Extensions SBC-AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+END

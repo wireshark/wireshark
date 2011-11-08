@@ -1,0 +1,248 @@
+-- SBC-AP-IEs.asn
+--
+-- Taken from 3GPP TS 29.168 V9.3.0 (2010-12)
+-- http://www.3gpp.org/ftp/Specs/archive/29_series/29.168/29168-930.zip
+--
+-- 4.4.5	Information Element Definitions
+--
+-- $Id$??
+--
+
+-- **************************************************************
+--
+-- Information Element Definitions
+--
+-- **************************************************************
+
+SBC-AP-IEs {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+eps-Access (21) modules (3) sbc-AP (3) version1 (1) sbc-AP-IEs (2)}
+
+DEFINITIONS AUTOMATIC TAGS ::= 
+
+BEGIN
+
+IMPORTS
+	maxNrOfErrors,
+	maxNrOfTAIs,
+	maxnoofTAIforWarning,
+	maxnoofCellID,
+	maxnoofEmergencyAreaID,
+
+	id-TypeOfError
+
+FROM SBC-AP-Constants
+
+	Criticality,
+	ProcedureCode,
+	TriggeringMessage,
+	ProtocolIE-ID
+FROM SBC-AP-CommonDataTypes
+
+	ProtocolExtensionContainer{},
+
+	SBC-AP-PROTOCOL-EXTENSION
+FROM SBC-AP-Containers;
+
+
+-- A
+
+-- B
+
+-- C
+
+Cause 					::= INTEGER {
+	message-accepted									(0),
+	parameter-not-recognised							(1),
+	parameter-value-invalid								(2),
+	valid-message-not-identified 						(3),
+	tracking-area-not-valid			 					(4),
+	unrecognised-message 								(5),
+	missing-mandatory-element 							(6),
+	mME-capacity-exceeded 								(7),
+	mME-memory-exceeded 								(8),
+	warning-broadcast-not-supported		 				(9),
+	warning-broadcast-not-operational 					(10),
+	message-reference-already-used 						(11),
+	unspecifed-error 									(12),
+	transfer-syntax-error								(13),
+	semantic-error										(14),
+	message-not-compatible-with-receiver-state			(15),
+	abstract-syntax-error-reject						(16),
+	abstract-syntax-error-ignore-and-notify				(17),
+	abstract-syntax-error-falsely-constructed-message	(18)
+} (0..255)
+
+
+CellIdentity			::= BIT STRING (SIZE (28))
+
+Concurrent-Warning-Message-Indicator ::= ENUMERATED {true}
+
+Criticality-Diagnostics			::= SEQUENCE {
+	procedureCode			ProcedureCode			OPTIONAL,
+	triggeringMessage		TriggeringMessage		OPTIONAL,
+	procedureCriticality		Criticality			OPTIONAL,
+	iEsCriticalityDiagnostics		CriticalityDiagnostics-IE-List 	OPTIONAL,
+	iE-Extensions			ProtocolExtensionContainer { {CriticalityDiagnostics-ExtIEs} } OPTIONAL,
+	...
+}
+
+CriticalityDiagnostics-ExtIEs SBC-AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+CriticalityDiagnostics-IE-List ::= SEQUENCE (SIZE (1..maxNrOfErrors)) OF
+	SEQUENCE {
+		iECriticality		Criticality,
+		iE-ID				ProtocolIE-ID,
+		typeOfError 			TypeOfError,
+		iE-Extensions			ProtocolExtensionContainer {{CriticalityDiagnostics-IE-Item-ExtIEs}} OPTIONAL,
+	...
+}
+
+CriticalityDiagnostics-IE-Item-ExtIEs SBC-AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+
+-- D
+
+Data-Coding-Scheme			::= BIT STRING (SIZE (8))
+
+-- E
+
+ECGIList					::= SEQUENCE (SIZE(1..maxnoofCellID)) OF EUTRAN-CGI
+
+Emergency-Area-ID-List		::=	SEQUENCE (SIZE(1..maxnoofEmerAreaIDs)) OF Emergency-Area-ID
+
+Emergency-Area-ID			::=	OCTET STRING (SIZE (3))
+
+EUTRAN-CGI ::= SEQUENCE {
+	pLMNidentity			PLMNidentity,
+	cell-ID					CellIdentity,
+	iE-Extensions			ProtocolExtensionContainer { {EUTRAN-CGI-ExtIEs} } OPTIONAL,
+	...
+}
+
+EUTRAN-CGI-ExtIEs SBC-AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+Extended-Repetition-Period ::= INTEGER (4096..131071)
+
+
+-- F
+
+-- G
+
+-- H
+
+-- I
+
+-- J
+
+-- K
+
+-- L
+
+List-of-TAIs			::= SEQUENCE (SIZE (1..maxNrOfTAIs)) OF
+	SEQUENCE {
+	tai					TAI
+}
+
+-- M
+
+Message-Identifier ::= BIT STRING (SIZE (16))
+
+-- N
+
+Number-of-Broadcasts-Requested		::= INTEGER (0..65535)
+
+-- For Number-of-Broadcasts-Requested = 0 and Repetition-Period = 0, then eNB action is no broadcast
+--  for ETWS and CMAS.
+--
+-- For Number-of-Broadcasts-Requested = 1 and Repetition-Period = 0, then eNB action is broadcast
+-- only once for ETWS and CMAS.
+--
+-- For Number-of-Broadcasts-Requested = 0 and Repetition-Period > 0, then eNB action is no broadcast
+-- for the ETWS, and broadcast until further notice for the CMAS.
+--
+-- For Number-of-Broadcasts-Requested > 0 and Repetition-Period > 0, then eNB action is normal
+-- broadcast.
+-- All other combinations of Number-of-Broadcasts-Requested and Repetition-Period are considered
+-- invalid.
+
+-- O 
+Omc-Id						::=	OCTET STRING (SIZE (1..20))
+
+
+-- P
+PLMNidentity 				::= TBCD-STRING 
+
+-- Q
+
+-- R
+
+Repetition-Period			::= INTEGER (0..4096)
+-- 1 to 4096: Each unit represents a repetition of one second to a maximum of
+-- once per 4096 seconds (~1 hour). 
+-- 0: no repetition
+-- A CBC compliant to this version or later of this specification shall not send a repetition period 
+-- greater than 4095.
+-- For backwards compatibility with a CBC compliant to an earlier version of this specification the 
+-- maximum value of the repetition period defined in ASN.1 remains at 4096.
+-- If the value of the Repetition Period IE received in the WRITE-REPLACE WARNING REQUEST message is 
+-- set to 4096, the MME shall set the Repetition Period IE to the maximum value 4095 supported on   
+-- the S1-MME interface as defined in [7] before forwarding to the selected eNBs.  
+
+-- S
+
+Serial-Number				::= BIT STRING (SIZE (16))
+
+-- T
+
+TAC ::= OCTET STRING (SIZE (2))
+
+TAI-List-for-Warning	::= SEQUENCE (SIZE(1.. maxnoofTAIforWarning)) OF TAI
+
+TAI ::= SEQUENCE {
+	pLMNidentity			PLMNidentity,
+	tAC						TAC,
+	iE-Extensions			ProtocolExtensionContainer { {TAI-ExtIEs} } OPTIONAL
+}
+
+TAI-ExtIEs SBC-AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+TBCD-STRING ::= OCTET STRING (SIZE (3))
+
+TypeOfError ::= ENUMERATED {
+	not-understood,
+	missing,
+	...
+}
+
+-- U
+
+-- V
+
+-- W
+
+Warning-Area-List				::= CHOICE {
+	cell-ID-List				ECGIList,
+	tracking-Area-List-for-Warning					TAI-List-for-Warning,
+	emergency-Area-ID-List		Emergency-Area-ID-List,
+	...
+}
+
+Warning-Message-Content			::= OCTET STRING (SIZE (1..9600))
+Warning-Security-Information	::= OCTET STRING (SIZE (50)) 
+Warning-Type					::=  OCTET STRING (SIZE (2))
+
+-- X
+
+-- Y
+
+END

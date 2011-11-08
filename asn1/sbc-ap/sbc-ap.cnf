@@ -1,0 +1,179 @@
+# sbc-ap.cnf
+# sbc-ap conformation file
+
+# $Id$??
+
+#.OPT
+PER
+ALIGNED
+#.END
+
+#.EXPORTS
+
+#.PDU_NEW
+SBC-AP-PDU
+
+#.MAKE_ENUM
+ProcedureCode
+ProtocolIE-ID
+
+#.NO_EMIT
+TBCD-STRING
+#.END
+
+#.OMIT_ASSIGNMENT
+# Get rid of unused code warnings
+
+#.TYPE_RENAME
+
+InitiatingMessage/value InitiatingMessage_value
+SuccessfulOutcome/value SuccessfulOutcome_value
+UnsuccessfulOutcome/value UnsuccessfulOutcome_value
+
+#.FIELD_RENAME
+
+InitiatingMessage/value initiatingMessagevalue
+UnsuccessfulOutcome/value unsuccessfulOutcome_value
+SuccessfulOutcome/value successfulOutcome_value
+
+ProtocolExtensionField/id ext_id
+
+ProtocolIE-Field/value ie_field_value
+
+#.FN_PARS ProtocolIE-ID  VAL_PTR=&ProtocolIE_ID
+#.FN_FTR ProtocolIE-ID
+  if (tree) {
+    proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str(ProtocolIE_ID, VALS(sbc_ap_ProtocolIE_ID_vals), "unknown (%d)"));
+  }
+#.END
+
+
+
+#.FN_PARS ProtocolIE-Field/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldValue
+# Currently not used
+# FN_PARS ProtocolIE-FieldPair/firstValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldPairFirstValue
+# FN_PARS ProtocolIE-FieldPair/secondValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldPairSecondValue
+
+#.FN_PARS ProtocolExtensionID  VAL_PTR=&ProtocolExtensionID
+#.FN_PARS ProtocolExtensionField/extensionValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolExtensionFieldExtensionValue
+
+#.FN_PARS  ProcedureCode  VAL_PTR = &ProcedureCode
+#.FN_FTR ProcedureCode
+	if (check_col(actx->pinfo->cinfo, COL_INFO))
+       col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
+                   val_to_str(ProcedureCode, sbc_ap_ProcedureCode_vals,
+                              "unknown message"));
+#.END
+
+#.FN_PARS InitiatingMessage/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_InitiatingMessageValue
+
+#.FN_PARS SuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_SuccessfulOutcomeValue
+
+#.FN_PARS UnsuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_UnsuccessfulOutcomeValue
+
+#--- Parameterization is not supported in asn2wrs ---
+
+#ProtocolIE-ContainerList {INTEGER : lowerBound, INTEGER : upperBound, SBC-AP-PROTOCOL-IES : IEsSetParam} ::=
+#	SEQUENCE (SIZE (lowerBound..upperBound)) OF
+#	ProtocolIE-Container {{IEsSetParam}}
+
+#.FN_PARS ProtocolIE-ContainerList
+MIN_VAL = asn1_param_get_integer(%(ACTX)s,"lowerBound")
+MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
+#.FN_HDR ProtocolIE-ContainerList
+  static const asn1_par_def_t ProtocolIE_ContainerList_pars[] = {
+    { "lowerBound", ASN1_PAR_INTEGER },
+    { "upperBound", ASN1_PAR_INTEGER },
+    { NULL, 0 }
+  };
+  asn1_stack_frame_check(actx, "ProtocolIE-ContainerList", ProtocolIE_ContainerList_pars);
+#.END
+#ProtocolIE-ContainerPairList {INTEGER : lowerBound, INTEGER : upperBound, SBC-AP-PROTOCOL-IES-PAIR : IEsSetParam} ::=
+#	SEQUENCE (SIZE (lowerBound..upperBound)) OF
+#	ProtocolIE-ContainerPair {{IEsSetParam}}
+
+# following construction is not supported by asn2wrs
+# PLMNidentity ::= TBCD-STRING (SIZE (3))
+# TBCD-STRING ::= OCTET STRING
+
+#.FN_BODY PLMNidentity  VAL_PTR = parameter_tvb
+  tvbuff_t *parameter_tvb=NULL;
+
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       3, 3, FALSE, &parameter_tvb);
+	if(tvb_length(tvb)==0) 
+		return offset;
+		
+	if (!parameter_tvb)
+		return offset;
+	dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, tree, 0, FALSE);
+#.END
+
+#.TYPE_ATTR
+ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC STRINGS = VALS(sbc_ap_ProtocolIE_ID_vals)
+
+#.ASSIGN_VALUE_TO_TYPE  # SBC-AP does not have constants assigned to types, they are pure INTEGER
+# ProcedureCode
+id-Write-Replace-Warning		ProcedureCode
+id-Stop-Warning					ProcedureCode
+
+# ProtocolIE-ID
+
+id-Broadcast-Message-Content				ProtocolIE-ID
+id-Cause 									ProtocolIE-ID
+id-Criticality-Diagnostics					ProtocolIE-ID
+id-Data-Coding-Scheme 						ProtocolIE-ID
+id-Failure-List 							ProtocolIE-ID
+id-Message-Identifier 						ProtocolIE-ID
+id-Number-of-Broadcasts-Completed-List 		ProtocolIE-ID
+id-Number-of-Broadcasts-Requested 			ProtocolIE-ID
+id-Radio-Resource-Loading-List 				ProtocolIE-ID
+id-Recovery-Indication 						ProtocolIE-ID
+id-Repetition-Period 						ProtocolIE-ID
+id-Serial-Number 							ProtocolIE-ID
+id-Service-Areas-List 						ProtocolIE-ID
+id-TypeOfError								ProtocolIE-ID
+id-List-of-TAIs								ProtocolIE-ID
+id-Warning-Area-List 						ProtocolIE-ID
+id-Warning-Message-Content					ProtocolIE-ID
+id-Warning-Security-Information				ProtocolIE-ID
+id-Warning-Type								ProtocolIE-ID 
+id-Omc-Id 									ProtocolIE-ID 
+id-Concurrent-Warning-Message-Indicator		ProtocolIE-ID 
+id-Extended-Repetition-Period				ProtocolIE-ID
+
+
+#.REGISTER_NEW
+
+#SBC-AP-PROTOCOL-IES
+
+# N sbc_ap.ies id-Broadcast-Message-Content
+Cause									N sbc_ap.ies id-Cause
+Criticality-Diagnostics					N sbc_ap.ies id-Criticality-Diagnostics
+Data-Coding-Scheme						N sbc_ap.ies id-Data-Coding-Scheme
+# N sbc_ap.ies id-Failure-List
+Message-Identifier						N sbc_ap.ies id-Message-Identifier
+# id-Number-of-Broadcasts-Completed-List
+Number-of-Broadcasts-Requested			N sbc_ap.ies id-Number-of-Broadcasts-Requested
+# not used ? N sbc_ap.ies id-Radio-Resource-Loading-List
+# not used N sbc_ap.ies id-Recovery-Indication
+Repetition-Period						N sbc_ap.ies id-Repetition-Period
+Serial-Number							N sbc_ap.ies id-Serial-Number
+# id-Service-Areas-List
+# id-TypeOfError
+List-of-TAIs							N sbc_ap.ies id-List-of-TAIs
+Warning-Area-List						N sbc_ap.ies id-Warning-Area-List
+Warning-Message-Content					N sbc_ap.ies id-Warning-Message-Content
+Warning-Security-Information			N sbc_ap.ies id-Warning-Security-Information
+Warning-Type							N sbc_ap.ies id-Warning-Type
+Omc-Id									N sbc_ap.ies id-Omc-Id
+Concurrent-Warning-Message-Indicator	N sbc_ap.ies id-Concurrent-Warning-Message-Indicator
+Repetition-Period						N sbc_ap.ies id-Extended-Repetition-Period
+
+#SBC-AP-ELEMENTARY-PROCEDURE
+Write-Replace-Warning-Request			N sbc_ap.proc.imsg id-Write-Replace-Warning
+Write-Replace-Warning-Response			N sbc_ap.proc.sout id-Write-Replace-Warning
+Stop-Warning-Request					N sbc_ap.proc.imsg id-Stop-Warning
+Stop-Warning-Response					N sbc_ap.proc.sout id-Stop-Warning
+
+#.END

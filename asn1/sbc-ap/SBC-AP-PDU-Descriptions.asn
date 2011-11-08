@@ -1,0 +1,137 @@
+-- SBC-AP-PDU-Descriptions.asn
+--
+-- Taken from 3GPP TS 29.168 V9.3.0 (2010-12)
+-- http://www.3gpp.org/ftp/Specs/archive/29_series/29.168/29168-930.zip
+--
+-- 4.4.3	Elementary Procedure Definitions
+--
+-- $Id$??
+--
+
+-- **************************************************************
+--
+-- Elementary Procedure definitions
+--
+-- **************************************************************
+
+SBC-AP-PDU-Descriptions {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+eps-Access (21) modules (3) sbc-AP (3) version1 (1) sbc-AP-PDU-Descriptions (0)}
+
+DEFINITIONS AUTOMATIC TAGS ::= 
+
+BEGIN
+
+-- **************************************************************
+--
+-- IE parameter types from other modules.
+--
+-- **************************************************************
+
+IMPORTS
+	Criticality,
+	ProcedureCode
+FROM SBC-AP-CommonDataTypes
+
+	Write-Replace-Warning-Request,
+	Write-Replace-Warning-Response,
+	Stop-Warning-Request,
+	Stop-Warning-Response 
+
+FROM SBC-AP-PDU-Contents
+
+	id-Write-Replace-Warning, 
+	id-Stop-Warning
+FROM SBC-AP-Constants;
+
+-- **************************************************************
+--
+-- Interface Elementary Procedure Class
+--
+-- **************************************************************
+
+SBC-AP-ELEMENTARY-PROCEDURE ::= CLASS {
+	&InitiatingMessage				,
+	&SuccessfulOutcome				OPTIONAL,
+	&UnsuccessfulOutcome				OPTIONAL,
+	&procedureCode			ProcedureCode 	UNIQUE,
+	&criticality			Criticality 	DEFAULT ignore
+}
+WITH SYNTAX {
+	INITIATING MESSAGE		&InitiatingMessage
+	[SUCCESSFUL OUTCOME		&SuccessfulOutcome]
+	[UNSUCCESSFUL OUTCOME	&UnsuccessfulOutcome]
+	PROCEDURE CODE			&procedureCode
+	[CRITICALITY			&criticality]
+}
+
+-- **************************************************************
+--
+-- Interface PDU Definition
+--
+-- **************************************************************
+
+SBC-AP-PDU ::= CHOICE {
+	initiatingMessage	InitiatingMessage,
+	successfulOutcome	SuccessfulOutcome,
+	unsuccessfulOutcome	UnsuccessfulOutcome,
+	...
+}
+
+InitiatingMessage ::= SEQUENCE {
+	procedureCode	SBC-AP-ELEMENTARY-PROCEDURE.&procedureCode	({SBC-AP-ELEMENTARY-PROCEDURES}),
+	criticality	SBC-AP-ELEMENTARY-PROCEDURE.&criticality		({SBC-AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
+	value		SBC-AP-ELEMENTARY-PROCEDURE.&InitiatingMessage	({SBC-AP-ELEMENTARY-PROCEDURES}{@procedureCode})
+}
+
+SuccessfulOutcome ::= SEQUENCE {
+	procedureCode	SBC-AP-ELEMENTARY-PROCEDURE.&procedureCode	({SBC-AP-ELEMENTARY-PROCEDURES}),
+	criticality	SBC-AP-ELEMENTARY-PROCEDURE.&criticality		({SBC-AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
+	value		SBC-AP-ELEMENTARY-PROCEDURE.&SuccessfulOutcome	({SBC-AP-ELEMENTARY-PROCEDURES}{@procedureCode})
+}
+
+UnsuccessfulOutcome ::= SEQUENCE {
+	procedureCode	SBC-AP-ELEMENTARY-PROCEDURE.&procedureCode	({SBC-AP-ELEMENTARY-PROCEDURES}),
+	criticality	SBC-AP-ELEMENTARY-PROCEDURE.&criticality		({SBC-AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
+	value		SBC-AP-ELEMENTARY-PROCEDURE.&UnsuccessfulOutcome	({SBC-AP-ELEMENTARY-PROCEDURES}{@procedureCode})
+}
+
+-- **************************************************************
+--
+-- Interface Elementary Procedure List
+--
+-- **************************************************************
+
+SBC-AP-ELEMENTARY-PROCEDURES SBC-AP-ELEMENTARY-PROCEDURE ::= {
+	SBC-AP-ELEMENTARY-PROCEDURES-CLASS-1	|
+	SBC-AP-ELEMENTARY-PROCEDURES-CLASS-2	,
+	...
+}
+
+SBC-AP-ELEMENTARY-PROCEDURES-CLASS-1 SBC-AP-ELEMENTARY-PROCEDURE ::= {
+	Write-Replace-Warning,
+	Stop-Warning			,
+	...
+}
+
+SBC-AP-ELEMENTARY-PROCEDURES-CLASS-2 SBC-AP-ELEMENTARY-PROCEDURE ::= {
+	...
+}
+
+write-Replace-Warning SBC-AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE	Write-Replace-Warning-Request
+	SUCCESSFUL OUTCOME	Write-Replace-Warning-Response
+	
+	PROCEDURE CODE		id-Write-Replace-Warning
+	CRITICALITY			reject
+}
+
+stop-Warning SBC-AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE	Stop-Warning-Request
+	SUCCESSFUL OUTCOME	Stop-Warning-Response
+	
+	PROCEDURE CODE		id-Stop-Warning
+	CRITICALITY			reject
+}
+
+END
