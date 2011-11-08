@@ -1009,6 +1009,7 @@ DISSECTOR_SRC = \
 	packet-vtp.c		\
 	packet-vuze-dht.c	\
 	packet-vxi11.c		\
+	packet-vxlan.c		\
 	packet-wai.c		\
 	packet-wap.c		\
 	packet-wassp.c		\

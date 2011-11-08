@@ -1090,6 +1090,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-vtp.c
 	dissectors/packet-vuze-dht.c
 	dissectors/packet-vxi11.c
+	dissectors/packet-vxlan.c
 	dissectors/packet-wai.c
 	dissectors/packet-wap.c
 	dissectors/packet-wassp.c
