@@ -116,6 +116,7 @@ static int hf_sbc_ap_Cause_PDU = -1;              /* Cause */
 static int hf_sbc_ap_Concurrent_Warning_Message_Indicator_PDU = -1;  /* Concurrent_Warning_Message_Indicator */
 static int hf_sbc_ap_Criticality_Diagnostics_PDU = -1;  /* Criticality_Diagnostics */
 static int hf_sbc_ap_Data_Coding_Scheme_PDU = -1;  /* Data_Coding_Scheme */
+static int hf_sbc_ap_Extended_Repetition_Period_PDU = -1;  /* Extended_Repetition_Period */
 static int hf_sbc_ap_List_of_TAIs_PDU = -1;       /* List_of_TAIs */
 static int hf_sbc_ap_Message_Identifier_PDU = -1;  /* Message_Identifier */
 static int hf_sbc_ap_Number_of_Broadcasts_Requested_PDU = -1;  /* Number_of_Broadcasts_Requested */
@@ -135,7 +136,6 @@ static int hf_sbc_ap_ProtocolIE_Container_item = -1;  /* ProtocolIE_Field */
 static int hf_sbc_ap_id = -1;                     /* ProtocolIE_ID */
 static int hf_sbc_ap_criticality = -1;            /* Criticality */
 static int hf_sbc_ap_ie_field_value = -1;         /* T_ie_field_value */
-static int hf_sbc_ap_ProtocolIE_ContainerList_item = -1;  /* ProtocolIE_Container */
 static int hf_sbc_ap_ProtocolExtensionContainer_item = -1;  /* ProtocolExtensionField */
 static int hf_sbc_ap_ext_id = -1;                 /* ProtocolExtensionID */
 static int hf_sbc_ap_extensionValue = -1;         /* T_extensionValue */
@@ -179,7 +179,6 @@ static int ett_sbc_ap = -1;
 #line 1 "../../asn1/sbc-ap/packet-sbc-ap-ett.c"
 static gint ett_sbc_ap_ProtocolIE_Container = -1;
 static gint ett_sbc_ap_ProtocolIE_Field = -1;
-static gint ett_sbc_ap_ProtocolIE_ContainerList = -1;
 static gint ett_sbc_ap_ProtocolExtensionContainer = -1;
 static gint ett_sbc_ap_ProtocolExtensionField = -1;
 static gint ett_sbc_ap_Criticality_Diagnostics = -1;
@@ -251,23 +250,6 @@ dissect_sbc_ap_Criticality(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 }
 
 
-static const value_string sbc_ap_Presence_vals[] = {
-  {   0, "optional" },
-  {   1, "conditional" },
-  {   2, "mandatory" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_sbc_ap_Presence(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     3, NULL, FALSE, 0, NULL);
-
-  return offset;
-}
-
-
 static const value_string sbc_ap_ProcedureCode_vals[] = {
   { id_Write_Replace_Warning, "id-Write-Replace-Warning" },
   { id_Stop_Warning, "id-Stop-Warning" },
@@ -280,7 +262,7 @@ dissect_sbc_ap_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &ProcedureCode, FALSE);
 
-#line 62 "../../asn1/sbc-ap/sbc-ap.cnf"
+#line 64 "../../asn1/sbc-ap/sbc-ap.cnf"
 	if (check_col(actx->pinfo->cinfo, COL_INFO))
        col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
                    val_to_str(ProcedureCode, sbc_ap_ProcedureCode_vals,
@@ -332,7 +314,7 @@ dissect_sbc_ap_ProtocolIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 65535U, &ProtocolIE_ID, FALSE);
 
-#line 45 "../../asn1/sbc-ap/sbc-ap.cnf"
+#line 47 "../../asn1/sbc-ap/sbc-ap.cnf"
   if (tree) {
     proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str(ProtocolIE_ID, VALS(sbc_ap_ProtocolIE_ID_vals), "unknown (%d)"));
   }
@@ -393,28 +375,6 @@ dissect_sbc_ap_ProtocolIE_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_sbc_ap_ProtocolIE_Container, ProtocolIE_Container_sequence_of,
                                                   0, maxProtocolIEs, FALSE);
-
-  return offset;
-}
-
-
-static const per_sequence_t ProtocolIE_ContainerList_sequence_of[1] = {
-  { &hf_sbc_ap_ProtocolIE_ContainerList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_sbc_ap_ProtocolIE_Container },
-};
-
-static int
-dissect_sbc_ap_ProtocolIE_ContainerList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 84 "../../asn1/sbc-ap/sbc-ap.cnf"
-  static const asn1_par_def_t ProtocolIE_ContainerList_pars[] = {
-    { "lowerBound", ASN1_PAR_INTEGER },
-    { "upperBound", ASN1_PAR_INTEGER },
-    { NULL, 0 }
-  };
-  asn1_stack_frame_check(actx, "ProtocolIE-ContainerList", ProtocolIE_ContainerList_pars);
-
-  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
-                                                  ett_sbc_ap_ProtocolIE_ContainerList, ProtocolIE_ContainerList_sequence_of,
-                                                  asn1_param_get_integer(actx,"lowerBound"), asn1_param_get_integer(actx,"upperBound"), FALSE);
 
   return offset;
 }
@@ -596,7 +556,7 @@ dissect_sbc_ap_Data_Coding_Scheme(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 static int
 dissect_sbc_ap_PLMNidentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 100 "../../asn1/sbc-ap/sbc-ap.cnf"
+#line 102 "../../asn1/sbc-ap/sbc-ap.cnf"
   tvbuff_t *parameter_tvb=NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -1041,6 +1001,14 @@ static int dissect_Data_Coding_Scheme_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_Extended_Repetition_Period_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_sbc_ap_Extended_Repetition_Period(tvb, offset, &asn1_ctx, tree, hf_sbc_ap_Extended_Repetition_Period_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_List_of_TAIs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -1246,6 +1214,10 @@ void proto_register_sbc_ap(void) {
       { "Data-Coding-Scheme", "sbc-ap.Data_Coding_Scheme",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_sbc_ap_Extended_Repetition_Period_PDU,
+      { "Extended-Repetition-Period", "sbc-ap.Extended_Repetition_Period",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
     { &hf_sbc_ap_List_of_TAIs_PDU,
       { "List-of-TAIs", "sbc-ap.List_of_TAIs",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -1322,10 +1294,6 @@ void proto_register_sbc_ap(void) {
       { "value", "sbc-ap.value",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_ie_field_value", HFILL }},
-    { &hf_sbc_ap_ProtocolIE_ContainerList_item,
-      { "ProtocolIE-Container", "sbc-ap.ProtocolIE_Container",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
     { &hf_sbc_ap_ProtocolExtensionContainer_item,
       { "ProtocolExtensionField", "sbc-ap.ProtocolExtensionField",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1463,7 +1431,6 @@ void proto_register_sbc_ap(void) {
 #line 1 "../../asn1/sbc-ap/packet-sbc-ap-ettarr.c"
     &ett_sbc_ap_ProtocolIE_Container,
     &ett_sbc_ap_ProtocolIE_Field,
-    &ett_sbc_ap_ProtocolIE_ContainerList,
     &ett_sbc_ap_ProtocolExtensionContainer,
     &ett_sbc_ap_ProtocolExtensionField,
     &ett_sbc_ap_Criticality_Diagnostics,
@@ -1537,7 +1504,7 @@ proto_reg_handoff_sbc_ap(void)
   dissector_add_uint("sbc_ap.ies", id_Warning_Type, new_create_dissector_handle(dissect_Warning_Type_PDU, proto_sbc_ap));
   dissector_add_uint("sbc_ap.ies", id_Omc_Id, new_create_dissector_handle(dissect_Omc_Id_PDU, proto_sbc_ap));
   dissector_add_uint("sbc_ap.ies", id_Concurrent_Warning_Message_Indicator, new_create_dissector_handle(dissect_Concurrent_Warning_Message_Indicator_PDU, proto_sbc_ap));
-  dissector_add_uint("sbc_ap.ies", id_Extended_Repetition_Period, new_create_dissector_handle(dissect_Repetition_Period_PDU, proto_sbc_ap));
+  dissector_add_uint("sbc_ap.ies", id_Extended_Repetition_Period, new_create_dissector_handle(dissect_Extended_Repetition_Period_PDU, proto_sbc_ap));
   dissector_add_uint("sbc_ap.proc.imsg", id_Write_Replace_Warning, new_create_dissector_handle(dissect_Write_Replace_Warning_Request_PDU, proto_sbc_ap));
   dissector_add_uint("sbc_ap.proc.sout", id_Write_Replace_Warning, new_create_dissector_handle(dissect_Write_Replace_Warning_Response_PDU, proto_sbc_ap));
   dissector_add_uint("sbc_ap.proc.imsg", id_Stop_Warning, new_create_dissector_handle(dissect_Stop_Warning_Request_PDU, proto_sbc_ap));

@@ -23,6 +23,8 @@ TBCD-STRING
 
 #.OMIT_ASSIGNMENT
 # Get rid of unused code warnings
+ProtocolIE-ContainerList
+Presence
 
 #.TYPE_RENAME
 
@@ -77,16 +79,16 @@ ProtocolIE-Field/value ie_field_value
 #	SEQUENCE (SIZE (lowerBound..upperBound)) OF
 #	ProtocolIE-Container {{IEsSetParam}}
 
-#.FN_PARS ProtocolIE-ContainerList
-MIN_VAL = asn1_param_get_integer(%(ACTX)s,"lowerBound")
-MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
-#.FN_HDR ProtocolIE-ContainerList
-  static const asn1_par_def_t ProtocolIE_ContainerList_pars[] = {
-    { "lowerBound", ASN1_PAR_INTEGER },
-    { "upperBound", ASN1_PAR_INTEGER },
-    { NULL, 0 }
-  };
-  asn1_stack_frame_check(actx, "ProtocolIE-ContainerList", ProtocolIE_ContainerList_pars);
+# FN_PARS ProtocolIE-ContainerList
+#MIN_VAL = asn1_param_get_integer(%(ACTX)s,"lowerBound")
+#MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
+# FN_HDR ProtocolIE-ContainerList
+#  static const asn1_par_def_t ProtocolIE_ContainerList_pars[] = {
+#    { "lowerBound", ASN1_PAR_INTEGER },
+#    { "upperBound", ASN1_PAR_INTEGER },
+#    { NULL, 0 }
+#  };
+#  asn1_stack_frame_check(actx, "ProtocolIE-ContainerList", ProtocolIE_ContainerList_pars);
 #.END
 #ProtocolIE-ContainerPairList {INTEGER : lowerBound, INTEGER : upperBound, SBC-AP-PROTOCOL-IES-PAIR : IEsSetParam} ::=
 #	SEQUENCE (SIZE (lowerBound..upperBound)) OF
@@ -168,7 +170,7 @@ Warning-Security-Information			N sbc_ap.ies id-Warning-Security-Information
 Warning-Type							N sbc_ap.ies id-Warning-Type
 Omc-Id									N sbc_ap.ies id-Omc-Id
 Concurrent-Warning-Message-Indicator	N sbc_ap.ies id-Concurrent-Warning-Message-Indicator
-Repetition-Period						N sbc_ap.ies id-Extended-Repetition-Period
+Extended-Repetition-Period				N sbc_ap.ies id-Extended-Repetition-Period
 
 #SBC-AP-ELEMENTARY-PROCEDURE
 Write-Replace-Warning-Request			N sbc_ap.proc.imsg id-Write-Replace-Warning
