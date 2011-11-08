@@ -301,11 +301,9 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 # rules which are specified for the target radio system. In section 8.4.1.2,
 # it is described how the container shall be encoded with respect to the scenario 
 # in which it is used.
- gint32 start_offset;
  tvbuff_t *parameter_tvb;
  proto_tree *subtree;
  
- start_offset = offset;
 %(DEFAULT_BODY)s
 
 	subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_ToTargetTransparentContainer);
@@ -356,11 +354,9 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 # I think the message is "directly encoded" into the octest string(no "double encoding")
 # See Target-ToSource-TransparentContainer in RANAP
 
- gint32 start_offset;
  tvbuff_t *parameter_tvb;
  proto_tree *subtree;
   
- start_offset = offset;
 %(DEFAULT_BODY)s
 
 	subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_ToSourceTransparentContainer);
@@ -444,11 +440,9 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 # Target eNB to Source eNB Transparent Container is present in
 # HandoverCommand and HandoverRequestAcknowledge. 
 
- gint32 start_offset;
  tvbuff_t *parameter_tvb;
  proto_tree *subtree;
   
- start_offset = offset;
 %(DEFAULT_BODY)s
   if (!parameter_tvb)
     return offset;
@@ -472,12 +466,9 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 	
 
 #.FN_BODY UERadioCapability VAL_PTR = &parameter_tvb
-
- gint32 start_offset;
  tvbuff_t *parameter_tvb;
  proto_tree *subtree;
 
- start_offset = offset;
 %(DEFAULT_BODY)s
   if (!parameter_tvb)
     return offset;

@@ -3688,7 +3688,7 @@ dissect_s1ap_RequestType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static int
 dissect_s1ap_RIMInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 491 "../../asn1/s1ap/s1ap.cnf"
+#line 482 "../../asn1/s1ap/s1ap.cnf"
  tvbuff_t *parameter_tvb;
  proto_tree *subtree;
 
@@ -3791,14 +3791,12 @@ dissect_s1ap_RepetitionPeriod(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 static int
 dissect_s1ap_RRC_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 415 "../../asn1/s1ap/s1ap.cnf"
+#line 411 "../../asn1/s1ap/s1ap.cnf"
 
 
- gint32 start_offset;
  tvbuff_t *parameter_tvb;
  proto_tree *subtree;
   
- start_offset = offset;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
 
@@ -4025,11 +4023,9 @@ dissect_s1ap_SONConfigurationTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 static int
 dissect_s1ap_Source_ToTarget_TransparentContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 304 "../../asn1/s1ap/s1ap.cnf"
- gint32 start_offset;
  tvbuff_t *parameter_tvb;
  proto_tree *subtree;
  
- start_offset = offset;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
 
@@ -4395,13 +4391,11 @@ dissect_s1ap_TargeteNB_ToSourceeNB_TransparentContainer(tvbuff_t *tvb _U_, int o
 
 static int
 dissect_s1ap_Target_ToSource_TransparentContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 358 "../../asn1/s1ap/s1ap.cnf"
+#line 356 "../../asn1/s1ap/s1ap.cnf"
 
- gint32 start_offset;
  tvbuff_t *parameter_tvb;
  proto_tree *subtree;
   
- start_offset = offset;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
 
@@ -4649,13 +4643,10 @@ dissect_s1ap_UEPagingID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
 static int
 dissect_s1ap_UERadioCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 475 "../../asn1/s1ap/s1ap.cnf"
-
- gint32 start_offset;
+#line 469 "../../asn1/s1ap/s1ap.cnf"
  tvbuff_t *parameter_tvb;
  proto_tree *subtree;
 
- start_offset = offset;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
 
