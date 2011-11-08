@@ -24,7 +24,7 @@
 
 # usage:  ./make-version.pl [-p|--package-version]
 #
-# If "version.conf" is present, it is parsed for configuration values.  
+# If "version.conf" is present, it is parsed for configuration values.
 # Possible values are:
 #
 #   enable     - Enable or disable versioning.  Zero (0) disables, nonzero
@@ -42,7 +42,7 @@
 #
 # If run with the "-p" or "--package-version" argument, the
 # AC_INIT macro in configure.in and the VERSION macro in
-# config.nmake will have the pkg_format template appended to the 
+# config.nmake will have the pkg_format template appended to the
 # version number.  svnversion.h will _not_ be generated if either
 # argument is present (it will also not be generated if 'is_release' is set
 # in version.conf).
@@ -78,12 +78,12 @@ my %version_pref = (
 	"is_release" => 0,
 
 	# Normal development builds
-	"pkg_enable" => 1,
-	"pkg_format" => "-SVN-%#",
+	#"pkg_enable" => 1,
+	#"pkg_format" => "-SVN-%#",
 
 	# Development releases
-	#"pkg_enable" => 0,
-	#"pkg_format" => "",
+	"pkg_enable" => 0,
+	"pkg_format" => "",
 	);
 my $srcdir = ".";
 my $svn_info_cmd = "";
@@ -179,30 +179,30 @@ sub read_svn_info {
 		}
 	}
 
-	# If we picked up the revision and modification time, 
+	# If we picked up the revision and modification time,
 	# generate our strings.
 	if ($revision && $last_change) {
 		$version_format =~ s/%#/$revision/;
 		$package_format =~ s/%#/$revision/;
 		$package_string = strftime($package_format, gmtime($last_change));
 	}
-	
+
 	if ($repo_url && $repo_root && index($repo_url, $repo_root) == 0) {
 		$repo_path = substr($repo_url, length($repo_root));
 	}
 }
 
 
-# Read configure.in, then write it back out with an updated 
+# Read configure.in, then write it back out with an updated
 # "AC_INIT" line.
 sub update_configure_in
 {
 	my $line;
 	my $contents = "";
 	my $version = "";
-	
+
 	return if ($package_string eq "");
-	
+
 	open(CFGIN, "< configure.in") || die "Can't read configure.in!";
 	while ($line = <CFGIN>) {
 		if ($line =~ /^AC_INIT\(wireshark, (\d+)\.(\d+).(\d+)/) {
@@ -210,14 +210,14 @@ sub update_configure_in
 		}
 		$contents .= $line
 	}
-	
+
 	open(CFGIN, "> configure.in") || die "Can't write configure.in!";
 	print(CFGIN $contents);
 	close(CFGIN);
 	print "configure.in has been updated.\n";
 }
 
-# Read config.nmake, then write it back out with an updated 
+# Read config.nmake, then write it back out with an updated
 # "VERSION" line.
 sub update_config_nmake
 {
@@ -225,9 +225,9 @@ sub update_config_nmake
 	my $contents = "";
 	my $version = "";
 	my $update_ve = 0;
-	
+
 	if ($package_string ne "") { $update_ve = 1; };
-	
+
 	open(CFGIN, "< config.nmake") || die "Can't read config.nmake!";
 	while ($line = <CFGIN>) {
 		if ($update_ve && $line =~ /^VERSION_EXTRA=/) {
@@ -238,7 +238,7 @@ sub update_config_nmake
 		}
 		$contents .= $line
 	}
-	
+
 	open(CFGIN, "> config.nmake") || die "Can't write config.nmake!";
 	print(CFGIN $contents);
 	close(CFGIN);
@@ -257,7 +257,7 @@ sub print_svn_version
 	if ($pkg_version || $version_pref{"is_release"} == 1) { return; }
 
 	if ($last_change && $revision) {
-		$svn_version = "#define SVNVERSION \"SVN Rev " . 
+		$svn_version = "#define SVNVERSION \"SVN Rev " .
 			$revision . "\"\n" .
 			"#define SVNPATH \"" . $repo_path . "\"\n";
 	} else {
