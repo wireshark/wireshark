@@ -2475,8 +2475,8 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 
   case SCCP_MSG_TYPE_UDTS:
   {
-    gboolean save_in_error_pkt = pinfo->in_error_pkt;
-    pinfo->in_error_pkt = TRUE;
+    gboolean save_in_error_pkt = pinfo->flags.in_error_pkt;
+    pinfo->flags.in_error_pkt = TRUE;
 
     pinfo->sccp_info =  sccp_msg = new_ud_msg(pinfo,message_type);
 
@@ -2500,7 +2500,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 
     dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree, PARAMETER_DATA,
 				    variable_pointer3);
-    pinfo->in_error_pkt = save_in_error_pkt;
+    pinfo->flags.in_error_pkt = save_in_error_pkt;
     break;
   }
 
@@ -2669,8 +2669,8 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 
   case SCCP_MSG_TYPE_XUDTS:
   {
-    gboolean save_in_error_pkt = pinfo->in_error_pkt;
-    pinfo->in_error_pkt = TRUE;
+    gboolean save_in_error_pkt = pinfo->flags.in_error_pkt;
+    pinfo->flags.in_error_pkt = TRUE;
 
     pinfo->sccp_info =  sccp_msg = new_ud_msg(pinfo,message_type);
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
@@ -2752,7 +2752,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 	dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
 					PARAMETER_DATA, variable_pointer3);
     }
-    pinfo->in_error_pkt = save_in_error_pkt;
+    pinfo->flags.in_error_pkt = save_in_error_pkt;
     break;
   }
   case SCCP_MSG_TYPE_LUDT:

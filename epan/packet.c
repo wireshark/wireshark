@@ -468,7 +468,7 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb,
 		}
 	}
 
-	if (pinfo->in_error_pkt) {
+    if (pinfo->flags.in_error_pkt) {
 		ret = call_dissector_work_error(handle, tvb, pinfo, tree);
 	} else {
 		/*

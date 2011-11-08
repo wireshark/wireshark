@@ -983,7 +983,7 @@ static void dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Call sub-dissectors */
 
-	if (!pinfo->in_error_pkt || tvb_length_remaining(tvb, offset) > 0)
+	if (!pinfo->flags.in_error_pkt || tvb_length_remaining(tvb, offset) > 0)
 		decode_dccp_ports(tvb, offset, pinfo, tree, dccph->sport, dccph->dport);
 }
 

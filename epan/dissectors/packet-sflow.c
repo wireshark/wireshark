@@ -768,9 +768,9 @@ dissect_sflow_245_sampled_header(tvbuff_t *tvb, packet_info *pinfo,
        protocols that could be carried as a payload.  In the case
        of sFlow that pretty much means anything on your network.
      */
-    save_in_error_pkt = pinfo->in_error_pkt;
+    save_in_error_pkt = pinfo->flags.in_error_pkt;
     if (!global_analyze_samp_ip_headers) {
-        pinfo->in_error_pkt = TRUE;
+        pinfo->flags.in_error_pkt = TRUE;
     }
 
     col_set_writable(pinfo->cinfo, FALSE);
@@ -850,7 +850,7 @@ dissect_sflow_245_sampled_header(tvbuff_t *tvb, packet_info *pinfo,
 
     /* restore saved state */
     col_set_writable(pinfo->cinfo, save_writable);
-    pinfo->in_error_pkt = save_in_error_pkt;
+    pinfo->flags.in_error_pkt = save_in_error_pkt;
 
     pinfo->dl_src = save_dl_src;
     pinfo->dl_dst = save_dl_dst;

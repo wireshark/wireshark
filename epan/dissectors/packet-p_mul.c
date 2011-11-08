@@ -366,7 +366,7 @@ static p_mul_seq_val *register_p_mul_id (packet_info *pinfo, address *addr, guin
   gboolean      missing_pdu = FALSE, set_address = FALSE;
   GHashTable   *pkg_list = NULL;
 
-  if (pinfo->in_error_pkt) {
+  if (pinfo->flags.in_error_pkt) {
     /* No analysis of error packets */
     return NULL;
   }
@@ -530,7 +530,7 @@ static void add_ack_analysis (tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_m
   guint32     dstIp;
   nstime_t    ns;
 
-  if (pinfo->in_error_pkt) {
+  if (pinfo->flags.in_error_pkt) {
     /* No analysis of error packets */
     return;
   }

@@ -1379,7 +1379,7 @@ static void register_dmp_id (packet_info *pinfo, guint8 reason)
   nstime_t    msg_time;
   guint       msg_id = 0;
 
-  if (pinfo->in_error_pkt) {
+  if (pinfo->flags.in_error_pkt) {
     /* No analysis of error packets */
     return;
   }
@@ -1493,7 +1493,7 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
   nstime_t    ns;
 
   if (dmp.msg_type > ACK || (dmp.msg_type < ACK && !dmp.checksum) ||
-      dmp.id_val == NULL || pinfo->in_error_pkt)
+      dmp.id_val == NULL || pinfo->flags.in_error_pkt)
   {
     /* No need for seq/ack analysis */
     return;

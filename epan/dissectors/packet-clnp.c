@@ -522,13 +522,13 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              flag, and set that flag; subdissectors may treat packets
              that are the payload of error packets differently from
              "real" packets. */
-          save_in_error_pkt = pinfo->in_error_pkt;
-          pinfo->in_error_pkt = TRUE;
+          save_in_error_pkt = pinfo->flags.in_error_pkt;
+          pinfo->flags.in_error_pkt = TRUE;
 
           call_dissector(clnp_handle, next_tvb, pinfo, discpdu_tree);
 
           /* Restore the "we're inside an error packet" flag. */
-          pinfo->in_error_pkt = save_in_error_pkt;
+          pinfo->flags.in_error_pkt = save_in_error_pkt;
       }
       pinfo->fragmented = save_fragmented;
       return;   /* we're done with this PDU */

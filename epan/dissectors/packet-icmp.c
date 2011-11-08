@@ -940,7 +940,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (code_str)
     proto_item_append_text (ti, " (%s)", code_str);
 
-  if (!pinfo->fragmented && length >= reported_length && !pinfo->in_error_pkt) {
+  if (!pinfo->fragmented && length >= reported_length && !pinfo->flags.in_error_pkt) {
     /* The packet isn't part of a fragmented datagram, isn't
        truncated, and isn't the payload of an error packet, so we can checksum
        it. */
@@ -1027,8 +1027,8 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	   flag, and set that flag; subdissectors may treat packets
 	   that are the payload of error packets differently from
 	   "real" packets. */
-	save_in_error_pkt = pinfo->in_error_pkt;
-	pinfo->in_error_pkt = TRUE;
+	save_in_error_pkt = pinfo->flags.in_error_pkt;
+	pinfo->flags.in_error_pkt = TRUE;
 
 	/* Decode the IP header and first 64 bits of data from the
 	   original datagram. */
@@ -1049,7 +1049,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	call_dissector(ip_handle, next_tvb, pinfo, icmp_tree);
 
 	/* Restore the "we're inside an error packet" flag. */
-	pinfo->in_error_pkt = save_in_error_pkt;
+	pinfo->flags.in_error_pkt = save_in_error_pkt;
 
 	/* Decode MPLS extensions if the payload has at least 128 bytes, and
 		- the original packet in the ICMP payload has less than 128 bytes, or
@@ -1063,7 +1063,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       case ICMP_ECHOREPLY:
       case ICMP_ECHO:
           if ( icmp_type == ICMP_ECHOREPLY ) {
-            if ( !pinfo->in_error_pkt ) {
+            if ( !pinfo->flags.in_error_pkt ) {
               conv_key[0] = (guint32)tvb_get_ntohs(tvb, 2);
               if (pinfo->flags.in_gre_pkt)
                 conv_key[0] |= 0x00010000; /* set a bit for "in GRE" */
@@ -1072,7 +1072,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
               trans = transaction_end(pinfo, icmp_tree, conv_key);
             }
           } else {
-            if ( !pinfo->in_error_pkt ) {
+            if ( !pinfo->flags.in_error_pkt ) {
               guint16 tmp[2];
 
               tmp[0] = ~tvb_get_ntohs(tvb, 2);

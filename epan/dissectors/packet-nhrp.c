@@ -731,8 +731,8 @@ void dissect_nhrp_mand(tvbuff_t *tvb,
 		gboolean dissected;
 		tvbuff_t *sub_tvb;
 
-		save_in_error_pkt = pinfo->in_error_pkt;
-		pinfo->in_error_pkt = TRUE;
+		save_in_error_pkt = pinfo->flags.in_error_pkt;
+		pinfo->flags.in_error_pkt = TRUE;
 		sub_tvb = tvb_new_subset_remaining(tvb, offset);
 		if (isErr) {
 			_dissect_nhrp(sub_tvb, pinfo, ind_tree, TRUE, FALSE);
@@ -802,7 +802,7 @@ void dissect_nhrp_mand(tvbuff_t *tvb,
 				    ind_tree);
 			}
 		}
-		pinfo->in_error_pkt = save_in_error_pkt;
+		pinfo->flags.in_error_pkt = save_in_error_pkt;
 		offset = mandEnd;
 	}
 

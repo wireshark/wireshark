@@ -517,7 +517,7 @@ dissect_t38_T30_data(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
          val_to_str(Data_value,t38_T30_data_vals,"<unknown>"));
     }
 
-    
+
     /* info for tap */
     if (primary_part)
         t38_info->data_value = Data_value;
@@ -604,7 +604,7 @@ dissect_t38_T_field_type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
                     FALSE); /* More fragments */
                 if ( Data_Field_field_type_value == 7 ) {
                     /* if there was packet lost or other errors during the defrag then frag_msg is NULL. This could also means
-                     * there are out of order packets (e.g, got the tail frame t4-non-ecm-sig-end before the last fragment), 
+                     * there are out of order packets (e.g, got the tail frame t4-non-ecm-sig-end before the last fragment),
                      * but we will assume there was packet lost instead, which is more usual. So, we are going to reassemble the packet
                      * and get some stat, like packet lost and burst number of packet lost
                     */
@@ -614,12 +614,12 @@ dissect_t38_T_field_type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
                             data_fragment_table /* list of message fragments */
                         );
                     } else {
-                        col_append_str(actx->pinfo->cinfo, COL_INFO, " (t4-data Reassembled: No packet lost)"); 
-                        
+                        col_append_str(actx->pinfo->cinfo, COL_INFO, " (t4-data Reassembled: No packet lost)");
+
                         g_snprintf(t38_info->desc_comment, MAX_T38_DESC, "No packet lost");
                     }
 
-                    
+
                     if (p_t38_packet_conv_info->packet_lost) {
                         g_snprintf(t38_info->desc_comment, MAX_T38_DESC, " Pack lost: %d, Pack burst lost: %d", p_t38_packet_conv_info->packet_lost, p_t38_packet_conv_info->burst_lost);
                     } else {
@@ -632,7 +632,7 @@ dissect_t38_T_field_type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
                     /* Now reset fragmentation information in pinfo */
                     actx->pinfo->fragmented = save_fragmented;
 
-                    t38_info->time_first_t4_data = p_t38_packet_conv_info->time_first_t4_data; 
+                    t38_info->time_first_t4_data = p_t38_packet_conv_info->time_first_t4_data;
                     t38_info->frame_num_first_t4_data = p_t38_packet_conv_info->reass_ID; /* The reass_ID is the Frame number of the first t4 fragment */
 
                 } else {
@@ -700,7 +700,7 @@ dissect_t38_T_field_data(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
     if (primary_part && (Data_Field_item_num<2)) {
         tvbuff_t* new_tvb = NULL;
         fragment_data *frag_msg = NULL;
-    
+
         /* HDLC Data or t4-non-ecm-data */
         if (Data_Field_field_type_value == 0 || Data_Field_field_type_value == 6) { /* 0=HDLC Data or 6=t4-non-ecm-data*/
             gboolean save_fragmented = actx->pinfo->fragmented;
@@ -818,7 +818,7 @@ dissect_t38_T_primary_ifp_packet(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 #line 237 "../../asn1/t38/t38.cnf"
     /* if is a valid t38 packet, add to tap */
-    if (p_t38_packet_conv && (!actx->pinfo->in_error_pkt) && ((gint32) seq_number != p_t38_packet_conv_info->last_seqnum))
+    if (p_t38_packet_conv && (!actx->pinfo->flags.in_error_pkt) && ((gint32) seq_number != p_t38_packet_conv_info->last_seqnum))
         tap_queue_packet(t38_tap, actx->pinfo, t38_info);
 
     if (p_t38_conv) p_t38_conv_info->last_seqnum = (gint32) seq_number;

@@ -1005,7 +1005,7 @@ static int Pinfo_tostring(lua_State *L) { lua_pushstring(L,"a Pinfo"); return 1;
 }
 
 PINFO_GET_BOOLEAN(Pinfo_fragmented,pinfo->ws_pinfo->fragmented)
-PINFO_GET_BOOLEAN(Pinfo_in_error_pkt,pinfo->ws_pinfo->in_error_pkt)
+PINFO_GET_BOOLEAN(Pinfo_in_error_pkt,pinfo->ws_pinfo->flags.in_error_pkt)
 PINFO_GET_BOOLEAN(Pinfo_visited,pinfo->ws_pinfo->fd->flags.visited)
 
 PINFO_GET_NUMBER(Pinfo_number,pinfo->ws_pinfo->fd->num)

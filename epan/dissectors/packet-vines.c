@@ -1702,15 +1702,15 @@ dissect_vines_icp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * that are the payload of error packets differently from
 	 * "real" packets.
 	 */
-	save_in_error_pkt = pinfo->in_error_pkt;
-	pinfo->in_error_pkt = TRUE;
+	save_in_error_pkt = pinfo->flags.in_error_pkt;
+	pinfo->flags.in_error_pkt = TRUE;
 
 	/* Decode the first 40 bytes of the original VIP datagram. */
 	next_tvb = tvb_new_subset_remaining(tvb, offset);
 	call_dissector(vines_ip_handle, next_tvb, pinfo, vines_icp_tree);
 
 	/* Restore the "we're inside an error packet" flag. */
-	pinfo->in_error_pkt = save_in_error_pkt;
+	pinfo->flags.in_error_pkt = save_in_error_pkt;
 }
 
 void

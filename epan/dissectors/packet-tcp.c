@@ -3864,7 +3864,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     reported_len = tvb_reported_length(tvb);
 
-    if (!pinfo->fragmented && !pinfo->in_error_pkt) {
+    if (!pinfo->fragmented && !pinfo->flags.in_error_pkt) {
         if (reported_len < tcph->th_hlen) {
             proto_item *pi;
             pi = proto_tree_add_text(tcp_tree, tvb, offset, 0,
@@ -4220,7 +4220,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* We're willing to desegment this.  Is desegmentation enabled? */
         if (tcp_desegment) {
             /* Yes - is this segment being returned in an error packet? */
-            if (!pinfo->in_error_pkt) {
+            if (!pinfo->flags.in_error_pkt) {
                 /* No - indicate that we will desegment.
                    We do NOT want to desegment segments returned in error
                    packets, as they're not part of a TCP connection. */

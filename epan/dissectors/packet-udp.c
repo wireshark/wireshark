@@ -368,7 +368,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
       col_append_fstr(pinfo->cinfo, COL_INFO, " [BAD UDP LENGTH %u < 8]", udph->uh_ulen);
       return;
     }
-    if ((udph->uh_ulen > tvb_reported_length(tvb)) && ! pinfo->fragmented && ! pinfo->in_error_pkt) {
+    if ((udph->uh_ulen > tvb_reported_length(tvb)) && ! pinfo->fragmented && ! pinfo->flags.in_error_pkt) {
       /* Bogus length - it goes past the end of the IP payload */
       item = proto_tree_add_uint_format(udp_tree, hf_udp_length, tvb, offset + 4, 2,
           udph->uh_ulen, "Length: %u (bogus, payload length %u)", udph->uh_ulen, tvb_reported_length(tvb));
@@ -585,7 +585,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
    * We definitely don't want to do it for an error packet if there's
    * nothing left in the packet.
    */
-  if (!pinfo->in_error_pkt || tvb_length_remaining(tvb, offset) > 0)
+  if (!pinfo->flags.in_error_pkt || tvb_length_remaining(tvb, offset) > 0)
     decode_udp_ports(tvb, offset, pinfo, tree, udph->uh_sport, udph->uh_dport,
                      udph->uh_ulen);
 }

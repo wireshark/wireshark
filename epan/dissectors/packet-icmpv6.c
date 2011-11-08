@@ -1082,8 +1082,8 @@ dissect_contained_icmpv6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
        flag, and set that flag; subdissectors may treat packets
        that are the payload of error packets differently from
        "real" packets. */
-    save_in_error_pkt = pinfo->in_error_pkt;
-    pinfo->in_error_pkt = TRUE;
+    save_in_error_pkt = pinfo->flags.in_error_pkt;
+    pinfo->flags.in_error_pkt = TRUE;
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
 
@@ -1095,7 +1095,7 @@ dissect_contained_icmpv6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
         offset += call_dissector(data_handle, next_tvb, pinfo, tree);
 
     /* Restore the "we're inside an error packet" flag. */
-    pinfo->in_error_pkt = save_in_error_pkt;
+    pinfo->flags.in_error_pkt = save_in_error_pkt;
 
     return offset;
 }
@@ -3225,7 +3225,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree_add_item(icmp6_tree, hf_icmpv6_nonce, tvb, offset, 4, ENC_NA);
             offset += 4;
         } else {
-            if (!pinfo->in_error_pkt) {
+            if (!pinfo->flags.in_error_pkt) {
                 guint32 conv_key[2];
 
                 conv_key[1] = (guint32)((identifier << 16) | sequence);

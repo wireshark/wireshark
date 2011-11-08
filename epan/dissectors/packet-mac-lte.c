@@ -3516,7 +3516,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                      ""));
 
         /* Queue tap info */
-        if (!pinfo->in_error_pkt) {
+        if (!pinfo->flags.in_error_pkt) {
             tap_queue_packet(mac_lte_tap, pinfo, tap_info);
         }
 
@@ -3533,7 +3533,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /* Queue tap info.
            TODO: unfortunately DL retx detection won't get done if we return here... */
-        if (!pinfo->in_error_pkt) {
+        if (!pinfo->flags.in_error_pkt) {
             tap_queue_packet(mac_lte_tap, pinfo, tap_info);
         }
 

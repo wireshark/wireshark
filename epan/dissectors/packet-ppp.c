@@ -3175,8 +3175,8 @@ dissect_cp( tvbuff_t *tvb, int proto_id, int proto_subtree_index,
            flag, and set that flag; subdissectors may treat packets
            that are the payload of error packets differently from
            "real" packets. */
-        save_in_error_pkt = pinfo->in_error_pkt;
-        pinfo->in_error_pkt = TRUE;
+        save_in_error_pkt = pinfo->flags.in_error_pkt;
+        pinfo->flags.in_error_pkt = TRUE;
 
         /* Decode the rejected packet. */
         next_tvb = tvb_new_subset(tvb, offset, length, length);
@@ -3186,7 +3186,7 @@ dissect_cp( tvbuff_t *tvb, int proto_id, int proto_subtree_index,
         }
 
         /* Restore the "we're inside an error packet" flag. */
-        pinfo->in_error_pkt = save_in_error_pkt;
+        pinfo->flags.in_error_pkt = save_in_error_pkt;
       }
     }
     break;

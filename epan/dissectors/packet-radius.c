@@ -1394,7 +1394,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case RADIUS_PKT_TYPE_COA_REQUEST:
 			/* Don't bother creating conversations if we're encapsulated within
 			 * an error packet, such as an ICMP destination unreachable */
-			if (pinfo->in_error_pkt)
+			if (pinfo->flags.in_error_pkt)
 				break;
 
 			if (tree)
@@ -1507,7 +1507,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case RADIUS_PKT_TYPE_COA_NAK:
 			/* Don't bother finding conversations if we're encapsulated within
 			 * an error packet, such as an ICMP destination unreachable */
-			if (pinfo->in_error_pkt)
+			if (pinfo->flags.in_error_pkt)
 				break;
 
 			if (tree)

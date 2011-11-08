@@ -2833,7 +2833,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 		tvb_raw_text_add(tvb, orig_offset, offset - orig_offset, tree);
 
 	/* Report this packet to the tap */
-	if (!pinfo->in_error_pkt)
+	if (!pinfo->flags.in_error_pkt)
 	{
 		tap_queue_packet(sip_tap, pinfo, stat_info);
 	}
@@ -3149,7 +3149,7 @@ guint sip_is_packet_resend(packet_info *pinfo,
 
 	/* Don't consider packets that appear to be resent only because
 	   they are e.g. returned in ICMP unreachable messages. */
-	if (pinfo->in_error_pkt)
+	if (pinfo->flags.in_error_pkt)
 	{
 		return 0;
 	}
@@ -3348,7 +3348,7 @@ guint sip_find_request(packet_info *pinfo,
 	}
 
 	/* Ignore error (usually ICMP) frames */
-	if (pinfo->in_error_pkt)
+	if (pinfo->flags.in_error_pkt)
 	{
 		return 0;
 	}
@@ -3463,7 +3463,7 @@ guint sip_find_invite(packet_info *pinfo,
 	}
 
 	/* Ignore error (usually ICMP) frames */
-	if (pinfo->in_error_pkt)
+	if (pinfo->flags.in_error_pkt)
 	{
 		return 0;
 	}
