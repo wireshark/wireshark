@@ -124,7 +124,7 @@ val_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFu
 static int
 val_repr_len(fvalue_t *fv, ftrepr_t rtype)
 {
-	guint length = 0;
+	volatile guint length = 0;
 
 	if (rtype != FTREPR_DFILTER) return -1;
 
@@ -182,7 +182,7 @@ value_get(fvalue_t *fv)
 static guint
 len(fvalue_t *fv)
 {
-	guint length = 0;
+	volatile guint length = 0;
 
 	TRY {
 		if (fv->value.tvb)
@@ -219,7 +219,7 @@ cmp_eq(fvalue_t *fv_a, fvalue_t *fv_b)
 {
 	tvbuff_t	*a = fv_a->value.tvb;
 	tvbuff_t	*b = fv_b->value.tvb;
-	gboolean	eq = FALSE;
+	volatile gboolean	eq = FALSE;
 
 	TRY {
 		guint	a_len = tvb_length(a);
@@ -240,7 +240,7 @@ cmp_ne(fvalue_t *fv_a, fvalue_t *fv_b)
 {
 	tvbuff_t	*a = fv_a->value.tvb;
 	tvbuff_t	*b = fv_b->value.tvb;
-	gboolean	ne = TRUE;
+	volatile gboolean	ne = TRUE;
 
 	TRY {
 		guint	a_len = tvb_length(a);
@@ -262,7 +262,7 @@ cmp_gt(fvalue_t *fv_a, fvalue_t *fv_b)
 {
 	tvbuff_t	*a = fv_a->value.tvb;
 	tvbuff_t	*b = fv_b->value.tvb;
-	gboolean	gt = FALSE;
+	volatile gboolean	gt = FALSE;
 
 	TRY {
 		guint	a_len = tvb_length(a);
@@ -287,7 +287,7 @@ cmp_ge(fvalue_t *fv_a, fvalue_t *fv_b)
 {
 	tvbuff_t	*a = fv_a->value.tvb;
 	tvbuff_t	*b = fv_b->value.tvb;
-	gboolean	ge = FALSE;
+	volatile gboolean	ge = FALSE;
 
 	TRY {
 		guint	a_len = tvb_length(a);
@@ -312,7 +312,7 @@ cmp_lt(fvalue_t *fv_a, fvalue_t *fv_b)
 {
 	tvbuff_t	*a = fv_a->value.tvb;
 	tvbuff_t	*b = fv_b->value.tvb;
-	gboolean	lt = FALSE;
+	volatile gboolean	lt = FALSE;
 
 	TRY {
 		guint	a_len = tvb_length(a);
@@ -337,7 +337,7 @@ cmp_le(fvalue_t *fv_a, fvalue_t *fv_b)
 {
 	tvbuff_t	*a = fv_a->value.tvb;
 	tvbuff_t	*b = fv_b->value.tvb;
-	gboolean	le = FALSE;
+	volatile gboolean	le = FALSE;
 
 	TRY {
 		guint	a_len = tvb_length(a);
@@ -360,7 +360,7 @@ cmp_le(fvalue_t *fv_a, fvalue_t *fv_b)
 static gboolean
 cmp_contains(fvalue_t *fv_a, fvalue_t *fv_b)
 {
-	gboolean	contains = FALSE;
+	volatile gboolean	contains = FALSE;
 
 	TRY {
 		if (tvb_find_tvb(fv_a->value.tvb, fv_b->value.tvb, 0) > -1) {
