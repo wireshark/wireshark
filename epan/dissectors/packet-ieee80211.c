@@ -12205,7 +12205,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_qos_tid,
      {"TID", "wlan.qos.tid", FT_UINT16, BASE_DEC, NULL, 0,
-      "TID", HFILL }},
+      NULL, HFILL }},
 
     {&hf_ieee80211_qos_priority,
      {"Priority", "wlan.qos.priority", FT_UINT16, BASE_DEC, NULL, 0,
