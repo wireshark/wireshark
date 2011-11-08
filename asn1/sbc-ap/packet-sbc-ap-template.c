@@ -76,7 +76,6 @@ static guint32 ProcedureCode;
 static guint32 ProtocolIE_ID;
 static guint32 ProtocolExtensionID;
 static int global_sbc_ap_port = SBC_AP_PORT;
-static guint32 message_type;
 
 /* Dissector tables */
 static dissector_table_t sbc_ap_ies_dissector_table;

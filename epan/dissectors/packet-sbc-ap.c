@@ -216,7 +216,6 @@ static guint32 ProcedureCode;
 static guint32 ProtocolIE_ID;
 static guint32 ProtocolExtensionID;
 static int global_sbc_ap_port = SBC_AP_PORT;
-static guint32 message_type;
 
 /* Dissector tables */
 static dissector_table_t sbc_ap_ies_dissector_table;
@@ -1165,7 +1164,7 @@ static int dissect_SBC_AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-sbc-ap-fn.c ---*/
-#line 95 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
+#line 94 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -1453,7 +1452,7 @@ void proto_register_sbc_ap(void) {
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-sbc-ap-hfarr.c ---*/
-#line 158 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
+#line 157 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
   };
 
   /* List of subtrees */
@@ -1488,7 +1487,7 @@ void proto_register_sbc_ap(void) {
     &ett_sbc_ap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-sbc-ap-ettarr.c ---*/
-#line 164 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
+#line 163 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
   };
 
 
@@ -1546,7 +1545,7 @@ proto_reg_handoff_sbc_ap(void)
 
 
 /*--- End of included file: packet-sbc-ap-dis-tab.c ---*/
-#line 197 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
+#line 196 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
 	} else {
 		if (SctpPort != 0) {
 			dissector_delete_uint("sctp.port", SctpPort, sbc_ap_handle);
