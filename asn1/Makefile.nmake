@@ -134,6 +134,7 @@ PER_LIST= \
 	rua			\
 	s1ap			\
 	sabp			\
+	sbc-ap			\
 	t124			\
 	t38			\
 	tetra			\

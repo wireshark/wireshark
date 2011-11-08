@@ -159,6 +159,7 @@ ASN1_DISSECTOR_SRC = \
 	packet-rua.c \
 	packet-s1ap.c		\
 	packet-sabp.c \
+	packet-sbc-ap.c \
 	packet-smrse.c \
 	packet-spnego.c \
 	packet-sv.c \

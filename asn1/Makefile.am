@@ -102,6 +102,7 @@ SUBDIRS = 		\
 	rua		\
 	s1ap		\
 	sabp		\
+	sbc-ap		\
 	smrse		\
 	snmp		\
 	spnego		\

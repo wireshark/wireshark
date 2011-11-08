@@ -1957,6 +1957,7 @@ AC_OUTPUT(
   asn1/rua/Makefile
   asn1/s1ap/Makefile
   asn1/sabp/Makefile
+  asn1/sbc-ap/Makefile
   asn1/smrse/Makefile
   asn1/snmp/Makefile
   asn1/spnego/Makefile
