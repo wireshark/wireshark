@@ -516,6 +516,11 @@ display_req_body(tvbuff_t *tvb, proto_tree *ajp13_tree, ajp13_conv_data* cd)
   /* BODY (AS STRING)
    */
   content_length = tvb_get_ntohs( tvb, pos);
+  if (content_length == 0) {
+    /* zero length content also signals no more body data */
+    cd->content_length = 0;
+    return;
+  }
   cd->content_length -= content_length;
   proto_tree_add_item(ajp13_tree, hf_ajp13_data, tvb, pos+2, content_length, ENC_UTF_8|ENC_NA);
 }
