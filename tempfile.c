@@ -66,8 +66,7 @@
    they are replaced with a string that makes the filename unique.
    Returns a file descriptor open on the file for reading and writing.  */
 static int
-mkstemp (template)
-     char *template;
+mkstemp (char *template)
 {
   static const char letters[]
     = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -111,8 +110,7 @@ mkstemp (template)
    they are replaced with a string that makes the filename unique.
    Returns 0 on success or -1 on error (from mkdir(2)).  */
 char *
-mkdtemp (template)
-     char *template;
+mkdtemp (char *template)
 {
   static const char letters[]
     = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
