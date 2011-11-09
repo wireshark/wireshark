@@ -3824,7 +3824,7 @@ BACnetDoorSecuredStatus [] = {
 static const value_string
 BACnetDoorAlarmState [] = {
 	{ 0, "normal" },
-	{ 1, "alarm" }, 
+	{ 1, "alarm" },
 	{ 2, "door-open-too-long" },
 	{ 3, "forced-open" },
 	{ 4, "tamper" },
@@ -6145,21 +6145,21 @@ fContextTaggedValue(tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *
 	return offset + tag_len + lvt;
 }
 /*
-BACnetPrescale ::= SEQUENCE {	
+BACnetPrescale ::= SEQUENCE {
 	multiplier	[0] Unsigned,
 moduloDivide	[1] Unsigned
 }
 */
-static guint 
+static guint
 fPrescale (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset)
 {
 	guint8 tag_no, tag_info;
-	guint32 lvt, len;
+	guint32 lvt;
 	guint lastoffset = 0;
 
 	while (tvb_reported_length_remaining(tvb, offset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
-		len = fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
+		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 		if (tag_is_closing(tag_info) ) {
 			return offset;
 			}
@@ -6184,16 +6184,16 @@ BACnetScale ::= CHOICE {
 integerScale	[1] INTEGER
 }
 */
-static guint 
+static guint
 fScale (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset)
 {
 	guint8 tag_no, tag_info;
-	guint32 lvt, len;
+	guint32 lvt;
 	guint lastoffset = 0;
 
 	while (tvb_reported_length_remaining(tvb, offset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
-		len = fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
+		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 		if (tag_is_closing(tag_info) ) {
 			return offset;
 			}
@@ -6225,16 +6225,16 @@ BACnetAccumulatorRecord ::= SEQUENCE {
 					}
 }
 */
-static guint 
+static guint
 fLoggingRecord (tvbuff_t *tvb, packet_info *pinfo  _U_, proto_tree *tree, guint offset)
 {
 	guint8 tag_no, tag_info;
-	guint32 lvt, len;
+	guint32 lvt;
 	guint lastoffset = 0;
 
 	while (tvb_reported_length_remaining(tvb, offset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
-		len = fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
+		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 		if (tag_is_closing(tag_info) ) {
 			return offset;
 			}
@@ -6263,16 +6263,16 @@ fLoggingRecord (tvbuff_t *tvb, packet_info *pinfo  _U_, proto_tree *tree, guint 
 /*
  SEQ OF Any enumeration (current usage is SEQ OF BACnetDoorAlarmState
 */
-static guint 
+static guint
 fSequenceOfEnums (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, const gchar *label, const value_string *vs)
 {
 	guint8 tag_no, tag_info;
-	guint32 lvt, len;
+	guint32 lvt;
 	guint lastoffset = 0;
 
 	while (tvb_reported_length_remaining(tvb, offset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
-		len = fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
+		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 		if (tag_is_closing(tag_info) ) {
 			return offset;
 			}
@@ -6286,16 +6286,16 @@ fSequenceOfEnums (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 SEQ OF BACnetDeviceObjectReference (accessed as an array)
 }
 */
-static guint 
+static guint
 fDoorMembers (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
 	guint8 tag_no, tag_info;
-	guint32 lvt, len;
+	guint32 lvt;
 	guint lastoffset = 0;
 
 	while (tvb_reported_length_remaining(tvb, offset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
-		len = fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
+		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 		if (tag_is_closing(tag_info) ) {
 			return offset;
 			}
@@ -6308,16 +6308,16 @@ fDoorMembers (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 /*
 SEQ OF ReadAccessSpecification
 */
-static guint 
+static guint
 fListOfGroupMembers (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
 	guint8 tag_no, tag_info;
-	guint32 lvt, len;
+	guint32 lvt;
 	guint lastoffset = 0;
 
 	while (tvb_reported_length_remaining(tvb, offset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
-		len = fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
+		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 		if (tag_is_closing(tag_info) ) {
 			return offset;
 			}
@@ -7751,7 +7751,7 @@ fEventParameter (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offs
 
 		case 7: /* buffer-ready */
 			/* deprecated
-			while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) { 
+			while ((tvb_reported_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {
 				lastoffset = offset;
 				switch (fTagNo(tvb, offset)) {
 				case 0:
@@ -7875,7 +7875,7 @@ fEventParameter (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offs
 		default:
 			break;
 		}
-	
+
 	/* Closing tag for parameter choice */
 	offset += fTagHeaderTree(tvb, subtree, offset, &tag_no, &tag_info, &lvt);
 	return offset;
@@ -8064,7 +8064,7 @@ fLogMultipleRecord (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint o
 							offset = fAbstractSyntaxNType (tvb, pinfo, tree, offset);
 							offset += fTagHeaderTree (tvb, tree, offset, &tag_no, &tag_info, &lvt);
 							break;
-						default: 
+						default:
 							return offset;
 					}
 				}
