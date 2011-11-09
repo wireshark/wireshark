@@ -137,7 +137,7 @@ dissect_macctrl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         pause_times_tree = proto_item_add_subtree(ti, ett_macctrl_cbfc_pause_times);
 
         for (i=0; i<8; i++) {
-          proto_tree_add_item(pause_times_tree, *macctrl_cbfc_pause_times_list[i], tvb, 4+i*2, 2, FALSE);
+          proto_tree_add_item(pause_times_tree, *macctrl_cbfc_pause_times_list[i], tvb, 4+i*2, 2, ENC_BIG_ENDIAN);
         }
       }
       break;

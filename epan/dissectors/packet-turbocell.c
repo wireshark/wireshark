@@ -188,7 +188,7 @@ static void dissect_turbocell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                     col_append_fstr(pinfo->cinfo, COL_INFO, ", Network=\"%s\"",format_text(str_name, str_len-1));
 
                 while(tvb_get_guint8(tvb, 0x34 + 8*i)==0x00 && (tvb_length_remaining(tvb,0x34 + 8*i) > 6) && (i<32)) {
-                    proto_tree_add_item(network_tree, hf_turbocell_station[i], tvb, 0x34+8*i, 6, FALSE);
+                    proto_tree_add_item(network_tree, hf_turbocell_station[i], tvb, 0x34+8*i, 6, ENC_NA);
                     i++;
                 }
 

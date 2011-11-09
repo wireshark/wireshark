@@ -302,16 +302,16 @@ gboolean lct_dissector(struct _lct_ptr l, struct _fec_ptr f, tvbuff_t *tvb, prot
 	if (tree)
 	{
 		/* Create the LCT subtree */
-		ti = proto_tree_add_item(tree, l.hf->header, tvb, *offset, l.lct->hlen, FALSE);
+		ti = proto_tree_add_item(tree, l.hf->header, tvb, *offset, l.lct->hlen, ENC_NA);
 		lct_tree = proto_item_add_subtree(ti, l.ett->main);
 
 		/* Fill the LCT subtree */
 		proto_tree_add_uint(lct_tree, l.hf->version, tvb, *offset, 1, l.lct->version);
 
-		ti = proto_tree_add_item(lct_tree, l.hf->fsize_header, tvb, *offset, 2, FALSE);
+		ti = proto_tree_add_item(lct_tree, l.hf->fsize_header, tvb, *offset, 2, ENC_NA);
 		lct_fsize_tree = proto_item_add_subtree(ti, l.ett->fsize);
 
-		ti = proto_tree_add_item(lct_tree, l.hf->flags_header, tvb, *offset, 2, FALSE);
+		ti = proto_tree_add_item(lct_tree, l.hf->flags_header, tvb, *offset, 2, ENC_NA);
 		lct_flags_tree = proto_item_add_subtree(ti, l.ett->flags);
 
 		proto_tree_add_uint(lct_tree, l.hf->hlen, tvb, *offset+2, 1, l.lct->hlen);

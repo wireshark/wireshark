@@ -101,7 +101,7 @@ static const value_string m_type_vals[] = {
 static int
 dissect_krb4_string(packet_info *pinfo _U_, int hf_index, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	proto_tree_add_item(tree, hf_index, tvb, offset, -1, FALSE);
+	proto_tree_add_item(tree, hf_index, tvb, offset, -1, ENC_ASCII|ENC_NA);
 	while(tvb_get_guint8(tvb, offset)!=0){
 		offset++;
 	}

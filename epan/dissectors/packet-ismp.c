@@ -255,7 +255,7 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 	/* create display subtree for EDP */
 	if (ismp_tree) {
 		edp_ti  = proto_tree_add_item(ismp_tree, hf_ismp_edp, tvb, offset,
-			tvb_length_remaining(tvb, offset), FALSE);
+			tvb_length_remaining(tvb, offset), ENC_NA);
 		edp_tree = proto_item_add_subtree(edp_ti, ett_ismp_edp);
 
 		col_add_fstr(pinfo->cinfo, COL_INFO, "MIP %s, MMAC %s, ifIdx %d",

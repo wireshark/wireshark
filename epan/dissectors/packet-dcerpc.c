@@ -2448,7 +2448,7 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
     if (tree) {
         sub_item = proto_tree_add_item (tree, sub_proto->proto_id,
                                         (decrypted_tvb != NULL)?decrypted_tvb:tvb,
-                                        0, -1, FALSE);
+                                        0, -1, ENC_NA);
 
         if (sub_item) {
             sub_tree = proto_item_add_subtree (sub_item, sub_proto->ett);

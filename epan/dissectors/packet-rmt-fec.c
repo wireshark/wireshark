@@ -176,7 +176,7 @@ void fec_dissector(struct _fec_ptr f, tvbuff_t *tvb, proto_tree *tree, guint *of
 	/* Create the FEC subtree */
 	if (tree)
 	{
-		ti = proto_tree_add_item(tree, f.hf->header, tvb, *offset, -1, FALSE);
+		ti = proto_tree_add_item(tree, f.hf->header, tvb, *offset, -1, ENC_NA);
 		fec_tree = proto_item_add_subtree(ti, f.ett->main);
 	} else
 	{

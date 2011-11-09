@@ -4270,7 +4270,7 @@ dissect_ndps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree)
             }
             if(ndps_hfname != 0)
             {
-                proto_tree_add_item(ndps_tree, ndps_hfname, tvb, foffset, 4, FALSE);
+                proto_tree_add_item(ndps_tree, ndps_hfname, tvb, foffset, 4, ENC_BIG_ENDIAN);
                 if (ndps_func_string != NULL)
                 {
                     if (check_col(pinfo->cinfo, COL_INFO))

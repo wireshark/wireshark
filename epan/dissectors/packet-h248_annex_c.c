@@ -788,7 +788,7 @@ static void dissect_h248_annexc_NSAP(proto_tree* tree,
 }
 
 static void dissect_h248_annexc_vpvc(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo _U_, int hfid, h248_curr_info_t* h248_info _U_, void* unused _U_) {
-	proto_item* pi = proto_tree_add_item(tree,hfid,tvb,0,2,FALSE);
+	proto_item* pi = proto_tree_add_item(tree,hfid,tvb,0,2,ENC_BIG_ENDIAN);
 	proto_tree* pt = proto_item_add_subtree(pi,ett_vpvc);
 	proto_tree_add_item(pt,hf_h248_pkg_annexc_vp,tvb,0,2,ENC_BIG_ENDIAN);
 	proto_tree_add_item(pt,hf_h248_pkg_annexc_vc,tvb,2,2,ENC_BIG_ENDIAN);

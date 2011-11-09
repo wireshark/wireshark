@@ -1419,7 +1419,7 @@ dissect_sgsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/*
 	 * Add SGSAP message name
 	 */
-	proto_tree_add_item(sgsap_tree, hf_idx, tvb, offset, 1, FALSE);
+	proto_tree_add_item(sgsap_tree, hf_idx, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
 

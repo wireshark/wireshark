@@ -468,7 +468,7 @@ decode_value_string_attribute(tvbuff_t *tvb, proto_tree *tree, int* hfValue, int
 		proto_tree_add_text(tree, tvb, offset, length, "Too short attribute!");
 		return;
 	}
-	proto_tree_add_item(tree, *hfValue, tvb, offset+4, 4, FALSE);
+	proto_tree_add_item(tree, *hfValue, tvb, offset+4, 4, ENC_BIG_ENDIAN);
 }
 
 static void

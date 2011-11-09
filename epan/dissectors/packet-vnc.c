@@ -711,7 +711,7 @@ process_tight_capabilities(proto_tree *tree,
 	for (i = 0; i < num_capabilities; i++) {
 		char *name;
 
-		proto_tree_add_item(tree, type_index, tvb, offset, 4, FALSE);
+		proto_tree_add_item(tree, type_index, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 
 		offset = process_vendor(tree, vendor_index, tvb, offset);

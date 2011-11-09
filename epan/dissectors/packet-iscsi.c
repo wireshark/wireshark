@@ -680,7 +680,7 @@ handleDataSegment(proto_item *ti, tvbuff_t *tvb, guint offset, guint dataSegment
         int dataOffset = offset;
         int dataLen = MIN(dataSegmentLen, endOffset - offset);
         if(dataLen > 0) {
-            proto_tree_add_item(ti, hf_id, tvb, offset, dataLen, FALSE);
+            proto_tree_add_item(ti, hf_id, tvb, offset, dataLen, ENC_NA);
             offset += dataLen;
         }
         if(offset < endOffset && (offset & 3) != 0) {

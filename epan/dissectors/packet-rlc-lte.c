@@ -695,7 +695,7 @@ static void show_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
                                               (rlc_info->rlcMode == RLC_AM_MODE) ?
                                                     hf_rlc_lte_am_data :
                                                     hf_rlc_lte_um_data,
-                                              tvb, offset, length, FALSE);
+                                              tvb, offset, length, ENC_NA);
 
     /* Send whole PDU to PDCP */
     if ((whole_pdu || (reassembly_info != NULL)) &&

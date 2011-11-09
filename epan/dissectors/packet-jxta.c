@@ -947,7 +947,7 @@ static int dissect_jxta_welcome(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
                   if (jxta_welcome_tree) {
                       jxta_welcome_tree_item = proto_tree_add_item(jxta_welcome_tree,
                         (each_variable_token < (variable_tokens -1) ? hf_jxta_welcome_variable : hf_jxta_welcome_version),
-                        tvb, token_offset, (gint) strlen(*current_token), FALSE);
+                        tvb, token_offset, (gint) strlen(*current_token), ENC_ASCII|ENC_NA);
 
                         proto_item_append_text(jxta_welcome_tree_item, " (UNRECOGNIZED)");
                   }

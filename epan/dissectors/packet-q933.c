@@ -1682,7 +1682,7 @@ dissect_q933_number_ie(tvbuff_t *tvb, int offset, int len,
 
 	if (len == 0)
 		return;
-	proto_tree_add_item(tree, hfindex, tvb, offset, len, FALSE);
+	proto_tree_add_item(tree, hfindex, tvb, offset, len, ENC_ASCII|ENC_NA);
 }
 
 /*

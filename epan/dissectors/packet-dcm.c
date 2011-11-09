@@ -4728,7 +4728,7 @@ dissect_dcm_assoc_item(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
 	g_snprintf(*item_value, MAX_BUF_LEN, "%d", item_number);
 
 	proto_item_append_text(assoc_item_pitem, "%s", *item_value);
-	proto_tree_add_item(assoc_item_ptree, *hf_value, tvb, offset+4, 4, FALSE);
+	proto_tree_add_item(assoc_item_ptree, *hf_value, tvb, offset+4, 4, ENC_BIG_ENDIAN);
 
 	break;
 

@@ -3804,7 +3804,7 @@ netlogon_dissect_CIPHER_VALUE_DATA(tvbuff_t *tvb, int offset,
                                  hf_netlogon_cipher_len, &data_len);
 
     proto_tree_add_item(tree, di->hf_index, tvb, offset,
-                        data_len, FALSE);
+                        data_len, ENC_NA);
     offset += data_len;
 
     return offset;

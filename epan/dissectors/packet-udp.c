@@ -329,7 +329,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
         get_udp_port(udph->uh_sport), udph->uh_sport, get_udp_port(udph->uh_dport), udph->uh_dport);
       }
     } else {
-      ti = proto_tree_add_item(tree, (ip_proto == IP_PROTO_UDP) ? proto_udp : proto_udplite, tvb, offset, 8, FALSE);
+      ti = proto_tree_add_item(tree, (ip_proto == IP_PROTO_UDP) ? proto_udp : proto_udplite, tvb, offset, 8, ENC_NA);
     }
     udp_tree = proto_item_add_subtree(ti, ett_udp);
 

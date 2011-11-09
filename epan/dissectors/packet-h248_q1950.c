@@ -298,7 +298,7 @@ static void dissect_bt_tunneled_proto(proto_tree* tree, tvbuff_t* tvb, packet_in
 			call_dissector(bctp_dissector,bctp_tvb,pinfo,tree);
 		}
 	} else {
-		proto_tree_add_item(tree,hfid,tvb,0,-1,FALSE);
+		proto_tree_add_item(tree,hfid,tvb,0,-1,ENC_NA);
 	}
 
 }

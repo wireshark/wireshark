@@ -117,7 +117,7 @@ dissect_rudp(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 		flags_tree = proto_item_add_subtree(ti, ett_rudp_flags);
 
 		for (i = 0; i < 8; i++)
-			proto_tree_add_item(flags_tree, flags[i], tvb, 0, 1, FALSE);
+			proto_tree_add_item(flags_tree, flags[i], tvb, 0, 1, ENC_BIG_ENDIAN);
 
 		proto_tree_add_item(rudp_tree, hf_rudp_hlen, tvb, 1, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(rudp_tree, hf_rudp_seq, tvb, 2, 1, ENC_BIG_ENDIAN);

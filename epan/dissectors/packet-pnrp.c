@@ -1009,7 +1009,7 @@ static void dissect_payload_structure(tvbuff_t *tvb, gint offset, gint length, p
         dissect_ipv6_address(tvb, offset, 16, pnrp_payload_tree);
         offset += 16;
         proto_tree_add_text(pnrp_payload_tree, tvb, offset,2, "Port Number : %d",tvb_get_letohs(tvb,offset));
-        /* proto_tree_add_item(pnrp_payload_tree, hf_pnrp_payload_port, tvb, offset, 2, FALSE); */
+        /* proto_tree_add_item(pnrp_payload_tree, hf_pnrp_payload_port, tvb, offset, 2, ENC_BIG_ENDIAN); */
         offset += 2;
         proto_tree_add_text(pnrp_payload_tree, tvb, offset,2, "IANA Protocol Number : %d",tvb_get_letohs(tvb,offset));
         offset += 2;

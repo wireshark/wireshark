@@ -1467,7 +1467,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
         guint16 dev_cat = tvb_get_ntohs(tvb, offset+4);
         if (dev_cat > 0 && dev_cat <= WPS_DEVICE_TYPE_CATEGORY_MAX) {
           proto_tree_add_item(tlv_root, hf_eapwps_tlv_primary_device_type_category, tvb, offset+4, 2, ENC_BIG_ENDIAN);
-          proto_tree_add_item(tlv_root, hf_eapwps_tlv_primary_device_type_subcategory[dev_cat-1], tvb, offset+10, 2, FALSE);
+          proto_tree_add_item(tlv_root, hf_eapwps_tlv_primary_device_type_subcategory[dev_cat-1], tvb, offset+10, 2, ENC_BIG_ENDIAN);
         }
       }
 

@@ -949,7 +949,7 @@ dissect_ntlmssp_blob (tvbuff_t *tvb, int offset,
 
   if (ntlmssp_tree) {
     tf = proto_tree_add_item (ntlmssp_tree, blob_hf, tvb,
-                              blob_offset, blob_length, FALSE);
+                              blob_offset, blob_length, ENC_NA);
     tree = proto_item_add_subtree(tf, ett_ntlmssp_blob);
   }
   proto_tree_add_uint(tree, hf_ntlmssp_blob_len,

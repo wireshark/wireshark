@@ -538,7 +538,7 @@ dissect_ndr_ctx_hnd (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     dcerpc_tvb_get_uuid (tvb, offset+4, drep, &ctx_hnd.uuid);
     if (tree) {
         /* Bytes is bytes - don't worry about the data representation */
-        proto_tree_add_item (tree, hfindex, tvb, offset, 20, FALSE);
+        proto_tree_add_item (tree, hfindex, tvb, offset, 20, ENC_NA);
     }
     if (pdata) {
         *pdata = ctx_hnd;

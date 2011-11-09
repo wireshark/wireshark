@@ -2237,7 +2237,7 @@ dissect_q931_number_ie(tvbuff_t *tvb, int offset, int len,
 
 	if (len == 0)
 		return;
-	proto_tree_add_item(tree, hfindex, tvb, offset, len, FALSE);
+	proto_tree_add_item(tree, hfindex, tvb, offset, len, ENC_ASCII|ENC_NA);
 	proto_item_append_text(proto_tree_get_parent(tree), ": '%s'", tvb_format_text(tvb, offset, len));
 
 	if ( number_plan == 1 ) {

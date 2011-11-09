@@ -673,7 +673,7 @@ dissect_mux_al_pdu( tvbuff_t *tvb, packet_info *pinfo, proto_tree *vc_tree,
 
             al_item = proto_tree_add_item(vc_tree,
                                           al2_sequenced?hf_h223_al2_sequenced:hf_h223_al2_unsequenced,
-                                          tvb, 0, -1,FALSE);
+                                          tvb, 0, -1, ENC_NA);
             al_tree = proto_item_add_subtree (al_item, ett_h223_al2);
 
             PROTO_ITEM_SET_GENERATED(tmp_item);

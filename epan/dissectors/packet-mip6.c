@@ -1487,7 +1487,7 @@ dissect_mip6_opt_vsm(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
         break;
     }
     proto_tree_add_item(field_tree, hf_mip6_vsm_subtype_local, tvb,
-            offset + MIP6_VSM_SUBTYPE_OFF, MIP6_VSM_SUBTYPE_LEN, FALSE);
+            offset + MIP6_VSM_SUBTYPE_OFF, MIP6_VSM_SUBTYPE_LEN, ENC_BIG_ENDIAN);
 
     p = offset + MIP6_VSM_DATA_OFF;
     len = optlen - MIP6_VSM_DATA_OFF;

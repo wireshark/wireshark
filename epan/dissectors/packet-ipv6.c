@@ -922,7 +922,7 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
 
     if (tree) {
 	/* !!! specify length */
-	ti = proto_tree_add_item(tree, hf_option_item, tvb, offset, len, FALSE);
+	ti = proto_tree_add_item(tree, hf_option_item, tvb, offset, len, ENC_NA);
 
 	dstopt_tree = proto_item_add_subtree(ti, ett_ipv6);
 
