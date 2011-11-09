@@ -1769,7 +1769,7 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset)
         }
         else {
             proto_item_set_text(timestamp_sequence_item,
-				"Timestamp Sequence Number: %d", timestamp_sequence);
+                                "Timestamp Sequence Number: %d", timestamp_sequence);
         }
         offset += sdnv_length; record_size += sdnv_length;
 
@@ -1953,7 +1953,7 @@ display_metadata_block(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean *la
     int control_flags;
     proto_tree *block_flag_tree = NULL;
     int num_eid_ref = 0;
-    int i = 0, ref_scheme = 0, ref_ssp = 0;
+    int i = 0;
 
     type = tvb_get_guint8(tvb, offset);
     header_start = offset;      /*Used to compute total payload length*/
@@ -1976,32 +1976,32 @@ display_metadata_block(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean *la
     block_flag_tree = proto_item_add_subtree(block_item, ett_block_flags);
 
     proto_tree_add_boolean(block_flag_tree, hf_block_control_replicate,
-			   tvb, offset, sdnv_length, control_flags);
+                           tvb, offset, sdnv_length, control_flags);
     proto_tree_add_boolean(block_flag_tree, hf_block_control_transmit_status,
-			   tvb, offset, sdnv_length, control_flags);
+                           tvb, offset, sdnv_length, control_flags);
     proto_tree_add_boolean(block_flag_tree, hf_block_control_delete_bundle,
-			   tvb, offset, sdnv_length, control_flags);
+                           tvb, offset, sdnv_length, control_flags);
     proto_tree_add_boolean(block_flag_tree, hf_block_control_last_block,
-			   tvb, offset, sdnv_length, control_flags);
+                           tvb, offset, sdnv_length, control_flags);
     proto_tree_add_boolean(block_flag_tree, hf_block_control_discard_block,
-			   tvb, offset, sdnv_length, control_flags);
+                           tvb, offset, sdnv_length, control_flags);
     proto_tree_add_boolean(block_flag_tree, hf_block_control_not_processed,
-			   tvb, offset, sdnv_length, control_flags);
+                           tvb, offset, sdnv_length, control_flags);
     proto_tree_add_boolean(block_flag_tree, hf_block_control_eid_reference,
-			   tvb, offset, sdnv_length, control_flags);
+                           tvb, offset, sdnv_length, control_flags);
 
     if (control_flags & BLOCK_CONTROL_EID_REFERENCE) {
-    	num_eid_ref = evaluate_sdnv(tvb, header_start + offset, &sdnv_length);
-    	offset += sdnv_length;
+        num_eid_ref = evaluate_sdnv(tvb, header_start + offset, &sdnv_length);
+        offset += sdnv_length;
 
-    	for (i = 0; i < num_eid_ref; i++)
-    	{
-    		ref_scheme = evaluate_sdnv(tvb, header_start + offset, &sdnv_length);
-    		offset += sdnv_length;
+        for (i = 0; i < num_eid_ref; i++)
+        {
+            evaluate_sdnv(tvb, header_start + offset, &sdnv_length);
+            offset += sdnv_length;
 
-    		ref_ssp = evaluate_sdnv(tvb, header_start + offset, &sdnv_length);
-    		offset += sdnv_length;
-    	}
+            evaluate_sdnv(tvb, header_start + offset, &sdnv_length);
+            offset += sdnv_length;
+        }
     }
 
     block_length = evaluate_sdnv(tvb, header_start + offset, &sdnv_length);
@@ -2172,433 +2172,433 @@ void
 proto_register_bundle(void)
 {
 
-  static hf_register_info hf[] = {
-    {&hf_bundle_pdu_version,
-        {"Bundle Version", "bundle.version",
-                FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_contact_hdr_version,
-        {"Version", "bundle.tcp_conv.contact_hdr.version",
-                FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_contact_hdr_flags,
-        {"Flags", "bundle.tcp_conv.contact_hdr.flags",
-                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_contact_hdr_flags_ack_req,
-        {"Bundle Acks Requested", "bundle.tcp_conv.contact_hdr.flags.ackreq",
-                FT_BOOLEAN, 8, NULL, TCP_CONV_BUNDLE_ACK_FLAG, NULL, HFILL}
-    },
-    {&hf_contact_hdr_flags_frag_enable,
-        {"Reactive Fragmentation Enabled", "bundle.tcp_conv.contact_hdr.flags.fragen",
-                FT_BOOLEAN, 8, NULL, TCP_CONV_REACTIVE_FRAG_FLAG, NULL, HFILL}
-    },
-    {&hf_contact_hdr_flags_nak,
-        {"Support Negative Acknowledgements", "bundle.tcp_conv.contact_hdr.flags.nak",
-                FT_BOOLEAN, 8, NULL, TCP_CONV_CONNECTOR_RCVR_FLAG, NULL, HFILL}
-    },
-    {&hf_contact_hdr_keep_alive,
-        {"Keep Alive", "bundle.tcp_conv.contact_hdr.keep_alive",
-                FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_tcp_convergence_data_procflags,
-        {"TCP Convergence Data Flags", "bundle.tcp_conv.data.proc.flag",
-                FT_UINT8, BASE_HEX, NULL, TCP_CONVERGENCE_DATA_FLAGS, NULL, HFILL}
-    },
-    {&hf_tcp_convergence_data_procflags_start,
-        {"Segment contains start of bundle", "bundle.tcp_conv.data.proc.start",
-                FT_BOOLEAN, 8, NULL, TCP_CONVERGENCE_DATA_START_FLAG, NULL, HFILL}
-    },
-    {&hf_tcp_convergence_data_procflags_end,
-        {"Segment contains end of Bundle", "bundle.tcp_conv.data.proc.end",
-                FT_BOOLEAN, 8, NULL, TCP_CONVERGENCE_DATA_END_FLAG, NULL, HFILL}
-    },
-    {&hf_tcp_convergence_shutdown_flags,
-        {"TCP Convergence Shutdown Flags", "bundle.tcp_conv.shutdown.flags",
-                FT_UINT8, BASE_HEX, NULL, TCP_CONVERGENCE_SHUTDOWN_FLAGS, NULL, HFILL}
-    },
-    {&hf_tcp_convergence_shutdown_flags_reason,
-        {"Shutdown includes Reason Code", "bundle.tcp_conv.shutdown.reason.flag",
-                FT_BOOLEAN, 8, NULL, TCP_CONVERGENCE_SHUTDOWN_REASON, NULL, HFILL}
-    },
-    {&hf_tcp_convergence_shutdown_flags_delay,
-        {"Shutdown includes Reconnection Delay", "bundle.tcp_conv.shutdown.delay.flag",
-                FT_BOOLEAN, 8, NULL, TCP_CONVERGENCE_SHUTDOWN_DELAY, NULL, HFILL}
-    },
-    {&hf_tcp_convergence_shutdown_reason,
-        {"Shutdown Reason Code", "bundle.tcp_conv.shutdown.reason",
-                FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_tcp_convergence_shutdown_delay,
-        {"Shutdown Reconnection Delay", "bundle.tcp_conv.shutdown.delay",
-                FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
-    },
+    static hf_register_info hf[] = {
+        {&hf_bundle_pdu_version,
+         {"Bundle Version", "bundle.version",
+          FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_contact_hdr_version,
+         {"Version", "bundle.tcp_conv.contact_hdr.version",
+          FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_contact_hdr_flags,
+         {"Flags", "bundle.tcp_conv.contact_hdr.flags",
+          FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_contact_hdr_flags_ack_req,
+         {"Bundle Acks Requested", "bundle.tcp_conv.contact_hdr.flags.ackreq",
+          FT_BOOLEAN, 8, NULL, TCP_CONV_BUNDLE_ACK_FLAG, NULL, HFILL}
+        },
+        {&hf_contact_hdr_flags_frag_enable,
+         {"Reactive Fragmentation Enabled", "bundle.tcp_conv.contact_hdr.flags.fragen",
+          FT_BOOLEAN, 8, NULL, TCP_CONV_REACTIVE_FRAG_FLAG, NULL, HFILL}
+        },
+        {&hf_contact_hdr_flags_nak,
+         {"Support Negative Acknowledgements", "bundle.tcp_conv.contact_hdr.flags.nak",
+          FT_BOOLEAN, 8, NULL, TCP_CONV_CONNECTOR_RCVR_FLAG, NULL, HFILL}
+        },
+        {&hf_contact_hdr_keep_alive,
+         {"Keep Alive", "bundle.tcp_conv.contact_hdr.keep_alive",
+          FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_tcp_convergence_data_procflags,
+         {"TCP Convergence Data Flags", "bundle.tcp_conv.data.proc.flag",
+          FT_UINT8, BASE_HEX, NULL, TCP_CONVERGENCE_DATA_FLAGS, NULL, HFILL}
+        },
+        {&hf_tcp_convergence_data_procflags_start,
+         {"Segment contains start of bundle", "bundle.tcp_conv.data.proc.start",
+          FT_BOOLEAN, 8, NULL, TCP_CONVERGENCE_DATA_START_FLAG, NULL, HFILL}
+        },
+        {&hf_tcp_convergence_data_procflags_end,
+         {"Segment contains end of Bundle", "bundle.tcp_conv.data.proc.end",
+          FT_BOOLEAN, 8, NULL, TCP_CONVERGENCE_DATA_END_FLAG, NULL, HFILL}
+        },
+        {&hf_tcp_convergence_shutdown_flags,
+         {"TCP Convergence Shutdown Flags", "bundle.tcp_conv.shutdown.flags",
+          FT_UINT8, BASE_HEX, NULL, TCP_CONVERGENCE_SHUTDOWN_FLAGS, NULL, HFILL}
+        },
+        {&hf_tcp_convergence_shutdown_flags_reason,
+         {"Shutdown includes Reason Code", "bundle.tcp_conv.shutdown.reason.flag",
+          FT_BOOLEAN, 8, NULL, TCP_CONVERGENCE_SHUTDOWN_REASON, NULL, HFILL}
+        },
+        {&hf_tcp_convergence_shutdown_flags_delay,
+         {"Shutdown includes Reconnection Delay", "bundle.tcp_conv.shutdown.delay.flag",
+          FT_BOOLEAN, 8, NULL, TCP_CONVERGENCE_SHUTDOWN_DELAY, NULL, HFILL}
+        },
+        {&hf_tcp_convergence_shutdown_reason,
+         {"Shutdown Reason Code", "bundle.tcp_conv.shutdown.reason",
+          FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_tcp_convergence_shutdown_delay,
+         {"Shutdown Reconnection Delay", "bundle.tcp_conv.shutdown.delay",
+          FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
 
-    {&hf_msg_fragments,
-        {"Message Fragments", "bundle.msg.fragments",
-                FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_msg_fragment,
-        {"Message Fragment", "bundle.msg.fragment",
-                FT_FRAMENUM, BASE_NONE, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_msg_fragment_overlap,
-        {"Message fragment overlap", "bundle.msg.fragment.overlap",
-                FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_msg_fragment_overlap_conflicts,
-        {"Message fragment overlapping with conflicting data",
-         "bundle.msg.fragment.overlap.conflicts",
-                FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_msg_fragment_multiple_tails,
-        {"Message has multiple tails", "bundle.msg.fragment.multiple_tails",
-                FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_msg_fragment_too_long_fragment,
-        {"Message fragment too long", "bundle.msg.fragment.too_long_fragment",
-                FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_msg_fragment_error,
-        {"Message defragmentation error", "bundle.msg.fragment.error",
-                FT_FRAMENUM, BASE_NONE, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_msg_fragment_count,
-        {"Message fragment count", "bundle.msg.fragment.count",
-                FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_msg_reassembled_in,
-        {"Reassembled in", "bundle.msg.reassembled.in",
-                FT_FRAMENUM, BASE_NONE, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_msg_reassembled_length,
-        {"Reassembled DTN length", "bundle.msg.reassembled.length",
-                FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_bundle_procflags,
-        {"Primary Header Processing Flags", "bundle.primary.proc.flag",
-                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_bundle_procflags_fragment,
-        {"Bundle is a Fragment", "bundle.primary.proc.frag",
-                FT_BOOLEAN, 8, NULL, BUNDLE_PROCFLAGS_FRAG_MASK, NULL, HFILL}
-    },
-    {&hf_bundle_procflags_admin,
-        {"Administrative Record", "bundle.primary.proc.admin",
-                FT_BOOLEAN, 8, NULL, BUNDLE_PROCFLAGS_ADMIN_MASK, NULL, HFILL}
-    },
-    {&hf_bundle_procflags_dont_fragment,
-        {"Do Not Fragment Bundle", "bundle.primary.proc.dontfrag",
-                FT_BOOLEAN, 8, NULL, BUNDLE_PROCFLAGS_DONTFRAG_MASK, NULL, HFILL}
-    },
-    {&hf_bundle_procflags_cust_xfer_req,
-        {"Request Custody Transfer", "bundle.primary.proc.xferreq",
-                FT_BOOLEAN, 8, NULL, BUNDLE_PROCFLAGS_XFERREQ_MASK, NULL, HFILL}
-    },
-    {&hf_bundle_procflags_dest_singleton,
-        {"Destination is Singleton", "bundle.primary.proc.single",
-                FT_BOOLEAN, 8, NULL, BUNDLE_PROCFLAGS_SINGLETON_MASK, NULL, HFILL}
-    },
-    {&hf_bundle_procflags_application_ack,
-        {"Request Acknowledgement by Application", "bundle.primary.proc.ack",
-                FT_BOOLEAN, 8, NULL, BUNDLE_PROCFLAGS_APP_ACK_MASK, NULL, HFILL}
-    },
-    {&hf_bundle_control_flags,
-        {"Bundle Processing Control Flags", "bundle.primary.proc.flag",
-                FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_bundle_procflags_general,
-        {"General Flags", "bundle.primary.proc.gen",
-                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_bundle_procflags_cos,
-        {"Cloass of Service Flags", "bundle.primary.proc.cos",
-                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_bundle_procflags_status,
-        {"Status Report Flags", "bundle.primary.proc.status",
-                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_bundle_cosflags,
-        {"Primary Header COS Flags", "bundle.primary.cos.flags",
-                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_bundle_cosflags_priority,
-        {"Priority", "bundle.primary.cos.priority",
-                FT_UINT8, BASE_DEC, NULL, BUNDLE_COSFLAGS_PRIORITY_MASK, NULL, HFILL}
-    },
-    {&hf_bundle_srrflags,
-        {"Primary Header Report Request Flags", "bundle.primary.srr.flag",
-                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_bundle_srrflags_report_receipt,
-        {"Request Reception Report", "bundle.primary.srr.report",
-                FT_BOOLEAN, 8, NULL, BUNDLE_SRRFLAGS_REPORT_MASK, NULL, HFILL}
-    },
-    {&hf_bundle_srrflags_report_cust_accept,
-        {"Request Report of Custody Acceptance", "bundle.primary.srr.custaccept",
-                FT_BOOLEAN, 8, NULL, BUNDLE_SRRFLAGS_CUSTODY_MASK, NULL, HFILL}
-    },
-    {&hf_bundle_srrflags_report_forward,
-        {"Request Report of Bundle Forwarding", "bundle.primary.srr.forward",
-                FT_BOOLEAN, 8, NULL, BUNDLE_SRRFLAGS_FORWARD_MASK, NULL, HFILL}
-    },
-    {&hf_bundle_srrflags_report_delivery,
-        {"Request Report of Bundle Delivery", "bundle.primary.srr.delivery",
-                FT_BOOLEAN, 8, NULL, BUNDLE_SRRFLAGS_DELIVERY_MASK, NULL, HFILL}
-    },
-    {&hf_bundle_srrflags_report_deletion,
-        {"Request Report of Bundle Deletion", "bundle.primary.srr.delete",
-                FT_BOOLEAN, 8, NULL, BUNDLE_SRRFLAGS_DELETION_MASK, NULL, HFILL}
-    },
-    {&hf_bundle_srrflags_report_ack,
-        {"Request Report of Application Ack", "bundle.primary.srr.ack",
-                FT_BOOLEAN, 8, NULL, BUNDLE_SRRFLAGS_ACK_MASK, NULL, HFILL}
-    },
-    {&hf_bundle_primary_header_len,
-        {"Bundle Header Length", "bundle.primary.len",
-                FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_bundle_dest_scheme_offset,
-        {"Destination Scheme Offset", "bundle.primary.destschemeoff",
-                FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_bundle_dest_ssp_offset,
-        {"Destination SSP Offset", "bundle.primary.destssspoff",
-                FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_bundle_source_scheme_offset,
-        {"Source Scheme Offset", "bundle.primary.srcschemeoff",
-                FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_bundle_source_ssp_offset,
-        {"Source SSP Offset", "bundle.primary.srcsspoff",
-                FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_bundle_report_scheme_offset,
-        {"Report Scheme Offset", "bundle.primary.rptschemeoff",
-                FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_bundle_report_ssp_offset,
-        {"Report SSP Offset", "bundle.primary.rptsspoff",
-                FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_bundle_cust_scheme_offset,
-        {"Custodian Scheme Offset", "bundle.primary.custschemeoff",
-                FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_bundle_cust_ssp_offset,
-        {"Custodian SSP Offset", "bundle.primary.custsspoff",
-                FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_bundle_dest_scheme,
-        {"Destination Scheme", "bundle.primary.destination_scheme",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_bundle_dest_ssp,
-        {"Destination", "bundle.primary.destination",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_bundle_source_scheme,
-        {"Source Scheme", "bundle.primary.source_scheme",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_bundle_source_ssp,
-        {"Source", "bundle.primary.source",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_bundle_report_scheme,
-        {"Report Scheme", "bundle.primary.report_scheme",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_bundle_report_ssp,
-        {"Report", "bundle.primary.report",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_bundle_custodian_scheme,
-        {"Custodian Scheme", "bundle.primary.custodian_scheme",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_bundle_custodian_ssp,
-        {"Custodian", "bundle.primary.custodian",
-                FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_bundle_creation_timestamp,
-        {"Creation Timestamp", "bundle.primary.timestamp",
-                FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_bundle_lifetime,
-        {"Lifetime", "bundle.primary.lifetime",
-                FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_bundle_payload_flags,
-        {"Payload Header Processing Flags", "bundle.payload.proc.flag",
-                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_bundle_payload_flags_replicate_hdr,
-        {"Replicate Header in Every Fragment", "bundle.payload.proc.replicate",
-                FT_BOOLEAN, 8, NULL, PAYLOAD_PROCFLAGS_REPLICATE_MASK, NULL, HFILL}
-    },
-    {&hf_bundle_payload_flags_xmit_report,
-        {"Report if Can't Process Header", "bundle.payload.proc.report",
-                FT_BOOLEAN, 8, NULL, PAYLOAD_PROCFLAGS_XMIT_STATUS, NULL, HFILL}
-    },
-    {&hf_bundle_payload_flags_discard_on_fail,
-        {"Discard if Can't Process Header", "bundle.payload.proc.discard",
-                FT_BOOLEAN, 8, NULL, PAYLOAD_PROCFLAGS_DISCARD_FAILURE, NULL, HFILL}
-    },
-    {&hf_bundle_payload_flags_last_header,
-        {"Last Header", "bundle.payload.proc.lastheader",
-                FT_BOOLEAN, 8, NULL, PAYLOAD_PROCFLAGS_LAST_HEADER, NULL, HFILL}
-    },
-    {&hf_bundle_admin_statflags,
-        {"Administrative Record Status Flags", "bundle.admin.status.flag",
-                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_bundle_admin_rcvd,
-        {"Reporting Node Received Bundle", "bundle.admin.status.rcvd",
-                FT_BOOLEAN, 8, NULL, ADMIN_STATUS_FLAGS_RECEIVED, NULL, HFILL}
-    },
-    {&hf_bundle_admin_accepted,
-        {"Reporting Node Accepted Custody", "bundle.admin.status.accept",
-                FT_BOOLEAN, 8, NULL, ADMIN_STATUS_FLAGS_ACCEPTED, NULL, HFILL}
-    },
-    {&hf_bundle_admin_forwarded,
-        {"Reporting Node Forwarded Bundle", "bundle.admin.status.forward",
-                FT_BOOLEAN, 8, NULL, ADMIN_STATUS_FLAGS_FORWARDED, NULL, HFILL}
-    },
-    {&hf_bundle_admin_delivered,
-        {"Reporting Node Delivered Bundle", "bundle.admin.status.delivered",
-                FT_BOOLEAN, 8, NULL, ADMIN_STATUS_FLAGS_DELIVERED, NULL, HFILL}
-    },
-    {&hf_bundle_admin_deleted,
-        {"Reporting Node Deleted Bundle", "bundle.admin.status.delete",
-                FT_BOOLEAN, 8, NULL, ADMIN_STATUS_FLAGS_DELETED, NULL, HFILL}
-    },
-    {&hf_bundle_admin_acked,
-        {"Acknowledged by Application", "bundle.admin.status.ack",
-                FT_BOOLEAN, 8, NULL, ADMIN_STATUS_FLAGS_ACKNOWLEDGED, NULL, HFILL}
-    },
-    {&hf_bundle_admin_receipt_time,
-        {"Time of Receipt", "bundle.admin.status.receipttime",
-                FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_bundle_admin_accept_time,
-        {"Time of Custody Acceptance", "bundle.admin.status.accepttime",
-                FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_bundle_admin_forward_time,
-        {"Time of Forwarding", "bundle.admin.status.forwardtime",
-                FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_bundle_admin_delivery_time,
-        {"Time of Delivery", "bundle.admin.status.deliverytime",
-                FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_bundle_admin_delete_time,
-        {"Time of Deletion", "bundle.admin.status.deletetime",
-                FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_bundle_admin_ack_time,
-        {"Time of Acknowledgement", "bundle.admin.status.acktime",
-                FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_bundle_admin_timestamp_copy,
-        {"Copy of Creation Timestamp", "bundle.admin.status.timecopy",
-                FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_bundle_admin_signal_time,
-        {"Time of Signal", "bundle.admin.signal.time",
-                FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_block_control_flags,
-        {"Block Processing Control Flags", "bundle.block.control.flags",
-                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
-    },
-    {&hf_block_control_replicate,
-        {"Replicate Block in Every Fragment", "bundle.block.control.replicate",
-                FT_BOOLEAN, 8, NULL, BLOCK_CONTROL_REPLICATE, NULL, HFILL}
-    },
-    {&hf_block_control_transmit_status,
-        {"Transmit Status if Block Can't be Processeed", "bundle.block.control.status",
-                FT_BOOLEAN, 8, NULL, BLOCK_CONTROL_TRANSMIT_STATUS, NULL, HFILL}
-    },
-    {&hf_block_control_delete_bundle,
-        {"Delete Bundle if Block Can't be Processeed", "bundle.block.control.delete",
-                FT_BOOLEAN, 8, NULL, BLOCK_CONTROL_DELETE_BUNDLE, NULL, HFILL}
-    },
-    {&hf_block_control_last_block,
-        {"Last Block", "bundle.block.control.last",
-                FT_BOOLEAN, 8, NULL, BLOCK_CONTROL_LAST_BLOCK, NULL, HFILL}
-    },
-    {&hf_block_control_discard_block,
-        {"Discard Block If Can't Process", "bundle.block.control.discard",
-                FT_BOOLEAN, 8, NULL, BLOCK_CONTROL_DISCARD_BLOCK, NULL, HFILL}
-    },
-    {&hf_block_control_not_processed,
-        {"Block Was Forwarded Without Processing", "bundle.block.control.process",
-                FT_BOOLEAN, 8, NULL, BLOCK_CONTROL_NOT_PROCESSED, NULL, HFILL}
-    },
-    {&hf_block_control_eid_reference,
-        {"Block Contains an EID-reference Field", "bundle.block.control.eid",
-                FT_BOOLEAN, 8, NULL, BLOCK_CONTROL_EID_REFERENCE, NULL, HFILL}
-    }
-  };
+        {&hf_msg_fragments,
+         {"Message Fragments", "bundle.msg.fragments",
+          FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_msg_fragment,
+         {"Message Fragment", "bundle.msg.fragment",
+          FT_FRAMENUM, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_msg_fragment_overlap,
+         {"Message fragment overlap", "bundle.msg.fragment.overlap",
+          FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_msg_fragment_overlap_conflicts,
+         {"Message fragment overlapping with conflicting data",
+          "bundle.msg.fragment.overlap.conflicts",
+          FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_msg_fragment_multiple_tails,
+         {"Message has multiple tails", "bundle.msg.fragment.multiple_tails",
+          FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_msg_fragment_too_long_fragment,
+         {"Message fragment too long", "bundle.msg.fragment.too_long_fragment",
+          FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_msg_fragment_error,
+         {"Message defragmentation error", "bundle.msg.fragment.error",
+          FT_FRAMENUM, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_msg_fragment_count,
+         {"Message fragment count", "bundle.msg.fragment.count",
+          FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_msg_reassembled_in,
+         {"Reassembled in", "bundle.msg.reassembled.in",
+          FT_FRAMENUM, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_msg_reassembled_length,
+         {"Reassembled DTN length", "bundle.msg.reassembled.length",
+          FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_procflags,
+         {"Primary Header Processing Flags", "bundle.primary.proc.flag",
+          FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_procflags_fragment,
+         {"Bundle is a Fragment", "bundle.primary.proc.frag",
+          FT_BOOLEAN, 8, NULL, BUNDLE_PROCFLAGS_FRAG_MASK, NULL, HFILL}
+        },
+        {&hf_bundle_procflags_admin,
+         {"Administrative Record", "bundle.primary.proc.admin",
+          FT_BOOLEAN, 8, NULL, BUNDLE_PROCFLAGS_ADMIN_MASK, NULL, HFILL}
+        },
+        {&hf_bundle_procflags_dont_fragment,
+         {"Do Not Fragment Bundle", "bundle.primary.proc.dontfrag",
+          FT_BOOLEAN, 8, NULL, BUNDLE_PROCFLAGS_DONTFRAG_MASK, NULL, HFILL}
+        },
+        {&hf_bundle_procflags_cust_xfer_req,
+         {"Request Custody Transfer", "bundle.primary.proc.xferreq",
+          FT_BOOLEAN, 8, NULL, BUNDLE_PROCFLAGS_XFERREQ_MASK, NULL, HFILL}
+        },
+        {&hf_bundle_procflags_dest_singleton,
+         {"Destination is Singleton", "bundle.primary.proc.single",
+          FT_BOOLEAN, 8, NULL, BUNDLE_PROCFLAGS_SINGLETON_MASK, NULL, HFILL}
+        },
+        {&hf_bundle_procflags_application_ack,
+         {"Request Acknowledgement by Application", "bundle.primary.proc.ack",
+          FT_BOOLEAN, 8, NULL, BUNDLE_PROCFLAGS_APP_ACK_MASK, NULL, HFILL}
+        },
+        {&hf_bundle_control_flags,
+         {"Bundle Processing Control Flags", "bundle.primary.proc.flag",
+          FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_procflags_general,
+         {"General Flags", "bundle.primary.proc.gen",
+          FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_procflags_cos,
+         {"Cloass of Service Flags", "bundle.primary.proc.cos",
+          FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_procflags_status,
+         {"Status Report Flags", "bundle.primary.proc.status",
+          FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_cosflags,
+         {"Primary Header COS Flags", "bundle.primary.cos.flags",
+          FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_cosflags_priority,
+         {"Priority", "bundle.primary.cos.priority",
+          FT_UINT8, BASE_DEC, NULL, BUNDLE_COSFLAGS_PRIORITY_MASK, NULL, HFILL}
+        },
+        {&hf_bundle_srrflags,
+         {"Primary Header Report Request Flags", "bundle.primary.srr.flag",
+          FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_srrflags_report_receipt,
+         {"Request Reception Report", "bundle.primary.srr.report",
+          FT_BOOLEAN, 8, NULL, BUNDLE_SRRFLAGS_REPORT_MASK, NULL, HFILL}
+        },
+        {&hf_bundle_srrflags_report_cust_accept,
+         {"Request Report of Custody Acceptance", "bundle.primary.srr.custaccept",
+          FT_BOOLEAN, 8, NULL, BUNDLE_SRRFLAGS_CUSTODY_MASK, NULL, HFILL}
+        },
+        {&hf_bundle_srrflags_report_forward,
+         {"Request Report of Bundle Forwarding", "bundle.primary.srr.forward",
+          FT_BOOLEAN, 8, NULL, BUNDLE_SRRFLAGS_FORWARD_MASK, NULL, HFILL}
+        },
+        {&hf_bundle_srrflags_report_delivery,
+         {"Request Report of Bundle Delivery", "bundle.primary.srr.delivery",
+          FT_BOOLEAN, 8, NULL, BUNDLE_SRRFLAGS_DELIVERY_MASK, NULL, HFILL}
+        },
+        {&hf_bundle_srrflags_report_deletion,
+         {"Request Report of Bundle Deletion", "bundle.primary.srr.delete",
+          FT_BOOLEAN, 8, NULL, BUNDLE_SRRFLAGS_DELETION_MASK, NULL, HFILL}
+        },
+        {&hf_bundle_srrflags_report_ack,
+         {"Request Report of Application Ack", "bundle.primary.srr.ack",
+          FT_BOOLEAN, 8, NULL, BUNDLE_SRRFLAGS_ACK_MASK, NULL, HFILL}
+        },
+        {&hf_bundle_primary_header_len,
+         {"Bundle Header Length", "bundle.primary.len",
+          FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_dest_scheme_offset,
+         {"Destination Scheme Offset", "bundle.primary.destschemeoff",
+          FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_dest_ssp_offset,
+         {"Destination SSP Offset", "bundle.primary.destssspoff",
+          FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_source_scheme_offset,
+         {"Source Scheme Offset", "bundle.primary.srcschemeoff",
+          FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_source_ssp_offset,
+         {"Source SSP Offset", "bundle.primary.srcsspoff",
+          FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_report_scheme_offset,
+         {"Report Scheme Offset", "bundle.primary.rptschemeoff",
+          FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_report_ssp_offset,
+         {"Report SSP Offset", "bundle.primary.rptsspoff",
+          FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_cust_scheme_offset,
+         {"Custodian Scheme Offset", "bundle.primary.custschemeoff",
+          FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_cust_ssp_offset,
+         {"Custodian SSP Offset", "bundle.primary.custsspoff",
+          FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_dest_scheme,
+         {"Destination Scheme", "bundle.primary.destination_scheme",
+          FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_dest_ssp,
+         {"Destination", "bundle.primary.destination",
+          FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_source_scheme,
+         {"Source Scheme", "bundle.primary.source_scheme",
+          FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_source_ssp,
+         {"Source", "bundle.primary.source",
+          FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_report_scheme,
+         {"Report Scheme", "bundle.primary.report_scheme",
+          FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_report_ssp,
+         {"Report", "bundle.primary.report",
+          FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_custodian_scheme,
+         {"Custodian Scheme", "bundle.primary.custodian_scheme",
+          FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_custodian_ssp,
+         {"Custodian", "bundle.primary.custodian",
+          FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_creation_timestamp,
+         {"Creation Timestamp", "bundle.primary.timestamp",
+          FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_lifetime,
+         {"Lifetime", "bundle.primary.lifetime",
+          FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_payload_flags,
+         {"Payload Header Processing Flags", "bundle.payload.proc.flag",
+          FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_payload_flags_replicate_hdr,
+         {"Replicate Header in Every Fragment", "bundle.payload.proc.replicate",
+          FT_BOOLEAN, 8, NULL, PAYLOAD_PROCFLAGS_REPLICATE_MASK, NULL, HFILL}
+        },
+        {&hf_bundle_payload_flags_xmit_report,
+         {"Report if Can't Process Header", "bundle.payload.proc.report",
+          FT_BOOLEAN, 8, NULL, PAYLOAD_PROCFLAGS_XMIT_STATUS, NULL, HFILL}
+        },
+        {&hf_bundle_payload_flags_discard_on_fail,
+         {"Discard if Can't Process Header", "bundle.payload.proc.discard",
+          FT_BOOLEAN, 8, NULL, PAYLOAD_PROCFLAGS_DISCARD_FAILURE, NULL, HFILL}
+        },
+        {&hf_bundle_payload_flags_last_header,
+         {"Last Header", "bundle.payload.proc.lastheader",
+          FT_BOOLEAN, 8, NULL, PAYLOAD_PROCFLAGS_LAST_HEADER, NULL, HFILL}
+        },
+        {&hf_bundle_admin_statflags,
+         {"Administrative Record Status Flags", "bundle.admin.status.flag",
+          FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_admin_rcvd,
+         {"Reporting Node Received Bundle", "bundle.admin.status.rcvd",
+          FT_BOOLEAN, 8, NULL, ADMIN_STATUS_FLAGS_RECEIVED, NULL, HFILL}
+        },
+        {&hf_bundle_admin_accepted,
+         {"Reporting Node Accepted Custody", "bundle.admin.status.accept",
+          FT_BOOLEAN, 8, NULL, ADMIN_STATUS_FLAGS_ACCEPTED, NULL, HFILL}
+        },
+        {&hf_bundle_admin_forwarded,
+         {"Reporting Node Forwarded Bundle", "bundle.admin.status.forward",
+          FT_BOOLEAN, 8, NULL, ADMIN_STATUS_FLAGS_FORWARDED, NULL, HFILL}
+        },
+        {&hf_bundle_admin_delivered,
+         {"Reporting Node Delivered Bundle", "bundle.admin.status.delivered",
+          FT_BOOLEAN, 8, NULL, ADMIN_STATUS_FLAGS_DELIVERED, NULL, HFILL}
+        },
+        {&hf_bundle_admin_deleted,
+         {"Reporting Node Deleted Bundle", "bundle.admin.status.delete",
+          FT_BOOLEAN, 8, NULL, ADMIN_STATUS_FLAGS_DELETED, NULL, HFILL}
+        },
+        {&hf_bundle_admin_acked,
+         {"Acknowledged by Application", "bundle.admin.status.ack",
+          FT_BOOLEAN, 8, NULL, ADMIN_STATUS_FLAGS_ACKNOWLEDGED, NULL, HFILL}
+        },
+        {&hf_bundle_admin_receipt_time,
+         {"Time of Receipt", "bundle.admin.status.receipttime",
+          FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_admin_accept_time,
+         {"Time of Custody Acceptance", "bundle.admin.status.accepttime",
+          FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_admin_forward_time,
+         {"Time of Forwarding", "bundle.admin.status.forwardtime",
+          FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_admin_delivery_time,
+         {"Time of Delivery", "bundle.admin.status.deliverytime",
+          FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_admin_delete_time,
+         {"Time of Deletion", "bundle.admin.status.deletetime",
+          FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_admin_ack_time,
+         {"Time of Acknowledgement", "bundle.admin.status.acktime",
+          FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_admin_timestamp_copy,
+         {"Copy of Creation Timestamp", "bundle.admin.status.timecopy",
+          FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_bundle_admin_signal_time,
+         {"Time of Signal", "bundle.admin.signal.time",
+          FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_block_control_flags,
+         {"Block Processing Control Flags", "bundle.block.control.flags",
+          FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_block_control_replicate,
+         {"Replicate Block in Every Fragment", "bundle.block.control.replicate",
+          FT_BOOLEAN, 8, NULL, BLOCK_CONTROL_REPLICATE, NULL, HFILL}
+        },
+        {&hf_block_control_transmit_status,
+         {"Transmit Status if Block Can't be Processeed", "bundle.block.control.status",
+          FT_BOOLEAN, 8, NULL, BLOCK_CONTROL_TRANSMIT_STATUS, NULL, HFILL}
+        },
+        {&hf_block_control_delete_bundle,
+         {"Delete Bundle if Block Can't be Processeed", "bundle.block.control.delete",
+          FT_BOOLEAN, 8, NULL, BLOCK_CONTROL_DELETE_BUNDLE, NULL, HFILL}
+        },
+        {&hf_block_control_last_block,
+         {"Last Block", "bundle.block.control.last",
+          FT_BOOLEAN, 8, NULL, BLOCK_CONTROL_LAST_BLOCK, NULL, HFILL}
+        },
+        {&hf_block_control_discard_block,
+         {"Discard Block If Can't Process", "bundle.block.control.discard",
+          FT_BOOLEAN, 8, NULL, BLOCK_CONTROL_DISCARD_BLOCK, NULL, HFILL}
+        },
+        {&hf_block_control_not_processed,
+         {"Block Was Forwarded Without Processing", "bundle.block.control.process",
+          FT_BOOLEAN, 8, NULL, BLOCK_CONTROL_NOT_PROCESSED, NULL, HFILL}
+        },
+        {&hf_block_control_eid_reference,
+         {"Block Contains an EID-reference Field", "bundle.block.control.eid",
+          FT_BOOLEAN, 8, NULL, BLOCK_CONTROL_EID_REFERENCE, NULL, HFILL}
+        }
+    };
 
-  static gint *ett[] = {
-    &ett_bundle,
-    &ett_tcp_conv,
-    &ett_tcp_conv_hdr,
-    &ett_msg_fragment,
-    &ett_msg_fragments,
-    &ett_bundle_hdr,
-    &ett_primary_hdr,
-    &ett_proc_flags,
-    &ett_gen_flags,
-    &ett_cos_flags,
-    &ett_srr_flags,
-    &ett_dictionary,
-    &ett_payload_hdr,
-    &ett_payload_flags,
-    &ett_block_flags,
-    &ett_contact_hdr_flags,
-    &ett_conv_flags,
-    &ett_shutdown_flags,
-    &ett_admin_record,
-    &ett_admin_rec_status,
-    &ett_metadata_hdr
-  };
+    static gint *ett[] = {
+        &ett_bundle,
+        &ett_tcp_conv,
+        &ett_tcp_conv_hdr,
+        &ett_msg_fragment,
+        &ett_msg_fragments,
+        &ett_bundle_hdr,
+        &ett_primary_hdr,
+        &ett_proc_flags,
+        &ett_gen_flags,
+        &ett_cos_flags,
+        &ett_srr_flags,
+        &ett_dictionary,
+        &ett_payload_hdr,
+        &ett_payload_flags,
+        &ett_block_flags,
+        &ett_contact_hdr_flags,
+        &ett_conv_flags,
+        &ett_shutdown_flags,
+        &ett_admin_record,
+        &ett_admin_rec_status,
+        &ett_metadata_hdr
+    };
 
-  module_t *bundle_module;
+    module_t *bundle_module;
 
-  proto_bundle = proto_register_protocol (
-                        "Bundle Protocol",
-                        "Bundle",
-                        "bundle"
-                   );
-  bundle_module = prefs_register_protocol(proto_bundle, proto_reg_handoff_bundle);
+    proto_bundle = proto_register_protocol (
+        "Bundle Protocol",
+        "Bundle",
+        "bundle"
+        );
+    bundle_module = prefs_register_protocol(proto_bundle, proto_reg_handoff_bundle);
 
-  proto_tcp_conv = proto_register_protocol (
-                        "DTN TCP Convergence Layer Protocol",
-                        "TCPCL",
-                        "tcpcl"
-                );
+    proto_tcp_conv = proto_register_protocol (
+        "DTN TCP Convergence Layer Protocol",
+        "TCPCL",
+        "tcpcl"
+        );
 
-  prefs_register_uint_preference(bundle_module, "tcp.port",
-                                        "Bundle Protocol TCP Port",
-                                        "TCP Port to Accept Bundle Protocol Connections",
-                                        10,
-                                        &bundle_tcp_port);
+    prefs_register_uint_preference(bundle_module, "tcp.port",
+                                   "Bundle Protocol TCP Port",
+                                   "TCP Port to Accept Bundle Protocol Connections",
+                                   10,
+                                   &bundle_tcp_port);
 
-  prefs_register_uint_preference(bundle_module, "udp.port",
-                                        "Bundle Protocol UDP Port",
-                                        "UDP Port to Accept Bundle Protocol Connections",
-                                        10,
-                                        &bundle_udp_port);
+    prefs_register_uint_preference(bundle_module, "udp.port",
+                                   "Bundle Protocol UDP Port",
+                                   "UDP Port to Accept Bundle Protocol Connections",
+                                   10,
+                                   &bundle_udp_port);
 
-  proto_register_field_array(proto_bundle, hf, array_length(hf));
-  proto_register_subtree_array(ett, array_length(ett));
-  register_init_routine(bundle_defragment_init);
+    proto_register_field_array(proto_bundle, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
+    register_init_routine(bundle_defragment_init);
 }
 
 void

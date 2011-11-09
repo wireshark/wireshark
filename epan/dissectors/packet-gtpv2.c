@@ -2967,11 +2967,11 @@ static void
 dissect_gtpv2_F_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type, guint8 instance _U_)
 {
     tvbuff_t *tvb_new;
-	proto_item *bss_item;
-	proto_tree *sub_tree;
+    proto_item *bss_item;
+    proto_tree *sub_tree;
     int offset = 0;
     guint8 container_type;
-	guint8 container_flags, xid_len;
+    guint8 container_flags, xid_len;
 
     /* Octets   8   7   6   5   4   3   2   1
      * 5            Spare     | Container Type
@@ -2988,25 +2988,25 @@ dissect_gtpv2_F_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
             bss_item = proto_tree_add_text(tree, tvb, offset, length, "BSS container");
             sub_tree = proto_item_add_subtree(bss_item, ett_bss_con);
             /* The flags PFI, RP, SAPI and PHX in octet 6 indicate the corresponding type of paratemer */
-            proto_tree_add_item(tree, hf_gtpv2_bss_container_phx, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(tree, hf_gtpv2_bss_con_sapi_flg, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(tree, hf_gtpv2_bss_con_rp_flg, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(tree, hf_gtpv2_bss_con_pfi_flg, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(sub_tree, hf_gtpv2_bss_container_phx, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(sub_tree, hf_gtpv2_bss_con_sapi_flg, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(sub_tree, hf_gtpv2_bss_con_rp_flg, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(sub_tree, hf_gtpv2_bss_con_pfi_flg, tvb, offset, 1, ENC_BIG_ENDIAN);
             container_flags = tvb_get_guint8(tvb,offset);
             offset++;
             if((container_flags&0x01)==1){
                 /* Packet Flow ID present */
-                proto_tree_add_item(tree, hf_gtpv2_bss_con_pfi, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(sub_tree, hf_gtpv2_bss_con_pfi, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset++;
             }
             if(((container_flags&0x04)==4)||((container_flags&0x02)==2)){
                 if((container_flags&0x04)==4){
                     /* SAPI present */
-                    proto_tree_add_item(tree, hf_gtpv2_bss_con_sapi, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(sub_tree, hf_gtpv2_bss_con_sapi, tvb, offset, 1, ENC_BIG_ENDIAN);
                 }
                 if((container_flags&0x02)==2){
                     /* Radio Priority present */
-                    proto_tree_add_item(tree, hf_gtpv2_bss_con_rp, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(sub_tree, hf_gtpv2_bss_con_rp, tvb, offset, 1, ENC_BIG_ENDIAN);
                 }
                 offset++;
             }
@@ -3015,9 +3015,9 @@ dissect_gtpv2_F_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
                  * XiD parameters are present in Octet d to n.
                  */
                 xid_len = tvb_get_guint8(tvb,offset);
-                proto_tree_add_item(tree, hf_gtpv2_bss_con_xid_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(sub_tree, hf_gtpv2_bss_con_xid_len, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset++;
-                proto_tree_add_item(tree, hf_gtpv2_bss_con_xid, tvb, offset, xid_len, ENC_BIG_ENDIAN);
+                proto_tree_add_item(sub_tree, hf_gtpv2_bss_con_xid, tvb, offset, xid_len, ENC_BIG_ENDIAN);
                 offset += xid_len;
             }
             return;
@@ -3207,26 +3207,26 @@ dissect_gtpv2_target_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
         /* Target ID field shall be same as the Octets 3 to 10 of the Cell Identifier IEI
          * in 3GPP TS 48.018 [34].
          */
-		tvb_new = tvb_new_subset_remaining(tvb, offset);
-		de_bssgp_cell_id(tvb_new, tree, pinfo, 0, 0/* not used */, NULL, 0);
-		return;
+        tvb_new = tvb_new_subset_remaining(tvb, offset);
+        de_bssgp_cell_id(tvb_new, tree, pinfo, 0, 0/* not used */, NULL, 0);
+        return;
     case 3:
         /* Home eNodeB ID */
         tvb_new = tvb_new_subset_remaining(tvb, offset);
         dissect_e212_mcc_mnc(tvb_new, pinfo, tree, 0, TRUE);
         offset+=3;
-        /* Octet 10 to 12 Home eNodeB ID 
-		 * The Home eNodeB ID consists of 28 bits. See 3GPP TS 36.413 [10]. 
-		 * Bit 4 of Octet 9 is the most significant bit and bit 1 of Octet 12 is the least significant bit. 
-		 * The coding of the Home eNodeB ID is the responsibility of each administration. 
-		 * Coding using full hexadecimal representation shall be used.
-		 */
-		 proto_tree_add_item(tree, hf_gtpv2_home_enodeb_id, tvb, offset, 4 , ENC_BIG_ENDIAN);
-		 offset+=4;
+        /* Octet 10 to 12 Home eNodeB ID
+         * The Home eNodeB ID consists of 28 bits. See 3GPP TS 36.413 [10].
+         * Bit 4 of Octet 9 is the most significant bit and bit 1 of Octet 12 is the least significant bit.
+         * The coding of the Home eNodeB ID is the responsibility of each administration.
+         * Coding using full hexadecimal representation shall be used.
+         */
+        proto_tree_add_item(tree, hf_gtpv2_home_enodeb_id, tvb, offset, 4 , ENC_BIG_ENDIAN);
+        offset+=4;
         /* Octet 13 to 14 Tracking Area Code (TAC) */
-		 proto_tree_add_item(tree, hf_gtpv2_tac, tvb, offset, 2 , ENC_BIG_ENDIAN);
-		 offset+=2;
-		return;
+        proto_tree_add_item(tree, hf_gtpv2_tac, tvb, offset, 2 , ENC_BIG_ENDIAN);
+        offset+=2;
+        return;
 
     default:
         break;
@@ -5086,52 +5086,52 @@ void proto_register_gtpv2(void)
            FT_BYTES, BASE_NONE, NULL, 0x0,
            NULL, HFILL}
         },
-		{ &hf_gtpv2_bss_container_phx,
+        { &hf_gtpv2_bss_container_phx,
           {"PHX", "gtpv2.bss_cont.phx",
            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x08,
            NULL, HFILL}
         },
-		{ &hf_gtpv2_bss_con_sapi_flg,
+        { &hf_gtpv2_bss_con_sapi_flg,
           {"SAPI", "gtpv2.bss_cont.sapi_flg",
            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x04,
            NULL, HFILL}
         },
-		{ &hf_gtpv2_bss_con_rp_flg,
+        { &hf_gtpv2_bss_con_rp_flg,
           {"RP", "gtpv2.bss_cont.rp_flg",
            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x02,
            NULL, HFILL}
         },
-		{ &hf_gtpv2_bss_con_pfi_flg,
+        { &hf_gtpv2_bss_con_pfi_flg,
           {"PFI", "gtpv2.bss_cont.pfi_flg",
            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01,
            NULL, HFILL}
         },
-		{ &hf_gtpv2_bss_con_pfi,
+        { &hf_gtpv2_bss_con_pfi,
           {"Packet Flow ID(PFI)", "gtpv2.bss_cont.pfi",
            FT_UINT8, BASE_DEC, NULL, 0x0,
            NULL, HFILL}
         },
-		{ &hf_gtpv2_bss_con_rp,
+        { &hf_gtpv2_bss_con_rp,
           {"Radio Priority(RP)", "gtpv2.bss_cont.rp",
            FT_UINT8, BASE_DEC, NULL, 0x07,
            NULL, HFILL}
         },
-		{ &hf_gtpv2_bss_con_sapi,
+        { &hf_gtpv2_bss_con_sapi,
           {"SAPI", "gtpv2.bss_cont.sapi",
            FT_UINT8, BASE_DEC, NULL, 0xf0,
            NULL, HFILL}
         },
-		{ &hf_gtpv2_bss_con_xid_len,
+        { &hf_gtpv2_bss_con_xid_len,
           {"XiD parameters length", "gtpv2.bss_cont.xid_len",
            FT_BYTES, BASE_NONE, NULL, 0x0,
            NULL, HFILL}
         },
-		{ &hf_gtpv2_home_enodeb_id,
+        { &hf_gtpv2_home_enodeb_id,
           {"Home eNodeB ID", "gtpv2.home_enodeb_id",
            FT_UINT32, BASE_HEX, NULL, 0x0fffffff,
            NULL, HFILL}
         },
-		{ &hf_gtpv2_tac,
+        { &hf_gtpv2_tac,
           {"Tracking Area Code (TAC)", "gtpv2.tac",
            FT_UINT16, BASE_DEC, NULL, 0x0,
            NULL, HFILL}
@@ -5171,7 +5171,7 @@ void proto_register_gtpv2(void)
         &ett_gtpv2_stn_sr,
         &ett_gtpv2_ms_mark,
         &ett_gtpv2_supp_codec_list,
-		&ett_bss_con,
+        &ett_bss_con,
     };
 
     proto_gtpv2 = proto_register_protocol("GPRS Tunneling Protocol V2", "GTPv2", "gtpv2");
