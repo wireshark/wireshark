@@ -3748,12 +3748,7 @@ main(int argc, char *argv[])
 #define OPTSTRING_d ""
 #endif
 
-#ifdef USE_THREADS
-#define OPTSTRING_t "t"
-#else
-#define OPTSTRING_t ""
-#endif
-#define OPTSTRING "a:" OPTSTRING_A "b:" OPTSTRING_B "c:" OPTSTRING_d "Df:ghi:" OPTSTRING_I "L" OPTSTRING_m "MnpPq" OPTSTRING_r "Ss:" OPTSTRING_t OPTSTRING_u "vw:y:Z:"
+#define OPTSTRING "a:" OPTSTRING_A "b:" OPTSTRING_B "c:" OPTSTRING_d "Df:ghi:" OPTSTRING_I "L" OPTSTRING_m "MnpPq" OPTSTRING_r "Ss:t" OPTSTRING_u "vw:y:Z:"
 
 #ifdef DEBUG_CHILD_DUMPCAP
     if ((debug_log = ws_fopen("dumpcap_debug_log.tmp","w")) == NULL) {
