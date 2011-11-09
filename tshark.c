@@ -1888,7 +1888,7 @@ typedef struct pipe_input_tag {
   pipe_input_cb_t     input_cb;
   guint               pipe_input_id;
 #ifdef _WIN32
-  GStaticMutex        callback_running;
+  GMutex              *callback_running;
 #endif
 } pipe_input_t;
 
@@ -1907,8 +1907,7 @@ pipe_timer_cb(gpointer data)
   pipe_input_t *pipe_input_p = data;
   gint iterations = 0;
 
-
-  g_static_mutex_lock (&pipe_input_p->callback_running);
+  g_mutex_lock (pipe_input_p->callback_running);
 
   /* try to read data from the pipe only 5 times, to avoid blocking */
   while(iterations < 5) {
@@ -1934,7 +1933,7 @@ pipe_timer_cb(gpointer data)
       if (!pipe_input_p->input_cb(pipe_input_p->source, pipe_input_p->user_data)) {
         g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: input pipe closed, iterations: %u", iterations);
         /* pipe closed, return false so that the timer is stopped */
-        g_static_mutex_unlock (&pipe_input_p->callback_running);
+        g_mutex_unlock (pipe_input_p->callback_running);
         return FALSE;
       }
     }
@@ -1949,7 +1948,7 @@ pipe_timer_cb(gpointer data)
 
   /*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: finished with iterations: %u, new timer", iterations);*/
 
-  g_static_mutex_unlock (&pipe_input_p->callback_running);
+  g_mutex_unlock (pipe_input_p->callback_running);
 
   /* we didn't stopped the timer, so let it run */
   return TRUE;
@@ -1967,7 +1966,12 @@ pipe_input_set_handler(gint source, gpointer user_data, int *child_process, pipe
   pipe_input.input_cb       = input_cb;
 
 #ifdef _WIN32
-  g_static_mutex_init(&pipe_input.callback_running);
+#if GLIB_CHECK_VERSION(2,31,0)
+  pipe_input.callback_running = g_malloc(sizeof(GMutex));
+  g_mutex_init(pipe_input.callback_running);
+#else
+  pipe_input.callback_running = g_mutex_new();
+#endif
   /* Tricky to use pipes in win9x, as no concept of wait.  NT can
      do this but that doesn't cover all win32 platforms.  GTK can do
      this but doesn't seem to work over processes.  Attempt to do

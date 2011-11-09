@@ -2298,7 +2298,12 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
         pcap_opts->cap_pipe_state = 0;
         pcap_opts->cap_pipe_err = PIPOK;
 #ifdef _WIN32
+#if GLIB_CHECK_VERSION(2,31,0)
+        pcap_opts->cap_pipe_read_mtx = g_malloc(sizeof(GMutex));
+        g_mutex_init(pcap_opts->cap_pipe_read_mtx);
+#else
         pcap_opts->cap_pipe_read_mtx = g_mutex_new();
+#endif
         pcap_opts->cap_pipe_pending_q = g_async_queue_new();
         pcap_opts->cap_pipe_done_q = g_async_queue_new();
 #endif
@@ -3189,7 +3194,12 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
         pcap_queue_packets = 0;
         for (i = 0; i < global_ld.pcaps->len; i++) {
             pcap_opts = g_array_index(global_ld.pcaps, pcap_options *, i);
+#if GLIB_CHECK_VERSION(2,31,0)
+            /* XXX - Add an interface name here? */
+            pcap_opts->tid = g_thread_new("Capture read", pcap_read_handler, pcap_opts);
+#else
             pcap_opts->tid = g_thread_create(pcap_read_handler, pcap_opts, TRUE, NULL);
+#endif
         }
     }
     while (global_ld.go) {
@@ -3848,8 +3858,10 @@ main(int argc, char *argv[])
     /* Initialize the pcaps list */
     global_ld.pcaps = g_array_new(FALSE, FALSE, sizeof(pcap_options *));
 
+#if !GLIB_CHECK_VERSION(2,31,0)
     /* Initialize the thread system */
     g_thread_init(NULL);
+#endif
 
 #ifdef _WIN32
     /* Load wpcap if possible. Do this before collecting the run-time version information */

@@ -111,7 +111,7 @@ static GArray *interfaces = NULL;
 
 static GSList *status_messages = NULL;
 
-static GMutex *recent_mtx = NULL;
+static GMutex *recent_mtx;
 
 /* The "scroll box dynamic" is a (complicated) pseudo widget to */
 /* place a vertically list of widgets in (currently the interfaces and recent files). */
@@ -630,7 +630,12 @@ welcome_filename_link_new(const gchar *filename, GtkWidget **label, GObject *men
     g_signal_connect(w, "destroy", G_CALLBACK(welcome_filename_destroy_cb), ri_stat);
     g_free(str_escaped);
 
+#if GLIB_CHECK_VERSION(2,31,0)
+    /* XXX - Add the filename here? */
+    g_thread_new("Recent item status", get_recent_item_status, ri_stat);
+#else
     g_thread_create(get_recent_item_status, ri_stat, FALSE, NULL);
+#endif
     ri_stat->timer = g_timeout_add(200, update_recent_items, ri_stat);
 
     /* event box */
@@ -1382,7 +1387,12 @@ welcome_new(void)
                                           welcome_eb);
     gtk_widget_show_all(welcome_scrollw);
 
+#if GLIB_CHECK_VERSION(2,31,0)
+    recent_mtx = g_malloc(sizeof(GMutex));
+    g_mutex_init(&recent_mtx);
+#else
     recent_mtx = g_mutex_new();
+#endif
 
     return welcome_scrollw;
 }

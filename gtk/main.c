@@ -2316,7 +2316,9 @@ main(int argc, char *argv[])
   optind = optind_initial;
   opterr = 1;
 
+#if !GLIB_CHECK_VERSION(2,31,0)
   g_thread_init(NULL);
+#endif
 
   /* Set the current locale according to the program environment.
    * We haven't localized anything, but some GTK widgets are localized

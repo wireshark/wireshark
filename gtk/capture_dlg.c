@@ -293,10 +293,9 @@ typedef struct capture_filter_check {
 /* We could make this smarter by caching results */
 capture_filter_check_t cfc_data;
 
-GMutex *pcap_compile_mtx = NULL;
-GCond *cfc_data_cond = NULL;
-GMutex *cfc_data_mtx = NULL;
-GThread *cfc_thread = NULL;
+static GMutex *pcap_compile_mtx;
+static GCond *cfc_data_cond;
+static GMutex *cfc_data_mtx;
 
 #if 0
 #define DEBUG_SYNTAX_CHECK(state1, state2) g_warning("CF state %s -> %s : %s", state1, state2, cfc_data.filter_text)
@@ -317,6 +316,7 @@ check_capture_filter_syntax(void *data _U_) {
     }
     cfc_data.state = CFC_UNKNOWN;
     DEBUG_SYNTAX_CHECK("pending", "unknown");
+
     g_mutex_unlock(cfc_data_mtx);
     g_mutex_lock(pcap_compile_mtx);
 
@@ -379,11 +379,23 @@ void capture_filter_init(void) {
   cfc_data.filter_text = NULL;
   cfc_data.filter_te = NULL;
   cfc_data.state = CFC_PENDING;
+
+#if GLIB_CHECK_VERSION(2,31,0)
+  pcap_compile_mtx = g_malloc(sizeof(GMutex));
+  g_mutex_init(pcap_compile_mtx);
+  cfc_data_cond = g_malloc(sizeof(GCond));
+  g_cond_init(cfc_data_cond);
+  cfc_data_mtx = g_malloc(sizeof(GMutex));
+  g_mutex_init(cfc_data_mtx);
+  g_thread_new("Capture filter syntax", check_capture_filter_syntax, NULL);
+#else
   pcap_compile_mtx = g_mutex_new();
   cfc_data_cond = g_cond_new();
   cfc_data_mtx = g_mutex_new();
-  g_timeout_add(200, update_capture_filter_te, NULL);
   g_thread_create(check_capture_filter_syntax, NULL, FALSE, NULL);
+#endif
+
+  g_timeout_add(200, update_capture_filter_te, NULL);
 }
 
 static void
