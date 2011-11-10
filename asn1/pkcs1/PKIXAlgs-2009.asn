@@ -37,7 +37,8 @@ PKIXAlgs-2009 { iso(1) identified-organization(3) dod(6)
     pk-rsa  |
     pk-dsa  |
     pk-dh   |
-    pk-kea,
+    pk-kea  |
+    pk-rsaSSA-PSS,
     ...,
     pk-ec   |
     pk-ecDH |
@@ -60,7 +61,9 @@ PKIXAlgs-2009 { iso(1) identified-organization(3) dod(6)
     sa-ecdsaWithSHA224 |
     sa-ecdsaWithSHA256 |
     sa-ecdsaWithSHA384 |
-    sa-ecdsaWithSHA512
+    sa-ecdsaWithSHA512,
+    ...,
+    sa-rsaSSA-PSS
    }
 
    --
@@ -200,6 +203,62 @@ Digest ::= OCTET STRING
        gov(101) dod(2) infosec(1) algorithms(1) 22 }
 
    KEA-Params-Id ::= OCTET STRING
+
+   -- RSASSA-PSS (RFC 4055)
+
+--   pk-rsaSSA-PSS PUBLIC-KEY ::= {
+--      IDENTIFIER id-RSASSA-PSS
+--      KEY RSAPublicKey
+--      PARAMS TYPE RSASSA-PSS-params ARE optional
+--      CERT-KEY-USAGE { nonRepudiation, digitalSignature, keyCertSign, cRLSign }
+--   }
+
+   id-mgf1  OBJECT IDENTIFIER  ::=  {
+       iso(1) member-body(2) us(840) rsadsi(113549) pkcs(1)
+       pkcs-1(1) 8 }
+
+   id-RSASSA-PSS OBJECT IDENTIFIER ::= {
+       iso(1) member-body(2) us(840) rsadsi(113549) pkcs(1)
+       pkcs-1(1) 10 }
+
+    HashAlgorithm  ::=  AlgorithmIdentifier{DIGEST-ALGORITHM,
+                           {HashAlgorithms}}
+
+    HashAlgorithms DIGEST-ALGORITHM ::=  {
+       { IDENTIFIER id-sha1 PARAMS TYPE NULL ARE preferredPresent },
+       ...
+    }
+
+    -- sha1Identifier AlgorithmIdentifier ::= {
+       -- algorithmId id-sha1,
+       -- parameters NULL
+    -- }
+
+    MaskGenAlgorithm ::= AlgorithmIdentifier{ALGORITHM,
+                            {PKCS1MGFAlgorithms}}
+
+    -- mgf1SHA1 MaskGenAlgorithm ::= {
+       -- algorithmId id-mgf1,
+       -- parameters HashAlgorithm : sha1Identifier
+    -- }
+
+    PKCS1MGFAlgorithms ALGORITHM ::= {
+       { IDENTIFIER id-mgf1 PARAMS TYPE HashAlgorithm ARE required },
+       ...
+    }
+
+    -- AlgorithmIdentifier parameters for id-RSASSA-PSS.
+    -- Note that the tags in this Sequence are explicit.
+    -- Note: The hash algorithm in hashAlgorithm and in
+    -- maskGenAlgorithm should be the same.
+
+    RSASSA-PSS-params  ::=  SEQUENCE  {
+       hashAlgorithm     [0] HashAlgorithm DEFAULT sha1Identifier,
+       maskGenAlgorithm  [1] MaskGenAlgorithm DEFAULT mgf1SHA1,
+       saltLength        [2] INTEGER DEFAULT 20,
+       trailerField      [3] INTEGER DEFAULT 1
+    }
+
 
    -- Elliptic Curve (EC) Signatures: Unrestricted Algorithms
    --  (Section 2.1.1 of RFC 5480)

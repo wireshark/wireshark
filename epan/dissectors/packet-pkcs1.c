@@ -56,6 +56,8 @@ static int proto_pkcs1 = -1;
 static int hf_pkcs1_DSA_Params_PDU = -1;          /* DSA_Params */
 static int hf_pkcs1_DomainParameters_PDU = -1;    /* DomainParameters */
 static int hf_pkcs1_KEA_Params_Id_PDU = -1;       /* KEA_Params_Id */
+static int hf_pkcs1_HashAlgorithm_PDU = -1;       /* HashAlgorithm */
+static int hf_pkcs1_RSASSA_PSS_params_PDU = -1;   /* RSASSA_PSS_params */
 static int hf_pkcs1_ECParameters_PDU = -1;        /* ECParameters */
 static int hf_pkcs1_modulus = -1;                 /* INTEGER */
 static int hf_pkcs1_publicExponent = -1;          /* INTEGER */
@@ -75,6 +77,10 @@ static int hf_pkcs1_j = -1;                       /* INTEGER */
 static int hf_pkcs1_validationParams = -1;        /* ValidationParams */
 static int hf_pkcs1_seed = -1;                    /* BIT_STRING */
 static int hf_pkcs1_pgenCounter = -1;             /* INTEGER */
+static int hf_pkcs1_hashAlgorithm = -1;           /* HashAlgorithm */
+static int hf_pkcs1_maskGenAlgorithm = -1;        /* MaskGenAlgorithm */
+static int hf_pkcs1_saltLength = -1;              /* INTEGER */
+static int hf_pkcs1_trailerField = -1;            /* INTEGER */
 static int hf_pkcs1_namedCurve = -1;              /* OBJECT_IDENTIFIER */
 static int hf_pkcs1_r = -1;                       /* INTEGER */
 static int hf_pkcs1_s = -1;                       /* INTEGER */
@@ -92,6 +98,7 @@ static gint ett_pkcs1_DigestInfo = -1;
 static gint ett_pkcs1_DSA_Params = -1;
 static gint ett_pkcs1_DomainParameters = -1;
 static gint ett_pkcs1_ValidationParams = -1;
+static gint ett_pkcs1_RSASSA_PSS_params = -1;
 static gint ett_pkcs1_ECParameters = -1;
 static gint ett_pkcs1_DSA_Sig_Value = -1;
 static gint ett_pkcs1_ECDSA_Sig_Value = -1;
@@ -267,6 +274,41 @@ dissect_pkcs1_KEA_Params_Id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 
 
+static int
+dissect_pkcs1_HashAlgorithm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_x509af_AlgorithmIdentifier(implicit_tag, tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_pkcs1_MaskGenAlgorithm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_x509af_AlgorithmIdentifier(implicit_tag, tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+static const ber_sequence_t RSASSA_PSS_params_sequence[] = {
+  { &hf_pkcs1_hashAlgorithm , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_pkcs1_HashAlgorithm },
+  { &hf_pkcs1_maskGenAlgorithm, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_pkcs1_MaskGenAlgorithm },
+  { &hf_pkcs1_saltLength    , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_pkcs1_INTEGER },
+  { &hf_pkcs1_trailerField  , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_pkcs1_INTEGER },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_pkcs1_RSASSA_PSS_params(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   RSASSA_PSS_params_sequence, hf_index, ett_pkcs1_RSASSA_PSS_params);
+
+  return offset;
+}
+
+
+
 
 static int
 dissect_pkcs1_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -314,6 +356,16 @@ static void dissect_KEA_Params_Id_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   dissect_pkcs1_KEA_Params_Id(FALSE, tvb, 0, &asn1_ctx, tree, hf_pkcs1_KEA_Params_Id_PDU);
 }
+static void dissect_HashAlgorithm_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_pkcs1_HashAlgorithm(FALSE, tvb, 0, &asn1_ctx, tree, hf_pkcs1_HashAlgorithm_PDU);
+}
+static void dissect_RSASSA_PSS_params_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_pkcs1_RSASSA_PSS_params(FALSE, tvb, 0, &asn1_ctx, tree, hf_pkcs1_RSASSA_PSS_params_PDU);
+}
 static void dissect_ECParameters_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
@@ -343,6 +395,14 @@ void proto_register_pkcs1(void) {
     { &hf_pkcs1_KEA_Params_Id_PDU,
       { "KEA-Params-Id", "pkcs1.KEA_Params_Id",
         FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_pkcs1_HashAlgorithm_PDU,
+      { "HashAlgorithm", "pkcs1.HashAlgorithm",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_pkcs1_RSASSA_PSS_params_PDU,
+      { "RSASSA-PSS-params", "pkcs1.RSASSA_PSS_params",
+        FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_pkcs1_ECParameters_PDU,
       { "ECParameters", "pkcs1.ECParameters",
@@ -420,6 +480,22 @@ void proto_register_pkcs1(void) {
       { "pgenCounter", "pkcs1.pgenCounter",
         FT_INT32, BASE_DEC, NULL, 0,
         "INTEGER", HFILL }},
+    { &hf_pkcs1_hashAlgorithm,
+      { "hashAlgorithm", "pkcs1.hashAlgorithm",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_pkcs1_maskGenAlgorithm,
+      { "maskGenAlgorithm", "pkcs1.maskGenAlgorithm",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_pkcs1_saltLength,
+      { "saltLength", "pkcs1.saltLength",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "INTEGER", HFILL }},
+    { &hf_pkcs1_trailerField,
+      { "trailerField", "pkcs1.trailerField",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "INTEGER", HFILL }},
     { &hf_pkcs1_namedCurve,
       { "namedCurve", "pkcs1.namedCurve",
         FT_OID, BASE_NONE, NULL, 0,
@@ -448,6 +524,7 @@ void proto_register_pkcs1(void) {
     &ett_pkcs1_DSA_Params,
     &ett_pkcs1_DomainParameters,
     &ett_pkcs1_ValidationParams,
+    &ett_pkcs1_RSASSA_PSS_params,
     &ett_pkcs1_ECParameters,
     &ett_pkcs1_DSA_Sig_Value,
     &ett_pkcs1_ECDSA_Sig_Value,
@@ -477,6 +554,8 @@ void proto_reg_handoff_pkcs1(void) {
   register_ber_oid_dissector("1.2.840.10045.2.1", dissect_ECParameters_PDU, proto_pkcs1, "id-ecPublicKey");
   register_ber_oid_dissector("1.3.132.1.12", dissect_ECParameters_PDU, proto_pkcs1, "id-ecDH");
   register_ber_oid_dissector("1.2.840.10045.2.13", dissect_ECParameters_PDU, proto_pkcs1, "id-ecMQV");
+  register_ber_oid_dissector("1.2.840.113549.1.1.10", dissect_RSASSA_PSS_params_PDU, proto_pkcs1, "id-RSASSA-PSS");
+  register_ber_oid_dissector("1.2.840.113549.1.1.8", dissect_HashAlgorithm_PDU, proto_pkcs1, "id-mgf1");
 
 
 /*--- End of included file: packet-pkcs1-dis-tab.c ---*/

@@ -24,6 +24,8 @@ KEA-Params-Id B "2.16.840.1.101.2.1.1.22" "id-keyExchangeAlgorithm"
 ECParameters B "1.2.840.10045.2.1" "id-ecPublicKey"
 ECParameters B "1.3.132.1.12" "id-ecDH"
 ECParameters B "1.2.840.10045.2.13" "id-ecMQV"
+RSASSA-PSS-params B "1.2.840.113549.1.1.10" "id-RSASSA-PSS"
+HashAlgorithm B "1.2.840.113549.1.1.8" "id-mgf1"
 
 #.NO_EMIT
 DSAPublicKey
