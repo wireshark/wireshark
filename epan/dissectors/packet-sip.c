@@ -1439,7 +1439,7 @@ dissect_sip_authorization_item(tvbuff_t *tvb, proto_tree *tree, gint start_offse
 	gchar *name;
 	header_parameter_t *auth_parameter;
 	guint i = 0;
-	gchar c;
+	gchar c = '\0';
 
 	/* skip Spaces and Tabs */
 	start_offset = tvb_skip_wsp(tvb, start_offset, line_end_offset - start_offset);
