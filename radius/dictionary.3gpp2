@@ -97,54 +97,54 @@ ATTRIBUTE	3GPP2-Service-Option-Profile		74	octets
 ATTRIBUTE	3GPP2-DNS-Update-Required		75	integer
 # 76 ?
 # 77 ?
-ATTRIBUTE	3GPP2-Always-On				78	integer
-ATTRIBUTE	3GPP2-Foreign-Agent-Address		79	ipaddr
-ATTRIBUTE	3GPP2-Last-User-Activity-Time		80	integer
-ATTRIBUTE	3GPP2-MN-AAA-Removal-Indication		81	integer
+ATTRIBUTE	3GPP2-Always-On							78	integer
+ATTRIBUTE	3GPP2-Foreign-Agent-Address				79	ipaddr
+ATTRIBUTE	3GPP2-Last-User-Activity-Time			80	integer
+ATTRIBUTE	3GPP2-MN-AAA-Removal-Indication			81	integer
 ATTRIBUTE	3GPP2-RN-Packet-Data-Inactivity-Timer	82	integer
-ATTRIBUTE	3GPP2-Forward-PDCH-RC			83	integer
-ATTRIBUTE	3GPP2-Forward-DCCH-Mux-Option		84	integer
-ATTRIBUTE	3GPP2-Reverse-DCCH-Mux-Option		85	integer
-ATTRIBUTE	3GPP2-Forward-DCCH-RC			86	integer
-ATTRIBUTE	3GPP2-Reverse-DHHC-RC			87	integer
+ATTRIBUTE	3GPP2-Forward-PDCH-RC					83	integer
+ATTRIBUTE	3GPP2-Forward-DCCH-Mux-Option			84	integer
+ATTRIBUTE	3GPP2-Reverse-DCCH-Mux-Option			85	integer
+ATTRIBUTE	3GPP2-Forward-DCCH-RC					86	integer
+ATTRIBUTE	3GPP2-Reverse-DCCH-RC					87	integer
 ATTRIBUTE	3GPP2-Session-Termination-Capability	88	integer
-ATTRIBUTE	3GPP2-Allowed-Persistent-TFTs		89	integer
+ATTRIBUTE	3GPP2-Allowed-Persistent-TFTs			89	integer
 
 # The next set of attributes contain sub-types
-ATTRIBUTE	3GPP2-Prepaid-Acct-Quota		90	octets
-ATTRIBUTE	3GPP2-Prepaid-acct-Capability		91	octets
-ATTRIBUTE	3GPP2-MIP-Lifetime			92	octets
+ATTRIBUTE	3GPP2-Prepaid-Acct-Quota				90	octets
+ATTRIBUTE	3GPP2-Prepaid-acct-Capability			91	octets
+ATTRIBUTE	3GPP2-MIP-Lifetime						92	octets
 
-ATTRIBUTE	3GPP2-Acct-Stop-Trigger			93	integer
+ATTRIBUTE	3GPP2-Acct-Stop-Trigger					93	integer
 
 # contains subtypes
-ATTRIBUTE	3GPP2-Service-Reference-Id		94	octets
+ATTRIBUTE	3GPP2-Service-Reference-Id				94	octets
 
-ATTRIBUTE	3GPP2-DNS-Update-Capability		95	integer
-ATTRIBUTE	3GPP2-Disconnect-Reason			96	integer
+ATTRIBUTE	3GPP2-DNS-Update-Capability				95	integer
+ATTRIBUTE	3GPP2-Disconnect-Reason					96	integer
 
 # The next set of attributes contain sub-types
-ATTRIBUTE	3GPP2-Remote-IPv6-Octet-Count		97	octets
-ATTRIBUTE	3GPP2-PrePaid-Tariff-Switching		98	octets
-ATTRIBUTE	3GPP2-Subnet				108	octets
+ATTRIBUTE	3GPP2-Remote-IPv6-Octet-Count			97	octets
+ATTRIBUTE	3GPP2-PrePaid-Tariff-Switching			98	octets
+ATTRIBUTE	3GPP2-Subnet							108	octets
 
-ATTRIBUTE	3GPP2-Reverse PDCH RC			114	integer
-ATTRIBUTE	3GPP2-MEID				116	string
-ATTRIBUTE	3GPP2-DNS-Server-IP-Address		117	octets
+ATTRIBUTE	3GPP2-Reverse-PDCH-RC					114	integer
+ATTRIBUTE	3GPP2-MEID								116	string
+ATTRIBUTE	3GPP2-DNS-Server-IP-Address				117	octets
 
 ATTRIBUTE	3GPP2-MIP6-Home-Agent-Address-From-BU	118	ipv6addr
-ATTRIBUTE	3GPP2-MIP6-Care-of-Address		119	ipv6addr
-ATTRIBUTE	3GPP2-Home-Agent-Not-Authorized		120	integer
-ATTRIBUTE	3GPP2-MIP6-Session-Key			121	octets
+ATTRIBUTE	3GPP2-MIP6-Care-of-Address				119	ipv6addr
+ATTRIBUTE	3GPP2-Home-Agent-Not-Authorized			120	integer
+ATTRIBUTE	3GPP2-MIP6-Session-Key					121	octets
 ATTRIBUTE	3GPP2-Hot-Line-Accounting-Information	122	string
-ATTRIBUTE	3GPP2-MIP6-Mesg-ID			123	octets
-ATTRIBUTE	3GPP2-Filter-Rule			124	string
-ATTRIBUTE	3GPP2-HTTP-Redirection-Rule		125	string
-ATTRIBUTE	3GPP2-IP-Redirection-Rule		126	string
-ATTRIBUTE	3GPP2-Hot-Line-Capability		127	integer
-ATTRIBUTE	3GPP2-MIP6-Home-Link-Prefix-Attr-A	128	octets
+ATTRIBUTE	3GPP2-MIP6-Mesg-ID						123	octets
+ATTRIBUTE	3GPP2-Filter-Rule						124	string
+ATTRIBUTE	3GPP2-HTTP-Redirection-Rule				125	string
+ATTRIBUTE	3GPP2-IP-Redirection-Rule				126	string
+ATTRIBUTE	3GPP2-Hot-Line-Capability				127	integer
+ATTRIBUTE	3GPP2-MIP6-Home-Link-Prefix-Attr-A		128	octets
 
-ATTRIBUTE	3GPP2-Max-Authorized-Aggr-Bandwidth	130	integer
+ATTRIBUTE	3GPP2-Max-Authorized-Aggr-Bandwidth		130	integer
 
 # The next set of attributes contain sub-types
 ATTRIBUTE	3GPP2-Authorized-Flow-Profile-IDs	131	octets
