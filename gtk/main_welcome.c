@@ -1389,7 +1389,7 @@ welcome_new(void)
 
 #if GLIB_CHECK_VERSION(2,31,0)
     recent_mtx = g_malloc(sizeof(GMutex));
-    g_mutex_init(&recent_mtx);
+    g_mutex_init(recent_mtx);
 #else
     recent_mtx = g_mutex_new();
 #endif
