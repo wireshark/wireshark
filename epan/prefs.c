@@ -1147,7 +1147,9 @@ print.file: /a/very/long/path/
 
 #define DEF_NUM_COLS    7
 
-/* Initialize preferences to wired-in default values.
+/* Initialize non-dissector preferences to wired-in default values.
+ * (The dissector preferences are assumed to be set to those values
+ * by the dissectors.)
  * They may be overridden by the global preferences file or the
  *  user's preferences file.
  */
@@ -1337,12 +1339,88 @@ init_prefs(void) {
   prefs_initialized = TRUE;
 }
 
+/*
+ * Reset a single dissector preference.
+ */
+static void
+reset_pref(gpointer data, gpointer user_data _U_)
+{
+	pref_t *pref = data;
+
+	switch (pref->type) {
+
+	case PREF_UINT:
+		*pref->varp.uint = pref->default_val.uint;
+		break;
+
+	case PREF_BOOL:
+		*pref->varp.boolp = pref->default_val.boolval;
+		break;
+
+	case PREF_ENUM:
+		/*
+		 * For now, we save the "description" value, so that if we
+		 * save the preferences older versions of Wireshark can at
+		 * least read preferences that they supported; we support
+		 * either the short name or the description when reading
+		 * the preferences file or a "-o" option.
+		 */
+		*pref->varp.enump = pref->default_val.enumval;
+		break;
+
+	case PREF_STRING:
+		g_free((void *)*pref->varp.string);
+		*pref->varp.string = g_strdup(pref->default_val.string);
+		break;
+
+	case PREF_RANGE:
+		g_free(*pref->varp.range);
+		*pref->varp.range = range_copy(pref->default_val.range);
+		break;
+
+	case PREF_STATIC_TEXT:
+	case PREF_UAT:
+		/* Nothing to do */
+		break;
+
+	case PREF_OBSOLETE:
+		/*
+		 * This preference is no longer supported; it's not a
+		 * real preference, so we don't reset it (i.e., we
+		 * treat it as if it weren't found in the list of
+		 * preferences, and we weren't called in the first place).
+		 */
+		break;
+	}
+}
+
+typedef struct {
+	module_t *module;
+} reset_pref_arg_t;
+
+/*
+ * Reset all preferences for a module.
+ */
+static gboolean
+reset_module_prefs(void *value, void *data _U_)
+{
+	reset_pref_arg_t arg;
+
+	arg.module = value;
+	g_list_foreach(arg.module->prefs, reset_pref, &arg);
+	return FALSE;
+}
+
 /* Reset preferences */
 void
 prefs_reset(void)
 {
   prefs_initialized = FALSE;
 
+  /*
+   * Free information associated with the current values of non-dissector
+   * preferences.
+   */
   g_free(prefs.pr_file);
   g_free(prefs.pr_cmd);
   free_col_info(&prefs);
@@ -1359,9 +1437,25 @@ prefs_reset(void)
   g_free(prefs.capture_devices_hide);
   g_free(prefs.capture_devices_monitor_mode);
 
+  /*
+   * Unload all UAT preferences.
+   */
   uat_unload_all();
+
+  /*
+   * Unload any loaded MIBs.
+   */
   oids_cleanup();
+
+  /*
+   * Reset the non-dissector preferences.
+   */
   init_prefs();
+
+  /*
+   * Reset the non-UAT dissector preferences.
+   */
+  pe_tree_foreach(prefs_modules, reset_module_prefs, NULL);
 }
 
 /* Read the preferences file, fill in "prefs", and return a pointer to it.
@@ -2831,7 +2925,7 @@ typedef struct {
 } write_pref_arg_t;
 
 /*
- * Write out a single preference.
+ * Write out a single dissector preference.
  */
 static void
 write_pref(gpointer data, gpointer user_data)
@@ -2970,6 +3064,9 @@ write_pref(gpointer data, gpointer user_data)
 	}
 }
 
+/*
+ * Write out all preferences for a module.
+ */
 static gboolean
 write_module_prefs(void *value, void *data)
 {
