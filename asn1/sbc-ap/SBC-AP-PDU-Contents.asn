@@ -90,7 +90,7 @@ Write-Replace-Warning-Request-IEs SBC-AP-PROTOCOL-IES ::= {
 	{ ID id-List-of-TAIs		CRITICALITY reject	TYPE List-of-TAIs		PRESENCE optional } |
 	{ ID id-Warning-Area-List	CRITICALITY ignore	TYPE Warning-Area-List		PRESENCE optional } |
 	{ ID id-Repetition-Period	CRITICALITY reject	TYPE Repetition-Period		PRESENCE mandatory  } |
-	{ ID id-Extended-Repetition-Period	CRITICALITY reject	TYPE Repetition-Period		PRESENCE optional  } |
+	{ ID id-Extended-Repetition-Period	CRITICALITY reject	TYPE Extended-Repetition-Period		PRESENCE optional  } |
 
 	{ ID id-Number-of-Broadcasts-Requested
 					CRITICALITY reject	TYPE Number-of-Broadcasts-Requested	PRESENCE mandatory } |
