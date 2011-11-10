@@ -1,6 +1,6 @@
 -- HNBAP-PDU-Descriptions.asn
 --
--- 3GPP TS 25.469 V9.1.0 (2010-03)
+-- 3GPP TS 25.469 V10.1.0 (2011-06)
 -- http://www.3gpp.org/ftp/Specs/html-info/25469.htm
 --
 -- 9.3.2	Elementary Procedure definitions
@@ -13,6 +13,11 @@
 -- Elementary Procedure definitions
 --
 -- **************************************************************
+-- **************************************************************
+-- **************************************************************
+--
+-- Elementary Procedure definitions
+--
 -- **************************************************************
 HNBAP-PDU-Descriptions  { 
 itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
@@ -42,8 +47,14 @@ FROM HNBAP-CommonDataTypes
 	UERegisterReject,
 	UEDe-Register,
 	ErrorIndication,
-	 PrivateMessage,
-    CSGMembershipUpdate
+	PrivateMessage,
+	CSGMembershipUpdate,
+	TNLUpdateRequest,
+	TNLUpdateResponse,
+	TNLUpdateFailure,
+	HNBConfigTransferRequest,
+	HNBConfigTransferResponse,
+	RelocationComplete
 
 
 FROM HNBAP-PDU-Contents
@@ -53,7 +64,10 @@ FROM HNBAP-PDU-Contents
 	id-HNBDe-Register,
 	id-ErrorIndication,
 	id-privateMessage,
-	id-CSGMembershipUpdate
+	id-CSGMembershipUpdate,
+	id-TNLUpdate,
+	id-HNBConfigTransfer,
+	id-RelocationComplete
 
 FROM HNBAP-Constants;
 
@@ -126,7 +140,9 @@ HNBAP-ELEMENTARY-PROCEDURES HNBAP-ELEMENTARY-PROCEDURE ::= {
 HNBAP-ELEMENTARY-PROCEDURES-CLASS-1 HNBAP-ELEMENTARY-PROCEDURE ::= {
 	hNBRegister|
 	uERegister,
-	...
+	...,
+	tnlUpdate			|
+	hNBConfigTransfer
 }
 
 
@@ -136,7 +152,8 @@ HNBAP-ELEMENTARY-PROCEDURES-CLASS-2 HNBAP-ELEMENTARY-PROCEDURE ::= {
 	errorIndication	|
 	privateMessage,
 	...,
-	csg-membership-update
+	csg-membership-update|
+	relocationComplete
 }
 
 -- **************************************************************
@@ -183,6 +200,27 @@ errorIndication HNBAP-ELEMENTARY-PROCEDURE ::= {
 csg-membership-update HNBAP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		CSGMembershipUpdate
 	PROCEDURE CODE			id-CSGMembershipUpdate
+	CRITICALITY				ignore
+}
+
+tnlUpdate HNBAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		TNLUpdateRequest
+	SUCCESSFUL OUTCOME		TNLUpdateResponse
+	UNSUCCESSFUL OUTCOME	TNLUpdateFailure
+	PROCEDURE CODE			id-TNLUpdate
+	CRITICALITY				reject
+}
+
+hNBConfigTransfer HNBAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		HNBConfigTransferRequest
+	SUCCESSFUL OUTCOME		HNBConfigTransferResponse
+	PROCEDURE CODE			id-HNBConfigTransfer
+	CRITICALITY				reject
+}
+
+relocationComplete HNBAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		RelocationComplete
+	PROCEDURE CODE			id-RelocationComplete
 	CRITICALITY				ignore
 }
 

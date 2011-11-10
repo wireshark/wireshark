@@ -1,6 +1,6 @@
 -- HNBAP-Constants.asn
 --
--- 3GPP TS 25.469 V9.1.0 (2010-03)
+-- 3GPP TS 25.469 V10.1.0 (2011-06)
 -- http://www.3gpp.org/ftp/Specs/html-info/25469.htm
 --
 -- 9.3.6	Constant Definitions
@@ -38,7 +38,9 @@ id-UEDe-Register					ProcedureCode ::= 4
 id-ErrorIndication					ProcedureCode ::= 5
 id-privateMessage					ProcedureCode ::= 6 
 id-CSGMembershipUpdate				ProcedureCode ::= 7
- 
+id-TNLUpdate						ProcedureCode ::= 9
+id-HNBConfigTransfer				ProcedureCode ::= 10
+id-RelocationComplete				ProcedureCode ::= 11
 
 
 -- **************************************************************
@@ -47,7 +49,9 @@ id-CSGMembershipUpdate				ProcedureCode ::= 7
 --
 -- **************************************************************
 maxNrOfErrors						INTEGER ::= 256
-
+maxnoofRABs							INTEGER ::= 256
+maxnoofNeighbours					INTEGER ::= 32
+maxnoofIurhAddresses				INTEGER ::= 3
 
 -- **************************************************************
 --
@@ -73,10 +77,18 @@ id-CSG-ID										ProtocolIE-ID ::= 15
 id-BackoffTimer									ProtocolIE-ID ::= 16
 id-HNB-Internet-Information						ProtocolIE-ID ::= 17
 id-HNB-Cell-Access-Mode							ProtocolIE-ID ::= 18
-id-MuxPortNumber                                ProtocolIE-ID ::= 19
+id-MuxPortNumber								ProtocolIE-ID ::= 19
 id-Service-Area-For-Broadcast					ProtocolIE-ID ::= 20
 id-CSGMembershipStatus							ProtocolIE-ID ::= 21
-
+id-RABList										ProtocolIE-ID ::= 22
+id-HNBConfigInfo								ProtocolIE-ID ::= 23
+id-AccessResult									ProtocolIE-ID ::= 25
+id-Update-cause									ProtocolIE-ID ::= 26
+id-NeighbourInfoList							ProtocolIE-ID ::= 27
+id-NeighbourInfoRequestList						ProtocolIE-ID ::= 28
+id-Iurh-Signalling-TNL-Address					ProtocolIE-ID ::= 29
+id-PSC											ProtocolIE-ID ::= 30
+id-HNB-Cell-Identifier							ProtocolIE-ID ::= 31
 
 
 END

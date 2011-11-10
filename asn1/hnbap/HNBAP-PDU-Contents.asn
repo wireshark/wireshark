@@ -1,18 +1,12 @@
 -- HNBAP-PDU-Contents.asn
 --
--- 3GPP TS 25.469 V9.1.0 (2010-03)
+-- 3GPP TS 25.469 V10.1.0 (2011-06)
 -- http://www.3gpp.org/ftp/Specs/html-info/25469.htm
 --
 -- 9.3.3	PDU Definitions
 --
 -- $Id$
 --
-
--- **************************************************************
---
--- PDU definitions for HNBAP.
---
--- **************************************************************
 
 HNBAP-PDU-Contents {
 itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
@@ -49,7 +43,14 @@ IMPORTS
 	CSG-ID,
 	HNB-Cell-Access-Mode,
 	BackoffTimer,
-	MuxPortNumber
+	MuxPortNumber,
+	RABList,
+	HNBConfigInfo,
+	AccessResult,
+	Update-cause,
+	NeighbourInfoList,
+	NeighbourInfoRequestList,
+	PSC
 
 
 
@@ -86,7 +87,15 @@ FROM HNBAP-Containers
 	id-HNB-Cell-Access-Mode,
 	id-BackoffTimer,
 	id-Service-Area-For-Broadcast,
-	id-MuxPortNumber
+	id-MuxPortNumber,
+	id-RABList,
+	id-HNBConfigInfo,
+	id-AccessResult,
+	id-Update-cause,
+	id-NeighbourInfoList,
+	id-NeighbourInfoRequestList,
+	id-Iurh-Signalling-TNL-Address,
+	id-PSC
 
 
 FROM HNBAP-Constants;
@@ -116,8 +125,10 @@ HNBRegisterRequestIEs HNBAP-PROTOCOL-IES ::= {
 }
 
 HNBRegisterRequestExtensions HNBAP-PROTOCOL-EXTENSION ::= {
-	{ ID id-Service-Area-For-Broadcast		CRITICALITY ignore	EXTENSION SAC	PRESENCE optional }|
-	{ ID id-HNB-Cell-Access-Mode			CRITICALITY reject	EXTENSION HNB-Cell-Access-Mode				PRESENCE optional},
+	{ ID id-Service-Area-For-Broadcast		CRITICALITY ignore	EXTENSION SAC								PRESENCE optional }|
+	{ ID id-HNB-Cell-Access-Mode			CRITICALITY reject	EXTENSION HNB-Cell-Access-Mode				PRESENCE optional }|
+	{ ID id-PSC								CRITICALITY ignore	EXTENSION PSC								PRESENCE optional }|
+	{ ID id-Iurh-Signalling-TNL-Address		CRITICALITY ignore	EXTENSION IP-Address						PRESENCE optional },
 	...
 }
 
@@ -128,20 +139,20 @@ HNBRegisterRequestExtensions HNBAP-PROTOCOL-EXTENSION ::= {
 -- **************************************************************
 
 HNBRegisterAccept ::= SEQUENCE {
-	protocolIEs			ProtocolIE-Container       { {HNBRegisterResponseIEs} },
-	protocolExtensions	ProtocolExtensionContainer { {HNBRegisterResponseExtensions} } 	OPTIONAL,
+	protocolIEs			ProtocolIE-Container		{ {HNBRegisterResponseIEs} },
+	protocolExtensions	ProtocolExtensionContainer	{ {HNBRegisterResponseExtensions} }	OPTIONAL,
 	...
 }
 
 HNBRegisterResponseIEs HNBAP-PROTOCOL-IES ::= {
-	{ ID id-RNC-ID					CRITICALITY reject	TYPE RNC-ID		PRESENCE mandatory },
+	{ ID id-RNC-ID						CRITICALITY reject	TYPE RNC-ID				PRESENCE mandatory },
 	...
 }
 
-
 HNBRegisterResponseExtensions HNBAP-PROTOCOL-EXTENSION ::= {
 -- Extension for Release 9 to support CS Multiplexing --
-    {ID id-MuxPortNumber           CRITICALITY ignore	EXTENSION MuxPortNumber      PRESENCE optional},
+	{ ID id-MuxPortNumber				CRITICALITY ignore	EXTENSION MuxPortNumber		PRESENCE optional}|
+	{ ID id-Iurh-Signalling-TNL-Address	CRITICALITY ignore	EXTENSION IP-Address		PRESENCE optional},
 	...
 }
 
@@ -310,7 +321,136 @@ CSGMembershipUpdateExtensions HNBAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+-- **************************************************************
+--
+-- TNL Update Request
+--
+-- **************************************************************
 
+TNLUpdateRequest ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container		{ {TNLUpdateRequestIEs} },
+	protocolExtensions	ProtocolExtensionContainer	{ {TNLUpdateExtensions} } 	OPTIONAL,
+	...
+}
+
+TNLUpdateRequestIEs HNBAP-PROTOCOL-IES ::= {
+	{ ID id-Context-ID					CRITICALITY reject	TYPE Context-ID					PRESENCE mandatory } |
+	{ ID id-RABList						CRITICALITY reject	TYPE RABList					PRESENCE mandatory } |
+	{ ID id-Update-cause				CRITICALITY reject	TYPE Update-cause				PRESENCE mandatory } ,
+		...
+}
+
+TNLUpdateExtensions HNBAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+-- **************************************************************
+--
+-- TNL UPDATE RESPONSE
+--
+-- **************************************************************
+
+TNLUpdateResponse ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container		{ { TNLUpdateResponseIEs} },
+	protocolExtensions	ProtocolExtensionContainer	{ { TNLUpdateResponseExtensions} } 	OPTIONAL,
+	...
+}
+
+TNLUpdateResponseIEs HNBAP-PROTOCOL-IES ::= {
+	{ ID id-Context-ID					CRITICALITY reject	TYPE Context-ID				PRESENCE mandatory } ,
+		...
+}
+
+TNLUpdateResponseExtensions HNBAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+-- **************************************************************
+--
+-- TNL UPDATE FAILURE
+--
+-- **************************************************************
+
+TNLUpdateFailure ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container		{ {TNLUpdateFailureIEs} },
+	protocolExtensions	ProtocolExtensionContainer	{ {TNLUpdateFailureExtensions} } 	OPTIONAL,
+	...
+}
+
+TNLUpdateFailureIEs HNBAP-PROTOCOL-IES ::= {
+	{ ID id-Context-ID					CRITICALITY reject	TYPE Context-ID					PRESENCE mandatory } |
+	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE mandatory } |
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional } ,
+		...
+}
+
+TNLUpdateFailureExtensions HNBAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+-- **************************************************************
+--
+-- HNB Configuration Transfer Request
+--
+-- **************************************************************
+
+HNBConfigTransferRequest ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { {HNBConfigTransferRequestIEs} },
+	protocolExtensions	ProtocolExtensionContainer { {HNBConfigTransferRequestExtensions} } 	OPTIONAL,
+	...
+}
+
+HNBConfigTransferRequestIEs HNBAP-PROTOCOL-IES ::= {
+	{ ID id-NeighbourInfoRequestList		CRITICALITY reject	TYPE NeighbourInfoRequestList			PRESENCE mandatory } ,
+	...
+}
+
+HNBConfigTransferRequestExtensions HNBAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+-- **************************************************************
+--
+-- HNB Configuration Transfer Response
+--
+-- **************************************************************
+
+HNBConfigTransferResponse ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { HNBConfigTransferResponseIEs} },
+	protocolExtensions	ProtocolExtensionContainer { { HNBConfigTransferResponseExtensions} } 	OPTIONAL,
+	...
+}
+
+HNBConfigTransferResponseIEs HNBAP-PROTOCOL-IES ::= {
+	{ ID id-NeighbourInfoList			CRITICALITY reject	TYPE NeighbourInfoList				PRESENCE mandatory } ,
+	...
+}
+
+HNBConfigTransferResponseExtensions HNBAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+-- **************************************************************
+--
+-- RELOCATION COMPLETE
+--
+-- **************************************************************
+
+RelocationComplete ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container		{ { RelocationCompleteIEs} },
+	protocolExtensions	ProtocolExtensionContainer	{ { RelocationCompleteExtensions} } 	OPTIONAL,
+	...
+}
+
+RelocationCompleteIEs HNBAP-PROTOCOL-IES ::= {
+	{ ID id-Context-ID					CRITICALITY ignore	TYPE Context-ID			PRESENCE mandatory } ,
+	...
+}
+
+
+RelocationCompleteExtensions HNBAP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 -- **************************************************************
 --

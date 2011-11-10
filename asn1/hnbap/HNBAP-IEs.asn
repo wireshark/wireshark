@@ -1,6 +1,6 @@
 -- HNBAP-IEs.asn
 --
--- 3GPP TS 25.469 V9.1.0 (2010-03)
+-- 3GPP TS 25.469 V10.1.0 (2011-06)
 -- http://www.3gpp.org/ftp/Specs/html-info/25469.htm
 --
 -- 9.3.4	Information Element Definitions
@@ -24,7 +24,11 @@ BEGIN
 
 IMPORTS
 	maxNrOfErrors,
-	id-HNB-Internet-Information
+	maxnoofRABs,
+	maxnoofNeighbours,
+	maxnoofIurhAddresses,
+	id-HNB-Internet-Information,
+	id-HNB-Cell-Identifier
 	
 FROM HNBAP-Constants
 
@@ -44,6 +48,8 @@ Access-stratum-release-indicator ::=	ENUMERATED {r99,
 										rel-4, rel-5, rel-6, rel-7, rel-8-and-beyond,
 										...}
 
+AccessResult	::=		ENUMERATED {allowed, notAllowed, ...}
+
 AltitudeAndDirection ::= SEQUENCE {
 	directionOfAltitude		ENUMERATED {height, depth},
 	altitude		INTEGER (0..32767),
@@ -52,6 +58,8 @@ AltitudeAndDirection ::= SEQUENCE {
 
 --B
 BackoffTimer ::= INTEGER(0..3600)
+
+BindingID	::= OCTET STRING(SIZE(1..4,...))
 
 --C
 Cause ::= CHOICE {
@@ -136,7 +144,7 @@ CriticalityDiagnostics-ExtIEs HNBAP-PROTOCOL-EXTENSION ::= {
 
 CSG-ID			::=	BIT STRING (SIZE (27))
 
-CSG-Indicator	::=	ENUMERATED {
+CSG-Capability	::=	ENUMERATED {
 				csg-capable,
 				not-csg-capable,
 				...
@@ -194,6 +202,8 @@ GeographicalCoordinates-ExtIEs HNBAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+GTP-TEI					::= OCTET STRING (SIZE (4))
+
 --H
 
 HNB-Cell-Access-Mode::= ENUMERATED {
@@ -201,6 +211,63 @@ HNB-Cell-Access-Mode::= ENUMERATED {
 	hybrid,
 	open,
 	... 
+}
+
+HNB-Cell-Identifier	::= 	SEQUENCE	{
+	pLMNidentity			PLMNidentity,
+	cellIdentity			CellIdentity,
+	iE-Extensions			ProtocolExtensionContainer { { HNB-Cell-Identifier-ExtIEs } }		OPTIONAL,
+	...
+}
+
+HNB-Cell-Identifier-ExtIEs HNBAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+HNB-RNL-Identity	::= 	CHOICE	{
+	hNB-Identity-as-Cell-Identifier	HNB-Cell-Identifier,
+	...
+}
+
+HNBConfigInfo	::= 	SEQUENCE	{
+	hnb-RNL-Identity					HNB-RNL-Identity,
+	configurationInformation			ConfigurationInformation,
+	iE-Extensions						ProtocolExtensionContainer { { HNBConfigInfo-ExtIEs } }		OPTIONAL,
+	...
+}
+
+HNBConfigInfo-ExtIEs HNBAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+ConfigurationInformation ::= CHOICE {
+	provided	HNBConfigurationInformationProvided,
+	missing		HNBConfigurationInformationMissing,
+	...
+}
+
+HNBConfigurationInformationProvided ::= SEQUENCE {
+
+	psc									PSC				OPTIONAL,
+	cSG-ID								CSG-ID				OPTIONAL,
+	hNB-Cell-Access-Mode				HNB-Cell-Access-Mode,
+	iurh-Signalling-TNL-AddressList		Iurh-Signalling-TNL-AddressList,
+	iE-Extensions						ProtocolExtensionContainer { { HNBConfigurationInformationProvided-ExtIEs } }		OPTIONAL,
+	...
+}
+
+HNBConfigurationInformationProvided-ExtIEs HNBAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+HNBConfigurationInformationMissing ::= SEQUENCE {
+	cause					Cause,
+	iE-Extensions			ProtocolExtensionContainer { { HNBConfigurationInformationMissing-ExtIEs } }		OPTIONAL,
+	...
+}
+
+HNBConfigurationInformationMissing-ExtIEs HNBAP-PROTOCOL-EXTENSION ::= {
+	...
 }
 
 HNB-Location-Information	::=	SEQUENCE	{
@@ -247,9 +314,9 @@ IMSIESN				::= SEQUENCE {
 
 IP-Address		::=SEQUENCE {
 		ipaddress		CHOICE {
-			ipv4info		Ipv4Address,
-			ipv6info		Ipv6Address,
-			...
+		ipv4info		Ipv4Address,
+		ipv6info		Ipv6Address,
+		...
 		},
 	iE-Extensions		ProtocolExtensionContainer { { IP-Address-ExtIEs } }		OPTIONAL,
 		...
@@ -263,7 +330,7 @@ Ipv4Address		::= OCTET STRING (SIZE (4))
 
 Ipv6Address		::= OCTET STRING (SIZE (16))
 
-
+Iurh-Signalling-TNL-AddressList ::= SEQUENCE (SIZE(1..maxnoofIurhAddresses)) OF	IP-Address
 
 
 --J
@@ -298,9 +365,26 @@ MacroCellID ::= CHOICE {
 MuxPortNumber ::= INTEGER (1024..65535)
 
 --N
+
+NeighbourInfoList	::=	SEQUENCE (SIZE(1..maxnoofNeighbours)) OF	HNBConfigInfo
+
+NeighbourInfoRequestList	::=	SEQUENCE (SIZE(1..maxnoofNeighbours)) OF	NeighbourInfoRequestItem
+
+NeighbourInfoRequestItem ::= SEQUENCE {
+	hnb-RNL-Identity	HNB-RNL-Identity,
+	iE-Extensions		ProtocolExtensionContainer { { NeighbourInfoRequestItem-ExtIEs } }		OPTIONAL,
+	...
+}
+
+NeighbourInfoRequestItem-ExtIEs HNBAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 --O
 --P
 PLMNidentity 				::= OCTET STRING (SIZE (3))
+
+PSC			::= BIT STRING (SIZE(9))
 
 PTMSI		::=	BIT STRING (SIZE(32))
 
@@ -313,6 +397,24 @@ PTMSIRAI		::= SEQUENCE {
 
 --Q
 --R
+
+RAB-ID		::= BIT STRING (SIZE (8))
+
+RABList		::= SEQUENCE (SIZE(1..maxnoofRABs)) OF RABListItem
+
+RABListItem	::= SEQUENCE {
+	rAB-ID						RAB-ID,
+	old-transport-Info			TransportInfo,
+	new-transport-Info			TransportInfo,
+	cn-domain-indicator			CN-DomainIndicator,
+	iE-Extensions		ProtocolExtensionContainer { { RABListItem-ExtIEs } }		OPTIONAL,
+...
+}
+
+RABListItem-ExtIEs HNBAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 RAC			::= OCTET STRING(SIZE(1))
 
 RAI			::= SEQUENCE {
@@ -325,7 +427,8 @@ RAI			::= SEQUENCE {
 Registration-Cause	::= ENUMERATED {
 				emergency-call,
 				normal,
-				...
+				...,
+				ue-relocation
 			}
 
 RNC-ID	::=	INTEGER(0..65535)
@@ -342,6 +445,23 @@ TMSILAI		::=	SEQUENCE {
 
 TMSIDS41	::=		OCTET STRING (SIZE (2..17))
 
+TransportInfo	::= SEQUENCE {
+	transportLayerAddress		TransportLayerAddress,
+	transportAssociation		CHOICE	{
+	gtp-TEI						GTP-TEI,
+	bindingID					BindingID,
+	...
+	},
+	iE-Extensions		ProtocolExtensionContainer { { TransportInfo-ExtIEs } }		OPTIONAL,
+...
+}
+
+TransportInfo-ExtIEs HNBAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+TransportLayerAddress	::= BIT STRING(SIZE(1..160,...))
+
 TypeOfError ::= ENUMERATED {
 	not-understood,
 	missing,
@@ -350,7 +470,7 @@ TypeOfError ::= ENUMERATED {
 --U
 UE-Capabilities ::= SEQUENCE {
 	access-stratum-release-indicator	Access-stratum-release-indicator,
-	csg-indicator						CSG-Indicator,
+	csg-capability						CSG-Capability,
 	iE-Extensions		ProtocolExtensionContainer { { UE-Capabilities-ExtIEs } }		OPTIONAL,
 ...
 }
@@ -385,7 +505,11 @@ UE-Identity	::=	CHOICE {
 	...
 }
 
-	
+Update-cause ::=	ENUMERATED {
+	relocation-preparation,
+	...
+}
+
 --V
 --W
 --X

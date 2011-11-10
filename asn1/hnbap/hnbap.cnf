@@ -40,7 +40,6 @@ HNB-Location-Information/geographicalCoordinates hnb_location_information_geogra
 Presence
 ProtocolIE-ContainerList
 ProtocolIE-Single-Container
-CN-DomainIndicator
 #.END
 
 #.FN_PARS ProtocolIE-ID  VAL_PTR = &ProtocolIE_ID
@@ -134,6 +133,10 @@ id-UERegister                                   ProcedureCode
 id-UEDe-Register                                ProcedureCode
 id-ErrorIndication                              ProcedureCode
 id-privateMessage                               ProcedureCode
+id-CSGMembershipUpdate                          ProcedureCode
+id-TNLUpdate                                    ProcedureCode
+id-HNBConfigTransfer                            ProcedureCode
+id-RelocationComplete                           ProcedureCode
 
 # ProtocolIE-ID
 id-Cause                                        ProtocolIE-ID
@@ -153,6 +156,19 @@ id-RNC-ID                                       ProtocolIE-ID
 id-CSG-ID                                       ProtocolIE-ID
 id-BackoffTimer                                 ProtocolIE-ID
 id-HNB-Internet-Information                     ProtocolIE-ID
+id-HNB-Cell-Access-Mode                         ProtocolIE-ID
+id-MuxPortNumber                                ProtocolIE-ID
+id-Service-Area-For-Broadcast                   ProtocolIE-ID
+id-CSGMembershipStatus                          ProtocolIE-ID
+id-RABList                                      ProtocolIE-ID
+id-HNBConfigInfo                                ProtocolIE-ID
+id-AccessResult                                 ProtocolIE-ID
+id-Update-cause                                 ProtocolIE-ID
+id-NeighbourInfoList                            ProtocolIE-ID
+id-NeighbourInfoRequestList                     ProtocolIE-ID
+id-Iurh-Signalling-TNL-Address                  ProtocolIE-ID
+id-PSC                                          ProtocolIE-ID
+id-HNB-Cell-Identifier                          ProtocolIE-ID
 #.END
 
 
@@ -177,11 +193,21 @@ CSG-ID								N hnbap.ies id-CSG-ID
 BackoffTimer						N hnbap.ies id-BackoffTimer
 CSGMembershipStatus					N hnbap.ies id-CSGMembershipStatus
 
+RABList                             N hnbap.ies id-RABList
+# id-HNBConfigInfo
+# id-AccessResult
+Update-cause                        N hnbap.ies id-Update-cause
+NeighbourInfoList                   N hnbap.ies id-NeighbourInfoList
+NeighbourInfoRequestList            N hnbap.ies id-NeighbourInfoRequestList
+# id-HNB-Cell-Identifier
+
 #HNBAP-PROTOCOL-EXTENSION
 IP-Address							N hnbap.extension id-HNB-Internet-Information
 HNB-Cell-Access-Mode				N hnbap.extension id-HNB-Cell-Access-Mode
 MuxPortNumber						N hnbap.extension id-MuxPortNumber
 CSGMembershipStatus					N hnbap.extension id-CSGMembershipStatus
+IP-Address                          N hnbap.extension id-Iurh-Signalling-TNL-Address
+PSC                                 N hnbap.extension id-PSC
 
 #HNBAP-ELEMENTARY-PROCEDURE
 #CLASS 1
@@ -191,6 +217,15 @@ HNBRegisterReject					N hnbap.proc.uout id-HNBRegister
 UERegisterRequest					N hnbap.proc.imsg id-UERegister
 UERegisterAccept					N hnbap.proc.sout id-UERegister
 UERegisterReject					N hnbap.proc.uout id-UERegister
+
+TNLUpdateRequest					N hnbap.proc.imsg id-TNLUpdate
+TNLUpdateResponse					N hnbap.proc.sout id-TNLUpdate
+TNLUpdateFailure					N hnbap.proc.uout id-TNLUpdate
+
+HNBConfigTransferRequest			N hnbap.proc.imsg id-HNBConfigTransfer
+HNBConfigTransferResponse			N hnbap.proc.sout id-HNBConfigTransfer
+
+RelocationComplete					N hnbap.proc.imsg id-RelocationComplete
 
 #CLASS 2
 UEDe-Register						N hnbap.proc.imsg id-UEDe-Register
