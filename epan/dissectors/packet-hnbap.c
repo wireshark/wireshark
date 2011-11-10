@@ -2006,8 +2006,13 @@ static const per_sequence_t TNLUpdateRequest_sequence[] = {
 
 static int
 dissect_hnbap_TNLUpdateRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 127 "../../asn1/hnbap/hnbap.cnf"
+    col_set_str(actx->pinfo->cinfo, COL_INFO,
+               "TNL_UPDATE_REQUEST_MESSAGE ");
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_hnbap_TNLUpdateRequest, TNLUpdateRequest_sequence);
+
+
 
   return offset;
 }
@@ -2021,8 +2026,13 @@ static const per_sequence_t TNLUpdateResponse_sequence[] = {
 
 static int
 dissect_hnbap_TNLUpdateResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 131 "../../asn1/hnbap/hnbap.cnf"
+    col_set_str(actx->pinfo->cinfo, COL_INFO,
+               "TNL_UPDATE_RESPONSE_MESSAGE ");
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_hnbap_TNLUpdateResponse, TNLUpdateResponse_sequence);
+
+
 
   return offset;
 }
@@ -2036,8 +2046,13 @@ static const per_sequence_t TNLUpdateFailure_sequence[] = {
 
 static int
 dissect_hnbap_TNLUpdateFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 135 "../../asn1/hnbap/hnbap.cnf"
+    col_set_str(actx->pinfo->cinfo, COL_INFO,
+               "TNL_UPDATE_FAILURE_MESSAGE ");
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_hnbap_TNLUpdateFailure, TNLUpdateFailure_sequence);
+
+
 
   return offset;
 }
@@ -2051,8 +2066,13 @@ static const per_sequence_t HNBConfigTransferRequest_sequence[] = {
 
 static int
 dissect_hnbap_HNBConfigTransferRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 139 "../../asn1/hnbap/hnbap.cnf"
+    col_set_str(actx->pinfo->cinfo, COL_INFO,
+               "HNB_CONFIG_TRANSFER_REQUEST_MESSAGE ");
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_hnbap_HNBConfigTransferRequest, HNBConfigTransferRequest_sequence);
+
+
 
   return offset;
 }
@@ -2066,8 +2086,13 @@ static const per_sequence_t HNBConfigTransferResponse_sequence[] = {
 
 static int
 dissect_hnbap_HNBConfigTransferResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 143 "../../asn1/hnbap/hnbap.cnf"
+    col_set_str(actx->pinfo->cinfo, COL_INFO,
+               "HNB_CONFIG_TRANSFER_RESPONSE_MESSAGE ");
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_hnbap_HNBConfigTransferResponse, HNBConfigTransferResponse_sequence);
+
+
 
   return offset;
 }
@@ -2081,8 +2106,14 @@ static const per_sequence_t RelocationComplete_sequence[] = {
 
 static int
 dissect_hnbap_RelocationComplete(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 147 "../../asn1/hnbap/hnbap.cnf"
+    col_set_str(actx->pinfo->cinfo, COL_INFO,
+               "RELOCATION_COMPLETE_MESSAGE ");
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_hnbap_RelocationComplete, RelocationComplete_sequence);
+
+
+
 
   return offset;
 }
@@ -2122,6 +2153,7 @@ dissect_hnbap_PrivateMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
                "PRIVATE_MESSAGE ");
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_hnbap_PrivateMessage, PrivateMessage_sequence);
+
 
 
 

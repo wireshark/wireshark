@@ -122,6 +122,32 @@ ProtocolIE-Single-Container
     col_set_str(actx->pinfo->cinfo, COL_INFO,
                "PRIVATE_MESSAGE ");
 %(DEFAULT_BODY)s
+
+#.FN_BODY TNLUpdateRequest
+    col_set_str(actx->pinfo->cinfo, COL_INFO,
+               "TNL_UPDATE_REQUEST_MESSAGE ");
+%(DEFAULT_BODY)s
+#.FN_BODY TNLUpdateResponse
+    col_set_str(actx->pinfo->cinfo, COL_INFO,
+               "TNL_UPDATE_RESPONSE_MESSAGE ");
+%(DEFAULT_BODY)s
+#.FN_BODY TNLUpdateFailure
+    col_set_str(actx->pinfo->cinfo, COL_INFO,
+               "TNL_UPDATE_FAILURE_MESSAGE ");
+%(DEFAULT_BODY)s
+#.FN_BODY HNBConfigTransferRequest
+    col_set_str(actx->pinfo->cinfo, COL_INFO,
+               "HNB_CONFIG_TRANSFER_REQUEST_MESSAGE ");
+%(DEFAULT_BODY)s
+#.FN_BODY HNBConfigTransferResponse
+    col_set_str(actx->pinfo->cinfo, COL_INFO,
+               "HNB_CONFIG_TRANSFER_RESPONSE_MESSAGE ");
+%(DEFAULT_BODY)s
+#.FN_BODY RelocationComplete
+    col_set_str(actx->pinfo->cinfo, COL_INFO,
+               "RELOCATION_COMPLETE_MESSAGE ");
+%(DEFAULT_BODY)s
+
 #.END
 
 
