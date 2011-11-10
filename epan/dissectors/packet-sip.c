@@ -165,6 +165,7 @@ static gint ett_sip_hdr                   = -1;
 static gint ett_sip_ext_hdr               = -1;
 static gint ett_raw_text                  = -1;
 static gint ett_sip_element               = -1;
+static gint ett_sip_hist                  = -1;
 static gint ett_sip_uri                   = -1;
 static gint ett_sip_contact_item          = -1;
 static gint ett_sip_message_body          = -1;
@@ -1074,6 +1075,107 @@ dissect_sip_uri(tvbuff_t *tvb, packet_info *pinfo _U_, gint start_offset,
 		}
 		return uri_offsets->name_addr_end;
 }
+
+/*
+ *           History-Info = "History-Info" HCOLON
+ *                            hi-entry *(COMMA hi-entry)
+ *
+ *          hi-entry = hi-targeted-to-uri *( SEMI hi-param )
+ *          hi-targeted-to-uri= name-addr 
+ *
+ *
+ *          hi-param = hi-index / hi-extension
+ *
+ *          hi-index = "index" EQUAL 1*DIGIT *(DOT 1*DIGIT)
+ *
+ *          hi-extension = generic-param
+ */
+
+static gint
+dissect_sip_history_info(tvbuff_t *tvb, proto_tree* tree, packet_info *pinfo _U_, gint current_offset,
+                gint line_end_offset)
+{
+	int comma_offset;
+	gboolean first_time = TRUE;
+
+	/* split the line at the commas */
+	while (line_end_offset > current_offset){
+		comma_offset = tvb_find_guint8(tvb, current_offset, line_end_offset - current_offset, ',');
+		if(comma_offset == -1){
+			if(first_time == TRUE){
+				/* It was only on parameter no need to split it up */
+				return line_end_offset;
+			}
+			/* Last parameter */
+			comma_offset = line_end_offset;
+		}
+		first_time = FALSE;
+		proto_tree_add_text(tree, tvb, current_offset, comma_offset-current_offset,
+		                    "%s", tvb_format_text(tvb, current_offset,
+		                                    comma_offset-current_offset));
+
+		current_offset = comma_offset+1;
+	}
+
+	return line_end_offset;
+
+}
+
+
+/*
+ *    The syntax for the P-Charging-Function-Addresses header is described
+ *   as follows:
+ *
+ *      P-Charging-Addr        = "P-Charging-Function-Addresses" HCOLON
+ *                               charge-addr-params
+ *                               *(SEMI charge-addr-params)
+ *      charge-addr-params     = ccf / ecf / generic-param
+ *      ccf                    = "ccf" EQUAL gen-value
+ *      ecf                    = "ecf" EQUAL gen-value
+ *      generic-param          =  token [ EQUAL gen-value ]
+ *      gen-value              =  token / host / quoted-string
+ *
+ */
+
+static gint
+dissect_sip_p_charging_func_addresses(tvbuff_t *tvb, proto_tree* tree, packet_info *pinfo _U_, gint current_offset,
+                gint line_end_offset)
+{
+	int semi_offset, quote_offset;
+	gboolean first_time = TRUE;
+
+	while (line_end_offset > current_offset){
+		/* Do we have a quoted string ? */
+		quote_offset = tvb_find_guint8(tvb, current_offset, line_end_offset - current_offset, '"');
+		if(quote_offset){
+			/* Find end of quoted string */
+			quote_offset = tvb_find_guint8(tvb, quote_offset+1, line_end_offset - current_offset, '"');
+			/* Find parameter end */
+			semi_offset = tvb_find_guint8(tvb, quote_offset+1, line_end_offset - quote_offset, ';');
+		}else{
+			/* Find parameter end */
+			semi_offset = tvb_find_guint8(tvb, current_offset, line_end_offset - current_offset, ';');
+		}
+		if(semi_offset == -1){
+			if(first_time == TRUE){
+			/* It was only on parameter no need to split it up */
+			return line_end_offset;
+			}
+			/* Last parameter */
+			semi_offset = line_end_offset;
+		}
+		first_time = FALSE;
+		proto_tree_add_text(tree, tvb, current_offset, semi_offset-current_offset,
+		                    "%s", tvb_format_text(tvb, current_offset,
+		                                    semi_offset-current_offset));
+
+		current_offset = semi_offset+1;
+
+	}
+
+	return current_offset;
+}
+
 /*
  *  token         =  1*(alphanum / "-" / "." / "!" / "%" / "*"
  *                    / "_" / "+" / "`" / "'" / "~" )
@@ -1332,11 +1434,12 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 static gint
 dissect_sip_authorization_item(tvbuff_t *tvb, proto_tree *tree, gint start_offset, gint line_end_offset)
 {
-	gint current_offset, par_name_end_offset;
+	gint current_offset, par_name_end_offset, queried_offset;
 	gint equals_offset = 0;
 	gchar *name;
 	header_parameter_t *auth_parameter;
 	guint i = 0;
+	gchar c;
 
 	/* skip Spaces and Tabs */
 	start_offset = tvb_skip_wsp(tvb, start_offset, line_end_offset - start_offset);
@@ -1358,10 +1461,37 @@ dissect_sip_authorization_item(tvbuff_t *tvb, proto_tree *tree, gint start_offse
 
 	/* Extract the parameter name */
 	name = tvb_get_ephemeral_string(tvb, start_offset, par_name_end_offset-start_offset+1);
-	current_offset =  tvb_find_guint8(tvb, par_name_end_offset, line_end_offset - par_name_end_offset, ',');
-	if(current_offset==-1)
+
+	/* Find end of parameter, it can be a quoted string so check for quoutes too */
+	queried_offset = par_name_end_offset;
+	while (queried_offset < line_end_offset)
+	{
+			queried_offset++;
+			c = tvb_get_guint8(tvb, queried_offset);
+			switch (c) {
+				case ',':
+				case '"':
+					goto found;
+					break;
+				default :
+					break;
+			}
+	}
+found:
+	if(queried_offset==line_end_offset){
 		/* Last parameter, line end */
 		current_offset = line_end_offset;
+	}else if(c=='"'){
+		/* Do we have a quoted string ? */
+		queried_offset = tvb_find_guint8(tvb, queried_offset+1, line_end_offset - queried_offset, '"');
+		current_offset =  tvb_find_guint8(tvb, queried_offset+1, line_end_offset - queried_offset, ',');
+		if(current_offset==-1){
+			/* Last parameter, line end */
+			current_offset = line_end_offset;
+		}
+	}else{
+		current_offset = queried_offset;
+	}
 
 	/* Try to add parameter as a filterable item */
 	for (auth_parameter = &auth_parameters_hf_array[i];
@@ -2158,6 +2288,19 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 								 display_sip_uri(tvb, sip_element_tree, &uri_offsets, &sip_pai_uri);
 						}
 						break;
+					case POS_HISTORY_INFO:
+						if(hdr_tree)
+						{
+							sip_element_item = proto_tree_add_string_format(hdr_tree,
+							                   hf_header_array[hf_index], tvb,
+							                   offset, next_offset - offset,
+							                   value, "%s",
+							                   tvb_format_text(tvb, offset, linelen));
+							sip_element_tree = proto_item_add_subtree( sip_element_item,
+							                   ett_sip_hist);
+							dissect_sip_history_info(tvb, sip_element_tree, pinfo, value_offset, line_end_offset);
+						}
+						break;
 
 					case POS_P_CHARGING_FUNC_ADDRESSES:
 						if(hdr_tree)
@@ -2169,6 +2312,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 							                   tvb_format_text(tvb, offset, linelen));
 							sip_element_tree = proto_item_add_subtree( sip_element_item,
 							                   ett_sip_element);
+							dissect_sip_p_charging_func_addresses(tvb, sip_element_tree, pinfo, value_offset, line_end_offset);
 						}
 						break;
 
@@ -4530,7 +4674,8 @@ void proto_register_sip(void)
 				{ "Message Body",           "sip.msg_body",
 				FT_NONE, BASE_NONE, NULL, 0x0,
 				"Message Body in SIP message", HFILL }
-		}};
+		}
+};
 
         /* raw_sip header field(s) */
         static hf_register_info raw_hf[] = {
@@ -4548,6 +4693,7 @@ void proto_register_sip(void)
 		&ett_sip_hdr,
 		&ett_sip_ext_hdr,
 		&ett_sip_element,
+		&ett_sip_hist,
 		&ett_sip_uri,
 		&ett_sip_contact_item,
 		&ett_sip_message_body,
