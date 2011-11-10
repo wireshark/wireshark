@@ -1374,13 +1374,17 @@ dissect_capwap_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (global_capwap_reassemble && fragment_is)
 	{
+		const int len_rem = tvb_length_remaining(tvb, offset);
+		if (len_rem <= 0) 
+			return offset;
+
 		pinfo->fragmented = TRUE;
 
 		frag_msg = fragment_add_check(tvb, offset, pinfo,fragment_id,
 		                              capwap_fragment_table,
 		                              capwap_reassembled_table,
 		                              fragment_offset,
-		                              tvb_length_remaining(tvb, offset),
+		                              len_rem,
 		                              fragment_more);
 
 		next_tvb = process_reassembled_data(tvb, offset, pinfo,
