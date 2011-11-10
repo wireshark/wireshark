@@ -42,6 +42,10 @@ ProtocolIE-ContainerList
 ProtocolIE-Single-Container
 #.END
 
+#.NO_EMIT
+AccessResult
+#.END
+
 #.FN_PARS ProtocolIE-ID  VAL_PTR = &ProtocolIE_ID
 #.FN_FTR ProtocolIE-ID
   if (tree) {
