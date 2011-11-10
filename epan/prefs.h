@@ -163,7 +163,6 @@ typedef struct _e_prefs {
   gboolean capture_real_time;
   gboolean capture_auto_scroll;
   gboolean capture_show_info;
-  gboolean capture_syntax_check_filter;
   guint    rtp_player_max_visible;
   guint    tap_update_interval;
   gboolean display_hidden_proto_items;

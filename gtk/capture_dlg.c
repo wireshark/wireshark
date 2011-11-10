@@ -345,9 +345,6 @@ check_capture_filter_syntax(void *data _U_) {
 static gboolean
 update_capture_filter_te(gpointer data _U_) {
 
-  if (!prefs.capture_syntax_check_filter)
-    return TRUE;
-
   g_mutex_lock(cfc_data_mtx);
 
   if (cfc_data.filter_text && cfc_data.filter_te) {
@@ -404,9 +401,6 @@ capture_filter_check_syntax_cb(GtkWidget *w _U_, gpointer user_data _U_)
   GtkWidget *filter_cm, *filter_te, *linktype_combo_box;
   gchar *filter_text;
   gpointer dlt_ptr;
-
-  if (!prefs.capture_syntax_check_filter)
-    return;
 
   linktype_combo_box = (GtkWidget *) g_object_get_data(G_OBJECT(opt_edit_w), E_CAP_LT_CBX_KEY);
 
