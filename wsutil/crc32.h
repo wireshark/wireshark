@@ -45,6 +45,10 @@ extern "C" {
  @param pos Position in the table. */
 extern guint32 crc32_ccitt_table_lookup (guchar pos);
 
+/** Lookup the crc value in the crc32c_table
+ @param pos Position in the table. */
+extern guint32 crc32c_table_lookup (guchar pos);
+
 /** Compute CRC32C checksum of a buffer of data.
  @param buf The buffer containing the data.
  @param len The number of bytes to include in the computation.
@@ -74,14 +78,6 @@ extern guint32 crc32_ccitt(const guint8 *buf, guint len);
  @param seed The seed to use.
  @return The CRC32 CCITT checksum (using the given seed). */
 extern guint32 crc32_ccitt_seed(const guint8 *buf, guint len, guint32 seed);
-
-/*
- * I guess somebody's plugin must be using these; nothing in Wireshark
- * does, but they're in crc32.c, and crc32_ccitt_table_lookup() is
- * in the .def file....
- */
-extern guint32 crc32c_table_lookup (guchar pos);
-extern guint32 crc32_ccitt_table_lookup (guchar pos);
 
 int AirPDcapWepDecrypt(
 	const guchar *seed,
