@@ -95,6 +95,7 @@ wireshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 tshark_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib \
 	$(GLIB_LIBS) \
+	$(GTHREAD_LIBS) \
 	wsutil\libwsutil.lib \
 	$(GNUTLS_LIBS) \
 	$(PYTHON_LIBS) \
