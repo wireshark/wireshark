@@ -35,6 +35,7 @@ crc32_ccitt_seed
 crc32_ccitt_table_lookup
 crc32c_calculate
 crc32c_calculate_no_swap
+crc32c_table_lookup
 
 ; crcdrm.c
 crc_drm
