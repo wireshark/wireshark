@@ -1452,7 +1452,7 @@ dissect_sip_authorization_item(tvbuff_t *tvb, proto_tree *tree, gint start_offse
 
 	current_offset = start_offset;
 	equals_offset = tvb_find_guint8(tvb, current_offset + 1, line_end_offset - (current_offset + 1), '=');
-	if(current_offset == -1){
+	if(equals_offset == -1){
 		/* malformed parameter */
 		return -1;
 	}
@@ -1484,6 +1484,10 @@ found:
 	}else if(c=='"'){
 		/* Do we have a quoted string ? */
 		queried_offset = tvb_find_guint8(tvb, queried_offset+1, line_end_offset - queried_offset, '"');
+		if(queried_offset==-1){
+			/* We have an opening quote but no closing quote. */
+			queried_offset = line_end_offset;
+		}
 		current_offset =  tvb_find_guint8(tvb, queried_offset+1, line_end_offset - queried_offset, ',');
 		if(current_offset==-1){
 			/* Last parameter, line end */
