@@ -3780,7 +3780,7 @@ void proto_register_rsl(void)
             NULL, HFILL }
         },
         { &hf_rsl_ch_rate_and_type,
-            { "Channel rate and type",           "rsl.speech_or_data",
+            { "Channel rate and type",           "rsl.ch_rate_and_type",
             FT_UINT8, BASE_DEC, VALS(rsl_ch_rate_and_type_vals), 0x0,
             NULL, HFILL }
         },
