@@ -501,9 +501,12 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_DVBCI */
 	{ "DVB-CI (Common Interface)", "dvbci"},
-	
-	/* WTAP_ENCAP_MUX27010 */
-	{ "MUX27010", "mux27010"}
+
+ 	/* WTAP_ENCAP_MUX27010 */
+	{ "MUX27010", "mux27010"},
+
+	/* WTAP_ENCAP_MIME */
+	{ "MIME", "mime"}
 };
 
 gint wtap_num_encap_types = sizeof(encap_table_base) / sizeof(struct encap_type_info);
