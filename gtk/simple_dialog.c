@@ -314,10 +314,11 @@ vsimple_dialog(ESD_TYPE_E type, gint btn_mask, const gchar *msg_format, va_list 
     state = gdk_window_get_state(gtk_widget_get_window(top_level));
   }
 
-  /* If we don't yet have a main window or it's iconified, don't show the
-     dialog. If showing up a dialog, while main window is iconified, program
-     will become unresponsive! */
-  if (top_level == NULL || state & GDK_WINDOW_STATE_ICONIFIED) {
+  /* If we don't yet have a main window or it's iconified or hidden (i.e. not
+     yet ready, don't show the dialog. If showing up a dialog, while main
+     window is iconified, program will become unresponsive! */
+  if (top_level == NULL || state & GDK_WINDOW_STATE_ICONIFIED
+          || state & GDK_WINDOW_STATE_WITHDRAWN) {
 
     queued_message = g_malloc(sizeof (queued_message_t));
     queued_message->type = type;
