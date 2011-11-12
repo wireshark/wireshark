@@ -216,10 +216,13 @@ dissect_netanalyzer_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         {
           if (packet_status & (1 << idx))
           {
-            if (!first)
+            if (first)
+            {
+              first = FALSE;
+            }
+            else
             {
               ep_strbuf_append(strbuf, ", ");
-              first = FALSE;
             }
             ep_strbuf_append(strbuf, msk_strings[idx]);
           }
