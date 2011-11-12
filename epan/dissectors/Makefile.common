@@ -1037,6 +1037,12 @@ DISSECTOR_SRC = \
 	packet-xml.c		\
 	packet-xmcp.c		\
 	packet-xmpp.c		\
+	packet-xmpp-conference.c \
+	packet-xmpp-core.c 	\
+	packet-xmpp-gtalk.c 	\
+	packet-xmpp-jingle.c 	\
+	packet-xmpp-other.c 	\
+	packet-xmpp-utils.c 	\
 	packet-xot.c		\
 	packet-xtp.c		\
 	packet-xyplex.c		\
@@ -1399,6 +1405,13 @@ DISSECTOR_INCLUDES =	\
 	packet-x509if.h	\
 	packet-x509sat.h	\
 	packet-xml.h	\
+	packet-xmpp-conference.h \
+	packet-xmpp-core.h \
+	packet-xmpp-gtalk.h \
+	packet-xmpp.h \
+	packet-xmpp-jingle.h \
+	packet-xmpp-other.h \
+	packet-xmpp-utils.h \
 	packet-ypbind.h	\
 	packet-yppasswd.h	\
 	packet-ypserv.h	\

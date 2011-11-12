@@ -1118,6 +1118,12 @@ set(DISSECTOR_SRC
 	dissectors/packet-xml.c
 	dissectors/packet-xmcp.c
 	dissectors/packet-xmpp.c
+	dissectors/packet-xmpp-conference.c
+	dissectors/packet-xmpp-core.c
+	dissectors/packet-xmpp-gtalk.c
+	dissectors/packet-xmpp-jingle.c
+	dissectors/packet-xmpp-other.c
+	dissectors/packet-xmpp-utils.c
 	dissectors/packet-xot.c
 	dissectors/packet-xtp.c
 	dissectors/packet-xyplex.c
