@@ -378,7 +378,7 @@ ep_init_attr_t(gchar *value, gint offset, gint length)
 gchar*
 ep_string_upcase(const gchar* string)
 {
-    gint len = strlen(string);
+    gint len = (int)strlen(string);
     gint i;
     gchar* result = ep_alloc0(len+1);
     for(i=0; i<len; i++)
