@@ -553,7 +553,6 @@ DISSECTOR_SRC = \
 	packet-hdcp.c		\
 	packet-hdfs.c		\
 	packet-hdfsdata.c	\
-	packet-hilscher.c	\
 	packet-hip.c		\
 	packet-homeplug.c 	\
 	packet-homeplug-av.c 	\
@@ -739,6 +738,7 @@ DISSECTOR_SRC = \
 	packet-ndmp.c		\
 	packet-ndp.c		\
 	packet-ndps.c		\
+  packet-netanalyzer.c  \
 	packet-netbios.c	\
 	packet-netdump.c	\
 	packet-netflow.c	\

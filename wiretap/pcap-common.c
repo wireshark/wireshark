@@ -373,6 +373,13 @@ static const struct {
 	/* MUX27010 */
 	{ 236,		WTAP_ENCAP_MUX27010 },
 
+
+  /* netANALYZER pseudo header */
+  { 240,    WTAP_ENCAP_NETANALYZER },
+  /* netANALYZER pseudo header in transparent mode */
+  { 241,    WTAP_ENCAP_NETANALYZER_TRANSPARENT },
+
+
 	/*
 	 * To repeat:
 	 *
@@ -1665,6 +1672,10 @@ pcap_read_post_process(int file_type, int wtap_encap,
 		pcap_process_linux_usb_pseudoheader(packet_size,
 		    bytes_swapped, TRUE, pd);
 		break;
+
+	case WTAP_ENCAP_NETANALYZER:
+    pseudo_header->eth.fcs_len = 4;
+    break;
 
 	default:
 		break;

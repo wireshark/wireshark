@@ -224,6 +224,8 @@ extern "C" {
 #define WTAP_ENCAP_DVBCI                        132
 #define WTAP_ENCAP_MUX27010                     133
 #define WTAP_ENCAP_MIME                         134
+#define WTAP_ENCAP_NETANALYZER                  135
+#define WTAP_ENCAP_NETANALYZER_TRANSPARENT      136
 
 #define WTAP_NUM_ENCAP_TYPES                    wtap_get_num_encap_types()
 

@@ -632,7 +632,6 @@ set(DISSECTOR_SRC
 	dissectors/packet-hdcp.c
 	dissectors/packet-hdfs.c
 	dissectors/packet-hdfsdata.c
-	dissectors/packet-hilscher.c
 	dissectors/packet-hip.c
 	dissectors/packet-homeplug.c
 	dissectors/packet-homeplug-av.c
@@ -818,6 +817,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-ndmp.c
 	dissectors/packet-ndp.c
 	dissectors/packet-ndps.c
+	dissectors/packet-netanalyzer.c
 	dissectors/packet-netbios.c
 	dissectors/packet-netdump.c
 	dissectors/packet-netflow.c
