@@ -817,12 +817,13 @@ main(int argc, char *argv[])
 #endif
   gboolean             quiet = FALSE;
 #ifdef PCAP_NG_DEFAULT
-  int                  out_file_type = WTAP_FILE_PCAPNG;
+  volatile int         out_file_type = WTAP_FILE_PCAPNG;
 #else
-  int                  out_file_type = WTAP_FILE_PCAP;
+  volatile int         out_file_type = WTAP_FILE_PCAP;
 #endif
-  gboolean             out_file_name_res = FALSE;
-  gchar               *cf_name = NULL, *rfilter = NULL;
+  volatile gboolean    out_file_name_res = FALSE;
+  gchar               *volatile cf_name = NULL;
+  gchar               *rfilter = NULL;
 #ifdef HAVE_PCAP_OPEN_DEAD
   struct bpf_program   fcode;
 #endif
@@ -1743,13 +1744,26 @@ main(int argc, char *argv[])
     }
 
     /* Process the packets in the file */
+    TRY {
 #ifdef HAVE_LIBPCAP
-    err = load_cap_file(&cfile, global_capture_opts.save_file, out_file_type, out_file_name_res,
-        global_capture_opts.has_autostop_packets ? global_capture_opts.autostop_packets : 0,
-        global_capture_opts.has_autostop_filesize ? global_capture_opts.autostop_filesize : 0);
+      err = load_cap_file(&cfile, global_capture_opts.save_file, out_file_type, out_file_name_res,
+          global_capture_opts.has_autostop_packets ? global_capture_opts.autostop_packets : 0,
+          global_capture_opts.has_autostop_filesize ? global_capture_opts.autostop_filesize : 0);
 #else
-    err = load_cap_file(&cfile, NULL, out_file_type, out_file_name_res, 0, 0);
+      err = load_cap_file(&cfile, NULL, out_file_type, out_file_name_res, 0, 0);
 #endif
+    }
+    CATCH(OutOfMemoryError) {
+      fprintf(stderr,
+              "Out Of Memory!\n"
+              "\n"
+              "Sorry, but TShark has to terminate now!\n"
+              "\n"
+              "Some infos / workarounds can be found at:\n"
+              "http://wiki.wireshark.org/KnownBugs/OutOfMemory\n");
+      err = ENOMEM;
+    }
+    ENDTRY;
     if (err != 0) {
       /* We still dump out the results of taps, etc., as we might have
          read some packets; however, we exit with an error status. */
@@ -2131,27 +2145,40 @@ capture(void)
 
   loop_running = TRUE;
 
-  while (loop_running)
+  TRY
   {
-#ifdef USE_TSHARK_SELECT
-    ret = select(pipe_input.source+1, &readfds, NULL, NULL, NULL);
-
-    if (ret == -1)
+    while (loop_running)
     {
-      perror("select()");
-      return TRUE;
-    } else if (ret == 1) {
-#endif
-      /* Call the real handler */
-      if (!pipe_input.input_cb(pipe_input.source, pipe_input.user_data)) {
-        g_log(NULL, G_LOG_LEVEL_DEBUG, "input pipe closed");
-        return FALSE;
-      }
 #ifdef USE_TSHARK_SELECT
-    }
-#endif
-  }
+      ret = select(pipe_input.source+1, &readfds, NULL, NULL, NULL);
 
+      if (ret == -1)
+      {
+        perror("select()");
+        return TRUE;
+      } else if (ret == 1) {
+#endif
+        /* Call the real handler */
+        if (!pipe_input.input_cb(pipe_input.source, pipe_input.user_data)) {
+          g_log(NULL, G_LOG_LEVEL_DEBUG, "input pipe closed");
+          return FALSE;
+        }
+#ifdef USE_TSHARK_SELECT
+      }
+#endif
+    }
+  }
+  CATCH(OutOfMemoryError) {
+    fprintf(stderr,
+            "Out Of Memory!\n"
+            "\n"
+            "Sorry, but TShark has to terminate now!\n"
+            "\n"
+            "Some infos / workarounds can be found at:\n"
+            "http://wiki.wireshark.org/KnownBugs/OutOfMemory\n");
+    exit(1);
+  }
+  ENDTRY;
   return TRUE;
 }
 
