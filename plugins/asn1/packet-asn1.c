@@ -1780,12 +1780,10 @@ static guint
 parse_tt3(tvbuff_t *tvb, guint offset, guint size, guint level, GNode *ptr)
 {
 	ASN1_SCK asn1;
-	guint eos, ret, cls, con, tag, len, value;
+	guint eos, cls, con, tag, len, value;
 	gboolean def;
 	guchar *octets, *bits, unused;
 	subid_t *oid;
-	char tagbuf[BUFLM];
-	char lenbuf[BUFLM];
 	GNode *cur_node = 0;
 
 	eos = offset + size;
@@ -1794,21 +1792,14 @@ parse_tt3(tvbuff_t *tvb, guint offset, guint size, guint level, GNode *ptr)
 		return eos;
 
 	while(offset < eos) {
-		if (ptr)	/* build pointer tree to all asn1 enteties */
+		if (ptr)	/* build pointer tree to all asn1 entities */
 			cur_node = g_node_append_data(ptr, GUINT_TO_POINTER(offset));
 
 		asn1_open(&asn1, tvb, offset);
-		ret = asn1_header_decode(&asn1, &cls, &con, &tag, &def, &len);
+		asn1_header_decode(&asn1, &cls, &con, &tag, &def, &len);
 		asn1_close(&asn1, (gint *)&offset); /* mark where we are */
 		icount++;
-		if ((cls == BER_CLASS_UNI) && ( tag < 32 )) {
-		} else {
-			g_snprintf(tagbuf, sizeof(tagbuf), "tag%d", tag);
-		}
-		if (def) {
-			g_snprintf(lenbuf, sizeof(lenbuf), "%d", len);
-		} else {
-			strncpy(lenbuf, "indefinite", sizeof(lenbuf));
+		if (!def) {
 			len = tvb_length_remaining(tvb, offset);
 		}
 
@@ -1817,12 +1808,12 @@ parse_tt3(tvbuff_t *tvb, guint offset, guint size, guint level, GNode *ptr)
 			switch(tag) {
 			case BER_UNI_TAG_INTEGER:
 			case BER_UNI_TAG_ENUMERATED:
-				ret = asn1_int32_value_decode(&asn1, len, (gint32 *)&value); /* read value */
+				asn1_int32_value_decode(&asn1, len, (gint32 *)&value); /* read value */
 				asn1_close(&asn1, (gint *)&offset); /* mark where we are */
 				break;
 
 			case BER_UNI_TAG_BOOLEAN:
-				ret = asn1_bool_decode(&asn1, len, (gboolean *)&value); /* read value */
+				asn1_bool_decode(&asn1, len, (gboolean *)&value); /* read value */
 				asn1_close(&asn1, &offset); /* mark where we are */
 				break;
 
@@ -1834,13 +1825,13 @@ parse_tt3(tvbuff_t *tvb, guint offset, guint size, guint level, GNode *ptr)
 			case BER_UNI_TAG_GeneralString:
 			case BER_UNI_TAG_UTCTime:
 			case BER_UNI_TAG_GeneralizedTime:
-				ret = asn1_string_value_decode(&asn1, len, &octets); /* read value */
+				asn1_string_value_decode(&asn1, len, &octets); /* read value */
 				asn1_close(&asn1, &offset); /* mark where we are */
 				g_free(octets);
 				break;
 
 			case BER_UNI_TAG_BITSTRING:
-				ret = asn1_bits_decode(&asn1, len, &bits, &con, &unused);
+				asn1_bits_decode(&asn1, len, &bits, &con, &unused);
 				asn1_close(&asn1, &offset); /* mark where we are */
 				g_free(bits);
 				break;
@@ -1857,7 +1848,7 @@ parse_tt3(tvbuff_t *tvb, guint offset, guint size, guint level, GNode *ptr)
 				return offset;
 
 			case BER_UNI_TAG_OID:
-				ret = asn1_oid_value_decode(&asn1, len, &oid, &con);
+				asn1_oid_value_decode(&asn1, len, &oid, &con);
 				asn1_close(&asn1, &offset); /* mark where we are */
 				g_free(oid);
 				break;
@@ -1881,7 +1872,6 @@ parse_tt3(tvbuff_t *tvb, guint offset, guint size, guint level, GNode *ptr)
 			break;
 
 		case BER_CLASS_CON:		/* fprintf(stderr, "Context\n"); */
-			g_snprintf(tagbuf, sizeof(tagbuf), "TAG%d", tag);
 			if (def && !con) {
 				/* defined length, not constructed, must be a string.... */
 				asn1_string_value_decode(&asn1, len, &octets); /* read value */
@@ -4152,10 +4142,10 @@ static void
 showstack(statestack *pos, char *txt, int n)
 {
 	char buf[1024];
-	const char *name, *type, *stype;
+	const char /* *name, *type,*/ *stype;
 	const char *rep, *chs, *done, *ref, *pop, *chr, *rch, *sch, *con;
 	int i, j;
-	GNode *g;
+	/* GNode *g;*/
 	statestack *p;
 	guint typef;
 
@@ -4170,6 +4160,7 @@ showstack(statestack *pos, char *txt, int n)
 	}
 	rep = chs = done = ref = pop = chr = rch = sch = con = empty;
 
+#if 0  /* XXX: not used ??? */
 	g = pos->node;
 	if (g) {
 		name = ((PDUinfo *)g->data)->name;
@@ -4178,6 +4169,7 @@ showstack(statestack *pos, char *txt, int n)
 		name = "node<null>";
 		type = "?";
 	}
+#endif
 	typef = pos->type;
 	stype = TBLTYPE(typef);
 	if (typef & TBL_REPEAT)		rep  = "[repeat]";
@@ -4355,7 +4347,7 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 	static char namestr[64]; /* enough ? */
 	static char posstr[40];
 	static char noname[] = "*noname*";
-	static PDUprops constructed_save; /* for unexpectedly constructed enteties */
+	static PDUprops constructed_save; /* for unexpectedly constructed entities */
 
 	if (PDUstatec > 0) 	/* don't read from below the stack */
 		pos = POPSTATE;
