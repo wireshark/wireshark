@@ -1,7 +1,7 @@
 /* packet-fractalgeneratorprotocol.c
  * Routines for the Fractal Generator Protocol, a test application of the
  * rsplib RSerPool implementation
- * http://tdrwww.exp-math.uni-essen.de/dreibholz/rserpool/
+ * http://www.tdr.wiwi.uni-due.de/forschung/forschungsprojekte/reliable-server-pooling//
  *
  * Copyright 2006 by Thomas Dreibholz <dreibh [AT] exp-math.uni-essen.de>
  *
