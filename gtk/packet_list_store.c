@@ -1181,6 +1181,10 @@ packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *
 	if (dissect_columns)
 		col_custom_prime_edt(&edt, cinfo);
 
+	/*
+	 * XXX - need to catch an OutOfMemoryError exception and
+	 * attempt to recover from it.
+	 */
 	epan_dissect_run(&edt, &pseudo_header, pd, fdata, cinfo);
 
 	if (dissect_color)
