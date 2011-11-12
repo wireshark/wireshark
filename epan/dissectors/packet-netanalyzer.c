@@ -115,7 +115,7 @@ static const value_string gpio_number[] = {
   { 0,   NULL }
 };
 
-static const value_string gpio_edge[] = {
+static const value_string gpio_edge_vals[] = {
   { 0x0, "rising edge" },
   { 0x1, "falling edge" },
   { 0,   NULL }
@@ -187,12 +187,12 @@ dissect_netanalyzer_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       /* decode port */
       port_num = (tvb_get_guint8(tvb, 1) >> SRT_PORT_NUM) & 0x3;
-      proto_tree_add_item(netanalyzer_status_tree, hf_netanalyzer_port, tvb, 0, 4, ENC_BIG_ENDIAN);
+      proto_tree_add_item(netanalyzer_header_tree, hf_netanalyzer_port, tvb, 0, 2, ENC_LITTLE_ENDIAN);
       proto_item_append_text(ti, " (Port: %u, ", port_num);
 
       /* decode length */
       frame_length = tvb_get_letohs(tvb, 2) & MSK_LENGTH;
-      proto_tree_add_item(netanalyzer_status_tree, hf_netanalyzer_length, tvb, 0, 4, ENC_BIG_ENDIAN);
+      proto_tree_add_item(netanalyzer_header_tree, hf_netanalyzer_length, tvb, 2, 4, ENC_LITTLE_ENDIAN);
       proto_item_append_text(ti, "Length: %u byte%s, ", frame_length, (frame_length == 1) ? "" : "s");
 
       /* decode status */
@@ -231,14 +231,14 @@ dissect_netanalyzer_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
 
       netanalyzer_status_tree = proto_item_add_subtree(ti_status, ett_netanalyzer_status);
-      proto_tree_add_item(netanalyzer_status_tree, hf_netanalyzer_status_rx_err, tvb, 0, 1, ENC_BIG_ENDIAN);
-      proto_tree_add_item(netanalyzer_status_tree, hf_netanalyzer_status_align_err, tvb, 0, 1, ENC_BIG_ENDIAN);
-      proto_tree_add_item(netanalyzer_status_tree, hf_netanalyzer_status_fcs, tvb, 0, 1, ENC_BIG_ENDIAN);
-      proto_tree_add_item(netanalyzer_status_tree, hf_netanalyzer_status_too_long, tvb, 0, 1, ENC_BIG_ENDIAN);
-      proto_tree_add_item(netanalyzer_status_tree, hf_netanalyzer_status_sfd_error, tvb, 0, 1, ENC_BIG_ENDIAN);
-      proto_tree_add_item(netanalyzer_status_tree, hf_netanalyzer_status_short_frame, tvb, 0, 1, ENC_BIG_ENDIAN);
-      proto_tree_add_item(netanalyzer_status_tree, hf_netanalyzer_status_short_preamble, tvb, 0, 1, ENC_BIG_ENDIAN);
-      proto_tree_add_item(netanalyzer_status_tree, hf_netanalyzer_status_long_preamble, tvb, 0, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item(netanalyzer_status_tree, hf_netanalyzer_status_rx_err, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(netanalyzer_status_tree, hf_netanalyzer_status_align_err, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(netanalyzer_status_tree, hf_netanalyzer_status_fcs, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(netanalyzer_status_tree, hf_netanalyzer_status_too_long, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(netanalyzer_status_tree, hf_netanalyzer_status_sfd_error, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(netanalyzer_status_tree, hf_netanalyzer_status_short_frame, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(netanalyzer_status_tree, hf_netanalyzer_status_short_preamble, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(netanalyzer_status_tree, hf_netanalyzer_status_long_preamble, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 
       /* decode transparent mode */
       if (tvb_get_guint8(tvb, 1) & MSK_TRANSPARENT_MODE)
@@ -278,12 +278,12 @@ dissect_netanalyzer_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /* GPIO number */
         offset++;
-        ti = proto_tree_add_item (netanalyzer_header_tree, hf_netanalyzer_gpio_number, tvb, offset, 1, ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item (netanalyzer_header_tree, hf_netanalyzer_gpio_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         gpio_num = (tvb_get_guint8(tvb, offset) & 0x03);
 
         /* GPIO edge */
         offset++;
-        ti = proto_tree_add_item (netanalyzer_header_tree, hf_netanalyzer_gpio_edge, tvb, offset, 1, ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item (netanalyzer_header_tree, hf_netanalyzer_gpio_edge, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         gpio_edge = (tvb_get_guint8(tvb, offset) & 0x01);
 
         g_snprintf(szTemp, MAX_BUFFER,
@@ -381,7 +381,7 @@ void proto_register_netanalyzer(void)
         },
         { &hf_netanalyzer_gpio_edge,
           { "Event type", "netanalyzer.gpio_event.gpio_edge",
-            FT_UINT8, BASE_HEX, VALS(gpio_edge), 0x0,
+            FT_UINT8, BASE_HEX, VALS(gpio_edge_vals), 0x0,
             "Edge of GPIO event", HFILL }
         },
         { &hf_netanalyzer_port,
