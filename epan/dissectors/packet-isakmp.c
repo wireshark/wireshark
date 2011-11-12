@@ -4833,12 +4833,12 @@ isakmp_init_protocol(void) {
 #endif /* HAVE_LIBGCRYPT */
 }
 
+#ifdef HAVE_LIBGCRYPT
 static void
 isakmp_prefs_apply_cb(void) {
-#ifdef HAVE_LIBGCRYPT
   isakmp_init_protocol();
-#endif /* HAVE_LIBGCRYPT */
 }
+#endif /* HAVE_LIBGCRYPT */
 
 #ifdef HAVE_LIBGCRYPT
 
