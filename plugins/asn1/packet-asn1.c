@@ -1784,7 +1784,6 @@ parse_tt3(tvbuff_t *tvb, guint offset, guint size, guint level, GNode *ptr)
 	gboolean def;
 	guchar *octets, *bits, unused;
 	subid_t *oid;
-	const char *clsstr, *constr, *tagstr;
 	char tagbuf[BUFLM];
 	char lenbuf[BUFLM];
 	GNode *cur_node = 0;
@@ -1802,13 +1801,9 @@ parse_tt3(tvbuff_t *tvb, guint offset, guint size, guint level, GNode *ptr)
 		ret = asn1_header_decode(&asn1, &cls, &con, &tag, &def, &len);
 		asn1_close(&asn1, (gint *)&offset); /* mark where we are */
 		icount++;
-		clsstr = asn1_cls[cls];
-		constr = asn1_con[con];
 		if ((cls == BER_CLASS_UNI) && ( tag < 32 )) {
-			tagstr = asn1_tag[tag];
 		} else {
 			g_snprintf(tagbuf, sizeof(tagbuf), "tag%d", tag);
-			tagstr = tagbuf;
 		}
 		if (def) {
 			g_snprintf(lenbuf, sizeof(lenbuf), "%d", len);
@@ -1886,7 +1881,6 @@ parse_tt3(tvbuff_t *tvb, guint offset, guint size, guint level, GNode *ptr)
 			break;
 
 		case BER_CLASS_CON:		/* fprintf(stderr, "Context\n"); */
-			tagstr = tagbuf;
 			g_snprintf(tagbuf, sizeof(tagbuf), "TAG%d", tag);
 			if (def && !con) {
 				/* defined length, not constructed, must be a string.... */
