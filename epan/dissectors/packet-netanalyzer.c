@@ -26,12 +26,14 @@
  *     0x00000040 - preamble shorter than 7 bytes
  *     0x00000080 - preamble longer than 7 bytes/li>
  * The next bit, 0x00000100, is set if the packet arrived on the GPIO port rather tha the Ethernet port.
- * The next bit, 0x00000200, is set if the packet was received in transparent capture mode. That should never be set for LINKTYPE_NETANALYZER and should always be set for LINKTYPE_NETANALYZER_TRANSPARENT.
+ * The next bit, 0x00000200, is set if the packet was received in transparent capture mode.
+ *   That should never be set for LINKTYPE_NETANALYZER and should always be set for LINKTYPE_NETANALYZER_TRANSPARENT.
  * The next 4 bits, 0x00003C00, are a bitfield giving the version of the header field; the current version is 1.
  * The next 2 bits, 0x0000C000, are the capture port/GPIO number, from 0 to 3.
  * The next 12 bits, 0x0FFF0000, are the frame length, in bytes.
  * The topmost 4 bits, 0xF0000000, are reserved.
- * The payload is an Ethernet frame, beginning with the MAC header and ending with the FCS, for LINKTYPE_NETANALYZER, and an Ethernet frame, beginning with the preamble and ending with the FCS, for LINKTYPE_NETANALYZER_TRANSPARENT.
+ * The payload is an Ethernet frame, beginning with the MAC header and ending with the FCS, for LINKTYPE_NETANALYZER,
+ *   and an Ethernet frame, beginning with the preamble and ending with the FCS, for LINKTYPE_NETANALYZER_TRANSPARENT.
  *
  *
  * Wireshark - Network traffic analyzer
@@ -86,6 +88,17 @@ void proto_reg_handoff_netanalyzer(void);
 #define MSK_LONG_PREAMBLE      0x80
 #define TXT_LONG_PREAMBLE      "Preamble longer than 7 bytes"
 
+static const char *msk_strings[] = {
+  "MII RX_ER error",                /* 0x01 */
+  "Alignment error",                /* 0x02 */
+  "FCS error",                      /* 0x04 */
+  "Frame too long",                 /* 0x08 */
+  "No valid SFD found",             /* 0x10 */
+  "Frame smaller 64 bytes",         /* 0x20 */
+  "Preamble shorter than 7 bytes",  /* 0x40 */
+  "Preamble longer than 7 bytes"    /* 0x80 */
+};
+
 #define SRT_PORT_NUM           6
 #define SRT_VERSION            2
 #define SRT_GPIO_FLAG          0
@@ -95,17 +108,17 @@ void proto_reg_handoff_netanalyzer(void);
 
 
 static const value_string gpio_number[] = {
-    { 0x0, "GPIO 0" },
-    { 0x1, "GPIO 1" },
-    { 0x2, "GPIO 2" },
-    { 0x3, "GPIO 3" },
-    { 0,   NULL }
+  { 0x0, "GPIO 0" },
+  { 0x1, "GPIO 1" },
+  { 0x2, "GPIO 2" },
+  { 0x3, "GPIO 3" },
+  { 0,   NULL }
 };
 
 static const value_string gpio_edge[] = {
-    { 0x0, "rising edge" },
-    { 0x1, "falling edge" },
-    { 0,   NULL }
+  { 0x0, "rising edge" },
+  { 0x1, "falling edge" },
+  { 0,   NULL }
 };
 
 
@@ -149,16 +162,7 @@ dissect_netanalyzer_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint                   gpio_num;
   guint                   gpio_edge;
   guint                   version;
-  guchar                  *szTemp       = NULL;
-  guchar                  *szFollowed   = NULL;
   guint                   idx;
-
-
-#define MAX_BUFFER 255
-  szTemp=ep_alloc(MAX_BUFFER);
-  szTemp[0]=0;
-  szFollowed=ep_alloc(3);
-  g_snprintf(szFollowed, 3, "");
 
   if (tree)
   {
@@ -183,29 +187,44 @@ dissect_netanalyzer_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       /* decode port */
       port_num = (tvb_get_guint8(tvb, 1) >> SRT_PORT_NUM) & 0x3;
-	  proto_tree_add_item(netanalyzer_status_tree, hf_netanalyzer_port, tvb, 0, 4, ENC_BIG_ENDIAN);
-      g_snprintf(szTemp, MAX_BUFFER, " (Port: %u, ", port_num);
-      proto_item_append_text(ti, szTemp);
+      proto_tree_add_item(netanalyzer_status_tree, hf_netanalyzer_port, tvb, 0, 4, ENC_BIG_ENDIAN);
+      proto_item_append_text(ti, " (Port: %u, ", port_num);
 
       /* decode length */
       frame_length = tvb_get_letohs(tvb, 2) & MSK_LENGTH;
-	  proto_tree_add_item(netanalyzer_status_tree, hf_netanalyzer_length, tvb, 0, 4, ENC_BIG_ENDIAN);
-      g_snprintf(szTemp, MAX_BUFFER, "Length: %u byte%s, ", frame_length, (frame_length == 1) ? "" : "s" );
-      proto_item_append_text(ti, szTemp);
+      proto_tree_add_item(netanalyzer_status_tree, hf_netanalyzer_length, tvb, 0, 4, ENC_BIG_ENDIAN);
+      proto_item_append_text(ti, "Length: %u byte%s, ", frame_length, (frame_length == 1) ? "" : "s");
 
       /* decode status */
-      g_snprintf(szTemp, MAX_BUFFER, "Status: ");
-      proto_item_append_text(ti, szTemp);
+      proto_item_append_text(ti, "Status: ");
       packet_status = tvb_get_guint8(tvb, 0);
       if (packet_status == 0)
       {
-        ti_status = proto_tree_add_uint_format(netanalyzer_header_tree, hf_netanalyzer_status, tvb, 0, 1, packet_status, "Status: No Error");
-        g_snprintf(szTemp, MAX_BUFFER, "No Error");
-        proto_item_append_text(ti, szTemp);
+        ti_status = proto_tree_add_uint_format(netanalyzer_header_tree, hf_netanalyzer_status, tvb, 0, 1,
+                                               packet_status, "Status: No Error");
+        proto_item_append_text(ti, "No Error)");
       }
       else
       {
-        ti_status = proto_tree_add_uint_format(netanalyzer_header_tree, hf_netanalyzer_status, tvb, 0, 1, packet_status, "Status: Error present (expand tree for details)");
+        emem_strbuf_t      *strbuf;
+        gboolean            first = TRUE;
+
+        ti_status = proto_tree_add_uint_format(netanalyzer_header_tree, hf_netanalyzer_status, tvb, 0, 1,
+                                               packet_status, "Status: Error present (expand tree for details)");
+        strbuf = ep_strbuf_new_label("");
+        for (idx = 0; idx < 8; idx++)
+        {
+          if (packet_status & (1 << idx))
+          {
+            if (!first)
+            {
+              ep_strbuf_append(strbuf, ", ");
+              first = FALSE;
+            }
+            ep_strbuf_append(strbuf, msk_strings[idx]);
+          }
+        }
+        proto_item_append_text(ti, "%s)", strbuf->str);
       }
 
       netanalyzer_status_tree = proto_item_add_subtree(ti_status, ett_netanalyzer_status);
@@ -217,30 +236,6 @@ dissect_netanalyzer_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(netanalyzer_status_tree, hf_netanalyzer_status_short_frame, tvb, 0, 1, ENC_BIG_ENDIAN);
       proto_tree_add_item(netanalyzer_status_tree, hf_netanalyzer_status_short_preamble, tvb, 0, 1, ENC_BIG_ENDIAN);
       proto_tree_add_item(netanalyzer_status_tree, hf_netanalyzer_status_long_preamble, tvb, 0, 1, ENC_BIG_ENDIAN);
-
-      for (idx = 0; idx < 8; idx++)
-      {
-        switch (1 << idx)
-        {
-          case MSK_RX_ERR        : g_snprintf(szTemp, MAX_BUFFER, TXT_RX_ERR); break;
-          case MSK_ALIGN_ERR     : g_snprintf(szTemp, MAX_BUFFER, TXT_ALIGN_ERR); break;
-          case MSK_FCS_ERROR     : g_snprintf(szTemp, MAX_BUFFER, TXT_FCS_ERROR); break;
-          case MSK_TOO_LONG      : g_snprintf(szTemp, MAX_BUFFER, TXT_TOO_LONG); break;
-          case MSK_SFD_ERROR     : g_snprintf(szTemp, MAX_BUFFER, TXT_SFD_ERROR); break;
-          case MSK_SHORT_FRAME   : g_snprintf(szTemp, MAX_BUFFER, TXT_SHORT_FRAME); break;
-          case MSK_SHORT_PREAMBLE: g_snprintf(szTemp, MAX_BUFFER, TXT_SHORT_PREAMBLE); break;
-          case MSK_LONG_PREAMBLE : g_snprintf(szTemp, MAX_BUFFER, TXT_LONG_PREAMBLE); break;
-          default: REPORT_DISSECTOR_BUG("unknown status bit"); break;
-        }
-
-        if (packet_status & (1 << idx))
-        {
-          proto_item_append_text(ti, szFollowed);
-          proto_item_append_text(ti, szTemp);
-          g_snprintf(szFollowed, 3, ", ");
-        }
-      }
-      proto_item_append_text(ti, ")");
 
       /* decode transparent mode */
       if (tvb_get_guint8(tvb, 1) & MSK_TRANSPARENT_MODE)
@@ -256,6 +251,8 @@ dissect_netanalyzer_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     else
     {
+      guchar *szTemp;
+
       /* GPIO pseudo packet */
       /* check consistency */
       if ( (tvb_get_guint8(tvb, 10) == 0x00) &&
@@ -268,9 +265,11 @@ dissect_netanalyzer_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            (tvb_get_guint8(tvb, 17) == 0xff) &&
            (tvb_get_guint8(tvb, INFO_TYPE_OFFSET) == 0x00) )
       {
+#define MAX_BUFFER 255
+        szTemp=ep_alloc(MAX_BUFFER);
+
         /* everything ok */
-        if (pinfo)
-          col_set_str(pinfo->cinfo, COL_PROTOCOL, "netANALYZER");
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "netANALYZER");
 
         offset = INFO_TYPE_OFFSET;
 
@@ -284,17 +283,11 @@ dissect_netanalyzer_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ti = proto_tree_add_item (netanalyzer_header_tree, hf_netanalyzer_gpio_edge, tvb, offset, 1, ENC_BIG_ENDIAN);
         gpio_edge = (tvb_get_guint8(tvb, offset) & 0x01);
 
-        if (pinfo)
-        {
-          if (gpio_edge == 0x00)
-            g_snprintf(szTemp, MAX_BUFFER, "GPIO event on GPIO %d (rising edge)", gpio_num);
-          else
-            g_snprintf(szTemp, MAX_BUFFER, "GPIO event on GPIO %d (falling edge)", gpio_num);
+        g_snprintf(szTemp, MAX_BUFFER,
+                   "GPIO event on GPIO %d (%sing edge)", gpio_num, (gpio_edge == 0x00) ? "ris" : "fall");
 
-          col_add_fstr(pinfo->cinfo, COL_INFO, szTemp);
-          proto_item_append_text(ti, " ");
-          proto_item_append_text(ti, szTemp);
-        }
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s", szTemp);
+        proto_item_append_text(ti, " %s", szTemp);
       }
       else
       {
@@ -359,11 +352,8 @@ dissect_netanalyzer_transparent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
       next_tvb = tvb_new_subset(tvb, 4, tvb_length(tvb)-4, tvb_reported_length(tvb)-4);
       call_dissector(data_dissector_handle, next_tvb, pinfo, transparent_payload_tree);
 
-      if (pinfo)
-      {
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "netANALYZER");
-        col_set_str(pinfo->cinfo, COL_INFO, "Frame captured in transparent mode");
-      }
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "netANALYZER");
+      col_set_str(pinfo->cinfo, COL_INFO, "Frame captured in transparent mode");
     }
   }
   else
