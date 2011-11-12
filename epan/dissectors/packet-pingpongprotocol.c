@@ -54,10 +54,6 @@ static int hf_pong_data                   = -1;
 /* Initialize the subtree pointers */
 static gint ett_pingpongprotocol = -1;
 
-static void
-dissect_pingpongprotocol_message(tvbuff_t *, packet_info *, proto_tree *);
-
-
 /* Dissectors for messages. This is specific to PingPongProtocol */
 #define MESSAGE_TYPE_LENGTH    1
 #define MESSAGE_FLAGS_LENGTH   1
@@ -127,7 +123,7 @@ dissect_pingpongprotocol_message(tvbuff_t *message_tvb, packet_info *pinfo, prot
   guint8 type;
 
   type = tvb_get_guint8(message_tvb, MESSAGE_TYPE_OFFSET);
-  if (pinfo && (check_col(pinfo->cinfo, COL_INFO))) {
+  if (check_col(pinfo->cinfo, COL_INFO)) {
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(type, message_type_values, "Unknown PingPongProtocol type"));
   }
   proto_tree_add_item(pingpongprotocol_tree, hf_message_type,   message_tvb, MESSAGE_TYPE_OFFSET,   MESSAGE_TYPE_LENGTH,   ENC_BIG_ENDIAN);
@@ -149,9 +145,7 @@ dissect_pingpongprotocol(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *
   proto_item *pingpongprotocol_item;
   proto_tree *pingpongprotocol_tree;
 
-  /* pinfo is NULL only if dissect_pingpongprotocol_message is called from dissect_error cause */
-  if (pinfo)
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PingPongProtocol");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "PingPongProtocol");
 
   /* In the interest of speed, if "tree" is NULL, don't do any work not
      necessary to generate protocol tree items. */

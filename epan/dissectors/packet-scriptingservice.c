@@ -53,10 +53,6 @@ static int hf_environment_u_bit = -1;
 static gint ett_ssprotocol        = -1;
 static gint ett_environment_flags = -1;
 
-static guint
-dissect_ssprotocol_message(tvbuff_t *, packet_info *, proto_tree *);
-
-
 /* Dissectors for messages. This is specific to ScriptingServiceProtocol */
 #define MESSAGE_TYPE_LENGTH          1
 #define MESSAGE_FLAGS_LENGTH         1
@@ -124,7 +120,7 @@ dissect_ssprotocol_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree
   guint       total_length;
 
   type = tvb_get_guint8(message_tvb, MESSAGE_TYPE_OFFSET);
-  if (pinfo && (check_col(pinfo->cinfo, COL_INFO))) {
+  if (check_col(pinfo->cinfo, COL_INFO)) {
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(type, message_type_values, "Unknown SSP type: %u"));
   }
   proto_tree_add_item(ssprotocol_tree, hf_message_type,   message_tvb, MESSAGE_TYPE_OFFSET,   MESSAGE_TYPE_LENGTH,   ENC_BIG_ENDIAN);
@@ -182,9 +178,7 @@ dissect_ssprotocol(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
   proto_item *ssprotocol_item;
   proto_tree *ssprotocol_tree;
 
-  /* pinfo is NULL only if dissect_ssprotocol_message is called from dissect_error cause */
-  if (pinfo)
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "SSP");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "SSP");
 
   /* In the interest of speed, if "tree" is NULL, don't do any work not
      necessary to generate protocol tree items. */

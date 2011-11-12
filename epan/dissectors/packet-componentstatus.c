@@ -232,10 +232,8 @@ dissect_componentstatusprotocol(tvbuff_t *message_tvb, packet_info *pinfo, proto
     return(0);
   }
 
-  /* pinfo is NULL only if dissect_componentstatusprotocol_message is called from dissect_error cause */
-  if (pinfo) {
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ComponentStatusProtocol");
-  }
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "ComponentStatusProtocol");
+
   /* In the interest of speed, if "tree" is NULL, don't do any work not
      necessary to generate protocol tree items. */
   if (tree) {

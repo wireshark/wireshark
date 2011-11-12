@@ -61,10 +61,6 @@ static int hf_buffer                      = -1;
 /* Initialize the subtree pointers */
 static gint ett_fractalgeneratorprotocol = -1;
 
-static void
-dissect_fractalgeneratorprotocol_message(tvbuff_t *, packet_info *, proto_tree *);
-
-
 /* Dissectors for messages. This is specific to FractalGeneratorProtocol */
 #define MESSAGE_TYPE_LENGTH    1
 #define MESSAGE_FLAGS_LENGTH   1
@@ -155,7 +151,7 @@ dissect_fractalgeneratorprotocol_message(tvbuff_t *message_tvb, packet_info *pin
   guint8 type;
 
   type = tvb_get_guint8(message_tvb, MESSAGE_TYPE_OFFSET);
-  if (pinfo && (check_col(pinfo->cinfo, COL_INFO))) {
+  if (check_col(pinfo->cinfo, COL_INFO)) {
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(type, message_type_values, "Unknown FractalGeneratorProtocol type"));
   }
   proto_tree_add_item(fractalgeneratorprotocol_tree, hf_message_type,   message_tvb, MESSAGE_TYPE_OFFSET,   MESSAGE_TYPE_LENGTH,   ENC_BIG_ENDIAN);
@@ -177,9 +173,7 @@ dissect_fractalgeneratorprotocol(tvbuff_t *message_tvb, packet_info *pinfo, prot
   proto_item *fractalgeneratorprotocol_item;
   proto_tree *fractalgeneratorprotocol_tree;
 
-  /* pinfo is NULL only if dissect_fractalgeneratorprotocol_message is called from dissect_error cause */
-  if (pinfo)
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "FractalGeneratorProtocol");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "FractalGeneratorProtocol");
 
   /* In the interest of speed, if "tree" is NULL, don't do any work not
      necessary to generate protocol tree items. */

@@ -374,7 +374,7 @@ dissect_npmp_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *npmp
   guint8 type;
 
   type = tvb_get_guint8(message_tvb, offset_message_type);
-  if (pinfo && (check_col(pinfo->cinfo, COL_INFO))) {
+  if (check_col(pinfo->cinfo, COL_INFO)) {
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(type, message_type_values, "Unknown NetPerfMeterProtocol type"));
   }
 
@@ -417,9 +417,7 @@ dissect_npmp(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
   proto_item *npmp_item;
   proto_tree *npmp_tree;
 
-  /* pinfo is NULL only if dissect_npmp_message is called from dissect_error cause */
-  if (pinfo)
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "NetPerfMeterProtocol");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "NetPerfMeterProtocol");
 
   /* In the interest of speed, if "tree" is NULL, don't do any work not
      necessary to generate protocol tree items. */
