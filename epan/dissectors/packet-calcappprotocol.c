@@ -51,10 +51,6 @@ static int hf_message_completed  = -1;
 /* Initialize the subtree pointers */
 static gint ett_calcappprotocol = -1;
 
-static void
-dissect_calcappprotocol_message(tvbuff_t *, packet_info *, proto_tree *);
-
-
 /* Dissectors for messages. This is specific to CalcAppProtocol */
 #define MESSAGE_TYPE_LENGTH      1
 #define MESSAGE_FLAGS_LENGTH     1
@@ -98,9 +94,8 @@ dissect_calcappprotocol_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
   guint8 type;
 
   type = tvb_get_guint8(message_tvb, MESSAGE_TYPE_OFFSET);
-  if (pinfo) {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(type, message_type_values, "Unknown CalcAppProtocol type"));
-  }
+  col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(type, message_type_values, "Unknown CalcAppProtocol type"));
+
   proto_tree_add_item(calcappprotocol_tree, hf_message_type,      message_tvb, MESSAGE_TYPE_OFFSET,      MESSAGE_TYPE_LENGTH,      ENC_BIG_ENDIAN);
   proto_tree_add_item(calcappprotocol_tree, hf_message_flags,     message_tvb, MESSAGE_FLAGS_OFFSET,     MESSAGE_FLAGS_LENGTH,     ENC_BIG_ENDIAN);
   proto_tree_add_item(calcappprotocol_tree, hf_message_length,    message_tvb, MESSAGE_LENGTH_OFFSET,    MESSAGE_LENGTH_LENGTH,    ENC_BIG_ENDIAN);
@@ -116,9 +111,7 @@ dissect_calcappprotocol(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *t
   proto_item *calcappprotocol_item;
   proto_tree *calcappprotocol_tree;
 
-  /* pinfo is NULL only if dissect_calcappprotocol_message is called from dissect_error cause */
-  if (pinfo)
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "CalcAppProtocol");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "CalcAppProtocol");
 
   /* In the interest of speed, if "tree" is NULL, don't do any work not
      necessary to generate protocol tree items. */
