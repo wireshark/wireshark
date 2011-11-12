@@ -506,7 +506,13 @@ static struct encap_type_info encap_table_base[] = {
 	{ "MUX27010", "mux27010"},
 
 	/* WTAP_ENCAP_MIME */
-	{ "MIME", "mime"}
+	{ "MIME", "mime" },
+
+	/* WTAP_ENCAP_NETANALYZER */
+	{ "netANALYZER", "netanalyzer" },
+
+	/* WTAP_ENCAP_NETANALYZER_TRANSPARENT */
+	{ "netANALYZER-Transparent", "netanalyzer-transparent" }
 };
 
 gint wtap_num_encap_types = sizeof(encap_table_base) / sizeof(struct encap_type_info);
