@@ -994,7 +994,9 @@ dissect_spnego_krb5_cfx_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
 {
 	guint8 flags;
 	guint16 ec;
+#if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
 	guint16 rrc;
+#endif
 	int checksum_size;
 	int start_offset=offset;
 
@@ -1024,7 +1026,9 @@ dissect_spnego_krb5_cfx_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
 	offset += 2;
 
 	/* RRC */
+#if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
 	rrc = tvb_get_ntohs(tvb, offset);
+#endif
 	proto_tree_add_item(tree, hf_spnego_krb5_cfx_rrc, tvb, offset, 2,
 			    ENC_BIG_ENDIAN);
 	offset += 2;

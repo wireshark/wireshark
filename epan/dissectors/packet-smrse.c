@@ -504,13 +504,11 @@ dissect_smrse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	guint8 reserved, tag;
-	guint16 length;
 	int offset=0;
 	asn1_ctx_t asn1_ctx;
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
 	reserved=tvb_get_guint8(tvb, 0);
-	length=tvb_get_ntohs(tvb,1);
 	tag=tvb_get_guint8(tvb, 3);
 
 	if( reserved!= 126 )
@@ -696,7 +694,7 @@ void proto_register_smrse(void) {
         "SMS_Address", HFILL }},
 
 /*--- End of included file: packet-smrse-hfarr.c ---*/
-#line 163 "../../asn1/smrse/packet-smrse-template.c"
+#line 161 "../../asn1/smrse/packet-smrse-template.c"
   };
 
   /* List of subtrees */
@@ -718,7 +716,7 @@ void proto_register_smrse(void) {
     &ett_smrse_RPAlertSC,
 
 /*--- End of included file: packet-smrse-ettarr.c ---*/
-#line 169 "../../asn1/smrse/packet-smrse-template.c"
+#line 167 "../../asn1/smrse/packet-smrse-template.c"
   };
 
   /* Register protocol */

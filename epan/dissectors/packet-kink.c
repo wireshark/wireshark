@@ -692,7 +692,9 @@ dissect_payload_kink_encrypt(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
   guint8 next_payload;
   guint8 reserved;
   guint payload_length;
+#ifdef HAVE_KERBEROS
   gint encrypt_length;
+#endif
   guint8 inner_next_pload;
   guint32 reserved2;
   guint16 inner_payload_length;
@@ -701,8 +703,9 @@ dissect_payload_kink_encrypt(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
   payload_length = tvb_get_ntohs(tvb,offset + TO_PAYLOAD_LENGTH);
   start_payload_offset = offset;
 
+#ifdef HAVE_KERBEROS
   encrypt_length = payload_length - FROM_NP_TO_PL;
-
+#endif
   /* Make the subtree */
   ti = proto_tree_add_text(tree, tvb, offset, payload_length,"KINK_ENCRYPT");
   payload_kink_encrypt_tree = proto_item_add_subtree(ti, ett_payload_kink_encrypt);

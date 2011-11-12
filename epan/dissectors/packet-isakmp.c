@@ -4924,8 +4924,9 @@ static void ikev2_uat_data_update_cb(void* p, const char** err) {
 void
 proto_register_isakmp(void)
 {
+#ifdef HAVE_LIBGCRYPT
   module_t *isakmp_module;
-
+#endif
   static hf_register_info hf[] = {
     { &hf_isakmp_icookie,
       { "Initiator cookie", "isakmp.icookie",
@@ -6010,8 +6011,8 @@ proto_register_isakmp(void)
 
   register_dissector("isakmp", dissect_isakmp, proto_isakmp);
 
-  isakmp_module = prefs_register_protocol(proto_isakmp, isakmp_prefs_apply_cb);
 #ifdef HAVE_LIBGCRYPT
+  isakmp_module = prefs_register_protocol(proto_isakmp, isakmp_prefs_apply_cb);
   ikev1_uat = uat_new("IKEv1 Decryption Table",
       sizeof(ikev1_uat_data_key_t),
       "ikev1_decryption_table",
