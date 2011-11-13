@@ -986,12 +986,6 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
   }
 
-  if (!tree) {
-    /* We're not building a protocol tree and we're not setting the Info
-       column, so we don't have any more work to do. */
-    return;
-  }
-
   spa_val = tvb_get_ptr(tvb, spa_offset, ar_pln);
   tpa_val = tvb_get_ptr(tvb, tpa_offset, ar_pln);
 
@@ -1009,10 +1003,10 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   switch (ar_op) {
     case ARPOP_REQUEST:
-  if (is_gratuitous)
+      if (is_gratuitous)
         col_add_fstr(pinfo->cinfo, COL_INFO, "Gratuitous ARP for %s (Request)",
                      arpproaddr_to_str(tpa_val, ar_pln, ar_pro));
-  else
+      else
         col_add_fstr(pinfo->cinfo, COL_INFO, "Who has %s?  Tell %s",
                      arpproaddr_to_str(tpa_val, ar_pln, ar_pro),
                      arpproaddr_to_str(spa_val, ar_pln, ar_pro));
