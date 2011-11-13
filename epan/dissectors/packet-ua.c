@@ -277,7 +277,7 @@ static const value_string szTlvProperty[] =
 gboolean is_ua(tvbuff_t *tvb)
 {
     gint nLen, iOffs;
-    guint16 nNoeLen;
+    gint nNoeLen;
 
     nLen = tvb_length(tvb);
     for(iOffs = 0; iOffs < nLen; )
