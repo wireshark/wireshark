@@ -28,34 +28,28 @@
 #include "config.h"
 #endif
 
-
 #include <glib.h>
-#include <stdio.h>
 
-#include <epan/conversation.h>
-#include <epan/proto.h>
-#include <epan/packet_info.h>
-#include <epan/epan.h>
+#include <epan/packet.h>
 #include <epan/expert.h>
-#include <epan/tvbuff.h>
 #include <epan/tvbparse.h>
+#include <epan/strutil.h>
 
 #include <epan/dissectors/packet-xml.h>
 
 #include <packet-xmpp.h>
 #include <packet-xmpp-utils.h>
 
-#include <epan/strutil.h>
 
 void
-xmpp_iq_reqresp_track(packet_info *pinfo, element_t *packet, xmpp_conv_info_t *xmpp_info)
+xmpp_iq_reqresp_track(packet_info *pinfo, xmpp_element_t *packet, xmpp_conv_info_t *xmpp_info)
 {
     xmpp_transaction_t *xmpp_trans = NULL;
 
-    attr_t *attr_id;
+    xmpp_attr_t *attr_id;
     char *id;
 
-    attr_id = get_attr(packet, "id");
+    attr_id = xmpp_get_attr(packet, "id");
     DISSECTOR_ASSERT(attr_id);
     id = ep_strdup(attr_id->value);
 
@@ -81,30 +75,30 @@ xmpp_iq_reqresp_track(packet_info *pinfo, element_t *packet, xmpp_conv_info_t *x
 }
 
 void
-xmpp_jingle_session_track(packet_info *pinfo, element_t *packet, xmpp_conv_info_t *xmpp_info)
+xmpp_jingle_session_track(packet_info *pinfo, xmpp_element_t *packet, xmpp_conv_info_t *xmpp_info)
 {
-    element_t *jingle_packet;
+    xmpp_element_t *jingle_packet;
     GList *jingle_packet_l;
 
-    jingle_packet_l = find_element_by_name(packet,"jingle");
+    jingle_packet_l = xmpp_find_element_by_name(packet,"jingle");
     jingle_packet = jingle_packet_l?jingle_packet_l->data:NULL;
 
     if (jingle_packet && !pinfo->fd->flags.visited) {
-        attr_t *attr_id;
-        attr_t *attr_sid;
+        xmpp_attr_t *attr_id;
+        xmpp_attr_t *attr_sid;
 
         char *se_id;
         char *se_sid;
 
 
-        attr_id = get_attr(packet, "id");
+        attr_id = xmpp_get_attr(packet, "id");
         DISSECTOR_ASSERT(attr_id);
-        
+
         se_id = se_strdup(attr_id->value);
 
-        attr_sid = get_attr(jingle_packet, "sid");
+        attr_sid = xmpp_get_attr(jingle_packet, "sid");
         DISSECTOR_ASSERT(attr_sid);
-        
+
         se_sid = se_strdup(attr_sid->value);
 
         se_tree_insert_string(xmpp_info->jingle_sessions, se_id, (void*) se_sid, EMEM_TREE_STRING_NOCASE);
@@ -112,33 +106,33 @@ xmpp_jingle_session_track(packet_info *pinfo, element_t *packet, xmpp_conv_info_
 }
 
 void
-xmpp_gtalk_session_track(packet_info *pinfo, element_t *packet, xmpp_conv_info_t *xmpp_info)
+xmpp_gtalk_session_track(packet_info *pinfo, xmpp_element_t *packet, xmpp_conv_info_t *xmpp_info)
 {
-    element_t *gtalk_packet;
+    xmpp_element_t *gtalk_packet;
     GList *gtalk_packet_l;
 
-    gtalk_packet_l = find_element_by_name(packet,"session");
+    gtalk_packet_l = xmpp_find_element_by_name(packet,"session");
     gtalk_packet = gtalk_packet_l?gtalk_packet_l->data:NULL;
 
 
     if (gtalk_packet && !pinfo->fd->flags.visited) {
-        attr_t *attr_id;
-        attr_t *attr_sid;
+        xmpp_attr_t *attr_id;
+        xmpp_attr_t *attr_sid;
 
         char *se_id;
         char *se_sid;
 
-        attr_t *xmlns = get_attr(gtalk_packet, "xmlns");
+        xmpp_attr_t *xmlns = xmpp_get_attr(gtalk_packet, "xmlns");
         if(xmlns && strcmp(xmlns->value,"http://www.google.com/session") != 0)
             return;
 
 
-        attr_id = get_attr(packet, "id");
+        attr_id = xmpp_get_attr(packet, "id");
         DISSECTOR_ASSERT(attr_id);
 
         se_id = se_strdup(attr_id->value);
 
-        attr_sid = get_attr(gtalk_packet, "id");
+        attr_sid = xmpp_get_attr(gtalk_packet, "id");
         DISSECTOR_ASSERT(attr_sid);
         se_sid = se_strdup(attr_sid->value);
 
@@ -147,38 +141,38 @@ xmpp_gtalk_session_track(packet_info *pinfo, element_t *packet, xmpp_conv_info_t
 }
 
 void
-xmpp_ibb_session_track(packet_info *pinfo, element_t *packet, xmpp_conv_info_t *xmpp_info)
+xmpp_ibb_session_track(packet_info *pinfo, xmpp_element_t *packet, xmpp_conv_info_t *xmpp_info)
 {
-    element_t *ibb_packet = NULL;
+    xmpp_element_t *ibb_packet = NULL;
     GList *ibb_packet_l;
 
     if(strcmp(packet->name, "message") == 0)
     {
-        ibb_packet_l = find_element_by_name(packet,"data");
+        ibb_packet_l = xmpp_find_element_by_name(packet,"data");
         ibb_packet = ibb_packet_l?ibb_packet_l->data:NULL;
 
     } else if(strcmp(packet->name, "iq") == 0)
     {
-        ibb_packet_l = find_element_by_name(packet,"open");
+        ibb_packet_l = xmpp_find_element_by_name(packet,"open");
 
         if(!ibb_packet_l)
-            ibb_packet_l = find_element_by_name(packet,"close");
+            ibb_packet_l = xmpp_find_element_by_name(packet,"close");
          if(!ibb_packet_l)
-            ibb_packet_l = find_element_by_name(packet,"data");
+            ibb_packet_l = xmpp_find_element_by_name(packet,"data");
 
         ibb_packet = ibb_packet_l?ibb_packet_l->data:NULL;
     }
 
     if (ibb_packet && !pinfo->fd->flags.visited) {
-        attr_t *attr_id;
-        attr_t *attr_sid;
+        xmpp_attr_t *attr_id;
+        xmpp_attr_t *attr_sid;
 
         char *se_id;
         char *se_sid;
 
 
-        attr_id = get_attr(packet, "id");
-        attr_sid = get_attr(ibb_packet, "sid");
+        attr_id = xmpp_get_attr(packet, "id");
+        attr_sid = xmpp_get_attr(ibb_packet, "sid");
         if(attr_id && attr_sid)
         {
             se_id = se_strdup(attr_id->value);
@@ -189,7 +183,7 @@ xmpp_ibb_session_track(packet_info *pinfo, element_t *packet, xmpp_conv_info_t *
 }
 
 static void
-xmpp_unknown_items(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, element_t *element, guint level)
+xmpp_unknown_items(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *element, guint level)
 {
     GList *childs = element->elements;
 
@@ -204,8 +198,8 @@ xmpp_unknown_items(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, element_
 
     while(childs)
     {
-        element_t *child = childs->data;
-        proto_item *child_item = proto_tree_add_text(tree, tvb, child->offset, child->length, "%s", ep_string_upcase(child->name));
+        xmpp_element_t *child = childs->data;
+        proto_item *child_item = proto_tree_add_text(tree, tvb, child->offset, child->length, "%s", xmpp_ep_string_upcase(child->name));
         proto_tree *child_tree = proto_item_add_subtree(child_item, ett_unknown[level]);
 
         if(child->default_ns_abbrev)
@@ -218,14 +212,14 @@ xmpp_unknown_items(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, element_
 }
 
 void
-xmpp_unknown(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, element_t *element)
+xmpp_unknown(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *element)
 {
     GList *childs = element->elements;
 
     /*element has unrecognized elements*/
     while(childs)
     {
-        element_t *child = childs->data;
+        xmpp_element_t *child = childs->data;
         if(!child->was_read)
         {
             proto_item *unknown_item;
@@ -234,16 +228,16 @@ xmpp_unknown(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, element_t *ele
 #ifdef XMPP_DEBUG
             unknown_item = proto_tree_add_string_format(tree,
                     hf_xmpp_unknown, tvb, child->offset, child->length, child->name,
-                    "%s", ep_string_upcase(child->name));
+                    "%s", xmpp_ep_string_upcase(child->name));
 #else
             unknown_item = proto_tree_add_text(tree, tvb, child->offset, child->length,
-                    "%s", ep_string_upcase(child->name));
+                    "%s", xmpp_ep_string_upcase(child->name));
 #endif
             unknown_tree = proto_item_add_subtree(unknown_item, ett_unknown[0]);
 
             /*Add COL_INFO only if root element is IQ*/
             if(strcmp(element->name,"iq")==0)
-                col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", ep_string_upcase(child->name));
+                col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", xmpp_ep_string_upcase(child->name));
 
             if(child->default_ns_abbrev)
                 proto_item_append_text(unknown_item,"(%s)",child->default_ns_abbrev);
@@ -260,7 +254,7 @@ xmpp_unknown(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, element_t *ele
 }
 
 void
-xmpp_unknown_attrs(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, element_t *element, gboolean displ_short_list)
+xmpp_unknown_attrs(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, xmpp_element_t *element, gboolean displ_short_list)
 {
     proto_item *item = proto_tree_get_parent(tree);
 
@@ -273,7 +267,7 @@ xmpp_unknown_attrs(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, elem
 
     while(keys && values)
     {
-        attr_t *attr = (attr_t*) values->data;
+        xmpp_attr_t *attr = (xmpp_attr_t*) values->data;
         if (!attr->was_read) {
             if (displ_short_list) {
                 if (!short_list_started)
@@ -322,7 +316,7 @@ xmpp_unknown_attrs(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, elem
 }
 
 void
-xmpp_cdata(proto_tree *tree, tvbuff_t *tvb, element_t *element, gint hf)
+xmpp_cdata(proto_tree *tree, tvbuff_t *tvb, xmpp_element_t *element, gint hf)
 {
     if(element->data)
 {
@@ -345,28 +339,28 @@ xmpp_cdata(proto_tree *tree, tvbuff_t *tvb, element_t *element, gint hf)
  * ELEMENT_NAME: element_value as TEXT(proto_tree_add_text) int PROTO_TREE
  */
 void
-xmpp_simple_cdata_elem(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, element_t *element)
+xmpp_simple_cdata_elem(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, xmpp_element_t *element)
 {
-    proto_tree_add_text(tree, tvb, element->offset, element->length, "%s: %s", ep_string_upcase(element->name), elem_cdata(element));
+    proto_tree_add_text(tree, tvb, element->offset, element->length, "%s: %s", xmpp_ep_string_upcase(element->name), xmpp_elem_cdata(element));
 }
 
-array_t*
-ep_init_array_t(const gchar** array, gint len)
+xmpp_array_t*
+xmpp_ep_init_array_t(const gchar** array, gint len)
 {
-    array_t *result;
+    xmpp_array_t *result;
 
-    result = ep_alloc(sizeof(array_t));
+    result = ep_alloc(sizeof(xmpp_array_t));
     result->data = (gpointer) array;
     result->length = len;
 
     return result;
 }
 
-attr_t*
-ep_init_attr_t(gchar *value, gint offset, gint length)
+xmpp_attr_t*
+xmpp_ep_init_attr_t(gchar *value, gint offset, gint length)
 {
-    attr_t *result;
-    result = ep_alloc(sizeof(attr_t));
+    xmpp_attr_t *result;
+    result = ep_alloc(sizeof(xmpp_attr_t));
     result->value = value;
     result->offset = offset;
     result->length = length;
@@ -376,7 +370,7 @@ ep_init_attr_t(gchar *value, gint offset, gint length)
 }
 
 gchar*
-ep_string_upcase(const gchar* string)
+xmpp_ep_string_upcase(const gchar* string)
 {
     gint len = (int)strlen(string);
     gint i;
@@ -393,27 +387,27 @@ ep_string_upcase(const gchar* string)
 }
 
 gint
-element_t_cmp(gconstpointer a, gconstpointer b)
+xmpp_element_t_cmp(gconstpointer a, gconstpointer b)
 {
-    gint result = strcmp(((element_t*)a)->name,((element_t*)b)->name);
+    gint result = strcmp(((xmpp_element_t*)a)->name,((xmpp_element_t*)b)->name);
 
-    if(result == 0 && ((element_t*)a)->was_read)
+    if(result == 0 && ((xmpp_element_t*)a)->was_read)
         result = -1;
 
     return result;
 }
 
 GList*
-find_element_by_name(element_t *packet,const gchar *name)
+xmpp_find_element_by_name(xmpp_element_t *packet,const gchar *name)
 {
     GList *found_elements;
-    element_t *search_element;
+    xmpp_element_t *search_element;
 
     /*create fake element only with name*/
-    search_element = ep_alloc(sizeof(element_t));
+    search_element = ep_alloc(sizeof(xmpp_element_t));
     search_element->name = ep_strdup(name);
 
-    found_elements = g_list_find_custom(packet->elements, search_element, element_t_cmp);
+    found_elements = g_list_find_custom(packet->elements, search_element, xmpp_element_t_cmp);
 
     if(found_elements)
         return found_elements;
@@ -426,13 +420,13 @@ find_element_by_name(element_t *packet,const gchar *name)
  * function searches element in packet and sets it as read.
  * if element doesn't exist, NULL is returned.
  * If element is set as read, it is invisible for these functions.*/
-element_t*
-steal_element_by_name(element_t *packet,const gchar *name)
+xmpp_element_t*
+xmpp_steal_element_by_name(xmpp_element_t *packet,const gchar *name)
 {
     GList *element_l;
-    element_t *element = NULL;
+    xmpp_element_t *element = NULL;
 
-    element_l = find_element_by_name(packet, name);
+    element_l = xmpp_find_element_by_name(packet, name);
 
     if(element_l)
     {
@@ -444,30 +438,30 @@ steal_element_by_name(element_t *packet,const gchar *name)
 
 }
 
-element_t*
-steal_element_by_names(element_t *packet, const gchar **names, gint names_len)
+xmpp_element_t*
+xmpp_steal_element_by_names(xmpp_element_t *packet, const gchar **names, gint names_len)
 {
     gint i;
-    element_t *el = NULL;
+    xmpp_element_t *el = NULL;
 
     for(i = 0; i<names_len; i++)
     {
-        if((el = steal_element_by_name(packet, names[i])))
+        if((el = xmpp_steal_element_by_name(packet, names[i])))
             break;
     }
 
     return el;
 }
 
-element_t*
-steal_element_by_attr(element_t *packet, const gchar *attr_name, const gchar *attr_value)
+xmpp_element_t*
+xmpp_steal_element_by_attr(xmpp_element_t *packet, const gchar *attr_name, const gchar *attr_value)
 {
     GList *childs = packet->elements;
-    element_t *result = NULL;
+    xmpp_element_t *result = NULL;
 
     while (childs) {
-        element_t *child_elem = childs->data;
-        attr_t *attr = get_attr(child_elem, attr_name);
+        xmpp_element_t *child_elem = childs->data;
+        xmpp_attr_t *attr = xmpp_get_attr(child_elem, attr_name);
 
         if(attr)
             attr->was_read = FALSE;
@@ -486,15 +480,15 @@ steal_element_by_attr(element_t *packet, const gchar *attr_name, const gchar *at
     return result;
 }
 
-element_t*
-steal_element_by_name_and_attr(element_t *packet, const gchar *name, const gchar *attr_name, const gchar *attr_value)
+xmpp_element_t*
+xmpp_steal_element_by_name_and_attr(xmpp_element_t *packet, const gchar *name, const gchar *attr_name, const gchar *attr_value)
 {
     GList *childs = packet->elements;
-    element_t *result = NULL;
+    xmpp_element_t *result = NULL;
 
     while (childs) {
-        element_t *child_elem = childs->data;
-        attr_t *attr = get_attr(child_elem, attr_name);
+        xmpp_element_t *child_elem = childs->data;
+        xmpp_attr_t *attr = xmpp_get_attr(child_elem, attr_name);
 
         if(attr)
             attr->was_read = FALSE;
@@ -512,8 +506,8 @@ steal_element_by_name_and_attr(element_t *packet, const gchar *name, const gchar
     return result;
 }
 
-element_t*
-get_first_element(element_t *packet)
+xmpp_element_t*
+xmpp_get_first_element(xmpp_element_t *packet)
 {
     if(packet->elements && packet->elements->data)
         return packet->elements->data;
@@ -522,13 +516,13 @@ get_first_element(element_t *packet)
 }
 
 /*
-Function converts xml_frame_t structure to element_t (simpler representation)
+Function converts xml_frame_t structure to xmpp_element_t (simpler representation)
 */
-element_t*
-xml_frame_to_element_t(xml_frame_t *xml_frame, element_t *parent, tvbuff_t *tvb)
+xmpp_element_t*
+xmpp_xml_frame_to_element_t(xml_frame_t *xml_frame, xmpp_element_t *parent, tvbuff_t *tvb)
 {
     xml_frame_t *child;
-    element_t *node = ep_alloc0(sizeof(element_t));
+    xmpp_element_t *node = ep_alloc0(sizeof(xmpp_element_t));
 
     tvbparse_wanted_t *want_ignore, *want_name, *want_scoped_name;
     tvbparse_t* tt;
@@ -547,7 +541,7 @@ xml_frame_to_element_t(xml_frame_t *xml_frame, element_t *parent, tvbuff_t *tvb)
     node->namespaces = g_hash_table_new(g_str_hash, g_str_equal);
     if(parent)
     {
-        copy_hash_table(parent->namespaces, node->namespaces);
+        xmpp_copy_hash_table(parent->namespaces, node->namespaces);
     } else
     {
         g_hash_table_insert(node->namespaces, "", "jabber:client");
@@ -584,11 +578,11 @@ xml_frame_to_element_t(xml_frame_t *xml_frame, element_t *parent, tvbuff_t *tvb)
                 gchar *value = NULL;
                 gchar *xmlns_needle = NULL;
 
-                attr_t *attr = ep_alloc(sizeof(attr_t));
+                xmpp_attr_t *attr = ep_alloc(sizeof(xmpp_attr_t));
                 attr->length = 0;
                 attr->offset = 0;
                 attr->was_read = FALSE;
-                
+
                 if (child->value != NULL) {
                     l = tvb_reported_length(child->value);
                     value = ep_alloc0(l + 1);
@@ -599,7 +593,7 @@ xml_frame_to_element_t(xml_frame_t *xml_frame, element_t *parent, tvbuff_t *tvb)
                 {
                     attr->length = child->item->finfo->length;
                 }
-                
+
                 attr->offset = child->start_offset;
                 attr->value = value;
                 attr->name = ep_strdup(child->name_orig_case);
@@ -624,11 +618,11 @@ xml_frame_to_element_t(xml_frame_t *xml_frame, element_t *parent, tvbuff_t *tvb)
             }
             else if( child->type == XML_FRAME_CDATA)
             {
-                data_t *data = NULL;
+                xmpp_data_t *data = NULL;
                 gint l;
                 gchar* value = NULL;
 
-                data = ep_alloc(sizeof(data_t));
+                data = ep_alloc(sizeof(xmpp_data_t));
                 data->length = 0;
                 data->offset = 0;
 
@@ -649,7 +643,7 @@ xml_frame_to_element_t(xml_frame_t *xml_frame, element_t *parent, tvbuff_t *tvb)
             }
         } else
         {
-            node->elements = g_list_append(node->elements,(gpointer)xml_frame_to_element_t(child, node,tvb));
+            node->elements = g_list_append(node->elements,(gpointer)xmpp_xml_frame_to_element_t(child, node,tvb));
         }
 
         child = child->next_sibling;
@@ -658,7 +652,7 @@ xml_frame_to_element_t(xml_frame_t *xml_frame, element_t *parent, tvbuff_t *tvb)
 }
 
 void
-element_t_tree_free(element_t *root)
+xmpp_element_t_tree_free(xmpp_element_t *root)
 {
     GList *childs = root->elements;
 
@@ -667,9 +661,9 @@ element_t_tree_free(element_t *root)
 
     while(childs)
     {
-        element_t *child = childs->data;
+        xmpp_element_t *child = childs->data;
 
-        element_t_tree_free(child);
+        xmpp_element_t_tree_free(child);
         childs = childs->next;
     }
     g_list_free(root->elements);
@@ -693,10 +687,10 @@ attr_find_pred(gpointer key, gpointer value _U_, gpointer user_data)
 }
 
 /*Functions returns element's attibute by name and set as read*/
-attr_t*
-get_attr(element_t *element, const gchar* attr_name)
+xmpp_attr_t*
+xmpp_get_attr(xmpp_element_t *element, const gchar* attr_name)
 {
-    attr_t *result = g_hash_table_lookup(element->attrs, attr_name);
+    xmpp_attr_t *result = g_hash_table_lookup(element->attrs, attr_name);
 
     if(!result)
     {
@@ -710,11 +704,11 @@ get_attr(element_t *element, const gchar* attr_name)
 }
 
 /*Functions returns element's attibute by name and namespace abbrev*/
-static attr_t*
-get_attr_ext(element_t *element, const gchar* attr_name, const gchar* ns_abbrev)
+static xmpp_attr_t*
+xmpp_get_attr_ext(xmpp_element_t *element, const gchar* attr_name, const gchar* ns_abbrev)
 {
     gchar* search_phrase;
-    attr_t *result;
+    xmpp_attr_t *result;
 
     if(strcmp(ns_abbrev,"")==0)
         search_phrase = ep_strdup(attr_name);
@@ -739,7 +733,7 @@ get_attr_ext(element_t *element, const gchar* attr_name, const gchar* ns_abbrev)
 
 
 gchar*
-element_to_string(tvbuff_t *tvb, element_t *element)
+xmpp_element_to_string(tvbuff_t *tvb, xmpp_element_t *element)
 {
     gchar *buff = NULL;
 
@@ -751,7 +745,7 @@ element_to_string(tvbuff_t *tvb, element_t *element)
 }
 
 gchar*
-attr_to_string(tvbuff_t *tvb, attr_t *attr)
+xmpp_attr_to_string(tvbuff_t *tvb, xmpp_attr_t *attr)
 {
     gchar *buff = NULL;
 
@@ -781,14 +775,14 @@ children_foreach_show_func(proto_node *node, gpointer data)
 }
 
 void
-proto_tree_hide_first_child(proto_tree *tree)
+xmpp_proto_tree_hide_first_child(proto_tree *tree)
 {
     int i = 0;
     proto_tree_children_foreach(tree, children_foreach_hide_func, &i);
 }
 
 void
-proto_tree_show_first_child(proto_tree *tree)
+xmpp_proto_tree_show_first_child(proto_tree *tree)
 {
     int i = 0;
     proto_tree_children_foreach(tree, children_foreach_show_func, &i);
@@ -818,10 +812,10 @@ proto_item_get_text(proto_item *item)
 
 
 void
-display_attrs(proto_tree *tree, element_t *element, packet_info *pinfo, tvbuff_t *tvb, attr_info *attrs, guint n)
+xmpp_display_attrs(proto_tree *tree, xmpp_element_t *element, packet_info *pinfo, tvbuff_t *tvb, xmpp_attr_info *attrs, guint n)
 {
     proto_item *item = proto_tree_get_parent(tree);
-    attr_t *attr;
+    xmpp_attr_t *attr;
     guint i;
     gboolean short_list_started = FALSE;
 
@@ -831,7 +825,7 @@ display_attrs(proto_tree *tree, element_t *element, packet_info *pinfo, tvbuff_t
     proto_item_append_text(item," [");
     for(i = 0; i < n && attrs!=NULL; i++)
     {
-        attr = get_attr(element, attrs[i].name);
+        attr = xmpp_get_attr(element, attrs[i].name);
         if(attr)
         {
             if(attrs[i].hf != -1)
@@ -878,10 +872,10 @@ display_attrs(proto_tree *tree, element_t *element, packet_info *pinfo, tvbuff_t
 }
 
 void
-display_attrs_ext(proto_tree *tree, element_t *element, packet_info *pinfo, tvbuff_t *tvb, attr_info_ext *attrs, guint n)
+xmpp_display_attrs_ext(proto_tree *tree, xmpp_element_t *element, packet_info *pinfo, tvbuff_t *tvb, xmpp_attr_info_ext *attrs, guint n)
 {
     proto_item *item = proto_tree_get_parent(tree);
-    attr_t *attr;
+    xmpp_attr_t *attr;
     guint i;
     gboolean short_list_started = FALSE;
 
@@ -899,9 +893,9 @@ display_attrs_ext(proto_tree *tree, element_t *element, packet_info *pinfo, tvbu
         for (i = 0; i < n && attrs != NULL; i++) {
             if(strcmp(ns_fullnames->data, attrs[i].ns) == 0)
             {
-                attr = get_attr_ext(element, attrs[i].info.name, ns_abbrevs->data);
+                attr = xmpp_get_attr_ext(element, attrs[i].info.name, ns_abbrevs->data);
                 if(!attr && element->default_ns_abbrev && strcmp(ns_abbrevs->data, element->default_ns_abbrev)==0)
-                    attr = get_attr_ext(element, attrs[i].info.name, "");
+                    attr = xmpp_get_attr_ext(element, attrs[i].info.name, "");
 
                 if (attr) {
                     if (attrs[i].info.hf != -1) {
@@ -958,7 +952,7 @@ struct name_attr_t
 returns pointer to the struct that contains 3 strings(element name, attribute name, attribute value)
 */
 gpointer
-name_attr_struct(gchar *name, gchar *attr_name, gchar *attr_value)
+xmpp_name_attr_struct(gchar *name, gchar *attr_name, gchar *attr_value)
 {
     struct name_attr_t *result;
 
@@ -970,13 +964,13 @@ name_attr_struct(gchar *name, gchar *attr_name, gchar *attr_value)
 }
 
 void
-display_elems(proto_tree *tree, element_t *parent, packet_info *pinfo, tvbuff_t *tvb, elem_info *elems, guint n)
+xmpp_display_elems(proto_tree *tree, xmpp_element_t *parent, packet_info *pinfo, tvbuff_t *tvb, xmpp_elem_info *elems, guint n)
 {
     guint i;
 
     for(i = 0; i < n && elems!=NULL; i++)
     {
-        element_t *elem = NULL;
+        xmpp_element_t *elem = NULL;
 
         if(elems[i].type == NAME_AND_ATTR)
         {
@@ -991,7 +985,7 @@ display_elems(proto_tree *tree, element_t *parent, packet_info *pinfo, tvbuff_t 
 
             a = elems[i].data;
 
-            while(loop && (elem = steal_element_by_name_and_attr(parent, a->name, a->attr_name, a->attr_value))!=NULL)
+            while(loop && (elem = xmpp_steal_element_by_name_and_attr(parent, a->name, a->attr_name, a->attr_value))!=NULL)
             {
                 elems[i].elem_func(tree, tvb, pinfo, elem);
                 if(elems[i].occurrence == ONE)
@@ -1002,7 +996,7 @@ display_elems(proto_tree *tree, element_t *parent, packet_info *pinfo, tvbuff_t 
             gboolean loop = TRUE;
             gchar *name = elems[i].data;
 
-            while(loop && (elem = steal_element_by_name(parent, name))!=NULL)
+            while(loop && (elem = xmpp_steal_element_by_name(parent, name))!=NULL)
             {
                 elems[i].elem_func(tree, tvb, pinfo, elem);
                 if(elems[i].occurrence == ONE)
@@ -1017,8 +1011,8 @@ display_elems(proto_tree *tree, element_t *parent, packet_info *pinfo, tvbuff_t 
                 gchar *attr_name;
                 gchar *attr_value;
             } *attr = elems[i].data;
-            
-            while(loop && (elem = steal_element_by_attr(parent, attr->attr_name, attr->attr_value))!=NULL)
+
+            while(loop && (elem = xmpp_steal_element_by_attr(parent, attr->attr_name, attr->attr_value))!=NULL)
             {
                 elems[i].elem_func(tree, tvb, pinfo, elem);
                 if(elems[i].occurrence == ONE)
@@ -1028,9 +1022,9 @@ display_elems(proto_tree *tree, element_t *parent, packet_info *pinfo, tvbuff_t 
         } else if(elems[i].type == NAMES)
         {
             gboolean loop = TRUE;
-            array_t *names = elems[i].data;
+            xmpp_array_t *names = elems[i].data;
 
-            while(loop && (elem =  steal_element_by_names(parent, (const gchar**)names->data, names->length))!=NULL)
+            while(loop && (elem =  xmpp_steal_element_by_names(parent, (const gchar**)names->data, names->length))!=NULL)
             {
                 elems[i].elem_func(tree, tvb, pinfo, elem);
                 if(elems[i].occurrence == ONE)
@@ -1043,12 +1037,12 @@ display_elems(proto_tree *tree, element_t *parent, packet_info *pinfo, tvbuff_t 
 }
 
 /*
-function checks that variable value is in array ((array_t)data)->data
+function checks that variable value is in array ((xmpp_array_t)data)->data
 */
 void
-val_enum_list(packet_info *pinfo, proto_item *item, gchar *name, gchar *value, gpointer data)
+xmpp_val_enum_list(packet_info *pinfo, proto_item *item, gchar *name, gchar *value, gpointer data)
 {
-    array_t *enums_array = data;
+    xmpp_array_t *enums_array = data;
 
     gint i;
     gboolean value_in_enums = FALSE;
@@ -1072,12 +1066,12 @@ val_enum_list(packet_info *pinfo, proto_item *item, gchar *name, gchar *value, g
 
 
 void
-change_elem_to_attrib(const gchar *elem_name, const gchar *attr_name, element_t *parent, attr_t* (*transform_func)(element_t *element))
+xmpp_change_elem_to_attrib(const gchar *elem_name, const gchar *attr_name, xmpp_element_t *parent, xmpp_attr_t* (*transform_func)(xmpp_element_t *element))
 {
-    element_t *element = NULL;
-    attr_t *fake_attr = NULL;
+    xmpp_element_t *element = NULL;
+    xmpp_attr_t *fake_attr = NULL;
 
-    element = steal_element_by_name(parent, elem_name);
+    element = xmpp_steal_element_by_name(parent, elem_name);
     if(element)
         fake_attr = transform_func(element);
 
@@ -1085,26 +1079,26 @@ change_elem_to_attrib(const gchar *elem_name, const gchar *attr_name, element_t 
         g_hash_table_insert(parent->attrs, (gpointer)attr_name, fake_attr);
 }
 
-attr_t*
-transform_func_cdata(element_t *elem)
+xmpp_attr_t*
+xmpp_transform_func_cdata(xmpp_element_t *elem)
 {
-    attr_t *result = ep_init_attr_t(elem->data?elem->data->value:"", elem->offset, elem->length);
+    xmpp_attr_t *result = xmpp_ep_init_attr_t(elem->data?elem->data->value:"", elem->offset, elem->length);
     return result;
 }
 
 static void
-copy_hash_table_func(gpointer key, gpointer value, gpointer user_data)
+xmpp_copy_hash_table_func(gpointer key, gpointer value, gpointer user_data)
 {
     GHashTable *dst = user_data;
     g_hash_table_insert(dst, key, value);
 }
 
-void copy_hash_table(GHashTable *src, GHashTable *dst)
+void xmpp_copy_hash_table(GHashTable *src, GHashTable *dst)
 {
-    g_hash_table_foreach(src, copy_hash_table_func, dst);
+    g_hash_table_foreach(src, xmpp_copy_hash_table_func, dst);
 }
 
-/*
+#if 0
 static void
 printf_hash_table_func(gpointer key, gpointer value, gpointer user_data _U_)
 {
@@ -1112,7 +1106,7 @@ printf_hash_table_func(gpointer key, gpointer value, gpointer user_data _U_)
 }
 
 void
-printf_elements(element_t *root)
+printf_elements(xmpp_element_t *root)
 {
     GList *elems = root->elements;
 
@@ -1124,7 +1118,8 @@ printf_elements(element_t *root)
         elems = elems->next;
     }
 }
-*/
+#endif
+
 /*
 * Editor modelines - http://www.wireshark.org/tools/modelines.html
 *
