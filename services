@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2011-11-03
+# 2011-11-10
 # 
 # Note
 # 
@@ -118,8 +118,8 @@ ssh	22/tcp	# The Secure Shell (SSH)                                             
 ssh	22/udp	# The Secure Shell (SSH)                                                                                                                                     [RFC4251]                                                 Defined TXT keys: u=<username> p=<password>
 # Protocol
 ssh	22/sctp	# SSH                          [Randall_Stewart]                         [Randall_Stewart]                                                                   [RFC4960]                                                 Defined TXT keys: u=<username> p=<password>
-telnet	23/tcp	# Telnet                       [Jon_Postel]                              [Jon_Postel]                                                                                                                                  Defined TXT keys: u=<username> p=<password>
-telnet	23/udp	# Telnet                       [Jon_Postel]                              [Jon_Postel]                                                                                                                                  Defined TXT keys: u=<username> p=<password>
+telnet	23/tcp	# Telnet                       [Jon_Postel]                              [Jon_Postel]                                                                        [RFC854]                                                  Defined TXT keys: u=<username> p=<password>
+telnet	23/udp	# Telnet                       [Jon_Postel]                              [Jon_Postel]                                                                        [RFC854]                                                  Defined TXT keys: u=<username> p=<password>
 # 24         tcp    any private mail system      [Rick_Adams]                              [Rick_Adams]
 # 24         udp    any private mail system      [Rick_Adams]                              [Rick_Adams]
 smtp	25/tcp	# Simple Mail Transfer         [Jon_Postel]                              [Jon_Postel]
@@ -290,10 +290,54 @@ www	80/tcp	# World Wide Web HTTP                                                
 # used for discovery purposes.
 www	80/udp	# World Wide Web HTTP                                                                                                                                                                                                  This is a duplicate of the "http" service and should not be
 # used for discovery purposes.
-www-http	80/tcp	# World Wide Web HTTP          [Tim_Berners_Lee]                         [Tim_Berners_Lee]                                                                                                                             This is a duplicate of the "http" service and should not be
-# used for discovery purposes.
-www-http	80/udp	# World Wide Web HTTP          [Tim_Berners_Lee]                         [Tim_Berners_Lee]                                                                                                                             This is a duplicate of the "http" service and should not be
-# used for discovery purposes.
+# This is a duplicate of the "http" service and should not be
+# used for discovery purposes. u=<username> p=<password>
+# path=<path to document> (see txtrecords.html#http) Known
+# Subtypes: _printer NOTE: The meaning of this service type,
+# though called just "http", actually denotes something more
+# precise than just "any data transported using HTTP". The
+# DNS-SD service type "http" should only be used to advertise
+# content that: * is served over HTTP, * can be displayed by
+# "typical" web browser client software, and * is intented
+# primarily to be viewed by a human user. Of course, the
+# definition of "typical web browser" is subjective, and may
+www-http	80/tcp	# World Wide Web HTTP          [Tim_Berners_Lee]                         [Tim_Berners_Lee]                                                                                                                             change over time, but for practical purposes the DNS-SD
+# service type "http" can be understood as meaning
+# "human-readable HTML content served over HTTP". In some cases
+# other widely-supported content types may also be appropriate,
+# such as plain text over HTTP, or JPEG image over HTTP.
+# Content types not intented primarily for viewing by a human
+# user, or not widely-supported in web browsing clients, should
+# not be advertised as DNS-SD service type "http", even if they
+# do happen to be transported over HTTP. Such types should be
+# advertised as their own logical service type with their own
+# DNS-SD service type, for example, XUL (XML User Interface
+# Language) transported over HTTP is advertised explicitly as
+# DNS-SD service type "xul-http".
+# This is a duplicate of the "http" service and should not be
+# used for discovery purposes. u=<username> p=<password>
+# path=<path to document> (see txtrecords.html#http) Known
+# Subtypes: _printer NOTE: The meaning of this service type,
+# though called just "http", actually denotes something more
+# precise than just "any data transported using HTTP". The
+# DNS-SD service type "http" should only be used to advertise
+# content that: * is served over HTTP, * can be displayed by
+# "typical" web browser client software, and * is intented
+# primarily to be viewed by a human user. Of course, the
+# definition of "typical web browser" is subjective, and may
+www-http	80/udp	# World Wide Web HTTP          [Tim_Berners_Lee]                         [Tim_Berners_Lee]                                                                                                                             change over time, but for practical purposes the DNS-SD
+# service type "http" can be understood as meaning
+# "human-readable HTML content served over HTTP". In some cases
+# other widely-supported content types may also be appropriate,
+# such as plain text over HTTP, or JPEG image over HTTP.
+# Content types not intented primarily for viewing by a human
+# user, or not widely-supported in web browsing clients, should
+# not be advertised as DNS-SD service type "http", even if they
+# do happen to be transported over HTTP. Such types should be
+# advertised as their own logical service type with their own
+# DNS-SD service type, for example, XUL (XML User Interface
+# Language) transported over HTTP is advertised explicitly as
+# DNS-SD service type "xul-http".
 http	80/sctp	# HTTP                         [Randall_Stewart]                         [Randall_Stewart]                                                                   [RFC4960]                                                 Defined TXT keys: u=<username> p=<password> path=<path to
 # document>
 # 81                Unassigned                                                                                                                                    2007-09-06
@@ -7584,8 +7628,12 @@ sysopt	3281/tcp	# SYSOPT                       [Tony_Hoffman]                   
 sysopt	3281/udp	# SYSOPT                       [Tony_Hoffman]                            [Tony_Hoffman]
 datusorb	3282/tcp	# Datusorb                     [Thomas_Martin]                           [Thomas_Martin]
 datusorb	3282/udp	# Datusorb                     [Thomas_Martin]                           [Thomas_Martin]
-net-assistant	3283/tcp	# Net Assistant                [Michael_Stein]                           [Michael_Stein]
-net-assistant	3283/udp	# Net Assistant                [Michael_Stein]                           [Michael_Stein]
+# Apple Remote
+# Desktop (Net       3283        tcp    Net Assistant                [Michael_Stein]                           [Michael_Stein]                                                        2011-11-09
+# Assistant)
+# Apple Remote
+# Desktop (Net       3283        udp    Net Assistant                [Michael_Stein]                           [Michael_Stein]                                                        2011-11-09
+# Assistant)
 4talk	3284/tcp	# 4Talk                        [Tony_Bushnell]                           [Tony_Bushnell]
 4talk	3284/udp	# 4Talk                        [Tony_Bushnell]                           [Tony_Bushnell]
 plato	3285/tcp	# Plato                        [Jim_Battin]                              [Jim_Battin]
@@ -8412,8 +8460,10 @@ roverlog	3677/tcp	# RoverLog IPC                 [Tom_Mayo]                     
 roverlog	3677/udp	# RoverLog IPC                 [Tom_Mayo]                                [Tom_Mayo]                                                2003-01
 ipr-dglt	3678/tcp	# DataGuardianLT               [Bruce_Carlson]                           [Bruce_Carlson]                                           2003-01
 ipr-dglt	3678/udp	# DataGuardianLT               [Bruce_Carlson]                           [Bruce_Carlson]                                           2003-01
-newton-dock	3679/tcp	# Newton Dock
-newton-dock	3679/udp	# Newton Dock
+# Escale (Newton     3679        tcp    Newton Dock                  [Paul_Guyot]                              [Paul_Guyot]                                                           2011-11-09
+# Dock)
+# Escale (Newton     3679        udp    Newton Dock                  [Paul_Guyot]                              [Paul_Guyot]                                                           2011-11-09
+# Dock)
 npds-tracker	3680/tcp	# NPDS Tracker                 [Paul_Guyot]                              [Paul_Guyot]                                              2003-01
 npds-tracker	3680/udp	# NPDS Tracker                 [Paul_Guyot]                              [Paul_Guyot]                                              2003-01
 bts-x73	3681/tcp	# BTS X73 Port                 [Todd_Cooper]                             [Todd_Cooper]                                             2003-01
@@ -10720,50 +10770,8 @@ intecom-ps2	5057/udp	# Intecom Pointspan 2          [David_Meermans]            
 locus-disc	5058/udp	# Locus Discovery              [Alan_King]                               [Alan_King]                                               2009-08-13
 sds	5059/tcp	# SIP Directory Services       [Arthur_Wilton]                           [Arthur_Wilton]                                           2006-03
 sds	5059/udp	# SIP Directory Services       [Arthur_Wilton]                           [Arthur_Wilton]                                           2006-03
-# Defined TXT keys:
-# sipver SIP version
-# sipstd RFC number of SIP standard to comply with
-# auth plaintext | md5 | rsakeys
-# userid alphanumeric, additionally '_', '+', '-'
-# secret any printable ASCII characters
-# realm SIP realm (see RFC3261)
-# fromuser username for SIP "from" header (see RFC3261)
-# fromdomain domain for SIP "from" header (see RFC3261)
-# registrar SIP registrar (see RFC3261)
-sip	5060/tcp	# SIP                          [Henning_Schulzrinne]                     [Henning_Schulzrinne]                                                                                                                         proxy SIP proxy (see RFC3261)
-# natproxy SIP proxy for NATed clients
-# outproxy outbound SIP proxy (see RFC3261)
-# stunserver STUN server DNS name or IP address
-# contact SIP URI (see RFC3261)
-# dtmfmode inband | rfc2833 | sipinfo
-# welcome SIP URI (see RFC3261)
-# voicemail SIP URI (see RFC3261)
-# reception SIP URI (see RFC3261)
-# echotest SIP URI (see RFC3261)
-# ivrtest SIP URI (see RFC3261)
-# Further TXT record keys may be added in the future.
-# Defined TXT keys:
-# sipver SIP version
-# sipstd RFC number of SIP standard to comply with
-# auth plaintext | md5 | rsakeys
-# userid alphanumeric, additionally '_', '+', '-'
-# secret any printable ASCII characters
-# realm SIP realm (see RFC3261)
-# fromuser username for SIP "from" header (see RFC3261)
-# fromdomain domain for SIP "from" header (see RFC3261)
-# registrar SIP registrar (see RFC3261)
-sip	5060/udp	# SIP                          [Henning_Schulzrinne]                     [Henning_Schulzrinne]                                                                                                                         proxy SIP proxy (see RFC3261)
-# natproxy SIP proxy for NATed clients
-# outproxy outbound SIP proxy (see RFC3261)
-# stunserver STUN server DNS name or IP address
-# contact SIP URI (see RFC3261)
-# dtmfmode inband | rfc2833 | sipinfo
-# welcome SIP URI (see RFC3261)
-# voicemail SIP URI (see RFC3261)
-# reception SIP URI (see RFC3261)
-# echotest SIP URI (see RFC3261)
-# ivrtest SIP URI (see RFC3261)
-# Further TXT record keys may be added in the future.
+sip	5060/tcp	# SIP                          [Henning_Schulzrinne]                     [Henning_Schulzrinne]
+sip	5060/udp	# SIP                          [Henning_Schulzrinne]                     [Henning_Schulzrinne]
 sip-tls	5061/tcp	# SIP-TLS                      [Henning_Schulzrinne]                     [Henning_Schulzrinne]
 sip-tls	5061/udp	# SIP-TLS                      [Henning_Schulzrinne]                     [Henning_Schulzrinne]
 na-localise	5062/tcp	# Localisation access          [Jean_Pierre_Garcia_2]                    [Jean_Pierre_Garcia_2]                                    2009-10-28
@@ -10807,9 +10815,9 @@ qcp	5082/tcp	# Qpur Communication Protocol  [Joachim_Kluemper]                  
 qcp	5082/udp	# Qpur Communication Protocol  [Joachim_Kluemper]                        [Joachim_Kluemper]                                        2008-03-19
 qfp	5083/tcp	# Qpur File Protocol           [Joachim_Kluemper]                        [Joachim_Kluemper]                                        2008-03-19
 qfp	5083/udp	# Qpur File Protocol           [Joachim_Kluemper]                        [Joachim_Kluemper]                                        2008-03-19
-llrp	5084/tcp	# EPCglobal Low-Level Reader   [Margaret_Wasserman][Paul_Dietrich]       [Margaret_Wasserman][Paul_Dietrich]                       2006-11
+llrp	5084/tcp	# EPCglobal Low-Level Reader   [Margaret_Wasserman][Paul_Dietrich]       [Margaret_Wasserman][Paul_Dietrich]                       2006-11                                                                             Defined TXT keys: None. RFID reader Low Level Reader Protocol
 # Protocol
-llrp	5084/udp	# EPCglobal Low-Level Reader   [Margaret_Wasserman][Paul_Dietrich]       [Margaret_Wasserman][Paul_Dietrich]                       2006-11
+llrp	5084/udp	# EPCglobal Low-Level Reader   [Margaret_Wasserman][Paul_Dietrich]       [Margaret_Wasserman][Paul_Dietrich]                       2006-11                                                                             Defined TXT keys: None. RFID reader Low Level Reader Protocol
 # Protocol
 encrypted-llrp	5085/tcp	# EPCglobal Encrypted LLRP     [Margaret_Wasserman]                      [Margaret_Wasserman]                                      2006-11
 encrypted-llrp	5085/udp	# EPCglobal Encrypted LLRP     [Margaret_Wasserman]                      [Margaret_Wasserman]                                      2006-11
@@ -14480,7 +14488,11 @@ avdecc	17221/tcp	# Enumeration, Connection      [IEEE_1722_1]                   
 # IEEE 1722.1 AVB Discovery,
 avdecc	17221/udp	# Enumeration, Connection      [IEEE_1722_1]                             [Jeffrey_Daniel_Koftinoff]                                2011-11-01
 # management, and Control
-# 17222-17233           Unassigned
+# 17222       tcp    Reserved
+# Control Plane
+cpsp	17222/udp	# Synchronization Protocol     [Randall_Stewart_2]                       [Randall_Stewart_2]                                       2011-11-10
+# (SPSP)
+# 17223-17233           Unassigned
 integrius-stp	17234/tcp	# Integrius Secure Tunnel      [Christian_Klemetsson]                    [Christian_Klemetsson]                                    2010-03-04
 # Protocol
 integrius-stp	17234/udp	# Integrius Secure Tunnel      [Christian_Klemetsson]                    [Christian_Klemetsson]                                    2010-03-04
@@ -15525,6 +15537,12 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # Address Book Server used for
 # addressbooksrv                 tcp    contacts and calendar        [AddressBookServer]                       [Alexander_Hartner]                                       2011-10-14                                                                          Defined TXT keys: _suffix, _prefix
 # synchronisation
+# difusi Cloud based plug &
+# play network synchronization
+# adnodes                               protocol, content pool       [DIFUSI_Inc]                              [Mike_Wright]                                             2011-11-07                                                                          Defined TXT keys: Proprietary
+# database discovery, and
+# cloudOS SAaS discovery
+# protocol.
 # adobe-vc                              Adobe Version Cue                                                                                                                                                                                                    Defined TXT keys: txtvers=1, name, version, build
 # adisk                                 Automatic Disk Discovery     [Bob_Bradley_2]                           [Bob_Bradley_2]                                                                                                                               Defined TXT keys: sys, dkX
 # adpro-setup                           ADPRO Security Device Setup  [Patrick_Noffke]                          [Patrick_Noffke]                                                                                                                              Defined TXT keys: txtvers, type
@@ -15719,6 +15737,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # eheap                                 Infrastructure (Event                                                                                                                                                                                                Defined TXT keys: None
 # Sharing)
 # embrace                               DataEnvoy                    [Rob_MacGregor]                           [Rob_MacGregor]                                                                                                                               Defined TXT keys: None
+# enphase-envoy                  tcp    Enphase Energy Envoy         [Enphase_Energy_Inc]                      [Chris_Eich]                                              2011-11-08                                                                          Defined TXT keys: - txtvers - protovers - serialnum
 # Endpoint Protocol (EP) for
 # ep                                    use in Home Automation       [Tommy_van_der_Vorst]                     [Tommy_van_der_Vorst]                                                                                                                         Defined TXT keys: dns-sd_mdns
 # systems
@@ -15848,6 +15867,26 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # hs-off                                Hobbyist Software Off        [Rob_Jonson]                              [Rob_Jonson]                                                                                                                                  Defined TXT keys: None
 # Discovery
 # htsp                                  Home Tv Streaming Protocol   [Andreas_Oman]                            [Andreas_Oman]                                                                                                                                Defined TXT keys: None
+# Web browsers like Safari and Internet Explorer (with the
+# Bonjour for Windows plugin) DO NOT browse for DNS-SD service
+# type "_https._tcp" in addition to browsing for "_http._tcp".
+# This is a conscious decision to reduce proliferation of
+# service types, to help keep DNS-SD efficient on the network.
+# Today, if a user types http://www.mybank.com/ into their web
+# browser, the web server automatically redirects the user to
+# https://www.mybank.com/. Rather than having an entirely
+# different DNS-SD service type for https, we recommend using
+# https                          tcp    HTTP over SSL/TLS            [Tim_Berners_Lee]                         [Tim_Berners_Lee]                                                                                                                             the same redirection mechanism: advertise a plain "http"
+# service, which consists of nothing except an HTTP redirection
+# to the desired "https" URL. Work is currently being done on
+# adding mechanisms to HTTP and TLS to allow the server to tell
+# the client that it needs to activate TLS on the current
+# connection before proceeding. If this becomes widely adopted,
+# it further justifies the decision to not create a separate
+# DNS-SD service type "_https._tcp", because security becomes
+# just another one of the things that is negotiated on a
+# per-connection basis (like content-type negotiation today)
+# rather than being an entirely separate thing.
 # hyperstream                           Atempo HyperStream           [Laurent_Charmet]                         [Laurent_Charmet]                                                                                                                             Defined TXT keys: version=x.y.z.w uuid=<36 bytes UUID string>
 # deduplication server                                                                                                                                                                                                 host=<real host name>
 # ibiz                                  iBiz Server                  [IGG_Software]                            [IGG_Software]                                                                                                                                Defined TXT keys: None
@@ -15942,6 +15981,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # logicnode                      udp    Logic Pro Distributed Audio  [Nikolaus_Gerteis]                        [Nikolaus_Gerteis]                                                                                                                            Defined TXT keys: None
 # lonbridge                             Echelon LonBridge Server     [Rich_Blomseth]                           [Rich_Blomseth]                                                                                                                               Defined TXT keys: None
 # lontalk                               LonTalk over IP (ANSI 852)   [Michael_Tennefoss]                       [Michael_Tennefoss]                                                                                                                           Defined TXT keys: None
+# lonworks                              Echelon LNS Remote Client    [Michael_Tennefoss]                       [Michael_Tennefoss]                                                                                                                           Defined TXT keys: None
 # lsys-appserver                        Linksys One Application      [Frank_Zerangue]                          [Frank_Zerangue]                                                                                                                              Defined TXT keys: path=value (relative URL) engname=value
 # Server API                                                                                                                                                                                                           (string)
 # lsys-camera                           Linksys One Camera API       [Frank_Zerangue]                          [Frank_Zerangue]                                                                                                                              Defined TXT keys: brand=value (string) model=value (string)
@@ -16149,6 +16189,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # software, which provides                                                                                                                                                                                             vers = 1.0
 # printing services to mobile
 # users
+# profilemac                            Profile for Mac medical      [David_Sinclair_2]                        [David_Sinclair_2]                                                                                                                            Defined TXT keys: None
+# practice management software
 # prolog                                Prolog                       [Mike_Brady]                              [Mike_Brady]                                                                                                                                  Defined TXT keys: version=<version number>
 # protonet                              Protonet node and service    [Ali_Jelveh]                              [Ali_Jelveh]                                                                                                                                  Defined TXT keys: version, notes
 # discovery protocol
@@ -16182,6 +16224,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # (AirTunes)
 # rbr                                   RBR Instrument Communication [Greg_Johnson]                            [Greg_Johnson]                                                                                                                                Defined TXT keys: None
 # rce                                   PowerCard                    [DeVoeSquared]                            [DeVoeSquared]                                                                                                                                Defined TXT keys: None
+# rdp                                   Windows Remote Desktop       [Jugaari]                                 [Jugaari]                                                                                                                                     Defined TXT keys: None
+# Protocol
 # realplayfavs                          RealPlayer Shared Favorites  [RealNetworks]                            [RealNetworks]                                                                                                                                Defined TXT keys: None
 # recipe-box                     tcp    The Recipe Box Exchange      [Corpus_Collusion]                        [Kathy_Tafel]                                             2011-08-23                                                                          Defined TXT keys: txtvers
 # recipe-sharing                 tcp    Recipe Sharing Protocol      [Daniel_G_Taylor]                         [Daniel_G_Taylor]                                         2007-11                                                                             Defined TXT keys:
@@ -16223,6 +16267,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # scanner                               Bonjour Scanning             [Baskaran_Subramaniam]                    [Baskaran_Subramaniam]                                                                                                                        Defined TXT keys: None
 # schick                                Schick                       [Heiko_Kretschmer]                        [Heiko_Kretschmer]                                                                                                                            Defined TXT keys: None
 # scone                                 Scone                        [James_Moore]                             [James_Moore]                                                                                                                                 Defined TXT keys: None
+# scpi-raw                              IEEE 488.2 (SCPI) Socket     [Nick_Barendt_3]                          [Nick_Barendt_3]                                                                                                                              Defined TXT keys: None
+# scpi-telnet                           IEEE 488.2 (SCPI) Telnet     [Nick_Barendt_3]                          [Nick_Barendt_3]                                                                                                                              Defined TXT keys: None
 # sdsharing                             Speed Download               [Yazsoft]                                 [Yazsoft]                                                                                                                                     Defined TXT keys: None
 # see                                   SubEthaEdit 2                [TheCodingMonkeys]                        [TheCodingMonkeys]                                                                                                                            Defined TXT keys: txtvers=1, name=<Full Name>, userid=<User
 # ID>, version=2
@@ -16260,6 +16306,28 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # protocol
 # simusoftpong                          simusoftpong iPhone game     [Anders_Svensson]                         [Anders_Svensson]                                                                                                                             Defined TXT keys: Proprietary
 # protocol
+# Defined TXT keys:
+# sipver SIP version
+# sipstd RFC number of SIP standard to comply with
+# auth plaintext | md5 | rsakeys
+# userid alphanumeric, additionally '_', '+', '-'
+# secret any printable ASCII characters
+# realm SIP realm (see RFC3261)
+# fromuser username for SIP "from" header (see RFC3261)
+# fromdomain domain for SIP "from" header (see RFC3261)
+# registrar SIP registrar (see RFC3261)
+# sip                            udp    Session Initiation Protocol, [Benjamin_Kowarsch]                       [Benjamin_Kowarsch]                                                                                                                           proxy SIP proxy (see RFC3261)
+# signalling protocol for VoIP                                                                                                                                                                                         natproxy SIP proxy for NATed clients
+# outproxy outbound SIP proxy (see RFC3261)
+# stunserver STUN server DNS name or IP address
+# contact SIP URI (see RFC3261)
+# dtmfmode inband | rfc2833 | sipinfo
+# welcome SIP URI (see RFC3261)
+# voicemail SIP URI (see RFC3261)
+# reception SIP URI (see RFC3261)
+# echotest SIP URI (see RFC3261)
+# ivrtest SIP URI (see RFC3261)
+# Further TXT record keys may be added in the future.
 # sipuri                                Session Initiation Protocol  [Jae_Woo_Lee]                             [Jae_Woo_Lee]                                                                                                                                 Defined TXT keys: Defined in URL specification
 # Uniform Resource Identifier
 # sironaxray                            Sirona Xray Protocol         [Michael_Dalpiaz]                         [Michael_Dalpiaz]                                                                                                                             Defined TXT keys: Manufacturer=Sirona
@@ -16299,6 +16367,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # serial= serial number of the HMP device firmware= firmware
 # version string (e.g., 2.1.0-0.1.7844) model= model string
 # (e.g., HMP100)
+# ssh                            tcp    SSH Remote Login Protocol    [Tatu_Ylonen]                             [Tatu_Ylonen]                                                                                                                                 Defined TXT keys: u=<username> p=<password>
 # ssscreenshare                         Screen Sharing                                                                                                                                                                                                       Defined TXT keys: None
 # strateges                             Strateges                    [Jean_Olivier_Lanctot]                    [Jean_Olivier_Lanctot]                                                                                                                        Defined TXT keys: None
 # sge-exec                              Sun Grid Engine (Execution   [Bill_Van_Etten]                          [Bill_Van_Etten]                                                                                                                              Defined TXT keys: None
@@ -16324,6 +16393,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # supple                                Supple Service protocol      [Dave_Christianson]                       [Dave_Christianson]                                                                                                                           Defined TXT keys: type url
 # surveillus                            Surveillus Networks          [Mark_Lewis_3]                            [Mark_Lewis_3]                                                                                                                                Defined TXT keys: None
 # Discovery Protocol
+# svn                                   Subversion                   [CollabNet]                               [CollabNet]                                                                                                                                   Defined TXT keys: None
 # swcards                               Signwave Card Sharing        [Signwave_Networking]                     [Signwave_Networking]                                                                                                                         Defined TXT keys: None
 # Protocol
 # switcher                              Wireless home control remote [Steve_Splonskowski]                      [Steve_Splonskowski]                                                                                                                          Defined TXT keys: None
@@ -17154,6 +17224,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Chris_Das]                                               Chris Das                                       mailto:cdas&cnd.hp.com
 # [Chris_Dern]                                              Chris Dern                                      mailto:cdern&nospam.alarismed.com                             2004-06
 # [Chris_Duncombe]                                          Chris Duncombe                                  mailto:cdunc&atpeng.com
+# [Chris_Eich]                                              Chris Eich                Enphase Energy, Inc.  mailto:ceich&enphaseenergy.com                                2011-11-08
 # [Chris_Farey]                                             Chris Farey                                     mailto:chris_farey&stormagic.com                              2011-03-09
 # [Chris_Flynn]                                             Chris Flynn                                     mailto:cflynn&landmark.com
 # [Chris_Greene]                                            Chris Greene                                    mailto:cgreeneOA&avidsports.com
@@ -17286,6 +17357,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Colin_Hughes]                                            Colin Hughes                                    mailto:chughes&agentsease.net                                 2006-02
 # [Colin_Kelley]                                            Colin Kelley                                    mailto:cdk&callwave.com
 # [Colin_Reid]                                              Colin Reid                                      mailto:creid&projux.com                                       2002-11
+# [CollabNet]                                                                         CollabNet             mailto:info&collab.net
 # [Colm_MacCarthaigh]                                       Colm MacCarthaigh                               mailto:colm.maccarthaigh&joost.com                            2007-04
 # [Complan_Network_AS]                                                                Complan Network AS    mailto:knut&winpcs.com                                        2006-02
 # [Computer_Software_Gm]                                                              Computer Software     mailto:BrunoRistok&cs-ag.de                                   2002-10
@@ -17537,6 +17609,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [David_Sechrest]                                          David Sechrest                                  mailto:david.sechrest&oracle.com                              2010-09-22
 # [David_Shaw]                                              David Shaw                                      mailto:dshaw&jabberwocky.com                                  2003-05
 # [David_Sinclair]                                          David Sinclair                                  mailto:dev&profilemac.com                                     2006-05
+# [David_Sinclair_2]                                        David Sinclair                                  mailto:bonjour&profilemac.com
 # [David_Snocken]                                           David Snocken                                   tel:+44-71-437-7009
 # [David_Spencer]                                           David Spencer                                   mailto:dspencer&telops.com
 # [David_Sperling]                                          David Sperling                                  mailto:dsperling&smithmicro.com                               2006-06
@@ -17618,6 +17691,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Diego_Saravia]                                           Diego Saravia                                   mailto:dsa&unsa.edu.ar
 # [Dieter_Siegmund]                                         Dieter Siegmund                                 mailto:dieter&apple.com                                       2007-10-22
 # [Dietmar_Finkler]                                         Dietmar Finkler                                 mailto:d.finkler&hermstedt.de
+# [DIFUSI_Inc]                                                                        DIFUSI, Inc.          mailto:mike&difusi.com                                        2011-11-07
 # [Dima_Seliverstov]                                        Dima Seliverstov                                mailto:Dima_Seliverstov&bmc.com                               2009-07-28
 # [Dimitrios_Souflis]                                       Dimitrios Souflis                               mailto:dsouflis&altera.gr
 # [Dimitris_Michelinaki]                                    Dimitris Michelinakis                           mailto:dimitris&michelinakis.gr                               2002-05
@@ -17771,6 +17845,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Emmanuel_Tychon]                                         Emmanuel Tychon                                 mailto:etychon&cisco.com                                      2006-03
 # [Emre_Tunar]                                              Emre Tunar                                      mailto:emre.tunar&ca.com                                      2004-11
 # [Engineering_Dept]                                        Engineering Dept.                               mailto:domains&badgernt.com
+# [Enphase_Energy_Inc]                                                                Enphase Energy, Inc.  mailto:ceich&enphaseenergy.com                                2011-11-08
 # [Enrique_Corujo]                                          Enrique Corujo                                  mailto:enrique&caclearing.com                                 2006-02
 # [Environics_Oy]                                           Environics Oy                                   mailto:pasi.nuutinmaki&environics.fi
 # [Eran_Gampel]                                             Eran Gampel                                     mailto:eran&aoe6.net
@@ -18709,8 +18784,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Jude_George]                                             Jude George                                     mailto:jude&nas.nasa.gov
 # [Juergen_Edelhaeuser]                                     Juergen Edelhaeuser                             mailto:Juergen.Edelhaeuser&locanis.com                        2002-08
 # [Juergen_Fischbach]                                       Juergen Fischbach                               mailto:juergen.fischbach&philips.com
-# [Juho_Herttua]                                            Juho V SQRTSh                                   mailto:juhovh&iki.fi                                          2009-04-14
-# SQRTS-Herttua
+# [Jugaari]                                                 Jugaari                                         mailto:support&jugaari.com
+# [Juho_Herttua]                                            Juho Vaehae-Herttua                             mailto:juhovh&iki.fi                                          2009-04-14
 # [Julian_Biddle]                                           Julian Biddle                                   mailto:julian_biddle&technologyonecorp.com
 # [Julian_Mehnle]                                           Julian Mehnle                                   mailto:julian&mehnle.net
 # [Julian_Satran]                                           Julian Satran                                   mailto:Julian_Satran&il.ibm.com
@@ -19433,6 +19508,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Mike_Velten]                                             Mike Velten                                     mailto:Mike_Velten&liebert.com
 # [Mike_Velten_2]                                           Mike Velten                                     mailto:mike.Velten&liebert.com                                2002-03
 # [Mike_Wray]                                               Mike Wray                                       mailto:mjw&hplb.hpl.hp.com
+# [Mike_Wright]                                             Mike Wright               DIFUSI, Inc.          mailto:mike&adnodes.co                                        2011-11-07
 # [Mike_Yenco]                                              Mike Yenco                                      mailto:mike&yenco.com
 # [Mike_Young]                                              Mike Young                                      mailto:myong&netattach.com
 # [Mikhail_Belov]                                           Mikhail Belov                                   mailto:mikhail&imrgold.com                                    2002-02
@@ -19518,6 +19594,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Nick_Austin]                                             Nick Austin                                     mailto:ogmion&ogmium.com
 # [Nick_Barendt]                                            Nick Barendt                                    mailto:nbarendt&vxitech.com                                   2005-08
 # [Nick_Barendt_2]                                          Nick Barendt                                    mailto:nbarendt&vxitech.com
+# [Nick_Barendt_3]                                          Nick Barendt                                    mailto:nbarendt&vxitech.com
 # [Nick_Brosnahan]                                          Nick Brosnahan                                  mailto:nbrosnahan&apple.com
 # [Nick_Connor]                                             Nick Connor                                     mailto:nickc&assuria.com                                      2010-06-30
 # [Nick_Emery]                                              Nick Emery                                      mailto:Nick.Emery&altavista.digital.com
@@ -19894,6 +19971,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Randall_Dow]                                             Randall Dow                                     mailto:rand&randix.net
 # [Randall_Gellens]                                         Randall Gellens                                 mailto:randy&qualcomm.com
 # [Randall_Stewart]                                         Randall Stewart           IETF TSVWG            mailto:rrs&lakerest.net
+# [Randall_Stewart_2]                                       Randall Stewart                                 mailto:rrs&lakerest.net                                       2011-10-24
 # [Randy_Armstrong]                                         Randy Armstrong                                 mailto:randy.armstrong&opcfoundation.org                      2006-09
 # [Randy_Cassidy]                                           Randy Cassidy                                   mailto:randy.cassidy&iracing.com                              2007-08-30
 # [Randy_Epstein]                                           Randy Epstein                                   mailto:repstein&hostleasing.net
@@ -20576,6 +20654,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Tatsuhiko_Sakai]                                         Tatsuhiko Sakai           Canon Inc.            mailto:sakai.tatsuhiko&canon.co.jp                            2011-10-03
 # [Tatsuya_Igarashi]                                        Tatsuya Igarashi                                mailto:Tatsuya.Igarashi&jp.sony.com                           2002-07
 # [Tatsuya_Ueda]                                            Tatsuya Ueda                                    mailto:tatsu&ist.fujitsu.com                                  2003-10
+# [Tatu_Ylonen]                                             Tatu Ylonen                                     mailto:ylo&cs.hut.fi
 # [Tav_Espian]                                              Tav Espian                                      mailto:tav&espians.com                                        2010-08-10
 # [Ted_Hess]                                                Ted Hess                                        mailto:thess&livevault.com
 # [Ted_Hoshi]                                               Ted Hoshi                                       mailto:tetsuo.hoshi&jp.yokogawa.com                           2004-06
