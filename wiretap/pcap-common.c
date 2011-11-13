@@ -372,12 +372,10 @@ static const struct {
 	{ 235,		WTAP_ENCAP_DVBCI },
 	/* MUX27010 */
 	{ 236,		WTAP_ENCAP_MUX27010 },
-
-
-  /* netANALYZER pseudo header */
-  { 240,    WTAP_ENCAP_NETANALYZER },
-  /* netANALYZER pseudo header in transparent mode */
-  { 241,    WTAP_ENCAP_NETANALYZER_TRANSPARENT },
+	/* netANALYZER pseudo-header followed by Ethernet with CRC */
+	{ 240,		WTAP_ENCAP_NETANALYZER },
+	/* netANALYZER pseudo-header in transparent mode */
+	{ 241,		WTAP_ENCAP_NETANALYZER_TRANSPARENT },
 
 
 	/*
@@ -1674,8 +1672,13 @@ pcap_read_post_process(int file_type, int wtap_encap,
 		break;
 
 	case WTAP_ENCAP_NETANALYZER:
-    pseudo_header->eth.fcs_len = 4;
-    break;
+		/*
+		 * Not strictly necessary, as the netANALYZER
+		 * dissector calls the "Ethernet with FCS"
+		 * dissector, but we might as well set it.
+		 */
+		pseudo_header->eth.fcs_len = 4;
+		break;
 
 	default:
 		break;
