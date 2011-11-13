@@ -30,12 +30,12 @@ extern "C" {
 #endif /* __cplusplus */
 
 typedef struct _fmt_data {
-  gchar *title;
-  gchar *fmt;
-  gchar *custom_field;
-  gint custom_occurrence;
-  gboolean visible;
-  gboolean resolved;
+  gchar *title;            /* title of the column */
+  int fmt;                 /* format of column */
+  gchar *custom_field;     /* field name for COL_CUSTOM */
+  gint custom_occurrence;  /* optional ordinal of occurrence of that field */
+  gboolean visible;        /* if FALSE, hide this column */
+  gboolean resolved;       /* if TRUE, show a more human-readable name */
 } fmt_data;
 
 const gchar         *col_format_to_string(const gint);

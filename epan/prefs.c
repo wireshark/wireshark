@@ -1147,6 +1147,63 @@ print.file: /a/very/long/path/
 
 #define DEF_NUM_COLS    7
 
+/*
+ * Parse a column format, filling in the relevant fields of a fmt_data.
+ */
+static gboolean
+parse_column_format(fmt_data *cfmt, const char *fmt)
+{
+  const gchar *cust_format = col_format_to_string(COL_CUSTOM);
+  size_t cust_format_len = strlen(cust_format);
+  gchar **cust_format_info;
+  char *p;
+  int col_fmt;
+  gchar *col_custom_field;
+  long col_custom_occurrence;
+  gboolean col_resolved;
+
+  /*
+   * Is this a custom column?
+   */
+  if ((strlen(fmt) > cust_format_len) && (fmt[cust_format_len] == ':') &&
+      strncmp(fmt, cust_format, cust_format_len) == 0) {
+    /* Yes. */
+    col_fmt = COL_CUSTOM;
+    cust_format_info = g_strsplit(&fmt[cust_format_len+1],":",3); /* add 1 for ':' */
+    col_custom_field = g_strdup(cust_format_info[0]);
+    if (col_custom_field && cust_format_info[1]) {
+      col_custom_occurrence = strtol(cust_format_info[1], &p, 10);
+      if (p == cust_format_info[1] || *p != '\0') {
+        /* Not a valid number. */
+        g_free(col_custom_field);
+        g_strfreev(cust_format_info);
+        return FALSE;
+      }
+    } else {
+      col_custom_occurrence = 0;
+    }
+    if (col_custom_field && cust_format_info[1] && cust_format_info[2]) {
+      col_resolved = (cust_format_info[2][0] == 'U') ? FALSE : TRUE;
+    } else {
+      col_resolved = TRUE;
+    }
+    g_strfreev(cust_format_info);
+  } else {
+    col_fmt = get_column_format_from_str(fmt);
+    if (col_fmt == -1)
+      return FALSE;
+    col_custom_field = NULL;
+    col_custom_occurrence = 0;
+    col_resolved = TRUE;
+  }
+
+  cfmt->fmt = col_fmt;
+  cfmt->custom_field = col_custom_field;
+  cfmt->custom_occurrence = (int)col_custom_occurrence;
+  cfmt->resolved = col_resolved;
+  return TRUE;
+}
+
 /* Initialize non-dissector preferences to wired-in default values.
  * (The dissector preferences are assumed to be set to those values
  * by the dissectors.)
@@ -1157,7 +1214,8 @@ static void
 init_prefs(void) {
   int         i;
   fmt_data    *cfmt;
-  const gchar *col_fmt[] = {"No.",      "%m", "Time",        "%t",
+  static const gchar *col_fmt[DEF_NUM_COLS*2] = {
+                            "No.",      "%m", "Time",        "%t",
                             "Source",   "%s", "Destination", "%d",
                             "Protocol", "%p", "Length",      "%L",
                             "Info",     "%i"};
@@ -1175,7 +1233,7 @@ init_prefs(void) {
   for (i = 0; i < DEF_NUM_COLS; i++) {
     cfmt = (fmt_data *) g_malloc(sizeof(fmt_data));
     cfmt->title = g_strdup(col_fmt[i * 2]);
-    cfmt->fmt   = g_strdup(col_fmt[(i * 2) + 1]);
+    parse_column_format(cfmt, col_fmt[(i * 2) + 1]);
     cfmt->visible = TRUE;
     cfmt->resolved = TRUE;
     cfmt->custom_field = NULL;
@@ -1844,28 +1902,79 @@ prefs_is_capture_device_hidden(const char *name)
 }
 
 /*
- * Returns TRUE if the given column is hidden
+ * Returns TRUE if the given column is visible (not hidden)
  */
 static gboolean
-prefs_is_column_hidden(const gchar *cols_hidden, const char *fmt)
+prefs_is_column_visible(const gchar *cols_hidden, fmt_data *cfmt)
 {
 	gchar *tok, *cols;
-	size_t len;
+	fmt_data cfmt_hidden;
 
-	if (cols_hidden && fmt) {
-		cols = g_strdup (cols_hidden);
-		len = strlen (fmt);
-		for (tok = strtok (cols, ","); tok; tok = strtok(NULL, ",")) {
-			tok = g_strstrip (tok);
-			if (strlen (tok) == len && strcmp (fmt, tok) == 0) {
-				g_free (cols);
-				return TRUE;
+	/*
+	 * Do we have a list of hidden columns?
+	 */
+	if (cols_hidden) {
+		/*
+		 * Yes - check the column against each of the ones in the
+		 * list.
+		 */
+		cols = g_strdup(cols_hidden);
+		for (tok = strtok(cols, ","); tok; tok = strtok(NULL, ",")) {
+			tok = g_strstrip(tok);
+
+			/*
+			 * Parse this column format.
+			 */
+			if (!parse_column_format(&cfmt_hidden, tok)) {
+				/*
+				 * It's not valid; ignore it.
+				 */
+				continue;
 			}
+
+			/*
+			 * Does it match the column?
+			 */
+			if (cfmt->fmt != cfmt_hidden.fmt) {
+				/* No. */
+				g_free(cfmt_hidden.custom_field);
+				continue;
+			}
+			if (cfmt->fmt == COL_CUSTOM) {
+				/*
+				 * A custom column has to have the
+				 * same custom field and occurrence.
+				 */
+				if (strcmp(cfmt->custom_field,
+				    cfmt_hidden.custom_field) != 0) {
+					/* Different fields. */
+					g_free(cfmt_hidden.custom_field);
+					continue;
+				}
+				if (cfmt->custom_occurrence !=
+				    cfmt_hidden.custom_occurrence) {
+					/* Different occurrences. */
+					g_free(cfmt_hidden.custom_field);
+					continue;
+				}
+			}
+
+			/*
+			 * OK, they match, so it's one of the hidden fields,
+			 * hence not visible.
+			 */
+			g_free(cfmt_hidden.custom_field);
+			g_free(cols);
+			return FALSE;
 		}
-		g_free (cols);
+		g_free(cols);
 	}
 
-	return FALSE;
+	/*
+	 * No - either there are no hidden columns or this isn't one
+	 * of them - so it is visible.
+	 */
+	return TRUE;
 }
 
 /*
@@ -2104,7 +2213,7 @@ static prefs_set_pref_e
 set_pref(gchar *pref_name, gchar *value, void *private_data _U_,
 	 gboolean return_range_errors)
 {
-  GList    *col_l, *col_l_elt;
+  GList    *clp, *col_l, *col_l_elt;
   gint      llen;
   fmt_data *cfmt;
   unsigned long int cval;
@@ -2119,9 +2228,6 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_,
   module_t *module;
   pref_t   *pref;
   gboolean had_a_dot;
-  gchar    **cust_format_info;
-  const gchar *cust_format = col_format_to_string(COL_CUSTOM);
-  size_t cust_format_len = strlen(cust_format);
 
   if (strcmp(pref_name, PRS_PRINT_FMT) == 0) {
     if (strcmp(value, pr_formats[PR_FMT_TEXT]) == 0) {
@@ -2146,7 +2252,18 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_,
     g_free(prefs.pr_cmd);
     prefs.pr_cmd = g_strdup(value);
   } else if (strcmp(pref_name, PRS_COL_HIDDEN) == 0) {
-    cols_hidden_list = g_strdup (value);
+    g_free(cols_hidden_list);
+    cols_hidden_list = g_strdup(value);
+    /*
+     * Set the "visible" flag for the existing columns; we need to
+     * do this if we set PRS_COL_HIDDEN but don't set PRS_COL_FMT
+     * after setting it (which might be the case if, for example, we
+     * set PRS_COL_HIDDEN on the command line).
+     */
+    for (clp = prefs.col_list; clp != NULL; clp = clp->next) {
+      cfmt = (fmt_data *)clp->data;
+      cfmt->visible = prefs_is_column_visible(cols_hidden_list, cfmt);
+    }
   } else if (strcmp(pref_name, PRS_GUI_FILTER_LABEL) == 0) {
     filter_label = g_strdup(value);
   } else if (strcmp(pref_name, PRS_GUI_FILTER_ENABLED) == 0) {
@@ -2168,66 +2285,42 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_,
     /* Check to make sure all column formats are valid.  */
     col_l_elt = g_list_first(col_l);
     while(col_l_elt) {
+      fmt_data cfmt_check;
+
       /* Go past the title.  */
       col_l_elt = col_l_elt->next;
 
-      /* Check the format.  */
-      if ((strlen(col_l_elt->data) <= cust_format_len) ||
-	  (((char*)col_l_elt->data)[cust_format_len] != ':') ||
-	  strncmp(col_l_elt->data, cust_format, cust_format_len) != 0)
-      {
-        if (get_column_format_from_str(col_l_elt->data) == -1) {
-          /* It's not a valid column format.  */
-          prefs_clear_string_list(col_l);
-          return PREFS_SET_SYNTAX_ERR;
-        }
-
+      /* Parse the format to see if it's valid.  */
+      if (!parse_column_format(&cfmt_check, col_l_elt->data)) {
+        /* It's not a valid column format.  */
+        prefs_clear_string_list(col_l);
+        return PREFS_SET_SYNTAX_ERR;
+      }
+      if (cfmt_check.fmt != COL_CUSTOM) {
         /* Some predefined columns have been migrated to use custom colums.
          * We'll convert these silently here */
         try_convert_to_custom_column(&col_l_elt->data);
+      } else {
+        /* We don't need the custom column field on this pass. */
+        g_free(cfmt_check.custom_field);
       }
 
       /* Go past the format.  */
       col_l_elt = col_l_elt->next;
     }
+
+    /* They're all valid; process them. */
     free_col_info(&prefs);
     prefs.col_list = NULL;
     llen             = g_list_length(col_l);
     prefs.num_cols   = llen / 2;
     col_l_elt = g_list_first(col_l);
     while(col_l_elt) {
-      gchar *prefs_fmt;
       cfmt = (fmt_data *) g_malloc(sizeof(fmt_data));
       cfmt->title    = g_strdup(col_l_elt->data);
       col_l_elt      = col_l_elt->next;
-      if ((strlen(col_l_elt->data) > cust_format_len) &&
-	  (((char*)col_l_elt->data)[cust_format_len] == ':') &&
-	  strncmp(col_l_elt->data, cust_format, cust_format_len) == 0)
-      {
-        cfmt->fmt      = g_strdup(cust_format);
-        prefs_fmt      = g_strdup(col_l_elt->data);
-        cust_format_info = g_strsplit(&prefs_fmt[cust_format_len+1],":",3); /* add 1 for ':' */
-        cfmt->custom_field = g_strdup(cust_format_info[0]);
-        if (cfmt->custom_field && cust_format_info[1]) {
-            cfmt->custom_occurrence = (int)strtol(cust_format_info[1],NULL,10);
-        } else {
-            cfmt->custom_occurrence = 0;
-        }
-        if (cfmt->custom_field && cust_format_info[1] && cust_format_info[2]) {
-            cfmt->resolved = (cust_format_info[2][0] == 'U') ? FALSE : TRUE;
-        } else {
-            cfmt->resolved = TRUE;
-        }
-        g_strfreev(cust_format_info);
-      } else {
-        cfmt->fmt      = g_strdup(col_l_elt->data);
-        prefs_fmt      = g_strdup(cfmt->fmt);
-        cfmt->custom_field = NULL;
-        cfmt->custom_occurrence = 0;
-        cfmt->resolved  = TRUE;
-      }
-      cfmt->visible   = prefs_is_column_hidden (cols_hidden_list, prefs_fmt) ? FALSE : TRUE;
-      g_free (prefs_fmt);
+      parse_column_format(cfmt, col_l_elt->data);
+      cfmt->visible   = prefs_is_column_visible(cols_hidden_list, cfmt);
       col_l_elt      = col_l_elt->next;
       prefs.col_list = g_list_append(prefs.col_list, cfmt);
     }
@@ -3094,7 +3187,6 @@ write_prefs(char **pf_path_return)
   FILE        *pf;
   GList       *clp, *col_l;
   fmt_data    *cfmt;
-  const gchar *cust_format = col_format_to_string(COL_CUSTOM);
   GString     *cols_hidden = g_string_new ("");
 
   /* Needed for "-G defaultprefs" */
@@ -3296,14 +3388,16 @@ write_prefs(char **pf_path_return)
     gchar *prefs_fmt;
     cfmt = (fmt_data *) clp->data;
     col_l = g_list_append(col_l, g_strdup(cfmt->title));
-    if ((strcmp(cfmt->fmt, cust_format) == 0) && (cfmt->custom_field)) {
-      prefs_fmt = g_strdup_printf("%s:%s:%d:%c", cfmt->fmt, cfmt->custom_field,
-				  cfmt->custom_occurrence, cfmt->resolved ? 'R' : 'U');
-      col_l = g_list_append(col_l, prefs_fmt);
+    if ((cfmt->fmt == COL_CUSTOM) && (cfmt->custom_field)) {
+      prefs_fmt = g_strdup_printf("%s:%s:%d:%c",
+                                  col_format_to_string(cfmt->fmt),
+                                  cfmt->custom_field,
+                                  cfmt->custom_occurrence,
+                                  cfmt->resolved ? 'R' : 'U');
     } else {
-      prefs_fmt = cfmt->fmt;
-      col_l = g_list_append(col_l, g_strdup(cfmt->fmt));
+      prefs_fmt = g_strdup(col_format_to_string(cfmt->fmt));
     }
+    col_l = g_list_append(col_l, prefs_fmt);
     if (!cfmt->visible) {
       if (cols_hidden->len) {
 	g_string_append (cols_hidden, ",");
@@ -3555,7 +3649,7 @@ copy_prefs(e_prefs *dest, e_prefs *src)
     src_cfmt = entry->data;
     dest_cfmt = (fmt_data *) g_malloc(sizeof(fmt_data));
     dest_cfmt->title = g_strdup(src_cfmt->title);
-    dest_cfmt->fmt = g_strdup(src_cfmt->fmt);
+    dest_cfmt->fmt = src_cfmt->fmt;
     if (src_cfmt->custom_field) {
       dest_cfmt->custom_field = g_strdup(src_cfmt->custom_field);
       dest_cfmt->custom_occurrence = src_cfmt->custom_occurrence;
@@ -3686,7 +3780,6 @@ free_col_info(e_prefs *pr)
     cfmt = pr->col_list->data;
 
     g_free(cfmt->title);
-    g_free(cfmt->fmt);
     g_free(cfmt->custom_field);
     g_free(cfmt);
     pr->col_list = g_list_remove_link(pr->col_list, pr->col_list);

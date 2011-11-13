@@ -109,7 +109,6 @@ column_prefs_show(GtkWidget *prefs_window) {
     fmt_data          *cfmt;
     gint               i;
     gchar             *fmt;
-    gint               cur_fmt;
     const gchar       *column_titles[] = {"Displayed", "Title", "Field type"};
     GtkListStore      *store;
     GtkCellRenderer   *renderer;
@@ -179,12 +178,11 @@ column_prefs_show(GtkWidget *prefs_window) {
     clp = g_list_first(prefs.col_list);
     while (clp) {
         cfmt    = (fmt_data *) clp->data;
-        cur_fmt = get_column_format_from_str(cfmt->fmt);
-        if (cur_fmt == COL_CUSTOM) {
+        if (cfmt->fmt == COL_CUSTOM) {
             if (cfmt->custom_occurrence) {
-                fmt = g_strdup_printf("%s (%s#%d)", col_format_desc(cur_fmt), cfmt->custom_field, cfmt->custom_occurrence);
+                fmt = g_strdup_printf("%s (%s#%d)", col_format_desc(cfmt->fmt), cfmt->custom_field, cfmt->custom_occurrence);
             } else {
-                fmt = g_strdup_printf("%s (%s)", col_format_desc(cur_fmt), cfmt->custom_field);
+                fmt = g_strdup_printf("%s (%s)", col_format_desc(cfmt->fmt), cfmt->custom_field);
             }
         } else {
             if (cfmt->custom_field) {
@@ -193,7 +191,7 @@ column_prefs_show(GtkWidget *prefs_window) {
                 cfmt->custom_field = NULL;
                 cfmt->custom_occurrence = 0;
             }
-            fmt = g_strdup_printf("%s", col_format_desc(cur_fmt));
+            fmt = g_strdup_printf("%s", col_format_desc(cfmt->fmt));
         }
         gtk_list_store_insert_with_values(store, &iter, G_MAXINT,
 			   VISIBLE_COLUMN, cfmt->visible,
@@ -342,7 +340,7 @@ column_prefs_add_custom(gint fmt, const gchar *title, const gchar *custom_field,
    * shown underlined), escape it be inserting a second consecutive underscore.
    */
   cfmt->title = g_strdup(title);
-  cfmt->fmt = g_strdup(col_format_to_string(fmt));
+  cfmt->fmt = fmt;
   cfmt->custom_field = g_strdup(custom_field);
   cfmt->custom_occurrence = custom_occurrence;
   cfmt->resolved = TRUE;
@@ -351,7 +349,7 @@ column_prefs_add_custom(gint fmt, const gchar *title, const gchar *custom_field,
     cfmt->visible = TRUE;
     clp = g_list_last(prefs.col_list);
     last_cfmt = (fmt_data *) clp->data;
-    if (strcmp(last_cfmt->fmt, "%i") == 0) {
+    if (last_cfmt->fmt == COL_INFO) {
       /* Last column is COL_INFO, add custom column before this */
       prefs.col_list = g_list_insert(prefs.col_list, cfmt, g_list_length(prefs.col_list)-1);
     } else {
@@ -370,7 +368,6 @@ column_prefs_remove(gint col)
   fmt_data *cfmt = (fmt_data *) clp->data;
 
   g_free(cfmt->title);
-  g_free(cfmt->fmt);
   g_free(cfmt->custom_field);
   g_free(cfmt);
   prefs.col_list = g_list_remove_link(prefs.col_list, clp);
@@ -434,7 +431,6 @@ column_list_delete_cb(GtkWidget *w _U_, gpointer data) {
 
         cfmt = (fmt_data *) clp->data;
         g_free(cfmt->title);
-        g_free(cfmt->fmt);
         g_free(cfmt->custom_field);
         g_free(cfmt);
         prefs.col_list = g_list_remove_link(prefs.col_list, clp);
@@ -515,7 +511,6 @@ static void
 column_list_select_cb(GtkTreeSelection *sel, gpointer data _U_)
 {
     fmt_data     *cfmt;
-    gint          cur_fmt;
     GList        *clp;
     GtkTreeModel *model;
     GtkTreeIter   iter;
@@ -526,16 +521,14 @@ column_list_select_cb(GtkTreeSelection *sel, gpointer data _U_)
         gtk_tree_model_get(model, &iter, DATA_COLUMN, &clp, -1);
         g_assert(clp != NULL);
         cfmt    = (fmt_data *) clp->data;
-        cur_fmt = get_column_format_from_str(cfmt->fmt);
-        g_assert(cur_fmt != -1);     /* It should always be valid */
 
         g_signal_handler_block  (fmt_cmb, column_menu_changed_handler_id);
-        gtk_combo_box_set_active(GTK_COMBO_BOX(fmt_cmb), cur_fmt);
+        gtk_combo_box_set_active(GTK_COMBO_BOX(fmt_cmb), cfmt->fmt);
         g_signal_handler_unblock(fmt_cmb, column_menu_changed_handler_id);
 
         g_signal_handler_block  (field_te, column_field_changed_handler_id);
         g_signal_handler_block  (occurrence_te, column_occurrence_changed_handler_id);
-        if (cur_fmt == COL_CUSTOM) {
+        if (cfmt->fmt == COL_CUSTOM) {
             gtk_entry_set_text(GTK_ENTRY(field_te), cfmt->custom_field);
             gtk_widget_set_sensitive(field_lb, TRUE);
             gtk_widget_set_sensitive(field_te, TRUE);
@@ -590,7 +583,6 @@ static void
 column_menu_changed_cb(GtkWidget *w, gpointer data) {
     GtkTreeView      *column_l = GTK_TREE_VIEW(data);
     fmt_data         *cfmt;
-    gint              cur_fmt;
     gint              cur_cb_fmt;
     GList            *clp;
     gchar            *fmt;
@@ -605,9 +597,8 @@ column_menu_changed_cb(GtkWidget *w, gpointer data) {
     cur_cb_fmt = gtk_combo_box_get_active(GTK_COMBO_BOX(w));
     gtk_tree_model_get(model, &iter, DATA_COLUMN, &clp, -1);
     cfmt    = (fmt_data *) clp->data;
-    cur_fmt = get_column_format_from_str(cfmt->fmt);
 
-    g_assert(cur_cb_fmt != cur_fmt);
+    g_assert(cur_cb_fmt != cfmt->fmt);
 
     /* The User has selected a new format in the combo-box    */
     /*  (IE: combo-box format != current selected row format) */
@@ -615,7 +606,7 @@ column_menu_changed_cb(GtkWidget *w, gpointer data) {
     /*  entry as appropriate.                                 */
     g_signal_handler_block  (field_te, column_field_changed_handler_id);
     g_signal_handler_block  (occurrence_te, column_occurrence_changed_handler_id);
-    if (cur_fmt == COL_CUSTOM) {
+    if (cfmt->fmt == COL_CUSTOM) {
         /* Changing from custom to non-custom   */
         gtk_editable_delete_text(GTK_EDITABLE(field_te), 0, -1);
         gtk_editable_delete_text(GTK_EDITABLE(occurrence_te), 0, -1);
@@ -653,8 +644,7 @@ column_menu_changed_cb(GtkWidget *w, gpointer data) {
 
     gtk_list_store_set(GTK_LIST_STORE(model), &iter, FORMAT_COLUMN, fmt, -1);
     g_free(fmt);
-    g_free(cfmt->fmt);
-    cfmt->fmt = g_strdup(col_format_to_string(cur_cb_fmt));
+    cfmt->fmt = cur_cb_fmt;
     cfile.cinfo.columns_changed = TRUE;
 }
 
@@ -671,7 +661,6 @@ column_menu_changed_cb(GtkWidget *w, gpointer data) {
 static void
 column_field_changed_cb(GtkEditable *te, gpointer data) {
     fmt_data         *cfmt;
-    gint              cur_fmt;
     GList            *clp;
     gchar            *field, *fmt;
     GtkTreeView      *tree = (GtkTreeView *)data;
@@ -692,11 +681,10 @@ column_field_changed_cb(GtkEditable *te, gpointer data) {
     }
 
     /* The user has entered a new value in the field entry box: make the req'd changes */
-    cur_fmt = get_column_format_from_str(cfmt->fmt);
     if (cfmt->custom_occurrence) {
-        fmt = g_strdup_printf("%s (%s#%d)", col_format_desc(cur_fmt), field, cfmt->custom_occurrence);
+        fmt = g_strdup_printf("%s (%s#%d)", col_format_desc(cfmt->fmt), field, cfmt->custom_occurrence);
     } else {
-        fmt = g_strdup_printf("%s (%s)", col_format_desc(cur_fmt), field);
+        fmt = g_strdup_printf("%s (%s)", col_format_desc(cfmt->fmt), field);
     }
 
     gtk_list_store_set(GTK_LIST_STORE(model), &iter, FORMAT_COLUMN, fmt, -1);
@@ -719,7 +707,6 @@ column_field_changed_cb(GtkEditable *te, gpointer data) {
 static void
 column_occurrence_changed_cb(GtkEditable *te, gpointer data) {
     fmt_data         *cfmt;
-    gint              cur_fmt;
     gint              occurrence;
     GList            *clp;
     gchar            *fmt;
@@ -741,11 +728,10 @@ column_occurrence_changed_cb(GtkEditable *te, gpointer data) {
     }
 
     /* The user has entered a new value in the field occurrence entry box: make the req'd changes */
-    cur_fmt = get_column_format_from_str(cfmt->fmt);
     if (occurrence) {
-        fmt = g_strdup_printf("%s (%s#%d)", col_format_desc(cur_fmt), cfmt->custom_field, occurrence);
+        fmt = g_strdup_printf("%s (%s#%d)", col_format_desc(cfmt->fmt), cfmt->custom_field, occurrence);
     } else {
-        fmt = g_strdup_printf("%s (%s)", col_format_desc(cur_fmt), cfmt->custom_field);
+        fmt = g_strdup_printf("%s (%s)", col_format_desc(cfmt->fmt), cfmt->custom_field);
     }
 
     gtk_list_store_set(GTK_LIST_STORE(model), &iter, FORMAT_COLUMN, fmt, -1);

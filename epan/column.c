@@ -638,7 +638,7 @@ get_column_format(const gint col)
 
   cfmt = (fmt_data *) clp->data;
 
-  return(get_column_format_from_str(cfmt->fmt));
+  return(cfmt->fmt);
 }
 
 void
@@ -652,8 +652,7 @@ set_column_format(const gint col, const gint fmt)
 
   cfmt = (fmt_data *) clp->data;
 
-  g_free (cfmt->fmt);
-  cfmt->fmt = g_strdup(col_format_to_string(fmt));
+  cfmt->fmt = fmt;
 }
 
 gint

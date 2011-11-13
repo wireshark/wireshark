@@ -5234,7 +5234,7 @@ rebuild_visible_columns_menu (void)
     GList     *clp;
     fmt_data  *cfmt;
     gchar     *title;
-    gint       i, col_id, cur_fmt;
+    gint       i, col_id;
     menu_columns[0] = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/DisplayedColumns");
     if(! menu_columns[0]){
         fprintf (stderr, "Warning: couldn't find menu_columns[0] path=/Menubar/ViewMenu/DisplayedColumns");
@@ -5253,18 +5253,17 @@ rebuild_visible_columns_menu (void)
         col_id = 0;
         while (clp) {
             cfmt = (fmt_data *) clp->data;
-            cur_fmt = get_column_format_from_str(cfmt->fmt);
             if (cfmt->title[0]) {
-                if (cur_fmt == COL_CUSTOM) {
+                if (cfmt->fmt == COL_CUSTOM) {
                     title = g_strdup_printf ("%s  (%s)", cfmt->title, cfmt->custom_field);
                 } else {
-                    title = g_strdup_printf ("%s  (%s)", cfmt->title, col_format_desc (cur_fmt));
+                    title = g_strdup_printf ("%s  (%s)", cfmt->title, col_format_desc (cfmt->fmt));
                 }
             } else {
-                if (cur_fmt == COL_CUSTOM) {
+                if (cfmt->fmt == COL_CUSTOM) {
                     title = g_strdup_printf ("(%s)", cfmt->custom_field);
                 } else {
-                    title = g_strdup_printf ("(%s)", col_format_desc (cur_fmt));
+                    title = g_strdup_printf ("(%s)", col_format_desc (cfmt->fmt));
                 }
             }
             menu_item = gtk_check_menu_item_new_with_label(title);
