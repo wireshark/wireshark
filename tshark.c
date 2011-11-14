@@ -803,7 +803,7 @@ main(int argc, char *argv[])
   int                  gdp_open_errno, gdp_read_errno;
   int                  dp_open_errno, dp_read_errno;
   int                  err;
-  int                  exit_status = 0;
+  volatile int         exit_status = 0;
 #ifdef HAVE_LIBPCAP
   gboolean             list_link_layer_types = FALSE;
   gboolean             start_capture = FALSE;
