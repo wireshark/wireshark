@@ -31,7 +31,6 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/strutil.h>
 #include <ctype.h>
 
 static int proto_at = -1;

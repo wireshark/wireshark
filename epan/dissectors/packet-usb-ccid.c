@@ -3,7 +3,7 @@
  *
  * References:
  * http://www.usb.org/developers/devclass_docs/DWG_Smart-Card_CCID_Rev110.pdf
- * 
+ *
  * Copyright 2011, Tyson Key <tyson.key@gmail.com>
  *
  * $Id$
@@ -33,8 +33,6 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/strutil.h>
-#include <ctype.h>
 #include <epan/dissectors/packet-usb.h>
 
 static int proto_ccid = -1;
@@ -259,7 +257,7 @@ static void dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_item(ccid_tree, hf_ccid_wLevelParameter, tvb, 8, 2, ENC_LITTLE_ENDIAN);
 
             next_tvb = tvb_new_subset_remaining(tvb, 10);
-            call_dissector(data_handle, next_tvb, pinfo, tree); 
+            call_dissector(data_handle, next_tvb, pinfo, tree);
 
             col_set_str(pinfo->cinfo, COL_INFO, "PC to Reader: Transfer Block");
             break;
@@ -285,7 +283,7 @@ static void dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_item(ccid_tree, hf_ccid_bError, tvb, 8, 1, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(ccid_tree, hf_ccid_bChainParameter, tvb, 9, 1, ENC_LITTLE_ENDIAN);
 
-            next_tvb = tvb_new_subset_remaining(tvb, 10); 
+            next_tvb = tvb_new_subset_remaining(tvb, 10);
             call_dissector(data_handle, next_tvb, pinfo, ccid_tree);
             break;
 
@@ -381,7 +379,7 @@ proto_register_ccid(void)
 void
 proto_reg_handoff_ccid(void)
 {
-    data_handle = find_dissector("data"); 
+    data_handle = find_dissector("data");
     usb_ccid_bulk_handle = find_dissector("ccid");
     dissector_add_uint("usb.bulk", IF_CLASS_SMART_CARD, usb_ccid_bulk_handle);
 
