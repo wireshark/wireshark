@@ -49,7 +49,6 @@ static const value_string prp_lan_vals[] = {
 
 void proto_reg_handoff_prp(void);
 static int proto_prp = -1;
-static module_t *prp_module;
 
 
 /* Initialize trailer fields */
@@ -196,7 +195,6 @@ dissect_prp_redundancy_control_trailer(tvbuff_t *tvb, packet_info *pinfo _U_, pr
 /* Register the protocol with Wireshark */
 void proto_register_prp(void)
 {
-
     static hf_register_info hf[] = {
         /*trailer*/
         { &hf_prp_redundancy_control_trailer_sequence_nr,
@@ -234,6 +232,7 @@ void proto_register_prp(void)
         &ett_prp_redundancy_control_trailer,
     };
 
+    module_t *prp_module;
 
     /* Register the protocol name and description */
     proto_prp = proto_register_protocol("Parallel Redundancy Protocol (IEC62439 Part 3)",
@@ -263,5 +262,5 @@ void proto_reg_handoff_prp(void)
         prefs_initialized = TRUE;
     }
 
-      proto_set_decoding(proto_prp, prp_enable_dissector);
+    proto_set_decoding(proto_prp, prp_enable_dissector);
 }

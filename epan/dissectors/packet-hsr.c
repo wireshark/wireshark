@@ -83,12 +83,9 @@ dissect_hsr_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint16 etype;
     guint16 lsdu_size, lsdu_size_correct;
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "HSR");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "HSR");
 
-    if (check_col(pinfo->cinfo, COL_INFO)){
-        col_set_str(pinfo->cinfo, COL_INFO, "HSR-Data Frame");
-    }
+    col_set_str(pinfo->cinfo, COL_INFO, "HSR-Data Frame");
 
     /* create display subtree for the protocol */
 

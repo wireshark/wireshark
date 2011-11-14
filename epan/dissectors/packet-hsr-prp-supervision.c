@@ -28,7 +28,6 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/etypes.h>
@@ -107,7 +106,7 @@ dissect_hsr_prp_supervision(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset += 2;
     }
 
-    while (tvb_reported_length_remaining(tvb, offset)) {
+    while (tvb_reported_length_remaining(tvb, offset) > 0) {
         /* TLV.type */
         tlv_type = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(hsr_prp_supervision_tree, hf_hsr_prp_supervision_tlv_type,
@@ -249,9 +248,6 @@ void proto_register_hsr_prp_supervision(void)
     /* Required function calls to register the header fields and subtree used */
     proto_register_field_array(proto_hsr_prp_supervision, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-
-
-
 }
 
 

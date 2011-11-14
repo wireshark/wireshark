@@ -5,7 +5,7 @@
  * http://code.google.com/p/nfc-tools/source/browse/trunk/libfreefare/libfreefare/mifare_classic.c
  * http://www.nxp.com/documents/data_sheet/MF1S703x.pdf
  * http://www.nxp.com/documents/application_note/AN1304.pdf
- * 
+ *
  * Copyright 2011, Tyson Key <tyson.key@gmail.com>
  *
  * $Id$
@@ -29,15 +29,13 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
  */
- 
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/strutil.h>
-#include <ctype.h>
 
 static int proto_mifare = -1;
 
@@ -48,35 +46,32 @@ static int hf_mifare_key_b = -1;
 static int hf_mifare_uid = -1;
 static int hf_mifare_operand = -1;
 
-#define AUTH_A 0x60 
-#define AUTH_B 0x61
-#define READ 0x30
-#define WRITE 0xA0
-#define TRANSFER 0xB0
+#define AUTH_A    0x60
+#define AUTH_B    0x61
+#define READ      0x30
+#define WRITE     0xA0
+#define TRANSFER  0xB0
 #define DECREMENT 0xC0
 #define INCREMENT 0xC1
-#define RESTORE 0xC2
+#define RESTORE   0xC2
 
 static const value_string hf_mifare_commands[] = {
-    {AUTH_A, "AUTH_A"},
-    {AUTH_B, "AUTH_B"},
-    {READ, "READ"},
-    {WRITE, "WRITE"},
-    {TRANSFER, "TRANSFER"},
+    {AUTH_A,    "AUTH_A"},
+    {AUTH_B,    "AUTH_B"},
+    {READ,      "READ"},
+    {WRITE,     "WRITE"},
+    {TRANSFER,  "TRANSFER"},
     {DECREMENT, "DECREMENT"},
     {INCREMENT, "INCREMENT"},
-    {RESTORE, "RESTORE"},
+    {RESTORE,   "RESTORE"},
 
     /* End of commands */
     {0x00, NULL}
 };
 
 static dissector_handle_t mifare_handle;
-static dissector_handle_t data_handle=NULL;
+static dissector_handle_t data_handle;
 static dissector_table_t mifare_dissector_table;
-
-/* Forward-declare the dissector functions */
-static void dissect_mifare(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /* Subtree handles: set by register_subtree_array */
 static gint ett_mifare = -1;
@@ -86,7 +81,7 @@ static void dissect_mifare(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item *item;
     proto_tree *mifare_tree;
     guint8 cmd;
-    tvbuff_t *next_tvb = NULL; 
+    tvbuff_t *next_tvb = NULL;
 
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MiFare");
@@ -118,7 +113,7 @@ static void dissect_mifare(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              proto_tree_add_item(mifare_tree, hf_mifare_uid, tvb, 8, 4, ENC_BIG_ENDIAN);
 
              col_set_str(pinfo->cinfo, COL_INFO, "Authenticate with Key B");
-             
+
              break;
 
         case READ:
@@ -229,7 +224,7 @@ proto_register_mifare(void)
 void
 proto_reg_handoff_mifare(void)
 {
-    data_handle = find_dissector("data"); 
+    data_handle = find_dissector("data");
     mifare_handle = find_dissector("mifare");
 }
 /*
