@@ -41,6 +41,8 @@
 #include <epan/reassemble.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/asn1.h>
+#include <epan/dissectors/packet-x509af.h>
 
 #include "packet-ber.h"
 
@@ -818,6 +820,8 @@ static int hf_dvbci_cup_progress = -1;
 static int hf_dvbci_cup_reset = -1;
 static int hf_dvbci_cc_sys_id_bitmask = -1;
 static int hf_dvbci_cc_dat_id = -1;
+static int hf_dvbci_brand_cert = -1;
+static int hf_dvbci_dev_cert = -1;
 static int hf_dvbci_cc_status_field = -1;
 static int hf_dvbci_cc_data = -1;
 static int hf_dvbci_sac_msg_ctr = -1;
@@ -1629,6 +1633,9 @@ dissect_cc_item(tvbuff_t *tvb, gint offset,
     gint offset_start;
     guint16 dat_len;
     guint8 dat_id;
+    asn1_ctx_t asn1_ctx;
+    int hf_cert_index;
+
 
     offset_start = offset;
     if (tree) {
@@ -1644,6 +1651,17 @@ dissect_cc_item(tvbuff_t *tvb, gint offset,
     offset += 2;
     /* this will be extended to handle more data items */
     switch (dat_id) {
+        case CC_ID_HOST_BRAND_CERT:
+        case CC_ID_CICAM_BRAND_CERT:
+        case CC_ID_HOST_DEV_CERT:
+        case CC_ID_CICAM_DEV_CERT:
+            asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+            hf_cert_index = (dat_id==CC_ID_HOST_BRAND_CERT ||
+                             dat_id==CC_ID_CICAM_BRAND_CERT) ?
+                hf_dvbci_brand_cert : hf_dvbci_dev_cert;
+            dissect_x509af_Certificate(FALSE, tvb, offset,
+                    &asn1_ctx, cc_item_tree, hf_cert_index);
+            break;
         case CC_ID_STATUS_FIELD:
             proto_tree_add_item(cc_item_tree, hf_dvbci_cc_status_field,
                     tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -4256,6 +4274,12 @@ proto_register_dvbci(void)
         { &hf_dvbci_cc_dat_id,
             { "CC datatype id", "dvb-ci.cc.datatype_id", FT_UINT8, BASE_HEX,
                 VALS(dvbci_cc_dat_id), 0, NULL, HFILL } },
+        { &hf_dvbci_brand_cert,
+            { "Brand certificate", "dvb-ci.cc.brand_cert", FT_NONE, BASE_NONE,
+                NULL, 0x0, NULL, HFILL } },
+        { &hf_dvbci_dev_cert,
+            { "Device certificate", "dvb-ci.cc.dev_cert", FT_NONE, BASE_NONE,
+                NULL, 0x0, NULL, HFILL } },
         { &hf_dvbci_cc_status_field,
             { "Status field", "dvb-ci.cc.status_field", FT_UINT8, BASE_HEX,
                 VALS(dvbci_cc_status), 0, NULL, HFILL } },
