@@ -43,8 +43,6 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/strutil.h>
-
 
 static void DissectNOE(tvbuff_t *pTvb, proto_tree *pRootUA);
 static void DissectNOE_type(tvbuff_t *pTvb, proto_tree *pNoeItem);
@@ -153,12 +151,12 @@ static const value_string szCallServerMethod[] =
 
 static const value_string szCallServerClass[] =
 {
-    { 1, "Terminal" },
-    { 5, "Leds" },
-    { 6, "Screen" },
-    { 7, "Date" },
-    { 8, "AOMV" },
-    { 12, "CallState" },
+    { 1,   "Terminal" },
+    { 5,   "Leds" },
+    { 6,   "Screen" },
+    { 7,   "Date" },
+    { 8,   "AOMV" },
+    { 12,  "CallState" },
     { 128, "FrameBox" },
     { 129, "TabBox" },
     { 130, "ListBox" },
@@ -176,10 +174,10 @@ static const value_string szCallServerClass[] =
 
 static const value_string szCallServerEvent[] =
 {
-    { 2, "KeyPress" },
-    { 4, "KeyShortPress" },
-    { 6, "OnHook" },
-    { 7, "OffHook" },
+    { 2,   "KeyPress" },
+    { 4,   "KeyShortPress" },
+    { 6,   "OnHook" },
+    { 7,   "OffHook" },
     { 128, "TabBox" },
     { 133, "ActionBox" },
     { 152, "DialogBoxDismissed" },
@@ -204,10 +202,10 @@ static const value_string szStartRtpPropID[] =
 
 static const value_string szStartRtpPayload[] =
 {
-    { 0, "G.711 A-law" },
-    { 1, "G.711 mu-law" },
-    { 2, "G.723.1 5.3 kbps" },
-    { 3, "G.723.1 6.3 kbps" },
+    { 0,    "G.711 A-law" },
+    { 1,    "G.711 mu-law" },
+    { 2,    "G.723.1 5.3 kbps" },
+    { 3,    "G.723.1 6.3 kbps" },
     { 0x11, "G.729A 8kbps"},
     { 0, NULL }
 };
@@ -232,32 +230,32 @@ static const value_string szNoeVoiceMode[] =
 */
 static const value_string szTlvProperty[] =
 {
-    { 8, "Count" },
-    { 11, "NavigatorOwnerShip" },
-    { 15, "NumpadEvent" },
-    { 16, "Format_16" },
-    { 18, "W" },
-    { 19, "Hour" },
-    { 24, "Year" },
-    { 25, "Month" },
-    { 26, "Day" },
-    { 27, "Minutes" },
-    { 28, "Seconds" },
-    { 36, "AnchorID" },
-    { 39, "Y" },
-    { 40, "Visible" },
-    { 42, "FontID" },
-    { 44, "HAlign" },
-    { 54, "Icon_54" },
-    { 55, "Label" },
-    { 56, "Value" },
-    { 61, "Focus" },
-    { 62, "State_62" },
-    { 63, "Format_63" },
-    { 76, "VSplit" },
-    { 78, "RealCount" },
-    { 79, "Start" },
-    { 95, "_95" },
+    { 8,   "Count" },
+    { 11,  "NavigatorOwnerShip" },
+    { 15,  "NumpadEvent" },
+    { 16,  "Format_16" },
+    { 18,  "W" },
+    { 19,  "Hour" },
+    { 24,  "Year" },
+    { 25,  "Month" },
+    { 26,  "Day" },
+    { 27,  "Minutes" },
+    { 28,  "Seconds" },
+    { 36,  "AnchorID" },
+    { 39,  "Y" },
+    { 40,  "Visible" },
+    { 42,  "FontID" },
+    { 44,  "HAlign" },
+    { 54,  "Icon_54" },
+    { 55,  "Label" },
+    { 56,  "Value" },
+    { 61,  "Focus" },
+    { 62,  "State_62" },
+    { 63,  "Format_63" },
+    { 76,  "VSplit" },
+    { 78,  "RealCount" },
+    { 79,  "Start" },
+    { 95,  "_95" },
     { 131, "Key Ownership" },
     { 134, "Mode" },
     { 135, "Color" },
@@ -299,19 +297,18 @@ gboolean is_ua(tvbuff_t *tvb)
 */
 static int DissectUA(tvbuff_t *pTvb, packet_info *pInfo, proto_tree *pTree)
 {
-    gint nLen, iOffs;
-    guint16 nNoeLen;
+    gint        nLen, iOffs;
+    guint       nNoeLen;
     proto_item *pRootUA;
     proto_tree *pSubTreeUA;
-    tvbuff_t *pTvbNoe;
+    tvbuff_t   *pTvbNoe;
 
     /* Check whether it can be protocol data */
     if(!is_ua(pTvb))
         return 0;
 
     /* INFO column */
-    if(check_col(pInfo->cinfo, COL_INFO))
-        col_append_str(pInfo->cinfo, COL_INFO, " - UA");
+    col_append_str(pInfo->cinfo, COL_INFO, " - UA");
 
     nLen = tvb_length(pTvb);
     if(pTree)
@@ -367,7 +364,7 @@ static void DissectNOE(tvbuff_t *pTvb, proto_tree *pRootUA)
 
 static void DissectNOE_type(tvbuff_t *pTvb, proto_tree *pNoeItem)
 {
-    proto_item_append_text(pNoeItem, ": %s", val_to_str(tvb_get_guint8(pTvb, 0), szNoeType, "Unknown"));
+    proto_item_append_text(pNoeItem, ": %s", val_to_str_const(tvb_get_guint8(pTvb, 0), szNoeType, "Unknown"));
     proto_tree_add_item(pNoeItem, hf_noe_type, pTvb, 0, 1, ENC_NA);
 
     switch(tvb_get_guint8(pTvb, 0))
@@ -433,11 +430,13 @@ static void DissectNOE_callserver(tvbuff_t *pTvb, proto_tree *pNoeItem)
             /* TLV items */
             for(; iOffs < nLen; )
             {
-                guint8 nTlvLen, nTlvProperty; gboolean bIsArrIndex;
+                guint    nTlvLen;
+                guint8   nTlvProperty;
+                gboolean bIsArrIndex;
 
                 nTlvProperty = tvb_get_guint8(pTvb, iOffs);
                 /* for property of more than 100 and equal 120 before the field is still arrindex propsize */
-                if(nTlvProperty < 100 || nTlvProperty == 120)
+                if((nTlvProperty < 100) || (nTlvProperty == 120))
                 {
                     nTlvLen = tvb_get_guint8(pTvb, iOffs+1);
                     nTlvLen += 2;
@@ -515,10 +514,10 @@ static void DissectNOE_ip_startrtp(tvbuff_t *pTvb, proto_tree *pNoeItem)
     /*Properties*/
     for(iOffs = 1; iOffs < nLen; )
     {
-        guint8 u8PropSize;
+        guint     u8PropSize;
         tvbuff_t *pTvbTlv;
 
-        u8PropSize = tvb_get_guint8(pTvb, iOffs+1) +2;
+        u8PropSize = tvb_get_guint8(pTvb, iOffs+1) + 2;
         pTvbTlv = tvb_new_subset(pTvb, iOffs, u8PropSize, u8PropSize);
 
         DissectNOE_ip_startrtp_properties(pTvbTlv, pNoeItem);
@@ -581,7 +580,7 @@ static void DissectNOE_ip_startrtp_properties(tvbuff_t *pTvb, proto_tree *pNoeIt
             }
         case 0x04: /*Payload*/
             {
-                proto_item_append_text(pProp, ": %s", val_to_str(tvb_get_guint8(pTvb, 2), szStartRtpPayload, "Unknown"));
+                proto_item_append_text(pProp, ": %s", val_to_str_const(tvb_get_guint8(pTvb, 2), szStartRtpPayload, "Unknown"));
                 proto_tree_add_item(pSubTreeProp, hf_noe_compressor, pTvb, 2, -1, ENC_NA);
                 break;
             }
