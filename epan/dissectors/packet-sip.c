@@ -1409,7 +1409,7 @@ display_sip_uri (tvbuff_t *tvb, proto_tree *sip_element_tree, uri_offset_info* u
 	    gint current_offset          = uri_offsets->uri_parameters_start;
         gint uri_params_start_offset = current_offset;
         gint queried_offset;
-        gint uri_param_end_offset;
+        gint uri_param_end_offset = -1;
         gchar c;
 
 	    /* Put the contact parameters in the tree */
