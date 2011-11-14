@@ -128,11 +128,8 @@ dissect_inap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     proto_item		*item=NULL;
     proto_tree		*tree=NULL;
 	int				offset = 0;
-	guint			length;
 	asn1_ctx_t asn1_ctx;
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-
-	length = tvb_length(tvb);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "INAP");
 

@@ -191,7 +191,6 @@ static gboolean ros_try_string(const char *oid, tvbuff_t *tvb, packet_info *pinf
 	gint32     opcode_lcl = 0;
 	const gchar *opname = NULL;
 	const gchar *suffix = NULL;
-	int offset = 0;
 	new_dissector_t opdissector = NULL;
 	const value_string *lookup;
 	proto_item *item=NULL;
@@ -250,7 +249,7 @@ static gboolean ros_try_string(const char *oid, tvbuff_t *tvb, packet_info *pinf
 					col_append_str(pinfo->cinfo, COL_INFO, suffix);
 			}
 
-			offset = (*opdissector)(tvb, pinfo, ros_tree);
+			(*opdissector)(tvb, pinfo, ros_tree);
 
 			return TRUE;
 		}
@@ -1013,7 +1012,7 @@ dissect_ros_Code(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
 
 /*--- End of included file: packet-ros-fn.c ---*/
-#line 372 "../../asn1/ros/packet-ros-template.c"
+#line 371 "../../asn1/ros/packet-ros-template.c"
 
 /*
 * Dissect ROS PDUs inside a PPDU.
@@ -1245,7 +1244,7 @@ void proto_register_ros(void) {
         "OBJECT_IDENTIFIER", HFILL }},
 
 /*--- End of included file: packet-ros-hfarr.c ---*/
-#line 491 "../../asn1/ros/packet-ros-template.c"
+#line 490 "../../asn1/ros/packet-ros-template.c"
   };
 
   /* List of subtrees */
@@ -1266,7 +1265,7 @@ void proto_register_ros(void) {
     &ett_ros_Code,
 
 /*--- End of included file: packet-ros-ettarr.c ---*/
-#line 498 "../../asn1/ros/packet-ros-template.c"
+#line 497 "../../asn1/ros/packet-ros-template.c"
   };
 
   /* Register protocol */

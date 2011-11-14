@@ -9353,11 +9353,8 @@ dissect_inap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     proto_item		*item=NULL;
     proto_tree		*tree=NULL;
 	int				offset = 0;
-	guint			length;
 	asn1_ctx_t asn1_ctx;
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-
-	length = tvb_length(tvb);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "INAP");
 
@@ -11669,7 +11666,7 @@ void proto_register_inap(void) {
         "InvokeId_present", HFILL }},
 
 /*--- End of included file: packet-inap-hfarr.c ---*/
-#line 203 "../../asn1/inap/packet-inap-template.c"
+#line 200 "../../asn1/inap/packet-inap-template.c"
   };
 
 
@@ -11923,7 +11920,7 @@ void proto_register_inap(void) {
     &ett_inap_InvokeId,
 
 /*--- End of included file: packet-inap-ettarr.c ---*/
-#line 216 "../../asn1/inap/packet-inap-template.c"
+#line 213 "../../asn1/inap/packet-inap-template.c"
   };
 
   /* Register protocol */

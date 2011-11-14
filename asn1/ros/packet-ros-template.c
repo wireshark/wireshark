@@ -137,7 +137,6 @@ static gboolean ros_try_string(const char *oid, tvbuff_t *tvb, packet_info *pinf
 	gint32     opcode_lcl = 0;
 	const gchar *opname = NULL;
 	const gchar *suffix = NULL;
-	int offset = 0;
 	new_dissector_t opdissector = NULL;
 	const value_string *lookup;
 	proto_item *item=NULL;
@@ -196,7 +195,7 @@ static gboolean ros_try_string(const char *oid, tvbuff_t *tvb, packet_info *pinf
 					col_append_str(pinfo->cinfo, COL_INFO, suffix);
 			}
 
-			offset = (*opdissector)(tvb, pinfo, ros_tree);
+			(*opdissector)(tvb, pinfo, ros_tree);
 
 			return TRUE;
 		}

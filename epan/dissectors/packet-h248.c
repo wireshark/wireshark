@@ -1585,7 +1585,7 @@ static int dissect_h248_PropertyID(gboolean implicit_tag _U_, tvbuff_t *tvb, int
     gboolean pc, ind;
     gint32 tag;
     guint32 len;
-    guint16 name_major;
+    /*guint16 name_major;*/
     guint16 name_minor;
     int end_offset;
     tvbuff_t *next_tvb;
@@ -1604,7 +1604,7 @@ static int dissect_h248_PropertyID(gboolean implicit_tag _U_, tvbuff_t *tvb, int
 
 
     next_tvb = tvb_new_subset(tvb, offset , len , len );
-    name_major = packageandid >> 16;
+    /*name_major = packageandid >> 16;*/
     name_minor = packageandid & 0xffff;
 
     pkg = (curr_info.pkg) ? curr_info.pkg : &no_package;
