@@ -1,7 +1,7 @@
 /* packet-sbc-ap.c
  * Routines for SBc Application Part (SBc-AP) packet dissection
  *
- * $Id: packet-sbc-ap-template.c
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
