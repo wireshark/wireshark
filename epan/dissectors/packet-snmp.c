@@ -926,13 +926,47 @@ indexing_done:
 				hfid = hf_snmp_unknown_value;
 				break;
 		}
-		if ((value_len == 9) && (tvb_get_guint8(tvb, value_offset) == 0)) {
-			/* Check if this is an unsigned int64 with a big value */
+		if (value_len > 8) {
+			/*
+			 * Too long for an FT_UINT64 or an FT_INT64.
+			 */
 			header_field_info *hfinfo = proto_registrar_get_nth(hfid);
 			if (hfinfo->type == FT_UINT64) {
+				/*
+				 * Check if this is an unsigned int64 with
+				 * a big value.
+				 */
+				if (value_len > 9 || tvb_get_guint8(tvb, value_offset) != 0) {
+					/* It is.  Fail. */
+					pi_value = proto_tree_add_text(pt_varbind,tvb,value_offset,value_len,"Integral value too large");
+					expert_add_info_format(actx->pinfo, pi_value, PI_UNDECODED, PI_NOTE, "Unsigned integer value > 2^64 - 1");
+					goto already_added;
+				}
 				/* Cheat and skip the leading 0 byte */
 				value_len--;
 				value_offset++;
+			} else if (hfinfo->type == FT_INT64) {
+				/*
+				 * For now, just reject these.
+				 */
+				pi_value = proto_tree_add_text(pt_varbind,tvb,value_offset,value_len,"Integral value too large or too small");
+				expert_add_info_format(actx->pinfo, pi_value, PI_UNDECODED, PI_NOTE, "Signed integer value > 2^63 - 1 or <= -2^63");
+				goto already_added;
+			}
+		} else if (value_len == 0) {
+			/*
+			 * X.690 section 8.3.1 "Encoding of an integer value":
+			 * "The encoding of an integer value shall be
+			 * primitive. The contents octets shall consist of
+			 * one or more octets."
+			 *
+			 * Zero is not "one or more".
+			 */
+			header_field_info *hfinfo = proto_registrar_get_nth(hfid);
+			if (hfinfo->type == FT_UINT64 || hfinfo->type == FT_INT64) {
+				pi_value = proto_tree_add_text(pt_varbind,tvb,value_offset,value_len,"Integral value is zero-length");
+				expert_add_info_format(actx->pinfo, pi_value, PI_UNDECODED, PI_NOTE, "Integral value is zero-length");
+				goto already_added;
 			}
 		}
 		pi_value = proto_tree_add_item(pt_varbind,hfid,tvb,value_offset,value_len,ENC_BIG_ENDIAN);
@@ -2724,7 +2758,7 @@ static void dissect_SMUX_PDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-snmp-fn.c ---*/
-#line 1504 "../../asn1/snmp/packet-snmp-template.c"
+#line 1538 "../../asn1/snmp/packet-snmp-template.c"
 
 
 guint
@@ -3641,7 +3675,7 @@ void proto_register_snmp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 2156 "../../asn1/snmp/packet-snmp-template.c"
+#line 2190 "../../asn1/snmp/packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3681,7 +3715,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU_U,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 2172 "../../asn1/snmp/packet-snmp-template.c"
+#line 2206 "../../asn1/snmp/packet-snmp-template.c"
   };
   module_t *snmp_module;
 
