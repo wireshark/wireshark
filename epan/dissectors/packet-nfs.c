@@ -9067,6 +9067,8 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 		proto_item_append_text(proto_tree_get_parent(tree),
 			"%s%s", ops_counter ? ", " : " ", opname);
+		proto_item_append_text(proto_tree_get_parent(ftree),
+			"%s%s", ops_counter ? ", " : ": ", opname);
 
 		switch(opcode)
 		{
