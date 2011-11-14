@@ -1681,10 +1681,12 @@ add_6xO(proto_tree *tree, tvbuff_t *tvb, guint8 OT)
     UcpHandleString(hf_ucp_parm_LAdC);
     UcpHandleByte(hf_ucp_parm_LTON);
     UcpHandleByte(hf_ucp_parm_LNPI);
-    UcpHandleInt(hf_ucp_parm_OPID);
+    if (OT == 60) {
+        UcpHandleInt(hf_ucp_parm_OPID);
+    }
     UcpHandleData(hf_ucp_parm_RES1);
     if (OT == 61) {
-      UcpHandleData(hf_ucp_parm_RES2);
+        UcpHandleData(hf_ucp_parm_RES2);
     }
 }
 
