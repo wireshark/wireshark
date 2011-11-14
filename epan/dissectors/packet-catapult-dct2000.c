@@ -102,13 +102,21 @@ static int hf_catapult_dct2000_lte_ccpri_opcode = -1;
 static int hf_catapult_dct2000_lte_ccpri_status = -1;
 static int hf_catapult_dct2000_lte_ccpri_channel = -1;
 
+/* UMTS RLC fields */
 static int hf_catapult_dct2000_ueid = -1;
 static int hf_catapult_dct2000_rbid = -1;
 static int hf_catapult_dct2000_ccch_id = -1;
 static int hf_catapult_dct2000_no_crc_error = -1;
 static int hf_catapult_dct2000_crc_error = -1;
 static int hf_catapult_dct2000_clear_tx_buffer = -1;
-
+static int hf_catapult_dct2000_buffer_occupancy = -1;
+static int hf_catapult_dct2000_pdu_size = -1;
+static int hf_catapult_dct2000_ueid_type = -1;
+static int hf_catapult_dct2000_tx_priority = -1;
+static int hf_catapult_dct2000_last_in_seg_set = -1;
+static int hf_catapult_dct2000_rx_timing_deviation = -1;
+static int hf_catapult_dct2000_transport_channel_type = -1;
+static int hf_catapult_dct2000_no_padding_bits = -1;
 
 /* Variables used for preferences */
 static gboolean catapult_dct2000_try_ipprim_heuristic = TRUE;
@@ -220,6 +228,31 @@ static const value_string rlc_rbid_vals[] = {
     { 23,    "MCCH"},
     { 24,    "MSCH"},
     { 25,    "MTCH"},
+    { 0,     NULL}
+};
+
+static const value_string ueid_type_vals[] = {
+    { 0,     "URNTI"},
+    { 1,     "CRNTI"},
+    { 0,     NULL}
+};
+
+static const value_string tx_priority_vals[] = {
+    { 0,     "Normal"},
+    { 1,     "High"},
+    { 0,     NULL}
+};
+
+static const value_string transport_channel_type_vals[] = {
+    { 1,     "RACH"},
+    { 2,     "FACH"},
+    { 3,     "BCH"},
+    { 4,     "PCH"},
+    { 6,     "USCH"},
+    { 7,     "DSCH"},
+    { 8,     "DCH"},
+    { 9,     "HSDSCH"},
+    { 10,    "EDCH"},
     { 0,     NULL}
 };
 
@@ -711,6 +744,37 @@ static void dissect_rlc_umts(tvbuff_t *tvb, gint offset,
             default:
                 /* For other fields, just skip length and following data */
                 length = tvb_get_guint8(tvb, offset++);
+                switch (tag) {
+                    case 0x42:   /* Buffer Occupancy */
+                        proto_tree_add_item(tree, hf_catapult_dct2000_buffer_occupancy, tvb, offset, length, ENC_BIG_ENDIAN);
+                        break;
+                    case 0x49:   /* PDU Size */
+                        proto_tree_add_item(tree, hf_catapult_dct2000_pdu_size, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                        break;
+                    case 0x47:   /* UEId type */
+                        proto_tree_add_item(tree, hf_catapult_dct2000_ueid_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        break;
+                    case 0x4e:   /* Tx Priority */
+                        proto_tree_add_item(tree, hf_catapult_dct2000_tx_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        break;
+                    case 0x4c:   /* Last in seg set */
+                        proto_tree_add_item(tree, hf_catapult_dct2000_last_in_seg_set, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        break;
+                    case 0x43:   /* Rx timing deviation */
+                        proto_tree_add_item(tree, hf_catapult_dct2000_rx_timing_deviation, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        break;
+                    case 0x46:   /* Transport channel type */
+                        proto_tree_add_item(tree, hf_catapult_dct2000_transport_channel_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        break;
+                    case 0xc2:   /* Number of padding bits */
+                        proto_tree_add_item(tree, hf_catapult_dct2000_no_padding_bits, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        break;
+
+                    default:
+                        break;
+
+
+                }
                 offset += length;
         }
     }
@@ -3005,6 +3069,54 @@ void proto_register_catapult_dct2000(void)
         { &hf_catapult_dct2000_clear_tx_buffer,
             { "Clear Tx Buffer",
               "dct2000.clear-tx-buffer", FT_NONE, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_catapult_dct2000_buffer_occupancy,
+            { "Buffer Occupancy",
+              "dct2000.buffer-occupancy", FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_catapult_dct2000_pdu_size,
+            { "PDU Size",
+              "dct2000.pdu-size", FT_UINT16, BASE_DEC, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_catapult_dct2000_ueid_type,
+            { "UEId Type",
+              "dct2000.ueid-type", FT_UINT8, BASE_DEC, VALS(ueid_type_vals), 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_catapult_dct2000_tx_priority,
+            { "Tx Priority",
+              "dct2000.tx-priority", FT_UINT8, BASE_DEC, VALS(tx_priority_vals), 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_catapult_dct2000_last_in_seg_set,
+            { "Last in seg set",
+              "dct2000.last-in-seg-set", FT_BOOLEAN, BASE_DEC, TFS(&tfs_yes_no), 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_catapult_dct2000_rx_timing_deviation,
+            { "Tx Timing Deviation",
+              "dct2000.rx-timing-deviation", FT_UINT32, BASE_DEC, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_catapult_dct2000_transport_channel_type,
+            { "Transport Channel Type",
+              "dct2000.transport_channel_type", FT_UINT8, BASE_DEC, VALS(transport_channel_type_vals), 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_catapult_dct2000_no_padding_bits,
+            { "Number of padding bits",
+              "dct2000.number-of-padding-bits", FT_UINT8, BASE_DEC, NULL, 0x0,
               NULL, HFILL
             }
         },
