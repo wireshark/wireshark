@@ -704,7 +704,6 @@ static void dissect_rlc_umts(tvbuff_t *tvb, gint offset,
     }
 
     /* Keep going until reach data tag or end of frame */
-    /* TODO: add items to tree for remaining primitive header fields */
     while ((tag != 0x41) && tvb_length_remaining(tvb, offset)) { /* i.e. Data */
         tag = tvb_get_guint8(tvb, offset++);
         switch (tag) {
@@ -788,10 +787,10 @@ static void dissect_rlc_umts(tvbuff_t *tvb, gint offset,
             case 1:  case 2:  case 3:  case 4:  case 5:
             case 6:  case 7:  case 8:  case 9:  case 10:
             case 11: case 12: case 13: case 14: case 15:
-                /* DCH channels.
-                   TODO: can't really tell if these are control or transport...
-                         maybe control with preferences between this and "dcch" ? */
-                rlc_umts_handle = find_dissector("rlc.ps_dtch");
+                /* DCH channels. */
+                /*   TODO: can't really tell if these are control or transport...
+                     maybe control with preferences (UAT?) between "rlc.ps_dtch" and "rlc.dcch" ? */
+                rlc_umts_handle = find_dissector("rlc.dch_unknown");
                 break;
             case 18:
                 rlc_umts_handle = find_dissector("rlc.ccch");
@@ -2164,7 +2163,8 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              (strcmp(protocol_name, "rlc_r5") == 0) ||
              (strcmp(protocol_name, "rlc_r6") == 0) ||
              (strcmp(protocol_name, "rlc_r7") == 0) ||
-             (strcmp(protocol_name, "rlc_r8") == 0)) {
+             (strcmp(protocol_name, "rlc_r8") == 0) ||
+             (strcmp(protocol_name, "rlc_r9") == 0)) {
 
         parse_outhdr_string(outhdr_string);
         /* Can't attach info yet.  Need combination of outheader values
@@ -2285,7 +2285,8 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 (strcmp(protocol_name, "rlc_r5") == 0) ||
                 (strcmp(protocol_name, "rlc_r6") == 0) ||
                 (strcmp(protocol_name, "rlc_r7") == 0) ||
-                (strcmp(protocol_name, "rlc_r8") == 0)) {
+                (strcmp(protocol_name, "rlc_r8") == 0) ||
+                (strcmp(protocol_name, "rlc_r9") == 0)) {
 
                 dissect_rlc_umts(tvb, offset, pinfo, tree, direction);
                 return;

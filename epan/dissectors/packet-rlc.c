@@ -1232,21 +1232,28 @@ dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
 	#define BUFF_SIZE 41
 	gchar *buff = NULL;
 	guint8 cw[15];
+	guint8 sufi_start_offset;
+	gboolean seen_last = FALSE;
 
 	bit_offset = offset*8 + 4; /* first SUFI type is always 4 bit shifted */
 
-	while (tvb_length_remaining(tvb, bit_offset/8) > 0) {
+	while (!seen_last && tvb_length_remaining(tvb, bit_offset/8) > 0) {
+		/* SUFI */
 		sufi_type = tvb_get_bits8(tvb, bit_offset, 4);
-		sufi_item = proto_tree_add_item(tree, hf_rlc_sufi, tvb, 0, 0, ENC_NA);
+		sufi_start_offset = bit_offset/8;
+		sufi_item = proto_tree_add_item(tree, hf_rlc_sufi, tvb, sufi_start_offset, 0, ENC_NA);
 		sufi_tree = proto_item_add_subtree(sufi_item, ett_rlc_sufi);
 		proto_tree_add_bits_item(sufi_tree, hf_rlc_sufi_type, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 		bit_offset += 4;
 		switch (sufi_type) {
 			case RLC_SUFI_NOMORE:
-				return; /* must be last SUFI */
+				seen_last = TRUE;
+				break;
 			case RLC_SUFI_ACK:
 				proto_tree_add_bits_item(sufi_tree, hf_rlc_sufi_lsn, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
-				return; /* must be last SUFI */
+				bit_offset += 12;
+				seen_last = TRUE;
+				break;
 			case RLC_SUFI_WINDOW:
 				proto_tree_add_bits_item(sufi_tree, hf_rlc_sufi_wsn, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
 				bit_offset += 12;
@@ -1374,6 +1381,7 @@ dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
 				proto_tree_add_bits_item(sufi_tree, hf_rlc_sufi_poll_sn, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
 				bit_offset += 12;
 				break;
+
 			default:
 				malformed = proto_tree_add_protocol_format(tree,
 					proto_malformed, tvb, 0, 0, "[Malformed Packet: %s]", pinfo->current_proto);
@@ -1382,6 +1390,9 @@ dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
 				col_append_str(pinfo->cinfo, COL_INFO, " [Malformed Packet]");
 				return; /* invalid value, ignore the rest */
 		}
+
+		/* Set extent of SUFI root */
+		proto_item_set_len(sufi_item, ((bit_offset+7)/8) - sufi_start_offset);
 	}
 }
 
@@ -1486,6 +1497,9 @@ rlc_am_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo,
 	}
 	if (dissected == FALSE)
 		col_set_str(pinfo->cinfo, COL_INFO, "[RLC AM Fragment]");
+	else
+		if (channel == UNKNOWN)
+			col_set_str(pinfo->cinfo, COL_INFO, "[RLC AM Data]");
 }
 
 static void
@@ -1508,7 +1522,7 @@ dissect_rlc_am(enum channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
 	if (tree)
 		proto_tree_add_bits_item(tree, hf_rlc_dc, tvb, 0, 1, ENC_BIG_ENDIAN);
 	if (dc == 0) {
-		col_set_str(pinfo->cinfo, COL_INFO, "RLC Control Frame");
+		col_set_str(pinfo->cinfo, COL_INFO, "[RLC Control Frame]");
 		dissect_rlc_control(tvb, pinfo, tree);
 		return;
 	}
@@ -1737,6 +1751,44 @@ dissect_rlc_ps_dtch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 }
 
+static void
+dissect_rlc_dch_unknown(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	proto_item *ti = NULL;
+	proto_tree *subtree = NULL;
+	fp_info *fpi;
+	rlc_info *rlci;
+
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RLC");
+	col_clear(pinfo->cinfo, COL_INFO);
+
+	fpi = p_get_proto_data(pinfo->fd, proto_fp);
+	rlci = p_get_proto_data(pinfo->fd, proto_rlc);
+
+	if (!fpi || !rlci) return;
+
+	if (tree) {
+		ti = proto_tree_add_item(tree, proto_rlc, tvb, 0, -1, ENC_NA);
+		subtree = proto_item_add_subtree(ti, ett_rlc);
+	}
+
+	switch (rlci->mode[fpi->cur_tb]) {
+		case RLC_UM:
+			proto_item_append_text(ti, " UM (Unknown)");
+			dissect_rlc_um(UNKNOWN, tvb, pinfo, tree, subtree);
+			break;
+		case RLC_AM:
+			proto_item_append_text(ti, " AM (Unknown)");
+			dissect_rlc_am(UNKNOWN, tvb, pinfo, tree, subtree);
+			break;
+		case RLC_TM:
+			proto_item_append_text(ti, " TM (Unknown)");
+			dissect_rlc_tm(UNKNOWN, tvb, pinfo, tree, subtree);
+			break;
+	}
+}
+
+
 /* Heuristic dissector looks for supported framing protocol (see wiki page)  */
 static gboolean
 dissect_rlc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -1958,6 +2010,7 @@ proto_register_rlc(void)
 	register_dissector("rlc.ctch", dissect_rlc_ctch, proto_rlc);
 	register_dissector("rlc.dcch", dissect_rlc_dcch, proto_rlc);
 	register_dissector("rlc.ps_dtch", dissect_rlc_ps_dtch, proto_rlc);
+	register_dissector("rlc.dch_unknown", dissect_rlc_dch_unknown, proto_rlc);
 
 	proto_register_field_array(proto_rlc, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
