@@ -1466,7 +1466,7 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 	gint current_offset;
 	gint queried_offset;
 	gint contact_params_start_offset = -1;
-	gint contact_param_end_offset = -1;
+	/*gint contact_param_end_offset = -1;*/
 	uri_offset_info uri_offsets;
 
 	/* skip Spaces and Tabs */
