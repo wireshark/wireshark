@@ -1502,6 +1502,7 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 	queried_offset = current_offset;
 
 	while(current_offset< line_end_offset){
+		c = '\0';
 		while (queried_offset < line_end_offset)
 		{
 			queried_offset++;
