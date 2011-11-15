@@ -1481,12 +1481,13 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 	sip_uri_offset_init(&uri_offsets);
 	/* contact-param  =  (name-addr / addr-spec) *(SEMI contact-params) */
 	current_offset = dissect_sip_name_addr_or_addr_spec(tvb, pinfo, start_offset, line_end_offset, &uri_offsets);
-	display_sip_uri(tvb, tree, &uri_offsets, &sip_contact_uri);
 	if(current_offset == -1)
 	{
 		/* Parsing failed */
 		return -1;
 	}
+	display_sip_uri(tvb, tree, &uri_offsets, &sip_contact_uri);
+
 	/* Check if we have contact parameters, the uri should be followed by a ';' */
 	contact_params_start_offset = tvb_find_guint8(tvb, uri_offsets.uri_end, line_end_offset - uri_offsets.uri_end, ';');
 	/* check if contact-params is present */
@@ -1700,6 +1701,8 @@ static void dissect_sip_route_header(tvbuff_t *tvb, proto_tree *tree, packet_inf
         if (c == ',') {
             sip_uri_offset_init(&uri_offsets);
             current_offset = dissect_sip_name_addr_or_addr_spec(tvb, pinfo, start_offset, current_offset, &uri_offsets);
+			if(current_offset == -1)
+				return;
             display_sip_uri(tvb, tree, &uri_offsets, sip_route_uri);
 
             current_offset++;
@@ -1708,6 +1711,8 @@ static void dissect_sip_route_header(tvbuff_t *tvb, proto_tree *tree, packet_inf
         } else if (current_offset == line_end_offset - 1) {
             sip_uri_offset_init(&uri_offsets);
             current_offset = dissect_sip_name_addr_or_addr_spec(tvb, pinfo, start_offset, line_end_offset, &uri_offsets);
+			if(current_offset == -1)
+				return;
             display_sip_uri(tvb, tree, &uri_offsets, sip_route_uri);
 
             return;
