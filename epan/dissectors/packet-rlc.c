@@ -1,4 +1,5 @@
-/* Routines for UMTS RLC disassembly
+/* Routines for UMTS RLC (Radio Link Control) disassembly
+ * http://www.3gpp.org/ftp/Specs/archive/25_series/25.322/
  *
  * $Id$
  *
@@ -109,15 +110,15 @@ static dissector_handle_t ip_handle;
 static dissector_handle_t rrc_handle;
 static dissector_handle_t bmc_handle;
 
-enum channel_type {
-	PCCH,
-	UL_CCCH,
-	DL_CCCH,
-	UL_DCCH,
-	DL_DCCH,
-	PS_DTCH,
-	DL_CTCH,
-	UNKNOWN
+enum rlc_channel_type {
+	RLC_PCCH,
+	RLC_UL_CCCH,
+	RLC_DL_CCCH,
+	RLC_UL_DCCH,
+	RLC_DL_DCCH,
+	RLC_PS_DTCH,
+	RLC_DL_CTCH,
+	RLC_UNKNOWN_CH
 };
 
 static const true_false_string rlc_header_only_val = {
@@ -877,32 +878,32 @@ rlc_is_duplicate(enum rlc_mode mode, packet_info *pinfo, guint16 seq,
 }
 
 static void
-rlc_call_subdissector(enum channel_type channel, tvbuff_t *tvb,
+rlc_call_subdissector(enum rlc_channel_type channel, tvbuff_t *tvb,
 		      packet_info *pinfo, proto_tree *tree)
 {
 	enum rrc_message_type msgtype;
 
 	switch (channel) {
-		case UL_CCCH:
+		case RLC_UL_CCCH:
 			msgtype = RRC_MESSAGE_TYPE_UL_CCCH;
 			break;
-		case DL_CCCH:
+		case RLC_DL_CCCH:
 			msgtype = RRC_MESSAGE_TYPE_DL_CCCH;
 			break;
-		case DL_CTCH:
+		case RLC_DL_CTCH:
 			msgtype = RRC_MESSAGE_TYPE_INVALID;
 			call_dissector(bmc_handle, tvb, pinfo, tree);
 			break;
-		case UL_DCCH:
+		case RLC_UL_DCCH:
 			msgtype = RRC_MESSAGE_TYPE_UL_DCCH;
 			break;
-		case DL_DCCH:
+		case RLC_DL_DCCH:
 			msgtype = RRC_MESSAGE_TYPE_DL_DCCH;
 			break;
-		case PCCH:
+		case RLC_PCCH:
 			msgtype = RRC_MESSAGE_TYPE_PCCH;
 			break;
-		case PS_DTCH:
+		case RLC_PS_DTCH:
 			msgtype = RRC_MESSAGE_TYPE_INVALID;
 			/* assume transparent PDCP for now */
 			call_dissector(ip_handle, tvb, pinfo, tree);
@@ -927,7 +928,7 @@ rlc_call_subdissector(enum channel_type channel, tvbuff_t *tvb,
 }
 
 static void
-dissect_rlc_tm(enum channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
+dissect_rlc_tm(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
 	       proto_tree *top_level, proto_tree *tree)
 {
 	if (tree) {
@@ -939,7 +940,7 @@ dissect_rlc_tm(enum channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
 
 static void
 rlc_um_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo, proto_tree *tree,
-		  proto_tree *top_level, enum channel_type channel, guint16 seq,
+		  proto_tree *top_level, enum rlc_channel_type channel, guint16 seq,
 		  struct rlc_li *li, guint16 num_li, gboolean li_is_on_2_bytes)
 {
 	guint8 i;
@@ -1148,7 +1149,7 @@ rlc_decode_li(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 }
 
 static void
-dissect_rlc_um(enum channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
+dissect_rlc_um(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
 	       proto_tree *top_level, proto_tree *tree)
 {
 #define MAX_LI 16
@@ -1445,7 +1446,7 @@ dissect_rlc_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 rlc_am_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo,
 		  proto_tree *tree, proto_tree *top_level,
-		  enum channel_type channel, guint16 seq, struct rlc_li *li,
+		  enum rlc_channel_type channel, guint16 seq, struct rlc_li *li,
 		  guint16 num_li, gboolean final, gboolean li_is_on_2_bytes)
 {
 	guint8 i;
@@ -1504,12 +1505,12 @@ rlc_am_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo,
 	if (dissected == FALSE)
 		col_add_fstr(pinfo->cinfo, COL_INFO, "[RLC AM Fragment]  SN=%u", seq);
 	else
-		if (channel == UNKNOWN)
+		if (channel == RLC_UNKNOWN_CH)
 			col_add_fstr(pinfo->cinfo, COL_INFO, "[RLC AM Data]  SN=%u", seq);
 }
 
 static void
-dissect_rlc_am(enum channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
+dissect_rlc_am(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
 	       proto_tree *top_level, proto_tree *tree)
 {
 #define MAX_LI 16
@@ -1625,7 +1626,7 @@ dissect_rlc_pcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		subtree = proto_item_add_subtree(ti, ett_rlc);
 		proto_item_append_text(ti, " TM (PCCH)");
 	}
-	dissect_rlc_tm(PCCH, tvb, pinfo, tree, subtree);
+	dissect_rlc_tm(RLC_PCCH, tvb, pinfo, tree, subtree);
 }
 
 static void
@@ -1649,11 +1650,11 @@ dissect_rlc_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (fpi->is_uplink) {
 		/* UL CCCH is always RLC TM */
 		proto_item_append_text(ti, " TM (CCCH)");
-		dissect_rlc_tm(UL_CCCH, tvb, pinfo, tree, subtree);
+		dissect_rlc_tm(RLC_UL_CCCH, tvb, pinfo, tree, subtree);
 	} else {
 		/* DL CCCH is always UM */
 		proto_item_append_text(ti, " UM (CCCH)");
-		dissect_rlc_um(DL_CCCH, tvb, pinfo, tree, subtree);
+		dissect_rlc_um(RLC_DL_CCCH, tvb, pinfo, tree, subtree);
 	}
 }
 
@@ -1678,7 +1679,7 @@ dissect_rlc_ctch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* CTCH is always UM */
     proto_item_append_text(ti, " UM (CTCH)");
-    dissect_rlc_um(DL_CTCH, tvb, pinfo, tree, subtree);
+    dissect_rlc_um(RLC_DL_CTCH, tvb, pinfo, tree, subtree);
 }
 
 static void
@@ -1688,7 +1689,7 @@ dissect_rlc_dcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *subtree = NULL;
 	fp_info *fpi;
 	rlc_info *rlci;
-	enum channel_type channel;
+	enum rlc_channel_type channel;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RLC");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -1708,7 +1709,7 @@ dissect_rlc_dcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		subtree = proto_item_add_subtree(ti, ett_rlc);
 	}
 
-	channel = fpi->is_uplink ? UL_DCCH : DL_DCCH;
+	channel = fpi->is_uplink ? RLC_UL_DCCH : RLC_DL_DCCH;
 
 	switch (rlci->mode[fpi->cur_tb]) {
 		case RLC_UM:
@@ -1746,15 +1747,15 @@ dissect_rlc_ps_dtch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	switch (rlci->mode[fpi->cur_tb]) {
 		case RLC_UM:
 			proto_item_append_text(ti, " UM (PS DTCH)");
-			dissect_rlc_um(PS_DTCH, tvb, pinfo, tree, subtree);
+			dissect_rlc_um(RLC_PS_DTCH, tvb, pinfo, tree, subtree);
 			break;
 		case RLC_AM:
 			proto_item_append_text(ti, " AM (PS DTCH)");
-			dissect_rlc_am(PS_DTCH, tvb, pinfo, tree, subtree);
+			dissect_rlc_am(RLC_PS_DTCH, tvb, pinfo, tree, subtree);
 			break;
 		case RLC_TM:
 			proto_item_append_text(ti, " TM (PS DTCH)");
-			dissect_rlc_tm(PS_DTCH, tvb, pinfo, tree, subtree);
+			dissect_rlc_tm(RLC_PS_DTCH, tvb, pinfo, tree, subtree);
 			break;
 	}
 }
@@ -1783,15 +1784,15 @@ dissect_rlc_dch_unknown(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	switch (rlci->mode[fpi->cur_tb]) {
 		case RLC_UM:
 			proto_item_append_text(ti, " UM (Unknown)");
-			dissect_rlc_um(UNKNOWN, tvb, pinfo, tree, subtree);
+			dissect_rlc_um(RLC_UNKNOWN_CH, tvb, pinfo, tree, subtree);
 			break;
 		case RLC_AM:
 			proto_item_append_text(ti, " AM (Unknown)");
-			dissect_rlc_am(UNKNOWN, tvb, pinfo, tree, subtree);
+			dissect_rlc_am(RLC_UNKNOWN_CH, tvb, pinfo, tree, subtree);
 			break;
 		case RLC_TM:
 			proto_item_append_text(ti, " TM (Unknown)");
-			dissect_rlc_tm(UNKNOWN, tvb, pinfo, tree, subtree);
+			dissect_rlc_tm(RLC_UNKNOWN_CH, tvb, pinfo, tree, subtree);
 			break;
 	}
 }
@@ -1926,13 +1927,13 @@ dissect_rlc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			if (rlci->mode[fpi->cur_tb] == RLC_AM) {
 				proto_item_append_text(ti, " AM");
-				dissect_rlc_am(UNKNOWN, rlc_tvb, pinfo, tree, subtree);
+				dissect_rlc_am(RLC_UNKNOWN_CH, rlc_tvb, pinfo, tree, subtree);
 			} else if (rlci->mode[fpi->cur_tb] == RLC_UM) {
 				proto_item_append_text(ti, " UM");
-				dissect_rlc_um(UNKNOWN, rlc_tvb, pinfo, tree, subtree);
+				dissect_rlc_um(RLC_UNKNOWN_CH, rlc_tvb, pinfo, tree, subtree);
 			} else {
 				proto_item_append_text(ti, " TM");
-				dissect_rlc_tm(UNKNOWN, rlc_tvb, pinfo, tree, subtree);
+				dissect_rlc_tm(RLC_UNKNOWN_CH, rlc_tvb, pinfo, tree, subtree);
 			}
 			break;
 		case UMTS_CHANNEL_TYPE_PCCH:
@@ -2012,7 +2013,7 @@ proto_register_rlc(void)
 		&ett_rlc_bitmap,
 		&ett_rlc_rlist
 	};
-	proto_rlc = proto_register_protocol("RLC", "RLC", "rlc");
+	proto_rlc = proto_register_protocol("Radio Link Control", "RLC", "rlc");
 	register_dissector("rlc.pcch", dissect_rlc_pcch, proto_rlc);
 	register_dissector("rlc.ccch", dissect_rlc_ccch, proto_rlc);
 	register_dissector("rlc.ctch", dissect_rlc_ctch, proto_rlc);
