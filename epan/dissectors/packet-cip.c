@@ -2259,7 +2259,7 @@ static attribute_info_t* cip_get_attribute(guint class_id, guint instance, guint
    return NULL;
 }
 
-static void
+static gboolean
 dissect_cia(tvbuff_t *tvb, int offset, int* pathpos, unsigned char segment_type,
             gboolean generate, packet_info *pinfo, proto_item *epath_item,
             proto_item *item, proto_tree *tree, proto_item *path_item, proto_item ** ret_item,
@@ -2368,9 +2368,10 @@ dissect_cia(tvbuff_t *tvb, int offset, int* pathpos, unsigned char segment_type,
       break;
    default:
       expert_add_info_format(pinfo, epath_item, PI_PROTOCOL, PI_ERROR, "Unsupported Logical Segment Format");
-      return;
+      return FALSE;
    }
 
+   return TRUE;
 }
 
 /* Dissect Device ID structure */
@@ -2626,31 +2627,35 @@ void dissect_epath( tvbuff_t *tvb, packet_info *pinfo, proto_item *epath_item, i
             switch( segment_type & CI_LOGICAL_SEG_TYPE_MASK )
             {
                case CI_LOGICAL_SEG_CLASS_ID:
-                  dissect_cia(tvb, offset, &pathpos, segment_type & CI_LOGICAL_SEG_FORMAT_MASK, generate, pinfo,
+                  if (dissect_cia(tvb, offset, &pathpos, segment_type & CI_LOGICAL_SEG_FORMAT_MASK, generate, pinfo,
                        epath_item, cia_item, cia_tree, path_seg_item, &cia_ret_item,
                        "Class", cip_class_names_vals, (req_data == NULL) ? NULL : &req_data->iClass,
-                       hf_cip_class8, hf_cip_class16, hf_cip_class32);
+                       hf_cip_class8, hf_cip_class16, hf_cip_class32) == FALSE)
+                       return;
                   break;
 
                case CI_LOGICAL_SEG_INST_ID:
-                  dissect_cia(tvb, offset, &pathpos, segment_type & CI_LOGICAL_SEG_FORMAT_MASK, generate, pinfo,
+                  if (dissect_cia(tvb, offset, &pathpos, segment_type & CI_LOGICAL_SEG_FORMAT_MASK, generate, pinfo,
                        epath_item, cia_item, cia_tree, path_seg_item, &cia_ret_item,
                        "Instance", NULL, (req_data == NULL) ? NULL : &req_data->iInstance,
-                       hf_cip_instance8, hf_cip_instance16, hf_cip_instance32);
+                       hf_cip_instance8, hf_cip_instance16, hf_cip_instance32) == FALSE)
+                       return;
                   break;
 
                case CI_LOGICAL_SEG_MBR_ID:
-                  dissect_cia(tvb, offset, &pathpos, segment_type & CI_LOGICAL_SEG_FORMAT_MASK, generate, pinfo,
+                  if (dissect_cia(tvb, offset, &pathpos, segment_type & CI_LOGICAL_SEG_FORMAT_MASK, generate, pinfo,
                        epath_item, cia_item, cia_tree, path_seg_item, &cia_ret_item,
                        "Member", NULL, (req_data == NULL) ? NULL : &req_data->iMember,
-                       hf_cip_member8, hf_cip_member16, hf_cip_member32);
+                       hf_cip_member8, hf_cip_member16, hf_cip_member32) == FALSE)
+                       return;
                   break;
 
                case CI_LOGICAL_SEG_ATTR_ID:
-                  dissect_cia(tvb, offset, &pathpos, segment_type & CI_LOGICAL_SEG_FORMAT_MASK, generate, pinfo,
+                  if (dissect_cia(tvb, offset, &pathpos, segment_type & CI_LOGICAL_SEG_FORMAT_MASK, generate, pinfo,
                        epath_item, cia_item, cia_tree, path_seg_item, &cia_ret_item,
                        "Attribute", NULL, (req_data == NULL) ? NULL : &req_data->iAttribute,
-                       hf_cip_attribute8, hf_cip_attribute16, hf_cip_attribute32);
+                       hf_cip_attribute8, hf_cip_attribute16, hf_cip_attribute32) == FALSE)
+                       return;
 
                   if (req_data != NULL)
                   {
@@ -2665,10 +2670,11 @@ void dissect_epath( tvbuff_t *tvb, packet_info *pinfo, proto_item *epath_item, i
                   break;
 
                case CI_LOGICAL_SEG_CON_POINT:
-                  dissect_cia(tvb, offset, &pathpos, segment_type & CI_LOGICAL_SEG_FORMAT_MASK, generate, pinfo,
+                  if (dissect_cia(tvb, offset, &pathpos, segment_type & CI_LOGICAL_SEG_FORMAT_MASK, generate, pinfo,
                        epath_item, cia_item, cia_tree, path_seg_item, &cia_ret_item,
                        "Connection Point", NULL, NULL,
-                       hf_cip_conpoint8, hf_cip_conpoint16, hf_cip_conpoint32);
+                       hf_cip_conpoint8, hf_cip_conpoint16, hf_cip_conpoint32) == FALSE)
+                       return;
                   break;
 
                case CI_LOGICAL_SEG_SPECIAL:
@@ -3176,7 +3182,7 @@ dissect_cip_multiple_service_packet_req(tvbuff_t *tvb, packet_info *pinfo, proto
 {
    proto_item *mult_serv_item;
    proto_tree *mult_serv_tree;
-   int i, num_services, serv_offset;
+   int i, num_services, serv_offset, prev_offset = 0;
    cip_req_info_t *cip_req_info, *mr_single_req_info;
    mr_mult_req_info_t *mr_mult_req_info = NULL;
 
@@ -3192,8 +3198,9 @@ dissect_cip_multiple_service_packet_req(tvbuff_t *tvb, packet_info *pinfo, proto
       {
          mr_mult_req_info = se_alloc(sizeof(mr_mult_req_info_t));
          mr_mult_req_info->service = SC_MULT_SERV_PACK;
-         mr_mult_req_info->num_services = 0;
+         mr_mult_req_info->num_services = num_services;
          mr_mult_req_info->requests = se_alloc(sizeof(cip_req_info_t)*num_services);
+         memset(mr_mult_req_info->requests, 0, sizeof(cip_req_info_t)*num_services);
          cip_req_info->pData = mr_mult_req_info;
       }
       else
@@ -3231,6 +3238,18 @@ dissect_cip_multiple_service_packet_req(tvbuff_t *tvb, packet_info *pinfo, proto
       mult_serv_tree = proto_item_add_subtree(mult_serv_item, ett_cip_mult_service_packet );
       proto_tree_add_item(mult_serv_tree, hf_cip_sc_mult_serv_pack_offset, tvb, offset+2+(i*2) , 2, ENC_LITTLE_ENDIAN);
 
+      /* Make sure the offset is valid */
+      if ((tvb_reported_length_remaining(tvb, serv_offset) <= 0) ||
+          (tvb_reported_length_remaining(tvb, serv_offset+serv_length) <= 0) ||
+          (serv_length <= 0) ||
+          (prev_offset >= serv_offset))
+      {
+         expert_add_info_format(pinfo, mult_serv_item, PI_MALFORMED, PI_WARN, "Multiple Service Packet service invalid offset");
+         prev_offset = serv_offset;
+         continue;
+      }
+      prev_offset = serv_offset;
+
       /*
       ** We call our selves again to disect embedded packet
       */
@@ -3242,23 +3261,7 @@ dissect_cip_multiple_service_packet_req(tvbuff_t *tvb, packet_info *pinfo, proto
       if ( mr_mult_req_info )
       {
          mr_single_req_info = mr_mult_req_info->requests + i;
-         mr_single_req_info->bService = 0;
-         mr_single_req_info->dissector = NULL;
-         mr_single_req_info->IOILen = 0;
-         mr_single_req_info->pIOI = NULL;
-         mr_single_req_info->pData = NULL;
-         mr_single_req_info->ciaData = NULL;
-
          dissect_cip_data(mult_serv_tree, next_tvb, 0, pinfo, mr_single_req_info );
-
-         /* Don't set mr_mult_req_info->num_services until we're sure we've
-          * initialized the full structure for that service.  Otherwise if we
-          * happen to throw an exception here (before initializing the whole
-          * structure), we'll core someplace (like
-          * dissect_cip_generic_service_rsp()) which expects all num_services
-          * entries to be fully initialized.
-          */
-         mr_mult_req_info->num_services = i+1;
       }
       else
       {
@@ -3511,10 +3514,6 @@ dissect_cip_multiple_service_packet_rsp(tvbuff_t *tvb, packet_info *pinfo, proto
    int i, num_services, serv_offset;
    cip_req_info_t *cip_req_info, *mr_single_req_info;
    mr_mult_req_info_t *mr_mult_req_info = NULL;
-
-   /* XXX DISABLE CIP MULTIPLE SERVICE PACKET RSP --until the fuzz failures stop */
-   expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Multiple Service Packet service disabled - see Bug #6519 for details");
-   return;
 
    if (tvb_reported_length_remaining(tvb, offset) < 2)
    {
@@ -3932,9 +3931,8 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
                         &cip_gs_vals_ext , "Unknown Response (%x)")   );
 
          /* Add additional status size */
-         add_stat_size = tvb_get_guint8( tvb, offset+3 );
          proto_tree_add_uint_format_value(status_tree, hf_cip_cm_addstat_size,
-            tvb, offset+3, 1, add_stat_size, "%d (words)", add_stat_size);
+            tvb, offset+3, 1, add_stat_size/2, "%d (words)", add_stat_size/2);
 
          if( add_stat_size )
          {
@@ -3945,7 +3943,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
             switch(add_status)
             {
             case CM_ES_RPI_NOT_ACCEPTABLE:
-               if (add_stat_size < 6)
+               if (add_stat_size < 3)
                {
                   expert_add_info_format(pinfo, status_item, PI_MALFORMED, PI_WARN, "RPI not acceptable - missing extended data");
                }
@@ -3960,7 +3958,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
                }
                break;
             case CM_ES_INVALID_CONFIGURATION_SIZE:
-               if (add_stat_size < 2)
+               if (add_stat_size < 1)
                {
                   expert_add_info_format(pinfo, status_item, PI_MALFORMED, PI_WARN, "Invalid configuration size - missing size field");
                }
@@ -3970,7 +3968,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
                }
                break;
             case CM_ES_INVALID_OT_SIZE:
-               if (add_stat_size < 2)
+               if (add_stat_size < 1)
                {
                   expert_add_info_format(pinfo, status_item, PI_MALFORMED, PI_WARN, "Invalid O->T size - missing size field");
                }
@@ -3980,7 +3978,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
                }
                break;
             case CM_ES_INVALID_TO_SIZE:
-               if (add_stat_size < 2)
+               if (add_stat_size < 1)
                {
                   expert_add_info_format(pinfo, status_item, PI_MALFORMED, PI_WARN, "Invalid T->O size - missing size field");
                }
@@ -3993,11 +3991,11 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
                /* Add additional status */
                if (add_stat_size > 1)
                {
-                  add_status_item = proto_tree_add_text( status_tree, tvb, offset+4, add_stat_size*2, "Additional Status" );
+                  add_status_item = proto_tree_add_text( status_tree, tvb, offset+4, add_stat_size, "Additional Status" );
                   add_status_tree = proto_item_add_subtree( add_status_item, ett_cm_add_status_item );
 
-                  for( i=0; i < add_stat_size-1; i ++ )
-                     proto_tree_add_item(add_status_tree, hf_cip_cm_add_status, tvb, offset+4+(i*2), 2, ENC_LITTLE_ENDIAN );
+                  for( i=0; i < add_stat_size-2; i += 2 )
+                     proto_tree_add_item(add_status_tree, hf_cip_cm_add_status, tvb, offset+4+i, 2, ENC_LITTLE_ENDIAN );
                }
             }
          }
@@ -4556,8 +4554,8 @@ dissect_cip_cco_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item
                   proto_tree_add_item(cmd_data_tree, hf_cip_class_rev, tvb, offset+4+add_stat_size, 2, ENC_LITTLE_ENDIAN );
                   proto_tree_add_item(cmd_data_tree, hf_cip_class_max_inst32, tvb, offset+4+add_stat_size+2, 4, ENC_LITTLE_ENDIAN );
                   proto_tree_add_item(cmd_data_tree, hf_cip_class_num_inst32, tvb, offset+4+add_stat_size+6, 4, ENC_LITTLE_ENDIAN );
-                  proto_tree_add_item(cmd_data_tree, hf_cip_cco_format_number, tvb, offset+4+add_stat_size+8, 2, ENC_LITTLE_ENDIAN );
-                  proto_tree_add_item(cmd_data_tree, hf_cip_cco_edit_signature, tvb, offset+4+add_stat_size+10, 4, ENC_LITTLE_ENDIAN );
+                  proto_tree_add_item(cmd_data_tree, hf_cip_cco_format_number, tvb, offset+4+add_stat_size+10, 2, ENC_LITTLE_ENDIAN );
+                  proto_tree_add_item(cmd_data_tree, hf_cip_cco_edit_signature, tvb, offset+4+add_stat_size+12, 4, ENC_LITTLE_ENDIAN );
                }
                else
                {
