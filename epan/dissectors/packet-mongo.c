@@ -275,13 +275,13 @@ dissect_bson_document(tvbuff_t *tvb, guint offset, proto_tree *tree, int hf_mong
 
     e_type = tvb_get_guint8(tvb, offset);
     tvb_get_ephemeral_stringz(tvb, offset+1, &str_len);
-    
+
     element = proto_tree_add_item(elements_tree, hf_mongo_element_name, tvb, offset+1, str_len-1, ENC_UTF_8|ENC_NA);
     element_sub_tree = proto_item_add_subtree(element, ett_mongo_element);
     proto_tree_add_item(element_sub_tree, hf_mongo_element_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
     offset += str_len+1;
-    
+
     switch(e_type) {
       case BSON_ELEMENT_TYPE_DOUBLE:
         proto_tree_add_item(element_sub_tree, hf_mongo_element_value_double, tvb, offset, 8, ENC_LITTLE_ENDIAN);
@@ -597,31 +597,31 @@ dissect_mongo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     switch(opcode){
     case OP_REPLY:
       offset = dissect_mongo_reply(tvb, offset, mongo_tree);
-    break;
+      break;
     case OP_MSG:
       offset = dissect_mongo_msg(tvb, offset, mongo_tree);
-    break;
+      break;
     case OP_UPDATE:
       offset = dissect_mongo_update(tvb, offset, mongo_tree);
-    break;
+      break;
     case OP_INSERT:
       offset = dissect_mongo_insert(tvb, offset, mongo_tree);
-    break;
+      break;
     case OP_QUERY:
       offset = dissect_mongo_query(tvb, offset, mongo_tree);
-    break;
+      break;
     case OP_GET_MORE:
       offset = dissect_mongo_getmore(tvb, offset, mongo_tree);
-    break;
+      break;
     case OP_DELETE:
       offset = dissect_mongo_delete(tvb, offset, mongo_tree);
-    break;
+      break;
     case OP_KILL_CURSORS:
       offset = dissect_mongo_kill_cursors(tvb, offset, mongo_tree);
-    break;
+      break;
     default:
       /* No default Action */
-    break;
+      break;
     }
     if(offset < tvb_reported_length(tvb))
     {
@@ -684,7 +684,8 @@ proto_register_mongo(void)
     { &hf_mongo_fullcollectionname,
       { "fullCollectionName", "mongo.full_collection_name",
       FT_STRINGZ, BASE_NONE, NULL, 0x0,
-      "The full collection name is the concatenation of the database name with the collection name, using a dot for the concatenation", HFILL }
+      "The full collection name is the concatenation of the database name with the"
+        " collection name, using a dot for the concatenation", HFILL }
     },
     { &hf_mongo_database_name,
       { "Database Name", "mongo.database_name",
@@ -709,7 +710,8 @@ proto_register_mongo(void)
     { &hf_mongo_reply_flags_queryfailure,
       { "Query Failure", "mongo.reply.flags.queryfailure",
       FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000002,
-      "Set when query failed. Results consist of one document containing an $err field describing the failure.", HFILL }
+      "Set when query failed. Results consist of one document containing an $err"
+        " field describing the failure.", HFILL }
     },
     { &hf_mongo_reply_flags_sharedconfigstale,
       { "Shared Config Stale", "mongo.reply.flags.sharedconfigstale",
@@ -769,12 +771,14 @@ proto_register_mongo(void)
     { &hf_mongo_update_flags_upsert,
       { "Upsert", "mongo.update.flags.upsert",
       FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000001,
-      "If set, the database will insert the supplied object into the collection if no matching document is found", HFILL }
+      "If set, the database will insert the supplied object into the collection if no"
+        " matching document is found", HFILL }
     },
     { &hf_mongo_update_flags_multiupdate,
       { "Multi Update", "mongo.update.flags.multiupdate",
       FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000002,
-      "If set, the database will update all matching objects in the collection. Otherwise only updates first matching doc.", HFILL }
+      "If set, the database will update all matching objects in the collection."
+        " Otherwise only updates first matching doc.", HFILL }
     },
     { &hf_mongo_selector,
       { "Selector", "mongo.selector",
@@ -794,7 +798,8 @@ proto_register_mongo(void)
     { &hf_mongo_insert_flags_continueonerror,
       { "ContinueOnError", "mongo.insert.flags.continueonerror",
       FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000001,
-      "If set, the database will not stop processing a bulk insert if one fails (eg due to duplicate IDs)", HFILL }
+      "If set, the database will not stop processing a bulk insert if one fails"
+        " (eg due to duplicate IDs)", HFILL }
     },
     { &hf_mongo_query_flags_tailablecursor,
       { "Tailable Cursor", "mongo.query.flags.tailable_cursor",
@@ -814,17 +819,20 @@ proto_register_mongo(void)
     { &hf_mongo_query_flags_nocursortimeout,
       { "No Cursor Timeout", "mongo.query.flags.no_cursor_timeout",
       FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000010,
-      "The server normally times out idle cursors after an inactivity period (10 minutes) to prevent excess memory use. Set this option to prevent that", HFILL }
+      "The server normally times out idle cursors after an inactivity period (10 minutes)"
+        " to prevent excess memory use. Set this option to prevent that", HFILL }
     },
     { &hf_mongo_query_flags_awaitdata,
       { "AwaitData", "mongo.query.flags.awaitdata",
       FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000020,
-      "If we are at the end of the data, block for a while rather than returning no data. After a timeout period, we do return as normal", HFILL }
+      "If we are at the end of the data, block for a while rather than returning no data."
+        " After a timeout period, we do return as normal", HFILL }
     },
     { &hf_mongo_query_flags_exhaust,
       { "Exhaust", "mongo.query.flags.exhaust",
       FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000040,
-      "Stream the data down full blast in multiple more packages, on the assumption that the client will fully read all data queried", HFILL }
+      "Stream the data down full blast in multiple more packages, on the assumption"
+        " that the client will fully read all data queried", HFILL }
     },
     { &hf_mongo_query_flags_partial,
       { "Partial", "mongo.query.flags.partial",
@@ -859,7 +867,8 @@ proto_register_mongo(void)
     { &hf_mongo_delete_flags_singleremove,
       { "Single Remove", "mongo.delete.flags.singleremove",
       FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000001,
-      "If set, the database will remove only the first matching document in the collection. Otherwise all matching documents will be removed", HFILL }
+      "If set, the database will remove only the first matching document in the"
+        " collection. Otherwise all matching documents will be removed", HFILL }
     },
     { &hf_mongo_number_of_cursor_ids,
       { "Number of Cursor IDS", "mongo.number_to_cursor_ids",
@@ -1020,8 +1029,6 @@ proto_reg_handoff_mongo(void)
     mongo_handle = create_dissector_handle(dissect_mongo, proto_mongo);
     initialized = TRUE;
   } else {
-
-
     dissector_delete_uint("tcp.port", currentPort, mongo_handle);
   }
 
