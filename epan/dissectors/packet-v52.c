@@ -1942,7 +1942,7 @@ dissect_v52_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*int     old_offset;*/
     int     singleoctet;
 
-    while(tvb_length_remaining(tvb,offset)){
+    while(tvb_length_remaining(tvb,offset) > 0){
         singleoctet = 0;
         /* old_offset = offset; */
         info_element = tvb_get_guint8(tvb, offset);

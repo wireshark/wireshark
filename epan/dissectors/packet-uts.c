@@ -241,7 +241,7 @@ dissect_uts(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 		}
 	}
 
-	while (tvb_length_remaining(tvb, offset)) {					/* now look for the ETX */
+	while (tvb_length_remaining(tvb, offset) > 0) {					/* now look for the ETX */
 		if ((tvb_get_guint8(tvb, offset) & 0x7f) == ETX) {
 			if (header_length == -1)
 				header_length = offset;	/* the header ends at an STX, or if not found, the ETX */

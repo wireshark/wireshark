@@ -772,7 +772,7 @@ dissect_aim_snac(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			proto_item_append_text(ti, ", %s", subtype->name);
 	}
 
-	if(tvb_length_remaining(tvb, offset) > 0 && subtype != NULL && subtype->dissector)
+	if((tvb_length_remaining(tvb, offset) > 0) && (subtype != NULL) && subtype->dissector)
 	{
 		subtype->dissector(subtvb, pinfo, family_tree);
 	}

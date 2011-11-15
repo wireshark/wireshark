@@ -703,7 +703,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
 
   /* ATTRIBUTES
    */
-  while(tvb_reported_length_remaining(tvb, pos)) {
+  while(tvb_reported_length_remaining(tvb, pos) > 0) {
     guint8 aid;
     const gchar* aname = NULL;
     const gchar* aval;

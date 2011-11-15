@@ -1066,7 +1066,7 @@ heur_dissect_mp2t( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	if (tvb_length_remaining(tvb, offset) % MP2T_PACKET_SIZE) {
 		return FALSE;
 	} else {
-		while (tvb_length_remaining(tvb, offset)) {
+		while (tvb_length_remaining(tvb, offset) > 0) {
 			if (tvb_get_guint8(tvb, offset) != MP2T_SYNC_BYTE)
 				return FALSE;
 			offset += MP2T_PACKET_SIZE;

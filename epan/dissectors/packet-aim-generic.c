@@ -385,7 +385,7 @@ static int dissect_aim_generic_evil(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 {
 	int offset = 0;
 	proto_tree_add_item(gen_tree, hf_generic_evil_new_warn_level, tvb, offset, 2, ENC_BIG_ENDIAN);
-	while(tvb_length_remaining(tvb, offset)) {
+	while(tvb_length_remaining(tvb, offset) > 0) {
 		offset = dissect_aim_userinfo(tvb, pinfo, offset, gen_tree);
 	}
 	return offset;
