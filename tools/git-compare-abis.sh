@@ -1,6 +1,8 @@
 #!/bin/bash
 
-# check is Wireshark's ABI has ben changes since last release (tag)
+# $Id$
+
+# check if Wireshark's ABI has been changes since last release (tag)
 set -e
 
 if test -z "$1"; then

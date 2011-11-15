@@ -1,7 +1,8 @@
 #!/bin/bash
 
+
 # Compare ABIs of two Wireshark working copies
-# $Id: $
+# $Id$
 
 function acc () {
 	LIBNAME=$1
@@ -29,8 +30,8 @@ V2_PATH=$2
 
 acc libwiretap wiretap $V1_PATH $V2_PATH
 RET=$?
-acc libwsutil wsutil $V1_PATH $V2_PATH 
+acc libwsutil wsutil $V1_PATH $V2_PATH
 RET=$(($RET + $?))
-acc libwireshark epan $V1_PATH $V2_PATH 
+acc libwireshark epan $V1_PATH $V2_PATH
 exit $(($RET + $?))
 
