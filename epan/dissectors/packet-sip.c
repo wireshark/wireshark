@@ -1067,68 +1067,68 @@ dissect_sip_uri(tvbuff_t *tvb, packet_info *pinfo _U_, gint start_offset,
 	in_ipv6 = (tvb_get_guint8(tvb, parameter_end_offset) == '[');
 	while (parameter_end_offset < line_end_offset)
 	{
+		parameter_end_offset++;
+		c = tvb_get_guint8(tvb, parameter_end_offset);
+		switch (c) {
+			case '>':
+			case ',':
+				goto uri_host_end_found;
+			case ';':
+				uri_offsets->uri_parameters_start = parameter_end_offset + 1;
+				goto uri_host_end_found;
+			case '?':
+			case ' ':
+			case '\r':
+				goto uri_host_end_found;
+			case ':':
+				if (!in_ipv6)
+					goto uri_host_end_found;
+				break;
+			case '[':
+				in_ipv6 = TRUE;
+				break;
+			case ']':
+				in_ipv6 = FALSE;
+				break;
+			default :
+			break;
+		}
+	}
+
+uri_host_end_found:
+
+	uri_offsets->uri_host_end = parameter_end_offset - 1;
+
+	if (c == ':')
+	{
+		uri_offsets->uri_host_port_start = parameter_end_offset + 1;
+		parameter_end_offset = uri_offsets->uri_host_port_start;
+		while (parameter_end_offset < line_end_offset)
+		{
 			parameter_end_offset++;
 			c = tvb_get_guint8(tvb, parameter_end_offset);
 			switch (c) {
 				case '>':
 				case ',':
-					goto uri_host_end_found;
+					goto uri_host_port_end_found;
 				case ';':
-                    uri_offsets->uri_parameters_start = parameter_end_offset + 1;
-                    goto uri_host_end_found;
+					uri_offsets->uri_parameters_start = parameter_end_offset + 1;
+					goto uri_host_port_end_found;
 				case '?':
 				case ' ':
 				case '\r':
-					goto uri_host_end_found;
-				case ':':
-					if (!in_ipv6)
-						goto uri_host_end_found;
-					break;
-				case '[':
-					in_ipv6 = TRUE;
-					break;
-				case ']':
-					in_ipv6 = FALSE;
-					break;
+					goto uri_host_port_end_found;
 				default :
 				break;
-				}
-	}
-
-	uri_host_end_found:
-
-		uri_offsets->uri_host_end = parameter_end_offset - 1;
-
-		if (c == ':')
-		{
-			uri_offsets->uri_host_port_start = parameter_end_offset + 1;
-			parameter_end_offset = uri_offsets->uri_host_port_start;
-				while (parameter_end_offset < line_end_offset)
-				{
-						parameter_end_offset++;
-						c = tvb_get_guint8(tvb, parameter_end_offset);
-						switch (c) {
-							case '>':
-							case ',':
-                                goto uri_host_port_end_found;
-							case ';':
-                                uri_offsets->uri_parameters_start = parameter_end_offset + 1;
-								goto uri_host_port_end_found;
-							case '?':
-							case ' ':
-							case '\r':
-								goto uri_host_port_end_found;
-							default :
-							break;
-						}
-				}
-
-			uri_host_port_end_found:
-
-			uri_offsets->uri_host_port_end = parameter_end_offset -1;
+			}
 		}
 
-		return uri_offsets->name_addr_end;
+	uri_host_port_end_found:
+
+		uri_offsets->uri_host_port_end = parameter_end_offset -1;
+	}
+
+	return uri_offsets->name_addr_end;
 }
 
 /*
