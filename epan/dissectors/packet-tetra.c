@@ -86,6 +86,7 @@ static gint hf_tetra_rvstr = -1;
 static gint hf_tetra_carriernumber = -1;
 static gint hf_tetra_rxchannel1 = -1;
 static gint hf_tetra_rxchannel2 = -1;
+static gint hf_tetra_rxchannel3 = -1;
 static gint hf_tetra_crc = -1;
 static gint hf_tetra_len0 = -1;
 
@@ -683,7 +684,7 @@ static int hf_tetra_proprietary_element_owner_extension = -1;  /* BIT_STRING */
 static int hf_tetra_simplex_duplex_selection_06 = -1;  /* T_simplex_duplex_selection_05 */
 
 /*--- End of included file: packet-tetra-hf.c ---*/
-#line 85 "../../asn1/tetra/packet-tetra-template.c"
+#line 86 "../../asn1/tetra/packet-tetra-template.c"
 
 /* Initialize the subtree pointers */
 /* These are the ids of the subtrees that we may be creating */
@@ -964,7 +965,7 @@ static gint ett_tetra_Type2 = -1;
 static gint ett_tetra_Modify_type = -1;
 
 /*--- End of included file: packet-tetra-ett.c ---*/
-#line 95 "../../asn1/tetra/packet-tetra-template.c"
+#line 96 "../../asn1/tetra/packet-tetra-template.c"
 
 
 /*--- Included file: packet-tetra-fn.c ---*/
@@ -8608,7 +8609,7 @@ static void dissect_MAC_ACCESS_DEFINE_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 
 
 /*--- End of included file: packet-tetra-fn.c ---*/
-#line 97 "../../asn1/tetra/packet-tetra-template.c"
+#line 98 "../../asn1/tetra/packet-tetra-template.c"
 
 static const value_string channeltypenames[] = {
 	{ 0, "Reserved" },
@@ -8850,7 +8851,11 @@ static void dissect_tetra_UNITDATA_IND(tvbuff_t *tvb, packet_info *pinfo, proto_
 
 	pdu_offset = offset + 4;
 	for(i = 0; i < channels; i++) {
-		gint hf_channel[] = {hf_tetra_rxchannel1, hf_tetra_rxchannel2};
+		gint hf_channel[] = {
+		    hf_tetra_rxchannel1,
+		    hf_tetra_rxchannel2,
+		    hf_tetra_rxchannel3
+		};
 		gint byte_len, bits_len, remaining_bits;
 
 		/* Channel type */
@@ -9103,6 +9108,9 @@ void proto_register_tetra (void)
 		"Logical channels type", HFILL }},
 		{ &hf_tetra_rxchannel2,
 		{ "Channel 2", "tetra.rxchannel2", FT_UINT8, BASE_DEC, VALS(recvchanneltypenames), 0x0,
+		"Logical channels type", HFILL }},
+		{ &hf_tetra_rxchannel3,
+		{ "Channel 3", "tetra.rxchannel3", FT_UINT8, BASE_DEC, VALS(recvchanneltypenames), 0x0,
 		"Logical channels type", HFILL }},
 		{ &hf_tetra_timer,
 		{ "Timer", "tetra.timer", FT_UINT16, BASE_HEX, NULL, 0x0,
@@ -11478,7 +11486,7 @@ void proto_register_tetra (void)
         "T_simplex_duplex_selection_05", HFILL }},
 
 /*--- End of included file: packet-tetra-hfarr.c ---*/
-#line 606 "../../asn1/tetra/packet-tetra-template.c"
+#line 614 "../../asn1/tetra/packet-tetra-template.c"
  	};
 
 	/* List of subtrees */
@@ -11759,7 +11767,7 @@ void proto_register_tetra (void)
     &ett_tetra_Modify_type,
 
 /*--- End of included file: packet-tetra-ettarr.c ---*/
-#line 616 "../../asn1/tetra/packet-tetra-template.c"
+#line 624 "../../asn1/tetra/packet-tetra-template.c"
 	};
 
 	/* execute protocol initialization only once */

@@ -78,6 +78,7 @@ static gint hf_tetra_rvstr = -1;
 static gint hf_tetra_carriernumber = -1;
 static gint hf_tetra_rxchannel1 = -1;
 static gint hf_tetra_rxchannel2 = -1;
+static gint hf_tetra_rxchannel3 = -1;
 static gint hf_tetra_crc = -1;
 static gint hf_tetra_len0 = -1;
 
@@ -335,7 +336,11 @@ static void dissect_tetra_UNITDATA_IND(tvbuff_t *tvb, packet_info *pinfo, proto_
 
 	pdu_offset = offset + 4;
 	for(i = 0; i < channels; i++) {
-		gint hf_channel[] = {hf_tetra_rxchannel1, hf_tetra_rxchannel2};
+		gint hf_channel[] = {
+		    hf_tetra_rxchannel1,
+		    hf_tetra_rxchannel2,
+		    hf_tetra_rxchannel3
+		};
 		gint byte_len, bits_len, remaining_bits;
 
 		/* Channel type */
@@ -588,6 +593,9 @@ void proto_register_tetra (void)
 		"Logical channels type", HFILL }},
 		{ &hf_tetra_rxchannel2,
 		{ "Channel 2", "tetra.rxchannel2", FT_UINT8, BASE_DEC, VALS(recvchanneltypenames), 0x0,
+		"Logical channels type", HFILL }},
+		{ &hf_tetra_rxchannel3,
+		{ "Channel 3", "tetra.rxchannel3", FT_UINT8, BASE_DEC, VALS(recvchanneltypenames), 0x0,
 		"Logical channels type", HFILL }},
 		{ &hf_tetra_timer,
 		{ "Timer", "tetra.timer", FT_UINT16, BASE_HEX, NULL, 0x0,
