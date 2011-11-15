@@ -1504,17 +1504,17 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 	while(current_offset< line_end_offset){
 		while (queried_offset < line_end_offset)
 		{
-				queried_offset++;
-				c = tvb_get_guint8(tvb, queried_offset);
-				switch (c) {
-					case ',':
-					case ';':
-					case '"':
-						goto found;
-						break;
-					default :
-						break;
-				}
+			queried_offset++;
+			c = tvb_get_guint8(tvb, queried_offset);
+			switch (c) {
+				case ',':
+				case ';':
+				case '"':
+					goto found;
+					break;
+				default :
+					break;
+			}
 		}
 	found:
 		if(queried_offset==line_end_offset){
