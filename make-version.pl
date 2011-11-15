@@ -67,6 +67,7 @@ use Getopt::Long;
 my $version_file = 'svnversion.h';
 my $package_string = "";
 my $vconf_file = 'version.conf';
+my $tortoise_file = "tortoise_template";
 my $last_change = 0;
 my $revision = 0;
 my $repo_path = "unknown";
@@ -74,6 +75,7 @@ my $pkg_version = 0;
 my %version_pref = (
 	"enable"     => 1,
 	"svn_client" => 1,
+	"tortoise_svn" => 0,
 	"format"     => "SVN %Y%m%d%H%M%S",
 	"is_release" => 0,
 
@@ -132,6 +134,21 @@ sub read_svn_info {
 		if ($last_change && $revision && $repo_url && $repo_root) {
 			$do_hack = 0;
 		}
+	} elsif ($version_pref{"tortoise_svn"}) {
+		#dynamically generic template file needed by TortoiseSVN		
+		open(TORTOISE, ">$tortoise_file");
+		print TORTOISE "#define SVNVERSION \"\$WCREV\$\"\r\n";
+		print TORTOISE "#define SVNPATH \"\$WCURL\$\"\r\n";		
+		close(TORTOISE);
+		
+		$svn_info_cmd = "SubWCRev $srcdir $tortoise_file $version_file";
+		my $tortoise = system($svn_info_cmd);
+		if ($tortoise == 0) {
+			$do_hack = 0;
+		}
+		
+		#clean up the template file
+		unlink($tortoise_file);
 	}
 
 	# 'svn info' failed or the user really wants us to dig around in .svn/entries
@@ -254,7 +271,7 @@ sub print_svn_version
 	my $svn_version;
 	my $needs_update = 1;
 
-	if ($pkg_version || $version_pref{"is_release"} == 1) { return; }
+	if ($pkg_version || $version_pref{"is_release"} == 1 || $version_pref{"tortoise_svn"}) { return; }
 
 	if ($last_change && $revision) {
 		$svn_version = "#define SVNVERSION \"SVN Rev " .
