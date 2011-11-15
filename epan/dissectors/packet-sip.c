@@ -1462,11 +1462,11 @@ display_sip_uri (tvbuff_t *tvb, proto_tree *sip_element_tree, uri_offset_info* u
 static gint
 dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint start_offset, gint line_end_offset)
 {
-	/*gchar c;*/
+	gchar c;
 	gint current_offset;
 	gint queried_offset;
 	gint contact_params_start_offset = -1;
-	/*gint contact_param_end_offset = -1;*/
+	gint contact_param_end_offset = -1;
 	uri_offset_info uri_offsets;
 
 	/* skip Spaces and Tabs */
@@ -1476,13 +1476,7 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 		/* Nothing to parse */
 		return -1;
 	}
-	queried_offset = tvb_find_guint8(tvb, start_offset , line_end_offset - start_offset, ';');
-	if(queried_offset == -1){
-		queried_offset = line_end_offset;
-	}else{
-		/* skip Spaces and Tabs */
-		contact_params_start_offset = tvb_skip_wsp(tvb, queried_offset+1, line_end_offset - queried_offset+1);
-	}
+
 	/* Initialize the uri_offsets */
 	sip_uri_offset_init(&uri_offsets);
 	/* contact-param  =  (name-addr / addr-spec) *(SEMI contact-params) */
@@ -1493,12 +1487,60 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 		/* Parsing failed */
 		return -1;
 	}
+	/* Check if we have contact parameters, the uri should be followed by a ';' */
+	contact_params_start_offset = tvb_find_guint8(tvb, uri_offsets.uri_end, line_end_offset - uri_offsets.uri_end, ';');
 	/* check if contact-params is present */
 	if(contact_params_start_offset == -1)
 		return line_end_offset;
 
 	/* Move current offset to the start of the first param */
+	contact_params_start_offset++;
 	current_offset = contact_params_start_offset;
+
+	/* Put the contact parameters in the tree */
+
+	queried_offset = current_offset;
+
+	while(current_offset< line_end_offset){
+		while (queried_offset < line_end_offset)
+		{
+				queried_offset++;
+				c = tvb_get_guint8(tvb, queried_offset);
+				switch (c) {
+					case ',':
+					case ';':
+					case '"':
+						goto found;
+						break;
+					default :
+						break;
+				}
+		}
+	found:
+		if(queried_offset==line_end_offset){
+			/* Last parameter, line end */
+			current_offset = line_end_offset;
+		}else if(c=='"'){
+			/* Do we have a quoted string ? */
+			queried_offset = tvb_find_guint8(tvb, queried_offset+1, line_end_offset - queried_offset, '"');
+			if(queried_offset==-1){
+				/* We have an opening quote but no closing quote. */
+				queried_offset = line_end_offset;
+			}
+			current_offset =  tvb_find_guint8(tvb, queried_offset+1, line_end_offset - queried_offset, ';');
+			if(current_offset==-1){
+				/* Last parameter, line end */
+				current_offset = line_end_offset;
+			}
+		}else{
+			current_offset = queried_offset;
+		}
+		proto_tree_add_item(tree, hf_sip_contact_param, tvb, contact_params_start_offset ,
+			current_offset - contact_params_start_offset, ENC_ASCII|ENC_NA);
+		/* In case there are more parameters, point to the start of it */
+		contact_params_start_offset = current_offset+1;
+		queried_offset = contact_params_start_offset;
+	}
 
 	return current_offset;
 }
@@ -2799,22 +2841,24 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 							break;
 						}
 
-						comma_offset = value_offset;
-						while((comma_offset = dissect_sip_contact_item(tvb, pinfo, sip_element_tree, comma_offset, next_offset)) != -1)
-						{
-							contacts++;
-							if(comma_offset == next_offset)
+						if(hdr_tree) {
+							comma_offset = value_offset;
+							while((comma_offset = dissect_sip_contact_item(tvb, pinfo, sip_element_tree, comma_offset, next_offset)) != -1)
 							{
-								/* Line End reached: Stop Parsing */
-								break;
-							}
+								contacts++;
+								if(comma_offset == next_offset)
+								{
+									/* Line End reached: Stop Parsing */
+									break;
+								}
 
-							if(tvb_get_guint8(tvb, comma_offset) != ',')
-							{
-								/* Undefined value reached: Stop Parsing */
-								break;
+								if(tvb_get_guint8(tvb, comma_offset) != ',')
+								{
+									/* Undefined value reached: Stop Parsing */
+									break;
+								}
+								comma_offset++; /* skip comma */
 							}
-							comma_offset++; /* skip comma */
 						}
 					break;
 
