@@ -2871,8 +2871,7 @@ static int dissect_extensiveroutingmodeoption(tvbuff_t *tvb, packet_info *pinfo,
     local_offset +=1;
     dissect_destination_list(tvb, pinfo, destination_tree, offset+local_offset, destination_length, &nDestinations);
     proto_item_append_text(ti_destination, ": %d elements", nDestinations);
-
-    return  local_offset += destination_length;
+    local_offset += destination_length;
   }
   return local_offset;
 }
