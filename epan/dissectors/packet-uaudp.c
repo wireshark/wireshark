@@ -1,33 +1,27 @@
 /* packet-uaudp.c
-* Routines for UA/UDP (Universal Alcatel UDP) packet dissection.
-* Copyright 2011, Marek Tews <marek@trx.com.pl>
-*
-* $Id$
-*
-* Wireshark - Network traffic analyzer
-* By Gerald Combs <gerald@wireshark.org>
-* Copyright 1998 Gerald Combs
-*
-* Copied from WHATEVER_FILE_YOU_USED (where "WHATEVER_FILE_YOU_USED"
-* is a dissector file; if you just copied this from README.developer,
-* don't bother with the "Copied from" - you don't even need to put
-* in a "Copied from" if you copied an existing dissector, especially
-* if the bulk of the code in the new dissector is your code)
-*
-* This program is free software; you can redistribute it and/or
-* modify it under the terms of the GNU General Public License
-* as published by the Free Software Foundation; either version 2
-* of the License, or (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-*/
+ * Routines for UA/UDP (Universal Alcatel UDP) packet dissection.
+ * Copyright 2011, Marek Tews <marek@trx.com.pl>
+ *
+ * $Id$
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -38,12 +32,8 @@
 
 #include "packet-ua.h"
 
-/*
-* Here are the global variables associated with
-* the various user definable characteristics of the dissection
-*/
 static gboolean use_heuristic_dissector = TRUE;
-static range_t *global_uaudp_port_range;
+static range_t *global_uaudp_port_range = NULL;
 
 /* Define the UAUDP proto */
 static int proto_uaudp = -1;
@@ -79,9 +69,10 @@ static const value_string szUaOpcode[] =
 /*
 * dissect_uaudp - The dissector for the UA/UDP protocol
 */
-static int dissect_uaudp(tvbuff_t *pTvb, packet_info *pInfo, proto_tree *pTree)
+static int
+dissect_uaudp(tvbuff_t *pTvb, packet_info *pInfo, proto_tree *pTree)
 {
-    gint nLen;
+    gint   nLen;
     guint8 u8Opcode;
     proto_item *pUAUDP, *pHeaderSubTree;
 
@@ -141,7 +132,7 @@ static int dissect_uaudp(tvbuff_t *pTvb, packet_info *pInfo, proto_tree *pTree)
 /*
  * UAUDP-over-UDP
  */
-static gboolean 
+static gboolean
 dissect_uaudp_heur(tvbuff_t *pTvb, packet_info *pInfo, proto_tree *pTree)
 {
     guint8 u8Opcode;
@@ -182,7 +173,7 @@ dissect_uaudp_heur(tvbuff_t *pTvb, packet_info *pInfo, proto_tree *pTree)
             break;
         }
     /*
-     * There I met with other opcodes 
+     * There I met with other opcodes
      * and do not know how much data is transmitted.
      */
     default: return FALSE;
@@ -192,44 +183,11 @@ dissect_uaudp_heur(tvbuff_t *pTvb, packet_info *pInfo, proto_tree *pTree)
     return TRUE;
 }
 
-/* The registration hand-off routine is called at startup */
-static void range_delete_callback(guint32 port)
-{
-    dissector_delete_uint("udp.port", port, uaudp_handle);
-}
-
-static void range_add_callback (guint32 port)
-{
-    dissector_add_uint("udp.port", port, uaudp_handle);
-}
-
-void proto_reg_handoff_uaudp(void)
-{
-    static range_t *uaudp_port_range;
-    static gboolean uaudp_initialized = FALSE;
-
-    if (!uaudp_initialized)
-    {
-        /*
-         * For UAUDP-over-UDP.
-         */
-        heur_dissector_add("udp", dissect_uaudp_heur, proto_uaudp);
-
-        uaudp_handle = find_dissector("uaudp");
-        uaudp_initialized = TRUE;
-    }
-    else
-    {
-        range_foreach(uaudp_port_range, range_delete_callback);
-        g_free(uaudp_port_range);
-    }
-
-    uaudp_port_range = range_copy(global_uaudp_port_range);
-    range_foreach(uaudp_port_range, range_add_callback);
-}
-
 /* Register all the bits needed by the filtering engine */
-void proto_register_uaudp(void)
+void proto_reg_handoff_uaudp(void);
+
+void
+proto_register_uaudp(void)
 {
     static hf_register_info hf[] =
     {
@@ -277,6 +235,46 @@ void proto_register_uaudp(void)
 
     uaudp_dissector_table = register_dissector_table("uaudp.opcode", "UA/UDP Opcode", FT_UINT8, BASE_DEC);
 }
+
+/* The registration hand-off routine is called at startup */
+static void
+range_delete_callback(guint32 port)
+{
+    dissector_delete_uint("udp.port", port, uaudp_handle);
+}
+
+static void
+range_add_callback (guint32 port)
+{
+    dissector_add_uint("udp.port", port, uaudp_handle);
+}
+
+void
+proto_reg_handoff_uaudp(void)
+{
+    static range_t *uaudp_port_range  = NULL;
+    static gboolean uaudp_initialized = FALSE;
+
+    if (!uaudp_initialized)
+    {
+        /*
+         * For UAUDP-over-UDP.
+         */
+        heur_dissector_add("udp", dissect_uaudp_heur, proto_uaudp);
+
+        uaudp_handle = find_dissector("uaudp");
+        uaudp_initialized = TRUE;
+    }
+    else
+    {
+        range_foreach(uaudp_port_range, range_delete_callback);
+        g_free(uaudp_port_range);
+    }
+
+    uaudp_port_range = range_copy(global_uaudp_port_range);
+    range_foreach(uaudp_port_range, range_add_callback);
+}
+
 /*
 * Editor modelines - http://www.wireshark.org/tools/modelines.html
 *
