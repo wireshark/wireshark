@@ -29,12 +29,9 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-#include <epan/conversation.h>
-#include <stdio.h>
-#include <math.h>
+
 #include <epan/packet.h>
-#include <epan/prefs.h>
-#include <epan/tvbuff-int.h>
+#include <epan/conversation.h>
 
 /* Specifications: BEP-0005
  * http://www.bittorrent.org/beps/bep_0005.html
@@ -439,11 +436,6 @@ static gboolean test_bt_dht_packet (tvbuff_t *tvb, packet_info *pinfo,
    return FALSE;
 }
 
-void proto_reg_handoff_bt_dht(void)
-{
-  heur_dissector_add("udp", test_bt_dht_packet, proto_bt_dht);
-}
-
 void proto_register_bt_dht(void)
 {
   static hf_register_info hf[] = {
@@ -518,10 +510,16 @@ void proto_register_bt_dht(void)
 
   proto_bt_dht = proto_register_protocol (
     "Bittorrent DHT Protocol",  /* name */
-    "BT-DHT",    /* short name */
-    "bt-dht"    /* abbrev */
+    "BT-DHT",                   /* short name */
+    "bt-dht"                    /* abbrev */
   );
 
   proto_register_field_array(proto_bt_dht, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }
+
+void proto_reg_handoff_bt_dht(void)
+{
+  heur_dissector_add("udp", test_bt_dht_packet, proto_bt_dht);
+}
+
