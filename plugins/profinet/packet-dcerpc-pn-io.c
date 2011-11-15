@@ -8435,7 +8435,8 @@ dissect_ProfiSafeParameterRequest(tvbuff_t *tvb, int offset,
     guint8 prm_flag2_f_block_id;
     guint8 prm_flag2_f_par_version;
 
-    prm_flag1 = prm_flag2 = 0;
+    prm_flag1 = 0;
+    prm_flag2 = 0;
     
     f_item = proto_tree_add_item(tree, hf_pn_io_block, tvb, offset, 0, ENC_NA);
     f_tree = proto_item_add_subtree(f_item, ett_pn_io_profisafe_f_parameter); 
