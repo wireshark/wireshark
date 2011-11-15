@@ -9,7 +9,7 @@
 	Instructions on how to download and install Pidl can be 
 	found at http://wiki.wireshark.org/Pidl
 
-	$Id: packet-dcerpc-atsvc.c 34713 2010-10-30 14:35:05Z morriss $
+	$Id$
 */
 
 
