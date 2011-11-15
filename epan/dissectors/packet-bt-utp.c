@@ -26,9 +26,9 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-#include <epan/conversation.h>
+
 #include <epan/packet.h>
-#include <epan/prefs.h>
+#include <epan/conversation.h>
 
 enum {
   ST_DATA  = 0,
