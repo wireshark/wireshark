@@ -534,17 +534,19 @@ static proto_tree *
 tree_add_li(enum rlc_mode mode, struct rlc_li *li, guint8 li_idx, guint8 hdr_offs,
             gboolean li_is_on_2_bytes, tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_item *ti;
+	proto_item *root_ti, *ti;
 	proto_tree *li_tree;
 	guint8 li_offs;
+	guint64 length;
 
 	if (!tree) return NULL;
 
 	if (li_is_on_2_bytes) {
 		li_offs = hdr_offs + li_idx*2;
-		ti = proto_tree_add_item(tree, hf_rlc_li, tvb, li_offs, 2, ENC_NA);
-		li_tree = proto_item_add_subtree(ti, ett_rlc_frag);
-		ti = proto_tree_add_bits_item(li_tree, hf_rlc_li_value, tvb, li_offs*8, 15, ENC_BIG_ENDIAN);
+		root_ti = proto_tree_add_item(tree, hf_rlc_li, tvb, li_offs, 2, ENC_NA);
+		li_tree = proto_item_add_subtree(root_ti, ett_rlc_frag);
+		ti = proto_tree_add_bits_ret_val(li_tree, hf_rlc_li_value, tvb, li_offs*8, 15, &length, ENC_BIG_ENDIAN);
+		proto_item_append_text(root_ti, " (length=%u)", (guint16)length);
 		switch (li->li) {
 			case 0x0000:
 				proto_item_append_text(ti, " (The previous RLC PDU was exactly filled with the last segment of an RLC SDU and there is no LI that indicates the end of the RLC SDU in the previous RLC PDU)");
@@ -589,9 +591,10 @@ tree_add_li(enum rlc_mode mode, struct rlc_li *li, guint8 li_idx, guint8 hdr_off
 		proto_tree_add_bits_item(li_tree, hf_rlc_li_ext, tvb, li_offs*8+15, 1, ENC_BIG_ENDIAN);
 	} else {
 		li_offs = hdr_offs + li_idx;
-		ti = proto_tree_add_item(tree, hf_rlc_li, tvb, li_offs, 1, ENC_NA);
-		li_tree = proto_item_add_subtree(ti, ett_rlc_frag);
-		ti = proto_tree_add_bits_item(li_tree, hf_rlc_li_value, tvb, li_offs*8, 7, ENC_BIG_ENDIAN);
+		root_ti = proto_tree_add_item(tree, hf_rlc_li, tvb, li_offs, 1, ENC_NA);
+		li_tree = proto_item_add_subtree(root_ti, ett_rlc_frag);
+		ti = proto_tree_add_bits_ret_val(li_tree, hf_rlc_li_value, tvb, li_offs*8, 7, &length, ENC_BIG_ENDIAN);
+		proto_item_append_text(root_ti, " (length=%u)", (guint16)length);
 		switch (li->li) {
 			case 0x00:
 				proto_item_append_text(ti, " (The previous RLC PDU was exactly filled with the last segment of an RLC SDU and there is no LI that indicates the end of the RLC SDU in the previous RLC PDU)");
@@ -1222,7 +1225,7 @@ static void
 dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint8 offset)
 {
 	guint8 sufi_type, bits;
-	guint64 len, sn, l;
+	guint64 len, sn, wsn, lsn, l;
 	guint16 value, previous_sn;
 	gboolean isErrorBurstInd;
 	gint bit_offset, previous_bit_offset;
@@ -1244,18 +1247,21 @@ dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
 		sufi_item = proto_tree_add_item(tree, hf_rlc_sufi, tvb, sufi_start_offset, 0, ENC_NA);
 		sufi_tree = proto_item_add_subtree(sufi_item, ett_rlc_sufi);
 		proto_tree_add_bits_item(sufi_tree, hf_rlc_sufi_type, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
+		proto_item_append_text(sufi_item, " (%s)", val_to_str_const(sufi_type, rlc_sufi_vals, "Unknown"));
 		bit_offset += 4;
 		switch (sufi_type) {
 			case RLC_SUFI_NOMORE:
 				seen_last = TRUE;
 				break;
 			case RLC_SUFI_ACK:
-				proto_tree_add_bits_item(sufi_tree, hf_rlc_sufi_lsn, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
+				proto_tree_add_bits_ret_val(sufi_tree, hf_rlc_sufi_lsn, tvb, bit_offset, 12, &lsn, ENC_BIG_ENDIAN);
+				col_append_fstr(pinfo->cinfo, COL_INFO, " LSN=%u", (guint16)lsn);
 				bit_offset += 12;
 				seen_last = TRUE;
 				break;
 			case RLC_SUFI_WINDOW:
-				proto_tree_add_bits_item(sufi_tree, hf_rlc_sufi_wsn, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
+				proto_tree_add_bits_ret_val(sufi_tree, hf_rlc_sufi_wsn, tvb, bit_offset, 12, &wsn, ENC_BIG_ENDIAN);
+				col_append_fstr(pinfo->cinfo, COL_INFO, " WSN=%u", (guint16)wsn);
 				bit_offset += 12;
 				break;
 			case RLC_SUFI_LIST:
@@ -1496,10 +1502,10 @@ rlc_am_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo,
 		}
 	}
 	if (dissected == FALSE)
-		col_set_str(pinfo->cinfo, COL_INFO, "[RLC AM Fragment]");
+		col_add_fstr(pinfo->cinfo, COL_INFO, "[RLC AM Fragment]  SN=%u", seq);
 	else
 		if (channel == UNKNOWN)
-			col_set_str(pinfo->cinfo, COL_INFO, "[RLC AM Data]");
+			col_add_fstr(pinfo->cinfo, COL_INFO, "[RLC AM Data]  SN=%u", seq);
 }
 
 static void
@@ -1516,6 +1522,7 @@ dissect_rlc_am(enum channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
 	gint16 num_li = 0, seq, pos;
 	gboolean is_truncated, li_is_on_2_bytes;
 	proto_item *truncated_ti;
+	guint64 polling;
 
 	next_byte = tvb_get_guint8(tvb, offs++);
 	dc = next_byte >> 7;
@@ -1534,11 +1541,12 @@ dissect_rlc_am(enum channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
 
 	ext = next_byte & 0x03;
 	/* show header fields */
-	if (tree) {
-		proto_tree_add_bits_item(tree, hf_rlc_seq, tvb, 1, 12, ENC_BIG_ENDIAN);
-		proto_tree_add_bits_item(tree, hf_rlc_p, tvb, 13, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_bits_item(tree, hf_rlc_he, tvb, 14, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_bits_item(tree, hf_rlc_seq, tvb, 1, 12, ENC_BIG_ENDIAN);
+	proto_tree_add_bits_ret_val(tree, hf_rlc_p, tvb, 13, 1, &polling, ENC_BIG_ENDIAN);
+	if (polling) {
+		col_append_str(pinfo->cinfo, COL_INFO, " (P)");
 	}
+	proto_tree_add_bits_item(tree, hf_rlc_he, tvb, 14, 2, ENC_BIG_ENDIAN);
 
 	/* header extension may only be 00, 01 or 10 */
 	if (ext > 2) {
