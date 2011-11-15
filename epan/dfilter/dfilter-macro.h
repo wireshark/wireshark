@@ -48,7 +48,7 @@ void dfilter_macro_save(const gchar*, gchar**);
 void dfilter_macro_dump(void);
 
 /* applies all macros to the given text and returns the resulting string or NULL on failure */
-gchar* dfilter_macro_apply(const gchar* text, guint depth, const gchar** error);
+gchar* dfilter_macro_apply(const gchar* text, const gchar** error);
 
 void dfilter_macro_init(void);
 

@@ -217,7 +217,7 @@ static gchar* dfilter_macro_resolve(gchar* name, gchar** args, const gchar** err
 }
 
 
-gchar* dfilter_macro_apply(const gchar* text, guint depth, const gchar** error) {
+static gchar* dfilter_macro_apply_recurse(const gchar* text, guint depth, const gchar** error) {
 	enum { OUTSIDE, STARTING, NAME, ARGS } state = OUTSIDE;
 	GString* out;
 	GString* name = NULL;
@@ -241,61 +241,112 @@ gchar* dfilter_macro_apply(const gchar* text, guint depth, const gchar** error) 
 		if (args) { \
 			while(args->len) { void* p = g_ptr_array_remove_index_fast(args,0); if (p) g_free(p); } \
 			g_ptr_array_free(args,TRUE); \
-			args = NULL; } } while(0)
+			args = NULL; \
+		} \
+	} while(0)
 
-		*error = NULL;
-		out = g_string_sized_new(64);
+	*error = NULL;
+	out = g_string_sized_new(64);
 
-		while(1) {
-			c = *r++;
+	while(1) {
+		c = *r++;
 
-			switch(state) {
-				case OUTSIDE: {
-					switch(c) {
-						case '\0': {
-							goto finish;
-						} case '$': {
-							state = STARTING;
-							break;
-						} default: {
-							g_string_append_c(out,c);
-							break;
-						}
+		switch(state) {
+			case OUTSIDE: {
+				switch(c) {
+					case '\0': {
+						goto finish;
+					} case '$': {
+						state = STARTING;
+						break;
+					} default: {
+						g_string_append_c(out,c);
+						break;
 					}
-					break;
-				} case STARTING: {
-					switch (c) {
-						case '{': {
-							args = g_ptr_array_new();
-							arg = g_string_sized_new(32);
-							name = g_string_sized_new(32);
+				}
+				break;
+			} case STARTING: {
+				switch (c) {
+					case '{': {
+						args = g_ptr_array_new();
+						arg = g_string_sized_new(32);
+						name = g_string_sized_new(32);
 
-							state = NAME;
+						state = NAME;
 
-							break;
-						} case '\0': {
-							g_string_append_c(out,'$');
+						break;
+					} case '\0': {
+						g_string_append_c(out,'$');
 
-							goto finish;
-						} default: {
-							g_string_append_c(out,'$');
-							g_string_append_c(out,c);
+						goto finish;
+					} default: {
+						g_string_append_c(out,'$');
+						g_string_append_c(out,c);
 
-							state = OUTSIDE;
+						state = OUTSIDE;
 
-							break;
-						}
+						break;
 					}
-					break;
-				} case NAME: {
-					if ( isalnum((int)c) || c == '_' || c == '-' || c == '.' ) {
-						g_string_append_c(name,c);
-					} else if ( c == ':') {
-						state = ARGS;
-					} else if ( c == '}') {
+				}
+				break;
+			} case NAME: {
+				if ( isalnum((int)c) || c == '_' || c == '-' || c == '.' ) {
+					g_string_append_c(name,c);
+				} else if ( c == ':') {
+					state = ARGS;
+				} else if ( c == '}') {
+					gchar* resolved;
+
+					g_ptr_array_add(args,NULL);
+
+					resolved = dfilter_macro_resolve(name->str, (gchar**)args->pdata, error);
+					if (*error) goto on_error;
+
+					changed = TRUE;
+
+					g_string_append(out,resolved);
+
+					FREE_ALL();
+
+					state = OUTSIDE;
+				} else if ( c == '\0') {
+					*error = "end of filter in the middle of a macro expression";
+					goto on_error;
+				} else {
+					*error = "invalid char in macro name";
+					goto on_error;
+				}
+				break;
+			} case ARGS: {
+				switch(c) {
+					case '\0': {
+						*error = "end of filter in the middle of a macro expression";
+						goto on_error;
+					} case ';': {
+						g_ptr_array_add(args,arg->str);
+						g_string_free(arg,FALSE);
+
+						arg = g_string_sized_new(32);
+						break;
+					} case '\\': {
+						c = *r++;
+						if (c) {
+							g_string_append_c(arg,c);
+							break;
+						} else {
+							*error = "end of filter in the middle of a macro expression";
+							goto on_error;
+						}
+					} default: {
+						g_string_append_c(arg,c);
+						break;
+					} case '}': {
 						gchar* resolved;
-
+						g_ptr_array_add(args,arg->str);
 						g_ptr_array_add(args,NULL);
+
+						g_string_free(arg,FALSE);
+						arg = NULL;
 
 						resolved = dfilter_macro_resolve(name->str, (gchar**)args->pdata, error);
 						if (*error) goto on_error;
@@ -307,84 +358,39 @@ gchar* dfilter_macro_apply(const gchar* text, guint depth, const gchar** error) 
 						FREE_ALL();
 
 						state = OUTSIDE;
-					} else if ( c == '\0') {
-						*error = "end of filter in the middle of a macro expression";
-						goto on_error;
-					} else {
-						*error = "invalid char in macro name";
-						goto on_error;
+						break;
 					}
-					break;
-				} case ARGS: {
-					switch(c) {
-						case '\0': {
-							*error = "end of filter in the middle of a macro expression";
-							goto on_error;
-						} case ';': {
-							g_ptr_array_add(args,arg->str);
-							g_string_free(arg,FALSE);
-
-							arg = g_string_sized_new(32);
-							break;
-						} case '\\': {
-							c = *r++;
-							if (c) {
-								g_string_append_c(arg,c);
-								break;
-							} else {
-								*error = "end of filter in the middle of a macro expression";
-								goto on_error;
-							}
-						} default: {
-							g_string_append_c(arg,c);
-							break;
-						} case '}': {
-							gchar* resolved;
-							g_ptr_array_add(args,arg->str);
-							g_ptr_array_add(args,NULL);
-
-							g_string_free(arg,FALSE);
-							arg = NULL;
-
-							resolved = dfilter_macro_resolve(name->str, (gchar**)args->pdata, error);
-							if (*error) goto on_error;
-
-							changed = TRUE;
-
-							g_string_append(out,resolved);
-
-							FREE_ALL();
-
-							state = OUTSIDE;
-							break;
-						}
-					}
-					break;
 				}
+				break;
 			}
 		}
+	}
 
 finish:
-		{
-			FREE_ALL();
+	{
+		FREE_ALL();
 
-			if (changed) {
-				gchar* resolved = dfilter_macro_apply(out->str, depth++, error);
-				g_string_free(out,TRUE);
-				return (*error) ? NULL : resolved;
-			} else {
-				gchar* out_str = ep_strdup(out->str);
-				g_string_free(out,TRUE);
-				return out_str;
-			}
-		}
-on_error:
-		{
-			FREE_ALL();
-			if (! *error) *error = "unknown error in macro expression";
+		if (changed) {
+			gchar* resolved = dfilter_macro_apply_recurse(out->str, depth + 1, error);
 			g_string_free(out,TRUE);
-			return NULL;
+			return (*error) ? NULL : resolved;
+		} else {
+			gchar* out_str = ep_strdup(out->str);
+			g_string_free(out,TRUE);
+			return out_str;
 		}
+	}
+on_error:
+	{
+		FREE_ALL();
+		if (! *error) *error = "unknown error in macro expression";
+		g_string_free(out,TRUE);
+		return NULL;
+	}
+}
+
+gchar* dfilter_macro_apply(const gchar* text, const gchar** error) {
+	return dfilter_macro_apply_recurse(text, 0, error);
 }
 
 static void macro_update(void* mp, const gchar** error) {
@@ -429,7 +435,7 @@ static void macro_update(void* mp, const gchar** error) {
 				*(w++) = *(r++);
 				break;
 			case '\0':
-				*(w++) = *(r++);
+				*w = *r;
 				goto done;
 			case '\\':
 				*(w++) = *(++r);

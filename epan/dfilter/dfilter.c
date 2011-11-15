@@ -230,7 +230,7 @@ dfilter_compile(const gchar *text, dfilter_t **dfp)
 
 	dfilter_error_msg = NULL;
 
-	if ( !( text = dfilter_macro_apply(text, 0, &dfilter_error_msg) ) ) {
+	if ( !( text = dfilter_macro_apply(text, &dfilter_error_msg) ) ) {
 		return FALSE;
 	}
 
