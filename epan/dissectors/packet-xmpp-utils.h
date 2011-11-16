@@ -26,18 +26,6 @@
 #ifndef XMPP_UTILS_H
 #define XMPP_UTILS_H
 
-#define FI_RESET_FLAG(fi, flag) \
-    do { \
-      if (fi) \
-        (fi)->flags = (fi)->flags & !(flag); \
-    } while(0)
-
-#define PROTO_ITEM_SET_VISIBLE(proto_item)       \
-  do { \
-    if (proto_item) \
-      FI_RESET_FLAG(PITEM_FINFO(proto_item), FI_HIDDEN); \
-  } while(0)
-
 #define xmpp_elem_cdata(elem) \
 elem->data?elem->data->value:""
 
