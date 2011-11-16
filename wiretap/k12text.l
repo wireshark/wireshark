@@ -367,6 +367,14 @@ k12text_dump(wtap_dumper *wdh _U_, const struct wtap_pkthdr *phdr,
 		if (phdr->pkt_encap == encaps[i].e) break;
 	}
 
+#ifdef _MSC_VER
+	/* calling gmtime() on MSVC 2005 with huge values causes it to crash */
+	/* XXX - find the exact value that still does work */
+	/* XXX - using _USE_32BIT_TIME_T might be another way to circumvent this problem */
+	if (phdr.ts_secs > 2000000000)
+		strftime(p, 90, "+---------+---------------+----------+\r\nXX:XX:XX,");
+	else
+#endif
 	strftime(p, 90, "+---------+---------------+----------+\r\n%H:%M:%S,",
 		 gmtime(&phdr->ts.secs));
 	wl = strlen(p);
