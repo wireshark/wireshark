@@ -206,7 +206,7 @@ dissect_evrc_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, evrc_varia
     guint8                      oct;
     guint8                      frame_count;
     guint8                      i;
-    guint32                     offset, orig_offset, saved_offset;
+    guint32                     offset, saved_offset;
     gboolean                    further_entries;
     guint32                     len;
     proto_item                  *item = NULL;
@@ -228,14 +228,13 @@ dissect_evrc_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, evrc_varia
     if (!tree) return;
 
     offset = 0;
-    orig_offset = offset;
-
     g_pinfo = pinfo;
     g_tree = tree;
+    memset(speech_data_len, 0, sizeof(speech_data_len));
 
     if (NULL == tree) return;
 
-    len = tvb_length(tvb);
+    len = tvb_reported_length(tvb);
 
     item = proto_tree_add_item(tree, proto_evrc, tvb, 0, -1, ENC_NA);
 
@@ -253,8 +252,8 @@ dissect_evrc_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, evrc_varia
 
         frame_count = 0;
         further_entries = TRUE;
-        while (further_entries &&
-            ((len - (offset - orig_offset)) > 0))
+        while (further_entries && (frame_count < sizeof(speech_data_len)) &&
+            ((len - offset) > 0))
         {
             item =
                 proto_tree_add_text(evrc_tree, tvb, offset, 1, "ToC [%u]", frame_count+1);
@@ -327,7 +326,7 @@ dissect_evrc_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, evrc_varia
 
         i = 0;
         while ((i < frame_count) &&
-            ((len - (offset - orig_offset)) > 0))
+            ((len - offset) > 0))
         {
             oct = tvb_get_guint8(tvb, offset);
 
@@ -361,7 +360,7 @@ dissect_evrc_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, evrc_varia
 
     i = 0;
     while ((i < frame_count) &&
-        ((len - (offset - orig_offset)) >= speech_data_len[i]))
+        ((len - offset) >= speech_data_len[i]))
     {
         proto_tree_add_text(evrc_tree, tvb, offset, speech_data_len[i], "Speech Data [%u]", i+1);
 
