@@ -11,12 +11,74 @@ Priority
 
 #.FN_PARS
 OperationCode            VAL_PTR = &ansi_tcap_private.d.OperationCode
-OperationCode/national   VAL_PTR = &ansi_tcap_private.d.OperationCode_national
 OperationCode/private    VAL_PTR = &ansi_tcap_private.d.OperationCode_private
 #.FN_FTR OperationCode
   ansi_tcap_private.d.OperationCode_item = actx->created_item;
 #.END
 
+#.FN_BODY OperationCode/national VAL_PTR = &ansi_tcap_private.d.OperationCode_national
+ proto_tree *subtree;
+ proto_item *spcifier_item;
+ int start_offset = offset;
+ guint8 family;
+ guint8 specifier;
+ 
+  %(DEFAULT_BODY)s
+  /* mask off the H bit */
+  ansi_tcap_private.d.OperationCode_national = (ansi_tcap_private.d.OperationCode_national&0x7fff);
+ 
+  subtree = proto_item_add_subtree(actx->created_item, ett_ansi_tcap_op_code_nat);
+  /* Bit H is used to distinguish between Operations that require a reply and those that do not. A value of 1
+   * indicates that a reply is required; a value of 0 indicates that a reply is not required.
+   */
+  family = (ansi_tcap_private.d.OperationCode_national & 0x7f00)>>8;
+  specifier = (guint8)(ansi_tcap_private.d.OperationCode_national & 0xff);
+  proto_tree_add_item(subtree, hf_ansi_tcap_bit_h, tvb, start_offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(subtree, hf_ansi_tcap_op_family, tvb, start_offset, 2, ENC_BIG_ENDIAN);
+  spcifier_item = proto_tree_add_item(subtree, hf_ansi_tcap_op_specifier, tvb, start_offset, 2, ENC_BIG_ENDIAN);
+
+  switch(family){
+	case 0:
+		/* All Families ( Not used ) */
+		break;
+	case 1:
+		/* Parameter */
+		if(specifier== 1){
+			proto_item_append_text(spcifier_item, " Provide Value");
+		}else if (specifier== 2){
+			proto_item_append_text(spcifier_item, " Set Value");
+		}
+		break;
+	case 2:
+		/* Charging */
+		if (specifier== 1){
+			proto_item_append_text(spcifier_item, " Bill Call");
+		}
+		break;
+	case 3:
+		/* Provide Instructions */
+		if (specifier== 1){
+			proto_item_append_text(spcifier_item, " Start");
+		}else if (specifier== 2){
+			proto_item_append_text(spcifier_item, " Assist");
+		}
+		break;
+	case 4:
+		/* Connection Control */
+		if (specifier== 1){
+			proto_item_append_text(spcifier_item, " Connect");
+		}else if (specifier== 2){
+			proto_item_append_text(spcifier_item, " Temporary Connect");
+		}else if (specifier== 3){
+			proto_item_append_text(spcifier_item, " Disconnect");
+		}else if (specifier== 4){
+			proto_item_append_text(spcifier_item, " Forward Disconnect");
+		}
+		break;
+	default:
+		break;
+  }
+  
 #--- INVOKE ---
 
 #.FN_BODY Invoke/parameter

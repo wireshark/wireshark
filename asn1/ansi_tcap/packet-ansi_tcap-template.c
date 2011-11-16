@@ -58,12 +58,16 @@ static int hf_ansi_tcapsrt_Duplicate = -1;
 static int hf_ansi_tcapsrt_BeginSession = -1;
 static int hf_ansi_tcapsrt_EndSession = -1;
 static int hf_ansi_tcapsrt_SessionTime = -1;
+static int hf_ansi_tcap_bit_h = -1;
+static int hf_ansi_tcap_op_family = -1;
+static int hf_ansi_tcap_op_specifier = -1;
 
 #include "packet-ansi_tcap-hf.c"
 
 /* Initialize the subtree pointers */
 static gint ett_tcap = -1;
 static gint ett_param = -1;
+static gint ett_ansi_tcap_op_code_nat = -1;
 
 static gint ett_otid = -1;
 static gint ett_dtid = -1;
@@ -100,6 +104,24 @@ static void ansi_tcap_ctx_init(struct ansi_tcap_private_t *a_tcap_ctx) {
   a_tcap_ctx->oid_is_present = FALSE;
   a_tcap_ctx->TransactionID_str = NULL;
 }
+
+static const value_string ansi_tcap_national_op_code_family_vals[] = {
+  {  0x0, "All Families" },
+  {  0x1, "Parameter" },
+  {  0x2, "Charging" },
+  {  0x3, "Provide Instructions" },
+  {  0x4, "Connection Control" },
+  {  0x5, "Caller Interaction" },
+  {  0x6, "Send Notification" },
+  {  0x7, "Network Management" },
+  {  0x8, "Procedural" },
+  {  0x9, "Operation Control" },
+  {  0xa, "Report Event" },
+  /* Spare */
+  {  0x7e, "Miscellaneous" },
+  {  0x7f, "Reserved" },
+  { 0, NULL }
+};
 
 static void dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree);
 
@@ -301,16 +323,20 @@ find_tcap_subdissector(tvbuff_t *tvb, asn1_ctx_t *actx, proto_tree *tree){
         }
         if(ansi_tcap_private.d.OperationCode == 0){
                 /* national */
+				guint8 family = (ansi_tcap_private.d.OperationCode_national & 0x7f00)>>8;
+				guint8 specifier = (guint8)(ansi_tcap_private.d.OperationCode_national & 0xff);
                 item = proto_tree_add_text(tree, tvb, 0, -1,
-                        "Dissector for ANSI TCAP NATIONAL code:%u not implemented. Contact Wireshark developers if you want this supported",
-                        ansi_tcap_private.d.OperationCode_national);
+                        "Dissector for ANSI TCAP NATIONAL code:0x%x(Family %u, Specifier %u) \n"
+						"not implemented. Contact Wireshark developers if you want this supported(Spec required)",
+                        ansi_tcap_private.d.OperationCode_national, family, specifier);
                 PROTO_ITEM_SET_GENERATED(item);
                 return FALSE;
         }else if(ansi_tcap_private.d.OperationCode == 1){
                 /* private */
                 if((ansi_tcap_private.d.OperationCode_private & 0x0900) != 0x0900){
                         item = proto_tree_add_text(tree, tvb, 0, -1,
-                                "Dissector for ANSI TCAP PRIVATE code:%u not implemented. Contact Wireshark developers if you want this supported",
+                                "Dissector for ANSI TCAP PRIVATE code:%u not implemented.\n"
+								"Contact Wireshark developers if you want this supported(Spec required)",
                                 ansi_tcap_private.d.OperationCode_private);
                         PROTO_ITEM_SET_GENERATED(item);
                         return FALSE;
@@ -450,6 +476,23 @@ proto_register_ansi_tcap(void)
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
+		{ &hf_ansi_tcap_bit_h,
+          { "Require Reply", "ansi_tcap.req_rep",
+            FT_BOOLEAN, 16, NULL, 0x8000,
+            NULL, HFILL }
+        },
+		{ &hf_ansi_tcap_op_family,
+          { "Family",
+            "ansi_tcap.op_family",
+            FT_UINT16, BASE_DEC, VALS(ansi_tcap_national_op_code_family_vals), 0x7f00,
+            NULL, HFILL }
+        },
+		{ &hf_ansi_tcap_op_specifier,
+          { "Specifier",
+            "ansi_tcap.op_specifier",
+            FT_UINT16, BASE_DEC, NULL, 0x00ff,
+            NULL, HFILL }
+        },
 #include "packet-ansi_tcap-hfarr.c"
     };
 
@@ -460,6 +503,7 @@ proto_register_ansi_tcap(void)
         &ett_otid,
         &ett_dtid,
         &ett_ansi_tcap_stat,
+		&ett_ansi_tcap_op_code_nat,
         #include "packet-ansi_tcap-ettarr.c"
     };
 
