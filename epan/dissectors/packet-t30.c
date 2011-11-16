@@ -29,13 +29,14 @@
 
 #include <glib.h>
 #include <glib/gprintf.h>
-#include <epan/packet.h>
-#include <epan/expert.h>
+
 #include <string.h>
 
-#include "packet-t38.h"
+#include <epan/packet.h>
 #include <epan/emem.h>
+#include <epan/expert.h>
 
+#include "packet-t38.h"
 #include "packet-t30.h"
 
 /* T30 */
@@ -486,7 +487,8 @@ t30_get_string_numbers(tvbuff_t *tvb, int offset, int len)
     int i;
 
     /* the length must be 20 bytes per T30 rec*/
-    if (len != LENGTH_T30_NUM) return NULL;
+    if (len != LENGTH_T30_NUM)
+        return NULL;
 
     buf=ep_alloc(LENGTH_T30_NUM+1);
 
@@ -507,7 +509,8 @@ dissect_t30_numbers(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, prot
 
     str_num = t30_get_string_numbers(tvb, offset, len);
     if (str_num) {
-        proto_tree_add_string_format(tree, hf_t30_fif_number, tvb, offset, LENGTH_T30_NUM, str_num, "Number: %s", str_num);
+        proto_tree_add_string_format(tree, hf_t30_fif_number, tvb, offset, LENGTH_T30_NUM, str_num,
+                                     "Number: %s", str_num);
 
         if (check_col(pinfo->cinfo, COL_INFO))
             col_append_fstr(pinfo->cinfo, COL_INFO, " - Number:%s", str_num );
@@ -516,7 +519,8 @@ dissect_t30_numbers(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, prot
             g_snprintf(((t38_packet_info*)pinfo->private_data)->desc, MAX_T38_DESC, "Num: %s", str_num);
     }
     else {
-        proto_tree_add_text(tree, tvb, offset, tvb_reported_length_remaining(tvb, offset), "[MALFORMED OR SHORT PACKET: number of digits must be 20]");
+        proto_tree_add_text(tree, tvb, offset, tvb_reported_length_remaining(tvb, offset),
+                            "[MALFORMED OR SHORT PACKET: number of digits must be 20]");
 
         col_append_str(pinfo->cinfo, COL_INFO, " [MALFORMED OR SHORT PACKET: number of digits must be 20]" );
     }
@@ -529,7 +533,8 @@ dissect_t30_facsimile_coded_data(tvbuff_t *tvb, int offset, packet_info *pinfo, 
     guint8 *t4_data;
 
     if (len < 2) {
-        proto_tree_add_text(tree, tvb, offset, tvb_reported_length_remaining(tvb, offset), "[MALFORMED OR SHORT PACKET: FCD length must be at least 2 bytes]");
+        proto_tree_add_text(tree, tvb, offset, tvb_reported_length_remaining(tvb, offset),
+                            "[MALFORMED OR SHORT PACKET: FCD length must be at least 2 bytes]");
         expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "T30 FCD length must be at least 2 bytes");
         col_append_str(pinfo->cinfo, COL_INFO, " [MALFORMED OR SHORT PACKET]");
         return;
@@ -557,7 +562,8 @@ dissect_t30_non_standard_cap(tvbuff_t *tvb, int offset, packet_info *pinfo, int 
     guint8 *non_standard_bytes;
 
     if (len < 2) {
-        proto_tree_add_text(tree, tvb, offset, tvb_reported_length_remaining(tvb, offset), "[MALFORMED OR SHORT PACKET: NSC length must be at least 2 bytes]");
+        proto_tree_add_text(tree, tvb, offset, tvb_reported_length_remaining(tvb, offset),
+                            "[MALFORMED OR SHORT PACKET: NSC length must be at least 2 bytes]");
         expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "T30 NSC length must be at least 2 bytes");
         col_append_str(pinfo->cinfo, COL_INFO, " [MALFORMED OR SHORT PACKET]");
         return;
@@ -579,7 +585,8 @@ dissect_t30_partial_page_signal(tvbuff_t *tvb, int offset, packet_info *pinfo, i
     guint8 octet, page_count, block_count, frame_count;
 
     if (len != 4) {
-        proto_tree_add_text(tree, tvb, offset, tvb_reported_length_remaining(tvb, offset), "[MALFORMED OR SHORT PACKET: PPS length must be 4 bytes]");
+        proto_tree_add_text(tree, tvb, offset, tvb_reported_length_remaining(tvb, offset),
+                            "[MALFORMED OR SHORT PACKET: PPS length must be 4 bytes]");
         expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "T30 PPS length must be 4 bytes");
         col_append_str(pinfo->cinfo, COL_INFO, " [MALFORMED OR SHORT PACKET]");
         return;
@@ -608,45 +615,48 @@ dissect_t30_partial_page_signal(tvbuff_t *tvb, int offset, packet_info *pinfo, i
         col_append_fstr(pinfo->cinfo, COL_INFO, " - PC:%d BC:%d FC:%d", page_count, block_count, frame_count);
 
     if (pinfo->private_data)
-        g_snprintf(((t38_packet_info*)pinfo->private_data)->desc, MAX_T38_DESC, "PC:%d BC:%d FC:%d", page_count, block_count, frame_count);
+        g_snprintf(((t38_packet_info*)pinfo->private_data)->desc, MAX_T38_DESC,
+                   "PC:%d BC:%d FC:%d", page_count, block_count, frame_count);
 
 }
 
 static void
 dissect_t30_partial_page_request(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, proto_tree *tree)
 {
-	int frame_count = 0;
-	int frame;
-#define BUF_SIZE	(10*1 + 90*2 + 156*3 + 256*2 + 1) /* 0..9 + 10..99 + 100..255 + 256*', ' + \0 */
-	gchar *buf = ep_alloc(BUF_SIZE);
-	gchar *buf_top = buf;
-	
-	if (len != 32) {
-		proto_tree_add_text(tree, tvb, offset, tvb_reported_length_remaining(tvb, offset), "[MALFORMED OR SHORT PACKET: PPR length must be 32 bytes]");
-		expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "T30 PPR length must be 32 bytes");
-		col_append_str(pinfo->cinfo, COL_INFO, " [MALFORMED OR SHORT PACKET]");
-		return;
-	}
-	
-	for (frame=0; frame < 255; ) {
-		guint8 octet = tvb_get_guint8(tvb, offset);
-		guint8 bit = 1<<7;
-		
-		for (;bit;) {
-			if (octet & bit) {
-				++frame_count;
-				buf_top += g_snprintf(buf_top, BUF_SIZE - (gulong)(buf_top - buf), "%u, ", frame);
-			}
-			bit >>= 1;
-			++frame;
-		}
-		++offset;
-	}
-	proto_tree_add_uint(tree, hf_t30_partial_page_request_frame_count, tvb, offset, 1, frame_count);
-	if (buf_top > buf+1) {
-		buf_top[-2] = '\0';
-		proto_tree_add_string_format(tree, hf_t30_partial_page_request_frames, tvb, offset, (gint)(buf_top-buf), buf, "Frames: %s", buf);
-	}
+    int frame_count = 0;
+    int frame;
+#define BUF_SIZE  (10*1 + 90*2 + 156*3 + 256*2 + 1) /* 0..9 + 10..99 + 100..255 + 256*', ' + \0 */
+    gchar *buf = ep_alloc(BUF_SIZE);
+    gchar *buf_top = buf;
+
+    if (len != 32) {
+        proto_tree_add_text(tree, tvb, offset, tvb_reported_length_remaining(tvb, offset),
+                            "[MALFORMED OR SHORT PACKET: PPR length must be 32 bytes]");
+        expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "T30 PPR length must be 32 bytes");
+        col_append_str(pinfo->cinfo, COL_INFO, " [MALFORMED OR SHORT PACKET]");
+        return;
+    }
+
+    for (frame=0; frame < 255; ) {
+        guint8 octet = tvb_get_guint8(tvb, offset);
+        guint8 bit = 1<<7;
+
+        for (;bit;) {
+            if (octet & bit) {
+                ++frame_count;
+                buf_top += g_snprintf(buf_top, BUF_SIZE - (gulong)(buf_top - buf), "%u, ", frame);
+            }
+            bit >>= 1;
+            ++frame;
+        }
+        ++offset;
+    }
+    proto_tree_add_uint(tree, hf_t30_partial_page_request_frame_count, tvb, offset, 1, frame_count);
+    if (buf_top > buf+1) {
+        buf_top[-2] = '\0';
+        proto_tree_add_string_format(tree, hf_t30_partial_page_request_frames, tvb, offset, (gint)(buf_top-buf),
+                                     buf, "Frames: %s", buf);
+    }
 
     if (check_col(pinfo->cinfo, COL_INFO))
         col_append_fstr(pinfo->cinfo, COL_INFO, " - %d frames", frame_count);
@@ -659,7 +669,8 @@ dissect_t30_dis_dtc(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, prot
     guint8 octet;
 
     if (len < 3) {
-        proto_tree_add_text(tree, tvb, offset, tvb_reported_length_remaining(tvb, offset), "[MALFORMED OR SHORT PACKET: DIS length must be at least 4 bytes]");
+        proto_tree_add_text(tree, tvb, offset, tvb_reported_length_remaining(tvb, offset),
+                            "[MALFORMED OR SHORT PACKET: DIS length must be at least 4 bytes]");
         expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "T30 DIS length must be at least 4 bytes");
         col_append_str(pinfo->cinfo, COL_INFO, " [MALFORMED OR SHORT PACKET]");
         return;
@@ -679,25 +690,34 @@ dissect_t30_dis_dtc(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, prot
     offset += 1;
     octet = tvb_get_guint8(tvb, offset);
 
-    if (dis_dtc) proto_tree_add_boolean(tree, hf_t30_fif_rtfc, tvb, offset, 1, octet);
+    if (dis_dtc)
+        proto_tree_add_boolean(tree, hf_t30_fif_rtfc, tvb, offset, 1, octet);
     proto_tree_add_boolean(tree, hf_t30_fif_rfo, tvb, offset, 1, octet);
     if (dis_dtc) {
         proto_tree_add_uint(tree, hf_t30_fif_dsr, tvb, offset, 1, octet);
 
         if (check_col(pinfo->cinfo, COL_INFO))
-            col_append_fstr(pinfo->cinfo, COL_INFO, " - DSR:%s", val_to_str((octet&0x3C) >> 2, t30_data_signalling_rate_vals, "<unknown>"));
+            col_append_fstr(pinfo->cinfo, COL_INFO,
+                            " - DSR:%s",
+                            val_to_str_const((octet&0x3C) >> 2, t30_data_signalling_rate_vals, "<unknown>"));
 
         if (pinfo->private_data)
-          g_snprintf(((t38_packet_info*)pinfo->private_data)->desc, MAX_T38_DESC, "DSR:%s", val_to_str((octet&0x3C) >> 2, t30_data_signalling_rate_vals, "<unknown>"));
+          g_snprintf(((t38_packet_info*)pinfo->private_data)->desc, MAX_T38_DESC,
+                     "DSR:%s",
+                     val_to_str_const((octet&0x3C) >> 2, t30_data_signalling_rate_vals, "<unknown>"));
     }
     else {
         proto_tree_add_uint(tree, hf_t30_fif_dsr_dcs, tvb, offset, 1, octet);
 
         if (check_col(pinfo->cinfo, COL_INFO))
-            col_append_fstr(pinfo->cinfo, COL_INFO, " - DSR:%s", val_to_str((octet&0x3C) >> 2, t30_data_signalling_rate_dcs_vals, "<unknown>"));
+            col_append_fstr(pinfo->cinfo, COL_INFO,
+                            " - DSR:%s",
+                            val_to_str_const((octet&0x3C) >> 2, t30_data_signalling_rate_dcs_vals, "<unknown>"));
 
         if (pinfo->private_data)
-          g_snprintf(((t38_packet_info*)pinfo->private_data)->desc, MAX_T38_DESC, "DSR:%s", val_to_str((octet&0x3C) >> 2, t30_data_signalling_rate_dcs_vals, "<unknown>"));
+          g_snprintf(((t38_packet_info*)pinfo->private_data)->desc, MAX_T38_DESC,
+                     "DSR:%s",
+                     val_to_str_const((octet&0x3C) >> 2, t30_data_signalling_rate_dcs_vals, "<unknown>"));
     }
     proto_tree_add_boolean(tree, hf_t30_fif_res, tvb, offset, 1, octet);
     proto_tree_add_boolean(tree, hf_t30_fif_tdcc, tvb, offset, 1, octet);
@@ -717,7 +737,8 @@ dissect_t30_dis_dtc(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, prot
     }
     proto_tree_add_boolean(tree, hf_t30_fif_ext, tvb, offset, 1, octet);
 
-    if ( !(octet & 0x01) || (len < 4) ) return; /* no extension */
+    if ( !(octet & 0x01) || (len < 4) )
+        return; /* no extension */
 
     /* bits 25 to 32 */
     offset += 1;
@@ -725,11 +746,13 @@ dissect_t30_dis_dtc(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, prot
 
     proto_tree_add_boolean(tree, hf_t30_fif_cm, tvb, offset, 1, octet);
     proto_tree_add_boolean(tree, hf_t30_fif_ecm, tvb, offset, 1, octet);
-    if (!dis_dtc) proto_tree_add_boolean(tree, hf_t30_fif_fs_dcs, tvb, offset, 1, octet);
+    if (!dis_dtc)
+        proto_tree_add_boolean(tree, hf_t30_fif_fs_dcs, tvb, offset, 1, octet);
     proto_tree_add_boolean(tree, hf_t30_fif_t6, tvb, offset, 1, octet);
     proto_tree_add_boolean(tree, hf_t30_fif_ext, tvb, offset, 1, octet);
 
-    if ( !(octet & 0x01) || (len < 5) ) return; /* no extension */
+    if ( !(octet & 0x01) || (len < 5) )
+        return; /* no extension */
 
     /* bits 33 to 40 */
     offset += 1;
@@ -745,7 +768,8 @@ dissect_t30_dis_dtc(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, prot
     proto_tree_add_boolean(tree, hf_t30_fif_vc32k, tvb, offset, 1, octet);
     proto_tree_add_boolean(tree, hf_t30_fif_ext, tvb, offset, 1, octet);
 
-    if ( !(octet & 0x01) || (len < 6) ) return; /* no extension */
+    if ( !(octet & 0x01) || (len < 6) )
+        return; /* no extension */
 
     /* bits 41 to 48 */
     offset += 1;
@@ -764,7 +788,8 @@ dissect_t30_dis_dtc(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, prot
     }
     proto_tree_add_boolean(tree, hf_t30_fif_ext, tvb, offset, 1, octet);
 
-    if ( !(octet & 0x01) || (len < 7) ) return; /* no extension */
+    if ( !(octet & 0x01) || (len < 7) )
+        return; /* no extension */
 
     /* bits 49 to 56 */
     offset += 1;
@@ -782,19 +807,22 @@ dissect_t30_dis_dtc(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, prot
     proto_tree_add_boolean(tree, hf_t30_fif_edi, tvb, offset, 1, octet);
     proto_tree_add_boolean(tree, hf_t30_fif_ext, tvb, offset, 1, octet);
 
-    if ( !(octet & 0x01) || (len < 8) ) return; /* no extension */
+    if ( !(octet & 0x01) || (len < 8) )
+        return; /* no extension */
 
     /* bits 57 to 64 */
     offset += 1;
     octet = tvb_get_guint8(tvb, offset);
 
     proto_tree_add_boolean(tree, hf_t30_fif_btm, tvb, offset, 1, octet);
-    if (dis_dtc) proto_tree_add_boolean(tree, hf_t30_fif_rttcmmd, tvb, offset, 1, octet);
+    if (dis_dtc)
+        proto_tree_add_boolean(tree, hf_t30_fif_rttcmmd, tvb, offset, 1, octet);
     proto_tree_add_boolean(tree, hf_t30_fif_chrm, tvb, offset, 1, octet);
     proto_tree_add_boolean(tree, hf_t30_fif_mm, tvb, offset, 1, octet);
     proto_tree_add_boolean(tree, hf_t30_fif_ext, tvb, offset, 1, octet);
 
-    if ( !(octet & 0x01) || (len < 9) ) return; /* no extension */
+    if ( !(octet & 0x01) || (len < 9) )
+        return; /* no extension */
 
     /* bits 65 to 72 */
     offset += 1;
@@ -805,11 +833,13 @@ dissect_t30_dis_dtc(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, prot
     proto_tree_add_boolean(tree, hf_t30_fif_do, tvb, offset, 1, octet);
     proto_tree_add_boolean(tree, hf_t30_fif_jpeg, tvb, offset, 1, octet);
     proto_tree_add_boolean(tree, hf_t30_fif_fcm, tvb, offset, 1, octet);
-    if (!dis_dtc) proto_tree_add_boolean(tree, hf_t30_fif_pht, tvb, offset, 1, octet);
+    if (!dis_dtc)
+        proto_tree_add_boolean(tree, hf_t30_fif_pht, tvb, offset, 1, octet);
     proto_tree_add_boolean(tree, hf_t30_fif_12c, tvb, offset, 1, octet);
     proto_tree_add_boolean(tree, hf_t30_fif_ext, tvb, offset, 1, octet);
 
-    if ( !(octet & 0x01) || (len < 10) ) return;    /* no extension */
+    if ( !(octet & 0x01) || (len < 10) )
+        return;    /* no extension */
 
     /* bits 73 to 80 */
     offset += 1;
@@ -824,7 +854,8 @@ dissect_t30_dis_dtc(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, prot
     proto_tree_add_boolean(tree, hf_t30_fif_spsco, tvb, offset, 1, octet);
     proto_tree_add_boolean(tree, hf_t30_fif_ext, tvb, offset, 1, octet);
 
-    if ( !(octet & 0x01) || (len < 11) ) return;    /* no extension */
+    if ( !(octet & 0x01) || (len < 11) )
+        return;    /* no extension */
 
     /* bits 81 to 88 */
     offset += 1;
@@ -839,7 +870,8 @@ dissect_t30_dis_dtc(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, prot
     proto_tree_add_boolean(tree, hf_t30_fif_hfx40i, tvb, offset, 1, octet);
     proto_tree_add_boolean(tree, hf_t30_fif_ext, tvb, offset, 1, octet);
 
-    if ( !(octet & 0x01) || (len < 12) ) return;    /* no extension */
+    if ( !(octet & 0x01) || (len < 12) )
+        return;    /* no extension */
 
     /* bits 89 to 96 */
     offset += 1;
@@ -853,7 +885,8 @@ dissect_t30_dis_dtc(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, prot
     proto_tree_add_boolean(tree, hf_t30_fif_plmss, tvb, offset, 1, octet);
     proto_tree_add_boolean(tree, hf_t30_fif_ext, tvb, offset, 1, octet);
 
-    if ( !(octet & 0x01) || (len < 13) ) return;    /* no extension */
+    if ( !(octet & 0x01) || (len < 13) )
+        return;    /* no extension */
 
     /* bits 97 to 104 */
     offset += 1;
@@ -869,7 +902,8 @@ dissect_t30_dis_dtc(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, prot
     proto_tree_add_boolean(tree, hf_t30_fif_ira, tvb, offset, 1, octet);
     proto_tree_add_boolean(tree, hf_t30_fif_ext, tvb, offset, 1, octet);
 
-    if ( !(octet & 0x01) || (len < 14) ) return;    /* no extension */
+    if ( !(octet & 0x01) || (len < 14) )
+        return;    /* no extension */
 
     /* bits 105 to 112 */
     offset += 1;
@@ -884,7 +918,8 @@ dissect_t30_dis_dtc(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, prot
     proto_tree_add_boolean(tree, hf_t30_fif_cg1200x1200, tvb, offset, 1, octet);
     proto_tree_add_boolean(tree, hf_t30_fif_ext, tvb, offset, 1, octet);
 
-    if ( !(octet & 0x01) || (len < 15) ) return;    /* no extension */
+    if ( !(octet & 0x01) || (len < 15) )
+        return;    /* no extension */
 
     /* bits 113 to 120 */
     offset += 1;
@@ -892,12 +927,14 @@ dissect_t30_dis_dtc(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, prot
 
     proto_tree_add_boolean(tree, hf_t30_fif_dspcam, tvb, offset, 1, octet);
     proto_tree_add_boolean(tree, hf_t30_fif_dspccm, tvb, offset, 1, octet);
-    if (dis_dtc) proto_tree_add_boolean(tree, hf_t30_fif_bwmrcp, tvb, offset, 1, octet);
+    if (dis_dtc)
+        proto_tree_add_boolean(tree, hf_t30_fif_bwmrcp, tvb, offset, 1, octet);
     proto_tree_add_boolean(tree, hf_t30_fif_t45, tvb, offset, 1, octet);
     proto_tree_add_uint(tree, hf_t30_fif_sdmc, tvb, offset, 1, octet);
     proto_tree_add_boolean(tree, hf_t30_fif_ext, tvb, offset, 1, octet);
 
-    if ( !(octet & 0x01) ) return;  /* no extension */
+    if ( !(octet & 0x01) )
+        return;  /* no extension */
 
 }
 
@@ -914,80 +951,82 @@ dissect_t30_hdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item *item;
 
     if (tvb_reported_length_remaining(tvb, offset) < 3) {
-        proto_tree_add_text(tree, tvb, offset, tvb_reported_length_remaining(tvb, offset), "[MALFORMED OR SHORT PACKET: hdlc T30 length must be at least 4 bytes]");
+        proto_tree_add_text(tree, tvb, offset, tvb_reported_length_remaining(tvb, offset),
+                            "[MALFORMED OR SHORT PACKET: hdlc T30 length must be at least 4 bytes]");
         expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "T30 length must be at least 4 bytes");
         col_append_str(pinfo->cinfo, COL_INFO, " (HDLC Reassembled: [MALFORMED OR SHORT PACKET])");
         return offset;
     }
 
-/*  if (tree) {
-        proto_item *item;*/
-        col_append_str(pinfo->cinfo, COL_INFO, " (HDLC Reassembled:");
+    col_append_str(pinfo->cinfo, COL_INFO, " (HDLC Reassembled:");
 
-        it=proto_tree_add_protocol_format(tree, proto_t30, tvb, offset, -1,
-        "ITU-T Recommendation T.30");
-        tr=proto_item_add_subtree(it, ett_t30);
+    it=proto_tree_add_protocol_format(tree, proto_t30, tvb, offset, -1,
+                                      "ITU-T Recommendation T.30");
+    tr=proto_item_add_subtree(it, ett_t30);
 
-        octet = tvb_get_guint8(tvb, offset);
-        item = proto_tree_add_uint(tr, hf_t30_Address, tvb, offset, 1, octet);
-        if (octet != 0xFF) expert_add_info_format(pinfo, item, PI_REASSEMBLE, PI_WARN, "T30 Address must be 0xFF");
-        offset += 1;
+    octet = tvb_get_guint8(tvb, offset);
+    item = proto_tree_add_uint(tr, hf_t30_Address, tvb, offset, 1, octet);
+    if (octet != 0xFF)
+        expert_add_info_format(pinfo, item, PI_REASSEMBLE, PI_WARN, "T30 Address must be 0xFF");
+    offset += 1;
 
-        octet = tvb_get_guint8(tvb, offset);
-        item = proto_tree_add_uint(tr, hf_t30_Control, tvb, offset, 1, octet);
-        if ((octet != 0xC0) && (octet != 0xC8)) expert_add_info_format(pinfo, item, PI_REASSEMBLE, PI_WARN, "T30 Control Field must be 0xC0 or 0xC8");
-        offset += 1;
+    octet = tvb_get_guint8(tvb, offset);
+    item = proto_tree_add_uint(tr, hf_t30_Control, tvb, offset, 1, octet);
+    if ((octet != 0xC0) && (octet != 0xC8))
+        expert_add_info_format(pinfo, item, PI_REASSEMBLE, PI_WARN, "T30 Control Field must be 0xC0 or 0xC8");
+    offset += 1;
 
-        octet = tvb_get_guint8(tvb, offset);
-        it_fcf = proto_tree_add_uint(tr, hf_t30_Facsimile_Control, tvb, offset, 1, octet & 0x7F);
-        offset += 1;
+    octet = tvb_get_guint8(tvb, offset);
+    it_fcf = proto_tree_add_uint(tr, hf_t30_Facsimile_Control, tvb, offset, 1, octet & 0x7F);
+    offset += 1;
 
-        tr_fif = proto_item_add_subtree(it_fcf, ett_t30_fif);
+    tr_fif = proto_item_add_subtree(it_fcf, ett_t30_fif);
 
-        frag_len = tvb_length_remaining(tvb, offset);
-        if (pinfo->private_data) ((t38_packet_info*)pinfo->private_data)->t30_Facsimile_Control = octet;
+    frag_len = tvb_length_remaining(tvb, offset);
+    if (pinfo->private_data)
+        ((t38_packet_info*)pinfo->private_data)->t30_Facsimile_Control = octet;
 
-        if (check_col(pinfo->cinfo, COL_INFO))
-            col_append_fstr(pinfo->cinfo, COL_INFO, " %s - %s", val_to_str(octet & 0x7F, t30_facsimile_control_field_vals_short, "<unknown>"),
-                val_to_str(octet & 0x7F, t30_facsimile_control_field_vals, "<unknown>") );
+    if (check_col(pinfo->cinfo, COL_INFO))
+        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        " %s - %s",
+                        val_to_str_const(octet & 0x7F, t30_facsimile_control_field_vals_short, "<unknown>"),
+                        val_to_str(octet & 0x7F, t30_facsimile_control_field_vals, "<unknown>") );
 
-        switch (octet & 0x7F) {
-        case T30_FC_DIS:
-        case T30_FC_DTC:
-            dissect_t30_dis_dtc(tvb, offset, pinfo, frag_len, tr_fif, TRUE);
-            break;
-        case T30_FC_DCS:
-            dissect_t30_dis_dtc(tvb, offset, pinfo, frag_len, tr_fif, FALSE);
-            break;
-        case T30_FC_CSI:
-        case T30_FC_CIG:
-        case T30_FC_TSI:
-        case T30_FC_PWD:
-        case T30_FC_SEP:
-        case T30_FC_SUB:
-        case T30_FC_SID:
-        case T30_FC_PSA:
-            dissect_t30_numbers(tvb, offset, pinfo, frag_len, tr_fif);
-            break;
-        case T30_FC_NSF:
-        case T30_FC_NSC:
-        case T30_FC_NSS:
-            dissect_t30_non_standard_cap(tvb, offset, pinfo, frag_len, tr_fif);
-            break;
-        case T30_FC_FCD:
-            dissect_t30_facsimile_coded_data(tvb, offset, pinfo, frag_len, tr_fif);
-            break;
-        case T30_FC_PPS:
-            dissect_t30_partial_page_signal(tvb, offset, pinfo, frag_len, tr_fif);
-            break;
-        case T30_FC_PPR:
-            dissect_t30_partial_page_request(tvb, offset, pinfo, frag_len, tr_fif);
-            break;
-        }
+    switch (octet & 0x7F) {
+    case T30_FC_DIS:
+    case T30_FC_DTC:
+        dissect_t30_dis_dtc(tvb, offset, pinfo, frag_len, tr_fif, TRUE);
+        break;
+    case T30_FC_DCS:
+        dissect_t30_dis_dtc(tvb, offset, pinfo, frag_len, tr_fif, FALSE);
+        break;
+    case T30_FC_CSI:
+    case T30_FC_CIG:
+    case T30_FC_TSI:
+    case T30_FC_PWD:
+    case T30_FC_SEP:
+    case T30_FC_SUB:
+    case T30_FC_SID:
+    case T30_FC_PSA:
+        dissect_t30_numbers(tvb, offset, pinfo, frag_len, tr_fif);
+        break;
+    case T30_FC_NSF:
+    case T30_FC_NSC:
+    case T30_FC_NSS:
+        dissect_t30_non_standard_cap(tvb, offset, pinfo, frag_len, tr_fif);
+        break;
+    case T30_FC_FCD:
+        dissect_t30_facsimile_coded_data(tvb, offset, pinfo, frag_len, tr_fif);
+        break;
+    case T30_FC_PPS:
+        dissect_t30_partial_page_signal(tvb, offset, pinfo, frag_len, tr_fif);
+        break;
+    case T30_FC_PPR:
+        dissect_t30_partial_page_request(tvb, offset, pinfo, frag_len, tr_fif);
+        break;
+    }
 
-        col_append_str(pinfo->cinfo, COL_INFO, ")");
-
-/*  }*/
+    col_append_str(pinfo->cinfo, COL_INFO, ")");
 
     return offset;
 }
@@ -1300,7 +1339,7 @@ proto_register_t30(void)
         {  &hf_t30_fif_number,
             { "Number", "t30.fif.number", FT_STRING, BASE_NONE,
               NULL, 0x0, NULL, HFILL }},
-        
+
         {  &hf_t30_fif_country_code,
             { "ITU-T Country code", "t30.fif.country_code", FT_UINT8, BASE_DEC,
               NULL, 0, NULL, HFILL }},
@@ -1327,14 +1366,14 @@ proto_register_t30(void)
         {  &hf_t30_partial_page_i3,
             { "Frame counter", "t30.t4.frame_count", FT_UINT8, BASE_DEC,
               NULL, 0, NULL, HFILL }},
-			  
+
         {  &hf_t30_partial_page_request_frame_count,
             { "Frame counter", "t30.ppr.frame_count", FT_UINT8, BASE_DEC,
               NULL, 0, NULL, HFILL }},
         {  &hf_t30_partial_page_request_frames,
             { "Frames", "t30.ppr.frames", FT_STRING, BASE_NONE,
               NULL, 0x0, NULL, HFILL }},
-			  
+
     };
 
     static gint *t30_ett[] =
@@ -1350,12 +1389,6 @@ proto_register_t30(void)
     proto_register_subtree_array(t30_ett, array_length(t30_ett));
 
     new_register_dissector("t30.hdlc", dissect_t30_hdlc, proto_t30);
-
-}
-
-void
-proto_reg_handoff_t30(void)
-{
 
 }
 
