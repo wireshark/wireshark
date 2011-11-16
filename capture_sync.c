@@ -1681,7 +1681,6 @@ sync_pipe_wait_for_child(int fork_child, gchar **msgp)
     g_assert(fork_child != -1);
 
     *msgp = NULL; /* assume no error */
-    ret = 0;
 #ifdef _WIN32
     if (_cwait(&fork_child_status, fork_child, _WAIT_CHILD) == -1) {
         *msgp = g_strdup_printf("Error from cwait(): %s", g_strerror(errno));
