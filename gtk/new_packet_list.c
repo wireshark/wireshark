@@ -744,7 +744,7 @@ create_view_and_model(void)
 	/*		g_object_unref(packetlist); */ /* Destroy automatically with view for now */ /* XXX - Messes up freezing & thawing */
 
 #if GTK_CHECK_VERSION(3,0,0)
-    gtk_widget_override_font(packetlist->view, user_font_get_regular());
+	gtk_widget_override_font(packetlist->view, user_font_get_regular());
 #else
 	gtk_widget_modify_font(packetlist->view, user_font_get_regular());
 #endif
