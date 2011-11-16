@@ -8,7 +8,7 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * This program is free software; you can spiceistribute it and/or
+ * This program is free software; you can distribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
@@ -585,16 +585,12 @@ typedef struct {
 typedef struct {
     gint32 x;
     gint32 y;
-} POINT;
-
-#define sizeof_POINT 8
+} point32_t;
 
 typedef struct {
     gint16 x;
     gint16 y;
-} POINT16;
-
-#define sizeof_POINT16 4
+} point16_t;
 
 #define    SPICE_BRUSH_TYPE_NONE 0
 #define    SPICE_BRUSH_TYPE_SOLID 1
@@ -609,7 +605,7 @@ static const value_string brush_types_vs[] = {
 
 typedef struct {
     guint64 image;
-    POINT position;
+    point32_t position;
 } Pattern;
 
 #define sizeof_Pattern 16
@@ -631,7 +627,7 @@ static const value_string Mask_flags_vs[] = {
 
 typedef struct {
     guint8 flags;
-    POINT position;
+    point32_t position;
     guint32 bitmap;
 } Mask;
 
@@ -1532,18 +1528,18 @@ dissect_Clip(tvbuff_t *tvb, proto_tree *tree, const guint32 offset)
     return type;
 }
 
-static POINT
-dissect_POINT(tvbuff_t *tvb, proto_tree *tree, const guint32 offset)
+static point32_t
+dissect_POINT32(tvbuff_t *tvb, proto_tree *tree, const guint32 offset)
 {
     proto_item *ti=NULL;
     proto_tree *point_tree;
-    POINT point;
+    point32_t point;
 
     point.x = tvb_get_letohl(tvb, offset);
     point.y = tvb_get_letohl(tvb, offset + 4);
 
     if (tree) {
-        ti = proto_tree_add_text(tree, tvb, offset, sizeof_POINT, "POINT (%u, %u)", point.x, point.y);
+        ti = proto_tree_add_text(tree, tvb, offset, sizeof(point32_t), "POINT (%u, %u)", point.x, point.y);
         point_tree = proto_item_add_subtree(ti, ett_point);
 
         proto_tree_add_text(point_tree, tvb, offset,     4, "x: %u", point.x);
@@ -1553,18 +1549,18 @@ dissect_POINT(tvbuff_t *tvb, proto_tree *tree, const guint32 offset)
     return point;
 }
 
-static POINT16
+static point16_t
 dissect_POINT16(tvbuff_t *tvb, proto_tree *tree, const guint32 offset)
 {
     proto_item *ti=NULL;
     proto_tree *point16_tree;
-    POINT16 point16;
+    point16_t point16;
 
     point16.x = tvb_get_letohs(tvb, offset);
     point16.y = tvb_get_letohs(tvb, offset + 2);
 
     if (tree) {
-        ti = proto_tree_add_text(tree, tvb, offset, sizeof_POINT16, "POINT16 (%u, %u)", point16.x, point16.y);
+        ti = proto_tree_add_text(tree, tvb, offset, sizeof(point16_t), "POINT16 (%u, %u)", point16.x, point16.y);
         point16_tree = proto_item_add_subtree(ti, ett_point16);
 
         proto_tree_add_text(point16_tree, tvb, offset,     2, "x: %u", point16.x);
@@ -1586,8 +1582,8 @@ dissect_Mask(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 
     proto_tree_add_item(Mask_tree, hf_Mask_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
-    dissect_POINT(tvb, Mask_tree, offset);
-    offset += sizeof_POINT;
+    dissect_POINT32(tvb, Mask_tree, offset);
+    offset += sizeof(point32_t);
     bitmap = tvb_get_letohl(tvb, offset);
     proto_tree_add_item(Mask_tree, hf_Mask_bitmap, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
@@ -1625,7 +1621,7 @@ dissect_Brush(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
             /* FIXME: this is supposed to be the offset to the image to be used as the pattern. For now the hack is that callers check if the returned size was not 5 (therefore SOLID, it's a pattern and later on dissect the image. That's bad. Really. */
             dissect_ID(tvb, brush_tree, offset);
             offset += 4;
-            dissect_POINT(tvb, brush_tree, offset);
+            dissect_POINT32(tvb, brush_tree, offset);
             offset += 8;
             return (1 + 4 + 8);
             break;
@@ -1937,8 +1933,8 @@ dissect_spice_display_server(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
         case SPICE_DISPLAY_COPY_BITS:
             displayBaseLen = dissect_DisplayBase(tvb, tree, offset);
             offset += displayBaseLen;
-            dissect_POINT(tvb, tree, offset);
-            offset += sizeof_POINT;
+            dissect_POINT32(tvb, tree, offset);
+            offset += sizeof(point32_t);
             break;
         case SPICE_DISPLAY_DRAW_WHITENESS:
             displayBaseLen = dissect_DisplayBase(tvb, tree, offset);
@@ -2153,7 +2149,7 @@ dissect_spice_cursor_server(tvbuff_t *tvb, proto_tree *tree, const guint16 messa
     switch(message_type) {
         case SPICE_CURSOR_INIT:
             dissect_POINT16(tvb, tree, offset);
-            offset += sizeof_POINT16;
+            offset += sizeof(point16_t);
             proto_tree_add_item(tree, hf_cursor_trail_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
             proto_tree_add_item(tree, hf_cursor_trail_freq, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -2168,14 +2164,14 @@ dissect_spice_cursor_server(tvbuff_t *tvb, proto_tree *tree, const guint16 messa
             break;
         case SPICE_CURSOR_SET:
             dissect_POINT16(tvb, tree, offset);
-            offset += sizeof_POINT16;
+            offset += sizeof(point16_t);
             offset +=1; /*TODO flags */
             RedCursorSize = dissect_RedCursor(tvb, tree, offset);
             offset += RedCursorSize;
             break;
         case SPICE_CURSOR_MOVE:
             dissect_POINT16(tvb, tree, offset);
-            offset += sizeof_POINT16;
+            offset += sizeof(point16_t);
             break;
         case SPICE_CURSOR_HIDE:
             proto_tree_add_text(tree, tvb, offset, 0, "CURSOR_HIDE message");
@@ -2430,20 +2426,20 @@ dissect_spice_inputs_client(tvbuff_t *tvb, proto_tree *tree, const guint16 messa
             offset += 2;
             break;
         case SPICEC_INPUTS_MOUSE_POSITION:
-            ti = proto_tree_add_text(tree, tvb, offset, sizeof_POINT + 3, "Client MOUSE_POSITION message");
+            ti = proto_tree_add_text(tree, tvb, offset, sizeof(point32_t) + 3, "Client MOUSE_POSITION message");
             inputs_tree = proto_item_add_subtree(ti, ett_inputs_client);
-            dissect_POINT(tvb, inputs_tree, offset);
-            offset += sizeof_POINT;
+            dissect_POINT32(tvb, inputs_tree, offset);
+            offset += sizeof(point32_t);
             proto_tree_add_item(inputs_tree, hf_button_state, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
             proto_tree_add_item(inputs_tree, hf_mouse_display_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
             break;
         case SPICEC_INPUTS_MOUSE_MOTION:
-            ti = proto_tree_add_text(tree, tvb, offset, sizeof_POINT + 4, "Client MOUSE_MOTION message");
+            ti = proto_tree_add_text(tree, tvb, offset, sizeof(point32_t) + 4, "Client MOUSE_MOTION message");
             inputs_tree = proto_item_add_subtree(ti, ett_inputs_client);
-            dissect_POINT(tvb, inputs_tree, offset);
-            offset += sizeof_POINT;
+            dissect_POINT32(tvb, inputs_tree, offset);
+            offset += sizeof(point32_t);
             proto_tree_add_item(inputs_tree, hf_button_state, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
             break;
@@ -2984,7 +2980,7 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             } else {
                 pdu_len += 4;
             }
-            
+
             if (avail < pdu_len) { /* didn't get the complete PDU, returning */
                pinfo->desegment_offset = offset;
                pinfo->desegment_len = pdu_len - avail;
@@ -3239,7 +3235,7 @@ proto_register_spice(void)
           { "Authentication selected by client", "spice.auth_select_client",
             FT_UINT32, BASE_DEC, VALS(spice_auth_select_vs), 0x0,
             NULL, HFILL }
-        },        
+        },
         { &hf_common_cap_auth,
           { "Authentication capabilitity", "spice.common_cap_auth",
             FT_UINT32, BASE_HEX_DEC, 0, 0,
@@ -3816,4 +3812,17 @@ proto_reg_handoff_spice(void)
     heur_dissector_add("tcp", test_spice_protocol, proto_spice);
     jpeg_handle = find_dissector("image-jfif");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 4
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=4 expandtab:
+ * :indentSize=4:tabSize=4:noTabs=true:
+ */
 
