@@ -100,6 +100,34 @@ add_string_to_list(GtkWidget *list, gchar *title, gchar *captured, gchar *displa
     simple_list_append(list, 0, title, 1, captured, 2, displayed, 3, marked, -1);
 }
 
+static void
+time_to_string(char *string_buff, gulong string_buff_size, time_t ti_time)
+{
+  struct tm *ti_tm;
+
+#ifdef _MSC_VER
+  /* calling localtime() on MSVC 2005 with huge values causes it to crash */
+  /* XXX - find the exact value that still does work */
+  /* XXX - using _USE_32BIT_TIME_T might be another way to circumvent this problem */
+  if (ti_time > 2000000000) {
+      ti_tm = NULL;
+  } else
+#endif
+  ti_tm = localtime(&ti_time);
+  if (ti_tm == NULL) {
+    g_snprintf(string_buff, string_buff_size, "Not representable");
+    return;
+  }
+  g_snprintf(string_buff, string_buff_size,
+             "%04d-%02d-%02d %02d:%02d:%02d",
+             ti_tm->tm_year + 1900,
+             ti_tm->tm_mon + 1,
+             ti_tm->tm_mday,
+             ti_tm->tm_hour,
+             ti_tm->tm_min,
+             ti_tm->tm_sec);
+}
+
 void
 summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
 {
@@ -132,8 +160,6 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   gchar        *str_dup;
   gchar        *str_work;
 
-  time_t        ti_time;
-  struct tm    *ti_tm;
   unsigned int  elapsed_time;
   iface_options iface;
   unsigned int  i;
@@ -193,29 +219,11 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   add_string_to_table(table, &row, "Time", "");
 
   /* start time */
-  ti_time = (time_t)summary.start_time;
-  ti_tm = localtime(&ti_time);
-  g_snprintf(string_buff, SUM_STR_MAX,
-             "%04d-%02d-%02d %02d:%02d:%02d",
-             ti_tm->tm_year + 1900,
-             ti_tm->tm_mon + 1,
-             ti_tm->tm_mday,
-             ti_tm->tm_hour,
-             ti_tm->tm_min,
-             ti_tm->tm_sec);
+  time_to_string(string_buff, SUM_STR_MAX, (time_t)summary.start_time);
   add_string_to_table(table, &row, "First packet:", string_buff);
 
   /* stop time */
-  ti_time = (time_t)summary.stop_time;
-  ti_tm = localtime(&ti_time);
-  g_snprintf(string_buff, SUM_STR_MAX,
-             "%04d-%02d-%02d %02d:%02d:%02d",
-             ti_tm->tm_year + 1900,
-             ti_tm->tm_mon + 1,
-             ti_tm->tm_mday,
-             ti_tm->tm_hour,
-             ti_tm->tm_min,
-             ti_tm->tm_sec);
+  time_to_string(string_buff, SUM_STR_MAX, (time_t)summary.stop_time);
   add_string_to_table(table, &row, "Last packet:", string_buff);
 
   /* elapsed seconds */

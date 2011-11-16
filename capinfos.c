@@ -252,42 +252,41 @@ disable_all_infos(void)
 #endif /* HAVE_LIBGCRYPT */
 }
 
-/*
- * ctime_no_lf()
- *
- * This function simply truncates the string returned
- * from the ctime() function to remove the trailing
- * '\n' character.
- *
- * The ctime() function returns a string formatted as:
- *   "Www Mmm dd hh:mm:ss yyyy\n"
- * The unwanted '\n' is the 24th character.
- */
-
 static gchar *
-ctime_no_lf(const time_t* timer)
-{
-  gchar *time_string;
-  time_string = ctime(timer);
-  time_string[24] = '\0';
-  return(time_string);
-}
-
-static gchar *
-time_string(const time_t *timer, capture_info *cf_info, gboolean want_lf)
+time_string(time_t timer, capture_info *cf_info, gboolean want_lf)
 {
   const gchar *lf = want_lf ? "\n" : "";
-  static gchar time_string_buf[15];
+  static gchar time_string_buf[20];
+  char *time_string_ctime;
 
   if (cf_info->packet_count > 0) {
     if (time_as_secs) {
       /* XXX - Would it be useful to show sub-second precision? */
-      g_snprintf(time_string_buf, 15, "%lu%s", (unsigned long) *timer, lf);
+      g_snprintf(time_string_buf, 20, "%lu%s", (unsigned long)timer, lf);
       return time_string_buf;
-    } else if (want_lf) {
-      return ctime(timer);
     } else {
-      return ctime_no_lf(timer);
+#ifdef _MSC_VER
+      /* calling localtime(), and thus ctime(), on MSVC 2005 with huge values causes it to crash */
+      /* XXX - find the exact value that still does work */
+      /* XXX - using _USE_32BIT_TIME_T might be another way to circumvent this problem */
+      if (timer > 2000000000) {
+        time_string_ctime = NULL;
+      } else
+#endif
+      time_string_ctime = ctime(&timer);
+      if (time_string_ctime == NULL) {
+      	g_snprintf(time_string_buf, 20, "Not representable%s", lf);
+        return time_string_buf;
+      }
+      if (!want_lf) {
+        /*
+         * The ctime() function returns a string formatted as:
+         *   "Www Mmm dd hh:mm:ss yyyy\n"
+         * The unwanted '\n' is the 24th character.
+         */
+        time_string_ctime[24] = '\0';
+      }
+      return time_string_ctime;
     }
   }
 
@@ -346,8 +345,8 @@ print_stats(const gchar *filename, capture_info *cf_info)
   if (cap_file_size)      printf     ("File size:           %" G_GINT64_MODIFIER "d bytes\n", cf_info->filesize);
   if (cap_data_size)      printf     ("Data size:           %" G_GINT64_MODIFIER "u bytes\n", cf_info->packet_bytes);
   if (cap_duration)       print_value("Capture duration:    ", 0, " seconds",   cf_info->duration);
-  if (cap_start_time)     printf     ("Start time:          %s", time_string(&start_time_t, cf_info, TRUE));
-  if (cap_end_time)       printf     ("End time:            %s", time_string(&stop_time_t, cf_info, TRUE));
+  if (cap_start_time)     printf     ("Start time:          %s", time_string(start_time_t, cf_info, TRUE));
+  if (cap_end_time)       printf     ("End time:            %s", time_string(stop_time_t, cf_info, TRUE));
   if (cap_data_rate_byte) print_value("Data byte rate:      ", 2, " bytes/sec",   cf_info->data_rate);
   if (cap_data_rate_bit)  print_value("Data bit rate:       ", 2, " bits/sec",    cf_info->data_rate*8);
   if (cap_packet_size)    printf     ("Average packet size: %.2f bytes\n",        cf_info->packet_size);
@@ -516,14 +515,14 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
   if (cap_start_time) {
     putsep();
     putquote();
-    printf("%s", time_string(&start_time_t, cf_info, FALSE));
+    printf("%s", time_string(start_time_t, cf_info, FALSE));
     putquote();
   }
 
   if (cap_end_time) {
     putsep();
     putquote();
-    printf("%s", time_string(&stop_time_t, cf_info, FALSE));
+    printf("%s", time_string(stop_time_t, cf_info, FALSE));
     putquote();
   }
 
