@@ -2555,7 +2555,6 @@ capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *err
                                                                        &err);
             }
         } else {
-            interface_opts = g_array_index(capture_opts->ifaces, interface_options, 0);
             pcap_opts = g_array_index(ld->pcaps, pcap_options *, 0);
             if (pcap_opts->from_cap_pipe) {
                 pcap_opts->snaplen = pcap_opts->cap_pipe_hdr.snaplen;
@@ -2986,7 +2985,6 @@ do_file_switch_or_stop(capture_options *capture_opts,
                                                                            &global_ld.err);
                 }
             } else {
-                interface_opts = g_array_index(capture_opts->ifaces, interface_options, 0);
                 pcap_opts = g_array_index(global_ld.pcaps, pcap_options *, 0);
                 successful = libpcap_write_file_header(global_ld.pdh, pcap_opts->linktype, pcap_opts->snaplen,
                                                        &global_ld.bytes_written, &global_ld.err);
@@ -3065,7 +3063,6 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
     interface_options interface_opts;
     guint i, error_index = 0;
 
-    interface_opts = capture_opts->default_options;
     *errmsg           = '\0';
     *secondary_errmsg = '\0';
 
