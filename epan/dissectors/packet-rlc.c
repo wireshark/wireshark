@@ -1215,7 +1215,7 @@ dissect_rlc_um(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
 	if (pinfo->fd->num == 0) return;
 	/* check for duplicates */
 	if (rlc_is_duplicate(RLC_UM, pinfo, seq, &orig_num) == TRUE) {
-		col_set_str(pinfo->cinfo, COL_INFO, "[RLC UM Fragment] [Duplicate]");
+		col_add_fstr(pinfo->cinfo, COL_INFO, "[RLC UM Fragment] [Duplicate]  SN=%u", seq);
 		proto_tree_add_uint(tree, hf_rlc_duplicate_of, tvb, 0, 0, orig_num);
 		return;
 	}
@@ -1257,6 +1257,7 @@ dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
 			case RLC_SUFI_ACK:
 				proto_tree_add_bits_ret_val(sufi_tree, hf_rlc_sufi_lsn, tvb, bit_offset, 12, &lsn, ENC_BIG_ENDIAN);
 				col_append_fstr(pinfo->cinfo, COL_INFO, " LSN=%u", (guint16)lsn);
+				proto_item_append_text(sufi_item, " LSN=%u", (guint16)lsn);
 				bit_offset += 12;
 				seen_last = TRUE;
 				break;
@@ -1267,6 +1268,7 @@ dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
 				break;
 			case RLC_SUFI_LIST:
 				proto_tree_add_bits_ret_val(sufi_tree, hf_rlc_sufi_len, tvb, bit_offset, 4, &len, ENC_BIG_ENDIAN);
+				col_append_fstr(pinfo->cinfo, COL_INFO,  " LIST(%u) - ", (guint8)len);
 				bit_offset += 4;
 				if (len) {
 					while (len) {
@@ -1275,7 +1277,12 @@ dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
 						bit_offset += 12;
 						ti = proto_tree_add_bits_ret_val(sufi_tree, hf_rlc_sufi_l, tvb, bit_offset, 4, &l, ENC_BIG_ENDIAN);
 						if (l) {
-							proto_item_append_text(ti, " (all consecutive AMD PDUs up to SN %u not correctly received)", (unsigned)(sn+l)&0xfff);
+							proto_item_append_text(ti, " (all consecutive AMD PDUs up to SN %u not correctly received)",
+							                       (unsigned)(sn+l)&0xfff);
+							col_append_fstr(pinfo->cinfo, COL_INFO,  "%u-%u ", (guint16)sn, (unsigned)(sn+l)&0xfff);
+						}
+						else {
+							col_append_fstr(pinfo->cinfo, COL_INFO,  "%u ", (guint16)sn);
 						}
 						bit_offset += 4;
 						len--;
@@ -1603,7 +1610,7 @@ dissect_rlc_am(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
 	if (pinfo->fd->num == 0) return;
 	/* check for duplicates */
 	if (rlc_is_duplicate(RLC_AM, pinfo, seq, &orig_num) == TRUE) {
-		col_set_str(pinfo->cinfo, COL_INFO, "[RLC AM Fragment] [Duplicate]");
+		col_add_fstr(pinfo->cinfo, COL_INFO, "[RLC AM Fragment] [Duplicate]  SN=%u", seq);
 		proto_tree_add_uint(tree, hf_rlc_duplicate_of, tvb, 0, 0, orig_num);
 		return;
 	}
