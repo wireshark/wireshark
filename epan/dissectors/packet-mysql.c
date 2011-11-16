@@ -1447,6 +1447,7 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	gint response_code;
 	gint strlen;
 	gint server_status = 0;
+	proto_item *ti;
 
 	response_code = tvb_get_guint8(tvb, offset);
 
@@ -1530,8 +1531,8 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			break;
 
 		default:
-			proto_tree_add_string(tree, hf_mysql_payload, tvb, offset, -1,
-					      "unknown/invalid response");
+			ti = proto_tree_add_item(tree, hf_mysql_payload, tvb, offset, -1, ENC_NA);
+			expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_WARN, "unknown/invalid response");
 			offset += tvb_reported_length_remaining(tvb, offset);
 			conn_data->state = UNDEFINED;
 		}
