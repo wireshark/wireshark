@@ -1892,11 +1892,11 @@ DEBUG_ENTRY("dissect_per_sequence");
 
 			if(sequence[extension_index].func){
 				new_offset=sequence[extension_index].func(tvb, offset, actx, tree, *sequence[extension_index].p_id);
-				if (new_offset == offset) new_offset += 8;  /* OpenType has at least 1 octet */
 				offset+=length*8;
 				difference = offset - new_offset;
 				/* A difference of 7 or less might be byte aligning */
-				if(difference > 7){
+                /* Difference could be 8 if open type has no bits and the length is 1 */
+				if ((length > 1) && (difference > 7)) {
 					cause=proto_tree_add_text(tree, tvb, new_offset>>3, (offset-new_offset)>>3,
 						"[Possible encoding error full length not decoded. Open type length %u ,decoded %u]",length, length - (difference>>3));
 					proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
