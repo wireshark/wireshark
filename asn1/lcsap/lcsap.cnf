@@ -210,27 +210,29 @@ id-Destination-ID                   ProtocolIE-ID
 #.REGISTER_NEW
 
 #LCS-AP-PROTOCOL-IES
-Return-Error-Type                       N lcsap.ies id-Return-Error-Request
+Accuracy-Fulfillment-Indicator          N lcsap.ies id-Accuracy-Fulfillment-Indicator
+APDU                                    N lcsap.ies id-APDU
+Correlation-ID                          N lcsap.ies id-Correlation-ID
 Network-Element                         N lcsap.ies id-Destination-ID
-Network-Element                         N lcsap.ies id-Source-Identity
-Geographical-Area                       N lcsap.ies id-Location-Estimate
-Correlation-ID						    N lcsap.ies id-Correlation-ID
-Location-Type                           N lcsap.ies id-Location-Type
 E-CGI                                   N lcsap.ies id-E-UTRAN-Cell-Identifier
+Include-Velocity                        N lcsap.ies id-Include-Velocity
+IMEI                                    N lcsap.ies id-IMEI
+IMSI                                    N lcsap.ies id-IMSI
+LCS-Client-Type                         N lcsap.ies id-LCS-Client-Type
 LCS-Priority                            N lcsap.ies id-LCS-Priority
 LCS-QoS                                 N lcsap.ies id-LCS-QOS
-LCS-Client-Type                         N lcsap.ies id-LCS-Client-Type
-UE-Positioning-Capability               N lcsap.ies id-UE-Positioning-Capability
-Include-Velocity                        N lcsap.ies id-Include-Velocity
-IMSI                                    N lcsap.ies id-IMSI
-IMEI                                    N lcsap.ies id-IMEI
-MultipleAPDUs                           N lcsap.ies id-MultipleAPDUs
-Positioning-Data                        N lcsap.ies id-Positioning-Data
-Velocity-Estimate                       N lcsap.ies id-Velocity-Estimate
-Accuracy-Fulfillment-Indicator          N lcsap.ies id-Accuracy-Fulfillment-Indicator
 LCS-Cause                               N lcsap.ies id-LCS-Cause
+Geographical-Area                       N lcsap.ies id-Location-Estimate
+Location-Type                           N lcsap.ies id-Location-Type
+MultipleAPDUs                           N lcsap.ies id-MultipleAPDUs
 Payload-Type                            N lcsap.ies id-Payload-Type
+Positioning-Data                        N lcsap.ies id-Positioning-Data
+Return-Error-Type                       N lcsap.ies id-Return-Error-Request
 Return-Error-Cause                      N lcsap.ies id-Return-Error-Cause
+Network-Element                         N lcsap.ies id-Source-Identity
+Correlation-ID						    N lcsap.ies id-Correlation-ID
+UE-Positioning-Capability               N lcsap.ies id-UE-Positioning-Capability
+Velocity-Estimate                       N lcsap.ies id-Velocity-Estimate
 
 
 

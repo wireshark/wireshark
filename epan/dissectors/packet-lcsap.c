@@ -121,6 +121,7 @@ static int proto_lcsap  =   -1;
 
 /*--- Included file: packet-lcsap-hf.c ---*/
 #line 1 "../../asn1/lcsap/packet-lcsap-hf.c"
+static int hf_lcsap_APDU_PDU = -1;                /* APDU */
 static int hf_lcsap_Accuracy_Fulfillment_Indicator_PDU = -1;  /* Accuracy_Fulfillment_Indicator */
 static int hf_lcsap_lcsap_Correlation_ID_PDU = -1;  /* Correlation_ID */
 static int hf_lcsap_E_CGI_PDU = -1;               /* E_CGI */
@@ -1814,6 +1815,14 @@ dissect_lcsap_LCS_AP_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 /*--- PDUs ---*/
 
+static int dissect_APDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_lcsap_APDU(tvb, offset, &asn1_ctx, tree, hf_lcsap_APDU_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_Accuracy_Fulfillment_Indicator_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -2105,27 +2114,28 @@ proto_reg_handoff_lcsap(void)
 
 /*--- Included file: packet-lcsap-dis-tab.c ---*/
 #line 1 "../../asn1/lcsap/packet-lcsap-dis-tab.c"
-  dissector_add_uint("lcsap.ies", id_Return_Error_Request, new_create_dissector_handle(dissect_Return_Error_Type_PDU, proto_lcsap));
-  dissector_add_uint("lcsap.ies", id_Destination_ID, new_create_dissector_handle(dissect_Network_Element_PDU, proto_lcsap));
-  dissector_add_uint("lcsap.ies", id_Source_Identity, new_create_dissector_handle(dissect_Network_Element_PDU, proto_lcsap));
-  dissector_add_uint("lcsap.ies", id_Location_Estimate, new_create_dissector_handle(dissect_Geographical_Area_PDU, proto_lcsap));
+  dissector_add_uint("lcsap.ies", id_Accuracy_Fulfillment_Indicator, new_create_dissector_handle(dissect_Accuracy_Fulfillment_Indicator_PDU, proto_lcsap));
+  dissector_add_uint("lcsap.ies", id_APDU, new_create_dissector_handle(dissect_APDU_PDU, proto_lcsap));
   dissector_add_uint("lcsap.ies", id_Correlation_ID, new_create_dissector_handle(dissect_lcsap_Correlation_ID_PDU, proto_lcsap));
-  dissector_add_uint("lcsap.ies", id_Location_Type, new_create_dissector_handle(dissect_Location_Type_PDU, proto_lcsap));
+  dissector_add_uint("lcsap.ies", id_Destination_ID, new_create_dissector_handle(dissect_Network_Element_PDU, proto_lcsap));
   dissector_add_uint("lcsap.ies", id_E_UTRAN_Cell_Identifier, new_create_dissector_handle(dissect_E_CGI_PDU, proto_lcsap));
+  dissector_add_uint("lcsap.ies", id_Include_Velocity, new_create_dissector_handle(dissect_Include_Velocity_PDU, proto_lcsap));
+  dissector_add_uint("lcsap.ies", id_IMEI, new_create_dissector_handle(dissect_IMEI_PDU, proto_lcsap));
+  dissector_add_uint("lcsap.ies", id_IMSI, new_create_dissector_handle(dissect_IMSI_PDU, proto_lcsap));
+  dissector_add_uint("lcsap.ies", id_LCS_Client_Type, new_create_dissector_handle(dissect_LCS_Client_Type_PDU, proto_lcsap));
   dissector_add_uint("lcsap.ies", id_LCS_Priority, new_create_dissector_handle(dissect_LCS_Priority_PDU, proto_lcsap));
   dissector_add_uint("lcsap.ies", id_LCS_QOS, new_create_dissector_handle(dissect_LCS_QoS_PDU, proto_lcsap));
-  dissector_add_uint("lcsap.ies", id_LCS_Client_Type, new_create_dissector_handle(dissect_LCS_Client_Type_PDU, proto_lcsap));
-  dissector_add_uint("lcsap.ies", id_UE_Positioning_Capability, new_create_dissector_handle(dissect_UE_Positioning_Capability_PDU, proto_lcsap));
-  dissector_add_uint("lcsap.ies", id_Include_Velocity, new_create_dissector_handle(dissect_Include_Velocity_PDU, proto_lcsap));
-  dissector_add_uint("lcsap.ies", id_IMSI, new_create_dissector_handle(dissect_IMSI_PDU, proto_lcsap));
-  dissector_add_uint("lcsap.ies", id_IMEI, new_create_dissector_handle(dissect_IMEI_PDU, proto_lcsap));
-  dissector_add_uint("lcsap.ies", id_MultipleAPDUs, new_create_dissector_handle(dissect_MultipleAPDUs_PDU, proto_lcsap));
-  dissector_add_uint("lcsap.ies", id_Positioning_Data, new_create_dissector_handle(dissect_Positioning_Data_PDU, proto_lcsap));
-  dissector_add_uint("lcsap.ies", id_Velocity_Estimate, new_create_dissector_handle(dissect_Velocity_Estimate_PDU, proto_lcsap));
-  dissector_add_uint("lcsap.ies", id_Accuracy_Fulfillment_Indicator, new_create_dissector_handle(dissect_Accuracy_Fulfillment_Indicator_PDU, proto_lcsap));
   dissector_add_uint("lcsap.ies", id_LCS_Cause, new_create_dissector_handle(dissect_LCS_Cause_PDU, proto_lcsap));
+  dissector_add_uint("lcsap.ies", id_Location_Estimate, new_create_dissector_handle(dissect_Geographical_Area_PDU, proto_lcsap));
+  dissector_add_uint("lcsap.ies", id_Location_Type, new_create_dissector_handle(dissect_Location_Type_PDU, proto_lcsap));
+  dissector_add_uint("lcsap.ies", id_MultipleAPDUs, new_create_dissector_handle(dissect_MultipleAPDUs_PDU, proto_lcsap));
   dissector_add_uint("lcsap.ies", id_Payload_Type, new_create_dissector_handle(dissect_Payload_Type_PDU, proto_lcsap));
+  dissector_add_uint("lcsap.ies", id_Positioning_Data, new_create_dissector_handle(dissect_Positioning_Data_PDU, proto_lcsap));
+  dissector_add_uint("lcsap.ies", id_Return_Error_Request, new_create_dissector_handle(dissect_Return_Error_Type_PDU, proto_lcsap));
   dissector_add_uint("lcsap.ies", id_Return_Error_Cause, new_create_dissector_handle(dissect_Return_Error_Cause_PDU, proto_lcsap));
+  dissector_add_uint("lcsap.ies", id_Source_Identity, new_create_dissector_handle(dissect_Network_Element_PDU, proto_lcsap));
+  dissector_add_uint("lcsap.ies", id_UE_Positioning_Capability, new_create_dissector_handle(dissect_UE_Positioning_Capability_PDU, proto_lcsap));
+  dissector_add_uint("lcsap.ies", id_Velocity_Estimate, new_create_dissector_handle(dissect_Velocity_Estimate_PDU, proto_lcsap));
   dissector_add_uint("lcsap.proc.imsg", id_Location_Service_Request, new_create_dissector_handle(dissect_Location_Request_PDU, proto_lcsap));
   dissector_add_uint("lcsap.proc.sout", id_Location_Service_Request, new_create_dissector_handle(dissect_Location_Response_PDU, proto_lcsap));
   dissector_add_uint("lcsap.proc.uout", id_Location_Service_Request, new_create_dissector_handle(dissect_Location_Response_PDU, proto_lcsap));
@@ -2160,6 +2170,10 @@ void proto_register_lcsap(void) {
 
 /*--- Included file: packet-lcsap-hfarr.c ---*/
 #line 1 "../../asn1/lcsap/packet-lcsap-hfarr.c"
+    { &hf_lcsap_APDU_PDU,
+      { "APDU", "lcsap.APDU",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_lcsap_Accuracy_Fulfillment_Indicator_PDU,
       { "Accuracy-Fulfillment-Indicator", "lcsap.Accuracy_Fulfillment_Indicator",
         FT_UINT32, BASE_DEC, VALS(lcsap_Accuracy_Fulfillment_Indicator_vals), 0,
