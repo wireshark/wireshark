@@ -3333,9 +3333,11 @@ Spenser Sheng           <spenser.sheng [AT] ericsson.com> {
 Benjamin Stocks		<bmstocks [AT] ra.rockwell.com> {
 	CIP Motion dissector
 }
+
 Florian Reichert	<refl [AT] zhaw.ch> {
 	HSR and PRP-1 dissector
 }
+
 Martin Renold		<reld [AT] zhaw.ch> {
 	HSR and PRP-1 dissector
 }
@@ -3343,9 +3345,12 @@ Martin Renold		<reld [AT] zhaw.ch> {
 Iain Arnell		<iarnell [AT] epo.org> {
 	ajp13 enhancements
 }
-Mariusz Okrój 		<okrojmariusz [AT]gmail.com>{
+
+Mariusz Okrój 		<okrojmariusz [AT]gmail.com> {
 	XMPP enhancements
 }
+
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
@@ -3537,6 +3542,7 @@ Michael Chen		<michaelc [AT] idssoftware.com>
 Paul Stath		<pstath [AT] axxcelera.com>
 DeCount			<aatrade [AT] libero.it>
 Andras Veres-Szentkiralyi	<vsza [AT] vsza.hu>
+Jakob Hirsch 		<jh.wireshark-bugzilla [AT] plonk.de>
 
 Dan Lasley <dlasley[AT]promus.com> gave permission for his
 dumpit() hex-dump routine to be used.
