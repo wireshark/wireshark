@@ -3820,7 +3820,9 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
                         case FT_FRAMENUM:
                                 u_integer = fvalue_get_uinteger(&finfo->value);
                                 if (hfinfo->strings) {
-                                        if (hfinfo->display & BASE_RANGE_STRING) {
+                                        if (hfinfo->display & BASE_CUSTOM) {
+                                                g_snprintf(result+offset_r, size-offset_r, "%u", u_integer);
+                                        } else if (hfinfo->display & BASE_RANGE_STRING) {
                                                 g_strlcpy(result+offset_r, rval_to_str(u_integer, hfinfo->strings, "%u"), size-offset_r);
                                         } else if (hfinfo->display & BASE_EXT_STRING) {
                                                 g_strlcpy(result+offset_r, val_to_str_ext(u_integer, (value_string_ext *) (hfinfo->strings), "%u"), size-offset_r);
@@ -3852,7 +3854,7 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
                                 offset_r = (int)strlen(result);
                                 break;
                         case FT_EUI64:
-				offset_r += (int)g_strlcpy(result+offset_r, eui64_to_str(fvalue_get_integer64(&finfo->value)), size-offset_r);
+                                offset_r += (int)g_strlcpy(result+offset_r, eui64_to_str(fvalue_get_integer64(&finfo->value)), size-offset_r);
                                 break;
                         /* XXX - make these just FT_INT? */
                         case FT_INT8:
@@ -3861,7 +3863,9 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
                         case FT_INT32:
                                 integer = fvalue_get_sinteger(&finfo->value);
                                 if (hfinfo->strings) {
-                                        if (hfinfo->display & BASE_RANGE_STRING) {
+                                        if (hfinfo->display & BASE_CUSTOM) {
+                                                g_snprintf(result+offset_r, size-offset_r, "%d", integer);
+                                        } else if (hfinfo->display & BASE_RANGE_STRING) {
                                                 g_strlcpy(result+offset_r, rval_to_str(integer, hfinfo->strings, "%d"), size-offset_r);
                                         } else if (hfinfo->display & BASE_EXT_STRING) {
                                                 g_strlcpy(result+offset_r, val_to_str_ext(integer, (value_string_ext *) (hfinfo->strings), "%d"), size-offset_r);
