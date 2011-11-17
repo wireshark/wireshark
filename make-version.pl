@@ -31,17 +31,15 @@
 #		 enables.
 #   svn_client - Use svn client i.s.o. ugly internal SVN file hack
 #   format     - A strftime() formatted string to use as a template for
-#		 the version string.  The sequence "%#" will substitute
+#		 the version string. The sequence "%#" will substitute
 #		 the SVN revision number.
-#   pkg_enable - Enable or disable package versioning.
-#   pkg_format - Like "format", but used for the package version.
+#   pkg_enable - Enable or disable local package versioning.
+#   pkg_format - Like "format", but used for the local package version.
 #
-# If run with the "-p" or "--package-version" argument, the
-# AC_INIT macro in configure.in and the VERSION macro in
-# config.nmake will have the pkg_format template appended to the
-# version number.  svnversion.h will _not_ be generated if either
-# argument is present (it will also not be generated if 'is_release' is set
-# in version.conf).
+# If run with the "-r" or "--set-release" argument the AC_INIT macro in
+# configure.in and the VERSION macro in config.nmake will have the
+# pkg_format template appended to the version number. svnversion.h will
+# _not_ be generated if either argument is present.
 #
 # Default configuration:
 #
@@ -422,6 +420,7 @@ sub get_config {
 	my $show_help = 0;
 
 	# Get our command-line args
+	# XXX - Do we need an option to undo --set-release?
 	GetOptions(
 		   "help|h", \$show_help,
 		   "get-svn|g", \$get_svn,
