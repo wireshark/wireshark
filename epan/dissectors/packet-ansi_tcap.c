@@ -142,6 +142,9 @@ static gboolean tcap_subdissector_used=FALSE;
 
 static struct tcaphash_context_t * gp_tcap_context=NULL;
 
+/* Note the high bit should be masked off when registering in this table (0x7fff)*/
+static dissector_table_t	ansi_tcap_national_opcode_table; /* National Operation Codes */
+
 
 /*--- Included file: packet-ansi_tcap-ett.c ---*/
 #line 1 "../../asn1/ansi_tcap/packet-ansi_tcap-ett.c"
@@ -169,7 +172,7 @@ static gint ett_ansi_tcap_T_paramSequence = -1;
 static gint ett_ansi_tcap_T_paramSet = -1;
 
 /*--- End of included file: packet-ansi_tcap-ett.c ---*/
-#line 82 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
+#line 85 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
 
 #define MAX_SSN 254
 
@@ -416,12 +419,15 @@ find_tcap_subdissector(tvbuff_t *tvb, asn1_ctx_t *actx, proto_tree *tree){
                 /* national */
 				guint8 family = (ansi_tcap_private.d.OperationCode_national & 0x7f00)>>8;
 				guint8 specifier = (guint8)(ansi_tcap_private.d.OperationCode_national & 0xff);
-                item = proto_tree_add_text(tree, tvb, 0, -1,
-                        "Dissector for ANSI TCAP NATIONAL code:0x%x(Family %u, Specifier %u) \n"
-						"not implemented. Contact Wireshark developers if you want this supported(Spec required)",
-                        ansi_tcap_private.d.OperationCode_national, family, specifier);
-                PROTO_ITEM_SET_GENERATED(item);
-                return FALSE;
+				if(!dissector_try_uint(ansi_tcap_national_opcode_table, ansi_tcap_private.d.OperationCode_national, tvb, actx->pinfo, tcap_top_tree)){
+					item = proto_tree_add_text(tree, tvb, 0, -1,
+							"Dissector for ANSI TCAP NATIONAL code:0x%x(Family %u, Specifier %u) \n"
+							"not implemented. Contact Wireshark developers if you want this supported(Spec required)",
+							ansi_tcap_private.d.OperationCode_national, family, specifier);
+					PROTO_ITEM_SET_GENERATED(item);
+					return FALSE;
+				}
+				return TRUE;
         }else if(ansi_tcap_private.d.OperationCode == 1){
                 /* private */
                 if((ansi_tcap_private.d.OperationCode_private & 0x0900) != 0x0900){
@@ -1402,7 +1408,7 @@ dissect_ansi_tcap_PackageType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 
 /*--- End of included file: packet-ansi_tcap-fn.c ---*/
-#line 360 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
+#line 366 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
 
 
 
@@ -1748,7 +1754,7 @@ proto_register_ansi_tcap(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-ansi_tcap-hfarr.c ---*/
-#line 497 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
+#line 503 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
     };
 
 /* Setup protocol subtree array */
@@ -1786,7 +1792,7 @@ proto_register_ansi_tcap(void)
     &ett_ansi_tcap_T_paramSet,
 
 /*--- End of included file: packet-ansi_tcap-ettarr.c ---*/
-#line 508 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
+#line 514 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
     };
 
 	static enum_val_t ansi_tcap_response_matching_type_values[] = {
@@ -1801,6 +1807,8 @@ proto_register_ansi_tcap(void)
     proto_ansi_tcap = proto_register_protocol(PNAME, PSNAME, PFNAME);
         register_dissector("ansi_tcap", dissect_ansi_tcap, proto_ansi_tcap);
 
+   /* Note the high bit should be masked off when registering in this table (0x7fff)*/
+   ansi_tcap_national_opcode_table = register_dissector_table("ansi_tcap.nat.opcode", "ANSI TCAP National Opcodes", FT_UINT16, BASE_DEC);
 /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_ansi_tcap, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
