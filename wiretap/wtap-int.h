@@ -288,6 +288,14 @@ extern gint wtap_num_file_types;
 	}
 #endif
 
+#ifndef phtoles
+#define phtoles(p, v) \
+	{ 				\
+	(p)[0] = (guint8)((v) >> 0);	\
+	(p)[1] = (guint8)((v) >> 8);	\
+	}
+#endif
+
 #ifndef pletonll
 #define pletonll(p, v) \
 	{ 				\
