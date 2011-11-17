@@ -338,6 +338,7 @@ static const value_string rsl_msg_type_vals[] = {
     {  0x41,    "Location Information" },                       /* 8.7.1 */
     { 0,        NULL }
 };
+static value_string_ext rsl_msg_type_vals_ext = VALUE_STRING_EXT_INIT(rsl_msg_type_vals);
 
 #define RSL_IE_CH_NO                     1
 #define RSL_IE_LINK_ID                   2
@@ -477,6 +478,7 @@ static const value_string rsl_ie_type_vals[] = {
     */
     { 0,            NULL }
 };
+static value_string_ext rsl_ie_type_vals_ext = VALUE_STRING_EXT_INIT(rsl_ie_type_vals);
 
 
 /*
@@ -510,6 +512,7 @@ static const value_string rsl_ch_no_Cbits_vals[] = {
     {  0x12,    "Downlink CCCH (PCH + AGCH)" },
     { 0,            NULL }
 };
+static value_string_ext rsl_ch_no_Cbits_vals_ext = VALUE_STRING_EXT_INIT(rsl_ch_no_Cbits_vals);
 
 /* 9.3.1 Channel number         9.3.1   M TV 2 */
 static int
@@ -714,6 +717,7 @@ static const value_string rsl_rlm_bs_power_vals[] = {
     {  0x0f,    "Pn - 30 dB" },
     { 0,            NULL }
 };
+static value_string_ext rsl_rlm_bs_power_vals_ext = VALUE_STRING_EXT_INIT(rsl_rlm_bs_power_vals);
 
 static int
 dissect_rsl_ie_bs_power(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean is_mandatory)
@@ -823,6 +827,7 @@ static const value_string rsl_ch_rate_and_type_vals[] = {
     {  0x29,    "PHalf rate TCH channel Lm Broadcast call channel" },
     { 0,            NULL }
 };
+static value_string_ext rsl_ch_rate_and_type_vals_ext = VALUE_STRING_EXT_INIT(rsl_ch_rate_and_type_vals);
 
 static const value_string rsl_speech_coding_alg_vals[] = {
     {  0x01,    "GSM speech coding algorithm version 1: GSM FR or GSM HR" },
@@ -1498,6 +1503,7 @@ static const value_string rsl_rlm_cause_vals[] = {
     {  0x0e,    "SABM frame with information not allowed in this state" },
     { 0,            NULL }
 };
+static value_string_ext rsl_rlm_cause_vals_ext = VALUE_STRING_EXT_INIT(rsl_rlm_cause_vals);
 
 /*
  * 9.3.21 Resource Information
@@ -1864,6 +1870,7 @@ static const value_string rsl_sys_info_type_vals[] = {
     {  0x2d,    "SYSTEM INFORMATION 20" },
     { 0,            NULL }
 };
+static value_string_ext rsl_sys_info_type_vals_ext = VALUE_STRING_EXT_INIT(rsl_sys_info_type_vals);
 
 
 static int
@@ -3510,7 +3517,7 @@ dissect_rsl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     msg_type = tvb_get_guint8(tvb,offset+1)&0x7f;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",val_to_str(msg_type, rsl_msg_type_vals,"unknown %u"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",val_to_str_ext(msg_type, &rsl_msg_type_vals_ext,"unknown %u"));
 
     top_tree = tree;
     if (tree) {
@@ -3547,12 +3554,12 @@ void proto_register_rsl(void)
         },
         { &hf_rsl_msg_type,
           { "Message type",           "rsl.msg_type",
-            FT_UINT8, BASE_HEX_DEC, VALS(rsl_msg_type_vals), 0x7f,
+            FT_UINT8, BASE_HEX_DEC|BASE_EXT_STRING, &rsl_msg_type_vals_ext, 0x7f,
             NULL, HFILL }
         },
         { &hf_rsl_ie_id,
           { "Element identifier",           "rsl.ie_id",
-            FT_UINT8, BASE_HEX_DEC, VALS(rsl_ie_type_vals), 0x0,
+            FT_UINT8, BASE_HEX_DEC|BASE_EXT_STRING, &rsl_ie_type_vals_ext, 0x0,
             NULL, HFILL }
         },
         { &hf_rsl_ie_length,
@@ -3562,7 +3569,7 @@ void proto_register_rsl(void)
         },
         { &hf_rsl_ch_no_Cbits,
           { "C-bits",           "rsl.ch_no_Cbits",
-            FT_UINT8, BASE_DEC, VALS(rsl_ch_no_Cbits_vals), 0xf8,
+            FT_UINT8, BASE_DEC|BASE_EXT_STRING, &rsl_ch_no_Cbits_vals_ext, 0xf8,
             NULL, HFILL }
         },
         { &hf_rsl_ch_no_TN,
@@ -3747,7 +3754,7 @@ void proto_register_rsl(void)
         },
         { &hf_rsl_bs_power,
           { "Power Level",           "rsl.bs_power",
-            FT_UINT8, BASE_DEC, VALS(rsl_rlm_bs_power_vals), 0x0f,
+            FT_UINT8, BASE_DEC|BASE_EXT_STRING, &rsl_rlm_bs_power_vals_ext, 0x0f,
             NULL, HFILL }
         },
         { &hf_rsl_cm_dtxd,
@@ -3767,7 +3774,7 @@ void proto_register_rsl(void)
         },
         { &hf_rsl_ch_rate_and_type,
           { "Channel rate and type",           "rsl.ch_rate_and_type",
-            FT_UINT8, BASE_DEC, VALS(rsl_ch_rate_and_type_vals), 0x0,
+            FT_UINT8, BASE_DEC|BASE_EXT_STRING, &rsl_ch_rate_and_type_vals_ext, 0x0,
             NULL, HFILL }
         },
         { &hf_rsl_speech_coding_alg,
@@ -3802,7 +3809,7 @@ void proto_register_rsl(void)
         },
         { &hf_rsl_cause,
           { "Cause",           "rsl.cause",
-            FT_UINT8, BASE_DEC, VALS(rsl_rlm_cause_vals), 0x7f,
+            FT_UINT8, BASE_DEC|BASE_EXT_STRING, &rsl_rlm_cause_vals_ext, 0x7f,
             NULL, HFILL }
         },
         { &hf_rsl_rel_mode,
@@ -3846,7 +3853,7 @@ void proto_register_rsl(void)
         },
         { &hf_rsl_sys_info_type,
           { "System Info Type",           "rsl.sys_info_type",
-            FT_UINT8, BASE_DEC, VALS(rsl_sys_info_type_vals), 0x0,
+            FT_UINT8, BASE_DEC|BASE_EXT_STRING, &rsl_sys_info_type_vals_ext, 0x0,
             NULL, HFILL }
         },
         { &hf_rsl_timing_offset,
