@@ -671,9 +671,10 @@ id-Correlation-ID											ProtocolIE-ID
 id-IRAT-Measurement-Configuration							ProtocolIE-ID
 id-MDT-Configuration										ProtocolIE-ID
 id-Priority-Class-Indicator									ProtocolIE-ID
-id-RNSAPRelocationParameters								ProtocolIE-ID
-id-RNSAPRelocationParameters								ProtocolIE-ID
+# Ws Extension
 id-Not-Used-246												ProtocolIE-ID
+id-RNSAPRelocationParameters								ProtocolIE-ID
+id-RABParametersList										ProtocolIE-ID
 id-Management-Based-MDT-Allowed								ProtocolIE-ID
 #.END
 

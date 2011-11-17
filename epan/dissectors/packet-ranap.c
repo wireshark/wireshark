@@ -105,7 +105,6 @@
 #define maxNrOfCellIds                 32
 #define maxNrOfRACs                    8
 #define maxNrOfLAIs                    8
-#define id_RABParametersList           248
 
 typedef enum _ProcedureCode_enum {
   id_RAB_Assignment =   0,
@@ -406,6 +405,7 @@ typedef enum _ProtocolIE_ID_enum {
   id_Priority_Class_Indicator = 245,
   id_Not_Used_246 = 246,
   id_RNSAPRelocationParameters = 247,
+  id_RABParametersList = 248,
   id_Management_Based_MDT_Allowed = 249
 } ProtocolIE_ID_enum;
 
@@ -1932,6 +1932,7 @@ static const value_string ranap_ProtocolIE_ID_vals[] = {
   { id_Priority_Class_Indicator, "id-Priority-Class-Indicator" },
   { id_Not_Used_246, "id-Not-Used-246" },
   { id_RNSAPRelocationParameters, "id-RNSAPRelocationParameters" },
+  { id_RABParametersList, "id-RABParametersList" },
   { id_Management_Based_MDT_Allowed, "id-Management-Based-MDT-Allowed" },
   { 0, NULL }
 };
