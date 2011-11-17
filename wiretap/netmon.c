@@ -904,6 +904,7 @@ typedef struct {
 	guint32	*frame_table;
 	guint	frame_table_index;
 	guint	frame_table_size;
+	gboolean no_more_room;		/* TRUE if no more records can be written */
 } netmon_dump_t;
 
 static const int wtap_encap[] = {
@@ -966,6 +967,7 @@ gboolean netmon_dump_open(wtap_dumper *wdh, int *err)
 	netmon->frame_table = NULL;
 	netmon->frame_table_index = 0;
 	netmon->frame_table_size = 0;
+	netmon->no_more_room = FALSE;
 
 	return TRUE;
 }
@@ -1005,6 +1007,19 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 		 * Fill in the trailer with the network type.
 		 */
 		phtoles(rec_2_x_trlr.network, wtap_encap[phdr->pkt_encap]);
+	}
+
+	/*
+	 * Will the file offset of this frame fit in a 32-bit unsigned
+	 * integer?
+	 */
+	if (netmon->no_more_room) {
+		/*
+		 * No, so the file is too big for NetMon format to
+		 * handle.
+		 */
+		*err = EFBIG;
+		return FALSE;
 	}
 
 	/*
@@ -1139,8 +1154,30 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 			    netmon->frame_table_size * sizeof *netmon->frame_table);
 		}
 	}
+
 	netmon->frame_table[netmon->frame_table_index] =
 	    htolel(netmon->frame_table_offset);
+
+	/*
+	 * Is this the last record we can write?
+	 * I.e., will the frame table offset of the next record not fit
+	 * in a 32-bit frame table offset entry?
+	 *
+	 * (We don't bother checking whether the number of frames
+	 * will fit in a 32-bit value, as, even if each record were
+	 * 1 byte, if there were more than 2^32-1 packets, the frame
+	 * table offset of at least one of those packets will be >
+	 * 2^32 - 1.)
+	 *
+	 * Note: this also catches the unlikely possibility that
+	 * the record itself is > 2^32 - 1 bytes long.
+	 */
+	if ((guint64)netmon->frame_table_offset + rec_size > G_MAXUINT32) {
+		/*
+		 * Yup, too big.
+		 */
+		netmon->no_more_room = TRUE;
+	}
 	netmon->frame_table_index++;
 	netmon->frame_table_offset += (guint32) rec_size;
 
