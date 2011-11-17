@@ -473,7 +473,6 @@ typedef proto_node proto_item;
 /* expert "event groups" */
 #define PI_GROUP_MASK		0xFF000000	/**< mask usually for internal use only! */
 /** The protocol field has a bad checksum, usually PI_WARN */
-
 #define PI_CHECKSUM		0x01000000
 /** The protocol field indicates a sequence problem (e.g. TCP window is zero) */
 #define PI_SEQUENCE		0x02000000
