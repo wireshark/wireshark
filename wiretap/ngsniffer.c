@@ -2113,7 +2113,7 @@ ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 		else
 #endif
 		tm = localtime(&phdr->ts.secs);
-		if (tm != NULL) {
+		if (tm != NULL && tm->tm_year >= 1980) {
 			start_date = (tm->tm_year - (1980 - 1900)) << 9;
 			start_date |= (tm->tm_mon + 1) << 5;
 			start_date |= tm->tm_mday;
