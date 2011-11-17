@@ -34,87 +34,84 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
-#include <ctype.h>
-
 #include <epan/packet.h>
-#include <epan/lapd_sapi.h>
 
 #include "packet-gsm_a_common.h"
+#include "lapd_sapi.h"
 
 /* Initialize the protocol and registered fields */
 static int proto_rsl        = -1;
 
-static int hf_rsl_msg_type          = -1;
-static int hf_rsl_T_bit             = -1;
-static int hf_rsl_msg_dsc           = -1;
-static int hf_rsl_ie_id             = -1;
-static int hf_rsl_ie_length         = -1;
-static int hf_rsl_ch_no_Cbits       = -1;
-static int hf_rsl_ch_no_TN          = -1;
-static int hf_rsl_acc_delay         = -1;
-static int hf_rsl_rach_slot_cnt     = -1;
-static int hf_rsl_rach_busy_cnt     = -1;
-static int hf_rsl_rach_acc_cnt      = -1;
-static int hf_rsl_req_ref_ra        = -1;
-static int hf_rsl_req_ref_T1prim    = -1;
-static int hf_rsl_req_ref_T3        = -1;
-static int hf_rsl_req_ref_T2        = -1;
-static int hf_rsl_timing_adv        = -1;
-static int hf_rsl_ho_ref            = -1;
-static int hf_rsl_l1inf_power_lev       = -1;
-static int hf_rsl_l1inf_fpc         = -1;
-static int hf_rsl_ms_power_lev      = -1;
-static int hf_rsl_ms_fpc            = -1;
-static int hf_rsl_act_timing_adv    = -1;
-static int hf_rsl_phy_ctx           = -1;
-static int hf_rsl_na                = -1;
-static int hf_rsl_ch_type           = -1;
-static int hf_rsl_prio              = -1;
-static int hf_rsl_sapi              = -1;
-static int hf_rsl_rbit              = -1;
-static int hf_rsl_a3a2              = -1;
-static int hf_rsl_a1_0              = -1;
-static int hf_rsl_a1_1              = -1;
-static int hf_rsl_a1_2              = -1;
-static int hf_rsl_epc_mode          = -1;
-static int hf_rsl_bs_fpc_epc_mode   = -1;
-static int hf_rsl_bs_power          = -1;
-static int hf_rsl_cm_dtxd           = -1;
-static int hf_rsl_cm_dtxu           = -1;
-static int hf_rsl_speech_or_data    = -1;
-static int hf_rsl_ch_rate_and_type  = -1;
-static int hf_rsl_speech_coding_alg = -1;
-static int hf_rsl_t_nt_bit          = -1;
-static int hf_rsl_ra_if_data_rte    = -1;
-static int hf_rsl_data_rte          = -1;
-static int hf_rsl_alg_id            = -1;
-static int hf_rsl_key               = -1;
-static int hf_rsl_cause             = -1;
-static int hf_rsl_rel_mode          = -1;
-static int hf_rsl_interf_band       = -1;
+static int hf_rsl_msg_type             = -1;
+static int hf_rsl_T_bit                = -1;
+static int hf_rsl_msg_dsc              = -1;
+static int hf_rsl_ie_id                = -1;
+static int hf_rsl_ie_length            = -1;
+static int hf_rsl_ch_no_Cbits          = -1;
+static int hf_rsl_ch_no_TN             = -1;
+static int hf_rsl_acc_delay            = -1;
+static int hf_rsl_rach_slot_cnt        = -1;
+static int hf_rsl_rach_busy_cnt        = -1;
+static int hf_rsl_rach_acc_cnt         = -1;
+static int hf_rsl_req_ref_ra           = -1;
+static int hf_rsl_req_ref_T1prim       = -1;
+static int hf_rsl_req_ref_T3           = -1;
+static int hf_rsl_req_ref_T2           = -1;
+static int hf_rsl_timing_adv           = -1;
+static int hf_rsl_ho_ref               = -1;
+static int hf_rsl_l1inf_power_lev      = -1;
+static int hf_rsl_l1inf_fpc            = -1;
+static int hf_rsl_ms_power_lev         = -1;
+static int hf_rsl_ms_fpc               = -1;
+static int hf_rsl_act_timing_adv       = -1;
+static int hf_rsl_phy_ctx              = -1;
+static int hf_rsl_na                   = -1;
+static int hf_rsl_ch_type              = -1;
+static int hf_rsl_prio                 = -1;
+static int hf_rsl_sapi                 = -1;
+static int hf_rsl_rbit                 = -1;
+static int hf_rsl_a3a2                 = -1;
+static int hf_rsl_a1_0                 = -1;
+static int hf_rsl_a1_1                 = -1;
+static int hf_rsl_a1_2                 = -1;
+static int hf_rsl_epc_mode             = -1;
+static int hf_rsl_bs_fpc_epc_mode      = -1;
+static int hf_rsl_bs_power             = -1;
+static int hf_rsl_cm_dtxd              = -1;
+static int hf_rsl_cm_dtxu              = -1;
+static int hf_rsl_speech_or_data       = -1;
+static int hf_rsl_ch_rate_and_type     = -1;
+static int hf_rsl_speech_coding_alg    = -1;
+static int hf_rsl_t_nt_bit             = -1;
+static int hf_rsl_ra_if_data_rte       = -1;
+static int hf_rsl_data_rte             = -1;
+static int hf_rsl_alg_id               = -1;
+static int hf_rsl_key                  = -1;
+static int hf_rsl_cause                = -1;
+static int hf_rsl_rel_mode             = -1;
+static int hf_rsl_interf_band          = -1;
 static int hf_rsl_interf_band_reserved = -1;
-static int hf_rsl_meas_res_no       = -1;
-static int hf_rsl_extension_bit     = -1;
-static int hf_rsl_dtxd              = -1;
-static int hf_rsl_rxlev_full_up     = -1;
-static int hf_rsl_rxlev_sub_up      = -1;
-static int hf_rsl_rxqual_full_up    = -1;
-static int hf_rsl_rxqual_sub_up     = -1;
-static int hf_rsl_class             = -1;
-static int hf_rsl_paging_grp        = -1;
-static int hf_rsl_paging_load       = -1;
-static int hf_rsl_sys_info_type     = -1;
-static int hf_rsl_timing_offset     = -1;
-static int hf_rsl_ch_needed         = -1;
-static int hf_rsl_cbch_load_type    = -1;
-static int hf_rsl_msg_slt_cnt       = -1;
-static int hf_rsl_ch_ind            = -1;
-static int hf_rsl_command           = -1;
-static int hf_rsl_emlpp_prio        = -1;
-static int hf_rsl_rtd               = -1;
-static int hf_rsl_delay_ind         = -1;
-static int hf_rsl_tfo               = -1;
+static int hf_rsl_meas_res_no          = -1;
+static int hf_rsl_extension_bit        = -1;
+static int hf_rsl_dtxd                 = -1;
+static int hf_rsl_rxlev_full_up        = -1;
+static int hf_rsl_rxlev_sub_up         = -1;
+static int hf_rsl_rxqual_full_up       = -1;
+static int hf_rsl_rxqual_sub_up        = -1;
+static int hf_rsl_class                = -1;
+static int hf_rsl_paging_grp           = -1;
+static int hf_rsl_paging_load          = -1;
+static int hf_rsl_sys_info_type        = -1;
+static int hf_rsl_timing_offset        = -1;
+static int hf_rsl_ch_needed            = -1;
+static int hf_rsl_cbch_load_type       = -1;
+static int hf_rsl_msg_slt_cnt          = -1;
+static int hf_rsl_ch_ind               = -1;
+static int hf_rsl_command              = -1;
+static int hf_rsl_emlpp_prio           = -1;
+static int hf_rsl_rtd                  = -1;
+static int hf_rsl_delay_ind            = -1;
+static int hf_rsl_tfo                  = -1;
 
 /* Initialize the subtree pointers */
 static int ett_rsl = -1;
@@ -202,51 +199,51 @@ static const true_false_string rsl_extension_bit_value = {
  */
  /* Radio link Layer Management Messages */
 static const value_string rsl_msg_disc_vals[] = {
-    {  0x00,        "Reserved" },
-    {  0x01,        "Radio Link Layer Management messages" },
-    {  0x04,        "Dedicated Channel Management messages" },
-    {  0x06,        "Common Channel Management messages" },
-    {  0x08,        "TRX Management messages" },
-    {  0x16,        "Location Services messages" },
+    {  0x00,    "Reserved" },
+    {  0x01,    "Radio Link Layer Management messages" },
+    {  0x04,    "Dedicated Channel Management messages" },
+    {  0x06,    "Common Channel Management messages" },
+    {  0x08,    "TRX Management messages" },
+    {  0x16,    "Location Services messages" },
     { 0,            NULL }
 };
 /*
  * 9.2 MESSAGE TYPE
  */
 /* Radio link Layer Management Messages */
-#define RSL_MSG_TYPE_DATA_REQ       1   /* 0x01 */
-#define RSL_MSG_TYPE_DATA_IND       2   /* 0x02 */
-#define RSL_MSG_TYPE_ERROR_IND      3   /* 0x03 */
-#define RSL_MSG_TYPE_EST_REQ        4   /* 0x04 */
-#define RSL_MSG_TYPE_EST_CONF       5   /* 0x05 */
-#define RSL_MSG_EST_IND             6   /* 0x06 */
-#define RSL_MSG_REL_REQ             7   /* 0x07 */
-#define RSL_MSG_REL_CONF            8   /* 0x08 */
-#define RSL_MSG_REL_IND             9   /* 0x09 */
-#define RSL_MSG_UNIT_DATA_REQ       10  /* 0x0a */
+#define RSL_MSG_TYPE_DATA_REQ            1   /* 0x01 */
+#define RSL_MSG_TYPE_DATA_IND            2   /* 0x02 */
+#define RSL_MSG_TYPE_ERROR_IND           3   /* 0x03 */
+#define RSL_MSG_TYPE_EST_REQ             4   /* 0x04 */
+#define RSL_MSG_TYPE_EST_CONF            5   /* 0x05 */
+#define RSL_MSG_EST_IND                  6   /* 0x06 */
+#define RSL_MSG_REL_REQ                  7   /* 0x07 */
+#define RSL_MSG_REL_CONF                 8   /* 0x08 */
+#define RSL_MSG_REL_IND                  9   /* 0x09 */
+#define RSL_MSG_UNIT_DATA_REQ           10  /* 0x0a */
 /* Common Channel Management messages */
-#define RSL_MSG_BCCH_INFO           17  /* 0x11 */
-#define RSL_MSG_CCCH_LOAD_IND       18  /* 0x12 */
-#define RSL_MSG_CHANRQD             19  /* 0x13 */
-#define RSL_MSG_DELETE_IND          20  /* 0x14 */
-#define RSL_MSG_PAGING_CMD          21  /* 0x15 */
-#define RSL_MSG_IMM_ASS_CMD         22  /* 0x16 */
-#define RSL_MSG_SMS_BC_REQ          23  /* 0x17 8.5.7 */
-#define RSL_MSG_RF_RES_IND          25  /* 8.6.1 */
-#define RSL_MSG_SACCH_FILL          26  /* 8.6.2 */
+#define RSL_MSG_BCCH_INFO               17  /* 0x11 */
+#define RSL_MSG_CCCH_LOAD_IND           18  /* 0x12 */
+#define RSL_MSG_CHANRQD                 19  /* 0x13 */
+#define RSL_MSG_DELETE_IND              20  /* 0x14 */
+#define RSL_MSG_PAGING_CMD              21  /* 0x15 */
+#define RSL_MSG_IMM_ASS_CMD             22  /* 0x16 */
+#define RSL_MSG_SMS_BC_REQ              23  /* 0x17 8.5.7 */
+#define RSL_MSG_RF_RES_IND              25  /* 8.6.1 */
+#define RSL_MSG_SACCH_FILL              26  /* 8.6.2 */
 
-#define RSL_MSG_OVERLOAD            27  /* 8.6.3 */
-#define RSL_MSG_ERROR_REPORT        28  /* 8.6.4 */
-#define RSL_MSG_SMS_BC_CMD          29  /* 8.5.8 */
-#define RSL_MSG_CBCH_LOAD_IND       30  /* 8.5.9 */
-#define RSL_MSG_NOT_CMD             31  /* 8.5.10 */
+#define RSL_MSG_OVERLOAD                27  /* 8.6.3 */
+#define RSL_MSG_ERROR_REPORT            28  /* 8.6.4 */
+#define RSL_MSG_SMS_BC_CMD              29  /* 8.5.8 */
+#define RSL_MSG_CBCH_LOAD_IND           30  /* 8.5.9 */
+#define RSL_MSG_NOT_CMD                 31  /* 8.5.10 */
 
 /* 0 0 1 - - - - - Dedicated Channel Management messages: */
-#define RSL_MSG_CHAN_ACTIV          33
-#define RSL_MSG_CHAN_ACTIV_ACK      34
-#define RSL_MSG_CHAN_ACTIV_N_ACK    35
-#define RSL_MSG_CONN_FAIL           36
-#define RSL_MSG_DEACTIVATE_SACCH    37
+#define RSL_MSG_CHAN_ACTIV              33
+#define RSL_MSG_CHAN_ACTIV_ACK          34
+#define RSL_MSG_CHAN_ACTIV_N_ACK        35
+#define RSL_MSG_CONN_FAIL               36
+#define RSL_MSG_DEACTIVATE_SACCH        37
 
 #define RSL_MSG_ENCR_CMD                38  /* 8.4.6 */
 #define RSL_MSG_HANDODET                39  /* 8.4.7 */
@@ -342,36 +339,36 @@ static const value_string rsl_msg_type_vals[] = {
     { 0,        NULL }
 };
 
-#define RSL_IE_CH_NO            1
-#define RSL_IE_LINK_ID          2
-#define RSL_IE_ACT_TYPE         3
-#define RSL_IE_BS_POW           4
-#define RSL_IE_CH_ID            5
-#define RSL_IE_CH_MODE          6
-#define RSL_IE_ENC_INF          7
-#define RSL_IE_FRAME_NO         8
-#define RSL_IE_HO_REF           9
-#define RSL_IE_L1_INF           10
-#define RSL_IE_L3_INF           11
-#define RSL_IE_MS_ID            12
-#define RSL_IE_MS_POW           13
-#define RSL_IE_PAGING_GRP       14
-#define RSL_IE_PAGING_LOAD      15
-#define RSL_IE_PHY_CTX          16
-#define RSL_IE_ACCESS_DELAY     17
-#define RSL_IE_RACH_LOAD        18
-#define RSL_IE_REQ_REF          19
-#define RSL_IE_REL_MODE         20
-#define RSL_IE_RESOURCE_INF     21
-#define RSL_IE_RLM_CAUSE        22
-#define RSL_IE_STARTING_TIME    23
-#define RSL_IE_TIMING_ADV       24
-#define RSL_IE_UPLINK_MEAS      25
-#define RSL_IE_CAUSE            26
-#define RSL_IE_MEAS_RES_NO      27
-#define RSL_IE_MESSAGE_ID       28
+#define RSL_IE_CH_NO                     1
+#define RSL_IE_LINK_ID                   2
+#define RSL_IE_ACT_TYPE                  3
+#define RSL_IE_BS_POW                    4
+#define RSL_IE_CH_ID                     5
+#define RSL_IE_CH_MODE                   6
+#define RSL_IE_ENC_INF                   7
+#define RSL_IE_FRAME_NO                  8
+#define RSL_IE_HO_REF                    9
+#define RSL_IE_L1_INF                   10
+#define RSL_IE_L3_INF                   11
+#define RSL_IE_MS_ID                    12
+#define RSL_IE_MS_POW                   13
+#define RSL_IE_PAGING_GRP               14
+#define RSL_IE_PAGING_LOAD              15
+#define RSL_IE_PHY_CTX                  16
+#define RSL_IE_ACCESS_DELAY             17
+#define RSL_IE_RACH_LOAD                18
+#define RSL_IE_REQ_REF                  19
+#define RSL_IE_REL_MODE                 20
+#define RSL_IE_RESOURCE_INF             21
+#define RSL_IE_RLM_CAUSE                22
+#define RSL_IE_STARTING_TIME            23
+#define RSL_IE_TIMING_ADV               24
+#define RSL_IE_UPLINK_MEAS              25
+#define RSL_IE_CAUSE                    26
+#define RSL_IE_MEAS_RES_NO              27
+#define RSL_IE_MESSAGE_ID               28
 
-#define RSL_IE_SYS_INFO_TYPE    30
+#define RSL_IE_SYS_INFO_TYPE            30
 
 
 
@@ -786,18 +783,18 @@ dissect_rsl_ie_ch_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, in
     ie_offset = offset;
 
     /* 3GPP TS 44.018 "Channel Description"
-	 * the whole of the 3GPP TS 44.018 element including the element identifier and
-	 * length should be included.
-	 * XXX Hmm a type 3 IE (TV).
-	 */
-	proto_tree_add_text(ie_tree, tvb,offset, 1, "Channel Description Tag");
+     * the whole of the 3GPP TS 44.018 element including the element identifier and
+     * length should be included.
+     * XXX Hmm a type 3 IE (TV).
+     */
+    proto_tree_add_text(ie_tree, tvb,offset, 1, "Channel Description Tag");
     de_rr_ch_dsc(tvb, ie_tree, pinfo, offset+1, length, NULL, 0);
-	offset+=4;
+    offset+=4;
     /*
      * The 3GPP TS 24.008 "Mobile Allocation" shall for compatibility reasons be
      * included but empty, i.e. the length shall be zero.
      */
-	proto_tree_add_text(ie_tree, tvb,offset,2,"Mobile Allocation Tag+Length(0)");
+    proto_tree_add_text(ie_tree, tvb,offset,2,"Mobile Allocation Tag+Length(0)");
     return ie_offset + length;
 }
 /*
@@ -2112,7 +2109,7 @@ static const value_string rsl_ch_needed_vals[] = {
     {  0x01,    "SDCCH" },
     {  0x02,    "TCH/F (Full rate)" },
     {  0x03,    "TCH/F or TCH/H (Dual rate)" },
-    { 0,        NULL }
+    { 0,            NULL }
 };
 
 static int
@@ -2268,7 +2265,7 @@ dissect_rsl_ie_cbch_load_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 static const value_string rsl_ch_ind_vals[] = {
     {  0x00,    "Basic CBCH" },
     {  0x01,    "Extended CBCH (supporting the extended CBCH by the network or MSs is optional)" },
-    { 0,        NULL }
+    { 0,            NULL }
 };
 
 static int
@@ -3531,370 +3528,359 @@ dissect_rsl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 }
 
-void
-proto_reg_handoff_rsl(void)
-{
-    dissector_handle_t rsl_handle;
-
-    rsl_handle = create_dissector_handle(dissect_rsl, proto_rsl);
-    dissector_add_uint("lapd.gsm.sapi", LAPD_GSM_SAPI_RA_SIG_PROC, rsl_handle);
-
-    gsm_a_ccch_handle = find_dissector("gsm_a_ccch");
-    gsm_a_dtap_handle = find_dissector("gsm_a_dtap");
-}
-
 /* Register the protocol with Wireshark */
 void proto_register_rsl(void)
 {
+    void proto_reg_handoff_rsl(void);
 
     /* Setup list of header fields */
     static hf_register_info hf[] = {
         { &hf_rsl_msg_dsc,
-            { "Message discriminator",           "rsl.msg_dsc",
+          { "Message discriminator",           "rsl.msg_dsc",
             FT_UINT8, BASE_DEC, VALS(rsl_msg_disc_vals), 0xfe,
             NULL, HFILL }
         },
         { &hf_rsl_T_bit,
-            { "T bit",           "rsl.T_bit",
+          { "T bit",           "rsl.T_bit",
             FT_BOOLEAN, 8, TFS(&rsl_t_bit_vals), 0x01,
             NULL, HFILL }
         },
         { &hf_rsl_msg_type,
-            { "Message type",           "rsl.msg_type",
+          { "Message type",           "rsl.msg_type",
             FT_UINT8, BASE_HEX_DEC, VALS(rsl_msg_type_vals), 0x7f,
             NULL, HFILL }
         },
         { &hf_rsl_ie_id,
-            { "Element identifier",           "rsl.ie_id",
+          { "Element identifier",           "rsl.ie_id",
             FT_UINT8, BASE_HEX_DEC, VALS(rsl_ie_type_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_rsl_ie_length,
-            { "Length",           "rsl.ie_length",
+          { "Length",           "rsl.ie_length",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_rsl_ch_no_Cbits,
-            { "C-bits",           "rsl.ch_no_Cbits",
+          { "C-bits",           "rsl.ch_no_Cbits",
             FT_UINT8, BASE_DEC, VALS(rsl_ch_no_Cbits_vals), 0xf8,
             NULL, HFILL }
         },
         { &hf_rsl_ch_no_TN,
-            { "Time slot number (TN)",  "rsl.ch_no_TN",
+          { "Time slot number (TN)",  "rsl.ch_no_TN",
             FT_UINT8, BASE_DEC, NULL, 0x07,
             NULL, HFILL }
         },
         { &hf_rsl_rtd,
-            { "Round Trip Delay (RTD)",  "rsl.rtd",
+          { "Round Trip Delay (RTD)",  "rsl.rtd",
             FT_UINT8, BASE_DEC, NULL, 0xfe,
             NULL, HFILL }
         },
         { &hf_rsl_delay_ind,
-            { "Delay IND",  "rsl.delay_ind",
+          { "Delay IND",  "rsl.delay_ind",
             FT_UINT8, BASE_DEC, rsl_delay_ind_vals, 0x01,
             NULL, HFILL }
         },
         { &hf_rsl_tfo,
-            { "TFO",           "rsl.tfo",
+          { "TFO",           "rsl.tfo",
             FT_BOOLEAN, 8, TFS(&rsl_tfo_vals), 0x01,
             NULL, HFILL }
         },
         { &hf_rsl_req_ref_ra,
-            { "Random Access Information (RA)", "rsl.req_ref_ra",
+          { "Random Access Information (RA)", "rsl.req_ref_ra",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_rsl_req_ref_T1prim,
-            { "T1'",           "rsl.req_ref_T1prim",
+          { "T1'",           "rsl.req_ref_T1prim",
             FT_UINT8, BASE_DEC, NULL, 0xf8,
             NULL, HFILL }
         },
         { &hf_rsl_req_ref_T3,
-            { "T3",           "rsl.req_ref_T3",
+          { "T3",           "rsl.req_ref_T3",
             FT_UINT16, BASE_DEC, NULL, 0x07e0,
             NULL, HFILL }
         },
         { &hf_rsl_req_ref_T2,
-            { "T2",           "rsl.req_ref_T2",
+          { "T2",           "rsl.req_ref_T2",
             FT_UINT8, BASE_DEC, NULL, 0x1f,
             NULL, HFILL }
         },
         { &hf_rsl_timing_adv,
-            { "Timing Advance",           "rsl.timing_adv",
+          { "Timing Advance",           "rsl.timing_adv",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_rsl_ho_ref,
-            { "Hand-over reference",           "rsl.ho_ref",
+          { "Hand-over reference",           "rsl.ho_ref",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_rsl_l1inf_power_lev,
-            { "MS power level",           "rsl.ms_power_lev",
+          { "MS power level",           "rsl.ms_power_lev",
             FT_UINT8, BASE_DEC, NULL, 0xf8,
             NULL, HFILL }
         },
         { &hf_rsl_l1inf_fpc,
-            { "FPC/EPC",           "rsl.ms_fpc",
+          { "FPC/EPC",           "rsl.ms_fpc",
             FT_BOOLEAN, 8, TFS(&rsl_ms_fpc_epc_mode_vals), 0x04,
             NULL, HFILL }
         },
         { &hf_rsl_ms_power_lev,
-            { "MS power level",           "rsl.ms_power_lev",
+          { "MS power level",           "rsl.ms_power_lev",
             FT_UINT8, BASE_DEC, NULL, 0x1f,
             NULL, HFILL }
         },
         { &hf_rsl_ms_fpc,
-            { "FPC/EPC",           "rsl.ms_fpc",
+          { "FPC/EPC",           "rsl.ms_fpc",
             FT_BOOLEAN, 8, TFS(&rsl_ms_fpc_epc_mode_vals), 0x20,
             NULL, HFILL }
         },
         { &hf_rsl_act_timing_adv,
-            { "Actual Timing Advance",           "rsl.act_timing_adv",
+          { "Actual Timing Advance",           "rsl.act_timing_adv",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_rsl_dtxd,
-            { "DTXd",           "rsl.dtxd",
+          { "DTXd",           "rsl.dtxd",
             FT_BOOLEAN, 8, TFS(&rsl_dtxd_vals), 0x40,
             NULL, HFILL }
         },
         { &hf_rsl_rxlev_full_up,
-            { "RXLEV.FULL.up",           "rsl.rxlev_full_up",
+          { "RXLEV.FULL.up",           "rsl.rxlev_full_up",
             FT_UINT8, BASE_DEC, NULL, 0x3f,
             NULL, HFILL }
         },
         { &hf_rsl_rxlev_sub_up,
-            { "RXLEV.SUB.up",           "rsl.rxlev_sub_up",
+          { "RXLEV.SUB.up",           "rsl.rxlev_sub_up",
             FT_UINT8, BASE_DEC, NULL, 0x3f,
             NULL, HFILL }
         },
         { &hf_rsl_rxqual_full_up,
-            { "RXQUAL.FULL.up",           "rsl.rxqual_full_up",
+          { "RXQUAL.FULL.up",           "rsl.rxqual_full_up",
             FT_UINT8, BASE_DEC, NULL, 0x38,
             NULL, HFILL }
         },
         { &hf_rsl_rxqual_sub_up,
-            { "RXQUAL.SUB.up",           "rsl.rxqual_sub_up",
+          { "RXQUAL.SUB.up",           "rsl.rxqual_sub_up",
             FT_UINT8, BASE_DEC, NULL, 0x07,
             NULL, HFILL }
         },
         { &hf_rsl_acc_delay,
-            { "Access Delay",           "rsl.acc_del",
+          { "Access Delay",           "rsl.acc_del",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_rsl_rach_slot_cnt,
-            { "RACH Slot Count",           "rsl.rach_slot_cnt",
+          { "RACH Slot Count",           "rsl.rach_slot_cnt",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_rsl_rach_busy_cnt,
-            { "RACH Busy Count",           "rsl.rach_busy_cnt",
+          { "RACH Busy Count",           "rsl.rach_busy_cnt",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_rsl_rach_acc_cnt,
-            { "RACH Access Count",           "rsl.rach_acc_cnt",
+          { "RACH Access Count",           "rsl.rach_acc_cnt",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_rsl_phy_ctx,
-            { "Physical Context",           "rsl.phy_ctx",
+          { "Physical Context",           "rsl.phy_ctx",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_rsl_na,
-            { "Not applicable (NA)",           "rsl.na",
+          { "Not applicable (NA)",           "rsl.na",
             FT_BOOLEAN, 8, TFS(&rsl_na_vals), 0x20,
             NULL, HFILL }
         },
         { &hf_rsl_ch_type,
-            { "channel type",           "rsl.ch_type",
+          { "channel type",           "rsl.ch_type",
             FT_UINT8, BASE_DEC, VALS(rsl_ch_type_vals), 0xc0,
             NULL, HFILL }
         },
         { &hf_rsl_prio,
-            { "Priority",           "rsl.prio",
+          { "Priority",           "rsl.prio",
             FT_UINT8, BASE_DEC, VALS(rsl_prio_vals), 0x18,
             NULL, HFILL }
         },
         { &hf_rsl_sapi,
-            { "SAPI",           "rsl.sapi",
+          { "SAPI",           "rsl.sapi",
             FT_UINT8, BASE_DEC, NULL, 0x07,
             NULL, HFILL }
         },
         { &hf_rsl_rbit,
-            { "R",           "rsl.rbit",
+          { "R",           "rsl.rbit",
             FT_BOOLEAN, 8, TFS(&rsl_rbit_vals), 0x80,
             NULL, HFILL }
         },
         { &hf_rsl_a3a2,
-            { "A3A2",           "rsl.a3a2",
+          { "A3A2",           "rsl.a3a2",
             FT_UINT8, BASE_DEC, VALS(rsl_a3a2_vals), 0x06,
             NULL, HFILL }
         },
         { &hf_rsl_a1_0,
-            { "A1",           "rsl.a1_0",
+          { "A1",           "rsl.a1_0",
             FT_BOOLEAN, 8, TFS(&rsl_a1_0_vals), 0x01,
             NULL, HFILL }
         },
         { &hf_rsl_a1_1,
-            { "A1",           "rsl.a1_1",
+          { "A1",           "rsl.a1_1",
             FT_BOOLEAN, 8, TFS(&rsl_a1_1_vals), 0x01,
             NULL, HFILL }
         },
         { &hf_rsl_a1_2,
-            { "A1",           "rsl.a2_0",
+          { "A1",           "rsl.a2_0",
             FT_BOOLEAN, 8, TFS(&rsl_a1_2_vals), 0x01,
             NULL, HFILL }
         },
         { &hf_rsl_epc_mode,
-            { "EPC mode", "rsl.epc_mode",
+          { "EPC mode", "rsl.epc_mode",
             FT_BOOLEAN, 8, TFS(&rsl_epc_mode_vals), 0x20,
             NULL, HFILL }
         },
         { &hf_rsl_bs_fpc_epc_mode,
-            { "FPC-EPC mode", "rsl.fpc_epc_mode",
+          { "FPC-EPC mode", "rsl.fpc_epc_mode",
             FT_BOOLEAN, 8, TFS(&rsl_fpc_epc_mode_vals), 0x10,
             NULL, HFILL }
         },
         { &hf_rsl_bs_power,
-            { "Power Level",           "rsl.bs_power",
+          { "Power Level",           "rsl.bs_power",
             FT_UINT8, BASE_DEC, VALS(rsl_rlm_bs_power_vals), 0x0f,
             NULL, HFILL }
         },
         { &hf_rsl_cm_dtxd,
-            { "DTXd", "rsl.cm_dtxd",
+          { "DTXd", "rsl.cm_dtxd",
             FT_BOOLEAN, 8, TFS(&rsl_dtx_vals), 0x02,
             NULL, HFILL }
         },
         { &hf_rsl_cm_dtxu,
-            { "DTXu", "rsl.cm_dtxu",
+          { "DTXu", "rsl.cm_dtxu",
             FT_BOOLEAN, 8, TFS(&rsl_dtx_vals), 0x01,
             NULL, HFILL }
         },
         { &hf_rsl_speech_or_data,
-            { "Speech or data indicator",           "rsl.speech_or_data",
+          { "Speech or data indicator",           "rsl.speech_or_data",
             FT_UINT8, BASE_DEC, VALS(rsl_speech_or_data_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_rsl_ch_rate_and_type,
-            { "Channel rate and type",           "rsl.ch_rate_and_type",
+          { "Channel rate and type",           "rsl.ch_rate_and_type",
             FT_UINT8, BASE_DEC, VALS(rsl_ch_rate_and_type_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_rsl_speech_coding_alg,
-            { "Speech coding algorithm",           "rsl.speech_coding_alg",
+          { "Speech coding algorithm",           "rsl.speech_coding_alg",
             FT_UINT8, BASE_DEC, VALS(rsl_speech_coding_alg_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_rsl_t_nt_bit,
-            { "Transparent indication", "rsl.t_nt_bit",
+          { "Transparent indication", "rsl.t_nt_bit",
             FT_BOOLEAN, 8, TFS(&t_nt_bit_vals), 0x40,
             NULL, HFILL }
         },
         { &hf_rsl_ra_if_data_rte,
-            { "Radio interface data rate",           "rsl.ra_if_data_rte",
+          { "Radio interface data rate",           "rsl.ra_if_data_rte",
             FT_UINT8, BASE_DEC, VALS(rsl_ra_if_data_rte_vals), 0x3f,
             NULL, HFILL }
         },
         { &hf_rsl_data_rte,
-            { "Data rate",           "rsl.data_rte",
+          { "Data rate",           "rsl.data_rte",
             FT_UINT8, BASE_DEC, VALS(rsl_ra_if_data_rte_vals), 0x3f,
             NULL, HFILL }
         },
         { &hf_rsl_alg_id,
-            { "Algorithm Identifier",           "rsl.alg_id",
+          { "Algorithm Identifier",           "rsl.alg_id",
             FT_UINT8, BASE_DEC, VALS(rsl_algorithm_id_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_rsl_key,
-            { "KEY",           "rsl.key",
+          { "KEY",           "rsl.key",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_rsl_cause,
-            { "Cause",           "rsl.cause",
+          { "Cause",           "rsl.cause",
             FT_UINT8, BASE_DEC, VALS(rsl_rlm_cause_vals), 0x7f,
             NULL, HFILL }
         },
         { &hf_rsl_rel_mode,
-            { "Release Mode",           "rsl.rel_mode",
+          { "Release Mode",           "rsl.rel_mode",
             FT_UINT8, BASE_DEC, VALS(rel_mode_vals), 0x01,
             NULL, HFILL }
         },
         { &hf_rsl_interf_band,
-            { "Interf Band",           "rsl.interf_band",
+          { "Interf Band",           "rsl.interf_band",
             FT_UINT8, BASE_DEC, NULL, 0xe0,
             NULL, HFILL }
         },
         { &hf_rsl_interf_band_reserved,
-            { "Interf Band reserved bits",           "rsl.interf_band_reserved",
+          { "Interf Band reserved bits",           "rsl.interf_band_reserved",
             FT_UINT8, BASE_DEC, NULL, 0x1f,
             NULL, HFILL }
         },
         { &hf_rsl_meas_res_no,
-            { "Measurement result number",           "rsl.meas_res_no",
+          { "Measurement result number",           "rsl.meas_res_no",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_rsl_extension_bit,
-            { "Extension", "rsl.extension_bit",
+          { "Extension", "rsl.extension_bit",
             FT_BOOLEAN, 8, TFS(&rsl_extension_bit_value), 0x80,
             NULL, HFILL }},
         { &hf_rsl_class,
-            { "Class",           "rsl.class",
+          { "Class",           "rsl.class",
             FT_UINT8, BASE_DEC, VALS(rsl_class_vals), 0x70,
             NULL, HFILL }
         },
         { &hf_rsl_paging_grp,
-            { "Paging Group",           "rsl.paging_grp",
+          { "Paging Group",           "rsl.paging_grp",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_rsl_paging_load,
-            { "Paging Buffer Space",           "rsl.paging_load",
+          { "Paging Buffer Space",           "rsl.paging_load",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_rsl_sys_info_type,
-            { "System Info Type",           "rsl.sys_info_type",
+          { "System Info Type",           "rsl.sys_info_type",
             FT_UINT8, BASE_DEC, VALS(rsl_sys_info_type_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_rsl_timing_offset,
-            { "Timing Offset",           "rsl.timing_offset",
+          { "Timing Offset",           "rsl.timing_offset",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_rsl_ch_needed,
-            { "Channel Needed",           "rsl.ch_needed",
+          { "Channel Needed",           "rsl.ch_needed",
             FT_UINT8, BASE_DEC, VALS(rsl_ch_needed_vals), 0x03,
             NULL, HFILL }
         },
         { &hf_rsl_cbch_load_type,
-            { "CBCH Load Type", "rsl.cbch_load_type",
+          { "CBCH Load Type", "rsl.cbch_load_type",
             FT_BOOLEAN, 8, TFS(&rsl_cbch_load_type_vals), 0x80,
             NULL, HFILL }
         },
         { &hf_rsl_msg_slt_cnt,
-            { "Message Slot Count", "rsl.sg_slt_cnt",
+          { "Message Slot Count", "rsl.sg_slt_cnt",
             FT_UINT8, BASE_DEC, NULL, 0x0f,
             NULL, HFILL }
         },
         { &hf_rsl_ch_ind,
-            { "Channel Ind",           "rsl.ch_ind",
+          { "Channel Ind",           "rsl.ch_ind",
             FT_UINT8, BASE_DEC, VALS(rsl_ch_ind_vals), 0x0f,
             NULL, HFILL }
         },
         { &hf_rsl_command,
-            { "Command",           "rsl.cmd",
+          { "Command",           "rsl.cmd",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_rsl_emlpp_prio,
-            { "eMLPP Priority",           "rsl.emlpp_prio",
+          { "eMLPP Priority",           "rsl.emlpp_prio",
             FT_UINT8, BASE_DEC, VALS(rsl_emlpp_prio_vals), 0x03,
             NULL, HFILL }
         },
@@ -3958,13 +3944,24 @@ void proto_register_rsl(void)
     };
 
     /* Register the protocol name and description */
-    proto_rsl = proto_register_protocol("Radio Signalling Link (RSL)",
-                                        "RSL", "rsl");
+    proto_rsl = proto_register_protocol("Radio Signalling Link (RSL)", "RSL", "rsl");
 
     proto_register_field_array(proto_rsl, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
     register_dissector("gsm_abis_rsl", dissect_rsl, proto_rsl);
 
+}
+
+void
+proto_reg_handoff_rsl(void)
+{
+    dissector_handle_t rsl_handle;
+
+    rsl_handle = create_dissector_handle(dissect_rsl, proto_rsl);
+    dissector_add_uint("lapd.gsm.sapi", LAPD_GSM_SAPI_RA_SIG_PROC, rsl_handle);
+
+    gsm_a_ccch_handle = find_dissector("gsm_a_ccch");
+    gsm_a_dtap_handle = find_dissector("gsm_a_dtap");
 }
 
