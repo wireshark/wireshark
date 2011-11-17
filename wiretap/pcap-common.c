@@ -1892,7 +1892,7 @@ pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pse
 		 * Write the ERF header.
 		 */
 	        memset(&erf_hdr, 0, sizeof(erf_hdr));
-		pletonll(&erf_hdr[0], pseudo_header->erf.phdr.ts);
+		phtolell(&erf_hdr[0], pseudo_header->erf.phdr.ts);
 		erf_hdr[8] = pseudo_header->erf.phdr.type;
 		erf_hdr[9] = pseudo_header->erf.phdr.flags;
 		phtons(&erf_hdr[10], pseudo_header->erf.phdr.rlen);

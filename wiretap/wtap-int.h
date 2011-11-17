@@ -296,8 +296,8 @@ extern gint wtap_num_file_types;
 	}
 #endif
 
-#ifndef pletonll
-#define pletonll(p, v) \
+#ifndef phtolell
+#define phtolell(p, v) \
 	{ 				\
 	(p)[0] = (guint8)((v) >> 0);	\
 	(p)[1] = (guint8)((v) >> 8);	\
