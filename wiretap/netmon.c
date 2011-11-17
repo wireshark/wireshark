@@ -93,7 +93,7 @@ struct netmonrec_1_x_hdr {
  * help files.
  */
 struct netmonrec_2_x_hdr {
-	guint64	ts_delta;	/* time stamp - tenths of usecs since start of capture */
+	guint64	ts_delta;	/* time stamp - usecs since start of capture */
 	guint32	orig_len;	/* actual length of packet */
 	guint32	incl_len;	/* number of octets captured in file */
 };
@@ -199,7 +199,7 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 	struct netmon_hdr hdr;
 	int file_type;
 	struct tm tm;
-	int frame_table_offset;
+	guint32 frame_table_offset;
 	guint32 frame_table_length;
 	guint32 frame_table_size;
 	guint32 *frame_table;
@@ -463,7 +463,7 @@ static gboolean netmon_read(wtap *wth, int *err, gchar **err_info,
 	}	hdr;
 	int	hdr_size = 0;
 	int	trlr_size;
-	int	rec_offset;
+	gint64	rec_offset;
 	guint8	*data_ptr;
 	gint64	delta = 0;	/* signed - frame times can be before the nominal start */
 	gint64	t;
@@ -928,9 +928,12 @@ static const int wtap_encap[] = {
    an error indication otherwise. */
 int netmon_dump_can_write_encap(int encap)
 {
-	/* Per-packet encapsulations aren't supported. */
+	/*
+	 * Per-packet encapsulations are supported in NetMon 2.1
+	 * format.
+	 */
 	if (encap == WTAP_ENCAP_PER_PACKET)
-		return WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
+		return 0;
 
 	if (encap < 0 || (unsigned) encap >= NUM_WTAP_ENCAPS || wtap_encap[encap] == -1)
 		return WTAP_ERR_UNSUPPORTED_ENCAP;
@@ -975,12 +978,34 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	netmon_dump_t *netmon = (netmon_dump_t *)wdh->priv;
 	struct netmonrec_1_x_hdr rec_1_x_hdr;
 	struct netmonrec_2_x_hdr rec_2_x_hdr;
-	char *hdrp;
+	void *hdrp;
+	size_t rec_size;
+	struct netmonrec_2_1_trlr rec_2_x_trlr;
 	size_t hdr_size;
 	struct netmon_atm_hdr atm_hdr;
 	int atm_hdrsize;
 	gint64	secs;
 	gint32	nsecs;
+
+	if (wdh->encap == WTAP_ENCAP_PER_PACKET) {
+		/*
+		 * Is this network type supported?
+		 */
+		if (phdr->pkt_encap < 0 ||
+		    (unsigned) phdr->pkt_encap >= NUM_WTAP_ENCAPS ||
+		    wtap_encap[phdr->pkt_encap] == -1) {
+			/*
+			 * No.  Fail.
+			 */
+			*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+			return FALSE;
+		}
+
+		/*
+		 * Fill in the trailer with the network type.
+		 */
+		phtoles(rec_2_x_trlr.network, wtap_encap[phdr->pkt_encap]);
+	}
 
 	/*
 	 * NetMon files have a capture start time in the file header,
@@ -1035,7 +1060,7 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 		rec_1_x_hdr.ts_delta = htolel(secs*1000 + (nsecs + 500000)/1000000);
 		rec_1_x_hdr.orig_len = htoles(phdr->len + atm_hdrsize);
 		rec_1_x_hdr.incl_len = htoles(phdr->caplen + atm_hdrsize);
-		hdrp = (char *)&rec_1_x_hdr;
+		hdrp = &rec_1_x_hdr;
 		hdr_size = sizeof rec_1_x_hdr;
 		break;
 
@@ -1043,7 +1068,7 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 		rec_2_x_hdr.ts_delta = htolell(secs*1000000 + (nsecs + 500)/1000);
 		rec_2_x_hdr.orig_len = htolel(phdr->len + atm_hdrsize);
 		rec_2_x_hdr.incl_len = htolel(phdr->caplen + atm_hdrsize);
-		hdrp = (char *)&rec_2_x_hdr;
+		hdrp = &rec_2_x_hdr;
 		hdr_size = sizeof rec_2_x_hdr;
 		break;
 
@@ -1054,8 +1079,15 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 		return FALSE;
 	}
 
+	/*
+	 * Keep track of the record size, as we need to update
+	 * the current file offset.
+	 */
+	rec_size = 0;
+
 	if (!wtap_dump_file_write(wdh, hdrp, hdr_size, err))
 		return FALSE;
+	rec_size += hdr_size;
 
 	if (wdh->encap == WTAP_ENCAP_ATM_PDUS) {
 		/*
@@ -1068,10 +1100,22 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 		atm_hdr.vci = g_htons(pseudo_header->atm.vci);
 		if (!wtap_dump_file_write(wdh, &atm_hdr, sizeof atm_hdr, err))
 			return FALSE;
+		rec_size += sizeof atm_hdr;
 	}
 
 	if (!wtap_dump_file_write(wdh, pd, phdr->caplen, err))
 		return FALSE;
+	rec_size += phdr->caplen;
+
+	if (wdh->encap == WTAP_ENCAP_PER_PACKET) {
+		/*
+		 * Write out the trailer.
+		 */
+		if (!wtap_dump_file_write(wdh, &rec_2_x_trlr,
+		    sizeof rec_2_x_trlr, err))
+			return FALSE;
+		rec_size += sizeof rec_2_x_trlr;
+	}
 
 	/*
 	 * Stash the file offset of this frame.
@@ -1098,7 +1142,7 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	netmon->frame_table[netmon->frame_table_index] =
 	    htolel(netmon->frame_table_offset);
 	netmon->frame_table_index++;
-	netmon->frame_table_offset += (int) hdr_size + phdr->caplen + atm_hdrsize;
+	netmon->frame_table_offset += (guint32) rec_size;
 
 	return TRUE;
 }
@@ -1139,9 +1183,22 @@ static gboolean netmon_dump_close(wtap_dumper *wdh, int *err)
 		/*
 		 * NetMon file version, for 2.x, is 2.0;
 		 * for 3.0, it's 2.1.
+		 *
+		 * If the file encapsulation is WTAP_ENCAP_PER_PACKET,
+		 * we need version 2.1.
+		 *
+		 * XXX - version 2.3 supports UTC time stamps; when
+		 * should we use it?  According to the file format
+		 * documentation, NetMon 3.3 "cannot properly
+		 * interpret" the UTC timestamp information; does
+		 * that mean it ignores it and uses the local-time
+		 * start time and time deltas, or mishandles them?
+		 * Also, NetMon 3.1 and earlier can't read version
+		 * 2.2, much less version 2.3.
 		 */
 		file_hdr.ver_major = 2;
-		file_hdr.ver_minor = 0;
+		file_hdr.ver_minor =
+		    (wdh->encap == WTAP_ENCAP_PER_PACKET) ? 1 : 0;
 		break;
 
 	default:
@@ -1154,7 +1211,15 @@ static gboolean netmon_dump_close(wtap_dumper *wdh, int *err)
 	if (!wtap_dump_file_write(wdh, magicp, magic_size, err))
 		return FALSE;
 
-	file_hdr.network = htoles(wtap_encap[wdh->encap]);
+	if (wdh->encap == WTAP_ENCAP_PER_PACKET) {
+		/*
+		 * We're writing NetMon 2.1 format, so the media
+		 * type in the file header is irrelevant.  Set it
+		 * to 1, just as Network Monitor does.
+		 */
+		file_hdr.network = htoles(1);
+	} else
+		file_hdr.network = htoles(wtap_encap[wdh->encap]);
 	tm = localtime(&netmon->first_record_time.secs);
 	if (tm != NULL) {
 		file_hdr.ts_year  = htoles(1900 + tm->tm_year);
@@ -1173,8 +1238,7 @@ static gboolean netmon_dump_close(wtap_dumper *wdh, int *err)
 		file_hdr.ts_min   = htoles(0);
 		file_hdr.ts_sec   = htoles(0);
 	}
-	file_hdr.ts_msec  = htoles(netmon->first_record_time.nsecs/1000000);
-		/* XXX - what about rounding? */
+	file_hdr.ts_msec = htoles(netmon->first_record_time.nsecs/1000000);
 	file_hdr.frametableoffset = htolel(netmon->frame_table_offset);
 	file_hdr.frametablelength =
 	    htolel(netmon->frame_table_index * sizeof *netmon->frame_table);
