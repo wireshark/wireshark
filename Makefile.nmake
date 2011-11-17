@@ -396,7 +396,9 @@ ps.c: tools\rdps.py print.ps
 #
 # Build the version string
 #
-!IF EXIST(".svn/entries")
+!IF EXIST(".svn/wc.db")
+SVNENTRIES = .svn/wc.db
+!ELSE IF EXIST(".svn/entries")
 SVNENTRIES = .svn/entries
 !ELSE
 SVNENTRIES =
