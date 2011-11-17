@@ -530,6 +530,23 @@ tree_add_fragment_list_incomplete(struct rlc_sdu *sdu, tvbuff_t *tvb, proto_tree
 	}
 }
 
+/* Add the same description to too the two given proto_items */
+static void add_description(proto_item *li_ti, proto_item *length_ti,
+                                     const char *format, ...)
+{
+    #define MAX_INFO_BUFFER 256
+    static char info_buffer[MAX_INFO_BUFFER];
+
+    va_list ap;
+
+    va_start(ap, format);
+    g_vsnprintf(info_buffer, MAX_INFO_BUFFER, format, ap);
+    va_end(ap);
+
+    proto_item_append_text(li_ti, " (%s)", info_buffer);
+    proto_item_append_text(length_ti, " (%s)", info_buffer);
+}
+
 /* add information for an LI to 'tree' */
 static proto_tree *
 tree_add_li(enum rlc_mode mode, struct rlc_li *li, guint8 li_idx, guint8 hdr_offs,
@@ -547,46 +564,48 @@ tree_add_li(enum rlc_mode mode, struct rlc_li *li, guint8 li_idx, guint8 hdr_off
 		root_ti = proto_tree_add_item(tree, hf_rlc_li, tvb, li_offs, 2, ENC_NA);
 		li_tree = proto_item_add_subtree(root_ti, ett_rlc_frag);
 		ti = proto_tree_add_bits_ret_val(li_tree, hf_rlc_li_value, tvb, li_offs*8, 15, &length, ENC_BIG_ENDIAN);
-		proto_item_append_text(root_ti, " (length=%u)", (guint16)length);
+
 		switch (li->li) {
 			case 0x0000:
-				proto_item_append_text(ti, " (The previous RLC PDU was exactly filled with the last segment of an RLC SDU and there is no LI that indicates the end of the RLC SDU in the previous RLC PDU)");
+				add_description(root_ti, ti, "The previous RLC PDU was exactly filled with the last segment of an RLC SDU and there is no LI that indicates the end of the RLC SDU in the previous RLC PDU");
 				break;
 			case 0x7ffa:
 				if (mode == RLC_UM) {
-					proto_item_append_text(ti, " (The first data octet in this RLC PDU is the first octet of an RLC SDU and the second last octet in this RLC PDU is the last octet of the same RLC SDU. The remaining octet in the RLC PDU is ignored)");
+					add_description(root_ti, ti, "The first data octet in this RLC PDU is the first octet of an RLC SDU and the second last octet in this RLC PDU is the last octet of the same RLC SDU. The remaining octet in the RLC PDU is ignored");
 				} else {
-					proto_item_append_text(ti, " (Reserved)");
+					add_description(root_ti, ti, "Reserved");
 				}
 				break;
 			case 0x7ffb:
-				proto_item_append_text(ti, " (The second last octet in the previous RLC PDU is the last octet of an RLC SDU and there is no LI to indicate the end of SDU. The remaining octet in the previous RLC PDU is ignored)");
+				add_description(root_ti, ti, "The second last octet in the previous RLC PDU is the last octet of an RLC SDU and there is no LI to indicate the end of SDU. The remaining octet in the previous RLC PDU is ignored");
 				break;
 			case 0x7ffc:
 				if (mode == RLC_UM) {
-					proto_item_append_text(ti, " (The first data octet in this RLC PDU is the first octet of an RLC SDU)");
+					add_description(root_ti, ti, "The first data octet in this RLC PDU is the first octet of an RLC SDU");
 				} else {
-					proto_item_append_text(ti, " (Reserved)");
+					add_description(root_ti, ti, "Reserved");
 				}
 				break;
 			case 0x7ffd:
 				if (mode == RLC_UM) {
-					proto_item_append_text(ti, " (The first data octet in this RLC PDU is the first octet of an RLC SDU and the last octet in this RLC PDU is the last octet of the same RLC SDU)");
+					add_description(root_ti, ti, "The first data octet in this RLC PDU is the first octet of an RLC SDU and the last octet in this RLC PDU is the last octet of the same RLC SDU");
 				} else {
-					proto_item_append_text(ti, " (Reserved)");
+					add_description(root_ti, ti, "Reserved");
 				}
 				break;
 			case 0x7ffe:
 				if (mode == RLC_UM) {
-					proto_item_append_text(ti, " (The RLC PDU contains a segment of an SDU but neither the first octet nor the last octet of this SDU)");
+					add_description(root_ti, ti, "The RLC PDU contains a segment of an SDU but neither the first octet nor the last octet of this SDU");
 				} else {
-					proto_item_append_text(ti, " (The rest of the RLC PDU includes a piggybacked STATUS PDU)");
+					add_description(root_ti, ti, "The rest of the RLC PDU includes a piggybacked STATUS PDU");
 				}
 				break;
 			case 0x7fff:
-				proto_item_append_text(ti, " (The rest of the RLC PDU is padding)");
+				add_description(root_ti, ti, "The rest of the RLC PDU is padding");
 				break;
+
 			default:
+				add_description(root_ti, ti, "length=%u", (guint16)length);
 				break;
 		}
 		proto_tree_add_bits_item(li_tree, hf_rlc_li_ext, tvb, li_offs*8+15, 1, ENC_BIG_ENDIAN);
@@ -595,36 +614,37 @@ tree_add_li(enum rlc_mode mode, struct rlc_li *li, guint8 li_idx, guint8 hdr_off
 		root_ti = proto_tree_add_item(tree, hf_rlc_li, tvb, li_offs, 1, ENC_NA);
 		li_tree = proto_item_add_subtree(root_ti, ett_rlc_frag);
 		ti = proto_tree_add_bits_ret_val(li_tree, hf_rlc_li_value, tvb, li_offs*8, 7, &length, ENC_BIG_ENDIAN);
-		proto_item_append_text(root_ti, " (length=%u)", (guint16)length);
 		switch (li->li) {
 			case 0x00:
-				proto_item_append_text(ti, " (The previous RLC PDU was exactly filled with the last segment of an RLC SDU and there is no LI that indicates the end of the RLC SDU in the previous RLC PDU)");
+				add_description(root_ti, ti, "The previous RLC PDU was exactly filled with the last segment of an RLC SDU and there is no LI that indicates the end of the RLC SDU in the previous RLC PDU");
 				break;
 			case 0x7c:
 				if (mode == RLC_UM) {
-					proto_item_append_text(ti, " (The first data octet in this RLC PDU is the first octet of an RLC SDU)");
+					add_description(root_ti, ti, "The first data octet in this RLC PDU is the first octet of an RLC SDU");
 				} else {
-					proto_item_append_text(ti, " (Reserved)");
+					add_description(root_ti, ti, "Reserved");
 				}
 				break;
 			case 0x7d:
 				if (mode == RLC_UM) {
-					proto_item_append_text(ti, " (The first data octet in this RLC PDU is the first octet of an RLC SDU and the last octet in this RLC PDU is the last octet of the same RLC SDU)");
+					add_description(root_ti, ti, "The first data octet in this RLC PDU is the first octet of an RLC SDU and the last octet in this RLC PDU is the last octet of the same RLC SDU");
 				} else {
-					proto_item_append_text(ti, " (Reserved)");
+					add_description(root_ti, ti, "Reserved");
 				}
 				break;
 			case 0x7e:
 				if (mode == RLC_UM) {
-					proto_item_append_text(ti, " (The RLC PDU contains a segment of an SDU but neither the first octet nor the last octet of this SDU)");
+					add_description(root_ti, ti, "The RLC PDU contains a segment of an SDU but neither the first octet nor the last octet of this SDU");
 				} else {
-					proto_item_append_text(ti, " (The rest of the RLC PDU includes a piggybacked STATUS PDU)");
+					add_description(root_ti, ti, "The rest of the RLC PDU includes a piggybacked STATUS PDU");
 				}
 				break;
 			case 0x7f:
-				proto_item_append_text(ti, " (The rest of the RLC PDU is padding)");
+				add_description(root_ti, ti, "The rest of the RLC PDU is padding");
 				break;
+
 			default:
+				add_description(root_ti, ti, "length=%u", (guint16)length);
 				break;
 		}
 		proto_tree_add_bits_item(li_tree, hf_rlc_li_ext, tvb, li_offs*8+7, 1, ENC_BIG_ENDIAN);
