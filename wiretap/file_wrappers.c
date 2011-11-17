@@ -982,7 +982,7 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
 	if (offset < 0) {
 		offset += file->pos;
 		if (offset < 0) {                    /* before start of file! */
-			/* *err = ???; */
+			*err = EINVAL;
 			return -1;
 		}
 		/* rewind, then skip to offset */
