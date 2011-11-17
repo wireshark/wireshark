@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-<!ENTITY WiresharkCurrentVersion "1.7.1"
+<!ENTITY WiresharkCurrentVersion "1.7.1">
 
 ]>
 
@@ -77,6 +77,13 @@ Wireshark Info
         <listitem>
           <para>
             OID resolution is now supported on 64-bit Windows.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            When saving packets, the default choice is now to save
+            only the displayed packets rather than all packets.
           </para>
         </listitem>
 
