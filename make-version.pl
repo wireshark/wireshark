@@ -477,10 +477,6 @@ if ($set_version || $set_release) {
 
 	if ($set_release) {
 		print "Generating release information\n";
-	} else {
-		print "Clobbering release information\n";
-		$revision = 0;
-		$package_string = "";
 	}
 
 	&update_versioned_files;
