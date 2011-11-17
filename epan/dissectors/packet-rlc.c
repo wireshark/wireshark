@@ -1344,6 +1344,8 @@ dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
 				bit_offset += 4;
 				proto_tree_add_bits_ret_val(sufi_tree, hf_rlc_sufi_fsn, tvb, bit_offset, 12, &sn, ENC_BIG_ENDIAN);
 				bit_offset += 12;
+				proto_item_append_text(sufi_item, " (%u codewords)", (guint16)len);
+
 				for (i=0; i<len; i++) {
 					ti = proto_tree_add_bits_ret_val(sufi_tree, hf_rlc_sufi_cw, tvb, bit_offset, 4, &l, ENC_BIG_ENDIAN);
 					if (l == 0x01) {
@@ -1361,7 +1363,10 @@ dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
 				} else {
 					ti = proto_tree_add_text(sufi_tree, tvb, previous_bit_offset/8, (bit_offset-previous_bit_offset)/8, "Decoded list:");
 					rlist_tree = proto_item_add_subtree(ti, ett_rlc_rlist);
-					proto_tree_add_text(rlist_tree, tvb, (previous_bit_offset+4)/8, 12/8, "Sequence Number = %u (AMD PDU not correctly received)",(unsigned)sn);
+					proto_tree_add_text(rlist_tree, tvb, (previous_bit_offset+4)/8, 12/8,
+					                    "Sequence Number = %u (AMD PDU not correctly received)",(unsigned)sn);
+					col_append_fstr(pinfo->cinfo, COL_INFO, " RLIST=(%u", (unsigned)sn);
+
 					for (i=0, isErrorBurstInd=FALSE, j=0, previous_sn=(guint16)sn, value=0; i<len; i++) {
 						if (cw[i] == 0x01) {
 							isErrorBurstInd = TRUE;
@@ -1374,17 +1379,20 @@ dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
 									ti = proto_tree_add_text(rlist_tree, tvb, (previous_bit_offset+16+4*i)/8, 1, "Length: %u", value);
 									if (value) {
 										proto_item_append_text(ti, "  (all consecutive AMD PDUs up to SN %u not correctly received)", previous_sn);
+										col_append_fstr(pinfo->cinfo, COL_INFO, " ->%u", previous_sn);
 									}
 									isErrorBurstInd = FALSE;
 								} else {
 									value = (value + previous_sn) & 0xfff;
 									proto_tree_add_text(rlist_tree, tvb, (previous_bit_offset+16+4*i)/8, 1, "Sequence Number = %u (AMD PDU not correctly received)",value);
+									col_append_fstr(pinfo->cinfo, COL_INFO, " %u", value);
 									previous_sn = value;
 								}
 								value = j = 0;
 							}
 						}
 					}
+					col_append_str(pinfo->cinfo, COL_INFO, ")");
 				}
 				break;
 			case RLC_SUFI_MRW_ACK:
