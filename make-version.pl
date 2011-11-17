@@ -328,7 +328,7 @@ sub update_release_notes
 		#   <!ENTITY WiresharkCurrentVersion "1.7.1">
 
 		if ($line =~ /<\!ENTITY\s+WiresharkCurrentVersion\s+/) {
-			$line = sprintf("<!ENTITY WiresharkCurrentVersion \"%d.%d.%d\"\n",
+			$line = sprintf("<!ENTITY WiresharkCurrentVersion \"%d.%d.%d\">\n",
 					$version_pref{"version_major"},
 					$version_pref{"version_minor"},
 					$version_pref{"version_micro"},
