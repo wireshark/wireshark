@@ -403,7 +403,7 @@ sub print_svn_revision
 		close OLDREV;
 	}
 
-	if (! $set_release) { return; }
+	if (! $set_version && ! $set_release) { return; }
 
 	if ($needs_update) {
 		# print "Updating $version_file so it contains:\n$svn_revision";
@@ -463,6 +463,8 @@ sub get_config {
 
 &read_svn_info();
 
+&print_svn_revision;
+
 if ($set_version || $set_release) {
 	if ($set_version) {
 		print "Generating version information\n";
@@ -483,8 +485,6 @@ if ($set_version || $set_release) {
 
 	&update_versioned_files;
 }
-
-&print_svn_revision;
 
 __END__
 
