@@ -1028,15 +1028,3 @@ checkapi: checkapi_local
 	cd ../dissectors && $(MAKE) checkapi
 	cd ../../plugins && $(MAKE) checkapi
 	cd ../wsutil && $(MAKE) checkapi
-
-# When we build a release tarball, tell make-version that it is such.  This
-# prevents make-version from looking for SVN details in the source tarball,
-# failing, and then labelling the build as from "SVN version unknown."
-dist-hook:
-	if test -f $(top_srcdir)/version.conf -a ! -f $(top_distdir)/version.conf ; then \
-		cp $(top_srcdir)/version.conf $(top_distdir); \
-		if grep "^is_release: *1" $(top_distdir)/version.conf ; then :; \
-		else \
-			echo "is_release: 1" >> $(top_distdir)/version.conf; \
-		fi ; \
-	fi

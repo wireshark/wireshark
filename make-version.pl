@@ -22,7 +22,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-# usage:  ./make-version.pl [-p|--package-version]
+# See below for usage
 #
 # If "version.conf" is present, it is parsed for configuration values.
 # Possible values are:
@@ -35,10 +35,6 @@
 #		 the SVN revision number.
 #   pkg_enable - Enable or disable package versioning.
 #   pkg_format - Like "format", but used for the package version.
-#   is_release - Specifies that we're building from a release tarball;
-#		 svnversion.h is not updated.  This should be added only
-#		 to the *released* version.conf, not the one used to build
-#		 the release (IOW it should be added by automake's dist-hook).
 #
 # If run with the "-p" or "--package-version" argument, the
 # AC_INIT macro in configure.in and the VERSION macro in
@@ -63,6 +59,9 @@ use strict;
 use Time::Local;
 use POSIX qw(strftime);
 use Getopt::Long;
+use Pod::Usage;
+use IO::Handle;
+use English;
 
 my $version_file = 'svnversion.h';
 my $package_string = "";
@@ -71,13 +70,20 @@ my $tortoise_file = "tortoise_template";
 my $last_change = 0;
 my $revision = 0;
 my $repo_path = "unknown";
-my $pkg_version = 0;
+my $get_svn = 0;
+my $set_version = 0;
+my $set_release = 0;
 my %version_pref = (
-	"enable"     => 1,
-	"svn_client" => 1,
-	"tortoise_svn" => 0,
-	"format"     => "SVN %Y%m%d%H%M%S",
-	"is_release" => 0,
+	"version_major" => 1,
+	"version_minor" => 7,
+	"version_micro" => 1,
+	"version_build" => 0,
+
+	"enable"        => 1,
+	"svn_client"    => 1,
+	"tortoise_svn"  => 0,
+	"format"        => "SVN %Y%m%d%H%M%S",
+	"is_release"    => 0,
 
 	# Normal development builds
 	"pkg_enable" => 1,
@@ -104,9 +110,18 @@ sub read_svn_info {
 	my $repo_root = undef;
 	my $repo_url = undef;
 	my $do_hack = 1;
+	my $info_source = "Unknown";
 
 	if ($version_pref{"pkg_enable"}) {
 		$package_format = $version_pref{"pkg_format"};
+	}
+
+	if (-d "$srcdir/.svn") {
+		$info_source = "Command line (svn info)";
+		$svn_info_cmd = "svn info $srcdir";
+	} elsif (-d "$srcdir/.git/svn") {
+		$info_source = "Command line (git-svn)";
+		$svn_info_cmd = "(cd $srcdir; git svn info)";
 	}
 
 	if ($version_pref{"svn_client"}) {
@@ -135,20 +150,36 @@ sub read_svn_info {
 			$do_hack = 0;
 		}
 	} elsif ($version_pref{"tortoise_svn"}) {
-		#dynamically generic template file needed by TortoiseSVN		
+		# Dynamically generic template file needed by TortoiseSVN
 		open(TORTOISE, ">$tortoise_file");
 		print TORTOISE "#define SVNVERSION \"\$WCREV\$\"\r\n";
-		print TORTOISE "#define SVNPATH \"\$WCURL\$\"\r\n";		
+		print TORTOISE "#define SVNPATH \"\$WCURL\$\"\r\n";
 		close(TORTOISE);
-		
+
+		$info_source = "Command line (SubWCRev)";
 		$svn_info_cmd = "SubWCRev $srcdir $tortoise_file $version_file";
 		my $tortoise = system($svn_info_cmd);
 		if ($tortoise == 0) {
 			$do_hack = 0;
 		}
-		
+
 		#clean up the template file
 		unlink($tortoise_file);
+	}
+
+	if ($revision == 0) {
+		# Fall back to config.nmake
+		$info_source = "Prodding config.nmake";
+		my $filepath = "config.nmake";
+		open(CFGNMAKE, "< $filepath") || die "Can't read $filepath!";
+		while ($line = <CFGNMAKE>) {
+			if ($line =~ /^SVN_REVISION=(\d+)/) {
+				$revision = $1;
+				$do_hack = 0;
+				last;
+			}
+		}
+		close (CFGNMAKE);
 	}
 
 	# 'svn info' failed or the user really wants us to dig around in .svn/entries
@@ -157,6 +188,7 @@ sub read_svn_info {
 		if (! open (ENTRIES, "< $srcdir/.svn/entries")) {
 			print ("Unable to open $srcdir/.svn/entries\n");
 		} else {
+			$info_source = "Prodding .svn";
 			# We need to find out whether our parser can handle the entries file
 			$line = <ENTRIES>;
 			chomp $line;
@@ -207,6 +239,14 @@ sub read_svn_info {
 	if ($repo_url && $repo_root && index($repo_url, $repo_root) == 0) {
 		$repo_path = substr($repo_url, length($repo_root));
 	}
+
+	if ($get_svn) {
+		print <<"Fin";
+SVN revision    : $revision
+Revision source : $info_source
+Release stamp   : $package_string
+Fin
+	}
 }
 
 
@@ -217,21 +257,28 @@ sub update_configure_in
 	my $line;
 	my $contents = "";
 	my $version = "";
+	my $filepath = "configure.in";
 
-	return if ($package_string eq "");
+	return if (!$set_version && $package_string eq "");
 
-	open(CFGIN, "< configure.in") || die "Can't read configure.in!";
+	open(CFGIN, "< $filepath") || die "Can't read $filepath!";
 	while ($line = <CFGIN>) {
 		if ($line =~ /^AC_INIT\(wireshark, (\d+)\.(\d+).(\d+)/) {
-			$line = "AC_INIT\(wireshark, $1.$2.$3$package_string)\n";
+			$line = sprintf("AC_INIT\(wireshark, %d.%d.%d%s)\n",
+					$set_version ? $version_pref{"version_major"} : $1,
+					$set_version ? $version_pref{"version_minor"} : $2,
+					$set_version ? $version_pref{"version_micro"} : $3,
+					$set_release ? $package_string : ""
+				       );
+
 		}
 		$contents .= $line
 	}
 
-	open(CFGIN, "> configure.in") || die "Can't write configure.in!";
+	open(CFGIN, "> $filepath") || die "Can't write $filepath!";
 	print(CFGIN $contents);
 	close(CFGIN);
-	print "configure.in has been updated.\n";
+	print "$filepath has been updated.\n";
 }
 
 # Read config.nmake, then write it back out with an updated
@@ -241,71 +288,152 @@ sub update_config_nmake
 	my $line;
 	my $contents = "";
 	my $version = "";
-	my $update_ve = 0;
+	my $filepath = "config.nmake";
 
-	if ($package_string ne "") { $update_ve = 1; };
-
-	open(CFGIN, "< config.nmake") || die "Can't read config.nmake!";
-	while ($line = <CFGIN>) {
-		if ($update_ve && $line =~ /^VERSION_EXTRA=/) {
+	open(CFGNMAKE, "< $filepath") || die "Can't read $filepath!";
+	while ($line = <CFGNMAKE>) {
+		if ($line =~ /^SVN_REVISION=/) {
+			$line = sprintf("SVN_REVISION=%d\n", $revision);
+		} elsif ($set_version && $line =~ /^VERSION_MAJOR=/) {
+			$line = sprintf("VERSION_MAJOR=%d\n", $version_pref{"version_major"});
+		} elsif ($set_version && $line =~ /^VERSION_MINOR=/) {
+			$line = sprintf("VERSION_MINOR=%d\n", $version_pref{"version_minor"});
+		} elsif ($set_version && $line =~ /^VERSION_MICRO=/) {
+			$line = sprintf("VERSION_MICRO=%d\n", $version_pref{"version_micro"});
+		} elsif ($line =~ /^VERSION_EXTRA=/) {
 			$line = "VERSION_EXTRA=$package_string\n";
-		}
-		if ($line =~ /^VERSION_BUILD=/ && int($revision) > 0) {
-			$line = "VERSION_BUILD=$revision\n";
 		}
 		$contents .= $line
 	}
 
-	open(CFGIN, "> config.nmake") || die "Can't write config.nmake!";
-	print(CFGIN $contents);
-	close(CFGIN);
-	print "config.nmake has been updated.\n";
+	open(CFGNMAKE, "> $filepath") || die "Can't write $filepath!";
+	print(CFGNMAKE $contents);
+	close(CFGNMAKE);
+	print "$filepath has been updated.\n";
 }
 
+# Read docbook/release_notes.xml, then write it back out with an updated
+# "WiresharkCurrentVersion" line.
+sub update_release_notes
+{
+	my $line;
+	my $contents = "";
+	my $version = "";
+	my $filepath = "docbook/release-notes.xml";
 
+	return if (!$set_version);
+
+	open(RELNOTES, "< $filepath") || die "Can't read $filepath!";
+	while ($line = <RELNOTES>) {
+		#   <!ENTITY WiresharkCurrentVersion "1.7.1">
+
+		if ($line =~ /<\!ENTITY\s+WiresharkCurrentVersion\s+/) {
+			$line = sprintf("<!ENTITY WiresharkCurrentVersion \"%d.%d.%d\"\n",
+					$version_pref{"version_major"},
+					$version_pref{"version_minor"},
+					$version_pref{"version_micro"},
+				       );
+		}
+		$contents .= $line
+	}
+
+	open(RELNOTES, "> $filepath") || die "Can't write $filepath!";
+	print(RELNOTES $contents);
+	close(RELNOTES);
+	print "$filepath has been updated.\n";
+}
+
+# Read debian/changelog, then write back out an updated version.
+sub update_debian_changelog
+{
+	my $line;
+	my $contents = "";
+	my $version = "";
+	my $filepath = "debian/changelog";
+
+	return if ($set_version == 0);
+
+	open(CHANGELOG, "< $filepath") || die "Can't read $filepath!";
+	while ($line = <CHANGELOG>) {
+		if ($set_version && CHANGELOG->input_line_number() == 1) {
+			$line = sprintf("wireshark (%d.%d.%d) unstable; urgency=low\n",
+					$version_pref{"version_major"},
+					$version_pref{"version_minor"},
+					$version_pref{"version_micro"},
+				       );
+		}
+		$contents .= $line
+	}
+
+	open(CHANGELOG, "> $filepath") || die "Can't write $filepath!";
+	print(CHANGELOG $contents);
+	close(CHANGELOG);
+	print "$filepath has been updated.\n";
+}
+
+# Update distributed files that contain any version information
+sub update_versioned_files
+{
+	&update_configure_in;
+	&update_config_nmake;
+	&update_release_notes;
+	&update_debian_changelog;
+}
 
 # Print the SVN version to $version_file.
 # Don't change the file if it is not needed.
-sub print_svn_version
+sub print_svn_revision
 {
-	my $svn_version;
+	my $svn_revision;
 	my $needs_update = 1;
 
-	if ($pkg_version || $version_pref{"is_release"} == 1 || $version_pref{"tortoise_svn"}) { return; }
-
 	if ($last_change && $revision) {
-		$svn_version = "#define SVNVERSION \"SVN Rev " .
+		$svn_revision = "#define SVNVERSION \"SVN Rev " .
 			$revision . "\"\n" .
 			"#define SVNPATH \"" . $repo_path . "\"\n";
 	} else {
-		$svn_version = "#define SVNVERSION \"SVN Rev Unknown\"\n" .
+		$svn_revision = "#define SVNVERSION \"SVN Rev Unknown\"\n" .
 			"#define SVNPATH \"unknown\"\n";
 	}
-	if (open(OLDVER, "<$version_file")) {
-		my $old_svn_version = <OLDVER> . <OLDVER>;
-		if ($old_svn_version eq $svn_version) {
+	if (open(OLDREV, "<$version_file")) {
+		my $old_svn_revision = <OLDREV> . <OLDREV>;
+		if ($old_svn_revision eq $svn_revision) {
 			$needs_update = 0;
 		}
-		close OLDVER;
+		close OLDREV;
 	}
 
-	if ($needs_update == 1) {
-		# print "Updating $version_file so it contains:\n$svn_version";
+	if (! $set_release) { return; }
+
+	if ($needs_update) {
+		# print "Updating $version_file so it contains:\n$svn_revision";
 		open(VER, ">$version_file") || die ("Cannot write to $version_file ($!)\n");
-		print VER "$svn_version";
+		print VER "$svn_revision";
 		close VER;
 		print "$version_file has been updated.\n";
 	} else {
-		print "$version_file is up-to-date.\n";
+		print "$version_file unchanged.\n";
 	}
 }
 
 # Read values from the configuration file, if it exists.
 sub get_config {
 	my $arg;
+	my $show_help = 0;
 
 	# Get our command-line args
-	GetOptions("package-version", \$pkg_version);
+	GetOptions(
+		   "help|h", \$show_help,
+		   "get-svn|g", \$get_svn,
+		   "set-version|v", \$set_version,
+		   "set-release|r|package-version|p", \$set_release
+		   ) || pod2usage(2);
+
+	if ($show_help) { pod2usage(1); }
+
+	if ( !( $show_help || $get_svn || $set_release ) ) {
+		$set_version = 1;
+	}
 
 	if ($#ARGV >= 0) {
 		$srcdir = $ARGV[0]
@@ -333,30 +461,50 @@ sub get_config {
 
 &get_config();
 
-if (-d "$srcdir/.svn") {
-	$svn_info_cmd = "svn info $srcdir";
-} elsif (-d "$srcdir/.git/svn") {
-	$svn_info_cmd = "(cd $srcdir; git svn info)";
-}
+&read_svn_info();
 
-if ($svn_info_cmd) {
-	print "This is a build from SVN (or a SVN snapshot).\n";
-	&read_svn_info();
-	if ($pkg_version) {
-		print "Generating package version.  Ignoring $version_file\n";
-		&update_configure_in;
-		&update_config_nmake;
-	} elsif ($version_pref{"enable"} == 0) {
-		print "Version tag disabled in $vconf_file.\n";
-		$last_change = 0;
-		$revision = 0;
-	} else {
-		print "SVN version tag will be computed.\n";
+if ($set_version || $set_release) {
+	if ($set_version) {
+		print "Generating version information\n";
 	}
-} else {
-	print "This is not a SVN build.\n";
+
+	if ($version_pref{"enable"} == 0) {
+		print "Release information disabled in $vconf_file.\n";
+		$set_release = 0;
+	}
+
+	if ($set_release) {
+		print "Generating release information\n";
+	} else {
+		print "Clobbering release information\n";
+		$revision = 0;
+		$package_string = "";
+	}
+
+	&update_versioned_files;
 }
 
-&print_svn_version;
+&print_svn_revision;
 
 __END__
+
+=head1 NAM
+
+make-version.pl - Get and set build-time version information for Wireshark
+
+=head1 SYNOPSIS
+
+make-version.pl [options] [source directory]
+
+  Options:
+
+    --help, -h                 This help message
+    --get-svn, -g              Print the SVN revision and source.
+    --set-version, -v          Set the major, minor, and micro versions.
+                               Resets the release information when used by
+			       itself.
+    --set-release, -r          Set the release information.
+    --package-version, -p      Deprecated. Same as --set-release.
+
+Options can be used in any combination. If none are specified B<--set-version>
+is assumed.
