@@ -12,7 +12,7 @@
 /*
  * Wireshark - Network traffic analyzer
  * By Gerald Combs
- * Copyright 1999 Gerald Combs
+ * Copyright 1999 - 2006 Gerald Combs
  */
 
 
@@ -54,6 +54,7 @@ G_MODULE_EXPORT const gchar version[] = "0.0.1";
 #pragma warning(disable:4101)
 #endif
 
+
 static proto_tree *start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset);
 
 
@@ -61,13 +62,9 @@ static proto_tree *start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 /* Struct prototype declaration Start */
 
 
-
-
 /* Struct = IDL:omg.org/CosNaming/NameComponent:1.0 */
 
 static void decode_CosNaming_NameComponent_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_);
-
-
 
 
 /* Struct = IDL:omg.org/CosNaming/Binding:1.0 */
@@ -75,13 +72,10 @@ static void decode_CosNaming_NameComponent_st(tvbuff_t *tvb _U_, packet_info *pi
 static void decode_CosNaming_Binding_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_);
 
 
-
 /* Struct prototype declaration End */
 
 
-
 /* Union prototype declaration Start */
-
 
 
 /* Union prototype declaration End */
@@ -95,11 +89,9 @@ static int proto_cosnaming = -1;
 static gint ett_cosnaming = -1;
 
 
-
 /* Initialise the initial Alignment */
 
 static guint32  boundary = GIOP_HEADER_SIZE;  /* initial value */
-
 
 
 
@@ -107,11 +99,9 @@ static guint32  boundary = GIOP_HEADER_SIZE;  /* initial value */
 
 /* TODO - Use registered fields */
 
-
 /*
  * IDL Operations Start
  */
-
  
 static const char CosNaming_NamingContext_bind_op[] = "bind" ;
 static const char CosNaming_NamingContext_rebind_op[] = "rebind" ;
@@ -131,7 +121,6 @@ static const char CosNaming_BindingIterator_destroy_op[] = "destroy" ;
  * IDL Operations End
  */
 
-
 /*  Begin Exception (containing members) String  Declare  */
 
 
@@ -140,27 +129,22 @@ static const char user_exception_CosNaming_NamingContext_CannotProceed[] = "IDL:
 
 /*  End Exception (containing members) String Declare  */
 
-
 /*
  * IDL Attributes Start
  */
-
  
 
 /*
  * IDL Attributes End
  */
 
-
 /*
  * IDL Enums Start
  */
-
  
 /*
  * Enum = IDL:omg.org/CosNaming/BindingType:1.0
  */
-
  
 static const value_string CosNaming_BindingType[] = {
 
@@ -169,11 +153,9 @@ static const value_string CosNaming_BindingType[] = {
    { 0,       NULL },
 };
 
-
 /*
  * Enum = IDL:omg.org/CosNaming/NamingContext/NotFoundReason:1.0
  */
-
  
 static const value_string CosNaming_NamingContext_NotFoundReason[] = {
 
@@ -183,14 +165,11 @@ static const value_string CosNaming_NamingContext_NotFoundReason[] = {
    { 0,       NULL },
 };
 
-
 /*
  * IDL Enums End
  */
-
  
 /*  Begin Exception Helper Functions  */
-
 
 
 /* Exception = IDL:omg.org/CosNaming/NamingContext/NotFound:1.0 */
@@ -208,9 +187,7 @@ static void decode_ex_CosNaming_NamingContext_NotFound(tvbuff_t *tvb _U_, packet
     
     /* Operation specific Variable declarations End */
 
-    
     stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
-
 
     
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
@@ -231,13 +208,11 @@ static void decode_ex_CosNaming_NamingContext_NotFound(tvbuff_t *tvb _U_, packet
 
         decode_CosNaming_NameComponent_st(tvb, pinfo, tree, offset, header, operation);
 
-
         /*  End struct "CosNaming_NameComponent"  */
 
     }
 
 }
-
 
 /* Exception = IDL:omg.org/CosNaming/NamingContext/CannotProceed:1.0 */
 
@@ -253,9 +228,7 @@ static void decode_ex_CosNaming_NamingContext_CannotProceed(tvbuff_t *tvb _U_, p
     
     /* Operation specific Variable declarations End */
 
-    
     stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
-
 
     get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
 
@@ -273,7 +246,6 @@ static void decode_ex_CosNaming_NamingContext_CannotProceed(tvbuff_t *tvb _U_, p
 
         decode_CosNaming_NameComponent_st(tvb, pinfo, tree, offset, header, operation);
 
-
         /*  End struct "CosNaming_NameComponent"  */
 
     }
@@ -282,8 +254,6 @@ static void decode_ex_CosNaming_NamingContext_CannotProceed(tvbuff_t *tvb _U_, p
 
 
 /*  End Exception Helper Functions  */
-
-
 
 /*
  * Main delegator for exception handling
@@ -298,13 +268,11 @@ static gboolean decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
     if (!header->exception_id)
         return FALSE;
 
-
     if (strcmp(header->exception_id, user_exception_CosNaming_NamingContext_NotFound) == 0) {
        tree = start_dissecting(tvb, pinfo, ptree, offset);
        decode_ex_CosNaming_NamingContext_NotFound(tvb, pinfo, tree, offset, header, operation);   /*  IDL:omg.org/CosNaming/NamingContext/NotFound:1.0  */
        return TRUE;
     }
-
 
     if (strcmp(header->exception_id, user_exception_CosNaming_NamingContext_CannotProceed) == 0) {
        tree = start_dissecting(tvb, pinfo, ptree, offset);
@@ -314,24 +282,18 @@ static gboolean decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
 
 
-
     return FALSE;    /* user exception not found */
 
 }
 
-
 /*  Begin Attribute Helper Functions  */
-
 
 
 /*  End Attribute Helper Functions  */
 
-
-
 /*
  * IDL:omg.org/CosNaming/NamingContext/bind:1.0
  */
-
 
 static void decode_CosNaming_NamingContext_bind(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
@@ -345,7 +307,6 @@ static void decode_CosNaming_NamingContext_bind(tvbuff_t *tvb _U_, packet_info *
     
     /* Operation specific Variable declarations End */
 
-    
     stream_is_big_endian = is_big_endian(header);
 
     switch(header->message_type) {
@@ -365,7 +326,6 @@ static void decode_CosNaming_NamingContext_bind(tvbuff_t *tvb _U_, packet_info *
 
             decode_CosNaming_NameComponent_st(tvb, pinfo, tree, offset, header, operation);
 
-
             /*  End struct "CosNaming_NameComponent"  */
 
         }
@@ -381,9 +341,7 @@ static void decode_CosNaming_NamingContext_bind(tvbuff_t *tvb _U_, packet_info *
 
         case NO_EXCEPTION:
 
-            
             /* Function returns void */
-
 
             break;
 
@@ -396,8 +354,6 @@ static void decode_CosNaming_NamingContext_bind(tvbuff_t *tvb _U_, packet_info *
             /* Unknown Exception */
 
             g_warning("Unknown Exception ");
-
-
 
             break;
 
@@ -412,19 +368,15 @@ static void decode_CosNaming_NamingContext_bind(tvbuff_t *tvb _U_, packet_info *
 
         g_warning("Unknown GIOP Message");
 
-
         break;
 
-    
     } /* switch(header->message_type) */
 
 }
 
-
 /*
  * IDL:omg.org/CosNaming/NamingContext/rebind:1.0
  */
-
 
 static void decode_CosNaming_NamingContext_rebind(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
@@ -438,7 +390,6 @@ static void decode_CosNaming_NamingContext_rebind(tvbuff_t *tvb _U_, packet_info
     
     /* Operation specific Variable declarations End */
 
-    
     stream_is_big_endian = is_big_endian(header);
 
     switch(header->message_type) {
@@ -458,7 +409,6 @@ static void decode_CosNaming_NamingContext_rebind(tvbuff_t *tvb _U_, packet_info
 
             decode_CosNaming_NameComponent_st(tvb, pinfo, tree, offset, header, operation);
 
-
             /*  End struct "CosNaming_NameComponent"  */
 
         }
@@ -474,9 +424,7 @@ static void decode_CosNaming_NamingContext_rebind(tvbuff_t *tvb _U_, packet_info
 
         case NO_EXCEPTION:
 
-            
             /* Function returns void */
-
 
             break;
 
@@ -489,8 +437,6 @@ static void decode_CosNaming_NamingContext_rebind(tvbuff_t *tvb _U_, packet_info
             /* Unknown Exception */
 
             g_warning("Unknown Exception ");
-
-
 
             break;
 
@@ -505,19 +451,15 @@ static void decode_CosNaming_NamingContext_rebind(tvbuff_t *tvb _U_, packet_info
 
         g_warning("Unknown GIOP Message");
 
-
         break;
 
-    
     } /* switch(header->message_type) */
 
 }
 
-
 /*
  * IDL:omg.org/CosNaming/NamingContext/bind_context:1.0
  */
-
 
 static void decode_CosNaming_NamingContext_bind_context(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
@@ -531,7 +473,6 @@ static void decode_CosNaming_NamingContext_bind_context(tvbuff_t *tvb _U_, packe
     
     /* Operation specific Variable declarations End */
 
-    
     stream_is_big_endian = is_big_endian(header);
 
     switch(header->message_type) {
@@ -551,7 +492,6 @@ static void decode_CosNaming_NamingContext_bind_context(tvbuff_t *tvb _U_, packe
 
             decode_CosNaming_NameComponent_st(tvb, pinfo, tree, offset, header, operation);
 
-
             /*  End struct "CosNaming_NameComponent"  */
 
         }
@@ -567,9 +507,7 @@ static void decode_CosNaming_NamingContext_bind_context(tvbuff_t *tvb _U_, packe
 
         case NO_EXCEPTION:
 
-            
             /* Function returns void */
-
 
             break;
 
@@ -582,8 +520,6 @@ static void decode_CosNaming_NamingContext_bind_context(tvbuff_t *tvb _U_, packe
             /* Unknown Exception */
 
             g_warning("Unknown Exception ");
-
-
 
             break;
 
@@ -598,19 +534,15 @@ static void decode_CosNaming_NamingContext_bind_context(tvbuff_t *tvb _U_, packe
 
         g_warning("Unknown GIOP Message");
 
-
         break;
 
-    
     } /* switch(header->message_type) */
 
 }
 
-
 /*
  * IDL:omg.org/CosNaming/NamingContext/rebind_context:1.0
  */
-
 
 static void decode_CosNaming_NamingContext_rebind_context(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
@@ -624,7 +556,6 @@ static void decode_CosNaming_NamingContext_rebind_context(tvbuff_t *tvb _U_, pac
     
     /* Operation specific Variable declarations End */
 
-    
     stream_is_big_endian = is_big_endian(header);
 
     switch(header->message_type) {
@@ -643,7 +574,6 @@ static void decode_CosNaming_NamingContext_rebind_context(tvbuff_t *tvb _U_, pac
             
 
             decode_CosNaming_NameComponent_st(tvb, pinfo, tree, offset, header, operation);
-
 
             /*  End struct "CosNaming_NameComponent"  */
 
@@ -660,9 +590,7 @@ static void decode_CosNaming_NamingContext_rebind_context(tvbuff_t *tvb _U_, pac
 
         case NO_EXCEPTION:
 
-            
             /* Function returns void */
-
 
             break;
 
@@ -675,8 +603,6 @@ static void decode_CosNaming_NamingContext_rebind_context(tvbuff_t *tvb _U_, pac
             /* Unknown Exception */
 
             g_warning("Unknown Exception ");
-
-
 
             break;
 
@@ -691,19 +617,15 @@ static void decode_CosNaming_NamingContext_rebind_context(tvbuff_t *tvb _U_, pac
 
         g_warning("Unknown GIOP Message");
 
-
         break;
 
-    
     } /* switch(header->message_type) */
 
 }
 
-
 /*
  * IDL:omg.org/CosNaming/NamingContext/resolve:1.0
  */
-
 
 static void decode_CosNaming_NamingContext_resolve(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
@@ -717,7 +639,6 @@ static void decode_CosNaming_NamingContext_resolve(tvbuff_t *tvb _U_, packet_inf
     
     /* Operation specific Variable declarations End */
 
-    
     stream_is_big_endian = is_big_endian(header);
 
     switch(header->message_type) {
@@ -736,7 +657,6 @@ static void decode_CosNaming_NamingContext_resolve(tvbuff_t *tvb _U_, packet_inf
             
 
             decode_CosNaming_NameComponent_st(tvb, pinfo, tree, offset, header, operation);
-
 
             /*  End struct "CosNaming_NameComponent"  */
 
@@ -765,8 +685,6 @@ static void decode_CosNaming_NamingContext_resolve(tvbuff_t *tvb _U_, packet_inf
 
             g_warning("Unknown Exception ");
 
-
-
             break;
 
         
@@ -780,19 +698,15 @@ static void decode_CosNaming_NamingContext_resolve(tvbuff_t *tvb _U_, packet_inf
 
         g_warning("Unknown GIOP Message");
 
-
         break;
 
-    
     } /* switch(header->message_type) */
 
 }
 
-
 /*
  * IDL:omg.org/CosNaming/NamingContext/unbind:1.0
  */
-
 
 static void decode_CosNaming_NamingContext_unbind(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
@@ -806,7 +720,6 @@ static void decode_CosNaming_NamingContext_unbind(tvbuff_t *tvb _U_, packet_info
     
     /* Operation specific Variable declarations End */
 
-    
     stream_is_big_endian = is_big_endian(header);
 
     switch(header->message_type) {
@@ -826,7 +739,6 @@ static void decode_CosNaming_NamingContext_unbind(tvbuff_t *tvb _U_, packet_info
 
             decode_CosNaming_NameComponent_st(tvb, pinfo, tree, offset, header, operation);
 
-
             /*  End struct "CosNaming_NameComponent"  */
 
         }
@@ -839,9 +751,7 @@ static void decode_CosNaming_NamingContext_unbind(tvbuff_t *tvb _U_, packet_info
 
         case NO_EXCEPTION:
 
-            
             /* Function returns void */
-
 
             break;
 
@@ -854,8 +764,6 @@ static void decode_CosNaming_NamingContext_unbind(tvbuff_t *tvb _U_, packet_info
             /* Unknown Exception */
 
             g_warning("Unknown Exception ");
-
-
 
             break;
 
@@ -870,19 +778,15 @@ static void decode_CosNaming_NamingContext_unbind(tvbuff_t *tvb _U_, packet_info
 
         g_warning("Unknown GIOP Message");
 
-
         break;
 
-    
     } /* switch(header->message_type) */
 
 }
 
-
 /*
  * IDL:omg.org/CosNaming/NamingContext/new_context:1.0
  */
-
 
 static void decode_CosNaming_NamingContext_new_context(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
@@ -894,7 +798,6 @@ static void decode_CosNaming_NamingContext_new_context(tvbuff_t *tvb _U_, packet
     
     /* Operation specific Variable declarations End */
 
-    
     stream_is_big_endian = is_big_endian(header);
 
     switch(header->message_type) {
@@ -924,8 +827,6 @@ static void decode_CosNaming_NamingContext_new_context(tvbuff_t *tvb _U_, packet
 
             g_warning("Unknown Exception ");
 
-
-
             break;
 
         
@@ -939,19 +840,15 @@ static void decode_CosNaming_NamingContext_new_context(tvbuff_t *tvb _U_, packet
 
         g_warning("Unknown GIOP Message");
 
-
         break;
 
-    
     } /* switch(header->message_type) */
 
 }
 
-
 /*
  * IDL:omg.org/CosNaming/NamingContext/bind_new_context:1.0
  */
-
 
 static void decode_CosNaming_NamingContext_bind_new_context(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
@@ -965,7 +862,6 @@ static void decode_CosNaming_NamingContext_bind_new_context(tvbuff_t *tvb _U_, p
     
     /* Operation specific Variable declarations End */
 
-    
     stream_is_big_endian = is_big_endian(header);
 
     switch(header->message_type) {
@@ -984,7 +880,6 @@ static void decode_CosNaming_NamingContext_bind_new_context(tvbuff_t *tvb _U_, p
             
 
             decode_CosNaming_NameComponent_st(tvb, pinfo, tree, offset, header, operation);
-
 
             /*  End struct "CosNaming_NameComponent"  */
 
@@ -1013,8 +908,6 @@ static void decode_CosNaming_NamingContext_bind_new_context(tvbuff_t *tvb _U_, p
 
             g_warning("Unknown Exception ");
 
-
-
             break;
 
         
@@ -1028,19 +921,15 @@ static void decode_CosNaming_NamingContext_bind_new_context(tvbuff_t *tvb _U_, p
 
         g_warning("Unknown GIOP Message");
 
-
         break;
 
-    
     } /* switch(header->message_type) */
 
 }
 
-
 /*
  * IDL:omg.org/CosNaming/NamingContext/destroy:1.0
  */
-
 
 static void decode_CosNaming_NamingContext_destroy(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
@@ -1052,7 +941,6 @@ static void decode_CosNaming_NamingContext_destroy(tvbuff_t *tvb _U_, packet_inf
     
     /* Operation specific Variable declarations End */
 
-    
     stream_is_big_endian = is_big_endian(header);
 
     switch(header->message_type) {
@@ -1067,9 +955,7 @@ static void decode_CosNaming_NamingContext_destroy(tvbuff_t *tvb _U_, packet_inf
 
         case NO_EXCEPTION:
 
-            
             /* Function returns void */
-
 
             break;
 
@@ -1082,8 +968,6 @@ static void decode_CosNaming_NamingContext_destroy(tvbuff_t *tvb _U_, packet_inf
             /* Unknown Exception */
 
             g_warning("Unknown Exception ");
-
-
 
             break;
 
@@ -1098,19 +982,15 @@ static void decode_CosNaming_NamingContext_destroy(tvbuff_t *tvb _U_, packet_inf
 
         g_warning("Unknown GIOP Message");
 
-
         break;
 
-    
     } /* switch(header->message_type) */
 
 }
 
-
 /*
  * IDL:omg.org/CosNaming/NamingContext/list:1.0
  */
-
 
 static void decode_CosNaming_NamingContext_list(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
@@ -1125,7 +1005,6 @@ static void decode_CosNaming_NamingContext_list(tvbuff_t *tvb _U_, packet_info *
     
     /* Operation specific Variable declarations End */
 
-    
     stream_is_big_endian = is_big_endian(header);
 
     switch(header->message_type) {
@@ -1145,9 +1024,7 @@ static void decode_CosNaming_NamingContext_list(tvbuff_t *tvb _U_, packet_info *
 
         case NO_EXCEPTION:
 
-            
             /* Function returns void */
-
 
             u_octet4_loop_bl = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
             if (tree) {
@@ -1161,7 +1038,6 @@ static void decode_CosNaming_NamingContext_list(tvbuff_t *tvb _U_, packet_info *
                 
 
                 decode_CosNaming_Binding_st(tvb, pinfo, tree, offset, header, operation);
-
 
                 /*  End struct "CosNaming_Binding"  */
 
@@ -1182,8 +1058,6 @@ static void decode_CosNaming_NamingContext_list(tvbuff_t *tvb _U_, packet_info *
 
             g_warning("Unknown Exception ");
 
-
-
             break;
 
         
@@ -1197,19 +1071,15 @@ static void decode_CosNaming_NamingContext_list(tvbuff_t *tvb _U_, packet_info *
 
         g_warning("Unknown GIOP Message");
 
-
         break;
 
-    
     } /* switch(header->message_type) */
 
 }
 
-
 /*
  * IDL:omg.org/CosNaming/BindingIterator/next_one:1.0
  */
-
 
 static void decode_CosNaming_BindingIterator_next_one(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
@@ -1222,7 +1092,6 @@ static void decode_CosNaming_BindingIterator_next_one(tvbuff_t *tvb _U_, packet_
     
     /* Operation specific Variable declarations End */
 
-    
     stream_is_big_endian = is_big_endian(header);
 
     switch(header->message_type) {
@@ -1248,7 +1117,6 @@ static void decode_CosNaming_BindingIterator_next_one(tvbuff_t *tvb _U_, packet_
 
             decode_CosNaming_Binding_st(tvb, pinfo, tree, offset, header, operation);
 
-
             /*  End struct "CosNaming_Binding"  */
 
             break;
@@ -1263,8 +1131,6 @@ static void decode_CosNaming_BindingIterator_next_one(tvbuff_t *tvb _U_, packet_
 
             g_warning("Unknown Exception ");
 
-
-
             break;
 
         
@@ -1278,19 +1144,15 @@ static void decode_CosNaming_BindingIterator_next_one(tvbuff_t *tvb _U_, packet_
 
         g_warning("Unknown GIOP Message");
 
-
         break;
 
-    
     } /* switch(header->message_type) */
 
 }
 
-
 /*
  * IDL:omg.org/CosNaming/BindingIterator/next_n:1.0
  */
-
 
 static void decode_CosNaming_BindingIterator_next_n(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
@@ -1306,7 +1168,6 @@ static void decode_CosNaming_BindingIterator_next_n(tvbuff_t *tvb _U_, packet_in
     
     /* Operation specific Variable declarations End */
 
-    
     stream_is_big_endian = is_big_endian(header);
 
     switch(header->message_type) {
@@ -1344,7 +1205,6 @@ static void decode_CosNaming_BindingIterator_next_n(tvbuff_t *tvb _U_, packet_in
 
                 decode_CosNaming_Binding_st(tvb, pinfo, tree, offset, header, operation);
 
-
                 /*  End struct "CosNaming_Binding"  */
 
             }
@@ -1361,8 +1221,6 @@ static void decode_CosNaming_BindingIterator_next_n(tvbuff_t *tvb _U_, packet_in
 
             g_warning("Unknown Exception ");
 
-
-
             break;
 
         
@@ -1376,19 +1234,15 @@ static void decode_CosNaming_BindingIterator_next_n(tvbuff_t *tvb _U_, packet_in
 
         g_warning("Unknown GIOP Message");
 
-
         break;
 
-    
     } /* switch(header->message_type) */
 
 }
 
-
 /*
  * IDL:omg.org/CosNaming/BindingIterator/destroy:1.0
  */
-
 
 static void decode_CosNaming_BindingIterator_destroy(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
@@ -1400,7 +1254,6 @@ static void decode_CosNaming_BindingIterator_destroy(tvbuff_t *tvb _U_, packet_i
     
     /* Operation specific Variable declarations End */
 
-    
     stream_is_big_endian = is_big_endian(header);
 
     switch(header->message_type) {
@@ -1415,9 +1268,7 @@ static void decode_CosNaming_BindingIterator_destroy(tvbuff_t *tvb _U_, packet_i
 
         case NO_EXCEPTION:
 
-            
             /* Function returns void */
-
 
             break;
 
@@ -1430,8 +1281,6 @@ static void decode_CosNaming_BindingIterator_destroy(tvbuff_t *tvb _U_, packet_i
             /* Unknown Exception */
 
             g_warning("Unknown Exception ");
-
-
 
             break;
 
@@ -1446,14 +1295,11 @@ static void decode_CosNaming_BindingIterator_destroy(tvbuff_t *tvb _U_, packet_i
 
         g_warning("Unknown GIOP Message");
 
-
         break;
 
-    
     } /* switch(header->message_type) */
 
 }
-
 
 /* Struct = IDL:omg.org/CosNaming/NameComponent:1.0 */
 
@@ -1469,9 +1315,7 @@ static void decode_CosNaming_NameComponent_st(tvbuff_t *tvb _U_, packet_info *pi
     
     /* Operation specific Variable declarations End */
 
-    
     stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
-
 
     u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
     if (tree) {
@@ -1493,7 +1337,6 @@ static void decode_CosNaming_NameComponent_st(tvbuff_t *tvb _U_, packet_info *pi
 
 }
 
-
 /* Struct = IDL:omg.org/CosNaming/Binding:1.0 */
 
 static void decode_CosNaming_Binding_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_) {
@@ -1509,9 +1352,7 @@ static void decode_CosNaming_Binding_st(tvbuff_t *tvb _U_, packet_info *pinfo _U
     
     /* Operation specific Variable declarations End */
 
-    
     stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
-
 
     u_octet4_loop_Binding_binding_name = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     if (tree) {
@@ -1526,7 +1367,6 @@ static void decode_CosNaming_Binding_st(tvbuff_t *tvb _U_, packet_info *pinfo _U
 
         decode_CosNaming_NameComponent_st(tvb, pinfo, tree, offset, header, operation);
 
-
         /*  End struct "CosNaming_NameComponent"  */
 
     }
@@ -1538,7 +1378,6 @@ static void decode_CosNaming_Binding_st(tvbuff_t *tvb _U_, packet_info *pinfo _U
     }
 
 }
-
 
 /*
  * Called once we accept the packet as being for us; it sets the
@@ -1581,13 +1420,10 @@ static gboolean dissect_cosnaming(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
     }
 
-
-
     switch(header->message_type) {
 
     case Request:
     case Reply:
-
 
         if (strcmp(operation, CosNaming_NamingContext_bind_op) == 0
             && (!idlname || strcmp(idlname, "CosNaming/NamingContext") == 0)) {
@@ -1697,11 +1533,9 @@ static gboolean dissect_cosnaming(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     }   /* switch */
 
 
-
     return FALSE;
 
 }  /* End of main dissector  */
-
 
 
 
@@ -1737,39 +1571,28 @@ void proto_register_giop_cosnaming(void) {
 }
 
 
-
-
 /* register me as handler for these interfaces */
 
 void proto_register_handoff_giop_cosnaming(void) {
 
 
     
-
     /* Register for Explicit Dissection */
 
     register_giop_user_module(dissect_cosnaming, "COSNAMING", "CosNaming/BindingIterator", proto_cosnaming );     /* explicit dissector */
 
-
-
     
-
     /* Register for Explicit Dissection */
 
     register_giop_user_module(dissect_cosnaming, "COSNAMING", "CosNaming/NamingContext", proto_cosnaming );     /* explicit dissector */
 
-
-
     
-
     /* Register for Heuristic Dissection */
 
     register_giop_user(dissect_cosnaming, "COSNAMING" ,proto_cosnaming);     /* heuristic dissector */
 
 
-
 }
-
 
 
 #ifndef ENABLE_STATIC
@@ -1786,7 +1609,5 @@ G_MODULE_EXPORT void
 plugin_reg_handoff(void){
    proto_register_handoff_giop_cosnaming();
 }
-
 #endif
-
 
