@@ -266,7 +266,7 @@ sub update_configure_in
 					$set_version ? $version_pref{"version_major"} : $1,
 					$set_version ? $version_pref{"version_minor"} : $2,
 					$set_version ? $version_pref{"version_micro"} : $3,
-					$set_release ? $package_string : ""
+					$package_string
 				       );
 
 		}
