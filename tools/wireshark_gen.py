@@ -585,8 +585,6 @@ class wireshark_gen_C:
         self.dumpCvars(sname)
         self.st.out(self.template_helper_function_vars_end )
 
-        self.st.out(self.template_exception_helper_function_get_endianess)
-
         #
         # TODO - attributes are simple types, so remove array handling
         #
@@ -663,8 +661,6 @@ class wireshark_gen_C:
         self.st.out(self.template_helper_function_vars_start)
         self.dumpCvars(sname)
         self.st.out(self.template_helper_function_vars_end )
-
-        self.st.out(self.template_exception_helper_function_get_endianess)
 
 
         for m in ex.members():
@@ -1185,8 +1181,6 @@ class wireshark_gen_C:
         self.dumpCvars(sname)
         self.st.out(self.template_helper_function_vars_end )
 
-        self.st.out(self.template_union_helper_function_get_endianess)
-
         st = un.switchType().unalias() # may be typedef switch type, so find real type
 
         self.st.out(self.template_comment_union_code_start, uname=un.repoId() )
@@ -1388,8 +1382,6 @@ class wireshark_gen_C:
         self.st.out(self.template_helper_function_vars_start)
         self.dumpCvars(sname)
         self.st.out(self.template_helper_function_vars_end )
-
-        self.st.out(self.template_struct_helper_function_get_endianess)
 
         for m in st.members():
             for decl in m.declarators():
@@ -1636,9 +1628,7 @@ class wireshark_gen_C:
 /* Operation specific Variable declarations End */
 """
     template_helper_function_start = """\
-static void decode_@sname@(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_@sname@(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 """
     template_helper_function_end = """\
 }
@@ -1763,7 +1753,7 @@ void proto_register_giop_@dissector_name@(void) {
 if (strcmp(operation, @sname@_op) == 0
     && (!idlname || strcmp(idlname, \"@interface@\") == 0)) {
    tree = start_dissecting(tvb, pinfo, ptree, offset);
-   decode_@sname@(tvb, pinfo, tree, offset, header, operation);
+   decode_@sname@(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
    return TRUE;
 }
 """
@@ -1774,7 +1764,6 @@ if (strcmp(operation, @sname@_op) == 0
     #
 
     template_helper_switch_msgtype_start = """\
-stream_is_big_endian = is_big_endian(header);
 
 switch(header->message_type) {
 """
@@ -2154,16 +2143,16 @@ static proto_tree *start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 static gboolean dissect_@dissname@(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset, MessageHeader *header, gchar *operation, gchar *idlname) {
 
-    gboolean be;                        /* big endianess */
+    gboolean stream_is_big_endian;                        /* big endianess */
     proto_tree *tree _U_;
 
-    be = is_big_endian(header);         /* get endianess - TODO use passed in stream_is_big_endian instead ? */
+    stream_is_big_endian = is_big_endian(header);         /* get endianess  */
 
     /* If we have a USER Exception, then decode it and return */
 
     if ((header->message_type == Reply) && (header->rep_status == USER_EXCEPTION)) {
 
-       return decode_user_exception(tvb, pinfo, ptree, offset, header, operation);
+       return decode_user_exception(tvb, pinfo, ptree, offset, header, operation, stream_is_big_endian);
 
     }
 """
@@ -2255,9 +2244,9 @@ default:
  *
  */
 
-static gboolean decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *ptree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_ ) {
+static gboolean decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *ptree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
-    gboolean be _U_;                        /* big endianess */
+    /*gboolean stream_is_big_endian _U_;*/                        /* big endianess */
     proto_tree *tree _U_;
 
     if (!header->exception_id)
@@ -2271,7 +2260,7 @@ static gboolean decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
     template_ex_delegate_code = """\
 if (strcmp(header->exception_id, user_exception_@sname@) == 0) {
    tree = start_dissecting(tvb, pinfo, ptree, offset);
-   decode_ex_@sname@(tvb, pinfo, tree, offset, header, operation);   /*  @exname@  */
+   decode_ex_@sname@(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  @exname@  */
    return TRUE;
 }
 """
@@ -2297,21 +2286,9 @@ if (strcmp(header->exception_id, user_exception_@sname@) == 0) {
     template_exception_helper_function_start = """\
 /* Exception = @exname@ */
 
-static void decode_ex_@sname@(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_ex_@sname@(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 """
 
-
-
-    #
-    # Template for the helper function
-    # to get stream endianess from header
-    #
-
-    template_exception_helper_function_get_endianess = """\
-stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
-"""
     template_exception_helper_function_end = """\
 }
 """
@@ -2325,22 +2302,9 @@ stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
     template_struct_helper_function_start = """\
 /* Struct = @stname@ */
 
-static void decode_@sname@_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_@sname@_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 """
 
-
-
-
-    #
-    # Template for the helper function
-    # to get stream endianess from header
-    #
-
-    template_struct_helper_function_get_endianess = """\
-stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
-"""
     template_struct_helper_function_end = """\
 }
 """
@@ -2353,22 +2317,9 @@ stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
     template_union_helper_function_start = """\
 /* Union = @unname@ */
 
-static void decode_@sname@_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_@sname@_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 """
 
-
-
-
-    #
-    # Template for the helper function
-    # to get stream endianess from header
-    #
-
-    template_union_helper_function_get_endianess = """\
-stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
-"""
     template_union_helper_function_end = """\
 }
 """
@@ -2450,14 +2401,14 @@ static const value_string @valstringname@[] = {
     template_at_delegate_code_get = """\
 if (strcmp(operation, get_@sname@_at) == 0 && (header->message_type == Reply) && (header->rep_status == NO_EXCEPTION) ) {
    tree = start_dissecting(tvb, pinfo, ptree, offset);
-   decode_get_@sname@_at(tvb, pinfo, tree, offset, header, operation);
+   decode_get_@sname@_at(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
    return TRUE;
 }
 """
     template_at_delegate_code_set = """\
 if (strcmp(operation, set_@sname@_at) == 0 && (header->message_type == Request) ) {
    tree = start_dissecting(tvb, pinfo, ptree, offset);
-   decode_set_@sname@_at(tvb, pinfo, tree, offset, header, operation);
+   decode_set_@sname@_at(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
    return TRUE;
 }
 """
@@ -2478,21 +2429,9 @@ if (strcmp(operation, set_@sname@_at) == 0 && (header->message_type == Request) 
 
 /* Attribute = @atname@ */
 
-static void decode_@sname@_at(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_@sname@_at(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 """
 
-
-
-    #
-    # Template for the helper function
-    # to get stream endianess from header
-    #
-
-    template_attribute_helper_function_get_endianess = """\
-stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
-"""
     template_attribute_helper_function_end = """\
 }
 """
@@ -2605,11 +2544,11 @@ static proto_tree *start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     template_prototype_struct_body = """
 /* Struct = @stname@ */
 
-static void decode_@name@_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_);
+static void decode_@name@_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_);
 """
     template_decode_struct = """
 
-decode_@name@_st(tvb, pinfo, tree, offset, header, operation);
+decode_@name@_st(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
 """
     template_prototype_union_start = """
 /* Union prototype declaration Start */
@@ -2622,10 +2561,10 @@ decode_@name@_st(tvb, pinfo, tree, offset, header, operation);
 
 /* Union = @unname@ */
 
-static void decode_@name@_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_);
+static void decode_@name@_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_);
 
 """
     template_decode_union = """
-decode_@name@_un(tvb, pinfo, tree, offset, header, operation);
+decode_@name@_un(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
 """
 
