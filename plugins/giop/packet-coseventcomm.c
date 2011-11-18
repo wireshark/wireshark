@@ -139,9 +139,9 @@ static const char CosEventComm_PullConsumer_disconnect_pull_consumer_op[] = "dis
  *
  */
 
-static gboolean decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *ptree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_ ) {
+static gboolean decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *ptree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
-    gboolean be _U_;                        /* big endianess */
+    /*gboolean stream_is_big_endian _U_;*/                        /* big endianess */
     proto_tree *tree _U_;
 
     if (!header->exception_id)
@@ -162,9 +162,7 @@ static gboolean decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
  * IDL:omg.org/CosEventComm/PushConsumer/push:1.0
  */
 
-static void decode_CosEventComm_PushConsumer_push(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_CosEventComm_PushConsumer_push(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -172,8 +170,7 @@ static void decode_CosEventComm_PushConsumer_push(tvbuff_t *tvb _U_, packet_info
     
     /* Operation specific Variable declarations End */
 
-    stream_is_big_endian = is_big_endian(header);
-
+    
     switch(header->message_type) {
 
     case Request:
@@ -225,9 +222,7 @@ static void decode_CosEventComm_PushConsumer_push(tvbuff_t *tvb _U_, packet_info
  * IDL:omg.org/CosEventComm/PushConsumer/disconnect_push_consumer:1.0
  */
 
-static void decode_CosEventComm_PushConsumer_disconnect_push_consumer(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_CosEventComm_PushConsumer_disconnect_push_consumer(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -235,8 +230,7 @@ static void decode_CosEventComm_PushConsumer_disconnect_push_consumer(tvbuff_t *
     
     /* Operation specific Variable declarations End */
 
-    stream_is_big_endian = is_big_endian(header);
-
+    
     switch(header->message_type) {
 
     case Request:
@@ -286,9 +280,7 @@ static void decode_CosEventComm_PushConsumer_disconnect_push_consumer(tvbuff_t *
  * IDL:omg.org/CosEventComm/PushSupplier/disconnect_push_supplier:1.0
  */
 
-static void decode_CosEventComm_PushSupplier_disconnect_push_supplier(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_CosEventComm_PushSupplier_disconnect_push_supplier(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -296,8 +288,7 @@ static void decode_CosEventComm_PushSupplier_disconnect_push_supplier(tvbuff_t *
     
     /* Operation specific Variable declarations End */
 
-    stream_is_big_endian = is_big_endian(header);
-
+    
     switch(header->message_type) {
 
     case Request:
@@ -347,9 +338,7 @@ static void decode_CosEventComm_PushSupplier_disconnect_push_supplier(tvbuff_t *
  * IDL:omg.org/CosEventComm/PullSupplier/pull:1.0
  */
 
-static void decode_CosEventComm_PullSupplier_pull(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_CosEventComm_PullSupplier_pull(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -357,8 +346,7 @@ static void decode_CosEventComm_PullSupplier_pull(tvbuff_t *tvb _U_, packet_info
     
     /* Operation specific Variable declarations End */
 
-    stream_is_big_endian = is_big_endian(header);
-
+    
     switch(header->message_type) {
 
     case Request:
@@ -408,9 +396,7 @@ static void decode_CosEventComm_PullSupplier_pull(tvbuff_t *tvb _U_, packet_info
  * IDL:omg.org/CosEventComm/PullSupplier/try_pull:1.0
  */
 
-static void decode_CosEventComm_PullSupplier_try_pull(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_CosEventComm_PullSupplier_try_pull(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -419,8 +405,7 @@ static void decode_CosEventComm_PullSupplier_try_pull(tvbuff_t *tvb _U_, packet_
     
     /* Operation specific Variable declarations End */
 
-    stream_is_big_endian = is_big_endian(header);
-
+    
     switch(header->message_type) {
 
     case Request:
@@ -475,9 +460,7 @@ static void decode_CosEventComm_PullSupplier_try_pull(tvbuff_t *tvb _U_, packet_
  * IDL:omg.org/CosEventComm/PullSupplier/disconnect_pull_supplier:1.0
  */
 
-static void decode_CosEventComm_PullSupplier_disconnect_pull_supplier(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_CosEventComm_PullSupplier_disconnect_pull_supplier(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -485,8 +468,7 @@ static void decode_CosEventComm_PullSupplier_disconnect_pull_supplier(tvbuff_t *
     
     /* Operation specific Variable declarations End */
 
-    stream_is_big_endian = is_big_endian(header);
-
+    
     switch(header->message_type) {
 
     case Request:
@@ -536,9 +518,7 @@ static void decode_CosEventComm_PullSupplier_disconnect_pull_supplier(tvbuff_t *
  * IDL:omg.org/CosEventComm/PullConsumer/disconnect_pull_consumer:1.0
  */
 
-static void decode_CosEventComm_PullConsumer_disconnect_pull_consumer(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_CosEventComm_PullConsumer_disconnect_pull_consumer(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -546,8 +526,7 @@ static void decode_CosEventComm_PullConsumer_disconnect_pull_consumer(tvbuff_t *
     
     /* Operation specific Variable declarations End */
 
-    stream_is_big_endian = is_big_endian(header);
-
+    
     switch(header->message_type) {
 
     case Request:
@@ -621,16 +600,16 @@ static proto_tree *start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 static gboolean dissect_coseventcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset, MessageHeader *header, gchar *operation, gchar *idlname) {
 
-    gboolean be;                        /* big endianess */
+    gboolean stream_is_big_endian;                        /* big endianess */
     proto_tree *tree _U_;
 
-    be = is_big_endian(header);         /* get endianess - TODO use passed in stream_is_big_endian instead ? */
+    stream_is_big_endian = is_big_endian(header);         /* get endianess  */
 
     /* If we have a USER Exception, then decode it and return */
 
     if ((header->message_type == Reply) && (header->rep_status == USER_EXCEPTION)) {
 
-       return decode_user_exception(tvb, pinfo, ptree, offset, header, operation);
+       return decode_user_exception(tvb, pinfo, ptree, offset, header, operation, stream_is_big_endian);
 
     }
 
@@ -642,49 +621,49 @@ static gboolean dissect_coseventcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tr
         if (strcmp(operation, CosEventComm_PushConsumer_push_op) == 0
             && (!idlname || strcmp(idlname, "CosEventComm/PushConsumer") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_CosEventComm_PushConsumer_push(tvb, pinfo, tree, offset, header, operation);
+           decode_CosEventComm_PushConsumer_push(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
         }
 
         if (strcmp(operation, CosEventComm_PushConsumer_disconnect_push_consumer_op) == 0
             && (!idlname || strcmp(idlname, "CosEventComm/PushConsumer") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_CosEventComm_PushConsumer_disconnect_push_consumer(tvb, pinfo, tree, offset, header, operation);
+           decode_CosEventComm_PushConsumer_disconnect_push_consumer(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
         }
 
         if (strcmp(operation, CosEventComm_PushSupplier_disconnect_push_supplier_op) == 0
             && (!idlname || strcmp(idlname, "CosEventComm/PushSupplier") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_CosEventComm_PushSupplier_disconnect_push_supplier(tvb, pinfo, tree, offset, header, operation);
+           decode_CosEventComm_PushSupplier_disconnect_push_supplier(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
         }
 
         if (strcmp(operation, CosEventComm_PullSupplier_pull_op) == 0
             && (!idlname || strcmp(idlname, "CosEventComm/PullSupplier") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_CosEventComm_PullSupplier_pull(tvb, pinfo, tree, offset, header, operation);
+           decode_CosEventComm_PullSupplier_pull(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
         }
 
         if (strcmp(operation, CosEventComm_PullSupplier_try_pull_op) == 0
             && (!idlname || strcmp(idlname, "CosEventComm/PullSupplier") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_CosEventComm_PullSupplier_try_pull(tvb, pinfo, tree, offset, header, operation);
+           decode_CosEventComm_PullSupplier_try_pull(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
         }
 
         if (strcmp(operation, CosEventComm_PullSupplier_disconnect_pull_supplier_op) == 0
             && (!idlname || strcmp(idlname, "CosEventComm/PullSupplier") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_CosEventComm_PullSupplier_disconnect_pull_supplier(tvb, pinfo, tree, offset, header, operation);
+           decode_CosEventComm_PullSupplier_disconnect_pull_supplier(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
         }
 
         if (strcmp(operation, CosEventComm_PullConsumer_disconnect_pull_consumer_op) == 0
             && (!idlname || strcmp(idlname, "CosEventComm/PullConsumer") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_CosEventComm_PullConsumer_disconnect_pull_consumer(tvb, pinfo, tree, offset, header, operation);
+           decode_CosEventComm_PullConsumer_disconnect_pull_consumer(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
         }
 

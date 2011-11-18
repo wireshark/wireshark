@@ -64,117 +64,117 @@ static proto_tree *start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 /* Struct = IDL:Tango/DevVarLongStringArray:1.0 */
 
-static void decode_Tango_DevVarLongStringArray_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_);
+static void decode_Tango_DevVarLongStringArray_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_);
 
 
 /* Struct = IDL:Tango/DevVarDoubleStringArray:1.0 */
 
-static void decode_Tango_DevVarDoubleStringArray_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_);
+static void decode_Tango_DevVarDoubleStringArray_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_);
 
 
 /* Struct = IDL:Tango/TimeVal:1.0 */
 
-static void decode_Tango_TimeVal_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_);
+static void decode_Tango_TimeVal_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_);
 
 
 /* Struct = IDL:Tango/DevCmdInfo:1.0 */
 
-static void decode_Tango_DevCmdInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_);
+static void decode_Tango_DevCmdInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_);
 
 
 /* Struct = IDL:Tango/DevCmdInfo_2:1.0 */
 
-static void decode_Tango_DevCmdInfo_2_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_);
+static void decode_Tango_DevCmdInfo_2_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_);
 
 
 /* Struct = IDL:Tango/DevError:1.0 */
 
-static void decode_Tango_DevError_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_);
+static void decode_Tango_DevError_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_);
 
 
 /* Struct = IDL:Tango/NamedDevError:1.0 */
 
-static void decode_Tango_NamedDevError_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_);
+static void decode_Tango_NamedDevError_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_);
 
 
 /* Struct = IDL:Tango/AttributeConfig:1.0 */
 
-static void decode_Tango_AttributeConfig_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_);
+static void decode_Tango_AttributeConfig_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_);
 
 
 /* Struct = IDL:Tango/AttributeConfig_2:1.0 */
 
-static void decode_Tango_AttributeConfig_2_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_);
+static void decode_Tango_AttributeConfig_2_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_);
 
 
 /* Struct = IDL:Tango/AttributeValue:1.0 */
 
-static void decode_Tango_AttributeValue_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_);
+static void decode_Tango_AttributeValue_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_);
 
 
 /* Struct = IDL:Tango/AttributeDim:1.0 */
 
-static void decode_Tango_AttributeDim_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_);
+static void decode_Tango_AttributeDim_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_);
 
 
 /* Struct = IDL:Tango/AttributeValue_3:1.0 */
 
-static void decode_Tango_AttributeValue_3_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_);
+static void decode_Tango_AttributeValue_3_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_);
 
 
 /* Struct = IDL:Tango/ChangeEventProp:1.0 */
 
-static void decode_Tango_ChangeEventProp_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_);
+static void decode_Tango_ChangeEventProp_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_);
 
 
 /* Struct = IDL:Tango/PeriodicEventProp:1.0 */
 
-static void decode_Tango_PeriodicEventProp_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_);
+static void decode_Tango_PeriodicEventProp_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_);
 
 
 /* Struct = IDL:Tango/ArchiveEventProp:1.0 */
 
-static void decode_Tango_ArchiveEventProp_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_);
+static void decode_Tango_ArchiveEventProp_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_);
 
 
 /* Struct = IDL:Tango/EventProperties:1.0 */
 
-static void decode_Tango_EventProperties_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_);
+static void decode_Tango_EventProperties_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_);
 
 
 /* Struct = IDL:Tango/AttributeAlarm:1.0 */
 
-static void decode_Tango_AttributeAlarm_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_);
+static void decode_Tango_AttributeAlarm_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_);
 
 
 /* Struct = IDL:Tango/AttributeConfig_3:1.0 */
 
-static void decode_Tango_AttributeConfig_3_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_);
+static void decode_Tango_AttributeConfig_3_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_);
 
 
 /* Struct = IDL:Tango/DevInfo:1.0 */
 
-static void decode_Tango_DevInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_);
+static void decode_Tango_DevInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_);
 
 
 /* Struct = IDL:Tango/DevInfo_3:1.0 */
 
-static void decode_Tango_DevInfo_3_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_);
+static void decode_Tango_DevInfo_3_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_);
 
 
 /* Struct = IDL:Tango/DevCmdHistory:1.0 */
 
-static void decode_Tango_DevCmdHistory_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_);
+static void decode_Tango_DevCmdHistory_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_);
 
 
 /* Struct = IDL:Tango/DevAttrHistory:1.0 */
 
-static void decode_Tango_DevAttrHistory_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_);
+static void decode_Tango_DevAttrHistory_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_);
 
 
 /* Struct = IDL:Tango/DevAttrHistory_3:1.0 */
 
-static void decode_Tango_DevAttrHistory_3_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_);
+static void decode_Tango_DevAttrHistory_3_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_);
 
 
 /* Struct prototype declaration End */
@@ -368,9 +368,7 @@ static const value_string Tango_DispLevel[] = {
 
 /* Exception = IDL:Tango/DevFailed:1.0 */
 
-static void decode_ex_Tango_DevFailed(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_ex_Tango_DevFailed(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -379,8 +377,6 @@ static void decode_ex_Tango_DevFailed(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
     guint32   i_DevFailed_errors;
     
     /* Operation specific Variable declarations End */
-
-    stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
 
     u_octet4_loop_DevFailed_errors = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     if (tree) {
@@ -393,7 +389,7 @@ static void decode_ex_Tango_DevFailed(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
         
 
-        decode_Tango_DevError_st(tvb, pinfo, tree, offset, header, operation);
+        decode_Tango_DevError_st(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
 
         /*  End struct "Tango_DevError"  */
 
@@ -403,9 +399,7 @@ static void decode_ex_Tango_DevFailed(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
 /* Exception = IDL:Tango/MultiDevFailed:1.0 */
 
-static void decode_ex_Tango_MultiDevFailed(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_ex_Tango_MultiDevFailed(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -414,8 +408,6 @@ static void decode_ex_Tango_MultiDevFailed(tvbuff_t *tvb _U_, packet_info *pinfo
     guint32   i_MultiDevFailed_errors;
     
     /* Operation specific Variable declarations End */
-
-    stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
 
     u_octet4_loop_MultiDevFailed_errors = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     if (tree) {
@@ -428,7 +420,7 @@ static void decode_ex_Tango_MultiDevFailed(tvbuff_t *tvb _U_, packet_info *pinfo
 
         
 
-        decode_Tango_NamedDevError_st(tvb, pinfo, tree, offset, header, operation);
+        decode_Tango_NamedDevError_st(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
 
         /*  End struct "Tango_NamedDevError"  */
 
@@ -444,9 +436,9 @@ static void decode_ex_Tango_MultiDevFailed(tvbuff_t *tvb _U_, packet_info *pinfo
  *
  */
 
-static gboolean decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *ptree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_ ) {
+static gboolean decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *ptree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
-    gboolean be _U_;                        /* big endianess */
+    /*gboolean stream_is_big_endian _U_;*/                        /* big endianess */
     proto_tree *tree _U_;
 
     if (!header->exception_id)
@@ -454,13 +446,13 @@ static gboolean decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
     if (strcmp(header->exception_id, user_exception_Tango_DevFailed) == 0) {
        tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_Tango_DevFailed(tvb, pinfo, tree, offset, header, operation);   /*  IDL:Tango/DevFailed:1.0  */
+       decode_ex_Tango_DevFailed(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:Tango/DevFailed:1.0  */
        return TRUE;
     }
 
     if (strcmp(header->exception_id, user_exception_Tango_MultiDevFailed) == 0) {
        tree = start_dissecting(tvb, pinfo, ptree, offset);
-       decode_ex_Tango_MultiDevFailed(tvb, pinfo, tree, offset, header, operation);   /*  IDL:Tango/MultiDevFailed:1.0  */
+       decode_ex_Tango_MultiDevFailed(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);   /*  IDL:Tango/MultiDevFailed:1.0  */
        return TRUE;
     }
 
@@ -475,9 +467,7 @@ static gboolean decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
 /* Attribute = IDL:Tango/Device/name:1.0 */
 
-static void decode_get_Tango_Device_name_at(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_get_Tango_Device_name_at(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -486,8 +476,6 @@ static void decode_get_Tango_Device_name_at(tvbuff_t *tvb _U_, packet_info *pinf
     gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
-
-    stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
 
     u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
     if (tree) {
@@ -503,9 +491,7 @@ static void decode_get_Tango_Device_name_at(tvbuff_t *tvb _U_, packet_info *pinf
 
 /* Attribute = IDL:Tango/Device/description:1.0 */
 
-static void decode_get_Tango_Device_description_at(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_get_Tango_Device_description_at(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -514,8 +500,6 @@ static void decode_get_Tango_Device_description_at(tvbuff_t *tvb _U_, packet_inf
     gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
-
-    stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
 
     u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
     if (tree) {
@@ -531,9 +515,7 @@ static void decode_get_Tango_Device_description_at(tvbuff_t *tvb _U_, packet_inf
 
 /* Attribute = IDL:Tango/Device/state:1.0 */
 
-static void decode_get_Tango_Device_state_at(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_get_Tango_Device_state_at(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -541,8 +523,6 @@ static void decode_get_Tango_Device_state_at(tvbuff_t *tvb _U_, packet_info *pin
     guint32   u_octet4;
     
     /* Operation specific Variable declarations End */
-
-    stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
 
     
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
@@ -555,9 +535,7 @@ static void decode_get_Tango_Device_state_at(tvbuff_t *tvb _U_, packet_info *pin
 
 /* Attribute = IDL:Tango/Device/status:1.0 */
 
-static void decode_get_Tango_Device_status_at(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_get_Tango_Device_status_at(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -566,8 +544,6 @@ static void decode_get_Tango_Device_status_at(tvbuff_t *tvb _U_, packet_info *pi
     gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
-
-    stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
 
     u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
     if (tree) {
@@ -583,9 +559,7 @@ static void decode_get_Tango_Device_status_at(tvbuff_t *tvb _U_, packet_info *pi
 
 /* Attribute = IDL:Tango/Device/adm_name:1.0 */
 
-static void decode_get_Tango_Device_adm_name_at(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_get_Tango_Device_adm_name_at(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -594,8 +568,6 @@ static void decode_get_Tango_Device_adm_name_at(tvbuff_t *tvb _U_, packet_info *
     gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
-
-    stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
 
     u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
     if (tree) {
@@ -615,9 +587,7 @@ static void decode_get_Tango_Device_adm_name_at(tvbuff_t *tvb _U_, packet_info *
  * IDL:Tango/Device/command_inout:1.0
  */
 
-static void decode_Tango_Device_command_inout(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_Tango_Device_command_inout(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -627,8 +597,7 @@ static void decode_Tango_Device_command_inout(tvbuff_t *tvb _U_, packet_info *pi
     
     /* Operation specific Variable declarations End */
 
-    stream_is_big_endian = is_big_endian(header);
-
+    
     switch(header->message_type) {
 
     case Request:
@@ -689,9 +658,7 @@ static void decode_Tango_Device_command_inout(tvbuff_t *tvb _U_, packet_info *pi
  * IDL:Tango/Device/get_attribute_config:1.0
  */
 
-static void decode_Tango_Device_get_attribute_config(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_Tango_Device_get_attribute_config(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -705,8 +672,7 @@ static void decode_Tango_Device_get_attribute_config(tvbuff_t *tvb _U_, packet_i
     
     /* Operation specific Variable declarations End */
 
-    stream_is_big_endian = is_big_endian(header);
-
+    
     switch(header->message_type) {
 
     case Request:
@@ -748,7 +714,7 @@ static void decode_Tango_Device_get_attribute_config(tvbuff_t *tvb _U_, packet_i
 
                 
 
-                decode_Tango_AttributeConfig_st(tvb, pinfo, tree, offset, header, operation);
+                decode_Tango_AttributeConfig_st(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
 
                 /*  End struct "Tango_AttributeConfig"  */
 
@@ -789,9 +755,7 @@ static void decode_Tango_Device_get_attribute_config(tvbuff_t *tvb _U_, packet_i
  * IDL:Tango/Device/set_attribute_config:1.0
  */
 
-static void decode_Tango_Device_set_attribute_config(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_Tango_Device_set_attribute_config(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -801,8 +765,7 @@ static void decode_Tango_Device_set_attribute_config(tvbuff_t *tvb _U_, packet_i
     
     /* Operation specific Variable declarations End */
 
-    stream_is_big_endian = is_big_endian(header);
-
+    
     switch(header->message_type) {
 
     case Request:
@@ -818,7 +781,7 @@ static void decode_Tango_Device_set_attribute_config(tvbuff_t *tvb _U_, packet_i
 
             
 
-            decode_Tango_AttributeConfig_st(tvb, pinfo, tree, offset, header, operation);
+            decode_Tango_AttributeConfig_st(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
 
             /*  End struct "Tango_AttributeConfig"  */
 
@@ -869,9 +832,7 @@ static void decode_Tango_Device_set_attribute_config(tvbuff_t *tvb _U_, packet_i
  * IDL:Tango/Device/read_attributes:1.0
  */
 
-static void decode_Tango_Device_read_attributes(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_Tango_Device_read_attributes(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -885,8 +846,7 @@ static void decode_Tango_Device_read_attributes(tvbuff_t *tvb _U_, packet_info *
     
     /* Operation specific Variable declarations End */
 
-    stream_is_big_endian = is_big_endian(header);
-
+    
     switch(header->message_type) {
 
     case Request:
@@ -928,7 +888,7 @@ static void decode_Tango_Device_read_attributes(tvbuff_t *tvb _U_, packet_info *
 
                 
 
-                decode_Tango_AttributeValue_st(tvb, pinfo, tree, offset, header, operation);
+                decode_Tango_AttributeValue_st(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
 
                 /*  End struct "Tango_AttributeValue"  */
 
@@ -969,9 +929,7 @@ static void decode_Tango_Device_read_attributes(tvbuff_t *tvb _U_, packet_info *
  * IDL:Tango/Device/write_attributes:1.0
  */
 
-static void decode_Tango_Device_write_attributes(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_Tango_Device_write_attributes(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -981,8 +939,7 @@ static void decode_Tango_Device_write_attributes(tvbuff_t *tvb _U_, packet_info 
     
     /* Operation specific Variable declarations End */
 
-    stream_is_big_endian = is_big_endian(header);
-
+    
     switch(header->message_type) {
 
     case Request:
@@ -998,7 +955,7 @@ static void decode_Tango_Device_write_attributes(tvbuff_t *tvb _U_, packet_info 
 
             
 
-            decode_Tango_AttributeValue_st(tvb, pinfo, tree, offset, header, operation);
+            decode_Tango_AttributeValue_st(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
 
             /*  End struct "Tango_AttributeValue"  */
 
@@ -1049,9 +1006,7 @@ static void decode_Tango_Device_write_attributes(tvbuff_t *tvb _U_, packet_info 
  * IDL:Tango/Device/ping:1.0
  */
 
-static void decode_Tango_Device_ping(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_Tango_Device_ping(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -1059,8 +1014,7 @@ static void decode_Tango_Device_ping(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
     
     /* Operation specific Variable declarations End */
 
-    stream_is_big_endian = is_big_endian(header);
-
+    
     switch(header->message_type) {
 
     case Request:
@@ -1110,9 +1064,7 @@ static void decode_Tango_Device_ping(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
  * IDL:Tango/Device/black_box:1.0
  */
 
-static void decode_Tango_Device_black_box(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_Tango_Device_black_box(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -1125,8 +1077,7 @@ static void decode_Tango_Device_black_box(tvbuff_t *tvb _U_, packet_info *pinfo 
     
     /* Operation specific Variable declarations End */
 
-    stream_is_big_endian = is_big_endian(header);
-
+    
     switch(header->message_type) {
 
     case Request:
@@ -1197,9 +1148,7 @@ static void decode_Tango_Device_black_box(tvbuff_t *tvb _U_, packet_info *pinfo 
  * IDL:Tango/Device/info:1.0
  */
 
-static void decode_Tango_Device_info(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_Tango_Device_info(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -1207,8 +1156,7 @@ static void decode_Tango_Device_info(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
     
     /* Operation specific Variable declarations End */
 
-    stream_is_big_endian = is_big_endian(header);
-
+    
     switch(header->message_type) {
 
     case Request:
@@ -1225,7 +1173,7 @@ static void decode_Tango_Device_info(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 
             
 
-            decode_Tango_DevInfo_st(tvb, pinfo, tree, offset, header, operation);
+            decode_Tango_DevInfo_st(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
 
             /*  End struct "Tango_DevInfo"  */
 
@@ -1264,9 +1212,7 @@ static void decode_Tango_Device_info(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
  * IDL:Tango/Device/command_list_query:1.0
  */
 
-static void decode_Tango_Device_command_list_query(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_Tango_Device_command_list_query(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -1276,8 +1222,7 @@ static void decode_Tango_Device_command_list_query(tvbuff_t *tvb _U_, packet_inf
     
     /* Operation specific Variable declarations End */
 
-    stream_is_big_endian = is_big_endian(header);
-
+    
     switch(header->message_type) {
 
     case Request:
@@ -1301,7 +1246,7 @@ static void decode_Tango_Device_command_list_query(tvbuff_t *tvb _U_, packet_inf
 
                 
 
-                decode_Tango_DevCmdInfo_st(tvb, pinfo, tree, offset, header, operation);
+                decode_Tango_DevCmdInfo_st(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
 
                 /*  End struct "Tango_DevCmdInfo"  */
 
@@ -1342,9 +1287,7 @@ static void decode_Tango_Device_command_list_query(tvbuff_t *tvb _U_, packet_inf
  * IDL:Tango/Device/command_query:1.0
  */
 
-static void decode_Tango_Device_command_query(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_Tango_Device_command_query(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -1354,8 +1297,7 @@ static void decode_Tango_Device_command_query(tvbuff_t *tvb _U_, packet_info *pi
     
     /* Operation specific Variable declarations End */
 
-    stream_is_big_endian = is_big_endian(header);
-
+    
     switch(header->message_type) {
 
     case Request:
@@ -1381,7 +1323,7 @@ static void decode_Tango_Device_command_query(tvbuff_t *tvb _U_, packet_info *pi
 
             
 
-            decode_Tango_DevCmdInfo_st(tvb, pinfo, tree, offset, header, operation);
+            decode_Tango_DevCmdInfo_st(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
 
             /*  End struct "Tango_DevCmdInfo"  */
 
@@ -1420,9 +1362,7 @@ static void decode_Tango_Device_command_query(tvbuff_t *tvb _U_, packet_info *pi
  * IDL:Tango/Device_2/command_inout_2:1.0
  */
 
-static void decode_Tango_Device_2_command_inout_2(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_Tango_Device_2_command_inout_2(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -1432,8 +1372,7 @@ static void decode_Tango_Device_2_command_inout_2(tvbuff_t *tvb _U_, packet_info
     
     /* Operation specific Variable declarations End */
 
-    stream_is_big_endian = is_big_endian(header);
-
+    
     switch(header->message_type) {
 
     case Request:
@@ -1500,9 +1439,7 @@ static void decode_Tango_Device_2_command_inout_2(tvbuff_t *tvb _U_, packet_info
  * IDL:Tango/Device_2/read_attributes_2:1.0
  */
 
-static void decode_Tango_Device_2_read_attributes_2(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_Tango_Device_2_read_attributes_2(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -1516,8 +1453,7 @@ static void decode_Tango_Device_2_read_attributes_2(tvbuff_t *tvb _U_, packet_in
     
     /* Operation specific Variable declarations End */
 
-    stream_is_big_endian = is_big_endian(header);
-
+    
     switch(header->message_type) {
 
     case Request:
@@ -1565,7 +1501,7 @@ static void decode_Tango_Device_2_read_attributes_2(tvbuff_t *tvb _U_, packet_in
 
                 
 
-                decode_Tango_AttributeValue_st(tvb, pinfo, tree, offset, header, operation);
+                decode_Tango_AttributeValue_st(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
 
                 /*  End struct "Tango_AttributeValue"  */
 
@@ -1606,9 +1542,7 @@ static void decode_Tango_Device_2_read_attributes_2(tvbuff_t *tvb _U_, packet_in
  * IDL:Tango/Device_2/get_attribute_config_2:1.0
  */
 
-static void decode_Tango_Device_2_get_attribute_config_2(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_Tango_Device_2_get_attribute_config_2(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -1622,8 +1556,7 @@ static void decode_Tango_Device_2_get_attribute_config_2(tvbuff_t *tvb _U_, pack
     
     /* Operation specific Variable declarations End */
 
-    stream_is_big_endian = is_big_endian(header);
-
+    
     switch(header->message_type) {
 
     case Request:
@@ -1665,7 +1598,7 @@ static void decode_Tango_Device_2_get_attribute_config_2(tvbuff_t *tvb _U_, pack
 
                 
 
-                decode_Tango_AttributeConfig_2_st(tvb, pinfo, tree, offset, header, operation);
+                decode_Tango_AttributeConfig_2_st(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
 
                 /*  End struct "Tango_AttributeConfig_2"  */
 
@@ -1706,9 +1639,7 @@ static void decode_Tango_Device_2_get_attribute_config_2(tvbuff_t *tvb _U_, pack
  * IDL:Tango/Device_2/command_list_query_2:1.0
  */
 
-static void decode_Tango_Device_2_command_list_query_2(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_Tango_Device_2_command_list_query_2(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -1718,8 +1649,7 @@ static void decode_Tango_Device_2_command_list_query_2(tvbuff_t *tvb _U_, packet
     
     /* Operation specific Variable declarations End */
 
-    stream_is_big_endian = is_big_endian(header);
-
+    
     switch(header->message_type) {
 
     case Request:
@@ -1743,7 +1673,7 @@ static void decode_Tango_Device_2_command_list_query_2(tvbuff_t *tvb _U_, packet
 
                 
 
-                decode_Tango_DevCmdInfo_2_st(tvb, pinfo, tree, offset, header, operation);
+                decode_Tango_DevCmdInfo_2_st(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
 
                 /*  End struct "Tango_DevCmdInfo_2"  */
 
@@ -1784,9 +1714,7 @@ static void decode_Tango_Device_2_command_list_query_2(tvbuff_t *tvb _U_, packet
  * IDL:Tango/Device_2/command_query_2:1.0
  */
 
-static void decode_Tango_Device_2_command_query_2(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_Tango_Device_2_command_query_2(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -1796,8 +1724,7 @@ static void decode_Tango_Device_2_command_query_2(tvbuff_t *tvb _U_, packet_info
     
     /* Operation specific Variable declarations End */
 
-    stream_is_big_endian = is_big_endian(header);
-
+    
     switch(header->message_type) {
 
     case Request:
@@ -1823,7 +1750,7 @@ static void decode_Tango_Device_2_command_query_2(tvbuff_t *tvb _U_, packet_info
 
             
 
-            decode_Tango_DevCmdInfo_2_st(tvb, pinfo, tree, offset, header, operation);
+            decode_Tango_DevCmdInfo_2_st(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
 
             /*  End struct "Tango_DevCmdInfo_2"  */
 
@@ -1862,9 +1789,7 @@ static void decode_Tango_Device_2_command_query_2(tvbuff_t *tvb _U_, packet_info
  * IDL:Tango/Device_2/command_inout_history_2:1.0
  */
 
-static void decode_Tango_Device_2_command_inout_history_2(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_Tango_Device_2_command_inout_history_2(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -1877,8 +1802,7 @@ static void decode_Tango_Device_2_command_inout_history_2(tvbuff_t *tvb _U_, pac
     
     /* Operation specific Variable declarations End */
 
-    stream_is_big_endian = is_big_endian(header);
-
+    
     switch(header->message_type) {
 
     case Request:
@@ -1916,7 +1840,7 @@ static void decode_Tango_Device_2_command_inout_history_2(tvbuff_t *tvb _U_, pac
 
                 
 
-                decode_Tango_DevCmdHistory_st(tvb, pinfo, tree, offset, header, operation);
+                decode_Tango_DevCmdHistory_st(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
 
                 /*  End struct "Tango_DevCmdHistory"  */
 
@@ -1957,9 +1881,7 @@ static void decode_Tango_Device_2_command_inout_history_2(tvbuff_t *tvb _U_, pac
  * IDL:Tango/Device_2/read_attribute_history_2:1.0
  */
 
-static void decode_Tango_Device_2_read_attribute_history_2(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_Tango_Device_2_read_attribute_history_2(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -1972,8 +1894,7 @@ static void decode_Tango_Device_2_read_attribute_history_2(tvbuff_t *tvb _U_, pa
     
     /* Operation specific Variable declarations End */
 
-    stream_is_big_endian = is_big_endian(header);
-
+    
     switch(header->message_type) {
 
     case Request:
@@ -2011,7 +1932,7 @@ static void decode_Tango_Device_2_read_attribute_history_2(tvbuff_t *tvb _U_, pa
 
                 
 
-                decode_Tango_DevAttrHistory_st(tvb, pinfo, tree, offset, header, operation);
+                decode_Tango_DevAttrHistory_st(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
 
                 /*  End struct "Tango_DevAttrHistory"  */
 
@@ -2052,9 +1973,7 @@ static void decode_Tango_Device_2_read_attribute_history_2(tvbuff_t *tvb _U_, pa
  * IDL:Tango/Device_3/read_attributes_3:1.0
  */
 
-static void decode_Tango_Device_3_read_attributes_3(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_Tango_Device_3_read_attributes_3(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -2068,8 +1987,7 @@ static void decode_Tango_Device_3_read_attributes_3(tvbuff_t *tvb _U_, packet_in
     
     /* Operation specific Variable declarations End */
 
-    stream_is_big_endian = is_big_endian(header);
-
+    
     switch(header->message_type) {
 
     case Request:
@@ -2117,7 +2035,7 @@ static void decode_Tango_Device_3_read_attributes_3(tvbuff_t *tvb _U_, packet_in
 
                 
 
-                decode_Tango_AttributeValue_3_st(tvb, pinfo, tree, offset, header, operation);
+                decode_Tango_AttributeValue_3_st(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
 
                 /*  End struct "Tango_AttributeValue_3"  */
 
@@ -2158,9 +2076,7 @@ static void decode_Tango_Device_3_read_attributes_3(tvbuff_t *tvb _U_, packet_in
  * IDL:Tango/Device_3/write_attributes_3:1.0
  */
 
-static void decode_Tango_Device_3_write_attributes_3(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_Tango_Device_3_write_attributes_3(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -2170,8 +2086,7 @@ static void decode_Tango_Device_3_write_attributes_3(tvbuff_t *tvb _U_, packet_i
     
     /* Operation specific Variable declarations End */
 
-    stream_is_big_endian = is_big_endian(header);
-
+    
     switch(header->message_type) {
 
     case Request:
@@ -2187,7 +2102,7 @@ static void decode_Tango_Device_3_write_attributes_3(tvbuff_t *tvb _U_, packet_i
 
             
 
-            decode_Tango_AttributeValue_st(tvb, pinfo, tree, offset, header, operation);
+            decode_Tango_AttributeValue_st(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
 
             /*  End struct "Tango_AttributeValue"  */
 
@@ -2238,9 +2153,7 @@ static void decode_Tango_Device_3_write_attributes_3(tvbuff_t *tvb _U_, packet_i
  * IDL:Tango/Device_3/read_attribute_history_3:1.0
  */
 
-static void decode_Tango_Device_3_read_attribute_history_3(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_Tango_Device_3_read_attribute_history_3(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -2253,8 +2166,7 @@ static void decode_Tango_Device_3_read_attribute_history_3(tvbuff_t *tvb _U_, pa
     
     /* Operation specific Variable declarations End */
 
-    stream_is_big_endian = is_big_endian(header);
-
+    
     switch(header->message_type) {
 
     case Request:
@@ -2292,7 +2204,7 @@ static void decode_Tango_Device_3_read_attribute_history_3(tvbuff_t *tvb _U_, pa
 
                 
 
-                decode_Tango_DevAttrHistory_3_st(tvb, pinfo, tree, offset, header, operation);
+                decode_Tango_DevAttrHistory_3_st(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
 
                 /*  End struct "Tango_DevAttrHistory_3"  */
 
@@ -2333,9 +2245,7 @@ static void decode_Tango_Device_3_read_attribute_history_3(tvbuff_t *tvb _U_, pa
  * IDL:Tango/Device_3/info_3:1.0
  */
 
-static void decode_Tango_Device_3_info_3(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_Tango_Device_3_info_3(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -2343,8 +2253,7 @@ static void decode_Tango_Device_3_info_3(tvbuff_t *tvb _U_, packet_info *pinfo _
     
     /* Operation specific Variable declarations End */
 
-    stream_is_big_endian = is_big_endian(header);
-
+    
     switch(header->message_type) {
 
     case Request:
@@ -2361,7 +2270,7 @@ static void decode_Tango_Device_3_info_3(tvbuff_t *tvb _U_, packet_info *pinfo _
 
             
 
-            decode_Tango_DevInfo_3_st(tvb, pinfo, tree, offset, header, operation);
+            decode_Tango_DevInfo_3_st(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
 
             /*  End struct "Tango_DevInfo_3"  */
 
@@ -2400,9 +2309,7 @@ static void decode_Tango_Device_3_info_3(tvbuff_t *tvb _U_, packet_info *pinfo _
  * IDL:Tango/Device_3/get_attribute_config_3:1.0
  */
 
-static void decode_Tango_Device_3_get_attribute_config_3(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_Tango_Device_3_get_attribute_config_3(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -2416,8 +2323,7 @@ static void decode_Tango_Device_3_get_attribute_config_3(tvbuff_t *tvb _U_, pack
     
     /* Operation specific Variable declarations End */
 
-    stream_is_big_endian = is_big_endian(header);
-
+    
     switch(header->message_type) {
 
     case Request:
@@ -2459,7 +2365,7 @@ static void decode_Tango_Device_3_get_attribute_config_3(tvbuff_t *tvb _U_, pack
 
                 
 
-                decode_Tango_AttributeConfig_3_st(tvb, pinfo, tree, offset, header, operation);
+                decode_Tango_AttributeConfig_3_st(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
 
                 /*  End struct "Tango_AttributeConfig_3"  */
 
@@ -2500,9 +2406,7 @@ static void decode_Tango_Device_3_get_attribute_config_3(tvbuff_t *tvb _U_, pack
  * IDL:Tango/Device_3/set_attribute_config_3:1.0
  */
 
-static void decode_Tango_Device_3_set_attribute_config_3(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_Tango_Device_3_set_attribute_config_3(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -2512,8 +2416,7 @@ static void decode_Tango_Device_3_set_attribute_config_3(tvbuff_t *tvb _U_, pack
     
     /* Operation specific Variable declarations End */
 
-    stream_is_big_endian = is_big_endian(header);
-
+    
     switch(header->message_type) {
 
     case Request:
@@ -2529,7 +2432,7 @@ static void decode_Tango_Device_3_set_attribute_config_3(tvbuff_t *tvb _U_, pack
 
             
 
-            decode_Tango_AttributeConfig_3_st(tvb, pinfo, tree, offset, header, operation);
+            decode_Tango_AttributeConfig_3_st(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
 
             /*  End struct "Tango_AttributeConfig_3"  */
 
@@ -2578,9 +2481,7 @@ static void decode_Tango_Device_3_set_attribute_config_3(tvbuff_t *tvb _U_, pack
 
 /* Struct = IDL:Tango/DevVarLongStringArray:1.0 */
 
-static void decode_Tango_DevVarLongStringArray_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_Tango_DevVarLongStringArray_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -2594,8 +2495,6 @@ static void decode_Tango_DevVarLongStringArray_st(tvbuff_t *tvb _U_, packet_info
     gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
-
-    stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
 
     u_octet4_loop_DevVarLongStringArray_lvalue = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     if (tree) {
@@ -2633,9 +2532,7 @@ static void decode_Tango_DevVarLongStringArray_st(tvbuff_t *tvb _U_, packet_info
 
 /* Struct = IDL:Tango/DevVarDoubleStringArray:1.0 */
 
-static void decode_Tango_DevVarDoubleStringArray_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_Tango_DevVarDoubleStringArray_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -2649,8 +2546,6 @@ static void decode_Tango_DevVarDoubleStringArray_st(tvbuff_t *tvb _U_, packet_in
     gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
-
-    stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
 
     u_octet4_loop_DevVarDoubleStringArray_dvalue = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     if (tree) {
@@ -2688,9 +2583,7 @@ static void decode_Tango_DevVarDoubleStringArray_st(tvbuff_t *tvb _U_, packet_in
 
 /* Struct = IDL:Tango/TimeVal:1.0 */
 
-static void decode_Tango_TimeVal_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_Tango_TimeVal_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -2698,8 +2591,6 @@ static void decode_Tango_TimeVal_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
     gint32    s_octet4;
     
     /* Operation specific Variable declarations End */
-
-    stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
 
     s_octet4 = get_CDR_long(tvb,offset,stream_is_big_endian, boundary);
     if (tree) {
@@ -2720,9 +2611,7 @@ static void decode_Tango_TimeVal_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 
 /* Struct = IDL:Tango/DevCmdInfo:1.0 */
 
-static void decode_Tango_DevCmdInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_Tango_DevCmdInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -2732,8 +2621,6 @@ static void decode_Tango_DevCmdInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_
     gint32    s_octet4;
     
     /* Operation specific Variable declarations End */
-
-    stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
 
     u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
     if (tree) {
@@ -2781,9 +2668,7 @@ static void decode_Tango_DevCmdInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 
 /* Struct = IDL:Tango/DevCmdInfo_2:1.0 */
 
-static void decode_Tango_DevCmdInfo_2_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_Tango_DevCmdInfo_2_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -2793,8 +2678,6 @@ static void decode_Tango_DevCmdInfo_2_st(tvbuff_t *tvb _U_, packet_info *pinfo _
     gint32    s_octet4;
     
     /* Operation specific Variable declarations End */
-
-    stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
 
     u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
     if (tree) {
@@ -2848,9 +2731,7 @@ static void decode_Tango_DevCmdInfo_2_st(tvbuff_t *tvb _U_, packet_info *pinfo _
 
 /* Struct = IDL:Tango/DevError:1.0 */
 
-static void decode_Tango_DevError_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_Tango_DevError_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -2859,8 +2740,6 @@ static void decode_Tango_DevError_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
     gchar   *seq = NULL;
     
     /* Operation specific Variable declarations End */
-
-    stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
 
     u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
     if (tree) {
@@ -2899,9 +2778,7 @@ static void decode_Tango_DevError_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 
 /* Struct = IDL:Tango/NamedDevError:1.0 */
 
-static void decode_Tango_NamedDevError_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_Tango_NamedDevError_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -2913,8 +2790,6 @@ static void decode_Tango_NamedDevError_st(tvbuff_t *tvb _U_, packet_info *pinfo 
     guint32   i_NamedDevError_err_list;
     
     /* Operation specific Variable declarations End */
-
-    stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
 
     u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
     if (tree) {
@@ -2941,7 +2816,7 @@ static void decode_Tango_NamedDevError_st(tvbuff_t *tvb _U_, packet_info *pinfo 
 
         
 
-        decode_Tango_DevError_st(tvb, pinfo, tree, offset, header, operation);
+        decode_Tango_DevError_st(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
 
         /*  End struct "Tango_DevError"  */
 
@@ -2951,9 +2826,7 @@ static void decode_Tango_NamedDevError_st(tvbuff_t *tvb _U_, packet_info *pinfo 
 
 /* Struct = IDL:Tango/AttributeConfig:1.0 */
 
-static void decode_Tango_AttributeConfig_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_Tango_AttributeConfig_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -2965,8 +2838,6 @@ static void decode_Tango_AttributeConfig_st(tvbuff_t *tvb _U_, packet_info *pinf
     guint32   i_AttributeConfig_extensions;
     
     /* Operation specific Variable declarations End */
-
-    stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
 
     u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
     if (tree) {
@@ -3125,9 +2996,7 @@ static void decode_Tango_AttributeConfig_st(tvbuff_t *tvb _U_, packet_info *pinf
 
 /* Struct = IDL:Tango/AttributeConfig_2:1.0 */
 
-static void decode_Tango_AttributeConfig_2_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_Tango_AttributeConfig_2_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -3139,8 +3008,6 @@ static void decode_Tango_AttributeConfig_2_st(tvbuff_t *tvb _U_, packet_info *pi
     guint32   i_AttributeConfig_2_extensions;
     
     /* Operation specific Variable declarations End */
-
-    stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
 
     u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
     if (tree) {
@@ -3305,9 +3172,7 @@ static void decode_Tango_AttributeConfig_2_st(tvbuff_t *tvb _U_, packet_info *pi
 
 /* Struct = IDL:Tango/AttributeValue:1.0 */
 
-static void decode_Tango_AttributeValue_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_Tango_AttributeValue_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -3317,8 +3182,6 @@ static void decode_Tango_AttributeValue_st(tvbuff_t *tvb _U_, packet_info *pinfo
     gint32    s_octet4;
     
     /* Operation specific Variable declarations End */
-
-    stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
 
     get_CDR_any(tvb,tree,offset,stream_is_big_endian, boundary, header);
 
@@ -3332,7 +3195,7 @@ static void decode_Tango_AttributeValue_st(tvbuff_t *tvb _U_, packet_info *pinfo
 
     
 
-    decode_Tango_TimeVal_st(tvb, pinfo, tree, offset, header, operation);
+    decode_Tango_TimeVal_st(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
 
     /*  End struct "Tango_TimeVal"  */
 
@@ -3359,9 +3222,7 @@ static void decode_Tango_AttributeValue_st(tvbuff_t *tvb _U_, packet_info *pinfo
 
 /* Struct = IDL:Tango/AttributeDim:1.0 */
 
-static void decode_Tango_AttributeDim_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_Tango_AttributeDim_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -3369,8 +3230,6 @@ static void decode_Tango_AttributeDim_st(tvbuff_t *tvb _U_, packet_info *pinfo _
     gint32    s_octet4;
     
     /* Operation specific Variable declarations End */
-
-    stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
 
     s_octet4 = get_CDR_long(tvb,offset,stream_is_big_endian, boundary);
     if (tree) {
@@ -3386,9 +3245,7 @@ static void decode_Tango_AttributeDim_st(tvbuff_t *tvb _U_, packet_info *pinfo _
 
 /* Struct = IDL:Tango/AttributeValue_3:1.0 */
 
-static void decode_Tango_AttributeValue_3_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_Tango_AttributeValue_3_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -3399,8 +3256,6 @@ static void decode_Tango_AttributeValue_3_st(tvbuff_t *tvb _U_, packet_info *pin
     guint32   i_AttributeValue_3_err_list;
     
     /* Operation specific Variable declarations End */
-
-    stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
 
     get_CDR_any(tvb,tree,offset,stream_is_big_endian, boundary, header);
 
@@ -3414,7 +3269,7 @@ static void decode_Tango_AttributeValue_3_st(tvbuff_t *tvb _U_, packet_info *pin
 
     
 
-    decode_Tango_TimeVal_st(tvb, pinfo, tree, offset, header, operation);
+    decode_Tango_TimeVal_st(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
 
     /*  End struct "Tango_TimeVal"  */
 
@@ -3431,7 +3286,7 @@ static void decode_Tango_AttributeValue_3_st(tvbuff_t *tvb _U_, packet_info *pin
 
     
 
-    decode_Tango_AttributeDim_st(tvb, pinfo, tree, offset, header, operation);
+    decode_Tango_AttributeDim_st(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
 
     /*  End struct "Tango_AttributeDim"  */
 
@@ -3439,7 +3294,7 @@ static void decode_Tango_AttributeValue_3_st(tvbuff_t *tvb _U_, packet_info *pin
 
     
 
-    decode_Tango_AttributeDim_st(tvb, pinfo, tree, offset, header, operation);
+    decode_Tango_AttributeDim_st(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
 
     /*  End struct "Tango_AttributeDim"  */
 
@@ -3454,7 +3309,7 @@ static void decode_Tango_AttributeValue_3_st(tvbuff_t *tvb _U_, packet_info *pin
 
         
 
-        decode_Tango_DevError_st(tvb, pinfo, tree, offset, header, operation);
+        decode_Tango_DevError_st(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
 
         /*  End struct "Tango_DevError"  */
 
@@ -3464,9 +3319,7 @@ static void decode_Tango_AttributeValue_3_st(tvbuff_t *tvb _U_, packet_info *pin
 
 /* Struct = IDL:Tango/ChangeEventProp:1.0 */
 
-static void decode_Tango_ChangeEventProp_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_Tango_ChangeEventProp_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -3477,8 +3330,6 @@ static void decode_Tango_ChangeEventProp_st(tvbuff_t *tvb _U_, packet_info *pinf
     guint32   i_ChangeEventProp_extensions;
     
     /* Operation specific Variable declarations End */
-
-    stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
 
     u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
     if (tree) {
@@ -3520,9 +3371,7 @@ static void decode_Tango_ChangeEventProp_st(tvbuff_t *tvb _U_, packet_info *pinf
 
 /* Struct = IDL:Tango/PeriodicEventProp:1.0 */
 
-static void decode_Tango_PeriodicEventProp_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_Tango_PeriodicEventProp_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -3533,8 +3382,6 @@ static void decode_Tango_PeriodicEventProp_st(tvbuff_t *tvb _U_, packet_info *pi
     guint32   i_PeriodicEventProp_extensions;
     
     /* Operation specific Variable declarations End */
-
-    stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
 
     u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
     if (tree) {
@@ -3567,9 +3414,7 @@ static void decode_Tango_PeriodicEventProp_st(tvbuff_t *tvb _U_, packet_info *pi
 
 /* Struct = IDL:Tango/ArchiveEventProp:1.0 */
 
-static void decode_Tango_ArchiveEventProp_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_Tango_ArchiveEventProp_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -3580,8 +3425,6 @@ static void decode_Tango_ArchiveEventProp_st(tvbuff_t *tvb _U_, packet_info *pin
     guint32   i_ArchiveEventProp_extensions;
     
     /* Operation specific Variable declarations End */
-
-    stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
 
     u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
     if (tree) {
@@ -3632,9 +3475,7 @@ static void decode_Tango_ArchiveEventProp_st(tvbuff_t *tvb _U_, packet_info *pin
 
 /* Struct = IDL:Tango/EventProperties:1.0 */
 
-static void decode_Tango_EventProperties_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_Tango_EventProperties_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -3642,13 +3483,11 @@ static void decode_Tango_EventProperties_st(tvbuff_t *tvb _U_, packet_info *pinf
     
     /* Operation specific Variable declarations End */
 
-    stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
-
     /*  Begin struct "Tango_ChangeEventProp"  */
 
     
 
-    decode_Tango_ChangeEventProp_st(tvb, pinfo, tree, offset, header, operation);
+    decode_Tango_ChangeEventProp_st(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
 
     /*  End struct "Tango_ChangeEventProp"  */
 
@@ -3656,7 +3495,7 @@ static void decode_Tango_EventProperties_st(tvbuff_t *tvb _U_, packet_info *pinf
 
     
 
-    decode_Tango_PeriodicEventProp_st(tvb, pinfo, tree, offset, header, operation);
+    decode_Tango_PeriodicEventProp_st(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
 
     /*  End struct "Tango_PeriodicEventProp"  */
 
@@ -3664,7 +3503,7 @@ static void decode_Tango_EventProperties_st(tvbuff_t *tvb _U_, packet_info *pinf
 
     
 
-    decode_Tango_ArchiveEventProp_st(tvb, pinfo, tree, offset, header, operation);
+    decode_Tango_ArchiveEventProp_st(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
 
     /*  End struct "Tango_ArchiveEventProp"  */
 
@@ -3672,9 +3511,7 @@ static void decode_Tango_EventProperties_st(tvbuff_t *tvb _U_, packet_info *pinf
 
 /* Struct = IDL:Tango/AttributeAlarm:1.0 */
 
-static void decode_Tango_AttributeAlarm_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_Tango_AttributeAlarm_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -3685,8 +3522,6 @@ static void decode_Tango_AttributeAlarm_st(tvbuff_t *tvb _U_, packet_info *pinfo
     guint32   i_AttributeAlarm_extensions;
     
     /* Operation specific Variable declarations End */
-
-    stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
 
     u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
     if (tree) {
@@ -3764,9 +3599,7 @@ static void decode_Tango_AttributeAlarm_st(tvbuff_t *tvb _U_, packet_info *pinfo
 
 /* Struct = IDL:Tango/AttributeConfig_3:1.0 */
 
-static void decode_Tango_AttributeConfig_3_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_Tango_AttributeConfig_3_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -3780,8 +3613,6 @@ static void decode_Tango_AttributeConfig_3_st(tvbuff_t *tvb _U_, packet_info *pi
     guint32   i_AttributeConfig_3_sys_extensions;
     
     /* Operation specific Variable declarations End */
-
-    stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
 
     u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
     if (tree) {
@@ -3910,7 +3741,7 @@ static void decode_Tango_AttributeConfig_3_st(tvbuff_t *tvb _U_, packet_info *pi
 
     
 
-    decode_Tango_AttributeAlarm_st(tvb, pinfo, tree, offset, header, operation);
+    decode_Tango_AttributeAlarm_st(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
 
     /*  End struct "Tango_AttributeAlarm"  */
 
@@ -3918,7 +3749,7 @@ static void decode_Tango_AttributeConfig_3_st(tvbuff_t *tvb _U_, packet_info *pi
 
     
 
-    decode_Tango_EventProperties_st(tvb, pinfo, tree, offset, header, operation);
+    decode_Tango_EventProperties_st(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
 
     /*  End struct "Tango_EventProperties"  */
 
@@ -3962,9 +3793,7 @@ static void decode_Tango_AttributeConfig_3_st(tvbuff_t *tvb _U_, packet_info *pi
 
 /* Struct = IDL:Tango/DevInfo:1.0 */
 
-static void decode_Tango_DevInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_Tango_DevInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -3974,8 +3803,6 @@ static void decode_Tango_DevInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
     gint32    s_octet4;
     
     /* Operation specific Variable declarations End */
-
-    stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
 
     u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
     if (tree) {
@@ -4022,9 +3849,7 @@ static void decode_Tango_DevInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 
 /* Struct = IDL:Tango/DevInfo_3:1.0 */
 
-static void decode_Tango_DevInfo_3_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_Tango_DevInfo_3_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -4034,8 +3859,6 @@ static void decode_Tango_DevInfo_3_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
     gint32    s_octet4;
     
     /* Operation specific Variable declarations End */
-
-    stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
 
     u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
     if (tree) {
@@ -4091,9 +3914,7 @@ static void decode_Tango_DevInfo_3_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
 /* Struct = IDL:Tango/DevCmdHistory:1.0 */
 
-static void decode_Tango_DevCmdHistory_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_Tango_DevCmdHistory_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -4104,13 +3925,11 @@ static void decode_Tango_DevCmdHistory_st(tvbuff_t *tvb _U_, packet_info *pinfo 
     
     /* Operation specific Variable declarations End */
 
-    stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
-
     /*  Begin struct "Tango_TimeVal"  */
 
     
 
-    decode_Tango_TimeVal_st(tvb, pinfo, tree, offset, header, operation);
+    decode_Tango_TimeVal_st(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
 
     /*  End struct "Tango_TimeVal"  */
 
@@ -4132,7 +3951,7 @@ static void decode_Tango_DevCmdHistory_st(tvbuff_t *tvb _U_, packet_info *pinfo 
 
         
 
-        decode_Tango_DevError_st(tvb, pinfo, tree, offset, header, operation);
+        decode_Tango_DevError_st(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
 
         /*  End struct "Tango_DevError"  */
 
@@ -4142,9 +3961,7 @@ static void decode_Tango_DevCmdHistory_st(tvbuff_t *tvb _U_, packet_info *pinfo 
 
 /* Struct = IDL:Tango/DevAttrHistory:1.0 */
 
-static void decode_Tango_DevAttrHistory_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_Tango_DevAttrHistory_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -4155,8 +3972,6 @@ static void decode_Tango_DevAttrHistory_st(tvbuff_t *tvb _U_, packet_info *pinfo
     
     /* Operation specific Variable declarations End */
 
-    stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
-
     u_octet1 = get_CDR_boolean(tvb,offset);
     if (tree) {
        proto_tree_add_text(tree,tvb,*offset-1,1,"DevAttrHistory_attr_failed = %u",u_octet1);
@@ -4166,7 +3981,7 @@ static void decode_Tango_DevAttrHistory_st(tvbuff_t *tvb _U_, packet_info *pinfo
 
     
 
-    decode_Tango_AttributeValue_st(tvb, pinfo, tree, offset, header, operation);
+    decode_Tango_AttributeValue_st(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
 
     /*  End struct "Tango_AttributeValue"  */
 
@@ -4181,7 +3996,7 @@ static void decode_Tango_DevAttrHistory_st(tvbuff_t *tvb _U_, packet_info *pinfo
 
         
 
-        decode_Tango_DevError_st(tvb, pinfo, tree, offset, header, operation);
+        decode_Tango_DevError_st(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
 
         /*  End struct "Tango_DevError"  */
 
@@ -4191,9 +4006,7 @@ static void decode_Tango_DevAttrHistory_st(tvbuff_t *tvb _U_, packet_info *pinfo
 
 /* Struct = IDL:Tango/DevAttrHistory_3:1.0 */
 
-static void decode_Tango_DevAttrHistory_3_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_) {
-
-    gboolean stream_is_big_endian;          /* big endianess */
+static void decode_Tango_DevAttrHistory_3_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_, gboolean stream_is_big_endian _U_) {
 
     
     /* Operation specific Variable declarations Begin */
@@ -4201,8 +4014,6 @@ static void decode_Tango_DevAttrHistory_3_st(tvbuff_t *tvb _U_, packet_info *pin
     guint8    u_octet1;
     
     /* Operation specific Variable declarations End */
-
-    stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
 
     u_octet1 = get_CDR_boolean(tvb,offset);
     if (tree) {
@@ -4213,7 +4024,7 @@ static void decode_Tango_DevAttrHistory_3_st(tvbuff_t *tvb _U_, packet_info *pin
 
     
 
-    decode_Tango_AttributeValue_3_st(tvb, pinfo, tree, offset, header, operation);
+    decode_Tango_AttributeValue_3_st(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
 
     /*  End struct "Tango_AttributeValue_3"  */
 
@@ -4247,16 +4058,16 @@ static proto_tree *start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 static gboolean dissect_tango(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset, MessageHeader *header, gchar *operation, gchar *idlname) {
 
-    gboolean be;                        /* big endianess */
+    gboolean stream_is_big_endian;                        /* big endianess */
     proto_tree *tree _U_;
 
-    be = is_big_endian(header);         /* get endianess - TODO use passed in stream_is_big_endian instead ? */
+    stream_is_big_endian = is_big_endian(header);         /* get endianess  */
 
     /* If we have a USER Exception, then decode it and return */
 
     if ((header->message_type == Reply) && (header->rep_status == USER_EXCEPTION)) {
 
-       return decode_user_exception(tvb, pinfo, ptree, offset, header, operation);
+       return decode_user_exception(tvb, pinfo, ptree, offset, header, operation, stream_is_big_endian);
 
     }
 
@@ -4268,191 +4079,191 @@ static gboolean dissect_tango(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptr
         if (strcmp(operation, Tango_Device_command_inout_op) == 0
             && (!idlname || strcmp(idlname, "Tango/Device") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_Tango_Device_command_inout(tvb, pinfo, tree, offset, header, operation);
+           decode_Tango_Device_command_inout(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
         }
 
         if (strcmp(operation, Tango_Device_get_attribute_config_op) == 0
             && (!idlname || strcmp(idlname, "Tango/Device") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_Tango_Device_get_attribute_config(tvb, pinfo, tree, offset, header, operation);
+           decode_Tango_Device_get_attribute_config(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
         }
 
         if (strcmp(operation, Tango_Device_set_attribute_config_op) == 0
             && (!idlname || strcmp(idlname, "Tango/Device") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_Tango_Device_set_attribute_config(tvb, pinfo, tree, offset, header, operation);
+           decode_Tango_Device_set_attribute_config(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
         }
 
         if (strcmp(operation, Tango_Device_read_attributes_op) == 0
             && (!idlname || strcmp(idlname, "Tango/Device") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_Tango_Device_read_attributes(tvb, pinfo, tree, offset, header, operation);
+           decode_Tango_Device_read_attributes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
         }
 
         if (strcmp(operation, Tango_Device_write_attributes_op) == 0
             && (!idlname || strcmp(idlname, "Tango/Device") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_Tango_Device_write_attributes(tvb, pinfo, tree, offset, header, operation);
+           decode_Tango_Device_write_attributes(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
         }
 
         if (strcmp(operation, Tango_Device_ping_op) == 0
             && (!idlname || strcmp(idlname, "Tango/Device") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_Tango_Device_ping(tvb, pinfo, tree, offset, header, operation);
+           decode_Tango_Device_ping(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
         }
 
         if (strcmp(operation, Tango_Device_black_box_op) == 0
             && (!idlname || strcmp(idlname, "Tango/Device") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_Tango_Device_black_box(tvb, pinfo, tree, offset, header, operation);
+           decode_Tango_Device_black_box(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
         }
 
         if (strcmp(operation, Tango_Device_info_op) == 0
             && (!idlname || strcmp(idlname, "Tango/Device") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_Tango_Device_info(tvb, pinfo, tree, offset, header, operation);
+           decode_Tango_Device_info(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
         }
 
         if (strcmp(operation, Tango_Device_command_list_query_op) == 0
             && (!idlname || strcmp(idlname, "Tango/Device") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_Tango_Device_command_list_query(tvb, pinfo, tree, offset, header, operation);
+           decode_Tango_Device_command_list_query(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
         }
 
         if (strcmp(operation, Tango_Device_command_query_op) == 0
             && (!idlname || strcmp(idlname, "Tango/Device") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_Tango_Device_command_query(tvb, pinfo, tree, offset, header, operation);
+           decode_Tango_Device_command_query(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
         }
 
         if (strcmp(operation, Tango_Device_2_command_inout_2_op) == 0
             && (!idlname || strcmp(idlname, "Tango/Device_2") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_Tango_Device_2_command_inout_2(tvb, pinfo, tree, offset, header, operation);
+           decode_Tango_Device_2_command_inout_2(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
         }
 
         if (strcmp(operation, Tango_Device_2_read_attributes_2_op) == 0
             && (!idlname || strcmp(idlname, "Tango/Device_2") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_Tango_Device_2_read_attributes_2(tvb, pinfo, tree, offset, header, operation);
+           decode_Tango_Device_2_read_attributes_2(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
         }
 
         if (strcmp(operation, Tango_Device_2_get_attribute_config_2_op) == 0
             && (!idlname || strcmp(idlname, "Tango/Device_2") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_Tango_Device_2_get_attribute_config_2(tvb, pinfo, tree, offset, header, operation);
+           decode_Tango_Device_2_get_attribute_config_2(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
         }
 
         if (strcmp(operation, Tango_Device_2_command_list_query_2_op) == 0
             && (!idlname || strcmp(idlname, "Tango/Device_2") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_Tango_Device_2_command_list_query_2(tvb, pinfo, tree, offset, header, operation);
+           decode_Tango_Device_2_command_list_query_2(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
         }
 
         if (strcmp(operation, Tango_Device_2_command_query_2_op) == 0
             && (!idlname || strcmp(idlname, "Tango/Device_2") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_Tango_Device_2_command_query_2(tvb, pinfo, tree, offset, header, operation);
+           decode_Tango_Device_2_command_query_2(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
         }
 
         if (strcmp(operation, Tango_Device_2_command_inout_history_2_op) == 0
             && (!idlname || strcmp(idlname, "Tango/Device_2") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_Tango_Device_2_command_inout_history_2(tvb, pinfo, tree, offset, header, operation);
+           decode_Tango_Device_2_command_inout_history_2(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
         }
 
         if (strcmp(operation, Tango_Device_2_read_attribute_history_2_op) == 0
             && (!idlname || strcmp(idlname, "Tango/Device_2") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_Tango_Device_2_read_attribute_history_2(tvb, pinfo, tree, offset, header, operation);
+           decode_Tango_Device_2_read_attribute_history_2(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
         }
 
         if (strcmp(operation, Tango_Device_3_read_attributes_3_op) == 0
             && (!idlname || strcmp(idlname, "Tango/Device_3") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_Tango_Device_3_read_attributes_3(tvb, pinfo, tree, offset, header, operation);
+           decode_Tango_Device_3_read_attributes_3(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
         }
 
         if (strcmp(operation, Tango_Device_3_write_attributes_3_op) == 0
             && (!idlname || strcmp(idlname, "Tango/Device_3") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_Tango_Device_3_write_attributes_3(tvb, pinfo, tree, offset, header, operation);
+           decode_Tango_Device_3_write_attributes_3(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
         }
 
         if (strcmp(operation, Tango_Device_3_read_attribute_history_3_op) == 0
             && (!idlname || strcmp(idlname, "Tango/Device_3") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_Tango_Device_3_read_attribute_history_3(tvb, pinfo, tree, offset, header, operation);
+           decode_Tango_Device_3_read_attribute_history_3(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
         }
 
         if (strcmp(operation, Tango_Device_3_info_3_op) == 0
             && (!idlname || strcmp(idlname, "Tango/Device_3") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_Tango_Device_3_info_3(tvb, pinfo, tree, offset, header, operation);
+           decode_Tango_Device_3_info_3(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
         }
 
         if (strcmp(operation, Tango_Device_3_get_attribute_config_3_op) == 0
             && (!idlname || strcmp(idlname, "Tango/Device_3") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_Tango_Device_3_get_attribute_config_3(tvb, pinfo, tree, offset, header, operation);
+           decode_Tango_Device_3_get_attribute_config_3(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
         }
 
         if (strcmp(operation, Tango_Device_3_set_attribute_config_3_op) == 0
             && (!idlname || strcmp(idlname, "Tango/Device_3") == 0)) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_Tango_Device_3_set_attribute_config_3(tvb, pinfo, tree, offset, header, operation);
+           decode_Tango_Device_3_set_attribute_config_3(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
         }
 
         if (strcmp(operation, get_Tango_Device_name_at) == 0 && (header->message_type == Reply) && (header->rep_status == NO_EXCEPTION) ) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_get_Tango_Device_name_at(tvb, pinfo, tree, offset, header, operation);
+           decode_get_Tango_Device_name_at(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
         }
 
         if (strcmp(operation, get_Tango_Device_description_at) == 0 && (header->message_type == Reply) && (header->rep_status == NO_EXCEPTION) ) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_get_Tango_Device_description_at(tvb, pinfo, tree, offset, header, operation);
+           decode_get_Tango_Device_description_at(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
         }
 
         if (strcmp(operation, get_Tango_Device_state_at) == 0 && (header->message_type == Reply) && (header->rep_status == NO_EXCEPTION) ) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_get_Tango_Device_state_at(tvb, pinfo, tree, offset, header, operation);
+           decode_get_Tango_Device_state_at(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
         }
 
         if (strcmp(operation, get_Tango_Device_status_at) == 0 && (header->message_type == Reply) && (header->rep_status == NO_EXCEPTION) ) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_get_Tango_Device_status_at(tvb, pinfo, tree, offset, header, operation);
+           decode_get_Tango_Device_status_at(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
         }
 
         if (strcmp(operation, get_Tango_Device_adm_name_at) == 0 && (header->message_type == Reply) && (header->rep_status == NO_EXCEPTION) ) {
            tree = start_dissecting(tvb, pinfo, ptree, offset);
-           decode_get_Tango_Device_adm_name_at(tvb, pinfo, tree, offset, header, operation);
+           decode_get_Tango_Device_adm_name_at(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
         }
 
