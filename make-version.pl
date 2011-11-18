@@ -262,8 +262,8 @@ sub update_configure_in
 
 	open(CFGIN, "< $filepath") || die "Can't read $filepath!";
 	while ($line = <CFGIN>) {
-		if ($line =~ /^AC_INIT\(wireshark, (\d+)\.(\d+).(\d+)/) {
-			$line = sprintf("AC_INIT\(wireshark, %d.%d.%d%s)\n",
+		if ($line =~ /^AC_INIT\(wireshark, (\d+)\.(\d+).(\d+).*([\r\n]+)$/) {
+			$line = sprintf("AC_INIT\(wireshark, %d.%d.%d%s)$4",
 					$set_version ? $version_pref{"version_major"} : $1,
 					$set_version ? $version_pref{"version_minor"} : $2,
 					$set_version ? $version_pref{"version_micro"} : $3,
@@ -291,16 +291,16 @@ sub update_config_nmake
 
 	open(CFGNMAKE, "< $filepath") || die "Can't read $filepath!";
 	while ($line = <CFGNMAKE>) {
-		if ($line =~ /^SVN_REVISION=/) {
-			$line = sprintf("SVN_REVISION=%d\n", $revision);
-		} elsif ($set_version && $line =~ /^VERSION_MAJOR=/) {
-			$line = sprintf("VERSION_MAJOR=%d\n", $version_pref{"version_major"});
-		} elsif ($set_version && $line =~ /^VERSION_MINOR=/) {
-			$line = sprintf("VERSION_MINOR=%d\n", $version_pref{"version_minor"});
-		} elsif ($set_version && $line =~ /^VERSION_MICRO=/) {
-			$line = sprintf("VERSION_MICRO=%d\n", $version_pref{"version_micro"});
-		} elsif ($line =~ /^VERSION_EXTRA=/) {
-			$line = "VERSION_EXTRA=$package_string\n";
+		if ($line =~ /^SVN_REVISION=.*([\r\n]+)$/) {
+			$line = sprintf("SVN_REVISION=%d$1", $revision);
+		} elsif ($set_version && $line =~ /^VERSION_MAJOR=.*([\r\n]+)$/) {
+			$line = sprintf("VERSION_MAJOR=%d$1", $version_pref{"version_major"});
+		} elsif ($set_version && $line =~ /^VERSION_MINOR=.*([\r\n]+)$/) {
+			$line = sprintf("VERSION_MINOR=%d$1", $version_pref{"version_minor"});
+		} elsif ($set_version && $line =~ /^VERSION_MICRO=.*([\r\n]+)$/) {
+			$line = sprintf("VERSION_MICRO=%d$1", $version_pref{"version_micro"});
+		} elsif ($line =~ /^VERSION_EXTRA=.*([\r\n]+)$/) {
+			$line = "VERSION_EXTRA=$package_string$1";
 		}
 		$contents .= $line
 	}
@@ -326,8 +326,8 @@ sub update_release_notes
 	while ($line = <RELNOTES>) {
 		#   <!ENTITY WiresharkCurrentVersion "1.7.1">
 
-		if ($line =~ /<\!ENTITY\s+WiresharkCurrentVersion\s+/) {
-			$line = sprintf("<!ENTITY WiresharkCurrentVersion \"%d.%d.%d\">\n",
+		if ($line =~ /<\!ENTITY\s+WiresharkCurrentVersion\s+.*([\r\n]+)$/) {
+			$line = sprintf("<!ENTITY WiresharkCurrentVersion \"%d.%d.%d\">$1",
 					$version_pref{"version_major"},
 					$version_pref{"version_minor"},
 					$version_pref{"version_micro"},
