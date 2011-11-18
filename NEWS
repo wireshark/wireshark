@@ -1,4 +1,4 @@
-Wireshark 1.6.3 Release Notes
+Wireshark 1.6.4 Release Notes
 
    ------------------------------------------------------------------
 
@@ -12,115 +12,23 @@ What's New
 
   Bug Fixes
 
-   The following vulnerabilities have been fixed.
-
-     o wnpa-sec-2011-17
-
-       The CSN.1 dissector could crash. (Bug 6351)
-
-       Versions affected: 1.6.0 to 1.6.2.
-
-     o wnpa-sec-2011-18
-
-       Huzaifa Sidhpurwala of Red Hat Security Response Team
-       discovered that the Infiniband dissector could dereference a
-       NULL pointer. (Bug 6476)
-
-       Versions affected: 1.4.0 to 1.4.9, 1.6.0 to 1.6.2.
-
-     o wnpa-sec-2011-19
-
-       Huzaifa Sidhpurwala of Red Hat Security Response Team
-       discovered a buffer overflow in the ERF file reader. (Bug
-       6479)
-
-       Versions affected: 1.4.0 to 1.4.9, 1.6.0 to 1.6.2.
-
    The following bugs have been fixed:
 
-     o Assertion failed when doing File->Quit->Save during live
-       capture. (Bug 1710)
+     o Patch to fix memory leaks/errors in Lua plugin. (Bug 5575)
 
-     o Wrong PCEP XRO sub-object decoding. (Bug 3778)
+     o Wireshark crashes if a field of type BASE_CUSTOM is applied as
+       a column. (Bug 6503)
 
-     o Wireshark window takes very long time to show up if invalid
-       network file path is at recent file list (Bug 3810)
+     o Filter Expression dialog can only be opened once. (Bug 6537)
 
-     o Decoding [Status Records] Timestamp Sequence Field in Bundle
-       Protocol fails if over 32 bits. (Bug 4109)
+     o Wireshark crashes if compiled without GLib thread support.
+       (Bug 6540)
 
-     o ISUP party number dissection. (Bug 5221)
+     o 80211 QoS Control: Add Raw TID. (Bug 6548)
 
-     o wireshark-1.4.2 crashes when testing the example python
-       dissector because of a dissector count assertion. (Bug 5431)
+     o SNMP length check error. (Bug 6564)
 
-     o Ethernet packets with both VLAN tag and LLC header no longer
-       displayed correctly. (Bug 5645)
-
-     o SLL encapsuled 802.1Q VLAN is not dissected. (Bug 5680)
-
-     o Wireshark crashes when attempting to open a file via drag &
-       drop when there's already a file open. (Bug 5987)
-
-     o Adding and removing custom HTTP headers requires a restart.
-       (Bug 6241)
-
-     o Can't read full 64-bit SNMP values. (Bug 6295)
-
-     o Dissection fails for frames with Gigamon Header and VLAN. (Bug
-       6305)
-
-     o RTP Stream Analysis does not work for TURN-encapsulated RTP.
-       (Bug 6322)
-
-     o packet-csn1.c doesn't process CSN_CHOICE entries properly.
-       (Bug 6328)
-
-     o BACnet property time-synchronization-interval (204) name shown
-       incorrectly as time-synchronization-recipients. (Bug 6336)
-
-     o GUI crash on invalid IEEE 802.11 GAS frame. (Bug 6345)
-
-     o [ASN.1 PER] Incorrect decoding of BIT STRING type. (Bug 6347)
-
-     o ICMPv6 router advertisement Prefix Information Flag R "Router
-       Address" missing. (Bug 6350)
-
-     o Export -> Object -> HTTP -> save all: Error on saving files.
-       (Bug 6362)
-
-     o Inner tag of 802.1ad frames not parsed properly. (Bug 6366)
-
-     o Added cursor type decoding to MySQL dissector. (Bug 6396)
-
-     o Incorrect identification of UDP-encapsulated NAT-keepalive
-       packets. (Bug 6414)
-
-     o WPA IE pairwise cipher suite dissector uses incorrect
-       value_string list. (Bug 6420)
-
-     o S1AP protocol can't decode IPv6 transportLayerAddress. (Bug
-       6435)
-
-     o RTPS2 dissector doesn't handle 0 in the octestToNextHeader
-       field. (Bug 6449)
-
-     o packet-ajp13 fix, cleanup, and enhancement. (Bug 6452)
-
-     o Network Instruments Observer file format bugs. (Bug 6453)
-
-     o Wireshark crashes when using "Open Recent" 2 times in a row.
-       (Bug 6457)
-
-     o Wireshark packet_gsm-sms, display bug: Filler bits in TP-User
-       Data Header. (Bug 6469)
-
-     o wireshark unable to decode NetFlow options which have system
-       scope size != 4 bytes. (Bug 6471)
-
-     o Display filter Expression Dialog Box Error. (Bug 6472)
-
-     o text_import_scanner.l missing. (Bug 6531)
+     o UCP dissector bug of operation 61. (Bug 6570)
 
   New and Updated Features
 
@@ -132,13 +40,11 @@ What's New
 
   Updated Protocol Support
 
-   AJP13, ASN.1 PER, BACnet, CSN.1, DTN, Ethernet, ICMPv6, IEEE
-   802.11, IEEE 802.1q, Infiniband, IPsec, MySQL, PCEP, PN-RT, RTP,
-   S1AP, SSL
+   .
 
   New and Updated Capture File Support
 
-   Endace ERF.
+   .
 
 Getting Wireshark
 
