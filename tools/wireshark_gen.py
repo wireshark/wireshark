@@ -2102,8 +2102,6 @@ for (i_@aname@=0; i_@aname@ < @aval@; i_@aname@++) {
 # include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <gmodule.h>
 
 #include <string.h>
@@ -2116,6 +2114,10 @@ for (i_@aname@=0; i_@aname@ < @aval@; i_@aname@++) {
 G_MODULE_EXPORT const gchar version[] = "0.0.1";
 #endif
 
+#ifdef _MSC_VER
+/* disable warning: "unreference local variable" */
+#pragma warning(disable:4101)
+#endif
 """
 
 
@@ -2134,8 +2136,7 @@ static proto_tree *start_dissecting(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     proto_item *ti = NULL;
     proto_tree *tree = NULL;            /* init later, inside if(tree) */
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, \"@disprot@\");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, \"@disprot@\");
 
     /*
      * Do not clear COL_INFO, as nothing is being written there by
