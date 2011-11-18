@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-<!ENTITY WiresharkCurrentVersion "1.6.4">
+<!ENTITY WiresharkCurrentVersion "1.6.5">
 
 ]>
 
@@ -31,6 +31,33 @@ Wireshark Info
 
     <para>
 
+      The following vulnerabilities have been fixed.
+      <itemizedlist>
+
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2011-20.html">wnpa-sec-2011-20</ulink>
+          </para>
+          <para>
+            .
+            <!-- Fixed in trunk: r????? -->
+            <!-- Fixed in trunk-1.6: r????? -->
+            <!-- Fixed in trunk-1.4: r????? -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
+            ????</ulink>)
+          </para>
+          <para>Versions affected: 1.6.0 to 1.6.4.</para>
+          <!-- <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-????">CVE-2011-????</ulink>
+          </para> -->
+        </listitem>
+
+      </itemizedlist>
+
+    </para>
+
+    <para>
+
     The following bugs have been fixed:
 
       <itemizedlist>
@@ -44,50 +71,6 @@ Wireshark Info
           0000</ulink>)
         </para></listitem>
 -->
-
-        Compilation on Windows using the release tarball has been fixed.
-
-        <listitem><para>
-          Patch to fix memory leaks/errors in Lua plugin.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5575">Bug
-          5575</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark crashes if a field of type BASE_CUSTOM is applied as a column.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6503">Bug
-          6503</ulink>)
-        </para></listitem>
-
-         <listitem><para>
-          Filter Expression dialog can only be opened once.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6537">Bug
-          6537</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark crashes if compiled without GLib thread support.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6540">Bug
-          6540</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          80211 QoS Control: Add Raw TID.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6548">Bug
-          6548</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          SNMP length check error.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6564">Bug
-          6564</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          UCP dissector bug of operation 61.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6570">Bug
-          6570</ulink>)
-        </para></listitem>
 
      </itemizedlist>
 
