@@ -13,7 +13,7 @@ WIRESHARK_TARGET_PLATFORM=win32
 ##### Versions #####
 
 # The SVN revision of our build. Updated by make-version.pl
-SVN_REVISION=
+SVN_REVISION=39920
 
 # The current Wireshark version. Recommended: Leave unchanged.
 # Updated by make-version.pl
@@ -25,7 +25,7 @@ VERSION_BUILD=$(SVN_REVISION)
 # Local build information. Recommended: Unique string for your
 # environment, e.g. "-JackStackBarbecue". Updated by make-version.pl
 
-VERSION_EXTRA=
+VERSION_EXTRA=pre1-39920
 
 # The version of the wiretap library. Recommended: Leave unchanged.
 WTAP_VERSION_MAJOR=$(VERSION_MAJOR)

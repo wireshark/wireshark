@@ -73,13 +73,42 @@ Wireshark Info
 -->
 
         <listitem><para>
+          Patch to fix memory leaks/errors in Lua plugin.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5575">Bug
+          5575</ulink>)
+        </para></listitem>
+
+         <listitem><para>
+          Filter Expression dialog can only be opened once.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6537">Bug
+          6537</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Wireshark crashes if compiled without GLib thread support.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6540">Bug
           6540</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          80211 QoS Control: Add Raw TID.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6548">Bug
+          6548</ulink>)
+        </para></listitem>
 
-      </itemizedlist>
+        <listitem><para>
+          SNMP length check error.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6564">Bug
+          6564</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          UCP dissector bug of operation 61.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6570">Bug
+          6570</ulink>)
+        </para></listitem>
+
+     </itemizedlist>
 
     </para>
 

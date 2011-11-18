@@ -161,7 +161,7 @@ static char* wslua_get_actual_filename(const char* fname) {
 	char* f;
 	char* filename;
 
-	strncpy(fname_clean,fname,255);
+	g_strlcpy(fname_clean,fname,255);
 	fname_clean[255] = '\0';
 
 	for(f = fname_clean; *f; f++) {
@@ -241,18 +241,20 @@ WSLUA_FUNCTION wslua_dofile(lua_State* L) {
 WSLUA_FUNCTION wslua_persconffile_path(lua_State* L) {
 #define WSLUA_OPTARG_persconffile_path_FILENAME 1 /* A filename */
 	const char *fname = luaL_optstring(L, WSLUA_OPTARG_persconffile_path_FILENAME,"");
-	const char* filename = get_persconffile_path(fname,FALSE,FALSE);
+	char* filename = get_persconffile_path(fname,FALSE,FALSE);
 
 	lua_pushstring(L,filename);
+	g_free(filename);
 	WSLUA_RETURN(1); /* The full pathname for a file in the personal configuration directory */
 }
 
 WSLUA_FUNCTION wslua_datafile_path(lua_State* L) {
 #define WSLUA_OPTARG_datafile_path_FILENAME 1 /* A filename */
 	const char *fname = luaL_optstring(L, WSLUA_OPTARG_datafile_path_FILENAME,"");
-	const char* filename = get_datafile_path(fname);
+	char* filename = get_datafile_path(fname);
 
 	lua_pushstring(L,filename);
+	g_free(filename);
 	WSLUA_RETURN(1); /* The full pathname for a file in wireshark's configuration directory */
 }
 

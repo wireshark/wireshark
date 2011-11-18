@@ -1307,6 +1307,7 @@ static int hf_ieee80211_addr = -1;  /* Source or destination address subfield */
 /* ************************************************************************* */
 /*                Header values for QoS control field                        */
 /* ************************************************************************* */
+static int hf_ieee80211_qos_tid = -1;
 static int hf_ieee80211_qos_priority = -1;
 static int hf_ieee80211_qos_ack_policy = -1;
 static int hf_ieee80211_qos_amsdu_present = -1;
@@ -5081,7 +5082,7 @@ dissect_vendor_ie_wpawme(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 
             proto_tree_add_item(aci_aifsn_tree, hf_ieee80211_wfa_ie_wme_acp_aifsn, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(aci_aifsn_tree, hf_ieee80211_wfa_ie_wme_acp_reserved, tvb, offset, 1, ENC_NA);
             aci_aifsn = tvb_get_guint8(tvb, offset);
-            proto_item_append_text(ac_item, " ACI %u (%s), ACM %s, AIFSN %u", 
+            proto_item_append_text(ac_item, " ACI %u (%s), ACM %s, AIFSN %u",
             (aci_aifsn & 0x60) >> 5, match_strval((aci_aifsn & 0x60) >> 5, ieee80211_wfa_ie_wme_acs_vals),
             (aci_aifsn & 0x10) ? "yes" : "no ", aci_aifsn & 0x0f);
             offset += 1;
@@ -9406,6 +9407,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 
         guint16 qosoff;
         guint16 qos_control;
+        guint16 qos_tid;
         guint16 qos_priority;
         guint16 qos_ack_policy;
         guint16 qos_amsdu_present;
@@ -9427,11 +9429,15 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
         qos_tree = proto_item_add_subtree (qos_fields, ett_qos_parameters);
 
         qos_control = tvb_get_letohs(tvb, qosoff + 0);
+        qos_tid = QOS_TID(qos_control);
         qos_priority = QOS_PRIORITY(qos_control);
         qos_ack_policy = QOS_ACK_POLICY(qos_control);
         qos_amsdu_present = QOS_AMSDU_PRESENT(qos_control);
         qos_eosp = QOS_EOSP(qos_control);
         qos_field_content = QOS_FIELD_CONTENT(qos_control);
+
+        proto_tree_add_uint (qos_tree, hf_ieee80211_qos_tid, tvb,
+            qosoff, 1, qos_tid);
 
         proto_tree_add_uint_format (qos_tree, hf_ieee80211_qos_priority, tvb,
             qosoff, 1, qos_priority,
@@ -11686,6 +11692,10 @@ proto_register_ieee80211 (void)
     {&hf_ieee80211_seq_number,
      {"Sequence number", "wlan.seq", FT_UINT16, BASE_DEC, NULL, 0,
       NULL, HFILL }},
+
+    {&hf_ieee80211_qos_tid,
+     {"TID", "wlan.qos.tid", FT_UINT16, BASE_DEC, NULL, 0,
+      "TID", HFILL }},
 
     {&hf_ieee80211_qos_priority,
      {"Priority", "wlan.qos.priority", FT_UINT16, BASE_DEC, NULL, 0,
