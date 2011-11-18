@@ -169,7 +169,7 @@ sub read_svn_info {
 	if ($revision == 0) {
 		# Fall back to config.nmake
 		$info_source = "Prodding config.nmake";
-		my $filepath = "config.nmake";
+		my $filepath = "$srcdir/config.nmake";
 		open(CFGNMAKE, "< $filepath") || die "Can't read $filepath!";
 		while ($line = <CFGNMAKE>) {
 			if ($line =~ /^SVN_REVISION=(\d+)/) {
@@ -256,7 +256,7 @@ sub update_configure_in
 	my $line;
 	my $contents = "";
 	my $version = "";
-	my $filepath = "configure.in";
+	my $filepath = "$srcdir/configure.in";
 
 	return if (!$set_version && $package_string eq "");
 
@@ -287,7 +287,7 @@ sub update_config_nmake
 	my $line;
 	my $contents = "";
 	my $version = "";
-	my $filepath = "config.nmake";
+	my $filepath = "$srcdir/config.nmake";
 
 	open(CFGNMAKE, "< $filepath") || die "Can't read $filepath!";
 	while ($line = <CFGNMAKE>) {
@@ -318,7 +318,7 @@ sub update_release_notes
 	my $line;
 	my $contents = "";
 	my $version = "";
-	my $filepath = "docbook/release-notes.xml";
+	my $filepath = "$srcdir/docbook/release-notes.xml";
 
 	return if (!$set_version);
 
@@ -348,7 +348,7 @@ sub update_debian_changelog
 	my $line;
 	my $contents = "";
 	my $version = "";
-	my $filepath = "debian/changelog";
+	my $filepath = "$srcdir/debian/changelog";
 
 	return if ($set_version == 0);
 
