@@ -604,44 +604,6 @@ static dgt_set_t Dgt1_9_bcd = {
      '0','1','2','3','4','5','6','7','8','9','?','?','?','?','?'
     }
 };
-/* Assumes the rest of the tvb contains the digits to be turned into a string
- */
-static const char*
-unpack_digits2(tvbuff_t *tvb, int offset,dgt_set_t *dgt){
-
-    int length;
-    guint8 octet;
-    int i=0;
-    char *digit_str;
-
-    length = tvb_length(tvb);
-    if (length < offset)
-        return "";
-    digit_str = ep_alloc((length - offset)*2+1);
-
-    while ( offset < length ){
-
-        octet = tvb_get_guint8(tvb,offset);
-        digit_str[i] = dgt->out[octet & 0x0f];
-        i++;
-
-        /*
-         * unpack second value in byte
-         */
-        octet = octet >> 4;
-
-        if (octet == 0x0f)      /* odd number bytes - hit filler */
-            break;
-
-        digit_str[i] = dgt->out[octet & 0x0f];
-        i++;
-        offset++;
-
-    }
-    digit_str[i]= '\0';
-    return digit_str;
-}
-
 
 
 /* Type of Digits (octet 1, bits A-H) */
@@ -715,7 +677,7 @@ dissect_ansi_map_min_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
     subtree = proto_item_add_subtree(actx->created_item, ett_mintype);
 
-    digit_str = unpack_digits2(tvb, offset, &Dgt1_9_bcd);
+	digit_str = tvb_bcd_dig_to_ep_str(tvb, offset, tvb_length_remaining(tvb,offset), &Dgt1_9_bcd, FALSE);
     proto_tree_add_string(subtree, hf_ansi_map_bcd_digits, tvb, offset, -1, digit_str);
     proto_item_append_text(actx->created_item, " - %s", digit_str);
 }
@@ -760,7 +722,7 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
             if(octet_len == 0)
                 return;
             offset++;
-            digit_str = unpack_digits2(tvb, offset, &Dgt_tbcd);
+            digit_str = tvb_bcd_dig_to_ep_str(tvb, offset, tvb_length_remaining(tvb,offset), &Dgt_tbcd, FALSE);
             proto_tree_add_string(subtree, hf_ansi_map_bcd_digits, tvb, offset, -1, digit_str);
             proto_item_append_text(actx->created_item, " - %s", digit_str);
             break;
@@ -798,7 +760,7 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
         switch ((octet&0xf)){
         case 1:
             /* BCD Coding */
-            digit_str = unpack_digits2(tvb, offset, &Dgt_tbcd);
+			digit_str = tvb_bcd_dig_to_ep_str(tvb, offset, tvb_length_remaining(tvb,offset), &Dgt_tbcd, FALSE);
             proto_tree_add_string(subtree, hf_ansi_map_bcd_digits, tvb, offset, -1, digit_str);
             proto_item_append_text(actx->created_item, " - %s", digit_str);
             break;
