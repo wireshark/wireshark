@@ -31,17 +31,15 @@
 #		 enables.
 #   svn_client - Use svn client i.s.o. ugly internal SVN file hack
 #   format     - A strftime() formatted string to use as a template for
-#		 the version string.  The sequence "%#" will substitute
+#		 the version string. The sequence "%#" will substitute
 #		 the SVN revision number.
-#   pkg_enable - Enable or disable package versioning.
-#   pkg_format - Like "format", but used for the package version.
+#   pkg_enable - Enable or disable local package versioning.
+#   pkg_format - Like "format", but used for the local package version.
 #
-# If run with the "-p" or "--package-version" argument, the
-# AC_INIT macro in configure.in and the VERSION macro in
-# config.nmake will have the pkg_format template appended to the
-# version number.  svnversion.h will _not_ be generated if either
-# argument is present (it will also not be generated if 'is_release' is set
-# in version.conf).
+# If run with the "-r" or "--set-release" argument the AC_INIT macro in
+# configure.in and the VERSION macro in config.nmake will have the
+# pkg_format template appended to the version number. svnversion.h will
+# _not_ be generated if either argument is present.
 #
 # Default configuration:
 #
@@ -71,6 +69,7 @@ my $last_change = 0;
 my $revision = 0;
 my $repo_path = "unknown";
 my $get_svn = 0;
+my $set_svn = 0;
 my $set_version = 0;
 my $set_release = 0;
 my %version_pref = (
@@ -403,7 +402,7 @@ sub print_svn_revision
 		close OLDREV;
 	}
 
-	if (! $set_version && ! $set_release) { return; }
+	if (! $set_svn) { return; }
 
 	if ($needs_update) {
 		# print "Updating $version_file so it contains:\n$svn_revision";
@@ -422,17 +421,19 @@ sub get_config {
 	my $show_help = 0;
 
 	# Get our command-line args
+	# XXX - Do we need an option to undo --set-release?
 	GetOptions(
 		   "help|h", \$show_help,
 		   "get-svn|g", \$get_svn,
+		   "set-svn|s", \$set_svn,
 		   "set-version|v", \$set_version,
 		   "set-release|r|package-version|p", \$set_release
 		   ) || pod2usage(2);
 
 	if ($show_help) { pod2usage(1); }
 
-	if ( !( $show_help || $get_svn || $set_release ) ) {
-		$set_version = 1;
+	if ( !( $show_help || $get_svn || $set_svn || $set_version || $set_release ) ) {
+		$set_svn = 1;
 	}
 
 	if ($#ARGV >= 0) {
@@ -477,6 +478,10 @@ if ($set_version || $set_release) {
 
 	if ($set_release) {
 		print "Generating release information\n";
+	} else {
+		print "Resetting release information\n";
+		$revision = 0;
+		$package_string = "";
 	}
 
 	&update_versioned_files;
@@ -496,11 +501,15 @@ make-version.pl [options] [source directory]
 
     --help, -h                 This help message
     --get-svn, -g              Print the SVN revision and source.
-    --set-version, -v          Set the major, minor, and micro versions.
+    --set-svn, -s              Set the information in svnversion.h
+    --set-version, -v          Set the major, minor, and micro versions in
+                               configure.in, config.nmake, debian/changelog,
+			       and docbook/release_notes.xml.
                                Resets the release information when used by
 			       itself.
-    --set-release, -r          Set the release information.
+    --set-release, -r          Set the release information in configure.in
+                               and config.nmake
     --package-version, -p      Deprecated. Same as --set-release.
 
-Options can be used in any combination. If none are specified B<--set-version>
+Options can be used in any combination. If none are specified B<--set-svn>
 is assumed.
