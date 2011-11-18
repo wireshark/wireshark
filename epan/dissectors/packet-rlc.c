@@ -1258,6 +1258,7 @@ dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
 	guint8 cw[15];
 	guint8 sufi_start_offset;
 	gboolean seen_last = FALSE;
+	guint16 number_of_bitmap_entries = 0;
 
 	bit_offset = offset*8 + 4; /* first SUFI type is always 4 bit shifted */
 
@@ -1323,6 +1324,8 @@ dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
 				bit_offset += 12;
 				proto_tree_add_item(sufi_tree, hf_rlc_sufi_bitmap, tvb, bit_offset/8, (gint)len, ENC_NA);
 				ti = proto_tree_add_text(sufi_tree, tvb, bit_offset/8, (gint)len, "Decoded bitmap:");
+				col_append_fstr(pinfo->cinfo, COL_INFO, " BITMAP=(%u", (unsigned)sn);
+
 				bitmap_tree = proto_item_add_subtree(ti, ett_rlc_bitmap);
 				buff = ep_alloc(BUFF_SIZE);
 				for (i=0; i<len; i++) {
@@ -1330,6 +1333,8 @@ dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
 					for (l=0, j=0; l<8; l++) {
 						if ((bits << l) & 0x80) {
 							j += g_snprintf(&buff[j], BUFF_SIZE-j, "%04u,", (unsigned)(sn+(8*i)+l)&0xfff);
+							col_append_fstr(pinfo->cinfo, COL_INFO, " %u", (unsigned)(sn+(8*i)+l)&0xfff);
+							number_of_bitmap_entries++;
 						} else {
 							j += g_snprintf(&buff[j], BUFF_SIZE-j, "    ,");
 						}
@@ -1337,6 +1342,8 @@ dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
 					proto_tree_add_text(bitmap_tree, tvb, bit_offset/8, 1, "%s", buff);
 					bit_offset += 8;
 				}
+				proto_item_append_text(ti, " (%u SNs)", number_of_bitmap_entries);
+				col_append_str(pinfo->cinfo, COL_INFO, ")");
 				break;
 			case RLC_SUFI_RLIST:
 				previous_bit_offset = bit_offset;
@@ -1396,17 +1403,21 @@ dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
 				}
 				break;
 			case RLC_SUFI_MRW_ACK:
+				col_append_str(pinfo->cinfo, COL_INFO, " MRW-ACK");
 				proto_tree_add_bits_item(sufi_tree, hf_rlc_sufi_n, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 				bit_offset += 4;
-				proto_tree_add_bits_item(sufi_tree, hf_rlc_sufi_sn_ack, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
+				proto_tree_add_bits_ret_val(sufi_tree, hf_rlc_sufi_sn_ack, tvb, bit_offset, 12, &sn, ENC_BIG_ENDIAN);
 				bit_offset += 12;
+				col_append_fstr(pinfo->cinfo, COL_INFO, " SN=%u", (guint16)sn);
 				break;
 			case RLC_SUFI_MRW:
+				col_append_str(pinfo->cinfo, COL_INFO, " MRW");
 				proto_tree_add_bits_ret_val(sufi_tree, hf_rlc_sufi_len, tvb, bit_offset, 4, &len, ENC_BIG_ENDIAN);
 				bit_offset += 4;
 				if (len) {
 					while (len) {
-						proto_tree_add_bits_item(sufi_tree, hf_rlc_sufi_sn_mrw, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
+						proto_tree_add_bits_ret_val(sufi_tree, hf_rlc_sufi_sn_mrw, tvb, bit_offset, 12, &sn, ENC_BIG_ENDIAN);
+						col_append_fstr(pinfo->cinfo, COL_INFO, " SN=%u", (guint16)sn);
 						bit_offset += 12;
 						len--;
 					}
@@ -1444,6 +1455,7 @@ dissect_rlc_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8 type, next_byte;
 	proto_item *malformed;
 	guint64 r1;
+	guint64 rsn;
 
 	next_byte = tvb_get_guint8(tvb, 0);
 	type = (next_byte >> 4) & 0x07;
@@ -1455,7 +1467,9 @@ dissect_rlc_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		case RLC_RESET:
 		case RLC_RESET_ACK:
-			proto_tree_add_bits_item(tree, hf_rlc_rsn, tvb, 4, 1, ENC_BIG_ENDIAN);
+			col_append_str(pinfo->cinfo, COL_INFO, (type == RLC_RESET) ? " RESET" : " RESET-ACK");
+			proto_tree_add_bits_ret_val(tree, hf_rlc_rsn, tvb, 4, 1, &rsn, ENC_BIG_ENDIAN);
+			col_append_fstr(pinfo->cinfo, COL_INFO, " RSN=%u", (guint16)rsn);
 			proto_tree_add_bits_ret_val(tree, hf_rlc_r1, tvb, 5, 3, &r1, ENC_BIG_ENDIAN);
 			if (r1) {
 				proto_item *malformed;
@@ -1481,7 +1495,7 @@ dissect_rlc_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 rlc_am_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo,
 		  proto_tree *tree, proto_tree *top_level,
-		  enum rlc_channel_type channel, guint16 seq, struct rlc_li *li,
+		  enum rlc_channel_type channel, guint16 seq, gboolean poll_set, struct rlc_li *li,
 		  guint16 num_li, gboolean final, gboolean li_is_on_2_bytes)
 {
 	guint8 i;
@@ -1538,10 +1552,12 @@ rlc_am_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo,
 		}
 	}
 	if (dissected == FALSE)
-		col_add_fstr(pinfo->cinfo, COL_INFO, "[RLC AM Fragment]  SN=%u", seq);
+		col_add_fstr(pinfo->cinfo, COL_INFO, "[RLC AM Fragment]  SN=%u %s",
+		             seq, poll_set ? "(P)" : "");
 	else
 		if (channel == RLC_UNKNOWN_CH)
-			col_add_fstr(pinfo->cinfo, COL_INFO, "[RLC AM Data]  SN=%u", seq);
+			col_add_fstr(pinfo->cinfo, COL_INFO, "[RLC AM Data]  SN=%u %s",
+			             seq, poll_set ? "(P)" : "");
 }
 
 static void
@@ -1579,9 +1595,6 @@ dissect_rlc_am(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
 	/* show header fields */
 	proto_tree_add_bits_item(tree, hf_rlc_seq, tvb, 1, 12, ENC_BIG_ENDIAN);
 	proto_tree_add_bits_ret_val(tree, hf_rlc_p, tvb, 13, 1, &polling, ENC_BIG_ENDIAN);
-	if (polling) {
-		col_append_str(pinfo->cinfo, COL_INFO, " (P)");
-	}
 	proto_tree_add_bits_item(tree, hf_rlc_he, tvb, 14, 2, ENC_BIG_ENDIAN);
 
 	/* header extension may only be 00, 01 or 10 */
@@ -1638,12 +1651,13 @@ dissect_rlc_am(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
 	if (pinfo->fd->num == 0) return;
 	/* check for duplicates */
 	if (rlc_is_duplicate(RLC_AM, pinfo, seq, &orig_num) == TRUE) {
-		col_add_fstr(pinfo->cinfo, COL_INFO, "[RLC AM Fragment] [Duplicate]  SN=%u", seq);
+		col_add_fstr(pinfo->cinfo, COL_INFO, "[RLC AM Fragment] [Duplicate]  SN=%u %s",
+		             seq, (polling != 0) ? "(P)" : "");
 		proto_tree_add_uint(tree, hf_rlc_duplicate_of, tvb, 0, 0, orig_num);
 		return;
 	}
-	rlc_am_reassemble(tvb, offs, pinfo, tree, top_level, channel, seq, li, num_li,
-		ext == 2, li_is_on_2_bytes);
+	rlc_am_reassemble(tvb, offs, pinfo, tree, top_level, channel, seq, polling != 0,
+	                  li, num_li, ext == 2, li_is_on_2_bytes);
 }
 
 /* dissect entry functions */
