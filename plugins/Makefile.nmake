@@ -67,7 +67,7 @@ custom :
 install-plugins:
 !IFDEF ENABLE_LIBWIRESHARK
 	cd ..
-	@for %f in ( $(PLUGIN_LIST) ) do xcopy plugins\%f\*.dll  $(INSTALL_DIR)\plugins\$(VERSION) /d
+	@for %f in ( $(PLUGIN_LIST) ) do xcopy plugins\%f\*.dll  $(INSTALL_DIR)\plugins\$(VERSION)\ /d
 	cd plugins
 	if exist Custom.nmake $(MAKE) /$(MAKEFLAGS) -f Custom.nmake install-plugins
 !ENDIF
