@@ -1324,7 +1324,7 @@ dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
 				bit_offset += 12;
 				proto_tree_add_item(sufi_tree, hf_rlc_sufi_bitmap, tvb, bit_offset/8, (gint)len, ENC_NA);
 				ti = proto_tree_add_text(sufi_tree, tvb, bit_offset/8, (gint)len, "Decoded bitmap:");
-				col_append_fstr(pinfo->cinfo, COL_INFO, " BITMAP=(%u", (unsigned)sn);
+				col_append_str(pinfo->cinfo, COL_INFO, " BITMAP=(");
 
 				bitmap_tree = proto_item_add_subtree(ti, ett_rlc_bitmap);
 				buff = ep_alloc(BUFF_SIZE);
@@ -1343,7 +1343,7 @@ dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guin
 					bit_offset += 8;
 				}
 				proto_item_append_text(ti, " (%u SNs)", number_of_bitmap_entries);
-				col_append_str(pinfo->cinfo, COL_INFO, ")");
+				col_append_str(pinfo->cinfo, COL_INFO, " )");
 				break;
 			case RLC_SUFI_RLIST:
 				previous_bit_offset = bit_offset;
