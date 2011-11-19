@@ -382,8 +382,8 @@ static GHashTable *TransactionId_table=NULL;
 static void
 TransactionId_table_cleanup(gpointer key , gpointer value, gpointer user_data _U_){
 
-    struct ansi_map_invokedata_t *ansi_map_saved_invokedata = value;
-    gchar *TransactionId_str = key;
+    struct ansi_map_invokedata_t *ansi_map_saved_invokedata = (struct ansi_map_invokedata_t *)value;
+    gchar *TransactionId_str = (gchar *)key;
 
     g_free(TransactionId_str);
     g_free(ansi_map_saved_invokedata);
@@ -427,7 +427,7 @@ update_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb 
 
     /* Data from the TCAP dissector */
     if (pinfo->private_data != NULL){
-        p_private_tcap=pinfo->private_data;
+        p_private_tcap=(struct ansi_tcap_private_t *)pinfo->private_data;
         if ((!pinfo->fd->flags.visited)&&(p_private_tcap->TransactionID_str)){
             /* Only do this once XXX I hope its the right thing to do */
             /* The hash string needs to contain src and dest to distiguish differnt flows */
@@ -443,11 +443,11 @@ update_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb 
 					break;
 			}
             /* If the entry allready exists don't owervrite it */
-            ansi_map_saved_invokedata = g_hash_table_lookup(TransactionId_table,buf);
+            ansi_map_saved_invokedata = (struct ansi_map_invokedata_t *)g_hash_table_lookup(TransactionId_table,buf);
             if(ansi_map_saved_invokedata)
                 return;
 
-            ansi_map_saved_invokedata = g_malloc(sizeof(struct ansi_map_invokedata_t));
+            ansi_map_saved_invokedata = g_new(struct ansi_map_invokedata_t,1);
             ansi_map_saved_invokedata->opcode = p_private_tcap->d.OperationCode_private;
             ansi_map_saved_invokedata->ServiceIndicator = ServiceIndicator;
 
@@ -4331,7 +4331,7 @@ find_saved_invokedata(asn1_ctx_t *actx){
 
     /* Data from the TCAP dissector */
     if (actx->pinfo->private_data != NULL){
-        p_private_tcap=actx->pinfo->private_data;
+        p_private_tcap=(struct ansi_tcap_private_t *)actx->pinfo->private_data;
         /* The hash string needs to contain src and dest to distiguish differnt flows */
         src_str = ep_address_to_str(src);
         dst_str = ep_address_to_str(dst);
@@ -4349,7 +4349,7 @@ find_saved_invokedata(asn1_ctx_t *actx){
 		}
 
 		/*g_warning("Find Hash string %s pkt: %u",buf,actx->pinfo->fd->num);*/
-        ansi_map_saved_invokedata = g_hash_table_lookup(TransactionId_table, buf);
+        ansi_map_saved_invokedata = (struct ansi_map_invokedata_t *)g_hash_table_lookup(TransactionId_table, buf);
         if(ansi_map_saved_invokedata){
             OperationCode = ansi_map_saved_invokedata->opcode & 0xff;
             ServiceIndicator = ansi_map_saved_invokedata->ServiceIndicator;
@@ -4398,7 +4398,7 @@ dissect_ansi_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     is801_pld = FALSE;
     ServiceIndicator = 0;
 
-    p_private_tcap=pinfo->private_data;
+    p_private_tcap=(struct ansi_tcap_private_t *)pinfo->private_data;
 
     switch(p_private_tcap->d.pdu){
         /*

@@ -167,15 +167,15 @@ static GHashTable *TransactionId_table=NULL;
 static void
 TransactionId_table_cleanup(gpointer key , gpointer value, gpointer user_data _U_){
 
-        struct ansi_tcap_invokedata_t *ansi_tcap_saved_invokedata = value;
-        gchar *TransactionId_str = key;
+        struct ansi_tcap_invokedata_t *ansi_tcap_saved_invokedata = (struct ansi_tcap_invokedata_t *)value;
+        gchar *TransactionId_str = (gchar *)key;
 
         g_free(TransactionId_str);
         g_free(ansi_tcap_saved_invokedata);
 
 }
 
-void
+static void
 ansi_tcap_init_transaction_table(void){
 
         /* Destroy any existing memory chunks / hashes. */
@@ -222,11 +222,11 @@ save_invoke_data(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U_){
 			}
 
           /* If the entry allready exists don't owervrite it */
-          ansi_tcap_saved_invokedata = g_hash_table_lookup(TransactionId_table,buf);
+          ansi_tcap_saved_invokedata = (struct ansi_tcap_invokedata_t *)g_hash_table_lookup(TransactionId_table,buf);
           if(ansi_tcap_saved_invokedata)
                   return;
 
-          ansi_tcap_saved_invokedata = g_malloc(sizeof(struct ansi_tcap_invokedata_t));
+          ansi_tcap_saved_invokedata = g_new(struct ansi_tcap_invokedata_t,1);
           ansi_tcap_saved_invokedata->OperationCode = ansi_tcap_private.d.OperationCode;
           ansi_tcap_saved_invokedata->OperationCode_national = ansi_tcap_private.d.OperationCode_national;
           ansi_tcap_saved_invokedata->OperationCode_private = ansi_tcap_private.d.OperationCode_private;
@@ -270,7 +270,7 @@ find_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U
 			break;
 	}
 
-  ansi_tcap_saved_invokedata = g_hash_table_lookup(TransactionId_table, buf);
+  ansi_tcap_saved_invokedata = (struct ansi_tcap_invokedata_t *)g_hash_table_lookup(TransactionId_table, buf);
   if(ansi_tcap_saved_invokedata){
           ansi_tcap_private.d.OperationCode                      = ansi_tcap_saved_invokedata->OperationCode;
           ansi_tcap_private.d.OperationCode_national = ansi_tcap_saved_invokedata->OperationCode_national;
