@@ -888,8 +888,8 @@ typedef struct
 /* Equal keys */
 static gint sip_equal(gconstpointer v, gconstpointer v2)
 {
-	const sip_hash_key* val1 = v;
-	const sip_hash_key* val2 = v2;
+	const sip_hash_key* val1 = (sip_hash_key*)v;
+	const sip_hash_key* val2 = (sip_hash_key*)v2;
 
 	/* Call id must match */
 	if (strcmp(val1->call_id, val2->call_id) != 0)
@@ -1680,7 +1680,7 @@ dissect_sip_reason_header(tvbuff_t *tvb, proto_tree *tree, gint start_offset, gi
 }
 
 /* Dissect the details of a Route (and Record-Route) header */
-static void dissect_sip_route_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, hf_sip_uri_t *sip_route_uri, gint start_offset, gint line_end_offset)
+static void dissect_sip_route_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, hf_sip_uri_t *sip_route_uri_p, gint start_offset, gint line_end_offset)
 {
     gint current_offset;
     guchar c;
@@ -1703,7 +1703,7 @@ static void dissect_sip_route_header(tvbuff_t *tvb, proto_tree *tree, packet_inf
             current_offset = dissect_sip_name_addr_or_addr_spec(tvb, pinfo, start_offset, current_offset, &uri_offsets);
 			if(current_offset == -1)
 				return;
-            display_sip_uri(tvb, tree, &uri_offsets, sip_route_uri);
+            display_sip_uri(tvb, tree, &uri_offsets, sip_route_uri_p);
 
             current_offset++;
             start_offset = current_offset + 1;
@@ -1713,7 +1713,7 @@ static void dissect_sip_route_header(tvbuff_t *tvb, proto_tree *tree, packet_inf
             current_offset = dissect_sip_name_addr_or_addr_spec(tvb, pinfo, start_offset, line_end_offset, &uri_offsets);
 			if(current_offset == -1)
 				return;
-            display_sip_uri(tvb, tree, &uri_offsets, sip_route_uri);
+            display_sip_uri(tvb, tree, &uri_offsets, sip_route_uri_p);
 
             return;
         }
@@ -3412,7 +3412,7 @@ static gint sip_is_known_sip_header(gchar *header_name, guint header_len)
 
 	/* Compact name is one character long */
 	if(header_len>1){
-		pos = GPOINTER_TO_INT(g_hash_table_lookup(sip_headers_hash, header_name));
+		pos = GPOINTER_TO_UINT(g_hash_table_lookup(sip_headers_hash, header_name));
 		if (pos!=0)
 			return pos;
 	}
@@ -3647,7 +3647,7 @@ guint sip_is_packet_resend(packet_info *pinfo,
 			break;
 	}
 
-	sip_frame_result = p_get_proto_data(pinfo->fd, proto_sip);
+	sip_frame_result = (sip_frame_result_value *)p_get_proto_data(pinfo->fd, proto_sip);
 	if (sip_frame_result == NULL)
 	{
 		sip_frame_result = se_alloc0(sizeof(sip_frame_result_value));
@@ -3750,7 +3750,7 @@ guint sip_find_request(packet_info *pinfo,
 
 
 	/* Store return value with this packet */
-	sip_frame_result = p_get_proto_data(pinfo->fd, proto_sip);
+	sip_frame_result = (sip_frame_result_value *)p_get_proto_data(pinfo->fd, proto_sip);
 	if (sip_frame_result == NULL)
 	{
 		/* Allocate and set all values to zero */
@@ -3870,7 +3870,7 @@ guint sip_find_invite(packet_info *pinfo,
 	result = p_val->frame_number;
 
 	/* Store return value with this packet */
-	sip_frame_result = p_get_proto_data(pinfo->fd, proto_sip);
+	sip_frame_result = (sip_frame_result_value *)p_get_proto_data(pinfo->fd, proto_sip);
 	if (sip_frame_result == NULL)
 	{
 		/* Allocate and set all values to zero */
