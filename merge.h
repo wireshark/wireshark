@@ -44,6 +44,7 @@ typedef struct merge_in_file_s {
   wtap           *wth;
   gint64          data_offset;
   in_file_state_e state;
+  guint32         packet_num;	/* current packet number */
   gint64          size;		/* file size */
 } merge_in_file_t;
 
@@ -95,10 +96,10 @@ merge_max_snapshot_length(int in_file_count, merge_in_file_t in_files[]);
  * @param in_files input file array
  * @param err wiretap error, if failed
  * @param err_info wiretap error string, if failed
- * @return pointer to wtap for file from which that packet came, or NULL on
- * error or EOF
+ * @return pointer to merge_in_file_t for file from which that packet
+ * came, or NULL on error or EOF
  */
-extern wtap *
+extern merge_in_file_t *
 merge_read_packet(int in_file_count, merge_in_file_t in_files[], int *err,
                   gchar **err_info);
 
@@ -110,10 +111,10 @@ merge_read_packet(int in_file_count, merge_in_file_t in_files[], int *err,
  * @param in_files input file array
  * @param err wiretap error, if failed
  * @param err_info wiretap error string, if failed
- * @return pointer to wtap for file from which that packet came, or NULL on
- * error or EOF
+ * @return pointer to merge_in_file_t for file from which that packet
+ * came, or NULL on error or EOF
  */
-extern wtap *
+extern merge_in_file_t *
 merge_append_read_packet(int in_file_count, merge_in_file_t in_files[],
                          int *err, gchar **err_info);
 

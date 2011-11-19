@@ -830,6 +830,7 @@ main(int argc, char *argv[])
   const struct wtap_pkthdr *phdr;
   int err_type;
   guint8 *buf;
+  guint32 read_count = 0;
   int split_packet_count = 0;
   int written_count = 0;
   char *filename = NULL;
@@ -1122,6 +1123,8 @@ main(int argc, char *argv[])
     }
 
     while (wtap_read(wth, &err, &err_info, &data_offset)) {
+      read_count++;
+
       phdr = wtap_phdr(wth);
       buf = wtap_buf_ptr(wth);
 
@@ -1443,8 +1446,22 @@ main(int argc, char *argv[])
         }
 
         if (!wtap_dump(pdh, phdr, wtap_pseudoheader(wth), buf, &err)) {
-          fprintf(stderr, "editcap: Error writing to %s: %s\n",
-                  filename, wtap_strerror(err));
+          switch (err) {
+
+          case WTAP_ERR_UNSUPPORTED_ENCAP:
+            /*
+             * This is a problem with the particular frame we're writing;
+             * note that, and give the frame number.
+             */
+            fprintf(stderr, "editcap: Frame %u of \"%s\" has a network type that can't be saved in a file with that format\n.",
+                    read_count, argv[optind]);
+            break;
+
+          default:
+            fprintf(stderr, "editcap: Error writing to %s: %s\n",
+                    filename, wtap_strerror(err));
+            break;
+          }
           exit(2);
         }
         written_count++;

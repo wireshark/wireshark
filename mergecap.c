@@ -157,9 +157,8 @@ main(int argc, char *argv[])
 #endif
   int          frame_type = -2;
   int          out_fd;
-  merge_in_file_t   *in_files      = NULL;
+  merge_in_file_t   *in_files      = NULL, *in_file;
   int          i;
-  wtap        *wth;
   struct wtap_pkthdr *phdr, snap_phdr;
   wtap_dumper *pdh;
   int          open_err, read_err, write_err, close_err;
@@ -346,12 +345,12 @@ main(int argc, char *argv[])
   count = 1;
   for (;;) {
     if (do_append)
-      wth = merge_append_read_packet(in_file_count, in_files, &read_err,
-                                     &err_info);
+      in_file = merge_append_read_packet(in_file_count, in_files, &read_err,
+                                         &err_info);
     else
-      wth = merge_read_packet(in_file_count, in_files, &read_err,
-                              &err_info);
-    if (wth == NULL) {
+      in_file = merge_read_packet(in_file_count, in_files, &read_err,
+                                  &err_info);
+    if (in_file == NULL) {
       if (read_err != 0)
         got_read_error = TRUE;
       break;
@@ -362,15 +361,15 @@ main(int argc, char *argv[])
 
     /* We simply write it, perhaps after truncating it; we could do other
      * things, like modify it. */
-    phdr = wtap_phdr(wth);
+    phdr = wtap_phdr(in_file->wth);
     if (snaplen != 0 && phdr->caplen > snaplen) {
       snap_phdr = *phdr;
       snap_phdr.caplen = snaplen;
       phdr = &snap_phdr;
     }
 
-    if (!wtap_dump(pdh, phdr, wtap_pseudoheader(wth),
-         wtap_buf_ptr(wth), &write_err)) {
+    if (!wtap_dump(pdh, phdr, wtap_pseudoheader(in_file->wth),
+         wtap_buf_ptr(in_file->wth), &write_err)) {
       got_write_error = TRUE;
       break;
     }
@@ -405,8 +404,22 @@ main(int argc, char *argv[])
   }
 
   if (got_write_error) {
-    fprintf(stderr, "mergecap: Error writing to outfile: %s\n",
-            wtap_strerror(write_err));
+    switch (write_err) {
+
+    case WTAP_ERR_UNSUPPORTED_ENCAP:
+      /*
+       * This is a problem with the particular frame we're writing;
+       * note that, and give the frame number.
+       */
+      fprintf(stderr, "mergecap: Frame %u of \"%s\" has a network type that can't be saved in a file with that format\n.",
+              in_file->packet_num, in_file->filename);
+      break;
+
+    default:
+      fprintf(stderr, "mergecap: Error writing to outfile: %s\n",
+              wtap_strerror(write_err));
+      break;
+    }
   }
 
   g_free(in_files);

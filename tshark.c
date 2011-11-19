@@ -2672,6 +2672,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
   gint         linktype;
   int          snapshot_length;
   wtap_dumper *pdh;
+  guint32      framenum;
   int          err;
   gchar        *err_info = NULL;
   gint64       data_offset;
@@ -2707,8 +2708,8 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
 
       case WTAP_ERR_UNSUPPORTED_ENCAP:
       case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
-        cmdarg_err("The capture file being read can't be written in "
-          "the format \"%s\".", wtap_encap_short_string(linktype));
+        cmdarg_err("The capture file being read can't be written as a "
+          "\"%s\" file.", wtap_file_type_short_string(out_file_type));
         break;
 
       case WTAP_ERR_CANT_OPEN:
@@ -2753,7 +2754,6 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
   tap_flags = union_of_tap_listener_flags();
 
   if (perform_two_pass_analysis) {
-    guint32 framenum;
     frame_data *fdata;
     int old_max_packet_count = max_packet_count;
 
@@ -2799,7 +2799,26 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
                            wtap_pseudoheader(cf->wth), wtap_buf_ptr(cf->wth),
                            &err)) {
               /* Error writing to a capture file */
-              show_capture_file_io_error(save_file, err, FALSE);
+              switch (err) {
+
+              case WTAP_ERR_UNSUPPORTED_ENCAP:
+                /*
+                 * This is a problem with the particular frame we're writing;
+                 * note that, and give the frame number.
+                 *
+                 * XXX - framenum is not necessarily the frame number in
+                 * the input file if there was a read filter.
+                 */
+                fprintf(stderr,
+                        "Frame %u of \"%s\" has a network type that can't be saved in a \"%s\" file.\n",
+                        framenum, cf->filename,
+                        wtap_file_type_short_string(out_file_type));
+                break;
+
+              default:
+                show_capture_file_io_error(save_file, err, FALSE);
+                break;
+              }
               wtap_dump_close(pdh, &err);
               exit(2);
             }
@@ -2818,7 +2837,10 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
     }
   }
   else {
+    framenum = 0;
     while (wtap_read(cf->wth, &err, &err_info, &data_offset)) {
+      framenum++;
+
       if (process_packet(cf, data_offset, wtap_phdr(cf->wth),
                          wtap_pseudoheader(cf->wth), wtap_buf_ptr(cf->wth),
                          filtering_tap_listeners, tap_flags)) {
@@ -2830,7 +2852,23 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
                          wtap_pseudoheader(cf->wth), wtap_buf_ptr(cf->wth),
                          &err)) {
             /* Error writing to a capture file */
-            show_capture_file_io_error(save_file, err, FALSE);
+            switch (err) {
+
+            case WTAP_ERR_UNSUPPORTED_ENCAP:
+              /*
+               * This is a problem with the particular frame we're writing;
+               * note that, and give the frame number.
+               */
+              fprintf(stderr,
+                      "Frame %u of \"%s\" has a network type that can't be saved in a \"%s\" file.\n",
+                      framenum, cf->filename,
+                      wtap_file_type_short_string(out_file_type));
+              break;
+
+            default:
+              show_capture_file_io_error(save_file, err, FALSE);
+              break;
+            }
             wtap_dump_close(pdh, &err);
             exit(2);
           }
@@ -3598,8 +3636,8 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
     case WTAP_ERR_CANT_WRITE_TO_PIPE:
       /* Seen only when opening a capture file for writing. */
       g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-                 "The file \"%%s\" is a pipe, and %s capture files can't be "
-                 "written to a pipe.", wtap_file_type_string(file_type));
+                 "The file \"%%s\" is a pipe, and \"%s\" capture files can't be "
+                 "written to a pipe.", wtap_file_type_short_string(file_type));
       errmsg = errmsg_errno;
       break;
 
@@ -3609,21 +3647,26 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
       break;
 
     case WTAP_ERR_UNSUPPORTED_ENCAP:
-      if (for_writing)
-        errmsg = "TShark can't save this capture in that format.";
-      else {
+      if (for_writing) {
+        g_snprintf(errmsg_errno, sizeof(errmsg_errno),
+                   "TShark can't save this capture as a \"%s\" file.",
+                   wtap_file_type_short_string(file_type));
+      } else {
         g_snprintf(errmsg_errno, sizeof(errmsg_errno),
                  "The file \"%%s\" is a capture for a network type that TShark doesn't support.\n"
                  "(%s)", err_info);
         g_free(err_info);
-        errmsg = errmsg_errno;
       }
+      errmsg = errmsg_errno;
       break;
 
     case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
-      if (for_writing)
-        errmsg = "TShark can't save this capture in that format.";
-      else
+      if (for_writing) {
+        g_snprintf(errmsg_errno, sizeof(errmsg_errno),
+                   "TShark can't save this capture as a \"%s\" file.",
+                   wtap_file_type_short_string(file_type));
+        errmsg = errmsg_errno;
+      } else
         errmsg = "The file \"%s\" is a capture for a network type that TShark doesn't support.";
       break;
 

@@ -80,7 +80,8 @@ read_failure_alert_box(const char *filename, int err)
 
 /*
  * Alert box for a failed attempt to write to a file.
- * "err" is assumed to be a UNIX-style errno.
+ * "err" is assumed to be a UNIX-style errno if positive and a
+ * Wiretap error if negative.
  *
  * XXX - add explanatory secondary text for at least some of the errors;
  * various HIGs suggest that you should, for example, suggest that the
@@ -91,8 +92,25 @@ read_failure_alert_box(const char *filename, int err)
 void
 write_failure_alert_box(const char *filename, int err)
 {
-  simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                file_write_error_message(err), filename);
+  if (err < 0) {
+    switch (err) {
+
+    case WTAP_ERR_SHORT_WRITE:
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                    "A full write couldn't be done to the file \"%s\".",
+                    filename);
+      break;
+    
+    default:
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                    "An error occurred while writing to the file \"%s\": %s.",
+                    filename, wtap_strerror(err));
+      break;
+    }
+  } else {
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                  file_write_error_message(err), filename);
+  }
 }
 
 /*

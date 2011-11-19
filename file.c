@@ -126,7 +126,6 @@ static void cf_open_failure_alert_box(const char *filename, int err,
                       gchar *err_info, gboolean for_writing,
                       int file_type);
 static const char *file_rename_error_message(int err);
-static void cf_write_failure_alert_box(const char *filename, int err);
 static void cf_close_failure_alert_box(const char *filename, int err);
 static void ref_time_packets(capture_file *cf);
 /* Update the progress bar this many times when reading a file. */
@@ -1203,8 +1202,7 @@ cf_status_t
 cf_merge_files(char **out_filenamep, int in_file_count,
                char *const *in_filenames, int file_type, gboolean do_append)
 {
-  merge_in_file_t  *in_files;
-  wtap             *wth;
+  merge_in_file_t  *in_files, *in_file;
   char             *out_filename;
   char             *tmpname;
   int               out_fd;
@@ -1287,12 +1285,12 @@ cf_merge_files(char **out_filenamep, int in_file_count,
   /* do the merge (or append) */
   for (;;) {
     if (do_append)
-      wth = merge_append_read_packet(in_file_count, in_files, &read_err,
-                                     &err_info);
+      in_file = merge_append_read_packet(in_file_count, in_files, &read_err,
+                                         &err_info);
     else
-      wth = merge_read_packet(in_file_count, in_files, &read_err,
-                              &err_info);
-    if (wth == NULL) {
+      in_file = merge_read_packet(in_file_count, in_files, &read_err,
+                                  &err_info);
+    if (in_file == NULL) {
       if (read_err != 0)
         got_read_error = TRUE;
       break;
@@ -1344,8 +1342,8 @@ cf_merge_files(char **out_filenamep, int in_file_count,
       break;
     }
 
-    if (!wtap_dump(pdh, wtap_phdr(wth), wtap_pseudoheader(wth),
-         wtap_buf_ptr(wth), &write_err)) {
+    if (!wtap_dump(pdh, wtap_phdr(in_file->wth), wtap_pseudoheader(in_file->wth),
+         wtap_buf_ptr(in_file->wth), &write_err)) {
       got_write_error = TRUE;
       break;
     }
@@ -1368,51 +1366,51 @@ cf_merge_files(char **out_filenamep, int in_file_count,
      */
     for (i = 0; i < in_file_count; i++) {
       if (in_files[i].state == GOT_ERROR) {
-    /* Put up a message box noting that a read failed somewhere along
-       the line. */
-    switch (read_err) {
+        /* Put up a message box noting that a read failed somewhere along
+           the line. */
+        switch (read_err) {
 
-    case WTAP_ERR_UNSUPPORTED_ENCAP:
-      g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-           "The capture file %%s has a packet with a network type that Wireshark doesn't support.\n(%s)",
-           err_info);
-      g_free(err_info);
-      errmsg = errmsg_errno;
-      break;
+        case WTAP_ERR_UNSUPPORTED_ENCAP:
+          g_snprintf(errmsg_errno, sizeof(errmsg_errno),
+                     "The capture file %%s has a packet with a network type that Wireshark doesn't support.\n(%s)",
+                     err_info);
+          g_free(err_info);
+          errmsg = errmsg_errno;
+          break;
 
-    case WTAP_ERR_CANT_READ:
-      errmsg = "An attempt to read from the capture file %s failed for"
-           " some unknown reason.";
-      break;
+        case WTAP_ERR_CANT_READ:
+          errmsg = "An attempt to read from the capture file %s failed for"
+                   " some unknown reason.";
+          break;
 
-    case WTAP_ERR_SHORT_READ:
-      errmsg = "The capture file %s appears to have been cut short"
-           " in the middle of a packet.";
-      break;
+        case WTAP_ERR_SHORT_READ:
+          errmsg = "The capture file %s appears to have been cut short"
+                   " in the middle of a packet.";
+          break;
 
-    case WTAP_ERR_BAD_RECORD:
-      g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-           "The capture file %%s appears to be damaged or corrupt.\n(%s)",
-           err_info);
-      g_free(err_info);
-      errmsg = errmsg_errno;
-      break;
+        case WTAP_ERR_BAD_RECORD:
+          g_snprintf(errmsg_errno, sizeof(errmsg_errno),
+                     "The capture file %%s appears to be damaged or corrupt.\n(%s)",
+                     err_info);
+          g_free(err_info);
+          errmsg = errmsg_errno;
+          break;
 
-    case WTAP_ERR_DECOMPRESS:
-      g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-                 "The compressed capture file %%s appears to be damaged or corrupt.\n"
-                 "(%s)", err_info);
-      g_free(err_info);
-      errmsg = errmsg_errno;
-      break;
+        case WTAP_ERR_DECOMPRESS:
+          g_snprintf(errmsg_errno, sizeof(errmsg_errno),
+                     "The compressed capture file %%s appears to be damaged or corrupt.\n"
+                     "(%s)", err_info);
+          g_free(err_info);
+          errmsg = errmsg_errno;
+          break;
 
-    default:
-      g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-           "An error occurred while reading the"
-           " capture file %%s: %s.", wtap_strerror(read_err));
-      errmsg = errmsg_errno;
-      break;
-    }
+        default:
+          g_snprintf(errmsg_errno, sizeof(errmsg_errno),
+                     "An error occurred while reading the"
+                     " capture file %%s: %s.", wtap_strerror(read_err));
+          errmsg = errmsg_errno;
+          break;
+        }
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, errmsg, in_files[i].filename);
       }
     }
@@ -1420,7 +1418,31 @@ cf_merge_files(char **out_filenamep, int in_file_count,
 
   if (got_write_error) {
     /* Put up an alert box for the write error. */
-    cf_write_failure_alert_box(out_filename, write_err);
+    if (write_err < 0) {
+      /* Wiretap error. */
+      switch (write_err) {
+
+      case WTAP_ERR_UNSUPPORTED_ENCAP:
+        /*
+         * This is a problem with the particular frame we're writing;
+         * note that, and give the frame number.
+         */
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                      "Frame %u of \"%s\" has a network type that can't be saved in a \"%s\" file.",
+                      in_file->packet_num, in_file->filename,
+                      wtap_file_type_string(file_type));
+        break;
+
+      default:
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                      "An error occurred while writing to the file \"%s\": %s.",
+                      out_filename, wtap_strerror(write_err));
+        break;
+      }
+    } else {
+      /* OS error. */
+      write_failure_alert_box(out_filename, write_err);
+    }
   }
 
   if (got_read_error || got_write_error || stop_flag) {
@@ -3571,6 +3593,7 @@ cf_unignore_frame(capture_file *cf, frame_data *frame)
 typedef struct {
   wtap_dumper *pdh;
   const char  *fname;
+  int          file_type;
 } save_callback_args_t;
 
 /*
@@ -3598,7 +3621,30 @@ save_packet(capture_file *cf _U_, frame_data *fdata,
 
   /* and save the packet */
   if (!wtap_dump(args->pdh, &hdr, pseudo_header, pd, &err)) {
-    cf_write_failure_alert_box(args->fname, err);
+    if (err < 0) {
+      /* Wiretap error. */
+      switch (err) {
+
+      case WTAP_ERR_UNSUPPORTED_ENCAP:
+        /*
+         * This is a problem with the particular frame we're writing;
+         * note that, and give the frame number.
+         */
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                      "Frame %u has a network type that can't be saved in a \"%s\" file.",
+                      fdata->num, wtap_file_type_string(args->file_type));
+        break;
+
+      default:
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                      "An error occurred while writing to the file \"%s\": %s.",
+                      args->fname, wtap_strerror(err));
+        break;
+      }
+    } else {
+      /* OS error. */
+      write_failure_alert_box(args->fname, err);
+    }
     return FALSE;
   }
   return TRUE;
@@ -3695,7 +3741,7 @@ cf_save(capture_file *cf, const char *fname, packet_range_t *range, guint save_f
     if (do_copy) {
       /* Copy the file, if we haven't moved it. */
       if (!copy_file_binary_mode(from_filename, fname))
-    goto fail;
+        goto fail;
     }
   } else {
     /* Either we're filtering packets, or we're saving in a different
@@ -3723,6 +3769,7 @@ cf_save(capture_file *cf, const char *fname, packet_range_t *range, guint save_f
        "range" since we initialized it. */
     callback_args.pdh = pdh;
     callback_args.fname = fname;
+    callback_args.file_type = save_format;
     switch (process_specified_packets(cf, range, "Saving", "selected packets",
                                       TRUE, save_packet, &callback_args)) {
 
@@ -3951,20 +3998,6 @@ file_rename_error_message(int err)
     break;
   }
   return errmsg;
-}
-
-static void
-cf_write_failure_alert_box(const char *filename, int err)
-{
-  if (err < 0) {
-    /* Wiretap error. */
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-          "An error occurred while writing to the file \"%s\": %s.",
-          filename, wtap_strerror(err));
-  } else {
-    /* OS error. */
-    write_failure_alert_box(filename, err);
-  }
 }
 
 /* Check for write errors - if the file is being written to an NFS server,

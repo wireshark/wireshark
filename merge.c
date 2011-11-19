@@ -49,6 +49,7 @@ merge_open_in_files(int in_file_count, char *const *in_file_names,
     files[i].wth         = wtap_open_offline(in_file_names[i], err, err_info, FALSE);
     files[i].data_offset = 0;
     files[i].state       = PACKET_NOT_PRESENT;
+    files[i].packet_num  = 0;
     if (!files[i].wth) {
       /* Close the files we've already opened. */
       for (j = 0; j < i; j++)
@@ -149,11 +150,13 @@ is_earlier(struct wtap_nstime *l, struct wtap_nstime *r) {
 
 /*
  * Read the next packet, in chronological order, from the set of files
- * to be merged.
+ * to be merged.  Return a pointer to the merge_in_file_t for the file
+ * from which the packet was read on success, or NULL on EOF or error.
+ * On EOF, *err is 0; on an error, it's an error code.
  */
-wtap *
-merge_read_packet(int in_file_count, merge_in_file_t in_files[], int *err,
-                  gchar **err_info)
+merge_in_file_t *
+merge_read_packet(int in_file_count, merge_in_file_t in_files[],
+                  int *err, gchar **err_info)
 {
   int i;
   int ei = -1;
@@ -199,15 +202,20 @@ merge_read_packet(int in_file_count, merge_in_file_t in_files[], int *err,
   /* We'll need to read another packet from this file. */
   in_files[ei].state = PACKET_NOT_PRESENT;
 
-  /* Return a pointer to the wtap structure for the file with that frame. */
-  return in_files[ei].wth;
+  /* Count this packet. */
+  in_files[ei].packet_num++;
+
+  /* Return the ordinal of the file from which the packet was read. */
+  return &in_files[ei];
 }
 
 /*
  * Read the next packet, in file sequence order, from the set of files
- * to be merged.
+ * to be merged.  Return a pointer to the merge_in_file_t for the file
+ * from which the packet was read on success, or NULL on EOF or error.
+ * On EOF, *err is 0; on an error, it's an error code.
  */
-wtap *
+merge_in_file_t *
 merge_append_read_packet(int in_file_count, merge_in_file_t in_files[],
                          int *err, gchar **err_info)
 {
@@ -235,6 +243,6 @@ merge_append_read_packet(int in_file_count, merge_in_file_t in_files[],
     return NULL;
   }
 
-  /* Return a pointer to the wtap structure for the file with that frame. */
-  return in_files[i].wth;
+  /* Return the ordinal of the file from which the packet was read. */
+  return &in_files[i];
 }

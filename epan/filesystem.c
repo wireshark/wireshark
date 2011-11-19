@@ -1688,10 +1688,6 @@ file_write_error_message(int err)
         break;
 #endif
 
-    case WTAP_ERR_SHORT_WRITE:
-        errmsg = "A full write couldn't be done to the file \"%s\".";
-        break;
-
     default:
         g_snprintf(errmsg_errno, sizeof(errmsg_errno),
                "An error occurred while writing to the file \"%%s\": %s.",
