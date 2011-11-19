@@ -1423,15 +1423,13 @@ display_sip_uri (tvbuff_t *tvb, proto_tree *sip_element_tree, uri_offset_info* u
 
                 if (c == '>') {
                     uri_param_end_offset = uri_offsets->name_addr_end - 1;
-                    current_offset       = uri_offsets->name_addr_end;
-
                 } else {
                     uri_param_end_offset = uri_offsets->name_addr_end;
-                    current_offset       = uri_offsets->name_addr_end;
                 }
+                current_offset       = uri_offsets->name_addr_end;
             } else if (c==',') {
                 uri_param_end_offset = queried_offset;
-                current_offset       = queried_offset;
+                current_offset       = queried_offset+1; /* must move forward */
             } else if (c==';') {
                 /* More parameters */
                 uri_param_end_offset = queried_offset-1;
