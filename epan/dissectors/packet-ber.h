@@ -99,8 +99,8 @@ typedef int (*ber_old_type_fn)(gboolean, tvbuff_t*, int, asn1_ctx_t *actx, proto
 /* this function dissects the identifier octer of the BER TLV.
  * We only handle TAGs (and LENGTHs) that fit inside 32 bit integers.
  */
-extern int get_ber_identifier(tvbuff_t *tvb, int offset, gint8 *class, gboolean *pc, gint32 *tag);
-extern int dissect_ber_identifier(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint8 *class, gboolean *pc, gint32 *tag);
+extern int get_ber_identifier(tvbuff_t *tvb, int offset, gint8 *ber_class, gboolean *pc, gint32 *tag);
+extern int dissect_ber_identifier(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, gint8 *ber_class, gboolean *pc, gint32 *tag);
 extern int dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree);
 /* this function dissects the identifier octer of the BER TLV.
  * We only handle (TAGs and) LENGTHs that fit inside 32 bit integers.
@@ -135,14 +135,14 @@ extern int dissect_ber_EmbeddedPDV_Type(gboolean implicit_tag, proto_tree *paren
 #define BER_FLAGS_NOTCHKTAG	0x00000008
 typedef struct _ber_sequence_t {
 	const int *p_id;
-	gint8	class;
+	gint8	ber_class;
 	gint32	tag;
 	guint32	flags;
 	ber_callback	func;
 } ber_sequence_t;
 /* To be removed when the transition to the "New" type is complete */
 typedef struct _ber_old_sequence_t {
-	gint8	class;
+	gint8	ber_class;
 	gint32	tag;
 	guint32	flags;
 	ber_old_callback	func;
@@ -161,7 +161,7 @@ extern int dissect_ber_old_set(gboolean implicit_tag, asn1_ctx_t *actx, proto_tr
 typedef struct _ber_choice_t {
 	guint32	value;
 	const int *p_id;
-	gint8	class;
+	gint8	ber_class;
 	gint32	tag;
 	guint32	flags;
 	ber_callback	func;
@@ -169,7 +169,7 @@ typedef struct _ber_choice_t {
 
 typedef struct _ber_old_choice_t {
 	guint32	value;
-	gint8	class;
+	gint8	ber_class;
 	gint32	tag;
 	guint32	flags;
 	ber_old_callback	func;
