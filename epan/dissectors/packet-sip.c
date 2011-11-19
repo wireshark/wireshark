@@ -1378,78 +1378,75 @@ dissect_sip_name_addr_or_addr_spec(tvbuff_t *tvb, packet_info *pinfo _U_, gint s
 static proto_tree *
 display_sip_uri (tvbuff_t *tvb, proto_tree *sip_element_tree, uri_offset_info* uri_offsets, hf_sip_uri_t* uri)
 {
+    proto_item *ti;
+    proto_tree *uri_item_tree = NULL;
 
-	proto_item *ti;
-	proto_tree *uri_item_tree = NULL;
+    if(uri_offsets->display_name_end != uri_offsets->display_name_start) {
+        proto_tree_add_item(sip_element_tree, hf_sip_display, tvb, uri_offsets->display_name_start,
+                            uri_offsets->display_name_end - uri_offsets->display_name_start + 1, ENC_ASCII|ENC_NA);
+    }
 
-	if(uri_offsets->display_name_end != uri_offsets->display_name_start) {
-		proto_tree_add_item(sip_element_tree, hf_sip_display, tvb, uri_offsets->display_name_start,
-		  		    uri_offsets->display_name_end - uri_offsets->display_name_start + 1, ENC_ASCII|ENC_NA);
-	}
+    ti = proto_tree_add_item(sip_element_tree, *(uri->hf_sip_addr),
+                             tvb, uri_offsets->uri_start, uri_offsets->uri_end - uri_offsets->uri_start + 1, ENC_ASCII|ENC_NA);
+    uri_item_tree = proto_item_add_subtree(ti, *(uri->ett_uri));
 
-	ti = proto_tree_add_item(sip_element_tree, *(uri->hf_sip_addr),
-                                 tvb, uri_offsets->uri_start, uri_offsets->uri_end - uri_offsets->uri_start + 1, ENC_ASCII|ENC_NA);
-	uri_item_tree = proto_item_add_subtree(ti, *(uri->ett_uri));
+    if(uri_offsets->uri_user_end > uri_offsets->uri_user_start) {
+        proto_tree_add_item(uri_item_tree, *(uri->hf_sip_user), tvb, uri_offsets->uri_user_start,
+                            uri_offsets->uri_user_end - uri_offsets->uri_user_start + 1, ENC_ASCII|ENC_NA);
+    }
 
-	if(uri_offsets->uri_user_end > uri_offsets->uri_user_start) {
-		proto_tree_add_item(uri_item_tree, *(uri->hf_sip_user), tvb, uri_offsets->uri_user_start,
-		     		    uri_offsets->uri_user_end - uri_offsets->uri_user_start + 1, ENC_ASCII|ENC_NA);
-	}
+    proto_tree_add_item(uri_item_tree, *(uri->hf_sip_host), tvb, uri_offsets->uri_host_start,
+                        uri_offsets->uri_host_end - uri_offsets->uri_host_start + 1, ENC_ASCII|ENC_NA);
 
-	proto_tree_add_item(uri_item_tree, *(uri->hf_sip_host), tvb, uri_offsets->uri_host_start,
-	 		    uri_offsets->uri_host_end - uri_offsets->uri_host_start + 1, ENC_ASCII|ENC_NA);
-
-	if(uri_offsets->uri_host_port_end > uri_offsets->uri_host_port_start) {
-		proto_tree_add_item(uri_item_tree, *(uri->hf_sip_port), tvb, uri_offsets->uri_host_port_start,
-				uri_offsets->uri_host_port_end - uri_offsets->uri_host_port_start + 1, ENC_ASCII|ENC_NA);
-	}
+    if(uri_offsets->uri_host_port_end > uri_offsets->uri_host_port_start) {
+        proto_tree_add_item(uri_item_tree, *(uri->hf_sip_port), tvb, uri_offsets->uri_host_port_start,
+                            uri_offsets->uri_host_port_end - uri_offsets->uri_host_port_start + 1, ENC_ASCII|ENC_NA);
+    }
 
     if (uri_offsets->uri_parameters_start != -1) {
-	    /* Move current offset to the start of the first param */
-	    gint current_offset          = uri_offsets->uri_parameters_start;
+        /* Move current offset to the start of the first param */
+        gint current_offset          = uri_offsets->uri_parameters_start;
         gint uri_params_start_offset = current_offset;
         gint queried_offset;
         gint uri_param_end_offset = -1;
         gchar c;
 
-	    /* Put the contact parameters in the tree */
+        /* Put the contact parameters in the tree */
 
-	    while (current_offset < uri_offsets->name_addr_end) {
-		    queried_offset = tvb_pbrk_guint8(tvb, current_offset, uri_offsets->name_addr_end - current_offset, ",;", &c);
+        while (current_offset < uri_offsets->name_addr_end) {
+            queried_offset = tvb_pbrk_guint8(tvb, current_offset, uri_offsets->name_addr_end - current_offset, ",;", &c);
 
-		    if (queried_offset == -1) {
-			    /* Reached line end */
+            if (queried_offset == -1) {
+                /* Reached line end */
                 /* Check if the line ends with a ">", if so decrement end offset. */
                 c = tvb_get_guint8(tvb, uri_offsets->name_addr_end);
 
                 if (c == '>') {
-			        uri_param_end_offset = uri_offsets->name_addr_end - 1;
-			        current_offset       = uri_offsets->name_addr_end;
+                    uri_param_end_offset = uri_offsets->name_addr_end - 1;
+                    current_offset       = uri_offsets->name_addr_end;
 
                 } else {
-			        uri_param_end_offset = uri_offsets->name_addr_end;
-			        current_offset       = uri_offsets->name_addr_end;
+                    uri_param_end_offset = uri_offsets->name_addr_end;
+                    current_offset       = uri_offsets->name_addr_end;
                 }
+            } else if (c==',') {
+                uri_param_end_offset = queried_offset;
+                current_offset       = queried_offset;
+            } else if (c==';') {
+                /* More parameters */
+                uri_param_end_offset = queried_offset-1;
+                current_offset       = tvb_skip_wsp(tvb, queried_offset+1, uri_offsets->name_addr_end - queried_offset + 1);
+            }
 
-  		    } else if (c==',') {
-			    uri_param_end_offset = queried_offset;
-			    current_offset       = queried_offset;
-  
-		    } else if (c==';') {
-			    /* More parameters */
-			    uri_param_end_offset = queried_offset-1;
-			    current_offset       = tvb_skip_wsp(tvb, queried_offset+1, uri_offsets->name_addr_end - queried_offset + 1);
-		    }
+            proto_tree_add_item(uri_item_tree, *(uri->hf_sip_param), tvb, uri_params_start_offset ,
+                uri_param_end_offset - uri_params_start_offset +1, ENC_ASCII|ENC_NA);
 
-		    proto_tree_add_item(uri_item_tree, *(uri->hf_sip_param), tvb, uri_params_start_offset ,
-			    uri_param_end_offset - uri_params_start_offset +1, ENC_ASCII|ENC_NA);
-
-		    /* In case there are more parameters, point to the start of it */
-		    uri_params_start_offset = current_offset;
-	    }
+            /* In case there are more parameters, point to the start of it */
+            uri_params_start_offset = current_offset;
+        }
     }
 
-	return uri_item_tree;
+    return uri_item_tree;
 }
 
 
