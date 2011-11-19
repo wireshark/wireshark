@@ -855,13 +855,14 @@ dissect_rdp_fields(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
   return offset;
 }
 
-static int
-dissect_rdp_nyi(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, const char *info)
-{
-  rdp_field_info_t nyi_fields[] = {
+static rdp_field_info_t nyi_fields[] = {
     {hf_rdp_notYetImplemented,      2, NULL, 0, 0, NULL },
     FI_TERMINATOR
   };
+
+static int
+dissect_rdp_nyi(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, const char *info)
+{
 
   nyi_fields[0].fixedLength = tvb_length_remaining(tvb, offset);
   offset = dissect_rdp_fields(tvb, offset, pinfo, tree, nyi_fields);
