@@ -51,5 +51,5 @@ enum {
 
 void tetra_dissect_pdu(int channel_type, int dir, tvbuff_t *pdu, proto_tree *head, packet_info *pinfo);
 
-#include "packet-tetra-exp.h"
+/*#include "packet-tetra-exp.h"*/
 #endif  /* PACKET_TETRA_H */
