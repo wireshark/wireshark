@@ -645,9 +645,9 @@ static const value_string dns_classes[] = {
 };
 
 const char *
-dns_class_name(int class)
+dns_class_name(int dns_class)
 {
-  return val_to_str(class, dns_classes, "Unknown (%u)");
+  return val_to_str(dns_class, dns_classes, "Unknown (%u)");
 }
 
 /* This function returns the number of bytes consumed and the expanded string
@@ -845,7 +845,7 @@ get_dns_name_type_class(tvbuff_t *tvb, int offset, int dns_data_offset,
   int len;
   int name_len;
   int type;
-  int class;
+  int dns_class;
   int start_offset = offset;
 
   /* XXX Fix data length */
@@ -855,11 +855,11 @@ get_dns_name_type_class(tvbuff_t *tvb, int offset, int dns_data_offset,
   type = tvb_get_ntohs(tvb, offset);
   offset += 2;
 
-  class = tvb_get_ntohs(tvb, offset);
+  dns_class = tvb_get_ntohs(tvb, offset);
   offset += 2;
 
   *type_ret = type;
-  *class_ret = class;
+  *class_ret = dns_class;
   *name_len_ret = name_len;
 
   len = offset - start_offset;
@@ -921,7 +921,7 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
   gchar *name_out;
   int name_len;
   int type;
-  int class;
+  int dns_class;
   int qu;
   const char *type_name;
   int data_offset;
@@ -932,12 +932,12 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
   data_start = data_offset = offset;
 
   len = get_dns_name_type_class(tvb, offset, dns_data_offset, &name, &name_len,
-    &type, &class);
+    &type, &dns_class);
   data_offset += len;
   if (is_mdns) {
     /* Split the QU flag and the class */
-    qu = class & C_QU;
-    class &= ~C_QU;
+    qu = dns_class & C_QU;
+    dns_class &= ~C_QU;
   } else
     qu = 0;
 
@@ -956,7 +956,7 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
   }
   if (dns_tree != NULL) {
     tq = proto_tree_add_text(dns_tree, tvb, offset, len, "%s: type %s, class %s",
-		   name_out, type_name, dns_class_name(class));
+		   name_out, type_name, dns_class_name(dns_class));
     if (is_mdns)
       proto_item_append_text(tq, ", \"%s\" question", qu ? "QU" : "QM");
     q_tree = proto_item_add_subtree(tq, ett_dns_qd);
@@ -969,10 +969,10 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
     offset += 2;
 
     if (is_mdns) {
-      proto_tree_add_uint(q_tree, hf_dns_qry_class_mdns, tvb, offset, 2, class);
+      proto_tree_add_uint(q_tree, hf_dns_qry_class_mdns, tvb, offset, 2, dns_class);
       proto_tree_add_boolean(q_tree, hf_dns_qry_qu, tvb, offset, 2, qu);
     } else
-      proto_tree_add_uint(q_tree, hf_dns_qry_class, tvb, offset, 2, class);
+      proto_tree_add_uint(q_tree, hf_dns_qry_class, tvb, offset, 2, dns_class);
 
     offset += 2;
   }
@@ -983,7 +983,7 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
 
 static proto_tree *
 add_rr_to_tree(proto_item *trr, int rr_type, tvbuff_t *tvb, int offset,
-  const guchar *name, int namelen, int type, int class, int flush,
+  const guchar *name, int namelen, int type, int dns_class, int flush,
   guint ttl, gushort data_len, gboolean is_mdns)
 {
   proto_tree *rr_tree;
@@ -1019,10 +1019,10 @@ add_rr_to_tree(proto_item *trr, int rr_type, tvbuff_t *tvb, int offset,
 		"Type: %s", dns_type_description(type));
   offset += 2;
   if (is_mdns) {
-    proto_tree_add_uint(rr_tree, hf_dns_rr_class_mdns, tvb, offset, 2, class);
+    proto_tree_add_uint(rr_tree, hf_dns_rr_class_mdns, tvb, offset, 2, dns_class);
     proto_tree_add_boolean(rr_tree, hf_dns_rr_cache_flush, tvb, offset, 2, flush);
   } else
-    proto_tree_add_uint(rr_tree, hf_dns_rr_class, tvb, offset, 2, class);
+    proto_tree_add_uint(rr_tree, hf_dns_rr_class, tvb, offset, 2, dns_class);
   offset += 2;
   proto_tree_add_uint_format(rr_tree, hf_dns_rr_ttl, tvb, offset, 4, ttl,
 		"Time to live: %s", time_secs_to_str(ttl));
@@ -1034,7 +1034,7 @@ add_rr_to_tree(proto_item *trr, int rr_type, tvbuff_t *tvb, int offset,
 
 static proto_tree *
 add_opt_rr_to_tree(proto_item *trr, int rr_type, tvbuff_t *tvb, int offset,
-  const char *name, int namelen, int type, int class, int flush,
+  const char *name, int namelen, int type, int dns_class, int flush,
   guint ttl, gushort data_len, gboolean is_mdns)
 {
   proto_tree *rr_tree, *Z_tree;
@@ -1048,13 +1048,13 @@ add_opt_rr_to_tree(proto_item *trr, int rr_type, tvbuff_t *tvb, int offset,
   offset += 2;
   if (is_mdns) {
     proto_tree_add_text(rr_tree, tvb, offset, 2, "%s",
-                        decode_numeric_bitfield(class, 0x7fff, 16,
+                        decode_numeric_bitfield(dns_class, 0x7fff, 16,
                                                 "UDP payload size: %u"));
     proto_tree_add_boolean(rr_tree, hf_dns_rr_cache_flush, tvb, offset, 2,
        flush);
   } else {
     proto_tree_add_text(rr_tree, tvb, offset, 2, "UDP payload size: %u",
-      class & 0xffff);
+      dns_class & 0xffff);
   }
   offset += 2;
   proto_tree_add_text(rr_tree, tvb, offset, 1, "Higher bits in extended RCODE: 0x%x",
@@ -1199,7 +1199,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
   gchar *name_out;
   int name_len;
   int type;
-  int class;
+  int dns_class;
   int flush;
   const char *class_name;
   const char *type_name;
@@ -1215,18 +1215,18 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
   cur_offset = offsetx;
 
   len = get_dns_name_type_class(tvb, offsetx, dns_data_offset, &name, &name_len,
-    &type, &class);
+    &type, &dns_class);
   data_offset += len;
   cur_offset += len;
   if (is_mdns) {
     /* Split the FLUSH flag and the class */
-    flush = class & C_FLUSH;
-    class &= ~C_FLUSH;
+    flush = dns_class & C_FLUSH;
+    dns_class &= ~C_FLUSH;
   } else
     flush = 0;
 
   type_name = dns_type_name(type);
-  class_name = dns_class_name(class);
+  class_name = dns_class_name(dns_class);
 
   ttl = tvb_get_ntohl(tvb, data_offset);
   data_offset += 4;
@@ -1253,13 +1253,13 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 		    "%s: type %s, class %s",
 		    name_out, type_name, class_name);
       rr_tree = add_rr_to_tree(trr, ett_dns_rr, tvb, offsetx, name, name_len,
-		     type, class, flush, ttl, data_len, is_mdns);
+		     type, dns_class, flush, ttl, data_len, is_mdns);
     } else  {
       trr = proto_tree_add_text(dns_tree, tvb, offsetx,
 		    (data_offset - data_start) + data_len,
 		    "%s: type %s", name_out, type_name);
       rr_tree = add_opt_rr_to_tree(trr, ett_dns_rr, tvb, offsetx, name, name_len,
-		     type, class, flush, ttl, data_len, is_mdns);
+		     type, dns_class, flush, ttl, data_len, is_mdns);
     }
     if (is_mdns && flush)
       proto_item_append_text(trr, ", cache flush");
@@ -1282,7 +1282,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 	proto_item_append_text(trr, ", addr %s", addr);
 	proto_tree_add_item(rr_tree, hf_dns_rr_addr, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
 
-      if ((class & 0x7f) == C_IN) {
+      if ((dns_class & 0x7f) == C_IN) {
 	tvb_memcpy(tvb, &addr_int, cur_offset, sizeof(addr_int));
 	add_ipv4_name(addr_int, name);
       }
@@ -1830,7 +1830,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 	proto_item_append_text(trr, ", addr %s", addr6);
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 16, "Addr: %s", addr6);
 
-      if ((class & 0x7f) == C_IN) {
+      if ((dns_class & 0x7f) == C_IN) {
 	tvb_memcpy(tvb, &addr_in6, cur_offset, sizeof(addr_in6));
 	add_ipv6_name(&addr_in6, name);
       }
@@ -3146,35 +3146,35 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   /*
    * Do we already have a state structure for this conv
    */
-  dns_info = conversation_get_proto_data(conversation, proto_dns);
+  dns_info = (dns_conv_info_t *)conversation_get_proto_data(conversation, proto_dns);
   if (!dns_info) {
     /* No.  Attach that information to the conversation, and add
      * it to the list of information structures.
      */
-    dns_info = se_alloc(sizeof(dns_conv_info_t));
+    dns_info = se_new(dns_conv_info_t);
     dns_info->pdus=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "dns_pdus");
     conversation_add_proto_data(conversation, proto_dns, dns_info);
   }
   if(!pinfo->fd->flags.visited){
     if(!(flags&F_RESPONSE)){
       /* This is a request */
-      dns_trans=se_alloc(sizeof(dns_transaction_t));
+      dns_trans=se_new(dns_transaction_t);
       dns_trans->req_frame=pinfo->fd->num;
       dns_trans->rep_frame=0;
       dns_trans->req_time=pinfo->fd->abs_ts;
       se_tree_insert32(dns_info->pdus, id, (void *)dns_trans);
     } else {
-      dns_trans=se_tree_lookup32(dns_info->pdus, id);
+      dns_trans=(dns_transaction_t *)se_tree_lookup32(dns_info->pdus, id);
       if(dns_trans){
         dns_trans->rep_frame=pinfo->fd->num;
       }
     }
   } else {
-    dns_trans=se_tree_lookup32(dns_info->pdus, id);
+    dns_trans=(dns_transaction_t *)se_tree_lookup32(dns_info->pdus, id);
   }
   if(!dns_trans){
     /* create a "fake" pana_trans structure */
-    dns_trans=ep_alloc(sizeof(dns_transaction_t));
+    dns_trans=ep_new(dns_transaction_t);
     dns_trans->req_frame=0;
     dns_trans->rep_frame=0;
     dns_trans->req_time=pinfo->fd->abs_ts;

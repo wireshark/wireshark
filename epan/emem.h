@@ -135,9 +135,11 @@ void* ep_stack_pop(ep_stack_t stack);
 
 /** Allocate memory with a capture lifetime scope */
 void *se_alloc(size_t size) G_GNUC_MALLOC;
+#define se_new(type) ((type*)se_alloc(sizeof(type)))
 
 /** Allocate memory with a capture lifetime scope and fill it with zeros*/
 void* se_alloc0(size_t size) G_GNUC_MALLOC;
+#define se_new0(type) ((type*)se_alloc0(sizeof(type)))
 
 /** Duplicate a string with a capture lifetime scope */
 gchar* se_strdup(const gchar* src) G_GNUC_MALLOC;

@@ -547,7 +547,7 @@ static guint    dmp_struct_length = 1;
 
 typedef struct _dmp_security_class_t {
   guint nation;
-  guint class;
+  guint dmp_class;
   char *name;
 } dmp_security_class_t;
 
@@ -1004,17 +1004,17 @@ static const value_string thales_ipm_id_modifier[] = {
 };
 
 UAT_VS_DEF(dmp_security_class, nation, dmp_security_class_t, 0, "None");
-UAT_DEC_CB_DEF(dmp_security_class, class, dmp_security_class_t);
+UAT_DEC_CB_DEF(dmp_security_class, dmp_class, dmp_security_class_t);
 UAT_CSTRING_CB_DEF(dmp_security_class, name, dmp_security_class_t);
 
 static void *
 dmp_class_copy_cb(void *dest, const void *orig, size_t len _U_)
 {
-  dmp_security_class_t *u = dest;
-  const dmp_security_class_t *o = orig;
+  dmp_security_class_t *u = (dmp_security_class_t *)dest;
+  const dmp_security_class_t *o = (const dmp_security_class_t *)orig;
 
   u->nation = o->nation;
-  u->class = o->class;
+  u->dmp_class = o->dmp_class;
   u->name = g_strdup(o->name);
 
   return dest;
@@ -1023,7 +1023,7 @@ dmp_class_copy_cb(void *dest, const void *orig, size_t len _U_)
 static void
 dmp_class_free_cb(void *r)
 {
-  dmp_security_class_t *u = r;
+  dmp_security_class_t *u = (dmp_security_class_t *)r;
 
   g_free(u->name);
 }
@@ -1035,7 +1035,7 @@ static gchar *dmp_national_sec_class (guint nation, guint dmp_sec_class)
   for (i = 0; i < num_dmp_security_classes; i++) {
     dmp_security_class_t *u = &(dmp_security_classes[i]);
 
-    if (u->nation == nation && u->class == dmp_sec_class) {
+    if (u->nation == nation && u->dmp_class == dmp_sec_class) {
       return u->name;
     }
   }
@@ -1386,7 +1386,7 @@ static void register_dmp_id (packet_info *pinfo, guint8 reason)
 
   nstime_set_zero(&msg_time);
 
-  dmp_key = se_alloc (sizeof (dmp_id_key));
+  dmp_key = se_new (dmp_id_key);
 
   if (!pinfo->fd->flags.visited &&
       (dmp.msg_type == REPORT || dmp.msg_type == NOTIF))
@@ -1443,7 +1443,7 @@ static void register_dmp_id (packet_info *pinfo, guint8 reason)
       }
     } else {
       /* New message */
-      dmp_data = se_alloc0 (sizeof (dmp_id_val));
+      dmp_data = se_new0 (dmp_id_val);
       dmp_data->msg_type = dmp.msg_type;
 
       if (dmp.msg_type == ACK) {
@@ -1469,12 +1469,12 @@ static void register_dmp_id (packet_info *pinfo, guint8 reason)
       }
     }
 
-    pkg_data = se_alloc (sizeof (dmp_id_val));
+    pkg_data = se_new (dmp_id_val);
     *pkg_data = *dmp_data;
     p_add_proto_data (pinfo->fd, proto_dmp, pkg_data);
   } else {
     /* Fetch last values from data saved in packet */
-    pkg_data = p_get_proto_data (pinfo->fd, proto_dmp);
+    pkg_data = (dmp_id_val *)p_get_proto_data (pinfo->fd, proto_dmp);
 
     if (dmp_data && pkg_data && dmp.msg_type != ACK && pkg_data->ack_id == 0) {
       pkg_data->ack_id = dmp_data->ack_id;
@@ -4964,7 +4964,7 @@ void proto_register_dmp (void)
 
   static uat_field_t attributes_flds[] = {
     UAT_FLD_VS(dmp_security_class,nation, "Nation", nat_pol_id, 0),
-    UAT_FLD_DEC(dmp_security_class,class, "Classification", "Security Classification"),
+    UAT_FLD_DEC(dmp_security_class,dmp_class, "Classification", "Security Classification"),
     UAT_FLD_CSTRING(dmp_security_class,name, "Name", "Classification Name"),
     UAT_END_FIELDS
   };

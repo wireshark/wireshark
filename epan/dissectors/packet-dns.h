@@ -27,7 +27,7 @@
 #ifndef __PACKET_DNS_H__
 #define __PACKET_DNS_H__
 
-const char *dns_class_name(int class);
+const char *dns_class_name(int dns_class);
 
 int expand_dns_name(tvbuff_t *, int, int, int, const guchar **);
 /* Just like expand_dns_name, but pretty-prints empty names. */

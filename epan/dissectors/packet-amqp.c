@@ -2967,7 +2967,7 @@ dissect_amqp_0_10_execution(tvbuff_t *tvb,
     proto_item *args_tree;
     proto_item *ti;
     proto_item *flags_item;
-    guint8 class = 0, method;
+    guint8 amqp_class = 0, method;
     guint8 flag1, flag2;
     guint16 size;
     guint32 struct_size;
@@ -3060,14 +3060,14 @@ dissect_amqp_0_10_execution(tvbuff_t *tvb,
         }
         if (flag1 & 0x04) {
             /*  class-code (uint8) */
-            class = tvb_get_guint8(tvb, offset);
+            amqp_class = tvb_get_guint8(tvb, offset);
             proto_tree_add_item(args_tree, hf_amqp_0_10_class,
                                 tvb, offset, 1, ENC_BIG_ENDIAN);
             AMQP_INCREMENT(offset, 1, length);
         }
         if (flag1 & 0x08) {
             /*  command-code (uint8) */
-            switch(class) {
+            switch(amqp_class) {
             case AMQP_0_10_CLASS_CONNECTION:
                 class_hf = hf_amqp_0_10_connection_method;
                 break;
@@ -3107,7 +3107,7 @@ dissect_amqp_0_10_execution(tvbuff_t *tvb,
                                     tvb, offset, 1, ENC_BIG_ENDIAN);
             else
                 expert_add_info_format(pinfo, args_tree, PI_PROTOCOL, PI_WARN,
-                                       "Invalid class code %x", class);
+                                       "Invalid class code %x", amqp_class);
             AMQP_INCREMENT(offset, 1, length);
         }
         if (flag1 & 0x10) {
