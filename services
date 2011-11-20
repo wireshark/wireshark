@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2011-11-10
+# 2011-11-17
 # 
 # Note
 # 
@@ -1535,8 +1535,8 @@ keyserver	584/udp	# Key Server                   [Gary_Howland]                 
 # 585               De-registered                                                                                                                                 2006-04-25                                                             Use of 585 is not recommended, use 993 instead
 password-chg	586/tcp	# Password Change
 password-chg	586/udp	# Password Change
-submission	587/tcp	# Message Submission                                                                                                                                         [RFC-ietf-yam-rfc4409bis-03]
-submission	587/udp	# Message Submission                                                                                                                                         [RFC-ietf-yam-rfc4409bis-03]
+submission	587/tcp	# Message Submission                                                                                                                            2011-11-17   [RFC6409]
+submission	587/udp	# Message Submission                                                                                                                            2011-11-17   [RFC6409]
 cal	588/tcp	# CAL                          [Myron_Hattig]                            [Myron_Hattig]
 cal	588/udp	# CAL                          [Myron_Hattig]                            [Myron_Hattig]
 eyelink	589/tcp	# EyeLink                      [Dave_Stampe]                             [Dave_Stampe]
@@ -9764,7 +9764,8 @@ ml-svnet	4171/tcp	# Maxlogic Supervisor          [Taha_Paksu]                   
 # 4171        udp    Reserved
 pcoip	4172/tcp	# PC over IP                   [Ken_Unger]                               [Ken_Unger]                                               2009-12-23
 pcoip	4172/udp	# PC over IP                   [Ken_Unger]                               [Ken_Unger]                                               2009-12-23
-# 4173               Unassigned
+# 4173        tcp    Reserved
+mma-discovery	4173/udp	# MMA Device Discovery         [MIDI_Manufacturers_Assoc_Inc]            [Tom_White]                                               2011-11-14
 smcluster	4174/tcp	# StorMagic Cluster Services   [Chris_Farey]                             [Chris_Farey]                                             2011-03-09
 # 4174        udp    Reserved
 bccp	4175/tcp	# Brocade Cluster              [Norival_Figueira]                        [Norival_Figueira]                                        2010-04-07
@@ -19455,6 +19456,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Michel_Bourget]                                          Michel Bourget                                  mailto:michel&sgi.com                                         2009-01-06
 # [Micromat]                                                Micromat                                        mailto:support&micromat.com
 # [Microsoft_Corporation]                                                             Microsoft Corporation mailto:pratshar&microsoft.com                                 2011-08-04
+# [MIDI_Manufacturers_Assoc_Inc]                                                      MIDI Manufacturers    mailto:info&midi.org                                          2011-11-14
+# Assoc Inc
 # [Miguel_Angel_Fernand]                                    Miguel Angel Fernandez                          mailto:mafg&tid.es
 # [Miguel_Angel_Garcia]                                     Miguel Angel Garcia                             mailto:Miguel.A.Garcia&ericsson.com
 # [Mike_Accetta]                                            Mike Accetta                                    mailto:MIKE.ACCETTA&cmu-cs-a.edu
@@ -20825,6 +20828,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Tom_Taylor]                                              Tom Taylor                                      mailto:Tom.Taylor&unisys.com
 # [Tom_Taylor_2]                                            Tom Taylor                                      mailto:taylor&nortelnetworks.com
 # [Tom_Taylor_3]                                            Tom Taylor                                      mailto:taylor&nortel.com                                      2006-09
+# [Tom_White]                                               Tom White                 MIDI Manufacturers    mailto:info&midi.org                                          2011-11-14
+# Assoc Inc
 # [Tom_Whittaker]                                           Tom Whittaker                                   mailto:tomw&ssec.wisc.edu
 # [Tomas_Rajcan]                                            Tomas Rajcan                                    mailto:trajcan&ipesoft.sk
 # [Tomas_Svoboda]                                           Tomas Svoboda                                   mailto:svoboda&infima.cz                                      2004-12
