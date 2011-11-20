@@ -288,8 +288,7 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
 
   /* The open succeeded.  Close whatever capture file we had open,
      and fill in the information for this file. */
-  cf_callback_invoke(cf_cb_file_closing, cf);
-  cf_reset_state(cf);
+  cf_close(cf);
 
   /* Cleanup all data structures used for dissection. */
   cleanup_dissection();
