@@ -1120,8 +1120,8 @@ static const ip_tcp_opt ipopts[] = {
 /* Dissect the IP or TCP options in a packet. */
 void
 dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
-			const ip_tcp_opt *opttab, int nopts, int eol,
-			packet_info *pinfo, proto_tree *opt_tree, proto_item *opt_item)
+    const ip_tcp_opt *opttab, int nopts, int eol,
+    packet_info *pinfo, proto_tree *opt_tree, proto_item *opt_item)
 {
   guchar            opt;
   const ip_tcp_opt *optp;
@@ -1129,7 +1129,7 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
   unsigned int      optlen;
   const char       *name;
   void            (*dissect)(const struct ip_tcp_opt *, tvbuff_t *,
-				int, guint, packet_info *, proto_tree *);
+                             int, guint, packet_info *, proto_tree *);
   guint             len, nop_count = 0;
 
   while (length > 0) {
@@ -1141,8 +1141,8 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
     if (optp == &opttab[nopts]) {
       /* We assume that the only NO_LENGTH options are EOL and NOP options,
          so that we can treat unknown options as VARIABLE_LENGTH with a
-	 minimum of 2, and at least be able to move on to the next option
-	 by using the length in the option. */
+         minimum of 2, and at least be able to move on to the next option
+         by using the length in the option. */
       optp = NULL;	/* indicate that we don't know this option */
       len_type = VARIABLE_LENGTH;
       optlen = 2;
@@ -1155,12 +1155,12 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
       name = optp->name;
       dissect = optp->dissect;
       if (opt_item && len_type == NO_LENGTH && optlen == 0 && opt == 1 &&
-	  (nop_count == 0 || offset % 4))  /* opt 1 = NOP in both IP and TCP */
+        (nop_count == 0 || offset % 4))  /* opt 1 = NOP in both IP and TCP */
       {
-	/* Count number of NOP in a row within a uint32 */
-	nop_count++;
+        /* Count number of NOP in a row within a uint32 */
+        nop_count++;
       } else {
-	nop_count = 0;
+        nop_count = 0;
       }
     }
     --length;      /* account for type byte */
@@ -1186,7 +1186,7 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
         /* Bogus - option goes past the end of the header. */
         proto_tree_add_text(opt_tree, tvb, offset,      length,
               "%s (option length = %u byte%s says option goes past end of options)",
-	      name, len, plurality(len, "", "s"));
+              name, len, plurality(len, "", "s"));
         return;
       } else if (len_type == FIXED_LENGTH && len != optlen) {
         /* Bogus - option length isn't what it's supposed to be for this
@@ -1205,7 +1205,7 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
       } else {
         if (optp == NULL) {
           proto_tree_add_text(opt_tree, tvb, offset,    len, "%s (%u byte%s)",
-				name, len, plurality(len, "", "s"));
+            name, len, plurality(len, "", "s"));
         } else {
           if (dissect != NULL) {
             /* Option has a dissector. */
@@ -1224,13 +1224,97 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
       offset += 1;
 
       if (nop_count == 4 && strcmp (name, "No-Operation (NOP)") == 0) {
-	expert_add_info_format(pinfo, opt_item, PI_PROTOCOL, PI_WARN,
-			       "4 NOP in a row - a router may have removed some options");
+        expert_add_info_format(pinfo, opt_item, PI_PROTOCOL, PI_WARN,
+          "4 NOP in a row - a router may have removed some options");
       }
     }
     if (opt == eol)
       break;
   }
+}
+
+/* This function searches the IP options for either a loose or strict source
+ * route option, then returns the offset to the destination address if the
+ * pointer is still valid or zero if the pointer is greater than the length.
+ *
+ * The guts of this function was taken from dissect_ip_tcp_options().
+ */
+static int
+get_dst_offset(tvbuff_t *tvb, int offset, guint length,
+    const ip_tcp_opt *opttab, int nopts, int eol)
+{
+  guchar            opt;
+  const ip_tcp_opt *optp;
+  opt_len_type      len_type;
+  unsigned int      optlen;
+  guint             len;
+  int               orig_offset = offset;
+
+  while (length > 0) {
+    opt = tvb_get_guint8(tvb, offset);
+    for (optp = &opttab[0]; optp < &opttab[nopts]; optp++) {
+      if (optp->optcode == opt)
+        break;
+    }
+    if (optp == &opttab[nopts]) {
+      /* We assume that the only NO_LENGTH options are EOL and NOP options,
+         so that we can treat unknown options as VARIABLE_LENGTH with a
+         minimum of 2, and at least be able to move on to the next option
+         by using the length in the option. */
+      optp = NULL;  /* indicate that we don't know this option */
+      len_type = VARIABLE_LENGTH;
+      optlen = 2;
+    } else {
+      len_type = optp->len_type;
+      optlen = optp->optlen;
+    }
+    --length;      /* account for type byte */
+    if (len_type != NO_LENGTH) {
+      /* Option has a length. Is it in the packet? */
+      if (length == 0) {
+        /* Bogus - packet must at least include option code byte and
+           length byte! */
+        return 0;
+      }
+      len = tvb_get_guint8(tvb, offset + 1);  /* total including type, len */
+      --length;    /* account for length byte */
+      if (len < 2) {
+        /* Bogus - option length is too short to include option code and
+           option length. */
+        return 0;
+      } else if (len - 2 > length) {
+        /* Bogus - option goes past the end of the header. */
+        return 0;
+      } else if (len_type == FIXED_LENGTH && len != optlen) {
+        /* Bogus - option length isn't what it's supposed to be for this
+           option. */
+        return 0;
+      } else if (len_type == VARIABLE_LENGTH && len < optlen) {
+        /* Bogus - option length is less than what it's supposed to be for
+           this option. */
+        return 0;
+      } else if (optp != NULL) {
+        if (opt == IPOPT_SSRR || opt == IPOPT_LSRR) {
+          /* Hmm, what if you have both options? */
+          guint8 ptr;
+
+          ptr = tvb_get_guint8(tvb, offset + 2);
+          if (ptr < 4 || (ptr & 3) || (ptr > len)) {
+            return 0;
+          }
+          return (offset - orig_offset) + 4 + (len - 4);
+        }
+        len -= 2;   /* subtract size of type and length */
+        offset += 2 + len;
+      }
+      length -= len;
+    } else {
+      offset += 1;
+    }
+    if (opt == eol)
+      return 0;
+  }
+  return 0;
 }
 
 /* Returns the valid ttl for the group address */
@@ -1338,7 +1422,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   proto_tree *ip_tree = NULL, *field_tree= NULL;
   proto_item *ti = NULL, *tf;
   guint32    addr;
-  int        offset = 0;
+  int        offset = 0, dst_off;
   guint      hlen, optlen;
   guint16    flags;
   guint8     nxt;
@@ -1585,14 +1669,29 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     PROTO_ITEM_SET_GENERATED(item);
     PROTO_ITEM_SET_HIDDEN(item);
   }
-  dst_addr = tvb_get_ptr(tvb, offset + IPH_DST, 4);
-  dst32 = tvb_get_ntohl(tvb, offset + IPH_DST);
+
+  /* If there's an IP strict or loose source routing option, then the final
+   * L3 IP destination address will be the last entry in the routing header
+   * EXCEPT when the table is exhausted (pointer is greater than the length).
+   * In this case, the final L3 IP destination address is the one in the L3
+   * header. (REF: http://tools.ietf.org/html/rfc791#section-3.1)
+   */
+  if (hlen > IPH_MIN_LEN) {
+    /* There's more than just the fixed-length header.  See if we've got
+     * either a strict or loose source route option and if so, return the
+     * offset into the tvb to where the real destination IP address is located.
+     */
+    dst_off = get_dst_offset(tvb, offset + 20, hlen - IPH_MIN_LEN, ipopts,
+      N_IP_OPTS, IPOPT_END);
+  }
+  else
+    dst_off = 0;
+
+  dst_addr = tvb_get_ptr(tvb, offset + IPH_DST + dst_off, 4);
+  dst32 = tvb_get_ntohl(tvb, offset + IPH_DST + dst_off);
   SET_ADDRESS(&pinfo->net_dst, AT_IPv4, 4, dst_addr);
   SET_ADDRESS(&pinfo->dst, AT_IPv4, 4, dst_addr);
   SET_ADDRESS(&iph->ip_dst, AT_IPv4, 4, dst_addr);
-
-  tap_queue_packet(ip_tap, pinfo, iph);
-
 
   /* If an IP is destined for an IP address in the Local Network Control Block
    * (e.g. 224.0.0.0/24), the packet should never be routed and the TTL would
@@ -1620,13 +1719,13 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     if (ip_summary_in_tree) {
       proto_item_append_text(ti, ", Dst: %s (%s)", dst_host, ip_to_str(iph->ip_dst.data));
     }
-    proto_tree_add_ipv4(ip_tree, hf_ip_dst, tvb, offset + 16, 4, addr);
-    item = proto_tree_add_ipv4(ip_tree, hf_ip_addr, tvb, offset + 16, 4, addr);
+    proto_tree_add_ipv4(ip_tree, hf_ip_dst, tvb, offset + 16 + dst_off, 4, addr);
+    item = proto_tree_add_ipv4(ip_tree, hf_ip_addr, tvb, offset + 16 + dst_off, 4, addr);
     PROTO_ITEM_SET_HIDDEN(item);
-    item = proto_tree_add_string(ip_tree, hf_ip_dst_host, tvb, offset + 16, 4, dst_host);
+    item = proto_tree_add_string(ip_tree, hf_ip_dst_host, tvb, offset + 16 + dst_off, 4, dst_host);
     PROTO_ITEM_SET_GENERATED(item);
     PROTO_ITEM_SET_HIDDEN(item);
-    item = proto_tree_add_string(ip_tree, hf_ip_host, tvb, offset + 16, 4, dst_host);
+    item = proto_tree_add_string(ip_tree, hf_ip_host, tvb, offset + 16 + dst_off, 4, dst_host);
     PROTO_ITEM_SET_GENERATED(item);
     PROTO_ITEM_SET_HIDDEN(item);
   }
@@ -1652,10 +1751,9 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   }
 
   pinfo->ipproto = iph->ip_p;
-
   pinfo->iplen = iph->ip_len;
-
   pinfo->iphdrlen = hlen;
+  tap_queue_packet(ip_tap, pinfo, iph);
 
   /* Skip over header + options */
   offset += hlen;
@@ -1742,7 +1840,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   } else if (!dissector_try_uint(ip_dissector_table, nxt, next_tvb, pinfo, parent_tree)) {
     /* Unknown protocol */
     if (update_col_info) {
-      col_add_fstr(pinfo->cinfo, COL_INFO, "%s (0x%02x)", ipprotostr(iph->ip_p), iph->ip_p);
+      col_add_fstr(pinfo->cinfo, COL_INFO, "%s (%u)", ipprotostr(iph->ip_p), iph->ip_p);
     }
     call_dissector(data_handle,next_tvb, pinfo, parent_tree);
   }
