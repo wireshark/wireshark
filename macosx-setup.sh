@@ -302,6 +302,9 @@ then
 	# it.
 	#
 	# Patch the GnuTLS pkgconfig file not to require zlib.
+	# (If the capabilities of GnuTLS that Wireshark uses don't
+	# depend on building GnuTLS with zlib, an alternative would be
+	# to configure it not to use zlib.)
 	#
 	patch -p0 lib/gnutls.pc <../../macosx-support-lib-patches/gnutls-pkgconfig.patch || exit 1
 	$DO_MAKE_INSTALL || exit 1
