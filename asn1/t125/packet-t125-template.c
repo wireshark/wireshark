@@ -64,7 +64,7 @@ dissect_t125(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree)
 {
   proto_item *item = NULL;
   proto_tree *tree = NULL;
-  gint8 class;
+  gint8 ber_class;
   gboolean pc;
   gint32 tag;
 
@@ -76,9 +76,9 @@ dissect_t125(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree)
   item = proto_tree_add_item(parent_tree, proto_t125, tvb, 0, tvb_length(tvb), ENC_NA);
   tree = proto_item_add_subtree(item, ett_t125);
 
-  get_ber_identifier(tvb, 0, &class, &pc, &tag);
+  get_ber_identifier(tvb, 0, &ber_class, &pc, &tag);
 
-  if ( (class==BER_CLASS_APP) && (tag>=101) && (tag<=104) ){
+  if ( (ber_class==BER_CLASS_APP) && (tag>=101) && (tag<=104) ){
     dissect_ConnectMCSPDU_PDU(tvb, pinfo, tree);
   } else  {
     t124_set_top_tree(top_tree);
@@ -91,7 +91,7 @@ dissect_t125(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree)
 static gboolean
 dissect_t125_heur(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree)
 {
-  gint8 class;
+  gint8 ber_class;
   gboolean pc;
   gint32 tag;
   guint32 choice_index = 100;
@@ -100,14 +100,14 @@ dissect_t125_heur(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
 
   /* could be BER */
-  get_ber_identifier(tvb, 0, &class, &pc, &tag);
+  get_ber_identifier(tvb, 0, &ber_class, &pc, &tag);
   /* or PER */
   dissect_per_constrained_integer(tvb, 0, &asn1_ctx,
 				  NULL, hf_t125_heur, 0, 42,
 				  &choice_index, FALSE);
 
   /* is this strong enough ? */
-  if ( ((class==BER_CLASS_APP) && ((tag>=101) && (tag<=104))) ||
+  if ( ((ber_class==BER_CLASS_APP) && ((tag>=101) && (tag<=104))) ||
        (choice_index <=42)) {
 
     dissect_t125(tvb, pinfo, parent_tree);

@@ -214,7 +214,7 @@ char *mechanism = NULL;
 
 tvbuff_t	*parameter_tvb;
 ldap_conv_info_t *ldap_info;
-gint8 class;
+gint8 ber_class;
 gboolean pc;
 gint32 tag;
 
@@ -224,10 +224,10 @@ gint32 tag;
 		return offset;
 
 	ldap_info = actx->pinfo->private_data;
-	get_ber_identifier(parameter_tvb, 0, &class, &pc, &tag);
+	get_ber_identifier(parameter_tvb, 0, &ber_class, &pc, &tag);
 
-	/*if ((ldap_info->auth_mech != NULL) && (strcmp(ldap_info->auth_mech, "GSS-SPNEGO") == 0) && (class==BER_CLASS_CON)) {*/
-	if ((ldap_info->auth_mech != NULL) && (class==BER_CLASS_CON)) {
+	/*if ((ldap_info->auth_mech != NULL) && (strcmp(ldap_info->auth_mech, "GSS-SPNEGO") == 0) && (ber_class==BER_CLASS_CON)) {*/
+	if ((ldap_info->auth_mech != NULL) && (ber_class==BER_CLASS_CON)) {
 	  /*
 	   * This is a GSS-API token ancapsulated within GSS-SPNEGO.
 	   * We need to check the first byte to check whether the blob
@@ -238,8 +238,8 @@ gint32 tag;
 	  if (parameter_tvb && (tvb_length(parameter_tvb) > 0))
 	    call_dissector(spnego_handle, parameter_tvb, actx->pinfo, tree);
 	}
-	/*if ((ldap_info->auth_mech != NULL) && ((strcmp(ldap_info->auth_mech, "GSSAPI") == 0) || (class==BER_CLASS_APP))) {*/
-	if ((ldap_info->auth_mech != NULL) && (class==BER_CLASS_APP)) {
+	/*if ((ldap_info->auth_mech != NULL) && ((strcmp(ldap_info->auth_mech, "GSSAPI") == 0) || (ber_class==BER_CLASS_APP))) {*/
+	if ((ldap_info->auth_mech != NULL) && (ber_class==BER_CLASS_APP)) {
 	  /*
 	   * This is a raw GSS-API token.
 	   */
@@ -258,7 +258,7 @@ ldap_conv_info_t *ldap_info;
 %(DEFAULT_BODY)s
 	if (!parameter_tvb)
 		return offset;
-	ldap_info = actx->pinfo->private_data;
+	ldap_info = (ldap_conv_info_t *)actx->pinfo->private_data;
     switch (ldap_info->auth_type) {
 
       /* For Kerberos V4, dissect it as a ticket. */
@@ -732,14 +732,14 @@ offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, &v
 	return offset;
 
 #.FN_BODY Control/controlValue
-	gint8 class;
+	gint8 ber_class;
 	gboolean pc, ind;
 	gint32 tag;
 	guint32 len;
 
 	if((object_identifier_id != NULL) && oid_has_dissector(object_identifier_id)) {
 		/* remove the OCTET STRING encoding */
-		offset=dissect_ber_identifier(actx->pinfo, NULL, tvb, offset, &class, &pc, &tag);
+		offset=dissect_ber_identifier(actx->pinfo, NULL, tvb, offset, &ber_class, &pc, &tag);
 		offset=dissect_ber_length(actx->pinfo, NULL, tvb, offset, &len, &ind);
 
 		call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
@@ -776,7 +776,7 @@ offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, &v
 	}
 
 #.FN_BODY DirSyncFlags
-	gint8 class;
+	gint8 ber_class;
 	gboolean pc;
 	gint32 tag;
 	guint32 len;
@@ -785,7 +785,7 @@ offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, &v
 
 	int otheroffset = offset;
 	if(!implicit_tag){
-		otheroffset=dissect_ber_identifier(actx->pinfo, tree, tvb, otheroffset, &class, &pc, &tag);
+		otheroffset=dissect_ber_identifier(actx->pinfo, tree, tvb, otheroffset, &ber_class, &pc, &tag);
 		otheroffset=dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, NULL);
 	} else {
 		gint32 remaining=tvb_length_remaining(tvb, offset);

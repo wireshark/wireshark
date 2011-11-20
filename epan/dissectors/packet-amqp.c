@@ -850,7 +850,7 @@ typedef int (*type_formatter)(tvbuff_t *tvb,
                               const char **value); /* Receive formatted val */
 struct amqp_typeinfo {
     guint8 typecode;        /* From AMQP 0-10 spec */
-    const char *typename;
+    const char *amqp_typename;
     type_formatter formatter;
     guint known_size;
 };
@@ -1868,7 +1868,7 @@ dissect_amqp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Find (or build) conversation to remember the protocol version */
     conv = find_or_create_conversation(pinfo);
-    conn = conversation_get_proto_data(conv, proto_amqp);
+    conn = (amqp_conv *)conversation_get_proto_data(conv, proto_amqp);
     if (conn == NULL) {
         conn = se_alloc0(sizeof(amqp_conv));
         conversation_add_proto_data(conv, proto_amqp, conn);
@@ -1989,7 +1989,7 @@ dissect_amqp_0_9_field_table(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
     guint namelen, vallen;
     guint8 type;
     const char *name;
-    const char *typename;
+    const char *amqp_typename;
     const char *value;
     int field_start;
     proto_item *ti;
@@ -2013,7 +2013,7 @@ dissect_amqp_0_9_field_table(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
         length -= 1;
         switch (type) {
         case 'S':
-            typename = "string";
+            amqp_typename = "string";
             if (length < 4)
                 goto too_short;
             vallen = tvb_get_ntohl(tvb, offset);
@@ -2026,7 +2026,7 @@ dissect_amqp_0_9_field_table(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
             length -= vallen;
             break;
         case 'I':
-            typename = "integer";
+            amqp_typename = "integer";
             if (length < 4)
                 goto too_short;
             value = ep_strdup_printf("%d", tvb_get_ntohl(tvb, offset));
@@ -2034,7 +2034,7 @@ dissect_amqp_0_9_field_table(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
             length -= 4;
             break;
         case 'D':
-            typename = "decimal";
+            amqp_typename = "decimal";
             if (length < 5)
                 goto too_short;
             value = "...";
@@ -2042,7 +2042,7 @@ dissect_amqp_0_9_field_table(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
             length -= 5;
             break;
         case 'T':
-            typename =  "timestamp";
+            amqp_typename =  "timestamp";
             if (length < 8)
                 goto too_short;
             value = "...";
@@ -2051,7 +2051,7 @@ dissect_amqp_0_9_field_table(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
             break;
         case 'F':
             /*  TODO: make it recursive here  */
-            typename =  "field table";
+            amqp_typename =  "field table";
             if (length < 4)
                 goto too_short;
             vallen = tvb_get_ntohl(tvb, offset);
@@ -2064,11 +2064,11 @@ dissect_amqp_0_9_field_table(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
             length -= vallen;
             break;
         case 'V':
-            typename = "void";
+            amqp_typename = "void";
             value = "";
             break;
         default:
-            typename = "";
+            amqp_typename = "";
             value = NULL;
             break;
         }
@@ -2076,7 +2076,7 @@ dissect_amqp_0_9_field_table(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
         if (value != NULL)
             proto_tree_add_none_format(field_table_tree, hf_amqp_field, tvb,
                                        field_start, offset - field_start,
-                                       "%s (%s): %s", name, typename,
+                                       "%s (%s): %s", name, amqp_typename,
                                        value);
         else
             proto_tree_add_none_format(field_table_tree, hf_amqp_field, tvb,
@@ -2109,7 +2109,7 @@ dissect_amqp_0_10_map(tvbuff_t *tvb,
     guint namelen, size;
     guint8 type;
     const char *name;
-    const char *typename;
+    const char *amqp_typename;
     const char *value;
     gint field_start, field_length;
     guint32 field_count;
@@ -2132,7 +2132,7 @@ dissect_amqp_0_10_map(tvbuff_t *tvb,
         type = tvb_get_guint8(tvb, offset);
         AMQP_INCREMENT(offset, 1, bound);
         length -= 1;
-        if (get_amqp_0_10_type_formatter(type, &typename, &formatter, &size)) {
+        if (get_amqp_0_10_type_formatter(type, &amqp_typename, &formatter, &size)) {
             field_length = formatter(tvb, offset, bound, size, &value);
             proto_tree_add_none_format(map_tree,
                                        hf_amqp_field,
@@ -2140,7 +2140,7 @@ dissect_amqp_0_10_map(tvbuff_t *tvb,
                                        field_start,
                                        field_length,
                                        "%s (%s): %s",
-                                       name, typename, value);
+                                       name, amqp_typename, value);
             AMQP_INCREMENT(offset, field_length, bound);
             length -= field_length;
         }
@@ -2159,7 +2159,7 @@ dissect_amqp_0_10_map(tvbuff_t *tvb,
                 break;
 
             default:
-                typename = "unimplemented";
+                amqp_typename = "unimplemented";
                 if ((type & 0x80) == 0) {
                     field_length = 2 ^ ((type & 0x70) >> 4);
                 }
@@ -2182,18 +2182,18 @@ dissect_amqp_0_10_map(tvbuff_t *tvb,
                         break;
                     default:
                         field_length = 1;    /* Reserved... skip 1 */
-                        typename = "reserved";
+                        amqp_typename = "reserved";
                         break;
                     }
                 }
                 else {
                     field_length = 1;    /* Reserved... skip 1 */
-                    typename = "reserved";
+                    amqp_typename = "reserved";
                 }
                 proto_tree_add_none_format(map_tree, hf_amqp_field,
                                            tvb, field_start, field_length,
                                            "%s (%s): %d bytes",
-                                           name, typename, field_length);
+                                           name, amqp_typename, field_length);
                 AMQP_INCREMENT(offset, field_length, bound);
                 length -= field_length;
             }
@@ -2216,7 +2216,7 @@ dissect_amqp_0_10_array(tvbuff_t *tvb,
     proto_item *sub;
     guint8 type;
     guint16 len16;
-    const char *typename;
+    const char *amqp_typename;
     const char *value;
     int element_start;
     int externally_formatted;
@@ -2238,7 +2238,7 @@ dissect_amqp_0_10_array(tvbuff_t *tvb,
         externally_formatted = 0;
         switch (type) {
         case AMQP_0_10_TYPE_STR16:
-            typename = "str16";
+            amqp_typename = "str16";
             len16 = tvb_get_ntohs(tvb, offset);
             AMQP_INCREMENT(offset, 2, bound);
             length -= 2;
@@ -2248,7 +2248,7 @@ dissect_amqp_0_10_array(tvbuff_t *tvb,
             break;
 
         case AMQP_0_10_TYPE_STRUCT32:
-            typename = "struct32";
+            amqp_typename = "struct32";
             value = "structure";
             externally_formatted = 1;
             struct_length = tvb_get_ntohl(tvb, offset);
@@ -2263,7 +2263,7 @@ dissect_amqp_0_10_array(tvbuff_t *tvb,
             sub = proto_tree_add_none_format(array_tree, hf_amqp_field, tvb,
                                              element_start,
                                              offset - element_start,
-                                             "(%s): ", typename);
+                                             "(%s): ", amqp_typename);
             dissect_amqp_0_10_struct32(tvb, sub, offset, struct_length);
             AMQP_INCREMENT(offset, struct_length, bound);
             length -= struct_length;
@@ -2291,11 +2291,11 @@ dissect_amqp_0_10_array(tvbuff_t *tvb,
                                        element_start,
                                        offset - element_start,
                                        "(%s): %s",
-                                       typename,
+                                       amqp_typename,
                                        value);
         }
         else {
-            proto_item_append_text(item, ": (%s): %s", typename, value);
+            proto_item_append_text(item, ": (%s): %s", amqp_typename, value);
         }
     }
 }
@@ -8548,7 +8548,7 @@ get_amqp_0_10_type_formatter(guint8 code,
         table = amqp_0_10_fixed_types;
     for (i = 0; table[i].typecode != 0xff; ++i) {
         if (table[i].typecode == code) {
-            *name = ep_strdup(table[i].typename);
+            *name = ep_strdup(table[i].amqp_typename);
             *formatter = table[i].formatter;
             *length_size = table[i].known_size;
             return 1;

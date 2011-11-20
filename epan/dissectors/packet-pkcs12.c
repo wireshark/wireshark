@@ -182,7 +182,7 @@ static void append_oid(proto_tree *tree, const char *oid)
 
 #ifdef HAVE_LIBGCRYPT
 
-int
+static int
 generate_key_or_iv(unsigned int id, tvbuff_t *salt_tvb, unsigned int iter,
 		       const char *pw, unsigned int req_keylen, char * keybuf)
 {
@@ -1130,7 +1130,7 @@ static void dissect_PBMAC1Params_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 
 static int strip_octet_string(tvbuff_t *tvb)
 {
-  gint8 class;
+  gint8 ber_class;
   gboolean pc, ind;
   gint32 tag;
   guint32 len;
@@ -1140,10 +1140,10 @@ static int strip_octet_string(tvbuff_t *tvb)
   /* if we use CMS (rather than PKCS#7) - which we are - we need to strip the OCTET STRING tag */
   /* before proceeding */
 
-  offset = get_ber_identifier(tvb, 0, &class, &pc, &tag);
+  offset = get_ber_identifier(tvb, 0, &ber_class, &pc, &tag);
   offset = get_ber_length(tvb, offset, &len, &ind);
 
-  if((class == BER_CLASS_UNI) && (tag == BER_UNI_TAG_OCTETSTRING))
+  if((ber_class == BER_CLASS_UNI) && (tag == BER_UNI_TAG_OCTETSTRING))
     return offset;
 
   return 0;

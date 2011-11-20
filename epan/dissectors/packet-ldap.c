@@ -520,7 +520,7 @@ static ldap_conv_info_t *ldap_info_items;
 static guint
 ldap_info_hash_matched(gconstpointer k)
 {
-  const ldap_call_response_t *key = k;
+  const ldap_call_response_t *key = (const ldap_call_response_t *)k;
 
   return key->messageId;
 }
@@ -528,8 +528,8 @@ ldap_info_hash_matched(gconstpointer k)
 static gint
 ldap_info_equal_matched(gconstpointer k1, gconstpointer k2)
 {
-  const ldap_call_response_t *key1 = k1;
-  const ldap_call_response_t *key2 = k2;
+  const ldap_call_response_t *key1 = (const ldap_call_response_t*)k1;
+  const ldap_call_response_t *key2 = (const ldap_call_response_t*)k2;
 
   if( key1->req_frame && key2->req_frame && (key1->req_frame!=key2->req_frame) ){
     return 0;
@@ -546,7 +546,7 @@ ldap_info_equal_matched(gconstpointer k1, gconstpointer k2)
 static guint
 ldap_info_hash_unmatched(gconstpointer k)
 {
-  const ldap_call_response_t *key = k;
+  const ldap_call_response_t *key = (const ldap_call_response_t*)k;
 
   return key->messageId;
 }
@@ -554,8 +554,8 @@ ldap_info_hash_unmatched(gconstpointer k)
 static gint
 ldap_info_equal_unmatched(gconstpointer k1, gconstpointer k2)
 {
-  const ldap_call_response_t *key1 = k1;
-  const ldap_call_response_t *key2 = k2;
+  const ldap_call_response_t *key1 = (const ldap_call_response_t*)k1;
+  const ldap_call_response_t *key2 = (const ldap_call_response_t*)k2;
 
   return key1->messageId==key2->messageId;
 }
@@ -673,14 +673,14 @@ static char *ldapvalue_string=NULL;
 static int
 dissect_ldap_AssertionValue(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index)
 {
-	gint8 class;
+	gint8 ber_class;
 	gboolean pc, ind, is_ascii;
 	gint32 tag;
 	guint32 len, i;
 	const guchar *str;
 
 	if(!implicit_tag){
-		offset=get_ber_identifier(tvb, offset, &class, &pc, &tag);
+		offset=get_ber_identifier(tvb, offset, &ber_class, &pc, &tag);
 		offset=get_ber_length(tvb, offset, &len, &ind);
 	} else {
 		len=tvb_length_remaining(tvb,offset);
@@ -865,7 +865,7 @@ ldap_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
           lcr.rep_frame=pinfo->fd->num;
           break;
       }
-      lcrp=g_hash_table_lookup(ldap_info->matched, &lcr);
+      lcrp=(ldap_call_response_t *)g_hash_table_lookup(ldap_info->matched, &lcr);
 
       if(lcrp){
 
@@ -891,7 +891,7 @@ ldap_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
            unmatched list and if so remove it */
 
         lcr.messageId=messageId;
-        lcrp=g_hash_table_lookup(ldap_info->unmatched, &lcr);
+        lcrp=(ldap_call_response_t *)g_hash_table_lookup(ldap_info->unmatched, &lcr);
         if(lcrp){
           g_hash_table_remove(ldap_info->unmatched, lcrp);
         }
@@ -923,7 +923,7 @@ ldap_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 		/* this is a result - it should be in our unmatched list */
 
         lcr.messageId=messageId;
-        lcrp=g_hash_table_lookup(ldap_info->unmatched, &lcr);
+        lcrp=(ldap_call_response_t *)g_hash_table_lookup(ldap_info->unmatched, &lcr);
 
         if(lcrp){
 
@@ -1183,7 +1183,7 @@ dissect_ldap_Credentials(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 tvbuff_t	*parameter_tvb;
 ldap_conv_info_t *ldap_info;
-gint8 class;
+gint8 ber_class;
 gboolean pc;
 gint32 tag;
 
@@ -1195,10 +1195,10 @@ gint32 tag;
 		return offset;
 
 	ldap_info = actx->pinfo->private_data;
-	get_ber_identifier(parameter_tvb, 0, &class, &pc, &tag);
+	get_ber_identifier(parameter_tvb, 0, &ber_class, &pc, &tag);
 
-	/*if ((ldap_info->auth_mech != NULL) && (strcmp(ldap_info->auth_mech, "GSS-SPNEGO") == 0) && (class==BER_CLASS_CON)) {*/
-	if ((ldap_info->auth_mech != NULL) && (class==BER_CLASS_CON)) {
+	/*if ((ldap_info->auth_mech != NULL) && (strcmp(ldap_info->auth_mech, "GSS-SPNEGO") == 0) && (ber_class==BER_CLASS_CON)) {*/
+	if ((ldap_info->auth_mech != NULL) && (ber_class==BER_CLASS_CON)) {
 	  /*
 	   * This is a GSS-API token ancapsulated within GSS-SPNEGO.
 	   * We need to check the first byte to check whether the blob
@@ -1209,8 +1209,8 @@ gint32 tag;
 	  if (parameter_tvb && (tvb_length(parameter_tvb) > 0))
 	    call_dissector(spnego_handle, parameter_tvb, actx->pinfo, tree);
 	}
-	/*if ((ldap_info->auth_mech != NULL) && ((strcmp(ldap_info->auth_mech, "GSSAPI") == 0) || (class==BER_CLASS_APP))) {*/
-	if ((ldap_info->auth_mech != NULL) && (class==BER_CLASS_APP)) {
+	/*if ((ldap_info->auth_mech != NULL) && ((strcmp(ldap_info->auth_mech, "GSSAPI") == 0) || (ber_class==BER_CLASS_APP))) {*/
+	if ((ldap_info->auth_mech != NULL) && (ber_class==BER_CLASS_APP)) {
 	  /*
 	   * This is a raw GSS-API token.
 	   */
@@ -1497,7 +1497,7 @@ ldap_conv_info_t *ldap_info;
 
 	if (!parameter_tvb)
 		return offset;
-	ldap_info = actx->pinfo->private_data;
+	ldap_info = (ldap_conv_info_t *)actx->pinfo->private_data;
     switch (ldap_info->auth_type) {
 
       /* For Kerberos V4, dissect it as a ticket. */
@@ -3112,14 +3112,14 @@ dissect_ldap_ControlType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 static int
 dissect_ldap_T_controlValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 735 "../../asn1/ldap/ldap.cnf"
-	gint8 class;
+	gint8 ber_class;
 	gboolean pc, ind;
 	gint32 tag;
 	guint32 len;
 
 	if((object_identifier_id != NULL) && oid_has_dissector(object_identifier_id)) {
 		/* remove the OCTET STRING encoding */
-		offset=dissect_ber_identifier(actx->pinfo, NULL, tvb, offset, &class, &pc, &tag);
+		offset=dissect_ber_identifier(actx->pinfo, NULL, tvb, offset, &ber_class, &pc, &tag);
 		offset=dissect_ber_length(actx->pinfo, NULL, tvb, offset, &len, &ind);
 
 		call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
@@ -3297,7 +3297,7 @@ dissect_ldap_DirSyncFlagsSubEntry(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 static int
 dissect_ldap_DirSyncFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 779 "../../asn1/ldap/ldap.cnf"
-	gint8 class;
+	gint8 ber_class;
 	gboolean pc;
 	gint32 tag;
 	guint32 len;
@@ -3306,7 +3306,7 @@ dissect_ldap_DirSyncFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 	int otheroffset = offset;
 	if(!implicit_tag){
-		otheroffset=dissect_ber_identifier(actx->pinfo, tree, tvb, otheroffset, &class, &pc, &tag);
+		otheroffset=dissect_ber_identifier(actx->pinfo, tree, tvb, otheroffset, &ber_class, &pc, &tag);
 		otheroffset=dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, NULL);
 	} else {
 		gint32 remaining=tvb_length_remaining(tvb, offset);
@@ -3719,7 +3719,7 @@ dissect_ldap_payload(tvbuff_t *tvb, packet_info *pinfo,
   guint headerLength = 0;
   guint length = 0;
   tvbuff_t *msg_tvb = NULL;
-  gint8 class;
+  gint8 ber_class;
   gboolean pc, ind = 0;
   gint32 ber_tag;
 
@@ -3736,13 +3736,13 @@ one_more_pdu:
      * OK, try to read the "Sequence Of" header; this gets the total
      * length of the LDAP message.
      */
-	messageOffset = get_ber_identifier(tvb, offset, &class, &pc, &ber_tag);
+	messageOffset = get_ber_identifier(tvb, offset, &ber_class, &pc, &ber_tag);
 	messageOffset = get_ber_length(tvb, messageOffset, &msg_len, &ind);
 
     /* sanity check */
     if((msg_len<4) || (msg_len>10000000)) return;
 
-    if ( (class==BER_CLASS_UNI) && (ber_tag==BER_UNI_TAG_SEQUENCE) ) {
+    if ( (ber_class==BER_CLASS_UNI) && (ber_tag==BER_UNI_TAG_SEQUENCE) ) {
       	/*
       	 * Add the length of the "Sequence Of" header to the message
       	 * length.
@@ -3832,7 +3832,7 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
   /*
    * Do we already have a type and mechanism?
    */
-  ldap_info = conversation_get_proto_data(conversation, proto_ldap);
+  ldap_info = (ldap_conv_info_t *)conversation_get_proto_data(conversation, proto_ldap);
   if (ldap_info == NULL) {
     /* No.  Attach that information to the conversation, and add
      * it to the list of information structures.
@@ -4611,7 +4611,7 @@ dissect_ldap_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					 pinfo->ptype, pinfo->srcport,
 					 pinfo->destport, 0);
 	if(conversation){
-		ldap_info = conversation_get_proto_data(conversation, proto_ldap);
+		ldap_info = (ldap_conv_info_t *)conversation_get_proto_data(conversation, proto_ldap);
 	}
 
         ldm_tree = NULL;
@@ -4765,18 +4765,18 @@ ldap_reinit(void)
 }
 
 void
-register_ldap_name_dissector_handle(const char *attr_type, dissector_handle_t dissector)
+register_ldap_name_dissector_handle(const char *attr_type_p, dissector_handle_t dissector)
 {
-	dissector_add_string("ldap.name", attr_type, dissector);
+	dissector_add_string("ldap.name", attr_type_p, dissector);
 }
 
 void
-register_ldap_name_dissector(const char *attr_type, dissector_t dissector, int proto)
+register_ldap_name_dissector(const char *attr_type_p, dissector_t dissector, int proto)
 {
 	dissector_handle_t dissector_handle;
 
 	dissector_handle=create_dissector_handle(dissector, proto);
-	register_ldap_name_dissector_handle(attr_type, dissector_handle);
+	register_ldap_name_dissector_handle(attr_type_p, dissector_handle);
 }
 
 

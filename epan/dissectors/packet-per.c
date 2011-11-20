@@ -944,7 +944,7 @@ dissect_per_object_identifier_str(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *act
 
 /* this function reads a single bit */
 guint32
-dissect_per_boolean(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index, gboolean *bool)
+dissect_per_boolean(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index, gboolean *bool_val)
 {
 	guint8 ch, mask;
 	gboolean value;
@@ -979,8 +979,8 @@ DEBUG_ENTRY("dissect_per_boolean");
 		actx->created_item = NULL;
 	}
 
-	if(bool){
-		*bool=value;
+	if(bool_val){
+		*bool_val=value;
 	}
 	return offset+1;
 }

@@ -1603,17 +1603,17 @@ gboolean
 check_ScopedPdu(tvbuff_t* tvb)
 {
 	int offset;
-	gint8 class;
+	gint8 ber_class;
 	gboolean pc;
 	gint32 tag;
 	int hoffset, eoffset;
 	guint32 len;
 
-	offset = get_ber_identifier(tvb, 0, &class, &pc, &tag);
+	offset = get_ber_identifier(tvb, 0, &ber_class, &pc, &tag);
 	offset = get_ber_length(tvb, offset, NULL, NULL);
 
-	if ( ! (((class!=BER_CLASS_APP) && (class!=BER_CLASS_PRI) )
-			&& ( (!pc) || (class!=BER_CLASS_UNI) || (tag!=BER_UNI_TAG_ENUMERATED) )
+	if ( ! (((ber_class!=BER_CLASS_APP) && (ber_class!=BER_CLASS_PRI) )
+			&& ( (!pc) || (ber_class!=BER_CLASS_UNI) || (tag!=BER_UNI_TAG_ENUMERATED) )
 			)) return FALSE;
 
 	if((tvb_get_guint8(tvb, offset)==0)&&(tvb_get_guint8(tvb, offset+1)==0))
@@ -1621,14 +1621,14 @@ check_ScopedPdu(tvbuff_t* tvb)
 
 	hoffset = offset;
 
-	offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+	offset = get_ber_identifier(tvb, offset, &ber_class, &pc, &tag);
 	offset = get_ber_length(tvb, offset, &len, NULL);
 	eoffset = offset + len;
 
 	if (eoffset <= hoffset) return FALSE;
 
-	if ((class!=BER_CLASS_APP)&&(class!=BER_CLASS_PRI))
-		if( (class!=BER_CLASS_UNI)
+	if ((ber_class!=BER_CLASS_APP)&&(ber_class!=BER_CLASS_PRI))
+		if( (ber_class!=BER_CLASS_UNI)
 			||((tag<BER_UNI_TAG_NumericString)&&(tag!=BER_UNI_TAG_OCTETSTRING)&&(tag!=BER_UNI_TAG_UTF8String)) )
 			return FALSE;
 
@@ -2767,7 +2767,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 
 	guint length_remaining;
-	gint8 class;
+	gint8 ber_class;
 	gboolean pc, ind = 0;
 	gint32 tag;
 	guint32 len;
@@ -2852,7 +2852,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 * length of the SNMP message.
 	 */
 	/* Set tree to 0 to not display internal BER fields if option used.*/
-	offset = dissect_ber_identifier(pinfo, 0, tvb, offset, &class, &pc, &tag);
+	offset = dissect_ber_identifier(pinfo, 0, tvb, offset, &ber_class, &pc, &tag);
 	/*Get the total octet length of the SNMP data*/
 	offset = dissect_ber_length(pinfo, 0, tvb, offset, &len, &ind);
 	message_length = len + 2;
@@ -3164,8 +3164,8 @@ process_prefs(void)
 static void*
 snmp_users_copy_cb(void* dest, const void* orig, size_t len _U_)
 {
-	const snmp_ue_assoc_t* o = orig;
-	snmp_ue_assoc_t* d = dest;
+	const snmp_ue_assoc_t* o = (const snmp_ue_assoc_t*)orig;
+	snmp_ue_assoc_t* d = (snmp_ue_assoc_t*)dest;
 
 	d->auth_model = o->auth_model;
 	d->user.authModel = auth_models[o->auth_model];
@@ -3199,7 +3199,7 @@ snmp_users_copy_cb(void* dest, const void* orig, size_t len _U_)
 static void
 snmp_users_free_cb(void* p)
 {
-	snmp_ue_assoc_t* ue = p;
+	snmp_ue_assoc_t* ue = (snmp_ue_assoc_t*)p;
 	g_free(ue->user.userName.data);
 	g_free(ue->user.authPassword.data);
 	g_free(ue->user.privPassword.data);
@@ -3211,7 +3211,7 @@ snmp_users_free_cb(void* p)
 static void
 snmp_users_update_cb(void* p _U_, const char** err)
 {
-	snmp_ue_assoc_t* ue = p;
+	snmp_ue_assoc_t* ue = (snmp_ue_assoc_t*)p;
 	GString* es = g_string_new("");
 	unsigned i;
 
@@ -3272,8 +3272,8 @@ UAT_VS_DEF(snmp_users,priv_proto,snmp_ue_assoc_t,0,"DES")
 static void *
 snmp_specific_trap_copy_cb(void *dest, const void *orig, size_t len _U_)
 {
-	snmp_st_assoc_t *u = dest;
-	const snmp_st_assoc_t *o = orig;
+	snmp_st_assoc_t *u = (snmp_st_assoc_t *)dest;
+	const snmp_st_assoc_t *o = (const snmp_st_assoc_t *)orig;
 
 	u->enterprise = g_strdup(o->enterprise);
 	u->trap = o->trap;
@@ -3285,7 +3285,7 @@ snmp_specific_trap_copy_cb(void *dest, const void *orig, size_t len _U_)
 static void
 snmp_specific_trap_free_cb(void *r)
 {
-	snmp_st_assoc_t *u = r;
+	snmp_st_assoc_t *u = (snmp_st_assoc_t *)r;
 
 	g_free(u->enterprise);
 	g_free(u->desc);

@@ -888,8 +888,8 @@ typedef struct
 /* Equal keys */
 static gint sip_equal(gconstpointer v, gconstpointer v2)
 {
-	const sip_hash_key* val1 = (sip_hash_key*)v;
-	const sip_hash_key* val2 = (sip_hash_key*)v2;
+	const sip_hash_key* val1 = (const sip_hash_key*)v;
+	const sip_hash_key* val2 = (const sip_hash_key*)v2;
 
 	/* Call id must match */
 	if (strcmp(val1->call_id, val2->call_id) != 0)

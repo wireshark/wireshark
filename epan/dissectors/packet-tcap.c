@@ -248,11 +248,11 @@ extern void delete_itu_tcap_subdissector(guint32 ssn, dissector_handle_t dissect
 }
 
 dissector_handle_t get_ansi_tcap_subdissector(guint32 ssn) {
-    return g_hash_table_lookup(ansi_sub_dissectors,GUINT_TO_POINTER(ssn));
+    return (dissector_handle_t)g_hash_table_lookup(ansi_sub_dissectors,GUINT_TO_POINTER(ssn));
 }
 
 dissector_handle_t get_itu_tcap_subdissector(guint32 ssn) {
-    return g_hash_table_lookup(itu_sub_dissectors,GUINT_TO_POINTER(ssn));
+    return (dissector_handle_t)g_hash_table_lookup(itu_sub_dissectors,GUINT_TO_POINTER(ssn));
 }
 
 
@@ -655,13 +655,13 @@ static int
 dissect_tcap_Component(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 79 "../../asn1/tcap/tcap.cnf"
 tvbuff_t	*next_tvb;
-gint8 class;
+gint8 ber_class;
 gboolean pc;
 gint tag;
 guint32 len, comp_offset;
 gint ind_field;
 
-comp_offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
+comp_offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &ber_class, &pc, &tag);
 comp_offset = dissect_ber_length(actx->pinfo, tree, tvb, comp_offset, &len, &ind_field);
 /* we can believe the length now */
 next_tvb = tvb_new_subset(tvb, offset, len+comp_offset-offset, len+comp_offset-offset);
@@ -1445,7 +1445,7 @@ dissect_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     struct tcaphash_context_t * p_tcap_context;
     dissector_handle_t subdissector_handle;
 	asn1_ctx_t asn1_ctx;
-	gint8 class;
+	gint8 ber_class;
 	gboolean pc;
 	gint tag;
 
@@ -1461,9 +1461,9 @@ dissect_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	 *
 	 *
 	 */
-	get_ber_identifier(tvb, 0, &class, &pc, &tag);
+	get_ber_identifier(tvb, 0, &ber_class, &pc, &tag);
 
-	if(class == BER_CLASS_PRI){
+	if(ber_class == BER_CLASS_PRI){
 		switch(tag){
 		case 1:
 		case 2:
@@ -2032,7 +2032,7 @@ dissect_tcap_param(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset
     tvbuff_t	*next_tvb;
     proto_tree *subtree;
     proto_item *pi;
-    gint8 class;
+    gint8 ber_class;
     gboolean pc;
     gint32 tag;
     guint32 len;
@@ -2044,7 +2044,7 @@ dissect_tcap_param(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset
     {
         saved_offset = offset;
 
-        offset = get_ber_identifier(tvb, offset, &class, &pc, &tag);
+        offset = get_ber_identifier(tvb, offset, &ber_class, &pc, &tag);
         tag_offset = offset;
         offset = get_ber_length(tvb, offset, &len, &ind_field);
         len_offset = offset;
@@ -2062,7 +2062,7 @@ dissect_tcap_param(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset
                 saved_offset, tag_length, tag,
                 "CONSTRUCTOR Tag");
             proto_tree_add_uint(subtree, hf_tcap_tag, tvb, saved_offset,
-                tag_length, class);
+                tag_length, ber_class);
 
             proto_tree_add_uint(subtree, hf_tcap_length, tvb, tag_offset,
                 len_length, len);

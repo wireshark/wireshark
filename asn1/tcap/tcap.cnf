@@ -77,13 +77,13 @@ ABRT-apdu/_untag/user-information abrt_user_information
 #----------------------------------------------------------------------------------------
 #.FN_BODY Component
 tvbuff_t	*next_tvb;
-gint8 class;
+gint8 ber_class;
 gboolean pc;
 gint tag;
 guint32 len, comp_offset;
 gint ind_field;
 
-comp_offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
+comp_offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &ber_class, &pc, &tag);
 comp_offset = dissect_ber_length(actx->pinfo, tree, tvb, comp_offset, &len, &ind_field);
 /* we can believe the length now */
 next_tvb = tvb_new_subset(tvb, offset, len+comp_offset-offset, len+comp_offset-offset);
