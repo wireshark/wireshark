@@ -2009,20 +2009,6 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 		}
 	} else {
 		/*
-		 * Skip whitespace after the colon.
-		 */
-		value_offset = colon_offset + 1;
-		while (value_offset < line_end_offset
-		    && ((c = line[value_offset - offset]) == ' ' || c == '\t'))
-			value_offset++;
-
-		/*
-		 * Fetch the value.
-		 */
-		value_len = line_end_offset - value_offset;
-		value = ep_strndup(&line[value_offset - offset], value_len);
-
-		/*
 		 * Add it to the protocol tree as a particular field,
 		 * but display the line as is.
 		 */
