@@ -1232,6 +1232,7 @@ dissect_ImageLZ_common(tvbuff_t *tvb, proto_tree *tree, guint32 offset, const gb
     return offset;
 }
 
+#if 0
 static guint32
 dissect_ImageLZ_JPEG(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 {
@@ -1247,6 +1248,7 @@ dissect_ImageLZ_JPEG(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 
     return offset;
 }
+#endif
 
 static guint32
 dissect_ImageGLZ_RGB(tvbuff_t *tvb, proto_tree *tree, guint32 offset, const guint32 size)
