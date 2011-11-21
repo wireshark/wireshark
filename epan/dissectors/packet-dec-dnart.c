@@ -401,7 +401,6 @@ dissect_dec_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     flags_tree = proto_item_add_subtree(ti, ett_dec_routing_flags);
 
     if (msg_flags & RT_FLAGS_CTRL_MSG) {
-        guint   new_offset;
         guint8  ctl_msg_type;
         proto_tree *ctl_msg_tree;
 
@@ -419,29 +418,24 @@ dissect_dec_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset++;
         switch (ctl_msg_type) {
             case RT_CTL_INITIALIZATION:
-                new_offset =
                     do_initialization_msg(
                         tvb, pinfo, ctl_msg_tree, offset);
             break;
             case RT_CTL_VERIFICATION:
-                new_offset =
                     do_verification_msg(
                         tvb, pinfo, ctl_msg_tree, offset);
             break;
             case RT_CTL_HELLO_TEST:
-                new_offset =
                     do_hello_test_msg(
                         tvb, pinfo, ctl_msg_tree, offset);
             break;
             case RT_CTL_LVL1_ROUTING:
             case RT_CTL_LVL2_ROUTING:
-                new_offset =
                     do_routing_msg(
                         tvb, pinfo, ctl_msg_tree, offset, msg_flags >> 1);
             break;
             case RT_CTL_ETH_ROUTER_HELLO_MSG:
             case RT_CTL_ETH_ENDNODE_HELLO_MSG:
-                new_offset =
                     do_hello_msg(
                         tvb, pinfo, ctl_msg_tree, offset, msg_flags >> 1);
             break;
