@@ -732,7 +732,7 @@ static int hf_gsm_a_rr_eutran_mr_freq_idx = -1;
 static int hf_gsm_a_rr_eutran_mr_cell_id = -1;
 static int hf_gsm_a_rr_eutran_mr_rpt_quantity = -1;
 static int hf_gsm_a_rr_ma_channel_set = -1;
-
+static int hf_n_range_orig_arfcn = -1;
 
 
 
@@ -910,12 +910,12 @@ de_rr_ba_range(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
 
 #define ARFCN_MAX 1024 /* total number of ARFCNs defined */
 
-static void display_channel_list(guint8 *list, tvbuff_t *tvb, proto_tree *tree, guint32 offset)
+static void display_channel_list(guint8 *list, tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 {
     int arfcn;
     proto_item *ti=NULL;
 
-    ti = proto_tree_add_text(tree, tvb, 0, offset, "List of ARFCNs =");
+    ti = proto_tree_add_text(tree, tvb, offset, len, "List of ARFCNs =");
     for (arfcn=0; arfcn<ARFCN_MAX; arfcn++) {
         if (list[arfcn])
             proto_item_append_text(ti, " %d", arfcn);
@@ -961,89 +961,89 @@ static gint f_k(gint k, gint *w, gint range)
 
 static void dissect_channel_list_n_range(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gint range)
 {
-    gint   curr_offset=offset, f0, arfcn_orig, bits, w[64], wsize, i, wi;
-    gint   octet, nwi=1, jwi=0, wbits, imax, iused, arfcn;
-    guint8 list[1024];
+  gint   curr_offset=offset, bit_offset, f0, arfcn_orig, w[64], wsize, i;
+  gint   octet, nwi=1, jwi=0, imax, iused, arfcn;
+  guint8 list[1024];
+  proto_item   *item;
+  proto_tree   *subtree;
 
-    memset((void*)list,0,sizeof(list));
+  memset((void*)list,0,sizeof(list));
 
-    octet = tvb_get_guint8(tvb, curr_offset++);
-    if (range==1024) {
-        f0 = (octet>>2)&1;
-        if (f0)
-            list[0] = 1;
-        bits = 2;
-        arfcn_orig = 0;
-        wsize = 10;
-        imax = 16;
+  item = proto_tree_add_text(tree,tvb, curr_offset, len, "Range %d format", range);
+  subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_NEIGH_CELL_DESC]);
+
+  octet = tvb_get_guint8(tvb, curr_offset);
+  if (range==1024) {
+    f0 = (octet>>2)&1;
+    if (f0)
+      list[0] = 1;
+    arfcn_orig = 0;
+    wsize = 10;
+    imax = 16;
+    bit_offset = curr_offset*8 + 6;
+  }
+  else {
+    bit_offset = curr_offset*8 + 7;
+    arfcn_orig = (gint) tvb_get_bits(tvb, bit_offset, 10, FALSE);
+    proto_tree_add_bits_item(subtree, hf_n_range_orig_arfcn, tvb, bit_offset, 10, FALSE);
+    bit_offset+=10;
+
+    list[arfcn_orig] = 1;
+
+    switch (range) {
+    case 512:
+      wsize=9;
+      imax = 17;
+      break;
+    case 256:
+      wsize=8;
+      imax = 21;
+      break;
+    case 128:
+      wsize=7;
+      imax = 28;
+      break;
+    default:
+      wsize=0;
+      imax = 0;
+      DISSECTOR_ASSERT_NOT_REACHED();
     }
-    else {
-        arfcn_orig = (octet&1);
-        arfcn_orig = (arfcn_orig << 8) + tvb_get_guint8(tvb, curr_offset++);
-        octet = tvb_get_guint8(tvb, curr_offset++);
-        arfcn_orig = (arfcn_orig << 1) + (octet>>7);
-        list[arfcn_orig] = 1;
-        bits = 7;
-        switch (range) {
-        case 512:
-            wsize=9;
-            imax = 17;
-            break;
-        case 256:
-            wsize=8;
-            imax = 21;
-            break;
-        case 128:
-            wsize=7;
-            imax = 28;
-            break;
-        default:
-            wsize=0;
-            imax = 0;
-            DISSECTOR_ASSERT_NOT_REACHED();
-        }
+  }
+  iused = imax;   /* in case the list is actually full */
+
+  /* extract the variable size w[] elements */
+  for (i=1; i<=imax; i++) {
+    w[i] = (gint) tvb_get_bits(tvb, bit_offset, wsize, FALSE);
+    proto_tree_add_text(subtree, tvb, bit_offset>>3, ((bit_offset+wsize-1)>>3) - (bit_offset>>3) + 1 , "%s %s(%d): %d",
+			decode_bits_in_field(bit_offset, wsize, w[i]),
+			"W",
+			i,
+			w[i]);
+    bit_offset += wsize;
+    curr_offset = bit_offset>>3;
+
+    if ((iused == imax) && (w[i] == 0) ) {
+      iused = i - 1;
     }
-    iused = imax;   /* in case the list is actually full */
+	if ((curr_offset-offset)>len) {
+      iused = i - 1;
+      break;
+	}
+    if (++jwi==nwi) {       /* check if the number of wi at this wsize has been extracted */
+      jwi = 0;            /* reset the count of wi at this size */
+      nwi <<= 1;          /* get twice as many of the next size */
+      wsize--;            /* make the next size 1 bit smaller */
+    } 
+  }
 
-    /* extract the variable size w[] elements */
-    for (i=1; i<=imax; i++) {
-        wi = octet & ~(0xff<<bits);      /* mask "bits" low bits to start wi from existing octet */
-        wbits = bits;
-        while (wsize>wbits) {            /* need to extract more bits from the next octet */
-            octet = tvb_get_guint8(tvb, curr_offset++);
-            wi = (wi << 8) + octet;
-            bits = 8;
-            wbits += 8;
-        }
+  for (i=1; i<=iused; i++) {
+    arfcn = (f_k(i, w, range) + arfcn_orig)%1024;
+    list[arfcn] = 1;
+  }
 
-        if (wbits>wsize) {      /* now we have too many bits - save some */
-            bits = wbits - wsize;
-            wi >>= bits;
-        }
-        else                    /* just right number of bits */
-            bits = 0;
+  display_channel_list(list, tvb, tree, offset, curr_offset-offset);
 
-        w[i] = wi;
-        if ((w[i]==0) || ((curr_offset-offset)>len)) {
-            iused = i - 1;
-            break;        /* all remaining elements must also be zero */
-        }
-
-        if (++jwi==nwi) {       /* check if the number of wi at this wsize has been extracted */
-            jwi = 0;            /* reset the count of wi at this size */
-            nwi <<= 1;          /* get twice as many of the next size */
-            wsize--;            /* make the next size 1 bit smaller */
-        }
-    }
-
-    for (i=1; i<=iused; i++) {
-        arfcn = (f_k(i, w, range) + arfcn_orig)%1024;
-        list[arfcn] = 1;
-    }
-
-    display_channel_list(list, tvb, tree, offset);
-
-    return;
+  return;
 }
 
 static guint16
@@ -12836,7 +12836,12 @@ proto_register_gsm_a_rr(void)
                 FT_UINT8, BASE_HEX, NULL, 0x00,
                 NULL, HFILL }
             },
-        };
+            { &hf_n_range_orig_arfcn,
+              { "ORIG-ARFCN", "gsm_a.rr.orig_arfcn",
+                FT_UINT16, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
+            },
+		};
 
     static hf_register_info hf_sacch[] =
         {
