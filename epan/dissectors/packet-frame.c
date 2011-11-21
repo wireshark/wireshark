@@ -122,13 +122,8 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	guint		cap_len = 0, frame_len = 0;
 	proto_tree	*volatile tree;
         proto_item  *item;
-	guint32 frame_number;
 	const gchar *cap_plurality, *frame_plurality;
 
-	frame_number=pinfo->fd->num; /* dummy so that the buildbot crashdumps
-					will show the packetnumber where the
-					crash occurred.
-				     */
 	tree=parent_tree;
 
 	pinfo->current_proto = "Frame";
