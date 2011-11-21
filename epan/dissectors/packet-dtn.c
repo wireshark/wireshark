@@ -1066,7 +1066,7 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
     /* Primary Header Processing Flags */
     pri_hdr_procflags = (guint8) (bundle_processing_control_flags & 0x7f);
 
-    if (sdnv_length < 1) {
+    if (sdnv_length < 1 || sdnv_length > 8) {
         expert_add_info_format(pinfo, primary_tree, PI_UNDECODED, PI_WARN,
                                "Wrong bundle control flag length: %d", sdnv_length);
         return 0;
