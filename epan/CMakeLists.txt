@@ -163,7 +163,6 @@ set(PIDL_DISSECTOR_SRC
 #	dissectors/packet-dcerpc-butc.c
 #	dissectors/packet-dcerpc-drsuapi.c
 	dissectors/packet-dcerpc-atsvc.c
-	dissectors/packet-dcerpc-dfs.c
 	dissectors/packet-dcerpc-dssetup.c
 	dissectors/packet-dcerpc-efs.c
 	dissectors/packet-dcerpc-frstrans.c
@@ -175,6 +174,7 @@ set(PIDL_DISSECTOR_SRC
 	dissectors/packet-dcerpc-wzcsvc.c
 )
 set(DIRTY_PIDL_DISSECTOR_SRC
+	dissectors/packet-dcerpc-dfs.c
 	dissectors/packet-dcerpc-dnsserver.c
 	dissectors/packet-dcerpc-eventlog.c
 	dissectors/packet-dcerpc-lsa.c
@@ -596,7 +596,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-gprs-llc.c
 	dissectors/packet-gre.c
 	dissectors/packet-gsm_a_bssmap.c
-	dissectors/packet-gsm_a_common.c
+	# dissectors/packet-gsm_a_common.c
 	dissectors/packet-gsm_a_dtap.c
 	dissectors/packet-gsm_a_gm.c
 	dissectors/packet-gsm_a_rp.c
@@ -1110,7 +1110,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-wsp.c
 	dissectors/packet-wtls.c
 	dissectors/packet-wtp.c
-	dissectors/packet-x11.c
+	# dissectors/packet-x11.c
 	dissectors/packet-x25.c
 	dissectors/packet-x29.c
 	dissectors/packet-xcsl.c
@@ -1186,6 +1186,8 @@ set(DISSECTOR_FILES
 	${PIDL_DISSECTOR_SRC}
 	${PIDL_DISSECTOR_AUTOGEN_SRC}
 	${DIRTY_PIDL_DISSECTOR_SRC}
+	dissectors/packet-gsm_a_common.c
+	dissectors/packet-x11.c
 	${ASN1_DISSECTOR_SRC}
 	${DIRTY_ASN1_DISSECTOR_SRC}
 )
@@ -1344,7 +1346,7 @@ set(CLEAN_FILES
 	# ${DISSECTOR_FILES} contains dirty files
 	${DISSECTOR_SRC}
 	${PIDL_DISSECTOR_SRC}
-	${PIDL_DISSECTOR_AUTOGEN_SRC}
+	# ${PIDL_DISSECTOR_AUTOGEN_SRC}
 	${ASN1_DISSECTOR_SRC}
 	# ${DISSECTOR_FILES } end
 	${DISSECTOR_SUPPORT_SRC}

@@ -26,7 +26,7 @@ set(PIDL_DISSECTOR_AUTOGEN_NAMES
   butc
   drsuapi
   PARENT_SCOPE
-) 
+)
 
 set(IDL2WRS_FILES
 	idl2wrs.c
