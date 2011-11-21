@@ -1293,16 +1293,18 @@ get_dst_offset(tvbuff_t *tvb, int offset, guint length,
         /* Bogus - option length is less than what it's supposed to be for
            this option. */
         return 0;
-      } else if (optp != NULL) {
-        if (opt == IPOPT_SSRR || opt == IPOPT_LSRR) {
-          /* Hmm, what if you have both options? */
-          guint8 ptr;
+      } else {
+        if (optp != NULL) {
+          if (opt == IPOPT_SSRR || opt == IPOPT_LSRR) {
+            /* Hmm, what if you have both options? */
+            guint8 ptr;
 
-          ptr = tvb_get_guint8(tvb, offset + 2);
-          if (ptr < 4 || (ptr & 3) || (ptr > len)) {
-            return 0;
+            ptr = tvb_get_guint8(tvb, offset + 2);
+            if (ptr < 4 || (ptr & 3) || (ptr > len)) {
+              return 0;
+            }
+            return (offset - orig_offset) + 4 + (len - 4);
           }
-          return (offset - orig_offset) + 4 + (len - 4);
         }
         len -= 2;   /* subtract size of type and length */
         offset += 2 + len;
