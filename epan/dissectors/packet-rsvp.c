@@ -1637,7 +1637,7 @@ static void
 dissect_rsvp_session (proto_item *ti, proto_tree *rsvp_object_tree,
 		      tvbuff_t *tvb,
 		      int offset, int obj_length,
-		      int class _U_, int type,
+		      int rsvp_class _U_, int type,
 		      rsvp_conversation_info *rsvph)
 {
     proto_item *hidden_item;
@@ -2146,7 +2146,7 @@ static void
 dissect_rsvp_hop (proto_item *ti, proto_tree *rsvp_object_tree,
 		  tvbuff_t *tvb,
 		  int offset, int obj_length,
-		  int class _U_, int type)
+		  int rsvp_class _U_, int type)
 {
     int offset2 = offset + 4;
 
@@ -2209,7 +2209,7 @@ static void
 dissect_rsvp_time_values (proto_item *ti, proto_tree *rsvp_object_tree,
 			  tvbuff_t *tvb,
 			  int offset, int obj_length,
-			  int class _U_, int type)
+			  int rsvp_class _U_, int type)
 {
     int offset2 = offset + 4;
 
@@ -2322,7 +2322,7 @@ static void
 dissect_rsvp_error (proto_item *ti, proto_tree *rsvp_object_tree,
 		    tvbuff_t *tvb,
 		    int offset, int obj_length,
-		    int class _U_, int type)
+		    int rsvp_class _U_, int type)
 {
     int offset2 = offset + 4;
     int offset3;
@@ -2420,7 +2420,7 @@ static void
 dissect_rsvp_scope (proto_item *ti _U_, proto_tree *rsvp_object_tree,
 		    tvbuff_t *tvb,
 		    int offset, int obj_length,
-		    int class _U_, int type)
+		    int rsvp_class _U_, int type)
 {
     int offset2 = offset + 4;
     int mylen;
@@ -2469,7 +2469,7 @@ static void
 dissect_rsvp_style (proto_item *ti, proto_tree *rsvp_object_tree,
 		    tvbuff_t *tvb,
 		    int offset, int obj_length,
-		    int class _U_, int type)
+		    int rsvp_class _U_, int type)
 {
     int offset2 = offset + 4;
 
@@ -2509,7 +2509,7 @@ static void
 dissect_rsvp_confirm (proto_item *ti, proto_tree *rsvp_object_tree,
 		      tvbuff_t *tvb,
 		      int offset, int obj_length,
-		      int class _U_, int type)
+		      int rsvp_class _U_, int type)
 {
     int offset2 = offset + 4;
 
@@ -2550,7 +2550,7 @@ static void
 dissect_rsvp_template_filter (proto_item *ti, proto_tree *rsvp_object_tree,
 			      tvbuff_t *tvb,
 			      int offset, int obj_length,
-			      int class _U_, int type,
+			      int rsvp_class _U_, int type,
 			      rsvp_conversation_info *rsvph)
 {
     int offset2 = offset + 4;
@@ -2727,7 +2727,7 @@ static void
 dissect_rsvp_tspec (proto_item *ti, proto_tree *rsvp_object_tree,
 		    tvbuff_t *tvb,
 		    int offset, int obj_length,
-		    int class _U_, int type)
+		    int rsvp_class _U_, int type)
 {
     int offset2 = offset + 4;
     int mylen;
@@ -3072,7 +3072,7 @@ static void
 dissect_rsvp_flowspec (proto_item *ti, proto_tree *rsvp_object_tree,
 		       tvbuff_t *tvb,
 		       int offset, int obj_length,
-		       int class _U_, int type)
+		       int rsvp_class _U_, int type)
 {
     int offset2 = offset + 4;
     int mylen, signal_type;
@@ -3430,7 +3430,7 @@ static void
 dissect_rsvp_adspec (proto_item *ti, proto_tree *rsvp_object_tree,
 		     tvbuff_t *tvb,
 		     int offset, int obj_length,
-		     int class _U_, int type)
+		     int rsvp_class _U_, int type)
 {
     int offset2 = offset + 4;
     int mylen, i;
@@ -3536,7 +3536,7 @@ static void
 dissect_rsvp_integrity (proto_item *ti _U_, proto_tree *rsvp_object_tree,
 			tvbuff_t *tvb,
 			int offset, int obj_length,
-			int class _U_, int type)
+			int rsvp_class _U_, int type)
 {
     int offset2 = offset + 4;
     proto_tree *ti2, *rsvp_integ_flags_tree;
@@ -3565,7 +3565,7 @@ static void
 dissect_rsvp_policy (proto_item *ti _U_, proto_tree *rsvp_object_tree,
 		     tvbuff_t *tvb,
 		     int offset, int obj_length,
-		     int class _U_, int type)
+		     int rsvp_class _U_, int type)
 {
     int offset2 = offset + 4;
 
@@ -3582,7 +3582,7 @@ static void
 dissect_rsvp_label_request (proto_item *ti, proto_tree *rsvp_object_tree,
 			    tvbuff_t *tvb,
 			    int offset, int obj_length,
-			    int class _U_, int type)
+			    int rsvp_class _U_, int type)
 {
     int offset2 = offset + 4;
     const value_string lab_req_type_str[] = {
@@ -3908,15 +3908,15 @@ static void
 dissect_rsvp_label (proto_tree *ti, proto_tree *rsvp_object_tree,
 		    tvbuff_t *tvb,
 		    int offset, int obj_length,
-		    int class, int type)
+		    int rsvp_class, int type)
 {
     int offset2 = offset + 4;
     int mylen, i;
     const char *name;
 
-    name = (class==RSVP_CLASS_SUGGESTED_LABEL ? "SUGGESTED LABEL":
-	    (class==RSVP_CLASS_UPSTREAM_LABEL ? "UPSTREAM LABEL":
-	     (class==RSVP_CLASS_RECOVERY_LABEL ? "RECOVERY LABEL":
+    name = (rsvp_class==RSVP_CLASS_SUGGESTED_LABEL ? "SUGGESTED LABEL":
+	    (rsvp_class==RSVP_CLASS_UPSTREAM_LABEL ? "UPSTREAM LABEL":
+	     (rsvp_class==RSVP_CLASS_RECOVERY_LABEL ? "RECOVERY LABEL":
 	     "LABEL")));
     mylen = obj_length - 4;
     switch(type) {
@@ -3981,7 +3981,7 @@ static void
 dissect_rsvp_label_set (proto_item *ti, proto_tree *rsvp_object_tree,
 			tvbuff_t *tvb,
 		        int offset, int obj_length,
-		        int class _U_, int type)
+		        int rsvp_class _U_, int type)
 {
     int offset2 = offset + 8;
     guint8 label_type;
@@ -4032,7 +4032,7 @@ static void
 dissect_rsvp_session_attribute (proto_item *ti, proto_tree *rsvp_object_tree,
 				tvbuff_t *tvb,
 				int offset, int obj_length,
-				int class _U_, int type)
+				int rsvp_class _U_, int type)
 {
     int offset2 = offset + 4;
     guint8 flags;
@@ -4123,22 +4123,22 @@ dissect_rsvp_session_attribute (proto_item *ti, proto_tree *rsvp_object_tree,
 static void
 dissect_rsvp_ero_rro_subobjects (proto_tree *ti, proto_tree *rsvp_object_tree,
 				 tvbuff_t *tvb,
-				 int offset, int obj_length, int class)
+				 int offset, int obj_length, int rsvp_class)
 {
     int i, j, k, l, flags;
     proto_tree *ti2, *rsvp_ro_subtree, *rsvp_rro_flags_subtree;
     int tree_type;
 
-    switch(class) {
+    switch(rsvp_class) {
     case RSVP_CLASS_EXPLICIT_ROUTE:
-	tree_type = TREE(TT_EXPLICIT_ROUTE_SUBOBJ);
-	break;
+        tree_type = TREE(TT_EXPLICIT_ROUTE_SUBOBJ);
+        break;
     case RSVP_CLASS_RECORD_ROUTE:
-	tree_type = TREE(TT_RECORD_ROUTE_SUBOBJ);
-	break;
+        tree_type = TREE(TT_RECORD_ROUTE_SUBOBJ);
+        break;
     default:
-	/* Bail out */
-	return;
+        /* Bail out */
+        return;
     }
 
     for (i=1, l = 0; l < obj_length - 4; i++) {
@@ -4150,11 +4150,11 @@ dissect_rsvp_ero_rro_subobjects (proto_tree *ti, proto_tree *rsvp_object_tree,
 				      offset+l, 8,
 				      "IPv4 Subobject - %s%s",
 				      tvb_ip_to_str(tvb, offset+l+2),
-				      class == RSVP_CLASS_EXPLICIT_ROUTE ?
+				      rsvp_class == RSVP_CLASS_EXPLICIT_ROUTE ?
 				      (k ? ", Loose" : ", Strict") : "");
 	    rsvp_ro_subtree =
 		proto_item_add_subtree(ti2, tree_type);
-	    if (class == RSVP_CLASS_EXPLICIT_ROUTE)
+	    if (rsvp_class == RSVP_CLASS_EXPLICIT_ROUTE)
 		proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l, 1,
 				    k ? "Loose Hop " : "Strict Hop");
 	    proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l, 1,
@@ -4173,7 +4173,7 @@ dissect_rsvp_ero_rro_subobjects (proto_tree *ti, proto_tree *rsvp_object_tree,
 				       tvb_ip_to_str(tvb, offset+l+2),
 				       k ? " [L]" : "");
 	    }
-	    if (class == RSVP_CLASS_RECORD_ROUTE) {
+	    if (rsvp_class == RSVP_CLASS_RECORD_ROUTE) {
 		flags = tvb_get_guint8(tvb, offset+l+7);
 		if (flags&0x10) {
 		    proto_item_append_text(ti,  " (Node-id)");
@@ -4218,7 +4218,7 @@ dissect_rsvp_ero_rro_subobjects (proto_tree *ti, proto_tree *rsvp_object_tree,
 	    rsvp_ro_subtree =
 		proto_item_add_subtree(ti2, tree_type);
 	    k = tvb_get_guint8(tvb, offset+l) & 0x80;
-	    if (class == RSVP_CLASS_EXPLICIT_ROUTE)
+	    if (rsvp_class == RSVP_CLASS_EXPLICIT_ROUTE)
 		proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l, 1,
 				    k ? "Loose Hop " : "Strict Hop");
 	    proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l, 1,
@@ -4235,7 +4235,7 @@ dissect_rsvp_ero_rro_subobjects (proto_tree *ti, proto_tree *rsvp_object_tree,
 	    if (i < 4) {
 		proto_item_append_text(ti, "IPv6 [...]%s", k ? " [L]":"");
 	    }
-	    if (class == RSVP_CLASS_RECORD_ROUTE) {
+	    if (rsvp_class == RSVP_CLASS_RECORD_ROUTE) {
 		flags = tvb_get_guint8(tvb, offset+l+19);
 		if (flags&0x10) {
 		    proto_item_append_text(ti,  " (Node-id)");
@@ -4279,11 +4279,11 @@ dissect_rsvp_ero_rro_subobjects (proto_tree *ti, proto_tree *rsvp_object_tree,
 				      offset+l, 8,
 				      "Label Subobject - %d, %s",
 				      tvb_get_ntohl(tvb, offset+l+4),
-				      class == RSVP_CLASS_EXPLICIT_ROUTE ?
+				      rsvp_class == RSVP_CLASS_EXPLICIT_ROUTE ?
 				      (k ? "Loose" : "Strict") : "");
 	    rsvp_ro_subtree =
 		proto_item_add_subtree(ti2, tree_type);
-	    if (class == RSVP_CLASS_EXPLICIT_ROUTE)
+	    if (rsvp_class == RSVP_CLASS_EXPLICIT_ROUTE)
 		proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l, 1,
 				    k ? "Loose Hop " : "Strict Hop");
 	    proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l, 1,
@@ -4291,7 +4291,7 @@ dissect_rsvp_ero_rro_subobjects (proto_tree *ti, proto_tree *rsvp_object_tree,
 	    proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l+1, 1,
 				"Length: %u",
 				tvb_get_guint8(tvb, offset+l+1));
-	    if (class == RSVP_CLASS_RECORD_ROUTE) {
+	    if (rsvp_class == RSVP_CLASS_RECORD_ROUTE) {
 		flags = tvb_get_guint8(tvb, offset+l+2);
 		if (flags&0x01) proto_item_append_text(ti2, ", Local Protection Available");
 		if (flags&0x02) proto_item_append_text(ti2, ", Local Protection In Use");
@@ -4338,11 +4338,11 @@ dissect_rsvp_ero_rro_subobjects (proto_tree *ti, proto_tree *rsvp_object_tree,
 				      "Unnumbered Interface-ID - %s, %d, %s",
 				      tvb_ip_to_str(tvb, offset+l+4),
 				      tvb_get_ntohl(tvb, offset+l+8),
-				      class == RSVP_CLASS_EXPLICIT_ROUTE ?
+				      rsvp_class == RSVP_CLASS_EXPLICIT_ROUTE ?
 				      (k ? "Loose" : "Strict") : "");
 	    rsvp_ro_subtree =
 		proto_item_add_subtree(ti2, tree_type);
-	    if (class == RSVP_CLASS_EXPLICIT_ROUTE)
+	    if (rsvp_class == RSVP_CLASS_EXPLICIT_ROUTE)
 		proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l, 1,
 				    k ? "Loose Hop " : "Strict Hop");
 	    proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l, 1,
@@ -4350,7 +4350,7 @@ dissect_rsvp_ero_rro_subobjects (proto_tree *ti, proto_tree *rsvp_object_tree,
 	    proto_tree_add_text(rsvp_ro_subtree, tvb, offset+l+1, 1,
 				"Length: %u",
 				tvb_get_guint8(tvb, offset+l+1));
-	    if (class == RSVP_CLASS_RECORD_ROUTE) {
+	    if (rsvp_class == RSVP_CLASS_RECORD_ROUTE) {
 		flags = tvb_get_guint8(tvb, offset+l+2);
 		if (flags&0x01) proto_item_append_text(ti2, ", Local Protection Available");
 		if (flags&0x02) proto_item_append_text(ti2, ", Local Protection In Use");
@@ -4392,7 +4392,7 @@ dissect_rsvp_ero_rro_subobjects (proto_tree *ti, proto_tree *rsvp_object_tree,
 	    break;
 
 	case 32: /* AS */
-	    if (class == RSVP_CLASS_RECORD_ROUTE) goto defaultsub;
+	    if (rsvp_class == RSVP_CLASS_RECORD_ROUTE) goto defaultsub;
 	    k = tvb_get_ntohs(tvb, offset+l+2);
 	    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
 				      offset+l, 4,
@@ -4414,7 +4414,7 @@ dissect_rsvp_ero_rro_subobjects (proto_tree *ti, proto_tree *rsvp_object_tree,
 	    break;
 
 	case 64: /* PKSv4 - RFC5520 */
-	    if (class == RSVP_CLASS_RECORD_ROUTE) goto defaultsub;
+	    if (rsvp_class == RSVP_CLASS_RECORD_ROUTE) goto defaultsub;
 	    k = tvb_get_ntohs(tvb, offset+l+2);
 	    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
 				      offset+l, 8,
@@ -4439,7 +4439,7 @@ dissect_rsvp_ero_rro_subobjects (proto_tree *ti, proto_tree *rsvp_object_tree,
 	    break;
 
 	case 65: /* PKSv6 - RFC5520 */
-	    if (class == RSVP_CLASS_RECORD_ROUTE) goto defaultsub;
+	    if (rsvp_class == RSVP_CLASS_RECORD_ROUTE) goto defaultsub;
 	    k = tvb_get_ntohs(tvb, offset+l+2);
 	    ti2 = proto_tree_add_text(rsvp_object_tree, tvb,
 				      offset+l, 8,
@@ -4472,7 +4472,7 @@ dissect_rsvp_ero_rro_subobjects (proto_tree *ti, proto_tree *rsvp_object_tree,
            * Private Use (see RFC 3936, Section 2.3.1) in case of
            * EXPLICIT_ROUTE (aka ERO).
            */
-          if (class == RSVP_CLASS_RECORD_ROUTE)
+          if (rsvp_class == RSVP_CLASS_RECORD_ROUTE)
             goto defaultsub;
           else
             goto privatesub;
@@ -4487,7 +4487,7 @@ dissect_rsvp_ero_rro_subobjects (proto_tree *ti, proto_tree *rsvp_object_tree,
            * Private Use (see RFC 3936, Section 2.3.1) in case of
            * RECORD_ROUTE (aka RRO).
            */
-          if (class == RSVP_CLASS_EXPLICIT_ROUTE)
+          if (rsvp_class == RSVP_CLASS_EXPLICIT_ROUTE)
             goto defaultsub;
           else
             goto privatesub;
@@ -4571,7 +4571,7 @@ static void
 dissect_rsvp_explicit_route (proto_item *ti, proto_tree *rsvp_object_tree,
 			     tvbuff_t *tvb,
 			     int offset, int obj_length,
-			     int class, int type)
+			     int rsvp_class, int type)
 {
     switch(type) {
     case 1:
@@ -4580,7 +4580,7 @@ dissect_rsvp_explicit_route (proto_item *ti, proto_tree *rsvp_object_tree,
 	proto_item_set_text(ti, "EXPLICIT ROUTE: ");
 
 	dissect_rsvp_ero_rro_subobjects(ti, rsvp_object_tree, tvb,
-					offset + 4, obj_length, class);
+					offset + 4, obj_length, rsvp_class);
 	break;
 
     default:
@@ -4600,7 +4600,7 @@ static void
 dissect_rsvp_record_route (proto_item *ti, proto_tree *rsvp_object_tree,
 			   tvbuff_t *tvb,
 			   int offset, int obj_length,
-			   int class, int type)
+			   int rsvp_class, int type)
 {
     proto_item_set_text(ti, "RECORD ROUTE: ");
     switch(type) {
@@ -4609,7 +4609,7 @@ dissect_rsvp_record_route (proto_item *ti, proto_tree *rsvp_object_tree,
 			    "C-type: 1");
 
 	dissect_rsvp_ero_rro_subobjects(ti, rsvp_object_tree, tvb,
-					offset + 4, obj_length, class);
+					offset + 4, obj_length, rsvp_class);
 	break;
 
     default:
@@ -4629,7 +4629,7 @@ static void
 dissect_rsvp_message_id (proto_tree *ti, proto_tree *rsvp_object_tree,
 			 tvbuff_t *tvb,
 			 int offset, int obj_length,
-			 int class _U_, int type)
+			 int rsvp_class _U_, int type)
 {
     int offset2 = offset + 4;
 
@@ -4665,7 +4665,7 @@ static void
 dissect_rsvp_message_id_ack (proto_tree *ti, proto_tree *rsvp_object_tree,
 			     tvbuff_t *tvb,
 			     int offset, int obj_length,
-			     int class _U_, int type)
+			     int rsvp_class _U_, int type)
 {
     int offset2 = offset + 4;
 
@@ -4711,7 +4711,7 @@ static void
 dissect_rsvp_message_id_list (proto_tree *ti, proto_tree *rsvp_object_tree,
 			      tvbuff_t *tvb,
 			      int offset, int obj_length,
-			      int class _U_, int type)
+			      int rsvp_class _U_, int type)
 {
     int offset2 = offset + 4;
     int mylen;
@@ -4749,7 +4749,7 @@ static void
 dissect_rsvp_hello (proto_tree *ti, proto_tree *rsvp_object_tree,
 		    tvbuff_t *tvb,
 		    int offset, int obj_length _U_,
-		    int class _U_, int type)
+		    int rsvp_class _U_, int type)
 {
     switch(type) {
     case 1:
@@ -4781,7 +4781,7 @@ static void
 dissect_rsvp_dclass (proto_tree *ti, proto_tree *rsvp_object_tree,
 		     tvbuff_t *tvb,
 		     int offset, int obj_length,
-		     int class _U_, int type)
+		     int rsvp_class _U_, int type)
 {
     int offset2 = offset + 4;
     int mylen;
@@ -4822,7 +4822,7 @@ static void
 dissect_rsvp_admin_status (proto_tree *ti, proto_tree *rsvp_object_tree,
 			   tvbuff_t *tvb,
 			   int offset, int obj_length,
-			   int class _U_, int type)
+			   int rsvp_class _U_, int type)
 {
     int offset2 = offset + 4;
     proto_tree *ti2, *rsvp_admin_subtree;
@@ -4890,14 +4890,14 @@ dissect_rsvp_admin_status (proto_tree *ti, proto_tree *rsvp_object_tree,
 static void
 dissect_rsvp_lsp_attributes (proto_tree *ti, proto_tree *rsvp_object_tree,
 			     tvbuff_t *tvb, int offset, int obj_length,
-			      int class _U_, int type)
+			      int rsvp_class _U_, int type)
 {
     int tlv_off;
     guint32 attributes;
     guint16 tlv_type, tlv_len;
     proto_tree *ti2, *rsvp_lsp_attr_subtree;
 
-    if (class == RSVP_CLASS_LSP_REQUIRED_ATTRIBUTES)
+    if (rsvp_class == RSVP_CLASS_LSP_REQUIRED_ATTRIBUTES)
         proto_item_set_text(ti, "LSP REQUIRED ATTRIBUTES: ");
     else
         proto_item_set_text(ti, "LSP ATTRIBUTES: ");
@@ -4965,7 +4965,7 @@ static void
 dissect_rsvp_association (proto_tree *ti, proto_tree *rsvp_object_tree,
 			  tvbuff_t *tvb,
 			  int offset, int obj_length,
-			  int class _U_, int type)
+			  int rsvp_class _U_, int type)
 {
     guint16 association_type;
     guint16 association_id;
@@ -5155,7 +5155,7 @@ static void
 dissect_rsvp_lsp_tunnel_if_id (proto_tree *ti, proto_tree *rsvp_object_tree,
 			       tvbuff_t *tvb,
 			       int offset, int obj_length,
-			       int class _U_, int type)
+			       int rsvp_class _U_, int type)
 {
     guint8  action;
 
@@ -5268,7 +5268,7 @@ static void
 dissect_rsvp_notify_request (proto_item *ti, proto_tree *rsvp_object_tree,
 			     tvbuff_t *tvb,
 			     int offset, int obj_length,
-			     int class _U_, int type)
+			     int rsvp_class _U_, int type)
 {
     int offset2 = offset + 4;
 
@@ -5311,7 +5311,7 @@ static void
 dissect_rsvp_gen_uni (proto_tree *ti, proto_tree *rsvp_object_tree,
 		      tvbuff_t *tvb,
 		      int offset, int obj_length,
-		      int class _U_, int type,
+		      int rsvp_class _U_, int type,
 		      rsvp_conversation_info *rsvph)
 {
     int offset2 = offset + 4;
@@ -5623,7 +5623,7 @@ static void
 dissect_rsvp_call_id (proto_tree *ti, proto_tree *rsvp_object_tree,
 		      tvbuff_t *tvb,
 		      int offset, int obj_length,
-		      int class _U_, int c_type)
+		      int rsvp_class _U_, int c_type)
 {
     int type = 0;
     const char *str;
@@ -5748,7 +5748,7 @@ static void
 dissect_rsvp_restart_cap (proto_tree *ti, proto_tree *rsvp_object_tree,
 			  tvbuff_t *tvb,
 			  int offset, int obj_length,
-			  int class _U_, int type)
+			  int rsvp_class _U_, int type)
 {
     int offset2 = offset + 4;
 
@@ -5784,7 +5784,7 @@ static void
 dissect_rsvp_protection_info (proto_tree *ti, proto_tree *rsvp_object_tree,
 			      tvbuff_t *tvb,
 			      int offset, int obj_length,
-			      int class _U_, int type)
+			      int rsvp_class _U_, int type)
 {
     guint8 flags1, flags2, lsp_flags, link_flags, seg_flags;
     proto_tree *ti2, *ti3, *ti4, *rsvp_pi_link_flags_tree, *rsvp_pi_lsp_flags_tree, *rsvp_pi_seg_flags_tree;
@@ -6000,7 +6000,7 @@ static void
 dissect_rsvp_fast_reroute (proto_tree *ti, proto_tree *rsvp_object_tree,
 			   tvbuff_t *tvb,
 			   int offset, int obj_length,
-			   int class _U_, int type)
+			   int rsvp_class _U_, int type)
 {
     guint8 flags;
     proto_tree *ti2, *rsvp_frr_flags_tree;
@@ -6070,7 +6070,7 @@ static void
 dissect_rsvp_detour (proto_tree *ti, proto_tree *rsvp_object_tree,
 		     tvbuff_t *tvb,
 		     int offset, int obj_length,
-		     int class _U_, int type)
+		     int rsvp_class _U_, int type)
 {
     int remaining_length, count;
     int iter;
@@ -6118,7 +6118,7 @@ static void
 dissect_rsvp_diffserv (proto_tree *ti, proto_tree *rsvp_object_tree,
 		       tvbuff_t *tvb,
 		       int offset, int obj_length,
-		       int class _U_, int type)
+		       int rsvp_class _U_, int type)
 {
     int mapnb, count;
     int *hfindexes[] = {
@@ -6176,7 +6176,7 @@ static void
 dissect_rsvp_diffserv_aware_te(proto_tree *ti, proto_tree *rsvp_object_tree,
 			       tvbuff_t *tvb,
 			       int offset, int obj_length,
-			       int class _U_, int type)
+			       int rsvp_class _U_, int type)
 {
     proto_item *hidden_item;
     int offset2 = offset + 4;
@@ -6214,7 +6214,7 @@ dissect_rsvp_vendor_private_use(proto_tree *ti _U_,
                                 proto_tree *rsvp_object_tree,
                                 tvbuff_t *tvb,
                                 int offset, int obj_length,
-                                int class _U_, int type)
+                                int rsvp_class _U_, int type)
 {
     /*
      * FF: from Section 2, RFC 3936
@@ -6375,15 +6375,15 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     while (len < msg_length) {
-	guint8 class;
+	guint8 rsvp_class;
 	guint8 type;
 
 	obj_length = tvb_get_ntohs(tvb, offset);
-	class = tvb_get_guint8(tvb, offset+2);
+	rsvp_class = tvb_get_guint8(tvb, offset+2);
 	type = tvb_get_guint8(tvb, offset+3);
-	ti = proto_tree_add_item(rsvp_tree, hf_rsvp_filter[rsvp_class_to_filter_num(class)],
+	ti = proto_tree_add_item(rsvp_tree, hf_rsvp_filter[rsvp_class_to_filter_num(rsvp_class)],
 				 tvb, offset, obj_length, FALSE);
-	rsvp_object_tree = proto_item_add_subtree(ti, TREE(rsvp_class_to_tree_type(class)));
+	rsvp_object_tree = proto_item_add_subtree(ti, TREE(rsvp_class_to_tree_type(rsvp_class)));
 	if (obj_length < 4) {
 	    proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
 				"Length: %u (bogus, must be >= 4)", obj_length);
@@ -6392,163 +6392,163 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
 			    "Length: %u", obj_length);
 	proto_tree_add_uint(rsvp_object_tree, hf_rsvp_filter[RSVPF_OBJECT], tvb,
-			    offset+2, 1, class);
+			    offset+2, 1, rsvp_class);
 
 	offset2 = offset+4;
 
-	switch(class) {
+	switch(rsvp_class) {
 
 	case RSVP_CLASS_SESSION:
-	    dissect_rsvp_session(ti, rsvp_object_tree, tvb, offset, obj_length, class, type, rsvph);
+	    dissect_rsvp_session(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type, rsvph);
 	    break;
 
 	case RSVP_CLASS_HOP:
-	    dissect_rsvp_hop(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
+	    dissect_rsvp_hop(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
 	    break;
 
 	case RSVP_CLASS_TIME_VALUES:
-	    dissect_rsvp_time_values(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
+	    dissect_rsvp_time_values(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
 	    break;
 
 	case RSVP_CLASS_ERROR:
-	    dissect_rsvp_error(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
+	    dissect_rsvp_error(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
 	    break;
 
 	case RSVP_CLASS_SCOPE:
-	    dissect_rsvp_scope(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
+	    dissect_rsvp_scope(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
 	    break;
 
 	case RSVP_CLASS_STYLE:
-	    dissect_rsvp_style(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
+	    dissect_rsvp_style(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
 	    break;
 
 	case RSVP_CLASS_CONFIRM:
-	    dissect_rsvp_confirm(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
+	    dissect_rsvp_confirm(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
 	    break;
 
 	case RSVP_CLASS_SENDER_TEMPLATE:
 	case RSVP_CLASS_FILTER_SPEC:
-	    dissect_rsvp_template_filter(ti, rsvp_object_tree, tvb, offset, obj_length, class, type, rsvph);
+	    dissect_rsvp_template_filter(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type, rsvph);
 	    break;
 
 	case RSVP_CLASS_SENDER_TSPEC:
-	    dissect_rsvp_tspec(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
+	    dissect_rsvp_tspec(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
 	    break;
 
 	case RSVP_CLASS_FLOWSPEC:
-	    dissect_rsvp_flowspec(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
+	    dissect_rsvp_flowspec(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
 	    break;
 
 	case RSVP_CLASS_ADSPEC:
-	    dissect_rsvp_adspec(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
+	    dissect_rsvp_adspec(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
 	    break;
 
 	case RSVP_CLASS_INTEGRITY:
-	    dissect_rsvp_integrity(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
+	    dissect_rsvp_integrity(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
 	    break;
 
 	case RSVP_CLASS_POLICY:
-	    dissect_rsvp_policy(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
+	    dissect_rsvp_policy(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
 	    break;
 
 	case RSVP_CLASS_LABEL_REQUEST:
-	    dissect_rsvp_label_request(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
+	    dissect_rsvp_label_request(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
 	    break;
 
 	case RSVP_CLASS_RECOVERY_LABEL:
 	case RSVP_CLASS_UPSTREAM_LABEL:
 	case RSVP_CLASS_SUGGESTED_LABEL:
 	case RSVP_CLASS_LABEL:
-	    dissect_rsvp_label(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
+	    dissect_rsvp_label(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
 	    break;
 
 	case RSVP_CLASS_LABEL_SET:
-	    dissect_rsvp_label_set(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
+	    dissect_rsvp_label_set(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
 	    break;
 
 	case RSVP_CLASS_SESSION_ATTRIBUTE:
-	    dissect_rsvp_session_attribute(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
+	    dissect_rsvp_session_attribute(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
 	    break;
 
 	case RSVP_CLASS_EXPLICIT_ROUTE:
-	    dissect_rsvp_explicit_route(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
+	    dissect_rsvp_explicit_route(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
 	    break;
 
 	case RSVP_CLASS_RECORD_ROUTE:
-	    dissect_rsvp_record_route(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
+	    dissect_rsvp_record_route(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
 	    break;
 
 	case RSVP_CLASS_MESSAGE_ID:
-	    dissect_rsvp_message_id(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
+	    dissect_rsvp_message_id(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
 	    break;
 
 	case RSVP_CLASS_MESSAGE_ID_ACK:
-	    dissect_rsvp_message_id_ack(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
+	    dissect_rsvp_message_id_ack(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
 	    break;
 
 	case RSVP_CLASS_MESSAGE_ID_LIST:
-	    dissect_rsvp_message_id_list(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
+	    dissect_rsvp_message_id_list(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
 	    break;
 
 	case RSVP_CLASS_HELLO:
-	    dissect_rsvp_hello(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
+	    dissect_rsvp_hello(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
 	    break;
 
 	case RSVP_CLASS_DCLASS:
-	    dissect_rsvp_dclass(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
+	    dissect_rsvp_dclass(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
 	    break;
 
 	case RSVP_CLASS_ADMIN_STATUS:
-	    dissect_rsvp_admin_status(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
+	    dissect_rsvp_admin_status(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
 	    break;
 
 	case RSVP_CLASS_LSP_ATTRIBUTES:
 	case RSVP_CLASS_LSP_REQUIRED_ATTRIBUTES:
-	    dissect_rsvp_lsp_attributes(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
+	    dissect_rsvp_lsp_attributes(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
 	    break;
 
 	case RSVP_CLASS_ASSOCIATION:
-	    dissect_rsvp_association(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
+	    dissect_rsvp_association(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
 	    break;
 
 	case RSVP_CLASS_LSP_TUNNEL_IF_ID:
-	    dissect_rsvp_lsp_tunnel_if_id(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
+	    dissect_rsvp_lsp_tunnel_if_id(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
 	    break;
 
 	case RSVP_CLASS_NOTIFY_REQUEST:
-	    dissect_rsvp_notify_request(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
+	    dissect_rsvp_notify_request(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
 	    break;
 
 	case RSVP_CLASS_GENERALIZED_UNI:
-	    dissect_rsvp_gen_uni(ti, rsvp_object_tree, tvb, offset, obj_length, class, type, rsvph);
+	    dissect_rsvp_gen_uni(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type, rsvph);
 	    break;
 
 	case RSVP_CLASS_CALL_ID:
-	    dissect_rsvp_call_id(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
+	    dissect_rsvp_call_id(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
 	    break;
 
 	case RSVP_CLASS_RESTART_CAP:
-	    dissect_rsvp_restart_cap(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
+	    dissect_rsvp_restart_cap(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
 	    break;
 
 	case RSVP_CLASS_PROTECTION:
-	    dissect_rsvp_protection_info(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
+	    dissect_rsvp_protection_info(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
 	    break;
 
 	case RSVP_CLASS_FAST_REROUTE:
-	    dissect_rsvp_fast_reroute(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
+	    dissect_rsvp_fast_reroute(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
 	    break;
 
 	case RSVP_CLASS_DETOUR:
-	    dissect_rsvp_detour(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
+	    dissect_rsvp_detour(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
 	    break;
 
 	case RSVP_CLASS_DIFFSERV:
-	    dissect_rsvp_diffserv(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
+	    dissect_rsvp_diffserv(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
 	    break;
 
 	case RSVP_CLASS_CLASSTYPE:
-	    dissect_rsvp_diffserv_aware_te(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
+	    dissect_rsvp_diffserv_aware_te(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
 	    break;
 
         case RSVP_CLASS_VENDOR_PRIVATE_1:
@@ -6563,7 +6563,7 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         case RSVP_CLASS_VENDOR_PRIVATE_10:
         case RSVP_CLASS_VENDOR_PRIVATE_11:
         case RSVP_CLASS_VENDOR_PRIVATE_12:
-            dissect_rsvp_vendor_private_use(ti, rsvp_object_tree, tvb, offset, obj_length, class, type);
+            dissect_rsvp_vendor_private_use(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
             break;
 
 	case RSVP_CLASS_NULL:
@@ -6599,7 +6599,7 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     message_type = tvb_get_guint8(tvb, 1);
 
-    rsvph = ep_alloc0(sizeof(rsvp_conversation_info));
+    rsvph = ep_new0(rsvp_conversation_info);
 
     /* Copy over the source and destination addresses from the pinfo strucutre */
     SET_ADDRESS(&rsvph->source, pinfo->src.type, pinfo->src.len, pinfo->src.data);
@@ -6711,7 +6711,7 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (!request_val) {
         new_request_key = se_memdup(&request_key, sizeof(struct rsvp_request_key));
 
-        request_val = se_alloc(sizeof(struct rsvp_request_val));
+        request_val = se_new(rsvp_request_val);
         request_val->value = conversation->index;
 
         g_hash_table_insert(rsvp_request_hash, new_request_key, request_val);
