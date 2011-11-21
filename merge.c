@@ -150,9 +150,16 @@ is_earlier(struct wtap_nstime *l, struct wtap_nstime *r) {
 
 /*
  * Read the next packet, in chronological order, from the set of files
- * to be merged.  Return a pointer to the merge_in_file_t for the file
- * from which the packet was read on success, or NULL on EOF or error.
- * On EOF, *err is 0; on an error, it's an error code.
+ * to be merged.
+ *
+ * On success, set *err to 0 and return a pointer to the merge_in_file_t
+ * for the file from which the packet was read.
+ *
+ * On a read error, set *err to the error and return a pointer to the
+ * merge_in_file_t for the file on which we got an error.
+ *
+ * On an EOF (meaning all the files are at EOF), set *err to 0 and return
+ * NULL.
  */
 merge_in_file_t *
 merge_read_packet(int in_file_count, merge_in_file_t in_files[],
@@ -211,9 +218,16 @@ merge_read_packet(int in_file_count, merge_in_file_t in_files[],
 
 /*
  * Read the next packet, in file sequence order, from the set of files
- * to be merged.  Return a pointer to the merge_in_file_t for the file
- * from which the packet was read on success, or NULL on EOF or error.
- * On EOF, *err is 0; on an error, it's an error code.
+ * to be merged.
+ *
+ * On success, set *err to 0 and return a pointer to the merge_in_file_t
+ * for the file from which the packet was read.
+ *
+ * On a read error, set *err to the error and return a pointer to the
+ * merge_in_file_t for the file on which we got an error.
+ *
+ * On an EOF (meaning all the files are at EOF), set *err to 0 and return
+ * NULL.
  */
 merge_in_file_t *
 merge_append_read_packet(int in_file_count, merge_in_file_t in_files[],
@@ -232,7 +246,7 @@ merge_append_read_packet(int in_file_count, merge_in_file_t in_files[],
     if (*err != 0) {
       /* Read error - quit immediately. */
       in_files[i].state = GOT_ERROR;
-      return NULL;
+      return &in_files[i];
     }
     /* EOF - flag this file as being at EOF, and try the next one. */
     in_files[i].state = AT_EOF;
@@ -244,5 +258,6 @@ merge_append_read_packet(int in_file_count, merge_in_file_t in_files[],
   }
 
   /* Return the ordinal of the file from which the packet was read. */
+  *err = 0;
   return &in_files[i];
 }

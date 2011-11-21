@@ -1290,8 +1290,13 @@ cf_merge_files(char **out_filenamep, int in_file_count,
       in_file = merge_read_packet(in_file_count, in_files, &read_err,
                                   &err_info);
     if (in_file == NULL) {
-      if (read_err != 0)
-        got_read_error = TRUE;
+      /* EOF */
+      break;
+    }
+
+    if (read_err != 0) {
+      /* I/O error reading from in_file */
+      got_read_error = TRUE;
       break;
     }
 
