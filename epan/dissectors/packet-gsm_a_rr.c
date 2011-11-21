@@ -65,7 +65,7 @@ static dissector_handle_t rrc_irat_ho_to_utran_cmd_handle;
 
 #define PADDING_BYTE 0x2B
 
-gboolean gsm_a_rr_is_bit_high(tvbuff_t *tvb, gint bit_offset)
+static gboolean gsm_a_rr_is_bit_high(tvbuff_t *tvb, gint bit_offset)
 {
     guint8 bit_mask = 0x80 >> (bit_offset & 0x07);
     if ((tvb_get_guint8(tvb,bit_offset >> 3) & bit_mask) != (PADDING_BYTE & bit_mask))
@@ -879,7 +879,7 @@ gint ett_gsm_rr_rest_octets_elem[NUM_GSM_RR_REST_OCTETS_ELEM];
 10.5.2 Radio Resource management information elements
  * [3] 10.5.2.1a BA Range
  */
-guint16
+static guint16
 de_rr_ba_range(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
@@ -1172,7 +1172,7 @@ dissect_arfcn_list2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
     return(curr_offset - offset);
 }
 
-guint16
+static guint16
 de_rr_cell_ch_dsc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     return dissect_arfcn_list(tvb, tree, pinfo, offset, 16, add_string, string_len);
@@ -1180,7 +1180,7 @@ de_rr_cell_ch_dsc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
 /*
  * [3] 10.5.2.1c BA List Pref
  */
-guint16
+static guint16
 de_rr_ba_list_pref(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
@@ -1218,7 +1218,7 @@ de_rr_ba_list_pref(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 /*
  * [3] 10.5.2.1d UTRAN Frequency List
  */
-guint16
+static guint16
 de_rr_utran_freq_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
@@ -1262,7 +1262,7 @@ static const guint8
 convert_n_to_q[32] = {   0,   9,  17,  25,  32, 39, 46, 53, 59, 65, 71, 77, 83, 89, 95, 101,
                        106, 111, 116, 121, 126,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,   0};
 
-guint16
+static guint16
 de_rr_cell_select_indic(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     proto_tree *subtree, *subtree2;
@@ -8220,7 +8220,7 @@ de_rr_tlli(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offs
 /*
  * [3] 10.5.2.42 TMSI/P-TMSI
  */
-guint16
+static guint16
 de_rr_tmsi_ptmsi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     proto_tree  *subtree;
@@ -10962,7 +10962,8 @@ static void (*sacch_msg_rr_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *
     NULL,                       /* NONE */
 };
 
-void get_rr_short_pd_msg_params(guint8 mess_type, const gchar **msg_str, int *ett_tree, int *hf_idx, msg_fcn *msg_fcn_p)
+static void 
+get_rr_short_pd_msg_params(guint8 mess_type, const gchar **msg_str, int *ett_tree, int *hf_idx, msg_fcn *msg_fcn_p)
 {
     gint                        idx;
 
