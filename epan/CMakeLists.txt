@@ -178,6 +178,7 @@ set(DIRTY_PIDL_DISSECTOR_SRC
 	dissectors/packet-dcerpc-dnsserver.c
 	dissectors/packet-dcerpc-eventlog.c
 	dissectors/packet-dcerpc-lsa.c
+	dissectors/packet-dcerpc-mapi.c
 	dissectors/packet-dcerpc-winreg.c
 )
 set(ASN1_DISSECTOR_SRC
@@ -444,7 +445,6 @@ set(DISSECTOR_SRC
 	dissectors/packet-dcerpc-icl_rpc.c
 	dissectors/packet-dcerpc-krb5rpc.c
 	dissectors/packet-dcerpc-llb.c
-	dissectors/packet-dcerpc-mapi.c
 	dissectors/packet-dcerpc-messenger.c
 	dissectors/packet-dcerpc-mgmt.c
 	dissectors/packet-dcerpc-ndr.c
