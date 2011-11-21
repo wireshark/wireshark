@@ -8838,12 +8838,12 @@ static void dissect_tetra_UNITDATA_IND(tvbuff_t *tvb, packet_info *pinfo, proto_
 
 	/* Length */
 	rxreg = tvb_get_letohl(tvb, offset);
-	tetra_sub_item = proto_tree_add_uint(tetra_tree, hf_tetra_len0, tvb, offset, 4, rxreg);
+	proto_tree_add_uint(tetra_tree, hf_tetra_len0, tvb, offset, 4, rxreg);
 
 	/* RvSteR */
 	offset += 4;
 	rxreg = tvb_get_letohl(tvb, offset);
-	tetra_sub_item = proto_tree_add_uint(tetra_tree, hf_tetra_rvstr, tvb, offset, 4, rxreg);
+	proto_tree_add_uint(tetra_tree, hf_tetra_rvstr, tvb, offset, 4, rxreg);
 
 	/* Logical channels */
 	channels = rxreg & 0x3;
@@ -8894,7 +8894,7 @@ void dissect_tetra_UNITDATA_REQ(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 	/* TxR */
 	txreg = tvb_get_letohl(tvb, offset);
-	tetra_sub_item = proto_tree_add_uint(tetra_tree, hf_tetra_txreg, tvb, offset, 4, txreg);
+	proto_tree_add_uint(tetra_tree, hf_tetra_txreg, tvb, offset, 4, txreg);
 
 	/* Logical channels */
 	channels = (txreg & 0x3) + 1;
@@ -9007,13 +9007,12 @@ dissect_tetra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		tetra_item = proto_tree_add_item(tree, proto_tetra, tvb, 0, -1, ENC_NA);
 		tetra_tree = proto_item_add_subtree(tetra_item, ett_tetra);
-		tetra_header_tree = proto_item_add_subtree(tetra_item, ett_tetra);
 
 		offset ++;
 
 		/* Carrier number */
 		if(include_carrier_number) {
-			tetra_sub_item = proto_tree_add_uint(tetra_tree, hf_tetra_carriernumber, tvb, offset, 1, carriernumber);
+			proto_tree_add_uint(tetra_tree, hf_tetra_carriernumber, tvb, offset, 1, carriernumber);
 			offset ++;
 		}
 
@@ -11487,7 +11486,7 @@ void proto_register_tetra (void)
         "T_simplex_duplex_selection_05", HFILL }},
 
 /*--- End of included file: packet-tetra-hfarr.c ---*/
-#line 615 "../../asn1/tetra/packet-tetra-template.c"
+#line 614 "../../asn1/tetra/packet-tetra-template.c"
  	};
 
 	/* List of subtrees */
@@ -11768,7 +11767,7 @@ void proto_register_tetra (void)
     &ett_tetra_Modify_type,
 
 /*--- End of included file: packet-tetra-ettarr.c ---*/
-#line 625 "../../asn1/tetra/packet-tetra-template.c"
+#line 624 "../../asn1/tetra/packet-tetra-template.c"
 	};
 
 	/* execute protocol initialization only once */
