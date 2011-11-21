@@ -6711,7 +6711,7 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (!request_val) {
         new_request_key = se_memdup(&request_key, sizeof(struct rsvp_request_key));
 
-        request_val = se_new(rsvp_request_val);
+        request_val = se_new(struct rsvp_request_val);
         request_val->value = conversation->index;
 
         g_hash_table_insert(rsvp_request_hash, new_request_key, request_val);
