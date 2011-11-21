@@ -41,10 +41,6 @@
  */
 
 
-/* TODO:
-   - ??
-*/
-
 /* Initialize the protocol and registered fields. */
 int proto_mac_lte = -1;
 
@@ -57,6 +53,7 @@ static int hf_mac_lte_context_direction = -1;
 static int hf_mac_lte_context_rnti = -1;
 static int hf_mac_lte_context_rnti_type = -1;
 static int hf_mac_lte_context_ueid = -1;
+static int hf_mac_lte_context_sysframe_number = -1;
 static int hf_mac_lte_context_subframe_number = -1;
 static int hf_mac_lte_context_grant_subframe_number = -1;
 static int hf_mac_lte_context_predefined_frame = -1;
@@ -3359,6 +3356,9 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         return;
     }
 
+    ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_sysframe_number,
+                             tvb, 0, 0, p_mac_lte_info->sysframeNumber);
+    PROTO_ITEM_SET_GENERATED(ti);
 
     ti = proto_tree_add_uint(context_tree, hf_mac_lte_context_subframe_number,
                              tvb, 0, 0, p_mac_lte_info->subframeNumber);
@@ -3699,6 +3699,12 @@ void proto_register_mac_lte(void)
             { "UEId",
               "mac-lte.ueid", FT_UINT16, BASE_DEC, 0, 0x0,
               "User Equipment Identifier associated with message", HFILL
+            }
+        },
+        { &hf_mac_lte_context_sysframe_number,
+            { "System Frame Number",
+              "mac-lte.sfn", FT_UINT16, BASE_DEC, 0, 0x0,
+              "System Frame Number associated with message", HFILL
             }
         },
         { &hf_mac_lte_context_subframe_number,

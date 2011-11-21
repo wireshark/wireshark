@@ -260,7 +260,7 @@ static const value_string transport_channel_type_vals[] = {
 #define MAX_OUTHDR_VALUES 32
 
 static guint outhdr_values[MAX_OUTHDR_VALUES];
-static gint outhdr_values_found = 0;
+static guint outhdr_values_found = 0;
 
 extern int proto_fp;
 extern int proto_rlc;
@@ -1763,16 +1763,21 @@ static void attach_mac_lte_info(packet_info *pinfo)
 
             if (outhdr_values_found == 16) {
                 p_mac_lte_info->subframeNumberOfGrantPresent = TRUE;
-                p_mac_lte_info->subframeNumberOfGrant = outhdr_values[i];
+                p_mac_lte_info->subframeNumberOfGrant = outhdr_values[i++];
             }
             if (outhdr_values_found > 16) {
                 p_mac_lte_info->detailed_phy_info.ul_info.harq_id = outhdr_values[i++];
                 p_mac_lte_info->detailed_phy_info.ul_info.ndi = outhdr_values[i++];
 
                 p_mac_lte_info->subframeNumberOfGrantPresent = TRUE;
-                p_mac_lte_info->subframeNumberOfGrant = outhdr_values[i];
+                p_mac_lte_info->subframeNumberOfGrant = outhdr_values[i++];
             }
         }
+    }
+
+    /* System frame number */
+    if (i < outhdr_values_found) {
+        p_mac_lte_info->sysframeNumber = outhdr_values[i];
     }
 
     /* Store info in packet */

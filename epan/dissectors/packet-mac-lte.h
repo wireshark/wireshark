@@ -97,7 +97,8 @@ typedef struct mac_lte_info
     guint16         rnti;
     guint16         ueid;
 
-    /* Timing info. TODO: sysframe too? */
+    /* Timing info */
+    guint16         sysframeNumber;
     guint16         subframeNumber;
 
     /* Optional field. More interesting for TDD (FDD is always -4 subframeNumber) */
