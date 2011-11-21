@@ -344,7 +344,7 @@ filter_expressions_prefs_fetch(GtkWidget *w)
     gboolean      items_left;
     GtkTreeModel *model;
     GtkTreeView  *column_l;
-    GtkTreeIter   iter, first_iter;
+    GtkTreeIter   iter;
     GtkListStore *store;
     struct filter_expression *fe;
     gint          first_row = TRUE;
@@ -379,7 +379,6 @@ filter_expressions_prefs_fetch(GtkWidget *w)
 	    -1);
 
         if (first_row) {
-            first_iter = iter;
             first_row = FALSE;
         }
 	fe = fe->next;

@@ -713,7 +713,6 @@ action_settime(GtkWindow *parent_w)
   long		packetnumber;
   GtkWidget	*time_te;
   const gchar	*time_text;
-  gchar		*ptime_text;
   nstime_t	settime, difftime, packettime;
   frame_data	*fd, *packetfd;
   guint32	i;
@@ -726,7 +725,6 @@ action_settime(GtkWindow *parent_w)
   time_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w),
     E_SETTIME_TIME_KEY);
   time_text = gtk_entry_get_text(GTK_ENTRY(time_te));
-  ptime_text = (gchar *)time_text;
 
   /*
    * Get a copy of the real time (abs_ts - shift_offset) do we can find out the
@@ -734,7 +732,7 @@ action_settime(GtkWindow *parent_w)
    */
   if ((packetfd = frame_data_sequence_find(cfile.frames, packetnumber)) == NULL)
     return;
-  nstime_delta(&packettime, &(packetfd->abs_ts), &(packetfd->shift_offset)); 
+  nstime_delta(&packettime, &(packetfd->abs_ts), &(packetfd->shift_offset));
 
   if (timestring2nstime(time_text, &packettime, &settime) != 0)
     return;
@@ -807,7 +805,6 @@ action_adjtime(GtkWindow *parent_w _U_)
   long		packetnumber1, packetnumber2;
   GtkWidget	*time_te;
   const gchar	*time1_text, *time2_text;
-  gchar		*ptime1_text, *ptime2_text;
   nstime_t	nt1, nt2, ot1, ot2, nt3;
   nstime_t	dnt, dot, d3t;
   frame_data	*fd, *packet1fd, *packet2fd;
@@ -838,11 +835,9 @@ action_adjtime(GtkWindow *parent_w _U_)
   time_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w),
     E_ADJTIME_TIME1_KEY);
   time1_text = gtk_entry_get_text(GTK_ENTRY(time_te));
-  ptime1_text = (gchar *)time1_text;
   time_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w),
     E_ADJTIME_TIME2_KEY);
   time2_text = gtk_entry_get_text(GTK_ENTRY(time_te));
-  ptime2_text = (gchar *)time2_text;
 
   /*
    * Get a copy of the real time (abs_ts - shift_offset) do we can find out the
