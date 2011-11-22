@@ -32,7 +32,7 @@ generate_export: $(EXPORT_FILES)
 PROTO_OPT ?= -p $(PROTOCOL_NAME)
 
 $(DISSECTOR): $(top_srcdir)/tools/asn2wrs.py $(SRC_FILES) $(EXTRA_CNF)
-	python $(top_srcdir)/tools/asn2wrs.py \
+	$(PYTHON) $(top_srcdir)/tools/asn2wrs.py \
 		$(A2W_FLAGS) \
 		$(PROTO_OPT) \
 		-c $(srcdir)/$(PROTOCOL_NAME).cnf \
@@ -42,7 +42,7 @@ $(DISSECTOR): $(top_srcdir)/tools/asn2wrs.py $(SRC_FILES) $(EXTRA_CNF)
 		$(EXT_ASN_FILE_LIST) $(ASN_FILE_LIST) $(EXT_ASN_FILE_LIST_LATE)
 
 $(EXPORT_FILES): $(top_srcdir)/tools/asn2wrs.py $(SRC_FILES)
-	python $(top_srcdir)/tools/asn2wrs.py \
+	$(PYTHON) $(top_srcdir)/tools/asn2wrs.py \
 		-E $(A2W_FLAGS) \
 		$(PROTO_OPT) \
 		-c $(srcdir)/$(PROTOCOL_NAME).cnf \
