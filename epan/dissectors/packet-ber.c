@@ -1,30 +1,3 @@
-/*#define DEBUG_BER 1*/
-/* TODO: change #.REGISTER signature to new_dissector_t and
- * update call_ber_oid_callback() accordingly.
- *
- * Since we don't pass the TAG/LENGTH from the CHOICE/SEQUENCE/SEQUENCE OF/
- * SET OF helpers through the callbacks to the next pabket-ber helper
- * when the tags are IMPLICIT, this causes a problem when we also have
- * indefinite length at the same time as the tags are implicit.
- *
- * While the proper fix is to change the signatures for packet-ber.c helpers
- * as well as the signatures for the callbacks to include the indefinite length
- * indication that would be a major job.
- *
- * Originally we used a kludge - we set a global variable in the
- * CHOICE/SEQUENCE [OF]/SET [OF] helpers to indicate to the next helper
- * whether the length is indefinite or not.
- * That had currently only been implemented for {SEQUENCE|SET} [OF] but not
- * CHOICE.
- *
- * This version attacks the problem(s) in a different way.  If we see
- * indefinite length the get_ber_length traverses the tags within the
- * compound value and then we return the true length of the compound value
- * including the EOC. Thus the tvb length is now always correct even for
- * indefinite length, then if we get implicit tags they can be handled as
- * if they were definite length.
- */
-
 /* packet-ber.c
  * Helpers for ASN.1/BER dissection
  * Ronnie Sahlberg (C) 2004
@@ -56,6 +29,33 @@
  *     Specification of Basic Encoding Rules (BER), Canonical Encoding Rules (CER) and Distinguished Encoding Rules (DER)
  *
  */
+/* TODO: change #.REGISTER signature to new_dissector_t and
+ * update call_ber_oid_callback() accordingly.
+ *
+ * Since we don't pass the TAG/LENGTH from the CHOICE/SEQUENCE/SEQUENCE OF/
+ * SET OF helpers through the callbacks to the next pabket-ber helper
+ * when the tags are IMPLICIT, this causes a problem when we also have
+ * indefinite length at the same time as the tags are implicit.
+ *
+ * While the proper fix is to change the signatures for packet-ber.c helpers
+ * as well as the signatures for the callbacks to include the indefinite length
+ * indication that would be a major job.
+ *
+ * Originally we used a kludge - we set a global variable in the
+ * CHOICE/SEQUENCE [OF]/SET [OF] helpers to indicate to the next helper
+ * whether the length is indefinite or not.
+ * That had currently only been implemented for {SEQUENCE|SET} [OF] but not
+ * CHOICE.
+ *
+ * This version attacks the problem(s) in a different way.  If we see
+ * indefinite length the get_ber_length traverses the tags within the
+ * compound value and then we return the true length of the compound value
+ * including the EOC. Thus the tvb length is now always correct even for
+ * indefinite length, then if we get implicit tags they can be handled as
+ * if they were definite length.
+ */
+
+/*#define DEBUG_BER 1*/
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -80,6 +80,14 @@
 #include <epan/asn1.h>
 
 #include "packet-ber.h"
+
+/*
+ * Set a limit on recursion so we don't blow away the stack. Another approach
+ * would be to remove recursion completely but then we'd exhaust CPU+memory
+ * trying to read a hellabyte of nested indefinite lengths.
+ * XXX - Max nesting in the ASN.1 plugin is 32. Should they match?
+ */
+#define BER_MAX_NESTING 500
 
 static gint proto_ber = -1;
 static gint hf_ber_id_class = -1;
@@ -258,14 +266,6 @@ static non_const_value_string syntax_names[MAX_SYNTAX_NAMES+1] = {
   {0, ""},
   {0, NULL}
 };
-
-/*
- * Set a limit on recursion so we don't blow away the stack. Another approach
- * would be to remove recursion completely but then we'd exhaust CPU+memory
- * trying to read a hellabyte of nested indefinite lengths.
- * XXX - Max nesting in the ASN.1 plugin is 32. Should they match?
- */
-#define BER_MAX_NESTING 500
 
 static const fragment_items octet_string_frag_items = {
 	/* Fragment subtrees */
