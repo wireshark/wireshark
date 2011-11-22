@@ -3708,6 +3708,7 @@ main(int argc, char *argv[])
 #if defined(__APPLE__) && defined(__LP64__)
     struct utsname       osinfo;
 #endif
+    char                *sep;
 
 #ifdef _WIN32
     arg_list_utf_16to8(argc, argv);
@@ -4232,12 +4233,23 @@ main(int argc, char *argv[])
 
     /* Let the user know what interfaces were chosen. */
     /* get_interface_descriptive_name() is not available! */
+    sep = "";
+    if (!capture_child)
+      fprintf(stderr, "Interfaces: ");
     for (j = 0; j < global_capture_opts.ifaces->len; j++) {
         interface_options interface_opts;
 
         interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, j);
-        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Interface: %s", interface_opts.name);
+        if (capture_child) {
+              g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Interface: %s\n",
+                    interface_opts.name);
+        } else {
+              fprintf(stderr, "%s%s", sep, interface_opts.name);
+	}
+	sep = ", ";
     }
+    if (!capture_child)
+      fprintf(stderr, "\n");
 
     if (list_link_layer_types) {
         /* Get the list of link-layer types for the capture device. */
@@ -4459,11 +4471,11 @@ report_cfilter_error(capture_options *capture_opts, guint i, const char *errmsg)
              * the error message below.
              */
             interface_opts = g_array_index(capture_opts->ifaces, interface_options, i);
-            fprintf(stderr,
-              "Invalid capture filter \"%s\" for interface %s!\n"
+            cmdarg_err(
+              "Invalid capture filter: \"%s\" for interface %s!\n"
               "\n"
               "That string isn't a valid capture filter (%s).\n"
-              "See the User's Guide for a description of the capture filter syntax.\n",
+              "See the User's Guide for a description of the capture filter syntax.",
               interface_opts.cfilter, interface_opts.name, errmsg);
         }
     }
@@ -4479,9 +4491,9 @@ report_capture_error(const char *error_msg, const char *secondary_error_msg)
             "Secondary Error: %s", secondary_error_msg);
         sync_pipe_errmsg_to_parent(2, error_msg, secondary_error_msg);
     } else {
-        fprintf(stderr, "%s\n", error_msg);
+        cmdarg_err("%s", error_msg);
         if (secondary_error_msg[0] != '\0')
-          fprintf(stderr, "%s\n", secondary_error_msg);
+          cmdarg_err_cont("%s", secondary_error_msg);
     }
 }
 
