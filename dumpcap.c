@@ -3708,7 +3708,7 @@ main(int argc, char *argv[])
 #if defined(__APPLE__) && defined(__LP64__)
     struct utsname       osinfo;
 #endif
-    char                *sep;
+    GString             *str;
 
 #ifdef _WIN32
     arg_list_utf_16to8(argc, argv);
@@ -4233,23 +4233,42 @@ main(int argc, char *argv[])
 
     /* Let the user know what interfaces were chosen. */
     /* get_interface_descriptive_name() is not available! */
-    sep = "";
-    if (!capture_child)
-      fprintf(stderr, "Interfaces: ");
-    for (j = 0; j < global_capture_opts.ifaces->len; j++) {
-        interface_options interface_opts;
+    if (capture_child) {
+        for (j = 0; j < global_capture_opts.ifaces->len; j++) {
+            interface_options interface_opts;
 
-        interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, j);
-        if (capture_child) {
-              g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Interface: %s\n",
-                    interface_opts.name);
+            interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, j);
+            g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Interface: %s\n",
+                  interface_opts.name);
+        }
+    } else {
+        str = g_string_new("");
+#ifdef _WIN32
+        if (global_capture_opts.ifaces->len < 2) {
+#else
+        if (global_capture_opts.ifaces->len < 4) {
+#endif
+            for (j = 0; j < global_capture_opts.ifaces->len; j++) {
+                interface_options interface_opts;
+
+                interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, j);
+                if (j > 0) {
+                    if (global_capture_opts.ifaces->len > 2) {
+                        g_string_append_printf(str, ",");
+                    }
+                    g_string_append_printf(str, " ");
+                    if (j == global_capture_opts.ifaces->len - 1) {
+                        g_string_append_printf(str, "and ");
+                    }
+                }
+                g_string_append_printf(str, "%s", interface_opts.name);
+            }
         } else {
-              fprintf(stderr, "%s%s", sep, interface_opts.name);
-	}
-	sep = ", ";
+            g_string_append_printf(str, "%u interfaces", global_capture_opts.ifaces->len);
+        }
+        fprintf(stderr, "Capturing on %s\n", str->str);
+        g_string_free(str, TRUE);
     }
-    if (!capture_child)
-      fprintf(stderr, "\n");
 
     if (list_link_layer_types) {
         /* Get the list of link-layer types for the capture device. */
