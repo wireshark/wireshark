@@ -1842,7 +1842,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   } else if (!dissector_try_uint(ip_dissector_table, nxt, next_tvb, pinfo, parent_tree)) {
     /* Unknown protocol */
     if (update_col_info) {
-      col_add_fstr(pinfo->cinfo, COL_INFO, "%s (%u)", ipprotostr(iph->ip_p), iph->ip_p);
+      col_add_fstr(pinfo->cinfo, COL_INFO, "%s (0x%02x)", ipprotostr(iph->ip_p), iph->ip_p);
     }
     call_dissector(data_handle,next_tvb, pinfo, parent_tree);
   }
