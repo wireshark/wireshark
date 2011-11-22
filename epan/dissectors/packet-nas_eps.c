@@ -1372,7 +1372,7 @@ de_emm_nonce(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 of
     proto_tree_add_item(tree, hf_nas_eps_emm_nonce, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
     curr_offset+=4;
 
-    return(len);
+    return(curr_offset-offset);
 }
 /*
  * 9.9.3.25A Paging identity
@@ -3228,9 +3228,9 @@ nas_emm_sec_mode_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
     /* C-   IMEISV request  IMEISV request 9.9.3.18 O   TV  1 */
     ELEM_OPT_TV_SHORT( 0xC0 , NAS_PDU_TYPE_EMM, DE_EMM_IMEISV_REQ , NULL );
     /* 55   Replayed NonceUE    Nonce 9.9.3.25  O   TV  5 */
-    ELEM_OPT_TV(0x55, GSM_A_PDU_TYPE_GM, DE_EMM_NONCE, " - Replayed NonceUE");
+    ELEM_OPT_TV(0x55, NAS_PDU_TYPE_EMM, DE_EMM_NONCE, " - Replayed NonceUE");
     /* 56   NonceMME    Nonce 9.9.3.25  O   TV  5 */
-    ELEM_OPT_TV(0x56, GSM_A_PDU_TYPE_GM, DE_EMM_NONCE, " - NonceMME");
+    ELEM_OPT_TV(0x56, NAS_PDU_TYPE_EMM, DE_EMM_NONCE, " - NonceMME");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -3487,7 +3487,7 @@ nas_emm_trac_area_upd_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
     /* 50   Additional GUTI EPS mobile identity 9.9.3.12    O   TLV 13 */
     ELEM_OPT_TLV(0x50, NAS_PDU_TYPE_EMM, DE_EMM_EPS_MID, " - Additional GUTI");
     /* 55   NonceUE Nonce 9.9.3.25  O   TV  5 */
-    ELEM_OPT_TV(0x55, GSM_A_PDU_TYPE_GM, DE_EMM_NONCE, " - NonceUE");
+    ELEM_OPT_TV(0x55, NAS_PDU_TYPE_EMM, DE_EMM_NONCE, " - NonceUE");
     /* 58   UE network capability   UE network capability 9.9.3.34  O   TLV 4-15 */
     ELEM_OPT_TLV(0x58, NAS_PDU_TYPE_EMM, DE_EMM_UE_NET_CAP, NULL);
     /* 52   Last visited registered TAI Tracking area identity 9.9.3.32 O   TV  6 */
