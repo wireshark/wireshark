@@ -98,8 +98,7 @@ EXTRA_DIST = \
 	ftsanity.py					\
 	fuzz-test.sh					\
 	html2text.py					\
-	idl2wrs.sh					\
-	idl2wrs.sh.in					\
+	idl2wrs						\
 	indexcap.py					\
 	lex.py						\
 	list_protos_in_cap.sh				\

@@ -47,15 +47,10 @@ bin_PROGRAMS = \
 	@dftest_bin@	\
 	@dumpcap_bin@	\
 	@rawshark_bin@
-bin_SCRIPTS = @idl2wrs_bin@
 
 EXTRA_PROGRAMS = wireshark tshark capinfos editcap mergecap dftest \
 	randpkt text2pcap dumpcap rawshark
-EXTRA_SCRIPTS = idl2wrs
-
-idl2wrs: tools/idl2wrs.sh Makefile
-	cp tools/idl2wrs.sh idl2wrs
-	chmod +x idl2wrs
+EXTRA_SCRIPTS = tools/idl2wrs
 
 #
 # Wireshark configuration files are put in $(pkgdatadir).
@@ -529,7 +524,6 @@ services: tools/make-services.pl
 	$(PERL) $(srcdir)/tools/make-services.pl
 
 CLEANFILES =		\
-	idl2wrs		\
 	*~		\
 	vgcore.*
 

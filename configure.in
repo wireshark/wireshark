@@ -2017,7 +2017,6 @@ AC_OUTPUT(
   plugins/wimax/Makefile
   plugins/wimaxasncp/Makefile
   tools/Makefile
-  tools/idl2wrs.sh
   tools/lemon/Makefile
   wiretap/Makefile
   wsutil/Makefile
@@ -2120,7 +2119,6 @@ echo "                      Build editcap : $enable_editcap"
 echo "                      Build dumpcap : $enable_dumpcap"
 echo "                     Build mergecap : $enable_mergecap"
 echo "                    Build text2pcap : $enable_text2pcap"
-echo "                      Build idl2wrs : $enable_idl2wrs"
 echo "                      Build randpkt : $enable_randpkt"
 echo "                       Build dftest : $enable_dftest"
 echo "                     Build rawshark : $enable_rawshark"
