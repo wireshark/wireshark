@@ -1,0 +1,10 @@
+# manuals #
+###########
+*.[14]
+*.html
+*.tmp
+wireshark.pod
+
+# Misc #
+########
+AUTHORS-SHORT-FORMAT
