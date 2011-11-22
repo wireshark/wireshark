@@ -83,8 +83,10 @@
  *
  *  1. (See the various XXX comments)
  *  2. Template processing:
- *     a. Use GHashTable instead of home-grown hash so no collisions;
- *     b. Review use of lengths from template when dissecting fields in a data flow:  not really OK ?
+ *     a. source port needs to be part of the template identifier ?
+ *     b. Use GHashTable instead of home-grown hash so no collisions;
+ *     c. (Verify that template with same ID is actually identical to that previously seen ?)
+ *     d. Review use of lengths from template when dissecting fields in a data flow:  not really OK ?
  *        The proto_tree_add_item() calls in dissect_v9_v10_pdu_data() use:
  *         - "lengths" as specified in the previously seen template for the flow;
  *         - a hardwired Wireshark "field-type" (FT_UINT8, etc) in the hf[]array entries.
@@ -93,7 +95,6 @@
  *         will occur if the "known" length and the length as gotten from the template don't match.
  *        Consider: validate length fields when processing templates ?
  *        Don't cache template if errors in particular fields of template (eg: v10: pen == 0) ?
- *     c. (Verify that template with same ID is actually identical to that previously seen ?)
  *
  *
  */
@@ -306,8 +307,8 @@ struct v9_v10_template {
 	guint16	 id;
 	address	 source_addr;
 	guint32  source_id;
-	gboolean option_template; /* FALSE=data template, TRUE=option template */ /* XXX: not used ?? */
-	guint16  field_count[TF_NUM];                  /* 0:scopes; 1:entries  */
+	gboolean template_exists;                          /* TRUE: template exists */
+	guint16  field_count[TF_NUM];                      /* 0:scopes; 1:entries  */
 	struct v9_v10_template_entry *fields[TF_NUM_EXT];  /* 0:scopes; 1:entries; n:vendor_entries  */
 };
 
@@ -1535,8 +1536,8 @@ static int	dissect_v9_v10_data_template(tvbuff_t *tvb, packet_info *pinfo, proto
 				    int offset, int len, hdrinfo_t *hdrinfo, guint16 flowset_id);
 static int	v9_v10_template_hash(guint16 id, const address *net_src,
 				 guint32 src_id);
-static struct v9_v10_template *v9_v10_template_get(guint16 id, address *net_src,
-					   guint32 src_id);
+static struct v9_v10_template *v9_v10_template_cache_addr(guint16 id, address *net_src, guint32 src_id);
+static struct v9_v10_template *v9_v10_template_get(guint16 id, address *net_src, guint32 src_id);
 static const gchar *getprefix(const guint32 *address, int prefix);
 
 static int      flow_process_ints(proto_tree *pdutree, tvbuff_t *tvb,
@@ -5215,6 +5216,7 @@ dissect_v9_v10_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
 
 	remaining = length;
 	while (remaining > 3) { /* allow for padding */
+		struct v9_v10_template *tmplt_cache_p;
 		struct v9_v10_template tplt;
 		proto_tree *tplt_tree;
 		proto_item *tplt_item;
@@ -5302,32 +5304,37 @@ dissect_v9_v10_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
 		SE_COPY_ADDRESS(&tplt.source_addr, &hdrinfo->net_src);
 		tplt.source_id = hdrinfo->src_id;
 
-		tplt.option_template = TRUE; /* Option template */ /* XXX: ? not used ? */
 		tplt.field_count[TF_SCOPES]  = option_scope_field_count;
 		tplt.field_count[TF_ENTRIES] = option_field_count;
+		tplt.template_exists = TRUE;
 
-		/* If entry for this hash already exists (whether or not actually for for this id, ...) */
-		/*  tplt.fields[TF_SCOPES] and tplt.fields[TF_ENTRIES] will be NULL and thus this       */
-		/*  template will not be cached.                                                        */
-		/*  ToDo: expert warning if replacement/collision and new template ignored.             */
-		/* XXX: Is an Options template with only scope fields allowed for V9 ??                 */
+		/* If an entry for this hash already exists (whether or not actually for for this id, ...) */
+		/* then after the 'do {} while' tplt.fields[TF_SCOPES] and tplt.fields[TF_ENTRIES] will    */
+		/* be NULL (no memory will have been allocated) and thus this template will not be cached  */
+		/* after dissection.                                                                       */
+		/*  ToDo: expert warning if replacement/collision and new template ignored.                */
+		/*  XXX: Is an Options template with only scope fields allowed for V9 ??                   */
 
-		do {
-			if ((option_scope_field_count == 0)  ||
-			    (v9template_max_fields &&
-			     ((option_scope_field_count > v9template_max_fields)
-			      || (option_field_count > v9template_max_fields))))  {
-				break; /* Don't allow cache of this template */
-			}
-			if (v9_v10_template_get(id, &hdrinfo->net_src, hdrinfo->src_id)) {
-				/* Entry for this hash already exists; Can be dup or collision. */
-				/* XXX: ToDo: use GHashTable so no collisions.                  */
-				break; /* Don't allow cache of this template */
-			}
-			tplt.fields[TF_SCOPES]  = se_alloc0(option_scope_field_count *sizeof(struct v9_v10_template_entry));
-			tplt.fields[TF_ENTRIES] = se_alloc0(option_field_count       *sizeof(struct v9_v10_template_entry));
-			break;
-		} while (FALSE);
+		if (!pinfo->fd->flags.visited) { /* cache template info only during first pass */
+			do {
+				if ((option_scope_field_count == 0)  ||
+				    (v9template_max_fields &&
+				     ((option_scope_field_count > v9template_max_fields)
+				      || (option_field_count > v9template_max_fields))))  {
+					break; /* Don't allow cache of this template */
+				}
+				tmplt_cache_p = v9_v10_template_cache_addr(tplt.id, &tplt.source_addr, tplt.source_id);
+				if (tmplt_cache_p->template_exists) {
+					/* Entry for this hash already exists; Can be dup or collision. */
+					/* ToDo: use GHashTable so no collisions.                       */
+					/* ToDo: Test for changed template ?                            */
+					break; /* Don't allow cache of this template */
+				}
+				tplt.fields[TF_SCOPES]  = se_alloc0(option_scope_field_count *sizeof(struct v9_v10_template_entry));
+				tplt.fields[TF_ENTRIES] = se_alloc0(option_field_count       *sizeof(struct v9_v10_template_entry));
+				break;
+			} while (FALSE);
+		}
 
 		offset = dissect_v9_v10_template_fields(tvb, pinfo, tplt_tree, offset,
 							hdrinfo, &tplt, TF_SCOPES);
@@ -5336,10 +5343,7 @@ dissect_v9_v10_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
 							hdrinfo, &tplt, TF_ENTRIES);
 
 		if (tplt.fields[TF_SCOPES] || tplt.fields[TF_ENTRIES]) {
-			memcpy(&v9_v10_template_cache[v9_v10_template_hash(tplt.id,
-									   &tplt.source_addr,
-									   tplt.source_id)],
-			       &tplt, sizeof(tplt));
+			memcpy(tmplt_cache_p, &tplt, sizeof(tplt));
 		}
 
 		remaining -= offset - orig_offset;
@@ -5359,6 +5363,7 @@ dissect_v9_v10_data_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdut
 
 	remaining = length;
 	while (remaining > 3) { /* allow for padding */
+		struct v9_v10_template *tmplt_cache_p;
 		struct v9_v10_template tplt;
 		proto_tree *tplt_tree;
 		proto_item *tplt_item;
@@ -5386,7 +5391,8 @@ dissect_v9_v10_data_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdut
 
 		if (v9template_max_fields && (count > v9template_max_fields)) {
 			expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_NOTE,
-					       "More entries (%u) than we can handle [template won't be used].  Maximum value can be adjusted in the protocol preferences.",
+					       "More entries (%u) than we can handle [template won't be used]."
+					       " Maximum value can be adjusted in the protocol preferences.",
 					       count);
 		}
 
@@ -5397,31 +5403,35 @@ dissect_v9_v10_data_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdut
 		SE_COPY_ADDRESS(&tplt.source_addr, &hdrinfo->net_src);
 		tplt.source_id = hdrinfo->src_id;
 		tplt.field_count[TF_ENTRIES]  = count;
+		tplt.template_exists = TRUE;
 
-		/* If entry for this hash already exists (whether or not actually for for this id, ...) */
-		/*  tplt.fields[TF_ENTRIES]will be NULL and thus this template will not be cached.      */
-		do {
-			if ((count == 0)
-			    || (v9template_max_fields && (count > v9template_max_fields))) {
-				break; /* Don't allow cache of this template */
-			}
-			if (v9_v10_template_get(id, &hdrinfo->net_src, hdrinfo->src_id)) {
-				/* Entry for this hash already exists; Can be dup or collision. */
-				/* XXX: ToDo: use GHashTable so no collisions.                  */
-				break; /* Don't allow cache of this template */
-			}
-			tplt.fields[TF_ENTRIES] = se_alloc0(count * sizeof(struct v9_v10_template_entry));
-			break;
-		} while (FALSE);
+		/* If an entry for this hash already exists (whether or not actually for for this id, ...) */
+		/*  then after the 'do {} while' tplt.fields[TF_ENTRIES] will be NULL (no memory will have */
+		/*  been allocated) and thus this template will not be cached.                             */
+		/*  ToDo: expert warning if replacement/collision and new template ignored.                */
 
+		if (!pinfo->fd->flags.visited) { /* cache template info only during first pass */
+			do {
+				if ((count == 0) ||
+				    (v9template_max_fields && (count > v9template_max_fields))) {
+					break; /* Don't allow cache of this template */
+				}
+				tmplt_cache_p = v9_v10_template_cache_addr(tplt.id, &tplt.source_addr, tplt.source_id);
+				if (tmplt_cache_p->template_exists) {
+					/* Entry for this hash already exists; Can be dup or collision. */
+					/* ToDo: use GHashTable so no collisions.                       */
+					/* ToDo: Test for changed template ?                            */
+					break; /* Don't allow cache of this template */
+				}
+				tplt.fields[TF_ENTRIES] = se_alloc0(count * sizeof(struct v9_v10_template_entry));
+				break;
+			} while (FALSE);
+		}
 		offset = dissect_v9_v10_template_fields(tvb, pinfo, tplt_tree, offset,
 								hdrinfo, &tplt, TF_ENTRIES);
 
 		if (tplt.fields[TF_ENTRIES]) {
-			memcpy(&v9_v10_template_cache[v9_v10_template_hash(tplt.id,
-									   &tplt.source_addr,
-									   tplt.source_id)],
-			       &tplt, sizeof(tplt));
+			memcpy(tmplt_cache_p, &tplt, sizeof(tplt));
 		}
 		remaining -= offset - orig_offset;
 	}
@@ -5443,7 +5453,7 @@ v9_v10_template_hash(guint16 id, const address *net_src, guint32 src_id)
 
 	p = (guint8 *)(net_src->data);
 
-	val = id;
+	val = id << 9;
 
 	switch (net_src->type) {
 	case AT_IPv4:
@@ -5469,9 +5479,16 @@ v9_v10_template_hash(guint16 id, const address *net_src, guint32 src_id)
 		p += 4;
 	}
 
-	val += src_id;
+	val = (val + src_id) % V9_V10_TEMPLATE_CACHE_MAX_ENTRIES;
 
-	return val % V9_V10_TEMPLATE_CACHE_MAX_ENTRIES;
+	return val;
+}
+
+
+static struct v9_v10_template *
+v9_v10_template_cache_addr(guint16 id, address *net_src, guint32 src_id)
+{
+	return &v9_v10_template_cache[v9_v10_template_hash(id, net_src, src_id)];
 }
 
 static struct v9_v10_template *
@@ -5479,11 +5496,12 @@ v9_v10_template_get(guint16 id, address *net_src, guint32 src_id)
 {
 	struct v9_v10_template *tplt;
 
-	tplt = &v9_v10_template_cache[v9_v10_template_hash(id, net_src, src_id)];
+	tplt = v9_v10_template_cache_addr(id, net_src, src_id);
 
-	if (tplt->id != id ||
+	if ((tplt->template_exists != TRUE) ||
+	    (tplt->id != id)      ||
 	    !ADDRESSES_EQUAL(&tplt->source_addr, net_src) ||
-	    tplt->source_id != src_id) {
+	    (tplt->source_id != src_id)) {
 		tplt = NULL;
 	}
 
