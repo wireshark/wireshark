@@ -5315,6 +5315,7 @@ dissect_v9_v10_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
 		/*  ToDo: expert warning if replacement/collision and new template ignored.                */
 		/*  XXX: Is an Options template with only scope fields allowed for V9 ??                   */
 
+		tmplt_cache_p = v9_v10_template_cache_addr(tplt.id, &tplt.source_addr, tplt.source_id);
 		if (!pinfo->fd->flags.visited) { /* cache template info only during first pass */
 			do {
 				if ((option_scope_field_count == 0)  ||
@@ -5323,7 +5324,6 @@ dissect_v9_v10_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
 				      || (option_field_count > v9template_max_fields))))  {
 					break; /* Don't allow cache of this template */
 				}
-				tmplt_cache_p = v9_v10_template_cache_addr(tplt.id, &tplt.source_addr, tplt.source_id);
 				if (tmplt_cache_p->template_exists) {
 					/* Entry for this hash already exists; Can be dup or collision. */
 					/* ToDo: use GHashTable so no collisions.                       */
@@ -5410,13 +5410,13 @@ dissect_v9_v10_data_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdut
 		/*  been allocated) and thus this template will not be cached.                             */
 		/*  ToDo: expert warning if replacement/collision and new template ignored.                */
 
+		tmplt_cache_p = v9_v10_template_cache_addr(tplt.id, &tplt.source_addr, tplt.source_id);
 		if (!pinfo->fd->flags.visited) { /* cache template info only during first pass */
 			do {
 				if ((count == 0) ||
 				    (v9template_max_fields && (count > v9template_max_fields))) {
 					break; /* Don't allow cache of this template */
 				}
-				tmplt_cache_p = v9_v10_template_cache_addr(tplt.id, &tplt.source_addr, tplt.source_id);
 				if (tmplt_cache_p->template_exists) {
 					/* Entry for this hash already exists; Can be dup or collision. */
 					/* ToDo: use GHashTable so no collisions.                       */
