@@ -69,7 +69,7 @@ man1_MANS = \
 	@capinfos_man@	\
 	@editcap_man@	\
 	@dumpcap_man@	\
-	@idl2wrs_man@	\
+	idl2wrs.1	\
 	@rawshark_man@	\
 	@dftest_man@	\
 	@randpkt_man@

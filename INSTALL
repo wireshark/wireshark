@@ -119,10 +119,6 @@ README.windows for those instructions.
         By default the hex-dump-to-capture file conversion program
         is built. Use this switch to avoid building it.
 
-    --disable-idl2wrs
-        By default the IDL-to-wireshark-dissector-source-code converter
-        is built. Use this switch to avoid building it.
-
     --disable-dftest
         By default the display-filter-compiler test program is built.
         Use this switch to avoid building it.
