@@ -71,6 +71,11 @@ Wireshark Info
           0000</ulink>)
         </para></listitem>
 -->
+        <listitem><para>
+          Wireshark Netflow dissector complains there is no template found though the template is exported.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6325">Bug
+          6325</ulink>)
+        </para></listitem>
 
      </itemizedlist>
 
