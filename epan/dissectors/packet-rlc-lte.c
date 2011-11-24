@@ -2454,9 +2454,11 @@ static void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         PROTO_ITEM_SET_GENERATED(ti);
     }
 
-    ti = proto_tree_add_uint(context_tree, hf_rlc_lte_context_priority,
-                             tvb, 0, 0, p_rlc_lte_info->priority);
-    PROTO_ITEM_SET_GENERATED(ti);
+    if ((p_rlc_lte_info->priority >= 1) && (p_rlc_lte_info->priority <=16)) {
+        ti = proto_tree_add_uint(context_tree, hf_rlc_lte_context_priority,
+                                 tvb, 0, 0, p_rlc_lte_info->priority);
+        PROTO_ITEM_SET_GENERATED(ti);
+    }
 
     ti = proto_tree_add_uint(context_tree, hf_rlc_lte_context_channel_type,
                              tvb, 0, 0, p_rlc_lte_info->channelType);
