@@ -2086,17 +2086,19 @@ static h460_feature_t h460_feature_tab[] = {
   { GD|FD, "17",   "RAS over H.225.0", NULL, FFILL },
   { GD|FD, "17/1", "RAS message", dissect_ras, FFILL },
   /* H.460.18 */
-  { GD|FD|GM, "18",   "Signalling Traversal", NULL, FFILL },
+  { GD|FD   , "18",   "Signalling Traversal", NULL, FFILL },
   { GD|FD   , "18/1", "IncomingCallIndication", dissect_h460_18_IncomingCallIndication_PDU, FFILL },
   { GD|FD   , "18/2", "LRQKeepAliveData", dissect_h460_18_LRQKeepAliveData_PDU, FFILL },
-  {       GM, "18-1",   "connectionCorrelation", NULL, FFILL },
-  {       GM, "18-1/1", "callIdentifier", NULL, FFILL },
-  {       GM, "18-1/2", "answerCall", NULL, FFILL },
+  {       GM, "0.0.8.460.18.0.1",   "Signalling Traversal", NULL, FFILL },
+  {       GM, "0.0.8.460.18.0.1-1",   "connectionCorrelation", NULL, FFILL },
+  {       GM, "0.0.8.460.18.0.1-1/1", "callIdentifier", NULL, FFILL },
+  {       GM, "0.0.8.460.18.0.1-1/2", "answerCall", NULL, FFILL },
   /* H.460.19 */
-  { GD|FD|GI, "19", "mediaNATFWTraversal", NULL, FFILL },
+  { GD|FD   , "19", "mediaNATFWTraversal", NULL, FFILL },
   { GD|FD   , "19/1", "supportTransmitMultiplexedMedia", NULL, FFILL },
   { GD|FD   , "19/2", "mediaTraversalServer", NULL, FFILL },
-  {       GI, "19/1", "Traversal Parameters", dissect_h460_19_TraversalParameters_PDU, FFILL },
+  {       GI, "0.0.8.460.19.0.1", "mediaNATFWTraversal", NULL, FFILL },
+  {       GI, "0.0.8.460.19.0.1/1", "Traversal Parameters", dissect_h460_19_TraversalParameters_PDU, FFILL },
   /* H.460.20 */
   { GD|FD, "20",   "LocationSourceAddress", NULL, FFILL },
   { GD|FD, "20/1", "LocationSourceAddress", dissect_h225_ExtendedAliasAddress_PDU, FFILL },
@@ -2871,7 +2873,7 @@ void proto_register_h460(void) {
         "UnicastAddress", HFILL }},
 
 /*--- End of included file: packet-h460-hfarr.c ---*/
-#line 248 "../../asn1/h460/packet-h460-template.c"
+#line 250 "../../asn1/h460/packet-h460-template.c"
   };
 
   /* List of subtrees */
@@ -2970,7 +2972,7 @@ void proto_register_h460(void) {
     &ett_h460_21_TransmitCapabilities,
 
 /*--- End of included file: packet-h460-ettarr.c ---*/
-#line 253 "../../asn1/h460/packet-h460-template.c"
+#line 255 "../../asn1/h460/packet-h460-template.c"
   };
 
   /* Register protocol */

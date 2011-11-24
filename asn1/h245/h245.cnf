@@ -631,12 +631,16 @@ if (h245_pi != NULL)
   }
   
 %(DEFAULT_BODY)s
+  if (gefx) {
+    gefx->subid = ep_strdup_printf("%%u", subMessageIdentifer);
+    gef_ctx_update_key(gef_ctx_get(actx->private_data));
+    /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "*** DEBUG CapabilityIdentifier: %%s", gef_ctx_get(actx->private_data)->key);*/
+  }
   if (hf_index == hf_h245_subMessageIdentifier_standard)
   {
     col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%s", val_to_str(subMessageIdentifer, h245_h239subMessageIdentifier_vals, "<unknown>") );
     g_snprintf(h245_pi->frame_label, 50, "%%s", val_to_str(subMessageIdentifer, h245_h239subMessageIdentifier_vals, "<unknown>"));
   }
-  if (gefx) gefx->subid = ep_strdup_printf("%%u", subMessageIdentifer);
 #.END
 
 #.FN_HDR GenericMessage/messageContent/_item
