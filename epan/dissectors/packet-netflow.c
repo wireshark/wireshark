@@ -5432,7 +5432,7 @@ v9_v10_tmplt_table_equal(gconstpointer k1, gconstpointer k2)
         );
 }
 
-static int
+static guint
 v9_v10_tmplt_table_hash(gconstpointer k)
 {
     const v9_v10_tmplt_t *tmplt_p = k;
