@@ -1376,7 +1376,7 @@ dissect_capwap_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	{
 		const int len_rem = tvb_length_remaining(tvb, offset);
 		if (len_rem <= 0) 
-			return offset;
+			return;
 
 		pinfo->fragmented = TRUE;
 
