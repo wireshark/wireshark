@@ -56,12 +56,6 @@
 #include <epan/geoip_db.h>
 #endif /* HAVE_GEOIP_V6 */
 
-/*
- * NOTE: ipv6.nxt is not very useful as we will have chained header.
- * now testing ipv6.final, but it raises SEGV.
-#define TEST_FINALHDR
- */
-
 /* Differentiated Services Field. See RFCs 2474, 2597 and 2598. */
 #define IPDSFIELD_DSCP_MASK     0xFC
 #define IPDSFIELD_ECN_MASK     0x03
@@ -144,9 +138,6 @@ static int hf_ipv6_routing_hdr_opt	  = -1;
 static int hf_ipv6_routing_hdr_type	  = -1;
 static int hf_ipv6_routing_hdr_left	  = -1;
 static int hf_ipv6_routing_hdr_addr	  = -1;
-#ifdef TEST_FINALHDR
-static int hf_ipv6_final	  = -1;
-#endif
 static int hf_ipv6_frag_offset		      = -1;
 static int hf_ipv6_frag_more		      = -1;
 static int hf_ipv6_frag_id		      = -1;
@@ -1611,7 +1602,6 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8 nxt;
   guint8 stype=0;
   int advance;
-  int poffset;
   guint16 plen;
   gboolean hopopts, routing, frag, ah, shim6, dstopts;
   guint16 offlg;
@@ -1872,8 +1862,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 #endif
 
   /* start of the new header (could be a extension header) */
-  poffset = offset + offsetof(struct ip6_hdr, ip6_nxt);
-  nxt = tvb_get_guint8(tvb, poffset);
+  nxt = tvb_get_guint8(tvb, offset + 6);
   offset += sizeof(struct ip6_hdr);
   offlg = 0;
   ident = 0;
@@ -1894,7 +1883,6 @@ again:
       hopopts = TRUE;
       advance = dissect_hopopts(tvb, offset, ipv6_tree, pinfo);
       nxt = tvb_get_guint8(tvb, offset);
-      poffset = offset;
       offset += advance;
       plen -= advance;
       goto again;
@@ -1903,7 +1891,6 @@ again:
       routing = TRUE;
       advance = dissect_routing6(tvb, offset, ipv6_tree, pinfo);
       nxt = tvb_get_guint8(tvb, offset);
-      poffset = offset;
       offset += advance;
       plen -= advance;
       goto again;
@@ -1912,7 +1899,6 @@ again:
       advance = dissect_frag6(tvb, offset, pinfo, ipv6_tree,
           &offlg, &ident);
       nxt = tvb_get_guint8(tvb, offset);
-      poffset = offset;
       offset += advance;
       plen -= advance;
       frag = offlg & (IP6F_OFF_MASK | IP6F_MORE_FRAG);
@@ -1943,7 +1929,6 @@ again:
       advance = dissect_ah_header(tvb_new_subset_remaining(tvb, offset),
                                   pinfo, ipv6_tree, NULL, NULL);
       nxt = tvb_get_guint8(tvb, offset);
-      poffset = offset;
       offset += advance;
       plen -= advance;
       goto again;
@@ -1954,7 +1939,6 @@ again:
       advance = dissect_shim6(tvb, offset, ipv6_tree, pinfo);
       nxt = tvb_get_guint8(tvb, offset);
       stype = tvb_get_guint8(tvb, offset+2);
-      poffset = offset;
       offset += advance;
       plen -= advance;
       goto again;
@@ -1963,7 +1947,6 @@ again:
       dstopts = TRUE;
       advance = dissect_dstopts(tvb, offset, ipv6_tree, pinfo);
       nxt = tvb_get_guint8(tvb, offset);
-      poffset = offset;
       offset += advance;
       plen -= advance;
       goto again;
@@ -1979,17 +1962,11 @@ again:
       if (!dissector_get_uint_handle(ip_dissector_table, nxt)) {
         advance = dissect_unknown_option(tvb, offset, ipv6_tree);
         nxt = tvb_get_guint8(tvb, offset);
-        poffset = offset;
         offset += advance;
         plen -= advance;
         goto again;
       }
     }
-
-#ifdef TEST_FINALHDR
-  ti = proto_tree_add_uint(ipv6_tree, hf_ipv6_final, tvb, poffset, 1, nxt);
-  PROTO_ITEM_SET_HIDDEN(ti);
-#endif
 
   proto_item_set_len (ipv6_item, offset);
   tap_queue_packet(ipv6_tap, pinfo, &ipv6);
@@ -2591,12 +2568,6 @@ proto_register_ipv6(void)
       { "Forked Instance Identifier", "ipv6.shim6.opt.fii",
 				FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
 				NULL, HFILL }},
-
-#ifdef TEST_FINALHDR
-    { &hf_ipv6_final,
-      { "Final next header",	"ipv6.final",
-				FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-#endif
 
     { &hf_ipv6_traffic_class_dscp,
       { "Differentiated Services Field", 	"ipv6.traffic_class.dscp",
