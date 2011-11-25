@@ -1934,7 +1934,7 @@ dissect_ieee802154_decrypt(tvbuff_t * tvb, guint offset, packet_info * pinfo, ie
             l_m = 0;
         }
         else if ((packet->version == IEEE802154_VERSION_2003) && !ieee802154_extend_auth)
-            l_a -= 5;   /* Exclude Frame Counter (4 bytes) and Key Sequence Counter (1 byte) from authentication data
+            l_a -= 5;   /* Exclude Frame Counter (4 bytes) and Key Sequence Counter (1 byte) from authentication data */
 
 
         /* Create the CCM* initial block for authentication (Adata!=0, M!=0, counter=l(m)). */
