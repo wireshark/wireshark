@@ -61,6 +61,7 @@ static int hf_mac_lte_context_length = -1;
 static int hf_mac_lte_context_ul_grant_size = -1;
 static int hf_mac_lte_context_bch_transport_channel = -1;
 static int hf_mac_lte_context_retx_count = -1;
+static int hf_mac_lte_context_retx_reason = -1;
 static int hf_mac_lte_context_crc_status = -1;
 static int hf_mac_lte_context_rapid = -1;
 static int hf_mac_lte_context_rach_attempt_number = -1;
@@ -526,7 +527,12 @@ static const value_string predefined_frame_vals[] =
     { 0, NULL }
 };
 
-
+static const value_string ul_retx_grant_vals[] =
+{
+    { 0,      "PDCCH ReTx"},
+    { 1,      "PHICH NACK"},
+    { 0, NULL }
+};
 
 /**************************************************************************/
 /* Preferences state                                                      */
@@ -3449,6 +3455,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Retx count goes in top-level tree to make it more visible */
     if (p_mac_lte_info->reTxCount) {
+        proto_item *retx_reason_ti;
         retx_ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_context_retx_count,
                                  tvb, 0, 0, p_mac_lte_info->reTxCount);
         PROTO_ITEM_SET_GENERATED(retx_ti);
@@ -3458,6 +3465,10 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                    "UE %u: UL MAC frame ReTX no. %u",
                                    p_mac_lte_info->ueid, p_mac_lte_info->reTxCount);
         }
+
+        retx_reason_ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_context_retx_reason,
+                                             tvb, 0, 0, p_mac_lte_info->isPHICHNACK);
+        PROTO_ITEM_SET_GENERATED(retx_reason_ti);
     }
 
     if (p_mac_lte_info->crcStatusValid) {
@@ -3747,6 +3758,12 @@ void proto_register_mac_lte(void)
             { "ReTX count",
               "mac-lte.retx-count", FT_UINT8, BASE_DEC, 0, 0x0,
               "Number of times this PDU has been retransmitted", HFILL
+            }
+        },
+        { &hf_mac_lte_context_retx_reason,
+            { "ReTX reason",
+              "mac-lte.retx-reason", FT_UINT8, BASE_DEC, VALS(ul_retx_grant_vals), 0x0,
+              "Type of UL ReTx grant", HFILL
             }
         },
         { &hf_mac_lte_context_crc_status,

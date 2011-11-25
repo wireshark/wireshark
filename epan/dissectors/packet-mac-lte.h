@@ -114,6 +114,7 @@ typedef struct mac_lte_info
 
     /* UL only.  0=newTx, 1=first-retx, etc */
     guint8          reTxCount;
+    guint8          isPHICHNACK; /* FALSE=PDCCH retx grant, TRUE=PHICH NACK */
 
     /* DL only.  Status of CRC check */
     mac_lte_crc_status   crcStatusValid;

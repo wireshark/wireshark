@@ -1777,7 +1777,13 @@ static void attach_mac_lte_info(packet_info *pinfo)
 
     /* System frame number */
     if (i < outhdr_values_found) {
-        p_mac_lte_info->sysframeNumber = outhdr_values[i];
+        p_mac_lte_info->sysframeNumber = outhdr_values[i++];
+    }
+
+    if ((p_mac_lte_info->direction == DIRECTION_UPLINK) &&
+        (i < outhdr_values_found)) {
+
+        p_mac_lte_info->isPHICHNACK = outhdr_values[i];
     }
 
     /* Store info in packet */
