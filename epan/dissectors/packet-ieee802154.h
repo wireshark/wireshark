@@ -193,6 +193,8 @@ typedef struct {
     ieee802154_security_level   security_level;
     ieee802154_key_id_mode      key_id_mode;
     guint32     frame_counter;
+    guint8      key_sequence_counter;    /* Only for 802.15.4-2003 security suite with encryption */
+
     union {
         guint32 addr32;
         guint64 addr64;

@@ -162,10 +162,6 @@ UAT_BUFFER_CB_DEF(addr_uat, eui64, static_addr_t, eui64, eui64_len)
  */
 /* Register Functions. Loads the dissector into Wireshark. */
 void proto_reg_handoff_ieee802154   (void);
-void proto_register_ieee802154      (void);
-
-static void proto_init_ieee802154   (void);
-/* TODO: cleanup. */
 
 /* Dissection Routines. */
 static void dissect_ieee802154_nonask_phy   (tvbuff_t *, packet_info *, proto_tree *);
@@ -200,7 +196,7 @@ typedef enum {
 
 static tvbuff_t * dissect_ieee802154_decrypt(tvbuff_t *, guint, packet_info *, ieee802154_packet *,
         ws_decrypt_status *);
-static void ccm_init_block          (gchar *, gboolean, gint, guint64, guint32, ieee802154_security_level, gint);
+static void ccm_init_block          (gchar *, gboolean, gint, guint64, ieee802154_packet *, gint);
 static gboolean ccm_ctr_encrypt     (const gchar *, const gchar *, gchar *, gchar *, gint);
 static gboolean ccm_cbc_mac         (const gchar *, const gchar *, const gchar *, gint, const gchar *, gint, gchar *);
 
@@ -272,6 +268,10 @@ static int hf_ieee802154_aux_sec_reserved = -1;
 static int hf_ieee802154_aux_sec_frame_counter = -1;
 static int hf_ieee802154_aux_sec_key_source = -1;
 static int hf_ieee802154_aux_sec_key_index = -1;
+
+/* 802.15.4-2003 security */
+static int hf_ieee802154_sec_frame_counter = -1;
+static int hf_ieee802154_sec_key_sequence_counter = -1;
 
 /*  Initialize Subtree Pointers */
 static gint ett_ieee802154_nonask_phy = -1;
@@ -347,8 +347,25 @@ static const true_false_string ieee802154_gts_direction_tfs = {
     "Transmit Only"
 };
 
+/* The 802.15.4-2003 security suites for the security preferences (only AES-CCM suites are supported). */
+/* NOTE: The equivalent 2006 security level identifer enumerations are used to simplify 2003 & 2006 integration! */
+static enum_val_t ieee802154_2003_sec_suite_enums[] = {
+    { "AES-CCM-128", "AES-128 Encryption, 128-bit Integrity Protection", SECURITY_LEVEL_ENC_MIC_128 },
+    { "AES-CCM-64",  "AES-128 Encryption, 64-bit Integrity Protection",  SECURITY_LEVEL_ENC_MIC_64 },
+    { "AES-CCM-32",  "AES-128 Encryption, 32-bit Integrity Protection",  SECURITY_LEVEL_ENC_MIC_32 },
+    { NULL, NULL, 0 }
+};
+
+/* Preferences for 2003 security */
+static gint ieee802154_sec_suite = SECURITY_LEVEL_ENC_MIC_64;
+static gboolean ieee802154_extend_auth = TRUE;
+
 /* Macro to check addressing, and throw a warning flag if incorrect. */
-#define IEEE802154_CMD_ADDR_CHECK(_pinfo_, _item_, _cmdid_, _x_) if (!(_x_)) expert_add_info_format(_pinfo_, _item_, PI_MALFORMED, PI_WARN, "Invalid Addressing for %s", val_to_str(_cmdid_, ieee802154_cmd_names, "Unknown Command"))
+#define IEEE802154_CMD_ADDR_CHECK(_pinfo_, _item_, _cmdid_, _x_)    \
+   if (!(_x_))                                                      \
+     expert_add_info_format(_pinfo_, _item_, PI_MALFORMED, PI_WARN, \
+                            "Invalid Addressing for %s",            \
+                            val_to_str(_cmdid_, ieee802154_cmd_names, "Unknown Command"))
 
 /* CRC definitions. IEEE 802.15.4 CRCs vary from CCITT by using an initial value of
  * 0x0000, and no XOR out. IEEE802154_CRC_XOR is defined as 0xFFFF in order to un-XOR
@@ -968,6 +985,23 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
      * PAYLOAD DISSECTION
      *=====================================================
      */
+    /* IEEE 802.15.4-2003 may have security information pre-pended to payload */
+    if (packet->security_enable && (packet->version == IEEE802154_VERSION_2003)) {
+        /* Store security suite preference in the 2006 security level identifier to simplify 2003 integration! */
+        packet->security_level = ieee802154_sec_suite;
+
+        /* Frame Counter and Key Sequence Counter prepended to the payload of an encrypted frame */
+        if (IEEE802154_IS_ENCRYPTED(packet->security_level)) {
+            packet->frame_counter = tvb_get_letohl (tvb, offset);
+            proto_tree_add_uint(ieee802154_tree, hf_ieee802154_sec_frame_counter, tvb, offset, sizeof(guint32), packet->frame_counter);
+            offset += sizeof(guint32);
+
+            packet->key_sequence_counter = tvb_get_guint8 (tvb, offset);
+            proto_tree_add_uint(ieee802154_tree, hf_ieee802154_sec_key_sequence_counter, tvb, offset, sizeof(guint8), packet->key_sequence_counter);
+            offset += sizeof(guint8);
+        }
+    }
+
     /* Encrypted Payload. */
     if (packet->security_enable) {
         payload_tvb = dissect_ieee802154_decrypt(tvb, offset, pinfo, packet, &status);
@@ -1766,13 +1800,13 @@ dissect_ieee802154_decrypt(tvbuff_t * tvb, guint offset, packet_info * pinfo, ie
     ieee802154_hints_t *ieee_hints;
 
     /*
-     * Check the version; we only support IEEE 802.15.4-2006.
-     * We must do this first, as, if this isn't IEEE 802.15.4-2006,
+     * Check the version; we only support IEEE 802.15.4-2003 and IEEE 802.15.4-2006.
+     * We must do this first, as, if this isn't IEEE 802.15.4-2003 or IEEE 802.15.4-2006,
      * we don't have the Auxiliary Security Header, and haven't
      * filled in the information for it, and none of the stuff
      * we do afterwards, which uses that information, is doable.
      */
-    if (packet->version != IEEE802154_VERSION_2006) {
+    if ((packet->version != IEEE802154_VERSION_2006) && (packet->version != IEEE802154_VERSION_2003)) {
         *status = DECRYPT_VERSION_UNSUPPORTED;
         return NULL;
     }
@@ -1845,7 +1879,7 @@ dissect_ieee802154_decrypt(tvbuff_t * tvb, guint offset, packet_info * pinfo, ie
      *=====================================================
      */
     /* Create the CCM* initial block for decryption (Adata=0, M=0, counter=0). */
-    ccm_init_block(tmp, FALSE, 0, srcAddr, packet->frame_counter, packet->security_level, 0);
+    ccm_init_block(tmp, FALSE, 0, srcAddr, packet, 0);
 
     /* Decrypt the ciphertext, and place the plaintext in a new tvb. */
     if (IEEE802154_IS_ENCRYPTED(packet->security_level) && captured_len) {
@@ -1899,9 +1933,12 @@ dissect_ieee802154_decrypt(tvbuff_t * tvb, guint offset, packet_info * pinfo, ie
             l_a += l_m;
             l_m = 0;
         }
+        else if ((packet->version == IEEE802154_VERSION_2003) && !ieee802154_extend_auth)
+            l_a -= 5;   /* Exclude Frame Counter (4 bytes) and Key Sequence Counter (1 byte) from authentication data
+
 
         /* Create the CCM* initial block for authentication (Adata!=0, M!=0, counter=l(m)). */
-        ccm_init_block(tmp, TRUE, M, srcAddr, packet->frame_counter, packet->security_level, l_m);
+        ccm_init_block(tmp, TRUE, M, srcAddr, packet, l_m);
 
         /* Compute CBC-MAC authentication tag. */
         /*
@@ -1934,15 +1971,14 @@ dissect_ieee802154_decrypt(tvbuff_t * tvb, guint offset, packet_info * pinfo, ie
  *      gboolean adata      - TRUE if additional auth data is present
  *      gint M              - CCM* parameter M.
  *      guint64 addr        - Source extended address.
- *      guint32 counter     - Frame counter.
- *      ieee802154_security_level level - Security leve being used.
+ *      ieee802154_packet *packet - IEEE 802.15.4 packet information.
  *      guint16 ctr_val     - Value in the last L bytes of the block.
  *  RETURNS
  *      void
  *---------------------------------------------------------------
  */
 static void
-ccm_init_block(gchar *block, gboolean adata, gint M, guint64 addr, guint32 counter, ieee802154_security_level level, gint ctr_val)
+ccm_init_block(gchar *block, gboolean adata, gint M, guint64 addr, ieee802154_packet * packet, gint ctr_val)
 {
     gint                i = 0;
 
@@ -1951,7 +1987,8 @@ ccm_init_block(gchar *block, gboolean adata, gint M, guint64 addr, guint32 count
     if (M > 0) block[i] |= (((M-2)/2) << 3); /* (M-2)/2 */
     if (adata) block[i] |= (1 << 6); /* Adata */
     i++;
-    /* Nonce: Source Address || Frame Counter || Security Level */
+    /* 2003 CCM Nonce:  Source Address || Frame Counter || Key Sequence Counter */
+    /* 2006 CCM* Nonce: Source Address || Frame Counter || Security Level */
     block[i++] = (guint8)((addr >> 56) & 0xff);
     block[i++] = (guint8)((addr >> 48) & 0xff);
     block[i++] = (guint8)((addr >> 40) & 0xff);
@@ -1960,11 +1997,14 @@ ccm_init_block(gchar *block, gboolean adata, gint M, guint64 addr, guint32 count
     block[i++] = (guint8)((addr >> 16) & 0xff);
     block[i++] = (guint8)((addr >> 8) & 0xff);
     block[i++] = (guint8)((addr >> 0) & 0xff);
-    block[i++] = (guint8)((counter >> 24) & 0xff);
-    block[i++] = (guint8)((counter >> 16) & 0xff);
-    block[i++] = (guint8)((counter >> 8) & 0xff);
-    block[i++] = (guint8)((counter >> 0) & 0xff);
-    block[i++] = level;
+    block[i++] = (guint8)((packet->frame_counter >> 24) & 0xff);
+    block[i++] = (guint8)((packet->frame_counter >> 16) & 0xff);
+    block[i++] = (guint8)((packet->frame_counter >> 8) & 0xff);
+    block[i++] = (guint8)((packet->frame_counter >> 0) & 0xff);
+    if (packet->version == IEEE802154_VERSION_2003)
+        block[i++] = packet->key_sequence_counter;
+    else
+        block[i++] = packet->security_level;
     /* Plaintext length. */
     block[i++] = (guint8)((ctr_val >> 8) & 0xff);
     block[i++] = (guint8)((ctr_val >> 0) & 0xff);
@@ -2303,6 +2343,42 @@ gboolean ieee802154_long_addr_invalidate(guint64 long_addr, guint fnum)
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
+ *      proto_init_ieee802154
+ *  DESCRIPTION
+ *      Init routine for the IEEE 802.15.4 dissector. Creates hash
+ *      tables for mapping between 16-bit to 64-bit addresses and
+ *      populates them with static address pairs from a UAT
+ *      preference table.
+ *  PARAMETERS
+ *      none
+ *  RETURNS
+ *      void
+ *---------------------------------------------------------------
+ */
+static void
+proto_init_ieee802154(void)
+{
+    guint       i;
+
+    /* Destroy hash tables, if they exist. */
+    if (ieee802154_map.short_table)
+        g_hash_table_destroy(ieee802154_map.short_table);
+    if (ieee802154_map.long_table)
+        g_hash_table_destroy(ieee802154_map.long_table);
+
+    /* Create the hash tables. */
+    ieee802154_map.short_table = g_hash_table_new(ieee802154_short_addr_hash, ieee802154_short_addr_equal);
+    ieee802154_map.long_table = g_hash_table_new(ieee802154_long_addr_hash, ieee802154_long_addr_equal);
+    /* Re-load the hash table from the static address UAT. */
+    for (i=0; (i<num_static_addrs) && (static_addrs); i++) {
+        ieee802154_addr_update(&ieee802154_map,(guint16)static_addrs[i].addr16, (guint16)static_addrs[i].pan,
+               pntoh64(static_addrs[i].eui64), ieee802154_user, IEEE802154_USER_MAPPING);
+    } /* for */
+} /* proto_init_ieee802154 */
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
  *      proto_register_ieee802154
  *  DESCRIPTION
  *      IEEE 802.15.4 protocol registration routine.
@@ -2562,7 +2638,16 @@ void proto_register_ieee802154(void)
 
         { &hf_ieee802154_aux_sec_key_index,
         { "Key Index", "wpan.aux_sec.key_index", FT_UINT8, BASE_HEX, NULL, 0x0,
-            "Key Index for processing of the protected frame", HFILL }}
+            "Key Index for processing of the protected frame", HFILL }},
+
+            /* IEEE 802.15.4-2003 Security Header Fields */
+        { &hf_ieee802154_sec_frame_counter,
+        { "Frame Counter", "wpan.sec_frame_counter", FT_UINT32, BASE_HEX, NULL, 0x0,
+            "Frame counter of the originator of the protected frame (802.15.4-2003)", HFILL }},
+
+        { &hf_ieee802154_sec_key_sequence_counter,
+        { "Key Sequence Counter", "wpan.sec_key_sequence_counter", FT_UINT8, BASE_HEX, NULL, 0x0,
+            "Key Sequence counter of the originator of the protected frame (802.15.4-2003)", HFILL }}
     };
 
     /* Subtrees */
@@ -2651,6 +2736,19 @@ void proto_register_ieee802154(void)
     prefs_register_string_preference(ieee802154_module, "802154_key", "Decryption key",
             "128-bit decryption key in hexadecimal format", (const char **)&ieee802154_key_str);
 
+    prefs_register_enum_preference(ieee802154_module, "802154_sec_suite",
+                                   "Security Suite (802.15.4-2003)",
+                                   "Specifies the security suite to use for 802.15.4-2003 secured frames"
+                                   " (only supported suites are listed). Option ignored for 802.15.4-2006"
+                                   " and unsecured frames.",
+                                   &ieee802154_sec_suite, ieee802154_2003_sec_suite_enums, FALSE);
+
+    prefs_register_bool_preference(ieee802154_module, "802154_extend_auth",
+                                   "Extend authentication data (802.15.4-2003)",
+                                   "Set if the manufacturer extends the authentication data with the"
+                                   " security header. Option ignored for 802.15.4-2006 and unsecured frames.",
+                                   &ieee802154_extend_auth);
+
     /* Register the subdissector list */
     register_heur_dissector_list(IEEE802154_PROTOABBREV_WPAN, &ieee802154_heur_subdissector_list);
 
@@ -2660,6 +2758,7 @@ void proto_register_ieee802154(void)
     register_dissector("wpan_cc24xx", dissect_ieee802154_cc24xx, proto_ieee802154);
     register_dissector("wpan-nonask-phy", dissect_ieee802154_nonask_phy, proto_ieee802154_nonask_phy);
 } /* proto_register_ieee802154 */
+
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
@@ -2714,36 +2813,3 @@ void proto_reg_handoff_ieee802154(void)
     /* Register dissector handles. */
     dissector_add_uint("ethertype", ieee802154_ethertype, ieee802154_handle);
 } /* proto_reg_handoff_ieee802154 */
-
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      proto_init_ieee802154
- *  DESCRIPTION
- *      Init routine for the IEEE 802.15.4 dissector. Creates hash
- *      tables for mapping between 16-bit to 64-bit addresses and
- *      populates them with static address pairs from a UAT
- *      preference table.
- *  PARAMETERS
- *      none
- *  RETURNS
- *      void
- *---------------------------------------------------------------
- */
-static void
-proto_init_ieee802154(void)
-{
-    guint       i;
-
-    /* Destroy hash tables, if they exist. */
-    if (ieee802154_map.short_table) g_hash_table_destroy(ieee802154_map.short_table);
-    if (ieee802154_map.long_table) g_hash_table_destroy(ieee802154_map.long_table);
-
-    /* Create the hash tables. */
-    ieee802154_map.short_table = g_hash_table_new(ieee802154_short_addr_hash, ieee802154_short_addr_equal);
-    ieee802154_map.long_table = g_hash_table_new(ieee802154_long_addr_hash, ieee802154_long_addr_equal);
-    /* Re-load the hash table from the static address UAT. */
-    for (i=0; (i<num_static_addrs) && (static_addrs); i++) {
-        ieee802154_addr_update(&ieee802154_map,(guint16)static_addrs[i].addr16, (guint16)static_addrs[i].pan,
-               pntoh64(static_addrs[i].eui64), ieee802154_user, IEEE802154_USER_MAPPING);
-    } /* for */
-} /* proto_init_ieee802154 */
