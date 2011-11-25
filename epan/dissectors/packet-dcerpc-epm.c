@@ -325,6 +325,7 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
     guint16 num_floors, i;
     dcerpc_info *di;
     const char *uuid_name;
+    guint8   u8little_endian = DREP_LITTLE_ENDIAN;
 
     di=pinfo->private_data;
     if(di->conformant_run){
@@ -356,7 +357,7 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
 
         switch(proto_id){
         case PROTO_ID_UUID:
-            dcerpc_tvb_get_uuid (tvb, offset+1, drep, &uuid);
+            dcerpc_tvb_get_uuid (tvb, offset+1, &u8little_endian, &uuid);
 
             uuid_name = guids_get_uuid_name(&uuid);
 
