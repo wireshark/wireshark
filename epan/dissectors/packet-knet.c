@@ -386,7 +386,7 @@ dissect_messageid(tvbuff_t *buffer, int *offset, proto_tree *tree, packet_info *
         break;
     }
 
-    proto_tree_add_item(tree, hf_knet_messageid, buffer, *offset, messageid_length, NULL,
+    proto_tree_add_bytes_format(tree, hf_knet_messageid, buffer, *offset, messageid_length, NULL,
     "Message ID: %s (%d)", val_to_str(messageid, packettypenames, "AppData or Malformed Message ID"), messageid);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(messageid, packettypenames, "AppData "));
