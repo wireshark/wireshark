@@ -725,6 +725,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-kingfisher.c
 	dissectors/packet-kink.c
 	dissectors/packet-kismet.c
+	dissectors/packet-knet.c
 	dissectors/packet-kpasswd.c
 	dissectors/packet-l2tp.c
 	dissectors/packet-lanforge.c

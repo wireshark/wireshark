@@ -3346,14 +3346,16 @@ Iain Arnell		<iarnell [AT] epo.org> {
 	ajp13 enhancements
 }
 
-Mariusz Okrój 		<okrojmariusz [AT]gmail.com> {
+Mariusz Okrój 		<okrojmariusz [AT] gmail.com> {
 	XMPP enhancements
 }
 
 Ivan Lawrow		<ivan.lawrow [AT] jennic.com> {
 	Added IEEE 802.15.4-2003 AES-CCM security modes
 }
-
+Kari Vatjus-Anttila	<kari.vatjus-anttila [AT] cie.fi> {
+	kNet (KristalliNet) dissector
+}
 
 and by:
 
