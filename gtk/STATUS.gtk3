@@ -13,8 +13,10 @@ To build Wireshark with GTK3 instead of GTK2, use:
   - configure: --with-gtk3
   This will only work if building without gtkvumeter.c (which is used on Windows
   only and only in the WLAN code). It also requires GTK3 to be installed.
-  GTK3 is available for Windows as a mingw build only, see
+  GTK3 is available for Windows as a mingw build, see
   http://lists-archives.org/gtk-devel/13233-fwd-precompiled-gtk3-for-windows.html
+  A Win32 port is in the making (and availalbe as source):
+  http://blogs.gnome.org/alexl/2011/11/25/gtk-work-on-windows/
 
 Except in one place we are building on GTK2 using the compat flags
   -DGTK_DISABLE_SINGLE_INCLUDES
