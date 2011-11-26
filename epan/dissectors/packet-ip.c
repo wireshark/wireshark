@@ -1472,7 +1472,7 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
       if (dissect != NULL) {
         proto_item_append_text(proto_tree_get_parent(opt_tree), ", %s",
                                optp->name);
-        (*dissect)(optp, tvb, offset, len, pinfo, opt_tree);
+        (*dissect)(optp, tvb, offset, 1, pinfo, opt_tree);
       } else {
         /* Option has no data, hence no dissector. */
         proto_item_append_text(proto_tree_get_parent(opt_tree), ", %s", name);
