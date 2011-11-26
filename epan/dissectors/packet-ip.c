@@ -685,7 +685,7 @@ dissect_ipopt_security(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
   dissect_ipopt_type(tvb, offset, field_tree);
   tf = proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, offset + 1, 1, ENC_NA);
-  if (optlen != optp->optlen)
+  if (optlen != (guint)optp->optlen)
     expert_add_info_format(pinfo, tf, PI_PROTOCOL, PI_WARN,
                            "Invalid length for option");
   offset += 2;
@@ -1141,7 +1141,7 @@ dissect_ipopt_sid(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
   dissect_ipopt_type(tvb, offset, field_tree);
   tf = proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, offset + 1, 1, ENC_NA);
-  if (optlen != optp->optlen)
+  if (optlen != (guint)optp->optlen)
     expert_add_info_format(pinfo, tf, PI_PROTOCOL, PI_WARN,
                            "Invalid length for option");
   proto_tree_add_item(field_tree, hf_ip_opt_sid, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
@@ -1247,7 +1247,7 @@ dissect_ipopt_ra(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
   dissect_ipopt_type(tvb, offset, field_tree);
   tf = proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, offset + 1, 1, ENC_NA);
-  if (optlen != optp->optlen)
+  if (optlen != (guint)optp->optlen)
     expert_add_info_format(pinfo, tf, PI_PROTOCOL, PI_WARN,
                            "Invalid length for option");
   proto_tree_add_item(field_tree, hf_ip_opt_ra, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
@@ -1307,7 +1307,7 @@ dissect_ipopt_qs(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
   dissect_ipopt_type(tvb, offset, field_tree);
   ti = proto_tree_add_item(field_tree, hf_ip_opt_len, tvb, offset + 1, 1, ENC_NA);
-  if (optlen != optp->optlen)
+  if (optlen != (guint)optp->optlen)
     expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN,
                            "Invalid length for option");
   proto_tree_add_item(field_tree, hf_ip_opt_qs_func, tvb, offset + 2, 1, ENC_NA);
