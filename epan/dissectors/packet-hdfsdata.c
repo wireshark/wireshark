@@ -1,4 +1,4 @@
-/* packet-hdfs.c
+/* packet-hdfsdata.c
  * HDFS data Protocol and dissectors
  *
  * Copyright (c) 2011 by Isilon Systems.
@@ -36,8 +36,10 @@
 #include "epan/dissectors/packet-tcp.h"
 
 
+#if 0
 #define NAMENODE_PORT 8020
 #define DATANODE_PORT 8021
+#endif
 
 #define FIRST_READ_FRAGMENT_LEN 15
 #define SECOND_READ_FRAGMENT_LEN 29
@@ -374,7 +376,8 @@ dissect_write_response(tvbuff_t *tvb, proto_tree *hdfsdata_tree, int offset)
 }
 
 /* determine PDU length of protocol  */
-static guint get_hdfsdata_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+static guint
+get_hdfsdata_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
   /* get data packet len, add FIRST_READ_FRAGMENT_LEN for first fragment (before len),
      SECOND_READ_FRAGMENT_LEN for second fragment (incl len), subtract 4 for length itself. */
@@ -762,25 +765,25 @@ proto_register_hdfsdata(void)
         &ett_hdfsdata
     };
 
-  module_t *hdfsdata_module;
+    module_t *hdfsdata_module;
 
     proto_hdfsdata = proto_register_protocol (
-        "HDFSDATA Protocol", /* name       */
-        "HDFSDATA",      /* short name */
-        "hdfsdata"       /* abbrev     */
-        );
+      "HDFSDATA Protocol", /* name       */
+      "HDFSDATA",      /* short name */
+      "hdfsdata"       /* abbrev     */
+      );
 
     proto_register_field_array(proto_hdfsdata, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-  hdfsdata_module = prefs_register_protocol(proto_hdfsdata, proto_reg_handoff_hdfsdata);
+    hdfsdata_module = prefs_register_protocol(proto_hdfsdata, proto_reg_handoff_hdfsdata);
 
     prefs_register_uint_preference(hdfsdata_module,
-                                  "tcp.port",
-                                  "TCP port for HDFSDATA",
-                                  "Set the TCP port for HDFSDATA",
-                                  10,
-                                  &tcp_port);
+                                   "tcp.port",
+                                   "TCP port for HDFSDATA",
+                                   "Set the TCP port for HDFSDATA",
+                                   10,
+                                   &tcp_port);
 
     register_dissector("hdfsdata", dissect_hdfsdata, proto_hdfsdata);
 }

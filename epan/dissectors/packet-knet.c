@@ -1,5 +1,5 @@
 /* packet-knet.c
- * Routines for the KristalliNet (kNet) protocol. 
+ * Routines for the KristalliNet (kNet) protocol.
  * Kari Vatjus-Anttila <kari.vatjus-anttila@cie.fi>
  * Ville Saarinen <ville.saarinen@cie.fi>
  *
@@ -28,11 +28,9 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/dissectors/packet-tcp.h>
-#include <string.h>
 
 #define PROTO_TAG_KNET      "KNET"    /*!< Definition of kNet Protocol */
 #define PORT                2345
@@ -46,10 +44,10 @@
  * Message ID:s of the kNet protocol
  */
 /**@{*/
-#define PINGREQUEST          1        /*!< Message ID definition: Ping Request */
-#define PINGREPLY            2        /*!< Message ID definition: Ping Reply */
-#define FLOWCONTROLREQUEST   3        /*!< Message ID definition: Flow Control Request */
-#define PACKETACK            4        /*!< Message ID definition: Packet Acknowledge */
+#define PINGREQUEST            1      /*!< Message ID definition: Ping Request */
+#define PINGREPLY              2      /*!< Message ID definition: Ping Reply */
+#define FLOWCONTROLREQUEST     3      /*!< Message ID definition: Flow Control Request */
+#define PACKETACK              4      /*!< Message ID definition: Packet Acknowledge */
 #define DISCONNECT           255      /*!< Message ID definition: Disconnect */
 #define DISCONNECTACK        254      /*!< Message ID definition: Disconnect Ack */
 #define CONNECTSYN           253      /*!< Message ID definition: Connect Syn */
@@ -73,18 +71,18 @@ static int proto_knet        = -1;
  * Header fields of the kNet datagram
  */
 /* *@{*/
-   
+
 /* Fields used by the TCP/SCTP dissector */
 static int hf_knet_message_tree =   -1; /*!< Message tree */
 static int hf_knet_content_length = -1; /*!< Content Length */
 
 /* Fields used by the UDP dissector */
-static int hf_knet_datagram_tree =              -1; /*!< Datagram subtree */
-static int hf_knet_flags =                      -1; /*!< UDP Flags subtree */
-static int hf_knet_inorder =                    -1; /*!< Inorder Flag */
-static int hf_knet_reliable =                   -1; /*!< Reliable Flag */
-static int hf_knet_packetid =                   -1; /*!< PacketID */
-static int hf_knet_rmib =                       -1; /*!< Reliable Message Index Base */
+static int hf_knet_datagram_tree =               -1; /*!< Datagram subtree */
+static int hf_knet_flags =                       -1; /*!< UDP Flags subtree */
+static int hf_knet_inorder =                     -1; /*!< Inorder Flag */
+static int hf_knet_reliable =                    -1; /*!< Reliable Flag */
+static int hf_knet_packetid =                    -1; /*!< PacketID */
+static int hf_knet_rmib =                        -1; /*!< Reliable Message Index Base */
 static int hf_knet_msg_flags =                   -1; /*!< Message Block Flags subtree */
 static int hf_knet_msg_fs =                      -1; /*!< Fragment Start */
 static int hf_knet_msg_ff =                      -1; /*!< Fragment Flag */
@@ -93,9 +91,9 @@ static int hf_knet_msg_reliable =                -1; /*!< Reliable Flag */
 static int hf_knet_msg_reliable_message_number = -1; /*!< Reliable Message Number */
 
 static int hf_knet_payload_tree =    -1; /*!< Payload subtree */
-static int hf_knet_payload =    -1; /*!< Payload subtree */
+static int hf_knet_payload =         -1; /*!< Payload subtree */
 static int hf_knet_messageid =       -1; /*!< MessageID of the packet */
-static int hf_knet_pingid =          -1; 
+static int hf_knet_pingid =          -1;
 static int hf_knet_flowctrlreq =     -1;
 static int hf_knet_packetack =       -1;
 static int hf_knet_seqnumber =       -1;
@@ -107,12 +105,12 @@ static int hf_knet_seqnumber =       -1;
 /* *@{*/
 
 /*Knet Subtrees */
-static gint ett_knet_main =      -1; /*!< Main kNet tree */
-static gint ett_knet_message =   -1; /*!< Message tree */
-static gint ett_knet_payload =   -1; /*!< Payload tree */
-static gint ett_knet_message_flags =   -1; /*!< Message flags tree */
+static gint ett_knet_main =          -1; /*!< Main kNet tree */
+static gint ett_knet_message =       -1; /*!< Message tree */
+static gint ett_knet_payload =       -1; /*!< Payload tree */
+static gint ett_knet_message_flags = -1; /*!< Message flags tree */
 static gint ett_knet_datagram =      -1;
-static gint ett_knet_flags =      -1;
+static gint ett_knet_flags =         -1;
 /**@}*/
 
 /* Few Utility Variables */
@@ -166,7 +164,7 @@ count_vle_bytes(tvbuff_t *tvb, int offset)
  * dissect_packetid is a utility function which calculates
  * the packets Packet ID from the data. Packet ID is a field
  * located in the datagram header.
- * 
+ *
  * @see dissect_reliable_message_index_base()
  * @see dissect_reliable_message_number()
  * @see dissect_content_length()
@@ -193,10 +191,10 @@ dissect_packetid(tvbuff_t *buffer, int offset, proto_tree *tree)
 }
 
 /**
- * dissect_reliable_message_index_base is a utility function 
+ * dissect_reliable_message_index_base is a utility function
  * which calculates the packets RMIB if and only if the reliable
  * flag is set to 1.
- * 
+ *
  * @see dissect_packetid()
  * @see dissect_content_length()
  * @see dissect_reliable_message_number()
@@ -277,7 +275,7 @@ dissect_content_length_vle(tvbuff_t *buffer, int *offset, proto_tree *tree)
  * dissect_content_length is a utility function which
  * calculates how long is the payload section of the message
  * in bytes. Used only by the UDP dissector.
- * 
+ *
  * @see dissect_packetid()
  * @see dissect_reliable_message_index_base()
  * @see dissect_reliable_message_number()
@@ -321,7 +319,7 @@ dissect_content_length(tvbuff_t *buffer, int offset, proto_tree *tree)
  * dissect_reliable_message_number is a utility function which
  * calculates the RMN if and only if the reliable flag in the
  * message block is set to 1.
- * 
+ *
  * @see dissect_packetid()
  * @see dissect_reliable_message_index_base()
  * @see dissect_content_length()
@@ -352,7 +350,7 @@ dissect_reliable_message_number(tvbuff_t *buffer, int offset, proto_tree *tree)
 /**
  * dissect_messageid is a utility function which
  * calculates the ID of the message.
- * 
+ *
  * @see dissect_packetid()
  * @see dissect_reliable_message_index_base()
  * @see dissect_content_length()
@@ -387,9 +385,9 @@ dissect_messageid(tvbuff_t *buffer, int *offset, proto_tree *tree, packet_info *
     }
 
     proto_tree_add_bytes_format(tree, hf_knet_messageid, buffer, *offset, messageid_length, NULL,
-    "Message ID: %s (%d)", val_to_str(messageid, packettypenames, "AppData or Malformed Message ID"), messageid);
+    "Message ID: %s (%d)", val_to_str_const(messageid, packettypenames, "AppData or Malformed Message ID"), messageid);
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(messageid, packettypenames, "AppData "));
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_const(messageid, packettypenames, "AppData "));
 
     *offset += messageid_length;
 
@@ -401,7 +399,7 @@ dissect_messageid(tvbuff_t *buffer, int *offset, proto_tree *tree, packet_info *
 /**
  * dissect_payload is a utility function which
  * calculates the actual payload of the message.
- * 
+ *
  * @see dissect_packetid()
  * @see dissect_reliable_message_index_base()
  * @see dissect_content_length()
@@ -460,7 +458,7 @@ dissect_payload(tvbuff_t *buffer, int offset, int messageid, proto_tree *tree, i
  * by dissect_knet when the dissector has dissected the
  * datagram header. This subdissector dissects all of the
  * messages which are encapsulated in the kNet datagram.
- * 
+ *
  * @see dissect_knet()
  * @param tvb the buffer to the data
  * @param pinfo the packet info structure
@@ -508,7 +506,7 @@ dissect_knet_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 /**
  * dissect_knet is the dissector which is called
  * by Wireshark when kNet packets are captured. Here
- * is dissected the SCTP and TCP packets in its own 
+ * is dissected the SCTP and TCP packets in its own
  * section and UDP packets in its own, because UDP
  * packets differ quite a lot from SCTP and TCP.
  * SCTP and TCP in the other hand has quite the same
@@ -558,7 +556,7 @@ dissect_knet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if(current_protocol == KNET_SCTP_PACKET || current_protocol == KNET_TCP_PACKET)
     {
         /* Attach kNet main tree to Wireshark tree */
-        knet_ti = proto_tree_add_item(tree, proto_knet, tvb, 0, -1, ENC_NA); 
+        knet_ti = proto_tree_add_item(tree, proto_knet, tvb, 0, -1, ENC_NA);
         knet_tree = proto_item_add_subtree(knet_ti, ett_knet_main);
 
         next_tvb = tvb_new_subset(tvb, offset, -1, -1); /* Prepare the next tvb for the next message */
@@ -671,7 +669,7 @@ get_knet_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 /**
  * dissect_knet_tcp is the dissector which is called
  * by Wireshark when kNet TCP packets are captured.
- * 
+ *
  * @param tvb the buffer to the data
  * @param pinfo the packet info structure
  * @param tree the parent tree where the dissected data is going to be inserted
@@ -689,7 +687,7 @@ dissect_knet_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /**
  * dissect_knet_sctp is the dissector which is called
  * by Wireshark when kNet STCP packets are captured.
- * 
+ *
 
  * @param tvb the buffer to the data
  * @param pinfo the packet info structure
@@ -709,7 +707,7 @@ dissect_knet_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /**
  * dissect_knet_udp is the dissector which is called
  * by Wireshark when kNet UDP packets are captured.
- * 
+ *
 
  * @param tvb the buffer to the data
  * @param pinfo the packet info structure
@@ -728,7 +726,7 @@ dissect_knet_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /**
  * proto_register_knet registers our kNet protocol,
  * headerfield- and subtree-array to Wireshark.
- * 
+ *
  * @return void
  *
  */
@@ -739,31 +737,74 @@ proto_register_knet(void)
 
     static hf_register_info hf_knet[] =
     {
-        /* TCP & SCTP Header */ 
-        {&hf_knet_content_length, {"Content Length",      "knet.length",              FT_UINT32, BASE_DEC,  NULL, 0x0, NULL, HFILL}},
-        {&hf_knet_message_tree,   {"Message Block",       "knet.msg",        FT_NONE,   BASE_NONE, NULL, 0x0, NULL, HFILL}},
+        /* TCP & SCTP Header */
+        {&hf_knet_content_length,
+         {"Content Length",      "knet.length",
+          FT_UINT32, BASE_DEC,  NULL, 0x0, NULL, HFILL}},
+        {&hf_knet_message_tree,
+         {"Message Block",       "knet.msg",
+        FT_NONE,   BASE_NONE, NULL, 0x0, NULL, HFILL}},
+
         /* UDP Header */
-        {&hf_knet_datagram_tree,              {"Datagram Header",             "knet.datagram",            FT_NONE,   BASE_NONE, NULL, 0x0, NULL, HFILL}},
-        {&hf_knet_flags,                      {"Flags",                       "knet.datagram.flags",      FT_NONE,   BASE_NONE, NULL, 0x0, NULL, HFILL}},
-        {&hf_knet_inorder,                    {"Inorder Flag",                "knet.datagram.inorder",    FT_UINT8,  BASE_DEC,  NULL, 0x0, NULL, HFILL}},
-        {&hf_knet_reliable,                   {"Reliable Flag",               "knet.datagram.reliable",   FT_UINT8,  BASE_DEC,  NULL, 0x0, NULL, HFILL}},
-        {&hf_knet_packetid,                   {"Packet ID",                   "knet.datagram.packetid",   FT_UINT24, BASE_DEC,  NULL, 0x0, NULL, HFILL}},
-        {&hf_knet_rmib,                       {"Reliable Message Index Base", "knet.datagram.rmib",       FT_UINT32, BASE_DEC,  NULL, 0x0, NULL, HFILL}},
-        {&hf_knet_msg_flags,                  {"Flags",                       "knet.msg.flags",           FT_NONE,   BASE_NONE, NULL, 0x0, NULL, HFILL}},
-        {&hf_knet_msg_fs,                     {"Fragment Start",              "knet.msg.flags.fs",        FT_UINT8,  BASE_DEC,  NULL, 0x0, NULL, HFILL}},
-        {&hf_knet_msg_ff,                     {"Fragment Flag",               "knet.msg.flags.ff",        FT_UINT8,  BASE_DEC,  NULL, 0x0, NULL, HFILL}},
-        {&hf_knet_msg_inorder,                {"Inorder Flag",                "knet.msg.flags.inorder",   FT_UINT8,  BASE_DEC,  NULL, 0x0, NULL, HFILL}},
-        {&hf_knet_msg_reliable,               {"Reliable Flag",               "knet.msg.flags.reliable",  FT_UINT8,  BASE_DEC,  NULL, 0x0, NULL, HFILL}},
-        {&hf_knet_msg_reliable_message_number, {"Reliable Message Number",     "knet.msg.reliable_number", FT_UINT24, BASE_DEC,  NULL, 0x0, NULL, HFILL}},
+        {&hf_knet_datagram_tree,
+         {"Datagram Header",             "knet.datagram",
+          FT_NONE,   BASE_NONE, NULL, 0x0, NULL, HFILL}},
+        {&hf_knet_flags,
+         {"Flags",                       "knet.datagram.flags",
+          FT_NONE,   BASE_NONE, NULL, 0x0, NULL, HFILL}},
+        {&hf_knet_inorder,
+         {"Inorder Flag",                "knet.datagram.inorder",
+          FT_UINT8,  BASE_DEC,  NULL, 0x0, NULL, HFILL}},
+        {&hf_knet_reliable,
+         {"Reliable Flag",               "knet.datagram.reliable",
+          FT_UINT8,  BASE_DEC,  NULL, 0x0, NULL, HFILL}},
+        {&hf_knet_packetid,
+         {"Packet ID",                   "knet.datagram.packetid",
+          FT_UINT24, BASE_DEC,  NULL, 0x0, NULL, HFILL}},
+        {&hf_knet_rmib,
+         {"Reliable Message Index Base", "knet.datagram.rmib",
+          FT_UINT32, BASE_DEC,  NULL, 0x0, NULL, HFILL}},
+        {&hf_knet_msg_flags,
+         {"Flags",                       "knet.msg.flags",
+          FT_NONE,   BASE_NONE, NULL, 0x0, NULL, HFILL}},
+        {&hf_knet_msg_fs,
+         {"Fragment Start",              "knet.msg.flags.fs",
+          FT_UINT8,  BASE_DEC,  NULL, 0x0, NULL, HFILL}},
+        {&hf_knet_msg_ff,
+         {"Fragment Flag",               "knet.msg.flags.ff",
+          FT_UINT8,  BASE_DEC,  NULL, 0x0, NULL, HFILL}},
+        {&hf_knet_msg_inorder,
+         {"Inorder Flag",                "knet.msg.flags.inorder",
+          FT_UINT8,  BASE_DEC,  NULL, 0x0, NULL, HFILL}},
+        {&hf_knet_msg_reliable,
+         {"Reliable Flag",               "knet.msg.flags.reliable",
+          FT_UINT8,  BASE_DEC,  NULL, 0x0, NULL, HFILL}},
+        {&hf_knet_msg_reliable_message_number,
+         {"Reliable Message Number",     "knet.msg.reliable_number",
+          FT_UINT24, BASE_DEC,  NULL, 0x0, NULL, HFILL}},
 
         /* Payload */
-        {&hf_knet_payload_tree,   {"Payload",             "knet.payload.tree",        FT_NONE,   BASE_NONE, NULL, 0x0, NULL, HFILL}},
-        {&hf_knet_payload,        {"Payload",             "knet.payload.data",        FT_BYTES,   BASE_NONE, NULL, 0x0, NULL, HFILL}},
-        {&hf_knet_messageid,      {"Message ID",          "knet.payload.messageid",   FT_BYTES,  BASE_NONE, NULL, 0x0, NULL, HFILL}},
-        {&hf_knet_pingid,         {"Ping ID",             "knet.payload.pingid",      FT_UINT8,  BASE_DEC,  NULL, 0x0, NULL, HFILL}}, 
-        {&hf_knet_flowctrlreq,    {"Flowcontrol Request", "knet.payload.flowctrlreq", FT_UINT24, BASE_DEC,  NULL, 0x0, NULL, HFILL}},
-        {&hf_knet_packetack,      {"Packet Ack",          "knet.payload.packetack",   FT_UINT24, BASE_DEC,  NULL, 0x0, NULL, HFILL}},
-        {&hf_knet_seqnumber,      {"Sequence Number",     "knet.payload.seqnumber",   FT_UINT32, BASE_DEC,  NULL, 0x0, NULL, HFILL}}
+        {&hf_knet_payload_tree,
+         {"Payload",             "knet.payload.tree",
+          FT_NONE,   BASE_NONE, NULL, 0x0, NULL, HFILL}},
+        {&hf_knet_payload,
+         {"Payload",             "knet.payload.data",
+          FT_BYTES,   BASE_NONE, NULL, 0x0, NULL, HFILL}},
+        {&hf_knet_messageid,
+         {"Message ID",          "knet.payload.messageid",
+          FT_BYTES,  BASE_NONE, NULL, 0x0, NULL, HFILL}},
+        {&hf_knet_pingid,
+         {"Ping ID",             "knet.payload.pingid",
+          FT_UINT8,  BASE_DEC,  NULL, 0x0, NULL, HFILL}},
+        {&hf_knet_flowctrlreq,
+         {"Flowcontrol Request", "knet.payload.flowctrlreq",
+          FT_UINT24, BASE_DEC,  NULL, 0x0, NULL, HFILL}},
+        {&hf_knet_packetack,
+         {"Packet Ack",          "knet.payload.packetack",
+          FT_UINT24, BASE_DEC,  NULL, 0x0, NULL, HFILL}},
+        {&hf_knet_seqnumber,
+         {"Sequence Number",     "knet.payload.seqnumber",
+          FT_UINT32, BASE_DEC,  NULL, 0x0, NULL, HFILL}}
     };
 
     static gint *ett_knet[] =
@@ -792,11 +833,11 @@ proto_register_knet(void)
     prefs_register_uint_preference(knet_module, "sctp.port", "kNet SCTP Port",
                                    "Set the SCTP port for kNet messages",
                                    10, &knet_sctp_port);
-                                   
+
     prefs_register_uint_preference(knet_module, "tcp.port", "kNet TCP Port",
                                    "Set the TCP port for kNet messages",
                                    10, &knet_tcp_port);
-                                   
+
     prefs_register_uint_preference(knet_module, "udp.port", "kNet UDP Port",
                                    "Set the UDP port for kNet messages",
                                    10, &knet_udp_port);

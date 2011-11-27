@@ -33,11 +33,9 @@
 
 #include <glib.h>
 
+#include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/emem.h>
-#include <epan/packet.h>
-#include <epan/prefs.h>
-
 
 #define SPICE_MAGIC 0x52454451 /* = "REDQ" */
 
@@ -1499,9 +1497,11 @@ dissect_SpiceRect(tvbuff_t *tvb, proto_tree *tree, const guint32 offset, const g
 
     if (tree) {
         if (id != -1) {
-            ti = proto_tree_add_text(tree, tvb, offset, sizeof_SpiceRect, "RECT %u: (%u-%u, %u-%u)", id, rect.left, rect.top, rect.right, rect.bottom);
+            ti = proto_tree_add_text(tree, tvb, offset, sizeof_SpiceRect,
+                                     "RECT %u: (%u-%u, %u-%u)", id, rect.left, rect.top, rect.right, rect.bottom);
         } else { /* single rectangle */
-            ti = proto_tree_add_text(tree, tvb, offset, sizeof_SpiceRect, "RECT: (%u-%u, %u-%u)", rect.left, rect.top, rect.right, rect.bottom);
+            ti = proto_tree_add_text(tree, tvb, offset, sizeof_SpiceRect,
+                                     "RECT: (%u-%u, %u-%u)", rect.left, rect.top, rect.right, rect.bottom);
         }
         rect_tree = proto_item_add_subtree(ti, ett_rect);
 
@@ -1529,7 +1529,8 @@ dissect_RectList(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     const guint32 rectlist_size = tvb_get_letohl(tvb, offset);
 
     if (tree) {
-        ti = proto_tree_add_text(tree, tvb, offset, 4 + (rectlist_size * sizeof_SpiceRect), "RectList (%d rects)", rectlist_size);
+        ti = proto_tree_add_text(tree, tvb, offset, 4 + (rectlist_size * sizeof_SpiceRect),
+                                 "RectList (%d rects)", rectlist_size);
         rectlist_tree = proto_item_add_subtree(ti, ett_rectlist);
 
         proto_tree_add_item(rectlist_tree, hf_rectlist_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -1656,7 +1657,9 @@ dissect_Brush(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
             brush_tree = proto_item_add_subtree(ti, ett_brush);
             proto_tree_add_item(brush_tree, hf_brush_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
-            /* FIXME: this is supposed to be the offset to the image to be used as the pattern. For now the hack is that callers check if the returned size was not 5 (therefore SOLID, it's a pattern and later on dissect the image. That's bad. Really. */
+            /* FIXME: this is supposed to be the offset to the image to be used as the pattern.        */
+            /* For now the hack is that callers check if the returned size was not 5 (therefore SOLID, */
+            /* it's a pattern and later on dissect the image. That's bad. Really. */
             dissect_ID(tvb, brush_tree, offset);
             offset += 4;
             dissect_POINT32(tvb, brush_tree, offset);
@@ -1843,7 +1846,8 @@ dissect_spice_common_server_messages(tvbuff_t *tvb, proto_tree *tree, const guin
             proto_tree_add_item(server_message_tree, hf_red_timestamp, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             offset += 8;
             if (total_message_size > 12) {
-                proto_tree_add_text(server_message_tree, tvb, offset, total_message_size - 12, "PING DATA (%d bytes)", total_message_size - 12);
+                proto_tree_add_text(server_message_tree, tvb, offset, total_message_size - 12,
+                                    "PING DATA (%d bytes)", total_message_size - 12);
                 offset += (total_message_size - 12);
             }
             break;
@@ -1854,10 +1858,12 @@ dissect_spice_common_server_messages(tvbuff_t *tvb, proto_tree *tree, const guin
             offset += 8;
             /* TODO: properly dissect severity and visibility flags, using hf_ and proto_tree_add_item */
             severity = tvb_get_letohl(tvb, offset);
-            proto_tree_add_text(server_message_tree, tvb, offset, 4, "Severity: %s (%d)", val_to_str_const(severity, spice_severity_vs, "unknown severity"), severity);
+            proto_tree_add_text(server_message_tree, tvb, offset, 4,
+                                "Severity: %s (%d)", val_to_str_const(severity, spice_severity_vs, "unknown severity"), severity);
             offset += 4;
             visibility = tvb_get_letohl(tvb, offset);
-            proto_tree_add_text(server_message_tree, tvb, offset, 4, "Visibility: %s (%d)", val_to_str_const(visibility, spice_visibility_vs, "unknown visibility"), visibility);
+            proto_tree_add_text(server_message_tree, tvb, offset, 4,
+                                "Visibility: %s (%d)", val_to_str_const(visibility, spice_visibility_vs, "unknown visibility"), visibility);
             offset += 4;
             /*TODO: based on severity, dissect the error code */
             proto_tree_add_text(server_message_tree, tvb, offset, 4, "error/warning/info code: %d", tvb_get_letohl(tvb, offset));
@@ -2347,7 +2353,8 @@ dissect_spice_main_server(tvbuff_t *tvb, proto_tree *tree, const guint16 message
             offset += 4;
             for (i = 1; i <= num_channels; i++ ) {
                 channel_type = tvb_get_guint8(tvb, offset);
-                proto_tree_add_text(tree, tvb, offset, 1, "Type: %s [%d]", val_to_str_const(channel_type, channel_types_vs, "Unknown"), channel_type);
+                proto_tree_add_text(tree, tvb, offset, 1,
+                                    "Type: %s [%d]", val_to_str_const(channel_type, channel_types_vs, "Unknown"), channel_type);
                 offset += 1;
                 proto_tree_add_text(tree, tvb, offset, 1, "\tID: %d", tvb_get_guint8(tvb, offset));
                 offset += 1;
@@ -2539,7 +2546,10 @@ dissect_spice_data_server_pdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
     message_type = tvb_get_letohs(tvb, offset + 8);
     message_size = tvb_get_letohl(tvb, offset + 10);
 
-    msg_ti = proto_tree_add_text(tree, tvb, offset, 0, "%s (%d bytes)", get_message_type_string(message_type, spice_info, FALSE), message_size + sizeof_SpiceDataHeader);
+    msg_ti = proto_tree_add_text(tree, tvb, offset, 0,
+                                 "%s (%d bytes)",
+                                 get_message_type_string(message_type, spice_info, FALSE),
+                                 message_size + sizeof_SpiceDataHeader);
     message_tree = proto_item_add_subtree(msg_ti, ett_message);
 
     ti = proto_tree_add_item(message_tree, hf_data, tvb, offset, sizeof_SpiceDataHeader, ENC_NA);
@@ -2584,7 +2594,10 @@ dissect_spice_data_server_pdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
     }
 
     if((offset - old_offset) != message_size) {
-        g_warning("dissect_spice_data_server_pdu() - FIXME:message type %s (%u) in packet %d was not fully dissected - dissected %d (offset %d [0x%x], total message size: %d).\r\n", get_message_type_string(message_type, spice_info, FALSE), message_type, pinfo->fd->num, offset - old_offset, offset, offset, message_size + sizeof_SpiceDataHeader);
+        g_warning("dissect_spice_data_server_pdu() - FIXME:message type %s (%u) in packet %d was not fully dissected"
+                  " - dissected %d (offset %d [0x%x], total message size: %d).\r\n",
+                  get_message_type_string(message_type, spice_info, FALSE),
+                  message_type, pinfo->fd->num, offset - old_offset, offset, offset, message_size + sizeof_SpiceDataHeader);
         offset = old_offset + message_size;
     }
 
@@ -2609,7 +2622,8 @@ dissect_spice_data_client_pdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
     col_append_str(pinfo->cinfo, COL_INFO, get_message_type_string(message_type, spice_info, TRUE));
     offset += sizeof_SpiceDataHeader;
 
-    /* TODO: deal with sub-messages list first. As implementation does not uses sub-messsages list yet, it cannot be implemented in the dissector yet.*/
+    /* TODO: deal with sub-messages list first. As implementation does not uses sub-messsages list yet, */
+    /*       it cannot be implemented in the dissector yet. */
 
     if (message_type < SPICE_FIRST_AVAIL_MESSAGE) { /* this is a common message */
         return dissect_spice_common_client_messages(tvb, tree, message_type, offset);
@@ -2750,14 +2764,18 @@ dissect_spice_link_client_pdu(tvbuff_t *tvb, proto_tree *tree, spice_conversatio
     offset += sizeof_SpiceDataHeader;
 
     if (common_caps_len > 0) {
-        ti = proto_tree_add_text(tree, tvb, offset, common_caps_len * 4, "Common Capabilities (%d bytes)", common_caps_len * 4); /* caps_len multiplied by 4 as length is in UINT32 units */
+        ti = proto_tree_add_text(tree, tvb, offset, common_caps_len * 4,
+                                 "Common Capabilities (%d bytes)",
+                                 common_caps_len * 4); /* caps_len multiplied by 4 as length is in UINT32 units   */
         caps_tree = proto_item_add_subtree(ti, ett_link_caps);
         caps_tree = proto_item_add_subtree(ti, ett_link_caps);
         dissect_spice_common_capabilities(tvb, caps_tree, offset, common_caps_len, spice_info, TRUE);
         offset += (common_caps_len * 4);
     }
     if (channel_caps_len > 0) {
-        ti = proto_tree_add_text(tree, tvb, offset, channel_caps_len * 4, "Channel Capabilities (%d bytes)", channel_caps_len * 4); /* caps_len multiplied by 4 as length is in UINT32 units */
+        ti = proto_tree_add_text(tree, tvb, offset, channel_caps_len * 4,
+                                 "Channel Capabilities (%d bytes)",
+                                 channel_caps_len * 4); /* caps_len multiplied by 4 as length is in UINT32 units    */
         caps_tree = proto_item_add_subtree(ti, ett_link_caps);
         dissect_spice_link_capabilities(tvb, caps_tree, offset, channel_caps_len, spice_info);
     }
@@ -2795,13 +2813,17 @@ dissect_spice_link_server_pdu(tvbuff_t *tvb, proto_tree *tree, spice_conversatio
     offset += sizeof_SpiceLinkHeader + SPICE_TICKET_PUBKEY_BYTES;
 
     if (common_caps_len > 0) {
-        ti = proto_tree_add_text(tree, tvb, offset, common_caps_len * 4, "Common Capabilities (%d bytes)", common_caps_len * 4); /* caps_len multiplied by 4 as length is in UINT32 units */
+        ti = proto_tree_add_text(tree, tvb, offset, common_caps_len * 4,
+                                 "Common Capabilities (%d bytes)",
+                                 common_caps_len * 4); /* caps_len multiplied by 4 as length is in UINT32 units */
         caps_tree = proto_item_add_subtree(ti, ett_link_caps);
         dissect_spice_common_capabilities(tvb, caps_tree, offset, common_caps_len, spice_info, FALSE);
         offset += (common_caps_len * 4);
     }
     if (channel_caps_len > 0) {
-        ti = proto_tree_add_text(tree, tvb, offset, channel_caps_len * 4, "Channel Capabilities (%d bytes)", channel_caps_len * 4); /* caps_len multiplied by 4 as length is in UINT32 units */
+        ti = proto_tree_add_text(tree, tvb, offset, channel_caps_len * 4,
+                                 "Channel Capabilities (%d bytes)",
+                                 channel_caps_len * 4); /* caps_len multiplied by 4 as length is in UINT32 units */
         caps_tree = proto_item_add_subtree(ti, ett_link_caps);
         dissect_spice_link_capabilities(tvb, caps_tree, offset, channel_caps_len, spice_info);
     }
@@ -2860,7 +2882,8 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 spice_tree = proto_item_add_subtree(ti, ett_spice);
             }
             dissect_spice_link_client_pdu(tvb, spice_tree, spice_info);
-            col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "Spice %s", val_to_str_const(spice_info->channel_type,channel_types_vs, "Unknown"));
+            col_add_fstr(pinfo->cinfo, COL_PROTOCOL,
+                         "Spice %s", val_to_str_const(spice_info->channel_type,channel_types_vs, "Unknown"));
             spice_info->next_state = SPICE_LINK_SERVER;
             return pdu_len;
             break;
@@ -2871,13 +2894,16 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             pdu_len = tvb_get_letohl(tvb, 12) + sizeof_SpiceLinkHeader;
             GET_PDU_FROM_OFFSET(0)
             col_set_str(pinfo->cinfo, COL_INFO, "Server link message");
-            col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "Spice %s", val_to_str_const(spice_info->channel_type,channel_types_vs, "Unknown"));
+            col_add_fstr(pinfo->cinfo, COL_PROTOCOL,
+                         "Spice %s", val_to_str_const(spice_info->channel_type,channel_types_vs, "Unknown"));
             if (tree) {
                 ti = proto_tree_add_item(tree, proto_spice, tvb, 0, pdu_len, ENC_NA);
                 spice_tree = proto_item_add_subtree(ti, ett_spice);
             }
             dissect_spice_link_server_pdu(tvb, spice_tree, spice_info);
-            if (!(spice_info->server_auth & SPICE_COMMON_CAP_PROTOCOL_AUTH_SELECTION_MASK) || !(spice_info->client_auth & SPICE_COMMON_CAP_PROTOCOL_AUTH_SELECTION_MASK)) { /* Server or clients support spice ticket auth only */
+            if (!(spice_info->server_auth & SPICE_COMMON_CAP_PROTOCOL_AUTH_SELECTION_MASK) ||
+                !(spice_info->client_auth & SPICE_COMMON_CAP_PROTOCOL_AUTH_SELECTION_MASK)) {
+                /* Server or clients support spice ticket auth only */
                 spice_info->next_state = SPICE_TICKET_CLIENT;
             } else { /* Protocol selection between client and server */
                 spice_info->next_state = SPICE_CLIENT_AUTH_SELECT;
@@ -2893,7 +2919,8 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             pdu_len = 4;
             GET_PDU_FROM_OFFSET(0)
             col_set_str(pinfo->cinfo, COL_INFO, "Client authentication method selection");
-            col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "Spice %s", val_to_str_const(spice_info->channel_type,channel_types_vs, "Unknown"));
+            col_add_fstr(pinfo->cinfo, COL_PROTOCOL,
+                         "Spice %s", val_to_str_const(spice_info->channel_type,channel_types_vs, "Unknown"));
             if (tree) {
                 ti = proto_tree_add_item(tree, proto_spice, tvb, 0, 4, ENC_NA);
                 spice_tree = proto_item_add_subtree(ti, ett_auth_select_client);
@@ -2923,7 +2950,8 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 ti = proto_tree_add_item(tree, proto_spice, tvb, offset, 4, ENC_NA);
                 spice_tree = proto_item_add_subtree(ti, ett_spice);
             }
-            col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "Spice %s", val_to_str_const(spice_info->channel_type,channel_types_vs, "Unknown"));
+            col_add_fstr(pinfo->cinfo, COL_PROTOCOL,
+                         "Spice %s", val_to_str_const(spice_info->channel_type,channel_types_vs, "Unknown"));
             proto_tree_add_text(spice_tree, tvb, offset, 4, "SASL message length: %u", pdu_len);
             pdu_len += 4;
             GET_PDU_FROM_OFFSET(offset)
@@ -2931,7 +2959,8 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             col_set_str(pinfo->cinfo, COL_INFO, "SASL supported authentication mechanisms (init from server)");
             proto_tree_add_text(spice_tree, tvb, offset, 4, "Supported authentication mechanisms list length: %u", pdu_len - 4);
             offset += 4;
-            proto_tree_add_text(spice_tree, tvb, offset, pdu_len - 4, "Supported authentication mechanisms list: %s", tvb_format_text(tvb, offset, pdu_len - 4));
+            proto_tree_add_text(spice_tree, tvb, offset, pdu_len - 4,
+                                "Supported authentication mechanisms list: %s", tvb_format_text(tvb, offset, pdu_len - 4));
             offset += (pdu_len - 4);
             spice_info->next_state = SPICE_SASL_START_TO_SERVER;
             return offset;
@@ -2946,9 +2975,11 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     ti = proto_tree_add_item(tree, proto_spice, tvb, offset, 4, ENC_NA);
                     spice_tree = proto_item_add_subtree(ti, ett_spice);
                 }
-                col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "Spice %s", val_to_str_const(spice_info->channel_type,channel_types_vs, "Unknown"));
+                col_add_fstr(pinfo->cinfo, COL_PROTOCOL,
+                             "Spice %s", val_to_str_const(spice_info->channel_type,channel_types_vs, "Unknown"));
                 proto_tree_add_text(spice_tree, tvb, offset, 4, "SASL message length: %u", pdu_len);
-                if (pdu_len == 0) { /* meaning, empty PDU - assuming the client_out_list, which may be empty*/
+                if (pdu_len == 0) {
+                    /* meaning, empty PDU - assuming the client_out_list, which may be empty*/
                     col_set_str(pinfo->cinfo, COL_INFO, "SASL authentication (start to server)");
                     spice_info->next_state = SPICE_SASL_START_FROM_SERVER;
                     pdu_len = 4; /* only the size field.*/
@@ -2962,12 +2993,15 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         col_set_str(pinfo->cinfo, COL_INFO, "Client selected SASL authentication mechanism (start to server)");
                         proto_tree_add_text(spice_tree, tvb, offset, 4, "Selected authentication mechanism length: %u", pdu_len - 4);
                         offset += 4;
-                        proto_tree_add_text(spice_tree, tvb, offset, pdu_len - 4, "Selected authentication mechanism: %s", tvb_format_text(tvb, offset, pdu_len - 4));
-                    } else { /* this is the client out list, ending the start from client message */
+                        proto_tree_add_text(spice_tree, tvb, offset, pdu_len - 4,
+                                            "Selected authentication mechanism: %s", tvb_format_text(tvb, offset, pdu_len - 4));
+                    } else {
+                        /* this is the client out list, ending the start from client message */
                          col_set_str(pinfo->cinfo, COL_INFO, "Client out mechanism (start to server)");
                          proto_tree_add_text(spice_tree, tvb, offset, 4, "Client out mechanism length: %u", pdu_len - 4);
                          offset += 4;
-                         proto_tree_add_text(spice_tree, tvb, offset, pdu_len - 4, "Selected client out mechanism: %s", tvb_format_text(tvb, offset, pdu_len - 4));
+                         proto_tree_add_text(spice_tree, tvb, offset, pdu_len - 4,
+                                             "Selected client out mechanism: %s", tvb_format_text(tvb, offset, pdu_len - 4));
                          spice_info->next_state = SPICE_SASL_START_FROM_SERVER;
                     }
                     offset += (pdu_len - 4);
@@ -2987,7 +3021,8 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     ti = proto_tree_add_item(tree, proto_spice, tvb, offset, pdu_len + 4, ENC_NA);
                     spice_tree = proto_item_add_subtree(ti, ett_spice);
                 }
-                col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "Spice %s", val_to_str_const(spice_info->channel_type,channel_types_vs, "Unknown"));
+                col_add_fstr(pinfo->cinfo, COL_PROTOCOL,
+                             "Spice %s", val_to_str_const(spice_info->channel_type,channel_types_vs, "Unknown"));
                 if (per_packet_info->state == SPICE_SASL_START_FROM_SERVER) {
                     col_set_str(pinfo->cinfo, COL_INFO, "SASL authentication (start from server)");
                 } else {
@@ -3021,17 +3056,20 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     ti = proto_tree_add_item(tree, proto_spice, tvb, offset, 1, ENC_NA);
                     spice_tree = proto_item_add_subtree(ti, ett_spice);
                 }
-                col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "Spice %s", val_to_str_const(spice_info->channel_type,channel_types_vs, "Unknown"));
+                col_add_fstr(pinfo->cinfo, COL_PROTOCOL,
+                             "Spice %s", val_to_str_const(spice_info->channel_type,channel_types_vs, "Unknown"));
                 col_set_str(pinfo->cinfo, COL_INFO, "SASL authentication - result from server");
                 sasl_auth_result = tvb_get_guint8(tvb, offset);
                 proto_tree_add_item(spice_tree, hf_spice_sasl_auth_result, tvb, offset, 1, ENC_NA);
                 offset += 1;
 
-                if (per_packet_info->state == SPICE_SASL_START_FROM_SERVER_CONT) { /* if we are in the sasl start, and can continue */
+                if (per_packet_info->state == SPICE_SASL_START_FROM_SERVER_CONT) {
+                    /* if we are in the sasl start, and can continue */
                     if (sasl_auth_result == 0) { /* 0 = continue */
                         spice_info->next_state = SPICE_SASL_STEP_TO_SERVER;
                     } else {
-                        g_warning("SPICE_SASL_START_FROM_SERVER_CONT and sasl_auth_result is %d, packet %d", sasl_auth_result, pinfo->fd->num);
+                        g_warning("SPICE_SASL_START_FROM_SERVER_CONT and sasl_auth_result is %d, packet %d",
+                                  sasl_auth_result, pinfo->fd->num);
                     }
                 } else { /* SPICE_SASL_STEP_FROM_SERVER_CONT state. */
                         spice_info->next_state = SPICE_TICKET_SERVER;
@@ -3050,9 +3088,11 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     ti = proto_tree_add_item(tree, proto_spice, tvb, offset, 4, ENC_NA);
                     spice_tree = proto_item_add_subtree(ti, ett_spice);
                 }
-                col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "Spice %s", val_to_str_const(spice_info->channel_type,channel_types_vs, "Unknown"));
+                col_add_fstr(pinfo->cinfo, COL_PROTOCOL,
+                             "Spice %s", val_to_str_const(spice_info->channel_type,channel_types_vs, "Unknown"));
                 proto_tree_add_text(spice_tree, tvb, offset, 4, "SASL message length: %u", pdu_len);
-                if (pdu_len == 0) { /* meaning, empty PDU - assuming the client_out_list, which may be empty*/
+                if (pdu_len == 0) {
+                    /* meaning, empty PDU - assuming the client_out_list, which may be empty*/
                     col_set_str(pinfo->cinfo, COL_INFO, "SASL authentication from client (step to server)");
                     spice_info->next_state = SPICE_SASL_STEP_FROM_SERVER;
                     pdu_len = 4; /* only the size field.*/
@@ -3064,7 +3104,8 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     col_set_str(pinfo->cinfo, COL_INFO, "Clientout (step to server)");
                     proto_tree_add_text(spice_tree, tvb, offset, 4, "clientout length: %u", pdu_len - 4);
                     offset += 4;
-                    proto_tree_add_text(spice_tree, tvb, offset, pdu_len - 4, "clientout list: %s", tvb_format_text(tvb, offset, pdu_len - 4));
+                    proto_tree_add_text(spice_tree, tvb, offset, pdu_len - 4,
+                                        "clientout list: %s", tvb_format_text(tvb, offset, pdu_len - 4));
                     spice_info->next_state = SPICE_SASL_STEP_FROM_SERVER;
                     offset += (pdu_len - 4);
                 }
@@ -3090,7 +3131,8 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 }
                 GET_PDU_FROM_OFFSET(offset)
                 proto_item_set_len(ti, pdu_len);
-                col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "Spice %s (SASL wrapped)", val_to_str_const(spice_info->channel_type,channel_types_vs, "Unknown"));
+                col_add_fstr(pinfo->cinfo, COL_PROTOCOL,
+                             "Spice %s (SASL wrapped)", val_to_str_const(spice_info->channel_type,channel_types_vs, "Unknown"));
                 col_set_str(pinfo->cinfo, COL_INFO, "SASL wrapped Spice message");
 
                 offset += 4;
@@ -3106,15 +3148,21 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 pdu_len = sizeof_SpiceDataHeader;
                 GET_PDU_FROM_OFFSET(offset)
                 pdu_len = tvb_get_letohl(tvb, offset + 14); /* this is actually the sub-message list size */
-                if (pdu_len == 0) { /* if there are no sub-messages, get the usual message body size. Note that we do not dissect properly yet sub-messages - but they are not used in the protcol either */
+                if (pdu_len == 0) {
+                    /* if there are no sub-messages, get the usual message body size.   */
+                    /* Note that we do not dissect properly yet sub-messages - but they */
+                    /* are not used in the protcol either */
                     pdu_len = tvb_get_letohl(tvb, offset + 10);
                 } else {
                     pdu_len = tvb_get_letohl(tvb, offset + 10);
                 }
-                pdu_len += sizeof_SpiceDataHeader; /* +sizeof_SpiceDataHeader since you need to exclude the SPICE data header, which is sizeof_SpiceDataHeader (18) bytes long) */
+                pdu_len += sizeof_SpiceDataHeader; /* +sizeof_SpiceDataHeader since you need to exclude the SPICE   */
+                                                   /* data header, which is sizeof_SpiceDataHeader (18) bytes long) */
                 GET_PDU_FROM_OFFSET(offset)
-                col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "Spice %s", val_to_str_const(spice_info->channel_type,channel_types_vs, "Unknown"));
-                if (!first_record_in_frame) { /* if it's not the first dissected PDU, we want in COL_INFO to have: "PDU_type_A, PDU_typeB, PDU_typeC, etc. */
+                col_add_fstr(pinfo->cinfo, COL_PROTOCOL,
+                             "Spice %s", val_to_str_const(spice_info->channel_type,channel_types_vs, "Unknown"));
+                if (!first_record_in_frame) {
+                    /* if it's not the first dissected PDU, we want in COL_INFO to have: "PDU_type_A, PDU_typeB, PDU_typeC, etc. */
                     col_append_str(pinfo->cinfo, COL_INFO, ", ");
                 }
                 if (tree && spice_data_tree == NULL) {
@@ -3139,7 +3187,8 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             pdu_len = 128;
             GET_PDU_FROM_OFFSET(0)
             col_set_str(pinfo->cinfo, COL_INFO, "Client ticket");
-            col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "Spice %s", val_to_str_const(spice_info->channel_type,channel_types_vs, "Unknown"));
+            col_add_fstr(pinfo->cinfo, COL_PROTOCOL,
+                         "Spice %s", val_to_str_const(spice_info->channel_type,channel_types_vs, "Unknown"));
             if (tree) {
                 ti = proto_tree_add_item(tree, proto_spice, tvb, 0, 128, ENC_NA);
                 spice_tree = proto_item_add_subtree(ti, ett_ticket_client);
@@ -3155,7 +3204,8 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             pdu_len = 4;
             GET_PDU_FROM_OFFSET(0)
             col_set_str(pinfo->cinfo, COL_INFO, "Server ticket");
-            col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "Spice %s", val_to_str_const(spice_info->channel_type,channel_types_vs, "Unknown"));
+            col_add_fstr(pinfo->cinfo, COL_PROTOCOL,
+                         "Spice %s", val_to_str_const(spice_info->channel_type,channel_types_vs, "Unknown"));
             if (tree) {
                 ti = proto_tree_add_item(tree, proto_spice, tvb, 0, 4, ENC_NA);
                 spice_tree = proto_item_add_subtree(ti, ett_ticket_server);
