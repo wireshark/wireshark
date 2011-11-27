@@ -14106,7 +14106,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_tag_request,
      {"Requested Element ID", "wlan_mgt.tag.request",
-      FT_UINT8, BASE_RANGE_STRING | BASE_DEC, VALS(tag_num_vals), 0,
+      FT_UINT8, BASE_DEC, VALS(tag_num_vals), 0,
       "The list of elements that are to be included in the responding STA Probe Response frame", HFILL }},
 
     {&hf_ieee80211_tclas_up,
