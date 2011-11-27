@@ -36,9 +36,11 @@
 #include <epan/packet.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/prefs.h>
-#include <epan/expert.h>
 
+#if 0
 #define NAMENODE_PORT 8020
+#endif
+
 #define REQUEST_STR "hrpc"
 
 #define SEND_DEC 1936027236
@@ -539,7 +541,7 @@ dissect_hdfs_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         hdfs_tree = proto_item_add_subtree(ti, ett_hdfs);
 
         /* Response */
-        if (pinfo->srcport == NAMENODE_PORT) {
+        if (pinfo->srcport == tcp_port) {
             /* 4 bytes = sequence number */
             proto_tree_add_item(hdfs_tree, hf_hdfs_packetno, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
