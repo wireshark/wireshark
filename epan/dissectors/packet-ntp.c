@@ -132,7 +132,7 @@ static const value_string li_types[] = {
 /* Version info, 3bit field informs about NTP version used in particular
  * packet. According to rfc2030, version info could be only 3 or 4, but I
  * have noticed packets with 1 or even 6 as version numbers. They are
- * produced as a result of ntptrace command. Are those packets mailformed
+ * produced as a result of ntptrace command. Are those packets malformed
  * on purpose? I don't know yet, probably some browsing through ntp sources
  * would help. My solution is to put them as reserved for now.
  */
