@@ -252,8 +252,10 @@ dissect_content_length_vle(tvbuff_t *buffer, int *offset, proto_tree *tree)
         case 4:
             length = tvb_get_bits8(buffer,  ((*offset) + 3) * 8, 8) <<23;
             length += tvb_get_bits8(buffer,  ((*offset) + 2) * 8, 8) <<15;
+            /* FALLTHRU */
         case 2:
             length +=(tvb_get_bits8(buffer,  ((*offset) + 1) * 8, 8) & 127) <<7;
+            /* FALLTHRU */
         case 1:
             length +=(tvb_get_bits8(buffer,  (*offset) * 8, 8) & 127);
         break;
