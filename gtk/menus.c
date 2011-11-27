@@ -4581,7 +4581,7 @@ update_menu_recent_capture_file(GtkWidget *submenu_recent_files) {
         /* Empty list */
         menu_item = gtk_menu_item_new_with_label("No recently used files");
         gtk_menu_shell_append (GTK_MENU_SHELL(submenu_recent_files), menu_item);
-        gtk_widget_set_sensitive(gtk_menu_get_attach_widget(GTK_MENU(menu_item)), FALSE);
+        gtk_widget_set_sensitive(menu_item, FALSE);
         gtk_widget_show (menu_item);
     }
 }
