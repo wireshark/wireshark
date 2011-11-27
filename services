@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2011-11-17
+# 2011-11-23
 # 
 # Note
 # 
@@ -11113,7 +11113,7 @@ hpbladems	5316/tcp	# HPBladeSystem Monitor        [Alan_Minchew]                
 # 5316        udp    Unassigned                                                                                                                       2011-05-16
 hpdevms	5317/tcp	# HP Device Monitor Service    [Alan_Minchew]                            [Alan_Minchew]                                            2011-05-16
 # 5317        udp    Reserved
-pkix-cmc	5318/tcp	# PKIX Certificate Management  [IESG]                                    [IETF_Chair]                                                                        [RFC-ietf-pkix-rfc5272-bis-08]
+pkix-cmc	5318/tcp	# PKIX Certificate Management  [IESG]                                    [IETF_Chair]                                                                        [RFC6402]
 # using CMS (CMC)
 # 5318        udp    Reserved
 # 5319               Unassigned
@@ -11610,7 +11610,10 @@ wherehoo	5859/udp	# WHEREHOO                     [Jim_Youll]                    
 # 5860-5862            Unassigned
 ppsuitemsg	5863/tcp	# PlanetPress Suite Messeng    [Yannick_Fortin]                          [Yannick_Fortin]                                          2006-02
 ppsuitemsg	5863/udp	# PlanetPress Suite Messeng    [Yannick_Fortin]                          [Yannick_Fortin]                                          2006-02
-# 5864-5899            Unassigned
+# 5864-5882            Unassigned
+jute	5883/tcp	# Javascript Unit Test         [Mark_Ethan_Trostler]                     [Mark_Ethan_Trostler]                                     2011-11-23
+# Environment
+# 5884-5899            Unassigned
 rfb	5900/tcp	# Remote Framebuffer           [Tristan_Richardson]                      [Tristan_Richardson]                                      2006-03                   [RFC6143]
 rfb	5900/udp	# Remote Framebuffer           [Tristan_Richardson]                      [Tristan_Richardson]                                      2006-03                   [RFC6143]
 # 5901-5909            Unassigned
@@ -16221,6 +16224,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # RadioEPG: Electronic
 # radioepg                              Programme Guide for radio    [Andy_Buckingham]                         [Andy_Buckingham]                                                                                                                             Defined TXT keys: None
 # services
+# radioport                      tcp    RadioPort Message Service    [Bob_Iannucci]                            [Bob_Iannucci]                                            2011-11-23                                                                          Defined TXT keys: NONE
+# radioport                      udp    RadioPort Message Service    [Bob_Iannucci]                            [Bob_Iannucci]                                            2011-11-23                                                                          Defined TXT keys: NONE
 # raop                                  Remote Audio Output Protocol [BonjourDev]                              [BonjourDev]                                                           2011-10-14                                                             Defined TXT keys: None
 # (AirTunes)
 # rbr                                   RBR Instrument Communication [Greg_Johnson]                            [Greg_Johnson]                                                                                                                                Defined TXT keys: None
@@ -17020,6 +17025,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Bob_Dedrick]                                             Bob Dedrick                                     mailto:bob&staff.prodigy.com
 # [Bob_Dolin]                                               Bob Dolin                                       mailto:bdolin&echelon.com                                     2008-04-10
 # [Bob_Gaddie]                                              Bob Gaddie                                      mailto:bobg&dtn.com
+# [Bob_Iannucci]                                            Bob Iannucci                                    mailto:bob&rail.com                                           2011-11-23
 # [Bob_Janssen]                                             Bob Janssen                                     mailto:bob&res.nl
 # [Bob_Janssen_2]                                           Bob Janssen                                     mailto:b.janssen&ressoftware.com                              2009-11-18
 # [Bob_Kaiser]                                              Bob Kaiser                                      mailto:BKaiser&palindrome.com
@@ -19169,6 +19175,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Mark_Doyle]                                              Mark Doyle                                      mailto:mark&engagecom.com
 # [Mark_E_Fogle]                                            Mark E. Fogle                                   mailto:mefogle&xantel.com
 # [Mark_Ericksen]                                           Mark Ericksen                                   mailto:mark&jiiva.com
+# [Mark_Ethan_Trostler]                                     Mark Ethan Trostler                             mailto:mark&zzo.com                                           2011-11-23
 # [Mark_Farlin]                                             Mark Farlin                                     mailto:mfarlin&peerlogic.com
 # [Mark_Fox]                                                Mark Fox                                        mailto:markf&uplanet.com
 # [Mark_Gamble]                                             Mark Gamble                                     mailto:mark.gamble&sage.com                                   2003-02
