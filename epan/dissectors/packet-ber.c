@@ -1878,7 +1878,7 @@ printf("SEQUENCE dissect_ber_sequence(%s) entered\n",name);
 			if((tvb_get_guint8(tvb, offset)==0)&&(tvb_get_guint8(tvb, offset+1)==0)){
 				/* If the first bytes is 00 00 of a indefenert length field it's a zero length field*/
 				offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &ber_class, &pc, &tag);
-				offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
+				dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
 				proto_item_append_text(item," 0 items");
 				return end_offset;
 				/*
@@ -2200,7 +2200,7 @@ printf("SEQUENCE dissect_ber_old_sequence(%s) entered\n",name);
 			if((tvb_get_guint8(tvb, offset)==0)&&(tvb_get_guint8(tvb, offset+1)==0)){
 				/* If the first bytes is 00 00 of a indefenert length field it's a zero length field*/
 				offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &ber_class, &pc, &tag);
-				offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
+				dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
 				proto_item_append_text(item," 0 items");
 				return end_offset;
 				/*
@@ -3808,7 +3808,7 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n",name);
 		if((ber_class==BER_CLASS_UNI)&&(tag==BER_UNI_TAG_EOC)){
 			/* This is a zero length sequence of*/
 			hoffset = dissect_ber_identifier(actx->pinfo, tree, tvb, hoffset, NULL, NULL, NULL);
-			hoffset = dissect_ber_length(actx->pinfo, tree, tvb, hoffset, NULL, NULL);
+			dissect_ber_length(actx->pinfo, tree, tvb, hoffset, NULL, NULL);
 			return eoffset;
 		}
 		/* verify that this one is the one we want */
@@ -4017,7 +4017,7 @@ printf("SQ OF dissect_ber_old_sq_of(%s) entered\n",name);
 		if((ber_class==BER_CLASS_UNI)&&(tag==BER_UNI_TAG_EOC)){
 			/* This is a zero length sequence of*/
 			hoffset = dissect_ber_identifier(actx->pinfo, tree, tvb, hoffset, NULL, NULL, NULL);
-			hoffset = dissect_ber_length(actx->pinfo, tree, tvb, hoffset, NULL, NULL);
+			dissect_ber_length(actx->pinfo, tree, tvb, hoffset, NULL, NULL);
 			return eoffset;
 		}
 		/* verify that this one is the one we want */
