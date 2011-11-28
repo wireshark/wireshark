@@ -45,6 +45,8 @@ static int hf_mpls_echo_mbz = -1;
 static int hf_mpls_echo_gflags = -1;
 static int hf_mpls_echo_flag_sbz = -1;
 static int hf_mpls_echo_flag_v = -1;
+static int hf_mpls_echo_flag_t = -1;
+static int hf_mpls_echo_flag_r = -1;
 static int hf_mpls_echo_msgtype = -1;
 static int hf_mpls_echo_replymode = -1;
 static int hf_mpls_echo_returncode = -1;
@@ -128,6 +130,24 @@ static int hf_mpls_echo_tlv_rto_ipv6 = -1;
 static int hf_mpls_echo_tlv_reply_tos = -1;
 static int hf_mpls_echo_tlv_reply_tos_mbz = -1;
 static int hf_mpls_echo_tlv_errored_type = -1;
+static int hf_mpls_echo_tlv_ds_map_ingress_if_num = -1;
+static int hf_mpls_echo_tlv_ds_map_egress_if_num = -1;
+static int hf_mpls_echo_lspping_tlv_src_gid = -1;
+static int hf_mpls_echo_lspping_tlv_src_nid = -1;
+static int hf_mpls_echo_lspping_tlv_src_tunnel_no = -1;
+static int hf_mpls_echo_lspping_tlv_lsp_no = -1;
+static int hf_mpls_echo_lspping_tlv_dst_gid = -1;
+static int hf_mpls_echo_lspping_tlv_dst_nid = -1;
+static int hf_mpls_echo_lspping_tlv_dst_tunnel_no = -1;
+static int hf_mpls_echo_lspping_tlv_resv = -1;
+static int hf_mpls_echo_lspping_tlv_src_addr_gid = -1;
+static int hf_mpls_echo_lspping_tlv_src_addr_nid=-1;
+static int hf_mpls_echo_lspping_tlv_pw_serv_identifier = -1;
+static int hf_mpls_echo_lspping_tlv_pw_src_ac_id = -1;
+static int hf_mpls_echo_lspping_tlv_pw_dst_ac_id = -1;
+static int hf_mpls_echo_lspping_tlv_pw_agi_type = -1;
+static int hf_mpls_echo_lspping_tlv_pw_agi_len = -1;
+static int hf_mpls_echo_lspping_tlv_pw_agi_val = -1;
 
 static gint ett_mpls_echo = -1;
 static gint ett_mpls_echo_gflags = -1;
@@ -184,6 +204,11 @@ static const value_string mpls_echo_returncode[] = {
 #define TLV_REPLY_TOS              0x000A
 #define TLV_RTO_IPv4               0x000B
 #define TLV_RTO_IPv6               0x000C
+/* As per RFC 6426 http://tools.ietf.org/html/rfc6426 Section: 2.2.1 */
+#define TLV_SRC_IDENTIFIER         0x000D
+#define TLV_DST_IDENTIFIER         0x000E
+/* As per RFC 6426 http://tools.ietf.org/html/rfc6426 Section: 7.3 */
+#define TLV_REVERSE_PATH_FEC_STACK 0x0010
 #define TLV_VENDOR_PRIVATE_START   0xFC00
 #define TLV_VENDOR_PRIVATE_END     0xFFFF
 
@@ -202,6 +227,9 @@ static const value_string mpls_echo_tlv_type_names[] = {
   { TLV_RTO_IPv4,                  "IPv4 Reply-to Object" },
   { TLV_RTO_IPv6,                  "IPv6 Reply-to Object" },
   { TLV_VENDOR_PRIVATE_START,      "Vendor Private" },
+  { TLV_REVERSE_PATH_FEC_STACK,    "Reverse-path Target FEC Stack" },
+  { TLV_SRC_IDENTIFIER,            "Source Identifier TLV" },
+  { TLV_DST_IDENTIFIER,            "Destination Identifier TLV" },
   { 0, NULL}
 };
 
@@ -221,6 +249,9 @@ static const value_string mpls_echo_tlv_type_names[] = {
 #define TLV_FEC_STACK_GEN_IPv4    14
 #define TLV_FEC_STACK_GEN_IPv6    15
 #define TLV_FEC_STACK_NIL         16
+/*As per RFC 6426, http://tools.ietf.org/html/rfc6426 Section: 2.3 */
+#define TLV_FEC_STACK_STATIC_LSP  22
+#define TLV_FEC_STACK_STATIC_PW   23
 #define TLV_FEC_VENDOR_PRIVATE_START   0xFC00
 #define TLV_FEC_VENDOR_PRIVATE_END     0xFFFF
 
@@ -242,6 +273,8 @@ static const value_string mpls_echo_tlv_fec_names[] = {
   { TLV_FEC_STACK_GEN_IPv4,    "Generic IPv4 prefix"},
   { TLV_FEC_STACK_GEN_IPv6,    "Generic IPv6 prefix"},
   { TLV_FEC_STACK_NIL,         "Nil FEC"},
+  { TLV_FEC_STACK_STATIC_LSP,  "Static LSP"},
+  { TLV_FEC_STACK_STATIC_PW,   "Static Pseudowire"},
   { TLV_FEC_VENDOR_PRIVATE_START, "Vendor Private"},
   { 0, NULL}
 };
@@ -256,12 +289,15 @@ static const value_string mpls_echo_tlv_pad[] = {
 #define TLV_ADDR_UNNUM_IPv4	2
 #define TLV_ADDR_IPv6		3
 #define TLV_ADDR_UNNUM_IPv6	4
+/* As per RFC 6426, http://tools.ietf.org/html/rfc6426 Section: 2.1 */
+#define TLV_ADDR_NONIP		5
 
 static const value_string mpls_echo_tlv_addr_type[] = {
   {TLV_ADDR_IPv4,	"IPv4 Numbered"},
   {TLV_ADDR_UNNUM_IPv4,	"IPv4 Unnumbered"},
   {TLV_ADDR_IPv6,	"IPv6 Numbered"},
   {TLV_ADDR_UNNUM_IPv6,	"IPv6 Unnumbered"},
+  {TLV_ADDR_NONIP,      "Non IP"},
   {0, NULL}
 };
 
@@ -494,7 +530,40 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
 	                nil_idx++;
 	        }
 		break;
-
+	    case TLV_FEC_STACK_STATIC_LSP:
+		proto_tree_add_item (tlv_fec_tree, hf_mpls_echo_lspping_tlv_src_gid, 
+				     tvb, (offset + 4), 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item (tlv_fec_tree, hf_mpls_echo_lspping_tlv_src_nid, 
+                                     tvb, (offset + 8), 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item (tlv_fec_tree, hf_mpls_echo_lspping_tlv_src_tunnel_no,
+                                     tvb, (offset + 12), 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item (tlv_fec_tree, hf_mpls_echo_lspping_tlv_lsp_no, 
+			             tvb, (offset + 14), 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item (tlv_fec_tree, hf_mpls_echo_lspping_tlv_dst_gid, 
+				     tvb, (offset + 16), 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item (tlv_fec_tree, hf_mpls_echo_lspping_tlv_dst_nid, 
+				     tvb, (offset + 20), 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item (tlv_fec_tree, hf_mpls_echo_lspping_tlv_dst_tunnel_no, 
+				     tvb, (offset + 24), 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item (tlv_fec_tree, hf_mpls_echo_lspping_tlv_resv, 
+				     tvb, (offset + 26), 2, ENC_BIG_ENDIAN);
+  	        break;
+	    case TLV_FEC_STACK_STATIC_PW:
+                proto_tree_add_item (tlv_fec_tree, hf_mpls_echo_lspping_tlv_pw_serv_identifier,
+                                     tvb, (offset + 4), 8, ENC_BIG_ENDIAN);
+                proto_tree_add_item (tlv_fec_tree, hf_mpls_echo_lspping_tlv_src_gid, 
+				     tvb, (offset + 12), 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item (tlv_fec_tree, hf_mpls_echo_lspping_tlv_src_nid, 
+				     tvb, (offset + 16), 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item (tlv_fec_tree, hf_mpls_echo_lspping_tlv_pw_src_ac_id, 
+			             tvb, (offset + 20), 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item (tlv_fec_tree, hf_mpls_echo_lspping_tlv_dst_gid, 
+			             tvb, (offset + 24), 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item (tlv_fec_tree, hf_mpls_echo_lspping_tlv_dst_nid, 
+				     tvb, (offset + 28), 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item (tlv_fec_tree, hf_mpls_echo_lspping_tlv_pw_dst_ac_id, 
+			             tvb, (offset + 32), 4, ENC_BIG_ENDIAN);
+                break;
             case TLV_FEC_STACK_RES:
             case TLV_FEC_STACK_VPN_IPv4:
             case TLV_FEC_STACK_VPN_IPv6:
@@ -579,6 +648,12 @@ dissect_mpls_echo_tlv_ds_map(tvbuff_t *tvb, guint offset, proto_tree *tree, int 
                                 offset + 20, 16, ENC_NA);
 		rem -= 24;
 		offset += 24;
+                break;
+	case TLV_ADDR_NONIP :
+                proto_tree_add_item (tree, hf_mpls_echo_tlv_ds_map_ingress_if_num, tvb,
+				     (offset + 4), 4, ENC_BIG_ENDIAN);
+	        proto_tree_add_item (tree, hf_mpls_echo_tlv_ds_map_egress_if_num, tvb,
+                                     (offset + 8), 4, ENC_BIG_ENDIAN);
                 break;
 	default:
                 proto_tree_add_text(tree, tvb, offset + 4, 8,
@@ -950,6 +1025,21 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem, gb
 			proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_reply_tos_mbz, tvb,
 				offset + 5, 3, ENC_BIG_ENDIAN);
 			break;
+	        case TLV_SRC_IDENTIFIER:
+                        proto_tree_add_item (mpls_echo_tlv_tree, hf_mpls_echo_lspping_tlv_src_addr_gid, 
+                                             tvb, (offset + 4), 4, ENC_BIG_ENDIAN);
+                        proto_tree_add_item (mpls_echo_tlv_tree, hf_mpls_echo_lspping_tlv_src_addr_nid, 
+                                             tvb, (offset + 8), 4, ENC_BIG_ENDIAN);
+                        break; 
+                case TLV_DST_IDENTIFIER:
+                        proto_tree_add_item (mpls_echo_tlv_tree, hf_mpls_echo_lspping_tlv_src_addr_gid,
+                                             tvb, (offset + 4), 4, ENC_BIG_ENDIAN);
+                        proto_tree_add_item (mpls_echo_tlv_tree, hf_mpls_echo_lspping_tlv_src_addr_nid,
+                                             tvb, (offset + 8), 4, ENC_BIG_ENDIAN);
+                        break;
+                case TLV_REVERSE_PATH_FEC_STACK:
+                        dissect_mpls_echo_tlv_fec (tvb, (offset + 4), mpls_echo_tlv_tree, length);
+                        break ;
                 case TLV_ERROR_CODE:
                 default:
                         proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_value, tvb,
@@ -966,7 +1056,7 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem, gb
 /*
  * Dissector for MPLS Echo (LSP PING) packets
  */
-static void
+void
 dissect_mpls_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int offset = 0, rem = 0, len;
@@ -1025,6 +1115,10 @@ dissect_mpls_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			hf_mpls_echo_flag_sbz, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 		    proto_tree_add_item(mpls_echo_gflags,
 			hf_mpls_echo_flag_v, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+		    proto_tree_add_item (mpls_echo_gflags,
+                        hf_mpls_echo_flag_t, tvb, (offset + 2), 2, ENC_BIG_ENDIAN);
+		    proto_tree_add_item (mpls_echo_gflags,
+                        hf_mpls_echo_flag_r, tvb, (offset + 2), 2, ENC_BIG_ENDIAN);
 		} else {
 		    proto_tree_add_item(mpls_echo_tree,
 			hf_mpls_echo_mbz, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
@@ -1091,11 +1185,19 @@ proto_register_mpls_echo(void)
                 },
                 { &hf_mpls_echo_flag_sbz,
                         { "Reserved", "mpls_echo.flag_sbz",
-                        FT_UINT16, BASE_HEX, NULL, 0xFFFE, "MPLS ECHO Reserved Flags", HFILL}
+                        FT_UINT16, BASE_HEX, NULL, 0xFFF8, "MPLS ECHO Reserved Flags", HFILL}
                 },
                 { &hf_mpls_echo_flag_v,
                         { "Validate FEC Stack", "mpls_echo.flag_v",
                         FT_BOOLEAN, 16, NULL, 0x0001, "MPLS ECHO Validate FEC Stack Flag", HFILL}
+                },
+		 { &hf_mpls_echo_flag_t,
+                        { "Respond only if TTL expired", "mpls_echo.flag_t",
+                        FT_BOOLEAN, 16, NULL, 0x0002, "MPLS ECHO Respond only if TTL expired Flag", HFILL}
+                },
+		 { &hf_mpls_echo_flag_r,
+                        { "Validate Reverse Path", "mpls_echo.flag_r",
+                        FT_BOOLEAN, 16, NULL, 0x0004, "MPLS ECHO Validate Reverse Path Flag", HFILL}
                 },
                 { &hf_mpls_echo_msgtype,
                         { "Message Type", "mpls_echo.msg_type",
@@ -1435,6 +1537,80 @@ proto_register_mpls_echo(void)
                         { "Errored TLV Type", "mpls_echo.tlv.errored.type",
                         FT_UINT16, BASE_DEC, VALS(mpls_echo_tlv_type_names), 0x0,
                         "MPLS ECHO TLV Errored TLV Type", HFILL}
+                },
+		 { &hf_mpls_echo_tlv_ds_map_ingress_if_num,
+                        { "Ingress Interface Number", "mpls_echo.tlv.ds_map.ingress.if.num",
+                        FT_UINT32, BASE_DEC, NULL, 0x0, 
+			 "MPLS ECHO TLV DownStream Map Ingress Interface Number", HFILL}
+                },
+		 { &hf_mpls_echo_tlv_ds_map_egress_if_num,
+                        { "Egress Interface Number", "mpls_echo.tlv.ds_map.egress.if.num",
+                        FT_UINT32, BASE_DEC, NULL, 0x0, 
+                        "MPLS ECHO TLV DownStream Map Egress Interface Number", HFILL}
+                },
+                { &hf_mpls_echo_lspping_tlv_src_gid,
+                        { "SRC GLOBAL ID", "mpls_echo_lspping.tlv.src.gid",
+                        FT_UINT32, BASE_DEC, NULL, 0x0, "LSP SRC  GID", HFILL}
+                },
+                { &hf_mpls_echo_lspping_tlv_src_nid,
+                        { "SRC NODE ID", "mpls_echo_lspping.tlv.src.nid",
+                        FT_IPv4, BASE_NONE, NULL, 0x0, "LSP SRC NID", HFILL}
+                },
+                { &hf_mpls_echo_lspping_tlv_src_tunnel_no,
+                        { "SRC Tunnel Number", "mpls_echo_lspping.tlv.tunnel.no",
+                        FT_UINT16, BASE_DEC, NULL, 0x0, "LSP FEC Tunnel Number", HFILL}
+                },
+                { &hf_mpls_echo_lspping_tlv_lsp_no,
+                        { "SRC LSP Number", "mpls_echo_lspping.tlv.lsp.no",
+                        FT_UINT16, BASE_DEC, NULL, 0x0, "LSP FEC LSP  Number", HFILL}
+		 },
+		 { &hf_mpls_echo_lspping_tlv_dst_gid,
+                        { "DST GLOBAL ID", "mpls_echo_lspping.tlv.dst.gid",
+                        FT_UINT32, BASE_DEC, NULL, 0x0, "LSP FEC DST  GID", HFILL}
+                },
+		 { &hf_mpls_echo_lspping_tlv_dst_nid,
+                        { "DST NODE ID", "mpls_echo_lspping.tlv.dst.nid",
+                        FT_IPv4, BASE_NONE, NULL, 0x0, "LSP FEC DST NID", HFILL}
+                },
+		 { &hf_mpls_echo_lspping_tlv_dst_tunnel_no,
+                        { "DST Tunnel Number", "mpls_echo_lspping.tlv.dst.tunnel.no",
+                        FT_UINT16, BASE_DEC, NULL, 0x0, "LSP FEC DST Tunnel Number", HFILL}
+                },
+		 { &hf_mpls_echo_lspping_tlv_resv,
+                        { "RESERVED", "mpls_echo_lspping.tlv.resv",
+                        FT_UINT16, BASE_DEC, NULL, 0x0, "RESERVED BITS", HFILL}
+                },
+                { &hf_mpls_echo_lspping_tlv_src_addr_gid,
+                        { "Global ID", "mpls_echo_lspping.tlv.src.addr.gid",
+                        FT_UINT32, BASE_DEC, NULL, 0x0, "SRC ADDR TLV GID", HFILL}
+                },
+                { &hf_mpls_echo_lspping_tlv_src_addr_nid,
+                        { "Node ID", "mpls_echo_lspping.tlv.src.addr.nid",
+                        FT_IPv4, BASE_NONE, NULL, 0x0, "SRC ADDR TLV NID", HFILL}
+                },
+                { &hf_mpls_echo_lspping_tlv_pw_serv_identifier,
+                        { "Service identifier", "mpls_echo_lspping.tlv.pw.serv.identifier",
+                        FT_UINT64, BASE_DEC, NULL, 0x0, "PW FEC Service identifier", HFILL}
+                },
+                { &hf_mpls_echo_lspping_tlv_pw_src_ac_id,
+                        { "SRC AC ID", "mpls_echo_lspping.tlv.pw.src.ac.id",
+                        FT_UINT32, BASE_DEC, NULL, 0x0, "PW FEC SRC AC ID", HFILL}
+                },
+                { &hf_mpls_echo_lspping_tlv_pw_dst_ac_id,
+                        { "DST AC ID", "mpls_echo_lspping.tlv.pw.dst.ac.id",
+                        FT_UINT32, BASE_DEC, NULL, 0x0, "PW FEC DST AC ID", HFILL}
+                },
+                { &hf_mpls_echo_lspping_tlv_pw_agi_type,
+                        { "AGI TYPE", "mpls_echo_lspping.tlv.pw.agi.type",
+                        FT_UINT8, BASE_DEC,NULL,0x0, "PW AGI TYPE",HFILL}
+                },
+                { &hf_mpls_echo_lspping_tlv_pw_agi_len,
+                        { "AGI Length", "mpls_echo_lspping.tlv.pw.agi.len",
+                        FT_UINT8, BASE_DEC,NULL,0x0, "PW AGI LENGTH",HFILL}
+                },
+                { &hf_mpls_echo_lspping_tlv_pw_agi_val,
+                        { "AGI VALUE", "mpls_echo_lspping.tlv.pw.agi.val",
+                        FT_STRING, BASE_NONE,NULL,0x0, "PW AGI VALUE",HFILL}
                 }
         };
 
