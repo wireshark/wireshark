@@ -37,6 +37,8 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 
+#include "packet-bfd.h"
+
 #define UDP_PORT_BFD_1HOP_CONTROL 3784 /* draft-katz-ward-bfd-v4v6-1hop-00.txt */
 #define UDP_PORT_BFD_MULTIHOP_CONTROL 4784 /* draft-ietf-bfd-multihop-05.txt */
 
@@ -357,7 +359,8 @@ static void dissect_bfd_authentication(tvbuff_t *tvb, packet_info *pinfo, proto_
 }
 
 
-void dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+void 
+dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     gint bfd_version = -1;
     gint bfd_diag = -1;
@@ -553,7 +556,8 @@ void dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* BFD CV Source MEP-ID TLV Decoder, 
    As per RFC 6428 : http://tools.ietf.org/html/rfc6428
    sections - 3.5.1, 3.5.2, 3.5.3 */
-void dissect_bfd_mep (tvbuff_t *tvb, proto_tree *tree)
+void 
+dissect_bfd_mep (tvbuff_t *tvb, proto_tree *tree)
 {
     gint offset = 0, mep_offset = 0;
     gint mep_type = -1;

@@ -56,6 +56,8 @@
 # include "config.h"
 #endif
 
+#include <string.h>
+
 #include <epan/packet.h>
 
 #include <epan/ppptypes.h>
@@ -63,10 +65,17 @@
 #include <epan/prefs.h>
 #include <epan/ipproto.h>
 #include <epan/addr_resolv.h>
+
 #include "packet-ppp.h"
 #include "packet-mpls.h"
 #include "packet-pw-common.h"
-#include <string.h>
+#include "packet-bfd.h"
+
+/* As per RFC 6428 http://tools.ietf.org/html/rfc6428, Section: 3.3 */
+#define ACH_TYPE_BFD_CC               0x0022
+#define ACH_TYPE_BFD_CV               0x0023
+/* As RFC 6426:http://tools.ietf.org/html/rfc6426, Section: 7.4 */
+#define ACH_TYPE_ONDEMAND_CV          0x0025
 
 static gint proto_mpls = -1;
 static gint proto_pw_ach = -1;
@@ -381,6 +390,7 @@ dissect_pw_ach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree  *mpls_pw_ach_tree = NULL;
     proto_item  *ti = NULL;
     tvbuff_t    *next_tvb = NULL;
+    int         offset = 0;
     guint8      ver = 0;
     guint16     res = 0;
     guint16     channel_type = 0;
@@ -407,6 +417,55 @@ dissect_pw_ach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 "Error: this byte is reserved and must be 0");
         else
             PROTO_ITEM_SET_HIDDEN(ti);
+
+        if ((channel_type == ACH_TYPE_BFD_CC) || (channel_type == ACH_TYPE_BFD_CV) || 
+            (channel_type == ACH_TYPE_ONDEMAND_CV)) {
+            switch (channel_type) { 
+                case ACH_TYPE_BFD_CC:
+     
+                    proto_tree_add_uint_format (mpls_pw_ach_tree, hf_mpls_pw_ach_channel_type,
+                                                tvb, (offset + 2), 2, channel_type,
+                                                "Channel Type: %s (0x%04x)",
+                                                val_to_str (channel_type, mpls_pwac_types, 
+                                                "BFD CC"), channel_type);
+                    offset = offset + 4;
+                    next_tvb = tvb_new_subset_remaining (tvb, offset);
+                    dissect_bfd_control (next_tvb, pinfo, tree);
+  
+                break;
+
+                case ACH_TYPE_BFD_CV:
+
+                    proto_tree_add_uint_format (mpls_pw_ach_tree, hf_mpls_pw_ach_channel_type,
+                                                tvb, (offset + 2), 2, channel_type,
+                                                "Channel Type: %s (0x%04x)",
+                                                val_to_str (channel_type, mpls_pwac_types, 
+                                                "BFD CV"), channel_type);
+                    offset = offset + 4;
+                    next_tvb = tvb_new_subset_remaining (tvb, offset);
+                    dissect_bfd_control (next_tvb, pinfo, tree);
+                    next_tvb = tvb_new_subset_remaining (tvb, offset);
+                    dissect_bfd_mep (next_tvb, tree);
+  	
+ 	         break;
+
+ 	        case ACH_TYPE_ONDEMAND_CV:
+  
+                    proto_tree_add_uint_format (mpls_pw_ach_tree, hf_mpls_pw_ach_channel_type,
+                                                tvb, (offset + 2), 2, channel_type,
+                                                "Channel Type: %s (0x%04x)",
+                                                val_to_str (channel_type, mpls_pwac_types, "On-Demand CV"),
+                                                channel_type);
+ 	                offset = offset + 4;
+                    next_tvb = tvb_new_subset_remaining (tvb, offset);
+                    dissect_mpls_echo (next_tvb, pinfo, tree); 
+ 
+                break;
+            }
+            return;
+        }
+     
+
         proto_tree_add_uint_format(mpls_pw_ach_tree, hf_mpls_pw_ach_channel_type,
                                    tvb, 2, 2, channel_type,
                                    "Channel Type: %s (0x%04x)",
