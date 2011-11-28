@@ -6301,7 +6301,7 @@ dtap_sm_req_sec_pdp_act(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 	/* 36 TFT Traffic Flow Template 10.5.6.12 O TLV 3-257 */
 	ELEM_OPT_TLV(0x36, GSM_A_PDU_TYPE_GM, DE_TRAFFIC_FLOW_TEMPLATE, NULL);
 
-	/* 27 Protocol configuration options Protocol configuration options 10.5.6.3 O TLV 3 – 253 */
+	/* 27 Protocol configuration options Protocol configuration options 10.5.6.3 O TLV 3 - 253 */
 	ELEM_OPT_TLV(0x27, GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT, NULL);
 
 	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
@@ -6327,7 +6327,7 @@ dtap_sm_req_sec_pdp_act_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 	/* SM cause SM cause 10.5.6.6 M V 1 */
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SM_CAUSE, NULL);
 
-	/* 27 Protocol configuration options Protocol configuration options 10.5.6.3 O TLV 3 – 253 */
+	/* 27 Protocol configuration options Protocol configuration options 10.5.6.3 O TLV 3 - 253 */
 	ELEM_OPT_TLV(0x27, GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT, NULL);
 
 	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);

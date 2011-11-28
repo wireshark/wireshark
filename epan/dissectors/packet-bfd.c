@@ -831,32 +831,32 @@ void proto_register_bfd(void)
         { &hf_mep_tunnel_no,
           { "Tunnel Number", "mep.tunnel.no",
             FT_UINT16, BASE_DEC, NULL , 0x0,
-            "Tunnel Number", HFILL }
+            NULL, HFILL }
         },
         { &hf_mep_lsp_no,
           { "LSP Number", "mep.lsp.no",
             FT_UINT16, BASE_DEC, NULL , 0x0,
-            "LSP Number", HFILL }
+            NULL, HFILL }
         },
         { &hf_mep_ac_id,
           { "AC Id", "mep.ac.id",
             FT_UINT32, BASE_DEC, NULL , 0x0,
-            "AC Identifier", HFILL }
+            NULL, HFILL }
         },
         { &hf_mep_agi_type,
           { "AGI TYPE", "mep.agi.type",
             FT_UINT8, BASE_DEC, NULL , 0x0,
-            "AGI TYPE", HFILL }
+            NULL, HFILL }
         },
         { &hf_mep_agi_len,
           { "AGI Length", "mep.agi.len",
             FT_UINT8, BASE_DEC, NULL , 0x0,
-            "AGI Length", HFILL }
+            NULL, HFILL }
         },
         { &hf_mep_agi_val,
 	   { "AGI value", "mep.agi.val",
 	     FT_STRING, BASE_NONE, NULL , 0x0,
-	     "AGI String", HFILL }  
+	     NULL, HFILL }  
         },
         { &hf_section_interface_no,
           { "Interface Number", "mep.interface.no",

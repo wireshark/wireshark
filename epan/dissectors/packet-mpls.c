@@ -836,13 +836,13 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (label == LABEL_GACH && bos) {
-	    strcpy(PW_ACH,"Generic Associated Channel Header");
+	    g_strlcpy(PW_ACH,"Generic Associated Channel Header",50);
 	    next_tvb = tvb_new_subset_remaining(tvb, offset);
 	    dissect_pw_ach( next_tvb, pinfo, tree );
 	    return;	
 	}
 	else
-	strcpy(PW_ACH,"PW Associated Channel Header");
+	g_strlcpy(PW_ACH,"PW Associated Channel Header",50);
 
         if (bos) break;
     }
