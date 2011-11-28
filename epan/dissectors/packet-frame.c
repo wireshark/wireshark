@@ -350,7 +350,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 				}
 			}
 #ifdef _MSC_VER
-		} __except(TRUE /* handle all exceptions */) {
+		} __except(EXCEPTION_EXECUTE_HANDLER /* handle all exceptions */) {
 			switch(GetExceptionCode()) {
 			case(STATUS_ACCESS_VIOLATION):
 				show_exception(tvb, pinfo, parent_tree, DissectorError,
@@ -399,7 +399,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 #endif
 				call_all_postdissectors(tvb, pinfo, parent_tree);
 #ifdef _MSC_VER
-			} __except(TRUE /* handle all exceptions */) {
+			} __except(EXCEPTION_EXECUTE_HANDLER /* handle all exceptions */) {
 				switch(GetExceptionCode()) {
 				case(STATUS_ACCESS_VIOLATION):
 					show_exception(tvb, pinfo, parent_tree, DissectorError,
