@@ -40,6 +40,18 @@
 #define UDP_PORT_BFD_1HOP_CONTROL 3784 /* draft-katz-ward-bfd-v4v6-1hop-00.txt */
 #define UDP_PORT_BFD_MULTIHOP_CONTROL 4784 /* draft-ietf-bfd-multihop-05.txt */
 
+/* As per RFC 6428 : http://tools.ietf.org/html/rfc6428
+   Section: 3.5 */
+#define TLV_TYPE_MPLSTP_SECTION_MEP   0 
+#define TLV_TYPE_MPLSTP_LSP_MEP       1
+#define TLV_TYPE_MPLSTP_PW_MEP        2
+
+static const value_string mplstp_mep_tlv_type_values [] = {
+    { TLV_TYPE_MPLSTP_SECTION_MEP, "Section MEP-ID" },
+    { TLV_TYPE_MPLSTP_LSP_MEP,     "LSP MEP-ID" },
+    { TLV_TYPE_MPLSTP_PW_MEP,      "PW MEP-ID" },
+    { 0, NULL}
+};
 static const value_string bfd_control_v0_diag_values[] = {
     { 0, "No Diagnostic" },
     { 1, "Control Detection Time Expired" },
@@ -62,6 +74,7 @@ static const value_string bfd_control_v1_diag_values[] = {
     { 6, "Concatenated Path Down" },
     { 7, "Administratively Down" },
     { 8, "Reverse Concatenated Path Down" },
+    { 9, "Mis-Connectivity Defect" },
     { 0, NULL }
 };
 
@@ -142,6 +155,18 @@ static gint ett_bfd = -1;
 static gint ett_bfd_flags = -1;
 static gint ett_bfd_auth = -1;
 
+static gint hf_mep_type = -1;
+static gint hf_mep_len = -1;
+static gint hf_mep_global_id = -1;
+static gint hf_mep_node_id = -1;
+static gint hf_mep_interface_no = -1;
+static gint hf_mep_tunnel_no = -1;
+static gint hf_mep_lsp_no = -1;
+static gint hf_mep_ac_id = -1;
+static gint hf_mep_agi_type = -1;
+static gint hf_mep_agi_len = -1;
+static gint hf_mep_agi_val = -1;
+static gint hf_section_interface_no = -1;
 /*
  * Control packet version 0, draft-katz-ward-bfd-01.txt
  *
@@ -332,7 +357,7 @@ static void dissect_bfd_authentication(tvbuff_t *tvb, packet_info *pinfo, proto_
 }
 
 
-static void dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+void dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     gint bfd_version = -1;
     gint bfd_diag = -1;
@@ -389,7 +414,6 @@ static void dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     }
     bfd_detect_time_multiplier = tvb_get_guint8(tvb, 2);
     bfd_length = tvb_get_guint8(tvb, 3);
-
     bfd_my_discriminator = tvb_get_ntohl(tvb, 4);
     bfd_your_discriminator = tvb_get_ntohl(tvb, 8);
     bfd_desired_min_tx_interval = tvb_get_ntohl(tvb, 12);
@@ -412,7 +436,7 @@ static void dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     }
 
     if (tree) {
-        ti = proto_tree_add_protocol_format(tree, proto_bfd, tvb, 0, -1,
+        ti = proto_tree_add_protocol_format(tree, proto_bfd, tvb, 0, bfd_length,
                                             "BFD Control message");
 
         bfd_tree = proto_item_add_subtree(ti, ett_bfd);
@@ -523,6 +547,116 @@ static void dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 			"Authentication flag is set in a BFD packet, but no authentication data is present");
 	    }
 	}
+    }
+    return;
+}
+/* BFD CV Source MEP-ID TLV Decoder, 
+   As per RFC 6428 : http://tools.ietf.org/html/rfc6428
+   sections - 3.5.1, 3.5.2, 3.5.3 */
+void dissect_bfd_mep (tvbuff_t *tvb, proto_tree *tree)
+{
+    gint offset = 0, mep_offset = 0;
+    gint mep_type = -1;
+    gint mep_len = -1;
+    gint mep_global_id = -1;
+    gint mep_node_id = -1;
+    gint mep_tunnel_no = -1;
+    gint mep_lsp_no = -1;
+    gint mep_ac_id = -1;
+    gint mep_agi_type = -1;
+    gint mep_agi_len = -1;
+    gint section_global_id = -1;
+    gint section_node_id = -1;
+    gint section_interface_num = -1;
+    proto_item *ti;
+    proto_tree *bfd_tree;
+    
+    /* Fetch the BFD control message length and move the offset 
+       to point to the data portion after the control message */
+    mep_offset = tvb_get_guint8 ( tvb, (offset + 3));
+    offset = mep_offset;
+    mep_type = tvb_get_ntohs (tvb, offset);
+    mep_len = tvb_get_ntohs (tvb, (offset + 2));
+    ti = proto_tree_add_protocol_format (tree, proto_bfd, tvb, offset, (mep_len + 4),
+                                         "MPLS-TP SOURCE MEP-ID TLV");
+
+    switch (mep_type) {
+	case TLV_TYPE_MPLSTP_SECTION_MEP:
+
+            section_global_id = tvb_get_ntohl (tvb, (offset + 4));
+            section_node_id = tvb_get_ipv4 (tvb, (offset + 8));
+            section_interface_num = tvb_get_ntohl (tvb, (offset + 12));
+            if (tree) {
+                bfd_tree = proto_item_add_subtree (ti, ett_bfd);
+		 proto_tree_add_uint (bfd_tree, hf_mep_type , tvb, offset,
+                                     2, mep_type);
+                proto_tree_add_uint (bfd_tree, hf_mep_len, tvb, (offset + 2),
+                                     2, mep_len);
+                proto_tree_add_uint (bfd_tree, hf_mep_global_id, tvb, (offset + 4),
+                                     4, section_global_id);
+                proto_tree_add_ipv4 (bfd_tree, hf_mep_node_id, tvb, (offset + 8),
+                                     4, section_node_id);
+                proto_tree_add_uint (bfd_tree, hf_section_interface_no, tvb, (offset + 12),
+                                     4, section_interface_num);
+            }
+            
+        break; 
+            
+        case TLV_TYPE_MPLSTP_LSP_MEP:
+
+            mep_global_id = tvb_get_ntohl (tvb, (offset + 4));
+            mep_node_id = tvb_get_ipv4 (tvb, (offset + 8));
+            mep_tunnel_no = tvb_get_ntohs (tvb, (offset + 12));
+            mep_lsp_no = tvb_get_ntohs (tvb, (offset + 14));
+	     if (tree) {
+                bfd_tree = proto_item_add_subtree (ti, ett_bfd);
+                proto_tree_add_uint (bfd_tree, hf_mep_type , tvb, offset,
+                                     2, mep_type);
+                proto_tree_add_uint (bfd_tree, hf_mep_len, tvb, (offset + 2),
+                                     2, mep_len);
+                proto_tree_add_uint (bfd_tree, hf_mep_global_id, tvb, (offset + 4),
+                                     4, mep_global_id);
+                proto_tree_add_ipv4 (bfd_tree, hf_mep_node_id, tvb, (offset + 8),
+                                     4, mep_node_id);
+                proto_tree_add_uint (bfd_tree, hf_mep_tunnel_no, tvb, (offset + 12),
+                                     2, mep_tunnel_no);
+                proto_tree_add_uint (bfd_tree, hf_mep_lsp_no, tvb, (offset + 14),
+                                     2, mep_lsp_no);
+            }
+	
+        break;
+
+        case TLV_TYPE_MPLSTP_PW_MEP:
+
+            mep_global_id = tvb_get_ntohl (tvb, (offset + 4));
+            mep_node_id = tvb_get_ipv4 (tvb, (offset + 8));
+            mep_ac_id = tvb_get_ntohl (tvb, (offset + 12));
+            mep_agi_type = tvb_get_guint8 (tvb, (offset + 16));
+            mep_agi_len = tvb_get_guint8 (tvb, (offset + 17));
+            if (tree) {
+	        bfd_tree = proto_item_add_subtree (ti, ett_bfd);
+                proto_tree_add_uint (bfd_tree, hf_mep_type, tvb, offset,
+                                     2, (mep_type));
+ 	        proto_tree_add_uint (bfd_tree, hf_mep_len, tvb, (offset + 2),
+                                     2, mep_len);
+                proto_tree_add_uint (bfd_tree, hf_mep_global_id, tvb, (offset + 4),
+                                     4, mep_global_id);
+                proto_tree_add_ipv4 (bfd_tree, hf_mep_node_id, tvb, (offset + 8),
+                                     4, mep_node_id);
+                proto_tree_add_uint (bfd_tree, hf_mep_ac_id, tvb, (offset + 12),
+                                     4, mep_ac_id);
+                proto_tree_add_uint (bfd_tree, hf_mep_agi_type, tvb, (offset + 16),
+                                     1, mep_agi_type);
+                proto_tree_add_uint (bfd_tree, hf_mep_agi_len, tvb, (offset + 17),
+                                     1, mep_agi_len);
+                proto_tree_add_item (bfd_tree, hf_mep_agi_val, tvb, (offset + 18),
+				      mep_agi_len, ENC_BIG_ENDIAN);
+            }
+
+        break;
+
+        default:
+        break;
     }
     return;
 }
@@ -664,6 +798,66 @@ void proto_register_bfd(void)
           { "Sequence Number", "bfd.auth.seq_num",
             FT_UINT32, BASE_HEX, NULL, 0x0,
             "The Sequence Number is periodically incremented to prevent replay attacks", HFILL }
+          },
+	 { &hf_mep_type,
+          { "Type", "mep.type",
+            FT_UINT16, BASE_DEC, VALS(mplstp_mep_tlv_type_values), 0x0,
+            "The type of the MEP Id", HFILL }
+        },
+        { &hf_mep_len,
+          { "Length", "mep.len",
+            FT_UINT16, BASE_DEC, NULL , 0x0,
+            "The length of the MEP Id", HFILL }
+        },
+        { &hf_mep_global_id,
+          { "Global Id", "mep.global.id",
+            FT_UINT32, BASE_DEC, NULL , 0x0,
+            "MPLS-TP  Global  MEP Id", HFILL }
+        },
+        { &hf_mep_node_id,
+          { "Node Id", "mep.node.id",
+            FT_IPv4, BASE_NONE, NULL , 0x0,
+            "MPLS-TP Node Identifier", HFILL }
+        },
+        { &hf_mep_interface_no,
+          { "Interface  Number", "mep.interface.no",
+            FT_UINT32, BASE_DEC, NULL , 0x0,
+            "MPLS-TP Interface Number", HFILL }
+        },
+        { &hf_mep_tunnel_no,
+          { "Tunnel Number", "mep.tunnel.no",
+            FT_UINT16, BASE_DEC, NULL , 0x0,
+            "Tunnel Number", HFILL }
+        },
+        { &hf_mep_lsp_no,
+          { "LSP Number", "mep.lsp.no",
+            FT_UINT16, BASE_DEC, NULL , 0x0,
+            "LSP Number", HFILL }
+        },
+        { &hf_mep_ac_id,
+          { "AC Id", "mep.ac.id",
+            FT_UINT32, BASE_DEC, NULL , 0x0,
+            "AC Identifier", HFILL }
+        },
+        { &hf_mep_agi_type,
+          { "AGI TYPE", "mep.agi.type",
+            FT_UINT8, BASE_DEC, NULL , 0x0,
+            "AGI TYPE", HFILL }
+        },
+        { &hf_mep_agi_len,
+          { "AGI Length", "mep.agi.len",
+            FT_UINT8, BASE_DEC, NULL , 0x0,
+            "AGI Length", HFILL }
+        },
+        { &hf_mep_agi_val,
+	   { "AGI value", "mep.agi.val",
+	     FT_STRING, BASE_NONE, NULL , 0x0,
+	     "AGI String", HFILL }  
+        },
+        { &hf_section_interface_no,
+          { "Interface Number", "mep.interface.no",
+            FT_UINT32, BASE_DEC, NULL , 0x0,
+            "MPLS-TP Interface Number", HFILL }
         }
     };
 
