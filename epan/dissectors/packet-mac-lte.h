@@ -253,8 +253,9 @@ int is_mac_lte_frame_retx(packet_info *pinfo, guint8 direction);
 /* Set details of an LCID -> drb channel mapping.  To be called from
    configuration protocol (e.g. RRC) */
 void set_mac_lte_channel_mapping(guint16 ueid, guint8 lcid,
-                                 guint8 srbid, guint8 drbid,
-                                 guint8  rlcMode, guint8 um_sn_length);
+                                 guint8  srbid, guint8 drbid,
+                                 guint8  rlcMode, guint8 um_sn_length,
+                                 guint8  ul_priority);
 
 /* Functions to be called from outside this module (e.g. in a plugin, where mac_lte_info
    isn't available) to get/set per-packet data */

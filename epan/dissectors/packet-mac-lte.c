@@ -630,6 +630,7 @@ typedef struct dynamic_lcid_drb_mapping_t {
     gboolean valid;
     gint     drbid;
     rlc_channel_type_t channel_type;
+    guint8   ul_priority;
 } dynamic_lcid_drb_mapping_t;
 
 static dynamic_lcid_drb_mapping_t dynamic_lcid_drb_mapping[11];
@@ -852,6 +853,9 @@ static GHashTable *mac_lte_sr_request_hash = NULL;
 /* Forward declarations */
 void proto_reg_handoff_mac_lte(void);
 void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
+static guint8 get_mac_lte_channel_priority(guint16 ueid _U_, guint8 lcid,
+                                           guint8 direction);
 
 
 /* Heuristic dissection */
@@ -1588,7 +1592,8 @@ static void call_rlc_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                                int offset, guint16 data_length,
                                guint8 mode, guint8 direction, guint16 ueid,
                                guint16 channelType, guint16 channelId,
-                               guint8 UMSequenceNumberLength)
+                               guint8 UMSequenceNumberLength,
+                               guint8 priority)
 {
     tvbuff_t *srb_tvb = tvb_new_subset(tvb, offset, data_length, data_length);
     struct rlc_lte_info *p_rlc_lte_info;
@@ -1605,7 +1610,7 @@ static void call_rlc_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     /* Fill in struct details for srb channels */
     p_rlc_lte_info->rlcMode = mode;
     p_rlc_lte_info->direction = direction;
-    p_rlc_lte_info->priority = 0; /* ?? */
+    p_rlc_lte_info->priority = priority;
     p_rlc_lte_info->ueid = ueid;
     p_rlc_lte_info->channelType = channelType;
     p_rlc_lte_info->channelId = channelId;
@@ -3065,7 +3070,9 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 /* Call RLC dissector */
                 call_rlc_dissector(tvb, pinfo, tree, pdu_ti, offset, data_length,
                                    RLC_AM_MODE, direction, p_mac_lte_info->ueid,
-                                   CHANNEL_TYPE_SRB, lcids[n], 0);
+                                   CHANNEL_TYPE_SRB, lcids[n], 0,
+                                   get_mac_lte_channel_priority(p_mac_lte_info->ueid,
+                                                                lcids[n], direction));
 
                 /* Hide raw view of bytes */
                 PROTO_ITEM_SET_HIDDEN(sdu_ti);
@@ -3078,6 +3085,8 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             rlc_channel_type_t rlc_channel_type;
             guint8 UM_seqnum_length;
             gint drb_id;
+            guint8 priority = get_mac_lte_channel_priority(p_mac_lte_info->ueid,
+                                                           lcids[n], direction);
 
             lookup_rlc_channel_from_lcid(lcids[n],
                                          &rlc_channel_type,
@@ -3089,22 +3098,26 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 case rlcUM5:
                     call_rlc_dissector(tvb, pinfo, tree, pdu_ti, offset, data_length,
                                        RLC_UM_MODE, direction, p_mac_lte_info->ueid,
-                                       CHANNEL_TYPE_DRB, (guint16)drb_id, UM_seqnum_length);
+                                       CHANNEL_TYPE_DRB, (guint16)drb_id, UM_seqnum_length,
+                                       priority);
                     break;
                 case rlcUM10:
                     call_rlc_dissector(tvb, pinfo, tree, pdu_ti, offset, data_length,
                                        RLC_UM_MODE, direction, p_mac_lte_info->ueid,
-                                       CHANNEL_TYPE_DRB, (guint16)drb_id, UM_seqnum_length);
+                                       CHANNEL_TYPE_DRB, (guint16)drb_id, UM_seqnum_length,
+                                       priority);
                     break;
                 case rlcAM:
                     call_rlc_dissector(tvb, pinfo, tree, pdu_ti, offset, data_length,
                                        RLC_AM_MODE, direction, p_mac_lte_info->ueid,
-                                       CHANNEL_TYPE_DRB, (guint16)drb_id, 0);
+                                       CHANNEL_TYPE_DRB, (guint16)drb_id, 0,
+                                       priority);
                     break;
                 case rlcTM:
                     call_rlc_dissector(tvb, pinfo, tree, pdu_ti, offset, data_length,
                                        RLC_TM_MODE, direction, p_mac_lte_info->ueid,
-                                       CHANNEL_TYPE_DRB, (guint16)drb_id, 0);
+                                       CHANNEL_TYPE_DRB, (guint16)drb_id, 0,
+                                       priority);
                     break;
                 case rlcRaw:
                     /* Nothing to do! */
@@ -4530,8 +4543,9 @@ void proto_register_mac_lte(void)
 /* Set LCID -> RLC channel mappings from signalling protocol (i.e. RRC or similar).
    TODO: not using UEID yet - assume all UEs configured identically... */
 void set_mac_lte_channel_mapping(guint16 ueid _U_, guint8 lcid,
-                                 guint8 srbid, guint8 drbid,
-                                 guint8  rlcMode, guint8 um_sn_length)
+                                 guint8  srbid, guint8 drbid,
+                                 guint8  rlcMode, guint8 um_sn_length,
+                                 guint8  ul_priority)
 {
     /* Don't bother setting srb details - we just assume AM */
     if (srbid != 0) {
@@ -4546,6 +4560,8 @@ void set_mac_lte_channel_mapping(guint16 ueid _U_, guint8 lcid,
     /* Set array entry */
     dynamic_lcid_drb_mapping[lcid].valid = TRUE;
     dynamic_lcid_drb_mapping[lcid].drbid = drbid;
+    dynamic_lcid_drb_mapping[lcid].ul_priority = ul_priority;
+
     switch (rlcMode) {
         case RLC_AM_MODE:
             dynamic_lcid_drb_mapping[lcid].channel_type = rlcAM;
@@ -4561,6 +4577,24 @@ void set_mac_lte_channel_mapping(guint16 ueid _U_, guint8 lcid,
 
         default:
             break;
+    }
+}
+
+/* Return the configured UL priority for the channel */
+static guint8 get_mac_lte_channel_priority(guint16 ueid _U_, guint8 lcid,
+                                           guint8 direction)
+{
+    /* Priority only affects UL */
+    if (direction == DIRECTION_DOWNLINK) {
+        return 0;
+    }
+
+    /* Won't report value if channel not configured */
+    if (!dynamic_lcid_drb_mapping[lcid].valid) {
+        return 0;
+    }
+    else {
+        return dynamic_lcid_drb_mapping[lcid].ul_priority;
     }
 }
 
