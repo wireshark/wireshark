@@ -11,6 +11,13 @@
  *     - mpls subdissector table indexed by label value
  *     - enhanced "what's past last mpls label?" heuristic
  *
+ * (c) Copyright 2011, Shobhank Sharma <ssharma5@ncsu.edu>
+ *     - Removed some mpls preferences which are no longer relevant/needed like 
+ *	  decode PWAC payloads as PPP traffic and assume all channel types except
+ *       0x21 are raw BFD. 
+ *     - MPLS extension from PW-ACH to MPLS Generic Associated Channel as per RFC 5586	
+ *     - Updated Pseudowire Associated Channel Types as per http://www.iana.org/assignments/pwe3-parameters
+ *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
@@ -59,6 +66,7 @@
 #include "packet-ppp.h"
 #include "packet-mpls.h"
 #include "packet-pw-common.h"
+#include <string.h>
 
 static gint proto_mpls = -1;
 static gint proto_pw_ach = -1;
@@ -68,6 +76,7 @@ static gint ett_mpls = -1;
 static gint ett_mpls_pw_ach = -1;
 static gint ett_mpls_pw_mcw = -1;
 static gint ett_mpls_oam = -1;
+static char PW_ACH[50]="PW Associated Channel Header";
 
 const value_string special_labels[] = {
     {LABEL_IP4_EXPLICIT_NULL,   "IPv4 Explicit-Null"},
@@ -75,6 +84,7 @@ const value_string special_labels[] = {
     {LABEL_IP6_EXPLICIT_NULL,   "IPv6 Explicit-Null"},
     {LABEL_IMPLICIT_NULL,       "Implicit-Null"},
     {LABEL_OAM_ALERT,           "OAM Alert"},
+    {LABEL_GACH, 		"Generic Associated Channel Label (GAL)"},
     {0, NULL }
 };
 
@@ -209,9 +219,6 @@ static enum_val_t mpls_default_payload_defs[] = {
 static int mpls_filter[MPLSF_MAX];
 
 static gint mpls_default_payload = 0;
-static gboolean mpls_pref_pwac_all_as_bfd_xipv4 = FALSE;
-static gboolean mpls_pref_pwac_0x0_as_bfd = FALSE;
-static gboolean mpls_pref_pwac_try_ppp = TRUE;
 
 static int hf_mpls_1st_nibble = -1;
 
@@ -314,14 +321,35 @@ static const value_string mpls_pw_types[] = {
  * and http://tools.ietf.org/html/draft-ietf-pwe3-vccv-bfd-05 clause 3.2
  */
 static const value_string mpls_pwac_types[] = {
+    { 0x0000, "Reserved"},
+    { 0x0001, "Management Communication Channel (MCC)"},
+    { 0x0002, "Signaling Communication Channel (SCC)"},
     { 0x0007, "BFD Control, PW-ACH-encapsulated (BFD Without IP/UDP Headers)" },
+    { 0x000A, "MPLS Direct Loss Measurement (DLM)"},
+    { 0x000B, "MPLS Inferred Loss Measurement (ILM)"},
+    { 0x000C, "MPLS Delay Measurement (DM)"},
+    { 0x000D, "MPLS Direct Loss and Delay Measurement (DLM+DM)"},
+    { 0x000E, "MPLS Inferred Loss and Delay Measurement (ILM+DM)"},
     { 0x0021, "IPv4 packet" },
-    { 0x0057, "IPv6 packet" },
+    { 0x0022, "MPLS-TP CC message"},
+    { 0x0023, "MPLS-TP CV message"},
+    { 0x0024, "Protection State Coordination Protocol - Channel Type (PSC-CT)"},
+    { 0x0025, "On-Demand CV"},
+    { 0x0026, "LI"},
+    { 0x0057, "IPv6 packet" },	
+    { 0x0058, "Fault OAM"},
+    { 0x7FF8, "Reserved for Experimental Use"},
+    { 0x7FF9, "Reserved for Experimental Use"},
+    { 0x7FFA, "Reserved for Experimental Use"},
+    { 0x7FFB, "Reserved for Experimental Use"},
+    { 0x7FFC, "Reserved for Experimental Use"},    	
+    { 0x7FFD, "Reserved for Experimental Use"},
+    { 0x7FFE, "Reserved for Experimental Use"},
+    { 0x7FFF, "Reserved for Experimental Use"},
     { 0, NULL }
 };
 
 
-static dissector_table_t ppp_subdissector_table;
 static dissector_table_t mpls_subdissector_table;
 
 /*
@@ -391,28 +419,13 @@ dissect_pw_ach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     {
         call_dissector(dissector_ip, next_tvb, pinfo, tree);
     }
-    else if (0x7 == channel_type /*PWACH-encapsulated BFD, draft-ietf-pwe3-vccv-bfd-05 3.2*/
-            || mpls_pref_pwac_all_as_bfd_xipv4)
+    else if (0x7 == channel_type /*PWACH-encapsulated BFD, RFC 5885*/)
     {
         call_dissector(dissector_bfd, next_tvb, pinfo, tree);
     }
     else if (0x57 == channel_type /*IPv6, RFC4385 clause 6.*/)
     {
         call_dissector(dissector_ipv6, next_tvb, pinfo, tree);
-    }
-    else if (0x0 == channel_type && mpls_pref_pwac_0x0_as_bfd)
-    {
-        call_dissector(dissector_bfd, next_tvb, pinfo, tree);
-    }
-    else if (mpls_pref_pwac_try_ppp)
-    {
-        /* XXX perhaps this code should be reconsidered */
-        /* non-standard extension, therefore controlled by option*/
-        /* appeared in revision 10862 from Carlos M. Pignataro */
-        if (!dissector_try_uint(ppp_subdissector_table, channel_type,
-                            next_tvb, pinfo, tree)) {
-            call_dissector(dissector_data, next_tvb, pinfo, tree);
-        }
     }
     else
     {
@@ -757,6 +770,21 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
 
         offset += 4;
+        
+	if (label == LABEL_GACH && !bos)
+        {
+	    proto_tree_add_text(tree, tvb, 0, -1, "Invalid Label");	
+	}
+
+	if (label == LABEL_GACH && bos) {
+	    strcpy(PW_ACH,"Generic Associated Channel Header");
+	    next_tvb = tvb_new_subset_remaining(tvb, offset);
+	    dissect_pw_ach( next_tvb, pinfo, tree );
+	    return;	
+	}
+	else
+	strcpy(PW_ACH,"PW Associated Channel Header");
+
         if (bos) break;
     }
 
@@ -782,7 +810,7 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                call_dissector(dissector_pw_hdlc_nocw_fr, next_tvb, pinfo, tree);
                break;
         case MDD_MPLS_PW_HDLC_NOCW_HDLC_PPP:
-               call_dissector(dissector_pw_hdlc_nocw_hdlc_ppp, next_tvb, pinfo, tree);
+               call_dissector(dissector_pw_hdlc_nocw_hdlc_ppp,next_tvb, pinfo, tree);
                break;
         case MDD_MPLS_PW_ETH_CW:
                call_dissector(dissector_pw_eth_cw, next_tvb, pinfo, tree);
@@ -909,7 +937,7 @@ proto_register_mpls(void)
                                                        FT_UINT32, BASE_DEC);
     proto_mpls = proto_register_protocol("MultiProtocol Label Switching Header",
                                          "MPLS", "mpls");
-    proto_pw_ach = proto_register_protocol("PW Associated Channel Header",
+    proto_pw_ach = proto_register_protocol(PW_ACH,
                                            "PW Associated Channel", "pwach");
     proto_pw_mcw = proto_register_protocol("PW MPLS Control Word (generic/preferred)",
                                            "Generic PW (with CW)", "pwmcw");
@@ -928,49 +956,16 @@ proto_register_mpls(void)
                                    &mpls_default_payload,
                                    mpls_default_payload_defs,
                                    FALSE );
-    prefs_register_bool_preference(module_mpls
-                                   ,"mplspref.pwac_0x0_as_bfd"
-                                   ,"Assume PWAC Channel Type 0x0 is raw BFD"
-                                   ,"draft-ietf-pwe3-vccv-bfd-05 states that PWAC Channel Type 0x07 must be used"
-                                   " when VCCV carries PW-ACH-encapsulated BFD (i.e., BFD without IP/UDP Headers, or \"raw\" BFD)"
-                                   "\n\n"
-                                   "Legacy or buggy devices may not comply to this and use Channel Type 0x0 for BFD."
-                                   " Enable this preference to decode such BFD traffic."
-                                   " Disable for standard behavior of PWAC dissector (default)."
-                                   ,&mpls_pref_pwac_0x0_as_bfd);
-    prefs_register_bool_preference(module_mpls
-                                   ,"mplspref.pwac_all_as_bfd_xip"
-                                   ,"Assume that all PWAC Channel Types (except 0x21) are raw BFD"
-                                   ,"draft-ietf-pwe3-vccv-bfd-05 states that PWAC Channel Type 0x07 must be used"
-                                   " when VCCV carries PW-ACH-encapsulated BFD (i.e., \"raw\" BFD)"
-                                   "\n\n"
-                                   "Legacy or buggy devices may not comply to this and use voluntary Channel Type for BFD."
-                                   " Enable this preference to decode all PWAC Channel Types as raw BFD,"
-                                   " except Channel Type 0x21 (IPv4)."
-                                   " Disable for standard behavior of PWAC dissector (default)."
-                                   ,&mpls_pref_pwac_all_as_bfd_xipv4);
-    prefs_register_bool_preference(module_mpls
-                                   ,"mplspref.pwac_try_ppp"
-                                   ,"As a last resort, try to decode PWAC payloads as PPP traffic"
-                                   ,"Legacy devices may use MPLS PW Associated Channel for PPP traffic."
-                                   "\n\n"
-                                   "Enable this preference to allow PWAC dissector to try PPP,"
-                                   " if no other suitable dissector found (default)."
-                                   ,&mpls_pref_pwac_try_ppp);
-}
+    }
 
 void
 proto_reg_handoff_mpls(void)
 {
     dissector_handle_t mpls_handle;
 
-    ppp_subdissector_table = find_dissector_table("ppp.protocol");
-
     mpls_handle = find_dissector("mpls");
     dissector_add_uint("ethertype", ETHERTYPE_MPLS, mpls_handle);
     dissector_add_uint("ethertype", ETHERTYPE_MPLS_MULTI, mpls_handle);
-    dissector_add_uint("ppp.protocol", PPP_MPLS_UNI, mpls_handle);
-    dissector_add_uint("ppp.protocol", PPP_MPLS_MULTI, mpls_handle);
     dissector_add_uint("chdlctype", ETHERTYPE_MPLS, mpls_handle);
     dissector_add_uint("chdlctype", ETHERTYPE_MPLS_MULTI, mpls_handle);
     dissector_add_uint("gre.proto", ETHERTYPE_MPLS, mpls_handle);
@@ -987,7 +982,6 @@ proto_reg_handoff_mpls(void)
     dissector_pw_eth_heuristic      = find_dissector("pw_eth_heuristic");
     dissector_pw_fr                 = find_dissector("pw_fr");
     dissector_pw_hdlc_nocw_fr       = find_dissector("pw_hdlc_nocw_fr");
-    dissector_pw_hdlc_nocw_hdlc_ppp = find_dissector("pw_hdlc_nocw_hdlc_ppp");
     dissector_pw_eth_cw             = find_dissector("pw_eth_cw");
     dissector_pw_eth_nocw           = find_dissector("pw_eth_nocw");
     dissector_pw_satop              = find_dissector("pw_satop_mpls");

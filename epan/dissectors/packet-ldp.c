@@ -8,6 +8,10 @@
  * CRLDP (RFC3212) is now supported
  *   - (c) 2002 Michael Rozhavsky <mike[AT]tochna.technion.ac.il>
  *
+ * (c) Copyright 2011, Shobhank Sharma <ssharma5@ncsu.edu>
+ *   -  update the VCCV bitmaps as per RFC 5885
+ *	 
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1999 Gerald Combs
@@ -176,7 +180,10 @@ static int hf_ldp_tlv_fec_vc_intparam_vccv_cctype_mplsra = -1;
 static int hf_ldp_tlv_fec_vc_intparam_vccv_cctype_ttl1 = -1;
 static int hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_icmpping = -1;
 static int hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_lspping = -1;
-static int hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd = -1;
+static int hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd1 = -1;
+static int hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd2 = -1;
+static int hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd3 = -1;
+static int hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd4 = -1;
 static int hf_ldp_tlv_lspid_act_flg = -1;
 static int hf_ldp_tlv_lspid_cr_lsp = -1;
 static int hf_ldp_tlv_lspid_ldpid = -1;
@@ -867,7 +874,10 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
         &hf_ldp_tlv_fec_vc_intparam_vccv_cctype_ttl1 ,
         &hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_icmpping ,
         &hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_lspping ,
-        &hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd
+        &hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd1,
+        &hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd2,
+        &hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd3,
+        &hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd4
     };
 
     proto_tree *ti, *val_tree, *fec_tree=NULL;
@@ -2747,7 +2757,10 @@ dissect_subtlv_interface_parameters(tvbuff_t *tvb, guint offset, proto_tree *tre
         29 - hf_ldp_tlv_fec_vc_intparam_vccv_cctype_ttl1 ,
         30 - hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_icmpping ,
         31 - hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_lspping ,
-        32 - hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd
+        32 - hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd1,
+        33 - hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd2,
+        34 - hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd3,
+        35 - hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd4
     };
 #endif
     proto_tree *ti = proto_tree_add_text(tree, tvb, offset, rem, "Interface Parameter");
@@ -3532,9 +3545,21 @@ proto_register_ldp(void)
           { "LSP Ping", "ldp.msg.tlv.fec.vc.intparam.vccv.cvtype_lspping", FT_BOOLEAN, 8,
             NULL, 0x02, "VC FEC Interface Param VCCV CV Type LSP Ping", HFILL }},
 
-        { &hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd,
-          { "BFD", "ldp.msg.tlv.fec.vc.intparam.vccv.cvtype_bfd", FT_BOOLEAN, 8,
-            NULL, 0x04, "VC FEC Interface Param VCCV CV Type BFD", HFILL }},
+        { &hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd1,
+          { "BFD IP/UDP-encapsulated, for PW Fault Detection only", "ldp.msg.tlv.fec.vc.intparam.vccv.cvtype_bfd1", FT_BOOLEAN, 8,
+            NULL, 0x04, "VC FEC Interface Param VCCV CV Type BFD IP/UDP-encapsulated, for PW Fault Detection only", HFILL }},
+	
+	{ &hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd2,
+          { "BFD IP/UDP-encapsulated, for PW Fault Detection and AC/PW Fault Status Signaling", "ldp.msg.tlv.fec.vc.intparam.vccv.cvtype_bfd2", FT_BOOLEAN, 8,
+            NULL, 0x08, "VC FEC Interface Param VCCV CV Type BFD IP/UDP-encapsulated, for PW Fault Detection and AC/PW Fault Status Signaling", HFILL }},
+
+	{ &hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd3,
+          { "BFD BFD PW-ACH-encapsulated, for PW Fault Detection only", "ldp.msg.tlv.fec.vc.intparam.vccv.cvtype_bfd3", FT_BOOLEAN, 8,
+            NULL, 0x10, "VC FEC Interface Param VCCV CV Type BFD PW-ACH-encapsulated, for PW Fault Detection only", HFILL }},
+
+	{ &hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd4,
+          { "BFD BFD PW-ACH-encapsulated, for PW Fault Detection and AC/PW Fault Status Signaling", "ldp.msg.tlv.fec.vc.intparam.vccv.cvtype_bfd4", FT_BOOLEAN, 8,
+            NULL, 0x20, "VC FEC Interface Param VCCV CV Type BFD PW-ACH-encapsulated, for PW Fault Detection and AC/PW Fault Status Signaling", HFILL }},
 
         { &hf_ldp_tlv_lspid_act_flg,
           { "Action Indicator Flag", "ldp.msg.tlv.lspid.actflg", FT_UINT16, BASE_HEX,

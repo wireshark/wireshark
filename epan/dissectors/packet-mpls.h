@@ -5,6 +5,8 @@
  *
  * (c) Copyright 2006, _FF_ Francesco Fondelli <francesco.fondelli@gmail.com>  
  *                     added MPLS OAM support, ITU-T Y.1711
+ * (c) Copyright 2011, Shobhank Sharma <ssharma5@ncsu.edu>
+ *                     added MPLS Generic Associated Channel as per RFC 5586
  *
  * $Id$
  *
@@ -38,7 +40,8 @@ enum {
     LABEL_IMPLICIT_NULL,
     LABEL_OAM_ALERT = 14,
     LABEL_MAX_RESERVED = 15,
-    LABEL_INVALID = 0xffffffff
+    LABEL_GACH = 13,
+    LABEL_INVALID = 0xffffffff	
 };
 
 extern const value_string special_labels[];

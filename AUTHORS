@@ -3356,6 +3356,10 @@ Ivan Lawrow		<ivan.lawrow [AT] jennic.com> {
 Kari Vatjus-Anttila	<kari.vatjus-anttila [AT] cie.fi> {
 	kNet (KristalliNet) dissector
 }
+Shobhank Sharma         <ssharma5 [AT] ncsu.edu>{
+	MPLS Enhancement - Generic Associated Channel, as per RFC 5586 
+}
+
 
 and by:
 
