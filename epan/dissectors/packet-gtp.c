@@ -2855,15 +2855,15 @@ static gtp_conv_info_t *gtp_info_items = NULL;
 
 static guint gtp_sn_hash(gconstpointer k)
 {
-    const gtp_msg_hash_t *key = k;
+    const gtp_msg_hash_t *key = (const gtp_msg_hash_t *)k;
 
     return key->seq_nr;
 }
 
 static gint gtp_sn_equal_matched(gconstpointer k1, gconstpointer k2)
 {
-    const gtp_msg_hash_t *key1 = k1;
-    const gtp_msg_hash_t *key2 = k2;
+    const gtp_msg_hash_t *key1 = (const gtp_msg_hash_t *)k1;
+    const gtp_msg_hash_t *key2 = (const gtp_msg_hash_t *)k2;
 
     if ( key1->req_frame && key2->req_frame && (key1->req_frame!=key2->req_frame) ) {
         return 0;
@@ -2878,8 +2878,8 @@ static gint gtp_sn_equal_matched(gconstpointer k1, gconstpointer k2)
 
 static gint gtp_sn_equal_unmatched(gconstpointer k1, gconstpointer k2)
 {
-    const gtp_msg_hash_t *key1 = k1;
-    const gtp_msg_hash_t *key2 = k2;
+    const gtp_msg_hash_t *key1 = (const gtp_msg_hash_t *)k1;
+    const gtp_msg_hash_t *key2 = (const gtp_msg_hash_t *)k2;
 
     return key1->seq_nr == key2->seq_nr;
 }
@@ -2912,7 +2912,7 @@ static gtp_msg_hash_t *gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, p
         break;
     }
 
-    gcrp = g_hash_table_lookup(gtp_info->matched, &gcr);
+    gcrp = (gtp_msg_hash_t *)g_hash_table_lookup(gtp_info->matched, &gcr);
 
     if (gcrp) {
 
@@ -2928,13 +2928,13 @@ static gtp_msg_hash_t *gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, p
         case GTP_MSG_DELETE_PDP_REQ:
             gcr.seq_nr=seq_nr;
 
-            gcrp=g_hash_table_lookup(gtp_info->unmatched, &gcr);
+            gcrp=(gtp_msg_hash_t *)g_hash_table_lookup(gtp_info->unmatched, &gcr);
             if (gcrp) {
                 g_hash_table_remove(gtp_info->unmatched, gcrp);
             }
             /* if we cant reuse the old one, grab a new chunk */
             if (!gcrp) {
-                gcrp = se_alloc(sizeof(gtp_msg_hash_t));
+                gcrp = se_new(gtp_msg_hash_t);
             }
             gcrp->seq_nr=seq_nr;
             gcrp->req_frame = pinfo->fd->num;
@@ -2950,7 +2950,7 @@ static gtp_msg_hash_t *gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, p
         case GTP_MSG_UPDATE_PDP_RESP:
         case GTP_MSG_DELETE_PDP_RESP:
             gcr.seq_nr=seq_nr;
-            gcrp=g_hash_table_lookup(gtp_info->unmatched, &gcr);
+            gcrp=(gtp_msg_hash_t *)g_hash_table_lookup(gtp_info->unmatched, &gcr);
 
             if (gcrp) {
                 if (!gcrp->rep_frame) {
@@ -3062,7 +3062,7 @@ static int decode_gtp_imsi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, 
 }
 
 /* GPRS:        9.60 v7.6.0, chapter 7.9.3
- * UMTS:        29.060 v4.0, chapter 7.7.3
+ * UMTS:        29.060 v4.0, chapter 7.7.3 Routeing Area Identity (RAI)
  */
 static int decode_gtp_rai(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
 {
@@ -3249,7 +3249,7 @@ static int decode_gtp_ms_valid(tvbuff_t * tvb, int offset, packet_info * pinfo _
 }
 
 /* GPRS:        9.60 v7.6.0, chapter 7.9.12, page 41
- * UMTS:        29.060 v4.0, chapter 7.7.11, page 49
+ * UMTS:        29.060 v4.0, chapter 7.7.11 Recovery
  */
 static int decode_gtp_recovery(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
 {
@@ -3263,7 +3263,7 @@ static int decode_gtp_recovery(tvbuff_t * tvb, int offset, packet_info * pinfo _
 }
 
 /* GPRS:        9.60 v7.6.0, chapter 7.9.13, page 42
- * UMTS:        29.060 v4.0, chapter 7.7.12, page 49
+ * UMTS:        29.060 v4.0, chapter 7.7.12 Selection Mode
  */
 
 
@@ -4364,8 +4364,9 @@ static void decode_apn(tvbuff_t * tvb, int offset, guint16 length, proto_tree * 
     }
 }
 
-/* GPRS:        9.60 v7.6.0, chapter 7.9.20
- * UMTS:        29.060 v4.0, chapter 7.7.29
+/* 
+ * GPRS:        9.60 v7.6.0, chapter 7.9.20
+ * UMTS:        29.060 v4.0, chapter 7.7.29 PDP Context
  * TODO:        unify addr functions
  */
 static int decode_gtp_pdp_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
@@ -4545,19 +4546,16 @@ static int decode_gtp_apn(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, p
 
 /* GPRS:        9.60 v7.6.0, chapter 7.9.22
  *              4.08 v. 7.1.2, chapter 10.5.6.3 (p.580)
- * UMTS:        29.060 v4.0, chapter 7.7.31
+ * UMTS:        29.060 v4.0, chapter 7.7.31 Protocol Configuration Options
  *              24.008, v4.2, chapter 10.5.6.3
  */
 int decode_gtp_proto_conf(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
 {
 
-    guint16 length, proto_offset;
-    guint16 proto_id;
-    guint8 conf, proto_len, cnt = 1;
+    guint16 length;
     tvbuff_t *next_tvb;
     proto_tree *ext_tree_proto;
     proto_item *te;
-    gboolean save_writable;
 
     length = tvb_get_ntohs(tvb, offset + 1);
 
@@ -4569,50 +4567,13 @@ int decode_gtp_proto_conf(tvbuff_t * tvb, int offset, packet_info * pinfo, proto
     if (length < 1)
         return 3;
 
-    conf = tvb_get_guint8(tvb, offset + 3) & 0x07;
-    proto_tree_add_text(ext_tree_proto, tvb, offset + 3, 1, "Configuration protocol (00000xxx): %u", conf);
-
-    proto_offset = 1;           /* ... 1st byte is conf */
-    offset += 4;
-
-    for (;;) {
-        if (proto_offset >= length)
-            break;
-        proto_id = tvb_get_ntohs(tvb, offset);
-        proto_len = tvb_get_guint8(tvb, offset + 2);
-        proto_offset += proto_len + 3;  /* 3 = proto id + length byte */
-
-        if (proto_len > 0) {
-
-            proto_tree_add_text(ext_tree_proto, tvb, offset, 2, "Protocol %u ID: %s (0x%04x)",
-                                cnt, val_to_str_ext_const(proto_id, &ppp_vals_ext, "Unknown"), proto_id);
-            proto_tree_add_text(ext_tree_proto, tvb, offset + 2, 1, "Protocol %u length: %u", cnt, proto_len);
-
-            /*
-             * Don't allow the dissector for the configuration
-             * protocol in question to update the columns - this
-             * is GTP, not PPP.
-             */
-            save_writable = col_get_writable(pinfo->cinfo);
-            col_set_writable(pinfo->cinfo, ENC_BIG_ENDIAN);
-
-            /*
-             * XXX - should we have our own dissector table,
-             * solely for configuration protocols, so that bogus
-             * values don't cause us to dissect the protocol
-             * data as, for example, IP?
-             */
-            next_tvb = tvb_new_subset(tvb, offset + 3, proto_len, proto_len);
-            if (!dissector_try_uint(ppp_subdissector_table, proto_id, next_tvb, pinfo, ext_tree_proto)) {
-                call_dissector(data_handle, next_tvb, pinfo, ext_tree_proto);
-            }
-
-            col_set_writable(pinfo->cinfo, save_writable);
-        }
-
-        offset += proto_len + 3;
-        cnt++;
-    }
+	/* The Protocol Configuration Options contains external network protocol options that may be necessary to transfer
+	 * between the GGSN and the MS. The content and the coding of the Protocol Configuration are defined in octet 3-z of the
+	 * Protocol Configuration Options in3GPP TS 24.008 [5].
+	 */
+	next_tvb = tvb_new_subset(tvb, offset + 3, length, length);
+	pinfo->link_dir = P2P_DIR_UL;
+	de_sm_pco(next_tvb, ext_tree_proto, pinfo, 0, length, NULL, 0);
 
     return 3 + length;
 }
@@ -5268,7 +5229,7 @@ static int decode_gtp_apn_res(tvbuff_t * tvb, int offset, packet_info * pinfo _U
 }
 
 /* GPRS:        ?
- * UMTS:        29.060 v6.11.0, chapter 7.7.50
+ * UMTS:        29.060 v6.11.0, chapter 7.7.50 RAT Type
  * RAT Type
  * Type = 151 (Decimal)
  */
@@ -5298,8 +5259,9 @@ static int decode_gtp_rat_type(tvbuff_t * tvb, int offset, packet_info * pinfo _
     }
 
    proto_tree_add_item(ext_tree_rat_type, hf_gtp_ext_rat_type, tvb, offset, length, ENC_BIG_ENDIAN);
+   proto_item_append_text(te, ": %s", val_to_str_const(tvb_get_guint8(tvb,offset), gtp_ext_rat_type_vals, "Unknown"));
 
-    return 3 + length;
+   return 3 + length;
 }
 
 /* GPRS:        ?
