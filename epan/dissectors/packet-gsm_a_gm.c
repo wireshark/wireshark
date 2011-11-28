@@ -368,6 +368,8 @@ static int hf_gsm_a_gm_rac_emst_cap = -1;
 static int hf_gsm_a_gm_rac_mtti_cap = -1;
 static int hf_gsm_a_gm_rac_utra_csg_cell_report = -1;
 static int hf_gsm_a_gm_rac_eutra_csg_cell_report = -1;
+static int hf_gsm_a_sm_ti_flag = -1;
+static int hf_gsm_a_sm_ext = -1;
 
 static int hf_gsm_a_gmm_net_cap_gea1 = -1;
 static int hf_gsm_a_gmm_net_cap_smdch = -1;
@@ -2925,7 +2927,7 @@ de_gmm_rai(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 /*
  * [7] 10.5.5.15a Routing area identification 2
  */
-guint16
+static guint16
 de_gmm_rai2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	/* The routing area identification 2 value is coded as octet 2 to 7 of the Routing area identification information element. */
@@ -4410,47 +4412,52 @@ de_sm_cause_2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
 /*
  * [7] 10.5.6.7
  */
+
+static const true_false_string gsm_a_sm_ti_flag_vals = {
+	"The message is sent to the side that originates the TI",
+	"The message is sent from the side that originates the TI"
+};
+
 static guint16
 de_sm_linked_ti(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
 	guint	curr_len;
 	gchar	oct;
-
-	static const gchar *ti_flag[2]={
-		"The message is sent from the side that originates the TI" ,
-		"The message is sent to the side that originates the TI" };
-
 	curr_len = len;
 	curr_offset = offset;
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"TI flag: %s (%u)",ti_flag[oct>>7],oct>>7);
+	proto_tree_add_item(tree, hf_gsm_a_sm_ti_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+	/* The TI value and the TI flag occupy bits 5 - 7 and bit 8 of the first octet respectively.
+	 * The extended TI shall not be used unless TI values of 7 or greater are needed.
+	 * Where the extended TI is used, the TI IE includes a second octet. The TI value in the first octet is ignored, and the TI
+	 * value is encoded in bits 7-1 of the second octet.
+	 */
 
 	if ( curr_len > 1 )
 	{
+		curr_offset++;
 		oct = tvb_get_guint8(tvb, curr_offset);
 
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
 			"TI value: 0x%02x (%u)",oct&0x7f,oct&0x7f);
 
-		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
-			"ext: 0x%02x (%u)",oct>>7,oct>>7);
+		proto_tree_add_item(tree, hf_gsm_a_sm_ext, tvb, offset, 1, ENC_BIG_ENDIAN);
 
+		curr_offset++;
 	}
 	else
 	{
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
 			"TI value: 0x%02x (%u)",(oct>>4)&7,(oct>>4)&7);
+		curr_offset++;
 	}
 
-	curr_offset+= curr_len;
 
 	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
 
@@ -6285,12 +6292,16 @@ dtap_sm_req_sec_pdp_act(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 	pinfo->p2p_dir = P2P_DIR_UNKNOWN;
 	pinfo->link_dir = P2P_DIR_DL;
 
+	/* Required QoS Quality of service 10.5.6.5 M LV 13-17 */
 	ELEM_MAND_LV(GSM_A_PDU_TYPE_GM, DE_QOS , " - Required QoS");
 
+	/* Linked TI Linked TI 10.5.6.7 M LV 2-3 */
 	ELEM_MAND_LV(GSM_A_PDU_TYPE_GM, DE_LINKED_TI , NULL);
 
+	/* 36 TFT Traffic Flow Template 10.5.6.12 O TLV 3-257 */
 	ELEM_OPT_TLV(0x36, GSM_A_PDU_TYPE_GM, DE_TRAFFIC_FLOW_TEMPLATE, NULL);
 
+	/* 27 Protocol configuration options Protocol configuration options 10.5.6.3 O TLV 3 – 253 */
 	ELEM_OPT_TLV(0x27, GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT, NULL);
 
 	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
@@ -6313,8 +6324,10 @@ dtap_sm_req_sec_pdp_act_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 	pinfo->p2p_dir = P2P_DIR_UNKNOWN;
 	pinfo->link_dir = P2P_DIR_UL;
 
+	/* SM cause SM cause 10.5.6.6 M V 1 */
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_SM_CAUSE, NULL);
 
+	/* 27 Protocol configuration options Protocol configuration options 10.5.6.3 O TLV 3 – 253 */
 	ELEM_OPT_TLV(0x27, GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT, NULL);
 
 	EXTRANEOUS_DATA_CHECK_EXPERT(curr_len, 0, pinfo);
@@ -7493,7 +7506,17 @@ proto_register_gsm_a_gm(void)
 		   FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x0,
 		NULL, HFILL }
 	},
-	};
+	{ &hf_gsm_a_sm_ti_flag,
+		{ "TI Flag", "gsm_a.sm.ti_flag",
+		   FT_BOOLEAN, 8, TFS(&gsm_a_sm_ti_flag_vals), 0x80,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_sm_ext,
+		{ "Extension", "gsm_a.sm.ext",
+		   FT_BOOLEAN, 8, NULL, 0x80,
+		NULL, HFILL }
+	},
+};		
 
 	/* Setup protocol subtree array */
 #define	NUM_INDIVIDUAL_ELEMS	18
