@@ -453,7 +453,7 @@ dissect_le_verify_frame(tvbuff_t *tvb, int offset, proto_tree *tree)
   dissect_le_control_tlvs(tvb, offset, num_tlvs, tree);
 }
 
-static void
+static int
 dissect_le_flush_frame(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
   dissect_lan_destination(tvb, offset, "Source", tree);
@@ -475,6 +475,8 @@ dissect_le_flush_frame(tvbuff_t *tvb, int offset, proto_tree *tree)
 
   /* Reserved */
   offset += 32;
+
+  return offset;
 }
 
 static void
@@ -610,7 +612,6 @@ dissect_le_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_text(flags_tree, tvb, offset, 2, "%s",
                           decode_boolean_bitfield(flags, 0x0100, 8*2,
                                                   "Topology change", "No topology change"));
-      offset += 2;
       /* 92 reserved bytes */
       break;
 
@@ -1667,7 +1668,9 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   {
     offset = 0; /* For PWs. Header is decoded by PW dissector.*/
     pwpd = pinfo->private_data;
+/*  Not used !
     vpi = pwpd->vpi;
+*/
     vci = pwpd->vci;
     pt  = pwpd->pti;
   }
