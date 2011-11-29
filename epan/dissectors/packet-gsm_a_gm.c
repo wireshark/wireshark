@@ -3558,7 +3558,7 @@ de_gc_uplink_data_stat(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
 /*
  * [7] 10.5.6.1
  */
-#define MAX_APN_LENGTH		50
+#define MAX_APN_LENGTH		100
 
 guint16
 de_sm_apn(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len _U_)
