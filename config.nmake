@@ -1045,7 +1045,7 @@ GTK_LIBS=$(GTK_DIR)\lib\gtk-win32-2.0.lib \
 	$(GLIB_LIBS)
 
 # 2.18 was no good(Theming problem)
-!IF "$(GTK_INST_VERSION)" == "2.22" || "$(GTK_INST_VERSION)" == "2.16" || "$(GTK_INST_VERSION)" == "2.14"
+!IF "$(GTK_INST_VERSION)" == "2.24" || "$(GTK_INST_VERSION)" == "2.22" || "$(GTK_INST_VERSION)" == "2.16" || "$(GTK_INST_VERSION)" == "2.14"
 GTK_LIB_DIR=2.10.0
 
 !IFDEF PNG_DLL
@@ -1063,8 +1063,8 @@ NEED_FREETYPE_DLL=USE
 NEED_FONTCONFIG_DLL=USE
 NEED_EXPAT_DLL=USE
 
-GTK_WIMP_DLLSRC_DIR=$(GTK_DIR)\lib\gtk-2.0\2.10.0\engines
-GTK_WIMP_DLLDST_DIR=lib\gtk-2.0\2.10.0\engines
+GTK_WIMP_DLLSRC_DIR=$(GTK_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\engines
+GTK_WIMP_DLLDST_DIR=lib\gtk-2.0\$(GTK_LIB_DIR)\engines
 GTK_WIMP_RCSRC_DIR=$(GTK_DIR)\share\themes\MS-Windows\gtk-2.0
 GTK_WIMP_RCDST_DIR=etc\gtk-2.0
 !ELSE
