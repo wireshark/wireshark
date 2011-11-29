@@ -1091,6 +1091,7 @@ DISSECTOR_INCLUDES =	\
 	packet-atm.h	\
 	packet-bacapp.h	\
 	packet-ber.h	\
+	packet-bfd.h	\
 	packet-bgp.h	\
 	packet-bootparams.h	\
 	packet-bssap.h	\
