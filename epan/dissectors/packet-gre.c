@@ -157,6 +157,7 @@ const value_string gre_typevals[] = {
 	{ GRE_ARUBA_8350,      "ARUBA WLAN" },
 	{ GRE_ARUBA_8360,      "ARUBA WLAN" },
 	{ GRE_ARUBA_8370,      "ARUBA WLAN" },
+	{ GRE_ARUBA_9000,      "ARUBA WLAN" },
 	{ 0,                   NULL }
 };
 
