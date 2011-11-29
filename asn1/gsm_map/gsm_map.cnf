@@ -54,6 +54,7 @@ ISDN-AddressString
 
 #.USE_VALS_EXT
 GSMMAPOperationLocalvalue
+OperationLocalvalue
 
 #.EXPORTS
 AddressString
