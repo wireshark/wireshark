@@ -5516,6 +5516,11 @@ proto_reg_handoff_ipv6cp(void)
    * registering with the "ethertype" dissector table.
    */
   dissector_add_uint("ethertype", PPP_IPV6CP, ipv6cp_handle);
+
+  /*
+   * for GSM-A / MobileL3 / GPRS SM / PCO
+   */
+  dissector_add_uint("sm_pco.protocol", PPP_IPV6CP, ipv6cp_handle);
 }
 
 void
