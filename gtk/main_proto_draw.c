@@ -694,8 +694,10 @@ add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
 	GtkStyleContext *context;
 	GdkRGBA		*rgba_bg_color;
 	GdkRGBA		*rgba_fg_color;
+#if !GTK_CHECK_VERSION(3,2,0)
 	GdkColor	bg_color;
 	GdkColor	fg_color;
+#endif /* GTK_CHECK_VERSION(3,2,0) */
 #else
 	GtkStyle    *style;
 #endif
@@ -715,21 +717,26 @@ add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
     gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(byte_view), FALSE);
     buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(byte_view));
 #if GTK_CHECK_VERSION(3,0,0)
-    context = gtk_widget_get_style_context (GTK_WIDGET(top_level));
-    gtk_style_context_get (context, GTK_STATE_SELECTED,
-                    "background-color", &rgba_bg_color,
-                    NULL);
-    gtk_style_context_get (context, GTK_STATE_SELECTED,
-                    "color", &rgba_fg_color,
-                    NULL);
-	/* Hack */
-	bg_color.red   = rgba_bg_color->red * 65535;
-	bg_color.green = rgba_bg_color->green * 65535;
-	bg_color.blue  = rgba_bg_color->blue * 65535;
-
-	fg_color.red   = rgba_fg_color->red * 65535;
-	fg_color.green = rgba_fg_color->green * 65535;
-	fg_color.blue  = rgba_fg_color->blue * 65535;
+    context = gtk_widget_get_style_context (GTK_WIDGET(byte_view));
+    gtk_style_context_get (context, GTK_STATE_FLAG_SELECTED,
+                    GTK_STYLE_PROPERTY_BACKGROUND_COLOR, &rgba_bg_color,
+                    GTK_STYLE_PROPERTY_COLOR, &rgba_fg_color,
+                     NULL);
+#if GTK_CHECK_VERSION(3,2,0)
+    gtk_text_buffer_create_tag(buf, "plain", "font-desc", user_font_get_regular(), NULL);
+    gtk_text_buffer_create_tag(buf, "reverse",
+                               "font-desc", user_font_get_regular(),
+                               "foreground-gdk", rgba_fg_color,
+                               "background-gdk", rgba_bg_color,
+                               NULL);
+#else
+    /* Hack */
+    bg_color.red   = rgba_bg_color->red * 65535;
+    bg_color.green = rgba_bg_color->green * 65535;
+    bg_color.blue  = rgba_bg_color->blue * 65535;
+    fg_color.red   = rgba_fg_color->red * 65535;
+    fg_color.green = rgba_fg_color->green * 65535;
+    fg_color.blue  = rgba_fg_color->blue * 65535;
 
     gtk_text_buffer_create_tag(buf, "plain", "font-desc", user_font_get_regular(), NULL);
     gtk_text_buffer_create_tag(buf, "reverse",
@@ -737,7 +744,7 @@ add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
                                "foreground-gdk", &fg_color,
                                "background-gdk", &bg_color,
                                NULL);
-
+#endif /* GTK_CHECK_VERSION(3,2,0) */
 #else
     style = gtk_widget_get_style(GTK_WIDGET(top_level));
     gtk_text_buffer_create_tag(buf, "plain", "font-desc", user_font_get_regular(), NULL);
