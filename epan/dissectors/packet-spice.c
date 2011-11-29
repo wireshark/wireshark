@@ -1284,7 +1284,7 @@ dissect_ImageLZ_RGB(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     proto_tree_add_text(LZ_RGB_tree, tvb, offset, 4, "LZ RGB image size: %u bytes", LZ_RGBSize);
     offset += 4;
 
-    offset += dissect_ImageLZ_common(tvb, LZ_RGB_tree, offset, TRUE, LZ_RGBSize);
+    dissect_ImageLZ_common(tvb, LZ_RGB_tree, offset, TRUE, LZ_RGBSize);
 
     return LZ_RGBSize + 4;
 }
@@ -1630,7 +1630,6 @@ dissect_Mask(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
         proto_tree_add_text(Mask_tree, tvb, offset, sizeof(point32_t), "Point - value irrelevant as bitmap address is 0");
         offset += sizeof(point32_t);
         proto_tree_add_item(Mask_tree, hf_Mask_bitmap, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        offset += 4;
     }
     return sizeof_Mask;
 }
@@ -1663,7 +1662,6 @@ dissect_Brush(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
             dissect_ID(tvb, brush_tree, offset);
             offset += 4;
             dissect_POINT32(tvb, brush_tree, offset);
-            offset += 8;
             return (1 + 4 + 8);
             break;
         case SPICE_BRUSH_TYPE_NONE:
@@ -1698,7 +1696,6 @@ dissect_DisplayBase(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     offset += sizeof_Clip;
     if (clip_type == CLIP_TYPE_RECTS) {
         clip_size = dissect_RectList(tvb, DisplayBase_tree, offset);
-        offset += clip_size;
         proto_item_set_len(ti, sizeof_DisplayBase + clip_size);
         return sizeof_DisplayBase + clip_size;
     }
@@ -1792,8 +1789,7 @@ dissect_spice_common_client_messages(tvbuff_t *tvb, proto_tree *tree, const guin
             offset += 4;
             break;
         case SPICEC_ACK:
-            ti = proto_tree_add_text(tree, tvb, offset, 0, "Client ACK message");
-            client_message_tree = proto_item_add_subtree(ti, ett_common_client_message);
+            proto_tree_add_text(tree, tvb, offset, 0, "Client ACK message");
             break;
         case SPICEC_PONG:
             ti = proto_tree_add_text(tree, tvb, offset, 12, "Client PONG message");
@@ -2262,33 +2258,33 @@ dissect_spice_agent_message(tvbuff_t *tvb, proto_tree *tree, const guint32 messa
 
     switch (message_type) {
         case VD_AGENT_MOUSE_STATE:
-            ti = proto_tree_add_text(tree, tvb, offset, 4, "VD_AGENT_MOUSE_STATE message");
+            proto_tree_add_text(tree, tvb, offset, 4, "VD_AGENT_MOUSE_STATE message");
             offset += 4;
             break;
         case VD_AGENT_MONITORS_CONFIG:
-            ti = proto_tree_add_text(tree, tvb, offset, 4, "VD_AGENT_MONITORS_CONFIG message");
+            proto_tree_add_text(tree, tvb, offset, 4, "VD_AGENT_MONITORS_CONFIG message");
             offset += 4;
             break;
         case VD_AGENT_REPLY:
-            ti = proto_tree_add_text(tree, tvb, offset, message_len, "VD_AGENT_REPLY message");
+            /*ti = */proto_tree_add_text(tree, tvb, offset, message_len, "VD_AGENT_REPLY message");
             /* TODO: complete dissection
             agent_tree = proto_item_add_subtree(ti, ett_spice_agent);
             */
             offset += message_len;
             break;
         case VD_AGENT_CLIPBOARD:
-            ti = proto_tree_add_text(tree, tvb, offset, message_len, "VD_AGENT_CLIPBOARD message");
+            /*ti = */proto_tree_add_text(tree, tvb, offset, message_len, "VD_AGENT_CLIPBOARD message");
             /* TODO: display string
             agent_tree = proto_item_add_subtree(ti, ett_spice_agent);
             */
             offset += message_len;
             break;
         case VD_AGENT_DISPLAY_CONFIG:
-            ti = proto_tree_add_text(tree, tvb, offset, 4, "VD_AGENT_DISPLAY_CONFIG message");
+            proto_tree_add_text(tree, tvb, offset, 4, "VD_AGENT_DISPLAY_CONFIG message");
             offset += 4;
             break;
         case VD_AGENT_ANNOUNCE_CAPABILITIES:
-            ti = proto_tree_add_text(tree, tvb, offset, message_len, "VD_AGENT_ANNOUNCE_CAPABILITIES message");
+            /*ti = */proto_tree_add_text(tree, tvb, offset, message_len, "VD_AGENT_ANNOUNCE_CAPABILITIES message");
             /* TODO: complete dissection
             agent_tree = proto_item_add_subtree(ti, ett_spice_agent);
             */
@@ -2313,7 +2309,7 @@ dissect_spice_agent_message(tvbuff_t *tvb, proto_tree *tree, const guint32 messa
             offset += 4;
             break;
         case VD_AGENT_CLIPBOARD_RELEASE:
-            ti = proto_tree_add_text(tree, tvb, offset, 0, "VD_AGENT_CLIPBOARD_RELEASE message");
+            proto_tree_add_text(tree, tvb, offset, 0, "VD_AGENT_CLIPBOARD_RELEASE message");
             break;
         default:
             proto_tree_add_text(tree, tvb, offset, 0, "Unknown agent message (%u) - cannot dissect", message_type);
@@ -2405,14 +2401,14 @@ dissect_spice_main_client(tvbuff_t *tvb, proto_tree *tree, const guint16 message
 
     switch(message_type) {
         case SPICEC_MAIN_MOUSE_MODE_REQUEST:
-            ti = proto_tree_add_text(tree, tvb, offset, 4, "Client MOUSE_MODE_REQUEST message");
+            /*ti = */proto_tree_add_text(tree, tvb, offset, 4, "Client MOUSE_MODE_REQUEST message");
             /* TODO: complete dissection - mouse_mode, 2 bytes
             main_tree = proto_item_add_subtree(ti, ett_main_client);
             */
             offset += 2;
             break;
         case SPICEC_MAIN_ATTACH_CHANNELS:
-            ti = proto_tree_add_text(tree, tvb, offset, 4, "Client MAIN_ATTACH_CHANNEL message");
+            /*ti = */proto_tree_add_text(tree, tvb, offset, 4, "Client MAIN_ATTACH_CHANNEL message");
             /* TODO: complete dissection
             main_tree = proto_item_add_subtree(ti, ett_main_client);
             */
@@ -2453,14 +2449,14 @@ dissect_spice_inputs_client(tvbuff_t *tvb, proto_tree *tree, const guint16 messa
 
     switch(message_type) {
         case SPICEC_INPUTS_KEY_DOWN:
-            ti = proto_tree_add_text(tree, tvb, offset, 4, "Client KEY_DOWN message");
+            /*ti = */proto_tree_add_text(tree, tvb, offset, 4, "Client KEY_DOWN message");
             /* TODO: complete dissection
             inputs_tree = proto_item_add_subtree(ti, ett_inputs_client);
             */
             offset += 4;
             break;
         case SPICEC_INPUTS_KEY_UP:
-            ti = proto_tree_add_text(tree, tvb, offset, 4, "Client KEY_UP message");
+            /*ti = */proto_tree_add_text(tree, tvb, offset, 4, "Client KEY_UP message");
             /* TODO: complete dissection
             inputs_tree = proto_item_add_subtree(ti, ett_inputs_client);
             */
@@ -2768,7 +2764,6 @@ dissect_spice_link_client_pdu(tvbuff_t *tvb, proto_tree *tree, spice_conversatio
                                  "Common Capabilities (%d bytes)",
                                  common_caps_len * 4); /* caps_len multiplied by 4 as length is in UINT32 units   */
         caps_tree = proto_item_add_subtree(ti, ett_link_caps);
-        caps_tree = proto_item_add_subtree(ti, ett_link_caps);
         dissect_spice_common_capabilities(tvb, caps_tree, offset, common_caps_len, spice_info, TRUE);
         offset += (common_caps_len * 4);
     }
@@ -3051,7 +3046,6 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             offset = 0;
             avail = tvb_length_remaining(tvb, offset);
             if (avail >= 1) {
-                pdu_len = 1;
                 if (tree && spice_tree == NULL) {
                     ti = proto_tree_add_item(tree, proto_spice, tvb, offset, 1, ENC_NA);
                     spice_tree = proto_item_add_subtree(ti, ett_spice);
@@ -3061,7 +3055,6 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 col_set_str(pinfo->cinfo, COL_INFO, "SASL authentication - result from server");
                 sasl_auth_result = tvb_get_guint8(tvb, offset);
                 proto_tree_add_item(spice_tree, hf_spice_sasl_auth_result, tvb, offset, 1, ENC_NA);
-                offset += 1;
 
                 if (per_packet_info->state == SPICE_SASL_START_FROM_SERVER_CONT) {
                     /* if we are in the sasl start, and can continue */
@@ -3171,10 +3164,8 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 }
                 if (spice_info->destport == pinfo->destport) { /* client to server traffic */
                      offset = dissect_spice_data_client_pdu(tvb, spice_data_tree, pinfo, spice_info, offset);
-                     avail = tvb_length_remaining(tvb, offset);
                  } else { /* server to client traffic */
                      offset = dissect_spice_data_server_pdu(tvb, spice_data_tree, pinfo, spice_info, offset, pdu_len);
-                     avail = tvb_length_remaining(tvb, offset);
                  }
                 first_record_in_frame = FALSE;
              }
