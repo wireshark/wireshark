@@ -15,6 +15,8 @@
  * Copyright 1999 - 2006 Gerald Combs
  */
 
+static int hf_operationrequest = -1;/* Request_Operation field */
+
 
 /*
  * This program is free software; you can redistribute it and/or
@@ -1354,6 +1356,11 @@ static gboolean dissect_cosnaming(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
     gboolean stream_is_big_endian;                        /* big endianess */
     proto_tree *tree _U_;
+#define process_RequestOperation(){ \
+		proto_item *pi; \
+     	if(header->message_type == Reply){ col_append_fstr(pinfo->cinfo, COL_INFO, " op = %s",operation); }; /* fill-up info column */ \
+	    pi=proto_tree_add_string_format_value(ptree,hf_operationrequest,tvb,0,0,operation," %s",operation);PROTO_ITEM_SET_GENERATED(pi); /* fill-up the field */ \
+   };
 
     stream_is_big_endian = is_big_endian(header);         /* get endianess  */
 
@@ -1372,6 +1379,7 @@ static gboolean dissect_cosnaming(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
         if (strcmp(operation, CosNaming_NamingContext_bind_op) == 0
             && (!idlname || strcmp(idlname, "CosNaming/NamingContext") == 0)) {
+           process_RequestOperation();  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosNaming_NamingContext_bind(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -1379,6 +1387,7 @@ static gboolean dissect_cosnaming(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
         if (strcmp(operation, CosNaming_NamingContext_rebind_op) == 0
             && (!idlname || strcmp(idlname, "CosNaming/NamingContext") == 0)) {
+           process_RequestOperation();  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosNaming_NamingContext_rebind(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -1386,6 +1395,7 @@ static gboolean dissect_cosnaming(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
         if (strcmp(operation, CosNaming_NamingContext_bind_context_op) == 0
             && (!idlname || strcmp(idlname, "CosNaming/NamingContext") == 0)) {
+           process_RequestOperation();  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosNaming_NamingContext_bind_context(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -1393,6 +1403,7 @@ static gboolean dissect_cosnaming(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
         if (strcmp(operation, CosNaming_NamingContext_rebind_context_op) == 0
             && (!idlname || strcmp(idlname, "CosNaming/NamingContext") == 0)) {
+           process_RequestOperation();  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosNaming_NamingContext_rebind_context(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -1400,6 +1411,7 @@ static gboolean dissect_cosnaming(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
         if (strcmp(operation, CosNaming_NamingContext_resolve_op) == 0
             && (!idlname || strcmp(idlname, "CosNaming/NamingContext") == 0)) {
+           process_RequestOperation();  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosNaming_NamingContext_resolve(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -1407,6 +1419,7 @@ static gboolean dissect_cosnaming(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
         if (strcmp(operation, CosNaming_NamingContext_unbind_op) == 0
             && (!idlname || strcmp(idlname, "CosNaming/NamingContext") == 0)) {
+           process_RequestOperation();  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosNaming_NamingContext_unbind(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -1414,6 +1427,7 @@ static gboolean dissect_cosnaming(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
         if (strcmp(operation, CosNaming_NamingContext_new_context_op) == 0
             && (!idlname || strcmp(idlname, "CosNaming/NamingContext") == 0)) {
+           process_RequestOperation();  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosNaming_NamingContext_new_context(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -1421,6 +1435,7 @@ static gboolean dissect_cosnaming(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
         if (strcmp(operation, CosNaming_NamingContext_bind_new_context_op) == 0
             && (!idlname || strcmp(idlname, "CosNaming/NamingContext") == 0)) {
+           process_RequestOperation();  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosNaming_NamingContext_bind_new_context(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -1428,6 +1443,7 @@ static gboolean dissect_cosnaming(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
         if (strcmp(operation, CosNaming_NamingContext_destroy_op) == 0
             && (!idlname || strcmp(idlname, "CosNaming/NamingContext") == 0)) {
+           process_RequestOperation();  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosNaming_NamingContext_destroy(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -1435,6 +1451,7 @@ static gboolean dissect_cosnaming(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
         if (strcmp(operation, CosNaming_NamingContext_list_op) == 0
             && (!idlname || strcmp(idlname, "CosNaming/NamingContext") == 0)) {
+           process_RequestOperation();  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosNaming_NamingContext_list(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -1442,6 +1459,7 @@ static gboolean dissect_cosnaming(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
         if (strcmp(operation, CosNaming_BindingIterator_next_one_op) == 0
             && (!idlname || strcmp(idlname, "CosNaming/BindingIterator") == 0)) {
+           process_RequestOperation();  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosNaming_BindingIterator_next_one(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -1449,6 +1467,7 @@ static gboolean dissect_cosnaming(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
         if (strcmp(operation, CosNaming_BindingIterator_next_n_op) == 0
             && (!idlname || strcmp(idlname, "CosNaming/BindingIterator") == 0)) {
+           process_RequestOperation();  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosNaming_BindingIterator_next_n(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -1456,6 +1475,7 @@ static gboolean dissect_cosnaming(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
         if (strcmp(operation, CosNaming_BindingIterator_destroy_op) == 0
             && (!idlname || strcmp(idlname, "CosNaming/BindingIterator") == 0)) {
+           process_RequestOperation();  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosNaming_BindingIterator_destroy(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -1490,13 +1510,13 @@ void proto_register_giop_cosnaming(void) {
 
    /* setup list of header fields */
 
-#if 0
    static hf_register_info hf[] = {
+        /* field that indicates the currently ongoing request/reply exchange */
+		{&hf_operationrequest, {"Request_Operation","COSNAMING.Request_Operation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
 
       /* no fields yet */
 
    };
-#endif
 
    /* setup protocol subtree array */
 
@@ -1508,9 +1528,8 @@ void proto_register_giop_cosnaming(void) {
 
    proto_cosnaming = proto_register_protocol("Cosnaming Dissector Using GIOP API" , "COSNAMING", "giop-cosnaming" );
 
-#if 0
    proto_register_field_array(proto_cosnaming, hf, array_length(hf));
-#endif
+
    proto_register_subtree_array(ett,array_length(ett));
 
 }

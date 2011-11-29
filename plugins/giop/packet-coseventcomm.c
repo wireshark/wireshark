@@ -15,6 +15,8 @@
  * Copyright 1999 - 2006 Gerald Combs
  */
 
+static int hf_operationrequest = -1;/* Request_Operation field */
+
 
 /*
  * This program is free software; you can redistribute it and/or
@@ -602,6 +604,11 @@ static gboolean dissect_coseventcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
     gboolean stream_is_big_endian;                        /* big endianess */
     proto_tree *tree _U_;
+#define process_RequestOperation(){ \
+		proto_item *pi; \
+     	if(header->message_type == Reply){ col_append_fstr(pinfo->cinfo, COL_INFO, " op = %s",operation); }; /* fill-up info column */ \
+	    pi=proto_tree_add_string_format_value(ptree,hf_operationrequest,tvb,0,0,operation," %s",operation);PROTO_ITEM_SET_GENERATED(pi); /* fill-up the field */ \
+   };
 
     stream_is_big_endian = is_big_endian(header);         /* get endianess  */
 
@@ -620,6 +627,7 @@ static gboolean dissect_coseventcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
         if (strcmp(operation, CosEventComm_PushConsumer_push_op) == 0
             && (!idlname || strcmp(idlname, "CosEventComm/PushConsumer") == 0)) {
+           process_RequestOperation();  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosEventComm_PushConsumer_push(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -627,6 +635,7 @@ static gboolean dissect_coseventcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
         if (strcmp(operation, CosEventComm_PushConsumer_disconnect_push_consumer_op) == 0
             && (!idlname || strcmp(idlname, "CosEventComm/PushConsumer") == 0)) {
+           process_RequestOperation();  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosEventComm_PushConsumer_disconnect_push_consumer(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -634,6 +643,7 @@ static gboolean dissect_coseventcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
         if (strcmp(operation, CosEventComm_PushSupplier_disconnect_push_supplier_op) == 0
             && (!idlname || strcmp(idlname, "CosEventComm/PushSupplier") == 0)) {
+           process_RequestOperation();  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosEventComm_PushSupplier_disconnect_push_supplier(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -641,6 +651,7 @@ static gboolean dissect_coseventcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
         if (strcmp(operation, CosEventComm_PullSupplier_pull_op) == 0
             && (!idlname || strcmp(idlname, "CosEventComm/PullSupplier") == 0)) {
+           process_RequestOperation();  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosEventComm_PullSupplier_pull(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -648,6 +659,7 @@ static gboolean dissect_coseventcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
         if (strcmp(operation, CosEventComm_PullSupplier_try_pull_op) == 0
             && (!idlname || strcmp(idlname, "CosEventComm/PullSupplier") == 0)) {
+           process_RequestOperation();  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosEventComm_PullSupplier_try_pull(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -655,6 +667,7 @@ static gboolean dissect_coseventcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
         if (strcmp(operation, CosEventComm_PullSupplier_disconnect_pull_supplier_op) == 0
             && (!idlname || strcmp(idlname, "CosEventComm/PullSupplier") == 0)) {
+           process_RequestOperation();  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosEventComm_PullSupplier_disconnect_pull_supplier(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -662,6 +675,7 @@ static gboolean dissect_coseventcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
         if (strcmp(operation, CosEventComm_PullConsumer_disconnect_pull_consumer_op) == 0
             && (!idlname || strcmp(idlname, "CosEventComm/PullConsumer") == 0)) {
+           process_RequestOperation();  /* fill-up Request_Operation field & info column */
            tree = start_dissecting(tvb, pinfo, ptree, offset);
            decode_CosEventComm_PullConsumer_disconnect_pull_consumer(tvb, pinfo, tree, offset, header, operation, stream_is_big_endian);
            return TRUE;
@@ -696,13 +710,13 @@ void proto_register_giop_coseventcomm(void) {
 
    /* setup list of header fields */
 
-#if 0
    static hf_register_info hf[] = {
+        /* field that indicates the currently ongoing request/reply exchange */
+		{&hf_operationrequest, {"Request_Operation","COSEVENTCOMM.Request_Operation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
 
       /* no fields yet */
 
    };
-#endif
 
    /* setup protocol subtree array */
 
@@ -714,9 +728,8 @@ void proto_register_giop_coseventcomm(void) {
 
    proto_coseventcomm = proto_register_protocol("Coseventcomm Dissector Using GIOP API" , "COSEVENTCOMM", "giop-coseventcomm" );
 
-#if 0
    proto_register_field_array(proto_coseventcomm, hf, array_length(hf));
-#endif
+
    proto_register_subtree_array(ett,array_length(ett));
 
 }
