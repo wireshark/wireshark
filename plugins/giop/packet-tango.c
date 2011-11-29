@@ -527,7 +527,7 @@ static void decode_get_Tango_Device_state_at(tvbuff_t *tvb _U_, packet_info *pin
     
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
     if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-4,4,"Enum value = %u (%s)",u_octet4,val_to_str(u_octet4,Tango_DevState,"Unknown Enum Value"));
+       proto_tree_add_text(tree,tvb,*offset-4,4,"state  = %u (%s)",u_octet4,val_to_str(u_octet4,Tango_DevState,"Unknown Enum Value"));
     }
 
 }
@@ -1391,7 +1391,7 @@ static void decode_Tango_Device_2_command_inout_2(tvbuff_t *tvb _U_, packet_info
         
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-4,4,"Enum value = %u (%s)",u_octet4,val_to_str(u_octet4,Tango_DevSource,"Unknown Enum Value"));
+           proto_tree_add_text(tree,tvb,*offset-4,4,"source  = %u (%s)",u_octet4,val_to_str(u_octet4,Tango_DevSource,"Unknown Enum Value"));
         }
 
         break;
@@ -1479,7 +1479,7 @@ static void decode_Tango_Device_2_read_attributes_2(tvbuff_t *tvb _U_, packet_in
         
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-4,4,"Enum value = %u (%s)",u_octet4,val_to_str(u_octet4,Tango_DevSource,"Unknown Enum Value"));
+           proto_tree_add_text(tree,tvb,*offset-4,4,"source  = %u (%s)",u_octet4,val_to_str(u_octet4,Tango_DevSource,"Unknown Enum Value"));
         }
 
         break;
@@ -2013,7 +2013,7 @@ static void decode_Tango_Device_3_read_attributes_3(tvbuff_t *tvb _U_, packet_in
         
         u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
         if (tree) {
-           proto_tree_add_text(tree,tvb,*offset-4,4,"Enum value = %u (%s)",u_octet4,val_to_str(u_octet4,Tango_DevSource,"Unknown Enum Value"));
+           proto_tree_add_text(tree,tvb,*offset-4,4,"source  = %u (%s)",u_octet4,val_to_str(u_octet4,Tango_DevSource,"Unknown Enum Value"));
         }
 
         break;
@@ -2691,7 +2691,7 @@ static void decode_Tango_DevCmdInfo_2_st(tvbuff_t *tvb _U_, packet_info *pinfo _
     
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
     if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-4,4,"Enum value = %u (%s)",u_octet4,val_to_str(u_octet4,Tango_DispLevel,"Unknown Enum Value"));
+       proto_tree_add_text(tree,tvb,*offset-4,4,"DevCmdInfo_2_level  = %u (%s)",u_octet4,val_to_str(u_octet4,Tango_DispLevel,"Unknown Enum Value"));
     }
 
     s_octet4 = get_CDR_long(tvb,offset,stream_is_big_endian, boundary);
@@ -2753,7 +2753,7 @@ static void decode_Tango_DevError_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
     
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
     if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-4,4,"Enum value = %u (%s)",u_octet4,val_to_str(u_octet4,Tango_ErrSeverity,"Unknown Enum Value"));
+       proto_tree_add_text(tree,tvb,*offset-4,4,"DevError_severity  = %u (%s)",u_octet4,val_to_str(u_octet4,Tango_ErrSeverity,"Unknown Enum Value"));
     }
 
     u_octet4 = get_CDR_string(tvb, &seq, offset, stream_is_big_endian, boundary);
@@ -2851,13 +2851,13 @@ static void decode_Tango_AttributeConfig_st(tvbuff_t *tvb _U_, packet_info *pinf
     
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
     if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-4,4,"Enum value = %u (%s)",u_octet4,val_to_str(u_octet4,Tango_AttrWriteType,"Unknown Enum Value"));
+       proto_tree_add_text(tree,tvb,*offset-4,4,"AttributeConfig_writable  = %u (%s)",u_octet4,val_to_str(u_octet4,Tango_AttrWriteType,"Unknown Enum Value"));
     }
 
     
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
     if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-4,4,"Enum value = %u (%s)",u_octet4,val_to_str(u_octet4,Tango_AttrDataFormat,"Unknown Enum Value"));
+       proto_tree_add_text(tree,tvb,*offset-4,4,"AttributeConfig_data_format  = %u (%s)",u_octet4,val_to_str(u_octet4,Tango_AttrDataFormat,"Unknown Enum Value"));
     }
 
     s_octet4 = get_CDR_long(tvb,offset,stream_is_big_endian, boundary);
@@ -3021,13 +3021,13 @@ static void decode_Tango_AttributeConfig_2_st(tvbuff_t *tvb _U_, packet_info *pi
     
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
     if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-4,4,"Enum value = %u (%s)",u_octet4,val_to_str(u_octet4,Tango_AttrWriteType,"Unknown Enum Value"));
+       proto_tree_add_text(tree,tvb,*offset-4,4,"AttributeConfig_2_writable  = %u (%s)",u_octet4,val_to_str(u_octet4,Tango_AttrWriteType,"Unknown Enum Value"));
     }
 
     
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
     if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-4,4,"Enum value = %u (%s)",u_octet4,val_to_str(u_octet4,Tango_AttrDataFormat,"Unknown Enum Value"));
+       proto_tree_add_text(tree,tvb,*offset-4,4,"AttributeConfig_2_data_format  = %u (%s)",u_octet4,val_to_str(u_octet4,Tango_AttrDataFormat,"Unknown Enum Value"));
     }
 
     s_octet4 = get_CDR_long(tvb,offset,stream_is_big_endian, boundary);
@@ -3147,7 +3147,7 @@ static void decode_Tango_AttributeConfig_2_st(tvbuff_t *tvb _U_, packet_info *pi
     
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
     if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-4,4,"Enum value = %u (%s)",u_octet4,val_to_str(u_octet4,Tango_DispLevel,"Unknown Enum Value"));
+       proto_tree_add_text(tree,tvb,*offset-4,4,"AttributeConfig_2_level  = %u (%s)",u_octet4,val_to_str(u_octet4,Tango_DispLevel,"Unknown Enum Value"));
     }
 
     u_octet4_loop_AttributeConfig_2_extensions = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
@@ -3188,7 +3188,7 @@ static void decode_Tango_AttributeValue_st(tvbuff_t *tvb _U_, packet_info *pinfo
     
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
     if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-4,4,"Enum value = %u (%s)",u_octet4,val_to_str(u_octet4,Tango_AttrQuality,"Unknown Enum Value"));
+       proto_tree_add_text(tree,tvb,*offset-4,4,"AttributeValue_quality  = %u (%s)",u_octet4,val_to_str(u_octet4,Tango_AttrQuality,"Unknown Enum Value"));
     }
 
     /*  Begin struct "Tango_TimeVal"  */
@@ -3262,7 +3262,7 @@ static void decode_Tango_AttributeValue_3_st(tvbuff_t *tvb _U_, packet_info *pin
     
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
     if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-4,4,"Enum value = %u (%s)",u_octet4,val_to_str(u_octet4,Tango_AttrQuality,"Unknown Enum Value"));
+       proto_tree_add_text(tree,tvb,*offset-4,4,"AttributeValue_3_quality  = %u (%s)",u_octet4,val_to_str(u_octet4,Tango_AttrQuality,"Unknown Enum Value"));
     }
 
     /*  Begin struct "Tango_TimeVal"  */
@@ -3626,13 +3626,13 @@ static void decode_Tango_AttributeConfig_3_st(tvbuff_t *tvb _U_, packet_info *pi
     
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
     if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-4,4,"Enum value = %u (%s)",u_octet4,val_to_str(u_octet4,Tango_AttrWriteType,"Unknown Enum Value"));
+       proto_tree_add_text(tree,tvb,*offset-4,4,"AttributeConfig_3_writable  = %u (%s)",u_octet4,val_to_str(u_octet4,Tango_AttrWriteType,"Unknown Enum Value"));
     }
 
     
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
     if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-4,4,"Enum value = %u (%s)",u_octet4,val_to_str(u_octet4,Tango_AttrDataFormat,"Unknown Enum Value"));
+       proto_tree_add_text(tree,tvb,*offset-4,4,"AttributeConfig_3_data_format  = %u (%s)",u_octet4,val_to_str(u_octet4,Tango_AttrDataFormat,"Unknown Enum Value"));
     }
 
     s_octet4 = get_CDR_long(tvb,offset,stream_is_big_endian, boundary);
@@ -3734,7 +3734,7 @@ static void decode_Tango_AttributeConfig_3_st(tvbuff_t *tvb _U_, packet_info *pi
     
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
     if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-4,4,"Enum value = %u (%s)",u_octet4,val_to_str(u_octet4,Tango_DispLevel,"Unknown Enum Value"));
+       proto_tree_add_text(tree,tvb,*offset-4,4,"AttributeConfig_3_level  = %u (%s)",u_octet4,val_to_str(u_octet4,Tango_DispLevel,"Unknown Enum Value"));
     }
 
     /*  Begin struct "Tango_AttributeAlarm"  */

@@ -188,7 +188,7 @@ static void decode_ex_CosNaming_NamingContext_NotFound(tvbuff_t *tvb _U_, packet
     
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
     if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-4,4,"Enum value = %u (%s)",u_octet4,val_to_str(u_octet4,CosNaming_NamingContext_NotFoundReason,"Unknown Enum Value"));
+       proto_tree_add_text(tree,tvb,*offset-4,4,"NotFound_why  = %u (%s)",u_octet4,val_to_str(u_octet4,CosNaming_NamingContext_NotFoundReason,"Unknown Enum Value"));
     }
 
     u_octet4_loop_NotFound_rest_of_name = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
@@ -1319,7 +1319,7 @@ static void decode_CosNaming_Binding_st(tvbuff_t *tvb _U_, packet_info *pinfo _U
     
     u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
     if (tree) {
-       proto_tree_add_text(tree,tvb,*offset-4,4,"Enum value = %u (%s)",u_octet4,val_to_str(u_octet4,CosNaming_BindingType,"Unknown Enum Value"));
+       proto_tree_add_text(tree,tvb,*offset-4,4,"Binding_binding_type  = %u (%s)",u_octet4,val_to_str(u_octet4,CosNaming_BindingType,"Unknown Enum Value"));
     }
 
 }

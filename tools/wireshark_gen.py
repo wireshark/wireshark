@@ -1095,7 +1095,7 @@ class wireshark_gen_C:
     def get_CDR_enum(self,pn,type):
         #self.st.out(self.template_get_CDR_enum, varname=pn)
         sname = self.namespace(type.unalias(), "_")
-        self.st.out(self.template_get_CDR_enum_symbolic, valstringarray=sname)
+        self.st.out(self.template_get_CDR_enum_symbolic, valstringarray=sname,varname=pn)
 
 
         self.addvar(self.c_u_octet4)
@@ -1933,7 +1933,7 @@ seq = NULL;
 
 u_octet4 = get_CDR_enum(tvb,offset,stream_is_big_endian, boundary);
 if (tree) {
-   proto_tree_add_text(tree,tvb,*offset-4,4,"Enum value = %u (%s)",u_octet4,val_to_str(u_octet4,@valstringarray@,"Unknown Enum Value"));
+   proto_tree_add_text(tree,tvb,*offset-4,4,"@varname@  = %u (%s)",u_octet4,val_to_str(u_octet4,@valstringarray@,"Unknown Enum Value"));
 }
 """
     template_get_CDR_string = """\
