@@ -1043,7 +1043,7 @@ static int hf_infiniband_PortCountersExt_PortMulticastRcvPkts = -1;
 * There is no need to redeclare them for specific Traps (as with other SA Attributes) because they are uniform between Traps. */
 
 /* Parse DataDetails for a given Trap */
-static void parse_NoticeDataDetails(proto_tree*, tvbuff_t*, gint *offset, guint16 trapNumber);
+static gint parse_NoticeDataDetails(proto_tree*, tvbuff_t*, gint *offset, guint16 trapNumber);
 
 /* Traps 64,65,66,67 */
 static int hf_infiniband_Trap_GIDADDR = -1;
@@ -3674,14 +3674,14 @@ static gboolean parse_SUBA_Attribute(proto_tree *parentTree, tvbuff_t *tvb, gint
 *       offset - The offset in TVB where the attribute begins
 *       trapNumber - The Trap ID of the Trap Data being Dissected  */
 
-static void parse_NoticeDataDetails(proto_tree* parentTree, tvbuff_t* tvb, gint *offset, guint16 trapNumber)
+static gint parse_NoticeDataDetails(proto_tree* parentTree, tvbuff_t* tvb, gint *offset, guint16 trapNumber)
 {
     gint local_offset = *offset;
     proto_tree *DataDetails_header_tree = NULL;
     proto_item *DataDetails_header_item = NULL;
 
     if(!parentTree)
-        return;
+        return 0;
 
     DataDetails_header_item = proto_tree_add_item(parentTree, hf_infiniband_smp_data, tvb, local_offset, 54, ENC_NA);
     DataDetails_header_tree = proto_item_add_subtree(DataDetails_header_item, ett_datadetails);
@@ -3821,7 +3821,7 @@ static void parse_NoticeDataDetails(proto_tree* parentTree, tvbuff_t* tvb, gint 
             proto_item_set_text(DataDetails_header_item, "%s", "Vendor Specific Subnet Management Trap"); local_offset +=54;
             break;
     }
-
+return local_offset;
 }
 
 /* Parse NoticesAndTraps Attribute
