@@ -82,6 +82,7 @@ enum {
 enum {
     CHANNEL_NAME,
     CHANNEL_MODE,
+    CHANNEL_PRIORITY,
     CHANNEL_UL_FRAMES,
     CHANNEL_UL_BYTES,
     CHANNEL_UL_BW,
@@ -102,7 +103,7 @@ static const gchar *ue_titles[] = { "UEId",
                                     "UL Frames", "UL Bytes", "UL MBit/sec", "UL ACKs", "UL NACKs", "UL Missing",
                                     "DL Frames", "DL Bytes", "DL MBit/sec", "DL ACKs", "DL NACKs", "DL Missing"};
 
-static const gchar *channel_titles[] = { "", "Mode",
+static const gchar *channel_titles[] = { "", "Mode", "Priority",
                                          "UL Frames", "UL Bytes", "UL MBit/sec", "UL ACKs", "UL NACKs", "UL Missing",
                                          "DL Frames", "DL Bytes", "DL MBit/sec", "DL ACKs", "DL NACKs", "DL Missing"};
 
@@ -110,6 +111,7 @@ static const gchar *channel_titles[] = { "", "Mode",
 typedef struct rlc_channel_stats {
     guint8   inUse;
     guint8   rlcMode;
+    guint8   priority;
     guint16  channelType;
     guint16  channelId;
 
@@ -497,6 +499,9 @@ rlc_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
         channel_stats->rlcMode = si->rlcMode;
         channel_stats->channelType = si->channelType;
         channel_stats->channelId = si->channelId;
+        if (si->priority != 0) {
+            channel_stats->priority = si->priority;
+        }
     }
     else {
         /* Giving up if no channel found... */
@@ -612,6 +617,7 @@ rlc_lte_channels(rlc_lte_ep_t *rlc_stat_ep, rlc_lte_stat_t *hs)
         gtk_list_store_set(channels_store, &channel_stats->iter,
                            CHANNEL_NAME, "CCCH",
                            CHANNEL_MODE, print_rlc_channel_mode(channel_stats->rlcMode),
+                           CHANNEL_PRIORITY, 0,
                            CHANNEL_UL_FRAMES, channel_stats->UL_frames,
                            CHANNEL_UL_BYTES, channel_stats->UL_bytes,
                            CHANNEL_DL_FRAMES, channel_stats->DL_frames,
@@ -646,6 +652,7 @@ rlc_lte_channels(rlc_lte_ep_t *rlc_stat_ep, rlc_lte_stat_t *hs)
             gtk_list_store_set(channels_store, &channel_stats->iter,
                                CHANNEL_NAME, buff,
                                CHANNEL_MODE, print_rlc_channel_mode(channel_stats->rlcMode),
+                               CHANNEL_PRIORITY, channel_stats->priority,
                                CHANNEL_UL_FRAMES, channel_stats->UL_frames,
                                CHANNEL_UL_BYTES, channel_stats->UL_bytes,
                                CHANNEL_UL_BW, UL_bw,
@@ -689,6 +696,7 @@ rlc_lte_channels(rlc_lte_ep_t *rlc_stat_ep, rlc_lte_stat_t *hs)
             gtk_list_store_set(channels_store, &channel_stats->iter,
                                CHANNEL_NAME, buff,
                                CHANNEL_MODE, print_rlc_channel_mode(channel_stats->rlcMode),
+                               CHANNEL_PRIORITY, channel_stats->priority,
                                CHANNEL_UL_FRAMES, channel_stats->UL_frames,
                                CHANNEL_UL_BYTES, channel_stats->UL_bytes,
                                CHANNEL_UL_BW, UL_bw,
@@ -1369,7 +1377,7 @@ static void gtk_rlc_lte_stat_init(const char *optarg, void *userdata _U_)
 
     /* Create the table of UE data */
     store = gtk_list_store_new(NUM_CHANNEL_COLUMNS,
-                               G_TYPE_STRING, G_TYPE_STRING, /* name & type */
+                               G_TYPE_STRING, G_TYPE_STRING, G_TYPE_INT, /* name, type, priority */
                                G_TYPE_INT, G_TYPE_INT, G_TYPE_FLOAT, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, /* UL */
                                G_TYPE_INT, G_TYPE_INT, G_TYPE_FLOAT, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, /* DL */
                                G_TYPE_POINTER);
