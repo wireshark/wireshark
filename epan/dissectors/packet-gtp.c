@@ -445,8 +445,12 @@ static const value_string gtp_message_type[] = {
     {GTP_MSG_UPDATE_PDP_RESP,     "Update PDP context response"},
     {GTP_MSG_DELETE_PDP_REQ,      "Delete PDP context request"},
     {GTP_MSG_DELETE_PDP_RESP,     "Delete PDP context response"},
-    {GTP_MSG_CREATE_AA_PDP_REQ,   "Create AA PDP Context Request"},
-    {GTP_MSG_CREATE_AA_PDP_RESP,  "Create AA PDP Context Response"},
+    {GTP_MSG_INIT_PDP_CONTEXT_ACT_REQ,   "Initiate PDP Context Activation Request"},
+    {GTP_MSG_INIT_PDP_CONTEXT_ACT_RESP,  "Initiate PDP Context Activation Response"},
+/*
+ * 24-25 For future use. Shall not be sent. If received,
+ * shall be treated as an Unknown message.
+ */
     {GTP_MSG_DELETE_AA_PDP_REQ,   "Delete AA PDP Context Request"},
     {GTP_MSG_DELETE_AA_PDP_RESP,  "Delete AA PDP Context Response"},
     {GTP_MSG_ERR_IND,             "Error indication"},
@@ -618,6 +622,20 @@ static const value_string gtp_message_type[] = {
     /* 242-253 For future use. Shall not be sent. If received,
      * shall be treated as an Unknown message.
      */
+#if 0
+    {  242,                       "Unknown message(For future use)"},
+    {  243,                       "Unknown message(For future use)"},
+    {  244,                       "Unknown message(For future use)"},
+    {  245,                       "Unknown message(For future use)"},
+    {  246,                       "Unknown message(For future use)"},
+    {  247,                       "Unknown message(For future use)"},
+    {  248,                       "Unknown message(For future use)"},
+    {  249,                       "Unknown message(For future use)"},
+    {  250,                       "Unknown message(For future use)"},
+    {  251,                       "Unknown message(For future use)"},
+    {  252,                       "Unknown message(For future use)"},
+    {  253,                       "Unknown message(For future use)"},
+#endif
     {GTP_MSG_END_MARKER,          "End Marker"},
     {GTP_MSG_TPDU,                "T-PDU"},
     {0, NULL}
@@ -725,7 +743,7 @@ static value_string_ext gtp_message_type_ext = VALUE_STRING_EXT_INIT(gtp_message
 #define GTP_EXT_DIRECT_TUNNEL_FLGS    0xB6    /* 3G   182 TLV Direct Tunnel Flags     7.7.81 */
 #define GTP_EXT_CORRELATION_ID        0xB7    /* 3G   183 TLV Correlation-ID  7.7.82 */
 #define GTP_EXT_BEARER_CONTROL_MODE   0xB8    /* 3G   184 TLV Bearer Control Mode     7.7.83 */
-                                              /* 3G   185 TLV   MBMS Flow Identifier    7.7.84 */
+                                              /* 3G   185 TLV MBMS Flow Identifier    7.7.84 */
                                               /* 3G   186 TLV MBMS IP Multicast Distribution    7.7.85 */
                                               /* 3G   187 TLV MBMS Distribution Acknowledgement 7.7.86 */
                                               /* 3G   188 TLV Reliable INTER RAT HANDOVER INFO  7.7.87 */
@@ -742,7 +760,17 @@ static value_string_ext gtp_message_type_ext = VALUE_STRING_EXT_INIT(gtp_message
                                               /* 3G   199 TLV UE Network Capability     7.7.99 */
                                               /* 3G   200 TLV UE-AMBR   7.7.100 */
                                               /* 3G   201 TLV APN-AMBR with NSAPI       7.7.101 */
-                                              /*  202-238 TLV Spare. For future use.     */
+                                              /* 3G   202 TLV GGSN Back-Off Time 7.7.102 */
+                                              /* 3G   203 TLV Signalling Priority Indication 7.7.103 */
+                                              /* 3G   204 TLV Signalling Priority Indication with NSAPI 7.7.104 */
+                                              /* 3G   205 TLV Higher bitrates than 16 Mbps flag 7.7.105 */
+                                              /* 3G   206 TLV Max MBR/APN-AMBR 7.7.106 */
+                                              /* 3G   207 TLV Additional MM context for SRVCC 7.7.107 */
+                                              /* 3G   208 TLV Additional flags for SRVCC 7.7.108  */
+                                              /* 3G   209 TLV STN-SR 7.7.109  */
+                                              /* 3G   210 TLV C-MSISDN 7.7.110  */
+                                              /* 3G   211 TLV Extended RANAP Cause 7.7.111  */
+                                              /*  212-238 TLV Spare. For future use.     */
 
 /* 239-250  Reserved for the GPRS charging protocol (see GTP' in 3GPP TS 32.295 [33])*/
 
@@ -763,18 +791,20 @@ static const value_string gtp_val[] = {
     {GTP_EXT_RAI, "Routing Area Identity"},
     {GTP_EXT_TLLI, "Temporary Logical Link Identity"},
     {GTP_EXT_PTMSI, "Packet TMSI"},
-    {GTP_EXT_QOS_GPRS, "Quality of Service"},
-    {GTP_EXT_REORDER, "Reorder required"},
-    {GTP_EXT_AUTH_TRI, "Authentication triplets"},
-    {GTP_EXT_MAP_CAUSE, "MAP cause"},
-    {GTP_EXT_PTMSI_SIG, "P-TMSI signature"},
-    {GTP_EXT_MS_VALID, "MS validated"},
-    {GTP_EXT_RECOVER, "Recovery"},
-    {GTP_EXT_SEL_MODE, "Selection mode"},
+/*   6 */  {GTP_EXT_QOS_GPRS, "Quality of Service"},
+    /* 6-7 Spare */
+/*   8 */  {GTP_EXT_REORDER, "Reorder required"},
+/*   9 */  {GTP_EXT_AUTH_TRI, "Authentication triplets"},
+	/* 10 Spare */
+/*  11 */  {GTP_EXT_MAP_CAUSE, "MAP cause"},
+/*  12 */  {GTP_EXT_PTMSI_SIG, "P-TMSI signature"},
+/*  13 */  {GTP_EXT_MS_VALID, "MS validated"},
+/*  14 */  {GTP_EXT_RECOVER, "Recovery"},
+/*  15 */  {GTP_EXT_SEL_MODE, "Selection mode"},
 
-    {GTP_EXT_16, "Flow label data I"},
-    {GTP_EXT_FLOW_LABEL, "Flow label data I"},
-    {GTP_EXT_TEID, "Tunnel Endpoint Identifier Data I"},    /* 3G */
+/*  16 */  {GTP_EXT_16, "Flow label data I"},
+/*  16 */  {GTP_EXT_FLOW_LABEL, "Flow label data I"},
+/*  16 */  {GTP_EXT_TEID, "Tunnel Endpoint Identifier Data I"},    /* 3G */
 
     {GTP_EXT_17, "Flow label signalling"},
     {GTP_EXT_FLOW_SIG, "Flow label signalling"},
@@ -797,9 +827,10 @@ static const value_string gtp_val[] = {
     {GTP_EXT_CHRG_CHAR, "Charging characteristics"},    /* 3G */
     {GTP_EXT_TRACE_REF, "Trace references"},    /* 3G */
     {GTP_EXT_TRACE_TYPE, "Trace type"}, /* 3G */
-    {GTPv1_EXT_MS_REASON, "MS not reachable reason"},   /* 3G */
-    {GTP_EXT_TR_COMM, "Packet transfer command"},   /* charging */
-    {GTP_EXT_CHRG_ID, "Charging ID"},
+/*  29 */  {GTPv1_EXT_MS_REASON, "MS not reachable reason"},   /* 3G */
+    /* 117-126 Reserved for the GPRS charging protocol (see GTP' in 3GPP TS 32.295 [33]) */
+/* 126 */  {GTP_EXT_TR_COMM, "Packet transfer command"},   /* charging */
+/* 127 */  {GTP_EXT_CHRG_ID, "Charging ID"},
     {GTP_EXT_USER_ADDR, "End user address"},
     {GTP_EXT_MM_CNTXT, "MM context"},
     {GTP_EXT_PDP_CNTXT, "PDP context"},
@@ -876,14 +907,26 @@ static const value_string gtp_val[] = {
     {199, "UE Network Capability"},   /* 7.7.99 */
     {200, "UE-AMBR"},   /* 7.7.100 */
     {201, "APN-AMBR with NSAPI"},   /* 7.7.101 */
-
-    {GTP_EXT_REL_PACK, "Sequence numbers of released packets IE"},  /* charging */
-    {GTP_EXT_CAN_PACK, "Sequence numbers of canceled packets IE"},  /* charging */
-    {GTP_EXT_CHRG_ADDR, "Charging Gateway address"},
-    {GTP_EXT_DATA_REQ, "Data record packet"},   /* charging */
-    {GTP_EXT_DATA_RESP, "Requests responded"},  /* charging */
-    {GTP_EXT_NODE_ADDR, "Address of recommended node"}, /* charging */
-    {GTP_EXT_PRIV_EXT, "Private Extension"},
+    {202, "GGSN Back-Off Time"},   /* 7.7.102 */
+    {203, "Signalling Priority Indication"},   /* 7.7.103 */
+    {204, "Signalling Priority Indication with NSAPI"},   /* 7.7.104 */
+    {205, "Higher bitrates than 16 Mbps flag"},   /* 7.7.105  */
+    {206, "Max MBR/APN-AMBR"},   /* 7.7.106  */
+    {207, "Additional MM context for SRVCC"},   /* 7.7.107  */
+    {208, "Additional flags for SRVCC"},   /* 7.7.108  */
+    {209, "STN-SR"},   /* 7.7.109  */
+    {210, "C-MSISDN"},   /* 7.7.110  */
+    {211, "Extended RANAP Cause"},   /* 7.7.111  */
+	/* 212-238 TLV Spare. For future use. */
+	/* 239-250 Reserved for the GPRS charging protocol (see GTP' in 3GPP TS 32.295 [33]) */
+/* 249 */  {GTP_EXT_REL_PACK, "Sequence numbers of released packets IE"},  /* charging */
+/* 250 */  {GTP_EXT_CAN_PACK, "Sequence numbers of canceled packets IE"},  /* charging */
+/* 251 */  {GTP_EXT_CHRG_ADDR, "Charging Gateway address"}, /* 7.7.44 */
+	/* 252-254 Reserved for the GPRS charging protocol (see GTP' in 3GPP TS 32.295 [33]) */
+/* 252 */  {GTP_EXT_DATA_REQ, "Data record packet"},   /* charging */
+/* 253 */  {GTP_EXT_DATA_RESP, "Requests responded"},  /* charging */
+/* 254 */  {GTP_EXT_NODE_ADDR, "Address of recommended node"}, /* charging */
+/* 255 */  {GTP_EXT_PRIV_EXT, "Private Extension"},
     {0, NULL}
 };
 static value_string_ext gtp_val_ext = VALUE_STRING_EXT_INIT(gtp_val);
@@ -892,98 +935,139 @@ static value_string_ext gtp_val_ext = VALUE_STRING_EXT_INIT(gtp_val);
  * 3GPP TS 29.060 version 6.11.0 Release 6
  */
 static const value_string gtpv1_val[] = {
-    {GTP_EXT_CAUSE, "Cause of operation"},
-    {GTP_EXT_IMSI, "IMSI"},
-    {GTP_EXT_RAI, "Routing Area Identity"},
-    {GTP_EXT_TLLI, "Temporary Logical Link Identity"},
-    {GTP_EXT_PTMSI, "Packet TMSI"},
-    {GTP_EXT_QOS_GPRS, "Quality of Service"},
-    {GTP_EXT_REORDER, "Reorder required"},
-    {GTP_EXT_AUTH_TRI, "Authentication triplets"},
-    {GTP_EXT_MAP_CAUSE, "MAP cause"},
-    {GTP_EXT_PTMSI_SIG, "P-TMSI signature"},
-    {GTP_EXT_MS_VALID, "MS validated"},
-    {GTP_EXT_RECOVER, "Recovery"},
-    {GTP_EXT_SEL_MODE, "Selection mode"},
+/*   1 */  {GTP_EXT_CAUSE, "Cause of operation"},
+/*   2 */  {GTP_EXT_IMSI, "IMSI"},
+/*   3 */  {GTP_EXT_RAI, "Routing Area Identity"},
+/*   4 */  {GTP_EXT_TLLI, "Temporary Logical Link Identity"},
+/*   5 */  {GTP_EXT_PTMSI, "Packet TMSI"},
+/*   6 */  {GTP_EXT_QOS_GPRS, "Quality of Service"},
+    /* 6-7 Spare */
+/*   7 */  {7, "Spare"},
+/*   8 */  {GTP_EXT_REORDER, "Reorder required"},
+/*   9 */  {GTP_EXT_AUTH_TRI, "Authentication triplets"},
+	/* 10 Spare */
+/*  10 */  {10, "Spare"},
+/*  11 */  {GTP_EXT_MAP_CAUSE, "MAP cause"},
+/*  12 */  {GTP_EXT_PTMSI_SIG, "P-TMSI signature"},
+/*  13 */  {GTP_EXT_MS_VALID, "MS validated"},
+/*  14 */  {GTP_EXT_RECOVER, "Recovery"},
+/*  15 */  {GTP_EXT_SEL_MODE, "Selection mode"},
+/*  16 */  {GTP_EXT_TEID, "Tunnel Endpoint Identifier Data I"},    /* 3G */
+/*  17 */  {GTP_EXT_TEID_CP, "Tunnel Endpoint Identifier Data Control Plane"}, /* 3G */
+/*  18 */  {GTP_EXT_TEID_II, "Tunnel Endpoint Identifier Data II"},    /* 3G */
+/*  19 */  {GTP_EXT_TEAR_IND, "Teardown ID"},  /* 3G */
 
-    {GTP_EXT_TEID, "Tunnel Endpoint Identifier Data I"},    /* 3G */
+/*  20 */  {GTP_EXT_NSAPI, "NSAPI"},   /* 3G */
+/*  21 */  {GTP_EXT_RANAP_CAUSE, "RANAP cause"},   /* 3G */
+/*  22 */  {GTP_EXT_RAB_CNTXT, "RAB context"}, /* 3G */
+/*  23 */  {GTP_EXT_RP_SMS, "Radio Priority for MO SMS"},  /* 3G */
+/*  24 */  {GTP_EXT_RP, "Radio Priority"}, /* 3G */
+/*  25 */  {GTP_EXT_PKT_FLOW_ID, "Packet Flow ID"},    /* 3G */
+/*  26 */  {GTP_EXT_CHRG_CHAR, "Charging characteristics"},    /* 3G */
+/*  27 */  {GTP_EXT_TRACE_REF, "Trace references"},    /* 3G */
+/*  28 */  {GTP_EXT_TRACE_TYPE, "Trace type"}, /* 3G */
+/*  29 */  {GTPv1_EXT_MS_REASON, "MS not reachable reason"},   /* 3G */
+    /* 117-126 Reserved for the GPRS charging protocol (see GTP' in 3GPP TS 32.295 [33]) */
+/* 126 */  {GTP_EXT_TR_COMM, "Packet transfer command"},   /* charging */
+/* 127 */  {GTP_EXT_CHRG_ID, "Charging ID"},
 
-    {GTP_EXT_TEID_CP, "Tunnel Endpoint Identifier Data Control Plane"}, /* 3G */
+/* 128 */  {GTP_EXT_USER_ADDR, "End user address"},
+/* 129 */  {GTP_EXT_MM_CNTXT, "MM context"},
+/* 130 */  {GTP_EXT_PDP_CNTXT, "PDP context"},
+/* 131 */  {GTP_EXT_APN, "Access Point Name"},
+/* 132 */  {GTP_EXT_PROTO_CONF, "Protocol configuration options"},
+/* 133 */  {GTP_EXT_GSN_ADDR, "GSN address"},
+/* 134 */  {GTP_EXT_MSISDN, "MS international PSTN/ISDN number"},
+/* 135 */  {GTP_EXT_QOS_UMTS, "Quality of service (UMTS)"},    /* 3G */
+/* 136 */  {GTP_EXT_AUTH_QUI, "Authentication quintuplets"},   /* 3G */
+/* 137 */  {GTP_EXT_TFT, "Traffic Flow Template (TFT)"},   /* 3G */
+/* 138 */  {GTP_EXT_TARGET_ID, "Target (RNC) identification"}, /* 3G */
+/* 139 */  {GTP_EXT_UTRAN_CONT, "UTRAN transparent field"},    /* 3G */
+/* 140 */  {GTP_EXT_RAB_SETUP, "RAB setup information"},   /* 3G */
+/* 141 */  {GTP_EXT_HDR_LIST, "Extension Header Types List"},  /* 3G */
+/* 142 */  {GTP_EXT_TRIGGER_ID, "Trigger Id"}, /* 3G */
+/* 143 */  {GTP_EXT_OMC_ID, "OMC Identity"},   /* 3G */
+/* 144 */  {GTP_EXT_RAN_TR_CONT, "RAN Transparent Container"}, /* 7.7.43 */
+/* 145 */  {GTP_EXT_PDP_CONT_PRIO, "PDP Context Prioritization"},  /* 7.7.45 */
+/* 146 */  {GTP_EXT_ADD_RAB_SETUP_INF, "Additional RAB Setup Information"},    /* 7.7.45A */
+/* 147 */  {GTP_EXT_SSGN_NO, "SGSN Number"},   /* 7.7.47 */
+/* 148 */  {GTP_EXT_COMMON_FLGS, "Common Flags"},  /* 7.7.48 */
+/* 149 */  {GTP_EXT_APN_RES, "APN Restriction"},   /* 3G */
+/* 150 */  {GTP_EXT_RA_PRIO_LCS, "Radio Priority LCS"},    /* 7.7.25B */
+/* 151 */  {GTP_EXT_RAT_TYPE, "RAT Type"}, /* 3G */
+/* 152 */  {GTP_EXT_USR_LOC_INF, "User Location Information"}, /* 7.7.51 */
+/* 153 */  {GTP_EXT_MS_TIME_ZONE, "MS Time Zone"}, /* 7.7.52 */
 
-    {GTP_EXT_TEID_II, "Tunnel Endpoint Identifier Data II"},    /* 3G */
+/* 154 */  {GTP_EXT_IMEISV, "IMEI(SV)"},   /* 3G */
+/* 155 */  {GTP_EXT_CAMEL_CHG_INF_CON, "CAMEL Charging Information Container"},    /* 7.7.54 */
+/* 156 */  {GTP_EXT_MBMS_UE_CTX, "MBMS UE Context"},   /* 7.7.55 */
+/* 157 */  {GTP_EXT_TMGI, "Temporary Mobile Group Identity (TMGI)"},   /* 7.7.56 */
+/* 158 */  {GTP_EXT_RIM_RA, "RIM Routing Address"},    /* 7.7.57 */
+/* 159 */  {GTP_EXT_MBMS_PROT_CONF_OPT, "MBMS Protocol Configuration Options"},    /* 7.7.58 */
+/* 160 */  {GTP_EXT_MBMS_SA, "MBMS Service Area"}, /* 7.7.60 */
+/* 161 */  {GTP_EXT_SRC_RNC_PDP_CTX_INF, "Source RNC PDCP context info"},  /* 7.7.61 */
+/* 162 */  {GTP_EXT_ADD_TRS_INF, "Additional Trace Info"}, /* 7.7.62 */
+/* 163 */  {GTP_EXT_HOP_COUNT, "Hop Counter"}, /* 7.7.63 */
+/* 164 */  {GTP_EXT_SEL_PLMN_ID, "Selected PLMN ID"},  /* 7.7.64 */
+/* 165 */  {GTP_EXT_MBMS_SES_ID, "MBMS Session Identifier"},   /* 7.7.65 */
+/* 166 */  {GTP_EXT_MBMS_2G_3G_IND, "MBMS 2G/3G Indicator"},   /* 7.7.66 */
+/* 167 */  {GTP_EXT_ENH_NSAPI, "Enhanced NSAPI"},  /* 7.7.67 */
+/* 168 */  {GTP_EXT_MBMS_SES_DUR, "MBMS Session Duration"},    /* 7.7.59 */
+/* 169 */  {GTP_EXT_ADD_MBMS_TRS_INF, "Additional MBMS Trace Info"},   /* 7.7.68 */
+/* 170 */  {GTP_EXT_MBMS_SES_ID_REP_NO, "MBMS Session Identity Repetition Number"},    /* 7.7.69 */
+/* 171 */  {GTP_EXT_MBMS_TIME_TO_DATA_TR, "MBMS Time To Data Transfer"},   /* 7.7.70 */
+/* 172 */  {GTP_EXT_PS_HO_REQ_CTX, "PS Handover Request Context"}, /* 7.7.71 */
+/* 173 */  {GTP_EXT_BSS_CONT, "BSS Container"},    /* 7.7.72 */
+/* 174 */  {GTP_EXT_CELL_ID, "Cell Identification"},   /* 7.7.73 */
+/* 175 */  {GTP_EXT_PDU_NO, "PDU Numbers"},    /* 7.7.74 */
+/* 176 */  {GTP_EXT_BSSGP_CAUSE, "BSSGP Cause"},   /* 7.7.75 */
 
-    {GTP_EXT_TEAR_IND, "Teardown ID"},  /* 3G */
+/* 177 */  {GTP_EXT_REQ_MBMS_BEARER_CAP, "Required MBMS bearer capabilities"}, /* 7.7.76 */
+/* 178 */  {GTP_EXT_RIM_ROUTING_ADDR_DISC, "RIM Routing Address Discriminator"},   /* 7.7.77 */
+/* 179 */  {GTP_EXT_LIST_OF_SETUP_PFCS, "List of set-up PFCs"},    /* 7.7.78 */
+/* 180 */  {GTP_EXT_PS_HANDOVER_XIP_PAR, "PS Handover XID Parameters"},    /* 7.7.79 */
+/* 181 */  {GTP_EXT_MS_INF_CHG_REP_ACT, "MS Info Change Reporting Action"},    /* 7.7.80 */
+/* 182 */  {GTP_EXT_DIRECT_TUNNEL_FLGS, "Direct Tunnel Flags"},    /* 7.7.81 */
+/* 183 */  {GTP_EXT_CORRELATION_ID, "Correlation-ID"}, /* 7.7.82 */
+/* 184 */  {GTP_EXT_BEARER_CONTROL_MODE, "Bearer Control Mode"},   /* 7.7.83 */
+    {185, "MBMS Flow Identifier"},   /* 7.7.84 */
+    {186, "MBMS IP Multicast Distribution"},   /* 7.7.85 */
+    {187, "MBMS Distribution Acknowledgement"},   /* 7.7.86 */
+    {188, "Reliable INTER RAT HANDOVER INFO"},   /* 7.7.87 */
+    {189, "RFSP Index"},   /* 7.7.88 */
+    {190, "Fully Qualified Domain Name (FQDN)"},   /* 7.7.90 */
+    {GTP_EXT_EVO_ALLO_RETE_P1, "Evolved Allocation/Retention Priority I"},   /* 7.7.91 */
+    {192, "Evolved Allocation/Retention Priority II"},   /* 7.7.92 */
+    {193, "Extended Common Flags"},   /* 7.7.93 */
+    {194, "User CSG Information (UCI)"},   /* 7.7.94 */
+    {195, "CSG Information Reporting Action"},   /* 7.7.95 */
+    {196, "CSG ID"},   /* 7.7.96 */
+    {197, "CSG Membership Indication (CMI)"},   /* 7.7.97 */
+    {198, "Aggregate Maximum Bit Rate (AMBR)"},   /* 7.7.98 */
+    {199, "UE Network Capability"},   /* 7.7.99 */
+    {200, "UE-AMBR"},   /* 7.7.100 */
+    {201, "APN-AMBR with NSAPI"},   /* 7.7.101 */
+    {202, "GGSN Back-Off Time"},   /* 7.7.102 */
+    {203, "Signalling Priority Indication"},   /* 7.7.103 */
+    {204, "Signalling Priority Indication with NSAPI"},   /* 7.7.104 */
+    {205, "Higher bitrates than 16 Mbps flag"},   /* 7.7.105  */
+    {206, "Max MBR/APN-AMBR"},   /* 7.7.106  */
+    {207, "Additional MM context for SRVCC"},   /* 7.7.107  */
+    {208, "Additional flags for SRVCC"},   /* 7.7.108  */
+    {209, "STN-SR"},   /* 7.7.109  */
+    {210, "C-MSISDN"},   /* 7.7.110  */
+    {211, "Extended RANAP Cause"},   /* 7.7.111  */
+	/* 212-238 TLV Spare. For future use. */
+	/* 239-250 Reserved for the GPRS charging protocol (see GTP' in 3GPP TS 32.295 [33]) */
+/* 249 */  {GTP_EXT_REL_PACK, "Sequence numbers of released packets IE"},  /* charging */
+/* 250 */  {GTP_EXT_CAN_PACK, "Sequence numbers of canceled packets IE"},  /* charging */
+/* 251 */  {GTP_EXT_CHRG_ADDR, "Charging Gateway address"}, /* 7.7.44 */
+	/* 252-254 Reserved for the GPRS charging protocol (see GTP' in 3GPP TS 32.295 [33]) */
+/* 252 */  {GTP_EXT_DATA_REQ, "Data record packet"},   /* charging */
+/* 253 */  {GTP_EXT_DATA_RESP, "Requests responded"},  /* charging */
+/* 254 */  {GTP_EXT_NODE_ADDR, "Address of recommended node"}, /* charging */
+/* 255 */  {GTP_EXT_PRIV_EXT, "Private Extension"},
 
-    {GTP_EXT_NSAPI, "NSAPI"},   /* 3G */
-    {GTP_EXT_RANAP_CAUSE, "RANAP cause"},   /* 3G */
-    {GTP_EXT_RAB_CNTXT, "RAB context"}, /* 3G */
-    {GTP_EXT_RP_SMS, "Radio Priority for MO SMS"},  /* 3G */
-    {GTP_EXT_RP, "Radio Priority"}, /* 3G */
-    {GTP_EXT_PKT_FLOW_ID, "Packet Flow ID"},    /* 3G */
-    {GTP_EXT_CHRG_CHAR, "Charging characteristics"},    /* 3G */
-    {GTP_EXT_TRACE_REF, "Trace references"},    /* 3G */
-    {GTP_EXT_TRACE_TYPE, "Trace type"}, /* 3G */
-    {GTPv1_EXT_MS_REASON, "MS not reachable reason"},   /* 3G */
-    {GTP_EXT_TR_COMM, "Packet transfer command"},   /* charging */
-    {GTP_EXT_CHRG_ID, "Charging ID"},
-    {GTP_EXT_USER_ADDR, "End user address"},
-    {GTP_EXT_MM_CNTXT, "MM context"},
-    {GTP_EXT_PDP_CNTXT, "PDP context"},
-    {GTP_EXT_APN, "Access Point Name"},
-    {GTP_EXT_PROTO_CONF, "Protocol configuration options"},
-    {GTP_EXT_GSN_ADDR, "GSN address"},
-    {GTP_EXT_MSISDN, "MS international PSTN/ISDN number"},
-    {GTP_EXT_QOS_UMTS, "Quality of service (UMTS)"},    /* 3G */
-    {GTP_EXT_AUTH_QUI, "Authentication quintuplets"},   /* 3G */
-    {GTP_EXT_TFT, "Traffic Flow Template (TFT)"},   /* 3G */
-    {GTP_EXT_TARGET_ID, "Target (RNC) identification"}, /* 3G */
-    {GTP_EXT_UTRAN_CONT, "UTRAN transparent field"},    /* 3G */
-    {GTP_EXT_RAB_SETUP, "RAB setup information"},   /* 3G */
-    {GTP_EXT_HDR_LIST, "Extension Header Types List"},  /* 3G */
-    {GTP_EXT_TRIGGER_ID, "Trigger Id"}, /* 3G */
-    {GTP_EXT_OMC_ID, "OMC Identity"},   /* 3G */
-
-    {GTP_EXT_RAN_TR_CONT, "RAN Transparent Container"}, /* 7.7.43 */
-    {GTP_EXT_PDP_CONT_PRIO, "PDP Context Prioritization"},  /* 7.7.45 */
-    {GTP_EXT_ADD_RAB_SETUP_INF, "Additional RAB Setup Information"},    /* 7.7.45A */
-    {GTP_EXT_SSGN_NO, "SGSN Number"},   /* 7.7.47 */
-    {GTP_EXT_COMMON_FLGS, "Common Flags"},  /* 7.7.48 */
-    {GTP_EXT_APN_RES, "APN Restriction"},   /* 3G */
-    {GTP_EXT_RA_PRIO_LCS, "Radio Priority LCS"},    /* 7.7.25B */
-    {GTP_EXT_RAT_TYPE, "RAT Type"}, /* 3G */
-    {GTP_EXT_USR_LOC_INF, "User Location Information"}, /* 7.7.51 */
-    {GTP_EXT_MS_TIME_ZONE, "MS Time Zone"}, /* 7.7.52 */
-
-    {GTP_EXT_IMEISV, "IMEI(SV)"},   /* 3G */
-    {GTP_EXT_CAMEL_CHG_INF_CON, "CAMEL Charging Information Container"},    /* 7.7.54 */
-    {GTP_EXT_MBMS_UE_CTX, "MBMS UE Context"},   /* 7.7.55 */
-    {GTP_EXT_TMGI, "Temporary Mobile Group Identity (TMGI)"},   /* 7.7.56 */
-    {GTP_EXT_RIM_RA, "RIM Routing Address"},    /* 7.7.57 */
-    {GTP_EXT_MBMS_PROT_CONF_OPT, "MBMS Protocol Configuration Options"},    /* 7.7.58 */
-    {GTP_EXT_MBMS_SA, "MBMS Service Area"}, /* 7.7.60 */
-    {GTP_EXT_SRC_RNC_PDP_CTX_INF, "Source RNC PDCP context info"},  /* 7.7.61 */
-    {GTP_EXT_ADD_TRS_INF, "Additional Trace Info"}, /* 7.7.62 */
-    {GTP_EXT_HOP_COUNT, "Hop Counter"}, /* 7.7.63 */
-    {GTP_EXT_SEL_PLMN_ID, "Selected PLMN ID"},  /* 7.7.64 */
-    {GTP_EXT_MBMS_SES_ID, "MBMS Session Identifier"},   /* 7.7.65 */
-    {GTP_EXT_MBMS_2G_3G_IND, "MBMS 2G/3G Indicator"},   /* 7.7.66 */
-    {GTP_EXT_ENH_NSAPI, "Enhanced NSAPI"},  /* 7.7.67 */
-    {GTP_EXT_MBMS_SES_DUR, "MBMS Session Duration"},    /* 7.7.59 */
-    {GTP_EXT_ADD_MBMS_TRS_INF, "Additional MBMS Trace Info"},   /* 7.7.68 */
-    {GTP_EXT_MBMS_SES_ID_REP_NO, "MBMS Session Identity Repetition Number"},    /* 7.7.69 */
-    {GTP_EXT_MBMS_TIME_TO_DATA_TR, "MBMS Time To Data Transfer"},   /* 7.7.70 */
-    {GTP_EXT_PS_HO_REQ_CTX, "PS Handover Request Context"}, /* 7.7.71 */
-    {GTP_EXT_BSS_CONT, "BSS Container"},    /* 7.7.72 */
-    {GTP_EXT_CELL_ID, "Cell Identification"},   /* 7.7.73 */
-    {GTP_EXT_PDU_NO, "PDU Numbers"},    /* 7.7.74 */
-    {GTP_EXT_BSSGP_CAUSE, "BSSGP Cause"},   /* 7.7.75 */
-    {GTP_EXT_REL_PACK, "Sequence numbers of released packets IE"},  /* charging */
-    {GTP_EXT_CAN_PACK, "Sequence numbers of canceled packets IE"},  /* charging */
-    {GTP_EXT_CHRG_ADDR, "Charging Gateway address"},
-    {GTP_EXT_DATA_REQ, "Data record packet"},   /* charging */
-    {GTP_EXT_DATA_RESP, "Requests responded"},  /* charging */
-    {GTP_EXT_NODE_ADDR, "Address of recommended node"}, /* charging */
-    {GTP_EXT_PRIV_EXT, "Private Extension"},
     {0, NULL}
 };
 static value_string_ext gtpv1_val_ext = VALUE_STRING_EXT_INIT(gtpv1_val);
@@ -1978,7 +2062,7 @@ static _gtp_mess_items gprs_mess_items[] = {
         }
     },
     {
-        GTP_MSG_CREATE_AA_PDP_REQ, {
+        GTP_MSG_INIT_PDP_CONTEXT_ACT_REQ, {
             {GTP_EXT_QOS_GPRS, GTP_MANDATORY},
             {GTP_EXT_RECOVER, GTP_OPTIONAL},
             {GTP_EXT_SEL_MODE, GTP_MANDATORY},
@@ -1994,7 +2078,7 @@ static _gtp_mess_items gprs_mess_items[] = {
         }
     },
     {
-        GTP_MSG_CREATE_AA_PDP_RESP, {
+        GTP_MSG_INIT_PDP_CONTEXT_ACT_RESP, {
             {GTP_EXT_CAUSE, GTP_MANDATORY},
             {GTP_EXT_QOS_GPRS, GTP_CONDITIONAL},
             {GTP_EXT_REORDER, GTP_CONDITIONAL},
@@ -5843,7 +5927,7 @@ static int decode_gtp_enh_nsapi(tvbuff_t * tvb, int offset, packet_info * pinfo 
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_ENH_NSAPI, &gtp_val_ext, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_ENH_NSAPI, &gtpv1_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_enh_nsapi);
 
     offset++;
@@ -5868,7 +5952,7 @@ static int decode_gtp_add_mbms_trs_inf(tvbuff_t * tvb, int offset, packet_info *
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_ADD_MBMS_TRS_INF, &gtp_val_ext, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_ADD_MBMS_TRS_INF, &gtpv1_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_ad_mbms_trs_inf);
 
     offset++;
@@ -5893,7 +5977,7 @@ static int decode_gtp_mbms_ses_id_rep_no(tvbuff_t * tvb, int offset, packet_info
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_MBMS_SES_ID_REP_NO, &gtp_val_ext, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_MBMS_SES_ID_REP_NO, &gtpv1_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_mbms_ses_id_rep_no);
 
     offset++;
@@ -5933,7 +6017,7 @@ static int decode_gtp_mbms_time_to_data_tr(tvbuff_t * tvb, int offset, packet_in
     guint8 time_2_dta_tr;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_MBMS_TIME_TO_DATA_TR, &gtp_val_ext, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_MBMS_TIME_TO_DATA_TR, &gtpv1_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_mbms_time_to_data_tr);
 
     offset++;
@@ -5977,7 +6061,7 @@ decode_gtp_ps_ho_req_ctx(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, pr
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_PS_HO_REQ_CTX, &gtp_val_ext, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_PS_HO_REQ_CTX, &gtpv1_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_ps_ho_req_ctx);
 
     offset++;
@@ -6003,7 +6087,7 @@ decode_gtp_bss_cont(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_BSS_CONT, &gtp_val_ext, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_BSS_CONT, &gtpv1_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_bss_cont);
 
     offset++;
@@ -6032,7 +6116,7 @@ decode_gtp_cell_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tr
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_CELL_ID, &gtp_val_ext, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_CELL_ID, &gtpv1_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_cell_id);
 
     offset++;
@@ -6065,7 +6149,7 @@ decode_gtp_pdu_no(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tre
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_PDU_NO, &gtp_val_ext, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_PDU_NO, &gtpv1_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_pdu_no);
 
     offset++;
@@ -6091,7 +6175,7 @@ decode_gtp_bssgp_cause(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, prot
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_BSSGP_CAUSE, &gtp_val_ext, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_BSSGP_CAUSE, &gtpv1_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_bssgp_cause);
 
     offset++;
@@ -6118,7 +6202,7 @@ decode_gtp_mbms_bearer_cap(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, 
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_BSSGP_CAUSE, &gtp_val_ext, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_BSSGP_CAUSE, &gtpv1_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_bssgp_cause);
 
     offset++;
@@ -6154,7 +6238,7 @@ decode_gtp_rim_ra_disc(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, prot
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_RIM_ROUTING_ADDR_DISC, &gtp_val_ext, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_RIM_ROUTING_ADDR_DISC, &gtpv1_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_pdu_no);
 
     offset++;
@@ -6181,7 +6265,7 @@ decode_gtp_lst_set_up_pfc(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, p
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_LIST_OF_SETUP_PFCS, &gtp_val_ext, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_LIST_OF_SETUP_PFCS, &gtpv1_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_pdu_no);
 
     offset++;
@@ -6207,7 +6291,7 @@ static int decode_gtp_ps_handover_xid(tvbuff_t * tvb, int offset, packet_info * 
     guint8 xid_par_len;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_PS_HANDOVER_XIP_PAR, &gtp_val_ext, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_PS_HANDOVER_XIP_PAR, &gtpv1_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_ps_handover_xid);
 
     offset++;
@@ -6243,7 +6327,7 @@ static int decode_gtp_ms_inf_chg_rep_act(tvbuff_t * tvb, int offset, packet_info
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_MS_INF_CHG_REP_ACT, &gtp_val_ext, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_MS_INF_CHG_REP_ACT, &gtpv1_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_pdu_no);
 
     offset++;
@@ -6266,7 +6350,7 @@ static int decode_gtp_direct_tnl_flg(tvbuff_t * tvb, int offset, packet_info * p
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_DIRECT_TUNNEL_FLGS, &gtp_val_ext, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_DIRECT_TUNNEL_FLGS, &gtpv1_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_pdu_no);
 
     offset++;
@@ -6294,7 +6378,7 @@ static int decode_gtp_corrl_id(tvbuff_t * tvb, int offset, packet_info * pinfo _
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_CORRELATION_ID, &gtp_val_ext, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_CORRELATION_ID, &gtpv1_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_pdu_no);
 
     offset++;
@@ -6324,7 +6408,7 @@ static int decode_gtp_bearer_cntrl_mod(tvbuff_t * tvb, int offset, packet_info *
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_BEARER_CONTROL_MODE, &gtp_val_ext, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_BEARER_CONTROL_MODE, &gtpv1_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_bcm);
 
     offset++;
@@ -6348,7 +6432,7 @@ static int decode_gtp_evolved_allc_rtn_p1(tvbuff_t * tvb, int offset, packet_inf
     proto_item *te;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_EVO_ALLO_RETE_P1, &gtp_val_ext, "Unknown"));
+    te = proto_tree_add_text(tree, tvb, offset, 3 + length, "%s", val_to_str_ext_const(GTP_EXT_EVO_ALLO_RETE_P1, &gtpv1_val_ext, "Unknown"));
     ext_tree = proto_item_add_subtree(te, ett_gtp_ext_pdu_no);
 
     offset++;

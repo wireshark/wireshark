@@ -42,14 +42,22 @@ typedef struct gtp_msg_hash_entry {
 #define GTP_MSG_NODE_ALIVE_RESP     0x05
 #define GTP_MSG_REDIR_REQ           0x06
 #define GTP_MSG_REDIR_RESP          0x07
+/* 
+ * 8-15 For future use. Shall not be sent. If received,
+ * shall be treated as an Unknown message.
+ */
 #define GTP_MSG_CREATE_PDP_REQ      0x10
 #define GTP_MSG_CREATE_PDP_RESP     0x11
 #define GTP_MSG_UPDATE_PDP_REQ      0x12
 #define GTP_MSG_UPDATE_PDP_RESP     0x13
 #define GTP_MSG_DELETE_PDP_REQ      0x14
 #define GTP_MSG_DELETE_PDP_RESP     0x15
-#define GTP_MSG_CREATE_AA_PDP_REQ   0x16    /* 2G */
-#define GTP_MSG_CREATE_AA_PDP_RESP  0x17    /* 2G */
+#define GTP_MSG_INIT_PDP_CONTEXT_ACT_REQ   0x16    /* 2G */
+#define GTP_MSG_INIT_PDP_CONTEXT_ACT_RESP  0x17    /* 2G */
+/*
+ * 24-25 For future use. Shall not be sent. If received,
+ * shall be treated as an Unknown message.
+ */
 #define GTP_MSG_DELETE_AA_PDP_REQ   0x18    /* 2G */
 #define GTP_MSG_DELETE_AA_PDP_RESP  0x19    /* 2G */
 #define GTP_MSG_ERR_IND             0x1A
@@ -64,6 +72,10 @@ typedef struct gtp_msg_hash_entry {
 #define GTP_MSG_FAIL_REP_RESP       0x23
 #define GTP_MSG_MS_PRESENT_REQ      0x24
 #define GTP_MSG_MS_PRESENT_RESP     0x25
+/*
+ * 38-47 For future use. Shall not be sent. If received,
+ * shall be treated as an Unknown message.
+ */
 #define GTP_MSG_IDENT_REQ           0x30
 #define GTP_MSG_IDENT_RESP          0x31
 #define GTP_MSG_SGSN_CNTXT_REQ      0x32
@@ -77,9 +89,15 @@ typedef struct gtp_msg_hash_entry {
 #define GTP_MSG_FORW_SRNS_CNTXT     0x3A
 #define GTP_MSG_FORW_RELOC_ACK      0x3B
 #define GTP_MSG_FORW_SRNS_CNTXT_ACK 0x3C
-
-
+/*
+ * 61-69 For future use. Shall not be sent. If received,
+ * shall be treated as an Unknown message.
+ */
 #define GTP_MSG_RAN_INFO_RELAY      70
+/*
+ * 71-95 For future use. Shall not be sent. If received,
+ * shall be treated as an Unknown message.
+ */
 #define GTP_MBMS_NOTIFY_REQ         96
 #define GTP_MBMS_NOTIFY_RES         97
 #define GTP_MBMS_NOTIFY_REJ_REQ     98
@@ -90,6 +108,10 @@ typedef struct gtp_msg_hash_entry {
 #define GTP_UPD_MBMS_CNTXT_RES      103
 #define GTP_DEL_MBMS_CNTXT_REQ      104
 #define GTP_DEL_MBMS_CNTXT_RES      105
+/*
+ * 106 - 111 For future use. Shall not be sent. If received,
+ * shall be treated as an Unknown message.
+ */
 #define GTP_MBMS_REG_REQ            112
 #define GTP_MBMS_REG_RES            113
 #define GTP_MBMS_DE_REG_REQ         114
@@ -110,7 +132,7 @@ typedef struct gtp_msg_hash_entry {
  */
 #define GTP_MSG_DATA_TRANSF_REQ     0xF0
 #define GTP_MSG_DATA_TRANSF_RESP    0xF1
-/* 242-254  For future use. Shall not be sent.
+/* 242-253  For future use. Shall not be sent.
  * If received, shall be treated as an Unknown message.
  */
 #define GTP_MSG_END_MARKER          0xFE /* 254 */
