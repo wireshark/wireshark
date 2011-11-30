@@ -795,7 +795,6 @@ error_list_remote_interface_cb (gpointer dialog _U_, gint btn _U_, gpointer data
 {
   capture_remote_cb(GTK_WIDGET(data), FALSE);
 }
-#endif
 
 static void 
 insert_new_rows(GList *list)
@@ -995,7 +994,6 @@ insert_new_rows(GList *list)
   gtk_tree_view_set_model(GTK_TREE_VIEW(if_cb), model);
 }
 
-#ifdef HAVE_PCAP_REMOTE
 /* Retrieve the list of local or remote interfaces according to selected
  * options and re-fill interface name combobox */
 static void
