@@ -251,7 +251,7 @@ capture_get_cap_settings (gchar *if_name)
   cap_settings_t cap_settings, *cap_settings_p;
 
   if (cap_settings_history) {
-    cap_settings_p = g_hash_table_lookup(cap_settings_history, if_name);
+    cap_settings_p = (cap_settings_t *)g_hash_table_lookup(cap_settings_history, if_name);
   } else {
     cap_settings_p = NULL;
   }
@@ -411,7 +411,7 @@ capture_filter_check_syntax_cb(GtkWidget *w _U_, gpointer user_data _U_)
     g_assert_not_reached();  /* Programming error: somehow managed to select an "unsupported" entry */
   }
 
-  filter_cm = g_object_get_data(G_OBJECT(opt_edit_w), E_CFILTER_CM_KEY);
+  filter_cm = (GtkWidget *)g_object_get_data(G_OBJECT(opt_edit_w), E_CFILTER_CM_KEY);
   if (!filter_cm)
     return;
   filter_te = gtk_bin_get_child(GTK_BIN(filter_cm));
@@ -797,13 +797,14 @@ error_list_remote_interface_cb (gpointer dialog _U_, gint btn _U_, gpointer data
 }
 #endif
 
-void insert_new_rows(GList *list)
+static void 
+insert_new_rows(GList *list)
 {
   interface_row row;
   GtkTreeIter iter;
   GList *if_entry;
   if_info_t *if_info;
-  char *if_string="", *temp="", *snaplen_string;
+  char *if_string=NULL, *temp=NULL, *snaplen_string;
   gchar *descr;
   if_capabilities_t *caps;
   gint linktype_count;
@@ -814,7 +815,7 @@ void insert_new_rows(GList *list)
   if_addr_t *addr;
   GList *lt_entry;
   data_link_info_t *data_link_info;
-  gchar *str, *link_type_name = NULL;
+  gchar *str = NULL, *link_type_name = NULL;
   gboolean found = FALSE;
   GString *ip_str;
   GtkTreeView  *if_cb;
@@ -827,7 +828,7 @@ void insert_new_rows(GList *list)
   count = rows->len;
   /* Scan through the list and build a list of strings to display. */
   for (if_entry = g_list_first(list); if_entry != NULL; if_entry = g_list_next(if_entry)) {
-    if_info = if_entry->data;
+    if_info = (if_info_t *)if_entry->data;
 #ifdef HAVE_PCAP_REMOTE
     add_interface_to_remote_list(if_info);
 #endif
@@ -843,8 +844,7 @@ void insert_new_rows(GList *list)
       continue;
     }
     ip_str = g_string_new("");
-    str = "";
-    ips = 0;
+	ips = 0;
     row.name = g_strdup(if_info->name);
     /* Is this interface hidden and, if so, should we include it
        anyway? */
@@ -925,7 +925,7 @@ void insert_new_rows(GList *list)
       row.monitor_mode_supported = caps->can_set_rfmon;
 #endif
       for (lt_entry = caps->data_link_types; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
-        data_link_info = lt_entry->data;
+        data_link_info = (data_link_info_t *)lt_entry->data;
         if (data_link_info->description != NULL) {
           str = g_strdup_printf("%s", data_link_info->description);
         } else {
@@ -1619,7 +1619,7 @@ capture_filter_compile_cb(GtkWidget *w _U_, gpointer user_data _U_)
     g_assert_not_reached();  /* Programming error: somehow managed to select an "unsupported" entry */
   }
   pd = pcap_open_dead(dlt, DUMMY_SNAPLENGTH);
-  filter_cm = g_object_get_data(G_OBJECT(opt_edit_w), E_CFILTER_CM_KEY);
+  filter_cm = (GtkWidget *)g_object_get_data(G_OBJECT(opt_edit_w), E_CFILTER_CM_KEY);
   filter_text = gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT(filter_cm));
     g_mutex_lock(pcap_compile_mtx);
   /* pcap_compile will not alter the filter string, so the (char *) cast is "safe" */
@@ -1661,7 +1661,7 @@ options_edit_destroy_cb(GtkWidget *win, gpointer user_data _U_)
 {
   GtkWidget *caller;
 
-  caller = g_object_get_data(G_OBJECT(win), E_OPT_EDIT_CALLER_PTR_KEY);
+  caller = (GtkWidget *)g_object_get_data(G_OBJECT(win), E_OPT_EDIT_CALLER_PTR_KEY);
   g_object_set_data(G_OBJECT(caller), E_OPT_EDIT_DIALOG_PTR_KEY, NULL);
 }
 
@@ -1927,7 +1927,7 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
 
   window = (GtkWidget *)userdata;
   caller = gtk_widget_get_toplevel(GTK_WIDGET(window));
-  opt_edit_w = g_object_get_data(G_OBJECT(caller), E_OPT_EDIT_DIALOG_PTR_KEY);
+  opt_edit_w = (GtkWidget *)g_object_get_data(G_OBJECT(caller), E_OPT_EDIT_DIALOG_PTR_KEY);
   if (opt_edit_w != NULL) {
     reactivate_window(opt_edit_w);
     return;
@@ -2181,7 +2181,7 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
 
   /* Create the capture filter combo box*/
   filter_cm = gtk_combo_box_text_new_with_entry();
-  cfilter_list = g_object_get_data(G_OBJECT(opt_edit_w), E_CFILTER_FL_KEY);
+  cfilter_list = (GList *)g_object_get_data(G_OBJECT(opt_edit_w), E_CFILTER_FL_KEY);
   g_object_set_data(G_OBJECT(opt_edit_w), E_CFILTER_FL_KEY, cfilter_list);
   g_object_set_data(G_OBJECT(opt_edit_w), E_CFILTER_CM_KEY, filter_cm);
   filter_te = gtk_bin_get_child(GTK_BIN(filter_cm));
@@ -2190,8 +2190,8 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   g_signal_connect(filter_te, "destroy", G_CALLBACK(capture_filter_destroy_cb), NULL);
 
   for (cf_entry = cfilter_list; cf_entry != NULL; cf_entry = g_list_next(cf_entry)) {
-    if (cf_entry->data && (strlen(cf_entry->data) > 0)) {
-      gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(filter_cm), cf_entry->data);
+    if (cf_entry->data && (strlen((const char *)cf_entry->data) > 0)) {
+      gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(filter_cm), (const gchar *)cf_entry->data);
     }
   }
   if (global_capture_opts.default_options.cfilter && (strlen(global_capture_opts.default_options.cfilter) > 0)) {
@@ -2283,15 +2283,15 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_CANCEL, GTK_STOCK_HELP, NULL);
   gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 5);
 
-  ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
+  ok_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
   g_signal_connect(ok_bt, "clicked", G_CALLBACK(save_options_cb), NULL);
   gtk_widget_set_tooltip_text(ok_bt,
     "Accept interface settings.");
-  cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
+  cancel_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
   gtk_widget_set_tooltip_text(cancel_bt,
     "Cancel and exit dialog.");
   window_set_cancel_button(opt_edit_w, cancel_bt, window_cancel_button_cb);
-  help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+  help_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
   gtk_widget_set_tooltip_text(help_bt,
     "Show help about capturing.");
   g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_CAPTURE_OPTIONS_DIALOG);
@@ -3194,7 +3194,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   bbox = dlg_button_row_new(WIRESHARK_STOCK_CAPTURE_START, GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
   gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 5);
 
-  ok_bt = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_CAPTURE_START);
+  ok_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_CAPTURE_START);
   g_signal_connect(ok_bt, "clicked", G_CALLBACK(capture_start_cb), NULL);
   gtk_widget_set_tooltip_text(ok_bt, "Start the capture process.");
   if (num_selected > 0) {
@@ -3203,12 +3203,12 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     gtk_widget_set_sensitive(ok_bt, FALSE);
   }
 
-  close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
+  close_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
   gtk_widget_set_tooltip_text(close_bt,
     "Exit dialog.");
   window_set_cancel_button(cap_open_w, close_bt, window_cancel_button_cb);
 
-  help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+  help_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
   gtk_widget_set_tooltip_text(help_bt,
     "Show help about capturing.");
   g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_CAPTURE_OPTIONS_DIALOG);
@@ -3413,9 +3413,9 @@ capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
     for (i = 0; i < global_capture_opts.ifaces->len; i++) {
       interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
       if_name = g_strdup(interface_opts.name);
-      cap_settings_p = g_hash_table_lookup(cap_settings_history, if_name);
+      cap_settings_p = (cap_settings_t *)g_hash_table_lookup(cap_settings_history, if_name);
       if (cap_settings_p == NULL) {
-        cap_settings_p = g_malloc(sizeof (cap_settings_t));
+        cap_settings_p = g_new(cap_settings_t,1);
         g_hash_table_insert(cap_settings_history, if_name, cap_settings_p);
       } else {
         g_free(if_name);
@@ -3663,7 +3663,7 @@ make_and_fill_rows(void)
 {
   GList *if_entry, *if_list;
   if_info_t *if_info;
-  char *if_string="";
+  char *if_string=NULL;
   gchar *descr;
   if_capabilities_t *caps=NULL;
   gint linktype_count;
@@ -3693,9 +3693,9 @@ make_and_fill_rows(void)
     g_free(err_str);
   }
   for (if_entry = if_list; if_entry != NULL; if_entry = g_list_next(if_entry)) {
-    if_info = if_entry->data;
+    if_info = (if_info_t *)if_entry->data;
     ip_str = g_string_new("");
-    str = "";
+    str = NULL;
     ips = 0;
     row.name = g_strdup(if_info->name);
     /* Is this interface hidden and, if so, should we include it anyway? */
@@ -3777,7 +3777,7 @@ make_and_fill_rows(void)
         row.monitor_mode_supported = caps->can_set_rfmon;
 #endif
         for (lt_entry = caps->data_link_types; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
-          data_link_info = lt_entry->data;
+          data_link_info = (data_link_info_t *)lt_entry->data;
           if (data_link_info->description != NULL) {
             str = g_strdup_printf("%s", data_link_info->description);
           } else {
@@ -3816,7 +3816,7 @@ GtkTreeModel *create_and_fill_model(GtkTreeView *view)
   GtkListStore *store;
   GtkTreeIter iter;
   GList *list;
-  char *temp="", *snaplen_string;
+  char *temp=NULL, *snaplen_string;
   guint i, j;
   link_row *link = NULL;
   interface_row row;
@@ -4019,7 +4019,7 @@ static void
 capture_prep_monitor_changed_cb(GtkWidget *monitor, gpointer argp _U_)
 {
   GList *lt_entry;
-  gchar *if_string="";
+  gchar *if_string=NULL;
   cap_settings_t cap_settings;
   if_capabilities_t *caps=NULL;
   gint linktype_count = 0, i;
@@ -4027,7 +4027,7 @@ capture_prep_monitor_changed_cb(GtkWidget *monitor, gpointer argp _U_)
   interface_row row;
   link_row *link;
   GtkWidget *linktype_combo_box = (GtkWidget *) g_object_get_data(G_OBJECT(opt_edit_w), E_CAP_LT_CBX_KEY);
-  GtkWidget *linktype_lb = g_object_get_data(G_OBJECT(linktype_combo_box), E_CAP_LT_CBX_LABEL_KEY);
+  GtkWidget *linktype_lb = (GtkWidget *)g_object_get_data(G_OBJECT(linktype_combo_box), E_CAP_LT_CBX_LABEL_KEY);
 
   row = g_array_index(rows, interface_row, marked_row);
   rows = g_array_remove_index(rows, marked_row);
@@ -4052,7 +4052,7 @@ capture_prep_monitor_changed_cb(GtkWidget *monitor, gpointer argp _U_)
     row.monitor_mode_enabled = cap_settings.monitor_mode;
     for (lt_entry = caps->data_link_types; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
       link = (link_row *)g_malloc(sizeof(link_row));
-      data_link_info = lt_entry->data;
+      data_link_info = (data_link_info_t *)lt_entry->data;
       if (data_link_info->description != NULL) {
         ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(linktype_combo_box),
                                              data_link_info->description,

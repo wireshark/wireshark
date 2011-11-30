@@ -98,7 +98,7 @@ splash_update_label(GtkWidget *win, const char *message)
 
     if (win == NULL) return;
 
-    main_lb = g_object_get_data(G_OBJECT(win), "splash_label");
+    main_lb = (GtkWidget *)g_object_get_data(G_OBJECT(win), "splash_label");
     gtk_label_set_text(GTK_LABEL(main_lb), message);
 
     /* Process all pending GUI events before continuing, so that
@@ -252,7 +252,7 @@ splash_update(register_action_e action, const char *message, gpointer client_dat
 #endif
     }
 
-    main_lb = g_object_get_data(G_OBJECT(win), "protocol_label");
+    main_lb = (GtkWidget *)g_object_get_data(G_OBJECT(win), "protocol_label");
     /* make_dissector_reg.py changed -
        so we need to strip off the leading elements to get back to the protocol */
     if(message) {
@@ -271,7 +271,7 @@ splash_update(register_action_e action, const char *message, gpointer client_dat
     ul_percentage = (gulong)(percentage * 100);
 
     /* update progress bar */
-    prog_bar = g_object_get_data(G_OBJECT(win), "progress_bar");
+    prog_bar = (GtkWidget *)g_object_get_data(G_OBJECT(win), "progress_bar");
     gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(prog_bar), percentage);
 
     percentage_lb = g_object_get_data(G_OBJECT(win), "percentage_label");
@@ -566,7 +566,7 @@ about_wireshark_cb( GtkWidget *w _U_, gpointer data _U_ )
   bbox = dlg_button_row_new(GTK_STOCK_OK, NULL);
   gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
 
-  ok_btn = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
+  ok_btn = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
   gtk_widget_grab_focus(ok_btn);
   gtk_widget_grab_default(ok_btn);
   window_set_cancel_button(about_wireshark_w, ok_btn, window_cancel_button_cb);
