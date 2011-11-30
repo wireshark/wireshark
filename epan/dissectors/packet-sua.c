@@ -358,6 +358,7 @@ static gchar *sua_source_gt;
 static gchar *sua_destination_gt;
 
 static dissector_handle_t data_handle;
+static dissector_handle_t sua_info_str_handle;
 static dissector_table_t sccp_ssn_dissector_table;
 static heur_dissector_list_t heur_subdissector_list;
 
@@ -511,7 +512,7 @@ static gint version = SUA_RFC;
 static gboolean set_addresses = FALSE;
 
 static void
-dissect_parameters(tvbuff_t *tlv_tvb, proto_tree *tree, tvbuff_t **data_tvb, guint8 *source_ssn, guint8 *dest_ssn);
+dissect_parameters(tvbuff_t *tlv_tvb, packet_info *pinfo, proto_tree *tree, tvbuff_t **data_tvb, guint8 *source_ssn, guint8 *dest_ssn);
 
 static void
 dissect_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_tree *sua_tree)
@@ -536,11 +537,20 @@ dissect_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_tre
 #define INFO_STRING_OFFSET PARAMETER_VALUE_OFFSET
 
 static void
-dissect_info_string_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_info_string_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint16 info_string_length;
+  tvbuff_t *next_tvb;
 
+  
   info_string_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
+  /* If we have a SUA Info String sub dissector call it */
+  if(sua_info_str_handle){
+    next_tvb = tvb_new_subset(parameter_tvb, INFO_STRING_OFFSET, info_string_length, info_string_length);
+    call_dissector(sua_info_str_handle, next_tvb, pinfo, parameter_tree);
+	return;
+  }
+
   proto_tree_add_item(parameter_tree, hf_sua_info_string, parameter_tvb, INFO_STRING_OFFSET, info_string_length, ENC_ASCII|ENC_NA);
   proto_item_append_text(parameter_item, " (%.*s)", info_string_length,
                          tvb_get_ephemeral_string(parameter_tvb, INFO_STRING_OFFSET, info_string_length));
@@ -759,21 +769,21 @@ dissect_correlation_id_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_
 }
 
 static void
-dissect_registration_result_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
+dissect_registration_result_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree)
 {
   tvbuff_t *parameters_tvb;
 
   parameters_tvb = tvb_new_subset_remaining(parameter_tvb, PARAMETER_VALUE_OFFSET);
-  dissect_parameters(parameters_tvb, parameter_tree, NULL, NULL, NULL);
+  dissect_parameters(parameters_tvb, pinfo, parameter_tree, NULL, NULL, NULL);
 }
 
 static void
-dissect_deregistration_result_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
+dissect_deregistration_result_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree)
 {
   tvbuff_t *parameters_tvb;
 
   parameters_tvb = tvb_new_subset_remaining(parameter_tvb, PARAMETER_VALUE_OFFSET);
-  dissect_parameters(parameters_tvb, parameter_tree, NULL, NULL, NULL);
+  dissect_parameters(parameters_tvb, pinfo, parameter_tree, NULL, NULL, NULL);
 }
 
 #define REGISTRATION_STATUS_LENGTH 4
@@ -868,7 +878,7 @@ static const value_string routing_indicator_values[] = {
 #define ADDRESS_SSN_BITMASK      0x0001
 
 static void
-dissect_source_address_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, guint8 *ssn)
+dissect_source_address_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, guint8 *ssn)
 {
   proto_item *address_indicator_item;
   proto_tree *address_indicator_tree;
@@ -887,11 +897,11 @@ dissect_source_address_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_
   }
 
   parameters_tvb = tvb_new_subset_remaining(parameter_tvb, ADDRESS_PARAMETERS_OFFSET);
-  dissect_parameters(parameters_tvb, parameter_tree, NULL, ssn, NULL);
+  dissect_parameters(parameters_tvb, pinfo, parameter_tree, NULL, ssn, NULL);
 }
 
 static void
-dissect_destination_address_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, guint8 *ssn)
+dissect_destination_address_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, guint8 *ssn)
 {
   proto_item *address_indicator_item;
   proto_tree *address_indicator_tree;
@@ -910,7 +920,7 @@ dissect_destination_address_parameter(tvbuff_t *parameter_tvb, proto_tree *param
   }
 
   parameters_tvb = tvb_new_subset_remaining(parameter_tvb, ADDRESS_PARAMETERS_OFFSET);
-  dissect_parameters(parameters_tvb, parameter_tree, NULL, NULL, ssn);
+  dissect_parameters(parameters_tvb, pinfo, parameter_tree, NULL, NULL, ssn);
 }
 
 #define SOURCE_REFERENCE_NUMBER_LENGTH 4
@@ -1137,12 +1147,12 @@ dissect_network_appearance_parameter(tvbuff_t *parameter_tvb, proto_tree *parame
 }
 
 static void
-dissect_routing_key_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
+dissect_routing_key_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree)
 {
   tvbuff_t *parameters_tvb;
 
   parameters_tvb = tvb_new_subset_remaining(parameter_tvb, PARAMETER_VALUE_OFFSET);
-  dissect_parameters(parameters_tvb, parameter_tree, NULL, NULL, NULL);
+  dissect_parameters(parameters_tvb, pinfo, parameter_tree, NULL, NULL, NULL);
 }
 #define DRN_START_LENGTH 1
 #define DRN_END_LENGTH 1
@@ -1179,12 +1189,12 @@ dissect_tid_label_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
 #define ADDRESS_RANGE_ADDRESS_PARAMETERS_OFFSET  PARAMETER_VALUE_OFFSET
 
 static void
-dissect_address_range_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
+dissect_address_range_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree)
 {
   tvbuff_t *parameters_tvb;
 
   parameters_tvb = tvb_new_subset_remaining(parameter_tvb, PARAMETER_VALUE_OFFSET);
-  dissect_parameters(parameters_tvb, parameter_tree, NULL, NULL, NULL);
+  dissect_parameters(parameters_tvb, pinfo, parameter_tree, NULL, NULL, NULL);
 }
 
 #define SMI_LENGTH 1
@@ -1570,7 +1580,7 @@ static const value_string v8_parameter_tag_values[] = {
   { 0,                                          NULL } };
 
 static void
-dissect_v8_parameter(tvbuff_t *parameter_tvb, proto_tree *tree, tvbuff_t **data_tvb, guint8 *source_ssn, guint8 *dest_ssn)
+dissect_v8_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree, tvbuff_t **data_tvb, guint8 *source_ssn, guint8 *dest_ssn)
 {
   guint16 tag, length, padding_length;
   proto_item *parameter_item;
@@ -1613,7 +1623,7 @@ dissect_v8_parameter(tvbuff_t *parameter_tvb, proto_tree *tree, tvbuff_t **data_
     dissect_data_parameter(parameter_tvb, parameter_tree, parameter_item, data_tvb);
     break;
   case V8_INFO_STRING_PARAMETER_TAG:
-    dissect_info_string_parameter(parameter_tvb, parameter_tree, parameter_item);
+    dissect_info_string_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
     break;
   case V8_ROUTING_CONTEXT_PARAMETER_TAG:
     dissect_routing_context_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -1646,10 +1656,10 @@ dissect_v8_parameter(tvbuff_t *parameter_tvb, proto_tree *tree, tvbuff_t **data_
     dissect_ss7_hop_counter_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case V8_SOURCE_ADDRESS_PARAMETER_TAG:
-    dissect_source_address_parameter(parameter_tvb, parameter_tree, source_ssn);
+    dissect_source_address_parameter(parameter_tvb, pinfo, parameter_tree, source_ssn);
     break;
   case V8_DESTINATION_ADDRESS_PARAMETER_TAG:
-    dissect_destination_address_parameter(parameter_tvb, parameter_tree, dest_ssn);
+    dissect_destination_address_parameter(parameter_tvb, pinfo, parameter_tree, dest_ssn);
     break;
   case V8_SOURCE_REFERENCE_NUMBER_PARAMETER_TAG:
     dissect_source_reference_number_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -1679,16 +1689,16 @@ dissect_v8_parameter(tvbuff_t *parameter_tvb, proto_tree *tree, tvbuff_t **data_
     dissect_network_appearance_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case V8_ROUTING_KEY_PARAMETER_TAG:
-    dissect_routing_key_parameter(parameter_tvb, parameter_tree);
+    dissect_routing_key_parameter(parameter_tvb, pinfo, parameter_tree);
     break;
   case V8_REGISTRATION_RESULT_PARAMETER_TAG:
-    dissect_registration_result_parameter(parameter_tvb, parameter_tree);
+    dissect_registration_result_parameter(parameter_tvb, pinfo, parameter_tree);
     break;
   case V8_DEREGISTRATION_RESULT_PARAMETER_TAG:
-    dissect_deregistration_result_parameter(parameter_tvb, parameter_tree);
+    dissect_deregistration_result_parameter(parameter_tvb, pinfo, parameter_tree);
     break;
   case V8_ADDRESS_RANGE_PARAMETER_TAG:
-    dissect_address_range_parameter(parameter_tvb, parameter_tree);
+    dissect_address_range_parameter(parameter_tvb, pinfo, parameter_tree);
     break;
   case V8_CORRELATION_ID_PARAMETER_TAG:
     dissect_correlation_id_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -1850,7 +1860,7 @@ static const value_string parameter_tag_values[] = {
   { 0,                                          NULL } };
 
 static void
-dissect_parameter(tvbuff_t *parameter_tvb, proto_tree *tree, tvbuff_t **data_tvb, guint8 *source_ssn, guint8 *dest_ssn)
+dissect_parameter(tvbuff_t *parameter_tvb,  packet_info *pinfo, proto_tree *tree, tvbuff_t **data_tvb, guint8 *source_ssn, guint8 *dest_ssn)
 {
   guint16 tag, length, padding_length;
   proto_item *parameter_item;
@@ -1896,7 +1906,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, proto_tree *tree, tvbuff_t **data_tvb
     dissect_data_parameter(parameter_tvb, parameter_tree, parameter_item, data_tvb);
     break;
   case INFO_STRING_PARAMETER_TAG:
-    dissect_info_string_parameter(parameter_tvb, parameter_tree, parameter_item);
+    dissect_info_string_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
     break;
   case ROUTING_CONTEXT_PARAMETER_TAG:
     dissect_routing_context_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -1938,10 +1948,10 @@ dissect_parameter(tvbuff_t *parameter_tvb, proto_tree *tree, tvbuff_t **data_tvb
     dissect_ss7_hop_counter_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case SOURCE_ADDRESS_PARAMETER_TAG:
-    dissect_source_address_parameter(parameter_tvb, parameter_tree, source_ssn);
+    dissect_source_address_parameter(parameter_tvb, pinfo, parameter_tree, source_ssn);
     break;
   case DESTINATION_ADDRESS_PARAMETER_TAG:
-    dissect_destination_address_parameter(parameter_tvb, parameter_tree, dest_ssn);
+    dissect_destination_address_parameter(parameter_tvb, pinfo, parameter_tree, dest_ssn);
     break;
   case SOURCE_REFERENCE_NUMBER_PARAMETER_TAG:
     dissect_source_reference_number_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -1971,16 +1981,16 @@ dissect_parameter(tvbuff_t *parameter_tvb, proto_tree *tree, tvbuff_t **data_tvb
     dissect_network_appearance_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case ROUTING_KEY_PARAMETER_TAG:
-    dissect_routing_key_parameter(parameter_tvb, parameter_tree);
+    dissect_routing_key_parameter(parameter_tvb, pinfo, parameter_tree);
     break;
   case REGISTRATION_RESULT_PARAMETER_TAG:
-    dissect_registration_result_parameter(parameter_tvb, parameter_tree);
+    dissect_registration_result_parameter(parameter_tvb, pinfo, parameter_tree);
     break;
   case DEREGISTRATION_RESULT_PARAMETER_TAG:
-    dissect_deregistration_result_parameter(parameter_tvb, parameter_tree);
+    dissect_deregistration_result_parameter(parameter_tvb, pinfo, parameter_tree);
     break;
   case ADDRESS_RANGE_PARAMETER_TAG:
-    dissect_address_range_parameter(parameter_tvb, parameter_tree);
+    dissect_address_range_parameter(parameter_tvb, pinfo, parameter_tree);
     break;
   case CORRELATION_ID_PARAMETER_TAG:
     dissect_correlation_id_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -2046,7 +2056,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, proto_tree *tree, tvbuff_t **data_tvb
 }
 
 static void
-dissect_parameters(tvbuff_t *parameters_tvb, proto_tree *tree, tvbuff_t **data_tvb, guint8 *source_ssn, guint8 *dest_ssn)
+dissect_parameters(tvbuff_t *parameters_tvb, packet_info *pinfo, proto_tree *tree, tvbuff_t **data_tvb, guint8 *source_ssn, guint8 *dest_ssn)
 {
   gint offset, length, total_length, remaining_length;
   tvbuff_t *parameter_tvb;
@@ -2061,10 +2071,10 @@ dissect_parameters(tvbuff_t *parameters_tvb, proto_tree *tree, tvbuff_t **data_t
     parameter_tvb  = tvb_new_subset(parameters_tvb, offset, total_length, total_length);
     switch(version) {
       case SUA_V08:
-        dissect_v8_parameter(parameter_tvb, tree, data_tvb, source_ssn, dest_ssn);
+        dissect_v8_parameter(parameter_tvb, pinfo, tree, data_tvb, source_ssn, dest_ssn);
         break;
       case SUA_RFC:
-        dissect_parameter(parameter_tvb, tree, data_tvb, source_ssn, dest_ssn);
+        dissect_parameter(parameter_tvb, pinfo, tree, data_tvb, source_ssn, dest_ssn);
         break;
     }
     /* get rid of the handled parameter */
@@ -2107,7 +2117,7 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
   dissect_common_header(common_header_tvb, pinfo, sua_tree);
 
   parameters_tvb = tvb_new_subset_remaining(message_tvb, COMMON_HEADER_LENGTH);
-  dissect_parameters(parameters_tvb, sua_tree, &data_tvb, &source_ssn, &dest_ssn);
+  dissect_parameters(parameters_tvb, pinfo, sua_tree, &data_tvb, &source_ssn, &dest_ssn);
 
 
 
@@ -2408,6 +2418,8 @@ proto_reg_handoff_sua(void)
   dissector_handle_t sua_handle;
 
   sua_handle = find_dissector("sua");
+  /* Do we have an info string dissector ? */
+  sua_info_str_handle = find_dissector("sua.infostring");
   dissector_add_uint("sctp.ppi",  SUA_PAYLOAD_PROTOCOL_ID, sua_handle);
   dissector_add_uint("sctp.port", SCTP_PORT_SUA,           sua_handle);
 
