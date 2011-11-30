@@ -49,10 +49,25 @@ typedef enum severity_level_t {
     max_level
 } severity_level_t;
 
+/* This variable stores the lowest level that will be displayed.
+   May be changed from the command line */
+static severity_level_t lowest_report_level = chat_level;
+
+typedef struct expert_entry
+{
+    int group;
+    const gchar *protocol;
+    gchar *summary;
+    int frequency;
+} expert_entry;
+
+
+/* Overall struct for storing all data seen */
 typedef struct expert_tapdata_t {
     GArray         *ei_array[max_level];   /* expert info items */
-    GStringChunk*  text; /* summary text */
+    GStringChunk*  text;    /* for efficient storage of summary strings */
 } expert_tapdata_t;
+
 
 /* Reset expert stats */
 static void
@@ -77,8 +92,11 @@ expert_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U
                    const void *pointer)
 {
     expert_info_t    *ei = (expert_info_t *)pointer;
-    expert_tapdata_t *etd = tapdata;
+    expert_tapdata_t *data = tapdata;
     severity_level_t severity_level;
+    expert_entry     tmp_entry;
+    expert_entry     *entry;
+    guint            n;
 
     switch (ei->severity) {
         case PI_CHAT:
@@ -98,15 +116,32 @@ expert_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U
             return 0;
     }
 
-    /* Add new item to end of list for severity level */
-    g_array_append_val(etd->ei_array[severity_level], *(expert_info_t *)pointer);
+    /* Don't store details at a lesser severity than we are interested in */
+    if (severity_level < lowest_report_level) {
+        return 1;
+    }
+
+    /* If a duplicate just bump up frequency.
+       TODO: could make more efficient by avoiding linear search...*/
+    for (n=0; n < data->ei_array[severity_level]->len; n++) {
+        entry = &g_array_index(data->ei_array[severity_level], expert_entry, n);
+        if ((strcmp(ei->protocol, entry->protocol) == 0) &&
+            (strcmp(ei->summary, entry->summary) == 0)) {
+            entry->frequency++;
+            return 1;
+        }
+    }
+
+    /* Else Add new item to end of list for severity level */
+    g_array_append_val(data->ei_array[severity_level], tmp_entry);
 
     /* Get pointer to newly-allocated item */
-    ei = &g_array_index(etd->ei_array[severity_level], expert_info_t,
-                        etd->ei_array[severity_level]->len - 1); /* ugly */
+    entry = &g_array_index(data->ei_array[severity_level], expert_entry,
+                           data->ei_array[severity_level]->len - 1); /* ugly */
     /* Copy/Store protocol and summary strings efficiently using GStringChunk */
-    ei->protocol = g_string_chunk_insert_const(etd->text, ei->protocol);
-    ei->summary = g_string_chunk_insert_const(etd->text, ei->summary);
+    entry->protocol = g_string_chunk_insert_const(data->text, ei->protocol);
+    entry->summary = g_string_chunk_insert_const(data->text, ei->summary);
+    entry->frequency = 1;
 
     return 1;
 }
@@ -115,24 +150,31 @@ expert_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U
 static void draw_items_for_severity(GArray *items, const gchar *label)
 {
     guint n;
-    expert_info_t *ei;
+    expert_entry *ei;
+    int total = 0;
 
     /* Don't print title if no items */
     if (items->len == 0) {
         return;
     }
 
+    /* Add frequencies together to get total */
+    for (n=0; n < items->len; n++) {
+        ei = &g_array_index(items, expert_entry, n);
+        total += ei->frequency;
+    }
+
     /* Title */
-    printf("\n%s (%u)\n", label, items->len);
+    printf("\n%s (%u)\n", label, total);
     printf("=============\n");
 
     /* Column headings */
-    printf("   Frame      Group           Protocol\n");
+    printf("   Frequency      Group            Protocol\n");
 
     /* Items */
     for (n=0; n < items->len; n++) {
-        ei = &g_array_index(items, expert_info_t, n);
-        printf("%8u %10s %18s  %s\n", ei->packet_num,
+        ei = &g_array_index(items, expert_entry, n);
+        printf("%12u %10s %18s  %s\n", ei->frequency,
               val_to_str(ei->group, expert_group_vals, "Unknown"),
               ei->protocol, ei->summary);
     }
@@ -154,20 +196,47 @@ expert_stat_draw(void *phs _U_)
 /* Create a new expert stats struct */
 static void expert_stat_init(const char *optarg, void *userdata _U_)
 {
+    const char        *args = NULL;
     const char        *filter = NULL;
     GString           *error_string;
     expert_tapdata_t  *hs;
     int n;
 
-    /* Check for a filter string */
-    if (strncmp(optarg, "expert,stat,", 13) == 0) {
-        /* Skip those characters from filter to display */
-        filter = optarg + 11;
+    /* Check for args. */
+    if (strncmp(optarg, "expert", 6) == 0) {
+        /* Skip those characters */
+        args = optarg + 6;
     }
     else {
-        /* No filter */
-        filter = NULL;
+        /* No args. Will show all reports, with no filter */
+        lowest_report_level = max_level;
     }
+
+    /* First (optional) arg is Error|Warn|Note|Chat */
+    if (args != NULL) {
+        if (strncasecmp(args, ",error", 6) == 0) {
+            lowest_report_level = error_level;
+            args += 6;
+        }
+        else if (strncasecmp(args, ",warn", 5) == 0) {
+            lowest_report_level = warn_level;
+            args += 5;
+        } else if (strncasecmp(args, ",note", 5) == 0) {
+            lowest_report_level = note_level;
+            args += 5;
+        } else if (strncasecmp(args, ",chat", 5) == 0) {
+            lowest_report_level = chat_level;
+            args += 5;
+        }
+    }
+
+    /* Second (optional) arg is a filter string */
+    if (args != NULL) {
+        if (args[0] == ',') {
+            filter = args+1;
+        }
+    }
+
 
     /* Create top-level struct */
     hs = g_malloc(sizeof(expert_tapdata_t));
@@ -191,6 +260,7 @@ static void expert_stat_init(const char *optarg, void *userdata _U_)
                                          expert_stat_packet,
                                          expert_stat_draw);
     if (error_string) {
+        printf("Expert tap error (%s)!\n", error_string->str);
         g_string_free(error_string, TRUE);
         g_free(hs);
         exit(1);
@@ -202,6 +272,6 @@ static void expert_stat_init(const char *optarg, void *userdata _U_)
 void
 register_tap_listener_expert_info(void)
 {
-    register_stat_cmd_arg("expert,stat", expert_stat_init, NULL);
+    register_stat_cmd_arg("expert", expert_stat_init, NULL);
 }
 
