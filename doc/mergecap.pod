@@ -13,22 +13,21 @@ S<[ B<-s> E<lt>I<snaplen>E<gt> ]>
 S<[ B<-T> E<lt>I<encapsulation type>E<gt> ]>
 S<[ B<-v> ]>
 S<B<-w> E<lt>I<outfile>E<gt>|->
-E<lt>I<infile>E<gt>
-I<...>
+E<lt>I<infile>E<gt> [E<lt>I<infile>E<gt> I<...>]
 
 =head1 DESCRIPTION
 
 B<Mergecap> is a program that combines multiple saved capture files into
 a single output file specified by the B<-w> argument.  B<Mergecap> knows
 how to read B<libpcap> capture files, including those of B<tcpdump>,
-B<Wireshark>, and other tools that write captures in that format.  
+B<Wireshark>, and other tools that write captures in that format.
 
 By default, B<Mergecap> writes the capture file in B<libpcap> format, and writes
-all of the packets from the input capture files to the output file.  
+all of the packets from the input capture files to the output file.
 
-B<Mergecap> is able to detect, read and write the same capture files that 
+B<Mergecap> is able to detect, read and write the same capture files that
 are supported by B<Wireshark>.
-The input files don't need a specific filename extension; the file 
+The input files don't need a specific filename extension; the file
 format and an optional gzip compression will be automatically detected.
 Near the beginning of the DESCRIPTION section of wireshark(1) or
 L<http://www.wireshark.org/docs/man-pages/wireshark.html>
@@ -37,7 +36,7 @@ the same way B<Mergecap> handles this.
 
 B<Mergecap> can write the file in several output formats.
 The B<-F> flag can be used to specify the format in which to write the
-capture file, B<mergecap -F> provides a list of the available output 
+capture file, B<mergecap -F> provides a list of the available output
 formats.
 
 Packets from the input files are merged in chronological order based on
@@ -70,9 +69,9 @@ file are already in chronological order.
 
 =item -F  E<lt>file formatE<gt>
 
-Sets the file format of the output capture file. B<Mergecap> can write 
-the file in several formats; B<mergecap -F> provides a list of the 
-available output formats. The default is to use the file format of the 
+Sets the file format of the output capture file. B<Mergecap> can write
+the file in several formats; B<mergecap -F> provides a list of the
+available output formats. The default is to use the file format of the
 first input file.
 
 =item -h
@@ -107,7 +106,7 @@ Sets the packet encapsulation type of the output capture file.
 If the B<-T> flag is used to specify a frame encapsulation type, the
 encapsulation type of the output capture file will be forced to the
 specified type, rather than being the type appropriate to the
-encapsulation type of the input capture files.  
+encapsulation type of the input capture files.
 
 Note that this merely
 forces the encapsulation type of the output file to be the specified
@@ -124,7 +123,7 @@ fddi>' is specified).
 To merge two capture files together, 100 seconds apart use:
 
     capinfos -aeS a.pcap b.pcap
-    
+
 (Let's suppose a.pcap starts at 1009932757 and b.pcap ends
 at 873660281. 1009932757 - 873660281 - 100 = 136272376
 seconds.)
