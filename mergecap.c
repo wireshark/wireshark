@@ -161,7 +161,7 @@ main(int argc, char *argv[])
   int          i;
   struct wtap_pkthdr *phdr, snap_phdr;
   wtap_dumper *pdh;
-  int          open_err, read_err, write_err, close_err;
+  int          open_err, read_err=0, write_err, close_err;
   gchar       *err_info;
   int          err_fileno;
   char        *out_filename = NULL;
