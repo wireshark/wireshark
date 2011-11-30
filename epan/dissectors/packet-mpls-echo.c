@@ -8,6 +8,9 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
+ * (c) Copyright 2011, Krishnamurthy Mayya <krishnamurthy.mayya@ipinfusion.com>
+ *                     - Support for LSP Ping extensions as per RFC 6426
+ *                       
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
