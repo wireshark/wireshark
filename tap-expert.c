@@ -214,17 +214,17 @@ static void expert_stat_init(const char *optarg, void *userdata _U_)
 
     /* First (optional) arg is Error|Warn|Note|Chat */
     if (args != NULL) {
-        if (strncasecmp(args, ",error", 6) == 0) {
+        if (g_ascii_strncasecmp(args, ",error", 6) == 0) {
             lowest_report_level = error_level;
             args += 6;
         }
-        else if (strncasecmp(args, ",warn", 5) == 0) {
+        else if (g_ascii_strncasecmp(args, ",warn", 5) == 0) {
             lowest_report_level = warn_level;
             args += 5;
-        } else if (strncasecmp(args, ",note", 5) == 0) {
+        } else if (g_ascii_strncasecmp(args, ",note", 5) == 0) {
             lowest_report_level = note_level;
             args += 5;
-        } else if (strncasecmp(args, ",chat", 5) == 0) {
+        } else if (g_ascii_strncasecmp(args, ",chat", 5) == 0) {
             lowest_report_level = chat_level;
             args += 5;
         }
