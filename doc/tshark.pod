@@ -1251,7 +1251,7 @@ for those frames that match that filter.
 Example: B<-z "rlc-lte,stat,rlc-lte.ueid>3000"> will only collect stats for
 UEs with a UEId of more than 3000.
 
-=item B<-z> expert[I<error|warn|note|chat>][I<,filter>]
+=item B<-z> expert[I<,error|,warn|,note|,chat>][I<,filter>]
 
 Collects information about all expert info, and will display them in order,
 grouped by severity. 
