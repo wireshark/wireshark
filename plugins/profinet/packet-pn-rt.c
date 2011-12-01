@@ -157,8 +157,6 @@ static gboolean IsDFP_Frame(tvbuff_t *tvb)
 	guint16 u16SFCRC16;
 	guint8  u8SFPosition;
 	guint8  u8SFDataLength   = 255;
-	guint8  u8SFCycleCounter = 0;
-	guint8  u8SFDataStatus;
 	int offset = 0;
 	guint32 u32SubStart;
 	guint16 crc;
@@ -181,10 +179,7 @@ static gboolean IsDFP_Frame(tvbuff_t *tvb)
             break;
         }
 
-        u8SFCycleCounter = tvb_get_guint8(tvb, offset);
         offset += 1;
-
-        u8SFDataStatus = tvb_get_guint8(tvb, offset);
 
         offset += 1;
 
