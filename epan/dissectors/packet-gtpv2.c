@@ -2705,7 +2705,7 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 {
     proto_item  *flag_item, *auth_qua_item, *net_cap_item, 
                 *msnt_cap_item, *accrstdata_item, *vd_pref_item;
-    proto_tree  *flag_tree, *auth_qua_tree, *net_cap_tree, 
+    proto_tree  *flag_tree, *auth_qua_tree = NULL, *net_cap_tree, 
                 *msnt_cap_tree, *vd_pref_tree, *accrstdata_tree;
     gint         offset;
     guint8       nhi, drxi, nr_qui, nr_qua, tmp;
