@@ -3669,6 +3669,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 	guchar	oct;
 	struct e_in6_addr ipv6_addr;
 	int     link_dir;
+	guint32 ipv4_addr;
 
 	curr_len = len;
 	curr_offset = offset;
@@ -3725,30 +3726,47 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 		switch ( prot )
 		{
 			case 0x0001:
-			{
-				if (e_len > 0) {
-					tvb_get_ipv6(tvb, curr_offset, &ipv6_addr);
-					proto_tree_add_text(tree,
-					tvb, curr_offset, 16,
-					"IPv6: %s", ip6_to_str(&ipv6_addr));
-				}
-				break;
-			}
-			case 0x0002:
-				break;
 			case 0x0003:
-			{
-				if (e_len > 0) {
+			case 0x0007:
+				if ((link_dir == P2P_DIR_DL) && (e_len > 0)) {
 					tvb_get_ipv6(tvb, curr_offset, &ipv6_addr);
-					proto_tree_add_text(tree,
-					tvb, curr_offset, 16,
-					"IPv6: %s", ip6_to_str(&ipv6_addr));
+					proto_tree_add_text(tree, tvb, curr_offset, 16, "IPv6: %s", ip6_to_str(&ipv6_addr));
 				}
 				break;
-			}
+			case 0x0002:
+			case 0x0006:
+			case 0x000A:
+			case 0x000B:
+				break;
 			case 0x0004:
-				oct = tvb_get_guint8(tvb, curr_offset);
-				proto_tree_add_text(tree,tvb, curr_offset, 1, "Reject Code: 0x%02x (%u)", e_len , e_len);
+				if (link_dir == P2P_DIR_DL) {
+					oct = tvb_get_guint8(tvb, curr_offset);
+					proto_tree_add_text(tree,tvb, curr_offset, 1, "Reject Code: 0x%02x (%u)", e_len , e_len);
+				}
+				break;
+			case 0x0005:
+				if ((link_dir == P2P_DIR_DL) && (e_len == 1)) {
+					oct = tvb_get_guint8(tvb, curr_offset);
+					proto_tree_add_text(tree, tvb, curr_offset, 1, "%s", (oct == 1) ? "MS only" :
+										((oct == 2) ? "MS/NW" : "Unknown"));
+				}
+				break;
+			case 0x0008:
+				if ((link_dir == P2P_DIR_DL) && (e_len > 0)) {
+					tvb_get_ipv6(tvb, curr_offset, &ipv6_addr);
+					proto_tree_add_text(tree, tvb, curr_offset, 16,	"IPv6: %s", ip6_to_str(&ipv6_addr));
+					oct = tvb_get_guint8(tvb, curr_offset+16);
+					proto_tree_add_text(tree, tvb, curr_offset+16, 1, "Prefix length: %u", oct);
+				}
+				break;
+			case 0x0009:
+			case 0x000C:
+			case 0x000D:
+				if ((link_dir == P2P_DIR_DL) && (e_len > 0)) {
+					ipv4_addr = tvb_get_ipv4(tvb, curr_offset);
+					proto_tree_add_text(tree, tvb, curr_offset, 4,	"IPv4: %s",
+										ip_to_str((guint8 *)&ipv4_addr));
+				}
 				break;
 			default:
 			{
@@ -3823,7 +3841,7 @@ de_sm_pdp_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offs
 	}
 	else if (pdp_type_org == 1)
 	{
-		/* IETF allocated addres */
+		/* IETF allocated address */
 		switch (pdp_type_num)
 		{
 			case 0x21: str="IPv4 address"; break;
