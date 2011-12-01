@@ -74,3 +74,5 @@ extern int dissect_pn_padding(tvbuff_t *tvb, int offset, packet_info *pinfo,
 extern int dissect_pn_align4(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 
 extern void pn_append_info(packet_info *pinfo, proto_item *dcp_item, const char *text);
+
+extern gboolean dissect_CSF_SDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);

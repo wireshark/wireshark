@@ -56,12 +56,12 @@ static int hf_pn_rt_cycle_counter = -1;
 static int hf_pn_rt_transfer_status = -1;
 static int hf_pn_rt_data_status = -1;
 static int hf_pn_rt_data_status_ignore = -1;
-static int hf_pn_rt_data_status_subframe_sender_mode = -1;
+static int hf_pn_rt_data_status_Reserved_2 = -1;
 static int hf_pn_rt_data_status_ok = -1;
 static int hf_pn_rt_data_status_operate = -1;
 static int hf_pn_rt_data_status_res3 = -1;
 static int hf_pn_rt_data_status_valid = -1;
-static int hf_pn_rt_data_status_res1 = -1;
+static int hf_pn_rt_data_status_redundancy = -1;
 static int hf_pn_rt_data_status_primary = -1;
 
 static int hf_pn_rt_sf_crc16 = -1;
@@ -106,6 +106,11 @@ static const value_string pn_rt_position_control[] = {
     { 0x80, "CRC16 and CycleCounter valid" },
     { 0, NULL }
 };
+static const value_string pn_rt_ds_redundancy[] = {
+	{ 0x00, "One primary AR of a given AR-set is present" },
+	{ 0x01, "None primary AR of a given AR-set is present" },
+    { 0, NULL }
+};
 
 static const value_string pn_rt_frag_status_error[] = {
     { 0x00, "No error" },
@@ -137,18 +142,74 @@ dissect_DataStatus(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 u8DataSta
         (u8DataStatus & 0x10) ? "Run" : "Stop");
     sub_tree = proto_item_add_subtree(sub_item, ett_pn_rt_data_status);
     proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_ignore, tvb, offset, 1, u8DataStatus);
-    proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_subframe_sender_mode, tvb, offset, 1, u8DataStatus);
+    proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_Reserved_2, tvb, offset, 1, u8DataStatus);
     proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_ok, tvb, offset, 1, u8DataStatus);
     proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_operate, tvb, offset, 1, u8DataStatus);
     proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_res3, tvb, offset, 1, u8DataStatus);
     proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_valid, tvb, offset, 1, u8DataStatus);
-    proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_res1, tvb, offset, 1, u8DataStatus);
+    proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_redundancy, tvb, offset, 1, u8DataStatus);
     proto_tree_add_uint(sub_tree, hf_pn_rt_data_status_primary, tvb, offset, 1, u8DataStatus);
 }
 
 
+static gboolean IsDFP_Frame(tvbuff_t *tvb)
+{
+	guint16 u16SFCRC16;
+	guint8  u8SFPosition;
+	guint8  u8SFDataLength   = 255;
+	guint8  u8SFCycleCounter = 0;
+	guint8  u8SFDataStatus;
+	int offset = 0;
+	guint32 u32SubStart;
+	guint16 crc;
+    gint tvb_len =0;
+
+    offset += 2;    /*Skip first crc because data is no more available */
+    tvb_len = tvb_length(tvb);
+    if(offset + 4 > tvb_len)
+        return FALSE;
+    while(1) {
+        u32SubStart = offset;
+
+        u8SFPosition = tvb_get_guint8(tvb, offset);
+        offset += 1;
+
+        u8SFDataLength = tvb_get_guint8(tvb, offset);
+        offset += 1;
+
+        if(u8SFDataLength == 0) {
+            break;
+        }
+
+        u8SFCycleCounter = tvb_get_guint8(tvb, offset);
+        offset += 1;
+
+        u8SFDataStatus = tvb_get_guint8(tvb, offset);
+
+        offset += 1;
+
+        offset += u8SFDataLength;
+       if(offset > tvb_len)
+           return /*TRUE; */FALSE;
+
+        u16SFCRC16 = tvb_get_letohs(tvb, offset);
+        if(u16SFCRC16 != 0){
+            if(u8SFPosition & 0x80) {
+                crc = crc16_plain_tvb_offset(tvb, u32SubStart, offset-u32SubStart);
+                if(crc != u16SFCRC16) {
+                    return FALSE;
+                } else {
+                }
+            } else {
+            }
+        }
+        offset += 2;
+    }
+    return TRUE;
+}
+
 /* possibly dissect a CSF_SDU related PN-RT packet */
-static gboolean
+gboolean
 dissect_CSF_SDU_heur(tvbuff_t *tvb,
     packet_info *pinfo, proto_tree *tree)
 {
@@ -158,7 +219,7 @@ dissect_CSF_SDU_heur(tvbuff_t *tvb,
     guint8  u8SFDataLength = 255;
     guint8  u8SFCycleCounter;
     guint8  u8SFDataStatus;
-    int offset = 0;
+	gint offset = 0;
     guint32 u32SubStart;
     proto_item *sub_item;
     proto_tree *sub_tree;
@@ -170,12 +231,9 @@ dissect_CSF_SDU_heur(tvbuff_t *tvb,
     u16FrameID = GPOINTER_TO_UINT(pinfo->private_data);
 
     /* possible FrameID ranges for DFP */
-    if ((u16FrameID >= 0x0500 && u16FrameID < 0x05ff) ||
-        (u16FrameID >= 0x0600 && u16FrameID < 0x07ff) ||
-        (u16FrameID >= 0x4800 && u16FrameID < 0x4fff) ||
-        (u16FrameID >= 0x5800 && u16FrameID < 0x5fff) ||
-        (u16FrameID >= 0x6800 && u16FrameID < 0x6fff) ||
-        (u16FrameID >= 0x7800 && u16FrameID < 0x7fff)) {
+    if((u16FrameID < 0x100) || (u16FrameID > 0x0fff))
+        return (FALSE);
+    if (IsDFP_Frame(tvb)) {
         /* can't check this CRC, as the checked data bytes are not available */
         u16SFCRC16 = tvb_get_letohs(tvb, offset);
         proto_tree_add_uint(tree, hf_pn_rt_sf_crc16, tvb, offset, 2, u16SFCRC16);
@@ -187,7 +245,6 @@ dissect_CSF_SDU_heur(tvbuff_t *tvb,
             u32SubStart = offset;
 
             u8SFPosition = tvb_get_guint8(tvb, offset);
-            proto_tree_add_uint(sub_tree, hf_pn_rt_sf_position_control, tvb, offset, 1, u8SFPosition);
             proto_tree_add_uint(sub_tree, hf_pn_rt_sf_position, tvb, offset, 1, u8SFPosition);
             offset += 1;
 
@@ -214,7 +271,7 @@ dissect_CSF_SDU_heur(tvbuff_t *tvb,
             u16SFCRC16 = tvb_get_letohs(tvb, offset);
             item = proto_tree_add_uint(sub_tree, hf_pn_rt_sf_crc16, tvb, offset, 2, u16SFCRC16);
 
-            if(u8SFPosition & 0x80) {
+            if(u16SFCRC16 != 0 /* "old check": u8SFPosition & 0x80 */) {
                 crc = crc16_plain_tvb_offset(tvb, u32SubStart, offset-u32SubStart);
                 if(crc != u16SFCRC16) {
                     proto_item_append_text(item, " [Preliminary check: incorrect, should be: %u]", crc);
@@ -223,7 +280,7 @@ dissect_CSF_SDU_heur(tvbuff_t *tvb,
                     proto_item_append_text(item, " [Preliminary check: Correct]");
                 }
             } else {
-                proto_item_append_text(item, " [No preliminary check, Control bit not set]");
+                proto_item_append_text(item, " [No check, supplied CRC == zero]");
             }
             offset += 2;
 
@@ -264,7 +321,7 @@ dissect_FRAG_PDU_heur(tvbuff_t *tvb,
     u16FrameID = GPOINTER_TO_UINT(pinfo->private_data);
 
     /* possible FrameID ranges for FRAG_PDU */
-    if (u16FrameID >= 0xFF80 && u16FrameID < 0xFF8F) {
+    if (u16FrameID >= 0xFF80 && u16FrameID <= 0xFF8F) {
         sub_item = proto_tree_add_item(tree, hf_pn_rt_frag, tvb, offset, 0, ENC_NA);
         sub_tree = proto_item_add_subtree(sub_item, ett_pn_rt_frag);
 
@@ -286,8 +343,7 @@ dissect_FRAG_PDU_heur(tvbuff_t *tvb,
             val_to_str( (u8FragStatus & 0x40) >> 6, pn_rt_frag_status_error, "Unknown"));
 
 
-        /* XXX - should this use u8FragDataLength? */
-        proto_tree_add_none_format(sub_tree, hf_pn_rt_frag_data, tvb, offset, tvb_length(tvb) - offset,
+		proto_tree_add_string_format(sub_tree, hf_pn_rt_frag_data, tvb, offset, tvb_length(tvb) - offset, "data", 
             "FragData: %d bytes", tvb_length(tvb) - offset);
 
         /* note: the actual defragmentation implementation is still missing here */
@@ -395,78 +451,24 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         pszProtComment  = "0x0082-0x00FF: Reserved ID";
         bCyclic         = FALSE;
 
-    } else if (u16FrameID <= 0x04FF){
+    } else if (u16FrameID <= 0x6FF) {
         pszProtShort    = "PN-RTC3";
         pszProtAddInfo  = "RTC3, ";
         pszProtSummary  = "Isochronous-Real-Time";
-        pszProtComment  = "0x0100-0x04FF: Isochronous-Real-Time(class=3): non redundant, normal";
-        bCyclic         = TRUE;
-    } else if (u16FrameID <= 0x05FF){
-        pszProtShort    = "PN-RTC3";
-        pszProtAddInfo  = "RTC3, ";
-        pszProtSummary  = "Isochronous-Real-Time";
-        pszProtComment  = "0x0500-0x05FF: Isochronous-Real-Time(class=3): non redundant, DFP";
-        bCyclic         = TRUE;
-    } else if (u16FrameID <= 0x07FF){
-        pszProtShort    = "PN-RTC3";
-        pszProtAddInfo  = "RTC3, ";
-        pszProtSummary  = "Isochronous-Real-Time";
-        pszProtComment  = "0x0600-0x07FF: Isochronous-Real-Time(class=3): redundant, DFP";
+        pszProtComment	= "0x0100-0x06FF: RED: Real-Time(class=3): non redundant, normal or DFP";
         bCyclic         = TRUE;
     } else if (u16FrameID <= 0x0FFF){
         pszProtShort    = "PN-RTC3";
         pszProtAddInfo  = "RTC3, ";
         pszProtSummary  = "Isochronous-Real-Time";
-        pszProtComment  = "0x0800-0x0FFF: Isochronous-Real-Time(class=3): redundant, normal";
+        pszProtComment	= "0x0700-0x0FFF: RED: Real-Time(class=3): redundant, normal or DFP";
         bCyclic         = TRUE;
-    } else if (u16FrameID <= 0x47FF) {
+    } else if (u16FrameID <= 0x7FFF) {
         pszProtShort    = "PN-RT";
         pszProtAddInfo  = "reserved, ";
         pszProtSummary  = "Real-Time";
-        pszProtComment  = "0x1000-0x47FF: Reserved ID";
+        pszProtComment	= "0x1000-0x7FFF: Reserved ID";
         bCyclic         = FALSE;
-    } else if (u16FrameID <= 0x4FFF){
-        pszProtShort    = "PN-RTC2";
-        pszProtAddInfo  = "RTC2, ";
-        pszProtSummary  = "cyclic Real-Time";
-        pszProtComment  = "0x4800-0x4FFF: Real-Time(class=2): redundant, DFP";
-        bCyclic         = TRUE;
-    } else if (u16FrameID < 0x57FF){
-        pszProtShort    = "PN-RTC2";
-        pszProtAddInfo  = "RTC2, ";
-        pszProtSummary  = "cyclic Real-Time";
-        pszProtComment  = "0x5000-0x57FF: Real-Time(class=2): redundant, normal";
-        bCyclic         = TRUE;
-    } else if (u16FrameID <= 0x5FFF){
-        pszProtShort    = "PN-RTC2";
-        pszProtAddInfo  = "RTC2, ";
-        pszProtSummary  = "cyclic Real-Time";
-        pszProtComment  = "0x5800-0x5FFF: Real-Time(class=2): non redundant, DFP";
-        bCyclic         = TRUE;
-    } else if (u16FrameID <= 0x67FF){
-        pszProtShort    = "PN-RTC2";
-        pszProtAddInfo  = "RTC2, ";
-        pszProtSummary  = "cyclic Real-Time";
-        pszProtComment  = "0x6000-0x67FF: Real-Time(class=2): non redundant, normal";
-        bCyclic         = TRUE;
-    } else if (u16FrameID <= 0x6FFF){
-        pszProtShort    = "PN-RTC2";
-        pszProtAddInfo  = "RTC2, ";
-        pszProtSummary  = "cyclic Real-Time";
-        pszProtComment  = "0x6800-0x6FFF: Real-Time(class=2): redundant, DFP";
-        bCyclic         = TRUE;
-    } else if (u16FrameID <= 0x77FF){
-        pszProtShort    = "PN-RTC2";
-        pszProtAddInfo  = "RTC2, ";
-        pszProtSummary  = "cyclic Real-Time";
-        pszProtComment  = "0x7000-0x77FF: Real-Time(class=2): redundant, normal";
-        bCyclic         = TRUE;
-    } else if (u16FrameID <= 0x7FFF){
-        pszProtShort    = "PN-RTC2";
-        pszProtAddInfo  = "RTC2, ";
-        pszProtSummary  = "cyclic Real-Time";
-        pszProtComment  = "0x7800-0x7FFF: Real-Time(class=2): non redundant, DFP";
-        bCyclic         = TRUE;
     } else if (u16FrameID <= 0xBBFF){
         pszProtShort    = "PN-RTC2";
         pszProtAddInfo  = "RTC2, ";
@@ -690,18 +692,18 @@ proto_register_pn_rt(void)
         "DataStatus", "pn_rt.ds", FT_UINT8, BASE_HEX, 0, 0x0, NULL, HFILL }},
     { &hf_pn_rt_data_status_ignore, {
         "Ignore (1:Ignore/0:Evaluate)", "pn_rt.ds_ignore", FT_UINT8, BASE_HEX, 0, 0x80, NULL, HFILL }},
-    { &hf_pn_rt_data_status_subframe_sender_mode, {
-        "SubFrameSenderMode", "pn_rt.ds_subframe_sender_mode", FT_UINT8, BASE_HEX, 0, 0x40, NULL, HFILL }},
+    { &hf_pn_rt_data_status_Reserved_2, {
+        "Reserved_2 (should be zero)", "pn_rt.ds_Reserved_2", FT_UINT8, BASE_HEX, 0, 0x40, NULL, HFILL }},
     { &hf_pn_rt_data_status_ok, {
         "StationProblemIndicator (1:Ok/0:Problem)", "pn_rt.ds_ok", FT_UINT8, BASE_HEX, 0, 0x20, NULL, HFILL }},
     { &hf_pn_rt_data_status_operate, {
         "ProviderState (1:Run/0:Stop)", "pn_rt.ds_operate", FT_UINT8, BASE_HEX, 0, 0x10, NULL, HFILL }},
     { &hf_pn_rt_data_status_res3, {
-        "Reserved (should be zero)", "pn_rt.ds_res3", FT_UINT8, BASE_HEX, 0, 0x08, NULL, HFILL }},
+        "Reserved_1 (should be zero)", "pn_rt.ds_res3", FT_UINT8, BASE_HEX, 0, 0x08, NULL, HFILL }},
     { &hf_pn_rt_data_status_valid, {
         "DataValid (1:Valid/0:Invalid)", "pn_rt.ds_valid", FT_UINT8, BASE_HEX, 0, 0x04, NULL, HFILL }},
-    { &hf_pn_rt_data_status_res1, {
-        "Reserved (should be zero)", "pn_rt.ds_res1", FT_UINT8, BASE_HEX, 0, 0x02, NULL, HFILL }},
+    { &hf_pn_rt_data_status_redundancy, { 
+        "Redundancy", "pn_rt.ds_redundancy", FT_UINT8, BASE_HEX, VALS(pn_rt_ds_redundancy), 0x02, NULL, HFILL }},
     { &hf_pn_rt_data_status_primary, {
         "State (1:Primary/0:Backup)", "pn_rt.ds_primary", FT_UINT8, BASE_HEX, 0, 0x01, NULL, HFILL }},
     { &hf_pn_rt_transfer_status,
@@ -709,7 +711,7 @@ proto_register_pn_rt(void)
     { &hf_pn_rt_sf, {
         "SubFrame", "pn_rt.sf", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_pn_rt_sf_crc16, {
-        "CRC16", "pn_rt.sf.crc16", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        "SFCRC16", "pn_rt.sf.crc16", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
     { &hf_pn_rt_sf_position, {
         "Position", "pn_rt.sf.position", FT_UINT8, BASE_DEC, NULL, 0x7F, NULL, HFILL }},
     { &hf_pn_rt_sf_position_control, {

@@ -84,6 +84,7 @@ static int hf_pn_io_ar_type = -1;
 static int hf_pn_io_cminitiator_macadd = -1;
 static int hf_pn_io_cminitiator_objectuuid = -1;
 static int hf_pn_io_parameter_server_objectuuid = -1;
+static int hf_pn_io_ar_data = -1;
 static int hf_pn_io_ar_properties = -1;
 static int hf_pn_io_ar_properties_state = -1;
 static int hf_pn_io_ar_properties_supervisor_takeover_allowed = -1;
@@ -227,6 +228,8 @@ static int hf_pn_io_control_command_release = -1;
 static int hf_pn_io_control_command_done = -1;
 static int hf_pn_io_control_command_ready_for_companion = -1;
 static int hf_pn_io_control_command_ready_for_rt_class3 = -1;
+static int hf_pn_io_control_command_prmbegin = -1;
+static int hf_pn_io_control_command_reserved_7_15 = -1;
 static int hf_pn_io_control_block_properties = -1;
 static int hf_pn_io_control_block_properties_applready = -1;
 static int hf_pn_io_control_block_properties_applready0 = -1;
@@ -593,6 +596,7 @@ static int hf_pn_io_profidrive_param_format = -1;
 static int hf_pn_io_profidrive_param_no_of_values = -1;
 static int hf_pn_io_profidrive_param_value = -1;
 
+static int hf_pn_io_packedframe_SFCRC = -1;
 static gint ett_pn_io = -1;
 static gint ett_pn_io_block = -1;
 static gint ett_pn_io_block_header = -1;
@@ -625,6 +629,7 @@ static gint ett_pn_io_control_block_properties = -1;
 static gint ett_pn_io_check_sync_mode = -1;
 static gint ett_pn_io_ir_frame_data = -1;
 static gint ett_pn_io_ar_info = -1;
+static gint ett_pn_io_ar_data = -1;
 static gint ett_pn_io_ir_begin_end_port = -1;
 static gint ett_pn_io_subframe_data =-1;
 static gint ett_pn_io_frame_defails = -1;
@@ -711,22 +716,22 @@ static const value_string pn_io_block_type[] = {
     { 0x0109, "IRInfoBlock"},
     { 0x010A, "SRInfoBlock"},
     { 0x010B, "ARFSUBlock"},
-    { 0x0110, "IODBlockReq"},
-    { 0x8110, "IODBlockRes"},
-    { 0x0111, "IODBlockReq"},
-    { 0x8111, "IODBlockRes"},
-    { 0x0112, "IOXBlockReq"},
-    { 0x8112, "IOXBlockRes"},
-    { 0x0113, "IOXBlockReq"},
-    { 0x8113, "IOXBlockRes"},
-    { 0x0114, "ReleaseBlockReq"},
-    { 0x8114, "ReleaseBlockRes"},
+	{ 0x0110, "IODControlReq Prm End.req"},
+	{ 0x8110, "IODControlRes Prm End.rsp"},
+	{ 0x0111, "IODControlReq Prm End.req"},
+	{ 0x8111, "IODControlRes Prm End.rsp"},
+	{ 0x0112, "IOXBlockReq Application Ready.req"},
+	{ 0x8112, "IOXBlockRes Application Ready.rsp"},
+	{ 0x0113, "IOXBlockReq Application Ready.req"},
+	{ 0x8113, "IOXBlockRes Application Ready.rsp"},
+	{ 0x0114, "IODReleaseReq"},
+	{ 0x8114, "IODReleaseRes"},
     { 0x0115, "ARRPCServerBlockReq"},
     { 0x8115, "ARRPCServerBlockRes"},
-    { 0x0116, "IOXBlockReq"},
-    { 0x8116, "IOXBlockRes"},
-    { 0x0117, "IOXBlockReq"},
-    { 0x8117, "IOXBlockRes"},
+	{ 0x0116, "IOXControlReq Ready for Companion.req"},
+	{ 0x8116, "IOXControlRes Ready for Companion.rsp"},
+	{ 0x0117, "IOXControlReq Ready for RT_CLASS_3.req"},
+	{ 0x8117, "IOXControlRes Ready for RT_CLASS_3.rsp"},
     { 0x0118, "ControlBlockPrmBegin"},
     { 0x0119, "SubmoduleListBlock"},
     { 0x8118, "ControlBlockPrmBeginRes"},
@@ -2315,6 +2320,11 @@ static const value_string pn_io_control_properties_vals[] = {
     { 0, NULL }
 };
 
+static const value_string pn_io_control_properties_prmbegin_vals[] = {
+    { 0x0000, "No PrmBegin" },
+    { 0x0001, "The IO controller starts the transmisson of the stored start-up parameter" },
+    { 0, NULL }
+};
 static const value_string pn_io_control_properties_application_ready_vals[] = {
     { 0x0000, "Wait for explicit ControlCommand.ReadyForCompanion" },
     { 0x0001, "Implicit ControlCommand.ReadyForCompanion" },
@@ -3870,8 +3880,11 @@ dissect_ControlConnect_block(tvbuff_t *tvb, int offset,
                         hf_pn_io_control_command_done, &u16Command);
     dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
                         hf_pn_io_control_command_ready_for_companion, &u16Command);
-    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
+    dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
                         hf_pn_io_control_command_ready_for_rt_class3, &u16Command);
+	/* Prm.Begin */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
+                        hf_pn_io_control_command_prmbegin, &u16Command);
 
     if(u16Command & 0x0002) {
         /* ApplicationReady: special decode */
@@ -3921,6 +3934,8 @@ dissect_ControlBlockPrmBegin(tvbuff_t *tvb, int offset,
     e_uuid_t    ar_uuid;
     guint16     u16SessionKey;
     guint16     u16Command;
+	proto_item *sub_item;
+	proto_tree *sub_tree;
 
     if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
         expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
@@ -3948,11 +3963,27 @@ dissect_ControlBlockPrmBegin(tvbuff_t *tvb, int offset,
     offset = dissect_pn_padding(tvb, offset, pinfo, tree, 2);
 
     /* ControlCommand */
-    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_control_command, &u16Command);
-    if(u16Command == 0x40)
-    {
-        proto_item_append_text(item, " PrmBegin");
-    }
+    sub_item = proto_tree_add_item(tree, hf_pn_io_control_command, tvb, offset, 2, ENC_BIG_ENDIAN);
+	sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_control_command);
+
+    dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
+                        hf_pn_io_control_command_prmend, &u16Command);
+    dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
+                        hf_pn_io_control_command_applready, &u16Command);
+    dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
+                        hf_pn_io_control_command_release, &u16Command);
+    dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
+                        hf_pn_io_control_command_done, &u16Command);
+    dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
+                        hf_pn_io_control_command_ready_for_companion, &u16Command);
+    dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
+                        hf_pn_io_control_command_ready_for_rt_class3, &u16Command);
+	/* Prm.Begin */
+    dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
+                        hf_pn_io_control_command_prmbegin, &u16Command);
+
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
+                        hf_pn_io_control_command_reserved_7_15, &u16Command);
 
     /* ControlBlockProperties.reserved */
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_control_command_reserved, NULL);
@@ -5812,8 +5843,11 @@ dissect_ARData_block(tvbuff_t *tvb, int offset,
     guint32 u32Api;
     proto_item *iocr_item;
     proto_tree *iocr_tree;
+	proto_item *ar_item;
+    proto_tree *ar_tree;
     guint32 u32IOCRStart;
     gint32  i32EndOffset;
+	guint32 u32ARDataStart;
 
     /* added BlockversionLow == 1  */
     if(u8BlockVersionHigh != 1 || u8BlockVersionLow > 1) {
@@ -5827,26 +5861,30 @@ dissect_ARData_block(tvbuff_t *tvb, int offset,
     /* BlockversionLow:  0 */ 
     if(u8BlockVersionLow == 0){
     while(u16NumberOfARs--) {
-        offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep,
+			ar_item = proto_tree_add_item(tree, hf_pn_io_ar_data, tvb, offset, 0, ENC_BIG_ENDIAN);
+			ar_tree = proto_item_add_subtree(ar_item, ett_pn_io_ar_data);
+			u32ARDataStart = offset;
+			offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, ar_tree, drep,
                             hf_pn_io_ar_uuid, &aruuid);
-    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+			proto_item_append_text(ar_item,"ARUUID:%s",guid_to_str((const e_guid_t*) &aruuid));
+			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep,
                         hf_pn_io_ar_type, &u16ARType);
-        offset = dissect_ARProperties(tvb, offset, pinfo, tree, item, drep);
-        offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep,
+			offset = dissect_ARProperties(tvb, offset, pinfo, ar_tree, item, drep);
+        offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, ar_tree, drep,
                          hf_pn_io_cminitiator_objectuuid, &uuid);
-    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep,
                         hf_pn_io_station_name_length, &u16NameLength);
         pStationName = ep_alloc(u16NameLength+1);
         tvb_memcpy(tvb, (guint8 *) pStationName, offset, u16NameLength);
         pStationName[u16NameLength] = '\0';
-        proto_tree_add_string (tree, hf_pn_io_cminitiator_station_name, tvb, offset, u16NameLength, pStationName);
+			proto_tree_add_string (ar_tree, hf_pn_io_cminitiator_station_name, tvb, offset, u16NameLength, pStationName);
         offset += u16NameLength;
 
-    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep,
                         hf_pn_io_number_of_iocrs, &u16NumberOfIOCRs);
 
         while(u16NumberOfIOCRs--) {
-            iocr_item = proto_tree_add_item(tree, hf_pn_io_iocr_tree, tvb, offset, 0, ENC_NA);
+            iocr_item = proto_tree_add_item(ar_tree, hf_pn_io_iocr_tree, tvb, offset, 0, ENC_NA);
             iocr_tree = proto_item_add_subtree(iocr_item, ett_pn_io_iocr);
             u32IOCRStart = offset;
 
@@ -5907,89 +5945,98 @@ dissect_ARData_block(tvbuff_t *tvb, int offset,
         }
 
         /* AlarmCRType */
-    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep,
                         hf_pn_io_alarmcr_type, &u16AlarmCRType);
         /* LocalAlarmReference */
-    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep,
                         hf_pn_io_localalarmref, &u16LocalAlarmReference);
         /* RemoteAlarmReference */
-    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep,
                         hf_pn_io_remotealarmref, &u16RemoteAlarmReference);
         /* ParameterServerObjectUUID */
-        offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep,
+			offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, ar_tree, drep,
                             hf_pn_io_parameter_server_objectuuid, &uuid);
         /* StationNameLength */
-    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep,
                         hf_pn_io_station_name_length, &u16NameLength);
         /* ParameterServerStationName */
         pStationName = ep_alloc(u16NameLength+1);
         tvb_memcpy(tvb, (guint8 *) pStationName, offset, u16NameLength);
         pStationName[u16NameLength] = '\0';
-        proto_tree_add_string (tree, hf_pn_io_parameter_server_station_name, tvb, offset, u16NameLength, pStationName);
+			proto_tree_add_string (ar_tree, hf_pn_io_parameter_server_station_name, tvb, offset, u16NameLength, pStationName);
         offset += u16NameLength;
         /* NumberOfAPIs */
-    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep,
                         hf_pn_io_number_of_apis, &u16NumberOfAPIs);
         /* API */
         if (u16NumberOfAPIs > 0){
-            offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+				offset = dissect_dcerpc_uint32(tvb, offset, pinfo, ar_tree, drep,
                 hf_pn_io_api, &u32Api);
             }
+			proto_item_set_len(ar_item, offset - u32ARDataStart);
         }
     }
     else
     {    /* BlockversionLow == 1 */ 
         while(u16NumberOfARs--) {
+			ar_item = proto_tree_add_item(tree, hf_pn_io_ar_data, tvb, offset, 0, ENC_NA);
+			ar_tree = proto_item_add_subtree(ar_item, ett_pn_io_ar_data);
+			u32ARDataStart = offset;
             /*ARUUID */
-            offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep, hf_pn_io_ar_uuid, &aruuid);
+			offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_ar_uuid, &aruuid);
+			proto_item_append_text(ar_item,"ARUUID:%s",guid_to_str((const e_guid_t*) &aruuid));
             /* CMInitiatorObjectUUID */
-            offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep, hf_pn_io_cminitiator_objectuuid, &uuid);
+			offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_cminitiator_objectuuid, &uuid);
             /* ParameterServerObjectUUID */
-            offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep, hf_pn_io_parameter_server_objectuuid, &uuid);
+			offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_parameter_server_objectuuid, &uuid);
             /* ARProperties*/
-            offset = dissect_ARProperties(tvb, offset, pinfo, tree, item, drep);
+			offset = dissect_ARProperties(tvb, offset, pinfo, ar_tree, item, drep);
             /* ARType*/
-            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_ar_type, &u16ARType);
+			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_ar_type, &u16ARType);
             /* AlarmCRType */
-            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_alarmcr_type, &u16AlarmCRType);
+			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_alarmcr_type, &u16AlarmCRType);
             /* LocalAlarmReference */
-            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_localalarmref, &u16LocalAlarmReference);
+			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_localalarmref, &u16LocalAlarmReference);
             /* RemoteAlarmReference */
-            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_remotealarmref, &u16RemoteAlarmReference);
+			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_remotealarmref, &u16RemoteAlarmReference);
             /* InitiatorUDPRTPort*/
-            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_cminitiator_udprtport, &u16UDPRTPort);
+			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_cminitiator_udprtport, &u16UDPRTPort);
             /* ResponderUDPRTPort*/
-            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_cmresponder_udprtport, &u16UDPRTPort);
+			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_cmresponder_udprtport, &u16UDPRTPort);
             /* CMInitiatorStationName*/
-            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_station_name_length, &u16NameLength);
+			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_station_name_length, &u16NameLength);
             pStationName = ep_alloc(u16NameLength+1);
             tvb_memcpy(tvb, (guint8 *) pStationName, offset, u16NameLength);
             pStationName[u16NameLength] = '\0';
-            proto_tree_add_string (tree, hf_pn_io_cminitiator_station_name, tvb, offset, u16NameLength, pStationName);
+			proto_tree_add_string (ar_tree, hf_pn_io_cminitiator_station_name, tvb, offset, u16NameLength, pStationName);
             offset += u16NameLength;
             /** align padding! **/
-            offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+			offset = dissect_pn_align4(tvb, offset, pinfo, ar_tree);
 
             /* StationNameLength */
-            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_station_name_length, &u16NameLength);
+			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_station_name_length, &u16NameLength);
             if(u16NameLength != 0){
                 /* ParameterServerStationName */
                 pStationName = ep_alloc(u16NameLength+1);
                 tvb_memcpy(tvb, (guint8 *) pStationName, offset, u16NameLength);
                 pStationName[u16NameLength] = '\0';
-                proto_tree_add_string (tree, hf_pn_io_parameter_server_station_name, tvb, offset, u16NameLength, pStationName);
+				proto_tree_add_string (ar_tree, hf_pn_io_parameter_server_station_name, tvb, offset, u16NameLength, pStationName);
                 offset += u16NameLength;
             }
+			else
+			{ /* display no name present */
+				proto_tree_add_string (ar_tree, hf_pn_io_parameter_server_station_name, tvb, offset, u16NameLength, " <no ParameterServerStationName present>");
+			}
             /** align padding! **/
-            offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+			offset = dissect_pn_align4(tvb, offset, pinfo, ar_tree);
 
             /* NumberOfIOCRs*/
-            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,hf_pn_io_number_of_iocrs, &u16NumberOfIOCRs);
+			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep,hf_pn_io_number_of_iocrs, &u16NumberOfIOCRs);
             /* align to next 32 bit */
-            offset = dissect_pn_padding(tvb, offset, pinfo, tree, 2);
+			offset = dissect_pn_padding(tvb, offset, pinfo, ar_tree, 2);
 
             while(u16NumberOfIOCRs--) {
-                iocr_item = proto_tree_add_item(tree, hf_pn_io_iocr_tree, tvb, offset, 0, ENC_NA);
+                iocr_item = proto_tree_add_item(ar_tree, hf_pn_io_iocr_tree, tvb, offset, 0, ENC_NA);
                 iocr_tree = proto_item_add_subtree(iocr_item, ett_pn_io_iocr);
                 u32IOCRStart = offset;
 
@@ -6039,24 +6086,26 @@ dissect_ARData_block(tvbuff_t *tvb, int offset,
                         "TransferStatus: 0x%02x (OK)", u8TransferStatus);
                 }
                 offset++;
+				proto_item_set_len(iocr_item, offset - u32IOCRStart);
             }
             /* NumberOfAPIs */
-            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_number_of_apis, &u16NumberOfAPIs);
+			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_number_of_apis, &u16NumberOfAPIs);
             /* align to next 32 bit */
-            offset = dissect_pn_padding(tvb, offset, pinfo, tree, 2);
+			offset = dissect_pn_padding(tvb, offset, pinfo, ar_tree, 2);
             /* API */
             if (u16NumberOfAPIs > 0){
-                offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, hf_pn_io_api, &u32Api);
+				offset = dissect_dcerpc_uint32(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_api, &u32Api);
             }
             /* get the number of subblocks an dissect them */
-            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_number_of_ARDATAInfo, &u16NumberofEntries);
+			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_number_of_ARDATAInfo, &u16NumberofEntries);
 
-            offset = dissect_pn_padding(tvb, offset, pinfo, tree, 2);
+			offset = dissect_pn_padding(tvb, offset, pinfo, ar_tree, 2);
 
             while ((offset < i32EndOffset) && (u16NumberofEntries > 0)){
-                offset = dissect_a_block(tvb, offset, pinfo, tree, drep);
+				offset = dissect_a_block(tvb, offset, pinfo, ar_tree, drep);
                 u16NumberofEntries--;
             }
+			proto_item_set_len(ar_item, offset - u32ARDataStart);
         }
     }
     return offset;
@@ -8682,6 +8731,8 @@ dissect_PNIO_C_SDU(tvbuff_t *tvb, int offset,
 {
     proto_item *data_item;
     proto_tree *data_tree;
+    gint iTotalLen = 0;
+    gint iSubFrameLen = 0;
 
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PNIO");
@@ -8691,11 +8742,13 @@ dissect_PNIO_C_SDU(tvbuff_t *tvb, int offset,
                     "PROFINET IO Cyclic Service Data Unit: %u bytes", tvb_length(tvb));
         data_tree = proto_item_add_subtree(data_item, ett_pn_io_rtc);
 
-        offset = dissect_PNIO_IOxS(tvb, offset, pinfo, data_tree, drep, hf_pn_io_ioxs);
-
+        /*dissect_dcerpc_uint16(tvb, offset, pinfo, data_tree, drep,hf_pn_io_packedframe_SFCRC, &u16SFCRC);*/
+        if(!(dissect_CSF_SDU_heur(tvb, pinfo, data_tree) == FALSE))
+            return(tvb_length(tvb));
         /* XXX - dissect the remaining data */
         /* this will be one or more DataItems followed by an optional GAP and RTCPadding */
         /* as we don't have the required context information to dissect the specific DataItems, this will be tricky :-( */
+        offset = dissect_PNIO_IOxS(tvb, offset, pinfo, data_tree, drep, hf_pn_io_ioxs);
         offset = dissect_pn_user_data(tvb, offset, pinfo, tree, tvb_length_remaining(tvb, offset), "User Data (including GAP and RTCPadding)");
 
     }
@@ -8984,6 +9037,8 @@ proto_register_pn_io (void)
     { &hf_pn_io_array_act_count,
         { "ActualCount", "pn_io.array_act_count", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
+	{ &hf_pn_io_ar_data,
+	{ "ARDATA for AR:", "pn_io.ar_data", FT_NONE, BASE_NONE, 0x0, 0x0, NULL, HFILL }},
     { &hf_pn_io_ar_type,
     { "ARType", "pn_io.ar_type", FT_UINT16, BASE_HEX, VALS(pn_io_ar_type), 0x0, NULL, HFILL }},
     { &hf_pn_io_cminitiator_macadd,
@@ -9247,6 +9302,10 @@ proto_register_pn_io (void)
       { "ReadyForCompanion", "pn_io.control_command.ready_for_companion", FT_UINT16, BASE_DEC, NULL, 0x0010, NULL, HFILL }},
     { &hf_pn_io_control_command_ready_for_rt_class3,
       { "ReadyForRT Class 3", "pn_io.control_command.ready_for_rt_class3", FT_UINT16, BASE_DEC, NULL, 0x0020, NULL, HFILL }},
+    { &hf_pn_io_control_command_prmbegin,
+      { "PrmBegin", "pn_io.control_command.prmbegin", FT_UINT16,BASE_DEC, VALS(pn_io_control_properties_prmbegin_vals), 0x0040, NULL, HFILL }},
+    { &hf_pn_io_control_command_reserved_7_15,
+      { "ControlBlockProperties.reserved", "pn_io.control_properties_reserved_7_15", FT_UINT16, BASE_HEX, NULL, 0x0FF80, NULL, HFILL }},
 
     { &hf_pn_io_control_block_properties,
       { "ControlBlockProperties", "pn_io.control_block_properties", FT_UINT16, BASE_HEX, VALS(pn_io_control_properties_vals), 0x0, NULL, HFILL }},
@@ -9784,7 +9843,7 @@ proto_register_pn_io (void)
     { &hf_pn_io_data_status_valid,
       { "DataValid (1:Valid/0:Invalid)", "pn_io.ds_valid", FT_UINT8, BASE_HEX, 0, 0x04, NULL, HFILL }},
     { &hf_pn_io_data_status_res1,
-      { "Reserved (should be zero)", "pn_io.ds_res1", FT_UINT8, BASE_HEX, 0, 0x02, NULL, HFILL }},
+	  { "primary AR of a given AR-set is present (0:One/ 1:None)", "pn_io.ds_res1", FT_UINT8, BASE_HEX, 0, 0x02, NULL, HFILL }},
     { &hf_pn_io_data_status_primary,
       { "State (1:Primary/0:Backup)", "pn_io.ds_primary", FT_UINT8, BASE_HEX, 0, 0x01, NULL, HFILL }},
     { &hf_pn_io_transfer_status,
@@ -9946,7 +10005,9 @@ proto_register_pn_io (void)
     { &hf_pn_io_profidrive_param_no_of_values,
       { "NoOfValues", "pn_io.profidrive.parameter.no_of_values", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     { &hf_pn_io_profidrive_param_value,
-      { "Value", "pn_io.profidrive.parameter.value", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }}
+      { "Value", "pn_io.profidrive.parameter.value", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+    { &hf_pn_io_packedframe_SFCRC,
+      { "SFCRC16", "pn_io.packedframe.sfcrc", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }}
     };
 
     static gint *ett[] = {
@@ -9982,6 +10043,7 @@ proto_register_pn_io (void)
         &ett_pn_io_check_sync_mode,
         &ett_pn_io_ir_frame_data,
         &ett_pn_io_ar_info,
+        &ett_pn_io_ar_data,
         &ett_pn_io_ir_begin_end_port,
         &ett_pn_io_subframe_data,
         &ett_pn_io_frame_defails,
