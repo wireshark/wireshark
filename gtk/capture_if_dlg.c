@@ -171,7 +171,7 @@ update_selected_interface(gchar *name, gboolean activate)
 static void
 store_selected(GtkWidget *choose_bt, gpointer if_data)
 {
-  if_dlg_data_t *if_dlg_data = if_data, *temp;
+  if_dlg_data_t *if_dlg_data = (if_dlg_data_t *)if_data, *temp;
   GList *curr;
   unsigned int ifs, i;
   gboolean found;
@@ -369,14 +369,14 @@ update_all(gpointer data)
 {
     GList *curr;
     int ifs;
-    if_stat_cache_t *sc = data;
+    if_stat_cache_t *sc = (if_stat_cache_t *)data;
 
     if (!cap_if_w) {
         return FALSE;
     }
 
     for (ifs = 0; (curr = g_list_nth(if_data_list, ifs)); ifs++) {
-        update_if(curr->data, sc);
+        update_if((if_dlg_data_t *)curr->data, sc);
     }
 
     return TRUE;
@@ -650,11 +650,11 @@ ip_label_leave_cb(GtkWidget *eb, GdkEvent *event _U_, gpointer user_data _U_)
 static gboolean
 ip_label_press_cb(GtkWidget *widget, GdkEvent *event _U_, gpointer data)
 {
-  GtkWidget *ip_lb = g_object_get_data(G_OBJECT(widget), CAPTURE_IF_IP_ADDR_LABEL);
-  GSList *addr_list = data;
+  GtkWidget *ip_lb = (GtkWidget *)g_object_get_data(G_OBJECT(widget), CAPTURE_IF_IP_ADDR_LABEL);
+  GSList *addr_list = (GSList *)data;
   GSList *curr_addr, *start_addr;
   if_addr_t *addr;
-  guint selected_ip_addr = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(ip_lb), CAPTURE_IF_SELECTED_IP_ADDR));
+  guint selected_ip_addr = GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(ip_lb), CAPTURE_IF_SELECTED_IP_ADDR));
 
   /* Select next IP address */
   start_addr = g_slist_nth(addr_list, selected_ip_addr);
@@ -860,14 +860,14 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   currently_selected = 0;
   for (ifs = 0; (curr = g_list_nth(if_list, ifs)); ifs++) {
     g_string_assign(if_tool_str, "");
-    if_info = curr->data;
+    if_info = (if_info_t *)curr->data;
 
     /* Continue if capture device is hidden */
     if (prefs_is_capture_device_hidden(if_info->name)) {
       continue;
     }
 
-    if_dlg_data = g_malloc0(sizeof(if_dlg_data_t));
+    if_dlg_data = g_new0(if_dlg_data_t,1);
 
     if (preselected > 0) {
       found = FALSE;
@@ -1000,17 +1000,17 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   bbox = dlg_button_row_new(GTK_STOCK_HELP, WIRESHARK_STOCK_CAPTURE_START, WIRESHARK_STOCK_CAPTURE_OPTIONS, WIRESHARK_STOCK_CAPTURE_STOP, GTK_STOCK_CLOSE, NULL);
 
   gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 5);
-  help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+  help_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
   g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)(HELP_CAPTURE_INTERFACES_DIALOG));
 
-  stop_bt = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_CAPTURE_STOP);
+  stop_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_CAPTURE_STOP);
   g_signal_connect(stop_bt, "clicked", G_CALLBACK(capture_if_stop_cb), NULL);
-  close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
+  close_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
   window_set_cancel_button(cap_if_w, close_bt, window_cancel_button_cb);
   gtk_widget_set_tooltip_text(close_bt, "Close this window.");
-  options_bt = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_CAPTURE_OPTIONS);
+  options_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_CAPTURE_OPTIONS);
   g_signal_connect(options_bt, "clicked", G_CALLBACK(capture_prepare_cb), if_dlg_data);
-  capture_bt = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_CAPTURE_START);
+  capture_bt = (GtkWidget *)g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_CAPTURE_START);
   g_signal_connect(capture_bt, "clicked", G_CALLBACK(capture_do_cb), if_dlg_data);
   gtk_widget_get_preferred_size(GTK_WIDGET(close_bt), &requisition, NULL);
   /* height + static offset + what the GTK MS Windows Engine needs in addition per interface */

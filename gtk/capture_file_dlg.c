@@ -139,35 +139,35 @@ preview_set_filename(GtkWidget *prev, const gchar *cf_name)
 
 
     /* init preview labels */
-    label = g_object_get_data(G_OBJECT(prev), PREVIEW_FILENAME_KEY);
+    label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_FILENAME_KEY);
     gtk_label_set_text(GTK_LABEL(label), "-");
-    label = g_object_get_data(G_OBJECT(prev), PREVIEW_FORMAT_KEY);
+    label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_FORMAT_KEY);
     gtk_label_set_text(GTK_LABEL(label), "-");
-    label = g_object_get_data(G_OBJECT(prev), PREVIEW_SIZE_KEY);
+    label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_SIZE_KEY);
     gtk_label_set_text(GTK_LABEL(label), "-");
-    label = g_object_get_data(G_OBJECT(prev), PREVIEW_ELAPSED_KEY);
+    label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_ELAPSED_KEY);
     gtk_label_set_text(GTK_LABEL(label), "-");
-    label = g_object_get_data(G_OBJECT(prev), PREVIEW_PACKETS_KEY);
+    label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_PACKETS_KEY);
     gtk_label_set_text(GTK_LABEL(label), "-");
-    label = g_object_get_data(G_OBJECT(prev), PREVIEW_FIRST_KEY);
+    label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_FIRST_KEY);
     gtk_label_set_text(GTK_LABEL(label), "-");
 
     if(!cf_name) {
         return NULL;
     }
 
-    label = g_object_get_data(G_OBJECT(prev), PREVIEW_FILENAME_KEY);
+    label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_FILENAME_KEY);
     gtk_label_set_text(GTK_LABEL(label), get_basename(cf_name));
 
     if (test_for_directory(cf_name) == EISDIR) {
-        label = g_object_get_data(G_OBJECT(prev), PREVIEW_FORMAT_KEY);
+        label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_FORMAT_KEY);
         gtk_label_set_text(GTK_LABEL(label), "directory");
         return NULL;
     }
 
     wth = wtap_open_offline(cf_name, &err, &err_info, TRUE);
     if (wth == NULL) {
-        label = g_object_get_data(G_OBJECT(prev), PREVIEW_FORMAT_KEY);
+        label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_FORMAT_KEY);
         if(err == WTAP_ERR_FILE_UNKNOWN_FORMAT) {
             gtk_label_set_text(GTK_LABEL(label), "unknown file format");
         } else {
@@ -184,12 +184,12 @@ preview_set_filename(GtkWidget *prev, const gchar *cf_name)
         return NULL;
     }
     g_snprintf(string_buff, PREVIEW_STR_MAX, "%" G_GINT64_MODIFIER "d bytes", filesize);
-    label = g_object_get_data(G_OBJECT(prev), PREVIEW_SIZE_KEY);
+    label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_SIZE_KEY);
     gtk_label_set_text(GTK_LABEL(label), string_buff);
 
     /* type */
     g_strlcpy(string_buff, wtap_file_type_string(wtap_file_type(wth)), PREVIEW_STR_MAX);
-    label = g_object_get_data(G_OBJECT(prev), PREVIEW_FORMAT_KEY);
+    label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_FORMAT_KEY);
     gtk_label_set_text(GTK_LABEL(label), string_buff);
 
     return wth;
@@ -246,7 +246,7 @@ preview_do(GtkWidget *prev, wtap *wth)
 
     if(err != 0) {
         g_snprintf(string_buff, PREVIEW_STR_MAX, "error after reading %u packets", packets);
-        label = g_object_get_data(G_OBJECT(prev), PREVIEW_PACKETS_KEY);
+        label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_PACKETS_KEY);
         gtk_label_set_text(GTK_LABEL(label), string_buff);
         wtap_close(wth);
         return;
@@ -291,7 +291,7 @@ preview_do(GtkWidget *prev, wtap *wth)
     if(is_breaked) {
       g_snprintf(string_buff, PREVIEW_STR_MAX, "unknown");
     }
-    label = g_object_get_data(G_OBJECT(prev), PREVIEW_ELAPSED_KEY);
+    label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_ELAPSED_KEY);
     gtk_label_set_text(GTK_LABEL(label), string_buff);
 
     wtap_close(wth);
@@ -323,7 +323,7 @@ update_preview_cb (GtkFileChooser *file_chooser, gpointer data)
 static void
 file_open_entry_changed(GtkWidget *w _U_, gpointer file_sel)
 {
-    GtkWidget *prev = g_object_get_data(G_OBJECT(file_sel), PREVIEW_TABLE_KEY);
+    GtkWidget *prev = (GtkWidget *)g_object_get_data(G_OBJECT(file_sel), PREVIEW_TABLE_KEY);
     gchar *cf_name;
     gboolean have_preview;
     wtap       *wth;
@@ -625,7 +625,7 @@ file_open_ok_cb(GtkWidget *w, gpointer fs) {
   int          err;
 
   cf_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs));
-  filter_te = g_object_get_data(G_OBJECT(w), E_RFILTER_TE_KEY);
+  filter_te = (GtkWidget *)g_object_get_data(G_OBJECT(w), E_RFILTER_TE_KEY);
   rfilter = gtk_entry_get_text(GTK_ENTRY(filter_te));
   if (!dfilter_compile(rfilter, &rfcode)) {
     bad_dfilter_alert_box(rfilter);
@@ -670,17 +670,17 @@ file_open_ok_cb(GtkWidget *w, gpointer fs) {
 
   /* Set the global resolving variable */
   gbl_resolv_flags = prefs.name_resolve;
-  m_resolv_cb = g_object_get_data(G_OBJECT(w), E_FILE_M_RESOLVE_KEY);
+  m_resolv_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), E_FILE_M_RESOLVE_KEY);
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (m_resolv_cb)))
     gbl_resolv_flags |= RESOLV_MAC;
   else
     gbl_resolv_flags &= ~RESOLV_MAC;
-  n_resolv_cb = g_object_get_data(G_OBJECT(w), E_FILE_N_RESOLVE_KEY);
+  n_resolv_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), E_FILE_N_RESOLVE_KEY);
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (n_resolv_cb)))
     gbl_resolv_flags |= RESOLV_NETWORK;
   else
     gbl_resolv_flags &= ~RESOLV_NETWORK;
-  t_resolv_cb = g_object_get_data(G_OBJECT(w), E_FILE_T_RESOLVE_KEY);
+  t_resolv_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), E_FILE_T_RESOLVE_KEY);
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (t_resolv_cb)))
     gbl_resolv_flags |= RESOLV_TRANSPORT;
   else
@@ -935,7 +935,7 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
 
 
   cf_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs));
-  filter_te = g_object_get_data(G_OBJECT(w), E_RFILTER_TE_KEY);
+  filter_te = (GtkWidget *)g_object_get_data(G_OBJECT(w), E_RFILTER_TE_KEY);
   rfilter = gtk_entry_get_text(GTK_ENTRY(filter_te));
   if (!dfilter_compile(rfilter, &rfcode)) {
     bad_dfilter_alert_box(rfilter);
@@ -943,7 +943,7 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
     return;
   }
 
-  ft_combo_box  = g_object_get_data(G_OBJECT(w), E_FILE_TYPE_COMBO_BOX_KEY);
+  ft_combo_box  = (GtkWidget *)g_object_get_data(G_OBJECT(w), E_FILE_TYPE_COMBO_BOX_KEY);
   if (! ws_combo_box_get_active_pointer(GTK_COMBO_BOX(ft_combo_box), &ptr)) {
       g_assert_not_reached();  /* Programming error: somehow nothing is active */
   }
@@ -961,7 +961,7 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
   }
 
   /* merge or append the two files */
-  rb = g_object_get_data(G_OBJECT(w), E_MERGE_CHRONO_KEY);
+  rb = (GtkWidget *)g_object_get_data(G_OBJECT(w), E_MERGE_CHRONO_KEY);
   tmpname = NULL;
   if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (rb))) {
       /* chronological order */
@@ -969,7 +969,7 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
       in_filenames[1] = cf_name;
       merge_status = cf_merge_files(&tmpname, 2, in_filenames, file_type, FALSE);
   } else {
-      rb = g_object_get_data(G_OBJECT(w), E_MERGE_PREPEND_KEY);
+      rb = (GtkWidget *)g_object_get_data(G_OBJECT(w), E_MERGE_PREPEND_KEY);
       if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (rb))) {
           /* prepend file */
           in_filenames[0] = cf_name;
@@ -1154,7 +1154,7 @@ file_save_as_select_file_type_cb(GtkWidget *w, gpointer data _U_)
   }
   new_file_type = GPOINTER_TO_INT(ptr);
 
-  compressed_cb = g_object_get_data(G_OBJECT(file_save_as_w), E_COMPRESSED_CB_KEY);
+  compressed_cb = (GtkWidget *)g_object_get_data(G_OBJECT(file_save_as_w), E_COMPRESSED_CB_KEY);
   gtk_widget_set_sensitive(compressed_cb, wtap_dump_can_compress(new_file_type));
 }
 
@@ -1291,8 +1291,8 @@ file_save_as_cb(GtkWidget *w _U_, gpointer fs) {
 
   cf_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs));
 
-  compressed_cb = g_object_get_data(G_OBJECT(fs), E_COMPRESSED_CB_KEY);
-  ft_combo_box  = g_object_get_data(G_OBJECT(fs), E_FILE_TYPE_COMBO_BOX_KEY);
+  compressed_cb = (GtkWidget *)g_object_get_data(G_OBJECT(fs), E_COMPRESSED_CB_KEY);
+  ft_combo_box  = (GtkWidget *)g_object_get_data(G_OBJECT(fs), E_FILE_TYPE_COMBO_BOX_KEY);
 
   if (! ws_combo_box_get_active_pointer(GTK_COMBO_BOX(ft_combo_box), &ptr)) {
       g_assert_not_reached();  /* Programming error: somehow nothing is active */
@@ -1501,7 +1501,7 @@ static GtkWidget *file_color_import_w;
 static void
 color_global_cb(GtkWidget *widget _U_, gpointer data)
 {
-  GtkWidget *fs_widget = data;
+  GtkWidget *fs_widget = (GtkWidget *)data;
   gchar *path;
 
   /* decide what file to open (from dfilter code) */
