@@ -8731,8 +8731,8 @@ dissect_PNIO_C_SDU(tvbuff_t *tvb, int offset,
 {
     proto_item *data_item;
     proto_tree *data_tree;
-    gint iTotalLen = 0;
-    gint iSubFrameLen = 0;
+    /*gint iTotalLen = 0;*/
+    /*gint iSubFrameLen = 0;*/
 
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PNIO");
