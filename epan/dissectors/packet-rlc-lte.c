@@ -2179,29 +2179,44 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
         offset = dissect_rlc_lte_extension_header(tvb, pinfo, tree, offset);
     }
 
-    /* There might not be any data, if only headers (plus control data) were logged */
-    if (global_rlc_lte_headers_expected) {
-        is_truncated = (tvb_length_remaining(tvb, offset) == 0);
-        truncated_ti = proto_tree_add_uint(tree, hf_rlc_lte_header_only, tvb, 0, 0,
-                                           is_truncated);
-        if (is_truncated) {
-            PROTO_ITEM_SET_GENERATED(truncated_ti);
-            expert_add_info_format(pinfo, truncated_ti, PI_SEQUENCE, PI_NOTE,
-                                   "RLC PDU SDUs have been omitted");
-            return;
-        }
-        else {
-            PROTO_ITEM_SET_HIDDEN(truncated_ti);
-        }
-    }
-
-    /* Head is now complete */
+    /* Header is now complete */
     proto_item_set_len(am_header_ti, offset-start_offset);
 
     /* Extract these 2 flags from framing_info */
     first_includes_start = (framing_info & 0x02) == 0;
     last_includes_end =    (framing_info & 0x01) == 0;
 
+    /* There might not be any data, if only headers (plus control data) were logged */
+    if (global_rlc_lte_headers_expected) {
+        is_truncated = (tvb_length_remaining(tvb, offset) == 0);
+        truncated_ti = proto_tree_add_uint(tree, hf_rlc_lte_header_only, tvb, 0, 0,
+                                           is_truncated);
+        if (is_truncated) {
+            int n;
+            PROTO_ITEM_SET_GENERATED(truncated_ti);
+            expert_add_info_format(pinfo, truncated_ti, PI_SEQUENCE, PI_NOTE,
+                                   "RLC PDU SDUs have been omitted");
+            /* Show in the info column how long the data would be */
+            for (n=0; n < s_number_of_extensions; n++) {
+                show_PDU_in_info(pinfo, top_ti, s_lengths[n],
+                                 (n==0) ? first_includes_start : TRUE,
+                                 TRUE);
+                offset += s_lengths[n];
+            }
+            /* Last one */
+            if (p_rlc_lte_info->pduLength > offset) {
+                show_PDU_in_info(pinfo, top_ti, p_rlc_lte_info->pduLength - offset,
+                                 (s_number_of_extensions == 0) ? first_includes_start : TRUE,
+                                 last_includes_end);
+            }
+
+            /* Just return now */
+            return;
+        }
+        else {
+            PROTO_ITEM_SET_HIDDEN(truncated_ti);
+        }
+    }
 
     /* Call sequence analysis function now */
     if (((global_rlc_lte_am_sequence_analysis == SEQUENCE_ANALYSIS_MAC_ONLY) &&
