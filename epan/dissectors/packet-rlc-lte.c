@@ -672,17 +672,25 @@ static int dissect_rlc_lte_extension_header(tvbuff_t *tvb, packet_info *pinfo _U
    whether or not the beginning and end are included in this packet */
 static void show_PDU_in_info(packet_info *pinfo,
                              proto_item *top_ti,
-                             guint16 length,
+                             gint32 length,
                              gboolean first_includes_start,
                              gboolean last_includes_end)
 {
     /* Reflect this PDU in the info column */
-    write_pdu_label_and_info(top_ti, NULL, pinfo,
-                             "  %s%u-byte%s%s",
-                             (first_includes_start) ? "[" : "..",
-                             length,
-                             (length > 1) ? "s" : "",
-                             (last_includes_end) ? "]" : "..");
+    if (length > 0) {
+        write_pdu_label_and_info(top_ti, NULL, pinfo,
+                                 "  %s%u-byte%s%s",
+                                 (first_includes_start) ? "[" : "..",
+                                 length,
+                                 (length > 1) ? "s" : "",
+                                 (last_includes_end) ? "]" : "..");
+    }
+    else {
+        write_pdu_label_and_info(top_ti, NULL, pinfo,
+                                 "  %sunknown-bytes%s",
+                                 (first_includes_start) ? "[" : "..",
+                                 (last_includes_end) ? "]" : "..");
+    }
 }
 
 
@@ -1824,26 +1832,38 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
         offset = dissect_rlc_lte_extension_header(tvb, pinfo, tree, offset);
     }
 
+    /* Extract these 2 flags from framing_info */
+    first_includes_start = ((guint8)framing_info & 0x02) == 0;
+    last_includes_end =    ((guint8)framing_info & 0x01) == 0;
+
     if (global_rlc_lte_headers_expected) {
         /* There might not be any data, if only headers (plus control data) were logged */
         is_truncated = (tvb_length_remaining(tvb, offset) == 0);
         truncated_ti = proto_tree_add_uint(tree, hf_rlc_lte_header_only, tvb, 0, 0,
                                            is_truncated);
         if (is_truncated) {
+            int n;
             PROTO_ITEM_SET_GENERATED(truncated_ti);
             expert_add_info_format(pinfo, truncated_ti, PI_SEQUENCE, PI_NOTE,
                                    "RLC PDU SDUs have been omitted");
+
+            /* Show in the info column how long the data would be */
+            for (n=0; n < s_number_of_extensions; n++) {
+                show_PDU_in_info(pinfo, top_ti, s_lengths[n],
+                                 (n==0) ? first_includes_start : TRUE,
+                                 TRUE);
+                offset += s_lengths[n];
+            }
+            /* Last one */
+            show_PDU_in_info(pinfo, top_ti, p_rlc_lte_info->pduLength - offset,
+                             (s_number_of_extensions == 0) ? first_includes_start : TRUE,
+                             last_includes_end);
             return;
         }
         else {
             PROTO_ITEM_SET_HIDDEN(truncated_ti);
         }
     }
-
-    /* Extract these 2 flags from framing_info */
-    first_includes_start = ((guint8)framing_info & 0x02) == 0;
-    last_includes_end =    ((guint8)framing_info & 0x01) == 0;
-
 
     /* Call sequence analysis function now */
     if (((global_rlc_lte_um_sequence_analysis == SEQUENCE_ANALYSIS_MAC_ONLY) &&
@@ -2204,11 +2224,9 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
                 offset += s_lengths[n];
             }
             /* Last one */
-            if (p_rlc_lte_info->pduLength > offset) {
-                show_PDU_in_info(pinfo, top_ti, p_rlc_lte_info->pduLength - offset,
-                                 (s_number_of_extensions == 0) ? first_includes_start : TRUE,
-                                 last_includes_end);
-            }
+            show_PDU_in_info(pinfo, top_ti, p_rlc_lte_info->pduLength - offset,
+                             (s_number_of_extensions == 0) ? first_includes_start : TRUE,
+                             last_includes_end);
 
             /* Just return now */
             return;
