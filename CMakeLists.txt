@@ -161,6 +161,7 @@ endif()
 add_definitions(
 	-DHAVE_CONFIG_H
 	-DG_DISABLE_DEPRECATED
+	-DG_DISABLE_SINGLE_INCLUDES
 )
 
 # Counterhack to work around some cache magic in CHECK_C_SOURCE_COMPILES
