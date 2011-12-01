@@ -206,6 +206,7 @@ const value_string gsm_a_dtap_msg_tp_strings[] = {
 	{ 0x23, "Open Multi-slot Loop Ack" },
 	{ 0x24, "GPRS Test Mode Cmd" },
 	{ 0x25, "EGPRS Start Radio Block Loopback Cmd" },
+	{ 0x26, "Reset MS Positioning Stored Information" },
 	{ 0x40, "Close UE Test Loop" },
 	{ 0x41, "Close UE Test Loop Complete" },
 	{ 0x42, "Open UE Test Loop" },
@@ -225,6 +226,9 @@ const value_string gsm_a_dtap_msg_tp_strings[] = {
 	{ 0x85, "Activate Test Mode Complete" },
 	{ 0x86, "Deactivate Test Mode" },
 	{ 0x87, "Deactivate Test Mode Complete" },
+	{ 0x88, "Reset UE Positioning Stored Information" },
+	{ 0x89, "UE Test Loop Mode C MBMS Packet Counter Request" },
+	{ 0x90, "UE Test Loop Mode C MBMS Packet Counter Response" },
 	{ 0, NULL }
 };
 
@@ -302,12 +306,16 @@ const value_string gsm_dtap_elem_strings[] = {
 	{ 0x00, "GPRS Test Mode Cmd PDU description"},
 	{ 0x00, "GPRS Test Mode Cmd Mode flag"},
 	{ 0x00, "EGPRS Start Radio Block Loopback Cmd Mode flag"},
+	{ 0x00, "MS Positioning Technology"},
 	{ 0x00, "Close UE Test Loop Mode"},
 	{ 0x00, "UE Positioning Technology"},
 	{ 0x00, "RLC SDU Counter Value"},
 	{ 0x00, "UE Test Loop Mode"},
 	{ 0x00, "UE Test Loop Mode A LB Setup"},
 	{ 0x00, "UE Test Loop Mode B LB Setup"},
+	{ 0x00, "UE Test Loop Mode C Setup"},
+	{ 0x00, "UE Positioning Technology"},
+	{ 0x00, "MBMS Packet Counter Value"},
 	{ 0, NULL }
 };
 
@@ -473,6 +481,11 @@ static int hf_gsm_a_dtap_epc_ue_tl_mode = -1;
 static int hf_gsm_a_dtap_epc_ue_tl_a_ul_sdu_size = -1;
 static int hf_gsm_a_dtap_epc_ue_tl_a_drb = -1;
 static int hf_gsm_a_dtap_epc_ue_tl_b_ip_pdu_delay = -1;
+static int hf_gsm_a_dtap_epc_ue_tl_c_mbsfn_area_id = -1;
+static int hf_gsm_a_dtap_epc_ue_tl_c_mch_id = -1;
+static int hf_gsm_a_dtap_epc_ue_tl_c_lcid = -1;
+static int hf_gsm_a_dtap_epc_ue_positioning_technology = -1;
+static int hf_gsm_a_dtap_epc_mbms_packet_counter_value = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_dtap_msg = -1;
@@ -3918,6 +3931,34 @@ de_tp_egprs_mode_flag(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
 }
 
 static guint16
+de_tp_ms_positioning_technology(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+	guchar	oct;
+
+	curr_offset = offset;
+
+	oct = tvb_get_guint8(tvb, curr_offset);
+
+	switch (oct)
+	{
+		case 0:
+			proto_tree_add_text(tree, tvb, curr_offset, 1, "AGPS");
+			break;
+		case 1:
+			proto_tree_add_text(tree, tvb, curr_offset, 1, "AGNSS");
+			break;
+		default:
+			proto_tree_add_text(tree, tvb, curr_offset, 1, "MS positioning technology reserved (%d)",oct);
+			break;
+	}
+
+	curr_offset+= 1;
+
+	return(curr_offset - offset);
+}
+
+static guint16
 de_tp_ue_test_loop_mode(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
@@ -3981,6 +4022,9 @@ de_tp_ue_positioning_technology(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 		case 0:
 			proto_tree_add_text(tree, tvb, curr_offset, 1, "AGPS");
 			break;
+		case 1:
+			proto_tree_add_text(tree, tvb, curr_offset, 1, "AGNSS");
+			break;
 		default:
 			proto_tree_add_text(tree, tvb, curr_offset, 1, "UE positioning technology reserved (%d)",oct);
 			break;
@@ -4010,7 +4054,7 @@ de_tp_rlc_sdu_counter_value(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo 
 static const value_string epc_ue_test_loop_mode_vals[] = {
 	{ 0,	"A"},
 	{ 1,	"B"},
-	{ 2,	"reserved"},
+	{ 2,	"C"},
 	{ 3,	"reserved"},
 	{ 0, NULL }
 };
@@ -4072,6 +4116,54 @@ de_tp_epc_ue_tl_b_lb_setup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 
 	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_epc_ue_tl_b_ip_pdu_delay, tvb, curr_offset<<3, 8, ENC_BIG_ENDIAN);
 	curr_offset++;
+
+	return(curr_offset - offset);
+}
+
+static guint16
+de_tp_epc_ue_tl_c_setup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_epc_ue_tl_c_mbsfn_area_id, tvb, curr_offset<<3, 8, ENC_BIG_ENDIAN);
+	curr_offset++;
+	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_epc_ue_tl_c_mch_id, tvb, (curr_offset<<3)+4, 4, ENC_BIG_ENDIAN);
+	curr_offset++;
+	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_epc_ue_tl_c_lcid, tvb, (curr_offset<<3)+3, 5, ENC_BIG_ENDIAN);
+	curr_offset++;
+
+	return(curr_offset - offset);
+}
+
+static const value_string epc_ue_positioning_technology_vals[] = {
+	{ 0,	"AGNSS"},
+	{ 1,	"OTDOA"},
+	{ 0, NULL }
+};
+static guint16
+de_tp_epc_ue_positioning_technology(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_epc_ue_positioning_technology, tvb, curr_offset<<3, 8, ENC_BIG_ENDIAN);
+	curr_offset++;
+
+	return(curr_offset - offset);
+}
+
+static guint16
+de_tp_epc_mbms_packet_counter_value(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_epc_mbms_packet_counter_value, tvb, curr_offset<<3, 32, ENC_BIG_ENDIAN);
+	curr_offset += 4;
 
 	return(curr_offset - offset);
 }
@@ -4148,12 +4240,16 @@ guint16 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 	de_tp_pdu_description,				/* GPRS Test Mode Cmd PDU description */
 	de_tp_mode_flag,					/* GPRS Test Mode Cmd Mode flag */
 	de_tp_egprs_mode_flag,				/* EGPRS Start Radio Block Loopback Cmd Mode flag */
+	de_tp_ms_positioning_technology,	/* MS Positioning Technology */
 	de_tp_ue_test_loop_mode,			/* Close UE Test Loop Mode */
 	de_tp_ue_positioning_technology,	/* UE Positioning Technology */
 	de_tp_rlc_sdu_counter_value,		/* RLC SDU Counter Value */
 	de_tp_epc_ue_test_loop_mode,		/* UE Test Loop Mode */
 	de_tp_epc_ue_tl_a_lb_setup,			/* UE Test Loop Mode A LB Setup */
 	de_tp_epc_ue_tl_b_lb_setup,			/* UE Test Loop Mode B LB Setup */
+	de_tp_epc_ue_tl_c_setup,			/* UE Test Loop Mode C Setup */
+	de_tp_epc_ue_positioning_technology,/* UE Positioning Technology */
+	de_tp_epc_mbms_packet_counter_value,/* MBMS Packet Counter Value */
 	NULL,	/* NONE */
 };
 
@@ -5805,6 +5901,21 @@ dtap_tp_egprs_start_radio_block_loopback_cmd(tvbuff_t *tvb, proto_tree *tree, pa
 }
 
 static void
+dtap_tp_reset_ms_positioning_stored_information(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+{
+	guint32	curr_offset;
+	guint32	consumed;
+	guint	curr_len;
+
+	curr_len = len;
+	curr_offset = offset;
+
+	ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_MS_POSITIONING_TECHNOLOGY, NULL);
+
+	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+static void
 dtap_tp_close_ue_test_loop(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
@@ -5820,7 +5931,7 @@ dtap_tp_close_ue_test_loop(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 }
 
 static void
-dtap_tp_reset_ue_positioning_ue_stored_information(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+dtap_tp_reset_ue_positioning_stored_information(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
 	guint32	curr_offset;
 	guint32	consumed;
@@ -5861,10 +5972,19 @@ dtap_tp_epc_close_ue_test_loop(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_EPC_UE_TEST_LOOP_MODE, NULL);
 
-	if (epc_test_loop_mode == 0) {
+	switch (epc_test_loop_mode)
+	{
+	case 0:
 		ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_TP_EPC_UE_TL_A_LB_SETUP, NULL);
-	} else if (epc_test_loop_mode == 1) {
+		break;
+	case 1:
 		ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_EPC_UE_TL_B_LB_SETUP, NULL);
+		break;
+	case 2:
+		ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_EPC_UE_TL_C_SETUP, NULL);
+		break;
+	default:
+		break;
 	}
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
@@ -5881,6 +6001,36 @@ dtap_tp_epc_activate_test_mode(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
 	curr_offset = offset;
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_EPC_UE_TEST_LOOP_MODE, NULL);
+
+	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+static void
+dtap_tp_epc_reset_ue_positioning_stored_information(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+{
+	guint32 curr_offset;
+	guint32 consumed;
+	guint curr_len;
+
+	curr_len = len;
+	curr_offset = offset;
+
+	ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_EPC_UE_POSITIONING_TECHNOLOGY, NULL);
+
+	EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+static void
+dtap_tp_epc_test_loop_mode_c_mbms_packet_counter_response(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
+{
+	guint32 curr_offset;
+	guint32 consumed;
+	guint curr_len;
+
+	curr_len = len;
+	curr_offset = offset;
+
+	ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_EPC_MBMS_PACKET_COUNTER_VALUE, NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
@@ -5989,6 +6139,7 @@ static void (*dtap_msg_tp_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *p
 	NULL,	/* OPEN Multi-slot LOOP ACK */
 	dtap_tp_gprs_test_mode_cmd,	/* GPRS TEST MODE CMD */
 	dtap_tp_egprs_start_radio_block_loopback_cmd,	/* EGPRS START RADIO BLOCK LOOPBACK CMD */
+	dtap_tp_reset_ms_positioning_stored_information,	/* RESET MS POSITIONING STORED INFORMATION */
 	dtap_tp_close_ue_test_loop,	/* CLOSE UE TEST LOOP */
 	NULL,	/* CLOSE UE TEST LOOP COMPLETE */
 	NULL,	/* OPEN UE TEST LOOP */
@@ -5997,9 +6148,9 @@ static void (*dtap_msg_tp_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *p
 	NULL,	/* ACTIVATE RB TEST MODE COMPLETE */
 	NULL,	/* DEACTIVATE RB TEST MODE */
 	NULL,	/* DEACTIVATE RB TEST MODE COMPLETE */
-	dtap_tp_reset_ue_positioning_ue_stored_information,	/* RESET UE POSITIONING STORED INFORMATION */
-	NULL,	/* UE Test Loop Mode 3 RLC SDU Counter Request */
-	dtap_tp_ue_test_loop_mode_3_rlc_sdu_counter_response,	/* UE Test Loop Mode 3 RLC SDU Counter Response */
+	dtap_tp_reset_ue_positioning_stored_information,	/* RESET UE POSITIONING STORED INFORMATION */
+	NULL,	/* UE TEST LOOP MODE 3 RLC SDU COUNTER REQUEST */
+	dtap_tp_ue_test_loop_mode_3_rlc_sdu_counter_response,	/* UE TEST LOOP MODE 3 RLC SDU COUNTER RESPONSE */
 	dtap_tp_epc_close_ue_test_loop, /* CLOSE UE TEST LOOP */
 	NULL, /* CLOSE UE TEST LOOP COMPLETE */
 	NULL, /* OPEN UE TEST LOOP */
@@ -6008,6 +6159,9 @@ static void (*dtap_msg_tp_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *p
 	NULL, /* ACTIVATE TEST MODE COMPLETE */
 	NULL, /* DEACTIVATE TEST MODE */
 	NULL, /* DEACTIVATE TEST MODE COMPLETE */
+	dtap_tp_epc_reset_ue_positioning_stored_information, /* RESET UE POSITIONING STORED INFORMATION */
+	NULL, /* UE TEST LOOP MODE C MBMS PACKET COUNTER REQUEST */
+	dtap_tp_epc_test_loop_mode_c_mbms_packet_counter_response, /* UE TEST LOOP MODE C MBMS PACKET COUNTER RESPONSE */
 	NULL,	/* NONE */
 };
 
@@ -6149,7 +6303,6 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ett_tree = ett_gsm_dtap_msg_tp[idx];
 		hf_idx = hf_gsm_a_dtap_msg_tp_type;
 		dtap_msg_fcn = dtap_msg_tp_fcn[idx];
-		ti = (oct_1 & DTAP_TI_MASK) >> 4;
 		nsd = TRUE;
 		break;
 
@@ -6723,6 +6876,31 @@ proto_register_gsm_a_dtap(void)
 	{ &hf_gsm_a_dtap_epc_ue_tl_b_ip_pdu_delay,
 		{ "IP PDU delay in seconds","gsm_a.dtap.epc.ue_tl_b_ip_pdu_delay",
 		FT_UINT8,BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_epc_ue_tl_c_mbsfn_area_id,
+		{ "MBSFN area identity","gsm_a.dtap.epc.ue_tl_c_mbsfn_area_id",
+		FT_UINT8, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_epc_ue_tl_c_mch_id,
+		{ "MCH identity","gsm_a.dtap.epc.ue_tl_c_mch_id",
+		FT_UINT8, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_epc_ue_tl_c_lcid,
+		{ "Logical channel identity","gsm_a.dtap.epc.ue_tl_c_lcid",
+		FT_UINT8, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_epc_ue_positioning_technology,
+		{ "UE positioning technology","gsm_a.dtap.epc.ue_positioning_technology",
+		FT_UINT8, BASE_DEC, VALS(epc_ue_positioning_technology_vals), 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_dtap_epc_mbms_packet_counter_value,
+		{ "MBMS packet counter value","gsm_a.dtap.epc.mbms_packet_counter_value",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
 		NULL, HFILL }
 	},
 	};

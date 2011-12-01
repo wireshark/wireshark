@@ -1017,21 +1017,25 @@ typedef enum
     DE_CP_USER_DATA,                /* CP-User Data */
     DE_CP_CAUSE,                    /* CP-Cause */
     /* Tests procedures information elements 3GPP TS 44.014 6.4.0 and 3GPP TS 34.109 6.4.0 */
-    DE_TP_SUB_CHANNEL,              /* Close TCH Loop Cmd Sub-channel */
-    DE_TP_ACK,                      /* Open Loop Cmd Ack */
-    DE_TP_LOOP_TYPE,                /* Close Multi-slot Loop Cmd Loop type*/
-    DE_TP_LOOP_ACK,                 /* Close Multi-slot Loop Ack Result */
-    DE_TP_TESTED_DEVICE,            /* Test Interface Tested device */
-    DE_TP_PDU_DESCRIPTION,          /* GPRS Test Mode Cmd PDU description */
-    DE_TP_MODE_FLAG,                /* GPRS Test Mode Cmd Mode flag */
-    DE_TP_EGPRS_MODE_FLAG,          /* EGPRS Start Radio Block Loopback Cmd Mode flag */
-    DE_TP_UE_TEST_LOOP_MODE,        /* Close UE Test Loop Mode */
-    DE_TP_UE_POSITIONING_TECHNOLOGY,/* UE Positioning Technology */
-    DE_TP_RLC_SDU_COUNTER_VALUE,    /* RLC SDU Counter Value */
-    DE_TP_EPC_UE_TEST_LOOP_MODE,    /* UE Test Loop Mode */
-    DE_TP_EPC_UE_TL_A_LB_SETUP,     /* UE Test Loop Mode A LB Setup */
-    DE_TP_EPC_UE_TL_B_LB_SETUP,     /* UE Test Loop Mode B LB Setup */
-    DE_NONE                         /* NONE */
+    DE_TP_SUB_CHANNEL,                  /* Close TCH Loop Cmd Sub-channel */
+    DE_TP_ACK,                          /* Open Loop Cmd Ack */
+    DE_TP_LOOP_TYPE,                    /* Close Multi-slot Loop Cmd Loop type*/
+    DE_TP_LOOP_ACK,                     /* Close Multi-slot Loop Ack Result */
+    DE_TP_TESTED_DEVICE,                /* Test Interface Tested device */
+    DE_TP_PDU_DESCRIPTION,              /* GPRS Test Mode Cmd PDU description */
+    DE_TP_MODE_FLAG,                    /* GPRS Test Mode Cmd Mode flag */
+    DE_TP_EGPRS_MODE_FLAG,              /* EGPRS Start Radio Block Loopback Cmd Mode flag */
+	DE_TP_MS_POSITIONING_TECHNOLOGY,    /* MS Positioning Technology */
+    DE_TP_UE_TEST_LOOP_MODE,            /* Close UE Test Loop Mode */
+    DE_TP_UE_POSITIONING_TECHNOLOGY,    /* UE Positioning Technology */
+    DE_TP_RLC_SDU_COUNTER_VALUE,        /* RLC SDU Counter Value */
+    DE_TP_EPC_UE_TEST_LOOP_MODE,        /* UE Test Loop Mode */
+    DE_TP_EPC_UE_TL_A_LB_SETUP,         /* UE Test Loop Mode A LB Setup */
+    DE_TP_EPC_UE_TL_B_LB_SETUP,         /* UE Test Loop Mode B LB Setup */
+    DE_TP_EPC_UE_TL_C_SETUP,            /* UE Test Loop Mode C Setup */
+    DE_TP_EPC_UE_POSITIONING_TECHNOLOGY,/* UE Positioning Technology */
+    DE_TP_EPC_MBMS_PACKET_COUNTER_VALUE,/* MBMS Packet Counter Value */
+    DE_NONE                             /* NONE */
 }
 dtap_elem_idx_t;
 
