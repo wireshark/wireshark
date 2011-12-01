@@ -81,13 +81,10 @@
 typedef struct {
    guint32 req_num, rep_num;
    nstime_t req_time;
-   void *cip_info;
+   cip_req_info_t* cip_info;
 } enip_request_info_t;
 
-void enip_open_cip_connection( packet_info *pinfo,
-                               guint16 ConnSerialNumber, guint16 VendorID, guint32 DeviceSerialNumber,
-                               guint32 O2TConnID, guint32 T2OConnID );
-void enip_close_cip_connection( packet_info *pinfo,
-                                guint16 ConnSerialNumber, guint16 VendorID, guint32 DeviceSerialNumber );
+void enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo);
+void enip_close_cip_connection( packet_info *pinfo, guint16 ConnSerialNumber, guint16 VendorID, guint32 DeviceSerialNumber );
 
 extern attribute_info_t enip_attribute_vals[29];

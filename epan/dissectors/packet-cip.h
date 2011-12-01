@@ -53,6 +53,12 @@
 #define SC_INSERT_MEMBER         0x1A
 #define SC_REMOVE_MEMBER         0x1B
 #define SC_GROUP_SYNC            0x1C
+
+/* Classes that have class-specfic dissectors */
+#define CI_CLS_MR   0x02    /* Message Router */
+#define CI_CLS_CM   0x06    /* Connection Manager */
+#define CI_CLS_CCO  0xF3    /* Connection Configuration Object */
+
 /* Class specific services */
 /* Connection Manager */
 #define SC_CM_FWD_CLOSE             0x4E
@@ -163,6 +169,12 @@
 #define CI_NETWORK_SEG_SAFETY       0x10
 #define CI_NETWORK_SEG_EXTENDED     0x1F
 
+#define CONN_TYPE_NULL              0
+#define CONN_TYPE_MULTICAST         1
+#define CONN_TYPE_P2P               2
+#define CONN_TYPE_RESERVED          3
+
+
 /* Device Profiles */
 #define DP_GEN_DEV                           0x00
 #define DP_AC_DRIVE                          0x02
@@ -263,6 +275,33 @@ typedef struct attribute_info {
    attribute_dissector_func* pdissect;
 } attribute_info_t;
 
+typedef struct cip_connID_info {
+   guint32 connID;
+   guint32 ipaddress;
+   guint16 port;
+   guint8  type;
+} cip_connID_info_t;
+
+
+typedef struct cip_conn_info {
+   guint16 ConnSerialNumber;
+   guint16 VendorID;
+   guint32 DeviceSerialNumber;
+   cip_connID_info_t O2T;
+   cip_connID_info_t T2O;
+   guint8 TransportClass;
+} cip_conn_info_t;
+
+typedef struct cip_req_info {
+   dissector_handle_t dissector;
+   guint8 bService;
+   guint IOILen;
+   void *pIOI;
+   void *pData;
+   cip_simple_request_info_t* ciaData;
+   cip_conn_info_t* connInfo;
+} cip_req_info_t;
+
 /*
 ** Exported functions
 */
@@ -271,6 +310,7 @@ extern void dissect_epath( tvbuff_t *tvb, packet_info *pinfo, proto_item *epath_
 /*
 ** Exported variables
 */
+extern dissector_table_t subdissector_class_table;
 extern value_string_ext cip_gs_vals_ext;
 extern value_string_ext cip_cm_ext_st_vals_ext;
 extern value_string_ext cip_vendor_vals_ext;

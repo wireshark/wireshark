@@ -51,15 +51,6 @@
 
 #define  ENIP_CIP_INTERFACE   0
 
-typedef struct cip_req_info {
-   dissector_handle_t dissector;
-   guint8 bService;
-   guint IOILen;
-   void *pIOI;
-   void *pData;
-   cip_simple_request_info_t* ciaData;
-} cip_req_info_t;
-
 typedef struct mr_mult_req_info {
    guint8 service;
    int num_services;
@@ -356,7 +347,7 @@ static gint ett_cco_rrsc     = -1;
 static gint ett_cco_cmd_data = -1;
 static gint ett_cco_ttt      = -1;
 
-static dissector_table_t   subdissector_class_table;
+dissector_table_t   subdissector_class_table;
 static dissector_table_t   subdissector_symbol_table;
 
 /* Translate function to string - CIP Service codes */
@@ -484,10 +475,10 @@ static const value_string cip_con_class_vals[] = {
 
 /* Translate function to string - Connection type */
 static const value_string cip_con_type_vals[] = {
-   { 0,        "Null"           },
-   { 1,        "Multicast"      },
-   { 2,        "Point to Point" },
-   { 3,        "Reserved"       },
+   { CONN_TYPE_NULL,        "Null"           },
+   { CONN_TYPE_MULTICAST,   "Multicast"      },
+   { CONN_TYPE_P2P,         "Point to Point" },
+   { CONN_TYPE_RESERVED,    "Reserved"       },
 
    { 0,        NULL             }
 };
@@ -2082,10 +2073,6 @@ static const value_string cip_devtype_vals[] = {
 };
 
 value_string_ext cip_devtype_vals_ext = VALUE_STRING_EXT_INIT(cip_devtype_vals);
-
-#define CI_CLS_MR   0x02    /* Message Router */
-#define CI_CLS_CM   0x06    /* Connection Manager */
-#define CI_CLS_CCO  0xF3    /* Connection Configuration Object */
 
 /* Translate class names */
 static const value_string cip_class_names_vals[] = {
@@ -3760,16 +3747,24 @@ dissect_cip_cm_timeout(proto_tree *cmd_tree, tvbuff_t *tvb, int offset)
 }
 
 static void
-dissect_cip_cm_fwd_open_req(proto_tree *cmd_tree, tvbuff_t *tvb, int offset, gboolean large_fwd_open, packet_info *pinfo)
+dissect_cip_cm_fwd_open_req(cip_req_info_t *preq_info, proto_tree *cmd_tree, tvbuff_t *tvb, int offset, gboolean large_fwd_open, packet_info *pinfo)
 {
    proto_item *pi;
    int conn_path_size, rpi, net_param_offset = 0;
+   guint32 O2TConnID, T2OConnID, DeviceSerialNumber;
+   guint16 ConnSerialNumber, VendorID;
+   guint8 TransportClass, O2TType, T2OType;
 
    dissect_cip_cm_timeout(cmd_tree, tvb, offset);
+   O2TConnID = tvb_get_letohl( tvb, offset+2 );
    proto_tree_add_item( cmd_tree, hf_cip_cm_ot_connid, tvb, offset+2, 4, ENC_LITTLE_ENDIAN);
+   T2OConnID = tvb_get_letohl( tvb, offset+6 );
    proto_tree_add_item( cmd_tree, hf_cip_cm_to_connid, tvb, offset+6, 4, ENC_LITTLE_ENDIAN);
+   ConnSerialNumber = tvb_get_letohs( tvb, offset+10 );
    proto_tree_add_item( cmd_tree, hf_cip_cm_conn_serial_num, tvb, offset+10, 2, ENC_LITTLE_ENDIAN);
+   VendorID = tvb_get_letohs( tvb, offset+12 );
    proto_tree_add_item( cmd_tree, hf_cip_cm_vendor, tvb, offset+12, 2, ENC_LITTLE_ENDIAN);
+   DeviceSerialNumber = tvb_get_letohl( tvb, offset+14 );
    proto_tree_add_item( cmd_tree, hf_cip_cm_orig_serial_num, tvb, offset+14, 4, ENC_LITTLE_ENDIAN);
    proto_tree_add_item( cmd_tree, hf_cip_cm_timeout_multiplier, tvb, offset+18, 1, ENC_LITTLE_ENDIAN);
    proto_tree_add_item( cmd_tree, hf_cip_reserved24, tvb, offset+19, 3, ENC_LITTLE_ENDIAN);
@@ -3785,6 +3780,7 @@ dissect_cip_cm_fwd_open_req(proto_tree *cmd_tree, tvbuff_t *tvb, int offset, gbo
                  hf_cip_cm_ot_net_params32, hf_cip_cm_lfwo_own, hf_cip_cm_lfwo_typ,
                  hf_cip_cm_lfwo_prio, hf_cip_cm_lfwo_fixed_var, hf_cip_cm_lfwo_con_size, ett_cm_ncp);
 
+      O2TType = (guint8)(((tvb_get_letohl( tvb, offset+26 ) & 0x60000000) >> 29) & 3);
       net_param_offset = 4;
    }
    else
@@ -3793,6 +3789,7 @@ dissect_cip_cm_fwd_open_req(proto_tree *cmd_tree, tvbuff_t *tvb, int offset, gbo
                  hf_cip_cm_ot_net_params16, hf_cip_cm_fwo_own, hf_cip_cm_fwo_typ,
                  hf_cip_cm_fwo_prio, hf_cip_cm_fwo_fixed_var, hf_cip_cm_fwo_con_size, ett_cm_ncp);
 
+      O2TType = (guint8)(((tvb_get_letohs( tvb, offset+26 ) & 0x6000) >> 13) & 3);
       net_param_offset = 2;
    }
 
@@ -3807,6 +3804,7 @@ dissect_cip_cm_fwd_open_req(proto_tree *cmd_tree, tvbuff_t *tvb, int offset, gbo
                  hf_cip_cm_to_net_params32, hf_cip_cm_lfwo_own, hf_cip_cm_lfwo_typ,
                  hf_cip_cm_lfwo_prio, hf_cip_cm_lfwo_fixed_var, hf_cip_cm_lfwo_con_size, ett_cm_ncp);
 
+      T2OType = (guint8)(((tvb_get_letohl( tvb, offset+26+net_param_offset+4 ) & 0x60000000) >> 29) & 3);
       net_param_offset += 4;
    }
    else
@@ -3815,9 +3813,11 @@ dissect_cip_cm_fwd_open_req(proto_tree *cmd_tree, tvbuff_t *tvb, int offset, gbo
                  hf_cip_cm_to_net_params16, hf_cip_cm_fwo_own, hf_cip_cm_fwo_typ,
                  hf_cip_cm_fwo_prio, hf_cip_cm_fwo_fixed_var, hf_cip_cm_fwo_con_size, ett_cm_ncp);
 
+      T2OType = (guint8)(((tvb_get_letohs( tvb, offset+26+net_param_offset+4 ) & 0x6000) >> 13) & 3);
       net_param_offset += 2;
    }
 
+   TransportClass = tvb_get_guint8( tvb, offset+26+net_param_offset+4) & 0x0F;
    dissect_transport_type_trigger(tvb, offset+26+net_param_offset+4, cmd_tree, hf_cip_cm_transport_type_trigger,
                                   hf_cip_cm_fwo_dir, hf_cip_cm_fwo_trigg, hf_cip_cm_fwo_class, ett_cm_ttt);
 
@@ -3828,6 +3828,94 @@ dissect_cip_cm_fwd_open_req(proto_tree *cmd_tree, tvbuff_t *tvb, int offset, gbo
    /* Add the epath */
    pi = proto_tree_add_text(cmd_tree, tvb, offset+26+net_param_offset+6, conn_path_size, "Connection Path: ");
    dissect_epath( tvb, pinfo, pi, offset+26+net_param_offset+6, conn_path_size, FALSE, NULL);
+
+   if (pinfo->fd->flags.visited)
+      return;
+
+   if (preq_info != NULL)
+   {
+      DISSECTOR_ASSERT(preq_info->connInfo == NULL);
+      preq_info->connInfo = se_alloc(sizeof(cip_conn_info_t));
+
+      preq_info->connInfo->ConnSerialNumber = ConnSerialNumber;
+      preq_info->connInfo->VendorID = VendorID;
+      preq_info->connInfo->DeviceSerialNumber = DeviceSerialNumber;
+      preq_info->connInfo->O2T.connID = O2TConnID;
+      preq_info->connInfo->T2O.connID = T2OConnID;
+      preq_info->connInfo->TransportClass = TransportClass;
+      preq_info->connInfo->T2O.type = T2OType;
+      preq_info->connInfo->O2T.type = O2TType;
+      /* To be filled in by Ethernet/IP encap layer */
+      preq_info->connInfo->O2T.ipaddress = 0;
+      preq_info->connInfo->O2T.port = 0;
+      preq_info->connInfo->T2O.ipaddress = 0;
+      preq_info->connInfo->T2O.port = 0;
+   }
+}
+
+static void
+dissect_cip_cm_fwd_open_rsp_success(cip_req_info_t *preq_info, proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo)
+{
+   int temp_data;
+   unsigned char app_rep_size;
+   guint32 O2TConnID, T2OConnID, DeviceSerialNumber;
+   guint16 ConnSerialNumber, VendorID;
+
+   /* Display originator to target connection ID */
+   O2TConnID = tvb_get_letohl( tvb, offset );
+   proto_tree_add_item( tree, hf_cip_cm_ot_connid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+
+   /* Display target to originator connection ID */
+   T2OConnID = tvb_get_letohl( tvb, offset+4 );
+   proto_tree_add_item( tree, hf_cip_cm_to_connid, tvb, offset+4, 4, ENC_LITTLE_ENDIAN);
+
+   /* Display connection serial number */
+   ConnSerialNumber = tvb_get_letohs( tvb, offset+8 );
+   proto_tree_add_item( tree, hf_cip_cm_conn_serial_num, tvb, offset+8, 2, ENC_LITTLE_ENDIAN);
+
+   /* Display the originator vendor id */
+   VendorID = tvb_get_letohs( tvb, offset+10 );
+   proto_tree_add_item( tree, hf_cip_cm_vendor, tvb, offset+10, 2, ENC_LITTLE_ENDIAN);
+
+   /* Display the originator serial number */
+   DeviceSerialNumber = tvb_get_letohl( tvb, offset+12 );
+   proto_tree_add_item( tree, hf_cip_cm_orig_serial_num, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
+
+   /* Display originator to target actual packet interval */
+   temp_data = tvb_get_letohl( tvb, offset+16 );
+   proto_tree_add_uint_format_value(tree, hf_cip_cm_ot_api, tvb, offset+16, 4, temp_data, "%dms (0x%08X)", temp_data / 1000, temp_data);
+
+   /* Display originator to target actual packet interval */
+   temp_data = tvb_get_letohl( tvb, offset+20 );
+   proto_tree_add_uint_format_value(tree, hf_cip_cm_to_api, tvb, offset+20, 4, temp_data, "%dms (0x%08X)", temp_data / 1000, temp_data);
+
+   /* Display the application reply size */
+   app_rep_size = tvb_get_guint8( tvb, offset+24 ) * 2;
+   proto_tree_add_uint_format_value(tree, hf_cip_cm_app_reply_size, tvb, offset+24, 1, app_rep_size / 2, "%d (words)", app_rep_size / 2);
+
+   /* Display the Reserved byte */
+   proto_tree_add_item(tree, hf_cip_reserved8, tvb, offset+25, 1, ENC_LITTLE_ENDIAN );
+   if (app_rep_size > 0)
+      proto_tree_add_item(tree, hf_cip_cm_app_reply_data, tvb, offset+26, app_rep_size, ENC_NA );
+
+   /* See if we've captured the ForwardOpen request.  If so some of the conversation data has already been
+      populated and we just need to update it. */
+   if (pinfo->fd->flags.visited)
+      return;
+
+   if ((preq_info != NULL) && (preq_info->connInfo != NULL))
+   {
+      /* Ensure the connection triad matches before updating the connection IDs */
+      if ((preq_info->connInfo->ConnSerialNumber == ConnSerialNumber) &&
+          (preq_info->connInfo->VendorID == VendorID) &&
+          (preq_info->connInfo->DeviceSerialNumber == DeviceSerialNumber))
+      {
+         /* Update the connection IDs as ForwardOpen reply is allows to update them from
+            the ForwardOpen request */
+         preq_info->connInfo->O2T.connID = O2TConnID;
+         preq_info->connInfo->T2O.connID = T2OConnID;
+      }
+   }
 }
 
 static void
@@ -3842,6 +3930,8 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
    int i, msg_req_siz;
    cip_req_info_t *preq_info;
    cip_req_info_t *pembedded_req_info;
+   guint16 ConnSerialNumber, VendorID;
+   guint32 DeviceSerialNumber;
 
    service = tvb_get_guint8( tvb, offset );
 
@@ -4014,61 +4104,11 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
            {
            case SC_CM_FWD_OPEN:
            case SC_CM_LARGE_FWD_OPEN:
-           {
-               /* Forward open Response (Success) */
-               guint32 O2TConnID;
-               guint32 T2OConnID;
-               guint16 ConnSerialNumber;
-               guint32 DeviceSerialNumber;
-               guint16 VendorID;
-
-               /* Display originator to target connection ID */
-               O2TConnID = tvb_get_letohl( tvb, offset+4+add_stat_size );
-               proto_tree_add_item( cmd_data_tree, hf_cip_cm_ot_connid, tvb, offset+4+add_stat_size, 4, ENC_LITTLE_ENDIAN);
-
-               /* Display target to originator connection ID */
-               T2OConnID = tvb_get_letohl( tvb, offset+4+add_stat_size+4 );
-               proto_tree_add_item( cmd_data_tree, hf_cip_cm_to_connid, tvb, offset+4+add_stat_size+4, 4, ENC_LITTLE_ENDIAN);
-
-               /* Display connection serial number */
-               ConnSerialNumber = tvb_get_letohs( tvb, offset+4+add_stat_size+8 );
-               proto_tree_add_item( cmd_data_tree, hf_cip_cm_conn_serial_num, tvb, offset+4+add_stat_size+8, 2, ENC_LITTLE_ENDIAN);
-
-               /* Display the originator vendor id */
-               VendorID = tvb_get_letohs( tvb, offset+4+add_stat_size+10 );
-               proto_tree_add_item( cmd_data_tree, hf_cip_cm_vendor, tvb, offset+4+add_stat_size+10, 2, ENC_LITTLE_ENDIAN);
-
-               /* Display the originator serial number */
-               DeviceSerialNumber = tvb_get_letohl( tvb, offset+4+add_stat_size+12 );
-               proto_tree_add_item( cmd_data_tree, hf_cip_cm_orig_serial_num, tvb, offset+4+add_stat_size+12, 4, ENC_LITTLE_ENDIAN);
-
-               /* Display originator to target actual packet interval */
-               temp_data = tvb_get_letohl( tvb, offset+4+add_stat_size+16 );
-               proto_tree_add_uint_format_value(cmd_data_tree, hf_cip_cm_ot_api, tvb, offset+4+add_stat_size+16, 4, temp_data, "%dms (0x%08X)", temp_data / 1000, temp_data);
-
-               /* Display originator to target actual packet interval */
-               temp_data = tvb_get_letohl( tvb, offset+4+add_stat_size+20 );
-               proto_tree_add_uint_format_value(cmd_data_tree, hf_cip_cm_to_api, tvb, offset+4+add_stat_size+20, 4, temp_data, "%dms (0x%08X)", temp_data / 1000, temp_data);
-
-               /* Display the application reply size */
-               app_rep_size = tvb_get_guint8( tvb, offset+4+add_stat_size+24 ) * 2;
-               proto_tree_add_uint_format_value(cmd_data_tree, hf_cip_cm_app_reply_size, tvb, offset+4+add_stat_size+24, 1, app_rep_size / 2, "%d (words)", app_rep_size / 2);
-
-               /* Display the Reserved byte */
-               proto_tree_add_item(cmd_data_tree, hf_cip_reserved8, tvb, offset+4+add_stat_size+25, 1, ENC_LITTLE_ENDIAN );
-               if (app_rep_size > 0)
-                  proto_tree_add_item(cmd_data_tree, hf_cip_cm_app_reply_data, tvb, offset+4+add_stat_size+26, app_rep_size, ENC_NA );
-
-               enip_open_cip_connection( pinfo, ConnSerialNumber, VendorID, DeviceSerialNumber, O2TConnID, T2OConnID );
-
-           } /* End of if forward open response */
-           break;
+              dissect_cip_cm_fwd_open_rsp_success(preq_info, cmd_data_tree, tvb, offset+4+add_stat_size, pinfo);
+              break;
            case SC_CM_FWD_CLOSE:
            {
                /* Forward close response (Success) */
-               guint16 ConnSerialNumber;
-               guint32 DeviceSerialNumber;
-               guint16 VendorID;
 
                /* Display connection serial number */
                ConnSerialNumber = tvb_get_letohs( tvb, offset+4+add_stat_size );
@@ -4098,7 +4138,6 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
             case SC_CM_UNCON_SEND:
             {
                /* Unconnected send response (Success) */
-
                /* Display service response data */
                proto_tree_add_item(cmd_data_tree, hf_cip_data, tvb, offset+4+add_stat_size, item_length-4-add_stat_size, ENC_NA);
             }
@@ -4130,12 +4169,25 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
             case SC_CM_FWD_OPEN:
             case SC_CM_LARGE_FWD_OPEN:
             case SC_CM_FWD_CLOSE:
+
                /* Forward open and forward close error response look the same */
+               ConnSerialNumber = tvb_get_letohs( tvb, offset+4+add_stat_size );
                proto_tree_add_item( cmd_data_tree, hf_cip_cm_conn_serial_num, tvb, offset+4+add_stat_size, 2, ENC_LITTLE_ENDIAN);
+               VendorID = tvb_get_letohs( tvb, offset+4+add_stat_size+2 );
                proto_tree_add_item( cmd_data_tree, hf_cip_cm_vendor, tvb, offset+4+add_stat_size+2, 2, ENC_LITTLE_ENDIAN);
+               DeviceSerialNumber = tvb_get_letohl( tvb, offset+4+add_stat_size+4 );
                proto_tree_add_item( cmd_data_tree, hf_cip_cm_orig_serial_num, tvb, offset+4+add_stat_size+4, 4, ENC_LITTLE_ENDIAN);
                proto_tree_add_item(cmd_data_tree, hf_cip_cm_remain_path_size, tvb, offset+4+add_stat_size+8, 1, ENC_LITTLE_ENDIAN);
                proto_tree_add_item(cmd_data_tree, hf_cip_reserved8, tvb, offset+4+add_stat_size+9, 1, ENC_LITTLE_ENDIAN);
+
+               /* With an error reply the connection will either never be established or it has since already closed
+                  That means the conversation should end too */
+               enip_close_cip_connection(pinfo, ConnSerialNumber, VendorID, DeviceSerialNumber);
+               if (preq_info != NULL)
+               {
+                  /* Remove any connection information */
+                  preq_info->connInfo = NULL;
+               }
                break;
             case SC_CM_UNCON_SEND:
                /* Unconnected send response (Unsuccess) */
@@ -4174,11 +4226,11 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
          {
          case SC_CM_FWD_OPEN:
             /* Forward open Request*/
-            dissect_cip_cm_fwd_open_req(cmd_data_tree, tvb, offset+2+req_path_size, FALSE, pinfo);
+            dissect_cip_cm_fwd_open_req(preq_info, cmd_data_tree, tvb, offset+2+req_path_size, FALSE, pinfo);
             break;
          case SC_CM_LARGE_FWD_OPEN:
             /* Large Forward open Request*/
-            dissect_cip_cm_fwd_open_req(cmd_data_tree, tvb, offset+2+req_path_size, TRUE, pinfo);
+            dissect_cip_cm_fwd_open_req(preq_info, cmd_data_tree, tvb, offset+2+req_path_size, TRUE, pinfo);
             break;
          case SC_CM_FWD_CLOSE:
             /* Forward Close Request */
@@ -4229,12 +4281,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
                if ( preq_info->pData == NULL )
                {
                   pembedded_req_info = (cip_req_info_t*)se_alloc(sizeof(cip_req_info_t));
-                  pembedded_req_info->bService = 0;
-                  pembedded_req_info->dissector = NULL;
-                  pembedded_req_info->IOILen = 0;
-                  pembedded_req_info->pIOI = NULL;
-                  pembedded_req_info->pData = NULL;
-                  pembedded_req_info->ciaData = NULL;
+                  memset(pembedded_req_info, 0, sizeof(cip_req_info_t));
                   preq_info->pData = pembedded_req_info;
                }
                else
@@ -4294,14 +4341,11 @@ dissect_cip_class_cm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    proto_item *ti;
    proto_tree *class_tree;
 
-   if( tree )
-   {
-      /* Create display subtree for the protocol */
-      ti = proto_tree_add_item(tree, proto_cip_class_cm, tvb, 0, -1, ENC_NA);
-      class_tree = proto_item_add_subtree( ti, ett_cip_class_cm );
+   /* Create display subtree for the protocol */
+   ti = proto_tree_add_item(tree, proto_cip_class_cm, tvb, 0, -1, ENC_NA);
+   class_tree = proto_item_add_subtree( ti, ett_cip_class_cm );
 
-      dissect_cip_cm_data( class_tree, tvb, 0, tvb_length(tvb), pinfo );
-   }
+   dissect_cip_cm_data( class_tree, tvb, 0, tvb_length(tvb), pinfo );
 
    return tvb_length(tvb);
 }
@@ -4912,7 +4956,7 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info 
       }
 
       /* Check to see if service is 'generic' */
-      match_strval_idx((service & 0x7F), cip_sc_vals, &service_index);
+      match_strval_idx(service, cip_sc_vals, &service_index);
       if (service_index >= 0)
       {
           /* See if object dissector wants to override generic service handling */
@@ -4953,16 +4997,11 @@ dissect_cip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
    if ( enip_info )
    {
-      preq_info = (cip_req_info_t*)enip_info->cip_info;
+      preq_info = enip_info->cip_info;
       if ( preq_info == NULL )
       {
          preq_info = se_alloc( sizeof( cip_req_info_t ) );
-         preq_info->bService = 0;
-         preq_info->dissector = NULL;
-         preq_info->IOILen = 0;
-         preq_info->pIOI = NULL;
-         preq_info->pData = NULL;
-         preq_info->ciaData = NULL;
+         memset(preq_info, 0, sizeof(cip_req_info_t));
          enip_info->cip_info = preq_info;
       }
       dissect_cip_data( tree, tvb, 0, pinfo, enip_info->cip_info );
