@@ -607,26 +607,27 @@ static const value_string gsm_a_gmm_non_drx_timer_strings[] = {
 /*
  * CN Specific DRX cycle length coefficient, octet 3
  * bit
- * 8 7 6 5 Iu mode specific
- * 0 0 0 0 CN Specific DRX cycle length coefficient not specified by the MS, ie. the
+ * 8 7 6 5 Iu and S1 mode specific
+ * 0 0 0 0 For Iu mode, CN Specific DRX cycle length coefficient not specified by the MS, ie. the
  * system information value 'CN domain specific DRX cycle length' is used.
- * (Ref 3GPP TS 25.331)
- * 0 1 1 0 CN Specific DRX cycle length coefficient 6
- * 0 1 1 1 CN Specific DRX cycle length coefficient 7
- * 1 0 0 0 CN Specific DRX cycle length coefficient 8
- * 1 0 0 1 CN Specific DRX cycle length coefficient 9
+ * For S1 mode, DRX value not specified by the MS.
+ * (Ref 3GPP TS 25.331 and 36.304)
+ * 0 1 1 0 CN Specific DRX cycle length coefficient 6 and T = 32
+ * 0 1 1 1 CN Specific DRX cycle length coefficient 7 and T = 64
+ * 1 0 0 0 CN Specific DRX cycle length coefficient 8 and T = 128
+ * 1 0 0 1 CN Specific DRX cycle length coefficient 9 and T = 256
  * All other values shall be interpreted as "CN Specific DRX cycle length coefficient not
- * specified by the MS " by this version of the protocol.
- * NOTE: In Iu mode this field (octet 3 bits 8 to 5) is used, but was spare in earlier
+ * specified by the MS" and "DRX value not specified by the MS" by this version of the protocol.
+ * NOTE: For Iu mode and S1 mode, this field (octet 3 bits 8 to 5) is used, but was spare in earlier
  * versions of this protocol.
  */
 static const range_string gsm_a_gmm_cn_spec_drs_cycle_len_coef_strings[] = {
-	{ 0x00,	0x05, "CN Specific DRX cycle length coefficient not specified by the MS" },
-	{ 0x06,	0x06, "CN Specific DRX cycle length coefficient 6" },
-	{ 0x07,	0x07, "CN Specific DRX cycle length coefficient 7" },
-	{ 0x08,	0x08, "CN Specific DRX cycle length coefficient 8" },
-	{ 0x09,	0x09, "CN Specific DRX cycle length coefficient 9" },
-	{ 0x0a, 0x0f, "CN Specific DRX cycle length coefficient not specified by the MS" },
+	{ 0x00,	0x05, "CN Specific DRX cycle length coefficient / value not specified by the MS" },
+	{ 0x06,	0x06, "CN Specific DRX cycle length coefficient 6 and T = 32" },
+	{ 0x07,	0x07, "CN Specific DRX cycle length coefficient 7 and T = 64" },
+	{ 0x08,	0x08, "CN Specific DRX cycle length coefficient 8 and T = 128" },
+	{ 0x09,	0x09, "CN Specific DRX cycle length coefficient 9 and T = 256" },
+	{ 0x0a, 0x0f, "CN Specific DRX cycle length coefficient / value not specified by the MS" },
 	{ 0, 0, NULL },
 };
 guint16
