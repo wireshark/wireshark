@@ -534,6 +534,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-egd.c
 	dissectors/packet-ehs.c
 	dissectors/packet-eigrp.c
+	dissectors/packet-elcom.c
 	dissectors/packet-enc.c
 	dissectors/packet-enip.c
 	dissectors/packet-enrp.c

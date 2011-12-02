@@ -454,6 +454,7 @@ DISSECTOR_SRC = \
 	packet-egd.c		\
 	packet-ehs.c		\
 	packet-eigrp.c		\
+	packet-elcom.c		\
 	packet-enc.c		\
 	packet-enip.c		\
 	packet-enrp.c		\
