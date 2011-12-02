@@ -52,6 +52,10 @@
  * Added support for Multi-Topology (MT) Routing (RFC4915)
  *   - (c) 2009 Stig Bjorlykke <stig@bjorlykke.org>, Thales Norway AS
  *
+ * Added support for OSPFv2 & OSPFv3 Router Information (RI) Opaque LSA (RFC4970); RI Capabilities TLV
+ * Added support for OSPFv2 & OSPFv3 Dynamic Hostname TLV in RI Opaque LSA (RFC5642)
+ *   - (c) 2011 Salil Kanitkar <sskanitk@ncsu.edu>, North Carolina State University
+ *  
  */
 
 #ifdef HAVE_CONFIG_H
@@ -120,6 +124,14 @@ static const value_string auth_vals[] = {
 #define OSPF_V3_OPTIONS_I               0x0400
 #define OSPF_V3_OPTIONS_F               0x0800
 
+/* Bitmask definitions for the informational capabilities bits. */
+#define OSPF_RI_OPTIONS_GRC             0x80
+#define OSPF_RI_OPTIONS_GRH             0x40
+#define OSPF_RI_OPTIONS_SRS             0x20
+#define OSPF_RI_OPTIONS_TES             0x10
+#define OSPF_RI_OPTIONS_P2PLAN          0x08
+#define OSPF_RI_OPTIONS_ETE             0x04
+
 #define OSPF_LLS_EXT_OPTIONS_LR         0x00000001
 #define OSPF_LLS_EXT_OPTIONS_RS         0x00000002
 
@@ -156,6 +168,8 @@ static const value_string auth_vals[] = {
 #define OSPF_V3_LSTYPE_TYPE_7                0x2007
 #define OSPF_V3_LSTYPE_LINK                  0x0008
 #define OSPF_V3_LSTYPE_INTRA_AREA_PREFIX     0x2009
+/* The Opaque RI LSA has a type "12" for OSPFv3 */
+#define OSPF_V3_LSTYPE_OPAQUE_RI             0x800c
 
 /* Opaque LSA types */
 #define OSPF_LSTYPE_OP_LINKLOCAL 9
@@ -177,7 +191,12 @@ static const value_string auth_vals[] = {
 #define OSPF_DNA_LSA            0x8000
 /* Known opaque LSAs */
 #define OSPF_LSA_MPLS_TE        1
-#define OSPF_LSA_GRACE        3
+#define OSPF_LSA_GRACE          3
+/* The type field "4" indicates the Opaque RI LSA with Optional Router Capabilites 
+   advertized in the first TLV. (RFC4970) */
+#define OSPF_LSA_OPAQUE_RI      4
+#define OSPF_LSA_UNKNOWN        11
+#define OSPF_V3_LSA_OPAQUE_RI   12
 #define OSPF_RESTART_REASON_UNKNOWN   0
 #define OSPF_RESTART_REASON_SWRESTART 1
 #define OSPF_RESTART_REASON_SWRELOAD  2
@@ -203,6 +222,17 @@ static const value_string grace_tlv_type_vals[] = {
     {0, NULL}
 };
 
+/* Opaque-LSA - Router Informational Capabilities: TLV Types*/
+#define OPT_RI_TLV       1
+#define DYN_HOSTNAME_TLV 7
+
+/* The Opaque RI LSA TLV types definitions. */
+static const value_string ri_tlv_type_vals[] = {
+    {OPT_RI_TLV,          "Optional Router Informational Capabilities TLV"},
+    {DYN_HOSTNAME_TLV,    "Dynamic Hostname TLV"},
+    {0, NULL}
+};
+
 static const value_string ls_type_vals[] = {
     {OSPF_LSTYPE_ROUTER,                  "Router-LSA"                   },
     {OSPF_LSTYPE_NETWORK,                 "Network-LSA"                  },
@@ -222,6 +252,7 @@ static const value_string ls_opaque_type_vals[] = {
     {OSPF_LSA_MPLS_TE, "Traffic Engineering LSA"                },
     {2,                "Sycamore Optical Topology Descriptions" },
     {OSPF_LSA_GRACE,   "grace-LSA"                              },
+    {OSPF_LSA_OPAQUE_RI, "Optional Router Capabilities Opaque RI LSA" },
     {0,                NULL                                     }
 };
 
@@ -235,8 +266,8 @@ static const value_string v3_ls_type_vals[] = {
     {OSPF_V3_LSTYPE_TYPE_7,               "Type-LSA"                     },
     {OSPF_V3_LSTYPE_LINK,                 "Link-LSA"                     },
     {OSPF_V3_LSTYPE_INTRA_AREA_PREFIX,    "Intra-Area-Prefix-LSA"        },
+    {OSPF_V3_LSTYPE_OPAQUE_RI,            "Router Information Opaque-LSA"},
     {0,                                   NULL                           }
-
 };
 
 static const value_string lls_tlv_type_vals[] = {
@@ -312,6 +343,7 @@ static gint ett_ospf_lsa = -1;
 static gint ett_ospf_lsa_router_link = -1;
 static gint ett_ospf_lsa_upd = -1;
 static gint ett_ospf_v2_options = -1;
+static gint ett_ospf_ri_options = -1;
 static gint ett_ospf_v3_options = -1;
 static gint ett_ospf_dbd = -1;
 static gint ett_ospf_lls_data_block = -1;
@@ -344,7 +376,10 @@ static gint ett_ospf_lsa_mpls_link_stlv_admingrp = -1;
 static gint ett_ospf_lsa_oif_tna = -1;
 static gint ett_ospf_lsa_oif_tna_stlv = -1;
 static gint ett_ospf_lsa_grace_tlv = -1;
-
+static gint ett_ospf_lsa_opaque_ri = -1;
+static gint ett_ospf_lsa_ri_tlv = -1;
+static gint ett_ospf_lsa_dyn_hostname_tlv = -1;
+static gint ett_ospf_lsa_unknown_tlv = -1;
 
 
 static const true_false_string tfs_v2_options_dc = {
@@ -379,6 +414,35 @@ static const true_false_string tfs_v2_options_dn = {
     "DN-bit is SET",
     "DN-bit is NOT set"
 };
+
+/* The Options field in the first TLV of the Opaque RI LSA with type field set to "4" for OSPFv2
+   and type field set to "12" in OSPFv3, is interpreted as advertizing optional router capabilties. 
+   (RFC4970) */
+static const true_false_string tfs_ri_options_grc = {
+    "OSPF Graceful Restart Capable",
+    "NOT OSPF Graceful Restart Capable"
+};
+static const true_false_string tfs_ri_options_grh = {
+    "OSPF Graceful Restart Helper",
+    "NOT OSPF Graceful Restart Helper"
+};
+static const true_false_string tfs_ri_options_srs = {
+    "OSPF Stub Router Support",
+    "NOT OSPF Stub Router Support"
+};
+static const true_false_string tfs_ri_options_tes = {
+    "OSPF Traffic Engineering Support",
+    "NOT OSPF Traffic Engineering Support"
+};
+static const true_false_string tfs_ri_options_p2plan = {
+    "OSPF point-to-point over LAN",
+    "NOT OSPF point-to-point over LAN"
+};
+static const true_false_string tfs_ri_options_ete = {
+    "OSPF Experimental TE",
+    "NOT OSPF Experimental TE"
+};
+
 static const true_false_string tfs_v3_options_v6 = {
     "V6 is SET",
     "V6 is NOT set"
@@ -593,6 +657,22 @@ enum {
     OSPFF_V2_OPTIONS_DC,
     OSPFF_V2_OPTIONS_O,
     OSPFF_V2_OPTIONS_DN,
+
+    /* OSPF Filtering keys for Router Informational Capabilities Options field. */
+    OSPFF_RI_OPTIONS,
+    OSPFF_RI_OPTIONS_GRC,
+    OSPFF_RI_OPTIONS_GRH,
+    OSPFF_RI_OPTIONS_SRS,
+    OSPFF_RI_OPTIONS_TES,
+    OSPFF_RI_OPTIONS_P2PLAN,
+    OSPFF_RI_OPTIONS_ETE,
+
+    /* OSPF Filtering keys for Dynamic Hostname support (RFC5642) */
+    OSPFF_DYN_HOSTNAME,
+    OSPFF_OPAQUE_LSA_MBZ,
+
+    OSPFF_UNKNOWN_TLV_TXT,
+
     OSPFF_V3_OPTIONS,
     OSPFF_V3_OPTIONS_V6,
     OSPFF_V3_OPTIONS_E,
@@ -748,6 +828,15 @@ static int bf_v2_options[] = {
     OSPFF_V2_OPTIONS_E,
     OSPFF_V2_OPTIONS_MT
 };
+/* Structures for handling the bitfield of the Options field of Optional Router Capabilites LSA (RFC4970). */
+static int bf_ri_options[] = {
+    OSPFF_RI_OPTIONS_GRC,
+    OSPFF_RI_OPTIONS_GRH,
+    OSPFF_RI_OPTIONS_SRS,
+    OSPFF_RI_OPTIONS_TES,
+    OSPFF_RI_OPTIONS_P2PLAN,
+    OSPFF_RI_OPTIONS_ETE
+};
 static int bf_v3_options[] = {
     OSPFF_V3_OPTIONS_F,
     OSPFF_V3_OPTIONS_I,
@@ -814,6 +903,12 @@ static bitfield_info bfinfo_v3_options = {
 static bitfield_info bfinfo_v3_prefix_options = {
     OSPFF_V3_PREFIX_OPTION, &ett_ospf_v3_prefix_options,
     bf_v3_prefix_options, array_length(bf_v3_prefix_options)
+};
+/* Structure used for dissecing the Options bitfield of the Optional Router Informational
+   Capabilities RI LSA. */
+static bitfield_info bfinfo_ri_options = {
+    OSPFF_RI_OPTIONS, &ett_ospf_ri_options,
+    bf_ri_options, array_length(bf_ri_options)
 };
 
 #define MAX_OPTIONS_LEN 128
@@ -989,6 +1084,7 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             version);
         proto_tree_add_item(ospf_header_tree, hf_ospf_filter[OSPFF_MSG_TYPE],
                             tvb, 1, 1, ENC_BIG_ENDIAN);
+
         if (ospf_msg_type_to_filter(packet_type) != -1) {
             hidden_item = proto_tree_add_item(ospf_header_tree,
                                               hf_ospf_filter[ospf_msg_type_to_filter(packet_type)],
@@ -999,6 +1095,7 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             ospflen);
         proto_tree_add_item(ospf_header_tree, hf_ospf_filter[OSPFF_SRC_ROUTER],
                             tvb, 4, 4, ENC_BIG_ENDIAN);
+
         areaid=tvb_get_ntohl(tvb,8);
         proto_tree_add_text(ospf_header_tree, tvb, 8, 4, "Area ID: %s%s",
                             tvb_ip_to_str(tvb, 8), areaid == 0 ? " (Backbone)" : "");
@@ -2291,6 +2388,91 @@ static void dissect_ospf_lsa_grace_tlv (tvbuff_t *tvb, int offset,
 }
 
 /*
+ * This function dissects the Optional Router capabilities LSA.
+ * In case of OSPFv2, the Router Capabilities would be advertized via the first TLV
+ * of an RI LSA and in the case of OSPFv3, the router capabilities would be advertized
+ * using a special purpose type field value. (RFC 4970)
+ * Also, the Dynamic Hostname or FQDN is advertized via a special purpose TLV type.
+ * The below function adds the support to handle this as well. (RFC5642).
+ */
+static void
+dissect_ospf_lsa_opaque_ri(tvbuff_t *tvb, int offset, proto_tree *tree,
+                           guint32 length)
+{
+    proto_item *ti;
+    proto_tree *ri_tree;
+    proto_tree *tlv_tree;
+
+    guint8 *hostname_str;
+    guint8 *unknown_str;
+
+    int tlv_type;
+    int tlv_length;
+    int tlv_end_offset;
+
+    ti = proto_tree_add_text(tree, tvb, offset, length,
+                             "Opaque Router Information LSA");
+
+    ri_tree = proto_item_add_subtree(ti, ett_ospf_lsa_opaque_ri);
+
+    while (length > 0) {
+        tlv_type = tvb_get_ntohs(tvb, offset);
+        tlv_length = tvb_get_ntohs(tvb, offset + 2);
+        tlv_end_offset = offset + tlv_length + 4;
+
+        switch(tlv_type) {
+
+        case OPT_RI_TLV:
+           ti = proto_tree_add_text(ri_tree, tvb, offset, tlv_length+4, 
+                                    "RI TLV");
+           tlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_ri_tlv);
+
+           proto_tree_add_text(tlv_tree, tvb, offset, 2, "TLV Type: %s (%u)",
+                        "Router Informational Capabilities TLV", tlv_type);
+
+           proto_tree_add_text(tlv_tree, tvb, offset + 2, 2, "TLV Length: %u", tlv_length);
+
+           dissect_ospf_bitfield(tlv_tree, tvb, offset + 4, &bfinfo_ri_options); 
+           break;
+
+        case DYN_HOSTNAME_TLV:
+           ti = proto_tree_add_text(ri_tree, tvb, offset, tlv_length+4,
+                                    "Dynamic Hostname TLV");
+           tlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_dyn_hostname_tlv);
+
+           proto_tree_add_text(tlv_tree, tvb, offset, 2, "TLV Type: %s (%u)",
+                               "Dynamic Hostname TLV", tlv_type);
+
+           proto_tree_add_text(tlv_tree, tvb, offset + 2, 2, "TLV Length: %u", tlv_length);
+
+           hostname_str = tvb_get_string(tvb, offset+4, tlv_length);
+           proto_tree_add_string(tlv_tree, hf_ospf_filter[OSPFF_DYN_HOSTNAME], tvb, offset+4, tlv_length, hostname_str);
+           g_free(hostname_str);
+           break;
+
+        default:
+           ti = proto_tree_add_text(ri_tree, tvb, offset, tlv_length+4, 
+                                    "Unknown Opaque RI LSA TLV");
+           tlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_unknown_tlv);
+
+           proto_tree_add_text(tlv_tree, tvb, offset, 2, "TLV Type: %s (%u)",
+                               "Unknown TLV", tlv_type);
+
+           proto_tree_add_text(tlv_tree, tvb, offset + 2, 2, "TLV Length: %u", tlv_length);
+
+           unknown_str = tvb_get_string(tvb, offset+4, tlv_length);
+           proto_tree_add_string(tlv_tree, hf_ospf_filter[OSPFF_UNKNOWN_TLV_TXT], tvb, offset+4, tlv_length, unknown_str);
+           g_free(unknown_str);
+           break;
+
+        }
+
+        offset += tlv_length + 4;
+        length -= tlv_length + 4;
+    }
+}
+
+/*
  * Dissect opaque LSAs
  */
 static void
@@ -2301,6 +2483,9 @@ dissect_ospf_lsa_opaque(tvbuff_t *tvb, int offset, proto_tree *tree,
 
     case OSPF_LSA_MPLS_TE:
         dissect_ospf_lsa_mpls(tvb, offset, tree, length);
+        break;
+    case OSPF_LSA_OPAQUE_RI:
+        dissect_ospf_lsa_opaque_ri(tvb, offset, tree, length);
         break;
     case OSPF_LSA_GRACE:
         dissect_ospf_lsa_grace_tlv(tvb, offset, tree, length);
@@ -2340,6 +2525,7 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 
     /* opaque LSA */
     guint8               ls_id_type;
+    guint8               ls_ri_opaque_field;
 
     ls_type = tvb_get_guint8(tvb, offset + 3);
     ls_length = tvb_get_ntohs(tvb, offset + 18);
@@ -2389,6 +2575,15 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
             proto_tree_add_item(ospf_lsa_tree, hf_ospf_filter[OSPFF_LS_MPLS_TE_INSTANCE],
                                 tvb, offset + 6, 2, ENC_BIG_ENDIAN);
             break;
+
+        case OSPF_LSA_OPAQUE_RI:
+           ls_ri_opaque_field = tvb_get_guint8(tvb, offset + 5);	
+           if ( ls_ri_opaque_field != 0 ) 
+                ls_id_type = OSPF_LSA_UNKNOWN;
+           else
+                proto_tree_add_item(ospf_lsa_tree, hf_ospf_filter[OSPFF_OPAQUE_LSA_MBZ], 
+                                    tvb, offset + 5, 3, ENC_BIG_ENDIAN);
+           break;
 
         default:
             proto_tree_add_text(ospf_lsa_tree, tvb, offset + 5, 3, "Link State ID Opaque ID: %u",
@@ -3011,6 +3206,10 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
         }
         break;
 
+    case OSPF_V3_LSTYPE_OPAQUE_RI:
+        dissect_ospf_lsa_opaque_ri(tvb, offset, ospf_lsa_tree, ls_length);
+        break;
+
     default:
         /* unknown LSA type */
         proto_tree_add_text(ospf_lsa_tree, tvb, offset, ls_length,
@@ -3127,7 +3326,6 @@ proto_register_ospf(void)
            NULL, HFILL }},
 
         /* Other interesting OSPF values */
-
         {&hf_ospf_filter[OSPFF_SRC_ROUTER],
          { "Source OSPF Router", "ospf.srcrouter", FT_IPv4, BASE_NONE, NULL, 0x0,
            NULL, HFILL }},
@@ -3204,6 +3402,34 @@ proto_register_ospf(void)
         {&hf_ospf_filter[OSPFF_V2_OPTIONS_DN],
          { "DN", "ospf.v2.options.dn", FT_BOOLEAN, 8,
            TFS(&tfs_v2_options_dn), OSPF_V2_OPTIONS_DN, NULL, HFILL }},
+
+        {&hf_ospf_filter[OSPFF_RI_OPTIONS],
+         { "RI Options", "ospf.ri.options", FT_UINT8, BASE_HEX,
+           NULL, 0x0, NULL, HFILL }},
+        {&hf_ospf_filter[OSPFF_RI_OPTIONS_GRC],
+         { "GRC", "ospf.ri.options.grc", FT_BOOLEAN, 8,
+           TFS(&tfs_ri_options_grc), OSPF_RI_OPTIONS_GRC, NULL, HFILL }},
+        {&hf_ospf_filter[OSPFF_RI_OPTIONS_GRH],
+         { "GRH", "ospf.ri.options.grh", FT_BOOLEAN, 8,
+           TFS(&tfs_ri_options_grh), OSPF_RI_OPTIONS_GRH, NULL, HFILL }},
+        {&hf_ospf_filter[OSPFF_RI_OPTIONS_SRS],
+         { "SRS", "ospf.ri.options.srs", FT_BOOLEAN, 8,
+           TFS(&tfs_ri_options_srs), OSPF_RI_OPTIONS_SRS, NULL, HFILL }},
+        {&hf_ospf_filter[OSPFF_RI_OPTIONS_TES],
+         { "TES", "ospf.ri.options.tes", FT_BOOLEAN, 8,
+           TFS(&tfs_ri_options_tes), OSPF_RI_OPTIONS_TES, NULL, HFILL }},
+        {&hf_ospf_filter[OSPFF_RI_OPTIONS_P2PLAN],
+         { "P2PLAN", "ospf.ri.options.p2plan", FT_BOOLEAN, 8,
+           TFS(&tfs_ri_options_p2plan), OSPF_RI_OPTIONS_P2PLAN, NULL, HFILL }},
+        {&hf_ospf_filter[OSPFF_RI_OPTIONS_ETE],
+         { "ETE", "ospf.ri.options.ete", FT_BOOLEAN, 8,
+           TFS(&tfs_ri_options_ete), OSPF_RI_OPTIONS_ETE, NULL, HFILL }},
+
+        /* An MBZ field for the 24-bits of type field of Opaque RI LSA */
+        {&hf_ospf_filter[OSPFF_OPAQUE_LSA_MBZ],
+         { "MBZ", "ospf.ri.mbz", FT_UINT16, BASE_HEX, 
+            NULL, 0x0, "OSPF Opaque RI LSA - 24 bits of Type Field Must be Zero", HFILL }},
+
         {&hf_ospf_filter[OSPFF_V3_OPTIONS],
          { "Options", "ospf.v3.options", FT_UINT24, BASE_HEX,
            NULL, 0x0, NULL, HFILL }},
@@ -3322,6 +3548,14 @@ proto_register_ospf(void)
          { "P", "ospf.v3.prefix.options.p", FT_BOOLEAN, 8,
            TFS(&tfs_v3_prefix_options_p), OSPF_V3_PREFIX_OPTION_P, NULL, HFILL }},
 
+        /* Dynamic Hostname contained in the Opaque RI LSA - dynamic hostname TLV*/
+        {&hf_ospf_filter[OSPFF_DYN_HOSTNAME],
+         { "Dynamic Hostname", "ospf.dynhostname", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+        /* text contained in the Unknown TLV of the Opaque RI LSA */
+        {&hf_ospf_filter[OSPFF_UNKNOWN_TLV_TXT],
+         { "Text in the Unknown TLV", "ospf.unknown_text", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
         /* OSPF Restart TLVs  */
         {&hf_ospf_filter[OSPFF_V2_GRACE_TLV],
          { "Grace TLV", "ospf.v2.grace", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}},
@@ -3414,10 +3648,15 @@ proto_register_ospf(void)
         &ett_ospf_lsa_mpls_link,
         &ett_ospf_lsa_mpls_link_stlv,
         &ett_ospf_lsa_mpls_link_stlv_admingrp,
+        &ett_ospf_lsa_opaque_ri,
+        &ett_ospf_lsa_ri_tlv,
+        &ett_ospf_lsa_dyn_hostname_tlv,
+        &ett_ospf_lsa_unknown_tlv,
         &ett_ospf_lsa_oif_tna,
         &ett_ospf_lsa_oif_tna_stlv,
         &ett_ospf_lsa_grace_tlv,
         &ett_ospf_v2_options,
+        &ett_ospf_ri_options,
         &ett_ospf_v3_options,
         &ett_ospf_dbd,
         &ett_ospf_lls_data_block,

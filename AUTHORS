@@ -3359,6 +3359,10 @@ Kari Vatjus-Anttila	<kari.vatjus-anttila [AT] cie.fi> {
 Shobhank Sharma         <ssharma5 [AT] ncsu.edu>{
 	MPLS Enhancement - Generic Associated Channel, as per RFC 5586 
 }
+Salil Kanitkar         <sskanitk [AT] ncsu.edu>{
+	OSPF Router Informational Capabilities - Opaque RI TLV - RFC4970
+	OSPF Dynamic Hostname TLV in RI Opaque TLV - RFC5642
+}
 
 
 and by:
