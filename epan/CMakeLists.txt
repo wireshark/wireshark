@@ -684,6 +684,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-ipmi.c
 	dissectors/packet-ipmi-session.c
 	dissectors/packet-ipnet.c
+	dissectors/packet-ipoib.c
 	dissectors/packet-ipp.c
 	dissectors/packet-ipsec.c
 	dissectors/packet-ipsec-tcp.c

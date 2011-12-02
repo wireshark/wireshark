@@ -211,6 +211,7 @@ int snoop_open(wtap *wth, int *err, gchar **err_info)
 		WTAP_ENCAP_UNKNOWN,	/* 100VG-AnyLAN Token Ring */
 		WTAP_ENCAP_UNKNOWN,	/* "ISO 8802/3 and Ethernet" */
 		WTAP_ENCAP_UNKNOWN,	/* 100BaseT (but that's just Ethernet) */
+		WTAP_ENCAP_IP_OVER_IB,	/* Infiniband */
 	};
 	#define NUM_SNOOP_ENCAPS (sizeof snoop_encap / sizeof snoop_encap[0])
 	#define SNOOP_PRIVATE_BIT 0x80000000

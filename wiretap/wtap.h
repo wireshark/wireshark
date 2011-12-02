@@ -226,6 +226,7 @@ extern "C" {
 #define WTAP_ENCAP_MIME                         134
 #define WTAP_ENCAP_NETANALYZER                  135
 #define WTAP_ENCAP_NETANALYZER_TRANSPARENT      136
+#define WTAP_ENCAP_IP_OVER_IB                   137
 
 #define WTAP_NUM_ENCAP_TYPES                    wtap_get_num_encap_types()
 

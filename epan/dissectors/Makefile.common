@@ -605,6 +605,7 @@ DISSECTOR_SRC = \
 	packet-ipmi.c		\
 	packet-ipmi-session.c	\
 	packet-ipnet.c		\
+	packet-ipoib.c		\
 	packet-ipp.c		\
 	packet-ipsec.c		\
 	packet-ipsec-tcp.c	\

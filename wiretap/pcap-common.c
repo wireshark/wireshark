@@ -376,7 +376,8 @@ static const struct {
 	{ 240,		WTAP_ENCAP_NETANALYZER },
 	/* netANALYZER pseudo-header in transparent mode */
 	{ 241,		WTAP_ENCAP_NETANALYZER_TRANSPARENT },
-
+	/* IP-over-Infiniband, as specified by RFC 4391 section 6 */
+	{ 242,		WTAP_ENCAP_IP_OVER_IB },
 
 	/*
 	 * To repeat:

@@ -512,7 +512,10 @@ static struct encap_type_info encap_table_base[] = {
 	{ "netANALYZER", "netanalyzer" },
 
 	/* WTAP_ENCAP_NETANALYZER_TRANSPARENT */
-	{ "netANALYZER-Transparent", "netanalyzer-transparent" }
+	{ "netANALYZER-Transparent", "netanalyzer-transparent" },
+
+	/* WTAP_ENCAP_IP_OVER_IB */
+	{ "IP over Infiniband", "ip-over-ib" }
 };
 
 gint wtap_num_encap_types = sizeof(encap_table_base) / sizeof(struct encap_type_info);
