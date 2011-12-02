@@ -62,6 +62,7 @@
 #include "packet-per.h"
 #include "packet-ranap.h"
 #include "packet-bssgp.h"
+#include "packet-e212.h"
 #include "packet-gtp.h"
 
 static dissector_table_t ppp_subdissector_table;
@@ -173,8 +174,6 @@ static int hf_gtp_rab_gtpu_dn = -1;
 static int hf_gtp_rab_gtpu_up = -1;
 static int hf_gtp_rab_pdu_dn = -1;
 static int hf_gtp_rab_pdu_up = -1;
-static int hf_gtp_rai_mcc = -1;
-static int hf_gtp_rai_mnc = -1;
 static int hf_gtp_rai_rac = -1;
 static int hf_gtp_rai_lac = -1;
 static int hf_gtp_ranap_cause = -1;
@@ -328,6 +327,7 @@ static gint ett_gtp_utran_cont = -1;
 static gint ett_gtp_bcm = -1;
 static gint ett_gtp_cdr_ver = -1;
 static gint ett_gtp_cdr_dr = -1;
+static gint ett_gtp_uli_rai = -1;
 
 static gboolean g_gtp_tpdu = TRUE;
 static gboolean g_gtp_etsi_order = FALSE;
@@ -3153,23 +3153,11 @@ static int decode_gtp_rai(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, p
 
     proto_tree *ext_tree_rai;
     proto_item *te;
-    guint8 byte[3];
-    guint16 mnc, mcc;
 
     te = proto_tree_add_text(tree, tvb, offset, 1, "%s", val_to_str_ext_const(GTP_EXT_RAI, &gtp_val_ext, "Unknown message"));
     ext_tree_rai = proto_item_add_subtree(te, ett_gtp_rai);
 
-    byte[0] = tvb_get_guint8(tvb, offset + 1);
-    byte[1] = tvb_get_guint8(tvb, offset + 2);
-    byte[2] = tvb_get_guint8(tvb, offset + 3);
-    mcc = (byte[0] & 0x0F) * 100 + ((byte[0] & 0xF0) >> 4) * 10 + (byte[1] & 0x0F);
-    if ((byte[1] & 0xF0) == 0xF0)
-        mnc = (byte[2] & 0x0F) * 10 + ((byte[2] & 0xF0) >> 4);
-    else
-        mnc = (byte[2] & 0x0F) * 100 + ((byte[2] & 0xF0) >> 4) * 10 + ((byte[1] & 0xF0) >> 4);
-
-    proto_tree_add_uint(ext_tree_rai, hf_gtp_rai_mcc, tvb, offset + 1, 2, mcc);
-    proto_tree_add_uint(ext_tree_rai, hf_gtp_rai_mnc, tvb, offset + 2, 2, mnc);
+	dissect_e212_mcc_mnc(tvb, pinfo, ext_tree_rai, offset+1, TRUE);
     proto_tree_add_uint(ext_tree_rai, hf_gtp_rai_lac, tvb, offset + 4, 2, tvb_get_ntohs(tvb, offset + 4));
     proto_tree_add_uint(ext_tree_rai, hf_gtp_rai_rac, tvb, offset + 6, 1, tvb_get_guint8(tvb, offset + 6));
 
@@ -3177,7 +3165,7 @@ static int decode_gtp_rai(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, p
 }
 
 /* GPRS:        9.60 v7.6.0, chapter 7.9.4, page 39
- * UMTS:        29.060 v4.0, chapter 7.7.4, page 47
+ * UMTS:        29.060 v4.0, chapter 7.7.4 Temporary Logical Link Identity (TLLI)
  */
 static int decode_gtp_tlli(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
 {
@@ -3191,7 +3179,7 @@ static int decode_gtp_tlli(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, 
 }
 
 /* GPRS:        9.60 v7.6.0, chapter 7.9.5, page 39
- * UMTS:        29.060 v4.0, chapter 7.7.5, page 47
+ * UMTS:        29.060 v4.0, chapter 7.7.5 Packet TMSI (P-TMSI)
  */
 static int decode_gtp_ptmsi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
 {
@@ -3204,7 +3192,8 @@ static int decode_gtp_ptmsi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_,
     return 5;
 }
 
-/* adjust - how many bytes before offset should be highlighted
+/* 
+ * adjust - how many bytes before offset should be highlighted
  */
 static int decode_qos_gprs(tvbuff_t * tvb, int offset, proto_tree * tree, const gchar * qos_str, guint8 adjust)
 {
@@ -3254,7 +3243,7 @@ static int decode_gtp_qos_gprs(tvbuff_t * tvb, int offset, packet_info * pinfo _
 }
 
 /* GPRS:        9.60 v7.6.0, chapter 7.9.7, page 39
- * UMTS:        29.060 v4.0, chapter 7.7.6, page 47
+ * UMTS:        29.060 v4.0, chapter 7.7.6 Reordering Required
  */
 static int decode_gtp_reorder(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
 {
@@ -5380,12 +5369,16 @@ static const gchar *dissect_radius_user_loc(proto_tree * tree, tvbuff_t * tvb, p
     return tvb_bytes_to_str(tvb, 0, length);
 }
 
+/*
+ * 7.7.51 User Location Information
+ */
+
 static int decode_gtp_usr_loc_inf(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
 {
 
     guint16 length;
-    proto_tree *ext_tree;
-    proto_item *te;
+    proto_tree *ext_tree, *rai_tree;
+    proto_item *te, *fi;
     guint8 geo_loc_type;
 
     length = tvb_get_ntohs(tvb, offset + 1);
@@ -5401,15 +5394,44 @@ static int decode_gtp_usr_loc_inf(tvbuff_t * tvb, int offset, packet_info * pinf
     geo_loc_type = tvb_get_guint8(tvb, offset);
     offset++;
 
-    if (geo_loc_type == 0)
-        /* Use gsm_a's function to dissect Geographic Location by faking disc ( last 0) */
-        be_cell_id_aux(tvb, ext_tree, pinfo, offset, length - 1, NULL, 0, 0);
-    if (geo_loc_type == 1) {
-        /* Use gsm_a's function to dissect Geographic Location by faking disc ( last 4) */
-        be_cell_id_aux(tvb, ext_tree, pinfo, offset, length - 1, NULL, 0, 4);
-        offset = offset + 5;
-        proto_tree_add_item(ext_tree, hf_gtp_ext_sac, tvb, offset, 2, ENC_BIG_ENDIAN);
-    }
+	switch(geo_loc_type){
+		case 0:
+			/* Geographic Location field included and it holds the Cell Global
+			 * Identification (CGI) of where the user currently is registered.
+			 * CGI is defined in sub-clause 4.3.1 of 3GPP TS 23.003 [2].
+			 */
+            /* Use gsm_a's function to dissect Geographic Location by faking disc ( last 0) */
+            be_cell_id_aux(tvb, ext_tree, pinfo, offset, length - 1, NULL, 0, 0);
+			break;
+		case 1:
+			/* Geographic Location field included and it holds the Service
+			 * Area Identity (SAI) of where the user currently is registered.
+			 * SAI is defined in sub-clause 9.2.3.9 of 3GPP TS 25.413 [7].
+			 */
+            /* Use gsm_a's function to dissect Geographic Location by faking disc ( last 4) */
+            be_cell_id_aux(tvb, ext_tree, pinfo, offset, length - 1, NULL, 0, 4);
+            offset = offset + 5;
+            proto_tree_add_item(ext_tree, hf_gtp_ext_sac, tvb, offset, 2, ENC_BIG_ENDIAN);
+			break;
+		case 2:
+			/* Geographic Location field included and it holds the Routing
+			 * Area Identification (RAI) of where the user currently is
+			 * registered. RAI is defined in sub-clause 4.2 of 3GPP TS 23.003
+			 * [2].
+			 */
+            fi = proto_tree_add_text(ext_tree, tvb, offset + 1, 7, "Routeing Area Identity (RAI)");
+            rai_tree = proto_item_add_subtree(fi, ett_gtp_uli_rai);
+
+			dissect_e212_mcc_mnc(tvb, pinfo, rai_tree, offset, TRUE);
+            offset+=3;
+            proto_tree_add_item(rai_tree, hf_gtp_rai_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(rai_tree, hf_gtp_rai_rac, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset+=4;
+			break;
+		default:
+			proto_tree_add_text(tree, tvb, offset, length - 1, "Unknown Location type data");
+			break;
+	}
 
     return 3 + length;
 
@@ -7264,8 +7286,6 @@ void proto_register_gtp(void)
          {"Downlink next PDCP-PDU seq number", "gtp.rab_pdu_dn", FT_UINT16, BASE_DEC, NULL, 0, "Downlink next PDCP-PDU sequence number", HFILL}},
         {&hf_gtp_rab_pdu_up,
          {"Uplink next PDCP-PDU seq number", "gtp.rab_pdu_up", FT_UINT16, BASE_DEC, NULL, 0, "Uplink next PDCP-PDU sequence number", HFILL}},
-        {&hf_gtp_rai_mcc, {"MCC", "gtp.mcc", FT_UINT16, BASE_DEC, NULL, 0, "Mobile Country Code", HFILL}},
-        {&hf_gtp_rai_mnc, {"MNC", "gtp.mnc", FT_UINT8, BASE_DEC, NULL, 0, "Mobile Network Code", HFILL}},
         {&hf_gtp_rai_rac, {"RAC", "gtp.rac", FT_UINT8, BASE_DEC, NULL, 0, "Routing Area Code", HFILL}},
         {&hf_gtp_rai_lac, {"LAC", "gtp.lac", FT_UINT16, BASE_DEC, NULL, 0, "Location Area Code", HFILL}},
         {&hf_gtp_ranap_cause, {"RANAP cause", "gtp.ranap_cause", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &ranap_cause_type_ext, 0, NULL, HFILL}},
@@ -7588,6 +7608,7 @@ void proto_register_gtp(void)
         &ett_gtp_cdr_ver,
         &ett_gtp_cdr_dr,
         &ett_gtp_ext_hdr,
+		&ett_gtp_uli_rai,
     };
 
     module_t *gtp_module;
