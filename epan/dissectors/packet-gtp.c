@@ -38,8 +38,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
- * Ref: 3GPP TS 29.060
+ * Ref: 3GPP TS 29.060 
  * http://www.3gpp.org/ftp/Specs/html-info/29060.htm
+ * GTP' 3GPP TS 32.295
  */
 
 #ifdef HAVE_CONFIG_H
@@ -119,6 +120,7 @@ static int hf_gtp_flags_ver = -1;
 static int hf_gtp_prime_flags_ver = -1;
 static int hf_gtp_flags_pt = -1;
 static int hf_gtp_flags_spare1 = -1;
+static int hf_gtp_flags_hdr_length = -1;
 static int hf_gtp_flags_snn = -1;
 static int hf_gtp_flags_spare2 = -1;
 static int hf_gtp_flags_e = -1;
@@ -336,6 +338,11 @@ static int gtp_tap = -1;
 
 /* Definition of flags masks */
 #define GTP_VER_MASK 0xE0
+
+static const true_false_string gtp_hdr_length_vals = {
+    "6-Octet Header",
+    "20-Octet Header"
+};
 
 static const value_string ver_types[] = {
     {0, "GTP release 97/98 version"},
@@ -6744,339 +6751,356 @@ static int decode_gtp_unknown(tvbuff_t * tvb, int offset, packet_info * pinfo _U
 
 static void dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-    struct _gtp_hdr gtp_hdr;
-    proto_tree *gtp_tree, *flags_tree, *ext_tree;
-    proto_item *ti, *tf, *item;
-    int i, offset, length, gtp_prime, checked_field, mandatory;
-    int seq_no=0, flow_label=0;
-    guint8 pdu_no, next_hdr = 0, ext_hdr_val, noOfExtHdrs = 0, ext_hdr_length;
-    gchar *tid_str;
-    guint32 teid = 0;
-    tvbuff_t *next_tvb;
-    guint8 sub_proto, acfield_len = 0, control_field;
-    gtp_msg_hash_t *gcrp=NULL;
-    conversation_t *conversation=NULL;
-    gtp_conv_info_t *gtp_info;
-    void* pd_save;
+	struct _gtp_hdr gtp_hdr;
+	proto_tree *gtp_tree, *flags_tree, *ext_tree;
+	proto_item *ti, *tf, *item;
+	int i, offset, length, gtp_prime, checked_field, mandatory;
+	int seq_no=0, flow_label=0;
+	guint8 pdu_no, next_hdr = 0, ext_hdr_val, noOfExtHdrs = 0, ext_hdr_length;
+	gchar *tid_str;
+	guint32 teid = 0;
+	tvbuff_t *next_tvb;
+	guint8 sub_proto, acfield_len = 0, control_field;
+	gtp_msg_hash_t *gcrp=NULL;
+	conversation_t *conversation=NULL;
+	gtp_conv_info_t *gtp_info;
+	void* pd_save;
 
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "GTP");
-    col_clear(pinfo->cinfo, COL_INFO);
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "GTP");
+	col_clear(pinfo->cinfo, COL_INFO);
 
-    /*
-     * Do we have a conversation for this connection?
-     */
-    conversation = find_or_create_conversation(pinfo);
+	/*
+	* Do we have a conversation for this connection?
+	*/
+	conversation = find_or_create_conversation(pinfo);
 
-    /*
-     * Do we already know this conversation?
-     */
-    gtp_info = conversation_get_proto_data(conversation, proto_gtp);
-    if (gtp_info == NULL) {
-        /* No.  Attach that information to the conversation, and add
-         * it to the list of information structures.
-         */
-        gtp_info = g_malloc(sizeof(gtp_conv_info_t));
-        /*Request/response matching tables*/
-        gtp_info->matched = g_hash_table_new(gtp_sn_hash, gtp_sn_equal_matched);
-        gtp_info->unmatched = g_hash_table_new(gtp_sn_hash, gtp_sn_equal_unmatched);
+	/*
+	* Do we already know this conversation?
+	*/
+	gtp_info = conversation_get_proto_data(conversation, proto_gtp);
+	if (gtp_info == NULL) {
+		/* No.  Attach that information to the conversation, and add
+		* it to the list of information structures.
+		*/
+		gtp_info = g_malloc(sizeof(gtp_conv_info_t));
+		/*Request/response matching tables*/
+		gtp_info->matched = g_hash_table_new(gtp_sn_hash, gtp_sn_equal_matched);
+		gtp_info->unmatched = g_hash_table_new(gtp_sn_hash, gtp_sn_equal_unmatched);
 
-        conversation_add_proto_data(conversation, proto_gtp, gtp_info);
+		conversation_add_proto_data(conversation, proto_gtp, gtp_info);
 
-        gtp_info->next = gtp_info_items;
-        gtp_info_items = gtp_info;
-    }
-    pd_save = pinfo->private_data;
-    pinfo->private_data = gtp_info;
+		gtp_info->next = gtp_info_items;
+		gtp_info_items = gtp_info;
+	}
+	pd_save = pinfo->private_data;
+	pinfo->private_data = gtp_info;
 
-    tvb_memcpy(tvb, (guint8 *) & gtp_hdr, 0, 4);
+	tvb_memcpy(tvb, (guint8 *) & gtp_hdr, 0, 4);
 
-    if (!(gtp_hdr.flags & 0x10))
-                gtp_prime = 1;
-    else
-                gtp_prime = 0;
+	if (!(gtp_hdr.flags & 0x10))
+		gtp_prime = 1;
+	else
+		gtp_prime = 0;
 
-    switch ((gtp_hdr.flags >> 5) & 0x07) {
-            case 0:
-                        gtp_version = 0;
-                        break;
-            case 1:
-                        gtp_version = 1;
-                        break;
-            default:
-                        gtp_version = 1;
-                        break;
-    }
+	switch ((gtp_hdr.flags >> 5) & 0x07) {
+			case 0:
+				gtp_version = 0;
+				break;
+			case 1:
+				gtp_version = 1;
+				break;
+			default:
+				gtp_version = 1;
+				break;
+	}
 
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext_const(gtp_hdr.message, &gtp_message_type_ext, "Unknown"));
+	col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext_const(gtp_hdr.message, &gtp_message_type_ext, "Unknown"));
 
-    if (tree) {
-        ti = proto_tree_add_item(tree, proto_gtp, tvb, 0, -1, ENC_NA);
-        gtp_tree = proto_item_add_subtree(ti, ett_gtp);
+	if (tree) {
+		ti = proto_tree_add_item(tree, proto_gtp, tvb, 0, -1, ENC_NA);
+		gtp_tree = proto_item_add_subtree(ti, ett_gtp);
 
-        tf = proto_tree_add_uint(gtp_tree, hf_gtp_flags, tvb, 0, 1, gtp_hdr.flags);
-        flags_tree = proto_item_add_subtree(tf, ett_gtp_flags);
+		tf = proto_tree_add_uint(gtp_tree, hf_gtp_flags, tvb, 0, 1, gtp_hdr.flags);
+		flags_tree = proto_item_add_subtree(tf, ett_gtp_flags);
 
-        if(gtp_prime==0){
-            proto_tree_add_uint(flags_tree, hf_gtp_flags_ver, tvb, 0, 1, gtp_hdr.flags);
-        }else{
-            proto_tree_add_uint(flags_tree, hf_gtp_prime_flags_ver, tvb, 0, 1, gtp_hdr.flags);
-        }
+		if(gtp_prime==1){
+			/* Octet  8    7    6    5    4    3    2    1
+             * 1      Version   | PT| Spare '1 1 1 '| ' 0/1 '
+			 */
+			proto_tree_add_uint(flags_tree, hf_gtp_prime_flags_ver, tvb, 0, 1, gtp_hdr.flags);
+			proto_tree_add_uint(flags_tree, hf_gtp_flags_pt, tvb, 0, 1, gtp_hdr.flags);
+			proto_tree_add_uint(flags_tree, hf_gtp_flags_spare1, tvb, 0, 1, gtp_hdr.flags);
+			/* Bit 1 of octet 1 is not used in GTP' (except in v0), and it is marked '0' 
+			 * in the GTP' header. It is in use in GTP' v0 and distinguishes the used header-length. 
+			 * In the case of GTP' v0, this bit being marked one (1) indicates the usage of the 6
+			 * octets header. If the bit is set to '0' (usually the case) the 20-octet header is used. 
+			 * For all other versions of GTP', this bit is not used and is set to '0'. However, 
+			 * this does not suggest the use of the 20-octet header, rather a shorter 6-octet header.
+			 */
+			if(gtp_version==0){				
+				proto_tree_add_item(flags_tree, hf_gtp_flags_hdr_length, tvb, 0, 1, ENC_BIG_ENDIAN);
+			}
+		}else{
+			proto_tree_add_uint(flags_tree, hf_gtp_flags_ver, tvb, 0, 1, gtp_hdr.flags);
+			proto_tree_add_uint(flags_tree, hf_gtp_flags_pt, tvb, 0, 1, gtp_hdr.flags);
+			if(gtp_version==0){
+				proto_tree_add_uint(flags_tree, hf_gtp_flags_spare1, tvb, 0, 1, gtp_hdr.flags);
+				proto_tree_add_boolean(flags_tree, hf_gtp_flags_snn, tvb, 0, 1, gtp_hdr.flags);
+			}else{
+				proto_tree_add_uint(flags_tree, hf_gtp_flags_spare2, tvb, 0, 1, gtp_hdr.flags);
+				proto_tree_add_boolean(flags_tree, hf_gtp_flags_e, tvb, 0, 1, gtp_hdr.flags);
+				proto_tree_add_boolean(flags_tree, hf_gtp_flags_s, tvb, 0, 1, gtp_hdr.flags);
+				proto_tree_add_boolean(flags_tree, hf_gtp_flags_pn, tvb, 0, 1, gtp_hdr.flags);
+			}
+		}
 
-        proto_tree_add_uint(flags_tree, hf_gtp_flags_pt, tvb, 0, 1, gtp_hdr.flags);
+		proto_tree_add_uint(gtp_tree, hf_gtp_message_type, tvb, 1, 1, gtp_hdr.message);
 
-        if((gtp_prime==1)||(gtp_version==0)){
-            proto_tree_add_uint(flags_tree, hf_gtp_flags_spare1, tvb, 0, 1, gtp_hdr.flags);
-            proto_tree_add_boolean(flags_tree, hf_gtp_flags_snn, tvb, 0, 1, gtp_hdr.flags);
-        }else{
-            proto_tree_add_uint(flags_tree, hf_gtp_flags_spare2, tvb, 0, 1, gtp_hdr.flags);
-            proto_tree_add_boolean(flags_tree, hf_gtp_flags_e, tvb, 0, 1, gtp_hdr.flags);
-            proto_tree_add_boolean(flags_tree, hf_gtp_flags_s, tvb, 0, 1, gtp_hdr.flags);
-            proto_tree_add_boolean(flags_tree, hf_gtp_flags_pn, tvb, 0, 1, gtp_hdr.flags);
-        }
+		gtp_hdr.length = g_ntohs(gtp_hdr.length);
+		proto_tree_add_uint(gtp_tree, hf_gtp_length, tvb, 2, 2, gtp_hdr.length);
 
-        proto_tree_add_uint(gtp_tree, hf_gtp_message_type, tvb, 1, 1, gtp_hdr.message);
+		offset = 4;
 
-        gtp_hdr.length = g_ntohs(gtp_hdr.length);
-        proto_tree_add_uint(gtp_tree, hf_gtp_length, tvb, 2, 2, gtp_hdr.length);
+		if (gtp_prime) {
+			seq_no = tvb_get_ntohs(tvb, offset);
+			proto_tree_add_uint(gtp_tree, hf_gtp_seq_number, tvb, offset, 2, seq_no);
+			offset += 2;
+			/* If GTP' version is 0 and bit 1 is 0 20 bytes header is used, step past it */
+			if( (gtp_version==0)&&((gtp_hdr.flags & 0x01)==0) ){
+				offset = GTPv0_HDR_LENGTH;
+			}
+		} else
+			switch (gtp_version) {
+			case 0:
+				seq_no = tvb_get_ntohs(tvb, offset);
+				proto_tree_add_uint(gtp_tree, hf_gtp_seq_number, tvb, offset, 2, seq_no);
+				offset += 2;
 
-        offset = 4;
+				flow_label = tvb_get_ntohs(tvb, offset);
+				proto_tree_add_uint(gtp_tree, hf_gtp_flow_label, tvb, offset, 2, flow_label);
+				offset += 2;
 
-        if (gtp_prime) {
-            seq_no = tvb_get_ntohs(tvb, offset);
-            proto_tree_add_uint(gtp_tree, hf_gtp_seq_number, tvb, offset, 2, seq_no);
-            offset += 2;
-        } else
-            switch (gtp_version) {
-            case 0:
-                seq_no = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(gtp_tree, hf_gtp_seq_number, tvb, offset, 2, seq_no);
-                offset += 2;
+				pdu_no = tvb_get_guint8(tvb, offset);
+				proto_tree_add_uint(gtp_tree, hf_gtp_sndcp_number, tvb, offset, 1, pdu_no);
+				offset += 4;
 
-                flow_label = tvb_get_ntohs(tvb, offset);
-                proto_tree_add_uint(gtp_tree, hf_gtp_flow_label, tvb, offset, 2, flow_label);
-                offset += 2;
+				tid_str = id_to_str(tvb, offset);
+				proto_tree_add_string(gtp_tree, hf_gtp_tid, tvb, offset, 8, tid_str);
+				offset += 8;
+				break;
+			case 1:
+				teid = tvb_get_ntohl(tvb, offset);
+				proto_tree_add_uint(gtp_tree, hf_gtp_teid, tvb, offset, 4, teid);
+				offset += 4;
 
-                pdu_no = tvb_get_guint8(tvb, offset);
-                proto_tree_add_uint(gtp_tree, hf_gtp_sndcp_number, tvb, offset, 1, pdu_no);
-                offset += 4;
+				/* Are sequence number/N-PDU Number/extension header present? */
+				if (gtp_hdr.flags & 0x07) {
+					seq_no = tvb_get_ntohs(tvb, offset);
+					proto_tree_add_uint(gtp_tree, hf_gtp_seq_number, tvb, offset, 2, seq_no);
+					offset += 2;
 
-                tid_str = id_to_str(tvb, offset);
-                proto_tree_add_string(gtp_tree, hf_gtp_tid, tvb, offset, 8, tid_str);
-                offset += 8;
-                break;
-            case 1:
-                teid = tvb_get_ntohl(tvb, offset);
-                proto_tree_add_uint(gtp_tree, hf_gtp_teid, tvb, offset, 4, teid);
-                offset += 4;
+					pdu_no = tvb_get_guint8(tvb, offset);
+					proto_tree_add_uint(gtp_tree, hf_gtp_npdu_number, tvb, offset, 1, pdu_no);
+					offset++;
 
-                /* Are sequence number/N-PDU Number/extension header present? */
-                if (gtp_hdr.flags & 0x07) {
-                    seq_no = tvb_get_ntohs(tvb, offset);
-                    proto_tree_add_uint(gtp_tree, hf_gtp_seq_number, tvb, offset, 2, seq_no);
-                    offset += 2;
+					next_hdr = tvb_get_guint8(tvb, offset);
 
-                    pdu_no = tvb_get_guint8(tvb, offset);
-                    proto_tree_add_uint(gtp_tree, hf_gtp_npdu_number, tvb, offset, 1, pdu_no);
-                    offset++;
+					/* Don't add extension header, we'll add a subtree for that */
+					/* proto_tree_add_uint(gtp_tree, hf_gtp_next, tvb, offset, 1, next_hdr); */
 
-                    next_hdr = tvb_get_guint8(tvb, offset);
+					offset++;
 
-                    /* Don't add extension header, we'll add a subtree for that */
-                    /* proto_tree_add_uint(gtp_tree, hf_gtp_next, tvb, offset, 1, next_hdr); */
+					/* Change to while? */
+					if (next_hdr) {
 
-                    offset++;
+						/* TODO Add support for more than one extension header */
 
-                    /* Change to while? */
-                    if (next_hdr) {
+						noOfExtHdrs++;
 
-                        /* TODO Add support for more than one extension header */
+						tf = proto_tree_add_uint(gtp_tree, hf_gtp_ext_hdr, tvb, offset, 4, next_hdr);
+						ext_tree = proto_item_add_subtree(tf, ett_gtp_ext_hdr);
 
-                        noOfExtHdrs++;
+						/* PDCP PDU
+						* 3GPP 29.281 v9.0.0, 5.2.2.2 PDCP PDU Number
+						*
+						* "This extension header is transmitted, for example in UTRAN, at SRNS relocation time,
+						* to provide the PDCP sequence number of not yet acknowledged N-PDUs. It is 4 octets long,
+						*  and therefore the Length field has value 1.
+						*
+						*  When used between two eNBs at the X2 interface in E-UTRAN, bits 5-8 of octet 2 are spare.
+						*  The meaning of the spare bits shall be set to zero.
+						*
+						* Wireshark Note: TS 29.060 does not define bit 5-6 as spare, so no check is possible unless a preference is used.
+						*/
+						if (next_hdr == GTP_EXT_HDR_PDCP_SN) {
 
-                        tf = proto_tree_add_uint(gtp_tree, hf_gtp_ext_hdr, tvb, offset, 4, next_hdr);
-                        ext_tree = proto_item_add_subtree(tf, ett_gtp_ext_hdr);
+							/* First byte is length (should be 1) */
+							ext_hdr_length = tvb_get_guint8(tvb, offset);
+							if (ext_hdr_length != 1) {
+								expert_add_info_format(pinfo, ext_tree, PI_PROTOCOL, PI_WARN, "The length field for the PDCP SN Extension header should be 1.");
+							}
+							proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_length, tvb, offset,1, ENC_BIG_ENDIAN);
+							offset++;
 
-                        /* PDCP PDU
-                         * 3GPP 29.281 v9.0.0, 5.2.2.2 PDCP PDU Number
-                         *
-                         * "This extension header is transmitted, for example in UTRAN, at SRNS relocation time,
-                         * to provide the PDCP sequence number of not yet acknowledged N-PDUs. It is 4 octets long,
-                         *  and therefore the Length field has value 1.
-                         *
-                         *  When used between two eNBs at the X2 interface in E-UTRAN, bits 5-8 of octet 2 are spare.
-                         *  The meaning of the spare bits shall be set to zero.
-                         *
-                         * Wireshark Note: TS 29.060 does not define bit 5-6 as spare, so no check is possible unless a preference is used.
-                         */
-                        if (next_hdr == GTP_EXT_HDR_PDCP_SN) {
+							proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_pdcpsn, tvb, offset, 2, ENC_BIG_ENDIAN);
+							offset += 2;
 
-                            /* First byte is length (should be 1) */
-                            ext_hdr_length = tvb_get_guint8(tvb, offset);
-                            if (ext_hdr_length != 1) {
-                                expert_add_info_format(pinfo, ext_tree, PI_PROTOCOL, PI_WARN, "The length field for the PDCP SN Extension header should be 1.");
-                            }
-                            proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_length, tvb, offset,1, ENC_BIG_ENDIAN);
-                            offset++;
+							/* Last is next_hdr */
+							next_hdr = tvb_get_guint8(tvb, offset);
+							item = proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_next, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-                            proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_pdcpsn, tvb, offset, 2, ENC_BIG_ENDIAN);
-                            offset += 2;
+							if (next_hdr) {
+								expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "Can't decode more than one extension header.");
+							}
+							offset++;
+						}
+					}
+				}
+				break;
+			default:
+				break;
+		}
 
-                            /* Last is next_hdr */
-                            next_hdr = tvb_get_guint8(tvb, offset);
-                            item = proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_next, tvb, offset, 1, ENC_BIG_ENDIAN);
+		if (gtp_hdr.message != GTP_MSG_TPDU) {
+			/* TODO: This code should be cleaned up to handle more than one
+			* header and possibly display the header content */
+			if (next_hdr) {
+				offset++;
+				switch (next_hdr) {
+				case 1:
+					/* MBMS support indication */
+					proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- MBMS support indication header ---]");
+					offset += 3;
+					break;
+				case 2:
+					/* MS Info Change Reporting support indication */
+					proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- MS Info Change Reporting support indication header ---]");
+					offset += 3;
+					break;
+				case 0xc0:
+					/* PDCP PDU number */
+					proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- PDCP PDU number header ---]");
+					offset += 3;
+					break;
+				case 0xc1:
+					/* Suspend Request */
+					proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- Suspend Request header ---]");
+					offset += 3;
+					break;
+				case 0xc2:
+					/* Suspend Response */
+					proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- Suspend Response header ---]");
+					offset += 3;
+					break;
+				default:
+					proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- Unknown extension header ---]");
+					offset += 3;
+					break;
+				}
+				next_hdr = tvb_get_guint8(tvb, offset);
+				proto_tree_add_uint(gtp_tree, hf_gtp_next, tvb, offset, 1, next_hdr);
+				offset++;
+			}
+			/* proto_tree_add_text(gtp_tree, tvb, 0, 0, "[--- end of GTP header, beginning of extension headers ---]");*/
+			length = tvb_length(tvb);
+			mandatory = 0;      /* check order of GTP fields against ETSI */
+			for (;;) {
+				if (offset >= length)
+					break;
+				if (next_hdr) {
+					ext_hdr_val = next_hdr;
+					next_hdr = 0;
+				} else
+					ext_hdr_val = tvb_get_guint8(tvb, offset);
+				if (g_gtp_etsi_order) {
+					checked_field = check_field_presence(gtp_hdr.message, ext_hdr_val, (int *) &mandatory);
+					switch (checked_field) {
+					case -2:
+						proto_tree_add_text(gtp_tree, tvb, 0, 0, "[WARNING] message not found");
+						break;
+					case -1:
+						proto_tree_add_text(gtp_tree, tvb, 0, 0, "[WARNING] field not present");
+						break;
+					case 0:
+						break;
+					default:
+						proto_tree_add_text(gtp_tree, tvb, offset, 1, "[WARNING] wrong next field, should be: %s",
+							val_to_str_ext_const(checked_field, &gtp_val_ext, "Unknown extension field"));
+						break;
+					}
+				}
 
-                            if (next_hdr) {
-                                expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "Can't decode more than one extension header.");
-                            }
-                            offset++;
-                         }
-                    }
-                }
-                break;
-            default:
-                break;
-            }
+				i = -1;
+				while (gtpopt[++i].optcode)
+					if (gtpopt[i].optcode == ext_hdr_val)
+						break;
+				offset = offset + (*gtpopt[i].decode) (tvb, offset, pinfo, gtp_tree);
+			}
 
-        if (gtp_hdr.message != GTP_MSG_TPDU) {
-            /* TODO: This code should be cleaned up to handle more than one
-             * header and possibly display the header content */
-            if (next_hdr) {
-                offset++;
-                switch (next_hdr) {
-                case 1:
-                    /* MBMS support indication */
-                    proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- MBMS support indication header ---]");
-                    offset += 3;
-                    break;
-                case 2:
-                    /* MS Info Change Reporting support indication */
-                    proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- MS Info Change Reporting support indication header ---]");
-                    offset += 3;
-                    break;
-                case 0xc0:
-                    /* PDCP PDU number */
-                    proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- PDCP PDU number header ---]");
-                    offset += 3;
-                    break;
-                case 0xc1:
-                    /* Suspend Request */
-                    proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- Suspend Request header ---]");
-                    offset += 3;
-                    break;
-                case 0xc2:
-                    /* Suspend Response */
-                    proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- Suspend Response header ---]");
-                    offset += 3;
-                    break;
-                default:
-                    proto_tree_add_text(gtp_tree, tvb, offset, 4, "[--- Unknown extension header ---]");
-                    offset += 3;
-                    break;
-                }
-                next_hdr = tvb_get_guint8(tvb, offset);
-                proto_tree_add_uint(gtp_tree, hf_gtp_next, tvb, offset, 1, next_hdr);
-                offset++;
-            }
-           /* proto_tree_add_text(gtp_tree, tvb, 0, 0, "[--- end of GTP header, beginning of extension headers ---]");*/
-            length = tvb_length(tvb);
-            mandatory = 0;      /* check order of GTP fields against ETSI */
-            for (;;) {
-                if (offset >= length)
-                    break;
-                if (next_hdr) {
-                    ext_hdr_val = next_hdr;
-                    next_hdr = 0;
-                } else
-                    ext_hdr_val = tvb_get_guint8(tvb, offset);
-                if (g_gtp_etsi_order) {
-                    checked_field = check_field_presence(gtp_hdr.message, ext_hdr_val, (int *) &mandatory);
-                    switch (checked_field) {
-                    case -2:
-                        proto_tree_add_text(gtp_tree, tvb, 0, 0, "[WARNING] message not found");
-                        break;
-                    case -1:
-                        proto_tree_add_text(gtp_tree, tvb, 0, 0, "[WARNING] field not present");
-                        break;
-                    case 0:
-                        break;
-                    default:
-                        proto_tree_add_text(gtp_tree, tvb, offset, 1, "[WARNING] wrong next field, should be: %s",
-                                            val_to_str_ext_const(checked_field, &gtp_val_ext, "Unknown extension field"));
-                        break;
-                    }
-                }
+			/*Use sequence number to track Req/Resp pairs*/
+			if (seq_no) {
+				gcrp = gtp_match_response(tvb, pinfo, gtp_tree, seq_no, gtp_hdr.message);
+				/*pass packet to tap for response time reporting*/
+				if (gcrp) {
+					tap_queue_packet(gtp_tap,pinfo,gcrp);
+				}
+			}
+		}
+		proto_item_set_len (ti, offset);
+	}
 
-                i = -1;
-                while (gtpopt[++i].optcode)
-                    if (gtpopt[i].optcode == ext_hdr_val)
-                        break;
-                offset = offset + (*gtpopt[i].decode) (tvb, offset, pinfo, gtp_tree);
-            }
+	if ((gtp_hdr.message == GTP_MSG_TPDU) && g_gtp_tpdu) {
 
-            /*Use sequence number to track Req/Resp pairs*/
-            if (seq_no) {
-                gcrp = gtp_match_response(tvb, pinfo, gtp_tree, seq_no, gtp_hdr.message);
-                /*pass packet to tap for response time reporting*/
-                if (gcrp) {
-                    tap_queue_packet(gtp_tap,pinfo,gcrp);
-                }
-            }
-        }
-        proto_item_set_len (ti, offset);
-    }
+		if (gtp_prime)
+			offset = 6;
+		else if (gtp_version == 1) {
+			if (gtp_hdr.flags & 0x07) {
+				offset = 11;
+				if (tvb_get_guint8(tvb, offset) == 0)
+					offset++;
+			} else
+				offset = 8;
+		} else
+			offset = 20;
 
-    if ((gtp_hdr.message == GTP_MSG_TPDU) && g_gtp_tpdu) {
+		/* Can only handle one extension header type... */
+		if (noOfExtHdrs != 0) offset+= 1 + noOfExtHdrs*4;
 
-        if (gtp_prime)
-            offset = 6;
-        else if (gtp_version == 1) {
-            if (gtp_hdr.flags & 0x07) {
-                offset = 11;
-                if (tvb_get_guint8(tvb, offset) == 0)
-                    offset++;
-            } else
-                offset = 8;
-        } else
-            offset = 20;
+		sub_proto = tvb_get_guint8(tvb, offset);
 
-        /* Can only handle one extension header type... */
-        if (noOfExtHdrs != 0) offset+= 1 + noOfExtHdrs*4;
+		if ((sub_proto >= 0x45) && (sub_proto <= 0x4e)) {
+			/* this is most likely an IPv4 packet
+			* we can exclude 0x40 - 0x44 because the minimum header size is 20 octets
+			* 0x4f is excluded because PPP protocol type "IPv6 header compression"
+			* with protocol field compression is more likely than a plain IPv4 packet with 60 octet header size */
 
-        sub_proto = tvb_get_guint8(tvb, offset);
+			next_tvb = tvb_new_subset_remaining(tvb, offset);
+			call_dissector(ip_handle, next_tvb, pinfo, tree);
 
-        if ((sub_proto >= 0x45) && (sub_proto <= 0x4e)) {
-            /* this is most likely an IPv4 packet
-             * we can exclude 0x40 - 0x44 because the minimum header size is 20 octets
-             * 0x4f is excluded because PPP protocol type "IPv6 header compression"
-             * with protocol field compression is more likely than a plain IPv4 packet with 60 octet header size */
+		} else if ((sub_proto & 0xf0) == 0x60) {
+			/* this is most likely an IPv6 packet */
+			next_tvb = tvb_new_subset_remaining(tvb, offset);
+			call_dissector(ipv6_handle, next_tvb, pinfo, tree);
+		} else {
+			/* this seems to be a PPP packet */
 
-            next_tvb = tvb_new_subset_remaining(tvb, offset);
-            call_dissector(ip_handle, next_tvb, pinfo, tree);
+			if (sub_proto == 0xff) {
+				/* this might be an address field, even it shouldn't be here */
+				control_field = tvb_get_guint8(tvb, offset + 1);
+				if (control_field == 0x03)
+					/* now we are pretty sure that address and control field are mistakenly inserted -> ignore it for PPP dissection */
+					acfield_len = 2;
+			}
 
-        } else if ((sub_proto & 0xf0) == 0x60) {
-            /* this is most likely an IPv6 packet */
-            next_tvb = tvb_new_subset_remaining(tvb, offset);
-            call_dissector(ipv6_handle, next_tvb, pinfo, tree);
-        } else {
-            /* this seems to be a PPP packet */
+			next_tvb = tvb_new_subset_remaining(tvb, offset + acfield_len);
+			call_dissector(ppp_handle, next_tvb, pinfo, tree);
+		}
 
-            if (sub_proto == 0xff) {
-                /* this might be an address field, even it shouldn't be here */
-                control_field = tvb_get_guint8(tvb, offset + 1);
-                if (control_field == 0x03)
-                    /* now we are pretty sure that address and control field are mistakenly inserted -> ignore it for PPP dissection */
-                    acfield_len = 2;
-            }
-
-            next_tvb = tvb_new_subset_remaining(tvb, offset + acfield_len);
-            call_dissector(ppp_handle, next_tvb, pinfo, tree);
-        }
-
-        col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "GTP <");
-        col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
-    }
-    pinfo->private_data = pd_save;
+		col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "GTP <");
+		col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
+	}
+	pinfo->private_data = pd_save;
 }
 
 static void dissect_gtpprim(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
@@ -7188,7 +7212,12 @@ void proto_register_gtp(void)
           FT_UINT8, BASE_DEC, NULL, GTP_SPARE1_MASK,
           "Reserved (shall be sent as '111' )", HFILL}
         },
-        {&hf_gtp_flags_snn,
+        {&hf_gtp_flags_hdr_length,
+         {"Header length", "gtp.flags._hdr_length",
+          FT_BOOLEAN, 8,  TFS(&gtp_hdr_length_vals), 0x01,
+          NULL, HFILL}
+		},
+		{&hf_gtp_flags_snn,
          {"Is SNDCP N-PDU included?", "gtp.flags.snn", FT_BOOLEAN, 8, TFS(&yes_no_tfs), GTP_SNN_MASK,
           "Is SNDCP N-PDU LLC Number included? (1 = yes, 0 = no)", HFILL}},
         {&hf_gtp_flags_spare2,
