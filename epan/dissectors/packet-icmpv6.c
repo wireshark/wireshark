@@ -2874,6 +2874,10 @@ dissect_rrenum(tvbuff_t *tvb, int rr_offset, packet_info *pinfo _U_, proto_tree 
         /* MatchLen  */
         proto_tree_add_item(mp_tree, hf_icmpv6_rr_pco_mp_matchlen, tvb, rr_offset, 1, ENC_BIG_ENDIAN);
         matchlen = tvb_get_guint8(tvb, rr_offset);
+        if (matchlen > 128) {
+            expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN,
+                "MatchLen is greater than 128");
+        }
         rr_offset += 1;
 
         /* MinLen  */
@@ -2892,10 +2896,10 @@ dissect_rrenum(tvbuff_t *tvb, int rr_offset, packet_info *pinfo _U_, proto_tree 
 
         /* Match Prefix  */
         proto_tree_add_item(mp_tree, hf_icmpv6_rr_pco_mp_matchprefix, tvb, rr_offset, 16, ENC_NA);
-        rr_offset += 16;
 
         /* Add Info (Prefix, Length...) to Match Prefix Part label */
         proto_item_append_text(ti_mp, ": %s %s/%u (%u-%u)", val_to_str(opcode, rr_pco_mp_opcode_val, "Unknown %d"), tvb_ip6_to_str(tvb, rr_offset), matchlen, minlen, maxlen);
+        rr_offset += 16;
 
         while ((int)tvb_reported_length(tvb) > rr_offset) {
             /* Use-Prefix Part */
@@ -2980,9 +2984,9 @@ dissect_rrenum(tvbuff_t *tvb, int rr_offset, packet_info *pinfo _U_, proto_tree 
         /* Flags */
         ti = proto_tree_add_item(rm_tree, hf_icmpv6_rr_rm_flag, tvb, rr_offset, 2, ENC_BIG_ENDIAN);
         flag_tree = proto_item_add_subtree(ti, ett_icmpv6_rr_rm_flag);
+        proto_tree_add_item(flag_tree, hf_icmpv6_rr_rm_flag_reserved, tvb, rr_offset, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(flag_tree, hf_icmpv6_rr_rm_flag_b, tvb, rr_offset, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(flag_tree, hf_icmpv6_rr_rm_flag_f, tvb, rr_offset, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(flag_tree, hf_icmpv6_rr_rm_flag_reserved, tvb, rr_offset, 2, ENC_BIG_ENDIAN);
         rr_offset +=2;
 
         /* Ordinal */
@@ -2990,8 +2994,12 @@ dissect_rrenum(tvbuff_t *tvb, int rr_offset, packet_info *pinfo _U_, proto_tree 
         rr_offset +=1;
 
         /* MatchLen */
-        proto_tree_add_item(rm_tree, hf_icmpv6_rr_rm_matchedlen, tvb, rr_offset, 1, ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item(rm_tree, hf_icmpv6_rr_rm_matchedlen, tvb, rr_offset, 1, ENC_BIG_ENDIAN);
         matchlen = tvb_get_guint8(tvb, rr_offset);
+        if (matchlen > 128) {
+            expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN,
+                "MatchedLen is greater than 128");
+        }
         rr_offset +=1;
 
         /* InterfaceIndex */
@@ -3001,14 +3009,13 @@ dissect_rrenum(tvbuff_t *tvb, int rr_offset, packet_info *pinfo _U_, proto_tree 
 
         /* MatchedPrefix */
         proto_tree_add_item(rm_tree, hf_icmpv6_rr_rm_matchedprefix, tvb, rr_offset, 16, ENC_NA);
-        rr_offset +=16;
 
-        /* Add Info (Prefix, Length...) to Use Resultat Message label */
+        /* Add Info (Prefix, Length...) to Use Resultant Message label */
         proto_item_append_text(ti_rm, ": %s/%u (interface %u)", tvb_ip6_to_str(tvb, rr_offset), matchlen, interfaceindex);
+        rr_offset +=16;
         }
     }
     return rr_offset;
-
 }
 
 
@@ -3159,7 +3166,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     cksum = tvb_get_ntohs(tvb, offset);
 
-    if (tree) {
+    if (1) { /* There's an expert info in here so always execute */
         length = tvb_length(tvb);
         reported_length = tvb_reported_length(tvb);
         if (!pinfo->fragmented && length >= reported_length) {
@@ -3253,7 +3260,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
     }
 
-    if (tree) {
+    if (1) { /* There are expert infos buried in here so always execute */
         /* decode... */
         switch (icmp6_type) {
             case ICMP6_DST_UNREACH: /* Destination Unreachable (1) */
@@ -3703,7 +3710,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree_add_item(icmp6_tree, hf_icmpv6_data, tvb, offset, -1, ENC_NA);
                 break;
         } /* switch (icmp6_type) */
-    } /* if (tree) */
+    } /* if (1) */
 
     if (trans)
         tap_queue_packet(icmpv6_tap, pinfo, trans);
@@ -4279,7 +4286,7 @@ proto_register_icmpv6(void)
           { "Forbidden", "icmpv6.rr.rm.flag.f", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0001,
             "When set, indicates that one or more Use-Prefix parts from the associated PCO were not honored by the router because of attempted formation of a forbidden prefix format, such as a multicast or loopback address", HFILL }},
         { &hf_icmpv6_rr_rm_flag_reserved,
-          { "Reserved", "icmpv6.rr.rm.flag.reserved", FT_UINT16, BASE_DEC, NULL, 0xFFFD,
+          { "Reserved", "icmpv6.rr.rm.flag.reserved", FT_UINT16, BASE_DEC, NULL, 0xFFFC,
             "Must be Zero", HFILL }},
         { &hf_icmpv6_rr_rm_ordinal,
            { "Ordinal", "icmpv6.rr.rm.ordinal", FT_UINT8, BASE_HEX, NULL, 0x0,
