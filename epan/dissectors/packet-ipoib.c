@@ -118,5 +118,5 @@ proto_reg_handoff_ipoib(void)
   ipv6_handle = find_dissector("ipv6");
 
   ipoib_handle = create_dissector_handle(dissect_ipoib, proto_ipoib);
-  dissector_add("wtap_encap", WTAP_ENCAP_IP_OVER_IB, ipoib_handle);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_IP_OVER_IB, ipoib_handle);
 }
