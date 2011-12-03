@@ -32,6 +32,8 @@
  * RFC2858 Multiprotocol Extensions for BGP-4
  * RFC2918 Route Refresh Capability for BGP-4
  * RFC3107 Carrying Label Information in BGP-4
+ * RFC5512 BGP Encapsulation SAFI and the BGP Tunnel Encapsulation Attribute
+ * RFC5640 Load-Balancing for Mesh Softwires
  * draft-ietf-idr-as4bytes-06
  * draft-ietf-idr-dynamic-cap-03
  * draft-ietf-idr-bgp-ext-communities-05
@@ -59,6 +61,7 @@
 #include <epan/prefs.h>
 #include <epan/emem.h>
 #include <epan/expert.h>
+#include <epan/etypes.h>
 
 /* #define MAX_STR_LEN 256 */
 
@@ -188,6 +191,22 @@ static const value_string bgpattr_type[] = {
     { BGPTYPE_NEW_AS_PATH, "NEW_AS_PATH" },
     { BGPTYPE_NEW_AGGREGATOR, "NEW_AGGREGATOR" },
     { BGPTYPE_SAFI_SPECIFIC_ATTR, "SAFI_SPECIFIC_ATTRIBUTE" },
+    { BGPTYPE_TUNNEL_ENCAPS_ATTR, "TUNNEL_ENCAPSULATION_ATTRIBUTE" },
+    { 0, NULL }
+};
+
+static const value_string tunnel_type[] = {
+    { TUNNEL_TYPE_L2TP_OVER_IP, "L2TP_OVER_IP" },
+    { TUNNEL_TYPE_GRE, "GRE" },
+    { TUNNEL_TYPE_IP_IN_IP, "IP_IN_IP" },
+    { 0, NULL }
+};
+
+static const value_string subtlv_type[] = {
+    { TUNNEL_SUBTLV_ENCAPSULATION, "ENCAPSULATION" },
+    { TUNNEL_SUBTLV_PROTO_TYPE, "PROTOCOL_TYPE" },
+    { TUNNEL_SUBTLV_COLOR, "COLOR" },
+    { TUNNEL_SUBTLV_LOAD_BALANCE, "LOAD_BALANCE" },
     { 0, NULL }
 };
 
@@ -270,6 +289,7 @@ static const value_string bgpattr_nlri_safi[] = {
     { SAFNUM_UNIMULC, "Unicast+Multicast" },
     { SAFNUM_MPLS_LABEL, "Labeled Unicast"},
     { SAFNUM_MCAST_VPN, "MCAST-VPN"},
+    { SAFNUM_ENCAPSULATION, "Encapsulation"},
     { SAFNUM_TUNNEL, "Tunnel"},
     { SAFNUM_VPLS, "VPLS"},
     { SAFNUM_LAB_VPNUNICAST, "Labeled VPN Unicast" },        /* draft-rosen-rfc2547bis-03 */
@@ -434,6 +454,11 @@ static int hf_bgp_mcast_vpn_nlri_source_addr_ipv6 = -1;
 static int hf_bgp_mcast_vpn_nlri_group_addr_ipv4 = -1;
 static int hf_bgp_mcast_vpn_nlri_group_addr_ipv6 = -1;
 static int hf_bgp_mcast_vpn_nlri_route_key = -1;
+static int hf_bgp_encaps_tunnel_tlv_len = -1;
+static int hf_bgp_encaps_tunnel_tlv_type = -1;
+static int hf_bgp_encaps_tunnel_subtlv_len = -1;
+static int hf_bgp_encaps_tunnel_subtlv_type = -1;
+
 
 static gint ett_bgp = -1;
 static gint ett_bgp_prefix = -1;
@@ -465,6 +490,10 @@ static gint ett_bgp_ssa_subtree = -1;   /* safi specific attribute Subtrees */
 static gint ett_bgp_orf = -1;           /* orf (outbound route filter) tree */
 static gint ett_bgp_orf_entry = -1;     /* orf entry tree */
 static gint ett_bgp_mcast_vpn_nlri = -1;
+static gint ett_bgp_tunnel_tlv = -1;
+static gint ett_bgp_tunnel_tlv_subtree = -1;
+static gint ett_bgp_tunnel_subtlv = -1;
+static gint ett_bgp_tunnel_subtlv_subtree = -1;
 
 /* desegmentation */
 static gboolean bgp_desegment = TRUE;
@@ -922,6 +951,7 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, emem_strbu
                 case SAFNUM_MULCAST:
                 case SAFNUM_UNIMULC:
                 case SAFNUM_MPLS_LABEL:
+                case SAFNUM_ENCAPSULATION:
                 case SAFNUM_TUNNEL:
                     length = 4 ;
                     ip4addr = tvb_get_ipv4(tvb, offset);
@@ -976,6 +1006,7 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, emem_strbu
                 case SAFNUM_MULCAST:
                 case SAFNUM_UNIMULC:
                 case SAFNUM_MPLS_LABEL:
+                case SAFNUM_ENCAPSULATION:
                 case SAFNUM_TUNNEL:
                     length = 16 ;
                     tvb_get_ipv6(tvb, offset, &ip6addr);
@@ -1131,6 +1162,24 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                 total_length = decode_mcast_vpn_nlri(tree, tvb, offset, afi);
                 if (total_length < 0)
                     return -1;
+                break;
+            case SAFNUM_ENCAPSULATION:
+                plen =  tvb_get_guint8(tvb, offset);
+                if (plen != 32){
+                    proto_tree_add_text(tree, tvb, offset, 1,
+                                        "%s IPv4 address length %u invalid",
+                                        tag, plen);
+                    return -1;
+                }
+                offset += 1;
+                ip4addr.addr = tvb_get_ipv4(tvb, offset);
+
+                proto_tree_add_text(tree, tvb, offset,
+                                         offset + 4,
+                                         "Endpoint Address: %s",
+                                         ip_to_str((guint8 *)&ip4addr));
+
+                total_length = 5; /* length(1 octet) + address(4 octets) */
                 break;
             case SAFNUM_TUNNEL:
                 plen =  tvb_get_guint8(tvb, offset);
@@ -1361,7 +1410,24 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                                     ip6_to_str(&ip6addr), plen);
                 total_length = (1 + labnum * 3) + length;
                 break;
+            case SAFNUM_ENCAPSULATION:
+                plen =  tvb_get_guint8(tvb, offset);
+                if (plen != 128){
+                    proto_tree_add_text(tree, tvb, offset, 1,
+                                        "%s IPv6 address length %u invalid",
+                                        tag, plen);
+                    return -1;
+                }
+                offset += 1;
+                tvb_get_ipv6(tvb, offset, &ip6addr);
 
+                proto_tree_add_text(tree, tvb, offset,
+                                         offset + 16,
+                                         "Endpoint Address: %s",
+                                         ip6_to_str(&ip6addr));
+
+                total_length = 17; /* length(1 octet) + address(16 octets) */
+                break;
             case SAFNUM_TUNNEL:
                 plen =  tvb_get_guint8(tvb, offset);
                 if (plen <= 16){
@@ -1930,6 +1996,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
     proto_tree      *subtree3;                  /* subtree for attributes   */
     proto_tree      *subtree4;                  /* subtree for attributes   */
     proto_tree      *subtree5;                  /* subtree for attributes   */
+    proto_tree      *subtree6;                  /* subtree for attributes   */
     proto_tree      *as_paths_tree;             /* subtree for AS_PATHs     */
     proto_tree      *as_path_tree;              /* subtree for AS_PATH      */
     proto_tree      *as_path_segment_tree;      /* subtree for AS_PATH segments */
@@ -1951,6 +2018,10 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
     guint8          ssa_v3_len;                 /* SSA L2TPv3 Cookie Length */
     gfloat          linkband;                   /* Link bandwidth           */
     guint16         as_num;                     /* Autonomous System Number */
+    guint16         encaps_tunnel_type;         /* Encapsulation Tunnel Type */
+    guint16         encaps_tunnel_len;          /* Encapsulation TLV Length */
+    guint8          encaps_tunnel_subtype;      /* Encapsulation Tunnel Sub-TLV Type */
+    guint8          encaps_tunnel_sublen;       /* Encapsulation TLV Sub-TLV Length */
 
     hlen = tvb_get_ntohs(tvb, BGP_MARKER_SIZE);
     o = BGP_HEADER_SIZE;
@@ -2291,7 +2362,6 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                                              tlen + aoff,
                                              plurality(tlen + aoff, "", "s"));
                     break;
-
                 default:
                 default_attribute_top:
                     ti = proto_tree_add_text(subtree, tvb, o + i, tlen + aoff,
@@ -2984,6 +3054,68 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                                 break;
                         } /* switch (bgpa.bgpa_type) */
                     }
+                    break;
+                case BGPTYPE_TUNNEL_ENCAPS_ATTR:
+                    q = o + i + aoff;
+                    end = o + i + aoff + tlen;
+
+                    ti = proto_tree_add_text(subtree2, tvb, q, tlen, "TLV Encodings");
+                    subtree3 = proto_item_add_subtree(ti, ett_bgp_tunnel_tlv);
+
+                     while (q < end) {
+                        encaps_tunnel_type = tvb_get_ntohs(tvb, q);
+                        encaps_tunnel_len = tvb_get_ntohs(tvb, q + 2);
+
+                        ti = proto_tree_add_text(subtree3, tvb, q, encaps_tunnel_len + 4, "%s (%u bytes)", val_to_str(encaps_tunnel_type, tunnel_type, "Unknown"), encaps_tunnel_len + 4);
+                        subtree4 = proto_item_add_subtree(ti, ett_bgp_tunnel_tlv_subtree);
+
+                        proto_tree_add_item(subtree4, hf_bgp_encaps_tunnel_tlv_type, tvb, q, 2, ENC_NA);
+                        proto_tree_add_item(subtree4, hf_bgp_encaps_tunnel_tlv_len, tvb, q + 2, 2, ENC_NA);
+
+                        ti = proto_tree_add_text(subtree4, tvb, q + 4, encaps_tunnel_len, "Sub-TLV Encodings");
+                        subtree5 = proto_item_add_subtree(ti, ett_bgp_tunnel_subtlv);
+
+                        q += 4;
+                        j = q + encaps_tunnel_len;
+                        while ( q < j ) {
+                            encaps_tunnel_subtype = tvb_get_guint8(tvb, q);
+                            encaps_tunnel_sublen = tvb_get_guint8(tvb, q + 1);
+
+                            ti = proto_tree_add_text(subtree5, tvb, q, encaps_tunnel_sublen + 2, "%s (%u bytes)", val_to_str(encaps_tunnel_subtype, subtlv_type, "Unknown"), encaps_tunnel_sublen + 2);
+                            subtree6 = proto_item_add_subtree(ti, ett_bgp_tunnel_tlv_subtree);
+
+                            proto_tree_add_item(subtree6, hf_bgp_encaps_tunnel_subtlv_type, tvb, q, 1, ENC_NA);
+                            proto_tree_add_item(subtree6, hf_bgp_encaps_tunnel_subtlv_len, tvb, q + 1, 1, ENC_NA);
+
+                            switch (encaps_tunnel_subtype) {
+                                case TUNNEL_SUBTLV_ENCAPSULATION:
+                                    if (encaps_tunnel_type == TUNNEL_TYPE_L2TP_OVER_IP) {
+                                        proto_tree_add_text(subtree6, tvb, q + 2, 4, "Session ID: %u", tvb_get_letohl(tvb, q + 2));
+                                        proto_tree_add_text(subtree6, tvb, q + 6, encaps_tunnel_sublen - 4, "Cookie: %s", tvb_bytes_to_str(tvb, q + 6, encaps_tunnel_sublen - 4));
+                                    } else if (encaps_tunnel_type == TUNNEL_TYPE_GRE) {
+                                        proto_tree_add_text(subtree6, tvb, q + 2, encaps_tunnel_sublen, "GRE key: %x", tvb_get_letohl(tvb, q + 2));
+                                    }
+                                    break;
+                                case TUNNEL_SUBTLV_PROTO_TYPE:
+                                    proto_tree_add_text(subtree6, tvb, q + 2, encaps_tunnel_sublen, "Protocol type: %s (0x%x)", val_to_str(tvb_get_ntohs(tvb, q + 2), etype_vals, "Unknown"), tvb_get_ntohs(tvb, q + 2));
+                                    break;
+                                case TUNNEL_SUBTLV_COLOR:
+                                    proto_tree_add_text(subtree6, tvb, q + 6, encaps_tunnel_sublen - 4, "Color value: %u", tvb_get_letohl(tvb, q + 6));
+                                    break;
+                                case TUNNEL_SUBTLV_LOAD_BALANCE:
+                                    if (encaps_tunnel_type == TUNNEL_TYPE_L2TP_OVER_IP || encaps_tunnel_type == TUNNEL_TYPE_GRE) {
+                                        proto_tree_add_text(subtree6, tvb, q + 2, encaps_tunnel_sublen, "Load-balancing block length: %u", tvb_get_ntohs(tvb, q + 2));
+                                    }
+                                    break;
+                                default:
+                                    break;
+                            } /* switch (encaps_tunnel_subtype) */
+
+                            q += 2 + encaps_tunnel_sublen; /* type and length + length of value */
+                        }
+
+                    }
+
                     break;
 
                 default:
@@ -3752,6 +3884,18 @@ proto_register_bgp(void)
       { &hf_bgp_mcast_vpn_nlri_route_key,
         { "Route Key", "bgp.mcast_vpn_nlri_route_key", FT_BYTES,
           BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_encaps_tunnel_tlv_len,
+        { "Length", "bgp.encaps_tunnel_tlv_len", FT_UINT16,
+          BASE_DEC, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_encaps_tunnel_tlv_type,
+        { "Type code", "bgp.encaps_tunnel_tlv_type", FT_UINT16, BASE_DEC,
+          VALS(tunnel_type), 0x0, NULL, HFILL}},
+      { &hf_bgp_encaps_tunnel_subtlv_len,
+        { "Length", "bgp.encaps_tunnel_tlv_sublen", FT_UINT8,
+          BASE_DEC, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_encaps_tunnel_subtlv_type,
+        { "Type code", "bgp.encaps_tunnel_subtlv_type", FT_UINT8, BASE_DEC,
+          VALS(subtlv_type), 0x0, NULL, HFILL}},
     };
 
     static gint *ett[] = {
@@ -3785,6 +3929,10 @@ proto_register_bgp(void)
       &ett_bgp_orf,
       &ett_bgp_orf_entry,
       &ett_bgp_mcast_vpn_nlri,
+      &ett_bgp_tunnel_tlv,
+      &ett_bgp_tunnel_tlv_subtree,
+      &ett_bgp_tunnel_subtlv,
+      &ett_bgp_tunnel_subtlv_subtree,
     };
     module_t *bgp_module;
     static enum_val_t asn_len[] = {

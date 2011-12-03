@@ -3363,7 +3363,10 @@ Salil Kanitkar         <sskanitk [AT] ncsu.edu>{
 	OSPF Router Informational Capabilities - Opaque RI TLV - RFC4970
 	OSPF Dynamic Hostname TLV in RI Opaque TLV - RFC5642
 }
-
+Michael Sakaluk		<mdsakalu [AT] ncsu.edu> {
+	BGP Encapsulation SAFI support (RFC 5512)
+	Load balancing for mesh softwires (RFC 5640)
+}
 
 and by:
 

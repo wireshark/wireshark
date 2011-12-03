@@ -156,6 +156,7 @@ struct bgp_attr {
 #define BGPTYPE_NEW_AS_PATH        17 /* draft-ietf-idr-as4bytes */
 #define BGPTYPE_NEW_AGGREGATOR     18 /* draft-ietf-idr-as4bytes */
 #define BGPTYPE_SAFI_SPECIFIC_ATTR 19 /* draft-kapoor-nalawade-idr-bgp-ssa-00.txt */
+#define BGPTYPE_TUNNEL_ENCAPS_ATTR 23 /* RFC5512 */
 
 /* Extended community type */
 /* according to IANA's number assignment at: http://www.iana.org/assignments/bgp-extended-communities */
@@ -213,6 +214,7 @@ struct bgp_attr {
 #define SAFNUM_UNIMULC  3
 #define SAFNUM_MPLS_LABEL 4     /* rfc3107 */
 #define SAFNUM_MCAST_VPN  5 /* draft-ietf-l3vpn-2547bis-mcast-bgp-08.txt */
+#define SAFNUM_ENCAPSULATION 7 /* rfc5512 */
 #define SAFNUM_TUNNEL   64  /* draft-nalawade-kapoor-tunnel-safi-02.txt */
 #define SAFNUM_VPLS     65
 #define SAFNUM_LAB_VPNUNICAST  128    /* Draft-rosen-rfc2547bis-03 */
@@ -231,6 +233,17 @@ struct bgp_attr {
 #define MCAST_VPN_RTYPE_SOURCE_ACTIVE_AD  5
 #define MCAST_VPN_RTYPE_SHARED_TREE_JOIN  6
 #define MCAST_VPN_RTYPE_SOURCE_TREE_JOIN  7
+
+/* RFC 5512 Tunnel Types */
+#define TUNNEL_TYPE_L2TP_OVER_IP 1
+#define TUNNEL_TYPE_GRE          2
+#define TUNNEL_TYPE_IP_IN_IP     7
+
+/* RFC 5512/5640 Sub-TLV Types */
+#define TUNNEL_SUBTLV_ENCAPSULATION 1
+#define TUNNEL_SUBTLV_PROTO_TYPE    2
+#define TUNNEL_SUBTLV_COLOR         4
+#define TUNNEL_SUBTLV_LOAD_BALANCE  5
 
 #ifndef offsetof
 #define offsetof(type, member)  ((size_t)(&((type *)0)->member))
