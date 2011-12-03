@@ -1584,18 +1584,8 @@
 		<entry></entry>
 		<entry><para>
 			Open a dialog showing some expert information about the captured
-			packets in a log style display.
-			The amount of information will depend on the protocol and varies
-			from  very detailed to none existing. This is currently a work in
-			progress. XXX - add a new section about this and link from here
-		  </para></entry>
-	      </row>
-	      <row>
-		<entry><command>Expert Info Composite</command></entry>
-		<entry></entry>
-		<entry><para>
-			Same information as in "Expert Info" but trying to group items
-			together for faster analysis.
+			packets. The amount of information will depend on the protocol and varies
+			from  very detailed to non-existent. XXX - add a new section about this and link from here
 		  </para></entry>
 	      </row>
 	      <row>

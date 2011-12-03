@@ -285,11 +285,9 @@
       </section>
     </section>
     <section id="ChAdvExpertDialog">
-      <title>"Expert Info Composite" dialog</title>
+      <title>"Expert Info" dialog</title>
       <para>From the main menu you can open the expert info dialog,
-      using: "Analyze/Expert Info Composite"</para>
-      <para>XXX - "Analyze/Expert Info" also exists but is
-      subject to removal and therefore not explained here.</para>
+      using: "Analyze/Expert Info"</para>
       <para>XXX - add explanation of the dialogs context
       menu.</para>
       <graphic entityref="WiresharkExpertInfoDialog"
