@@ -206,8 +206,6 @@ static int hf_tcp_option_snack_offset = -1;
 static int hf_tcp_option_snack_size = -1;
 static int hf_tcp_option_snack_le = -1;
 static int hf_tcp_option_snack_re = -1;
-static int hf_tcp_option_mood = -1;
-static int hf_tcp_option_mood_val = -1;
 static int hf_tcp_option_user_to = -1;
 static int hf_tcp_option_user_to_granularity = -1;
 static int hf_tcp_option_user_to_val = -1;
@@ -267,7 +265,6 @@ static gint ett_tcp_opt_rvbd_trpy_flags = -1;
 #define TCPOPT_SNACK            21      /* SCPS SNACK */
 #define TCPOPT_RECBOUND         22      /* SCPS Record Boundary */
 #define TCPOPT_CORREXP          23      /* SCPS Corruption Experienced */
-#define TCPOPT_MOOD             25      /* RFC5841 TCP Packet Mood */
 #define TCPOPT_QS               27      /* RFC4782 */
 #define TCPOPT_USER_TO          28      /* RFC5482 */
 #define TCPOPT_EXP_FD           0xfd    /* Experimental, reserved */
@@ -295,7 +292,6 @@ static gint ett_tcp_opt_rvbd_trpy_flags = -1;
 #define TCPOLEN_SNACK          6
 #define TCPOLEN_RECBOUND       2
 #define TCPOLEN_CORREXP        2
-#define TCPOLEN_MOOD_MIN       2
 #define TCPOLEN_QS             8
 #define TCPOLEN_USER_TO        4
 #define TCPOLEN_RVBD_PROBE_MIN 3
@@ -2842,52 +2838,6 @@ dissect_tcpopt_snack(const ip_tcp_opt *optp, tvbuff_t *tvb,
     }
 }
 
-static void
-dissect_tcpopt_mood(const ip_tcp_opt _U_*optp, tvbuff_t *tvb,
-            int offset, guint optlen, packet_info *pinfo,
-            proto_tree *opt_tree)
-{
-    /* Mood TCP option, as defined by RFC5841 */
-
-    static const string_string mood_type[] = {
-        { ":)",  "Happy" },
-        { ":(",  "Sad" },
-        { ":D",  "Amused" },
-        { "%(",  "Confused" },
-        { ":o",  "Bored" },
-        { ":O",  "Surprised" },
-        { ":P",  "Silly" },
-        { ":@",  "Frustrated" },
-        { ">:@", "Angry" },
-        { ":|",  "Apathetic" },
-        { ";)",  "Sneaky" },
-        { ">:)", "Evil" },
-        { NULL, NULL }
-    };
-
-    proto_item *hidden_item;
-    proto_item *mood_item;
-    gchar *mood;
-    mood = tvb_get_ephemeral_string(tvb, offset + 2, optlen-2);
-
-    hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_kind, tvb,
-                        offset, 1, ENC_BIG_ENDIAN);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
-    hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_len, tvb,
-                        offset + 1, 1, ENC_BIG_ENDIAN);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
-
-    hidden_item = proto_tree_add_boolean(opt_tree, hf_tcp_option_mood, tvb, offset+2, optlen-2, TRUE);
-
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
-
-    mood_item = proto_tree_add_string_format_value(opt_tree, hf_tcp_option_mood_val, tvb, offset+2, optlen-2, mood,"%s (%s)", mood, str_to_str(mood, mood_type, "Unknown") );
-    tcp_info_append_str(pinfo, "Mood", mood);
-
-    expert_add_info_format(pinfo, mood_item, PI_PROTOCOL, PI_NOTE, "The packet Mood is %s (%s) (RFC 5841)", mood, str_to_str(mood, mood_type, "Unknown"));
-
-}
-
 enum
 {
     PROBE_VERSION_UNSPEC = 0,
@@ -3422,14 +3372,6 @@ static const ip_tcp_opt tcpopts[] = {
         FIXED_LENGTH,
         TCPOLEN_CORREXP,
         NULL
-    },
-    {
-        TCPOPT_MOOD,
-        "Packet Mood",
-        NULL,
-        VARIABLE_LENGTH,
-        TCPOLEN_MOOD_MIN,
-        dissect_tcpopt_mood
     },
     {
         TCPOPT_QS,
@@ -4869,14 +4811,6 @@ proto_register_tcp(void)
             "tcp.options.scps.binding",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             "TCP SCPS Connection ID", HFILL}},
-
-        { &hf_tcp_option_mood,
-          { "TCP Mood Option", "tcp.options.mood", FT_BOOLEAN,
-            BASE_NONE, NULL, 0x0, NULL, HFILL }},
-
-        { &hf_tcp_option_mood_val,
-          { "TCP Mood Option Value", "tcp.options.mood_val", FT_STRING,
-            BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
         { &hf_tcp_option_user_to,
           { "TCP User Timeout", "tcp.options.user_to", FT_BOOLEAN,
