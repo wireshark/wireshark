@@ -585,7 +585,7 @@ dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
 
 	proto_tree_add_text(rthdr_tree, tvb,
 	    offset + offsetof(struct ip6_rthdr, ip6r_nxt), 1,
-	    "Next header: %s (0x%02x)", ipprotostr(rt.ip6r_nxt), rt.ip6r_nxt);
+	    "Next header: %s (%u)", ipprotostr(rt.ip6r_nxt), rt.ip6r_nxt);
 
 	proto_tree_add_text(rthdr_tree, tvb,
 	    offset + offsetof(struct ip6_rthdr, ip6r_len), 1,
@@ -713,7 +713,7 @@ dissect_frag6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
     *ident = frag.ip6f_ident;
     if (check_col(pinfo->cinfo, COL_INFO)) {
 	col_add_fstr(pinfo->cinfo, COL_INFO,
-	    "IPv6 fragment (nxt=%s (0x%02x) off=%u id=0x%x)",
+	    "IPv6 fragment (nxt=%s (%u) off=%u id=0x%x)",
 	    ipprotostr(frag.ip6f_nxt), frag.ip6f_nxt,
 	    frag.ip6f_offlg & IP6F_OFF_MASK, frag.ip6f_ident);
     }
@@ -724,7 +724,7 @@ dissect_frag6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 
 	   proto_tree_add_text(rthdr_tree, tvb,
 			 offset + offsetof(struct ip6_frag, ip6f_nxt), 1,
-			 "Next header: %s (0x%02x)",
+			 "Next header: %s (%u)",
 			 ipprotostr(frag.ip6f_nxt), frag.ip6f_nxt);
 
 #if 0
@@ -892,7 +892,7 @@ dissect_unknown_option(tvbuff_t *tvb, int offset, proto_tree *tree)
 
 	proto_tree_add_text(unkopt_tree, tvb,
 	    offset + offsetof(struct ip6_ext, ip6e_nxt), 1,
-	    "Next header: %s (0x%02x)", ipprotostr(ext.ip6e_nxt), ext.ip6e_nxt);
+	    "Next header: %s (%u)", ipprotostr(ext.ip6e_nxt), ext.ip6e_nxt);
 
 	proto_tree_add_text(unkopt_tree, tvb,
 	    offset + offsetof(struct ip6_ext, ip6e_len), 1,
@@ -923,7 +923,7 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
 
 	proto_tree_add_text(dstopt_tree, tvb,
 	    offset + offsetof(struct ip6_ext, ip6e_nxt), 1,
-	    "Next header: %s (0x%02x)", ipprotostr(ext.ip6e_nxt), ext.ip6e_nxt);
+	    "Next header: %s (%u)", ipprotostr(ext.ip6e_nxt), ext.ip6e_nxt);
 
 	proto_tree_add_text(dstopt_tree, tvb,
 	    offset + offsetof(struct ip6_ext, ip6e_len), 1,
@@ -1524,7 +1524,7 @@ dissect_shim6(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo)
 	/* Next Header */
 	proto_tree_add_uint_format(shim_tree, hf_ipv6_shim6_nxt, tvb,
 	    offset + offsetof(struct ip6_shim, ip6s_nxt), 1, shim.ip6s_nxt,
-	    "Next header: %s (0x%02x)", ipprotostr(shim.ip6s_nxt), shim.ip6s_nxt);
+	    "Next header: %s (%u)", ipprotostr(shim.ip6s_nxt), shim.ip6s_nxt);
 
 	/* Header Extension Length */
 	proto_tree_add_uint_format(shim_tree, hf_ipv6_shim6_len, tvb,
@@ -1678,7 +1678,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_uint_format(ipv6_tree, hf_ipv6_nxt, tvb,
 		offset + offsetof(struct ip6_hdr, ip6_nxt), 1,
 		ipv6.ip6_nxt,
-		"Next header: %s (0x%02x)",
+		"Next header: %s (%u)",
 		ipprotostr(ipv6.ip6_nxt), ipv6.ip6_nxt);
 
     proto_tree_add_item(ipv6_tree, hf_ipv6_hlim, tvb,
@@ -1973,12 +1973,12 @@ again:
     }
 
   proto_item_set_len (ipv6_item, offset);
-  tap_queue_packet(ipv6_tap, pinfo, &ipv6);
 
   /* collect packet info */
   pinfo->ipproto = nxt;
   pinfo->iplen = sizeof(ipv6) + plen + offset;
   pinfo->iphdrlen = offset;
+  tap_queue_packet(ipv6_tap, pinfo, &ipv6);
 
   if (offlg & IP6F_OFF_MASK || (ipv6_reassemble && offlg & IP6F_MORE_FRAG)) {
     /* Not the first fragment, or the first when we are reassembling and there are more. */
@@ -2041,7 +2041,7 @@ again:
       }
     } else {
       if (check_col(pinfo->cinfo, COL_INFO))
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s (0x%02x)", ipprotostr(nxt),nxt);
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s (%u)", ipprotostr(nxt), nxt);
     }
     call_dissector(data_handle, next_tvb, pinfo, tree);
   }
@@ -2069,7 +2069,7 @@ proto_register_ipv6(void)
 				FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     { &hf_ipv6_nxt,
       { "Next header",		"ipv6.nxt",
-				FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     { &hf_ipv6_hlim,
       { "Hop limit",		"ipv6.hlim",
 				FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
