@@ -116,8 +116,8 @@ dissect_lower_address(proto_item *ti_arg, gint ett_arg,
 	proto_item *ti;
 
 	tree = proto_item_add_subtree(ti_arg, ett_arg);
-	
-	/* 
+
+	/*
 	 * Coding of address:
 	 * ELCOM-90 TRA3825.02 User Element conventions, p. 5-2 and Appendix G
 	 */
@@ -207,7 +207,7 @@ dissect_userdata(proto_item *ti_arg, gint ett_arg, tvbuff_t *tvb, gint arg_offse
 	/* length of User Data, should be 1 byte field ... */
 	flen = tvb_get_guint8(tvb, offset);
 	lenbytes = 1;
-	
+
 	/* ... but sometimes it seems to be 2 bytes; try to be clever */
 	if (flen == 0) {
 		flen = tvb_get_guint8(tvb, offset+1);
@@ -262,7 +262,7 @@ dissect_userdata(proto_item *ti_arg, gint ett_arg, tvbuff_t *tvb, gint arg_offse
 
 	/* show the rest */
 	/*	tree2 = proto_tree_add_text(tree, tvb, offset, -1, "User Data"); */
-	
+
 	if (tvb_length_remaining(tvb, offset) <= 0)
 		return offset;
 	restmark = tvb_get_guint8(tvb, offset);
@@ -325,8 +325,8 @@ dissect_datarequest(proto_item *ti_arg, gint ett_arg, tvbuff_t *tvb, gint arg_of
 		proto_item_append_text(ti, " = Test Connection Response");
 
 		result = tvb_get_guint8(tvb, offset);
-		ti = proto_tree_add_uint(tree, hf_elcom_datarequest_result,
-					 tvb, offset, 1, result);
+		proto_tree_add_uint(tree, hf_elcom_datarequest_result,
+				    tvb, offset, 1, result);
 		offset++;
 
 		break;
@@ -388,7 +388,7 @@ dissect_datarequest(proto_item *ti_arg, gint ett_arg, tvbuff_t *tvb, gint arg_of
 				       tvb_get_guint8(tvb, offset));
 		offset++;
 	}
-	
+
 	return offset;
 }
 
@@ -438,12 +438,12 @@ dissect_elcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			col_append_fstr(pinfo->cinfo, COL_INFO, " %s Connect", suffix);
 			g_free(suffix);
 			break;
-			
+
 		case P_RELRQ:
 		case P_RELRS:
 			col_append_str(pinfo->cinfo, COL_INFO, " Release");
 			break;
-			
+
 		case P_DATRQ:
 			col_append_str(pinfo->cinfo, COL_INFO, " Data");
 			break;
@@ -454,13 +454,13 @@ dissect_elcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case P_RELRQ:
 			col_append_str(pinfo->cinfo, COL_INFO, " Request");
 			break;
-			
+
 		case P_CONRS:
 		case P_RELRS:
 			col_append_str(pinfo->cinfo, COL_INFO, " Response");
 			break;
 		}
-		
+
 		return;
 	}
 
@@ -469,7 +469,7 @@ dissect_elcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	ti = proto_tree_add_item(tree, proto_elcom, tvb, offset, -1, FALSE);
 	elcom_tree = proto_item_add_subtree(ti, ett_elcom);
-	
+
 	hidden_item = proto_tree_add_boolean(elcom_tree,
 					     is_request ? hf_elcom_request : hf_elcom_response,
 					     tvb, 0, 0, TRUE);
@@ -496,13 +496,13 @@ dissect_elcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * Connection request/release assiciated PDU's,
 		 * /ELCOM-90 P Protocol spec/ p. 85...
 		 */
-		proto_item_append_text(elcom_tree, "  (Connect %s)", 
+		proto_item_append_text(elcom_tree, "  (Connect %s)",
 				       ((elcom_msg_type == P_CONRQ)
 					? "Request" : "Response"));
-		proto_item_append_text(ti, "  (Connect %s)", 
+		proto_item_append_text(ti, "  (Connect %s)",
 				       ((elcom_msg_type == P_CONRQ)
 					? "Request" : "Response"));
-		
+
 		/* We need the lenght here, hardcode the LOWADR_LEN = 21 */
 		ti = proto_tree_add_text(elcom_tree, tvb, offset, TOTAL_LEN, "Initiator");
 		offset = dissect_lower_address(ti, ett_elcom_initiator, tvb, offset,
@@ -512,7 +512,7 @@ dissect_elcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					       hf_elcom_initiator_suff);
 		if (tvb_length_remaining(tvb, offset) <= 0)
 			return;
-		
+
 		ti = proto_tree_add_text(elcom_tree, tvb, offset, TOTAL_LEN, "Responder");
 		offset = dissect_lower_address(ti, ett_elcom_responder, tvb, offset,
 					       hf_elcom_responder_endian,
@@ -521,7 +521,7 @@ dissect_elcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					       hf_elcom_responder_suff);
 		if (tvb_length_remaining(tvb, offset) <= 0)
 			return;
-		
+
 		/* Rest of the payload is USER-DATA, 0..82 bytes */
 		ti = proto_tree_add_text(elcom_tree, tvb, offset, -1, "User Data");
 		offset = dissect_userdata(ti, ett_elcom_userdata, tvb, offset);
@@ -530,22 +530,22 @@ dissect_elcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	case P_RELRQ:
 	case P_RELRS:
-		proto_item_append_text(elcom_tree, " (Release %s)", 
+		proto_item_append_text(elcom_tree, " (Release %s)",
 				       ((elcom_msg_type == P_RELRQ)
 					? "Request" : "Response"));
 
-		proto_item_append_text(ti, "  (Release %s)", 
+		proto_item_append_text(ti, "  (Release %s)",
 				       ((elcom_msg_type == P_RELRQ)
 					? "Request" : "Response"));
 
 		result = tvb_get_guint8(tvb, offset);
-		ti = proto_tree_add_uint(elcom_tree,
-					 (elcom_msg_type == P_RELRQ)
-					 ? hf_elcom_release_reason
-					 : hf_elcom_release_result,
-					 tvb, offset, 1, result);
+		proto_tree_add_uint(elcom_tree,
+				    (elcom_msg_type == P_RELRQ)
+				    ? hf_elcom_release_reason
+				    : hf_elcom_release_result,
+				    tvb, offset, 1, result);
 		offset += 1;
-		
+
 		break;
 
 	case P_DATRQ:
@@ -559,7 +559,7 @@ dissect_elcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_item_append_text(ti, " <<--- meaning WHAT??");
 		break;
 	}
-	
+
 
 	if (tvb_length_remaining(tvb, offset) <= 0)
 		return;
@@ -581,7 +581,7 @@ proto_register_elcom(void)
 		{ &hf_elcom_response,
 		  { "Response",		"elcom.response",
 		    FT_BOOLEAN, BASE_NONE, NULL, 0, NULL, HFILL }
-		},		
+		},
 
 		{ &hf_elcom_request,
 		  { "Request",		"elcom.request",
