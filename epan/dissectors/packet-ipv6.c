@@ -620,7 +620,8 @@ dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
 	if (rt.ip6r_type == IPv6_RT_HEADER_MobileIP) {
 	  proto_tree_add_item(rthdr_tree, hf_ipv6_mipv6_home_address, tvb,
 			      offset + 8, 16, ENC_NA);
-	  SET_ADDRESS(&pinfo->dst, AT_IPv6, 16, tvb_get_ptr(tvb, offset + 8, 16));
+	  if (seg_left)
+	    SET_ADDRESS(&pinfo->dst, AT_IPv6, 16, tvb_get_ptr(tvb, offset + 8, 16));
 	}
     if (rt.ip6r_type == IPv6_RT_HEADER_RPL) {
         guint8 cmprI;
