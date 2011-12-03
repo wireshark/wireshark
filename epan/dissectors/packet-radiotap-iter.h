@@ -30,11 +30,11 @@
 
 struct radiotap_override {
 	guint8 field;
-	guint8 align:4, size:4;
+	guint align:4, size:4;
 };
 
 struct radiotap_align_size {
-	guint8 align:4, size:4;
+	guint align:4, size:4;
 };
 
 struct ieee80211_radiotap_namespace {
