@@ -111,6 +111,12 @@ static gboolean snoop_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
  * for the "dlpi.h" header file specified by The Open Group, which lists
  * the DL_ values for various protocols; Solaris 7 uses the same values.
  *
+ * See
+ *
+ *	http://www.iana.org/assignments/snoop-datalink-types/snoop-datalink-types.xml
+ *
+ * for the IETF list of snoop datalink types.
+ *
  * The page at
  *
  *	http://mrpink.lerc.nasa.gov/118x/support.html
@@ -139,19 +145,21 @@ static gboolean snoop_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
  *
  * Source to an "atmdump" package, which includes a modified version of
  * "libpcap" to handle SunATM DLPI and an ATM driver for FreeBSD, and
- * also includes "atmdump", which is a modified "tcpdump", is available
+ * also includes "atmdump", which is a modified "tcpdump", was available
  * at
  *
  *	ftp://ftp.cs.ndsu.nodak.edu/pub/freebsd/atm/atm-bpf.tgz
  *
- * and that code also indicates that DL_IPATM is used, and that an
- * ATM packet handed up from the Sun driver for the Sun SBus ATM card on
- * Solaris 2.5.1 has 1 byte of direction, 1 byte of VPI, 2 bytes of VCI,
- * and then the ATM PDU, and suggests that the direction flag is 0x80 for
- * "transmitted" (presumably meaning DTE->DCE) and presumably not 0x80 for
- * "received" (presumably meaning DCE->DTE).  That code was used as the
- * basis for the SunATM support in current CVS versions of libpcap and
- * tcpdump, and it works.
+ * (the host name is no longer valid) and that code also indicated that
+ * DL_IPATM is used, and that an ATM packet handed up from the Sun driver
+ * for the Sun SBus ATM card on Solaris 2.5.1 has 1 byte of direction,
+ * 1 byte of VPI, 2 bytes of VCI, and then the ATM PDU, and suggests that
+ * the direction flag is 0x80 for "transmitted" (presumably meaning
+ * DTE->DCE) and presumably not 0x80 for "received" (presumably meaning
+ * DCE->DTE).  That code was used as the basis for the SunATM support in
+ * later versions of libpcap and tcpdump, and it worked at the time the
+ * development was done with the SunATM code on the system on which the
+ * development was done.
  *
  * In fact, the "direction" byte appears to have some other stuff, perhaps
  * a traffic type, in the lower 7 bits, with the 8th bit indicating the
@@ -165,16 +173,17 @@ static gboolean snoop_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
  * if it can't, this may be useful reference information for anybody doing
  * code to use DLPI to do raw packet captures on those network types.
  *
- * See
+ * Once upon a time
  *
  *	http://web.archive.org/web/20010906213807/http://www.shomiti.com/support/TNCapFileFormat.htm
  *
- * for information on Shomiti's mutant flavor of snoop.  For some unknown
- * unknown reason, they decided not to just Go With The DLPI Flow, and
- * instead used the types unspecified in RFC 1461 for their own nefarious
- * purposes, such as distinguishing 10MB from 100MB from 1000MB Ethernet
- * and distinguishing 4MB from 16MB Token Ring, and distinguishing both
- * of them from the "Shomiti" versions of same.
+ * gave information on Shomiti's mutant flavor of snoop; Shomiti's Web site
+ * is no longer available on the Wayback Machine.  For some unknown reason,
+ * they decided not to just Go With The DLPI Flow, and instead used the types
+ * unspecified in RFC 1461 for their own nefarious purposes, such as
+ * distinguishing 10MB from 100MB from 1000MB Ethernet and distinguishing
+ * 4MB from 16MB Token Ring, and distinguishing both of them from the
+ * "Shomiti" versions of same.
  */
 int snoop_open(wtap *wth, int *err, gchar **err_info)
 {
