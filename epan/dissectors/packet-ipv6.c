@@ -571,7 +571,10 @@ dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
     tvb_memcpy(tvb, (guint8 *)&rt, offset, sizeof(rt));
     len = (rt.ip6r_len + 1) << 3;
 
-    if (tree) {
+    /* Assigning seg_left and the if (seg_left) {} blocks of code that follow,
+     * along with any expert_add_info_format() calls, all need to execute when
+     * appropriate, regardless of whether the tree is NULL or not. */
+    if (1) {
 	/* !!! specify length */
       ti = proto_tree_add_uint_format(tree, hf_ipv6_routing_hdr_opt, tvb,
 		      offset, len, rt.ip6r_type,
@@ -2275,9 +2278,9 @@ proto_register_ipv6(void)
 				FT_UINT8, BASE_DEC, VALS(routing_header_type), 0x0,
 				"Routeing Header Type", HFILL }},
     { &hf_ipv6_routing_hdr_left,
-      { "Left Segments",	"ipv6.routing_hdr.left",
+      { "Segments Left",	"ipv6.routing_hdr.left",
 				FT_UINT8, BASE_DEC, NULL, 0x0,
-				"Routing Header Left Segments", HFILL }},
+				"Routing Header Segments Left", HFILL }},
     { &hf_ipv6_routing_hdr_addr,
       { "Address",		"ipv6.routing_hdr.addr",
 				FT_IPv6, BASE_NONE, NULL, 0x0,
