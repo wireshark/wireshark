@@ -25,7 +25,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
  * I found the protocol specification at
- *  http://www.sintef.no/upload/Energiforskning/Energisystemer/ELCOM 90.pdf
+ *  http://www.sintef.no/upload/Energiforskning/Energisystemer/ELCOM%2090.pdf
  */
 
 #ifdef HAVE_CONFIG_H
@@ -65,16 +65,19 @@ static int hf_elcom_request = -1;
 static int hf_elcom_length = -1;
 static int hf_elcom_type = -1;
 
+static int hf_elcom_initiator = -1;
 static int hf_elcom_initiator_endian = -1;
 static int hf_elcom_initiator_ip = -1;
 static int hf_elcom_initiator_port = -1;
 static int hf_elcom_initiator_suff = -1;
 
+static int hf_elcom_responder = -1;
 static int hf_elcom_responder_endian = -1;
 static int hf_elcom_responder_ip = -1;
 static int hf_elcom_responder_port = -1;
 static int hf_elcom_responder_suff = -1;
 
+static int hf_elcom_userdata = -1;
 static int hf_elcom_userdata_length = -1;
 static int hf_elcom_userdata_pduid = -1;
 static int hf_elcom_userdata_version = -1;
@@ -82,6 +85,7 @@ static int hf_elcom_userdata_result = -1;
 static int hf_elcom_userdata_restmark = -1;
 static int hf_elcom_userdata_cf = -1;
 
+static int hf_elcom_datarequest = -1;
 static int hf_elcom_datarequest_grouptype = -1;
 static int hf_elcom_datarequest_result = -1;
 static int hf_elcom_datarequest_groupnumber = -1;
@@ -94,6 +98,8 @@ static int hf_elcom_datarequest_oid = -1;
 static int hf_elcom_release_reason = -1;
 static int hf_elcom_release_result = -1;
 
+static int hf_elcom_strangeleftover = -1;
+
 static gint ett_elcom = -1;
 static gint ett_elcom_initiator = -1;
 static gint ett_elcom_responder = -1;
@@ -102,6 +108,57 @@ static gint ett_elcom_datarequest = -1;
 
 static gboolean elcom_show_hex = TRUE;
 
+static const value_string endian_vals[] = {
+        {0x0002, "Big"},
+        {0x0200, "Little"},
+        {0, NULL }
+};
+
+static const value_string suffix_vals[] = {
+        {'A', "Big"},
+        {'B', "Little"},
+        {'C', "Periodic"},
+        {'D', "Requested, scheduling"},
+        {'E', "Requested, present/archived"},
+        {'G', "Supervisory"},
+        {'F', "Test"},
+        {0, NULL }
+};
+
+static const value_string userdata_pduid_vals[] = {
+        {0x04, "Connect Request"},
+        {0x05, "Connect Response"},
+        {0, NULL }
+};
+
+static const value_string userdata_version_vals[] = {
+        {0x00, "Class 0, v0"},
+        {0x01, "Class 1, v0"},
+        {0x02, "Class 2, v0"},
+        {0x12, "Class 2, v1"},
+        {0x13, "Class 3, v1"},
+        {0, NULL }
+};
+
+static const value_string userdata_result_vals[] = {
+        {0x00, "OK"},
+        {0, NULL }
+};
+
+static const value_string datarequest_grouptype_vals[] = {
+        {TC_REQ, "Test Connection Request"},
+        {TC_RSP, "Test Connection Response"},
+        {0, NULL }
+};
+
+static const value_string type_vals[] = {
+        {P_CONRQ, "Connect Request"},
+        {P_CONRS, "Connect Response"},
+        {P_RELRQ, "Release Request"},
+        {P_RELRS, "Release Response"},
+        {P_DATRQ, "Data Request"},
+        {0, NULL }
+};
 
 static gint
 dissect_lower_address(proto_item *ti_arg, gint ett_arg,
@@ -109,7 +166,6 @@ dissect_lower_address(proto_item *ti_arg, gint ett_arg,
 		      int hf_endian, int hf_ip, int hf_port, int hf_suff)
 {
 	gint offset = arg_offset;
-	gint endian = ELCOM_UNKNOWN_ENDIAN;
 	guint8 len1, len2;
 	guint8 *suffix;
 	proto_tree *tree;
@@ -140,30 +196,17 @@ dissect_lower_address(proto_item *ti_arg, gint ett_arg,
 	}
 	offset += 2;
 
-	if ((0x02 == tvb_get_guint8(tvb, offset)) &&
-	    (0x00 == tvb_get_guint8(tvb, offset+1))) {
-		endian = ELCOM_LITTLE_ENDIAN;
-	} else if ((0x00 == tvb_get_guint8(tvb, offset)) &&
-		   (0x02 == tvb_get_guint8(tvb, offset+1))) {
-		endian = ELCOM_BIG_ENDIAN;
-	}
 
 	/* endian */
-	ti = proto_tree_add_uint(tree, hf_endian, tvb, offset, 2, tvb_get_ntohs(tvb, offset));
-	if (endian == ELCOM_LITTLE_ENDIAN)
-		proto_item_append_text(ti, " Little");
-	else if (endian == ELCOM_BIG_ENDIAN)
-		proto_item_append_text(ti, " Big");
-	else
-		proto_item_append_text(ti, " Unknown");
+	proto_tree_add_item(tree, hf_endian, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	/* port */
-	proto_tree_add_uint(tree, hf_port, tvb, offset, 2, tvb_get_ntohs(tvb, offset));
+	proto_tree_add_item(tree, hf_port, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	/* ip-addr */
-	proto_tree_add_ipv4(tree, hf_ip, tvb, offset, 4, tvb_get_ipv4(tvb, offset));
+	proto_tree_add_item(tree, hf_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	offset += 8;		/* skip the zero bytes */
@@ -178,15 +221,8 @@ dissect_lower_address(proto_item *ti_arg, gint ett_arg,
 		proto_item_append_text(ti, "  (invalid)");
 		return offset;
 	}
-	proto_item_append_text(ti, "  (%s)",
-			       suffix[1] == 'A' ? "Control" :
-			       suffix[1] == 'B' ? "Unsolicited" :
-			       suffix[1] == 'C' ? "Periodic" :
-			       suffix[1] == 'D' ? "Requested, scheduling" :
-			       suffix[1] == 'E' ? "Requested, present/archived" :
-			       suffix[1] == 'G' ? "Supervisory" :
-			       suffix[1] == 'F' ? "Test" :
-			       "<<-- WHAT?");
+
+	proto_item_append_text(ti, " (%s)", val_to_str(suffix[1], suffix_vals, "<<-- WHAT?") );
 
 	g_free(suffix);
 	return offset;
@@ -196,7 +232,7 @@ static gint
 dissect_userdata(proto_item *ti_arg, gint ett_arg, tvbuff_t *tvb, gint arg_offset)
 {
 	gint offset = arg_offset;
-	guint8 flen, pduid, version, result, lenbytes, restmark;
+	guint8 flen, lenbytes;
 	guint8 year, month, day, hour, min, sec;
 	guint16 msec;
 	proto_tree *tree;
@@ -216,7 +252,7 @@ dissect_userdata(proto_item *ti_arg, gint ett_arg, tvbuff_t *tvb, gint arg_offse
 	if (flen == 0 || flen > 79) /* invalid */
 		return offset;
 
-	ti = proto_tree_add_uint(tree, hf_elcom_userdata_length, tvb, offset, lenbytes, flen);
+	ti = proto_tree_add_item(tree, hf_elcom_userdata_length, tvb, offset, lenbytes, ENC_BIG_ENDIAN);
 	offset += lenbytes;
 	if (lenbytes == 2) {
 		proto_item_append_text(ti, " (2 bytes, should be 1 byte)");
@@ -225,48 +261,28 @@ dissect_userdata(proto_item *ti_arg, gint ett_arg, tvbuff_t *tvb, gint arg_offse
 	if (tvb_length_remaining(tvb, offset) <= 0)
 		return offset;
 
-	pduid = tvb_get_guint8(tvb, offset);
-	ti = proto_tree_add_uint(tree, hf_elcom_userdata_pduid, tvb, offset, 1, pduid);
+	proto_tree_add_item(tree, hf_elcom_userdata_pduid, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
-	switch (pduid) {
-	case 0x04: proto_item_append_text(ti, " (connect request)"); break;
-	case 0x05: proto_item_append_text(ti, " (connect response)"); break;
-	default:   proto_item_append_text(ti, " (unknown)"); return offset;
-	}
 
 	if (tvb_length_remaining(tvb, offset) <= 0)
 		return offset;
 
-	version = tvb_get_guint8(tvb, offset);
-	ti = proto_tree_add_uint(tree, hf_elcom_userdata_version, tvb, offset, 1, version);
+	proto_tree_add_item(tree, hf_elcom_userdata_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
-	switch (version) {
-	case 0x00: proto_item_append_text(ti, " (class 0, v0)"); break;
-	case 0x01: proto_item_append_text(ti, " (class 1, v0)"); break;
-	case 0x02: proto_item_append_text(ti, " (class 2, v0)"); break;
-	case 0x12: proto_item_append_text(ti, " (class 2, v1)"); break;
-	case 0x13: proto_item_append_text(ti, " (class 3, v1)"); break;
-	default:   proto_item_append_text(ti, " (unknown)"); return offset;
-	}
+
 
 	if (tvb_length_remaining(tvb, offset) <= 0)
 		return offset;
 
-	result = tvb_get_guint8(tvb, offset);
-	ti = proto_tree_add_uint(tree, hf_elcom_userdata_result, tvb, offset, 1, result);
+	proto_tree_add_item(tree, hf_elcom_userdata_result, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
-	switch (result) {
-	case 0x00: proto_item_append_text(ti, " (OK)"); break;
-	default:   proto_item_append_text(ti, " (unknown)"); return offset;
-	}
 
 	/* show the rest */
 	/*	tree2 = proto_tree_add_text(tree, tvb, offset, -1, "User Data"); */
 
 	if (tvb_length_remaining(tvb, offset) <= 0)
 		return offset;
-	restmark = tvb_get_guint8(tvb, offset);
-	ti = proto_tree_add_uint(tree, hf_elcom_userdata_restmark, tvb, offset, 1, restmark);
+	ti = proto_tree_add_item(tree, hf_elcom_userdata_restmark, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_item_append_text(ti, " <-- '0' = no restart etc.");
 	offset +=1;
 
@@ -302,8 +318,7 @@ static gint
 dissect_datarequest(proto_item *ti_arg, gint ett_arg, tvbuff_t *tvb, gint arg_offset)
 {
 	gint offset = arg_offset;
-	guint8 gtype,  gnr, prio, gsize, oidlen, result;
-	guint16 index1, index2;
+	guint8 gtype, oidlen;
 	proto_tree *tree, *tree2;
 	proto_item *ti;
 
@@ -312,21 +327,16 @@ dissect_datarequest(proto_item *ti_arg, gint ett_arg, tvbuff_t *tvb, gint arg_of
 		return offset;
 
 	gtype = tvb_get_guint8(tvb, offset);
-	ti = proto_tree_add_uint(tree, hf_elcom_datarequest_grouptype,
-				 tvb, offset, 1, gtype);
+	ti = proto_tree_add_item(tree, hf_elcom_datarequest_grouptype,
+				 tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	switch (gtype) {
-	case TC_REQ:
-		proto_item_append_text(ti, " = Test Connection Request");
-		break;
 
 	case TC_RSP:
-		proto_item_append_text(ti, " = Test Connection Response");
 
-		result = tvb_get_guint8(tvb, offset);
 		proto_tree_add_uint(tree, hf_elcom_datarequest_result,
-				    tvb, offset, 1, result);
+				    tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 
 		break;
@@ -338,32 +348,27 @@ dissect_datarequest(proto_item *ti_arg, gint ett_arg, tvbuff_t *tvb, gint arg_of
 	if (tvb_length_remaining(tvb, offset) <= 0)
 		return offset;
 
-	gnr = tvb_get_guint8(tvb, offset);
-	proto_tree_add_uint(tree, hf_elcom_datarequest_groupnumber, tvb, offset, 1, gnr);
+	proto_tree_add_item(tree, hf_elcom_datarequest_groupnumber, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 	if (tvb_length_remaining(tvb, offset) <= 0)
 		return offset;
 
-	prio = tvb_get_guint8(tvb, offset);
-	proto_tree_add_uint(tree, hf_elcom_datarequest_grouppriority, tvb, offset, 1, prio);
+	proto_tree_add_item(tree, hf_elcom_datarequest_grouppriority, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 	if (tvb_length_remaining(tvb, offset) <= 0)
 		return offset;
 
-	gsize = tvb_get_guint8(tvb, offset);
-	proto_tree_add_uint(tree, hf_elcom_datarequest_groupsize, tvb, offset, 1, gsize);
+	proto_tree_add_item(tree, hf_elcom_datarequest_groupsize, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 	if (tvb_length_remaining(tvb, offset) <= 0)
 		return offset;
 
-	index1 = tvb_get_ntohs(tvb, offset);
-	proto_tree_add_uint(tree, hf_elcom_datarequest_groupindex1, tvb, offset, 2, index1);
+	proto_tree_add_item(tree, hf_elcom_datarequest_groupindex1, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 	if (tvb_length_remaining(tvb, offset) <= 0)
 		return offset;
 
-	index2 = tvb_get_ntohs(tvb, offset);
-	proto_tree_add_uint(tree, hf_elcom_datarequest_groupindex2, tvb, offset, 2, index2);
+	proto_tree_add_uint(tree, hf_elcom_datarequest_groupindex2, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 	if (tvb_length_remaining(tvb, offset) <= 0)
 		return offset;
@@ -374,7 +379,7 @@ dissect_datarequest(proto_item *ti_arg, gint ett_arg, tvbuff_t *tvb, gint arg_of
 			break;
 		if (tvb_length_remaining(tvb, offset+oidlen+1) <= 0)
 			return offset;
-		proto_tree_add_item(tree, hf_elcom_datarequest_oid, tvb, offset, 1, TRUE);
+		proto_tree_add_item(tree, hf_elcom_datarequest_oid, tvb, offset, 1, ENC_ASCII|ENC_BIG_ENDIAN);
 		offset += oidlen+1;
 	}
 	offset += 1;		/* the loop exited at the 0 length byte */
@@ -400,7 +405,7 @@ dissect_elcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_item      *ti, *hidden_item;
 	gint		offset = 0;
 	guint16		elcom_len;
-	guint8		elcom_msg_type, result;
+	guint8		elcom_msg_type;
 	guint8 		*suffix;
 
 	/* Check that there's enough data */
@@ -467,7 +472,7 @@ dissect_elcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (!tree)
 		return;
 
-	ti = proto_tree_add_item(tree, proto_elcom, tvb, offset, -1, FALSE);
+	ti = proto_tree_add_item(tree, proto_elcom, tvb, offset, -1, ENC_NA);
 	elcom_tree = proto_item_add_subtree(ti, ett_elcom);
 
 	hidden_item = proto_tree_add_boolean(elcom_tree,
@@ -477,14 +482,16 @@ dissect_elcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* 2 first bytes are the frame length */
 	offset = 0;
-	ti = proto_tree_add_uint(elcom_tree, hf_elcom_length, tvb, offset, 2, elcom_len);
+	ti = proto_tree_add_item(elcom_tree, hf_elcom_length, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset = +2;
 	if (! length_ok) {
 		proto_item_append_text(ti, " (incorrect)");
 	}
 
 	elcom_msg_type = tvb_get_guint8(tvb, offset);
-	ti = proto_tree_add_uint(elcom_tree, hf_elcom_type, tvb, offset, 1, elcom_msg_type);
+	ti = proto_tree_add_item(elcom_tree, hf_elcom_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_item_append_text(elcom_tree, " ( %s)", val_to_str(elcom_msg_type, type_vals, "Unknown %d"));
+
 	offset++;
 	if (tvb_length_remaining(tvb, offset) <= 0)
 		return;
@@ -496,15 +503,9 @@ dissect_elcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * Connection request/release assiciated PDU's,
 		 * /ELCOM-90 P Protocol spec/ p. 85...
 		 */
-		proto_item_append_text(elcom_tree, "  (Connect %s)",
-				       ((elcom_msg_type == P_CONRQ)
-					? "Request" : "Response"));
-		proto_item_append_text(ti, "  (Connect %s)",
-				       ((elcom_msg_type == P_CONRQ)
-					? "Request" : "Response"));
 
 		/* We need the lenght here, hardcode the LOWADR_LEN = 21 */
-		ti = proto_tree_add_text(elcom_tree, tvb, offset, TOTAL_LEN, "Initiator");
+		ti = proto_tree_add_item(elcom_tree, hf_elcom_initiator, tvb, offset, TOTAL_LEN, ENC_BIG_ENDIAN);
 		offset = dissect_lower_address(ti, ett_elcom_initiator, tvb, offset,
 					       hf_elcom_initiator_endian,
 					       hf_elcom_initiator_ip,
@@ -513,7 +514,7 @@ dissect_elcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (tvb_length_remaining(tvb, offset) <= 0)
 			return;
 
-		ti = proto_tree_add_text(elcom_tree, tvb, offset, TOTAL_LEN, "Responder");
+		ti = proto_tree_add_item(elcom_tree, hf_elcom_responder, tvb, offset, TOTAL_LEN, ENC_BIG_ENDIAN);
 		offset = dissect_lower_address(ti, ett_elcom_responder, tvb, offset,
 					       hf_elcom_responder_endian,
 					       hf_elcom_responder_ip,
@@ -523,35 +524,27 @@ dissect_elcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			return;
 
 		/* Rest of the payload is USER-DATA, 0..82 bytes */
-		ti = proto_tree_add_text(elcom_tree, tvb, offset, -1, "User Data");
+		ti = proto_tree_add_item(elcom_tree, hf_elcom_userdata, tvb, offset, -1, ENC_NA);
 		offset = dissect_userdata(ti, ett_elcom_userdata, tvb, offset);
 
 		break;
 
 	case P_RELRQ:
+
+		proto_tree_add_item(elcom_tree, hf_elcom_release_reason, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset += 1;
+
+		break;
 	case P_RELRS:
-		proto_item_append_text(elcom_tree, " (Release %s)",
-				       ((elcom_msg_type == P_RELRQ)
-					? "Request" : "Response"));
 
-		proto_item_append_text(ti, "  (Release %s)",
-				       ((elcom_msg_type == P_RELRQ)
-					? "Request" : "Response"));
+		proto_tree_add_item(elcom_tree, hf_elcom_release_result, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-		result = tvb_get_guint8(tvb, offset);
-		proto_tree_add_uint(elcom_tree,
-				    (elcom_msg_type == P_RELRQ)
-				    ? hf_elcom_release_reason
-				    : hf_elcom_release_result,
-				    tvb, offset, 1, result);
 		offset += 1;
 
 		break;
 
 	case P_DATRQ:
-		proto_item_append_text(ti, "  (Data Request)");
-		proto_item_append_text(elcom_tree, " (Data request)");
-		ti = proto_tree_add_text(elcom_tree, tvb, offset, -1, "Data Request");
+		ti = proto_tree_add_item(elcom_tree, hf_elcom_datarequest, tvb, offset, -1, ENC_NA);
 		offset = dissect_datarequest(ti, ett_elcom_datarequest, tvb, offset);
 		break;
 
@@ -565,7 +558,7 @@ dissect_elcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return;
 
 	/* We should not get here, but if we do, show what is left over: */
-	ti = proto_tree_add_text(elcom_tree, tvb, offset, -1, "Strange leftover");
+	ti = proto_tree_add_item(elcom_tree, hf_elcom_strangeleftover, tvb, offset, -1, ENC_NA);
 	while (tvb_length_remaining(tvb, offset) > 0) {
 		proto_item_append_text(ti, elcom_show_hex ? " %02x" : " %03o",
 				       tvb_get_guint8(tvb, offset));
@@ -595,12 +588,17 @@ proto_register_elcom(void)
 
 		{ &hf_elcom_type,
 		  { "Type",		"elcom.type",
-		    FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
+		    FT_UINT8, BASE_HEX, VALS(type_vals), 0, NULL, HFILL }
+		},
+
+		{ &hf_elcom_initiator,
+		  { "Initiator",		"elcom.initiator",
+		    FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }
 		},
 
 		{ &hf_elcom_initiator_endian,
 		  { "Endian",		"elcom.initiator.endian",
-		    FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }
+		    FT_UINT16, BASE_HEX, VALS(endian_vals), 0, NULL, HFILL }
 		},
 
 		{ &hf_elcom_initiator_ip,
@@ -618,9 +616,14 @@ proto_register_elcom(void)
 		    FT_UINT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
 		},
 
+		{ &hf_elcom_responder,
+		  { "Responder",	"elcom.responder",
+		    FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }
+		},
+
 		{ &hf_elcom_responder_endian,
 		  { "Endian",		"elcom.responder.endian",
-		    FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }
+		    FT_UINT16, BASE_HEX, VALS(endian_vals), 0, NULL, HFILL }
 		},
 
 		{ &hf_elcom_responder_ip,
@@ -638,6 +641,11 @@ proto_register_elcom(void)
 		    FT_UINT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
 		},
 
+		{ &hf_elcom_userdata,
+		  { "User Data",		"elcom.userdata",
+		    FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }
+		},
+
 		{ &hf_elcom_userdata_length,
 		  { "Lenght",		"elcom.userdata.length",
 		    FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
@@ -645,17 +653,17 @@ proto_register_elcom(void)
 
 		{ &hf_elcom_userdata_pduid,
 		  { "PDU-ID",		"elcom.userdata.pduid",
-		    FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
+		    FT_UINT8, BASE_DEC, VALS(userdata_pduid_vals), 0, NULL, HFILL }
 		},
 
 		{ &hf_elcom_userdata_version,
 		  { "Version",		"elcom.userdata.version",
-		    FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
+		    FT_UINT8, BASE_DEC, VALS(userdata_version_vals), 0, NULL, HFILL }
 		},
 
 		{ &hf_elcom_userdata_result,
 		  { "Result",		"elcom.userdata.result",
-		    FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
+		    FT_UINT8, BASE_DEC, VALS(userdata_result_vals), 0, NULL, HFILL }
 		},
 
 		{ &hf_elcom_userdata_restmark,
@@ -676,6 +684,11 @@ proto_register_elcom(void)
 		{ &hf_elcom_release_result,
 		  { "Result",	"elcom.release.result",
 		    FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
+		},
+
+		{ &hf_elcom_datarequest,
+		  { "Data Request",	"elcom.datarequest",
+		    FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }
 		},
 
 		{ &hf_elcom_datarequest_grouptype,
@@ -716,8 +729,11 @@ proto_register_elcom(void)
 		{ &hf_elcom_datarequest_oid,
 		  { "Obkect Name",	"elcom.datarequest.oid",
 		    FT_UINT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+		},
+		{ &hf_elcom_strangeleftover,
+		  { "Strange Leftover",	"elcom.leftover",
+		    FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }
 		}
-
 	};
 
 	/* Setup protocol subtree array */
