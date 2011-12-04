@@ -1226,6 +1226,13 @@ de_rr_utran_freq_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
     guint8  value;
 
     curr_offset = offset;
+    /* < UTRAN Freq List >::=
+     * < LENGTH OF UTRAN FREQ LIST : bit (8) > -- length following in octets
+     * { 1 < FDD_ARFCN > : bit (14) } ** 0 -- FDD frequencies
+     * { 1 < TDD_ARFCN > : bit (14) } ** 0 -- TDD frequencies
+     * <spare bit>**;
+     * Spare bits in the end of the field are used to fill the last octet.
+	 */
     proto_tree_add_item(tree, hf_gsm_a_rr_utran_freq_list_length, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     bit_offset = curr_offset << 3;
     value = tvb_get_bits8(tvb,bit_offset,1);
@@ -1263,17 +1270,15 @@ convert_n_to_q[32] = {   0,   9,  17,  25,  32, 39, 46, 53, 59, 65, 71, 77, 83, 
                        106, 111, 116, 121, 126,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,   0};
 
 static guint16
-de_rr_cell_select_indic(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_rr_cell_select_indic(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     proto_tree *subtree, *subtree2;
     proto_item *item, *item2;
     guint32     curr_offset;
     gint        bit_offset, bit_offset_sav, idx, xdd_cell_info, wsize, nwi, jwi, w[64], i, iused, xdd_indic0;
-    guint8      value, length;
+    guint8      value;
 
     curr_offset = offset;
-    length = tvb_get_guint8(tvb, curr_offset);
-    curr_offset += 1;
     bit_offset = curr_offset << 3;
     value = tvb_get_bits8(tvb,bit_offset,3);
     bit_offset += 3;
@@ -1477,7 +1482,7 @@ de_rr_cell_select_indic(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         break;
     }
 
-    curr_offset += length;
+    curr_offset += len;
     return (curr_offset - offset);
 }
 
