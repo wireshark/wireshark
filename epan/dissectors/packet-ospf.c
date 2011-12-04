@@ -2408,7 +2408,6 @@ dissect_ospf_lsa_opaque_ri(tvbuff_t *tvb, int offset, proto_tree *tree,
 
     int tlv_type;
     int tlv_length;
-    int tlv_end_offset;
 
     ti = proto_tree_add_text(tree, tvb, offset, length,
                              "Opaque Router Information LSA");
@@ -2418,7 +2417,6 @@ dissect_ospf_lsa_opaque_ri(tvbuff_t *tvb, int offset, proto_tree *tree,
     while (length > 0) {
         tlv_type = tvb_get_ntohs(tvb, offset);
         tlv_length = tvb_get_ntohs(tvb, offset + 2);
-        tlv_end_offset = offset + tlv_length + 4;
 
         switch(tlv_type) {
 
