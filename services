@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2011-11-23
+# 2011-11-29
 # 
 # Note
 # 
@@ -11904,7 +11904,11 @@ emp-server2	6322/tcp	# Empress Software             [Srdjan_Holovac]            
 # Connectivity Server 2
 emp-server2	6322/udp	# Empress Software             [Srdjan_Holovac]                          [Srdjan_Holovac]
 # Connectivity Server 2
-# 6323-6342            Unassigned
+# 6323               Unassigned
+hrd-ncs	6324/tcp	# HR Device Network            [Hall_Research]                           [Vishal_Dharmadhikari]                                    2011-11-29
+# Configuration Service
+hrd-ns-disc	6324/udp	# HR Device Network service    [Hall_Research]                           [Vishal_Dharmadhikari]                                    2011-11-29
+# 6325-6342            Unassigned
 sflow	6343/tcp	# sFlow traffic monitoring     [Peter_Phaal]                             [Peter_Phaal]                                             2003-06
 sflow	6343/udp	# sFlow traffic monitoring     [Peter_Phaal]                             [Peter_Phaal]                                             2003-06
 # 6344-6345            Unassigned
@@ -18174,6 +18178,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Haim_Gelfenbeyn]                                         Haim Gelfenbeyn                                 mailto:haim&hageltech.com
 # [Hal_Henderson]                                           Hal Henderson                                   mailto:hhenders&novell.com
 # [Hali_Lindbloom]                                          Hali Lindbloom                                  mailto:halil&docent.com
+# [Hall_Research]                                                                     Hall Research         mailto:vishal&hallresearch.com                                2011-11-29
 # [Hani_Abdelazim]                                          Hani Abdelazim                                  mailto:hani&apple.com
 # [Hannes_K]                                                Hannes K SQRTSlber                              mailto:hannes.kaelber&x2e.de                                  2010-09-13
 # [Hans_Christoph_Stein]                                    Hans-Christoph Steiner                          mailto:hans&eds.org
@@ -20954,6 +20959,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Vinh_Nguyn]                                              Vinh Nguyn                                      mailto:vinh&sportvision.com
 # [Vipul_Ved_Prakash]                                       Vipul Ved Prakash                               mailto:mail&vipul.net                                         2002-07
 # [Virgilio_Lattanzi]                                       Virgilio Lattanzi                               mailto:virgilio&harpax.com                                    2002-07
+# [Vishal_Dharmadhikari]                                    Vishal Dharmadhikari      Hall Research         mailto:vishal&hallresearch.com                                2011-11-29
 # [Vishnu_Varadaraj]                                        Vishnu Varadaraj                                mailto:vishnuv&parabay.com
 # [Vishwas_Lele]                                            Vishwas Lele                                    mailto:Vishwas_Lele&appliedis.com
 # [Vitali_Fomine]                                           Vitali Fomine                                   mailto:info&winpopup-lan-messenger.com                        2005-11
