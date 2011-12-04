@@ -2254,7 +2254,7 @@ catsearch_spec(tvbuff_t *tvb, proto_tree *ptree, gint offset, int ext, guint32	b
 		PAD(1);
 	}
 
-	offset = parse_file_bitmap(tree, tvb, offset, (guint16) bitmap,0);
+	parse_file_bitmap(tree, tvb, offset, (guint16) bitmap,0);
 	offset = org +size;
 
 	return offset;
@@ -2507,9 +2507,7 @@ dissect_query_afp_login_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	int len;
 	int len_uam;
 	const guint8 *uam;
-	guint8 type;
-
-	type = tvb_get_guint8(tvb, offset);
+	guint8 path_type;
 
 	PAD(1);
 	proto_tree_add_item(tree, hf_afp_login_flags, tvb, offset, 2,ENC_BIG_ENDIAN);
@@ -2524,7 +2522,6 @@ dissect_query_afp_login_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	proto_tree_add_item(tree, hf_afp_UAM, tvb, offset, 1,ENC_UTF_8|ENC_BIG_ENDIAN);
 	offset += len_uam +1;
 
-	type = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(tree, hf_afp_user_type, tvb, offset, 1,ENC_BIG_ENDIAN);
 	offset++;
 	/* only type 3 */
@@ -2535,11 +2532,11 @@ dissect_query_afp_login_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	offset += len;
 
 	/* directory service */
-	type = tvb_get_guint8(tvb, offset);
+	path_type = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(tree, hf_afp_path_type, tvb, offset, 1,ENC_BIG_ENDIAN);
 	offset++;
 	/* FIXME use 16 bit len + unicode from smb dissector */
-	switch (type) {
+	switch (path_type) {
 	case 1:
 	case 2:
 		len = tvb_get_guint8(tvb, offset);
@@ -4190,7 +4187,7 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, proto_tree *tree, gint offset, guint
 			offset += query_length;
 			break;
 		case SQ_TYPE_BOOL:
-			item_query = proto_tree_add_text(tree, tvb, offset, query_length, "bool: %s",
+			proto_tree_add_text(tree, tvb, offset, query_length, "bool: %s",
 							 (query_data64 >> 32) ? "true" : "false");
 			offset += query_length;
 			break;
