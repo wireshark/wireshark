@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2011-11-26)
+(last updated 2011-12-02)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -74463,9 +74463,9 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
     OID Master
       oidmaster&apollogrp.edu
 18728
-  MFS Electronics
-    Markus Strangl
-      snmp&spamfilter.dreamforge.de
+  Unassigned
+    Removed 2011-12-01
+      ---none---
 18729
   RB Holdings
     Richard Belanger
@@ -104108,7 +104108,7 @@ Auswertungsstelle
       thax&cresis.ku.edu
 26134
   Institute for Networked Solutions
-    Roman Ammann
+    René Stanger
       iana&ins.hsr.ch
 26135
   Mount Airey Group, Inc.
@@ -150376,8 +150376,8 @@ Decentralization / Helenic Public Administra
       ipreston&higherone.com
 37698
   Customs and Border Protection
-    Thomas Lawson
-      Victor.T.Lawson&cbp.dhs.gov
+    Hari Kolli or David Kalavity
+      Hari.K.Kolli&cbp.dhs.gov
 37699
   BolzWachtel Dental Clinic
     Christian Fohmann
@@ -155558,6 +155558,162 @@ Decentralization / Helenic Public Administra
   South Jersey Healthcare
     Julie Morris
       MorrisJ&SJHS.com
+38994
+  San Juan Software
+    Drew Gislason
+      drewg&sanjuansw.com
+38995
+  Connexon Telecom Inc.
+    Simon Cadieux
+      simon.cadieux&connexon.com
+38996
+  Japan Aerospace Exploration Agency
+    Tamotsu Motoki
+      motoki.tamotsu&jaxa.jp
+38997
+  Telnetware Co.,Ltd
+    Jeong Sup Lee
+      jslee&telnetware.com
+38998
+  i20
+    Pavel Prischepa
+      pprischepa&gmail.com
+38999
+  Higher Light Communications
+    Richard A. Scott
+      richard.a.scott&me.com
+39000
+  LinuxMCE
+    Serge Wagener
+      serge&linuxmce.org
+39001
+  NetFlow Logic
+    Sasha Velednitsky
+      svelednitsky&netflowlogic.com
+39002
+  cibex gmbh
+    Josef Weisskopf
+      jw&cibex.net
+39003
+  Sub10 Systems Ltd.
+    Mark Stevens
+      mark.stevens&sub10systems.com
+39004
+  Diaphanoscope
+    Angelo Leto
+      admin&diaphanoscope.com
+39005
+  Total Device
+    Vincent Bouttier Deslandes
+      vincentb&totaldevicesolutions.com
+39006
+  VZTech Importacao Exportacao e Desenvolvimento de Tecnologia Ltda
+    Pedro Zorzenon Neto
+      it&vztech.com.br
+39007
+  Armada Nacional - Uruguay
+    Fernando CHEDA
+      ncheda&armada.mil.uy
+39008
+  Nouvelle s.r.l.
+    Alessandro Forghieri
+      staff&orion.it
+39009
+  hub telecom
+    adrien mistretta
+      iana&hub-telecom.net
+39010
+  GrupaA Sp. z o.o.
+    Wojciech Rusinek
+      wrusinek&grupaa.pl
+39011
+  Fresco Logic, Inc.
+    Eric Wittmayer
+      eric&frescologic.com
+39012
+  INNOBAND TECHNOLOGIES, INC.
+    CODY LIN
+      codyl&innoband.com
+39013
+  Assurity Trusted Solutions Pte Ltd
+    Ramachandran Kumaraswami
+      rama&assurity.sg
+39014
+  Colina Participations
+    Roger Costandi
+      rcostandi&groupecolina.com
+39015
+  MAXXING S.A.S.U.
+    DEVAU Rémi
+      rdevau&maxxing.com
+39016
+  Field Electronics Limited
+    Lee Awcock
+      lee&fieldelectronics.com
+39017
+  Object Trading Pty Ltd
+    Joseph Metcalf
+      joseph.metcalf&objecttrading.com
+39018
+  Dyna Healthcare Co., Ltd.
+    Robin Cyue
+      robin.cyue&dynahealthcare.com
+39019
+  Techinfocom, Jsc
+    Denis Kostousov
+      dkostousov&techinfocom.com
+39020
+  Net To Net Co., Ltd
+    yun, hyung taek
+      yun0512&gmail.com
+39021
+  pdv-systeme Sachsen GmbH
+    Norman Ziert
+      ziert&pdv-sachsen.net
+39022
+  Joint Stock Company SVYAZNOY BANK
+    Gritsienko Sergey
+      sib&svyaznoybank.ru
+39023
+  murtaza enterprizes
+    Muhammad Murtaza
+      m_murtaza&ymail.com
+39024
+  Bjango
+    Marc Edwards
+      marc&bjango.com
+39025
+  Velleros, Inc.
+    Akita Noek
+      anoek&velleros.com
+39026
+  Tritux
+    Zouari Fourat
+      support&tritux.com
+39027
+  www.duowan.com
+    Bob Lin
+      linbobo&chinaduo.com
+39028
+  Enkata
+    Gerard Larios
+      it&enkata.com
+39029
+  Lukse
+    Saulius Lukse
+      saulius.lukse&gmail.com
+39030
+  wlan-partner.com AG
+    Michael Schneider
+      iana&wlan-partner.com
+39031
+  Eastern Mennonite University
+    Jason Alderfer
+      is.info&emu.edu
+39032
+  Caldwell Memorial Hospital, Inc.
+    Beverly Canipe
+      bcanipe&caldwell-mem.org
 
 
 End of Document
