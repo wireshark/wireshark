@@ -239,6 +239,14 @@ static gint ett_gprscdr_MBMSInformation = -1;
 /*--- End of included file: packet-gprscdr-ett.c ---*/
 #line 50 "../../asn1/gprscdr/packet-gprscdr-template.c"
 
+static const value_string gprscdr_daylight_saving_time_vals[] = {
+    {0, "No adjustment"},
+    {1, "+1 hour adjustment for Daylight Saving Time"},
+    {2, "+2 hours adjustment for Daylight Saving Time"},
+    {3, "Reserved"},
+    {0, NULL}
+};
+
 
 /*--- Included file: packet-gprscdr-fn.c ---*/
 #line 1 "../../asn1/gprscdr/packet-gprscdr-fn.c"
@@ -409,8 +417,6 @@ dissect_gprscdr_T_information(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 #line 41 "../../asn1/gprscdr/gprscdr.cnf"
 
    proto_tree_add_text(tree, tvb, offset, -1, "Not dissected");
-   
-
    
 
 
@@ -646,8 +652,37 @@ dissect_gprscdr_MSISDN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_gprscdr_MSTimeZone(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 84 "../../asn1/gprscdr/gprscdr.cnf"
+/*
+ *
+ * 1.Octet: Time Zone and 2. Octet: Daylight saving time, see TS 29.060 [75]
+ */
+ tvbuff_t	*parameter_tvb;
+ guint8 data, data2;
+ char sign;
+
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+                                       &parameter_tvb);
+
+
+ if (!parameter_tvb)
+	return offset;
+
+	data = tvb_get_guint8(parameter_tvb, 0);
+	sign = (data & 0x08) ? '-' : '+';
+	data = (data >> 4) + (data & 0x07) * 10;
+
+	data2 = tvb_get_guint8(tvb, 1) & 0x3;
+	
+	proto_item_append_text(actx->created_item, " (GMT %c %d hours %d minutes %s)", 
+			sign, 
+			data / 4, 
+			data % 4 * 15,
+			val_to_str_const(data2, gprscdr_daylight_saving_time_vals, "Unknown")
+			);
+
+	   
+
 
   return offset;
 }
@@ -684,8 +719,48 @@ dissect_gprscdr_SmsTpDestinationNumber(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
 static int
 dissect_gprscdr_TimeStamp(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 45 "../../asn1/gprscdr/gprscdr.cnf"
+/*
+ *
+ * The contents of this field are a compact form of the UTCTime format
+ * containing local time plus an offset to universal time. Binary coded
+ * decimal encoding is employed for the digits to reduce the storage and
+ * transmission overhead
+ * e.g. YYMMDDhhmmssShhmm
+ * where
+ * YY 	= 	Year 00 to 99		BCD encoded
+ * MM 	= 	Month 01 to 12 		BCD encoded
+ * DD	=	Day 01 to 31		BCD encoded
+ * hh	=	hour 00 to 23		BCD encoded
+ * mm	=	minute 00 to 59		BCD encoded
+ * ss	=	second 00 to 59		BCD encoded
+ * S	=	Sign 0 = "+", "-"	ASCII encoded
+ * hh	=	hour 00 to 23		BCD encoded
+ * mm	=	minute 00 to 59		BCD encoded
+ */
+
+ tvbuff_t	*parameter_tvb;
+ 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+                                       &parameter_tvb);
+
+
+ if (!parameter_tvb)
+	return offset;
+
+ proto_item_append_text(actx->created_item, " (UTC %x-%x-%x %x:%x:%x %s%x:%x)",
+			tvb_get_guint8(parameter_tvb,0),             /* Year */
+			tvb_get_guint8(parameter_tvb,1),             /* Month */
+			tvb_get_guint8(parameter_tvb,2),             /* Day */
+			tvb_get_guint8(parameter_tvb,3),             /* Hour */
+			tvb_get_guint8(parameter_tvb,4),             /* Minute */
+			tvb_get_guint8(parameter_tvb,5),             /* Second */
+			tvb_get_ephemeral_string(parameter_tvb,6,1), /* Sign */
+			tvb_get_guint8(parameter_tvb,7),             /* Hour */
+			tvb_get_guint8(parameter_tvb,8)             /* Minute */
+			);
+ 
+
 
   return offset;
 }
@@ -1779,7 +1854,7 @@ int dissect_gprscdr_GPRSCallEventRecord_PDU(tvbuff_t *tvb _U_, packet_info *pinf
 
 
 /*--- End of included file: packet-gprscdr-fn.c ---*/
-#line 52 "../../asn1/gprscdr/packet-gprscdr-template.c"
+#line 60 "../../asn1/gprscdr/packet-gprscdr-template.c"
 
 
 
@@ -2362,7 +2437,7 @@ proto_register_gprscdr(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-gprscdr-hfarr.c ---*/
-#line 62 "../../asn1/gprscdr/packet-gprscdr-template.c"
+#line 70 "../../asn1/gprscdr/packet-gprscdr-template.c"
   };
 
   /* List of subtrees */
@@ -2404,7 +2479,7 @@ proto_register_gprscdr(void)
     &ett_gprscdr_MBMSInformation,
 
 /*--- End of included file: packet-gprscdr-ettarr.c ---*/
-#line 69 "../../asn1/gprscdr/packet-gprscdr-template.c"
+#line 77 "../../asn1/gprscdr/packet-gprscdr-template.c"
         };
 
   proto_gprscdr = proto_register_protocol(PNAME, PSNAME, PFNAME);

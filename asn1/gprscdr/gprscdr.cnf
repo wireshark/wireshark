@@ -41,9 +41,73 @@ GPRSCallEventRecord
 
    proto_tree_add_text(tree, tvb, offset, -1, "Not dissected");
    
-##### FN_BODY TimeStamp VAL_PTR = &parameter_tvb
+#.FN_BODY TimeStamp VAL_PTR = &parameter_tvb
+/*
+ *
+ * The contents of this field are a compact form of the UTCTime format
+ * containing local time plus an offset to universal time. Binary coded
+ * decimal encoding is employed for the digits to reduce the storage and
+ * transmission overhead
+ * e.g. YYMMDDhhmmssShhmm
+ * where
+ * YY 	= 	Year 00 to 99		BCD encoded
+ * MM 	= 	Month 01 to 12 		BCD encoded
+ * DD	=	Day 01 to 31		BCD encoded
+ * hh	=	hour 00 to 23		BCD encoded
+ * mm	=	minute 00 to 59		BCD encoded
+ * ss	=	second 00 to 59		BCD encoded
+ * S	=	Sign 0 = "+", "-"	ASCII encoded
+ * hh	=	hour 00 to 23		BCD encoded
+ * mm	=	minute 00 to 59		BCD encoded
+ */
 
-   
+ tvbuff_t	*parameter_tvb;
+ 
+%(DEFAULT_BODY)s
+
+ if (!parameter_tvb)
+	return offset;
+
+ proto_item_append_text(actx->created_item, " (UTC %%x-%%x-%%x %%x:%%x:%%x %%s%%x:%%x)",
+			tvb_get_guint8(parameter_tvb,0),             /* Year */
+			tvb_get_guint8(parameter_tvb,1),             /* Month */
+			tvb_get_guint8(parameter_tvb,2),             /* Day */
+			tvb_get_guint8(parameter_tvb,3),             /* Hour */
+			tvb_get_guint8(parameter_tvb,4),             /* Minute */
+			tvb_get_guint8(parameter_tvb,5),             /* Second */
+			tvb_get_ephemeral_string(parameter_tvb,6,1), /* Sign */
+			tvb_get_guint8(parameter_tvb,7),             /* Hour */
+			tvb_get_guint8(parameter_tvb,8)             /* Minute */
+			);
+ 
+#.FN_BODY MSTimeZone VAL_PTR = &parameter_tvb
+/*
+ *
+ * 1.Octet: Time Zone and 2. Octet: Daylight saving time, see TS 29.060 [75]
+ */
+ tvbuff_t	*parameter_tvb;
+ guint8 data, data2;
+ char sign;
+
+%(DEFAULT_BODY)s
+
+ if (!parameter_tvb)
+	return offset;
+
+	data = tvb_get_guint8(parameter_tvb, 0);
+	sign = (data & 0x08) ? '-' : '+';
+	data = (data >> 4) + (data & 0x07) * 10;
+
+	data2 = tvb_get_guint8(tvb, 1) & 0x3;
+	
+	proto_item_append_text(actx->created_item, " (GMT %%c %%d hours %%d minutes %%s)", 
+			sign, 
+			data / 4, 
+			data %% 4 * 15,
+			val_to_str_const(data2, gprscdr_daylight_saving_time_vals, "Unknown")
+			);
+
+	   
 #.TYPE_ATTR
 IPBinaryAddress/iPBinV4Address TYPE = FT_IPv4  DISPLAY = BASE_NONE   
 IPBinaryAddress/iPBinV6Address TYPE = FT_IPv6  DISPLAY = BASE_NONE   

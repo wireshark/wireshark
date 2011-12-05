@@ -48,6 +48,14 @@ static int ett_gprscdr = -1;
 static int ett_gprscdr_timestamp = -1;
 #include "packet-gprscdr-ett.c"
 
+static const value_string gprscdr_daylight_saving_time_vals[] = {
+    {0, "No adjustment"},
+    {1, "+1 hour adjustment for Daylight Saving Time"},
+    {2, "+2 hours adjustment for Daylight Saving Time"},
+    {3, "Reserved"},
+    {0, NULL}
+};
+
 #include "packet-gprscdr-fn.c"
 
 
