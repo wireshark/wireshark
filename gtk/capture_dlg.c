@@ -309,6 +309,7 @@ set_if_capabilities(gboolean monitor_mode_changed)
   if_info_t *if_info;
   if_capabilities_t *caps;
   int err;
+  gchar *err_str, *err_str_norfmon;
   GList *lt_entry;
   cap_settings_t cap_settings;
   gint linktype_select, linktype_count;
@@ -420,7 +421,49 @@ set_if_capabilities(gboolean monitor_mode_changed)
           } else
 #endif
           caps = capture_get_if_capabilities(if_name, cap_settings.monitor_mode,
-                                             NULL);
+                                             &err_str);
+          if (caps == NULL) {
+            /* Error attempting to get interface capabilities. */
+            if (cap_settings.monitor_mode) {
+              /*
+               * Perhaps this is the libpcap bug on Linux where
+               * attempting to set monitor mode with the Wireless
+               * Extensions ioctls doesn't work correctly.
+               *
+               * Try fetching the capabilities without monitor mode;
+               * if that succeeds, report the monitor-mode problem,
+               * and use the no-monitor-mode capabilities.  If that
+               * fails, report that failure.  In either case, force
+               * moitor mode off.
+               */
+              cap_settings.monitor_mode = FALSE;
+              caps = capture_get_if_capabilities(if_name, cap_settings.monitor_mode,
+                                                 &err_str_norfmon);
+              if (caps == NULL) {
+                /* Epic fail. */
+                simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s",
+                              err_str_norfmon);
+                g_free(err_str_norfmon);
+                g_free(err_str);
+              } else {
+                /*
+		 * OK, it's probably that bug.  Suggest using airmon-ng,
+		 * just in case the adapter has a mac80211 driver and
+		 * libpcap was built without libnl so that it can't
+		 * use the mac80211 features to create a monitor-mode
+		 * device.
+		 */
+                simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                              "%s\n"
+                              "Try using airmon-ng, as suggested by CaptureSetup/WLAN in the Wireshark Wiki.",
+                              err_str);
+                g_free(err_str);
+	      }
+	    } else {
+              simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);
+              g_free(err_str);
+            }
+          }
 
 #if 0 /* for testing: Add an "unsupported" link-type */
           if (caps != NULL) {
