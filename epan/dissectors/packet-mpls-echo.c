@@ -8,7 +8,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * (c) Copyright 2011, Krishnamurthy Mayya <krishnamurthy.mayya@ipinfusion.com>
+ * (c) Copyright 2011, Jaihari Kalijanakiraman <jaiharik@ipinfusion.com>
+ *                     Krishnamurthy Mayya <krishnamurthy.mayya@ipinfusion.com>
  *                     Nikitha Malgi       <malgi.nikitha@ipinfusion.com>
  *                     - Support for LSP Ping extensions as per RFC 6426
  *                       
