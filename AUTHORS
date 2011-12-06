@@ -2798,6 +2798,7 @@ Sake Blok               <sake [AT] euronet.nl> {
 	Enable printing of all occurrences of fields
 	Follow TCP stream enhancements
         Export SSL Session Keys
+        VSS-Monitoring dissector
 	Miscellaneous enhancements and fixes
 }
 

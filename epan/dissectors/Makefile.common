@@ -1009,6 +1009,7 @@ DISSECTOR_SRC = \
 	packet-vmlab.c		\
 	packet-vnc.c		\
 	packet-vrrp.c		\
+	packet-vssmonitoring.c	\
 	packet-vtp.c		\
 	packet-vuze-dht.c	\
 	packet-vxi11.c		\

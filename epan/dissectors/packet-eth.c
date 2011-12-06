@@ -43,6 +43,7 @@
 #include <epan/expert.h>
 
 /* Assume all packets have an FCS */
+static gboolean eth_assume_padding = TRUE;
 static gboolean eth_assume_fcs = FALSE;
 static gboolean eth_check_fcs = TRUE;
 /* Interpret packets as FW1 monitor file packets if they look as if they are */
@@ -63,6 +64,7 @@ static int hf_eth_invalid_lentype = -1;
 static int hf_eth_addr = -1;
 static int hf_eth_lg = -1;
 static int hf_eth_ig = -1;
+static int hf_eth_padding = -1;
 static int hf_eth_trailer = -1;
 static int hf_eth_fcs = -1;
 static int hf_eth_fcs_good = -1;
@@ -496,7 +498,12 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
     int trailer_id, tvbuff_t *tvb, tvbuff_t *trailer_tvb, int fcs_len)
 {
   /* If there're some bytes left over, show those bytes as a trailer.
-
+     the trailer can contain:
+     - padding to meet the minimum 64 byte frame length
+     - information inserted by TAPs or other equipment
+     - an optional FCS (optional, because the FCS is usually stripped before
+       the frame is seen by us
+    
      However, if the Ethernet frame was claimed to have had 64 or more
      bytes - i.e., it was at least an FCS worth of data longer than
      the minimum payload size - assume the last 4 bytes of the trailer
@@ -506,16 +513,38 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
 
   if (trailer_tvb && fh_tree) {
     guint trailer_length, trailer_reported_length;
+    guint padding_length = 0;
     gboolean has_fcs = FALSE;
-
-    if (dissector_try_heuristic(eth_trailer_subdissector_list, trailer_tvb,
-        pinfo, tree)) {
-      return;
-    }
+    tvbuff_t *real_trailer_tvb;
 
     trailer_length = tvb_length(trailer_tvb);
     trailer_reported_length = tvb_reported_length(trailer_tvb);
 
+    /* There can not have been padding when the length of the frame (including the 
+       trailer) is less than 60 bytes. */
+    if (eth_assume_padding && pinfo->fd->pkt_len>=60) {
+        /* Calculate the amount of padding needed for a minimum sized frame */
+        if ( (pinfo->fd->pkt_len - trailer_reported_length) < 60 )
+            padding_length = 60 - (pinfo->fd->pkt_len - trailer_reported_length);
+
+        /* Add the padding to the tree, unless it should be treated as 
+           part of the trailer and therefor be handed over to (one of) 
+           the ethernet-trailer dissectors */
+        if (padding_length > 0) {
+            tvb_ensure_bytes_exist(tvb, 0, padding_length);
+            proto_tree_add_item(fh_tree, hf_eth_padding, trailer_tvb, 0,
+                padding_length, FALSE);
+            trailer_length -= padding_length;
+            trailer_reported_length -= padding_length;
+        }
+    }
+    real_trailer_tvb = tvb_new_subset_remaining(trailer_tvb, padding_length);
+
+    /* Call all ethernet trailer dissectors to dissect the trailer.  */
+    if ( dissector_try_heuristic(eth_trailer_subdissector_list, 
+             real_trailer_tvb, pinfo, tree) ) 
+        return;
+    
     if (fcs_len != 0) {
       /* If fcs_len is 4, we assume we definitely have an FCS.
          Otherwise, then, if the frame is big enough that, if we
@@ -555,15 +584,15 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
     }
     if (trailer_length != 0) {
       tvb_ensure_bytes_exist(tvb, 0, trailer_length);
-      proto_tree_add_item(fh_tree, trailer_id, trailer_tvb, 0,
+      proto_tree_add_item(fh_tree, trailer_id, real_trailer_tvb, 0,
         trailer_length, FALSE);
     }
     if (has_fcs) {
-      guint32 sent_fcs = tvb_get_ntohl(trailer_tvb, trailer_length);
+      guint32 sent_fcs = tvb_get_ntohl(real_trailer_tvb, trailer_length);
       if(eth_check_fcs){
         guint32 fcs = crc32_802_tvb(tvb, tvb_length(tvb) - 4);
         if (fcs == sent_fcs) {
-          item = proto_tree_add_uint_format(fh_tree, hf_eth_fcs, trailer_tvb,
+          item = proto_tree_add_uint_format(fh_tree, hf_eth_fcs, real_trailer_tvb,
                                             trailer_length, 4, sent_fcs,
                                             "Frame check sequence: 0x%08x [correct]", sent_fcs);
           checksum_tree = proto_item_add_subtree(item, ett_eth_fcs);
@@ -574,7 +603,7 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
                                         trailer_length, 2, FALSE);
           PROTO_ITEM_SET_GENERATED(item);
         } else {
-          item = proto_tree_add_uint_format(fh_tree, hf_eth_fcs, trailer_tvb,
+          item = proto_tree_add_uint_format(fh_tree, hf_eth_fcs, real_trailer_tvb,
                                             trailer_length, 4, sent_fcs,
                                             "Frame check sequence: 0x%08x [incorrect, should be 0x%08x]",
                                             sent_fcs, fcs);
@@ -589,7 +618,7 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
           col_append_str(pinfo->cinfo, COL_INFO, " [ETHERNET FRAME CHECK SEQUENCE INCORRECT]");
         }
       }else{
-        item = proto_tree_add_uint_format(fh_tree, hf_eth_fcs, trailer_tvb,
+        item = proto_tree_add_uint_format(fh_tree, hf_eth_fcs, real_trailer_tvb,
                                           trailer_length, 4, sent_fcs,
                                           "Frame check sequence: 0x%08x [validiation disabled]", sent_fcs);
         checksum_tree = proto_item_add_subtree(item, ett_eth_fcs);
@@ -661,6 +690,10 @@ proto_register_eth(void)
         { "Address", "eth.addr", FT_ETHER, BASE_NONE, NULL, 0x0,
             "Source or Destination Hardware Address", HFILL }},
 
+        { &hf_eth_padding,
+        { "Padding", "eth.padding", FT_BYTES, BASE_NONE, NULL, 0x0,
+            "Ethernet Padding", HFILL }},
+
         { &hf_eth_trailer,
         { "Trailer", "eth.trailer", FT_BYTES, BASE_NONE, NULL, 0x0,
             "Ethernet Trailer or Checksum", HFILL }},
@@ -706,6 +739,14 @@ proto_register_eth(void)
 
     /* Register configuration preferences */
     eth_module = prefs_register_protocol(proto_eth, NULL);
+
+    prefs_register_bool_preference(eth_module, "assume_padding",
+            "Assume short frames which include a trailer contain padding",
+            "Some devices add trailing data to frames. When this setting is checked "
+            "the Ethernet dissector will assume there has been added padding to the "
+            "frame before the trailer was added. Uncheck if a device added a trailer "
+            "before the frame was padded.",
+            &eth_assume_padding);
 
     prefs_register_bool_preference(eth_module, "assume_fcs",
             "Assume packets have FCS",
