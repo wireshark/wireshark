@@ -808,6 +808,7 @@ insert_new_rows(GList *list)
   if_capabilities_t *caps;
   gint linktype_count;
   cap_settings_t cap_settings;
+  gchar *err_str, *err_str_norfmon;
   GSList *curr_addr;
   int ips = 0;
   guint i, count=0;
@@ -843,7 +844,7 @@ insert_new_rows(GList *list)
       continue;
     }
     ip_str = g_string_new("");
-	ips = 0;
+    ips = 0;
     row.name = g_strdup(if_info->name);
     /* Is this interface hidden and, if so, should we include it
        anyway? */
@@ -896,7 +897,50 @@ insert_new_rows(GList *list)
       row.cfilter = g_strdup(global_capture_opts.default_options.cfilter);
     }
     cap_settings = capture_get_cap_settings(if_string);
-    caps = capture_get_if_capabilities(if_string, cap_settings.monitor_mode, NULL);
+    caps = capture_get_if_capabilities(if_string, cap_settings.monitor_mode,
+                                       &err_str);
+    if (caps == NULL) {
+      /* Error attempting to get interface capabilities. */
+      if (cap_settings.monitor_mode) {
+        /*
+         * Perhaps this is the libpcap bug on Linux where
+         * attempting to set monitor mode with the Wireless
+         * Extensions ioctls doesn't work correctly.
+         *
+         * Try fetching the capabilities without monitor mode;
+         * if that succeeds, report the monitor-mode problem,
+         * and use the no-monitor-mode capabilities.  If that
+         * fails, report that failure.  In either case, force
+         * monitor mode off.
+         */
+        cap_settings.monitor_mode = FALSE;
+        caps = capture_get_if_capabilities(if_string, cap_settings.monitor_mode,
+                                           &err_str_norfmon);
+        if (caps == NULL) {
+          /* Epic fail. */
+          simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str_norfmon);
+          g_free(err_str_norfmon);
+          g_free(err_str);
+        } else {
+          /*
+           * OK, it's probably that bug.  Suggest using airmon-ng,
+           * just in case the adapter has a mac80211 driver and
+           * libpcap was built without libnl so that it can't
+           * use the mac80211 features to create a monitor-mode
+           * device.
+           */
+          simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                        "%s\n\n"
+                        "Try using airmon-ng, as suggested by CaptureSetup/WLAN in the Wireshark Wiki.",
+                        err_str);
+          g_free(err_str);
+        }
+      } else {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);
+        g_free(err_str);
+      }
+    }
+
     gtk_list_store_append (GTK_LIST_STORE(model), &iter);
     for (; (curr_addr = g_slist_nth(if_info->addrs, ips)) != NULL; ips++) {
       if (ips != 0) {
@@ -3673,7 +3717,7 @@ make_and_fill_rows(void)
   GList *lt_entry;
   link_row *link = NULL;
   data_link_info_t *data_link_info;
-  gchar *str, *err_str = NULL;
+  gchar *str, *err_str = NULL, *err_str_norfmon;
   interface_row row;
   interface_options interface_opts;
   gboolean found = FALSE;
@@ -3749,7 +3793,50 @@ make_and_fill_rows(void)
         row.cfilter = g_strdup(global_capture_opts.default_options.cfilter);
       }
       cap_settings = capture_get_cap_settings(if_info->name);
-      caps = capture_get_if_capabilities(if_info->name, cap_settings.monitor_mode, NULL);
+      caps = capture_get_if_capabilities(if_info->name,
+                                         cap_settings.monitor_mode,
+                                         &err_str);
+      if (caps == NULL) {
+        /* Error attempting to get interface capabilities. */
+        if (cap_settings.monitor_mode) {
+          /*
+           * Perhaps this is the libpcap bug on Linux where
+           * attempting to set monitor mode with the Wireless
+           * Extensions ioctls doesn't work correctly.
+           *
+           * Try fetching the capabilities without monitor mode;
+           * if that succeeds, report the monitor-mode problem,
+           * and use the no-monitor-mode capabilities.  If that
+           * fails, report that failure.  In either case, force
+           * monitor mode off.
+           */
+          cap_settings.monitor_mode = FALSE;
+          caps = capture_get_if_capabilities(if_string, cap_settings.monitor_mode,
+                                             &err_str_norfmon);
+          if (caps == NULL) {
+            /* Epic fail. */
+            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str_norfmon);
+            g_free(err_str_norfmon);
+            g_free(err_str);
+          } else {
+            /*
+             * OK, it's probably that bug.  Suggest using airmon-ng,
+             * just in case the adapter has a mac80211 driver and
+             * libpcap was built without libnl so that it can't
+             * use the mac80211 features to create a monitor-mode
+             * device.
+             */
+            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                          "%s\n\n"
+                          "Try using airmon-ng, as suggested by CaptureSetup/WLAN in the Wireshark Wiki.",
+                          err_str);
+            g_free(err_str);
+          }
+        } else {
+          simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);
+          g_free(err_str);
+        }
+      }
       for (; (curr_addr = g_slist_nth(if_info->addrs, ips)) != NULL; ips++) {
         if (ips != 0) {
           g_string_append(ip_str, "\n");
@@ -4019,6 +4106,7 @@ capture_prep_monitor_changed_cb(GtkWidget *monitor, gpointer argp _U_)
   GList *lt_entry;
   gchar *if_string=NULL;
   cap_settings_t cap_settings;
+  gchar *err_str, *err_str_norfmon;
   if_capabilities_t *caps=NULL;
   gint linktype_count = 0, i;
   data_link_info_t *data_link_info;
@@ -4034,7 +4122,49 @@ capture_prep_monitor_changed_cb(GtkWidget *monitor, gpointer argp _U_)
   if_string = g_strdup(row.name);
   cap_settings = capture_get_cap_settings(if_string);
   cap_settings.monitor_mode = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(monitor));
-  caps = capture_get_if_capabilities(if_string, cap_settings.monitor_mode, NULL);
+  caps = capture_get_if_capabilities(if_string, cap_settings.monitor_mode,
+                                     &err_str);
+  if (caps == NULL) {
+    /* Error attempting to get interface capabilities. */
+    if (cap_settings.monitor_mode) {
+      /*
+       * Perhaps this is the libpcap bug on Linux where
+       * attempting to set monitor mode with the Wireless
+       * Extensions ioctls doesn't work correctly.
+       *
+       * Try fetching the capabilities without monitor mode;
+       * if that succeeds, report the monitor-mode problem,
+       * and use the no-monitor-mode capabilities.  If that
+       * fails, report that failure.  In either case, force
+       * monitor mode off.
+       */
+      cap_settings.monitor_mode = FALSE;
+      caps = capture_get_if_capabilities(if_string, cap_settings.monitor_mode,
+                                         &err_str_norfmon);
+      if (caps == NULL) {
+        /* Epic fail. */
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str_norfmon);
+        g_free(err_str_norfmon);
+        g_free(err_str);
+      } else {
+        /*
+         * OK, it's probably that bug.  Suggest using airmon-ng,
+         * just in case the adapter has a mac80211 driver and
+         * libpcap was built without libnl so that it can't
+         * use the mac80211 features to create a monitor-mode
+         * device.
+         */
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                      "%s\n\n"
+                      "Try using airmon-ng, as suggested by CaptureSetup/WLAN in the Wireshark Wiki.",
+                      err_str);
+        g_free(err_str);
+      }
+    } else {
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);
+      g_free(err_str);
+    }
+  }
 
   if (caps != NULL) {
     g_signal_handlers_disconnect_by_func(linktype_combo_box, G_CALLBACK(select_link_type_cb), NULL );
@@ -4086,6 +4216,11 @@ capture_prep_monitor_changed_cb(GtkWidget *monitor, gpointer argp _U_)
   }
   gtk_widget_set_sensitive(linktype_lb, linktype_count >= 2);
   gtk_widget_set_sensitive(linktype_combo_box, linktype_count >= 2);
+#ifdef HAVE_PCAP_CREATE
+  /* Set the monitor-mode checkbox to the appropriate value */
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(monitor),
+                               cap_settings.monitor_mode);
+#endif
   ws_combo_box_set_active(GTK_COMBO_BOX(linktype_combo_box),0);
   g_array_insert_val(rows, marked_row, row);
 }
