@@ -206,7 +206,7 @@ typedef PRE_PACKED struct
 typedef struct
 {
   guint8       TMSI[TMSI_LEN];
-}TMSI_t;
+} TMSI_t;
 
 typedef guint16 CellId_t;
 
@@ -345,6 +345,7 @@ struct MobileId     /* Mobile id, -> TMSI, IMEI or IMSI */
   } Id;
 };
 
+#if 0
 struct OV_MobileId    /* Struct for optional mobile identity */
 {
   unsigned char   IEI;
@@ -358,7 +359,7 @@ typedef enum
   LAI_PRIORITY_AVAILABLE,
   LAI_PRIORITY_FORBIDDEN,
   LAI_PRIORITY_FORCED
-}LAI_Priority_t;
+} LAI_Priority_t;
 
 typedef enum
 {
@@ -368,33 +369,34 @@ typedef enum
   NOM_GSM,
   NOM_PS_ONLY,
   NOM_UNKNOWN
-}NMO_t;
+} NMO_t;
 
 typedef enum
 {
   COMBINED,
   NOT_COMBINED,
   SAME_AS_BEFORE
-}ProcedureMode_t;
+} ProcedureMode_t;
 
 typedef struct
 {
   guint8               Cause;
   LAI_t               LAI;
   struct OV_MobileId  MobileId;
-}CombinedResult_t;
+} CombinedResult_t;
 
 typedef enum
 {
   R97,
   R99
-}MSCR_t, SGSNR_t;
+} MSCR_t, SGSNR_t;
 
 typedef struct
 {
   guint8    NbrOfElements;
   PLMN_t   Element[MAX_ELEMENTS_IN_EQPLMN_LIST];
-}EqPLMN_List_t;
+} EqPLMN_List_t;
+#endif
 
 #define MAX_PCCCH                       16
 #define MAX_RFL_LENGTH                  16 /* length of RFL in PSI2 */
@@ -466,11 +468,13 @@ typedef struct
 /* <P1 Rest Octets>
  * <P2 Rest Octets>
  */
+#if 0
 #define  SF_VBS  0   /* VBS (broadcast call reference) */
 #define  SF_VGCS  1  /* VGCS (group call reference) */
 
 #define  AF_AckIsNotRequired  0  /* acknowledgement is not required */
-#define  AF_AckIsRequired    1  /* acknowledgement is required */
+#define  AF_AckIsRequired     1  /* acknowledgement is required */
+#endif
 
 typedef struct
 {
@@ -802,6 +806,7 @@ typedef struct
   } u;
 } IA_PacketAssignment_t;
 
+#if 0
 typedef struct
 {
   guint8 UnionType;
@@ -836,7 +841,7 @@ typedef struct
 {
   ExtendedRA_Info_Array_t ExtendedRA_Info;
 } IAR_t;
-
+#endif
 
 /* Packet Polling Request */
 typedef struct
@@ -867,6 +872,7 @@ typedef struct
   guint8 Extension_Info[MAX_EXTENSION_LENGTH_IN_BYTES];/* ( val (extension length)+1 ) 04.60/12.26 */
 } Extension_Bits_t;
 
+#if 0
 typedef struct
 {
   guint8 DTM_SUPPORT                  : 1;
@@ -916,7 +922,7 @@ typedef struct
     GPRS_ExtensionInfoWithEGPRS_t    GPRS_ExtensionInfoWithEGPRS;
     GPRS_ExtensionInfoWithoutEGPRS_t GPRS_ExtensionInfoWithoutEGPRS;
     NonGPRS_ExtensionInfo_t          NonGPRS_ExtensionInfo;
-    guint8                            Extension_Information[MAX_EXTENSION_LENGTH_IN_BYTES];
+    guint8                           Extension_Information[MAX_EXTENSION_LENGTH_IN_BYTES];
   } u;
 } Optional_Extension_Information_t;
 
@@ -926,7 +932,7 @@ typedef struct
   guint8   BEP_PERIOD;
   gboolean EGPRS_PACKET_CHANNEL_REQUEST;
 } EGPRS_OptionalExtensionInformation_t;
-
+#endif
 
 typedef struct
 {
@@ -991,14 +997,16 @@ typedef struct
 
 /* < Packet TBF Release message content > */
 typedef guint8 TBF_RELEASE_CAUSE_t;
+#if 0
 #define  TBF_RELEASE_CAUSE_NORMAL (0x00)
 #define  TBF_RELEASE_CAUSE_ABNORMAL (0x02)
+#endif
 
 typedef struct
 {
   guint8               MESSAGE_TYPE;
   guint8               PAGE_MODE;
-  Global_TFI_t        Global_TFI;
+  Global_TFI_t         Global_TFI;
   guint8               UPLINK_RELEASE;
   guint8               DOWNLINK_RELEASE;
   TBF_RELEASE_CAUSE_t TBF_RELEASE_CAUSE;
@@ -1036,10 +1044,12 @@ typedef struct
 
 typedef Packet_Control_Acknowledgement_t Packet_Ctrl_Ack_t;
 
+#if 0
 typedef struct
 {
   guint8 CTRL_ACK;
 } Packet_Control_Acknowledgement_11_bit_t, Packet_Control_Acknowledgement_8_bit_t;
+#endif
 
 /* < Packet Downlink Dummy Control Block message content > */
 typedef struct
@@ -1182,11 +1192,13 @@ typedef enum
   AccTech_GSMOther = 0xf
 } AccessTechnology_t;
 
+#if 0
 typedef struct
 {
   guint8              CountAccessTechnologies;
   AccessTechnology_t AccessTechnologies[MAX_ACCESS_TECHNOLOGIES_COUNT];
 } AccessTechnologiesRequest_t;
+#endif
 
 typedef struct
 {
@@ -1548,14 +1560,14 @@ typedef struct
   guint8 Exist_Measurement_Bandwidth;
   guint8 Measurement_Bandwidth;
   guint16 Physical_Layer_Cell_Identity;
-}EUTRAN_Target_Cell_t;
+} EUTRAN_Target_Cell_t;
 
 typedef struct
 {
   guint32 UTRAN_CI;
   guint8 Exist_PLMN_ID;
   PLMN_t  PLMN_ID;
-}UTRAN_CSG_Target_Cell_t;
+} UTRAN_CSG_Target_Cell_t;
 
 typedef struct
 {
@@ -1563,7 +1575,7 @@ typedef struct
   guint16 Tracking_Area_Code;
   guint8 Exist_PLMN_ID;
   PLMN_t  PLMN_ID;
-}EUTRAN_CSG_Target_Cell_t;
+} EUTRAN_CSG_Target_Cell_t;
 
 typedef struct
 {
@@ -1571,7 +1583,7 @@ typedef struct
   UTRAN_CSG_Target_Cell_t UTRAN_CSG_Target_Cell;
   guint8 Exist_EUTRAN_CSG_Target_Cell;
   EUTRAN_CSG_Target_Cell_t EUTRAN_CSG_Target_Cell;
-}PCCF_AdditionsR9_t;
+} PCCF_AdditionsR9_t;
 
 typedef struct
 {
@@ -1579,7 +1591,7 @@ typedef struct
   EUTRAN_Target_Cell_t EUTRAN_Target_Cell;
   guint8 Exist_AdditionsR9;
   PCCF_AdditionsR9_t AdditionsR9;
-}PCCF_AdditionsR8_t;
+} PCCF_AdditionsR8_t;
 
 typedef struct
 {
@@ -1748,11 +1760,13 @@ typedef struct
   } u;
 } PU_AckNack_EGPRS_t;
 
+#if 0
 enum PUAN_Type
 {
   PUAN_GPRS,
   PUAN_EGPRS
 };
+#endif
 
 typedef struct
 {
@@ -2029,11 +2043,13 @@ typedef struct
   } u;
 } PUA_EGPRS_t;
 
+#if 0
 enum PUA_Type
 {
   PUA_GPRS,
   PUA_EGPRS
 };
+#endif
 
 typedef struct
 {
@@ -2079,7 +2095,7 @@ typedef struct
 typedef struct
 {
   DTM_Packet_Uplink_Assignment_t DTM_Packet_Uplink_Assignment;
-}DTM_UL_t;
+} DTM_UL_t;
 
 /* < DTM Packet Channel Request message content > */
 typedef struct
@@ -2088,7 +2104,7 @@ typedef struct
   Channel_Request_Description_t Channel_Request_Description;
   gboolean                                 Exist_PFI;
   guint8                                   PFI;
-}DTM_Channel_Request_Description_t;
+} DTM_Channel_Request_Description_t;
 
 /* < Packet Downlink Assignment message content > */
 typedef struct
@@ -2194,18 +2210,18 @@ typedef struct
 typedef struct
 {
   DTM_Packet_Downlink_Assignment_t DTM_Packet_Downlink_Assignment;
-}DTM_DL_t;
+} DTM_DL_t;
 
 typedef struct
 {
   GPRS_Cell_Options_t GPRS_Cell_Options;
   GPRS_Power_Control_Parameters_t GPRS_Power_Control_Parameters;
-}DTM_GPRS_Broadcast_Information_t;
+} DTM_GPRS_Broadcast_Information_t;
 
 typedef struct
 {
   DTM_GPRS_Broadcast_Information_t DTM_GPRS_Broadcast_Information;
-}DTM_GPRS_B_t;
+} DTM_GPRS_B_t;
 
 /* < Packet Paging Request message content > */
 typedef struct
@@ -2256,7 +2272,7 @@ typedef struct
 
   guint8 Count_Repeated_Page_info;
   Repeated_Page_info_t Repeated_Page_info[5];
-}  Packet_Paging_Request_t;
+} Packet_Paging_Request_t;
 
 typedef struct
 {
@@ -2411,11 +2427,13 @@ typedef struct
   } u;
 } PTR_EGPRS_t;
 
+#if 0
 enum PTR_Type
 {
   PTR_GPRS,
   PTR_EGPRS
 };
+#endif
 
 typedef struct
 {
@@ -2720,14 +2738,14 @@ typedef struct
   guint8  TIME_GROUP;
   guint8 Exist_GUAR_CONSTANT_PWR_BLKS;
   guint8  GUAR_CONSTANT_PWR_BLKS;
-}COMPACT_Cell_Sel_t;
+} COMPACT_Cell_Sel_t;
 
 typedef struct
 {
   guint8  FREQ_DIFF_LENGTH;
   guint16 FREQUENCY_DIFF;
   COMPACT_Cell_Sel_t  COMPACT_Cell_Sel_Remain_Cells;
-}COMPACT_Neighbour_Cell_Param_Remaining_t;
+} COMPACT_Neighbour_Cell_Param_Remaining_t;
 
 typedef struct
 {
@@ -2736,20 +2754,20 @@ typedef struct
   guint8  NR_OF_REMAINING_CELLS;
   guint8  FREQ_DIFF_LENGTH;
   COMPACT_Neighbour_Cell_Param_Remaining_t  COMPACT_Neighbour_Cell_Param_Remaining[16];
-}COMPACT_Neighbour_Cell_Param_t;
+} COMPACT_Neighbour_Cell_Param_t;
 
 typedef struct
 {
   Cell_Identification_t Cell_Identification;
   guint8  COMPACT_Neighbour_Cell_Param_Count;
   COMPACT_Neighbour_Cell_Param_t COMPACT_Neighbour_Cell_Param[8];
-}COMPACT_Info_t;
+} COMPACT_Info_t;
 
 typedef struct
 {
   guint8  Exist_CCN_Support_Desc;
   CCN_Support_Description_t CCN_Support_Desc;
-}PSI3_AdditionR4_t;
+} PSI3_AdditionR4_t;
 
 typedef struct
 {
@@ -2757,7 +2775,7 @@ typedef struct
   COMPACT_Info_t COMPACT_Info;
   guint8 Exist_AdditionR4;
   PSI3_AdditionR4_t AdditionR4;
-}PSI3_AdditionR99_t;
+} PSI3_AdditionR99_t;
 
 typedef struct
 {
@@ -2766,7 +2784,7 @@ typedef struct
   LSA_Parameters_t LSA_Parameters;
   guint8 Exist_AdditionR99;
   PSI3_AdditionR99_t AdditionR99;
-}PSI3_AdditionR98_t;
+} PSI3_AdditionR98_t;
 
 typedef struct
 {
@@ -2865,7 +2883,7 @@ typedef struct
   guint8   INVALID_BSIC_REPORTING;
   guint8  Exist_NCC_PERMITTED;
   guint8   NCC_PERMITTED;
-  
+
   gboolean Exist_GPRSMeasurementParams;
   MeasurementParams_t   GPRSMeasurementParams;
   gboolean Exist_GPRSMeasurementParams3G;
@@ -2878,7 +2896,7 @@ typedef struct
   OffsetThreshold_t OffsetThreshold_700;
   guint8 Exist_OffsetThreshold_810;
   OffsetThreshold_t OffsetThreshold_810;
-}PSI5_AdditionsR7;
+} PSI5_AdditionsR7;
 
 typedef struct
 {
@@ -2886,7 +2904,7 @@ typedef struct
   GPRS_AdditionalMeasurementParams3G_t GPRS_AdditionalMeasurementParams3G;
   guint8 Exist_AdditionsR7;
   PSI5_AdditionsR7 AdditionsR7;
-}PSI5_AdditionsR5;
+} PSI5_AdditionsR5;
 
 typedef struct
 {
@@ -2894,7 +2912,7 @@ typedef struct
   ENH_Reporting_Parameters_t ENH_Reporting_Param;
   guint8 Exist_AdditionsR5;
   PSI5_AdditionsR5 AdditionisR5;
-}PSI5_AdditionsR99;
+} PSI5_AdditionsR99;
 
 typedef struct
 {
@@ -3178,7 +3196,7 @@ typedef struct
   guint32  CSG_ID;
   gboolean Access_Mode;
   guint8   REPORTING_QUANTITY;
-}UTRAN_CSG_Measurement_Report_t;
+} UTRAN_CSG_Measurement_Report_t;
 
 typedef struct
 {
@@ -3189,7 +3207,7 @@ typedef struct
   guint32  CSG_ID;
   gboolean Access_Mode;
   guint8   REPORTING_QUANTITY;
-}EUTRAN_CSG_Measurement_Report_t;
+} EUTRAN_CSG_Measurement_Report_t;
 
 typedef struct
 {
@@ -3197,20 +3215,20 @@ typedef struct
   UTRAN_CSG_Measurement_Report_t  UTRAN_CSG_Meas_Rpt;
   gboolean  Exist_EUTRAN_CSG_Meas_Rpt;
   EUTRAN_CSG_Measurement_Report_t  EUTRAN_CSG_Meas_Rpt;
-}PMR_AdditionsR9_t;
+} PMR_AdditionsR9_t;
 
 typedef struct
 {
   guint8  EUTRAN_FREQUENCY_INDEX;
   guint16 CELL_IDENTITY;
   guint8  REPORTING_QUANTITY;
-}EUTRAN_Measurement_Report_Body_t;
+} EUTRAN_Measurement_Report_Body_t;
 
 typedef struct
 {
   guint8 N_EUTRAN;
   EUTRAN_Measurement_Report_Body_t Report[4];
-}EUTRAN_Measurement_Report_t;
+} EUTRAN_Measurement_Report_t;
 
 typedef struct
 {
@@ -3218,7 +3236,7 @@ typedef struct
   EUTRAN_Measurement_Report_t  EUTRAN_Meas_Rpt;
   gboolean   Exist_AdditionsR9;
   PMR_AdditionsR9_t  AdditionsR9;
-}PMR_AdditionsR8_t;
+} PMR_AdditionsR8_t;
 
 typedef struct
 {
@@ -3226,7 +3244,7 @@ typedef struct
   guint8        GRNTI;
   gboolean     Exist_AdditionsR8;
   PMR_AdditionsR8_t  AdditionsR8;
-}PMR_AdditionsR5_t;
+} PMR_AdditionsR5_t;
 
 typedef struct
 {
@@ -3308,14 +3326,14 @@ typedef struct
   guint8 Exist_UTRAN_CSG_Target_Cell;
   UTRAN_CSG_Target_Cell_t UTRAN_CSG_Target_Cell;
   guint8 Exist_EUTRAN_CSG_Target_Cell;
-  EUTRAN_CSG_Target_Cell_t EUTRAN_CSG_Target_Cell;  
-}PEMR_AdditionsR9_t;
+  EUTRAN_CSG_Target_Cell_t EUTRAN_CSG_Target_Cell;
+} PEMR_AdditionsR9_t;
 
 typedef struct
 {
   gboolean  Exist_REPORTING_QUANTITY;
   guint8     REPORTING_QUANTITY;
-}Bitmap_Report_Quantity_t;
+} Bitmap_Report_Quantity_t;
 
 typedef struct
 {
@@ -3325,7 +3343,7 @@ typedef struct
   EUTRAN_Measurement_Report_t EUTRAN_Meas_Rpt;
   gboolean   Exist_AdditionsR9;
   PEMR_AdditionsR9_t AdditionsR9;
-}PEMR_AdditionsR8_t;
+} PEMR_AdditionsR8_t;
 
 typedef struct
 {
@@ -3333,7 +3351,7 @@ typedef struct
   guint8     GRNTI_Ext;
   gboolean  Exist_AdditionsR8;
   PEMR_AdditionsR8_t  AdditionsR8;
-}PEMR_AdditionsR5_t;
+} PEMR_AdditionsR5_t;
 
 typedef struct
 {
@@ -3381,7 +3399,7 @@ typedef struct
   guint8  BANDWITH_TDD;
   guint8  CELL_PARAMETER;
   guint8  Sync_Case_TSTD;
-}TDD_Target_Cell_Notif_t;
+} TDD_Target_Cell_Notif_t;
 
 typedef struct
 {
@@ -3399,21 +3417,21 @@ typedef struct
   guint8 Measurement_Bandwidth;
   guint16 Physical_Layer_Cell_Identity;
   guint8 Reporting_Quantity;
-}Target_EUTRAN_Cell_Notif_t;
+} Target_EUTRAN_Cell_Notif_t;
 
 typedef struct
 {
   guint8  EUTRAN_FREQUENCY_INDEX;
   guint16 CELL_IDENTITY;
   guint8  REPORTING_QUANTITY;
-}Eutran_Ccn_Measurement_Report_Cell_t;
+} Eutran_Ccn_Measurement_Report_Cell_t;
 
 typedef struct
 {
   gboolean  ThreeG_BA_USED;
   guint8    N_EUTRAN;
   Eutran_Ccn_Measurement_Report_Cell_t Eutran_Ccn_Measurement_Report_Cell[4];
-}Eutran_Ccn_Measurement_Report_t;
+} Eutran_Ccn_Measurement_Report_t;
 
 typedef struct
 {
@@ -3426,7 +3444,7 @@ typedef struct
   Target_EUTRAN_Cell_Notif_t Target_EUTRAN_Cell;
   guint8 Exist_Eutran_Ccn_Measurement_Report;
   Eutran_Ccn_Measurement_Report_t Eutran_Ccn_Measurement_Report;
-}Target_Cell_4G_Notif_t;
+} Target_Cell_4G_Notif_t;
 
 typedef struct
 {
@@ -3438,7 +3456,7 @@ typedef struct
   } u;
   guint8 Exist_Eutran_Ccn_Measurement_Report;
   Eutran_Ccn_Measurement_Report_t Eutran_Ccn_Measurement_Report;
-}Target_Cell_CSG_Notif_t;
+} Target_Cell_CSG_Notif_t;
 
 typedef struct
 {
@@ -3448,7 +3466,7 @@ typedef struct
     Target_Cell_4G_Notif_t Target_Cell_4G_Notif;
     Target_Cell_CSG_Notif_t Target_Cell_CSG_Notif;
   } u;
-}Target_Other_RAT_2_Notif_t;
+} Target_Other_RAT_2_Notif_t;
 
 typedef struct
 {
@@ -3458,8 +3476,7 @@ typedef struct
     Target_Cell_3G_Notif_t Target_Cell_3G_Notif;
     Target_Other_RAT_2_Notif_t Target_Other_RAT_2_Notif;
   } u;
-  
-}Target_Other_RAT_Notif_t;
+} Target_Other_RAT_Notif_t;
 
 typedef struct
 {
@@ -4017,7 +4034,7 @@ typedef struct
   guint8  PSC_Pattern_length;
   guint8  PSC_Pattern;
   gboolean PSC_Pattern_sense;
-}PSC_Pattern_t;
+} PSC_Pattern_t;
 
 typedef struct
 {
@@ -4025,33 +4042,33 @@ typedef struct
   guint16 PSC[32];
   guint8  PSC_Pattern_Count;
   PSC_Pattern_t PSC_Pattern[32];
-}PSC_Group_t;
+} PSC_Group_t;
 
 typedef struct
 {
   PSC_Group_t CSG_PSC_SPLIT;
   guint8      Count;
   guint8      UTRAN_FREQUENCY_INDEX[32];
-}ThreeG_CSG_Description_Body_t;
+} ThreeG_CSG_Description_Body_t;
 
 typedef struct
 {
   guint8  Count;
   ThreeG_CSG_Description_Body_t  ThreeG_CSG_Description_Body[32];
-}ThreeG_CSG_Description_t;
+} ThreeG_CSG_Description_t;
 
 typedef struct
 {
   PSC_Group_t CSG_PCI_SPLIT;
   guint8  Count;
   guint8  EUTRAN_FREQUENCY_INDEX[32];
-}EUTRAN_CSG_Description_Body_t;
+} EUTRAN_CSG_Description_Body_t;
 
 typedef struct
 {
   guint8  Count;
   EUTRAN_CSG_Description_Body_t EUTRAN_CSG_Description_Body[32];
-}EUTRAN_CSG_Description_t;
+} EUTRAN_CSG_Description_t;
 
 typedef struct
 {
@@ -4060,13 +4077,13 @@ typedef struct
   guint8    EUTRAN_FREQUENCY_INDEX_top;
   guint8    Count_EUTRAN_FREQUENCY_INDEX;
   guint8    EUTRAN_FREQUENCY_INDEX[32];
-  
+
   gboolean  existMeasurement_Control_UTRAN;
   gboolean  Measurement_Control_UTRAN;
   guint8    UTRAN_FREQUENCY_INDEX_top;
   guint8    Count_UTRAN_FREQUENCY_INDEX;
   guint8    UTRAN_FREQUENCY_INDEX[32];
-}Meas_Ctrl_Param_Desp_t;
+} Meas_Ctrl_Param_Desp_t;
 
 typedef struct
 {
@@ -4077,7 +4094,7 @@ typedef struct
   guint8    EUTRAN_QQUALMIN;
   gboolean existEUTRAN_RSRPmin;
   guint8    EUTRAN_RSRPmin;
-}Reselection_Based_On_RSRQ_t;
+} Reselection_Based_On_RSRQ_t;
 
 typedef struct
 {
@@ -4089,13 +4106,13 @@ typedef struct
     guint8           EUTRAN_Qmin;
     Reselection_Based_On_RSRQ_t Reselection_Based_On_RSRQ;
   } u;
-}Rept_EUTRAN_Enh_Cell_Resel_Param_t;
+} Rept_EUTRAN_Enh_Cell_Resel_Param_t;
 
 typedef struct
 {
-  guint8 Count;
-  Rept_EUTRAN_Enh_Cell_Resel_Param_t Repeated_EUTRAN_Enhanced_Cell_Reselection_Parameters[32];
-}Enh_Cell_Reselect_Param_Desp_t;
+  guint8                             Count;
+  Rept_EUTRAN_Enh_Cell_Resel_Param_t  Repeated_EUTRAN_Enhanced_Cell_Reselection_Parameters[32];
+} Enh_Cell_Reselect_Param_Desp_t;
 
 typedef struct
 {
@@ -4104,7 +4121,7 @@ typedef struct
   guint8     UTRAN_CSG_FDD_REPORTING_THRESHOLD_2;
   gboolean  existUTRAN_CSG_TDD_REPORTING_THRESHOLD;
   guint8     UTRAN_CSG_TDD_REPORTING_THRESHOLD;
-}UTRAN_CSG_Cells_Reporting_Desp_t;
+} UTRAN_CSG_Cells_Reporting_Desp_t;
 
 typedef struct
 {
@@ -4114,41 +4131,41 @@ typedef struct
   gboolean  existEUTRAN_CSG_TDD_REPORTING_THRESHOLD;
   guint8     EUTRAN_CSG_TDD_REPORTING_THRESHOLD;
   guint8     EUTRAN_CSG_TDD_REPORTING_THRESHOLD_2;
-}EUTRAN_CSG_Cells_Reporting_Desp_t;
+} EUTRAN_CSG_Cells_Reporting_Desp_t;
 
 typedef struct
 {
-  gboolean  existUTRAN_CSG_Cells_Reporting_Description;
-  UTRAN_CSG_Cells_Reporting_Desp_t UTRAN_CSG_Cells_Reporting_Description;
-  gboolean  existEUTRAN_CSG_Cells_Reporting_Description;
-  EUTRAN_CSG_Cells_Reporting_Desp_t EUTRAN_CSG_Cells_Reporting_Description;
-}CSG_Cells_Reporting_Desp_t;
+  gboolean                          existUTRAN_CSG_Cells_Reporting_Description;
+  UTRAN_CSG_Cells_Reporting_Desp_t   UTRAN_CSG_Cells_Reporting_Description;
+  gboolean                          existEUTRAN_CSG_Cells_Reporting_Description;
+  EUTRAN_CSG_Cells_Reporting_Desp_t  EUTRAN_CSG_Cells_Reporting_Description;
+} CSG_Cells_Reporting_Desp_t;
 
 typedef struct
 {
   gboolean                       existEnhanced_Cell_Reselection_Parameters_Description;
   Enh_Cell_Reselect_Param_Desp_t  Enhanced_Cell_Reselection_Parameters_Description;
-  
+
   gboolean                       existCSG_Cells_Reporting_Description;
   CSG_Cells_Reporting_Desp_t      CSG_Cells_Reporting_Description;
-}PMO_AdditionsR9_t;
+} PMO_AdditionsR9_t;
 
 typedef struct
 {
   guint8 dummy;
-}Delete_All_Stored_Individual_Priorities_t;
+} Delete_All_Stored_Individual_Priorities_t;
 
 typedef struct
 {
   guint8  Count;
   guint16 FDD_ARFCN[32];
-}Individual_UTRAN_Priority_FDD_t;
+} Individual_UTRAN_Priority_FDD_t;
 
 typedef struct
 {
   guint8  Count;
   guint16 TDD_ARFCN[32];
-}Individual_UTRAN_Priority_TDD_t;
+} Individual_UTRAN_Priority_TDD_t;
 
 typedef struct
 {
@@ -4159,7 +4176,7 @@ typedef struct
     Individual_UTRAN_Priority_TDD_t Individual_UTRAN_Priority_TDD;
   } u;
   guint8 UTRAN_PRIORITY;
-}Repeated_Individual_UTRAN_Priority_Parameters_t;
+} Repeated_Individual_UTRAN_Priority_Parameters_t;
 
 typedef struct
 {
@@ -4167,14 +4184,14 @@ typedef struct
   guint8 DEFAULT_UTRAN_PRIORITY;
   guint8 Repeated_Individual_UTRAN_Priority_Parameters_Count;
   Repeated_Individual_UTRAN_Priority_Parameters_t Repeated_Individual_UTRAN_Priority_Parameters[32];
-}ThreeG_Individual_Priority_Parameters_Description_t;
+} ThreeG_Individual_Priority_Parameters_Description_t;
 
 typedef struct
 {
   guint8 Count;
   guint16 EARFCN[32];
   guint8 EUTRAN_PRIORITY;
-}Repeated_Individual_EUTRAN_Priority_Parameters_t;
+} Repeated_Individual_EUTRAN_Priority_Parameters_t;
 
 typedef struct
 {
@@ -4182,7 +4199,7 @@ typedef struct
   guint8 DEFAULT_EUTRAN_PRIORITY;
   guint8 Count;
   Repeated_Individual_EUTRAN_Priority_Parameters_t Repeated_Individual_EUTRAN_Priority_Parameters[32];
-}EUTRAN_Individual_Priority_Parameters_Description_t;
+} EUTRAN_Individual_Priority_Parameters_Description_t;
 
 typedef struct
 {
@@ -4193,7 +4210,7 @@ typedef struct
   EUTRAN_Individual_Priority_Parameters_Description_t EUTRAN_Individual_Priority_Parameters_Description;
   guint8 Exist_T3230_timeout_value;
   guint8 T3230_timeout_value;
-}Provide_Individual_Priorities_t;
+} Provide_Individual_Priorities_t;
 
 typedef struct
 {
@@ -4203,7 +4220,7 @@ typedef struct
     Delete_All_Stored_Individual_Priorities_t Delete_All_Stored_Individual_Priorities;
     Provide_Individual_Priorities_t Provide_Individual_Priorities;
   } u;
-}Individual_Priorities_t;
+} Individual_Priorities_t;
 
 typedef struct
 {
@@ -4356,7 +4373,7 @@ typedef struct
   EUTRAN_Target_Cell_t EUTRAN_Target_Cell;
   guint8 Exist_Individual_Priorities;
   Individual_Priorities_t Individual_Priorities;
-}Target_Cell_3G_AdditionsR8_t;
+} Target_Cell_3G_AdditionsR8_t;
 
 typedef struct
 {
@@ -4364,7 +4381,7 @@ typedef struct
   guint8 G_RNTI_Extention;
   guint8 Exist_AdditionsR8;
   Target_Cell_3G_AdditionsR8_t AdditionsR8;
-}Target_Cell_3G_AdditionsR5_t;
+} Target_Cell_3G_AdditionsR5_t;
 
 typedef struct
 {
@@ -4378,8 +4395,10 @@ typedef struct
   Target_Cell_3G_AdditionsR5_t AdditionsR5;
 } Target_Cell_3G_t;
 
+#if 0
 #define TARGET_CELL_GSM 0
 #define TARGET_CELL_3G 1
+#endif
 
 typedef struct
 {
@@ -4642,7 +4661,7 @@ typedef struct
   GlobalTimeslotDescription_UA_t GTD_UA;
   guint8 Exist_DownlinkTBF;
   DownlinkTBF_t DownlinkTBF;
-}PHO_EGPRS_t;
+} PHO_EGPRS_t;
 
 typedef struct
 {
@@ -4910,7 +4929,7 @@ typedef struct
     Packet_Cell_Change_Failure_t          Packet_Cell_Change_Failure;
     Packet_Control_Acknowledgement_t      Packet_Control_Acknowledgement;
     Packet_Downlink_Ack_Nack_t            Packet_Downlink_Ack_Nack;
-    EGPRS_PD_AckNack_t							Egprs_Packet_Downlink_Ack_Nack;
+    EGPRS_PD_AckNack_t                    Egprs_Packet_Downlink_Ack_Nack;
     Packet_Uplink_Dummy_Control_Block_t   Packet_Uplink_Dummy_Control_Block;
     Packet_Measurement_Report_t           Packet_Measurement_Report;
     Packet_Resource_Request_t             Packet_Resource_Request;
@@ -4919,14 +4938,16 @@ typedef struct
     Packet_Enh_Measurement_Report_t       Packet_Enh_Measurement_Report;
     Packet_Cell_Change_Notification_t     Packet_Cell_Change_Notification;
     Packet_SI_Status_t                    Packet_SI_Status;
-	Additional_MS_Rad_Access_Cap_t        Additional_MS_Rad_Access_Cap;
-	Packet_Pause_t                        Packet_Pause;
+    Additional_MS_Rad_Access_Cap_t        Additional_MS_Rad_Access_Cap;
+    Packet_Pause_t                        Packet_Pause;
   } u;
   gint16 NrOfBits;
 } RlcMacUplink_t;
 
 
+#if 0
 void GPRSMSG_Profile(gint16 i);
+#endif
 
 /* SI1_RestOctet_t */
 
@@ -4982,9 +5003,10 @@ typedef struct
   guint8 SI13_POSITION;
 } SI4_Rest_Octet_t;
 
+#if 0
 typedef SI4_Rest_Octet_t SI7_Rest_Octet_t;
 typedef SI4_Rest_Octet_t SI8_Rest_Octet_t;
-
+#endif
 
 /* SI6_RestOctet_t */
 
