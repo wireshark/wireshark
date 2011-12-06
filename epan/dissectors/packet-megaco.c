@@ -881,7 +881,11 @@ nextcontext:
                 tvb_next_offset = tvb_command_start_offset + tokenlen;
 
                 /* Try to dissect Topology Descriptor before the command */
-                if ( tvb_get_guint8(tvb, tvb_command_start_offset ) == 'T') {
+				tempchar = tvb_get_guint8(tvb, tvb_command_start_offset);
+				if ( (tempchar >= 'a')&& (tempchar <= 'z')){
+                    tempchar = tempchar - 0x20;
+				}
+                if ( tempchar == 'T') {
                     tempchar = tvb_get_guint8(tvb, tvb_command_start_offset+1);
 
                     if ( (tempchar >= 'a')&& (tempchar <= 'z'))
@@ -954,6 +958,7 @@ nextcontext:
 
                 if ( tempchar != 'E' ){
 
+					/* Short form used */
                     if ( tvb_get_guint8(tvb, 0 ) == '!'){
 
                         switch ( tempchar ){
@@ -1122,12 +1127,17 @@ nextcontext:
                             break;
 
                         default:
-                            tokenlen =  (tvb_RBRKT+1) - tvb_previous_offset;
-                            tvb_ensure_bytes_exist(tvb, tvb_previous_offset, tokenlen);
-                            proto_tree_add_string(megaco_tree, hf_megaco_error_Frame, tvb,
-                                tvb_previous_offset, tokenlen,
-                                "No Command detectable !");
-                            return;
+							{
+								proto_item *item;
+
+								tokenlen =  (tvb_RBRKT+1) - tvb_previous_offset;
+								tvb_ensure_bytes_exist(tvb, tvb_previous_offset, tokenlen);
+								item = proto_tree_add_string(megaco_tree, hf_megaco_error_Frame, tvb,
+									tvb_previous_offset, tokenlen,
+									"No Command detectable !");
+								proto_item_append_text(item,"[ tempchar 0x%x ]", tempchar);
+								return;
+							}
                         }
                     }
                     else{
