@@ -4490,6 +4490,10 @@ proto_register_giop (void)
 
   proto_giop = proto_register_protocol("General Inter-ORB Protocol", "GIOP",
                                        "giop");
+
+  /* Register by name */
+  register_dissector("giop", dissect_giop_tcp, proto_giop);
+
   proto_register_field_array (proto_giop, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
