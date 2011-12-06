@@ -434,7 +434,7 @@ set_if_capabilities(gboolean monitor_mode_changed)
                * if that succeeds, report the monitor-mode problem,
                * and use the no-monitor-mode capabilities.  If that
                * fails, report that failure.  In either case, force
-               * moitor mode off.
+               * monitor mode off.
                */
               cap_settings.monitor_mode = FALSE;
               caps = capture_get_if_capabilities(if_name, cap_settings.monitor_mode,
@@ -447,19 +447,19 @@ set_if_capabilities(gboolean monitor_mode_changed)
                 g_free(err_str);
               } else {
                 /*
-		 * OK, it's probably that bug.  Suggest using airmon-ng,
-		 * just in case the adapter has a mac80211 driver and
-		 * libpcap was built without libnl so that it can't
-		 * use the mac80211 features to create a monitor-mode
-		 * device.
-		 */
+                 * OK, it's probably that bug.  Suggest using airmon-ng,
+                 * just in case the adapter has a mac80211 driver and
+                 * libpcap was built without libnl so that it can't
+                 * use the mac80211 features to create a monitor-mode
+                 * device.
+                 */
                 simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                              "%s\n"
+                              "%s\n\n"
                               "Try using airmon-ng, as suggested by CaptureSetup/WLAN in the Wireshark Wiki.",
                               err_str);
                 g_free(err_str);
-	      }
-	    } else {
+              }
+            } else {
               simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);
               g_free(err_str);
             }
