@@ -2807,11 +2807,11 @@ static int ellipse_detect_collision (struct element *e, int x, int y)
 
 static void cross_xor (struct graph *g, int x, int y)
 {
-#if GTK_CHECK_VERSION(2,22,0)
+#if GTK_CHECK_VERSION(3,0,0)
 	GdkColor color_gray15 = {0x0, 0x2626, 0x2626, 0x2626};
 	cairo_t *cr;
 
-	/* XXX Fix me: lines do not disapere */
+	/* XXX Fix me: lines do not disappear */
 	if (x > g->wp.x && x < g->wp.x+g->wp.width &&
 				y >= g->wp.y && y < g->wp.y+g->wp.height) {
 		/* Draw horisontal line */
