@@ -26,8 +26,8 @@ EXPORT_FILES = \
 	$(PROTOCOL_NAME)-exp.cnf
 
 ASN_FILE_LIST = \
-	3GPPGenericChargingDataTypes.asn \
-	GPRSChargingDataTypes.asn
+	GenericChargingDataTypesV641.asn \
+	GPRSChargingDataTypesV641.asn
 
 # The packet-$(PROTOCOL_NAME)-template.h and $(PROTOCOL_NAME).asn
 # files do not exist for all protocols: Please add/remove as required.

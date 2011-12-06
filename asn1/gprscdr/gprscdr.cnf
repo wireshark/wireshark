@@ -20,6 +20,10 @@ LCSClientIdentity
 LCSQoSInfo
 LocationAreaAndCell
 PositioningData
+# 6.4 If these are needed MBMS asn1 should be added.
+SGSNMBMSRecord
+GGSNMBMSRecord
+ChangeOfMBMSCondition
 
 #.EXPORTS
 GPRSCallEventRecord
@@ -106,8 +110,19 @@ GPRSCallEventRecord
 			data %% 4 * 15,
 			val_to_str_const(data2, gprscdr_daylight_saving_time_vals, "Unknown")
 			);
+			
+#.FN_BODY PLMN-Id VAL_PTR = &parameter_tvb
+ tvbuff_t	*parameter_tvb;
+ proto_tree *subtree;
 
+%(DEFAULT_BODY)s
+
+ if (!parameter_tvb)
+	return offset;
 	   
+ subtree = proto_item_add_subtree(actx->created_item, ett_gprscdr_plmn_id);	   
+ dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, TRUE);
+ 
 #.TYPE_ATTR
 IPBinaryAddress/iPBinV4Address TYPE = FT_IPv4  DISPLAY = BASE_NONE   
 IPBinaryAddress/iPBinV6Address TYPE = FT_IPv6  DISPLAY = BASE_NONE   

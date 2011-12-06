@@ -33,6 +33,7 @@
 
 #include "packet-ber.h"
 #include "packet-gsm_map.h"
+#include "packet-e212.h"
 #include "packet-gprscdr.h"
 
 #define PNAME  "GPRS CDR"
@@ -46,6 +47,7 @@ static int proto_gprscdr = -1;
 
 static int ett_gprscdr = -1;
 static int ett_gprscdr_timestamp = -1;
+static int ett_gprscdr_plmn_id = -1;
 #include "packet-gprscdr-ett.c"
 
 static const value_string gprscdr_daylight_saving_time_vals[] = {
@@ -73,6 +75,7 @@ proto_register_gprscdr(void)
     static gint *ett[] = {
     &ett_gprscdr,
 	&ett_gprscdr_timestamp,
+	&ett_gprscdr_plmn_id,
 #include "packet-gprscdr-ettarr.c"
         };
 
