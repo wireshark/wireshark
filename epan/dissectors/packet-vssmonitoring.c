@@ -72,7 +72,7 @@ dissect_vssmonitoring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint         trailer_len;
   nstime_t      vssmonitoring_time;
   guint8        vssmonitoring_clksrc = 0;
-  guint8        vssmonitoring_srcport = 0;
+  guint16       vssmonitoring_srcport = 0;
 
   struct tm     *tmp;
 
@@ -153,7 +153,7 @@ dissect_vssmonitoring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* Do we have a portstamp? */
   if ( trailer_len & 3) {
     if ( trailer_len & 1) {
-      vssmonitoring_srcport = tvb_get_guint8(tvb, offset);
+      vssmonitoring_srcport = (guint16)tvb_get_guint8(tvb, offset);
       if (tree) 
         item = proto_tree_add_item(vssmonitoring_tree, hf_vssmonitoring_srcport, tvb, offset, 1, ENC_NA);
       offset++;
