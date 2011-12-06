@@ -4139,6 +4139,9 @@ capture_prep_monitor_changed_cb(GtkWidget *monitor, gpointer argp _U_)
        * monitor mode off.
        */
       cap_settings.monitor_mode = FALSE;
+      /* Set the monitor-mode checkbox to the new forced value */
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(monitor),
+                                   cap_settings.monitor_mode);
       caps = capture_get_if_capabilities(if_string, cap_settings.monitor_mode,
                                          &err_str_norfmon);
       if (caps == NULL) {
@@ -4216,11 +4219,6 @@ capture_prep_monitor_changed_cb(GtkWidget *monitor, gpointer argp _U_)
   }
   gtk_widget_set_sensitive(linktype_lb, linktype_count >= 2);
   gtk_widget_set_sensitive(linktype_combo_box, linktype_count >= 2);
-#ifdef HAVE_PCAP_CREATE
-  /* Set the monitor-mode checkbox to the appropriate value */
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(monitor),
-                               cap_settings.monitor_mode);
-#endif
   ws_combo_box_set_active(GTK_COMBO_BOX(linktype_combo_box),0);
   g_array_insert_val(rows, marked_row, row);
 }
