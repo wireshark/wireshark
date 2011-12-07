@@ -30,7 +30,6 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
@@ -65,7 +64,7 @@ static gboolean vssmonitoring_use_heuristics = TRUE;
 static int
 dissect_vssmonitoring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_tree    *ti = NULL, *item = NULL;
+    proto_tree    *ti = NULL;
   proto_tree    *vssmonitoring_tree = NULL;
   guint         offset = 0;
 
@@ -84,7 +83,7 @@ dissect_vssmonitoring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * timestamp (8 bytes)
    * port stamp (1 or 2 bytes)
    * fcs (4 bytes)
-   * 
+   *
    * This means a trailer length must not be more than 14 bytes
    */
   if ( trailer_len > 14 )
@@ -105,12 +104,12 @@ dissect_vssmonitoring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* There are only heuristics for timestamps, the port stamp can be any value */
     if ( vssmonitoring_use_heuristics ) {
 
-      /* The timestamp will be based on the uptime untill the TAP is completely booted, 
+      /* The timestamp will be based on the uptime untill the TAP is completely booted,
        * this takes about 60s, but use 1 hour to be sure
        */
       if (vssmonitoring_time.secs > 3600) {
 
-        /* Check whether the timestamp in the PCAP header and the VSS-Monitoring 
+        /* Check whether the timestamp in the PCAP header and the VSS-Monitoring
          * differ less than 30 days, otherwise, this might not be a VSS-Monitoring
          * timestamp
          */
@@ -123,16 +122,16 @@ dissect_vssmonitoring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
       }
 
-      /* The nanoseconds field should be less than 1000000000 
+      /* The nanoseconds field should be less than 1000000000
        */
-      if ( vssmonitoring_time.nsecs >= 1000000000 ) 
+      if ( vssmonitoring_time.nsecs >= 1000000000 )
         return 0;
     }
   }
 
   /* All systems are go, lets dissect the VSS-Monitoring trailer */
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_vssmonitoring, 
+    ti = proto_tree_add_item(tree, proto_vssmonitoring,
              tvb, 0, (trailer_len & 0xb), ENC_NA);
     vssmonitoring_tree = proto_item_add_subtree(ti, ett_vssmonitoring);
   }
@@ -140,8 +139,8 @@ dissect_vssmonitoring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* Do we have a timestamp? */
   if ( trailer_len & 8 ) {
     if (tree) {
-      item = proto_tree_add_time(vssmonitoring_tree, hf_vssmonitoring_time, tvb, offset, 8, &vssmonitoring_time);
-      item = proto_tree_add_uint(vssmonitoring_tree, hf_vssmonitoring_clksrc, tvb, offset + 4, 1, vssmonitoring_clksrc);
+      proto_tree_add_time(vssmonitoring_tree, hf_vssmonitoring_time, tvb, offset, 8, &vssmonitoring_time);
+      proto_tree_add_uint(vssmonitoring_tree, hf_vssmonitoring_clksrc, tvb, offset + 4, 1, vssmonitoring_clksrc);
 
       tmp = localtime(&vssmonitoring_time.secs);
       proto_item_append_text(ti, ", Timestamp: %02d:%02d:%02d.%09ld",
@@ -154,13 +153,13 @@ dissect_vssmonitoring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if ( trailer_len & 3) {
     if ( trailer_len & 1) {
       vssmonitoring_srcport = (guint16)tvb_get_guint8(tvb, offset);
-      if (tree) 
-        item = proto_tree_add_item(vssmonitoring_tree, hf_vssmonitoring_srcport, tvb, offset, 1, ENC_NA);
+      if (tree)
+        proto_tree_add_item(vssmonitoring_tree, hf_vssmonitoring_srcport, tvb, offset, 1, ENC_NA);
       offset++;
     } else if ( trailer_len & 2) {
       vssmonitoring_srcport = tvb_get_ntohs(tvb, offset);
       if (tree)
-        item = proto_tree_add_item(vssmonitoring_tree, hf_vssmonitoring_srcport, tvb, offset, 2, ENC_NA);
+        proto_tree_add_item(vssmonitoring_tree, hf_vssmonitoring_srcport, tvb, offset, 2, ENC_NA);
       offset += 2;
     }
     if (tree)
@@ -175,18 +174,18 @@ proto_register_vssmonitoring(void)
 {
   static hf_register_info hf[] = {
     { &hf_vssmonitoring_time, {
-        "Time Stamp", "vssmonitoring.time", 
-        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0, 
+        "Time Stamp", "vssmonitoring.time",
+        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
         "VSS-Monitoring Time Stamp", HFILL }},
 
     { &hf_vssmonitoring_clksrc, {
-        "Clock Source", "vssmonitoring.clksrc", 
-        FT_UINT8, BASE_DEC, VALS(clksrc_vals), 0x0, 
+        "Clock Source", "vssmonitoring.clksrc",
+        FT_UINT8, BASE_DEC, VALS(clksrc_vals), 0x0,
         "VSS-Monitoring Clock Source", HFILL }},
 
     { &hf_vssmonitoring_srcport, {
-        "Src Port", "vssmonitoring.srcport", 
-        FT_UINT8, BASE_DEC, NULL, 0x0, 
+        "Src Port", "vssmonitoring.srcport",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
         "VSS-Monitoring Source Port", HFILL }}
   };
 
