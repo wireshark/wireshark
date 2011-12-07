@@ -670,7 +670,8 @@ static int dissect_pdcp_dynamic_chain(proto_tree *tree,
         proto_tree *dynamic_ipv4_tree;
         proto_item *root_ti;
         int tree_start_offset = offset;
-        guint8 tos, ttl, id, rnd, nbo;
+        guint8 tos, ttl, rnd, nbo;
+        guint16 id;
 
         /* Create dynamic IPv4 subtree */
         root_ti = proto_tree_add_item(tree, hf_pdcp_lte_rohc_dynamic_ipv4, tvb, offset, -1, ENC_NA);
@@ -687,9 +688,9 @@ static int dissect_pdcp_dynamic_chain(proto_tree *tree,
         offset++;
 
         /* IP-ID */
-        id = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(dynamic_ipv4_tree, hf_pdcp_lte_rohc_dynamic_ipv4_id, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset++;
+        id = tvb_get_ntohs(tvb, offset);
+        proto_tree_add_item(dynamic_ipv4_tree, hf_pdcp_lte_rohc_dynamic_ipv4_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
 
         /* IP flags */
         rnd = (tvb_get_guint8(tvb, offset) & 0x40) >> 6;
@@ -2727,7 +2728,7 @@ void proto_register_pdcp(void)
         },
         { &hf_pdcp_lte_rohc_dynamic_ipv4_id,
             { "IP-ID",
-              "pdcp-lte.rohc.ip.id", FT_UINT8, BASE_HEX, NULL, 0x0,
+              "pdcp-lte.rohc.ip.id", FT_UINT16, BASE_HEX, NULL, 0x0,
               "IP ID", HFILL
             }
         },
