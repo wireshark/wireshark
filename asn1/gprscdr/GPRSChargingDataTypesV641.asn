@@ -543,9 +543,6 @@ ChangeOfServiceCondition	::= SEQUENCE
 	pSFurnishChargingInformation	[18] PSFurnishChargingInformation OPTIONAL
 }
 
--- WS not defined ???
-RatingGroupId ::= OCTET STRING
-
 ChangeLocation	::= SEQUENCE
 {
 	--
@@ -662,7 +659,8 @@ QoSInformation	::= OCTET STRING (SIZE (4..15))
 	-- is a 1:1 copy of the contents (i.e. starting with octet 4) of the "Quality of 
 	-- service Profile" information element specified in 3GPP TS 29.060 [75].
 
-RatingGroup ::= INTEGER
+-- RatingGroup ::= INTEGER Typo ?
+RatingGroupId ::= INTEGER
 	-- 
 	-- IP service flow identity (DCCA), range of 4 byte (0...4294967259)
 	-- see Rating-Group AVP as used in 3GPP TS 32.299 [40]

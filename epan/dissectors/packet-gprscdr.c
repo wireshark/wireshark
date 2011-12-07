@@ -1493,8 +1493,8 @@ dissect_gprscdr_PSFurnishChargingInformation(gboolean implicit_tag _U_, tvbuff_t
 
 static int
 dissect_gprscdr_RatingGroupId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
 
   return offset;
 }
@@ -1689,16 +1689,6 @@ dissect_gprscdr_GPRSCallEventRecord(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  GPRSCallEventRecord_choice, hf_index, ett_gprscdr_GPRSCallEventRecord,
                                  NULL);
-
-  return offset;
-}
-
-
-
-static int
-dissect_gprscdr_RatingGroup(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
 
   return offset;
 }
@@ -2138,7 +2128,7 @@ proto_register_gprscdr(void)
         "TimeStamp", HFILL }},
     { &hf_gprscdr_ratingGroup,
       { "ratingGroup", "gprscdr.ratingGroup",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "RatingGroupId", HFILL }},
     { &hf_gprscdr_chargingRuleBaseName,
       { "chargingRuleBaseName", "gprscdr.chargingRuleBaseName",
