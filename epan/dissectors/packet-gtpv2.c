@@ -46,6 +46,8 @@
 
 
 static dissector_handle_t nas_eps_handle;
+static dissector_table_t gtpv2_priv_ext_dissector_table;
+
 
 /*GTPv2 Message->GTP Header(SB)*/
 static int proto_gtpv2 = -1;
@@ -3777,10 +3779,18 @@ static void
 dissect_gtpv2_private_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
 {
     int offset = 0;
+	tvbuff_t *next_tvb;
+	guint16 ext_id;
 
     /* oct 5 -7 Enterprise ID */
+	ext_id = tvb_get_ntohs(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_enterprise_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
+
+	next_tvb = tvb_new_subset_remaining(tvb, offset);
+    if(dissector_try_uint(gtpv2_priv_ext_dissector_table, ext_id, next_tvb, pinfo, tree))
+		return;
+
     proto_tree_add_text(tree, tvb, offset, length-2, "Proprietary value");
 }
 
@@ -5409,6 +5419,8 @@ void proto_register_gtpv2(void)
     dissector_add_uint("diameter.3gpp", 22, new_create_dissector_handle(dissect_diameter_3gpp_uli, proto_gtpv2));
 
     register_dissector("gtpv2", dissect_gtpv2, proto_gtpv2);
+	/* Dissector table for private extensions */
+	gtpv2_priv_ext_dissector_table = register_dissector_table("gtpv2.priv_ext", "GTPv2 PRIVATE EXT", FT_UINT16, BASE_DEC);
 }
 
 void
