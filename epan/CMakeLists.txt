@@ -1090,6 +1090,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-vmlab.c
 	dissectors/packet-vnc.c
 	dissectors/packet-vrrp.c
+	dissectors/packet-vssmonitoring.c
 	dissectors/packet-vtp.c
 	dissectors/packet-vuze-dht.c
 	dissectors/packet-vxi11.c
