@@ -55,10 +55,10 @@ static severity_level_t lowest_report_level = chat_level;
 
 typedef struct expert_entry
 {
-    int group;
-    const gchar *protocol;
-    gchar *summary;
-    int frequency;
+    guint32      group;
+    const gchar  *protocol;
+    gchar        *summary;
+    int          frequency;
 } expert_entry;
 
 
@@ -141,6 +141,7 @@ expert_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U
     /* Copy/Store protocol and summary strings efficiently using GStringChunk */
     entry->protocol = g_string_chunk_insert_const(data->text, ei->protocol);
     entry->summary = g_string_chunk_insert_const(data->text, ei->summary);
+    entry->group = ei->group;
     entry->frequency = 1;
 
     return 1;
@@ -169,12 +170,13 @@ static void draw_items_for_severity(GArray *items, const gchar *label)
     printf("=============\n");
 
     /* Column headings */
-    printf("   Frequency      Group            Protocol\n");
+    printf("   Frequency      Group           Protocol  Summary\n");
 
     /* Items */
     for (n=0; n < items->len; n++) {
         ei = &g_array_index(items, expert_entry, n);
-        printf("%12u %10s %18s  %s\n", ei->frequency,
+        printf("%12u %10s %18s  %s\n",
+              ei->frequency,
               val_to_str(ei->group, expert_group_vals, "Unknown"),
               ei->protocol, ei->summary);
     }
