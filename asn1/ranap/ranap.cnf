@@ -14,6 +14,7 @@ IntegrityProtectionInformation
 Service-Handover
 SourceCellID_PDU
 SourceRNC-ToTargetRNC-TransparentContainer_PDU
+TargetRNC-ToSourceRNC-TransparentContainer_PDU
 TargetRNC-ID
 TargetRNC-ID_PDU
 
@@ -21,6 +22,7 @@ TargetRNC-ID_PDU
 RANAP-PDU
 SourceCellID
 SourceRNC-ToTargetRNC-TransparentContainer
+TargetRNC-ToSourceRNC_TransparentContainer
 TargetRNC-ID
 
 #.MAKE_ENUM
@@ -363,7 +365,7 @@ dissect_ranap_SourceRNC_ToTargetRNC_TransparentContainer(tvb , offset, actx ,tre
 # [49] 3GPP TS 36.413: "Evolved Universal Terrestrial Radio Access Network (E-UTRAN); S1
 # Application Protocol (S1AP)".
 
-dissect_ranap_TargetRNC_ToSourceRNC_TransparentContainer(tvb , offset, actx ,tree , hf_ranap_TargetRNC_ToSourceRNC_TransparentContainer_PDU );
+dissect_ranap_TargetRNC_ToSourceRNC_TransparentContainer(tvb , offset, actx ,tree , hf_ranap_ranap_TargetRNC_ToSourceRNC_TransparentContainer_PDU );
 
 # Handle 64 bit constraint
 #.FN_PARS UE-AggregateMaximumBitRateDownlink FN_VARIANT = _64b

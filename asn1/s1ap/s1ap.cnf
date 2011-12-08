@@ -35,10 +35,6 @@ SONtransferCause_PDU
 S1AP-PDU
 SourceeNB-ToTargeteNB-TransparentContainer
 TargeteNB-ToSourceeNB-TransparentContainer
-SourceRNC-ToTargetRNC-TransparentContainer
-TargetRNC-ToSourceRNC-TransparentContainer
-SourceBSS-ToTargetBSS-TransparentContainer
-TargetBSS-ToSourceBSS-TransparentContainer
 ENB-StatusTransfer-TransparentContainer
 SONtransferApplicationIdentity
 SONtransferRequestContainer
@@ -337,7 +333,7 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 			Source BSS to Target BSS
 			Transparent Container 48.018
 		*/
-		dissect_SourceBSS_ToTargetBSS_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree);
+		de_bssgp_source_BSS_to_target_BSS_transp_cont(parameter_tvb, subtree, actx->pinfo, 0, tvb_length(parameter_tvb), NULL, 0);
 		break;
 		case 3:
 		/* utrantolte */
@@ -383,14 +379,15 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 			Target RNC to Source RNC
 			Transparent Container 25.413
 		*/
-		dissect_TargetRNC_ToSourceRNC_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree);
+		dissect_ranap_TargetRNC_ToSourceRNC_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree);
 		break;
 		case 2:
 		/* ltetogeran 
 			Target BSS to Source BSS
 			Transparent Container 48.018
 		*/
-		dissect_TargetBSS_ToSourceBSS_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree);
+		de_bssgp_target_BSS_to_source_BSS_transp_cont(parameter_tvb, subtree, actx->pinfo, 0, tvb_length(parameter_tvb), NULL, 0);
+
 		break;
 		case 3:
 		/* utrantolte */
