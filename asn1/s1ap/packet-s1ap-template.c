@@ -45,6 +45,7 @@
 #include "packet-e212.h"
 #include "packet-sccp.h"
 #include "packet-lte-rrc.h"
+#include "packet-ranap.h"
 
 #ifdef _MSC_VER
 /* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */

@@ -53,6 +53,7 @@
 #include "packet-e212.h"
 #include "packet-sccp.h"
 #include "packet-lte-rrc.h"
+#include "packet-ranap.h"
 
 #ifdef _MSC_VER
 /* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */
@@ -307,7 +308,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-s1ap-val.h ---*/
-#line 66 "../../asn1/s1ap/packet-s1ap-template.c"
+#line 67 "../../asn1/s1ap/packet-s1ap-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_s1ap = -1;
@@ -750,7 +751,7 @@ static int hf_s1ap_candidateCellList = -1;        /* CandidateCellList */
 static int hf_s1ap_CandidateCellList_item = -1;   /* IRAT_Cell_ID */
 
 /*--- End of included file: packet-s1ap-hf.c ---*/
-#line 73 "../../asn1/s1ap/packet-s1ap-template.c"
+#line 74 "../../asn1/s1ap/packet-s1ap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_s1ap = -1;
@@ -989,7 +990,7 @@ static gint ett_s1ap_HOReport = -1;
 static gint ett_s1ap_CandidateCellList = -1;
 
 /*--- End of included file: packet-s1ap-ett.c ---*/
-#line 84 "../../asn1/s1ap/packet-s1ap-template.c"
+#line 85 "../../asn1/s1ap/packet-s1ap-template.c"
 
 enum{
 	INITIATING_MESSAGE,
@@ -4054,7 +4055,7 @@ dissect_s1ap_Source_ToTarget_TransparentContainer(tvbuff_t *tvb _U_, int offset 
 			Source RNC to Target RNC
 			Transparent Container 25.413
 		*/
-		dissect_SourceRNC_ToTargetRNC_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree);
+		dissect_ranap_SourceRNC_ToTargetRNC_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree);
 		break;
 		case 2:
 		/* ltetogeran 
@@ -8374,7 +8375,7 @@ int dissect_s1ap_SONtransferCause_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
 
 /*--- End of included file: packet-s1ap-fn.c ---*/
-#line 126 "../../asn1/s1ap/packet-s1ap-template.c"
+#line 127 "../../asn1/s1ap/packet-s1ap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -8650,7 +8651,7 @@ proto_reg_handoff_s1ap(void)
 
 
 /*--- End of included file: packet-s1ap-dis-tab.c ---*/
-#line 198 "../../asn1/s1ap/packet-s1ap-template.c"
+#line 199 "../../asn1/s1ap/packet-s1ap-template.c"
 	} else {
 		if (SctpPort != 0) {
 			dissector_delete_uint("sctp.port", SctpPort, s1ap_handle);
@@ -10407,7 +10408,7 @@ void proto_register_s1ap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-s1ap-hfarr.c ---*/
-#line 226 "../../asn1/s1ap/packet-s1ap-template.c"
+#line 227 "../../asn1/s1ap/packet-s1ap-template.c"
   };
 
   /* List of subtrees */
@@ -10647,7 +10648,7 @@ void proto_register_s1ap(void) {
     &ett_s1ap_CandidateCellList,
 
 /*--- End of included file: packet-s1ap-ettarr.c ---*/
-#line 238 "../../asn1/s1ap/packet-s1ap-template.c"
+#line 239 "../../asn1/s1ap/packet-s1ap-template.c"
   };
 
   module_t *s1ap_module;

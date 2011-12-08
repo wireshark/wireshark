@@ -330,7 +330,7 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 			Source RNC to Target RNC
 			Transparent Container 25.413
 		*/
-		dissect_SourceRNC_ToTargetRNC_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree);
+		dissect_ranap_SourceRNC_ToTargetRNC_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree);
 		break;
 		case 2:
 		/* ltetogeran 
