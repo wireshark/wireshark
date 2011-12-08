@@ -700,7 +700,7 @@ static int dissect_pdcp_dynamic_chain(proto_tree *tree,
         proto_tree_add_item(dynamic_ipv4_tree, hf_pdcp_lte_rohc_dynamic_ipv4_nbo, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         /* TODO: general extension header list... */
-        offset += 3;
+        offset++;
 
         /* Set proper length for subtree */
         proto_item_set_len(root_ti, offset-tree_start_offset);
