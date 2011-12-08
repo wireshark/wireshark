@@ -40,6 +40,7 @@
 #include <epan/rtp_pt.h>
 #include <epan/expert.h>
 
+#include "packet-rohc.h"
 /* Initialize the protocol and registered fields */
 static int proto_rohc			= -1;
 
@@ -114,20 +115,7 @@ enum rohc_mode
   RELIABLE_BIDIRECTIONAL = 3
 };
 
-typedef struct rohc_info
-{
 
-    /* RoHC settings */
-    gboolean           rohc_compression;
-    unsigned short     rohc_ip_version;
-    gboolean           cid_inclusion_info;
-    gboolean           large_cid_present;
-    enum rohc_mode     mode;
-    gboolean           rnd;
-    gboolean           udp_checkum_present;
-    unsigned short     profile;
-	proto_item         *last_created_item;
-} rohc_info;
 
 /* ROHC Profiles */
 #define ROHC_PROFILE_RTP	1
@@ -347,7 +335,7 @@ dissect_rohc_feedback_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
 			break;
 	}
 }
-static void
+int
 dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, proto_tree *tree, int offset, rohc_info *p_rohc_info){
 
 	proto_item *item;
@@ -384,7 +372,7 @@ dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, proto_tree *tree, int offset,
 			break;
 		case 6:
 			proto_tree_add_text(sub_tree, tvb, offset, -1, "Not dissected yet");
-			return;
+			return offset;
 			break;
 		default:
 			break;
@@ -401,7 +389,7 @@ dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, proto_tree *tree, int offset,
 		offset +=2;
 		proto_item_set_len(item, offset - start_offset);
 		proto_tree_add_text(tree, tvb, offset, -1, "RTP data");
-		return;
+		return offset;
 	}
 
 	/* 5.7.7.6.  Initialization of RTP Header
@@ -454,7 +442,7 @@ dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, proto_tree *tree, int offset,
 	/* : Reserved  | X |  Mode |TIS|TSS:  if RX = 1 */
 	if(rx==0){
 		proto_tree_add_text(tree, tvb, offset, -1, "RTP data");
-		return;
+		return offset;
 	}
 	proto_tree_add_item(sub_tree, hf_rohc_rtp_x, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(sub_tree, hf_rohc_rtp_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -482,6 +470,8 @@ dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, proto_tree *tree, int offset,
 
 	proto_item_set_len(item, offset - start_offset);
 	proto_tree_add_text(tree, tvb, offset, -1, "RTP data");
+
+	return offset;
 
 }
 static void

@@ -33,7 +33,9 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/addr_resolv.h>
+#include <epan/emem.h>
 
+#include "packet-rohc.h"
 #include "packet-pdcp-lte.h"
 
 /* Described in:
@@ -657,7 +659,7 @@ static int dissect_large_cid(proto_tree *tree,
     }
 
 }
-
+#if 0
 static int dissect_pdcp_dynamic_chain(proto_tree *tree,
                                       proto_item *root_item _U_,
                                       tvbuff_t *tvb,
@@ -831,7 +833,7 @@ static int dissect_pdcp_dynamic_chain(proto_tree *tree,
     return offset;
 }
 
-
+#endif
 
 static int dissect_pdcp_irdyn_packet(proto_tree *tree,
                                      proto_item *root_item,
@@ -840,6 +842,8 @@ static int dissect_pdcp_irdyn_packet(proto_tree *tree,
                                      struct pdcp_lte_info *p_pdcp_info,
                                      packet_info *pinfo)
 {
+	rohc_info *p_rohc_info;
+
     col_append_str(pinfo->cinfo, COL_INFO, " IRDYN");
     proto_item_append_text(root_item, " (IRDYN)");
 
@@ -856,6 +860,7 @@ static int dissect_pdcp_irdyn_packet(proto_tree *tree,
     proto_tree_add_item(tree, hf_pdcp_lte_rohc_ir_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
+#if 0
     /* Dissect dynamic chain */
     offset = dissect_pdcp_dynamic_chain(tree,
                                         root_item,
@@ -863,6 +868,21 @@ static int dissect_pdcp_irdyn_packet(proto_tree *tree,
                                         offset,
                                         p_pdcp_info,
                                         pinfo);
+#endif
+	/* RoHC settings */
+	p_rohc_info = ep_new(rohc_info);
+
+	p_rohc_info->rohc_compression    = p_pdcp_info->rohc_compression;
+	p_rohc_info->rohc_ip_version     = p_pdcp_info->rohc_ip_version;
+	p_rohc_info->cid_inclusion_info  = p_pdcp_info->cid_inclusion_info;
+	p_rohc_info->large_cid_present   = p_pdcp_info->large_cid_present;
+	p_rohc_info->mode                = p_pdcp_info->mode;
+	p_rohc_info->rnd                 = p_pdcp_info->rnd;
+	p_rohc_info->udp_checkum_present = p_pdcp_info->udp_checkum_present;
+	p_rohc_info->profile             = p_pdcp_info->profile;
+	p_rohc_info->last_created_item   = root_item;
+
+	dissect_rohc_ir_rtp_profile_dynamic(tvb, tree, offset, p_rohc_info);
     return offset;
 }
 
@@ -875,6 +895,7 @@ static int dissect_pdcp_ir_packet(proto_tree *tree,
                                   packet_info *pinfo)
 {
     unsigned char dynamic_chain_present;
+	rohc_info *p_rohc_info;
 
     col_append_str(pinfo->cinfo, COL_INFO, " IR");
     proto_item_append_text(root_item, " (IR)");
@@ -990,12 +1011,29 @@ static int dissect_pdcp_ir_packet(proto_tree *tree,
 
     /* Dynamic chain */
     if (dynamic_chain_present) {
+#if 0
         offset = dissect_pdcp_dynamic_chain(tree,
                                             root_item,
                                             tvb,
                                             offset,
                                             p_pdcp_info,
                                             pinfo);
+#endif
+		/* RoHC settings */
+		p_rohc_info = ep_new(rohc_info);
+
+		p_rohc_info->rohc_compression    = p_pdcp_info->rohc_compression;
+		p_rohc_info->rohc_ip_version     = p_pdcp_info->rohc_ip_version;
+		p_rohc_info->cid_inclusion_info  = p_pdcp_info->cid_inclusion_info;
+		p_rohc_info->large_cid_present   = p_pdcp_info->large_cid_present;
+		p_rohc_info->mode                = p_pdcp_info->mode;
+		p_rohc_info->rnd                 = p_pdcp_info->rnd;
+		p_rohc_info->udp_checkum_present = p_pdcp_info->udp_checkum_present;
+		p_rohc_info->profile             = p_pdcp_info->profile;
+		p_rohc_info->last_created_item   = root_item;
+
+		dissect_rohc_ir_rtp_profile_dynamic(tvb, tree, offset, p_rohc_info);
+
     }
 
     return offset;

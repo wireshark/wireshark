@@ -1322,6 +1322,7 @@ DISSECTOR_INCLUDES =	\
 	packet-rmt-fec.h	\
 	packet-rmt-lct.h	\
 	packet-rmt-norm.h	\
+	packet-rohc.h	\
 	packet-ros.h	\
 	packet-rpc.h	\
 	packet-rquota.h	\
