@@ -1992,7 +1992,7 @@ proto_register_ipsec(void)
 
   static hf_register_info hf_esp[] = {
     { &hf_esp_spi,
-      { "ESP SPI", "esp.spi", FT_UINT32, BASE_HEX, NULL, 0x0,
+      { "ESP SPI", "esp.spi", FT_UINT32, BASE_HEX_DEC, NULL, 0x0,
         "IP Encapsulating Security Payload Security Parameters Index", HFILL }},
     { &hf_esp_sequence,
       { "ESP Sequence", "esp.sequence", FT_UINT32, BASE_DEC, NULL, 0x0,
