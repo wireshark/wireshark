@@ -881,7 +881,7 @@ static int dissect_pdcp_irdyn_packet(proto_tree *tree,
 	p_rohc_info->profile             = p_pdcp_info->profile;
 	p_rohc_info->last_created_item   = root_item;
 
-	dissect_rohc_ir_rtp_profile_dynamic(tvb, tree, offset, p_rohc_info);
+	offset = dissect_rohc_ir_rtp_profile_dynamic(tvb, tree, offset, p_rohc_info);
     return offset;
 }
 
@@ -1031,7 +1031,7 @@ static int dissect_pdcp_ir_packet(proto_tree *tree,
 		p_rohc_info->profile             = p_pdcp_info->profile;
 		p_rohc_info->last_created_item   = root_item;
 
-		dissect_rohc_ir_rtp_profile_dynamic(tvb, tree, offset, p_rohc_info);
+		offset = dissect_rohc_ir_rtp_profile_dynamic(tvb, tree, offset, p_rohc_info);
 
     }
 

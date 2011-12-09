@@ -460,8 +460,7 @@ dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, proto_tree *tree, int offset,
 	}
 
 	proto_item_set_len(item, offset - start_offset);
-	proto_tree_add_text(tree, tvb, offset, -1, "RTP data");
-
+	
 	return offset;
 
 }
@@ -524,7 +523,7 @@ dissect_rohc_ir_rtp_udp_profile_static(tvbuff_t *tvb, proto_tree *tree, packet_i
 		offset+=2;
 		if(p_rohc_info->profile == ROHC_PROFILE_UDP){
 			if(d==TRUE){
-				dissect_rohc_ir_rtp_profile_dynamic(tvb, tree, offset, p_rohc_info);
+				offset = dissect_rohc_ir_rtp_profile_dynamic(tvb, tree, offset, p_rohc_info);
 			}
 			proto_item_set_len(item, offset - start_offset);
 			proto_tree_add_text(tree, tvb, offset, -1, "UDP data");
@@ -539,10 +538,9 @@ dissect_rohc_ir_rtp_udp_profile_static(tvbuff_t *tvb, proto_tree *tree, packet_i
 
 		/* D:   D = 1 indicates that the dynamic chain is present. */
 		if(d==TRUE){
-			dissect_rohc_ir_rtp_profile_dynamic(tvb, tree, offset, p_rohc_info);
-		}else{
-			proto_tree_add_text(tree, tvb, offset, -1, "RTP data");
+			offset = dissect_rohc_ir_rtp_profile_dynamic(tvb, tree, offset, p_rohc_info);
 		}
+		proto_tree_add_text(tree, tvb, offset, -1, "RTP data");
 	}
 }
 
