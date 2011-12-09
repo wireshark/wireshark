@@ -606,7 +606,7 @@ dissect_rohc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int offset = 0, length;
 	guint8 oct, code, size , cid, profile, val_len;
 	gint16 feedback_data_len = 0;
-	gboolean is_add_cid = FALSE, d = FALSE;
+	gboolean is_add_cid = FALSE;
 	rohc_info *p_rohc_info = NULL;
 	rohc_info g_rohc_info;
 
@@ -757,7 +757,7 @@ start_over:
 		if((oct&0xfe) == 0xfc){
 			col_append_str(pinfo->cinfo, COL_INFO, "IR packet");
 			offset = dissect_rohc_ir_packet(tvb, rohc_tree, pinfo, offset, cid, is_add_cid, p_rohc_info);
-			if(offset = -1){
+			if(offset == -1){
 				return;
 			}
 			proto_tree_add_text(rohc_tree, tvb, offset, -1, "Data");
