@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.413 V10.0.1 (2011-01)
+-- 3GPP TS 36.413 V10.3.0 (2011-09)
 -- B.2	ASN.1 definition
 -- **************************************************************
 --
@@ -87,8 +87,9 @@ EUTRANcellLoadReportingResponse ::= SEQUENCE {
 --
 -- IEs for Multi-Cell Load Reporting application
 --
--- WS Allready in S1AP
--- EUTRAN-CGI ::= OCTET STRING
+
+--- WS Allready in S1AP
+--- EUTRAN-CGI ::= OCTET STRING
 
 IRAT-Cell-ID ::= CHOICE{
 	eUTRAN			EUTRAN-CGI,
@@ -117,13 +118,6 @@ MultiCellLoadReportingResponse ::= SEQUENCE {
 	...
 }
 
--- **************************************************************
---
--- Constants
---
--- **************************************************************
-
-maxIRATReportingCells						INTEGER ::= 128		-- Value is FFS
 
 --
 -- IEs for Event-triggered Cell Load Reporting application
@@ -183,5 +177,13 @@ HoReportType ::= ENUMERATED {
 maxnoofcandidateCells							INTEGER ::= 16
 
 CandidateCellList ::= SEQUENCE (SIZE(1..maxnoofcandidateCells)) OF IRAT-Cell-ID
+
+-- **************************************************************
+--
+-- Constants
+--
+-- **************************************************************
+
+maxIRATReportingCells						INTEGER ::= 128		-- Value is FFS
 
 END

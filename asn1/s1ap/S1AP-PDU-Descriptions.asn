@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.413 V9.4.0 (2010-09)
+-- 3GPP TS 36.413 V10.3.0 (2011-09)
 -- 9.3.2	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -592,3 +592,4 @@ uplinkNonUEAssociatedLPPaTransport S1AP-ELEMENTARY-PROCEDURE ::= {
 }
 
 END
+

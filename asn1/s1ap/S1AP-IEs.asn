@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.413 V9.4.0 (2010-09)
+-- 3GPP TS 36.413 V10.3.0 (2011-09)
 -- 9.3.4	Information Element Definitions
 -- **************************************************************
 --
@@ -20,6 +20,9 @@ IMPORTS
 	id-E-RABItem,
 	id-Bearers-SubjectToStatusTransfer-Item, 
 	id-Time-Synchronization-Info,
+	id-x2TNLConfigurationInfo,
+	id-eNBX2ExtendedTransportLayerAddresses,
+	id-MDTConfiguration,
 	maxNrOfCSGs,
 	maxNrOfE-RABs,
 	maxNrOfErrors,
@@ -37,9 +40,13 @@ IMPORTS
 	maxnoofCellinTAI,
 	maxnoofCellinEAI,
 	maxnoofeNBX2TLAs,
+	maxnoofeNBX2ExtTLAs,
+	maxnoofeNBX2GTPTLAs,
 	maxnoofRATs,
 	maxnoofGroupIDs,
-	maxnoofMMECs
+	maxnoofMMECs,
+	maxnoofTAforMDT,
+	maxnoofCellIDforMDT
 
 
 
@@ -60,6 +67,12 @@ FROM S1AP-Containers;
 
 -- A
 
+AreaScopeOfMDT ::= CHOICE {	
+	cellBased					CellBasedMDT,
+	tABased						TABasedMDT,
+	pLMNWide					NULL,
+	...
+}
 
 AllocationAndRetentionPriority ::= SEQUENCE {
 	priorityLevel				PriorityLevel,
@@ -264,6 +277,18 @@ CellID-Cancelled-Item-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+CellBasedMDT::= SEQUENCE {
+	cellIdListforMDT	CellIdListforMDT,
+	iE-Extensions		ProtocolExtensionContainer { {CellBasedMDT-ExtIEs} } OPTIONAL,
+	...
+}
+
+CellBasedMDT-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+CellIdListforMDT ::= SEQUENCE (SIZE(1..maxnoofCellIDforMDT)) OF EUTRAN-CGI
+
 Cdma2000PDU	::= OCTET STRING
 
 Cdma2000RATType ::= ENUMERATED {
@@ -341,6 +366,9 @@ CNDomain ::= ENUMERATED {
 ConcurrentWarningMessageIndicator ::= ENUMERATED {
 	true
 }
+
+Correlation-ID		::= OCTET STRING (SIZE (4))
+
 CSFallbackIndicator ::= ENUMERATED { 
 	cs-fallback-required,
 	...,
@@ -500,6 +528,7 @@ GlobalENB-ID-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+GUMMEIList::= SEQUENCE (SIZE (1.. maxnoofMMECs)) OF GUMMEI
 
 ENB-StatusTransfer-TransparentContainer		::= SEQUENCE {
 	bearers-SubjectToStatusTransferList		Bearers-SubjectToStatusTransferList,
@@ -669,6 +698,11 @@ GUMMEI-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+GWContextReleaseIndication ::= ENUMERATED {
+	true,
+	...
+}
+
 -- H
 
 HandoverRestrictionList ::= SEQUENCE {
@@ -697,6 +731,21 @@ HandoverType ::= ENUMERATED {
 HFN ::= INTEGER (0..1048575)
 
 -- I
+
+ImmediateMDT ::= SEQUENCE { 
+	measurementsToActivate		MeasurementsToActivate,
+	reportingTriggerMDT			ReportingTriggerMDT,
+	thresholdeventA2			ThresholdEventA2				OPTIONAL,
+-- Included in case of event-triggered reporting for measurement M1
+	periodicReportingMDT		PeriodicReportingMDT			OPTIONAL,
+-- Included in case of periodic reporting
+	iE-Extensions				ProtocolExtensionContainer { { ImmediateMDT-ExtIEs} } OPTIONAL,
+	...
+}
+
+ImmediateMDT-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 IMSI	::=	OCTET STRING (SIZE (3..8))
 
@@ -748,14 +797,66 @@ LastVisitedGERANCellInformation ::= CHOICE {
 }
 
 L3-Information				::= OCTET STRING
+-- This is a dummy IE used only as a reference to the actual definition in relevant specification.
 
 LPPa-PDU ::=  OCTET STRING
 
+LoggedMDT ::= SEQUENCE {
+	loggingInterval				LoggingInterval,
+	loggingDuration				LoggingDuration,
+	iE-Extensions				ProtocolExtensionContainer { {LoggedMDT-ExtIEs} } OPTIONAL,
+	...
+}
+
+LoggedMDT-ExtIEs	S1AP-PROTOCOL-EXTENSION ::= {
+...
+}
+
+LoggingInterval ::= ENUMERATED {ms128, ms256, ms512, ms1024, ms2048, ms3072, ms4096, ms6144}
+
+LoggingDuration ::= ENUMERATED {m10, m20, m40, m60, m90, m120}
+
 -- M
+
+MDT-Activation 	::= ENUMERATED { 
+	immediate-MDT-only,
+	immediate-MDT-and-Trace,
+	logged-MDT-only,
+	...
+}
+
+MDT-Configuration ::= SEQUENCE {
+	mdt-Activation				MDT-Activation,
+	areaScopeOfMDT				AreaScopeOfMDT,
+	mDTMode						MDTMode,
+	iE-Extensions				ProtocolExtensionContainer { { MDT-Configuration-ExtIEs} } OPTIONAL,
+	...
+}
+MDT-Configuration-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+ManagementBasedMDTAllowed ::= ENUMERATED {allowed, ...}
+
+MDTMode ::= CHOICE {
+	immediateMDT				ImmediateMDT,
+	loggedMDT					LoggedMDT,
+	...
+}
+
+MeasurementsToActivate ::= BIT STRING (SIZE (8))
+
+MeasurementThresholdA2 ::= CHOICE { 
+	threshold-RSRP				Threshold-RSRP,
+	threshold-RSRQ				Threshold-RSRQ,
+	...
+}
 
 MessageIdentifier	::= BIT STRING (SIZE (16))
 
 MMEname ::= PrintableString (SIZE (1..150,...))
+
+MMERelaySupportIndicator ::= ENUMERATED {true, ...}
 
 MME-Group-ID	::= OCTET STRING (SIZE (2))
 
@@ -781,12 +882,15 @@ NumberOfBroadcasts ::= INTEGER (0..65535)
 
 -- O
 OldBSS-ToNewBSS-Information		::= OCTET STRING
+-- This is a dummy IE used only as a reference to the actual definition in relevant specification.
 
 OverloadAction ::= ENUMERATED {
-reject-non-emergency-mo-dt,
-reject-all-rrc-cr-signalling,
-permit-emergency-sessions-and-mobile-terminated-services-only,
-	...
+	reject-non-emergency-mo-dt,
+	reject-rrc-cr-signalling,
+	permit-emergency-sessions-and-mobile-terminated-services-only,
+	...,
+	permit-high-priority-sessions-and-mobile-terminated-services-only,
+	reject-delay-tolerant-access
 }
 
 OverloadResponse ::= CHOICE {
@@ -805,7 +909,30 @@ PagingDRX ::= ENUMERATED {
 	...
 	}
 
+PagingPriority ::= ENUMERATED {
+	priolevel1,
+	priolevel2,
+	priolevel3,
+	priolevel4,
+	priolevel5,
+	priolevel6,
+	priolevel7,
+	priolevel8,
+	...
+}
+
 PDCP-SN ::= INTEGER (0..4095) 
+
+PeriodicReportingMDT ::= SEQUENCE { 
+	reportInterval				ReportIntervalMDT,
+	reportAmount				ReportAmountMDT,
+	iE-Extensions				ProtocolExtensionContainer { { PeriodicReportingMDT-ExtIEs} } OPTIONAL,
+	...
+}
+
+PeriodicReportingMDT-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 PLMNidentity 				::= TBCD-STRING 
 
@@ -836,8 +963,22 @@ ReceiveStatusofULPDCPSDUs ::= BIT STRING (SIZE(4096))
 
 RelativeMMECapacity				::= INTEGER (0..255)
 
+RelayNode-Indicator ::= ENUMERATED {
+	true,
+	...
+}
+
 RAC					::= OCTET STRING (SIZE (1))
 
+ReportAmountMDT ::= ENUMERATED{r1, r2, r4, r8, r16, r32, r64, rinfinity}
+
+ReportIntervalMDT ::= ENUMERATED {ms120, ms240, ms480, ms640, ms1024, ms2048, ms5120, ms10240, min1, min6, min12, min30, min60} 
+
+ReportingTriggerMDT ::= ENUMERATED{
+	periodic,
+	a2eventtriggered,
+	...
+}
 
 RequestType	::= SEQUENCE {
 	eventType 				EventType,
@@ -888,7 +1029,8 @@ RRC-Establishment-Cause ::= ENUMERATED {
 	mt-Access,
 	mo-Signalling,
 	mo-Data,
-	...
+	...,
+	delay-TolerantAccess
 }
 
 Routing-ID		::= INTEGER (0..255)
@@ -947,14 +1089,20 @@ SONConfigurationTransfer ::= SEQUENCE {
 }
 
 SONConfigurationTransfer-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+-- Extension for Release 10 to transfer the IP addresses of the eNB initiating the ANR action --
+	{ID id-x2TNLConfigurationInfo	CRITICALITY ignore	EXTENSION X2TNLConfigurationInfo	PRESENCE conditional
+	-- This IE shall be present if the SON Information IE contains the SON Information Request IE and the SON Information Request IE is set to “X2TNL Configuration Info” -- },
 	...
 }
 
 
 
 Source-ToTarget-TransparentContainer ::= OCTET STRING
+-- This IE includes a transparent container from the source RAN node to the target RAN node. 
+-- The octets of the OCTET STRING are encoded according to the specifications of the target system.
 
 SourceBSS-ToTargetBSS-TransparentContainer		::= OCTET STRING
+-- This is a dummy IE used only as a reference to the actual definition in relevant specification.
 
 SourceeNB-ID ::= SEQUENCE {
 	global-ENB-ID	Global-ENB-ID,
@@ -993,6 +1141,7 @@ SourceeNB-ToTargeteNB-TransparentContainer-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 
 
 SourceRNC-ToTargetRNC-TransparentContainer		::= OCTET STRING
+-- This is a dummy IE used only as a reference to the actual definition in relevant specification.
 
 
 ServedGUMMEIs ::= SEQUENCE (SIZE (1.. maxnoofRATs)) OF ServedGUMMEIsItem
@@ -1098,6 +1247,18 @@ TAI-Cancelled-Item-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+TABasedMDT ::= SEQUENCE {
+	tAListforMDT			TAListforMDT,
+	iE-Extensions			ProtocolExtensionContainer { {TABasedMDT-ExtIEs} } OPTIONAL,
+	...
+}
+
+TABasedMDT-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+TAListforMDT ::= SEQUENCE (SIZE(1..maxnoofTAforMDT)) OF TAC
+
 CompletedCellinTAI ::= SEQUENCE (SIZE(1..maxnoofCellinTAI)) OF CompletedCellinTAI-Item
 
 CompletedCellinTAI-Item ::= SEQUENCE{
@@ -1156,8 +1317,28 @@ TargeteNB-ToSourceeNB-TransparentContainer-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 }
 
 Target-ToSource-TransparentContainer ::= OCTET STRING
+-- This IE includes a transparent container from the target RAN node to the source RAN node. 
+-- The octets of the OCTET STRING are coded according to the specifications of the target system.
+
 TargetRNC-ToSourceRNC-TransparentContainer		::= OCTET STRING
+-- This is a dummy IE used only as a reference to the actual definition in relevant specification.
+
 TargetBSS-ToSourceBSS-TransparentContainer		::= OCTET STRING
+-- This is a dummy IE used only as a reference to the actual definition in relevant specification.
+
+ThresholdEventA2 ::= SEQUENCE { 
+	measurementThreshold		MeasurementThresholdA2,
+	iE-Extensions				ProtocolExtensionContainer { { ThresholdEventA2-ExtIEs} } OPTIONAL,
+	...
+}
+
+ThresholdEventA2-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+Threshold-RSRP ::= INTEGER(0..97)
+
+Threshold-RSRQ ::= INTEGER(0..34)
 
 TimeToWait ::= ENUMERATED {v1s, v2s, v5s, v10s, v20s, v60s, ...}
 
@@ -1175,6 +1356,8 @@ traceCollectionEntityIPAddress	TransportLayerAddress,
 }
 
 TraceActivation-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+-- Extension for Rel-10 to support MDT --
+	{ ID id-MDTConfiguration	CRITICALITY ignore	EXTENSION MDT-Configuration		PRESENCE	optional },
 	...
 }
 
@@ -1189,6 +1372,8 @@ TraceDepth ::= ENUMERATED {
 }
 
 E-UTRAN-Trace-ID ::=  OCTET STRING (SIZE (8))
+
+TrafficLoadReductionIndication ::= INTEGER (1..99)
 
 TypeOfError ::= ENUMERATED {
 	not-understood,
@@ -1292,8 +1477,25 @@ X2TNLConfigurationInfo ::= SEQUENCE {
 }
 
 X2TNLConfigurationInfo-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+-- Extension for Release 10 to transfer the IPsec and U-plane addresses during ANR action --
+	{ID id-eNBX2ExtendedTransportLayerAddresses	CRITICALITY ignore	EXTENSION ENBX2ExtTLAs	PRESENCE optional},
 	...
 }
+
+ENBX2ExtTLAs ::= SEQUENCE (SIZE(1.. maxnoofeNBX2ExtTLAs)) OF ENBX2ExtTLA
+
+ENBX2ExtTLA ::= SEQUENCE {
+	iPsecTLA					TransportLayerAddress		OPTIONAL,
+	gTPTLAa						ENBX2GTPTLAs				OPTIONAL,
+	iE-Extensions				ProtocolExtensionContainer { { ENBX2ExtTLA-ExtIEs} } OPTIONAL,
+	...
+}
+
+ENBX2ExtTLA-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+ENBX2GTPTLAs ::= SEQUENCE (SIZE(1.. maxnoofeNBX2GTPTLAs)) OF TransportLayerAddress
 
 -- Y
 -- Z

@@ -685,6 +685,21 @@ id-LPPa-PDU											ProtocolIE-ID
 id-Routing-ID										ProtocolIE-ID
 id-Time-Synchronization-Info						ProtocolIE-ID
 id-PS-ServiceNotAvailable							ProtocolIE-ID
+id-PagingPriority									ProtocolIE-ID
+id-x2TNLConfigurationInfo							ProtocolIE-ID
+id-eNBX2ExtendedTransportLayerAddresses				ProtocolIE-ID
+id-GUMMEIList										ProtocolIE-ID
+id-GW-TransportLayerAddress							ProtocolIE-ID
+id-Correlation-ID									ProtocolIE-ID
+id-SourceMME-GUMMEI									ProtocolIE-ID
+id-MME-UE-S1AP-ID-2									ProtocolIE-ID
+id-RegisteredLAI									ProtocolIE-ID
+id-RelayNode-Indicator								ProtocolIE-ID
+id-TrafficLoadReductionIndication					ProtocolIE-ID
+id-MDTConfiguration									ProtocolIE-ID
+id-MMERelaySupportIndicator							ProtocolIE-ID
+id-GWContextReleaseIndication						ProtocolIE-ID
+id-ManagementBasedMDTAllowed						ProtocolIE-ID
 #.END
 
 #.REGISTER_NEW
@@ -819,6 +834,18 @@ LPPa-PDU								N s1ap.ies id-LPPa-PDU
 Routing-ID								N s1ap.ies id-Routing-ID
 PS-ServiceNotAvailable					N s1ap.ies id-PS-ServiceNotAvailable
 
+PagingPriority							N s1ap.ies id-PagingPriority
+GUMMEIList								N s1ap.ies id-GUMMEIList
+TransportLayerAddress					N s1ap.ies id-GW-TransportLayerAddress
+GUMMEI									N s1ap.ies id-SourceMME-GUMMEI
+MME-UE-S1AP-ID							N s1ap.ies id-MME-UE-S1AP-ID-2
+LAI										N s1ap.ies id-RegisteredLAI
+RelayNode-Indicator						N s1ap.ies id-RelayNode-Indicator
+TrafficLoadReductionIndication			N s1ap.ies id-TrafficLoadReductionIndication
+MMERelaySupportIndicator				N s1ap.ies id-MMERelaySupportIndicator
+GWContextReleaseIndication				N s1ap.ies id-GWContextReleaseIndication
+ManagementBasedMDTAllowed				N s1ap.ies id-ManagementBasedMDTAllowed
+
 #S1AP-PROTOCOL-IES-PAIR
 #RAB-SetupOrModifyItemFirst				N s1ap.ies.pair.first id-RAB-SetupOrModifyItem
 #RAB-SetupOrModifyItemSecond			N s1ap.ies.pair.second id-RAB-SetupOrModifyItem
@@ -828,6 +855,10 @@ PS-ServiceNotAvailable					N s1ap.ies id-PS-ServiceNotAvailable
 #Alt-RAB-Parameter-ExtendedGuaranteedBitrateInf N s1ap.extension id-Alt-RAB-Parameter-ExtendedGuaranteedBitrateInf
 Data-Forwarding-Not-Possible			N s1ap.extension id-Data-Forwarding-Not-Possible
 TimeSynchronizationInfo					N s1ap.extension id-Time-Synchronization-Info
+X2TNLConfigurationInfo					N s1ap.extension id-x2TNLConfigurationInfo
+ENBX2ExtTLAs							N s1ap.extension id-eNBX2ExtendedTransportLayerAddresses
+Correlation-ID							N s1ap.extension id-Correlation-ID
+MDT-Configuration						N s1ap.extension id-MDTConfiguration
 
 #S1AP-ELEMENTARY-PROCEDURE
 HandoverRequired						N s1ap.proc.imsg id-HandoverPreparation

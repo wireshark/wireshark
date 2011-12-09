@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.413 V9.4.0 (2010-09)
+-- 3GPP TS 36.413 V10.3.0 (2011-09)
 -- 9.3.6	Constant Definitions
 -- **************************************************************
 --
@@ -72,7 +72,7 @@ id-OverloadStart					ProcedureCode ::= 34
 id-OverloadStop						ProcedureCode ::= 35
 id-WriteReplaceWarning				ProcedureCode ::= 36
 id-eNBDirectInformationTransfer		ProcedureCode ::= 37
-id-MMEDirectInformationTransfer	ProcedureCode ::= 38
+id-MMEDirectInformationTransfer		ProcedureCode ::= 38
 id-PrivateMessage					ProcedureCode ::= 39
 id-eNBConfigurationTransfer			ProcedureCode ::= 40
 id-MMEConfigurationTransfer			ProcedureCode ::= 41
@@ -117,10 +117,13 @@ maxnoofEmergencyAreaID					INTEGER ::= 65535
 maxnoofCellinTAI						INTEGER ::= 65535 
 maxnoofCellinEAI						INTEGER ::= 65535 
 maxnoofeNBX2TLAs						INTEGER ::= 2
+maxnoofeNBX2ExtTLAs						INTEGER ::= 16
+maxnoofeNBX2GTPTLAs						INTEGER ::= 16
 maxnoofRATs								INTEGER ::= 8
 maxnoofGroupIDs							INTEGER ::= 65535
 maxnoofMMECs							INTEGER ::= 256
-
+maxnoofCellIDforMDT						INTEGER ::= 32
+maxnoofTAforMDT							INTEGER ::= 8
 
 
 -- **************************************************************
@@ -283,7 +286,7 @@ id-Target-ToSource-TransparentContainer-Secondary	ProtocolIE-ID ::= 139
 id-EUTRANRoundTripDelayEstimationInfo			ProtocolIE-ID ::= 140
 id-BroadcastCancelledAreaList					ProtocolIE-ID ::= 141
 id-ConcurrentWarningMessageIndicator			ProtocolIE-ID ::= 142
-id-Data-Forwarding-Not-Possible                 ProtocolIE-ID ::= 143
+id-Data-Forwarding-Not-Possible					ProtocolIE-ID ::= 143
 id-ExtendedRepetitionPeriod						ProtocolIE-ID ::= 144
 id-CellAccessMode								ProtocolIE-ID ::= 145
 id-CSGMembershipStatus 							ProtocolIE-ID ::= 146
@@ -291,5 +294,20 @@ id-LPPa-PDU										ProtocolIE-ID ::= 147
 id-Routing-ID									ProtocolIE-ID ::= 148
 id-Time-Synchronization-Info					ProtocolIE-ID ::= 149
 id-PS-ServiceNotAvailable						ProtocolIE-ID ::= 150
+id-PagingPriority								ProtocolIE-ID ::= 151
+id-x2TNLConfigurationInfo						ProtocolIE-ID ::= 152
+id-eNBX2ExtendedTransportLayerAddresses			ProtocolIE-ID ::= 153
+id-GUMMEIList									ProtocolIE-ID ::= 154
+id-GW-TransportLayerAddress						ProtocolIE-ID ::= 155
+id-Correlation-ID								ProtocolIE-ID ::= 156
+id-SourceMME-GUMMEI								ProtocolIE-ID ::= 157
+id-MME-UE-S1AP-ID-2								ProtocolIE-ID ::= 158
+id-RegisteredLAI								ProtocolIE-ID ::= 159
+id-RelayNode-Indicator							ProtocolIE-ID ::= 160
+id-TrafficLoadReductionIndication				ProtocolIE-ID ::= 161
+id-MDTConfiguration								ProtocolIE-ID ::= 162
+id-MMERelaySupportIndicator						ProtocolIE-ID ::= 163
+id-GWContextReleaseIndication					ProtocolIE-ID ::= 164
+id-ManagementBasedMDTAllowed					ProtocolIE-ID ::= 165
 
 END
