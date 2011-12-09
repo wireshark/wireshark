@@ -2708,12 +2708,17 @@ cf_write_csv_packets(capture_file *cf, print_args_t *print_args)
 
 static gboolean
 write_carrays_packet(capture_file *cf _U_, frame_data *fdata,
-             union wtap_pseudo_header *pseudo_header _U_,
+             union wtap_pseudo_header *pseudo_header,
              const guint8 *pd, void *argsp)
 {
   FILE *fh = argsp;
+  epan_dissect_t edt;
 
-  proto_tree_write_carrays(pd, fdata->cap_len, fdata->num, fh);
+  epan_dissect_init(&edt, TRUE, TRUE);
+  epan_dissect_run(&edt, pseudo_header, pd, fdata, NULL);
+  proto_tree_write_carrays(fdata->num, fh, &edt);
+  epan_dissect_cleanup(&edt);
+
   return !ferror(fh);
 }
 

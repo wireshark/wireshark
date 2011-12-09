@@ -103,7 +103,7 @@ typedef struct {
   print_dissections_e   print_dissections;
   gboolean	print_hex;	/* TRUE if we should also print hex data;
 				   FALSE if we should print only if not dissected. */
-  gboolean	print_formfeed; /* TRUE if a formfeed should be printed 
+  gboolean	print_formfeed; /* TRUE if a formfeed should be printed
                    before each new packet */
 } print_args_t;
 
@@ -146,7 +146,7 @@ extern void proto_tree_write_csv(epan_dissect_t *edt, FILE *fh);
 extern void write_csv_finale(FILE *fh);
 
 extern void write_carrays_preamble(FILE *fh);
-extern void proto_tree_write_carrays(const guint8 *pd, guint32 len, guint32 num, FILE *fh);
+extern void proto_tree_write_carrays(guint32 num, FILE *fh, epan_dissect_t *edt);
 extern void write_carrays_finale(FILE *fh);
 
 extern void write_fields_preamble(output_fields_t* fields, FILE *fh);

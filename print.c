@@ -41,6 +41,7 @@
 
 #include "packet-range.h"
 #include "print.h"
+#include "isprint.h"
 #include "ps.h"
 #include "version_info.h"
 #include <wsutil/file_util.h>
@@ -692,28 +693,62 @@ write_carrays_preamble(FILE *fh _U_)
 }
 
 void
-proto_tree_write_carrays(const guint8 *pd, guint32 len, guint32 num, FILE *fh)
+proto_tree_write_carrays(guint32 num, FILE *fh, epan_dissect_t *edt)
 {
-        guint32 i = 0;
+	guint32 i = 0, src_num = 0;
+	GSList *src_le;
+	data_source *src;
+	tvbuff_t *tvb;
+	const char *name;
+	const guchar *cp;
+	guint length;
+	char ascii[9];
 
-	if (!len)
-		return;
+	for (src_le = edt->pi.data_src; src_le != NULL; src_le = src_le->next) {
+		memset(ascii, 0, sizeof(ascii));
+		src = (data_source *)src_le->data;
+		tvb = src->tvb;
+		length = tvb_length(tvb);
+		if (length == 0)
+			continue;
 
-	fprintf(fh, "char pkt%u[] = {\n", num);
+		cp = tvb_get_ptr(tvb, 0, length);
 
-        for (i = 0; i < len; i++) {
-
-		fprintf(fh, "0x%02x", *(pd + i));
-
-		if (i == (len - 1)) {
-			fprintf(fh, " };\n\n");
-			break;
-		}
-
-		if (!((i + 1) % 8)) {
-			fprintf(fh, ", \n");
+		name = get_data_source_name(src);
+		if (name)
+			fprintf(fh, "/* %s */\n", name);
+		if (src_num) {
+			fprintf(fh, "static const unsigned char pkt%u_%u[%u] = {\n",
+				num, src_num, length);
 		} else {
-			fprintf(fh, ", ");
+			fprintf(fh, "static const unsigned char pkt%u[%u] = {\n",
+				num, length);
+		}
+		src_num++;
+
+		for (i = 0; i < length; i++) {
+			fprintf(fh, "0x%02x", *(cp + i));
+			ascii[i % 8] = isprint(*(cp + i)) ? *(cp + i) : '.';
+
+			if (i == (length - 1)) {
+				guint rem;
+				rem = length % 8;
+				if (rem) {
+					guint j;
+					for ( j = 0; j < 8 - rem; j++ )
+						fprintf(fh, "      ");
+				}
+				fprintf(fh, "  /* %s */\n};\n\n", ascii);
+				break;
+			}
+
+			if (!((i + 1) % 8)) {
+				fprintf(fh, ", /* %s */\n", ascii);
+				memset(ascii, 0, sizeof(ascii));
+			}
+			else {
+				fprintf(fh, ", ");
+			}
 		}
 	}
 }
