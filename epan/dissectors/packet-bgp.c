@@ -2128,7 +2128,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                             guint d;
                             asn_len = 2;
                             k = q;
-                            while (k < end)
+                            while ((k < end) && !unknown_segment_type && !asn_is_null)
                             {
                                 type = tvb_get_guint8(tvb, k++);
 
@@ -2142,7 +2142,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                                 length = tvb_get_guint8(tvb, k++);
 
                                 /* Check for invalid ASN */
-                                for (d = 0; d < length; d++)
+                                for (d = 0; d < length && !unknown_segment_type && !asn_is_null; d++)
                                 {
                                     if(tvb_get_ntohs(tvb, k) == 0)
                                         asn_is_null = 1;
