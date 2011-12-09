@@ -44,8 +44,8 @@ typedef struct rohc_info
     gboolean           rnd;
     gboolean           udp_checkum_present;
     unsigned short     profile;
-	proto_item         *last_created_item;
+    proto_item         *last_created_item;
 } rohc_info;
 
 int dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, proto_tree *tree, int offset, rohc_info *p_rohc_info);
-#endif PACKET_ROHC_H
+#endif /* PACKET_ROHC_H */

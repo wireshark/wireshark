@@ -35,8 +35,8 @@
 #include <epan/addr_resolv.h>
 #include <epan/emem.h>
 
-#include "packet-rohc.h"
 #include "packet-pdcp-lte.h"
+#include "packet-rohc.h"
 
 /* Described in:
  * 3GPP TS 36.323 Evolved Universal Terrestrial Radio Access (E-UTRA)
