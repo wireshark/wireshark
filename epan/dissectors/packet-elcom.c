@@ -115,8 +115,8 @@ static const value_string endian_vals[] = {
 };
 
 static const value_string suffix_vals[] = {
-        {'A', "Big"},
-        {'B', "Little"},
+        {'A', "Control"},
+        {'B', "Unsolicited"},
         {'C', "Periodic"},
         {'D', "Requested, scheduling"},
         {'E', "Requested, present/archived"},
@@ -148,6 +148,11 @@ static const value_string userdata_result_vals[] = {
 static const value_string datarequest_grouptype_vals[] = {
         {TC_REQ, "Test Connection Request"},
         {TC_RSP, "Test Connection Response"},
+        {0, NULL }
+};
+
+static const value_string datarequest_result_vals[] = {
+        {0x00, "OK"},
         {0, NULL }
 };
 
@@ -332,6 +337,10 @@ dissect_datarequest(proto_item *ti_arg, gint ett_arg, tvbuff_t *tvb, gint arg_of
         offset += 1;
 
         switch (gtype) {
+
+        case TC_REQ:
+                /* No more data for this type, suppress the error message */
+                break;
 
         case TC_RSP:
 
@@ -693,12 +702,12 @@ proto_register_elcom(void)
 
                 { &hf_elcom_datarequest_grouptype,
                   { "Group Type",        "elcom.datarequest.grouptype",
-                    FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
+                    FT_UINT8, BASE_DEC, VALS(datarequest_grouptype_vals), 0, NULL, HFILL }
                 },
 
                 { &hf_elcom_datarequest_result,
                   { "Result",        "elcom.datarequest.result",
-                    FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
+                    FT_UINT8, BASE_DEC, VALS(datarequest_result_vals), 0, NULL, HFILL }
                 },
 
                 { &hf_elcom_datarequest_groupnumber,
