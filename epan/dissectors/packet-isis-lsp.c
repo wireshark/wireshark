@@ -22,6 +22,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+/*
+ * Copyright 2011, Malgi Nikitha Vivekananda <malgi.nikitha@ipinfusion.com>
+ *                 Krishnamurthy Mayya <krishnamurthy.mayya@ipinfusion.com>
+ *                    - Decoding for Router Capability TLV and associated subTLVs as per RFC 6326
+ *
+ */
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -38,6 +44,18 @@
 #include <epan/addr_resolv.h>
 #include <epan/addr_and_mask.h>
 #include <epan/expert.h>
+
+/* Sub-TLVs under Router Capability TLV
+   As per RFC 6326 section 2.3 */
+#define TRILL_VERSION            12
+#define NICKNAME                  6
+#define TREES                     7
+#define TREE_IDENTIFIER           8
+#define TREES_USED_IDENTIFIER     9
+#define INTERESTED_VLANS         10
+#define VLAN_GROUP               13
+
+
 
 /* lsp packets */
 static int hf_isis_lsp_pdu_length = -1;
@@ -56,6 +74,7 @@ static int hf_isis_lsp_p = -1;
 static int hf_isis_lsp_att = -1;
 static int hf_isis_lsp_hippity = -1;
 static int hf_isis_lsp_is_type = -1;
+static int hf_isis_lsp_root_id = -1;
 
 static gint ett_isis_lsp = -1;
 static gint ett_isis_lsp_info = -1;
@@ -88,6 +107,7 @@ static gint ett_isis_lsp_clv_mt_is = -1;
 static gint ett_isis_lsp_part_of_clv_mt_is = -1;
 static gint ett_isis_lsp_clv_mt_reachable_IPv4_prefx = -1;  /* CLV 235 */
 static gint ett_isis_lsp_clv_mt_reachable_IPv6_prefx = -1;  /* CLV 237 */
+static gint ett_isis_lsp_clv_rt_capable_IPv4_prefx = -1;  /* CLV 242 */
 
 static const value_string isis_lsp_istype_vals[] = {
 	{ ISIS_LSP_TYPE_UNUSED0,	"Unused 0x0 (invalid)"},
@@ -143,6 +163,8 @@ static void dissect_ipreach_subclv(tvbuff_t *tvb,
 static void dissect_lsp_mt_reachable_IPv4_prefx_clv(tvbuff_t *tvb,
         proto_tree *tree, int offset, int id_length, int length);
 static void dissect_lsp_mt_reachable_IPv6_prefx_clv(tvbuff_t *tvb,
+        proto_tree *tree, int offset, int id_length, int length);
+static void dissect_isis_rt_capable_clv(tvbuff_t *tvb,
         proto_tree *tree, int offset, int id_length, int length);
 
 
@@ -261,6 +283,13 @@ static const isis_clv_handle_t clv_l1_lsp_opts[] = {
 		&ett_isis_lsp_clv_mt_reachable_IPv6_prefx,
 		dissect_lsp_mt_reachable_IPv6_prefx_clv
 	},
+	{
+		ISIS_CLV_RT_CAPABLE,
+		"Router Capability",
+		&ett_isis_lsp_clv_rt_capable_IPv4_prefx,
+		dissect_isis_rt_capable_clv
+	},
+
 	{
 		0,
 		"",
@@ -758,6 +787,343 @@ dissect_lsp_ext_ip_reachability_clv(tvbuff_t *tvb, proto_tree *tree,
 		length -= len;
 	}
 }
+
+
+
+
+
+/*
+ * Name: dissect_isis_rt_capable_clv()
+ *
+ * Description: Decode RouterCapability subTLVs
+ *
+ *   The Router Capability TLV is composed of 1 octet for the type,
+ *   1 octet that specifies the number of bytes in the value field, and a
+ *   variable length value field that can have any or all of the subTLVs 
+ *   that are listed in the below section
+ *
+ * Input:
+ *   tvbuff_t * : tvbuffer for packet data
+ *   proto_tree * : proto tree to build on (may be null)
+ *   int : current offset into packet data
+ *   int : length of IDs in packet.
+ *   int : length of this clv
+ *   len : local variable described to handle the length of the subTLV
+ *
+ * Output:
+ *   void, will modify proto_tree if not null.
+ */
+
+/* As per RFC 6326 section 2.3 */
+static void
+dissect_isis_rt_capable_clv(tvbuff_t *tvb,
+        proto_tree *tree, int offset, int id_length _U_, int length)
+{
+
+
+        gint len;
+        guint16 rt_block;
+        guint32 rt_block1;
+        proto_item *ti;
+        proto_tree *rt_tree;
+
+        const char *mt_desc;
+        gint root_id = 1;       /* To display the root id */
+        gint sec_vlan_id = 1;   /* To display the seconadary VLAN id */ 
+        length = length - 5;    /* Ignoring the 5 reserved bytes */
+        offset = offset + 5;
+
+        while (length>1) {
+            /* length can only be a multiple of 2, otherwise there is
+               something broken -> so decode down until length is 1 */
+            if (length!=1) {
+                /* fetch two bytes */
+                rt_block = tvb_get_ntohs(tvb, offset);
+
+                /* Mask out the lower 8 bits */
+                switch ((rt_block&0xff00)>>8) {
+
+                case TRILL_VERSION:
+                    mt_desc = "TRILL version";
+
+                    ti = proto_tree_add_text(tree, tvb, offset, (rt_block&0x00ff)+2, "%s sub tlv", mt_desc);
+
+                    rt_tree = proto_item_add_subtree(ti, ett_isis_lsp_clv_rt_capable_IPv4_prefx);
+
+                    length = length-1;
+                    offset = offset+1;
+
+                    len = tvb_get_guint8(tvb, offset); /* 1 byte fetched displays the length */
+                    proto_tree_add_text(rt_tree, tvb, offset, 1, "Length: %d", len);
+            
+                    rt_block = tvb_get_ntohs(tvb, offset); /* Fetch the data in the next two bytes for display */
+                    proto_tree_add_text(rt_tree, tvb, offset+1, 1, "Maximum version: %d", (rt_block&0x00ff));
+
+                    length = length-2;
+                    offset = offset+2;
+
+                    break;
+    
+                case TREES:
+                    mt_desc = "Trees";
+                    ti = proto_tree_add_text(tree, tvb, offset, (rt_block&0x00ff)+2, "%s sub tlv", mt_desc);
+
+                    rt_tree = proto_item_add_subtree(ti, ett_isis_lsp_clv_rt_capable_IPv4_prefx);
+                
+                    length = length-1;
+                    offset = offset+1;
+
+                    len = tvb_get_guint8(tvb, offset);
+                    proto_tree_add_text(rt_tree, tvb, offset, 1, "Length: %d", len);
+
+                    length = length-1;
+                    offset = offset+1;
+
+                    rt_block = tvb_get_ntohs(tvb, offset);
+                    proto_tree_add_text(rt_tree, tvb, offset, 2, "Nof. trees to compute: %d", rt_block);
+
+                    length = length-2;
+                    offset = offset+2;
+
+                    rt_block = tvb_get_ntohs(tvb, offset);
+                    proto_tree_add_text(rt_tree, tvb, offset, 2, "Maximum nof. trees to compute: %d", rt_block);
+
+                    length = length-2;
+                    offset = offset+2;
+
+                    rt_block = tvb_get_ntohs(tvb, offset);
+
+                    proto_tree_add_text(rt_tree, tvb, offset, 2, "Nof. trees to use: %d", rt_block);
+
+                    length = length-2;
+                    offset = offset+2;
+
+                    break;
+
+                case TREE_IDENTIFIER:
+                    mt_desc = "Tree root identifier";
+                    ti=proto_tree_add_text(tree, tvb, offset, (rt_block&0x00ff)+2, "%s sub tlv", mt_desc);
+
+                    rt_tree = proto_item_add_subtree(ti, ett_isis_lsp_clv_rt_capable_IPv4_prefx);
+               
+                    length = length-1;
+                    offset = offset+1;
+
+                    len = tvb_get_guint8(tvb, offset);
+                    proto_tree_add_text(rt_tree, tvb, offset, 1, "Length: %d", len);
+
+                    rt_block = tvb_get_ntohs(tvb, offset+1);
+
+                    proto_tree_add_text(rt_tree, tvb, offset+1, 2, "Starting tree no: %d", rt_block);
+
+                    len = len-2;
+                    length = length-2;
+                    offset = offset+3;
+
+                    while (len>1) {
+                          rt_block = tvb_get_ntohs(tvb, offset);
+                          proto_tree_add_text(rt_tree, tvb, offset, 2, "Nickname(%dth root): %d", root_id, rt_block);
+                          root_id = root_id+1;
+                          len = len-2;
+                          length = length-2;
+                          offset = offset+2;
+                    }
+                    break;
+
+                case NICKNAME:
+                    mt_desc = "The nickname";
+                    ti=proto_tree_add_text(tree, tvb, offset, (rt_block&0x00ff)+2, "%s sub tlv", mt_desc);
+
+                    rt_tree = proto_item_add_subtree(ti, ett_isis_lsp_clv_rt_capable_IPv4_prefx);
+
+                    length = length-1;
+                    offset = offset+1;
+                    len = tvb_get_guint8(tvb, offset);
+
+                    proto_tree_add_text(rt_tree, tvb, offset, 1, "Length: %d", len);
+                    length = length-1;
+                    offset = offset+1;
+
+                    while (len>0) {
+                        rt_block = tvb_get_ntohs(tvb, offset);
+
+                        proto_tree_add_text(rt_tree, tvb, offset, 1, "Nickname priority: %d", ((rt_block&0xff00)>>8));
+
+                        length = length-1;
+                        offset = offset+1;
+                        len = len-1;
+                        rt_block = tvb_get_ntohs(tvb, offset);
+
+                        proto_tree_add_text(rt_tree, tvb, offset, 2, "Tree root priority: %d", rt_block);
+
+                        length = length-2;
+                        offset = offset+2;
+                        len = len-2;
+
+                        rt_block = tvb_get_ntohs(tvb, offset);
+
+                        proto_tree_add_text(rt_tree, tvb, offset, 2, "Nickname: %x", rt_block);
+
+                        length = length-2;
+                        offset = offset+2;
+                        len = len-2;
+                    }
+                    break;
+
+                case INTERESTED_VLANS:
+                    mt_desc = "Interested VLAN and spanning tree root";
+                    ti = proto_tree_add_text(tree, tvb, offset, (rt_block&0x00ff)+2, "%s sub tlv", mt_desc);
+
+                    rt_tree = proto_item_add_subtree(ti, ett_isis_lsp_clv_rt_capable_IPv4_prefx);
+
+                    length = length-1;
+                    offset = offset+1;
+
+                    len = tvb_get_guint8(tvb, offset);
+                    proto_tree_add_text(rt_tree, tvb, offset, 1, "Length: %d", len);
+
+                    length = length-1;
+                    offset = offset+1;
+                    len = len-1;
+
+                    rt_block = tvb_get_ntohs(tvb, offset);
+
+                    proto_tree_add_text(rt_tree, tvb, offset, 2, "Nickname: %x", rt_block);
+
+                    length = length-2;
+                    offset = offset+2;
+                    len = len-2;
+
+                    rt_block = tvb_get_ntohs(tvb, offset);
+
+                    proto_tree_add_text(rt_tree, tvb, offset, 2,
+                                        "%s%s", (rt_block&0x8000) ? "IPv4 multicast router set, " : "IPv4 multicast router not set, ", 
+                                                (rt_block&0x4000) ? "IPv6 multicast router set" : "IPv6 multicast router not set"); 
+                    proto_tree_add_text(rt_tree, tvb, offset, 2, "Vlan start id: %x", (rt_block&0x0fff));
+
+                    length = length-2;
+                    offset = offset+2;
+                    len = len-2;
+
+                    rt_block = tvb_get_ntohs(tvb, offset);
+
+                    proto_tree_add_text(rt_tree, tvb, offset, 2, "Vlan end id: %x", (rt_block&0x0fff));
+
+                    length = length-2;
+                    offset = offset+2;
+                    len = len-2;
+
+                    rt_block1 = tvb_get_ntohl(tvb, offset);
+
+                    proto_tree_add_text(rt_tree, tvb, offset, 4, "Appointed forward state lost counter: %d", rt_block1);
+
+                    length = length-4;
+                    offset = offset+4;
+                    len = len-4;
+
+                    while (len>0) {
+                        proto_tree_add_item(rt_tree, hf_isis_lsp_root_id, tvb, offset,
+                                            6, ENC_BIG_ENDIAN);
+
+                        length = length-6;
+                        offset = offset+6;
+                        len = len-6;
+                        length = length-2;
+                    }
+                    break;
+
+                case TREES_USED_IDENTIFIER:
+                    mt_desc = "Trees used identifier";
+                
+                    ti=proto_tree_add_text(tree, tvb, offset, (rt_block&0x00ff)+2, "%s sub tlv", mt_desc);
+
+                    rt_tree = proto_item_add_subtree(ti, ett_isis_lsp_clv_rt_capable_IPv4_prefx);
+
+                    length = length-1;
+                    offset = offset+1;
+
+                    len = tvb_get_guint8(tvb, offset);
+                    proto_tree_add_text(rt_tree, tvb, offset, 1, "Length: %d", len);
+
+                    rt_block = tvb_get_ntohs(tvb, offset+1);
+
+                    proto_tree_add_text(rt_tree, tvb, offset+1, 2, "Starting tree no: %d", rt_block);
+                    len = len-2;
+                    length = length-2;
+                    offset = offset+3;
+                    root_id = 1;
+
+                    while (len>0) {
+                        rt_block = tvb_get_ntohs(tvb, offset);
+                        proto_tree_add_text(rt_tree, tvb, offset,2,"Nickname(%dth root): %d", root_id, rt_block);
+                        root_id = root_id+1;
+
+                        len = len-2;
+                        offset = offset+2;
+                        length = length-2;
+                    }
+                    break;
+
+                case VLAN_GROUP:
+                    mt_desc = "The VLAN group";
+                    ti = proto_tree_add_text(tree, tvb, offset, (rt_block&0x00ff)+2, "%s sub tlv", mt_desc);
+
+                    rt_tree = proto_item_add_subtree(ti, ett_isis_lsp_clv_rt_capable_IPv4_prefx);
+
+                    length = length-1;
+                    offset = offset+1;
+ 
+                    len = tvb_get_guint8(tvb, offset);
+                    proto_tree_add_text(rt_tree, tvb, offset, 1, "Length: %d", len);
+
+                    len = len-1;
+                    length = length-1;
+                    offset = offset+1;
+
+                    rt_block = tvb_get_ntohs(tvb, offset);
+                    proto_tree_add_text(rt_tree, tvb, offset, 2, "Primary vlan id: %d", (rt_block&0x0fff));
+                
+                    length = length-2;
+                    offset = offset+2;
+                    len = len-2;
+
+                    rt_block = tvb_get_ntohs(tvb, offset);
+                    proto_tree_add_text(rt_tree, tvb, offset, 2, "Secondary vlan id: %d", (rt_block&0x0fff));
+        
+                    length = length-2;
+                    offset = offset+2;
+                    len = len-2;
+                    sec_vlan_id = 1;
+
+                    while (len>0) {
+                        rt_block = tvb_get_ntohs(tvb, offset);
+
+                        proto_tree_add_text(rt_tree, tvb, offset, 2, "%dth secondary vlan id: %x", sec_vlan_id, rt_block);
+
+                        length = length-2;
+                        offset = offset+2;
+                        sec_vlan_id = sec_vlan_id+1;
+                        len = len-2;
+                    }
+                    break;
+
+                default:
+                    mt_desc = "INVALID";
+                    ti = proto_tree_add_text(tree, tvb, offset, (rt_block&0x00ff)+2, "%s sub tlv", mt_desc);
+
+                    rt_tree = proto_item_add_subtree(ti, ett_isis_lsp_clv_rt_capable_IPv4_prefx);
+
+                    offset = offset+1;
+                    length = length-2-(tvb_get_guint8(tvb, offset));
+                    offset = offset+1+(tvb_get_guint8(tvb, offset));
+                    break;
+                }
+            }
+        }
+}
+
+
+
 
 /*
  * Name: dissect_lsp_ipv6_reachability_clv()
@@ -1968,6 +2334,7 @@ isis_register_lsp(int proto_isis) {
 		{ "MT-ID", "isis.lsp.clv_mt",
 			FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
+
 		{ &hf_isis_lsp_p,
 		{ "Partition Repair",	"isis.lsp.partition_repair", FT_BOOLEAN, 8,
 			TFS(&tfs_supported_not_supported), ISIS_LSP_PARTITION_MASK,
@@ -1982,6 +2349,10 @@ isis_register_lsp(int proto_isis) {
 		{ "Overload bit",	"isis.lsp.overload", FT_BOOLEAN, 8,
 			TFS(&tfs_set_notset), ISIS_LSP_HIPPITY_MASK,
 			"If set, this router will not be used by any decision process to calculate routes", HFILL }},
+
+		{ &hf_isis_lsp_root_id,
+		{ "Root Bridge ID",	"isis.lsp.root.id", FT_UINT64, BASE_HEX,
+			NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_isis_lsp_is_type,
 		{ "Type of Intermediate System",	"isis.lsp.is_type", FT_UINT8, BASE_DEC,
@@ -2018,8 +2389,9 @@ isis_register_lsp(int proto_isis) {
 		&ett_isis_lsp_clv_mt,
 		&ett_isis_lsp_clv_mt_is,
 		&ett_isis_lsp_part_of_clv_mt_is,
-    &ett_isis_lsp_clv_mt_reachable_IPv4_prefx,
-    &ett_isis_lsp_clv_mt_reachable_IPv6_prefx
+		&ett_isis_lsp_clv_rt_capable_IPv4_prefx,
+		&ett_isis_lsp_clv_mt_reachable_IPv4_prefx,
+		&ett_isis_lsp_clv_mt_reachable_IPv6_prefx
 	};
 
 	proto_register_field_array(proto_isis, hf, array_length(hf));

@@ -68,6 +68,7 @@
 #define ISIS_CLV_MT_IP6_REACH        237 /* draft-ietf-isis-wg-multi-topology-05 */
 #define ISIS_CLV_PTP_ADJ_STATE       240 /* rfc3373 */
 #define ISIS_CLV_IIH_SEQNR           241 /* draft-shen-isis-iih-sequence-00 */
+#define ISIS_CLV_RT_CAPABLE          242 /* TRILL use of IS-IS RFC 6326 */
 #define ISIS_CLV_VENDOR_PRIVATE      250 /* draft-ietf-isis-proprietary-tlv-00 */
 
 /*
