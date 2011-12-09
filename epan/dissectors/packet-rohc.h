@@ -53,4 +53,6 @@ typedef struct rohc_info
 } rohc_info;
 
 int dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, proto_tree *tree, int offset, rohc_info *p_rohc_info);
+int dissect_rohc_ir_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset, guint8 cid, gboolean is_add_cid, rohc_info *p_rohc_info);
+
 #endif /* PACKET_ROHC_H */
