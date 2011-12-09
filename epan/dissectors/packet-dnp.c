@@ -3536,6 +3536,9 @@ proto_register_dnp3(void)
 /* Register the protocol name and description */
   proto_dnp3 = proto_register_protocol("Distributed Network Protocol 3.0",
                    "DNP 3.0", "dnp3");
+                   
+/* Register the dissector so it may be used as a User DLT payload protocol */
+  register_dissector("dnp3.udp", dissect_dnp3_udp, proto_dnp3);
 
 /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_dnp3, hf, array_length(hf));
