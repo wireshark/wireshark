@@ -118,17 +118,25 @@ static int hf_iax2_cap_g723_1 = -1;
 static int hf_iax2_cap_gsm = -1;
 static int hf_iax2_cap_ulaw = -1;
 static int hf_iax2_cap_alaw = -1;
-static int hf_iax2_cap_g726 = -1;
+static int hf_iax2_cap_g726_aal2 = -1;
 static int hf_iax2_cap_adpcm = -1;
 static int hf_iax2_cap_slinear = -1;
 static int hf_iax2_cap_lpc10 = -1;
 static int hf_iax2_cap_g729a = -1;
 static int hf_iax2_cap_speex = -1;
 static int hf_iax2_cap_ilbc = -1;
+static int hf_iax2_cap_g726 = -1;
+static int hf_iax2_cap_g722 = -1;
+static int hf_iax2_cap_siren7 = -1;
+static int hf_iax2_cap_siren14 = -1;
+static int hf_iax2_cap_slinear16 = -1;
 static int hf_iax2_cap_jpeg = -1;
 static int hf_iax2_cap_png = -1;
 static int hf_iax2_cap_h261 = -1;
 static int hf_iax2_cap_h263 = -1;
+static int hf_iax2_cap_h263_plus = -1;
+static int hf_iax2_cap_h264 = -1;
+static int hf_iax2_cap_mpeg4 = -1;
 
 static int hf_iax2_fragments = -1;
 static int hf_iax2_fragment = -1;
@@ -259,6 +267,9 @@ static const value_string iax_iax_subclasses[] = {
   {35, "PROVISION"},
   {36, "FWDOWNL"},
   {37, "FWDATA"},
+  {38, "TXMEDIA"},
+  {39, "RTKEY"},
+  {40, "CALLTOKEN"},
   {0,NULL}
 };
 
@@ -351,6 +362,11 @@ static const value_string iax_ies_type[] = {
   {IAX_IE_RR_DROPPED,       "Dropped frames"},
   {IAX_IE_RR_OOO,           "Frames received out of order"},
   {IAX_IE_DATAFORMAT,       "Data call format"},
+  {IAX_IE_VARIABLE,         "IAX2 variable"},
+  {IAX_IE_OSPTOKEN,         "OSP Token"},
+  {IAX_IE_CALLTOKEN,        "Call Token"},
+  {IAX_IE_CAPABILITY2,      "64-bit codec capability"},
+  {IAX_IE_FORMAT2,          "64-bit codec format"},
   {0,NULL}
 };
 
@@ -359,17 +375,25 @@ static const value_string codec_types[] = {
   {AST_FORMAT_GSM,      "GSM compression"},
   {AST_FORMAT_ULAW,     "Raw mu-law data (G.711)"},
   {AST_FORMAT_ALAW,     "Raw A-law data (G.711)"},
-  {AST_FORMAT_G726,     "ADPCM (G.726, 32kbps)"},
+  {AST_FORMAT_G726_AAL2,"ADPCM (G.726, 32kbps)"},
   {AST_FORMAT_ADPCM,    "ADPCM (IMA)"},
   {AST_FORMAT_SLINEAR,  "Raw 16-bit Signed Linear (8000 Hz) PCM"},
   {AST_FORMAT_LPC10,    "LPC10, 180 samples/frame"},
   {AST_FORMAT_G729A,    "G.729a Audio"},
   {AST_FORMAT_SPEEX,    "SpeeX Free Compression"},
   {AST_FORMAT_ILBC,     "iLBC Free Compression"},
+  {AST_FORMAT_G726,     "G.726 compression"},
+  {AST_FORMAT_G722,     "G.722 wideband"},
+  {AST_FORMAT_SIREN7,   "G.722.1 32k wideband (aka Siren7)"},
+  {AST_FORMAT_SIREN14,  "G.722.1 Annex C 48k wideband (aka Siren14)"},
+  {AST_FORMAT_SLINEAR16,"Raw 16kHz signed linear audio"},
   {AST_FORMAT_JPEG,     "JPEG Images"},
   {AST_FORMAT_PNG,      "PNG Images"},
   {AST_FORMAT_H261,     "H.261 Video"},
   {AST_FORMAT_H263,     "H.263 Video"},
+  {AST_FORMAT_H263_PLUS,"H.263+ Video"},
+  {AST_FORMAT_H264,     "H.264 Video"},
+  {AST_FORMAT_MP4_VIDEO,"MPEG4 Video"},
   {0,NULL}
 };
 
@@ -393,14 +417,20 @@ static const value_string iax_causecodes[] = {
   {AST_CAUSE_UNALLOCATED,                 "Unallocated"},
   {AST_CAUSE_NO_ROUTE_TRANSIT_NET,        "No route transit net"},
   {AST_CAUSE_NO_ROUTE_DESTINATION,        "No route to destination"},
+  {AST_CAUSE_MISDIALLED_TRUNK_PREFIX,     "Misdialled trunk prefix"},
   {AST_CAUSE_CHANNEL_UNACCEPTABLE,        "Channel unacceptable"},
   {AST_CAUSE_CALL_AWARDED_DELIVERED,      "Call awarded delivered"},
+  {AST_CAUSE_PRE_EMPTED,                  "Preempted"},
+  {AST_CAUSE_NUMBER_PORTED_NOT_HERE,      "Number ported not here"},
   {AST_CAUSE_NORMAL_CLEARING,             "Normal clearing"},
   {AST_CAUSE_USER_BUSY,                   "User busy"},
   {AST_CAUSE_NO_USER_RESPONSE,            "No user response"},
   {AST_CAUSE_NO_ANSWER,                   "No answer"},
+  {AST_CAUSE_SUBSCRIBER_ABSENT,           "Subscriber absent"},
   {AST_CAUSE_CALL_REJECTED,               "Call rejected"},
   {AST_CAUSE_NUMBER_CHANGED,              "Number changed"},
+  {AST_CAUSE_REDIRECTED_TO_NEW_DESTINATION,"Redirected to new destination"},
+  {AST_CAUSE_ANSWERED_ELSEWHERE,          "Answered elsewhere"},
   {AST_CAUSE_DESTINATION_OUT_OF_ORDER,    "Destination out of order"},
   {AST_CAUSE_INVALID_NUMBER_FORMAT,       "Invalid number format"},
   {AST_CAUSE_FACILITY_REJECTED,           "Facility rejected"},
@@ -412,7 +442,6 @@ static const value_string iax_causecodes[] = {
   {AST_CAUSE_SWITCH_CONGESTION,           "Switch congestion"},
   {AST_CAUSE_ACCESS_INFO_DISCARDED,       "Access info discarded"},
   {AST_CAUSE_REQUESTED_CHAN_UNAVAIL,      "Requested channel unavailable"},
-  {AST_CAUSE_PRE_EMPTED,                  "Preempted"},
   {AST_CAUSE_FACILITY_NOT_SUBSCRIBED,     "Facility not subscribed"},
   {AST_CAUSE_OUTGOING_CALL_BARRED,        "Outgoing call barred"},
   {AST_CAUSE_INCOMING_CALL_BARRED,        "Incoming call barred"},
@@ -1244,17 +1273,25 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
           proto_tree_add_item(codec_tree, hf_iax2_cap_gsm, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN );
           proto_tree_add_item(codec_tree, hf_iax2_cap_ulaw, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN );
           proto_tree_add_item(codec_tree, hf_iax2_cap_alaw, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN );
-          proto_tree_add_item(codec_tree, hf_iax2_cap_g726, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN );
+          proto_tree_add_item(codec_tree, hf_iax2_cap_g726_aal2, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN );
           proto_tree_add_item(codec_tree, hf_iax2_cap_adpcm, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN );
           proto_tree_add_item(codec_tree, hf_iax2_cap_slinear, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN );
           proto_tree_add_item(codec_tree, hf_iax2_cap_lpc10, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN );
           proto_tree_add_item(codec_tree, hf_iax2_cap_g729a, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN );
           proto_tree_add_item(codec_tree, hf_iax2_cap_speex, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN );
           proto_tree_add_item(codec_tree, hf_iax2_cap_ilbc, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN );
+          proto_tree_add_item(codec_tree, hf_iax2_cap_g726, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN );
+          proto_tree_add_item(codec_tree, hf_iax2_cap_g722, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN );
+          proto_tree_add_item(codec_tree, hf_iax2_cap_siren7, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN );
+          proto_tree_add_item(codec_tree, hf_iax2_cap_siren14, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN );
+          proto_tree_add_item(codec_tree, hf_iax2_cap_slinear16, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN );
           proto_tree_add_item(codec_tree, hf_iax2_cap_jpeg, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN );
           proto_tree_add_item(codec_tree, hf_iax2_cap_png, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN );
           proto_tree_add_item(codec_tree, hf_iax2_cap_h261, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN );
           proto_tree_add_item(codec_tree, hf_iax2_cap_h263, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN );
+          proto_tree_add_item(codec_tree, hf_iax2_cap_h263_plus, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN );
+          proto_tree_add_item(codec_tree, hf_iax2_cap_h264, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN );
+          proto_tree_add_item(codec_tree, hf_iax2_cap_mpeg4, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN );
           break;
         }
 
@@ -2661,9 +2698,9 @@ proto_register_iax2 (void)
        TFS(&tfs_supported_not_supported), AST_FORMAT_ALAW,
        NULL, HFILL }},
 
-    {&hf_iax2_cap_g726,
-     {"G.726 compression", "iax2.cap.g726",FT_BOOLEAN, 32,
-      TFS(&tfs_supported_not_supported), AST_FORMAT_G726,
+    {&hf_iax2_cap_g726_aal2,
+     {"G.726 compression (AAL2 packing)", "iax2.cap.g726_aal2",FT_BOOLEAN, 32,
+      TFS(&tfs_supported_not_supported), AST_FORMAT_G726_AAL2,
       NULL, HFILL }},
 
     {&hf_iax2_cap_adpcm,
@@ -2696,6 +2733,31 @@ proto_register_iax2 (void)
       TFS(&tfs_supported_not_supported), AST_FORMAT_ILBC,
       NULL, HFILL }},
 
+    {&hf_iax2_cap_g726,
+     {"ADPCM (G.726, 32kbps, RFC3551 codeword packing)", "iax2.cap.g726", FT_BOOLEAN, 32,
+      TFS(&tfs_supported_not_supported), AST_FORMAT_G726,
+      NULL, HFILL }},
+
+    {&hf_iax2_cap_g722,
+     {"G.722 wideband audio", "iax2.cap.g722", FT_BOOLEAN, 32,
+      TFS(&tfs_supported_not_supported), AST_FORMAT_G722,
+      NULL, HFILL }},
+
+    {&hf_iax2_cap_siren7,
+     {"G.722.1 (also known as Siren7, 32kbps assumed)", "iax2.cap.siren7", FT_BOOLEAN, 32,
+      TFS(&tfs_supported_not_supported), AST_FORMAT_SIREN7,
+      NULL, HFILL }},
+
+    {&hf_iax2_cap_siren14,
+     {"G.722.1 Annex C (also known as Siren14, 48kbps assumed)", "iax2.cap.siren14", FT_BOOLEAN, 32,
+      TFS(&tfs_supported_not_supported), AST_FORMAT_SIREN14,
+      NULL, HFILL }},
+
+    {&hf_iax2_cap_slinear16,
+     {"Raw 16-bit Signed Linear (16000 Hz) PCM", "iax2.cap.slinear16", FT_BOOLEAN, 32,
+      TFS(&tfs_supported_not_supported), AST_FORMAT_SLINEAR16,
+      NULL, HFILL }},
+
     {&hf_iax2_cap_jpeg,
      {"JPEG images", "iax2.cap.jpeg", FT_BOOLEAN, 32,
       TFS(&tfs_supported_not_supported), AST_FORMAT_JPEG,
@@ -2714,6 +2776,21 @@ proto_register_iax2 (void)
     {&hf_iax2_cap_h263,
      {"H.263 video", "iax2.cap.h263", FT_BOOLEAN, 32,
       TFS(&tfs_supported_not_supported), AST_FORMAT_H263,
+      NULL, HFILL }},
+
+    {&hf_iax2_cap_h263_plus,
+     {"H.263+ video", "iax2.cap.h263_plus", FT_BOOLEAN, 32,
+      TFS(&tfs_supported_not_supported), AST_FORMAT_H263_PLUS,
+      NULL, HFILL }},
+
+    {&hf_iax2_cap_h264,
+     {"H.264 video", "iax2.cap.h264", FT_BOOLEAN, 32,
+      TFS(&tfs_supported_not_supported), AST_FORMAT_H264,
+      NULL, HFILL }},
+
+    {&hf_iax2_cap_mpeg4,
+     {"MPEG4 video", "iax2.cap.mpeg4", FT_BOOLEAN, 32,
+      TFS(&tfs_supported_not_supported), AST_FORMAT_MP4_VIDEO,
       NULL, HFILL }},
 
     /* reassembly stuff */

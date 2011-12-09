@@ -39,7 +39,7 @@
 /*! Raw A-law data (G.711) */
 #define AST_FORMAT_ALAW		(1 << 3)
 /*! ADPCM (G.726, 32kbps) */
-#define AST_FORMAT_G726		(1 << 4)
+#define AST_FORMAT_G726_AAL2	(1 << 4)
 /*! ADPCM (IMA) */
 #define AST_FORMAT_ADPCM	(1 << 5)
 /*! Raw 16-bit Signed Linear (8000 Hz) PCM */
@@ -52,6 +52,16 @@
 #define AST_FORMAT_SPEEX	(1 << 9)
 /*! iLBC Free Compression */
 #define AST_FORMAT_ILBC		(1 << 10)
+/*! ADPCM (G.726, 32kbps, RFC3551 codeword packing) */
+#define AST_FORMAT_G726		(1 << 11)
+/*! G.722 */
+#define AST_FORMAT_G722		(1 << 12)
+/*! G.722.1 (also known as Siren7, 32kbps assumed) */
+#define AST_FORMAT_SIREN7		(1 << 13)
+/*! G.722.1 Annex C (also known as Siren14, 48kbps assumed) */
+#define AST_FORMAT_SIREN14		(1 << 14)
+/*! Raw 16-bit Signed Linear (16000 Hz) PCM */
+#define AST_FORMAT_SLINEAR16	(1 << 15)
 /*! Maximum audio format */
 #define AST_FORMAT_MAX_AUDIO	(1 << 15)
 /*! JPEG Images */
@@ -62,8 +72,18 @@
 #define AST_FORMAT_H261		(1 << 18)
 /*! H.263 Video */
 #define AST_FORMAT_H263		(1 << 19)
+/*! H.263+ Video */
+#define AST_FORMAT_H263_PLUS		(1 << 20)
+/*! H.264 Video */
+#define AST_FORMAT_H264		(1 << 21)
+/*! MPEG4 Video */
+#define AST_FORMAT_MP4_VIDEO		(1 << 22)
 /*! Max one */
 #define AST_FORMAT_MAX_VIDEO	(1 << 24)
+/*! G.719 (64 kbps assumed) */
+#define AST_FORMAT_G719		(1 << 32)
+/*! SpeeX Wideband (16kHz) Free Compression */
+#define AST_FORMAT_SPEEX16		(1 << 33)
 
 
 /* data format for IAX_IE_DATAFORMAT ie */

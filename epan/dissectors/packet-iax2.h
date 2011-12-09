@@ -95,6 +95,9 @@
 #define IAX_COMMAND_PROVISION   35      /* Provision device */
 #define IAX_COMMAND_FWDOWNL     36      /* Download firmware */
 #define IAX_COMMAND_FWDATA      37      /* Firmware Data */
+#define IAX_COMMAND_TXMEDIA     38      /* Transfer Media */
+#define IAX_COMMAND_RTKEY       39      /* Rotate key */
+#define IAX_COMMAND_CALLTOKEN   40      /* Call token */
 
 #define IAX_DEFAULT_REG_EXPIRE  60	/* By default require re-registration once per minute */
 
@@ -154,20 +157,31 @@
 #define IAX_IE_RR_DELAY			49		/* Max playout delay for received frames (in ms) u16 */
 #define IAX_IE_RR_DROPPED		50		/* Dropped frames (presumably by jitterbuf) u32 */
 #define IAX_IE_RR_OOO			51		/* Frames received Out of Order u32 */
+#define IAX_IE_VARIABLE			52		/* IAX variable transmission */
+#define IAX_IE_OSPTOKEN			53		/* OSP Token */
+#define IAX_IE_CALLTOKEN		54		/* Call Token */
+#define IAX_IE_CAPABILITY2		55		/* Codec capability */
+#define IAX_IE_FORMAT2			56		/* Desired codec capability */
 #define IAX_IE_DATAFORMAT		255		/* Data call format -- iax_dataformat_t */
 
 /* hangup cause codes */
 #define AST_CAUSE_UNALLOCATED				1
 #define AST_CAUSE_NO_ROUTE_TRANSIT_NET			2
 #define AST_CAUSE_NO_ROUTE_DESTINATION			3
+#define AST_CAUSE_MISDIALLED_TRUNK_PREFIX		5
 #define AST_CAUSE_CHANNEL_UNACCEPTABLE			6
 #define AST_CAUSE_CALL_AWARDED_DELIVERED		7
+#define AST_CAUSE_PRE_EMPTED				8
+#define AST_CAUSE_NUMBER_PORTED_NOT_HERE		14
 #define AST_CAUSE_NORMAL_CLEARING			16
 #define AST_CAUSE_USER_BUSY				17
 #define AST_CAUSE_NO_USER_RESPONSE			18
 #define AST_CAUSE_NO_ANSWER				19
+#define AST_CAUSE_SUBSCRIBER_ABSENT			20
 #define AST_CAUSE_CALL_REJECTED				21
 #define AST_CAUSE_NUMBER_CHANGED			22
+#define AST_CAUSE_REDIRECTED_TO_NEW_DESTINATION	23
+#define AST_CAUSE_ANSWERED_ELSEWHERE			26
 #define AST_CAUSE_DESTINATION_OUT_OF_ORDER		27
 #define AST_CAUSE_INVALID_NUMBER_FORMAT			28
 #define AST_CAUSE_FACILITY_REJECTED			29
@@ -179,7 +193,6 @@
 #define AST_CAUSE_SWITCH_CONGESTION			42
 #define AST_CAUSE_ACCESS_INFO_DISCARDED			43
 #define AST_CAUSE_REQUESTED_CHAN_UNAVAIL		44
-#define AST_CAUSE_PRE_EMPTED				45
 #define AST_CAUSE_FACILITY_NOT_SUBSCRIBED		50
 #define AST_CAUSE_OUTGOING_CALL_BARRED			52
 #define AST_CAUSE_INCOMING_CALL_BARRED			54
