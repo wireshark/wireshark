@@ -9261,7 +9261,7 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
                 proto_tree_add_item (tree, hf_ieee80211_mesh_peering_peer_link_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 offset += 2;
               }
-            offset += add_fixed_field(tree, tvb, offset, FIELD_STATUS_CODE);
+            offset += add_fixed_field(tree, tvb, offset, FIELD_REASON_CODE);
             break;
 
           /* unexpected values */
