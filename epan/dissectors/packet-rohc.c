@@ -40,6 +40,7 @@
 #include <epan/rtp_pt.h>
 #include <epan/expert.h>
 
+#include "packet-pdcp-lte.h"
 #include "packet-rohc.h"
 /* Initialize the protocol and registered fields */
 static int proto_rohc			= -1;
@@ -107,15 +108,6 @@ static int ett_rohc_rtp_dynamic = -1;
 /* RTP profile and IPv4 hard wired for now */
 static guint8 g_profile = 1;
 static guint8 g_version = 4;
-
-enum rohc_mode
-{
-  UNIDIRECTIONAL = 1,
-  OPTIMISTIC_BIDIRECTIONAL = 2,
-  RELIABLE_BIDIRECTIONAL = 3
-};
-
-
 
 /* ROHC Profiles */
 #define ROHC_PROFILE_RTP	1
