@@ -183,7 +183,7 @@
 #define AL_IIN_RST         0x8000   /* Bit 7 - Device Restart */
 
 /* Octet 2 */
-                        /* 0x0001      Bit 0 - Reserved */
+#define AL_IIN_FCNI        0x0001   /* Bit 0 - Function code not implemented */
 #define AL_IIN_OBJU        0x0002   /* Bit 1 - Requested Objects Unknown */
 #define AL_IIN_PIOOR       0x0004   /* Bit 2 - Parameters Invalid or Out of Range */
 #define AL_IIN_EBO         0x0008   /* Bit 3 - Event Buffer Overflow */
@@ -531,6 +531,7 @@ static int hf_dnp3_al_iin_tsr = -1;
 static int hf_dnp3_al_iin_dol = -1;
 static int hf_dnp3_al_iin_dt = -1;
 static int hf_dnp3_al_iin_rst = -1;
+static int hf_dnp3_al_iin_fcni = -1;
 static int hf_dnp3_al_iin_obju = -1;
 static int hf_dnp3_al_iin_pioor = -1;
 static int hf_dnp3_al_iin_ebo = -1;
@@ -732,6 +733,7 @@ static const value_string dnp3_al_iin_vals[] _U_ = {
   { AL_IIN_DOL,     "Digital Outputs in Local Mode" },
   { AL_IIN_DT,      "Device Trouble" },
   { AL_IIN_RST,     "Device Restart" },
+  { AL_IIN_FCNI,    "Function Code not implemented" },
   { AL_IIN_OBJU,    "Requested Objects Unknown" },
   { AL_IIN_PIOOR,   "Parameters Invalid or Out of Range" },
   { AL_IIN_EBO,     "Event Buffer Overflow" },
@@ -1234,6 +1236,7 @@ dnp3_al_process_iin(tvbuff_t *tvb, int offset, proto_tree *al_tree)
   if (al_iin & AL_IIN_EBO)    comma_needed = add_item_text(tiin, "Event Buffer Overflow", comma_needed);
   if (al_iin & AL_IIN_PIOOR)  comma_needed = add_item_text(tiin, "Parameters Invalid or Out of Range", comma_needed);
   if (al_iin & AL_IIN_OBJU)   comma_needed = add_item_text(tiin, "Requested Objects Unknown", comma_needed);
+  if (al_iin & AL_IIN_FCNI)   comma_needed = add_item_text(tiin, "Function code not implemented", comma_needed);
   proto_item_append_text(tiin, " (0x%04x)", al_iin);
 
   iin_tree = proto_item_add_subtree(tiin, ett_dnp3_al_iin);
@@ -1250,6 +1253,7 @@ dnp3_al_process_iin(tvbuff_t *tvb, int offset, proto_tree *al_tree)
   proto_tree_add_item(iin_tree, hf_dnp3_al_iin_ebo, tvb, offset, 2, ENC_BIG_ENDIAN);
   proto_tree_add_item(iin_tree, hf_dnp3_al_iin_pioor, tvb, offset, 2, ENC_BIG_ENDIAN);
   proto_tree_add_item(iin_tree, hf_dnp3_al_iin_obju, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_fcni, tvb, offset, 2, ENC_BIG_ENDIAN);
 }
 
 /*****************************************************************/
@@ -2708,25 +2712,25 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
 /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item   *ti = NULL, *tdl, *tc, *al_chunks, *hidden_item;
-    proto_tree   *dnp3_tree = NULL, *dl_tree = NULL, *tr_tree = NULL, *field_tree = NULL, *al_tree = NULL;
-    int           offset = 0, temp_offset = 0;
-    gboolean      dl_prm, tr_fir, tr_fin;
-    guint8        dl_len, dl_ctl, dl_func, tr_ctl, tr_seq;
-    const gchar  *func_code_str;
-    guint16       dl_dst, dl_src, dl_crc, calc_dl_crc;
-    guint8       *tmp = NULL, *tmp_ptr;
-    guint8        data_len;
-    int           data_offset;
-    gboolean      crc_OK = FALSE;
-    tvbuff_t     *al_tvb = NULL, *next_tvb;
-    guint         i;
-    guint         conv_seq_number;
-    gboolean      save_fragmented;
-    fragment_data *frag_msg;
-    gboolean      update_col_info = TRUE;
-    conversation_t *conversation;
-    dnp3_conv_t  *conv_data_ptr;
+    proto_item        *ti = NULL, *tdl, *tc, *al_chunks, *hidden_item;
+    proto_tree        *dnp3_tree = NULL, *dl_tree = NULL, *tr_tree = NULL, *field_tree = NULL, *al_tree = NULL;
+    int               offset = 0, temp_offset = 0;
+    gboolean          dl_prm, tr_fir, tr_fin;
+    guint8            dl_len, dl_ctl, dl_func, tr_ctl, tr_seq;
+    const gchar       *func_code_str;
+    guint16           dl_dst, dl_src, dl_crc, calc_dl_crc;
+    guint8            *tmp = NULL, *tmp_ptr;
+    guint8            data_len;
+    int               data_offset;
+    gboolean          crc_OK = FALSE;
+    tvbuff_t          *al_tvb = NULL, *next_tvb;
+    guint             i;
+    guint             conv_seq_number;
+    gboolean          save_fragmented;
+    fragment_data     *frag_msg;
+    gboolean          update_col_info = TRUE;
+    conversation_t    *conversation;
+    dnp3_conv_t       *conv_data_ptr;
     dl_conversation_key_t dl_conversation_key;
 
 
@@ -3186,6 +3190,9 @@ proto_register_dnp3(void)
 
     { &hf_dnp3_al_iin_rst,
     { "Device Restart", "dnp3.al.iin.rst", FT_BOOLEAN, 16, TFS(&tfs_set_notset), AL_IIN_RST, NULL, HFILL }},
+
+    { &hf_dnp3_al_iin_fcni,
+    { "Function Code not implemented", "dnp3.al.iin.fcni", FT_BOOLEAN, 16, TFS(&tfs_set_notset), AL_IIN_FCNI, NULL, HFILL }},
 
     { &hf_dnp3_al_iin_obju,
     { "Requested Objects Unknown", "dnp3.al.iin.obju", FT_BOOLEAN, 16, TFS(&tfs_set_notset), AL_IIN_OBJU, NULL, HFILL }},
