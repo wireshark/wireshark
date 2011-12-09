@@ -47,6 +47,10 @@ ProtocolIE-ID
 
 #.NO_EMIT
 TBCD-STRING
+SourceBSS-ToTargetBSS-TransparentContainer
+TargetBSS-ToSourceBSS-TransparentContainer
+SourceRNC-ToTargetRNC-TransparentContainer
+TargetRNC-ToSourceRNC-TransparentContainer
 
 #.OMIT_ASSIGNMENT
 # Get rid of unused code warnings
