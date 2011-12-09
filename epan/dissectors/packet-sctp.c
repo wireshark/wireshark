@@ -1,6 +1,7 @@
 /* packet-sctp.c
  * Routines for Stream Control Transmission Protocol dissection
  * Copyright 2000-2005 Michael Tuexen <tuexen [AT] fh-muenster.de>
+ * Copyright 2011 Thomas Dreibholz <dreibh [AT] iem.uni-due.de>
  *
  * $Id$
  *
@@ -200,8 +201,8 @@ static int hf_forward_tsn_chunk_tsn = -1;
 static int hf_forward_tsn_chunk_sid = -1;
 static int hf_forward_tsn_chunk_ssn = -1;
 
-static int hf_asconf_ack_serial = -1;
-static int hf_asconf_serial = -1;
+static int hf_asconf_ack_seq_nr = -1;
+static int hf_asconf_seq_nr = -1;
 static int hf_correlation_id = -1;
 
 static int hf_adap_indication = -1;
@@ -3453,24 +3454,24 @@ dissect_auth_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, proto_tree *chunk_
     proto_tree_add_item(chunk_tree, hf_hmac,    chunk_tvb, HMAC_OFFSET,    hmac_length,    ENC_NA);
 }
 
-#define SCTP_SERIAL_NUMBER_LENGTH    4
-#define SERIAL_NUMBER_OFFSET    CHUNK_VALUE_OFFSET
-#define ASCONF_CHUNK_PARAMETERS_OFFSET (SERIAL_NUMBER_OFFSET + SCTP_SERIAL_NUMBER_LENGTH)
+#define SCTP_SEQUENCE_NUMBER_LENGTH    4
+#define SEQUENCE_NUMBER_OFFSET    CHUNK_VALUE_OFFSET
+#define ASCONF_CHUNK_PARAMETERS_OFFSET (SEQUENCE_NUMBER_OFFSET + SCTP_SEQUENCE_NUMBER_LENGTH)
 
 static void
 dissect_asconf_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *pinfo, proto_tree *chunk_tree, proto_item *chunk_item)
 {
   tvbuff_t *parameters_tvb;
 
-  if (chunk_length < CHUNK_HEADER_LENGTH + SCTP_SERIAL_NUMBER_LENGTH) {
+  if (chunk_length < CHUNK_HEADER_LENGTH + SCTP_SEQUENCE_NUMBER_LENGTH) {
     proto_item_append_text(chunk_item, ", bogus chunk length %u < %u)",
                            chunk_length,
-                           CHUNK_HEADER_LENGTH + SCTP_SERIAL_NUMBER_LENGTH);
+                           CHUNK_HEADER_LENGTH + SCTP_SEQUENCE_NUMBER_LENGTH);
     return;
   }
   if (chunk_tree) {
-    proto_tree_add_item(chunk_tree, hf_asconf_serial, chunk_tvb, SERIAL_NUMBER_OFFSET, SCTP_SERIAL_NUMBER_LENGTH, ENC_BIG_ENDIAN);
-    chunk_length -= CHUNK_HEADER_LENGTH + SCTP_SERIAL_NUMBER_LENGTH;
+    proto_tree_add_item(chunk_tree, hf_asconf_seq_nr, chunk_tvb, SEQUENCE_NUMBER_OFFSET, SCTP_SEQUENCE_NUMBER_LENGTH, ENC_BIG_ENDIAN);
+    chunk_length -= CHUNK_HEADER_LENGTH + SCTP_SEQUENCE_NUMBER_LENGTH;
     parameters_tvb = tvb_new_subset(chunk_tvb, ASCONF_CHUNK_PARAMETERS_OFFSET,
                                     MIN(chunk_length, tvb_length_remaining(chunk_tvb, ASCONF_CHUNK_PARAMETERS_OFFSET)),
                                     MIN(chunk_length, tvb_reported_length_remaining(chunk_tvb, ASCONF_CHUNK_PARAMETERS_OFFSET)));
@@ -3478,22 +3479,22 @@ dissect_asconf_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *pin
   }
 }
 
-#define ASCONF_ACK_CHUNK_PARAMETERS_OFFSET (SERIAL_NUMBER_OFFSET + SCTP_SERIAL_NUMBER_LENGTH)
+#define ASCONF_ACK_CHUNK_PARAMETERS_OFFSET (SEQUENCE_NUMBER_OFFSET + SCTP_SEQUENCE_NUMBER_LENGTH)
 
 static void
 dissect_asconf_ack_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *pinfo, proto_tree *chunk_tree, proto_item *chunk_item)
 {
   tvbuff_t *parameters_tvb;
 
-  if (chunk_length < CHUNK_HEADER_LENGTH + SCTP_SERIAL_NUMBER_LENGTH) {
+  if (chunk_length < CHUNK_HEADER_LENGTH + SCTP_SEQUENCE_NUMBER_LENGTH) {
     proto_item_append_text(chunk_item, ", bogus chunk length %u < %u)",
                            chunk_length + CHUNK_HEADER_LENGTH,
-                           CHUNK_HEADER_LENGTH + SCTP_SERIAL_NUMBER_LENGTH);
+                           CHUNK_HEADER_LENGTH + SCTP_SEQUENCE_NUMBER_LENGTH);
     return;
   }
   if (chunk_tree) {
-    proto_tree_add_item(chunk_tree, hf_asconf_ack_serial, chunk_tvb, SERIAL_NUMBER_OFFSET, SCTP_SERIAL_NUMBER_LENGTH, ENC_BIG_ENDIAN);
-    chunk_length -= CHUNK_HEADER_LENGTH + SCTP_SERIAL_NUMBER_LENGTH;
+    proto_tree_add_item(chunk_tree, hf_asconf_ack_seq_nr, chunk_tvb, SEQUENCE_NUMBER_OFFSET, SCTP_SEQUENCE_NUMBER_LENGTH, ENC_BIG_ENDIAN);
+    chunk_length -= CHUNK_HEADER_LENGTH + SCTP_SEQUENCE_NUMBER_LENGTH;
     parameters_tvb = tvb_new_subset(chunk_tvb, ASCONF_ACK_CHUNK_PARAMETERS_OFFSET,
                                     MIN(chunk_length, tvb_length_remaining(chunk_tvb, ASCONF_ACK_CHUNK_PARAMETERS_OFFSET)),
                                     MIN(chunk_length, tvb_reported_length_remaining(chunk_tvb, ASCONF_ACK_CHUNK_PARAMETERS_OFFSET)));
@@ -4096,8 +4097,8 @@ proto_register_sctp(void)
     { &hf_receivers_next_tsn,                       { "Receivers next TSN",                             "sctp.parameter_receivers_next_tsn",                    FT_UINT32,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_stream_reset_rsp_result,                  { "Result",                                         "sctp.parameter_stream_reset_response_result",          FT_UINT32,  BASE_DEC,  VALS(stream_reset_result_values),               0x0,                                NULL, HFILL } },
     { &hf_stream_reset_sid,                         { "Stream Identifier",                              "sctp.parameter_stream_reset_sid",                      FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                NULL, HFILL } },
-    { &hf_asconf_serial,                            { "Serial number",                                  "sctp.asconf_serial_number",                            FT_UINT32,  BASE_HEX,  NULL,                                           0x0,                                NULL, HFILL } },
-    { &hf_asconf_ack_serial,                        { "Serial number",                                  "sctp.asconf_ack_serial_number",                        FT_UINT32,  BASE_HEX,  NULL,                                           0x0,                                NULL, HFILL } },
+    { &hf_asconf_seq_nr,                            { "Sequence number",                                "sctp.asconf_seq_nr_number",                            FT_UINT32,  BASE_HEX,  NULL,                                           0x0,                                NULL, HFILL } },
+    { &hf_asconf_ack_seq_nr,                        { "Sequence number",                                "sctp.asconf_ack_seq_nr_number",                        FT_UINT32,  BASE_HEX,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_correlation_id,                           { "Correlation_id",                                 "sctp.correlation_id",                                  FT_UINT32,  BASE_HEX,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_adap_indication,                          { "Indication",                                     "sctp.adapation_layer_indication",                      FT_UINT32,  BASE_HEX,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_random_number,                            { "Random number",                                  "sctp.random_number",                                   FT_BYTES,   BASE_NONE, NULL,                                           0x0,                                NULL, HFILL } },
