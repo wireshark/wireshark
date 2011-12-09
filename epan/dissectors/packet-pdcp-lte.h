@@ -23,6 +23,8 @@
  */
 
 
+#include "packet-rohc.h"
+
 /* Direction */
 #define DIRECTION_UPLINK   0
 #define DIRECTION_DOWNLINK 1
@@ -31,13 +33,6 @@ enum pdcp_plane
 {
   SIGNALING_PLANE = 1,
   USER_PLANE = 2
-};
-
-enum rohc_mode
-{
-  UNIDIRECTIONAL = 1,
-  OPTIMISTIC_BIDIRECTIONAL = 2,
-  RELIABLE_BIDIRECTIONAL = 3
 };
 
 typedef enum LogicalChannelType

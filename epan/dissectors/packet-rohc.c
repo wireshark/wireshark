@@ -40,7 +40,6 @@
 #include <epan/rtp_pt.h>
 #include <epan/expert.h>
 
-#include "packet-pdcp-lte.h"
 #include "packet-rohc.h"
 /* Initialize the protocol and registered fields */
 static int proto_rohc			= -1;

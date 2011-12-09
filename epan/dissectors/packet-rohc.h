@@ -32,10 +32,15 @@
 #ifndef PACKET_ROHC_H
 #define PACKET_ROHC_H
 
+enum rohc_mode
+{
+  UNIDIRECTIONAL = 1,
+  OPTIMISTIC_BIDIRECTIONAL = 2,
+  RELIABLE_BIDIRECTIONAL = 3
+};
+
 typedef struct rohc_info
 {
-
-    /* RoHC settings */
     gboolean           rohc_compression;
     unsigned short     rohc_ip_version;
     gboolean           cid_inclusion_info;
