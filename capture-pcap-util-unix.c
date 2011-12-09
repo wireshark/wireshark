@@ -333,13 +333,27 @@ cant_get_if_list_error_message(const char *err_str)
 void
 get_compiled_pcap_version(GString *str)
 {
-#ifdef HAVE_PCAP_VERSION
-	extern char pcap_version[];
-
-	g_string_append_printf(str, "with libpcap %s", pcap_version);
-#else
+	/*
+	 * NOTE: in *some* flavors of UN*X, the data from a shared
+	 * library might be linked into executable images that are
+	 * linked with that shared library, in which case you could
+	 * look at pcap_version[] to get the version with which
+	 * the program was compiled.
+	 *
+	 * In other flavors of UN*X, that doesn't happen, so
+	 * pcap_version[] gives you the version the program is
+	 * running with, not the version it was built with, and,
+	 * in at least some of them, if the length of a data item
+	 * referred to by the executable - such as the pcap_version[]
+	 * string - isn't the same in the version of the library
+	 * with which the program was built and the version with
+	 * which it was run, the run-time linker will complain,
+	 * which is Not Good.
+	 *
+	 * So, for now, we just give up on reporting the version
+	 * of libpcap with which we were compiled.
+	 */
 	g_string_append(str, "with libpcap (version unknown)");
-#endif
 }
 
 /*
