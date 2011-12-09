@@ -1961,6 +1961,7 @@ static int hf_ieee80211_block_ack_multi_tid_reserved = -1;
 static int hf_ieee80211_block_ack_multi_tid_value = -1;
 static int hf_ieee80211_block_ack_type = -1;
 static int hf_ieee80211_block_ack_bitmap = -1;
+static int hf_ieee80211_block_ack_bitmap_missing_frame = -1;
 
 static int hf_ieee80211_tag_measure_request_measurement_mode = -1;
 static int hf_ieee80211_tag_measure_request_bssid = -1;
@@ -2603,6 +2604,7 @@ static gint ett_cntrl_wrapper_payload = -1;
 static gint ett_fragments = -1;
 static gint ett_fragment = -1;
 static gint ett_block_ack = -1;
+static gint ett_block_ack_bitmap = -1;
 static gint ett_ath_cap_tree = -1;
 
 
@@ -10368,11 +10370,27 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
               }
               case 2: /* Compressed BlockAck */
               {
+                guint16 ssn;
+                guint64 bmap;
+                int f;
+                proto_item *ba_bitmap_item;
+                proto_tree *ba_bitmap_tree;
+
                 proto_tree_add_uint(ba_sub_tree, hf_ieee80211_block_ack_control_basic_tid_info, tvb, offset+1, 1, ba_control);
                 offset += 2;
 
+                ssn = tvb_get_letohs(tvb, offset);
+                ssn >>= 4;
                 offset += add_fixed_field(hdr_tree, tvb, offset, FIELD_BLOCK_ACK_SSC);
-                proto_tree_add_item(hdr_tree, hf_ieee80211_block_ack_bitmap, tvb, offset, 8, ENC_NA);
+                bmap = tvb_get_letoh64(tvb, offset);
+                ba_bitmap_item = proto_tree_add_item(hdr_tree, hf_ieee80211_block_ack_bitmap, tvb, offset, 8, ENC_NA);
+                ba_bitmap_tree = proto_item_add_subtree(ba_bitmap_item, ett_block_ack_bitmap);
+                for (f = 0; f < 64; f++) {
+                  if (bmap & (G_GINT64_CONSTANT(1) << f))
+                    continue;
+                  proto_tree_add_uint_format_value(ba_bitmap_tree, hf_ieee80211_block_ack_bitmap_missing_frame,
+                                                   tvb, offset + (f/8), 1, ssn + f, "%u", ssn + f);
+                }
                 offset += 8;
                 break;
               }
@@ -12421,6 +12439,10 @@ proto_register_ieee80211 (void)
     {&hf_ieee80211_block_ack_bitmap,
      {"Block Ack Bitmap", "wlan.ba.bm",
       FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+      
+    {&hf_ieee80211_block_ack_bitmap_missing_frame,
+     {"Missing frame", "wlan.ba.bm.missing_frame",
+      FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_data_encap_payload_type,
      {"Payload Type", "wlan.data_encap.payload_type",
@@ -16401,6 +16423,7 @@ proto_register_ieee80211 (void)
     &ett_fragments,
     &ett_fragment,
     &ett_block_ack,
+    &ett_block_ack_bitmap,
     &ett_80211_mgt,
     &ett_fixed_parameters,
     &ett_tagged_parameters,
