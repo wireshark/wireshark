@@ -604,7 +604,6 @@ dissect_rohc_ir_dyn_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
 {
 	proto_item *ir_item, *item;
 	proto_tree *ir_tree;
-	gboolean d = FALSE;
 	guint8 oct, profile, val_len;
 	gint16 feedback_data_len = 0;
 
