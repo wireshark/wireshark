@@ -497,17 +497,18 @@ void
 add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
     int trailer_id, tvbuff_t *tvb, tvbuff_t *trailer_tvb, int fcs_len)
 {
-  /* If there're some bytes left over, show those bytes as a trailer.
-     the trailer can contain:
+  /* If there're some bytes left over, it could be a combination of:
      - padding to meet the minimum 64 byte frame length
-     - information inserted by TAPs or other equipment
-     - an optional FCS (optional, because the FCS is usually stripped before
-       the frame is seen by us
+     - an FCS, if present (if fcs_len is 0, we know it's not present;
+       if fcs_len is 4, we know it's present; if fcs_len is -1, we
+       need some heuristics to determine whether it's present)
+     - information inserted by TAPs or other network monitoring equipment.
     
-     However, if the Ethernet frame was claimed to have had 64 or more
-     bytes - i.e., it was at least an FCS worth of data longer than
-     the minimum payload size - assume the last 4 bytes of the trailer
-     are an FCS. */
+     If we don't know whether the FCS is present, then, if we don't have a
+     network monitoring trailer, and if the Ethernet frame was claimed to
+     have had 64 or more bytes - i.e., it was at least an FCS worth of data
+     longer than the minimum payload size - we could assume the last 4 bytes
+     of the trailer are an FCS. */
   proto_item *item;
   proto_tree *checksum_tree;
 
@@ -540,10 +541,13 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
     }
     real_trailer_tvb = tvb_new_subset_remaining(trailer_tvb, padding_length);
 
-    /* Call all ethernet trailer dissectors to dissect the trailer.  */
-    if ( dissector_try_heuristic(eth_trailer_subdissector_list, 
-             real_trailer_tvb, pinfo, tree) ) 
+    /* Call all ethernet trailer dissectors to dissect the trailer if
+       we actually have a trailer.  */
+    if (tvb_reported_length(real_trailer_tvb) != 0) {
+      if (dissector_try_heuristic(eth_trailer_subdissector_list, 
+                                   real_trailer_tvb, pinfo, tree) ) 
         return;
+    }
     
     if (fcs_len != 0) {
       /* If fcs_len is 4, we assume we definitely have an FCS.
