@@ -14,7 +14,7 @@
 # The following libraries are required.
 #
 GETTEXT_VERSION=0.18.1.1
-GLIB_VERSION=2.29.8
+GLIB_VERSION=2.31.2
 #
 # pkg-config 0.26 appears to have broken the "we have our own GLib"
 # stuff, even if you explicitly set GLIB_CFLAGS and GLIB_LIBS.
@@ -23,9 +23,9 @@ GLIB_VERSION=2.29.8
 #
 PKG_CONFIG_VERSION=0.26
 ATK_VERSION=2.0.1
-PANGO_VERSION=1.29.3
-GDK_PIXBUF_VERSION=2.23.4
-GTK_VERSION=2.24.5
+PANGO_VERSION=1.29.5
+GDK_PIXBUF_VERSION=2.24.0
+GTK_VERSION=2.24.8
 
 #
 # The following libraries are optional.
@@ -47,7 +47,7 @@ LIBGPG_ERROR_VERSION=1.10
 LIBGCRYPT_VERSION=1.4.6
 GNUTLS_VERSION=2.12.7
 LUA_VERSION=5.1.4
-PORTAUDIO_VERSION=pa_stable_v19_20110326
+PORTAUDIO_VERSION=pa_stable_v19_20111121
 #
 # XXX - they appear to have an unversioned gzipped tarball for the
 # current version; should we just download that, with some other

@@ -3,7 +3,7 @@
 @@ -7,6 +7,6 @@
  Description: GLib Type, Object, Parameter and Signal Library
  Requires: glib-2.0,gthread-2.0
- Version: 2.29.8
+ Version: 2.31.2
 -Libs: -L${libdir} -lgobject-2.0
 +Libs: -L${libdir} -lgobject-2.0 -lffi
  Libs.private: -L/usr/lib
