@@ -64,7 +64,7 @@ static gboolean vssmonitoring_use_heuristics = TRUE;
 static int
 dissect_vssmonitoring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree    *ti = NULL;
+  proto_tree    *ti = NULL;
   proto_tree    *vssmonitoring_tree = NULL;
   guint         offset = 0;
 
@@ -84,7 +84,19 @@ dissect_vssmonitoring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * port stamp (1 or 2 bytes)
    * fcs (4 bytes)
    *
-   * This means a trailer length must not be more than 14 bytes
+   * The FCS is dissected by our caller, so we check for a trailer
+   * with a length that includes one or more of a time stamp and
+   * a 1-byte or 2-byte port stamp.
+   *
+   * This means a trailer length must not be more than 14 bytes,
+   * and:
+   *
+   *    must not be 3 modulo 3 (as it can't have both a 1-byte
+   *    and a 2-byte port stamp);
+   *
+   *    if it's less than 8 bytes, must not be 0 modulo 3 (as
+   *    it must have a 1-byte or 2-byte port stamp, given that
+   *    it has no timestamp).
    */
   if ( trailer_len > 14 )
     return 0;
@@ -95,7 +107,13 @@ dissect_vssmonitoring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if ( (trailer_len & 3) == 3 )
     return 0;
 
-  if ( trailer_len & 8 ) {
+  /* ... and if you have neither a time stamp nor a port stamp,
+   * you don't have a trailer
+   */
+  if ( (trailer_len & 3) == 0 && trailer_len < 8 )
+    return 0;
+
+  if ( trailer_len >= 8 ) {
     vssmonitoring_time.secs  = tvb_get_ntohl(tvb, offset);
     vssmonitoring_time.nsecs = tvb_get_ntohl(tvb, offset + 4);
     vssmonitoring_clksrc     = (guint8)(((guint32)vssmonitoring_time.nsecs) >> CLKSRC_SHIFT);
@@ -137,7 +155,7 @@ dissect_vssmonitoring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   /* Do we have a timestamp? */
-  if ( trailer_len & 8 ) {
+  if ( trailer_len >= 8 ) {
     if (tree) {
       proto_tree_add_time(vssmonitoring_tree, hf_vssmonitoring_time, tvb, offset, 8, &vssmonitoring_time);
       proto_tree_add_uint(vssmonitoring_tree, hf_vssmonitoring_clksrc, tvb, offset + 4, 1, vssmonitoring_clksrc);
