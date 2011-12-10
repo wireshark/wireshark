@@ -539,16 +539,7 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
             trailer_reported_length -= padding_length;
         }
     }
-    real_trailer_tvb = tvb_new_subset_remaining(trailer_tvb, padding_length);
 
-    /* Call all ethernet trailer dissectors to dissect the trailer if
-       we actually have a trailer.  */
-    if (tvb_reported_length(real_trailer_tvb) != 0) {
-      if (dissector_try_heuristic(eth_trailer_subdissector_list, 
-                                   real_trailer_tvb, pinfo, tree) ) 
-        return;
-    }
-    
     if (fcs_len != 0) {
       /* If fcs_len is 4, we assume we definitely have an FCS.
          Otherwise, then, if the frame is big enough that, if we
@@ -586,18 +577,42 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
         }
       }
     }
-    if (trailer_length != 0) {
-      tvb_ensure_bytes_exist(tvb, 0, trailer_length);
-      proto_tree_add_item(fh_tree, trailer_id, real_trailer_tvb, 0,
-        trailer_length, FALSE);
+
+    /* Create a new tvb without the padding and/or the (assumed) fcs */
+    if (fcs_len==4) 
+      real_trailer_tvb = tvb_new_subset(trailer_tvb, padding_length,
+                                trailer_length, trailer_reported_length);
+    else
+      real_trailer_tvb = tvb_new_subset_remaining(trailer_tvb, padding_length);
+
+    /* Call all ethernet trailer dissectors to dissect the trailer if
+       we actually have a trailer.  */
+    if (tvb_reported_length(real_trailer_tvb) != 0) {
+      if (dissector_try_heuristic(eth_trailer_subdissector_list, 
+                                   real_trailer_tvb, pinfo, tree) ) {
+        /* If we're not sure that there is a FCS, all trailer data
+           has been given to the ethernet-trailer dissector, so 
+           stop dissecting here */
+        if (fcs_len!=4) 
+            return;
+      } else {
+        /* No luck with the trailer dissectors, so just display the
+           extra bytes as general trailer */
+        if (trailer_length != 0) {
+          tvb_ensure_bytes_exist(tvb, 0, trailer_length);
+          proto_tree_add_item(fh_tree, trailer_id, real_trailer_tvb, 0,
+            trailer_length, FALSE);
+        }
+      }
     }
+
     if (has_fcs) {
-      guint32 sent_fcs = tvb_get_ntohl(real_trailer_tvb, trailer_length);
+      guint32 sent_fcs = tvb_get_ntohl(trailer_tvb, padding_length+trailer_length);
       if(eth_check_fcs){
         guint32 fcs = crc32_802_tvb(tvb, tvb_length(tvb) - 4);
         if (fcs == sent_fcs) {
-          item = proto_tree_add_uint_format(fh_tree, hf_eth_fcs, real_trailer_tvb,
-                                            trailer_length, 4, sent_fcs,
+          item = proto_tree_add_uint_format(fh_tree, hf_eth_fcs, trailer_tvb,
+                                            padding_length+trailer_length, 4, sent_fcs,
                                             "Frame check sequence: 0x%08x [correct]", sent_fcs);
           checksum_tree = proto_item_add_subtree(item, ett_eth_fcs);
           item = proto_tree_add_boolean(checksum_tree, hf_eth_fcs_good, tvb,
@@ -607,8 +622,8 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
                                         trailer_length, 2, FALSE);
           PROTO_ITEM_SET_GENERATED(item);
         } else {
-          item = proto_tree_add_uint_format(fh_tree, hf_eth_fcs, real_trailer_tvb,
-                                            trailer_length, 4, sent_fcs,
+          item = proto_tree_add_uint_format(fh_tree, hf_eth_fcs, trailer_tvb,
+                                            padding_length+trailer_length, 4, sent_fcs,
                                             "Frame check sequence: 0x%08x [incorrect, should be 0x%08x]",
                                             sent_fcs, fcs);
           checksum_tree = proto_item_add_subtree(item, ett_eth_fcs);
@@ -622,8 +637,8 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
           col_append_str(pinfo->cinfo, COL_INFO, " [ETHERNET FRAME CHECK SEQUENCE INCORRECT]");
         }
       }else{
-        item = proto_tree_add_uint_format(fh_tree, hf_eth_fcs, real_trailer_tvb,
-                                          trailer_length, 4, sent_fcs,
+        item = proto_tree_add_uint_format(fh_tree, hf_eth_fcs, trailer_tvb,
+                                          padding_length+trailer_length, 4, sent_fcs,
                                           "Frame check sequence: 0x%08x [validiation disabled]", sent_fcs);
         checksum_tree = proto_item_add_subtree(item, ett_eth_fcs);
         item = proto_tree_add_boolean(checksum_tree, hf_eth_fcs_good, tvb,
@@ -635,7 +650,7 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
       }
       trailer_length += 4;
     }
-    proto_tree_set_appendix(fh_tree, tvb, tvb_length(tvb) - trailer_length, trailer_length);
+    proto_tree_set_appendix(fh_tree, tvb, tvb_length(tvb) - padding_length - trailer_length, padding_length + trailer_length);
   }
 }
 
