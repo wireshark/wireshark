@@ -331,8 +331,8 @@ static GHashTable *pdcp_sequence_analysis_channel_hash = NULL;
 /* Equal keys */
 static gint pdcp_channel_equal(gconstpointer v, gconstpointer v2)
 {
-    const pdcp_channel_hash_key* val1 = v;
-    const pdcp_channel_hash_key* val2 = v2;
+    const pdcp_channel_hash_key* val1 = (pdcp_channel_hash_key *)v;
+    const pdcp_channel_hash_key* val2 = (pdcp_channel_hash_key *)v2;
 
     /* All fields must match */
     return (memcmp(val1, val2, sizeof(pdcp_channel_hash_key)) == 0);
@@ -341,7 +341,7 @@ static gint pdcp_channel_equal(gconstpointer v, gconstpointer v2)
 /* Compute a hash value for a given key. */
 static guint pdcp_channel_hash_func(gconstpointer v)
 {
-    const pdcp_channel_hash_key* val1 = v;
+    const pdcp_channel_hash_key* val1 = (pdcp_channel_hash_key *)v;
 
     /* TODO: use multipliers */
     return val1->ueId + val1->channelType + val1->channelId + val1->direction;
@@ -531,7 +531,7 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
         createdChannel = TRUE;
 
         /* Allocate a new value and duplicate key contents */
-        p_channel_status = se_alloc0(sizeof(pdcp_channel_status));
+        p_channel_status = se_new0(pdcp_channel_status);
         p_channel_key = se_memdup(&channel_key, sizeof(pdcp_channel_hash_key));
 
         /* Add entry */
@@ -539,7 +539,7 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
     }
 
     /* Create space for frame state_report */
-    p_report_in_frame = se_alloc(sizeof(pdcp_sequence_report_in_frame));
+    p_report_in_frame = se_new(pdcp_sequence_report_in_frame);
 
     switch (p_pdcp_lte_info->seqnum_length) {
         case PDCP_SN_LENGTH_5_BITS:
