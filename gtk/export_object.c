@@ -317,19 +317,25 @@ eo_save_all_clicked_cb(GtkWidget *widget _U_, gpointer arg)
 	gtk_window_set_transient_for(GTK_WINDOW(save_in_w),
 				     GTK_WINDOW(object_list->dlg));
 
-	if(gtk_dialog_run(GTK_DIALOG(save_in_w)) == GTK_RESPONSE_ACCEPT) {
-		while(slist) {
+	if (gtk_dialog_run(GTK_DIALOG(save_in_w)) == GTK_RESPONSE_ACCEPT) {
+		while (slist) {
 			entry = slist->data;
 
 			save_in_path = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(save_in_w));
-			if ( strlen(save_in_path) < MAXFILELEN ) {
+			if ((strlen(save_in_path) < MAXFILELEN)) {
 				do {
-					safe_filename = eo_massage_str(entry->filename,
+					/* TODO: If no filename, we could try to use the "Content
+					 * Type" to automatically append an appropriate filename
+					 * extension to the generic "object" name so that it would
+					 * make it that much easier to know what the file contains
+					 * even though we don't have its actual name. */
+					safe_filename = eo_massage_str(entry->filename ?
+						entry->filename : "object",
 						MAXFILELEN - strlen(save_in_path), count);
 					save_as_fullpath = g_build_filename(
 						save_in_path, safe_filename->str, NULL);
 					g_string_free(safe_filename, TRUE);
-				} while ( g_file_test(save_as_fullpath, G_FILE_TEST_EXISTS) && ++count < 1000 );
+				} while (g_file_test(save_as_fullpath, G_FILE_TEST_EXISTS) && ++count < 1000);
 				count = 0;
 				if (!eo_save_entry(save_as_fullpath, entry, FALSE))
 					all_saved = FALSE;
