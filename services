@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2011-11-29
+# 2011-12-09
 # 
 # Note
 # 
@@ -13863,7 +13863,7 @@ enrp	9901/udp	# enrp server channel
 enrp-sctp	9901/sctp	# enrp server channel                                                                                                                                        [RFC5353]
 enrp-sctp-tls	9902/sctp	# enrp/tls server channel                                                                                                                                    [RFC5353]
 # 9903        tcp    Reserved
-multicast-ping	9903/udp	# Multicast Ping Protocol                                                                                                                                    [RFC-ietf-mboned-ssmping-09]
+multicast-ping	9903/udp	# Multicast Ping Protocol                                                                                                                       2011-12-09   [RFC6450]
 # 9904-9908            Unassigned
 domaintime	9909/tcp	# domaintime                   [Jeffry_Dwight]                           [Jeffry_Dwight]
 domaintime	9909/udp	# domaintime                   [Jeffry_Dwight]                           [Jeffry_Dwight]
@@ -16410,6 +16410,10 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # control protocol
 # swordfish                             Swordfish Protocol for       [Jim_Wallace]                             [Jim_Wallace]                                                                                                                                 Defined TXT keys: None
 # Input/Output
+# Framework for transferring
+# swyp                                  any file from any app, to    [ExoMachina]                              [Alexander_List]                                          2011-12-06                                                                          Defined TXT keys: NONE
+# any app on any device:
+# simply with a swyp.
 # sxqdea                                Synchronize! Pro X           [Qdea]                                    [Qdea]                                                                                                                                        Defined TXT keys: None
 # sybase-tds                            Sybase Server                                                                                                                                                                                                        Defined TXT keys: None
 # syncopation                           Syncopation Synchronization  [Sonzea]                                  [Sonzea]                                                                                                                                      Defined TXT keys: None
@@ -16704,6 +16708,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Alexander_Griekspoor]                                    Alexander Griekspoor                            mailto:a.griekspoor&nki.nl                                    2003-07
 # [Alexander_Hartner]                                       Alexander Hartner         AddressBookServer.com mailto:dev&addressbookserver.com                              2011-10-14
 # [Alexander_Konovalov]                                     Alexander Konovalov                             mailto:konovalov&member.ams.org                               2007-11-27
+# [Alexander_List]                                          Alexander List                                  mailto:alist&exomachina.com                                   2011-12-06
 # [Alexander_Medvinsky]                                     Alexander Medvinsky                             mailto:smedvinsky&gi.com
 # [Alexander_Philippou]                                     Alexander Philippou                             mailto:alex&noemax.com                                        2003-10
 # [Alexander_Raji]                                          Alexander Raji                                  mailto:araji&lucent.com
@@ -17923,6 +17928,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Evan_Rosen]                                              Evan Rosen                                      mailto:evan&robix.com                                         2005-11
 # [Evgeniy_Filatov]                                         Evgeniy Filatov                                 mailto:evgeniyfilatov&yandex.ru                               2009-11-25
 # [Ewan_McNab]                                              Ewan McNab                                      mailto:ewan&qsc.co.uk                                         2004-11
+# [ExoMachina]                                                                        ExoMachina            mailto:hello&exomachina.com                                   2011-12-06
 # [Extensis]                                                Extensis                                        mailto:webmaster&extensis.com
 # [Eyal_Yardeni]                                            Eyal Yardeni                                    mailto:eyal.yardeni&smarts.com                                2003-11
 # [Ezinne_Oji]                                              Ezinne Oji                                      mailto:ezinne.oji&t-mobile.com                                2006-06
