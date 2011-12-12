@@ -336,7 +336,11 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
 		print_escaped_xml(pdata->fh, label_ptr);
 
 		fprintf(pdata->fh, "\" size=\"%d", fi->length);
-		fprintf(pdata->fh, "\" pos=\"%d", fi->start);
+		if (node->parent && node->parent->finfo && (fi->start < node->parent->finfo->start)) {
+			fprintf(pdata->fh, "\" pos=\"%d", node->parent->finfo->start + fi->start);
+		} else {
+			fprintf(pdata->fh, "\" pos=\"%d", fi->start);
+		}
 
 		fputs("\" value=\"", pdata->fh);
 		write_pdml_field_hex_value(pdata, fi);
@@ -401,7 +405,11 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
 			fprintf(pdata->fh, "\" hide=\"yes");
 
 		fprintf(pdata->fh, "\" size=\"%d", fi->length);
-		fprintf(pdata->fh, "\" pos=\"%d", fi->start);
+		if (node->parent && node->parent->finfo && (fi->start < node->parent->finfo->start)) {
+			fprintf(pdata->fh, "\" pos=\"%d", node->parent->finfo->start + fi->start);
+		} else {
+			fprintf(pdata->fh, "\" pos=\"%d", fi->start);
+		}
 /*		fprintf(pdata->fh, "\" id=\"%d", fi->hfinfo->id);*/
 
 		/* show, value, and unmaskedvalue attributes */

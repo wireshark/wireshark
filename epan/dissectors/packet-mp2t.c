@@ -805,7 +805,7 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
 	offset += 4;
 
 	/* Create a subtree for analysis stuff */
-	item = proto_tree_add_text(mp2t_tree, tvb, 0, 0, "MPEG2 PCR Analysis");
+	item = proto_tree_add_text(mp2t_tree, tvb, offset, 0, "MPEG2 PCR Analysis");
 	PROTO_ITEM_SET_GENERATED(item);
 	mp2t_analysis_tree = proto_item_add_subtree(item, ett_mp2t_analysis);
 
