@@ -155,7 +155,6 @@ extern sccp_msg_info_t* sccp_msg;
 extern sccp_assoc_info_t* sccp_assoc;
 
 extern int gsm_a_tap;
-extern gboolean lower_nibble;
 extern packet_info *gsm_a_dtap_pinfo;
 
 /* TS 23 032 */
@@ -203,20 +202,19 @@ extern const char* get_gsm_a_msg_string(int pdu_type, int idx);
 #define IS_UPLINK_TRUE      1
 #define IS_UPLINK_UNKNOWN   2
 
-/* Defines and nasty static for handling half octet mandatory V IEs
- * TODO: Note originally UPPER_NIBBLE was -2 and LOWER_NIBBLE was -1
- * changed here to unsigned integer as it wouldn't compile (Warnings on Ubuntu)
- * ugly hack...
+/* Defines for handling half octet mandatory V IEs
+ * Named LEFT and RIGHT (as displayed) because the GSM definitions and our internal representation 
+ * have the bits numbered in opposite senses
  */
-#define UPPER_NIBBLE    (2)
-#define LOWER_NIBBLE    (1)
+#define LEFT_NIBBLE     (2)
+#define RIGHT_NIBBLE    (1)
 
 /* FUNCTIONS */
 
 /* ELEMENT FUNCTIONS */
 
 #define EXTRANEOUS_DATA_CHECK(edc_len, edc_max_len) \
-    if (((edc_len) > (edc_max_len))||lower_nibble) \
+    if ((edc_len) > (edc_max_len)) \
     { \
         proto_tree_add_text(tree, tvb, \
             curr_offset, (edc_len) - (edc_max_len), "Extraneous Data"); \
@@ -224,7 +222,7 @@ extern const char* get_gsm_a_msg_string(int pdu_type, int idx);
     }
 
 #define EXTRANEOUS_DATA_CHECK_EXPERT(edc_len, edc_max_len, pinfo) \
-    if (((edc_len) > (edc_max_len))||lower_nibble) \
+    if ((edc_len) > (edc_max_len)) \
     { \
         proto_item *expert_item; \
         expert_item = proto_tree_add_text(tree, tvb, \
@@ -388,12 +386,10 @@ extern guint16 elem_v(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint 
 /*
  * Short Value (V_SHORT) element dissector
  *
- * Length is (ab)used in these functions to indicate upper nibble of the octet (-2) or lower nibble (-1)
- * noting that the tv_short dissector always sets the length to -1, as the upper nibble is the IEI.
- * This is expected to be used upper nibble first, as the tables of 24.008.
+ * nibble used in this functions to indicate left or right nibble of the octet 
+ * This is expected to be used right nibble first, as the tables of 24.008.
  */
-
-extern guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint pdu_type, int idx, guint32 offset);
+extern guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint pdu_type, int idx, guint32 offset, guint32 nibble);
 
 
 /* XXX: Most (if not all) the functions which make use of the following macros have the variables 'consumed',
@@ -590,17 +586,12 @@ extern guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     if ((signed)curr_len <= 0) return;      \
 }
 
-#define ELEM_MAND_V_SHORT(EMV_pdu_type, EMV_elem_idx) \
+#define ELEM_MAND_VV_SHORT(EMV_pdu_type, EMV_elem_idx1, EMV_elem_idx2) \
 {\
-    if ((consumed = elem_v_short(tvb, tree, pinfo, EMV_pdu_type, EMV_elem_idx, curr_offset)) > 0) \
-    { \
-        curr_offset += consumed; \
-        curr_len -= consumed; \
-    } \
-    else \
-    { \
-        /* Mandatory, but nothing we can do */ \
-    } \
+    elem_v_short(tvb, tree, pinfo, EMV_pdu_type, EMV_elem_idx1, curr_offset, RIGHT_NIBBLE); \
+    elem_v_short(tvb, tree, pinfo, EMV_pdu_type, EMV_elem_idx2, curr_offset, LEFT_NIBBLE); \
+    curr_offset ++ ; /* consumed length is 1, regardless of contents */ \
+    curr_len -- ; \
     if ((signed)curr_len <= 0) return;      \
 }
 
@@ -695,6 +686,7 @@ guint16 de_rr_tlli(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
 
 guint16 de_rej_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 guint16 de_d_gb_call_ref(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+guint16 de_spare_nibble(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_);
 
 guint16 de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 guint16 de_emm_trac_area_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);

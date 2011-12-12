@@ -6361,6 +6361,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		val_to_str(pd, protocol_discriminator_vals, "Unknown (%u)"));
 
 	pd_tree = proto_item_add_subtree(oct_1_item, ett_dtap_oct_1);
+	proto_tree_add_item(pd_tree, hf_gsm_a_L3_protocol_discriminator, tvb, 0, 1, ENC_BIG_ENDIAN);
 
 	if (ti == -1)
 	{
@@ -6395,8 +6396,6 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				ti & DTAP_TIE_PRES_MASK);
 		}
 	}
-
-	proto_tree_add_item(pd_tree, hf_gsm_a_L3_protocol_discriminator, tvb, 0, 1, ENC_BIG_ENDIAN);
 
 	if ((ti != -1) &&
 		(ti & DTAP_TIE_PRES_MASK) == DTAP_TIE_PRES_MASK)

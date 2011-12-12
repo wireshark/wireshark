@@ -2066,12 +2066,12 @@ de_rr_chnl_needed(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
     gint         bit_offset;
 
     curr_offset = offset;
-    if (UPPER_NIBBLE==len)
+    if (RIGHT_NIBBLE==len)
         bit_offset = 4;
     else
         bit_offset = 0;
 
-    item = proto_tree_add_text(tree, tvb, curr_offset, 3, "%s",
+    item = proto_tree_add_text(tree, tvb, curr_offset, 1, "%s",
                                gsm_rr_elem_strings[DE_RR_CHNL_NEEDED].strptr);
 
     subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_CHNL_NEEDED]);
@@ -2114,7 +2114,7 @@ de_rr_cip_mode_set(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
      * Note: The coding of fields SC and algorithm identifier is defined in [44.018]
      * as part of the Cipher Mode Setting IE.
      */
-    if (UPPER_NIBBLE==len)
+    if (RIGHT_NIBBLE==len)
         bit_offset = 4;
     else
         bit_offset = 0;
@@ -2145,7 +2145,7 @@ de_rr_cip_mode_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
     gint    bit_offset;
 
     curr_offset = offset;
-    if (UPPER_NIBBLE==len)
+    if (RIGHT_NIBBLE==len)
         bit_offset = 4;
     else
         bit_offset = 0;
@@ -8966,17 +8966,14 @@ static void
 dtap_rr_cip_mode_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len)
 {
     guint32     curr_offset;
-    guint32     consumed;
     guint       curr_len;
 
     curr_offset = offset;
     curr_len = len;
-    lower_nibble = FALSE;
 
     /* Ciphering Mode Setting           10.5.2.9        M V 0.5 */
-    ELEM_MAND_V_SHORT(GSM_A_PDU_TYPE_RR, DE_RR_CIP_MODE_SET);
     /* Cipher Response                  10.5.2.10       M V 0.5 */
-    ELEM_MAND_V_SHORT(GSM_A_PDU_TYPE_RR, DE_RR_CIP_MODE_RESP);
+    ELEM_MAND_VV_SHORT(GSM_A_PDU_TYPE_RR, DE_RR_CIP_MODE_SET, DE_RR_CIP_MODE_RESP);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 
@@ -8993,7 +8990,6 @@ dtap_rr_cip_mode_cpte(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
 
     curr_offset = offset;
     curr_len = len;
-    lower_nibble = FALSE;
 
     /* Mobile Equipment Identity                10.5.1.4        O TLV */
     ELEM_OPT_TLV(0x17, GSM_A_PDU_TYPE_COMMON, DE_MID, "Mobile Equipment Identity");
@@ -9419,11 +9415,9 @@ dtap_rr_imm_ass(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
      * i.e. coded with a "0" in each.
      */
 
-    /* Page Mode                                        10.5.2.26       M V 1/2 */
-    ELEM_MAND_V_SHORT(GSM_A_PDU_TYPE_RR, DE_RR_PAGE_MODE);
-
+    /* Page Mode                        10.5.2.26       M V 1/2 */
     /* Dedicated mode or TBF            10.5.2.25b      M V 1/2 */
-    ELEM_MAND_V_SHORT(GSM_A_PDU_TYPE_RR, DE_RR_DED_MOD_OR_TBF);
+    ELEM_MAND_VV_SHORT(GSM_A_PDU_TYPE_RR, DE_RR_PAGE_MODE, DE_RR_DED_MOD_OR_TBF);
 
     if((oct&0x10) == 0){
         /* Channel Description                  10.5.2.5        C V 3m */
@@ -9469,9 +9463,8 @@ dtap_rr_imm_ass_ext(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
     curr_len = len;
 
     /* Page Mode                                                10.5.2.26       M V 1/2 */
-    ELEM_MAND_V_SHORT(GSM_A_PDU_TYPE_RR, DE_RR_PAGE_MODE);
     /* Spare Half Octet                                         10.5.1.8        M V 1/2 */
-    ELEM_MAND_V_SHORT(GSM_A_PDU_TYPE_COMMON, DE_SPARE_NIBBLE);
+    ELEM_MAND_VV_SHORT(GSM_A_PDU_TYPE_RR, DE_RR_PAGE_MODE, DE_SPARE_NIBBLE);
     /* Channel Description 1    Channel Description             10.5.2.5        M V 3 */
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC, " - Channel Description 1");
     /* Request Reference 1      Request Reference               10.5.2.30       M V 3   */
@@ -9508,9 +9501,8 @@ dtap_rr_imm_ass_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
     curr_len = len;
 
     /* Page Mode                                        10.5.2.26       M V 1/2 */
-    ELEM_MAND_V_SHORT(GSM_A_PDU_TYPE_RR, DE_RR_PAGE_MODE);
     /* Spare Half Octet         10.5.1.8        M V 1/2 */
-    ELEM_MAND_V_SHORT(GSM_A_PDU_TYPE_COMMON, DE_SPARE_NIBBLE);
+    ELEM_MAND_VV_SHORT(GSM_A_PDU_TYPE_RR, DE_RR_PAGE_MODE, DE_SPARE_NIBBLE);
     /* Request Reference 1      Request Reference               10.5.2.30       M V 3   */
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_REQ_REF, " - Request Reference 1");
     /* Wait Indication 1        Wait Indication                 10.5.2.43       M V 1   */
@@ -9562,13 +9554,10 @@ dtap_rr_paging_req_type_1(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
 
     curr_offset = offset;
     curr_len = len;
-    lower_nibble = FALSE;
 
     /* RR Page Mode 10.5.2.26 M V 1/2 */
-    ELEM_MAND_V_SHORT(GSM_A_PDU_TYPE_RR, DE_RR_PAGE_MODE);
-
     /* RR Channel Needed 10.5.2.8 M V 1/2 */
-    ELEM_MAND_V_SHORT(GSM_A_PDU_TYPE_RR, DE_RR_CHNL_NEEDED);
+    ELEM_MAND_VV_SHORT(GSM_A_PDU_TYPE_RR, DE_RR_PAGE_MODE, DE_RR_CHNL_NEEDED);
 
     /* RR Mobile Identity 10.5.1.4 M LV 2-9 */
     ELEM_MAND_LV(GSM_A_PDU_TYPE_COMMON, DE_MID, " - Mobile Identity 1");
@@ -9593,13 +9582,10 @@ dtap_rr_paging_req_type_2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
 
     curr_offset = offset;
     curr_len = len;
-    lower_nibble = FALSE;
 
     /* RR Page Mode 10.5.2.26 M V 1/2 */
-    ELEM_MAND_V_SHORT(GSM_A_PDU_TYPE_RR, DE_RR_PAGE_MODE);
-
     /* RR Channel Needed 10.5.2.8 M V 1/2 */
-    ELEM_MAND_V_SHORT(GSM_A_PDU_TYPE_RR, DE_RR_CHNL_NEEDED);
+    ELEM_MAND_VV_SHORT(GSM_A_PDU_TYPE_RR, DE_RR_PAGE_MODE, DE_RR_CHNL_NEEDED);
 
     /* RR TMSI/P-TMSI 10.5.2.42 M V 4 */
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TMSI_PTMSI, " - Mobile Identity 1");
@@ -9627,13 +9613,10 @@ dtap_rr_paging_req_type_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
 
     curr_offset = offset;
     curr_len = len;
-    lower_nibble = FALSE;
 
     /* RR Page Mode 10.5.2.26 M V 1/2 */
-    ELEM_MAND_V_SHORT(GSM_A_PDU_TYPE_RR, DE_RR_PAGE_MODE);
-
     /* RR Channel Needed 10.5.2.8 M V 1/2 */
-    ELEM_MAND_V_SHORT(GSM_A_PDU_TYPE_RR, DE_RR_CHNL_NEEDED);
+    ELEM_MAND_VV_SHORT(GSM_A_PDU_TYPE_RR, DE_RR_PAGE_MODE, DE_RR_CHNL_NEEDED);
 
     /* RR TMSI/P-TMSI 10.5.2.42 M V 4 */
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_TMSI_PTMSI, " - Mobile Identity 1");
@@ -10867,6 +10850,7 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             val_to_str(pd, protocol_discriminator_vals, "Unknown (%u)"));
 
     pd_tree = proto_item_add_subtree(oct_1_item, ett_ccch_oct_1);
+    proto_tree_add_item(pd_tree, hf_gsm_a_L3_protocol_discriminator, tvb, 1, 1, ENC_BIG_ENDIAN);
 
     if (ti == -1){
         proto_tree_add_item(pd_tree, hf_gsm_a_skip_ind, tvb, 1, 1, ENC_BIG_ENDIAN);
@@ -10890,7 +10874,6 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
     }
 
-    proto_tree_add_item(pd_tree, hf_gsm_a_L3_protocol_discriminator, tvb, 1, 1, ENC_BIG_ENDIAN);
 
     if ((ti != -1) && (ti & DTAP_TIE_PRES_MASK) == DTAP_TIE_PRES_MASK){
         proto_tree_add_item(tree, hf_gsm_a_extension, tvb, 2, 1, ENC_BIG_ENDIAN);
@@ -11243,12 +11226,12 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_page_mode,
               { "Page Mode","gsm_a.rr.page_mode",
-                FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_page_mode_vals), 0x03,
+                FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_page_mode_vals), 0x0F,
                 NULL, HFILL }
             },
             { &hf_gsm_a_rr_dedicated_mode_or_tbf,
               { "Dedicated mode or TBF","gsm_a.rr.dedicated_mode_or_tbf",
-                FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_dedicated_mode_or_tbf_vals), 0x70,
+                FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_dedicated_mode_or_tbf_vals), 0xF0,
                 NULL, HFILL }
             },
             { &hf_gsm_a_rr_pow_cmd_epc,

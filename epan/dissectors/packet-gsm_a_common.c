@@ -43,9 +43,6 @@
 #include "packet-gsm_a_common.h"
 #include "packet-e212.h"
 
-/* nasty globals as a result of the split of packet-gsm_a.c in need of further restructure */
-/* nasty static for handling half octet mandatory V IEs */
-gboolean lower_nibble=FALSE;
 
 const value_string gsm_common_elem_strings[] = {
 	/* Common Information Elements 10.5.1 */
@@ -551,6 +548,7 @@ int hf_gsm_a_call_prio = -1;
 int hf_gsm_a_skip_ind = -1;
 int hf_gsm_a_spare_bits = -1;
 int hf_gsm_a_lac = -1;
+static int hf_gsm_a_spare_nibble = -1;
 static int hf_gsm_a_type_of_ciph_alg = -1;
 static int hf_gsm_a_old_xid = -1;
 static int hf_gsm_a_iov_ui = -1;
@@ -1514,7 +1512,7 @@ guint16 elem_tv_short(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
 
 			a_add_string=ep_alloc(1024);
 			a_add_string[0] = '\0';
-			consumed = (*elem_funcs[idx])(tvb, subtree, pinfo, curr_offset, -1, a_add_string, 1024);
+			consumed = (*elem_funcs[idx])(tvb, subtree, pinfo, curr_offset, RIGHT_NIBBLE, a_add_string, 1024);
 
 			if (a_add_string[0] != '\0')
 			{
@@ -1746,50 +1744,35 @@ guint16 elem_v(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint pdu_typ
 /*
  * Short Value (V_SHORT) element dissector
  *
- * Length is (ab)used in these functions to indicate upper nibble of the octet (-2) or lower nibble (-1)
- * noting that the tv_short dissector always sets the length to -1, as the upper nibble is the IEI.
- * This is expected to be used upper nibble first, as the tables of 24.008.
+ * nibble is used in this function to indicate right or left nibble of the octet
+ * This is expected to be used right nibble first, as the tables of 24.008.
  */
 
-guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint pdu_type, int idx, guint32 offset)
+guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint pdu_type, int idx, guint32 offset, guint32 nibble)
 {
-	guint16		consumed;
+	guint16		consumed = 1;
 	guint32		curr_offset;
 	const value_string	*elem_names;
 	gint		*elem_ett;
 	guint16 (**elem_funcs)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
+    gchar *a_add_string;
 
 	curr_offset = offset;
-	consumed = 0;
 
 	SET_ELEM_VARS(pdu_type, elem_names, elem_ett, elem_funcs);
 
+    a_add_string=ep_alloc(1024);
+    a_add_string[0] = '\0';
+
 	if (elem_funcs[idx] == NULL)
 	{
-		/* NOT A BAD THING - LENGTH IS HALF NIBBLE */
-
-		proto_tree_add_text(tree,
-			tvb, curr_offset, 1,
-			"No element dissector");
-
-		consumed = 1;
+		/* NOT NECESSARILY A BAD THING - LENGTH IS HALF OCTET */
+       (void)de_spare_nibble(tvb, tree, pinfo, curr_offset, nibble, a_add_string, 1024);
 	}
 	else
 	{
-		gchar *a_add_string;
-
-		a_add_string=ep_alloc(1024);
-		a_add_string[0] = '\0';
-		consumed = (*elem_funcs[idx])(tvb, tree, pinfo, curr_offset, (lower_nibble?LOWER_NIBBLE:UPPER_NIBBLE), a_add_string, 1024);
+		(void)(*elem_funcs[idx])(tvb, tree, pinfo, curr_offset, nibble, a_add_string, 1024);
 	}
-	if (!lower_nibble)	/* is this the first (upper) nibble ? */
-	{
-		consumed--; /* only half a nibble has been consumed, but all ie dissectors assume they consume 1 octet */
-		lower_nibble = TRUE;
-	}
-	else	/* if it is the second (lower) nibble, move on... */
-		lower_nibble = FALSE;
-
 	return(consumed);
 }
 
@@ -3030,22 +3013,21 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 /*
  * [3] 10.5.1.8
  */
-static guint16
-de_spare_nibble(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+guint16 de_spare_nibble(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-	guint32	curr_offset;
+   guint32 curr_offset;
+   gint    bit_offset;
 
-	curr_offset = offset;
+   curr_offset = offset;
+   if (RIGHT_NIBBLE==len)
+       bit_offset = 4;
+   else
+       bit_offset = 0;
 
-	proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
-		"Spare Nibble");
+   proto_tree_add_bits_item(tree, hf_gsm_a_spare_nibble, tvb, (curr_offset<<3)+bit_offset+3, 1, ENC_BIG_ENDIAN);
+   curr_offset = curr_offset + 1;
 
-	curr_offset++;
-
-	/* no length check possible */
-
-	return(curr_offset - offset);
+   return(curr_offset - offset);
 }
 
 /*
@@ -4094,6 +4076,11 @@ proto_register_gsm_a_common(void)
 	{ &hf_gsm_a_lac,
 		{ "Location Area Code (LAC)","gsm_a.lac",
 		FT_UINT16, BASE_HEX_DEC, NULL, 0x00,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_spare_nibble,
+		{ "Spare Nibble","gsm_a.spare",
+		FT_UINT8, BASE_DEC_HEX, NULL, 0x00,
 		NULL, HFILL }
 	},
 	};
