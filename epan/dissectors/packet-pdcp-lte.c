@@ -1801,10 +1801,10 @@ static gboolean dissect_pdcp_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
 
 
     /* If redissecting, use previous info struct (if available) */
-    p_pdcp_lte_info = p_get_proto_data(pinfo->fd, proto_pdcp_lte);
+    p_pdcp_lte_info = (pdcp_lte_info *)p_get_proto_data(pinfo->fd, proto_pdcp_lte);
     if (p_pdcp_lte_info == NULL) {
         /* Allocate new info struct for this frame */
-        p_pdcp_lte_info = se_alloc0(sizeof(struct pdcp_lte_info));
+        p_pdcp_lte_info = se_new0(pdcp_lte_info);
         infoAlreadySet = FALSE;
     }
     else {

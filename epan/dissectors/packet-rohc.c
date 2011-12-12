@@ -37,6 +37,7 @@
 #include <epan/packet.h>
 #include <epan/etypes.h>
 #include <epan/ipproto.h>
+#include <epan/addr_resolv.h>
 #include <epan/rtp_pt.h>
 #include <epan/expert.h>
 
@@ -65,13 +66,22 @@ static int hf_rohc_rtp_opt_sn = -1;
 static int hf_rohc_feedback_option_clock = -1;
 static int hf_rohc_profile = -1;
 static int hf_rohc_d_bit = -1;
-static int hf_rohc_rtp_version = -1;
-static int hf_rohc_rtp_protocol = -1;
-static int hf_rohc_rtp_ipv4_src = -1;
-static int hf_rohc_rtp_ipv4_dst = -1;
+static int hf_rohc_ip_version = -1;
+static int hf_rohc_ip_protocol = -1;
+static int hf_rohc_static_ipv4 = -1;
+static int hf_rohc_ipv4_src = -1;
+static int hf_rohc_ipv4_dst = -1;
+static int hf_rohc_ipv6_flow = -1;
+static int hf_rohc_ipv6_nxt_hdr = -1;
+static int hf_rohc_ipv6_src = -1;
+static int hf_rohc_ipv6_dst = -1;
+static int hf_rohc_static_udp = -1;
 static int hf_rohc_rtp_udp_src_port = -1;
 static int hf_rohc_rtp_udp_dst_port = -1;
+static int hf_rohc_static_rtp = -1;
 static int hf_rohc_rtp_ssrc = -1;
+static int hf_rohc_dynamic_ipv4 = -1;
+static int hf_rohc_dynamic_udp = -1;
 static int hf_rohc_rtp_tos = -1;
 static int hf_rohc_rtp_ttl = -1;
 static int hf_rohc_rtp_id = -1;
@@ -80,6 +90,7 @@ static int hf_rohc_rtp_rnd = -1;
 static int hf_rohc_rtp_nbo = -1;
 static int hf_rohc_rtp_checksum = -1;
 static int hf_rohc_dynamic_udp_seqnum = -1;
+static int hf_rohc_dynamic_rtp =-1;
 static int hf_rohc_rtp_v = -1;
 static int hf_rohc_rtp_p = -1;
 static int hf_rohc_rtp_rx = -1;
@@ -95,14 +106,22 @@ static int hf_rohc_rtp_tss = -1;
 static int hf_rohc_rtp_ts_stride = -1;
 static int hf_rohc_rtp_time_stride = -1;
 static int hf_rohc_var_len = -1;
+static int hf_rohc_ipv6_tc = -1;
+static int hf_rohc_ipv6_hop_limit = -1;
 
 static int ett_rohc = -1;
 static int ett_rohc_fb = -1;
 static int ett_rohc_feedback = -1;
 static int ett_rohc_ir = -1;
 static int ett_rohc_ir_dyn = -1;
+static int ett_rohc_static_ipv4 = -1;
+static int ett_rohc_static_udp = -1;
+static int ett_rohc_static_rtp = -1;
 static int ett_rohc_rtp_static = -1;
 static int ett_rohc_rtp_dynamic = -1;
+static int ett_rohc_dynamic_ipv4 = -1;
+static int ett_rohc_dynamic_udp = -1;
+static int ett_rohc_dynamic_rtp = -1;
 
 /* RTP profile and IPv4 hard wired for now */
 static guint8 g_profile = 1;
@@ -165,7 +184,7 @@ static const value_string rohc_rtp_opt_type_vals[] =
 
 
 
-static const value_string rohc_rtp_version_vals[] =
+static const value_string rohc_ip_version_vals[] =
 {
   { 4,    "IPv4" },
   { 6,    "IPv6" },
@@ -330,11 +349,19 @@ dissect_rohc_feedback_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
 static int
 dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, proto_tree *tree, int offset, rohc_info *p_rohc_info){
 
-	proto_item *item;
-	proto_tree *sub_tree;
+	proto_item *item, *root_ti;
+	proto_tree *sub_tree, *dynamic_ipv4_tree, *dynamic_udp_tree, *dynamic_rtp_tree;
 	guint8 oct, rx, cc, val_len = 0;
-	int i, start_offset;
-
+	int i, start_offset, tree_start_offset;
+    guint8 tos, ttl, rnd, nbo;
+    guint16 id;
+    /*guint8     contributing_csrcs;*/
+    guint16    sequence_number;
+    guint32    timestamp;
+#if 0
+    guint8     tis=0, tss=0;
+    guint64    ts_stride=0;
+#endif
 	start_offset = offset;
 	item = proto_tree_add_text(tree, tvb, offset, 0, "RTP Profile Dynamic Chain");
 	sub_tree = proto_item_add_subtree(item, ett_rohc_rtp_dynamic);
@@ -344,27 +371,64 @@ dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, proto_tree *tree, int offset,
 			/* 5.7.7.4.  Initialization of IPv4 Header [IPv4, section 3.1].
 			 * Dynamic part:
 			 */
+			/* Create dynamic IPv4 subtree */
+			tree_start_offset = offset;
+			root_ti = proto_tree_add_item(sub_tree, hf_rohc_dynamic_ipv4, tvb, offset, -1, ENC_NA);
+			dynamic_ipv4_tree = proto_item_add_subtree(root_ti, ett_rohc_dynamic_ipv4);
+
 			/* Type of Service */
-			proto_tree_add_item(sub_tree, hf_rohc_rtp_tos, tvb, offset, 1, ENC_BIG_ENDIAN);
+			tos = tvb_get_guint8(tvb, offset);
+			proto_tree_add_item(dynamic_ipv4_tree, hf_rohc_rtp_tos, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 			/* Time to Live */
-			proto_tree_add_item(sub_tree, hf_rohc_rtp_ttl, tvb, offset, 1, ENC_BIG_ENDIAN);
+			ttl = tvb_get_guint8(tvb, offset);
+			proto_tree_add_item(dynamic_ipv4_tree, hf_rohc_rtp_ttl, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 			/* Identification */
-			proto_tree_add_item(sub_tree, hf_rohc_rtp_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+			id = tvb_get_ntohs(tvb, offset);
+			proto_tree_add_item(dynamic_ipv4_tree, hf_rohc_rtp_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset+=2;
 			/*    +---+---+---+---+---+---+---+---+
 			 *    | DF|RND|NBO|         0         |
 			 *    +---+---+---+---+---+---+---+---+
 			 */
-			proto_tree_add_item(sub_tree, hf_rohc_rtp_df, tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(sub_tree, hf_rohc_rtp_rnd, tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(sub_tree, hf_rohc_rtp_nbo, tvb, offset, 1, ENC_BIG_ENDIAN);
+            rnd = (tvb_get_guint8(tvb, offset) & 0x40) >> 6;
+            nbo = (tvb_get_guint8(tvb, offset) & 0x20) >> 5;
+			proto_tree_add_item(dynamic_ipv4_tree, hf_rohc_rtp_df, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(dynamic_ipv4_tree, hf_rohc_rtp_rnd, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(dynamic_ipv4_tree, hf_rohc_rtp_nbo, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
+            /* Set proper length for subtree */
+            proto_item_set_len(root_ti, offset-tree_start_offset);
+
+            /*    +---+---+---+---+---+---+---+---+
+			 *   / Generic extension header list /  variable length
+			 *   +---+---+---+---+---+---+---+---+
+			 */
+			/* TODO: general extension header list... Use packet-ip.c ?*/
+            /* Add summary to root item */
+            proto_item_append_text(root_ti, " (ToS=%u, TTL=%u, ID=%u, RND=%u, NBO=%u)",
+                                   tos, ttl, id, rnd, nbo);
+
 			break;
 		case 6:
+   
+            /* Dynamic part:
+			 *    +---+---+---+---+---+---+---+---+
+			 *    |         Traffic Class         |   1 octet
+			 *    +---+---+---+---+---+---+---+---+
+			 *    |           Hop Limit           |   1 octet
+			 *    +---+---+---+---+---+---+---+---+
+			 *    / Generic extension header list /   variable length
+			 *    +---+---+---+---+---+---+---+---+
+			 */
+			proto_tree_add_item(sub_tree, hf_rohc_ipv6_tc, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset++;
+			proto_tree_add_item(sub_tree, hf_rohc_ipv6_hop_limit, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset++;
+			/* XXX TODO: use the IPv6 dissector to dissect Generic extension header list ?*/
 			proto_tree_add_text(sub_tree, tvb, offset, -1, "Not dissected yet");
-			return offset;
+			return -1;
 			break;
 		default:
 			break;
@@ -374,10 +438,14 @@ dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, proto_tree *tree, int offset,
 	 * Dynamic part:
 	 * Checksum
 	 */
-	proto_tree_add_item(sub_tree, hf_rohc_rtp_checksum, tvb, offset, 2, ENC_BIG_ENDIAN);
+    /* Create dynamic UDP subtree */
+    root_ti = proto_tree_add_item(sub_tree, hf_rohc_dynamic_udp, tvb, offset, 2, ENC_NA);
+    dynamic_udp_tree = proto_item_add_subtree(root_ti, ett_rohc_dynamic_udp);
+
+	proto_tree_add_item(dynamic_udp_tree, hf_rohc_dynamic_udp, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset+=2;
-	if (p_rohc_info->profile == 2) {
-		proto_tree_add_item(sub_tree, hf_rohc_dynamic_udp_seqnum, tvb, offset, 2, ENC_BIG_ENDIAN);
+	if (p_rohc_info->profile == ROHC_PROFILE_UDP) {
+		proto_tree_add_item(dynamic_udp_tree, hf_rohc_dynamic_udp_seqnum, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset +=2;
 		proto_item_set_len(item, offset - start_offset);
 		return offset;
@@ -408,25 +476,33 @@ dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, proto_tree *tree, int offset,
 	 *      :         Time_Stride           :  1-4 octets, if TIS = 1
 	 *      +---+---+---+---+---+---+---+---+
 	 */
-	proto_tree_add_item(sub_tree, hf_rohc_rtp_v, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(sub_tree, hf_rohc_rtp_p, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(sub_tree, hf_rohc_rtp_rx, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(sub_tree, hf_rohc_rtp_cc, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    /* Create dynamic RTP subtree */
+    root_ti = proto_tree_add_item(tree, hf_rohc_dynamic_rtp, tvb, offset, -1, ENC_NA);
+    dynamic_rtp_tree = proto_item_add_subtree(root_ti, ett_rohc_dynamic_rtp);
+
+	tree_start_offset = offset;
+	proto_tree_add_item(dynamic_rtp_tree, hf_rohc_rtp_v, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(dynamic_rtp_tree, hf_rohc_rtp_p, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(dynamic_rtp_tree, hf_rohc_rtp_rx, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(dynamic_rtp_tree, hf_rohc_rtp_cc, tvb, offset, 1, ENC_BIG_ENDIAN);
 	oct = tvb_get_guint8(tvb,offset);
 	cc = oct & 0x0f;
 	rx = (oct >> 4)& 0x01;
 	offset++;
-	proto_tree_add_item(sub_tree, hf_rohc_rtp_m, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(sub_tree, hf_rohc_rtp_pt, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(dynamic_rtp_tree, hf_rohc_rtp_m, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(dynamic_rtp_tree, hf_rohc_rtp_pt, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
-	proto_tree_add_item(sub_tree, hf_rohc_rtp_sn, tvb, offset, 2, ENC_BIG_ENDIAN);
+	sequence_number = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_item(dynamic_rtp_tree, hf_rohc_rtp_sn, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset+=2;
-	proto_tree_add_item(sub_tree, hf_rohc_rtp_timestamp, tvb, offset, 4, ENC_BIG_ENDIAN);
+	timestamp = tvb_get_ntohl(tvb, offset);
+	proto_tree_add_item(dynamic_rtp_tree, hf_rohc_rtp_timestamp, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset+=4;
 	if(cc > 0){
 		/* Dissect Generic CSRC list here */
 		for (i = 0; i < cc; i++ ) {
-			proto_tree_add_text(sub_tree, tvb, offset, 4, "CSRC item %u",i+1);
+			proto_tree_add_text(dynamic_rtp_tree, tvb, offset, 4, "CSRC item %u",i+1);
 			offset+=4;
 		}
 	}
@@ -434,10 +510,10 @@ dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, proto_tree *tree, int offset,
 	if(rx==0){
 		return offset;
 	}
-	proto_tree_add_item(sub_tree, hf_rohc_rtp_x, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(sub_tree, hf_rohc_rtp_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(sub_tree, hf_rohc_rtp_tis, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(sub_tree, hf_rohc_rtp_tss, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(dynamic_rtp_tree, hf_rohc_rtp_x, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(dynamic_rtp_tree, hf_rohc_rtp_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(dynamic_rtp_tree, hf_rohc_rtp_tis, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(dynamic_rtp_tree, hf_rohc_rtp_tss, tvb, offset, 1, ENC_BIG_ENDIAN);
 	oct = tvb_get_guint8(tvb,offset);
 	offset++;
 	/* TS_Stride             :  1-4 octets, if TSS = 1 */
@@ -445,7 +521,7 @@ dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, proto_tree *tree, int offset,
 		/* TS_Stride encoded as
 		 * 4.5.6.  Self-describing variable-length values
 		 */
-		get_self_describing_var_len_val(tvb, sub_tree, offset, hf_rohc_rtp_ts_stride, &val_len);
+		get_self_describing_var_len_val(tvb, dynamic_rtp_tree, offset, hf_rohc_rtp_ts_stride, &val_len);
 		offset = offset + val_len;
 	}
 
@@ -454,9 +530,15 @@ dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, proto_tree *tree, int offset,
 		/* Time_Stride encoded as
 		 * 4.5.6.  Self-describing variable-length values
 		 */
-		get_self_describing_var_len_val(tvb, sub_tree, offset, hf_rohc_rtp_time_stride, &val_len);
+		get_self_describing_var_len_val(tvb, dynamic_rtp_tree, offset, hf_rohc_rtp_time_stride, &val_len);
 		offset = offset + val_len;
 	}
+    /* Set proper length for subtree */
+    proto_item_set_len(root_ti, offset-tree_start_offset);
+
+    /* Add summary to root item */
+    proto_item_append_text(root_ti, " (seqnum = %u, timestamp = %u)",
+                           sequence_number, timestamp);
 
 	proto_item_set_len(item, offset - start_offset);
 	
@@ -466,17 +548,17 @@ dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, proto_tree *tree, int offset,
 static int
 dissect_rohc_ir_rtp_udp_profile_static(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset, gboolean d, rohc_info *p_rohc_info){
 
-	proto_item *item;
-	proto_tree *sub_tree;
+	proto_item *item, *ipv4_item, *udp_item, *rtp_item;
+	proto_tree *sub_tree, *static_ipv4_tree, *static_udp_tree, *static_rtp_tree;
 	guint8 version;
-	int start_offset;
+	int start_offset, tree_start_offset;
 
 	start_offset = offset;
 	item = proto_tree_add_text(tree, tvb, offset, 0, "RTP/UDP Profile Static Chain");
 	sub_tree = proto_item_add_subtree(item, ett_rohc_rtp_static);
 
 	version = tvb_get_guint8(tvb,offset)>>4;
-	proto_tree_add_item(sub_tree, hf_rohc_rtp_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_rohc_ip_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 	if(p_rohc_info->rohc_ip_version != version){
 		expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN,
 			"Configured IP version %u, differs from actual IP version %u, Dissection of other packets may be faulty",
@@ -485,26 +567,74 @@ dissect_rohc_ir_rtp_udp_profile_static(tvbuff_t *tvb, proto_tree *tree, packet_i
 
 	switch(version){
 		case 4:
+			{
 			/* 5.7.7.4.  Initialization of IPv4 Header [IPv4, section 3.1].
 			 * Static part:
 			 */
+			guint8  protocol;
+			guint32 source, dest;
+
 			offset++;
+			tree_start_offset = offset;
+			/* Create static IPv4 subtree */
+			ipv4_item = proto_tree_add_item(sub_tree, hf_rohc_static_ipv4, tvb, offset, -1, ENC_NA);
+			static_ipv4_tree = proto_item_add_subtree(ipv4_item, ett_rohc_static_ipv4);
 			/* Protocol */
-			proto_tree_add_item(sub_tree, hf_rohc_rtp_protocol, tvb, offset, 1, ENC_BIG_ENDIAN);
+			protocol = tvb_get_guint8(tvb, offset);
+			proto_tree_add_item(static_ipv4_tree, hf_rohc_ip_protocol, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 			/* Source Address */
-			proto_tree_add_item(sub_tree, hf_rohc_rtp_ipv4_src, tvb, offset, 4, ENC_BIG_ENDIAN);
+			source = tvb_get_ipv4(tvb, offset);
+			proto_tree_add_item(static_ipv4_tree, hf_rohc_ipv4_src, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset+=4;
 			/* Destination Address */
-			proto_tree_add_item(sub_tree, hf_rohc_rtp_ipv4_dst, tvb, offset, 4, ENC_BIG_ENDIAN);
+			dest = tvb_get_ipv4(tvb, offset);
+			proto_tree_add_item(static_ipv4_tree, hf_rohc_ipv4_dst, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset+=4;
+			/* Set proper length for subtree */
+			proto_item_set_len(ipv4_item, offset-tree_start_offset);
+
+			/* Add summary to root item */
+			proto_item_append_text(ipv4_item, " (prot=%s: %s -> %s)",
+								   val_to_str_ext_const(protocol, &ipproto_val_ext, "Unknown"),
+								   (char*)get_hostname(source),
+								   (char*)get_hostname(dest));
+			}
 			break;
 		case 6:
 			/* 5.7.7.3.  Initialization of IPv6 Header [IPv6]*/
-			proto_tree_add_text(tree, tvb, offset, -1, "Not dissected yet");
-			/* TODO: Short term, Calculate length and continue? */
-			return -1;
-			break;
+			/*   Static part:
+			 *
+			 *      +---+---+---+---+---+---+---+---+
+			 *      |  Version = 6  |Flow Label(msb)|   1 octet
+			 *      +---+---+---+---+---+---+---+---+
+			 *      /        Flow Label (lsb)       /   2 octets
+			 *      +---+---+---+---+---+---+---+---+
+			 *      |          Next Header          |   1 octet
+			 *      +---+---+---+---+---+---+---+---+
+			 *      /        Source Address         /   16 octets
+			 *      +---+---+---+---+---+---+---+---+
+			 *      /      Destination Address      /   16 octets
+			 *      +---+---+---+---+---+---+---+---+
+			 */
+
+			/* Flow Label */
+			proto_tree_add_item(sub_tree, hf_rohc_ipv6_flow, tvb, offset, 3, ENC_BIG_ENDIAN);
+			offset+=3;
+
+			/* Next Header */
+			proto_tree_add_item(sub_tree, hf_rohc_ipv6_nxt_hdr, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset++;
+
+			/* Source Address */
+			proto_tree_add_item(sub_tree, hf_rohc_ipv6_src, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset+=16;
+
+			/*  Destination Address */
+			proto_tree_add_item(sub_tree, hf_rohc_ipv6_dst, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset+=16;
+
+			return offset;
 		default:
 			proto_tree_add_text(sub_tree, tvb, offset, -1, "Error unknown version, only 4 or 6 allowed");
 			return -1;
@@ -514,12 +644,25 @@ dissect_rohc_ir_rtp_udp_profile_static(tvbuff_t *tvb, proto_tree *tree, packet_i
 		/* 5.7.7.5.  Initialization of UDP Header [RFC-768].
 		 * Static part
 		 */
+        guint16 source_port, dest_port, ssrc;
+
+        /* Create static UDP subtree */
+		tree_start_offset = offset;
+        udp_item = proto_tree_add_item(sub_tree, hf_rohc_static_udp, tvb, offset, -1, ENC_NA);
+        static_udp_tree = proto_item_add_subtree(udp_item, ett_rohc_static_udp);
 		/* Source Port */
-		proto_tree_add_item(sub_tree, hf_rohc_rtp_udp_src_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+		source_port = tvb_get_ntohs(tvb, offset);
+		proto_tree_add_item(static_udp_tree, hf_rohc_rtp_udp_src_port, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset+=2;
 		/* Destination Port */
-		proto_tree_add_item(sub_tree, hf_rohc_rtp_udp_dst_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+		dest_port = tvb_get_ntohs(tvb, offset);
+		proto_tree_add_item(static_udp_tree, hf_rohc_rtp_udp_dst_port, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset+=2;
+        /* Set proper length for subtree */
+        proto_item_set_len(udp_item, offset-tree_start_offset);
+        /* Add summary to root item */
+        proto_item_append_text(udp_item, " (%u -> %u)", source_port, dest_port);
+
 		if(p_rohc_info->profile == ROHC_PROFILE_UDP){
 			if(d==TRUE){
 				offset = dissect_rohc_ir_rtp_profile_dynamic(tvb, tree, offset, p_rohc_info);
@@ -529,9 +672,18 @@ dissect_rohc_ir_rtp_udp_profile_static(tvbuff_t *tvb, proto_tree *tree, packet_i
 		}
 
 		/* 5.7.7.6.  Initialization of RTP Header [RTP]. */
-		/* SSRC */
-		proto_tree_add_item(sub_tree, hf_rohc_rtp_ssrc, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+        /* Create static RTP subtree */
+        rtp_item = proto_tree_add_item(sub_tree, hf_rohc_static_rtp, tvb, offset, 4, ENC_NA);
+        static_rtp_tree = proto_item_add_subtree(rtp_item, ett_rohc_static_rtp);
+
+        /* SSRC */
+        ssrc = tvb_get_ntohl(tvb, offset);
+		proto_tree_add_item(static_rtp_tree, hf_rohc_rtp_ssrc, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+
+        /* Add summary to root item */
+        proto_item_append_text(rtp_item, " (SSRC=%u)", ssrc);
+
 		proto_item_set_len(item, offset - start_offset);
 
 		/* D:   D = 1 indicates that the dynamic chain is present. */
@@ -955,30 +1107,66 @@ proto_register_rohc(void)
 			NULL , HFILL
 			}
 		},
-		{ &hf_rohc_rtp_version,
-			{ "Version","rohc.rtp.version",
-			FT_UINT8, BASE_DEC, VALS(rohc_rtp_version_vals), 0xf0,
+		{ &hf_rohc_ip_version,
+			{ "Version","rohc.ip.version",
+			FT_UINT8, BASE_DEC, VALS(rohc_ip_version_vals), 0xf0,
 			NULL , HFILL
 			}
 		},
-		{ &hf_rohc_rtp_protocol,
-			{ "Protocol","rohc.rtp.protocol",
+        { &hf_rohc_static_ipv4,
+            { "Static IPv4 chain",
+              "pdcp-lte.rohc.static.ipv4", FT_NONE, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
+            }
+		},
+		{ &hf_rohc_ip_protocol,
+			{ "Protocol","rohc.ip.protocol",
 			FT_UINT8, BASE_DEC|BASE_EXT_STRING, (&ipproto_val_ext), 0x0,
 			NULL , HFILL
 			}
 		},
-		{ &hf_rohc_rtp_ipv4_src,
-			{ "Source address","rohc.rtp.ipv4_src",
+		{ &hf_rohc_ipv4_src,
+			{ "Source address","rohc.ipv4_src",
 			FT_IPv4, BASE_NONE, NULL, 0x0,
 			NULL, HFILL
 			}
 		},
-		{ &hf_rohc_rtp_ipv4_dst,
-			{ "Destination address","rohc.rtp.ipv4_dst",
+		{ &hf_rohc_ipv4_dst,
+			{ "Destination address","rohc.ipv4_dst",
 			FT_IPv4, BASE_NONE, NULL, 0x0,
 			NULL, HFILL
 			}
 		},
+		{ &hf_rohc_ipv6_flow,
+			{ "Flow Label","rohc.ipv6.flow",
+			FT_UINT24, BASE_DEC, NULL, 0x0fffff,
+			NULL , HFILL
+			}
+		},
+		{ &hf_rohc_ipv6_nxt_hdr,
+			{ "Next Header","rohc.ipv6.nxt_hdr",
+			FT_UINT8, BASE_DEC, NULL, 0x0,
+			NULL , HFILL
+			}
+		},
+		{ &hf_rohc_ipv6_src,
+			{ "Source Address","rohc.ipv6.src",
+			FT_IPv6, BASE_NONE, NULL, 0,
+			NULL , HFILL
+			}
+		},
+		{ &hf_rohc_ipv6_dst,
+			{ "Destination Address","rohc.ipv6.src",
+			FT_IPv6, BASE_NONE, NULL, 0,
+			NULL , HFILL
+			}
+		},
+        { &hf_rohc_static_udp,
+            { "Static UDP chain", "rohc.static.udp", 
+			FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL
+            }
+        },
 		{ &hf_rohc_rtp_udp_src_port,
 			{ "Source Port","rohc.rtp.udp_src_port",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -991,12 +1179,30 @@ proto_register_rohc(void)
 			NULL , HFILL
 			}
 		},
+        { &hf_rohc_static_rtp,
+            { "Static RTP chain",
+              "rohc.static.rtp", FT_NONE, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
 		{ &hf_rohc_rtp_ssrc,
 			{ "SSRC","rohc.rtp.ssrc",
 			FT_UINT32, BASE_HEX, NULL, 0x0,
 			NULL , HFILL
 			}
 		},
+        { &hf_rohc_dynamic_ipv4,
+            { "Dynamic IPv4 chain",
+              "rohc.dynamic.ipv4", FT_NONE, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_rohc_dynamic_udp,
+            { "Dynamic UDP chain",
+              "rohc.dynamic.udp", FT_NONE, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
 		{ &hf_rohc_rtp_tos,
 			{ "Type of Service","rohc.rtp.tos",
 			FT_UINT8, BASE_HEX, NULL, 0x0,
@@ -1044,6 +1250,12 @@ proto_register_rohc(void)
 			FT_UINT16, BASE_HEX, NULL, 0x0,
 			NULL, HFILL
 			}
+        },
+        { &hf_rohc_dynamic_rtp,
+            { "Dynamic RTP chain",
+              "rohc.dynamic.rtp", FT_NONE, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
+            }
         },
 		{ &hf_rohc_rtp_v,
 			{ "version","rohc.rtp.v",
@@ -1135,6 +1347,18 @@ proto_register_rohc(void)
 			NULL , HFILL
 			}
 		},
+		{ &hf_rohc_ipv6_tc,
+			{ "Traffic class","rohc.tc",
+			FT_UINT8, BASE_DEC, NULL, 0x0,
+			NULL , HFILL
+			}
+		},
+		{ &hf_rohc_ipv6_hop_limit,
+			{ "Hop limit","rohc.hop_limit",
+			FT_UINT8, BASE_DEC, NULL, 0x0,
+			NULL , HFILL
+			}
+		},
 	};
 
 	/* Setup protocol subtree array */
@@ -1144,8 +1368,14 @@ proto_register_rohc(void)
 	&ett_rohc_feedback,
 	&ett_rohc_ir,
 	&ett_rohc_ir_dyn,
+	&ett_rohc_static_ipv4,
+	&ett_rohc_static_udp,
+	&ett_rohc_static_rtp,
 	&ett_rohc_rtp_static,
 	&ett_rohc_rtp_dynamic,
+	&ett_rohc_dynamic_ipv4,
+	&ett_rohc_dynamic_udp,
+	&ett_rohc_dynamic_rtp,
 	};
 
 	/* Register the protocol name and description */
