@@ -1434,7 +1434,49 @@
  		<avp name="Volume-Threshold-64" code="131258" vendor-id="Cisco" mandatory="mustnot" protected="mustnot" may-encrypt="yes" vendor-bit="must">
 			<type type-name="Unsigned64"/>
 		</avp>
-		<!-- ********************** END GX AVPS ***************** -->      
+    <!--Delegated-IP-Install-->
+    <avp name="Delegated-IP-Install" code="131259" vendor-id="Cisco" mandatory="mustnot" protected="mustnot" may-encrypt="yes" vendor-bit="must">
+      <grouped>
+        <gavp name="Delegated-IPv4-Definition"/>
+        <gavp name="Delegated-IPv6-Definition"/>
+      </grouped>
+    </avp>
+    <!--Delegated-IPv4-Definition-->
+    <avp name="Delegated-IPv4-Definition" code="131260" vendor-id="Cisco" mandatory="mustnot" protected="mustnot" may-encrypt="yes" vendor-bit="must">
+      <grouped>
+        <gavp name="Framed-IP-Address"/>
+        <gavp name="Framed-IP-Netmask"/>
+        <gavp name="Aggr-Prefix-Len"/>
+      </grouped>
+    </avp>
+    <!--Delegated-IPv6-Definition-->
+    <avp name="Delegated-IPv6-Definition" code="131261" vendor-id="Cisco" mandatory="mustnot" protected="mustnot" may-encrypt="yes" vendor-bit="must">
+      <grouped>
+        <gavp name="Delegated-IPv6-Prefix"/>
+        <gavp name="Aggr-Prefix-Len"/>
+      </grouped>
+    </avp>
+    <!--Aggr-Prefix-Len-->
+    <avp name="Aggr-Prefix-Len" code="131262" vendor-id="Cisco" mandatory="mustnot" protected="mustnot" may-encrypt="yes" vendor-bit="must">
+      <type type-name="Unsigned32"/>
+    </avp>
+    <!--Service-Identifier-Lo-->
+    <avp name="Service-Identifier-Lo" code="131263" vendor-id="Cisco" mandatory="mustnot" protected="mustnot" may-encrypt="yes" vendor-bit="must">
+      <type type-name="Unsigned32"/>
+    </avp>
+    <!--Service-Identifier-Hi-->
+    <avp name="Service-Identifier-Hi" code="131264" vendor-id="Cisco" mandatory="mustnot" protected="mustnot" may-encrypt="yes" vendor-bit="must">
+      <type type-name="Unsigned32"/>
+    </avp>
+    <!--Service-Identifier-Range-->
+    <avp name="Service-Identifier-Range" code="131265" vendor-id="Cisco" mandatory="mustnot" protected="mustnot" may-encrypt="yes" vendor-bit="must">
+      <grouped>
+        <gavp name="Service-Identifier-Lo"/>
+        <gavp name="Service-Identifier-Hi"/>
+      </grouped>
+    </avp>
+
+    <!-- ********************** END GX AVPS ***************** -->      
 	</application>
 
 
