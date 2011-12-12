@@ -1976,7 +1976,11 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 opt_offset += 4;
                 while(opt_offset < (offset + opt_len) ) {
 
-                    if(tvb_get_guint8(tvb, opt_offset) == 0){ /* if Zero there is padding, skip the loop */
+                    if(tvb_get_guint8(tvb, opt_offset) == 0){
+                        /* Padding... */
+                        int padd_length = (offset + opt_len) - opt_offset;
+                        proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_padding, tvb, opt_offset, padd_length, FALSE);
+                        opt_offset += padd_length;
                         break;
                     }
                     dnssl_len = get_dns_name(tvb, opt_offset, 0, opt_offset, &dnssl_name);
