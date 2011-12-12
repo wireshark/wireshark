@@ -299,11 +299,11 @@ eo_massage_str(const gchar *in_str, gsize maxlen, int dup)
 }
 
 static const char *
-ct2ext(const char *content_type _U_)
+ct2ext(const char *content_type)
 {
 	/* TODO: Map the content type string to an extension string.  If no match,
 	 * return NULL. */
-	return NULL;
+	return content_type;
 }
 
 static void
@@ -341,7 +341,7 @@ eo_save_all_clicked_cb(GtkWidget *widget _U_, gpointer arg)
 						ext = ct2ext(entry->content_type);
 						g_snprintf(generic_name, sizeof(generic_name),
 							"object%u%s%s", entry->pkt_num, ext ? "." : "",
-							ext ? "ext" : "");
+							ext ? ext : "");
 						safe_filename = eo_massage_str(generic_name,
 							MAXFILELEN - strlen(save_in_path), count);
 					}
