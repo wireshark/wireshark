@@ -298,6 +298,14 @@ eo_massage_str(const gchar *in_str, gsize maxlen, int dup)
 	return out_str;
 }
 
+static const char *
+ct2ext(const char *content_type _U_)
+{
+	/* TODO: Map the content type string to an extension string.  If no match,
+	 * return NULL. */
+	return NULL;
+}
+
 static void
 eo_save_all_clicked_cb(GtkWidget *widget _U_, gpointer arg)
 {
@@ -324,14 +332,19 @@ eo_save_all_clicked_cb(GtkWidget *widget _U_, gpointer arg)
 			save_in_path = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(save_in_w));
 			if ((strlen(save_in_path) < MAXFILELEN)) {
 				do {
-					/* TODO: If no filename, we could try to use the "Content
-					 * Type" to automatically append an appropriate filename
-					 * extension to the generic "object" name so that it would
-					 * make it that much easier to know what the file contains
-					 * even though we don't have its actual name. */
-					safe_filename = eo_massage_str(entry->filename ?
-						entry->filename : "object",
-						MAXFILELEN - strlen(save_in_path), count);
+					if (entry->filename)
+						safe_filename = eo_massage_str(entry->filename,
+							MAXFILELEN - strlen(save_in_path), count);
+					else {
+						char generic_name[256];
+						const char *ext;
+						ext = ct2ext(entry->content_type);
+						g_snprintf(generic_name, sizeof(generic_name),
+							"object%u%s%s", entry->pkt_num, ext ? "." : "",
+							ext ? "ext" : "");
+						safe_filename = eo_massage_str(generic_name,
+							MAXFILELEN - strlen(save_in_path), count);
+					}
 					save_as_fullpath = g_build_filename(
 						save_in_path, safe_filename->str, NULL);
 					g_string_free(safe_filename, TRUE);
