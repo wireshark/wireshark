@@ -1747,6 +1747,7 @@ Anders Broman           <anders.broman [AT] ericsson.com> {
 	GTPv2 dissection
 	SGsAP dissection
 	Work on the initial version of the new packet list
+	ROCH dissection
 	Miscellaneous enhancements and fixes
 }
 
@@ -3367,6 +3368,10 @@ Salil Kanitkar         <sskanitk [AT] ncsu.edu>{
 Michael Sakaluk		<mdsakalu [AT] ncsu.edu> {
 	BGP Encapsulation SAFI support (RFC 5512)
 	Load balancing for mesh softwires (RFC 5640)
+}
+
+Per Liedberg		<per.liedberg [at]ericsson.com> {
+	RoHC dissection improvments
 }
 
 and by:
