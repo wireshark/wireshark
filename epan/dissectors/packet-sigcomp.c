@@ -173,16 +173,16 @@ static const value_string destination_address_encoding_vals[] = {
 };
 
 static const value_string udvm_instruction_code_vals[] = {
-    { 0,    "DECOMPRESSION-FAILURE" },
-    { 1,    "AND" },
-    { 2,    "OR" },
-    { 3,    "NOT" },
-    { 4,    "LSHIFT" },
-    { 5,    "RSHIFT" },
-    { 6,    "ADD" },
-    { 7,    "SUBTRACT" },
-    { 8,    "MULTIPLY" },
-    { 9,    "DIVIDE" },
+    {  0,   "DECOMPRESSION-FAILURE" },
+    {  1,   "AND" },
+    {  2,   "OR" },
+    {  3,   "NOT" },
+    {  4,   "LSHIFT" },
+    {  5,   "RSHIFT" },
+    {  6,   "ADD" },
+    {  7,   "SUBTRACT" },
+    {  8,   "MULTIPLY" },
+    {  9,   "DIVIDE" },
     { 10,   "REMAINDER" },
     { 11,   "SORT-ASCENDING" },
     { 12,   "SORT-DESCENDING" },
@@ -714,7 +714,7 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
              * TRUE                 = Indicates that state_* is in the stored state
              */
             /*
-             * Note: The allocate buffer must be zeroed or some strange effects might occur.
+             * Note: The allocated buffer must be zeroed or some strange effects might occur.
              */
             buff = g_malloc0(UDVM_MEMORY_SIZE);
 
@@ -760,7 +760,6 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
 
 
             udvm2_tvb = tvb_new_subset(udvm_tvb, state_address, state_length, state_length);
-            /* TODO Check if buff needs to be free'd */
             udvm_exe_item = proto_tree_add_item(sigcomp_tree, hf_udvm_execution_trace,
                                                 udvm2_tvb, 0, state_length,
                                                 ENC_NA);
@@ -786,7 +785,7 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
                 if ( display_raw_txt )
                     tvb_raw_text_add(decomp_tvb, top_tree);
 
-				col_append_str(pinfo->cinfo, COL_PROTOCOL, "/");
+                col_append_str(pinfo->cinfo, COL_PROTOCOL, "/");
                 col_set_fence(pinfo->cinfo,COL_PROTOCOL);
                 call_dissector(sip_handle, decomp_tvb, pinfo, top_tree);
             }
@@ -920,7 +919,7 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
                     if ( display_raw_txt )
                         tvb_raw_text_add(decomp_tvb, top_tree);
 
-					col_append_str(pinfo->cinfo, COL_PROTOCOL, "/");
+                    col_append_str(pinfo->cinfo, COL_PROTOCOL, "/");
                     col_set_fence(pinfo->cinfo,COL_PROTOCOL);
                     call_dissector(sip_handle, decomp_tvb, pinfo, top_tree);
                 }
@@ -932,16 +931,16 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
 }
 
 
-#define SIGCOMP_INSTR_DECOMPRESSION_FAILURE     0
-#define SIGCOMP_INSTR_AND                       1
-#define SIGCOMP_INSTR_OR                        2
-#define SIGCOMP_INSTR_NOT                       3
-#define SIGCOMP_INSTR_LSHIFT                    4
-#define SIGCOMP_INSTR_RSHIFT                    5
-#define SIGCOMP_INSTR_ADD                       6
-#define SIGCOMP_INSTR_SUBTRACT                  7
-#define SIGCOMP_INSTR_MULTIPLY                  8
-#define SIGCOMP_INSTR_DIVIDE                    9
+#define SIGCOMP_INSTR_DECOMPRESSION_FAILURE      0
+#define SIGCOMP_INSTR_AND                        1
+#define SIGCOMP_INSTR_OR                         2
+#define SIGCOMP_INSTR_NOT                        3
+#define SIGCOMP_INSTR_LSHIFT                     4
+#define SIGCOMP_INSTR_RSHIFT                     5
+#define SIGCOMP_INSTR_ADD                        6
+#define SIGCOMP_INSTR_SUBTRACT                   7
+#define SIGCOMP_INSTR_MULTIPLY                   8
+#define SIGCOMP_INSTR_DIVIDE                     9
 #define SIGCOMP_INSTR_REMAINDER                 10
 #define SIGCOMP_INSTR_SORT_ASCENDING            11
 #define SIGCOMP_INSTR_SORT_DESCENDING           12
@@ -2248,54 +2247,10 @@ tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree)
 
 /* Register the protocol with Wireshark */
 
-
-/* If this dissector uses sub-dissector registration add a registration routine.
-   This format is required because a script is used to find these routines and
-   create the code that calls these routines.
-*/
-void
-proto_reg_handoff_sigcomp(void)
-{
-    static dissector_handle_t sigcomp_handle;
-    static dissector_handle_t sigcomp_tcp_handle;
-    static gboolean Initialized=FALSE;
-    static guint udp_port1;
-    static guint udp_port2;
-    static guint tcp_port1;
-    static guint tcp_port2;
-
-    if (!Initialized) {
-        sigcomp_handle = find_dissector("sigcomp");
-        sigcomp_tcp_handle = new_create_dissector_handle(dissect_sigcomp_tcp,proto_sigcomp);
-        sip_handle = find_dissector("sip");
-        Initialized=TRUE;
-    }else{
-        dissector_delete_uint("udp.port", udp_port1, sigcomp_handle);
-        dissector_delete_uint("udp.port", udp_port2, sigcomp_handle);
-        dissector_delete_uint("tcp.port", tcp_port1, sigcomp_tcp_handle);
-        dissector_delete_uint("tcp.port", tcp_port2, sigcomp_tcp_handle);
-    }
-
-    udp_port1 = SigCompUDPPort1;
-    udp_port2 = SigCompUDPPort2;
-    tcp_port1 = SigCompTCPPort1;
-    tcp_port2 = SigCompTCPPort2;
-
-
-    dissector_add_uint("udp.port", SigCompUDPPort1, sigcomp_handle);
-    dissector_add_uint("udp.port", SigCompUDPPort2, sigcomp_handle);
-    dissector_add_uint("tcp.port", SigCompTCPPort1, sigcomp_tcp_handle);
-    dissector_add_uint("tcp.port", SigCompTCPPort2, sigcomp_tcp_handle);
-
-}
-
-/* this format is require because a script is used to build the C function
-   that calls all the protocol registration.
-*/
-
 void
 proto_register_sigcomp(void)
 {
+    void proto_reg_handoff_sigcomp(void);
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
@@ -2639,9 +2594,9 @@ proto_register_sigcomp(void)
 
 /* Register the protocol name and description */
     proto_sigcomp = proto_register_protocol("Signaling Compression",
-        "SIGCOMP", "sigcomp");
+                                            "SIGCOMP", "sigcomp");
     proto_raw_sigcomp = proto_register_protocol("Decompressed SigComp message as raw text",
-        "Raw_SigComp", "raw_sigcomp");
+                                                "Raw_SigComp", "raw_sigcomp");
 
     new_register_dissector("sigcomp", dissect_sigcomp, proto_sigcomp);
 
@@ -2684,7 +2639,7 @@ proto_register_sigcomp(void)
     prefs_register_bool_preference(sigcomp_module, "display.bytecode",
                                    "Display the bytecode of operands",
                                    "preference whether to display the bytecode in "
-                                                                   "UDVM operands or not",
+                                     "UDVM operands or not",
                                    &display_udvm_bytecode);
     prefs_register_bool_preference(sigcomp_module, "decomp.msg",
                                    "Decompress message",
@@ -2693,17 +2648,53 @@ proto_register_sigcomp(void)
     prefs_register_bool_preference(sigcomp_module, "display.decomp.msg.as.txt",
                                    "Displays the decompressed message as text",
                                    "preference whether to display the decompressed message "
-                                                                   "as raw text or not",
+                                     "as raw text or not",
                                    &display_raw_txt);
     prefs_register_enum_preference(sigcomp_module, "show.udvm.execution",
-                                                                   "Level of detail of UDVM execution:",
-                                                                   "'No-Printout' = UDVM executes silently, then increasing detail "
-                                                                   "about execution of UDVM instructions; "
-                                                                   "Warning! CPU intense at high detail",
-                                                                   &udvm_print_detail_level, udvm_detail_vals, FALSE);
+                                   "Level of detail of UDVM execution:",
+                                   "'No-Printout' = UDVM executes silently, then increasing detail "
+                                     "about execution of UDVM instructions; "
+                                     "Warning! CPU intense at high detail",
+                                   &udvm_print_detail_level, udvm_detail_vals, FALSE);
 
     register_init_routine(&sigcomp_init_protocol);
 
 
+
+}
+
+void
+proto_reg_handoff_sigcomp(void)
+{
+    static dissector_handle_t sigcomp_handle;
+    static dissector_handle_t sigcomp_tcp_handle;
+    static gboolean Initialized=FALSE;
+    static guint udp_port1;
+    static guint udp_port2;
+    static guint tcp_port1;
+    static guint tcp_port2;
+
+    if (!Initialized) {
+        sigcomp_handle = find_dissector("sigcomp");
+        sigcomp_tcp_handle = new_create_dissector_handle(dissect_sigcomp_tcp,proto_sigcomp);
+        sip_handle = find_dissector("sip");
+        Initialized=TRUE;
+    }else{
+        dissector_delete_uint("udp.port", udp_port1, sigcomp_handle);
+        dissector_delete_uint("udp.port", udp_port2, sigcomp_handle);
+        dissector_delete_uint("tcp.port", tcp_port1, sigcomp_tcp_handle);
+        dissector_delete_uint("tcp.port", tcp_port2, sigcomp_tcp_handle);
+    }
+
+    udp_port1 = SigCompUDPPort1;
+    udp_port2 = SigCompUDPPort2;
+    tcp_port1 = SigCompTCPPort1;
+    tcp_port2 = SigCompTCPPort2;
+
+
+    dissector_add_uint("udp.port", SigCompUDPPort1, sigcomp_handle);
+    dissector_add_uint("udp.port", SigCompUDPPort2, sigcomp_handle);
+    dissector_add_uint("tcp.port", SigCompTCPPort1, sigcomp_tcp_handle);
+    dissector_add_uint("tcp.port", SigCompTCPPort2, sigcomp_tcp_handle);
 
 }
