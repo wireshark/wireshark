@@ -78,8 +78,8 @@ static const value_string h248_pkg_generic_cause_gencause_vals[] = {
 };
 
 static h248_pkg_param_t h248_pkg_generic_cause_evt_params[] = {
-	{ 0x0001, &hf_h248_pkg_generic_cause_gencause, h248_param_ber_integer, h248_e_implicit },
-	{ 0x0002, &hf_h248_pkg_generic_cause_failurecause, h248_param_ber_octetstring, h248_e_implicit },
+	{ 0x0001, &hf_h248_pkg_generic_cause_gencause, h248_param_ber_integer, &h248_e_implicit },
+	{ 0x0002, &hf_h248_pkg_generic_cause_failurecause, h248_param_ber_octetstring, &h248_e_implicit },
 	{ 0, NULL, NULL, NULL}
 };
 
@@ -101,10 +101,10 @@ static const value_string h248_pkg_generic_sc_vals[] = {
 };
 
 static h248_pkg_param_t h248_pkg_generic_sc_evt_params[] = {
-	{ 0x0001, &hf_h248_pkg_generic_sc_sig_id, h248_param_PkgdName, h248_e_implicit },
-	{ 0x0002, &hf_h248_pkg_generic_sc_meth, h248_param_ber_integer, h248_e_implicit },
-	{ 0x0003, &hf_h248_pkg_generic_sc_slid, h248_param_ber_integer, h248_e_implicit },
-	{ 0x0004, &hf_h248_pkg_generic_sc_rid, h248_param_ber_integer, h248_e_implicit },
+	{ 0x0001, &hf_h248_pkg_generic_sc_sig_id, h248_param_PkgdName, &h248_e_implicit },
+	{ 0x0002, &hf_h248_pkg_generic_sc_meth, h248_param_ber_integer, &h248_e_implicit },
+	{ 0x0003, &hf_h248_pkg_generic_sc_slid, h248_param_ber_integer, &h248_e_implicit },
+	{ 0x0004, &hf_h248_pkg_generic_sc_rid, h248_param_ber_integer, &h248_e_implicit },
 	{ 0, NULL, NULL, NULL}
 };
 
@@ -414,8 +414,8 @@ static const value_string h248_pkg_tdmc_props_vals[] = {
 
 
 static h248_pkg_param_t h248_pkg_tdmc_props[] = {
-	{ 0x0008, &hf_h248_pkg_tdmc_ec, h248_param_ber_boolean, h248_e_implicit },
-	{ 0x000a, &hf_h248_pkg_tdmc_gain, h248_param_ber_integer, h248_e_implicit },
+	{ 0x0008, &hf_h248_pkg_tdmc_ec, h248_param_ber_boolean, &h248_e_implicit },
+	{ 0x000a, &hf_h248_pkg_tdmc_gain, h248_param_ber_integer, &h248_e_implicit },
 	{ 0, NULL, NULL, NULL}
 };
 
