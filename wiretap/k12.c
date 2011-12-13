@@ -337,7 +337,7 @@ static gint get_record(guint8** bufferp, FILE_T fh, gint64 file_offset,
     /* XXX - Is WTAP_MAX_PACKET_SIZE */
     if (left < 4 || left > WTAP_MAX_PACKET_SIZE) {
         K12_DBG(1,("get_record: Invalid GET length=%u",left));
-        *err = WTAP_ERR_BAD_RECORD;
+        *err = WTAP_ERR_BAD_FILE;
         *err_info = g_strdup_printf("get_record: Invalid GET length=%u",left);
         return -1;
     }

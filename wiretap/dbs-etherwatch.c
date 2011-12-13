@@ -260,7 +260,7 @@ dbs_etherwatch_seek_read (wtap *wth, gint64 seek_off,
 
 	if (pkt_len != len) {
 		if (pkt_len != -1) {
-			*err = WTAP_ERR_BAD_RECORD;
+			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup_printf("dbs_etherwatch: packet length %d doesn't match requested length %d",
 			    pkt_len, len);
 		}
@@ -349,14 +349,14 @@ parse_dbs_etherwatch_packet(wtap *wth, FILE_T fh, guint8* buf, int *err,
 	/* Get the destination address */
 	p = strstr(line, DEST_MAC_PREFIX);
 	if(!p) {
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup("dbs_etherwatch: destination address not found");
 		return -1;
 	}
 	p += strlen(DEST_MAC_PREFIX);
 	if(parse_hex_dump(p, &buf[eth_hdr_len], HEX_HDR_SPR, HEX_HDR_END)
 				!= MAC_ADDR_LENGTH) {
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup("dbs_etherwatch: destination address not valid");
 		return -1;
 	}
@@ -374,7 +374,7 @@ parse_dbs_etherwatch_packet(wtap *wth, FILE_T fh, guint8* buf, int *err,
 	}
 	if(parse_hex_dump(p, &buf[eth_hdr_len], HEX_HDR_SPR,
 		HEX_HDR_END) != MAC_ADDR_LENGTH) {
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup("dbs_etherwatch: source address not valid");
 		return -1;
 	}
@@ -391,7 +391,7 @@ parse_dbs_etherwatch_packet(wtap *wth, FILE_T fh, guint8* buf, int *err,
 
 	/* Check the lines is as least as long as the length position */
 	if(strlen(line) < LENGTH_POS) {
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup("dbs_etherwatch: line too short");
 		return -1;
 	}
@@ -404,7 +404,7 @@ parse_dbs_etherwatch_packet(wtap *wth, FILE_T fh, guint8* buf, int *err,
 				&tm.tm_sec, &csec);
 
 	if (num_items_scanned != 8) {
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup("dbs_etherwatch: header line not valid");
 		return -1;
 	}
@@ -416,7 +416,7 @@ parse_dbs_etherwatch_packet(wtap *wth, FILE_T fh, guint8* buf, int *err,
 		/* Get the Protocol */
 		if(parse_hex_dump(&line[PROTOCOL_POS], &buf[eth_hdr_len], HEX_HDR_SPR,
 					HEX_HDR_END) != PROTOCOL_LENGTH) {
-			*err = WTAP_ERR_BAD_RECORD;
+			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup("dbs_etherwatch: Ethernet II protocol value not valid");
 			return -1;
 		}
@@ -432,7 +432,7 @@ parse_dbs_etherwatch_packet(wtap *wth, FILE_T fh, guint8* buf, int *err,
 		/* Get the DSAP + SSAP */
 		if(parse_hex_dump(&line[SAP_POS], &buf[eth_hdr_len], HEX_HDR_SPR,
 					HEX_HDR_END) != SAP_LENGTH) {
-			*err = WTAP_ERR_BAD_RECORD;
+			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup("dbs_etherwatch: 802.2 DSAP+SSAP value not valid");
 			return -1;
 		}
@@ -440,7 +440,7 @@ parse_dbs_etherwatch_packet(wtap *wth, FILE_T fh, guint8* buf, int *err,
 		/* Get the (first part of the) control field */
 		if(parse_hex_dump(&line[CTL_POS], &buf[eth_hdr_len], HEX_HDR_SPR,
 					HEX_HDR_END) != CTL_UNNUMB_LENGTH) {
-			*err = WTAP_ERR_BAD_RECORD;
+			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup("dbs_etherwatch: 802.2 control field first part not valid");
 			return -1;
 		}
@@ -450,7 +450,7 @@ parse_dbs_etherwatch_packet(wtap *wth, FILE_T fh, guint8* buf, int *err,
 			if(parse_hex_dump(&line[PID_POS],
 						&buf[eth_hdr_len + CTL_UNNUMB_LENGTH], HEX_HDR_END,
 						HEX_HDR_SPR) != CTL_NUMB_LENGTH - CTL_UNNUMB_LENGTH) {
-				*err = WTAP_ERR_BAD_RECORD;
+				*err = WTAP_ERR_BAD_FILE;
 				*err_info = g_strdup("dbs_etherwatch: 802.2 control field second part value not valid");
 				return -1;
 			}
@@ -464,7 +464,7 @@ parse_dbs_etherwatch_packet(wtap *wth, FILE_T fh, guint8* buf, int *err,
 			/* Get the PID */
 			if(parse_hex_dump(&line[PID_POS], &buf[eth_hdr_len], HEX_HDR_SPR,
 						HEX_PID_END) != PID_LENGTH) {
-				*err = WTAP_ERR_BAD_RECORD;
+				*err = WTAP_ERR_BAD_FILE;
 				*err_info = g_strdup("dbs_etherwatch: 802.2 PID value not valid");
 				return -1;
 			}
@@ -501,13 +501,13 @@ parse_dbs_etherwatch_packet(wtap *wth, FILE_T fh, guint8* buf, int *err,
 		}
 		if (!(line_count = parse_single_hex_dump_line(line,
 				&buf[eth_hdr_len + count], count))) {
-			*err = WTAP_ERR_BAD_RECORD;
+			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup("dbs_etherwatch: packet data value not valid");
 			return -1;
 		}
 		count += line_count;
 		if (count > pkt_len) {
-			*err = WTAP_ERR_BAD_RECORD;
+			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup("dbs_etherwatch: packet data value has too many bytes");
 			return -1;
 		}

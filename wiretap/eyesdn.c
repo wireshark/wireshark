@@ -209,7 +209,7 @@ eyesdn_seek_read (wtap *wth, gint64 seek_off,
 
 	if (pkt_len != len) {
 		if (pkt_len != -1) {
-			*err = WTAP_ERR_BAD_RECORD;
+			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup_printf("eyesdn: requested length %d doesn't match length %d",
 			    len, pkt_len);
 		}
@@ -296,7 +296,7 @@ parse_eyesdn_rec_hdr(wtap *wth, FILE_T fh,
 		gint64 cur_off;
 
 		if(pkt_len != CELL_LEN) {
-			*err = WTAP_ERR_BAD_RECORD;
+			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup_printf(
 			    "eyesdn: ATM cell has a length != 53 (%u)",
 			    pkt_len);
@@ -360,7 +360,7 @@ parse_eyesdn_rec_hdr(wtap *wth, FILE_T fh,
 	}
 
 	if(pkt_len > EYESDN_MAX_PACKET_LEN) {
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("eyesdn: File has %u-byte packet, bigger than maximum of %u",
 		pkt_len, EYESDN_MAX_PACKET_LEN);
 		return -1;
@@ -391,7 +391,7 @@ parse_eyesdn_packet_data(FILE_T fh, int pkt_len, guint8* buf, int *err,
 			if (*err == 0)
 				*err = WTAP_ERR_SHORT_READ;
 		} else if (bytes_read == -1) {
-			*err = WTAP_ERR_BAD_RECORD;
+			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup("eyesdn: No flag character seen in frame");
 		} else
 			*err = WTAP_ERR_SHORT_READ;

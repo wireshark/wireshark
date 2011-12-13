@@ -140,13 +140,13 @@ ipfix_read_message_header(ipfix_message_header_t *pfx_hdr, FILE_T fh, int *err, 
     /* is the version number one we expect? */
     if (pfx_hdr->version != IPFIX_VERSION) {
         /* Not an ipfix file. */
-        *err = WTAP_ERR_BAD_RECORD;
+        *err = WTAP_ERR_BAD_FILE;
         *err_info = g_strdup_printf("ipfix: wrong version %d", pfx_hdr->version);
         return FALSE;
     }
 
     if (pfx_hdr->message_length < 16) {
-        *err = WTAP_ERR_BAD_RECORD;
+        *err = WTAP_ERR_BAD_FILE;
         *err_info = g_strdup_printf("ipfix: message length %u is too short", pfx_hdr->message_length);
         return FALSE;
     }
@@ -193,7 +193,7 @@ ipfix_open(wtap *wth, int *err, gchar **err_info)
         if (!ipfix_read_message_header(&msg_hdr, wth->fh, err, err_info)) {
             ipfix_debug3("ipfix_open: couldn't read message header #%d with err code #%d (%s)",
                          i, *err, *err_info);
-            if (*err == WTAP_ERR_BAD_RECORD) {
+            if (*err == WTAP_ERR_BAD_FILE) {
                 *err = 0;            /* not actually an error in this case */
                 g_free(*err_info);
                 *err_info = NULL;
@@ -313,7 +313,7 @@ ipfix_seek_read(wtap *wth, gint64 seek_off,
     }
 
     if(length != (int)msg_hdr.message_length) {
-        *err = WTAP_ERR_BAD_RECORD;
+        *err = WTAP_ERR_BAD_FILE;
         *err_info = g_strdup_printf("ipfix: record length %u doesn't match requested length %d",
                                     msg_hdr.message_length, length);
         ipfix_debug1("ipfix_seek_read: %s", *err_info);

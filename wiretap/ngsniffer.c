@@ -598,7 +598,7 @@ ngsniffer_open(wtap *wth, int *err, gchar **err_info)
 	type = pletohs(record_type);
 
 	if (type != REC_VERS) {
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("ngsniffer: Sniffer file doesn't start with a version record");
 		return -1;
 	}
@@ -1074,7 +1074,7 @@ ngsniffer_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 				 * We shouldn't get a frame2 record in
 				 * an ATM capture.
 				 */
-				*err = WTAP_ERR_BAD_RECORD;
+				*err = WTAP_ERR_BAD_FILE;
 				*err_info = g_strdup("ngsniffer: REC_FRAME2 record in an ATM Sniffer file");
 				return FALSE;
 			}
@@ -1105,7 +1105,7 @@ ngsniffer_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 				 * We shouldn't get a frame2 record in
 				 * a non-ATM capture.
 				 */
-				*err = WTAP_ERR_BAD_RECORD;
+				*err = WTAP_ERR_BAD_FILE;
 				*err_info = g_strdup("ngsniffer: REC_FRAME4 record in a non-ATM Sniffer file");
 				return FALSE;
 			}
@@ -1193,7 +1193,7 @@ found:
 		/*
 		 * Yes - treat this as an error.
 		 */
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup("ngsniffer: Record length is less than packet size");
 		return FALSE;
 	}

@@ -1004,8 +1004,8 @@ int wtap_register_encap_type(char* name, char* short_name);
 	/* An attempt to read failed, reason unknown */
 #define	WTAP_ERR_SHORT_READ			-12
 	/* An attempt to read read less data than it should have */
-#define	WTAP_ERR_BAD_RECORD			-13
-	/* We read an invalid record */
+#define	WTAP_ERR_BAD_FILE			-13
+	/* The file appears to be damaged or corrupted or otherwise bogus */
 #define	WTAP_ERR_SHORT_WRITE			-14
 	/* An attempt to write wrote less data than it should have */
 #define	WTAP_ERR_UNC_TRUNCATED			-15

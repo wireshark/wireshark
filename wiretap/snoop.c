@@ -489,7 +489,7 @@ static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
 		 * Probably a corrupt capture file; don't blow up trying
 		 * to allocate space for an immensely-large packet.
 		 */
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("snoop: File has %u-byte original length, bigger than maximum of %u",
 		    orig_size, WTAP_MAX_PACKET_SIZE);
 		return FALSE;
@@ -499,7 +499,7 @@ static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
 		 * Probably a corrupt capture file; don't blow up trying
 		 * to allocate space for an immensely-large packet.
 		 */
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("snoop: File has %u-byte packet, bigger than maximum of %u",
 		    packet_size, WTAP_MAX_PACKET_SIZE);
 		return FALSE;
@@ -508,7 +508,7 @@ static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
 		/*
 		 * Probably a corrupt capture file.
 		 */
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("snoop: File has %u-byte packet, bigger than record size %u",
 		    packet_size, rec_size);
 		return FALSE;
@@ -530,7 +530,7 @@ static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
 			 * Uh-oh, the packet isn't big enough to even
 			 * have a pseudo-header.
 			 */
-			*err = WTAP_ERR_BAD_RECORD;
+			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup_printf("snoop: atmsnoop file has a %u-byte packet, too small to have even an ATM pseudo-header",
 			    packet_size);
 			return FALSE;
@@ -566,7 +566,7 @@ static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
 			 * Uh-oh, the packet isn't big enough to even
 			 * have a pseudo-header.
 			 */
-			*err = WTAP_ERR_BAD_RECORD;
+			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup_printf("snoop: Shomiti wireless file has a %u-byte packet, too small to have even a wireless pseudo-header",
 			    packet_size);
 			return FALSE;
@@ -617,7 +617,7 @@ static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
 		/*
 		 * What, *negative* padding?  Bogus.
 		 */
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("snoop: File has %u-byte record with packet size of %u",
 		    rec_size, packet_size);
 		return FALSE;
@@ -823,7 +823,7 @@ snoop_read_shomiti_wireless_pseudoheader(FILE_T fh,
 	 * 4 bytes of length plus 8 bytes of information?
 	 */
 	if (whdr.pad[3] < 8) {
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("snoop: Header length in Surveyor record is %u, less than minimum of 8",
 		    whdr.pad[3]);
 		return FALSE;

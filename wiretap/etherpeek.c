@@ -421,7 +421,7 @@ static gboolean etherpeek_read_v7(wtap *wth, int *err, gchar **err_info,
 			/*
 			 * We don't *have* 4 bytes of packet data.
 			 */
-			*err = WTAP_ERR_BAD_RECORD;
+			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup("etherpeek: packet not long enough for 802.11 radio header");
 			return FALSE;
 		}
@@ -504,7 +504,7 @@ etherpeek_seek_read_v7(wtap *wth, gint64 seek_off,
 			/*
 			 * We don't *have* 4 bytes of packet data.
 			 */
-			*err = WTAP_ERR_BAD_RECORD;
+			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup("etherpeek: packet not long enough for 802.11 radio header");
 			return FALSE;
 		}

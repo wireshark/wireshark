@@ -230,7 +230,7 @@ csids_seek_read (wtap *wth,
   hdr.caplen = pntohs(&hdr.caplen);
 
   if( len != hdr.caplen ) {
-    *err = WTAP_ERR_BAD_RECORD;
+    *err = WTAP_ERR_BAD_FILE;
     *err_info = g_strdup_printf("csids: record length %u doesn't match requested length %d",
                                  hdr.caplen, len);
     return FALSE;

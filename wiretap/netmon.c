@@ -325,14 +325,14 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 	frame_table_length = pletohl(&hdr.frametablelength);
 	frame_table_size = frame_table_length / (guint32)sizeof (guint32);
 	if ((frame_table_size * sizeof (guint32)) != frame_table_length) {
-		*err = WTAP_ERR_UNSUPPORTED;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("netmon: frame table length is %u, which is not a multiple of the size of an entry",
 		    frame_table_length);
 		g_free(netmon);
 		return -1;
 	}
 	if (frame_table_size == 0) {
-		*err = WTAP_ERR_UNSUPPORTED;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("netmon: frame table length is %u, which means it's less than one entry in size",
 		    frame_table_length);
 		g_free(netmon);
@@ -352,7 +352,7 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 	 * itself, and probably won't exhaust the backing store.
 	 */
 	if (frame_table_size > 512*1024*1024) {
-		*err = WTAP_ERR_UNSUPPORTED;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("netmon: frame table length is %u, which is larger than we support",
 		    frame_table_length);
 		g_free(netmon);
@@ -559,7 +559,7 @@ again:
 		 * Probably a corrupt capture file; don't blow up trying
 		 * to allocate space for an immensely-large packet.
 		 */
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("netmon: File has %u-byte packet, bigger than maximum of %u",
 		    packet_size, WTAP_MAX_PACKET_SIZE);
 		return FALSE;
@@ -582,7 +582,7 @@ again:
 			 * Uh-oh, the packet isn't big enough to even
 			 * have a pseudo-header.
 			 */
-			*err = WTAP_ERR_BAD_RECORD;
+			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup_printf("netmon: ATM file has a %u-byte packet, too small to have even an ATM pseudo-header",
 			    packet_size);
 			return FALSE;
@@ -754,7 +754,7 @@ netmon_seek_read(wtap *wth, gint64 seek_off,
 			/*
 			 * This should not happen.
 			 */
-			*err = WTAP_ERR_BAD_RECORD;
+			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup("netmon: saw metadata in netmon_seek_read");
 			return FALSE;
 		}

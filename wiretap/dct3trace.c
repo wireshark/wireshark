@@ -240,7 +240,7 @@ static gboolean dct3trace_get_packet(FILE_T fh, union wtap_pseudo_header *pseudo
 			else
 			{
 				/* If not got any data return error */
-				*err = WTAP_ERR_BAD_RECORD;
+				*err = WTAP_ERR_BAD_FILE;
 				*err_info = g_strdup_printf("dct3trace: record without data");
 				return FALSE;
 			}
@@ -271,7 +271,7 @@ static gboolean dct3trace_get_packet(FILE_T fh, union wtap_pseudo_header *pseudo
 
 			if( ret != 0 )
 			{
-				*err = WTAP_ERR_BAD_RECORD;
+				*err = WTAP_ERR_BAD_FILE;
 				*err_info = g_strdup_printf("dct3trace: record missing mandatory attributes");
 				return FALSE;
 			}
@@ -387,7 +387,7 @@ static gboolean dct3trace_seek_read (wtap *wth, gint64 seek_off,
 
 	if( len != buf_len && len != -1 )
 	{
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("dct3trace: requested length %d doesn't match record length %d",
 		    len, buf_len);
 		return FALSE;
@@ -395,7 +395,7 @@ static gboolean dct3trace_seek_read (wtap *wth, gint64 seek_off,
 
 	if( buf_len > MAX_PACKET_LEN)
 	{
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("dct3trace: record length %d too long", buf_len);
 		return FALSE;
 	}

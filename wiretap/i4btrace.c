@@ -139,7 +139,7 @@ static gboolean i4btrace_read(wtap *wth, int *err, gchar **err_info,
 	wth->data_offset += sizeof hdr;
 	i4b_byte_swap_header(wth, &hdr);
 	if (hdr.length < sizeof(hdr)) {
-		*err = WTAP_ERR_BAD_RECORD;	/* record length < header! */
+		*err = WTAP_ERR_BAD_FILE;	/* record length < header! */
 		*err_info = g_strdup_printf("i4btrace: record length %u < header length %lu",
 		    hdr.length, (unsigned long)sizeof(hdr));
 		return FALSE;
@@ -150,7 +150,7 @@ static gboolean i4btrace_read(wtap *wth, int *err, gchar **err_info,
 		 * Probably a corrupt capture file; don't blow up trying
 		 * to allocate space for an immensely-large packet.
 		 */
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("i4btrace: File has %u-byte packet, bigger than maximum of %u",
 		    length, WTAP_MAX_PACKET_SIZE);
 		return FALSE;

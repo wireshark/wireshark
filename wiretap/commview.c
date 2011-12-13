@@ -184,7 +184,7 @@ commview_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 		break;
 
 	default :
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("commview: unsupported encap: %u",
 					    cv_hdr.flags & FLAGS_MEDIUM);
 		return FALSE;
@@ -240,7 +240,7 @@ commview_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header
 	}
 
 	if(length != cv_hdr.data_len) {
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("commview: record length %u doesn't match requested length %d", cv_hdr.data_len, length);
 		return FALSE;
 	}

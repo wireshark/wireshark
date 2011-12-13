@@ -392,7 +392,7 @@ parse_cosine_rec_hdr(wtap *wth, const char *line,
 				   &code1, &code2);
 
 		if (num_items_scanned != 17) {
-			*err = WTAP_ERR_BAD_RECORD;
+			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup("cosine: purported control blade line doesn't have code values");
 			return -1;
 		}
@@ -405,7 +405,7 @@ parse_cosine_rec_hdr(wtap *wth, const char *line,
 				   &code1, &code2);
 
 		if (num_items_scanned != 10) {
-			*err = WTAP_ERR_BAD_RECORD;
+			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup("cosine: header line is neither control blade nor PE output");
 			return -1;
 		}
@@ -486,7 +486,7 @@ parse_cosine_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err,
 			break;
 		}
 		if ((n = parse_single_hex_dump_line(line, buf, i*16)) == -1) {
-			*err = WTAP_ERR_BAD_RECORD;
+			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup("cosine: hex dump line doesn't have 16 numbers");
 			return -1;
 		}

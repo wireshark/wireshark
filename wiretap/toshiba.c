@@ -280,7 +280,7 @@ toshiba_seek_read (wtap *wth, gint64 seek_off,
 
 	if (pkt_len != len) {
 		if (pkt_len != -1) {
-			*err = WTAP_ERR_BAD_RECORD;
+			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup_printf("toshiba: requested length %d doesn't match record length %d",
 			    len, pkt_len);
 		}
@@ -319,7 +319,7 @@ parse_toshiba_rec_hdr(wtap *wth, FILE_T fh,
 			&pktnum, &hr, &min, &sec, &csec, channel, direction);
 
 	if (num_items_scanned != 7) {
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup("toshiba: record header isn't valid");
 		return -1;
 	}
@@ -349,7 +349,7 @@ parse_toshiba_rec_hdr(wtap *wth, FILE_T fh,
 
 	num_items_scanned = sscanf(line+64, "LEN=%9d", &pkt_len);
 	if (num_items_scanned != 1) {
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup("toshiba: OFFSET line doesn't have valid LEN item");
 		return -1;
 	}
@@ -407,7 +407,7 @@ parse_toshiba_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err,
 			return FALSE;
 		}
 		if (!parse_single_hex_dump_line(line, buf, i * 16)) {
-			*err = WTAP_ERR_BAD_RECORD;
+			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup("toshiba: hex dump not valid");
 			return FALSE;
 		}

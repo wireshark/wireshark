@@ -360,7 +360,7 @@ parse_netscreen_rec_hdr(wtap *wth, const char *line, char *cap_int,
 
 	if (sscanf(line, "%9d.%9d: %15[a-z0-9/:.](%1[io]) len=%9d:%12s->%12s/",
 		   &sec, &dsec, cap_int, direction, &pkt_len, cap_src, cap_dst) < 5) {
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup("netscreen: Can't parse packet-header");
 		return -1;
 	}
@@ -422,7 +422,7 @@ parse_netscreen_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err, gchar **
 					continue;
 				}
 			} else {
-				*err = WTAP_ERR_BAD_RECORD;
+				*err = WTAP_ERR_BAD_FILE;
 				*err_info = g_strdup("netscreen: cannot parse hex-data");
 				return -1;
 			}
@@ -432,7 +432,7 @@ parse_netscreen_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err, gchar **
 		 * then there must be an error in the file
 		 */
 		if(n == -1) {
-			*err = WTAP_ERR_BAD_RECORD;
+			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup("netscreen: cannot parse hex-data");
 			return -1;
 		}
@@ -444,7 +444,7 @@ parse_netscreen_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err, gchar **
 		 * header, then then there must be an error in the file
 		 */
 		if(offset > pkt_len) {
-			*err = WTAP_ERR_BAD_RECORD;
+			*err = WTAP_ERR_BAD_FILE;
                         *err_info = g_strdup("netscreen: to much hex-data");
                         return -1;
 		}

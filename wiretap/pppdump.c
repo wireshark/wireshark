@@ -680,7 +680,7 @@ collate(pppdump_t* state, FILE_T fh, int *err, gchar **err_info, guint8 *pd,
 
 			default:
 				/* XXX - bad file */
-				*err = WTAP_ERR_BAD_RECORD;
+				*err = WTAP_ERR_BAD_FILE;
 				*err_info = g_strdup_printf("pppdump: bad ID byte 0x%02x", id);
 				return FALSE;
 		}
@@ -724,7 +724,7 @@ pppdump_seek_read(wtap *wth,
 
 	pid = g_ptr_array_index(state->pids, seek_off);
 	if (!pid) {
-		*err = WTAP_ERR_BAD_RECORD;	/* XXX - better error? */
+		*err = WTAP_ERR_BAD_FILE;	/* XXX - better error? */
 		*err_info = g_strdup("pppdump: PID not found for record");
 		return FALSE;
 	}
@@ -755,7 +755,7 @@ pppdump_seek_read(wtap *wth,
 	} while (direction != pid->dir);
 
 	if (len != num_bytes) {
-		*err = WTAP_ERR_BAD_RECORD;	/* XXX - better error? */
+		*err = WTAP_ERR_BAD_FILE;	/* XXX - better error? */
 		*err_info = g_strdup_printf("pppdump: requested length %d doesn't match record length %d",
 		    len, num_bytes);
 		return FALSE;

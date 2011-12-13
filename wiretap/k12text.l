@@ -242,7 +242,7 @@ k12text_read(wtap *wth, int *err, char ** err_info, gint64 *data_offset)
 			*err = 0;
 			*err_info = NULL;
 		} else {
-			*err = WTAP_ERR_BAD_RECORD;
+			*err = WTAP_ERR_BAD_FILE;
 			*err_info = error_str;
 		}
 		return FALSE;
@@ -278,7 +278,7 @@ k12text_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header *pseudo_h
 	yylex();
 
 	if (ok_frame == FALSE) {
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		if (at_eof) {
 			/* What happened ? The desired frame was previously read without a problem */
 			*err_info = g_strdup("Unexpected EOF (program error ?)");
@@ -291,7 +291,7 @@ k12text_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header *pseudo_h
 	/* verify frame length parsed this time against original frame length */
 	if (ii != (guint)length) {
 		/* What happened ? This now seems to have a different length than originally */
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup("Incorrect frame length (program error ?)");
 		return FALSE;
 	}

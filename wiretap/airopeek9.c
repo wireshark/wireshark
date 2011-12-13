@@ -247,7 +247,7 @@ int airopeek9_open(wtap *wth, int *err, gchar **err_info)
     if (ret == -1)
 	return -1;
     if (ret == 0) {
-	*err = WTAP_ERR_UNSUPPORTED;
+	*err = WTAP_ERR_BAD_FILE;
 	*err_info = g_strdup("airopeekv9: <MediaType> tag not found");
 	return -1;
     }
@@ -257,7 +257,7 @@ int airopeek9_open(wtap *wth, int *err, gchar **err_info)
     if (ret == -1)
 	return -1;
     if (ret == 0) {
-	*err = WTAP_ERR_UNSUPPORTED;
+	*err = WTAP_ERR_BAD_FILE;
 	*err_info = g_strdup("airopeekv9: <MediaType> value not found");
 	return -1;
     }
@@ -266,7 +266,7 @@ int airopeek9_open(wtap *wth, int *err, gchar **err_info)
     if (ret == -1)
 	return -1;
     if (ret == 0) {
-	*err = WTAP_ERR_UNSUPPORTED;
+	*err = WTAP_ERR_BAD_FILE;
 	*err_info = g_strdup("airopeekv9: <MediaSubType> tag not found");
 	return -1;
     }
@@ -274,7 +274,7 @@ int airopeek9_open(wtap *wth, int *err, gchar **err_info)
     if (ret == -1)
 	return -1;
     if (ret == 0) {
-	*err = WTAP_ERR_UNSUPPORTED;
+	*err = WTAP_ERR_BAD_FILE;
 	*err_info = g_strdup("airopeekv9: <MediaSubType> value not found");
 	return -1;
     }
@@ -386,7 +386,7 @@ airopeekv9_process_header(FILE_T fh, hdr_info_t *hdr_info, int *err,
 
 	case TAG_AIROPEEK_V9_LENGTH:
 	    if (saw_length) {
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup("airopeekv9: record has two length fields");
 		return 0;
 	    }
@@ -396,7 +396,7 @@ airopeekv9_process_header(FILE_T fh, hdr_info_t *hdr_info, int *err,
     
 	case TAG_AIROPEEK_V9_TIMESTAMP_LOWER:
 	    if (saw_timestamp_lower) {
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup("airopeekv9: record has two timestamp-lower fields");
 		return 0;
 	    }
@@ -406,7 +406,7 @@ airopeekv9_process_header(FILE_T fh, hdr_info_t *hdr_info, int *err,
 
 	case TAG_AIROPEEK_V9_TIMESTAMP_UPPER:
 	    if (saw_timestamp_upper) {
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup("airopeekv9: record has two timestamp-upper fields");
 		return 0;
 	    }
@@ -456,17 +456,17 @@ airopeekv9_process_header(FILE_T fh, hdr_info_t *hdr_info, int *err,
     } while (tag != TAG_AIROPEEK_V9_SLICE_LENGTH);	/* last tag */
 
     if (!saw_length) {
-	*err = WTAP_ERR_BAD_RECORD;
+	*err = WTAP_ERR_BAD_FILE;
 	*err_info = g_strdup("airopeekv9: record has no length field");
 	return 0;
     }
     if (!saw_timestamp_lower) {
-	*err = WTAP_ERR_BAD_RECORD;
+	*err = WTAP_ERR_BAD_FILE;
 	*err_info = g_strdup("airopeekv9: record has no timestamp-lower field");
 	return 0;
     }
     if (!saw_timestamp_upper) {
-	*err = WTAP_ERR_BAD_RECORD;
+	*err = WTAP_ERR_BAD_FILE;
 	*err_info = g_strdup("airopeekv9: record has no timestamp-upper field");
 	return 0;
     }
@@ -511,7 +511,7 @@ static gboolean airopeekv9_read(wtap *wth, int *err, gchar **err_info,
 	 * Probably a corrupt capture file; don't blow up trying
 	 * to allocate space for an immensely-large packet.
 	 */
-	*err = WTAP_ERR_BAD_RECORD;
+	*err = WTAP_ERR_BAD_FILE;
 	*err_info = g_strdup_printf("airopeek9: File has %u-byte packet, bigger than maximum of %u",
 	    hdr_info.sliceLength, WTAP_MAX_PACKET_SIZE);
 	return FALSE;

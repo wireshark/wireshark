@@ -155,14 +155,14 @@ daintree_sna_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	/* parse one line of capture data */
 	if (sscanf(readLine, "%*s %18" G_GINT64_MODIFIER "u.%9d %9u %" READDATA_MAX_FIELD_SIZE "s",
 	    &seconds, &wth->phdr.ts.nsecs, &wth->phdr.len, readData) != 4) {
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup("daintree_sna: invalid read record");
 		return FALSE;
 	}
 
 	/* Daintree doesn't store the FCS, but pads end of packet with 0xffff, which we toss */
 	if (wth->phdr.len <= FCS_LENGTH) {
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("daintree_sna: packet length <= %u bytes, no frame data present",
 		    FCS_LENGTH);
 		return FALSE;
@@ -181,13 +181,13 @@ daintree_sna_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 			buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
 			memcpy(buffer_start_ptr(wth->frame_buffer), readData, wth->phdr.caplen);
 		} else {
-			*err = WTAP_ERR_BAD_RECORD;
+			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup_printf("daintree_sna: capture length (%u) > packet length (%u)",
 				wth->phdr.caplen, wth->phdr.len);
 			return FALSE;
 		}
 	} else {
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup("daintree_sna: invalid packet data");
 		return FALSE;
 	}
@@ -218,14 +218,14 @@ daintree_sna_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header
 
 	/* ignore all but packet data, since the sequential read pass stored everything else */
 	if (sscanf(seekLine, "%*s %*u.%*u %*u %" SEEKDATA_MAX_FIELD_SIZE "s", seekData) != 1) {
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup("daintree_sna: corrupted seek record");
 		return FALSE;
 	}
 
 	/* convert packet data from ASCII hex string to guchar */
 	if ((pkt_len = daintree_sna_hex_char(seekData, err)) <= FCS_LENGTH) {
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup("daintree_sna: corrupted packet data");
 		return FALSE;
 	}
@@ -236,7 +236,7 @@ daintree_sna_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header
 		/* move to frame buffer for dissection */
 		memcpy(pd, seekData, pkt_len);
 	} else {
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup("daintree-sna: corrupted frame");
 		return FALSE;
 	} 

@@ -158,7 +158,7 @@ static gboolean iptrace_read_1_0(wtap *wth, int *err, gchar **err_info,
 		 * Uh-oh, the record isn't big enough to even have a
 		 * packet meta-data header.
 		 */
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("iptrace: file has a %u-byte record, too small to have even a packet meta-data header",
 		    packet_size);
 		return FALSE;
@@ -179,7 +179,7 @@ static gboolean iptrace_read_1_0(wtap *wth, int *err, gchar **err_info,
 			 * Uh-oh, the record isn't big enough to even have
 			 * the padding.
 			 */
-			*err = WTAP_ERR_BAD_RECORD;
+			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup_printf("iptrace: file has a %u-byte record, too small to have even a packet meta-data header",
 			    packet_size + IPTRACE_1_0_PDATA_SIZE);
 			return FALSE;
@@ -199,7 +199,7 @@ static gboolean iptrace_read_1_0(wtap *wth, int *err, gchar **err_info,
 		 * Probably a corrupt capture file; don't blow up trying
 		 * to allocate space for an immensely-large packet.
 		 */
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("iptrace: File has %u-byte packet, bigger than maximum of %u",
 		    packet_size, WTAP_MAX_PACKET_SIZE);
 		return FALSE;
@@ -372,7 +372,7 @@ static gboolean iptrace_read_2_0(wtap *wth, int *err, gchar **err_info,
 		 * Uh-oh, the record isn't big enough to even have a
 		 * packet meta-data header.
 		 */
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("iptrace: file has a %u-byte record, too small to have even a packet meta-data header",
 		    packet_size);
 		return FALSE;
@@ -393,7 +393,7 @@ static gboolean iptrace_read_2_0(wtap *wth, int *err, gchar **err_info,
 			 * Uh-oh, the record isn't big enough to even have
 			 * the padding.
 			 */
-			*err = WTAP_ERR_BAD_RECORD;
+			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup_printf("iptrace: file has a %u-byte record, too small to have even a packet meta-data header",
 			    packet_size + IPTRACE_2_0_PDATA_SIZE);
 			return FALSE;
@@ -413,7 +413,7 @@ static gboolean iptrace_read_2_0(wtap *wth, int *err, gchar **err_info,
 		 * Probably a corrupt capture file; don't blow up trying
 		 * to allocate space for an immensely-large packet.
 		 */
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("iptrace: File has %u-byte packet, bigger than maximum of %u",
 		    packet_size, WTAP_MAX_PACKET_SIZE);
 		return FALSE;

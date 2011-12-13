@@ -528,7 +528,7 @@ static libpcap_try_t libpcap_try(wtap *wth, int *err)
 			return THIS_FORMAT;
 		}
 
-		if (*err == WTAP_ERR_BAD_RECORD) {
+		if (*err == WTAP_ERR_BAD_FILE) {
 			/*
 			 * The first record is bogus, so this is probably
 			 * a corrupt file.  Assume the file is in this
@@ -567,7 +567,7 @@ static libpcap_try_t libpcap_try(wtap *wth, int *err)
 			return THIS_FORMAT;
 		}
 
-		if (*err == WTAP_ERR_BAD_RECORD) {
+		if (*err == WTAP_ERR_BAD_FILE) {
 			/*
 			 * The second record is bogus; maybe it's a
 			 * Capture File From Hell, and what looks like
@@ -762,7 +762,7 @@ static int libpcap_read_header(wtap *wth, int *err, gchar **err_info,
 		 * this is can tell when it's not the type we're guessing
 		 * it is.
 		 */
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		if (err_info != NULL) {
 			*err_info = g_strdup_printf("pcap: File has %u-byte packet, bigger than maximum of %u",
 			    hdr->hdr.incl_len, WTAP_MAX_PACKET_SIZE);
@@ -779,7 +779,7 @@ static int libpcap_read_header(wtap *wth, int *err, gchar **err_info,
 		 * this is can tell when it's not the type we're guessing
 		 * it is.
 		 */
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		if (err_info != NULL) {
 			*err_info = g_strdup_printf("pcap: File has %u-byte packet, bigger than maximum of %u",
 			    hdr->hdr.orig_len, WTAP_MAX_PACKET_SIZE);
@@ -953,7 +953,7 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 	rec_hdr.hdr.orig_len = phdr->len + phdrsize;
 
 	if (rec_hdr.hdr.incl_len > WTAP_MAX_PACKET_SIZE || rec_hdr.hdr.orig_len > WTAP_MAX_PACKET_SIZE) {
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		return FALSE;
 	}
 

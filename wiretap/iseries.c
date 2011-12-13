@@ -534,7 +534,7 @@ iseries_seek_read (wtap * wth, gint64 seek_off,
     {
       if (pkt_len != -1)
 	{
-	  *err = WTAP_ERR_BAD_RECORD;
+	  *err = WTAP_ERR_BAD_FILE;
 	  *err_info =
 	    g_strdup_printf
 	    ("iseries: requested length %d doesn't match record length %d",
@@ -612,7 +612,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
    */
   if (!isValid)
     {
-      *err = WTAP_ERR_BAD_RECORD;
+      *err = WTAP_ERR_BAD_FILE;
       *err_info = g_strdup ("iseries: packet header isn't valid");
       return -1;
     }
@@ -902,13 +902,13 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
 	{
 		if (!IPread)
 		{
-			*err = WTAP_ERR_BAD_RECORD;
+			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup ("iseries: IP header isn't valid");
 			return -1;
 		}
 		if (!TCPread)
 		{
-			*err = WTAP_ERR_BAD_RECORD;
+			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup ("iseries: TCP header isn't valid");
 			return -1;
 		}

@@ -605,7 +605,7 @@ static const char *wtap_errlist[] = {
 	NULL,
 	NULL,
 	"Less data was read than was expected",
-	"File contains a record that's not valid",
+	"The file appears to be damaged or corrupt.",
 	"Less data was written than was requested",
 	"Uncompression error: data oddly truncated",
 	"Uncompression error: data would overflow buffer",

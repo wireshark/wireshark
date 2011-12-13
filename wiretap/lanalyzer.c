@@ -461,7 +461,7 @@ static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
 	 * the middle of reading packets.  If any other record type exists
 	 * after a Trace Packet Data Record, mark it as an error. */
 	if (record_type != RT_PacketData) {
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("lanalyzer: record type %u seen after trace summary record",
 		    record_type);
 		return FALSE;
@@ -472,7 +472,7 @@ static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
 			 * Uh-oh, the record isn't big enough to even have a
 			 * descriptor.
 			 */
-			*err = WTAP_ERR_BAD_RECORD;
+			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup_printf("lanalyzer: file has a %u-byte record, too small to have even a packet descriptor",
 			    record_length);
 			return FALSE;
@@ -517,7 +517,7 @@ static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
 		/*
 		 * Yes - treat this as an error.
 		 */
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup("lanalyzer: Record length is less than packet size");
 		return FALSE;
 	}

@@ -323,7 +323,7 @@ static gboolean nettl_read(wtap *wth, int *err, gchar **err_info,
 	 * Probably a corrupt capture file; don't blow up trying
 	 * to allocate space for an immensely-large packet.
 	 */
-	*err = WTAP_ERR_BAD_RECORD;
+	*err = WTAP_ERR_BAD_FILE;
 	*err_info = g_strdup_printf("nettl: File has %u-byte packet, bigger than maximum of %u",
 	    wth->phdr.caplen, WTAP_MAX_PACKET_SIZE);
 	return FALSE;
@@ -417,7 +417,7 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
     offset += 2;
     hdr_len = g_ntohs(rec_hdr.hdr_len);
     if (hdr_len < NETTL_REC_HDR_LEN) {
-    	*err = WTAP_ERR_BAD_RECORD;
+    	*err = WTAP_ERR_BAD_FILE;
 	*err_info = g_strdup_printf("nettl: record header length %u too short",
 	    hdr_len);
 	return -1;
@@ -635,14 +635,14 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
     }
 
     if (length < padlen) {
-	*err = WTAP_ERR_BAD_RECORD;
+	*err = WTAP_ERR_BAD_FILE;
 	*err_info = g_strdup_printf("nettl: packet length %u in record header too short, less than %u",
 	    length, padlen);
 	return -1;
     }
     phdr->len = length - padlen;
     if (caplen < padlen) {
-	*err = WTAP_ERR_BAD_RECORD;
+	*err = WTAP_ERR_BAD_FILE;
 	*err_info = g_strdup_printf("nettl: captured length %u in record header too short, less than %u",
 	    caplen, padlen);
 	return -1;

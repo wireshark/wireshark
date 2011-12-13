@@ -65,7 +65,7 @@ static gboolean ber_read(wtap *wth, int *err, gchar **err_info, gint64 *data_off
      * Probably a corrupt capture file; don't blow up trying
      * to allocate space for an immensely-large packet.
      */
-    *err = WTAP_ERR_BAD_RECORD;
+    *err = WTAP_ERR_BAD_FILE;
     *err_info = g_strdup_printf("ber: File has %" G_GINT64_MODIFIER "d-byte packet, bigger than maximum of %u",
 				file_size, WTAP_MAX_PACKET_SIZE);
     return FALSE;

@@ -939,7 +939,7 @@ raw_pipe_read(struct wtap_pkthdr *phdr, guchar * pd, int *err, const gchar **err
     printf("len: %d (%04x)\n", hdr.len, hdr.len);
 #endif
     if (bytes_needed > WTAP_MAX_PACKET_SIZE) {
-        *err = WTAP_ERR_BAD_RECORD;
+        *err = WTAP_ERR_BAD_FILE;
         g_snprintf(err_str, 100, "Bad packet length: %d (%04x)", bytes_needed, bytes_needed);
         *err_info = err_str;
         return FALSE;
@@ -996,7 +996,7 @@ load_cap_file(capture_file *cf)
                            cf->filename);
                 break;
 
-            case WTAP_ERR_BAD_RECORD:
+            case WTAP_ERR_BAD_FILE:
                 cmdarg_err("The file \"%s\" appears to be damaged or corrupt.\n(%s)",
                            cf->filename, err_info);
                 break;

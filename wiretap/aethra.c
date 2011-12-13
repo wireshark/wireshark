@@ -215,7 +215,7 @@ static gboolean aethra_read(wtap *wth, int *err, gchar **err_info,
 		rec_size = pletohs(hdr.rec_size);
 		if (rec_size < (sizeof hdr - sizeof hdr.rec_size)) {
 			/* The record is shorter than a record header. */
-			*err = WTAP_ERR_BAD_RECORD;
+			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup_printf("aethra: File has %u-byte record, less than minimum of %u",
 			    rec_size, (unsigned int)(sizeof hdr - sizeof hdr.rec_size));
 			return FALSE;

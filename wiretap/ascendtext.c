@@ -289,7 +289,7 @@ static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
       return FALSE;
   if (parse_ascend(wth->fh, buf, &wth->pseudo_header.ascend, &header,
       &(ascend->next_packet_seek_start)) != PARSED_RECORD) {
-    *err = WTAP_ERR_BAD_RECORD;
+    *err = WTAP_ERR_BAD_FILE;
     *err_info = g_strdup((ascend_parse_error != NULL) ? ascend_parse_error : "parse error");
     return FALSE;
   }
@@ -337,7 +337,7 @@ static gboolean ascend_seek_read(wtap *wth, gint64 seek_off,
     return FALSE;
   if (parse_ascend(wth->random_fh, pd, &pseudo_head->ascend, NULL,
       &(ascend->next_packet_seek_start)) != PARSED_RECORD) {
-    *err = WTAP_ERR_BAD_RECORD;
+    *err = WTAP_ERR_BAD_FILE;
     *err_info = g_strdup((ascend_parse_error != NULL) ? ascend_parse_error : "parse error");
     return FALSE;
   }

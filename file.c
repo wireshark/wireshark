@@ -709,7 +709,7 @@ cf_read(capture_file *cf, gboolean from_save)
         " in the middle of a packet.";
       break;
 
-    case WTAP_ERR_BAD_RECORD:
+    case WTAP_ERR_BAD_FILE:
       g_snprintf(errmsg_errno, sizeof(errmsg_errno),
                  "The capture file appears to be damaged or corrupt.\n(%s)",
                  err_info);
@@ -1392,7 +1392,7 @@ cf_merge_files(char **out_filenamep, int in_file_count,
                    " in the middle of a packet.";
           break;
 
-        case WTAP_ERR_BAD_RECORD:
+        case WTAP_ERR_BAD_FILE:
           g_snprintf(errmsg_errno, sizeof(errmsg_errno),
                      "The capture file %%s appears to be damaged or corrupt.\n(%s)",
                      err_info);
@@ -1577,7 +1577,7 @@ cf_read_frame_r(capture_file *cf, frame_data *fdata,
       g_free(err_info);
       break;
 
-    case WTAP_ERR_BAD_RECORD:
+    case WTAP_ERR_BAD_FILE:
       g_snprintf(errmsg_errno, sizeof(errmsg_errno),
                  "An error occurred while reading from the file \"%%s\": %s.\n(%s)",
                  wtap_strerror(err), err_info);
@@ -3923,7 +3923,7 @@ cf_open_failure_alert_box(const char *filename, int err, gchar *err_info,
       }
       break;
 
-    case WTAP_ERR_BAD_RECORD:
+    case WTAP_ERR_BAD_FILE:
       /* Seen only when opening a capture file for reading. */
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
             "The file \"%s\" appears to be damaged or corrupt.\n"

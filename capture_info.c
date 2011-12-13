@@ -160,7 +160,7 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
                 errmsg = "The file \"%s\" is a capture for a network type that TShark doesn't support.";
             break;
 
-        case WTAP_ERR_BAD_RECORD:
+        case WTAP_ERR_BAD_FILE:
             /* Seen only when opening a capture file for reading. */
             g_snprintf(errmsg_errno, sizeof(errmsg_errno),
                        "The file \"%%s\" appears to be damaged or corrupt.\n"

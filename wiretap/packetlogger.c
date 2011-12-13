@@ -102,7 +102,7 @@ packetlogger_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 		return FALSE;
 
 	if (pl_hdr.len < 8) {
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("packetlogger: record length %u is too small", pl_hdr.len);
 		return FALSE;
 	}
@@ -111,7 +111,7 @@ packetlogger_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 		 * Probably a corrupt capture file; don't blow up trying
 		 * to allocate space for an immensely-large packet.
 		 */
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("packetlogger: File has %u-byte packet, bigger than maximum of %u",
 		    pl_hdr.len - 8, WTAP_MAX_PACKET_SIZE);
 		return FALSE;
@@ -159,7 +159,7 @@ packetlogger_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header
 	}
 
 	if(length != (int)pl_hdr.len - 8) {
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("packetlogger: record length %u doesn't match requested length %d", pl_hdr.len, length);
 		return FALSE;
 	}

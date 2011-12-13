@@ -461,7 +461,7 @@ pcapng_read_section_header_block(FILE_T fh, gboolean first_block,
 		}
 
 		/* A bad block */
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("pcapng_read_section_header_block: unknown byte-order magic number 0x%08x", shb.magic);
 		return 0;
 	}
@@ -555,7 +555,7 @@ pcapng_read_section_header_block(FILE_T fh, gboolean first_block,
 	if (pn->interface_data != NULL) {
 		g_array_free(pn->interface_data, TRUE);
 		pn->interface_data = NULL;
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("pcapng: multiple section header blocks not supported.");
 		return 0;
 	}
@@ -837,13 +837,13 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 	}
 
 	if (wblock->data.packet.cap_len > wblock->data.packet.packet_len) {
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("pcapng_read_packet_block: cap_len %u is larger than packet_len %u.",
 		    wblock->data.packet.cap_len, wblock->data.packet.packet_len);
 		return 0;
 	}
 	if (wblock->data.packet.cap_len > WTAP_MAX_PACKET_SIZE) {
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("pcapng_read_packet_block: cap_len %u is larger than WTAP_MAX_PACKET_SIZE %u.",
 		    wblock->data.packet.cap_len, WTAP_MAX_PACKET_SIZE);
 		return 0;
@@ -853,7 +853,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 	              wblock->data.packet.cap_len,
 	              wblock->data.packet.interface_id);
 	if (wblock->data.packet.packet_len > WTAP_MAX_PACKET_SIZE) {
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("pcapng_read_packet_block: packet_len %u is larger than WTAP_MAX_PACKET_SIZE %u.",
 		    wblock->data.packet.packet_len, WTAP_MAX_PACKET_SIZE);
 		return 0;
@@ -1022,7 +1022,7 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
 					     - (guint32)sizeof(bh->block_total_length);
 
 	if (wblock->data.simple_packet.cap_len > WTAP_MAX_PACKET_SIZE) {
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("pcapng_read_simple_packet_block: cap_len %u is larger than WTAP_MAX_PACKET_SIZE %u.",
 		    wblock->data.simple_packet.cap_len, WTAP_MAX_PACKET_SIZE);
 		return 0;
@@ -1030,7 +1030,7 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
 	pcapng_debug1("pcapng_read_simple_packet_block: packet data: packet_len %u",
 	               wblock->data.simple_packet.packet_len);
 	if (wblock->data.simple_packet.packet_len > WTAP_MAX_PACKET_SIZE) {
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("pcapng_read_simple_packet_block: packet_len %u is larger than WTAP_MAX_PACKET_SIZE %u.",
 		    wblock->data.simple_packet.packet_len, WTAP_MAX_PACKET_SIZE);
 		return 0;
@@ -1432,7 +1432,7 @@ pcapng_read_block(FILE_T fh, gboolean first_block, pcapng_t *pn, wtapng_block_t 
 		block_total_length = BSWAP32(block_total_length);
 
 	if (!(block_total_length == bh.block_total_length)) {
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("pcapng_read_block: total block lengths (first %u and second %u) don't match",
 			      bh.block_total_length, block_total_length);
 		return -1;
@@ -1572,7 +1572,7 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 		wth->phdr.ts.nsecs = (int)(((ts % time_units_per_second) * 1000000000) / time_units_per_second);
 	} else {
 		wth->phdr.pkt_encap = WTAP_ENCAP_UNKNOWN;
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("pcapng: interface index %u is not less than interface count %u.",
 		    wblock.data.packet.interface_id, pcapng->number_of_interfaces);
 		wth->data_offset = *data_offset + bytes_read;

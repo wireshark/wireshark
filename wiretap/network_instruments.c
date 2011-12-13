@@ -174,7 +174,7 @@ int network_instruments_open(wtap *wth, int *err, gchar **err_info)
         TLV_HEADER_FROM_LE_IN_PLACE(tlvh);
 
         if (tlvh.length < sizeof tlvh) {
-            *err = WTAP_ERR_BAD_RECORD;
+            *err = WTAP_ERR_BAD_FILE;
             *err_info = g_strdup_printf("Observer: bad record (TLV length %u < %lu)",
                 tlvh.length, (unsigned long)sizeof tlvh);
             return -1;
@@ -205,7 +205,7 @@ int network_instruments_open(wtap *wth, int *err, gchar **err_info)
 
     /* get to the first packet */
     if (header_offset < offset) {
-        *err = WTAP_ERR_BAD_RECORD;
+        *err = WTAP_ERR_BAD_FILE;
         *err_info = g_strdup_printf("Observer: bad record (offset to first packet %d < %d)",
             header_offset, offset);
         return FALSE;
@@ -296,7 +296,7 @@ static gboolean observer_read(wtap *wth, int *err, gchar **err_info,
 
     /* neglect frame markers for wiretap */
     if (packet_header.network_size < 4) {
-        *err = WTAP_ERR_BAD_RECORD;
+        *err = WTAP_ERR_BAD_FILE;
         *err_info = g_strdup_printf("Observer: bad record: Packet length %u < 4",
             packet_header.network_size);
         return FALSE;
@@ -445,7 +445,7 @@ read_packet_header(FILE_T fh, packet_entry_header *packet_header, int *err,
             return 0;    /* EOF */
         }
 
-        *err = WTAP_ERR_BAD_RECORD;
+        *err = WTAP_ERR_BAD_FILE;
         *err_info = g_strdup_printf("Observer: bad record: Invalid magic number 0x%08x",
             packet_header->packet_magic);
         return -1;
@@ -465,7 +465,7 @@ read_packet_header(FILE_T fh, packet_entry_header *packet_header, int *err,
         TLV_HEADER_FROM_LE_IN_PLACE(tlvh);
 
         if (tlvh.length < sizeof tlvh) {
-            *err = WTAP_ERR_BAD_RECORD;
+            *err = WTAP_ERR_BAD_FILE;
             *err_info = g_strdup_printf("Observer: bad record (TLV length %u < %lu)",
                 tlvh.length, (unsigned long)sizeof tlvh);
             return -1;
@@ -492,7 +492,7 @@ read_packet_data(FILE_T fh, int offset_to_frame, int current_offset_from_packet_
 
     /* validate offsets */
     if (offset_to_frame < current_offset_from_packet_header) {
-        *err = WTAP_ERR_BAD_RECORD;
+        *err = WTAP_ERR_BAD_FILE;
         *err_info = g_strdup_printf("Observer: bad record (offset to packet data %d < %d)",
             offset_to_frame, current_offset_from_packet_header);
         return -1;
@@ -522,7 +522,7 @@ skip_to_next_packet(wtap *wth, int offset_to_next_packet, int current_offset_fro
 
     /* validate offsets */
     if (offset_to_next_packet < current_offset_from_packet_header) {
-        *err = WTAP_ERR_BAD_RECORD;
+        *err = WTAP_ERR_BAD_FILE;
         *err_info = g_strdup_printf("Observer: bad record (offset to next packet %d < %d)",
             offset_to_next_packet, current_offset_from_packet_header);
         return FALSE;

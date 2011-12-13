@@ -328,7 +328,7 @@ vms_seek_read (wtap *wth, gint64 seek_off,
 
     if (pkt_len != len) {
         if (pkt_len != -1) {
-            *err = WTAP_ERR_BAD_RECORD;
+            *err = WTAP_ERR_BAD_FILE;
             *err_info = g_strdup_printf("vms: requested length %d doesn't match length %d",
                 len, pkt_len);
         }
@@ -416,7 +416,7 @@ parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err, gchar **err_info)
 	    /* if unknown format then exit with error        */
 	    /* We will need to add code to handle new format */
 	    if (num_items_scanned != 8) {
-	        *err = WTAP_ERR_BAD_RECORD;
+	        *err = WTAP_ERR_BAD_FILE;
 	        *err_info = g_strdup_printf("vms: header line not valid");
 		return -1;
 	    }
@@ -427,7 +427,7 @@ parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err, gchar **err_info)
                 p++;
 
             if ( !*p ) {
-                *err = WTAP_ERR_BAD_RECORD;
+                *err = WTAP_ERR_BAD_FILE;
 	        *err_info = g_strdup_printf("vms: Length field not valid");
                 return -1;
             }
@@ -487,7 +487,7 @@ parse_vms_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err,
 	}
 	if (!parse_single_hex_dump_line(line, buf, i,
 					offset, pkt_len - i)) {
-            *err = WTAP_ERR_BAD_RECORD;
+            *err = WTAP_ERR_BAD_FILE;
 	    *err_info = g_strdup_printf("vms: hex dump not valid");
             return FALSE;
         }
