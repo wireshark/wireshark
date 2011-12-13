@@ -752,6 +752,7 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
             }
 
             udvm_tvb = tvb_new_child_real_data(tvb, buff,state_length+state_address,state_length+state_address);
+            add_new_data_source(pinfo, udvm_tvb, "State/ExecutionTrace");
             /* Arrange that the allocated packet data copy be freed when the
              * tvbuff is freed.
              */
