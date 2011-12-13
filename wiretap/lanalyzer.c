@@ -467,6 +467,16 @@ static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
 		return FALSE;
 	}
 	else {
+		if (record_length < DESCRIPTOR_LEN) {
+			/*
+			 * Uh-oh, the record isn't big enough to even have a
+			 * descriptor.
+			 */
+			*err = WTAP_ERR_BAD_RECORD;
+			*err_info = g_strdup_printf("lanalyzer: file has a %u-byte record, too small to have even a packet descriptor",
+			    record_length);
+			return FALSE;
+		}
 		packet_size = record_length - DESCRIPTOR_LEN;
 	}
 
