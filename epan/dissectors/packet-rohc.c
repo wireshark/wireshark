@@ -352,7 +352,7 @@ static int
 dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, proto_tree *tree, int offset, rohc_info *p_rohc_info){
 
 	proto_item *item, *root_ti;
-	proto_tree *sub_tree, *dynamic_ipv4_tree, *dynamic_udp_tree, *dynamic_rtp_tree;
+	proto_tree *sub_tree=NULL, *dynamic_ipv4_tree, *dynamic_udp_tree, *dynamic_rtp_tree;
 	guint8 oct, rx, cc, val_len = 0;
 	int i, start_offset, tree_start_offset;
     guint8 tos, ttl, rnd, nbo;
@@ -365,24 +365,23 @@ dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, proto_tree *tree, int offset,
     guint64    ts_stride=0;
 #endif
 	start_offset = offset;
-   switch(p_rohc_info->profile){
-   
-      case ROHC_PROFILE_UNCOMPRESSED: {
+    switch(p_rohc_info->profile){
+
+      case ROHC_PROFILE_UNCOMPRESSED:
          item = proto_tree_add_text(tree, tvb, offset, 0, "Profile 0x0000 Uncompressed");
-      } break;
-      
-      case ROHC_PROFILE_RTP: {
+         break;
+
+      case ROHC_PROFILE_RTP:
          item = proto_tree_add_text(tree, tvb, offset, 0, "Profile 0x0001 RTP Dynamic Chain");
-      } break;
-      
-      case ROHC_PROFILE_UDP: {
+         break;
+
+      case ROHC_PROFILE_UDP:
          item = proto_tree_add_text(tree, tvb, offset, 0, "Profile 0x0002 UDP Dynamic Chain");
-      } break;
-      
-		default: {
+         break;
+
+      default:
          item = proto_tree_add_text(tree, tvb, offset, 0, "Profile not supported");
-      } return -1;
-      
+         return -1;
    }
    
    /* IP dynamic*/
@@ -575,29 +574,28 @@ static int
 dissect_rohc_ir_rtp_udp_profile_static(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset, gboolean d, rohc_info *p_rohc_info){
 
 	proto_item *item, *ipv4_item, *udp_item, *rtp_item;
-	proto_tree *sub_tree, *static_ipv4_tree, *static_udp_tree, *static_rtp_tree;
+	proto_tree *sub_tree=NULL, *static_ipv4_tree, *static_udp_tree, *static_rtp_tree;
 	guint8 version;
 	int start_offset, tree_start_offset;
 
 	start_offset = offset;
-   switch(p_rohc_info->profile){
-   
-      case ROHC_PROFILE_UNCOMPRESSED: {
+    switch(p_rohc_info->profile){
+
+      case ROHC_PROFILE_UNCOMPRESSED:
          item = proto_tree_add_text(tree, tvb, offset, 0, "Profile 0x0000 Uncompressed");
-      } break;
-      
-      case ROHC_PROFILE_RTP: {
+         break;
+
+      case ROHC_PROFILE_RTP:
          item = proto_tree_add_text(tree, tvb, offset, 0, "Profile 0x0001 RTP Static Chain");
-      } break;
-      
-      case ROHC_PROFILE_UDP: {
+         break;
+
+      case ROHC_PROFILE_UDP:
          item = proto_tree_add_text(tree, tvb, offset, 0, "Profile 0x0002 UDP Static Chain");
-      } break;
-      
-		default: {
+         break;
+
+      default:
          item = proto_tree_add_text(tree, tvb, offset, 0, "Profile not supported");
-      } return -1;
-      
+         return -1;
    }
    
    /* IP static*/
