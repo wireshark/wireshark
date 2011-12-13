@@ -284,6 +284,8 @@ print_usage(gboolean print_ver)
   fprintf(output, "  -d %s ...\n", decode_as_arg_template);
   fprintf(output, "                           \"Decode As\", see the man page for details\n");
   fprintf(output, "                           Example: tcp.port==8888,http\n");
+  fprintf(output, "  -H <hosts file>          read a list of entries from a hosts file, which will\n");
+  fprintf(output, "                           then be written to a capture file. (Implies -W n)\n");
 
   /*fprintf(output, "\n");*/
   fprintf(output, "Output:\n");
@@ -313,6 +315,8 @@ print_usage(gboolean print_ver)
   fprintf(output, "  -u s|hms                 output format of seconds (def: s: seconds)\n");
   fprintf(output, "  -l                       flush standard output after each packet\n");
   fprintf(output, "  -q                       be more quiet on stdout (e.g. when using statistics)\n");
+  fprintf(output, "  -W n                     Save extra information in the file, if supported.\n");
+  fprintf(output, "                           n = write network address resolution information\n");
   fprintf(output, "  -X <key>:<value>         eXtension options, see the man page for details\n");
   fprintf(output, "  -z <statistics>          various statistics, see the man page for details\n");
 
