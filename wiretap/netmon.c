@@ -338,6 +338,19 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 		g_free(netmon);
 		return -1;
 	}
+	/*
+	 * XXX - clamp the size of the frame table, so that we don't
+	 * attempt to allocate a huge frame table and fail.
+	 * We shouldn't do this on 64-bit systems.
+	 * We pick 64 megabytes as an arbitrary limit.
+	 */
+	if (frame_table_size > 16*1024*1024) {
+		*err = WTAP_ERR_UNSUPPORTED;
+		*err_info = g_strdup_printf("netmon: frame table length is %u, which is larger than we support",
+		    frame_table_length);
+		g_free(netmon);
+		return -1;
+	}
 	if (file_seek(wth->fh, frame_table_offset, SEEK_SET, err) == -1) {
 		g_free(netmon);
 		return -1;
