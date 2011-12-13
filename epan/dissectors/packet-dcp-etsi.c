@@ -326,6 +326,8 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
         }
         current_findex++; /* skip over the fragment we have */
       }
+      tvb_free(dummytvb);
+
       if(frag)
         new_tvb = process_reassembled_data (tvb, offset, pinfo,
                                             "Reassembled DCP (ETSI)",
