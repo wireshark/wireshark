@@ -360,7 +360,7 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
 		/* Write out field with data */
 		fputs("<field name=\"data\" value=\"", pdata->fh);
 		write_pdml_field_hex_value(pdata, fi);
-		fputs("\"/>\n", pdata->fh);
+		fputs("\">\n", pdata->fh);
 	}
 	/* Normal protocols and fields */
 	else {
