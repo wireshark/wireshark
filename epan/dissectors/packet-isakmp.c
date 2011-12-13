@@ -1805,6 +1805,7 @@ decrypt_payload(tvbuff_t *tvb, packet_info *pinfo, const guint8 *buf, guint buf_
   gcry_cipher_close(decr_ctx);
 
   encr_tvb = tvb_new_child_real_data(tvb, decrypted_data, buf_len, buf_len);
+  tvb_set_free_cb(encr_tvb, g_free);
 
   /* Add the decrypted data to the data source list. */
   add_new_data_source(pinfo, encr_tvb, "Decrypted IKE");
