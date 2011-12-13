@@ -106,24 +106,32 @@ dword_to_hex_punct(char *out, guint32 dword, char punct) {
 /* buffer need to be at least len * 2 size */
 char *
 bytes_to_hexstr(char *out, const guint8 *ad, guint32 len) {
-   guint32 i;
+    guint32 i;
 
-   for (i = 0; i < len; i++)
-	out = byte_to_hex(out, ad[i]);
-   return out;
+    if (!ad || !len) {
+        *out = '\0';
+    } else {
+        for (i = 0; i < len; i++)
+            out = byte_to_hex(out, ad[i]);
+    }
+    return out;
 }
 
 /* buffer need to be at least len * 3 - 1 size */
 char *
 bytes_to_hexstr_punct(char *out, const guint8 *ad, guint32 len, char punct) {
-   guint32 i;
+    guint32 i;
 
-   out = byte_to_hex(out, ad[0]);
-   for (i = 1; i < len; i++) {
-   	*out++ = punct;
-	out = byte_to_hex(out, ad[i]);
-   }
-   return out;
+    if (!ad || !len) {
+        *out = 0;
+    } else {
+        out = byte_to_hex(out, ad[0]);
+        for (i = 1; i < len; i++) {
+            *out++ = punct;
+            out = byte_to_hex(out, ad[i]);
+        }
+    }
+    return out;
 }
 
 /* Routine to convert a sequence of bytes to a hex string, one byte/two hex
@@ -142,7 +150,7 @@ bytestring_to_str(const guint8 *ad, const guint32 len, const char punct) {
   if ( ((int) len) < 0)
      return "";
 
-  if (!len)
+  if (!ad || !len)
      return "";
 
   if (punct)
@@ -171,7 +179,7 @@ bytes_to_str(const guint8 *bd, int bd_len) {
   int truncated = 0;
 
   cur=ep_alloc(MAX_BYTE_STR_LEN+3+1);
-  if (bd_len <= 0) { cur[0] = '\0'; return cur; }
+  if (!bd || bd_len <= 0) { cur[0] = '\0'; return cur; }
 
   if (bd_len > MAX_BYTE_STR_LEN/2) {	/* bd_len > 24 */
     truncated = 1;
@@ -197,14 +205,14 @@ bytes_to_str_punct(const guint8 *bd, int bd_len, gchar punct) {
   int truncated = 0;
 
   if (!punct)
-  	return bytes_to_str(bd, bd_len);
+    return bytes_to_str(bd, bd_len);
 
   cur=ep_alloc(MAX_BYTE_STR_LEN+3+1);
-  if (bd_len <= 0) { cur[0] = '\0'; return cur; }
+  if (!bd || bd_len <= 0) { cur[0] = '\0'; return cur; }
 
   if (bd_len > MAX_BYTE_STR_LEN/3) {	/* bd_len > 16 */
-     truncated = 1;
-     bd_len = MAX_BYTE_STR_LEN/3;
+    truncated = 1;
+    bd_len = MAX_BYTE_STR_LEN/3;
   }
 
   cur_ptr = bytes_to_hexstr_punct(cur, bd, bd_len, punct); /* max MAX_BYTE_STR_LEN-1 bytes */
