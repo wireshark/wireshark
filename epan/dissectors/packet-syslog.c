@@ -177,7 +177,7 @@ static dissector_handle_t mtp_handle;
  *  packet so that it can be passed on to the mtp3 dissector for decoding.
  */
 static tvbuff_t *
-mtp3_msu_present(gint fac, gint level, const char *msg_str, gint chars_truncated)
+mtp3_msu_present(tvbuff_t *tvb, packet_info *pinfo, gint fac, gint level, const char *msg_str, gint chars_truncated)
 {
   size_t nbytes;
   size_t len;
@@ -211,9 +211,13 @@ mtp3_msu_present(gint fac, gint level, const char *msg_str, gint chars_truncated
     byte_array = convert_string_to_hex(msu_hex_dump, &nbytes);
 
     if (byte_array) {
-	mtp3_tvb = tvb_new_real_data(byte_array, (guint)nbytes,
-				     (guint)nbytes + chars_truncated / 2);
+	mtp3_tvb = tvb_new_child_real_data(tvb, byte_array, (guint)nbytes,
+                                           (guint)nbytes + chars_truncated / 2);
 	tvb_set_free_cb(mtp3_tvb, g_free);
+        /* ...and add the encapsulated MSU as a new data source so that it gets
+         * its own tab in the packet bytes pane.
+         */
+        add_new_data_source(pinfo, mtp3_tvb, "Encapsulated MSU");
     }
   }
 
@@ -255,7 +259,7 @@ dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   msg_str = tvb_format_text(tvb, msg_off, msg_len);
   reported_msg_len = tvb_reported_length_remaining(tvb, msg_off);
 
-  mtp3_tvb = mtp3_msu_present(fac, lev, msg_str,
+  mtp3_tvb = mtp3_msu_present(tvb, pinfo, fac, lev, msg_str,
 			      (reported_msg_len - msg_len));
 
   if (mtp3_tvb == NULL && check_col(pinfo->cinfo, COL_INFO)) {
@@ -298,10 +302,6 @@ dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* Call MTP dissector if encapsulated MSU was found... */
   if (mtp3_tvb) {
-    /* ...and add the encapsulated MSU as a new data source so that it gets
-     * its own tab in the packet bytes pane.
-     */
-    add_new_data_source(pinfo, mtp3_tvb, "Encapsulated MSU");
     call_dissector(mtp_handle, mtp3_tvb, pinfo, tree);
   }
 
