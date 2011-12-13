@@ -152,7 +152,18 @@ static gboolean iptrace_read_1_0(wtap *wth, int *err, gchar **err_info,
 	wth->phdr.pkt_encap = wtap_encap_ift(pkt_hdr.if_type);
 
 	/* Read the packet data */
-	packet_size = pntohl(&header[0]) - IPTRACE_1_0_PDATA_SIZE;
+	packet_size = pntohl(&header[0]);
+	if (packet_size < IPTRACE_1_0_PDATA_SIZE) {
+		/*
+		 * Uh-oh, the record isn't big enough to even have a
+		 * packet meta-data header.
+		 */
+		*err = WTAP_ERR_BAD_RECORD;
+		*err_info = g_strdup_printf("iptrace: file has a %u-byte record, too small to have even a packet meta-data header",
+		    packet_size);
+		return FALSE;
+	}
+	packet_size -= IPTRACE_1_0_PDATA_SIZE;
 
 	/*
 	 * AIX appears to put 3 bytes of padding in front of FDDI
@@ -163,6 +174,16 @@ static gboolean iptrace_read_1_0(wtap *wth, int *err, gchar **err_info,
 		 * The packet size is really a record size and includes
 		 * the padding.
 		 */
+		if (packet_size < 3) {
+			/*
+			 * Uh-oh, the record isn't big enough to even have
+			 * the padding.
+			 */
+			*err = WTAP_ERR_BAD_RECORD;
+			*err_info = g_strdup_printf("iptrace: file has a %u-byte record, too small to have even a packet meta-data header",
+			    packet_size + IPTRACE_1_0_PDATA_SIZE);
+			return FALSE;
+		}
 		packet_size -= 3;
 		wth->data_offset += 3;
 
@@ -172,6 +193,16 @@ static gboolean iptrace_read_1_0(wtap *wth, int *err, gchar **err_info,
 		if (!iptrace_read_rec_data(wth->fh, fddi_padding, 3, err,
 		    err_info))
 			return FALSE;	/* Read error */
+	}
+	if (packet_size > WTAP_MAX_PACKET_SIZE) {
+		/*
+		 * Probably a corrupt capture file; don't blow up trying
+		 * to allocate space for an immensely-large packet.
+		 */
+		*err = WTAP_ERR_BAD_RECORD;
+		*err_info = g_strdup_printf("iptrace: File has %u-byte packet, bigger than maximum of %u",
+		    packet_size, WTAP_MAX_PACKET_SIZE);
+		return FALSE;
 	}
 
 	buffer_assure_space( wth->frame_buffer, packet_size );
@@ -335,7 +366,18 @@ static gboolean iptrace_read_2_0(wtap *wth, int *err, gchar **err_info,
 	wth->phdr.pkt_encap = wtap_encap_ift(pkt_hdr.if_type);
 
 	/* Read the packet data */
-	packet_size = pntohl(&header[0]) - IPTRACE_2_0_PDATA_SIZE;
+	packet_size = pntohl(&header[0]);
+	if (packet_size < IPTRACE_2_0_PDATA_SIZE) {
+		/*
+		 * Uh-oh, the record isn't big enough to even have a
+		 * packet meta-data header.
+		 */
+		*err = WTAP_ERR_BAD_RECORD;
+		*err_info = g_strdup_printf("iptrace: file has a %u-byte record, too small to have even a packet meta-data header",
+		    packet_size);
+		return FALSE;
+	}
+	packet_size -= IPTRACE_2_0_PDATA_SIZE;
 
 	/*
 	 * AIX appears to put 3 bytes of padding in front of FDDI
@@ -346,6 +388,16 @@ static gboolean iptrace_read_2_0(wtap *wth, int *err, gchar **err_info,
 		 * The packet size is really a record size and includes
 		 * the padding.
 		 */
+		if (packet_size < 3) {
+			/*
+			 * Uh-oh, the record isn't big enough to even have
+			 * the padding.
+			 */
+			*err = WTAP_ERR_BAD_RECORD;
+			*err_info = g_strdup_printf("iptrace: file has a %u-byte record, too small to have even a packet meta-data header",
+			    packet_size + IPTRACE_2_0_PDATA_SIZE);
+			return FALSE;
+		}
 		packet_size -= 3;
 		wth->data_offset += 3;
 
@@ -355,6 +407,16 @@ static gboolean iptrace_read_2_0(wtap *wth, int *err, gchar **err_info,
 		if (!iptrace_read_rec_data(wth->fh, fddi_padding, 3, err,
 		    err_info))
 			return FALSE;	/* Read error */
+	}
+	if (packet_size > WTAP_MAX_PACKET_SIZE) {
+		/*
+		 * Probably a corrupt capture file; don't blow up trying
+		 * to allocate space for an immensely-large packet.
+		 */
+		*err = WTAP_ERR_BAD_RECORD;
+		*err_info = g_strdup_printf("iptrace: File has %u-byte packet, bigger than maximum of %u",
+		    packet_size, WTAP_MAX_PACKET_SIZE);
+		return FALSE;
 	}
 
 	buffer_assure_space( wth->frame_buffer, packet_size );
