@@ -1966,7 +1966,7 @@ dissect_ipcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * CPIs, we don't know the algorithm beforehand; if we get it
      * wrong, tvb_uncompress() returns NULL and nothing is displayed.
      */
-    decomp = tvb_uncompress(data, 0, tvb_length(data));
+    decomp = tvb_child_uncompress(data, data, 0, tvb_length(data));
     if (decomp) {
         add_new_data_source(pinfo, decomp, "IPcomp inflated data");
         if (!dissector_try_uint(ip_dissector_table, ipcomp.comp_nxt, decomp, pinfo, tree))

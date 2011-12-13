@@ -1391,7 +1391,7 @@ dissect_ImageZLIB_GLZ_stream(tvbuff_t *tvb, proto_tree *ZLIB_GLZ_tree, packet_in
     tvbuff_t   *uncompressed_tvb;
 
     ti = proto_tree_add_text(ZLIB_GLZ_tree, tvb, offset, ZLIB_GLZSize, "ZLIB stream (%u bytes)", ZLIB_GLZSize);
-    uncompressed_tvb = tvb_uncompress(tvb, offset, ZLIB_GLZSize);
+    uncompressed_tvb = tvb_child_uncompress(tvb, tvb, offset, ZLIB_GLZSize);
     if (uncompressed_tvb != NULL) {
         add_new_data_source(pinfo, uncompressed_tvb, "Uncompressed GLZ stream");
         Uncomp_tree = proto_item_add_subtree(ti, ett_Uncomp_tree);

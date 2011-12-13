@@ -703,7 +703,7 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* Be nice and uncompress the file data. */
 			if (compression == COMPRESSION_GZIP) {
 				tvbuff_t *uncomp_tvb = NULL;
-				uncomp_tvb = tvb_uncompress(tvb, 0, tvb_length(tvb));
+				uncomp_tvb = tvb_child_uncompress(tvb, tvb, 0, tvb_length(tvb));
 				if (uncomp_tvb != NULL) {
 					proto_tree_add_bytes_format_value(ldss_tree, hf_ldss_file_data,
 									  uncomp_tvb, 0, tvb_length(uncomp_tvb),

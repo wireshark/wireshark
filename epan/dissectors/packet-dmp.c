@@ -3196,7 +3196,7 @@ static gint dissect_dmp_message (tvbuff_t *tvb, packet_info *pinfo,
   } else if (len > 0 && (dmp.body_format == FREE_TEXT ||
                          dmp.body_format == FREE_TEXT_SUBJECT)) {
     if (compr_alg == ALGORITHM_ZLIB) {
-      if ((next_tvb = tvb_uncompress (tvb, offset, len)) != NULL) {
+      if ((next_tvb = tvb_child_uncompress (tvb, tvb, offset, len)) != NULL) {
                 gint zlen = tvb_length (next_tvb);
                 add_new_data_source (pinfo, next_tvb, "Uncompressed User data");
                 tf = proto_tree_add_none_format (message_tree,
