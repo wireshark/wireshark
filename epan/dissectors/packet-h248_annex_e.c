@@ -38,7 +38,7 @@
 */
 static int proto_h248_annex_E = -1;
 
-static gboolean implicit = TRUE;
+static gboolean h248_e_implicit = FALSE;
 
 /* H.248.1 E.1  Generic Package */
 static int hf_h248_pkg_generic = -1;
@@ -78,8 +78,8 @@ static const value_string h248_pkg_generic_cause_gencause_vals[] = {
 };
 
 static h248_pkg_param_t h248_pkg_generic_cause_evt_params[] = {
-	{ 0x0001, &hf_h248_pkg_generic_cause_gencause, h248_param_ber_integer, &implicit },
-	{ 0x0002, &hf_h248_pkg_generic_cause_failurecause, h248_param_ber_octetstring, &implicit },
+	{ 0x0001, &hf_h248_pkg_generic_cause_gencause, h248_param_ber_integer, h248_e_implicit },
+	{ 0x0002, &hf_h248_pkg_generic_cause_failurecause, h248_param_ber_octetstring, h248_e_implicit },
 	{ 0, NULL, NULL, NULL}
 };
 
@@ -101,10 +101,10 @@ static const value_string h248_pkg_generic_sc_vals[] = {
 };
 
 static h248_pkg_param_t h248_pkg_generic_sc_evt_params[] = {
-	{ 0x0001, &hf_h248_pkg_generic_sc_sig_id, h248_param_PkgdName, NULL },
-	{ 0x0002, &hf_h248_pkg_generic_sc_meth, h248_param_ber_integer, NULL },
-	{ 0x0003, &hf_h248_pkg_generic_sc_slid, h248_param_ber_integer, NULL },
-	{ 0x0004, &hf_h248_pkg_generic_sc_rid, h248_param_ber_integer, NULL },
+	{ 0x0001, &hf_h248_pkg_generic_sc_sig_id, h248_param_PkgdName, h248_e_implicit },
+	{ 0x0002, &hf_h248_pkg_generic_sc_meth, h248_param_ber_integer, h248_e_implicit },
+	{ 0x0003, &hf_h248_pkg_generic_sc_slid, h248_param_ber_integer, h248_e_implicit },
+	{ 0x0004, &hf_h248_pkg_generic_sc_rid, h248_param_ber_integer, h248_e_implicit },
 	{ 0, NULL, NULL, NULL}
 };
 
@@ -141,11 +141,11 @@ static int hf_h248_pkg_root_provisionalresponsetimervalue = -1;
 static gint ett_h248_pkg_root = -1;
 
 static h248_pkg_param_t h248_pkg_root_properties[] = {
-	{ 0x0001, &hf_h248_pkg_root_maxnrofctx, h248_param_ber_integer, &implicit },
-	{ 0x0002, &hf_h248_pkg_root_maxtermsperctx, h248_param_ber_integer, &implicit },
-	{ 0x0003, &hf_h248_pkg_root_normalmgexectime, h248_param_ber_integer, &implicit },
-	{ 0x0004, &hf_h248_pkg_root_normalmgcexecutiontime, h248_param_ber_integer, &implicit },
-	{ 0x0005, &hf_h248_pkg_root_provisionalresponsetimervalue, h248_param_ber_integer, &implicit },
+	{ 0x0001, &hf_h248_pkg_root_maxnrofctx, h248_param_ber_integer, &h248_e_implicit },
+	{ 0x0002, &hf_h248_pkg_root_maxtermsperctx, h248_param_ber_integer, &h248_e_implicit },
+	{ 0x0003, &hf_h248_pkg_root_normalmgexectime, h248_param_ber_integer, &h248_e_implicit },
+	{ 0x0004, &hf_h248_pkg_root_normalmgcexecutiontime, h248_param_ber_integer, &h248_e_implicit },
+	{ 0x0005, &hf_h248_pkg_root_provisionalresponsetimervalue, h248_param_ber_integer, &h248_e_implicit },
 	{ 0, NULL, NULL, NULL}
 };
 
@@ -176,8 +176,8 @@ static int hf_h248_pkg_tonegen_sig_pt_ind = -1;
 static gint ett_h248_pkg_tonegen = -1;
 
 static h248_pkg_param_t hf_h248_pkg_tonegen_properties[] = {
-	{ 0x0001, &hf_h248_pkg_tonegen_sig_pt_tl, h248_param_ber_integer, &implicit },
-	{ 0x0002, &hf_h248_pkg_tonegen_sig_pt_ind, h248_param_ber_integer, &implicit },
+	{ 0x0001, &hf_h248_pkg_tonegen_sig_pt_tl, h248_param_ber_integer, &h248_e_implicit },
+	{ 0x0002, &hf_h248_pkg_tonegen_sig_pt_ind, h248_param_ber_integer, &h248_e_implicit },
 	{ 0, NULL, NULL, NULL}
 };
 
@@ -305,19 +305,19 @@ static const true_false_string h248_pkg_al_evt_offhook_par_init_vals = {
 };
 
 static h248_pkg_param_t  h248_pkg_al_evt_onhook_params[] = {
-	{ 0x0001, &hf_h248_pkg_al_evt_onhook_par_strict, h248_param_ber_integer, &implicit },
-	{ 0x0002, &hf_h248_pkg_al_evt_onhook_par_init, h248_param_ber_boolean, &implicit },
+	{ 0x0001, &hf_h248_pkg_al_evt_onhook_par_strict, h248_param_ber_integer, &h248_e_implicit },
+	{ 0x0002, &hf_h248_pkg_al_evt_onhook_par_init, h248_param_ber_boolean, &h248_e_implicit },
 	{ 0, NULL, NULL, NULL}
 };
 
 static h248_pkg_param_t  h248_pkg_al_evt_offhook_params[] = {
-	{ 0x0001, &hf_h248_pkg_al_evt_offhook_par_strict, h248_param_ber_integer, &implicit },
-	{ 0x0002, &hf_h248_pkg_al_evt_offhook_par_init, h248_param_ber_boolean, &implicit },
+	{ 0x0001, &hf_h248_pkg_al_evt_offhook_par_strict, h248_param_ber_integer, &h248_e_implicit },
+	{ 0x0002, &hf_h248_pkg_al_evt_offhook_par_init, h248_param_ber_boolean, &h248_e_implicit },
 	{ 0, NULL, NULL, NULL}
 };
 
 static h248_pkg_param_t  h248_pkg_al_evt_flashhook_params[] = {
-	{ 0x0001, &hf_h248_pkg_al_evt_flashhook_par_mindur, h248_param_ber_integer, &implicit },
+	{ 0x0001, &hf_h248_pkg_al_evt_flashhook_par_mindur, h248_param_ber_integer, &h248_e_implicit },
 	{ 0, NULL, NULL, NULL}
 };
 
@@ -414,8 +414,8 @@ static const value_string h248_pkg_tdmc_props_vals[] = {
 
 
 static h248_pkg_param_t h248_pkg_tdmc_props[] = {
-	{ 0x0008, &hf_h248_pkg_tdmc_ec, h248_param_ber_boolean, &implicit },
-	{ 0x000a, &hf_h248_pkg_tdmc_gain, h248_param_ber_integer, &implicit },
+	{ 0x0008, &hf_h248_pkg_tdmc_ec, h248_param_ber_boolean, h248_e_implicit },
+	{ 0x000a, &hf_h248_pkg_tdmc_gain, h248_param_ber_integer, h248_e_implicit },
 	{ 0, NULL, NULL, NULL}
 };
 
