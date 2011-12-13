@@ -240,6 +240,16 @@ _5views_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 
 	packet_size = TimeStamped_Header.RecSize;
 	orig_size = TimeStamped_Header.RecSize;
+	if (packet_size > WTAP_MAX_PACKET_SIZE) {
+		/*
+		 * Probably a corrupt capture file; don't blow up trying
+		 * to allocate space for an immensely-large packet.
+		 */
+		*err = WTAP_ERR_BAD_RECORD;
+		*err_info = g_strdup_printf("5views: File has %u-byte packet, bigger than maximum of %u",
+		    packet_size, WTAP_MAX_PACKET_SIZE);
+		return FALSE;
+	}
 
 	*data_offset = wth->data_offset;
 
