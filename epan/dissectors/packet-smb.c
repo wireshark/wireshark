@@ -847,11 +847,11 @@ static int dissect_smb_command(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 	if (bc < len) goto endofcommand;
 
 #define COUNT_BYTES(len)   {\
-        int tmp;            \
-        tmp=len;            \
+	int tmp;	    \
+	tmp=len;	    \
 	offset += tmp;	    \
-	bc -= tmp;          \
-        }
+	bc -= tmp;	    \
+	}
 
 #define END_OF_SMB	\
 	if (bc != 0) { \
@@ -922,7 +922,7 @@ gboolean sid_name_snooping = FALSE;
 static gint
 fid_cmp(smb_fid_info_t *fida, smb_fid_info_t *fidb)
 {
-        return (fida->opened_in - fidb->opened_in);
+	return (fida->opened_in - fidb->opened_in);
 }
 
 /* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
@@ -2123,8 +2123,8 @@ dissect_negprot_security_mode(tvbuff_t *tvb, proto_tree *parent_tree, int offset
 
 #define MAX_DIALECTS 20
 struct negprot_dialects {
-       int num;
-       char *name[MAX_DIALECTS+1];
+	int num;
+	char *name[MAX_DIALECTS+1];
 };
 
 static int
@@ -3460,10 +3460,10 @@ dissect_smb_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 	proto_item *it;
 	proto_tree *tr;
 	smb_fid_info_t *fid_info=NULL;
-        smb_fid_info_t *suspect_fid_info=NULL;
-        /* We need this to use an array-accessed tree */
-        GSList          *GSL_iterator;
-        int             found=0;
+	smb_fid_info_t *suspect_fid_info=NULL;
+	/* We need this to use an array-accessed tree */
+	GSList          *GSL_iterator;
+	int             found=0;
 
 	DISSECTOR_ASSERT(si);
 
@@ -3480,38 +3480,38 @@ dissect_smb_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 		fid_info->opened_in=pinfo->fd->num;
 		fid_info->closed_in=0;
 		fid_info->type=SMB_FID_TYPE_UNKNOWN;
-                fid_info->fid=fid;
-                fid_info->tid=si->tid;
+		fid_info->fid=fid;
+		fid_info->tid=si->tid;
 		if(si->sip && (si->sip->extra_info_type==SMB_EI_FILEDATA)){
 			fid_info->fsi=si->sip->extra_info;
 		} else {
 			fid_info->fsi=NULL;
 		}
-                /* We don't use the fid_tree anymore to access and
-                   maintain the fid information of analized files.
-                   (was se_tree_insert32(si->ct->fid_tree, fid, fid_info);)
-                   We'll use a single list instead to keep track of the
-                   files (fid) opened.
-                   Note that the insert_sorted function allows to insert duplicates
-                   but being inside this if section should prevent it */
-                si->ct->GSL_fid_info=g_slist_insert_sorted(
-                                        si->ct->GSL_fid_info,
-                                        fid_info,
-                                        (GCompareFunc)fid_cmp);
+		/* We don't use the fid_tree anymore to access and
+		   maintain the fid information of analized files.
+		   (was se_tree_insert32(si->ct->fid_tree, fid, fid_info);)
+		   We'll use a single list instead to keep track of the
+		   files (fid) opened.
+		   Note that the insert_sorted function allows to insert duplicates
+		   but being inside this if section should prevent it */
+		si->ct->GSL_fid_info=g_slist_insert_sorted(
+					si->ct->GSL_fid_info,
+					fid_info,
+					(GCompareFunc)fid_cmp);
 	}
 
 	if(!fid_info){
-                /* we use the single linked list to access this fid_info
-                   (was fid_info=se_tree_lookup32(si->ct->fid_tree, fid);) */
-                GSL_iterator = si->ct->GSL_fid_info;
-                while (GSL_iterator) {
-                        suspect_fid_info=GSL_iterator->data;
-                        if(suspect_fid_info->opened_in > pinfo->fd->num) break;
-                        if(suspect_fid_info->tid==si->tid && suspect_fid_info->fid==fid)
-                                fid_info=suspect_fid_info;
-                        GSL_iterator=g_slist_next(GSL_iterator);
-                        found+=1;
-                }
+		/* we use the single linked list to access this fid_info
+		   (was fid_info=se_tree_lookup32(si->ct->fid_tree, fid);) */
+		GSL_iterator = si->ct->GSL_fid_info;
+		while (GSL_iterator) {
+			suspect_fid_info=GSL_iterator->data;
+			if(suspect_fid_info->opened_in > pinfo->fd->num) break;
+			if(suspect_fid_info->tid==si->tid && suspect_fid_info->fid==fid)
+				fid_info=suspect_fid_info;
+			GSL_iterator=g_slist_next(GSL_iterator);
+			found+=1;
+		}
 	}
 	if(!fid_info){
 		return NULL;
@@ -4739,7 +4739,7 @@ dissect_write_and_close_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 static gchar *
 smbext20_timeout_msecs_to_str(gint32 timeout)
 {
-        gchar *buf;
+	gchar *buf;
 #define SMBEXT20_TIMEOUT_MSECS_TO_STR_MAXLEN 60
 
 	if (timeout <= 0) {
@@ -6055,17 +6055,17 @@ dissect_open_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 		fn);
 	COUNT_BYTES(fn_len);
 
-        /* Copied this portion of code from create_andx_request
-           to guarantee that fsi and si->sip are always correctly filled out */
-        if((!pinfo->fd->flags.visited) && si->sip && fn){
-                smb_fid_saved_info_t *fsi;
+	/* Copied this portion of code from create_andx_request
+	   to guarantee that fsi and si->sip are always correctly filled out */
+	if((!pinfo->fd->flags.visited) && si->sip && fn){
+		smb_fid_saved_info_t *fsi;
 
-                fsi=se_alloc(sizeof(smb_fid_saved_info_t));
-                fsi->filename=se_strdup(fn);
+		fsi=se_alloc(sizeof(smb_fid_saved_info_t));
+		fsi->filename=se_strdup(fn);
 
-                si->sip->extra_info_type=SMB_EI_FILEDATA;
-                si->sip->extra_info=fsi;
-        }
+		si->sip->extra_info_type=SMB_EI_FILEDATA;
+		si->sip->extra_info=fsi;
+	}
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Path: %s",
@@ -6145,10 +6145,10 @@ dissect_open_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	guint8	wc, cmd=0xff;
 	guint16 andxoffset=0, bc;
 	guint16 fid;
-        guint16 ftype;
-        guint16 fattr;
-        smb_fid_info_t *fid_info=NULL;
-        gboolean        isdir=FALSE;
+	guint16 ftype;
+	guint16 fattr;
+	smb_fid_info_t *fid_info=NULL;
+	gboolean        isdir=FALSE;
 
 	WORD_COUNT;
 
@@ -6172,24 +6172,24 @@ dissect_open_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	/* fid */
 	fid = tvb_get_letohs(tvb, offset);
-        /* we add fid_info= to this call so that we save the result */
-        fid_info=dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, TRUE, FALSE, FALSE);
+	/* we add fid_info= to this call so that we save the result */
+	fid_info=dissect_smb_fid(tvb, pinfo, tree, offset, 2, fid, TRUE, FALSE, FALSE);
 
 	offset += 2;
 
 	/* File Attributes */
-        fattr = tvb_get_letohs(tvb, offset);
-        isdir = fattr & SMB_FILE_ATTRIBUTE_DIRECTORY;
+	fattr = tvb_get_letohs(tvb, offset);
+	isdir = fattr & SMB_FILE_ATTRIBUTE_DIRECTORY;
 	offset = dissect_file_attributes(tvb, tree, offset);
 
 	/* last write time */
 	offset = dissect_smb_UTIME(tvb, tree, offset, hf_smb_last_write_time);
 
 	/* File Size */
-        /* We store the file_size in the fid_info */
-        if (fid_info) {
-                fid_info->end_of_file=(guint64) tvb_get_letohl(tvb, offset);
-        }
+	/* We store the file_size in the fid_info */
+	if (fid_info) {
+		fid_info->end_of_file=(guint64) tvb_get_letohl(tvb, offset);
+	}
 	proto_tree_add_item(tree, hf_smb_file_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
@@ -6197,32 +6197,32 @@ dissect_open_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset = dissect_access(tvb, tree, offset, "Granted");
 
 	/* File Type */
-        ftype=tvb_get_letohs(tvb, offset);
+	ftype=tvb_get_letohs(tvb, offset);
 	proto_tree_add_item(tree, hf_smb_file_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
-        /* Copied from dissect_nt_create_andx_response
-           Try to remember the type of this fid so that we can dissect
-           any future security descriptor (access mask) properly
-         */
-        if (fid_info) {
-                fid_info->type=SMB_FID_TYPE_UNKNOWN;
-        }
-        if(ftype==0){
-                if(isdir==0){
-                        if(fid_info){
-                                fid_info->type=SMB_FID_TYPE_FILE;
-                        }
-                } else {
-                        if(fid_info){
-                                fid_info->type=SMB_FID_TYPE_DIR;
-                        }
-                }
-        }
-        if(ftype==2 || ftype==1){
-                if(fid_info){
-                        fid_info->type=SMB_FID_TYPE_PIPE;
-                }
-        }
+	/* Copied from dissect_nt_create_andx_response
+	   Try to remember the type of this fid so that we can dissect
+	   any future security descriptor (access mask) properly
+	*/
+	if (fid_info) {
+		fid_info->type=SMB_FID_TYPE_UNKNOWN;
+	}
+	if(ftype==0){
+		if(isdir==0){
+			if(fid_info){
+				fid_info->type=SMB_FID_TYPE_FILE;
+			}
+		} else {
+			if(fid_info){
+				fid_info->type=SMB_FID_TYPE_DIR;
+			}
+		}
+	}
+	if(ftype==2 || ftype==1){
+		if(fid_info){
+			fid_info->type=SMB_FID_TYPE_PIPE;
+		}
+	}
 
 	/* IPC State */
 	offset = dissect_ipc_state(tvb, tree, offset, FALSE);
@@ -6340,8 +6340,8 @@ dissect_read_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	 * followed by 16 bits of Reserved.
 	 *
 	 * We fetch and display it as 32 bits for now.
-         *
-         * XXX if maxcount high is 0xFFFFFFFF we assume it is just padding
+	 *
+	 * XXX if maxcount high is 0xFFFFFFFF we assume it is just padding
 	 * bytes and we just ignore it.
 	 */
 	maxcnt_high = tvb_get_letohl(tvb, offset);
@@ -6413,10 +6413,10 @@ dissect_read_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
 /* Strings that describes the SMB object type */
 const value_string smb_fid_types[] = {
-        {SMB_FID_TYPE_UNKNOWN,"UNKNOWN"},
-        {SMB_FID_TYPE_FILE,"FILE"},
-        {SMB_FID_TYPE_DIR,"DIRECTORY (Not Implemented)"},
-        {SMB_FID_TYPE_PIPE,"PIPE (Not Implemented)"},
+	{SMB_FID_TYPE_UNKNOWN,"UNKNOWN"},
+	{SMB_FID_TYPE_FILE,"FILE"},
+	{SMB_FID_TYPE_DIR,"DIRECTORY (Not Implemented)"},
+	{SMB_FID_TYPE_PIPE,"PIPE (Not Implemented)"},
 	{0, NULL}
 };
 
@@ -6428,17 +6428,17 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	guint32 datalen=0, datalen_high;
 	smb_info_t *si = (smb_info_t *)pinfo->private_data;
 	rw_info_t *rwi=NULL;
-        guint16 fid=0; /* was int fid=0; */
+	guint16 fid=0; /* was int fid=0; */
 
-        smb_eo_t        *eo_info; /* eo_info variable to pass info. to
-                                     export object and aux */
-        smb_tid_info_t  *tid_info=NULL;
-        smb_fid_info_t  *fid_info=NULL;
-        smb_fid_info_t  *suspect_fid_info=NULL;
-        guint32 tvblen;
-        tvbuff_t        *data_tvb;
-        GSList          *GSL_iterator;
-        int             found=0;
+	smb_eo_t        *eo_info; /* eo_info variable to pass info. to
+				     export object and aux */
+	smb_tid_info_t  *tid_info=NULL;
+	smb_fid_info_t  *fid_info=NULL;
+	smb_fid_info_t  *suspect_fid_info=NULL;
+	guint32 tvblen;
+	tvbuff_t        *data_tvb;
+	GSList          *GSL_iterator;
+	int             found=0;
 
 	DISSECTOR_ASSERT(si);
 
@@ -6547,60 +6547,60 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 		bc = 0;
 	}
 
-        /* feed the export object tap listener */
-        tvblen = tvb_length_remaining(tvb, dataoffset);
-        if(have_tap_listener(smb_eo_tap) && datalen==tvblen && rwi) {
-                /* Create a new tvb to point to the payload data */
-                data_tvb = tvb_new_subset(tvb, dataoffset, datalen, tvblen);
-                /* Create the eo_info to pass to the listener */
-                eo_info = ep_alloc(sizeof(smb_eo_t));
+	/* feed the export object tap listener */
+	tvblen = tvb_length_remaining(tvb, dataoffset);
+	if(have_tap_listener(smb_eo_tap) && datalen==tvblen && rwi) {
+		/* Create a new tvb to point to the payload data */
+		data_tvb = tvb_new_subset(tvb, dataoffset, datalen, tvblen);
+		/* Create the eo_info to pass to the listener */
+		eo_info = ep_alloc(sizeof(smb_eo_t));
 
-                /* Try to get fid_info and tid_info */
-                if (fid_info==NULL) {
-                        GSL_iterator = si->ct->GSL_fid_info;
-                        while (GSL_iterator) {
-                                suspect_fid_info=GSL_iterator->data;
-                                if(suspect_fid_info->opened_in > pinfo->fd->num) break;
-                                if(suspect_fid_info->tid==si->tid && suspect_fid_info->fid==fid)
-                                        fid_info=suspect_fid_info;
-                                GSL_iterator=g_slist_next(GSL_iterator);
-                                found+=1;
-                        }
-                }
-                tid_info = se_tree_lookup32(si->ct->tid_tree, si->tid);
+		/* Try to get fid_info and tid_info */
+		if (fid_info==NULL) {
+			GSL_iterator = si->ct->GSL_fid_info;
+			while (GSL_iterator) {
+				suspect_fid_info=GSL_iterator->data;
+				if(suspect_fid_info->opened_in > pinfo->fd->num) break;
+				if(suspect_fid_info->tid==si->tid && suspect_fid_info->fid==fid)
+					fid_info=suspect_fid_info;
+				GSL_iterator=g_slist_next(GSL_iterator);
+				found+=1;
+			}
+		}
+		tid_info = se_tree_lookup32(si->ct->tid_tree, si->tid);
 
-                /* Construct the eo_info structure */
-                if (tid_info)   eo_info->hostname = tid_info->filename;
-                else            eo_info->hostname = ep_strdup_printf("\\\\TREEID_%i",si->tid);
-                if (fid_info) {
-                        eo_info->filename=NULL;
-                        if (fid_info->fsi)
-                                if (fid_info->fsi->filename)
-                                        eo_info->filename = (gchar *) fid_info->fsi->filename;
-                        if(!eo_info->filename) eo_info->filename = ep_strdup_printf("\\FILEID_%i",fid);
-                        eo_info->fid_type = fid_info->type;
-                        eo_info->end_of_file = fid_info->end_of_file;
-                } else {
-                        eo_info->fid_type=SMB_FID_TYPE_UNKNOWN;
-                        eo_info->filename = ep_strdup_printf("\\FILEID_%i",fid);
-                        eo_info->end_of_file = 0;
-                }
-                eo_info->fid=fid;
-                eo_info->tid=si->tid;
-                eo_info->uid=si->uid;
-                eo_info->payload_len = datalen;
-                eo_info->payload_data = tvb_get_ptr(data_tvb, 0, datalen);
-                eo_info->smb_file_offset=rwi->offset;
-                eo_info->smb_chunk_len=rwi->len;
-                eo_info->cmd=SMB_COM_READ_ANDX;
-                /* Queue data to the listener */
+		/* Construct the eo_info structure */
+		if (tid_info)   eo_info->hostname = tid_info->filename;
+		else            eo_info->hostname = ep_strdup_printf("\\\\TREEID_%i",si->tid);
+		if (fid_info) {
+			eo_info->filename=NULL;
+			if (fid_info->fsi)
+				if (fid_info->fsi->filename)
+					eo_info->filename = (gchar *) fid_info->fsi->filename;
+			if(!eo_info->filename) eo_info->filename = ep_strdup_printf("\\FILEID_%i",fid);
+			eo_info->fid_type = fid_info->type;
+			eo_info->end_of_file = fid_info->end_of_file;
+		} else {
+			eo_info->fid_type=SMB_FID_TYPE_UNKNOWN;
+			eo_info->filename = ep_strdup_printf("\\FILEID_%i",fid);
+			eo_info->end_of_file = 0;
+		}
+		eo_info->fid=fid;
+		eo_info->tid=si->tid;
+		eo_info->uid=si->uid;
+		eo_info->payload_len = datalen;
+		eo_info->payload_data = tvb_get_ptr(data_tvb, 0, datalen);
+		eo_info->smb_file_offset=rwi->offset;
+		eo_info->smb_chunk_len=rwi->len;
+		eo_info->cmd=SMB_COM_READ_ANDX;
+		/* Queue data to the listener */
 
-                tap_queue_packet(smb_eo_tap, pinfo, eo_info);
-        }
+		tap_queue_packet(smb_eo_tap, pinfo, eo_info);
+	}
 
-        END_OF_SMB
+	END_OF_SMB
 
-        if (cmd != 0xff) {   /* there is an andX command */
+	if (cmd != 0xff) {   /* there is an andX command */
 		if (andxoffset < offset)
 			THROW(ReportedBoundsError);
 		dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd, FALSE);
@@ -6618,19 +6618,19 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	guint64 ofs;
 	guint32 datalen=0;
 	smb_info_t *si = (smb_info_t *)pinfo->private_data;
-        guint16 fid=0; /* was unsigned int fid=0; */
+	guint16 fid=0; /* was unsigned int fid=0; */
 	guint16 mode = 0;
 	rw_info_t *rwi=NULL;
-        /* eo_info variables to pass info. to export object and
-           other aux */
-        smb_eo_t        *eo_info;
-        smb_tid_info_t  *tid_info=NULL;
-        smb_fid_info_t  *fid_info=NULL;
-        smb_fid_info_t  *suspect_fid_info=NULL;
-        guint32 tvblen;
-        tvbuff_t        *data_tvb;
-        GSList          *GSL_iterator;
-        int             found=0;
+	/* eo_info variables to pass info. to export object and
+	   other aux */
+	smb_eo_t        *eo_info;
+	smb_tid_info_t  *tid_info=NULL;
+	smb_fid_info_t  *fid_info=NULL;
+	smb_fid_info_t  *suspect_fid_info=NULL;
+	guint32 tvblen;
+	tvbuff_t        *data_tvb;
+	GSList          *GSL_iterator;
+	int             found=0;
 
 	DISSECTOR_ASSERT(si);
 
@@ -6777,63 +6777,62 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 		bc = 0;
 	}
 
-        /* feed the export object tap listener */
-        tvblen = tvb_length_remaining(tvb, dataoffset);
-        if(have_tap_listener(smb_eo_tap) && datalen==tvblen && rwi) {
-                /* Create a new tvb to point to the payload data */
-                data_tvb = tvb_new_subset(tvb, dataoffset, datalen, tvblen);
-                /* Create the eo_info to pass to the listener */
-                eo_info = ep_alloc(sizeof(smb_eo_t));
+	/* feed the export object tap listener */
+	tvblen = tvb_length_remaining(tvb, dataoffset);
+	if(have_tap_listener(smb_eo_tap) && datalen==tvblen && rwi) {
+		/* Create a new tvb to point to the payload data */
+		data_tvb = tvb_new_subset(tvb, dataoffset, datalen, tvblen);
+		/* Create the eo_info to pass to the listener */
+		eo_info = ep_alloc(sizeof(smb_eo_t));
 
-                /* Try to get fid_info and tid_info */
-                if (fid_info==NULL) {
-                        /* We'll use a GSL instead */
-                        /* (was fid_info = se_tree_lookup32(si->ct->fid_tree, fi
-d);) */
-                        GSL_iterator = si->ct->GSL_fid_info;
-                        while (GSL_iterator) {
-                                suspect_fid_info=GSL_iterator->data;
-                                if(suspect_fid_info->opened_in > pinfo->fd->num)
- break;
-                                if(suspect_fid_info->tid==si->tid && suspect_fid_info->fid==fid)
-                                        fid_info=suspect_fid_info;
-                                GSL_iterator=g_slist_next(GSL_iterator);
-                                found+=1;
-                        }
-                }
-                tid_info = se_tree_lookup32(si->ct->tid_tree, si->tid);
+		/* Try to get fid_info and tid_info */
+		if (fid_info==NULL) {
+			/* We'll use a GSL instead */
+			/* (was fid_info = se_tree_lookup32(si->ct->fid_tree, fid);) */
+			GSL_iterator = si->ct->GSL_fid_info;
+			while (GSL_iterator) {
+				suspect_fid_info=GSL_iterator->data;
+				if(suspect_fid_info->opened_in > pinfo->fd->num)
+					break;
+				if(suspect_fid_info->tid==si->tid && suspect_fid_info->fid==fid)
+					fid_info=suspect_fid_info;
+				GSL_iterator=g_slist_next(GSL_iterator);
+				found+=1;
+			}
+		}
+		tid_info = se_tree_lookup32(si->ct->tid_tree, si->tid);
 
-                /* Construct the eo_info structure */
-                if (tid_info)   eo_info->hostname = tid_info->filename;
-                else            eo_info->hostname = ep_strdup_printf("\\\\TREEID_%i",si->tid);
-                if (fid_info) {
-                        eo_info->filename=NULL;
-                        if (fid_info->fsi) {
-                                if (fid_info->fsi->filename) {
-                                        eo_info->filename = (gchar *) fid_info->fsi->filename;
-                                        }
-                                }
-                        if(!eo_info->filename) eo_info->filename = ep_strdup_printf("\\FILEID_%i",fid);
-                        eo_info->fid_type = fid_info->type;
-                        eo_info->end_of_file = fid_info->end_of_file;
-                } else {
-                        eo_info->fid_type=SMB_FID_TYPE_UNKNOWN;
-                        eo_info->filename = ep_strdup_printf("\\FILEID_%i",fid);
-                        eo_info->end_of_file = 0;
-                }
-                eo_info->fid=fid;
-                eo_info->tid=si->tid;
-                eo_info->uid=si->uid;
-                eo_info->payload_len = datalen;
-                eo_info->payload_data = tvb_get_ptr(data_tvb, 0, datalen);
-                eo_info->smb_file_offset=rwi->offset;
-                eo_info->smb_chunk_len=rwi->len;
-                eo_info->cmd=SMB_COM_WRITE_ANDX;
+		/* Construct the eo_info structure */
+		if (tid_info)   eo_info->hostname = tid_info->filename;
+		else            eo_info->hostname = ep_strdup_printf("\\\\TREEID_%i",si->tid);
+		if (fid_info) {
+			eo_info->filename=NULL;
+			if (fid_info->fsi) {
+				if (fid_info->fsi->filename) {
+					eo_info->filename = (gchar *) fid_info->fsi->filename;
+				}
+			}
+			if(!eo_info->filename) eo_info->filename = ep_strdup_printf("\\FILEID_%i",fid);
+			eo_info->fid_type = fid_info->type;
+			eo_info->end_of_file = fid_info->end_of_file;
+		} else {
+			eo_info->fid_type=SMB_FID_TYPE_UNKNOWN;
+			eo_info->filename = ep_strdup_printf("\\FILEID_%i",fid);
+			eo_info->end_of_file = 0;
+		}
+		eo_info->fid=fid;
+		eo_info->tid=si->tid;
+		eo_info->uid=si->uid;
+		eo_info->payload_len = datalen;
+		eo_info->payload_data = tvb_get_ptr(data_tvb, 0, datalen);
+		eo_info->smb_file_offset=rwi->offset;
+		eo_info->smb_chunk_len=rwi->len;
+		eo_info->cmd=SMB_COM_WRITE_ANDX;
 
-                /* Queue data to the listener */
+		/* Queue data to the listener */
 
-                tap_queue_packet(smb_eo_tap, pinfo, eo_info);
-        }
+		tap_queue_packet(smb_eo_tap, pinfo, eo_info);
+	}
 
 	END_OF_SMB
 
@@ -7118,7 +7117,7 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 			blob_tree = proto_item_add_subtree(blob_item,
 							   ett_smb_secblob);
-                        CHECK_BYTE_COUNT(sbloblen);
+			CHECK_BYTE_COUNT(sbloblen);
 
 			/*
 			 * Set the reported length of this to the reported
@@ -7411,7 +7410,7 @@ dissect_session_setup_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 			blob_tree = proto_item_add_subtree(blob_item,
 							   ett_smb_secblob);
-                        CHECK_BYTE_COUNT(sbloblen);
+			CHECK_BYTE_COUNT(sbloblen);
 
 			blob_tvb = tvb_new_subset(tvb, offset, sbloblen,
 						    sbloblen);
@@ -7428,7 +7427,7 @@ dissect_session_setup_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 			}
 
-                        COUNT_BYTES(sbloblen);
+			COUNT_BYTES(sbloblen);
 		}
 	}
 
@@ -9534,10 +9533,10 @@ dissect_nt_transaction_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	   must create pd_tvb from it
 	*/
 	if(r_fd){
-        proto_item *frag_tree_item;
+		proto_item *frag_tree_item;
 
 		pd_tvb = tvb_new_child_real_data(tvb, r_fd->data, r_fd->datalen,
-                                                 r_fd->datalen);
+						 r_fd->datalen);
 		add_new_data_source(pinfo, pd_tvb, "Reassembled SMB");
 
 		show_fragment_tree(r_fd, &smb_frag_items, tree, pinfo, pd_tvb, &frag_tree_item);
@@ -9616,11 +9615,11 @@ dissect_open_print_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	WORD_COUNT;
 
 	/* setup len */
-        proto_tree_add_item(tree, hf_smb_setup_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_smb_setup_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	/* print mode */
-        proto_tree_add_item(tree, hf_smb_print_mode, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_smb_print_mode, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	BYTE_COUNT;
@@ -10229,10 +10228,10 @@ dissect_nt_create_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	offset += 8;
 
 	/* end of file */
-        /* We store the end of file */
-        if (fid_info) {
-                fid_info->end_of_file=tvb_get_letoh64(tvb, offset);
-        }
+	/* We store the end of file */
+	if (fid_info) {
+		fid_info->end_of_file=tvb_get_letoh64(tvb, offset);
+	}
 	proto_tree_add_item(tree, hf_smb_end_of_file, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	offset += 8;
 
@@ -10324,7 +10323,7 @@ static const value_string trans2_cmd_vals[] = {
 	{ 0x0C,		"FIND_NOTIFY_NEXT" },
 	{ 0x0D,		"CREATE_DIRECTORY" },
 	{ 0x0E,		"SESSION_SETUP" },
-        { 0x0F,         "Unknown (0x0f)" },  /* dummy so val_to_str_ext can do indexed lookup */
+	{ 0x0F,         "Unknown (0x0f)" },  /* dummy so val_to_str_ext can do indexed lookup */
 	{ 0x10,		"GET_DFS_REFERRAL" },
 	{ 0x11,		"REPORT_DFS_INCONSISTENCY" },
 	{ 0,    NULL }
@@ -12835,9 +12834,9 @@ dissect_qfi_SMB_FILE_NETWORK_OPEN_INFO(tvbuff_t *tvb,
 {
 
 	offset = dissect_smb_standard_8byte_timestamps(tvb, pinfo, tree, offset, bcp, trunc);
-        if (*trunc) {
-          return offset;
-        }
+	if (*trunc) {
+		return offset;
+	}
 
 	/* allocation size */
 	CHECK_BYTE_COUNT_SUBR(8);
@@ -12854,10 +12853,10 @@ dissect_qfi_SMB_FILE_NETWORK_OPEN_INFO(tvbuff_t *tvb,
 	offset = dissect_file_ext_attr(tvb, tree, offset);
 	*bcp -= 4;
 
-        /* Unknown, possibly count of network accessors ... */
-        CHECK_BYTE_COUNT_SUBR(4);
+	/* Unknown, possibly count of network accessors ... */
+	CHECK_BYTE_COUNT_SUBR(4);
 	proto_tree_add_item(tree, hf_smb_network_unknown, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        COUNT_BYTES_SUBR(4);
+	COUNT_BYTES_SUBR(4);
 
 	*trunc = FALSE;
 	return offset;
@@ -12871,14 +12870,14 @@ dissect_qfi_SMB_FILE_ATTRIBUTE_TAG_INFO(tvbuff_t *tvb,
     int offset, guint16 *bcp, gboolean *trunc)
 {
 	/* attribute */
-        CHECK_BYTE_COUNT_SUBR(4);
+	CHECK_BYTE_COUNT_SUBR(4);
 	proto_tree_add_item(tree, hf_smb_attribute, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        COUNT_BYTES_SUBR(4);
+	COUNT_BYTES_SUBR(4);
 
 	/* reparse tag */
-        CHECK_BYTE_COUNT_SUBR(4);
+	CHECK_BYTE_COUNT_SUBR(4);
 	proto_tree_add_item(tree, hf_smb_reparse_tag, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        COUNT_BYTES_SUBR(4);
+	COUNT_BYTES_SUBR(4);
 
 	*trunc = FALSE;
 	return offset;
@@ -13086,12 +13085,12 @@ dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		offset = dissect_qfi_SMB_FILE_COMPRESSION_INFO(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
-        case 1034:     /* SMB_FILE_NETWORK_OPEN_INFO */
-                offset = dissect_qfi_SMB_FILE_NETWORK_OPEN_INFO(tvb, pinfo, tree, offset, bcp, &trunc);
-                break;
-        case 1035:     /* SMB_FILE_ATTRIBUTE_TAG_INFO */
-                offset = dissect_qfi_SMB_FILE_ATTRIBUTE_TAG_INFO(tvb, pinfo, tree, offset, bcp, &trunc);
-                break;
+	case 1034:     /* SMB_FILE_NETWORK_OPEN_INFO */
+		offset = dissect_qfi_SMB_FILE_NETWORK_OPEN_INFO(tvb, pinfo, tree, offset, bcp, &trunc);
+		break;
+	case 1035:     /* SMB_FILE_ATTRIBUTE_TAG_INFO */
+		offset = dissect_qfi_SMB_FILE_ATTRIBUTE_TAG_INFO(tvb, pinfo, tree, offset, bcp, &trunc);
+		break;
 	case 0x0200:	/* Query File Unix Basic*/
 		offset = dissect_4_2_16_12(tvb, pinfo, tree, offset, bcp,
 					   &trunc);
@@ -14220,9 +14219,9 @@ dissect_4_3_4_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	COUNT_BYTES_SUBR(4);
 
 	offset = dissect_smb_standard_8byte_timestamps(tvb, pinfo, tree, offset, bcp, trunc);
-        if (*trunc) {
-          return offset;
-        }
+	if (*trunc) {
+		return offset;
+	}
 
 	/* end of file */
 	CHECK_BYTE_COUNT_SUBR(8);
@@ -14320,9 +14319,9 @@ dissect_4_3_4_5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 	/* standard 8-byte timestamps */
 	offset = dissect_smb_standard_8byte_timestamps(tvb, pinfo, tree, offset, bcp, trunc);
-        if (*trunc) {
-          return offset;
-        }
+	if (*trunc) {
+		return offset;
+	}
 
 	/* end of file */
 	CHECK_BYTE_COUNT_SUBR(8);
@@ -14424,7 +14423,7 @@ dissect_4_3_4_6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	proto_tree_add_item(tree, hf_smb_file_index, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(4);
 
-        /* dissect standard 8-byte timestamps */
+	/* dissect standard 8-byte timestamps */
 	offset = dissect_smb_standard_8byte_timestamps(tvb, pinfo, tree, offset, bcp, trunc);
 	if (*trunc) {
 	  return offset;
@@ -14555,7 +14554,7 @@ dissect_4_3_4_6full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	proto_tree_add_item(tree, hf_smb_file_index, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(4);
 
-        /* dissect standard 8-byte timestamps */
+	/* dissect standard 8-byte timestamps */
 	offset = dissect_smb_standard_8byte_timestamps(tvb, pinfo, tree, offset, bcp, trunc);
 	if (*trunc) {
 	  return offset;
@@ -14675,7 +14674,7 @@ dissect_4_3_4_6_id_both(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	proto_tree_add_item(tree, hf_smb_file_index, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(4);
 
-        /* dissect standard 8-byte timestamps */
+	/* dissect standard 8-byte timestamps */
 	offset = dissect_smb_standard_8byte_timestamps(tvb, pinfo, tree, offset, bcp, trunc);
 	if (*trunc) {
 	  return offset;
@@ -15139,28 +15138,28 @@ dissect_device_characteristics(tvbuff_t *tvb, proto_tree *parent_tree, int offse
 /*dissect the data block for TRANS2_QUERY_FS_INFORMATION*/
 
 static const true_false_string tfs_smb_mac_access_ctrl = {
-  "Macintosh Access Control Supported",
-  "Macintosh Access Control Not Supported"
+	"Macintosh Access Control Supported",
+	"Macintosh Access Control Not Supported"
 };
 
 static const true_false_string tfs_smb_mac_getset_comments = {
-  "Macintosh Get & Set Comments Supported",
-  "Macintosh Get & Set Comments Not Supported"
+	"Macintosh Get & Set Comments Supported",
+	"Macintosh Get & Set Comments Not Supported"
 };
 
 static const true_false_string tfs_smb_mac_desktopdb_calls = {
-  "Macintosh Get & Set Desktop Database Info Supported",
-  "Macintosh Get & Set Desktop Database Info Supported"
+	"Macintosh Get & Set Desktop Database Info Supported",
+	"Macintosh Get & Set Desktop Database Info Supported"
 };
 
 static const true_false_string tfs_smb_mac_unique_ids = {
-  "Macintosh Unique IDs Supported",
-  "Macintosh Unique IDs Not Supported"
+	"Macintosh Unique IDs Supported",
+	"Macintosh Unique IDs Not Supported"
 };
 
 static const true_false_string tfs_smb_mac_streams = {
-  "Macintosh and Streams Extensions Not Supported",
-  "Macintosh and Streams Extensions Supported"
+	"Macintosh and Streams Extensions Not Supported",
+	"Macintosh and Streams Extensions Supported"
 };
 
 int
@@ -16192,7 +16191,7 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	   create pd_tvb from it
 	*/
 	if(r_fd){
-        proto_item *frag_tree_item;
+		proto_item *frag_tree_item;
 
 		pd_tvb = tvb_new_child_real_data(tvb, r_fd->data, r_fd->datalen,
 					     r_fd->datalen);
@@ -16400,8 +16399,8 @@ dissect_unknown(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int off
 }
 
 typedef struct _smb_function {
-       int (*request)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree);
-       int (*response)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree);
+	int (*request)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree);
+	int (*response)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree);
 } smb_function;
 
 static smb_function smb_dissector[256] = {
@@ -17010,7 +17009,7 @@ value_string_ext smb_cmd_vals_ext = VALUE_STRING_EXT_INIT(smb_cmd_vals);
 
 static const char *decode_smb_name(guint8 cmd)
 {
-  return(smb_cmd_vals[cmd].strptr);
+	return(smb_cmd_vals[cmd].strptr);
 }
 
 
@@ -17050,103 +17049,103 @@ smb_init_protocol(void)
 }
 
 static const value_string errcls_types[] = {
-  { SMB_SUCCESS, "Success"},
-  { SMB_ERRDOS, "DOS Error"},
-  { SMB_ERRSRV, "Server Error"},
-  { SMB_ERRHRD, "Hardware Error"},
-  { SMB_ERRCMD, "Command Error - Not an SMB format command"},
-  { 0, NULL }
+	{ SMB_SUCCESS, "Success"},
+	{ SMB_ERRDOS, "DOS Error"},
+	{ SMB_ERRSRV, "Server Error"},
+	{ SMB_ERRHRD, "Hardware Error"},
+	{ SMB_ERRCMD, "Command Error - Not an SMB format command"},
+	{ 0, NULL }
 };
 
 /* Error codes for the ERRSRV class */
 
 static const value_string SRV_errors[] = {
-  {SMBE_error, "Non specific error code"},
-  {SMBE_badpw, "Bad password"},
-  {SMBE_badtype, "Reserved"},
-  {SMBE_access, "No permissions to perform the requested operation"},
-  {SMBE_invnid, "TID invalid"},
-  {SMBE_invnetname, "Invalid network name. Service not found"},
-  {SMBE_invdevice, "Invalid device"},
-  {SMBE_unknownsmb, "Unknown SMB, from NT 3.5 response"},
-  {SMBE_qfull, "Print queue full"},
-  {SMBE_qtoobig, "Queued item too big"},
-  {SMBE_qeof, "EOF on print queue dump"},
-  {SMBE_invpfid, "Invalid print file in smb_fid"},
-  {SMBE_smbcmd, "Unrecognised command"},
-  {SMBE_srverror, "SMB server internal error"},
-  {SMBE_filespecs, "Fid and pathname invalid combination"},
-  {SMBE_badlink, "Bad link in request ???"},
-  {SMBE_badpermits, "Access specified for a file is not valid"},
-  {SMBE_badpid, "Bad process id in request"},
-  {SMBE_setattrmode, "Attribute mode invalid"},
-  {SMBE_paused, "Message server paused"},
-  {SMBE_msgoff, "Not receiving messages"},
-  {SMBE_noroom, "No room for message"},
-  {SMBE_rmuns, "Too many remote usernames"},
-  {SMBE_timeout, "Operation timed out"},
-  {SMBE_noresource, "No resources currently available for request."},
-  {SMBE_toomanyuids, "Too many userids"},
-  {SMBE_baduid, "Bad userid"},
-  {SMBE_useMPX, "Temporarily unable to use raw mode, use MPX mode"},
-  {SMBE_useSTD, "Temporarily unable to use raw mode, use standard mode"},
-  {SMBE_contMPX, "Resume MPX mode"},
-  {SMBE_badPW, "Bad Password???"},
-  {SMBE_nosupport, "Operation not supported"},
-  { 0, NULL}
+	{SMBE_error, "Non specific error code"},
+	{SMBE_badpw, "Bad password"},
+	{SMBE_badtype, "Reserved"},
+	{SMBE_access, "No permissions to perform the requested operation"},
+	{SMBE_invnid, "TID invalid"},
+	{SMBE_invnetname, "Invalid network name. Service not found"},
+	{SMBE_invdevice, "Invalid device"},
+	{SMBE_unknownsmb, "Unknown SMB, from NT 3.5 response"},
+	{SMBE_qfull, "Print queue full"},
+	{SMBE_qtoobig, "Queued item too big"},
+	{SMBE_qeof, "EOF on print queue dump"},
+	{SMBE_invpfid, "Invalid print file in smb_fid"},
+	{SMBE_smbcmd, "Unrecognised command"},
+	{SMBE_srverror, "SMB server internal error"},
+	{SMBE_filespecs, "Fid and pathname invalid combination"},
+	{SMBE_badlink, "Bad link in request ???"},
+	{SMBE_badpermits, "Access specified for a file is not valid"},
+	{SMBE_badpid, "Bad process id in request"},
+	{SMBE_setattrmode, "Attribute mode invalid"},
+	{SMBE_paused, "Message server paused"},
+	{SMBE_msgoff, "Not receiving messages"},
+	{SMBE_noroom, "No room for message"},
+	{SMBE_rmuns, "Too many remote usernames"},
+	{SMBE_timeout, "Operation timed out"},
+	{SMBE_noresource, "No resources currently available for request."},
+	{SMBE_toomanyuids, "Too many userids"},
+	{SMBE_baduid, "Bad userid"},
+	{SMBE_useMPX, "Temporarily unable to use raw mode, use MPX mode"},
+	{SMBE_useSTD, "Temporarily unable to use raw mode, use standard mode"},
+	{SMBE_contMPX, "Resume MPX mode"},
+	{SMBE_badPW, "Bad Password???"},
+	{SMBE_nosupport, "Operation not supported"},
+	{ 0, NULL}
 };
 
 /* Error codes for the ERRHRD class */
 
 static const value_string HRD_errors[] = {
-  {SMBE_nowrite, "Read only media"},
-  {SMBE_badunit, "Unknown device"},
-  {SMBE_notready, "Drive not ready"},
-  {SMBE_badcmd, "Unknown command"},
-  {SMBE_data, "Data (CRC) error"},
-  {SMBE_badreq, "Bad request structure length"},
-  {SMBE_seek, "Seek error"},
-  {SMBE_badmedia, "Unknown media type"},
-  {SMBE_badsector, "Sector not found"},
-  {SMBE_nopaper, "Printer out of paper"},
-  {SMBE_write, "Write fault"},
-  {SMBE_read, "Read fault"},
-  {SMBE_general, "General failure"},
-  {SMBE_badshare, "A open conflicts with an existing open"},
-  {SMBE_lock, "Lock conflict/invalid mode, or unlock of another process's lock"},
-  {SMBE_wrongdisk,  "The wrong disk was found in a drive"},
-  {SMBE_FCBunavail, "No FCBs are available to process request"},
-  {SMBE_sharebufexc, "A sharing buffer has been exceeded"},
-  {SMBE_diskfull, "Disk full???"},
-  {0, NULL}
+	{SMBE_nowrite, "Read only media"},
+	{SMBE_badunit, "Unknown device"},
+	{SMBE_notready, "Drive not ready"},
+	{SMBE_badcmd, "Unknown command"},
+	{SMBE_data, "Data (CRC) error"},
+	{SMBE_badreq, "Bad request structure length"},
+	{SMBE_seek, "Seek error"},
+	{SMBE_badmedia, "Unknown media type"},
+	{SMBE_badsector, "Sector not found"},
+	{SMBE_nopaper, "Printer out of paper"},
+	{SMBE_write, "Write fault"},
+	{SMBE_read, "Read fault"},
+	{SMBE_general, "General failure"},
+	{SMBE_badshare, "A open conflicts with an existing open"},
+	{SMBE_lock, "Lock conflict/invalid mode, or unlock of another process's lock"},
+	{SMBE_wrongdisk,  "The wrong disk was found in a drive"},
+	{SMBE_FCBunavail, "No FCBs are available to process request"},
+	{SMBE_sharebufexc, "A sharing buffer has been exceeded"},
+	{SMBE_diskfull, "Disk full???"},
+	{0, NULL}
 };
 
 static const char *decode_smb_error(guint8 errcls, guint16 errcode)
 {
 
-  switch (errcls) {
+	switch (errcls) {
 
-  case SMB_SUCCESS:
+	case SMB_SUCCESS:
 
-    return("No Error");   /* No error ??? */
+		return("No Error");   /* No error ??? */
 
-  case SMB_ERRDOS:
+	case SMB_ERRDOS:
 
-    return(val_to_str(errcode, DOS_errors, "Unknown DOS error (%x)"));
+		return(val_to_str(errcode, DOS_errors, "Unknown DOS error (%x)"));
 
-  case SMB_ERRSRV:
+	case SMB_ERRSRV:
 
-    return(val_to_str(errcode, SRV_errors, "Unknown SRV error (%x)"));
+		return(val_to_str(errcode, SRV_errors, "Unknown SRV error (%x)"));
 
-  case SMB_ERRHRD:
+	case SMB_ERRHRD:
 
-    return(val_to_str(errcode, HRD_errors, "Unknown HRD error (%x)"));
+		return(val_to_str(errcode, HRD_errors, "Unknown HRD error (%x)"));
 
-  default:
+	default:
 
-    return("Unknown error class!");
+		return("Unknown error class!");
 
-  }
+	}
 
 }
 
@@ -17399,8 +17398,8 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		si->ct->fid_tree=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "SMB fid_tree");
 		si->ct->tid_tree=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "SMB tid_tree");
 		si->ct->uid_tree=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "SMB uid_tree");
-                /* Initialize the GSL_fid_info for this ct */
-                si->ct->GSL_fid_info=NULL;
+		/* Initialize the GSL_fid_info for this ct */
+		si->ct->GSL_fid_info=NULL;
 		conversation_add_proto_data(conversation, proto_smb, si->ct);
 	}
 
@@ -17812,7 +17811,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	   the tap listener called even if there is an exception.
 	*/
 	tap_queue_packet(smb_tap, pinfo, si);
-        dissect_smb_command(tvb, pinfo, offset, tree, si->cmd, TRUE);
+	dissect_smb_command(tvb, pinfo, offset, tree, si->cmd, TRUE);
 
 	/* Append error info from this packet to info string. */
 	if (!si->request && check_col(pinfo->cinfo, COL_INFO)) {
@@ -20193,109 +20192,109 @@ proto_register_smb(void)
 	  { "Resume key", "smb.unix.find_file.resume_key", FT_UINT32, BASE_DEC,
 	    NULL, 0, NULL, HFILL }},
 
-        { &hf_smb_network_unknown,
-          { "Unknown field", "smb.unknown_field", FT_UINT32, BASE_HEX,
-            NULL, 0, NULL, HFILL }},
+	{ &hf_smb_network_unknown,
+	  { "Unknown field", "smb.unknown_field", FT_UINT32, BASE_HEX,
+	    NULL, 0, NULL, HFILL }},
 
-        { &hf_smb_create_flags,
-          { "Create Flags", "smb.create_flags", FT_UINT32, BASE_HEX,
-            NULL, 0, NULL, HFILL }},
+	{ &hf_smb_create_flags,
+	  { "Create Flags", "smb.create_flags", FT_UINT32, BASE_HEX,
+	    NULL, 0, NULL, HFILL }},
 
-        { &hf_smb_create_options,
-          { "Create Options", "smb.create_options", FT_UINT32, BASE_HEX,
-            NULL, 0, NULL, HFILL }},
+	{ &hf_smb_create_options,
+	  { "Create Options", "smb.create_options", FT_UINT32, BASE_HEX,
+	    NULL, 0, NULL, HFILL }},
 
-        { &hf_smb_share_access,
-          { "Share Access", "smb.share_access", FT_UINT32, BASE_HEX,
-            NULL, 0, NULL, HFILL }},
+	{ &hf_smb_share_access,
+	  { "Share Access", "smb.share_access", FT_UINT32, BASE_HEX,
+	    NULL, 0, NULL, HFILL }},
 
-        { &hf_smb_access_mask,
-          { "Access Mask", "smb.access_mask", FT_UINT32, BASE_HEX,
-            NULL, 0, NULL, HFILL }},
+	{ &hf_smb_access_mask,
+	  { "Access Mask", "smb.access_mask", FT_UINT32, BASE_HEX,
+	    NULL, 0, NULL, HFILL }},
 
-        { &hf_smb_mode,
-          { "Mode", "smb.mode", FT_UINT32, BASE_HEX,
-            NULL, 0, NULL, HFILL }},
+	{ &hf_smb_mode,
+	  { "Mode", "smb.mode", FT_UINT32, BASE_HEX,
+	    NULL, 0, NULL, HFILL }},
 
-        { &hf_smb_attribute,
-          { "Attribute", "smb.attribute", FT_UINT32, BASE_HEX,
-            NULL, 0, NULL, HFILL }},
+	{ &hf_smb_attribute,
+	  { "Attribute", "smb.attribute", FT_UINT32, BASE_HEX,
+	    NULL, 0, NULL, HFILL }},
 
-        { &hf_smb_reparse_tag,
-          { "Reparse Tag", "smb.reparse_tag", FT_UINT32, BASE_HEX,
-            NULL, 0, NULL, HFILL }},
+	{ &hf_smb_reparse_tag,
+	  { "Reparse Tag", "smb.reparse_tag", FT_UINT32, BASE_HEX,
+	    NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_disposition_delete_on_close,
 	  { "Delete on close", "smb.disposition.delete_on_close", FT_BOOLEAN, 8,
-		TFS(&tfs_disposition_delete_on_close), 0x01, NULL, HFILL }},
+	    TFS(&tfs_disposition_delete_on_close), 0x01, NULL, HFILL }},
 
 	{ &hf_smb_pipe_info_flag,
 	  { "Pipe Info", "smb.pipe_info_flag", FT_BOOLEAN, 8,
-		TFS(&tfs_pipe_info_flag), 0x01, NULL, HFILL }},
+	    TFS(&tfs_pipe_info_flag), 0x01, NULL, HFILL }},
 
 	{ &hf_smb_logged_in,
 	  { "Logged In", "smb.logged_in", FT_FRAMENUM, BASE_NONE,
-		NULL, 0, NULL, HFILL }},
+	    NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_logged_out,
 	  { "Logged Out", "smb.logged_out", FT_FRAMENUM, BASE_NONE,
-		NULL, 0, NULL, HFILL }},
+	    NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_file_rw_offset,
 	  { "File Offset", "smb.file.rw.offset", FT_UINT64, BASE_DEC,
-		NULL, 0, NULL, HFILL }},
+	    NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_file_rw_length,
 	  { "File RW Length", "smb.file.rw.length", FT_UINT32, BASE_DEC,
-		NULL, 0, NULL, HFILL }},
+	    NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_posix_acl_version,
 	  { "Posix ACL version", "smb.posix_acl.version", FT_UINT16, BASE_DEC,
-		NULL, 0, NULL, HFILL }},
+	    NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_posix_num_file_aces,
 	  { "Number of file ACEs", "smb.posix_acl.num_file_aces", FT_UINT16, BASE_DEC,
-		NULL, 0, NULL, HFILL }},
+	    NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_posix_num_def_aces,
 	  { "Number of default ACEs", "smb.posix_acl.num_def_aces", FT_UINT16, BASE_DEC,
-		NULL, 0, NULL, HFILL }},
+	    NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_posix_ace_type,
 	  { "ACE Type", "smb.posix_acl.ace_type", FT_UINT8, BASE_DEC,
-		VALS(ace_type_vals), 0, NULL, HFILL }},
+	    VALS(ace_type_vals), 0, NULL, HFILL }},
 
 	{ &hf_smb_posix_ace_flags,
 	  { "Permissions", "smb.posix_acl.ace_perms", FT_UINT8, BASE_HEX,
-		NULL, 0, NULL, HFILL }},
+	    NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_posix_ace_perm_read,
-          {"READ", "smb.posix_acl.ace_perms.read", FT_BOOLEAN, 8,
-		NULL, 0x04, NULL, HFILL}},
+	  {"READ", "smb.posix_acl.ace_perms.read", FT_BOOLEAN, 8,
+	   NULL, 0x04, NULL, HFILL}},
 
 	{ &hf_smb_posix_ace_perm_write,
-          {"WRITE", "smb.posix_acl.ace_perms.write", FT_BOOLEAN, 8,
-		NULL, 0x02, NULL, HFILL}},
+	  {"WRITE", "smb.posix_acl.ace_perms.write", FT_BOOLEAN, 8,
+	   NULL, 0x02, NULL, HFILL}},
 
 	{ &hf_smb_posix_ace_perm_execute,
-          {"EXECUTE", "smb.posix_acl.ace_perms.execute", FT_BOOLEAN, 8,
-		NULL, 0x01, NULL, HFILL}},
+	  {"EXECUTE", "smb.posix_acl.ace_perms.execute", FT_BOOLEAN, 8,
+	   NULL, 0x01, NULL, HFILL}},
 
 	{ &hf_smb_posix_ace_perm_owner_uid,
 	  { "Owner UID", "smb.posix_acl.ace_perms.owner_uid", FT_UINT32, BASE_DEC,
-		NULL, 0, NULL, HFILL }},
+	    NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_posix_ace_perm_owner_gid,
 	  { "Owner GID", "smb.posix_acl.ace_perms.owner_gid", FT_UINT32, BASE_DEC,
-		NULL, 0, NULL, HFILL }},
+	    NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_posix_ace_perm_uid,
 	  { "UID", "smb.posix_acl.ace_perms.uid", FT_UINT32, BASE_DEC,
-		NULL, 0, NULL, HFILL }},
+	    NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_posix_ace_perm_gid,
 	  { "GID", "smb.posix_acl.ace_perms.gid", FT_UINT32, BASE_DEC,
-		NULL, 0, NULL, HFILL }},
+	    NULL, 0, NULL, HFILL }},
 
 	};
 
@@ -20413,8 +20412,8 @@ proto_register_smb(void)
 	register_init_routine(smb_trans_reassembly_init);
 	smb_tap = register_tap("smb");
 
-        /* Register the tap for the "Export Object" function */
-        smb_eo_tap = register_tap("smb_eo"); /* SMB Export Object tap */
+	/* Register the tap for the "Export Object" function */
+	smb_eo_tap = register_tap("smb_eo"); /* SMB Export Object tap */
 
 	register_dissector("smb", dissect_smb, proto_smb);
 }
