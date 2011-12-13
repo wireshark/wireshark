@@ -2106,11 +2106,10 @@ decrypt_data_payload(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
   }
 
  /* Show the decrypted buffer in a new window */
-  decr_tvb = tvb_new_real_data(packet_ntlmssp_info->decrypted_payload,
-                               encrypted_block_length,
-                               encrypted_block_length);
+  decr_tvb = tvb_new_child_real_data(tvb, packet_ntlmssp_info->decrypted_payload,
+                                     encrypted_block_length,
+                                     encrypted_block_length);
 
-  tvb_set_child_real_data_tvbuff(tvb, decr_tvb);
   pinfo->gssapi_decrypted_tvb =  decr_tvb;
 }
 

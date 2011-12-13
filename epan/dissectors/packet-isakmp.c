@@ -4660,9 +4660,8 @@ dissect_enc(tvbuff_t *tvb,
       gcry_cipher_close(cipher_hd);
     }
 
-    decr_tvb = tvb_new_real_data(decr_data, decr_data_len, decr_data_len);
+    decr_tvb = tvb_new_child_real_data(tvb, decr_data, decr_data_len, decr_data_len);
     tvb_set_free_cb(decr_tvb, g_free);
-    tvb_set_child_real_data_tvbuff(tvb, decr_tvb);
     add_new_data_source(pinfo, decr_tvb, "Decrypted Data");
     item = proto_tree_add_item(tree, hf_isakmp_enc_decrypted_data, decr_tvb, 0, decr_data_len, ENC_NA);
     proto_item_append_text(item, " (%d byte%s)", decr_data_len, plurality(decr_data_len, "", "s"));

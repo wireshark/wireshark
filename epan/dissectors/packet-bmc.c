@@ -109,8 +109,7 @@ dissect_bmc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         *p_rev = BIT_SWAP(*p_rev);
 
     /* Make this new buffer part of the display and provide a way to dispose of it */
-    bit_reversed_tvb = tvb_new_real_data(reversing_buffer, len, len);
-    tvb_set_child_real_data_tvbuff(tvb, bit_reversed_tvb);
+    bit_reversed_tvb = tvb_new_child_real_data(tvb, reversing_buffer, len, len);
     add_new_data_source(pinfo, bit_reversed_tvb, "Bit-reversed Data");
 
     message_type = tvb_get_guint8(bit_reversed_tvb, offset);

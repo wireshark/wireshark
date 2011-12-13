@@ -1182,8 +1182,7 @@ opensafety_package_dissector(const gchar * protocolName, const gchar * sub_diss_
             /* Freeing memory before dissector, as otherwise we would waste it */
             if ( do_byte_swap == TRUE && global_mbtcp_big_endian == TRUE )
             {
-                next_tvb = tvb_new_real_data(&bytes[frameOffset], (frameLength), reported_len);
-                tvb_set_child_real_data_tvbuff(message_tvb, next_tvb);
+                next_tvb = tvb_new_child_real_data(message_tvb, &bytes[frameOffset], (frameLength), reported_len);
                 /* Adding a visual aid to the dissector tree */
                 add_new_data_source(pinfo, next_tvb, "openSAFETY Frame (Swapped)");
             }

@@ -844,8 +844,7 @@ get_reassembled_data(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
 			frag = frag->next;
 		}
 	}
-	sdu->tvb = tvb_new_real_data(sdu->data, sdu->len, sdu->len);
-	tvb_set_child_real_data_tvbuff(tvb, sdu->tvb);
+	sdu->tvb = tvb_new_child_real_data(tvb, sdu->data, sdu->len, sdu->len);
 	add_new_data_source(pinfo, sdu->tvb, "Reassembled RLC Message");
 
 	/* reassembly happened here, so create the fragment list */

@@ -1900,8 +1900,7 @@ dissect_ieee802154_decrypt(tvbuff_t * tvb, guint offset, packet_info * pinfo, ie
         }
 
         /* Create a tvbuff for the plaintext. */
-        ptext_tvb = tvb_new_real_data(text, captured_len, reported_len);
-        tvb_set_child_real_data_tvbuff(tvb, ptext_tvb);
+        ptext_tvb = tvb_new_child_real_data(tvb, text, captured_len, reported_len);
         add_new_data_source(pinfo, ptext_tvb, "Decrypted IEEE 802.15.4 payload");
         *status = DECRYPT_PACKET_SUCCEEDED;
     }
