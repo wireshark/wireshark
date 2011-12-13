@@ -1747,7 +1747,7 @@ Anders Broman           <anders.broman [AT] ericsson.com> {
 	GTPv2 dissection
 	SGsAP dissection
 	Work on the initial version of the new packet list
-	ROCH dissection
+	ROHC dissection
 	Miscellaneous enhancements and fixes
 }
 
@@ -2137,6 +2137,7 @@ Martin Mathieson        <martin.r.mathieson [AT] googlemail.com> {
 	UMTS FP support
 	LTE: MAC, RLC and PDCP support
 	LTE MAC and RLC Stats
+	Tshark expert info tap
 }
 
 Christian Wagner        <Christian.Wagner [AT] stud.uni-karlsruhe.de> {
