@@ -3210,9 +3210,6 @@ dissect_ICBAAccoCallback_OnDataChanged_rqst(tvbuff_t *tvb, int offset,
 
 	offset += dissect_CBA_Connection_Data(next_tvb, pinfo, tree, cons_ldev, NULL /* frame */);
 
-    /* XXX */
-	/* tvb_free(next_tvb);*/
-
 	return offset;
 }
 
@@ -3362,8 +3359,6 @@ dissect_ICBAAccoServer2_GetConnectionData_resp(tvbuff_t *tvb, int offset,
 
         offset += dissect_CBA_Connection_Data(next_tvb, pinfo, tree, (call != NULL) ? *call : NULL, NULL /* frame */);
 
-        /* XXX */
-	    /* tvb_free(next_tvb);*/
     }
 
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
