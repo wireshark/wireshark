@@ -659,7 +659,7 @@ static gint ett_nfs_layoutseg_fh = -1;
 static gint ett_nfs_reclaim_complete4 = -1;
 static gint ett_nfs_chan_attrs = -1;
 
-/* what type of fhandles shoudl we dissect as */
+/* what type of fhandles should we dissect as */
 static dissector_table_t nfs_fhandle_table;
 
 
@@ -688,6 +688,11 @@ static enum_val_t nfs_fhandle_types[] = {
 };
 /* decode all nfs filehandles as this type */
 static gint default_nfs_fhandle_type=FHT_UNKNOWN;
+
+typedef struct nfs_fhandle_data {
+    int len;
+    const unsigned char *fh;
+} nfs_fhandle_data_t;
 
 /* For dissector helpers which take a "levels" argument to indicate how
  * many expansions up they should populate the expansion items with
@@ -824,8 +829,8 @@ static void reg_callback(int cbprog);
  * We store all filehandles we see in this tree so that every unique
  * filehandle is only stored once with a unique pointer.
  * We need to store pointers to filehandles in several of our other
- * structures and this is a way to make sure we dont keep any redundant
- * copiesd around for a specific filehandle.
+ * structures and this is a way to make sure we don't keep any redundant
+ * copies around for a specific filehandle.
  *
  * If this is the first time this filehandle has been seen an se block
  * is allocated to store the filehandle in.
@@ -859,7 +864,6 @@ store_nfs_file_handle(nfs_fhandle_data_t *nfs_fh)
 	new_nfs_fh->len=nfs_fh->len;
 	new_nfs_fh->fh=se_alloc(sizeof(guint32)*(nfs_fh->len/4));
 	memcpy((void *)new_nfs_fh->fh, nfs_fh->fh, nfs_fh->len);
-	new_nfs_fh->tvb=tvb_new_real_data(new_nfs_fh->fh, new_nfs_fh->len, new_nfs_fh->len);
 	fhlen=nfs_fh->len/4;
 	fhkey[0].length=1;
 	fhkey[0].key=&fhlen;
@@ -2330,11 +2334,11 @@ dissect_fhandle_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			fhd.fh=(const unsigned char *)tvb_get_ptr(tvb, offset, fhlen);
 			old_fhd=store_nfs_file_handle(&fhd);
 
-			/* XXX here we should really check that we havent stored
+			/* XXX here we should really check that we haven't stored
 			   this fhandle for this frame number already.
 		   	   We should also make sure we can handle when we have multiple
 		   	   fhandles seen for the same frame, which WILL happen for certain
-		   	   nfs calls. For now, we dont handle this and those calls will
+		   	   nfs calls. For now, we don't handle this and those calls will
 		   	   not work properly with this feature
 			*/
 			se_tree_insert32(nfs_fhandle_frame_table, pinfo->fd->num, old_fhd);
@@ -2393,7 +2397,14 @@ dissect_fhandle_hidden(packet_info *pinfo, proto_tree *tree, int frame)
 
 	nfd=se_tree_lookup32(nfs_fhandle_frame_table, frame);
 	if(nfd && nfd->len){
-		dissect_fhandle_data(nfd->tvb, 0, pinfo, tree, nfd->len, TRUE, NULL);
+		tvbuff_t *tvb;
+		tvb = tvb_new_real_data(nfd->fh, nfd->len, nfd->len);
+		/* XXX: AFAIKT there's no need to do add_new_data_source() since,
+		        in the 'hidden' case, dissect_fhandle_data() & etc display
+			certain fields only as 'hidden'	and thus not selectable and
+			thus there's no need for a data_source */
+		dissect_fhandle_data(tvb, 0, pinfo, tree, nfd->len, TRUE, NULL);
+		tvb_free(tvb);
 	}
 }
 
@@ -12454,26 +12465,32 @@ proto_register_nfs(void)
 	nfs_module=prefs_register_protocol(proto_nfs, NULL);
 	prefs_register_bool_preference(nfs_module, "file_name_snooping",
 				       "Snoop FH to filename mappings",
-				       "Whether the dissector should snoop the FH to filename mappings by looking inside certain packets",
+				       "Whether the dissector should snoop the FH to"
+				       " filename mappings by looking inside certain packets",
 				       &nfs_file_name_snooping);
 	prefs_register_bool_preference(nfs_module, "file_full_name_snooping",
 				       "Snoop full path to filenames",
-				       "Whether the dissector should snoop the full pathname for files for matching FH's",
+				       "Whether the dissector should snoop the full pathname"
+				       " for files for matching FH's",
 				       &nfs_file_name_full_snooping);
 	prefs_register_bool_preference(nfs_module, "fhandle_find_both_reqrep",
 				       "Fhandle filters finds both request/response",
-				       "With this option display filters for nfs fhandles (nfs.fh.{name|full_name|hash}) will find both the request \
-						and response packets for a RPC call, even if the actual fhandle is only present in one of the packets",
-					&nfs_fhandle_reqrep_matching);
-
+				       "With this option display filters for nfs fhandles"
+				       " (nfs.fh.{name|full_name|hash}) will find both the request"
+				       " and response packets for a RPC call, even if the actual"
+				       " fhandle is only present in one of the packets",
+				       &nfs_fhandle_reqrep_matching);
 	prefs_register_bool_preference(nfs_module, "display_nfsv4_tag",
-						"Display NFSv4 tag in info Column",
-						"When enabled, this option will print the NFSv4 tag (if one exists) in the Info column in the Summary pane",
+				       "Display NFSv4 tag in info Column",
+				       "When enabled, this option will print the NFSv4 tag"
+				       " (if one exists) in the Info column in the Summary pane",
 					&nfs_display_v4_tag);
 	prefs_register_bool_preference(nfs_module, "display_major_nfsv4_ops",
-					   "Display only 'significant' NFSv4 Operations in info Column",
-					   "When enabled, shows only the significant NFSv4 Operations in the info column.  Others (like GETFH, PUTFH, etc) are not displayed",
+				       "Display only 'significant' NFSv4 Operations in info Column",
+				       "When enabled, shows only the significant NFSv4 Operations"
+				       " in the info column.  Others (like GETFH, PUTFH, etc) are not displayed",
 					&display_major_nfsv4_ops);
+
 	nfs_fhandle_table = register_dissector_table("nfs_fhandle.type",
 	    "NFS Filehandle types", FT_UINT8, BASE_HEX);
 
