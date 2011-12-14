@@ -2921,12 +2921,14 @@ read_asn1_type_table(const char *filename)
 
 	get_values();
 
-	g_node_destroy(asn1_nodes);	asn1_nodes = 0;
-#ifndef _WIN32		/* tvb_free not yet exported to plugins... */
+	g_node_destroy(asn1_nodes);
+	asn1_nodes = NULL;
+
 	tvb_free(asn1_desc);
-#endif
-					asn1_desc = 0;
-	g_free(data);			data = 0;
+	asn1_desc = NULL;
+
+	g_free(data);
+	data = NULL;
 
 	showGNodes(data_nodes, 0);
 
