@@ -32,6 +32,7 @@
 #include <glib.h>
 
 #include "emem.h"
+#include "proto.h"
 #include "to_str.h"
 
 /*
@@ -103,27 +104,47 @@ dword_to_hex_punct(char *out, guint32 dword, char punct) {
   return out;
 }
 
-/* buffer need to be at least len * 2 size */
+/*
+ * This does *not* null-terminate the string.  It returns a pointer
+ * to the position in the string following the last character it
+ * puts there, so that the caller can either put the null terminator
+ * in or can append more stuff to the buffer.
+ *
+ * There needs to be at least len * 2 bytes left in the buffer.
+ */
 char *
 bytes_to_hexstr(char *out, const guint8 *ad, guint32 len) {
-   guint32 i;
+  guint32 i;
 
-   for (i = 0; i < len; i++)
-	out = byte_to_hex(out, ad[i]);
-   return out;
+  if (!ad)
+    REPORT_DISSECTOR_BUG("Null pointer passed to bytes_to_hexstr()");
+
+  for (i = 0; i < len; i++)
+    out = byte_to_hex(out, ad[i]);
+  return out;
 }
 
-/* buffer need to be at least len * 3 - 1 size */
+/*
+ * This does *not* null-terminate the string.  It returns a pointer
+ * to the position in the string following the last character it
+ * puts there, so that the caller can either put the null terminator
+ * in or can append more stuff to the buffer.
+ *
+ * There needs to be at least len * 3 - 1 bytes left in the buffer.
+ */
 char *
 bytes_to_hexstr_punct(char *out, const guint8 *ad, guint32 len, char punct) {
-   guint32 i;
+  guint32 i;
 
-   out = byte_to_hex(out, ad[0]);
-   for (i = 1; i < len; i++) {
-   	*out++ = punct;
-	out = byte_to_hex(out, ad[i]);
-   }
-   return out;
+  if (!ad)
+    REPORT_DISSECTOR_BUG("Null pointer passed to bytes_to_hexstr_punct()");
+
+  out = byte_to_hex(out, ad[0]);
+  for (i = 1; i < len; i++) {
+    *out++ = punct;
+    out = byte_to_hex(out, ad[i]);
+  }
+  return out;
 }
 
 /* Routine to convert a sequence of bytes to a hex string, one byte/two hex
@@ -137,6 +158,9 @@ gchar *
 bytestring_to_str(const guint8 *ad, const guint32 len, const char punct) {
   gchar *buf;
   size_t       buflen;
+
+  if (!ad)
+    REPORT_DISSECTOR_BUG("Null pointer passed to bytestring_to_str()");
 
   /* XXX, Old code was using int as iterator... Why len is guint32 anyway?! (darkjames) */
   if ( ((int) len) < 0)
@@ -170,6 +194,9 @@ bytes_to_str(const guint8 *bd, int bd_len) {
   gchar *cur_ptr;
   int truncated = 0;
 
+  if (!bd)
+    REPORT_DISSECTOR_BUG("Null pointer passed to bytes_to_str()");
+
   cur=ep_alloc(MAX_BYTE_STR_LEN+3+1);
   if (bd_len <= 0) { cur[0] = '\0'; return cur; }
 
@@ -197,14 +224,14 @@ bytes_to_str_punct(const guint8 *bd, int bd_len, gchar punct) {
   int truncated = 0;
 
   if (!punct)
-  	return bytes_to_str(bd, bd_len);
+    return bytes_to_str(bd, bd_len);
 
   cur=ep_alloc(MAX_BYTE_STR_LEN+3+1);
   if (bd_len <= 0) { cur[0] = '\0'; return cur; }
 
   if (bd_len > MAX_BYTE_STR_LEN/3) {	/* bd_len > 16 */
-     truncated = 1;
-     bd_len = MAX_BYTE_STR_LEN/3;
+   truncated = 1;
+   bd_len = MAX_BYTE_STR_LEN/3;
   }
 
   cur_ptr = bytes_to_hexstr_punct(cur, bd, bd_len, punct); /* max MAX_BYTE_STR_LEN-1 bytes */
