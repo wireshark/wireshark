@@ -940,6 +940,7 @@ g_warning("woohoo decrypted keytype:%d in frame:%u\n", keytype, pinfo->fd->num);
             g_free(decrypted_data);
             return(plaintext);
         }
+        tvb_free(encr_tvb);
     }
 
     g_free(decrypted_data);
