@@ -2362,7 +2362,7 @@ proto_register_dtls(void)
 		dtlsdecrypt_copy_cb,
 		NULL, /* dtlsdecrypt_update_cb? */
 		dtlsdecrypt_free_cb,
-		NULL,
+		dtls_parse,
 		dtlskeylist_uats_flds);
 
 	prefs_register_uat_preference(dtls_module, "cfg",

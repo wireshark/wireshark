@@ -5007,7 +5007,7 @@ proto_register_ssl(void)
             ssldecrypt_copy_cb,
             ssldecrypt_update_cb,
             ssldecrypt_free_cb,
-            NULL,
+            ssl_parse,
             sslkeylist_uats_flds);
 
         prefs_register_uat_preference(ssl_module, "key_table",
