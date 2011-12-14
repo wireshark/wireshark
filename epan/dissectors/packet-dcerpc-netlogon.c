@@ -103,8 +103,6 @@ static void printnbyte(const guint8* tab _U_,int nb _U_,const char* txt _U_,cons
 
 static GHashTable *netlogon_auths=NULL;
 static GHashTable *schannel_auths;
-/* Added next two lines for decoding NetrLogonControl2
-   Control_data_information Level. Frank Schorr */
 static gint hf_netlogon_TrustedDomainName_string = -1;
 static gint hf_netlogon_UserName_string = -1;
 static gint DomainInfo_sid = -1;
@@ -4898,14 +4896,12 @@ netlogon_dissect_CONTROL_DATA_INFORMATION(tvbuff_t *tvb, int offset,
     switch(level){
     case 5:
         offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo,
-		/* Changed for decoding NetrLogonControl2 Control_data_information Level. Frank Schorr */
-							    tree, drep, NDR_POINTER_UNIQUE, "Trusted Domain Name",
+                                              tree, drep, NDR_POINTER_UNIQUE, "Trusted Domain Name",
                                               hf_netlogon_TrustedDomainName_string, 0);
         break;
     case 6:
         offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo,
-		/* Changed for decoding NetrLogonControl2 Control_data_information Level. Frank Schorr */
-			                            tree, drep, NDR_POINTER_UNIQUE, "Trusted Domain Name",
+                                              tree, drep, NDR_POINTER_UNIQUE, "Trusted Domain Name",
                                               hf_netlogon_TrustedDomainName_string, 0);
         break;
     case 0xfffe:
@@ -4914,8 +4910,7 @@ netlogon_dissect_CONTROL_DATA_INFORMATION(tvbuff_t *tvb, int offset,
         break;
     case 8:
         offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo,
-		/* Changed for decoding NetrLogonControl2 Control_data_information Level. Frank Schorr */
-			                            tree, drep, NDR_POINTER_UNIQUE, "UserName",
+                                              tree, drep, NDR_POINTER_UNIQUE, "UserName",
                                               hf_netlogon_UserName_string, 0);
         break;
     }
@@ -7965,10 +7960,11 @@ dissect_packet_data(tvbuff_t *tvb ,tvbuff_t *auth_tvb _U_,
                 }
                 crypt_rc4_init(&rc4state,vars->encryption_key,16);
                 crypt_rc4(&rc4state,(guint8*)&copyconfounder,8);
-                decrypted = (guint8*)tvb_memdup(tvb, offset,data_len);
+                decrypted = (guint8*)ep_tvb_memdup(tvb, offset,data_len);
                 crypt_rc4_init(&rc4state,vars->encryption_key,16);
                 crypt_rc4(&rc4state,decrypted,data_len);
-                buf = tvb_new_real_data(decrypted, data_len, data_len);
+                buf = tvb_new_child_real_data(tvb, decrypted, data_len, data_len);
+                /* Note: caller does add_new_data_source(...) */
             }
             else {
                 debugprintf("Session key not found can't decrypt ...\n");
@@ -8229,14 +8225,14 @@ proto_register_dcerpc_netlogon(void)
         { &hf_netlogon_unknown_string,
           { "Unknown string", "netlogon.unknown_string", FT_STRING, BASE_NONE,
             NULL, 0, "Unknown string. If you know what this is, contact wireshark developers.", HFILL }},
-	/* Added for decoding NetrLogonControl2 Control_data_information Level. Frank Schorr */
-	{ &hf_netlogon_TrustedDomainName_string,
-		{ "TrustedDomainName", "netlogon.TrustedDomainName", FT_STRING, BASE_NONE,
-		NULL, 0, "TrustedDomainName string.", HFILL }},
-	/* Added for decoding NetrLogonControl2 Control_data_information Level. Frank Schorr */
-	{ &hf_netlogon_UserName_string,
-		{ "UserName", "netlogon.UserName", FT_STRING, BASE_NONE,
-		NULL, 0, "UserName string.", HFILL }},
+
+        { &hf_netlogon_TrustedDomainName_string,
+          { "TrustedDomainName", "netlogon.TrustedDomainName", FT_STRING, BASE_NONE,
+            NULL, 0, "TrustedDomainName string.", HFILL }},
+
+        { &hf_netlogon_UserName_string,
+          { "UserName", "netlogon.UserName", FT_STRING, BASE_NONE,
+            NULL, 0, "UserName string.", HFILL }},
 
         { &hf_netlogon_dummy_string,
           { "Dummy String", "netlogon.dummy_string", FT_STRING, BASE_NONE,
@@ -9479,11 +9475,11 @@ proto_register_dcerpc_netlogon(void)
 static dcerpc_auth_subdissector_fns secchan_auth_fns = {
     dissect_secchan_nl_auth_message,    /* Bind */
     dissect_secchan_nl_auth_message,    /* Bind ACK */
-    NULL,                                       /* AUTH3 */
-    dissect_request_secchan_verf,                       /* Request verifier */
-    dissect_response_secchan_verf,                      /* Response verifier */
-    dissect_request_data,                                       /* Request data */
-    dissect_response_data                                       /* Response data */
+    NULL,                               /* AUTH3 */
+    dissect_request_secchan_verf,       /* Request verifier */
+    dissect_response_secchan_verf,      /* Response verifier */
+    dissect_request_data,               /* Request data */
+    dissect_response_data               /* Response data */
 };
 
 void
