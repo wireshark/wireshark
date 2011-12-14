@@ -702,9 +702,17 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 #ifdef HAVE_LIBZ
 			/* Be nice and uncompress the file data. */
 			if (compression == COMPRESSION_GZIP) {
-				tvbuff_t *uncomp_tvb = NULL;
+				tvbuff_t *uncomp_tvb;
 				uncomp_tvb = tvb_child_uncompress(tvb, tvb, 0, tvb_length(tvb));
 				if (uncomp_tvb != NULL) {
+					/* XXX: Maybe not a good idea to add a data_source for
+					        what may very well be a large buffer since then
+						the full uncompressed buffer will be shown in a tab
+						in the hex bytes pane ?
+						However, if we don't, bytes in an unrelated tab will
+						be highlighted.
+					*/
+					add_new_data_source(pinfo, uncomp_tvb, "Uncompressed Data");
 					proto_tree_add_bytes_format_value(ldss_tree, hf_ldss_file_data,
 									  uncomp_tvb, 0, tvb_length(uncomp_tvb),
 									  NULL, "Uncompressed data: %d bytes",
