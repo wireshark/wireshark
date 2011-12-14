@@ -47,6 +47,11 @@ typedef struct expert_info_s {
 WS_VAR_IMPORT const value_string expert_severity_vals[];
 WS_VAR_IMPORT const value_string expert_group_vals[];
 
+/* "proto_expert" is exported from libwireshark.dll.
+ * Thus we need a special declaration.
+ */
+WS_VAR_IMPORT int proto_expert;
+
 extern void
 expert_init(void);
 

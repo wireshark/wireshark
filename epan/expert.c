@@ -34,9 +34,12 @@
 #include "tap.h"
 
 
+/* proto_expert cannot be static because it's referenced in the
+ * print routines
+ */
+int proto_expert              = -1;
 
 static int expert_tap         = -1;
-static int proto_expert       = -1;
 static int highest_severity   =  0;
 
 static int ett_expert         = -1;

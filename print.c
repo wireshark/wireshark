@@ -38,6 +38,7 @@
 #include <epan/tvbuff.h>
 #include <epan/packet.h>
 #include <epan/emem.h>
+#include <epan/expert.h>
 
 #include "packet-range.h"
 #include "print.h"
@@ -364,7 +365,7 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
 	}
 	/* Normal protocols and fields */
 	else {
-		if (fi->hfinfo->type == FT_PROTOCOL) {
+		if (fi->hfinfo->type == FT_PROTOCOL && fi->hfinfo->id != proto_expert) {
 			fputs("<proto name=\"", pdata->fh);
 		}
 		else {
@@ -493,7 +494,8 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
 			fputs("  ", pdata->fh);
 		}
 		/* Close off current element */
-		if (fi->hfinfo->id != proto_data) {   /* Data protocol uses simple tags */
+		/* Data and expert "protocols" use simple tags */
+		if (fi->hfinfo->id != proto_data && fi->hfinfo->id != proto_expert) {
 			if (fi->hfinfo->type == FT_PROTOCOL) {
 				fputs("</proto>\n", pdata->fh);
 			}
