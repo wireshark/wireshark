@@ -96,13 +96,9 @@ dissect_hpteam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *hpteam_tree;
 	guint32 offset = 0;
 
-	/*
-	 * No need to show the source MAC address; there's no 100%
-	 * guarantee that it's there, and it should show up in
-	 * the source address column by default.
-	 */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "HP NIC Team");
-	col_set_str(pinfo->cinfo, COL_INFO, "HP NIC Teaming Heartbeat");
+	col_add_fstr(pinfo->cinfo, COL_INFO, "HP NIC Teaming Heartbeat; Port MAC = %s",
+	    ep_address_to_str(&pinfo->dl_src));
 
 	if (tree) { /* we are being asked for details */
 		hpteam_item = proto_tree_add_item(tree, proto_hpteam, tvb, 0, -1, ENC_NA);
