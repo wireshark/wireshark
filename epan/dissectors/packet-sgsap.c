@@ -196,8 +196,10 @@ de_sgsap_imeisv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
 
 	imeisv_str = tvb_bcd_dig_to_ep_str( tvb, curr_offset, len, NULL, FALSE);
 	proto_tree_add_string(tree, hf_sgsap_imeisv, tvb, curr_offset, len, imeisv_str);
-	if (add_string)
-		g_snprintf(add_string, len, " - %s", imeisv_str);
+	if (add_string){
+		/* (len<<2)+4 = the maximum number of bytes to produce (including the terminating nul character). */
+		g_snprintf(add_string, (len<<2)+4, " - %s", imeisv_str);
+	}
 
     return(len);
 }
