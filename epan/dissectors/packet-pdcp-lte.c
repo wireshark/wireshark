@@ -636,6 +636,7 @@ static void write_pdu_label_and_info(proto_item *pdu_ti,
 /***************************************************************/
 
 
+#if 0
 /* Dissect a Large-CID field.
    Return following offset */
 static int dissect_large_cid(proto_tree *tree,
@@ -659,7 +660,7 @@ static int dissect_large_cid(proto_tree *tree,
     }
 
 }
-#if 0
+
 static int dissect_pdcp_dynamic_chain(proto_tree *tree,
                                       proto_item *root_item _U_,
                                       tvbuff_t *tvb,
@@ -1005,7 +1006,6 @@ static int dissect_pdcp_ir_packet(proto_tree *tree,
 
     return offset;
 }
-#endif
 
 
 static int dissect_pdcp_feedback_feedback1(proto_tree *tree,
@@ -1590,7 +1590,7 @@ static int  dissect_pdcp_uor_2_ts_or_id_packet(proto_tree *tree,
 
     return offset;
 }
-
+#endif
 
 
 
