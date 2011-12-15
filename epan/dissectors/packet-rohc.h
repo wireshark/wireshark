@@ -32,6 +32,8 @@
 #ifndef PACKET_ROHC_H
 #define PACKET_ROHC_H
 
+#define MAX_CID      15
+
 enum rohc_mode
 {
   UNIDIRECTIONAL = 1,
@@ -39,18 +41,36 @@ enum rohc_mode
   RELIABLE_BIDIRECTIONAL = 3
 };
 
+enum rohc_d_mode
+{
+  NO_CONTEXT = 1,
+  STATIC_CONTEXT = 2,
+  FULL_CONTEXT = 3
+};
 typedef struct rohc_info
 {
     gboolean           rohc_compression;
-    unsigned short     rohc_ip_version;
+    guint16            rohc_ip_version;
     gboolean           cid_inclusion_info;
     gboolean           large_cid_present;
     enum rohc_mode     mode;
     gboolean           rnd;
     gboolean           udp_checkum_present;
-    unsigned short     profile;
+    guint16            profile; 
     proto_item         *last_created_item;
 } rohc_info;
+
+
+typedef struct rohc_context
+{
+    guint16            rohc_ip_version[MAX_CID+1];
+    gboolean           large_cid_present[MAX_CID+1];
+    enum rohc_mode     mode[MAX_CID+1];
+    enum rohc_d_mode   d_mode[MAX_CID+1];
+    gboolean           rnd[MAX_CID+1];
+    gboolean           udp_checkum_present[MAX_CID+1];
+    guint16            profile[MAX_CID+1];
+} rohc_context;
 
 int dissect_rohc_ir_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset, guint8 cid, gboolean is_add_cid, rohc_info *p_rohc_info);
 int dissect_rohc_ir_dyn_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset, guint8 cid, gboolean is_add_cid, rohc_info *p_rohc_info);

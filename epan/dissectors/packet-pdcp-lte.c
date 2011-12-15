@@ -1913,7 +1913,8 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     guint8             base_header_byte;
     gboolean           udp_checksum_needed = TRUE;
     gboolean           ip_id_needed = TRUE;
-	rohc_info          *p_rohc_info = NULL;			
+	rohc_info          *p_rohc_info = NULL;	
+    guint8             cid;		
 
     /* Append this protocol name rather than replace. */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PDCP-LTE");
@@ -2218,10 +2219,12 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     }
 
     /* Add-CID octet */
+    cid = 0;
     if ((p_pdcp_info->cid_inclusion_info == CID_IN_ROHC_PACKET) &&
         !p_pdcp_info->large_cid_present)
     {
         if (((tvb_get_guint8(tvb, offset) >> 4) & 0x0f) == 0x0e) {
+            cid = tvb_get_guint8(tvb, offset) & 0x0f;
             proto_tree_add_item(rohc_tree, hf_pdcp_lte_rohc_add_cid, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
         }
@@ -2251,7 +2254,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		p_rohc_info->last_created_item   = NULL;
 
         /*offset = dissect_pdcp_ir_packet(rohc_tree, rohc_ti, tvb, offset, p_pdcp_info, pinfo);*/
-		offset = dissect_rohc_ir_packet(tvb, rohc_tree, pinfo, offset, 0, TRUE/* fool the ROCH dissector */, p_rohc_info);
+		offset = dissect_rohc_ir_packet(tvb, rohc_tree, pinfo, offset, cid, TRUE/* fool the ROCH dissector */, p_rohc_info);
         udp_checksum_needed = FALSE;
         ip_id_needed = FALSE;
     }
@@ -2272,7 +2275,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		p_rohc_info->last_created_item   = NULL;
 
 		/*offset = dissect_pdcp_irdyn_packet(rohc_tree, rohc_ti, tvb, offset, p_pdcp_info, pinfo);*/
-		offset = dissect_rohc_ir_dyn_packet(tvb, rohc_tree, pinfo, offset, 0, TRUE/* fool the ROCH dissector */, p_rohc_info);
+		offset = dissect_rohc_ir_dyn_packet(tvb, rohc_tree, pinfo, offset, cid, TRUE/* fool the ROCH dissector */, p_rohc_info);
         udp_checksum_needed = FALSE;
         ip_id_needed = FALSE;
     }
