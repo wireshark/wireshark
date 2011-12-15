@@ -472,7 +472,7 @@ fragment_table_init(void)
 		g_hash_table_destroy(reassembled_table);
 	}
 	if (sequence_table) {
-		/* Note: "value destroy" function wil be called for each removed hash table entry */
+		/* Note: "value destroy" function will be called for each removed hash table entry */
 		g_hash_table_foreach_remove(sequence_table, free_table_entry, NULL);
 		g_hash_table_destroy(sequence_table);
 	}
