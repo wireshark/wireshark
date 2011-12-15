@@ -1319,7 +1319,7 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
 
 		while ((tp=ep_stack_pop(packets))!=NULL) {
 			if (tp->resident) {
-				pktbuf = tvb_new_real_data(tp->data.p, tp->have, tp->have);
+				pktbuf = tvb_new_child_real_data(tvb, tp->data.p, tp->have, tp->have);
 				add_new_data_source(pinfo, pktbuf, "Unchunked RTMP");
 			} else {
 				pktbuf = tvb_new_subset(tvb, tp->data.offset, tp->have, tp->have);
@@ -1576,7 +1576,7 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
 				if (tp->have==tp->want) {
 					se_tree_insert32(rconv->packets[cdir], tp->lastseq, tp);
 
-					pktbuf = tvb_new_real_data(tp->data.p, tp->have, tp->have);
+					pktbuf = tvb_new_child_real_data(tvb, tp->data.p, tp->have, tp->have);
 					add_new_data_source(pinfo, pktbuf, "Unchunked RTMP");
 					dissect_rtmpt(pktbuf, pinfo, tree, rconv, cdir, tp);
 					continue;
@@ -1628,7 +1628,7 @@ unchunk:
 			/* Whole packet is complete */
 			se_tree_insert32(rconv->packets[cdir], tp->lastseq, tp);
 
-			pktbuf = tvb_new_real_data(tp->data.p, tp->have, tp->have);
+			pktbuf = tvb_new_child_real_data(tvb, tp->data.p, tp->have, tp->have);
 			add_new_data_source(pinfo, pktbuf, "Unchunked RTMP");
 			dissect_rtmpt(pktbuf, pinfo, tree, rconv, cdir, tp);
 		} else if (tp->chunkhave<tp->chunkwant) {
@@ -1818,7 +1818,7 @@ dissect_rtmpt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	conversation_t * conversation;
 	if (tvb_length(tvb) >= 12)
 	{
-		/* To avoid a too high rate of false positive, this heurisitics only matches the protocol
+		/* To avoid a too high rate of false positive, this heuristics only matches the protocol
 		   from the first server response packet and not from the client request packets before.
 		   Therefore it is necessary to a "Decode as" to properly decode the first packets */
 		struct tcpinfo *tcpinfo = pinfo->private_data;
