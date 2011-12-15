@@ -273,6 +273,7 @@ typedef GSList *heur_dissector_list_t;
 typedef struct {
 	heur_dissector_t dissector;
 	protocol_t *protocol;
+	gboolean enabled;
 } heur_dtbl_entry_t;
 
 /** A protocol uses this function to register a heuristic sub-dissector list.

@@ -1593,6 +1593,7 @@ heur_dissector_add(const char *name, heur_dissector_t dissector, const int proto
 	dtbl_entry = g_malloc(sizeof (heur_dtbl_entry_t));
 	dtbl_entry->dissector = dissector;
 	dtbl_entry->protocol = find_protocol_by_id(proto);
+	dtbl_entry->enabled = TRUE;
 
 	/* do the table insertion */
 	*sub_dissectors = g_slist_append(*sub_dissectors, (gpointer)dtbl_entry);
@@ -1665,7 +1666,7 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
 		dtbl_entry = (heur_dtbl_entry_t *)entry->data;
 
 		if (dtbl_entry->protocol != NULL &&
-		    !proto_is_protocol_enabled(dtbl_entry->protocol)) {
+		    (!proto_is_protocol_enabled(dtbl_entry->protocol)||(dtbl_entry->enabled==FALSE))) {
 			/*
 			 * No - don't try this dissector.
 			 */
