@@ -1909,8 +1909,8 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     gint               offset = 0;
     gint               rohc_offset;
     struct pdcp_lte_info  *p_pdcp_info;
-	rohc_info          *p_rohc_info = NULL;	
-	tvbuff_t           *rohc_tvb = NULL;
+    rohc_info          *p_rohc_info = NULL;	
+    tvbuff_t           *rohc_tvb = NULL;
 #if 0
     proto_tree         *rohc_tree = NULL;*/
     proto_item         *rohc_ti = NULL;
@@ -1918,6 +1918,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     gboolean           udp_checksum_needed = TRUE;
     gboolean           ip_id_needed = TRUE;
 #endif
+
     /* Append this protocol name rather than replace. */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PDCP-LTE");
 
@@ -2210,25 +2211,25 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     }
 #endif
     rohc_offset = offset;
-	rohc_tvb = tvb_new_subset_remaining(tvb, rohc_offset);
+    rohc_tvb = tvb_new_subset_remaining(tvb, rohc_offset);
 
-	/* RoHC settings */
-	p_rohc_info = ep_new(rohc_info);
+    /* RoHC settings */
+    p_rohc_info = ep_new(rohc_info);
 
-	p_rohc_info->rohc_compression    = p_pdcp_info->rohc_compression;
-	p_rohc_info->rohc_ip_version     = p_pdcp_info->rohc_ip_version;
-	p_rohc_info->cid_inclusion_info  = p_pdcp_info->cid_inclusion_info;
-	p_rohc_info->large_cid_present   = p_pdcp_info->large_cid_present;
-	p_rohc_info->mode                = p_pdcp_info->mode;
-	p_rohc_info->rnd                 = p_pdcp_info->rnd;
-	p_rohc_info->udp_checkum_present = p_pdcp_info->udp_checkum_present;
-	p_rohc_info->profile             = p_pdcp_info->profile;
-	p_rohc_info->last_created_item   = NULL;
+    p_rohc_info->rohc_compression    = p_pdcp_info->rohc_compression;
+    p_rohc_info->rohc_ip_version     = p_pdcp_info->rohc_ip_version;
+    p_rohc_info->cid_inclusion_info  = p_pdcp_info->cid_inclusion_info;
+    p_rohc_info->large_cid_present   = p_pdcp_info->large_cid_present;
+    p_rohc_info->mode                = p_pdcp_info->mode;
+    p_rohc_info->rnd                 = p_pdcp_info->rnd;
+    p_rohc_info->udp_checkum_present = p_pdcp_info->udp_checkum_present;
+    p_rohc_info->profile             = p_pdcp_info->profile;
+    p_rohc_info->last_created_item   = NULL;
 
-	pinfo->private_data = p_rohc_info;
+    pinfo->private_data = p_rohc_info;
 
-	call_dissector(rohc_handle, rohc_tvb, pinfo, tree);
-	return;
+    call_dissector(rohc_handle, rohc_tvb, pinfo, tree);
+    return;
 
 #if 0
     /* Skip any leading padding octets (11100000) */
@@ -2262,42 +2263,42 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     /* IR (1111110) */
     if ((base_header_byte & 0xfe) == 0xfc) {
-		/* RoHC settings */
-		p_rohc_info = ep_new(rohc_info);
+        /* RoHC settings */
+        p_rohc_info = ep_new(rohc_info);
 
-		p_rohc_info->rohc_compression    = p_pdcp_info->rohc_compression;
-		p_rohc_info->rohc_ip_version     = p_pdcp_info->rohc_ip_version;
-		p_rohc_info->cid_inclusion_info  = p_pdcp_info->cid_inclusion_info;
-		p_rohc_info->large_cid_present   = p_pdcp_info->large_cid_present;
-		p_rohc_info->mode                = p_pdcp_info->mode;
-		p_rohc_info->rnd                 = p_pdcp_info->rnd;
-		p_rohc_info->udp_checkum_present = p_pdcp_info->udp_checkum_present;
-		p_rohc_info->profile             = p_pdcp_info->profile;
-		p_rohc_info->last_created_item   = NULL;
+        p_rohc_info->rohc_compression    = p_pdcp_info->rohc_compression;
+        p_rohc_info->rohc_ip_version     = p_pdcp_info->rohc_ip_version;
+        p_rohc_info->cid_inclusion_info  = p_pdcp_info->cid_inclusion_info;
+        p_rohc_info->large_cid_present   = p_pdcp_info->large_cid_present;
+        p_rohc_info->mode                = p_pdcp_info->mode;
+        p_rohc_info->rnd                 = p_pdcp_info->rnd;
+        p_rohc_info->udp_checkum_present = p_pdcp_info->udp_checkum_present;
+        p_rohc_info->profile             = p_pdcp_info->profile;
+        p_rohc_info->last_created_item   = NULL;
 
         /*offset = dissect_pdcp_ir_packet(rohc_tree, rohc_ti, tvb, offset, p_pdcp_info, pinfo);*/
-		offset = dissect_rohc_ir_packet(tvb, rohc_tree, pinfo, offset, cid, TRUE/* fool the ROCH dissector */, p_rohc_info);
+        offset = dissect_rohc_ir_packet(tvb, rohc_tree, pinfo, offset, cid, TRUE/* fool the ROCH dissector */, p_rohc_info);
         udp_checksum_needed = FALSE;
         ip_id_needed = FALSE;
     }
 
     /* IRDYN (11111000) */
     else if (base_header_byte == 0xf8) {
-		/* RoHC settings */
-		p_rohc_info = ep_new(rohc_info);
+        /* RoHC settings */
+        p_rohc_info = ep_new(rohc_info);
 
-		p_rohc_info->rohc_compression    = p_pdcp_info->rohc_compression;
-		p_rohc_info->rohc_ip_version     = p_pdcp_info->rohc_ip_version;
-		p_rohc_info->cid_inclusion_info  = p_pdcp_info->cid_inclusion_info;
-		p_rohc_info->large_cid_present   = p_pdcp_info->large_cid_present;
-		p_rohc_info->mode                = p_pdcp_info->mode;
-		p_rohc_info->rnd                 = p_pdcp_info->rnd;
-		p_rohc_info->udp_checkum_present = p_pdcp_info->udp_checkum_present;
-		p_rohc_info->profile             = p_pdcp_info->profile;
-		p_rohc_info->last_created_item   = NULL;
+        p_rohc_info->rohc_compression    = p_pdcp_info->rohc_compression;
+        p_rohc_info->rohc_ip_version     = p_pdcp_info->rohc_ip_version;
+        p_rohc_info->cid_inclusion_info  = p_pdcp_info->cid_inclusion_info;
+        p_rohc_info->large_cid_present   = p_pdcp_info->large_cid_present;
+        p_rohc_info->mode                = p_pdcp_info->mode;
+        p_rohc_info->rnd                 = p_pdcp_info->rnd;
+        p_rohc_info->udp_checkum_present = p_pdcp_info->udp_checkum_present;
+        p_rohc_info->profile             = p_pdcp_info->profile;
+        p_rohc_info->last_created_item   = NULL;
 
-		/*offset = dissect_pdcp_irdyn_packet(rohc_tree, rohc_ti, tvb, offset, p_pdcp_info, pinfo);*/
-		offset = dissect_rohc_ir_dyn_packet(tvb, rohc_tree, pinfo, offset, cid, TRUE/* fool the ROCH dissector */, p_rohc_info);
+        /*offset = dissect_pdcp_irdyn_packet(rohc_tree, rohc_ti, tvb, offset, p_pdcp_info, pinfo);*/
+        offset = dissect_rohc_ir_dyn_packet(tvb, rohc_tree, pinfo, offset, cid, TRUE/* fool the ROCH dissector */, p_rohc_info);
         udp_checksum_needed = FALSE;
         ip_id_needed = FALSE;
     }
@@ -3129,7 +3130,7 @@ void proto_reg_handoff_pdcp_lte(void)
 
     ip_handle = find_dissector("ip");
     ipv6_handle = find_dissector("ipv6");
-	rohc_handle = find_dissector("rohc");
+    rohc_handle = find_dissector("rohc");
     data_handle = find_dissector("data");
 }
 
