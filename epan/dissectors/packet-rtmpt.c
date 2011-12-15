@@ -35,7 +35,7 @@
 *   especially regarding the lengths and the structures.
 *
 *   Documentation:
-*	RTMP protocol description on Wiki of Red5 Open Source Flash Server
+*      RTMP protocol description on Wiki of Red5 Open Source Flash Server
 *   Default TCP port is 1935
 */
 
@@ -144,13 +144,13 @@ static gboolean rtmpt_desegment = TRUE;
 #define RTMP_PORT                     1935
 
 #define RTMPT_MAGIC                   0x03
-#define RTMPT_HANDSHAKE_OFFSET_1      1
+#define RTMPT_HANDSHAKE_OFFSET_1         1
 #define RTMPT_HANDSHAKE_OFFSET_2      1538
 #define RTMPT_HANDSHAKE_OFFSET_3      3074
 #define RTMPT_HANDSHAKE_LENGTH_1      1537
 #define RTMPT_HANDSHAKE_LENGTH_2      3073
 #define RTMPT_HANDSHAKE_LENGTH_3      1536
-#define RTMPT_DEFAULT_CHUNK_SIZE      128
+#define RTMPT_DEFAULT_CHUNK_SIZE       128
 
 /* Native Bandwidth Detection (using the checkBandwidth(), onBWCheck(),
  * onBWDone() calls) transmits a series of increasing size packets over
@@ -160,7 +160,7 @@ static gboolean rtmpt_desegment = TRUE;
 /* #define RTMPT_MAX_PACKET_SIZE     262144 */
 #define RTMPT_MAX_PACKET_SIZE         524288
 
-#define RTMPT_ID_MAX                  65599
+#define RTMPT_ID_MAX                     65599
 #define RTMPT_TYPE_HANDSHAKE_1        0x100001
 #define RTMPT_TYPE_HANDSHAKE_2        0x100002
 #define RTMPT_TYPE_HANDSHAKE_3        0x100003
@@ -213,175 +213,175 @@ static gboolean rtmpt_desegment = TRUE;
 #define RTMPT_TEXT_RTMP_BODY          "RTMP Body"
 
 static const value_string rtmpt_handshake_vals[] = {
-  { RTMPT_TYPE_HANDSHAKE_1,           "Handshake C0+C1" },
-  { RTMPT_TYPE_HANDSHAKE_2,           "Handshake S0+S1+S2" },
-  { RTMPT_TYPE_HANDSHAKE_3,           "Handshake C2" },
-  { 0, NULL }
+        { RTMPT_TYPE_HANDSHAKE_1,           "Handshake C0+C1" },
+        { RTMPT_TYPE_HANDSHAKE_2,           "Handshake S0+S1+S2" },
+        { RTMPT_TYPE_HANDSHAKE_3,           "Handshake C2" },
+        { 0, NULL }
 };
 
 static const value_string rtmpt_opcode_vals[] = {
-  { RTMPT_TYPE_CHUNK_SIZE,            "Set Chunk Size" },
-  { RTMPT_TYPE_ABORT_MESSAGE,         "Abort Message" },
-  { RTMPT_TYPE_ACKNOWLEDGEMENT,       "Acknowledgement" },
-  { RTMPT_TYPE_UCM,                   "User Control Message" },
-  { RTMPT_TYPE_WINDOW,                "Window Acknowledgement Size" },
-  { RTMPT_TYPE_PEER_BANDWIDTH,        "Set Peer Bandwidth" },
-  { RTMPT_TYPE_AUDIO_DATA,            "Audio Data" },
-  { RTMPT_TYPE_VIDEO_DATA,            "Video Data" },
-  { RTMPT_TYPE_DATA_AMF3,             "AMF3 Data" },
-  { RTMPT_TYPE_SHARED_AMF3,           "AMF3 Shared Object" },
-  { RTMPT_TYPE_COMMAND_AMF3,          "AMF3 Command" },
-  { RTMPT_TYPE_DATA_AMF0,             "AMF0 Data" },
-  { RTMPT_TYPE_SHARED_AMF0,           "AMF0 Shared Object" },
-  { RTMPT_TYPE_COMMAND_AMF0,          "AMF0 Command" },
-  { RTMPT_TYPE_AGGREGATE,             "Aggregate" },
-  { 0, NULL }
+        { RTMPT_TYPE_CHUNK_SIZE,            "Set Chunk Size" },
+        { RTMPT_TYPE_ABORT_MESSAGE,         "Abort Message" },
+        { RTMPT_TYPE_ACKNOWLEDGEMENT,       "Acknowledgement" },
+        { RTMPT_TYPE_UCM,                   "User Control Message" },
+        { RTMPT_TYPE_WINDOW,                "Window Acknowledgement Size" },
+        { RTMPT_TYPE_PEER_BANDWIDTH,        "Set Peer Bandwidth" },
+        { RTMPT_TYPE_AUDIO_DATA,            "Audio Data" },
+        { RTMPT_TYPE_VIDEO_DATA,            "Video Data" },
+        { RTMPT_TYPE_DATA_AMF3,             "AMF3 Data" },
+        { RTMPT_TYPE_SHARED_AMF3,           "AMF3 Shared Object" },
+        { RTMPT_TYPE_COMMAND_AMF3,          "AMF3 Command" },
+        { RTMPT_TYPE_DATA_AMF0,             "AMF0 Data" },
+        { RTMPT_TYPE_SHARED_AMF0,           "AMF0 Shared Object" },
+        { RTMPT_TYPE_COMMAND_AMF0,          "AMF0 Command" },
+        { RTMPT_TYPE_AGGREGATE,             "Aggregate" },
+        { 0, NULL }
 };
 
 static const value_string rtmpt_limit_vals[] = {
 /* These are a complete guess, from the order of the documented
  * options - the values aren't actually specified */
-  { 0,                                "Hard" },
-  { 1,                                "Soft" },
-  { 2,                                "Dynamic" },
-  { 0, NULL }
+        { 0,                                "Hard" },
+        { 1,                                "Soft" },
+        { 2,                                "Dynamic" },
+        { 0, NULL }
 };
 
 static const value_string rtmpt_ucm_vals[] = {
-  { RTMPT_UCM_STREAM_BEGIN,           "Stream Begin" },
-  { RTMPT_UCM_STREAM_EOF,             "Stream EOF" },
-  { RTMPT_UCM_STREAM_DRY,             "Stream Dry" },
-  { RTMPT_UCM_SET_BUFFER,             "Set Buffer Length" },
-  { RTMPT_UCM_STREAM_ISRECORDED,      "Stream Is Recorded" },
-  { RTMPT_UCM_PING_REQUEST,           "Ping Request" },
-  { RTMPT_UCM_PING_RESPONSE,          "Ping Response" },
-  { 0, NULL }
+        { RTMPT_UCM_STREAM_BEGIN,           "Stream Begin" },
+        { RTMPT_UCM_STREAM_EOF,             "Stream EOF" },
+        { RTMPT_UCM_STREAM_DRY,             "Stream Dry" },
+        { RTMPT_UCM_SET_BUFFER,             "Set Buffer Length" },
+        { RTMPT_UCM_STREAM_ISRECORDED,      "Stream Is Recorded" },
+        { RTMPT_UCM_PING_REQUEST,           "Ping Request" },
+        { RTMPT_UCM_PING_RESPONSE,          "Ping Response" },
+        { 0, NULL }
 };
 
 static const value_string rtmpt_type_vals[] = {
-  { RTMPT_AMF_NUMBER,                 "Number" },
-  { RTMPT_AMF_BOOLEAN,                "Boolean" },
-  { RTMPT_AMF_STRING,                 "String" },
-  { RTMPT_AMF_OBJECT,                 "Object" },
-  { RTMPT_AMF_MOVIECLIP,              "Movie clip" },
-  { RTMPT_AMF_NULL,                   "Null" },
-  { RTMPT_AMF_UNDEFINED,              "Undefined" },
-  { RTMPT_AMF_REFERENCE,              "Reference" },
-  { RTMPT_AMF_ECMA_ARRAY,             "ECMA array" },
-  { RTMPT_AMF_END_OF_OBJECT,          "End of object" },
-  { RTMPT_AMF_STRICT_ARRAY,           "Strict array" },
-  { RTMPT_AMF_DATE,                   "Date" },
-  { RTMPT_AMF_LONG_STRING,            "Long string" },
-  { RTMPT_AMF_UNSUPPORTED,            "Unsupported" },
-  { RTMPT_AMF_RECORDSET,              "Record set" },
-  { RTMPT_AMF_XML,                    "XML" },
-  { RTMPT_AMF_TYPED_OBJECT,           "Typed object" },
-  { RTMPT_AMF_AMF3_MARKER,            "Switch to AMF3" },
-  { RTMPT_AMF_INT64,                  "Int64" },
-  { 0, NULL }
+        { RTMPT_AMF_NUMBER,                 "Number" },
+        { RTMPT_AMF_BOOLEAN,                "Boolean" },
+        { RTMPT_AMF_STRING,                 "String" },
+        { RTMPT_AMF_OBJECT,                 "Object" },
+        { RTMPT_AMF_MOVIECLIP,              "Movie clip" },
+        { RTMPT_AMF_NULL,                   "Null" },
+        { RTMPT_AMF_UNDEFINED,              "Undefined" },
+        { RTMPT_AMF_REFERENCE,              "Reference" },
+        { RTMPT_AMF_ECMA_ARRAY,             "ECMA array" },
+        { RTMPT_AMF_END_OF_OBJECT,          "End of object" },
+        { RTMPT_AMF_STRICT_ARRAY,           "Strict array" },
+        { RTMPT_AMF_DATE,                   "Date" },
+        { RTMPT_AMF_LONG_STRING,            "Long string" },
+        { RTMPT_AMF_UNSUPPORTED,            "Unsupported" },
+        { RTMPT_AMF_RECORDSET,              "Record set" },
+        { RTMPT_AMF_XML,                    "XML" },
+        { RTMPT_AMF_TYPED_OBJECT,           "Typed object" },
+        { RTMPT_AMF_AMF3_MARKER,            "Switch to AMF3" },
+        { RTMPT_AMF_INT64,                  "Int64" },
+        { 0, NULL }
 };
 
 static const value_string rtmpt_object_vals[] = {
-  { RTMPT_AMF_OBJECT,                 "Object" },
-  { RTMPT_AMF_ECMA_ARRAY,             "ECMA Array" },
-  { RTMPT_AMF_STRICT_ARRAY,           "Strict Array" },
-  { 0, NULL }
+        { RTMPT_AMF_OBJECT,                 "Object" },
+        { RTMPT_AMF_ECMA_ARRAY,             "ECMA Array" },
+        { RTMPT_AMF_STRICT_ARRAY,           "Strict Array" },
+        { 0, NULL }
 };
 
 static const value_string rtmpt_tag_vals[] = {
-  { RTMPT_TYPE_AUDIO_DATA,            "Audio Tag" },
-  { RTMPT_TYPE_VIDEO_DATA,            "Video Tag" },
-  { RTMPT_TYPE_DATA_AMF0,             "Script Tag" },
-  { 0, NULL }
+        { RTMPT_TYPE_AUDIO_DATA,            "Audio Tag" },
+        { RTMPT_TYPE_VIDEO_DATA,            "Video Tag" },
+        { RTMPT_TYPE_DATA_AMF0,             "Script Tag" },
+        { 0, NULL }
 };
 
 /* [Spec] http://www.adobe.com/content/dam/Adobe/en/devnet/rtmp/pdf/rtmp_specification_1.0.pdf       */
 /* [DevG] http://help.adobe.com/en_US/flashmediaserver/devguide/index.html "working with Live Video" */
 static const value_string rtmpt_audio_codecs[] = {
-  {  0,                               "Uncompressed" },             /* [DevG] */
-  {  1,                               "ADPCM" },                    /* [DevG] */
-  {  2,                               "MP3" },                      /* [DevG] */
-  {  5,                               "Nellymoser 8kHz Mono" },     /* [DevG] */
-  {  6,                               "Nellymoser 8kHz Stereo" },   /* [DevG] */
-  {  7,                               "G711A" },                    /* [Spec] */
-  {  8,                               "G711U" },                    /* [Spec] */
-  {  9,                               "Nellymoser 16kHz" },         /* [Spec] */
-  { 10,                               "HE-AAC" },                   /* [DevG] */
-  { 11,                               "SPEEX" },                    /* [DevG] */
-  { 0, NULL }
+        {  0,                               "Uncompressed" },             /* [DevG] */
+        {  1,                               "ADPCM" },                    /* [DevG] */
+        {  2,                               "MP3" },                      /* [DevG] */
+        {  5,                               "Nellymoser 8kHz Mono" },     /* [DevG] */
+        {  6,                               "Nellymoser 8kHz Stereo" },   /* [DevG] */
+        {  7,                               "G711A" },                    /* [Spec] */
+        {  8,                               "G711U" },                    /* [Spec] */
+        {  9,                               "Nellymoser 16kHz" },         /* [Spec] */
+        { 10,                               "HE-AAC" },                   /* [DevG] */
+        { 11,                               "SPEEX" },                    /* [DevG] */
+        { 0, NULL }
 };
 
 static const value_string rtmpt_audio_rates[] = {
-  { 0,                                "5.5 kHz" },
-  { 1,                                "11 kHz" },
-  { 2,                                "22 kHz" },
-  { 3,                                "44 kHz" },
-  { 0, NULL }
+        { 0,                                "5.5 kHz" },
+        { 1,                                "11 kHz" },
+        { 2,                                "22 kHz" },
+        { 3,                                "44 kHz" },
+        { 0, NULL }
 };
 
 static const value_string rtmpt_audio_sizes[] = {
-  { 0,                                "8 bit" },
-  { 1,                                "16 bit" },
-  { 0, NULL }
+        { 0,                                "8 bit" },
+        { 1,                                "16 bit" },
+        { 0, NULL }
 };
 
 static const value_string rtmpt_audio_types[] = {
-  { 0,                                "mono" },
-  { 1,                                "stereo" },
-  { 0, NULL }
+        { 0,                                "mono" },
+        { 1,                                "stereo" },
+        { 0, NULL }
 };
 
 static const value_string rtmpt_video_types[] = {
-  { 1,                                "keyframe" },
-  { 2,                                "inter-frame" },
-  { 3,                                "disposable inter-frame" },
-  { 0, NULL }
+        { 1,                                "keyframe" },
+        { 2,                                "inter-frame" },
+        { 3,                                "disposable inter-frame" },
+        { 0, NULL }
 };
 
 static const value_string rtmpt_video_codecs[] = {
-  { 2,                                "Sorensen H.263" },
-  { 3,                                "Screen video" },
-  { 4,                                "On2 VP6" },
-  { 5,                                "On2 VP6+alpha" },
-  { 6,                                "Screen video version 2" },
-  { 7,                                "H.264" },
-  { 0, NULL }
+        { 2,                                "Sorensen H.263" },
+        { 3,                                "Screen video" },
+        { 4,                                "On2 VP6" },
+        { 5,                                "On2 VP6+alpha" },
+        { 6,                                "Screen video version 2" },
+        { 7,                                "H.264" },
+        { 0, NULL }
 };
 
 /* Holds the reassembled data for a packet during un-chunking
  */
 typedef struct rtmpt_packet {
-        guint32 seq;
-        guint32 lastseq;
+        guint32          seq;
+        guint32          lastseq;
 
-        int resident;
+        int              resident;
         union {
-                guint8 *p;
-                guint32 offset;
+                guint8  *p;
+                guint32  offset;
         } data;
 
         /* used during unchunking */
-        int want;
-        int have;
-        int chunkwant;
-        int chunkhave;
+        int              want;
+        int              have;
+        int              chunkwant;
+        int              chunkhave;
 
-        guint8 bhlen;
-        guint8 mhlen;
+        guint8           bhlen;
+        guint8           mhlen;
 
         /* Chunk Basic Header */
-        guint8 fmt; /* byte 0 */
-        guint32 id;   /* byte 0 */
+        guint8           fmt;   /* byte 0 */
+        guint32          id;    /* byte 0 */
 
         /* Chunk Message Header (offsets assume bhlen==1) */
-        guint32 ts;  /* bytes 1-3, or from ETS @ mhlen-4 if -1 */
-        guint32 len; /* bytes 4-6 */
-        guint8 cmd;  /* byte 7 */
-        guint32 src; /* bytes 8-11 */
+        guint32          ts;    /* bytes 1-3, or from ETS @ mhlen-4 if -1 */
+        guint32          len;   /* bytes 4-6 */
+        guint8           cmd;   /* byte 7 */
+        guint32          src;   /* bytes 8-11 */
 
-        guint32 txid;
-        gint isresponse;
-        gint otherframe;
+        guint32          txid;
+        gint             isresponse;
+        gint             otherframe;
 
 } rtmpt_packet_t;
 
@@ -389,11 +389,11 @@ typedef struct rtmpt_packet {
  * segments
  */
 typedef struct rtmpt_frag {
-        int ishdr;
+        int     ishdr;
         guint32 seq;
         guint32 lastseq;
-        int have;
-        int len;
+        int     have;
+        int     len;
 
         union {
                 guint8 d[18]; /* enough for a complete header (3 + 11 + 4) */
@@ -405,11 +405,11 @@ typedef struct rtmpt_frag {
  * ID - used for defaulting short headers
  */
 typedef struct rtmpt_id {
-        guint32 ts;  /* bytes 1-3 */
+        guint32 ts;             /* bytes 1-3 */
         guint32 tsd;
-        guint32 len; /* bytes 4-6 */
-        guint32 src; /* bytes 8-11 */
-        guint8 cmd;  /* byte 7 */
+        guint32 len;            /* bytes 4-6 */
+        guint32 src;            /* bytes 8-11 */
+        guint8  cmd;            /* byte 7 */
 
         emem_tree_t *packets;
 } rtmpt_id_t;
@@ -451,12 +451,12 @@ static gint rtmpt_basic_header_length(gint id)
 
 static gint rtmpt_message_header_length(gint id)
 {
-	switch ((id>>6) & 3) {
+        switch ((id>>6) & 3) {
         case 0: return 11;
         case 1: return 7;
         case 2: return 3;
         default: return 0;
-	}
+        }
 }
 
 /* Lightweight access to AMF0 blobs - more complete dissection is done
@@ -465,11 +465,11 @@ static gint rtmpt_message_header_length(gint id)
 static gint
 rtmpt_get_amf_length(tvbuff_t *tvb, gint offset)
 {
-        guint8 iObjType;
-        gint remain = tvb_length_remaining(tvb, offset);
-        guint32 depth = 0;
-        gint itemlen = 0;
-        gint rv = 0;
+        guint8  iObjType;
+        gint    remain  = tvb_length_remaining(tvb, offset);
+        guint32 depth   = 0;
+        gint    itemlen = 0;
+        gint    rv      = 0;
 
         while (rv==0 || depth>0) {
 
@@ -758,16 +758,16 @@ dissect_rtmpt_body_scm(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree, guint
 static void
 dissect_rtmpt_body_command(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree, guint amf3)
 {
-        ep_stack_t amftrs;
-        ep_stack_t amftis;
-        ep_stack_t amfols;
-        ep_stack_t amfots;
-        ep_stack_t amfpcs;
-        int depth = 0;
-        int ot = 0;
-        int pc = 0;
-        proto_item *ti_object = NULL;
-        gint iObjectLength = 0;
+        ep_stack_t  amftrs;
+        ep_stack_t  amftis;
+        ep_stack_t  amfols;
+        ep_stack_t  amfots;
+        ep_stack_t  amfpcs;
+        int         depth         = 0;
+        int         ot            = 0;
+        int         pc            = 0;
+        proto_item *ti_object     = NULL;
+        gint        iObjectLength = 0;
 
         amftrs = ep_stack_new();
         amftis = ep_stack_new();
@@ -786,18 +786,18 @@ dissect_rtmpt_body_command(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree, g
 
         while (tvb_length_remaining(tvb, offset) > 0)
         {
-                guint8 iObjType = 0;
-                gint iPropertyOffset = 0;
-                gint iPropertyLength = 0;
-                guint iStringLength = 0;
-                gint iValueOffset = 0;
-                gint iValueLength = 0; /* signed so we can use CLAMP() */
-                guint iValueExtra = 0;
-                gchar *sValue = "";
-                int hfvalue = -1;
-                guint iPush = 0;
+                guint8      iObjType        = 0;
+                gint        iPropertyOffset = 0;
+                gint        iPropertyLength = 0;
+                guint       iStringLength   = 0;
+                gint        iValueOffset    = 0;
+                gint        iValueLength    = 0; /* signed so we can use CLAMP() */
+                guint       iValueExtra     = 0;
+                gchar      *sValue          = "";
+                int         hfvalue         = -1;
+                guint       iPush           = 0;
                 proto_tree *rtmpt_tree_prop = NULL;
-                proto_item *ti = NULL;
+                proto_item *ti              = NULL;
 
                 rtmpt_tree_prop = rtmpt_tree;
 
@@ -999,7 +999,7 @@ popamf:
 static void
 dissect_rtmpt_body_audio(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree)
 {
-        guint8 iCtl;
+        guint8      iCtl;
         proto_item *ai;
         proto_tree *at;
 
@@ -1022,7 +1022,7 @@ dissect_rtmpt_body_audio(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree)
 static void
 dissect_rtmpt_body_video(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree)
 {
-        guint8 iCtl;
+        guint8      iCtl;
         proto_item *vi;
         proto_tree *vt;
 
@@ -1041,8 +1041,8 @@ dissect_rtmpt_body_video(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree)
 static void
 dissect_rtmpt_body_aggregate(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree)
 {
-        proto_item *tag_item = NULL;
-        proto_tree *tag_tree = NULL;
+        proto_item *tag_item  = NULL;
+        proto_tree *tag_tree  = NULL;
 
         proto_item *data_item = NULL;
         proto_tree *data_tree = NULL;
@@ -1089,33 +1089,37 @@ dissect_rtmpt_body_aggregate(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree)
 static void
 dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_conv_t *rconv, int cdir, rtmpt_packet_t *tp)
 {
-	proto_tree	*rtmpt_tree = NULL;
-	proto_tree	*rtmptroot_tree = NULL;
-	proto_item	*ti = NULL;
-	gint offset = 0;
-	static gint iPreviousFrameNumber = -1;
+        proto_tree      *rtmpt_tree = NULL;
+        proto_tree      *rtmptroot_tree = NULL;
+        proto_item      *ti = NULL;
+        static gint      iPreviousFrameNumber = -1;
+        gint offset = 0;
 
-	gchar *sDesc = NULL;
-	gint deschasopcode = FALSE;
-	gboolean haveETS = FALSE;
-	guint32 iBodyOffset = 0;
-	guint32 iBodyRemain = 0;
+        gchar *sDesc = NULL;
+        gint deschasopcode = FALSE;
+        gboolean haveETS = FALSE;
+        guint32 iBodyOffset = 0;
+        guint32 iBodyRemain = 0;
 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTMP");
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTMP");
 
-	RTMPT_DEBUG("Dissect: frame=%d prev=%d visited=%d len=%d col=%d tree=%p\n", pinfo->fd->num, iPreviousFrameNumber, pinfo->fd->flags.visited, tvb_length_remaining(tvb, offset), check_col(pinfo->cinfo, COL_INFO), tree);
+        RTMPT_DEBUG("Dissect: frame=%d prev=%d visited=%d len=%d col=%d tree=%p\n",
+                    pinfo->fd->num, iPreviousFrameNumber, pinfo->fd->flags.visited,
+                    tvb_length_remaining(tvb, offset), check_col(pinfo->cinfo, COL_INFO), tree);
 
-	/* This is a trick to know whether this is the first PDU in this packet or not */
-	if (iPreviousFrameNumber != (gint) PINFO_FD_NUM(pinfo))
-		col_clear(pinfo->cinfo, COL_INFO);
-	else
-		col_append_str(pinfo->cinfo, COL_INFO, " | ");
-	iPreviousFrameNumber = pinfo->fd->num;
+        /* This is a trick to know whether this is the first PDU in this packet or not */
+        if (iPreviousFrameNumber != (gint) PINFO_FD_NUM(pinfo))
+                col_clear(pinfo->cinfo, COL_INFO);
+        else
+                col_append_str(pinfo->cinfo, COL_INFO, " | ");
+        iPreviousFrameNumber = pinfo->fd->num;
 
-	if (tvb_length_remaining(tvb, offset) < 1) return;
+        if (tvb_length_remaining(tvb, offset) < 1) return;
 
         if (tp->id<=RTMPT_ID_MAX) {
-                if (tp->fmt<3 && tvb_length_remaining(tvb, offset)>=tp->bhlen+3 && tvb_get_ntoh24(tvb, offset+tp->bhlen)==0xffffff) {
+                if (tp->fmt<3
+                    && tvb_length_remaining(tvb, offset)>=tp->bhlen+3
+                    && tvb_get_ntoh24(tvb, offset+tp->bhlen)==0xffffff) {
                         haveETS = TRUE;
                 }
 
@@ -1153,11 +1157,13 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_conv_t 
         if (check_col(pinfo->cinfo, COL_INFO))
         {
                 if (tp->id>RTMPT_ID_MAX) {
-                        col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(tp->id, rtmpt_handshake_vals, "Unknown (0x%01x)"));
+                        col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
+                                        val_to_str(tp->id, rtmpt_handshake_vals, "Unknown (0x%01x)"));
                 } else if (sDesc) {
                         col_append_fstr(pinfo->cinfo, COL_INFO, "%s", sDesc);
                 } else {
-                        col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(tp->cmd, rtmpt_opcode_vals, "Unknown (0x%01x)"));
+                        col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
+                                        val_to_str(tp->cmd, rtmpt_opcode_vals, "Unknown (0x%01x)"));
                 }
         }
 
@@ -1167,9 +1173,11 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_conv_t 
 
                 if (tp->id>RTMPT_ID_MAX) {
                         /* Dissect handshake */
-                        proto_item_append_text(ti, " (%s)", val_to_str(tp->id, rtmpt_handshake_vals, "Unknown (0x%01x)"));
+                        proto_item_append_text(ti, " (%s)",
+                                               val_to_str(tp->id, rtmpt_handshake_vals, "Unknown (0x%01x)"));
                         rtmptroot_tree = proto_item_add_subtree(ti, ett_rtmpt);
-                        ti = proto_tree_add_text(rtmptroot_tree, tvb, offset, -1, "%s", val_to_str(tp->id, rtmpt_handshake_vals, "Unknown (0x%01x)"));
+                        ti = proto_tree_add_text(rtmptroot_tree, tvb, offset, -1, "%s",
+                                                 val_to_str(tp->id, rtmpt_handshake_vals, "Unknown (0x%01x)"));
                         rtmpt_tree = proto_item_add_subtree(ti, ett_rtmpt_handshake);
 
                         if (tp->id == RTMPT_TYPE_HANDSHAKE_1)
@@ -1194,9 +1202,11 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_conv_t 
                 if (sDesc && deschasopcode) {
                         proto_item_append_text(ti, " (%s)", sDesc);
                 } else if (sDesc) {
-                        proto_item_append_text(ti, " (%s %s)", val_to_str(tp->cmd, rtmpt_opcode_vals, "Unknown (0x%01x)"), sDesc);
+                        proto_item_append_text(ti, " (%s %s)",
+                                               val_to_str(tp->cmd, rtmpt_opcode_vals, "Unknown (0x%01x)"), sDesc);
                 } else {
-                        proto_item_append_text(ti, " (%s)", val_to_str(tp->cmd, rtmpt_opcode_vals, "Unknown (0x%01x)"));
+                        proto_item_append_text(ti, " (%s)",
+                                               val_to_str(tp->cmd, rtmpt_opcode_vals, "Unknown (0x%01x)"));
                 }
                 rtmptroot_tree = proto_item_add_subtree(ti, ett_rtmpt);
 
@@ -1274,134 +1284,134 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_conv_t 
 static void
 dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_conv_t *rconv, int cdir, guint32 seq, guint32 lastackseq)
 {
-	int offset = 0;
-	int remain;
-	int want;
+        int offset = 0;
+        int remain;
+        int want;
 
-	guint8 header_type;
-	int basic_hlen;
-	int message_hlen;
+        guint8 header_type;
+        int basic_hlen;
+        int message_hlen;
 
-	guint32 id;
-	guint32 ts = 0;
-	guint32 tsd = 0;
-	int body_len;
-	guint8 cmd;
-	guint32 src;
-	int chunk_size;
+        guint32 id;
+        guint32 ts = 0;
+        guint32 tsd = 0;
+        int body_len;
+        guint8 cmd;
+        guint32 src;
+        int chunk_size;
 
-	rtmpt_frag_t *tf;
-	rtmpt_id_t *ti;
-	rtmpt_packet_t *tp;
-	tvbuff_t *pktbuf;
+        rtmpt_frag_t *tf;
+        rtmpt_id_t *ti;
+        rtmpt_packet_t *tp;
+        tvbuff_t *pktbuf;
 
-	remain = tvb_length(tvb);
-	if (!remain) return;
+        remain = tvb_length(tvb);
+        if (!remain) return;
 
-	RTMPT_DEBUG("Segment: cdir=%d seq=%d-%d\n", cdir, seq, seq+remain-1);
+        RTMPT_DEBUG("Segment: cdir=%d seq=%d-%d\n", cdir, seq, seq+remain-1);
 
-	if (pinfo->fd->flags.visited) {
-		/* Already done the work, so just dump the existing state */
-		ep_stack_t packets;
+        if (pinfo->fd->flags.visited) {
+                /* Already done the work, so just dump the existing state */
+                ep_stack_t packets;
 
-		/* List all RTMP packets terminating in this TCP segment, from end to beginning */
+                /* List all RTMP packets terminating in this TCP segment, from end to beginning */
 
-		packets = ep_stack_new();
-		ep_stack_push(packets, 0);
+                packets = ep_stack_new();
+                ep_stack_push(packets, 0);
 
-		tp = se_tree_lookup32_le(rconv->packets[cdir], seq+remain-1);
-		while (tp && tp->lastseq>=seq) {
-			ep_stack_push(packets, tp);
-			tp = se_tree_lookup32_le(rconv->packets[cdir], tp->lastseq-1);
-		}
+                tp = se_tree_lookup32_le(rconv->packets[cdir], seq+remain-1);
+                while (tp && tp->lastseq>=seq) {
+                        ep_stack_push(packets, tp);
+                        tp = se_tree_lookup32_le(rconv->packets[cdir], tp->lastseq-1);
+                }
 
-		/* Dissect the generated list in reverse order (beginning to end) */
+                /* Dissect the generated list in reverse order (beginning to end) */
 
-		while ((tp=ep_stack_pop(packets))!=NULL) {
-			if (tp->resident) {
-				pktbuf = tvb_new_child_real_data(tvb, tp->data.p, tp->have, tp->have);
-				add_new_data_source(pinfo, pktbuf, "Unchunked RTMP");
-			} else {
-				pktbuf = tvb_new_subset(tvb, tp->data.offset, tp->have, tp->have);
-			}
-			dissect_rtmpt(pktbuf, pinfo, tree, rconv, cdir, tp);
-		}
+                while ((tp=ep_stack_pop(packets))!=NULL) {
+                        if (tp->resident) {
+                                pktbuf = tvb_new_child_real_data(tvb, tp->data.p, tp->have, tp->have);
+                                add_new_data_source(pinfo, pktbuf, "Unchunked RTMP");
+                        } else {
+                                pktbuf = tvb_new_subset(tvb, tp->data.offset, tp->have, tp->have);
+                        }
+                        dissect_rtmpt(pktbuf, pinfo, tree, rconv, cdir, tp);
+                }
 
-		return;
-	}
+                return;
+        }
 
-	while (remain>0) {
-		tf = NULL;
-		ti = NULL;
-		tp = NULL;
+        while (remain>0) {
+                tf = NULL;
+                ti = NULL;
+                tp = NULL;
 
-		/* Check for outstanding fragmented headers/chunks first */
+                /* Check for outstanding fragmented headers/chunks first */
 
-		if (offset==0) {
-			tf = se_tree_lookup32_le(rconv->frags[cdir], seq+offset-1);
+                if (offset==0) {
+                        tf = se_tree_lookup32_le(rconv->frags[cdir], seq+offset-1);
 
-			if (tf) {
-				/* May need to reassemble cross-TCP-segment fragments */
-				RTMPT_DEBUG("  tf seq=%d lseq=%d h=%d l=%d\n", tf->seq, tf->lastseq, tf->have, tf->len);
-				if (tf->have>=tf->len || seq+offset<tf->seq || seq+offset>tf->lastseq+tf->len-tf->have) {
-					tf = NULL;
-				} else if (!tf->ishdr) {
-					ti = se_tree_lookup32(rconv->ids[cdir], tf->saved.id);
-					if (ti) tp = se_tree_lookup32_le(ti->packets, seq+offset-1);
-					if (tp && tp->chunkwant) {
-						goto unchunk;
-					}
-					tf = NULL;
-					ti = NULL;
-					tp = NULL;
-				}
+                        if (tf) {
+                                /* May need to reassemble cross-TCP-segment fragments */
+                                RTMPT_DEBUG("  tf seq=%d lseq=%d h=%d l=%d\n", tf->seq, tf->lastseq, tf->have, tf->len);
+                                if (tf->have>=tf->len || seq+offset<tf->seq || seq+offset>tf->lastseq+tf->len-tf->have) {
+                                        tf = NULL;
+                                } else if (!tf->ishdr) {
+                                        ti = se_tree_lookup32(rconv->ids[cdir], tf->saved.id);
+                                        if (ti) tp = se_tree_lookup32_le(ti->packets, seq+offset-1);
+                                        if (tp && tp->chunkwant) {
+                                                goto unchunk;
+                                        }
+                                        tf = NULL;
+                                        ti = NULL;
+                                        tp = NULL;
+                                }
 
-				if (tf) {
-					/* The preceding segment contained an incomplete chunk header */
+                                if (tf) {
+                                        /* The preceding segment contained an incomplete chunk header */
 
-					want = tf->len - tf->have;
-					if (remain<want) want = remain;
+                                        want = tf->len - tf->have;
+                                        if (remain<want) want = remain;
 
-					tvb_memcpy(tvb, tf->saved.d+tf->have, offset, want);
+                                        tvb_memcpy(tvb, tf->saved.d+tf->have, offset, want);
 
-					id = tf->saved.d[0];
-					header_type = (id>>6) & 3;
-					basic_hlen = rtmpt_basic_header_length(id);
-					message_hlen = rtmpt_message_header_length(id);
+                                        id = tf->saved.d[0];
+                                        header_type = (id>>6) & 3;
+                                        basic_hlen = rtmpt_basic_header_length(id);
+                                        message_hlen = rtmpt_message_header_length(id);
 
-					if (header_type<3 && tf->have<basic_hlen+3 && tf->have+want>=basic_hlen+3) {
-						if (pntoh24(tf->saved.d+basic_hlen)==0xffffff) {
-							tf->len += 4;
-						}
-					}
+                                        if (header_type<3 && tf->have<basic_hlen+3 && tf->have+want>=basic_hlen+3) {
+                                                if (pntoh24(tf->saved.d+basic_hlen)==0xffffff) {
+                                                        tf->len += 4;
+                                                }
+                                        }
 
-					tf->have += want;
-					tf->lastseq = seq+want-1;
-					remain -= want;
-					offset += want;
+                                        tf->have += want;
+                                        tf->lastseq = seq+want-1;
+                                        remain -= want;
+                                        offset += want;
 
-					if (tf->have<tf->len) {
-						return;
-					}
-				}
-			}
-		}
+                                        if (tf->have<tf->len) {
+                                                return;
+                                        }
+                                }
+                        }
+                }
 
-		if (!tf) {
-			/* No preceeding data, get header data starting at current position */
-			id = tvb_get_guint8(tvb, offset);
+                if (!tf) {
+                        /* No preceeding data, get header data starting at current position */
+                        id = tvb_get_guint8(tvb, offset);
 
-			if (id==RTMPT_MAGIC && seq+offset==RTMPT_HANDSHAKE_OFFSET_1) {
-				header_type = 4;
-				basic_hlen = 1;
-				message_hlen = 0;
-				id = lastackseq==1 ? RTMPT_TYPE_HANDSHAKE_1 : RTMPT_TYPE_HANDSHAKE_2;
-			} else if (seq+offset==RTMPT_HANDSHAKE_OFFSET_2) {
-				header_type = 4;
-				basic_hlen = 0;
-				message_hlen = 0;
-				id = RTMPT_TYPE_HANDSHAKE_3;
-			} else {
+                        if (id==RTMPT_MAGIC && seq+offset==RTMPT_HANDSHAKE_OFFSET_1) {
+                                header_type = 4;
+                                basic_hlen = 1;
+                                message_hlen = 0;
+                                id = lastackseq==1 ? RTMPT_TYPE_HANDSHAKE_1 : RTMPT_TYPE_HANDSHAKE_2;
+                        } else if (seq+offset==RTMPT_HANDSHAKE_OFFSET_2) {
+                                header_type = 4;
+                                basic_hlen = 0;
+                                message_hlen = 0;
+                                id = RTMPT_TYPE_HANDSHAKE_3;
+                        } else {
                                 header_type = (id>>6) & 3;
                                 basic_hlen = rtmpt_basic_header_length(id);
                                 message_hlen = rtmpt_message_header_length(id);
@@ -1428,10 +1438,10 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
                                 id = id & 0x3f;
                                 if (id==0) id = tvb_get_guint8(tvb, offset+1) + 64;
                                 else if (id==1) id = tvb_get_letohs(tvb, offset+1) + 64;
-			}
+                        }
 
-		} else {
-			/* Use reassembled header data */
+                } else {
+                        /* Use reassembled header data */
                         id = tf->saved.d[0];
                         header_type = (id>>6) & 3;
                         basic_hlen = rtmpt_basic_header_length(id);
@@ -1440,210 +1450,210 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
                         id = id & 0x3f;
                         if (id==0) id = tf->saved.d[1] + 64;
                         else if (id==1) id = pletohs(tf->saved.d+1) + 64;
-		}
+                }
 
-		/* Calculate header values, defaulting from previous packets with same id */
+                /* Calculate header values, defaulting from previous packets with same id */
 
-		if (id<=RTMPT_ID_MAX) ti = se_tree_lookup32(rconv->ids[cdir], id);
-		if (ti) tp = se_tree_lookup32_le(ti->packets, seq+offset-1);
+                if (id<=RTMPT_ID_MAX) ti = se_tree_lookup32(rconv->ids[cdir], id);
+                if (ti) tp = se_tree_lookup32_le(ti->packets, seq+offset-1);
 
-		if (header_type==0) src = tf ? pntohl(tf->saved.d+basic_hlen+7) : tvb_get_ntohl(tvb, offset+basic_hlen+7);
-		else if (ti) src = ti->src;
-		else src = 0;
+                if (header_type==0) src = tf ? pntohl(tf->saved.d+basic_hlen+7) : tvb_get_ntohl(tvb, offset+basic_hlen+7);
+                else if (ti) src = ti->src;
+                else src = 0;
 
-		if (header_type<2) cmd = tf ? tf->saved.d[basic_hlen+6] : tvb_get_guint8(tvb, offset+basic_hlen+6);
-		else if (ti) cmd = ti->cmd;
-		else cmd = 0;
+                if (header_type<2) cmd = tf ? tf->saved.d[basic_hlen+6] : tvb_get_guint8(tvb, offset+basic_hlen+6);
+                else if (ti) cmd = ti->cmd;
+                else cmd = 0;
 
-		/* Calculate chunk_size now as a last-resort default payload length */
-		if (id>RTMPT_ID_MAX) {
-			if (id==RTMPT_TYPE_HANDSHAKE_1) chunk_size = body_len = 1536;
-			else if (id==RTMPT_TYPE_HANDSHAKE_2) chunk_size = body_len = 3072;
-			else /* if (id==RTMPT_TYPE_HANDSHAKE_3) */ chunk_size = body_len = 1536;
-		} else {
-			chunk_size = GPOINTER_TO_INT(se_tree_lookup32_le(rconv->chunksize[cdir], seq+offset-1));
-			if (!chunk_size) chunk_size = RTMPT_DEFAULT_CHUNK_SIZE;
+                /* Calculate chunk_size now as a last-resort default payload length */
+                if (id>RTMPT_ID_MAX) {
+                        if (id==RTMPT_TYPE_HANDSHAKE_1) chunk_size = body_len = 1536;
+                        else if (id==RTMPT_TYPE_HANDSHAKE_2) chunk_size = body_len = 3072;
+                        else /* if (id==RTMPT_TYPE_HANDSHAKE_3) */ chunk_size = body_len = 1536;
+                } else {
+                        chunk_size = GPOINTER_TO_INT(se_tree_lookup32_le(rconv->chunksize[cdir], seq+offset-1));
+                        if (!chunk_size) chunk_size = RTMPT_DEFAULT_CHUNK_SIZE;
 
-			if (header_type<2) body_len = tf ? pntoh24(tf->saved.d+basic_hlen+3) : tvb_get_ntoh24(tvb, offset+basic_hlen+3);
-			else if (ti) body_len = ti->len;
-			else body_len = chunk_size;
+                        if (header_type<2) body_len = tf ? pntoh24(tf->saved.d+basic_hlen+3) : tvb_get_ntoh24(tvb, offset+basic_hlen+3);
+                        else if (ti) body_len = ti->len;
+                        else body_len = chunk_size;
 
-			if (body_len>RTMPT_MAX_PACKET_SIZE) {
-				return;
-			}
-		}
+                        if (body_len>RTMPT_MAX_PACKET_SIZE) {
+                                return;
+                        }
+                }
 
-		if (!ti || !tp || header_type<3 || tp->have==tp->want || tp->chunkhave!=tp->chunkwant) {
-			/* Start a new packet if:
-			 *   no previous packet with same id
-			 *   not a short 1-byte header
-			 *   previous packet with same id was complete
-			 *   previous incomplete chunk not handled by fragment handler
-			 */
-			RTMPT_DEBUG("New packet cdir=%d seq=%d ti=%p tp=%p header_type=%d header_len=%d id=%d tph=%d tpw=%d len=%d cs=%d\n",
-						cdir, seq+offset,
-						ti, tp, header_type, basic_hlen+message_hlen, id, tp?tp->have:0, tp?tp->want:0, body_len, chunk_size);
+                if (!ti || !tp || header_type<3 || tp->have==tp->want || tp->chunkhave!=tp->chunkwant) {
+                        /* Start a new packet if:
+                         *   no previous packet with same id
+                         *   not a short 1-byte header
+                         *   previous packet with same id was complete
+                         *   previous incomplete chunk not handled by fragment handler
+                         */
+                        RTMPT_DEBUG("New packet cdir=%d seq=%d ti=%p tp=%p header_type=%d header_len=%d id=%d tph=%d tpw=%d len=%d cs=%d\n",
+                                    cdir, seq+offset,
+                                    ti, tp, header_type, basic_hlen+message_hlen, id, tp?tp->have:0, tp?tp->want:0, body_len, chunk_size);
 
-			if (!ti) {
-				ti = se_alloc(sizeof(rtmpt_id_t));
-				ti->packets = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "rtmpt_packets");
-				ti->ts = 0;
-				ti->tsd = 0;
-				se_tree_insert32(rconv->ids[cdir], id, ti);
-			}
+                        if (!ti) {
+                                ti = se_alloc(sizeof(rtmpt_id_t));
+                                ti->packets = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "rtmpt_packets");
+                                ti->ts = 0;
+                                ti->tsd = 0;
+                                se_tree_insert32(rconv->ids[cdir], id, ti);
+                        }
 
-			if (header_type==0) {
-				ts = tf ? pntoh24(tf->saved.d+basic_hlen) : tvb_get_ntoh24(tvb, offset+basic_hlen);
-				if (ts==0xffffff) {
-					ts = tf ? pntohl(tf->saved.d+basic_hlen+11) : tvb_get_ntohl(tvb, offset+basic_hlen+11);
-				}
-				tsd = ts - ti->ts;
-			} else if (header_type<3) {
-				tsd = tf ? pntoh24(tf->saved.d+basic_hlen) : tvb_get_ntoh24(tvb, offset+basic_hlen);
-				if (tsd==0xffffff) {
-					ts = tf ? pntohl(tf->saved.d+basic_hlen+message_hlen-4) : tvb_get_ntohl(tvb, offset+basic_hlen+message_hlen-4);
-					tsd = ti->tsd; /* questionable */
-				} else {
-					ts = ti->ts + tsd;
-				}
-			} else {
-				ts = ti->ts + ti->tsd;
-				tsd = ti->tsd;
-			}
+                        if (header_type==0) {
+                                ts = tf ? pntoh24(tf->saved.d+basic_hlen) : tvb_get_ntoh24(tvb, offset+basic_hlen);
+                                if (ts==0xffffff) {
+                                        ts = tf ? pntohl(tf->saved.d+basic_hlen+11) : tvb_get_ntohl(tvb, offset+basic_hlen+11);
+                                }
+                                tsd = ts - ti->ts;
+                        } else if (header_type<3) {
+                                tsd = tf ? pntoh24(tf->saved.d+basic_hlen) : tvb_get_ntoh24(tvb, offset+basic_hlen);
+                                if (tsd==0xffffff) {
+                                        ts = tf ? pntohl(tf->saved.d+basic_hlen+message_hlen-4) : tvb_get_ntohl(tvb, offset+basic_hlen+message_hlen-4);
+                                        tsd = ti->tsd; /* questionable */
+                                } else {
+                                        ts = ti->ts + tsd;
+                                }
+                        } else {
+                                ts = ti->ts + ti->tsd;
+                                tsd = ti->tsd;
+                        }
 
-			/* create a new packet structure */
-			tp = se_alloc(sizeof(rtmpt_packet_t));
-			tp->seq = tp->lastseq = tf ? tf->seq : seq+offset;
-			tp->have = 0;
-			tp->want = basic_hlen + message_hlen + body_len;
-			tp->chunkwant = 0;
-			tp->chunkhave = 0;
-			tp->bhlen = basic_hlen;
-			tp->mhlen = message_hlen;
-			tp->fmt = header_type;
-			tp->id = id;
-			tp->ts = ts;
-			tp->len = body_len;
-			if (id>RTMPT_ID_MAX) tp->cmd = id;
-			else tp->cmd = cmd & 0x7f;
-			tp->src = src;
-			tp->txid = 0;
-			tp->isresponse = FALSE;
-			tp->otherframe = 0;
+                        /* create a new packet structure */
+                        tp = se_alloc(sizeof(rtmpt_packet_t));
+                        tp->seq = tp->lastseq = tf ? tf->seq : seq+offset;
+                        tp->have = 0;
+                        tp->want = basic_hlen + message_hlen + body_len;
+                        tp->chunkwant = 0;
+                        tp->chunkhave = 0;
+                        tp->bhlen = basic_hlen;
+                        tp->mhlen = message_hlen;
+                        tp->fmt = header_type;
+                        tp->id = id;
+                        tp->ts = ts;
+                        tp->len = body_len;
+                        if (id>RTMPT_ID_MAX) tp->cmd = id;
+                        else tp->cmd = cmd & 0x7f;
+                        tp->src = src;
+                        tp->txid = 0;
+                        tp->isresponse = FALSE;
+                        tp->otherframe = 0;
 
-			/* Save the header information for future defaulting needs */
-			ti->ts = ts;
-			ti->tsd = tsd;
-			ti->len = body_len;
-			ti->cmd = cmd;
-			ti->src = src;
+                        /* Save the header information for future defaulting needs */
+                        ti->ts = ts;
+                        ti->tsd = tsd;
+                        ti->len = body_len;
+                        ti->cmd = cmd;
+                        ti->src = src;
 
-			/* store against the id only until unchunking is complete */
-			se_tree_insert32(ti->packets, tp->seq, tp);
+                        /* store against the id only until unchunking is complete */
+                        se_tree_insert32(ti->packets, tp->seq, tp);
 
-			if (!tf && body_len<=chunk_size && tp->want<=remain) {
-				/* The easy case - a whole packet contiguous and fully within this segment */
-				tp->resident = FALSE;
-				tp->data.offset = offset;
-				tp->lastseq = seq+offset+tp->want-1;
-				tp->have = tp->want;
+                        if (!tf && body_len<=chunk_size && tp->want<=remain) {
+                                /* The easy case - a whole packet contiguous and fully within this segment */
+                                tp->resident = FALSE;
+                                tp->data.offset = offset;
+                                tp->lastseq = seq+offset+tp->want-1;
+                                tp->have = tp->want;
 
-				se_tree_insert32(rconv->packets[cdir], tp->lastseq, tp);
+                                se_tree_insert32(rconv->packets[cdir], tp->lastseq, tp);
 
-				pktbuf = tvb_new_subset(tvb, tp->data.offset, tp->have, tp->have);
-				dissect_rtmpt(pktbuf, pinfo, tree, rconv, cdir, tp);
+                                pktbuf = tvb_new_subset(tvb, tp->data.offset, tp->have, tp->have);
+                                dissect_rtmpt(pktbuf, pinfo, tree, rconv, cdir, tp);
 
-				offset += tp->want;
-				remain -= tp->want;
-				continue;
+                                offset += tp->want;
+                                remain -= tp->want;
+                                continue;
 
-			} else {
-				/* Some more reassembly required */
-				tp->resident = TRUE;
-				tp->data.p = se_alloc(tp->bhlen+tp->mhlen+tp->len);
+                        } else {
+                                /* Some more reassembly required */
+                                tp->resident = TRUE;
+                                tp->data.p = se_alloc(tp->bhlen+tp->mhlen+tp->len);
 
-				if (tf && tf->ishdr) {
-					memcpy(tp->data.p, tf->saved.d, tf->len);
-				} else {
-					tvb_memcpy(tvb, tp->data.p, offset, basic_hlen+message_hlen);
-					offset += basic_hlen + message_hlen;
-					remain -= basic_hlen + message_hlen;
-				}
+                                if (tf && tf->ishdr) {
+                                        memcpy(tp->data.p, tf->saved.d, tf->len);
+                                } else {
+                                        tvb_memcpy(tvb, tp->data.p, offset, basic_hlen+message_hlen);
+                                        offset += basic_hlen + message_hlen;
+                                        remain -= basic_hlen + message_hlen;
+                                }
 
-				tp->lastseq = seq+offset-1;
-				tp->have = basic_hlen + message_hlen;
+                                tp->lastseq = seq+offset-1;
+                                tp->have = basic_hlen + message_hlen;
 
-				if (tp->have==tp->want) {
-					se_tree_insert32(rconv->packets[cdir], tp->lastseq, tp);
+                                if (tp->have==tp->want) {
+                                        se_tree_insert32(rconv->packets[cdir], tp->lastseq, tp);
 
-					pktbuf = tvb_new_child_real_data(tvb, tp->data.p, tp->have, tp->have);
-					add_new_data_source(pinfo, pktbuf, "Unchunked RTMP");
-					dissect_rtmpt(pktbuf, pinfo, tree, rconv, cdir, tp);
-					continue;
-				}
+                                        pktbuf = tvb_new_child_real_data(tvb, tp->data.p, tp->have, tp->have);
+                                        add_new_data_source(pinfo, pktbuf, "Unchunked RTMP");
+                                        dissect_rtmpt(pktbuf, pinfo, tree, rconv, cdir, tp);
+                                        continue;
+                                }
 
-				tp->chunkwant = chunk_size;
-				if (tp->chunkwant>tp->want-tp->have) tp->chunkwant = tp->want - tp->have;
-			}
-		} else {
-			RTMPT_DEBUG("Old packet cdir=%d seq=%d ti=%p tp=%p header_len=%d id=%d tph=%d tpw=%d len=%d cs=%d\n",
-						cdir, seq+offset,
-						ti, tp, basic_hlen+message_hlen, id, tp?tp->have:0, tp?tp->want:0, body_len, chunk_size);
+                                tp->chunkwant = chunk_size;
+                                if (tp->chunkwant>tp->want-tp->have) tp->chunkwant = tp->want - tp->have;
+                        }
+                } else {
+                        RTMPT_DEBUG("Old packet cdir=%d seq=%d ti=%p tp=%p header_len=%d id=%d tph=%d tpw=%d len=%d cs=%d\n",
+                                    cdir, seq+offset,
+                                    ti, tp, basic_hlen+message_hlen, id, tp?tp->have:0, tp?tp->want:0, body_len, chunk_size);
 
-			tp->chunkwant = chunk_size;
-			if (tp->chunkwant>tp->want-tp->have) tp->chunkwant = tp->want - tp->have;
+                        tp->chunkwant = chunk_size;
+                        if (tp->chunkwant>tp->want-tp->have) tp->chunkwant = tp->want - tp->have;
 
-			offset += basic_hlen + message_hlen;
-			remain -= basic_hlen + message_hlen;
-		}
+                        offset += basic_hlen + message_hlen;
+                        remain -= basic_hlen + message_hlen;
+                }
 
-		tf = NULL;
+                tf = NULL;
 
-		/* Last case to deal with is unchunking the packet body */
-unchunk:
-		want = tp->chunkwant - tp->chunkhave;
-		if (want > remain) want = remain;
-		RTMPT_DEBUG("  cw=%d ch=%d r=%d w=%d\n", tp->chunkwant, tp->chunkhave, remain, want);
+                /* Last case to deal with is unchunking the packet body */
+        unchunk:
+                want = tp->chunkwant - tp->chunkhave;
+                if (want > remain) want = remain;
+                RTMPT_DEBUG("  cw=%d ch=%d r=%d w=%d\n", tp->chunkwant, tp->chunkhave, remain, want);
 
-		tvb_memcpy(tvb, tp->data.p+tp->have, offset, want);
+                tvb_memcpy(tvb, tp->data.p+tp->have, offset, want);
 
-		if (tf) {
-			tf->have += want;
-			tf->lastseq = seq+offset+want-1;
-		}
-		tp->lastseq = seq+offset+want-1;
-		tp->have += want;
-		tp->chunkhave += want;
+                if (tf) {
+                        tf->have += want;
+                        tf->lastseq = seq+offset+want-1;
+                }
+                tp->lastseq = seq+offset+want-1;
+                tp->have += want;
+                tp->chunkhave += want;
 
-		offset += want;
-		remain -= want;
+                offset += want;
+                remain -= want;
 
-		if (tp->chunkhave==tp->chunkwant) {
-			/* Chunk is complete - wait for next header */
-			tp->chunkhave = 0;
-			tp->chunkwant = 0;
-		}
+                if (tp->chunkhave==tp->chunkwant) {
+                        /* Chunk is complete - wait for next header */
+                        tp->chunkhave = 0;
+                        tp->chunkwant = 0;
+                }
 
-		if (tp->have==tp->want) {
-			/* Whole packet is complete */
-			se_tree_insert32(rconv->packets[cdir], tp->lastseq, tp);
+                if (tp->have==tp->want) {
+                        /* Whole packet is complete */
+                        se_tree_insert32(rconv->packets[cdir], tp->lastseq, tp);
 
-			pktbuf = tvb_new_child_real_data(tvb, tp->data.p, tp->have, tp->have);
-			add_new_data_source(pinfo, pktbuf, "Unchunked RTMP");
-			dissect_rtmpt(pktbuf, pinfo, tree, rconv, cdir, tp);
-		} else if (tp->chunkhave<tp->chunkwant) {
-			/* Chunk is split across segment boundary */
-			rtmpt_frag_t *tf2 = se_alloc(sizeof(rtmpt_frag_t));
-			tf2->ishdr = 0;
-			tf2->seq = seq + offset - want;
-			tf2->lastseq = tf2->seq + remain - 1 + want;
-			tf2->have = tp->chunkhave;
-			tf2->len = tp->chunkwant;
-			tf2->saved.id = tp->id;
-			RTMPT_DEBUG("  inserting tf @ %d\n", seq+offset-want-1);
-			se_tree_insert32(rconv->frags[cdir], seq+offset-want-1, tf2);
-		}
-	}
+                        pktbuf = tvb_new_child_real_data(tvb, tp->data.p, tp->have, tp->have);
+                        add_new_data_source(pinfo, pktbuf, "Unchunked RTMP");
+                        dissect_rtmpt(pktbuf, pinfo, tree, rconv, cdir, tp);
+                } else if (tp->chunkhave<tp->chunkwant) {
+                        /* Chunk is split across segment boundary */
+                        rtmpt_frag_t *tf2 = se_alloc(sizeof(rtmpt_frag_t));
+                        tf2->ishdr = 0;
+                        tf2->seq = seq + offset - want;
+                        tf2->lastseq = tf2->seq + remain - 1 + want;
+                        tf2->have = tp->chunkhave;
+                        tf2->len = tp->chunkwant;
+                        tf2->saved.id = tp->id;
+                        RTMPT_DEBUG("  inserting tf @ %d\n", seq+offset-want-1);
+                        se_tree_insert32(rconv->frags[cdir], seq+offset-want-1, tf2);
+                }
+        }
 }
 
 static rtmpt_conv_t*
@@ -1652,18 +1662,18 @@ rtmpt_init_rconv(conversation_t *conv)
         rtmpt_conv_t *rconv = se_alloc(sizeof(rtmpt_conv_t));
         conversation_add_proto_data(conv, proto_rtmpt, rconv);
 
-        rconv->seqs[0] = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "rtmpt_seqs0");
-        rconv->seqs[1] = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "rtmpt_seqs1");
-        rconv->frags[0] = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "rtmpt_frags0");
-        rconv->frags[1] = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "rtmpt_frags1");
-        rconv->ids[0] = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "rtmpt_ids0");
-        rconv->ids[1] = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "rtmpt_ids1");
-        rconv->packets[0] = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "rtmpt_packets0");
-        rconv->packets[1] = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "rtmpt_packets1");
+        rconv->seqs[0]      = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "rtmpt_seqs0");
+        rconv->seqs[1]      = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "rtmpt_seqs1");
+        rconv->frags[0]     = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "rtmpt_frags0");
+        rconv->frags[1]     = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "rtmpt_frags1");
+        rconv->ids[0]       = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "rtmpt_ids0");
+        rconv->ids[1]       = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "rtmpt_ids1");
+        rconv->packets[0]   = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "rtmpt_packets0");
+        rconv->packets[1]   = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "rtmpt_packets1");
         rconv->chunksize[0] = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "rtmpt_chunksize0");
         rconv->chunksize[1] = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "rtmpt_chunksize1");
-        rconv->txids[0] = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "rtmpt_txids0");
-        rconv->txids[1] = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "rtmpt_txids1");
+        rconv->txids[0]     = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "rtmpt_txids0");
+        rconv->txids[1]     = se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "rtmpt_txids1");
 
         return rconv;
 }
@@ -1671,40 +1681,40 @@ rtmpt_init_rconv(conversation_t *conv)
 static void
 dissect_rtmpt_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	conversation_t *conv;
-	rtmpt_conv_t *rconv;
-	int cdir;
-	struct tcpinfo *tcpinfo;
+        conversation_t *conv;
+        rtmpt_conv_t   *rconv;
+        int             cdir;
+        struct tcpinfo *tcpinfo;
 
-	conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-	if (!conv) {
-		conv = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-	}
+        conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+        if (!conv) {
+                conv = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+        }
 
-	rconv = (rtmpt_conv_t*)conversation_get_proto_data(conv, proto_rtmpt);
-	if (!rconv) {
+        rconv = (rtmpt_conv_t*)conversation_get_proto_data(conv, proto_rtmpt);
+        if (!rconv) {
                 rconv = rtmpt_init_rconv(conv);
-	}
+        }
 
-	cdir = (ADDRESSES_EQUAL(&conv->key_ptr->addr1, &pinfo->src) &&
+        cdir = (ADDRESSES_EQUAL(&conv->key_ptr->addr1, &pinfo->src) &&
                 ADDRESSES_EQUAL(&conv->key_ptr->addr2, &pinfo->dst) &&
                 conv->key_ptr->port1==pinfo->srcport &&
                 conv->key_ptr->port2==pinfo->destport) ? 0 : 1;
 
-	tcpinfo = pinfo->private_data;
-	dissect_rtmpt_common(tvb, pinfo, tree, rconv, cdir, tcpinfo->seq, tcpinfo->lastackseq);
+        tcpinfo = pinfo->private_data;
+        dissect_rtmpt_common(tvb, pinfo, tree, rconv, cdir, tcpinfo->seq, tcpinfo->lastackseq);
 }
 
 static void
 dissect_rtmpt_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
         conversation_t *conv;
-        rtmpt_conv_t *rconv;
-        int cdir;
-        guint32 seq;
-        guint32 lastackseq;
-        guint32 offset;
-        gint remain;
+        rtmpt_conv_t   *rconv;
+        int             cdir;
+        guint32         seq;
+        guint32         lastackseq;
+        guint32         offset;
+        gint            remain;
 
         offset = 0;
         remain = tvb_length_remaining(tvb, 0);
@@ -1815,251 +1825,307 @@ dissect_rtmpt_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static gboolean
 dissect_rtmpt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	conversation_t * conversation;
-	if (tvb_length(tvb) >= 12)
-	{
-		/* To avoid a too high rate of false positive, this heuristics only matches the protocol
-		   from the first server response packet and not from the client request packets before.
-		   Therefore it is necessary to a "Decode as" to properly decode the first packets */
-		struct tcpinfo *tcpinfo = pinfo->private_data;
-		if (tcpinfo->lastackseq == RTMPT_HANDSHAKE_OFFSET_2 && tcpinfo->seq == RTMPT_HANDSHAKE_OFFSET_1 && tvb_get_guint8(tvb, 0) == RTMPT_MAGIC)
-		{
-			/* Register this dissector for this conversation */
-			conversation = NULL;
-			conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-			if (conversation == NULL)
-			{
-				conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-			}
-			conversation_set_dissector(conversation, rtmpt_tcp_handle);
+        conversation_t * conversation;
+        if (tvb_length(tvb) >= 12)
+        {
+                /* To avoid a too high rate of false positive, this heuristics only matches the protocol
+                   from the first server response packet and not from the client request packets before.
+                   Therefore it is necessary to a "Decode as" to properly decode the first packets */
+                struct tcpinfo *tcpinfo = pinfo->private_data;
+                if (tcpinfo->lastackseq == RTMPT_HANDSHAKE_OFFSET_2
+                    && tcpinfo->seq == RTMPT_HANDSHAKE_OFFSET_1
+                    && tvb_get_guint8(tvb, 0) == RTMPT_MAGIC)
+                {
+                        /* Register this dissector for this conversation */
+                        conversation = NULL;
+                        conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+                        if (conversation == NULL)
+                        {
+                                conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+                        }
+                        conversation_set_dissector(conversation, rtmpt_tcp_handle);
 
-			/* Dissect the packet */
-			dissect_rtmpt_tcp(tvb, pinfo, tree);
-			return TRUE;
-		}
-	}
-	return FALSE;
+                        /* Dissect the packet */
+                        dissect_rtmpt_tcp(tvb, pinfo, tree);
+                        return TRUE;
+                }
+        }
+        return FALSE;
 }
 #endif
 
 void
 proto_register_rtmpt(void)
 {
-  static hf_register_info hf[] = {
+        static hf_register_info hf[] = {
 /* RTMP Handshake data */
-    { &hf_rtmpt_handshake_c0,
-      { "Protocol version", "rtmpt.handshake.c0", FT_BYTES, BASE_NONE, NULL, 0x0, "RTMPT Handshake C0", HFILL }},
+                { &hf_rtmpt_handshake_c0,
+                  { "Protocol version", "rtmpt.handshake.c0", FT_BYTES, BASE_NONE,
+                    NULL, 0x0, "RTMPT Handshake C0", HFILL }},
 
-    { &hf_rtmpt_handshake_s0,
-      { "Protocol version", "rtmpt.handshake.s0", FT_BYTES, BASE_NONE, NULL, 0x0, "RTMPT Handshake S0", HFILL }},
+                { &hf_rtmpt_handshake_s0,
+                  { "Protocol version", "rtmpt.handshake.s0", FT_BYTES, BASE_NONE,
+                    NULL, 0x0, "RTMPT Handshake S0", HFILL }},
 
-    { &hf_rtmpt_handshake_c1,
-      { "Handshake data", "rtmpt.handshake.c1", FT_BYTES, BASE_NONE, NULL, 0x0, "RTMPT Handshake C1", HFILL }},
+                { &hf_rtmpt_handshake_c1,
+                  { "Handshake data", "rtmpt.handshake.c1", FT_BYTES, BASE_NONE,
+                    NULL, 0x0, "RTMPT Handshake C1", HFILL }},
 
-    { &hf_rtmpt_handshake_s1,
-      { "Handshake data", "rtmpt.handshake.s1", FT_BYTES, BASE_NONE, NULL, 0x0, "RTMPT Handshake S1", HFILL }},
+                { &hf_rtmpt_handshake_s1,
+                  { "Handshake data", "rtmpt.handshake.s1", FT_BYTES, BASE_NONE,
+                    NULL, 0x0, "RTMPT Handshake S1", HFILL }},
 
-    { &hf_rtmpt_handshake_c2,
-      { "Handshake data", "rtmpt.handshake.c2", FT_BYTES, BASE_NONE, NULL, 0x0, "RTMPT Handshake C2", HFILL }},
+                { &hf_rtmpt_handshake_c2,
+                  { "Handshake data", "rtmpt.handshake.c2", FT_BYTES, BASE_NONE,
+                    NULL, 0x0, "RTMPT Handshake C2", HFILL }},
 
-    { &hf_rtmpt_handshake_s2,
-      { "Handshake data", "rtmpt.handshake.s2", FT_BYTES, BASE_NONE, NULL, 0x0, "RTMPT Handshake S2", HFILL }},
+                { &hf_rtmpt_handshake_s2,
+                  { "Handshake data", "rtmpt.handshake.s2", FT_BYTES, BASE_NONE,
+                    NULL, 0x0, "RTMPT Handshake S2", HFILL }},
 
 /* RTMP chunk/packet header */
-    { &hf_rtmpt_header_format,
-      { "Format", "rtmpt.header.format", FT_UINT8, BASE_DEC, NULL, 0xC0, "RTMPT Basic Header format", HFILL }},
+                { &hf_rtmpt_header_format,
+                  { "Format", "rtmpt.header.format", FT_UINT8, BASE_DEC,
+                    NULL, 0xC0, "RTMPT Basic Header format", HFILL }},
 
-    { &hf_rtmpt_header_csid,
-     { "Chunk Stream ID", "rtmpt.header.csid", FT_UINT8, BASE_DEC, NULL, 0x3F, "RTMPT Basic Header chunk stream ID", HFILL }},
+                { &hf_rtmpt_header_csid,
+                  { "Chunk Stream ID", "rtmpt.header.csid", FT_UINT8, BASE_DEC,
+                    NULL, 0x3F, "RTMPT Basic Header chunk stream ID", HFILL }},
 
-    { &hf_rtmpt_header_timestamp,
-      { "Timestamp", "rtmpt.header.timestamp", FT_UINT24, BASE_DEC, NULL, 0x0, "RTMPT Message Header timestamp", HFILL }},
+                { &hf_rtmpt_header_timestamp,
+                  { "Timestamp", "rtmpt.header.timestamp", FT_UINT24, BASE_DEC,
+                    NULL, 0x0, "RTMPT Message Header timestamp", HFILL }},
 
-    { &hf_rtmpt_header_timestamp_delta,
-      { "Timestamp delta", "rtmpt.header.timestampdelta", FT_UINT24, BASE_DEC, NULL, 0x0, "RTMPT Message Header timestamp delta", HFILL }},
+                { &hf_rtmpt_header_timestamp_delta,
+                  { "Timestamp delta", "rtmpt.header.timestampdelta", FT_UINT24, BASE_DEC,
+                    NULL, 0x0, "RTMPT Message Header timestamp delta", HFILL }},
 
-    { &hf_rtmpt_header_body_size,
-      { "Body size", "rtmpt.header.bodysize", FT_UINT24, BASE_DEC, NULL, 0x0, "RTMPT Message Header body size", HFILL }},
+                { &hf_rtmpt_header_body_size,
+                  { "Body size", "rtmpt.header.bodysize", FT_UINT24, BASE_DEC,
+                    NULL, 0x0, "RTMPT Message Header body size", HFILL }},
 
-    { &hf_rtmpt_header_typeid,
-      { "Type ID", "rtmpt.header.typeid", FT_UINT8, BASE_HEX, VALS(rtmpt_opcode_vals), 0x0, "RTMPT Message Header type ID", HFILL }},
+                { &hf_rtmpt_header_typeid,
+                  { "Type ID", "rtmpt.header.typeid", FT_UINT8, BASE_HEX,
+                    VALS(rtmpt_opcode_vals), 0x0, "RTMPT Message Header type ID", HFILL }},
 
-    { &hf_rtmpt_header_streamid,
-      { "Stream ID", "rtmpt.header.streamid", FT_UINT32, BASE_DEC, NULL, 0x0, "RTMPT Header stream ID", HFILL }},
+                { &hf_rtmpt_header_streamid,
+                  { "Stream ID", "rtmpt.header.streamid", FT_UINT32, BASE_DEC,
+                    NULL, 0x0, "RTMPT Header stream ID", HFILL }},
 
-    { &hf_rtmpt_header_ets,
-      { "Extended timestamp", "rtmpt.header.ets", FT_UINT24, BASE_DEC, NULL, 0x0, "RTMPT Message Header extended timestamp", HFILL }},
+                { &hf_rtmpt_header_ets,
+                  { "Extended timestamp", "rtmpt.header.ets", FT_UINT24, BASE_DEC,
+                    NULL, 0x0, "RTMPT Message Header extended timestamp", HFILL }},
 
 /* Stream Control Messages */
 
-    { &hf_rtmpt_scm_chunksize,
-      { "Chunk size", "rtmpt.scm.chunksize", FT_UINT32, BASE_DEC, NULL, 0x0, "RTMPT SCM chunk size", HFILL }},
+                { &hf_rtmpt_scm_chunksize,
+                  { "Chunk size", "rtmpt.scm.chunksize", FT_UINT32, BASE_DEC,
+                    NULL, 0x0, "RTMPT SCM chunk size", HFILL }},
 
-    { &hf_rtmpt_scm_csid,
-      { "Chunk stream ID", "rtmpt.scm.csid", FT_UINT32, BASE_DEC, NULL, 0x0, "RTMPT SCM chunk stream ID", HFILL }},
+                { &hf_rtmpt_scm_csid,
+                  { "Chunk stream ID", "rtmpt.scm.csid", FT_UINT32, BASE_DEC,
+                    NULL, 0x0, "RTMPT SCM chunk stream ID", HFILL }},
 
-    { &hf_rtmpt_scm_seq,
-      { "Sequence number", "rtmpt.scm.seq", FT_UINT32, BASE_DEC, NULL, 0x0, "RTMPT SCM acknowledgement sequence number", HFILL }},
+                { &hf_rtmpt_scm_seq,
+                  { "Sequence number", "rtmpt.scm.seq", FT_UINT32, BASE_DEC,
+                    NULL, 0x0, "RTMPT SCM acknowledgement sequence number", HFILL }},
 
-    { &hf_rtmpt_scm_was,
-      { "Window acknowledgement size", "rtmpt.scm.seq", FT_UINT32, BASE_DEC, NULL, 0x0, "RTMPT SCM window acknowledgement size", HFILL }},
+                { &hf_rtmpt_scm_was,
+                  { "Window acknowledgement size", "rtmpt.scm.seq", FT_UINT32, BASE_DEC,
+                    NULL, 0x0, "RTMPT SCM window acknowledgement size", HFILL }},
 
-    { &hf_rtmpt_scm_limittype,
-      { "Limit type", "rtmpt.scm.limittype", FT_UINT8, BASE_DEC, VALS(rtmpt_limit_vals), 0x0, "RTMPT SCM window acknowledgement size", HFILL }},
+                { &hf_rtmpt_scm_limittype,
+                  { "Limit type", "rtmpt.scm.limittype", FT_UINT8, BASE_DEC,
+                    VALS(rtmpt_limit_vals), 0x0, "RTMPT SCM window acknowledgement size", HFILL }},
 
 /* User Control Messages */
-    { &hf_rtmpt_ucm_eventtype,
-      { "Event type", "rtmpt.ucm.eventtype", FT_UINT16, BASE_DEC, VALS(rtmpt_ucm_vals), 0x0, "RTMPT UCM event type", HFILL }},
+                { &hf_rtmpt_ucm_eventtype,
+                  { "Event type", "rtmpt.ucm.eventtype", FT_UINT16, BASE_DEC,
+                    VALS(rtmpt_ucm_vals), 0x0, "RTMPT UCM event type", HFILL }},
 
 /* AMF basic types */
-    { &hf_rtmpt_amf_type,
-      { "AMF type", "rtmpt.amf.type", FT_UINT8, BASE_DEC, VALS(rtmpt_type_vals), 0x0, "RTMPT AMF type", HFILL }},
+                { &hf_rtmpt_amf_type,
+                  { "AMF type", "rtmpt.amf.type", FT_UINT8, BASE_DEC,
+                    VALS(rtmpt_type_vals), 0x0, "RTMPT AMF type", HFILL }},
 
-    { &hf_rtmpt_amf_number,
-      { "Number", "rtmpt.amf.number", FT_DOUBLE, BASE_NONE, NULL, 0x0, "RTMPT AMF number", HFILL }},
+                { &hf_rtmpt_amf_number,
+                  { "Number", "rtmpt.amf.number", FT_DOUBLE, BASE_NONE,
+                    NULL, 0x0, "RTMPT AMF number", HFILL }},
 
-    { &hf_rtmpt_amf_boolean,
-      { "Boolean", "rtmpt.amf.boolean", FT_BOOLEAN, BASE_DEC, NULL, 0x0, "RTMPT AMF boolean", HFILL }},
+                { &hf_rtmpt_amf_boolean,
+                  { "Boolean", "rtmpt.amf.boolean", FT_BOOLEAN, BASE_DEC,
+                    NULL, 0x0, "RTMPT AMF boolean", HFILL }},
 
-    { &hf_rtmpt_amf_stringlength,
-      { "String length", "rtmpt.amf.longstringlength", FT_UINT16, BASE_DEC, NULL, 0x0, "RTMPT AMF string length", HFILL }},
+                { &hf_rtmpt_amf_stringlength,
+                  { "String length", "rtmpt.amf.longstringlength", FT_UINT16, BASE_DEC,
+                    NULL, 0x0, "RTMPT AMF string length", HFILL }},
 
-    { &hf_rtmpt_amf_string,
-      { "String", "rtmpt.amf.string", FT_STRINGZ, BASE_NONE, NULL, 0x0, "RTMPT AMF string", HFILL }},
+                { &hf_rtmpt_amf_string,
+                  { "String", "rtmpt.amf.string", FT_STRINGZ, BASE_NONE,
+                    NULL, 0x0, "RTMPT AMF string", HFILL }},
 
-    { &hf_rtmpt_amf_reference,
-      { "Reference", "rtmpt.amf.reference", FT_UINT16, BASE_DEC, NULL, 0x0, "RTMPT AMF object reference", HFILL }},
+                { &hf_rtmpt_amf_reference,
+                  { "Reference", "rtmpt.amf.reference", FT_UINT16, BASE_DEC,
+                    NULL, 0x0, "RTMPT AMF object reference", HFILL }},
 
-    { &hf_rtmpt_amf_date,
-      { "Date", "rtmpt.amf.date", FT_BYTES, BASE_NONE, NULL, 0x0, "RTMPT AMF date", HFILL }},
+                { &hf_rtmpt_amf_date,
+                  { "Date", "rtmpt.amf.date", FT_BYTES, BASE_NONE,
+                    NULL, 0x0, "RTMPT AMF date", HFILL }},
 
-    { &hf_rtmpt_amf_longstringlength,
-      { "String length", "rtmpt.amf.longstringlength", FT_UINT32, BASE_DEC, NULL, 0x0, "RTMPT AMF long string length", HFILL }},
+                { &hf_rtmpt_amf_longstringlength,
+                  { "String length", "rtmpt.amf.longstringlength", FT_UINT32, BASE_DEC,
+                    NULL, 0x0, "RTMPT AMF long string length", HFILL }},
 
-    { &hf_rtmpt_amf_longstring,
-      { "Long string", "rtmpt.amf.longstring", FT_STRINGZ, BASE_NONE, NULL, 0x0, "RTMPT AMF long string", HFILL }},
+                { &hf_rtmpt_amf_longstring,
+                  { "Long string", "rtmpt.amf.longstring", FT_STRINGZ, BASE_NONE,
+                    NULL, 0x0, "RTMPT AMF long string", HFILL }},
 
-    { &hf_rtmpt_amf_xml,
-      { "XML document", "rtmpt.amf.xml", FT_STRINGZ, BASE_NONE, NULL, 0x0, "RTMPT AMF XML document", HFILL }},
+                { &hf_rtmpt_amf_xml,
+                  { "XML document", "rtmpt.amf.xml", FT_STRINGZ, BASE_NONE,
+                    NULL, 0x0, "RTMPT AMF XML document", HFILL }},
 
-    { &hf_rtmpt_amf_int64,
-      { "Int64", "rtmpt.amf.int64", FT_INT64, BASE_DEC, NULL, 0x0, "RTMPT AMF int64", HFILL }},
+                { &hf_rtmpt_amf_int64,
+                  { "Int64", "rtmpt.amf.int64", FT_INT64, BASE_DEC,
+                    NULL, 0x0, "RTMPT AMF int64", HFILL }},
 
 /* AMF object types */
-    { &hf_rtmpt_amf_object,
-      { "Object", "rtmpt.amf.object", FT_NONE, BASE_NONE, NULL, 0x0, "RTMPT AMF object", HFILL }},
+                { &hf_rtmpt_amf_object,
+                  { "Object", "rtmpt.amf.object", FT_NONE, BASE_NONE,
+                    NULL, 0x0, "RTMPT AMF object", HFILL }},
 
-    { &hf_rtmpt_amf_ecmaarray,
-      { "ECMA array", "rtmpt.amf.ecmaarray", FT_NONE, BASE_NONE, NULL, 0x0, "RTMPT AMF ECMA array", HFILL }},
+                { &hf_rtmpt_amf_ecmaarray,
+                  { "ECMA array", "rtmpt.amf.ecmaarray", FT_NONE, BASE_NONE,
+                    NULL, 0x0, "RTMPT AMF ECMA array", HFILL }},
 
-    { &hf_rtmpt_amf_strictarray,
-      { "Strict array", "rtmpt.amf.strictarray", FT_NONE, BASE_NONE, NULL, 0x0, "RTMPT AMF strict array", HFILL }},
+                { &hf_rtmpt_amf_strictarray,
+                  { "Strict array", "rtmpt.amf.strictarray", FT_NONE, BASE_NONE,
+                    NULL, 0x0, "RTMPT AMF strict array", HFILL }},
 
-    { &hf_rtmpt_amf_arraylength,
-      { "Array length", "rtmpt.amf.arraylength", FT_UINT32, BASE_DEC, NULL, 0x0, "RTMPT AMF array length", HFILL }},
+                { &hf_rtmpt_amf_arraylength,
+                  { "Array length", "rtmpt.amf.arraylength", FT_UINT32, BASE_DEC,
+                    NULL, 0x0, "RTMPT AMF array length", HFILL }},
 
 /* Frame links */
 
-    { &hf_rtmpt_function_call,
-      { "Response to this call in frame", "rtmpt.function.call", FT_FRAMENUM, BASE_NONE, NULL, 0x0, "RTMPT function call", HFILL }},
+                { &hf_rtmpt_function_call,
+                  { "Response to this call in frame", "rtmpt.function.call", FT_FRAMENUM, BASE_NONE,
+                    NULL, 0x0, "RTMPT function call", HFILL }},
 
-    { &hf_rtmpt_function_response,
-      { "Call for this response in frame", "rtmpt.function.response", FT_FRAMENUM, BASE_NONE, NULL, 0x0, "RTMPT function response", HFILL }},
+                { &hf_rtmpt_function_response,
+                  { "Call for this response in frame", "rtmpt.function.response", FT_FRAMENUM, BASE_NONE,
+                    NULL, 0x0, "RTMPT function response", HFILL }},
 
 /* Audio packets */
-    { &hf_rtmpt_audio_control,
-      { "Audio control", "rtmpt.audio.control", FT_UINT8, BASE_HEX, NULL, 0x0, "RTMPT Audio control", HFILL }},
+                { &hf_rtmpt_audio_control,
+                  { "Audio control", "rtmpt.audio.control", FT_UINT8, BASE_HEX,
+                    NULL, 0x0, "RTMPT Audio control", HFILL }},
 
-    { &hf_rtmpt_audio_format,
-      { "Format", "rtmpt.audio.format", FT_UINT8, BASE_DEC, VALS(rtmpt_audio_codecs), 0xf0, "RTMPT Audio format", HFILL }},
+                { &hf_rtmpt_audio_format,
+                  { "Format", "rtmpt.audio.format", FT_UINT8, BASE_DEC,
+                    VALS(rtmpt_audio_codecs), 0xf0, "RTMPT Audio format", HFILL }},
 
-    { &hf_rtmpt_audio_rate,
-      { "Sample rate", "rtmpt.audio.rate", FT_UINT8, BASE_DEC, VALS(rtmpt_audio_rates), 0x0c, "RTMPT Audio sample rate", HFILL }},
+                { &hf_rtmpt_audio_rate,
+                  { "Sample rate", "rtmpt.audio.rate", FT_UINT8, BASE_DEC,
+                    VALS(rtmpt_audio_rates), 0x0c, "RTMPT Audio sample rate", HFILL }},
 
-    { &hf_rtmpt_audio_size,
-      { "Sample size", "rtmpt.audio.size", FT_UINT8, BASE_DEC, VALS(rtmpt_audio_sizes), 0x02, "RTMPT Audio sample size", HFILL }},
+                { &hf_rtmpt_audio_size,
+                  { "Sample size", "rtmpt.audio.size", FT_UINT8, BASE_DEC,
+                    VALS(rtmpt_audio_sizes), 0x02, "RTMPT Audio sample size", HFILL }},
 
-    { &hf_rtmpt_audio_type,
-      { "Channels", "rtmpt.audio.type", FT_UINT8, BASE_DEC, VALS(rtmpt_audio_types), 0x01, "RTMPT Audio channel count", HFILL }},
+                { &hf_rtmpt_audio_type,
+                  { "Channels", "rtmpt.audio.type", FT_UINT8, BASE_DEC,
+                    VALS(rtmpt_audio_types), 0x01, "RTMPT Audio channel count", HFILL }},
 
-    { &hf_rtmpt_audio_data,
-      { "Audio data", "rtmpt.audio.data", FT_BYTES, BASE_NONE, NULL, 0x0, "RTMPT Audio data", HFILL }},
+                { &hf_rtmpt_audio_data,
+                  { "Audio data", "rtmpt.audio.data", FT_BYTES, BASE_NONE,
+                    NULL, 0x0, "RTMPT Audio data", HFILL }},
 
 /* Video packets */
-    { &hf_rtmpt_video_control,
-      { "Video control", "rtmpt.video.control", FT_UINT8, BASE_HEX, NULL, 0x0, "RTMPT Video control", HFILL }},
+                { &hf_rtmpt_video_control,
+                  { "Video control", "rtmpt.video.control", FT_UINT8, BASE_HEX,
+                    NULL, 0x0, "RTMPT Video control", HFILL }},
 
-    { &hf_rtmpt_video_type,
-      { "Type", "rtmpt.video.type", FT_UINT8, BASE_DEC, VALS(rtmpt_video_types), 0xf0, "RTMPT Video type", HFILL }},
+                { &hf_rtmpt_video_type,
+                  { "Type", "rtmpt.video.type", FT_UINT8, BASE_DEC,
+                    VALS(rtmpt_video_types), 0xf0, "RTMPT Video type", HFILL }},
 
-    { &hf_rtmpt_video_format,
-      { "Format", "rtmpt.video.format", FT_UINT8, BASE_DEC, VALS(rtmpt_video_codecs), 0x0f, "RTMPT Video format", HFILL }},
+                { &hf_rtmpt_video_format,
+                  { "Format", "rtmpt.video.format", FT_UINT8, BASE_DEC,
+                    VALS(rtmpt_video_codecs), 0x0f, "RTMPT Video format", HFILL }},
 
-    { &hf_rtmpt_video_data,
-      { "Video data", "rtmpt.video.data", FT_BYTES, BASE_NONE, NULL, 0x0, "RTMPT Video data", HFILL }},
+                { &hf_rtmpt_video_data,
+                  { "Video data", "rtmpt.video.data", FT_BYTES, BASE_NONE,
+                    NULL, 0x0, "RTMPT Video data", HFILL }},
 
 /* Aggregate packets */
-    { &hf_rtmpt_tag_type,
-      { "Type", "rtmpt.tag.type", FT_UINT8, BASE_DEC, VALS(rtmpt_tag_vals), 0x0, "RTMPT Aggregate tag type", HFILL }},
+                { &hf_rtmpt_tag_type,
+                  { "Type", "rtmpt.tag.type", FT_UINT8, BASE_DEC,
+                    VALS(rtmpt_tag_vals), 0x0, "RTMPT Aggregate tag type", HFILL }},
 
-    { &hf_rtmpt_tag_datasize,
-      { "Data size", "rtmpt.tag.datasize", FT_UINT24, BASE_DEC, NULL, 0x0, "RTMPT Aggregate tag data size", HFILL }},
+                { &hf_rtmpt_tag_datasize,
+                  { "Data size", "rtmpt.tag.datasize", FT_UINT24, BASE_DEC,
+                    NULL, 0x0, "RTMPT Aggregate tag data size", HFILL }},
 
-    { &hf_rtmpt_tag_timestamp,
-      { "Timestamp", "rtmpt.tag.timestamp", FT_UINT24, BASE_DEC, NULL, 0x0, "RTMPT Aggregate tag timestamp", HFILL }},
+                { &hf_rtmpt_tag_timestamp,
+                  { "Timestamp", "rtmpt.tag.timestamp", FT_UINT24, BASE_DEC,
+                    NULL, 0x0, "RTMPT Aggregate tag timestamp", HFILL }},
 
-    { &hf_rtmpt_tag_ets,
-      { "Timestamp Extended", "rtmpt.tag.ets", FT_UINT8, BASE_DEC, NULL, 0x0, "RTMPT Aggregate tag timestamp extended", HFILL }},
+                { &hf_rtmpt_tag_ets,
+                  { "Timestamp Extended", "rtmpt.tag.ets", FT_UINT8, BASE_DEC,
+                    NULL, 0x0, "RTMPT Aggregate tag timestamp extended", HFILL }},
 
-    { &hf_rtmpt_tag_streamid,
-      { "Stream ID", "rtmpt.tag.streamid", FT_UINT24, BASE_DEC, NULL, 0x0, "RTMPT Aggregate tag stream ID", HFILL }},
+                { &hf_rtmpt_tag_streamid,
+                  { "Stream ID", "rtmpt.tag.streamid", FT_UINT24, BASE_DEC,
+                    NULL, 0x0, "RTMPT Aggregate tag stream ID", HFILL }},
 
-    { &hf_rtmpt_tag_tagsize,
-      { "Previous tag size", "rtmpt.tag.tagsize", FT_UINT32, BASE_DEC, NULL, 0x0, "RTMPT Aggregate previous tag size", HFILL }}
+                { &hf_rtmpt_tag_tagsize,
+                  { "Previous tag size", "rtmpt.tag.tagsize", FT_UINT32, BASE_DEC,
+                    NULL, 0x0, "RTMPT Aggregate previous tag size", HFILL }}
 
-  };
-  static gint *ett[] = {
-    &ett_rtmpt,
-    &ett_rtmpt_handshake,
-    &ett_rtmpt_header,
-    &ett_rtmpt_body,
-    &ett_rtmpt_ucm,
-    &ett_rtmpt_value,
-    &ett_rtmpt_property,
-    &ett_rtmpt_string,
-    &ett_rtmpt_object,
-    &ett_rtmpt_mixed_array,
-    &ett_rtmpt_array,
-    &ett_rtmpt_audio_control,
-    &ett_rtmpt_video_control,
-    &ett_rtmpt_tag,
-    &ett_rtmpt_tag_data
-  };
+        };
+        static gint *ett[] = {
+                &ett_rtmpt,
+                &ett_rtmpt_handshake,
+                &ett_rtmpt_header,
+                &ett_rtmpt_body,
+                &ett_rtmpt_ucm,
+                &ett_rtmpt_value,
+                &ett_rtmpt_property,
+                &ett_rtmpt_string,
+                &ett_rtmpt_object,
+                &ett_rtmpt_mixed_array,
+                &ett_rtmpt_array,
+                &ett_rtmpt_audio_control,
+                &ett_rtmpt_video_control,
+                &ett_rtmpt_tag,
+                &ett_rtmpt_tag_data
+        };
 
-  module_t *rtmpt_module;
+        module_t *rtmpt_module;
 
-  proto_rtmpt = proto_register_protocol("Real Time Messaging Protocol", "RTMPT", "rtmpt");
-  proto_register_field_array(proto_rtmpt, hf, array_length(hf));
-  proto_register_subtree_array(ett, array_length(ett));
+        proto_rtmpt = proto_register_protocol("Real Time Messaging Protocol", "RTMPT", "rtmpt");
+        proto_register_field_array(proto_rtmpt, hf, array_length(hf));
+        proto_register_subtree_array(ett, array_length(ett));
 
-  rtmpt_module = prefs_register_protocol(proto_rtmpt, NULL);
-  prefs_register_bool_preference(rtmpt_module, "desegment",
-    "Reassemble RTMPT messages spanning multiple TCP segments",
-    "Whether the RTMPT dissector should reassemble messages spanning multiple TCP segments."
-    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
-    &rtmpt_desegment);
+        rtmpt_module = prefs_register_protocol(proto_rtmpt, NULL);
+        prefs_register_bool_preference(rtmpt_module, "desegment",
+                                       "Reassemble RTMPT messages spanning multiple TCP segments",
+                                       "Whether the RTMPT dissector should reassemble messages spanning multiple TCP segments."
+                                       " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\""
+                                       " in the TCP protocol settings.",
+                                       &rtmpt_desegment);
 }
 
 void
 proto_reg_handoff_rtmpt(void)
 {
-/*	heur_dissector_add("tcp", dissect_rtmpt_heur, proto_rtmpt); */
-	rtmpt_tcp_handle = create_dissector_handle(dissect_rtmpt_tcp, proto_rtmpt);
-/*	dissector_add_handle("tcp.port", rtmpt_tcp_handle); */
-	dissector_add_uint("tcp.port", RTMP_PORT, rtmpt_tcp_handle);
+/*      heur_dissector_add("tcp", dissect_rtmpt_heur, proto_rtmpt); */
+        rtmpt_tcp_handle = create_dissector_handle(dissect_rtmpt_tcp, proto_rtmpt);
+/*      dissector_add_handle("tcp.port", rtmpt_tcp_handle); */
+        dissector_add_uint("tcp.port", RTMP_PORT, rtmpt_tcp_handle);
 
-	rtmpt_http_handle = create_dissector_handle(dissect_rtmpt_http, proto_rtmpt);
-	dissector_add_string("media_type", "application/x-fcs", rtmpt_http_handle);
+        rtmpt_http_handle = create_dissector_handle(dissect_rtmpt_http, proto_rtmpt);
+        dissector_add_string("media_type", "application/x-fcs", rtmpt_http_handle);
 }
 
 /*
