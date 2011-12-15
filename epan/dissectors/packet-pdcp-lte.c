@@ -1906,17 +1906,18 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     const char         *mode;
     proto_tree         *pdcp_tree = NULL;
     proto_item         *root_ti = NULL;
-    proto_tree         *rohc_tree = NULL;
-    proto_item         *rohc_ti = NULL;
     gint               offset = 0;
     gint               rohc_offset;
     struct pdcp_lte_info  *p_pdcp_info;
-    /*guint8             base_header_byte;*/
+	rohc_info          *p_rohc_info = NULL;	
+	tvbuff_t           *rohc_tvb = NULL;
+#if 0
+    proto_tree         *rohc_tree = NULL;*/
+    proto_item         *rohc_ti = NULL;
+    guint8             base_header_byte;
     gboolean           udp_checksum_needed = TRUE;
     gboolean           ip_id_needed = TRUE;
-	rohc_info          *p_rohc_info = NULL;	
-	tvbuff_t           *rohc_tvb = NULL;		
-
+#endif
     /* Append this protocol name rather than replace. */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PDCP-LTE");
 
