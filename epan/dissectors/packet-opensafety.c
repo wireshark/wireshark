@@ -1348,7 +1348,8 @@ opensafety_package_dissector(const gchar * protocolName, const gchar * sub_diss_
                 opensafety_item = proto_tree_add_item(tree, proto_opensafety, message_tvb, frameOffset, frameLength, ENC_BIG_ENDIAN);
                 opensafety_tree = proto_item_add_subtree(opensafety_item, ett_opensafety);
             } else {
-            	opensafety_tree = NULL;
+                opensafety_item = NULL;
+                opensafety_tree = NULL;
             }
 
             if ( dissect_opensafety_message(frameStart1, frameStart2, type, next_tvb, pinfo, opensafety_tree, found) == TRUE )
