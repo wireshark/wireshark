@@ -1059,7 +1059,7 @@ nfs_name_snoop_add_fh(int xid, tvbuff_t *tvb, int fh_offset, int fh_length)
 	key=se_alloc(sizeof(nfs_name_snoop_key_t));
 	key->key=0;
 	key->fh_length=nns->fh_length;
-	key->fh    =nns->fh;
+	key->fh=nns->fh;
 
 	/* already have something matched for this fh, remove it from
 	   the table */
@@ -1178,8 +1178,8 @@ nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_of
 		proto_item *fh_item;
 
 		if(hidden){
-			fh_item=proto_tree_add_string(tree, hf_nfs_name, tvb,
-				fh_offset, 0, nns->name);
+			fh_item=proto_tree_add_string(tree, hf_nfs_name, NULL,
+				0, 0, nns->name);
 			PROTO_ITEM_SET_HIDDEN(fh_item);
 		} else {
 			fh_item=proto_tree_add_string_format(tree, hf_nfs_name, tvb,
@@ -1189,8 +1189,8 @@ nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_of
 
 		if(nns->full_name){
 			if(hidden){
-				fh_item=proto_tree_add_string(tree, hf_nfs_full_name, tvb,
-					fh_offset, 0, nns->full_name);
+				fh_item=proto_tree_add_string(tree, hf_nfs_full_name, NULL,
+					0, 0, nns->full_name);
 				PROTO_ITEM_SET_HIDDEN(fh_item);
 			} else {
 				fh_item=proto_tree_add_string_format(tree, hf_nfs_full_name, tvb,
@@ -2355,8 +2355,8 @@ dissect_fhandle_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		fhhash = crc32_ccitt(fh_array, fhlen);
 
 		if(hidden){
-			fh_item=proto_tree_add_uint(tree, hf_nfs_fh_hash, tvb, offset,
-				fhlen, fhhash);
+			fh_item=proto_tree_add_uint(tree, hf_nfs_fh_hash, NULL, 0,
+				0, fhhash);
 			PROTO_ITEM_SET_HIDDEN(fh_item);
 		} else {
 			fh_item=proto_tree_add_uint(tree, hf_nfs_fh_hash, tvb, offset,
@@ -2399,10 +2399,9 @@ dissect_fhandle_hidden(packet_info *pinfo, proto_tree *tree, int frame)
 	if(nfd && nfd->len){
 		tvbuff_t *tvb;
 		tvb = tvb_new_real_data(nfd->fh, nfd->len, nfd->len);
-		/* XXX: AFAIKT there's no need to do add_new_data_source() since,
-		        in the 'hidden' case, dissect_fhandle_data() & etc display
-			certain fields only as 'hidden'	and thus not selectable and
-			thus there's no need for a data_source */
+                /* There's no need to call add_new_data_source() since
+                   dissect_fhandle(), in the the 'hidden' case, never refers
+                   to the tvb when displaying a field based on the tvb */
 		dissect_fhandle_data(tvb, 0, pinfo, tree, nfd->len, TRUE, NULL);
 		tvb_free(tvb);
 	}
