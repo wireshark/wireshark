@@ -295,6 +295,7 @@ static const value_string ip_protocol_vals[] = {
 
 static dissector_handle_t ip_handle;
 static dissector_handle_t ipv6_handle;
+static dissector_handle_t rohc_handle;
 static dissector_handle_t data_handle;
 
 /* Preference variables */
@@ -1910,11 +1911,11 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     gint               offset = 0;
     gint               rohc_offset;
     struct pdcp_lte_info  *p_pdcp_info;
-    guint8             base_header_byte;
+    /*guint8             base_header_byte;*/
     gboolean           udp_checksum_needed = TRUE;
     gboolean           ip_id_needed = TRUE;
 	rohc_info          *p_rohc_info = NULL;	
-    guint8             cid;		
+	tvbuff_t           *rohc_tvb = NULL;		
 
     /* Append this protocol name rather than replace. */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PDCP-LTE");
@@ -2200,15 +2201,35 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     if (!global_pdcp_dissect_rohc) {
         return;
     }
-
+#if 0
     /* Create pdcp tree. */
     if (pdcp_tree) {
         rohc_ti = proto_tree_add_item(pdcp_tree, hf_pdcp_lte_rohc, tvb, offset, -1, ENC_NA);
         rohc_tree = proto_item_add_subtree(rohc_ti, ett_pdcp_rohc);
     }
-
+#endif
     rohc_offset = offset;
+	rohc_tvb = tvb_new_subset_remaining(tvb, rohc_offset);
 
+	/* RoHC settings */
+	p_rohc_info = ep_new(rohc_info);
+
+	p_rohc_info->rohc_compression    = p_pdcp_info->rohc_compression;
+	p_rohc_info->rohc_ip_version     = p_pdcp_info->rohc_ip_version;
+	p_rohc_info->cid_inclusion_info  = p_pdcp_info->cid_inclusion_info;
+	p_rohc_info->large_cid_present   = p_pdcp_info->large_cid_present;
+	p_rohc_info->mode                = p_pdcp_info->mode;
+	p_rohc_info->rnd                 = p_pdcp_info->rnd;
+	p_rohc_info->udp_checkum_present = p_pdcp_info->udp_checkum_present;
+	p_rohc_info->profile             = p_pdcp_info->profile;
+	p_rohc_info->last_created_item   = NULL;
+
+	pinfo->private_data = p_rohc_info;
+
+	call_dissector(rohc_handle, rohc_tvb, pinfo, tree);
+	return;
+
+#if 0
     /* Skip any leading padding octets (11100000) */
     while (tvb_get_guint8(tvb, offset) == 0xe0) {
         offset++;
@@ -2392,8 +2413,8 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
         proto_tree_add_item(rohc_tree, hf_pdcp_lte_rohc_payload, tvb, offset, -1, ENC_NA);
     }
+#endif
 }
-
 
 /* Initializes the hash table and the mem_chunk area each time a new
  * file is loaded or re-loaded in wireshark */
@@ -3107,6 +3128,7 @@ void proto_reg_handoff_pdcp_lte(void)
 
     ip_handle = find_dissector("ip");
     ipv6_handle = find_dissector("ipv6");
+	rohc_handle = find_dissector("rohc");
     data_handle = find_dissector("data");
 }
 

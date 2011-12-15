@@ -927,6 +927,7 @@ dissect_rohc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gboolean is_add_cid = FALSE;
     rohc_info *p_rohc_info = NULL;
     rohc_info g_rohc_info;
+	void *save_private_data = pinfo->private_data;
 
     if(pinfo->private_data != NULL){
         p_rohc_info = pinfo->private_data;
@@ -1003,6 +1004,7 @@ start_over:
             proto_tree_add_item(rohc_tree, hf_rohc_feedback, tvb, offset, 1, ENC_BIG_ENDIAN);
             col_append_str(pinfo->cinfo, COL_INFO, "Error packet");
             proto_tree_add_text(rohc_tree, tvb, offset, -1, "Error packet");
+			pinfo->private_data = save_private_data;
             return;
         }else{
             col_append_str(pinfo->cinfo, COL_INFO, "Feedback ");
@@ -1052,6 +1054,7 @@ start_over:
             offset = offset + size;
             if(offset<length)
                 goto start_over;
+			pinfo->private_data = save_private_data;
             return;
         }
     }/*feedback */
@@ -1065,6 +1068,7 @@ start_over:
             PROTO_ITEM_SET_GENERATED(item);
         }
         proto_tree_add_text(rohc_tree, tvb, offset, -1, "Segment [Desegmentation not implemented yet]");
+		pinfo->private_data = save_private_data;
         return;
     }
     /* 6) Here, it is known that the rest is forward information (unless the
@@ -1096,6 +1100,8 @@ start_over:
     }else if ((oct&0xe0)==0xc0){
         col_set_str(pinfo->cinfo, COL_INFO, "Paket type 2");
     }
+
+	pinfo->private_data = save_private_data;
 }
 
 void
