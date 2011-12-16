@@ -1638,6 +1638,43 @@
 			<enum name="Juniper-Example" code="16777270"/>
 			<enum name="ITU-T Ri" code="16777271"/>
 			<enum name="3GPP S6b" code="16777272"/>
+      <!--
+16777273 Juniper JGx [Claudio_Lordello] 
+16777274 ITU-T Rd [ITU-T Rec. Q.3306.1][Janusz_Pieczerak] 
+16777275 ADMI Notification Application [Tomas_Menzl] 
+16777276 ADMI Messaging Interface Application [Tomas_Menzl] 
+16777277 Peter-Service VSI [Alexey_Grishin] 
+16777278 ETSI Rr request model [ETSI TS 183 071][Miguel_Angel_Reina_Ortega] 
+16777279 ETSI Rr delegated model [ETSI TS 183 071][Miguel_Angel_Reina_Ortega] 
+16777280 WIMAX HRPD Interworking [3GPP2 X.S0058-0 v1.0][Avi_Lior] 
+16777281 WiMAX Network Access Authentication and Authorization Diameter Application (WNAAADA) [WiMAX Release 1.5][Avi_Lior] 
+16777282 WiMAX Network Accounting Diameter Application (WNADA) [WiMAX Release 1.5][Avi_Lior] 
+16777283 WiMAX MIP4 Diameter Application (WM4DA) [WiMAX Release 1.5][Avi_Lior] 
+16777284 WiMAX MIP6 Diameter Application (WM6DA) [WiMAX Release 1.5][Avi_Lior] 
+16777285 WiMAX DHCP Diameter Application (WDDA) [WiMAX Release 1.5][Avi_Lior] 
+16777286 WiMAX-Location-Authentication-Authorization Diameter Application (WLAADA) [WiMAX Release 1.5][Avi_Lior] 
+16777287 WiMAX-Policy-and-Charging-Control-R3-Policies Diameter Application (WiMAX PCC-R3-P) [WiMAX Release 1.5][Avi_Lior] 
+16777288 WiMAX-Policy-and-Charging-Control-R3-OFfline-Charging Diameter Application (WiMAX PCC-R3-OFC) [WiMAX Release 1.5][Avi_Lior] 
+16777289 WiMAX-Policy-and-Charging-Control-R3-Offline-Charging-Prime Diameter Application (WiMAX PCC-R3-OFC-PRIME) [WiMAX Release 1.5][Avi_Lior] 
+16777290 WiMAX-Policy-and-Charging-Control-R3-Online-Charging Diameter Application (WiMAX PCC-R3-OC) [WiMAX Release 1.5][Avi_Lior] 
+16777291 3GPP SLh [3GPP TS 29.173][Kimmo_Kymalainen] 
+16777292 3GPP SGmb [3GPP TS 29.061][Kimmo_Kymalainen] 
+16777293 CMDI - Cloudmark Diameter Interface [Sanjiv_Parikh] 
+16777294 Camiant DRMA [Tarek_Abou-Assali][Michael_Mercurio] 
+16777295 PiLTE Interworking Diameter Application [3GPP2 publication X.S0057][Avi_Lior] 
+16777296 Juniper-Sessions-Recovery (JSR) [Aleksey_Romanov] 
+16777297 Vedicis LiveProxy [Francois-Frederic_Ozog] 
+16777298 Pi*3GPP2 Diameter Application [3GPP2 publication X.S0057A E-UTRAN eHRPD][Avi_Lior] 
+16777299 Sandvine Rf+ [Yoni_Eitan] 
+16777300 Subscription Information Application [Lars_Anglert] 
+16777301 Ericsson Charging-DCIP [Lars_Anglert] 
+-->
+      <enum name="3GPP Sy" code="16777302"/>
+      <enum name="3GPP Sd" code="16777303"/>
+      <enum name="Ericsson Sy" code="16777304"/>
+      <!--
+16777305 HP DTD [Chiranjeev_Agrawal][J_V_Kishore]       
+      -->
 			<enum name="Relay" code="4294967295"/>
 		</avp>
 		<avp name="Acct-Application-Id" code="259" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
@@ -1708,7 +1745,45 @@
 			<enum name="Juniper-Example" code="16777270"/>
 			<enum name="ITU-T Ri" code="16777271"/>
 			<enum name="3GPP S6b" code="16777272"/>
-			<enum name="Relay" code="4294967295"/>
+      <!--
+16777273 Juniper JGx [Claudio_Lordello] 
+16777274 ITU-T Rd [ITU-T Rec. Q.3306.1][Janusz_Pieczerak] 
+16777275 ADMI Notification Application [Tomas_Menzl] 
+16777276 ADMI Messaging Interface Application [Tomas_Menzl] 
+16777277 Peter-Service VSI [Alexey_Grishin] 
+16777278 ETSI Rr request model [ETSI TS 183 071][Miguel_Angel_Reina_Ortega] 
+16777279 ETSI Rr delegated model [ETSI TS 183 071][Miguel_Angel_Reina_Ortega] 
+16777280 WIMAX HRPD Interworking [3GPP2 X.S0058-0 v1.0][Avi_Lior] 
+16777281 WiMAX Network Access Authentication and Authorization Diameter Application (WNAAADA) [WiMAX Release 1.5][Avi_Lior] 
+16777282 WiMAX Network Accounting Diameter Application (WNADA) [WiMAX Release 1.5][Avi_Lior] 
+16777283 WiMAX MIP4 Diameter Application (WM4DA) [WiMAX Release 1.5][Avi_Lior] 
+16777284 WiMAX MIP6 Diameter Application (WM6DA) [WiMAX Release 1.5][Avi_Lior] 
+16777285 WiMAX DHCP Diameter Application (WDDA) [WiMAX Release 1.5][Avi_Lior] 
+16777286 WiMAX-Location-Authentication-Authorization Diameter Application (WLAADA) [WiMAX Release 1.5][Avi_Lior] 
+16777287 WiMAX-Policy-and-Charging-Control-R3-Policies Diameter Application (WiMAX PCC-R3-P) [WiMAX Release 1.5][Avi_Lior] 
+16777288 WiMAX-Policy-and-Charging-Control-R3-OFfline-Charging Diameter Application (WiMAX PCC-R3-OFC) [WiMAX Release 1.5][Avi_Lior] 
+16777289 WiMAX-Policy-and-Charging-Control-R3-Offline-Charging-Prime Diameter Application (WiMAX PCC-R3-OFC-PRIME) [WiMAX Release 1.5][Avi_Lior] 
+16777290 WiMAX-Policy-and-Charging-Control-R3-Online-Charging Diameter Application (WiMAX PCC-R3-OC) [WiMAX Release 1.5][Avi_Lior] 
+16777291 3GPP SLh [3GPP TS 29.173][Kimmo_Kymalainen] 
+16777292 3GPP SGmb [3GPP TS 29.061][Kimmo_Kymalainen] 
+16777293 CMDI - Cloudmark Diameter Interface [Sanjiv_Parikh] 
+16777294 Camiant DRMA [Tarek_Abou-Assali][Michael_Mercurio] 
+16777295 PiLTE Interworking Diameter Application [3GPP2 publication X.S0057][Avi_Lior] 
+16777296 Juniper-Sessions-Recovery (JSR) [Aleksey_Romanov] 
+16777297 Vedicis LiveProxy [Francois-Frederic_Ozog] 
+16777298 Pi*3GPP2 Diameter Application [3GPP2 publication X.S0057A E-UTRAN eHRPD][Avi_Lior] 
+16777299 Sandvine Rf+ [Yoni_Eitan] 
+16777300 Subscription Information Application [Lars_Anglert] 
+16777301 Ericsson Charging-DCIP [Lars_Anglert] 
+-->
+      <enum name="3GPP Sy" code="16777302"/>
+      <enum name="3GPP Sd" code="16777303"/>
+      <enum name="Ericsson Sy" code="16777304"/>
+      <!--
+16777305 HP DTD [Chiranjeev_Agrawal][J_V_Kishore]       
+      -->
+
+      <enum name="Relay" code="4294967295"/>
 			</avp>
 		<avp name="Vendor-Specific-Application-Id" code="260" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
 			<grouped>
@@ -2477,9 +2552,15 @@
 576 QoS-Parameters [RFC5777]
 577 Excess-Treatment [RFC5777]
 578 QoS-Capability [RFC5777]
-579 QoS-Authorization-Data [RFC-ietf-dime-diameter-qos-15]
-580 Bound-Auth-Session-Id [RFC-ietf-dime-diameter-qos-15]
-581-0xffffff Unassigned -->
+579 QoS-Authorization-Data [RFC5866] 
+580 Bound-Auth-Session-Id [RFC5866] 
+581 Key [RFC-ietf-dime-local-keytran-14] 
+582 Key-Type [RFC-ietf-dime-local-keytran-14] 
+583 Keying-Material [RFC-ietf-dime-local-keytran-14] 
+584 Key-Lifetime [RFC-ietf-dime-local-keytran-14] 
+585 Key-SPI [RFC-ietf-dime-local-keytran-14] 
+586 Key-Name [RFC-ietf-dime-local-keytran-14] 
+587-0xffffff Unassigned -->
 
 <!-- ************************ END DIAMETER BASE PROTOCOL AVPS ******************* -->
 
