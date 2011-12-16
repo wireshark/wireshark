@@ -26,6 +26,8 @@
 #ifndef __SSL_UTILS_H_
 #define __SSL_UTILS_H_
 
+#include <stdio.h>
+
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/emem.h>
