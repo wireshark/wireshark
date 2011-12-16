@@ -454,19 +454,19 @@ static void reassembly_record(rlc_channel_sequence_analysis_status *status, pack
 
 /* Create and return a tvb based upon contents of reassembly info */
 static tvbuff_t* reassembly_get_reassembled_tvb(rlc_channel_reassembly_info *reassembly_info,
-                                                packet_info *pinfo)
+                                                tvbuff_t *parent_tvb, packet_info *pinfo)
 {
     gint n;
     guint   combined_length = 0;
     guint8 *combined_data;
     guint combined_offset = 0;
-    tvbuff_t *tvb;
+    tvbuff_t *reassembled_tvb;
 
     /* Allocate buffer big enough to hold re-assembled data */
     for (n=0; n < reassembly_info->number_of_segments; n++) {
         combined_length += reassembly_info->segments[n].length;
     }
-    combined_data = se_alloc(combined_length);
+    combined_data = ep_alloc(combined_length);
 
     /* Copy data into contiguous buffer */
     for (n=0; n < reassembly_info->number_of_segments; n++) {
@@ -477,9 +477,9 @@ static tvbuff_t* reassembly_get_reassembled_tvb(rlc_channel_reassembly_info *rea
     }
 
     /* Create and return tvb with this data */
-    tvb = tvb_new_real_data(combined_data, combined_offset, combined_offset);
-    add_new_data_source(pinfo, tvb, "Reassembled SDU");
-    return tvb;
+    reassembled_tvb = tvb_new_child_real_data(parent_tvb, combined_data, combined_offset, combined_offset);
+    add_new_data_source(pinfo, reassembled_tvb, "Reassembled SDU");
+    return reassembled_tvb;
 }
 
 /* Show where the segments came from for a reassembled SDU */
@@ -721,7 +721,7 @@ static void show_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
         }
         else {
             /* Get combined tvb. */
-            pdcp_tvb = reassembly_get_reassembled_tvb(reassembly_info, pinfo);
+            pdcp_tvb = reassembly_get_reassembled_tvb(reassembly_info, tvb, pinfo);
             reassembly_show_source(reassembly_info, tree, tvb, offset);
         }
 
