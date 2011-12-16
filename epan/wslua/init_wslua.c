@@ -50,6 +50,7 @@ dissector_handle_t lua_data_handle;
 static void lua_frame_end(void)
 {
     clear_outstanding_Tvb();
+    clear_outstanding_TvbRange();
     clear_outstanding_Pinfo();
     clear_outstanding_Column();
     clear_outstanding_Columns();

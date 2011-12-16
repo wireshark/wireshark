@@ -190,18 +190,18 @@ value_get(fvalue_t *fv)
 static guint
 len(fvalue_t *fv)
 {
+	guint length = 0;
+
 	TRY {
 	if (fv->value.tvb)
-		return tvb_length(fv->value.tvb);
-	else
-		return 0;
-}
+			length = tvb_length(fv->value.tvb);
+	}
 	CATCH_ALL {
 		/* nothing */
 	}
 	ENDTRY;
 
-	return 0;
+	return length;
 }
 
 static void
@@ -227,22 +227,20 @@ cmp_eq(fvalue_t *fv_a, fvalue_t *fv_b)
 {
 	tvbuff_t	*a = fv_a->value.tvb;
 	tvbuff_t	*b = fv_b->value.tvb;
+	gboolean	eq = FALSE;
 
 	TRY {
 	guint		a_len = tvb_length(a);
 
-	if (a_len != tvb_length(b)) {
-		return FALSE;
+		if (a_len == tvb_length(b))
+			eq = (memcmp(tvb_get_ptr(a, 0, a_len), tvb_get_ptr(b, 0, a_len), a_len) == 0);
 	}
-
-	return (memcmp(tvb_get_ptr(a, 0, a_len), tvb_get_ptr(b, 0, a_len), a_len) == 0);
-}
 	CATCH_ALL {
 		/* nothing */
 	}
 	ENDTRY;
 
-	return FALSE;
+	return eq;
 }
 
 static gboolean
@@ -250,22 +248,21 @@ cmp_ne(fvalue_t *fv_a, fvalue_t *fv_b)
 {
 	tvbuff_t	*a = fv_a->value.tvb;
 	tvbuff_t	*b = fv_b->value.tvb;
+	gboolean	ne = TRUE;
 
 	TRY {
 	guint		a_len = tvb_length(a);
 
-	if (a_len != tvb_length(b)) {
-		return TRUE;
+		if (a_len == tvb_length(b)) {
+			ne = (memcmp(tvb_get_ptr(a, 0, a_len), tvb_get_ptr(b, 0, a_len), a_len) != 0);
 	}
-
-	return (memcmp(tvb_get_ptr(a, 0, a_len), tvb_get_ptr(b, 0, a_len), a_len) != 0);
-}
+	}
 	CATCH_ALL {
 		/* nothing */
 	}
 	ENDTRY;
 
-	return FALSE;
+	return ne;
 }
 
 static gboolean
@@ -273,27 +270,24 @@ cmp_gt(fvalue_t *fv_a, fvalue_t *fv_b)
 {
 	tvbuff_t	*a = fv_a->value.tvb;
 	tvbuff_t	*b = fv_b->value.tvb;
+	gboolean	gt = FALSE;
 
 	TRY {
 	guint		a_len = tvb_length(a);
 	guint		b_len = tvb_length(b);
 
 	if (a_len > b_len) {
-		return TRUE;
+			gt = TRUE;
+		} else if (a_len == b_len) {
+			gt = (memcmp(tvb_get_ptr(a, 0, a_len), tvb_get_ptr(b, 0, a_len), a_len) > 0);
 	}
-
-	if (a_len < b_len) {
-		return FALSE;
 	}
-
-	return (memcmp(tvb_get_ptr(a, 0, a_len), tvb_get_ptr(b, 0, a_len), a_len) > 0);
-}
 	CATCH_ALL {
 		/* nothing */
 	}
 	ENDTRY;
 
-	return FALSE;
+	return gt;
 }
 
 static gboolean
@@ -301,27 +295,24 @@ cmp_ge(fvalue_t *fv_a, fvalue_t *fv_b)
 {
 	tvbuff_t	*a = fv_a->value.tvb;
 	tvbuff_t	*b = fv_b->value.tvb;
+	gboolean	ge = FALSE;
 	
 	TRY {
 	guint		a_len = tvb_length(a);
 	guint		b_len = tvb_length(b);
 
 	if (a_len > b_len) {
-		return TRUE;
+			ge = TRUE;
+		} else if (a_len == b_len) {
+			ge = (memcmp(tvb_get_ptr(a, 0, a_len), tvb_get_ptr(b, 0, a_len), a_len) >= 0);
 	}
-
-	if (a_len < b_len) {
-		return FALSE;
 	}
-
-	return (memcmp(tvb_get_ptr(a, 0, a_len), tvb_get_ptr(b, 0, a_len), a_len) >= 0);
-}
 	CATCH_ALL {
 		/* nothing */
 	}
 	ENDTRY;
 
-	return FALSE;
+	return ge;
 }
 
 static gboolean
@@ -329,27 +320,24 @@ cmp_lt(fvalue_t *fv_a, fvalue_t *fv_b)
 {
 	tvbuff_t	*a = fv_a->value.tvb;
 	tvbuff_t	*b = fv_b->value.tvb;
+	gboolean	lt = FALSE;
 
 	TRY {
 	guint		a_len = tvb_length(a);
 	guint		b_len = tvb_length(b);
 
 	if (a_len < b_len) {
-		return TRUE;
+			lt = TRUE;
+		} else if (a_len == b_len) {
+			lt = (memcmp(tvb_get_ptr(a, 0, a_len), tvb_get_ptr(b, 0, a_len), a_len) < 0);
 	}
-
-	if (a_len > b_len) {
-		return FALSE;
 	}
-
-	return (memcmp(tvb_get_ptr(a, 0, a_len), tvb_get_ptr(b, 0, a_len), a_len) < 0);
-}
 	CATCH_ALL {
 		/* nothing */
 	}
 	ENDTRY;
 
-	return FALSE;
+	return lt;
 }
 
 static gboolean
@@ -357,46 +345,42 @@ cmp_le(fvalue_t *fv_a, fvalue_t *fv_b)
 {
 	tvbuff_t	*a = fv_a->value.tvb;
 	tvbuff_t	*b = fv_b->value.tvb;
+	gboolean	le = FALSE;
 
 	TRY {
 	guint		a_len = tvb_length(a);
 	guint		b_len = tvb_length(b);
 
 	if (a_len < b_len) {
-		return TRUE;
+			le = TRUE;
+		} else if (a_len == b_len) {
+			le = (memcmp(tvb_get_ptr(a, 0, a_len), tvb_get_ptr(b, 0, a_len), a_len) <= 0);
 	}
-
-	if (a_len > b_len) {
-		return FALSE;
 	}
-
-	return (memcmp(tvb_get_ptr(a, 0, a_len), tvb_get_ptr(b, 0, a_len), a_len) <= 0);
-}
 	CATCH_ALL {
 		/* nothing */
 	}
 	ENDTRY;
 
-	return FALSE;
+	return le;
 }
 
 static gboolean
 cmp_contains(fvalue_t *fv_a, fvalue_t *fv_b)
 {
+	gboolean	contains = FALSE;
+
 	TRY {
 	if (tvb_find_tvb(fv_a->value.tvb, fv_b->value.tvb, 0) > -1) {
-		return TRUE;
+			contains = TRUE;
 	}
-	else {
-		return FALSE;
 	}
-}
 	CATCH_ALL {
 		/* nothing */
 	}
 	ENDTRY;
 
-	return FALSE;
+	return contains;
 }
 
 #ifdef HAVE_LIBPCRE
