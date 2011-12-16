@@ -636,11 +636,11 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 tvb_length_remaining(tvb, offset),
                 decompressed_buffer, orig_size);
         /* Now re-setup the tvb buffer to have the new data */
-        next_tvb = tvb_new_real_data(decompressed_buffer, orig_size, orig_size);
-        tvb_set_child_real_data_tvbuff(tvb, next_tvb);
+        next_tvb = tvb_new_child_real_data(tvb, decompressed_buffer, orig_size, orig_size);
+        tvb_set_free_cb(next_tvb, g_free);
         add_new_data_source(pinfo, next_tvb, "Decompressed Data");
     } else {
-        next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+        next_tvb = tvb_new_subset_remaining(tvb, offset);
     }
     offset = 0;
     /* process next_tvb from here on */
@@ -663,22 +663,23 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    	given by the <function>tvb_length_remaining()</function> function.
    	</para>
    	<para>
-   	Next we build a new tvb buffer from this data, using the <function>tvb_new_real_data()</function>
-   	call. This data is a child of our original data, so we acknowledge that
-   	in the next call to <function>tvb_set_child_real_data_tvbuff</function>.
-   	Finally we add this data as a new data source, so that
-   	the detailed display can show the decompressed bytes as well as the original.
-   	One procedural step is to add a handler to free the data when it's no longer needed.
-   	In this case as <function>g_malloc()</function> was used to allocate the
-   	memory, <function>g_free()</function> is the appropriate function.
+   	Next we build a new tvb buffer from this data, using the
+	<function>tvb_new_child_real_data()</function> call.
+	This data is a child of our original data, so calling this function also acknowledges that.
+   	One procedural step is to add a callback handler to free the data when it's no longer needed
+	via a call to <function>tvb_set_free_cb()</function>.
+   	In this case <function>g_malloc()</function> was used to allocate the
+   	memory, so <function>g_free()</function> is the appropriate callback function.
+   	Finally we add this tvb as a new data source, so that the detailed display can show
+	the decompressed bytes as well as the original.
    	</para>
 	<para>
 	After this has been set up the remainder of the dissector can dissect the
-	buffer next_tvb, as it's a new buffer the offset needs to be 0 as we start
+	buffer <varname>next_tvb</varname>, as it's a new buffer the offset needs to be 0 as we start
 	again from the beginning of this buffer. To make the rest of the dissector
 	work regardless of whether compression was involved or not, in the case that
-	compression was not signaled, we use the <function>tvb_new_subset()</function> to deliver us
-	a new buffer based on the old one but starting at the current offset, and
+	compression was not signaled, we use <function>tvb_new_subset_remaining()</function>
+	to deliver us a new buffer based on the old one but starting at the current offset, and
 	extending to the end. This makes dissecting the packet from this point on
 	exactly the same regardless of compression.
 	</para>
