@@ -1297,7 +1297,7 @@ void cb_wstr_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 	 * efforts of that routine?
 	 */
 	s = tvb_get_ephemeral_unicode_string(
-		tvb, start_offset + 12, (end_offset - start_offset - 12) / 2,
+		tvb, start_offset + 12, end_offset - start_offset - 12,
 		ENC_LITTLE_ENDIAN);
 
 	/* Append string to COL_INFO */
