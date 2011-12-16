@@ -1089,15 +1089,11 @@ g_warning("woohoo decrypted keytype:%d in frame:%u\n", keytype, pinfo->fd->num);
 #define KRB5_TD_REQ_SEQ                 108
 
 /* preauthentication types >127 (i.e. negative ones) are app specific.
-   Hopefully there will be no collisions here or we will have to
-   come up with something better.
-   XXX: Although KRB5_PA_PAC_REQUEST is " >127 " and thus presumably
-         would be encoded as a negative number, various captures seen all
-         have this pa-data-type encoded as a positive number (0x0080).
-         We'll assume that KRB5_PA_S4U2SELF is also encoded as a positive number.
+   however since Microsoft is the dominant(only?) user of types in this range
+   we also treat the type as unsigned.
 */
 #define KRB5_PA_PAC_REQUEST              128    /* (Microsoft extension) */
-#define KRB5_PA_S4U2SELF                 129    /* Impersonation (Microsoft extension) */
+#define KRB5_PA_FOR_USER                 129    /* Impersonation (Microsoft extension) See [MS-SFU] */
 
 #define KRB5_PA_PROV_SRV_LOCATION 0xffffffff    /* (gint32)0xFF) packetcable stuff */
 
@@ -1342,7 +1338,7 @@ static const value_string krb5_preauthentication_types[] = {
     { KRB5_TD_REQ_NONCE            , "TD-REQ-NONCE" },
     { KRB5_TD_REQ_SEQ              , "TD-REQ-SEQ" },
     { KRB5_PA_PAC_REQUEST          , "PA-PAC-REQUEST" },
-    { KRB5_PA_S4U2SELF             , "PA-S4U2SELF" },
+    { KRB5_PA_FOR_USER             , "PA-FOR-USER" },
     { KRB5_PA_PROV_SRV_LOCATION    , "PA-PROV-SRV-LOCATION" },
     { 0                            , NULL },
 };
@@ -2077,7 +2073,7 @@ dissect_krb5_s4u2self_auth(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx
     return offset;
 }
 
-static ber_old_sequence_t PA_S4U2SELF_sequence[] = {
+static ber_old_sequence_t PA_FOR_USER_sequence[] = {
     { BER_CLASS_CON, 0, 0, dissect_krb5_cname },
     { BER_CLASS_CON, 1, 0, dissect_krb5_realm },
     { BER_CLASS_CON, 2, 0, dissect_krb5_Checksum },
@@ -2086,9 +2082,9 @@ static ber_old_sequence_t PA_S4U2SELF_sequence[] = {
 };
 
 static int
-dissect_krb5_PA_S4U2SELF(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
+dissect_krb5_PA_FOR_USER(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-    offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, PA_S4U2SELF_sequence, -1, -1);
+    offset=dissect_ber_old_sequence(FALSE, actx, tree, tvb, offset, PA_FOR_USER_sequence, -1, -1);
     return offset;
 }
 
@@ -2360,8 +2356,8 @@ dissect_krb5_PA_DATA_value(proto_tree *parent_tree, tvbuff_t *tvb, int offset, a
     case KRB5_PA_PAC_REQUEST:
         offset=dissect_ber_old_octet_string_wcb(FALSE, actx, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_krb5_PA_PAC_REQUEST);
         break;
-    case KRB5_PA_S4U2SELF:
-        offset=dissect_ber_old_octet_string_wcb(FALSE, actx, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_krb5_PA_S4U2SELF);
+    case KRB5_PA_FOR_USER:
+        offset=dissect_ber_old_octet_string_wcb(FALSE, actx, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_krb5_PA_FOR_USER);
         break;
     case KRB5_PA_PROV_SRV_LOCATION:
         offset=dissect_ber_old_octet_string_wcb(FALSE, actx, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_krb5_PA_PROV_SRV_LOCATION);
