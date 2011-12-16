@@ -1567,11 +1567,13 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
                   ssl_decrypted_data_avail, offset);
 
         /* try to retrieve and use decrypted alert record, if any. */
-        decrypted = ssl_get_record_info(proto_ssl, pinfo, offset);
-        if (decrypted)
-          dissect_ssl3_alert(decrypted, pinfo, ssl_record_tree, 0, conv_version);
-        else
-          dissect_ssl3_alert(tvb, pinfo, ssl_record_tree, offset, conv_version);
+        decrypted = ssl_get_record_info(tvb, proto_ssl, pinfo, offset);
+        if (decrypted) {
+            add_new_data_source(pinfo, decrypted, "Decrypted SSL record");
+            dissect_ssl3_alert(decrypted, pinfo, ssl_record_tree, 0, conv_version);
+        } else {
+            dissect_ssl3_alert(tvb, pinfo, ssl_record_tree, offset, conv_version);
+        }
         break;
     }
     case SSL_ID_HANDSHAKE:
@@ -1588,7 +1590,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
                 ssl_decrypted_data_avail, offset);
 
         /* try to retrieve and use decrypted handshake record, if any. */
-        decrypted = ssl_get_record_info(proto_ssl, pinfo, offset);
+        decrypted = ssl_get_record_info(tvb, proto_ssl, pinfo, offset);
         if (decrypted) {
             /* add desegmented data to the data source list */
             add_new_data_source(pinfo, decrypted, "Decrypted SSL record");

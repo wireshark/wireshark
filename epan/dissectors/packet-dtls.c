@@ -763,7 +763,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
                             dtls_decrypted_data_avail, offset);
 
       /* try to retrive and use decrypted alert record, if any. */
-      decrypted = ssl_get_record_info(proto_dtls, pinfo, offset);
+      decrypted = ssl_get_record_info(tvb, proto_dtls, pinfo, offset);
       if (decrypted)
         dissect_dtls_alert(decrypted, pinfo, dtls_record_tree, 0,
                            conv_version);
@@ -786,7 +786,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
                             dtls_decrypted_data_avail, offset);
 
       /* try to retrive and use decrypted handshake record, if any. */
-      decrypted = ssl_get_record_info(proto_dtls, pinfo, offset);
+      decrypted = ssl_get_record_info(tvb, proto_dtls, pinfo, offset);
       if (decrypted)
         dissect_dtls_handshake(decrypted, pinfo, dtls_record_tree, 0,
                                tvb_length(decrypted), conv_version, ssl, content_type);

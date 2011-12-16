@@ -27,10 +27,6 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #ifdef HAVE_LIBZ
 #include <zlib.h>
 #endif
@@ -3052,36 +3048,37 @@ ssl_packet_from_server(SslDecryptSession* ssl, GTree* associations, packet_info 
     return ret;
 }
 
-/* add to packet data a newly allocated tvb with the specified real data*/
+/* add to packet data a copy of the specified real data */
 void
 ssl_add_record_info(gint proto, packet_info *pinfo, guchar* data, gint data_len, gint record_id)
 {
     guchar* real_data;
     SslRecordInfo* rec;
     SslPacketInfo* pi;
-    real_data = se_alloc(data_len);
-    rec = se_alloc(sizeof(SslRecordInfo));
-    pi = p_get_proto_data(pinfo->fd, proto);
 
+    pi = p_get_proto_data(pinfo->fd, proto);
     if (!pi)
     {
         pi = se_alloc0(sizeof(SslPacketInfo));
-        p_add_proto_data(pinfo->fd, proto,pi);
+        p_add_proto_data(pinfo->fd, proto, pi);
     }
 
-    rec->id = record_id;
-    rec->tvb = tvb_new_real_data(real_data, data_len, data_len);
+    real_data = se_alloc(data_len);
     memcpy(real_data, data, data_len);
+
+    rec = se_alloc(sizeof(SslRecordInfo));
+    rec->id = record_id;
+    rec->real_data = real_data;
+    rec->data_len = data_len;
 
     /* head insertion */
     rec->next= pi->handshake_data;
     pi->handshake_data = rec;
 }
 
-
-/* search in packet data the tvbuff associated to the specified id */
+/* search in packet data for the specified id; return a newly created tvb for the associated data */
 tvbuff_t*
-ssl_get_record_info(int proto, packet_info *pinfo, gint record_id)
+ssl_get_record_info(tvbuff_t *parent_tvb, int proto, packet_info *pinfo, gint record_id)
 {
     SslRecordInfo* rec;
     SslPacketInfo* pi;
@@ -3092,7 +3089,8 @@ ssl_get_record_info(int proto, packet_info *pinfo, gint record_id)
 
     for (rec = pi->handshake_data; rec; rec = rec->next)
         if (rec->id == record_id)
-            return rec->tvb;
+            /* link new real_data_tvb with a parent tvb so it is freed when frame dissection is complete */
+            return tvb_new_child_real_data(parent_tvb, rec->real_data, rec->data_len, rec->data_len);
 
     return NULL;
 }
