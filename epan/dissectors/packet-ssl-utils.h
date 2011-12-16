@@ -26,7 +26,7 @@
 #ifndef __SSL_UTILS_H_
 #define __SSL_UTILS_H_
 
-#include <stdio.h>
+#include <stdio.h>	/* some APIs we declare take a stdio stream as an argument */
 
 #include <glib.h>
 #include <epan/packet.h>
