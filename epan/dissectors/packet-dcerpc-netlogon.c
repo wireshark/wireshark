@@ -411,6 +411,8 @@ static int hf_netlogon_dc_flags_dns_domain_flag = -1;
 static int hf_netlogon_dc_flags_dns_forest_flag = -1;
 static int hf_netlogon_dnsdomaininfo = -1;
 static int hf_netlogon_s4u2proxytarget = -1;
+static int hf_netlogon_transitedlistsize = -1;
+static int hf_netlogon_transited_service = -1;
 
 static gint ett_nt_counted_longs_as_string = -1;
 static gint ett_dcerpc_netlogon = -1;
@@ -2037,23 +2039,23 @@ netlogon_dissect_PAC_LOGON_INFO(tvbuff_t *tvb, int offset,
 }
 
 static int
-netlogon_dissect_S4U_DELEGATION_INFO_name(tvbuff_t *tvb, int offset,
+netlogon_dissect_S4U_Transited_Service_name(tvbuff_t *tvb, int offset,
                                              packet_info *pinfo, proto_tree *tree,
                                              guint8 *drep)
 {
     offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
-                                        hf_netlogon_unknown_string, 0);
+                                        hf_netlogon_transited_service, 1);
 
     return offset;
 }
 
 static int
-netlogon_dissect_S4U_DELEGATION_INFO_array(tvbuff_t *tvb, int offset,
+netlogon_dissect_S4U_Transited_Services_array(tvbuff_t *tvb, int offset,
                                               packet_info *pinfo, proto_tree *tree,
                                               guint8 *drep)
 {
     offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
-                                 netlogon_dissect_S4U_DELEGATION_INFO_name);
+                                 netlogon_dissect_S4U_Transited_Service_name);
 
     return offset;
 }
@@ -2067,11 +2069,11 @@ netlogon_dissect_PAC_S4U_DELEGATION_INFO(tvbuff_t *tvb, int offset,
                                         hf_netlogon_s4u2proxytarget, 0);
 
     offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-                                hf_netlogon_unknown_long, NULL);
+                                hf_netlogon_transitedlistsize, NULL);
 
     offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-                                 netlogon_dissect_S4U_DELEGATION_INFO_array, NDR_POINTER_UNIQUE,
-                                 "names:", -1);
+                                 netlogon_dissect_S4U_Transited_Services_array, NDR_POINTER_UNIQUE,
+                                 "S4UTransitedServices", -1);
 
     return offset;
 }
@@ -9429,6 +9431,12 @@ proto_register_dcerpc_netlogon(void)
         { &hf_netlogon_s4u2proxytarget,
           { "S4U2proxyTarget", "netlogon.s4u2proxytarget", FT_STRING, BASE_NONE,
             NULL, 0, "Target for constrained delegation using s4u2proxy", HFILL }},
+        { &hf_netlogon_transitedlistsize,
+          { "TransitedListSize", "netlogon.transited_list_size", FT_UINT32, BASE_HEX,
+            NULL, 0x0, "Number of elements in the TransitedServices array.", HFILL }},
+        { &hf_netlogon_transited_service,
+          { "Transited Service", "netlogon.transited_service", FT_STRING, BASE_NONE,
+            NULL, 0, "S4U2 Transited Service name", HFILL }},
     };
 
     static gint *ett[] = {
