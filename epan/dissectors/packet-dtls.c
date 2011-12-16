@@ -764,12 +764,14 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
 
       /* try to retrive and use decrypted alert record, if any. */
       decrypted = ssl_get_record_info(tvb, proto_dtls, pinfo, offset);
-      if (decrypted)
+      if (decrypted) {
         dissect_dtls_alert(decrypted, pinfo, dtls_record_tree, 0,
                            conv_version);
-      else
+        add_new_data_source(pinfo, decrypted, "Decrypted SSL record");
+      } else {
         dissect_dtls_alert(tvb, pinfo, dtls_record_tree, offset,
                            conv_version);
+      }
       break;
     }
   case SSL_ID_HANDSHAKE:
@@ -787,12 +789,14 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
 
       /* try to retrive and use decrypted handshake record, if any. */
       decrypted = ssl_get_record_info(tvb, proto_dtls, pinfo, offset);
-      if (decrypted)
+      if (decrypted) {
         dissect_dtls_handshake(decrypted, pinfo, dtls_record_tree, 0,
                                tvb_length(decrypted), conv_version, ssl, content_type);
-      else
+        add_new_data_source(pinfo, decrypted, "Decrypted SSL record");
+      } else {
         dissect_dtls_handshake(tvb, pinfo, dtls_record_tree, offset,
                                record_length, conv_version, ssl, content_type);
+      }
       break;
     }
   case SSL_ID_APP_DATA:
