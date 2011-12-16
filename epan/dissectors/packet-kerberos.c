@@ -150,7 +150,7 @@ static gint hf_krb_PAC_CREDENTIAL_TYPE = -1;
 static gint hf_krb_PAC_SERVER_CHECKSUM = -1;
 static gint hf_krb_PAC_PRIVSVR_CHECKSUM = -1;
 static gint hf_krb_PAC_CLIENT_INFO_TYPE = -1;
-static gint hf_krb_PAC_CONSTRAINED_DELEGATION = -1;
+static gint hf_krb_PAC_S4U_DELEGATION_INFO = -1;
 static gint hf_krb_PAC_UPN_DNS_INFO = -1;
 static gint hf_krb_encrypted_PA_ENC_TIMESTAMP = -1;
 static gint hf_krb_encrypted_enc_authorization_data = -1;
@@ -304,7 +304,7 @@ static gint ett_krb_PAC_LOGON_INFO = -1;
 static gint ett_krb_PAC_SERVER_CHECKSUM = -1;
 static gint ett_krb_PAC_PRIVSVR_CHECKSUM = -1;
 static gint ett_krb_PAC_CLIENT_INFO_TYPE = -1;
-static gint ett_krb_PAC_CONSTRAINED_DELEGATION = -1;
+static gint ett_krb_PAC_S4U_DELEGATION_INFO = -1;
 static gint ett_krb_KDC_REP_enc = -1;
 static gint ett_krb_EncTicketPart = -1;
 static gint ett_krb_EncAPRepPart = -1;
@@ -1270,7 +1270,7 @@ static const value_string krb5_error_codes[] = {
 #define PAC_SERVER_CHECKSUM         6
 #define PAC_PRIVSVR_CHECKSUM        7
 #define PAC_CLIENT_INFO_TYPE       10
-#define PAC_CONSTRAINED_DELEGATION 11
+#define PAC_S4U_DELEGATION_INFO    11
 #define PAC_UPN_DNS_INFO           12
 
 static const value_string w2k_pac_types[] = {
@@ -1279,7 +1279,7 @@ static const value_string w2k_pac_types[] = {
     { PAC_SERVER_CHECKSUM       , "Server Checksum" },
     { PAC_PRIVSVR_CHECKSUM      , "Privsvr Checksum" },
     { PAC_CLIENT_INFO_TYPE      , "Client Info Type" },
-    { PAC_CONSTRAINED_DELEGATION, "Constrained Delegation" },
+    { PAC_S4U_DELEGATION_INFO   , "S4U Delegation Info" },
     { PAC_UPN_DNS_INFO          , "UPN DNS Info" },
     { 0, NULL },
 };
@@ -2652,7 +2652,7 @@ dissect_krb5_PAC_LOGON_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset, 
 }
 
 static int
-dissect_krb5_PAC_CONSTRAINED_DELEGATION(proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
+dissect_krb5_PAC_S4U_DELEGATION_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -2661,9 +2661,9 @@ dissect_krb5_PAC_CONSTRAINED_DELEGATION(proto_tree *parent_tree, tvbuff_t *tvb, 
     static dcerpc_call_value call_data;
     void *old_private_data;
 
-    item=proto_tree_add_item(parent_tree, hf_krb_PAC_CONSTRAINED_DELEGATION, tvb, offset, tvb_length_remaining(tvb, offset), ENC_NA);
+    item=proto_tree_add_item(parent_tree, hf_krb_PAC_S4U_DELEGATION_INFO, tvb, offset, tvb_length_remaining(tvb, offset), ENC_NA);
     if(parent_tree){
-        tree=proto_item_add_subtree(item, ett_krb_PAC_CONSTRAINED_DELEGATION);
+        tree=proto_item_add_subtree(item, ett_krb_PAC_S4U_DELEGATION_INFO);
     }
 
     /* skip the first 16 bytes, they are some magic created by the idl
@@ -2672,7 +2672,7 @@ dissect_krb5_PAC_CONSTRAINED_DELEGATION(proto_tree *parent_tree, tvbuff_t *tvb, 
     offset=dissect_krb5_PAC_NDRHEADERBLOB(tree, tvb, offset, &drep[0], actx);
 
 
-    /* the PAC_CONSTRAINED_DELEGATION blob */
+    /* the S4U_DELEGATION_INFO blob. See [MS-PAC] */
     /* fake whatever state the dcerpc runtime support needs */
     di.conformant_run=0;
     /* we need di->call_data->flags.NDR64 == 0 */
@@ -2681,8 +2681,8 @@ dissect_krb5_PAC_CONSTRAINED_DELEGATION(proto_tree *parent_tree, tvbuff_t *tvb, 
     actx->pinfo->private_data=&di;
     init_ndr_pointer_list(actx->pinfo);
     offset = dissect_ndr_pointer(tvb, offset, actx->pinfo, tree, drep,
-                                 netlogon_dissect_PAC_CONSTRAINED_DELEGATION, NDR_POINTER_UNIQUE,
-                                 "PAC_CONSTRAINED_DELEGATION:", -1);
+                                 netlogon_dissect_PAC_S4U_DELEGATION_INFO, NDR_POINTER_UNIQUE,
+                                 "PAC_S4U_DELEGATION_INFO:", -1);
     actx->pinfo->private_data=old_private_data;
 
     return offset;
@@ -2870,8 +2870,8 @@ dissect_krb5_AD_WIN2K_PAC_struct(proto_tree *tree, tvbuff_t *tvb, int offset, as
     case PAC_CLIENT_INFO_TYPE:
         dissect_krb5_PAC_CLIENT_INFO_TYPE(tr, next_tvb, 0, actx);
         break;
-    case PAC_CONSTRAINED_DELEGATION:
-        dissect_krb5_PAC_CONSTRAINED_DELEGATION(tr, next_tvb, 0, actx);
+    case PAC_S4U_DELEGATION_INFO:
+        dissect_krb5_PAC_S4U_DELEGATION_INFO(tr, next_tvb, 0, actx);
         break;
     case PAC_UPN_DNS_INFO:
         dissect_krb5_PAC_UPN_DNS_INFO(tr, next_tvb, 0, actx);
@@ -5097,9 +5097,9 @@ proto_register_kerberos(void)
         { &hf_krb_PAC_CLIENT_INFO_TYPE, {
                 "PAC_CLIENT_INFO_TYPE", "kerberos.PAC_CLIENT_INFO_TYPE", FT_BYTES, BASE_NONE,
                 NULL, 0, "PAC_CLIENT_INFO_TYPE structure", HFILL }},
-        { &hf_krb_PAC_CONSTRAINED_DELEGATION, {
-                "PAC_CONSTRAINED_DELEGATION", "kerberos.PAC_CONSTRAINED_DELEGATION", FT_BYTES, BASE_NONE,
-                NULL, 0, "PAC_CONSTRAINED_DELEGATION structure", HFILL }},
+        { &hf_krb_PAC_S4U_DELEGATION_INFO, {
+                "PAC_S4U_DELEGATION_INFO", "kerberos.PAC_S4U_DELEGATION_INFO", FT_BYTES, BASE_NONE,
+                NULL, 0, "PAC_S4U_DELEGATION_INFO structure", HFILL }},
         { &hf_krb_PAC_UPN_DNS_INFO, {
                 "UPN_DNS_INFO", "kerberos.PAC_UPN_DNS_INFO", FT_BYTES, BASE_NONE,
                 NULL, 0, "UPN_DNS_INFO structure", HFILL }},
@@ -5400,7 +5400,7 @@ proto_register_kerberos(void)
         &ett_krb_PAC_SERVER_CHECKSUM,
         &ett_krb_PAC_PRIVSVR_CHECKSUM,
         &ett_krb_PAC_CLIENT_INFO_TYPE,
-        &ett_krb_PAC_CONSTRAINED_DELEGATION,
+        &ett_krb_PAC_S4U_DELEGATION_INFO,
         &ett_krb_e_checksum,
         &ett_krb_PAC_MIDL_BLOB,
         &ett_krb_PAC_DREP,

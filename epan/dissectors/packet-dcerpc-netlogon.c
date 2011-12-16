@@ -410,6 +410,7 @@ static int hf_netlogon_dc_flags_dns_controller_flag = -1;
 static int hf_netlogon_dc_flags_dns_domain_flag = -1;
 static int hf_netlogon_dc_flags_dns_forest_flag = -1;
 static int hf_netlogon_dnsdomaininfo = -1;
+static int hf_netlogon_s4u2proxytarget = -1;
 
 static gint ett_nt_counted_longs_as_string = -1;
 static gint ett_dcerpc_netlogon = -1;
@@ -2036,7 +2037,7 @@ netlogon_dissect_PAC_LOGON_INFO(tvbuff_t *tvb, int offset,
 }
 
 static int
-netlogon_dissect_CONSTRAINED_DELEGATION_name(tvbuff_t *tvb, int offset,
+netlogon_dissect_S4U_DELEGATION_INFO_name(tvbuff_t *tvb, int offset,
                                              packet_info *pinfo, proto_tree *tree,
                                              guint8 *drep)
 {
@@ -2047,29 +2048,29 @@ netlogon_dissect_CONSTRAINED_DELEGATION_name(tvbuff_t *tvb, int offset,
 }
 
 static int
-netlogon_dissect_CONSTRAINED_DELEGATION_array(tvbuff_t *tvb, int offset,
+netlogon_dissect_S4U_DELEGATION_INFO_array(tvbuff_t *tvb, int offset,
                                               packet_info *pinfo, proto_tree *tree,
                                               guint8 *drep)
 {
     offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
-                                 netlogon_dissect_CONSTRAINED_DELEGATION_name);
+                                 netlogon_dissect_S4U_DELEGATION_INFO_name);
 
     return offset;
 }
 
 int
-netlogon_dissect_PAC_CONSTRAINED_DELEGATION(tvbuff_t *tvb, int offset,
+netlogon_dissect_PAC_S4U_DELEGATION_INFO(tvbuff_t *tvb, int offset,
                                             packet_info *pinfo, proto_tree *tree,
                                             guint8 *drep)
 {
     offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
-                                        hf_netlogon_unknown_string, 0);
+                                        hf_netlogon_s4u2proxytarget, 0);
 
     offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
                                 hf_netlogon_unknown_long, NULL);
 
     offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-                                 netlogon_dissect_CONSTRAINED_DELEGATION_array, NDR_POINTER_UNIQUE,
+                                 netlogon_dissect_S4U_DELEGATION_INFO_array, NDR_POINTER_UNIQUE,
                                  "names:", -1);
 
     return offset;
@@ -9425,6 +9426,9 @@ proto_register_dcerpc_netlogon(void)
           { "Dns Domain", "lsarpc.lsa_DnsDomainInfo.dns_domain", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
         { &DnsDomainInfo_name,
           { "Name", "lsarpc.lsa_DnsDomainInfo.name", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+        { &hf_netlogon_s4u2proxytarget,
+          { "S4U2proxyTarget", "netlogon.s4u2proxytarget", FT_STRING, BASE_NONE,
+            NULL, 0, "Target for constrained delegation using s4u2proxy", HFILL }},
     };
 
     static gint *ett[] = {
