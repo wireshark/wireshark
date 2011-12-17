@@ -40,7 +40,7 @@
  *
  * http://www.iana.org/assignments/isakmp-registry (last updated 2011-07-15)
  * http://www.iana.org/assignments/ipsec-registry (last updated 2011-03-14)
- * http://www.iana.org/assignments/ikev2-parameters (last updated 2011-07-14)
+ * http://www.iana.org/assignments/ikev2-parameters (last updated 2011-11-09)
  */
 
 #ifdef HAVE_CONFIG_H
@@ -179,6 +179,7 @@ static int hf_isakmp_notify_data_ha_nonce_data = -1;
 static int hf_isakmp_notify_data_ha_expected_send_req_msg_id = -1;
 static int hf_isakmp_notify_data_ha_expected_recv_req_msg_id = -1;
 static int hf_isakmp_notify_data_ha_incoming_ipsec_sa_delta_value = -1;
+static int hf_isakmp_notify_data_secure_password_methods = -1;
 static int hf_isakmp_delete_doi = -1;
 static int hf_isakmp_delete_protoid_v1 = -1;
 static int hf_isakmp_delete_protoid_v2 = -1;
@@ -290,6 +291,8 @@ static int hf_isakmp_cisco_frag_last = -1;
 static int hf_isakmp_key_exch_dh_group = -1;
 static int hf_isakmp_key_exch_data = -1;
 static int hf_isakmp_eap_data = -1;
+
+static int hf_isakmp_gspm_data = -1;
 
 static int hf_isakmp_cfg_type_v1 = -1;
 static int hf_isakmp_cfg_identifier = -1;
@@ -513,6 +516,7 @@ static const fragment_items isakmp_frag_items = {
 #define PLOAD_IKE2_SK			46
 #define PLOAD_IKE2_CP			47
 #define PLOAD_IKE2_EAP			48
+#define PLOAD_IKE2_GSPM			49
 #define PLOAD_IKE_NAT_D13		130
 #define PLOAD_IKE_NAT_OA14		131
 #define PLOAD_IKE_CISCO_FRAG		132
@@ -608,7 +612,8 @@ static const range_string payload_type[] = {
   { PLOAD_IKE2_SK,PLOAD_IKE2_SK, "Encrypted and Authenticated"},
   { PLOAD_IKE2_CP,PLOAD_IKE2_CP, "Configuration"},
   { PLOAD_IKE2_EAP,PLOAD_IKE2_EAP, "Extensible Authentication"},
-  { 49,127,    "Unassigned"	},
+  { PLOAD_IKE2_GSPM,PLOAD_IKE2_GSPM, "Generic Secure Password Method"},
+  { 50,127,    "Unassigned"	},
   { 128,129,    "Private Use"	},
   { PLOAD_IKE_NAT_D13,PLOAD_IKE_NAT_D13, "NAT-D (draft-ietf-ipsec-nat-t-ike-01 to 03)"},
   { PLOAD_IKE_NAT_OA14,PLOAD_IKE_NAT_OA14, "NAT-OA (draft-ietf-ipsec-nat-t-ike-01 to 03)"},
@@ -1089,7 +1094,8 @@ static const range_string authmeth_v2_type[] = {
   { 9,9,	"ECDSA with SHA-256 on the P-256 curve" }, /* RFC4754 */
   { 10,10,	"ECDSA with SHA-256 on the P-256 curve" }, /* RFC4754 */
   { 11,11,	"ECDSA with SHA-256 on the P-256 curve" }, /* RFC4754 */
-  { 12,200,	"RESERVED TO IANA" },
+  { 12,12,	"Generic Secure Password Authentication Method" }, /* RFC-kivinen-ipsecme-secure-password-framework-03 */
+  { 13,200,	"RESERVED TO IANA" },
   { 201,255,	"PRIVATE USE" },
   { 0,0,	NULL },
 };
@@ -1218,7 +1224,8 @@ static const range_string notifmsg_v2_type[] = {
   { 16421,16421,        "IPSEC_REPLAY_COUNTER_SYNC_SUPPORTED" },/* RFC6311 */
   { 16422,16422,        "IKEV2_MESSAGE_ID_SYNC" },              /* RFC6311 */
   { 16423,16423,        "IPSEC_REPLAY_COUNTER_SYNC" },          /* RFC6311 */
-  { 16424,40959,        "RESERVED TO IANA - STATUS TYPES" },
+  { 16424,16424,        "SECURE_PASSWORD_METHODS" },            /* RFC-kivinen-ipsecme-secure-password-framework-03] */
+  { 16425,40959,        "RESERVED TO IANA - STATUS TYPES" },
   { 40960,65535,        "Private Use - STATUS TYPES" },
   { 0,0,	NULL },
 };
@@ -1846,9 +1853,8 @@ static void dissect_nat_original_address(tvbuff_t *, int, int, proto_tree *, int
 static void dissect_ts(tvbuff_t *, int, int, proto_tree *);
 static void dissect_enc(tvbuff_t *, int, int, proto_tree *, packet_info *, guint8);
 static void dissect_eap(tvbuff_t *, int, int, proto_tree *, packet_info *);
+static void dissect_gspm(tvbuff_t *, int, int, proto_tree *);
 static void dissect_cisco_fragmentation(tvbuff_t *, int, int, proto_tree *, packet_info *);
-
-
 
 static const guint8 VID_SSH_IPSEC_EXPRESS_1_1_0[] = { /* Ssh Communications Security IPSEC Express version 1.1.0 */
 	0xfB, 0xF4, 0x76, 0x14, 0x98, 0x40, 0x31, 0xFA,
@@ -2586,6 +2592,9 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree, proto_tree *parent_tree _U_,
 	   break;
 	   case PLOAD_IKE2_EAP:
 	   dissect_eap(tvb, offset + 4, payload_length - 4, ntree, pinfo );
+	   break;
+	   case PLOAD_IKE2_GSPM:
+	   dissect_gspm(tvb, offset + 4, payload_length - 4, ntree);
 	   break;
 	   case PLOAD_IKE_NAT_D:
 	   case PLOAD_IKE_NAT_D13:
@@ -3920,6 +3929,9 @@ dissect_notif(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakm
           case 16423: /* IPSEC_REPLAY_COUNTER_SYNC */
                proto_tree_add_item(tree, hf_isakmp_notify_data_ha_incoming_ipsec_sa_delta_value, tvb, offset, length, ENC_NA);
           break;
+          case 16424: /* SECURE_PASSWORD_METHODS */
+               proto_tree_add_item(tree, hf_isakmp_notify_data_secure_password_methods, tvb, offset, length, ENC_NA);
+          break;
           default:
                /* No Default Action */
           break;
@@ -4723,6 +4735,13 @@ dissect_eap(tvbuff_t *tvb, int offset, int length, proto_tree *tree, packet_info
   }
 }
 
+static void
+dissect_gspm(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
+{
+
+  proto_tree_add_item(tree, hf_isakmp_gspm_data, tvb, offset, length, ENC_NA);
+
+}
 
 /*
  * Protocol initialization
@@ -5313,6 +5332,10 @@ proto_register_isakmp(void)
       { "Incoming IPsec SA delta value", "isakmp.notify.data.ha.incoming_ipsec_sa_delta_value",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         "The sender requests that the peer should increment all the Child SA Replay Counters for the sender's incomingtraffic by this value", HFILL }},
+    { &hf_isakmp_notify_data_secure_password_methods,
+      { "Secure Password Methods", "isakmp.notify.data.secure_password_methods",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
 
     { &hf_isakmp_delete_doi,
       { "Domain of interpretation", "isakmp.delete.doi",
@@ -5763,6 +5786,11 @@ proto_register_isakmp(void)
       { "EAP Message",	"isakmp.eap.data",
 	FT_BYTES, BASE_NONE, NULL, 0x00,
 	NULL, HFILL }},
+
+   { &hf_isakmp_gspm_data,
+      { "GSPM",	"isakmp.gspm.data",
+	FT_BYTES, BASE_NONE, NULL, 0x00,
+	"Generic Secure Password Method", HFILL }},
 
     { &hf_isakmp_cfg_type_v1,
       { "Type", "isakmp.cfg.type",
