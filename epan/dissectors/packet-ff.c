@@ -2421,7 +2421,7 @@ dissect_ff_msg_sm_id_req(tvbuff_t *tvb, gint offset,
 /*
  * 6.5.2.3.2. Response Message Parameters
  */
-static void
+static int
 dissect_ff_msg_sm_id_rsp_h1_node_addr(tvbuff_t *tvb,
 	gint offset, proto_tree *tree)
 {
@@ -2429,7 +2429,7 @@ dissect_ff_msg_sm_id_rsp_h1_node_addr(tvbuff_t *tvb,
 	proto_item *ti	= NULL;
 
 	if(!tree) {
-		return;
+		return 0;
 	}
 
 	ti = proto_tree_add_text(tree, tvb, offset, 2,
@@ -2438,7 +2438,7 @@ dissect_ff_msg_sm_id_rsp_h1_node_addr(tvbuff_t *tvb,
 		ett_ff_sm_id_rsp_h1_node_addr);
 
 	if(!sub_tree) {
-		return;
+		return 0;
 	}
 
 	proto_tree_add_item(sub_tree,
@@ -2450,7 +2450,7 @@ dissect_ff_msg_sm_id_rsp_h1_node_addr(tvbuff_t *tvb,
 		hf_ff_sm_id_rsp_h1_node_addr_ver_num_ver_num, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	return;
+	return offset;
 }
 
 
@@ -2486,7 +2486,7 @@ dissect_ff_msg_sm_id_rsp_entries_node_addr(tvbuff_t *tvb,
 
 
 
-static void
+static int
 dissect_ff_msg_sm_id_rsp_h1_live_list(tvbuff_t *tvb,
 	gint offset, proto_tree *tree)
 {
@@ -2494,7 +2494,7 @@ dissect_ff_msg_sm_id_rsp_h1_live_list(tvbuff_t *tvb,
 	proto_item *ti	= NULL;
 
 	if(!tree) {
-		return;
+		return 0;
 	}
 
 	ti = proto_tree_add_text(tree, tvb, offset, 4,
@@ -2503,7 +2503,7 @@ dissect_ff_msg_sm_id_rsp_h1_live_list(tvbuff_t *tvb,
 		ett_ff_sm_id_rsp_h1_live_list);
 
 	if(!sub_tree) {
-		return;
+		return 0;
 	}
 
 	proto_tree_add_item(sub_tree,
@@ -2518,7 +2518,7 @@ dissect_ff_msg_sm_id_rsp_h1_live_list(tvbuff_t *tvb,
 		hf_ff_sm_id_rsp_h1_live_list_ver_num, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	return;
+	return offset;
 }
 
 
@@ -3588,7 +3588,7 @@ dissect_ff_msg_sm_clear_assign_info_err(tvbuff_t *tvb, gint offset,
  * 6.5.2.7.   SM Device Annunciation (Unconfirmed Service Id = 16)
  * 6.5.2.7.1. Request Message Parameters
  */
-static void
+static int
 dissect_ff_msg_sm_dev_annunc_req_h1_node_addr(tvbuff_t *tvb,
 	gint offset, proto_tree *tree)
 {
@@ -3596,7 +3596,7 @@ dissect_ff_msg_sm_dev_annunc_req_h1_node_addr(tvbuff_t *tvb,
 	proto_item *ti	= NULL;
 
 	if(!tree) {
-		return;
+		return 0;
 	}
 
 	ti = proto_tree_add_text(tree, tvb, offset, 2,
@@ -3605,7 +3605,7 @@ dissect_ff_msg_sm_dev_annunc_req_h1_node_addr(tvbuff_t *tvb,
 		ett_ff_sm_dev_annunc_req_h1_node_addr);
 
 	if(!sub_tree) {
-		return;
+		return 0;
 	}
 
 	proto_tree_add_item(sub_tree,
@@ -3618,7 +3618,7 @@ dissect_ff_msg_sm_dev_annunc_req_h1_node_addr(tvbuff_t *tvb,
 		tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	return;
+	return offset;
 }
 
 
@@ -3654,7 +3654,7 @@ dissect_ff_msg_sm_dev_annunc_req_entries_node_addr(tvbuff_t *tvb,
 
 
 
-static void
+static int
 dissect_ff_msg_sm_dev_annunc_req_h1_live_list(tvbuff_t *tvb,
 	gint offset, proto_tree *tree)
 {
@@ -3662,7 +3662,7 @@ dissect_ff_msg_sm_dev_annunc_req_h1_live_list(tvbuff_t *tvb,
 	proto_item *ti	= NULL;
 
 	if(!tree) {
-		return;
+		return 0;
 	}
 
 	ti = proto_tree_add_text(tree, tvb, offset, 4,
@@ -3671,7 +3671,7 @@ dissect_ff_msg_sm_dev_annunc_req_h1_live_list(tvbuff_t *tvb,
 		ett_ff_sm_dev_annunc_req_h1_live_list);
 
 	if(!sub_tree) {
-		return;
+		return 0;
 	}
 
 	proto_tree_add_item(sub_tree,
@@ -3686,7 +3686,7 @@ dissect_ff_msg_sm_dev_annunc_req_h1_live_list(tvbuff_t *tvb,
 		hf_ff_sm_dev_annunc_req_h1_live_list_ver_num, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	return;
+	return offset;
 }
 
 
@@ -12612,7 +12612,7 @@ dissect_ff_msg_body(tvbuff_t *tvb, gint offset, guint32 length,
 /*
  * 6.4. Message Trailer
  */
-static void
+static int
 dissect_ff_msg_trailer(tvbuff_t *tvb,
 	gint offset, guint32 length, proto_tree *tree, guint8 Options)
 {
@@ -12621,7 +12621,7 @@ dissect_ff_msg_trailer(tvbuff_t *tvb,
 	proto_item *hidden_item;
 
 	if(!tree) {
-		return;
+		return 0;
 	}
 
 	hidden_item = proto_tree_add_boolean(tree, hf_ff_fda_msg_trailer, tvb, 0, 0, 1);
@@ -12632,7 +12632,7 @@ dissect_ff_msg_trailer(tvbuff_t *tvb,
 	sub_tree = proto_item_add_subtree(ti, ett_ff_fda_msg_trailer);
 
 	if(!sub_tree) {
-		return;
+		return 0;
 	}
 
 	if(Options & OPTION_MESSAGE_NUMBER_MASK) {
@@ -12660,7 +12660,7 @@ dissect_ff_msg_trailer(tvbuff_t *tvb,
 		offset += 4;
 	}
 
-	return;
+	return offset;
 }
 
 
@@ -12883,7 +12883,7 @@ dissect_ff_msg_hdr_opts(tvbuff_t *tvb,
 /*
  * 6.3. Message Header
  */
-static void
+static int
 dissect_ff_msg_hdr(tvbuff_t *tvb,
 	proto_tree *tree, guint8 Options, guint8 ProtocolAndType, guint8 Service)
 {
@@ -12893,7 +12893,7 @@ dissect_ff_msg_hdr(tvbuff_t *tvb,
 	gint offset	= 0;
 
 	if(!tree) {
-		return;
+		return 0;
 	}
 
 	hidden_item = proto_tree_add_boolean(tree, hf_ff_fda_msg_hdr, tvb, 0, 0, 1);
@@ -12904,7 +12904,7 @@ dissect_ff_msg_hdr(tvbuff_t *tvb,
 	sub_tree = proto_item_add_subtree(ti, ett_ff_fda_msg_hdr);
 
 	if(!sub_tree) {
-		return;
+		return 0;
 	}
 
 	/* FDA Message Version */
@@ -12936,7 +12936,7 @@ dissect_ff_msg_hdr(tvbuff_t *tvb,
 		hf_ff_fda_msg_hdr_len, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
-	return;
+	return offset;
 }
 
 
@@ -13009,7 +13009,7 @@ dissect_ff(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if(trailer_len) {
 		dissect_ff_msg_trailer(tvb,
 			offset, trailer_len, sub_tree, Options);
-		offset += trailer_len;
+		/*offset += trailer_len;*/
 	}
 
 	return;
