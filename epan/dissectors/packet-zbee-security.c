@@ -825,7 +825,7 @@ zbee_sec_make_nonce(zbee_security_packet *packet, guint8 *nonce)
     *(nonce++) = (guint8)((packet->counter)>>16 & 0xff);
     *(nonce++) = (guint8)((packet->counter)>>24 & 0xff);
     /* Next byte is the security control field. */
-    *(nonce++) = packet->control;
+    *(nonce) = packet->control;
 } /* zbee_sec_make_nonce */
 #endif
 
@@ -1145,7 +1145,7 @@ zbee_sec_hash(guint8 *input, guint input_len, guint8 *output)
     } /* while */
     /* Add the 'n'-bit representation of 'l' to the end of the block. */
     cipher_in[j++] = ((input_len * 8) >> 8) & 0xff;
-    cipher_in[j++] = ((input_len * 8) >> 0) & 0xff;
+    cipher_in[j] = ((input_len * 8) >> 0) & 0xff;
     /* Process the last cipher block. */
     (void)gcry_cipher_setkey(cipher_hd, output, ZBEE_SEC_CONST_BLOCKSIZE);
     (void)gcry_cipher_encrypt(cipher_hd, output, ZBEE_SEC_CONST_BLOCKSIZE, cipher_in, ZBEE_SEC_CONST_BLOCKSIZE);

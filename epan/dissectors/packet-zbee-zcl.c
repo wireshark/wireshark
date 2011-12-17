@@ -1380,9 +1380,6 @@ static void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset
     gdouble attr_double;
     nstime_t attr_time;
 
-    attr_uint = 0;
-    attr_int = 0;
-
     /* Dissect attribute data type and data */
     switch ( data_type ) {
         case ZBEE_ZCL_NO_DATA:
