@@ -156,7 +156,7 @@ static const value_string families[] = {
 
 #define PSIZE(a) (((a) + 7) / (8))
 
-static void
+static int
 dissect_zebra_request(proto_tree *tree, gboolean request, tvbuff_t *tvb,
 	int offset, guint16 len, guint8 command)
 {
@@ -427,6 +427,7 @@ dissect_zebra_request(proto_tree *tree, gboolean request, tvbuff_t *tvb,
 			/* Not yet implemeted in ZEBRA */
 			break;
 	}
+return offset;
 }
 
 static void
