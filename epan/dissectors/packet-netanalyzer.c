@@ -187,12 +187,12 @@ dissect_netanalyzer_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       /* decode port */
       port_num = (tvb_get_guint8(tvb, 1) >> SRT_PORT_NUM) & 0x3;
-      proto_tree_add_item(netanalyzer_header_tree, hf_netanalyzer_port, tvb, 0, 2, ENC_LITTLE_ENDIAN);
+      proto_tree_add_uint(netanalyzer_header_tree, hf_netanalyzer_port, tvb, 0, 4, port_num);
       proto_item_append_text(ti, " (Port: %u, ", port_num);
 
       /* decode length */
       frame_length = tvb_get_letohs(tvb, 2) & MSK_LENGTH;
-      proto_tree_add_item(netanalyzer_header_tree, hf_netanalyzer_length, tvb, 2, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_uint(netanalyzer_header_tree, hf_netanalyzer_length, tvb, 0, 4, frame_length);
       proto_item_append_text(ti, "Length: %u byte%s, ", frame_length, (frame_length == 1) ? "" : "s");
 
       /* decode status */
@@ -386,12 +386,12 @@ void proto_register_netanalyzer(void)
         },
         { &hf_netanalyzer_port,
           { "Reception Port", "netanalyzer.port",
-            FT_UINT16, BASE_DEC, NULL, 0xc000,
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             "netANALYZER reception port", HFILL }
         },
         { &hf_netanalyzer_length,
           { "Ethernet frame length", "netanalyzer.framelen",
-            FT_UINT16, BASE_DEC, NULL,  0x0fff,
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             "Actual Ethernet frame length", HFILL }
         },
         { &hf_netanalyzer_status,
