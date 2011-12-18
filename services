@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2011-12-09
+# 2011-12-16
 # 
 # Note
 # 
@@ -9767,7 +9767,7 @@ pcoip	4172/udp	# PC over IP                   [Ken_Unger]                       
 # 4173        tcp    Reserved
 mma-discovery	4173/udp	# MMA Device Discovery         [MIDI_Manufacturers_Assoc_Inc]            [Tom_White]                                               2011-11-14
 smcluster	4174/tcp	# StorMagic Cluster Services   [Chris_Farey]                             [Chris_Farey]                                             2011-03-09
-# 4174        udp    Reserved
+sm-disc	4174/udp	# StorMagic Discovery          [StorMagic_Ltd]                           [Chris_Farey]                                             2011-12-16
 bccp	4175/tcp	# Brocade Cluster              [Norival_Figueira]                        [Norival_Figueira]                                        2010-04-07
 # Communication Protocol
 # 4175        udp    Reserved
@@ -17241,7 +17241,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Chris_Dern]                                              Chris Dern                                      mailto:cdern&nospam.alarismed.com                             2004-06
 # [Chris_Duncombe]                                          Chris Duncombe                                  mailto:cdunc&atpeng.com
 # [Chris_Eich]                                              Chris Eich                Enphase Energy, Inc.  mailto:ceich&enphaseenergy.com                                2011-11-08
-# [Chris_Farey]                                             Chris Farey                                     mailto:chris_farey&stormagic.com                              2011-03-09
+# [Chris_Farey]                                             Chris Farey               StorMagic Ltd         mailto:chris_farey&stormagic.com                              2011-12-16
 # [Chris_Flynn]                                             Chris Flynn                                     mailto:cflynn&landmark.com
 # [Chris_Greene]                                            Chris Greene                                    mailto:cgreeneOA&avidsports.com
 # [Chris_Griffin]                                           Chris Griffin                                   mailto:cgriffin&dka.com
@@ -20606,6 +20606,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Steven_Sweeting]                                         Steven Sweeting                                 mailto:ssweeting&sls-technology.com                           2008-01-28
 # [Steven_W_Clark]                                          Steven W. Clark                                 mailto:steven.clark&avocent.com
 # [Steven_W_Clark_2]                                        Steven W. Clark                                 mailto:sclark&equinox.com
+# [StorMagic_Ltd]                                                                     StorMagic Ltd         mailto:chris_farey&stormagic.com                              2011-12-16
 # [Stu_Mark]                                                Stu Mark                                        mailto:fordii&j51.com
 # [Stuart_Allen]                                            Stuart Allen                                    mailto:stuart&jacl.animats.net                                2002-02
 # [Stuart_Button]                                           Stuart Button                                   mailto:button&promis.com
