@@ -1053,10 +1053,6 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 */
 		next_tvb = tvb_new_subset(tvb, offset, datalen,
 		    reported_datalen);
-		/*
-		 * BEWARE - next_tvb is a subset of another tvb,
-		 * so we MUST NOT attempt tvb_free(next_tvb);
-		 */
 
 		/*
 		 * Handle *transfer* encodings other than "identity".
@@ -1082,8 +1078,10 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 					 * Add a new data source for the
 					 * de-chunked data.
 					 */
+#if 0 /* Handled in chunked_encoding_dissector() */
 					tvb_set_child_real_data_tvbuff(tvb,
 						next_tvb);
+#endif
 					add_new_data_source(pinfo, next_tvb,
 						"De-chunked entity body");
 				}
@@ -1391,6 +1389,7 @@ basic_response_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 
 }
 
+#if 0 /* XXX: Replaced by code creating the "Dechunked" tvb  O(N) rather tan O(N^2) */
 /*
  * Dissect the http data chunks and add them to the tree.
  */
@@ -1428,7 +1427,7 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 	while (datalen != 0) {
 		proto_item *chunk_ti = NULL;
 		proto_tree *chunk_subtree = NULL;
-		tvbuff_t *data_tvb = NULL;
+		tvbuff_t *data_tvb = NULL; /*  */
 		gchar *c = NULL;
 		guint8 *raw_data;
 		gint raw_len = 0;
@@ -1578,6 +1577,155 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 	return chunks_decoded;
 
 }
+#else
+/*
+ * Dissect the http data chunks and add them to the tree.
+ */
+static int
+chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
+			   proto_tree *tree, int offset)
+{
+	tvbuff_t	*tvb;
+	guint32		 datalen;
+	guint32		 orig_datalen;
+	gint		 chunks_decoded;
+	gint		 chunked_data_size;
+	proto_tree	*subtree;
+	guint8		*raw_data;
+	gint		 raw_len;
+
+	if ((tvb_ptr == NULL) || (*tvb_ptr == NULL)) {
+		return 0;
+	}
+
+	tvb = *tvb_ptr;
+
+	datalen = tvb_reported_length_remaining(tvb, offset);
+
+	subtree = NULL;
+	if (tree) {
+		proto_item *ti;
+		ti = proto_tree_add_text(tree, tvb, offset, datalen,
+					 "HTTP chunked response");
+		subtree = proto_item_add_subtree(ti, ett_http_chunked_response);
+	}
+
+        /* Dechunk the "chunked response" to a new memory buffer */
+	orig_datalen      = datalen;
+	raw_data	  = g_malloc(datalen);
+	raw_len		  = 0;
+	chunks_decoded	  = 0;
+	chunked_data_size = 0;
+
+	while (datalen != 0) {
+		tvbuff_t *data_tvb;
+		guint32	  chunk_size;
+		gint	  chunk_offset;
+		guint8	 *chunk_string;
+		gint	  linelen;
+		gchar	 *c;
+
+		linelen = tvb_find_line_end(tvb, offset, -1, &chunk_offset, TRUE);
+
+		if (linelen <= 0) {
+			/* Can't get the chunk size line */
+			break;
+		}
+
+		chunk_string = tvb_get_ephemeral_string(tvb, offset, linelen);
+
+		if (chunk_string == NULL) {
+			/* Can't get the chunk size line */
+			break;
+		}
+
+		c = (gchar*)chunk_string;
+
+		/*
+		 * We don't care about the extensions.
+		 */
+		if ((c = strchr(c, ';'))) {
+			*c = '\0';
+		}
+
+		chunk_size = strtol((gchar*)chunk_string, NULL, 16);
+
+		if (chunk_size > datalen) {
+			/*
+			 * The chunk size is more than what's in the tvbuff,
+			 * so either the user hasn't enabled decoding, or all
+			 * of the segments weren't captured.
+			 */
+			chunk_size = datalen;
+		}
+
+		chunked_data_size += chunk_size;
+
+		DISSECTOR_ASSERT((raw_len+chunk_size) <= orig_datalen);
+		tvb_memcpy(tvb, (guint8 *)(raw_data + raw_len), chunk_offset, chunk_size);
+		raw_len += chunk_size;
+
+		if (subtree) {
+			proto_item *chunk_ti;
+			proto_tree *chunk_subtree;
+
+			if(chunk_size == 0) {
+				chunk_ti = proto_tree_add_text(subtree, tvb,
+					    offset,
+					    chunk_offset - offset + chunk_size + 2,
+					    "End of chunked encoding");
+			} else {
+				chunk_ti = proto_tree_add_text(subtree, tvb,
+					    offset,
+					    chunk_offset - offset + chunk_size + 2,
+					    "Data chunk (%u octets)", chunk_size);
+			}
+
+			chunk_subtree = proto_item_add_subtree(chunk_ti,
+			    ett_http_chunk_data);
+
+			proto_tree_add_text(chunk_subtree, tvb, offset,
+			    chunk_offset - offset, "Chunk size: %u octets",
+			    chunk_size);
+
+			data_tvb = tvb_new_subset(tvb, chunk_offset, chunk_size, datalen);
+
+			/*
+			 * XXX - just use "proto_tree_add_text()"?
+			 * This means that, in TShark, you get
+			 * the entire chunk dumped out in hex,
+			 * in addition to whatever dissection is
+			 * done on the reassembled data.
+			 */
+			call_dissector(data_handle, data_tvb, pinfo,
+				    chunk_subtree);
+
+			proto_tree_add_text(chunk_subtree, tvb, chunk_offset +
+			    chunk_size, 2, "Chunk boundary");
+		}
+
+		chunks_decoded++;
+		offset  = chunk_offset + 2 + chunk_size;  /* beginning of next chunk */
+		datalen = tvb_reported_length_remaining(tvb, offset);
+	}
+
+	if (chunked_data_size > 0) {
+		tvbuff_t *new_tvb;
+		new_tvb = tvb_new_child_real_data(tvb, raw_data, chunked_data_size, chunked_data_size);
+		tvb_set_free_cb(new_tvb, g_free);
+		*tvb_ptr = new_tvb;
+	} else {
+		/*
+		 * There was no actual chunk data, so don't allow sub dissectors
+		 * try to decode the non-existent entity body.
+		 */
+		g_free(raw_data);
+		chunks_decoded = -1;
+	}
+
+	return chunks_decoded;
+}
+#endif
 
 /* Call a subdissector to handle HTTP CONNECT's traffic */
 static void
