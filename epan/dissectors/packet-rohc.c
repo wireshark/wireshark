@@ -390,7 +390,7 @@ dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, proto_tree *tree, int offset,
             break;
 
         default:
-            item = proto_tree_add_text(tree, tvb, offset, 0, "Profile not supported");
+            proto_tree_add_text(tree, tvb, offset, 0, "Profile not supported");
             return -1;
     }
 
@@ -605,7 +605,7 @@ dissect_rohc_ir_rtp_udp_profile_static(tvbuff_t *tvb, proto_tree *tree, packet_i
             break;
 
         default:
-            item = proto_tree_add_text(tree, tvb, offset, 0, "Profile not supported");
+            proto_tree_add_text(tree, tvb, offset, 0, "Profile not supported");
             return -1;
     }
 
