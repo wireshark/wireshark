@@ -199,6 +199,7 @@ static int hf_nas_eps_nas_msg_cont = -1;
 static int hf_nas_eps_gen_msg_cont = -1;
 
 static int hf_nas_eps_cmn_add_info = -1;
+static int hf_nas_eps_esm_request_type = -1;
 
 /* ESM */
 static int hf_nas_eps_msg_esm_type = -1;
@@ -2473,6 +2474,7 @@ static const value_string nas_eps_esm_pdn_type_values[] = {
 /*
  * 9.9.4.12 Quality of service
  * See subclause 10.5.6.5 in 3GPP TS 24.008
+ * Coded inline 1/2 octet
  */
 /*
  * 9.9.4.13 Radio priority
@@ -2482,6 +2484,14 @@ static const value_string nas_eps_esm_pdn_type_values[] = {
  * 9.9.4.14 Request type
  * See subclause 10.5.6.17 in 3GPP TS 24.008
  */
+static const value_string nas_eps_esm_request_type_values[] = {
+	{ 0x1,	"initial request" },
+	{ 0x2,	"Handover" },
+	{ 0x3,	"Unused; shall be interpreted as initial request if received by the network" },
+	{ 0x4,	"emergency" },
+	{ 0, NULL }
+ };
+
 /*
  * 9.9.4.15 Traffic flow aggregate description
  * The Traffic flow aggregate description information element is encoded using the same format as the Traffic flow
@@ -4148,6 +4158,7 @@ nas_esm_pdn_con_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
     guint32 curr_offset;
     guint32 consumed;
     guint   curr_len;
+	int     bit_offset;
 
     curr_offset = offset;
     curr_len = len;
@@ -4156,10 +4167,17 @@ nas_esm_pdn_con_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
     pinfo->link_dir = P2P_DIR_UL;
 
     /* PDN type PDN type 9.9.4.10 M V 1/2 */
-    proto_tree_add_bits_item(tree, hf_nas_eps_esm_pdn_type, tvb, (curr_offset<<3), 4, ENC_BIG_ENDIAN);
+    bit_offset = curr_offset<<3;
+    proto_tree_add_bits_item(tree, hf_nas_eps_esm_pdn_type, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
+    bit_offset+=4;
 
     /* Request type 9.9.4.14 M V 1/2 */
-    ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_REQ_TYPE, NULL);
+    proto_tree_add_bits_item(tree, hf_nas_eps_esm_request_type, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
+    bit_offset+=4;
+    /* Fix the lengths */
+    curr_len--;
+    curr_offset++;
+
 
     /* D- ESM information transfer flag 9.9.4.5 O TV 1 */
     ELEM_OPT_TV_SHORT( 0xd0 , NAS_PDU_TYPE_ESM, DE_ESM_INF_TRF_FLG , NULL );
@@ -5368,6 +5386,11 @@ void proto_register_nas_eps(void) {
     { &hf_nas_eps_esm_pdn_type,
         { "PDN type",   "nas_eps.nas_eps_esm_pdn_type",
         FT_UINT8, BASE_DEC, VALS(nas_eps_esm_pdn_type_values), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_esm_request_type,
+        { "Request type",	"nas_eps.nas_eps_esm_request_type",
+        FT_UINT8, BASE_DEC, VALS(nas_eps_esm_request_type_values), 0x0,
         NULL, HFILL }
     },
   };
