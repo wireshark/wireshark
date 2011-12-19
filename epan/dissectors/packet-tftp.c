@@ -389,18 +389,23 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (value_is_in_range(global_tftp_port_range, pinfo->destport)) {
 	  conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, PT_UDP,
 					   pinfo->srcport, 0, NO_PORT_B);
-	  if( (conversation == NULL) || (conversation->dissector_handle!=tftp_handle) ){
+	  if( (conversation == NULL) || (conversation->dissector_handle != tftp_handle) ){
 	    conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, PT_UDP,
 					    pinfo->srcport, 0, NO_PORT2);
-            conversation_set_dissector(conversation, tftp_handle);
+		conversation_set_dissector(conversation, tftp_handle);
 	  }
 	} else {
 	  conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
 					   pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-	  if( (conversation == NULL) || (conversation->dissector_handle!=tftp_handle) ){
+	  if( (conversation == NULL) || (conversation->dissector_handle != tftp_handle) ){
 	    conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, PT_UDP,
 					    pinfo->destport, pinfo->srcport, 0);
-            conversation_set_dissector(conversation, tftp_handle);
+		conversation_set_dissector(conversation, tftp_handle);
+	  } else if (conversation->options & NO_PORT_B) {
+		if (pinfo->destport == conversation->key_ptr->port1)
+		  conversation_set_port2(conversation, pinfo->srcport);
+		else
+		  return;
 	  }
 	}
 	tftp_info = conversation_get_proto_data(conversation, proto_tftp);
