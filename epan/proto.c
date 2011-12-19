@@ -3493,7 +3493,9 @@ proto_custom_set(proto_tree* tree, const int field_id, gchar *result,
 		case FT_FRAMENUM:
 			u_integer = fvalue_get_uinteger(&finfo->value);
 			if (hfinfo->strings) {
-				if (hfinfo->display & BASE_RANGE_STRING) {
+				if (hfinfo->display & BASE_CUSTOM) {
+					g_snprintf(result, size, "%u", u_integer);
+				} else if (hfinfo->display & BASE_RANGE_STRING) {
 					g_strlcpy(result, rval_to_str(u_integer, hfinfo->strings, "%u"), size);
 				} else if (hfinfo->display & BASE_EXT_STRING) {
 					g_strlcpy(result, val_to_str_ext(u_integer, (value_string_ext *) (hfinfo->strings), "%u"), size);
@@ -3520,7 +3522,9 @@ proto_custom_set(proto_tree* tree, const int field_id, gchar *result,
 		case FT_INT32:
 			integer = fvalue_get_sinteger(&finfo->value);
 			if (hfinfo->strings) {
-				if (hfinfo->display & BASE_RANGE_STRING) {
+				if (hfinfo->display & BASE_CUSTOM) {
+					g_snprintf(result, size, "%u", u_integer);
+				} else if (hfinfo->display & BASE_RANGE_STRING) {
 					g_strlcpy(result, rval_to_str(integer, hfinfo->strings, "%d"), size);
 				} else if (hfinfo->display & BASE_EXT_STRING) {
 					g_strlcpy(result, val_to_str_ext(integer, (value_string_ext *) (hfinfo->strings), "%d"), size);

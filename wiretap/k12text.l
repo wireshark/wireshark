@@ -327,7 +327,6 @@ static const struct { int e; const char* s; } encaps[] = {
 	{ WTAP_ENCAP_MTP3, "SSCF" },
 	{ WTAP_ENCAP_CHDLC, "HDLC" },
 	/* ... */
-	{ WTAP_ENCAP_UNKNOWN, "UNKNOWN" },
 	{ 0, NULL }
 };
 
@@ -338,18 +337,28 @@ static gboolean k12text_dump(wtap_dumper *wdh _U_, const struct wtap_pkthdr *phd
 	size_t left = 196808;
 	gint wl;
 	char* p=buf;
-	const char* str_enc = "";
+	const char* str_enc;
 	guint i;
 	guint ns;
 	guint ms;
 
+	str_enc = NULL;
+	for(i=0; encaps[i].s; i++) {
+		if (phdr->pkt_encap == encaps[i].e) {
+			str_enc = encaps[i].s;
+			break;
+		}
+	}
+	if (str_enc == NULL) {
+		/*
+		 * That encapsulation type is not supported.  Fail.
+		 */
+		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+		return FALSE;
+	}
+
 	ms = phdr->ts.nsecs / 1000000;
 	ns = (phdr->ts.nsecs - (1000000*ms))/1000;
-
-	for(i=0; encaps[i].s; i++) {
-		str_enc = encaps[i].s;
-		if (phdr->pkt_encap == encaps[i].e) break;
-	}
 
 	strftime(p,90,"+---------+---------------+----------+\r\n%H:%M:%S,",gmtime(&phdr->ts.secs));
 	wl = strlen(p);
