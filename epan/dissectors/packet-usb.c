@@ -5,7 +5,6 @@
  * USB basic dissector
  * By Paolo Abeni <paolo.abeni@email.it>
  * Ronnie Sahlberg 2006
- * Chris Maynard 2010 <chris[dot]maynard[at]gtech[dot]com>
  *
  * http://www.usb.org/developers/docs/usb_20_122909-2.zip
  *
@@ -156,7 +155,8 @@ static gboolean try_heuristics = TRUE;
 
 static dissector_table_t usb_bulk_dissector_table;
 static dissector_table_t usb_control_dissector_table;
-static heur_dissector_list_t heur_subdissector_list;
+static heur_dissector_list_t heur_bulk_subdissector_list;
+static heur_dissector_list_t heur_control_subdissector_list;
 
 /* http://www.usb.org/developers/docs/USB_LANGIDs.pdf */
 static const value_string usb_langid_vals[] = {
@@ -2009,7 +2009,7 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
             pinfo->usb_conv_info=usb_conv_info;
             next_tvb=tvb_new_subset_remaining(tvb, offset);
-            if (try_heuristics && dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, parent)) {
+            if (try_heuristics && dissector_try_heuristic(heur_bulk_subdissector_list, next_tvb, pinfo, parent)) {
                 return;
             }
             else if(dissector_try_uint(usb_bulk_dissector_table, usb_conv_info->interfaceClass, next_tvb, pinfo, parent)){
@@ -2086,6 +2086,9 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                 case RQT_SETUP_TYPE_CLASS:
                     /* Try to find a class specific dissector */
                     next_tvb=tvb_new_subset_remaining(tvb, offset);
+                    if (try_heuristics && dissector_try_heuristic(heur_control_subdissector_list, next_tvb, pinfo, tree)) {
+                        return;
+                    }
                     if(dissector_try_uint(usb_control_dissector_table, usb_conv_info->interfaceClass, next_tvb, pinfo, tree)){
                         return;
                     }
@@ -2121,6 +2124,18 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
              */
             if (header_len_64_bytes)
                 offset = dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree);
+
+            if (tvb_reported_length_remaining(tvb, offset) != 0) {
+                tvbuff_t *next_tvb;
+
+                next_tvb = tvb_new_subset_remaining(tvb, offset);
+                if (try_heuristics && dissector_try_heuristic(heur_control_subdissector_list, next_tvb, pinfo, tree)) {
+                    return;
+                }
+                if(dissector_try_uint(usb_control_dissector_table, usb_conv_info->interfaceClass, next_tvb, pinfo, tree)){
+                    return;
+                }
+            }
         } else {
             tvbuff_t *next_tvb;
 
@@ -2139,6 +2154,9 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
             if(usb_trans_info){
                 /* Try to find a class specific dissector */
                 next_tvb=tvb_new_subset_remaining(tvb, offset);
+                if (try_heuristics && dissector_try_heuristic(heur_control_subdissector_list, next_tvb, pinfo, tree)) {
+                    return;
+                }
                 if(dissector_try_uint(usb_control_dissector_table, usb_conv_info->interfaceClass, next_tvb, pinfo, tree)){
                     return;
                 }
@@ -2738,16 +2756,17 @@ proto_register_usb(void)
 
     usb_bulk_dissector_table = register_dissector_table("usb.bulk",
         "USB bulk endpoint", FT_UINT8, BASE_DEC);
-    register_heur_dissector_list("usb.bulk", &heur_subdissector_list);
+    register_heur_dissector_list("usb.bulk", &heur_bulk_subdissector_list);
     usb_control_dissector_table = register_dissector_table("usb.control",
         "USB control endpoint", FT_UINT8, BASE_DEC);
+    register_heur_dissector_list("usb.control", &heur_control_subdissector_list);
 
     usb_module = prefs_register_protocol(proto_usb, NULL);
     prefs_register_bool_preference(usb_module, "try_heuristics",
         "Try heuristic sub-dissectors",
         "Try to decode a packet using a heuristic sub-dissector before "
-        "attempting to dissect the packet using the \"usb.bulk\" dissector "
-        "table.", &try_heuristics);
+        "attempting to dissect the packet using the \"usb.bulk\" or "
+        "\"usb.control\" dissector tables.", &try_heuristics);
 
     usb_tap=register_tap("usb");
 }
