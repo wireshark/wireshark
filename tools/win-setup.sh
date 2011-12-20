@@ -4,13 +4,16 @@
 #
 # $Id$
 
-# This MUST be in the form
-#   http://anonsvn.wireshark.org/wireshark-win32-libs/tags/<date>/packages
-# or
-#   http://anonsvn.wireshark.org/wireshark-win64-libs/tags/<date>/packages
-# in order to provide backward compatibility with older trees (e.g. a
-# previous release or an older SVN checkout).
-# Save previous tag.
+err_exit () {
+	echo ""
+	echo "ERROR: $1"
+	shift
+	for str in "$@" ; do
+		echo "$str"
+	done
+	echo ""
+	exit 1
+}
 
 if [ -z "$DOWNLOAD_TAG" ]; then
     err_exit "DOWNLOAD_TAG not defined (internal error)"
@@ -20,22 +23,19 @@ if [ -z "$WIRESHARK_TARGET_PLATFORM" ]; then
     err_exit "WIRESHARK_TARGET_PLATFORM not defined (internal error)"
 fi
 
+# This MUST be in the form
+#   http://anonsvn.wireshark.org/wireshark-win32-libs/tags/<date>/packages
+# or
+#   http://anonsvn.wireshark.org/wireshark-win64-libs/tags/<date>/packages
+# in order to provide backward compatibility with older trees (e.g. a
+# previous release or an older SVN checkout).
+# Save previous tag.
+
 # Set DOWNLOAD_PREFIX to /packages to test uploads before creating the tag.
 #DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-$WIRESHARK_TARGET_PLATFORM-libs/trunk/packages/"
 DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-$WIRESHARK_TARGET_PLATFORM-libs/tags/$DOWNLOAD_TAG/packages/"
 
 TAG_FILE="current_tag.txt"
-
-err_exit () {
-	echo ""
-	echo "ERROR: $1"
-	shift
-	for str in "$@" ; do
-	    echo "$str"
-	done
-	echo ""
-	exit 1
-}
 
 usage () {
 	echo "Usage:"
