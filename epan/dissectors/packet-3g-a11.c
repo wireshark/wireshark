@@ -34,6 +34,8 @@
  *Ref:
  * http://www.3gpp2.org/Public_html/specs/A.S0009-C_v3.0_100621.pdf
  * http://www.3gpp2.org/Public_html/specs/A.S0017-D_v1.0_070624.pdf (IOS 5.1)
+ * http://www.3gpp2.org/public_html/specs/A.S0017-D_v2.0_090825.pdf
+ * http://www.3gpp2.org/public_html/specs/A.S0017-D%20v3.0_Interoperability%20Specification%20%28IOS%29%20for%20cdma2000%20Access%20Network%20Interfaces%20-%20Part%207%20%28A10%20and%20A11%20Interfaces%29_20110701.pdf
  */
 
 #ifdef HAVE_CONFIG_H
