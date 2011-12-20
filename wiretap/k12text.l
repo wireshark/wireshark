@@ -360,7 +360,15 @@ static gboolean k12text_dump(wtap_dumper *wdh _U_, const struct wtap_pkthdr *phd
 	ms = phdr->ts.nsecs / 1000000;
 	ns = (phdr->ts.nsecs - (1000000*ms))/1000;
 
-	strftime(p,90,"+---------+---------------+----------+\r\n%H:%M:%S,",gmtime(&phdr->ts.secs));
+#ifdef _MSC_VER
+	/* calling gmtime() on MSVC 2005 with huge values causes it to crash */
+	/* XXX - find the exact value that still does work */
+	/* XXX - using _USE_32BIT_TIME_T might be another way to circumvent this problem */
+	if (phdr->ts.secs > 2000000000)
+		g_snprintf(p, 90, "+---------+---------------+----------+\r\nXX:XX:XX,");
+	else
+#endif
+		strftime(p,90,"+---------+---------------+----------+\r\n%H:%M:%S,",gmtime(&phdr->ts.secs));
 	wl = strlen(p);
 	p += wl;
 	left -= wl;
