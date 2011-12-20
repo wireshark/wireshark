@@ -1126,8 +1126,7 @@ dissect_opensafety_message(guint16 frameStart1, guint16 frameStart2, guint8 type
             	expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "openSAFETY protocol settings are invalid! SCM UDID first octet will be assumed to be 00" );
             PROTO_ITEM_SET_GENERATED(item);
 
-            if (scmUDID)
-                g_byte_array_free( scmUDID, TRUE);
+            g_byte_array_free( scmUDID, TRUE);
 
             if ( type == OPENSAFETY_SSDO_MESSAGE_TYPE || type == OPENSAFETY_SLIM_SSDO_MESSAGE_TYPE )
             {
