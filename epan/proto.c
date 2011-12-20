@@ -5026,7 +5026,7 @@ proto_register_field_init(header_field_info *hfinfo, const int parent)
 		 * it must contain only alphanumerics, '-', "_", and ".". */
 		c = wrs_check_charset(fld_abbrev_chars, hfinfo->abbrev);
 		if (c) {
-			fprintf(stderr, "OOPS: '%c' in '%s'\n", c, hfinfo->abbrev);
+			fprintf(stderr, "Invalid character '%c' in filter name '%s'\n", c, hfinfo->abbrev);
 			DISSECTOR_ASSERT(!c);
 		}
 
