@@ -2196,11 +2196,11 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     /* ROHC packets            */
     /***************************/
 
-    col_append_fstr(pinfo->cinfo, COL_PROTOCOL, "|ROHC(%s)",
-                    val_to_str_const(p_pdcp_info->profile, rohc_profile_vals, "Unknown"));
 
     /* Only attempt ROHC if configured to */
     if (!global_pdcp_dissect_rohc) {
+        col_append_fstr(pinfo->cinfo, COL_PROTOCOL, "|ROHC(%s)",
+                        val_to_str_const(p_pdcp_info->profile, rohc_profile_vals, "Unknown"));
         return;
     }
 #if 0
