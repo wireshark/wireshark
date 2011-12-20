@@ -1967,6 +1967,9 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 /* DNSSL Lifetime */
                 ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_dnssl_lifetime, tvb, opt_offset, 4, ENC_BIG_ENDIAN);
                 switch(tvb_get_ntohl(tvb, opt_offset)){
+                    case 0:
+                        proto_item_append_text(ti_opt, " (DNSSL domain name MUST no longer be used)");
+                        break;
                     case 0xffffffff:
                         proto_item_append_text(ti_opt, " (Infinity)");
                         break;
