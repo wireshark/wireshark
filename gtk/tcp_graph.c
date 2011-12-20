@@ -80,7 +80,7 @@
 #define COMPARE_CURR_DIR	0
 #define COMPARE_ANY_DIR		1
 
-/* initalize_axis() */
+/* initialize_axis() */
 #define AXIS_HORIZONTAL		0
 #define AXIS_VERTICAL		1
 
@@ -803,7 +803,7 @@ static void create_drawing_area (struct graph *g)
 
 	/* this is probably quite an ugly way to get rid of the first configure
 	 * event
-	 * immediatelly after gtk_widget_show (window) drawing_area gets a configure
+	 * immediately after gtk_widget_show (window) drawing_area gets a configure
 	 * event which is handled during the next return to gtk_main which is
 	 * probably the gdk_gc_new() call. configure handler calls
 	 * graph_element_lists_make() which is not good because the graph struct is
@@ -2814,7 +2814,7 @@ static void cross_xor (struct graph *g, int x, int y)
 	/* XXX Fix me: lines do not disappear */
 	if (x > g->wp.x && x < g->wp.x+g->wp.width &&
 				y >= g->wp.y && y < g->wp.y+g->wp.height) {
-		/* Draw horisontal line */
+		/* Draw horizontal line */
 		cr = gdk_cairo_create (gtk_widget_get_window(g->drawing_area));
 		cairo_set_operator (cr, CAIRO_OPERATOR_XOR);
 		gdk_cairo_set_source_color (cr, &color_gray15);
