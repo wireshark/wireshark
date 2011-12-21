@@ -50,7 +50,6 @@
  * virtual data.
  */
 
-
 /** The different types of tvbuff's */
 typedef enum {
 	TVBUFF_REAL_DATA,
@@ -60,6 +59,30 @@ typedef enum {
 
 struct tvbuff;
 typedef struct tvbuff tvbuff_t;
+
+/**
+ * tvbuffs: dissector use and management
+ *
+ *  Consider a collection of tvbs as being a chain or stack of tvbs.
+ *
+ *  The top-level dissector (packet.c) pushes the initial tvb onto the stack
+ *  (starts the chain) and then calls a sub-dissector which in turn calls the next
+ *  sub-dissector and so on. Each sub-dissector may chain additional tvbs to
+ *  the tvb handed to that dissector. After dissection is complete and control has
+ *  returned to the top-level dissector, the chain of tvbs (stack) is free'd
+ *  via a call to tvb_free_chain() (in epan_dissect_cleanup()).
+ *
+ * A dissector:
+ * - Can chain new tvbs (real, subset, composite) to the tvb
+ *    handed to the dissector via tvb_subset(), tvb_new_child_real_data(), etc.
+ *    (Subset and Composite tvbs should reference only tvbs which are
+ *    already part of the chain).
+ * - Must not save a pointer to a tvb handed to the dissector for
+ *    use when dissecting another frame; A higher level function
+ *    may very well free the chain). This also applies to any tvbs chained
+ *    by the dissector to the tvb handed to the dissector.
+ * - Can create its own tvb chain (using tvb_new_real_data() which
+ *    the dissector is free to manage as desired. */
 
 /** TVBUFF_REAL_DATA contains a guint8* that points to real data.
  * The data is allocated and contiguous.
@@ -77,62 +100,43 @@ typedef struct tvbuff tvbuff_t;
  * Once a tvbuff is create/initialized/finalized, the tvbuff is read-only.
  * That is, it cannot point to any other data. A new tvbuff must be created if
  * you want a tvbuff that points to other data.
+ *
+ * tvbuff's are normally chained together to allow efficient de-allocation of tvbuff's.
+ *
  */
 
 typedef void (*tvbuff_free_cb_t)(void*);
 
 /** Returns a pointer to a newly initialized tvbuff. Note that
  * tvbuff's of types TVBUFF_SUBSET and TVBUFF_COMPOSITE
- * require further initialization via the appropriate functions */
+ * require further initialization via the appropriate functions. */
 extern tvbuff_t* tvb_new(tvbuff_type);
 
-/** Extracs from bit offset number of bits and 
- * Returns a pointer to a newly initialized tvbuff. with the bits
- * octet aligned.
+/** Extracts 'number of bits' starting at 'bit offset'.
+ * Returns a pointer to a newly initialized ep_alloc'd REAL_DATA
+ * tvbuff with the bits octet aligned.
  */
 extern tvbuff_t* tvb_new_octet_aligned(tvbuff_t *tvb, guint32 bit_offset, gint32 no_of_bits);
 
-
-/** Marks a tvbuff for freeing. The guint8* data of a TVBUFF_REAL_DATA
- * is *never* freed by the tvbuff routines. The tvbuff itself is actually freed
- * once its usage count drops to 0.
- *
- * Usage counts increment for any time the tvbuff is
- * used as a member of another tvbuff, i.e., as the backing buffer for
- * a TVBUFF_SUBSET or as a member of a TVBUFF_COMPOSITE.
- *
- * Although you may call tvb_free(), the tvbuff may still be in use
- * by other tvbuff's (TVBUFF_SUBSET or TVBUFF_COMPOSITE), so it is not
- * safe, unless you know otherwise, to free your guint8* data. If you
- * cannot be sure that your TVBUFF_REAL_DATA is not in use by another
- * tvbuff, register a callback with tvb_set_free_cb(); when your tvbuff
- * is _really_ freed, then your callback will be called, and at that time
- * you can free your original data.
- *
- * The caller can artificially increment/decrement the usage count
- * with tvbuff_increment_usage_count()/tvbuff_decrement_usage_count().
- */
+/** Free a tvbuff_t and all tvbuffs chained from it
+ * The tvbuff must be 'the 'head' (initial) tvb of a chain or
+ * must not be in a chain.
+ * If specified, a callback to free the tvbuff data will be invoked
+ * for each tvbuff free'd */
 extern void tvb_free(tvbuff_t*);
 
-/** Free the tvbuff_t and all tvbuff's created from it. */
+/** Free the tvbuff_t and all tvbuffs chained from it.
+ * The tvbuff must be 'the 'head' (initial) tvb of a chain or
+ * must not be in a chain.
+ * If specified, a callback to free the tvbuff data will be invoked
+ * for each tvbuff free'd */
 extern void tvb_free_chain(tvbuff_t*);
 
-/** Both return the new usage count, after the increment or decrement */
-extern guint tvb_increment_usage_count(tvbuff_t*, const guint count);
-
-/** If a decrement causes the usage count to drop to 0, a the tvbuff
- * is immediately freed. Be sure you know exactly what you're doing
- * if you decide to use this function, as another tvbuff could
- * still have a pointer to the just-freed tvbuff, causing corrupted data
- * or a segfault in the future */
-extern guint tvb_decrement_usage_count(tvbuff_t*, const guint count);
-
 /** Set a callback function to call when a tvbuff is actually freed
- * (once the usage count drops to 0). One argument is passed to
- * that callback --- a void* that points to the real data.
- * Obviously, this only applies to a TVBUFF_REAL_DATA tvbuff. */
+ * One argument is passed to that callback --- a void* that points
+ * to the real data. Obviously, this only applies to a
+ * TVBUFF_REAL_DATA tvbuff. */
 extern void tvb_set_free_cb(tvbuff_t*, const tvbuff_free_cb_t);
-
 
 /** Attach a TVBUFF_REAL_DATA tvbuff to a parent tvbuff. This connection
  * is used during a tvb_free_chain()... the "child" TVBUFF_REAL_DATA acts
@@ -141,21 +145,23 @@ extern void tvb_set_free_cb(tvbuff_t*, const tvbuff_free_cb_t);
  * run some operation on it, like decryption or decompression, and make a new
  * tvbuff from it, yet want the new tvbuff to be part of the chain. The reality
  * is that the new tvbuff *is* part of the "chain of creation", but in a way
- * that these tvbuff routines is ignorant of. Use this function to make
+ * that these tvbuff routines are ignorant of. Use this function to make
  * the tvbuff routines knowledgable of this fact. */
 extern void tvb_set_child_real_data_tvbuff(tvbuff_t* parent, tvbuff_t* child);
 
 extern tvbuff_t* tvb_new_child_real_data(tvbuff_t* parent, const guint8* data, const guint length,
     const gint reported_length);
 
-/**Sets parameters for TVBUFF_REAL_DATA. Can throw ReportedBoundsError. */
+/** Sets parameters for TVBUFF_REAL_DATA. Can throw ReportedBoundsError. */
 extern void tvb_set_real_data(tvbuff_t*, const guint8* data, const guint length,
     const gint reported_length);
 
-/** Combination of tvb_new() and tvb_set_real_data(). Can throw ReportedBoundsError. */
+/** Combination of tvb_new() and tvb_set_real_data(). Can throw ReportedBoundsError.
+ * Normally, a callback to free the data should be registered using tvb_set_free_cb();
+ * when this tvbuff is freed, then your callback will be called, and at that time
+ * you can free your original data. */
 extern tvbuff_t* tvb_new_real_data(const guint8* data, const guint length,
     const gint reported_length);
-
 
 /** Define the subset of the backing buffer to use.
  *
@@ -291,7 +297,8 @@ extern guint16 tvb_get_bits16(tvbuff_t *tvb, gint bit_offset, const gint no_of_b
 extern guint32 tvb_get_bits32(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits, const guint encoding);
 extern guint64 tvb_get_bits64(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits, const guint encoding);
 
-/* Fetch a specified number of bits from bit offset in a tvb, but allow number
+/**
+ * Fetch a specified number of bits from bit offset in a tvb, but allow number
  * of bits to range between 1 and 32. If the requested number of bits is known
  * beforehand, or its range can be handled by a single function of the group
  * above, use one of them instead.

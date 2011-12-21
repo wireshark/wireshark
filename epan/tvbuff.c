@@ -66,16 +66,16 @@ tvb_init(tvbuff_t *tvb, const tvbuff_type type)
 	tvb_backing_t	*backing;
 	tvb_comp_t	*composite;
 
-	tvb->type		= type;
-	tvb->initialized	= FALSE;
-	tvb->usage_count	= 1;
-	tvb->length		= 0;
-	tvb->reported_length	= 0;
-	tvb->free_cb		= NULL;
-	tvb->real_data		= NULL;
-	tvb->raw_offset		= -1;
-	tvb->used_in		= NULL;
-	tvb->ds_tvb		= NULL;
+        tvb->previous	     = NULL;
+        tvb->next	     = NULL;
+	tvb->type	     = type;
+	tvb->initialized     = FALSE;
+	tvb->length	     = 0;
+	tvb->reported_length = 0;
+	tvb->free_cb	     = NULL;
+	tvb->real_data	     = NULL;
+	tvb->raw_offset	     = -1;
+	tvb->ds_tvb	     = NULL;
 
 	switch(type) {
 		case TVBUFF_REAL_DATA:
@@ -83,17 +83,17 @@ tvb_init(tvbuff_t *tvb, const tvbuff_type type)
 			break;
 
 		case TVBUFF_SUBSET:
-			backing = &tvb->tvbuffs.subset;
+			backing 	= &tvb->tvbuffs.subset;
 			backing->tvb	= NULL;
 			backing->offset	= 0;
 			backing->length	= 0;
 			break;
 
 		case TVBUFF_COMPOSITE:
-			composite = &tvb->tvbuffs.composite;
-			composite->tvbs			= NULL;
-			composite->start_offsets	= NULL;
-			composite->end_offsets		= NULL;
+			composite 		 = &tvb->tvbuffs.composite;
+			composite->tvbs		 = NULL;
+			composite->start_offsets = NULL;
+			composite->end_offsets	 = NULL;
 			break;
 
 		default:
@@ -131,7 +131,7 @@ tvb_new_octet_aligned(tvbuff_t *tvb, guint32 bit_offset, gint32 no_of_bits)
 {
 	tvbuff_t *sub_tvb = NULL;
 	guint32 byte_offset;
-	gint32 datalen, i; 
+	gint32 datalen, i;
 	guint8 left, right, remaining_bits, *buf;
 	const guint8 *data;
 
@@ -177,7 +177,7 @@ tvb_new_octet_aligned(tvbuff_t *tvb, guint32 bit_offset, gint32 no_of_bits)
 	buf[datalen-1] &= left_aligned_bitmask[remaining_bits];
 
 	sub_tvb = tvb_new_child_real_data(tvb, buf, datalen, datalen);
-	
+
 	return sub_tvb;
 }
 
@@ -191,101 +191,73 @@ tvb_new_with_subset(const guint subset_tvb_offset, const guint subset_tvb_length
 	return tvb;
 }
 
-void
-tvb_free(tvbuff_t* tvb)
+static void
+tvb_free_internal(tvbuff_t* tvb)
 {
-	tvbuff_t	*member_tvb;
 	tvb_comp_t	*composite;
-	GSList		*slist;
 
-	tvb->usage_count--;
+	DISSECTOR_ASSERT(tvb);
 
-	if (tvb->usage_count == 0) {
-		switch (tvb->type) {
-		case TVBUFF_REAL_DATA:
-			if (tvb->free_cb) {
-				/*
-				 * XXX - do this with a union?
-				 */
-				tvb->free_cb((gpointer)tvb->real_data);
-			}
-			break;
-
-		case TVBUFF_SUBSET:
-			/* This will be NULL if tvb_new_subset() fails because
-			 * reported_length < -1 */
-			if (tvb->tvbuffs.subset.tvb) {
-				tvb_decrement_usage_count(tvb->tvbuffs.subset.tvb, 1);
-			}
-			break;
-
-		case TVBUFF_COMPOSITE:
-			composite = &tvb->tvbuffs.composite;
-			for (slist = composite->tvbs; slist != NULL ; slist = slist->next) {
-				member_tvb = slist->data;
-				tvb_decrement_usage_count(member_tvb, 1);
-			}
-
-			g_slist_free(composite->tvbs);
-
-			g_free(composite->start_offsets);
-			g_free(composite->end_offsets);
-			if (tvb->real_data) {
-				/*
-				 * XXX - do this with a union?
-				 */
-				g_free((gpointer)tvb->real_data);
-			}
-
-			break;
+	switch (tvb->type) {
+	case TVBUFF_REAL_DATA:
+		if (tvb->free_cb) {
+			/*
+			 * XXX - do this with a union?
+			 */
+			tvb->free_cb((gpointer)tvb->real_data);
 		}
+		break;
 
-		if (tvb->used_in) {
-			g_slist_free(tvb->used_in);
+	case TVBUFF_SUBSET:
+		/* Nothing */
+		break;
+
+	case TVBUFF_COMPOSITE:
+		composite = &tvb->tvbuffs.composite;
+
+		g_slist_free(composite->tvbs);
+
+		g_free(composite->start_offsets);
+		g_free(composite->end_offsets);
+		if (tvb->real_data) {
+			/*
+			 * XXX - do this with a union?
+			 */
+			g_free((gpointer)tvb->real_data);
 		}
+		break;
 
-		g_slice_free(tvbuff_t, tvb);
+	default:
+		DISSECTOR_ASSERT_NOT_REACHED();
 	}
+
+	g_slice_free(tvbuff_t, tvb);
 }
 
-guint
-tvb_increment_usage_count(tvbuff_t* tvb, const guint count)
+/* XXX: just call tvb_free_chain();
+ *      Not removed so that existing dissectors using tvb_free() need not be changed.
+ *      I'd argue that existing calls to tvb_free() should have actually beeen
+ *      calls to tvb_free_chain() although the calls were OK as long as no
+ *      subsets, etc had been created on the tvb. */
+void
+tvb_free(tvbuff_t *tvb)
 {
-	tvb->usage_count += count;
-
-	return tvb->usage_count;
-}
-
-guint
-tvb_decrement_usage_count(tvbuff_t* tvb, const guint count)
-{
-	if (tvb->usage_count <= count) {
-		tvb->usage_count = 1;
-		tvb_free(tvb);
-		return 0;
-	}
-	else {
-		tvb->usage_count -= count;
-		return tvb->usage_count;
-	}
-
+	tvb_free_chain(tvb);
 }
 
 void
 tvb_free_chain(tvbuff_t* tvb)
 {
-	GSList		*slist;
-
-	/* Recursively call tvb_free_chain() */
-	for (slist = tvb->used_in; slist != NULL ; slist = slist->next) {
-		tvb_free_chain( (tvbuff_t*)slist->data );
+	tvbuff_t *next_tvb;
+	DISSECTOR_ASSERT(tvb);
+	DISSECTOR_ASSERT((tvb->previous==NULL) && "tvb_free_chain(): tvb must be initial tvb in chain");
+	while (tvb) {
+		next_tvb=tvb->next;
+                DISSECTOR_ASSERT(((next_tvb==NULL) || (tvb==next_tvb->previous)) && "tvb_free_chain(): corrupt tvb chain ?");
+		tvb_free_internal(tvb);
+		tvb  = next_tvb;
 	}
-
-	/* Stop the recursion */
-	tvb_free(tvb);
 }
-
-
 
 void
 tvb_set_free_cb(tvbuff_t* tvb, const tvbuff_free_cb_t func)
@@ -296,10 +268,15 @@ tvb_set_free_cb(tvbuff_t* tvb, const tvbuff_free_cb_t func)
 }
 
 static void
-add_to_used_in_list(tvbuff_t *tvb, tvbuff_t *used_in)
+add_to_chain(tvbuff_t *parent, tvbuff_t *child)
 {
-	tvb->used_in = g_slist_prepend(tvb->used_in, used_in);
-	tvb_increment_usage_count(tvb, 1);
+	DISSECTOR_ASSERT(parent && child);
+        DISSECTOR_ASSERT(!child->next && !child->previous);
+	child->next	= parent->next;
+	child->previous = parent;
+	if (parent->next)
+		parent->next->previous = child;
+	parent->next    = child;
 }
 
 void
@@ -309,7 +286,7 @@ tvb_set_child_real_data_tvbuff(tvbuff_t* parent, tvbuff_t* child)
 	DISSECTOR_ASSERT(parent->initialized);
 	DISSECTOR_ASSERT(child->initialized);
 	DISSECTOR_ASSERT(child->type == TVBUFF_REAL_DATA);
-	add_to_used_in_list(parent, child);
+	add_to_chain(parent, child);
 }
 
 static void
@@ -349,7 +326,6 @@ tvb_new_real_data(const guint8* data, const guint length, const gint reported_le
 	 * so its data source tvbuff is itself.
 	 */
 	tvb->ds_tvb = tvb;
-
 	return tvb;
 }
 
@@ -516,7 +492,7 @@ tvb_set_subset_no_exceptions(tvbuff_t *tvb, tvbuff_t *backing, const gint report
 		tvb->reported_length	= reported_length;
 	}
 	tvb->initialized		= TRUE;
-	add_to_used_in_list(backing, tvb);
+	add_to_chain(backing, tvb);
 
 	/* Optimization. If the backing buffer has a pointer to contiguous, real data,
 	 * then we can point directly to our starting offset in that buffer */
@@ -594,6 +570,20 @@ tvb_new_subset_remaining(tvbuff_t *backing, const gint backing_offset)
 	return tvb;
 }
 
+/*
+ * Composite tvb
+ *
+ *   1. A composite tvb is automatically chained to its first member when the
+ *      tvb is finalized.
+ *      This means that composite tvb members must all be in the same chain.
+ *      ToDo: enforce this: By searching the chain?
+ */
+tvbuff_t*
+tvb_new_composite(void)
+{
+	return tvb_new(TVBUFF_COMPOSITE);
+}
+
 void
 tvb_composite_append(tvbuff_t* tvb, tvbuff_t* member)
 {
@@ -603,7 +593,6 @@ tvb_composite_append(tvbuff_t* tvb, tvbuff_t* member)
 	DISSECTOR_ASSERT(tvb->type == TVBUFF_COMPOSITE);
 	composite = &tvb->tvbuffs.composite;
 	composite->tvbs = g_slist_append( composite->tvbs, member );
-	add_to_used_in_list(tvb, member);
 }
 
 void
@@ -615,14 +604,8 @@ tvb_composite_prepend(tvbuff_t* tvb, tvbuff_t* member)
 	DISSECTOR_ASSERT(tvb->type == TVBUFF_COMPOSITE);
 	composite = &tvb->tvbuffs.composite;
 	composite->tvbs = g_slist_prepend( composite->tvbs, member );
-	add_to_used_in_list(tvb, member);
 }
 
-tvbuff_t*
-tvb_new_composite(void)
-{
-	return tvb_new(TVBUFF_COMPOSITE);
-}
 
 void
 tvb_composite_finalize(tvbuff_t* tvb)
@@ -653,7 +636,7 @@ tvb_composite_finalize(tvbuff_t* tvb)
 		composite->end_offsets[i] = tvb->length - 1;
 		i++;
 	}
-
+        add_to_chain((tvbuff_t *)composite->tvbs->data, tvb); /* chain composite tvb to first member */
 	tvb->initialized = TRUE;
 }
 

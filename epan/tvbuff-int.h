@@ -49,16 +49,14 @@ typedef struct {
 } tvb_comp_t;
 
 struct tvbuff {
+	/* Doubly linked list pointers */
+	tvbuff_t                *next;
+	tvbuff_t                *previous;
+
 	/* Record-keeping */
 	tvbuff_type		type;
 	gboolean		initialized;
-	guint			usage_count;
 	struct tvbuff		*ds_tvb;  /**< data source top-level tvbuff */
-
-	/** The tvbuffs in which this tvbuff is a member
-	 * (that is, a backing tvbuff for a TVBUFF_SUBSET
-	 * or a member for a TVB_COMPOSITE) */
-	GSList			*used_in;
 
 	/** TVBUFF_SUBSET and TVBUFF_COMPOSITE keep track
 	 * of the other tvbuff's they use */
