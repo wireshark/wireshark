@@ -167,12 +167,12 @@ static const value_string rlc_ctrl_vals[] = {
 static const value_string rlc_sufi_vals[] = {
 	{ RLC_SUFI_NOMORE,	"No more data" },
 	{ RLC_SUFI_WINDOW,	"Window size" },
-	{ RLC_SUFI_ACK,		"Acknowledgement" },
+	{ RLC_SUFI_ACK,		"Acknowledgment" },
 	{ RLC_SUFI_LIST,	"List" },
 	{ RLC_SUFI_BITMAP,	"Bitmap" },
 	{ RLC_SUFI_RLIST,	"Relative list" },
 	{ RLC_SUFI_MRW,		"Move receiving window" },
-	{ RLC_SUFI_MRW_ACK,	"Move receiving window acknowledgement" },
+	{ RLC_SUFI_MRW_ACK,	"Move receiving window acknowledgment" },
 	{ RLC_SUFI_POLL,	"Poll" },
 	{ 0, NULL }
 };
@@ -438,7 +438,7 @@ rlc_cmp_seq(gconstpointer a, gconstpointer b)
  * with older versions of glib which do not have
  * a g_hash_table_remove_all() (because of this,
  * hashtables are emptied using g_hash_table_foreach_remove()
- * in conjunction with this funcion)
+ * in conjunction with this function)
  */
 static gboolean
 free_table_entry(gpointer key _U_, gpointer value _U_, gpointer user_data _U_)
@@ -723,7 +723,7 @@ reassemble_message(struct rlc_channel *ch, struct rlc_sdu *sdu, struct rlc_frag 
 	sdu->data = se_alloc(sdu->len);
 
 	temp = sdu->frags;
-	while (temp) {
+	while (temp && ((offs + temp->len) <= sdu->len)) {
 		memcpy(sdu->data + offs, temp->data, temp->len);
 		/* mark this fragment in reassembled table */
 		g_hash_table_insert(reassembled_table, temp, sdu);
@@ -1222,7 +1222,7 @@ dissect_rlc_um(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
 	offs += ((li_is_on_2_bytes) ? 2 : 1) * num_li;
 
 	if (global_rlc_headers_expected) {
-		/* There might not be any data, if only headerwas logged */
+		/* There might not be any data, if only header was logged */
 		is_truncated = (tvb_length_remaining(tvb, offs) == 0);
 		truncated_ti = proto_tree_add_boolean(tree, hf_rlc_header_only, tvb, 0, 0,
 		                                      is_truncated);
@@ -1946,7 +1946,7 @@ dissect_rlc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				/* Have reached data, so get out of loop */
 				continue;
 			default:
-				/* It must be a recognised tag */
+				/* It must be a recognized tag */
 				return FALSE;
 		}
 	}
