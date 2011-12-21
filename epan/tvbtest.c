@@ -441,8 +441,8 @@ int
 main(void)
 {
 	/* For valgrind: See GLib documentation: "Running GLib Applications" */
-	setenv("G_DEBUG", "gc-friendly", 1);
-	setenv("G_SLICE", "always-malloc", 1);
+	g_setenv("G_DEBUG", "gc-friendly", 1);
+	g_setenv("G_SLICE", "always-malloc", 1);
 
 	except_init();
 	run_tests();
