@@ -78,11 +78,13 @@ static const true_false_string softKeyMapValues = {
 #define BASIC_MSG_TYPE 0x00
 #define CM7_MSG_TYPE_A 0x12
 #define CM7_MSG_TYPE_B 0x11
+#define CM7_MSG_TYPE_C 0x14
 
 static const value_string header_version[] = {
   { BASIC_MSG_TYPE, "Basic" },
   { CM7_MSG_TYPE_A, "CM7 type A" },
   { CM7_MSG_TYPE_B, "CM7 type B" },
+  { CM7_MSG_TYPE_C, "CM7 type C" },
   { 0             , NULL }
 };
 
@@ -434,6 +436,11 @@ static const value_string openReceiveChanStatus[] = {
   {0   , NULL}
 };
 
+static const value_string ipVersion[] = {
+  {0   , "IPv4"},
+  {1   , "IPv6"}, /*Assume IPv6 will be set to be "1"*/
+  {0   , NULL}
+};
 
 static const value_string statsProcessingTypes[] = {
   {0   , "clearStats"},
@@ -989,7 +996,9 @@ static int hf_skinny_alarmParam2 = -1;
 static int hf_skinny_receptionStatus = -1;
 static int hf_skinny_passThruPartyID = -1;
 static int hf_skinny_ORCStatus = -1;
+static int hf_skinny_IPVersion = -1;
 static int hf_skinny_ipAddress = -1;
+static int hf_skinny_ipV6Address = -1;
 static int hf_skinny_portNumber = -1;
 static int hf_skinny_statsProcessingType = -1;
 static int hf_skinny_callIdentifier = -1;
@@ -1281,6 +1290,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   int j = 0;
   guint count;
   int val;
+  guint32 ipversion;
 
   guint32 capCount;
   guint32 softKeyCount;
@@ -1479,11 +1489,17 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           rtp_add_address(pinfo, &src_addr, tvb_get_letohl(tvb, offset+20), 0, "Skinny", pinfo->fd->num, is_video, NULL);
         }
         si->passThruId = tvb_get_letohl(tvb, offset+24);
-      } else if (hdr_version == CM7_MSG_TYPE_A || hdr_version == CM7_MSG_TYPE_B) {
+      } else if (hdr_version == CM7_MSG_TYPE_A || hdr_version == CM7_MSG_TYPE_B || hdr_version == CM7_MSG_TYPE_C) {
         proto_tree_add_item(skinny_tree, hf_skinny_ORCStatus, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
-        /* unknown uint32_t stuff */
+	/*Assume the field of next 4 bytes is IP Version*/
+	ipversion = tvb_get_ntohl(tvb, offset+16);
+	proto_tree_add_item(skinny_tree, hf_skinny_IPVersion, tvb, offset+16, 4, ENC_LITTLE_ENDIAN);
+	/*Here we take "0" as IPv4, "others" as IPv6, maybe we need to fix it later*/
+	if (ipversion == 0) {
         proto_tree_add_item(skinny_tree, hf_skinny_ipAddress, tvb, offset+20, 4, ENC_BIG_ENDIAN);
-        /* 3x unknown uint32_t stuff, space for IPv6 maybe */
+	} else {
+          proto_tree_add_item(skinny_tree, hf_skinny_ipV6Address, tvb, offset+20, 16, ENC_NA);
+	 }
         proto_tree_add_item(skinny_tree, hf_skinny_portNumber, tvb, offset+36, 4, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID, tvb, offset+40, 4, ENC_LITTLE_ENDIAN);
         if (rtp_handle) {
@@ -1937,13 +1953,19 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
         si->passThruId = tvb_get_letohl(tvb, offset+16);
       }
-      else if (hdr_version == CM7_MSG_TYPE_A || hdr_version == CM7_MSG_TYPE_B)
+      else if (hdr_version == CM7_MSG_TYPE_A || hdr_version == CM7_MSG_TYPE_B || hdr_version == CM7_MSG_TYPE_C)
       {
         proto_tree_add_item(skinny_tree, hf_skinny_conferenceID,          tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(skinny_tree, hf_skinny_passThruPartyID,       tvb, offset+16, 4, ENC_LITTLE_ENDIAN);
-        /* unknown uint32_t stuff */
-        proto_tree_add_item(skinny_tree, hf_skinny_remoteIpAddr,          tvb, offset+24, 4, ENC_BIG_ENDIAN);
-        /* 3x unknown uint32_t stuff, space for IPv6 maybe */
+	/*Assume the field of next 4 bytes is IP Version*/
+	ipversion = tvb_get_ntohl(tvb, offset+20);
+        proto_tree_add_item(skinny_tree, hf_skinny_IPVersion, tvb, offset+20, 4, ENC_LITTLE_ENDIAN);
+	/*Here we take "0" as IPv4, "others" as IPv6, maybe we need to fix it later*/
+	if (ipversion ==0) {
+          proto_tree_add_item(skinny_tree, hf_skinny_remoteIpAddr,          tvb, offset+24, 4, ENC_BIG_ENDIAN);
+	} else {
+          proto_tree_add_item(skinny_tree, hf_skinny_ipV6Address, tvb, offset+24, 16, ENC_NA);
+	}
         proto_tree_add_item(skinny_tree, hf_skinny_remotePortNumber,      tvb, offset+40, 4, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(skinny_tree, hf_skinny_millisecondPacketSize, tvb, offset+44, 4, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(skinny_tree, hf_skinny_payloadCapability,     tvb, offset+48, 4, ENC_LITTLE_ENDIAN);
@@ -2938,7 +2960,8 @@ dissect_skinny(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if ((hdr_data_length < 4) ||
       ((hdr_version != BASIC_MSG_TYPE) &&
        (hdr_version != CM7_MSG_TYPE_A) &&
-       (hdr_version != CM7_MSG_TYPE_B))
+       (hdr_version != CM7_MSG_TYPE_B) &&
+       (hdr_version != CM7_MSG_TYPE_C))
      )
   {
       /* Not an SKINNY packet, just happened to use the same port */
@@ -3130,9 +3153,23 @@ proto_register_skinny(void)
 	HFILL }
     },
 
+    { &hf_skinny_IPVersion,
+      { "IP Version", "skinny.ipversion",
+	FT_UINT32, BASE_DEC, VALS(ipVersion), 0x0,
+	NULL,
+	HFILL }
+    },
+
     { &hf_skinny_ipAddress,
       { "IP address", "skinny.ipAddress",
 	FT_IPv4, BASE_NONE, NULL, 0x0,
+	NULL,
+	HFILL }
+    },
+
+    { &hf_skinny_ipV6Address,
+      { "IPv6 address", "skinny.ipv6Address",
+	FT_IPv6, BASE_NONE, NULL, 0x0,
 	NULL,
 	HFILL }
     },
