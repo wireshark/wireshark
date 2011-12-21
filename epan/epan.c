@@ -210,9 +210,7 @@ epan_dissect_cleanup(epan_dissect_t* edt)
 	/* Free the data sources list. */
 	free_data_sources(&edt->pi);
 
-	/* Free all tvb's created from this tvb, unless dissector
-	 * wanted to store the pointer (in which case, the dissector
-	 * would have incremented the usage count on that tvbuff_t*) */
+	/* Free all tvb's chained from this tvb */
 	tvb_free_chain(edt->tvb);
 
 	if (edt->tree) {
