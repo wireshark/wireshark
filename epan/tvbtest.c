@@ -42,7 +42,6 @@ test(tvbuff_t *tvb, gchar* name,
 		guint8* expected_data, guint expected_length)
 {
 	guint			length;
-	const guint8	       *cptr;
 	guint8			*ptr;
 	volatile gboolean	ex_thrown;
 	volatile guint32	val32;
@@ -61,7 +60,7 @@ test(tvbuff_t *tvb, gchar* name,
 	/* Test boundary case. A BoundsError exception should be thrown. */
 	ex_thrown = FALSE;
 	TRY {
-		cptr = tvb_get_ptr(tvb, 0, length + 1);
+		tvb_get_ptr(tvb, 0, length + 1);
 	}
 	CATCH(BoundsError) {
 		ex_thrown = TRUE;
@@ -82,7 +81,7 @@ test(tvbuff_t *tvb, gchar* name,
 	   exception should be thrown. */
 	ex_thrown = FALSE;
 	TRY {
-		cptr = tvb_get_ptr(tvb, 0, length + 2);
+		tvb_get_ptr(tvb, 0, length + 2);
 	}
 	CATCH(BoundsError) {
 		printf("03: Caught wrong exception: BoundsError\n");
@@ -102,7 +101,7 @@ test(tvbuff_t *tvb, gchar* name,
 	/* Test boundary case. A BoundsError exception should be thrown. */
 	ex_thrown = FALSE;
 	TRY {
-		cptr = tvb_get_ptr(tvb, -1, 2);
+		tvb_get_ptr(tvb, -1, 2);
 	}
 	CATCH(BoundsError) {
 		ex_thrown = TRUE;
@@ -122,7 +121,7 @@ test(tvbuff_t *tvb, gchar* name,
 	/* Test boundary case. A BoundsError exception should not be thrown. */
 	ex_thrown = FALSE;
 	TRY {
-		cptr = tvb_get_ptr(tvb, 0, 1);
+		tvb_get_ptr(tvb, 0, 1);
 	}
 	CATCH(BoundsError) {
 		ex_thrown = TRUE;
@@ -142,7 +141,7 @@ test(tvbuff_t *tvb, gchar* name,
 	/* Test boundary case. A BoundsError exception should not be thrown. */
 	ex_thrown = FALSE;
 	TRY {
-		cptr = tvb_get_ptr(tvb, -1, 1);
+		tvb_get_ptr(tvb, -1, 1);
 	}
 	CATCH(BoundsError) {
 		ex_thrown = TRUE;
@@ -262,6 +261,7 @@ run_tests(void)
 {
 	int		i, j;
 
+	tvbuff_t	*tvb_parent;
 	tvbuff_t	*tvb_small[3];
 	tvbuff_t	*tvb_large[3];
 	tvbuff_t	*tvb_subset[6];
@@ -275,6 +275,7 @@ run_tests(void)
 	guint		comp_length[6];
 	int		len;
 
+	tvb_parent = tvb_new_real_data("", 0, 0);
 	for (i = 0; i < 3; i++) {
 		small[i] = g_new(guint8, 16);
 
@@ -283,7 +284,8 @@ run_tests(void)
 			small[i][j] = temp + j;
 		}
 
-		tvb_small[i] = tvb_new_real_data(small[i], 16, 17);
+		tvb_small[i] = tvb_new_child_real_data(tvb_parent, small[i], 16, 17);
+		tvb_set_free_cb(tvb_small[i], g_free);
 	}
 
 	for (i = 0; i < 3; i++) {
@@ -294,7 +296,8 @@ run_tests(void)
 			large[i][j] = temp + j;
 		}
 
-		tvb_large[i] = tvb_new_real_data(large[i], 19, 20);
+		tvb_large[i] = tvb_new_child_real_data(tvb_parent, large[i], 19, 20);
+		tvb_set_free_cb(tvb_large[i], g_free);
 	}
 
 	/* Test the TVBUFF_REAL_DATA objects. */
@@ -421,11 +424,26 @@ run_tests(void)
 	skip(tvb_comp[3], "Composite 3", comp[3], comp_length[3]);
 	skip(tvb_comp[4], "Composite 4", comp[4], comp_length[4]);
 	skip(tvb_comp[5], "Composite 5", comp[5], comp_length[5]);
+
+	/* free memory. */
+	/* Don't free: comp[0] */
+	g_free(comp[1]);
+	/* Don't free: comp[2] */
+	g_free(comp[3]);
+	g_free(comp[4]);
+	g_free(comp[5]);
+
+	tvb_free_chain(tvb_parent);  /* should free all tvb's and associated data */
 }
 
+/* Note: valgrind can be used to check for tvbuff memory leaks */
 int
 main(void)
 {
+	/* For valgrind: See GLib documentation: "Running GLib Applications" */
+	setenv("G_DEBUG", "gc-friendly", 1);
+	setenv("G_SLICE", "always-malloc", 1);
+
 	except_init();
 	run_tests();
 	except_deinit();
