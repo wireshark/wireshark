@@ -387,6 +387,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-btsdp.c
 	dissectors/packet-bt-utp.c
 	dissectors/packet-bvlc.c
+	dissectors/packet-bzr.c
 	dissectors/packet-calcappprotocol.c
 	dissectors/packet-capwap.c
 	dissectors/packet-cast.c

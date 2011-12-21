@@ -306,6 +306,7 @@ DISSECTOR_SRC = \
 	packet-btsdp.c		\
 	packet-bt-utp.c		\
 	packet-bvlc.c		\
+	packet-bzr.c		\
 	packet-calcappprotocol.c  \
 	packet-capwap.c		\
 	packet-cast.c		\
