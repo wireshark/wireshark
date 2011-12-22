@@ -167,12 +167,12 @@ static const value_string rlc_ctrl_vals[] = {
 static const value_string rlc_sufi_vals[] = {
 	{ RLC_SUFI_NOMORE,	"No more data" },
 	{ RLC_SUFI_WINDOW,	"Window size" },
-	{ RLC_SUFI_ACK,		"Acknowledgment" },
+	{ RLC_SUFI_ACK,		"Acknowledgement" },
 	{ RLC_SUFI_LIST,	"List" },
 	{ RLC_SUFI_BITMAP,	"Bitmap" },
 	{ RLC_SUFI_RLIST,	"Relative list" },
 	{ RLC_SUFI_MRW,		"Move receiving window" },
-	{ RLC_SUFI_MRW_ACK,	"Move receiving window acknowledgment" },
+	{ RLC_SUFI_MRW_ACK,	"Move receiving window acknowledgement" },
 	{ RLC_SUFI_POLL,	"Poll" },
 	{ 0, NULL }
 };
@@ -1946,7 +1946,7 @@ dissect_rlc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				/* Have reached data, so get out of loop */
 				continue;
 			default:
-				/* It must be a recognized tag */
+				/* It must be a recognised tag */
 				return FALSE;
 		}
 	}
