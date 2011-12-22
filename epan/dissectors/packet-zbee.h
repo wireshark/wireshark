@@ -54,7 +54,7 @@
 #define ZBEE_HAS_2007(x)            ((x) >= ZBEE_VERSION_2007)
 
 /* ZigBee Application Profile IDs */
-/* Per: 053298r17, July 21 2010 */
+/* Per: 053298r18, November 2011 */
 #define ZBEE_DEVICE_PROFILE                 0x0000
 
 #define ZBEE_PROFILE_IPM                    0x0101
@@ -145,8 +145,8 @@
 #define ZBEE_PROFILE_TENDRIL_MAX            0xc0fa
 #define ZBEE_PROFILE_ASSA_MIN               0xc0fb
 #define ZBEE_PROFILE_ASSA_MAX               0xc104
-#define ZBEE_PROFILE_DIGI_MIN               0xc105
-#define ZBEE_PROFILE_DIGI_MAX               0xc10e
+#define ZBEE_PROFILE_MAXSTREAM_MIN          0xc105
+#define ZBEE_PROFILE_MAXSTREAM_MAX          0xc10e
 #define ZBEE_PROFILE_XANADU_MIN             0xc10f
 #define ZBEE_PROFILE_XANADU_MAX             0xc118
 #define ZBEE_PROFILE_NEUROCOM_MIN           0xc119
@@ -364,6 +364,25 @@
 #define ZBEE_PROFILE_NAVETAS_MAX            0xc4cf
 #define ZBEE_PROFILE_ENERNOC_MIN            0xc4d0
 #define ZBEE_PROFILE_ENERNOC_MAX            0xc4d1
+#define ZBEE_PROFILE_ELTAV_MIN              0xc4d2
+#define ZBEE_PROFILE_ELTAV_MAX              0xc4d3
+#define ZBEE_PROFILE_XSTREAMHD_MIN          0xc4d4
+#define ZBEE_PROFILE_XSTREAMHD_MAX          0xc4d5
+#define ZBEE_PROFILE_GREEN_MIN              0xc4d6
+#define ZBEE_PROFILE_GREEN_MAX              0xc4d7
+#define ZBEE_PROFILE_OMRON_MIN              0xc4d8
+#define ZBEE_PROFILE_OMRON_MAX              0xc4d9
+/**/
+#define ZBEE_PROFILE_NEC_TOKIN_MIN          0xc4e0
+#define ZBEE_PROFILE_NEC_TOKIN_MAX          0xc4e1
+#define ZBEE_PROFILE_PEEL_MIN               0xc4e2
+#define ZBEE_PROFILE_PEEL_MAX               0xc4e3
+#define ZBEE_PROFILE_ELECTROLUX_MIN         0xc4e4
+#define ZBEE_PROFILE_ELECTROLUX_MAX         0xc4e5
+#define ZBEE_PROFILE_SAMSUNG_MIN            0xc4e6
+#define ZBEE_PROFILE_SAMSUNG_MAX            0xc4e7
+#define ZBEE_PROFILE_MAINSTREAM_MIN         0xc4e8
+#define ZBEE_PROFILE_MAINSTREAM_MAX         0xc4e9
 
 /* Unallocated Manufacturer IDs */
 #define ZBEE_PROFILE_UNALLOCATED_MIN        0xc000
@@ -411,7 +430,7 @@
 #define ZBEE_MFG_CODE_YAMATAKE          0x101b
 #define ZBEE_MFG_CODE_TENDRIL           0x101c
 #define ZBEE_MFG_CODE_ASSA              0x101d
-#define ZBEE_MFG_CODE_DIGI              0x101e
+#define ZBEE_MFG_CODE_MAXSTREAM         0x101e
 #define ZBEE_MFG_CODE_NEUROCOM          0x101f
 
 #define ZBEE_MFG_CODE_III               0x1020
@@ -515,17 +534,15 @@
 /**/
 #define ZBEE_MFG_CODE_CEDO              0x1085
 /**/
+#define ZBEE_MFG_CODE_DIGI              0x1087
+/**/
 #define ZBEE_MFG_CODE_A_D               0x1094
 /**/
 #define ZBEE_MFG_CODE_CARRIER           0x1096
 #define ZBEE_MFG_CODE_SYCHIP            0x1097
 /**/
 #define ZBEE_MFG_CODE_PASSIVESYS        0x1099
-#if 0
-#define ZBEE_MFG_CODE_G4S_JUSTICE       0x109a conflict!
-#define ZBEE_MFG_CODE_MMB               0x109a conflict!
-#endif
-/**/
+#define ZBEE_MFG_CODE_MMB               0x109a
 #define ZBEE_MFG_CODE_HOME_AUTO         0x109b
 /**/
 #define ZBEE_MFG_CODE_SUNRISE           0x10a3
@@ -536,6 +553,38 @@
 #define ZBEE_MFG_CODE_NAVETAS           0x10a9
 /**/
 #define ZBEE_MFG_CODE_ENERNOC           0x10b2
+#define ZBEE_MFG_CODE_ELTAV             0x10b3
+/**/
+#define ZBEE_MFG_CODE_XSTREAMHD         0x10b5
+/**/
+#define ZBEE_MFG_CODE_GREEN             0x10b7
+/**/
+#define ZBEE_MFG_CODE_OMRON             0x10bf
+/**/
+#define ZBEE_MFG_CODE_PEEL              0x10c2
+/**/
+#define ZBEE_MFG_CODE_NEC_TOKIN         0x10c5
+/**/
+#define ZBEE_MFG_CODE_G4S_JUSTICE       0x10c6
+/**/
+#define ZBEE_MFG_CODE_ELECTROLUX        0x10c8
+/* We surmise this Samsung code, because it's 
+ * listed as "0009" in r18, which is obviously
+ * wrong */
+#define ZBEE_MFG_CODE_SAMSUNG           0x10c9
+/**/
+#define ZBEE_MFG_CODE_MAINSTREAM        0x10cc
+/**/
+#define ZBEE_MFG_CODE_RADIOCRAFTS       0x10dd
+/**/
+#define ZBEE_MFG_CODE_HUAWEI_1          0x10e3
+#define ZBEE_MFG_CODE_HUAWEI_2          0x10e4
+/**/
+#define ZBEE_MFG_CODE_BGLOBAL           0x10e6
+/**/
+#define ZBEE_MFG_CODE_ABB               0x10eb
+/**/
+#define ZBEE_MFG_CODE_GENUS             0x10ed
 
 /* Manufacturer Names */
 #define ZBEE_MFG_CIRRONET       "Cirronet"
@@ -569,7 +618,7 @@
 #define ZBEE_MFG_YAMATAKE       "Yamatake"
 #define ZBEE_MFG_TENDRIL        "Tendril"
 #define ZBEE_MFG_ASSA           "Assa Abloy"
-#define ZBEE_MFG_DIGI           "Digi"
+#define ZBEE_MFG_MAXSTREAM      "Maxstream"
 #define ZBEE_MFG_NEUROCOM       "Neurocom"
 
 #define ZBEE_MFG_III            "Institute for Information Industry"
@@ -673,6 +722,8 @@
 /**/
 #define ZBEE_MFG_CEDO           "CEDO"
 /**/
+#define ZBEE_MFG_DIGI           "Digi"
+/**/
 #define ZBEE_MFG_A_D            "A&D Co. Ltd."
 /**/
 #define ZBEE_MFG_CARRIER        "Carrier Electronics"
@@ -694,6 +745,33 @@
 #define ZBEE_MFG_NAVETAS        "Navetas"
 /**/
 #define ZBEE_MFG_ENERNOC        "EnerNOC"
+#define ZBEE_MFG_ELTAV          "Eltav"
+/**/
+#define ZBEE_MFG_XSTREAMHD      "XStreamHD"
+/**/
+#define ZBEE_MFG_GREEN          "GreenTrapOnline"
+/**/
+#define ZBEE_MFG_OMRON          "Omron Corporation"
+/**/
+#define ZBEE_MFG_PEEL           "Peel Technologies"
+/**/
+#define ZBEE_MFG_NEC_TOKIN      "NEC TOKIN Corporation"
+/**/
+#define ZBEE_MFG_ELECTROLUX     "Electrolux Italia S.p.A"
+/**/
+#define ZBEE_MFG_SAMSUNG        "Samsung Electronics Co., Ltd."
+/**/
+#define ZBEE_MFG_MAINSTREAM     "Mainstream Engineering"
+/**/
+#define ZBEE_MFG_RADIOCRAFTS    "Radiocrafts AS"
+/**/
+#define ZBEE_MFG_HUAWEI         "Huawei Technologies Co., Ltd."
+/**/
+#define ZBEE_MFG_BGLOBAL        "BGlobal Metering Ltd"
+/**/
+#define ZBEE_MFG_ABB            "ABB"
+/**/
+#define ZBEE_MFG_GENUS          "Genus Power Infrastructures Limited"
 
 /* Protocol Abbreviations */
 #define ZBEE_PROTOABBREV_NWK    "zbee.nwk"

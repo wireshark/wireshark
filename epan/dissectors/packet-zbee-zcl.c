@@ -184,7 +184,8 @@ static const value_string zbee_zcl_cs_cmd_names[] = {
 };
 
 
-/* Manufacturer Name Table */
+/* ZigBee Manufacturer Name Table */
+/* Per: 053298r18, November 2011 */
 static const value_string zbee_mfr_code_names[] = {
 
     { ZBEE_MFG_CODE_CIRRONET,   ZBEE_MFG_CIRRONET },
@@ -218,7 +219,7 @@ static const value_string zbee_mfr_code_names[] = {
     { ZBEE_MFG_CODE_YAMATAKE,   ZBEE_MFG_YAMATAKE },
     { ZBEE_MFG_CODE_TENDRIL,    ZBEE_MFG_TENDRIL },
     { ZBEE_MFG_CODE_ASSA,       ZBEE_MFG_ASSA },
-    { ZBEE_MFG_CODE_DIGI,       ZBEE_MFG_DIGI },
+    { ZBEE_MFG_CODE_MAXSTREAM,  ZBEE_MFG_MAXSTREAM },
     { ZBEE_MFG_CODE_NEUROCOM,   ZBEE_MFG_NEUROCOM },
 
     { ZBEE_MFG_CODE_III,        ZBEE_MFG_III },
@@ -330,7 +331,7 @@ static const value_string zbee_mfr_code_names[] = {
     { 0x1084,                   "Unknown" },             /**/
     { ZBEE_MFG_CODE_CEDO,       ZBEE_MFG_CEDO },
     { 0x1086,                   "Unknown" },             /**/
-    { 0x1087,                   "Unknown" },             /**/
+    { ZBEE_MFG_CODE_DIGI,       ZBEE_MFG_DIGI },
     { 0x1088,                   "Unknown" },             /**/
     { 0x1089,                   "Unknown" },             /**/
     { 0x108a,                   "Unknown" },             /**/
@@ -350,11 +351,7 @@ static const value_string zbee_mfr_code_names[] = {
     { ZBEE_MFG_CODE_SYCHIP,     ZBEE_MFG_SYCHIP },
     { 0x1098,                   "Unknown" },             /**/
     { ZBEE_MFG_CODE_PASSIVESYS, ZBEE_MFG_PASSIVESYS },
-#if 0
-    { ZBEE_MFG_CODE_G4S_JUSTICE,ZBEE_MFG_G4S_JUSTICE },
-    { ZBEE_MFG_CODE_MMB,        ZBEE_MFG_PASSIVESYS },
-#endif
-    { 0x109a,                   "Unknown" },             /**/
+    { ZBEE_MFG_CODE_MMB,        ZBEE_MFG_MMB },
     { ZBEE_MFG_CODE_HOME_AUTO,  ZBEE_MFG_HOME_AUTO },
     { 0x109c,                   "Unknown" },             /**/
     { 0x109d,                   "Unknown" },             /**/
@@ -381,6 +378,83 @@ static const value_string zbee_mfr_code_names[] = {
     { 0x10b0,                   "Unknown" },             /**/
     { 0x10b1,                   "Unknown" },             /**/
     { ZBEE_MFG_CODE_ENERNOC,    ZBEE_MFG_ENERNOC },
+    { ZBEE_MFG_CODE_ELTAV,      ZBEE_MFG_ELTAV },
+    { 0x10b4,                   "Unknown" },             /**/
+    { ZBEE_MFG_CODE_XSTREAMHD,  ZBEE_MFG_XSTREAMHD },
+    { 0x10b6,                   "Unknown" },             /**/
+    { ZBEE_MFG_CODE_GREEN,      ZBEE_MFG_GREEN },
+    { 0x10b8,                   "Unknown" },             /**/
+    { 0x10b9,                   "Unknown" },             /**/
+    { 0x10ba,                   "Unknown" },             /**/
+    { 0x10bb,                   "Unknown" },             /**/
+    { 0x10bc,                   "Unknown" },             /**/
+    { 0x10bd,                   "Unknown" },             /**/
+    { 0x10be,                   "Unknown" },             /**/
+    { ZBEE_MFG_CODE_OMRON,      ZBEE_MFG_OMRON },
+    { 0x10c0,                   "Unknown" },             /**/
+    { 0x10c1,                   "Unknown" },             /**/
+    { ZBEE_MFG_CODE_PEEL,       ZBEE_MFG_PEEL },
+    { 0x10c3,                   "Unknown" },             /**/
+    { 0x10c4,                   "Unknown" },             /**/
+    { ZBEE_MFG_CODE_NEC_TOKIN,  ZBEE_MFG_NEC_TOKIN },
+    { ZBEE_MFG_CODE_G4S_JUSTICE,ZBEE_MFG_G4S_JUSTICE },
+    { 0x10c7,                   "Unknown" },             /**/
+    { ZBEE_MFG_CODE_ELECTROLUX, ZBEE_MFG_ELECTROLUX },
+    { 0x10c9,                   "Unknown" },             /**/
+    { 0x10ca,                   "Unknown" },             /**/
+    { 0x10cb,                   "Unknown" },             /**/
+    { ZBEE_MFG_CODE_MAINSTREAM, ZBEE_MFG_MAINSTREAM },
+    { 0x10cd,                   "Unknown" },             /**/
+    { 0x10ce,                   "Unknown" },             /**/
+    { 0x10cf,                   "Unknown" },             /**/
+    { 0x10d0,                   "Unknown" },             /**/
+    { 0x10d1,                   "Unknown" },             /**/
+    { 0x10d2,                   "Unknown" },             /**/
+    { 0x10d3,                   "Unknown" },             /**/
+    { 0x10d4,                   "Unknown" },             /**/
+    { 0x10d5,                   "Unknown" },             /**/
+    { 0x10d6,                   "Unknown" },             /**/
+    { 0x10d7,                   "Unknown" },             /**/
+    { 0x10d8,                   "Unknown" },             /**/
+    { 0x10d9,                   "Unknown" },             /**/
+    { 0x10da,                   "Unknown" },             /**/
+    { 0x10db,                   "Unknown" },             /**/
+    { 0x10dc,                   "Unknown" },             /**/
+    { ZBEE_MFG_CODE_RADIOCRAFTS,ZBEE_MFG_RADIOCRAFTS },
+    { 0x10de,                   "Unknown" },             /**/
+    { 0x10df,                   "Unknown" },             /**/
+    { 0x10e0,                   "Unknown" },             /**/
+    { 0x10e1,                   "Unknown" },             /**/
+    { 0x10e2,                   "Unknown" },             /**/
+    { ZBEE_MFG_CODE_HUAWEI_1,   ZBEE_MFG_HUAWEI },
+    { ZBEE_MFG_CODE_HUAWEI_2,   ZBEE_MFG_HUAWEI },
+    { 0x10e5,                   "Unknown" },             /**/
+    { ZBEE_MFG_CODE_BGLOBAL,    ZBEE_MFG_BGLOBAL },
+    { 0x10e7,                   "Unknown" },             /**/
+    { 0x10e8,                   "Unknown" },             /**/
+    { 0x10e9,                   "Unknown" },             /**/
+    { 0x10ea,                   "Unknown" },             /**/
+    { ZBEE_MFG_CODE_ABB,        ZBEE_MFG_ABB },
+    { 0x10ec,                   "Unknown" },             /**/
+    { ZBEE_MFG_CODE_GENUS,      ZBEE_MFG_GENUS },
+    { 0x10ee,                   "Unknown" },             /**/
+    { 0x10ef,                   "Unknown" },             /**/
+    { 0x10f0,                   "Unknown" },             /**/
+    { 0x10f1,                   "Unknown" },             /**/
+    { 0x10f2,                   "Unknown" },             /**/
+    { 0x10f3,                   "Unknown" },             /**/
+    { 0x10f4,                   "Unknown" },             /**/
+    { 0x10f5,                   "Unknown" },             /**/
+    { 0x10f6,                   "Unknown" },             /**/
+    { 0x10f7,                   "Unknown" },             /**/
+    { 0x10f8,                   "Unknown" },             /**/
+    { 0x10f9,                   "Unknown" },             /**/
+    { 0x10fa,                   "Unknown" },             /**/
+    { 0x10fb,                   "Unknown" },             /**/
+    { 0x10fc,                   "Unknown" },             /**/
+    { 0x10fd,                   "Unknown" },             /**/
+    { 0x10fe,                   "Unknown" },             /**/
+    { 0x10ff,                   "Unknown" },             /**/
 
     { 0, NULL }
 };
