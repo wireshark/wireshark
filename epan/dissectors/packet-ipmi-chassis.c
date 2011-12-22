@@ -333,7 +333,7 @@ bootopt_00(tvbuff_t *tvb, proto_tree *tree)
 	static const int *byte1[] = { &hf_ipmi_chs_bo00_sip, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL, ett_ipmi_chs_bo00_byte1, byte1,
-			TRUE, 0);
+			ENC_LITTLE_ENDIAN, 0);
 }
 
 static void
@@ -348,7 +348,7 @@ bootopt_02(tvbuff_t *tvb, proto_tree *tree)
 	static const int *byte1[] = { &hf_ipmi_chs_bo02_request, &hf_ipmi_chs_bo02_discovered, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, "Service partition scan: ",
-			"Not discovered", ett_ipmi_chs_bo02_byte1, byte1, TRUE, 0);
+			"Not discovered", ett_ipmi_chs_bo02_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 }
 
 static void
@@ -358,7 +358,7 @@ bootopt_03(tvbuff_t *tvb, proto_tree *tree)
 		&hf_ipmi_chs_bo03_wd_timeout, &hf_ipmi_chs_bo03_softreset, &hf_ipmi_chs_bo03_powerup, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, "BMC boot flag valid, don't clear on: ",
-			"None", ett_ipmi_chs_bo03_byte1, byte1, TRUE, BMT_NO_TFS);
+			"None", ett_ipmi_chs_bo03_byte1, byte1, ENC_LITTLE_ENDIAN, BMT_NO_TFS);
 }
 
 static void
@@ -370,7 +370,7 @@ bootopt_04(tvbuff_t *tvb, proto_tree *tree)
 
 	proto_tree_add_item(tree, hf_ipmi_chs_bo04_write_mask, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, "Boot Initiator Acknowledge data: ",
-			"None", ett_ipmi_chs_bo04_byte2, byte2, TRUE, BMT_NO_TFS);
+			"None", ett_ipmi_chs_bo04_byte2, byte2, ENC_LITTLE_ENDIAN, BMT_NO_TFS);
 }
 
 static void
@@ -387,13 +387,13 @@ bootopt_05(tvbuff_t *tvb, proto_tree *tree)
 		&hf_ipmi_chs_bo05_bios_muxctl_override, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL, ett_ipmi_chs_bo05_byte1,
-			byte1, TRUE, 0);
+			byte1, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL, ett_ipmi_chs_bo05_byte2,
-			byte2, TRUE, 0);
+			byte2, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_bitmask_text(tree, tvb, 2, 1, NULL, NULL, ett_ipmi_chs_bo05_byte3,
-			byte3, TRUE, 0);
+			byte3, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_bitmask_text(tree, tvb, 3, 1, NULL, NULL, ett_ipmi_chs_bo05_byte4,
-			byte4, TRUE, 0);
+			byte4, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_item(tree, hf_ipmi_chs_bo05_byte5, tvb, 4, 1, ENC_LITTLE_ENDIAN);
 }
 
@@ -403,7 +403,7 @@ bootopt_06(tvbuff_t *tvb, proto_tree *tree)
 	static const int *byte1[] = { &hf_ipmi_chs_bo06_chan_num, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_chs_bo06_byte1, byte1, TRUE, 0);
+			ett_ipmi_chs_bo06_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_item(tree, hf_ipmi_chs_bo06_session_id, tvb, 1, 4, ENC_LITTLE_ENDIAN);
 	ipmi_add_timestamp(tree, hf_ipmi_chs_bo06_bootinfo_timestamp, tvb, 5);
 }
@@ -440,7 +440,7 @@ rs00(tvbuff_t *tvb, proto_tree *tree)
 		&hf_ipmi_chs_00_capflags_fpl, &hf_ipmi_chs_00_capflags_is, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, "Capabilities: ", "None",
-			ett_ipmi_chs_00_capflags, byte1, TRUE, BMT_NO_TFS);
+			ett_ipmi_chs_00_capflags, byte1, ENC_LITTLE_ENDIAN, BMT_NO_TFS);
 	proto_tree_add_item(tree, hf_ipmi_chs_00_fru_dev_addr, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_chs_00_sdr_dev_addr, tvb, 2, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_chs_00_sel_dev_addr, tvb, 3, 1, ENC_LITTLE_ENDIAN);
@@ -473,14 +473,14 @@ rs01(tvbuff_t *tvb, proto_tree *tree)
 		&hf_ipmi_chs_01_fpb_poweroff_disabled, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, "Current Power State: ", NULL,
-			ett_ipmi_chs_01_pwr_state, byte1, TRUE, 0);
+			ett_ipmi_chs_01_pwr_state, byte1, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, "Last Power Event: ", NULL,
-			ett_ipmi_chs_01_last_event, byte2, TRUE, 0);
+			ett_ipmi_chs_01_last_event, byte2, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_bitmask_text(tree, tvb, 2, 1, "Misc. State: ", NULL,
-			ett_ipmi_chs_01_misc, byte3, TRUE, 0);
+			ett_ipmi_chs_01_misc, byte3, ENC_LITTLE_ENDIAN, 0);
 	if (tvb_length(tvb) > 3) {
 		proto_tree_add_bitmask_text(tree, tvb, 3, 1, "Front panel buttons capabilities: ",
-				NULL, ett_ipmi_chs_01_fpb, byte4, TRUE, BMT_NO_TFS);
+				NULL, ett_ipmi_chs_01_fpb, byte4, ENC_LITTLE_ENDIAN, BMT_NO_TFS);
 	};
 }
 
@@ -492,7 +492,7 @@ rq02(tvbuff_t *tvb, proto_tree *tree)
 	static const int *byte1[] = { &hf_ipmi_chs_02_cctrl, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_chs_02_byte1, byte1, TRUE, 0);
+			ett_ipmi_chs_02_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 }
 
 /* Chassis Identify
@@ -508,7 +508,7 @@ rq04(tvbuff_t *tvb, proto_tree *tree)
 
 	if (tvb_length(tvb) > 1) {
 		proto_tree_add_bitmask_text(tree, tvb, 1, 1, "Flags: ", "None",
-				ett_ipmi_chs_04_byte2, byte2, TRUE, 0);
+				ett_ipmi_chs_04_byte2, byte2, ENC_LITTLE_ENDIAN, 0);
 	}
 }
 
@@ -520,7 +520,7 @@ rq05(tvbuff_t *tvb, proto_tree *tree)
 	static const int *byte1[] = { &hf_ipmi_chs_05_flags_fpl, &hf_ipmi_chs_05_flags_intrusion, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, "Capabilities: ", "None",
-			ett_ipmi_chs_05_flags, byte1, TRUE, 0);
+			ett_ipmi_chs_05_flags, byte1, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_item(tree, hf_ipmi_chs_05_fru_dev_addr, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_chs_05_sdr_dev_addr, tvb, 2, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_chs_05_sel_dev_addr, tvb, 3, 1, ENC_LITTLE_ENDIAN);
@@ -539,7 +539,7 @@ rq06(tvbuff_t *tvb, proto_tree *tree)
 	static const int *byte1[] = { &hf_ipmi_chs_06_rq_policy, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_chs_06_byte1, byte1, TRUE, 0);
+			ett_ipmi_chs_06_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 }
 
 /* Get Power Restore Policy
@@ -551,7 +551,7 @@ rs06(tvbuff_t *tvb, proto_tree *tree)
 		&hf_ipmi_chs_06_rs_policy_support_restore, &hf_ipmi_chs_06_rs_policy_support_poweroff, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, "Power Restore Policy support: ", "None",
-			ett_ipmi_chs_06_policy_support, byte1, TRUE, BMT_NO_TFS);
+			ett_ipmi_chs_06_policy_support, byte1, ENC_LITTLE_ENDIAN, BMT_NO_TFS);
 }
 
 /* Get System Restart Cause
@@ -562,7 +562,7 @@ rs07(tvbuff_t *tvb, proto_tree *tree)
 	static const int *byte1[] = { &hf_ipmi_chs_07_cause, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_chs_07_byte1, byte1, TRUE, 0);
+			ett_ipmi_chs_07_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_item(tree, hf_ipmi_chs_07_chan, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 }
 
@@ -666,7 +666,7 @@ rs09(tvbuff_t *tvb, proto_tree *tree)
 	}
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_chs_09_rs_byte1, byte1, TRUE, 0);
+			ett_ipmi_chs_09_rs_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 
 	ti = proto_tree_add_text(tree, tvb, 1, 1,
 			"Boot option parameter selector: %s (0x%02x)",

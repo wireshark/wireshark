@@ -255,7 +255,7 @@ rs10(tvbuff_t *tvb, proto_tree *tree)
 	static const int *flags[] = { &hf_ipmi_stor_10_access, NULL };
 
 	proto_tree_add_item(tree, hf_ipmi_stor_10_size, tvb, 0, 2, ENC_LITTLE_ENDIAN);
-	proto_tree_add_bitmask_text(tree, tvb, 2, 1, NULL, NULL, ett_ipmi_stor_10_flags, flags, TRUE, 0);
+	proto_tree_add_bitmask_text(tree, tvb, 2, 1, NULL, NULL, ett_ipmi_stor_10_flags, flags, ENC_LITTLE_ENDIAN, 0);
 }
 
 /* Read FRU Data
@@ -317,7 +317,7 @@ rs20(tvbuff_t *tvb, proto_tree *tree)
 	ipmi_add_timestamp(tree, hf_ipmi_stor_20_ts_add, tvb, 5);
 	ipmi_add_timestamp(tree, hf_ipmi_stor_20_ts_erase, tvb, 9);
 	proto_tree_add_bitmask_text(tree, tvb, 13, 1, "Operation Support: ", NULL,
-			ett_ipmi_stor_20_ops, ops, TRUE, 0);
+			ett_ipmi_stor_20_ops, ops, ENC_LITTLE_ENDIAN, 0);
 }
 
 /* Get SDR Repository Allocation Info
@@ -386,7 +386,7 @@ rq25(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree_add_item(tree, hf_ipmi_stor_25_rec_id, tvb, 2, 2, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_stor_25_offset, tvb, 4, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_bitmask_text(tree, tvb, 5, 1, NULL, NULL,
-			ett_ipmi_stor_25_byte6, byte6, TRUE, 0);
+			ett_ipmi_stor_25_byte6, byte6, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_item(tree, hf_ipmi_stor_25_data, tvb, 6, tvb_length(tvb) - 6, ENC_NA);
 }
 
@@ -432,7 +432,7 @@ rs27(tvbuff_t *tvb, proto_tree *tree)
 	static const int *status[] = { &hf_ipmi_stor_27_status, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_stor_27_status, status, TRUE, 0);
+			ett_ipmi_stor_27_status, status, ENC_LITTLE_ENDIAN, 0);
 }
 
 /* Get SDR Repository Time
@@ -459,7 +459,7 @@ rq2c(tvbuff_t *tvb, proto_tree *tree)
 	static const int *byte1[] = { &hf_ipmi_stor_2c_init_agent, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_stor_2c_rq_byte1, byte1, TRUE, 0);
+			ett_ipmi_stor_2c_rq_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 }
 
 static void
@@ -468,7 +468,7 @@ rs2c(tvbuff_t *tvb, proto_tree *tree)
 	static const int *byte1[] = { &hf_ipmi_stor_2c_init_state, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_stor_2c_rs_byte1, byte1, TRUE, 0);
+			ett_ipmi_stor_2c_rs_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 }
 
 /* Get SEL Info
@@ -485,7 +485,7 @@ rs40(tvbuff_t *tvb, proto_tree *tree)
 	ipmi_add_timestamp(tree, hf_ipmi_stor_40_ts_add, tvb, 5);
 	ipmi_add_timestamp(tree, hf_ipmi_stor_40_ts_erase, tvb, 9);
 	proto_tree_add_bitmask_text(tree, tvb, 13, 1, "Operation Support: ", NULL,
-			ett_ipmi_stor_40_ops, ops, TRUE, 0);
+			ett_ipmi_stor_40_ops, ops, ENC_LITTLE_ENDIAN, 0);
 }
 
 static const value_string cc40[] = {
@@ -576,7 +576,7 @@ rq45(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree_add_item(tree, hf_ipmi_stor_45_rec_id, tvb, 2, 2, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_stor_45_offset, tvb, 4, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_bitmask_text(tree, tvb, 5, 1, NULL, NULL,
-			ett_ipmi_stor_45_byte6, byte6, TRUE, 0);
+			ett_ipmi_stor_45_byte6, byte6, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_item(tree, hf_ipmi_stor_45_data, tvb, 6, tvb_length(tvb) - 6, ENC_NA);
 }
 
@@ -629,7 +629,7 @@ rs47(tvbuff_t *tvb, proto_tree *tree)
 	static const int *status[] = { &hf_ipmi_stor_47_status, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_stor_47_status, status, TRUE, 0);
+			ett_ipmi_stor_47_status, status, ENC_LITTLE_ENDIAN, 0);
 }
 
 /* Get SEL Time
@@ -661,7 +661,7 @@ rq5a(tvbuff_t *tvb, proto_tree *tree)
 	}
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_stor_5a_byte1, byte1, TRUE, 0);
+			ett_ipmi_stor_5a_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 }
 
 static void
@@ -692,7 +692,7 @@ rq5b(tvbuff_t *tvb, proto_tree *tree)
 	guint8 v = tvb_get_guint8(tvb, 0);
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_stor_5b_byte1, byte1, TRUE, 0);
+			ett_ipmi_stor_5b_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 
 	if (v > 2) {
 		proto_tree_add_item(tree, hf_ipmi_stor_5b_unknown, tvb, 1, tvb_length(tvb) - 1, ENC_NA);

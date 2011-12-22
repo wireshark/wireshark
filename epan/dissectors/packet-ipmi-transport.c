@@ -711,7 +711,7 @@ lan_serial_00(tvbuff_t *tvb, proto_tree *tree)
 	static const int *byte1[] = { &hf_ipmi_trn_lan00_sip, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL, ett_ipmi_trn_lan00_byte1,
-			byte1, TRUE, 0);
+			byte1, ENC_LITTLE_ENDIAN, 0);
 }
 
 static void
@@ -719,7 +719,7 @@ lan_serial_01(tvbuff_t *tvb, proto_tree *tree)
 {
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, "Authentication types supported: ",
 			"No authentication types supported for this channel", ett_ipmi_trn_lan01_byte1,
-			lanXX_authtypes_byte, TRUE, 0);
+			lanXX_authtypes_byte, ENC_LITTLE_ENDIAN, 0);
 }
 
 static void
@@ -727,19 +727,19 @@ lan_serial_02(tvbuff_t *tvb, proto_tree *tree)
 {
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, "Authentication types for Callback level: ",
 			"No authentication types enabled", ett_ipmi_trn_lan02_byte1,
-			lanXX_authtypes_byte, TRUE, 0);
+			lanXX_authtypes_byte, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, "Authentication types for User level: ",
 			"No authentication types enabled", ett_ipmi_trn_lan02_byte2,
-			lanXX_authtypes_byte, TRUE, 0);
+			lanXX_authtypes_byte, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_bitmask_text(tree, tvb, 2, 1, "Authentication types for Operator level: ",
 			"No authentication types enabled", ett_ipmi_trn_lan02_byte3,
-			lanXX_authtypes_byte, TRUE, 0);
+			lanXX_authtypes_byte, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_bitmask_text(tree, tvb, 3, 1, "Authentication types for Administrator level: ",
 			"No authentication types enabled", ett_ipmi_trn_lan02_byte4,
-			lanXX_authtypes_byte, TRUE, 0);
+			lanXX_authtypes_byte, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_bitmask_text(tree, tvb, 4, 1, "Authentication types for OEM level: ",
 			"No authentication types enabled", ett_ipmi_trn_lan02_byte5,
-			lanXX_authtypes_byte, TRUE, 0);
+			lanXX_authtypes_byte, ENC_LITTLE_ENDIAN, 0);
 }
 
 static void
@@ -754,7 +754,7 @@ lan_04(tvbuff_t *tvb, proto_tree *tree)
 	static const int *byte1[] = { &hf_ipmi_trn_lan04_ipsrc, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL, ett_ipmi_trn_lan04_byte1,
-			byte1, TRUE, 0);
+			byte1, ENC_LITTLE_ENDIAN, 0);
 }
 
 static void
@@ -776,8 +776,8 @@ lan_07(tvbuff_t *tvb, proto_tree *tree)
 	static const int *byte3[] = { &hf_ipmi_trn_lan07_precedence, &hf_ipmi_trn_lan07_tos, NULL };
 
 	proto_tree_add_item(tree, hf_ipmi_trn_lan07_ttl, tvb, 0, 1, ENC_LITTLE_ENDIAN);
-	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL, ett_ipmi_trn_lan07_byte2, byte2, TRUE, 0);
-	proto_tree_add_bitmask_text(tree, tvb, 2, 1, NULL, NULL, ett_ipmi_trn_lan07_byte3, byte3, TRUE, 0);
+	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL, ett_ipmi_trn_lan07_byte2, byte2, ENC_LITTLE_ENDIAN, 0);
+	proto_tree_add_bitmask_text(tree, tvb, 2, 1, NULL, NULL, ett_ipmi_trn_lan07_byte3, byte3, ENC_LITTLE_ENDIAN, 0);
 }
 
 static void
@@ -797,7 +797,7 @@ lan_10(tvbuff_t *tvb, proto_tree *tree)
 {
 	static const int *byte1[] = { &hf_ipmi_trn_lan10_responses, &hf_ipmi_trn_lan10_gratuitous, NULL };
 
-	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL, ett_ipmi_trn_lan10_byte1, byte1, TRUE, 0);
+	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL, ett_ipmi_trn_lan10_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 }
 
 static void
@@ -841,7 +841,7 @@ lan_17(tvbuff_t *tvb, proto_tree *tree)
 {
 	static const int *byte1[] = { &hf_ipmi_trn_lan17_num_dst, NULL };
 
-	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL, ett_ipmi_trn_lan17_byte1, byte1, TRUE, 0);
+	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL, ett_ipmi_trn_lan17_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 }
 
 static void
@@ -851,10 +851,10 @@ lan_18(tvbuff_t *tvb, proto_tree *tree)
 	static const int *byte2[] = { &hf_ipmi_trn_lan18_ack, &hf_ipmi_trn_lan18_dst_type, NULL };
 	static const int *byte4[] = { &hf_ipmi_trn_lan18_retries, NULL };
 
-	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL, ett_ipmi_trn_lan18_byte1, byte1, TRUE, 0);
-	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL, ett_ipmi_trn_lan18_byte2, byte2, TRUE, 0);
+	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL, ett_ipmi_trn_lan18_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
+	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL, ett_ipmi_trn_lan18_byte2, byte2, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_item(tree, hf_ipmi_trn_lan18_tout, tvb, 2, 1, ENC_LITTLE_ENDIAN);
-	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL, ett_ipmi_trn_lan18_byte4, byte4, TRUE, 0);
+	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL, ett_ipmi_trn_lan18_byte4, byte4, ENC_LITTLE_ENDIAN, 0);
 }
 
 static void
@@ -866,11 +866,11 @@ lan_19(tvbuff_t *tvb, proto_tree *tree)
 	guint8 v;
 
 	v = tvb_get_guint8(tvb, 1) >> 4;
-	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL, ett_ipmi_trn_lan19_byte1, byte1, TRUE, 0);
-	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL, ett_ipmi_trn_lan19_byte2, byte2, TRUE, 0);
+	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL, ett_ipmi_trn_lan19_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
+	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL, ett_ipmi_trn_lan19_byte2, byte2, ENC_LITTLE_ENDIAN, 0);
 
 	if (v == 0) {
-		proto_tree_add_bitmask_text(tree, tvb, 2, 1, NULL, NULL, ett_ipmi_trn_lan19_byte3, byte3, TRUE, 0);
+		proto_tree_add_bitmask_text(tree, tvb, 2, 1, NULL, NULL, ett_ipmi_trn_lan19_byte3, byte3, ENC_LITTLE_ENDIAN, 0);
 		proto_tree_add_item(tree, hf_ipmi_trn_lan19_ip, tvb, 3, 4, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tree, hf_ipmi_trn_lan19_mac, tvb, 7, 6, ENC_NA);
 		return;
@@ -884,7 +884,7 @@ lan_20(tvbuff_t *tvb, proto_tree *tree)
 {
 	static const int *byte12[] = { &hf_ipmi_trn_lan20_vlan_id_enable, &hf_ipmi_trn_lan20_vlan_id, NULL };
 
-	proto_tree_add_bitmask_text(tree, tvb, 0, 2, NULL, NULL, ett_ipmi_trn_lan20_byte12, byte12, TRUE, 0);
+	proto_tree_add_bitmask_text(tree, tvb, 0, 2, NULL, NULL, ett_ipmi_trn_lan20_byte12, byte12, ENC_LITTLE_ENDIAN, 0);
 }
 
 static void
@@ -892,7 +892,7 @@ lan_21(tvbuff_t *tvb, proto_tree *tree)
 {
 	static const int *byte1[] = { &hf_ipmi_trn_lan21_vlan_prio, NULL };
 
-	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL, ett_ipmi_trn_lan21_byte1, byte1, TRUE, 0);
+	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL, ett_ipmi_trn_lan21_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 }
 
 static void
@@ -900,7 +900,7 @@ lan_22(tvbuff_t *tvb, proto_tree *tree)
 {
 	static const int *byte1[] = { &hf_ipmi_trn_lan22_num_cs_entries, NULL };
 
-	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL, ett_ipmi_trn_lan22_byte1, byte1, TRUE, 0);
+	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL, ett_ipmi_trn_lan22_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 }
 
 static void
@@ -954,14 +954,14 @@ lan_25(tvbuff_t *tvb, proto_tree *tree)
 	guint8 v;
 
 	v = tvb_get_guint8(tvb, 1) >> 4;
-	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL, ett_ipmi_trn_lan25_byte1, byte1, TRUE, 0);
-	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL, ett_ipmi_trn_lan25_byte2, byte2, TRUE, 0);
+	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL, ett_ipmi_trn_lan25_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
+	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL, ett_ipmi_trn_lan25_byte2, byte2, ENC_LITTLE_ENDIAN, 0);
 	switch (v) {
 		case 0:
 			break;
 		case 1:
 			proto_tree_add_bitmask_text(tree, tvb, 2, 2, NULL, NULL, ett_ipmi_trn_lan25_byte34,
-					byte34, TRUE, 0);
+					byte34, ENC_LITTLE_ENDIAN, 0);
 			break;
 		default:
 			proto_tree_add_item(tree, hf_ipmi_trn_lan25_address, tvb, 2, tvb_length(tvb) - 2, ENC_LITTLE_ENDIAN);
@@ -1021,7 +1021,7 @@ rq01(tvbuff_t *tvb, proto_tree *tree)
 	}
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL, ett_ipmi_trn_01_byte1,
-			byte1, TRUE, 0);
+			byte1, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_uint_format_value(tree, hf_ipmi_trn_01_param, tvb, 1, 1,
 			pno, "%s (0x%02x)", desc, pno);
 	if (pno < array_length(lan_options)) {
@@ -1067,7 +1067,7 @@ rq02(tvbuff_t *tvb, proto_tree *tree)
 	}
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_trn_02_byte1, byte1, TRUE, 0);
+			ett_ipmi_trn_02_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_uint_format_value(tree, hf_ipmi_trn_02_param, tvb, 1, 1,
 			pno, "%s (0x%02x)", desc, pno);
 	proto_tree_add_item(tree, hf_ipmi_trn_02_set, tvb, 2, 1, ENC_LITTLE_ENDIAN);
@@ -1084,7 +1084,7 @@ rs02(tvbuff_t *tvb, proto_tree *tree)
 	guint32 pno, req;
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_trn_02_rev, byte1, TRUE, 0);
+			ett_ipmi_trn_02_rev, byte1, ENC_LITTLE_ENDIAN, 0);
 
 	if (!ipmi_getsaveddata(0, &pno) || !ipmi_getsaveddata(1, &req)) {
 		/* No request found - cannot parse further */
@@ -1136,9 +1136,9 @@ rq03(tvbuff_t *tvb, proto_tree *tree)
 	static const int *byte2[] = { &hf_ipmi_trn_03_arp_resp, &hf_ipmi_trn_03_gratuitous_arp, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_trn_03_rq_byte1, byte1, TRUE, 0);
+			ett_ipmi_trn_03_rq_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL,
-			ett_ipmi_trn_03_rq_byte2, byte2, TRUE, 0);
+			ett_ipmi_trn_03_rq_byte2, byte2, ENC_LITTLE_ENDIAN, 0);
 }
 
 static void
@@ -1148,7 +1148,7 @@ rs03(tvbuff_t *tvb, proto_tree *tree)
 		&hf_ipmi_trn_03_status_gratuitous_arp, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_trn_03_rs_byte1, byte1, TRUE, 0);
+			ett_ipmi_trn_03_rs_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 }
 
 static void
@@ -1158,9 +1158,9 @@ rq04(tvbuff_t *tvb, proto_tree *tree)
 	static const int *byte2[] = { &hf_ipmi_trn_04_clear, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_trn_04_byte1, byte1, TRUE, 0);
+			ett_ipmi_trn_04_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL,
-			ett_ipmi_trn_04_byte2, byte2, TRUE, 0);
+			ett_ipmi_trn_04_byte2, byte2, ENC_LITTLE_ENDIAN, 0);
 }
 
 static void
@@ -1184,7 +1184,7 @@ serial_03(tvbuff_t *tvb, proto_tree *tree)
 		&hf_ipmi_trn_serial03_ppp, &hf_ipmi_trn_serial03_basic, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_trn_serial03_byte1, byte1, TRUE, 0);
+			ett_ipmi_trn_serial03_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 }
 
 static void
@@ -1204,7 +1204,7 @@ serial_04(tvbuff_t *tvb, proto_tree *tree)
 	static const gint *byte1[] = { &hf_ipmi_trn_serial04_timeout, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_trn_serial04_byte1, byte1, TRUE, 0);
+			ett_ipmi_trn_serial04_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 }
 
 static void
@@ -1216,9 +1216,9 @@ serial_05(tvbuff_t *tvb, proto_tree *tree)
 		&hf_ipmi_trn_serial05_cb_prespec, &hf_ipmi_trn_serial05_no_cb, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, "Callback capabilities: ", "None",
-			ett_ipmi_trn_serial05_byte1, byte1, TRUE, BMT_NO_TFS);
+			ett_ipmi_trn_serial05_byte1, byte1, ENC_LITTLE_ENDIAN, BMT_NO_TFS);
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, "CBCP negotiation options: ", "None",
-			ett_ipmi_trn_serial05_byte2, byte2, TRUE, BMT_NO_TFS);
+			ett_ipmi_trn_serial05_byte2, byte2, ENC_LITTLE_ENDIAN, BMT_NO_TFS);
 	proto_tree_add_item(tree, hf_ipmi_trn_serial05_cb_dest1, tvb, 2, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_trn_serial05_cb_dest2, tvb, 3, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_trn_serial05_cb_dest3, tvb, 4, 1, ENC_LITTLE_ENDIAN);
@@ -1231,7 +1231,7 @@ serial_06(tvbuff_t *tvb, proto_tree *tree)
 		&hf_ipmi_trn_serial06_dcd, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_trn_serial06_byte1, byte1, TRUE, 0);
+			ett_ipmi_trn_serial06_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 }
 
 static void
@@ -1241,9 +1241,9 @@ serial_07(tvbuff_t *tvb, proto_tree *tree)
 	static const gint *byte2[] = { &hf_ipmi_trn_serial07_bitrate, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_trn_serial07_byte1, byte1, TRUE, 0);
+			ett_ipmi_trn_serial07_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL,
-			ett_ipmi_trn_serial07_byte2, byte2, TRUE, 0);
+			ett_ipmi_trn_serial07_byte2, byte2, ENC_LITTLE_ENDIAN, 0);
 }
 
 static void
@@ -1258,9 +1258,9 @@ serial_08(tvbuff_t *tvb, proto_tree *tree)
 		&hf_ipmi_trn_serial08_ping_retry, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, "Switch/escape settings", NULL,
-			ett_ipmi_trn_serial08_byte1, byte1, TRUE, BMT_NO_APPEND);
+			ett_ipmi_trn_serial08_byte1, byte1, ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, "Sharing/ping settings", NULL,
-			ett_ipmi_trn_serial08_byte2, byte2, TRUE, BMT_NO_APPEND);
+			ett_ipmi_trn_serial08_byte2, byte2, ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
 }
 
 static void
@@ -1270,9 +1270,9 @@ serial_09(tvbuff_t *tvb, proto_tree *tree)
 	static const gint *byte2[] = { &hf_ipmi_trn_serial09_ring_dead, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_trn_serial09_byte1, byte1, TRUE, 0);
+			ett_ipmi_trn_serial09_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL,
-			ett_ipmi_trn_serial09_byte2, byte2, TRUE, 0);
+			ett_ipmi_trn_serial09_byte2, byte2, ENC_LITTLE_ENDIAN, 0);
 }
 
 static void
@@ -1318,7 +1318,7 @@ serial_16(tvbuff_t *tvb, proto_tree *tree)
 	static const gint *byte1[] = { &hf_ipmi_trn_serial16_ndest, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_trn_serial16_byte1, byte1, TRUE, 0);
+			ett_ipmi_trn_serial16_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 }
 
 static void
@@ -1331,12 +1331,12 @@ serial_17(tvbuff_t *tvb, proto_tree *tree)
 	guint8 v;
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_trn_serial17_byte1, byte1, TRUE, 0);
+			ett_ipmi_trn_serial17_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL,
-			ett_ipmi_trn_serial17_byte2, byte2, TRUE, 0);
+			ett_ipmi_trn_serial17_byte2, byte2, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_item(tree, hf_ipmi_trn_serial17_alert_ack_timeout, tvb, 2, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_bitmask_text(tree, tvb, 3, 1, NULL, NULL,
-			ett_ipmi_trn_serial17_byte4, byte4, TRUE, 0);
+			ett_ipmi_trn_serial17_byte4, byte4, ENC_LITTLE_ENDIAN, 0);
 
 	v = tvb_get_guint8(tvb, 1) & 0x0f;
 	switch (v) {
@@ -1357,7 +1357,7 @@ serial_17(tvbuff_t *tvb, proto_tree *tree)
 			return;
 	}
 	proto_tree_add_bitmask_text(tree, tvb, 4, 1, NULL, NULL,
-			ett_ipmi_trn_serial17_byte5, byte5, TRUE, 0);
+			ett_ipmi_trn_serial17_byte5, byte5, ENC_LITTLE_ENDIAN, 0);
 }
 
 static void
@@ -1375,11 +1375,11 @@ serial_19(tvbuff_t *tvb, proto_tree *tree)
 	static const gint *byte3[] = { &hf_ipmi_trn_serial19_bitrate, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_trn_serial19_byte1, byte1, TRUE, 0);
+			ett_ipmi_trn_serial19_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL,
-			ett_ipmi_trn_serial19_byte2, byte2, TRUE, 0);
+			ett_ipmi_trn_serial19_byte2, byte2, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_bitmask_text(tree, tvb, 2, 1, NULL, NULL,
-			ett_ipmi_trn_serial19_byte3, byte3, TRUE, 0);
+			ett_ipmi_trn_serial19_byte3, byte3, ENC_LITTLE_ENDIAN, 0);
 }
 
 static void
@@ -1388,7 +1388,7 @@ serial_20(tvbuff_t *tvb, proto_tree *tree)
 	static const gint *byte1[] = { &hf_ipmi_trn_serial20_num_dial_strings, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_trn_serial20_byte1, byte1, TRUE, 0);
+			ett_ipmi_trn_serial20_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 }
 
 static void
@@ -1397,7 +1397,7 @@ serial_21(tvbuff_t *tvb, proto_tree *tree)
 	static const gint *byte1[] = { &hf_ipmi_trn_serial21_dialsel, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_trn_serial21_byte1, byte1, TRUE, 0);
+			ett_ipmi_trn_serial21_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_item(tree, hf_ipmi_trn_serial21_blockno, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_trn_serial21_dialstr, tvb, 2, 1, ENC_ASCII|ENC_NA);
 }
@@ -1408,7 +1408,7 @@ serial_22(tvbuff_t *tvb, proto_tree *tree)
 	static const gint *byte1[] = { &hf_ipmi_trn_serial22_num_ipaddrs, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_trn_serial22_byte1, byte1, TRUE, 0);
+			ett_ipmi_trn_serial22_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 }
 
 static void
@@ -1417,7 +1417,7 @@ serial_23(tvbuff_t *tvb, proto_tree *tree)
 	static const gint *byte1[] = { &hf_ipmi_trn_serial23_destsel, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_trn_serial23_byte1, byte1, TRUE, 0);
+			ett_ipmi_trn_serial23_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_item(tree, hf_ipmi_trn_serial23_ipaddr, tvb, 1, 4, ENC_BIG_ENDIAN);
 }
 
@@ -1427,7 +1427,7 @@ serial_24(tvbuff_t *tvb, proto_tree *tree)
 	static const gint *byte1[] = { &hf_ipmi_trn_serial24_num_tap_accounts, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_trn_serial24_byte1, byte1, TRUE, 0);
+			ett_ipmi_trn_serial24_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 }
 
 static void
@@ -1437,7 +1437,7 @@ serial_25(tvbuff_t *tvb, proto_tree *tree)
 
 	proto_tree_add_item(tree, hf_ipmi_trn_serial25_tap_acct, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL,
-			ett_ipmi_trn_serial25_byte2, byte2, TRUE, 0);
+			ett_ipmi_trn_serial25_byte2, byte2, ENC_LITTLE_ENDIAN, 0);
 }
 
 static void
@@ -1466,21 +1466,21 @@ serial_28(tvbuff_t *tvb, proto_tree *tree)
 	static const gint *byte14[] = { &hf_ipmi_trn_serial28_n4, &hf_ipmi_trn_serial28_n3, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_trn_serial28_byte1, byte1, TRUE, 0);
+			ett_ipmi_trn_serial28_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL,
-			ett_ipmi_trn_serial28_byte2, byte2, TRUE, 0);
+			ett_ipmi_trn_serial28_byte2, byte2, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_item(tree, hf_ipmi_trn_serial28_srvtype, tvb, 2, 3, ENC_ASCII|ENC_NA);
 	proto_tree_add_item(tree, hf_ipmi_trn_serial28_ctrl_esc, tvb, 5, 4, ENC_LITTLE_ENDIAN);
 	proto_tree_add_bitmask_text(tree, tvb, 9, 1, NULL, NULL,
-			ett_ipmi_trn_serial28_byte10, byte10, TRUE, 0);
+			ett_ipmi_trn_serial28_byte10, byte10, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_bitmask_text(tree, tvb, 10, 1, NULL, NULL,
-			ett_ipmi_trn_serial28_byte11, byte11, TRUE, 0);
+			ett_ipmi_trn_serial28_byte11, byte11, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_bitmask_text(tree, tvb, 11, 1, NULL, NULL,
-			ett_ipmi_trn_serial28_byte12, byte12, TRUE, 0);
+			ett_ipmi_trn_serial28_byte12, byte12, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_bitmask_text(tree, tvb, 12, 1, NULL, NULL,
-			ett_ipmi_trn_serial28_byte13, byte13, TRUE, 0);
+			ett_ipmi_trn_serial28_byte13, byte13, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_bitmask_text(tree, tvb, 13, 1, NULL, NULL,
-			ett_ipmi_trn_serial28_byte14, byte14, TRUE, 0);
+			ett_ipmi_trn_serial28_byte14, byte14, ENC_LITTLE_ENDIAN, 0);
 }
 
 static void
@@ -1491,9 +1491,9 @@ serial_29(tvbuff_t *tvb, proto_tree *tree)
 	static const gint *byte2[] = { &hf_ipmi_trn_serial29_o_newline, &hf_ipmi_trn_serial29_i_newline, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_trn_serial29_byte1, byte1, TRUE, 0);
+			ett_ipmi_trn_serial29_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL,
-			ett_ipmi_trn_serial29_byte2, byte2, TRUE, 0);
+			ett_ipmi_trn_serial29_byte2, byte2, ENC_LITTLE_ENDIAN, 0);
 }
 
 static void
@@ -1506,11 +1506,11 @@ serial_30(tvbuff_t *tvb, proto_tree *tree)
 		&hf_ipmi_trn_serial30_addr_comp, &hf_ipmi_trn_serial30_proto_comp, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_trn_serial30_byte1, byte1, TRUE, 0);
+			ett_ipmi_trn_serial30_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL,
-			ett_ipmi_trn_serial30_byte2, byte2, TRUE, 0);
+			ett_ipmi_trn_serial30_byte2, byte2, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_bitmask_text(tree, tvb, 2, 1, NULL, NULL,
-			ett_ipmi_trn_serial30_byte3, byte3, TRUE, 0);
+			ett_ipmi_trn_serial30_byte3, byte3, ENC_LITTLE_ENDIAN, 0);
 }
 
 static void
@@ -1531,7 +1531,7 @@ serial_33(tvbuff_t *tvb, proto_tree *tree)
 	static const gint *byte1[] = { &hf_ipmi_trn_serial33_auth_proto, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_trn_serial33_byte1, byte1, TRUE, 0);
+			ett_ipmi_trn_serial33_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 }
 
 static void
@@ -1559,7 +1559,7 @@ serial_37(tvbuff_t *tvb, proto_tree *tree)
 	static const gint *byte1[] = { &hf_ipmi_trn_serial37_num_ppp, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_trn_serial37_byte1, byte1, TRUE, 0);
+			ett_ipmi_trn_serial37_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 }
 
 static void
@@ -1622,7 +1622,7 @@ serial_43(tvbuff_t *tvb, proto_tree *tree)
 
 	proto_tree_add_item(tree, hf_ipmi_trn_serial43_acct_sel, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL,
-			ett_ipmi_trn_serial43_byte1, byte1, TRUE, 0);
+			ett_ipmi_trn_serial43_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 }
 
 static void
@@ -1677,7 +1677,7 @@ serial_50(tvbuff_t *tvb, proto_tree *tree)
 		&hf_ipmi_trn_serial50_38400, &hf_ipmi_trn_serial50_19200, &hf_ipmi_trn_serial50_9600, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, "Bit rate support: ", "None",
-			ett_ipmi_trn_serial50_byte1, byte1, TRUE, 0);
+			ett_ipmi_trn_serial50_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 }
 
 static void
@@ -1689,9 +1689,9 @@ serial_51(tvbuff_t *tvb, proto_tree *tree)
 
 	proto_tree_add_item(tree, hf_ipmi_trn_serial51_port_assoc_sel, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL,
-			ett_ipmi_trn_serial51_byte2, byte2, TRUE, 0);
+			ett_ipmi_trn_serial51_byte2, byte2, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_bitmask_text(tree, tvb, 2, 1, NULL, NULL,
-			ett_ipmi_trn_serial51_byte3, byte3, TRUE, 0);
+			ett_ipmi_trn_serial51_byte3, byte3, ENC_LITTLE_ENDIAN, 0);
 }
 
 static void
@@ -1788,7 +1788,7 @@ rq10(tvbuff_t *tvb, proto_tree *tree)
 	}
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL, ett_ipmi_trn_10_byte1,
-			byte1, TRUE, 0);
+			byte1, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_uint_format_value(tree, hf_ipmi_trn_10_param, tvb, 1, 1,
 			pno, "%s (0x%02x)", desc, pno);
 	if (pno < array_length(serial_options)) {
@@ -1834,7 +1834,7 @@ rq11(tvbuff_t *tvb, proto_tree *tree)
 	}
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_trn_11_byte1, byte1, TRUE, 0);
+			ett_ipmi_trn_11_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_uint_format_value(tree, hf_ipmi_trn_11_param, tvb, 1, 1,
 			pno, "%s (0x%02x)", desc, pno);
 	proto_tree_add_item(tree, hf_ipmi_trn_11_set, tvb, 2, 1, ENC_LITTLE_ENDIAN);
@@ -1851,7 +1851,7 @@ rs11(tvbuff_t *tvb, proto_tree *tree)
 	guint32 pno, req;
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_trn_11_rev, byte1, TRUE, 0);
+			ett_ipmi_trn_11_rev, byte1, ENC_LITTLE_ENDIAN, 0);
 
 	if (!ipmi_getsaveddata(0, &pno) || !ipmi_getsaveddata(1, &req)) {
 		/* No request found - cannot parse further */
@@ -1905,9 +1905,9 @@ rq12(tvbuff_t *tvb, proto_tree *tree)
 	static const gint *byte2[] = { &hf_ipmi_trn_12_mux_setting, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_trn_12_rq_byte1, byte1, TRUE, 0);
+			ett_ipmi_trn_12_rq_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL,
-			ett_ipmi_trn_12_rq_byte2, byte2, TRUE, 0);
+			ett_ipmi_trn_12_rq_byte2, byte2, ENC_LITTLE_ENDIAN, 0);
 }
 
 static void
@@ -1917,7 +1917,7 @@ rs12(tvbuff_t *tvb, proto_tree *tree)
 		&hf_ipmi_trn_12_alert, &hf_ipmi_trn_12_msg, &hf_ipmi_trn_12_req, &hf_ipmi_trn_12_mux_state, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_trn_12_rs_byte1, byte1, TRUE, 0);
+			ett_ipmi_trn_12_rs_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 }
 
 /* Get TAP Response Codes
@@ -1928,7 +1928,7 @@ rq13(tvbuff_t *tvb, proto_tree *tree)
 	static const gint *byte1[] = { &hf_ipmi_trn_13_chan, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_trn_13_byte1, byte1, TRUE, 0);
+			ett_ipmi_trn_13_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 }
 
 static void
@@ -1949,7 +1949,7 @@ rq14(tvbuff_t *tvb, proto_tree *tree)
 	static const gint *byte1[] = { &hf_ipmi_trn_14_chan, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_trn_14_byte1, byte1, TRUE, 0);
+			ett_ipmi_trn_14_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_item(tree, hf_ipmi_trn_14_block, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_trn_14_data, tvb, 2, 16, ENC_NA);
 }
@@ -1962,7 +1962,7 @@ rq15(tvbuff_t *tvb, proto_tree *tree)
 	static const gint *byte1[] = { &hf_ipmi_trn_15_chan, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_trn_15_byte1, byte1, TRUE, 0);
+			ett_ipmi_trn_15_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_item(tree, hf_ipmi_trn_15_block, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 }
 
@@ -1980,7 +1980,7 @@ rq16(tvbuff_t *tvb, proto_tree *tree)
 	static const gint *byte1[] = { &hf_ipmi_trn_16_chan, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_trn_16_byte1, byte1, TRUE, 0);
+			ett_ipmi_trn_16_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_item(tree, hf_ipmi_trn_16_src_port, tvb, 1, 2, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_trn_16_dst_port, tvb, 3, 2, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_trn_16_src_addr, tvb, 5, 4, ENC_BIG_ENDIAN);
@@ -2016,9 +2016,9 @@ rq17(tvbuff_t *tvb, proto_tree *tree)
 	}
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_trn_17_byte1, byte1, TRUE, 0);
+			ett_ipmi_trn_17_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL,
-			ett_ipmi_trn_17_byte2, byte2, TRUE, 0);
+			ett_ipmi_trn_17_byte2, byte2, ENC_LITTLE_ENDIAN, 0);
 }
 
 static void
@@ -2048,7 +2048,7 @@ rq18(tvbuff_t *tvb, proto_tree *tree)
 	static const gint *byte1[] = { &hf_ipmi_trn_18_state, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_trn_18_byte1, byte1, TRUE, 0);
+			ett_ipmi_trn_18_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_item(tree, hf_ipmi_trn_18_ipmi_ver, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 }
 
@@ -2061,9 +2061,9 @@ rq19(tvbuff_t *tvb, proto_tree *tree)
 	static const gint *byte2[] = { &hf_ipmi_trn_19_dest_sel, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_trn_19_byte1, byte1, TRUE, 0);
+			ett_ipmi_trn_19_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL,
-			ett_ipmi_trn_19_byte2, byte2, TRUE, 0);
+			ett_ipmi_trn_19_byte2, byte2, ENC_LITTLE_ENDIAN, 0);
 }
 
 static const value_string cc19[] = {
@@ -2083,10 +2083,10 @@ parse_callback_options(tvbuff_t *tvb, guint offs, proto_tree *tree)
 
 	proto_tree_add_bitmask_text(tree, tvb, offs, 1,
 			"User callback capabilities: ", "None",
-			ett_ipmi_trn_XX_usercap, usercap, TRUE, BMT_NO_TFS);
+			ett_ipmi_trn_XX_usercap, usercap, ENC_LITTLE_ENDIAN, BMT_NO_TFS);
 	proto_tree_add_bitmask_text(tree, tvb, offs + 1, 1,
 			"CBCP negotiation options: ", "None",
-			ett_ipmi_trn_XX_cbcp, cbcp, TRUE, BMT_NO_TFS);
+			ett_ipmi_trn_XX_cbcp, cbcp, ENC_LITTLE_ENDIAN, BMT_NO_TFS);
 	proto_tree_add_item(tree, hf_ipmi_trn_XX_dst1, tvb, offs + 2, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_trn_XX_dst2, tvb, offs + 3, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_trn_XX_dst3, tvb, offs + 4, 1, ENC_LITTLE_ENDIAN);
@@ -2101,9 +2101,9 @@ rq1a(tvbuff_t *tvb, proto_tree *tree)
 	static const gint *byte2[] = { &hf_ipmi_trn_1a_chan, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_trn_1a_byte1, byte1, TRUE, 0);
+			ett_ipmi_trn_1a_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL,
-			ett_ipmi_trn_1a_byte2, byte2, TRUE, 0);
+			ett_ipmi_trn_1a_byte2, byte2, ENC_LITTLE_ENDIAN, 0);
 	parse_callback_options(tvb, 2, tree);
 }
 
@@ -2116,9 +2116,9 @@ rq1b(tvbuff_t *tvb, proto_tree *tree)
 	static const gint *byte2[] = { &hf_ipmi_trn_1b_chan, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_trn_1b_byte1, byte1, TRUE, 0);
+			ett_ipmi_trn_1b_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL,
-			ett_ipmi_trn_1b_byte2, byte2, TRUE, 0);
+			ett_ipmi_trn_1b_byte2, byte2, ENC_LITTLE_ENDIAN, 0);
 }
 
 static void
