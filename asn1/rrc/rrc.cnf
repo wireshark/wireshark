@@ -464,9 +464,10 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
   
   gsm_message_tvb = tvb_new_octet_aligned(tvb, offset, 8*whole_octets_remaining);
 
-  if (gsm_message_tvb)
+  if (gsm_message_tvb) {
+        add_new_data_source(actx->pinfo,gsm_message_tvb,"GSM Message(aligned)");
         call_dissector(gsm_a_dtap_handle,gsm_message_tvb,actx->pinfo, tree);
-
+  }
 #.FN_BODY HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Message-r6
   tvbuff_t *gsm_message_tvb=NULL;
   guint bits_remaining, whole_octets_remaining;
@@ -478,9 +479,10 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
   
   gsm_message_tvb = tvb_new_octet_aligned(tvb, offset, 8*whole_octets_remaining);
 
-  if (gsm_message_tvb)
+  if (gsm_message_tvb) {
+        add_new_data_source(actx->pinfo,gsm_message_tvb,"GSM Message(aligned)");
         call_dissector(gsm_a_dtap_handle,gsm_message_tvb,actx->pinfo, tree);
-
+  }
 #.FN_BODY GSM-Classmark2 VAL_PTR = &parameter_tvb
 tvbuff_t *parameter_tvb=NULL;
 
