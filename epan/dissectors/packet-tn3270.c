@@ -1669,7 +1669,7 @@ dissect_wcc(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset)
 
   /* Qualifier and DeviceType */
   proto_tree_add_bitmask_text(tn3270_tree, tvb, offset, 1, "Write Control Character: ", "None",
-          ett_tn3270_wcc, wcc_fields, TRUE, 0);
+          ett_tn3270_wcc, wcc_fields, ENC_BIG_ENDIAN, 0);
   return 1;
 
 }
@@ -1687,7 +1687,7 @@ dissect_3270_field_validation(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offse
     };
 
   proto_tree_add_bitmask_text(tn3270_tree, tvb, 1, 1, "Field Validation: ",
-                              "None", ett_tn3270_field_validation, byte, TRUE, 0);
+                              "None", ett_tn3270_field_validation, byte, ENC_BIG_ENDIAN, 0);
 
   offset++;
   return (offset - start);

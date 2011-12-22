@@ -994,7 +994,7 @@ static void dissect_setlbstate_req(tvbuff_t *tvb,proto_tree *pay_load,guint32 of
 
 
 	proto_tree_add_bitmask_text(setlbstate_req_tree,tvb,offset, 1, "LB Flags:", NULL,
-				    ett_setlbstate_req_lbflag, lbflags, TRUE,0);
+                    ett_setlbstate_req_lbflag, lbflags, ENC_BIG_ENDIAN, 0);
 
 
 	offset+=1;
@@ -1135,7 +1135,7 @@ static guint32 dissect_weight_entry_data_comp(tvbuff_t *tvb,proto_tree *pay_load
 
 
 	proto_tree_add_bitmask_text(weight_entry_data_comp_tree,tvb,offset, 1, "Flags:", NULL,
-				    ett_wt_entry_data_flag, wtflags, TRUE,0);
+                    ett_wt_entry_data_flag, wtflags, ENC_BIG_ENDIAN, 0);
 
 	offset+=1;
 
