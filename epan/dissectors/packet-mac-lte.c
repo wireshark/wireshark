@@ -99,12 +99,15 @@ static int hf_mac_lte_oob_send_preamble = -1;
 static int hf_mac_lte_oob_send_sr = -1;
 static int hf_mac_lte_oob_sr_failure = -1;
 
-/* MAC SCH header fields */
+/* MAC SCH/MCH header fields */
 static int hf_mac_lte_ulsch = -1;
 static int hf_mac_lte_ulsch_header = -1;
 static int hf_mac_lte_dlsch = -1;
 static int hf_mac_lte_dlsch_header = -1;
 static int hf_mac_lte_sch_subheader = -1;
+static int hf_mac_lte_mch = -1;
+static int hf_mac_lte_mch_header = -1;
+static int hf_mac_lte_mch_subheader = -1;
 
 static int hf_mac_lte_sch_reserved = -1;
 static int hf_mac_lte_dlsch_lcid = -1;
@@ -112,11 +115,18 @@ static int hf_mac_lte_ulsch_lcid = -1;
 static int hf_mac_lte_sch_extended = -1;
 static int hf_mac_lte_sch_format = -1;
 static int hf_mac_lte_sch_length = -1;
+static int hf_mac_lte_mch_reserved = -1;
+static int hf_mac_lte_mch_lcid = -1;
+static int hf_mac_lte_mch_extended = -1;
+static int hf_mac_lte_mch_format = -1;
+static int hf_mac_lte_mch_length = -1;
 
 static int hf_mac_lte_sch_header_only = -1;
+static int hf_mac_lte_mch_header_only = -1;
 
 /* Data */
 static int hf_mac_lte_sch_sdu = -1;
+static int hf_mac_lte_mch_sdu = -1;
 static int hf_mac_lte_bch_pdu = -1;
 static int hf_mac_lte_pch_pdu = -1;
 static int hf_mac_lte_predefined_pdu = -1;
@@ -166,6 +176,9 @@ static int hf_mac_lte_control_power_headroom = -1;
 static int hf_mac_lte_control_power_headroom_reserved = -1;
 static int hf_mac_lte_control_power_headroom_level = -1;
 static int hf_mac_lte_control_padding = -1;
+static int hf_mac_lte_control_mch_scheduling_info = -1;
+static int hf_mac_lte_control_mch_scheduling_info_lcid = -1;
+static int hf_mac_lte_control_mch_scheduling_info_stop_mtch = -1;
 
 static int hf_mac_lte_dl_harq_resend_original_frame = -1;
 static int hf_mac_lte_dl_harq_resend_time_since_previous_frame = -1;
@@ -193,7 +206,9 @@ static int ett_mac_lte_context = -1;
 static int ett_mac_lte_phy_context = -1;
 static int ett_mac_lte_ulsch_header = -1;
 static int ett_mac_lte_dlsch_header = -1;
+static int ett_mac_lte_mch_header = -1;
 static int ett_mac_lte_sch_subheader = -1;
+static int ett_mac_lte_mch_subheader = -1;
 static int ett_mac_lte_rar_headers = -1;
 static int ett_mac_lte_rar_header = -1;
 static int ett_mac_lte_rar_body = -1;
@@ -203,6 +218,7 @@ static int ett_mac_lte_bch = -1;
 static int ett_mac_lte_pch = -1;
 static int ett_mac_lte_contention_resolution = -1;
 static int ett_mac_lte_power_headroom = -1;
+static int ett_mac_lte_mch_scheduling_info = -1;
 static int ett_mac_lte_oob = -1;
 
 
@@ -233,6 +249,7 @@ static const value_string rnti_type_vals[] =
     { C_RNTI,      "C-RNTI"},
     { SI_RNTI,     "SI-RNTI"},
     { SPS_RNTI,    "SPS-RNTI"},
+    { M_RNTI,      "M-RNTI"},
     { 0, NULL }
 };
 
@@ -339,6 +356,43 @@ static const value_string ulsch_lcid_vals[] =
     { 0, NULL }
 };
 
+#define MCH_SCHEDULING_INFO_LCID 0x1e
+
+static const value_string mch_lcid_vals[] =
+{
+    { 0,                            "MCCH"},
+    { 1,                            "1"},
+    { 2,                            "2"},
+    { 3,                            "3"},
+    { 4,                            "4"},
+    { 5,                            "5"},
+    { 6,                            "6"},
+    { 7,                            "7"},
+    { 8,                            "8"},
+    { 9,                            "9"},
+    { 10,                           "10"},
+    { 11,                           "11"},
+    { 12,                           "12"},
+    { 13,                           "13"},
+    { 14,                           "14"},
+    { 15,                           "15"},
+    { 16,                           "16"},
+    { 17,                           "17"},
+    { 18,                           "18"},
+    { 19,                           "19"},
+    { 20,                           "20"},
+    { 21,                           "21"},
+    { 22,                           "22"},
+    { 23,                           "23"},
+    { 24,                           "24"},
+    { 25,                           "25"},
+    { 26,                           "26"},
+    { 27,                           "27"},
+    { 28,                           "28"},
+    { MCH_SCHEDULING_INFO_LCID,     "MCH Scheduling Information"},
+    { PADDING_LCID,                 "Padding" },
+    { 0, NULL }
+};
 
 static const value_string format_vals[] =
 {
@@ -936,6 +990,9 @@ static gboolean dissect_mac_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
 
     /* Initialize RNTI with a default value in case optional field is not present */
     switch (p_mac_lte_info->rntiType) {
+        case M_RNTI:
+            p_mac_lte_info->rnti = 0xFFFD;
+            break;
         case P_RNTI:
             p_mac_lte_info->rnti = 0xFFFE;
             break;
@@ -2334,14 +2391,14 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                    proto_item *retx_ti,
                                    proto_tree *context_tree)
 {
-    guint8          extension;
-    volatile guint8 n;
-    proto_item      *truncated_ti;
-    proto_item      *padding_length_ti;
-    proto_item      *hidden_root_ti;
+    guint8           extension;
+    volatile guint16 n;
+    proto_item       *truncated_ti;
+    proto_item       *padding_length_ti;
+    proto_item       *hidden_root_ti;
 
     /* Keep track of LCIDs and lengths as we dissect the header */
-    volatile guint8 number_of_headers = 0;
+    volatile guint16 number_of_headers = 0;
     guint8  lcids[MAX_HEADERS_IN_PDU];
     gint16  pdu_lengths[MAX_HEADERS_IN_PDU];
 
@@ -3188,6 +3245,380 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     }
 }
 
+static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *pdu_ti,
+                        volatile guint32 offset, mac_lte_info *p_mac_lte_info)
+{
+    guint8           extension;
+    volatile guint16 n;
+    proto_item       *truncated_ti;
+    proto_item       *padding_length_ti;
+    proto_item       *hidden_root_ti;
+
+    /* Keep track of LCIDs and lengths as we dissect the header */
+    volatile guint16 number_of_headers = 0;
+    guint8  lcids[MAX_HEADERS_IN_PDU];
+    gint16  pdu_lengths[MAX_HEADERS_IN_PDU];
+
+    proto_item *pdu_header_ti;
+    proto_tree *pdu_header_tree;
+
+    gboolean   have_seen_data_header = FALSE;
+    guint8     number_of_padding_subheaders = 0;
+    gboolean   have_seen_non_padding_control = FALSE;
+    gboolean   expecting_body_data = FALSE;
+    volatile   guint32    is_truncated = FALSE;
+
+    write_pdu_label_and_info(pdu_ti, NULL, pinfo,
+                             "MCH: ",
+                             p_mac_lte_info->subframeNumber);
+
+    /* Add hidden item to filter on */
+    hidden_root_ti = proto_tree_add_string_format(tree, hf_mac_lte_mch, tvb,
+                                                  offset, 0, "", "Hidden header");
+    PROTO_ITEM_SET_HIDDEN(hidden_root_ti);
+
+    /* Add PDU block header subtree */
+    pdu_header_ti = proto_tree_add_string_format(tree, hf_mac_lte_mch_header,
+                                                 tvb, offset, 0,
+                                                 "",
+                                                 "MAC PDU Header");
+    pdu_header_tree = proto_item_add_subtree(pdu_header_ti, ett_mac_lte_mch_header);
+
+
+    /************************************************************************/
+    /* Dissect each sub-header.                                             */
+    do {
+        guint8 reserved;
+        guint64 length = 0;
+        proto_item *pdu_subheader_ti;
+        proto_tree *pdu_subheader_tree;
+        proto_item *lcid_ti;
+        proto_item *ti;
+        gint       offset_start_subheader = offset;
+        guint8 first_byte = tvb_get_guint8(tvb, offset);
+
+        /* Add PDU block header subtree.
+           Default with length of 1 byte. */
+        pdu_subheader_ti = proto_tree_add_string_format(pdu_header_tree,
+                                                        hf_mac_lte_mch_subheader,
+                                                        tvb, offset, 1,
+                                                        "",
+                                                        "Sub-header");
+        pdu_subheader_tree = proto_item_add_subtree(pdu_subheader_ti,
+                                                    ett_mac_lte_mch_subheader);
+
+        /* Check 1st 2 reserved bits */
+        reserved = (first_byte & 0xc0) >> 6;
+        ti = proto_tree_add_item(pdu_subheader_tree, hf_mac_lte_mch_reserved,
+                                 tvb, offset, 1, ENC_BIG_ENDIAN);
+        if (reserved != 0) {
+            expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                                   "MCH header Reserved bits not zero");
+        }
+
+        /* Extended bit */
+        extension = (first_byte & 0x20) >> 5;
+        proto_tree_add_item(pdu_subheader_tree, hf_mac_lte_mch_extended,
+                            tvb, offset, 1, ENC_BIG_ENDIAN);
+
+        /* LCID */
+        lcids[number_of_headers] = first_byte & 0x1f;
+        lcid_ti = proto_tree_add_item(pdu_subheader_tree, hf_mac_lte_mch_lcid,
+                                      tvb, offset, 1, ENC_BIG_ENDIAN);
+        write_pdu_label_and_info(pdu_ti, NULL, pinfo,
+                                 "(%s",
+                                 val_to_str_const(lcids[number_of_headers],
+                                                  mch_lcid_vals, "(Unknown LCID)"));
+        offset++;
+
+        /* Remember if we've seen a data subheader */
+        if (lcids[number_of_headers] <= 28) {
+            have_seen_data_header = TRUE;
+            expecting_body_data = TRUE;
+        }
+
+        /* Show an expert item if a contol subheader (except Padding) appears
+           *after* a data PDU */
+        if (have_seen_data_header &&
+            (lcids[number_of_headers] > 28) && (lcids[number_of_headers] != PADDING_LCID)) {
+            expert_add_info_format(pinfo, lcid_ti, PI_MALFORMED, PI_ERROR,
+                                   "MCH Control subheaders should not appear after data subheaders");
+            return;
+        }
+
+        /* Should not see padding after non-padding control... */
+        if ((lcids[number_of_headers] > 28) &&
+            (lcids[number_of_headers] == PADDING_LCID) &&
+            extension)
+        {
+            number_of_padding_subheaders++;
+            if (number_of_padding_subheaders > 2) {
+                expert_add_info_format(pinfo, lcid_ti, PI_MALFORMED, PI_WARN,
+                                       "Should not see more than 2 padding subheaders in one frame");
+            }
+
+            if (have_seen_non_padding_control) {
+                expert_add_info_format(pinfo, lcid_ti, PI_MALFORMED, PI_ERROR,
+                                       "Padding should come before other control subheaders!");
+            }
+        }
+
+        /* Remember that we've seen non-padding control */
+        if ((lcids[number_of_headers] > 28) &&
+            (lcids[number_of_headers] != PADDING_LCID)) {
+            have_seen_non_padding_control = TRUE;
+        }
+
+
+
+        /********************************************************************/
+        /* Length field follows if not the last header or for a fixed-sized
+           control element */
+        if (!extension) {
+            /* Last one... */
+            pdu_lengths[number_of_headers] = -1;
+        }
+        else {
+            /* Not the last one */
+            if (lcids[number_of_headers] != PADDING_LCID) {
+
+                guint8  format;
+
+                /* F(ormat) bit tells us how long the length field is */
+                format = (tvb_get_guint8(tvb, offset) & 0x80) >> 7;
+                proto_tree_add_item(pdu_subheader_tree, hf_mac_lte_mch_format,
+                                    tvb, offset, 1, ENC_BIG_ENDIAN);
+
+                /* Now read length field itself */
+                if (format) {
+                    /* >= 128 - use 15 bits */
+                    proto_tree_add_bits_ret_val(pdu_subheader_tree, hf_mac_lte_mch_length,
+                                                tvb, offset*8 + 1, 15, &length, ENC_BIG_ENDIAN);
+
+                    offset += 2;
+                }
+                else {
+                    /* Less than 128 - only 7 bits */
+                    proto_tree_add_bits_ret_val(pdu_subheader_tree, hf_mac_lte_mch_length,
+                                                tvb, offset*8 + 1, 7, &length, ENC_BIG_ENDIAN);
+                    offset++;
+                }
+				if ((lcids[number_of_headers] == MCH_SCHEDULING_INFO_LCID) && (length & 0x01)) {
+                    expert_add_info_format(pinfo, lcid_ti, PI_MALFORMED, PI_WARN,
+                                           "MCH Scheduling Information MAC Control Element should have an even size");
+                }
+                pdu_lengths[number_of_headers] = (gint16)length;
+            }
+            else {
+                pdu_lengths[number_of_headers] = 0;
+            }
+        }
+
+
+        /* Close off description in info column */
+        switch (pdu_lengths[number_of_headers]) {
+            case 0:
+                write_pdu_label_and_info(pdu_ti, NULL, pinfo, ") ");
+                break;
+            case -1:
+                write_pdu_label_and_info(pdu_ti, NULL, pinfo, ":remainder) ");
+                break;
+            default:
+                write_pdu_label_and_info(pdu_ti, NULL, pinfo, ":%u bytes) ",
+                                         pdu_lengths[number_of_headers]);
+                break;
+        }
+
+        /* Append summary to subheader root */
+        proto_item_append_text(pdu_subheader_ti, " (lcid=%s",
+                               val_to_str_const(lcids[number_of_headers],
+                                                mch_lcid_vals, "Unknown"));
+
+        switch (pdu_lengths[number_of_headers]) {
+            case -1:
+                proto_item_append_text(pdu_subheader_ti, ", length is remainder)");
+                proto_item_append_text(pdu_header_ti, " (%s:remainder)",
+                                       val_to_str_const(lcids[number_of_headers],
+                                                        mch_lcid_vals,
+                                                        "Unknown"));
+                break;
+            case 0:
+                proto_item_append_text(pdu_subheader_ti, ")");
+                proto_item_append_text(pdu_header_ti, " (%s)",
+                                       val_to_str_const(lcids[number_of_headers],
+                                                        mch_lcid_vals,
+                                                        "Unknown"));
+                break;
+            default:
+                proto_item_append_text(pdu_subheader_ti, ", length=%u)",
+                                       pdu_lengths[number_of_headers]);
+                proto_item_append_text(pdu_header_ti, " (%s:%u)",
+                                       val_to_str_const(lcids[number_of_headers],
+                                                        mch_lcid_vals,
+                                                        "Unknown"),
+                                       pdu_lengths[number_of_headers]);
+                break;
+        }
+
+
+        /* Flag unknown lcid values in expert info */
+        if (match_strval(lcids[number_of_headers],mch_lcid_vals) == NULL) {
+            expert_add_info_format(pinfo, pdu_subheader_ti, PI_MALFORMED, PI_ERROR,
+                                   "MCH: Unexpected LCID received (%u)",
+                                   lcids[number_of_headers]);
+        }
+
+        /* Set length of this subheader */
+        proto_item_set_len(pdu_subheader_ti, offset - offset_start_subheader);
+
+        number_of_headers++;
+    } while (extension);
+
+    /* Append summary to overall PDU header root */
+    proto_item_append_text(pdu_header_ti, " (%u subheaders)",
+                           number_of_headers);
+
+    /* And set its length to offset */
+    proto_item_set_len(pdu_header_ti, offset);
+
+
+    /************************************************************************/
+    /* Dissect SDUs / control elements / padding.                           */
+    /************************************************************************/
+
+    /* Dissect control element bodies first */
+
+    for (n=0; n < number_of_headers; n++) {
+        /* Get out of loop once see any data SDU subheaders */
+        if (lcids[n] <= 28) {
+            break;
+        }
+
+        /* Process what should be a valid control PDU type */
+        switch (lcids[n]) {
+            case MCH_SCHEDULING_INFO_LCID:
+                {
+                    guint32 curr_offset = offset;
+                    gint16 i;
+		            proto_item *mch_sched_info_ti;
+                    proto_tree *mch_sched_info_tree;
+
+                    mch_sched_info_ti = proto_tree_add_string_format(tree,
+                                                                     hf_mac_lte_control_mch_scheduling_info,
+                                                                     tvb, curr_offset, pdu_lengths[n],
+                                                                     "",
+                                                                     "MCH Scheduling Information");
+                    mch_sched_info_tree = proto_item_add_subtree(mch_sched_info_ti, ett_mac_lte_mch_scheduling_info);
+
+                    for (i=0; i<(pdu_lengths[n]/2); i++) {
+                        proto_tree_add_item(mch_sched_info_tree, hf_mac_lte_control_mch_scheduling_info_lcid,
+                                            tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(mch_sched_info_tree, hf_mac_lte_control_mch_scheduling_info_stop_mtch,
+                                            tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+                        curr_offset += 2;
+                    }
+
+                    offset += pdu_lengths[n];
+                }
+                break;
+            case PADDING_LCID:
+                /* No payload (in this position) */
+                break;
+
+            default:
+                break;
+        }
+    }
+
+
+    /* There might not be any data, if only headers (plus control data) were logged */
+    is_truncated = ((tvb_length_remaining(tvb, offset) == 0) && expecting_body_data);
+    truncated_ti = proto_tree_add_uint(tree, hf_mac_lte_mch_header_only, tvb, 0, 0,
+                                       is_truncated);
+    if (is_truncated) {
+        PROTO_ITEM_SET_GENERATED(truncated_ti);
+        expert_add_info_format(pinfo, truncated_ti, PI_SEQUENCE, PI_NOTE,
+                               "MAC PDU SDUs have been omitted");
+        return;
+    }
+    else {
+        PROTO_ITEM_SET_HIDDEN(truncated_ti);
+    }
+
+
+    /* Now process remaining bodies, which should all be data */
+    for (; n < number_of_headers; n++) {
+
+        proto_item *sdu_ti;
+        const guint8 *pdu_data;
+        volatile guint16 data_length;
+        int i;
+        char buff[64];
+
+        /* Break out if meet padding */
+        if (lcids[n] == PADDING_LCID) {
+            break;
+        }
+
+        /* Work out length */
+        data_length = (pdu_lengths[n] == -1) ?
+                            tvb_length_remaining(tvb, offset) :
+                            pdu_lengths[n];
+
+        /* Dissect SDU as raw bytes */
+        sdu_ti = proto_tree_add_bytes_format(tree, hf_mac_lte_mch_sdu, tvb, offset, pdu_lengths[n],
+                                             NULL, "SDU (%s, length=%u bytes): ",
+                                             val_to_str_const(lcids[n], mch_lcid_vals, "Unknown"),
+                                             data_length);
+        /* Show bytes too.  There must be a nicer way of doing this! */
+        pdu_data = tvb_get_ptr(tvb, offset, pdu_lengths[n]);
+        for (i=0; i < data_length; i++) {
+            g_snprintf(buff+(i*2), 3, "%02x",  pdu_data[i]);
+            if (i >= 30) {
+                g_snprintf(buff+(i*2), 4, "...");
+                break;
+            }
+        }
+        proto_item_append_text(sdu_ti, "%s", buff);
+
+        offset += data_length;
+    }
+
+    /* Now padding, if present, extends to the end of the PDU */
+    if (lcids[number_of_headers-1] == PADDING_LCID) {
+        if (tvb_length_remaining(tvb, offset) > 0) {
+            proto_tree_add_item(tree, hf_mac_lte_padding_data,
+                                tvb, offset, -1, ENC_NA);
+        }
+        padding_length_ti = proto_tree_add_int(tree, hf_mac_lte_padding_length,
+                                               tvb, offset, 0,
+                                               p_mac_lte_info->length - offset);
+        PROTO_ITEM_SET_GENERATED(padding_length_ti);
+
+        /* Make sure the PDU isn't bigger than reported! */
+        if (offset > p_mac_lte_info->length) {
+            expert_add_info_format(pinfo, padding_length_ti, PI_MALFORMED, PI_ERROR,
+                                   "MAC PDU is longer than reported length (reported=%u, actual=%u)",
+                                   p_mac_lte_info->length, offset);
+        }
+    }
+    else {
+        /* There is no padding at the end of the frame */
+        if (!is_truncated && (offset < p_mac_lte_info->length)) {
+            /* There is a problem if we haven't used all of the PDU */
+            expert_add_info_format(pinfo, pdu_ti, PI_MALFORMED, PI_ERROR,
+                                   "PDU is shorter than reported length (reported=%u, actual=%u)",
+                                   p_mac_lte_info->length, offset);
+        }
+
+        if (!is_truncated && (offset > p_mac_lte_info->length)) {
+            /* There is a problem if the PDU is longer than rpeported */
+            expert_add_info_format(pinfo, pdu_ti, PI_MALFORMED, PI_ERROR,
+                                   "PDU is longer than reported length (reported=%u, actual=%u)",
+                                   p_mac_lte_info->length, offset);
+        }
+    }
+}
 
 
 /*****************************/
@@ -3383,7 +3814,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                              tvb, 0, 0, p_mac_lte_info->subframeNumber);
     PROTO_ITEM_SET_GENERATED(ti);
     if (p_mac_lte_info->subframeNumber > 9) {
-        /* N.B. if we set it to avlid value, it won't trigger when we rescan
+        /* N.B. if we set it to valid value, it won't trigger when we rescan
            (at least with DCT2000 files where the context struct isn't re-read). */
         expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
                                "Subframe number (%u) was out of range - valid range is 0-9",
@@ -3408,6 +3839,14 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Check that RNTI value is consistent with given RNTI type */
     switch (p_mac_lte_info->rntiType) {
+        case M_RNTI:
+            if (p_mac_lte_info->rnti != 0xFFFD) {
+                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                      "M-RNTI indicated, but value is %u (0x%x) (must be 0x%x)",
+                      p_mac_lte_info->rnti, p_mac_lte_info->rnti, 0xFFFD);
+                return;
+            }
+            break;
         case P_RNTI:
             if (p_mac_lte_info->rnti != 0xFFFE) {
                 expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
@@ -3591,6 +4030,11 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case SI_RNTI:
             /* BCH over DL-SCH */
             dissect_bch(tvb, pinfo, mac_lte_tree, pdu_ti, offset, p_mac_lte_info);
+            break;
+
+        case M_RNTI:
+            /* MCH PDU */
+            dissect_mch(tvb, pinfo, mac_lte_tree, pdu_ti, offset, p_mac_lte_info);
             break;
 
         case NO_RNTI:
@@ -3981,6 +4425,24 @@ void proto_register_mac_lte(void)
               NULL, HFILL
             }
         },
+        { &hf_mac_lte_mch,
+            { "MCH",
+              "mac-lte.mch", FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_mch_header,
+            { "MCH Header",
+              "mac-lte.mch.header", FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_mch_subheader,
+            { "MCH sub-header",
+              "mac-lte.mch.subheader", FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
         { &hf_mac_lte_sch_reserved,
             { "SCH reserved bits",
               "mac-lte.sch.reserved", FT_UINT8, BASE_HEX, NULL, 0xc0,
@@ -4017,9 +4479,45 @@ void proto_register_mac_lte(void)
               "Length of MAC SDU or MAC control element", HFILL
             }
         },
+        { &hf_mac_lte_mch_reserved,
+            { "MCH reserved bits",
+              "mac-lte.mch.reserved", FT_UINT8, BASE_HEX, NULL, 0xc0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_mch_extended,
+            { "Extension",
+              "mac-lte.mch.extended", FT_UINT8, BASE_HEX, 0, 0x20,
+              "Extension - i.e. further headers after this one", HFILL
+            }
+        },
+        { &hf_mac_lte_mch_lcid,
+            { "LCID",
+              "mac-lte.mch.lcid", FT_UINT8, BASE_HEX, VALS(mch_lcid_vals), 0x1f,
+              "MCH Logical Channel Identifier", HFILL
+            }
+        },
+        { &hf_mac_lte_mch_format,
+            { "Format",
+              "mac-lte.mch.format", FT_UINT8, BASE_HEX, VALS(format_vals), 0x80,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_mch_length,
+            { "Length",
+              "mac-lte.mch.length", FT_UINT16, BASE_DEC, 0, 0x0,
+              "Length of MAC SDU or MAC control element", HFILL
+            }
+        },
         { &hf_mac_lte_sch_header_only,
             { "MAC PDU Header only",
               "mac-lte.sch.header-only", FT_UINT8, BASE_DEC, VALS(header_only_vals), 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_mch_header_only,
+            { "MAC PDU Header only",
+              "mac-lte.mch.header-only", FT_UINT8, BASE_DEC, VALS(header_only_vals), 0x0,
               NULL, HFILL
             }
         },
@@ -4030,6 +4528,12 @@ void proto_register_mac_lte(void)
             { "SDU",
               "mac-lte.sch.sdu", FT_BYTES, BASE_NONE, 0, 0x0,
               "Shared channel SDU", HFILL
+            }
+        },
+        { &hf_mac_lte_mch_sdu,
+            { "SDU",
+              "mac-lte.mch.sdu", FT_BYTES, BASE_NONE, 0, 0x0,
+              "Multicast channel SDU", HFILL
             }
         },
         { &hf_mac_lte_bch_pdu,
@@ -4308,6 +4812,25 @@ void proto_register_mac_lte(void)
             }
         },
 
+        { &hf_mac_lte_control_mch_scheduling_info,
+            { "MCH Scheduling Information",
+              "mac-lte.control.mch_scheduling_info", FT_STRING, BASE_NONE, 0, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_control_mch_scheduling_info_lcid,
+            { "LCID",
+              "mac-lte.control.mch_scheduling_info.lcid", FT_UINT8, BASE_HEX, VALS(mch_lcid_vals), 0xf8,
+              "Logical Channel ID of the MTCH", HFILL
+            }
+        },
+        { &hf_mac_lte_control_mch_scheduling_info_stop_mtch,
+            { "Stop MTCH",
+              "mac-lte.control.mch_scheduling_info.stop_mtch", FT_UINT16, BASE_DEC, 0, 0x07ff,
+              "Ordinal number of the subframe where the corresponding MTCH stops", HFILL
+            }
+        },
+
         /* Generated fields */
         { &hf_mac_lte_dl_harq_resend_original_frame,
             { "Frame with previous tx",
@@ -4415,12 +4938,15 @@ void proto_register_mac_lte(void)
         &ett_mac_lte_rar_ul_grant,
         &ett_mac_lte_ulsch_header,
         &ett_mac_lte_dlsch_header,
+        &ett_mac_lte_mch_header,
         &ett_mac_lte_sch_subheader,
+        &ett_mac_lte_mch_subheader,
         &ett_mac_lte_bch,
         &ett_mac_lte_bsr,
         &ett_mac_lte_pch,
         &ett_mac_lte_contention_resolution,
         &ett_mac_lte_power_headroom,
+        &ett_mac_lte_mch_scheduling_info,
         &ett_mac_lte_oob
     };
 
