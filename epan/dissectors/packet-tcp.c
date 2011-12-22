@@ -197,9 +197,7 @@ static int hf_tcp_scpsoption_flags_snack1 = -1;
 static int hf_tcp_scpsoption_flags_snack2 = -1;
 static int hf_tcp_scpsoption_flags_compress = -1;
 static int hf_tcp_scpsoption_flags_nlts = -1;
-static int hf_tcp_scpsoption_flags_resv1 = -1;
-static int hf_tcp_scpsoption_flags_resv2 = -1;
-static int hf_tcp_scpsoption_flags_resv3 = -1;
+static int hf_tcp_scpsoption_flags_reserved = -1;
 static int hf_tcp_scpsoption_connection_id = -1;
 static int hf_tcp_option_snack = -1;
 static int hf_tcp_option_snack_offset = -1;
@@ -288,7 +286,7 @@ static gint ett_tcp_opt_rvbd_trpy_flags = -1;
 #define TCPOLEN_CCNEW          6
 #define TCPOLEN_CCECHO         6
 #define TCPOLEN_MD5           18
-#define TCPOLEN_SCPS           2
+#define TCPOLEN_SCPS           4
 #define TCPOLEN_SNACK          6
 #define TCPOLEN_RECBOUND       2
 #define TCPOLEN_CORREXP        2
@@ -2250,14 +2248,6 @@ tcp_info_append_uint(packet_info *pinfo, const char *abbrev, guint32 val)
     col_append_fstr(pinfo->cinfo, COL_INFO, " %s=%u", abbrev, val);
 }
 
-/* Supports the reporting the contents of a parsed SCPS capabilities vector */
-static void
-tcp_info_append_str(packet_info *pinfo, const char *abbrev, const char *val)
-{
-    col_append_fstr(pinfo->cinfo, COL_INFO, " %s[%s]", abbrev, val);
-}
-
-
 static void
 dissect_tcpopt_exp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
     int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree)
@@ -2558,17 +2548,14 @@ dissect_tcpopt_scps(const ip_tcp_opt *optp, tvbuff_t *tvb,
     tcp_flow_t *flow;
     int         direction;
     proto_item *tf = NULL, *hidden_item;
-    gchar       flags[64] = "<None>";
-    gchar      *fstr[] = {"BETS", "SNACK1", "SNACK2", "COMP", "NLTS", "RESV3", "RESV2", "RESV1"};
-    gint        i, bpos;
     guint8      capvector;
     guint8      connid;
 
     hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_kind, tvb,
-                        offset, 1, ENC_BIG_ENDIAN);
+        offset, 1, ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
     hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_len, tvb,
-                        offset + 1, 1, ENC_BIG_ENDIAN);
+        offset + 1, 1, ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     tcpd = get_tcp_conversation_data(NULL,pinfo);
@@ -2591,59 +2578,61 @@ dissect_tcpopt_scps(const ip_tcp_opt *optp, tvbuff_t *tvb,
      * (SCPS-TP)" Section 3.2.3 for definition.
      */
     if (optlen == 4) {
-        capvector = tvb_get_guint8(tvb, offset + 2);
-        flags[0] = '\0';
-
-        /* Decode the capabilities vector for display */
-        for (i = 0; i < 5; i++) {
-            bpos = 128 >> i;
-            if (capvector & bpos) {
-                if (flags[0]) {
-                    g_strlcat(flags, ", ", 64);
-                }
-                g_strlcat(flags, fstr[i], 64);
-            }
-        }
-
-        /* If lossless header compression is offered, there will be a
-         * single octet connectionId following the capabilities vector
-         */
-        if (capvector & 0x10)
-            connid    = tvb_get_guint8(tvb, offset + 3);
-        else
-            connid    = 0;
-
-        tf = proto_tree_add_uint_format(opt_tree, hf_tcp_option_scps_vector, tvb,
-                                        offset, optlen, capvector,
-                                        "%s: 0x%02x (%s)",
-                                        optp->name, capvector, flags);
         hidden_item = proto_tree_add_boolean(opt_tree, hf_tcp_option_scps,
                                              tvb, offset, optlen, TRUE);
         PROTO_ITEM_SET_HIDDEN(hidden_item);
 
-        field_tree = proto_item_add_subtree(tf, ett_tcp_option_scps);
+        capvector = tvb_get_guint8(tvb, offset + 2);
+        connid = tvb_get_guint8(tvb, offset + 3);
 
-        proto_tree_add_boolean(field_tree, hf_tcp_scpsoption_flags_bets, tvb,
-                               offset + 2, 1, capvector);
-        proto_tree_add_boolean(field_tree, hf_tcp_scpsoption_flags_snack1, tvb,
-                               offset + 2, 1, capvector);
-        proto_tree_add_boolean(field_tree, hf_tcp_scpsoption_flags_snack2, tvb,
-                               offset + 2, 1, capvector);
-        proto_tree_add_boolean(field_tree, hf_tcp_scpsoption_flags_compress, tvb,
-                               offset + 2, 1, capvector);
-        proto_tree_add_boolean(field_tree, hf_tcp_scpsoption_flags_nlts, tvb,
-                               offset + 2, 1, capvector);
-        proto_tree_add_boolean(field_tree, hf_tcp_scpsoption_flags_resv3, tvb,
-                               offset + 2, 1, capvector);
-        proto_tree_add_boolean(field_tree, hf_tcp_scpsoption_flags_resv2, tvb,
-                               offset + 2, 1, capvector);
-        proto_tree_add_boolean(field_tree, hf_tcp_scpsoption_flags_resv1, tvb,
-                               offset + 2, 1, capvector);
+        tf = proto_tree_add_item(opt_tree, hf_tcp_option_scps_vector, tvb,
+                                 offset + 2, 1, ENC_BIG_ENDIAN);
+        field_tree = proto_item_add_subtree(tf, ett_tcp_option_scps);
+        proto_tree_add_item(field_tree, hf_tcp_scpsoption_flags_bets, tvb,
+                            offset + 2, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(field_tree, hf_tcp_scpsoption_flags_snack1, tvb,
+                            offset + 2, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(field_tree, hf_tcp_scpsoption_flags_snack2, tvb,
+                            offset + 2, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(field_tree, hf_tcp_scpsoption_flags_compress, tvb,
+                            offset + 2, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(field_tree, hf_tcp_scpsoption_flags_nlts, tvb,
+                            offset + 2, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(field_tree, hf_tcp_scpsoption_flags_reserved, tvb,
+                            offset + 2, 1, ENC_BIG_ENDIAN);
+
+        if (capvector) {
+            struct capvec
+            {
+                guint8 mask;
+                gchar *str;
+            } capvecs[] = {
+                {0x80, "BETS"},
+                {0x40, "SNACK1"},
+                {0x20, "SNACK2"},
+                {0x10, "COMP"},
+                {0x08, "NLTS"},
+                {0x07, "RESERVED"}
+            };
+            gboolean anyflag = FALSE;
+            gint i;
+
+            col_append_str(pinfo->cinfo, COL_INFO, " SCPS[");
+            for (i = 0; i < sizeof(capvecs)/sizeof(struct capvec); i++) {
+                if (capvector & capvecs[i].mask) {
+                    proto_item_append_text(tf, "%s%s", anyflag ? ", " : " (",
+                                           capvecs[i].str);
+                    col_append_fstr(pinfo->cinfo, COL_INFO, "%s%s",
+                                    anyflag ? ", " : "", capvecs[i].str);
+                    anyflag = TRUE;
+                }
+            }
+            col_append_str(pinfo->cinfo, COL_INFO, "]");
+            proto_item_append_text(tf, ")");
+        }
+
         proto_tree_add_item(field_tree, hf_tcp_scpsoption_connection_id, tvb,
                             offset + 3, 1, ENC_BIG_ENDIAN);
-
-        tcp_info_append_str(pinfo, "SCPS", flags);
-
         flow->scps_capable = 1;
 
         if (connid)
@@ -2747,6 +2736,28 @@ dissect_tcpopt_user_to(const ip_tcp_opt *optp, tvbuff_t *tvb,
     proto_tree_add_item(field_tree, hf_tcp_option_user_to_val, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 
     tcp_info_append_uint(pinfo, "USER_TO", to);
+}
+
+/* This is called for SYN+ACK packets and the purpose is to verify that
+ * the SCPS capabilities option has been successfully negotiated for the flow.
+ * If the SCPS capabilities option was offered by only one party, the
+ * proactively set scps_capable attribute of the flow (set upon seeing
+ * the first instance of the SCPS option) is revoked.
+ */
+static void
+verify_scps(packet_info *pinfo,  proto_item *tf_syn, struct tcp_analysis *tcpd)
+{
+    tf_syn = 0x0;
+
+    if(tcpd) {
+        if ((!(tcpd->flow1.scps_capable)) || (!(tcpd->flow2.scps_capable))) {
+            tcpd->flow1.scps_capable = 0;
+            tcpd->flow2.scps_capable = 0;
+        } else {
+            expert_add_info_format(pinfo, tf_syn, PI_SEQUENCE, PI_NOTE,
+                                   "Connection establish request (SYN-ACK): SCPS Capabilities Negotiated");
+        }
+    }
 }
 
 /* See "CCSDS 714.0-B-2 (CCSDS Recommended Standard for SCPS
@@ -4229,10 +4240,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              * SCPS capabilities on SYN+ACK even if it wasn't offered with the SYN
              */
             if(tcpd && ((tcpd->rev->scps_capable) || (tcpd->fwd->scps_capable))) {
-                if (tcpd->flow1.scps_capable && tcpd->flow2.scps_capable) {
-                    expert_add_info_format(pinfo, 0, PI_SEQUENCE, PI_NOTE,
-                                           "Connection establish request (SYN-ACK): SCPS Capabilities Negotiated");
-                }
+                verify_scps(pinfo, tf_syn, tcpd);
             }
         }
     }
@@ -4725,7 +4733,7 @@ proto_register_tcp(void)
 
         { &hf_tcp_option_scps_vector,
           { "TCP SCPS Capabilities Vector", "tcp.options.scps.vector",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+            FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL}},
 
         { &hf_tcp_option_scps_binding,
@@ -4791,20 +4799,10 @@ proto_register_tcp(void)
             "tcp.options.scpsflags.nlts", FT_BOOLEAN, 8,
             TFS(&tfs_set_notset), 0x8, NULL, HFILL }},
 
-        { &hf_tcp_scpsoption_flags_resv3,
-          { "Reserved Bit 3",
-            "tcp.options.scpsflags.reserved3", FT_BOOLEAN, 8,
-            TFS(&tfs_set_notset), 0x4, NULL, HFILL }},
-
-        { &hf_tcp_scpsoption_flags_resv2,
-          { "Reserved Bit 2",
-            "tcp.options.scpsflags.reserved2", FT_BOOLEAN, 8,
-            TFS(&tfs_set_notset), 0x2, NULL, HFILL }},
-
-        { &hf_tcp_scpsoption_flags_resv1,
-          { "Reserved Bit 1",
-            "tcp.options.scpsflags.reserved1", FT_BOOLEAN, 8,
-            TFS(&tfs_set_notset), 0x1, NULL, HFILL }},
+        { &hf_tcp_scpsoption_flags_reserved,
+          { "Reserved",
+            "tcp.options.scpsflags.reserved", FT_UINT8, BASE_DEC,
+            NULL, 0x7, NULL, HFILL }},
 
         { &hf_tcp_scpsoption_connection_id,
           { "Connection ID",
