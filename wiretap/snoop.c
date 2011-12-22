@@ -873,11 +873,11 @@ static const int wtap_encap[] = {
 	0x08,		/* WTAP_ENCAP_FDDI_BITSWAPPED -> DL_FDDI */
 	-1,		/* WTAP_ENCAP_RAW_IP -> unsupported */
 	-1,		/* WTAP_ENCAP_ARCNET -> unsupported */
+	-1,		/* WTAP_ENCAP_ARCNET_LINUX -> unsupported */
 	-1,		/* WTAP_ENCAP_ATM_RFC1483 -> unsupported */
 	-1,		/* WTAP_ENCAP_LINUX_ATM_CLIP -> unsupported */
 	-1,		/* WTAP_ENCAP_LAPB -> unsupported*/
 	0x12,		/* WTAP_ENCAP_ATM_PDUS -> DL_IPATM */
-	-1		/* WTAP_ENCAP_NULL -> unsupported */
 };
 #define NUM_WTAP_ENCAPS (sizeof wtap_encap / sizeof wtap_encap[0])
 

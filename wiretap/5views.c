@@ -356,19 +356,7 @@ typedef struct {
 
 static const int wtap_encap[] = {
 	-1,		/* WTAP_ENCAP_UNKNOWN -> unsupported */
-	CST_5VW_CAPTURE_ETH_FILEID,		/* WTAP_ENCAP_ETHERNET -> Ehernet Ethernet */
-	-1,		/* WTAP_ENCAP_TOKEN_RING -> unsupported */
-	-1,		/* WTAP_ENCAP_SLIP -> unsupported */
-	-1,		/* WTAP_ENCAP_PPP -> unsupported */
-	-1,		/* WTAP_ENCAP_FDDI -> unsupported */
-	-1,		/* WTAP_ENCAP_FDDI_BITSWAPPED -> unsupported */
-	-1,		/* WTAP_ENCAP_RAW_IP -> unsupported */
-	-1,		/* WTAP_ENCAP_ARCNET -> unsupported */
-	-1,		/* WTAP_ENCAP_ATM_RFC1483 -> unsupported */
-	-1,		/* WTAP_ENCAP_LINUX_ATM_CLIP -> unsupported */
-	-1,		/* WTAP_ENCAP_LAPB -> unsupported */
-	-1,		/* WTAP_ENCAP_ATM_PDUS -> unsupported */
-	-1		/* WTAP_ENCAP_NULL -> unsupported */
+	CST_5VW_CAPTURE_ETH_FILEID,		/* WTAP_ENCAP_ETHERNET -> Ethernet */
 };
 #define NUM_WTAP_ENCAPS (sizeof wtap_encap / sizeof wtap_encap[0])
 

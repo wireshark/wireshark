@@ -2026,6 +2026,7 @@ static const int wtap_encap[] = {
 	9,		/* WTAP_ENCAP_FDDI_BITSWAPPED */
 	-1,		/* WTAP_ENCAP_RAW_IP -> unsupported */
 	2,		/* WTAP_ENCAP_ARCNET */
+	-1,		/* WTAP_ENCAP_ARCNET_LINUX -> unsupported */
 	-1,		/* WTAP_ENCAP_ATM_RFC1483 */
 	-1,		/* WTAP_ENCAP_LINUX_ATM_CLIP */
 	7,		/* WTAP_ENCAP_LAPB -> Internetwork analyzer (synchronous) */
