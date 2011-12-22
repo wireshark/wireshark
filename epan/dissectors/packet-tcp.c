@@ -2539,7 +2539,7 @@ dissect_tcpopt_qs(const ip_tcp_opt *optp, tvbuff_t *tvb,
 
 
 static void
-dissect_tcpopt_scps(const ip_tcp_opt *optp, tvbuff_t *tvb,
+dissect_tcpopt_scps(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
             int offset, guint optlen, packet_info *pinfo,
             proto_tree *opt_tree)
 {
@@ -2615,7 +2615,7 @@ dissect_tcpopt_scps(const ip_tcp_opt *optp, tvbuff_t *tvb,
                 {0x07, "RESERVED"}
             };
             gboolean anyflag = FALSE;
-            gint i;
+            guint i;
 
             col_append_str(pinfo->cinfo, COL_INFO, " SCPS[");
             for (i = 0; i < sizeof(capvecs)/sizeof(struct capvec); i++) {
