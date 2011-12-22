@@ -63,6 +63,7 @@
 #define C_RNTI   3
 #define SI_RNTI  4
 #define SPS_RNTI 5
+#define M_RNTI   6
 
 
 typedef enum mac_lte_oob_event {
