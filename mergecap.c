@@ -135,28 +135,65 @@ usage(void)
   fprintf(stderr, "  -v                verbose output.\n");
 }
 
-static void list_capture_types(void) {
-    int i;
+struct string_elem {
+    const char *sstr;   /* The short string */
+    const char *lstr;   /* The long string */
+};
 
-    fprintf(stderr, "mergecap: The available capture file types for \"F\":\n");
-    for (i = 0; i < WTAP_NUM_FILE_TYPES; i++) {
-      if (wtap_dump_can_open(i))
-        fprintf(stderr, "    %s - %s\n",
-          wtap_file_type_short_string(i), wtap_file_type_string(i));
-    }
+static gint
+string_compare(gconstpointer a, gconstpointer b)
+{
+    return strcmp(((const struct string_elem *)a)->sstr,
+        ((const struct string_elem *)b)->sstr);
 }
 
-static void list_encap_types(void) {
-    int i;
-    const char *string;
+static void
+string_elem_print(gpointer data, gpointer not_used _U_)
+{
+    fprintf(stderr, "    %s - %s\n",
+        ((struct string_elem *)data)->sstr,
+        ((struct string_elem *)data)->lstr);
+}
 
-    fprintf(stderr, "mergecap: The available encapsulation types for \"T\":\n");
-    for (i = 0; i < WTAP_NUM_ENCAP_TYPES; i++) {
-        string = wtap_encap_short_string(i);
-        if (string != NULL)
-          fprintf(stderr, "    %s - %s\n",
-            string, wtap_encap_string(i));
+static void
+list_capture_types(void) {
+  int i;
+  struct string_elem *captypes;
+  GSList *list = NULL;
+
+  captypes = g_malloc(sizeof(struct string_elem) * WTAP_NUM_FILE_TYPES);
+
+  fprintf(stderr, "mergecap: The available capture file types for the \"-F\" flag are:\n");
+  for (i = 0; i < WTAP_NUM_FILE_TYPES; i++) {
+    if (wtap_dump_can_open(i)) {
+      captypes[i].sstr = wtap_file_type_short_string(i);
+      captypes[i].lstr = wtap_file_type_string(i);
+      list = g_slist_insert_sorted(list, &captypes[i], string_compare);
     }
+  }
+  g_slist_foreach(list, string_elem_print, NULL);
+  g_slist_free(list);
+  g_free(captypes);
+}
+
+static void
+list_encap_types(void) {
+    int i;
+    struct string_elem *encaps;
+    GSList *list = NULL;
+
+    encaps = g_malloc(sizeof(struct string_elem) * WTAP_NUM_ENCAP_TYPES);
+    fprintf(stderr, "mergecap: The available encapsulation types for the \"-T\" flag are:\n");
+    for (i = 0; i < WTAP_NUM_ENCAP_TYPES; i++) {
+        encaps[i].sstr = wtap_encap_short_string(i);
+        if (encaps[i].sstr != NULL) {
+            encaps[i].lstr = wtap_encap_string(i);
+            list = g_slist_insert_sorted(list, &encaps[i], string_compare);
+        }
+    }
+    g_slist_foreach(list, string_elem_print, NULL);
+    g_slist_free(list);
+    g_free(encaps);
 }
 
 int
