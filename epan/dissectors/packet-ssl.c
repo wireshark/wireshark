@@ -2006,7 +2006,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                          * (it's the encrypted len and should be equal to record len - 2)
                          * in case of rsa1024 that would be 128 + 2 = 130; for psk not neccessary
                          */
-                        if (ssl->version == SSL_VER_TLS||ssl->version == SSL_VER_TLSv1DOT1||ssl->version == SSL_VER_TLSv1DOT2)
+                        if (ssl->cipher_suite.kex==KEX_RSA && (ssl->version == SSL_VER_TLS||ssl->version == SSL_VER_TLSv1DOT1||ssl->version == SSL_VER_TLSv1DOT2))
                         {
                             encrlen  = tvb_get_ntohs(tvb, offset);
                             skip = 2;

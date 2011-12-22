@@ -1354,13 +1354,11 @@ ssl_data_copy(StringInfo* dst, StringInfo* src)
     return 0;
 }
 
-#define PRF(ssl,secret,usage,rnd1,rnd2,out) ((ssl->version_netorder==SSLV3_VERSION)? \
-        ssl3_prf(secret,usage,rnd1,rnd2,out): \
-        tls_prf(secret,usage,rnd1,rnd2,out))
-
 static const gchar *digests[]={
     "MD5",
-    "SHA1"
+    "SHA1",
+    "SHA256",
+    "SHA384"
 };
 
 static const gchar *ciphers[]={
@@ -1403,8 +1401,23 @@ static SslCipherSuite cipher_suites[]={
     {26,KEX_DH,SIG_NONE,ENC_DES,8,64,64,DIG_MD5,16,0, SSL_CIPHER_MODE_CBC},
     {27,KEX_DH,SIG_NONE,ENC_3DES,8,192,192,DIG_MD5,16,0, SSL_CIPHER_MODE_CBC},
     {47,KEX_RSA,SIG_RSA,ENC_AES,16,128,128,DIG_SHA,20,0, SSL_CIPHER_MODE_CBC},
+    {48,KEX_DH,SIG_DSS,ENC_AES,16,128,128,DIG_SHA,20,0, SSL_CIPHER_MODE_CBC},   /* TLS_DH_DSS_WITH_AES_128_CBC_SHA */
+    {49,KEX_DH,SIG_RSA,ENC_AES,16,128,128,DIG_SHA,20,0, SSL_CIPHER_MODE_CBC},   /* TLS_DH_RSA_WITH_AES_128_CBC_SHA */
+    {50,KEX_DH,SIG_DSS,ENC_AES,16,128,128,DIG_SHA,20,0, SSL_CIPHER_MODE_CBC},   /* TLS_DHE_DSS_WITH_AES_128_CBC_SHA */
     {51,KEX_DH, SIG_RSA,ENC_AES,16,128,128,DIG_SHA,20,0, SSL_CIPHER_MODE_CBC},
+    {52,KEX_DH,SIG_NONE,ENC_AES,16,128,128,DIG_SHA,20,0, SSL_CIPHER_MODE_CBC},   /* TLS_DH_anon_WITH_AES_128_CBC_SHA */
     {53,KEX_RSA,SIG_RSA,ENC_AES256,16,256,256,DIG_SHA,20,0, SSL_CIPHER_MODE_CBC},
+    {54,KEX_DH,SIG_DSS,ENC_AES256,16,256,256,DIG_SHA,20,0, SSL_CIPHER_MODE_CBC},   /* TLS_DH_DSS_WITH_AES_256_CBC_SHA */
+    {55,KEX_DH,SIG_RSA,ENC_AES256,16,256,256,DIG_SHA,20,0, SSL_CIPHER_MODE_CBC},   /* TLS_DH_RSA_WITH_AES_256_CBC_SHA */
+    {56,KEX_DH,SIG_DSS,ENC_AES256,16,256,256,DIG_SHA,20,0, SSL_CIPHER_MODE_CBC},   /* TLS_DHE_DSS_WITH_AES_256_CBC_SHA */
+    {57,KEX_DH,SIG_RSA,ENC_AES256,16,256,256,DIG_SHA,20,0, SSL_CIPHER_MODE_CBC},   /* TLS_DHE_RSA_WITH_AES_256_CBC_SHA */
+    {58,KEX_DH,SIG_NONE,ENC_AES256,16,256,256,DIG_SHA,20,0, SSL_CIPHER_MODE_CBC},   /* TLS_DH_anon_WITH_AES_256_CBC_SHA */
+    {59,KEX_RSA,SIG_RSA,ENC_NULL,1,0,0,DIG_SHA256,32,0, SSL_CIPHER_MODE_STREAM},
+    {60,KEX_RSA,SIG_RSA,ENC_AES,16,128,128,DIG_SHA256,32,0, SSL_CIPHER_MODE_CBC},
+    {61,KEX_RSA,SIG_RSA,ENC_AES256,16,256,256,DIG_SHA256,32,0, SSL_CIPHER_MODE_CBC},
+    {62,KEX_DH,SIG_DSS,ENC_AES,16,128,128,DIG_SHA256,32,0, SSL_CIPHER_MODE_CBC},   /* TLS_DH_DSS_WITH_AES_128_CBC_SHA256 */
+    {63,KEX_DH,SIG_RSA,ENC_AES,16,128,128,DIG_SHA256,32,0, SSL_CIPHER_MODE_CBC},   /* TLS_DH_RSA_WITH_AES_128_CBC_SHA256 */
+    {64,KEX_DH,SIG_DSS,ENC_AES,16,128,128,DIG_SHA256,32,0, SSL_CIPHER_MODE_CBC},   /* TLS_DHE_DSS_WITH_AES_128_CBC_SHA256 */
     {96,KEX_RSA,SIG_RSA,ENC_RC4,1,128,56,DIG_MD5,16,1, SSL_CIPHER_MODE_STREAM},
     {97,KEX_RSA,SIG_RSA,ENC_RC2,1,128,56,DIG_MD5,16,1, SSL_CIPHER_MODE_STREAM},
     {98,KEX_RSA,SIG_RSA,ENC_DES,8,64,64,DIG_SHA,20,1, SSL_CIPHER_MODE_STREAM},
@@ -1412,10 +1425,25 @@ static SslCipherSuite cipher_suites[]={
     {100,KEX_RSA,SIG_RSA,ENC_RC4,1,128,56,DIG_SHA,20,1, SSL_CIPHER_MODE_STREAM},
     {101,KEX_DH,SIG_DSS,ENC_RC4,1,128,56,DIG_SHA,20,1, SSL_CIPHER_MODE_STREAM},
     {102,KEX_DH,SIG_DSS,ENC_RC4,1,128,128,DIG_SHA,20,0, SSL_CIPHER_MODE_STREAM},
+    {103,KEX_DH,SIG_RSA,ENC_AES,16,128,128,DIG_SHA256,32,0, SSL_CIPHER_MODE_CBC},   /* TLS_DHE_RSA_WITH_AES_128_CBC_SHA256 */
+    {104,KEX_DH,SIG_DSS,ENC_AES256,16,256,256,DIG_SHA256,32,0, SSL_CIPHER_MODE_CBC},   /* TLS_DH_DSS_WITH_AES_256_CBC_SHA256 */
+    {105,KEX_DH,SIG_RSA,ENC_AES256,16,256,256,DIG_SHA256,32,0, SSL_CIPHER_MODE_CBC},   /* TLS_DH_RSA_WITH_AES_256_CBC_SHA256 */
+    {106,KEX_DH,SIG_DSS,ENC_AES256,16,256,256,DIG_SHA256,32,0, SSL_CIPHER_MODE_CBC},   /* TLS_DHE_DSS_WITH_AES_256_CBC_SHA256 */
+    {107,KEX_DH,SIG_RSA,ENC_AES256,16,256,256,DIG_SHA256,32,0, SSL_CIPHER_MODE_CBC},
+    {108,KEX_DH,SIG_NONE,ENC_AES,16,128,128,DIG_SHA256,32,0, SSL_CIPHER_MODE_CBC},   /* TLS_DH_anon_WITH_AES_128_CBC_SHA256 */
+    {109,KEX_DH,SIG_NONE,ENC_AES256,16,256,256,DIG_SHA256,32,0, SSL_CIPHER_MODE_CBC},   /* TLS_DH_anon_WITH_AES_256_CBC_SHA256 */
     /*{138,KEX_PSK,SIG_RSA,ENC_RC4,16,128,128,DIG_SHA,20,0, SSL_CIPHER_MODE_CBC},*/
     {139,KEX_PSK,SIG_RSA,ENC_3DES,8,192,192,DIG_SHA,20,0, SSL_CIPHER_MODE_CBC},
     {140,KEX_PSK,SIG_RSA,ENC_AES,16,128,128,DIG_SHA,20,0, SSL_CIPHER_MODE_CBC},
     {141,KEX_PSK,SIG_RSA,ENC_AES256,16,256,256,DIG_SHA,20,0, SSL_CIPHER_MODE_CBC},
+    {49187,KEX_DH,SIG_DSS,ENC_AES,16,128,128,DIG_SHA256,32,0, SSL_CIPHER_MODE_CBC},   /* TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256 */
+    {49188,KEX_DH,SIG_DSS,ENC_AES256,16,256,256,DIG_SHA384,48,0, SSL_CIPHER_MODE_CBC},   /* TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384 */
+    {49189,KEX_DH,SIG_DSS,ENC_AES,16,128,128,DIG_SHA256,32,0, SSL_CIPHER_MODE_CBC},   /* TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256 */
+    {49190,KEX_DH,SIG_DSS,ENC_AES256,16,256,256,DIG_SHA384,48,0, SSL_CIPHER_MODE_CBC},   /* TLS_ECDH_ECDSA_WITH_AES_256_CBC_SHA384 */
+    {49191,KEX_DH,SIG_RSA,ENC_AES,16,128,128,DIG_SHA256,32,0, SSL_CIPHER_MODE_CBC},   /* TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256 */
+    {49192,KEX_DH,SIG_RSA,ENC_AES256,16,256,256,DIG_SHA384,48,0, SSL_CIPHER_MODE_CBC},   /* TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384 */
+    {49193,KEX_DH,SIG_RSA,ENC_AES,16,128,128,DIG_SHA256,32,0, SSL_CIPHER_MODE_CBC},   /* TLS_ECDH_RSA_WITH_AES_128_CBC_SHA256 */
+    {49194,KEX_DH,SIG_RSA,ENC_AES256,16,256,256,DIG_SHA384,48,0, SSL_CIPHER_MODE_CBC},   /* TLS_ECDH_RSA_WITH_AES_256_CBC_SHA384 */
     {-1, 0,0,0,0,0,0,0,0,0, 0}
 };
 
@@ -1444,7 +1472,7 @@ tls_hash(StringInfo* secret, StringInfo* seed, gint md, StringInfo* out)
     guint left;
     gint tocpy;
     guint8 *A;
-    guint8 _A[20],tmp[20];
+    guint8 _A[48],tmp[48];
     guint A_l,tmp_l;
     SSL_HMAC hm;
     ptr=out->data;
@@ -1551,6 +1579,30 @@ free_sha:
 }
 
 static gint
+tls12_prf(gint md, StringInfo* secret, const gchar* usage, StringInfo* rnd1, StringInfo* rnd2, StringInfo* out)
+{
+    StringInfo label_seed;
+    size_t usage_len;
+
+    usage_len = strlen(usage);
+    if (ssl_data_alloc(&label_seed, usage_len+rnd1->data_len+rnd2->data_len) < 0) {
+        ssl_debug_printf("tls12_prf: can't allocate label_seed\n");
+        return -1;
+    }
+    memcpy(label_seed.data, usage, usage_len);
+    memcpy(label_seed.data+usage_len, rnd1->data, rnd1->data_len);
+    memcpy(label_seed.data+usage_len+rnd1->data_len, rnd2->data, rnd2->data_len);
+
+    ssl_debug_printf("tls12_prf: tls_hash(hash_alg %s secret_len %d seed_len %d )\n", gcry_md_algo_name(md), secret->data_len, label_seed.data_len);
+    if (tls_hash(secret, &label_seed, md, out) != 0){
+        g_free(label_seed.data);
+        return -1;
+    }
+    ssl_print_string("PRF out", out);
+    return 0;
+}
+
+static gint
 ssl3_generate_export_iv(StringInfo* r1,
         StringInfo* r2, StringInfo* out)
 {
@@ -1623,6 +1675,23 @@ ssl3_prf(StringInfo* secret, const gchar* usage,
     }
 
     return(0);
+}
+
+static gint prf(SslDecryptSession* ssl,StringInfo* secret,gchar* usage,StringInfo* rnd1,StringInfo* rnd2,StringInfo* out)
+{
+    gint ret;
+    if (ssl->version_netorder==SSLV3_VERSION){
+        ret = ssl3_prf(secret,usage,rnd1,rnd2,out);
+    }else if (ssl->version_netorder==TLSV1_VERSION || ssl->version_netorder==TLSV1DOT1_VERSION){
+        ret = tls_prf(secret,usage,rnd1,rnd2,out);
+    }else{
+        if (ssl->cipher_suite.dig == DIG_SHA384){
+            ret = tls12_prf(GCRY_MD_SHA384, secret, usage, rnd1, rnd2, out);
+        }else{
+            ret = tls12_prf(GCRY_MD_SHA256, secret, usage, rnd1, rnd2, out);
+        }
+    }
+    return ret;
 }
 
 static SslFlow*
@@ -1756,7 +1825,7 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
         ssl_print_string("pre master secret",&ssl_session->pre_master_secret);
         ssl_print_string("client random",&ssl_session->client_random);
         ssl_print_string("server random",&ssl_session->server_random);
-        if (PRF(ssl_session,&ssl_session->pre_master_secret,"master secret",
+        if (prf(ssl_session,&ssl_session->pre_master_secret,"master secret",
                 &ssl_session->client_random,
                 &ssl_session->server_random, &ssl_session->master_secret)) {
             ssl_debug_printf("ssl_generate_keyring_material can't generate master_secret\n");
@@ -1778,7 +1847,7 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
     key_block.data_len = needed;
     key_block.data = g_malloc(needed);
     ssl_debug_printf("ssl_generate_keyring_material sess key generation\n");
-    if (PRF(ssl_session,&ssl_session->master_secret,"key expansion",
+    if (prf(ssl_session,&ssl_session->master_secret,"key expansion",
             &ssl_session->server_random,&ssl_session->client_random,
             &key_block)) {
         ssl_debug_printf("ssl_generate_keyring_material can't generate key_block\n");
@@ -1845,7 +1914,7 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
                 iv_block.data_len = ssl_session->cipher_suite.block*2;
 
                 ssl_debug_printf("ssl_generate_keyring_material prf(iv_block)\n");
-                if(PRF(ssl_session,&key_null, "IV block",
+                if(prf(ssl_session,&key_null, "IV block",
                         &ssl_session->client_random,
                         &ssl_session->server_random,&iv_block)) {
                     ssl_debug_printf("ssl_generate_keyring_material can't generate tls31 iv block\n");
@@ -1896,7 +1965,7 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
             k.data = c_wk;
             k.data_len = ssl_session->cipher_suite.eff_bits/8;
             ssl_debug_printf("ssl_generate_keyring_material PRF(key_c)\n");
-            if (PRF(ssl_session,&k,"client write key",
+            if (prf(ssl_session,&k,"client write key",
                     &ssl_session->client_random,
                     &ssl_session->server_random, &key_c)) {
                 ssl_debug_printf("ssl_generate_keyring_material can't generate tll31 server key \n");
@@ -1907,7 +1976,7 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
             k.data = s_wk;
             k.data_len = ssl_session->cipher_suite.eff_bits/8;
             ssl_debug_printf("ssl_generate_keyring_material PRF(key_s)\n");
-            if(PRF(ssl_session,&k,"server write key",
+            if(prf(ssl_session,&k,"server write key",
                     &ssl_session->client_random,
                     &ssl_session->server_random, &key_s)) {
                 ssl_debug_printf("ssl_generate_keyring_material can't generate tll31 client key \n");
@@ -2031,7 +2100,7 @@ tls_check_mac(SslDecoder*decoder, gint ct, gint ver, guint8* data,
     SSL_HMAC hm;
     gint md;
     guint32 len;
-    guint8 buf[20];
+    guint8 buf[48];
     gint16 temp;
 
     md=ssl_get_digest_by_name(digests[decoder->cipher_suite->dig-0x40]);
@@ -2268,10 +2337,11 @@ ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, gint ct,
     worklen-=decoder->cipher_suite->dig_len;
     mac = out_str->data + worklen;
 
-    /* if TLS 1.1 we use the transmitted IV and remove it after (to not modify dissector in others parts)*/
-    if(ssl->version_netorder==TLSV1DOT1_VERSION){
-        worklen=worklen-decoder->cipher_suite->block;
-        memcpy(out_str->data,out_str->data+decoder->cipher_suite->block,worklen);
+    /* if TLS 1.1 or 1.2 we use the transmitted IV and remove it after (to not modify dissector in others parts)*/
+    if(ssl->version_netorder==TLSV1DOT1_VERSION || ssl->version_netorder==TLSV1DOT2_VERSION){
+        /* if stream cipher used, IV is not contained */
+        worklen=worklen-(decoder->cipher_suite->block!=1 ? decoder->cipher_suite->block : 0);
+        memcpy(out_str->data,out_str->data+(decoder->cipher_suite->block!=1 ? decoder->cipher_suite->block : 0),worklen);
     }
     if(ssl->version_netorder==DTLSV1DOT0_VERSION ||
       ssl->version_netorder==DTLSV1DOT0_VERSION_NOT){
@@ -2287,7 +2357,7 @@ ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, gint ct,
             return -1;
         }
     }
-    else if(ssl->version_netorder==TLSV1_VERSION || ssl->version_netorder==TLSV1DOT1_VERSION){
+    else if(ssl->version_netorder==TLSV1_VERSION || ssl->version_netorder==TLSV1DOT1_VERSION || ssl->version_netorder==TLSV1DOT2_VERSION){
         if(tls_check_mac(decoder,ct,ssl->version_netorder,out_str->data,worklen,mac)< 0) {
             ssl_debug_printf("ssl_decrypt_record: mac failed\n");
             return -1;

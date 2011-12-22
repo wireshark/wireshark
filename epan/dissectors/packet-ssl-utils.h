@@ -238,7 +238,7 @@ typedef struct _SslDecompress SslDecompress;
 typedef struct _SslDecoder {
     SslCipherSuite* cipher_suite;
     gint compression;
-    guchar _mac_key[20];
+    guchar _mac_key[48];
     StringInfo mac_key;
     SSL_CIPHER_CTX evp;
     SslDecompress *decomp;
@@ -266,6 +266,8 @@ typedef struct _SslDecoder {
 
 #define DIG_MD5         0x40
 #define DIG_SHA         0x41
+#define DIG_SHA256      0x42
+#define DIG_SHA384      0x43
 
 typedef struct _SslRecordInfo {
     guchar *real_data;
