@@ -608,7 +608,7 @@ rs05(tvbuff_t *tvb, proto_tree *tree)
 		&hf_ipmi_picmg_05_led1, &hf_ipmi_picmg_05_blue_led, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, "General Status LEDs: ", "None",
-			ett_ipmi_picmg_05_byte1, byte1, TRUE, 0);
+			ett_ipmi_picmg_05_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_item(tree, hf_ipmi_picmg_05_app_leds, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 }
 
@@ -631,11 +631,11 @@ rs06(tvbuff_t *tvb, proto_tree *tree)
 	static const int *byte3[] = { &hf_ipmi_picmg_06_default_override_color, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, "Color capabilities: ", "None",
-			ett_ipmi_picmg_06_byte1, byte1, TRUE, 0);
+			ett_ipmi_picmg_06_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL,
-			ett_ipmi_picmg_06_byte2, byte2, TRUE, 0);
+			ett_ipmi_picmg_06_byte2, byte2, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_bitmask_text(tree, tvb, 2, 1, NULL, NULL,
-			ett_ipmi_picmg_06_byte3, byte3, TRUE, 0);
+			ett_ipmi_picmg_06_byte3, byte3, ENC_LITTLE_ENDIAN, 0);
 }
 
 static void
@@ -664,7 +664,7 @@ parse_led_state(proto_tree *tree, tvbuff_t *tvb, guint offs, const char *desc)
 			v, "%sOn-duration: %d0ms", desc, v);
 	v = tvb_get_guint8(tvb, offs + 2) & 0x0f;
 	ti = proto_tree_add_bitmask_text(tree, tvb, offs + 2, 1,
-			NULL, NULL, ett_ipmi_picmg_led_color, color, TRUE, 0);
+			NULL, NULL, ett_ipmi_picmg_led_color, color, ENC_LITTLE_ENDIAN, 0);
 	proto_item_set_text(ti, "%sColor: %s", desc, val_to_str(v, led_color_vals, "Reserved"));
 }
 
@@ -694,7 +694,7 @@ rs08(tvbuff_t *tvb, proto_tree *tree)
 		&hf_ipmi_picmg_08_state_local, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, "LED States: ", "None",
-			ett_ipmi_picmg_08_byte1, byte1, TRUE, 0);
+			ett_ipmi_picmg_08_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 	parse_led_state(tree, tvb, 1, "Local Control ");
 	if (tvb_length(tvb) > 4) {
 		parse_led_state(tree, tvb, 4, "Override ");
@@ -756,9 +756,9 @@ rq0a(tvbuff_t *tvb, proto_tree *tree)
 
 	proto_tree_add_item(tree, hf_ipmi_picmg_0a_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, "Will affect bits: ", "None",
-			ett_ipmi_picmg_0a_byte2, byte2, TRUE, BMT_NO_TFS);
+			ett_ipmi_picmg_0a_byte2, byte2, ENC_LITTLE_ENDIAN, BMT_NO_TFS);
 	proto_tree_add_bitmask_text(tree, tvb, 2, 1, "Activation Policy Set Bits: ", NULL,
-			ett_ipmi_picmg_0a_byte3, byte3, TRUE, 0);
+			ett_ipmi_picmg_0a_byte3, byte3, ENC_LITTLE_ENDIAN, 0);
 }
 
 /* Get FRU Activation Policy
@@ -775,7 +775,7 @@ rs0b(tvbuff_t *tvb, proto_tree *tree)
 	static const int *byte1[] = { &hf_ipmi_picmg_0b_d_locked, &hf_ipmi_picmg_0b_locked, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, "Activation Policy Bits: ", NULL,
-			ett_ipmi_picmg_0b_byte1, byte1, TRUE, 0);
+			ett_ipmi_picmg_0b_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 }
 
 
@@ -816,7 +816,7 @@ parse_link_info_state(proto_tree *tree, tvbuff_t *tvb, guint offs, const char *n
 
 	g_snprintf(buf, sizeof(buf), "Link info%s: ", num);
 	proto_tree_add_bitmask_text(tree, tvb, offs, 4, buf, NULL,
-			ett_ipmi_picmg_link_info, link_info, TRUE, 0);
+			ett_ipmi_picmg_link_info, link_info, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_uint_format(tree, hf_ipmi_picmg_linkinfo_state, tvb, offs + 4, 1,
 			v, "State%s: %s (0x%02x)", num, val_to_str(v, vs, "Reserved"), v);
 }
@@ -842,7 +842,7 @@ rq0f(tvbuff_t *tvb, proto_tree *tree)
 {
 	static const int *chan[] = { &hf_ipmi_picmg_0f_iface, &hf_ipmi_picmg_0f_chan, NULL };
 
-	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL, ett_ipmi_picmg_0f_chan, chan, TRUE, 0);
+	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL, ett_ipmi_picmg_0f_chan, chan, ENC_LITTLE_ENDIAN, 0);
 }
 
 static void
@@ -917,7 +917,7 @@ rs12(tvbuff_t *tvb, proto_tree *tree)
 	guint8 v, v2, i, max;
 	guint32 tmp;
 
-	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL, ett_ipmi_picmg_12_byte1, byte1, TRUE, BMT_NO_FALSE);
+	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL, ett_ipmi_picmg_12_byte1, byte1, ENC_LITTLE_ENDIAN, BMT_NO_FALSE);
 	proto_tree_add_item(tree, hf_ipmi_picmg_12_delay, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 	v = tvb_get_guint8(tvb, 2);
 	proto_tree_add_uint_format_value(tree, hf_ipmi_picmg_12_pwr_mult, tvb, 2, 1,
@@ -965,7 +965,7 @@ rs14(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree_add_item(tree, hf_ipmi_picmg_14_speed_max, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_picmg_14_speed_norm, tvb, 2, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_bitmask_text(tree, tvb, 3, 1, "Fan Tray Properties: ", "None",
-			ett_ipmi_picmg_14_prop, prop, TRUE, 0);
+			ett_ipmi_picmg_14_prop, prop, ENC_LITTLE_ENDIAN, 0);
 }
 
 /* Set Fan Level
@@ -1155,7 +1155,7 @@ rs1e(tvbuff_t *tvb, proto_tree *tree)
 		&hf_ipmi_picmg_1e_cap_graceful_reboot, &hf_ipmi_picmg_1e_cap_warm_reset, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, "FRU Control Capabilities: ", "None",
-			ett_ipmi_picmg_1e_byte1, byte1, TRUE, 0);
+			ett_ipmi_picmg_1e_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 }
 
 /* FRU Inventory Device Lock Control
@@ -1222,7 +1222,7 @@ rs21(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree_add_item(tree, hf_ipmi_picmg_21_site_type, tvb, 5, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_picmg_21_site_num, tvb, 6, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_picmg_21_max_unavail, tvb, 7, 1, ENC_LITTLE_ENDIAN);
-	proto_tree_add_bitmask_text(tree, tvb, 8, 1, NULL, NULL, ett_ipmi_picmg_21_byte9, byte9, TRUE, 0);
+	proto_tree_add_bitmask_text(tree, tvb, 8, 1, NULL, NULL, ett_ipmi_picmg_21_byte9, byte9, ENC_LITTLE_ENDIAN, 0);
 
 	addrtype = tvb_get_guint8(tvb, 8) & 0x7f;
 	if (addrtype == 0x01) {
@@ -1273,7 +1273,7 @@ add_component_bits(proto_tree *tree, tvbuff_t *tvb, guint offs, const char *desc
 		&hf_ipmi_picmg_XX_comp4, &hf_ipmi_picmg_XX_comp3, &hf_ipmi_picmg_XX_comp2, &hf_ipmi_picmg_XX_comp1, &hf_ipmi_picmg_XX_comp0, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, offs, 1, desc, "None",
-			ett_ipmi_picmg_XX_compbits, compbits, TRUE, 0);
+			ett_ipmi_picmg_XX_compbits, compbits, ENC_LITTLE_ENDIAN, 0);
 }
 
 /* Get Target Upgrade Capabilities
@@ -1287,7 +1287,7 @@ rs2e(tvbuff_t *tvb, proto_tree *tree)
 
 	proto_tree_add_item(tree, hf_ipmi_picmg_2e_version, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, "Capabilities: ", "None",
-			ett_ipmi_picmg_2e_byte2, byte2, TRUE, 0);
+			ett_ipmi_picmg_2e_byte2, byte2, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_item(tree, hf_ipmi_picmg_2e_upgrade_tout, tvb, 2, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_picmg_2e_selftest_tout, tvb, 3, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_picmg_2e_rollback_tout, tvb, 4, 1, ENC_LITTLE_ENDIAN);
@@ -1309,7 +1309,7 @@ prop_00(tvbuff_t *tvb, proto_tree *tree)
 		&hf_ipmi_picmg_prop00_comparison, &hf_ipmi_picmg_prop00_preparation, &hf_ipmi_picmg_prop00_rollback, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, "General Component Properties: ", "None",
-			ett_ipmi_picmg_prop00_byte1, byte1, TRUE, 0);
+			ett_ipmi_picmg_prop00_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 }
 
 static void
@@ -1318,7 +1318,7 @@ parse_version(tvbuff_t *tvb, proto_tree *tree)
 	static const gint *byte1[] = { &hf_ipmi_picmg_prop01_fw_major, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
-			ett_ipmi_picmg_prop01_byte1, byte1, TRUE, 0);
+			ett_ipmi_picmg_prop01_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_item(tree, hf_ipmi_picmg_prop01_fw_minor, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_picmg_prop01_fw_aux, tvb, 2, 4, ENC_NA);
 }
@@ -1490,7 +1490,7 @@ rs34(tvbuff_t *tvb, proto_tree *tree)
 			"%s (0x%02x)", ipmi_get_completion_code(v, c), v);
 	if (tvb_length(tvb) > 2) {
 		proto_tree_add_bitmask_text(tree, tvb, 2, 1, NULL, NULL,
-				ett_ipmi_picmg_34_byte3, byte3, TRUE, 0);
+				ett_ipmi_picmg_34_byte3, byte3, ENC_LITTLE_ENDIAN, 0);
 	}
 }
 
@@ -1570,7 +1570,7 @@ rs37(tvbuff_t *tvb, proto_tree *tree)
 	add_component_bits(tree, tvb, 0, desc);
 	if (tvb_length(tvb) > 1) {
 		proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL,
-				ett_ipmi_picmg_37_byte2, byte2, TRUE, 0);
+				ett_ipmi_picmg_37_byte2, byte2, ENC_LITTLE_ENDIAN, 0);
 	}
 }
 
