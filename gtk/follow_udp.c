@@ -36,7 +36,6 @@
 #include <epan/ipproto.h>
 #include <epan/strutil.h>
 #include <epan/tap.h>
-#include <epan/tvbuff-int.h>
 
 #include <../simple_dialog.h>
 
@@ -53,14 +52,14 @@ udp_queue_packet_data(void *tapdata, packet_info *pinfo,
 {
 	follow_record_t *follow_record;
 	follow_info_t *follow_info = tapdata;
-	const tvbuff_t *next_tvb = data;
+	tvbuff_t *next_tvb = (tvbuff_t *)data;
 
 	follow_record = g_malloc(sizeof(follow_record_t));
 
-	follow_record->data = g_byte_array_sized_new(next_tvb->length);
+	follow_record->data = g_byte_array_sized_new(tvb_length(next_tvb));
 	follow_record->data = g_byte_array_append(follow_record->data,
-						  next_tvb->real_data,
-						  next_tvb->length);
+						  tvb_get_ptr(next_tvb, 0, -1),
+						  tvb_length(next_tvb));
 
 	if (follow_info->client_port == 0) {
 		follow_info->client_port = pinfo->srcport;
