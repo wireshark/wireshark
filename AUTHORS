@@ -2272,13 +2272,11 @@ Roberto Morro		<roberto.morro [AT] telecomitalia.it> {
 }
 
 Chris Maynard		<Christopher.Maynard [AT] GTECH.COM> {
-	Add versions of CRC-16 and CRC-32 routines with seed arguments
-	Add versions of those routines with an "offset in the tvbuff"
-	    argument
-	Add Doxygen comments to the CRC-16 and CRC-32 headers
 	Add support for RFC 2520: NHRP with Mobile NHCs
 	    and RFC 2735: NHRP Support for Virtual Private Networks
 	Add support for PPP-over-USB
+	WakeOnLAN support
+	Miscellaneous enhancements and fixes
 }
 
 SEKINE Hideki		<sekineh [AT] gf7.so-net.ne.jp> {
@@ -3251,7 +3249,7 @@ Grzegorz Szczytowski	<Grzegorz.Szczytowski [AT] gmail.com>  {
 
 Martin Kaiser		<martin [AT] kaiser.cx> {
 	DVB-CI (Common Interface) dissector
-	HDCP dissector 
+	HDCP dissector
 }
 
 Jakub Zawadzki		<darkjames-ws [AT] darkjames.pl> {
@@ -3361,7 +3359,7 @@ Kari Vatjus-Anttila	<kari.vatjus-anttila [AT] cie.fi> {
 	kNet (KristalliNet) dissector
 }
 Shobhank Sharma         <ssharma5 [AT] ncsu.edu>{
-	MPLS Enhancement - Generic Associated Channel, as per RFC 5586 
+	MPLS Enhancement - Generic Associated Channel, as per RFC 5586
 }
 Salil Kanitkar         <sskanitk [AT] ncsu.edu>{
 	OSPF Router Informational Capabilities - Opaque RI TLV - RFC4970
