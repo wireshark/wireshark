@@ -888,7 +888,7 @@ static void vsa_buffer_table_destroy(void *table) {
 }
 
 
-static void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, guint length) {
+void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, guint length) {
 	proto_item* item;
 	gboolean last_eap = FALSE;
 	guint8* eap_buffer = NULL;
@@ -899,6 +899,9 @@ static void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, 
 	tvbuff_t* eap_tvb = NULL;
 
 	GHashTable* vsa_buffer_table = NULL;
+
+	/* Forces load of header fields, if not already done so */
+	DISSECTOR_ASSERT(proto_registrar_get_byname("radius.code"));
 
 	/*
 	 * In case we throw an exception, clean up whatever stuff we've

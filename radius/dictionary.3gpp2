@@ -59,35 +59,35 @@ ATTRIBUTE	3GPP2-Originating-SDB-OCtet-Count	32	integer
 ATTRIBUTE	3GPP2-Terminating-Number-SDBs		33	integer
 ATTRIBUTE	3GPP2-Originating-Number-SDBs		34	integer
 # 35 ?
-ATTRIBUTE	3GPP2-IP-QoS				36	integer
+ATTRIBUTE	3GPP2-IP-QoS						36	integer
 # 37-38 ?
-ATTRIBUTE	3GPP2-Airlink-Priority			39	integer
-ATTRIBUTE	3GPP2-Airlink-Record-Type		40	integer
-#ATTRIBUTE	3GPP2-R-P-Session-ID			41	string
+ATTRIBUTE	3GPP2-Airlink-Priority				39	integer
+ATTRIBUTE	3GPP2-Airlink-Record-Type			40	integer
+ATTRIBUTE	3GPP2-R-P-Session-ID				41	octets
 ATTRIBUTE	3GPP2-Airlink-Sequence-Number		42	integer
-ATTRIBUTE	3GPP2-Received-HDLC-Octets		43	integer
-ATTRIBUTE	3GPP2-Correlation-Id			44	string
+ATTRIBUTE	3GPP2-Received-HDLC-Octets			43	integer
+ATTRIBUTE	3GPP2-Correlation-Id				44	string
 ATTRIBUTE	3GPP2-Module-Orig-Term-Indicator	45	integer
 ATTRIBUTE	3GPP2-Inbound-Mobile-IP-Sig-Octets	46	integer
 ATTRIBUTE	3GPP2-Outbound-Mobile-IP-Sig-Octets	47	integer
-ATTRIBUTE	3GPP2-Session-Continue			48	integer
-ATTRIBUTE	3GPP2-Active-Time			49	integer
-ATTRIBUTE	3GPP2-DCCH-Frame-Size			50	integer
-ATTRIBUTE	3GPP2-Begin-Session			51	integer
-ATTRIBUTE	3GPP2-ESN				52	string
+ATTRIBUTE	3GPP2-Session-Continue				48	integer
+ATTRIBUTE	3GPP2-Active-Time					49	integer
+ATTRIBUTE	3GPP2-DCCH-Frame-Size				50	integer
+ATTRIBUTE	3GPP2-Begin-Session					51	integer
+ATTRIBUTE	3GPP2-ESN							52	string
 # 53 ?
-ATTRIBUTE	3GPP2-S-Key				54	octets
-ATTRIBUTE	3GPP2-S-Request				55	integer
-ATTRIBUTE	3GPP2-S-Lifetime			56	date
-ATTRIBUTE	3GPP2-MN-HA-SPI				57	integer
-ATTRIBUTE	3GPP2-MN-HA-Shared-Key			58	string encrypt=2
+ATTRIBUTE	3GPP2-S-Key							54	octets
+ATTRIBUTE	3GPP2-S-Request						55	integer
+ATTRIBUTE	3GPP2-S-Lifetime					56	date
+ATTRIBUTE	3GPP2-MN-HA-SPI						57	integer
+ATTRIBUTE	3GPP2-MN-HA-Shared-Key				58	string encrypt=2
 
 # The next set of attributes contain sub-types
-ATTRIBUTE	3GPP2-Remote-IP-Address			59	octets
+ATTRIBUTE	3GPP2-Remote-IP-Address				59	octets
 
 # 60 - 69 are marked "reserved"
 
-ATTRIBUTE	3GPP2-Remote-IPv6-Address		70	octets
+ATTRIBUTE	3GPP2-Remote-IPv6-Address			70	octets
 ATTRIBUTE	3GPP2-Remote-Address-Table-Index	71	octets
 ATTRIBUTE	3GPP2-Remote-IPv4-Addr-Octet-Count	72	octets
 ATTRIBUTE	3GPP2-Allowed-Diffserv-Marking		73	octets

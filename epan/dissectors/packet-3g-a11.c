@@ -49,6 +49,8 @@
 /* Include vendor id translation */
 #include <epan/sminmpec.h>
 
+#include "packet-radius.h"
+
 static int registration_request_msg =0;
 
 /* Initialize the protocol and registered fields */
@@ -117,6 +119,9 @@ static int hf_a11_ase_reverse_mrru = -1;
 static int hf_a11_ase_reverse_large_cids = -1;
 static int hf_a11_ase_reverse_profile_count = -1;
 static int hf_a11_ase_reverse_profile = -1;
+static int hf_a11_aut_flow_prof_sub_type = -1;
+static int hf_a11_aut_flow_prof_sub_type_len = -1;
+static int hf_a11_aut_flow_prof_sub_type_value = -1;
 
 /* Forward QoS Information */
 static int hf_a11_fqi_srid = -1;
@@ -190,6 +195,7 @@ static gint ett_a11_forward_rohc = -1;
 static gint ett_a11_reverse_rohc = -1;
 static gint ett_a11_forward_profile = -1;
 static gint ett_a11_reverse_profile = -1;
+static gint ett_a11_aut_flow_profile_ids = -1;
 
 
 /* Port used for Mobile IP based Tunneling Protocol (A11) */
@@ -393,65 +399,10 @@ static const value_string a11_airlink_types[]= {
 };
 
 
-#define ATTRIBUTE_NAME_LEN_MAX 128
-#define ATTR_TYPE_NULL 0
-#define ATTR_TYPE_INT 1
-#define ATTR_TYPE_STR 2
-#define ATTR_TYPE_IPV4 3
-#define ATTR_TYPE_TYPE 4
-#define ATTR_TYPE_MSID 5
 #define A11_MSG_MSID_ELEM_LEN_MAX 8
 #define A11_MSG_MSID_LEN_MAX 15
 
 
-struct radius_attribute {
-    char attrname[ATTRIBUTE_NAME_LEN_MAX];
-    int type;
-    int subtype;
-    int bytes;
-    int data_type;
-};
-
-static const struct radius_attribute attrs[]={
-    {"Airlink Record",          26, 40,  4, ATTR_TYPE_TYPE},
-    {"R-P Session ID",          26, 41,  4, ATTR_TYPE_INT},
-    {"Airlink Sequence Number", 26, 42,  4, ATTR_TYPE_INT},
-#if 0
-    {"MSID",                    31, -1, 15, ATTR_TYPE_MSID},
-#endif
-    {"Serving PCF",             26,  9,  4, ATTR_TYPE_IPV4},
-    {"BSID",                    26, 10, 12, ATTR_TYPE_STR},
-    {"ESN",                     26, 52, 15, ATTR_TYPE_STR},
-    {"User Zone",               26, 11,  4, ATTR_TYPE_INT},
-    {"Forward FCH Mux Option",  26, 12,  4, ATTR_TYPE_INT},
-    {"Reverse FCH Mux Option",  26, 13,  4, ATTR_TYPE_INT},
-    {"Forward Fundamental Rate (IOS 4.1)",26, 14,  4, ATTR_TYPE_INT},
-    {"Reverse Fundamental Rate (IOS 4.1)",26, 15,  4, ATTR_TYPE_INT},
-    {"Service Option",          26, 16,  4, ATTR_TYPE_INT},
-    {"Forward Traffic Type",    26, 17,  4, ATTR_TYPE_INT},
-    {"Reverse Traffic Type",    26, 18,  4, ATTR_TYPE_INT},
-    {"FCH Frame Size",          26, 19,  4, ATTR_TYPE_INT},
-    {"Forward FCH RC",          26, 20,  4, ATTR_TYPE_INT},
-    {"Reverse FCH RC",          26, 21,  4, ATTR_TYPE_INT},
-    {"DCCH Frame Size 0/5/20",  26, 50,  4, ATTR_TYPE_INT},
-    {"Forward DCCH Mux Option", 26, 84,  4, ATTR_TYPE_INT},
-    {"Reverse DCCH Mux Option", 26, 85,  4, ATTR_TYPE_INT},
-    {"Forward DCCH RC",         26, 86,  4, ATTR_TYPE_INT},
-    {"Reverse DCCH RC",         26, 87,  4, ATTR_TYPE_INT},
-    {"Airlink Priority",        26, 39,  4, ATTR_TYPE_INT},
-    {"Active Connection Time",  26, 49,  4, ATTR_TYPE_INT},
-    {"Mobile Orig/Term Ind.",   26, 45,  4, ATTR_TYPE_INT},
-    {"SDB Octet Count (Term.)", 26, 31,  4, ATTR_TYPE_INT},
-    {"SDB Octet Count (Orig.)", 26, 32,  4, ATTR_TYPE_INT},
-    {"ESN (Integer)",           26, 48,  4, ATTR_TYPE_INT},
-    {"Sublink",                 26, 108,  4, ATTR_TYPE_STR},
-    {"MEID",                    26, 116, 14, ATTR_TYPE_STR},
-    {"Reverse PDCH RC",         26, 114,  2, ATTR_TYPE_INT},
-    {"Flow ID Parameter",       26, 144,  4, ATTR_TYPE_INT},
-    {"Granted QoS Parameters",  26, 132,  4, ATTR_TYPE_INT},
-    {"Flow Status",             26, 145,  4, ATTR_TYPE_INT},
-    {"Unknown",                 -1, -1, -1, ATTR_TYPE_NULL},
-};
 
 /* XXXX ToDo This should be imported from packet-rohc.h */
 static const value_string a11_rohc_profile_vals[] =
@@ -626,25 +577,14 @@ decode_sse(proto_tree* ext_tree, tvbuff_t* tvb, int offset, guint ext_len)
 
 /* RADIUS attributed */
 static void
-dissect_a11_radius( tvbuff_t *tvb, int offset, proto_tree *tree, int app_len)
+dissect_a11_radius( tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, int app_len)
 {
     proto_item *ti;
     proto_tree *radius_tree;
-    gint       radius_len;
-    guint8     radius_type;
-    guint8     radius_subtype;
-    int        attribute_type;
-    gint       attribute_len;
-    gint       offset0;
-    gint       radius_offset;
-    guint      i;
-    guint8     *str_val;
-    guint      radius_vendor_id;
 
     /* None of this really matters if we don't have a tree */
-    if (!tree) return;
-
-    offset0 = offset;
+    if (!tree) 
+		return;
 
     /* return if length of extension is not valid */
     if (tvb_reported_length_remaining(tvb, offset)  < 12) {
@@ -655,175 +595,67 @@ dissect_a11_radius( tvbuff_t *tvb, int offset, proto_tree *tree, int app_len)
 
     radius_tree = proto_item_add_subtree(ti, ett_a11_radiuses);
 
-    /* And, handle each record */
-    while ((tvb_reported_length_remaining(tvb, offset) > 0)
-           && ((offset-offset0) < (app_len-2)))
-    {
+	dissect_attribute_value_pairs(radius_tree, pinfo, tvb, offset, app_len-2);
 
-        radius_type = tvb_get_guint8(tvb, offset);
-        radius_len = tvb_get_guint8(tvb, offset + 1);
-        if (radius_len < 2)
-        {
-            proto_tree_add_text(radius_tree, tvb, offset, 2,
-                "Bogus RADIUS length %u, should be >= 2",
-                radius_len);
-            break;
-        }
-
-        if (radius_type == RADIUS_VENDOR_SPECIFIC)
-        {
-            if (radius_len < SKIP_HDR_LEN)
-            {
-                proto_tree_add_text(radius_tree, tvb, offset, radius_len,
-                    "Bogus RADIUS length %u, should be >= %u",
-                     radius_len, SKIP_HDR_LEN);
-                offset += radius_len;
-                continue;
-            }
-            radius_vendor_id = tvb_get_ntohl(tvb, offset +2);
-
-            if(radius_vendor_id != VENDOR_THE3GPP2)
-            {
-                proto_tree_add_text(radius_tree, tvb, offset, radius_len,
-                                    "Unknown Vendor-specific Attribute (Vendor Id: %x)", radius_vendor_id);
-                offset += radius_len;
-                continue;
-            }
-        }
-        else
-        {
-
-            /**** ad-hoc ***/
-            if(radius_type == 31)
-            {
-                str_val = tvb_get_ephemeral_string(tvb,offset+2,radius_len-2);
-                proto_tree_add_text(radius_tree, tvb, offset, radius_len,
-                                    "MSID: %s", str_val);
-            }
-            else if (radius_type == 46)
-            {
-                if (radius_len < (2+4))
-                {
-                    proto_tree_add_text(radius_tree, tvb, offset, radius_len,
-                                        "Bogus RADIUS length %u, should be >= %u",
-                                        radius_len, 2+4);
-                }
-                else
-                {
-                    proto_tree_add_text(radius_tree, tvb, offset, radius_len,
-                                        "Acct Session Time: %d",tvb_get_ntohl(tvb,offset+2));
-                }
-            }
-            else
-            {
-                proto_tree_add_text(radius_tree, tvb, offset, radius_len,
-                                    "Unknown RADIUS Attributes (Type: %d)", radius_type);
-            }
-
-            offset += radius_len;
-            continue;
-        }
-
-        offset += SKIP_HDR_LEN;
-        radius_len -= SKIP_HDR_LEN;
-        radius_offset = 0;
-
-        /* Detect Airlink Record Type */
-
-        while (radius_len > radius_offset)
-        {
-            if (radius_len < (radius_offset + 2))
-            {
-                proto_tree_add_text(radius_tree, tvb, offset + radius_offset, 2,
-                                    "Bogus RADIUS length %u, should be >= %u",
-                                    radius_len + SKIP_HDR_LEN,
-                                    radius_offset + 2 + SKIP_HDR_LEN);
-                return;
-            }
-
-            radius_subtype = tvb_get_guint8(tvb, offset + radius_offset);
-            attribute_len = tvb_get_guint8(tvb, offset + radius_offset + 1);
-            if (attribute_len < 2)
-            {
-                proto_tree_add_text(radius_tree, tvb, offset + radius_offset, 2,
-                                    "Bogus attribute length %u, should be >= 2", attribute_len);
-                return;
-            }
-            if (attribute_len > (radius_len - radius_offset))
-            {
-                proto_tree_add_text(radius_tree, tvb, offset + radius_offset, 2,
-                                    "Bogus attribute length %u, should be <= %u",
-                                    attribute_len, radius_len - radius_offset);
-                return;
-            }
-
-            attribute_type = -1;
-            for(i = 0; i < NUM_ATTR; i++) {
-                if (attrs[i].subtype == radius_subtype) {
-                    attribute_type = i;
-                    break;
-                }
-            }
-
-            if ((radius_subtype == 48) &&
-                (attribute_len == 0x0a))
-            {
-                /*
-                 * trying to compensate for Spec. screwups where
-                 * certain versions had subtype 48 being a 4 octet integer
-                 * and others had it being a 15 octet string!
-                 */
-                str_val = tvb_get_ephemeral_string(tvb,offset+radius_offset+2,attribute_len-2);
-                proto_tree_add_text(radius_tree, tvb, offset+radius_offset,
-                                    attribute_len,
-                                    "3GPP2: ESN-48 (String) (%s)", str_val);
-            }
-            else if(attribute_type >= 0) {
-                switch(attrs[attribute_type].data_type) {
-                case ATTR_TYPE_INT:
-                    proto_tree_add_text(radius_tree, tvb, offset + radius_offset,
-                                        attribute_len, "3GPP2: %s (0x%04x)", attrs[attribute_type].attrname,
-                                        tvb_get_ntohl(tvb,offset + radius_offset + 2));
-                    break;
-                case ATTR_TYPE_IPV4:
-                    proto_tree_add_text(radius_tree, tvb, offset + radius_offset,
-                                        attribute_len, "3GPP2: %s (%s)", attrs[attribute_type].attrname,
-                                        tvb_ip_to_str(tvb, offset + radius_offset + 2));
-                    break;
-                case ATTR_TYPE_TYPE:
-                    proto_tree_add_text(radius_tree, tvb, offset + radius_offset,
-                                        attribute_len, "3GPP2: %s (%s)", attrs[attribute_type].attrname,
-                                        val_to_str(tvb_get_ntohl(tvb,offset+radius_offset+2),
-                                                   a11_airlink_types,"Unknown"));
-                    break;
-                case ATTR_TYPE_STR:
-                    str_val = tvb_get_ephemeral_string(tvb,offset+radius_offset+2,attribute_len-2);
-                    proto_tree_add_text(radius_tree, tvb, offset+radius_offset,
-                                        attribute_len,
-                                        "3GPP2: %s (%s)", attrs[attribute_type].attrname, str_val);
-                    break;
-                case ATTR_TYPE_NULL:
-                    break;
-                default:
-                    proto_tree_add_text(radius_tree, tvb, offset+radius_offset, attribute_len,
-                                        "RADIUS: %s", attrs[attribute_type].attrname);
-                    break;
-                }
-            }
-            else {
-                proto_tree_add_text(radius_tree, tvb, offset+radius_offset, attribute_len,
-                                    "RADIUS: Unknown 3GPP2 Attribute (Type:%d, SubType:%d)",
-                                    radius_type,radius_subtype);
-            }
-
-            radius_offset += attribute_len;
-        }
-        offset += radius_len;
-
-    }
 
 }
 
+static const value_string a11_aut_flow_prof_subtype_vals[] = {
+    {0x1, "ProfileID-Forward"},
+    {0x2, "ProfileID-Reverse"},
+    {0x3, "ProfileID-Bi-direction"},
+    {0, NULL},
+};
+
+
+/* X.S0011-005-D v2.0 Authorized Flow Profile IDs for the User */
+static const gchar *dissect_3gpp2_radius_aut_flow_profile_ids(proto_tree * tree, tvbuff_t * tvb, packet_info* pinfo _U_)
+{
+	proto_tree* sub_tree;
+	int offset = 0;
+	proto_item *item;
+	guint8 sub_type, sub_type_length;
+	guint32 value;
+
+	while (tvb_length_remaining(tvb,offset)>0){
+		sub_type = tvb_get_guint8(tvb,offset);
+		sub_type_length = tvb_get_guint8(tvb,offset+1);
+		switch(sub_type_length){
+			case 3:
+				/* value is 1 octet */
+				value = tvb_get_guint8(tvb,offset+2);
+				break;
+			case 4:
+				/* value is 2 octets */
+				value = tvb_get_ntohs(tvb,offset+2);
+				break;
+			case 5:
+				/* value is 3 octets */
+				value = tvb_get_ntoh24(tvb,offset+2);
+				break;
+			case 6:
+				/* value is 4 octets */
+				value = tvb_get_ntohl(tvb,offset+2);
+				break;
+			default:
+				break;
+		}
+		item = proto_tree_add_text(tree, tvb, offset, sub_type_length, "%s = %u",
+			val_to_str(sub_type, a11_aut_flow_prof_subtype_vals, "Unknown"), value);
+		sub_tree = proto_item_add_subtree(item, ett_a11_aut_flow_profile_ids);
+
+		sub_type = tvb_get_guint8(tvb,offset);
+		proto_tree_add_item(sub_tree, hf_a11_aut_flow_prof_sub_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset++;
+		proto_tree_add_item(sub_tree, hf_a11_aut_flow_prof_sub_type_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset++;
+		proto_tree_add_item(sub_tree, hf_a11_aut_flow_prof_sub_type_value, tvb, offset, sub_type_length-2, ENC_BIG_ENDIAN);
+
+		offset = offset+sub_type_length-2;
+	}
+
+    return "";
+}
 
 /* Code to dissect Additional Session Info */
 static void dissect_ase(tvbuff_t* tvb, int offset, guint ase_len, proto_tree* ext_tree)
@@ -1264,7 +1096,7 @@ static void dissect_rev_qosinfo(tvbuff_t* tvb, int offset, proto_tree* ext_tree)
 
 
 /* Code to dissect Subscriber QoS Profile */
-static void dissect_subscriber_qos_profile(tvbuff_t* tvb, int offset, int ext_len, proto_tree* ext_tree)
+static void dissect_subscriber_qos_profile(tvbuff_t* tvb, packet_info *pinfo, int offset, int ext_len, proto_tree* ext_tree)
 {
     proto_tree* exts_tree;
 
@@ -1283,6 +1115,8 @@ static void dissect_subscriber_qos_profile(tvbuff_t* tvb, int offset, int ext_le
         proto_tree_add_item
             (exts_tree,  hf_a11_subsciber_profile, tvb, offset,
              qos_profile_len, ENC_NA);
+		
+		dissect_attribute_value_pairs(exts_tree, pinfo, tvb, offset, qos_profile_len);
     }
 }
 
@@ -1372,7 +1206,7 @@ static void dissect_rev_qosupdate_info(tvbuff_t* tvb, int offset, proto_tree* ex
 
 /* Code to dissect extensions */
 static void
-dissect_a11_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
+dissect_a11_extensions( tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree)
 {
     proto_item   *ti;
     proto_tree   *exts_tree;
@@ -1507,7 +1341,7 @@ dissect_a11_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
             ext_len -= 2;
             if(apptype == 0x0101) {
                 if (tvb_reported_length_remaining(tvb, offset) > 0) {
-                    dissect_a11_radius(tvb, offset, ext_tree, ext_len + 2);
+                    dissect_a11_radius(tvb, pinfo, offset, ext_tree, ext_len + 2);
                 }
             }
             break;
@@ -1577,7 +1411,7 @@ dissect_a11_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
                 dissect_rev_qosinfo(tvb, offset, ext_tree);
                 break;
             case 0x0D03:
-                dissect_subscriber_qos_profile(tvb, offset, ext_len, ext_tree);
+                dissect_subscriber_qos_profile(tvb, pinfo, offset, ext_len, ext_tree);
                 break;
             case 0x0DFE:
                 dissect_fwd_qosupdate_info(tvb, offset, ext_tree);
@@ -1914,7 +1748,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (tree && a11_tree) {
         if (tvb_reported_length_remaining(tvb, offset) > 0)
-            dissect_a11_extensions(tvb, offset, a11_tree);
+            dissect_a11_extensions(tvb, pinfo, offset, a11_tree);
     }
     return tvb_length(tvb);
 } /* dissect_a11 */
@@ -2431,6 +2265,21 @@ proto_register_a11(void)
              FT_UINT16, BASE_DEC, VALS(a11_rohc_profile_vals), 0,
              NULL, HFILL }
          },
+		 { &hf_a11_aut_flow_prof_sub_type,
+           { "Sub type",   "a11.aut_flow_prof.sub_type",
+             FT_UINT8, BASE_DEC, VALS(a11_aut_flow_prof_subtype_vals), 0,
+             NULL, HFILL }
+         },
+		 { &hf_a11_aut_flow_prof_sub_type_len,
+           { "Length",   "a11.aut_flow_prof.length",
+             FT_UINT8, BASE_DEC, NULL, 0,
+             NULL, HFILL }
+         },
+		 { &hf_a11_aut_flow_prof_sub_type_value,
+           { "Value",   "a11.aut_flow_prof.value",
+             FT_UINT32, BASE_DEC, NULL, 0,
+             NULL, HFILL }
+         },
     };
 
     /* Setup protocol subtree array */
@@ -2460,6 +2309,7 @@ proto_register_a11(void)
         &ett_a11_reverse_rohc,
         &ett_a11_forward_profile,
         &ett_a11_reverse_profile,
+		&ett_a11_aut_flow_profile_ids,
     };
 
     /* Register the protocol name and description */
@@ -2480,4 +2330,7 @@ proto_reg_handoff_a11(void)
 
     a11_handle = find_dissector("a11");
     dissector_add_uint("udp.port", UDP_PORT_3GA11, a11_handle);
+
+	/* 3GPP2-Authorized-Flow-Profile-IDs(131) */
+	radius_register_avp_dissector(VENDOR_THE3GPP2, 131, dissect_3gpp2_radius_aut_flow_profile_ids);
 }

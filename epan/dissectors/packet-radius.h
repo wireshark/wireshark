@@ -132,6 +132,7 @@ radius_attr_dissector_t radius_combo_ip;
 radius_attr_dissector_t radius_tlv;
 
 extern void radius_register_avp_dissector(guint32 vendor_id, guint32 attribute_id, radius_avp_dissector_t dissector);
+void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, guint length);
 
 /* from radius_dict.l */
 gboolean radius_load_dictionary (radius_dictionary_t* dict, gchar* directory, const gchar* filename, gchar** err_str);
