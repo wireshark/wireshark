@@ -620,26 +620,8 @@ static const gchar *dissect_3gpp2_radius_aut_flow_profile_ids(proto_tree * tree,
 	while (tvb_length_remaining(tvb,offset)>0){
 		sub_type = tvb_get_guint8(tvb,offset);
 		sub_type_length = tvb_get_guint8(tvb,offset+1);
-		switch(sub_type_length){
-			case 3:
-				/* value is 1 octet */
-				value = tvb_get_guint8(tvb,offset+2);
-				break;
-			case 4:
-				/* value is 2 octets */
-				value = tvb_get_ntohs(tvb,offset+2);
-				break;
-			case 5:
-				/* value is 3 octets */
-				value = tvb_get_ntoh24(tvb,offset+2);
-				break;
-			case 6:
-				/* value is 4 octets */
-				value = tvb_get_ntohl(tvb,offset+2);
-				break;
-			default:
-				break;
-		}
+		/* value is 2 octets */
+		value = tvb_get_ntohs(tvb,offset+2);
 		item = proto_tree_add_text(tree, tvb, offset, sub_type_length, "%s = %u",
 			val_to_str(sub_type, a11_aut_flow_prof_subtype_vals, "Unknown"), value);
 		sub_tree = proto_item_add_subtree(item, ett_a11_aut_flow_profile_ids);
@@ -649,7 +631,7 @@ static const gchar *dissect_3gpp2_radius_aut_flow_profile_ids(proto_tree * tree,
 		offset++;
 		proto_tree_add_item(sub_tree, hf_a11_aut_flow_prof_sub_type_len, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
-		proto_tree_add_item(sub_tree, hf_a11_aut_flow_prof_sub_type_value, tvb, offset, sub_type_length-2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(sub_tree, hf_a11_aut_flow_prof_sub_type_value, tvb, offset, 2, ENC_BIG_ENDIAN);
 
 		offset = offset+sub_type_length-2;
 	}
@@ -2277,7 +2259,7 @@ proto_register_a11(void)
          },
 		 { &hf_a11_aut_flow_prof_sub_type_value,
            { "Value",   "a11.aut_flow_prof.value",
-             FT_UINT32, BASE_DEC, NULL, 0,
+             FT_UINT16, BASE_DEC, NULL, 0,
              NULL, HFILL }
          },
     };
