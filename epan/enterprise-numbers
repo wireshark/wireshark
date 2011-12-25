@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2011-12-16)
+(last updated 2011-12-25)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -10895,8 +10895,8 @@ Decimal
       stuartmg&newscorp.com
 2722
   Georgia Tech Research Institute
-    David Huggins
-      David.Huggins&gtri.gatech.edu
+    Joshua Roys
+      Joshua.Roys&gtri.gatech.edu
 2723
   Guerrilla Mail, Inc.
     Michael Cohen
@@ -14610,9 +14610,9 @@ Decimal
     Claes Berg
       Claes.Berg&knowit.se
 3652
-  Pan Dacom Networking AG
-    B.Schwalm
-      schwalm&eup.pandacom.de
+  Pan Dacom Direkt GmbH (previous was 'Pan Dacom Networking AG')
+    Michael Lindner
+      lindner&pandacomdirekt.de
 3653
   Cirque Networks, Inc.
     Kevin Hoff
@@ -66700,8 +66700,8 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
       eosys&vizzavi.it
 16787
   T-Systems Nova International GmbH
-    Kirti Singh-Kurbel
-      Kirti.Singh-Kurbel&t-systems.com
+    Andreas Kelling
+      Andreas.Kelling&t-systems.com
 16788
   Information Technology Center (KYTP), Aristotle Univ. of Thessaloniki GREECE
     Athanasios E. Siachoudis
@@ -156066,6 +156066,182 @@ Decentralization / Helenic Public Administra
   itunic consulting
     Bernhard Rekemeier
       br01&itunic.de
+39121
+  ElringKlinger AG
+    Christian Segor
+      oidmaster&elringklinger.com
+39122
+  Framehawk Inc.
+    Michael Martin
+      michael.martin&framehawk.com
+39123
+  Two Degrees Mobile Ltd
+    Tim West
+      IANA_Pen&2degreesmobile.co.nz
+39124
+  Kaweah Delta Health Care District
+    Steven Larkin
+      itdirector&kdhcd.org
+39125
+  Instituto Superior de Engenharia do Porto (ISEP)
+    Nuno Pereira
+      nap&isep.ipp.pt
+39126
+  DCA Inc
+    Mike Chatterton
+      mikec&dcainc.com
+39127
+  Mercury Insurance Group
+    Roy Hegge
+      rhegge&mercuryinsurance.com
+39128
+  ALLIANZ LIFE INSURANCE OF NORTH AMERICA
+    Drew Pierce
+      drew.pierce&allianzlife.com
+39129
+  Reiknistofa i Vedurfraedi
+    Thor Sigurdsson
+      thor&belgingur.is
+39130
+  Century Software (M) Sdn Bhd 
+    Mark Rees
+      mark&centurysoftware.com.my
+39131
+  Sistemas Informaticos Abiertos S.A.
+    Jorge Cea
+      jcea&sia.es
+39132
+  Camair-Co
+    Jean-Francis AHANDA
+      francis.ahanda&camair-co.net
+39133
+  Kamsoft S.A.
+    Bartłomiej Syryjczyk
+      bsyryjczyk&kamsoft.pl
+39134
+  Apex
+    Stijn Schouteten
+      stijn&apex-audio.be
+39135
+  U.S. Bancorp
+    Kenneth Payne
+      kenneth.payne&usbank.com
+39136
+  Adams State College
+    Randall Smith
+      rbsmith&adams.edu
+39137
+  ameria GmbH
+    Pavel Shumarov
+      admin-department&ameria.de
+39138
+  Santa Barbara County Education Office
+    Sharon Van Gundy
+      dnsadmin&sbceo.org
+39139
+  nPario Inc
+    Joerg Hallmann
+      joerg&npario.com
+39140
+  Interra Systems, Inc.
+    Shelly Adhikari
+      shelly&InterraSystems.com
+39141
+  Qice Technology Co. Ltd
+    judd wang
+      jdwang&qicetech.com
+39142
+  Nian Electronic Company
+    Morteza Sadr
+      idm&nianelectronic.com
+39143
+  LARS
+    Mariusz Kokocinski
+      ca&lars.pl
+39144
+  Nextouch, Inc.
+    Young D. Moon
+      ydmoon&ntnextouch.com
+39145
+  Innovative Circuit Technology Ltd.
+    Kevin Bolster
+      technical.contact&ictcorporate.com
+39146
+  Watchdog Software Pty Limited
+    Richard Giddey
+      support&watchdogsoftware.com.au
+39147
+  intratop
+    Thorsten Eisinger
+      thorsten.eisinger&intratop.de
+39148
+  Agjencia Kombetare e Shoqerise se Informacionit
+    Fisnik Kruja 
+      fisnik.kruja&akshi.gov.al
+39149
+  broadAngle, LLC
+    Garrison Atkisson
+      garrison&broadangle.com
+39150
+  B.O.S. Software Service und Vertrieb GmbH
+    Jahn Fuchs
+      jahn.fuchs&bossoftware.de
+39151
+  Autorité des Marchés Financiers
+    Erik Ableson
+      e.ableson&amf-france.org
+39152
+  DVT - Daten-Verarbeitung-Tirol GmbH
+    Florian Sailer
+      florian.sailer&tirol.gv.at
+39153
+  WAYF - Where Are You From
+    Christian Hannested
+      sekretariat&wayf.dk
+39154
+  SwiftStack
+    Joe Arnold
+      joe&swiftstack.com
+39155
+  Mango DSP, Inc.
+    Eldor Reif - Dir. of Professional Services and Product Management
+      ereif&mangodspinc.com
+39156
+  PROSCOPE Corporation
+    Hideki Fujimura
+      fujimura&proscope.co.jp
+39157
+  DERMALOG IDENTIFICATION SYSTEMS GMBH
+    Innocents Sia
+      Innocents.Sia&dermalog.com
+39158
+  Akouto
+    Dominic Chorafakis
+      dom&akouto.com
+39159
+  Redpoint Software
+    James Rhodes
+      jrhodes&redpointsoftware.com.au
+39160
+  PointRed Telecom Ltd.
+    Vijayakumar Perumal
+      vijayakumar&pointred.co
+39161
+  Precision Infomatic
+    Charan Narayanan
+      ncharan86&gmail.com
+39162
+  WEOLO
+    Paolo Decarlini
+      paolo.decarlini&nimix.it
+39163
+  U-BTech Solutions
+    Ilan Lanz
+      ilan&u-btech.com
+39164
+  Cires21 S.L.
+    Manuel Cardeñas Cano
+      mcardenas&cires21.com
 
 
 End of Document
