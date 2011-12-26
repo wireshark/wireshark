@@ -1,4 +1,4 @@
-/* Routines for UMTS FP disassembly
+/* Routines for UMTS MAC (3GPP TS 25.321) disassembly
  *
  * $Id$
  *
