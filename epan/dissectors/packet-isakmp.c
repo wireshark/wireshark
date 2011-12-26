@@ -40,7 +40,7 @@
  *
  * http://www.iana.org/assignments/isakmp-registry (last updated 2011-07-15)
  * http://www.iana.org/assignments/ipsec-registry (last updated 2011-03-14)
- * http://www.iana.org/assignments/ikev2-parameters (last updated 2011-11-09)
+ * http://www.iana.org/assignments/ikev2-parameters (last updated 2011-12-19)
  */
 
 #ifdef HAVE_CONFIG_H
@@ -1094,7 +1094,7 @@ static const range_string authmeth_v2_type[] = {
   { 9,9,	"ECDSA with SHA-256 on the P-256 curve" }, /* RFC4754 */
   { 10,10,	"ECDSA with SHA-256 on the P-256 curve" }, /* RFC4754 */
   { 11,11,	"ECDSA with SHA-256 on the P-256 curve" }, /* RFC4754 */
-  { 12,12,	"Generic Secure Password Authentication Method" }, /* RFC-kivinen-ipsecme-secure-password-framework-03 */
+  { 12,12,	"Generic Secure Password Authentication Method" }, /* RFC6467 */
   { 13,200,	"RESERVED TO IANA" },
   { 201,255,	"PRIVATE USE" },
   { 0,0,	NULL },
@@ -1224,7 +1224,7 @@ static const range_string notifmsg_v2_type[] = {
   { 16421,16421,        "IPSEC_REPLAY_COUNTER_SYNC_SUPPORTED" },/* RFC6311 */
   { 16422,16422,        "IKEV2_MESSAGE_ID_SYNC" },              /* RFC6311 */
   { 16423,16423,        "IPSEC_REPLAY_COUNTER_SYNC" },          /* RFC6311 */
-  { 16424,16424,        "SECURE_PASSWORD_METHODS" },            /* RFC-kivinen-ipsecme-secure-password-framework-03] */
+  { 16424,16424,        "SECURE_PASSWORD_METHODS" },            /* RFC6467 */
   { 16425,40959,        "RESERVED TO IANA - STATUS TYPES" },
   { 40960,65535,        "Private Use - STATUS TYPES" },
   { 0,0,	NULL },
