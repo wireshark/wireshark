@@ -66,7 +66,7 @@
  * RFC 2710: Multicast Listener Discovery for IPv6
  * RFC 2894: Router Renumbering for IPv6
  * RFC 3122: Extensions to IPv6 Neighbor Discovery for Inverse Discovery Specification
- * RFC 3775: Mobility Support in IPv6
+ * RFC 3775/6275: Mobility Support in IPv6
  * RFC 3810: Multicast Listener Discovery Version 2 (MLDv2) for IPv6
  * RFC 3971: SEcure Neighbor Discovery (SEND)
  * RFC 4065: Instructions for Seamoby and Experimental Mobility Protocol IANA Allocations
@@ -82,7 +82,7 @@
  * RFC 6275: Mobility Support in IPv6
  * draft-ieft-roll-rpl-19.txt: RPL: IPv6 Routing Protocol for Low power and Lossy Networks
  * draft-ietf-csi-proxy-send-05: Secure Proxy ND Support for SEND
- * draft-ietf-6lowpan-nd-17: Neighbor Discovery Optimization for Low Power and Lossy Networks (6LoWPAN)
+ * draft-ietf-6lowpan-nd-18: Neighbor Discovery Optimization for Low Power and Lossy Networks (6LoWPAN)
  * http://www.iana.org/assignments/icmpv6-parameters (last updated 2011-04-08)
  */
 
@@ -303,7 +303,7 @@ static int hf_icmpv6_mldr_mar_multicast_address = -1;
 static int hf_icmpv6_mldr_mar_source_address = -1;
 static int hf_icmpv6_mldr_mar_auxiliary_data = -1;
 
-/* RFC3775: Mobility Support in IPv6 */
+/* RFC3775/6275: Mobility Support in IPv6 */
 static int hf_icmpv6_mip6_identifier = -1;
 static int hf_icmpv6_mip6_home_agent_address = -1;
 static int hf_icmpv6_mip6_flag = -1;
@@ -564,10 +564,10 @@ static const value_string icmpv6_type_val[] = {
     { ICMP6_IND_SOLICIT,           "Inverse Neighbor Discovery Solicitation" },         /* [RFC3122] */
     { ICMP6_IND_ADVERT,            "Inverse Neighbor Discovery Advertisement" },        /* [RFC3122] */
     { ICMP6_MLDV2_REPORT,          "Multicast Listener Report Message v2" },            /* [RFC3810] */
-    { ICMP6_MIP6_DHAAD_REQUEST,    "Home Agent Address Discovery Request" },            /* [RFC3775] */
-    { ICMP6_MIP6_DHAAD_REPLY,      "Home Agent Address Discovery Reply" },              /* [RFC3775] */
-    { ICMP6_MIP6_MPS,              "Mobile Prefix Solicitation" },                      /* [RFC3775] */
-    { ICMP6_MIP6_MPA,              "Mobile Prefix Advertisement" },                     /* [RFC3775] */
+    { ICMP6_MIP6_DHAAD_REQUEST,    "Home Agent Address Discovery Request" },            /* [RFC6275] */
+    { ICMP6_MIP6_DHAAD_REPLY,      "Home Agent Address Discovery Reply" },              /* [RFC6275] */
+    { ICMP6_MIP6_MPS,              "Mobile Prefix Solicitation" },                      /* [RFC6275] */
+    { ICMP6_MIP6_MPA,              "Mobile Prefix Advertisement" },                     /* [RFC6275] */
     { ICMP6_CERT_PATH_SOL,         "Certification Path Solicitation" },                 /* [RFC3971] */
     { ICMP6_CERT_PATH_AD,          "Certification Path Advertisement" },                /* [RFC3971] */
     { ICMP6_EXPERIMENTAL_MOBILITY, "Experimental Mobility" },                           /* [RFC4065] */
@@ -576,8 +576,8 @@ static const value_string icmpv6_type_val[] = {
     { ICMP6_MCAST_ROUTER_TERM,     "Multicast Router Termination" },                    /* [RFC4286] */
     { ICMP6_FMIPV6_MESSAGES,       "FMIPv6" },                                          /* [RFC5568] */
     { ICMP6_RPL_CONTROL,           "RPL Control" },                                     /* draft-ieft-roll-rpl-19.txt Pending IANA */
-    { ICMP6_6LOWPANND_DAR,         "Duplicate Address Request"},                        /* draft-ietf-6lowpan-nd-17.txt Pending IANA */
-    { ICMP6_6LOWPANND_DAC,         "Duplicate Address Confirmation"},                   /* draft-ietf-6lowpan-nd-17.txt Pending IANA */
+    { ICMP6_6LOWPANND_DAR,         "Duplicate Address Request"},                        /* draft-ietf-6lowpan-nd-18.txt Pending IANA */
+    { ICMP6_6LOWPANND_DAC,         "Duplicate Address Confirmation"},                   /* draft-ietf-6lowpan-nd-18.txt Pending IANA */
     { 200,                         "Private experimentation" },                         /* [RFC4443] */
     { 201,                         "Private experimentation" },                         /* [RFC4443] */
     { 255,                         "Reserved for expansion of ICMPv6 informational messages" }, /* [RFC4443] */
@@ -812,8 +812,8 @@ static const value_string option_vals[] = {
 /*  4 */   { ND_OPT_REDIRECTED_HEADER,         "Redirected header" },
 /*  5 */   { ND_OPT_MTU,                       "MTU" },
 /*  6 */   { ND_OPT_NBMA,                      "NBMA Shortcut Limit Option" },             /* [RFC2491] */
-/*  7 */   { ND_OPT_ADVINTERVAL,               "Advertisement Interval" },                 /* [RFC3775] */
-/*  8 */   { ND_OPT_HOMEAGENT_INFO,            "Home Agent Information" },                 /* [RFC3775] */
+/*  7 */   { ND_OPT_ADVINTERVAL,               "Advertisement Interval" },                 /* [RFC6275] */
+/*  8 */   { ND_OPT_HOMEAGENT_INFO,            "Home Agent Information" },                 /* [RFC6275] */
 /*  9 */   { ND_OPT_SOURCE_ADDRLIST,           "Source Address List" },                    /* [RFC3122] */
 /* 10 */   { ND_OPT_TARGET_ADDRLIST,           "Target Address List" },                    /* [RFC3122] */
 /* 11 */   { ND_OPT_CGA,                       "CGA" },                                    /* [RFC3971] */
@@ -837,9 +837,9 @@ static const value_string option_vals[] = {
 /* 30 */   { ND_OPT_MOBILE_NODE_ID,            "Mobile Node Identifier Option" },          /* [RFC5271] */
 /* 31 */   { ND_OPT_DNS_SEARCH_LIST,           "DNS Search List Option" },                 /* [RFC6106] */
 /* 32 */   { ND_OPT_PROXY_SIGNATURE,           "Proxy Signature (PS)" },                   /* [draft-ietf-csi-proxy-send-05.txt] */
-/* 31 */   { ND_OPT_ADDR_REGISTRATION,         "Address Registration Option" },            /* [draft-ietf-6lowpan-nd-17.txt] */
-/* 32 */   { ND_OPT_6LOWPAN_CONTEXT,           "6LoWPAN Context Option" },                 /* [draft-ietf-6lowpan-nd-17.txt] */
-/* 33 */   { ND_OPT_AUTH_BORDER_ROUTER,        "Authorative Border Router" },              /* [draft-ietf-6lowpan-nd-17.txt] */
+/* 31 */   { ND_OPT_ADDR_REGISTRATION,         "Address Registration Option" },            /* [draft-ietf-6lowpan-nd-18.txt] */
+/* 32 */   { ND_OPT_6LOWPAN_CONTEXT,           "6LoWPAN Context Option" },                 /* [draft-ietf-6lowpan-nd-18.txt] */
+/* 33 */   { ND_OPT_AUTH_BORDER_ROUTER,        "Authorative Border Router" },              /* [draft-ietf-6lowpan-nd-18.txt] */
 /* 34-137  Unassigned */
    { 138,                              "CARD Request" },                           /* [RFC4065] */
    { 139,                              "CARD Reply" },                             /* [RFC4065] */
@@ -4308,7 +4308,7 @@ proto_register_icmpv6(void)
            { "MatchedPrefix", "icmpv6.rr.rm.matchedprefix", FT_IPv6, BASE_NONE, NULL, 0x0,
              "The 128 Bits MatchedPrefix", HFILL }},
 
-        /* RFC3775: Mobility Support in IPv6 */
+        /* RFC3775/6275: Mobility Support in IPv6 */
         { &hf_icmpv6_mip6_identifier,
           { "Identifier", "icmpv6.mip6.identifier", FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
             "An identifier to aid in matching with Request and Reply", HFILL }},
