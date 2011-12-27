@@ -1978,11 +1978,12 @@ ref_time_packets(capture_file *cf)
         cf->elapsed_time = fdata->rel_ts;
     }
 
-    /* Get the time elapsed between the previous displayed packet and
-     this packet. */
-    nstime_delta(&fdata->del_dis_ts, &fdata->abs_ts, &prev_dis_ts);
-
-    prev_dis_ts = fdata->abs_ts;
+    /* If this frame is displayed, get the time elapsed between the 
+     previous displayed packet and this packet. */ 
+    if( fdata->flags.passed_dfilter ) {
+        nstime_delta(&fdata->del_dis_ts, &fdata->abs_ts, &prev_dis_ts);
+        prev_dis_ts = fdata->abs_ts;
+    }
 
     /*
      * Byte counts
