@@ -169,7 +169,8 @@ static gboolean free_line_prefix_info(gpointer key, gpointer value, gpointer use
 /********************************************/
 /* Open file (for reading)                 */
 /********************************************/
-int catapult_dct2000_open(wtap *wth, int *err, gchar **err_info _U_)
+int
+catapult_dct2000_open(wtap *wth, int *err, gchar **err_info _U_)
 {
     gint64  offset = 0;
     time_t  timestamp;
@@ -269,7 +270,8 @@ int catapult_dct2000_open(wtap *wth, int *err, gchar **err_info _U_)
 /* Look for and read the next usable packet       */
 /* - return TRUE and details if found             */
 /**************************************************/
-gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
+static gboolean
+catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
                                gint64 *data_offset)
 {
     gint64 offset = wth->data_offset;
@@ -536,7 +538,8 @@ catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
 /***************************************************************************/
 /* Free dct2000-specific capture info from file that was open for reading  */
 /***************************************************************************/
-void catapult_dct2000_close(wtap *wth)
+static void
+catapult_dct2000_close(wtap *wth)
 {
     /* Get externals for this file */
     dct2000_file_externals_t *file_externals =
@@ -570,7 +573,8 @@ typedef struct {
 /* The file that we are writing to has been opened.  */
 /* Set other dump callbacks.                         */
 /*****************************************************/
-gboolean catapult_dct2000_dump_open(wtap_dumper *wdh, int *err _U_)
+gboolean
+catapult_dct2000_dump_open(wtap_dumper *wdh, int *err _U_)
 {
     /* Fill in other dump callbacks */
     wdh->subtype_write = catapult_dct2000_dump;
@@ -582,7 +586,8 @@ gboolean catapult_dct2000_dump_open(wtap_dumper *wdh, int *err _U_)
 /* Respond to queries about which encap types we support */
 /* writing to.                                           */
 /*********************************************************/
-int catapult_dct2000_dump_can_write_encap(int encap)
+int
+catapult_dct2000_dump_can_write_encap(int encap)
 {
     switch (encap) {
         case WTAP_ENCAP_CATAPULT_DCT2000:
@@ -600,7 +605,8 @@ int catapult_dct2000_dump_can_write_encap(int encap)
 /* Write a single packet out to the file */
 /*****************************************/
 
-gboolean catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
+static gboolean
+catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
                                const union wtap_pseudo_header *pseudo_header,
                                const guint8 *pd, int *err)
 {
@@ -780,7 +786,8 @@ gboolean catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 /* - on return 'offset' will point to the next position to read from  */
 /* - return TRUE if this read is successful                           */
 /**********************************************************************/
-gboolean read_new_line(FILE_T fh, gint64 *offset, gint *length,
+static gboolean
+read_new_line(FILE_T fh, gint64 *offset, gint *length,
                        gchar *linebuff, size_t linebuffsize)
 {
     /* Read in a line */
@@ -812,7 +819,8 @@ gboolean read_new_line(FILE_T fh, gint64 *offset, gint *length,
 /* - data position and length                                         */
 /* Return TRUE if this packet looks valid and can be displayed        */
 /**********************************************************************/
-static gboolean parse_line(gchar *linebuff, gint line_length,
+static gboolean
+parse_line(gchar *linebuff, gint line_length,
                            gint *seconds, gint *useconds,
                            long *before_time_offset, long *after_time_offset,
                            long *data_offset, gint *data_chars,
@@ -1231,7 +1239,8 @@ static gboolean parse_line(gchar *linebuff, gint line_length,
 /*****************************************************************/
 /* Write the stub info to the data buffer while reading a packet */
 /*****************************************************************/
-static int write_stub_header(guint8 *frame_buffer, char *timestamp_string,
+static int
+write_stub_header(guint8 *frame_buffer, char *timestamp_string,
                              packet_direction_t direction, int encap,
                              gchar *context_name, guint8 context_port,
                              gchar *protocol_name, gchar *variant_name,
@@ -1277,7 +1286,8 @@ static int write_stub_header(guint8 *frame_buffer, char *timestamp_string,
 /**************************************************************/
 /* Set pseudo-header info depending upon packet encapsulation */
 /**************************************************************/
-static void set_pseudo_header_info(wtap *wth,
+static void
+set_pseudo_header_info(wtap *wth,
                                    int pkt_encap,
                                    gint64 file_offset,
                                    union wtap_pseudo_header *pseudo_header,
@@ -1308,7 +1318,8 @@ static void set_pseudo_header_info(wtap *wth,
 /*********************************************/
 /* Fill in atm pseudo-header with known info */
 /*********************************************/
-static void set_aal_info(union wtap_pseudo_header *pseudo_header,
+static void
+set_aal_info(union wtap_pseudo_header *pseudo_header,
                          packet_direction_t direction,
                          gchar *aal_header_chars)
 {
@@ -1363,7 +1374,8 @@ static void set_aal_info(union wtap_pseudo_header *pseudo_header,
 /**********************************************/
 /* Fill in isdn pseudo-header with known info */
 /**********************************************/
-void set_isdn_info(union wtap_pseudo_header *pseudo_header,
+static void
+set_isdn_info(union wtap_pseudo_header *pseudo_header,
                    packet_direction_t direction)
 {
     /* This field is used to set the 'Source' and 'Destination' columns to
@@ -1382,7 +1394,8 @@ void set_isdn_info(union wtap_pseudo_header *pseudo_header,
 /*********************************************/
 /* Fill in ppp pseudo-header with known info */
 /*********************************************/
-static void set_ppp_info(union wtap_pseudo_header *pseudo_header,
+static void
+set_ppp_info(union wtap_pseudo_header *pseudo_header,
                          packet_direction_t direction)
 {
     /* Set direction. */
@@ -1393,7 +1406,8 @@ static void set_ppp_info(union wtap_pseudo_header *pseudo_header,
 /********************************************************/
 /* Return hex nibble equivalent of hex string character */
 /********************************************************/
-guint8 hex_from_char(gchar c)
+static guint8
+hex_from_char(gchar c)
 {
     if ((c >= '0') && (c <= '9')) {
         return c - '0';
@@ -1408,7 +1422,8 @@ guint8 hex_from_char(gchar c)
 }
 
 /* Extract and return a byte value from 2 ascii hex chars, starting from the given pointer */
-static guint8 hex_byte_from_chars(gchar *c)
+static guint8
+hex_byte_from_chars(gchar *c)
 {
     static guchar hex_char_array[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
                                          'a', 'b', 'c', 'd', 'e', 'f' };
@@ -1436,7 +1451,8 @@ static guint8 hex_byte_from_chars(gchar *c)
 /********************************************************/
 /* Return character corresponding to hex nibble value   */
 /********************************************************/
-gchar char_from_hex(guint8 hex)
+static gchar
+char_from_hex(guint8 hex)
 {
     static char hex_lookup[16] =
     { '0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
@@ -1451,7 +1467,8 @@ gchar char_from_hex(guint8 hex)
 /***********************************************/
 /* Equality test for packet prefix hash tables */
 /***********************************************/
-gint packet_offset_equal(gconstpointer v, gconstpointer v2)
+static gint
+packet_offset_equal(gconstpointer v, gconstpointer v2)
 {
     /* Dereferenced pointers must have same gint64 offset value */
     return (*(const gint64*)v == *(const gint64*)v2);
@@ -1461,7 +1478,8 @@ gint packet_offset_equal(gconstpointer v, gconstpointer v2)
 /********************************************/
 /* Hash function for packet-prefix hash table */
 /********************************************/
-guint packet_offset_hash_func(gconstpointer v)
+static guint
+packet_offset_hash_func(gconstpointer v)
 {
     /* Use low-order bits of git64 offset value */
     return (guint)(*(const gint64*)v);
@@ -1473,7 +1491,8 @@ guint packet_offset_hash_func(gconstpointer v)
 /* Set secs and usecs as output                                         */
 /* Return FALSE if no valid time can be read                            */
 /************************************************************************/
-gboolean get_file_time_stamp(gchar *linebuff, time_t *secs, guint32 *usecs)
+static gboolean
+get_file_time_stamp(gchar *linebuff, time_t *secs, guint32 *usecs)
 {
     int n;
     struct tm tm;
@@ -1516,7 +1535,7 @@ gboolean get_file_time_stamp(gchar *linebuff, time_t *secs, guint32 *usecs)
 
     /********************************************************/
     /* Scan for remaining numerical fields                  */
-    scan_found = sscanf(linebuff+n, "%d, %d     %d:%d:%d.%u",
+    scan_found = sscanf(linebuff+n, "%2d, %4d     %2d:%2d:%2d.%4u",
                         &day, &year, &hour, &minute, &second, usecs);
     if (scan_found != 6) {
         /* Give up if not all found */
@@ -1542,7 +1561,8 @@ gboolean get_file_time_stamp(gchar *linebuff, time_t *secs, guint32 *usecs)
 }
 
 /* Free the data allocated inside a line_prefix_info_t */
-gboolean free_line_prefix_info(gpointer key, gpointer value,
+static gboolean
+free_line_prefix_info(gpointer key, gpointer value,
                                gpointer user_data _U_)
 {
     line_prefix_info_t *info = (line_prefix_info_t*)value;
