@@ -6635,6 +6635,25 @@ proto_registrar_dump_fields(const int format)
 	}
 }
 
+/* Dumps field types and descriptive names to stdout. An independent
+ * program can take this output and format it into nice tables or HTML or
+ * whatever.
+ *
+ * There is one record per line. The fields are tab-delimited.
+ *
+ * Field 1 = field type name, e.g. FT_UINT8
+ * Field 2 = descriptive name, e.g. "Unsigned, 1 byte"
+ */
+void
+proto_registrar_dump_ftypes(void)
+{
+	ftenum_t fte;
+
+	for (fte = 0; fte < FT_NUM_TYPES; fte++) {
+		printf("%s\t%s\n", ftype_name(fte), ftype_pretty_name(fte));
+	}
+}
+
 static const char *
 hfinfo_numeric_format(const header_field_info *hfinfo)
 {

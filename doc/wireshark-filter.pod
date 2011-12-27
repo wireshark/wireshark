@@ -107,16 +107,26 @@ comparisons. For example:
 
 Each protocol field is typed. The types are:
 
-    Unsigned integer (8-bit, 16-bit, 24-bit, or 32-bit)
-    Signed integer (8-bit, 16-bit, 24-bit, or 32-bit)
+    ASN.1 object identifier
     Boolean
-    Ethernet address (6 bytes)
-    Byte array
+    Character string
+    Compiled Perl-Compatible Regular Expression (GRegex) object
+    Date and time
+    Ethernet or other MAC address
+    EUI64 address
+    Floating point (double-precision)
+    Floating point (single-precision)
+    Frame number
+    Globally Unique Identifier
     IPv4 address
     IPv6 address
     IPX network number
-    Text string
-    Double-precision floating point number
+    Label
+    Protocol
+    Sequence of bytes
+    Signed integer, 1, 2, 3, 4, or 8 bytes
+    Time offset
+    Unsigned integer, 1, 2, 3, 4, or 8 bytes
 
 An integer may be expressed in decimal, octal, or hexadecimal notation. 
 The following three display filters are equivalent:

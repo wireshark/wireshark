@@ -463,7 +463,7 @@ ftype_register_bytes(void)
 	static ftype_t bytes_type = {
 		FT_BYTES,			/* ftype */
 		"FT_BYTES",			/* name */
-		"sequence of bytes",		/* pretty_name */
+		"Sequence of bytes",		/* pretty_name */
 		0,				/* wire_size */
 		bytes_fvalue_new,		/* new_value */
 		bytes_fvalue_free,		/* free_value */
@@ -501,7 +501,7 @@ ftype_register_bytes(void)
 	static ftype_t uint_bytes_type = {
 		FT_UINT_BYTES,		/* ftype */
 		"FT_UINT_BYTES",		/* name */
-		"sequence of bytes",		/* pretty_name */
+		"Sequence of bytes",		/* pretty_name */
 		0,				/* wire_size */
 		bytes_fvalue_new,		/* new_value */
 		bytes_fvalue_free,		/* free_value */
@@ -577,7 +577,7 @@ ftype_register_bytes(void)
 	static ftype_t oid_type = {
 		FT_OID,			/* ftype */
 		"FT_OID",			/* name */
-		"OBJECT IDENTIFIER",			/* pretty_name */
+		"ASN.1 object identifier",	/* pretty_name */
 		0,			/* wire_size */
 		bytes_fvalue_new,		/* new_value */
 		bytes_fvalue_free,		/* free_value */

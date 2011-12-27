@@ -641,7 +641,7 @@ eui64_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
   	/* Copy and convert the address to network byte order. */
   	*(guint64 *)(void *)(p_eui64) = pntoh64(&(fv->value.integer64));
 
-	g_snprintf(buf, EUI64_STR_LEN, "%.2x:%.2x:%.2x:%.2x:%.2x:%.2x:%.2x:%.2x", 
+	g_snprintf(buf, EUI64_STR_LEN, "%.2x:%.2x:%.2x:%.2x:%.2x:%.2x:%.2x:%.2x",
 	p_eui64[0], p_eui64[1], p_eui64[2], p_eui64[3],
 	p_eui64[4], p_eui64[5], p_eui64[6], p_eui64[7] );
 }
@@ -653,7 +653,7 @@ ftype_register_integers(void)
 	static ftype_t uint8_type = {
 		FT_UINT8,			/* ftype */
 		"FT_UINT8",			/* name */
-		"unsigned, 1 byte",		/* pretty name */
+		"Unsigned integer, 1 byte",	/* pretty name */
 		1,				/* wire_size */
 		int_fvalue_new,			/* new_value */
 		NULL,				/* free_value */
@@ -690,7 +690,7 @@ ftype_register_integers(void)
 	static ftype_t uint16_type = {
 		FT_UINT16,			/* ftype */
 		"FT_UINT16",			/* name */
-		"unsigned, 2 bytes",		/* pretty_name */
+		"Unsigned integer, 2 bytes",	/* pretty_name */
 		2,				/* wire_size */
 		int_fvalue_new,			/* new_value */
 		NULL,				/* free_value */
@@ -727,7 +727,7 @@ ftype_register_integers(void)
 	static ftype_t uint24_type = {
 		FT_UINT24,			/* ftype */
 		"FT_UINT24",			/* name */
-		"unsigned, 3 bytes",		/* pretty_name */
+		"Unsigned integer, 3 bytes",	/* pretty_name */
 		3,				/* wire_size */
 		int_fvalue_new,			/* new_value */
 		NULL,				/* free_value */
@@ -764,7 +764,7 @@ ftype_register_integers(void)
 	static ftype_t uint32_type = {
 		FT_UINT32,			/* ftype */
 		"FT_UINT32",			/* name */
-		"unsigned, 4 bytes",		/* pretty_name */
+		"Unsigned integer, 4 bytes",	/* pretty_name */
 		4,				/* wire_size */
 		int_fvalue_new,			/* new_value */
 		NULL,				/* free_value */
@@ -801,7 +801,7 @@ ftype_register_integers(void)
 	static ftype_t uint64_type = {
 		FT_UINT64,			/* ftype */
 		"FT_UINT64",			/* name */
-		"unsigned, 8 bytes",		/* pretty_name */
+		"Unsigned integer, 8 bytes",	/* pretty_name */
 		8,				/* wire_size */
 		int64_fvalue_new,		/* new_value */
 		NULL,				/* free_value */
@@ -838,7 +838,7 @@ ftype_register_integers(void)
 	static ftype_t int8_type = {
 		FT_INT8,			/* ftype */
 		"FT_INT8",			/* name */
-		"signed, 1 byte",		/* pretty_name */
+		"Signed integer, 1 byte",	/* pretty_name */
 		1,				/* wire_size */
 		int_fvalue_new,			/* new_value */
 		NULL,				/* free_value */
@@ -875,7 +875,7 @@ ftype_register_integers(void)
 	static ftype_t int16_type = {
 		FT_INT16,			/* ftype */
 		"FT_INT16",			/* name */
-		"signed, 2 bytes",		/* pretty_name */
+		"Signed integer, 2 bytes",	/* pretty_name */
 		2,				/* wire_size */
 		int_fvalue_new,			/* new_value */
 		NULL,				/* free_value */
@@ -912,7 +912,7 @@ ftype_register_integers(void)
 	static ftype_t int24_type = {
 		FT_INT24,			/* ftype */
 		"FT_INT24",			/* name */
-		"signed, 3 bytes",		/* pretty_name */
+		"Signed integer, 3 bytes",	/* pretty_name */
 		3,				/* wire_size */
 		int_fvalue_new,			/* new_value */
 		NULL,				/* free_value */
@@ -949,7 +949,7 @@ ftype_register_integers(void)
 	static ftype_t int32_type = {
 		FT_INT32,			/* ftype */
 		"FT_INT32",			/* name */
-		"signed, 4 bytes",		/* pretty_name */
+		"Signed integer, 4 bytes",	/* pretty_name */
 		4,				/* wire_size */
 		int_fvalue_new,			/* new_value */
 		NULL,				/* free_value */
@@ -986,7 +986,7 @@ ftype_register_integers(void)
 	static ftype_t int64_type = {
 		FT_INT64,			/* ftype */
 		"FT_INT64",			/* name */
-		"signed, 8 bytes",		/* pretty_name */
+		"Signed integer, 8 bytes",	/* pretty_name */
 		8,				/* wire_size */
 		int64_fvalue_new,		/* new_value */
 		NULL,				/* free_value */
@@ -1099,7 +1099,7 @@ ftype_register_integers(void)
 	static ftype_t framenum_type = {
 		FT_FRAMENUM,			/* ftype */
 		"FT_FRAMENUM",			/* name */
-		"frame number",			/* pretty_name */
+		"Frame number",			/* pretty_name */
 		4,				/* wire_size */
 		int_fvalue_new,			/* new_value */
 		NULL,				/* free_value */
@@ -1171,7 +1171,7 @@ ftype_register_integers(void)
 		NULL,
 		NULL,
 	};
-	
+
 	ftype_register(FT_UINT8, &uint8_type);
 	ftype_register(FT_UINT16, &uint16_type);
 	ftype_register(FT_UINT24, &uint24_type);

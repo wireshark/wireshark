@@ -349,6 +349,7 @@ glossary_option_help(void)
   fprintf(output, "  -G fields3               dump glossary in format 3 and exit\n");
   fprintf(output, "  -G protocols             dump protocols in registration database and exit\n");
   fprintf(output, "  -G values                dump value, range, true/false strings and exit\n");
+  fprintf(output, "  -G ftypes                dump field type basic and descriptive names\n");
   fprintf(output, "  -G decodes               dump \"layer type\"/\"decode as\" associations and exit\n");
   fprintf(output, "\n");
   fprintf(output, "Preference reports:\n");
@@ -993,6 +994,8 @@ main(int argc, char *argv[])
         proto_registrar_dump_protocols();
       else if (strcmp(argv[2], "values") == 0)
         proto_registrar_dump_values();
+      else if (strcmp(argv[2], "ftypes") == 0)
+        proto_registrar_dump_ftypes();
       else if (strcmp(argv[2], "decodes") == 0)
         dissector_dump_decodes();
       else if (strcmp(argv[2], "defaultprefs") == 0)

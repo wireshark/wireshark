@@ -1774,6 +1774,9 @@ extern void proto_registrar_dump_values(void);
  * and the blurb. */
 extern void proto_registrar_dump_fields(const int format);
 
+/** Dumps a glossary field types and descriptive names to STDOUT */
+extern void proto_registrar_dump_ftypes(void);
+
 
 
 /** Points to the first element of an array of Booleans, indexed by
