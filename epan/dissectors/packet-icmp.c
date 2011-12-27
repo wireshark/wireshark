@@ -650,7 +650,7 @@ dissect_interface_information_object(tvbuff_t *tvb, gint offset, proto_tree *ext
         proto_item *tf_object)
 {
     proto_item      *ti;
-    proto_tree      *int_name_object_tree;
+    proto_tree      *int_name_object_tree = NULL;
     proto_tree      *int_ipaddr_object_tree;
     guint16         obj_length, obj_trunc_length;
     gint            obj_end_offset;
@@ -664,7 +664,7 @@ dissect_interface_information_object(tvbuff_t *tvb, gint offset, proto_tree *ext
     guint32         if_index;
     guint16         afi;
     struct e_in6_addr ipaddr_v6;
-    guint8          int_name_length;
+    guint8          int_name_length = 0;
 
     unknown_object  = FALSE;
     /* Object length */
