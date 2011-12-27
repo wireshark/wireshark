@@ -182,7 +182,7 @@ static const value_string authn_level_vals[] = {
 #define PFC_LAST_FRAG           0x02    /* Last fragment */
 #define PFC_PENDING_CANCEL      0x04    /* Cancel was pending at sender */
 #define PFC_RESERVED_1          0x08
-#define PFC_CONC_MPX            0x10    /* suports concurrent multiplexing
+#define PFC_CONC_MPX            0x10    /* supports concurrent multiplexing
                                          * of a single connection. */
 #define PFC_DID_NOT_EXECUTE     0x20    /* only meaningful on `fault' packet;
                                          * if true, guaranteed call did not
@@ -913,7 +913,7 @@ dcerpc_get_proto_sub_dissector(e_uuid_t *uuid, guint16 ver)
 /*
  * To keep track of ctx_id mappings.
  *
- * Everytime we see a bind call we update this table.
+ * Every time we see a bind call we update this table.
  * Note that we always specify a SMB FID. For non-SMB transports this
  * value is 0.
  */
@@ -1376,7 +1376,7 @@ dissect_ndr_ucvarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         di->conformant_run=1;
         di->conformant_eaten=offset-old_offset;
     } else {
-        /* we dont dont remember where  in the bytestream these fields were */
+        /* we don't remember where in the bytestream these fields were */
         proto_tree_add_uint(tree, hf_dcerpc_array_max_count, tvb, di->array_max_count_offset, conformance_size, di->array_max_count);
         proto_tree_add_uint(tree, hf_dcerpc_array_offset, tvb, di->array_offset_offset, conformance_size, di->array_offset);
         proto_tree_add_uint(tree, hf_dcerpc_array_actual_count, tvb, di->array_actual_count_offset, conformance_size, di->array_actual_count);
@@ -1428,7 +1428,7 @@ dissect_ndr_uvarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         di->conformant_run=1;
         di->conformant_eaten=offset-old_offset;
     } else {
-        /* we dont dont remember where  in the bytestream these fields were */
+        /* we don't remember where in the bytestream these fields were */
         proto_tree_add_uint(tree, hf_dcerpc_array_offset, tvb, di->array_offset_offset, conformance_size, di->array_offset);
         proto_tree_add_uint(tree, hf_dcerpc_array_actual_count, tvb, di->array_actual_count_offset, conformance_size, di->array_actual_count);
 
@@ -1640,7 +1640,7 @@ dissect_ndr_wchar_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                 FALSE, NULL);
 }
 
-/* This function is aimed for PIDL useage and dissects a UNIQUE pointer to
+/* This function is aimed for PIDL usage and dissects a UNIQUE pointer to
  * unicode string.
  */
 int
@@ -1838,7 +1838,7 @@ static GSList *ndr_pointer_list = NULL;
 /* position where in the list to insert newly encountered pointers */
 static int ndr_pointer_list_pos=0;
 
-/* boolean controlling whether pointers are top-level or embedded */
+/* Boolean controlling whether pointers are top-level or embedded */
 static gboolean pointers_are_top_level = TRUE;
 
 /* as a kludge, we represent all embedded reference pointers as id==-1
@@ -1913,7 +1913,7 @@ dissect_deferred_pointers(packet_info *pinfo, tvbuff_t *tvb, int offset, guint8 
                  *
                  * Basically, the NDR representation will store all
                  * arrays in two blocks, one block with the dimension
-                 * discreption, like size, number of elements and such,
+                 * description, like size, number of elements and such,
                  * and another block that contains the actual data stored
                  * in the array.
                  * If the array is embedded directly inside another,
@@ -1992,7 +1992,7 @@ add_pointer_to_list(packet_info *pinfo, proto_tree *tree, proto_item *item,
                 }
             }
         } else {
-            /* if we havent seen the request bail out since we cant
+            /* if we haven't seen the request bail out since we cant
                know whether this is the first non-NULL instance
                or not */
             if(value->req_frame==0){
@@ -3136,7 +3136,7 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
     payload_tvb = tvb_new_subset(tvb, offset, length, reported_length);
 
     auth_tvb=NULL;
-    /*dont bother if we dont have the entire tvb */
+    /*don't bother if we don't have the entire tvb */
     /*XXX we should really make sure we calculate auth_info->auth_data
       and use that one instead of this auth_tvb hack
     */
@@ -3159,8 +3159,8 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
 
         /* Start out assuming we won't succeed in decrypting. */
         decrypted_tvb = NULL;
-        /* Schannel needs informations into the footer (verifier) in order to setup decryptions keys
-         * so we call it in order to have a chance to decypher the data
+        /* Schannel needs information into the footer (verifier) in order to setup decryption keys
+         * so we call it in order to have a chance to decipher the data
          */
         if (DCE_C_RPC_AUTHN_PROTOCOL_SEC_CHAN == auth_info->auth_type) {
             dissect_dcerpc_cn_auth (tvb, offset, pinfo, dcerpc_tree, hdr, TRUE, auth_info);
@@ -3247,7 +3247,7 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
     if( !dcerpc_reassemble || (tvb_length(tvb)!=tvb_reported_length(tvb)) )
         goto end_cn_stub;
 
-    /* if we didnt get 'frame' we dont know where the PDU started and thus
+    /* if we didn't get 'frame' we don't know where the PDU started and thus
        it is pointless to continue
     */
     if(!frame)
@@ -4706,7 +4706,7 @@ dissect_dcerpc_dg_auth (tvbuff_t *tvb, int offset, proto_tree *dcerpc_tree,
             if (protection_level == DCE_C_AUTHN_LEVEL_PKT_PRIVACY)
                 offset += 6;    /* 6 bytes of padding */
             else
-                offset += 2;    /* 6 bytes of padding */
+                offset += 2;    /* 2 bytes of padding */
             proto_tree_add_item (auth_tree, hf_dcerpc_krb5_av_key_auth_verifier, tvb, offset, 16, ENC_NA);
             offset += 16;
             break;
@@ -4761,7 +4761,7 @@ dissect_dcerpc_dg_cancel (tvbuff_t *tvb, int offset, packet_info *pinfo,
         offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, dcerpc_tree,
                                         hdr->drep, hf_dcerpc_dg_cancel_id,
                                         NULL);
-        /* XXX - are NDR booleans 32 bits? */
+        /* XXX - are NDR Booleans 32 bits? */
 
         /* XXX - the RPC reference in chapter: "the cancel PDU" doesn't mention
            the accepting_cancels field (it's only in the cancel_ack PDU)! */
