@@ -122,6 +122,11 @@ static int hf_a11_ase_reverse_profile = -1;
 static int hf_a11_aut_flow_prof_sub_type = -1;
 static int hf_a11_aut_flow_prof_sub_type_len = -1;
 static int hf_a11_aut_flow_prof_sub_type_value = -1;
+static int hf_a11_serv_opt_prof_max_serv = -1;
+static int hf_a11_sub_type = -1;
+static int hf_a11_sub_type_length = -1;
+static int hf_a11_serv_opt = -1;
+static int hf_a11_max_num_serv_opt = -1;
 
 /* Forward QoS Information */
 static int hf_a11_fqi_srid = -1;
@@ -600,13 +605,46 @@ dissect_a11_radius( tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
 
 }
 
+/* X.S0011-005-D v2.0 Service Option Profile */
+static const gchar *dissect_3gpp2_service_option_profile(proto_tree * tree, tvbuff_t * tvb, packet_info* pinfo _U_)
+{
+	int offset = 0;
+	guint8 sub_type, sub_type_length;
+
+	/* Maximum service connections/Link Flows total 32 bit*/
+	proto_tree_add_item(tree, hf_a11_serv_opt_prof_max_serv, tvb, offset, 4, ENC_BIG_ENDIAN);
+	offset+=4;
+
+	while (tvb_length_remaining(tvb,offset)>0){
+		sub_type = tvb_get_guint8(tvb,offset);
+		sub_type_length = tvb_get_guint8(tvb,offset+1);
+
+		sub_type = tvb_get_guint8(tvb,offset);
+		proto_tree_add_item(tree, hf_a11_sub_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset++;
+		proto_tree_add_item(tree, hf_a11_sub_type_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset++;
+		if(sub_type==1){
+			proto_tree_add_item(tree, hf_a11_serv_opt, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset++;
+			/* Max number of service instances of Service Option n */
+			proto_tree_add_item(tree, hf_a11_max_num_serv_opt, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset++;
+		}
+
+		offset = offset+sub_type_length-2;
+	}
+
+    return "";
+
+}
+
 static const value_string a11_aut_flow_prof_subtype_vals[] = {
     {0x1, "ProfileID-Forward"},
     {0x2, "ProfileID-Reverse"},
     {0x3, "ProfileID-Bi-direction"},
     {0, NULL},
 };
-
 
 /* X.S0011-005-D v2.0 Authorized Flow Profile IDs for the User */
 static const gchar *dissect_3gpp2_radius_aut_flow_profile_ids(proto_tree * tree, tvbuff_t * tvb, packet_info* pinfo _U_)
@@ -2262,6 +2300,31 @@ proto_register_a11(void)
              FT_UINT16, BASE_DEC, NULL, 0,
              NULL, HFILL }
          },
+		 { &hf_a11_serv_opt_prof_max_serv,
+           { "Service-Connections-Per-Link-flow",   "a11.serv_opt_prof.scplf",
+             FT_UINT32, BASE_DEC, NULL, 0,
+             NULL, HFILL }
+         },
+		 { &hf_a11_sub_type,
+           { "Sub-Type",   "a11.sub_type",
+             FT_UINT8, BASE_DEC, NULL, 0,
+             NULL, HFILL }
+         },
+		 { &hf_a11_sub_type_length,
+           { "Sub-Type Length",   "a11.sub_type_length",
+             FT_UINT8, BASE_DEC, NULL, 0,
+             NULL, HFILL }
+         },
+		 { &hf_a11_serv_opt,
+           { "Service Option",   "a11.serviceoption",
+             FT_UINT8, BASE_DEC, NULL, 0,
+             NULL, HFILL }
+         },
+		 { &hf_a11_max_num_serv_opt,
+           { "Max number of service instances of Service Option",   "a11.serviceoption",
+             FT_UINT8, BASE_DEC, NULL, 0,
+             NULL, HFILL }
+         },
     };
 
     /* Setup protocol subtree array */
@@ -2313,6 +2376,8 @@ proto_reg_handoff_a11(void)
     a11_handle = find_dissector("a11");
     dissector_add_uint("udp.port", UDP_PORT_3GA11, a11_handle);
 
+	/* 3GPP2-Service-Option-Profile(74) */
+	radius_register_avp_dissector(VENDOR_THE3GPP2, 74, dissect_3gpp2_service_option_profile);
 	/* 3GPP2-Authorized-Flow-Profile-IDs(131) */
 	radius_register_avp_dissector(VENDOR_THE3GPP2, 131, dissect_3gpp2_radius_aut_flow_profile_ids);
 }

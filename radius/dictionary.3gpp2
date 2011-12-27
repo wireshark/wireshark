@@ -4,6 +4,7 @@
 #
 #	http://www.3gpp2.org/Public_html/specs/index.cfm
 #	http://www.3gpp2.org/public_html/Specs/X.S0011-005-D_v2.0_081103.pdf
+#   http://www.3gpp2.org/public_html/specs/X.S0011-005-C_v3.0_061030.pdf
 #		"cdma2000 Wireless IP Network Standard: Accounting Services and 3GPP2 Radius VSAs"
 #		"3GPP2 X.S0011-005-D"
 #		"Version: 2.0"
@@ -30,13 +31,13 @@ ATTRIBUTE	3GPP2-Home-Agent-IP-Address		7	octets ## if 4 octets: ipaddr; if 16: i
 # A number formed from the concatenation of the home RADIUS IP address,
 # the FA IP address, and a 32-bit Unix timestamp, all encoded as 8 ASCII
 #  hex characters.
-ATTRIBUTE	3GPP2-KeyID				8	string # 20 octets
+ATTRIBUTE	3GPP2-KeyID						8	string # 20 octets
 
 ATTRIBUTE	3GPP2-PCF-IP-Address			9	ipaddr
-ATTRIBUTE	3GPP2-BSID				10	string
-ATTRIBUTE	3GPP2-User-Id				11	integer
-ATTRIBUTE	3GPP2-Forward-FCH-Mux-Option		12	integer
-ATTRIBUTE	3GPP2-Reverse-FCH-Mux-Option		13	integer
+ATTRIBUTE	3GPP2-BSID						10	string
+ATTRIBUTE	3GPP2-User-Id					11	integer
+ATTRIBUTE	3GPP2-Forward-FCH-Mux-Option	12	integer
+ATTRIBUTE	3GPP2-Reverse-FCH-Mux-Option	13	integer
 #
 # 14-15 ?
 #
@@ -46,7 +47,7 @@ ATTRIBUTE	3GPP2-Reverse-Traffic-Type		18	integer
 ATTRIBUTE	3GPP2-FCH-Frame-Size			19	integer
 ATTRIBUTE	3GPP2-Forward-FCH-RC			20	integer
 ATTRIBUTE	3GPP2-Reverse-FCH-RC			21	integer
-ATTRIBUTE	3GPP2-IP-Technology			22	integer
+ATTRIBUTE	3GPP2-IP-Technology				22	integer
 ATTRIBUTE	3GPP2-Compulsory-Tunnel-Indicator	23	integer
 ATTRIBUTE	3GPP2-Release-Indicator			24	integer
 ATTRIBUTE	3GPP2-Bad-PPP-Frame-Count		25	integer
@@ -94,7 +95,7 @@ ATTRIBUTE	3GPP2-Allowed-Diffserv-Marking		73	octets
 ATTRIBUTE	3GPP2-Service-Option-Profile		74	octets
 
 # the following don't contain subtypes
-ATTRIBUTE	3GPP2-DNS-Update-Required		75	integer
+ATTRIBUTE	3GPP2-DNS-Update-Required				75	integer
 # 76 ?
 # 77 ?
 ATTRIBUTE	3GPP2-Always-On							78	integer
@@ -106,7 +107,7 @@ ATTRIBUTE	3GPP2-Forward-PDCH-RC					83	integer
 ATTRIBUTE	3GPP2-Forward-DCCH-Mux-Option			84	integer
 ATTRIBUTE	3GPP2-Reverse-DCCH-Mux-Option			85	integer
 ATTRIBUTE	3GPP2-Forward-DCCH-RC					86	integer
-ATTRIBUTE	3GPP2-Reverse-DCCH-RC					87	integer
+ATTRIBUTE	3GPP2-Reverse-DHHC-RC					87	integer
 ATTRIBUTE	3GPP2-Session-Termination-Capability	88	integer
 ATTRIBUTE	3GPP2-Allowed-Persistent-TFTs			89	integer
 
@@ -147,49 +148,49 @@ ATTRIBUTE	3GPP2-MIP6-Home-Link-Prefix-Attr-A		128	octets
 ATTRIBUTE	3GPP2-Max-Authorized-Aggr-Bandwidth		130	integer
 
 # The next set of attributes contain sub-types
-ATTRIBUTE	3GPP2-Authorized-Flow-Profile-IDs	131	octets
-ATTRIBUTE	3GPP2-Granted-QoS-Parameters		132	octets
+ATTRIBUTE	3GPP2-Authorized-Flow-Profile-IDs		131	octets
+ATTRIBUTE	3GPP2-Granted-QoS-Parameters			132	octets
 
-ATTRIBUTE	3GPP2-Maximum-Per-Flow-Priority		133	integer
-ATTRIBUTE	3GPP2-MIP6-Authenticator		134	octets
+ATTRIBUTE	3GPP2-Maximum-Per-Flow-Priority			133	integer
+ATTRIBUTE	3GPP2-MIP6-Authenticator				134	octets
 
-ATTRIBUTE	3GPP2-MIP6-MAC-Mobility-Data		138	octets
-ATTRIBUTE	3GPP2-Inter-User-Priority		139	integer
+ATTRIBUTE	3GPP2-MIP6-MAC-Mobility-Data			138	octets
+ATTRIBUTE	3GPP2-Inter-User-Priority				139	integer
 ATTRIBUTE	3GPP2-MIP6-Home-Agent-Address-Attr-B	140	ipv6addr
-ATTRIBUTE	3GPP2-MIP6-HOA-Received-From-BU		141	ipv6addr
-ATTRIBUTE	3GPP2-Carrier-ID			142	octets
-ATTRIBUTE	3GPP2-GMT-Time-Zone-Offset		143	integer
+ATTRIBUTE	3GPP2-MIP6-HOA-Received-From-BU			141	ipv6addr
+ATTRIBUTE	3GPP2-Carrier-ID						142	octets
+ATTRIBUTE	3GPP2-GMT-Time-Zone-Offset				143	integer
 
 # contains subtypes
-ATTRIBUTE	3GPP2-Flow-ID-Parameter			144	octets
+ATTRIBUTE	3GPP2-Flow-ID-Parameter					144	octets
 
-ATTRIBUTE	3GPP2-Flow-Status			145	integer
+ATTRIBUTE	3GPP2-Flow-Status						145	integer
 ATTRIBUTE	3GPP2-Filtered-Octet-Count-Terminating	146	integer
 ATTRIBUTE	3GPP2-Filtered-Octet-Count-Originating	147	integer
 
-ATTRIBUTE	3GPP2-RSVP-Inbound-Octet-Count		162	integer
-ATTRIBUTE	3GPP2-RSVP-Outbound-Octet-Count		163	integer
-ATTRIBUTE	3GPP2-RSVP-Inbound-Packet-Count		164	integer
-ATTRIBUTE	3GPP2-RSVP-Outbound-Packet-Count	165	integer
+ATTRIBUTE	3GPP2-RSVP-Inbound-Octet-Count			162	integer
+ATTRIBUTE	3GPP2-RSVP-Outbound-Octet-Count			163	integer
+ATTRIBUTE	3GPP2-RSVP-Inbound-Packet-Count			164	integer
+ATTRIBUTE	3GPP2-RSVP-Outbound-Packet-Count		165	integer
 
-ATTRIBUTE	3GPP2-HA-Request			168	integer
-ATTRIBUTE	3GPP2-HA-Authorised			169	integer
-ATTRIBUTE	3GPP2-IP-Ver-Authorised			172	integer
-ATTRIBUTE	3GPP2-MIPv4-Mesg-Id			173	string
+ATTRIBUTE	3GPP2-HA-Request						168	integer
+ATTRIBUTE	3GPP2-HA-Authorised						169	integer
+ATTRIBUTE	3GPP2-IP-Ver-Authorised					172	integer
+ATTRIBUTE	3GPP2-MIPv4-Mesg-Id						173	string
 
 ATTRIBUTE	3GPP2-MIP6-HA-Local-Assignment-Capblty	179	integer
 
-ATTRIBUTE	3GPP2-Accounting-Mode			198	integer	 ## ??
+ATTRIBUTE	3GPP2-Accounting-Mode					198	integer	 ## ??
 
 ATTRIBUTE	3GPP2-HAAA-MIP6-HA-Protocol-Capblty-Ind	203	integer
 
-ATTRIBUTE	3GPP2-VAAA-Assigned-MIP6-HA		205	ipv6addr
-ATTRIBUTE	3GPP2-VAAA-Assigned-MIP6-HL		206	octets
+ATTRIBUTE	3GPP2-VAAA-Assigned-MIP6-HA				205	ipv6addr
+ATTRIBUTE	3GPP2-VAAA-Assigned-MIP6-HL				206	octets
 ATTRIBUTE	3GPP2-VAAA-MIP6-HA-Protocol-Capblty-Ind	207	integer
 
 VALUE	3GPP2-Airlink-Record-Type	Connection-Setup  1
-VALUE	3GPP2-Airlink-Record-Type	Active-Start	  2
-VALUE	3GPP2-Airlink-Record-Type	Active-Stop	  3
+VALUE	3GPP2-Airlink-Record-Type	Active-Start      2
+VALUE	3GPP2-Airlink-Record-Type	Active-Stop	      3
 VALUE	3GPP2-Airlink-Record-Type	Short-Data-Burst  4
 
 END-VENDOR 3GPP2
