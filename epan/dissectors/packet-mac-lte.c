@@ -3500,7 +3500,8 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
                 {
                     guint32 curr_offset = offset;
                     gint16 i;
-		            proto_item *mch_sched_info_ti;
+                    guint16 stop_mtch_val;
+                    proto_item *mch_sched_info_ti, *ti;
                     proto_tree *mch_sched_info_tree;
 
                     mch_sched_info_ti = proto_tree_add_string_format(tree,
@@ -3513,8 +3514,15 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
                     for (i=0; i<(pdu_lengths[n]/2); i++) {
                         proto_tree_add_item(mch_sched_info_tree, hf_mac_lte_control_mch_scheduling_info_lcid,
                                             tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-                        proto_tree_add_item(mch_sched_info_tree, hf_mac_lte_control_mch_scheduling_info_stop_mtch,
-                                            tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+                        stop_mtch_val = tvb_get_ntohs(tvb, curr_offset) & 0x7ff;
+                        ti = proto_tree_add_item(mch_sched_info_tree, hf_mac_lte_control_mch_scheduling_info_stop_mtch,
+                                                 tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+                        if ((stop_mtch_val >= 2043) && (stop_mtch_val <= 2046)) {
+                            proto_item_append_text(ti, " (reserved)");
+                        }
+                        else if (stop_mtch_val == 2047) {
+                            proto_item_append_text(ti, " (MTCH is not scheduled)");
+                        }
                         curr_offset += 2;
                     }
 
