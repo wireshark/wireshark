@@ -2089,7 +2089,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
             return FALSE;
         }
         /* last 6 bytes of LUN are always 0 */
-        if(tvb_get_ntohs(tvb, offset+10) || tvb_get_ntohl(tvb, offset+12)){
+        if(tvb_get_ntoh48(tvb, offset+10)){
             return FALSE;
         }
         /* expected data transfer length is never >16MByte ? */
