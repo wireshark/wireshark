@@ -142,7 +142,7 @@ dissect_wol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     else if ( len >= 108 )
     {
         len = 108;
-        passwd = ether_to_str(ep_tvb_memdup(tvb, 102, 6));
+        passwd = tvb_ether_to_str(tvb, 102);
     }
     else
     {
@@ -346,4 +346,17 @@ proto_reg_handoff_wol(void)
     dissector_add_uint("ethertype", ETHERTYPE_WOL, wol_handle);
     heur_dissector_add("udp", dissect_wol, proto_wol);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 4
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=4 expandtab:
+ * :indentSize=4:tabSize=4:noTabs=true:
+ */
 
