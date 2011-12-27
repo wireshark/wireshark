@@ -385,14 +385,14 @@ typedef struct dcm_open_tag {
     /* Contains information about an open tag in a PDV, in case it was not complete.
 
        This implementation differentiates between open headers (grm, elm, vr, vl) and
-       open values. This data structure will handl both cases.
+       open values. This data structure will handle both cases.
 
        Open headers are not shown in the packet where the tag starts, but only in the next PDV.
        Open values are shown in the packet where the tag starts, with <Byte 1-n> as the value
 
        The same PDV can close an open tag from a previous PDV at the beginning
        and at the same have time open a new tag at the end. The closing part at the beginning
-       does not have it's own persitent data.
+       does not have it's own persistent data.
 
        Do not overwrite the values, once defined, to save some memory.
 
@@ -404,7 +404,7 @@ typedef struct dcm_open_tag {
     gboolean	is_header_fragmented;
     gboolean	is_value_fragmented;
 
-    guint32	len_decoded;	/* Should only by < 16 bytes		    */
+    guint32	len_decoded;	/* Should only be < 16 bytes		    */
 
     guint16	grp;		/* Already decoded group		    */
     guint16	elm;		/* Already decoded element		    */
@@ -416,7 +416,7 @@ typedef struct dcm_open_tag {
 
     /* These ones are, where the value was truncated */
     guint32 len_total;		/* Tag length of 'oversized' tags. Used for display */
-    guint32 len_remaining;	/* Remining tag bytes to 'decoded' as binary data after this PDV */
+    guint32 len_remaining;	/* Remaining tag bytes to 'decoded' as binary data after this PDV */
 
     gchar  *desc;		/* Last decoded description */
 
@@ -436,7 +436,7 @@ typedef struct dcm_state_pdv {
 
     guint8  pctx_id;		/* Reference to used Presentation Context */
 
-    /* Following is drived from the transfer syntax in the parent PCTX, execpt for Command PDVs */
+    /* Following is derived from the transfer syntax in the parent PCTX, except for Command PDVs */
     guint8  syntax;
 
     /* Used and filled for Export Object only */
@@ -447,8 +447,8 @@ typedef struct dcm_state_pdv {
     gchar   *sop_instance_uid;	/* SOP Instance UID. Set in 1st PDV of a DICOM object. se_alloc() */
     /* End Export use */
 
-    gboolean is_storage;	/* Ture, if the Data PDV is on the context of a storage SOP Class */
-    gboolean is_flagvalid;	/* The following two flags are initalized correctly */
+    gboolean is_storage;	/* True, if the Data PDV is on the context of a storage SOP Class */
+    gboolean is_flagvalid;	/* The following two flags are initialized correctly */
     gboolean is_command;	/* This PDV is a command rather than a data package */
     gboolean is_last_fragment;	/* Last Fragment bit was set, i.e. termination of an object
 				   This flag delimits different dicom object in the same
@@ -551,7 +551,7 @@ typedef struct dcm_state {
 #define DCM_VR_US 26  /* Unsigned Short            */
 #define DCM_VR_UT 27  /* Unlimited Text            */
 
-/* Following must be in the same order as the defintions above */
+/* Following must be in the same order as the definitions above */
 static const gchar* dcm_tag_vr_lookup[] = {
     "  ",
     "AE","AS","AT","CS","DA","DS","DT","FL",
@@ -3683,7 +3683,7 @@ static dcm_uid_t dcm_uid_data[] = {
 #define DCM_ITEM_VALUE_TYPE_STRING  2
 #define DCM_ITEM_VALUE_TYPE_UINT32  3
 
-/* A few function declarations to ensure consitency*/
+/* A few function declarations to ensure consistency*/
 
 /* Per object, a xxx_new() and a xxx_get() function. The _get() will create one if specified. */
 
@@ -3777,8 +3777,8 @@ static dcm_state_t *
 dcm_state_get(packet_info *pinfo, gboolean create)
 {
 
-    /*	Get or create converstation and DICOM data structure if desired
-	Return new or existing dicom struture, which is used to store context IDs and xfer Syntax
+    /*	Get or create conversation and DICOM data structure if desired
+	Return new or existing dicom structure, which is used to store context IDs and xfer Syntax
 	Return NULL in case of the structure couldn't be created
     */
 
@@ -3818,7 +3818,7 @@ dcm_state_get(packet_info *pinfo, gboolean create)
 static dcm_state_assoc_t *
 dcm_state_assoc_new(dcm_state_t *dcm_data, guint32 packet_no)
 {
-    /* Create new accociation object and initalize the members */
+    /* Create new association object and initialize the members */
 
     dcm_state_assoc_t *assoc;
 
@@ -3872,7 +3872,7 @@ dcm_state_assoc_get(dcm_state_t *dcm_data, guint32 packet_no, gboolean create)
 static dcm_state_pctx_t *
 dcm_state_pctx_new(dcm_state_assoc_t *assoc, guint8 pctx_id)
 {
-    /* Create new presentation context object and initalize the members */
+    /* Create new presentation context object and initialize the members */
 
     dcm_state_pctx_t *pctx=NULL;
 
@@ -3922,7 +3922,7 @@ dcm_state_pctx_get(dcm_state_assoc_t *assoc, guint8 pctx_id, gboolean create)
 static dcm_state_pdv_t*
 dcm_state_pdv_new(dcm_state_pctx_t *pctx, guint32 packet_no, guint32 offset)
 {
-    /* Create new PDV object and initalize the members */
+    /* Create new PDV object and initialize the members */
 
     dcm_state_pdv_t *pdv = NULL;
 
@@ -4041,7 +4041,7 @@ dcm_rsp2str(guint16 status_value)
     const gchar *s = "";
 
     /*
-	Clasification
+	Classification
 	0x0000		: SUCCESS
 	0x0001 & Bxxx	: WARNING
 	0xFE00		: CANCEL
@@ -4143,7 +4143,7 @@ dcm_export_create_tag_base(guint8 *buffer, guint32 bufflen, guint32 offset,
  			   guint16 grp, guint16 elm, guint16 vr,
 			   const guint8 *value_buffer, guint32 value_len)
 {
-    /*  Only Explict Littele Endian is needed to create Metafile Header
+    /*  Only Explicit Little Endian is needed to create Metafile Header
 	Generic function to write a TAG, VR, LEN & VALUE to a combined buffer
 	The value (buffer, len) must be preprocessed by a VR specific function
     */
@@ -4225,7 +4225,7 @@ dcm_export_create_tag_str(guint8 *buffer, guint32 bufflen, guint32 offset,
     len=(int)strlen(value);
 
     if ((len & 0x01) == 1) {
-	/*  Odd length: since buffer is 0 initalized, pad with a 0x00 */
+	/*  Odd length: since buffer is 0 initialized, pad with a 0x00 */
 	len += 1;
     }
 
@@ -4243,7 +4243,7 @@ dcm_export_create_header(guint32 *dcm_header_len, gchar *sop_class_uid, gchar *s
 #define DCM_HEADER_MAX 512
 
     dcm_header=(guint8 *)ep_alloc0(DCM_HEADER_MAX);   /* Slightly longer than needed */
-						      /* The subsequent functions rely on a 0 intitalized buffer */
+						      /* The subsequent functions rely on a 0 initialized buffer */
     offset=128;
 
     memmove(dcm_header+offset, "DICM", 4);
@@ -4300,7 +4300,7 @@ dcm_export_create_object(packet_info *pinfo, dcm_state_assoc_t *assoc, dcm_state
 
        Every since the adding fragment_add_seq_next() and process_reassembled_data(),
        this function would not need to perform any reassembly anymore, but it's
-       left unchagned, to still support export, even when global_dcm_reassemble
+       left unchanged, to still support export, even when global_dcm_reassemble
        is not set.
 
        Using process_reassembled_data(), all data will be in the last PDV, and all
@@ -4358,7 +4358,7 @@ dcm_export_create_object(packet_info *pinfo, dcm_state_assoc_t *assoc, dcm_state
 	sop_instance_uid = ep_strndup(pdv_curr->sop_instance_uid, MAX_BUF_LEN);
 
 	/* Make sure filename does not contain invalid character. Rather conservative.
-	   Eventhough this should be a valid DICOM UID, apply the same filter rules
+	   Even though this should be a valid DICOM UID, apply the same filter rules
 	   in case of bogus data.
 	*/
 	filename = ep_strdup_printf("%06d-%d-%s.dcm", pinfo->fd->num, cnt_same_pkt,
@@ -4771,7 +4771,7 @@ dissect_dcm_pctx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     guint32 endpos = 0;
     int	    cnt_abbs = 0;	    /* Number of Abstract Syntax Items */
-    int	    cnt_xfer = 0;	    /* Number of Trasfer Syntax Items */
+    int	    cnt_xfer = 0;	    /* Number of Transfer Syntax Items */
 
     buf_desc = (gchar *)ep_alloc0(MAX_BUF_LEN);	/* Valid for this packet */
 
@@ -4788,7 +4788,7 @@ dissect_dcm_pctx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* Find or create dicom context object */
     pctx = dcm_state_pctx_get(assoc, pctx_id, TRUE);
-    if (pctx == NULL) {	/* Internal error. Failed to create data structre */
+    if (pctx == NULL) {	/* Internal error. Failed to create data structure */
 	return;
     }
 
@@ -4798,7 +4798,7 @@ dissect_dcm_pctx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_uint_format(pctx_ptree, hf_dcm_pctx_id, tvb, offset, 1, pctx_id, "Context ID: 0x%02x", pctx_id);
 
     if (!is_assoc_request) {
-	/* Accociation response. */
+	/* Association response. */
 
 	switch (pctx_result) {
 	case 0:  pctx_result_desc = "Accept"; break;
@@ -5019,7 +5019,7 @@ dissect_dcm_userinfo(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 le
 	    offset += item_len;
 	    break;
 
-	case 0x53:		/* async negotion */
+	case 0x53:		/* async negotiation */
 	    /* hf_dcm_async */
 	    offset += item_len;
 	    break;
@@ -5101,7 +5101,7 @@ static guint32
 dissect_dcm_pdv_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		       dcm_state_assoc_t *assoc, guint32 offset, dcm_state_pdv_t **pdv)
 {
-    /* Dissect Context and Flags of a PDV and create new PDV stucture */
+    /* Dissect Context and Flags of a PDV and create new PDV structure */
 
     proto_item *pdv_ctx_pitem = NULL;
     proto_item *pdv_flags_pitem = NULL;
@@ -5216,7 +5216,7 @@ dissect_dcm_pdv_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	pdv_first_data = dcm_state_pdv_get_obj_start(*pdv);
 
 	if (pdv_first_data->prev && pdv_first_data->prev->is_command) {
-	    /* Every Data PDV sequence should be preceeded by a Command PDV,
+	    /* Every Data PDV sequence should be preceded by a Command PDV,
 	       so we should always hit this for a correct capture
 	    */
 
@@ -5692,11 +5692,11 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
        whether we have already decoded left-overs from the previous PDV.
        Since we have implicit & explicit syntax, copying the open tag to
        a buffer without decoding, would have caused tvb_get_xxtohs()
-       implemnetations on the copy.
+       implementations on the copy.
 
        An alternative approach would have been to resemble the PDVs first.
 
-       The attemtps to reassemblye without named sources (to be implemented)
+       The attempts to reassemble without named sources (to be implemented)
        were very sensitive to missing packets. In such a case, no packet
        of a PDV chain was decoded, not even the start.
 
@@ -5745,12 +5745,12 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if ((grp == 0xFFFE) && (elm == 0xE000 || elm == 0xE00D || elm == 0xE0DD))  {
 	/* Item start, Item Delimitation or Sequence Delimitation */
 	vr = "UL";
-	is_vl_long = TRUE;			    /* These tags always have a 4 byte lentgh field */
+	is_vl_long = TRUE;			    /* These tags always have a 4 byte length field */
     }
     else if (is_implicit) {
 	/* Get VR from tag definition */
 	vr = ep_strdup(tag_def->vr);
-	is_vl_long = TRUE;			    /* Implict always has 4 byte lentgh field */
+	is_vl_long = TRUE;			    /* Implicit always has 4 byte length field */
     }
     else {
 
@@ -5791,7 +5791,7 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
 
-    /* Value Length. This is rather cumbersume code to get a 4 byte length, but in the
+    /* Value Length. This is rather cumbersome code to get a 4 byte length, but in the
        fragmented case, we have 2*2 bytes. So always use that pattern
     */
 
@@ -5831,7 +5831,7 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	vl = vl_1;
     }
 
-    /* Now we have most of the information, excpet for sequences and items with undefined
+    /* Now we have most of the information, except for sequences and items with undefined
        length :-/. But, whether we know the length or not, we now need to create the tree
        item and subtree, before we can loop into sequences and items
 
@@ -5901,7 +5901,7 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_uint_format(tag_ptree, hf_dcm_tag, tvb, offset_tag, 4,
         (grp << 16) | elm, "Tag:    %04x,%04x (%s)", grp, elm, tag_def->description);
 
-    /* Add VR to tag detail, excpet for dicom items */
+    /* Add VR to tag detail, except for dicom items */
     if (!is_item)  {
 	if (is_implicit) {
 	    /* Select header, since no VR is present in implicit syntax */
@@ -6023,7 +6023,7 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
     /* -------------------------------------------------------------------
-       Adde the value to the already constructued item
+       Add the value to the already constructed item
        -------------------------------------------------------------------
     */
 
@@ -6224,7 +6224,7 @@ dissect_dcm_pdv_fragmented(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* Dissect Context ID, Find PDV object, Decode Command/Data flag and More Fragments flag */
     offset = dissect_dcm_pdv_header(tvb, pinfo, tree, assoc, offset, &pdv);
 
-    /* When fragmented, do reassambly and subsequently decode merged PDV */
+    /* When fragmented, do reassembly and subsequently decode merged PDV */
     if (global_dcm_reassemble)
     {
 
@@ -6266,7 +6266,7 @@ dissect_dcm_pdv_fragmented(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			g_snprintf(*pdv_description, MAX_BUF_LEN, "%s (reassembled in #%u)", pdv->desc, head->reassembled_in);
 		    }
 		    else {
-			/* Decoding of the presentation context did not occure yet or did not succeed */
+			/* Decoding of the presentation context did not occur yet or did not succeed */
 			g_snprintf(*pdv_description, MAX_BUF_LEN, "PDV Fragment (reassembled in #%u)", head->reassembled_in);
 		    }
 		}
@@ -6286,7 +6286,7 @@ dissect_dcm_pdv_fragmented(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		       During, tree can be NULL, but we need a few tags to be decoded,
 		       i.e Class & Instance UID, so the export dialog has all information and
-		       that the dicome header is complete
+		       that the dicom header is complete
 		    */
 		    offset += dissect_dcm_pdv_body(next_tvb, pinfo, tree, pdv, 0, next_tvb_length, pdv_description);
 		}
@@ -6421,16 +6421,16 @@ dissect_dcm_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
     int offset = 0;
 
     /*
-	Modified orignal code, which was optimized for a heuristic detection, and therefore
+	Modified original code, which was optimized for a heuristic detection, and therefore
 	caused some load and memory consumption, for every non DICOM packet not processed
 	by someone else.
 
 	Since tcp packets are now assembled well by wireshark (in conjunction with the dissectors)
-	we will only see properly alligned PDUs, at the beginnig of the buffer, else its not DICOM
+	we will only see properly aligned PDUs, at the beginning of the buffer, else its not DICOM
 	traffic.
 
-	Therfore do the byte checking as early as possible
-	The heurisitc hook requires an association request
+	Therefore do the byte checking as early as possible
+	The heuristic hook requires an association request
 
 	DICOM PDU are nice, but need to be managed
 
@@ -6442,8 +6442,8 @@ dissect_dcm_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
 	This function will handle multiple PDUs per TCP packet and will ask for more data,
 	if the last PDU does not fit
 
-	It does not reassamble fragmented PDVs by purpose, since the Tag Value parsing needs to be done
-	per Tag, and PDU recombinaion here would
+	It does not reassemble fragmented PDVs by purpose, since the Tag Value parsing needs to be done
+	per Tag, and PDU recombination here would
 	a) need to eliminate PDU/PDV/Ctx header (12 bytes)
 	b) not show the true DICOM logic in transfer
 
@@ -6459,7 +6459,7 @@ dissect_dcm_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
 	return 0;				/* No bytes taken from the stack */
 
     if (is_port_static) {
-	/* Port is defined explicitly, or association request was previously found succesfully.
+	/* Port is defined explicitly, or association request was previously found successfully.
 	   Be more tolerant on minimum packet size. Also accept < 6
 	*/
 
@@ -6479,8 +6479,8 @@ dissect_dcm_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
 
 	   Tried find_conversation() and dcm_state_get() with no benefit
 
-	   But since we are called in static mode, once we decoded the associtaion reqest and
-	   called conversation_set_dissector(), we really only need to filter for an associtaion reqest
+	   But since we are called in static mode, once we decoded the association request and
+	   called conversation_set_dissector(), we really only need to filter for an association request
 
 	*/
 
@@ -6498,7 +6498,7 @@ dissect_dcm_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
 	}
 
 	/* Exit if TCP payload is bigger than PDU length (plus header)
-	   ok. for PRESENTATION_DATA, questionable for ASSOCIATION requests
+	   OK. for PRESENTATION_DATA, questionable for ASSOCIATION requests
 	*/
 	if (pdu_len+6 < tlen) {
 	    return 0;
@@ -6522,14 +6522,14 @@ dissect_dcm_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
 
 	if ((pdu_len+6) > (tlen-offset)) {
 
-	    /*	PDU is larger than the remaing packet (buffer), therefore request whole PDU
+	    /*	PDU is larger than the remaining packet (buffer), therefore request whole PDU
 		The next time this function is called, tlen will be equal to pdu_len
 	    */
 
 	    pinfo->desegment_offset = offset;
 	    pinfo->desegment_len = (pdu_len+6) - (tlen-offset);
 
-	    /*	Why return a boolean for a deliberate int function? No clue, but
+	    /*	Why return a Boolean for a deliberate int function? No clue, but
 		no better working example found.
 	    */
 	    return TRUE;
@@ -6569,7 +6569,7 @@ dissect_dcm_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static int
 dissect_dcm_heuristic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    /* Only decode conerstations, which include an Association Request */
+    /* Only decode conversations, which include an Association Request */
     /* This will be potentially called for every packet */
     return dissect_dcm_main(tvb, pinfo, tree, FALSE);
 }
@@ -6588,10 +6588,10 @@ dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
 
     gchar *pdu_data_description=NULL;
 
-    /* Get or create converstation. Used to store context IDs and xfer Syntax */
+    /* Get or create conversation. Used to store context IDs and xfer Syntax */
 
     dcm_data = dcm_state_get(pinfo, TRUE);
-    if (dcm_data == NULL) {	/* Internal error. Failed to create main dicom data structre */
+    if (dcm_data == NULL) {	/* Internal error. Failed to create main dicom data structure */
 	return offset;
     }
 
@@ -6610,7 +6610,7 @@ dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
     /* Find previously detected association, else create a new one object*/
     assoc = dcm_state_assoc_get(dcm_data, pinfo->fd->num, TRUE);
 
-    if (assoc == NULL) {	/* Internal error. Failed to create association structre */
+    if (assoc == NULL) {	/* Internal error. Failed to create association structure */
 	return offset;
     }
 
@@ -6920,7 +6920,7 @@ PDU's
     4 length (4)
     1 reserved
     1 result  (1 reject perm, 2 reject transient)
-    1 source  (1 service user, 2 service provider, 3 service profider)
+    1 source  (1 service user, 2 service provider, 3 service provider)
     1 reason
 	1 == source
 	    1 no reason given
