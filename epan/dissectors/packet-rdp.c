@@ -940,9 +940,9 @@ dissect_rdp_clientNetworkData(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
     next_tree = proto_item_add_subtree(pi, ett_rdp_channelDefArray);
 
     if(rdp_info)
-      rdp_info->maxChannels = min(channelCount, MAX_CHANNELS);
+      rdp_info->maxChannels = MIN(channelCount, MAX_CHANNELS);
 
-    for(i = 0; i < min(channelCount, MAX_CHANNELS); i++) {
+    for(i = 0; i < MIN(channelCount, MAX_CHANNELS); i++) {
       if(rdp_info) {
         rdp_info->channels[i].value = -1; /* unset */
         rdp_info->channels[i].strptr = tvb_get_ephemeral_string(tvb, offset, 8);
