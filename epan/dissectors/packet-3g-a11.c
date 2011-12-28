@@ -588,7 +588,7 @@ dissect_a11_radius( tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
     proto_tree *radius_tree;
 
     /* None of this really matters if we don't have a tree */
-    if (!tree) 
+    if (!tree)
 		return;
 
     /* return if length of extension is not valid */
@@ -681,7 +681,7 @@ static const gchar *dissect_3gpp2_radius_aut_flow_profile_ids(proto_tree * tree,
 static void dissect_ase(tvbuff_t* tvb, int offset, guint ase_len, proto_tree* ext_tree)
 {
    guint clen = 0; /* consumed length */
-   
+
    while(clen < ase_len)
    {
       proto_tree* exts_tree;
@@ -701,7 +701,7 @@ static void dissect_ase(tvbuff_t* tvb, int offset, guint ase_len, proto_tree* ex
       	  } else if(service_option== 64){
               ti = proto_tree_add_text(ext_tree, tvb, offset, entry_lenght+1, "GRE Key Entry (SRID: %d)", srid);
       	  } else {
-              ti = proto_tree_add_text(ext_tree, tvb, offset, entry_lenght+1, "Unknown service option %u (SRID: %d)", service_option, srid);
+              proto_tree_add_text(ext_tree, tvb, offset, entry_lenght+1, "Unknown service option %u (SRID: %d)", service_option, srid);
 			  clen+=entry_lenght+1;
 			  continue;
           }
@@ -1135,7 +1135,7 @@ static void dissect_subscriber_qos_profile(tvbuff_t* tvb, packet_info *pinfo, in
         proto_tree_add_item
             (exts_tree,  hf_a11_subsciber_profile, tvb, offset,
              qos_profile_len, ENC_NA);
-		
+
 		dissect_attribute_value_pairs(exts_tree, pinfo, tvb, offset, qos_profile_len);
     }
 }
