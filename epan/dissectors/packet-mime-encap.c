@@ -33,7 +33,6 @@ static int proto_mime_encap = -1;
 static heur_dissector_list_t heur_subdissector_list;
 static dissector_handle_t data_handle;
 
-/* XXX, orginal version was using composite tvb, sorry I can't force it to work */
 static GString *whole_file;
 
 static void
