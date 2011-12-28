@@ -185,11 +185,6 @@ LicenseData "..\..\COPYING"
 ; ============================================================================
 ComponentText "The following components are available for installation."
 
-; Component check boxes
-; Commented out for NSIS v 2.0
-; EnabledBitmap "..\..\image\nsis-checked.bmp"
-; DisabledBitmap "..\..\image\nsis-unchecked.bmp"
-
 ; ============================================================================
 ; Directory selection page configuration
 ; ============================================================================
