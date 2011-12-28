@@ -87,18 +87,18 @@ static int testchar(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int op, g
 		}
 	} else {
 		col_set_str(pinfo->cinfo, COL_INFO, "Unknown Message Format");
-		return 0;	
+		return 0;
 	}
 }
 
 static void
-set_addr(packet_info *pinfo _U_ , int field, gchar rid, gchar sid, gchar did) 
+set_addr(packet_info *pinfo _U_ , int field, gchar rid, gchar sid, gchar did)
 {
 	if (field == SRC) {
-		if (check_col(pinfo->cinfo, COL_DEF_SRC)) 
+		if (check_col(pinfo->cinfo, COL_DEF_SRC))
 			col_append_fstr(pinfo->cinfo, COL_DEF_SRC, " %2.2X:%2.2X:%2.2X", rid, sid, did);
 	} else {
-		if (check_col(pinfo->cinfo, COL_DEF_DST)) 
+		if (check_col(pinfo->cinfo, COL_DEF_DST))
 			col_append_fstr(pinfo->cinfo, COL_DEF_DST, " %2.2X:%2.2X:%2.2X", rid, sid, did);
 	}
 }
@@ -160,7 +160,7 @@ dissect_uts(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 					set_addr(pinfo, SRC, rid, sid, did);
 				} else {
 					col_add_str(pinfo->cinfo, COL_INFO, "Unknown Message Format");
-					if ((pinfo->pseudo_header->sita.flags & SITA_FRAME_DIR) == SITA_FRAME_DIR_TXED) {
+					if ((pinfo->pseudo_header->sita.sita_flags & SITA_FRAME_DIR) == SITA_FRAME_DIR_TXED) {
 						set_addr(pinfo, DST, rid, sid, did);	/* if the ACN sent it, the address is of the destination... the terminal */
 					} else {
 						set_addr(pinfo, SRC, rid, sid, did);	/* if the ACN received it, the address if of the source... the terminal */
@@ -184,7 +184,7 @@ dissect_uts(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 				   testchar(tvb, pinfo, offset+1, MATCH, '1', NULL)	&&
 				   testchar(tvb, pinfo, offset+2, MATCH, STX, NULL)) {
 				ack_start = offset;
-				header_length = offset+3;		
+				header_length = offset+3;
 				stx_start = offset+2;
 				col_add_str(pinfo->cinfo, COL_INFO, "Text + ACK");
 				set_addr(pinfo, SRC, rid, sid, did);
@@ -192,7 +192,7 @@ dissect_uts(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 				header_length = offset+1;
 				stx_start = offset;
 				col_add_str(pinfo->cinfo, COL_INFO, "Text");
-				if ((pinfo->pseudo_header->sita.flags & SITA_FRAME_DIR) == SITA_FRAME_DIR_TXED) {
+				if ((pinfo->pseudo_header->sita.sita_flags & SITA_FRAME_DIR) == SITA_FRAME_DIR_TXED) {
 					set_addr(pinfo, DST, rid, sid, did);		/* if the ACN sent it, the address is of the destination... the terminal */
 				} else {
 					set_addr(pinfo, SRC, rid, sid, did);		/* if the ACN received it, the address if of the source... the terminal */
@@ -308,7 +308,7 @@ dissect_uts(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 					length = (etx_start - stx_start - 1);       /* and the data part is the rest...       */
                                                                                     /* whatever preceeds the ETX if it exists */
 				data_ptr = tvb_get_ephemeral_string(tvb, stx_start+1, length);	/* copy the string for dissecting */
-				proto_tree_add_string_format(uts_tree, hf_data, tvb, stx_start + 1, length, data_ptr, 
+				proto_tree_add_string_format(uts_tree, hf_data, tvb, stx_start + 1, length, data_ptr,
 							     "Text (%d byte%s)", length, plurality(length, "", "s"));
 			}
 
@@ -329,21 +329,21 @@ void
 proto_register_uts(void)
 {
    static hf_register_info hf[] = {
-        { &hf_rid,      
+        { &hf_rid,
 	  { "RID",	   "uts.rid",
-	    FT_UINT8,	BASE_HEX,	NULL, 0, "Remote Identifier address",	HFILL }}, 
+	    FT_UINT8,	BASE_HEX,	NULL, 0, "Remote Identifier address",	HFILL }},
         { &hf_sid,
 	  { "SID",	   "uts.sid",
-	    FT_UINT8,	BASE_HEX,	NULL, 0, "Site Identifier address",	HFILL }}, 
+	    FT_UINT8,	BASE_HEX,	NULL, 0, "Site Identifier address",	HFILL }},
         { &hf_did,
 	  { "DID",	   "uts.did",
-	    FT_UINT8,	BASE_HEX,	NULL, 0, "Device Identifier address",	HFILL }}, 
+	    FT_UINT8,	BASE_HEX,	NULL, 0, "Device Identifier address",	HFILL }},
 	{ &hf_retxrequest,
 	  { "ReTxRequst",  "uts.retxrequst",
-	    FT_BOOLEAN,	BASE_NONE,	NULL, 0x0, "TRUE if Re-transmit Request",	HFILL }}, 
+	    FT_BOOLEAN,	BASE_NONE,	NULL, 0x0, "TRUE if Re-transmit Request",	HFILL }},
 	{ &hf_ack,
 	  { "Ack",	   "uts.ack",
-	    FT_BOOLEAN,	BASE_NONE,	NULL, 0x0, "TRUE if Ack",			HFILL }}, 
+	    FT_BOOLEAN,	BASE_NONE,	NULL, 0x0, "TRUE if Ack",			HFILL }},
 	{ &hf_replyrequest,
 	  { "ReplyRequst", "uts.replyrequest",
 	    FT_BOOLEAN,	BASE_NONE,	NULL, 0x0, "TRUE if Reply Request",	HFILL }},

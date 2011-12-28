@@ -739,11 +739,11 @@ struct erf_mc_phdr {
 #define SITA_PROTO_BOP_FRL		(0x12)
 
 struct sita_phdr {
-   guint8  flags;
-   guint8  signals;
-   guint8  errors1;
-   guint8  errors2;
-   guint8  proto;
+   guint8  sita_flags;
+   guint8  sita_signals;
+   guint8  sita_errors1;
+   guint8  sita_errors2;
+   guint8  sita_proto;
 };
 
 /*pseudo header for Bluetooth HCI*/

@@ -934,11 +934,11 @@ pcap_read_sita_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header, 
 		return FALSE;
 	}
 
-	pseudo_header->sita.flags   = sita_phdr[SITA_FLAGS_OFFSET];
-	pseudo_header->sita.signals = sita_phdr[SITA_SIGNALS_OFFSET];
-	pseudo_header->sita.errors1 = sita_phdr[SITA_ERRORS1_OFFSET];
-	pseudo_header->sita.errors2 = sita_phdr[SITA_ERRORS2_OFFSET];
-	pseudo_header->sita.proto   = sita_phdr[SITA_PROTO_OFFSET];
+	pseudo_header->sita.sita_flags   = sita_phdr[SITA_FLAGS_OFFSET];
+	pseudo_header->sita.sita_signals = sita_phdr[SITA_SIGNALS_OFFSET];
+	pseudo_header->sita.sita_errors1 = sita_phdr[SITA_ERRORS1_OFFSET];
+	pseudo_header->sita.sita_errors2 = sita_phdr[SITA_ERRORS2_OFFSET];
+	pseudo_header->sita.sita_proto   = sita_phdr[SITA_PROTO_OFFSET];
 
 	return TRUE;
 }
@@ -1878,11 +1878,11 @@ pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pse
 		 * Write the SITA header.
 		 */
 		memset(&sita_hdr, 0, sizeof(sita_hdr));
-		sita_hdr[SITA_FLAGS_OFFSET]   = pseudo_header->sita.flags;
-		sita_hdr[SITA_SIGNALS_OFFSET] = pseudo_header->sita.signals;
-		sita_hdr[SITA_ERRORS1_OFFSET] = pseudo_header->sita.errors1;
-		sita_hdr[SITA_ERRORS2_OFFSET] = pseudo_header->sita.errors2;
-		sita_hdr[SITA_PROTO_OFFSET]   = pseudo_header->sita.proto;
+		sita_hdr[SITA_FLAGS_OFFSET]   = pseudo_header->sita.sita_flags;
+		sita_hdr[SITA_SIGNALS_OFFSET] = pseudo_header->sita.sita_signals;
+		sita_hdr[SITA_ERRORS1_OFFSET] = pseudo_header->sita.sita_errors1;
+		sita_hdr[SITA_ERRORS2_OFFSET] = pseudo_header->sita.sita_errors2;
+		sita_hdr[SITA_PROTO_OFFSET]   = pseudo_header->sita.sita_proto;
 		if (!wtap_dump_file_write(wdh, sita_hdr, sizeof(sita_hdr), err))
 			return FALSE;
 		wdh->bytes_dumped += sizeof(sita_hdr);
