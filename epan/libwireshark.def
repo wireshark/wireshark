@@ -329,6 +329,7 @@ dissector_change_uint
 dissector_delete_string
 dissector_delete_uint
 dissector_dump_decodes
+dissector_dump_heur_decodes
 dissector_filter_list           DATA
 dissector_get_string_handle
 dissector_get_uint_handle

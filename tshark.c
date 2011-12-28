@@ -351,6 +351,7 @@ glossary_option_help(void)
   fprintf(output, "  -G values                dump value, range, true/false strings and exit\n");
   fprintf(output, "  -G ftypes                dump field type basic and descriptive names\n");
   fprintf(output, "  -G decodes               dump \"layer type\"/\"decode as\" associations and exit\n");
+  fprintf(output, "  -G heuristic-decodes     dump heuristic dissector tables\n");
   fprintf(output, "\n");
   fprintf(output, "Preference reports:\n");
   fprintf(output, "  -G defaultprefs          dump default preferences and exit\n");
@@ -998,6 +999,8 @@ main(int argc, char *argv[])
         proto_registrar_dump_ftypes();
       else if (strcmp(argv[2], "decodes") == 0)
         dissector_dump_decodes();
+      else if (strcmp(argv[2], "heuristic-decodes") == 0)
+        dissector_dump_heur_decodes();
       else if (strcmp(argv[2], "defaultprefs") == 0)
         write_prefs(NULL);
       else if (strcmp(argv[2], "plugins") == 0)

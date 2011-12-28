@@ -1559,7 +1559,7 @@ get_dissector_table_base(const char *name)
 static GHashTable *heur_dissector_lists = NULL;
 
 
-/* Finds a heuristic dissector table by field name. */
+/* Finds a heuristic dissector table by table name. */
 static heur_dissector_list_t *
 find_heur_dissector_list(const char *name)
 {
@@ -1722,6 +1722,26 @@ typedef struct heur_dissector_foreach_table_info {
 	DATFunc_heur_table caller_func;
 } heur_dissector_foreach_table_info_t;
 
+
+static void
+dissector_dump_heur_decodes_display(const gchar *table_name, const gpointer value, const gpointer user_data _U_)
+{
+	heur_dissector_list_t  sub_dissectors = *(heur_dissector_list_t *)value;
+	GSList                *entry;
+	heur_dtbl_entry_t     *dtbl_entry;
+
+	for (entry = sub_dissectors; entry != NULL; entry = g_slist_next(entry)) {
+		dtbl_entry = (heur_dtbl_entry_t *)entry->data;
+		if (dtbl_entry->protocol != NULL) {
+			printf("%s\t%s\t%c\n",
+			       table_name,
+			       proto_get_protocol_filter_name(proto_get_id(dtbl_entry->protocol)),
+			       (proto_is_protocol_enabled(dtbl_entry->protocol) && dtbl_entry->enabled) ? 'T' : 'F');
+		}
+	}
+}
+
+
 static void
 dissector_all_heur_tables_foreach_table_func (gpointer key, const gpointer value, const gpointer user_data)
 {
@@ -1745,6 +1765,16 @@ dissector_all_heur_tables_foreach_table (DATFunc_heur_table func,
 	info.caller_func = func;
 	g_hash_table_foreach(heur_dissector_lists, dissector_all_heur_tables_foreach_table_func, &info);
 }
+
+/*
+ * For each heuristic dissector table, dump list of dissectors (filter_names) for that table
+ */
+void
+dissector_dump_heur_decodes(void)
+{
+	dissector_all_heur_tables_foreach_table(dissector_dump_heur_decodes_display, NULL);
+}
+
 
 void
 register_heur_dissector_list(const char *name, heur_dissector_list_t *sub_dissectors)

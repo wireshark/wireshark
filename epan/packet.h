@@ -458,6 +458,11 @@ extern void ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_ethertype,
 extern void dissector_dump_decodes(void);
 
 /*
+ * For each heuristic dissector table, dump list of dissectors (filter_names) for that table
+ */
+extern void dissector_dump_heur_decodes(void);
+
+/*
  * post dissectors are to be called by packet-frame.c after every other
  * dissector has been called.
  */
