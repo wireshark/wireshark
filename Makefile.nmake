@@ -1117,6 +1117,8 @@ install-all: install-generated-files
 !ENDIF
 	cd $(INSTALL_DIR)
 	peflags --dynamicbase=true --nxcompat=true *.dll
+	peflags --dynamicbase=true --nxcompat=true lib/gtk-2.0/*/engines/*.dll
+	peflags --dynamicbase=true --nxcompat=true lib/gtk-2.0/modules/*.dll
 	cd ..
 
 checkapi_local:

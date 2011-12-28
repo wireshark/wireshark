@@ -368,53 +368,51 @@ SetShellVarContext all
 
 
 SetOutPath $INSTDIR
-File "..\..\wiretap\wiretap-${WTAP_VERSION}.dll"
+File "..\..\wireshark-gtk2\wiretap-${WTAP_VERSION}.dll"
 !ifdef ENABLE_LIBWIRESHARK
 File "..\..\epan\libwireshark.dll"
 !endif
-File "..\..\wsutil\libwsutil.dll"
-File "${GTK_DIR}\bin\libgio-2.0-0.dll"
-File "${GTK_DIR}\bin\libglib-2.0-0.dll"
-File "${GTK_DIR}\bin\libgobject-2.0-0.dll"
-File "${GTK_DIR}\bin\libgmodule-2.0-0.dll"
-File "${GTK_DIR}\bin\libgthread-2.0-0.dll"
+File "..\..\wireshark-gtk2\libwsutil.dll"
+File "..\..\wireshark-gtk2\libgio-2.0-0.dll"
+File "..\..\wireshark-gtk2\libglib-2.0-0.dll"
+File "..\..\wireshark-gtk2\libgobject-2.0-0.dll"
+File "..\..\wireshark-gtk2\libgmodule-2.0-0.dll"
+File "..\..\wireshark-gtk2\libgthread-2.0-0.dll"
 !ifdef ICONV_DIR
-File "${GTK_DIR}\bin\iconv.dll"
+File "..\..\wireshark-gtk2\iconv.dll"
 !endif
-File "${GTK_DIR}\bin\${INTL_DLL}"
+File "..\..\wireshark-gtk2\${INTL_DLL}"
 !ifdef ZLIB_DIR
-File "${ZLIB_DIR}\zlib1.dll"
+File "..\..\wireshark-gtk2\zlib1.dll"
 !endif
 !ifdef C_ARES_DIR
-File "${C_ARES_DIR}\bin\libcares-2.dll"
+File "..\..\wireshark-gtk2\libcares-2.dll"
 !endif
 !ifdef ADNS_DIR
-File "${ADNS_DIR}\..\${MSVC_VARIANT}\adns\adns_dll.dll"
+File "..\..\wireshark-gtk2\adns_dll.dll"
 !endif
 !ifdef KFW_DIR
-File "${KFW_PATH}\comerr32.dll"
-File "${KFW_PATH}\krb5_32.dll"
-File "${KFW_PATH}\k5sprt32.dll"
+File "..\..\wireshark-gtk2\comerr32.dll"
+File "..\..\wireshark-gtk2\krb5_32.dll"
+File "..\..\wireshark-gtk2\k5sprt32.dll"
 !endif
 !ifdef GNUTLS_DIR
-File "${GNUTLS_DIR}\bin\libgcrypt-11.dll"
-File "${GNUTLS_DIR}\bin\libgnutls-26.dll"
-File "${GNUTLS_DIR}\bin\libgnutls-extra-26.dll"
-File "${GNUTLS_DIR}\bin\libgnutls-openssl-26.dll"
-File "${GNUTLS_DIR}\bin\libgpg-error-0.dll"
-File "${GNUTLS_DIR}\bin\libtasn1-3.dll"
+File "..\..\wireshark-gtk2\libgcrypt-11.dll"
+File "..\..\wireshark-gtk2\libgnutls-26.dll"
+File "..\..\wireshark-gtk2\libgpg-error-0.dll"
+File "..\..\wireshark-gtk2\libtasn1-3.dll"
 StrCmp "${INTL_DLL}" "libintl-8.dll" SkipLibIntl8
-File "${GNUTLS_DIR}\bin\libintl-8.dll"
+File "..\..\wireshark-gtk2\libintl-8.dll"
 SkipLibIntl8:
 !endif
 !ifdef LUA_DIR
-File "${LUA_DIR}\lua5.1.dll"
+File "..\..\wireshark-gtk2\lua5.1.dll"
 File "..\..\epan\wslua\init.lua"
 File "..\..\epan\wslua\console.lua"
 File "..\..\epan\wslua\dtd_gen.lua"
 !endif
 !ifdef SMI_DIR
-File "${SMI_DIR}\bin\libsmi-2.dll"
+File "..\..\wireshark-gtk2\libsmi-2.dll"
 !endif
 File "..\..\wireshark-gtk2\COPYING.txt"
 File "..\..\wireshark-gtk2\NEWS.txt"
@@ -844,34 +842,34 @@ Section "Wireshark" SecWireshark
 ;-------------------------------------------
 SetOutPath $INSTDIR
 File "..\..\wireshark.exe"
-File "${GTK_DIR}\bin\libgdk-win32-2.0-0.dll"
-File "${GTK_DIR}\bin\libgdk_pixbuf-2.0-0.dll"
-File "${GTK_DIR}\bin\libgtk-win32-2.0-0.dll"
-File "${GTK_DIR}\bin\libatk-1.0-0.dll"
-File "${GTK_DIR}\bin\libpango-1.0-0.dll"
-File "${GTK_DIR}\bin\libpangowin32-1.0-0.dll"
+File "..\..\wireshark-gtk2\libgdk-win32-2.0-0.dll"
+File "..\..\wireshark-gtk2\libgdk_pixbuf-2.0-0.dll"
+File "..\..\wireshark-gtk2\libgtk-win32-2.0-0.dll"
+File "..\..\wireshark-gtk2\libatk-1.0-0.dll"
+File "..\..\wireshark-gtk2\libpango-1.0-0.dll"
+File "..\..\wireshark-gtk2\libpangowin32-1.0-0.dll"
 !ifdef NEED_CAIRO_DLL
-File "${GTK_DIR}\bin\libcairo-2.dll"
-File "${GTK_DIR}\bin\libpangocairo-1.0-0.dll"
+File "..\..\wireshark-gtk2\libcairo-2.dll"
+File "..\..\wireshark-gtk2\libpangocairo-1.0-0.dll"
 !endif
 !ifdef NEED_LIBPNG_DLL
-File "${GTK_DIR}\bin\${PNG_DLL}"
+File "..\..\wireshark-gtk2\${PNG_DLL}"
 !endif
 !ifdef NEED_LIBTIFF_DLL
-File "${GTK_DIR}\bin\${TIFF_DLL}"
+File "..\..\wireshark-gtk2\${TIFF_DLL}"
 !endif
 !ifdef NEED_LIBJPEG_DLL
-File "${GTK_DIR}\bin\${JPEG_DLL}"
+File "..\..\wireshark-gtk2\${JPEG_DLL}"
 !endif
 !ifdef NEED_FREETYPE_DLL
-File "${GTK_DIR}\bin\libpangoft2-1.0-0.dll"
-File "${GTK_DIR}\bin\${FREETYPE_DLL}"
+File "..\..\wireshark-gtk2\libpangoft2-1.0-0.dll"
+File "..\..\wireshark-gtk2\${FREETYPE_DLL}"
 !endif
 !ifdef NEED_FONTCONFIG_DLL
-File "${GTK_DIR}\bin\${FONTCONFIG_DLL}"
+File "..\..\wireshark-gtk2\${FONTCONFIG_DLL}"
 !endif
 !ifdef NEED_EXPAT_DLL
-File "${GTK_DIR}\bin\${EXPAT_DLL}"
+File "..\..\wireshark-gtk2\${EXPAT_DLL}"
 !endif
 SetOutPath $INSTDIR\etc\gtk-2.0
 File "${GTK_DIR}\etc\gtk-2.0\*.*"
@@ -879,19 +877,16 @@ File "${GTK_DIR}\etc\gtk-2.0\*.*"
 !if ${WIRESHARK_TARGET_PLATFORM} == "win32"
 SetOutPath $INSTDIR\etc\pango
 File "${GTK_DIR}\etc\pango\pango.*"
-; Not needed for GTK+ >= 2.18
-;SetOutPath $INSTDIR\lib\gtk-2.0\${GTK_LIB_DIR}\loaders
-;File "${GTK_DIR}\lib\gtk-2.0\${GTK_LIB_DIR}\loaders\libpixbufloader-*.dll"
 !endif
 
 SetOutPath $INSTDIR\lib\gtk-2.0\${GTK_LIB_DIR}\engines
-File "${GTK_DIR}\lib\gtk-2.0\${GTK_LIB_DIR}\engines\libpixmap.dll"
+File "..\..\wireshark-gtk2\lib\gtk-2.0\${GTK_LIB_DIR}\engines\libpixmap.dll"
 SetOutPath $INSTDIR\lib\gtk-2.0\modules
-File "${GTK_DIR}\lib\gtk-2.0\modules\libgail.dll"
+File "..\..\wireshark-gtk2\lib\gtk-2.0\modules\libgail.dll"
 
 ; GTK MS-Windows Engine (GTK-Wimp)
 SetOutPath $INSTDIR\${GTK_WIMP_DLLDST_DIR}
-File "${GTK_WIMP_DLLSRC_DIR}\libwimp.dll"
+File "..\..\wireshark-gtk2\lib\gtk-2.0\${GTK_LIB_DIR}\engines\libwimp.dll"
 SetOutPath $INSTDIR\${GTK_WIMP_RCDST_DIR}
 File "${GTK_WIMP_RCSRC_DIR}\gtkrc"
 
