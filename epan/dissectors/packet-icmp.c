@@ -26,7 +26,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- * 
+ *
  * Added support for ICMP extensions RFC 4884 and RFC 5837
  * (c) 2011 Gaurav Tungatkar <gstungat@ncsu.edu>
  */
@@ -487,7 +487,7 @@ dissect_mip_extensions(tvbuff_t *tvb, int offset, proto_tree *tree)
 } /* dissect_mip_extensions */
 
 static gboolean
-dissect_mpls_extended_payload_object(tvbuff_t *tvb, gint offset, proto_tree *ext_object_tree, 
+dissect_mpls_extended_payload_object(tvbuff_t *tvb, gint offset, proto_tree *ext_object_tree,
         proto_item *tf_object)
 {
 
@@ -531,7 +531,7 @@ dissect_mpls_extended_payload_object(tvbuff_t *tvb, gint offset, proto_tree *ext
     return unknown_object;
 }
 static gboolean
-dissect_mpls_stack_entry_object(tvbuff_t *tvb, gint offset, proto_tree *ext_object_tree, 
+dissect_mpls_stack_entry_object(tvbuff_t *tvb, gint offset, proto_tree *ext_object_tree,
                 proto_item *tf_object)
 {
 
@@ -553,10 +553,10 @@ dissect_mpls_stack_entry_object(tvbuff_t *tvb, gint offset, proto_tree *ext_obje
     /* C-Type */
     c_type = tvb_get_guint8(tvb, offset + 3);
     proto_tree_add_uint(ext_object_tree, hf_icmp_ext_c_type, tvb, offset + 3, 1, c_type);
-    
+
     /* skip the object header */
     offset += 4;
-    
+
     switch (c_type)
     {
         case MPLS_STACK_ENTRY_C_TYPE:
@@ -634,6 +634,8 @@ dissect_mpls_stack_entry_object(tvbuff_t *tvb, gint offset, proto_tree *ext_obje
                         obj_end_offset - offset,
                         "%d junk bytes",
                         obj_end_offset - offset);
+            break;
+
         default:
 
             unknown_object = TRUE;
@@ -646,7 +648,7 @@ dissect_mpls_stack_entry_object(tvbuff_t *tvb, gint offset, proto_tree *ext_obje
 
 /* Dissect Interface Information Object RFC 5837*/
 static gboolean
-dissect_interface_information_object(tvbuff_t *tvb, gint offset, proto_tree *ext_object_tree, 
+dissect_interface_information_object(tvbuff_t *tvb, gint offset, proto_tree *ext_object_tree,
         proto_item *tf_object)
 {
     proto_item      *ti;
@@ -672,7 +674,7 @@ dissect_interface_information_object(tvbuff_t *tvb, gint offset, proto_tree *ext
 
     obj_trunc_length =  MIN(obj_length, tvb_reported_length_remaining(tvb, offset));
     obj_end_offset = offset + obj_trunc_length;
-    
+
     /* C-Type */
     c_type = tvb_get_guint8(tvb, offset + 3);
 
@@ -700,7 +702,7 @@ dissect_interface_information_object(tvbuff_t *tvb, gint offset, proto_tree *ext
             NULL
         };
         proto_tree_add_bitmask(ext_object_tree, tvb, offset + 3,  hf_icmp_ext_c_type,
-             ett_icmp_interface_info_object, c_type_fields, ENC_BIG_ENDIAN);        
+             ett_icmp_interface_info_object, c_type_fields, ENC_BIG_ENDIAN);
     }
 
     /* skip header */
@@ -729,7 +731,7 @@ dissect_interface_information_object(tvbuff_t *tvb, gint offset, proto_tree *ext
     {
         /* Address Family Identifier*/
         afi = tvb_get_ntohs(tvb, offset);
-        
+
         /*
          * if afi = 1, IPv4 address, 2 bytes afi, 2 bytes rsvd, 4 bytes IP addr
          * if afi = 2, IPv6 address, 2 bytes afi, 2 bytes rsvd, 6 bytes IP addr
@@ -762,7 +764,7 @@ dissect_interface_information_object(tvbuff_t *tvb, gint offset, proto_tree *ext
             proto_tree_add_text(int_ipaddr_object_tree, tvb, offset, offset - obj_end_offset, "Bad IP Address");
             return FALSE;
         }
-        
+
     }
 
     /* Interface Name Sub Object*/
@@ -896,7 +898,7 @@ dissect_extensions(tvbuff_t *tvb, gint offset, proto_tree *tree)
 
         /* C-Type */
         c_type = tvb_get_guint8(tvb, offset + 3);
-        
+
         if (obj_length < 4 /* Object header */)
         {
             /* Thanks doc/README.developer :)) */
@@ -1250,7 +1252,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           proto_item_append_text (ti, "Length of original datagram: %u", icmp_original_dgram_length*4);
         }
 
-        
+
         switch (icmp_code) {
           case ICMP_FRAG_NEEDED:
             proto_tree_add_item(icmp_tree, hf_icmp_mtu, tvb, 6, 2, ENC_BIG_ENDIAN);
@@ -1311,12 +1313,12 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * icmp_original_dgram_length*4 bytes of original IP packet that needs
      * to be decoded, followed by extension objects.
      */
-    if (icmp_original_dgram_length && (tvb_reported_length(tvb) > (guint)( 8 + 
-                icmp_original_dgram_length*4)) && (tvb_get_ntohs(tvb, 8 + 2) > 
+    if (icmp_original_dgram_length && (tvb_reported_length(tvb) > (guint)( 8 +
+                icmp_original_dgram_length*4)) && (tvb_get_ntohs(tvb, 8 + 2) >
                     (guint)icmp_original_dgram_length*4))
         set_actual_length(next_tvb, icmp_original_dgram_length*4);
 
-    else 
+    else
         /* There is a collision between RFC 1812 and draft-ietf-mpls-icmp-02.
            We don't know how to decode the 128th and following bytes of the ICMP payload.
            According to draft-ietf-mpls-icmp-02, these bytes should be decoded as MPLS extensions
