@@ -72,6 +72,13 @@ stamp-h1
 ylwrap
 
 
+# CMake #
+##################
+CMakeCache.txt
+CMakeFiles
+CPackConfig.cmake
+CPackSourceConfig.cmake
+
 # Generated dir #
 ##################
 .deps
