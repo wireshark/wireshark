@@ -733,6 +733,7 @@ REQUIRED_TOOLS=\
 	env	\
 	grep	\
 	--cygwinonly /usr/bin/find	\
+	peflags \
 	$(PERL)	\
 	$(PYTHON)	\
 	sed	\
@@ -1114,6 +1115,9 @@ install-all: install-generated-files
 	xcopy "$(SMI_DIR)\share\pibs\*" $(INSTALL_DIR)\snmp\mibs /d
 	xcopy "$(SMI_DIR)\share\yang\*.yang" $(INSTALL_DIR)\snmp\mibs /d
 !ENDIF
+	cd $(INSTALL_DIR)
+	peflags --dynamicbase=true --nxcompat=true *.dll
+	cd ..
 
 checkapi_local:
 	$(PERL) tools/checkAPIs.pl \

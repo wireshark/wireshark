@@ -108,6 +108,9 @@ title Command Prompt (VC++ 2008)]]>
           <para>Archive/zip (only needed if you intend to build the U3 package)</para>
         </listitem>
         <listitem>
+          <para>Base/rebase</para>
+        </listitem>
+        <listitem>
           <para>Devel/bison</para>
         </listitem>
         <listitem>
