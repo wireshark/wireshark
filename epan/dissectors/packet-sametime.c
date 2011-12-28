@@ -236,7 +236,7 @@ add_text_item(tvbuff_t *tvb, proto_tree *tree, int offset, int hf)
 			proto_tree_add_item(tree, hf_sametime_field_length, tvb, offset, 2, ENC_BIG_ENDIAN);
 
 		/* add string */
-		proto_tree_add_string(tree, hf, tvb, offset + 2, length, tvb_get_string(tvb, offset + 2, length));
+		proto_tree_add_string(tree, hf, tvb, offset + 2, length, tvb_get_ephemeral_string(tvb, offset + 2, length));
 	}
 
 	return 2 + length;

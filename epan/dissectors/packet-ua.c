@@ -647,18 +647,18 @@ static void DissectTLV_data(tvbuff_t *pTvb, proto_tree *pTlv, guint8 u8Property)
     case 55: /*Label*/
     case 138: /*Label_138*/
         {
-            proto_item_append_text(pTlv, "'%s'", tvb_get_string(pTvb, 0, tvb_length(pTvb)));
+            proto_item_append_text(pTlv, "'%s'", tvb_get_ephemeral_string(pTvb, 0, tvb_length(pTvb)));
             proto_tree_add_item(pTlv, hf_tlv_label, pTvb, 0, -1, ENC_ASCII|ENC_NA);
 
             /* append text on NOE level */
             pNoeItem = proto_item_get_parent(pTlv);
-            proto_item_append_text(pNoeItem, ", Label='%s'", tvb_get_string(pTvb, 0, tvb_length(pTvb)));
+            proto_item_append_text(pNoeItem, ", Label='%s'", tvb_get_ephemeral_string(pTvb, 0, tvb_length(pTvb)));
             break;
         }
 
     case 143: /*Phone number*/
         {
-            proto_item_append_text(pTlv, "%s", tvb_get_string(pTvb, 0, tvb_length(pTvb)));
+            proto_item_append_text(pTlv, "%s", tvb_get_ephemeral_string(pTvb, 0, tvb_length(pTvb)));
             proto_tree_add_item(pTlv, hf_tlv_number, pTvb, 0, -1, ENC_NA);
             break;
         }
@@ -666,7 +666,7 @@ static void DissectTLV_data(tvbuff_t *pTvb, proto_tree *pTlv, guint8 u8Property)
     case 147: /*Today*/
     case 148: /*Tomorrow*/
         {
-            proto_item_append_text(pTlv, "'%s'", tvb_get_string(pTvb, 0, tvb_length(pTvb)));
+            proto_item_append_text(pTlv, "'%s'", tvb_get_ephemeral_string(pTvb, 0, tvb_length(pTvb)));
             proto_tree_add_item(pTlv, hf_tlv_data, pTvb, 0, -1, ENC_NA);
             break;
         }

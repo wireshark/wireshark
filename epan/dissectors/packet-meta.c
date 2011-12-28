@@ -292,6 +292,7 @@ static guint16 evaluate_meta_item_dxt(proto_tree *meta_tree, tvbuff_t *tvb, pack
             apn = tvb_get_string(tvb, offs, len);
             proto_tree_add_string(meta_tree, hf_meta_item_apn, tvb,
                 offs, len, apn);
+            g_free(apn);
             break;
         case META_ID_RAT:
             rat = tvb_get_guint8(tvb, offs);
@@ -369,11 +370,13 @@ static guint16 evaluate_meta_item_dxt(proto_tree *meta_tree, tvbuff_t *tvb, pack
             calling = tvb_get_string(tvb, offs, len);
             proto_tree_add_string(meta_tree, hf_meta_item_calling, tvb,
                 offs, len, calling);
+            g_free(calling);
             break;
         case META_ID_CALLED:
             called = tvb_get_string(tvb, offs, len);
             proto_tree_add_string(meta_tree, hf_meta_item_called, tvb,
                 offs, len, called);
+            g_free(called);
             break;
         default:
             subti = proto_tree_add_item(meta_tree, hf_meta_item, tvb, offs - 4,

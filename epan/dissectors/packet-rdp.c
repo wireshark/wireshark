@@ -940,21 +940,21 @@ dissect_rdp_clientNetworkData(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
     next_tree = proto_item_add_subtree(pi, ett_rdp_channelDefArray);
 
     if(rdp_info)
-      rdp_info->maxChannels = channelCount;
+      rdp_info->maxChannels = min(channelCount, MAX_CHANNELS);
 
-    for(i = 0; i < channelCount; i++) {
+    for(i = 0; i < min(channelCount, MAX_CHANNELS); i++) {
       if(rdp_info) {
-	rdp_info->channels[i].strptr = tvb_get_string(tvb, offset, 8);
-	rdp_info->channels[i].value = -1; /* unset */
+        rdp_info->channels[i].value = -1; /* unset */
+        rdp_info->channels[i].strptr = tvb_get_ephemeral_string(tvb, offset, 8);
       }
       offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, def_fields);
     }
 
     if(rdp_info) {
+      /* value_strings are normally terminated with a {0, NULL} entry */
+      rdp_info->channels[i].value = 0;
       rdp_info->channels[i].strptr = NULL;
-      rdp_info->channels[i].value = -1;
     }
-
   }
 
   return offset;

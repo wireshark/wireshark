@@ -103,7 +103,7 @@ static int dissect_bencoded_string(tvbuff_t *tvb, packet_info _U_*pinfo, proto_t
   while( tvb_get_guint8(tvb,offset) != ':' )
     offset ++;
 
-  string_len = atoi( tvb_get_string(tvb,string_len_start,offset-string_len_start) );
+  string_len = atoi( tvb_get_ephemeral_string(tvb,string_len_start,offset-string_len_start) );
   /* skip the ':' */
   offset++;
 
@@ -111,7 +111,7 @@ static int dissect_bencoded_string(tvbuff_t *tvb, packet_info _U_*pinfo, proto_t
   if( tohex )
     *result = tvb_bytes_to_str(tvb, offset, string_len );
   else
-    *result = tvb_get_string( tvb, offset, string_len );
+    *result = tvb_get_ephemeral_string( tvb, offset, string_len );
 
   proto_tree_add_string_format( tree, hf_bencoded_string, tvb, offset, string_len, *result, "%s: %s", label, *result );
   offset += string_len;
@@ -134,7 +134,7 @@ static int dissect_bencoded_int(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree
   while( tvb_get_guint8(tvb,offset)!='e' )
     offset ++;
 
-  *result = tvb_get_string( tvb, offset, offset-start_offset-1 );
+  *result = tvb_get_ephemeral_string( tvb, offset, offset-start_offset-1 );
   proto_tree_add_string_format( tree, hf_bencoded_int, tvb, offset, offset-start_offset-1, *result,
     "%s: %s", label, *result );
 
@@ -240,7 +240,7 @@ static int dissect_bt_dht_values(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     while( tvb_get_guint8(tvb,offset) != ':' )
       offset ++;
 
-    string_len = atoi( tvb_get_string(tvb,string_len_start,offset-string_len_start) );
+    string_len = atoi( tvb_get_ephemeral_string(tvb,string_len_start,offset-string_len_start) );
     /* skip the ':' */
     offset++;
     /* 4 bytes ip, 2 bytes port */
@@ -293,7 +293,7 @@ static int dissect_bt_dht_nodes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
   while( tvb_get_guint8(tvb,offset) != ':' )
     offset ++;
 
-  string_len = atoi( tvb_get_string(tvb,string_len_start,offset-string_len_start) );
+  string_len = atoi( tvb_get_ephemeral_string(tvb,string_len_start,offset-string_len_start) );
   /* skip the ':' */
   offset++;
 

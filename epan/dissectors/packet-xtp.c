@@ -905,6 +905,7 @@ dissect_xtp_diag(tvbuff_t *tvb, proto_tree *tree, guint32 offset) {
 	/* message(4) */
 	proto_tree_add_string(xtp_subtree, hf_xtp_diag_msg,
 			tvb, offset, msg_len, diag->msg);
+	g_free(diag->msg);
 
 	return;
 }

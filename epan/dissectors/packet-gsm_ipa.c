@@ -326,7 +326,7 @@ dissect_ipa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 			if (global_ipa_in_info == TRUE)
 				col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-						tvb_get_stringz(next_tvb, 0, NULL));
+						tvb_get_ephemeral_stringz(next_tvb, 0, NULL));
 			break;
 		default:
 			if (msg_type < ABISIP_RSL_MAX) {
