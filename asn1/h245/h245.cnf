@@ -779,6 +779,7 @@ if (h245_pi != NULL)
     buf[0] = value;
     value_tvb = tvb_new_child_real_data(tvb, buf, sizeof(guint8), sizeof(guint8));
     /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "*** DEBUG dissector_try_string: %%s", gefx->key);*/
+    add_new_data_source(%(ACTX)s->pinfo, value_tvb, "booleanArray");
     dissector_try_string(gef_content_dissector_table, gefx->key, value_tvb, %(ACTX)s->pinfo, %(TREE)s);
   }
 #.END
@@ -795,6 +796,7 @@ if (h245_pi != NULL)
     phtons(buf, value);
     value_tvb = tvb_new_child_real_data(tvb, buf, sizeof(guint16), sizeof(guint16));
     /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "*** DEBUG dissector_try_string: %%s", gefx->key);*/
+    add_new_data_source(%(ACTX)s->pinfo, value_tvb, "unsignedMin");
     dissector_try_string(gef_content_dissector_table, gefx->key, value_tvb, %(ACTX)s->pinfo, %(TREE)s);
   }
 #.END
@@ -811,6 +813,7 @@ if (h245_pi != NULL)
     phtons(buf, value);
     value_tvb = tvb_new_child_real_data(tvb, buf, sizeof(guint16), sizeof(guint16));
     /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "*** DEBUG dissector_try_string: %%s", gefx->key);*/
+    add_new_data_source(%(ACTX)s->pinfo, value_tvb, "unsignedMax");
     dissector_try_string(gef_content_dissector_table, gefx->key, value_tvb, %(ACTX)s->pinfo, %(TREE)s);
   }
 #.END
@@ -827,6 +830,7 @@ if (h245_pi != NULL)
     phtonl(buf, value);
     value_tvb = tvb_new_child_real_data(tvb, buf, sizeof(guint32), sizeof(guint32));
     /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "*** DEBUG dissector_try_string: %%s", gefx->key);*/
+    add_new_data_source(%(ACTX)s->pinfo, value_tvb, "unsigned32Min");
     dissector_try_string(gef_content_dissector_table, gefx->key, value_tvb, %(ACTX)s->pinfo, %(TREE)s);
   }
 #.END
@@ -843,6 +847,7 @@ if (h245_pi != NULL)
     phtonl(buf, value);
     value_tvb = tvb_new_child_real_data(tvb, buf, sizeof(guint32), sizeof(guint32));
     /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "*** DEBUG dissector_try_string: %%s", gefx->key);*/
+    add_new_data_source(%(ACTX)s->pinfo, value_tvb, "unsigned32Max");
     dissector_try_string(gef_content_dissector_table, gefx->key, value_tvb, %(ACTX)s->pinfo, %(TREE)s);
   }
 #.END
