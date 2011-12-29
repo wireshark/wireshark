@@ -79,6 +79,10 @@
 #include "version_info.h"
 
 #include "capture-pcap-util.h"
+#ifdef _WIN32
+#include "capture-wpcap.h"
+#include "capture_errs.h"
+#endif /* _WIN32 */
 
 #include "pcapio.h"
 
@@ -676,21 +680,31 @@ get_capture_device_open_failure_messages(const char *open_err_str,
         libpcap_warn = "";
     g_snprintf(errmsg, (gulong) errmsg_len,
                "The capture session could not be initiated (%s).", open_err_str);
-#ifndef _WIN32
+#ifdef _WIN32
+    if (!has_wpcap) {
+      char *detailed_err;
+
+      detailed_err = cant_load_winpcap_err("TShark");
+      g_snprintf(secondary_errmsg, (gulong) secondary_errmsg_len,
+                 "\n",
+                 "%s\n", detailed_err);
+      g_free(detailed_err);
+    } else {
+      g_snprintf(secondary_errmsg, (gulong) secondary_errmsg_len,
+                 "\n"
+                 "Please check that \"%s\" is the proper interface.\n"
+                 "\n"
+                 "\n"
+                 "Help can be found at:\n"
+                 "\n"
+                 "       http://wiki.wireshark.org/WinPcap\n"
+                 "       http://wiki.wireshark.org/CaptureSetup\n",
+                 iface);
+    }
+#else
     g_snprintf(secondary_errmsg, (gulong) secondary_errmsg_len,
                "Please check to make sure you have sufficient permissions, and that you have "
                "the proper interface or pipe specified.%s", libpcap_warn);
-#else
-    g_snprintf(secondary_errmsg, (gulong) secondary_errmsg_len,
-               "\n"
-               "Please check that \"%s\" is the proper interface.\n"
-               "\n"
-               "\n"
-               "Help can be found at:\n"
-               "\n"
-               "       http://wiki.wireshark.org/WinPcap\n"
-               "       http://wiki.wireshark.org/CaptureSetup\n",
-               iface);
 #endif /* _WIN32 */
 }
 
