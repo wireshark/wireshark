@@ -33,9 +33,23 @@
  * and other places
  */
 
-#define UTF8_HORIZONTAL_ELLIPSIS        "\xe2\x80\xa6"
-#define UTF8_LEFTWARDS_ARROW	        "\xe2\x86\x90"
-#define UTF8_RIGHTWARDS_ARROW   	"\xe2\x86\x92"
-#define UTF8_LEFT_RIGHT_ARROW   	"\xe2\x86\x94"
+#define UTF8_HORIZONTAL_ELLIPSIS        "\xe2\x80\xa6"      /* 8230 / 0x2026 */
+#define UTF8_LEFTWARDS_ARROW            "\xe2\x86\x90"      /* 8592 / 0x2190 */
+#define UTF8_RIGHTWARDS_ARROW           "\xe2\x86\x92"      /* 8594 / 0x2192 */
+#define UTF8_LEFT_RIGHT_ARROW           "\xe2\x86\x94"      /* 8596 / 0x2194 */
 
+#define UTF8_PLACE_OF_INTEREST_SIGN     "\xe2\x8c\x98"      /* 8984 / 0x2318 */
 #endif /* __UTF8_ENTITIES_H__ */
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
