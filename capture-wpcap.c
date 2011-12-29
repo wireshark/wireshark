@@ -324,6 +324,8 @@ pcap_t*
 pcap_open_live(const char *a, int b, int c, int d, char *e)
 {
     if (!has_wpcap) {
+	g_snprintf(e, "unable to load WinPcap (wpcap.dll); can't open %s to capture",
+		   a);
 	return NULL;
     }
     return p_pcap_open_live(a, b, c, d, e);
@@ -356,6 +358,8 @@ pcap_t*
 pcap_open(const char *a, int b, int c, int d, struct pcap_rmtauth *e, char *f)
 {
     if (!has_wpcap) {
+	g_snprintf(f, "unable to load WinPcap (wpcap.dll); can't open %s to capture",
+		   a);
 	return NULL;
     }
     return p_pcap_open(a, b, c, d, e, f);
