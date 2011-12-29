@@ -350,7 +350,7 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 	if(new_tvb)
 	{
 		data_length = tvb_length(new_tvb);
-		while((unsigned)dissected_data_size < length)
+		while(dissected_data_size < data_length)
 		{
 			ltp_data_data_item = proto_tree_add_text(ltp_data_tree, tvb,frame_offset, 0, "Data[%d]",data_count);
 			ltp_data_data_tree = proto_item_add_subtree(ltp_data_data_item, ett_data_data_segm);
@@ -957,8 +957,9 @@ proto_register_ltp(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	ltp_module = prefs_register_protocol(proto_ltp, proto_reg_handoff_ltp);
 
-	prefs_register_uint_preference(ltp_module, "udp.port", "LTP UDP Port",
-		"UDP Port to accept LTP Connections",
+	prefs_register_obsolete_preference(ltp_module, "udp.port");
+	prefs_register_uint_preference(ltp_module, "port", "LTP Port",
+		"The UDP or DCCP port to accept LTP Connections",
 		10, &ltp_port);
 	register_init_routine(ltp_defragment_init);
 }
@@ -975,9 +976,11 @@ proto_reg_handoff_ltp(void)
 		initialized = TRUE;
 	} else {
 		dissector_delete_uint("udp.port", currentPort, ltp_handle);
+		dissector_delete_uint("dccp.port", currentPort, ltp_handle);
 	}
 
 	currentPort = ltp_port;
 
 	dissector_add_uint("udp.port", currentPort, ltp_handle);
+	dissector_add_uint("dccp.port", currentPort, ltp_handle);
 }
