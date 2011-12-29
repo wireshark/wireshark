@@ -27,6 +27,10 @@
 
 #include "capture_opts.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /** @file
  *  GList of available capture interfaces.
  */
@@ -99,4 +103,8 @@ char *build_capture_combo_name(GList *if_list, gchar *if_name);
  */
 const char *get_iface_description_for_interface(capture_options *capture_opts, guint i);
 
-#endif
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* __CAPTURE_UI_UTILS_H__ */

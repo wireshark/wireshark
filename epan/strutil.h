@@ -25,6 +25,10 @@
 #ifndef __STRUTIL_H__
 #define __STRUTIL_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /* ... thus, config.h needs to be #included */
 
 /** @file
@@ -267,5 +271,9 @@ gchar* ws_strdup_unescape_char (const gchar *str, const gchar chr);
  * NULL on failure.
  */
 gchar *string_replace(const gchar* str, const gchar *old_val, const gchar *new_val);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* __STRUTIL_H__ */

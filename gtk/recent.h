@@ -26,6 +26,10 @@
 #ifndef __RECENT_H__
 #define __RECENT_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 #include <glib.h>
 
 /** @file
@@ -87,7 +91,7 @@ typedef struct recent_settings_tag {
     gboolean    privs_warn_if_elevated;
     gboolean    privs_warn_if_no_npf;
     GList      *col_width_list;                     /* column widths */
-    gchar      *gui_fileopen_remembered_dir;        /* folder of last capture loaded in File Open dialog */ 
+    gchar      *gui_fileopen_remembered_dir;        /* folder of last capture loaded in File Open dialog */
 } recent_settings_t;
 
 /** Global recent settings. */
@@ -146,20 +150,20 @@ extern void write_recent_geom(gpointer key, gpointer value, gpointer rf);
 extern int recent_set_arg(char *prefarg);
 
 /** Get the column width for the given column
- * 
+ *
  * @param col column number
  */
 extern gint recent_get_column_width(gint col);
 
 /** Set the column width for the given column
- * 
+ *
  * @param col column number
  * @param width column width
  */
 extern void recent_set_column_width(gint col, gint width);
 
 /** Get the column xalign for the given column
- * 
+ *
  * @param col column number
  */
 extern gchar recent_get_column_xalign(gint col);
@@ -170,5 +174,9 @@ extern gchar recent_get_column_xalign(gint col);
  * @param xalign column alignment
  */
 extern void recent_set_column_xalign(gint col, gchar xalign);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* recent.h */

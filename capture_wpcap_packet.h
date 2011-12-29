@@ -25,6 +25,9 @@
 #ifndef CAPTURE_WPCAP_PACKET_H
 #define CAPTURE_WPCAP_PACKET_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 extern void wpcap_packet_load(void);
 
@@ -43,5 +46,8 @@ extern int wpcap_packet_request_uint(void *a, ULONG Oid, UINT *value);
 
 extern int wpcap_packet_request_ulong(void *a, ULONG Oid, ULONG *value);
 
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif  /* CAPTURE_WPCAP_PACKET_H */

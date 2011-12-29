@@ -24,6 +24,10 @@
 #ifndef EPAN_DISSECT_H
 #define EPAN_DISSECT_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 #include "tvbuff.h"
 #include "proto.h"
 #include "packet_info.h"
@@ -40,5 +44,8 @@ struct _epan_dissect_t {
 	packet_info	pi;
 };
 
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* EPAN_DISSECT_H */

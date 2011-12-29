@@ -25,6 +25,10 @@
 #ifndef __TIMESTAMP_H__
 #define __TIMESTAMP_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /*
  * Type of time-stamp shown in the summary display.
  */
@@ -80,5 +84,9 @@ extern void timestamp_set_precision(int tsp);
 
 extern ts_seconds_type timestamp_get_seconds_type(void);
 extern void timestamp_set_seconds_type(ts_seconds_type);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* timestamp.h */

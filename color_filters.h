@@ -24,6 +24,10 @@
 #ifndef  __COLOR_FILTERS_H__
 #define  __COLOR_FILTERS_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 #define CONVERSATION_COLOR_PREFIX       "___conversation_color_filter___"
 /** @file
  *  Color filters.
@@ -190,6 +194,8 @@ void color_filter_delete(color_filter_t *colorf);
  */
 void color_filter_list_delete(GSList **cfl);
 
-
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif

@@ -23,11 +23,15 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. 
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
 #ifndef _EX_OPT_H
 #define _EX_OPT_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 /* will be called by main each time a -X option is found */
 extern gboolean ex_opt_add(const gchar* optarg);
@@ -41,4 +45,8 @@ extern const gchar* ex_opt_get_nth(const gchar* key, guint index);
 /* extracts the next value of a given key */
 extern const gchar* ex_opt_get_next(const gchar* key);
 
-#endif
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* _EX_OPT_H */

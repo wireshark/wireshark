@@ -24,7 +24,7 @@
 
 
 /** @file
- *  
+ *
  * capture info functions
  *
  */
@@ -33,6 +33,10 @@
 #define __CAPTURE_INFO_H__
 
 #include "capture_opts.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 /* open the info - init values (wtap, counts), create dialog */
 extern void capture_info_open(capture_options *capture_opts);
@@ -73,5 +77,8 @@ capture_info    *cinfo);
 extern void capture_info_ui_destroy(
 capture_info    *cinfo);
 
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* capture_info.h */

@@ -25,6 +25,10 @@
 #ifndef __CAPTURE_IFINFO_H__
 #define __CAPTURE_IFINFO_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /*
  * The list of interfaces returned by "get_interface_list()" is
  * a list of these structures.
@@ -92,5 +96,9 @@ capture_get_if_capabilities(const char *devname, gboolean monitor_mode,
 void free_if_capabilities(if_capabilities_t *caps);
 
 void add_interface_to_remote_list(if_info_t *if_info);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* __CAPTURE_IFINFO_H__ */

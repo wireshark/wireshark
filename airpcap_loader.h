@@ -30,6 +30,10 @@
 
 #include <epan/crypt/airpdcap_user.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Error values from "get_airpcap_interface_list()". */
 #define	CANT_GET_AIRPCAP_INTERFACE_LIST	0	/* error getting list */
 #define	NO_AIRPCAP_INTERFACES_FOUND	1	/* list is empty */
@@ -551,4 +555,8 @@ get_compiled_airpcap_version(GString *str);
 void
 get_runtime_airpcap_version(GString *str);
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif /* __AIRPCAP_LOADER_H__ */

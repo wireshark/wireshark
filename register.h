@@ -25,6 +25,10 @@
 #ifndef __REGISTER_H__
 #define __REGISTER_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 #include <glib.h>
 
 typedef enum {
@@ -48,4 +52,9 @@ extern void register_all_protocols(register_cb cb, gpointer client_data);
 extern void register_all_protocol_handoffs(register_cb cb, gpointer client_data);
 extern void register_all_tap_listeners(void);
 extern gulong register_count(void);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
 #endif /* __REGISTER_H__ */

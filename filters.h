@@ -23,6 +23,13 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifndef FILTERS_H
+#define FILTERS_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /*
  * Filter lists.
  */
@@ -85,3 +92,8 @@ void save_filter_list(filter_list_type_t list_type, char **pref_path_return,
  */
 void copy_filter_list(filter_list_type_t dest_type, filter_list_type_t src_type);
 
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* FILTERS_H */

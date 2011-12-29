@@ -27,6 +27,10 @@
 
 #include "frame_data_sequence.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /* Current state of file. */
 typedef enum {
   FILE_CLOSED,	                /* No file open */
@@ -114,5 +118,9 @@ typedef struct _capture_file {
 } capture_file;
 
 extern void cap_file_init(capture_file *cf);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* cfile.h */

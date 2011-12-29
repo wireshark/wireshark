@@ -34,6 +34,9 @@
 
 #include "cfile.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 /** Return values from functions that only can succeed or fail. */
 typedef enum {
@@ -580,5 +583,9 @@ cf_merge_files(char **out_filename, int in_file_count,
 #if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
 void read_keytab_file(const char *);
 #endif
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* file.h */

@@ -33,6 +33,10 @@
 
 #include "capture_opts.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 typedef enum {
     capture_cb_capture_prepared,
     capture_cb_capture_update_started,
@@ -122,5 +126,9 @@ extern gboolean capture_stats(if_stat_cache_t *sc, char *ifname, struct pcap_sta
  * Stop gathering capture statistics.
  */
 void capture_stat_stop(if_stat_cache_t *sc);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* capture.h */

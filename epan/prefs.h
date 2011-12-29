@@ -25,6 +25,10 @@
 #ifndef __PREFS_H__
 #define __PREFS_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 #include <glib.h>
 
 #include "color.h"
@@ -461,5 +465,9 @@ extern gboolean prefs_is_capture_device_hidden(const char *name);
  * Returns TRUE if the given device should capture in monitor mode by default
  */
 extern gboolean prefs_capture_device_monitor_mode(const char *name);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* prefs.h */

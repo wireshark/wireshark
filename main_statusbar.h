@@ -24,6 +24,9 @@
 #ifndef __MAIN_STATUSBAR_H__
 #define __MAIN_STATUSBAR_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 void profile_bar_update(void);
 void packets_bar_update(void);
@@ -60,5 +63,9 @@ void statusbar_pop_filter_msg(void);
  */
 void statusbar_push_temporary_msg(const gchar *msg_format, ...)
     G_GNUC_PRINTF(1, 2);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* __MAIN_STATUSBAR_H__ */

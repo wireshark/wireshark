@@ -25,6 +25,10 @@
 #ifndef __COLOR_H__
 #define __COLOR_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /*
  * Data structure holding RGB value for a color.
  *
@@ -52,4 +56,8 @@ typedef struct {
  */
 gboolean initialize_color(color_t *color, guint16 red, guint16 green, guint16 blue);
 
-#endif
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* __COLOR_H__ */

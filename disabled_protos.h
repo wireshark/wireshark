@@ -23,6 +23,13 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifndef DISABLED_PROTOS_H
+#define DISABLED_PROTOS_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /*
  * Item in a list of disabled protocols.
  */
@@ -59,3 +66,9 @@ void set_disabled_protos_list(void);
  * and "*errno_return" is set to the error.
  */
 void save_disabled_protos_list(char **pref_path_return, int *errno_return);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* DISABLED_PROTOS_H */

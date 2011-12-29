@@ -25,10 +25,18 @@
 #ifndef CAPTURE_WPCAP_H
 #define CAPTURE_WPCAP_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 extern gboolean has_wpcap;
 
 
 void
 load_wpcap(void);
 
-#endif
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* CAPTURE_WPCAP_H */

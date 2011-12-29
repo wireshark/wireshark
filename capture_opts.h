@@ -38,6 +38,10 @@
 
 #include "capture_ifinfo.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /* Current state of capture engine. XXX - differentiate states */
 typedef enum {
     CAPTURE_STOPPED,        /**< stopped */
@@ -189,5 +193,9 @@ capture_opts_trim_ring_num_files(capture_options *capture_opts);
 /* trim the interface entry */
 extern gboolean
 capture_opts_trim_iface(capture_options *capture_opts, const char *capture_device);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* capture_opts.h */

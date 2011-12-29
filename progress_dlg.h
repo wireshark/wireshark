@@ -25,6 +25,10 @@
 #ifndef __PROGRESS_DLG_H__
 #define __PROGRESS_DLG_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /** @file
  *  Progress (modal) dialog box routines.
  *  @ingroup dialog_group
@@ -56,7 +60,7 @@ progdlg_t *create_progress_dlg(const gchar *task_title, const gchar *item_title,
 
 /**
  * Create a progress dialog, but only if it's not likely to disappear
- * immediately. This can be disconcerting for the user. 
+ * immediately. This can be disconcerting for the user.
  *
  * @param task_title the task to do, e.g. "Loading"
  * @param item_title the item to do, e.g. "capture.cap"
@@ -90,5 +94,9 @@ void update_progress_dlg(progdlg_t *dlg, gfloat percentage, const gchar *status)
  * @param dlg the progress dialog from create_progress_dlg()
  */
 void destroy_progress_dlg(progdlg_t *dlg);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* __PROGRESS_DLG_H__ */

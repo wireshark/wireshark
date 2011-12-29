@@ -24,6 +24,10 @@
 #ifndef EPAN_H
 #define EPAN_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 #include <glib.h>
 #include "frame_data.h"
 #include "column_info.h"
@@ -182,5 +186,9 @@ epan_get_compiled_version_info(GString *str);
  */
 void
 epan_get_runtime_version_info(GString *str);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* EPAN_H */

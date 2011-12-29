@@ -27,11 +27,11 @@
 
 #ifdef HAVE_LIBPCAP
 
+#include <pcap.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
-#include <pcap.h>
 
 /*
  * A snapshot length of 0 is useless - and libpcap/WinPcap don't guarantee

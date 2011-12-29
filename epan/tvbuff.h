@@ -40,6 +40,10 @@
 #include <epan/guid-utils.h>
 #include "exceptions.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /** @file
  * "testy, virtual(-izable) buffer".  They are testy in that they get mad when
  * an attempt is made to access data beyond the bounds of their array. In that
@@ -673,5 +677,9 @@ extern tvbuff_t* tvb_uncompress(tvbuff_t *tvb, const int offset,  int comprlen);
 extern tvbuff_t* tvb_child_uncompress(tvbuff_t *parent, tvbuff_t *tvb, const int offset, int comprlen);
 
 /************** END OF ACCESSORS ****************/
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* __TVBUFF_H__ */
