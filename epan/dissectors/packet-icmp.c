@@ -1641,11 +1641,11 @@ proto_register_icmp(void)
 
     { &hf_icmp_data_time,
       { "Timestamp from icmp data", "icmp.data_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
-        "The timestamp in the first 8 btyes of the icmp data", HFILL }},
+        "The timestamp in the first 8 bytes of the icmp data", HFILL }},
 
     { &hf_icmp_data_time_relative,
       { "Timestamp from icmp data (relative)", "icmp.data_time_relative", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
-        "The timestamp of the packet, relative to the timestamp in the first 8 btyes of the icmp data", HFILL }},
+        "The timestamp of the packet, relative to the timestamp in the first 8 bytes of the icmp data", HFILL }},
 
     { &hf_icmp_length,
       { "Length of original datagram",         "icmp.length",            FT_UINT8, BASE_DEC,     NULL, 0x0,
