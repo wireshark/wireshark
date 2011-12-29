@@ -1784,19 +1784,6 @@ main(int argc, char *argv[])
        (or get a list of link-layer types for a live capture device);
        do we have support for live captures? */
 #ifdef HAVE_LIBPCAP
-
-#ifdef _WIN32
-    if (!has_wpcap) {
-      char *detailed_err;
-
-      cmdarg_err("WinPcap couldn't be found.");
-      detailed_err = cant_load_winpcap_err("TShark");
-      cmdarg_err_cont("%s", detailed_err);
-      g_free(detailed_err);
-      return 2;
-    }
-#endif
-
     /* trim the interface name and exit if that failed */
     if (!capture_opts_trim_iface(&global_capture_opts,
         (prefs_p->capture_device) ? get_if_name(prefs_p->capture_device) : NULL)) {
