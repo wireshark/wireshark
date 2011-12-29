@@ -81,7 +81,6 @@
 #include "capture-pcap-util.h"
 #ifdef _WIN32
 #include "capture-wpcap.h"
-#include "capture_errs.h"
 #endif /* _WIN32 */
 
 #include "pcapio.h"
@@ -682,13 +681,22 @@ get_capture_device_open_failure_messages(const char *open_err_str,
                "The capture session could not be initiated (%s).", open_err_str);
 #ifdef _WIN32
     if (!has_wpcap) {
-      char *detailed_err;
-
-      detailed_err = cant_load_winpcap_err("TShark");
       g_snprintf(secondary_errmsg, (gulong) secondary_errmsg_len,
-                 "\n",
-                 "%s\n", detailed_err);
-      g_free(detailed_err);
+                 "\n"
+                 "In order to capture packets, WinPcap must be installed; see\n"
+                 "\n"
+                 "        http://www.winpcap.org/\n"
+                 "\n"
+                 "or the mirror at\n"
+                 "\n"
+                 "        http://www.mirrors.wiretapped.net/security/packet-capture/winpcap/\n"
+                 "\n"
+                 "or the mirror at\n"
+                 "\n"
+                 "        http://winpcap.cs.pu.edu.tw/\n"
+                 "\n"
+                 "for a downloadable version of WinPcap and for instructions on how to install\n"
+                 "WinPcap.");
     } else {
       g_snprintf(secondary_errmsg, (gulong) secondary_errmsg_len,
                  "\n"
