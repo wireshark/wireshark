@@ -860,7 +860,11 @@ else
 	AM_PATH_GLIB_2_0(2.14.0, , AC_MSG_ERROR(GLib 2.14 or later distribution not found.), gthread gmodule)
 
 	CFLAGS="-DGTK_DISABLE_SINGLE_INCLUDES $CFLAGS"
-	CFLAGS="-DGTK_DISABLE_DEPRECATED $CFLAGS"
+	## Define GTK_DISABLE_DEPRECATED only if GTK lt 3.2
+	## GTK 3.2 deprecates GtkVBox & GtkHBox which are currently used extensively by Wireshark.
+	if test $gtk_config_major_version -eq 2 -o $gtk_config_minor_version -lt 2; then
+		CFLAGS="-DGTK_DISABLE_DEPRECATED $CFLAGS"
+	fi
 	# CFLAGS="-DGDK_DISABLE_DEPRECATED $CFLAGS"
 	if test $gtk_config_major_version -eq 2 -a $gtk_config_minor_version -ge 20; then
 		# Enable GSEAL when building with GTK > 2.20 and < 3.0
