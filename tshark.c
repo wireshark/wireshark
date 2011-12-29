@@ -89,7 +89,6 @@
 #include "capture-pcap-util.h"
 #ifdef _WIN32
 #include "capture-wpcap.h"
-#include "capture_errs.h"
 #include <wsutil/unicode-utils.h>
 #endif /* _WIN32 */
 #include "capture_sync.h"

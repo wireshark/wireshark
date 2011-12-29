@@ -36,7 +36,6 @@
 #include "capture-pcap-util.h"
 #include "capture-pcap-util-int.h"
 #include "capture-wpcap.h"
-#include "capture_errs.h"
 
 #include <wsutil/file_util.h>
 
@@ -230,6 +229,34 @@ load_wpcap(void)
 
 
 	has_wpcap = TRUE;
+}
+
+/*
+ * The official list of WinPcap mirrors is at
+ * http://www.winpcap.org/misc/mirrors.htm
+ */
+char *
+cant_load_winpcap_err(const char *app_name)
+{
+	return g_strdup_printf(
+"Unable to load WinPcap (wpcap.dll); %s will not be able to capture\n"
+"packets.\n"
+"\n"
+"In order to capture packets, WinPcap must be installed; see\n"
+"\n"
+"        http://www.winpcap.org/\n"
+"\n"
+"or the mirror at\n"
+"\n"
+"        http://www.mirrors.wiretapped.net/security/packet-capture/winpcap/\n"
+"\n"
+"or the mirror at\n"
+"\n"
+"        http://winpcap.cs.pu.edu.tw/\n"
+"\n"
+"for a downloadable version of WinPcap and for instructions on how to install\n"
+"WinPcap.",
+	    app_name);
 }
 
 char*

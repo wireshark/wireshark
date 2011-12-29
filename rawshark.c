@@ -106,7 +106,6 @@
 #include "pcapio.h"
 #ifdef _WIN32
 #include "capture-wpcap.h"
-#include "capture_errs.h"
 #endif /* _WIN32 */
 #endif /* HAVE_LIBPCAP */
 #include "log.h"
