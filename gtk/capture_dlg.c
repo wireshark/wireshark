@@ -67,7 +67,6 @@
 #include "gtk/main_welcome.h"
 #include "gtk/network_icons.h"
 
-
 #include "gtk/keys.h"
 
 #include "gtk/old-gtk-compat.h"
