@@ -67,9 +67,6 @@
 #include "gtk/main_welcome.h"
 #include "gtk/network_icons.h"
 
-#ifdef _WIN32
-#include "../capture-wpcap.h"
-#endif
 
 #include "gtk/keys.h"
 
@@ -2743,17 +2740,6 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     return;
   }
 
-#ifdef _WIN32
-  /* Is WPcap loaded? */
-  if (!has_wpcap) {
-    char *detailed_err;
-
-    detailed_err = cant_load_winpcap_err("Wireshark");
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", detailed_err);
-    g_free(detailed_err);
-    return;
-  }
-#endif
   num_selected = 0;
   /* use user-defined title if preference is set */
 
@@ -3381,17 +3367,6 @@ capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
 #ifdef HAVE_AIRPCAP
   airpcap_if_active = airpcap_if_selected;
   airpcap_set_toolbar_start_capture(airpcap_if_active);
-#endif
-
-#ifdef _WIN32
-  /* Is WPcap loaded? */
-  if (!has_wpcap) {
-    char * err_msg = cant_load_winpcap_err("Wireshark");
-
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, err_msg);
-    g_free(err_msg);
-    return;
-  }
 #endif
 
   if (cap_open_w) {

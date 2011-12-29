@@ -48,7 +48,6 @@
 #include <wiretap/wtap.h>
 
 #ifdef _WIN32
-#include "../capture-wpcap.h"
 #include "gtk/capture_if_details_dlg_win32.h"
 #endif
 
@@ -743,17 +742,6 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
     return;
   }
 
-#ifdef _WIN32
-  /* Is WPcap loaded? */
-  if (!has_wpcap) {
-    char *detailed_err;
-
-    detailed_err = cant_load_winpcap_err("Wireshark");
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", detailed_err);
-    g_free(detailed_err);
-    return;
-  }
-#endif
   preselected = global_capture_opts.ifaces->len;
   /* LOAD THE INTERFACES */
   if_list = capture_interface_list(&err, &err_str);
