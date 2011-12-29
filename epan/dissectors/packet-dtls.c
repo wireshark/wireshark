@@ -51,18 +51,6 @@
 # include "config.h"
 #endif
 
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
-
-#ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
-#endif
-
-#ifdef HAVE_WINSOCK2_H
-#include <winsock2.h>
-#endif
-
 #include <glib.h>
 
 #include <epan/conversation.h>
@@ -72,9 +60,6 @@
 #include <epan/emem.h>
 #include <epan/tap.h>
 #include <epan/reassemble.h>
-#ifdef NEED_INET_V6DEFS_H
-#include "wsutil/inet_v6defs.h"
-#endif
 #include "packet-ssl-utils.h"
 #include <wsutil/file_util.h>
 #include <epan/uat.h>
