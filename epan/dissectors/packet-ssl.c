@@ -95,21 +95,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/stat.h>
 #include <errno.h>
-
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
-#ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
-#endif
-#ifdef HAVE_WINSOCK2_H
-#include <winsock2.h>
-#endif
 
 #include <glib.h>
 
+#include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/reassemble.h>
 #include <epan/prefs.h>
@@ -122,9 +112,6 @@
 #include <epan/filesystem.h>
 #include <epan/report_err.h>
 #include <epan/expert.h>
-#ifdef NEED_INET_V6DEFS_H
-#include "wsutil/inet_v6defs.h"
-#endif
 #include "packet-x509if.h"
 #include "packet-ssl.h"
 #include "packet-ssl-utils.h"
