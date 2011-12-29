@@ -763,6 +763,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
     switch (err) {
 
     case CANT_GET_INTERFACE_LIST:
+    case DONT_HAVE_PCAP:
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);
       g_free(err_str);
       break;

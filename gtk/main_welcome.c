@@ -971,7 +971,8 @@ welcome_if_tree_load(void)
         interfaces = g_array_new(TRUE, TRUE, sizeof(displayed_interface));
         if_list = capture_interface_list(&err, &err_str);
         if_list = g_list_sort (if_list, if_list_comparator_alph);
-        if (if_list == NULL && err == CANT_GET_INTERFACE_LIST) {
+        if (if_list == NULL &&
+            (err == CANT_GET_INTERFACE_LIST || err == DONT_HAVE_PCAP)) {
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);
             g_free(err_str);
             return;

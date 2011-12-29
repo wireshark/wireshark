@@ -1138,6 +1138,7 @@ main(int argc, char *argv[])
       if (if_list == NULL) {
         switch (err) {
         case CANT_GET_INTERFACE_LIST:
+        case DONT_HAVE_PCAP:
           cmdarg_err("%s", err_str);
           g_free(err_str);
           break;

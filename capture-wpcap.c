@@ -35,6 +35,8 @@
 #include "capture_ifinfo.h"
 #include "capture-pcap-util.h"
 #include "capture-pcap-util-int.h"
+#include "capture-wpcap.h"
+#include "capture_errs.h"
 
 #include <wsutil/file_util.h>
 
@@ -693,6 +695,16 @@ get_interface_list(int *err, char **err_str)
 	char ascii_desc[MAX_WIN_IF_NAME_LEN + 1];
 	int i, j;
 	char errbuf[PCAP_ERRBUF_SIZE];
+
+	if (!has_wpcap) {
+		/*
+		 * We don't have WinPcap, so we can't get a list of
+		 * interfaces.
+		 */
+		*err = DONT_HAVE_PCAP;
+		*err_str = cant_load_winpcap_err("you");
+		return NULL;
+	}
 
 #ifdef HAVE_PCAP_FINDALLDEVS
 	if (p_pcap_findalldevs != NULL)

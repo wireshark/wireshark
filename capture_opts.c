@@ -471,6 +471,7 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
             switch (err) {
 
             case CANT_GET_INTERFACE_LIST:
+            case DONT_HAVE_PCAP:
                 cmdarg_err("%s", err_str);
                 g_free(err_str);
                 break;
@@ -842,6 +843,7 @@ gboolean capture_opts_trim_iface(capture_options *capture_opts, const char *capt
                 switch (err) {
 
                 case CANT_GET_INTERFACE_LIST:
+                case DONT_HAVE_PCAP:
                     cmdarg_err("%s", err_str);
                     g_free(err_str);
                     break;

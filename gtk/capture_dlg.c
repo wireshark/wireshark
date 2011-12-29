@@ -1068,7 +1068,8 @@ update_interface_list(void)
     g_object_set_data(G_OBJECT(cap_open_w), E_CAP_IF_LIST_KEY, NULL);
   }
 
-  if (if_list == NULL && err == CANT_GET_INTERFACE_LIST) {
+  if (if_list == NULL &&
+      (err == CANT_GET_INTERFACE_LIST || err == DONT_HAVE_PCAP)) {
     gpointer dialog = simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);
     g_free(err_str);
 
@@ -2765,7 +2766,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 
   if_list = capture_interface_list(&err, &err_str);
 
-  if (if_list == NULL && err == CANT_GET_INTERFACE_LIST) {
+  if (if_list == NULL &&
+      (err == CANT_GET_INTERFACE_LIST || err == DONT_HAVE_PCAP)) {
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);
     g_free(err_str);
   }
@@ -3727,7 +3729,8 @@ make_and_fill_rows(void)
   /* Scan through the list and build a list of strings to display. */
   if_list = capture_interface_list(&err, &err_str);
   if_list = g_list_sort (if_list, if_list_comparator_alph);
-  if (if_list == NULL && err == CANT_GET_INTERFACE_LIST) {
+  if (if_list == NULL &&
+      (err == CANT_GET_INTERFACE_LIST || err == DONT_HAVE_PCAP)) {
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);
     g_free(err_str);
     return;
