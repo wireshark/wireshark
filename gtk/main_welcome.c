@@ -1255,7 +1255,7 @@ welcome_new(void)
                                       "this system with the current configuration.\n\n"
                                       "See Capture Help below for details.");
             } else {
-                label_text = g_strdup("WinPcap doesn't appear to be installed.\n"
+                label_text = g_strdup("WinPcap doesn't appear to be installed.  "
                                       "In order to capture packets, WinPcap\n"
                                       "must be installed; see\n"
                                       "\n"
@@ -1269,7 +1269,7 @@ welcome_new(void)
                                       "\n"
                                       "        http://winpcap.cs.pu.edu.tw/\n"
                                       "\n"
-                                      "for a downloadable version of WinPcap\n"
+                                      "for a downloadable version of WinPcap "
                                       "and for instructions on how to install\n"
                                       "WinPcap.");
             }
