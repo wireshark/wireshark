@@ -1090,12 +1090,14 @@ static void capture_if_start(GtkWidget *w _U_, gpointer data _U_)
 }
 #endif
 
+#ifdef HAVE_LIBPCAP
 #if GTK_CHECK_VERSION(2,18,0)
 static gboolean
 activate_link_cb(GtkLabel *label _U_, gchar *uri, gpointer user_data _U_)
 {
 	return browser_open_url(uri);
 }
+#endif
 #endif
 
 /* create the welcome page */
