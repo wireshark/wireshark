@@ -1018,7 +1018,7 @@ Graeme Hewson           <graeme.hewson[AT]oracle.com> {
 	Make dialog box pop up only after a minimum period of time
 }
 
-Pasi Eronen             <pe[at]iki.fi> {
+Pasi Eronen             <pe[AT]iki.fi> {
 	Patches to the dcerpc dissector for data representation decoding
 	XDMCP support
 	Support for PCT cipher suites and record layer in SSL
@@ -3378,6 +3378,11 @@ Per Liedberg		<per.liedberg [AT] ericsson.com> {
 	RoHC dissection improvments
 }
 
+Gaurav Tungatkar	<gauravstt [AT] gmail.com> {
+	Extended ICMP - Multipart Message Support (RFC 4884)
+	and Extension for Interface and Next-Hop
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
@@ -3589,7 +3594,7 @@ http://bitop.luajit.org/
 Henrik Brix Andersen <brix[AT]gimp.org> gave permission for his
 webbrowser calling routine to be used.
 
-Christophe Devine <c.devine[at]cr0.net> gave permission for his
+Christophe Devine <c.devine[AT]cr0.net> gave permission for his
 SHA1 routines to be used.
 
 snax <snax[AT]shmoo.com> gave permission to use his(?) weak key
