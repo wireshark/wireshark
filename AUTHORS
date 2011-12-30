@@ -3355,22 +3355,26 @@ Mariusz Okrój 		<okrojmariusz [AT] gmail.com> {
 Ivan Lawrow		<ivan.lawrow [AT] jennic.com> {
 	Added IEEE 802.15.4-2003 AES-CCM security modes
 }
+
 Kari Vatjus-Anttila	<kari.vatjus-anttila [AT] cie.fi> {
 	kNet (KristalliNet) dissector
 }
-Shobhank Sharma         <ssharma5 [AT] ncsu.edu>{
+
+Shobhank Sharma         <ssharma5 [AT] ncsu.edu> {
 	MPLS Enhancement - Generic Associated Channel, as per RFC 5586
 }
-Salil Kanitkar         <sskanitk [AT] ncsu.edu>{
+
+Salil Kanitkar         <sskanitk [AT] ncsu.edu> {
 	OSPF Router Informational Capabilities - Opaque RI TLV - RFC4970
 	OSPF Dynamic Hostname TLV in RI Opaque TLV - RFC5642
 }
+
 Michael Sakaluk		<mdsakalu [AT] ncsu.edu> {
 	BGP Encapsulation SAFI support (RFC 5512)
 	Load balancing for mesh softwires (RFC 5640)
 }
 
-Per Liedberg		<per.liedberg [at]ericsson.com> {
+Per Liedberg		<per.liedberg [AT] ericsson.com> {
 	RoHC dissection improvments
 }
 
