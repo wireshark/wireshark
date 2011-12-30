@@ -59,7 +59,10 @@
 #include "gtk/capture_dlg.h"
 #include "gtk/capture_if_dlg.h"
 #include "gtk/capture_globals.h"
+#if GTK_CHECK_VERSION(2,18,0)
+#include "gtk/webbrowser.h"
 #endif
+#endif /* HAVE_LIBPCAP */
 #include "../image/wssplash-dev.xpm"
 #include "../version_info.h"
 
@@ -1087,6 +1090,14 @@ static void capture_if_start(GtkWidget *w _U_, gpointer data _U_)
 }
 #endif
 
+#if GTK_CHECK_VERSION(2,18,0)
+static gboolean
+activate_link_cb(GtkLabel *label _U_, gchar *uri, gpointer user_data _U_)
+{
+	return browser_open_url(uri);
+}
+#endif
+
 /* create the welcome page */
 GtkWidget *
 welcome_new(void)
@@ -1256,21 +1267,33 @@ welcome_new(void)
                                       "See Capture Help below for details.");
             } else {
                 label_text = g_strdup("WinPcap doesn't appear to be installed.  "
-                                      "In order to capture packets, WinPcap\n"
+                                      "In order to capture packets, WinPcap "
                                       "must be installed; see\n"
                                       "\n"
+#if GTK_CHECK_VERSION(2,18,0)
+                                      "        <a href=\"http://www.winpcap.org/\">http://www.winpcap.org/</a>\n"
+#else
                                       "        http://www.winpcap.org/\n"
+#endif
                                       "\n"
                                       "or the mirror at\n"
                                       "\n"
+#if GTK_CHECK_VERSION(2,18,0)
+                                      "        <a href=\"http://www.mirrors.wiretapped.net/security/packet-capture/winpcap/\">http://www.mirrors.wiretapped.net/security/packet-capture/winpcap/</a>\n"
+#else
                                       "        http://www.mirrors.wiretapped.net/security/packet-capture/winpcap/\n"
+#endif
                                       "\n"
                                       "or the mirror at\n"
                                       "\n"
+#if GTK_CHECK_VERSION(2,18,0)
+                                      "        <a href=\"http://winpcap.cs.pu.edu.tw/\">http://winpcap.cs.pu.edu.tw/</a>\n"
+#else
                                       "        http://winpcap.cs.pu.edu.tw/\n"
+#endif
                                       "\n"
                                       "for a downloadable version of WinPcap "
-                                      "and for instructions on how to install\n"
+                                      "and for instructions on how to install "
                                       "WinPcap.");
             }
         } else {
@@ -1280,9 +1303,13 @@ welcome_new(void)
         }
         w = gtk_label_new(label_text);
         gtk_label_set_markup(GTK_LABEL(w), label_text);
+        gtk_label_set_line_wrap(GTK_LABEL(w), TRUE);
         g_free (label_text);
         gtk_misc_set_alignment (GTK_MISC(w), 0.0f, 0.0f);
         gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 5);
+#if GTK_CHECK_VERSION(2,18,0)
+        g_signal_connect(w, "activate-link", G_CALLBACK(activate_link_cb), NULL);
+#endif
     }
 
     free_interface_list(if_list);
