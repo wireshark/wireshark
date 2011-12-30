@@ -1248,9 +1248,36 @@ welcome_new(void)
         }
 #endif /* _WIN32 */
     } else {
-        label_text =  g_strdup("No interface can be used for capturing in\n"
-                               "this system with the current configuration.\n\n"
-                               "See Capture Help below for details.");
+    	if (if_list == NULL && err != NO_INTERFACES_FOUND) {
+            g_free(err_str);
+            if (err == CANT_GET_INTERFACE_LIST) {
+                label_text = g_strdup("No interface can be used for capturing in\n"
+                                      "this system with the current configuration.\n\n"
+                                      "See Capture Help below for details.");
+            } else {
+                label_text = g_strdup("WinPcap doesn't appear to be installed.\n"
+                                      "In order to capture packets, WinPcap\n"
+                                      "must be installed; see\n"
+                                      "\n"
+                                      "        http://www.winpcap.org/\n"
+                                      "\n"
+                                      "or the mirror at\n"
+                                      "\n"
+                                      "        http://www.mirrors.wiretapped.net/security/packet-capture/winpcap/\n"
+                                      "\n"
+                                      "or the mirror at\n"
+                                      "\n"
+                                      "        http://winpcap.cs.pu.edu.tw/\n"
+                                      "\n"
+                                      "for a downloadable version of WinPcap\n"
+                                      "and for instructions on how to install\n"
+                                      "WinPcap.");
+            }
+        } else {
+            label_text = g_strdup("No interface can be used for capturing in\n"
+                                  "this system with the current configuration.\n\n"
+                                  "See Capture Help below for details.");
+        }
         w = gtk_label_new(label_text);
         gtk_label_set_markup(GTK_LABEL(w), label_text);
         g_free (label_text);
