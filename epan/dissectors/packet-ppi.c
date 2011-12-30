@@ -492,7 +492,7 @@ dissect_80211_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 
     ptvcursor_add_invalid_check(csr, hf_80211_common_tsft, 8, 0);
 
-    ptvcursor_add_with_subtree(csr, hf_80211_common_flags, 2, TRUE,
+    ptvcursor_add_with_subtree(csr, hf_80211_common_flags, 2, ENC_LITTLE_ENDIAN,
                                ett_dot11_common_flags);
     ptvcursor_add_no_advance(csr, hf_80211_common_flags_fcs, 2, ENC_LITTLE_ENDIAN);
     ptvcursor_add_no_advance(csr, hf_80211_common_flags_tsft, 2, ENC_LITTLE_ENDIAN);
@@ -521,7 +521,7 @@ dissect_80211_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
     g_free(chan_str);
     ptvcursor_advance(csr, 2);
 
-    ptvcursor_add_with_subtree(csr, hf_80211_common_chan_flags, 2, TRUE,
+    ptvcursor_add_with_subtree(csr, hf_80211_common_chan_flags, 2, ENC_LITTLE_ENDIAN,
                                ett_dot11_common_channel_flags);
     ptvcursor_add_no_advance(csr, hf_80211_common_chan_flags_turbo, 2, ENC_LITTLE_ENDIAN);
     ptvcursor_add_no_advance(csr, hf_80211_common_chan_flags_cck, 2, ENC_LITTLE_ENDIAN);
@@ -572,7 +572,7 @@ dissect_80211n_mac(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int 
 
     csr = ptvcursor_new(ftree, tvb, offset);
 
-    ptvcursor_add_with_subtree(csr, hf_80211n_mac_flags, 4, TRUE,
+    ptvcursor_add_with_subtree(csr, hf_80211n_mac_flags, 4, ENC_LITTLE_ENDIAN,
                                ett_dot11n_mac_flags);
     ptvcursor_add_no_advance(csr, hf_80211n_mac_flags_greenfield, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add_no_advance(csr, hf_80211n_mac_flags_ht20_40, 4, ENC_LITTLE_ENDIAN);
@@ -639,7 +639,7 @@ dissect_80211n_mac_phy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
     g_free(chan_str);
     ptvcursor_advance(csr, 2);
 
-    ptvcursor_add_with_subtree(csr, hf_80211n_mac_phy_ext_chan_flags, 2, TRUE,
+    ptvcursor_add_with_subtree(csr, hf_80211n_mac_phy_ext_chan_flags, 2, ENC_LITTLE_ENDIAN,
                                ett_dot11n_mac_phy_ext_channel_flags);
     ptvcursor_add_no_advance(csr, hf_80211n_mac_phy_ext_chan_flags_turbo, 2, ENC_LITTLE_ENDIAN);
     ptvcursor_add_no_advance(csr, hhf_80211n_mac_phy_ext_chan_flags_cck, 2, ENC_LITTLE_ENDIAN);
@@ -709,11 +709,11 @@ dissect_8023_extension(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 
     csr = ptvcursor_new(ftree, tvb, offset);
 
-    ptvcursor_add_with_subtree(csr, hf_8023_extension_flags, 4, TRUE, ett_8023_extension_flags);
+    ptvcursor_add_with_subtree(csr, hf_8023_extension_flags, 4, ENC_LITTLE_ENDIAN, ett_8023_extension_flags);
     ptvcursor_add(csr, hf_8023_extension_flags_fcs_present, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_pop_subtree(csr);
 
-    ptvcursor_add_with_subtree(csr, hf_8023_extension_errors, 4, TRUE, ett_8023_extension_errors);
+    ptvcursor_add_with_subtree(csr, hf_8023_extension_errors, 4, ENC_LITTLE_ENDIAN, ett_8023_extension_errors);
     ptvcursor_add_no_advance(csr, hf_8023_extension_errors_fcs, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add_no_advance(csr, hf_8023_extension_errors_sequence, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add_no_advance(csr, hf_8023_extension_errors_symbol, 4, ENC_LITTLE_ENDIAN);

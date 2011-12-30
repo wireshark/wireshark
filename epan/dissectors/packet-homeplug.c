@@ -1029,7 +1029,7 @@ static void dissect_homeplug_ns(ptvcursor_t * cursor, packet_info * pinfo)
   if (!ptvcursor_tree(cursor))
     return;
 
-  ptvcursor_add_with_subtree(cursor, hf_homeplug_ns, homeplug_melen, FALSE,
+  ptvcursor_add_with_subtree(cursor, hf_homeplug_ns, homeplug_melen, ENC_BIG_ENDIAN,
       ett_homeplug_ns);
   {
     ti = proto_tree_add_boolean(ptvcursor_tree(cursor), hf_homeplug_ns_extended,
