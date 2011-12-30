@@ -529,7 +529,6 @@ set(WTAP_PLUGIN_SOURCES
 )
 
 set(SHARK_COMMON_CAPTURE_SRC
-	capture_errs.c
 	capture_ifinfo.c
 	capture_ui_utils.c
 )
