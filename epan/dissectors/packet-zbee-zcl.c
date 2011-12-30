@@ -185,9 +185,10 @@ static const value_string zbee_zcl_cs_cmd_names[] = {
 
 
 /* ZigBee Manufacturer Name Table */
-/* Per: 053298r18, November 2011 */
+/* Per: 053298r19, December 2011 */
 static const value_string zbee_mfr_code_names[] = {
 
+    { ZBEE_MFG_CODE_SAMSUNG,    ZBEE_MFG_SAMSUNG },
     { ZBEE_MFG_CODE_CIRRONET,   ZBEE_MFG_CIRRONET },
     { ZBEE_MFG_CODE_CHIPCON,    ZBEE_MFG_CHIPCON },
     { ZBEE_MFG_CODE_EMBER,      ZBEE_MFG_EMBER },

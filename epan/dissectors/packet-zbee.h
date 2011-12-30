@@ -54,7 +54,7 @@
 #define ZBEE_HAS_2007(x)            ((x) >= ZBEE_VERSION_2007)
 
 /* ZigBee Application Profile IDs */
-/* Per: 053298r18, November 2011 */
+/* Per: 053298r19, December 2011 */
 #define ZBEE_DEVICE_PROFILE                 0x0000
 
 #define ZBEE_PROFILE_IPM                    0x0101
@@ -399,6 +399,9 @@
 #define ZBEE_ZCL_FCF_CLUSTER_SPEC           0x01
 
 /* Manufacturer Codes */
+/* Codes less than 0x1000 were issued for RF4CE */
+#define ZBEE_MFG_CODE_SAMSUNG           0x0003
+/**/
 #define ZBEE_MFG_CODE_CIRRONET          0x1000
 #define ZBEE_MFG_CODE_CHIPCON           0x1001
 #define ZBEE_MFG_CODE_EMBER             0x1002
@@ -568,10 +571,7 @@
 #define ZBEE_MFG_CODE_G4S_JUSTICE       0x10c6
 /**/
 #define ZBEE_MFG_CODE_ELECTROLUX        0x10c8
-/* We surmise this Samsung code, because it's 
- * listed as "0009" in r18, which is obviously
- * wrong */
-#define ZBEE_MFG_CODE_SAMSUNG           0x10c9
+/**/
 /**/
 #define ZBEE_MFG_CODE_MAINSTREAM        0x10cc
 /**/
