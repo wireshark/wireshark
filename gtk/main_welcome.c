@@ -1264,8 +1264,9 @@ welcome_new(void)
     	if (if_list == NULL && err != NO_INTERFACES_FOUND) {
             g_free(err_str);
             if (err == CANT_GET_INTERFACE_LIST) {
-                label_text = g_strdup("No interface can be used for capturing in\n"
-                                      "this system with the current configuration.\n\n"
+                label_text = g_strdup("No interface can be used for capturing in "
+                                      "this system with the current configuration."
+                                      "\n"
                                       "See Capture Help below for details.");
             } else {
                 label_text = g_strdup("WinPcap doesn't appear to be installed.  "
@@ -1299,8 +1300,9 @@ welcome_new(void)
                                       "WinPcap.");
             }
         } else {
-            label_text = g_strdup("No interface can be used for capturing in\n"
-                                  "this system with the current configuration.\n\n"
+            label_text = g_strdup("No interface can be used for capturing in "
+                                  "this system with the current configuration."
+                                  "\n"
                                   "See Capture Help below for details.");
         }
         w = gtk_label_new(label_text);
