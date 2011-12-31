@@ -8,13 +8,15 @@
 # http://nplab.fh-muenster.de/groups/wiki/wiki/fb7a4/Building_Wireshark_on_SnowLeopard.html 
 #
 
+# To set up a GTK3 environment uncomment the line below
+# GTK3=1
 #
 # Versions to download and install.
 #
 # The following libraries are required.
 #
 GETTEXT_VERSION=0.18.1.1
-GLIB_VERSION=2.31.2
+GLIB_VERSION=2.31.6
 #
 # pkg-config 0.26 appears to have broken the "we have our own GLib"
 # stuff, even if you explicitly set GLIB_CFLAGS and GLIB_LIBS.
@@ -22,10 +24,23 @@ GLIB_VERSION=2.31.2
 # so we use 0.25 instead.
 #
 PKG_CONFIG_VERSION=0.26
-ATK_VERSION=2.0.1
+ATK_VERSION=2.2.0
 PANGO_VERSION=1.29.5
-GDK_PIXBUF_VERSION=2.24.0
-GTK_VERSION=2.24.8
+PNG_VERSION=1.5.7
+PIXMAN_VERSION=0.24.0
+CAIRO_VERSION=1.10.2
+GDK_PIXBUF_VERSION=2.25.0
+if [ -z "$GTK3" ]; then
+  GTK_VERSION=2.24.8
+else
+  GTK_VERSION=3.2.3
+fi
+
+#
+# Some package need xz to unpack their current source.
+# xz is not available on OSX (Snow Leopard).
+#
+XZ_VERSION=5.0.3
 
 #
 # The following libraries are optional.
@@ -102,6 +117,17 @@ then
 fi
 cd macosx-support-libs
 
+# Start with xz. It's required to unpack the current version of glib.
+#
+echo "Downloading, building, and installing xz:"
+curl -O http://tukaani.org/xz/xz-$XZ_VERSION.tar.bz2 || exit 1
+tar xf xz-$XZ_VERSION.tar.bz2 || exit 1
+cd xz-$XZ_VERSION
+CFLAGS="-D_FORTIFY_SOURCE=0" ./configure || exit 1
+make -j 3 || exit 1
+$DO_MAKE_INSTALL || exit 1
+cd ..
+
 #
 # Start with GNU gettext; GLib requires it, and OS X doesn't have it
 # or a BSD-licensed replacement.
@@ -124,8 +150,8 @@ cd ..
 
 echo "Downloading, building, and installing GLib:"
 glib_dir=`expr $GLIB_VERSION : '\([0-9][0-9]*\.[0-9][0-9]*\).*'`
-curl -L -O http://ftp.gnome.org/pub/gnome/sources/glib/$glib_dir/glib-$GLIB_VERSION.tar.bz2 || exit 1
-bzcat glib-$GLIB_VERSION.tar.bz2 | tar xf - || exit 1
+curl -L -O http://ftp.gnome.org/pub/gnome/sources/glib/$glib_dir/glib-$GLIB_VERSION.tar.xz || exit 1
+xzcat glib-$GLIB_VERSION.tar.xz | tar xf - || exit 1
 cd glib-$GLIB_VERSION
 #
 # OS X ships with libffi, but doesn't provide its pkg-config file;
@@ -161,19 +187,47 @@ cd ..
 # the GUI (Wireshark).
 #
 
-#
-# Cairo is part of Mac OS X 10.6 (and, I think, 10.5).
-# However, it's an X11 library; if we build with "native" GTK+ rather
-# than X11 GTK+, we might have to build and install Cairo.
-#
-# echo "Downloading, building, and installing Cairo:"
-# curl -O http://cairographics.org/releases/cairo-1.10.2.tar.gz || exit 1
-# tar xvfz cairo-1.10.2.tar.gz || exit 1
-# cd cairo-1.10.2
-# ./configure --enable-quartz=no || exit 1
-# make -j 3 || exit 1
-# $DO_MAKE_INSTALL || exit 1
-# cd ..
+if [ -n "$GTK3" ]; then
+  #
+  # Cairo is part of Mac OS X 10.6 (and, I think, 10.5).
+  # However, it's an X11 library; if we build with "native" GTK+ rather
+  # than X11 GTK+, we might have to build and install Cairo.
+  # GTK+-3 requires a newer cairo build as well.
+  #
+  # Requirements for cairo first
+  #
+  echo "Downloading, building, and installing libpng:"
+  curl -O ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng-$PNG_VERSION.tar.xz
+  xzcat libpng-$PNG_VERSION.tar.xz | tar xf - || exit 1
+  cd libpng-$PNG_VERSION
+  ./configure || exit 1
+  make -j 3 || exit 1
+  $DO_MAKE_INSTALL || exit 1
+  cd ..
+
+  echo "Downloading, building, and installing pixman:"
+  curl -O http://www.cairographics.org/releases/pixman-$PIXMAN_VERSION.tar.gz
+  gzcat pixman-$PIXMAN_VERSION.tar.gz | tar xf - || exit 1
+  cd pixman-$PIXMAN_VERSION
+  ./configure || exit 1
+  make -j 3 || exit 1
+  $DO_MAKE_INSTALL || exit 1
+  cd ..
+
+  #
+  # And now cairo itself.
+  #
+  echo "Downloading, building, and installing Cairo:"
+  curl -O http://cairographics.org/releases/cairo-$CAIRO_VERSION.tar.gz || exit 1
+  tar xvfz cairo-$CAIRO_VERSION.tar.gz || exit 1
+  cd cairo-$CAIRO_VERSION
+  #./configure --enable-quartz=no || exit 1
+  # Maybe follow http://cairographics.org/end_to_end_build_for_mac_os_x/
+  ./configure --enable-quartz=yes || exit 1
+  make -j 3 || exit 1
+  $DO_MAKE_INSTALL || exit 1
+  cd ..
+fi 
 
 echo "Downloading, building, and installing ATK:"
 atk_dir=`expr $ATK_VERSION : '\([0-9][0-9]*\.[0-9][0-9]*\).*'`
@@ -197,8 +251,8 @@ cd ..
 
 echo "Downloading, building, and installing gdk-pixbuf:"
 gdk_pixbuf_dir=`expr $GDK_PIXBUF_VERSION : '\([0-9][0-9]*\.[0-9][0-9]*\).*'`
-curl -L -O http://ftp.gnome.org/pub/gnome/sources/gdk-pixbuf/$gdk_pixbuf_dir/gdk-pixbuf-$GDK_PIXBUF_VERSION.tar.bz2 || exit 1
-bzcat gdk-pixbuf-$GDK_PIXBUF_VERSION.tar.bz2 | tar xf - || exit 1
+curl -L -O http://ftp.gnome.org/pub/gnome/sources/gdk-pixbuf/$gdk_pixbuf_dir/gdk-pixbuf-$GDK_PIXBUF_VERSION.tar.xz || exit 1
+xzcat gdk-pixbuf-$GDK_PIXBUF_VERSION.tar.xz | tar xf - || exit 1
 cd gdk-pixbuf-$GDK_PIXBUF_VERSION
 ./configure --without-libtiff --without-libjpeg || exit 1
 make -j 3 || exit 1
@@ -207,8 +261,8 @@ cd ..
 
 echo "Downloading, building, and installing GTK+:"
 gtk_dir=`expr $GTK_VERSION : '\([0-9][0-9]*\.[0-9][0-9]*\).*'`
-curl -L -O http://ftp.gnome.org/pub/gnome/sources/gtk+/$gtk_dir/gtk+-$GTK_VERSION.tar.bz2
-bzcat gtk+-$GTK_VERSION.tar.bz2 | tar xf - || exit 1
+curl -L -O http://ftp.gnome.org/pub/gnome/sources/gtk+/$gtk_dir/gtk+-$GTK_VERSION.tar.xz
+xzcat gtk+-$GTK_VERSION.tar.xz | tar xf - || exit 1
 cd gtk+-$GTK_VERSION
 ./configure || exit 1
 make -j 3 || exit 1

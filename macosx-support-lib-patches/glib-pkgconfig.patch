@@ -1,10 +1,10 @@
---- gobject-2.0.pc.orig	2011-06-26 16:07:00.000000000 +0200
-+++ gobject-2.0.pc	2011-06-26 16:07:11.000000000 +0200
+--- gobject-2.0.pc.in.orig	2011-12-30 22:08:27.000000000 +0100
++++ gobject-2.0.pc.in	2011-12-30 22:09:06.000000000 +0100
 @@ -7,6 +7,6 @@
  Description: GLib Type, Object, Parameter and Signal Library
- Requires: glib-2.0,gthread-2.0
- Version: 2.31.2
+ Requires: glib-2.0
+ Version: @VERSION@
 -Libs: -L${libdir} -lgobject-2.0
 +Libs: -L${libdir} -lgobject-2.0 -lffi
- Libs.private: -L/usr/lib
+ Libs.private: @LIBFFI_LIBS@
  Cflags:
