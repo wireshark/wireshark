@@ -2,25 +2,33 @@
 ################################
 *.dll
 *.exe
-*.[oa]
-*.lo
-*.so
 *.la
+*.lo
+*.obj
 *.pyc
-tools/lemon/lemon
-*_lex.h
-plugin.c
-*grammar.[ch]
+*.so
+*.[oa]
 *grammar.out
+*grammar.[ch]
 *scanner.c
 *_dict.c
+*_lex.h
+epan/declare_wslua.h
+epan/dissectors/dcerpc/idl2wrs
 epan/dissectors/packet-ncp2222.c
 epan/dissectors/packet-spnego.h
 epan/dissectors/register-cache.pkl
 epan/dissectors/register.c
 epan/dtd_parse.c
 epan/dtd_preparse.c
+epan/init.lua
+epan/packet-ncp2222.c
+epan/register-cache.pkl
+epan/register.c
+epan/register_wslua.c
 epan/sminmpec.c
+epan/taps.txt
+epan/taps_wslua.c
 epan/uat_load.c
 epan/wslua/declare_wslua.h
 epan/wslua/init.lua
@@ -28,9 +36,11 @@ epan/wslua/register_wslua.c
 epan/wslua/taps.txt
 epan/wslua/taps_wslua.c
 gtk/wireshark-tap-register.c
+plugin.c
 plugins/mate/mate_parser.c
 ps.c
 svnversion.h
+tools/lemon/lemon
 tools/lemon/lemon
 tools/setuid-root.pl
 tshark-tap-register.c
@@ -39,36 +49,35 @@ wiretap/ascend.h
 wiretap/k12text.c
 
 
-
 # Generated makefile system #
 #############################
-Makefile.in
-Makefile
 *.sym
 aclocal.m4
-configure
+autom4te.cache
+capinfos
+compile
 config.h
 config.h.in
 config.log
 config.status
-autom4te.cache
-install-sh
-libtool
-ltmain.sh
-missing
-capinfos
-compile
+configure
 depcomp
 dftest
 dumpcap
 editcap
+install-sh
+libtool
+ltmain.sh
+Makefile
+Makefile.in
 mergecap
+missing
 randpkt
 rawshark
+stamp-h1
 text2pcap
 tshark
 wireshark
-stamp-h1
 ylwrap
 
 
@@ -76,23 +85,34 @@ ylwrap
 ##################
 CMakeCache.txt
 CMakeFiles
+cmake_install.cmake
 CPackConfig.cmake
 CPackSourceConfig.cmake
+lib/
+
 
 # Generated dir #
 ##################
 .deps
 .libs
 
+
 # Doc #
 ########
-doxygen.cfg
+*.html
+*.[14]
 AUTHORS-SHORT
+AUTHORS-SHORT-FORMAT
+doxygen.cfg
 help/faq.txt
+pod2htm[di].tmp
+wireshark.pod
+
 
 # Misc #
 ########
 *.swp
+.DS_Store
 packaging/macosx/COPYING.txt
 packaging/macosx/Info.plist
 packaging/rpm/SPECS/wireshark.spec
