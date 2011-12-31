@@ -1265,7 +1265,7 @@ welcome_new(void)
             g_free(err_str);
             if (err == CANT_GET_INTERFACE_LIST) {
                 label_text = g_strdup("No interface can be used for capturing in "
-                                      "this system with the current configuration."
+                                      "this system with the current configuration.\n"
                                       "\n"
                                       "See Capture Help below for details.");
             } else {
@@ -1301,7 +1301,7 @@ welcome_new(void)
             }
         } else {
             label_text = g_strdup("No interface can be used for capturing in "
-                                  "this system with the current configuration."
+                                  "this system with the current configuration.\n"
                                   "\n"
                                   "See Capture Help below for details.");
         }
