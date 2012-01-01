@@ -14571,6 +14571,9 @@
 00:50:C2:F0:70:00/36	IconRese               # Icon Research Ltd
 00:50:C2:F0:80:00/36	AplexTec               # Aplex Technology Inc.
 00:50:C2:F0:90:00/36	Wheatsto               # Wheatstone Corporation
+00:50:C2:F0:A0:00/36	HascomIn               # HASCOM International Pty Ltd
+00:50:C2:F0:B0:00/36	Treehave               # Treehaven Technologies, Inc.
+00:50:C2:F0:C0:00/36	Skychann               # SKYCHANNEL LTD 
 00:50:C4	Imd
 00:50:C5	AdsTechn               # ADS Technologies, Inc
 00:50:C6	LoopTele               # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
@@ -17024,6 +17027,7 @@
 1C:F0:61	Scaps                  # SCAPS GmbH
 1C:F5:E7	TurtleIn               # Turtle Industry Co., Ltd.
 1C:FE:A7	Identyte               # IDentytech Solutins Ltd.
+20:05:05	RadmaxCo               # RADMAX COMMUNICATION PRIVATE LIMITED
 20:05:E8	Ooo"Inpr               # OOO "InProMedia"
 20:0A:5E	Xiangsha               # Xiangshan Giant Eagle Technology Developing co.,LTD
 20:10:7A	GemtekTe               # Gemtek Technology Co., Ltd.
@@ -17598,6 +17602,7 @@
 50:26:90	Fujitsu                # Fujitsu Limited
 50:2A:7E	SmartEle               # Smart electronic GmbH
 50:2A:8B	TelekomR               # Telekom Research and Development Sdn Bhd
+50:2D:1D	Nokia                  # Nokia Corporation
 50:2D:A2	IntelCor               # Intel Corporate
 50:2D:F4	PhytecMe               # Phytec Messtechnik GmbH
 50:3D:E5	Cisco                  # Cisco Systems
@@ -17693,6 +17698,7 @@
 58:6E:D6	Private
 58:75:21	CjscRtso               # CJSC RTSoft
 58:76:75	BeijingE               # Beijing ECHO Technologies Co.,Ltd
+58:7F:C8	S2m
 58:8D:09	Cisco                  # Cisco Systems
 58:91:CF	IntelCor               # Intel Corporate
 58:92:0D	KineticA               # Kinetic Avionics Limited
@@ -18068,6 +18074,7 @@
 78:12:B8	Orantek                # ORANTEK LIMITED
 78:19:2E	NascentT               # NASCENT Technology
 78:19:F7	JuniperN               # Juniper Networks
+78:1C:5A	Sharp                  # SHARP Corporation
 78:1D:BA	HuaweiTe               # HUAWEI TECHNOLOGIES CO.,LTD
 78:1D:FD	Jabil                  # Jabil Inc
 78:22:3D	Affirmed               # Affirmed Networks
@@ -18261,6 +18268,7 @@
 84:EA:99	Vieworks
 84:F6:4C	CrossPoi               # Cross Point BV
 88:18:AE	Tamron                 # Tamron Co., Ltd
+88:20:12	LmiTechn               # LMI Technologies
 88:21:E3	Nebusens               # Nebusens, S.L.
 88:23:FE	TttechCo               # TTTech Computertechnik AG
 88:25:2C	Arcadyan               # Arcadyan Technology Corporation
@@ -18707,11 +18715,13 @@ AC:02:CF	RwTecnol               # RW Tecnologia Industria e Comercio Ltda
 AC:02:EF	Comsis
 AC:06:13	Senselog               # Senselogix Ltd
 AC:0D:FE	Ekon-Myg               # Ekon GmbH - myGEKKO
+AC:14:61	Ataw                   # ATAW  Co., Ltd.
 AC:19:9F	SungrowP               # SUNGROW POWER SUPPLY CO.,LTD.
 AC:20:AA	Dmatek                 # DMATEK Co., Ltd.
 AC:2F:A8	Humannix               # Humannix Co.,Ltd.
 AC:31:9D	Shenzhen               # Shenzhen TG-NET Botone Technology Co.,Ltd.
 AC:34:CB	ShanhaiG               # Shanhai GBCOM Communication Technology Co. Ltd
+AC:3D:05	Instores               # Instorescreen Aisa
 AC:44:F2	Revolabs               # Revolabs Inc
 AC:47:23	Genelec
 AC:4A:FE	HisenseB               # Hisense Broadband Multimedia Technology Co.,Ltd.
@@ -19442,6 +19452,7 @@ E4:AB:46	UabSelte               # UAB Selteka
 E4:AD:7D	SclEleme               # SCL Elements
 E4:AF:A1	Hes-So
 E4:B0:21	SamsungE               # Samsung Electronics Co.,Ltd
+E4:C6:E6	MophieLl               # Mophie, LLC
 E4:C8:06	CeiecEle               # Ceiec Electric Technology Inc.
 E4:CE:8F	Apple                  # Apple, Inc.
 E4:D5:3D	HonHaiPr               # Hon Hai Precision Ind. Co.,Ltd. 
@@ -19612,6 +19623,7 @@ F4:03:21	BenextBV               # BeNeXt B.V.
 F4:04:4C	Valencet               # ValenceTech Limited
 F4:0B:93	Research               # Research In Motion
 F4:1F:0B	Yamabish               # YAMABISHI Corporation
+F4:36:E1	AbilisSa               # Abilis Systems SARL
 F4:38:14	Shanghai               # Shanghai Howell Electronic Co.,Ltd
 F4:3D:80	FagIndus               # FAG Industrial Services GmbH
 F4:3E:61	Shenzhen               # Shenzhen Gongjin Electronics Co., Ltd
@@ -19632,6 +19644,7 @@ F4:73:CA	Conversi               # Conversion Sound Inc.
 F4:76:26	Viltechm               # Viltechmeda UAB 
 F4:7A:CC	Solidfir               # SolidFire, Inc.
 F4:87:71	Infoblox
+F4:8E:09	Nokia                  # Nokia Corporation
 F4:94:61	NexgenSt               # NexGen Storage
 F4:9F:54	SamsungE               # Samsung Electronics
 F4:A5:2A	HawaTech               # Hawa Technologies Inc
