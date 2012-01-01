@@ -377,7 +377,7 @@ gsm_a_stat_draw(
     {
         gsm_a_stat_draw_aux(&dlg_sacch_rr,
             stat_p->sacch_rr_message_type,
-            gsm_a_sacch_msg_rr_strings);
+            gsm_a_rr_short_pd_msg_strings);
     }
 }
 

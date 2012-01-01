@@ -303,14 +303,14 @@ gsm_a_stat_draw(
     printf("Message (ID)Type                                        Number\n");
 
     i = 0;
-    while (gsm_a_sacch_msg_rr_strings[i].strptr)
+    while (gsm_a_rr_short_pd_msg_strings[i].strptr)
     {
-	if (stat_p->sacch_rr_message_type[gsm_a_sacch_msg_rr_strings[i].value] > 0)
+	if (stat_p->sacch_rr_message_type[gsm_a_rr_short_pd_msg_strings[i].value] > 0)
 	{
 	    printf("0x%02x  %-50s%d\n",
-		gsm_a_sacch_msg_rr_strings[i].value,
-		gsm_a_sacch_msg_rr_strings[i].strptr,
-		stat_p->sacch_rr_message_type[gsm_a_sacch_msg_rr_strings[i].value]);
+		gsm_a_rr_short_pd_msg_strings[i].value,
+		gsm_a_rr_short_pd_msg_strings[i].strptr,
+		stat_p->sacch_rr_message_type[gsm_a_rr_short_pd_msg_strings[i].value]);
 	}
 
 	i++;

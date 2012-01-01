@@ -594,7 +594,7 @@ gsm_a_dtap_msg_sm_strings       DATA
 gsm_a_dtap_msg_sms_strings      DATA
 gsm_a_dtap_msg_ss_strings       DATA
 gsm_a_dtap_msg_tp_strings       DATA
-gsm_a_sacch_msg_rr_strings      DATA
+gsm_a_rr_short_pd_msg_strings   DATA
 gsm_a_pd_str                    DATA
 gsm_map_opr_code_strings        DATA
 gtcap_StatSRT                   DATA

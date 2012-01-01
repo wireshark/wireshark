@@ -439,7 +439,10 @@ static int proto_a_sacch = -1;
 static int hf_gsm_a_dtap_msg_rr_type = -1;
 int hf_gsm_a_rr_elem_id = -1;
 
-static int hf_gsm_a_sacch_msg_rr_type = -1;
+static int hf_gsm_a_rr_short_pd_msg_type = -1;
+static int hf_gsm_a_rr_short_pd = -1;
+static int hf_gsm_a_rr_short_l2_header = -1;
+
 
 static int hf_gsm_a_bcc = -1;
 static int hf_gsm_a_ncc = -1;
@@ -10922,7 +10925,7 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 }
 
-const value_string gsm_a_sacch_msg_rr_strings[] = {
+const value_string gsm_a_rr_short_pd_msg_strings[] = {
     { 0x00, "System Information Type 10" },
     { 0x01, "Notification/FACCH" },
     { 0x02, "Uplink Free" },
@@ -10935,7 +10938,7 @@ const value_string gsm_a_sacch_msg_rr_strings[] = {
     {    0, NULL }
 };
 
-#define NUM_GSM_SACCH_MSG_RR (sizeof(gsm_a_sacch_msg_rr_strings)/sizeof(value_string))
+#define NUM_GSM_SACCH_MSG_RR (sizeof(gsm_a_rr_short_pd_msg_strings)/sizeof(value_string))
 static gint ett_gsm_sacch_msg_rr[NUM_GSM_SACCH_MSG_RR];
 static void (*sacch_msg_rr_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len) = {
     NULL,                       /* System Information Type 10 */
@@ -10955,8 +10958,8 @@ get_rr_short_pd_msg_params(guint8 mess_type, const gchar **msg_str, int *ett_tre
 {
     gint                        idx;
 
-    *msg_str = match_strval_idx((guint32) mess_type, gsm_a_sacch_msg_rr_strings, &idx);
-    *hf_idx = hf_gsm_a_sacch_msg_rr_type;
+    *msg_str = match_strval_idx((guint32) mess_type, gsm_a_rr_short_pd_msg_strings, &idx);
+    *hf_idx = hf_gsm_a_rr_short_pd_msg_type;
     if (*msg_str != NULL) {
         *ett_tree = ett_gsm_sacch_msg_rr[idx];
         *msg_fcn_p = sacch_msg_rr_fcn[idx];
@@ -10977,7 +10980,7 @@ dissect_sacch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     void                        (*msg_fcn_p)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len);
     guint8                      oct, short_pd, mess_type;
-    guint32                     offset;
+    guint32                     offset, bit_offset = 0;
     guint32                     len;
     proto_item                  *sacch_item = NULL;
     proto_tree                  *sacch_tree = NULL;
@@ -11039,10 +11042,7 @@ dissect_sacch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     if (short_pd == 0)
-        proto_tree_add_text(sacch_tree,
-                            tvb, offset, 1,
-                            "Short Protocol Discriminator: %s",
-                            val_to_str(short_pd, short_protocol_discriminator_vals, "Unknown (%u)"));
+       proto_tree_add_bits_item(sacch_tree, hf_gsm_a_rr_short_pd, tvb, offset * 8 + bit_offset++, 1, ENC_BIG_ENDIAN);
 
     if (hf_idx == -1)
         return;
@@ -11050,12 +11050,10 @@ dissect_sacch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*
      * add SACCH message name
      */
-    proto_tree_add_uint_format(sacch_tree, hf_idx, tvb, offset, 1, oct,
-                               "Message Type: %s",msg_str ? msg_str : "(Unknown)");
+    proto_tree_add_bits_item(sacch_tree, hf_gsm_a_rr_short_pd_msg_type, tvb, offset * 8 + bit_offset, 5, ENC_BIG_ENDIAN);
+    bit_offset += 5;
 
-    proto_tree_add_text(sacch_tree, tvb, offset, 1,
-                        "Short Layer 2 header: %u", oct & 0x03);
-
+    proto_tree_add_bits_item(sacch_tree, hf_gsm_a_rr_short_l2_header, tvb, offset * 8 + bit_offset, 2, ENC_BIG_ENDIAN);
     offset++;
 
     tap_p->pdu_type = GSM_A_PDU_TYPE_SACCH;
@@ -12832,11 +12830,21 @@ proto_register_gsm_a_rr(void)
             },
 		};
 
-    static hf_register_info hf_sacch[] =
+    static hf_register_info hf_rr_short_pd[] =
         {
-            { &hf_gsm_a_sacch_msg_rr_type,
-              { "SACCH Radio Resources Management Message Type",        "gsm_a.sacch_msg_rr_type",
-                FT_UINT8, BASE_HEX, VALS(gsm_a_sacch_msg_rr_strings), 0x0,
+           { &hf_gsm_a_rr_short_pd,
+             { "Radio Resources Short Protocol Discriminator",        "gsm_a.rr_short_pd",
+               FT_UINT8, BASE_HEX, NULL, 0x0,
+               NULL, HFILL }
+           },
+            { &hf_gsm_a_rr_short_pd_msg_type,
+              { "Radio Resources Short PD Message Type",        "gsm_a.rr_short_pd_type",
+                FT_UINT8, BASE_HEX, VALS(gsm_a_rr_short_pd_msg_strings), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_short_l2_header,
+              { "Radio Resources Short L2 Header",        "gsm_a.rr_short_l2_header",
+                FT_UINT8, BASE_HEX, NULL, 0x0,
                 NULL, HFILL }
             }
         };
@@ -12892,7 +12900,7 @@ proto_register_gsm_a_rr(void)
     proto_a_sacch =
         proto_register_protocol("GSM SACCH", "GSM SACCH", "gsm_a_sacch");
 
-    proto_register_field_array(proto_a_sacch, hf_sacch, array_length(hf_sacch));
+    proto_register_field_array(proto_a_sacch, hf_rr_short_pd, array_length(hf_rr_short_pd));
 
     /* subdissector code */
     register_dissector("gsm_a_sacch", dissect_sacch, proto_a_sacch);
