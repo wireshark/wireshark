@@ -8,7 +8,7 @@
     <key>CFBundleExecutable</key>
     <string>Wireshark</string>
     <key>CFBundleGetInfoString</key>
-    <string>@VERSION@, Copyright 1998-2011 Wireshark Development Team</string>
+    <string>@VERSION@, Copyright 1998-2012 Wireshark Development Team</string>
     <key>CFBundleIconFile</key>
     <string>Wireshark.icns</string>
     <key>CFBundleIdentifier</key>
@@ -48,7 +48,7 @@
     <key>CFBundleVersion</key>
     <string>@VERSION@</string>
     <key>NSHumanReadableCopyright</key>
-    <string>Copyright 1998-2011 Wireshark Developers, GNU General Public License.</string>
+    <string>Copyright 1998-2012 Wireshark Developers, GNU General Public License.</string>
     <key>LSMinimumSystemVersion</key>
     <string>10.3</string>
 </dict>
