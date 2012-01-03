@@ -36,6 +36,7 @@
 
 enum rohc_mode
 {
+  MODE_NOT_SET = 0,
   UNIDIRECTIONAL = 1,
   OPTIMISTIC_BIDIRECTIONAL = 2,
   RELIABLE_BIDIRECTIONAL = 3
@@ -70,9 +71,9 @@ typedef struct rohc_context
     gboolean           rnd[MAX_CID+1];
     gboolean           udp_checkum_present[MAX_CID+1];
     guint16            profile[MAX_CID+1];
-} rohc_context;
+	gboolean           rohc_context_init[MAX_CID+1];
+	gint               ir_frame_number[MAX_CID+1];        /* The frame number of the last IR packet seen */
 
-int dissect_rohc_ir_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset, guint8 cid, gboolean is_add_cid, rohc_info *p_rohc_info);
-int dissect_rohc_ir_dyn_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset, guint8 cid, gboolean is_add_cid, rohc_info *p_rohc_info);
+} rohc_context;
 
 #endif /* PACKET_ROHC_H */
