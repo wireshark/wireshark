@@ -92,6 +92,7 @@ WIRESHARK_COMMON_INCLUDES =	\
 # these are for programs that capture traffic by running dumpcap
 SHARK_COMMON_CAPTURE_SRC =	\
 	capture_ifinfo.c	\
+	capture_sync.c		\
 	capture_ui_utils.c
 
 # corresponding headers
@@ -149,7 +150,6 @@ wireshark_SOURCES =	\
 	capture.c	\
 	capture_info.c	\
 	capture_opts.c \
-	capture_sync.c	\
 	color_filters.c	\
 	file.c	\
 	fileset.c	\
@@ -192,7 +192,6 @@ tshark_SOURCES =	\
 	$(SHARK_COMMON_CAPTURE_SRC) \
 	$(TSHARK_TAP_SRC)	\
 	capture_opts.c		\
-	capture_sync.c		\
 	tempfile.c		\
 	tshark-tap-register.c	\
 	tshark.c
