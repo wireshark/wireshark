@@ -389,8 +389,6 @@ File "..\..\wireshark-gtk2\k5sprt32.dll"
 !ifdef GNUTLS_DIR
 File "..\..\wireshark-gtk2\libgcrypt-11.dll"
 File "..\..\wireshark-gtk2\libgnutls-26.dll"
-File "..\..\wireshark-gtk2\libgnutls-extra-26.dll"
-File "..\..\wireshark-gtk2\libgnutls-openssl-26.dll"
 File "..\..\wireshark-gtk2\libgpg-error-0.dll"
 File "..\..\wireshark-gtk2\libtasn1-3.dll"
 StrCmp "${INTL_DLL}" "libintl-8.dll" SkipLibIntl8
