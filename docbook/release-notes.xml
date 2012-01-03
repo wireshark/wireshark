@@ -90,9 +90,27 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Incorrect time differences displayed with time reference set.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5580">Bug
+          5580</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wrong packet type association of SNMP trap after TFTP transfer.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5727">Bug
+          5727</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Export HTTP Objects -&gt; save all crashes Wireshark.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6250">Bug
           6250</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          packet-rlc buffer overflow.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6391">Bug
+          6391</ulink>)
         </para></listitem>
 
         <listitem><para>
@@ -132,6 +150,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Incorrect Parsing of SCPS Capabilities Option introduced in response to bug 6194.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6562">Bug
+          6562</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Add more length checks for integer values in SNMP variable bindings.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6564">Bug
           6564</ulink>)
@@ -147,6 +171,12 @@ Wireshark Info
           Various crashes after loading NetMon2.x capture file.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6578">Bug
           6578</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          SIGSEGV in SVN 40046.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6634">Bug
+          6634</ulink>)
         </para></listitem>
 
         <listitem><para>

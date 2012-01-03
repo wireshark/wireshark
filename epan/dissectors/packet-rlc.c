@@ -397,7 +397,7 @@ static int rlc_cmp_seq(gconstpointer a, gconstpointer b)
  * with older versions of glib which do not have
  * a g_hash_table_remove_all() (because of this,
  * hashtables are emptied using g_hash_table_foreach_remove()
- * in conjunction with this funcion)
+ * in conjunction with this function)
  */
 static gboolean free_table_entry(gpointer key _U_,
 	gpointer value _U_, gpointer user_data _U_)
@@ -572,7 +572,7 @@ static void reassemble_message(struct rlc_channel *ch, struct rlc_sdu *sdu, stru
 	sdu->data = se_alloc(sdu->len);
 
 	temp = sdu->frags;
-	while (temp) {
+	while (temp && ((offs + temp->len) <= sdu->len)) {
 		memcpy(sdu->data + offs, temp->data, temp->len);
 		/* mark this fragment in reassembled table */
 		g_hash_table_insert(reassembled_table, temp, sdu);
