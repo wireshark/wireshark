@@ -22173,7 +22173,7 @@ void proto_register_lte_rrc(void) {
         "INTEGER_0_7", HFILL }},
     { &hf_lte_rrc_hnb_Name,
       { "hnb-Name", "lte-rrc.hnb_Name",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRING, BASE_NONE, NULL, 0,
         "OCTET_STRING_SIZE_1_48", HFILL }},
     { &hf_lte_rrc_messageIdentifier,
       { "messageIdentifier", "lte-rrc.messageIdentifier",

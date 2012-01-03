@@ -356,6 +356,9 @@ if(ue_eutra_cap_tvb){
     }
   }
 
+#.TYPE_ATTR
+SystemInformationBlockType9/hnb-Name TYPE=FT_STRING DISPLAY=BASE_NONE
+
 #.FN_HDR MasterInformationBlock
 
 col_append_str(actx->pinfo->cinfo, COL_INFO, "MasterInformationBlock ");
