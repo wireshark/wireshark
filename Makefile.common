@@ -98,6 +98,7 @@ SHARK_COMMON_CAPTURE_SRC =	\
 # corresponding headers
 SHARK_COMMON_CAPTURE_INCLUDES =	\
 	capture_ifinfo.h	\
+	capture_sync.h		\
 	capture_ui_utils.h
 
 # sources for TShark taps
@@ -169,7 +170,6 @@ wireshark_INCLUDES =	\
 	capture.h	\
 	capture_info.h	\
 	capture_opts.h	\
-	capture_sync.h	\
 	color_filters.h	\
 	filters.h	\
 	g711.h	\
