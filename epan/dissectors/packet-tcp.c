@@ -2514,7 +2514,7 @@ dissect_tcpopt_timestamp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
     proto_tree_add_item(ts_tree,  hf_tcp_option_timestamp_tsecr, tvb, offset,
                         4, ENC_BIG_ENDIAN);
     ts_ecr = tvb_get_ntohl(tvb, offset);
-    offset += 4;
+    /* offset += 4; */
 
     proto_item_append_text(ti, "TSval %u, TSecr %u", ts_val, ts_ecr);
     if (tcp_ignore_timestamps == FALSE) {
