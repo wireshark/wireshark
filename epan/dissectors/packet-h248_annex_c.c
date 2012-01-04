@@ -893,7 +893,7 @@ static h248_pkg_param_t h248_annexc_package_properties[] = {
 	{ 0x8005, &hf_h248_pkg_annexc_sdbt, h248_param_ber_octetstring,NULL },
 	{ 0x8006, &hf_h248_pkg_annexc_pfci, h248_param_ber_integer, NULL },
 
-	{ 0x9001, &hf_h248_pkg_annexc_tmr, h248_param_ber_integer, NULL },
+	{ 0x9001, &hf_h248_pkg_annexc_tmr, h248_param_ber_octetstring, NULL },
 	{ 0x9002, &hf_h248_pkg_annexc_tmrsr, h248_param_ber_integer, NULL },
 	{ 0x9003, &hf_h248_pkg_annexc_contcheck, h248_param_ber_integer, NULL },
 	{ 0x9004, &hf_h248_pkg_annexc_itc, h248_param_ber_integer, NULL },
