@@ -1,0 +1,802 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="256"
+   height="16"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.0 r9654"
+   sodipodi:docname="display_filter_16.svg"
+   inkscape:export-filename="/Users/gerald/Development/wxshark/image/toolbar/capture_start_24.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="5.656854"
+     inkscape:cx="97.434735"
+     inkscape:cy="12.40242"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     inkscape:window-width="1130"
+     inkscape:window-height="793"
+     inkscape:window-x="139"
+     inkscape:window-y="798"
+     inkscape:window-maximized="0"
+     objecttolerance="2"
+     guidetolerance="5"
+     gridtolerance="4">
+    <inkscape:grid
+       type="xygrid"
+       id="grid2812"
+       empspacing="4"
+       visible="true"
+       enabled="true"
+       snapvisiblegridlinesonly="true"
+       spacingx="4px"
+       spacingy="4px"
+       color="#7fffff"
+       opacity="0.49803922"
+       empcolor="#007fff"
+       empopacity="0.49803922" />
+  </sodipodi:namedview>
+  <defs
+     id="defs4">
+    <marker
+       inkscape:stockid="TriangleInS"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="TriangleInS"
+       style="overflow:visible">
+      <path
+         id="path4487"
+         d="M 5.77,0.0 L -2.88,5.0 L -2.88,-5.0 L 5.77,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none"
+         transform="scale(-0.2)" />
+    </marker>
+    <marker
+       inkscape:stockid="TriangleInM"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="TriangleInM"
+       style="overflow:visible">
+      <path
+         id="path4484"
+         d="M 5.77,0.0 L -2.88,5.0 L -2.88,-5.0 L 5.77,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none"
+         transform="scale(-0.4)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Send"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow1Send"
+       style="overflow:visible;">
+      <path
+         id="path4362"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none;"
+         transform="scale(0.2) rotate(180) translate(6,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow2Send"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow2Send"
+       style="overflow:visible;">
+      <path
+         id="path4380"
+         style="font-size:12.0;fill-rule:evenodd;stroke-width:0.62500000;stroke-linejoin:round;"
+         d="M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z "
+         transform="scale(0.3) rotate(180) translate(-2.3,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow2Mstart"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow2Mstart"
+       style="overflow:visible">
+      <path
+         id="path4371"
+         style="font-size:12.0;fill-rule:evenodd;stroke-width:0.62500000;stroke-linejoin:round"
+         d="M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z "
+         transform="scale(0.6) translate(0,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow2Lstart"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow2Lstart"
+       style="overflow:visible">
+      <path
+         id="path4365"
+         style="font-size:12.0;fill-rule:evenodd;stroke-width:0.62500000;stroke-linejoin:round"
+         d="M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z "
+         transform="scale(1.1) translate(1,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow1Lend"
+       style="overflow:visible;">
+      <path
+         id="path4350"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none;"
+         transform="scale(0.8) rotate(180) translate(12.5,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lstart"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow1Lstart"
+       style="overflow:visible">
+      <path
+         id="path4347"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;marker-start:none"
+         transform="scale(0.8) translate(12.5,0)" />
+    </marker>
+    <linearGradient
+       id="linearGradient3855">
+      <stop
+         style="stop-color:#ffffff;stop-opacity:0.77083331;"
+         offset="0"
+         id="stop3857" />
+      <stop
+         style="stop-color:#ffffff;stop-opacity:0;"
+         offset="1"
+         id="stop3859" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient3622">
+      <stop
+         style="stop-color:#ffffff;stop-opacity:1;"
+         offset="0"
+         id="stop3624" />
+      <stop
+         style="stop-color:#999999;stop-opacity:1;"
+         offset="1"
+         id="stop3626" />
+    </linearGradient>
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 526.18109 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="744.09448 : 526.18109 : 1"
+       inkscape:persp3d-origin="372.04724 : 350.78739 : 1"
+       id="perspective10" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3622"
+       id="radialGradient3617"
+       cx="11.478261"
+       cy="10.956548"
+       fx="11.478261"
+       fy="10.956548"
+       r="9.391304"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.5,4.4485238e-8,-4.4485238e-8,1.5,-5.1521738,-5.1521876)" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3855"
+       id="radialGradient3861"
+       cx="10.383852"
+       cy="7.6142039"
+       fx="10.383852"
+       fy="7.6142039"
+       r="12"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.39585463,0.00788241,-0.00767096,0.38523527,5.8229123,4.7348906)" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3855"
+       id="radialGradient3878"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.39585463,0.00788241,-0.00767096,0.38523527,5.8229123,4.7348906)"
+       cx="10.383852"
+       cy="7.6142039"
+       fx="10.383852"
+       fy="7.6142039"
+       r="12" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3855"
+       id="radialGradient3881"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.39585463,0.00788241,-0.00767096,0.38523527,29.822912,1033.0971)"
+       cx="10.383852"
+       cy="7.6142039"
+       fx="10.383852"
+       fy="7.6142039"
+       r="12" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3855"
+       id="radialGradient3888"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.39585463,0.00788241,-0.00767096,0.38523527,29.822912,1033.0971)"
+       cx="10.383852"
+       cy="7.6142039"
+       fx="10.383852"
+       fy="7.6142039"
+       r="12" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3855"
+       id="radialGradient3891"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.39585463,0.00788241,-0.00767096,0.38523527,29.822912,1033.0971)"
+       cx="10.383852"
+       cy="7.6142039"
+       fx="10.383852"
+       fy="7.6142039"
+       r="12" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3622"
+       id="radialGradient3893"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.5,4.4485238e-8,-4.4485238e-8,1.5,-5.1521738,-5.1521876)"
+       cx="11.478261"
+       cy="10.956548"
+       fx="11.478261"
+       fy="10.956548"
+       r="9.391304" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3855"
+       id="radialGradient3895"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.39585463,0.00788241,-0.00767096,0.38523527,5.8229123,4.7348906)"
+       cx="10.383852"
+       cy="7.6142039"
+       fx="10.383852"
+       fy="7.6142039"
+       r="12" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3855"
+       id="radialGradient3898"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.39585463,0.00788241,-0.00767096,0.38523527,5.8229123,1033.0971)"
+       cx="10.383852"
+       cy="7.6142039"
+       fx="10.383852"
+       fy="7.6142039"
+       r="12" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3855"
+       id="radialGradient3906"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.39585463,0.00788241,-0.00767096,0.38523527,53.822912,1033.0971)"
+       cx="10.383852"
+       cy="7.6142039"
+       fx="10.383852"
+       fy="7.6142039"
+       r="12" />
+    <marker
+       inkscape:stockid="TriangleInSx"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="TriangleInSx"
+       style="overflow:visible">
+      <path
+         id="path2902"
+         d="M 5.77,0.0 L -2.88,5.0 L -2.88,-5.0 L 5.77,0.0 z "
+         style="marker-start:none;stroke:#555753;stroke-width:1.0pt;fill:#555753;fill-rule:evenodd"
+         transform="scale(-0.2)" />
+    </marker>
+    <marker
+       inkscape:stockid="TriangleInSxF"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="TriangleInSxF"
+       style="overflow:visible">
+      <path
+         id="path3031"
+         d="M 5.77,0.0 L -2.88,5.0 L -2.88,-5.0 L 5.77,0.0 z "
+         style="fill-rule:evenodd;marker-start:none;stroke:#0066cc;stroke-width:1.0pt;fill:#0066cc"
+         transform="scale(-0.2)" />
+    </marker>
+  </defs>
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-1036.3622)">
+    <flowRoot
+       xml:space="preserve"
+       id="flowRoot2835"
+       style="font-size:1.5px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+       transform="matrix(1.0165643,0,0,1.0165643,0.3185175,1020.5936)"><flowRegion
+         id="flowRegion2837"><rect
+           id="rect2839"
+           width="36"
+           height="6"
+           x="-11.868164"
+           y="32.4095"
+           style="font-size:1.5px;text-align:center;text-anchor:middle" /></flowRegion><flowPara
+         id="flowPara3648">Clear Edit</flowPara></flowRoot>    <flowRoot
+       xml:space="preserve"
+       id="flowRoot3619"
+       style="font-size:1.5px;font-style:normal;font-weight:normal;text-align:start;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+       transform="translate(23.868164,983.9527)"><flowRegion
+         id="flowRegion3621"><rect
+           id="rect3623"
+           width="36"
+           height="6"
+           x="-11.868164"
+           y="32.4095"
+           style="font-size:1.5px;text-align:start;text-anchor:start" /></flowRegion><flowPara
+         id="flowPara3627">To export: Select an entire 16x16 square,</flowPara><flowPara
+         id="flowPara3631">including its invisible border.</flowPara></flowRoot>    <g
+       id="g3196"
+       style="stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none"
+       inkscape:export-filename="/Users/gcombs/Development/qtshark/qt/dfilter_erase_normal.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <path
+         inkscape:connector-curvature="0"
+         id="path3192"
+         d="m 2.5,1038.8622 c 11,11 11,11 11,11"
+         style="fill:none;stroke:#555753;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none" />
+      <path
+         style="fill:none;stroke:#555753;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+         d="m 13.5,1038.8622 c -11,11 -11,11 -11,11"
+         id="path3194"
+         inkscape:connector-curvature="0" />
+    </g>
+    <flowRoot
+       transform="matrix(1.0165643,0,0,1.0165643,98.219446,1021.2438)"
+       style="font-size:1.5px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+       id="flowRoot3968"
+       xml:space="preserve"><flowRegion
+         id="flowRegion3970"><rect
+           style="font-size:1.5px;text-align:center;text-anchor:middle"
+           y="32.4095"
+           x="-11.868164"
+           height="6"
+           width="36"
+           id="rect3972" /></flowRegion><flowPara
+         id="flowPara3974">Refresh</flowPara></flowRoot>    <path
+       sodipodi:type="arc"
+       style="fill:none;stroke:#555753;stroke-width:2.42877483;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-start:none;marker-mid:none;marker-end:url(#TriangleInSx)"
+       id="path3976"
+       sodipodi:cx="39.89164"
+       sodipodi:cy="8.8390093"
+       sodipodi:rx="4.8761611"
+       sodipodi:ry="4.8390093"
+       d="M 44.767801,8.8390093 A 4.8761611,4.8390093 0 1 1 39.89164,4"
+       transform="matrix(0.82031745,0,0,0.82661548,71.276192,1037.0557)"
+       sodipodi:start="0"
+       sodipodi:end="4.712389"
+       sodipodi:open="true"
+       inkscape:export-filename="/Users/gcombs/Development/qtshark/qt/dfilter_refresh_normal.png"
+       inkscape:export-xdpi="16.560936"
+       inkscape:export-ydpi="16.560936" />
+    <g
+       style="stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke:#ff3300"
+       id="g3978"
+       transform="translate(16,0)"
+       inkscape:export-filename="/Users/gcombs/Development/qtshark/qt/dfilter_erase_active.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <path
+         style="fill:none;stroke:#ff3300;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+         d="m 2.5,1038.8622 c 11,11 11,11 11,11"
+         id="path3980"
+         inkscape:connector-curvature="0" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path3982"
+         d="m 13.5,1038.8622 c -11,11 -11,11 -11,11"
+         style="fill:none;stroke:#ff3300;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+    </g>
+    <path
+       sodipodi:open="true"
+       sodipodi:end="4.712389"
+       sodipodi:start="0"
+       transform="matrix(0.82031745,0,0,0.82661548,87.276192,1037.0557)"
+       d="M 44.767801,8.8390093 A 4.8761611,4.8390093 0 1 1 39.89164,4"
+       sodipodi:ry="4.8390093"
+       sodipodi:rx="4.8761611"
+       sodipodi:cy="8.8390093"
+       sodipodi:cx="39.89164"
+       id="path2989"
+       style="fill:none;stroke:#0066cc;stroke-width:2.42877483;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-start:none;marker-mid:none;marker-end:url(#TriangleInSxF)"
+       sodipodi:type="arc"
+       inkscape:export-filename="/Users/gcombs/Development/qtshark/qt/dfilter_refresh_active.png"
+       inkscape:export-xdpi="16.560936"
+       inkscape:export-ydpi="16.560936" />
+    <rect
+       style="fill:none;stroke:none;stroke-width:2;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       id="rect3048"
+       width="16"
+       height="16"
+       x="0"
+       y="0"
+       transform="translate(0,1036.3622)"
+       inkscape:export-filename="/Users/gcombs/Development/qtshark/qt/dfilter_erase_normal.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <rect
+       y="1036.3622"
+       x="16"
+       height="16"
+       width="16"
+       id="rect3050"
+       style="fill:none;stroke:none"
+       inkscape:export-filename="/Users/gcombs/Development/qtshark/qt/dfilter_erase_active.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <rect
+       style="fill:none;stroke:none"
+       id="rect3052"
+       width="16"
+       height="16"
+       x="96"
+       y="1036.3622"
+       inkscape:export-filename="/Users/gcombs/Development/qtshark/qt/dfilter_refresh_active.png"
+       inkscape:export-xdpi="16.560936"
+       inkscape:export-ydpi="16.560936" />
+    <rect
+       y="1036.3622"
+       x="112"
+       height="16"
+       width="16"
+       id="rect3054"
+       style="fill:none;stroke:none"
+       inkscape:export-filename="/Users/gcombs/Development/qtshark/qt/dfilter_refresh_active.png"
+       inkscape:export-xdpi="16.560936"
+       inkscape:export-ydpi="16.560936" />
+    <rect
+       style="fill:none;stroke:none"
+       id="rect3056"
+       width="16"
+       height="16"
+       x="48"
+       y="1036.3622"
+       inkscape:export-filename="/Users/gcombs/Development/qtshark/qt/dfilter_apply_normal.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <rect
+       y="1036.3622"
+       x="64"
+       height="16"
+       width="16"
+       id="rect3058"
+       style="fill:none;stroke:none"
+       inkscape:export-filename="/Users/gcombs/Development/qtshark/qt/dfilter_apply_active.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <flowRoot
+       xml:space="preserve"
+       id="flowRoot3060"
+       style="font-size:1.5px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+       transform="matrix(1.0165643,0,0,1.0165643,50.219446,1021.2438)"><flowRegion
+         id="flowRegion3062"><rect
+           id="rect3064"
+           width="36"
+           height="6"
+           x="-11.868164"
+           y="32.4095"
+           style="font-size:1.5px;text-align:center;text-anchor:middle" /></flowRegion><flowPara
+         id="flowPara3066">Apply</flowPara></flowRoot>    <g
+       id="g3902"
+       style="stroke:#555753"
+       transform="translate(-16,0)"
+       inkscape:export-filename="/Users/gcombs/Development/qtshark/qt/dfilter_apply_normal.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <path
+         inkscape:connector-curvature="0"
+         id="path3068"
+         d="m 66,1044.4492 c 10.17421,0 10.17421,0 10.17421,0"
+         style="fill:none;stroke:#555753;stroke-width:1.99999988;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <path
+         style="fill:none;stroke:#555753;stroke-width:1.99999988;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+         d="m 75,1041.8621 c 2.5,2.5 2.5,2.5 2.5,2.5"
+         id="path3898"
+         inkscape:connector-curvature="0" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path3900"
+         d="m 74.999996,1046.8622 c 2.5,-2.5 2.5,-2.5 2.5,-2.5"
+         style="fill:none;stroke:#555753;stroke-width:1.99999988;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+    </g>
+    <g
+       id="g3907"
+       inkscape:export-filename="/Users/gcombs/Development/qtshark/qt/dfilter_apply_active.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <path
+         style="fill:none;stroke:#0066cc;stroke-width:1.99999988;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+         d="m 66,1044.4492 c 10.17421,0 10.17421,0 10.17421,0"
+         id="path3909"
+         inkscape:connector-curvature="0" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path3911"
+         d="m 75,1041.8621 c 2.5,2.5 2.5,2.5 2.5,2.5"
+         style="fill:none;stroke:#0066cc;stroke-width:1.99999988;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <path
+         style="fill:none;stroke:#0066cc;stroke-width:1.99999988;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+         d="m 74.999996,1046.8622 c 2.5,-2.5 2.5,-2.5 2.5,-2.5"
+         id="path3913"
+         inkscape:connector-curvature="0" />
+    </g>
+    <path
+       sodipodi:type="star"
+       style="fill:none;stroke:#555753;stroke-width:0.72866327;stroke-linecap:square;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       id="path3069"
+       sodipodi:sides="5"
+       sodipodi:cx="104"
+       sodipodi:cy="8"
+       sodipodi:r1="4.9833269"
+       sodipodi:r2="2.2424972"
+       sodipodi:arg1="-1.5707963"
+       sodipodi:arg2="-0.9424778"
+       inkscape:flatsided="false"
+       inkscape:rounded="-3.469447e-18"
+       inkscape:randomized="0"
+       d="m 104,3.0166731 1.31811,3.1691085 3.42132,0.2742858 -2.60669,2.2329023 0.79639,3.3386263 L 104,10.242497 l -2.92913,1.789099 0.79639,-3.3386262 -2.606685,-2.2329026 3.421315,-0.2742855 z"
+       transform="matrix(1.3714742,0,0,1.3732785,9.366679,1034.1395)"
+       inkscape:transform-center-y="-0.65350952"
+       inkscape:export-filename="/Users/gcombs/Development/qtshark/qt/dfilter_favorite.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <rect
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       inkscape:export-filename="/Users/gcombs/Development/qtshark/qt/dfilter_favorite.png"
+       style="fill:none;stroke:none"
+       id="rect3899"
+       width="16"
+       height="16"
+       x="144"
+       y="1036.3622" />
+    <flowRoot
+       xml:space="preserve"
+       id="flowRoot3901"
+       style="font-size:1.5px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+       transform="matrix(1.0165643,0,0,1.0165643,144.21945,1021.2438)"><flowRegion
+         id="flowRegion3903"><rect
+           id="rect3905"
+           width="36"
+           height="6"
+           x="-11.868164"
+           y="32.4095"
+           style="font-size:1.5px;text-align:center;text-anchor:middle" /></flowRegion><flowPara
+         id="flowPara3907">Favorites /</flowPara><flowPara
+         id="flowPara3909">Manage filters</flowPara></flowRoot>    <path
+       sodipodi:type="star"
+       style="fill:#555753;stroke:none"
+       id="path3912"
+       sodipodi:sides="3"
+       sodipodi:cx="116"
+       sodipodi:cy="6.0121169"
+       sodipodi:r1="0.22362253"
+       sodipodi:r2="0.97227186"
+       sodipodi:arg1="1.5707963"
+       sodipodi:arg2="2.6179939"
+       inkscape:flatsided="true"
+       inkscape:rounded="-3.469447e-18"
+       inkscape:randomized="0"
+       d="m 116,6.2357394 -0.19366,-0.3354338 0.38732,0 z"
+       transform="matrix(18.072651,0,0,10.43425,-1896.4275,981.79694)"
+       inkscape:transform-center-y="2.5363326"
+       inkscape:transform-center-x="0.018274753"
+       inkscape:export-filename="/Users/gcombs/Development/qtshark/qt/dfilter_dropdown.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <rect
+       y="1036.3622"
+       x="192"
+       height="16"
+       width="16"
+       id="rect3914"
+       style="fill:none;stroke:none"
+       inkscape:export-filename="/Users/gcombs/Development/qtshark/qt/dfilter_dropdown.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <flowRoot
+       xml:space="preserve"
+       id="flowRoot3916"
+       style="font-size:1.5px;font-style:normal;font-weight:normal;text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Bitstream Vera Sans"
+       transform="matrix(1.0165643,0,0,1.0165643,194.21945,1021.2438)"><flowRegion
+         id="flowRegion3918"><rect
+           id="rect3920"
+           width="36"
+           height="6"
+           x="-11.868164"
+           y="32.4095"
+           style="font-size:1.5px;text-align:center;text-anchor:middle" /></flowRegion><flowPara
+         id="flowPara3922">Combo Dropdown</flowPara><flowPara
+         id="flowPara3924">Arrow</flowPara></flowRoot>    <g
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       inkscape:export-filename="/Users/gcombs/Development/qtshark/qt/dfilter_erase_selected.png"
+       transform="translate(32,0)"
+       id="g3079"
+       style="stroke:#990000;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none">
+      <path
+         inkscape:connector-curvature="0"
+         id="path3081"
+         d="m 2.5,1038.8622 c 11,11 11,11 11,11"
+         style="fill:none;stroke:#990000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <path
+         style="fill:none;stroke:#990000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+         d="m 13.5,1038.8622 c -11,11 -11,11 -11,11"
+         id="path3083"
+         inkscape:connector-curvature="0" />
+    </g>
+    <rect
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       inkscape:export-filename="/Users/gcombs/Development/qtshark/qt/dfilter_erase_selected.png"
+       style="fill:none;stroke:none"
+       id="rect3085"
+       width="16"
+       height="16"
+       x="32"
+       y="1036.3622" />
+    <path
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       inkscape:export-filename="/Users/gcombs/Development/qtshark/qt/dfilter_bookmark_pressed.png"
+       inkscape:transform-center-y="-0.65350952"
+       transform="matrix(1.3714742,0,0,1.3732785,41.366679,1034.1395)"
+       d="m 104,3.0166731 1.31811,3.1691085 3.42132,0.2742858 -2.60669,2.2329023 0.79639,3.3386263 L 104,10.242497 l -2.92913,1.789099 0.79639,-3.3386262 -2.606685,-2.2329026 3.421315,-0.2742855 z"
+       inkscape:randomized="0"
+       inkscape:rounded="-3.469447e-18"
+       inkscape:flatsided="false"
+       sodipodi:arg2="-0.9424778"
+       sodipodi:arg1="-1.5707963"
+       sodipodi:r2="2.2424972"
+       sodipodi:r1="4.9833269"
+       sodipodi:cy="8"
+       sodipodi:cx="104"
+       sodipodi:sides="5"
+       id="path3337"
+       style="fill:none;stroke:#fce94f;stroke-width:0.72866327;stroke-linecap:square;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       sodipodi:type="star" />
+    <rect
+       y="1036.3622"
+       x="176"
+       height="16"
+       width="16"
+       id="rect3339"
+       style="fill:none;stroke:none"
+       inkscape:export-filename="/Users/gcombs/Development/qtshark/qt/dfilter_bookmark_pressed.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       sodipodi:type="star"
+       style="fill:none;stroke:#c4a000;stroke-width:0.72866327;stroke-linecap:square;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       id="path3085"
+       sodipodi:sides="5"
+       sodipodi:cx="104"
+       sodipodi:cy="8"
+       sodipodi:r1="4.9833269"
+       sodipodi:r2="2.2424972"
+       sodipodi:arg1="-1.5707963"
+       sodipodi:arg2="-0.9424778"
+       inkscape:flatsided="false"
+       inkscape:rounded="-3.469447e-18"
+       inkscape:randomized="0"
+       d="m 104,3.0166731 1.31811,3.1691085 3.42132,0.2742858 -2.60669,2.2329023 0.79639,3.3386263 L 104,10.242497 l -2.92913,1.789099 0.79639,-3.3386262 -2.606685,-2.2329026 3.421315,-0.2742855 z"
+       transform="matrix(1.3714742,0,0,1.3732785,25.366679,1034.1395)"
+       inkscape:transform-center-y="-0.65350952"
+       inkscape:export-filename="/Users/gcombs/Development/qtshark/qt/dfilter_bookmark_hover.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <rect
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       inkscape:export-filename="/Users/gcombs/Development/qtshark/qt/dfilter_bookmark_hover.png"
+       style="fill:none;stroke:none"
+       id="rect3087"
+       width="16"
+       height="16"
+       x="160"
+       y="1036.3622" />
+    <rect
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       inkscape:export-filename="/Users/gcombs/Development/qtshark/qt/dfilter_apply_pressed.png"
+       style="fill:none;stroke:none"
+       id="rect3088"
+       width="16"
+       height="16"
+       x="80"
+       y="1036.3622" />
+    <g
+       inkscape:export-ydpi="90"
+       inkscape:export-xdpi="90"
+       inkscape:export-filename="/Users/gcombs/Development/qtshark/qt/dfilter_apply_pressed.png"
+       id="g3090"
+       transform="translate(16,0)"
+       style="fill:#0083d7;stroke:#0099ff">
+      <path
+         inkscape:connector-curvature="0"
+         id="path3092"
+         d="m 66,1044.4492 c 10.17421,0 10.17421,0 10.17421,0"
+         style="fill:#0083d7;stroke:#0099ff;stroke-width:1.99999988000000006;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <path
+         style="fill:#0083d7;stroke:#0099ff;stroke-width:1.99999988000000006;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+         d="m 75,1041.8621 c 2.5,2.5 2.5,2.5 2.5,2.5"
+         id="path3094"
+         inkscape:connector-curvature="0" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path3096"
+         d="m 74.999996,1046.8622 c 2.5,-2.5 2.5,-2.5 2.5,-2.5"
+         style="fill:#0083d7;stroke:#0099ff;stroke-width:1.99999988000000006;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+    </g>
+    <path
+       inkscape:export-ydpi="16.560936"
+       inkscape:export-xdpi="16.560936"
+       inkscape:export-filename="/Users/gcombs/Development/qtshark/qt/dfilter_refresh_active.png"
+       sodipodi:type="arc"
+       style="fill:none;stroke:#0099ff;stroke-width:2.42877483000000005;stroke-linecap:butt;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-start:none;marker-mid:none;marker-end:url(#TriangleInSxF)"
+       id="path3098"
+       sodipodi:cx="39.89164"
+       sodipodi:cy="8.8390093"
+       sodipodi:rx="4.8761611"
+       sodipodi:ry="4.8390093"
+       d="M 44.767801,8.8390093 A 4.8761611,4.8390093 0 1 1 39.89164,4"
+       transform="matrix(0.82031745,0,0,0.82661548,103.27619,1037.0557)"
+       sodipodi:start="0"
+       sodipodi:end="4.712389"
+       sodipodi:open="true" />
+    <rect
+       inkscape:export-ydpi="16.560936"
+       inkscape:export-xdpi="16.560936"
+       inkscape:export-filename="/Users/gcombs/Development/qtshark/qt/dfilter_refresh_active.png"
+       style="fill:none;stroke:none"
+       id="rect3100"
+       width="16"
+       height="16"
+       x="128"
+       y="1036.3622" />
+  </g>
+</svg>

@@ -272,4 +272,6 @@
 #pragma warning ( disable : 6011 )
 #endif
 
+#if !defined(QT_VERSION) || !defined(_SSIZE_T_DEFINED)
 typedef int ssize_t;
+#endif

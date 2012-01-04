@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/toolbar/main">
+        <file>capture_start_24.png</file>
+        <file>capture_stop_24.png</file>
+        <file>capture_start_active_24.png</file>
+    </qresource>
+</RCC>

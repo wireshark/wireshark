@@ -1,0 +1,16 @@
+<RCC>
+    <qresource prefix="/dfilter">
+        <file>dfilter_dropdown.png</file>
+        <file>dfilter_erase_active.png</file>
+        <file>dfilter_erase_normal.png</file>
+        <file>dfilter_erase_selected.png</file>
+        <file>dfilter_refresh_active.png</file>
+        <file>dfilter_refresh_normal.png</file>
+        <file>dfilter_bookmark_normal.png</file>
+        <file>dfilter_bookmark_hover.png</file>
+        <file>dfilter_bookmark_pressed.png</file>
+        <file>dfilter_apply_hover.png</file>
+        <file>dfilter_apply_normal.png</file>
+        <file>dfilter_apply_pressed.png</file>
+    </qresource>
+</RCC>

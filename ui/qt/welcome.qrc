@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/welcome">
+        <file>wslogo-blue-131x36.png</file>
+    </qresource>
+</RCC>

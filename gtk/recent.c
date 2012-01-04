@@ -30,7 +30,9 @@
 #include <string.h>
 #include <ctype.h>
 
+#ifndef QT_GUI_LIB
 #include <gtk/gtk.h>
+#endif
 
 #include <epan/epan.h>
 #include <epan/filesystem.h>
@@ -44,6 +46,7 @@
 #include <wsutil/file_util.h>
 
 #include "gtk/recent.h"
+#ifndef QT_GUI_LIB
 #include "gtk/main.h"
 #include "gtk/menus.h"
 #include "gtk/gui_utils.h"
@@ -54,6 +57,10 @@
 #ifdef HAVE_PCAP_REMOTE
 #include "gtk/capture_dlg.h"
 #endif
+#else /* QT_GUI_LIB */
+#include "qt_ui_utils.h"
+#include "../file.h"
+#endif /* QT_GUI_LIB */
 
 #define RECENT_KEY_MAIN_TOOLBAR_SHOW        "gui.toolbar_main_show"
 #define RECENT_KEY_FILTER_TOOLBAR_SHOW      "gui.filter_toolbar_show"
@@ -1096,4 +1103,3 @@ recent_set_column_xalign(gint col, gchar xalign)
     recent.col_width_list = g_list_append(recent.col_width_list, col_w);
   }
 }
-

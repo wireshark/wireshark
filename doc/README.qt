@@ -1,0 +1,41 @@
+0. Abstract
+
+Wireshark's user interface is showing its age. While GTK+ is wonderful on Linux and BSD its low-tier status on Windows and even-lower-tier status on OS X makes it hard to deliver a good product to users on those platforms.
+
+The Qt port is an attempt at an updated UI which will better serve our users and let us add features more easily.
+
+
+1. Getting up and running
+
+The Qt interface for Wireshark has been compiled and tested on Mac OS X 10.6 (XCode gcc), Windows 7 x86 (Visual C++ 2010), and Ubuntu 10.04 (gcc). Compilation via Qt Creator has been tested but command-line compilation using QMake and make or nmake should work.
+
+The ui/qt directory is loosely coupled with the rest of the codebase. The main Wireshark sources must be built beforehand using CMake on Linux and OS X and nmake on Windows. Autotools + QMake is a basket full of crazy that hasn't yet been sorted and folded.
+
+1.1 Prerequisites
+
+Before compiling you need the Qt SDK and Qt Creator.
+
+1.1.1 OS X
+
+Download the latest Qt SDK (currently 1.1.4) and install it. Build the top-level directory using CMake.
+
+1.1.2 Windows
+
+The default Qt SDK libraries are built using MinGW, which isn't supported for Wireshark. Instead of downloading the Qt SDK all-in-one package, download the Qt Libraries package that matches your compiler (VS 2008 or VS 2010) and Qt Creator for Windows.
+
+For the time being you must set win32:WIRESHARK_LIB_DIR in QtShark.pro to match the global build environment. The default location is c:/wireshark-win32-libs (yes, that's a forward slash).
+
+Before compiling select "Projects" in the left toolbar, select "Build Settings" and do the following:
+
+- In "Edit build configuration" make sure the "Release" build is selected. ("Debug" currently crashes.)
+- Make sure "Qt version" matches your version of Visual Studio.
+- Make sure "Tool chain" matches your Visual C++ version.
+
+1.1.3 Linux
+
+Install the Qt libraries and Qt Creator via your package manager or from http://qt.nokia.com/downloads/. On Debian and Ubuntu the "qt-sdk" meta-package should provide everything you need. Build the top-level directory using CMake.
+
+
+2. Going forward
+
+DO NOT simply port things over. Every feature, window, and element should be re-thought. For example, should the user have to navigate two dialogs to get HTTP request statistics?
