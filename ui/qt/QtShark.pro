@@ -42,7 +42,7 @@ win32:INCLUDEPATH += \
 # copy it to our current directory.
 recent.target = recent.c
 !win32:recent.commands = $$QMAKE_COPY ../../gtk/$$recent.target .
-win32:recent.commands = $$QMAKE_COPY ../..\\gtk\\$$recent.target .
+win32:recent.commands = $$QMAKE_COPY ..\\..\\gtk\\$$recent.target .
 recent.depends = ../../gtk/$$recent.target
 QMAKE_EXTRA_TARGETS += recent
 
