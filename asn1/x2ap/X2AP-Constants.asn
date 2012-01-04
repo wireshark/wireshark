@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 36.423 V9.2.0 (2010-03)
+-- 3GPP TS 36.423 V10.3.0 (2011-09)
 -- 9.3.7	Constant Definitions
 -- **************************************************************
 --
@@ -37,9 +37,9 @@ id-reset														ProcedureCode ::= 7
 id-eNBConfigurationUpdate										ProcedureCode ::= 8
 id-resourceStatusReportingInitiation							ProcedureCode ::= 9
 id-resourceStatusReporting										ProcedureCode ::= 10
-id-privateMessage												ProcedureCode ::= 11 
-id-mobilitySettingsChange										ProcedureCode ::= 12 
-id-rLFIndication												ProcedureCode ::= 13 
+id-privateMessage												ProcedureCode ::= 11
+id-mobilitySettingsChange										ProcedureCode ::= 12
+id-rLFIndication												ProcedureCode ::= 13
 id-handoverReport												ProcedureCode ::= 14
 id-cellActivation												ProcedureCode ::= 15
 
@@ -51,24 +51,25 @@ id-cellActivation												ProcedureCode ::= 15
 --
 -- **************************************************************
 
-maxEARFCN									INTEGER ::= 65535	
-maxInterfaces								INTEGER ::= 16		
-maxCellineNB								INTEGER ::= 256		
-maxnoofBearers								INTEGER ::= 256		
-maxNrOfErrors								INTEGER ::= 256		
-maxnoofPDCP-SN								INTEGER ::= 16		-- FFS Value to be checked
-maxnoofEPLMNs								INTEGER ::= 15		
-maxnoofEPLMNsPlusOne						INTEGER ::= 16		
-maxnoofForbLACs								INTEGER ::= 4096		
-maxnoofForbTACs							    INTEGER ::= 4096	
+maxEARFCN									INTEGER ::= 65535
+maxInterfaces								INTEGER ::= 16
+maxCellineNB								INTEGER ::= 256
+maxnoofBearers								INTEGER ::= 256
+maxNrOfErrors								INTEGER ::= 256
+maxnoofPDCP-SN								INTEGER ::= 16
+maxnoofEPLMNs								INTEGER ::= 15
+maxnoofEPLMNsPlusOne						INTEGER ::= 16
+maxnoofForbLACs								INTEGER ::= 4096
+maxnoofForbTACs							    INTEGER ::= 4096
 maxnoofBPLMNs								INTEGER ::= 6
 maxnoofNeighbours							INTEGER ::= 512
-maxnoofPRBs									INTEGER ::= 110		
+maxnoofPRBs									INTEGER ::= 110
 maxPools									INTEGER ::= 16
-maxnoofCells								INTEGER ::= 16 
+maxnoofCells								INTEGER ::= 16
 maxnoofMBSFN								INTEGER ::= 8
-
-
+maxFailedMeasObjects						INTEGER ::= 32
+maxnoofCellIDforMDT							INTEGER ::= 32
+maxnoofTAforMDT								INTEGER ::= 8
 
 
 -- **************************************************************
@@ -137,5 +138,19 @@ id-ServedCellsToActivate													ProtocolIE-ID ::= 57
 id-ActivatedCellList														ProtocolIE-ID ::= 58
 id-DeactivationIndication													ProtocolIE-ID ::= 59
 id-UE-RLF-Report-Container													ProtocolIE-ID ::= 60
+id-ABSInformation															ProtocolIE-ID ::= 61
+id-InvokeIndication															ProtocolIE-ID ::= 62
+id-ABS-Status																ProtocolIE-ID ::= 63
+id-PartialSuccessIndicator													ProtocolIE-ID ::= 64
+id-MeasurementInitiationResult-List											ProtocolIE-ID ::= 65
+id-MeasurementInitiationResult-Item											ProtocolIE-ID ::= 66
+id-MeasurementFailureCause-Item												ProtocolIE-ID ::= 67
+id-CompleteFailureCauseInformation-List										ProtocolIE-ID ::= 68
+id-CompleteFailureCauseInformation-Item										ProtocolIE-ID ::= 69
+id-CSG-Id																	ProtocolIE-ID ::= 70
+id-CSGMembershipStatus														ProtocolIE-ID ::= 71
+id-MDTConfiguration															ProtocolIE-ID ::= 72
+id-ManagementBasedMDTallowed												ProtocolIE-ID ::= 74
+id-RRCConnSetupIndicator													ProtocolIE-ID ::= 75
 
 END

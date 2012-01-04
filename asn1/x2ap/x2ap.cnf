@@ -221,7 +221,21 @@ id-ServedCellsToActivate													ProtocolIE-ID
 id-ActivatedCellList														ProtocolIE-ID
 id-DeactivationIndication													ProtocolIE-ID
 id-UE-RLF-Report-Container													ProtocolIE-ID
- 
+id-ABSInformation															ProtocolIE-ID
+id-InvokeIndication															ProtocolIE-ID
+id-ABS-Status																ProtocolIE-ID
+id-PartialSuccessIndicator													ProtocolIE-ID
+id-MeasurementInitiationResult-List											ProtocolIE-ID
+id-MeasurementInitiationResult-Item											ProtocolIE-ID
+id-MeasurementFailureCause-Item												ProtocolIE-ID
+id-CompleteFailureCauseInformation-List										ProtocolIE-ID
+id-CompleteFailureCauseInformation-Item										ProtocolIE-ID
+id-CSG-Id																	ProtocolIE-ID
+id-CSGMembershipStatus														ProtocolIE-ID
+id-MDTConfiguration															ProtocolIE-ID
+id-ManagementBasedMDTallowed												ProtocolIE-ID
+id-RRCConnSetupIndicator													ProtocolIE-ID 
+
 #.REGISTER_NEW
 
 #X2AP-PROTOCOL-IES
@@ -280,6 +294,15 @@ HandoverReportType							N x2ap.ies id-HandoverReportType
 UE-RLF-Report-Container						N x2ap.ies id-UE-RLF-Report-Container
 ServedCellsToActivate						N x2ap.ies id-ServedCellsToActivate
 ActivatedCellList							N x2ap.ies id-ActivatedCellList
+PartialSuccessIndicator						N x2ap.ies id-PartialSuccessIndicator
+MeasurementInitiationResult-List			N x2ap.ies id-MeasurementInitiationResult-List
+MeasurementInitiationResult-Item			N x2ap.ies id-MeasurementInitiationResult-Item
+MeasurementFailureCause-Item				N x2ap.ies id-MeasurementFailureCause-Item
+CompleteFailureCauseInformation-List		N x2ap.ies id-CompleteFailureCauseInformation-List
+CompleteFailureCauseInformation-Item		N x2ap.ies id-CompleteFailureCauseInformation-Item
+CSGMembershipStatus							N x2ap.ies id-CSGMembershipStatus
+RRCConnSetupIndicator						N x2ap.ies id-RRCConnSetupIndicator 
+
 
 #X2AP-PROTOCOL-EXTENSION
 Number-of-Antennaports						N x2ap.extension id-Number-of-Antennaports
@@ -287,6 +310,13 @@ CompositeAvailableCapacityGroup				N x2ap.extension id-CompositeAvailableCapacit
 PRACH-Configuration							N x2ap.extension id-PRACH-Configuration
 MBSFN-Subframe-Infolist						N x2ap.extension id-MBSFN-Subframe-Info
 DeactivationIndication						N x2ap.extension id-DeactivationIndication
+
+ABSInformation								N x2ap.extension id-ABSInformation
+InvokeIndication							N x2ap.extension id-InvokeIndication
+ABS-Status									N x2ap.extension id-ABS-Status
+CSG-Id										N x2ap.extension id-CSG-Id
+MDT-Configuration							N x2ap.extension id-MDTConfiguration
+ManagementBasedMDTallowed					N x2ap.extension id-ManagementBasedMDTallowed
 
 # X2AP-PDU-Descriptions.asn  Interface Elementary Procedures
 #X2AP-ELEMENTARY-PROCEDURE
