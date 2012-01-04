@@ -1604,9 +1604,6 @@ dissect_var_cont_conn_header(tvbuff_t* tvb, proto_tree* tree, guint32* inst_coun
    proto_tree_add_item(header_tree, hf_cip_revision, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
    proto_tree_add_item(header_tree, hf_cip_updateid, tvb, offset + 2, 1, ENC_LITTLE_ENDIAN);
 
-   /* Read the node control header field from the packet into memory */
-   temp_data = tvb_get_guint8(tvb, offset + 3);
-
    /* Create the tree for the node control header field */
    temp_proto_item = proto_tree_add_item(header_tree, hf_cip_node_control, tvb, offset + 3, 1, ENC_LITTLE_ENDIAN);
    temp_proto_tree = proto_item_add_subtree(temp_proto_item, ett_node_control);
@@ -1716,7 +1713,7 @@ dissect_var_devce_conn_header(tvbuff_t* tvb, proto_tree* tree, guint32* inst_cou
    *inst_count = tvb_get_guint8(tvb, offset + 4);
 
    /* Add the instance count to the connection header tree */
-   temp_proto_item = proto_tree_add_item(header_tree, hf_cip_instance_cnt, tvb, offset + 4, 1, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(header_tree, hf_cip_instance_cnt, tvb, offset + 4, 1, ENC_LITTLE_ENDIAN);
 
    /* The device to controller header contains the node alarms and node faults fields as well. */
    proto_tree_add_item(header_tree, hf_cip_node_fltalarms, tvb, offset + 5, 1, ENC_LITTLE_ENDIAN);
