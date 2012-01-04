@@ -186,6 +186,36 @@ static int hf_tcp_option_rvbd_trpy_src_port = -1;
 static int hf_tcp_option_rvbd_trpy_dst_port = -1;
 static int hf_tcp_option_rvbd_trpy_client_port = -1;
 
+static int hf_tcp_option_mptcp_flags = -1;
+static int hf_tcp_option_mptcp_B_flag = -1;
+static int hf_tcp_option_mptcp_C_flag = -1;
+static int hf_tcp_option_mptcp_S_flag = -1;
+static int hf_tcp_option_mptcp_F_flag = -1;
+static int hf_tcp_option_mptcp_m_flag = -1;
+static int hf_tcp_option_mptcp_M_flag = -1;
+static int hf_tcp_option_mptcp_a_flag = -1;
+static int hf_tcp_option_mptcp_A_flag = -1;
+static int hf_tcp_option_mptcp_subtype = -1;
+static int hf_tcp_option_mptcp_version = -1;
+static int hf_tcp_option_mptcp_address_id = -1;
+static int hf_tcp_option_mptcp_recv_token = -1;
+static int hf_tcp_option_mptcp_sender_key = -1;
+static int hf_tcp_option_mptcp_recv_key = -1;
+static int hf_tcp_option_mptcp_sender_rand = -1;
+static int hf_tcp_option_mptcp_sender_trunc_mac = -1;
+static int hf_tcp_option_mptcp_sender_mac = -1;
+static int hf_tcp_option_mptcp_data_ack4 = -1;
+static int hf_tcp_option_mptcp_data_ack8 = -1;
+static int hf_tcp_option_mptcp_data_seq_no4 = -1;
+static int hf_tcp_option_mptcp_data_seq_no8 = -1;
+static int hf_tcp_option_mptcp_subflow_seq_no = -1;
+static int hf_tcp_option_mptcp_data_lvl_len = -1;
+static int hf_tcp_option_mptcp_checksum = -1;
+static int hf_tcp_option_mptcp_ipver = -1;
+static int hf_tcp_option_mptcp_ipv4 = -1;
+static int hf_tcp_option_mptcp_ipv6 = -1;
+static int hf_tcp_option_mptcp_port = -1;
+
 static int hf_tcp_ts_relative = -1;
 static int hf_tcp_ts_delta = -1;
 static int hf_tcp_option_scps = -1;
@@ -236,6 +266,7 @@ static gint ett_tcp_segments = -1;
 static gint ett_tcp_segment  = -1;
 static gint ett_tcp_checksum = -1;
 static gint ett_tcp_process_info = -1;
+static gint ett_tcp_option_mptcp = -1;
 
 static gint ett_tcp_opt_rvbd_probe = -1;
 static gint ett_tcp_opt_rvbd_probe_flags = -1;
@@ -259,6 +290,7 @@ static gint ett_tcp_opt_rvbd_trpy_flags = -1;
 #define TCPOPT_CCNEW            12
 #define TCPOPT_CCECHO           13
 #define TCPOPT_MD5              19      /* RFC2385 */
+#define TCPOPT_MPTCP            0x1e    /* Multipath TCP */
 #define TCPOPT_SCPS             20      /* SCPS Capabilities */
 #define TCPOPT_SNACK            21      /* SCPS SNACK */
 #define TCPOPT_RECBOUND         22      /* SCPS Record Boundary */
@@ -286,6 +318,7 @@ static gint ett_tcp_opt_rvbd_trpy_flags = -1;
 #define TCPOLEN_CCNEW          6
 #define TCPOLEN_CCECHO         6
 #define TCPOLEN_MD5           18
+#define TCPOLEN_MPTCP_MIN      8
 #define TCPOLEN_SCPS           4
 #define TCPOLEN_SNACK          6
 #define TCPOLEN_RECBOUND       2
@@ -295,6 +328,17 @@ static gint ett_tcp_opt_rvbd_trpy_flags = -1;
 #define TCPOLEN_RVBD_PROBE_MIN 3
 #define TCPOLEN_RVBD_TRPY_MIN 16
 #define TCPOLEN_EXP_MIN        2
+
+/*
+ *     Multipath TCP subtypes
+ */
+#define TCPOPT_MPTCP_MP_CAPABLE    0x0    /* Multipath TCP Multipath Capable */
+#define TCPOPT_MPTCP_MP_JOIN       0x1    /* Multipath TCP Join Connection */
+#define TCPOPT_MPTCP_DSS           0x2    /* Multipath TCP Data Sequence Signal */
+#define TCPOPT_MPTCP_ADD_ADDR      0x3    /* Multipath TCP Add Address */
+#define TCPOPT_MPTCP_REMOVE_ADDR   0x4    /* Multipath TCP Remove Address */
+#define TCPOPT_MPTCP_MP_PRIO       0x5    /* Multipath TCP Change Subflow Priority */
+#define TCPOPT_MPTCP_MP_FAIL       0x6    /* Multipath TCP Fallback */
 
 static const true_false_string tcp_option_user_to_granularity = {
   "Minutes", "Seconds"
@@ -307,6 +351,7 @@ static const value_string tcp_option_kind_vs[] = {
     { TCPOPT_SACK_PERM, "SACK Permission" },
     { TCPOPT_MSS, "MSS size" },
     { TCPOPT_TIMESTAMP, "Timestamp" },
+    { TCPOPT_MPTCP, "Multipath TCP" },
     { 0, NULL }
 };
 
@@ -327,6 +372,17 @@ static const fragment_items tcp_segment_items = {
     &hf_tcp_reassembled_in,
     &hf_tcp_reassembled_length,
     "Segments"
+};
+
+static const value_string mptcp_subtype_vs[] = {
+    { TCPOPT_MPTCP_MP_CAPABLE, "Multipath Capable" },
+    { TCPOPT_MPTCP_MP_JOIN, "Join Connection" },
+    { TCPOPT_MPTCP_DSS, "Data Sequence Signal" },
+    { TCPOPT_MPTCP_ADD_ADDR, "Add Address"},
+    { TCPOPT_MPTCP_REMOVE_ADDR, "Remove Address" },
+    { TCPOPT_MPTCP_MP_PRIO, "Change Subflow Priority" },
+    { TCPOPT_MPTCP_MP_FAIL, "TCP Fallback" },
+    { 0, NULL }
 };
 
 static dissector_table_t subdissector_table;
@@ -2467,6 +2523,273 @@ dissect_tcpopt_timestamp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
     }
 }
 
+/*
+ * The TCP Extensions for Multipath Operation with Multiple Addresses
+ * are defined in draft-ietf-mptcp-multiaddressed-04
+ *
+ * <http://tools.ietf.org/html/draft-ief-mptcp-multiaddressed-04>
+ *
+ * Author: Andrei Maruseac <andrei.maruseac@intel.com>
+ */
+static void
+dissect_tcpopt_mptcp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
+    int offset, guint optlen, packet_info *pinfo _U_, proto_tree *opt_tree)
+{
+    proto_item *ti;
+    proto_tree *mptcp_tree;
+
+    proto_tree *mptcp_flags_tree;
+    guint8 subtype;
+    guint8 index;
+    guint8 flags;
+    guint8 ipver;
+
+    ti = proto_tree_add_text(opt_tree, tvb, offset, optlen, "Multipath TCP");
+    mptcp_tree = proto_item_add_subtree(ti, ett_tcp_option_mptcp);
+
+    proto_tree_add_item(mptcp_tree, hf_tcp_option_kind, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(mptcp_tree, hf_tcp_option_len, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(mptcp_tree, hf_tcp_option_mptcp_subtype, tvb,
+                        offset, 1, ENC_NA);
+
+    subtype = tvb_get_guint8(tvb, offset) >> 4;
+    proto_item_append_text(ti, ": %s", val_to_str(subtype, mptcp_subtype_vs, "Unknown (%d)"));
+    switch (subtype) {
+        case TCPOPT_MPTCP_MP_CAPABLE:
+            proto_tree_add_item(mptcp_tree, hf_tcp_option_mptcp_version, tvb,
+                        offset, 1, ENC_NA);
+            offset += 1;
+
+            flags = tvb_get_guint8(tvb, offset);
+            ti = proto_tree_add_uint(mptcp_tree, hf_tcp_option_mptcp_flags, tvb,
+                        offset, 1, flags);
+            mptcp_flags_tree = proto_item_add_subtree(ti, ett_tcp_option_mptcp);
+
+            proto_tree_add_item(mptcp_flags_tree, hf_tcp_option_mptcp_C_flag,
+                        tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(mptcp_flags_tree, hf_tcp_option_mptcp_S_flag,
+                        tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            if (optlen == 12 || optlen == 20) {
+                proto_tree_add_item(mptcp_tree,
+                        hf_tcp_option_mptcp_sender_key, tvb, offset, 8, ENC_NA);
+                offset += 8;
+            }
+
+            if (optlen == 20) {
+                proto_tree_add_item(mptcp_tree,
+                        hf_tcp_option_mptcp_recv_key, tvb, offset, 8, ENC_NA);
+            }
+            break;
+
+        case TCPOPT_MPTCP_MP_JOIN:
+            switch (optlen) {
+                case 12:
+                    flags = tvb_get_guint8(tvb, offset) & 0x01;
+                    ti = proto_tree_add_uint(mptcp_tree,
+                            hf_tcp_option_mptcp_flags, tvb,
+                            offset, 1, flags);
+                    mptcp_flags_tree = proto_item_add_subtree(ti,
+                            ett_tcp_option_mptcp);
+
+                    proto_tree_add_item(mptcp_flags_tree,
+                            hf_tcp_option_mptcp_B_flag, tvb, offset,
+                            1, ENC_NA);
+                    offset += 1;
+
+                    proto_tree_add_item(mptcp_tree,
+                            hf_tcp_option_mptcp_address_id, tvb, offset,
+                            1, ENC_NA);
+                    offset += 1;
+
+                    proto_tree_add_item(mptcp_tree,
+                            hf_tcp_option_mptcp_recv_token, tvb, offset,
+                            4, ENC_NA);
+                    offset += 4;
+
+                    proto_tree_add_item(mptcp_tree,
+                            hf_tcp_option_mptcp_sender_rand, tvb, offset,
+                            4, ENC_NA);
+                    break;
+
+                case 16:
+                    flags = tvb_get_guint8(tvb, offset) & 0x01;
+                    ti = proto_tree_add_uint(mptcp_tree,
+                            hf_tcp_option_mptcp_flags, tvb,
+                            offset, 1, flags);
+                    mptcp_flags_tree = proto_item_add_subtree(ti,
+                            ett_tcp_option_mptcp);
+
+                    proto_tree_add_item(mptcp_flags_tree,
+                            hf_tcp_option_mptcp_B_flag, tvb, offset,
+                            1, ENC_NA);
+                    offset += 1;
+
+                    proto_tree_add_item(mptcp_tree,
+                            hf_tcp_option_mptcp_address_id, tvb, offset,
+                            1, ENC_NA);
+                    offset += 1;
+
+                    proto_tree_add_item(mptcp_tree,
+                            hf_tcp_option_mptcp_sender_trunc_mac, tvb, offset,
+                            8, ENC_NA);
+                    offset += 8;
+
+                    proto_tree_add_item(mptcp_tree,
+                            hf_tcp_option_mptcp_sender_rand, tvb, offset,
+                            4, ENC_NA);
+                    break;
+
+                case 24:
+                    offset += 2;
+                    for (index = 0; index < 5; index++) {
+                        proto_tree_add_item(mptcp_tree,
+                                hf_tcp_option_mptcp_sender_mac, tvb, offset,
+                                4, ENC_NA);
+                        offset += 4;
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+            break;
+
+        case TCPOPT_MPTCP_DSS:
+            offset += 1;
+            flags = tvb_get_guint8(tvb, offset) & 0x1F;
+            ti = proto_tree_add_uint(mptcp_tree, hf_tcp_option_mptcp_flags, tvb,
+                            offset, 1, flags);
+            mptcp_flags_tree = proto_item_add_subtree(ti, ett_tcp_option_mptcp);
+
+            proto_tree_add_item(mptcp_flags_tree, hf_tcp_option_mptcp_F_flag,
+                            tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(mptcp_flags_tree, hf_tcp_option_mptcp_m_flag,
+                            tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(mptcp_flags_tree, hf_tcp_option_mptcp_M_flag,
+                            tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(mptcp_flags_tree, hf_tcp_option_mptcp_a_flag,
+                            tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(mptcp_flags_tree, hf_tcp_option_mptcp_A_flag,
+                            tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            if (flags & 1) {
+                if (flags & 2) {
+                    proto_tree_add_item(mptcp_tree,
+                            hf_tcp_option_mptcp_data_ack8, tvb, offset,
+                            8, ENC_NA);
+                    offset += 8;
+                } else {
+                    proto_tree_add_item(mptcp_tree,
+                            hf_tcp_option_mptcp_data_ack4, tvb, offset,
+                            4, ENC_NA);
+                    offset += 4;
+                }
+            }
+
+            if (flags & 4) {
+                if (flags & 8) {
+                    proto_tree_add_item(mptcp_tree,
+                            hf_tcp_option_mptcp_data_seq_no8, tvb, offset,
+                            8, ENC_NA);
+                    offset += 8;
+                } else {
+                    proto_tree_add_item(mptcp_tree,
+                            hf_tcp_option_mptcp_data_seq_no4, tvb, offset,
+                            4, ENC_NA);
+                    offset += 4;
+                }
+
+                proto_tree_add_item(mptcp_tree,
+                            hf_tcp_option_mptcp_subflow_seq_no, tvb, offset,
+                            4, ENC_NA);
+                offset += 4;
+
+                proto_tree_add_item(mptcp_tree,
+                            hf_tcp_option_mptcp_data_lvl_len, tvb, offset,
+                            2, ENC_NA);
+                offset += 2;
+
+                proto_tree_add_item(mptcp_tree,
+                            hf_tcp_option_mptcp_checksum, tvb, offset,
+                            2, ENC_NA);
+            }
+            break;
+
+        case TCPOPT_MPTCP_ADD_ADDR:
+            proto_tree_add_item(mptcp_tree,
+                            hf_tcp_option_mptcp_ipver, tvb, offset, 1, ENC_NA);
+            ipver = tvb_get_guint8(tvb, offset) & 0x0F;
+            offset += 1;
+
+            proto_tree_add_item(mptcp_tree,
+                    hf_tcp_option_mptcp_address_id, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            switch (ipver) {
+                case 4:
+                    proto_tree_add_item(mptcp_tree,
+                            hf_tcp_option_mptcp_ipv4, tvb, offset, 4, ENC_NA);
+                    offset += 4;
+                    break;
+
+                case 6:
+                    proto_tree_add_item(mptcp_tree,
+                            hf_tcp_option_mptcp_ipv6, tvb, offset, 16, ENC_NA);
+                    offset += 16;
+                    break;
+
+                default:
+                    break;
+            }
+
+            if (optlen % 4 == 2) {
+                proto_tree_add_item(mptcp_tree,
+                            hf_tcp_option_mptcp_port, tvb, offset, 2, ENC_NA);
+            }
+            break;
+
+        case TCPOPT_MPTCP_REMOVE_ADDR:
+            offset += 1;
+            proto_tree_add_item(mptcp_tree,
+                            hf_tcp_option_mptcp_address_id, tvb, offset,
+                            1, ENC_NA);
+            break;
+
+        case TCPOPT_MPTCP_MP_PRIO:
+            flags = tvb_get_guint8(tvb, offset) & 0x01;
+            ti = proto_tree_add_uint(mptcp_tree, hf_tcp_option_mptcp_flags, tvb,
+                            offset, 1, flags);
+            mptcp_flags_tree = proto_item_add_subtree(ti, ett_tcp_option_mptcp);
+
+            proto_tree_add_item(mptcp_flags_tree, hf_tcp_option_mptcp_B_flag,
+                            tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            if (optlen == 4) {
+                proto_tree_add_item(mptcp_tree,
+                        hf_tcp_option_mptcp_address_id, tvb, offset, 1, ENC_NA);
+            }
+            break;
+
+        case TCPOPT_MPTCP_MP_FAIL:
+            offset += 1;
+            offset += 1;
+            proto_tree_add_item(mptcp_tree,
+                    hf_tcp_option_mptcp_data_seq_no8, tvb, offset, 8, ENC_NA);
+            break;
+
+        default:
+            break;
+    }
+}
+
 static void
 dissect_tcpopt_cc(const ip_tcp_opt *optp, tvbuff_t *tvb,
     int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree)
@@ -3319,6 +3642,14 @@ static const ip_tcp_opt tcpopts[] = {
         FIXED_LENGTH,
         TCPOLEN_TIMESTAMP,
         dissect_tcpopt_timestamp
+    },
+    {
+        TCPOPT_MPTCP,
+        "Multipath TCP",
+        NULL,
+        VARIABLE_LENGTH,
+        TCPOLEN_MPTCP_MIN,
+        dissect_tcpopt_mptcp
     },
     {
         TCPOPT_CC,
@@ -4706,6 +5037,122 @@ proto_register_tcp(void)
           { "Timestamp echo reply", "tcp.options.timestamp.tsecr", FT_UINT32,
             BASE_DEC, NULL, 0x0, "Echoed timestamp from remote machine", HFILL}},
 
+        { &hf_tcp_option_mptcp_subtype,
+          { "Multipath TCP subtype", "tcp.options.mptcp.subtype", FT_UINT8,
+            BASE_DEC, VALS(mptcp_subtype_vs), 0xF0, NULL, HFILL}},
+
+        { &hf_tcp_option_mptcp_version,
+          { "Multipath TCP version", "tcp.options.mptcp.version", FT_UINT8,
+            BASE_DEC, NULL, 0x0F, NULL, HFILL}},
+
+        { &hf_tcp_option_mptcp_flags,
+          { "Multipath TCP flags", "tcp.options.mptcp.flags", FT_UINT8,
+            BASE_HEX, NULL, 0x0, NULL, HFILL}},
+
+        { &hf_tcp_option_mptcp_B_flag,
+          { "Backup flag", "tcp.options.mptcp.backup.flag", FT_UINT8,
+            BASE_DEC, NULL, 0x01, NULL, HFILL}},
+
+        { &hf_tcp_option_mptcp_C_flag,
+          { "Checksum required", "tcp.options.mptcp.checksumreq.flags", FT_UINT8,
+            BASE_DEC, NULL, 0x80, NULL, HFILL}},
+
+        { &hf_tcp_option_mptcp_S_flag,
+          { "Use HMAC-SHA1", "tcp.options.mptcp.sha1.flag", FT_UINT8,
+            BASE_DEC, NULL, 0x01, NULL, HFILL}},
+
+        { &hf_tcp_option_mptcp_F_flag,
+          { "DATA_FIN", "tcp.options.mptcp.datafin.flag", FT_UINT8,
+            BASE_DEC, NULL, 0x10, NULL, HFILL}},
+
+        { &hf_tcp_option_mptcp_m_flag,
+          { "Data Sequence Number is 8 octets", "tcp.options.mptcp.dseqn8.flag", FT_UINT8,
+            BASE_DEC, NULL, 0x08, NULL, HFILL}},
+
+        { &hf_tcp_option_mptcp_M_flag,
+          { "Data Sequence Number, Subflow Sequence Number, Data-level Length, Checksum present", "tcp.options.mptcp.dseqnpresent.flag", FT_UINT8,
+            BASE_DEC, NULL, 0x04, NULL, HFILL}},
+
+        { &hf_tcp_option_mptcp_a_flag,
+          { "Data ACK is 8 octets", "tcp.options.mptcp.dataack8.flag", FT_UINT8,
+            BASE_DEC, NULL, 0x02, NULL, HFILL}},
+
+        { &hf_tcp_option_mptcp_A_flag,
+          { "Data ACK is present", "tcp.options.mptcp.dataackpresent.flag", FT_UINT8,
+            BASE_DEC, NULL, 0x01, NULL, HFILL}},
+
+        { &hf_tcp_option_mptcp_address_id,
+          { "Multipath TCP Address ID", "tcp.options.mptcp.addrid", FT_UINT8,
+            BASE_DEC, NULL, 0x0, NULL, HFILL}},
+
+        { &hf_tcp_option_mptcp_sender_key,
+          { "Multipath TCP Sender's Key", "tcp.options.mptcp.sendkey", FT_UINT64,
+            BASE_DEC, NULL, 0x0, NULL, HFILL}},
+
+        { &hf_tcp_option_mptcp_recv_key,
+          { "Multipath TCP Receiver's Key", "tcp.options.mptcp.recvkey", FT_UINT64,
+            BASE_DEC, NULL, 0x0, NULL, HFILL}},
+
+        { &hf_tcp_option_mptcp_recv_token,
+          { "Multipath TCP Receiver's Token", "tcp.options.mptcp.recvtok", FT_UINT32,
+            BASE_DEC, NULL, 0x0, NULL, HFILL}},
+
+        { &hf_tcp_option_mptcp_sender_rand,
+          { "Multipath TCP Sender's Random Number", "tcp.options.mptcp.sendrand", FT_UINT32,
+            BASE_DEC, NULL, 0x0, NULL, HFILL}},
+
+        { &hf_tcp_option_mptcp_sender_trunc_mac,
+          { "Multipath TCP Sender's Truncated MAC", "tcp.options.mptcp.sendtruncmac", FT_UINT64,
+            BASE_DEC, NULL, 0x0, NULL, HFILL}},
+
+        { &hf_tcp_option_mptcp_sender_mac,
+          { "Multipath TCP Sender's MAC", "tcp.options.mptcp.sendmac", FT_UINT32,
+            BASE_DEC, NULL, 0x0, NULL, HFILL}},
+
+        { &hf_tcp_option_mptcp_data_ack4,
+          { "Multipath TCP Data ACK", "tcp.options.mptcp.dataack", FT_UINT32,
+            BASE_DEC, NULL, 0x0, NULL, HFILL}},
+
+        { &hf_tcp_option_mptcp_data_ack8,
+          { "Multipath TCP Data ACK", "tcp.options.mptcp.dataack", FT_UINT64,
+            BASE_DEC, NULL, 0x0, NULL, HFILL}},
+
+        { &hf_tcp_option_mptcp_data_seq_no4,
+          { "Multipath TCP Data Sequence Number", "tcp.options.mptcp.dataseqno", FT_UINT32,
+            BASE_DEC, NULL, 0x0, NULL, HFILL}},
+
+        { &hf_tcp_option_mptcp_data_seq_no8,
+          { "Multipath TCP Data Sequence Number", "tcp.options.mptcp.dataseqno", FT_UINT64,
+            BASE_DEC, NULL, 0x0, NULL, HFILL}},
+
+        { &hf_tcp_option_mptcp_subflow_seq_no,
+          { "Multipath TCP Subflow Sequence Number", "tcp.options.mptcp.subflowseqno", FT_UINT32,
+            BASE_DEC, NULL, 0x0, NULL, HFILL}},
+
+        { &hf_tcp_option_mptcp_data_lvl_len,
+          { "Multipath TCP Data-level Length", "tcp.options.mptcp.datalvllen", FT_UINT16,
+            BASE_DEC, NULL, 0x0, NULL, HFILL}},
+
+        { &hf_tcp_option_mptcp_checksum,
+          { "Multipath TCP Checksum", "tcp.options.mptcp.checksum", FT_UINT16,
+            BASE_DEC, NULL, 0x0, NULL, HFILL}},
+
+        { &hf_tcp_option_mptcp_ipver,
+          { "Multipath TCP IPVer", "tcp.options.mptcp.ipver", FT_UINT8,
+            BASE_DEC, NULL, 0x0F, NULL, HFILL}},
+
+        { &hf_tcp_option_mptcp_ipv4,
+          { "Multipath TCP Address", "tcp.options.mptcp.ipv4", FT_IPv4,
+            BASE_NONE, NULL, 0x0, NULL, HFILL}},
+
+        { &hf_tcp_option_mptcp_ipv6,
+          { "Multipath TCP Address", "tcp.options.mptcp.ipv6", FT_IPv6,
+            BASE_NONE, NULL, 0x0, NULL, HFILL}},
+
+        { &hf_tcp_option_mptcp_port,
+          { "Multipath TCP Port", "tcp.options.mptcp.port", FT_UINT16,
+            BASE_DEC, NULL, 0x0, NULL, HFILL}},
+
         { &hf_tcp_option_cc,
           { "TCP CC Option", "tcp.options.cc", FT_BOOLEAN, BASE_NONE,
             NULL, 0x0, NULL, HFILL}},
@@ -5027,6 +5474,7 @@ proto_register_tcp(void)
         &ett_tcp_flags,
         &ett_tcp_options,
         &ett_tcp_option_timestamp,
+        &ett_tcp_option_mptcp,
         &ett_tcp_option_wscale,
         &ett_tcp_option_sack,
         &ett_tcp_option_scps,
