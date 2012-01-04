@@ -4616,7 +4616,7 @@ dissect_cip_class_mb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  * Dissector for CIP Connection Configuration Object
  *
  ************************************************/
-static void
+static int
 dissect_cip_cco_all_attribute_common( proto_tree *cmd_tree, tvbuff_t *tvb, int offset, int item_length, packet_info *pinfo)
 {
    proto_item *pi, *tdii, *ncpi, *iomapi, *confgi;
@@ -4786,6 +4786,7 @@ dissect_cip_cco_all_attribute_common( proto_tree *cmd_tree, tvbuff_t *tvb, int o
 
       variable_data_size += 18;
    }
+return variable_data_size;
 }
 
 static void
