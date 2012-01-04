@@ -1658,7 +1658,7 @@ printf("INTEGERnew dissect_ber_integer(%s) entered implicit_tag:%d \n",name,impl
 
 			if (used_too_many_bytes) {
 				expert_add_info_format(actx->pinfo, actx->created_item, PI_PROTOCOL, PI_WARN, 
-					"Value is encoded with too many bytes(9 leading zero or one bits), hf:%s",hfi->name);
+					"Value is encoded with too many bytes(9 leading zero or one bits), hf_abbr: %s",hfi->abbrev);
 			}
 		}
 	}
