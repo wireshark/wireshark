@@ -894,14 +894,16 @@ sync_pipe_open_command(const char** argv, int *data_read_fd,
 }
 
 /*
- * Wait for dumpcap to finish.  On success, *msg is unchanged, and 0 is
- * returned.  On failure, *msg points to an error message for the
- * failure, and -1 is returned.  In the latter case, *msg must be
- * freed with g_free().
+ * Close the pipes we're using to read from dumpcap, and wait for it
+ * to exit.  On success, *msgp is unchanged, and the exit status of
+ * dumpcap is returned.  On failure (which includes "dumpcap exited
+ * due to being killed by a signal or an exception"), *msgp points
+ * to an error message for the failure, and -1 is returned.  In the
+ * latter case, *msgp must be freed with g_free().
  */
 static int
 sync_pipe_close_command(int *data_read_fd, int *message_read_fd,
-                        int *fork_child, gchar **msg)
+                        int *fork_child, gchar **msgp)
 {
     ws_close(*data_read_fd);
     if (message_read_fd != NULL)
@@ -912,7 +914,7 @@ sync_pipe_close_command(int *data_read_fd, int *message_read_fd,
     sync_pipe_kill(*fork_child);
 #endif
 
-    return sync_pipe_wait_for_child(*fork_child, msg);
+    return sync_pipe_wait_for_child(*fork_child, msgp);
 }
 
 /*
@@ -1670,7 +1672,14 @@ sync_pipe_input_cb(gint source, gpointer user_data)
 
 
 
-/* the child process is going down, wait until it's completely terminated */
+/*
+ * dumpcap is exiting; wait for it to exit.  On success, *msgp is
+ * unchanged, and the exit status of dumpcap is returned.  On
+ * failure (which includes "dumpcap exited due to being killed by
+ * a signal or an exception"), *msgp points to an error message
+ * for the failure, and -1 is returned.  In the latter case, *msgp
+ * must be freed with g_free().
+ */
 static int
 sync_pipe_wait_for_child(int fork_child, gchar **msgp)
 {
