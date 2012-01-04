@@ -150,7 +150,7 @@ static const value_string exception_code_vals[] = {
     { ILLEGAL_FUNCTION,    "Illegal function" },
     { ILLEGAL_ADDRESS,     "Illegal data address" },
     { ILLEGAL_VALUE,       "Illegal data value" },
-    { ILLEGAL_RESPONSE,    "Illegal response length" },
+    { SLAVE_FAILURE,       "Slave device failure" },
     { ACKNOWLEDGE,         "Acknowledge" },
     { SLAVE_BUSY,          "Slave device busy" },
     { MEMORY_ERR,          "Memory parity error" },

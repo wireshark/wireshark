@@ -13,7 +13,7 @@
  *   Jan Bartels, Siempelkamp Maschinen- und Anlagenbau GmbH & Co. KG
  *   Copyright 2007
  *
- * Improved support for CoCo and CM objects
+ * Improved support for CoCo, CM, MB objects
  * Heuristic object support for common services
  *   Michael Mann * Copyright 2011
  *
@@ -48,6 +48,7 @@
 #include <epan/expert.h>
 #include "packet-cip.h"
 #include "packet-enip.h"
+#include "packet-mbtcp.h"
 
 #define  ENIP_CIP_INTERFACE   0
 
@@ -60,6 +61,8 @@ typedef struct mr_mult_req_info {
 static dissector_handle_t cip_handle;
 static dissector_handle_t cip_class_generic_handle;
 static dissector_handle_t cip_class_cm_handle;
+static dissector_handle_t cip_class_mb_handle;
+static dissector_handle_t modbus_handle;
 static dissector_handle_t cip_class_cco_handle;
 static heur_dissector_list_t  heur_subdissector_service;
 
@@ -67,8 +70,10 @@ static heur_dissector_list_t  heur_subdissector_service;
 static int proto_cip               = -1;
 static int proto_cip_class_generic = -1;
 static int proto_cip_class_cm      = -1;
+static int proto_cip_class_mb      = -1;
 static int proto_cip_class_cco     = -1;
 static int proto_enip              = -1;
+static int proto_modbus            = -1;
 
 static int hf_cip_data              = -1;
 static int hf_cip_service           = -1;
@@ -135,6 +140,28 @@ static int hf_cip_cm_ext126_size          = -1;
 static int hf_cip_cm_ext127_size          = -1;
 static int hf_cip_cm_ext128_size          = -1;
 
+static int hf_cip_mb_sc                                   = -1;
+static int hf_cip_mb_read_coils_start_addr                = -1;
+static int hf_cip_mb_read_coils_num_coils                 = -1;
+static int hf_cip_mb_read_coils_data                      = -1;
+static int hf_cip_mb_read_discrete_inputs_start_addr      = -1;
+static int hf_cip_mb_read_discrete_inputs_num_inputs      = -1;
+static int hf_cip_mb_read_discrete_inputs_data            = -1;
+static int hf_cip_mb_read_holding_register_start_addr     = -1;
+static int hf_cip_mb_read_holding_register_num_registers  = -1;
+static int hf_cip_mb_read_holding_register_data           = -1; 
+static int hf_cip_mb_read_input_register_start_addr       = -1;
+static int hf_cip_mb_read_input_register_num_registers    = -1;
+static int hf_cip_mb_read_input_register_data             = -1;
+static int hf_cip_mb_write_coils_start_addr               = -1;
+static int hf_cip_mb_write_coils_outputs_forced           = -1;
+static int hf_cip_mb_write_coils_num_coils                = -1;
+static int hf_cip_mb_write_coils_data                     = -1;
+static int hf_cip_mb_write_registers_start_addr           = -1;
+static int hf_cip_mb_write_registers_outputs_forced       = -1;
+static int hf_cip_mb_write_registers_num_registers        = -1;
+static int hf_cip_mb_write_registers_data                 = -1;
+static int hf_cip_mb_data                                 = -1;
 
 static int hf_cip_cco_con_type            = -1;
 static int hf_cip_cco_ot_rtf              = -1;
@@ -307,6 +334,7 @@ static int hf_conn_mgr_conn_timouts                = -1;
 static gint ett_cip               = -1;
 static gint ett_cip_class_generic = -1;
 static gint ett_cip_class_cm      = -1;
+static gint ett_cip_class_mb      = -1;
 static gint ett_cip_class_cco     = -1;
 
 static gint ett_path          = -1;
@@ -336,6 +364,9 @@ static gint ett_cm_mes_req  = -1;
 static gint ett_cm_cmd_data = -1;
 static gint ett_cm_ttt      = -1;
 static gint ett_cm_add_status_item = -1;
+
+static gint ett_mb_rrsc     = -1;
+static gint ett_mb_cmd_data = -1;
 
 static gint ett_cco_iomap    = -1;
 static gint ett_cco_con_status = -1;
@@ -371,6 +402,22 @@ static const value_string cip_sc_vals_cm[] = {
    { 0,                       NULL }
 };
 
+/* Translate function to string - CIP Service codes for MB */
+static const value_string cip_sc_vals_mb[] = {
+   GENERIC_SC_LIST
+
+   /* Some class specific services */
+   { SC_MB_READ_DISCRETE_INPUTS,    "Read Discrete" },
+   { SC_MB_READ_COILS,              "Read Coils" },
+   { SC_MB_READ_INPUT_REGISTERS,    "Read Input Registers" },
+   { SC_MB_READ_HOLDING_REGISTERS,  "Read Holding Registers" },
+   { SC_MB_WRITE_COILS,             "Write Coils" },
+   { SC_MB_WRITE_HOLDING_REGISTERS, "Write Holding Registers" },
+   { SC_MB_PASSTHROUGH,             "Modbus Passthrough" },
+
+   { 0,                       NULL }
+};
+
 /* Translate function to string - CIP Service codes for CCO */
 static const value_string cip_sc_vals_cco[] = {
    GENERIC_SC_LIST
@@ -389,7 +436,7 @@ static const value_string cip_sc_vals_cco[] = {
 };
 
 /* Translate function to string - CIP Request/Response */
-static const value_string cip_sc_rr[] = {
+const value_string cip_sc_rr[3] = {
    { 0,        "Request"  },
    { 1,        "Response" },
 
@@ -404,7 +451,7 @@ static const value_string cip_com_bit_vals[] = {
    { 0,        NULL          }
 };
 
-static const value_string cip_reset_type_vals[] = {
+const value_string cip_reset_type_vals[4] = {
    { 0,        "Cycle Power" },
    { 1,        "Factory Default" },
    { 2,        "Keep Communication Parameters" },
@@ -2913,14 +2960,18 @@ dissect_cip_attribute(packet_info *pinfo, proto_tree *tree, proto_item *item, tv
       proto_tree_add_item(tree, *(attr->phf), tvb, offset, 2, ENC_LITTLE_ENDIAN);
       consumed = 2;
       break;
-   case cip_usint_array:
+   case cip_byte_array:
       proto_tree_add_item(tree, *(attr->phf), tvb, offset, total_len, ENC_NA);
+      consumed = total_len;
+      break;
+   case cip_usint_array:
+      for (i = 0; i < total_len; i++)
+         proto_tree_add_item(tree, *(attr->phf), tvb, offset, total_len, ENC_NA);
       consumed = total_len;
       break;
    case cip_uint_array:
       for (i = 0; i < total_len; i+=2)
          proto_tree_add_item(tree, *(attr->phf), tvb, offset+i, 2, ENC_LITTLE_ENDIAN);
-
       consumed = i;
       break;
    case cip_udint:
@@ -4352,6 +4403,216 @@ dissect_cip_class_cm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /************************************************
  *
+ * Dissector for CIP Modbus Object
+ *
+ ************************************************/
+static void
+dissect_cip_mb_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_length, packet_info *pinfo )
+{
+   proto_item *pi, *rrsc_item;
+   proto_tree *rrsc_tree, *cmd_data_tree;
+   tvbuff_t *next_tvb;
+   int req_path_size;
+   guint8 gen_status, add_stat_size, service;
+
+   col_set_str(pinfo->cinfo, COL_PROTOCOL, "CIP MB");
+
+   /* Add Service code & Request/Response tree */
+   service = tvb_get_guint8( tvb, offset );
+   rrsc_item = proto_tree_add_text( item_tree, tvb, offset, 1, "Service: " );
+   rrsc_tree = proto_item_add_subtree( rrsc_item, ett_mb_rrsc );
+
+   /* Add Request/Response */
+   proto_tree_add_item( rrsc_tree, hf_cip_reqrsp, tvb, offset, 1, ENC_LITTLE_ENDIAN );
+
+   proto_item_append_text( rrsc_item, "%s (%s)",
+               val_to_str( ( service & 0x7F ),
+                  cip_sc_vals_mb , "Unknown Service (0x%02x)"),
+               val_to_str( ( service & 0x80 )>>7,
+                  cip_sc_rr, "") );
+
+   /* Add Service code */
+   proto_tree_add_item(rrsc_tree, hf_cip_mb_sc, tvb, offset, 1, ENC_LITTLE_ENDIAN );
+
+   if( service & 0x80 )
+   {
+      /* Response message */
+      gen_status = tvb_get_guint8( tvb, offset+2 );
+      add_stat_size = tvb_get_guint8( tvb, offset+3 ) * 2;
+
+      /* If there is any command specific data create a sub-tree for it */
+      if( ( item_length-4-add_stat_size ) != 0 )
+      {
+         pi = proto_tree_add_text( item_tree, tvb, offset+4+add_stat_size, item_length-4-add_stat_size, "Command Specific Data" );
+         cmd_data_tree = proto_item_add_subtree( pi, ett_mb_cmd_data );
+
+         if( gen_status == CI_GRC_SUCCESS || gen_status == CI_GRC_SERVICE_ERROR )
+         {
+            /* Success responses */
+            switch (service & 0x7F)
+            {
+            case SC_MB_READ_DISCRETE_INPUTS:
+               proto_tree_add_item(cmd_data_tree, hf_cip_mb_read_discrete_inputs_data, tvb, offset+4+add_stat_size, item_length-4-add_stat_size, ENC_NA);
+               break;
+
+            case SC_MB_READ_COILS:
+               proto_tree_add_item(cmd_data_tree, hf_cip_mb_read_coils_data, tvb, offset+4+add_stat_size, item_length-4-add_stat_size, ENC_NA);
+               break;
+
+            case SC_MB_READ_INPUT_REGISTERS:
+               proto_tree_add_item(cmd_data_tree, hf_cip_mb_read_input_register_data, tvb, offset+4+add_stat_size, item_length-4-add_stat_size, ENC_NA);
+               break;
+
+            case SC_MB_READ_HOLDING_REGISTERS:
+               proto_tree_add_item(cmd_data_tree, hf_cip_mb_read_holding_register_data, tvb, offset+4+add_stat_size, item_length-4-add_stat_size, ENC_NA);
+               break;
+
+            case SC_MB_WRITE_COILS:
+               proto_tree_add_item(cmd_data_tree, hf_cip_mb_write_coils_start_addr, tvb, offset+4+add_stat_size, 2, ENC_LITTLE_ENDIAN);
+               proto_tree_add_item(cmd_data_tree, hf_cip_mb_write_coils_outputs_forced, tvb, offset+4+add_stat_size+2, 2, ENC_LITTLE_ENDIAN);
+               break;
+
+            case SC_MB_WRITE_HOLDING_REGISTERS:
+               proto_tree_add_item(cmd_data_tree, hf_cip_mb_write_registers_start_addr, tvb, offset+4+add_stat_size, 2, ENC_LITTLE_ENDIAN);
+               proto_tree_add_item(cmd_data_tree, hf_cip_mb_write_registers_outputs_forced, tvb, offset+4+add_stat_size+2, 2, ENC_LITTLE_ENDIAN);
+               break;
+
+            case SC_MB_PASSTHROUGH:
+               /* Passthrough response (Success) */
+               if( tvb_length_remaining(tvb, offset) > 0 )
+               {
+                  /* dissect the Modbus PDU */
+                  next_tvb = tvb_new_subset( tvb, offset+4+add_stat_size, item_length-4-add_stat_size, item_length-4-add_stat_size);
+
+                  /* keep packet context */
+                  p_add_proto_data(pinfo->fd, proto_modbus, (void*)RESPONSE_PACKET);
+
+                  call_dissector(modbus_handle, next_tvb, pinfo, cmd_data_tree);
+                  p_remove_proto_data(pinfo->fd, proto_modbus);
+               }
+               break;
+
+            default:
+               proto_tree_add_item(cmd_data_tree, hf_cip_mb_data, tvb, offset+4+add_stat_size, item_length-4-add_stat_size, ENC_NA);
+            }
+         }
+         else
+         {
+            proto_tree_add_item(cmd_data_tree, hf_cip_mb_data, tvb, offset+4+add_stat_size, item_length-4-add_stat_size, ENC_NA);
+         }
+
+      } /* End of if command-specific data present */
+
+   } /* End of if reply */
+   else
+   {
+      /* Request message */
+
+      /* Add service to info column */
+      if(check_col(pinfo->cinfo, COL_INFO))
+      {
+         col_append_str( pinfo->cinfo, COL_INFO,
+                  val_to_str( ( tvb_get_guint8( tvb, offset ) & 0x7F ),
+                     cip_sc_vals_mb , "Unknown Service (0x%02x)") );
+      }
+      req_path_size = tvb_get_guint8( tvb, offset+1 )*2;
+
+      /* If there is any command specific data creat a sub-tree for it */
+      if( (item_length-req_path_size-2) != 0 )
+      {
+         pi = proto_tree_add_text( item_tree, tvb, offset+2+req_path_size, item_length-req_path_size-2, "Command Specific Data" );
+         cmd_data_tree = proto_item_add_subtree( pi, ett_mb_cmd_data );
+
+         /* Check what service code that received */
+         switch (service)
+         {
+         case SC_MB_READ_DISCRETE_INPUTS:
+            proto_tree_add_item(cmd_data_tree, hf_cip_mb_read_discrete_inputs_start_addr, tvb, offset+2+req_path_size, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(cmd_data_tree, hf_cip_mb_read_discrete_inputs_num_inputs, tvb, offset+2+req_path_size+2, 2, ENC_LITTLE_ENDIAN);
+            break;
+
+         case SC_MB_READ_COILS:
+            proto_tree_add_item(cmd_data_tree, hf_cip_mb_read_coils_start_addr, tvb, offset+2+req_path_size, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(cmd_data_tree, hf_cip_mb_read_coils_num_coils, tvb, offset+2+req_path_size+2, 2, ENC_LITTLE_ENDIAN);
+            break;
+
+         case SC_MB_READ_INPUT_REGISTERS:
+            proto_tree_add_item(cmd_data_tree, hf_cip_mb_read_input_register_start_addr, tvb, offset+2+req_path_size, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(cmd_data_tree, hf_cip_mb_read_input_register_num_registers, tvb, offset+2+req_path_size+2, 2, ENC_LITTLE_ENDIAN);
+            break;
+
+         case SC_MB_READ_HOLDING_REGISTERS:
+            proto_tree_add_item(cmd_data_tree, hf_cip_mb_read_holding_register_start_addr, tvb, offset+2+req_path_size, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(cmd_data_tree, hf_cip_mb_read_holding_register_num_registers, tvb, offset+2+req_path_size+2, 2, ENC_LITTLE_ENDIAN);
+            break;
+
+         case SC_MB_WRITE_COILS:
+            {
+            guint16 NumCoils;
+
+            proto_tree_add_item(cmd_data_tree, hf_cip_mb_write_coils_start_addr, tvb, offset+2+req_path_size, 2, ENC_LITTLE_ENDIAN);
+            NumCoils = tvb_get_letohs( tvb, offset+2+req_path_size+2 );
+            proto_tree_add_item(cmd_data_tree, hf_cip_mb_write_coils_num_coils, tvb, offset+2+req_path_size+2, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(cmd_data_tree, hf_cip_mb_write_coils_data, tvb, offset+2+req_path_size+4, (NumCoils+7)/8, ENC_NA);
+            }
+            break;
+
+         case SC_MB_WRITE_HOLDING_REGISTERS:
+            {
+            guint16 NumRegisters;
+
+            proto_tree_add_item(cmd_data_tree, hf_cip_mb_write_registers_start_addr, tvb, offset+2+req_path_size, 2, ENC_LITTLE_ENDIAN);
+            NumRegisters = tvb_get_letohs( tvb, offset+2+req_path_size+2 );
+            proto_tree_add_item(cmd_data_tree, hf_cip_mb_write_registers_num_registers, tvb, offset+2+req_path_size+2, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(cmd_data_tree, hf_cip_mb_write_registers_data, tvb, offset+2+req_path_size+4, NumRegisters*2, ENC_NA);
+            }
+            break;
+
+         case SC_MB_PASSTHROUGH:
+            /* Passthrough Request */
+            if( tvb_length_remaining(tvb, offset) > 0 )
+            {
+               /* dissect the Modbus PDU */
+               next_tvb = tvb_new_subset( tvb, offset+2+req_path_size, item_length-req_path_size-2, item_length-req_path_size-2);
+
+               /* keep packet context */
+               p_add_proto_data(pinfo->fd, proto_modbus, (void*)QUERY_PACKET);
+
+               call_dissector(modbus_handle, next_tvb, pinfo, cmd_data_tree);
+               p_remove_proto_data(pinfo->fd, proto_modbus);
+            }
+            break;
+
+         default:
+            proto_tree_add_item(cmd_data_tree, hf_cip_mb_data, tvb, offset+2+req_path_size, item_length-req_path_size-2, ENC_NA);
+         }
+
+      } /* End of if command-specific data present */
+
+   } /* End of if-else( request ) */
+
+} /* End of dissect_cip_mb_data() */
+
+static int
+dissect_cip_class_mb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+   proto_item *ti;
+   proto_tree *class_tree;
+
+   if( tree )
+   {
+      /* Create display subtree for the protocol */
+      ti = proto_tree_add_item(tree, proto_cip_class_mb, tvb, 0, -1, FALSE);
+      class_tree = proto_item_add_subtree( ti, ett_cip_class_mb );
+
+      dissect_cip_mb_data( class_tree, tvb, 0, tvb_length(tvb), pinfo );
+   }
+
+   return tvb_length(tvb);
+}
+
+/************************************************
+ *
  * Dissector for CIP Connection Configuration Object
  *
  ************************************************/
@@ -5022,6 +5283,7 @@ static void
 cip_init_protocol(void)
 {
    proto_enip = proto_get_id_by_filter_name( "enip" );
+   proto_modbus = proto_get_id_by_filter_name( "modbus" );
 }
 
 void
@@ -5212,6 +5474,31 @@ proto_register_cip(void)
       { &hf_cip_cm_ext128_size, { "Maximum Size", "cip.cm.ext128_size", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }}
    };
 
+   static hf_register_info hf_mb[] = {
+      { &hf_cip_mb_sc, { "Service", "cip.mb.sc", FT_UINT8, BASE_HEX, VALS(cip_sc_vals_mb), 0x7F, NULL, HFILL }},
+      { &hf_cip_mb_read_coils_start_addr, { "Starting Address", "cip.mb.read_coils.start_addr", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_cip_mb_read_coils_num_coils, { "Quantity of Coils", "cip.mb.read_coils.num_coils", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_cip_mb_read_coils_data, { "Data", "cip.mb.read_coils.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+      { &hf_cip_mb_read_discrete_inputs_start_addr, { "Starting Address", "cip.mb.read_discrete_inputs.start_addr", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_cip_mb_read_discrete_inputs_num_inputs, { "Quantity of Inputs", "cip.mb.read_discrete_inputs.num_inputs", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_cip_mb_read_discrete_inputs_data, { "Data", "cip.mb.read_discrete_inputs.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+      { &hf_cip_mb_read_holding_register_start_addr, { "Starting Address", "cip.mb.read_holding_register.start_addr", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_cip_mb_read_holding_register_num_registers, { "Quantity of Holding Registers", "cip.mb.read_holding_register.num_registers", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_cip_mb_read_holding_register_data, { "Data", "cip.mb.read_holding_register.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+      { &hf_cip_mb_read_input_register_start_addr, { "Starting Address", "cip.mb.read_input_register.start_addr", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_cip_mb_read_input_register_num_registers, { "Quantity of Input Registers", "cip.mb.read_input_register.num_registers", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_cip_mb_read_input_register_data, { "Data", "cip.mb.read_input_register.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+      { &hf_cip_mb_write_coils_start_addr, { "Starting Address", "cip.mb.write_coils.start_addr", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_cip_mb_write_coils_outputs_forced, { "Outputs Forced", "cip.mb.write_coils.outputs_forced", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_cip_mb_write_coils_num_coils, { "Quantity of Coils", "cip.mb.write_coils.num_coils", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_cip_mb_write_coils_data, { "Data", "cip.mb.write_coils.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+      { &hf_cip_mb_write_registers_start_addr, { "Starting Address", "cip.mb.write_registers.start_addr", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_cip_mb_write_registers_outputs_forced, { "Outputs Forced", "cip.mb.write_registers.outputs_forced", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_cip_mb_write_registers_num_registers, { "Quantity of Holding Registers", "cip.mb.write_registers.num_registers", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_cip_mb_write_registers_data, { "Data", "cip.mb.write_registers.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+      { &hf_cip_mb_data, { "Data", "cip.mb.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }}
+   };
+
    static hf_register_info hf_cco[] = {
       { &hf_cip_cco_sc, { "Service", "cip.cco.sc", FT_UINT8, BASE_HEX, VALS(cip_sc_vals_cco), 0x7F, NULL, HFILL }},
       { &hf_cip_cco_format_number, { "Format Number", "cip.cco.format_number", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
@@ -5304,6 +5591,12 @@ proto_register_cip(void)
       &ett_cm_add_status_item
    };
 
+   static gint *ett_mb[] = {
+      &ett_cip_class_mb,
+      &ett_mb_rrsc,
+      &ett_mb_cmd_data
+    };
+
    static gint *ett_cco[] = {
       &ett_cip_class_cco,
       &ett_cco_iomap,
@@ -5339,6 +5632,11 @@ proto_register_cip(void)
    proto_register_field_array(proto_cip_class_cm, hf_cm, array_length(hf_cm));
    proto_register_subtree_array(ett_cm, array_length(ett_cm));
 
+   proto_cip_class_mb = proto_register_protocol("CIP Modbus Object",
+       "CIPMB", "cipmb");
+   proto_register_field_array(proto_cip_class_mb, hf_mb, array_length(hf_mb));
+   proto_register_subtree_array(ett_mb, array_length(ett_mb));
+
    proto_cip_class_cco = proto_register_protocol("CIP Connection Configuration Object",
        "CIPCCO", "cipcco");
    proto_register_field_array(proto_cip_class_cco, hf_cco, array_length(hf_cco));
@@ -5370,6 +5668,11 @@ proto_reg_handoff_cip(void)
    /* Create and register dissector handle for Connection Manager */
    cip_class_cm_handle = new_create_dissector_handle( dissect_cip_class_cm, proto_cip_class_cm );
    dissector_add_uint( "cip.class.iface", CI_CLS_CM, cip_class_cm_handle );
+
+   /* Create and register dissector handle for Modbus Object */
+   cip_class_mb_handle = new_create_dissector_handle( dissect_cip_class_mb, proto_cip_class_mb );
+   dissector_add_uint( "cip.class.iface", CI_CLS_MB, cip_class_mb_handle );
+   modbus_handle = find_dissector("modbus");
 
    /* Create and register dissector handle for Connection Configuration Object */
    cip_class_cco_handle = new_create_dissector_handle( dissect_cip_class_cco, proto_cip_class_cco );

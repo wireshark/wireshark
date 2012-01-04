@@ -57,6 +57,7 @@
 /* Classes that have class-specfic dissectors */
 #define CI_CLS_MR   0x02    /* Message Router */
 #define CI_CLS_CM   0x06    /* Connection Manager */
+#define CI_CLS_MB   0x44    /* Modbus Object */
 #define CI_CLS_CCO  0xF3    /* Connection Configuration Object */
 
 /* Class specific services */
@@ -66,6 +67,15 @@
 #define SC_CM_FWD_OPEN              0x54
 #define SC_CM_LARGE_FWD_OPEN        0x5B
 #define SC_CM_GET_CONN_OWNER        0x5A
+
+/* Modbus Object services */
+#define SC_MB_READ_DISCRETE_INPUTS    0x4B
+#define SC_MB_READ_COILS              0x4C
+#define SC_MB_READ_INPUT_REGISTERS    0x4D
+#define SC_MB_READ_HOLDING_REGISTERS  0x4E
+#define SC_MB_WRITE_COILS             0x4F
+#define SC_MB_WRITE_HOLDING_REGISTERS 0x50
+#define SC_MB_PASSTHROUGH             0x51
 
 /* Connection Configuration Object services */
 #define SC_CCO_KICK_TIMER            0x4B
@@ -248,6 +258,7 @@ enum cip_datatype {
    cip_short_string,
    cip_string,
    cip_byte,
+   cip_byte_array,
    cip_word,
    cip_dword,
    cip_lword,
@@ -311,6 +322,8 @@ extern void dissect_epath( tvbuff_t *tvb, packet_info *pinfo, proto_item *epath_
 ** Exported variables
 */
 extern dissector_table_t subdissector_class_table;
+extern const value_string cip_sc_rr[3];
+extern const value_string cip_reset_type_vals[4];
 extern value_string_ext cip_gs_vals_ext;
 extern value_string_ext cip_cm_ext_st_vals_ext;
 extern value_string_ext cip_vendor_vals_ext;
