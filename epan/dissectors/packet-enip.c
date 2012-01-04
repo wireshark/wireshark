@@ -1991,7 +1991,7 @@ dissect_dlr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       if( nOffset < 42 )
       {
          proto_tree_add_item( dlr_tree, hf_dlr_soreserved, tvb, nOffset, 42 - nOffset, ENC_NA );
-         nOffset += (42 - nOffset);
+         /* nOffset += (42 - nOffset); */
       }
    }
    else
