@@ -31,6 +31,9 @@ typedef struct _dfilter_t dfilter_t;
 #include <epan/epan.h>
 #include <epan/proto.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 /* Module-level initialization */
 void
@@ -91,4 +94,8 @@ dfilter_deprecated_tokens(dfilter_t *df);
 void
 dfilter_dump(dfilter_t *df);
 
-#endif
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* DFILTER_H */

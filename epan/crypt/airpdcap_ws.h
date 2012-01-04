@@ -38,6 +38,15 @@
 #define	_AIRPDCAP_WS_H
 
 #include "airpdcap_system.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 WS_VAR_IMPORT AIRPDCAP_CONTEXT airpdcap_ctx;
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* _AIRPDCAP_WS_H */
