@@ -492,7 +492,6 @@ dissect_mpls_extended_payload_object(tvbuff_t *tvb, gint offset, proto_tree *ext
 {
 
     guint16         obj_length, obj_trunc_length;
-    gint            obj_end_offset;
     gboolean        unknown_object;
     guint8          c_type;
     unknown_object  = FALSE;
@@ -500,7 +499,6 @@ dissect_mpls_extended_payload_object(tvbuff_t *tvb, gint offset, proto_tree *ext
     obj_length = tvb_get_ntohs(tvb, offset);
 
     obj_trunc_length =  MIN(obj_length, tvb_reported_length_remaining(tvb, offset));
-    obj_end_offset = offset + obj_trunc_length;
 
     /* C-Type */
     c_type = tvb_get_guint8(tvb, offset + 3);
@@ -658,11 +656,9 @@ dissect_interface_information_object(tvbuff_t *tvb, gint offset, proto_tree *ext
     gint            obj_end_offset;
     guint8          c_type;
     gboolean        unknown_object;
-    guint8          interface_role;
     guint8          if_index_flag;
     guint8          ipaddr_flag;
     guint8          name_flag;
-    guint8          mtu_flag;
     guint32         if_index;
     guint16         afi;
     struct e_in6_addr ipaddr_v6;
@@ -685,11 +681,9 @@ dissect_interface_information_object(tvbuff_t *tvb, gint offset, proto_tree *ext
         return TRUE;
     }
 
-    interface_role = (c_type & INT_INFO_INTERFACE_ROLE) >> 6;
     if_index_flag  = (c_type & INT_INFO_IFINDEX) >> 3;
     ipaddr_flag    = (c_type & INT_INFO_IPADDR) >> 2;
     name_flag      = (c_type & INT_INFO_NAME) >> 1;
-    mtu_flag       = (c_type & INT_INFO_MTU);
 
     {
         static const gint *c_type_fields[] = {
