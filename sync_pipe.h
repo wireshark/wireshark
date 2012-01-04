@@ -78,4 +78,10 @@ extern void
 sync_pipe_errmsg_to_parent(int pipe_fd, const char *error_msg,
                            const char *secondary_error_msg);
 
+/** Has the parent signalled the child to stop? */
+#define SIGNAL_PIPE_CTRL_ID_NONE "none"
+#ifdef _WIN32
+#define SIGNAL_PIPE_FORMAT "\\\\.\\pipe\\wireshark.%s.signal"
+#endif
+
 #endif /* sync_pipe.h */
