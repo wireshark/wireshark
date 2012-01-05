@@ -1121,9 +1121,19 @@ static void gtk_mac_lte_stat_init(const char *optarg, void *userdata _U_)
 
     /* Create the titles for each column of the per-UE table */
     for (i = 0; i < TABLE_COLUMN; i++) {
-        renderer = gtk_cell_renderer_text_new();
-        column = gtk_tree_view_column_new_with_attributes(ue_titles[i], renderer,
-                                                          "text", i, NULL);
+        if (i == UL_PADDING_PERCENT_COLUMN) {
+            /* Show % as progress bar */
+            renderer = gtk_cell_renderer_progress_new();
+            column = gtk_tree_view_column_new_with_attributes(ue_titles[i], renderer,
+                                                              "text", i,
+                                                              "value", i,
+                                                              NULL);
+        }
+        else {
+            renderer = gtk_cell_renderer_text_new();
+            column = gtk_tree_view_column_new_with_attributes(ue_titles[i], renderer,
+                                                              "text", i, NULL);
+        }
         gtk_tree_view_column_set_sort_column_id(column, i);
 
         if (i == 0) {
