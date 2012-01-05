@@ -994,9 +994,9 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     struct newesp esp;
 
     gint len = 0;
-    gint i = 0;
 
 #ifdef HAVE_LIBGCRYPT
+    gint i;
 
     /* Packet Variables related */
     gchar *ip_src = NULL;
@@ -1078,7 +1078,6 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if(tree) {
         len = 0, encapsulated_protocol = 0;
         decrypt_dissect_ok = FALSE;
-        i = 0;
 
         ti = proto_tree_add_item(tree, proto_esp, tvb, 0, -1, ENC_NA);
         esp_tree = proto_item_add_subtree(ti, ett_esp);
