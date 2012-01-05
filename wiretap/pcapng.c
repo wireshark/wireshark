@@ -1948,6 +1948,7 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
 	guint32 interface_id;
 	guint64 ts;
 	pcapng_dump_t *pcapng = (pcapng_dump_t *)wdh->priv;
+	int pcap_encap;
 
 	pcapng_debug2("pcapng_dump: encap = %d (%s)",
 	              phdr->pkt_encap,
@@ -1958,13 +1959,28 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
 
 	interface_id = pcapng_lookup_interface_id_by_encap(phdr->pkt_encap, wdh);
 	if (interface_id == G_MAXUINT32) {
+		/*
+		 * We haven't yet written out an interface description
+		 * block for an interface with this encapsulation.
+		 *
+		 * Is this encapsulation even supported in pcap-ng?
+		 */
+		pcap_encap = wtap_wtap_encap_to_pcap_encap(phdr->pkt_encap);
+		if (pcap_encap == -1) {
+			/*
+			 * No.  Fail.
+			 */
+			*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+			return FALSE;
+		}
+
 		/* write the interface description block */
 		wblock.frame_buffer            = NULL;
 		wblock.pseudo_header           = NULL;
 		wblock.packet_header           = NULL;
 		wblock.file_encap              = NULL;
 		wblock.type                    = BLOCK_TYPE_IDB;
-		wblock.data.if_descr.link_type = wtap_wtap_encap_to_pcap_encap(phdr->pkt_encap);
+		wblock.data.if_descr.link_type = pcap_encap;
 		wblock.data.if_descr.snap_len = (wdh->snaplen != 0) ? wdh->snaplen :
 								      WTAP_MAX_PACKET_SIZE; /* XXX */
 

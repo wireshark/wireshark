@@ -37,7 +37,9 @@
  *	ftp://ftp.microsoft.com/developr/drg/cifs/cifs/Bhfile.zip
  *
  * contains "STRUCT.H", which declares the typedef CAPTUREFILE_HEADER
- * for the header of a Microsoft Network Monitor capture file.
+ * for the header of a Microsoft Network Monitor 1.x capture file.
+ *
+ * The help files for Network Monitor 3.x document the 2.x file format.
  */
 
 /* Capture file header, *including* magic number, is padded to 128 bytes. */
@@ -86,11 +88,12 @@ struct netmonrec_1_x_hdr {
 	guint16	incl_len;	/* number of octets captured in file */
 };
 
-/* Network Monitor 2.x record header; not defined in STRUCT.H, but deduced by
- * looking at capture files. */
+/*
+ * Network Monitor 2.x record header, as documented in NetMon 3.x's
+ * help files.
+ */
 struct netmonrec_2_x_hdr {
-	guint32	ts_delta_lo;	/* time stamp - usecs since start of capture */
-	guint32	ts_delta_hi;	/* time stamp - usecs since start of capture */
+	guint64	ts_delta;	/* time stamp - tenths of usecs since start of capture */
 	guint32	orig_len;	/* actual length of packet */
 	guint32	incl_len;	/* number of octets captured in file */
 };
@@ -131,7 +134,7 @@ struct netmon_atm_hdr {
 
 typedef struct {
 	time_t	start_secs;
-	guint32	start_usecs;
+	guint32	start_nsecs;
 	guint8	version_major;
 	guint8	version_minor;
 	guint32 *frame_table;
@@ -298,7 +301,7 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 	 * intervals since 1601-01-01 00:00:00 "UTC", there, instead
 	 * of stuffing a SYSTEMTIME, which is time-zone-dependent, there?).
 	 */
-	netmon->start_usecs = pletohs(&hdr.ts_msec)*1000;
+	netmon->start_nsecs = pletohs(&hdr.ts_msec)*1000000;
 
 	netmon->version_major = hdr.ver_major;
 	netmon->version_minor = hdr.ver_minor;
@@ -363,8 +366,26 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 
 	/* Set up to start reading at the first frame. */
 	netmon->current_frame = 0;
-	wth->tsprecision = WTAP_FILE_TSPREC_USEC;
+	switch (netmon->version_major) {
 
+	case 1:
+		/*
+		 * Version 1.x of the file format supports
+		 * millisecond precision.
+		 */
+		wth->tsprecision = WTAP_FILE_TSPREC_MSEC;
+		break;
+
+	case 2:
+		/*
+		 * Version 1.x of the file format supports
+		 * 100-nanosecond precision; we don't
+		 * currently support that, so say
+		 * "nanosecond precision" for now.
+		 */
+		wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
+		break;
+	}
 	return 1;
 }
 
@@ -445,9 +466,9 @@ static gboolean netmon_read(wtap *wth, int *err, gchar **err_info,
 	int	rec_offset;
 	guint8	*data_ptr;
 	gint64	delta = 0;	/* signed - frame times can be before the nominal start */
+	gint64	t;
 	time_t	secs;
-	guint32	usecs;
-	double	t;
+	guint32	nsecs;
 
 again:
 	/* Have we reached the end of the packet data? */
@@ -569,7 +590,6 @@ again:
 		return FALSE;	/* Read error */
 	wth->data_offset += packet_size;
 
-	t = (double)netmon->start_usecs;
 	switch (netmon->version_major) {
 
 	case 1:
@@ -577,25 +597,68 @@ again:
 		 * According to Paul Long, this offset is unsigned.
 		 * It's 32 bits, so the maximum value will fit in
 		 * a gint64 such as delta, even after multiplying
-		 * it by 1000.
+		 * it by 1000000.
 		 *
 		 * pletohl() returns a guint32; we cast it to gint64
 		 * before multiplying, so that the product doesn't
 		 * overflow a guint32.
 		 */
-		delta = ((gint64)pletohl(&hdr.hdr_1_x.ts_delta))*1000;
+		delta = ((gint64)pletohl(&hdr.hdr_1_x.ts_delta))*1000000;
 		break;
 
 	case 2:
-		delta = pletohl(&hdr.hdr_2_x.ts_delta_lo)
-		    | (((guint64)pletohl(&hdr.hdr_2_x.ts_delta_hi)) << 32);
+		/*
+		 * OK, this is weird.  Microsoft's documentation
+		 * says this is in microseconds and is a 64-bit
+		 * unsigned number, but it can be negative; they
+		 * say what appears to amount to "treat it as an
+		 * unsigned number, multiply it by 10, and then
+		 * interpret the resulting 64-bit quantity as a
+		 * signed number".  That operation can turn a
+		 * value with the uppermost bit 0 to a value with
+		 * the uppermost bit 1, hence turning a large
+		 * positive number-of-microseconds into a small
+		 * negative number-of-100-nanosecond-increments.
+		 */
+		delta = pletohll(&hdr.hdr_2_x.ts_delta)*10;
+
+		/*
+		 * OK, it's now a signed value in 100-nanosecond
+		 * units.  Now convert it to nanosecond units.
+		 */
+		delta *= 100;
 		break;
 	}
-	t += (double)delta;
-	secs = (time_t)(t/1000000);
-	usecs = (guint32)(t - (double)secs*1000000);
+	secs = 0;
+	t = netmon->start_nsecs + delta;
+	while (t < 0) {
+		/*
+		 * Propagate a borrow into the seconds.
+		 * The seconds is a time_t, and can be < 0
+		 * (unlikely, as Windows didn't exist before
+		 * January 1, 1970, 00:00:00 UTC), while the
+		 * nanoseconds should be positive, as in
+		 * "nanoseconds since the instant of time
+		 * represented by the seconds".
+		 *
+		 * We do not want t to be negative, as, according
+		 * to the C90 standard, "if either operand [of /
+		 * or %] is negative, whether the result of the
+		 * / operator is the largest integer less than or
+		 * equal to the algebraic quotient or the smallest
+		 * greater than or equal to the algebraic quotient
+		 * is implementation-defined, as is the sign of
+		 * the result of the % operator", and we want
+		 * the result of the division and remainder
+		 * operations to be the same on all platforms.
+		 */
+		t += 1000000000;
+		secs--;
+	}
+	secs += (time_t)(t/1000000000);
+	nsecs = (guint32)(t%1000000000);
 	wth->phdr.ts.secs = netmon->start_secs + secs;
-	wth->phdr.ts.nsecs = usecs * 1000;
+	wth->phdr.ts.nsecs = nsecs;
 	wth->phdr.caplen = packet_size;
 	wth->phdr.len = orig_size;
 
@@ -914,17 +977,24 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	struct netmonrec_2_x_hdr rec_2_x_hdr;
 	char *hdrp;
 	size_t hdr_size;
-	double t;
-	guint32 time_low, time_high;
 	struct netmon_atm_hdr atm_hdr;
 	int atm_hdrsize;
+	gint64	secs;
+	gint32	nsecs;
 
-	/* NetMon files have a capture start time in the file header,
-	   and have times relative to that in the packet headers;
-	   pick the time of the first packet as the capture start
-	   time. */
+	/*
+	 * NetMon files have a capture start time in the file header,
+	 * and have times relative to that in the packet headers;
+	 * pick the time of the first packet as the capture start
+	 * time.
+	 *
+	 * That time has millisecond resolution, so chop any
+	 * sub-millisecond part of the time stamp off.
+	 */
 	if (!netmon->got_first_record_time) {
-		netmon->first_record_time = phdr->ts;
+		netmon->first_record_time.secs = phdr->ts.secs;
+		netmon->first_record_time.nsecs =
+		    (phdr->ts.nsecs/1000000)*1000000;
 		netmon->got_first_record_time = TRUE;
 	}
 
@@ -932,12 +1002,37 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 		atm_hdrsize = sizeof (struct netmon_atm_hdr);
 	else
 		atm_hdrsize = 0;
+	secs = (gint64)(phdr->ts.secs - netmon->first_record_time.secs);
+	nsecs = phdr->ts.nsecs - netmon->first_record_time.nsecs;
+	while (nsecs < 0) {
+		/*
+		 * Propagate a borrow into the seconds.
+		 * The seconds is a time_t, and can be < 0
+		 * (unlikely, as neither UN*X nor DOS
+		 * nor the original Mac System existed
+		 * before January 1, 1970, 00:00:00 UTC),
+		 * while the nanoseconds should be positive,
+		 * as in "nanoseconds since the instant of time
+		 * represented by the seconds".
+		 *
+		 * We do not want t to be negative, as, according
+		 * to the C90 standard, "if either operand [of /
+		 * or %] is negative, whether the result of the
+		 * / operator is the largest integer less than or
+		 * equal to the algebraic quotient or the smallest
+		 * greater than or equal to the algebraic quotient
+		 * is implementation-defined, as is the sign of
+		 * the result of the % operator", and we want
+		 * the result of the division and remainder
+		 * operations to be the same on all platforms.
+		 */
+		nsecs += 1000000000;
+		secs--;
+	}
 	switch (wdh->file_type) {
 
 	case WTAP_FILE_NETMON_1_x:
-		rec_1_x_hdr.ts_delta = htolel(
-		    (phdr->ts.secs - netmon->first_record_time.secs)*1000
-		  + (phdr->ts.nsecs - netmon->first_record_time.nsecs + 500000)/1000000);
+		rec_1_x_hdr.ts_delta = htolel(secs*1000 + (nsecs + 500000)/1000000);
 		rec_1_x_hdr.orig_len = htoles(phdr->len + atm_hdrsize);
 		rec_1_x_hdr.incl_len = htoles(phdr->caplen + atm_hdrsize);
 		hdrp = (char *)&rec_1_x_hdr;
@@ -945,18 +1040,7 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 		break;
 
 	case WTAP_FILE_NETMON_2_x:
-		/*
-		 * Unfortunately, not all the platforms on which we run
-		 * support 64-bit integral types, even though most do
-		 * (even on 32-bit processors), so we do it in floating
-		 * point.
-		 */
-		t = (phdr->ts.secs - netmon->first_record_time.secs)*1000000.0
-		  + (phdr->ts.nsecs - netmon->first_record_time.nsecs) / 1000;
-		time_high = (guint32) (t/4294967296.0);
-		time_low  = (guint32) (t - (time_high*4294967296.0));
-		rec_2_x_hdr.ts_delta_lo = htolel(time_low);
-		rec_2_x_hdr.ts_delta_hi = htolel(time_high);
+		rec_2_x_hdr.ts_delta = htolell(secs*1000000 + (nsecs + 500)/1000);
 		rec_2_x_hdr.orig_len = htolel(phdr->len + atm_hdrsize);
 		rec_2_x_hdr.incl_len = htolel(phdr->caplen + atm_hdrsize);
 		hdrp = (char *)&rec_2_x_hdr;

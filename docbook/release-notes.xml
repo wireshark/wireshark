@@ -77,6 +77,24 @@ Wireshark Info
           6325</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          Crash if no recent files.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6549">Bug
+          6549</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Various crashes after loading NetMon2.x capture file.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6578">Bug
+          6578</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          &quot;Closing File!&quot; Dialog Hangs.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3046">Bug
+          3046</ulink>)
+        </para></listitem>
+
      </itemizedlist>
 
     </para>
@@ -110,7 +128,7 @@ There are no new protocols in this release.
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-.
+Netmon, Pcap-ng, Sniffer, Tektronix K12.
 
     </para>
     </section>
