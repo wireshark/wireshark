@@ -71,10 +71,29 @@ Wireshark Info
           0000</ulink>)
         </para></listitem>
 -->
+
+        <listitem><para>
+          &quot;Closing File!&quot; Dialog Hangs.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3046">Bug
+          3046</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Sub-fields of data field should appear in exported PDML as children of the data field instead of as siblings to it.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3809">Bug
+          3809</ulink>)
+        </para></listitem>
+
         <listitem><para>
           Wireshark Netflow dissector complains there is no template found though the template is exported.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6325">Bug
           6325</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          DCERPC EPM tower UUID must be interpreted always as little endian.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6368">Bug
+          6368</ulink>)
         </para></listitem>
 
         <listitem><para>
@@ -84,15 +103,45 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          IPv6 frame containing routing header with 0 segments left calculates wrong UDP checksum.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6560">Bug
+          6560</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          IPv4 UDP/TCP Checksum incorrect if routing header present.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6561">Bug
+          6561</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Various crashes after loading NetMon2.x capture file.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6578">Bug
           6578</ulink>)
         </para></listitem>
 
         <listitem><para>
-          &quot;Closing File!&quot; Dialog Hangs.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3046">Bug
-          3046</ulink>)
+          Wireshark dissects TCP option 25 as an &quot;April 1&quot; option.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6643">Bug
+          6643</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          ZigBee ZCL Dissector reports invalid status.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6649">Bug
+          6649</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Export HTTP Objects -&gt; save all crashes Wireshark.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6250">Bug
+          6250</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          ICMPv6 DNSSL option malformed on padding.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6660">Bug
+          6660</ulink>)
         </para></listitem>
 
      </itemizedlist>
@@ -120,7 +169,15 @@ There are no new protocols in this release.
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title> <para>
 
 <!-- Sort alphabetically -->
-.
+BGP,
+DCERPC EPM,
+GSM Management,
+ICMPv6,
+IPv4,
+IPv6,
+TCP,
+UDP,
+ZigBee ZCL
 
     </para>
     </section>

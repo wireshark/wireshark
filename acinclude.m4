@@ -493,25 +493,7 @@ and did you also install that package?]]))
 	# libpcap.
 	#
 	ac_save_LIBS="$LIBS"
-	AC_MSG_CHECKING(whether pcap_version is defined by libpcap)
 	LIBS="$PCAP_LIBS $SOCKET_LIBS $NSL_LIBS $LIBS"
-	AC_TRY_LINK(
-	   [
-#	include <stdio.h>
-	extern char *pcap_version;
-	   ],
-	   [
-	printf ("%s\n", pcap_version);
-	   ],
-	   ac_cv_pcap_version_defined=yes,
-	   ac_cv_pcap_version_defined=no,
-	   [echo $ac_n "cross compiling; assumed OK... $ac_c"])
-	if test "$ac_cv_pcap_version_defined" = yes ; then
-		AC_MSG_RESULT(yes)
-		AC_DEFINE(HAVE_PCAP_VERSION, 1, [Define if libpcap version is known])
-	else
-		AC_MSG_RESULT(no)
-	fi
 	AC_CHECK_FUNCS(pcap_open_dead pcap_freecode)
 	#
 	# pcap_breakloop may be present in the library but not declared

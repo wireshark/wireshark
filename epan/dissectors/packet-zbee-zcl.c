@@ -400,6 +400,8 @@ static const value_string zbee_zcl_status_names[] = {
     { ZBEE_ZCL_STAT_UNSUP_MFR_GENERAL_CMD,          "Unsupported Manufacturer General Command"},
     { ZBEE_ZCL_STAT_INVALID_FIELD,                  "Invalid Field"},
     { ZBEE_ZCL_STAT_UNSUPPORTED_ATTR,               "Unsupported Attribute"},
+    { ZBEE_ZCL_STAT_INVALID_VALUE,                  "Invalid Value"},
+    { ZBEE_ZCL_STAT_READ_ONLY,                      "Read Only"},
     { ZBEE_ZCL_STAT_INSUFFICIENT_SPACE,             "Insufficient Space"},
     { ZBEE_ZCL_STAT_DUPLICATE_EXISTS,               "Duplicate Exists"},
     { ZBEE_ZCL_STAT_NOT_FOUND,                      "Not Found"},
@@ -411,10 +413,7 @@ static const value_string zbee_zcl_status_names[] = {
     { ZBEE_ZCL_STAT_DEFINED_OUT_OF_BAND,            "Defined Out of Band"},
     { ZBEE_ZCL_STAT_HARDWARE_FAILURE,               "Hardware Failure"},
     { ZBEE_ZCL_STAT_SOFTWARE_FAILURE,               "Software Failure"},
-
     { ZBEE_ZCL_STAT_CALIBRATION_ERROR,              "Calibration Error"},
-    { ZBEE_ZCL_STAT_INVALID_VALUE,                  "Invalid Value"},
-    { ZBEE_ZCL_STAT_READ_ONLY,                      "Read Only"},
 
     { 0, NULL }
 };

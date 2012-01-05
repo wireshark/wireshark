@@ -3,7 +3,7 @@
  * By Fred Fierling <fff@exegin.com>
  * Copyright 2009 Exegin Technologies Limited
  *
- * $Id:$
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -154,21 +154,20 @@ typedef struct{
 #define ZBEE_ZCL_STAT_UNSUP_MFR_GENERAL_CMD         0x84
 #define ZBEE_ZCL_STAT_INVALID_FIELD                 0x85
 #define ZBEE_ZCL_STAT_UNSUPPORTED_ATTR              0x86
-#define ZBEE_ZCL_STAT_INSUFFICIENT_SPACE            0x87
-#define ZBEE_ZCL_STAT_DUPLICATE_EXISTS              0x88
-#define ZBEE_ZCL_STAT_NOT_FOUND                     0x89
-#define ZBEE_ZCL_STAT_UNREPORTABLE_ATTR             0x8a
-#define ZBEE_ZCL_STAT_INVALID_DATA_TYPE             0x8b
-#define ZBEE_ZCL_STAT_INVALID_SELECTOR              0x8c
-#define ZBEE_ZCL_STAT_WRITE_ONLY                    0x8d
-#define ZBEE_ZCL_STAT_INCONSISTENT_STARTUP_STATE    0x8e
-#define ZBEE_ZCL_STAT_DEFINED_OUT_OF_BAND           0x8f
-#define ZBEE_ZCL_STAT_HARDWARE_FAILURE              0x90
-#define ZBEE_ZCL_STAT_SOFTWARE_FAILURE              0x91
-
-#define ZBEE_ZCL_STAT_CALIBRATION_ERROR             0xc0
-#define ZBEE_ZCL_STAT_INVALID_VALUE                 0xc1
-#define ZBEE_ZCL_STAT_READ_ONLY                     0xc2
+#define ZBEE_ZCL_STAT_INVALID_VALUE                 0x87
+#define ZBEE_ZCL_STAT_READ_ONLY                     0x88
+#define ZBEE_ZCL_STAT_INSUFFICIENT_SPACE            0x89
+#define ZBEE_ZCL_STAT_DUPLICATE_EXISTS              0x8a
+#define ZBEE_ZCL_STAT_NOT_FOUND                     0x8b
+#define ZBEE_ZCL_STAT_UNREPORTABLE_ATTR             0x8c
+#define ZBEE_ZCL_STAT_INVALID_DATA_TYPE             0x8d
+#define ZBEE_ZCL_STAT_INVALID_SELECTOR              0x8e
+#define ZBEE_ZCL_STAT_WRITE_ONLY                    0x8f
+#define ZBEE_ZCL_STAT_INCONSISTENT_STARTUP_STATE    0x90
+#define ZBEE_ZCL_STAT_DEFINED_OUT_OF_BAND           0x91
+#define ZBEE_ZCL_STAT_HARDWARE_FAILURE              0xc0
+#define ZBEE_ZCL_STAT_SOFTWARE_FAILURE              0xc1
+#define ZBEE_ZCL_STAT_CALIBRATION_ERROR             0xc2
 
 /* Misc. */
 #define INT24_SIGN_BITS                             0xffff8000
