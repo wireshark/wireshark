@@ -4030,7 +4030,7 @@ de_rr_p2_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
        bit_offset += 3;
        proto_item_append_text(item2, " for Mobile Identity 1");
     }
-    if (gsm_rr_csn_HL_flag(tvb, subtree, tvb_len, bit_offset++, "Priority 2", "Present", "Not present"));
+    if (gsm_rr_csn_HL_flag(tvb, subtree, tvb_len, bit_offset++, "Priority 2", "Present", "Not present"))
     {
         item2 = proto_tree_add_bits_item(subtree, hf_gsm_a_call_prio, tvb, bit_offset, 3, FALSE);
         bit_offset += 3;
