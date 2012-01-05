@@ -121,6 +121,14 @@ static int hf_rohc_ir_pkt_frame = -1;
 static int hf_rohc_ir_previous_frame = -1;
 static int hf_rohc_comp_sn = -1;
 
+static int hf_rohc_compressed_list = -1;
+static int hf_rohc_compressed_list_et = -1;
+static int hf_rohc_compressed_list_gp = -1;
+static int hf_rohc_compressed_list_ps = -1;
+static int hf_rohc_compressed_list_cc = -1;
+static int hf_rohc_compressed_list_gen_id = -1;
+
+
 static int ett_rohc = -1;
 static int ett_rohc_conf = -1;
 static int ett_rohc_fb = -1;
@@ -135,6 +143,7 @@ static int ett_rohc_rtp_dynamic = -1;
 static int ett_rohc_dynamic_ipv4 = -1;
 static int ett_rohc_dynamic_udp = -1;
 static int ett_rohc_dynamic_rtp = -1;
+static int ett_rohc_compressed_list = -1;
 
 /* IPv4 hard wired for now */
 static guint8 g_profile = 1;
@@ -226,6 +235,22 @@ static const value_string rohc_var_len_vals[] =
     { 2,    "Two octets" },
     { 6,    "Three octets" },
     { 7,    "Four octets" },
+    { 0, NULL },
+};
+
+static const value_string compressed_list_encoding_type_vals[] =
+{
+    { 0,    "Generic scheme" },
+    { 1,    "Insertion only scheme" },
+    { 2,    "Removal only scheme" },
+    { 3,    "Remove then insert scheme" },
+    { 0, NULL },
+};
+
+static const value_string compressed_list_ps_vals[] =
+{
+    { 0,    "4-bit XI fields" },
+    { 1,    "8-bit XI fields" },
     { 0, NULL },
 };
 
@@ -334,14 +359,15 @@ dissect_rohc_feedback_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
             ti = proto_tree_add_text(tree, tvb, offset, feedback_data_len, "RTP profile-specific information");
             rohc_feedback_tree = proto_item_add_subtree(ti, ett_rohc_feedback);
             /* Set mode at first pass? Do we need a new context for the following frames?
-             * 
+             *
              */
-			rohc_cid_context->mode = (tvb_get_guint8(tvb,offset) & 0x30)>>4;
+            rohc_cid_context->mode = (tvb_get_guint8(tvb,offset) & 0x30)>>4;
             proto_tree_add_item(rohc_feedback_tree, hf_rohc_acktype, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(rohc_feedback_tree, hf_rohc_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(rohc_feedback_tree, hf_rohc_sn, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset+=2;
             feedback_data_len-=2;
+
             while(feedback_data_len>0){
                 opt = opt_len = tvb_get_guint8(tvb,offset);
                 opt = opt >> 4;
@@ -402,8 +428,78 @@ dissect_rohc_feedback_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
     }
 }
 
+
 static int
-dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, proto_tree *tree, int offset, guint8 profile, rohc_cid_context_t *rohc_cid_context){
+dissect_compressed_list(int expected_encoding_type, packet_info *pinfo,
+                        proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+    proto_item *list_ti, *et_ti;
+    proto_item *list_tree;
+    guint8 first_byte = tvb_get_guint8(tvb, offset);
+    guint8 ET, GP, PS /*, CC */;
+    int start_offset = offset;
+
+    /* Compressed list root */
+    list_ti = proto_tree_add_item(tree, hf_rohc_compressed_list, tvb, offset, -1, ENC_NA);
+    list_tree = proto_item_add_subtree(list_ti, ett_rohc_compressed_list);
+
+    /* Fixed fields from first byte */
+    ET = (first_byte & 0xc0) >> 6;
+    et_ti = proto_tree_add_item(list_tree, hf_rohc_compressed_list_et, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_item_append_text(list_ti, " (type=%d - %s)",
+                           ET, val_to_str_const(ET, compressed_list_encoding_type_vals, "Unknown"));
+    if (ET != expected_encoding_type) {
+        expert_add_info_format(pinfo, et_ti, PI_MALFORMED, PI_ERROR,
+                               "Wrong compressed list encoding type (expected %d, got %d)",
+                               expected_encoding_type, ET);
+        return offset+1;
+    }
+
+    GP = (first_byte & 0x20) >> 5;
+    proto_tree_add_item(list_tree, hf_rohc_compressed_list_gp, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    switch (ET) {
+        case 0:
+            /* 5.8.6.1 */
+            PS = (first_byte & 0x20) >> 4;
+            proto_tree_add_item(list_tree, hf_rohc_compressed_list_ps, tvb, offset, 1, ENC_BIG_ENDIAN);
+            /* CC = first_byte & 0x0f; */
+            proto_tree_add_item(list_tree, hf_rohc_compressed_list_cc, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+
+            if (GP) {
+                proto_tree_add_item(list_tree, hf_rohc_compressed_list_cc, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset++;
+            }
+
+            /* TODO: calculate how many bytes to skip for items */
+            break;
+
+        case 1:
+            /* 5.8.6.2 */
+            /* TODO: */
+            offset++;
+            break;
+        case 2:
+            /* 5.8.6.3 */
+            /* TODO: */
+            offset++;
+            break;
+        case 3:
+            /* 5.8.6.4 */
+            /* TODO: */
+            offset++;
+            break;
+    }
+
+    proto_item_set_len(list_ti, offset-start_offset);
+
+    return offset;
+}
+
+static int
+dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                                    int offset, guint8 profile, rohc_cid_context_t *rohc_cid_context){
 
     proto_item *item, *root_ti;
     proto_tree *sub_tree=NULL, *dynamic_ipv4_tree, *dynamic_udp_tree, *dynamic_rtp_tree;
@@ -481,8 +577,9 @@ dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, proto_tree *tree, int offset,
                  *   / Generic extension header list /  variable length
                  *   +---+---+---+---+---+---+---+---+
                  */
-                /* TODO: general extension header list... Use packet-ip.c ?*/
-                /* Add summary to root item */
+                offset = dissect_compressed_list(0, pinfo, dynamic_ipv4_tree, tvb, offset);
+
+                /* Add summary to ipv4 root item */
                 proto_item_append_text(root_ti, " (ToS=%u, TTL=%u, ID=%u, RND=%u, NBO=%u)",
                                        tos, ttl, id, rnd, nbo);
 
@@ -590,7 +687,7 @@ dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, proto_tree *tree, int offset,
             return offset;
         }
         proto_tree_add_item(dynamic_rtp_tree, hf_rohc_rtp_x, tvb, offset, 1, ENC_BIG_ENDIAN);
-		rohc_cid_context->mode = (tvb_get_guint8(tvb,offset) &  0x0c)>>2;
+        rohc_cid_context->mode = (tvb_get_guint8(tvb,offset) &  0x0c)>>2;
         proto_tree_add_item(dynamic_rtp_tree, hf_rohc_rtp_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(dynamic_rtp_tree, hf_rohc_rtp_tis, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(dynamic_rtp_tree, hf_rohc_rtp_tss, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -765,7 +862,7 @@ dissect_rohc_ir_rtp_udp_profile_static(tvbuff_t *tvb, proto_tree *tree, packet_i
 
         if(profile == ROHC_PROFILE_UDP){
             if(d==TRUE){
-                offset = dissect_rohc_ir_rtp_profile_dynamic(tvb, tree, offset, profile, rohc_cid_context);
+                offset = dissect_rohc_ir_rtp_profile_dynamic(tvb, pinfo, tree, offset, profile, rohc_cid_context);
             }
             proto_item_set_len(item, offset - start_offset);
             return offset;
@@ -789,7 +886,7 @@ dissect_rohc_ir_rtp_udp_profile_static(tvbuff_t *tvb, proto_tree *tree, packet_i
 
         /* D:   D = 1 indicates that the dynamic chain is present. */
         if(d==TRUE){
-            offset = dissect_rohc_ir_rtp_profile_dynamic(tvb, tree, offset, profile, rohc_cid_context);
+            offset = dissect_rohc_ir_rtp_profile_dynamic(tvb, pinfo, tree, offset, profile, rohc_cid_context);
         }
     }
     return offset;
@@ -876,22 +973,22 @@ dissect_rohc_ir_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int 
         rohc_cid_context = (rohc_cid_context_t*)g_hash_table_lookup(rohc_cid_hash, &cid);
         if(rohc_cid_context){
             /* This is not the first IR packet seen*/
-			gint *key;
+            gint *key;
             gint tmp_prev_ir_frame_number = rohc_cid_context->ir_frame_number;
 
-			/*g_warning("IR pkt found CID %u",cid);*/
+            /*g_warning("IR pkt found CID %u",cid);*/
 
             rohc_cid_context = se_new(rohc_cid_context_t);
             rohc_cid_context->profile = profile;
             rohc_cid_context->prev_ir_frame_number = tmp_prev_ir_frame_number;
             rohc_cid_context->ir_frame_number = pinfo->fd->num;
 
-			key = g_malloc(sizeof(gint));
-			*key = cid;
+            key = g_malloc(sizeof(gint));
+            *key = cid;
             g_hash_table_replace(rohc_cid_hash, key, rohc_cid_context);
             p_add_proto_data(pinfo->fd, proto_rohc, rohc_cid_context);
         }else{
-			gint *key;
+            gint *key;
             rohc_cid_context = se_new(rohc_cid_context_t);
             /*rohc_cid_context->rohc_ip_version;*/
             /*rohc_cid_context->large_cid_present;*/
@@ -902,10 +999,10 @@ dissect_rohc_ir_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int 
             rohc_cid_context->profile = profile;
             rohc_cid_context->prev_ir_frame_number = -1;
             rohc_cid_context->ir_frame_number = pinfo->fd->num;
-			key = g_malloc(sizeof(gint));
-			*key = cid;
+            key = g_malloc(sizeof(gint));
+            *key = cid;
 
-			/*g_warning("IR pkt New CID %u",cid);*/
+            /*g_warning("IR pkt New CID %u",cid);*/
 
             g_hash_table_insert(rohc_cid_hash, key, rohc_cid_context);
             p_add_proto_data(pinfo->fd, proto_rohc, rohc_cid_context);
@@ -948,7 +1045,8 @@ dissect_rohc_ir_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int 
 }
 
 static int
-dissect_rohc_ir_dyn_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset, guint16 cid, gboolean is_add_cid, rohc_info *p_rohc_info)
+dissect_rohc_ir_dyn_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
+                           int offset, guint16 cid, gboolean is_add_cid, rohc_info *p_rohc_info)
 {
     proto_item *ir_item, *item;
     proto_tree *ir_tree;
@@ -971,7 +1069,7 @@ dissect_rohc_ir_dyn_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
     item = proto_tree_add_item(ir_tree, hf_rohc_profile, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    /* See if we have an entry for this CID 
+    /* See if we have an entry for this CID
      * Update it if we do otherwise create it
      * and fill in the info.
      */
@@ -979,18 +1077,18 @@ dissect_rohc_ir_dyn_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
         rohc_cid_context = (rohc_cid_context_t*)g_hash_table_lookup(rohc_cid_hash, &cid);
         if(rohc_cid_context){
             /* This is not the first IR packet seen*/
-			gint *key;
+            gint *key;
             gint tmp_prev_ir_frame_number = rohc_cid_context->ir_frame_number;
 
-			/*g_warning("IR pkt found CID %u",cid);*/
+            /*g_warning("IR pkt found CID %u",cid);*/
 
             rohc_cid_context = se_new(rohc_cid_context_t);
             rohc_cid_context->profile = profile;
             rohc_cid_context->prev_ir_frame_number = tmp_prev_ir_frame_number;
             rohc_cid_context->ir_frame_number = pinfo->fd->num;
 
-			key = g_malloc(sizeof(gint));
-			*key = cid;
+            key = g_malloc(sizeof(gint));
+            *key = cid;
             g_hash_table_replace(rohc_cid_hash, key, rohc_cid_context);
             p_add_proto_data(pinfo->fd, proto_rohc, rohc_cid_context);
         }else{
@@ -1005,10 +1103,10 @@ dissect_rohc_ir_dyn_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
             rohc_cid_context->profile = profile;
             rohc_cid_context->prev_ir_frame_number = -1;
             rohc_cid_context->ir_frame_number = pinfo->fd->num;
-			key = g_malloc(sizeof(gint));
-			*key = cid;
+            key = g_malloc(sizeof(gint));
+            *key = cid;
 
-			/*g_warning("IR pkt New CID %u",cid);*/
+            /*g_warning("IR pkt New CID %u",cid);*/
 
             g_hash_table_insert(rohc_cid_hash, key, rohc_cid_context);
             p_add_proto_data(pinfo->fd, proto_rohc, rohc_cid_context);
@@ -1022,7 +1120,7 @@ dissect_rohc_ir_dyn_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
     offset++;
     switch(profile){
         case ROHC_PROFILE_RTP:
-            dissect_rohc_ir_rtp_profile_dynamic(tvb, ir_tree, offset, profile, rohc_cid_context);
+            dissect_rohc_ir_rtp_profile_dynamic(tvb, pinfo, ir_tree, offset, profile, rohc_cid_context);
             break;
         default:
             proto_tree_add_text(ir_tree, tvb, offset, feedback_data_len, "profile-specific information[Not dissected yet]");
@@ -1184,7 +1282,7 @@ start_over:
              *        if packet exhausted, stop; otherwise goto 2).
              */
             p_rohc_info->last_created_item = proto_tree_add_item(rohc_tree, hf_rohc_feedback, tvb, offset, 1, ENC_BIG_ENDIAN);
-            sub_tree = proto_item_add_subtree(g_rohc_info.last_created_item, ett_rohc_fb);
+            sub_tree = proto_item_add_subtree(p_rohc_info->last_created_item, ett_rohc_fb);
             proto_tree_add_item(sub_tree, hf_rohc_code, tvb, offset, 1, ENC_BIG_ENDIAN);
             code = oct&0x7;
             offset++;
@@ -1264,14 +1362,14 @@ start_over:
     }
 
     if (!pinfo->fd->flags.visited){
-		gint key;
+        gint key;
 
-		/*g_warning("Lookup CID %u",cid);*/
-		key = cid;
+        /*g_warning("Lookup CID %u",cid);*/
+        key = cid;
         rohc_cid_context = (rohc_cid_context_t*)g_hash_table_lookup(rohc_cid_hash, &key);
         if(rohc_cid_context){		
-			/*g_warning("Found CID %u",cid);*/
-		}else{
+            /*g_warning("Found CID %u",cid);*/
+        }else{
             rohc_cid_context = se_new(rohc_cid_context_t);
             /*rohc_cid_context->rohc_ip_version;*/
             /*rohc_cid_context->large_cid_present;*/
@@ -1283,10 +1381,10 @@ start_over:
             rohc_cid_context->prev_ir_frame_number = -1;
             rohc_cid_context->ir_frame_number = -1;
             p_add_proto_data(pinfo->fd, proto_rohc, rohc_cid_context);
-			/*g_warning("Store dummy data %u",cid);*/
-		}
-		p_add_proto_data(pinfo->fd, proto_rohc, rohc_cid_context);
-	}
+            /*g_warning("Store dummy data %u",cid);*/
+        }
+        p_add_proto_data(pinfo->fd, proto_rohc, rohc_cid_context);
+    }
 
     /* Call IP for uncompressed*/
     next_tvb = tvb_new_subset_remaining(tvb, offset);
@@ -1327,7 +1425,7 @@ start_over:
                 break;
             case UNIDIRECTIONAL: /* U-mode */
                 /* Fall trough */
-			case OPTIMISTIC_BIDIRECTIONAL: /* O-mode */
+            case OPTIMISTIC_BIDIRECTIONAL: /* O-mode */
                 col_set_str(pinfo->cinfo, COL_INFO, "U0-0");
                 /*   UO-0
                  *
@@ -1336,11 +1434,11 @@ start_over:
                  *   | 0 |      SN       |    CRC    |
                  *   +===+===+===+===+===+===+===+===+
                  */
-				proto_tree_add_bits_item(rohc_tree, hf_rohc_comp_sn, tvb, (offset<<3)+1, 4, ENC_BIG_ENDIAN);
+                 proto_tree_add_bits_item(rohc_tree, hf_rohc_comp_sn, tvb, (offset<<3)+1, 4, ENC_BIG_ENDIAN);
 
-				break;
+                break;
             default:
-                col_set_str(pinfo->cinfo, COL_INFO, "Paket type 0");
+                col_set_str(pinfo->cinfo, COL_INFO, "Packet type 0");
                 break;
         }
     }else if ((oct&0xc0)==0x80){
@@ -1475,7 +1573,7 @@ proto_register_rohc(void)
             },
             { &hf_rohc_rtp_opt_sn,
               { "SN","rohc.opt.sn",
-                FT_UINT8, BASE_HEX, NULL, 0x0,
+                FT_UINT8, BASE_HEX_DEC, NULL, 0x0,
                 NULL , HFILL
               }
             },
@@ -1685,7 +1783,7 @@ proto_register_rohc(void)
             },
             { &hf_rohc_rtp_sn,
               { "Sequence Number(SN)","rohc.rtp.sn",
-                FT_UINT16, BASE_HEX, NULL, 0x0,
+                FT_UINT16, BASE_DEC, NULL, 0x0,
                 NULL , HFILL
               }
             },
@@ -1767,6 +1865,44 @@ proto_register_rohc(void)
                 NULL , HFILL
               }
             },
+
+            { &hf_rohc_compressed_list,
+              { "Compressed List", "rohc.compressed-list",
+                FT_NONE, BASE_NONE, NULL, 0x0,
+                NULL , HFILL
+              }
+            },
+            { &hf_rohc_compressed_list_et,
+              { "Encoding Type", "rohc.compressed-list.et",
+                FT_UINT8, BASE_DEC, VALS(compressed_list_encoding_type_vals), 0xc0,
+                NULL , HFILL
+              }
+            },
+            { &hf_rohc_compressed_list_gp,
+              { "Gen-id Present", "rohc.compressed-list.gp",
+                FT_UINT8, BASE_DEC, NULL, 0x20,
+                NULL , HFILL
+              }
+            },
+            { &hf_rohc_compressed_list_ps,
+              { "PS", "rohc.compressed-list.ps",
+                FT_UINT8, BASE_DEC, VALS(compressed_list_ps_vals), 0x10,
+                "Size of xi fields", HFILL
+              }
+            },
+            { &hf_rohc_compressed_list_cc,
+              { "CSRC Counter", "rohc.compressed-list.cc",
+                FT_UINT8, BASE_DEC, NULL, 0x0f,
+                "CSRC Counter from original RTP header", HFILL
+              }
+            },
+            { &hf_rohc_compressed_list_gen_id,
+              { "gen_id", "rohc.compressed-list.gen-id",
+                FT_UINT8, BASE_DEC, NULL, 0x0f,
+                NULL, HFILL
+              }
+            },
+
         };
 
     /* Setup protocol subtree array */
@@ -1785,6 +1921,7 @@ proto_register_rohc(void)
         &ett_rohc_dynamic_ipv4,
         &ett_rohc_dynamic_udp,
         &ett_rohc_dynamic_rtp,
+        &ett_rohc_compressed_list
     };
 
     /* Register the protocol name and description */
