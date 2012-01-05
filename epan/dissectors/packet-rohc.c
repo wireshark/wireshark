@@ -959,7 +959,7 @@ dissect_rohc_ir_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int 
     if(profile==ROHC_PROFILE_RTP){
         proto_tree_add_item(ir_tree, hf_rohc_d_bit, tvb, x_bit_offset, 1, ENC_BIG_ENDIAN);
     }
-    item = proto_tree_add_item(ir_tree, hf_rohc_profile, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ir_tree, hf_rohc_profile, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     offset++;
     proto_tree_add_item(ir_tree, hf_rohc_rtp_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1066,7 +1066,7 @@ dissect_rohc_ir_dyn_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         offset = offset + val_len;
     }
     profile = tvb_get_guint8(tvb,offset);
-    item = proto_tree_add_item(ir_tree, hf_rohc_profile, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ir_tree, hf_rohc_profile, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     /* See if we have an entry for this CID
@@ -1394,11 +1394,11 @@ start_over:
     else if (((oct&0xf0)==0x60) && (rohc_cid_context->profile==0)) {
        call_dissector(ipv6_handle, next_tvb, pinfo, tree);
     }
-    else if((oct&0x80)==0 ){
+    else if((oct&0x80)==0x00){
         /* 5.7.1. Packet type 0: UO-0, R-0, R-0-CRC */
         switch(rohc_cid_context->mode){
             case RELIABLE_BIDIRECTIONAL: /* R-mode */
-                if((oct&0xc0)==0 ){
+                if((oct&0xc0)==0x00){
 
                 /*   R-0
                  *
@@ -1409,7 +1409,7 @@ start_over:
                  */
                     col_set_str(pinfo->cinfo, COL_INFO, "R-0");
                     proto_tree_add_bits_item(rohc_tree, hf_rohc_comp_sn, tvb, (offset<<3)+2, 6, ENC_BIG_ENDIAN);
-                }else if((oct&0xc0)==1 ){
+                }else if((oct&0xc0)==0x40){
                     col_set_str(pinfo->cinfo, COL_INFO, "R-0-CRC");
                 /*   R-0-CRC
                  *
