@@ -33,6 +33,7 @@
 
 #include "packet-meta.h"
 #include "packet-sscop.h"
+#include "packet-gsm_a_common.h"
 #include "wiretap/erf.h"
 
 static int proto_meta = -1;
@@ -73,6 +74,7 @@ static int hf_meta_item_called = -1;
 /* subtrees */
 static gint ett_meta = -1;
 static gint ett_meta_item = -1;
+static gint ett_meta_cell = -1;
 
 /* default handle */
 static dissector_handle_t data_handle;
@@ -128,7 +130,7 @@ static const value_string meta_id_vals[] = {
     { META_ID_TAPGROUPID,   "Tap Group ID" },
     { META_ID_IMSI,         "IMSI" },
     { META_ID_IMEI,         "IMEI" },
-    { META_ID_CELL,         "Cell" },
+    { META_ID_CELL,         "Mobile Cell" },
     { META_ID_TLLI,         "TLLI" },
     { META_ID_NSAPI,        "NSAPI" },
     { META_ID_APN,          "APN" },
@@ -250,6 +252,9 @@ static guint16 evaluate_meta_item_dxt(proto_tree *meta_tree, tvbuff_t *tvb, pack
     guint32 tlli;
     guint64 ts, imsi, imei, cell;
     sscop_payload_info *p_sscop_info;
+	const gchar *imsi_str, *imei_str;
+	proto_item *cell_item;
+	proto_tree *cell_tree = NULL;
 
     id = tvb_get_letohs(tvb, offs); offs += 2;
     type = tvb_get_guint8(tvb, offs); offs++;
@@ -280,13 +285,15 @@ static guint16 evaluate_meta_item_dxt(proto_tree *meta_tree, tvbuff_t *tvb, pack
             break;
         case META_ID_IMSI:
             imsi = tvb_get_letoh64(tvb, offs);
-            proto_tree_add_uint64(meta_tree, hf_meta_item_imsi, tvb,
-                offs, 8, imsi);
+			imsi_str = tvb_bcd_dig_to_ep_str(tvb, offs, 8, NULL, FALSE);
+			proto_tree_add_uint64_format(meta_tree, hf_meta_item_imsi,
+				tvb, offs, 8, imsi, "IMSI: %s", imsi_str);
             break;
         case META_ID_IMEI:
             imei = tvb_get_letoh64(tvb, offs);
-            proto_tree_add_uint64(meta_tree, hf_meta_item_imei, tvb,
-                offs, 8, imei);
+			imei_str = tvb_bcd_dig_to_ep_str(tvb, offs, 8, NULL, FALSE);
+			proto_tree_add_uint64_format(meta_tree, hf_meta_item_imei,
+				tvb, offs, 8, imei, "IMEI: %s", imei_str);
             break;
         case META_ID_APN:
             apn = tvb_get_string(tvb, offs, len);
@@ -301,8 +308,11 @@ static guint16 evaluate_meta_item_dxt(proto_tree *meta_tree, tvbuff_t *tvb, pack
             break;
         case META_ID_CELL:
             cell = tvb_get_ntoh64(tvb, offs);
-            proto_tree_add_uint64(meta_tree, hf_meta_item_cell, tvb,
-                offs, 8, cell);
+			cell_item = proto_tree_add_uint64_format(meta_tree, hf_meta_item_cell,
+				tvb, offs, 8, cell, "Mobile Cell");
+			cell_tree = proto_item_add_subtree(cell_item, ett_meta_cell);
+			de_gmm_rai(tvb, cell_tree, pinfo, offs, 8, NULL, 0);
+			de_cell_id(tvb, cell_tree, pinfo, offs + 6, 2, NULL, 0);
             break;
         case META_ID_SIGNALING:
             proto_tree_add_boolean(meta_tree, hf_meta_item_signaling, tvb,
@@ -543,7 +553,7 @@ proto_register_meta(void)
         { &hf_meta_item_apn, { "APN", "meta.apn", FT_STRINGZ, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_meta_item_rat, { "RAT", "meta.rat", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_meta_item_aal5proto, { "AAL5 Protocol Type", "meta.aal5proto", FT_UINT8, BASE_DEC, VALS(meta_aal5proto_vals), 0, NULL, HFILL } },
-        { &hf_meta_item_cell, { "Cell", "meta.cell", FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL } },
+        { &hf_meta_item_cell, { "Mobile Cell", "meta.cell", FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL } },
 
         { &hf_meta_item_localdevid, { "Local Device ID", "meta.localdevid", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_meta_item_remotedevid, { "Remote Device ID", "meta.remotedevid", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
@@ -555,7 +565,8 @@ proto_register_meta(void)
 
     static gint *ett[] = {
         &ett_meta,
-        &ett_meta_item
+        &ett_meta_item,
+		&ett_meta_cell
     };
 
     proto_meta = proto_register_protocol("Metadata", "META", "meta");
