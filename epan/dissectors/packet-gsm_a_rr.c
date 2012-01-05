@@ -65,14 +65,6 @@ static dissector_handle_t rrc_irat_ho_to_utran_cmd_handle;
 
 #define PADDING_BYTE 0x2B
 
-static gboolean gsm_a_rr_is_bit_high(tvbuff_t *tvb, gint bit_offset)
-{
-    guint8 bit_mask = 0x80 >> (bit_offset & 0x07);
-    if ((tvb_get_guint8(tvb,bit_offset >> 3) & bit_mask) != (PADDING_BYTE & bit_mask))
-        return TRUE;
-    return FALSE;
-}
-
 /* PROTOTYPES/FORWARDS */
 
 const value_string gsm_a_dtap_msg_rr_strings[] = {
@@ -632,6 +624,7 @@ static int hf_gsm_a_rr_cbq = -1;
 static int hf_gsm_a_rr_cell_reselect_offset = -1;
 static int hf_gsm_a_rr_temporary_offset = -1;
 static int hf_gsm_a_rr_penalty_time = -1;
+static int hf_gsm_a_rr_gprs_ra_colour = -1;
 static int hf_gsm_a_rr_si13_position = -1;
 static int hf_gsm_a_rr_power_offset = -1;
 static int hf_gsm_a_rr_si2quater_position = -1;
@@ -879,6 +872,57 @@ rr_rest_octets_elem_idx_t;
 gint ett_gsm_rr_rest_octets_elem[NUM_GSM_RR_REST_OCTETS_ELEM];
 
 /*
+ * Generates a string representing the bits in a bitfield at "bit_offset" from an 8 bit boundary
+ * with the length in bits of no_of_bits based on value.
+ * Ex: ..xx x...
+ */
+
+/* this function is used for dissecting the 0/1 presence flags in CSN.1 coded IEs */
+static gboolean gsm_rr_csn_flag(tvbuff_t *tvb, proto_tree *tree, gint bit_offset, const char *description, const char *true_string, const char * false_string)
+{
+    guint8 bit_mask = 0x80 >> (bit_offset % 8);
+    guint8 value  = tvb_get_guint8(tvb, bit_offset >> 3);
+	char bits_str[] = {".... ...."};
+    guint8 offset_in_octet = bit_offset % 8;
+
+    if (value & bit_mask)
+    {
+        bits_str[offset_in_octet + (offset_in_octet / 4)] = '1';
+        proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s: %s: %s", bits_str, description, true_string);
+        return TRUE;
+    }
+    bits_str[offset_in_octet + (offset_in_octet / 4)] = '0';
+    proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s: %s: %s", bits_str, description, false_string);
+	return FALSE;
+}
+
+/* this function is used for dissecting the H/L presence flags in CSN.1 coded IEs"
+   If truncation ( 44.018 section 8.9) is allowed, truncation_length is set to the actual length of the PDU,
+   otherwise it is set to 0 */
+static gboolean gsm_rr_csn_HL_flag(tvbuff_t *tvb, proto_tree *tree, guint8 truncation_length, gint bit_offset, const char *description, const char *true_string, const char * false_string)
+{
+    guint8 bit_mask = 0x80 >> (bit_offset % 8);
+    guint8 value = 0;
+    char bits_str[] = {".... ...."};
+    guint8 offset_in_octet = bit_offset % 8;
+
+    /* if truncation_length == 0, then don't check for truncation*/
+    if ((!truncation_length)||((bit_offset>>3) < truncation_length)) 
+    {
+        value = tvb_get_guint8(tvb, bit_offset >> 3)^PADDING_BYTE;
+    }
+    if (value & bit_mask)
+    {
+        bits_str[offset_in_octet + (offset_in_octet / 4)] = 'H';
+        proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s: %s: %s", bits_str, description, true_string);
+        return TRUE;
+    }
+    bits_str[offset_in_octet + (offset_in_octet / 4)] = 'L';
+    proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s: %s: %s", bits_str, description, false_string);
+	return FALSE;
+}
+
+/*
 10.5.2 Radio Resource management information elements
  * [3] 10.5.2.1a BA Range
  */
@@ -925,6 +969,48 @@ static void display_channel_list(guint8 *list, tvbuff_t *tvb, proto_tree *tree, 
     }
 
     return;
+}
+
+/**
+ * Checks that the remaining "rest octets" all contain the default padding value.
+ * If not, it can be assumed that there is a protocol extension that we don't handle
+ * 
+ * len:        total length of buffer 
+ * bit_offset: bit offset in TVB of first bit to be examined
+ */
+static void gsm_rr_csn_spare_bits(proto_tree* tree, tvbuff_t* tvb, guint bit_offset)
+{
+    guint i;
+    gboolean found = FALSE;
+    guint8 octet_offset = bit_offset >> 3;
+    guint8 len = tvb_length(tvb);
+
+    if (len > octet_offset)
+    {
+        /* there is spare room, check the first octet */
+        guint8 bit_mask = 0xFF >> (bit_offset & 0x07);
+        if ((tvb_get_guint8(tvb, octet_offset) & bit_mask) != (PADDING_BYTE & bit_mask))
+            found = TRUE;
+
+        for (i=octet_offset+1; (i<len) && !found; i++) 
+        {
+            if (tvb_get_guint8(tvb, i) != PADDING_BYTE)
+                found = TRUE;
+        }
+        if (found) 
+        {
+            /* there is something here we don't understand */
+            proto_tree_add_text(tree, tvb, octet_offset, -1,"Spare Bits, Unknown extension detected: Data (Not decoded)");
+        }
+        else
+        {
+            proto_tree_add_text(tree, tvb, octet_offset, -1,"Spare Bits: default padding");
+        }
+    }
+    else
+    {
+       proto_tree_add_text(tree, tvb, 0, 0,"No room for padding bits");
+    }
 }
 
 static gint greatest_power_of_2_lesser_or_equal_to(gint idx)
@@ -1188,30 +1274,22 @@ de_rr_ba_list_pref(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 {
     guint32 curr_offset;
     gint    bit_offset;
-    guint8  value;
 
     curr_offset = offset;
-    proto_tree_add_item(tree, hf_gsm_a_rr_ba_list_pref_length, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     bit_offset = curr_offset << 3;
-    value = tvb_get_bits8(tvb,bit_offset,1);
-    bit_offset += 1;
-    while (value)
+    proto_tree_add_bits_item(tree, hf_gsm_a_rr_ba_list_pref_length, tvb, bit_offset, 8, ENC_BIG_ENDIAN);
+    bit_offset += 8;
+    while (gsm_rr_csn_flag(tvb, tree, bit_offset++, "Repeating Range Limits", "Present", "Not Present"))
     {
         proto_tree_add_bits_item(tree, hf_gsm_a_rr_range_lower, tvb, bit_offset, 10, ENC_BIG_ENDIAN);
         bit_offset += 10;
         proto_tree_add_bits_item(tree, hf_gsm_a_rr_range_higher, tvb, bit_offset, 10, ENC_BIG_ENDIAN);
         bit_offset += 10;
-        value = tvb_get_bits8(tvb,bit_offset,1);
-        bit_offset += 1;
     }
-    value = tvb_get_bits8(tvb,bit_offset,1);
-    bit_offset += 1;
-    while (value)
+    while (gsm_rr_csn_flag(tvb, tree, bit_offset++, "Repeating BA Frequency", "Present", "Not Present"))
     {
         proto_tree_add_bits_item(tree, hf_gsm_a_rr_ba_freq, tvb, bit_offset, 10, ENC_BIG_ENDIAN);
         bit_offset += 10;
-        value = tvb_get_bits8(tvb,bit_offset,1);
-        bit_offset += 1;
     }
 
     curr_offset += len;
@@ -1226,7 +1304,6 @@ de_rr_utran_freq_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
 {
     guint32 curr_offset;
     gint    bit_offset;
-    guint8  value;
 
     curr_offset = offset;
     /* < UTRAN Freq List >::=
@@ -1236,25 +1313,18 @@ de_rr_utran_freq_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
      * <spare bit>**;
      * Spare bits in the end of the field are used to fill the last octet.
 	 */
-    proto_tree_add_item(tree, hf_gsm_a_rr_utran_freq_list_length, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     bit_offset = curr_offset << 3;
-    value = tvb_get_bits8(tvb,bit_offset,1);
-    bit_offset += 1;
-    while (value)
+    proto_tree_add_bits_item(tree, hf_gsm_a_rr_utran_freq_list_length, tvb, bit_offset, 8, ENC_BIG_ENDIAN);
+    bit_offset += 8;
+    while (gsm_rr_csn_flag(tvb, tree, bit_offset++, "Repeating FDD Frequency", "Present", "Not Present"))
     {
         proto_tree_add_bits_item(tree, hf_gsm_a_rr_fdd_uarfcn, tvb, bit_offset, 14, ENC_BIG_ENDIAN);
         bit_offset += 14;
-        value = tvb_get_bits8(tvb,bit_offset,1);
-        bit_offset += 1;
     }
-    value = tvb_get_bits8(tvb,bit_offset,1);
-    bit_offset += 1;
-    while (value)
+    while (gsm_rr_csn_flag(tvb, tree, bit_offset++, "Repeating TDD Frequency", "Present", "Not Present"))
     {
         proto_tree_add_bits_item(tree, hf_gsm_a_rr_tdd_uarfcn, tvb, bit_offset, 14, ENC_BIG_ENDIAN);
         bit_offset += 14;
-        value = tvb_get_bits8(tvb,bit_offset,1);
-        bit_offset += 1;
     }
 
     curr_offset += len;
@@ -1292,18 +1362,13 @@ de_rr_cell_select_indic(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         item = proto_tree_add_text(tree, tvb, bit_offset>>3, -1, "%s",
                                    gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_GSM_DESC].strptr);
         subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_GSM_DESC]);
-        value = tvb_get_bits8(tvb,bit_offset,1);
-        bit_offset += 1;
-        while (value)
+        while (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "Repeating GSM Description struct", "Present", "Not Present"))
         {
-            proto_tree_add_text(subtree,tvb, bit_offset>>3, 1, "Band Indicator: %s",tvb_get_bits8(tvb,bit_offset,1) ? "1900" : "1800");
-            bit_offset += 1;
+            gsm_rr_csn_flag(tvb, subtree, bit_offset++, "Band Indicator", "1900", "1800");
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_arfcn, tvb, bit_offset, 10, ENC_BIG_ENDIAN);
             bit_offset += 10;
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_bsic, tvb, bit_offset, 6, ENC_BIG_ENDIAN);
             bit_offset += 6;
-            value = tvb_get_bits8(tvb,bit_offset,1);
-            bit_offset += 1;
         }
         proto_item_set_len(item,((bit_offset-bit_offset_sav)>>3)+1);
         break;
@@ -1312,26 +1377,18 @@ de_rr_cell_select_indic(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         item = proto_tree_add_text(tree, tvb, bit_offset>>3, -1, "%s",
                                    gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_UTRAN_FDD_DESC].strptr);
         subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_UTRAN_FDD_DESC]);
-        value = tvb_get_bits8(tvb,bit_offset,1);
-        bit_offset += 1;
-        while (value)
+        while (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "Repeating UTRAN FDD Description struct", "Present", "Not Present"))
         {
-            if (tvb_get_bits8(tvb,bit_offset,1))
+            if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "Bandwidth FDD", "Present", "Not Present"))
             {
-                bit_offset += 1;
                 proto_tree_add_bits_item(subtree, hf_gsm_a_rr_bandwidth_fdd, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
                 bit_offset += 3;
             }
-            else
-                bit_offset += 1;
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_fdd_uarfcn, tvb, bit_offset, 14, ENC_BIG_ENDIAN);
             bit_offset += 14;
-            if (tvb_get_bits8(tvb,bit_offset,1))
+            if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "FDD Cell Information", "Present", "Not Present"))
             {
-                bit_offset += 1;
-                xdd_indic0 = tvb_get_bits8(tvb,bit_offset,1);
-                proto_tree_add_text(subtree,tvb, bit_offset>>3, 1, "FDD Indic0: %d", xdd_indic0);
-                bit_offset += 1;
+                xdd_indic0 = gsm_rr_csn_flag(tvb, subtree, bit_offset++, "FDD Indic0", "1", "0");
                 idx = tvb_get_bits8(tvb,bit_offset,5);
                 proto_tree_add_text(subtree,tvb, bit_offset>>3, 1, "Nr of FDD Cells : %d", idx);
                 bit_offset += 5;
@@ -1386,10 +1443,6 @@ de_rr_cell_select_indic(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
                     }
                 }
             }
-            else
-                bit_offset += 1;
-            value = tvb_get_bits8(tvb,bit_offset,1);
-            bit_offset += 1;
         }
         proto_item_set_len(item,((bit_offset-bit_offset_sav)>>3)+1);
         break;
@@ -1397,26 +1450,17 @@ de_rr_cell_select_indic(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         bit_offset_sav = bit_offset;
         item = proto_tree_add_text(tree, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_UTRAN_TDD_DESC].strptr);
         subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_UTRAN_TDD_DESC]);
-        value = tvb_get_bits8(tvb,bit_offset,1);
-        bit_offset += 1;
-        while (value)
+        while (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "Repeating UTRAN TDD Description struct", "Present", "Not Present"))
         {
-            if (tvb_get_bits8(tvb,bit_offset,1))
+            if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "Bandwidth TDD", "Present", "Not Present"))
             {
-                bit_offset += 1;
                 proto_tree_add_bits_item(subtree, hf_gsm_a_rr_bandwidth_tdd, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
                 bit_offset += 3;
             }
-            else
-                bit_offset += 1;
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_tdd_uarfcn, tvb, bit_offset, 14, ENC_BIG_ENDIAN);
-            bit_offset += 14;
-            if (tvb_get_bits8(tvb,bit_offset,1))
+            if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "TDD Cell Information", "Present", "Not Present"))
             {
-                bit_offset += 1;
-                xdd_indic0 = tvb_get_bits8(tvb,bit_offset,1);
-                proto_tree_add_text(subtree,tvb, bit_offset>>3, 1, "TDD Indic0: %d", xdd_indic0);
-                bit_offset += 1;
+                xdd_indic0 = gsm_rr_csn_flag(tvb, subtree, bit_offset++, "TDD Indic0", "1", "0");
                 idx = tvb_get_bits8(tvb,bit_offset,5);
                 proto_tree_add_text(subtree,tvb, bit_offset>>3, 1, "Nr of TDD Cells : %d", idx);
                 bit_offset += 5;
@@ -1474,10 +1518,6 @@ de_rr_cell_select_indic(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
                     }
                 }
             }
-            else
-                bit_offset += 1;
-            value = tvb_get_bits8(tvb,bit_offset,1);
-            bit_offset += 1;
         }
         proto_item_set_len(item,((bit_offset-bit_offset_sav)>>3)+1);
         break;
@@ -2269,8 +2309,7 @@ de_rr_dyn_arfcn_map(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
     bit_offset = curr_offset << 3;
 
     proto_tree_add_bits_ret_val(tree, hf_gsm_a_rr_dyn_arfcn_length, tvb, bit_offset, 8, &length, ENC_BIG_ENDIAN);
-    value = tvb_get_bits8(tvb,bit_offset,1);
-    bit_offset += 1;
+    value = gsm_rr_csn_flag(tvb, tree, bit_offset++, "Repeating Dynamic ARFCN Mapping", "Present", "Not Present");
     while (value && length)
     {
         proto_tree_add_bits_item(tree, hf_gsm_a_rr_gsm_band, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
@@ -2281,8 +2320,6 @@ de_rr_dyn_arfcn_map(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
         bit_offset += 10;
         proto_tree_add_bits_item(tree, hf_gsm_a_rr_arfcn_range, tvb, bit_offset, 7, ENC_BIG_ENDIAN);
         bit_offset += 7;
-        value = tvb_get_bits8(tvb,bit_offset,1);
-        bit_offset += 1;
         length -= 4;
     }
 
@@ -2441,9 +2478,8 @@ de_rr_rest_oct_gprs_cell_options(tvbuff_t *tvb, proto_tree *tree, gint bit_offse
     curr_bit_offset += 1;
     proto_tree_add_bits_item(subtree, hf_gsm_a_rr_bs_cv_max, tvb, curr_bit_offset, 4, ENC_BIG_ENDIAN);
     curr_bit_offset += 4;
-    if (tvb_get_bits8(tvb,curr_bit_offset,1))
+    if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "PAN bits", "Present", "Not Present"))
     {
-        curr_bit_offset += 1;
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_pan_dec, tvb, curr_bit_offset, 3, ENC_BIG_ENDIAN);
         curr_bit_offset += 3;
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_pan_inc, tvb, curr_bit_offset, 3, ENC_BIG_ENDIAN);
@@ -2451,11 +2487,8 @@ de_rr_rest_oct_gprs_cell_options(tvbuff_t *tvb, proto_tree *tree, gint bit_offse
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_pan_max, tvb, curr_bit_offset, 3, ENC_BIG_ENDIAN);
         curr_bit_offset += 3;
     }
-    else
-        curr_bit_offset += 1;
-    if (tvb_get_bits8(tvb,curr_bit_offset,1))
+    if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Optional Extensions", "Present", "Not Present"))
     { /* Optional extension information */
-        curr_bit_offset += 1;
         curr_bit_offset_sav = curr_bit_offset;
         item2 = proto_tree_add_text(subtree, tvb, curr_bit_offset>>3, -1, "%s",
                                     gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_GPRS_CELL_OPTIONS_EXT_INFO].strptr);
@@ -2465,17 +2498,14 @@ de_rr_rest_oct_gprs_cell_options(tvbuff_t *tvb, proto_tree *tree, gint bit_offse
         curr_bit_offset += 6;
         value += 1;
         proto_item_set_len(item2,((curr_bit_offset+value-curr_bit_offset_sav)>>3)+1);
-        if (tvb_get_bits8(tvb,curr_bit_offset,1))
+        if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "EGPRS", "supported by cell", "not supported by cell"))
         {
-            curr_bit_offset += 1;
             proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_egprs_packet_channel_request, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
             curr_bit_offset += 1;
             proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_bep_period, tvb, curr_bit_offset, 4, ENC_BIG_ENDIAN);
             curr_bit_offset += 4;
             value -= 5;
         }
-        else
-            curr_bit_offset += 1;
         value -= 1;
         proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_pfc_feature_mode, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
         curr_bit_offset += 1;
@@ -2500,7 +2530,7 @@ de_rr_rest_oct_gprs_cell_options(tvbuff_t *tvb, proto_tree *tree, gint bit_offse
                 proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_dtm_enhancements_capability, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
                 curr_bit_offset += 1;
                 value -= 3;
-                if (tvb_get_bits8(tvb,curr_bit_offset,1))
+                if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "MBMS procedures", "supported by cell", "not supported by cell"))
                 {
                     proto_tree_add_bits_item(subtree, hf_gsm_a_rr_dedicated_mode_mbms_notification_support, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
                     bit_offset += 1;
@@ -2521,8 +2551,6 @@ de_rr_rest_oct_gprs_cell_options(tvbuff_t *tvb, proto_tree *tree, gint bit_offse
         }
         curr_bit_offset += value;
     }
-    else
-        curr_bit_offset += 1;
     proto_item_set_len(item,((curr_bit_offset-bit_offset)>>3)+1);
 
     return (curr_bit_offset - bit_offset);
@@ -2764,8 +2792,6 @@ de_rr_ia_rest_oct_egprs_packet_uplink_assignment(tvbuff_t *tvb, proto_tree *tree
     proto_tree *subtree;
     proto_item *item;
     gint        curr_bit_offset;
-    guint8      value;
-    gboolean    flag;
 
     curr_bit_offset = bit_offset;
 
@@ -2773,46 +2799,55 @@ de_rr_ia_rest_oct_egprs_packet_uplink_assignment(tvbuff_t *tvb, proto_tree *tree
     subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_EGPRS_PACKET_UPLINK_ASSIGNMENT]);
     proto_tree_add_bits_item(subtree, hf_gsm_a_rr_extended_ra, tvb, curr_bit_offset, 5, ENC_BIG_ENDIAN);
     curr_bit_offset += 5;
-    value = tvb_get_bits8(tvb,curr_bit_offset,1);
-    curr_bit_offset += 1;
-    while ( value )
+    while (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Access Technologies Request", "Present", "Not Present"))
     {
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_access_tech_type, tvb, curr_bit_offset, 4, ENC_BIG_ENDIAN);
         curr_bit_offset += 4;
-        value = tvb_get_bits8(tvb,curr_bit_offset,1);
-        curr_bit_offset += 1;
     }
 
-    value = tvb_get_bits8(tvb,curr_bit_offset,1);
-    curr_bit_offset += 1;
-    if (value)
+    if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "", "TFI Assignment Present", "Multi Block Allocation   Present"))
     {
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_tfi_assignment, tvb, curr_bit_offset, 5, ENC_BIG_ENDIAN);
         curr_bit_offset += 5;
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_polling, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
         curr_bit_offset += 1;
-        /* this bit is 0;  The value '1' was allocated in an earlier version of the protocol and shall not be used */
-        curr_bit_offset += 1;
-        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_usf, tvb, curr_bit_offset, 3, ENC_BIG_ENDIAN);
-        curr_bit_offset += 3;
-        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_usf_granularity, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
-        curr_bit_offset += 1;
-        value = tvb_get_bits8(tvb,curr_bit_offset,1);
-        curr_bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Allocation Type", "Fixed Allocation (not to be used after Rel-4)", "Dynamic Allocation (mandatory after Rel-4)"))
         {
-            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_p0, tvb, curr_bit_offset, 4, ENC_BIG_ENDIAN);
-            curr_bit_offset += 4;
-            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_pr_mode, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
-            curr_bit_offset += 1;
+           gint8 bitmap_len = tvb_get_bits8(tvb, curr_bit_offset, 5);
+           gint32 bitmap;
+           proto_tree_add_text(tree, tvb, curr_bit_offset>>3, 1+((curr_bit_offset+5)>>3) - (curr_bit_offset>>3), "Bitmap length %d", bitmap_len);
+           curr_bit_offset += 5;
+           bitmap = tvb_get_bits32(tvb, curr_bit_offset, bitmap_len, ENC_BIG_ENDIAN);
+           proto_tree_add_text(tree, tvb, curr_bit_offset>>3, 1+((curr_bit_offset+bitmap_len)>>3) - (curr_bit_offset>>3), "Bitmap %d", bitmap);
+           curr_bit_offset += bitmap_len;
+           if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "P0 bits", "Present", "Not Present"))
+           {
+               proto_tree_add_bits_item(subtree, hf_gsm_a_rr_p0, tvb, curr_bit_offset, 4, ENC_BIG_ENDIAN);
+               curr_bit_offset += 4;
+               proto_tree_add_bits_item(subtree, hf_gsm_a_rr_pr_mode, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+               curr_bit_offset += 1;
+           }
         }
+        else
+        {
+           proto_tree_add_bits_item(subtree, hf_gsm_a_rr_usf, tvb, curr_bit_offset, 3, ENC_BIG_ENDIAN);
+           curr_bit_offset += 3;
+           proto_tree_add_bits_item(subtree, hf_gsm_a_rr_usf_granularity, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+           curr_bit_offset += 1;
+           if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "P0 bits", "Present", "Not Present"))
+           {
+               proto_tree_add_bits_item(subtree, hf_gsm_a_rr_p0, tvb, curr_bit_offset, 4, ENC_BIG_ENDIAN);
+               curr_bit_offset += 4;
+               proto_tree_add_bits_item(subtree, hf_gsm_a_rr_pr_mode, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+               curr_bit_offset += 1;
+           }
+        }
+        
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_egprs_mcs, tvb, curr_bit_offset, 4, ENC_BIG_ENDIAN);
         curr_bit_offset += 4;
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_tlli_block_channel_coding, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
         curr_bit_offset += 1;
-        value = tvb_get_bits8(tvb,curr_bit_offset,1);
-        curr_bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "BEP_PERIOD2", "Present", "Not Present"))
         {
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_bep_period2, tvb, curr_bit_offset, 4, ENC_BIG_ENDIAN);
             curr_bit_offset += 4;
@@ -2821,25 +2856,19 @@ de_rr_ia_rest_oct_egprs_packet_uplink_assignment(tvbuff_t *tvb, proto_tree *tree
         curr_bit_offset += 1;
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_egprs_window_size, tvb, curr_bit_offset, 5, ENC_BIG_ENDIAN);
         curr_bit_offset += 5;
-        value = tvb_get_bits8(tvb,curr_bit_offset,1);
-        curr_bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Alpha", "Present", "Not Present"))
         {
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_alpha, tvb, curr_bit_offset, 4, ENC_BIG_ENDIAN);
             curr_bit_offset += 4;
         }
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_gamma, tvb, curr_bit_offset, 5, ENC_BIG_ENDIAN);
         curr_bit_offset += 5;
-        value = tvb_get_bits8(tvb,curr_bit_offset,1);
-        curr_bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Timing Advance Index", "Present", "Not Present"))
         {
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_timing_adv_index, tvb, curr_bit_offset, 4, ENC_BIG_ENDIAN);
             curr_bit_offset += 4;
         }
-        value = tvb_get_bits8(tvb,curr_bit_offset,1);
-        curr_bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "TBF Starting Time", "Present", "Not Present"))
         {
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_tbf_starting_time, tvb, curr_bit_offset, 16, ENC_BIG_ENDIAN);
             curr_bit_offset += 16;
@@ -2847,9 +2876,7 @@ de_rr_ia_rest_oct_egprs_packet_uplink_assignment(tvbuff_t *tvb, proto_tree *tree
     }
     else  /*  Multi Block Allocation */
     {
-        value = tvb_get_bits8(tvb,curr_bit_offset,1);
-        curr_bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Alpha", "Present", "Not Present"))
         {
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_alpha, tvb, curr_bit_offset, 4, ENC_BIG_ENDIAN);
             curr_bit_offset += 4;
@@ -2860,24 +2887,17 @@ de_rr_ia_rest_oct_egprs_packet_uplink_assignment(tvbuff_t *tvb, proto_tree *tree
         curr_bit_offset += 16;
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_num_of_radio_block_allocated, tvb, curr_bit_offset, 2, ENC_BIG_ENDIAN);
         curr_bit_offset += 2;
-        value = tvb_get_bits8(tvb,curr_bit_offset,1);
-        curr_bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "P0 bits", "Present", "Not Present"))
         {
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_p0, tvb, curr_bit_offset, 4, ENC_BIG_ENDIAN);
             curr_bit_offset += 4;
-            /* The value '1' was allocated in an earlier version of the protocol and shall not be used */
-            curr_bit_offset += 1;
+            gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "BTS Power Control Mode", "Mode B (not to be used after Rel-4)", "Mode A (mandatory after Rel-4)");
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_pr_mode, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
             curr_bit_offset += 1;
         }
-        flag = gsm_a_rr_is_bit_high(tvb,curr_bit_offset);
-        curr_bit_offset += 1;
-        if (flag)
+        if (gsm_rr_csn_HL_flag(tvb,subtree, 0,curr_bit_offset++,"Additions for Rel-7", "Present", "Not present"))
         {
-            value = tvb_get_bits8(tvb,curr_bit_offset,1);
-            curr_bit_offset += 1;
-            if (value)
+            if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "PFI", "Present", "Not Present"))
             {
                 proto_tree_add_bits_item(subtree, hf_gsm_a_rr_pfi, tvb, curr_bit_offset, 7, ENC_BIG_ENDIAN);
                 curr_bit_offset += 7;
@@ -2897,7 +2917,6 @@ de_rr_ia_rest_oct_tmgi(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
     proto_tree *subtree;
     proto_item *item;
     gint        curr_bit_offset;
-    guint8      value;
     guint16     value16;
     gchar       mcc[4];
     gchar       mnc[4];
@@ -2907,9 +2926,7 @@ de_rr_ia_rest_oct_tmgi(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
     item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_TMGI].strptr);
     subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_TMGI]);
 
-    value = tvb_get_bits8(tvb,curr_bit_offset,1);
-    curr_bit_offset += 1;
-    if (value == 0)   /*  without MCC and MNC parameters */
+    if (0 == gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "MCC and MNC Parameters", "Present", "Not Present"))   /*  without MCC and MNC parameters */
     {
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_mbms_service_id, tvb, curr_bit_offset, 24, ENC_BIG_ENDIAN);
         curr_bit_offset += 24;
@@ -2955,7 +2972,6 @@ de_rr_ia_rest_oct_packet_timing_advance(tvbuff_t *tvb, proto_tree *tree, gint bi
     proto_tree *subtree;
     proto_item *item;
     gint        curr_bit_offset;
-    guint8      value;
 
 
     curr_bit_offset = bit_offset;
@@ -2963,17 +2979,13 @@ de_rr_ia_rest_oct_packet_timing_advance(tvbuff_t *tvb, proto_tree *tree, gint bi
     item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_PACKET_TIMING_ADVANCE].strptr);
     subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_PACKET_TIMING_ADVANCE]);
 
-    value = tvb_get_bits8(tvb,curr_bit_offset,1);
-    curr_bit_offset += 1;
-    if (value)
+    if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Timing Advance Value", "Present", "Not Present"))
     {
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_timing_adv, tvb, curr_bit_offset, 6, ENC_BIG_ENDIAN);
         curr_bit_offset += 6;
     }
 
-    value = tvb_get_bits8(tvb,curr_bit_offset,1);
-    curr_bit_offset += 1;
-    if (value)
+    if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Timing Advance Index and Timeslot", "Present", "Not Present"))
     {
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_timing_adv_index, tvb, curr_bit_offset, 4, ENC_BIG_ENDIAN);
         curr_bit_offset += 4;
@@ -3006,23 +3018,17 @@ de_rr_ia_rest_oct_multiple_blocks_packet_downlink_assignment(tvbuff_t *tvb, prot
     proto_tree_add_bits_item(subtree, hf_gsm_a_rr_num_of_radio_block_allocated, tvb, curr_bit_offset, 4, ENC_BIG_ENDIAN);
     curr_bit_offset += 4;
 
-    value = tvb_get_bits8(tvb,curr_bit_offset,1);
-    curr_bit_offset += 1;
-    if (value)
+    if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "", "default 0 bit", "Reserved Value"))
     {
-        value = tvb_get_bits8(tvb,curr_bit_offset,1);
-        curr_bit_offset += 1;
-        if (value == 0)  /* MBMS Assignment (Distribution) */
-        {
+        if (0 == gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "MBMS Assignment", "(Non-distribution)", "(Distribution)"))  
+        {/* MBMS Assignment (Distribution) */
             curr_bit_offset += de_rr_ia_rest_oct_tmgi(tvb, tree, curr_bit_offset);
         }
         else   /* MBMS Assignment (Non-distribution) */
         {
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_tlli, tvb, curr_bit_offset, 32, ENC_BIG_ENDIAN);
             curr_bit_offset += 32;
-            value = tvb_get_bits8(tvb,curr_bit_offset,1);
-            curr_bit_offset += 1;
-            if (value)
+            if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "MS Parameters", "Present", "Not Present"))
             {
                 value = tvb_get_bits8(tvb,curr_bit_offset,2);
                 proto_tree_add_text(tree,
@@ -3034,15 +3040,11 @@ de_rr_ia_rest_oct_multiple_blocks_packet_downlink_assignment(tvbuff_t *tvb, prot
                 proto_tree_add_bits_item(subtree, hf_gsm_a_rr_ms_id, tvb, curr_bit_offset, value+1, ENC_BIG_ENDIAN);
                 curr_bit_offset += value+1;
                 curr_bit_offset += de_rr_ia_rest_oct_packet_timing_advance(tvb, tree, curr_bit_offset);
-                value = tvb_get_bits8(tvb,curr_bit_offset,1);
-                curr_bit_offset += 1;
-                if (value)
+                if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Alpha", "Present", "Not Present"))
                 {
                     proto_tree_add_bits_item(subtree, hf_gsm_a_rr_alpha, tvb, curr_bit_offset, 4, ENC_BIG_ENDIAN);
                     curr_bit_offset += 4;
-                    value = tvb_get_bits8(tvb,curr_bit_offset,1);
-                    curr_bit_offset += 1;
-                    if (value)
+                    if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Gamma", "Present", "Not Present"))
                     {
                         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_gamma, tvb, curr_bit_offset, 5, ENC_BIG_ENDIAN);
                         curr_bit_offset += 5;
@@ -3067,60 +3069,66 @@ de_rr_ia_rest_oct_packet_uplink_assignment(tvbuff_t *tvb, proto_tree *tree, gint
     proto_tree *subtree;
     proto_item *item;
     gint        curr_bit_offset;
-    guint8      value;
-    gboolean    flag;
 
     curr_bit_offset = bit_offset;
 
     item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_PACKET_UPLINK_ASSIGNMENT].strptr);
     subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_PACKET_UPLINK_ASSIGNMENT]);
 
-    value = tvb_get_bits8(tvb,curr_bit_offset,1);
-    curr_bit_offset += 1;
-    if (value)
+    if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Packet Uplink Assignment", "Normal", "Single Block"))
     {
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_tfi_assignment, tvb, curr_bit_offset, 5, ENC_BIG_ENDIAN);
         curr_bit_offset += 5;
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_polling, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
         curr_bit_offset += 1;
-        /* The value '1' was allocated in an earlier version of the protocol and shall not be used */
-        curr_bit_offset += 1;
-        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_usf, tvb, curr_bit_offset, 3, ENC_BIG_ENDIAN);
-        curr_bit_offset += 3;
-        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_usf_granularity, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
-        curr_bit_offset += 1;
-        value = tvb_get_bits8(tvb,curr_bit_offset,1);
-        curr_bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Allocation Type", "Fixed Allocation (not to be used after Rel-4))", "Dynamic Allocation (mandatory after Rel-4)"))
         {
-            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_p0, tvb, curr_bit_offset, 4, ENC_BIG_ENDIAN);
-            curr_bit_offset += 4;
-            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_pr_mode, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
-            curr_bit_offset += 1;
+           gint8 bitmap_len = tvb_get_bits8(tvb, curr_bit_offset, 5);
+           gint32 bitmap;
+           proto_tree_add_text(tree, tvb, curr_bit_offset>>3, 1+((curr_bit_offset+5)>>3) - (curr_bit_offset>>3), "Bitmap length %d", bitmap_len);
+           curr_bit_offset += 5;
+           bitmap = tvb_get_bits32(tvb, curr_bit_offset, bitmap_len, ENC_BIG_ENDIAN);
+           proto_tree_add_text(tree, tvb, curr_bit_offset>>3, 1+((curr_bit_offset+bitmap_len)>>3) - (curr_bit_offset>>3), "Bitmap %d", bitmap);
+           curr_bit_offset += bitmap_len;
+           if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "P0 bits", "Present", "Not Present"))
+           {
+               proto_tree_add_bits_item(subtree, hf_gsm_a_rr_p0, tvb, curr_bit_offset, 4, ENC_BIG_ENDIAN);
+               curr_bit_offset += 4;
+               proto_tree_add_bits_item(subtree, hf_gsm_a_rr_pr_mode, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+               curr_bit_offset += 1;
+           }
+        }
+        else
+        {
+           proto_tree_add_bits_item(subtree, hf_gsm_a_rr_usf, tvb, curr_bit_offset, 3, ENC_BIG_ENDIAN);
+           curr_bit_offset += 3;
+           proto_tree_add_bits_item(subtree, hf_gsm_a_rr_usf_granularity, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+           curr_bit_offset += 1;
+           if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "P0", "Present", "Not Present"))
+           {
+               proto_tree_add_bits_item(subtree, hf_gsm_a_rr_p0, tvb, curr_bit_offset, 4, ENC_BIG_ENDIAN);
+               curr_bit_offset += 4;
+               proto_tree_add_bits_item(subtree, hf_gsm_a_rr_pr_mode, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+               curr_bit_offset += 1;
+           }
         }
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_gprs_cs, tvb, curr_bit_offset, 2, ENC_BIG_ENDIAN);
         curr_bit_offset += 2;
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_tlli_block_channel_coding, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
         curr_bit_offset += 1;
-        value = tvb_get_bits8(tvb,curr_bit_offset,1);
-        curr_bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Alpha", "Present", "Not Present"))
         {
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_alpha, tvb, curr_bit_offset, 4, ENC_BIG_ENDIAN);
             curr_bit_offset += 4;
         }
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_gamma, tvb, curr_bit_offset, 5, ENC_BIG_ENDIAN);
         curr_bit_offset += 5;
-        value = tvb_get_bits8(tvb,curr_bit_offset,1);
-        curr_bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Timing Advance Index", "Present", "Not Present"))
         {
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_timing_adv_index, tvb, curr_bit_offset, 4, ENC_BIG_ENDIAN);
             curr_bit_offset += 4;
         }
-        value = tvb_get_bits8(tvb,curr_bit_offset,1);
-        curr_bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "TBF Starting Time", "Present", "Not Present"))
         {
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_tbf_starting_time, tvb, curr_bit_offset, 16, ENC_BIG_ENDIAN);
             curr_bit_offset += 16;
@@ -3128,9 +3136,7 @@ de_rr_ia_rest_oct_packet_uplink_assignment(tvbuff_t *tvb, proto_tree *tree, gint
     }
     else  /* Single Block Allocation */
     {
-        value = tvb_get_bits8(tvb,curr_bit_offset,1);
-        curr_bit_offset += 1;
-        if (value)
+       if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Alpha", "Present", "Not Present"))
         {
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_alpha, tvb, curr_bit_offset, 4, ENC_BIG_ENDIAN);
             curr_bit_offset += 4;
@@ -3138,42 +3144,33 @@ de_rr_ia_rest_oct_packet_uplink_assignment(tvbuff_t *tvb, proto_tree *tree, gint
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_gamma, tvb, curr_bit_offset, 5, ENC_BIG_ENDIAN);
         curr_bit_offset += 5;
         /* fixed bits '01' */
-        curr_bit_offset += 2;
+        gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Bit reserved for earlier version of protocol:", "Early R97 version", "Later than R97 version");
+        gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Bit reserved for earlier version of protocol:", "Later than R97 version",  "Early R97 version");
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_tbf_starting_time, tvb, curr_bit_offset, 16, ENC_BIG_ENDIAN);
         curr_bit_offset += 16;
-        flag = gsm_a_rr_is_bit_high(tvb,curr_bit_offset);
-        curr_bit_offset += 1;
-        if (flag)
+        if (gsm_rr_csn_HL_flag(tvb,subtree, 0,curr_bit_offset++,"P0", "Present", "Not Present"))
         {
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_p0, tvb, curr_bit_offset, 4, ENC_BIG_ENDIAN);
             curr_bit_offset += 4;
             /* The value '1' was allocated in an earlier version of the protocol and shall not be used */
-            curr_bit_offset += 1;
+            gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Bit reserved for earlier version of protocol:", "Earlier version", "Current version");
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_pr_mode, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
             curr_bit_offset += 1;
         }
     }
 
-    flag = gsm_a_rr_is_bit_high(tvb,curr_bit_offset);
-    curr_bit_offset += 1;
-    if (flag)
+    if (gsm_rr_csn_HL_flag(tvb,subtree, 0,curr_bit_offset++,"Additions for R99", "Present", "Not Present"))
     {
-        value = tvb_get_bits8(tvb,curr_bit_offset,1);
-        curr_bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Extended RA", "Present", "Not Present"))
         {
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_extended_ra, tvb, curr_bit_offset, 5, ENC_BIG_ENDIAN);
             curr_bit_offset += 5;
         }
     }
 
-    flag = gsm_a_rr_is_bit_high(tvb,curr_bit_offset);
-    curr_bit_offset += 1;
-    if (flag)
+    if (gsm_rr_csn_HL_flag(tvb,subtree, 0,curr_bit_offset++,"Additions for Rel-6", "Present", "Not Present"))
     {
-        value = tvb_get_bits8(tvb,curr_bit_offset,1);
-        curr_bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "PFI", "Present", "Not Present"))
         {
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_pfi, tvb, curr_bit_offset, 7, ENC_BIG_ENDIAN);
             curr_bit_offset += 7;
@@ -3192,8 +3189,6 @@ de_rr_ia_rest_oct_packet_downlink_assignment(tvbuff_t *tvb, proto_tree *tree, gi
     proto_tree *subtree;
     proto_item *item;
     gint        curr_bit_offset;
-    guint8      value;
-    gboolean    flag;
 
     curr_bit_offset = bit_offset;
 
@@ -3203,17 +3198,13 @@ de_rr_ia_rest_oct_packet_downlink_assignment(tvbuff_t *tvb, proto_tree *tree, gi
     proto_tree_add_bits_item(subtree, hf_gsm_a_rr_tlli, tvb, curr_bit_offset, 32, ENC_BIG_ENDIAN);
     curr_bit_offset += 32;
 
-    value = tvb_get_bits8(tvb,curr_bit_offset,1);
-    curr_bit_offset += 1;
-    if (value)
+    if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "TFI Assignment (etc)", "Present", "Not Present"))
     {
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_tfi_assignment, tvb, curr_bit_offset, 5, ENC_BIG_ENDIAN);
         curr_bit_offset += 5;
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_rlc_mode, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
         curr_bit_offset += 1;
-        value = tvb_get_bits8(tvb,curr_bit_offset,1);
-        curr_bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Alpha", "Present", "Not Present"))
         {
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_alpha, tvb, curr_bit_offset, 4, ENC_BIG_ENDIAN);
             curr_bit_offset += 4;
@@ -3225,56 +3216,41 @@ de_rr_ia_rest_oct_packet_downlink_assignment(tvbuff_t *tvb, proto_tree *tree, gi
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_ta_valid, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
         curr_bit_offset += 1;
     }
-    value = tvb_get_bits8(tvb,curr_bit_offset,1);
-    curr_bit_offset += 1;
-    if (value)
+    if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Timing Advance Index", "Present", "Not Present"))
     {
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_timing_adv_index, tvb, curr_bit_offset, 4, ENC_BIG_ENDIAN);
         curr_bit_offset += 4;
     }
-    value = tvb_get_bits8(tvb,curr_bit_offset,1);
-    curr_bit_offset += 1;
-    if (value)
+    if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "TBF Starting Time", "Present", "Not Present"))
     {
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_tbf_starting_time, tvb, curr_bit_offset, 16, ENC_BIG_ENDIAN);
         curr_bit_offset += 16;
     }
-    value = tvb_get_bits8(tvb,curr_bit_offset,1);
-    curr_bit_offset += 1;
-    if (value)
+    if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "P0", "Present", "Not Present"))
     {
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_p0, tvb, curr_bit_offset, 4, ENC_BIG_ENDIAN);
         curr_bit_offset += 4;
-        /* The value '1' was allocated in an earlier version of the protocol and shall not be used */
-        curr_bit_offset += 1;
+        gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "BTS Power Control Mode", "Mode B (not to be used after Rel-4)", "Mode A (mandatory after Rel-4)");
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_pr_mode, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
         curr_bit_offset += 1;
     }
 
-    flag = gsm_a_rr_is_bit_high(tvb,curr_bit_offset);
-    curr_bit_offset += 1;
-    if (flag)
+    if (gsm_rr_csn_HL_flag(tvb,subtree, 0,curr_bit_offset++,"Additions for R99", "Present", "Not Present"))
     {
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_egprs_window_size, tvb, curr_bit_offset, 5, ENC_BIG_ENDIAN);
         curr_bit_offset += 5;
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_link_quality_meas_mode, tvb, curr_bit_offset, 2, ENC_BIG_ENDIAN);
         curr_bit_offset += 2;
-        value = tvb_get_bits8(tvb,curr_bit_offset,1);
-        curr_bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "BEP_PERIOD2", "Present", "Not Present"))
         {
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_bep_period2, tvb, curr_bit_offset, 4, ENC_BIG_ENDIAN);
             curr_bit_offset += 4;
         }
     }
 
-    flag = gsm_a_rr_is_bit_high(tvb,curr_bit_offset);
-    curr_bit_offset += 1;
-    if (flag)
+    if (gsm_rr_csn_HL_flag(tvb,subtree,0 ,curr_bit_offset++,"Additions for Rel-6", "Present", "Not Present"))
     {
-        value = tvb_get_bits8(tvb,curr_bit_offset,1);
-        curr_bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "PFI", "Present", "Not Present"))
         {
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_pfi, tvb, curr_bit_offset, 7, ENC_BIG_ENDIAN);
             curr_bit_offset += 7;
@@ -3296,21 +3272,15 @@ de_rr_ia_rest_oct_second_part_packet_assignment(tvbuff_t *tvb, proto_tree *tree,
     proto_tree *subtree;
     proto_item *item;
     gint        curr_bit_offset;
-    guint8      value;
-    gboolean    flag;
 
     curr_bit_offset = bit_offset;
 
     item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_SECOND_PART_PACKET_ASSIGNMENT].strptr);
     subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_SECOND_PART_PACKET_ASSIGNMENT]);
 
-    flag = gsm_a_rr_is_bit_high(tvb,curr_bit_offset);
-    curr_bit_offset += 1;
-    if (flag)
+    if (gsm_rr_csn_HL_flag(tvb,subtree, 0,curr_bit_offset++,"Additions for R99", "Present", "Not Present"))
     {
-        value = tvb_get_bits8(tvb,curr_bit_offset,1);
-        curr_bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Extended RA", "Present", "Not Present"))
         {
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_extended_ra, tvb, curr_bit_offset, 5, ENC_BIG_ENDIAN);
             curr_bit_offset += 5;
@@ -3335,10 +3305,8 @@ de_rr_ia_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
     guint32      curr_offset;
     gint         bit_offset;
     gint         length;
-    guint8       value;
-    gboolean     flag;
     guint64      ma_length;
-
+    guint8 tvb_len = tvb_length(tvb);
     len = tvb_length_remaining(tvb,offset);
     if (len==0)
         return 0;
@@ -3353,30 +3321,18 @@ de_rr_ia_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
     subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_IA_REST_OCT]);
 
     bit_offset = curr_offset << 3;
-    flag = gsm_a_rr_is_bit_high(tvb,bit_offset);
-    bit_offset += 1;
-    if (flag == FALSE)
+    if (gsm_rr_csn_HL_flag(tvb,tree, 0,bit_offset++,"first discriminator bit", "High", "Low") == FALSE)
     {
-        flag = gsm_a_rr_is_bit_high(tvb,bit_offset);
-        bit_offset += 1;
-        if (flag == FALSE)  /* LL */
+        if (gsm_rr_csn_HL_flag(tvb,tree, 0,bit_offset++,"second discriminator bit", "High", "Low") == FALSE)  
         {
-            flag = gsm_a_rr_is_bit_high(tvb,bit_offset);
-            bit_offset += 1;
-            if (flag)
-                proto_tree_add_text(subtree, tvb, bit_offset>>3, 1, "A compressed version of the INTER RAT HANDOVER INFO message shall be used");
-            else
-                proto_tree_add_text(subtree, tvb, bit_offset>>3, 1, "A compressed version of the INTER RAT HANDOVER INFO message shall not be used");
+           /* LL */
+           gsm_rr_csn_HL_flag(tvb,tree, 0,bit_offset++,"A compressed version of the INTER RAT HANDOVER INFO message ", "shall be used", "shall not be used");
         }
         else   /* LH */
         {
-            value = tvb_get_bits8(tvb,bit_offset,1);
-            bit_offset += 1;
-            if (value == 0)
+            if (0 == gsm_rr_csn_flag(tvb, subtree, bit_offset++, "Discriminator bit:", "reserved for future use", "EGPRS Packet Uplink Assignment or Multiple blocks Packet Downlink Assignment"))
             {
-                value = tvb_get_bits8(tvb,bit_offset,1);
-                bit_offset += 1;
-                if (value == 0)
+                if (0 == gsm_rr_csn_flag(tvb, subtree, bit_offset++, "", "Multiple blocks Packet Downlink Assignment", "EGPRS Packet Uplink Assignment"))
                 {
                     bit_offset += de_rr_ia_rest_oct_egprs_packet_uplink_assignment(tvb, tree, bit_offset);
                 }
@@ -3393,12 +3349,12 @@ de_rr_ia_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
     }
     else
     {
-        flag = gsm_a_rr_is_bit_high(tvb,bit_offset);
-        bit_offset += 1;
-        if (flag == FALSE)  /* HL */
+        if (0 == gsm_rr_csn_HL_flag(tvb,subtree, 0,bit_offset++,"second discriminator bit:", "High", "Low"))  
         {
+           /* HL */
             proto_tree_add_bits_ret_val(subtree, hf_gsm_a_rr_ma_length, tvb, bit_offset, 6, &ma_length, ENC_BIG_ENDIAN);
             bit_offset += 6;
+            /* Frequency Parameters, before time */
             if (ma_length>0)
             {
                 /* two '0' bits */
@@ -3415,23 +3371,15 @@ de_rr_ia_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
                     length -= 1;
                 }
             }
-            flag = gsm_a_rr_is_bit_high(tvb,bit_offset);
-            bit_offset += 1;
-            if (flag)
-                proto_tree_add_text(subtree, tvb, bit_offset>>3, 1, "A compressed version of the INTER RAT HANDOVER INFO message shall be used");
-            else
-                proto_tree_add_text(subtree, tvb, bit_offset>>3, 1, "A compressed version of the INTER RAT HANDOVER INFO message shall not be used");
+            gsm_rr_csn_HL_flag(tvb,subtree, 0,bit_offset++,"A compressed version of the INTER RAT HANDOVER INFO message", "shall be used", "shall not be used");
         }
         else   /* HH */
         {
-            value = tvb_get_bits8(tvb,bit_offset,1);
-            bit_offset += 1;
-            if (value == 0)
+            if (0 == gsm_rr_csn_flag(tvb, subtree, bit_offset++, "Discriminator bit:", "Second Part Packet Assignment", "Packet Uplik Assignment or Packet Downlink Assignment"))
             {
-                value = tvb_get_bits8(tvb,bit_offset,1);
-                bit_offset += 1;
-                if (value == 0)  /* 00  < Packet Uplink Assignment > */
+                if (0 == gsm_rr_csn_flag(tvb, subtree, bit_offset++, "Discriminator bit:", "Packet Downlink Assignment", "Packet Uplink Assignment"))  
                 {
+                      /* 00  < Packet Uplink Assignment > */
                     bit_offset += de_rr_ia_rest_oct_packet_uplink_assignment(tvb, tree, bit_offset);
                 }
                 else  /*  01     < Packet Downlink Assignment >  */
@@ -3445,8 +3393,9 @@ de_rr_ia_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
             }
         }
     }
-    curr_offset = (bit_offset>>3)+1;
 
+    gsm_rr_csn_spare_bits(tree, tvb, bit_offset);
+    curr_offset = tvb_len;
     return curr_offset-offset;
 }
 
@@ -3460,8 +3409,8 @@ de_rr_iar_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
     proto_tree  *subtree;
     proto_item  *item;
     guint32      curr_bit_offset;
-    guint8       value;
     guint8       i;
+    guint8 tvb_len = tvb_length(tvb);
 
     curr_bit_offset = offset<<3;
 
@@ -3474,9 +3423,7 @@ de_rr_iar_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 
     for( i=0; i<4; i++ )
     {
-        value = tvb_get_bits8(tvb,curr_bit_offset,1);
-        curr_bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Extended RA", "Present", "Not Present"))
         {
             proto_tree_add_text(subtree, tvb, curr_bit_offset>>3, 1, "Extended RA %d present", i);
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_extended_ra, tvb, curr_bit_offset, 5, ENC_BIG_ENDIAN);
@@ -3487,9 +3434,8 @@ de_rr_iar_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
             proto_tree_add_text(subtree, tvb, curr_bit_offset>>3, 1, "Extended RA %d not present", i);
         }
     }
-
-
-    return (curr_bit_offset>>3)-offset;
+    gsm_rr_csn_spare_bits(tree, tvb, curr_bit_offset);
+    return tvb_len - offset;
 }
 
 /*
@@ -3501,7 +3447,7 @@ de_rr_iax_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
     proto_tree  *subtree;
     proto_item  *item;
     guint32      curr_bit_offset;
-    guint8       value;
+    guint8 tvb_len = tvb_length(tvb);
 
     len = tvb_length_remaining(tvb,offset);
     if (len==0)
@@ -3516,15 +3462,10 @@ de_rr_iax_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 
     subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_IAX_REST_OCT]);
 
-    value = tvb_get_bits8(tvb,curr_bit_offset,1);
-    curr_bit_offset += 1;
+    gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "A compressed version of the INTER RAT HANDOVER INFO message", "shall be used", "shall not be used");
 
-    if (value)
-        proto_tree_add_text(subtree, tvb, curr_bit_offset>>3, 1, "A compressed version of the INTER RAT HANDOVER INFO message shall be used");
-    else
-        proto_tree_add_text(subtree, tvb, curr_bit_offset>>3, 1, "A compressed version of the INTER RAT HANDOVER INFO message shall not be used");
-
-    return (curr_bit_offset>>3)-offset;
+    gsm_rr_csn_spare_bits(tree, tvb, curr_bit_offset);
+    return tvb_len - offset;
 }
 
 /*
@@ -3988,7 +3929,8 @@ de_rr_p1_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
     proto_tree *subtree;
     proto_item *item, *item2;
     guint32 curr_offset, value;
-    gint bit_offset, bit_offset_sav, i;
+    gint bit_offset, bit_offset_sav;
+    guint8 tvb_len = tvb_length(tvb);
 
     curr_offset = offset;
     bit_offset = curr_offset << 3;
@@ -3999,80 +3941,50 @@ de_rr_p1_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 
     subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_P1_REST_OCT]);
 
-    if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+    if (gsm_rr_csn_HL_flag(tvb, subtree, tvb_len, bit_offset++, "NLN(PCH)", "Present", "Not present"))
     {
-        bit_offset += 1;
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_nln_pch, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
         bit_offset += 2;
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_nln_status_pch, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
         bit_offset += 1;
     }
-    else
-        bit_offset += 1;
-    for (i=1; i<=2; i++)
+    if (gsm_rr_csn_HL_flag(tvb, subtree, tvb_len, bit_offset++, "Priority 1", "Present", "Not present"))
     {
-        if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
-        {
-            bit_offset += 1;
-            item2 = proto_tree_add_bits_item(subtree, hf_gsm_a_call_prio, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
-            bit_offset += 3;
-            proto_item_append_text(item2, " for Mobile Identity %d", i);
-        }
-        else
-            bit_offset += 1;
+        item2 = proto_tree_add_bits_item(subtree, hf_gsm_a_call_prio, tvb, bit_offset, 3, FALSE);
+        bit_offset += 3;
+        proto_item_append_text(item2, " for Mobile Identity 1");
     }
-    if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+    if (gsm_rr_csn_HL_flag(tvb, subtree, tvb_len, bit_offset++, "Priority 2", "Present", "Not present"))
+    {
+        item2 = proto_tree_add_bits_item(subtree, hf_gsm_a_call_prio, tvb, bit_offset, 3, FALSE);
+        bit_offset += 3;
+        proto_item_append_text(item2, " for Mobile Identity 2");
+    }
+    if (gsm_rr_csn_HL_flag(tvb, subtree, tvb_len, bit_offset++, "Group Call Information", "Present", "Not present"))
     { /* Group Call Information */
-        bit_offset += 1;
         bit_offset_sav = bit_offset;
         bit_offset += 36;
-        if (tvb_get_bits8(tvb,bit_offset,1))
+        if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "Group Channel Description", "Present", "Not Present"))
         { /* Group Channel Description */
-            bit_offset += 24+1;
-            if (tvb_get_bits8(tvb,bit_offset,1))
+            bit_offset += 24;
+            if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "Hopping case", "Present", "Not Present"))
             { /* Hopping case */
-                bit_offset += 1;
-                if (tvb_get_bits8(tvb,bit_offset,1))
+                if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "????", "Present", "Not Present"))
                 {
-                    bit_offset += 64+1;
+                    bit_offset += 64;
                 }
                 else
                 {
-                    bit_offset += 1;
                     value = tvb_get_bits8(tvb,bit_offset,8);
                     bit_offset += 8 + (value<<3);
                 }
             }
-            else
-                bit_offset += 1;
         }
-        else
-            bit_offset += 1;
         proto_tree_add_text(subtree,tvb, bit_offset_sav>>3, (bit_offset-bit_offset_sav)>>3,"Group Call Information: Data(Not decoded)");
     }
-    else
-        bit_offset += 1;
-    for (i=1; i<=2; i++)
-    {
-        item2 = proto_tree_add_text(subtree,tvb, bit_offset>>3, 1, "Packet Page Indication %d: ", i);
-        if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
-            proto_item_append_text(item2, "Packet paging procedure");
-        else
-            proto_item_append_text(item2, "Paging procedure for RR connection establishment");
-        bit_offset += 1;
-    }
-    if (((curr_offset + len)<<3) - bit_offset > 0)
-    {
-        /* There is still room left in the Rest Octets IE */
-        if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
-        { /* Additions in release 6 */
-            bit_offset += 1;
-            proto_tree_add_text(subtree, tvb, bit_offset>>3, -1,"Additions in Release 6: Data(Not decoded)");
-        }
-        else
-            bit_offset += 1;
-    }
-
+    gsm_rr_csn_HL_flag(tvb, subtree, tvb_len, bit_offset++, "Packet Page Indication 1", "For GPRS", "For RR connection establishment");
+    gsm_rr_csn_HL_flag(tvb, subtree, tvb_len, bit_offset++, "Packet Page Indication 2", "For GPRS", "For RR connection establishment");
+    gsm_rr_csn_spare_bits(tree, tvb, bit_offset);
     curr_offset = curr_offset + len;
 
     return (curr_offset - offset);
@@ -4088,7 +4000,8 @@ de_rr_p2_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
     proto_tree *subtree;
     proto_item *item, *item2;
     guint32 curr_offset;
-    gint bit_offset, i;
+    gint bit_offset;
+    guint8 tvb_len = tvb_length(tvb);
 
     curr_offset = offset;
     bit_offset = curr_offset << 3;
@@ -4099,46 +4012,44 @@ de_rr_p2_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 
     subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_P2_REST_OCT]);
 
-    if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+    if (gsm_rr_csn_HL_flag(tvb, subtree, tvb_len, bit_offset++, "Channel Needed 3", "Present", "Not present"))
     {
-        bit_offset += 1;
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_chnl_needed_ch3, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
         bit_offset += 2;
     }
-    else
-        bit_offset += 1;
-    if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+    if (gsm_rr_csn_HL_flag(tvb, subtree, tvb_len ,bit_offset++, "NLN (PCH)", "Present", "Not present"))
     {
-        bit_offset += 1;
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_nln_pch, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
         bit_offset += 2;
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_nln_status_pch, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
         bit_offset += 1;
     }
-    else
-        bit_offset += 1;
-    for (i=1; i<=3; i++)
+    if (gsm_rr_csn_HL_flag(tvb, subtree, tvb_len, bit_offset++, "Priority 1", "Present", "Not present"))
     {
-        if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
-        {
-            bit_offset += 1;
-            item2 = proto_tree_add_bits_item(subtree, hf_gsm_a_call_prio, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
-            bit_offset += 3;
-            proto_item_append_text(item2, " for Mobile Identity %d", i);
-        }
-        else
-            bit_offset += 1;
+       item2 = proto_tree_add_bits_item(subtree, hf_gsm_a_call_prio, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
+       bit_offset += 3;
+       proto_item_append_text(item2, " for Mobile Identity 1");
     }
-    item2 = proto_tree_add_text(subtree,tvb, bit_offset>>3, 1, "Packet Page Indication 3: ");
-    if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
-        proto_item_append_text(item2, "Packet paging procedure");
-    else
-        proto_item_append_text(item2, "Paging procedure for RR connection establishment");
-    bit_offset += 1;
+    if (gsm_rr_csn_HL_flag(tvb, subtree, tvb_len, bit_offset++, "Priority 2", "Present", "Not present"));
+    {
+        item2 = proto_tree_add_bits_item(subtree, hf_gsm_a_call_prio, tvb, bit_offset, 3, FALSE);
+        bit_offset += 3;
+        proto_item_append_text(item2, " for Mobile Identity 2");
+    }
+    if (gsm_rr_csn_HL_flag(tvb, subtree, tvb_len, bit_offset++, "Priority 3", "Present", "Not present"))
+    {
+        item2 = proto_tree_add_bits_item(subtree, hf_gsm_a_call_prio, tvb, bit_offset, 3, FALSE);
+        bit_offset += 3;
+        proto_item_append_text(item2, " for Mobile Identity 3");
+    }
+    gsm_rr_csn_HL_flag(tvb, subtree, tvb_len, bit_offset++, "Packet Paging Procedure 1", "For GPRS", "For RR connection establishment");
+    gsm_rr_csn_HL_flag(tvb, subtree, tvb_len, bit_offset++, "Packet Paging Procedure 2", "For GPRS", "For RR connection establishment");
+    gsm_rr_csn_HL_flag(tvb, subtree, tvb_len, bit_offset++, "Packet Paging Procedure 3", "For GPRS", "For RR connection establishment");
+
     if (((curr_offset + len)<<3) - bit_offset > 0)
     {
         /* There is still room left in the Rest Octets IE */
-        if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+        if (gsm_rr_csn_HL_flag(tvb, subtree, tvb_len, bit_offset++, "Additions in release 6", "Present", "Not present"))
         { /* Additions in release 6 */
             bit_offset += 1;
             proto_tree_add_text(subtree, tvb, bit_offset>>3, -1,"Additions in Release 6: Data(Not decoded)");
@@ -4146,7 +4057,7 @@ de_rr_p2_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
         else
             bit_offset += 1;
     }
-
+    gsm_rr_csn_spare_bits(tree, tvb, bit_offset);
     curr_offset = curr_offset + len;
 
     return (curr_offset - offset);
@@ -4161,7 +4072,8 @@ de_rr_p3_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
     proto_tree *subtree;
     proto_item *item, *item2;
     guint32 curr_offset;
-    gint bit_offset, i;
+    gint bit_offset;
+    guint8 tvb_len = tvb_length(tvb);
 
     curr_offset = offset;
     bit_offset = curr_offset << 3;
@@ -4172,42 +4084,47 @@ de_rr_p3_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 
     subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_P3_REST_OCT]);
 
-    if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+    if (gsm_rr_csn_HL_flag(tvb, subtree, tvb_len, bit_offset++, "Channel Needed 3 & 4", "Present", "Not present"))
     {
-        bit_offset += 1;
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_chnl_needed_ch3, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
         bit_offset += 2;
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_chnl_needed_ch4, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
         bit_offset += 2;
     }
-    else
-        bit_offset += 1;
-    if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+    if (gsm_rr_csn_HL_flag(tvb, subtree, tvb_len, bit_offset++, "NLN (PCH)", "Present", "Not present"))
     {
-        bit_offset += 1;
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_nln_pch, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
         bit_offset += 2;
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_nln_status_pch, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
         bit_offset += 1;
     }
-    else
-        bit_offset += 1;
-    for (i=1; i<=4; i++)
+    if (gsm_rr_csn_HL_flag(tvb, subtree, tvb_len, bit_offset++, "Priority 1", "Present", "Not present"))
     {
-        if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
-        {
-            bit_offset += 1;
-            item2 = proto_tree_add_bits_item(subtree, hf_gsm_a_call_prio, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
-            bit_offset += 3;
-            proto_item_append_text(item2, " for Mobile Identity %d", i);
-        }
-        else
-            bit_offset += 1;
+        item2 = proto_tree_add_bits_item(subtree, hf_gsm_a_call_prio, tvb, bit_offset, 3, FALSE);
+        bit_offset += 3;
+        proto_item_append_text(item2, " for Mobile Identity 1");
     }
-
-    curr_offset = curr_offset + len;
-
-    return (curr_offset - offset);
+    if (gsm_rr_csn_HL_flag(tvb, subtree, tvb_len, bit_offset++, "Priority 2", "Present", "Not present"))
+    {
+        item2 = proto_tree_add_bits_item(subtree, hf_gsm_a_call_prio, tvb, bit_offset, 3, FALSE);
+        bit_offset += 3;
+        proto_item_append_text(item2, " for Mobile Identity 2");
+    }
+    if (gsm_rr_csn_HL_flag(tvb, subtree, tvb_len, bit_offset++, "Priority 3", "Present", "Not present"))
+    {
+        item2 = proto_tree_add_bits_item(subtree, hf_gsm_a_call_prio, tvb, bit_offset, 3, FALSE);
+        bit_offset += 3;
+        proto_item_append_text(item2, " for Mobile Identity 3");
+    }
+    if (gsm_rr_csn_HL_flag(tvb, subtree, tvb_len, bit_offset++, "Priority 4", "Present", "Not present"))
+    {
+        item2 = proto_tree_add_bits_item(subtree, hf_gsm_a_call_prio, tvb, bit_offset, 3, FALSE);
+        bit_offset += 3;
+        proto_item_append_text(item2, " for Mobile Identity 4");
+    }
+    gsm_rr_csn_spare_bits(tree, tvb, bit_offset);
+    curr_offset = tvb_len;
+    return curr_offset-offset;
 }
 
 /*
@@ -4683,26 +4600,15 @@ de_rr_si1_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 
     subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_SI1_REST_OCT]);
 
-    if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+    if (gsm_rr_csn_HL_flag(tvb, subtree, 0, bit_offset++, "NCH position", "Present", "Not present"))
     {
-        bit_offset += 1;
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_nch_position, tvb, bit_offset, 5, ENC_BIG_ENDIAN);
         bit_offset += 5;
     }
-    else
-    {
-        proto_tree_add_text(subtree,tvb, bit_offset>>3, 1, "NCH position: not present");
-        bit_offset += 1;
-    }
-    if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
-        proto_tree_add_text(subtree,tvb, bit_offset>>3, 1, "Band Indicator: 1900");
-    else
-        proto_tree_add_text(subtree,tvb, bit_offset>>3, 1, "Band Indicator: 1800");
-    bit_offset += 1;
+    gsm_rr_csn_HL_flag(tvb, subtree, 0, bit_offset++, "Band Indicator", "1900", "1800");
 
-    curr_offset = curr_offset + len;
-
-    return curr_offset-offset;
+    gsm_rr_csn_spare_bits(tree, tvb, bit_offset);
+    return tvb_length(tvb) - offset;
 }
 
 /*
@@ -4803,7 +4709,6 @@ de_rr_si2ter_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
     proto_item  *item, *item2;
     guint32      curr_offset;
     gint         bit_offset, bit_offset_sav;
-    guint8       value;
 
     len = 4;
     curr_offset = offset;
@@ -4814,9 +4719,8 @@ de_rr_si2ter_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
 
     subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_SI2TER_REST_OCT]);
 
-    if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+    if (gsm_rr_csn_HL_flag(tvb, subtree, 0, bit_offset++, "MP Changemark", "Present", "Not present"))
     {
-        bit_offset += 1;
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_si2ter_mp_change_mark, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
         bit_offset += 1;
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_si2ter_3g_change_mark, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
@@ -4825,65 +4729,53 @@ de_rr_si2ter_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
         bit_offset += 3;
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_si2ter_count, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
         bit_offset += 3;
-        value = tvb_get_bits8(tvb,bit_offset,1);
-        bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "UTRAN FDD Description", "Present", "Not Present"))
         { /* UTRAN FDD Description */
             bit_offset_sav = bit_offset;
             item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_UTRAN_FDD_DESC].strptr);
             subtree2 = proto_item_add_subtree(item2, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_UTRAN_FDD_DESC]);
-            bit_offset += 2; /* skip '01' bits */
+            gsm_rr_csn_flag(tvb, subtree2, bit_offset++, "Bit reserved for earlier version of protocol:", "Earlier version", "Current version");
+            gsm_rr_csn_flag(tvb, subtree2, bit_offset++, "Bit reserved for earlier version of protocol:", "Current version", "Earlier version");
             proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_fdd_uarfcn, tvb, bit_offset, 14, ENC_BIG_ENDIAN);
             bit_offset += 14;
-            value = tvb_get_bits8(tvb,bit_offset,1);
-            bit_offset += 1;
-            if (value)
+            if (gsm_rr_csn_flag(tvb, subtree2, bit_offset++, "Bandwidth FDD", "Present", "Not Present"))
             {
                 proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_bandwidth_fdd, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
                 bit_offset += 3;
             }
             proto_item_set_len(item2,((bit_offset-bit_offset_sav)>>3)+1);
         }
-        value = tvb_get_bits8(tvb,bit_offset,1);
-        bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "UTRAN TDD Description", "Present", "Not Present"))
         { /* UTRAN TDD Description */
             bit_offset_sav = bit_offset;
             item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_UTRAN_TDD_DESC].strptr);
             subtree2 = proto_item_add_subtree(item2, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_UTRAN_TDD_DESC]);
-            bit_offset += 2; /* skip '01' bits */
+            gsm_rr_csn_flag(tvb, subtree2, bit_offset++, "Bit reserved for earlier version of protocol:", "Earlier version", "Current version");
+            gsm_rr_csn_flag(tvb, subtree2, bit_offset++, "Bit reserved for earlier version of protocol:", "Current version", "Earlier version");
             proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_tdd_uarfcn, tvb, bit_offset, 14, ENC_BIG_ENDIAN);
             bit_offset += 14;
-            value = tvb_get_bits8(tvb,bit_offset,1);
-            bit_offset += 1;
-            if (value)
+            if (gsm_rr_csn_flag(tvb, subtree2, bit_offset++, "Bandwidth TDD", "Present", "Not Present"))
             {
                 proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_bandwidth_tdd, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
                 bit_offset += 3;
             }
             proto_item_set_len(item2,((bit_offset-bit_offset_sav)>>3)+1);
         }
-        value = tvb_get_bits8(tvb,bit_offset,1);
-        bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "3G Measurement Parameters Description", "Present", "Not Present"))
         { /* 3G Measurement Parameters Description */
             bit_offset_sav = bit_offset;
             item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_3G_MEAS_PARAM_DESC].strptr);
             subtree2 = proto_item_add_subtree(item2, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_3G_MEAS_PARAM_DESC]);
             proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_qsearch_i, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
             bit_offset += 4;
-            value = tvb_get_bits8(tvb,bit_offset,1);
-            bit_offset += 1;
-            if (value)
+            if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "FDD Parameters", "Present", "Not Present"))
             {
                 proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_fdd_qoffset, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
                 bit_offset += 4;
                 proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_fdd_qmin, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
                 bit_offset += 3;
             }
-            value = tvb_get_bits8(tvb,bit_offset,1);
-            bit_offset += 1;
-            if (value)
+            if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "TDD Parameters", "Present", "Not Present"))
             {
                 proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_tdd_qoffset, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
                 bit_offset += 4;
@@ -4893,12 +4785,9 @@ de_rr_si2ter_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
         if (((curr_offset + len)<<3) - bit_offset > 0)
         {
             /* There is still room left in the Rest Octets IE */
-            if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+            if (gsm_rr_csn_HL_flag(tvb, subtree, 0, bit_offset++, "Additions in Rel-5", "Present", "Not present"))
             { /* Additions in release R5 */
-                bit_offset += 1;
-                value = tvb_get_bits8(tvb,bit_offset,1);
-                bit_offset += 1;
-                if (value)
+                if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "3G Additional Measurement Parameters Description", "Present", "Not Present"))
                 { /* 3G Additional Measurement Parameters Description */
                     bit_offset_sav = bit_offset;
                     item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_3G_ADD_MEAS_PARAM_DESC].strptr);
@@ -4910,19 +4799,10 @@ de_rr_si2ter_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
                     proto_item_set_len(item2,((bit_offset-bit_offset_sav)>>3)+1);
                 }
             }
-            else
-                bit_offset += 1;
         }
     }
-    else
-    {
-        bit_offset += 1;
-        proto_tree_add_text(subtree,tvb, curr_offset, len ,"Empty");
-    }
-
-    curr_offset = curr_offset + len;
-
-    return curr_offset-offset;
+    gsm_rr_csn_spare_bits(tree, tvb, bit_offset);
+    return tvb_length(tvb) - offset;
 }
 
 /*
@@ -5104,29 +4984,22 @@ de_rr_si2quater_meas_info_utran_fdd_desc(tvbuff_t *tvb, proto_tree *tree, gint b
     proto_item *item, *item2;
     gint curr_bit_offset, idx;
     gint xdd_cell_info, wsize, nwi, jwi, w[64], i, iused, xdd_indic0;
-    guint8 value;
 
     curr_bit_offset = bit_offset;
 
     item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_UTRAN_FDD_DESC].strptr);
     subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_UTRAN_FDD_DESC]);
-    value = tvb_get_bits8(tvb,curr_bit_offset,1);
-    curr_bit_offset += 1;
-    if (value)
+    if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Bandwidth FDD", "Present", "Not Present"))
     {
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_bandwidth_fdd, tvb, curr_bit_offset, 3, ENC_BIG_ENDIAN);
         curr_bit_offset += 3;
     }
-    value = tvb_get_bits8(tvb,curr_bit_offset,1);
-    curr_bit_offset += 1;
-    while (value)
+    while (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Repeated UMTS FDD Neighbour Cells", "Present", "Not Present"))
     {
-        curr_bit_offset += 1; /* skip a 0 bit */
+        gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Bit reserved for earlier version of protocol:", "Earlier version", "Current version");
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_fdd_uarfcn, tvb, curr_bit_offset, 14, ENC_BIG_ENDIAN);
         curr_bit_offset += 14;
-        xdd_indic0 = tvb_get_bits8(tvb,curr_bit_offset,1);
-        proto_tree_add_text(subtree,tvb, curr_bit_offset>>3, 1, "FDD Indic0: %d", xdd_indic0);
-        curr_bit_offset += 1;
+        xdd_indic0 = gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "the FDD_CELL_INFORMATION parameter value '0000000000' ", "is a member of the set", "is not a member of the set");
         idx = tvb_get_bits8(tvb,curr_bit_offset,5);
         proto_tree_add_text(subtree,tvb, curr_bit_offset>>3, 1, "Nr of FDD Cells : %d", idx);
         curr_bit_offset += 5;
@@ -5177,8 +5050,6 @@ de_rr_si2quater_meas_info_utran_fdd_desc(tvbuff_t *tvb, proto_tree *tree, gint b
                 proto_tree_add_text(subtree2,tvb, curr_bit_offset>>3, 0, "Diversity: %d", (xdd_cell_info >> 9) & 0x01);
             }
         }
-        value = tvb_get_bits8(tvb,curr_bit_offset,1);
-        curr_bit_offset += 1;
     }
     proto_item_set_len(item,((curr_bit_offset-bit_offset)>>3)+1);
 
@@ -5192,29 +5063,22 @@ de_rr_si2quater_meas_info_utran_tdd_desc(tvbuff_t *tvb, proto_tree *tree, gint b
     proto_item *item, *item2;
     gint curr_bit_offset, idx;
     gint xdd_cell_info, wsize, nwi, jwi, w[64], i, iused, xdd_indic0;
-    guint8 value;
 
     curr_bit_offset = bit_offset;
 
     item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_UTRAN_TDD_DESC].strptr);
     subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_UTRAN_TDD_DESC]);
-    value = tvb_get_bits8(tvb,curr_bit_offset,1);
-    curr_bit_offset += 1;
-    if (value)
+    if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Bandwidth TDD", "Present", "Not Present"))
     {
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_bandwidth_tdd, tvb, curr_bit_offset, 3, ENC_BIG_ENDIAN);
         curr_bit_offset += 3;
     }
-    value = tvb_get_bits8(tvb,curr_bit_offset,1);
-    curr_bit_offset += 1;
-    while (value)
+    while (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Repeated UMTS TDD Neighbour Cells", "Present", "Not Present"))
     {
-        curr_bit_offset += 1; /* skip a 0 bit */
+        gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Bit reserved for earlier version of protocol:", "Earlier version", "Current version");
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_tdd_uarfcn, tvb, curr_bit_offset, 14, ENC_BIG_ENDIAN);
         curr_bit_offset += 14;
-        xdd_indic0 = tvb_get_bits8(tvb,curr_bit_offset,1);
-        proto_tree_add_text(subtree,tvb, curr_bit_offset>>3, 1, "TDD Indic0: %d", xdd_indic0);
-        curr_bit_offset += 1;
+        xdd_indic0 = gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "the FDD_CELL_INFORMATION parameter value '0000000000' ", "is a member of the set", "is not a member of the set");
         idx = tvb_get_bits8(tvb,curr_bit_offset,5);
         proto_tree_add_text(subtree,tvb, curr_bit_offset>>3, 1, "Nr of TDD Cells : %d", idx);
         curr_bit_offset += 5;
@@ -5267,8 +5131,6 @@ de_rr_si2quater_meas_info_utran_tdd_desc(tvbuff_t *tvb, proto_tree *tree, gint b
                 proto_tree_add_text(subtree2,tvb, curr_bit_offset>>3, 0, "Diversity TDD: %d", (xdd_cell_info >> 8) & 0x01);
             }
         }
-        value = tvb_get_bits8(tvb,curr_bit_offset,1);
-        curr_bit_offset += 1;
     }
     proto_item_set_len(item,((curr_bit_offset-bit_offset)>>3)+1);
 
@@ -5287,13 +5149,9 @@ de_rr_rtd_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset, rr_rest_octets_
 
     item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[id].strptr);
     subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[id]);
-    value = tvb_get_bits8(tvb,curr_bit_offset,1);
-    curr_bit_offset += 1;
-    if (value)
+    if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "RTD6", "Present", "Not Present"))
     {
-        value = tvb_get_bits8(tvb,curr_bit_offset,1);
-        curr_bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "BA Index Start RTD", "Present", "Not Present"))
         {
             idx = tvb_get_bits8(tvb,curr_bit_offset,5);
             proto_tree_add_text(subtree,tvb, curr_bit_offset>>3, 1, "BA Index Start RTD: %d", idx);
@@ -5301,69 +5159,58 @@ de_rr_rtd_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset, rr_rest_octets_
         }
         else
             idx = 0;
-        value = tvb_get_bits8(tvb,curr_bit_offset,1);
-        curr_bit_offset += 1;
+
+        value = gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "RTD", "Not Present", "Present");
         while (value == 0)
-        {
+        { /* all the RTDs on the first frequency */
             proto_tree_add_text(subtree,tvb, curr_bit_offset>>3, 1, "RTD index %d: %d TDMA frame(s) modulo 51 TDMA frames", idx, tvb_get_bits8(tvb,curr_bit_offset,6));
             curr_bit_offset += 6;
-            value = tvb_get_bits8(tvb,curr_bit_offset,1);
-            curr_bit_offset += 1;
+            value = gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "additional RTD", "Not Present", "Present");
         }
-        value = tvb_get_bits8(tvb,curr_bit_offset,1);
-        curr_bit_offset += 1;
-        while (value == 0)
-        {
+
+        value = gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "additional RTD struct", "Not Present", "Present");
+        while(value == 0)
+        { /* all other frequencies */
             idx += 1;
-            value = tvb_get_bits8(tvb,curr_bit_offset,1);
-            curr_bit_offset += 1;
+            value = gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "RTD", "Not Present", "Present");
             while (value == 0)
-            {
+            { /* all the RTDs on the first frequency */
                 proto_tree_add_text(subtree,tvb, curr_bit_offset>>3, 1, "RTD index %d: %d TDMA frame(s) modulo 51 TDMA frames", idx, tvb_get_bits8(tvb,curr_bit_offset,6));
                 curr_bit_offset += 6;
-                value = tvb_get_bits8(tvb,curr_bit_offset,1);
-                curr_bit_offset += 1;
+                value = gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "additional RTD", "Not Present", "Present");
             }
+            value = gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "additional RTD struct", "Not Present", "Present");
         }
     }
-    value = tvb_get_bits8(tvb,curr_bit_offset,1);
-    curr_bit_offset += 1;
-    if (value)
+    if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "RTD12", "Present", "Not Present"))
     {
-        value = tvb_get_bits8(tvb,curr_bit_offset,1);
-        curr_bit_offset += 1;
-        if (value)
-        {
-            idx = tvb_get_bits8(tvb,curr_bit_offset,5);
-            proto_tree_add_text(subtree,tvb, curr_bit_offset>>3, 1, "BA Index Start RTD: %d", idx);
-            curr_bit_offset += 5;
-        }
-        else
-            idx = 0;
-        value = tvb_get_bits8(tvb,curr_bit_offset,1);
-        curr_bit_offset += 1;
-        while (value == 0)
-        {
-            proto_tree_add_text(subtree,tvb, curr_bit_offset>>3, 2, "RTD index %d: %d/64 TDMA frame(s) modulo 51 TDMA frames", idx, tvb_get_bits16(tvb,curr_bit_offset,12,ENC_BIG_ENDIAN));
-            curr_bit_offset += 12;
-            value = tvb_get_bits8(tvb,curr_bit_offset,1);
-            curr_bit_offset += 1;
-        }
-        value = tvb_get_bits8(tvb,curr_bit_offset,1);
-        curr_bit_offset += 1;
-        while (value == 0)
-        {
-            idx += 1;
-            value = tvb_get_bits8(tvb,curr_bit_offset,1);
-            curr_bit_offset += 1;
-            while (value == 0)
-            {
-                proto_tree_add_text(subtree,tvb, curr_bit_offset>>3, 2, "RTD index %d: %d/64 TDMA frame(s) modulo 51 TDMA frames", idx, tvb_get_bits16(tvb,curr_bit_offset,12,ENC_BIG_ENDIAN));
-                curr_bit_offset += 12;
-                value = tvb_get_bits8(tvb,curr_bit_offset,1);
-                curr_bit_offset += 1;
-            }
-        }
+       if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "RTD12", "Present", "Not Present"))
+       {
+           if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "BA Index Start RTD", "Present", "Not Present"))
+           {
+               idx = tvb_get_bits8(tvb,curr_bit_offset,5);
+               proto_tree_add_text(subtree,tvb, curr_bit_offset>>3, 1, "BA Index Start RTD: %d", idx);
+               curr_bit_offset += 5;
+           }
+           else
+               idx = 0;
+
+           while (0 == gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Repeated RTD", "Not Present", "Present"))
+           { /* all the RTDs on the first frequency */
+               proto_tree_add_text(subtree,tvb, curr_bit_offset>>3, 2, "RTD index %d: %d/64 TDMA frame(s) modulo 51 TDMA frames", idx, tvb_get_bits16(tvb,curr_bit_offset,12,ENC_BIG_ENDIAN));
+               curr_bit_offset += 12;
+           }
+
+           while(0 == gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Repeated RTD Frequency", "Not Present", "Present"))
+           { /* all other frequencies */
+               idx += 1;
+               while (0 == gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Repeated RTD", "Not Present", "Present"))
+               { /* all the RTDs on the first frequency */
+                   proto_tree_add_text(subtree,tvb, curr_bit_offset>>3, 2, "RTD index %d: %d/64 TDMA frame(s) modulo 51 TDMA frames", idx, tvb_get_bits16(tvb,curr_bit_offset,12,ENC_BIG_ENDIAN));
+                   curr_bit_offset += 12;
+               }
+           }
+       }
     }
     proto_item_set_len(item,((curr_bit_offset-bit_offset)>>3)+1);
 
@@ -5376,14 +5223,11 @@ de_rr_bsic_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset, rr_rest_octets
     proto_tree *subtree;
     proto_item *item;
     gint curr_bit_offset, idx;
-    guint8 value;
 
     curr_bit_offset = bit_offset;
     item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[id].strptr);
     subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[id]);
-    value = tvb_get_bits8(tvb,curr_bit_offset,1);
-    curr_bit_offset += 1;
-    if (value)
+    if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "BA Index Start BSIC", "Present", "Not Present"))
     {
         proto_tree_add_text(subtree,tvb, curr_bit_offset>>3, 1, "BA Index Start BSIC: %d", tvb_get_bits8(tvb,curr_bit_offset,5));
         curr_bit_offset += 5;
@@ -5437,7 +5281,6 @@ de_rr_meas_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset, rr_rest_
     proto_tree *subtree;
     proto_item *item;
     gint curr_bit_offset;
-    guint8 value;
 
     curr_bit_offset = bit_offset;
     item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[id].strptr);
@@ -5451,61 +5294,47 @@ de_rr_meas_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset, rr_rest_
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_invalid_bsic_reporting, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
         curr_bit_offset +=1;
     }
-    value = tvb_get_bits8(tvb,curr_bit_offset,1);
-    curr_bit_offset += 1;
-    if (value)
+    if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Multiband Reporting", "Present", "Not Present"))
     {
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_multiband_reporting, tvb, curr_bit_offset, 2, ENC_BIG_ENDIAN);
         curr_bit_offset += 2;
     }
-    value = tvb_get_bits8(tvb,curr_bit_offset,1);
-    curr_bit_offset += 1;
-    if (value)
+    if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Serving Reporting", "Present", "Not Present"))
     {
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_serving_band_reporting, tvb, curr_bit_offset, 2, ENC_BIG_ENDIAN);
         curr_bit_offset += 2;
     }
     proto_tree_add_bits_item(subtree, hf_gsm_a_rr_scale_ord, tvb, curr_bit_offset, 2, ENC_BIG_ENDIAN);
     curr_bit_offset += 2;
-    value = tvb_get_bits8(tvb,curr_bit_offset,1);
-    curr_bit_offset += 1;
-    if (value)
+    if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "900 Reporting", "Present", "Not Present"))
     {
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_900_reporting_offset, tvb, curr_bit_offset, 3, ENC_BIG_ENDIAN);
         curr_bit_offset += 3;
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_900_reporting_threshold, tvb, curr_bit_offset, 3, ENC_BIG_ENDIAN);
         curr_bit_offset += 3;
     }
-    value = tvb_get_bits8(tvb,curr_bit_offset,1);
-    curr_bit_offset += 1;
-    if (value)
+    if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "1800 Reporting", "Present", "Not Present"))
     {
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_1800_reporting_offset, tvb, curr_bit_offset, 3, ENC_BIG_ENDIAN);
         curr_bit_offset += 3;
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_1800_reporting_threshold, tvb, curr_bit_offset, 3, ENC_BIG_ENDIAN);
         curr_bit_offset += 3;
     }
-    value = tvb_get_bits8(tvb,curr_bit_offset,1);
-    curr_bit_offset += 1;
-    if (value)
+    if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "400 Reporting", "Present", "Not Present"))
     {
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_400_reporting_offset, tvb, curr_bit_offset, 3, ENC_BIG_ENDIAN);
         curr_bit_offset += 3;
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_400_reporting_threshold, tvb, curr_bit_offset, 3, ENC_BIG_ENDIAN);
         curr_bit_offset += 3;
     }
-    value = tvb_get_bits8(tvb,curr_bit_offset,1);
-    curr_bit_offset += 1;
-    if (value)
+    if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "1900 Reporting", "Present", "Not Present"))
     {
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_1900_reporting_offset, tvb, curr_bit_offset, 3, ENC_BIG_ENDIAN);
         curr_bit_offset += 3;
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_1900_reporting_threshold, tvb, curr_bit_offset, 3, ENC_BIG_ENDIAN);
         curr_bit_offset += 3;
     }
-    value = tvb_get_bits8(tvb,curr_bit_offset,1);
-    curr_bit_offset += 1;
-    if (value)
+    if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "850 Reporting", "Present", "Not Present"))
     {
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_850_reporting_offset, tvb, curr_bit_offset, 3, ENC_BIG_ENDIAN);
         curr_bit_offset += 3;
@@ -5523,14 +5352,11 @@ de_rr_3g_add_meas_param_desc2(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
     proto_tree *subtree;
     proto_item *item;
     gint curr_bit_offset;
-    guint8 value;
 
     curr_bit_offset = bit_offset;
     item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_3G_ADD_MEAS_PARAM_DESC2].strptr);
     subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_3G_ADD_MEAS_PARAM_DESC2]);
-    value = tvb_get_bits8(tvb,curr_bit_offset,1);
-    curr_bit_offset += 1;
-    if (value)
+    if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "FDD Reporting Threshold2", "Present", "Not Present"))
     {
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_fdd_reporting_threshold_2, tvb, curr_bit_offset, 6, ENC_BIG_ENDIAN);
         curr_bit_offset += 6;
@@ -5800,7 +5626,7 @@ de_rr_3g_priority_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
     proto_tree_add_bits_item(subtree, hf_gsm_a_rr_3g_priority_param_desc_utran_stop, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
     curr_bit_offset += 1;
 
-    if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+    if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Default UTRAN Priority Parameters", "Present", "Not Present"))
     {
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_3g_priority_param_desc_default_utran_prio, tvb, curr_bit_offset, 3, ENC_BIG_ENDIAN);
         curr_bit_offset += 3;
@@ -5810,7 +5636,7 @@ de_rr_3g_priority_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
         curr_bit_offset += 5;
     }
     /* Repeated UTRAN Priority Parameters */
-    while (tvb_get_bits8(tvb,curr_bit_offset++,1))
+    while (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Repeated UTRAN Priority Parameters", "Present", "Not Present"))
     {
         proto_tree *subtree_rep_utran_prio;
         proto_item *item_rep_utran_prio;
@@ -5819,13 +5645,13 @@ de_rr_3g_priority_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
         item_rep_utran_prio = proto_tree_add_text(subtree, tvb, curr_bit_offset>>3, 1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_UTRAN_PRIO_PARAM].strptr);
         subtree_rep_utran_prio = proto_item_add_subtree(item_rep_utran_prio, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_UTRAN_PRIO_PARAM]);
 
-        while (tvb_get_bits8(tvb,curr_bit_offset++,1))
+        while (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "UTRAN Frequency Index", "Present", "Not Present"))
         {
             proto_tree_add_bits_item(subtree_rep_utran_prio, hf_gsm_a_rr_utran_frequency_index, tvb, curr_bit_offset, 5, ENC_BIG_ENDIAN);
             curr_bit_offset += 5;
         }
 
-        if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+        if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "UTRAN Priority", "Present", "Not Present"))
         {
             proto_tree_add_bits_item(subtree_rep_utran_prio, hf_gsm_a_rr_utran_priority, tvb, curr_bit_offset, 3, ENC_BIG_ENDIAN);
             curr_bit_offset += 3;
@@ -5833,13 +5659,13 @@ de_rr_3g_priority_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
         proto_tree_add_bits_item(subtree_rep_utran_prio, hf_gsm_a_rr_thresh_utran_high, tvb, curr_bit_offset, 5, ENC_BIG_ENDIAN);
         curr_bit_offset += 5;
 
-        if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+        if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Threshold UTRAN Low", "Present", "Not Present"))
         {
             proto_tree_add_bits_item(subtree_rep_utran_prio, hf_gsm_a_rr_thresh_utran_low, tvb, curr_bit_offset, 5, ENC_BIG_ENDIAN);
             curr_bit_offset += 5;
         }
 
-        if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+        if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "UTRAN Qrxlev Min", "Present", "Not Present"))
         {
             proto_tree_add_bits_item(subtree_rep_utran_prio, hf_gsm_a_rr_utran_qrxlevmin, tvb, curr_bit_offset, 5, ENC_BIG_ENDIAN);
             curr_bit_offset += 5;
@@ -5863,19 +5689,19 @@ de_rr_eutran_neighbour_cells(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
     item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_EUTRAN_NEIGHBOUR_CELLS].strptr);
     subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_EUTRAN_NEIGHBOUR_CELLS]);
 
-    while (tvb_get_bits8(tvb,curr_bit_offset++,1))
+    while (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "E-UTRAN Neighbour Cells Struct", "Present", "Not Present"))
     {
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_earfcn, tvb, curr_bit_offset, 16, ENC_BIG_ENDIAN);
         curr_bit_offset += 16;
 
-        if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+        if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Measurement Bandwidth", "Present", "Not Present"))
         {
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_measurement_bandwidth, tvb, curr_bit_offset, 3, ENC_BIG_ENDIAN);
             curr_bit_offset += 3;
         }
     }
 
-    if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+    if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "E-UTRAN Priority", "Present", "Not Present"))
     {
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_priority, tvb, curr_bit_offset, 3, ENC_BIG_ENDIAN);
         curr_bit_offset += 3;
@@ -5883,13 +5709,13 @@ de_rr_eutran_neighbour_cells(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
     proto_tree_add_bits_item(subtree, hf_gsm_a_rr_thresh_eutran_high, tvb, curr_bit_offset, 5, ENC_BIG_ENDIAN);
     curr_bit_offset += 5;
 
-    if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+    if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Threshold E-UTRAN Low", "Present", "Not Present"))
     {
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_thresh_eutran_low, tvb, curr_bit_offset, 5, ENC_BIG_ENDIAN);
         curr_bit_offset += 5;
     }
 
-    if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+    if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "E-UTRAN Qrxlev Min", "Present", "Not Present"))
     {
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_qrxlevmin, tvb, curr_bit_offset, 5, ENC_BIG_ENDIAN);
         curr_bit_offset += 5;
@@ -5913,13 +5739,12 @@ de_rr_eutran_neighbour_cells_mi(tvbuff_t *tvb, proto_tree *tree, gint bit_offset
 
     proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_earfcn, tvb, curr_bit_offset, 16, ENC_BIG_ENDIAN);
     curr_bit_offset += 16;
-
-    while (tvb_get_bits8(tvb,curr_bit_offset++,1))
+    while (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Repeated EARFCN", "Present", "Not Present"))
     {
-        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_earfcn, tvb, curr_bit_offset, 16, ENC_BIG_ENDIAN);
-        curr_bit_offset += 16;
+       proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_earfcn, tvb, curr_bit_offset, 16, ENC_BIG_ENDIAN);
+       curr_bit_offset += 16;
     }
-    if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+    if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Measurement Bandwidth ", "Present", "Not Present"))
     {
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_measurement_bandwidth, tvb, curr_bit_offset, 3, ENC_BIG_ENDIAN);
         curr_bit_offset += 3;
@@ -5936,13 +5761,13 @@ de_rr_eutran_pcid(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
     gint curr_bit_offset = bit_offset;
     proto_item *item;
 
-    while (tvb_get_bits8(tvb,curr_bit_offset++,1))
+    while (gsm_rr_csn_flag(tvb, tree, curr_bit_offset++, "Repeated PCID", "Present", "Not Present"))
     {
         proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_pcid, tvb, curr_bit_offset, 9, ENC_BIG_ENDIAN);
         curr_bit_offset += 9;
     }
 
-    if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+    if (gsm_rr_csn_flag(tvb, tree, curr_bit_offset++, "PCID Bitmap Group", "Present", "Not Present"))
     {
         gint i;
         guint8 bitmap = tvb_get_bits8(tvb,curr_bit_offset,6);
@@ -5964,7 +5789,7 @@ de_rr_eutran_pcid(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
         }
         curr_bit_offset += 6;
     }
-    while (tvb_get_bits8(tvb,curr_bit_offset++,1))
+    while (gsm_rr_csn_flag(tvb, tree, curr_bit_offset++, "PCID Pattern", "Present", "Not Present"))
     {
         gint pcid_pattern_length;
         gint pcid_pattern;
@@ -6010,7 +5835,7 @@ de_rr_eutran_not_allowed_cells(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
     /* dissect PCID group */
     curr_bit_offset += de_rr_eutran_pcid(tvb, subtree, curr_bit_offset);
 
-    while (tvb_get_bits8(tvb,curr_bit_offset++,1))
+    while (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Repeated E-UTRAN Frequency Index", "Present", "Not Present"))
     {
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_frequency_index, tvb, curr_bit_offset, 3, ENC_BIG_ENDIAN);
         curr_bit_offset += 3;
@@ -6032,7 +5857,7 @@ de_rr_eutran_pcid_to_ta_mapping(tvbuff_t *tvb, proto_tree *tree, gint bit_offset
     item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_EUTRAN_PCID_TO_TA_MAPPING].strptr);
     subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_EUTRAN_PCID_TO_TA_MAPPING]);
 
-    while (tvb_get_bits8(tvb,curr_bit_offset++,1))
+    while (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Repeating PCID group", "Present", "Not Present"))
     {
         /* dissect PCID group */
         curr_bit_offset += de_rr_eutran_pcid(tvb, subtree, curr_bit_offset);
@@ -6056,15 +5881,15 @@ de_rr_eutran_measurement_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_of
     proto_tree_add_bits_item(tree, hf_gsm_a_rr_qsearch_c_eutran_initial, tvb, curr_bit_offset, 4, ENC_BIG_ENDIAN);
     curr_bit_offset += 4;
     proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_rep_quant, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
-    rep_quant = tvb_get_bits8(tvb,curr_bit_offset,1);
+    rep_quant = gsm_rr_csn_flag(tvb, tree, curr_bit_offset++, "E-UTRAN Reporting Quantity", "RSRQ", "RSRP");
     curr_bit_offset += 1;
     proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_multirat_reporting, tvb, curr_bit_offset, 2, ENC_BIG_ENDIAN);
     curr_bit_offset += 2;
 
 
-    if (!tvb_get_bits8(tvb,curr_bit_offset++,1))
+    if (!gsm_rr_csn_flag(tvb, tree, curr_bit_offset++, "Reporting", "3 bit", "6 bit"))
     {
-        if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+        if (gsm_rr_csn_flag(tvb, tree, curr_bit_offset++, "E-UTRAN FDD FDD 3 bit Reporting", "Present", "Not Present"))
         {
             if (rep_quant == 0)
             {
@@ -6076,7 +5901,7 @@ de_rr_eutran_measurement_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_of
             }
             curr_bit_offset += 3;
 
-            if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+            if (gsm_rr_csn_flag(tvb, tree, curr_bit_offset++, "E-UTRAN FDD Reporting Threshold2", "Present", "Not Present"))
             {
                 item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_fdd_reporting_threshold_2, tvb, curr_bit_offset, 6, ENC_BIG_ENDIAN);
                 if (rep_quant == 0)
@@ -6089,7 +5914,7 @@ de_rr_eutran_measurement_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_of
                 }
                 curr_bit_offset += 6;
             }
-            if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+            if (gsm_rr_csn_flag(tvb, tree, curr_bit_offset++, "E-EUTRAN FDD Reporting Offset", "Present", "Not Present"))
             {
                 proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_fdd_reporting_offset, tvb, curr_bit_offset, 3, ENC_BIG_ENDIAN);
 
@@ -6097,7 +5922,7 @@ de_rr_eutran_measurement_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_of
             }
         }
 
-        if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+        if (gsm_rr_csn_flag(tvb, tree, curr_bit_offset++, "E-UTRAN TDD TDD 3 bit Reporting", "Present", "Not Present"))
         {
             if (rep_quant == 0)
             {
@@ -6109,7 +5934,7 @@ de_rr_eutran_measurement_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_of
             }
             curr_bit_offset += 3;
 
-            if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+            if (gsm_rr_csn_flag(tvb, tree, curr_bit_offset++, "E-UTRAN TDD Reporting Threshold2", "Present", "Not Present"))
             {
                 item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_tdd_reporting_threshold_2, tvb, curr_bit_offset, 6, ENC_BIG_ENDIAN);
                 if (rep_quant == 0)
@@ -6122,16 +5947,17 @@ de_rr_eutran_measurement_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_of
                 }
                 curr_bit_offset += 6;
             }
-            if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+            if (gsm_rr_csn_flag(tvb, tree, curr_bit_offset++, "E-EUTRAN TDD Reporting Offset", "Present", "Not Present"))
             {
                 proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_tdd_reporting_offset, tvb, curr_bit_offset, 3, ENC_BIG_ENDIAN);
+
                 curr_bit_offset += 3;
             }
         }
     }
     else
     {
-        if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+        if (gsm_rr_csn_flag(tvb, tree, curr_bit_offset++, "E-EUTRAN FDD Reporing Threshold", "Present", "Not Present"))
         {
             item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_fdd_measurement_report_offset, tvb, curr_bit_offset, 6, ENC_BIG_ENDIAN);
             if (rep_quant == 0)
@@ -6144,7 +5970,7 @@ de_rr_eutran_measurement_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_of
             }
             curr_bit_offset += 6;
 
-            if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+            if (gsm_rr_csn_flag(tvb, tree, curr_bit_offset++, "E-UTRAN FDD Reporting Threshold2", "Present", "Not Present"))
             {
                 item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_fdd_reporting_threshold_2, tvb, curr_bit_offset, 6, ENC_BIG_ENDIAN);
                 if (rep_quant == 0)
@@ -6157,14 +5983,14 @@ de_rr_eutran_measurement_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_of
                 }
                 curr_bit_offset += 6;
             }
-            if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+            if (gsm_rr_csn_flag(tvb, tree, curr_bit_offset++, "E-UTRAN FDD Reporing Offset", "Present", "Not Present"))
             {
                 proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_fdd_reporting_offset, tvb, curr_bit_offset, 3, ENC_BIG_ENDIAN);
                 curr_bit_offset += 3;
             }
         }
 
-        if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+        if (gsm_rr_csn_flag(tvb, tree, curr_bit_offset++, "E-UTRAN TDD Reporting Offset", "Present", "Not Present"))
         {
             item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_tdd_measurement_report_offset, tvb, curr_bit_offset, 6, ENC_BIG_ENDIAN);
             if (rep_quant == 0)
@@ -6177,7 +6003,7 @@ de_rr_eutran_measurement_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_of
             }
             curr_bit_offset += 6;
 
-            if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+            if (gsm_rr_csn_flag(tvb, tree, curr_bit_offset++, "E-UTRAN TDD Reporting Threshold2", "Present", "Not Present"))
             {
                 item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_tdd_reporting_threshold_2, tvb, curr_bit_offset, 6, ENC_BIG_ENDIAN);
                 if (rep_quant == 0)
@@ -6190,7 +6016,7 @@ de_rr_eutran_measurement_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_of
                 }
                 curr_bit_offset += 6;
             }
-            if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+            if (gsm_rr_csn_flag(tvb, tree, curr_bit_offset++, "E-UTRAN TDD Reporting Offset", "Present", "Not Present"))
             {
                 proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_tdd_reporting_offset, tvb, curr_bit_offset, 3, ENC_BIG_ENDIAN);
                 curr_bit_offset += 3;
@@ -6230,24 +6056,23 @@ de_rr_eutran_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
     proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_stop, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
     curr_bit_offset += 1;
 
-    if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+    if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "E-UTRAN Measurement Parameters Description", "Present", "Not Present"))
     {
         /* E-UTRAN Measurement Parameters Description */
         curr_bit_offset += de_rr_eutran_measurement_param_desc(tvb, subtree, curr_bit_offset);
     }
 
-    if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+    if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "GPRS E-UTRAN Measurement Parameters Description", "Present", "Not Present"))
     {
         /* GPRS E-UTRAN Measurement Parameters Description */
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_qsearch_p_eutran, tvb, curr_bit_offset, 4, ENC_BIG_ENDIAN);
         curr_bit_offset += 4;
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_rep_quant, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
-        rep_quant = tvb_get_bits8(tvb,curr_bit_offset,1);
-        curr_bit_offset += 1;
+        rep_quant = gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "E-UTRAN Reporting Quantity", "RSRQ", "RSRP");
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_multirat_reporting, tvb, curr_bit_offset, 2, ENC_BIG_ENDIAN);
         curr_bit_offset += 2;
 
-        if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+        if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "E-UTRAN FDD Reporting", "Present", "Not Present"))
         {
             if (rep_quant == 0)
             {
@@ -6259,7 +6084,7 @@ de_rr_eutran_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
             }
             curr_bit_offset += 3;
 
-            if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+            if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "E-UTRAN FDD Reporitng Threshold 2", "Present", "Not Present"))
             {
                 item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_fdd_reporting_threshold_2, tvb, curr_bit_offset, 6, ENC_BIG_ENDIAN);
                 if (rep_quant == 0)
@@ -6272,14 +6097,14 @@ de_rr_eutran_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
                 }
                 curr_bit_offset += 6;
             }
-            if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+            if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "E-UTRAN FDD Reporting Offset", "Present", "Not Present"))
             {
                 item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_fdd_reporting_offset, tvb, curr_bit_offset, 3, ENC_BIG_ENDIAN);
                 curr_bit_offset += 3;
             }
         }
 
-        if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+        if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "E-UTRAN TDD Reporting", "Present", "Not Present"))
         {
             if (rep_quant == 0)
             {
@@ -6291,7 +6116,7 @@ de_rr_eutran_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
             }
             curr_bit_offset += 3;
 
-            if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+            if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "E-UTRAN TDD Reporitng Threshold 2", "Present", "Not Present"))
             {
                 item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_tdd_reporting_threshold_2, tvb, curr_bit_offset, 6, ENC_BIG_ENDIAN);
                 if (rep_quant == 0)
@@ -6304,7 +6129,7 @@ de_rr_eutran_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
                 }
                 curr_bit_offset += 6;
             }
-            if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+            if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "E-UTRAN TDD Reporting Offset", "Present", "Not Present"))
             {
                 item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_tdd_reporting_offset, tvb, curr_bit_offset, 3, ENC_BIG_ENDIAN);
                 curr_bit_offset += 3;
@@ -6313,19 +6138,19 @@ de_rr_eutran_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
     }
 
     /* Repeated E-UTRAN Neighbour Cells */
-    while (tvb_get_bits8(tvb,curr_bit_offset++,1) == 1)
+    while (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Repeated E-UTRAN Neighbour Cells", "Present", "Not Present"))
     {
         curr_bit_offset += de_rr_eutran_neighbour_cells(tvb, subtree, curr_bit_offset);
     }
 
     /* Repeated E-UTRAN Not Allowed Cells */
-    while (tvb_get_bits8(tvb,curr_bit_offset++,1) == 1)
+    while (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Repeated E-UTRAN Not Allowed Cells", "Present", "Not Present"))
     {
         curr_bit_offset += de_rr_eutran_not_allowed_cells(tvb, subtree, curr_bit_offset);
     }
 
     /* Repeated E-UTRAN PCID to TA mapping */
-    while (tvb_get_bits8(tvb,curr_bit_offset++,1) == 1)
+    while (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Repeated E-UTRAN PCID to TA mapping", "Present", "Not Present"))
     {
         curr_bit_offset += de_rr_eutran_pcid_to_ta_mapping(tvb, subtree, curr_bit_offset);
     }
@@ -6351,35 +6176,35 @@ de_rr_eutran_param_desc_mi(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
     proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_stop, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
     curr_bit_offset += 1;
 
-    if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+    if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "E-UTRAN Measurement Parameters Description", "Present", "Not Present"))
     {
         /* E-UTRAN Measurement Parameters Description */
         curr_bit_offset += de_rr_eutran_measurement_param_desc(tvb, subtree, curr_bit_offset);
     }
 
     /* Repeated E-UTRAN Neighbour Cells */
-    while (tvb_get_bits8(tvb,curr_bit_offset++,1) == 1)
+    while (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Repeated E-UTRAN Neighbour Cells", "Present", "Not Present"))
     {
         curr_bit_offset += de_rr_eutran_neighbour_cells_mi(tvb, subtree, curr_bit_offset);
     }
 
     /* Repeated E-UTRAN Not Allowed Cells */
-    while (tvb_get_bits8(tvb,curr_bit_offset++,1) == 1)
+    while (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Repeated E-UTRAN Not Allowed Cells", "Present", "Not Present"))
     {
         curr_bit_offset += de_rr_eutran_not_allowed_cells(tvb, subtree, curr_bit_offset);
     }
 
     /* Measurement Control Parameters Description */
-    if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+    if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Measurement Control Parameters Description", "Present", "Not Present"))
     {
-        if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+        if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Default Measurement Control E-UTRAN", "Present", "Not Present"))
         {
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_default_measurement_control_eutran, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
             curr_bit_offset += 1;
         }
-        while (tvb_get_bits8(tvb,curr_bit_offset++,1) == 1)
+        while (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Repeated E-UTRAN Measurement Control Parameters", "Present", "Not Present"))
         {
-            while (tvb_get_bits8(tvb,curr_bit_offset++,1) == 1)
+            while (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Repeated E-UTRAN Frequency Index", "Present", "Not Present"))
             {
                 proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_frequency_index, tvb, curr_bit_offset, 3, ENC_BIG_ENDIAN);
                 curr_bit_offset += 3;
@@ -6407,7 +6232,7 @@ de_rr_priority_and_eutran_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_o
 
 
     /* Serving Cell Priority Parameters Description */
-    if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+    if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Serving Cell Priority Parameters Description", "Present", "Not Present"))
     {
         proto_tree *subtree_serv;
         proto_item *item_serv;
@@ -6430,13 +6255,13 @@ de_rr_priority_and_eutran_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_o
     }
 
     /* 3G Priority Parameters Description */
-    if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+    if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "3G Priority Parameters Description", "Present", "Not Present"))
     {
         curr_bit_offset += de_rr_3g_priority_param_desc(tvb, subtree, curr_bit_offset);
     }
 
     /* E-UTRAN Parameters Description */
-    if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+    if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "E-UTRAN Parameters Description", "Present", "Not Present"))
     {
         curr_bit_offset += de_rr_eutran_param_desc(tvb, subtree, curr_bit_offset);
     }
@@ -6457,15 +6282,15 @@ de_rr_3g_csg_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
     item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_3G_CSG_DESC].strptr);
     subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_3G_CSG_DESC]);
 
-    while (tvb_get_bits8(tvb,curr_bit_offset++,1))
+    while (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "Repeated CSG_PSC_SPLIT struct", "Present", "Not Present"))
     {
         /* CSG_PSC_SPLIT struct */
-        while (tvb_get_bits8(tvb,curr_bit_offset++,1))
+        while (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "PSC", "Present", "Not Present"))
         {
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_psc, tvb, curr_bit_offset, 9, ENC_BIG_ENDIAN);
             curr_bit_offset += 9;
         }
-        while (tvb_get_bits8(tvb,curr_bit_offset++,1))
+        while (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "PSC Pattern", "Present", "Not Present"))
         {
             gint psc_pattern_length;
             gint psc_pattern;
@@ -6484,17 +6309,17 @@ de_rr_3g_csg_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
             curr_bit_offset += 1;
         }
 
-        while (tvb_get_bits8(tvb,curr_bit_offset++,1))
+        while (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Repeated UTRAN Frequency Index", "Present", "Not Present"))
         {
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_utran_frequency_index, tvb, curr_bit_offset, 5, ENC_BIG_ENDIAN);
             curr_bit_offset += 5;
         }
     }
 
-    while(tvb_get_bits8(tvb,curr_bit_offset++,1))
+    while(gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "repeated CSG FDD UARFCN", "Present", "Not Present"))
     {
         /* CSG_FDD_UARFCN */
-        if (!tvb_get_bits8(tvb,curr_bit_offset++,1))
+        if (!gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Technology", "TDD", "FDD"))
         {
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_utran_csg_fdd_uarfcn, tvb, curr_bit_offset, 14, ENC_BIG_ENDIAN);
             curr_bit_offset += 14;
@@ -6522,13 +6347,13 @@ de_rr_eutran_csg_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
     item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_EUTRAN_CSG_DESC].strptr);
     subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_EUTRAN_CSG_DESC]);
 
-    while (tvb_get_bits8(tvb,curr_bit_offset++,1))
+    while (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Repeated PCID group", "Present", "Not Present"))
     {
         /* dissect PCID group */
         curr_bit_offset += de_rr_eutran_pcid(tvb, subtree, curr_bit_offset);
     }
 
-    while (tvb_get_bits8(tvb,curr_bit_offset++,1))
+    while (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Repeated EARFCN", "Present", "Not Present"))
     {
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_csg_earfcn, tvb, curr_bit_offset, 16, ENC_BIG_ENDIAN);
         curr_bit_offset += 16;
@@ -6550,7 +6375,7 @@ de_rr_eutran_csg_desc_mi(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
     item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_EUTRAN_CSG_DESC].strptr);
     subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_EUTRAN_CSG_DESC]);
 
-    while (tvb_get_bits8(tvb,curr_bit_offset++,1))
+    while (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Repeated CSG PCI Split", "Present", "Not Present"))
     {
         /* dissect PCID group */
         curr_bit_offset += de_rr_eutran_pcid(tvb, subtree, curr_bit_offset);
@@ -6572,7 +6397,7 @@ de_rr_utran_measurement_control_param_mi(tvbuff_t *tvb, proto_tree *tree, gint b
     item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_UTRAN_MEASUREMENT_CONTROL_PARAM_DESC].strptr);
     subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_UTRAN_MEASUREMENT_CONTROL_PARAM_DESC]);
 
-    while (tvb_get_bits8(tvb,curr_bit_offset++,1))
+    while (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Repeated UTRAN Frequency Index", "Present", "Not Present"))
     {
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_utran_frequency_index, tvb, curr_bit_offset, 5, ENC_BIG_ENDIAN);
         curr_bit_offset += 5;
@@ -6602,15 +6427,15 @@ de_rr_3g_supplementary_param_desc_mi(tvbuff_t *tvb, proto_tree *tree, gint bit_o
     curr_bit_offset += 1;
 
     /* 3G Measurement Control Parameters Description */
-    if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+    if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "3G Measurement Control Parameters Description", "Present", "Not Present"))
     {
         /* 3G Measurement Control Parameters Description struct */
-        if (tvb_get_bits8(tvb,curr_bit_offset++,1))
+        if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "3G Measurement Control Parameters Description struct", "Present", "Not Present"))
         {
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_3g_control_param_desc_meas_ctrl_utran, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
             curr_bit_offset += 1;
         }
-        while (tvb_get_bits8(tvb,curr_bit_offset++,1))
+        while (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "Repeated UTRAN Measurement Control Parameters struct", "Present", "Not Present"))
         {
             curr_bit_offset += de_rr_utran_measurement_control_param_mi(tvb, subtree, curr_bit_offset);
         }
@@ -6629,7 +6454,7 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
     guint32      curr_offset;
     gint         bit_offset, bit_offset_sav, idx;
     guint8       value;
-
+    guint8 tvb_len = tvb_length(tvb);
     len = 20;
     curr_offset = offset;
     bit_offset = curr_offset<<3;
@@ -6649,9 +6474,7 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
     bit_offset += 4;
     proto_tree_add_bits_item(subtree, hf_gsm_a_rr_si2quater_count, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
     bit_offset += 4;
-    value = tvb_get_bits8(tvb,bit_offset,1);
-    bit_offset += 1;
-    if (value)
+    if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "Measurement Parameters Description", "Present", "Not Present"))
     { /* Measurement Parameters Description */
         bit_offset_sav = bit_offset;
         item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_MEAS_PARAM_DESC].strptr);
@@ -6662,43 +6485,30 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
         bit_offset += 2;
         proto_item_set_len(item2,((bit_offset-bit_offset_sav)>>3)+1);
     }
-    value  = tvb_get_bits8(tvb,bit_offset,1);
-    bit_offset += 1;
-    if (value)
+    if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "GPRS Real Time Difference Description", "Present", "Not Present"))
     { /* GPRS Real Time Difference Description */
         bit_offset += de_rr_rtd_desc(tvb, subtree, bit_offset, DE_RR_REST_OCTETS_GPRS_RTD_DESC);
-
     }
-    value  = tvb_get_bits8(tvb,bit_offset,1);
-    bit_offset += 1;
-    if (value)
+    if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "GPRS BSIC Description", "Present", "Not Present"))
     { /* GPRS BSIC Description */
         bit_offset += de_rr_bsic_desc(tvb, subtree, bit_offset, DE_RR_REST_OCTETS_GPRS_BSIC_DESC);
     }
-    value  = tvb_get_bits8(tvb,bit_offset,1);
-    bit_offset += 1;
-    if (value)
+    if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "GPRS Report Priority Description", "Present", "Not Present"))
     { /* GPRS Report Priority Description */
         bit_offset += de_rr_report_priority_desc(tvb, subtree, bit_offset, DE_RR_REST_OCTETS_GPRS_REPORT_PRIO_DESC);
     }
-    value  = tvb_get_bits8(tvb,bit_offset,1);
-    bit_offset += 1;
-    if (value)
+    if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "GPRS Measurement Parameters Description", "Present", "Not Present"))
     { /* GPRS Measurement Parameters Description */
         bit_offset += de_rr_meas_param_desc(tvb, subtree, bit_offset, DE_RR_REST_OCTETS_GPRS_MEAS_PARAM_DESC);
     }
-    value = tvb_get_bits8(tvb,bit_offset,1);
-    bit_offset += 1;
-    if (value)
+    if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "NC Measurement Parameters", "Present", "Not Present"))
     { /* NC Measurement Parameters */
         bit_offset_sav = bit_offset;
         item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_NC_MEAS_PARAM].strptr);
         subtree2 = proto_item_add_subtree(item2, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_NC_MEAS_PARAM]);
         proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_network_control_order, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
         bit_offset += 2;
-        value = tvb_get_bits8(tvb,bit_offset,1);
-        bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "NC Periods", "Present", "Not Present"))
         {
             proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_nc_non_drx_period, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
             bit_offset += 3;
@@ -6709,9 +6519,7 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
         }
         proto_item_set_len(item2,((bit_offset-bit_offset_sav)>>3)+1);
     }
-    value = tvb_get_bits8(tvb,bit_offset,1);
-    bit_offset += 1;
-    if (value)
+    if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "SI 2quater Extension Information", "Present", "Not Present"))
     { /* SI 2quater Extension Information */
         bit_offset_sav = bit_offset;
         item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_SI2Q_EXT_INFO].strptr);
@@ -6720,9 +6528,7 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
         proto_tree_add_text(subtree2,tvb, bit_offset>>3, 1, "Extension Length: %d", idx);
         bit_offset += 8;
         proto_item_set_len(item2,((bit_offset+idx+1-bit_offset_sav)>>3)+1);
-        value = tvb_get_bits8(tvb,bit_offset,1);
-        bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree2, bit_offset++, "CCN Support Description", "Present", "Not Present"))
         { /* CCN Support Description */
             bit_offset_sav = bit_offset;
             item3 = proto_tree_add_text(subtree2, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_CCN_SUPPORT_DESC].strptr);
@@ -6743,44 +6549,32 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
         }
         bit_offset += idx;
     }
-    value = tvb_get_bits8(tvb,bit_offset,1);
-    bit_offset += 1;
-    if (value)
+    if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "3G Neighbour Cell Description", "Present", "Not Present"))
     { /* 3G Neighbour Cell Description */
         bit_offset_sav = bit_offset;
         item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_3G_NEIGH_CELL_DESC].strptr);
         subtree2 = proto_item_add_subtree(item2, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_3G_NEIGH_CELL_DESC]);
-        value = tvb_get_bits8(tvb,bit_offset,1);
-        bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "Index Start 3G", "Present", "Not Present"))
         {
             proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_index_start_3g, tvb, bit_offset, 7, ENC_BIG_ENDIAN);
             bit_offset += 7;
         }
-        value = tvb_get_bits8(tvb,bit_offset,1);
-        bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "Absolute Index Start EMR", "Present", "Not Present"))
         {
             proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_absolute_index_start_emr, tvb, bit_offset, 7, ENC_BIG_ENDIAN);
             bit_offset += 7;
         }
-        value = tvb_get_bits8(tvb,bit_offset,1);
-        bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "UTRAN FDD Description", "Present", "Not Present"))
         { /* UTRAN FDD Description */
             bit_offset += de_rr_si2quater_meas_info_utran_fdd_desc(tvb, subtree2, bit_offset);
         }
-        value = tvb_get_bits8(tvb,bit_offset,1);
-        bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "UTRAN TDD Description", "Present", "Not Present"))
         { /* UTRAN TDD Description */
             bit_offset += de_rr_si2quater_meas_info_utran_tdd_desc(tvb, subtree2, bit_offset);
         }
         proto_item_set_len(item2,((bit_offset-bit_offset_sav)>>3)+1);
     }
-    value = tvb_get_bits8(tvb,bit_offset,1);
-    bit_offset += 1;
-    if (value)
+    if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "3G Measurement Parameters Description", "Present", "Not Present"))
     { /* 3G Measurement Parameters Description */
         bit_offset_sav = bit_offset;
         item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_3G_MEAS_PARAM_DESC].strptr);
@@ -6789,9 +6583,7 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
         bit_offset += 4;
         proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_qsearch_c_initial, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
         bit_offset += 1;
-        value = tvb_get_bits8(tvb,bit_offset,1);
-        bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree2, bit_offset++, "FDD Information", "Present", "Not Present"))
         {
             proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_fdd_qoffset, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
             bit_offset += 4;
@@ -6802,9 +6594,7 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
             proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_fdd_qmin, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
             bit_offset += 3;
         }
-        value = tvb_get_bits8(tvb,bit_offset,1);
-        bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree2, bit_offset++, "TDD Information", "Present", "Not Present"))
         {
             proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_tdd_qoffset, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
             bit_offset += 4;
@@ -6813,9 +6603,7 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
         }
         proto_item_set_len(item2,((bit_offset-bit_offset_sav)>>3)+1);
     }
-    value = tvb_get_bits8(tvb,bit_offset,1);
-    bit_offset += 1;
-    if (value)
+    if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "GPRS 3G Measurement Parameters Description", "Present", "Not Present"))
     { /* GPRS 3G Measurement Parameters Description */
         guint8 reporting_quant = 0;
         bit_offset_sav = bit_offset;
@@ -6825,19 +6613,14 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
         bit_offset += 4;
         proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_3g_search_prio, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
         bit_offset += 1;
-        value = tvb_get_bits8(tvb,bit_offset,1);
-        bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "FDD Parameters", "Present", "Not Present"))
         {
             proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_fdd_rep_quant, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
-            reporting_quant = tvb_get_bits8(tvb,bit_offset,1);
-            bit_offset += 1;
+            reporting_quant = gsm_rr_csn_flag(tvb, subtree2, bit_offset++, "Reporting Quantity", "Ec/No", "RSCP");
             proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_fdd_multirat_reporting, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
             bit_offset += 2;
         }
-        value = tvb_get_bits8(tvb,bit_offset,1);
-        bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree2, bit_offset++, "FDD Reporting Parameters", "Present", "Not Present"))
         {
             proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_fdd_reporting_offset, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
             bit_offset += 3;
@@ -6851,16 +6634,12 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
             }
             bit_offset += 3;
         }
-        value = tvb_get_bits8(tvb,bit_offset,1);
-        bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree2, bit_offset++, "TDD Multirat Reporting", "Present", "Not Present"))
         {
             proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_tdd_multirat_reporting, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
             bit_offset += 2;
         }
-        value = tvb_get_bits8(tvb,bit_offset,1);
-        bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree2, bit_offset++, "TDD Reporting Parameters", "Present", "Not Present"))
         {
             proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_tdd_reporting_offset, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
             bit_offset += 3;
@@ -6879,12 +6658,9 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
     if (((curr_offset + len)<<3) - bit_offset > 0)
     {
         /* There is still room left in the Rest Octets IE */
-        if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+        if (gsm_rr_csn_HL_flag(tvb, subtree, 0, bit_offset++, "Additions in Rel-5", "Present", "Not present"))
         { /* Additions in Rel-5 */
-            bit_offset += 1;
-            value = tvb_get_bits8(tvb,bit_offset,1);
-            bit_offset += 1;
-            if (value)
+            if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "3G Additional Measurement Parameters Description", "Present", "Not Present"))
             { /* 3G Additional Measurement Parameters Description */
                 bit_offset_sav = bit_offset;
                 item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_3G_ADD_MEAS_PARAM_DESC].strptr);
@@ -6895,38 +6671,30 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
                 bit_offset += 4;
                 proto_item_set_len(item2,((bit_offset-bit_offset_sav)>>3)+1);
             }
-            value = tvb_get_bits8(tvb,bit_offset,1);
-            bit_offset += 1;
-            if (value)
+            if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "3G Additional Measurement Parameters Description 2", "Present", "Not Present"))
             { /* 3G Additional Measurement Parameters Description 2 */
                 bit_offset += de_rr_3g_add_meas_param_desc2(tvb, subtree, bit_offset);
             }
             if (((curr_offset + len)<<3) - bit_offset > 0)
             {
                 /* There is still room left in the Rest Octets IE */
-                if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+                if (gsm_rr_csn_HL_flag(tvb, subtree, 0, bit_offset++, "Additions in Rel-6", "Present", "Not present"))
                 { /* Additions in Rel-6 */
-                    bit_offset += 1;
                     proto_tree_add_bits_item(subtree, hf_gsm_a_rr_3g_ccn_active, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
                     bit_offset += 1;
                     if (((curr_offset + len)<<3) - bit_offset > 0)
                     {
                         /* There is still room left in the Rest Octets IE */
-                        if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+                        if (gsm_rr_csn_HL_flag(tvb, subtree, 0, bit_offset++, "Additions in Rel-7", "Present", "Not present"))
                         { /* Additions in Rel-7 */
-                            bit_offset += 1;
-                            value = tvb_get_bits8(tvb,bit_offset,1);
-                            bit_offset += 1;
-                            if (value)
+                            if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "700 Reporting", "Present", "Not Present"))
                             {
                                 proto_tree_add_bits_item(subtree, hf_gsm_a_rr_700_reporting_offset, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
                                 bit_offset += 3;
                                 proto_tree_add_bits_item(subtree, hf_gsm_a_rr_700_reporting_threshold, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
                                 bit_offset += 3;
                             }
-                            value = tvb_get_bits8(tvb,bit_offset,1);
-                            bit_offset += 1;
-                            if (value)
+                            if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "810 Reporting", "Present", "Not Present"))
                             {
                                 proto_tree_add_bits_item(subtree, hf_gsm_a_rr_810_reporting_offset, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
                                 bit_offset += 3;
@@ -6937,43 +6705,30 @@ de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
                             if (((curr_offset + len)<<3) - bit_offset > 0)
                             {
                               /* There is still room left in the Rest Octets IE */
-                              if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+                              if (gsm_rr_csn_HL_flag(tvb, subtree, 0, bit_offset++, "Additions in Rel-8", "Present", "Not present"))
                               { /* Additions in Rel-8 */
-                                bit_offset += 1;
-                                value = tvb_get_bits8(tvb,bit_offset,1);
-                                bit_offset += 1;
-                                if (value)
+                                if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "3G Supplementary Parameters Description ", "Present", "Not Present"))
                                 {
                                   bit_offset += de_rr_priority_and_eutran_param_desc(tvb, subtree, bit_offset);
                                 }
-                                value = tvb_get_bits8(tvb,bit_offset,1);
-                                bit_offset += 1;
-                                if (value)
+                                if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "3G CSG Description ", "Present", "Not Present"))
                                 {
                                   bit_offset += de_rr_3g_csg_desc(tvb, subtree, bit_offset);
                                 }
-                                value = tvb_get_bits8(tvb,bit_offset,1);
-                                bit_offset += 1;
-                                if (value)
+                                if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "EUTRAN CSG Description ", "Present", "Not Present"))
                                 {
                                   bit_offset += de_rr_eutran_csg_desc(tvb, subtree, bit_offset);
                                 }
                               }
                             }
                         }
-                        else
-                          bit_offset += 1;
                     }
                 }
-                else
-                    bit_offset += 1;
             }
         }
-        else bit_offset += 1;
     }
-
-    curr_offset = curr_offset + len;
-
+    gsm_rr_csn_spare_bits(tree, tvb, bit_offset);
+    curr_offset = tvb_len;
     return curr_offset-offset;
 }
 
@@ -7105,9 +6860,8 @@ de_rr_rest_oct_opt_sel_param(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
 
     curr_bit_offset = bit_offset;
 
-    if (gsm_a_rr_is_bit_high(tvb,curr_bit_offset) == TRUE)
+    if (gsm_rr_csn_HL_flag(tvb,tree,0,curr_bit_offset++,"Selection Parameters", "Present", "Not present"))
     { /* Selection Parameters */
-        curr_bit_offset += 1;
         item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_OPTIONAL_SEL_PARAM].strptr);
         subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_OPTIONAL_SEL_PARAM]);
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_cbq, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
@@ -7120,8 +6874,6 @@ de_rr_rest_oct_opt_sel_param(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
         curr_bit_offset += 5;
         proto_item_set_len(item,((curr_bit_offset-bit_offset)>>3)+1);
     }
-    else
-        curr_bit_offset += 1;
 
     return (curr_bit_offset - bit_offset);
 }
@@ -7143,7 +6895,7 @@ de_rr_rest_oct_gprs_indicator(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
 
     item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, 1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_GPRS_INDICATOR].strptr);
     subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_GPRS_INDICATOR]);
-    proto_tree_add_text(subtree, tvb, curr_bit_offset>>3, 1, "RA Colour: %d",tvb_get_bits8(tvb,curr_bit_offset,3));
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_gprs_ra_colour, tvb, curr_bit_offset, 3, FALSE);
     curr_bit_offset += 3;
     proto_tree_add_bits_item(subtree, hf_gsm_a_rr_si13_position, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
     curr_bit_offset += 1;
@@ -7189,62 +6941,38 @@ de_rr_si3_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 
     bit_offset += de_rr_rest_oct_opt_sel_param(tvb, subtree, bit_offset);
 
-    if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+    if (gsm_rr_csn_HL_flag(tvb, subtree, 0, bit_offset++, "Optional Power Offset", "Present", "Not present"))
     { /* Optional Power Offset */
-        bit_offset += 1;
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_power_offset, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
         bit_offset += 2;
     }
-    else
-        bit_offset += 1;
-    if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
-        proto_tree_add_text(subtree, tvb, bit_offset>>3, 1, "SYSTEM INFORMATION TYPE 2ter message is available");
-    else
-        proto_tree_add_text(subtree, tvb, bit_offset>>3, 1, "SYSTEM INFORMATION TYPE 2ter message is not available");
-    bit_offset += 1;
-    if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
-        proto_tree_add_text(subtree, tvb, bit_offset>>3, 1, "Early Classmark Sending is allowed");
-    else
-        proto_tree_add_text(subtree, tvb, bit_offset>>3, 1, "Early Classmark Sending is forbidden");
-    bit_offset += 1;
-    if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+    gsm_rr_csn_HL_flag(tvb, subtree, 0, bit_offset++, "SYSTEM INFORMATION TYPE 2ter", "Available", "Not Available");
+    gsm_rr_csn_HL_flag(tvb, subtree, 0, bit_offset++, "Early Classmark Sending", "Is allowed", "Is forbidden");
+    if (gsm_rr_csn_HL_flag(tvb, subtree, 0, bit_offset++, "Scheduling if and where", "Present", "Not present"))
     { /* Scheduling if and where */
-        bit_offset += 1;
         proto_tree_add_text(subtree, tvb, bit_offset>>3, 1, "Where: %d",tvb_get_bits8(tvb,bit_offset,3));
         bit_offset += 3;
     }
-    else
-        bit_offset += 1;
-    gprs_indicator = gsm_a_rr_is_bit_high(tvb,bit_offset);
-    if (gprs_indicator == TRUE)
+    gprs_indicator = gsm_rr_csn_HL_flag(tvb, subtree, 0, bit_offset++, "GPRS Indicator", "Present", "Not present");
+    if (gprs_indicator)
     { /* GPRS indicator */
-        bit_offset += 1;
         bit_offset += de_rr_rest_oct_gprs_indicator(tvb, subtree, bit_offset);
     }
-    else
-        bit_offset += 1;
-    if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
-        proto_tree_add_text(subtree, tvb, bit_offset>>3, 1, "3G Early Classmark Sending Restriction: The sending of UTRAN,CDMA2000 and GERAN IU MODE CLASSMARK CHANGE messages are controlled by the Early Classmark Sending Control parameter");
-    else
-        proto_tree_add_text(subtree, tvb, bit_offset>>3, 1, "3G Early Classmark Sending Restriction: Neither UTRAN, CDMA2000 nor GERAN IU MODE CLASSMARK CHANGE message shall be sent with the Early classmark sending");
-    bit_offset += 1;
-    if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+    gsm_rr_csn_HL_flag(tvb, subtree, 0, bit_offset++, "3G Early Classmark Sending Restriction", 
+                                    "The sending of UTRAN,CDMA2000 and GERAN IU MODE CLASSMARK CHANGE messages are controlled by the Early Classmark Sending Control parameter", 
+                                    "Neither UTRAN, CDMA2000 nor GERAN IU MODE CLASSMARK CHANGE message shall be sent with the Early classmark sending");
+    if (gsm_rr_csn_HL_flag(tvb, subtree, 0, bit_offset++, "SI2quater Indicator", "Present", "Not present"))
     { /* SI2quater Indicator */
-        bit_offset += 1;
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_si2quater_position, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
         bit_offset += 1;
     }
-    else
-        bit_offset += 1;
     if (gprs_indicator == FALSE)
     {
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_si13alt_position, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
         bit_offset += 1;
     }
-
-    curr_offset = curr_offset + len;
-
-    return curr_offset-offset;
+    gsm_rr_csn_spare_bits(tree, tvb, bit_offset);
+    return tvb_length(tvb) - offset;
 }
 
 /*
@@ -7283,6 +7011,7 @@ de_rr_si4_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
     gint         bit_offset, bit_offset_sav, bit_offset_sav2;
     guint        value;
 
+    guint8 tvb_len = tvb_length(tvb);
     len = tvb_length_remaining(tvb,offset);
     if (len==0)
         return 0;
@@ -7301,31 +7030,23 @@ de_rr_si4_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 
     bit_offset += de_rr_rest_oct_opt_sel_param(tvb, subtree2, bit_offset);
 
-    if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+    if (gsm_rr_csn_HL_flag(tvb, subtree2, tvb_len, bit_offset++, "Optional Power Offset", "Present", "Not present"))
     { /* Optional Power Offset */
-        bit_offset += 1;
         proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_power_offset, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
         bit_offset += 2;
     }
-    else
-        bit_offset += 1;
-    if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+    if (gsm_rr_csn_HL_flag(tvb, subtree2, tvb_len, bit_offset++, "GPRS Indicator", "Present", "Not present"))
     {
-        bit_offset += 1;
         bit_offset += de_rr_rest_oct_gprs_indicator(tvb, subtree2, bit_offset);
     }
-    else
-        bit_offset += 1;
     proto_item_set_len(item2,(bit_offset>>3)+1-curr_offset);
-    if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+    if (gsm_rr_csn_HL_flag(tvb, subtree, tvb_len, bit_offset++, "SI4 Rest Octets_S", "Present", "Not present"))
     { /* SI4 Rest Octets_S */
-        bit_offset += 1;
         bit_offset_sav = bit_offset;
         item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_SI4_REST_OCTETS_S].strptr);
         subtree2 = proto_item_add_subtree(item2, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_SI4_REST_OCTETS_S]);
-        if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+        if (gsm_rr_csn_HL_flag(tvb,subtree2,curr_offset + len,bit_offset++,"LSA Parameters", "Present", "Not present"))
         { /* LSA Parameters */
-            bit_offset += 1;
             bit_offset_sav2 = bit_offset;
             item3 = proto_tree_add_text(subtree2, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_LSA_PARAMETERS].strptr);
             subtree3 = proto_item_add_subtree(item3, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_LSA_PARAMETERS]);
@@ -7333,9 +7054,7 @@ de_rr_si4_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
             bit_offset += 3;
             proto_tree_add_bits_item(subtree3, hf_gsm_a_rr_lsa_offset, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
             bit_offset += 3;
-            value = tvb_get_bits8(tvb,bit_offset,1);
-            bit_offset += 1;
-            if (value)
+            if (gsm_rr_csn_flag(tvb,subtree3, bit_offset++,"MCC/MNC", "Present", "Not Present"))
             {
                 proto_tree_add_text(subtree3, tvb, bit_offset>>3, 2, "MCC: %d", tvb_get_bits16(tvb,bit_offset,12,ENC_BIG_ENDIAN));
                 bit_offset += 12;
@@ -7344,28 +7063,20 @@ de_rr_si4_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
             }
             proto_item_set_len(item2,((bit_offset-bit_offset_sav2)>>3)+1);
         }
-        else
-            bit_offset += 1;
-        if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+        if (gsm_rr_csn_HL_flag(tvb, subtree2, tvb_len, bit_offset++, "Cell Identity", "Present", "Not present"))
         { /* Cell Identity */
-            bit_offset += 1;
             value = tvb_get_bits16(tvb, bit_offset, 16, ENC_BIG_ENDIAN);
             proto_tree_add_uint(subtree2, hf_gsm_a_bssmap_cell_ci, tvb, bit_offset>>3, 2, value);
             bit_offset += 16;
         }
-        else
-            bit_offset += 1;
-        if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+        if (gsm_rr_csn_HL_flag(tvb, subtree2, tvb_len, bit_offset++, "LSA ID information", "Present", "Not present"))
         { /* LSA ID information */
-            bit_offset += 1;
             bit_offset_sav2 = bit_offset;
             item3 = proto_tree_add_text(subtree2, tvb, bit_offset>>3, len, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_LSA_ID_INFO].strptr);
             subtree3 = proto_item_add_subtree(item3, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_LSA_ID_INFO]);
             do
             {
-                value = tvb_get_bits8(tvb,bit_offset,1);
-                bit_offset += 1;
-                if (value)
+                if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "Type:", "Short LSA ID", "LSA ID"))
                 {
                     proto_tree_add_text(subtree3, tvb, bit_offset>>3, 3, "Short LSA ID: %d",tvb_get_bits16(tvb,bit_offset,10,ENC_BIG_ENDIAN));
                     bit_offset += 10;
@@ -7375,23 +7086,14 @@ de_rr_si4_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
                     proto_tree_add_text(subtree3, tvb, bit_offset>>3, 3, "LSA ID: %d",tvb_get_bits32(tvb,bit_offset,24,ENC_BIG_ENDIAN));
                     bit_offset += 24;
                 }
-                value = tvb_get_bits8(tvb,bit_offset,1);
-                bit_offset += 1;
-            } while (value);
+            } while (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "Additional LSA ID", "Present", "Not Present"));
         }
-        else
-            bit_offset += 1;
-        if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+        if (gsm_rr_csn_HL_flag(tvb, subtree, tvb_len, bit_offset++, "CBQ3", "Present", "Not present"))
         {
-            bit_offset += 1;
-            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_cbq3, tvb, (curr_offset<<3)+1, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_cbq3, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
             bit_offset += 3;
         }
-        else
-            bit_offset += 1;
-        value = tvb_get_bits8(tvb,bit_offset,1);
-        bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "SI3 alt position", "Present", "Not Present"))
         {
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_si13alt_position, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
             bit_offset += 1;
@@ -7400,16 +7102,12 @@ de_rr_si4_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
     }
     else
     { /* Break indicator */
-        bit_offset += 1;
-        if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
-            proto_tree_add_text(subtree, tvb, bit_offset>>3, 1, "Break Indicator: Additional parameters \"SI4 Rest Octets_S\" are sent in SYSTEM INFORMATION TYPE 7 and 8");
-        else
-            proto_tree_add_text(subtree, tvb, bit_offset>>3, 1, "Break Indicator: Additional parameters \"SI4 Rest Octets_S\" are not sent in SYSTEM INFORMATION TYPE 7 and 8");
-        bit_offset += 1;
+        gsm_rr_csn_HL_flag(tvb, subtree, tvb_len, bit_offset++, "Break Indicator", 
+                           "Additional parameters \"SI4 Rest Octets_S\" are sent in SYSTEM INFORMATION TYPE 7 and 8", 
+                           "Additional parameters \"SI4 Rest Octets_S\" are not sent in SYSTEM INFORMATION TYPE 7 and 8");
     }
-
-    curr_offset = curr_offset + len;
-
+    gsm_rr_csn_spare_bits(tree, tvb, bit_offset);
+    curr_offset = tvb_len;
     return curr_offset-offset;
 }
 
@@ -7471,9 +7169,8 @@ de_rr_si6_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 
     subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_SI6_REST_OCT]);
 
-    if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+    if (gsm_rr_csn_HL_flag(tvb, subtree, 0, bit_offset++, "PCH and NCH Info", "Present", "Not present"))
     { /* PCH and NCH Info */
-        bit_offset += 1;
         bit_offset_sav = bit_offset;
         item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_PCH_AND_NCH_INFO].strptr);
         subtree2 = proto_item_add_subtree(item2, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_PCH_AND_NCH_INFO]);
@@ -7481,9 +7178,7 @@ de_rr_si6_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
         bit_offset += 1;
         proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_nln_sacch, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
         bit_offset += 2;
-        value = tvb_get_bits8(tvb,bit_offset,1);
-        bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "Call Priority", "Present", "Not Present"))
         {
             proto_tree_add_bits_item(subtree2, hf_gsm_a_call_prio, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
             bit_offset += 3;
@@ -7492,11 +7187,8 @@ de_rr_si6_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
         bit_offset += 1;
         proto_item_set_len(item2,((bit_offset-bit_offset_sav)>>3)+1);
     }
-    else
-        bit_offset += 1;
-    if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+    if (gsm_rr_csn_HL_flag(tvb, subtree, 0, bit_offset++, "VBS/VGCS options", "Present", "Not present"))
     { /* VBS/VGCS options */
-        bit_offset += 1;
         bit_offset_sav = bit_offset;
         item2 = proto_tree_add_text(subtree, tvb,bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_VBS_VGCS_OPTIONS].strptr);
         subtree2 = proto_item_add_subtree(item2, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_VBS_VGCS_OPTIONS]);
@@ -7506,63 +7198,37 @@ de_rr_si6_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
         bit_offset += 1;
         proto_item_set_len(item2,((bit_offset-bit_offset_sav)>>3)+1);
     }
-    else
-        bit_offset += 1;
-    value = gsm_a_rr_is_bit_high(tvb,bit_offset);
+    value = gsm_rr_csn_HL_flag(tvb, subtree, 0, bit_offset++, "DTM", "Supported in Serving cell", "Not Supported in Serving cell");
     if (value == TRUE)
     {
-        proto_tree_add_text(subtree, tvb, bit_offset>>3, 1, "DTM is supported in the serving cell");
-        bit_offset += 1;
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_rac, tvb, bit_offset, 8, ENC_BIG_ENDIAN);
         bit_offset += 8;
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_max_lapdm, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
         bit_offset += 3;
     }
-    else
+    gsm_rr_csn_HL_flag(tvb, subtree, 0, bit_offset++, "Band Indicator", "1900", "1800");
+    if (gsm_rr_csn_HL_flag(tvb, subtree, 0, bit_offset++, "GPRS MS PWR MAX CCCH", "Present", "Not present"))
     {
-        proto_tree_add_text(subtree, tvb, bit_offset>>3, 1, "DTM is not supported in the serving cell");
-        bit_offset += 1;
-    }
-    if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
-        proto_tree_add_text(subtree, tvb, bit_offset>>3, 1, "Band Indicator: 1900");
-    else
-        proto_tree_add_text(subtree, tvb, bit_offset>>3, 1, "Band Indicator: 1800");
-    bit_offset += 1;
-    if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
-    {
-        bit_offset += 1;
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_gprs_ms_txpwr_max_ccch, tvb, bit_offset, 5, ENC_BIG_ENDIAN);
         bit_offset += 5;
     }
-    else
-        bit_offset += 1;
-    if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+    if (gsm_rr_csn_HL_flag(tvb, subtree, 0, bit_offset++, "MBMS Procedures", "Supported", "Not supported"))
     { /* MBMS Procedures */
-        bit_offset += 1;
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_dedicated_mode_mbms_notification_support, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
         bit_offset += 1;
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_mnci_support, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
         bit_offset += 1;
     }
-    else
-        bit_offset += 1;
-    if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+    if (gsm_rr_csn_HL_flag(tvb, subtree, 0, bit_offset++, "Additions in Rel-7", "Present", "Not present"))
     { /* Additions in Release 7 */
-        bit_offset += 1;
-        value = tvb_get_bits8(tvb,bit_offset,1);
-        bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "AMR Config", "Present", "Not Present"))
         {
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_amr_config, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
             bit_offset += 4;
         }
     }
-    else
-        bit_offset += 1;
-
-    curr_offset = curr_offset + len;
-
-    return curr_offset-offset;
+    gsm_rr_csn_spare_bits(tree, tvb, bit_offset);
+    return tvb_length(tvb) - offset;
 }
 
 /* [3] 10.5.2.36 SI 7 Rest Octets
@@ -7665,27 +7331,21 @@ de_rr_rest_oct_gprs_mobile_allocation(tvbuff_t *tvb, proto_tree *tree, gint bit_
     subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_GPRS_MOBILE_ALLOC]);
     proto_tree_add_bits_item(subtree, hf_gsm_a_rr_hsn, tvb, curr_bit_offset, 6, ENC_BIG_ENDIAN);
     curr_bit_offset += 6;
-    while (tvb_get_bits8(tvb,curr_bit_offset,1))
+    while (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "RFL number list", "Present", "Not Present"))
     {
-        curr_bit_offset += 1;
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_rfl_number, tvb, curr_bit_offset, 4, ENC_BIG_ENDIAN);
         curr_bit_offset += 4;
     }
-    curr_bit_offset += 1;
-    if (tvb_get_bits8(tvb,curr_bit_offset,1))
+    if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "MA", "Not Present", "Present"))
     {
-        curr_bit_offset += 1;
-        while (tvb_get_bits8(tvb,curr_bit_offset,1))
+        while (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "ARFCN index list", "Present", "Not Present"))
         {
-            curr_bit_offset += 1;
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_arfcn_index, tvb, curr_bit_offset, 6, ENC_BIG_ENDIAN);
             curr_bit_offset += 6;
         }
-        curr_bit_offset += 1;
     }
     else
     {
-        curr_bit_offset += 1;
         proto_tree_add_bits_ret_val(subtree, hf_gsm_a_rr_ma_length, tvb, curr_bit_offset, 6, &ma_length, ENC_BIG_ENDIAN);
         curr_bit_offset += 6;
         value = (gint)ma_length + 1;
@@ -7980,7 +7640,6 @@ de_rr_si13_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
     proto_item  *item, *item2;
     guint32      curr_offset;
     gint         bit_offset, bit_offset_sav;
-    guint8       value;
 
     len = 20;
     curr_offset = offset;
@@ -7991,24 +7650,19 @@ de_rr_si13_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 
     subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_SI13_REST_OCT]);
 
-    if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+    if (gsm_rr_csn_HL_flag(tvb, subtree, 0, bit_offset++, "SI13 contents", "Present", "Not present"))
     {
-        bit_offset += 1;
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_bcch_change_mark, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
         bit_offset += 3;
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_si_change_field, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
         bit_offset += 4;
-        value = tvb_get_bits8(tvb,bit_offset,1);
-        bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "SI13 Change Mark", "Present", "Not Present"))
         {
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_si13_change_mark, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
             bit_offset += 2;
             bit_offset += de_rr_rest_oct_gprs_mobile_allocation(tvb, subtree, bit_offset);
         }
-        value = tvb_get_bits8(tvb,bit_offset,1);
-        bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "PBCCH", "Present In Cell", "Not Present In Cell"))
         { /* PBCCH present in the cell */
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_psi1_repeat_period, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
             bit_offset += 4;
@@ -8021,18 +7675,14 @@ de_rr_si13_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
             bit_offset += 3;
             proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_pbcch_tn, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
             bit_offset += 3;
-            value = tvb_get_bits8(tvb,bit_offset,1);
-            bit_offset += 1;
-            if (value)
+            if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "MAIO", "Present", "Not Present"))
             {
                 proto_tree_add_text(subtree2, tvb, bit_offset>>3, 1, "MAIO: %d", tvb_get_bits8(tvb,bit_offset,6));
                 bit_offset += 6;
             }
             else
             {
-                value = tvb_get_bits8(tvb,bit_offset,1);
-                bit_offset += 1;
-                if (value)
+                if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "ARFCN", "Present", "Not Present"))
                 {
                     proto_tree_add_bits_item(subtree2, hf_gsm_a_rr_arfcn, tvb, bit_offset, 10, ENC_BIG_ENDIAN);
                     bit_offset += 10;
@@ -8055,22 +7705,17 @@ de_rr_si13_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
             bit_offset += de_rr_rest_oct_gprs_cell_options(tvb, subtree, bit_offset);
             bit_offset += de_rr_rest_oct_gprs_power_control_parameters(tvb, subtree, bit_offset);
         }
-        if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+        if (gsm_rr_csn_HL_flag(tvb, subtree, 0, bit_offset++, "Additions in R99", "Present", "Not present"))
         { /* Additions in release 99 */
-            bit_offset += 1;
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_sgsnr, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
             bit_offset += 1;
-            if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+            if (gsm_rr_csn_HL_flag(tvb, subtree, 0, bit_offset++, "Additions in Rel-4", "Present", "Not present"))
             { /* Additions in release Rel-4 */
-                bit_offset += 1;
                 proto_tree_add_bits_item(subtree, hf_gsm_a_rr_si_status_ind, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
                 bit_offset += 1;
-                if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+                if (gsm_rr_csn_HL_flag(tvb, subtree, 0, bit_offset++, "Additions in Rel-6", "Present", "Not present"))
                 { /* Additions in release Rel-6 */
-                    bit_offset += 1;
-                    value = tvb_get_bits8(tvb,bit_offset,1);
-                    bit_offset += 1;
-                    if (value)
+                    if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "LB MS TXPWR MAX CCH ", "Present", "Not Present"))
                     {
                         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_lb_ms_txpwr_max_cch, tvb, bit_offset, 5, ENC_BIG_ENDIAN);
                         bit_offset += 5;
@@ -8078,24 +7723,11 @@ de_rr_si13_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
                     proto_tree_add_bits_item(subtree, hf_gsm_a_rr_si2n_support, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
                     bit_offset += 2;
                 }
-                else
-                    bit_offset += 1;
             }
-            else
-                bit_offset += 1;
         }
-        else
-            bit_offset += 1;
     }
-    else
-    {
-        bit_offset += 1;
-        proto_tree_add_text(subtree,tvb, curr_offset, len ,"Empty");
-    }
-
-    curr_offset = curr_offset + len;
-
-    return curr_offset-offset;
+    gsm_rr_csn_spare_bits(tree, tvb, bit_offset);
+    return tvb_length(tvb) - offset;
 }
 
 /* [3] 10.5.2.37c (void)
@@ -10102,80 +9734,56 @@ sacch_rr_meas_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
     bit_offset +=1;
     proto_tree_add_bits_item(tree, hf_gsm_a_rr_invalid_bsic_reporting, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
     bit_offset +=1;
-    value = tvb_get_bits8(tvb,bit_offset,1);
-    bit_offset += 1;
-    if (value)
+    if (gsm_rr_csn_flag(tvb, tree, bit_offset++, "Real Time Difference Description", "Present", "Not Present"))
     { /* Real Time Difference Description */
         bit_offset += de_rr_rtd_desc(tvb, tree, bit_offset, DE_RR_REST_OCTETS_RTD_DESC);
     }
-    value = tvb_get_bits8(tvb,bit_offset,1);
-    bit_offset += 1;
-    if (value)
+    if (gsm_rr_csn_flag(tvb, tree, bit_offset++, "BSIC Description", "Present", "Not Present"))
     { /* BSIC Description */
         bit_offset += de_rr_bsic_desc(tvb, tree, bit_offset, DE_RR_REST_OCTETS_BSIC_DESC);
     }
-    value = tvb_get_bits8(tvb,bit_offset,1);
-    bit_offset += 1;
-    if (value)
+    if (gsm_rr_csn_flag(tvb, tree, bit_offset++, "Report Priority Description", "Present", "Not Present"))
     { /* Report Priority Description */
         bit_offset += de_rr_report_priority_desc(tvb, tree, bit_offset, DE_RR_REST_OCTETS_REPORT_PRIO_DESC);
     }
-    value = tvb_get_bits8(tvb,bit_offset,1);
-    bit_offset += 1;
-    if (value)
+    if (gsm_rr_csn_flag(tvb, tree, bit_offset++, "Measurement Parameters Description", "Present", "Not Present"))
     { /* Measurement Parameters Description */
         bit_offset += de_rr_meas_param_desc(tvb, tree, bit_offset, DE_RR_REST_OCTETS_MEAS_PARAM_DESC);
     }
-    value = tvb_get_bits8(tvb,bit_offset,1);
-    bit_offset += 1;
-    if (value)
+    if (gsm_rr_csn_flag(tvb, tree, bit_offset++, "future extensions of the 2G parameters", "Present", "Not Present"))
     {  /* used for future extensions of the 2G parameters */
         value = tvb_get_bits8(tvb,bit_offset,8);
         bit_offset += 8 + value + 1;
     }
-    value = tvb_get_bits8(tvb,bit_offset,1);
-    bit_offset += 1;
-    if (value)
+    if (gsm_rr_csn_flag(tvb, tree, bit_offset++, "3G Neighbour Cell Description", "Present", "Not Present"))
     { /* 3G Neighbour Cell Description */
         bit_offset_sav = bit_offset;
         item = proto_tree_add_text(tree, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_3G_NEIGH_CELL_DESC].strptr);
         subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_3G_NEIGH_CELL_DESC]);
-        value = tvb_get_bits8(tvb,bit_offset,1);
-        bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "3G Wait", "Present", "Not Present"))
         {
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_3g_wait, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
             bit_offset += 3;
         }
-        value = tvb_get_bits8(tvb,bit_offset,1);
-        bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "Index Start 3G", "Present", "Not Present"))
         {
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_index_start_3g, tvb, bit_offset, 7, ENC_BIG_ENDIAN);
             bit_offset += 7;
         }
-        value = tvb_get_bits8(tvb,bit_offset,1);
-        bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "Absolute Index Start EMR", "Present", "Not Present"))
         {
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_absolute_index_start_emr, tvb, bit_offset, 7, ENC_BIG_ENDIAN);
             bit_offset += 7;
         }
-        value = tvb_get_bits8(tvb,bit_offset,1);
-        bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "UTRAN FDD Description", "Present", "Not Present"))
         { /* UTRAN FDD Description */
             bit_offset += de_rr_si2quater_meas_info_utran_fdd_desc(tvb, subtree, bit_offset);
         }
-        value = tvb_get_bits8(tvb,bit_offset,1);
-        bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "UTRAN TDD Description", "Present", "Not Present"))
         { /* UTRAN TDD Description */
             bit_offset += de_rr_si2quater_meas_info_utran_tdd_desc(tvb, subtree, bit_offset);
         }
-        value = tvb_get_bits8(tvb,bit_offset,1);
-        bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "CDMA2000 Description", "Present", "Not Present"))
         { /* CDMA2000 Description */
             bit_offset_sav2 = bit_offset;
             item2 = proto_tree_add_text(subtree, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_CDMA2000_DESC].strptr);
@@ -10186,9 +9794,8 @@ sacch_rr_meas_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
             while (idx)
             {
                 bit_offset += 9; /* Pilot PN offset */
-                if (tvb_get_bits8(tvb,bit_offset,1))
+                if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "additional information for 3X Auxiliary Pilot", "Present", "Not Present"))
                 {
-                    bit_offset += 1;
                     value = tvb_get_bits8(tvb,bit_offset,3);
                     switch (value)
                     {
@@ -10230,8 +9837,6 @@ sacch_rr_meas_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
                         return;
                     }
                 }
-                else
-                    bit_offset += 1;
                 idx -= 1;
             }
             proto_tree_add_text(subtree2,tvb, bit_offset_sav2>>3, ((bit_offset-bit_offset_sav2)>>3)+1,"Data(Not decoded)");
@@ -10239,9 +9844,7 @@ sacch_rr_meas_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
         }
         proto_item_set_len(item,((bit_offset-bit_offset_sav)>>3)+1);
     }
-    value = tvb_get_bits8(tvb,bit_offset,1);
-    bit_offset += 1;
-    if (value)
+    if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "3G Measurement Parameters Description", "Present", "Not Present"))
     { /* 3G Measurement Parameters Description */
         guint8 reporting_quant = 0;
         bit_offset_sav = bit_offset;
@@ -10252,18 +9855,13 @@ sacch_rr_meas_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_3g_search_prio, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
         bit_offset += 1;
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_fdd_rep_quant, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
-        reporting_quant = tvb_get_bits8(tvb,bit_offset,1);
-        bit_offset += 1;
-        value = tvb_get_bits8(tvb,bit_offset,1);
-        bit_offset += 1;
-        if (value)
+        reporting_quant = gsm_rr_csn_flag(tvb, subtree, bit_offset++, "3G Reporting Quantity", "Ec/No", "RSCP");
+        if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "FDD Multirat Reporting", "Present", "Not Present"))
         {
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_fdd_multirat_reporting, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
             bit_offset += 2;
         }
-        value = tvb_get_bits8(tvb,bit_offset,1);
-        bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "FDD Reporting Offset", "Present", "Not Present"))
         {
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_fdd_reporting_offset, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
             bit_offset += 3;
@@ -10277,16 +9875,12 @@ sacch_rr_meas_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
             }
             bit_offset += 3;
         }
-        value = tvb_get_bits8(tvb,bit_offset,1);
-        bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "TDD Multirat Reporting", "Present", "Not Present"))
         {
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_tdd_multirat_reporting, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
             bit_offset += 2;
         }
-        value = tvb_get_bits8(tvb,bit_offset,1);
-        bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "TDD Reporting Offset", "Present", "Not Present"))
         {
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_tdd_reporting_offset, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
             bit_offset += 3;
@@ -10300,46 +9894,34 @@ sacch_rr_meas_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
             }
             bit_offset += 3;
         }
-        value = tvb_get_bits8(tvb,bit_offset,1);
-        bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "CDMA2000 Multirat Reporting", "Present", "Not Present"))
             bit_offset += 2; /* CDMA2000 Multirat Reporting */
-        value = tvb_get_bits8(tvb,bit_offset,1);
-        bit_offset += 1;
-        if (value)
+        if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "CDMA2000 Reporting Threshold", "Present", "Not Present"))
             bit_offset += 6; /* CDMA2000 Reporting Offset + CDMA2000 Reporting Threshold */
         proto_item_set_len(item,((bit_offset-bit_offset_sav)>>3)+1);
     }
     if (((curr_offset + len)<<3) - bit_offset > 0)
     {
         /* There is still room left in the Rest Octets IE */
-        if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+        if (gsm_rr_csn_HL_flag(tvb,tree,0,bit_offset++,"Additions in Rel-5", "Present", "Not present"))
         { /* Additions in Rel-5 */
-            bit_offset += 1;
-            value = tvb_get_bits8(tvb,bit_offset,1);
-            bit_offset += 1;
-            if (value)
+            if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "3G Additional Measurement Parameters Description 2", "Present", "Not Present"))
             { /* 3G Additional Measurement Parameters Description 2 */
                 bit_offset += de_rr_3g_add_meas_param_desc2(tvb, tree, bit_offset);
             }
             if (((curr_offset + len)<<3) - bit_offset > 0)
             {
                 /* There is still room left in the Rest Octets IE */
-                if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+                if (gsm_rr_csn_HL_flag(tvb,tree,0,bit_offset++,"Additions in Rel-7", "Present", "Not present"))
                 { /* Additions in Rel-7 */
-                    bit_offset += 1;
-                    value = tvb_get_bits8(tvb,bit_offset,1);
-                    bit_offset += 1;
-                    if (value)
+                    if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "700 Reporting", "Present", "Not Present"))
                     {
                         proto_tree_add_bits_item(tree, hf_gsm_a_rr_700_reporting_offset, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
                         bit_offset += 3;
                         proto_tree_add_bits_item(tree, hf_gsm_a_rr_700_reporting_threshold, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
                         bit_offset += 3;
                     }
-                    value = tvb_get_bits8(tvb,bit_offset,1);
-                    bit_offset += 1;
-                    if (value)
+                    if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "810 Reporting", "Present", "Not Present"))
                     {
                         proto_tree_add_bits_item(tree, hf_gsm_a_rr_810_reporting_offset, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
                         bit_offset += 3;
@@ -10350,37 +9932,27 @@ sacch_rr_meas_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
                     if (((curr_offset + len)<<3) - bit_offset > 0)
                     {
                       /* There is still room left in the Rest Octets IE */
-                      if (gsm_a_rr_is_bit_high(tvb,bit_offset) == TRUE)
+                      if (gsm_rr_csn_HL_flag(tvb,tree,0,bit_offset++,"Additions in Rel-8", "Present", "Not present"))
                       { /* Additions in Rel-8 */
-                        bit_offset += 1;
-                        value = tvb_get_bits8(tvb,bit_offset,1);
-                        bit_offset += 1;
-                        if (value)
+                        if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "3G Supplementary Parameters Description", "Present", "Not Present"))
                         {
                           bit_offset += de_rr_3g_supplementary_param_desc_mi(tvb, tree, bit_offset);
                         }
-                        value = tvb_get_bits8(tvb,bit_offset,1);
-                        bit_offset += 1;
-                        if (value)
+                        if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "E-UTRAN Parameters Description", "Present", "Not Present"))
                         {
                           bit_offset += de_rr_eutran_param_desc_mi(tvb, tree, bit_offset);
                         }
-                        value = tvb_get_bits8(tvb,bit_offset,1);
-                        bit_offset += 1;
-                        if (value)
+                        if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "E-UTRAN CSG Description", "Present", "Not Present"))
                         {
                           bit_offset += de_rr_eutran_csg_desc_mi(tvb, tree, bit_offset);
                         }
                       }
                     }
                 }
-                else
-                    bit_offset += 1;
             }
         }
-        else
-            bit_offset += 1;
     }
+    gsm_rr_csn_spare_bits(tree, tvb, bit_offset);
 }
 
 static guint32
@@ -10483,8 +10055,7 @@ sacch_rr_enh_meas_report(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
     proto_item *item;
     guint32 curr_offset;
     gint bit_offset, bit_offset_sav;
-    guint8 value, idx;
-    gboolean flag;
+    guint8 idx;
 
     curr_offset = offset;
     bit_offset = curr_offset << 3;
@@ -10497,9 +10068,7 @@ sacch_rr_enh_meas_report(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
     bit_offset += 1;
     proto_tree_add_bits_item(tree, hf_gsm_a_rr_scale, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
     bit_offset += 1;
-    value = tvb_get_bits8(tvb,bit_offset,1);
-    bit_offset += 1;
-    if (value)
+    if (gsm_rr_csn_flag(tvb, tree, bit_offset++, "Serving cell data", "Present", "Not Present"))
     { /* Serving cell data */
         bit_offset_sav = bit_offset;
         item = proto_tree_add_text(tree, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_SERVING_CELL_DATA].strptr);
@@ -10518,9 +10087,7 @@ sacch_rr_enh_meas_report(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
         bit_offset += 5;
         proto_item_set_len(item,((bit_offset-bit_offset_sav)>>3)+1);
     }
-    value = tvb_get_bits8(tvb,bit_offset,1);
-    bit_offset += 1;
-    while (value)
+    while (gsm_rr_csn_flag(tvb, tree, bit_offset++, "Repeated Invalid BSIC Information", "Present", "Not Present"))
     { /* Repeated Invalid BSIC Information */
         bit_offset_sav = bit_offset;
         item = proto_tree_add_text(tree, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_REPEAT_INV_BSIC_INFO].strptr);
@@ -10532,12 +10099,8 @@ sacch_rr_enh_meas_report(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_rxlev_ncell, tvb, bit_offset, 6, ENC_BIG_ENDIAN);
         bit_offset += 6;
         proto_item_set_len(item,((bit_offset-bit_offset_sav)>>3)+1);
-        value = tvb_get_bits8(tvb,bit_offset,1);
-        bit_offset += 1;
     }
-    value = tvb_get_bits8(tvb,bit_offset,1);
-    bit_offset += 1;
-    if (value)
+    if (gsm_rr_csn_flag(tvb, tree, bit_offset++, "Bitmap Type Reporting", "Present", "Not Present"))
     { /* Bitmap Type Reporting */
         bit_offset_sav = bit_offset;
         item = proto_tree_add_text(tree, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_BITMAP_TYPE_REPORTING].strptr);
@@ -10545,9 +10108,7 @@ sacch_rr_enh_meas_report(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
         idx = 0;
         while (((guint)(bit_offset>>3) <= (offset + len)) && (idx < 96))
         {
-            value  = tvb_get_bits8(tvb,bit_offset,1);
-            bit_offset += 1;
-            if (value)
+            if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "Reporting Quantity", "Present", "Not Present"))
             {
                 proto_tree_add_text(subtree, tvb, bit_offset>>3, 1, "Neighbour Cell List index: %u", idx);
                 proto_tree_add_bits_item(subtree, hf_gsm_a_rr_reporting_quantity, tvb, bit_offset, 6, ENC_BIG_ENDIAN);
@@ -10556,45 +10117,37 @@ sacch_rr_enh_meas_report(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
             idx += 1;
         }
     }
-    if ((guint)(bit_offset>>3) <= (offset + len))
+    if (gsm_rr_csn_HL_flag(tvb,tree, 0,bit_offset++,"Additions for Rel-8", "Present", "Not Present"))
     {
-        flag = gsm_a_rr_is_bit_high(tvb, bit_offset);
-        bit_offset += 1;
-        if (flag)
+        gint8  bitmap_length;
+        item = proto_tree_add_text(tree, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_REPORTING_QUANTITY].strptr);
+        subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_REPORTING_QUANTITY]);
+
+        bitmap_length = tvb_get_bits8(tvb,bit_offset,7);
+        bitmap_length += 1;
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_emr_bitmap_length, tvb, bit_offset, 7, ENC_BIG_ENDIAN);
+        bit_offset += 7;
+
+        /* REPORTING_QUANTITY */
+        idx = 0;
+        while ((guint)(bit_offset>>3) <= (offset + len) && (idx < bitmap_length) )
         {
-            gint8  bitmap_length;
-            item = proto_tree_add_text(tree, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_REPORTING_QUANTITY].strptr);
-            subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_REPORTING_QUANTITY]);
-
-            bitmap_length = tvb_get_bits8(tvb,bit_offset,7);
-            bitmap_length += 1;
-            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_emr_bitmap_length, tvb, bit_offset, 7, ENC_BIG_ENDIAN);
-            bit_offset += 7;
-
-            /* REPORTING_QUANTITY */
-            idx = 0;
-            while ((guint)(bit_offset>>3) <= (offset + len) && (idx < bitmap_length) )
+           if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "Reporting Quantity", "Present", "Not Present"))
             {
-                value  = tvb_get_bits8(tvb,bit_offset,1);
-                bit_offset += 1;
-                if (value)
-                {
-                    proto_tree_add_text(subtree, tvb, bit_offset>>3, 1, "Neighbour Cell List index: %u", idx);
-                    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_reporting_quantity, tvb, bit_offset, 6, ENC_BIG_ENDIAN);
-                    bit_offset += 6;
-                }
-                idx += 1;
+                proto_tree_add_text(subtree, tvb, bit_offset>>3, 1, "Neighbour Cell List index: %u", idx);
+                proto_tree_add_bits_item(subtree, hf_gsm_a_rr_reporting_quantity, tvb, bit_offset, 6, ENC_BIG_ENDIAN);
+                bit_offset += 6;
             }
+            idx += 1;
+        }
 
-            /* E-UTRAN Measurement Report */
-            value  = tvb_get_bits8(tvb,bit_offset,1);
-            bit_offset += 1;
-            if (value)
-            {
-                bit_offset += sacch_rr_eutran_meas_report(tvb, subtree, bit_offset, len*8-(bit_offset-offset*8));
-            }
+        /* E-UTRAN Measurement Report */
+        if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "E-UTRAN Measurement Report", "Present", "Not Present"))
+        {
+            bit_offset += sacch_rr_eutran_meas_report(tvb, subtree, bit_offset, len*8-(bit_offset-offset*8));
         }
     }
+    gsm_rr_csn_spare_bits(tree, tvb, bit_offset);
 }
 
 #define NUM_GSM_DTAP_MSG_RR (sizeof(gsm_a_dtap_msg_rr_strings)/sizeof(value_string))
@@ -11179,8 +10732,8 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_rxlev_sub_serv_cell,
               { "RXLEV-SUB-SERVING-CELL","gsm_a.rr.rxlev_sub_serv_cell",
-                FT_UINT8,BASE_DEC|BASE_EXT_STRING,  &gsm_a_rr_rxlev_vals_ext, 0x3f,
-                NULL, HFILL }
+	        	FT_UINT8,BASE_DEC|BASE_EXT_STRING,  &gsm_a_rr_rxlev_vals_ext, 0x00,
+	            NULL, HFILL }
             },
             { &hf_gsm_a_rr_rxqual_full_serv_cell,
               { "RXQUAL-FULL-SERVING-CELL","gsm_a.rr.rxqual_full_serv_cell",
@@ -12037,6 +11590,11 @@ proto_register_gsm_a_rr(void)
               { "Penalty Time", "gsm_a.rr.penalty_time",
                 FT_UINT8, BASE_DEC, VALS(gsm_a_rr_penalty_time_vals), 0x0,
                 "Duration for which the temporary offset is applied (Penalty Time)", HFILL }
+            },
+            { &hf_gsm_a_rr_gprs_ra_colour,
+              { "GPRS RA Colour", "gsm_a.rr.gprs_ra_colour",
+		FT_UINT8, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }
             },
             { &hf_gsm_a_rr_si13_position,
               { "SI13 Position", "gsm_a.rr.si13_position",
