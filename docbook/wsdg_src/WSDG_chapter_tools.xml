@@ -259,8 +259,7 @@ PARTICULAR PURPOSE.]]>
       </para>
       <para>
         However, you might already have a different Microsoft C++ compiler
-        installed. With the considerations listed below, it should be possible
-        to use it as well:
+        installed. It should be possible to use any of the following with the considerations listed:
       </para>
 
       <informaltable frame="all">
@@ -300,81 +299,6 @@ PARTICULAR PURPOSE.]]>
             </row>
             <row>
               <entry>
-                <para>Visual Studio 6.0</para>
-              </entry>
-              <entry>
-                <para>Yes</para>
-              </entry>
-              <entry>
-                <para>Commercial
-                <superscript>1</superscript></para>
-              </entry>
-              <entry>
-                <para>
-                <ulink url="http://www.microsoft.com/msdownload/platformsdk/sdkupdate/psdk-full.htm">
-                Free Download</ulink> (342MB)</para>
-              </entry>
-              <entry>
-                <para>MSVC6</para>
-              </entry>
-              <entry>
-                <para>Microsoft Visual
-                Studio\VC98\Bin\vcvars32.bat</para>
-              </entry>
-              <entry>
-                <para>-</para>
-              </entry>
-            </row>
-            <row>
-              <entry>
-                <para>Visual Studio .NET (2002)</para>
-              </entry>
-              <entry>
-                <para>Yes</para>
-              </entry>
-              <entry>
-                <para>Commercial
-                <superscript>1</superscript></para>
-              </entry>
-              <entry align="center" morerows="2" valign="middle">
-                <para>No
-                <superscript>2</superscript></para>
-              </entry>
-              <entry>
-                <para>MSVC2002</para>
-              </entry>
-              <entry>
-                <para>Microsoft Visual Studio
-                .NET\Vc7\bin\vcvars32.bat</para>
-              </entry>
-              <entry>
-                <para>-</para>
-              </entry>
-            </row>
-            <row>
-              <entry>
-                <para>Visual Studio .NET 2003</para>
-              </entry>
-              <entry>
-                <para>Yes</para>
-              </entry>
-              <entry>
-                <para>Commercial
-                <superscript>1</superscript></para>
-              </entry>
-              <entry>
-                <para>MSVC2003</para>
-              </entry>
-              <entry>
-                <para>Microsoft Visual Studio .NET
-                2003\Vc7\bin\vcvars32.bat</para>
-              </entry>
-              <entry>
-                <para>-</para>
-              </entry>
-            </row>
-            <row>
-              <entry>
                 <para>Visual Studio 2005</para>
               </entry>
               <entry>
@@ -383,6 +307,10 @@ PARTICULAR PURPOSE.]]>
               <entry>
                 <para>Commercial
                 <superscript>1</superscript></para>
+              </entry>
+              <entry>
+                <para>No
+                <superscript>2</superscript></para>
               </entry>
               <entry>
                 <para>MSVC2005</para>
@@ -532,58 +460,8 @@ PARTICULAR PURPOSE.]]>
             </row>
             <row>
               <entry>
-                <para>.NET Framework SDK version 1.0a</para>
-              </entry>
-              <entry>
-                <para>No</para>
-              </entry>
-              <entry>
-                <para>
-                <ulink url="#">Free Download</ulink> (104MB)</para>
-              </entry>
-              <entry align="center" morerows="2" valign="middle">
-                <para>
-                  <ulink url="#">Free Download</ulink> (420MB)</para>
-              </entry>
-              <entry>
-                <para>DOTNET10</para>
-              </entry>
-              <entry>
-                <para>
-                Microsoft.NET\FrameworkSDK\Bin\corvars.bat</para>
-              </entry>
-              <entry>
-                <para>can't build setup
-                <superscript>4</superscript></para>
-              </entry>
-            </row>
-            <row>
-              <entry>
-                <para>.NET Framework SDK Version 1.1
-                <superscript>5</superscript></para>
-              </entry>
-              <entry>
-                <para>No</para>
-              </entry>
-              <entry>
-                <para>
-                <ulink url="#">Free Download</ulink> (106MB)</para>
-              </entry>
-              <entry>
-                <para>DOTNET11</para>
-              </entry>
-              <entry>
-                <para>Microsoft.NET\SDK\v1.1\Bin\sdkvars.bat</para>
-              </entry>
-              <entry>
-                <para>can't build setup
-                <superscript>4</superscript></para>
-              </entry>
-            </row>
-            <row>
-              <entry>
                 <para>.NET Framework 2.0 SDK
-                <superscript>5</superscript></para>
+                <superscript>4</superscript></para>
               </entry>
               <entry>
                 <para>No</para>
@@ -591,6 +469,10 @@ PARTICULAR PURPOSE.]]>
               <entry>
                 <para>
                 <ulink url="#">Free Download</ulink> (363MB)</para>
+              </entry>
+              <entry>
+                <para>
+                  <ulink url="#">Free Download</ulink> (420MB)</para>
               </entry>
               <entry>
                 <para>DOTNET20</para>
@@ -651,21 +533,11 @@ PARTICULAR PURPOSE.]]>
       The version of <filename>vcredist_x86.exe</filename> MUST match
       the version for your compiler.</para>
       <para>
-      <superscript>4</superscript>
-      <filename>Wireshark-win32-&WiresharkCurrentVersion;.x.exe</filename>
-      cannot be created with this package, as <filename>msvcr*.dll</filename>
-      is not available or not redistributable!</para>
-      <para>
-      <superscript>5</superscript>MSDN remarks that the
+      <superscript>4</superscript>MSDN remarks that the
       corresponding .NET runtime is required. It's currently
       unclear if the runtime needs to be installed for the C
       compiler to work - or is this only needed to compile / run
       .NET programs?!?</para>
-      <note>
-        <title>Note!</title>
-        <para>The "Visual C++ Toolkit 2003" should NOT be used to
-        compile Wireshark!</para>
-      </note>
     </section>
     <section>
       <title>Legal issues with MSVC &gt; V6?</title>
@@ -729,58 +601,6 @@ PARTICULAR PURPOSE.]]>
               </entry>
               <entry>
                 <para>CRT DLL</para>
-              </entry>
-            </row>
-            <row>
-              <entry>
-                <para>Visual Studio 6.0</para>
-              </entry>
-              <entry align="center">
-                <para>6.0</para>
-              </entry>
-              <entry align="center">
-                <para>1200</para>
-              </entry>
-              <entry align="center">
-                <para>msvcrt.dll (Version 6)</para>
-              </entry>
-            </row>
-            <row>
-              <entry>
-                <para>Visual Studio .NET (2002)</para>
-              </entry>
-              <entry align="center" morerows="1" valign="middle">
-                <para>7.0</para>
-              </entry>
-              <entry align="center" morerows="1" valign="middle">
-                <para>1300</para>
-              </entry>
-              <entry align="center" morerows="1" valign="middle">
-                <para>msvcr70.dll</para>
-              </entry>
-            </row>
-            <row>
-              <entry>
-                <para>.NET Framework SDK version 1.0a</para>
-              </entry>
-            </row>
-            <row>
-              <entry>
-                <para>Visual Studio .NET 2003</para>
-              </entry>
-              <entry align="center" morerows="1" valign="middle">
-                <para>7.10</para>
-              </entry>
-              <entry align="center" morerows="1" valign="middle">
-                <para>1310</para>
-              </entry>
-              <entry align="center" morerows="1" valign="middle">
-                <para>msvcr71.dll</para>
-              </entry>
-            </row>
-            <row>
-              <entry>
-                <para>.NET Framework SDK Version 1.1</para>
               </entry>
             </row>
             <row>
@@ -919,9 +739,7 @@ Stop.]]>
       like: msvcr&lt;version&gt;.dll, an abbreviation for
       "MicroSoft Visual C Runtime". For Wireshark to work, this DLL
       must be available on the users machine.</para>
-      <para>MSVC6 was using msvcrt.dll, which is already available
-      on all recent windows systems - no need to redistribute
-      anything. Starting with MSVC7, it is necessary to ship the C
+      <para>Starting with MSVC7, it is necessary to ship the C
       runtime DLL (msvcr&lt;version&gt;.dll) together with the
       application installer somehow, as that DLL is possibly not
       available on the target system.</para>
@@ -957,31 +775,6 @@ Stop.]]>
           </listitem>
         </itemizedlist>
       </para>
-      <section>
-        <title>msvcrt.dll - Version 6.0</title>
-        <para>Redistributables weren't an issue with MSVC 6, as any
-        realistic installer target system (&gt;= Win95) already
-        contains the corresponding msvcrt.dll.</para>
-      </section>
-      <section>
-        <title>msvcr70.dll - Version 7.0 (2002)</title>
-        <para>"Visual Studio .NET (2002)" - comes with this dll and
-        it's mentioned in redist.txt.</para>
-        <para>".NET Framework SDK 1.0" doesn't even come with this
-        dll. XXX - Is this file available with the .NET 1.0
-        runtime (dotnetfx.exe) - so it could be shipped instead?!?
-        Do we want it that way?</para>
-      </section>
-      <section>
-        <title>msvcr71.dll - Version 7.1 (2003)</title>
-        <para>"Visual Studio .NET 2003" comes with this dll
-        and it's mentioned in redist.txt.</para>
-        <para>".NET Framework SDK 1.1" comes with this dll, but
-        it's NOT mentioned in redist.txt. XXX - Is this file
-        available with the .NET 1.1 runtime
-        (dotnetfx.exe) - so it could be shipped instead ?!? Do we
-        want it that way?</para>
-      </section>
       <section>
         <title>msvcr80.dll / vcredist_x86.exe - Version 8.0
         (2005)</title>

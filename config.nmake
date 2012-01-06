@@ -78,30 +78,7 @@ PROCESSOR_ARCHITECTURE=amd64
 
 ##### Microsoft Visual C / Studio Variant #####
 # For the different Studios, see: http://en.wikipedia.org/wiki/Microsoft_Visual_Studio
-# only one of the following MSVC_VARIANT settings should be used
-# BTW: The "Microsoft Visual C++ Toolkit 2003" DOESN'T WORK for WS!
-
-# "Microsoft Visual Studio 6.0"
-# Visual C++ 6.0, _MSC_VER 1200, msvcrt.dll (version 6)
-#MSVC_VARIANT=MSVC6
-
-# "Microsoft Visual Studio .NET (2002)"
-# Visual C++ 7.0, _MSC_VER 1300, msvcr70.dll
-#MSVC_VARIANT=MSVC2002
-
-# "Microsoft .Net Framework SDK Version 1.0"
-# needs additional Platform SDK installation
-# Visual C++ 7.0, _MSC_VER 1300, msvcr70.dll
-#MSVC_VARIANT=DOTNET10
-
-# "Microsoft Visual Studio .NET 2003"
-# Visual C++ 7.1, _MSC_VER 1310, msvcr71.dll
-#MSVC_VARIANT=MSVC2003
-
-# "Microsoft .Net Framework SDK Version 1.1"
-# needs additional Platform SDK installation
-# Visual C++ 7.1, _MSC_VER 1310, msvcr71.dll
-#MSVC_VARIANT=DOTNET11
+# Only one of the following MSVC_VARIANT settings should be used
 
 # "Microsoft Visual Studio 2005"
 # Visual C++ 8.0, _MSC_VER 1400, msvcr80.dll
@@ -406,12 +383,7 @@ SMI_PKG=svn-40773
 #
 # Used to map IP addresses to MaxMind GeoIP database entries
 #
-# GeoIP requires IPv6 definitions that don't ship with Visual C++ 6.0.
-# However, the Microsoft Platform SDK for Windows Server 2003 R2 provides
-# these definitions. The SDK's SetEnv.bat script defines INETSDK.
-!IF "$(MSVC_VARIANT)" != "MSVC6" || DEFINED(INETSDK)
 GEOIP_DIR=$(WIRESHARK_LIB_DIR)\GeoIP-1.4.6-win32ws\libGeoIP
-!ENDIF
 
 !else
 ##### Win64 Libraries #####
@@ -684,14 +656,7 @@ MAKENSIS_UNICODE="$(PROGRAM_FILES)\NSIS\Unicode\makensis.exe"
 #
 # Recommended: Use the compressed html help format .chm as the Wireshark integrated help.
 #
-# The required htmlhelp.h and htmlhelp.lib should be included in MSVC_VARIANT > MSVC6.
-#
-# For MSVC_VARIANT == MSVC6 you will have to download and install the html help workshop from:
-#
-# http://msdn.microsoft.com/library/default.asp?url=/library/en-us/htmlhelp/html
-# /hwMicrosoftHTMLHelpDownloads.asp
-#
-# Then point HHC_DIR to the html help dir (where hhc.exe resides).
+# The required htmlhelp.h and htmlhelp.lib should be included in versions of MSVC supported by Wireshark
 #
 # If you don't want the online help (or don't have the tools),
 # comment this line out, so that HHC_DIR isn't defined.
@@ -720,13 +685,7 @@ UPX=$(WIRESHARK_LIB_DIR)\upx303w\upx.exe
 !ENDIF
 
 # "convert" the MSVC variant into the required MSC compiler version
-!IF "$(MSVC_VARIANT)" == "MSVC6"
-MSC_VER_REQUIRED=1200
-!ELSEIF "$(MSVC_VARIANT)" == "MSVC2002" || "$(MSVC_VARIANT)" == "DOTNET10"
-MSC_VER_REQUIRED=1300
-!ELSEIF "$(MSVC_VARIANT)" == "MSVC2003" || "$(MSVC_VARIANT)" == "DOTNET11"
-MSC_VER_REQUIRED=1310
-!ELSEIF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20"
+!IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20"
 MSC_VER_REQUIRED=1400
 !ELSEIF "$(MSVC_VARIANT)" == "MSVC2008" ||  "$(MSVC_VARIANT)" == "MSVC2008EE"
 MSC_VER_REQUIRED=1500
@@ -759,14 +718,7 @@ MANIFEST_INFO_REQUIRED=1
 #
 ##Note: LOCAL_CFLAGS are flags used for *all* compilations
 ##      STANDARD_CFLAGS (see below) are flags used just for *Wireshark* compilations
-!IF     "$(MSVC_VARIANT)" == "MSVC6"      || \
-        "$(MSVC_VARIANT)" == "MSVC2002"   || \
-        "$(MSVC_VARIANT)" == "DOTNET10"   || \
-        "$(MSVC_VARIANT)" == "MSVC2003"   || \
-        "$(MSVC_VARIANT)" == "DOTNET11"
-LOCAL_CFLAGS=/Zi /W3 /MD /DWIN32_LEAN_AND_MEAN /DMSC_VER_REQUIRED=$(MSC_VER_REQUIRED)
-
-!ELSEIF "$(MSVC_VARIANT)" == "MSVC2005"   || \
+!IF "$(MSVC_VARIANT)" == "MSVC2005"   || \
         "$(MSVC_VARIANT)" == "MSVC2005EE" || \
         "$(MSVC_VARIANT)" == "DOTNET20"   || \
         "$(MSVC_VARIANT)" == "MSVC2008"   || \
@@ -887,27 +839,10 @@ INSTALL_DIR=wireshark-gtk2
 # packages, the following will use the default paths depending
 # on the package version.
 #
-!IF "$(MSVC_VARIANT)" == "MSVC6"
-# msvcrt.dll will already be available on target machines - nothing additional to install
-
-!ELSEIF "$(WIRESHARK_TARGET_PLATFORM)" == "win64"
+!IF "$(WIRESHARK_TARGET_PLATFORM)" == "win64"
 # We're not creating portable packages and therefore don't have to worry about
 # "deploying using xcopy"
 VCREDIST_EXE=$(WIRESHARK_LIB_DIR)\vcredist_$(TARGET_MACHINE).exe
-
-!ELSEIF "$(MSVC_VARIANT)" == "MSVC2002"
-# you probably need to tweak this directory if you don't use the professional edition!
-MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio .NET\Visual Studio .NET Professional - English\msvcr70.dll
-
-!ELSEIF "$(MSVC_VARIANT)" == "DOTNET10"
-# no redistributable available for this package!
-
-!ELSEIF "$(MSVC_VARIANT)" == "MSVC2003"
-# you probably need to tweak this directory if you don't use the professional edition!
-MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio .NET 2003\Visual Studio .NET Professional 2003 - English\msvcr71.dll
-
-!ELSEIF "$(MSVC_VARIANT)" == "DOTNET11"
-# no redistributable available for this package!
 
 !ELSEIF "$(MSVC_VARIANT)" == "MSVC2005"
 MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio 8\VC\redist\$(PROCESSOR_ARCHITECTURE)\Microsoft.VC80.CRT\*.*
@@ -1249,13 +1184,8 @@ PORTAUDIO_CONFIG=
 !ENDIF
 
 !IFDEF HHC_DIR
-!IF "$(MSVC_VARIANT)" == "MSVC6"
-HHC_CFLAGS=/I"$(HHC_DIR)\include" -DHHC_DIR
-HHC_LIBS="$(HHC_DIR)\lib\htmlhelp.lib"
-!ELSE
 HHC_CFLAGS=-DHHC_DIR
 HHC_LIBS=htmlhelp.lib
-!ENDIF
 !ELSE
 HHC_CFLAGS=
 HHC_LIBS=
@@ -1296,15 +1226,6 @@ LIBWIRESHARK_CONFIG=
 # Construct the path
 PATH=$(PATH);$(CYGWIN_PATH);$(GTK_DIR)\bin;$(GETTEXT_DIR)\bin;$(ZLIB_PATH);$(ADNS_PATH)
 
-# We can't use a lot of IPv6 code with plain Visual C++ 6.0
-!IF "$(MSVC_VARIANT)" == "MSVC6" && !DEFINED(MSSDK)
-INET6_CONFIG=
-!ELSE
 INET6_CONFIG=^#define INET6 1
-!ENDIF
 
-!IF "$(MSVC_VARIANT)" == "MSVC6" && !DEFINED(MSSDK)
-NTDDNDIS_CONFIG=
-!ELSE
 NTDDNDIS_CONFIG=^#define HAVE_NTDDNDIS_H 1
-!ENDIF

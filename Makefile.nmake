@@ -493,9 +493,7 @@ clean: clean-local
 # It does not remove generated files that are part of the distribution.
 distclean-local: clean-local
 !IFDEF ADNS_DIR
-!IF "$(MSVC_VARIANT)" != "MSVC6"
 	rm -f $(ADNS_DLL) $(ADNS_LIBS)
-!ENDIF
 !ENDIF
 !IFDEF ZLIB_DIR
 	rm -f $(ZLIB_DLL) $(ZLIB_DIR)\zlib1.dll.manifest \
@@ -587,21 +585,15 @@ image::
 	cd ..
 
 !IFDEF ADNS_DIR
-# Non-MSVC6 variants have to avoid indirectly using msvcrt.dll,
+# MSVC variants supported by Wireshark have to avoid indirectly using msvcrt.dll,
 # therefore compile the adns dll from source ADNS_DIR package.
 # To avoid path problems, copy the adns sources to a temp dir,
 # compile and copy the resulting files back to (source) ADNS_DIR
 #
 # Unfortunately:
 # - we need to "patch" adns_dll.rep and adns_dll.rc (at least for MSVC2005EE)
-# - on MSVC6 we can't easily rebuild, because iphlpapi.h is needed
 #
 $(ADNS_DLL):
-!IF "$(MSVC_VARIANT)" == "MSVC6"
-	if not exist $(WIRESHARK_LIB_DIR)\$(MSVC_VARIANT)\adns mkdir $(WIRESHARK_LIB_DIR)\$(MSVC_VARIANT)\adns
-	copy $(ADNS_DIR)\adns_win32\lib\adns_dll.dll $(ADNS_DLL)
-	copy $(ADNS_DIR)\adns_win32\lib\adns_dll.lib $(ADNS_LIBS)
-!ELSE
 	xcopy $(ADNS_DIR) adns.tmp /D /I /E /Y
 	copy adns_dll.dep adns.tmp\adns_win32\adns_dll
 	copy adns_dll.rc adns.tmp\adns_win32\adns_dll
@@ -618,10 +610,9 @@ $(ADNS_DLL):
 	cd ..\..\..
 	rm -r -f adns.tmp
 !ENDIF
-!ENDIF
 
 !IFDEF ZLIB_DIR
-# Non-MSVC6 variants have to avoid indirectly using msvcrt.dll,
+# MSVC variants supported by Wireshark have to avoid indirectly using msvcrt.dll,
 # therefore compile the zlib dll from source ZLIB_DIR package.
 # To avoid path problems, copy the zlib sources to a temp dir,
 # compile and copy the resulting files back to (source) ZLIB_DIR
