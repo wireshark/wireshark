@@ -1177,7 +1177,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
         if (no_of_bits > 0)
         { /* a non empty bitmap */
           proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s",
-                                     decode_bits_in_field(bit_offset, no_of_bits, tvb_get_bits8(tvb, bit_offset, no_of_bits)),
+                                     decode_bits_in_field(bit_offset, no_of_bits, tvb_get_bits(tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN)),
                                      pDescr->sz);
           remaining_bits_len -= no_of_bits;
 
@@ -1476,5 +1476,3 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
 
   return ProcessError(tree, tvb, bit_offset,"csnStreamDissector", CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, pDescr);
 }
-
-

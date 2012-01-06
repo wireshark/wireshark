@@ -2322,7 +2322,7 @@ ssl_privkey_to_sexp(struct gnutls_x509_privkey_int* priv_key)
 {
     gnutls_datum_t rsa_datum[RSA_PARS]; /* m, e, d, p, q, u */
     size_t tmp_size;
-    gcry_sexp_t rsa_priv_key;
+    gcry_sexp_t rsa_priv_key = NULL;
     gint major, minor, patch;
     gint i, p_idx, q_idx;
     int ret;
@@ -2403,7 +2403,7 @@ ssl_privkey_to_sexp(struct gnutls_x509_privkey_int* priv_key)
         return NULL;
     }
 
-#if SSL_FAST
+#ifdef SSL_FAST
     return rsa_params;
 #else
     for (i=0; i< 6; i++)
@@ -2425,10 +2425,7 @@ ssl_load_key(FILE* fp)
     gint size;
     guint bytes;
 
-    Ssl_private_key_t *private_key = g_malloc(sizeof(Ssl_private_key_t));
-    private_key->x509_cert = 0;
-    private_key->x509_pkey = 0;
-    private_key->sexp_pkey = 0;
+    Ssl_private_key_t *private_key = g_malloc0(sizeof(Ssl_private_key_t));
 
     /* init private key data*/
     gnutls_x509_privkey_init(&priv_key);
@@ -2518,10 +2515,7 @@ ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd) {
     gnutls_x509_crt_t     ssl_cert = NULL;
     gnutls_x509_privkey_t ssl_pkey = NULL;
 
-    Ssl_private_key_t *private_key = g_malloc(sizeof(Ssl_private_key_t));
-    private_key->x509_cert = 0;
-    private_key->x509_pkey = 0;
-    private_key->sexp_pkey = 0;
+    Ssl_private_key_t *private_key = g_malloc0(sizeof(Ssl_private_key_t));
 
     rest = 4096;
     data.data = g_malloc(rest);
@@ -2664,7 +2658,7 @@ ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd) {
 
 void ssl_free_key(Ssl_private_key_t* key)
 {
-#if SSL_FAST
+#ifdef SSL_FAST
     gint i;
     for (i=0; i< 6; i++)
         gcry_mpi_release(key->sexp_pkey[i]);
@@ -3167,19 +3161,6 @@ ssl_parse_key_list(const ssldecrypt_assoc_t * uats, GHashTable *key_hash, GTree*
         return;
     }
 
-    if ((gint)strlen(uats->password) == 0) {
-         private_key = ssl_load_key(fp);
-    } else {
-        private_key = ssl_load_pkcs12(fp, uats->password);
-    }
-
-    fclose(fp);
-
-    if (!private_key) {
-        fprintf(stderr,"Can't load private key from %s\n", uats->keyfile);
-        return;
-    }
-
     for (at = 0; at < 2; at++) {
         memset(addr_data, 0, sizeof(addr_data));
         addr_len = 0;
@@ -3202,6 +3183,18 @@ ssl_parse_key_list(const ssldecrypt_assoc_t * uats, GHashTable *key_hash, GTree*
 
         if (! addr_len) {
             continue;
+        }
+
+        if ((gint)strlen(uats->password) == 0) {
+            private_key = ssl_load_key(fp);
+        } else {
+            private_key = ssl_load_pkcs12(fp, uats->password);
+        }
+
+        if (!private_key) {
+            fprintf(stderr,"Can't load private key from %s\n", uats->keyfile);
+            fclose(fp);
+            return;
         }
 
         service = g_malloc(sizeof(SslService) + addr_len);
@@ -3233,6 +3226,8 @@ ssl_parse_key_list(const ssldecrypt_assoc_t * uats, GHashTable *key_hash, GTree*
 
         ssl_association_add(associations, handle, service->port, uats->protocol, tcp, TRUE);
     }
+
+    fclose(fp);
 }
 
 /* store master secret into session data cache */

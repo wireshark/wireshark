@@ -131,6 +131,24 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Incorrect time differences displayed with time reference set.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5580">Bug
+          5580</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wrong packet type association of SNMP trap after TFTP transfer.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5727">Bug
+          5727</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          SSL/TLS decryption needs wireshark to be rebooted.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6032">Bug
+          6032</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Export HTTP Objects -&gt; save all crashes Wireshark.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6250">Bug
           6250</ulink>)
@@ -167,6 +185,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Incorrect Parsing of SCPS Capabilities Option introduced in response to bug 6194.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6562">Bug
+          6562</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Various crashes after loading NetMon2.x capture file.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6578">Bug
           6578</ulink>)
@@ -196,6 +220,18 @@ Wireshark Info
           6660</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          Wrong tvb_get_bits function call in packet-csn1.c.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6708">Bug
+          6708</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          [UDP] - Length Field of Pseudo Header while computing CheckSum is not correct.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6711">Bug
+          6711</ulink>)
+        </para></listitem>
+
      </itemizedlist>
 
     </para>
@@ -222,6 +258,7 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 BGP,
+CSN1,
 DCERPC EPM,
 GSM Management,
 HPTEAM,

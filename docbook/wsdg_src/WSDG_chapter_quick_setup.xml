@@ -105,6 +105,9 @@ title Command Prompt (VC++ 2008)]]>
           <para>Archive/unzip</para>
         </listitem>
         <listitem>
+          <para>Base/rebase</para>
+        </listitem>
+        <listitem>
           <para>Devel/bison</para>
         </listitem>
         <listitem>
