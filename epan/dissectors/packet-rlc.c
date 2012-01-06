@@ -276,7 +276,7 @@ static int rlc_channel_assign(struct rlc_channel *ch, enum rlc_mode mode, packet
 	ch->rbid = rlcinf->rbid[fpinf->cur_tb];
 	ch->dir = pinfo->p2p_dir;
 	ch->mode = mode;
-	
+
 	return 0;
 }
 
@@ -365,7 +365,7 @@ static int rlc_frag_assign(struct rlc_frag *frag, enum rlc_mode mode, packet_inf
 	return 0;
 }
 
-static int rlc_frag_assign_data(struct rlc_frag *frag, tvbuff_t *tvb, 
+static int rlc_frag_assign_data(struct rlc_frag *frag, tvbuff_t *tvb,
 	guint16 offset, guint16 length)
 {
 	frag->len = length;
@@ -400,7 +400,7 @@ static int rlc_cmp_seq(gconstpointer a, gconstpointer b)
  * with older versions of glib which do not have
  * a g_hash_table_remove_all() (because of this,
  * hashtables are emptied using g_hash_table_foreach_remove()
- * in conjunction with this funcion)
+ * in conjunction with this function)
  */
 static gboolean free_table_entry(gpointer key _U_,
 	gpointer value _U_, gpointer user_data _U_)
@@ -440,7 +440,7 @@ static void fragment_table_init(void)
 		rlc_channel_delete, rlc_sdu_frags_delete);
 	reassembled_table = g_hash_table_new_full(rlc_frag_hash, rlc_frag_equal,
 		rlc_frag_delete, rlc_sdu_frags_delete);
-	sequence_table = g_hash_table_new_full(rlc_channel_hash, rlc_channel_equal, 
+	sequence_table = g_hash_table_new_full(rlc_channel_hash, rlc_channel_equal,
 		NULL, free_sequence_table_entry_data);
 }
 
@@ -494,7 +494,7 @@ static proto_tree *tree_add_li(struct rlc_li *li, guint8 li_idx, guint8 hdr_offs
 	proto_item *ti;
 	proto_tree *li_tree;
 	guint8 li_offs;
-	
+
 	if (!tree) return NULL;
 
 	li_offs = hdr_offs + li_idx;
@@ -506,7 +506,7 @@ static proto_tree *tree_add_li(struct rlc_li *li, guint8 li_idx, guint8 hdr_offs
 
 	if (li->len > 0) {
 		if (li->li > tvb_length_remaining(tvb, hdr_offs)) return li_tree;
-		if (li->len > li->li) return li_tree; 
+		if (li->len > li->li) return li_tree;
 		proto_tree_add_item(li_tree, hf_rlc_li_data, tvb, hdr_offs + li->li - li->len, li->len, FALSE);
 	}
 
@@ -575,7 +575,7 @@ static void reassemble_message(struct rlc_channel *ch, struct rlc_sdu *sdu, stru
 	sdu->data = se_alloc(sdu->len);
 
 	temp = sdu->frags;
-	while (temp) {
+	while (temp && ((offs + temp->len) <= sdu->len)) {
 		memcpy(sdu->data + offs, temp->data, temp->len);
 		/* mark this fragment in reassembled table */
 		g_hash_table_insert(reassembled_table, temp, sdu);
@@ -747,7 +747,7 @@ static gboolean rlc_is_duplicate(enum rlc_mode mode, packet_info *pinfo, guint16
 static void rlc_call_subdissector(enum channel_type channel, tvbuff_t *tvb,
 	packet_info *pinfo,	proto_tree *tree)
 {
-	enum rrc_message_type msgtype; 
+	enum rrc_message_type msgtype;
 
 	switch (channel) {
 		case UL_CCCH:
@@ -825,7 +825,7 @@ static void rlc_um_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo, pr
 			dissected = TRUE;
 			rlc_call_subdissector(channel, next_tvb, pinfo, top_level);
 			next_tvb = NULL;
-		} 
+		}
 		offs += li[i].len;
 	}
 
@@ -863,7 +863,7 @@ static gint16 rlc_decode_li(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinf
 		hdr_len++;
 	}
 	total_len = tvb_length_remaining(tvb, hdr_len);
-	
+
 	/* do actual evaluation of LIs */
 	ext = tvb_get_guint8(tvb, offs++) & 0x01;
 	li_offs = offs;
@@ -1317,7 +1317,7 @@ static void dissect_rlc_dcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		ti = proto_tree_add_item(tree, proto_rlc, tvb, 0, -1, FALSE);
 		subtree = proto_item_add_subtree(ti, ett_rlc);
 	}
-	
+
 	channel = fpi->is_uplink ? UL_DCCH : DL_DCCH;
 
 	switch (rlci->mode[fpi->cur_tb]) {
@@ -1351,7 +1351,7 @@ static void dissect_rlc_ps_dtch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 		ti = proto_tree_add_item(tree, proto_rlc, tvb, 0, -1, FALSE);
 		subtree = proto_item_add_subtree(ti, ett_rlc);
 	}
-	
+
 	switch (rlci->mode[fpi->cur_tb]) {
 		case RLC_UM:
 			proto_item_append_text(ti, " UM (PS DTCH)");
@@ -1382,7 +1382,7 @@ proto_register_rlc(void)
 		{ &hf_rlc_frags, { "Reassembled Fragments", "rlc.fragments", FT_NONE, BASE_NONE, NULL, 0, "Fragments", HFILL } },
 		{ &hf_rlc_frag, { "RLC Fragment", "rlc.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL } },
 		{ &hf_rlc_duplicate_of, { "Duplicate of", "rlc.duplicate_of", FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL } },
-		{ &hf_rlc_reassembled_in, { "Reassembled Message in frame", "rlc.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL } }, 
+		{ &hf_rlc_reassembled_in, { "Reassembled Message in frame", "rlc.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL } },
 		{ &hf_rlc_data, { "Data", "rlc.data", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL } },
 		/* LI information */
 		{ &hf_rlc_li, { "LI", "rlc.li", FT_NONE, BASE_NONE, NULL, 0, "Length Indicator", HFILL } },
