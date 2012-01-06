@@ -338,6 +338,26 @@ int netmon_open(wtap *wth, int *err, gchar **err_info)
 		g_free(netmon);
 		return -1;
 	}
+	/*
+	 * XXX - clamp the size of the frame table, so that we don't
+	 * attempt to allocate a huge frame table and fail.
+	 *
+	 * Given that file offsets in the frame table are 32-bit,
+	 * a NetMon file cannot be bigger than 2^32 bytes.
+	 * Given that a NetMon 1.x-format packet header is 8 bytes,
+	 * that means a NetMon file cannot have more than
+	 * 512*2^20 packets.  We'll pick that as the limit for
+	 * now; it's 1/8th of a 32-bit address space, which is
+	 * probably not going to exhaust the address space all by
+	 * itself, and probably won't exhaust the backing store.
+	 */
+	if (frame_table_size > 512*1024*1024) {
+		*err = WTAP_ERR_UNSUPPORTED;
+		*err_info = g_strdup_printf("netmon: frame table length is %u, which is larger than we support",
+		    frame_table_length);
+		g_free(netmon);
+		return -1;
+	}
 	if (file_seek(wth->fh, frame_table_offset, SEEK_SET, err) == -1) {
 		g_free(netmon);
 		return -1;

@@ -500,9 +500,22 @@ static gboolean airopeekv9_read(wtap *wth, int *err, gchar **err_info,
 	return FALSE;
     wth->data_offset += hdrlen;
 
-    /* force sliceLength to be the actual length of the packet */
+    /*
+     * If sliceLength is 0, force it to be the actual length of the packet.
+     */
     if (hdr_info.sliceLength == 0)
 	hdr_info.sliceLength = hdr_info.length;
+
+    if (hdr_info.sliceLength > WTAP_MAX_PACKET_SIZE) {
+	/*
+	 * Probably a corrupt capture file; don't blow up trying
+	 * to allocate space for an immensely-large packet.
+	 */
+	*err = WTAP_ERR_BAD_RECORD;
+	*err_info = g_strdup_printf("airopeek9: File has %u-byte packet, bigger than maximum of %u",
+	    hdr_info.sliceLength, WTAP_MAX_PACKET_SIZE);
+	return FALSE;
+    }
 
     /* fill in packet header length values before slicelength may be
        adjusted */

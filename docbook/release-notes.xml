@@ -39,14 +39,24 @@ Wireshark Info
             <ulink url="http://www.wireshark.org/security/wnpa-sec-2011-20.html">wnpa-sec-2011-20</ulink>
           </para>
           <para>
-            .
-            <!-- Fixed in trunk: r????? -->
-            <!-- Fixed in trunk-1.6: r????? -->
-            <!-- Fixed in trunk-1.4: r????? -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
-            ????</ulink>)
+            Wireshark failed to properly check record sizes for many packet capture file formats.
+            <!-- Fixed in trunk: r40164, r40165, r40166, r40167, r40168, r40169, r40170, r40174  -->
+            <!-- Fixed in trunk-1.6: r40398 -->
+            <!-- Fixed in trunk-1.4: r40252 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6663">Bug
+            6663</ulink>,
+            <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6666">bug
+            6666</ulink>,
+            <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6667">bug
+            6667</ulink>,
+            <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6668">bug
+            6668</ulink>,
+            <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6669">bug
+            6669</ulink>,
+            <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6670">bug
+            6670</ulink>)
           </para>
-          <para>Versions affected: 1.6.0 to 1.6.4.</para>
+          <para>Versions affected: 1.6.0 to 1.6.4, 1.4.0 to 1.4.10.</para>
           <!-- <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-????">CVE-2011-????</ulink>
           </para> -->
@@ -185,7 +195,17 @@ ZigBee ZCL
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-Netmon, Pcap-ng, Sniffer, Tektronix K12.
+Accellent 5Views,
+AIX iptrace,
+HP-UX nettl,
+I4B,
+Microsoft Network Monitor,
+Novell LANalyzer,
+PacketLogger,
+Pcap-ng,
+Sniffer,
+Tektronix K12,
+WildPackets {Airo,Ether}Peek.
 
     </para>
     </section>

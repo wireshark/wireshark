@@ -318,6 +318,17 @@ static gboolean nettl_read(wtap *wth, int *err, gchar **err_info,
     }
     wth->data_offset += ret;
 
+    if (wth->phdr.caplen > WTAP_MAX_PACKET_SIZE) {
+	/*
+	 * Probably a corrupt capture file; don't blow up trying
+	 * to allocate space for an immensely-large packet.
+	 */
+	*err = WTAP_ERR_BAD_RECORD;
+	*err_info = g_strdup_printf("nettl: File has %u-byte packet, bigger than maximum of %u",
+	    wth->phdr.caplen, WTAP_MAX_PACKET_SIZE);
+	return FALSE;
+    }
+
     /*
      * If the per-file encapsulation isn't known, set it to this
      * packet's encapsulation.
