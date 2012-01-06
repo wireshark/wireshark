@@ -436,7 +436,7 @@ dissect_compressed_list(int expected_encoding_type, packet_info *pinfo,
     proto_item *list_ti, *et_ti;
     proto_item *list_tree;
     guint8 first_byte = tvb_get_guint8(tvb, offset);
-    guint8 ET, GP, PS /*, CC */;
+    guint8 ET, GP /* , PS , CC */;
     int start_offset = offset;
 
     /* Compressed list root */
@@ -461,7 +461,7 @@ dissect_compressed_list(int expected_encoding_type, packet_info *pinfo,
     switch (ET) {
         case 0:
             /* 5.8.6.1 */
-            PS = (first_byte & 0x20) >> 4;
+            /* PS = (first_byte & 0x20) >> 4; */
             proto_tree_add_item(list_tree, hf_rohc_compressed_list_ps, tvb, offset, 1, ENC_BIG_ENDIAN);
             /* CC = first_byte & 0x0f; */
             proto_tree_add_item(list_tree, hf_rohc_compressed_list_cc, tvb, offset, 1, ENC_BIG_ENDIAN);
