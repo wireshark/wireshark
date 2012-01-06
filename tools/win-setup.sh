@@ -56,7 +56,7 @@ find_proxy() {
 	fi
 
 	# ...and wget can't fetch two registry keys because...?
-	proxy_enabled=`regtool get /HKCU/Software/Microsoft/Windows/CurrentVersion/Internet\ Settings/ProxyEnable 2>/dev/null | tr -d '\012'`
+	proxy_enabled=$(regtool get /HKCU/Software/Microsoft/Windows/CurrentVersion/Internet\ Settings/ProxyEnable 2>/dev/null | tr -d '\012')
 	#
 	# Bash's test command appears not to use short-circuit evaluation,
 	# so
@@ -70,7 +70,7 @@ find_proxy() {
 	#
 	if [ -n "$proxy_enabled" ] ; then
 		if [ "$proxy_enabled" -ne 0 ] ; then
-			export http_proxy=`regtool get /HKCU/Software/Microsoft/Windows/CurrentVersion/Internet\ Settings/ProxyServer 2>/dev/null`
+			export http_proxy=$(regtool get /HKCU/Software/Microsoft/Windows/CurrentVersion/Internet\ Settings/ProxyServer 2>/dev/null)
 			echo "Using Internet Explorer proxy settings."
 		fi
 	fi
@@ -121,11 +121,11 @@ case "$1" in
 				;;
 		esac
 
-		APP_PATH=`cygpath --unix "$APP"`
+		APP_PATH=$(cygpath --unix "$APP")
 		if [ -x "$APP_PATH" -a ! -d "$APP_PATH" ] ; then
 			APP_LOC="$APP_PATH"
 		else
-			APP_LOC=`which $APP_PATH 2> /dev/null`
+			APP_LOC=$(which "$APP_PATH" 2> /dev/null)
 		fi
 		echo "$APP_LOC" | grep "$PATH_RE" > /dev/null 2>&1
 		IN_PATH=$?
@@ -149,10 +149,10 @@ case "$1" in
 	if [ -z "$2" -o -z "$3" -o -z "$4" ] ; then
 		usage
 	fi
-	DEST_PATH=`cygpath "$2"`
+	DEST_PATH=$(cygpath "$2")
 	PACKAGE_PATH=$4
-	PACKAGE=`basename "$PACKAGE_PATH"`
-	if [ ! -e $DEST_PATH/$PACKAGE ] ; then
+	PACKAGE=$(basename "$PACKAGE_PATH")
+	if [ ! -e "$DEST_PATH/$PACKAGE" ] ; then
 		err_exit "Package $PACKAGE is needed but is apparently not downloaded; 'nmake -f ... setup' required ?"
 	fi
 	;;
@@ -160,30 +160,30 @@ case "$1" in
 	if [ -z "$2" -o -z "$3" -o -z "$4" ] ; then
 		usage
 	fi
-	DEST_PATH=`cygpath "$2"`
+	DEST_PATH=$(cygpath "$2")
 	DEST_SUBDIR=$3
 	PACKAGE_PATH=$4
-	PACKAGE=`basename "$PACKAGE_PATH"`
+	PACKAGE=$(basename "$PACKAGE_PATH")
 	echo ""
 	echo "****** $PACKAGE ******"
 	find_proxy
-	echo "Downloading $4 into $DEST_PATH, installing into $3"
+	echo "Downloading $4 into '$DEST_PATH', installing into $3"
 	if [ ! -d "$DEST_PATH/$DEST_SUBDIR" ] ; then
 		mkdir -p "$DEST_PATH/$DEST_SUBDIR" || \
-			err_exit "Can't create $DEST_PATH/$DEST_SUBDIR"
+			err_exit "Can't create '$DEST_PATH/$DEST_SUBDIR'"
 	fi
-	cd "$DEST_PATH" || err_exit "Can't find $DEST_PATH"
+	cd "$DEST_PATH" || err_exit "Can't find '$DEST_PATH'"
 	wget $use_proxy -nc "$DOWNLOAD_PREFIX/$PACKAGE_PATH" || \
 		err_exit "Can't download $DOWNLOAD_PREFIX/$PACKAGE_PATH"
 	cd "$DEST_SUBDIR" || err_exit "Can't find $DEST_SUBDIR"
-	echo "Extracting $DEST_PATH/$PACKAGE into $DEST_PATH/$DEST_SUBDIR"
+	echo "Extracting '$DEST_PATH/$PACKAGE' into '$DEST_PATH/$DEST_SUBDIR'"
 	unzip -oq "$DEST_PATH/$PACKAGE" ||
-		err_exit "Couldn't unpack $DEST_PATH/$PACKAGE"
+		err_exit "Couldn't unpack '$DEST_PATH/$PACKAGE'"
 	echo "Verifying that the DLLs and EXEs in $DEST_SUBDIR are executable."
 	# XX: Note that find will check *all* dlls/exes in DEST_SUBDIR and below
 	#     which may be more than those just unzipped depending upon DEST_SUBDIR.
 	#     This may cause extra repeated checks but will do no harm.
-	for i in `/usr/bin/find . \( -name '*\.dll' -o -name '*\.exe' \)` ; do
+	for i in $(/usr/bin/find . \( -name '*\.dll' -o -name '*\.exe' \)) ; do
 		if [ ! -x "$i" ] ; then
 			echo "Changing file permissions (add executable bit) to:"
 			echo "$i"
@@ -195,22 +195,22 @@ case "$1" in
 	if [ -z "$2" ] ; then
 		usage
 	fi
-	DEST_PATH=`cygpath "$2"`
-	echo "$DOWNLOAD_TAG" > $DEST_PATH/$TAG_FILE
+	DEST_PATH=$(cygpath "$2")
+	echo "$DOWNLOAD_TAG" > "$DEST_PATH/$TAG_FILE"
 	;;
 --checktag)
 	if [ -z "$2" ] ; then
 		usage
 	fi
-	DEST_PATH=`cygpath "$2"`
-	WIN_PATH=`cygpath --windows "$2"`
-	LAST_TAG=`cat $DEST_PATH/$TAG_FILE 2> /dev/null`
+	DEST_PATH=$(cygpath "$2")
+	WIN_PATH=$(cygpath --windows "$2")
+	LAST_TAG=$(cat "$DEST_PATH/$TAG_FILE" 2> /dev/null)
 	if [ "$DOWNLOAD_TAG" != "$LAST_TAG" ] ; then
 		if [ -z "$LAST_TAG" ] ; then
 			LAST_TAG="(unknown)"
 		fi
 		err_exit \
-			"The contents of $WIN_PATH\\$TAG_FILE is $LAST_TAG." \
+			"The contents of '$WIN_PATH\\$TAG_FILE' is $LAST_TAG." \
 			"It should be $DOWNLOAD_TAG."
 	fi
 	;;
