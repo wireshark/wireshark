@@ -604,7 +604,7 @@ $(ADNS_DLL):
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "adns_dll.dll.manifest" -outputresource:adns_dll.dll;2
 !ENDIF
-	if not exist $(WIRESHARK_LIB_DIR)\$(MSVC_VARIANT)\adns mkdir $(WIRESHARK_LIB_DIR)\$(MSVC_VARIANT)\adns
+	if not exist "$(WIRESHARK_LIB_DIR)\$(MSVC_VARIANT)\adns" mkdir "$(WIRESHARK_LIB_DIR)\$(MSVC_VARIANT)\adns"
 	copy adns_dll.dll $(ADNS_DLL)
 	copy adns_dll.lib $(ADNS_LIBS)
 	cd ..\..\..
@@ -733,7 +733,7 @@ REQUIRED_TOOLS=\
 
 verify_tools:
 # As win-setup.sh assumes the dir exists create it if it doesn't
-	@if not exist $(WIRESHARK_LIB_DIR) md $(WIRESHARK_LIB_DIR)
+	@if not exist "$(WIRESHARK_LIB_DIR)" md "$(WIRESHARK_LIB_DIR)"
 	@$(SH) $(WIN_SETUP) --appverify $(REQUIRED_TOOLS)
 
 # Targets and etc used to verify or download libraries
@@ -780,7 +780,7 @@ setup: verify_tools clean_setup process_libs
 # The process_libs target when invoked causes either a --libverify or a --download for all the required libraries.
 # (The choice is determined by the value of the macro WIN_SETUP_OPT).
 process_libs:
-    @if not exist $(WIRESHARK_LIB_DIR) md $(WIRESHARK_LIB_DIR)
+    @if not exist "$(WIRESHARK_LIB_DIR)" md "$(WIRESHARK_LIB_DIR)"
 !IFDEF GTK_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
 		gtk2 gtk+-bundle_$(GTK_PKG)_$(WIRESHARK_TARGET_PLATFORM).zip
@@ -859,7 +859,7 @@ process_libs:
 # WHEN UPDATING LIBRARY VERSIONS, KEEP ALSO ONE FORMER VERSION SO
 # UPDATING REMOVES THE FORMER USER DIRS
 clean_setup:
-    cd $(WIRESHARK_LIB_DIR)
+    cd "$(WIRESHARK_LIB_DIR)"
     rm -r -f adns-1.0-win32-05ws
     rm -r -f c-ares-1.5.3ws
     rm -r -f c-ares-1.6.0ws
