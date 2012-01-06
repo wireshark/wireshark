@@ -87,7 +87,7 @@ Wireshark Info
           <para>
             The RLC dissector could overflow a buffer.
             <!-- Fixed in trunk: r40266, r40275  -->
-            <!-- Fixed in trunk-1.6: r40400 -->
+            <!-- Fixed in trunk-1.6: r40400, r40401 -->
             <!-- Fixed in trunk-1.4: r40360 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6391">Bug
             6391</ulink>)
@@ -131,6 +131,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Export HTTP Objects -&gt; save all crashes Wireshark.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6250">Bug
+          6250</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Wireshark Netflow dissector complains there is no template found though the template is exported.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6325">Bug
           6325</ulink>)
@@ -167,6 +173,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          SIGSEGV in SVN 40046.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6634">Bug
+          6634</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Wireshark dissects TCP option 25 as an &quot;April 1&quot; option.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6643">Bug
           6643</ulink>)
@@ -176,12 +188,6 @@ Wireshark Info
           ZigBee ZCL Dissector reports invalid status.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6649">Bug
           6649</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Export HTTP Objects -&gt; save all crashes Wireshark.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6250">Bug
-          6250</ulink>)
         </para></listitem>
 
         <listitem><para>
@@ -218,6 +224,7 @@ There are no new protocols in this release.
 BGP,
 DCERPC EPM,
 GSM Management,
+HPTEAM,
 ICMPv6,
 IPv4,
 IPv6,
