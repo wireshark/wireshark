@@ -34,7 +34,7 @@
 # include "config.h"
 #endif
 
-
+#include <glib.h>
 #include <epan/packet.h>
 #include <epan/etypes.h>
 #include <epan/ipproto.h>
@@ -305,10 +305,11 @@ dissect_rohc_feedback_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
     proto_tree *rohc_feedback_tree;
     guint8 opt, opt_len, oct;
     rohc_cid_context_t *rohc_cid_context=NULL;
+    gint key = cid;
 
 
     if (!pinfo->fd->flags.visited){
-        rohc_cid_context = (rohc_cid_context_t*)g_hash_table_lookup(rohc_cid_hash, &cid);
+        rohc_cid_context = (rohc_cid_context_t*)g_hash_table_lookup(rohc_cid_hash, GUINT_TO_POINTER(key));
         if(rohc_cid_context){
             p_add_proto_data(pinfo->fd, proto_rohc, rohc_cid_context);
         }
@@ -436,7 +437,7 @@ dissect_compressed_list(int expected_encoding_type, packet_info *pinfo,
     proto_item *list_ti, *et_ti;
     proto_item *list_tree;
     guint8 first_byte = tvb_get_guint8(tvb, offset);
-    guint8 ET, GP /* , PS , CC */;
+    guint8 ET, GP /* , PS, CC */;
     int start_offset = offset;
 
     /* Compressed list root */
@@ -893,7 +894,8 @@ dissect_rohc_ir_rtp_udp_profile_static(tvbuff_t *tvb, proto_tree *tree, packet_i
 }
 
 static int
-dissect_rohc_ir_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset, guint16 cid, gboolean is_add_cid, rohc_info *p_rohc_info)
+dissect_rohc_ir_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
+                       int offset, guint16 cid, gboolean is_add_cid, rohc_info *p_rohc_info)
 {
     proto_item *ir_item, *item;
     proto_tree *ir_tree;
@@ -903,39 +905,40 @@ dissect_rohc_ir_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int 
     gint16 feedback_data_len = 0;
     tvbuff_t *next_tvb;
     rohc_cid_context_t *rohc_cid_context = NULL;
+
     /* This function is potentially called from both dissect_rohc and dissect_pdcp_lte
      * The cid value must have been dissected and valid
      * offset must point to the IR octet  see below ( | 1   1   1   1   1   1   0 | D |  )
      * TODO: CRC validation
      */
-    /*
-    
-         0   1   2   3   4   5   6   7
-    --- --- --- --- --- --- --- ---
-   |         Add-CID octet         |  if for small CIDs and CID != 0
-   +---+---+---+---+---+---+---+---+
-   | 1   1   1   1   1   1   0 | D |
-   +---+---+---+---+---+---+---+---+
-   |                               |
-   /    0-2 octets of CID info     /  1-2 octets if for large CIDs
-   |                               |
-   +---+---+---+---+---+---+---+---+
-   |            Profile            |  1 octet
-   +---+---+---+---+---+---+---+---+
-   |              CRC              |  1 octet
-   +---+---+---+---+---+---+---+---+
-   |                               |
-   |         Static chain          |  variable length
-   |                               |
-   +---+---+---+---+---+---+---+---+
-   |                               |
-   |         Dynamic chain         |  present if D = 1, variable length
-   |                               |
-    - - - - - - - - - - - - - - - -
-   |                               |
-   |           Payload             |  variable length
-   |                               |
-    - - - - - - - - - - - - - - - -
+
+     /*
+      0   1   2   3   4   5   6   7
+     --- --- --- --- --- --- --- ---
+    |         Add-CID octet         |  if for small CIDs and CID != 0
+    +---+---+---+---+---+---+---+---+
+    | 1   1   1   1   1   1   0 | D |
+    +---+---+---+---+---+---+---+---+
+    |                               |
+    /    0-2 octets of CID info     /  1-2 octets if for large CIDs
+    |                               |
+    +---+---+---+---+---+---+---+---+
+    |            Profile            |  1 octet
+    +---+---+---+---+---+---+---+---+
+    |              CRC              |  1 octet
+    +---+---+---+---+---+---+---+---+
+    |                               |
+    |         Static chain          |  variable length
+    |                               |
+    +---+---+---+---+---+---+---+---+
+    |                               |
+    |         Dynamic chain         |  present if D = 1, variable length
+    |                               |
+     - - - - - - - - - - - - - - - -
+    |                               |
+    |           Payload             |  variable length
+    |                               |
+     - - - - - - - - - - - - - - - -
 
     */
     oct = tvb_get_guint8(tvb,offset);
@@ -955,13 +958,15 @@ dissect_rohc_ir_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int 
         offset = offset + val_len;
     }
 
+    /* Read profile */
     profile = tvb_get_guint8(tvb,offset);
+
     if(profile==ROHC_PROFILE_RTP){
         proto_tree_add_item(ir_tree, hf_rohc_d_bit, tvb, x_bit_offset, 1, ENC_BIG_ENDIAN);
     }
     proto_tree_add_item(ir_tree, hf_rohc_profile, tvb, offset, 1, ENC_BIG_ENDIAN);
-
     offset++;
+
     proto_tree_add_item(ir_tree, hf_rohc_rtp_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
@@ -970,11 +975,13 @@ dissect_rohc_ir_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int 
      * and fill in the info.
      */
     if (!pinfo->fd->flags.visited){
-        rohc_cid_context = (rohc_cid_context_t*)g_hash_table_lookup(rohc_cid_hash, &cid);
-        if(rohc_cid_context){
+        gint key = cid;
+        rohc_cid_context = (rohc_cid_context_t*)g_hash_table_lookup(rohc_cid_hash, GUINT_TO_POINTER(key));
+        if (rohc_cid_context != NULL){
             /* This is not the first IR packet seen*/
-            gint *key;
             gint tmp_prev_ir_frame_number = rohc_cid_context->ir_frame_number;
+            gint tmp_prev_rohc_ip_version = rohc_cid_context->rohc_ip_version;
+            gint tmp_prev_mode = rohc_cid_context->mode;
 
             /*g_warning("IR pkt found CID %u",cid);*/
 
@@ -982,13 +989,12 @@ dissect_rohc_ir_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int 
             rohc_cid_context->profile = profile;
             rohc_cid_context->prev_ir_frame_number = tmp_prev_ir_frame_number;
             rohc_cid_context->ir_frame_number = pinfo->fd->num;
+            rohc_cid_context->rohc_ip_version = tmp_prev_rohc_ip_version;
+            rohc_cid_context->mode = tmp_prev_mode;
 
-            key = g_malloc(sizeof(gint));
-            *key = cid;
-            g_hash_table_replace(rohc_cid_hash, key, rohc_cid_context);
+            g_hash_table_replace(rohc_cid_hash, GUINT_TO_POINTER(key), rohc_cid_context);
             p_add_proto_data(pinfo->fd, proto_rohc, rohc_cid_context);
         }else{
-            gint *key;
             rohc_cid_context = se_new(rohc_cid_context_t);
             /*rohc_cid_context->rohc_ip_version;*/
             /*rohc_cid_context->large_cid_present;*/
@@ -999,12 +1005,12 @@ dissect_rohc_ir_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int 
             rohc_cid_context->profile = profile;
             rohc_cid_context->prev_ir_frame_number = -1;
             rohc_cid_context->ir_frame_number = pinfo->fd->num;
-            key = g_malloc(sizeof(gint));
-            *key = cid;
+            rohc_cid_context->rohc_ip_version = p_rohc_info->rohc_ip_version;
+            rohc_cid_context->mode = p_rohc_info->mode;
 
             /*g_warning("IR pkt New CID %u",cid);*/
 
-            g_hash_table_insert(rohc_cid_hash, key, rohc_cid_context);
+            g_hash_table_insert(rohc_cid_hash, GUINT_TO_POINTER(key), rohc_cid_context);
             p_add_proto_data(pinfo->fd, proto_rohc, rohc_cid_context);
         }
     }else{
@@ -1039,9 +1045,7 @@ dissect_rohc_ir_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int 
             break;
     }
 
-
     return offset;
-
 }
 
 static int
@@ -1058,13 +1062,17 @@ dissect_rohc_ir_dyn_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         item = proto_tree_add_uint(tree, hf_rohc_small_cid, tvb, 0, 0, cid);
         PROTO_ITEM_SET_GENERATED(item);
     }
+
     ir_item = proto_tree_add_item(tree, hf_rohc_ir_dyn_packet, tvb, offset, 1, ENC_BIG_ENDIAN);
     ir_tree = proto_item_add_subtree(ir_item, ett_rohc_ir_dyn);
+    offset++;
+
     if(p_rohc_info->large_cid_present == TRUE){
         /* Handle Large CID:s here */
         get_self_describing_var_len_val(tvb, ir_tree, offset, hf_rohc_large_cid, &val_len);
         offset = offset + val_len;
     }
+
     profile = tvb_get_guint8(tvb,offset);
     proto_tree_add_item(ir_tree, hf_rohc_profile, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
@@ -1074,11 +1082,14 @@ dissect_rohc_ir_dyn_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
      * and fill in the info.
      */
     if (!pinfo->fd->flags.visited){
-        rohc_cid_context = (rohc_cid_context_t*)g_hash_table_lookup(rohc_cid_hash, &cid);
-        if(rohc_cid_context){
+        gint key = cid;
+        rohc_cid_context = (rohc_cid_context_t*)g_hash_table_lookup(rohc_cid_hash, GUINT_TO_POINTER(key));
+
+        if (rohc_cid_context){
             /* This is not the first IR packet seen*/
-            gint *key;
             gint tmp_prev_ir_frame_number = rohc_cid_context->ir_frame_number;
+            gint tmp_prev_rohc_ip_version = rohc_cid_context->rohc_ip_version;
+            gint tmp_prev_mode = rohc_cid_context->mode;
 
             /*g_warning("IR pkt found CID %u",cid);*/
 
@@ -1086,13 +1097,12 @@ dissect_rohc_ir_dyn_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             rohc_cid_context->profile = profile;
             rohc_cid_context->prev_ir_frame_number = tmp_prev_ir_frame_number;
             rohc_cid_context->ir_frame_number = pinfo->fd->num;
+            rohc_cid_context->rohc_ip_version = tmp_prev_rohc_ip_version;
+            rohc_cid_context->mode = tmp_prev_mode;
 
-            key = g_malloc(sizeof(gint));
-            *key = cid;
-            g_hash_table_replace(rohc_cid_hash, key, rohc_cid_context);
+            g_hash_table_replace(rohc_cid_hash, GUINT_TO_POINTER(key), rohc_cid_context);
             p_add_proto_data(pinfo->fd, proto_rohc, rohc_cid_context);
         }else{
-			gint *key;
             rohc_cid_context = se_new(rohc_cid_context_t);
             /*rohc_cid_context->rohc_ip_version;*/
             /*rohc_cid_context->large_cid_present;*/
@@ -1103,12 +1113,11 @@ dissect_rohc_ir_dyn_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             rohc_cid_context->profile = profile;
             rohc_cid_context->prev_ir_frame_number = -1;
             rohc_cid_context->ir_frame_number = pinfo->fd->num;
-            key = g_malloc(sizeof(gint));
-            *key = cid;
+            rohc_cid_context->mode = p_rohc_info->mode;
 
             /*g_warning("IR pkt New CID %u",cid);*/
 
-            g_hash_table_insert(rohc_cid_hash, key, rohc_cid_context);
+            g_hash_table_insert(rohc_cid_hash, GUINT_TO_POINTER(key), rohc_cid_context);
             p_add_proto_data(pinfo->fd, proto_rohc, rohc_cid_context);
         }
     }else{
@@ -1118,6 +1127,7 @@ dissect_rohc_ir_dyn_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 
     proto_tree_add_item(ir_tree, hf_rohc_rtp_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
+
     switch(profile){
         case ROHC_PROFILE_RTP:
             dissect_rohc_ir_rtp_profile_dynamic(tvb, pinfo, ir_tree, offset, profile, rohc_cid_context);
@@ -1183,32 +1193,32 @@ dissect_rohc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     PROTO_ITEM_SET_GENERATED(item);
     rohc_cid_context = (rohc_cid_context_t*)p_get_proto_data(pinfo->fd, proto_rohc);
     if(rohc_cid_context){
-		/* Do we have info from an IR frame? */
-		if(rohc_cid_context->ir_frame_number>0){
-			conf_item = proto_tree_add_text(conf_tree, tvb, offset, 0, "Configured by IR packet");
-			PROTO_ITEM_SET_GENERATED(conf_item);
-			conf_item = proto_tree_add_uint(conf_tree, hf_rohc_ir_pkt_frame, tvb, 0, 0, rohc_cid_context->ir_frame_number);
-			PROTO_ITEM_SET_GENERATED(conf_item);
-			if(rohc_cid_context->prev_ir_frame_number>0){
-				conf_item = proto_tree_add_uint(conf_tree, hf_rohc_ir_previous_frame, tvb, 0, 0, rohc_cid_context->prev_ir_frame_number);
-				PROTO_ITEM_SET_GENERATED(conf_item);
-			}
-			conf_item = proto_tree_add_text(conf_tree, tvb, offset, 0, "Profile:(%s)", val_to_str(rohc_cid_context->profile, rohc_profile_vals, "Unknown"));
-			PROTO_ITEM_SET_GENERATED(conf_item);
-			conf_item = proto_tree_add_text(conf_tree, tvb, offset, 0, "IP version:(%s)", val_to_str(rohc_cid_context->rohc_ip_version, rohc_ip_version_vals, "Unknown"));
-			PROTO_ITEM_SET_GENERATED(conf_item);
-			if(rohc_cid_context->mode == 0){
-				conf_item = proto_tree_add_text(conf_tree, tvb, offset, 0, "Mode not known");
-				PROTO_ITEM_SET_GENERATED(conf_item);
-			}else{
-				conf_item = proto_tree_add_text(conf_tree, tvb, offset, 0, "Mode:(%s)", val_to_str(rohc_cid_context->mode, rohc_mode_vals, "Unknown"));
-				PROTO_ITEM_SET_GENERATED(conf_item);
-			}
+        /* Do we have info from an IR frame? */
+        if(rohc_cid_context->ir_frame_number>0){
+            conf_item = proto_tree_add_text(conf_tree, tvb, offset, 0, "Configured by IR packet");
+            PROTO_ITEM_SET_GENERATED(conf_item);
+            conf_item = proto_tree_add_uint(conf_tree, hf_rohc_ir_pkt_frame, tvb, 0, 0, rohc_cid_context->ir_frame_number);
+            PROTO_ITEM_SET_GENERATED(conf_item);
+            if(rohc_cid_context->prev_ir_frame_number>0){
+                conf_item = proto_tree_add_uint(conf_tree, hf_rohc_ir_previous_frame, tvb, 0, 0, rohc_cid_context->prev_ir_frame_number);
+                PROTO_ITEM_SET_GENERATED(conf_item);
+            }
+            conf_item = proto_tree_add_text(conf_tree, tvb, offset, 0, "Profile:(%s)", val_to_str(rohc_cid_context->profile, rohc_profile_vals, "Unknown"));
+            PROTO_ITEM_SET_GENERATED(conf_item);
+            conf_item = proto_tree_add_text(conf_tree, tvb, offset, 0, "IP version:(%s)", val_to_str(rohc_cid_context->rohc_ip_version, rohc_ip_version_vals, "Unknown"));
+            PROTO_ITEM_SET_GENERATED(conf_item);
+            if(rohc_cid_context->mode == 0){
+                conf_item = proto_tree_add_text(conf_tree, tvb, offset, 0, "Mode not known");
+                PROTO_ITEM_SET_GENERATED(conf_item);
+            }else{
+                conf_item = proto_tree_add_text(conf_tree, tvb, offset, 0, "Mode:(%s)", val_to_str(rohc_cid_context->mode, rohc_mode_vals, "Unknown"));
+                PROTO_ITEM_SET_GENERATED(conf_item);
+            }
 
-		}else{
-			conf_item = proto_tree_add_text(conf_tree, tvb, offset, 0, "No configuration info");
-			PROTO_ITEM_SET_GENERATED(conf_item);
-		}
+        }else{
+            conf_item = proto_tree_add_text(conf_tree, tvb, offset, 0, "No configuration info");
+            PROTO_ITEM_SET_GENERATED(conf_item);
+        }
     }
 
 
@@ -1362,11 +1372,10 @@ start_over:
     }
 
     if (!pinfo->fd->flags.visited){
-        gint key;
+        gint key = cid;
 
         /*g_warning("Lookup CID %u",cid);*/
-        key = cid;
-        rohc_cid_context = (rohc_cid_context_t*)g_hash_table_lookup(rohc_cid_hash, &key);
+        rohc_cid_context = (rohc_cid_context_t*)g_hash_table_lookup(rohc_cid_hash, GUINT_TO_POINTER(key));
         if(rohc_cid_context){		
             /*g_warning("Found CID %u",cid);*/
         }else{
@@ -1442,9 +1451,9 @@ start_over:
                 break;
         }
     }else if ((oct&0xc0)==0x80){
-        col_set_str(pinfo->cinfo, COL_INFO, "Paket type 1");
+        col_set_str(pinfo->cinfo, COL_INFO, "Packet type 1");
     }else if ((oct&0xe0)==0xc0){
-        col_set_str(pinfo->cinfo, COL_INFO, "Paket type 2");
+        col_set_str(pinfo->cinfo, COL_INFO, "Packet type 2");
     }
 
     pinfo->private_data = save_private_data;
@@ -1456,17 +1465,28 @@ start_over:
  * A better Key than just the CID may have to be deviced.
  * 
  */
+ 
+ 
+static gint cid_hash_equal(gconstpointer v, gconstpointer v2)
+{
+    return (v == v2);
+}
+
+static guint cid_hash_func(gconstpointer v)
+{
+    return GPOINTER_TO_UINT(v);
+}
+
+
 static void
 rohc_init_protocol(void)
 {
-
     /* Destroy any existing hashes. */
     if (rohc_cid_hash)
         g_hash_table_destroy(rohc_cid_hash);
 
     /* Now create them again */
-    rohc_cid_hash = g_hash_table_new_full(g_int_hash, g_int_equal, /* key_destroy_func */ g_free, NULL);
-
+    rohc_cid_hash = g_hash_table_new(cid_hash_func, cid_hash_equal);
 }
 
 void
