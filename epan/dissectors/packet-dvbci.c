@@ -46,6 +46,13 @@
 
 #include "packet-ber.h"
 
+#ifdef HAVE_LIBGCRYPT
+#include <gcrypt.h>
+#endif
+
+
+#define AES_BLOCK_LEN 16
+#define AES_KEY_LEN 16
 
 /* event byte in the pseudo-header */
 #define DATA_CAM_TO_HOST  0xFF
@@ -364,6 +371,9 @@ typedef struct _apdu_info_t {
     void (*dissect_payload)(guint32, gint,
             tvbuff_t *, gint, packet_info *, proto_tree *);
 } apdu_info_t;
+
+
+void proto_reg_handoff_dvbci(void);
 
 static void
 dissect_dvbci_payload_rm(guint32 tag, gint len_field,
@@ -706,8 +716,10 @@ static const value_string dvbci_apdu_tag[] = {
 /* convert a byte that contains two 4bit BCD digits into a decimal value */
 #define BCD44_TO_DEC(x)  (((x&0xf0) >> 4) * 10 + (x&0x0f))
 
-
 static int proto_dvbci = -1;
+
+static gchar* dvbci_sek = NULL;
+static gchar* dvbci_siv = NULL;
 
 static gint ett_dvbci = -1;
 static gint ett_dvbci_hdr = -1;
@@ -830,7 +842,7 @@ static int hf_dvbci_sac_auth_cip = -1;
 static int hf_dvbci_sac_payload_enc = -1;
 static int hf_dvbci_sac_enc_cip = -1;
 static int hf_dvbci_sac_payload_len = -1;
-static int hf_dvbci_sac_body = -1;
+static int hf_dvbci_sac_enc_body = -1;
 static int hf_dvbci_rating = -1;
 static int hf_dvbci_capability_field = -1;
 static int hf_dvbci_pin_chg_time = -1;
@@ -1677,6 +1689,109 @@ dissect_cc_item(tvbuff_t *tvb, gint offset,
 
     return offset-offset_start;
 }
+
+
+#ifdef HAVE_LIBGCRYPT
+/* convert a 0-terminated preference key_string that contains a hex number
+ *  into its binary representation
+ * e.g. key_string "abcd" will be converted into two bytes 0xab, 0xcd
+ * return the number of binary bytes or -1 for error */
+static gint
+pref_key_string_to_bin(const gchar *key_string, unsigned char **key_bin)
+{
+    int key_string_len;
+    int i, j;
+    char input[2];
+
+    if (!key_string || !key_bin)
+        return -1;
+    key_string_len = (int)strlen(key_string);
+    if (key_string_len != 2*AES_KEY_LEN)
+        return -1;
+    *key_bin = (unsigned char*)g_malloc(key_string_len/2);
+
+    j=0;
+    for (i=0; i<key_string_len-1; i+=2) {
+        input[0] = key_string[0+i];
+        input[1] = key_string[1+i];
+        /* attention, brackets are required */
+        (*key_bin)[j++] = (unsigned char)strtoul((const char*)&input, NULL, 16);
+    }
+
+    return key_string_len/2;
+}
+
+
+static tvbuff_t *
+decrypt_sac_msg_body(
+        guint8 enc_cip, tvbuff_t *encrypted_tvb, gint offset, gint len)
+{
+    gint             ret;
+    gboolean         opened = FALSE;
+    gcry_cipher_hd_t cipher;
+    gcry_error_t     err;
+    gint             clear_len;
+    unsigned char    *clear_data = NULL;
+    tvbuff_t         *clear_tvb = NULL;
+    unsigned char    *sek = NULL, *siv = NULL;
+    
+    if (enc_cip != CC_SAC_ENC_AES128_CBC)
+        goto end;
+    if (len%AES_BLOCK_LEN != 0)
+        goto end;
+
+    ret = pref_key_string_to_bin(dvbci_sek, &sek);
+    if (ret==-1)
+        goto end;
+    ret = pref_key_string_to_bin(dvbci_siv, &siv);
+    if (ret==-1)
+        goto end;
+
+    err = gcry_cipher_open(&cipher, GCRY_CIPHER_AES, GCRY_CIPHER_MODE_CBC, 0);
+    if (gcry_err_code (err))
+        goto end;
+    opened = TRUE;
+    err = gcry_cipher_setkey (cipher, sek, AES_KEY_LEN);
+    if (gcry_err_code (err))
+        goto end;
+    err = gcry_cipher_setiv (cipher, siv, AES_BLOCK_LEN);
+    if (gcry_err_code (err))
+        goto end;
+
+    clear_len = len;
+    clear_data = g_malloc(clear_len);
+
+    err = gcry_cipher_decrypt (cipher, clear_data, clear_len,
+                tvb_get_ephemeral_string(encrypted_tvb, offset, len), len);
+    if (gcry_err_code (err))
+        goto end;
+
+    clear_tvb = tvb_new_child_real_data(encrypted_tvb,
+                        (const guint8 *)clear_data, clear_len, clear_len);
+    tvb_set_free_cb(clear_tvb, g_free);
+
+end:
+    if (opened)
+        gcry_cipher_close (cipher);
+    if (sek)
+        g_free(sek);
+    if (siv)
+        g_free(siv);
+    if (!clear_tvb && clear_data)
+       g_free(clear_data);
+    return clear_tvb;
+}
+
+#else 
+/* HAVE_LIBGRYPT is not set */
+static tvbuff_t *
+decrypt_sac_msg_body(guint8 enc_cip _U_,
+        tvbuff_t *encrypted_tvb _U_, gint offset _U_, gint len _U_)
+{
+    return NULL;
+}
+
+#endif
 
 
  /* dissect a text string that is encoded according to DVB-SI (EN 300 468) */
@@ -2540,11 +2655,12 @@ dissect_dvbci_payload_cc(guint32 tag, gint len_field _U_,
     gint item_len;
     guint8 status;
     guint32 msg_ctr;
-    guint8 enc_flag;
+    guint8 enc_flag, enc_cip;
     proto_item *pi = NULL;
     nstime_t utc_time;
     guint8 pin_stat;
     guint8 evt_cent;
+    tvbuff_t *clear_sac_body_tvb;
 
     switch(tag) {
         case T_CC_OPEN_CNF:
@@ -2610,6 +2726,7 @@ dissect_dvbci_payload_cc(guint32 tag, gint len_field _U_,
             if (enc_flag)
                 col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "encrypted");
             offset++;
+            enc_cip = (tvb_get_guint8(tvb, offset)&0xE0) >> 5;
             proto_tree_add_item(
                     tree, hf_dvbci_sac_enc_cip, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
@@ -2618,9 +2735,25 @@ dissect_dvbci_payload_cc(guint32 tag, gint len_field _U_,
             offset += 2;
             if (tvb_reported_length_remaining(tvb, offset) < 0)
                 break;
-            /* please note that payload != body */
-            proto_tree_add_item(tree, hf_dvbci_sac_body, tvb, offset, 
-                    tvb_reported_length_remaining(tvb, offset), ENC_NA);
+            if (!enc_flag) {
+                pi = proto_tree_add_text(tree, tvb, offset,
+                        tvb_reported_length_remaining(tvb, offset),
+                        "Invalid CI+ SAC message body");
+                expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
+                        "SAC message body must always be encrypted");
+                break;
+            }
+
+            clear_sac_body_tvb = decrypt_sac_msg_body(enc_cip,
+                    tvb, offset, tvb_reported_length_remaining(tvb, offset));
+            if (!clear_sac_body_tvb) {
+                /* we could not decrypt the sac message body */
+                proto_tree_add_item(tree, hf_dvbci_sac_enc_body, tvb, offset,
+                        tvb_reported_length_remaining(tvb, offset), ENC_NA);
+                break;
+            }
+            add_new_data_source(pinfo, clear_sac_body_tvb,
+                            "Clear SAC message body");
             break;
         case T_CC_PIN_CAPABILITIES_REPLY:
             proto_tree_add_item(tree, hf_dvbci_capability_field,
@@ -3972,6 +4105,7 @@ void
 proto_register_dvbci(void)
 {
     guint i;
+    module_t *dvbci_module;
 
     static gint *ett[] = {
         &ett_dvbci,
@@ -4304,8 +4438,8 @@ proto_register_dvbci(void)
         { &hf_dvbci_sac_payload_len,
             { "Payload length", "dvb-ci.cc.sac.payload_len", FT_UINT16,
                 BASE_DEC, NULL, 0, NULL, HFILL } },
-        { &hf_dvbci_sac_body,
-            { "SAC body", "dvb-ci.cc.sac_body", FT_BYTES,
+        { &hf_dvbci_sac_enc_body,
+            { "Encrypted SAC body", "dvb-ci.cc.sac.enc_body", FT_BYTES,
                 BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_dvbci_rating,
             { "Rating", "dvb-ci.cc.rating", FT_UINT8, BASE_DEC,
@@ -4577,6 +4711,15 @@ proto_register_dvbci(void)
             "DVB Common Interface", "DVB-CI", "dvb-ci");
     proto_register_field_array(proto_dvbci, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    dvbci_module = prefs_register_protocol(
+            proto_dvbci, proto_reg_handoff_dvbci);
+    prefs_register_string_preference(dvbci_module,
+            "sek", "SAC Encryption Key", "SAC Encryption Key (16 hex bytes)",
+            (const gchar **)&dvbci_sek);
+    prefs_register_string_preference(dvbci_module,
+            "siv", "SAC Init Vector", "SAC Init Vector (16 hex bytes)",
+            (const gchar **)&dvbci_siv);
 
     register_init_routine(dvbci_init);
 }
