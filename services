@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2011-12-22
+# 2012-01-04
 # 
 # Note
 # 
@@ -11423,7 +11423,11 @@ sfm-db-server	5636/tcp	# SFMdb - SFM DB server        [De_Chih_Chien]           
 # 5636        udp    Reserved
 cssc	5637/tcp	# Symantec CSSC                [Amol_P_Tambe]                            [Amol_P_Tambe]                                            2011-02-02
 # 5637        udp    Reserved
-# 5638-5645            Unassigned
+# Symantec Fingerprint Lookup
+flcrs	5638/tcp	# and Container Reference      [Symantec_Corp]                           [Neel_A_Bhatt]                                            2012-01-03
+# Service
+# 5638        udp    Reserved
+# 5639-5645            Unassigned
 vfmobile	5646/tcp	# Ventureforth Mobile          [Ventureforth_Inc]                        [Blakely_Snyder]                                          2011-11-03
 # 5646        udp    Reserved
 # UNAUTHORIZED
@@ -13179,7 +13183,10 @@ trivnet1	8200/tcp	# TRIVNET                      [Saar_Wilf]                    
 trivnet1	8200/udp	# TRIVNET                      [Saar_Wilf]                               [Saar_Wilf]
 trivnet2	8201/tcp	# TRIVNET                      [Saar_Wilf]                               [Saar_Wilf]
 trivnet2	8201/udp	# TRIVNET                      [Saar_Wilf]                               [Saar_Wilf]
-# 8202-8203            Unassigned
+# 8202        tcp    Reserved
+aesop	8202/udp	# Audio+Ethernet Standard Open [POWERSOFT_SRL]                           [Paolo_Desii][Claudio_Lastrucci]                          2012-01-03
+# Protocol
+# 8203-8203            Unassigned
 lm-perfworks	8204/tcp	# LM Perfworks                 [Chris_Flynn]                             [Chris_Flynn]
 lm-perfworks	8204/udp	# LM Perfworks                 [Chris_Flynn]                             [Chris_Flynn]
 lm-instmgr	8205/tcp	# LM Instmgr                   [Chris_Flynn]                             [Chris_Flynn]
@@ -15570,6 +15577,9 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # bootprog=<Boot program version>
 # airsharing                            Air Sharing                  [Erik_Rogers][Dave_Howell]                [Erik_Rogers][Dave_Howell]                                                                                                                        Defined TXT keys: None
 # airsharingpro                         Air Sharing Pro              [Erik_Rogers][Dave_Howell]                [Erik_Rogers][Dave_Howell]                                                                                                                        Defined TXT keys: None
+# aloe-gwp                       tcp    Aloe Gateway Protocol        [Layered_Logic]                           [Brooks_Bell]                                             2012-01-04                                                                              Defined TXT keys: Version
+# aloe-pp                        tcp    Aloe Pairing Protocol        [Layered_Logic]                           [Brooks_Bell]                                             2012-01-04                                                                              Defined TXT keys: Version, DeviceName, DeviceModel,
+# DeviceSystem, DeviceSystemVersion, AppName, AppVersion
 # amba-cam                       udp    Ambarella Cameras            [Louis_Sun]                               [Louis_Sun]                                                                                                                                       Defined TXT keys: product=<product model name>
 # description=<string name> version=<firmware version>
 # P2PTapWar Sample Application
@@ -17140,6 +17150,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Bridget_Walsh]                                           Bridget Walsh                                   mailto:bwalsh&iona.ie
 # [Bridgette_Landers]                                       Bridgette Landers                               mailto:blanders&boi.hp.com
 # [Brigitte_Gagne]                                          Brigitte Gagne                                  mailto:bgagne&trigence.com                                    2006-08
+# [Brooks_Bell]                                             Brooks Bell               Layered Logic, Inc.   mailto:brooks&layeredlogic.com                                2012-01-04
 # [Bruce_Carlson]                                           Bruce Carlson                                   mailto:bruce.carlson&iprintl.com                              2003-01
 # [Bruce_Casey]                                             Bruce Casey                                     mailto:bcasey&responselogic.com
 # [Bruce_Davie]                                             Bruce Davie                                     mailto:bsd&cisco.com
@@ -17352,6 +17363,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [CityDisc]                                                                          CityDisc              mailto:citydisc&euronet.nl
 # [Claes_Fredrik_Mannby]                                    Claes-Fredrik Mannby                            mailto:cf&mannby.com
 # [Clark_Williams]                                          Clark Williams                                  mailto:clark&wirespeed.com
+# [Claudio_Lastrucci]                                       Claudio Lastrucci         POWERSOFT S.R.L.      mailto:claudio.lastrucci&powersoft.it                         2012-01-03
 # [Claudio_Procida]                                         Claudio Procida                                 mailto:claudio&emeraldion.it                                  2007-05
 # [Claus_Jensen]                                            Claus Jensen              Libratone A/S         mailto:cjn&libratone.com                                      2011-10-27
 # [Claus_Thor_Barth]                                        Claus Thor Barth                                mailto:iana&barth.dk
@@ -19037,6 +19049,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Lawrence_Tarbox]                                         Lawrence Tarbox                                 mailto:ltarbox&scr.siemens.com
 # [Lawrence_W_Dunn]                                         Lawrence W. Dunn                                mailto:larrydunn&aptcomp.com                                  2003-04
 # [Laxman_C_Marathe]                                        Laxman C. Marathe                               mailto:lcmarathe&thomsonpress.com                             2006-12
+# [Layered_Logic]                                                                     Layered Logic, Inc.   mailto:brooks&layeredlogic.com                                2012-01-04
 # [Lech_Lakomy]                                             Lech Lakomy                                     mailto:llakomy&apwi.com                                       2009-02-12
 # [Lech_Laskowski]                                          Lech Laskowski                                  mailto:lech_laskowski&moldflow.com
 # [Lecuivre_J]                                              Lecuivre J                                      mailto:software.team&mgeups.com                               2005-08
@@ -19602,6 +19615,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Nedelcho_Stanev]                                         Nedelcho Stanev                                 mailto:nstanev&csoft.bg
 # [Nedelcho_Stanev_2]                                       Nedelcho Stanev                                 mailto:decho&csoft.bg
 # [Nedelcho_Stanev_3]                                       Nedelcho Stanev                                 mailto:decho&iname.com
+# [Neel_A_Bhatt]                                            Neel A. Bhatt             Symantec Corp         mailto:neel_bhatt&symantec.com                                2012-01-03
 # [Neer_Kleinman]                                           Neer Kleinman                                   mailto:neer&qsr.co.il
 # [Neil_Coggins]                                            Neil Coggins                                    mailto:neil.coggins&6thsight.com                              2006-07
 # [Neil_Salter]                                             Neil Salter                                     mailto:neil&indigo2.mvel.demon.co.uk
@@ -19718,6 +19732,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [P_T_K_Farrar]                                            P.T.K. Farrar                                   mailto:farrarp&teccon.co.uk
 # [P_V_Shivkumar]                                           P.V.Shivkumar                                   mailto:PSHIVKUM&us.oracle.com
 # [Panic_Ride]                                              Panic Ride                                      mailto:panicride&hao.org
+# [Paolo_Desii]                                             Paolo Desii               POWERSOFT S.R.L.      mailto:paolo.desii&powersoft.it                               2012-01-03
 # [Pat_Calhoun]                                             Pat Calhoun                                     mailto:CALHOUN&admin.eicon.qc.ca
 # [Pat_Galvin]                                              Pat Galvin                                      mailto:pgalvin&databeam.com
 # [Pat_Mcgowan]                                             Pat Mcgowan                                     mailto:pmcgowan&folio.com
@@ -19934,6 +19949,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Pit_Vetterick]                                           Pit Vetterick                                   mailto:pit&3dgo.com                                           2002-05
 # [Portnoy_Boxman]                                          Portnoy Boxman                                  mailto:portnoy_boxman&bmc.com                                 2005-01
 # [Portnoy_Boxman_2]                                        Portnoy Boxman                                  mailto:Portnoy_Boxman&bmc.com                                 2006-09
+# [POWERSOFT_SRL]                                                                     POWERSOFT S.R.L.      mailto:claudio.lastrucci&powersoft.it                         2012-01-03
 # [Prabu_Ambravaneswara]                                    Prabu Ambravaneswaran                           mailto:prambrav&microsoft.com                                 2009-10-29
 # [Pradeep_Bahl]                                            Pradeep Bahl                                    mailto:pradeepb&microsoft.com
 # [Prakash_Banthia]                                         Prakash Banthia                                 mailto:prakash_banthia&3com.com
@@ -20659,6 +20675,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Sylvia_Scheuren]                                         Sylvia Scheuren                                 mailto:schsy02&cai.com
 # [Sylvia_Siu]                                              Sylvia Siu                                      mailto:Sylvia_Siu&novell.co
 # [Sylvia_Siu_2]                                            Sylvia Siu                                      mailto:ssiu&svnetworks.com
+# [Symantec_Corp]                                                                     Symantec Corp         mailto:neel_bhatt&symantec.com                                2012-01-03
 # [System_Administrator]                                    System Administrator                            mailto:sysadmin&silvaco.com                                   2003-06
 # [TAKEDA_Hiroyuki]                                         TAKEDA Hiroyuki                                 mailto:takeda&atashi.net                                      2003-01
 # [Taha_Paksu]                                              Taha Paksu                                      mailto:tahapaksu&mavili.com.tr                                2009-12-21
