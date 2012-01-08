@@ -10280,23 +10280,18 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     void                        (*msg_fcn_p)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len);
     guint8                      oct;
     guint8                      pd;
-    guint32                     offset, saved_offset;
+    guint32                     offset;
     guint32                     len;
     guint32                     oct_1, oct_2;
     proto_item                  *ccch_item = NULL;
     proto_tree                  *ccch_tree = NULL;
     proto_item                  *oct_1_item = NULL;
     proto_tree                  *pd_tree = NULL;
-    proto_tree                  *saved_tree = NULL;
     const gchar                 *msg_str;
     gint                        ett_tree;
     gint                        ti;
     int                         hf_idx;
     gboolean                    nsd;
-    /*guint8                      pseudo_len;*/
-    guint32                     curr_offset;
-    guint32                     consumed;
-    guint                       curr_len;
 
     len = tvb_length(tvb);
 
@@ -10322,7 +10317,7 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset = 0;
     oct_2 = 0;
 
-    /* Skip pseeudo hdr here */
+    /* Skip pseudo hdr here - it is dissected later */
     offset = 1;
 
     /*
@@ -10381,23 +10376,9 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", msg_str);
 
-    /* back to the begining */
-    saved_offset = offset;
-    offset = 0;
-
-    curr_offset = offset;
-    curr_len = len;
-    len = 1;
-
     /*  L2 Pseudo Length 10.5.2.19 */
-    /*pseudo_len = tvb_get_guint8(tvb,offset)>>2;*/
-
-    saved_tree = tree;
-    tree = ccch_tree;
-    ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_L2_PSEUDO_LEN, NULL);
-    tree = saved_tree;
-    offset = saved_offset;
-    len = curr_len;
+    /* note: dissected out of sequence! */
+    elem_v(tvb, ccch_tree, pinfo, GSM_A_PDU_TYPE_RR, DE_RR_L2_PSEUDO_LEN, 0, NULL);
 
     oct_1_item =
         proto_tree_add_text(ccch_tree,
