@@ -232,6 +232,14 @@ Wireshark Info
           6711</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          Memory leaks in various dissectors.
+        </para></listitem>
+
+        <listitem><para>
+          Bytes highlighted in wrong Byte pane when field selected in Details pane.
+        </para></listitem>
+
      </itemizedlist>
 
     </para>
@@ -258,16 +266,34 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 BGP,
+BMC
 CSN1,
 DCERPC EPM,
+DCP(ETSI)
+DMP
+DTLS
 GSM Management,
+H245
 HPTEAM,
 ICMPv6,
+IEEE 802.15.4
+IPSEC
 IPv4,
 IPv6,
+ISAKMP
+KERBEROS
+LDSS
+NFS
 RLC,
+RPC-NETLOGON
+RRC
+RTMPT
+SIGCOMP
+SSL
+SYSLOG
 TCP,
 UDP,
+XML
 ZigBee ZCL
 
     </para>
