@@ -240,6 +240,12 @@ Wireshark Info
           Bytes highlighted in wrong Byte pane when field selected in Details pane.
         </para></listitem>
 
+        <listitem><para>
+          Fixed compilation of dumpcap on some systems (when MUST_DO_SELECT is defined).
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6614">Bug
+          6614</ulink>)
+        </para></listitem>
+
      </itemizedlist>
 
     </para>
