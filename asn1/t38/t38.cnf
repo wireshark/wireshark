@@ -172,7 +172,6 @@ VAL_PTR=&Data_Field_field_type_value
     /* using the current ressaemble functions.                                                          */
     /* TODO: reassemble all the Items in one frame */
     if (primary_part && (Data_Field_item_num<2)) {
-        tvbuff_t* new_tvb = NULL;
         fragment_data *frag_msg = NULL;
 
         /* HDLC Data or t4-non-ecm-data */
@@ -199,7 +198,7 @@ VAL_PTR=&Data_Field_field_type_value
                 value_len, /* fragment length */
                 TRUE); /* More fragments */
 
-            new_tvb = process_reassembled_data(tvb, offset, actx->pinfo,
+            process_reassembled_data(tvb, offset, actx->pinfo,
                         "Reassembled T38", frag_msg, &data_frag_items, NULL, tree);
 
             if (!frag_msg) { /* Not last packet of reassembled */
