@@ -660,7 +660,6 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int offset = 0;
 	guint16 token_id;
 	const char *oid;
-	gssapi_oid_value *value;
 	tvbuff_t *krb5_tvb;
 	gint8 class;
 	gboolean pc, ind = 0;
@@ -722,8 +721,6 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Next, the OID */
 		offset=dissect_ber_object_identifier_str(FALSE, &asn1_ctx, subtree, tvb, offset, hf_spnego_krb5_oid, &oid);
 
-		value = gssapi_lookup_oid_str(oid);
-
 		token_id = tvb_get_letohs(tvb, offset);
 		proto_tree_add_uint(subtree, hf_spnego_krb5_tok_id, tvb, offset, 2,
 				    token_id);
@@ -738,7 +735,7 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * No token ID - just dissect as a Kerberos message and
 		 * return.
 		 */
-		offset = dissect_kerberos_main(tvb, pinfo, subtree, FALSE, NULL);
+		dissect_kerberos_main(tvb, pinfo, subtree, FALSE, NULL);
 		return;
 
 	    default:
@@ -935,7 +932,6 @@ decrypt_arcfour(packet_info *pinfo,
 {
     guint8 Klocaldata[16];
     int ret;
-    gint32 seq_number;
     size_t datalen;
     guint8 k6_data[16];
     guint32 SND_SEQ[2];
@@ -977,7 +973,6 @@ decrypt_arcfour(packet_info *pinfo,
 	memset(k6_data, 0, sizeof(k6_data));
     }
 
-    seq_number=g_ntohl(SND_SEQ[0]);
 
     if (SND_SEQ[1] != 0xFFFFFFFF && SND_SEQ[1] != 0x00000000) {
 	return -6;
@@ -1178,7 +1173,6 @@ decrypt_gssapi_krb_cfx_wrap(proto_tree *tree _U_,
 			    int keytype,
 			    unsigned int usage)
 {
-	int res;
 	guint8 *rotated;
 	guint8 *output;
 	int datalen;
@@ -1202,7 +1196,7 @@ decrypt_gssapi_krb_cfx_wrap(proto_tree *tree _U_,
 		rrc += ec;
 	}
 
-	res = rrc_rotate(rotated, datalen, rrc, TRUE);
+	rrc_rotate(rotated, datalen, rrc, TRUE);
 
 	next_tvb=tvb_new_child_real_data(encrypted_tvb, rotated,
 					 datalen, datalen);
@@ -1965,7 +1959,7 @@ void proto_register_spnego(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-spnego-hfarr.c ---*/
-#line 1399 "../../asn1/spnego/packet-spnego-template.c"
+#line 1393 "../../asn1/spnego/packet-spnego-template.c"
 	};
 
 	/* List of subtrees */
@@ -1987,7 +1981,7 @@ void proto_register_spnego(void) {
     &ett_spnego_InitialContextToken_U,
 
 /*--- End of included file: packet-spnego-ettarr.c ---*/
-#line 1409 "../../asn1/spnego/packet-spnego-template.c"
+#line 1403 "../../asn1/spnego/packet-spnego-template.c"
 	};
 
 	/* Register protocol */
