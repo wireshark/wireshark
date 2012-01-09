@@ -1869,6 +1869,7 @@ dissect_ieee802154_decrypt(tvbuff_t * tvb, guint offset, packet_info * pinfo, ie
         ptext_tvb = tvb_new_real_data(text, captured_len, reported_len);
         tvb_set_child_real_data_tvbuff(tvb, ptext_tvb);
         add_new_data_source(pinfo, ptext_tvb, "Decrypted IEEE 802.15.4 payload");
+        tvb_set_free_cb(ptext_tvb, g_free);
         *status = DECRYPT_PACKET_SUCCEEDED;
     }
     /* There is no ciphertext. Wrap the plaintext in a new tvb. */

@@ -26,12 +26,12 @@
 #ifndef __SSL_UTILS_H_
 #define __SSL_UTILS_H_
 
+#include <stdio.h>
+
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/emem.h>
 #include <epan/value_string.h>
-
-#include <stdio.h>
 
 #ifdef HAVE_LIBGNUTLS
 #include <gcrypt.h>
@@ -267,10 +267,9 @@ typedef struct _SslDecoder {
 #define DIG_MD5         0x40
 #define DIG_SHA         0x41
 
-struct tvbuff;
-
 typedef struct _SslRecordInfo {
-    struct tvbuff* tvb;
+    guchar *real_data;
+    gint data_len;
     gint id;
     struct _SslRecordInfo* next;
 } SslRecordInfo;
@@ -403,7 +402,7 @@ ssl_free_key(Ssl_private_key_t* key);
 extern gint
 ssl_find_private_key(SslDecryptSession *ssl_session, GHashTable *key_hash, GTree* associations, packet_info *pinfo);
 
-/** Search for the specified cipher souite id
+/** Search for the specified cipher suite id
  @param num the id of the cipher suite to be searched
  @param cs pointer to the cipher suite struct to be filled
  @return 0 if the cipher suite is found, -1 elsewhere */
@@ -493,13 +492,13 @@ ssl_assoc_from_key_list(gpointer key _U_, gpointer data, gpointer user_data);
 extern gint
 ssl_packet_from_server(SslDecryptSession* ssl, GTree* associations, packet_info *pinfo);
 
-/* add to packet data a newly allocated tvb with the specified real data*/
+/* add to packet data a copy of the specified real data */
 extern void
 ssl_add_record_info(gint proto, packet_info *pinfo, guchar* data, gint data_len, gint record_id);
 
-/* search in packet data the tvbuff associated to the specified id */
+/* search in packet data for the specified id; return a newly created tvb for the associated data */
 extern tvbuff_t*
-ssl_get_record_info(gint proto, packet_info *pinfo, gint record_id);
+ssl_get_record_info(tvbuff_t *parent_tvb, gint proto, packet_info *pinfo, gint record_id);
 
 void
 ssl_add_data_info(gint proto, packet_info *pinfo, guchar* data, gint data_len, gint key, SslFlow *flow);
