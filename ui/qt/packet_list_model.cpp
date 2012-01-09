@@ -199,7 +199,7 @@ QVariant PacketListModel::data(const QModelIndex &index, int role) const
     }
 
     int col_num = index.column();
-    g_log(NULL, G_LOG_LEVEL_DEBUG, "showing col %d", col_num);
+//    g_log(NULL, G_LOG_LEVEL_DEBUG, "showing col %d", col_num);
 
     if (col_num > cf->cinfo.num_cols)
         return QVariant();
@@ -281,7 +281,6 @@ QVariant PacketListModel::data(const QModelIndex &index, int role) const
 
     epan_dissect_cleanup(&edt);
 
-    g_log(NULL, G_LOG_LEVEL_DEBUG, "rd for col %d: %p", col_num, record->data(col_num, cinfo));
     return record->data(col_num, cinfo);
 }
 
