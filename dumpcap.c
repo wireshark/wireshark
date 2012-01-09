@@ -2488,7 +2488,7 @@ capture_loop_dispatch(capture_options *capture_opts _U_, loop_data *ld,
     int       inpkts;
     gint      packet_count_before;
     guchar    pcap_data[WTAP_MAX_PACKET_SIZE];
-#ifndef USE_THREADS
+#if !defined(USE_THREADS) || defined(MUST_DO_SELECT)
     int       sel_ret;
 #endif
 
