@@ -346,10 +346,8 @@ extern gboolean main_filter_packets(capture_file *cf, const gchar *dftext,
 extern void create_console(void);
 #endif
 
-#if defined(_WIN32)
 /** Restart the tap update display timer with new configured interval */
 extern void reset_tap_update_timer(void);
-#endif
 
 /** Fill in capture options with values from the preferences */
 extern void prefs_to_capture_opts(void);
