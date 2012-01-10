@@ -681,11 +681,6 @@ static enum_val_t nfs_fhandle_types[] = {
 /* decode all nfs filehandles as this type */
 static gint default_nfs_fhandle_type=FHT_UNKNOWN;
 
-typedef struct nfs_fhandle_data {
-    int len;
-    const unsigned char *fh;
-} nfs_fhandle_data_t;
-
 /* For dissector helpers which take a "levels" argument to indicate how
  * many expansions up they should populate the expansion items with
  * text to enhance useability, this flag to "levels" specify that the
