@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-<!ENTITY WiresharkCurrentVersion "1.6.5">
+<!ENTITY WiresharkCurrentVersion "1.6.6">
 
 ]>
 
@@ -36,56 +36,17 @@ Wireshark Info
 
         <listitem>
           <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-01.html">wnpa-sec-2012-01</ulink>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-04.html">wnpa-sec-2012-04</ulink>
           </para>
           <para>
-	    Laurent Butti discovered that Wireshark failed to properly check
-	    record sizes for many packet capture file formats.
-            <!-- Fixed in trunk: r40164, r40165, r40166, r40167, r40168, r40169, r40170, r40174  -->
-            <!-- Fixed in trunk-1.6: r40398 -->
-            <!-- Fixed in trunk-1.4: r40252 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6663">Bug 6663</ulink>,
-            <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6666">bug 6666</ulink>,
-            <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6667">bug 6667</ulink>,
-            <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6668">bug 6668</ulink>,
-            <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6669">bug 6669</ulink>,
-            <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6670">bug 6670</ulink>)
+            .
+            <!-- Fixed in trunk: r????? -->
+            <!-- Fixed in trunk-1.6: r????? -->
+            <!-- Fixed in trunk-1.4: r????? -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
+            ????</ulink>)
           </para>
-          <para>Versions affected: 1.4.0 to 1.4.10, 1.6.0 to 1.6.4.</para>
-          <!-- <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-????">CVE-2012-????</ulink>
-          </para> -->
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-02.html">wnpa-sec-2012-02</ulink>
-          </para>
-          <para>
-            Wireshark could dereference a NULL pointer and crash.
-            <!-- Fixed in trunk: r40194  -->
-            <!-- Fixed in trunk-1.6: r40399 -->
-            <!-- Fixed in trunk-1.4: r40360 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6634">Bug 6634</ulink>)
-          </para>
-          <para>Versions affected: 1.4.0 to 1.4.10, 1.6.0 to 1.6.4.</para>
-          <!-- <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-????">CVE-2012-????</ulink>
-          </para> -->
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-03.html">wnpa-sec-2012-03</ulink>
-          </para>
-          <para>
-            The RLC dissector could overflow a buffer.
-            <!-- Fixed in trunk: r40266, r40275  -->
-            <!-- Fixed in trunk-1.6: r40400, r40401 -->
-            <!-- Fixed in trunk-1.4: r40360 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6391">Bug 6391</ulink>)
-          </para>
-          <para>Versions affected: 1.4.0 to 1.4.10, 1.6.0 to 1.6.4.</para>
+          <para>Versions affected: 1.6.0 to 1.6.5.</para>
           <!-- <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-????">CVE-2012-????</ulink>
           </para> -->
@@ -111,139 +72,6 @@ Wireshark Info
         </para></listitem>
 -->
 
-        <listitem><para>
-          &quot;Closing File!&quot; Dialog Hangs.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3046">Bug
-          3046</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Sub-fields of data field should appear in exported PDML as children of the data field instead of as siblings to it.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3809">Bug
-          3809</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Incorrect time differences displayed with time reference set.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5580">Bug
-          5580</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wrong packet type association of SNMP trap after TFTP transfer.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5727">Bug
-          5727</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          SSL/TLS decryption needs wireshark to be rebooted.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6032">Bug
-          6032</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Export HTTP Objects -&gt; save all crashes Wireshark.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6250">Bug
-          6250</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark Netflow dissector complains there is no template found though the template is exported.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6325">Bug
-          6325</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          DCERPC EPM tower UUID must be interpreted always as little endian.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6368">Bug
-          6368</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Crash if no recent files.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6549">Bug
-          6549</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          IPv6 frame containing routing header with 0 segments left calculates wrong UDP checksum.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6560">Bug
-          6560</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          IPv4 UDP/TCP Checksum incorrect if routing header present.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6561">Bug
-          6561</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Incorrect Parsing of SCPS Capabilities Option introduced in response to bug 6194.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6562">Bug
-          6562</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Various crashes after loading NetMon2.x capture file.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6578">Bug
-          6578</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Fixed compilation of dumpcap on some systems (when MUST_DO_SELECT is defined).
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6614">Bug
-          6614</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          SIGSEGV in SVN 40046.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6634">Bug
-          6634</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark dissects TCP option 25 as an &quot;April 1&quot; option.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6643">Bug
-          6643</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          ZigBee ZCL Dissector reports invalid status.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6649">Bug
-          6649</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          ICMPv6 DNSSL option malformed on padding.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6660">Bug
-          6660</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wrong tvb_get_bits function call in packet-csn1.c.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6708">Bug
-          6708</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          [UDP] - Length Field of Pseudo Header while computing CheckSum is not correct.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6711">Bug
-          6711</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          pcapio.c: bug in libpcap_write_interface_description_block.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6719">Bug
-          6719</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Memory leaks in various dissectors.
-        </para></listitem>
-
-        <listitem><para>
-          Bytes highlighted in wrong Byte pane when field selected in Details pane.
-        </para></listitem>
 
      </itemizedlist>
 
@@ -270,55 +98,15 @@ There are no new protocols in this release.
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title> <para>
 
 <!-- Sort alphabetically -->
-BGP,
-BMC
-CSN1,
-DCERPC EPM,
-DCP(ETSI)
-DMP
-DTLS
-GSM Management,
-H245
-HPTEAM,
-ICMPv6,
-IEEE 802.15.4
-IPSEC
-IPv4,
-IPv6,
-ISAKMP
-KERBEROS
-LDSS
-NFS
-RLC,
-RPC-NETLOGON
-RRC
-RTMPT
-SIGCOMP
-SSL
-SYSLOG
-TCP,
-UDP,
-XML
-ZigBee ZCL
 
+.
     </para>
     </section>
 
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-Accellent 5Views,
-AIX iptrace,
-HP-UX nettl,
-I4B,
-Microsoft Network Monitor,
-Novell LANalyzer,
-PacketLogger,
-Pcap-ng,
-Sniffer,
-Tektronix K12,
-WildPackets {Airo,Ether}Peek.
-
+.
     </para>
     </section>
 
