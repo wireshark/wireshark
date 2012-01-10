@@ -434,8 +434,8 @@ static void DissectNOE_callserver(tvbuff_t *pTvb, proto_tree *pNoeItem)
                 gboolean bIsArrIndex;
 
                 nTlvProperty = tvb_get_guint8(pTvb, iOffs);
-                /* for property of more than 100 and equal 120 before the field is still arrindex propsize */
-                if((nTlvProperty < 100) || (nTlvProperty == 120))
+                /* for property of more than 100 and equal 104 or 120 before the field is still arrindex propsize */
+                if((nTlvProperty < 100) || (nTlvProperty == 104) || (nTlvProperty == 120))
                 {
                     nTlvLen = tvb_get_guint8(pTvb, iOffs+1);
                     nTlvLen += 2;
@@ -556,37 +556,37 @@ static void DissectNOE_ip_startrtp_properties(tvbuff_t *pTvb, proto_tree *pNoeIt
         case 0x00: /*LocalUDPPort*/
             {
                 proto_item_append_text(pProp, ": %u", tvb_get_ntohs(pTvb, 2));
-                proto_tree_add_item(pSubTreeProp, hf_noe_local_port, pTvb, 2, -1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(pSubTreeProp, hf_noe_local_port, pTvb, 2, 2, ENC_BIG_ENDIAN);
                 break;
             }
         case 0x01: /*RemoteIP*/
             {
                 proto_item_append_text(pProp, ": %s", tvb_ip_to_str(pTvb, 2));
-                proto_tree_add_item(pSubTreeProp, hf_noe_remote_ip, pTvb, 2, -1, ENC_NA);
+                proto_tree_add_item(pSubTreeProp, hf_noe_remote_ip, pTvb, 2, 4, ENC_NA);
                 break;
             }
         case 0x02: /*RemoteUDPPort*/
             {
                 proto_item_append_text(pProp, ": %u", tvb_get_ntohs(pTvb, 2));
-                proto_tree_add_item(pSubTreeProp, hf_noe_remote_port, pTvb, 2, -1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(pSubTreeProp, hf_noe_remote_port, pTvb, 2, 2, ENC_BIG_ENDIAN);
                 break;
             }
         case 0x03: /*TypeOfService*/
             {
                 proto_item_append_text(pProp, ": %u", tvb_get_guint8(pTvb, 2));
-                proto_tree_add_item(pSubTreeProp, hf_noe_typeofservice, pTvb, 2, -1, ENC_NA);
+                proto_tree_add_item(pSubTreeProp, hf_noe_typeofservice, pTvb, 2, 1, ENC_NA);
                 break;
             }
         case 0x04: /*Payload*/
             {
                 proto_item_append_text(pProp, ": %s", val_to_str_const(tvb_get_guint8(pTvb, 2), szStartRtpPayload, "Unknown"));
-                proto_tree_add_item(pSubTreeProp, hf_noe_compressor, pTvb, 2, -1, ENC_NA);
+                proto_tree_add_item(pSubTreeProp, hf_noe_compressor, pTvb, 2, 1, ENC_NA);
                 break;
             }
         case 0x05: /*PayloadConcatenation*/
             {
                 proto_item_append_text(pProp, ": %u ms", tvb_get_guint8(pTvb, 2));
-                proto_tree_add_item(pSubTreeProp, hf_noe_payloadconcat, pTvb, 2, -1, ENC_NA);
+                proto_tree_add_item(pSubTreeProp, hf_noe_payloadconcat, pTvb, 2, 1, ENC_NA);
                 break;
             }
         }
