@@ -546,11 +546,13 @@ static int hf_radiotap_mcs_have_index = -1;
 static int hf_radiotap_mcs_have_gi = -1;
 static int hf_radiotap_mcs_have_format = -1;
 static int hf_radiotap_mcs_have_fec = -1;
+static int hf_radiotap_mcs_have_stbc = -1;
 static int hf_radiotap_mcs_bw = -1;
 static int hf_radiotap_mcs_index = -1;
 static int hf_radiotap_mcs_gi = -1;
 static int hf_radiotap_mcs_format = -1;
 static int hf_radiotap_mcs_fec = -1;
+static int hf_radiotap_mcs_stbc = -1;
 
 /* "Present" flags */
 static int hf_radiotap_present_tsft = -1;
@@ -1226,6 +1228,10 @@ void proto_register_radiotap(void)
 		 {"FEC", "radiotap.mcs.have_fec",
 		  FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_MCS_HAVE_FEC,
 		  "Forward error correction information present", HFILL}},
+		{&hf_radiotap_mcs_have_stbc,
+		 {"STBC", "radiotap.mcs.have_stbc",
+		  FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_MCS_HAVE_STBC,
+		  "Space Time Block Coding information present", HFILL}},
 		{&hf_radiotap_mcs_have_index,
 		 {"MCS index", "radiotap.mcs.have_index",
 		  FT_BOOLEAN, 8, NULL, IEEE80211_RADIOTAP_MCS_HAVE_MCS,
@@ -1246,6 +1252,11 @@ void proto_register_radiotap(void)
 		 {"FEC", "radiotap.mcs.fec",
 		  FT_UINT8, BASE_DEC, VALS(mcs_fec), IEEE80211_RADIOTAP_MCS_FEC_LDPC,
 		  "forward error correction", HFILL}},
+		{&hf_radiotap_mcs_stbc,
+		 {"STBC", "radiotap.mcs.stbc",
+		  FT_BOOLEAN, 8, TFS(&tfs_on_off), IEEE80211_RADIOTAP_MCS_STBC,
+		  "Space Time Block Code", HFILL}},
+
 		{&hf_radiotap_mcs_index,
 		 {"MCS index", "radiotap.mcs.index",
 		  FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
@@ -1964,6 +1975,8 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 						    tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				proto_tree_add_item(mcs_known_tree, hf_radiotap_mcs_have_fec,
 						    tvb, offset, 1, ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(mcs_known_tree, hf_radiotap_mcs_have_stbc,
+						    tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			}
 			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_BW) {
 				bandwidth = ((mcs_flags & IEEE80211_RADIOTAP_MCS_BW_MASK) == IEEE80211_RADIOTAP_MCS_BW_40) ?
@@ -1993,6 +2006,11 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_FEC) {
 				if (mcs_tree)
 					proto_tree_add_uint(mcs_tree, hf_radiotap_mcs_fec,
+							    tvb, offset + 1, 1, mcs_flags);
+			}
+			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_STBC) {
+				if (mcs_tree)
+					proto_tree_add_boolean(mcs_tree, hf_radiotap_mcs_stbc,
 							    tvb, offset + 1, 1, mcs_flags);
 			}
 			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_MCS) {
