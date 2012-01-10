@@ -260,6 +260,17 @@ Wireshark Info
           6670</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          [UDP] - Length Field of Pseudo Header while computing CheckSum is not correct.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6711">Bug
+          6711</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          pcapio.c: bug in libpcap_write_interface_description_block.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6719">Bug
+          6719</ulink>)
+        </para></listitem>
 
       </itemizedlist>
 
