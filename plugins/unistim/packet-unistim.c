@@ -1052,7 +1052,7 @@ dissect_display_switch(proto_tree *msg_tree,
          }
          if(msg_len>0){
             /* I'm guessing this will work flakily at best */
-            uinfo->string_data = tvb_get_string(tvb,offset,msg_len);
+            uinfo->string_data = tvb_get_ephemeral_string(tvb,offset,msg_len);
             set_ascii_item(msg_tree,tvb,offset,msg_len);
          }
 

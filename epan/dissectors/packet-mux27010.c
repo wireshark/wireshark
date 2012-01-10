@@ -248,8 +248,6 @@ static char colDestText[256];
 static char colSourceText[256];
 static char frameTypeText[64];
 
-static char information_field_content[256];
-static char *information_field;
 static char dlci_char[3];
 
 static guint8 i = 0;
@@ -741,7 +739,7 @@ getControlChannelValues(tvbuff_t *tvb, proto_tree *field_tree_ctr){
         if (controlchannel_iei == MUX27010_VALUE_CONTROLCHANNEL_TEST_IEI_MS){
             proto_tree_add_uint_format(field_tree_ctr, hf_mux27010_controlchannelvalue, tvb, offset, 1, controlchannel_value, "IEI coding: MSMUX_VERSION");
         }
-        proto_tree_add_uint_format(field_tree_ctr, hf_mux27010_controlchannelvalue, tvb, offset+1, controlchannel_length_value-1, controlchannel_value, "Value (ASCII): %s", tvb_get_string(tvb, offset+1,controlchannel_length_value-1));
+        proto_tree_add_uint_format(field_tree_ctr, hf_mux27010_controlchannelvalue, tvb, offset+1, controlchannel_length_value-1, controlchannel_value, "Value (ASCII): %s", tvb_get_ephemeral_string(tvb, offset+1,controlchannel_length_value-1));
     }
 
     /*Command pattern for Power saving control (C/R is set to 1)*/
@@ -798,14 +796,17 @@ getControlChannelValues(tvbuff_t *tvb, proto_tree *field_tree_ctr){
 /*Get values information field*/
 static void
 getFrameInformation(tvbuff_t *tvb, proto_tree *field_tree){
+    char information_field_content[52];
+    char *information_field, *save_information_field_ptr;
 
     /*Get the data from information field as string*/
     information_field = tvb_get_string(tvb,offset,length_info);
+    save_information_field_ptr = information_field;
     tmp = 0;
 
     /*Copy data from buffer to local array information_field_content*/
     /*and delete unneeded signs out of info field -> for info column: CR (0x0d) and LF (0x0a)*/
-    for (i = 0; i<length_info && i<=50; i++) {
+    for (i = 0; i<length_info && i<(sizeof(information_field_content)-1); i++) {
         /*Check every sign in information field for CR and LF*/
         if (*information_field != 0x0a && *information_field != 0x0d){
             /*Copy char to array*/
@@ -826,10 +827,11 @@ getFrameInformation(tvbuff_t *tvb, proto_tree *field_tree){
     g_snprintf(colInfoText,sizeof(colInfoText),"%s %s", colInfoText, information_field_content);
 
     /*Get pointer to begin of buffer again*/
-    information_field = tvb_get_string(tvb,offset,length_info);
+    information_field = save_information_field_ptr;
 
     /*Add info to subtree*/
     proto_tree_add_uint_format(field_tree, hf_mux27010_information, tvb, offset, length_info, controlchannel_type_command, "Information: %s",information_field);
+    g_free(information_field);
 
     /*Increment offset by the length of chars in info field*/
     offset +=length_info;

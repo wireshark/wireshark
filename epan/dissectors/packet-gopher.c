@@ -179,6 +179,7 @@ dissect_gopher(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                 name = tvb_get_string(tvb, offset + 1, sel_start - offset - 2);
                 ti = proto_tree_add_string(gopher_tree, hf_gopher_dir_item, tvb,
                                 offset, line_len + 1, name);
+                g_free(name);
                 dir_tree = proto_item_add_subtree(ti, ett_dir_item);
                 proto_tree_add_item(dir_tree, hf_gopher_di_type, tvb, offset, 1, FALSE);
                 proto_tree_add_item(dir_tree, hf_gopher_di_name, tvb, offset + 1,
@@ -319,5 +320,3 @@ proto_reg_handoff_gopher(void)
  * vi: set shiftwidth=4 tabstop=8 expandtab
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-
-
