@@ -1,559 +1,558 @@
 ------------------------------------------------------------------------
-r38945 | gerald | 2011-09-08 10:14:01 -0700 (Thu, 08 Sep 2011) | 2 lines
-Changed paths:
-   M /trunk-1.4/config.nmake
-   M /trunk-1.4/configure.in
-   M /trunk-1.4/debian/changelog
-   M /trunk-1.4/docbook/release-notes.xml
-   M /trunk-1.4/version.conf
+r39743 | gerald | 2011-11-06 08:04:16 -0800 (Sun, 06 Nov 2011) | 1 line
 
-1.4.9 → 1.4.10.
+[Automatic manuf, services and enterprise-numbers update for 2011-11-06]
+------------------------------------------------------------------------
+r39820 | gerald | 2011-11-13 08:04:18 -0800 (Sun, 13 Nov 2011) | 1 line
+
+[Automatic manuf, services and enterprise-numbers update for 2011-11-13]
+------------------------------------------------------------------------
+r39962 | gerald | 2011-11-20 08:04:16 -0800 (Sun, 20 Nov 2011) | 1 line
+
+[Automatic manuf, services and enterprise-numbers update for 2011-11-20]
+------------------------------------------------------------------------
+r40017 | gerald | 2011-11-27 08:04:17 -0800 (Sun, 27 Nov 2011) | 1 line
+
+[Automatic manuf, services and enterprise-numbers update for 2011-11-27]
+------------------------------------------------------------------------
+r40090 | gerald | 2011-12-04 08:04:17 -0800 (Sun, 04 Dec 2011) | 1 line
+
+[Automatic manuf, services and enterprise-numbers update for 2011-12-04]
+------------------------------------------------------------------------
+r40152 | gerald | 2011-12-11 08:04:15 -0800 (Sun, 11 Dec 2011) | 1 line
+
+[Automatic manuf, services and enterprise-numbers update for 2011-12-11]
+------------------------------------------------------------------------
+r40232 | jake | 2011-12-16 14:55:37 -0800 (Fri, 16 Dec 2011) | 64 lines
 
 ------------------------------------------------------------------------
-r38963 | gerald | 2011-09-11 08:04:21 -0700 (Sun, 11 Sep 2011) | 1 line
-Changed paths:
-   M /trunk-1.4/epan/enterprise-numbers
-   M /trunk-1.4/services
+r39719 | stig | 2011-11-02 21:06:40 +0100 (Wed, 02 Nov 2011) | 1 line
 
-[Automatic manuf, services and enterprise-numbers update for 2011-09-11]
+Revert revision 39665 (for bug 6472) which introduced bug 6537.
 ------------------------------------------------------------------------
-r38980 | gerald | 2011-09-12 11:26:32 -0700 (Mon, 12 Sep 2011) | 2 lines
-Changed paths:
-   M /trunk-1.4/make-manuf
+r39744 | stig | 2011-11-06 18:39:13 +0100 (Sun, 06 Nov 2011) | 6 lines
 
-Copy over proxy and CaveBear URL fixes from the trunk.
+From Robert G. Jakabosky via bug 5575:
+Fix memory errors in Lua dissectors.
+- Free Tvb when created from ByteArray.
+- Free TvbRange correctly.
+- Free string from get_persconffile_path and get_datafile_path.
+- Some code cleanup.
+------------------------------------------------------------------------
+r39748 | stig | 2011-11-07 08:41:03 +0100 (Mon, 07 Nov 2011) | 4 lines
+
+Do not return from within a TRY/CATCH/ENDTRY because this will make the
+except stack invalid, and will lead to a crash.
+
+In this case it was when calling a dissector from a table in a Lua script.
+------------------------------------------------------------------------
+r39749 | stig | 2011-11-07 17:09:41 +0100 (Mon, 07 Nov 2011) | 4 lines
+
+Do not return from within a TRY/CATCH/ENDTRY because this will make the
+except stack invalid, and will lead to a crash.
+
+In this case it was when doing compare functions on a FT_PROTOCOL.
+------------------------------------------------------------------------
+r39777 | guy | 2011-11-10 01:53:48 +0100 (Thu, 10 Nov 2011) | 8 lines
+
+prefs_reset() has to reset the dissector preferences to their defaults,
+as we don't save to a preferences file preference values that are equal
+to their defaults, so if you change profiles, a preference that has a
+non-default value in the old profile and a default value in the new
+profile, so that it's *not* in the preference file for the new profile,
+will not be set to the right value unless we reset all protocol
+preferences to their defaults first.
 
 ------------------------------------------------------------------------
-r39034 | gerald | 2011-09-18 08:04:23 -0700 (Sun, 18 Sep 2011) | 1 line
-Changed paths:
-   M /trunk-1.4/epan/enterprise-numbers
-   M /trunk-1.4/services
+r39779 | etxrab | 2011-11-10 07:07:16 +0100 (Thu, 10 Nov 2011) | 3 lines
 
-[Automatic manuf, services and enterprise-numbers update for 2011-09-18]
+From Dirk:
+CAPWAP dissector tries to allocate -1 bytes of memory during reassembly.
+- changed to return offset.
 ------------------------------------------------------------------------
-r39128 | gerald | 2011-09-25 08:04:21 -0700 (Sun, 25 Sep 2011) | 1 line
-Changed paths:
-   M /trunk-1.4/epan/enterprise-numbers
-   M /trunk-1.4/manuf
-   M /trunk-1.4/services
+r39999 | alagoutte | 2011-11-25 11:38:15 +0100 (Fri, 25 Nov 2011) | 3 lines
 
-[Automatic manuf, services and enterprise-numbers update for 2011-09-25]
-------------------------------------------------------------------------
-r39218 | gerald | 2011-10-02 08:04:14 -0700 (Sun, 02 Oct 2011) | 1 line
-Changed paths:
-   M /trunk-1.4/epan/enterprise-numbers
-   M /trunk-1.4/manuf
-   M /trunk-1.4/services
+From Dagobert Michelsen via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6615
+Do not return value on void function in epan/dissectors/packet-capwap.c
 
-[Automatic manuf, services and enterprise-numbers update for 2011-10-02]
 ------------------------------------------------------------------------
-r39325 | gerald | 2011-10-09 08:04:15 -0700 (Sun, 09 Oct 2011) | 1 line
-Changed paths:
-   M /trunk-1.4/epan/enterprise-numbers
-   M /trunk-1.4/manuf
-   M /trunk-1.4/services
 
-[Automatic manuf, services and enterprise-numbers update for 2011-10-09]
-------------------------------------------------------------------------
-r39435 | gerald | 2011-10-16 08:04:15 -0700 (Sun, 16 Oct 2011) | 1 line
-Changed paths:
-   M /trunk-1.4/epan/enterprise-numbers
-   M /trunk-1.4/manuf
-   M /trunk-1.4/services
 
-[Automatic manuf, services and enterprise-numbers update for 2011-10-16]
-------------------------------------------------------------------------
-r39512 | gerald | 2011-10-23 08:04:18 -0700 (Sun, 23 Oct 2011) | 1 line
-Changed paths:
-   M /trunk-1.4/epan/enterprise-numbers
-   M /trunk-1.4/manuf
-   M /trunk-1.4/services
 
-[Automatic manuf, services and enterprise-numbers update for 2011-10-23]
+Applied by hand:
+
 ------------------------------------------------------------------------
-r39622 | gerald | 2011-10-26 15:46:01 -0700 (Wed, 26 Oct 2011) | 110 lines
-Changed paths:
-   M /trunk-1.4/AUTHORS
-   M /trunk-1.4/docbook/release-notes.xml
-   M /trunk-1.4/epan/dissectors/packet-bacapp.c
-   M /trunk-1.4/epan/dissectors/packet-dtn.c
-   M /trunk-1.4/epan/dissectors/packet-ieee80211.c
-   M /trunk-1.4/epan/dissectors/packet-pcep.c
-   M /trunk-1.4/epan/dissectors/packet-per.c
-   M /trunk-1.4/epan/dissectors/packet-ssl-utils.c
-   M /trunk-1.4/epan/epan.c
-   M /trunk-1.4/epan/proto.c
-   M /trunk-1.4/epan/wslua/init_wslua.c
-   M /trunk-1.4/epan/wslua/wslua.h
-   M /trunk-1.4/epan/wspython/wspy_register.c
-   M /trunk-1.4/epan/wspython/wspy_register.h
-   M /trunk-1.4/gtk/about_dlg.c
-   M /trunk-1.4/gtk/conversations_table.c
-   M /trunk-1.4/gtk/export_object.c
-   M /trunk-1.4/register.h
+r39754 | alagoutte | 2011-11-08 15:45:35 +0100 (Tue, 08 Nov 2011) | 3 lines
+
+From Pontus Fuchs via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6548
+80211 QoS Control: Add Raw TID
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r40240 | gerald | 2011-12-18 08:04:21 -0800 (Sun, 18 Dec 2011) | 1 line
+
+[Automatic manuf, services and enterprise-numbers update for 2011-12-18]
+------------------------------------------------------------------------
+r40243 | jake | 2011-12-19 00:01:43 -0800 (Mon, 19 Dec 2011) | 60 lines
+
+------------------------------------------------------------------------
+r39834 | cmaynard | 2011-11-14 20:57:45 +0100 (Mon, 14 Nov 2011) | 2 lines
+
+The Originator protocol identifier is not present in the "provisioning 
+actions operation -61", only the "session management operatin -60".  
+Fixes https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6570.
+------------------------------------------------------------------------
+r39886 | guy | 2011-11-16 18:54:44 +0100 (Wed, 16 Nov 2011) | 15 lines
+
+Support nanosecond-resolution time for NetMon 2.x format (it's only
+100-nanosecond resolution, but that's still better than microsecond
+resolution).
+
+For NetMon 1.x format, only claim to support millisecond resolution, as
+that's all you get.
+
+Fix handling of negative time deltas in NetMon 2.x format.
+
+When writing a NetMon file, trim the time of the first packet to
+millisecond precision to get the capture start time, so that the start
+time written to the file (which has millisecond precision) is the same
+as the start time used to calculate the deltas written to the packet
+headers.
+
+------------------------------------------------------------------------
+r39930 | guy | 2011-11-18 08:13:33 +0100 (Fri, 18 Nov 2011) | 4 lines
+
+Make sure pcap-ng supports a particular encapsulation type before
+trying to write out an interface description block for an interface with
+that type.
+
+------------------------------------------------------------------------
+r39944 | guy | 2011-11-18 22:39:18 +0100 (Fri, 18 Nov 2011) | 3 lines
+
+Fail if somebody tries to write out a packet with an unsupported
+encapsulation.
+
+------------------------------------------------------------------------
+r39959 | cmaynard | 2011-11-20 16:11:15 +0100 (Sun, 20 Nov 2011) | 2 lines
+
+Fix "'Closing File!' Dialog Hangs" bug 3046: https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3046
+
+------------------------------------------------------------------------
+
+
+Applied by hand:
+
+------------------------------------------------------------------------
+r39831 | guy | 2011-11-14 19:42:11 +0100 (Mon, 14 Nov 2011) | 3 lines
+
+Do some more length checking to avoid a dissector bug error.  Should fix
+bug 6564.
+------------------------------------------------------------------------
+r39902 | cmaynard | 2011-11-17 16:57:44 +0100 (Thu, 17 Nov 2011) | 2 lines
+
+Fix crash caused by trying to apply a field of type BASE_CUSTOM as a column.  
+Fixes https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6503.
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r40246 | jake | 2011-12-19 15:11:17 -0800 (Mon, 19 Dec 2011) | 2 lines
+
+Fix backport of r39902.
+
+------------------------------------------------------------------------
+r40248 | jake | 2011-12-19 23:55:12 -0800 (Mon, 19 Dec 2011) | 44 lines
+
+------------------------------------------------------------------------
+r39878 | guy | 2011-11-16 04:13:02 +0100 (Wed, 16 Nov 2011) | 3 lines
+
+Handle ctime() and localtime() returning NULL and localtime() on Windows
+blowing up when handed a bad value.
+
+------------------------------------------------------------------------
+r39882 | guy | 2011-11-16 17:48:02 +0100 (Wed, 16 Nov 2011) | 3 lines
+
+Another place where we have to protect against MSVC's time-conversion
+routines blowing up if handed a too-large time_t.
+
+------------------------------------------------------------------------
+r39883 | guy | 2011-11-16 18:08:00 +0100 (Wed, 16 Nov 2011) | 6 lines
+
+Another place where we have to protect against MSVC's time-conversion
+routines blowing up if handed a too-large time_t.
+
+While we're at it, also check for dates that can't be represented in DOS
+format (pre-1980 dates).
+
+------------------------------------------------------------------------
+r39884 | guy | 2011-11-16 18:12:47 +0100 (Wed, 16 Nov 2011) | 2 lines
+
+Fix build on Windows.
+
+------------------------------------------------------------------------
+r39885 | guy | 2011-11-16 18:13:37 +0100 (Wed, 16 Nov 2011) | 2 lines
+
+OK, this should do it.
+
+------------------------------------------------------------------------
+r39894 | cmaynard | 2011-11-17 03:17:57 +0100 (Thu, 17 Nov 2011) | 2 lines
+
+Revert part of r39883 to avoid dereferencing a NULL pointer.  Thanks Clang.
+
+------------------------------------------------------------------------
+r39895 | guy | 2011-11-17 03:29:26 +0100 (Thu, 17 Nov 2011) | 3 lines
+
+Put back the check for dates that can be represented in DOS format the
+way it was *supposed* to be done, rather than backwards.
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r40249 | jake | 2011-12-20 07:43:43 -0800 (Tue, 20 Dec 2011) | 126 lines
+
+------------------------------------------------------------------------
+r39961 | cmaynard | 2011-11-20 16:47:14 +0100 (Sun, 20 Nov 2011) | 3 lines
+
+Fix bug 6561: IPv4 UDP/TCP Checksum incorrect if routing header present.
+https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6561
+
+------------------------------------------------------------------------
+r39963 | cmaynard | 2011-11-21 03:01:59 +0100 (Mon, 21 Nov 2011) | 2 lines
+
+Fix potential infinite loop introduced with r39961 and find by the buildbot.  
+Fixes https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6599
+
+------------------------------------------------------------------------
+r39986 | cmaynard | 2011-11-22 16:18:20 +0100 (Tue, 22 Nov 2011) | 2 lines
+
+For now, display the protocol in hexadecimal again so displaying it in decimal 
+doesn't get backported to the 1.6 and 1.4 trunks at the request of Joerg.
+
+------------------------------------------------------------------------
+r40075 | guy | 2011-12-03 04:01:08 +0100 (Sat, 03 Dec 2011) | 6 lines
+
+The TCP Packet Mood Option was a cute April 1 RFC, but TCP option 25 is
+officially listed as "Unassigned", and people might use it for their own
+purposes (and, in fact, one bug-submitter was doing so; they probably
+should have used 253 or 254, but...).  Get rid of the code to dissect
+it.
+
+------------------------------------------------------------------------
+r40076 | cmaynard | 2011-12-03 05:07:20 +0100 (Sat, 03 Dec 2011) | 2 lines
+
+If a type 2 Mobile IP routing header is present, only set pinfo->dst if seg_left
+is non-zero.  Fixes https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6560
+
+------------------------------------------------------------------------
+r40097 | guy | 2011-12-06 02:57:52 +0100 (Tue, 06 Dec 2011) | 10 lines
+
+If capture_get_if_capabilities() fails, pop up a message, just as we
+print a message in tshark.  That doesn't fix the problem seen on Linux
+distributions, such as recent versions of Debian and derivatives, that
+have libpcap 1.1.0 or later built without libnl, where the monitor mode
+checkbox doesn't work - that's a libpcap bug, fixed in the 1.2 branch
+and trunk, so a future 1.2.1 or 1.3.0 release should fix it, and perhaps
+a future Debian release will build libpcap with libnl - but at least it
+means you get a dialog box rather than just getting mysterious behavior
+when you try to check the "monitor mode" checkbox.
+
+------------------------------------------------------------------------
+r40099 | guy | 2011-12-06 05:02:22 +0100 (Tue, 06 Dec 2011) | 7 lines
+
+Add a blank line between the error message and the "try using airmon-ng"
+suggestion. 
+
+Fix typo.
+
+Clean up indentation.
+
+------------------------------------------------------------------------
+r40130 | jake | 2011-12-09 17:34:02 +0100 (Fri, 09 Dec 2011) | 3 lines
+
+From astramax57:
+After r38723, some BGP AS_PATH packets were no longer dissected.
+
+------------------------------------------------------------------------
+r40133 | alagoutte | 2011-12-09 18:00:28 +0100 (Fri, 09 Dec 2011) | 8 lines
+
+From report of Arasch Honarbacht via 
+https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6649
+ZigBee ZCL Dissector reports invalid status
+
+The status code 0x8d contained in an attriute status record in a configure 
+reporting response frame is incorrectly displayed as "Write only" 
+(where WRITE_ONLY = 0x8f). According to the ZigBee Cluster Library Specification,
+Document 075123r03ZB, April 26, 2010 a status of 0x8d should display as 
+"INVALID_DATA_TYPE"
+
+From me :
+Fix this issue (Wrong value define) based on Specs available in ZigBee.org
+
+------------------------------------------------------------------------
+r40138 | guy | 2011-12-09 22:15:48 +0100 (Fri, 09 Dec 2011) | 7 lines
+
+Referring to pcap_version[] doesn't do what you want on at least some
+UN*Xes (Fedora 16 and probably other Linux distributions, probably at
+least some if not all other ELF-based systems, and perhaps also Mac OS
+X), and causes problems if pcap_version[] has a different length in the
+libpcap with which the executable was built and the libpcap with which
+it's run, so we avoid using it for now.
+
+------------------------------------------------------------------------
+r40153 | cmaynard | 2011-12-12 00:43:03 +0100 (Mon, 12 Dec 2011) | 2 lines
+
+If the object to export doesn't have a filename, use a generic "object" name 
+instead.  This fixes the crash reported in 
+https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6250
+
+------------------------------------------------------------------------
+r40154 | cmaynard | 2011-12-12 01:27:32 +0100 (Mon, 12 Dec 2011) | 2 lines
+
+If no filename, include the packet number in the generic name.  
+TODO: Implement the ct2ext() function.
+
+------------------------------------------------------------------------
+r40155 | cmaynard | 2011-12-12 01:35:51 +0100 (Mon, 12 Dec 2011) | 2 lines
+
+Well, until someone has the time to write ct2ext(), just return the content 
+type, which is better than nothing.
+
+------------------------------------------------------------------------
+r40158 | jake | 2011-12-12 08:56:45 +0100 (Mon, 12 Dec 2011) | 3 lines
+
+Allow for true error reporing.
+Move the comment to where it's intended.
+
+------------------------------------------------------------------------
+r40162 | cmaynard | 2011-12-12 20:24:49 +0100 (Mon, 12 Dec 2011) | 2 lines
+
+Add missing </field> for data tree.  
+Fixes https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3809
+
+------------------------------------------------------------------------
+r40184 | cmaynard | 2011-12-13 21:07:21 +0100 (Tue, 13 Dec 2011) | 2 lines
+
+Don't close the field tag here; it's now closed with </field>.
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r40252 | jake | 2011-12-20 10:03:05 -0800 (Tue, 20 Dec 2011) | 54 lines
+
+------------------------------------------------------------------------
+r40164 | guy | 2011-12-13 01:44:22 +0100 (Tue, 13 Dec 2011) | 5 lines
+
+Clamp the reported length of a packet at G_MAXINT for now, to avoid
+crashes due to having no tvbuffs for an epan_dissect_t.
+
+Fixes bug 6663 and its soon-to-be-duplicates.
+
+------------------------------------------------------------------------
+r40165 | guy | 2011-12-13 01:57:09 +0100 (Tue, 13 Dec 2011) | 3 lines
+
+Add missing check for a too-large packet, so we don't blow up trying to
+allocate a huge buffer; fixes bug 6666.
+
+------------------------------------------------------------------------
+r40166 | guy | 2011-12-13 02:05:52 +0100 (Tue, 13 Dec 2011) | 3 lines
+
+Add missing check for a too-large packet, so we don't blow up trying to
+allocate a huge buffer; fixes bug 6667.
+
+------------------------------------------------------------------------
+r40167 | guy | 2011-12-13 02:24:12 +0100 (Tue, 13 Dec 2011) | 5 lines
+
+Add missing checks for a too-large packet, so we don't blow up trying to
+allocate a huge buffer; fixes bug 6668.
+
+Also add some other checks for invalid records.
+
+------------------------------------------------------------------------
+r40168 | guy | 2011-12-13 02:49:27 +0100 (Tue, 13 Dec 2011) | 3 lines
+
+Add an arbitrary limit on the maximum size of the frame table, so that
+we don't crash.  Fixes bug 6669.
+
+------------------------------------------------------------------------
+r40174 | guy | 2011-12-13 07:45:16 +0100 (Tue, 13 Dec 2011) | 4 lines
+
+Crank up the maximum frame table size to 512*2^20 packets, that being a
+small amount bigger than the maximum possible number of packets in a
+NetMon file.
+
+------------------------------------------------------------------------
+r40169 | guy | 2011-12-13 03:00:41 +0100 (Tue, 13 Dec 2011) | 2 lines
+
+Check for a bogus record size.  Fixes bug 6670.
+
+------------------------------------------------------------------------
+r40170 | guy | 2011-12-13 03:42:42 +0100 (Tue, 13 Dec 2011) | 3 lines
+
+Add missing checks for a too-large packet, so we don't blow up trying to
+allocate a huge buffer.
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r40287 | jake | 2011-12-23 15:17:19 -0800 (Fri, 23 Dec 2011) | 2 lines
+
+(First attempt at) updating release notes.
+
+------------------------------------------------------------------------
+r40292 | gerald | 2011-12-25 08:04:14 -0800 (Sun, 25 Dec 2011) | 1 line
+
+[Automatic manuf, services and enterprise-numbers update for 2011-12-25]
+------------------------------------------------------------------------
+r40356 | gerald | 2012-01-01 08:04:26 -0800 (Sun, 01 Jan 2012) | 1 line
+
+[Automatic manuf, services and enterprise-numbers update for 2012-01-01]
+------------------------------------------------------------------------
+r40360 | jake | 2012-01-03 00:10:32 -0800 (Tue, 03 Jan 2012) | 109 lines
+
+------------------------------------------------------------------------
+r40194 | guy | 2011-12-14 03:46:16 +0100 (Wed, 14 Dec 2011) | 6 lines
+
+Put back the checks for null arguments, but report a dissector bug if
+we're given null pointers.
+
+Put in comments clarifying that some routines intentionally do *not*
+null terminate the strings they produce.
+
+------------------------------------------------------------------------
+r40195 | guy | 2011-12-14 03:55:26 +0100 (Wed, 14 Dec 2011) | 18 lines
+
+Refer to a PID of 0x0002 as the PID for the HP Teaming heartbeat
+protocol.
+
+Point to an HP document o the protocol, and discuss the two ways to hook
+up the dissector.
+
+Don't bother checking the destination address - either the OUI/PID
+suffices, or the MAC address is both necessary and, presumably,
+sufficient and we need to introduce a heuristic dissector table for SNAP
+frames.  What's more, there's no guarantee that the destination address
+is a MAC address - it might be absent, e.g. because you're capturing on
+the Linux "any" device and are getting the "Linux cooked" header, with
+only a destination address.
+
+Don't put the source address into the Info column - it's already in the
+source column *if* it exists (which it might not, for packets captured
+from the "any" device and sent by the machine doing the capturing).
+
+------------------------------------------------------------------------
+r40196 | guy | 2011-12-14 06:23:57 +0100 (Wed, 14 Dec 2011) | 4 lines
+
+Put back the source MAC address, but do it right, in one column_add_fstr()
+call, and using ep_address_to_str(), so it can handle any address type,
+including AT_NONE if the source address isn't available.
+
+------------------------------------------------------------------------
+r40245 | cmaynard | 2011-12-19 18:59:34 +0100 (Mon, 19 Dec 2011) | 2 lines
+
+Tighten up conversation port matching once the 2nd port is known.  
+Fixes https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5727
+
+------------------------------------------------------------------------
+r40266 | cmaynard | 2011-12-21 22:34:37 +0100 (Wed, 21 Dec 2011) | 2 lines
+
+Avoid a potential buffer overflow (and fix some typos).  
+Resolves bug 6391: https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6391
+
+------------------------------------------------------------------------
+r40275 | cmaynard | 2011-12-22 15:49:43 +0100 (Thu, 22 Dec 2011) | 4 lines
+
+What is the airspeed velocity of an unladen swallow?
+
+aspell and my own spelling preferences do not always agree with the spelling 
+variations used by folks across the pond.  Revert a couple of spelling changes.
+
+------------------------------------------------------------------------
+r40274 | guy | 2011-12-22 10:22:35 +0100 (Thu, 22 Dec 2011) | 5 lines
+
+The encapsulation following WTAP_ENCAP_ARCNET is
+WTAP_ENCAP_ARCNET_LINUX; update various tables mapping Wiretap
+encapsulations to file-type encapsulations.  Get rid of some trailing
+"sorry, that's not supported" entries while we're at it.
+
+------------------------------------------------------------------------
+r40280 | cmaynard | 2011-12-22 20:22:43 +0100 (Thu, 22 Dec 2011) | 2 lines
+
+Revert some of the changes made as part of the patch from bug 6194 committed 
+in r38326.  Also, change the 3 separate reserved bit fields to a single 3-bit 
+reserved field to more closely match the spec.  Lastly, in accordance with 
+NOTE 2 of Table 3-1 of the spec, display the connection id, whatever it is, 
+rather than assuming it's zero just because the Com bit isn't set.
+
+------------------------------------------------------------------------
+r40281 | cmaynard | 2011-12-22 20:41:13 +0100 (Thu, 22 Dec 2011) | 2 lines
+
+Appease the buildbots.
+
+------------------------------------------------------------------------
+r40304 | cmaynard | 2011-12-27 19:16:12 +0100 (Tue, 27 Dec 2011) | 2 lines
+
+From Jim Young via bug 5580: Only update the time elapsed between the previous 
+displayed packet and this packet if the packet is actually displayed.  
+Ref: https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5580
+
+------------------------------------------------------------------------
+r40316 | gerald | 2011-12-28 21:29:13 +0100 (Wed, 28 Dec 2011) | 3 lines
+
+Add "peflags" to the list of required executables. Use it to make sure
+the DLLs we use have DEP and ASLR enabled.
+
+------------------------------------------------------------------------
+r40317 | gerald | 2011-12-28 23:37:38 +0100 (Wed, 28 Dec 2011) | 4 lines
+
+Simplify wireshark.nsi a bit by copying DLLs from the wireshark-gtk2
+directory.  This picks up any DEP/ASLR-related changes. Run peflags on
+more DLLs.
+
+------------------------------------------------------------------------
+r40353 | stig | 2012-01-01 11:02:11 +0100 (Sun, 01 Jan 2012) | 1 line
+
+Happy New Year!
+------------------------------------------------------------------------
+
+
+Updated release notes.
+
+
+------------------------------------------------------------------------
+r40364 | jake | 2012-01-03 15:46:19 -0800 (Tue, 03 Jan 2012) | 2 lines
+
+Don't try to create an installer with libraries that are not there.
+
+------------------------------------------------------------------------
+r40408 | gerald | 2012-01-08 08:04:37 -0800 (Sun, 08 Jan 2012) | 1 line
+
+[Automatic manuf, services and enterprise-numbers update for 2012-01-08]
+------------------------------------------------------------------------
+r40418 | gerald | 2012-01-09 11:02:40 -0800 (Mon, 09 Jan 2012) | 2 lines
+
+Add security bugs and list changed protocols and file formats.
+
+------------------------------------------------------------------------
+r40426 | gerald | 2012-01-10 09:18:26 -0800 (Tue, 10 Jan 2012) | 22 lines
 
 Copy over revisions from the trunk:
 
   ------------------------------------------------------------------------
-  r36246 | stig | 2011-03-22 04:40:15 -0700 (Tue, 22 Mar 2011) | 4 lines
+  r40387 | cmaynard | 2012-01-05 09:29:27 -0800 (Thu, 05 Jan 2012) | 2 lines
   Changed paths:
-     M /trunk/epan/dissectors/packet-ssl-utils.c
+     M /trunk/epan/dissectors/packet-udp.c
 
-  Close fp in error case in ssl_parse_key_list to avoid leakage.
-
-  Coverity 597.
+  Use length field from UDP header as the pseudo-header's UDP length field instead of using the reported_len.  Fixes https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6711
   ------------------------------------------------------------------------
-  r38977 | wmeier | 2011-09-12 08:44:45 -0700 (Mon, 12 Sep 2011) | 4 lines
+  r40423 | alagoutte | 2012-01-10 05:59:27 -0800 (Tue, 10 Jan 2012) | 5 lines
   Changed paths:
-     M /trunk/epan/dissectors/packet-bacapp.c
+     M /trunk/pcapio.c
 
-  From Danny Breton: Property name time-synchronization-interval(204) is incorrectly shown as time-synchronization-recipents.
+  From Jose Pedro Oliveira  via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6719
+  pcapio.c: bug in libpcap_write_interface_description_block
 
-  See: https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6336
-  ------------------------------------------------------------------------
-  r39061 | cmaynard | 2011-09-20 09:28:21 -0700 (Tue, 20 Sep 2011) | 3 lines
-  Changed paths:
-     M /trunk/gtk/export_object.c
-
-  From DeCount via bug 6362: Increase maximum allowable number of duplicate filesi from 10 to 1000.  I modified his patch to avoid appending anything to the first filename, and other minor changes.
-  Reference: https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6362
-  ------------------------------------------------------------------------
-  r39062 | cmaynard | 2011-09-20 09:42:22 -0700 (Tue, 20 Sep 2011) | 2 lines
-  Changed paths:
-     M /trunk/AUTHORS
-
-  Add DeCount for his contribution in bug 6362.
-  ------------------------------------------------------------------------
-  r39080 | cmaynard | 2011-09-21 10:41:12 -0700 (Wed, 21 Sep 2011) | 2 lines
-  Changed paths:
-     M /trunk/gtk/export_object.c
-
-  Don't pop up an error dialog box for every file that can't be saved.  Before, this could have potentially meant having to manually close far too many of them.
-  ------------------------------------------------------------------------
-  r39213 | stig | 2011-10-02 06:39:15 -0700 (Sun, 02 Oct 2011) | 1 line
-  Changed paths:
-     M /trunk/gtk/about_dlg.c
-
-  Always update splash screen when action has changed.
-  ------------------------------------------------------------------------
-  r39214 | stig | 2011-10-02 06:39:35 -0700 (Sun, 02 Oct 2011) | 2 lines
-  Changed paths:
-     M /trunk/epan/epan.c
-     M /trunk/epan/wslua/init_wslua.c
-     M /trunk/epan/wslua/wslua.h
-     M /trunk/gtk/about_dlg.c
-     M /trunk/register.h
-
-  Added register action for loading Lua plugins.
-  Removed an unused argument to wslua_init().
-  ------------------------------------------------------------------------
-
-
-Copy over with manual intervention:
-
-  ------------------------------------------------------------------------
-  r38948 | cmaynard | 2011-09-08 19:11:53 -0700 (Thu, 08 Sep 2011) | 3 lines
-  Changed paths:
-     M /trunk/gtk/conversations_table.c
-
-  Fix locale problem with "Rel Start" time, both with display and copy to CSV, by replacing rel_time_to_secs_str() with nstime_to_sec().  Problem reported on ask by packethunter.
-  Ref: http://ask.wireshark.org/questions/6207/decimal-point-vs-decimal-comma
-  ------------------------------------------------------------------------
-  r38967 | etxrab | 2011-09-11 12:54:11 -0700 (Sun, 11 Sep 2011) | 4 lines
-  Changed paths:
-     M /trunk/epan/dissectors/packet-dtn.c
-
-  From Michael Mann:
-  Extend 64-bit SDNV decoding to Administrative Records.
-
-  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4109
-  ------------------------------------------------------------------------
-  r39017 | etxrab | 2011-09-15 13:02:19 -0700 (Thu, 15 Sep 2011) | 4 lines
-  Changed paths:
-     M /trunk/epan/dissectors/packet-per.c
-
-  From Pascal Quantin:
-  Incorrect decoding of BIT STRING type
-
-  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6347
-  ------------------------------------------------------------------------
-  r39031 | cmaynard | 2011-09-16 20:58:41 -0700 (Fri, 16 Sep 2011) | 2 lines
-  Changed paths:
-     M /trunk/epan/dissectors/packet-pcep.c
-
-  Update sub-object types of XRO to match RFC 5521.  Fixes https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3778.
-  ------------------------------------------------------------------------
-  r39221 | stig | 2011-10-02 09:19:55 -0700 (Sun, 02 Oct 2011) | 6 lines
-  Changed paths:
-     M /trunk/epan/proto.c
-     M /trunk/epan/wspython/wspy_register.c
-     M /trunk/epan/wspython/wspy_register.h
-     M /trunk/gtk/about_dlg.c
-     M /trunk/register.h
-
-  Removed the protocol registration updates in the splash screen for Python
-  dissectors, because it does not work as expected and causes an assert.
-
-  Added generic splash updates for python register and handoff instead.
-
-  This should fix bug 5431.
-  ------------------------------------------------------------------------
-
-
-Update the release notes.
-
-------------------------------------------------------------------------
-r39638 | gerald | 2011-10-27 10:28:26 -0700 (Thu, 27 Oct 2011) | 66 lines
-Changed paths:
-   M /trunk-1.4/docbook/release-notes.xml
-   M /trunk-1.4/epan/dissectors/packet-http.c
-   M /trunk-1.4/epan/dissectors/packet-ipsec-udp.c
-   M /trunk-1.4/epan/proto.c
-   M /trunk-1.4/epan/proto.h
-   M /trunk-1.4/gtk/main.c
-   M /trunk-1.4/gtk/simple_dialog.c
-   M /trunk-1.4/simple_dialog.h
-
-Copy over revisions from the trunk:
-
-  ------------------------------------------------------------------------
-  r39234 | etxrab | 2011-10-02 22:13:53 -0700 (Sun, 02 Oct 2011) | 3 lines
-  Changed paths:
-     M /trunk/epan/dissectors/packet-ipsec-udp.c
-
-  From David Mueller:
-  Incorrect identification of UDP-encapsulated NAT-keepalive packets.
-  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6414
-  ------------------------------------------------------------------------
-  r39248 | stig | 2011-10-04 03:12:55 -0700 (Tue, 04 Oct 2011) | 3 lines
-  Changed paths:
-     M /trunk/epan/proto.c
-     M /trunk/epan/proto.h
-
-  Add proto_unregister_field().
-
-  This can be used to unregister fields registered in dissector UAT's.
-  ------------------------------------------------------------------------
-  r39258 | stig | 2011-10-04 14:06:20 -0700 (Tue, 04 Oct 2011) | 1 line
-  Changed paths:
-     M /trunk/epan/dissectors/packet-http.c
-
-  Free duplicated strings in hf entries.
-  ------------------------------------------------------------------------
-  r39267 | stig | 2011-10-05 04:44:19 -0700 (Wed, 05 Oct 2011) | 2 lines
-  Changed paths:
-     M /trunk/epan/proto.c
-
-  Use g_tree_steal to remove an entry without calling the destroy function.
-  This because we use the destroy function to determine same_name_hfinfo.
-  ------------------------------------------------------------------------
-  r39268 | stig | 2011-10-05 04:44:29 -0700 (Wed, 05 Oct 2011) | 1 line
-  Changed paths:
-     M /trunk/epan/dissectors/packet-http.c
-
-  Cleanup the unregister loop to avoid freeing wrong data.
-  ------------------------------------------------------------------------
-  r39266 | etxrab | 2011-10-04 22:53:53 -0700 (Tue, 04 Oct 2011) | 3 lines
-  Changed paths:
-     M /trunk/gtk/main.c
-     M /trunk/gtk/simple_dialog.c
-     M /trunk/simple_dialog.h
-
-  Michael Mann:
-  Removed the Save button if live capture is going on when File->Quit is selected. Solves Assertion failed when doing File->Quit->Save during live capture
-  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1710
-  ------------------------------------------------------------------------
-
-
-Copy over with manual intervention:
-
-  ------------------------------------------------------------------------
-  r39251 | stig | 2011-10-04 11:40:56 -0700 (Tue, 04 Oct 2011) | 3 lines
-  Changed paths:
-     M /trunk/epan/dissectors/packet-http.c
-
-  Unregister and delete allocated header fields when updating the UAT.
-  Avoid double loading the UAT.
-  Use the post update callback in uat_new for regenerating header_fields_hash.
-  ------------------------------------------------------------------------
-
-
-Update the release notes.
-
-------------------------------------------------------------------------
-r39641 | gerald | 2011-10-27 13:57:15 -0700 (Thu, 27 Oct 2011) | 100 lines
-Changed paths:
-   M /trunk-1.4/asn1/s1ap/packet-s1ap-template.c
-   M /trunk-1.4/docbook/release-notes.xml
-   M /trunk-1.4/epan/dissectors/packet-ajp13.c
-   M /trunk-1.4/epan/dissectors/packet-gsm_sms.c
-   M /trunk-1.4/epan/dissectors/packet-netflow.c
-   M /trunk-1.4/epan/dissectors/packet-rtps2.c
-   M /trunk-1.4/epan/dissectors/packet-s1ap.c
-   M /trunk-1.4/file.c
-   M /trunk-1.4/tap-iousers.c
-   M /trunk-1.4/wiretap/file_access.c
-   M /trunk-1.4/wiretap/network_instruments.c
-
-Copy over revisions from the trunk:
-
-  ------------------------------------------------------------------------
-  r39277 | cmaynard | 2011-10-05 13:28:50 -0700 (Wed, 05 Oct 2011) | 2 lines
-  Changed paths:
-     M /trunk/tap-iousers.c
-
-  In iousers_init(), compare "conv,ipv6" before "conv,ip" and be sure to compare all 9 characters of that string instead of only 7.  Also correct the offset when looking for a possible comma followed by an optional filter.
-  ------------------------------------------------------------------------
-  r39297 | etxrab | 2011-10-06 12:07:26 -0700 (Thu, 06 Oct 2011) | 3 lines
-  Changed paths:
-     M /trunk/asn1/s1ap/packet-s1ap-template.c
-     M /trunk/epan/dissectors/packet-s1ap.c
-
-  Typo FT_IPv4 isf FT_IPv6.
-  Fixes
-  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6435
-  ------------------------------------------------------------------------
-  r39445 | cmaynard | 2011-10-17 07:56:37 -0700 (Mon, 17 Oct 2011) | 6 lines
-  Changed paths:
-     M /trunk/file.c
-
-  From Michael Mann: Add cf_callback_invoke to cf_open to tidy up the currently open file before opening a new one.  Fixes bugs 5987 and 6457.
-
-  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5987
-  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6457
-  ------------------------------------------------------------------------
-  r39494 | jake | 2011-10-20 10:49:19 -0700 (Thu, 20 Oct 2011) | 3 lines
-  Changed paths:
-     M /trunk/epan/dissectors/packet-gsm_sms.c
-
-  Fix for bug 6469:
-  Retrieve the fill bits in the correct amount and from the correct place.
-  ------------------------------------------------------------------------
-  r39506 | jake | 2011-10-21 01:32:10 -0700 (Fri, 21 Oct 2011) | 5 lines
-  Changed paths:
-     M /trunk/epan/dissectors/packet-rtps2.c
-
-  Fix for bug 6449:
-  Last RTPS2 submessage could have zero as octets_to_next_header.
-
-  From me: coding style unused parameters.
-  ------------------------------------------------------------------------
-
-
-Copy over with manual intervention:
-
-  ------------------------------------------------------------------------
-  r39390 | guy | 2011-10-12 10:55:49 -0700 (Wed, 12 Oct 2011) | 9 lines
-  Changed paths:
-     M /trunk/epan/dissectors/packet-ajp13.c
-
-  From Iain Arnell:
-
-  A missing value_ptr parameter in the handling of ajp13 response headers
-  led to them being displayed differently than the request headers.
-
-  This patch also simplifies the offset/length calculation for header
-  values, and skips the size for consistency with handling of other ajp13
-  string values.
-  ------------------------------------------------------------------------
-  r39392 | wmeier | 2011-10-12 11:04:58 -0700 (Wed, 12 Oct 2011) | 12 lines
-  Changed paths:
-     M /trunk/wiretap/file_access.c
-     M /trunk/wiretap/network_instruments.c
-
-  From Robert Bullen: Fix for: Two minor bugs in Wiretap library:
-
-  First bug: The Network Instruments Observer file format abbreviation is
-  incorrect. It is "niobserverv" instead of "niobserver", which is probably a
-  vestige from 1.4 when the abbreviation was "niobserverv9".
-
-  Second bug: The packet header magic number field is correctly swapped the first
-  time when reading the entire packet header. It is incorrectly swapped yet again
-  when reporting an invalid value. Both swaps use GUINT_FROM_LE, which is a no-op
-  on little-endian platforms. But the error message that is displayed to users of
-  big-endian platforms will contain a byte-reversed value.
-  ------------------------------------------------------------------------
-  r39485 | guy | 2011-10-19 19:38:40 -0700 (Wed, 19 Oct 2011) | 14 lines
-  Changed paths:
-     M /trunk/epan/dissectors/packet-netflow.c
-
-  As bug 3954 notes, nowhere does RFC 3954 indicate that a system or
-  interface scope is always 4 bytes.  For that matter, nowhere does it
-  indicate that the scopes have any particular interpretation except as a
-  sequence of octets.
-
-  Get rid of the checks for a length of 4, and make ScopeSystem an
-  FT_BYTES.  If, by *convention*, they're usually IPv4 or IPv6 addresses,
-  somebody can throw in code to display them as such if they happen to be
-  4 or 16 bytes, respectively.  Leave ScopeInterface as an integer for
-  now, in case, by convention, they're interface indices, but still leave
-  the length check out.
-
-  Fixes bug 3954.
-  ------------------------------------------------------------------------
-
-
-Update the release notes.
-
-------------------------------------------------------------------------
-r39642 | gerald | 2011-10-27 14:13:47 -0700 (Thu, 27 Oct 2011) | 14 lines
-Changed paths:
-   M /trunk-1.4/docbook/release-notes.xml
-   M /trunk-1.4/epan/dissectors/packet-infiniband.c
-
-Copy over r39500 from the trunk:
-
-
-  ------------------------------------------------------------------------
-  r39500 | gerald | 2011-10-20 16:46:04 -0700 (Thu, 20 Oct 2011) | 2 lines
-  Changed paths:
-     M /trunk/epan/dissectors/packet-infiniband.c
-
-  From Huzaifa Sidhpurwala: Fix a null pointer dereference.
-  ------------------------------------------------------------------------
-
-
-Update the release notes.
-
-------------------------------------------------------------------------
-r39643 | gerald | 2011-10-27 14:17:12 -0700 (Thu, 27 Oct 2011) | 17 lines
-Changed paths:
-   M /trunk-1.4/docbook/release-notes.xml
-   M /trunk-1.4/wiretap/erf.c
-
-Copy over r39508 from the trunk:
-
-  ------------------------------------------------------------------------
-  r39508 | gerald | 2011-10-21 12:07:42 -0700 (Fri, 21 Oct 2011) | 6 lines
-  Changed paths:
-     M /trunk/wiretap/erf.c
-
-  From Huzaifa Sidhpurwala of Red Hat Security Response Team:
-
-  I found a heap-based buffer overflow, when parsing ERF file format.
-  The overflow seems to be controlled by the values read from the file,
-  and hence seems exploitable to me.
-  ------------------------------------------------------------------------
-
-
-Update the release notes.
-
-------------------------------------------------------------------------
-r39644 | gerald | 2011-10-27 14:37:58 -0700 (Thu, 27 Oct 2011) | 51 lines
-Changed paths:
-   M /trunk-1.4/doc/text2pcap.pod
-   M /trunk-1.4/epan/proto.c
-   M /trunk-1.4/epan/wslua/wslua_proto.c
-
-Copy over revisions from the trunk:
-
-  ------------------------------------------------------------------------
-  r39529 | guy | 2011-10-23 15:49:11 -0700 (Sun, 23 Oct 2011) | 11 lines
-  Changed paths:
-     M /trunk/doc/text2pcap.pod
-
-  Speak of a "link-layer header type" rather than a "link-layer type"; a
-  given link-layer type, e.g. 802.11, might have multiple header types
-  (802.11, 802.11 plus various radio headers, Ethernet), and multiple
-  link-layer types might have the same header type (802.11 interfaces
-  might supply Ethernet headers, and Linux loopback interfaces supply
-  Ethernet headers as well).
-
-  Point to tcpdump.org's page of link-layer header types, rather than to
-  the net/bpf.h header that 1) might not exist on your system and 2) might
-  not be up-to-date if it does exist.
-  ------------------------------------------------------------------------
-  r39562 | stig | 2011-10-25 04:13:11 -0700 (Tue, 25 Oct 2011) | 3 lines
-  Changed paths:
-     M /trunk/epan/wslua/wslua_proto.c
-
-  Added Lua error messages when:
-  - Adding a INT64/UINT64 field with a value string (currently unsupported).
-  - Trying to display a signed integer as hexadecimal.
-  ------------------------------------------------------------------------
-  r39563 | stig | 2011-10-25 04:20:54 -0700 (Tue, 25 Oct 2011) | 2 lines
-  Changed paths:
-     M /trunk/epan/wslua/wslua_proto.c
-
-  Added another Lua warning:
-  - FT_FRAMENUM can not have a bitmask.
-  ------------------------------------------------------------------------
-  r39569 | stig | 2011-10-25 10:58:08 -0700 (Tue, 25 Oct 2011) | 1 line
-  Changed paths:
-     M /trunk/epan/proto.c
-
-  Display BASE_DEC_HEX correct for int64/uint64.
-  ------------------------------------------------------------------------
-
-
-Copy over with manual intervention:
-
-  ------------------------------------------------------------------------
-  r39558 | stig | 2011-10-25 03:48:03 -0700 (Tue, 25 Oct 2011) | 1 line
-  Changed paths:
-     M /trunk/epan/proto.c
-
-  Fixed using signed 64-bits integer in custom column.
-  ------------------------------------------------------------------------
-
-------------------------------------------------------------------------
-r39672 | gerald | 2011-10-30 08:04:16 -0700 (Sun, 30 Oct 2011) | 1 line
-Changed paths:
-   M /trunk-1.4/epan/enterprise-numbers
-   M /trunk-1.4/manuf
-   M /trunk-1.4/services
-
-[Automatic manuf, services and enterprise-numbers update for 2011-10-30]
-------------------------------------------------------------------------
-r39688 | gerald | 2011-10-31 09:53:15 -0700 (Mon, 31 Oct 2011) | 45 lines
-Changed paths:
-   M /trunk-1.4/asn1/snmp/packet-snmp-template.c
-   M /trunk-1.4/docbook/release-notes.xml
-   M /trunk-1.4/epan/dissectors/packet-ber.c
-   M /trunk-1.4/epan/dissectors/packet-snmp.c
-   M /trunk-1.4/epan/wslua/wslua_proto.c
-   M /trunk-1.4/gtk/dfilter_expr_dlg.c
-
-Copy over revisions from the trunk:
-
-  ------------------------------------------------------------------------
-  r39665 | stig | 2011-10-29 03:28:58 -0700 (Sat, 29 Oct 2011) | 2 lines
-  Changed paths:
-     M /trunk/gtk/dfilter_expr_dlg.c
-
-  Based on a patch provided by Prashanth in bug 6472:
-  Only have one Filter Expression window.
-  ------------------------------------------------------------------------
-  r39673 | stig | 2011-10-30 08:55:18 -0700 (Sun, 30 Oct 2011) | 3 lines
-  Changed paths:
-     M /trunk/epan/dissectors/packet-ber.c
-
-  Increase the size of a unknown INTEGER to FT_INT64 to be able to show
-  negative integers and integers up to MAXINT64.  We still don't support
-  integers between MAXINT64 and MAXUINT64, which would be 9 bytes long.
-  ------------------------------------------------------------------------
-  r39681 | stig | 2011-10-30 14:32:27 -0700 (Sun, 30 Oct 2011) | 3 lines
-  Changed paths:
-     M /trunk/epan/wslua/wslua_proto.c
-
-  Don't ep_strdup the protocol name when register a dissector, because
-  this name will be collected when loading a capture file and the name
-  will be gone.
-  ------------------------------------------------------------------------
-
-
-Copy over by hand:
-
-
-  ------------------------------------------------------------------------
-  r39666 | stig | 2011-10-29 11:26:57 -0700 (Sat, 29 Oct 2011) | 4 lines
-  Changed paths:
-     M /trunk/asn1/snmp/packet-snmp-template.c
-     M /trunk/epan/dissectors/packet-snmp.c
-
-  Added support for big integer64 values.
-
-  This fixes bug 6295.
+  The attached patch fixes a copy_and_paste error in the code of the function libpcap_write_interface_description_block(): strlen(name) instead of strlen(filter).
   ------------------------------------------------------------------------
 
 
