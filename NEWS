@@ -1,4 +1,4 @@
-Wireshark 1.6.4 Release Notes
+Wireshark 1.6.5 Release Notes
 
    ------------------------------------------------------------------
 
@@ -12,23 +12,91 @@ What's New
 
   Bug Fixes
 
+   The following vulnerabilities have been fixed.
+
+     o wnpa-sec-2012-01
+
+       Laurent Butti discovered that Wireshark failed to properly
+       check record sizes for many packet capture file formats. (Bug
+       6663, bug 6666, bug 6667, bug 6668, bug 6669, bug 6670)
+
+       Versions affected: 1.4.0 to 1.4.10, 1.6.0 to 1.6.4.
+
+     o wnpa-sec-2012-02
+
+       Wireshark could dereference a NULL pointer and crash. (Bug
+       6634)
+
+       Versions affected: 1.4.0 to 1.4.10, 1.6.0 to 1.6.4.
+
+     o wnpa-sec-2012-03
+
+       The RLC dissector could overflow a buffer. (Bug 6391)
+
+       Versions affected: 1.4.0 to 1.4.10, 1.6.0 to 1.6.4.
+
    The following bugs have been fixed:
 
-     o Patch to fix memory leaks/errors in Lua plugin. (Bug 5575)
+     o "Closing File!" Dialog Hangs. (Bug 3046)
 
-     o Wireshark crashes if a field of type BASE_CUSTOM is applied as
-       a column. (Bug 6503)
+     o Sub-fields of data field should appear in exported PDML as
+       children of the data field instead of as siblings to it. (Bug
+       3809)
 
-     o Filter Expression dialog can only be opened once. (Bug 6537)
+     o Incorrect time differences displayed with time reference set.
+       (Bug 5580)
 
-     o Wireshark crashes if compiled without GLib thread support.
-       (Bug 6540)
+     o Wrong packet type association of SNMP trap after TFTP
+       transfer. (Bug 5727)
 
-     o 80211 QoS Control: Add Raw TID. (Bug 6548)
+     o SSL/TLS decryption needs wireshark to be rebooted. (Bug 6032)
 
-     o SNMP length check error. (Bug 6564)
+     o Export HTTP Objects -> save all crashes Wireshark. (Bug 6250)
 
-     o UCP dissector bug of operation 61. (Bug 6570)
+     o Wireshark Netflow dissector complains there is no template
+       found though the template is exported. (Bug 6325)
+
+     o DCERPC EPM tower UUID must be interpreted always as little
+       endian. (Bug 6368)
+
+     o Crash if no recent files. (Bug 6549)
+
+     o IPv6 frame containing routing header with 0 segments left
+       calculates wrong UDP checksum. (Bug 6560)
+
+     o IPv4 UDP/TCP Checksum incorrect if routing header present.
+       (Bug 6561)
+
+     o Incorrect Parsing of SCPS Capabilities Option introduced in
+       response to bug 6194. (Bug 6562)
+
+     o Various crashes after loading NetMon2.x capture file. (Bug
+       6578)
+
+     o Fixed compilation of dumpcap on some systems (when
+       MUST_DO_SELECT is defined). (Bug 6614)
+
+     o SIGSEGV in SVN 40046. (Bug 6634)
+
+     o Wireshark dissects TCP option 25 as an "April 1" option. (Bug
+       6643)
+
+     o ZigBee ZCL Dissector reports invalid status. (Bug 6649)
+
+     o ICMPv6 DNSSL option malformed on padding. (Bug 6660)
+
+     o Wrong tvb_get_bits function call in packet-csn1.c. (Bug 6708)
+
+     o [UDP] - Length Field of Pseudo Header while computing CheckSum
+       is not correct. (Bug 6711)
+
+     o pcapio.c: bug in libpcap_write_interface_description_block.
+       (Bug 6719)
+
+     o Memory leaks in various dissectors.
+
+     o Bytes highlighted in wrong Byte pane when field selected in
+       Details pane.
 
   New and Updated Features
 
@@ -40,11 +108,16 @@ What's New
 
   Updated Protocol Support
 
-   .
+   BGP, BMC CSN1, DCERPC EPM, DCP(ETSI) DMP DTLS GSM Management, H245
+   HPTEAM, ICMPv6, IEEE 802.15.4 IPSEC IPv4, IPv6, ISAKMP KERBEROS
+   LDSS NFS RLC, RPC-NETLOGON RRC RTMPT SIGCOMP SSL SYSLOG TCP, UDP,
+   XML ZigBee ZCL
 
   New and Updated Capture File Support
 
-   .
+   Accellent 5Views, AIX iptrace, HP-UX nettl, I4B, Microsoft Network
+   Monitor, Novell LANalyzer, PacketLogger, Pcap-ng, Sniffer,
+   Tektronix K12, WildPackets {Airo,Ether}Peek.
 
 Getting Wireshark
 
