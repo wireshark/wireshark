@@ -330,12 +330,12 @@ libpcap_write_interface_description_block(FILE *fp,
 		block_total_length += sizeof(struct option) +
 		                      (guint16)(ADD_PADDING(strlen(name) + 1));
 	}
-	if ((strlen(filter) > 0) && (strlen(name) < G_MAXUINT16)) {
+	if ((strlen(filter) > 0) && (strlen(filter) < G_MAXUINT16)) {
 		block_total_length += sizeof(struct option) +
 		                      (guint16)(ADD_PADDING(strlen(filter) + 1));
 	}
 	if (((strlen(name) > 0) && (strlen(name) < G_MAXUINT16)) ||
-	    ((strlen(filter) > 0) && (strlen(name) < G_MAXUINT16))) {
+	    ((strlen(filter) > 0) && (strlen(filter) < G_MAXUINT16))) {
 		block_total_length += sizeof(struct option);
 	}
 	/* write block header */
