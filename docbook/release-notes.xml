@@ -211,12 +211,10 @@ There are no new protocols in this release.
     </para>
 
     <para>
-      Wireshark and TShark will display incorrect delta times in some cases.
+      Wireshark and TShark will display incorrect delta times when displayed as
+      a custom column.
       (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985">Bug
-      4985</ulink>
-      and
-      <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5580">bug
-      5580</ulink>)
+      4985</ulink>)
     </para>
 
   </section>
