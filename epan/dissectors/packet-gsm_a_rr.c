@@ -747,7 +747,6 @@ static int hf_gsm_a_rr_eutran_ccn_active = -1;
 static int hf_gsm_a_rr_eutran_start = -1;
 static int hf_gsm_a_rr_eutran_stop = -1;
 static int hf_gsm_a_rr_qsearch_c_eutran_initial = -1;
-static int hf_gsm_a_rr_eutran_rep_quant = -1;
 static int hf_gsm_a_rr_eutran_multirat_reporting = -1;
 static int hf_gsm_a_rr_eutran_fdd_reporting_threshold_rsrp = -1;
 static int hf_gsm_a_rr_eutran_fdd_reporting_threshold_rsrq = -1;
@@ -5880,8 +5879,7 @@ de_rr_eutran_measurement_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_of
     /* E-UTRAN Measurement Parameters Description */
     proto_tree_add_bits_item(tree, hf_gsm_a_rr_qsearch_c_eutran_initial, tvb, curr_bit_offset, 4, ENC_BIG_ENDIAN);
     curr_bit_offset += 4;
-    proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_rep_quant, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
-    rep_quant = gsm_rr_csn_flag(tvb, tree, curr_bit_offset++, "E-UTRAN Reporting Quantity", "RSRQ", "RSRP");
+    rep_quant = gsm_rr_csn_flag(tvb, tree, curr_bit_offset, "E-UTRAN Reporting Quantity", "RSRQ", "RSRP");
     curr_bit_offset += 1;
     proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_multirat_reporting, tvb, curr_bit_offset, 2, ENC_BIG_ENDIAN);
     curr_bit_offset += 2;
@@ -6022,17 +6020,17 @@ de_rr_eutran_measurement_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_of
                 curr_bit_offset += 3;
             }
         }
-    }
-    item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_reporting_granularity, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
-    if (rep_quant == 0)
-    {
-        proto_item_append_text(item, " (%d dB step)", 2 + tvb_get_bits8(tvb,curr_bit_offset,1));
-    }
-    else
-    {
-        proto_item_append_text(item, " (%d dB step)", 1 + tvb_get_bits8(tvb,curr_bit_offset,1));
-    }
-    curr_bit_offset += 1;
+        item = proto_tree_add_bits_item(tree, hf_gsm_a_rr_reporting_granularity, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
+        if (rep_quant == 0)
+        {
+            proto_item_append_text(item, " (%d dB step)", 2 + tvb_get_bits8(tvb,curr_bit_offset,1));
+        }
+        else
+        {
+            proto_item_append_text(item, " (%d dB step)", 1 + tvb_get_bits8(tvb,curr_bit_offset,1));
+        }
+        curr_bit_offset += 1;
+    }    
 
     return(curr_bit_offset - bit_offset);
 }
@@ -6067,8 +6065,8 @@ de_rr_eutran_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
         /* GPRS E-UTRAN Measurement Parameters Description */
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_qsearch_p_eutran, tvb, curr_bit_offset, 4, ENC_BIG_ENDIAN);
         curr_bit_offset += 4;
-        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_rep_quant, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
-        rep_quant = gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "E-UTRAN Reporting Quantity", "RSRQ", "RSRP");
+        rep_quant = gsm_rr_csn_flag(tvb, subtree, curr_bit_offset, "E-UTRAN Reporting Quantity", "RSRQ", "RSRP");
+		curr_bit_offset++;
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_multirat_reporting, tvb, curr_bit_offset, 2, ENC_BIG_ENDIAN);
         curr_bit_offset += 2;
 
@@ -12005,11 +12003,6 @@ proto_register_gsm_a_rr(void)
             { &hf_gsm_a_rr_qsearch_c_eutran_initial,
               { "Qsearch_C_E-UTRAN_Initial", "gsm_a.rr.qsearch_c_eutran_initial",
                 FT_UINT8, BASE_DEC, VALS(gsm_a_rr_qsearch_c_eutran_initial), 0x00,
-                NULL, HFILL }
-            },
-            { &hf_gsm_a_rr_eutran_rep_quant,
-              { "E-UTRAN_REP_QUANT", "gsm_a.rr.eutran_rep_quant",
-                FT_BOOLEAN, BASE_DEC, TFS(&eutran_rep_quant), 0x00,
                 NULL, HFILL }
             },
             { &hf_gsm_a_rr_eutran_multirat_reporting,
