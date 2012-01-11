@@ -370,6 +370,72 @@ sub update_debian_changelog
 	print "$filepath has been updated.\n";
 }
 
+# Read debian/wireshark-common.files, then write back out an updated version.
+# The libraries updated here MUST match the updates made by update_lib_releases
+# below. We should do this automatically.
+sub update_debian_wcf
+{
+	my $line;
+	my $contents = "";
+	my $version = "";
+	my $filepath = "$srcdir/debian/wireshark-common.files";
+
+	return if (!$set_version);
+
+	open(DWCF, "< $filepath") || die "Can't read $filepath!";
+	while ($line = <DWCF>) {
+		# /usr/lib/wireshark/libwireshark.so.1.1.0
+
+		if ($line =~ qr{^(/usr/lib/wireshark/lib(wireshark|wiretap).so\.\d+\.\d+\.)\d+$}) {
+			$line = sprintf("$1%d\n", $version_pref{"version_micro"});
+		}
+		$contents .= $line
+	}
+
+	open(DWCF, "> $filepath") || die "Can't write $filepath!";
+	print(DWCF $contents);
+	close(DWCF);
+	print "$filepath has been updated.\n";
+}
+
+# Read Makefile.am for each library, then write back out an updated version.
+sub update_lib_releases
+{
+	my $line;
+	my $contents = "";
+	my $version = "";
+	my $filedir;
+	my $filepath;
+
+	return if (!$set_version);
+
+	# The Libtool manual says
+	#   "If the library source code has changed at all since the last
+	#    update, then increment revision (‘c:r:a’ becomes ‘c:r+1:a’)."
+	# epan changes with each minor release, almost by definition. wiretap
+	# changes with *most* releases.
+	#
+	# http://www.gnu.org/software/libtool/manual/libtool.html#Updating-version-info
+	for $filedir ("epan", "wiretap") {	# "wsutil"
+		$contents = "";
+		$filepath = $filedir . "/Makefile.am";
+		open(MAKEFILE_AM, "< $filepath") || die "Can't read $filepath!";
+		while ($line = <MAKEFILE_AM>) {
+			# libwireshark_la_LDFLAGS = -version-info 2:1:1 -export-symbols
+
+			if ($line =~ /^(lib\w+_la_LDFLAGS.*version-info\s+\d+:)\d+(:\d+.*)/) {
+				$line = sprintf("$1%d$2\n", $version_pref{"version_micro"});
+			}
+			$contents .= $line
+		}
+
+		open(MAKEFILE_AM, "> $filepath") || die "Can't write $filepath!";
+		print(MAKEFILE_AM $contents);
+		close(MAKEFILE_AM);
+		print "$filepath has been updated.\n";
+	}
+}
+
 # Update distributed files that contain any version information
 sub update_versioned_files
 {
@@ -377,6 +443,8 @@ sub update_versioned_files
 	&update_config_nmake;
 	&update_release_notes;
 	&update_debian_changelog;
+	&update_debian_wcf;
+	&update_lib_releases;
 }
 
 # Print the SVN version to $version_file.
