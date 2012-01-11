@@ -1852,6 +1852,8 @@ static void attach_pdcp_lte_info(packet_info *pinfo)
     p_pdcp_lte_info->udp_checkum_present = outhdr_values[i++];
     p_pdcp_lte_info->profile = outhdr_values[i];
 
+    /* Remaining 2 (fixed) fields are ah_length and gre_checksum */
+
     /* Store info in packet */
     p_add_proto_data(pinfo->fd, proto_pdcp_lte, p_pdcp_lte_info);
 }
@@ -2203,6 +2205,54 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         attach_pdcp_lte_info(pinfo);
     }
 
+
+    else if ((strcmp(protocol_name, "nas_rrc_r8_lte") == 0) ||
+             (strcmp(protocol_name, "nas_rrc_r9_lte") == 0)) {
+        gboolean nas_body_found = TRUE;
+        guint8 opcode = tvb_get_guint8(tvb, offset++);
+        switch (opcode) {
+            case 2:  /* DATA IND */
+            case 3:  /* DATA REQ */
+                /* UEId */
+                offset += 2; /* tag */
+                offset += 2; /* 2 wasted bytes */
+                proto_tree_add_item(tree, hf_catapult_dct2000_lte_ueid,
+                                    tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                break;
+            case 6:  /* ESTABLISH REQ */
+                /* UEId */
+                offset += 2; /* tag */
+                offset += 2; /* 2 wasted bytes */
+                proto_tree_add_item(tree, hf_catapult_dct2000_lte_ueid,
+                                    tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+
+                offset += 3;   /* Establish cause */
+                offset += 3;   /* Priority */
+                break;
+            case 8:  /* RELEASE IND */
+                /* UEId */
+                offset += 2; /* tag */
+                offset += 2; /* 2 wasted bytes */
+                proto_tree_add_item(tree, hf_catapult_dct2000_lte_ueid,
+                                    tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+
+                offset += 3;   /* Release cause */
+                break;
+
+            default:
+                nas_body_found = FALSE;
+                break;
+        }
+
+        /* Look up dissector if if looks right */
+        if (nas_body_found) {
+            offset += 2;  /* L3 tag + len */
+            protocol_handle = find_dissector("nas-eps");
+        }
+    }
 
     /* Note that the first item of pinfo->pseudo_header->dct2000 will contain
        the pseudo-header needed (in some cases) by the Wireshark dissector that
