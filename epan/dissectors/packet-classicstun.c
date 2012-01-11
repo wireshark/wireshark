@@ -513,8 +513,7 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 								   XOR (host order) transid with (host order) xor-address.
 								   Add in network order tree. */
 								ti = proto_tree_add_ipv4(att_tree, classicstun_att_ipv4, tvb, offset+4, 4,
-											 g_htonl(tvb_get_ntohl(tvb, offset+4) ^
-												 transaction_id_first_word));
+														 tvb_get_ipv4(tvb, offset+4) ^ g_htonl(transaction_id_first_word));
 								PROTO_ITEM_SET_GENERATED(ti);
 								break;
 
