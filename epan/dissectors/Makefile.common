@@ -539,6 +539,7 @@ DISSECTOR_SRC = \
 	packet-h1.c		\
 	packet-h221_nonstd.c	\
 	packet-h223.c		\
+	packet-h248_2.c 	\
 	packet-h248_3gpp.c 	\
 	packet-h248_7.c 	\
 	packet-h248_10.c 	\
