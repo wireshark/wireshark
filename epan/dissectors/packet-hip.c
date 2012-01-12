@@ -395,7 +395,7 @@ dissect_hip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         guint32 phdr[2];
 
         /* Payload format RFC 5201 section 5.1 */
-        /* hiph_proto; */	          /* payload protocol              */
+        /* hiph_proto; */                 /* payload protocol              */
         guint8 hiph_hdr_len;              /* header length                 */
         guint8 hiph_shim6_fixed_bit_s;    /* This is always 0              */
         guint8 hiph_packet_type;          /* packet type                   */
@@ -412,7 +412,7 @@ dissect_hip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_clear(pinfo->cinfo, COL_INFO);
 
         newoffset = offset;
-	/* hiph Proto */
+        /* hiph Proto */
         newoffset++;
         hiph_hdr_len = tvb_get_guint8(tvb, newoffset);
         newoffset++;
@@ -467,12 +467,14 @@ dissect_hip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         /* the rest of the pseudo-header */
                         if (pinfo->src.type == AT_IPv6) {
                                 cksum_vec[2].ptr = (const guint8 *)&phdr;
-                                phdr[0] = g_htonl(tvb_reported_length(tvb));
+                                phdr[0] = tvb_reported_length(tvb);
+                                phdr[0] = g_htonl(phdr[0]);   /* Note: g_htonl() macro may eval arg multiple times */
                                 phdr[1] = g_htonl(IP_PROTO_HIP);
                                 cksum_vec[2].len = 8;
                         } else {
                                 cksum_vec[2].ptr = (const guint8 *)&phdr;
-                                phdr[0] = g_htonl((IP_PROTO_HIP<<16)+tvb_reported_length(tvb));
+                                phdr[0] = (IP_PROTO_HIP<<16)+tvb_reported_length(tvb);
+                                phdr[0] = g_htonl(phdr[0]);  /* Note: g_htonl() macro may eval arg multiple times */
                                 cksum_vec[2].len = 4;
                         }
                         /* pointer to the HIP header (packet data) */

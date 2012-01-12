@@ -798,15 +798,14 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					XOR (host order) transid with (host order) xor-address.
 					Add in network order tree. */
 					ti = proto_tree_add_ipv4(att_tree, stun_att_ipv4, tvb, offset+4, 4,
-						g_htonl(tvb_get_ntohl(tvb, offset+4) ^
-						magic_cookie_first_word));
+								 tvb_get_ipv4(tvb, offset+4) ^ g_htonl(magic_cookie_first_word));
 					PROTO_ITEM_SET_GENERATED(ti);
 
 					{
 						const gchar *ipstr;
 						guint32 ip;
 						guint16 port;
-						ip = g_htonl(tvb_get_ntohl(tvb, offset+4) ^ magic_cookie_first_word);
+						ip = tvb_get_ipv4(tvb, offset+4) ^ g_htonl(magic_cookie_first_word);
 						ipstr = ip_to_str((guint8*)&ip);
 						port = tvb_get_ntohs(tvb, offset+2) ^ (magic_cookie_first_word >> 16);
 						proto_item_append_text(att_tree, ": %s:%d", ipstr, port);
@@ -826,10 +825,11 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					proto_tree_add_item(att_tree, stun_att_xor_ipv6, tvb, offset+4, 16, ENC_NA);
 					{
 						guint32 IPv6[4];
-						IPv6[0] = g_htonl(tvb_get_ntohl(tvb, offset+4)  ^ magic_cookie_first_word);
-						IPv6[1] = g_htonl(tvb_get_ntohl(tvb, offset+8)  ^ transaction_id[0]);
-						IPv6[2] = g_htonl(tvb_get_ntohl(tvb, offset+12) ^ transaction_id[1]);
-						IPv6[3] = g_htonl(tvb_get_ntohl(tvb, offset+16) ^ transaction_id[2]);
+						tvb_get_ipv6(tvb, offset+4, (struct e_in6_addr *)IPv6);
+						IPv6[0] = IPv6[0] ^ g_htonl(magic_cookie_first_word);
+						IPv6[1] = IPv6[1] ^ g_htonl(transaction_id[0]);
+						IPv6[2] = IPv6[2] ^ g_htonl(transaction_id[1]);
+						IPv6[3] = IPv6[3] ^ g_htonl(transaction_id[2]);
 						ti = proto_tree_add_ipv6(att_tree, stun_att_ipv6, tvb, offset+4, 16,
 									 (const guint8 *)IPv6);
 						PROTO_ITEM_SET_GENERATED(ti);

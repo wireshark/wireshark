@@ -507,7 +507,8 @@ dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		checksum = tvb_get_guint8(tvb, checksum_offset); /* high byte */
 		checksum <<= 8;
 		checksum |= tvb_get_guint8(tvb, checksum_offset+1) & 0x00FF; /* low byte */
-		checksum_calculated = g_htons(crc16_ccitt_tvb(tvb, tvb_length(tvb) - 2));
+		checksum_calculated = crc16_ccitt_tvb(tvb, tvb_length(tvb) - 2);
+		checksum_calculated = g_htons(checksum_calculated);  /* Note: g_htons() macro may eval arg multiple times */
 
 		if (checksum == checksum_calculated) {
 			checksum_ti = proto_tree_add_uint_format(lapd_tree, hf_lapd_checksum, tvb, checksum_offset, 2, 0,"Checksum: 0x%04x [correct]", checksum);

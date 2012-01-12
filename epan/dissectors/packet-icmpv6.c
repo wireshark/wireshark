@@ -3186,10 +3186,10 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             cksum_vec[1].ptr = pinfo->dst.data;
             cksum_vec[1].len = pinfo->dst.len;
             cksum_vec[2].ptr = (const guint8 *)&phdr;
-            phdr[0] = g_htonl(tvb_reported_length(tvb));
+            phdr[0] = g_htonl(reported_length);
             phdr[1] = g_htonl(IP_PROTO_ICMPV6);
             cksum_vec[2].len = 8;
-            cksum_vec[3].len = tvb_reported_length(tvb);
+            cksum_vec[3].len = reported_length;
             cksum_vec[3].ptr = tvb_get_ptr(tvb, 0, cksum_vec[3].len);
             computed_cksum = in_cksum(cksum_vec, 4);
 
