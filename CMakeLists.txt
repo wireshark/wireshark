@@ -495,10 +495,6 @@ ADD_CUSTOM_COMMAND(
 		${CMAKE_CURRENT_SOURCE_DIR}/make-version.pl
 )
 
-register_tap_files(tshark-tap-register.c
-	${TSHARK_TAP_SRC}
-)
-
 ADD_CUSTOM_COMMAND(
 	OUTPUT	ps.c
 	COMMAND	${PYTHON_EXECUTABLE}
@@ -687,6 +683,10 @@ if(BUILD_wireshark AND GTK_FOUND)
 	target_link_libraries(wireshark ${wireshark_LIBS})
 	install(TARGETS wireshark RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
+
+register_tap_files(tshark-tap-register.c
+	${TSHARK_TAP_SRC}
+)
 
 if(BUILD_tshark)
 	set(tshark_LIBS
