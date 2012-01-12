@@ -85,7 +85,9 @@ static dissector_handle_t nbap_handle;
 static dissector_handle_t ethwithfcs_handle;
 static dissector_handle_t ethwithoutfcs_handle;
 static dissector_handle_t fphint_handle;
+#if 0
 static dissector_handle_t erf_handle;
+#endif
 
 static dissector_table_t meta_dissector_table;
 
@@ -165,16 +167,16 @@ static const value_string meta_direction_vals[] = {
 
 static guint16 skip_item(proto_tree *meta_tree, tvbuff_t *tvb, packet_info *pinfo _U_, guint16 offs)
 {
-    guint16 id;
-    guint8 type, len, aligned_len, total_len;
+    guint16     id;
+    guint8      type, len, aligned_len, total_len;
     proto_tree *item_tree;
     proto_item *subti;
 
-    id = tvb_get_letohs(tvb, offs); offs += 2;
-    type = tvb_get_guint8(tvb, offs); offs++;
-    len = tvb_get_guint8(tvb, offs); offs++;
+    id          = tvb_get_letohs(tvb, offs); offs += 2;
+    type        = tvb_get_guint8(tvb, offs); offs++;
+    len         = tvb_get_guint8(tvb, offs); offs++;
     aligned_len = (len + 3) & 0xfffc;
-    total_len = aligned_len + 4; /* 4: id, type, len fields */
+    total_len   = aligned_len + 4; /* 4: id, type, len fields */
 
     subti = proto_tree_add_item(meta_tree, hf_meta_item, tvb, offs - 4,
         aligned_len + 4, ENC_NA);
@@ -195,13 +197,13 @@ static guint16 skip_item(proto_tree *meta_tree, tvbuff_t *tvb, packet_info *pinf
 */
 static guint16 evaluate_meta_item_pcap(proto_tree *meta_tree, tvbuff_t *tvb, packet_info *pinfo, guint16 offs)
 {
-    guint16 id;
-    guint8 type, len, aligned_len, total_len;
+    guint16     id;
+    guint8      type, len, aligned_len, total_len;
     proto_tree *item_tree;
     proto_item *subti;
     /* field values */
-    guint8 dir;
-    guint64 ts;
+    guint8      dir;
+    guint64     ts;
 
     id = tvb_get_letohs(tvb, offs); offs += 2;
     type = tvb_get_guint8(tvb, offs); offs++;
@@ -247,19 +249,19 @@ static guint16 evaluate_meta_item_pcap(proto_tree *meta_tree, tvbuff_t *tvb, pac
 */
 static guint16 evaluate_meta_item_dxt(proto_tree *meta_tree, tvbuff_t *tvb, packet_info *pinfo, guint16 offs)
 {
-    guint16 id;
-    guint8 type, len, aligned_len, total_len;
-    proto_tree *item_tree;
-    proto_item *subti;
+    guint16             id;
+    guint8              type, len, aligned_len, total_len;
+    proto_tree         *item_tree;
+    proto_item         *subti;
     /* field values */
-    guint8 dir, nsapi, rat, aal5proto, *apn, *calling, *called;
-    guint16 phylinkid, localdevid, remotedevid, tapgroupid;
-    guint32 tlli;
-    guint64 ts, imsi, imei, cell;
+    guint8              dir, nsapi, rat, aal5proto, *apn, *calling, *called;
+    guint16             phylinkid, localdevid, remotedevid, tapgroupid;
+    guint32             tlli;
+    guint64             ts, imsi, imei, cell;
     sscop_payload_info *p_sscop_info;
-	const gchar *imsi_str, *imei_str;
-	proto_item *cell_item;
-	proto_tree *cell_tree = NULL;
+    const gchar        *imsi_str, *imei_str;
+    proto_item         *cell_item;
+    proto_tree         *cell_tree = NULL;
 
     id = tvb_get_letohs(tvb, offs); offs += 2;
     type = tvb_get_guint8(tvb, offs); offs++;
@@ -270,7 +272,7 @@ static guint16 evaluate_meta_item_dxt(proto_tree *meta_tree, tvbuff_t *tvb, pack
     switch (id) {
         case META_ID_DIRECTION:
             dir = tvb_get_guint8(tvb, offs);
-            pinfo->p2p_dir = dir == META_DIR_UP ? P2P_DIR_RECV : P2P_DIR_SENT;
+            pinfo->p2p_dir = (dir == META_DIR_UP ? P2P_DIR_RECV : P2P_DIR_SENT);
             proto_tree_add_uint(meta_tree, hf_meta_item_direction, tvb, offs, 1, dir);
             break;
         case META_ID_TIMESTAMP64:
@@ -289,16 +291,16 @@ static guint16 evaluate_meta_item_dxt(proto_tree *meta_tree, tvbuff_t *tvb, pack
                 offs, 1, nsapi);
             break;
         case META_ID_IMSI:
-            imsi = tvb_get_letoh64(tvb, offs);
-			imsi_str = tvb_bcd_dig_to_ep_str(tvb, offs, 8, NULL, FALSE);
-			proto_tree_add_uint64_format(meta_tree, hf_meta_item_imsi,
-				tvb, offs, 8, imsi, "IMSI: %s", imsi_str);
+            imsi     = tvb_get_letoh64(tvb, offs);
+            imsi_str = tvb_bcd_dig_to_ep_str(tvb, offs, 8, NULL, FALSE);
+            proto_tree_add_uint64_format(meta_tree, hf_meta_item_imsi,
+                                         tvb, offs, 8, imsi, "IMSI: %s", imsi_str);
             break;
         case META_ID_IMEI:
-            imei = tvb_get_letoh64(tvb, offs);
-			imei_str = tvb_bcd_dig_to_ep_str(tvb, offs, 8, NULL, FALSE);
-			proto_tree_add_uint64_format(meta_tree, hf_meta_item_imei,
-				tvb, offs, 8, imei, "IMEI: %s", imei_str);
+            imei     = tvb_get_letoh64(tvb, offs);
+            imei_str = tvb_bcd_dig_to_ep_str(tvb, offs, 8, NULL, FALSE);
+            proto_tree_add_uint64_format(meta_tree, hf_meta_item_imei,
+                                         tvb, offs, 8, imei, "IMEI: %s", imei_str);
             break;
         case META_ID_APN:
             apn = tvb_get_string(tvb, offs, len);
@@ -313,15 +315,15 @@ static guint16 evaluate_meta_item_dxt(proto_tree *meta_tree, tvbuff_t *tvb, pack
             break;
         case META_ID_CELL:
             cell = tvb_get_ntoh64(tvb, offs);
-			cell_item = proto_tree_add_uint64_format(meta_tree, hf_meta_item_cell,
-				tvb, offs, 8, cell, "Mobile Cell");
-			cell_tree = proto_item_add_subtree(cell_item, ett_meta_cell);
-			de_gmm_rai(tvb, cell_tree, pinfo, offs, 8, NULL, 0);
-			de_cell_id(tvb, cell_tree, pinfo, offs + 6, 2, NULL, 0);
+            cell_item = proto_tree_add_uint64_format(meta_tree, hf_meta_item_cell,
+                                                     tvb, offs, 8, cell, "Mobile Cell");
+            cell_tree = proto_item_add_subtree(cell_item, ett_meta_cell);
+            de_gmm_rai(tvb, cell_tree, pinfo, offs, 8, NULL, 0);
+            de_cell_id(tvb, cell_tree, pinfo, offs + 6, 2, NULL, 0);
             break;
         case META_ID_SIGNALING:
             proto_tree_add_boolean(meta_tree, hf_meta_item_signaling, tvb,
-                offs, 0, 1);
+                                   offs, 0, 1);
             break;
         case META_ID_INCOMPLETE:
             proto_tree_add_boolean(meta_tree, hf_meta_item_incomplete, tvb,
@@ -445,20 +447,19 @@ static void
 dissect_meta(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 #define META_HEADER_SIZE 8
-    guint16 schema, proto, hdrlen, reserved;
-    gint32 item_len;
-    guint32 aal2_ext, atm_hdr;
-    proto_tree *meta_tree = NULL;
-    proto_item *ti = NULL;
-    tvbuff_t *next_tvb;
-    dissector_handle_t next_dissector = NULL;
+    guint16             schema, proto, hdrlen, reserved;
+    gint32              item_len;
+    guint32             aal2_ext, atm_hdr;
+    proto_tree         *meta_tree      = NULL;
+    proto_item         *ti             = NULL;
+    tvbuff_t           *next_tvb;
+    dissector_handle_t  next_dissector = NULL;
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "META");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "META");
 
-    schema = tvb_get_letohs(tvb, 0);
-    hdrlen = tvb_get_letohs(tvb, 2);
-    proto = tvb_get_letohs(tvb, 4);
+    schema   = tvb_get_letohs(tvb, 0);
+    hdrlen   = tvb_get_letohs(tvb, 2);
+    proto    = tvb_get_letohs(tvb, 4);
     reserved = tvb_get_letohs(tvb, 6);
 
     if (tree) {
@@ -500,17 +501,17 @@ dissect_meta(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     break;
                 case META_PROTO_DXT_ATM:
                     next_dissector = atm_untrunc_handle;
-                    pinfo->pseudo_header->atm.aal = AAL_OAMCELL;
+                    pinfo->pseudo_header->atm.aal  = AAL_OAMCELL;
                     pinfo->pseudo_header->atm.type = TRAF_UNKNOWN;
                     break;
                 case META_PROTO_DXT_ATM_AAL2:
                     aal2_ext = tvb_get_ntohl(tvb, item_len + META_HEADER_SIZE); item_len += 4;
-                    atm_hdr = tvb_get_ntohl(tvb, item_len + META_HEADER_SIZE); item_len += 4;
+                    atm_hdr  = tvb_get_ntohl(tvb, item_len + META_HEADER_SIZE); item_len += 4;
                     memset(&pinfo->pseudo_header->atm, 0, sizeof(pinfo->pseudo_header->atm));
                     pinfo->pseudo_header->atm.aal = AAL_2;
                     /* pinfo->pseudo_header->atm.flags = pinfo->p2p_dir; */
-                    pinfo->pseudo_header->atm.vpi = ((atm_hdr & 0x0ff00000) >> 20);
-                    pinfo->pseudo_header->atm.vci = ((atm_hdr & 0x000ffff0) >>  4);
+                    pinfo->pseudo_header->atm.vpi  = ((atm_hdr & 0x0ff00000) >> 20);
+                    pinfo->pseudo_header->atm.vci  = ((atm_hdr & 0x000ffff0) >>  4);
                     pinfo->pseudo_header->atm.aal2_cid = aal2_ext & 0x000000ff;
                     pinfo->pseudo_header->atm.type = TRAF_UMTS_FP;
                     next_dissector = atm_untrunc_handle;
@@ -527,7 +528,7 @@ dissect_meta(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         dissector_get_uint_handle(meta_dissector_table, proto);
             }
     }
-    next_tvb = tvb_new_subset(tvb, item_len + META_HEADER_SIZE, -1, -1);
+    next_tvb = tvb_new_subset_remaining(tvb, item_len + META_HEADER_SIZE);
     call_dissector(next_dissector ? next_dissector : data_handle,
         next_tvb, pinfo, tree);
 }
@@ -575,7 +576,7 @@ proto_register_meta(void)
     static gint *ett[] = {
         &ett_meta,
         &ett_meta_item,
-		&ett_meta_cell
+        &ett_meta_cell
     };
 
     proto_meta = proto_register_protocol("Metadata", "META", "meta");
@@ -605,5 +606,7 @@ proto_reg_handoff_meta(void)
     ethwithfcs_handle = find_dissector("eth_withfcs");
     ethwithoutfcs_handle = find_dissector("eth_withoutfcs");
     fphint_handle = find_dissector("fp_hint");
+#if 0
     erf_handle = find_dissector("erf");
+#endif
 }
