@@ -87,6 +87,8 @@ static dissector_handle_t ethwithoutfcs_handle;
 static dissector_handle_t fphint_handle;
 static dissector_handle_t erf_handle;
 
+static dissector_table_t meta_dissector_table;
+
 static const value_string meta_schema_vals[] = {
     { META_SCHEMA_PCAP,     "PCAP" },
     { META_SCHEMA_DXT,      "DXT" },
@@ -100,6 +102,9 @@ static const value_string meta_proto_vals[] = {
     { META_PROTO_DXT_ERF_AAL5,      "ERF AAL5" },
     { META_PROTO_DXT_ATM_AAL2,      "ATM AAL2" },
     { META_PROTO_DXT_ATM,           "ATM" },
+    { META_PROTO_DXT_CONTAINER,     "DXT CONTAINER" },
+    { META_PROTO_DXT_FP_CAPTURE,    "FP CAPTURE" },
+    { META_PROTO_DXT_UTRAN_CAPSULE, "UTRAN CAPSULE" },
     { 0, NULL }
 };
 
@@ -446,7 +451,7 @@ dissect_meta(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *meta_tree = NULL;
     proto_item *ti = NULL;
     tvbuff_t *next_tvb;
-    dissector_handle_t next_dissector = data_handle;
+    dissector_handle_t next_dissector = NULL;
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "META");
@@ -517,10 +522,14 @@ dissect_meta(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     pinfo->pseudo_header->atm.aal = AAL_5;
                     next_dissector = atm_untrunc_handle;
                     break;
+                default:
+                    next_dissector =
+                        dissector_get_uint_handle(meta_dissector_table, proto);
             }
     }
     next_tvb = tvb_new_subset(tvb, item_len + META_HEADER_SIZE, -1, -1);
-    call_dissector(next_dissector, next_tvb, pinfo, tree);
+    call_dissector(next_dissector ? next_dissector : data_handle,
+        next_tvb, pinfo, tree);
 }
 
 void
@@ -574,6 +583,9 @@ proto_register_meta(void)
 
     proto_register_field_array(proto_meta, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    meta_dissector_table = register_dissector_table("meta.proto",
+            "META protocol", FT_UINT16, BASE_DEC);
 }
 
 void
