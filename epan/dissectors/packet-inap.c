@@ -9367,7 +9367,7 @@ dissect_inap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	/* Get the length and add 2 */
 	inap_pdu_size = tvb_get_guint8(tvb, offset+1)+2;
 	opcode = 0;
-    offset = dissect_inap_ROS(TRUE, tvb, offset, &asn1_ctx, tree, -1);
+    dissect_inap_ROS(TRUE, tvb, offset, &asn1_ctx, tree, -1);
 
 
 }
