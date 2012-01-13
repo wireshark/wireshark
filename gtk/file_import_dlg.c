@@ -203,7 +203,7 @@ encap_co_changed(GtkComboBox *widget, gpointer data)
 
     if (result)
     {
-        guint8 encap;
+        guint encap;
         GtkTreeModel *model = gtk_combo_box_get_model(widget);
         gtk_tree_model_get(model, &iter, 1, &encap, -1);
 
