@@ -618,6 +618,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-h1.c
 	dissectors/packet-h221_nonstd.c
 	dissectors/packet-h223.c
+	dissectors/packet-h248_2.c
 	dissectors/packet-h248_annex_c.c
 	dissectors/packet-h248_annex_e.c
 	dissectors/packet-h248_3gpp.c
