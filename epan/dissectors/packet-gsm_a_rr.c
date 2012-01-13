@@ -3864,7 +3864,7 @@ de_rr_neigh_cell_desc2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
  * [3] 10.5.2.23 P1 Rest Octets
  */
 static guint16
-de_rr_p1_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_rr_p1_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     proto_item *item2;
     guint32 curr_offset, value;
@@ -3874,7 +3874,6 @@ de_rr_p1_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, gu
 
     curr_offset = offset;
     bit_offset = curr_offset << 3;
-    len = tvb_length_remaining(tvb,offset);
 
     if (gsm_rr_csn_HL_flag(tvb, subtree, bit_len, bit_offset++, "NLN(PCH)", "Present", "Not present"))
     {
@@ -6834,7 +6833,7 @@ de_rr_si4_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, g
     proto_tree  *subtree2, *subtree3;
     proto_item  *item2, *item3;
     guint32      curr_offset;
-    gint         bit_offset, bit_offset_sav, bit_offset_sav2;
+    gint         bit_offset, bit_offset_sav;
     guint        value;
     guint8       tvb_len = tvb_length(tvb);
     guint16      bit_len = tvb_len << 3;
@@ -6867,7 +6866,6 @@ de_rr_si4_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, g
 
         if (gsm_rr_csn_HL_flag(tvb, subtree2, bit_len, bit_offset++, "LSA Parameters", "Present", "Not present"))
         { /* LSA Parameters */
-            bit_offset_sav2 = bit_offset;
             item3 = proto_tree_add_text(subtree2, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_LSA_PARAMETERS].strptr);
             subtree3 = proto_item_add_subtree(item3, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_LSA_PARAMETERS]);
             proto_tree_add_bits_item(subtree3, hf_gsm_a_rr_prio_thr, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
@@ -6893,7 +6891,6 @@ de_rr_si4_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, g
 
         if (gsm_rr_csn_HL_flag(tvb, subtree2, bit_len, bit_offset++, "LSA ID information", "Present", "Not present"))
         { /* LSA ID information */
-            bit_offset_sav2 = bit_offset;
             item3 = proto_tree_add_text(subtree2, tvb, bit_offset>>3, len, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_LSA_ID_INFO].strptr);
             subtree3 = proto_item_add_subtree(item3, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_LSA_ID_INFO]);
             do
@@ -7455,11 +7452,9 @@ de_rr_si13_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, 
 {
     proto_tree  *subtree2;
     proto_item  *item2;
-    guint32      curr_offset;
     guint         bit_offset, bit_offset_sav;
     guint8       tvb_len = tvb_length(tvb);
     guint16      bit_len = tvb_len << 3;
-    curr_offset = offset;
     bit_offset = offset << 3;
 
     if (gsm_rr_csn_HL_flag(tvb, subtree, 0, bit_offset++, "SI13 contents", "Present", "Not present"))
