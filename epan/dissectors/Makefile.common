@@ -1249,7 +1249,6 @@ DISSECTOR_INCLUDES =	\
 	packet-lte-rrc.h	\
 	packet-mac-lte.h		\
 	packet-mbtcp.h	\
-	packet-meta.h	\
 	packet-mgcp.h		\
 	packet-mms.h	\
 	packet-mount.h	\

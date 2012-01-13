@@ -31,10 +31,61 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 
-#include "packet-meta.h"
 #include "packet-sscop.h"
 #include "packet-gsm_a_common.h"
-#include "wiretap/erf.h"
+
+/* schemas */
+#define META_SCHEMA_PCAP        1
+#define META_SCHEMA_DXT         2
+
+/* protocols */
+#define META_PROTO_DXT_ETHERNET        1
+#define META_PROTO_DXT_ETHERNET_CRC   36
+#define META_PROTO_DXT_ATM            41
+#define META_PROTO_DXT_ERF_AAL5       49
+#define META_PROTO_DXT_M3UA           61
+#define META_PROTO_DXT_NBAP           69
+#define META_PROTO_DXT_ATM_AAL2       76
+#define META_PROTO_DXT_FP_HINT        82
+#define META_PROTO_DXT_CONTAINER     127
+#define META_PROTO_DXT_FP_CAPTURE    193
+#define META_PROTO_DXT_UTRAN_CAPSULE 194
+
+/* data types */
+#define META_TYPE_NONE             0
+#define META_TYPE_BOOLEAN          1
+#define META_TYPE_UINT8            2
+#define META_TYPE_UINT16           3
+#define META_TYPE_UINT32           4
+#define META_TYPE_UINT64           5
+#define META_TYPE_STRING          16
+/* item ids */
+#define META_ID_NULL               0
+#define META_ID_DIRECTION          1
+#define META_ID_SIGNALING          2
+#define META_ID_INCOMPLETE         3
+#define META_ID_DECIPHERED         4
+#define META_ID_PAYLOADCUT         5
+#define META_ID_TIMESTAMP64        6
+#define META_ID_AAL5PROTO          7
+#define META_ID_PHYLINKID        256
+#define META_ID_LOCALDEVID       257
+#define META_ID_REMOTEDEVID      258
+#define META_ID_TAPGROUPID       259
+#define META_ID_IMSI            1024
+#define META_ID_IMEI            1025
+#define META_ID_CELL            1026
+#define META_ID_TLLI            1027
+#define META_ID_NSAPI           1028
+#define META_ID_APN             1029
+#define META_ID_RAT             1030
+#define META_ID_CALLING         1031
+#define META_ID_CALLED          1032
+
+enum meta_direction {
+    META_DIR_UP,
+    META_DIR_DOWN
+};
 
 static int proto_meta = -1;
 extern int proto_sscop;
@@ -85,9 +136,6 @@ static dissector_handle_t nbap_handle;
 static dissector_handle_t ethwithfcs_handle;
 static dissector_handle_t ethwithoutfcs_handle;
 static dissector_handle_t fphint_handle;
-#if 0
-static dissector_handle_t erf_handle;
-#endif
 
 static dissector_table_t meta_dissector_table;
 
@@ -334,7 +382,7 @@ static guint16 evaluate_meta_item_dxt(proto_tree *meta_tree, tvbuff_t *tvb, pack
                 offs, 0, 1);
             break;
         case META_ID_AAL5PROTO:
-            aal5proto = tvb_get_guint8(tvb, offs);
+            aal5proto    = tvb_get_guint8(tvb, offs);
             p_sscop_info = p_get_proto_data(pinfo->fd, proto_sscop);
             if (!p_sscop_info) {
                 p_sscop_info = se_alloc0(sizeof(sscop_payload_info));
@@ -606,7 +654,4 @@ proto_reg_handoff_meta(void)
     ethwithfcs_handle = find_dissector("eth_withfcs");
     ethwithoutfcs_handle = find_dissector("eth_withoutfcs");
     fphint_handle = find_dissector("fp_hint");
-#if 0
-    erf_handle = find_dissector("erf");
-#endif
 }
