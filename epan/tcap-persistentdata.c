@@ -1114,7 +1114,6 @@ tcaphash_begin_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	    dbg(12,"Update key %lx ",tcaphash_begin_key.hashKey);
 #endif
 	    update_tcaphash_begincall(p_new_tcaphash_begincall, pinfo);
-	    p_tcaphash_begincall=p_new_tcaphash_begincall;
 	  } else { /* timeout or message lost */
 
 	  /* If the Tid is reused for a closed Transaction */
@@ -1136,7 +1135,6 @@ tcaphash_begin_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	    dbg(12,"Update key %lu ",tcaphash_begin_key.hashKey);
 #endif
 	    update_tcaphash_begincall(p_new_tcaphash_begincall, pinfo);
-	    p_tcaphash_begincall=p_new_tcaphash_begincall;
 
 	  } else {
 	    /* the TCAP session is not closed, so, either messages have been lost */
