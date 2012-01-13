@@ -259,7 +259,7 @@ typedef struct _wslua_private_table* PrivateTable;
 C to##C(lua_State* L, int idx) { \
     C* v = (C*)lua_touserdata (L, idx); \
     if (!v) luaL_typerror(L,idx,#C); \
-    return *v; \
+    return v ? *v : NULL; \
 } \
 C check##C(lua_State* L, int idx) { \
     C* p; \
