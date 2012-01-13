@@ -102,6 +102,7 @@ static int hf_docsis_dcd_cfr_tcpudp_dstport_end = -1;
 static int hf_docsis_dcd_rule_id = -1;
 static int hf_docsis_dcd_rule_pri = -1;
 static int hf_docsis_dcd_rule_ucid_list = -1;
+static int hf_docsis_dcd_clid_bcast_id = -1;
 static int hf_docsis_dcd_clid_known_mac_addr = -1;
 static int hf_docsis_dcd_clid_ca_sys_id = -1;
 static int hf_docsis_dcd_clid_app_id = -1;
@@ -337,6 +338,16 @@ dissect_dcd_clid (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
 	
 	switch (type)
 	  {
+		case DCD_CLID_BCAST_ID:
+			if (length == 2)
+			{
+				proto_tree_add_item(dcd_tree, hf_docsis_dcd_clid_bcast_id, tvb, pos, length, ENC_BIG_ENDIAN);
+			}
+			else
+			{
+				THROW (ReportedBoundsError);
+			}
+			break;
 	    case DCD_CLID_KNOWN_MAC_ADDR:
 	      if (length == 6)
 		{
@@ -704,6 +715,15 @@ proto_register_docsis_dcd (void)
       HFILL
       }
     },
+	{&hf_docsis_dcd_clid_bcast_id,
+		{
+			"DSG Rule Client ID Broadcast ID",
+			"docsis_dcd.clid_bcast_id",
+			FT_UINT16, BASE_DEC, NULL, 0x0,
+			NULL,
+			HFILL
+		}
+	},
     {&hf_docsis_dcd_clid_known_mac_addr,
       {
       "DSG Rule Client ID Known MAC Address", 
