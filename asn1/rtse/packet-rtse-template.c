@@ -294,7 +294,6 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 					dissect_unknown_ber(pinfo, tvb, offset, next_tree);
 				}
 
-				offset = tvb_length(tvb);
 				break;
 			}
 		}
