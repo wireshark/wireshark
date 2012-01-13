@@ -38,7 +38,7 @@
  * IKEv2 http://www.ietf.org/rfc/rfc4306.txt?number=4306
  * IKEv2bis http://www.ietf.org/rfc/rfc5996.txt?number=5996
  *
- * http://www.iana.org/assignments/isakmp-registry (last updated 2011-07-15)
+ * http://www.iana.org/assignments/isakmp-registry (last updated 2011-11-07)
  * http://www.iana.org/assignments/ipsec-registry (last updated 2011-03-14)
  * http://www.iana.org/assignments/ikev2-parameters (last updated 2011-12-19)
  */
@@ -235,6 +235,8 @@ static int hf_isakmp_tf_attr_ecn_tunnel = -1;
 static int hf_isakmp_tf_attr_ext_seq_nbr = -1;
 static int hf_isakmp_tf_attr_auth_key_length = -1;
 static int hf_isakmp_tf_attr_sig_enco_algorithm = -1;
+static int hf_isakmp_tf_attr_addr_preservation = -1;
+static int hf_isakmp_tf_attr_sa_direction = -1;
 
 static int hf_isakmp_ike_attr = -1;
 static int hf_isakmp_ike_attr_type = -1;
@@ -500,6 +502,7 @@ static const fragment_items isakmp_frag_items = {
 #define PLOAD_IKE_NAT_OA58		16
 #define PLOAD_IKE_NAT_D			20
 #define PLOAD_IKE_NAT_OA		21
+#define PLOAD_IKE_GAP			22
 #define PLOAD_IKE2_SA			33
 #define PLOAD_IKE2_KE			34
 #define PLOAD_IKE2_IDI			35
@@ -596,6 +599,7 @@ static const range_string payload_type[] = {
   { PLOAD_IKE_NAT_OA58,PLOAD_IKE_NAT_OA58, "NAT-Original Address"}, /* draft-ietf-ipsec-nat-t-ike-05 to 08*/
   { PLOAD_IKE_NAT_D,PLOAD_IKE_NAT_D, "NAT-D (RFC 3947)" },
   { PLOAD_IKE_NAT_OA,PLOAD_IKE_NAT_OA, "NAT-OA (RFC 3947)"},
+  { PLOAD_IKE_GAP,PLOAD_IKE_GAP, "Group Associated Policy"},
   { PLOAD_IKE2_SA,PLOAD_IKE2_SA, "Security Association"},
   { PLOAD_IKE2_KE,PLOAD_IKE2_KE, "Key Exchange"},
   { PLOAD_IKE2_IDI,PLOAD_IKE2_IDI, "Identification - Initiator"},
@@ -649,7 +653,9 @@ static const value_string doi_type[] = {
 #define ISAKMP_ATTR_ECN_TUNNEL			10      /* [RFC3168] */
 #define ISAKMP_ATTR_EXT_SEQ_NBR			11      /* [RFC4304] */
 #define ISAKMP_ATTR_AUTH_KEY_LENGTH		12      /* [RFC4359] */
-#define ISAKMP_ATTR_SIG_ENCO_ALGORITHM	13      /* [RFC4359] */
+#define ISAKMP_ATTR_SIG_ENCO_ALGORITHM          13      /* [RFC4359] */
+#define ISAKMP_ATTR_ADDR_PRESERVATION           14      /* [RFC6407] */
+#define ISAKMP_ATTR_SA_DIRECTION                15      /* [RFC6407] */
 
 static const value_string transform_isakmp_attr_type[] = {
   { ISAKMP_ATTR_LIFE_TYPE,	"SA-Life-Type" },
@@ -665,6 +671,8 @@ static const value_string transform_isakmp_attr_type[] = {
   { ISAKMP_ATTR_EXT_SEQ_NBR,	"Extended (64-bit) Sequence Number" },
   { ISAKMP_ATTR_AUTH_KEY_LENGTH, "Authentication Key Length" },
   { ISAKMP_ATTR_SIG_ENCO_ALGORITHM, "Signature Encoding Algorithm" },
+  { ISAKMP_ATTR_ADDR_PRESERVATION, "Address Preservation" },
+  { ISAKMP_ATTR_SA_DIRECTION, "SA Direction" },
   { 0,	NULL },
 };
 
@@ -873,6 +881,23 @@ static const value_string transform_attr_sig_enco_algo_type[] = {
   { 0,	NULL },
 };
 
+static const value_string transform_attr_addr_preservation_type[] = {
+  { 0, "Reserved" },
+  { 1, "None" },
+  { 2, "Source-Only" },
+  { 3, "Destination-Only" },
+  { 4, "Source-and-Destination" },
+  { 0,	NULL },
+};
+
+static const value_string transform_attr_sa_direction_type[] = {
+  { 0, "Reserved" },
+  { 1, "Sender-Only" },
+  { 2, "Receiver-Only" },
+  { 3, "Symmetric" },
+  { 0,	NULL },
+};
+
 static const value_string transform_attr_authmeth_type[] = {
   { 0,	"RESERVED" },
   { 1,	"PSK" },
@@ -900,6 +925,7 @@ static const value_string transform_attr_authmeth_type[] = {
   { 65010,	"XAUTHRespRSARevisedEncryption" },
   { 0,	NULL },
 };
+
 
 static const value_string transform_dh_group_type[] = {
   { 0,	"UNDEFINED - 0" },
@@ -3226,7 +3252,15 @@ dissect_transform_attribute(tvbuff_t *tvb, proto_tree *transform_attr_type_tree,
 		case ISAKMP_ATTR_SIG_ENCO_ALGORITHM:
 		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_sig_enco_algorithm, tvb, offset, optlen, ENC_NA);
 		break;
-	default:
+
+		case ISAKMP_ATTR_ADDR_PRESERVATION:
+		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_addr_preservation, tvb, offset, optlen, ENC_BIG_ENDIAN);
+                proto_item_append_text(transform_attr_type_item," : %s", val_to_str(tvb_get_ntohs(tvb, offset), transform_attr_addr_preservation_type, "Unknown %d"));
+
+		case ISAKMP_ATTR_SA_DIRECTION:
+		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_sa_direction, tvb, offset, optlen, ENC_BIG_ENDIAN);
+                proto_item_append_text(transform_attr_type_item," : %s", val_to_str(tvb_get_ntohs(tvb, offset), transform_attr_sa_direction_type, "Unknown %d"));
+		default:
 		/* No Default Action */
 		break;
 	}
@@ -5632,6 +5666,14 @@ proto_register_isakmp(void)
       { "Signature Encoding Algorithm",	"isakmp.tf.attr.sig_enco_algorithm",
 	FT_BYTES, BASE_NONE, NULL, 0x00,
 	NULL, HFILL }},
+  { &hf_isakmp_tf_attr_addr_preservation,
+      { "Address Preservation", "isakmp.tf.attr.addr_preservation",
+        FT_UINT16, BASE_DEC, VALS(transform_attr_addr_preservation_type), 0x00,
+        NULL, HFILL }},
+  { &hf_isakmp_tf_attr_sa_direction,
+      { "SA Direction", "isakmp.tf.attr.sa_direction",
+        FT_UINT16, BASE_DEC, VALS(transform_attr_sa_direction_type), 0x00,
+        NULL, HFILL }},
 
    { &hf_isakmp_ike_attr,
       { "Transform IKE Attribute Type",	"isakmp.ike.attr",
