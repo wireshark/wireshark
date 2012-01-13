@@ -3534,7 +3534,7 @@ tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
 			comprlen -= (int) (c - compr);
 
 			inflateEnd(strm);
-			err = inflateInit2(strm, wbits);
+			inflateInit2(strm, wbits);
 			inits_done++;
 		} else if (err == Z_DATA_ERROR && uncompr == NULL &&
 			inits_done <= 3) {
