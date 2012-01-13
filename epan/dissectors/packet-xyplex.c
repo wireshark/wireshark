@@ -57,7 +57,7 @@ static const value_string xyplex_reg_vals[] = {
   { 0,          NULL }
 };
 
-static void
+static int
 dissect_xyplex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree	*xyplex_tree = NULL;
@@ -121,7 +121,7 @@ dissect_xyplex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    PT_TCP, return_port, 0, NO_PORT2);
 		    conversation_set_dissector(conversation, xyplex_handle);
 		}
-		return;
+		return offset;
 	}
 
 	if (pinfo->srcport == UDP_PORT_XYPLEX) {
@@ -141,7 +141,7 @@ dissect_xyplex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    offset+2, 2, reply);
 		}
 		offset += 4;
-		return;
+		return offset;
 	}
 
 	/*
@@ -157,6 +157,7 @@ dissect_xyplex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  proto_tree_add_text(xyplex_tree, tvb, offset, -1,
 		"Data (%d bytes)", tvb_reported_length_remaining(tvb, offset));
 	}
+	return tvb_reported_length_remaining(tvb, offset);
 }
 
 
@@ -207,7 +208,7 @@ proto_register_xyplex(void)
 void
 proto_reg_handoff_xyplex(void)
 {
-  xyplex_handle = create_dissector_handle(dissect_xyplex, proto_xyplex);
+  xyplex_handle = new_create_dissector_handle(dissect_xyplex, proto_xyplex);
   dissector_add_uint("udp.port", UDP_PORT_XYPLEX, xyplex_handle);
 }
 
