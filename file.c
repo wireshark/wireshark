@@ -3013,7 +3013,7 @@ match_ascii_and_unicode(capture_file *cf, frame_data *fdata, void *criterion)
       }
       else {
         g_assert(i>=c_match);
-        i -= c_match;
+        i -= (guint32)c_match;
         c_match = 0;
       }
     }
@@ -3058,7 +3058,7 @@ match_ascii(capture_file *cf, frame_data *fdata, void *criterion)
     }
     else {
       g_assert(i>=c_match);
-      i -= c_match;
+      i -= (guint32)c_match;
       c_match = 0;
     }
     i += 1;
@@ -3104,7 +3104,7 @@ match_unicode(capture_file *cf, frame_data *fdata, void *criterion)
     }
     else {
       g_assert(i>=(c_match*2));
-      i -= c_match*2;
+      i -= (guint32)c_match*2;
       c_match = 0;
     }
     i += 1;
@@ -3144,7 +3144,7 @@ match_binary(capture_file *cf, frame_data *fdata, void *criterion)
     }
     else {
       g_assert(i>=c_match);
-      i -= c_match;
+      i -= (guint32)c_match;
       c_match = 0;
     }
     i += 1;
