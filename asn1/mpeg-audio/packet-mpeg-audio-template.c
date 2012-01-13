@@ -102,7 +102,6 @@ dissect_mpeg_audio_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (padding > 0) {
 			proto_tree_add_item(tree, hf_mpeg_audio_padbytes, tvb,
 					offset / 8, padding, ENC_NA);
-			offset += padding * 8;
 		}
 	}
 	return TRUE;
