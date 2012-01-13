@@ -1635,8 +1635,8 @@ static gboolean configure_event_time(GtkWidget *widget, GdkEventConfigure *event
 
 #if GTK_CHECK_VERSION(2,22,0)
 	if(user_data->dlg.surface_time){
-		cairo_surface_destroy (user_data->dlg.surface_main);
-		user_data->dlg.surface_main=NULL;
+		cairo_surface_destroy (user_data->dlg.surface_time);
+		user_data->dlg.surface_time=NULL;
 	}
 #else
 	if(user_data->dlg.pixmap_time){
