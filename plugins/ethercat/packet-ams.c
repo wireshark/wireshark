@@ -375,7 +375,7 @@ static void NetIdFormater(tvbuff_t *tvb, guint offset, char *szText, gint nMax)
 
 
 /*ams*/
-static void dissect_ams(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static gint dissect_ams(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
    proto_item *ti, *anItem;
    proto_tree *ams_tree = NULL, *ams_adstree, *ams_statetree;
@@ -394,14 +394,14 @@ static void dissect_ams(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    if( pinfo->ethertype != 0x88a4 )
    {
       if( TcpAdsParserHDR_Len > ams_length )
-         return;
+         return offset;
       ams_length -= TcpAdsParserHDR_Len;
 
       offset = TcpAdsParserHDR_Len;
    }
 
    if( ams_length < AmsHead_Len )
-      return;
+      return offset;
 
   if (tree)
   {
@@ -829,7 +829,7 @@ static void dissect_ams(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if( tree && ams_length-offset > 0 )
         proto_tree_add_item(ams_tree, hf_ams_data, tvb, offset, ams_length-offset, ENC_NA);
   }
-
+return offset;
 }
 
 
@@ -1197,7 +1197,7 @@ void proto_register_ams(void)
    proto_register_field_array(proto_ams, hf, array_length(hf));
    proto_register_subtree_array(ett, array_length(ett));
 
-   register_dissector("ams", dissect_ams, proto_ams);
+   new_register_dissector("ams", dissect_ams, proto_ams);
 }
 
 /* The registration hand-off routing */
