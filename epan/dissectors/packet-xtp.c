@@ -346,7 +346,6 @@ dissect_xtp_aseg(tvbuff_t *tvb, proto_tree *tree, guint32 offset) {
 	offset++;
 	/* aformat(1) */
 	aseg->aformat = tvb_get_guint8(tvb, offset);
-	offset++;
 
 	/** display common fields **/
 	offset = start;
@@ -542,7 +541,6 @@ dissect_xtp_tspec(tvbuff_t *tvb, proto_tree *tree, guint32 offset) {
 	offset++;
 	/* tformat(1) */
 	tspec->tformat = tvb_get_guint8(tvb, offset);
-	offset++;
 
 	/** display common fields */
 	offset = start;
