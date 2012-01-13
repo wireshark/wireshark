@@ -2996,22 +2996,28 @@ match_ascii_and_unicode(capture_file *cf, frame_data *fdata, void *criterion)
 
   result = MR_NOTMATCHED;
   buf_len = fdata->pkt_len;
-  for (i = 0; i < buf_len; i++) {
+  i = 0;
+  while (i < buf_len) {
     c_char = cf->pd[i];
     if (cf->case_type)
       c_char = toupper(c_char);
-    if (c_char != 0) {
+    if (c_char != '\0') {
       if (c_char == ascii_text[c_match]) {
-        c_match++;
+        c_match += 1;
         if (c_match == textlen) {
           result = MR_MATCHED;
           cf->search_pos = i; /* Save the position of the last character
                                  for highlighting the field. */
           break;
         }
-      } else
+      }
+      else {
+        g_assert(i>=c_match);
+        i -= c_match;
         c_match = 0;
+      }
     }
+    i += 1;
   }
   return result;
 }
@@ -3036,21 +3042,28 @@ match_ascii(capture_file *cf, frame_data *fdata, void *criterion)
 
   result = MR_NOTMATCHED;
   buf_len = fdata->pkt_len;
-  for (i = 0; i < buf_len; i++) {
+  i = 0;
+  while (i < buf_len) {
     c_char = cf->pd[i];
     if (cf->case_type)
       c_char = toupper(c_char);
     if (c_char == ascii_text[c_match]) {
-      c_match++;
+      c_match += 1;
       if (c_match == textlen) {
         result = MR_MATCHED;
         cf->search_pos = i; /* Save the position of the last character
                                for highlighting the field. */
         break;
       }
-    } else
+    }
+    else {
+      g_assert(i>=c_match);
+      i -= c_match;
       c_match = 0;
+    }
+    i += 1;
   }
+
   return result;
 }
 
@@ -3074,21 +3087,27 @@ match_unicode(capture_file *cf, frame_data *fdata, void *criterion)
 
   result = MR_NOTMATCHED;
   buf_len = fdata->pkt_len;
-  for (i = 0; i < buf_len; i++) {
+  i = 0;
+  while (i < buf_len) {
     c_char = cf->pd[i];
     if (cf->case_type)
       c_char = toupper(c_char);
     if (c_char == ascii_text[c_match]) {
-      c_match++;
-      i++;
+      c_match += 1;
       if (c_match == textlen) {
         result = MR_MATCHED;
         cf->search_pos = i; /* Save the position of the last character
                                for highlighting the field. */
         break;
       }
-    } else
+      i += 1;
+    }
+    else {
+      g_assert(i>=(c_match*2));
+      i -= c_match*2;
       c_match = 0;
+    }
+    i += 1;
   }
   return result;
 }
@@ -3112,17 +3131,23 @@ match_binary(capture_file *cf, frame_data *fdata, void *criterion)
 
   result = MR_NOTMATCHED;
   buf_len = fdata->pkt_len;
-  for (i = 0; i < buf_len; i++) {
+  i = 0;
+  while (i < buf_len) {
     if (cf->pd[i] == binary_data[c_match]) {
-      c_match++;
+      c_match += 1;
       if (c_match == datalen) {
         result = MR_MATCHED;
         cf->search_pos = i; /* Save the position of the last character
                                for highlighting the field. */
         break;
       }
-    } else
+    }
+    else {
+      g_assert(i>=c_match);
+      i -= c_match;
       c_match = 0;
+    }
+    i += 1;
   }
   return result;
 }
