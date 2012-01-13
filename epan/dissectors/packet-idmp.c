@@ -715,7 +715,7 @@ static void dissect_idmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 		save_private_data = pinfo->private_data;
 		pinfo->private_data = &session;
 
-		offset = dissect_idmp_IDM_PDU(FALSE, tvb, offset, &asn1_ctx, tree, hf_idmp_PDU);
+		dissect_idmp_IDM_PDU(FALSE, tvb, offset, &asn1_ctx, tree, hf_idmp_PDU);
 
 		pinfo->private_data = save_private_data;
 	}
