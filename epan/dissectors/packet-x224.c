@@ -178,7 +178,7 @@ dissect_x224_dt(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int off
 	return offset;
 }
 
-static void
+static int
 dissect_x224(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 	proto_tree *tree = NULL;
@@ -267,6 +267,7 @@ dissect_x224(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		/* XXX not implemented yet */
 		break;
 	}
+return offset;
 }
 
 void
@@ -316,7 +317,7 @@ proto_register_x224(void)
 	proto_x224 = proto_register_protocol("ITU-T Rec X.224", "X.224", "x224");
 	proto_register_field_array(proto_x224, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	register_dissector("x224", dissect_x224, proto_x224);
+	new_register_dissector("x224", dissect_x224, proto_x224);
 
 }
 
