@@ -50,7 +50,6 @@ PIDL_DISSECTOR_SRC = \
 	packet-dcerpc-atsvc.c \
 	packet-dcerpc-budb.c	\
 	packet-dcerpc-butc.c	\
-	packet-dcerpc-dfs.c \
 	packet-dcerpc-drsuapi.c	\
 	packet-dcerpc-dssetup.c \
 	packet-dcerpc-efs.c \
@@ -66,9 +65,11 @@ PIDL_DISSECTOR_SRC = \
 # PIDL-generated DCE RPC dissectors with warnings.
 #
 DIRTY_PIDL_DISSECTOR_SRC = \
-	packet-dcerpc-dnsserver.c 	\
+	packet-dcerpc-dfs.c \
+	packet-dcerpc-dnsserver.c	\
 	packet-dcerpc-eventlog.c \
 	packet-dcerpc-lsa.c \
+	packet-dcerpc-mapi.c \
 	packet-dcerpc-winreg.c
 
 #
@@ -82,13 +83,14 @@ PIDL_DISSECTOR_INCLUDES = \
 	packet-dcerpc-eventlog.h	\
 	packet-dcerpc-initshutdown.h	\
 	packet-dcerpc-lsa.h	\
+	packet-dcerpc-mapi.h	\
 	packet-dcerpc-misc.h	\
 	packet-dcerpc-nspi.h	\
-	packet-dcerpc-rfr.h \
+	packet-dcerpc-rfr.h	\
 	packet-dcerpc-srvsvc.h	\
-	packet-dcerpc-winreg.h \
+	packet-dcerpc-winreg.h	\
 	packet-dcerpc-wkssvc.h	\
-	packet-dcerpc-wzcsvc.h \
+	packet-dcerpc-wzcsvc.h	\
 	packet-dcerpc-frstrans.h
 
 #
@@ -104,7 +106,6 @@ ASN1_DISSECTOR_SRC = \
 	packet-cmip.c \
 	packet-cmp.c \
 	packet-cms.c \
-	packet-coap.c \
 	packet-credssp.c \
 	packet-crmf.c \
 	packet-dap.c \
@@ -127,13 +128,12 @@ ASN1_DISSECTOR_SRC = \
 	packet-h501.c \
 	packet-HI2Operations.c \
 	packet-hnbap.c \
-	packet-lcsap.c \
-	packet-lppa.c \
 	packet-idmp.c \
 	packet-inap.c \
+	packet-lcsap.c \
 	packet-logotypecertextn.c \
+	packet-lppa.c \
 	packet-mms.c \
-	packet-mndp.c \
 	packet-mpeg-audio.c \
 	packet-mpeg-pes.c \
 	packet-ns_cert_exts.c \
@@ -202,7 +202,7 @@ DIRTY_ASN1_DISSECTOR_SRC = \
 # Dissectors without warnings.
 #
 DISSECTOR_SRC = \
-	packet-2dparityfec.c 	\
+	packet-2dparityfec.c	\
 	packet-3com-njack.c	\
 	packet-3com-xns.c	\
 	packet-3g-a11.c		\
@@ -216,28 +216,28 @@ DISSECTOR_SRC = \
 	packet-adwin-config.c	\
 	packet-afp.c		\
 	packet-afs.c		\
-	packet-agentx.c 	\
+	packet-agentx.c		\
 	packet-aim.c		\
-	packet-aim-admin.c 	\
+	packet-aim-admin.c	\
 	packet-aim-adverts.c	\
-	packet-aim-bos.c 	\
+	packet-aim-bos.c	\
 	packet-aim-buddylist.c	\
 	packet-aim-chat.c	\
-	packet-aim-chatnav.c 	\
+	packet-aim-chatnav.c	\
 	packet-aim-directory.c	\
-	packet-aim-email.c 	\
+	packet-aim-email.c	\
 	packet-aim-generic.c	\
-	packet-aim-icq.c 	\
+	packet-aim-icq.c	\
 	packet-aim-invitation.c \
-	packet-aim-location.c 	\
-	packet-aim-messaging.c 	\
-	packet-aim-oft.c 	\
-	packet-aim-popup.c 	\
-	packet-aim-signon.c 	\
-	packet-aim-ssi.c 	\
-	packet-aim-sst.c 	\
-	packet-aim-stats.c 	\
-	packet-aim-translate.c 	\
+	packet-aim-location.c	\
+	packet-aim-messaging.c	\
+	packet-aim-oft.c	\
+	packet-aim-popup.c	\
+	packet-aim-signon.c	\
+	packet-aim-ssi.c	\
+	packet-aim-sst.c	\
+	packet-aim-stats.c	\
+	packet-aim-translate.c	\
 	packet-aim-userlookup.c \
 	packet-airopeek.c	\
 	packet-ajp13.c		\
@@ -256,7 +256,7 @@ DISSECTOR_SRC = \
 	packet-app-pkix-cert.c	\
 	packet-applemidi.c	\
 	packet-arcnet.c		\
-	packet-armagetronad.c 	\
+	packet-armagetronad.c	\
 	packet-arp.c		\
 	packet-artnet.c		\
 	packet-aruba-adp.c	\
@@ -283,7 +283,7 @@ DISSECTOR_SRC = \
 	packet-ber.c		\
 	packet-bfd.c		\
 	packet-bgp.c		\
-	packet-bittorrent.c 	\
+	packet-bittorrent.c	\
 	packet-bjnp.c		\
 	packet-bmc.c		\
 	packet-bofl.c		\
@@ -316,7 +316,7 @@ DISSECTOR_SRC = \
 	packet-cfm.c		\
 	packet-cgmp.c		\
 	packet-chdlc.c		\
-	packet-cigi.c   	\
+	packet-cigi.c		\
 	packet-cimd.c		\
 	packet-cimetrics.c	\
 	packet-cip.c		\
@@ -331,9 +331,10 @@ DISSECTOR_SRC = \
 	packet-clnp.c		\
 	packet-cmpp.c		\
 	packet-cnip.c		\
+	packet-coap.c		\
 	packet-collectd.c	\
 	packet-componentstatus.c \
-	packet-cops.c 		\
+	packet-cops.c		\
 	packet-cosine.c		\
 	packet-cpfi.c		\
 	packet-cpha.c		\
@@ -343,42 +344,42 @@ DISSECTOR_SRC = \
 	packet-cups.c		\
 	packet-daap.c		\
 	packet-data.c		\
-	packet-daytime.c 	\
+	packet-daytime.c	\
 	packet-db-lsp.c		\
 	packet-dcc.c		\
 	packet-dccp.c		\
 	packet-dcerpc-bossvr.c		\
 	packet-dcerpc-browser.c		\
 	packet-dcerpc-cds_clerkserver.c	\
-	packet-dcerpc-cds_solicit.c 	\
+	packet-dcerpc-cds_solicit.c	\
 	packet-dcerpc-conv.c		\
-	packet-dcerpc-cprpc_server.c 	\
+	packet-dcerpc-cprpc_server.c	\
 	packet-dcerpc-dce122.c		\
-	packet-dcerpc-dtsprovider.c 	\
-	packet-dcerpc-dtsstime_req.c 	\
+	packet-dcerpc-dtsprovider.c	\
+	packet-dcerpc-dtsstime_req.c	\
 	packet-dcerpc-epm.c		\
 	packet-dcerpc-fileexp.c		\
 	packet-dcerpc-fldb.c		\
 	packet-dcerpc-frsapi.c		\
 	packet-dcerpc-frsrpc.c		\
-	packet-dcerpc-ftserver.c 	\
+	packet-dcerpc-ftserver.c	\
 	packet-dcerpc-icl_rpc.c		\
 	packet-dcerpc-krb5rpc.c		\
 	packet-dcerpc-llb.c		\
 	packet-dcerpc-mapi.c		\
-	packet-dcerpc-messenger.c 	\
+	packet-dcerpc-messenger.c	\
 	packet-dcerpc-mgmt.c		\
 	packet-dcerpc-ndr.c		\
-	packet-dcerpc-netlogon.c 	\
+	packet-dcerpc-netlogon.c	\
 	packet-dcerpc-pnp.c		\
 	packet-dcerpc-rdaclif.c		\
-	packet-dcerpc-rep_proc.c 	\
-	packet-dcerpc-roverride.c 	\
+	packet-dcerpc-rep_proc.c	\
+	packet-dcerpc-roverride.c	\
 	packet-dcerpc-rpriv.c		\
 	packet-dcerpc-rras.c		\
 	packet-dcerpc-rs_acct.c		\
 	packet-dcerpc-rs_attr.c		\
-	packet-dcerpc-rs_attr_schema.c 	\
+	packet-dcerpc-rs_attr_schema.c	\
 	packet-dcerpc-rs_bind.c		\
 	packet-dcerpc-rs_misc.c		\
 	packet-dcerpc-rs_pgo.c		\
@@ -406,12 +407,12 @@ DISSECTOR_SRC = \
 	packet-dcerpc-update.c		\
 	packet-dcerpc.c			\
 	packet-dcm.c		\
-	packet-dcom.c 		\
-	packet-dcom-dispatch.c 	\
-	packet-dcom-oxid.c 	\
-	packet-dcom-remact.c 	\
-	packet-dcom-remunkn.c 	\
-	packet-dcom-sysact.c 	\
+	packet-dcom.c		\
+	packet-dcom-dispatch.c	\
+	packet-dcom-oxid.c	\
+	packet-dcom-remact.c	\
+	packet-dcom-remunkn.c	\
+	packet-dcom-sysact.c	\
 	packet-dcp-etsi.c	\
 	packet-ddtp.c		\
 	packet-dec-bpdu.c	\
@@ -435,7 +436,7 @@ DISSECTOR_SRC = \
 	packet-dplay.c		\
 	packet-dpnss.c		\
 	packet-dpnss-link.c	\
-	packet-drda.c 		\
+	packet-drda.c		\
 	packet-dsi.c		\
 	packet-dtls.c		\
 	packet-dtn.c		\
@@ -462,7 +463,7 @@ DISSECTOR_SRC = \
 	packet-enttec.c		\
 	packet-epl.c		\
 	packet-epl_v1.c		\
-	packet-epmd.c   	\
+	packet-epmd.c		\
 	packet-erf.c		\
 	packet-esio.c		\
 	packet-esis.c		\
@@ -518,7 +519,6 @@ DISSECTOR_SRC = \
 	packet-gprs-llc.c	\
 	packet-gre.c		\
 	packet-gsm_a_bssmap.c	\
-	packet-gsm_a_common.c	\
 	packet-gsm_a_dtap.c	\
 	packet-gsm_a_gm.c	\
 	packet-gsm_a_rp.c	\
@@ -539,12 +539,12 @@ DISSECTOR_SRC = \
 	packet-h1.c		\
 	packet-h221_nonstd.c	\
 	packet-h223.c		\
-	packet-h248_2.c 	\
-	packet-h248_3gpp.c 	\
-	packet-h248_7.c 	\
-	packet-h248_10.c 	\
-	packet-h248_annex_c.c 	\
-	packet-h248_annex_e.c 	\
+	packet-h248_2.c		\
+	packet-h248_3gpp.c	\
+	packet-h248_7.c		\
+	packet-h248_10.c	\
+	packet-h248_annex_c.c	\
+	packet-h248_annex_e.c	\
 	packet-h248_q1950.c	\
 	packet-h261.c		\
 	packet-h263.c		\
@@ -557,14 +557,14 @@ DISSECTOR_SRC = \
 	packet-hdfs.c		\
 	packet-hdfsdata.c	\
 	packet-hip.c		\
-	packet-homeplug.c 	\
-	packet-homeplug-av.c 	\
+	packet-homeplug.c	\
+	packet-homeplug-av.c	\
 	packet-hp-erm.c		\
 	packet-hpext.c		\
 	packet-hpsw.c		\
 	packet-hpteam.c		\
 	packet-hsr.c		\
-	packet-hsr-prp-supervision.c		\
+	packet-hsr-prp-supervision.c	\
 	packet-hsrp.c		\
 	packet-http.c		\
 	packet-hyperscsi.c	\
@@ -625,7 +625,7 @@ DISSECTOR_SRC = \
 	packet-isis-hello.c	\
 	packet-isis-lsp.c	\
 	packet-isis-snp.c	\
-	packet-isis.c 		\
+	packet-isis.c		\
 	packet-isl.c		\
 	packet-ismacryp.c	\
 	packet-ismp.c		\
@@ -637,11 +637,11 @@ DISSECTOR_SRC = \
 	packet-iwarp-ddp-rdmap.c\
 	packet-iwarp-mpa.c	\
 	packet-jmirror.c	\
-	packet-jpeg.c 		\
+	packet-jpeg.c		\
 	packet-json.c		\
-	packet-juniper.c 	\
+	packet-juniper.c	\
 	packet-jxta.c		\
-	packet-k12.c 		\
+	packet-k12.c		\
 	packet-kadm5.c		\
 	packet-kdp.c		\
 	packet-kerberos.c	\
@@ -682,7 +682,7 @@ DISSECTOR_SRC = \
 	packet-m2tp.c		\
 	packet-m2ua.c		\
 	packet-m3ua.c		\
-	packet-mac-lte.c		\
+	packet-mac-lte.c	\
 	packet-maccontrol.c	\
 	packet-mactelnet.c	\
 	packet-manolito.c	\
@@ -700,13 +700,14 @@ DISSECTOR_SRC = \
 	packet-mip.c		\
 	packet-mip6.c		\
 	packet-mmse.c		\
+	packet-mndp.c		\
 	packet-mongo.c		\
 	packet-mount.c		\
 	packet-mp2t.c		\
 	packet-mp4ves.c		\
 	packet-mpeg1.c		\
 	packet-mpls.c		\
-	packet-mpls-echo.c   	\
+	packet-mpls-echo.c	\
 	packet-mq.c		\
 	packet-mq-pcf.c		\
 	packet-mrdisc.c		\
@@ -738,18 +739,18 @@ DISSECTOR_SRC = \
 	packet-ncp.c		\
 	packet-ncp2222.c	\
 	packet-ncp-nmas.c	\
-	packet-ncp-sss.c 	\
+	packet-ncp-sss.c	\
 	packet-ncs.c		\
 	packet-ndmp.c		\
 	packet-ndp.c		\
 	packet-ndps.c		\
-  packet-netanalyzer.c  \
+	packet-netanalyzer.c	\
 	packet-netbios.c	\
 	packet-netdump.c	\
 	packet-netflow.c	\
 	packet-netmon-802_11.c	\
 	packet-netperfmeter.c	\
-	packet-netsync.c 	\
+	packet-netsync.c	\
 	packet-nettl.c		\
 	packet-newmail.c	\
 	packet-nfs.c		\
@@ -787,7 +788,7 @@ DISSECTOR_SRC = \
 	packet-pcep.c		\
 	packet-pcli.c		\
 	packet-pcnfsd.c		\
-	packet-pdcp-lte.c		\
+	packet-pdcp-lte.c	\
 	packet-per.c		\
 	packet-pflog.c		\
 	packet-pgm.c		\
@@ -803,18 +804,18 @@ DISSECTOR_SRC = \
 	packet-ppi-antenna.c	\
 	packet-ppi-geolocation-common.c	\
 	packet-ppi-gps.c	\
-	packet-ppi-vector.c	\
 	packet-ppi-sensor.c	\
+	packet-ppi-vector.c	\
 	packet-ppp.c		\
 	packet-pppoe.c		\
 	packet-pptp.c		\
 	packet-prp.c		\
 	packet-ptp.c		\
 	packet-pvfs2.c		\
-	packet-pw-common.c	\
 	packet-pw-atm.c		\
 	packet-pw-cesopsn.c	\
-	packet-pw-eth.c   	\
+	packet-pw-common.c	\
+	packet-pw-eth.c		\
 	packet-pw-fr.c		\
 	packet-pw-hdlc.c	\
 	packet-pw-satop.c	\
@@ -835,16 +836,16 @@ DISSECTOR_SRC = \
 	packet-rdm.c		\
 	packet-rdp.c		\
 	packet-rdt.c		\
-	packet-redback.c 	\
-	packet-redbackli.c 	\
+	packet-redback.c	\
+	packet-redbackli.c	\
 	packet-reload.c		\
 	packet-reload-framing.c \
-	packet-retix-bpdu.c 	\
-	packet-rfc2190.c 	\
+	packet-retix-bpdu.c	\
+	packet-rfc2190.c	\
 	packet-rgmp.c		\
 	packet-rip.c		\
 	packet-ripng.c		\
-	packet-rfid-mifare.c 	\
+	packet-rfid-mifare.c	\
 	packet-rlc.c		\
 	packet-rlc-lte.c	\
 	packet-rlm.c		\
@@ -858,7 +859,7 @@ DISSECTOR_SRC = \
 	packet-rmt-lct.c	\
 	packet-rmt-norm.c	\
 	packet-rohc.c		\
-	packet-roofnet.c 	\
+	packet-roofnet.c	\
 	packet-rpc.c		\
 	packet-rpcap.c		\
 	packet-rpl.c		\
@@ -885,7 +886,7 @@ DISSECTOR_SRC = \
 	packet-sametime.c	\
 	packet-sap.c		\
 	packet-sasp.c		\
-	packet-sbus.c 		\
+	packet-sbus.c		\
 	packet-sccp.c		\
 	packet-sccpmg.c		\
 	packet-scop.c		\
@@ -946,7 +947,7 @@ DISSECTOR_SRC = \
 	packet-stun.c		\
 	packet-sua.c		\
 	packet-symantec.c	\
-	packet-synergy.c 	\
+	packet-synergy.c	\
 	packet-synphasor.c      \
 	packet-syslog.c		\
 	packet-t30.c		\
@@ -973,9 +974,9 @@ DISSECTOR_SRC = \
 	packet-tns.c		\
 	packet-tpkt.c		\
 	packet-tpncp.c		\
-	packet-tr.c			\
-	packet-trill.c      \
-	packet-mim.c        \
+	packet-tr.c		\
+	packet-trill.c		\
+	packet-mim.c		\
 	packet-trmac.c		\
 	packet-tsp.c		\
 	packet-tte.c		\
@@ -984,7 +985,7 @@ DISSECTOR_SRC = \
 	packet-turnchannel.c	\
 	packet-tuxedo.c		\
 	packet-tzsp.c		\
-	packet-ua.c			\
+	packet-ua.c		\
 	packet-uaudp.c		\
 	packet-ucp.c		\
 	packet-udld.c		\
@@ -1035,7 +1036,6 @@ DISSECTOR_SRC = \
 	packet-wsp.c		\
 	packet-wtls.c		\
 	packet-wtp.c		\
-	packet-x11.c		\
 	packet-x25.c		\
 	packet-x29.c		\
 	packet-xcsl.c		\
@@ -1044,11 +1044,11 @@ DISSECTOR_SRC = \
 	packet-xmcp.c		\
 	packet-xmpp.c		\
 	packet-xmpp-conference.c \
-	packet-xmpp-core.c 	\
-	packet-xmpp-gtalk.c 	\
-	packet-xmpp-jingle.c 	\
-	packet-xmpp-other.c 	\
-	packet-xmpp-utils.c 	\
+	packet-xmpp-core.c	\
+	packet-xmpp-gtalk.c	\
+	packet-xmpp-jingle.c	\
+	packet-xmpp-other.c	\
+	packet-xmpp-utils.c	\
 	packet-xot.c		\
 	packet-xtp.c		\
 	packet-xyplex.c		\
@@ -1073,10 +1073,17 @@ DISSECTOR_SRC = \
 	$(CUSTOM_DISSECTOR_SRC)
 
 #
+# Files that create warnings while building
+#
+DIRTY_DISSECTOR_SRC = \
+	packet-gsm_a_common.c	\
+	packet-x11.c
+
+#
 # Headers for dissectors.
 #
 DISSECTOR_INCLUDES =	\
-	$(PIDL_DISSECTOR_INCLUDES) 	\
+	$(PIDL_DISSECTOR_INCLUDES)	\
 	packet-acn.h	\
 	packet-acp133.h	\
 	packet-acse.h	\
@@ -1087,7 +1094,7 @@ DISSECTOR_INCLUDES =	\
 	packet-alcap.h	\
 	packet-ansi_a.h	\
 	packet-ansi_map.h	\
-	packet-ansi_tcap.h \
+	packet-ansi_tcap.h	\
 	packet-ap1394.h	\
 	packet-arcnet.h	\
 	packet-arp.h	\
@@ -1163,7 +1170,7 @@ DISSECTOR_INCLUDES =	\
 	packet-e212.h   \
 	packet-edonkey.h	\
 	packet-enc.h	\
-	packet-epmd.h  	\
+	packet-epmd.h	\
 	packet-esis.h	\
 	packet-ess.h	\
 	packet-eth.h	\
@@ -1369,7 +1376,7 @@ DISSECTOR_INCLUDES =	\
 	packet-stat.h	\
 	packet-stat-notify.h	\
 	packet-sv.h	\
-	packet-t124.h 	\
+	packet-t124.h	\
 	packet-t30.h	\
 	packet-t38.h	\
 	packet-tacacs.h	\
@@ -1461,6 +1468,7 @@ noinst_HEADERS =	\
 
 ALL_DISSECTORS_SRC = \
 	$(DISSECTOR_SRC) \
+	$(DIRTY_DISSECTOR_SRC) \
 	$(PIDL_DISSECTOR_SRC) \
 	$(DIRTY_PIDL_DISSECTOR_SRC) \
 	$(ASN1_DISSECTOR_SRC) \

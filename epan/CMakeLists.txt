@@ -159,10 +159,10 @@ ADD_CUSTOM_COMMAND(
 
 # Note that some dissectors are added in dissectors/dcerpc/CMakeLists.txt
 set(PIDL_DISSECTOR_SRC
+	dissectors/packet-dcerpc-atsvc.c
 #	dissectors/packet-dcerpc-budb.c
 #	dissectors/packet-dcerpc-butc.c
 #	dissectors/packet-dcerpc-drsuapi.c
-	dissectors/packet-dcerpc-atsvc.c
 	dissectors/packet-dcerpc-dssetup.c
 	dissectors/packet-dcerpc-efs.c
 	dissectors/packet-dcerpc-frstrans.c
@@ -174,8 +174,8 @@ set(PIDL_DISSECTOR_SRC
 	dissectors/packet-dcerpc-wzcsvc.c
 )
 set(DIRTY_PIDL_DISSECTOR_SRC
-	dissectors/packet-dcerpc-dfs.c
 	dissectors/packet-dcerpc-dnsserver.c
+	dissectors/packet-dcerpc-dfs.c
 	dissectors/packet-dcerpc-eventlog.c
 	dissectors/packet-dcerpc-lsa.c
 	dissectors/packet-dcerpc-mapi.c
@@ -211,15 +211,20 @@ set(ASN1_DISSECTOR_SRC
 	dissectors/packet-h450-ros.c
 	dissectors/packet-h460.c
 	dissectors/packet-h501.c
+	dissectors/packet-HI2Operations.c
+	dissectors/packet-hnbap.c
 	dissectors/packet-idmp.c
-	dissectors/packet-lppa.c
+	dissectors/packet-inap.c
+	dissectors/packet-lcsap.c
 	dissectors/packet-logotypecertextn.c
+	dissectors/packet-lppa.c
 	dissectors/packet-mms.c
 	dissectors/packet-mpeg-audio.c
 	dissectors/packet-mpeg-pes.c
 	dissectors/packet-ns_cert_exts.c
 	dissectors/packet-ocsp.c
 	dissectors/packet-opsi.c
+	dissectors/packet-p22.c
 	dissectors/packet-p7.c
 	dissectors/packet-p772.c
 	dissectors/packet-pkcs1.c
@@ -257,18 +262,13 @@ set(ASN1_DISSECTOR_SRC
 set(DIRTY_ASN1_DISSECTOR_SRC
 	dissectors/packet-ansi_map.c
 	dissectors/packet-gnm.c
-	dissectors/packet-gsm_map.c
 	dissectors/packet-gprscdr.c
-	dissectors/packet-HI2Operations.c
-	dissectors/packet-hnbap.c
-	dissectors/packet-inap.c
-	dissectors/packet-lcsap.c
+	dissectors/packet-gsm_map.c
 	dissectors/packet-ldap.c
 	dissectors/packet-lpp.c
 	dissectors/packet-lte-rrc.c
 	dissectors/packet-nbap.c
 	dissectors/packet-p1.c
-	dissectors/packet-p22.c
 	dissectors/packet-pcap.c
 	dissectors/packet-pkcs12.c
 	dissectors/packet-pres.c
@@ -299,8 +299,8 @@ set(DISSECTOR_SRC
 	dissectors/packet-afs.c
 	dissectors/packet-agentx.c
 	dissectors/packet-aim.c
-	dissectors/packet-aim-adverts.c
 	dissectors/packet-aim-admin.c
+	dissectors/packet-aim-adverts.c
 	dissectors/packet-aim-bos.c
 	dissectors/packet-aim-buddylist.c
 	dissectors/packet-aim-chat.c
@@ -353,10 +353,10 @@ set(DISSECTOR_SRC
 	dissectors/packet-auto_rp.c
 	dissectors/packet-ax4000.c
 	dissectors/packet-ayiya.c
+	dissectors/packet-babel.c
 	dissectors/packet-bacapp.c
 	dissectors/packet-bacnet.c
 	dissectors/packet-banana.c
-	dissectors/packet-babel.c
 	dissectors/packet-bat.c
 	dissectors/packet-batadv.c
 	dissectors/packet-bctp.c
@@ -420,6 +420,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-cpfi.c
 	dissectors/packet-cpha.c
 	dissectors/packet-csm-encaps.c
+	dissectors/packet-csn1.c
 	dissectors/packet-ctdb.c
 	dissectors/packet-cups.c
 	dissectors/packet-daap.c
@@ -501,11 +502,11 @@ set(DISSECTOR_SRC
 	dissectors/packet-dhcpv6.c
 	dissectors/packet-diameter.c
 	dissectors/packet-diameter_3gpp.c
+	dissectors/packet-diffserv-mpls-common.c
 	dissectors/packet-dis.c
 	dissectors/packet-dis-enums.c
 	dissectors/packet-dis-fields.c
 	dissectors/packet-dis-pdus.c
-	dissectors/packet-diffserv-mpls-common.c
 	dissectors/packet-distcc.c
 	dissectors/packet-dlm3.c
 	dissectors/packet-dlsw.c
@@ -598,14 +599,14 @@ set(DISSECTOR_SRC
 	dissectors/packet-gprs-llc.c
 	dissectors/packet-gre.c
 	dissectors/packet-gsm_a_bssmap.c
-	# dissectors/packet-gsm_a_common.c
 	dissectors/packet-gsm_a_dtap.c
 	dissectors/packet-gsm_a_gm.c
 	dissectors/packet-gsm_a_rp.c
 	dissectors/packet-gsm_a_rr.c
-	dissectors/packet-gsm_ipa.c
 	dissectors/packet-gsm_bsslap.c
 	dissectors/packet-gsm_bssmap_le.c
+	dissectors/packet-gsm_rlcmac.c
+	dissectors/packet-gsm_ipa.c
 	dissectors/packet-gsm_sms.c
 	dissectors/packet-gsm_sms_ud.c
 	dissectors/packet-gsm_um.c
@@ -618,12 +619,14 @@ set(DISSECTOR_SRC
 	dissectors/packet-h1.c
 	dissectors/packet-h221_nonstd.c
 	dissectors/packet-h223.c
-	dissectors/packet-h248_2.c
 	dissectors/packet-h248_annex_c.c
 	dissectors/packet-h248_annex_e.c
+	dissectors/packet-h248_2.c
 	dissectors/packet-h248_3gpp.c
 	dissectors/packet-h248_7.c
 	dissectors/packet-h248_10.c
+	dissectors/packet-h248_annex_c.c
+	dissectors/packet-h248_annex_e.c
 	dissectors/packet-h248_q1950.c
 	dissectors/packet-h261.c
 	dissectors/packet-h263.c
@@ -651,7 +654,6 @@ set(DISSECTOR_SRC
 	dissectors/packet-iana-oui.c
 	dissectors/packet-iapp.c
 	dissectors/packet-iax2.c
-	dissectors/packet-infiniband_sdp.c
 	dissectors/packet-icap.c
 	dissectors/packet-icep.c
 	dissectors/packet-icmp.c
@@ -679,8 +681,9 @@ set(DISSECTOR_SRC
 	dissectors/packet-imap.c
 	dissectors/packet-imf.c
 	dissectors/packet-infiniband.c
-	dissectors/packet-ipars.c
+	dissectors/packet-infiniband_sdp.c
 	dissectors/packet-ip.c
+	dissectors/packet-ipars.c
 	dissectors/packet-ipdc.c
 	dissectors/packet-ipfc.c
 	dissectors/packet-ipmi.c
@@ -725,12 +728,13 @@ set(DISSECTOR_SRC
 	dissectors/packet-kdp.c
 	dissectors/packet-kerberos.c
 	dissectors/packet-kerberos4.c
-	dissectors/packet-klm.c
 	dissectors/packet-kingfisher.c
 	dissectors/packet-kink.c
 	dissectors/packet-kismet.c
+	dissectors/packet-klm.c
 	dissectors/packet-knet.c
 	dissectors/packet-kpasswd.c
+	dissectors/packet-l1-events.c
 	dissectors/packet-l2tp.c
 	dissectors/packet-lanforge.c
 	dissectors/packet-lapb.c
@@ -738,7 +742,6 @@ set(DISSECTOR_SRC
 	dissectors/packet-lapd.c
 	dissectors/packet-lapdm.c
 	dissectors/packet-laplink.c
-	dissectors/packet-l1-events.c
 	dissectors/packet-ldp.c
 	dissectors/packet-ldss.c
 	dissectors/packet-lge_monitor.c
@@ -762,8 +765,8 @@ set(DISSECTOR_SRC
 	dissectors/packet-m2ua.c
 	dissectors/packet-m3ua.c
 	dissectors/packet-mac-lte.c
-	dissectors/packet-mactelnet.c
 	dissectors/packet-maccontrol.c
+	dissectors/packet-mactelnet.c
 	dissectors/packet-manolito.c
 	dissectors/packet-mbtcp.c
 	dissectors/packet-mdshdr.c
@@ -778,7 +781,6 @@ set(DISSECTOR_SRC
 	dissectors/packet-miop.c
 	dissectors/packet-mip.c
 	dissectors/packet-mip6.c
-	dissectors/packet-ms-mms.c
 	dissectors/packet-mmse.c
 	dissectors/packet-mndp.c
 	dissectors/packet-mongo.c
@@ -794,10 +796,11 @@ set(DISSECTOR_SRC
 	dissectors/packet-mrp-mmrp.c
 	dissectors/packet-mrp-msrp.c
 	dissectors/packet-mrp-mvrp.c
+	dissectors/packet-ms-mms.c
 	dissectors/packet-msdp.c
-	dissectors/packet-msnlb.c
 	dissectors/packet-msn-messenger.c
 	dissectors/packet-msnip.c
+	dissectors/packet-msnlb.c
 	dissectors/packet-msproxy.c
 	dissectors/packet-msrp.c
 	dissectors/packet-mstp.c
@@ -809,6 +812,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-mysql.c
 	dissectors/packet-nas_eps.c
 	dissectors/packet-nasdaq-itch.c
+	dissectors/packet-nasdaq-soup.c
 	dissectors/packet-nat-pmp.c
 	dissectors/packet-nb_rtpmux.c
 	dissectors/packet-nbd.c
@@ -839,9 +843,9 @@ set(DISSECTOR_SRC
 	dissectors/packet-nlm.c
 	dissectors/packet-nlsp.c
 	dissectors/packet-nntp.c
-	dissectors/packet-nstrace.c
 	dissectors/packet-nsip.c
 	dissectors/packet-nsrp.c
+	dissectors/packet-nstrace.c
 	dissectors/packet-nt-oui.c
 	dissectors/packet-nt-tpcp.c
 	dissectors/packet-ntlmssp.c
@@ -873,17 +877,17 @@ set(DISSECTOR_SRC
 	dissectors/packet-pgsql.c
 	dissectors/packet-pim.c
 	dissectors/packet-pingpongprotocol.c
-	dissectors/packet-pktgen.c
 	dissectors/packet-pktc.c
+	dissectors/packet-pktgen.c
 	dissectors/packet-pnrp.c
 	dissectors/packet-pop.c
 	dissectors/packet-portmap.c
 	dissectors/packet-ppi.c
 	dissectors/packet-ppi-antenna.c
 	dissectors/packet-ppi-geolocation-common.c
-	dissectors/packet-ppi-geolocation-common.h
 	dissectors/packet-ppi-gps.c
 	dissectors/packet-ppi-sensor.c
+	dissectors/packet-ppi-vector.c
 	dissectors/packet-ppp.c
 	dissectors/packet-pppoe.c
 	dissectors/packet-pptp.c
@@ -891,11 +895,11 @@ set(DISSECTOR_SRC
 	dissectors/packet-ptp.c
 	dissectors/packet-pvfs2.c
 	dissectors/packet-pw-common.c
-	dissectors/packet-pw-eth.c
-	dissectors/packet-pw-hdlc.c
-	dissectors/packet-pw-fr.c
 	dissectors/packet-pw-atm.c
 	dissectors/packet-pw-cesopsn.c
+	dissectors/packet-pw-eth.c
+	dissectors/packet-pw-fr.c
+	dissectors/packet-pw-hdlc.c
 	dissectors/packet-pw-satop.c
 	dissectors/packet-q2931.c
 	dissectors/packet-q708.c
@@ -906,10 +910,10 @@ set(DISSECTOR_SRC
 	dissectors/packet-quake2.c
 	dissectors/packet-quake3.c
 	dissectors/packet-quakeworld.c
-	dissectors/packet-radius.c
-	dissectors/packet-radius_packetcable.c
 	dissectors/packet-radiotap.c
 	dissectors/packet-radiotap-iter.c
+	dissectors/packet-radius.c
+	dissectors/packet-radius_packetcable.c
 	dissectors/packet-raw.c
 	dissectors/packet-rdm.c
 	dissectors/packet-rdp.c
@@ -968,6 +972,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-sccp.c
 	dissectors/packet-sccpmg.c
 	dissectors/packet-scop.c
+	dissectors/packet-scriptingservice.c
 	dissectors/packet-scsi.c
 	dissectors/packet-scsi-mmc.c
 	dissectors/packet-scsi-osd.c
@@ -982,9 +987,9 @@ set(DISSECTOR_SRC
 	dissectors/packet-ses.c
 	dissectors/packet-sflow.c
 	dissectors/packet-sgsap.c
+	dissectors/packet-sigcomp.c
 	dissectors/packet-simulcrypt.c
 	dissectors/packet-sip.c
-	dissectors/packet-sigcomp.c
 	dissectors/packet-sipfrag.c
 	dissectors/packet-sita.c
 	dissectors/packet-skinny.c
@@ -1008,15 +1013,13 @@ set(DISSECTOR_SRC
 	dissectors/packet-sndcp-xid.c
 	dissectors/packet-socketcan.c
 	dissectors/packet-socks.c
-	dissectors/packet-nasdaq-soup.c
 	dissectors/packet-spice.c
 	dissectors/packet-spp.c
 	dissectors/packet-spray.c
 	dissectors/packet-srp.c
-	dissectors/packet-sscf-nni.c
 	dissectors/packet-srvloc.c
+	dissectors/packet-sscf-nni.c
 	dissectors/packet-sscop.c
-	dissectors/packet-scriptingservice.c
 	dissectors/packet-ssh.c
 	dissectors/packet-ssl.c
 	dissectors/packet-ssl-utils.c
@@ -1039,18 +1042,18 @@ set(DISSECTOR_SRC
 	dissectors/packet-teamspeak2.c
 	dissectors/packet-teimanagement.c
 	dissectors/packet-teklink.c
+	dissectors/packet-telkonet.c
 	dissectors/packet-telnet.c
 	dissectors/packet-teredo.c
 	dissectors/packet-text-media.c
-	dissectors/packet-telkonet.c
 	dissectors/packet-tftp.c
 	dissectors/packet-time.c
 	dissectors/packet-tipc.c
 	dissectors/packet-tivoconnect.c
-	dissectors/packet-tnef.c
-	dissectors/packet-tns.c
 	dissectors/packet-tn3270.c
 	dissectors/packet-tn5250.c
+	dissectors/packet-tnef.c
+	dissectors/packet-tns.c
 	dissectors/packet-tpkt.c
 	dissectors/packet-tpncp.c
 	dissectors/packet-tr.c
@@ -1065,7 +1068,6 @@ set(DISSECTOR_SRC
 	dissectors/packet-tuxedo.c
 	dissectors/packet-tzsp.c
 	dissectors/packet-ua.c
-	dissectors/packet-ua.h
 	dissectors/packet-uaudp.c
 	dissectors/packet-ucp.c
 	dissectors/packet-udld.c
@@ -1082,8 +1084,8 @@ set(DISSECTOR_SRC
 	dissectors/packet-user_encap.c
 	dissectors/packet-uts.c
 	dissectors/packet-v120.c
-	dissectors/packet-v5ua.c
 	dissectors/packet-v52.c
+	dissectors/packet-v5ua.c
 	dissectors/packet-vcdu.c
 	dissectors/packet-vicp.c
 	dissectors/packet-vines.c
@@ -1116,7 +1118,6 @@ set(DISSECTOR_SRC
 	dissectors/packet-wsp.c
 	dissectors/packet-wtls.c
 	dissectors/packet-wtp.c
-	# dissectors/packet-x11.c
 	dissectors/packet-x25.c
 	dissectors/packet-x29.c
 	dissectors/packet-xcsl.c
@@ -1140,8 +1141,8 @@ set(DISSECTOR_SRC
 	dissectors/packet-ypserv.c
 	dissectors/packet-ypxfr.c
 	dissectors/packet-zbee-aps.c
-	dissectors/packet-zbee-security.c
 	dissectors/packet-zbee-nwk.c
+	dissectors/packet-zbee-security.c
 	dissectors/packet-zbee-zcl.c
 	dissectors/packet-zbee-zdp.c
 	dissectors/packet-zbee-zdp-binding.c
@@ -1151,6 +1152,11 @@ set(DISSECTOR_SRC
 	dissectors/packet-zep.c
 	dissectors/packet-ziop.c
 	dissectors/packet-zrtp.c
+)
+
+set(DIRTY_DISSECTOR_SRC
+	dissectors/packet-gsm_a_common.c
+	dissectors/packet-x11.c
 )
 
 # IPMI sub-parsers for each network function code
@@ -1189,11 +1195,10 @@ set(LIBWIRESHARK_ASM_FILES
 
 set(DISSECTOR_FILES
 	${DISSECTOR_SRC}
+	${DIRTY_DISSECTOR_SRC}
 	${PIDL_DISSECTOR_SRC}
 	${PIDL_DISSECTOR_AUTOGEN_SRC}
 	${DIRTY_PIDL_DISSECTOR_SRC}
-	dissectors/packet-gsm_a_common.c
-	dissectors/packet-x11.c
 	${ASN1_DISSECTOR_SRC}
 	${DIRTY_ASN1_DISSECTOR_SRC}
 )
@@ -1352,7 +1357,6 @@ set(CLEAN_FILES
 	# ${DISSECTOR_FILES} contains dirty files
 	${DISSECTOR_SRC}
 	${PIDL_DISSECTOR_SRC}
-	# ${PIDL_DISSECTOR_AUTOGEN_SRC}
 	${ASN1_DISSECTOR_SRC}
 	# ${DISSECTOR_FILES } end
 	${DISSECTOR_SUPPORT_SRC}

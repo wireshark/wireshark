@@ -77,7 +77,7 @@ set(CLEAN_FILES
 	${WIRETAP_FILES}
 )
 
-if (WERROR) 
+if (WERROR)
 	set_source_files_properties(
 		${CLEAN_FILES}
 		PROPERTIES
