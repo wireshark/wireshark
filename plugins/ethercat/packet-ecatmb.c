@@ -296,7 +296,7 @@ void init_sdo_header(PETHERCAT_SDO_HEADER pSdo, tvbuff_t *tvb, gint offset)
 void init_sdo_info_header(PETHERCAT_SDO_INFO_HEADER pInfo, tvbuff_t *tvb, gint offset)
 {
    pInfo->anSdoControlUnion.Control = tvb_get_guint8(tvb, offset++);
-   pInfo->Reserved = tvb_get_guint8(tvb, offset++);
+   pInfo->Reserved = tvb_get_guint8(tvb, offset);
    pInfo->FragmentsLeft = sizeof(guint16);
 }
 
