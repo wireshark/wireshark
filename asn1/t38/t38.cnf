@@ -110,7 +110,7 @@ VAL_PTR=&Data_Field_field_type_value
                         g_snprintf(t38_info->desc_comment, MAX_T38_DESC, "No packet lost");
                     }
 
-                    new_tvb = process_reassembled_data(tvb, offset, actx->pinfo,
+                    process_reassembled_data(tvb, offset, actx->pinfo,
                                 "Reassembled T38", frag_msg, &data_frag_items, NULL, tree);
 
                     /* Now reset fragmentation information in pinfo */

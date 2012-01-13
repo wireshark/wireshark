@@ -626,7 +626,7 @@ dissect_t38_T_field_type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
                         g_snprintf(t38_info->desc_comment, MAX_T38_DESC, "No packet lost");
                     }
 
-                    new_tvb = process_reassembled_data(tvb, offset, actx->pinfo,
+                    process_reassembled_data(tvb, offset, actx->pinfo,
                                 "Reassembled T38", frag_msg, &data_frag_items, NULL, tree);
 
                     /* Now reset fragmentation information in pinfo */
