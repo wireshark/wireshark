@@ -51,51 +51,51 @@ static int hf_ccid_bBWI = -1;
 static int hf_ccid_wLevelParameter = -1;
 
 /* Standardised Bulk Out message types */
-#define PC_RDR_SET_PARAMS 0x61
-#define PC_RDR_ICC_ON 0x62
-#define PC_RDR_ICC_OFF 0x63
+#define PC_RDR_SET_PARAMS      0x61
+#define PC_RDR_ICC_ON          0x62
+#define PC_RDR_ICC_OFF         0x63
 #define PC_RDR_GET_SLOT_STATUS 0x65
-#define PC_RDR_SECURE 0x69
-#define PC_RDR_T0APDU 0x6A
-#define PC_RDR_ESCAPE 0x6B
-#define PC_RDR_GET_PARAMS 0x6C
-#define PC_RDR_RESET_PARAMS 0x6D
-#define PC_RDR_ICC_CLOCK 0x6E
-#define PC_RDR_XFR_BLOCK 0x6F
-#define PC_RDR_MECH 0x71
-#define PC_RDR_ABORT 0x72
-#define PC_RDR_DATA_CLOCK 0x73
+#define PC_RDR_SECURE          0x69
+#define PC_RDR_T0APDU          0x6A
+#define PC_RDR_ESCAPE          0x6B
+#define PC_RDR_GET_PARAMS      0x6C
+#define PC_RDR_RESET_PARAMS    0x6D
+#define PC_RDR_ICC_CLOCK       0x6E
+#define PC_RDR_XFR_BLOCK       0x6F
+#define PC_RDR_MECH            0x71
+#define PC_RDR_ABORT           0x72
+#define PC_RDR_DATA_CLOCK      0x73
 
 /* Standardised Bulk In message types */
-#define RDR_PC_DATA_BLOCK 0x80
-#define RDR_PC_SLOT_STATUS 0x81
-#define RDR_PC_PARAMS 0x82
-#define RDR_PC_ESCAPE 0x83
-#define RDR_PC_DATA_CLOCK 0x84
+#define RDR_PC_DATA_BLOCK      0x80
+#define RDR_PC_SLOT_STATUS     0x81
+#define RDR_PC_PARAMS          0x82
+#define RDR_PC_ESCAPE          0x83
+#define RDR_PC_DATA_CLOCK      0x84
 
 static const value_string ccid_messagetypes_vals[] = {
     /* Standardised Bulk Out message types */
-    {PC_RDR_SET_PARAMS, "PC_to_RDR_SetParameters"},
-    {PC_RDR_ICC_ON, "PC_to_RDR_IccPowerOn"},
-    {PC_RDR_ICC_OFF, "PC_to_RDR_IccPowerOff"},
-    {PC_RDR_GET_SLOT_STATUS, "PC_to_RDR_GetSlotStatus"},
-    {PC_RDR_SECURE, "PC_to_RDR_Secure"},
-    {PC_RDR_T0APDU, "PC_to_RDR_T0APDU"},
-    {PC_RDR_ESCAPE, "PC_to_RDR_Escape"},
-    {PC_RDR_GET_PARAMS, "PC_to_RDR_GetParameters"},
-    {PC_RDR_RESET_PARAMS, "PC_to_RDR_ResetParameters"},
-    {PC_RDR_ICC_CLOCK, "PC_to_RDR_IccClock"},
-    {PC_RDR_XFR_BLOCK, "PC_to_RDR_XfrBlock"},
-    {PC_RDR_MECH, "PC_to_RDR_Mechanical"},
-    {PC_RDR_ABORT, "PC_to_RDR_Abort"},
-    {PC_RDR_DATA_CLOCK, "PC_to_RDR_SetDataRateAndClockFrequency"},
+    {PC_RDR_SET_PARAMS      , "PC_to_RDR_SetParameters"},
+    {PC_RDR_ICC_ON          , "PC_to_RDR_IccPowerOn"},
+    {PC_RDR_ICC_OFF         , "PC_to_RDR_IccPowerOff"},
+    {PC_RDR_GET_SLOT_STATUS , "PC_to_RDR_GetSlotStatus"},
+    {PC_RDR_SECURE          , "PC_to_RDR_Secure"},
+    {PC_RDR_T0APDU          , "PC_to_RDR_T0APDU"},
+    {PC_RDR_ESCAPE          , "PC_to_RDR_Escape"},
+    {PC_RDR_GET_PARAMS      , "PC_to_RDR_GetParameters"},
+    {PC_RDR_RESET_PARAMS    , "PC_to_RDR_ResetParameters"},
+    {PC_RDR_ICC_CLOCK       , "PC_to_RDR_IccClock"},
+    {PC_RDR_XFR_BLOCK       , "PC_to_RDR_XfrBlock"},
+    {PC_RDR_MECH            , "PC_to_RDR_Mechanical"},
+    {PC_RDR_ABORT           , "PC_to_RDR_Abort"},
+    {PC_RDR_DATA_CLOCK      , "PC_to_RDR_SetDataRateAndClockFrequency"},
 
     /* Standardised Bulk In message types */
-    {RDR_PC_DATA_BLOCK, "RDR_to_PC_DataBlock"},
-    {RDR_PC_SLOT_STATUS, "RDR_to_PC_SlotStatus"},
-    {RDR_PC_PARAMS, "RDR_to_PC_Parameters"},
-    {RDR_PC_ESCAPE, "RDR_to_PC_Escape"},
-    {RDR_PC_DATA_CLOCK, "RDR_to_PC_DataRateAndClockFrequency"},
+    {RDR_PC_DATA_BLOCK      , "RDR_to_PC_DataBlock"},
+    {RDR_PC_SLOT_STATUS     , "RDR_to_PC_SlotStatus"},
+    {RDR_PC_PARAMS          , "RDR_to_PC_Parameters"},
+    {RDR_PC_ESCAPE          , "RDR_to_PC_Escape"},
+    {RDR_PC_DATA_CLOCK      , "RDR_to_PC_DataRateAndClockFrequency"},
 
     /* End of message types */
     {0x00, NULL}
@@ -137,25 +137,22 @@ static const value_string ccid_proto_structs_vals[] = {
     {0x00, NULL}
 };
 
-static dissector_handle_t data_handle=NULL;
-static dissector_handle_t usb_ccid_bulk_handle;
-static dissector_table_t ccid_dissector_table;
-
-/* Forward-declare the dissector functions */
-static void dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static dissector_handle_t data_handle;
+static dissector_table_t  ccid_dissector_table;
 
 /* Subtree handles: set by register_subtree_array */
 static gint ett_ccid = -1;
 
-static void dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void
+dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *item;
     proto_tree *ccid_tree;
-    guint8 cmd;
-    tvbuff_t *next_tvb = NULL;
+    guint8      cmd;
+    tvbuff_t   *next_tvb;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "USBCCID");
-    col_set_str(pinfo->cinfo, COL_INFO, "CCID Packet");
+    col_set_str(pinfo->cinfo, COL_INFO,     "CCID Packet");
 
     if (tree) {
         /* Start with a top-level item to add everything else to */
@@ -379,10 +376,11 @@ proto_register_ccid(void)
 void
 proto_reg_handoff_ccid(void)
 {
+    dissector_handle_t usb_ccid_bulk_handle;
+
     data_handle = find_dissector("data");
     usb_ccid_bulk_handle = find_dissector("ccid");
     dissector_add_uint("usb.bulk", IF_CLASS_SMART_CARD, usb_ccid_bulk_handle);
-
 }
 
 /*
