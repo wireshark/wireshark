@@ -3269,6 +3269,8 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (1) { /* There are expert infos buried in here so always execute */
         /* decode... */
+	/* FIXME: The following messages MUST have a TTL^WHop-Limit of 255:
+		133-137, 141-142, 148-149. Detect this and add expert items. */
         switch (icmp6_type) {
             case ICMP6_DST_UNREACH: /* Destination Unreachable (1) */
             case ICMP6_TIME_EXCEEDED: /* Time Exceeded (3) */
