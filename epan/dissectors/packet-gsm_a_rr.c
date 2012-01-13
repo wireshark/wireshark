@@ -3286,7 +3286,7 @@ de_rr_ia_rest_oct_second_part_packet_assignment(tvbuff_t *tvb, proto_tree *tree,
  */
 
 static guint16
-de_rr_ia_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_rr_ia_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     proto_item  *item;
     guint32      curr_offset;
@@ -3409,7 +3409,7 @@ de_rr_iar_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, g
  * [3] 10.5.2.18 IAX Rest Octets
  */
 static guint16
-de_rr_iax_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_rr_iax_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32      curr_bit_offset;
     guint8 tvb_len = tvb_length(tvb);
@@ -4441,12 +4441,11 @@ static const value_string gsm_a_rr_nch_position_vals[] = {
 };
 
 static guint16
-de_rr_si1_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_rr_si1_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32      curr_offset;
     gint         bit_offset;
     guint8       tvb_len = tvb_length(tvb);
-    guint16      bit_len = tvb_len << 3;
 
     curr_offset = offset;
     bit_offset = curr_offset << 3;
@@ -4554,7 +4553,7 @@ static const value_string gsm_a_rr_fdd_rscpmin_vals[] = {
 };
 
 static guint16
-de_rr_si2ter_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_rr_si2ter_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     proto_tree  *subtree2;
     proto_item  *item2;
@@ -6282,7 +6281,7 @@ de_rr_3g_supplementary_param_desc_mi(tvbuff_t *tvb, proto_tree *tree, gint bit_o
 }
 
 static guint16
-de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_rr_si2quater_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     proto_tree  *subtree2, *subtree3;
     proto_item  *item2, *item3;
@@ -6756,13 +6755,12 @@ static const true_false_string gsm_a_rr_si13alt_position_value = {
 };
 
 static guint16
-de_rr_si3_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_rr_si3_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32      curr_offset;
     gint         bit_offset;
     gboolean     gprs_indicator;
     guint8       tvb_len = tvb_length(tvb);
-    guint16      bit_len = tvb_len << 3;
 
     curr_offset = offset;
     bit_offset = curr_offset << 3;
@@ -6976,7 +6974,7 @@ static const true_false_string gsm_a_rr_mnci_support_value = {
 };
 
 static guint16
-de_rr_si6_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_rr_si6_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     proto_tree  *subtree2;
     proto_item  *item2;
@@ -6984,7 +6982,6 @@ de_rr_si6_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, g
     gint         bit_offset, bit_offset_sav;
     guint8       value;
     guint8       tvb_len = tvb_length(tvb);
-    guint16      bit_len = tvb_len << 3;
 
     curr_offset = offset;
     bit_offset = curr_offset << 3;
@@ -7454,7 +7451,7 @@ static const value_string gsm_a_rr_si2n_support_vals[] = {
 };
 
 static guint16
-de_rr_si13_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_rr_si13_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     proto_tree  *subtree2;
     proto_item  *item2;
