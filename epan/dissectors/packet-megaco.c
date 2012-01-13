@@ -11,7 +11,7 @@
 * Christoph Wiest,      2003/06/28
 * Modified 2003 by      Christoph Wiest
 *                       <ch.wiest@tesionmail.de>
-* Modifyed 2004 by      Anders Broman
+* Modified 2004 by      Anders Broman
 *                       <anders.broman@ericsson.com>
 * To handle TPKT headers if over TCP
 * Modified 2005 by      Karl Knoebl
@@ -355,7 +355,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     LBRKT_counter               = 0;
 
     /* Check if H.248 in otp(Erlang) internal format
-     * XXX Needs improvment?
+     * XXX Needs improvement?
      * Ref:
      * http://www.erlang.org/doc/apps/megaco/part_frame.html
      * 4.1 Internal form of messages
@@ -376,7 +376,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     tvb_offset = megaco_tvb_skip_wsp(tvb, tvb_offset);
     line_start_offset = tvb_offset;
-    /* Quick fix for MEGACO not following the RFC, hopfully not breaking any thing
+    /* Quick fix for MEGACO not following the RFC, hopefully not breaking any thing
      * Turned out to be TPKT in case of TCP, added some code to handle that.
      *
      * tvb_offset = tvb_find_guint8(tvb, tvb_offset, 5, 'M');
@@ -460,7 +460,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         tvb_next_offset = megaco_tvb_skip_wsp(tvb, tvb_current_offset);
     }
 
-   /* Att this point we should point to the "\n" ending the mId element
+   /* At this point we should point to the "\n" ending the mId element
     * or to the next character after white space SEP
     */
     mId_offset = tvb_previous_offset;
@@ -652,7 +652,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 dissect_megaco_errordescriptor(tvb, megaco_tree, tvb_transaction_end_offset-1, tvb_offset);
                 return;
             }
-            /* Offset should be at first printarable char after { */
+            /* Offset should be at first printable char after { */
             tvb_previous_offset = tvb_offset;
             break;
         case TRANSTOKEN:
@@ -677,7 +677,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if(tree)
                 my_proto_tree_add_string(message_body_tree, hf_megaco_transid, tvb, tvb_offset,len,
                     tvb_format_text(tvb,tvb_offset,len));
-            /* Offset should be at first printarable char after { */
+            /* Offset should be at first printable char after { */
             tvb_previous_offset = megaco_tvb_skip_wsp(tvb, tvb_LBRKT+1);
 
             break;
@@ -1496,7 +1496,7 @@ dissect_megaco_descriptors(tvbuff_t *tvb, proto_tree *megaco_tree_command_line, 
             dissect_megaco_multiplexdescriptor(tvb, megaco_tree_command_line, tvb_RBRKT, tvb_previous_offset);
             break;
         case MEGACO_MEDIA_TOKEN:
-            /*TODO: Move tis to the top when all branches fixed !!!*/
+            /*TODO: Move this to the top when all branches fixed !!!*/
             temp_offset = tvb_find_guint8(tvb, tvb_previous_offset,tvb_descriptors_end_offset, '{');
             tokenlen =  temp_offset - tvb_previous_offset+1;
             proto_tree_add_text(megaco_tree_command_line, tvb, tvb_previous_offset, tokenlen,
@@ -3255,7 +3255,7 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
 
             tokenlen = tvb_offset - tvb_help_offset;
             msg=tvb_format_text(tvb,tvb_help_offset, tokenlen);
-            /* Call the existing rotine with tree = NULL to avoid an entry to the tree */
+            /* Call the existing routine with tree = NULL to avoid an entry to the tree */
             dissect_megaco_h245(tvb, pinfo, NULL, tvb_help_offset, tokenlen, msg);
 
             break;
@@ -3271,7 +3271,7 @@ dissect_megaco_LocalControldescriptor(tvbuff_t *tvb, proto_tree *megaco_mediades
 
             tokenlen = tvb_offset - tvb_help_offset;
             msg=tvb_format_text(tvb,tvb_help_offset, tokenlen);
-            /* Call the existing rotine with tree = NULL to avoid an entry to the tree */
+            /* Call the existing routine with tree = NULL to avoid an entry to the tree */
             dissect_megaco_h245(tvb, pinfo, NULL, tvb_help_offset, tokenlen, msg);
 
             break;
@@ -3445,7 +3445,7 @@ proto_register_megaco(void)
             "Command of this message", HFILL }},
         { &hf_megaco_Context,
           { "Context", "megaco.context", FT_STRING, BASE_NONE, NULL, 0x0,
-            "Context ID of this massage", HFILL }},
+            "Context ID of this message", HFILL }},
         { &hf_megaco_digitmap_descriptor,
           { "DigitMap Descriptor", "megaco.digitmap", FT_STRING, BASE_NONE, NULL, 0x0,
             "DigitMap Descriptor of the megaco Command", HFILL }},
@@ -3636,7 +3636,7 @@ proto_register_megaco(void)
                                    &global_megaco_dissect_tree);
     prefs_register_bool_preference(megaco_module, "ctx_info",
                                    "Track Context",
-                                   "Mantain relationships between transactions and contexts "
+                                   "Maintain relationships between transactions and contexts "
                                    "and display an extra tree showing context data",
                                    &keep_persistent_data);
 
