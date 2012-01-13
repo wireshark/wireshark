@@ -359,6 +359,7 @@ static gchar *sua_destination_gt;
 
 static dissector_handle_t data_handle;
 static dissector_handle_t sua_info_str_handle;
+static dissector_table_t sua_parameter_table;
 static dissector_table_t sccp_ssn_dissector_table;
 static heur_dissector_list_t heur_subdissector_list;
 
@@ -1866,18 +1867,34 @@ dissect_parameter(tvbuff_t *parameter_tvb,  packet_info *pinfo, proto_tree *tree
   proto_item *parameter_item;
   proto_tree *parameter_tree;
   guint8 ssn = INVALID_SSN;
+  const gchar *param_tag_str = NULL;
 
-  /* extract tag and length from the parameter */
+  /* Extract tag and length from the parameter */
   tag            = tvb_get_ntohs(parameter_tvb, PARAMETER_TAG_OFFSET);
   length         = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   padding_length = tvb_length(parameter_tvb) - length;
 
+  /* If it's a known parameter it's present in the value_string.
+   * If param_tag_str = NULL then this is an unknown parameter
+   */
+  param_tag_str  = match_strval(tag, parameter_tag_values);
+
   if (tree) {
-    /* create proto_tree stuff */
-    parameter_item   = proto_tree_add_text(tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), "%s", val_to_str(tag, parameter_tag_values, "Unknown parameter"));
+    /* Create proto_tree stuff */
+	param_tag_str    = match_strval(tag, parameter_tag_values);
+	if(param_tag_str){
+		/* The parameter exists */
+		parameter_item   = proto_tree_add_text(tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), "%s", param_tag_str);
+	}else{
+		if(dissector_try_uint(sua_parameter_table, tag, parameter_tvb, pinfo,tree)){
+			return;
+		}else{
+			parameter_item   = proto_tree_add_text(tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), "Unknown parameter");
+		}
+	}
     parameter_tree   = proto_item_add_subtree(parameter_item, ett_sua_parameter);
 
-    /* add tag and length to the sua tree */
+    /* Add tag and length to the sua tree */
     proto_tree_add_item(parameter_tree, hf_sua_parameter_tag,    parameter_tvb, PARAMETER_TAG_OFFSET,    PARAMETER_TAG_LENGTH,    ENC_BIG_ENDIAN);
     proto_tree_add_item(parameter_tree, hf_sua_parameter_length, parameter_tvb, PARAMETER_LENGTH_OFFSET, PARAMETER_LENGTH_LENGTH, ENC_BIG_ENDIAN);
   } else {
@@ -2407,6 +2424,7 @@ proto_register_sua(void)
 				 "  This may affect TCAP's ability to recognize which messages belong to which TCAP session.", &set_addresses);
 
   register_heur_dissector_list("sua", &heur_subdissector_list);
+  sua_parameter_table = register_dissector_table("sua.prop.tags", "Proprietary SUA Tags", FT_UINT16, BASE_DEC);
   sua_tap = register_tap("sua");
 
   assocs = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "sua_associations");
