@@ -69,19 +69,19 @@ static const value_string hf_mifare_commands[] = {
     {0x00, NULL}
 };
 
-static dissector_handle_t mifare_handle;
 static dissector_handle_t data_handle;
-static dissector_table_t mifare_dissector_table;
+static dissector_table_t  mifare_dissector_table;
 
 /* Subtree handles: set by register_subtree_array */
 static gint ett_mifare = -1;
 
-static void dissect_mifare(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void
+dissect_mifare(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *item;
     proto_tree *mifare_tree;
-    guint8 cmd;
-    tvbuff_t *next_tvb = NULL;
+    guint8      cmd;
+    tvbuff_t   *next_tvb = NULL;
 
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MiFare");
@@ -99,84 +99,84 @@ static void dissect_mifare(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         switch (cmd) {
 
         case AUTH_A:
-             proto_tree_add_item(mifare_tree, hf_mifare_block_address, tvb, 1, 1, ENC_BIG_ENDIAN);
-             proto_tree_add_item(mifare_tree, hf_mifare_key_a, tvb, 2, 6, ENC_BIG_ENDIAN);
-             proto_tree_add_item(mifare_tree, hf_mifare_uid, tvb, 8, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(mifare_tree, hf_mifare_block_address, tvb, 1, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(mifare_tree, hf_mifare_key_a, tvb, 2, 6, ENC_BIG_ENDIAN);
+            proto_tree_add_item(mifare_tree, hf_mifare_uid, tvb, 8, 4, ENC_BIG_ENDIAN);
 
-             col_set_str(pinfo->cinfo, COL_INFO, "Authenticate with Key A");
+            col_set_str(pinfo->cinfo, COL_INFO, "Authenticate with Key A");
 
-             break;
+            break;
 
         case AUTH_B:
-             proto_tree_add_item(mifare_tree, hf_mifare_block_address, tvb, 1, 1, ENC_BIG_ENDIAN);
-             proto_tree_add_item(mifare_tree, hf_mifare_key_b, tvb, 2, 6, ENC_BIG_ENDIAN);
-             proto_tree_add_item(mifare_tree, hf_mifare_uid, tvb, 8, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(mifare_tree, hf_mifare_block_address, tvb, 1, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(mifare_tree, hf_mifare_key_b, tvb, 2, 6, ENC_BIG_ENDIAN);
+            proto_tree_add_item(mifare_tree, hf_mifare_uid, tvb, 8, 4, ENC_BIG_ENDIAN);
 
-             col_set_str(pinfo->cinfo, COL_INFO, "Authenticate with Key B");
+            col_set_str(pinfo->cinfo, COL_INFO, "Authenticate with Key B");
 
-             break;
+            break;
 
         case READ:
-             proto_tree_add_item(mifare_tree, hf_mifare_block_address, tvb, 1, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(mifare_tree, hf_mifare_block_address, tvb, 1, 1, ENC_BIG_ENDIAN);
 
-             col_set_str(pinfo->cinfo, COL_INFO, "Read");
+            col_set_str(pinfo->cinfo, COL_INFO, "Read");
 
-             break;
+            break;
 
         case WRITE:
-             col_set_str(pinfo->cinfo, COL_INFO, "Write");
+            col_set_str(pinfo->cinfo, COL_INFO, "Write");
 
-             /* LibNFC and the TouchATag-branded reader don't expose the 2-byte CRC
-                 or 4-bit NAK, as per MF1S703x, so we pretend that they don't exist.
+            /* LibNFC and the TouchATag-branded reader don't expose the 2-byte CRC
+               or 4-bit NAK, as per MF1S703x, so we pretend that they don't exist.
 
-                I've never seen traces with those data structures before, either... */
+               I've never seen traces with those data structures before, either... */
 
-             proto_tree_add_item(mifare_tree, hf_mifare_block_address, tvb, 1, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(mifare_tree, hf_mifare_block_address, tvb, 1, 1, ENC_BIG_ENDIAN);
 
-             /* Because we don't know what the user will write, just let Data have away
-                 with the rest of the packet's contents for now. */
+            /* Because we don't know what the user will write, just let Data have away
+               with the rest of the packet's contents for now. */
 
-             next_tvb = tvb_new_subset_remaining(tvb, 2);
+            next_tvb = tvb_new_subset_remaining(tvb, 2);
 
-             call_dissector(data_handle, next_tvb, pinfo, tree);
+            call_dissector(data_handle, next_tvb, pinfo, tree);
 
-             break;
+            break;
 
         case TRANSFER:
-             proto_tree_add_item(mifare_tree, hf_mifare_block_address, tvb, 1, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(mifare_tree, hf_mifare_block_address, tvb, 1, 1, ENC_BIG_ENDIAN);
 
-             col_set_str(pinfo->cinfo, COL_INFO, "Transfer");
+            col_set_str(pinfo->cinfo, COL_INFO, "Transfer");
 
-             break;
+            break;
 
         case DECREMENT:
-             proto_tree_add_item(mifare_tree, hf_mifare_block_address, tvb, 1, 1, ENC_BIG_ENDIAN);
-             proto_tree_add_item(mifare_tree, hf_mifare_operand, tvb, 2, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(mifare_tree, hf_mifare_block_address, tvb, 1, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(mifare_tree, hf_mifare_operand, tvb, 2, 4, ENC_BIG_ENDIAN);
 
-             col_set_str(pinfo->cinfo, COL_INFO, "Decrement");
+            col_set_str(pinfo->cinfo, COL_INFO, "Decrement");
 
-             break;
+            break;
 
         case INCREMENT:
-             proto_tree_add_item(mifare_tree, hf_mifare_block_address, tvb, 1, 1, ENC_BIG_ENDIAN);
-             proto_tree_add_item(mifare_tree, hf_mifare_operand, tvb, 2, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(mifare_tree, hf_mifare_block_address, tvb, 1, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(mifare_tree, hf_mifare_operand, tvb, 2, 4, ENC_BIG_ENDIAN);
 
-             col_set_str(pinfo->cinfo, COL_INFO, "Increment");
+            col_set_str(pinfo->cinfo, COL_INFO, "Increment");
 
-             break;
+            break;
 
         case RESTORE:
-             proto_tree_add_item(mifare_tree, hf_mifare_block_address, tvb, 1, 1, ENC_BIG_ENDIAN);
-             proto_tree_add_item(mifare_tree, hf_mifare_operand, tvb, 2, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(mifare_tree, hf_mifare_block_address, tvb, 1, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(mifare_tree, hf_mifare_operand, tvb, 2, 4, ENC_BIG_ENDIAN);
 
-             col_set_str(pinfo->cinfo, COL_INFO, "Restore");
+            col_set_str(pinfo->cinfo, COL_INFO, "Restore");
 
-             break;
+            break;
 
         default:
-             col_set_str(pinfo->cinfo, COL_INFO, "Unknown");
+            col_set_str(pinfo->cinfo, COL_INFO, "Unknown");
 
-             break;
+            break;
         }
     }
 }
@@ -189,21 +189,21 @@ proto_register_mifare(void)
         {&hf_mifare_command,
          { "Command", "mifare.cmd", FT_UINT8, BASE_HEX,
            VALS(hf_mifare_commands), 0x0, NULL, HFILL }},
-         {&hf_mifare_block_address,
-          { "Block Address", "mifare.block.addr", FT_UINT8, BASE_DEC,
-            NULL, 0x0, NULL, HFILL }},
-         {&hf_mifare_key_a,
-          { "Key A", "mifare.key.a", FT_UINT64, BASE_HEX,
-            NULL, 0x0, NULL, HFILL }},
-         {&hf_mifare_key_b,
-          { "Key B", "mifare.key.b", FT_UINT64, BASE_HEX,
-            NULL, 0x0, NULL, HFILL }},
-         {&hf_mifare_uid,
-          { "UID", "mifare.uid", FT_UINT32, BASE_HEX,
-            NULL, 0x0, NULL, HFILL }},
-         {&hf_mifare_operand,
-          { "Operand", "mifare.operand", FT_INT32, BASE_DEC,
-            NULL, 0x0, NULL, HFILL }}
+        {&hf_mifare_block_address,
+         { "Block Address", "mifare.block.addr", FT_UINT8, BASE_DEC,
+           NULL, 0x0, NULL, HFILL }},
+        {&hf_mifare_key_a,
+         { "Key A", "mifare.key.a", FT_UINT64, BASE_HEX,
+           NULL, 0x0, NULL, HFILL }},
+        {&hf_mifare_key_b,
+         { "Key B", "mifare.key.b", FT_UINT64, BASE_HEX,
+           NULL, 0x0, NULL, HFILL }},
+        {&hf_mifare_uid,
+         { "UID", "mifare.uid", FT_UINT32, BASE_HEX,
+           NULL, 0x0, NULL, HFILL }},
+        {&hf_mifare_operand,
+         { "Operand", "mifare.operand", FT_INT32, BASE_DEC,
+           NULL, 0x0, NULL, HFILL }}
     };
 
     static gint *ett[] = {
@@ -215,7 +215,7 @@ proto_register_mifare(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     mifare_dissector_table = register_dissector_table("mifare.payload",
-                                                    "MiFare Payload", FT_UINT8, BASE_DEC);
+                                                      "MiFare Payload", FT_UINT8, BASE_DEC);
 
     register_dissector("mifare", dissect_mifare, proto_mifare);
 }
@@ -225,17 +225,16 @@ void
 proto_reg_handoff_mifare(void)
 {
     data_handle = find_dissector("data");
-    mifare_handle = find_dissector("mifare");
 }
 /*
-* Editor modelines - http://www.wireshark.org/tools/modelines.html
-*
-* Local variables:
-* c-basic-offset: 4
-* tab-width: 8
-* indent-tabs-mode: nil
-* End:
-*
-* ex: set shiftwidth=4 tabstop=8 expandtab:
-* :indentSize=4:tabSize=8:noTabs=true:
-*/
+ * Editor modelines - http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
