@@ -507,10 +507,10 @@ dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 						sublength = tvb_get_guint8 (tvb, subpos + 1);
 						switch(subtype) {
 							case DSG_DA_TO_DSID_ASSOCIATION_DA:
-								proto_tree_add_item (tlv_tree, hf_docsis_mdd_dsg_da_to_dsid_association_da, tvb, subpos, 6, ENC_BIG_ENDIAN);
+								proto_tree_add_item (tlv_tree, hf_docsis_mdd_dsg_da_to_dsid_association_da, tvb, subpos + 2, 6, ENC_BIG_ENDIAN);
 								break;
 							case DSG_DA_TO_DSID_ASSOCIATION_DSID:
-								proto_tree_add_item (tlv_tree, hf_docsis_mdd_dsg_da_to_dsid_association_dsid, tvb, subpos, 3, ENC_BIG_ENDIAN);
+								proto_tree_add_item (tlv_tree, hf_docsis_mdd_dsg_da_to_dsid_association_dsid, tvb, subpos + 2, 3, ENC_BIG_ENDIAN);
 								break;
 						}
 						subpos += sublength + 2;
@@ -706,7 +706,7 @@ void proto_register_docsis_mdd (void)
 		},
 		{&hf_docsis_mdd_dsg_da_to_dsid_association_da,
 		{"Destination Address", "docsis_mdd.dsg_da_to_dsid_association_da",
-		FT_UINT8, BASE_HEX, NULL, 0x0,
+		FT_ETHER, BASE_NONE, NULL, 0x0,
 		"Mdd DSG DA to DSID association Destination Address", HFILL}
 		},
 		{&hf_docsis_mdd_dsg_da_to_dsid_association_dsid,
