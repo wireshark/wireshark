@@ -274,7 +274,6 @@ static void dissect_xot_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            call_dissector(x25_handle, next_tvb, pinfo, tree);
         }
      }
-     offset += plen;
 }
 
 static void dissect_xot_mult(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
