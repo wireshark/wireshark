@@ -634,7 +634,7 @@ static guint64 decode_clock_reference(tvbuff_t *tvb, gint offset,
 	return cr;
 }
 
-static void
+static int
 dissect_mpeg_pes_header_data(tvbuff_t *tvb, packet_info *pinfo,
 		proto_tree *root, unsigned flags)
 {
@@ -781,9 +781,9 @@ dissect_mpeg_pes_header_data(tvbuff_t *tvb, packet_info *pinfo,
 		if (flags2 & EXTENSION_FLAG2) {
 			proto_tree_add_item(tree, hf_mpeg_pes_extension2, tvb,
 					offset, 2, ENC_BIG_ENDIAN);
-			offset += 2;
 		}
 	}
+	return offset;
 }
 
 static gint
@@ -905,11 +905,10 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		dissect_mpeg_pes(es, pinfo, tree);
 	} else if (stream == STREAM_PACK) {
 		if (tvb_get_guint8(tvb, offset / 8) >> 6 == 1) {
-			offset = dissect_mpeg_pes_pack_header(tvb, offset, pinfo, tree);
+			dissect_mpeg_pes_pack_header(tvb, offset, pinfo, tree);
 		} else {
 			proto_tree_add_item(tree, hf_mpeg_pes_data, tvb,
 					offset / 8, 8, ENC_NA);
-			offset += 8 * 8;
 		}
 	} else if (stream == STREAM_SYSTEM || stream == STREAM_PRIVATE2) {
 		unsigned data_length = tvb_get_ntohs(tvb, offset / 8);
