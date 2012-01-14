@@ -120,6 +120,8 @@ then
 	fi
 fi
 
+echo "Wrote $outfile"
+
 #
 # OK, now let's generate a header file declaring the relevant functions
 # defined by the .c file; if the .c file is .../foo.c, the header file
@@ -154,6 +156,8 @@ cat <<EOF >$header_file
 $prefixline
 #ifndef YY_DECL
 #define YY_DECL int yylex(void)
-#endif  
+#endif
 YY_DECL;
 EOF
+
+echo "Wrote $header_file"
