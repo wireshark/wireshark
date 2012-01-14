@@ -29,6 +29,7 @@ SUBDIRS = 		\
 	acse		\
 	ansi_map	\
 	ansi_tcap	\
+	c1222		\
 	camel		\
 	cdt		\
 	charging_ase	\

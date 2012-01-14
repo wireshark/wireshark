@@ -51,6 +51,7 @@ set(CRYPT_FILES
 	crypt/crypt-md5.c
 	crypt/crypt-rc4.c
 	crypt/crypt-sha1.c
+	crypt/eax.c
 )
 
 set(DFILTER_FILES
@@ -185,6 +186,7 @@ set(ASN1_DISSECTOR_SRC
 	dissectors/packet-acp133.c
 	dissectors/packet-acse.c
 	dissectors/packet-ansi_tcap.c
+	dissectors/packet-c1222.c
 	dissectors/packet-camel.c
 	dissectors/packet-cdt.c
 	dissectors/packet-charging_ase.c

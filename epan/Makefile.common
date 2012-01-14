@@ -155,7 +155,7 @@ LIBWIRESHARK_INCLUDES = 	\
 	dissector_filters.h	\
 	dtd.h			\
 	dtd_parse.h 		\
-	eap.h 		\
+	eap.h			\
 	emem.h			\
 	epan.h			\
 	epan_dissect.h		\
