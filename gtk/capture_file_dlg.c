@@ -87,7 +87,7 @@ static void file_color_import_ok_cb(GtkWidget *w, gpointer filter_list);
 static void file_color_import_destroy_cb(GtkWidget *win, gpointer user_data);
 static void file_color_export_ok_cb(GtkWidget *w, gpointer filter_list);
 static void file_color_export_destroy_cb(GtkWidget *win, gpointer user_data);
-static gint set_file_type_list(GtkWidget *combo_box, int default_file_type);
+static void set_file_type_list(GtkWidget *combo_box, int default_file_type);
 
 #define E_FILE_TYPE_COMBO_BOX_KEY "file_type_combo_box"
 #define E_COMPRESSED_CB_KEY       "compressed_cb"
@@ -743,13 +743,13 @@ file_merge_cmd(GtkWidget *w)
   GtkWidget	*main_hb, *main_vb, *ft_hb, *ft_lb, *ft_combo_box, *filter_hbox,
 		*filter_bt, *filter_te, *prepend_rb, *chrono_rb,
 		*append_rb, *prev;
-  int combo_box_item_to_select;
+
   /* No Apply button, and "OK" just sets our text widget, it doesn't
      activate it (i.e., it doesn't cause us to try to open the file). */
   static construct_args_t args = {
-  	"Wireshark: Read Filter",
-  	FALSE,
-  	FALSE,
+    "Wireshark: Read Filter",
+    FALSE,
+    FALSE,
     TRUE
   };
 
@@ -810,11 +810,11 @@ file_merge_cmd(GtkWidget *w)
   ft_combo_box = ws_combo_box_new_text_and_pointer();
 
   /* Generate the list of file types we can save. */
-  combo_box_item_to_select = set_file_type_list(ft_combo_box, cfile.cd_t);
+  set_file_type_list(ft_combo_box, cfile.cd_t);
   gtk_box_pack_start(GTK_BOX(ft_hb), ft_combo_box, FALSE, FALSE, 0);
   gtk_widget_show(ft_combo_box);
   g_object_set_data(G_OBJECT(file_merge_w), E_FILE_TYPE_COMBO_BOX_KEY, ft_combo_box);
-  ws_combo_box_set_active(GTK_COMBO_BOX(ft_combo_box), combo_box_item_to_select); /* No callback */
+  ws_combo_box_set_active(GTK_COMBO_BOX(ft_combo_box), 0); /* No callback */
 
   filter_hbox = gtk_hbox_new(FALSE, 1);
   gtk_container_set_border_width(GTK_CONTAINER(filter_hbox), 0);
@@ -1111,35 +1111,64 @@ can_save_with_wiretap(int ft)
 
 
 /* Attach a list of the valid 'save as' file types to a combo_box by
-   checking what Wiretap supports.
-   returns: index of default entry
+   checking what Wiretap supports.  Make the default type the first
+   in the list.
  */
-static gint
+static void
 set_file_type_list(GtkWidget *combo_box, int default_file_type)
 {
   int   ft;
-  guint idx;
-  gint  item_to_select;
+  int   other_file_type = -1;
 
-  /* Default to the first supported file type (which should be libpcap)
-     if this file's current type isn't supported  */
-  item_to_select = 0;
-
-  /* Check all file types. */
-  idx = 0;
-  for (ft = 0; ft < WTAP_NUM_FILE_TYPES; ft++) {
-    if (can_save_with_wiretap(ft)) {
-      /* OK, we can write it out in this type. */
-      ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(combo_box), wtap_file_type_string(ft), GINT_TO_POINTER(ft));
-      if (ft == default_file_type) {
-        /* Default to the same format as the file, if it's supported. */
-        item_to_select = idx;
+  /* Can we save this file in the default file type? */
+  if (!can_save_with_wiretap(default_file_type)) {
+    /* No - can we save it as a pcap-NG file? */
+    if (can_save_with_wiretap(WTAP_FILE_PCAPNG)) {
+      /* Yes - default to pcap-NG, instead. */
+      default_file_type = WTAP_FILE_PCAPNG;
+    } else {
+      /* OK, find the first file type we *can* save it as. */
+      for (ft = 0; ft < WTAP_NUM_FILE_TYPES; ft++) {
+        if (can_save_with_wiretap(ft)) {
+          /* OK, got it. */
+          default_file_type = ft;
+        }
       }
-      idx++;
     }
   }
 
-  return item_to_select;
+  /* We should not get here unless there's at least one file type
+     we can save this as - otherwise, the "Save As..." menu item
+     should be disabled. */
+
+  /* Put the default file format first in the list. */
+  ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(combo_box),
+                                       wtap_file_type_string(default_file_type),
+                                       GINT_TO_POINTER(default_file_type));
+  /* If it's pcap, put pcap-NG right after it; otherwise, if it's pcap-NG,
+     put pcap right after it. */
+  if (default_file_type == WTAP_FILE_PCAP) {
+    if (can_save_with_wiretap(WTAP_FILE_PCAPNG))
+      other_file_type = WTAP_FILE_PCAPNG;
+  } else if (default_file_type == WTAP_FILE_PCAPNG) {
+    if (can_save_with_wiretap(WTAP_FILE_PCAP))
+      other_file_type = WTAP_FILE_PCAP;
+  }
+  if (other_file_type != -1) {
+    ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(combo_box),
+                                         wtap_file_type_string(other_file_type),
+                                         GINT_TO_POINTER(other_file_type));
+  }
+
+  /* Add all the other file types. */
+  for (ft = 0; ft < WTAP_NUM_FILE_TYPES; ft++) {
+    if (ft == default_file_type || ft == other_file_type)
+      continue; /* we've already done this one */
+    if (can_save_with_wiretap(ft)) {
+      /* OK, we can write it out in this type. */
+      ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(combo_box), wtap_file_type_string(ft), GINT_TO_POINTER(ft));
+    }
+  }
 }
 
 static void
@@ -1185,7 +1214,6 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
   win32_save_as_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)), action_after_save, action_after_save_data);
 #else /* _WIN32 */
   GtkWidget     *main_vb, *ft_hb, *ft_lb, *ft_combo_box, *range_fr, *compressed_cb;
-  gint combo_box_item_to_select;
 
   if (file_save_as_w != NULL) {
     /* There's already an "Save Capture File As" dialog box; reactivate it. */
@@ -1237,7 +1265,7 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
   ft_combo_box = ws_combo_box_new_text_and_pointer();
 
   /* Generate the list of file types we can save. */
-  combo_box_item_to_select = set_file_type_list(ft_combo_box, cfile.cd_t);
+  set_file_type_list(ft_combo_box, cfile.cd_t);
   gtk_box_pack_start(GTK_BOX(ft_hb), ft_combo_box, FALSE, FALSE, 0);
   gtk_widget_show(ft_combo_box);
   g_object_set_data(G_OBJECT(file_save_as_w), E_FILE_TYPE_COMBO_BOX_KEY, ft_combo_box);
@@ -1258,7 +1286,7 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
   g_object_set_data(G_OBJECT(file_save_as_w), E_COMPRESSED_CB_KEY, compressed_cb);
   /* Ok: now "select" the default filetype which invokes file_save_as_select_file_type_cb */
   g_signal_connect(ft_combo_box, "changed", G_CALLBACK(file_save_as_select_file_type_cb), NULL);
-  ws_combo_box_set_active(GTK_COMBO_BOX(ft_combo_box), combo_box_item_to_select);
+  ws_combo_box_set_active(GTK_COMBO_BOX(ft_combo_box), 0);
 
   g_signal_connect(file_save_as_w, "destroy",
                    G_CALLBACK(file_save_as_destroy_cb), NULL);
