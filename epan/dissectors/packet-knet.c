@@ -241,16 +241,16 @@ dissect_reliable_message_index_base(tvbuff_t *buffer, int offset, proto_tree *tr
 static int
 dissect_content_length_vle(tvbuff_t *buffer, int *offset, proto_tree *tree)
 {
-    int byte_count;
+    int     byte_count;
     guint32 length;
 
-    length = 0;
+    length     = 0;
     byte_count = count_vle_bytes(buffer, *offset);
 
     switch(byte_count) /*We must calculate length by hand because we use the length later */
     {
         case 4:
-            length = tvb_get_bits8(buffer,  ((*offset) + 3) * 8, 8) <<23;
+            length = tvb_get_bits8(buffer,   ((*offset) + 3) * 8, 8) <<23;
             length += tvb_get_bits8(buffer,  ((*offset) + 2) * 8, 8) <<15;
             /* FALLTHRU */
         case 2:
@@ -260,7 +260,7 @@ dissect_content_length_vle(tvbuff_t *buffer, int *offset, proto_tree *tree)
             length +=(tvb_get_bits8(buffer,  (*offset) * 8, 8) & 127);
         break;
         default:
-            g_print("Error in Content Length calculation\n");
+            REPORT_DISSECTOR_BUG("Error in Content Length calculation");
         break;
     }
 
@@ -294,16 +294,16 @@ dissect_content_length(tvbuff_t *buffer, int offset, proto_tree *tree)
 {
     proto_item *msgflags_ti;
     proto_tree *msgflags_tree;
-    guint32 length;
+    guint32     length;
 
     msgflags_tree = NULL;
 
-    length = tvb_get_bits8(buffer, offset * 8 + 12, 4) << 8;
+    length  = tvb_get_bits8(buffer, offset * 8 + 12, 4) << 8;
     length += tvb_get_bits8(buffer, offset * 8, 8);
 
     if(tree != NULL)
     {
-        msgflags_ti = proto_tree_add_item(tree, hf_knet_msg_flags, buffer, offset + 1, 1, ENC_NA);
+        msgflags_ti   = proto_tree_add_item(tree, hf_knet_msg_flags, buffer, offset + 1, 1, ENC_NA);
         msgflags_tree = proto_item_add_subtree(msgflags_ti, ett_knet_message_flags);
     }
 
@@ -367,7 +367,7 @@ dissect_reliable_message_number(tvbuff_t *buffer, int offset, proto_tree *tree)
 static int
 dissect_messageid(tvbuff_t *buffer, int *offset, proto_tree *tree, packet_info *pinfo)
 {
-    gint messageid_length;
+    gint   messageid_length;
     guint8 messageid;
 
     messageid = tvb_get_bits8(buffer, (*offset) * 8, 8);
@@ -421,7 +421,7 @@ dissect_payload(tvbuff_t *buffer, int offset, int messageid, proto_tree *tree, i
     proto_item *payload_ti;
     proto_tree *payload_tree;
 
-    payload_ti = proto_tree_add_item(tree, hf_knet_payload_tree, buffer, offset, content_length - 1, ENC_NA);
+    payload_ti   = proto_tree_add_item(tree, hf_knet_payload_tree, buffer, offset, content_length - 1, ENC_NA);
     payload_tree = proto_item_add_subtree(payload_ti, ett_knet_payload);
 
     switch(messageid)
@@ -538,7 +538,7 @@ dissect_knet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *message_tree;
 
     tvbuff_t *next_tvb;
-    gboolean bytes_left;
+    gboolean  bytes_left;
 
     int offset;
     int length;
@@ -546,29 +546,30 @@ dissect_knet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int messageid;
     int packetid; /* Variable used by the UDP dissector. Contains info about PacketID */
 
-    offset = 0;
+    offset       = 0;
     messageindex = 0;
-    bytes_left = TRUE;
+    bytes_left   = TRUE;
 
     info_field = g_string_new(""); /* String that is going to be displayed in the info column in Wireshark */
 
     col_clear(pinfo->cinfo, COL_INFO);
     col_add_str(pinfo->cinfo, COL_PROTOCOL, "KNET");
 
-    if(current_protocol == KNET_SCTP_PACKET || current_protocol == KNET_TCP_PACKET)
+    if((current_protocol == KNET_SCTP_PACKET) || (current_protocol == KNET_TCP_PACKET))
     {
         /* Attach kNet main tree to Wireshark tree */
-        knet_ti = proto_tree_add_item(tree, proto_knet, tvb, 0, -1, ENC_NA);
+        knet_ti   = proto_tree_add_item(tree, proto_knet, tvb, 0, -1, ENC_NA);
         knet_tree = proto_item_add_subtree(knet_ti, ett_knet_main);
 
-        next_tvb = tvb_new_subset(tvb, offset, -1, -1); /* Prepare the next tvb for the next message */
+        next_tvb  = tvb_new_subset_remaining(tvb, offset); /* Prepare the next tvb for the next message */
 
         if((tvb_length_remaining(next_tvb, offset)) > 0) /* If there's at least 2 bytes available in the buffer */
         {
             length = dissect_content_length_vle(next_tvb, &offset, NULL); /* Calculate the length so we can use it below */
 
             /* Attach message tree to kNet tree */
-            message_ti = proto_tree_add_item(knet_tree, hf_knet_message_tree, next_tvb, offset, (current_protocol == KNET_SCTP_PACKET ? length + 1 : length + 2), ENC_NA);
+            message_ti = proto_tree_add_item(knet_tree, hf_knet_message_tree, next_tvb, offset,
+                                             (current_protocol == KNET_SCTP_PACKET ? length + 1 : length + 2), ENC_NA);
 
             message_tree = proto_item_add_subtree(message_ti, ett_knet_message);
 
