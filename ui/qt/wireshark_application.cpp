@@ -31,6 +31,8 @@
 
 #include "qt_ui_utils.h"
 
+#include "file.h"
+#include "log.h"
 #include "recent_file_status.h"
 
 #include <QDir>
@@ -173,6 +175,55 @@ void WiresharkApplication::refreshRecentFiles(void) {
 //        connect(rf_status, SIGNAL(finished()), rf_thread, SLOT(deleteLater()));
 
         rf_thread->start();
+    }
+}
+
+void WiresharkApplication::captureFileCallback(int event, void * data)
+{
+    capture_file *cf = (capture_file *) data;
+
+    switch(event) {
+
+    case(cf_cb_file_closing):
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Closing");
+        emit captureFileClosing(cf);
+        break;
+    case(cf_cb_file_closed):
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Closed");
+        emit captureFileClosed(cf);
+        break;
+    case(cf_cb_file_read_started):
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Read started");
+        emit captureFileReadStarted(cf);
+        break;
+    case(cf_cb_file_read_finished):
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Read finished");
+        emit captureFileReadFinished(cf);
+        break;
+
+    case(cf_cb_packet_selected):
+    case(cf_cb_packet_unselected):
+    case(cf_cb_field_unselected):
+        // Pure signals and slots
+        break;
+
+//    case(cf_cb_file_save_started): // data = string
+//        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Save started");
+//        break;
+//    case(cf_cb_file_save_finished):
+//        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Save finished");
+//        break;
+//    case(cf_cb_file_save_reload_finished):
+//        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Reload finished");
+//        main_cf_cb_file_save_reload_finished(data);
+//        break;
+//    case(cf_cb_file_save_failed):
+//        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Save failed");
+//        break;
+    default:
+        g_log(NULL, G_LOG_LEVEL_DEBUG, "FIX: main_cf_callback %d %p", event, data);
+//        g_warning("main_cf_callback: event %u unknown", event);
+//        g_assert_not_reached();
     }
 }
 

@@ -254,11 +254,11 @@ void DisplayFilterEdit::checkFilter(const QString& text)
 
     clearButton->setVisible(!text.isEmpty());
 
+    popFilterSyntaxStatus();
+
     if (fieldNameOnly && (c = proto_check_field_name(text.toUtf8().constData()))) {
         m_syntaxState = Invalid;
-//        if (use_statusbar) {
-//            statusbar_push_filter_msg(" Illegal character in field name: '%c'", c);
-//        }
+        emit pushFilterSyntaxStatus(QString().sprintf("Illegal character in field name: '%c'", c));
     } else if (dfilter_compile(text.toUtf8().constData(), &dfp)) {
         if (dfp != NULL) {
             depr = dfilter_deprecated_tokens(dfp);
@@ -268,30 +268,25 @@ void DisplayFilterEdit::checkFilter(const QString& text)
         } else if (depr) {
             /* You keep using that word. I do not think it means what you think it means. */
             m_syntaxState = Deprecated;
-//            if (use_statusbar) {
-//                /*
-//                 * We're being lazy and only printing the first "problem" token.
-//                 * Would it be better to print all of them?
-//                 */
-//                statusbar_push_temporary_msg(" \"%s\" may have unexpected results (see the User's Guide)",
-//                                      (const char *) g_ptr_array_index(depr, 0));
-//            }
+            /*
+             * We're being lazy and only printing the first "problem" token.
+             * Would it be better to print all of them?
+             */
+            emit pushFilterSyntaxWarning(QString().sprintf("\"%s\" may have unexpected results (see the User's Guide)",
+                                                          (const char *) g_ptr_array_index(depr, 0)));
         } else {
             m_syntaxState = Valid;
         }
         dfilter_free(dfp);
     } else {
         m_syntaxState = Invalid;
-//        if (use_statusbar) {
-//            if (dfilter_error_msg) {
-//                statusbar_push_filter_msg(" Invalid filter: %s", dfilter_error_msg);
-//            } else {
-//                statusbar_push_filter_msg(" Invalid filter");
-//            }
-//        }
+        QString invalidMsg("Invalid filter");
+        if (dfilter_error_msg) {
+            invalidMsg.append(QString().sprintf(": %s", dfilter_error_msg));
+        }
+        emit pushFilterSyntaxStatus(invalidMsg);
     }
 
-    g_log(NULL, G_LOG_LEVEL_DEBUG, "FIX: show display filter syntax status in statusbar");
     setStyleSheet(syntaxStyleSheet);
     applyButton->setEnabled(m_syntaxState == Empty || m_syntaxState == Valid);
 

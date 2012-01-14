@@ -24,6 +24,12 @@
 #ifndef WIRESHARK_APPLICATION_H
 #define WIRESHARK_APPLICATION_H
 
+#include "config.h"
+
+#include <glib.h>
+
+#include "file.h"
+
 #include <QApplication>
 #include <QList>
 #include <QFileInfo>
@@ -49,12 +55,18 @@ public:
     explicit WiresharkApplication(int &argc,  char **argv);
     QList<recent_item_status *> recent_item_list() const;
     void addRecentItem(const QString &filename, qint64 size, bool accessible);
+    void captureFileCallback(int event, void * data);
 
 private:
     QTimer *recentTimer;
 
 signals:
     void updateRecentItemStatus(const QString &filename, qint64 size, bool accessible);
+
+    void captureFileReadStarted(const capture_file *cf);
+    void captureFileReadFinished(const capture_file *cf);
+    void captureFileClosing(const capture_file *cf);
+    void captureFileClosed(const capture_file *cf);
 
 public slots:
     void clearRecentItems();

@@ -25,6 +25,7 @@
 #define PACKET_LIST_H
 
 #include "packet_list_model.h"
+#include "proto_tree.h"
 #include "byte_view_tab.h"
 
 #include <QTreeView>
@@ -37,7 +38,7 @@ class PacketList : public QTreeView
 public:
     explicit PacketList(QWidget *parent = 0);
     PacketListModel *packetListModel() const;
-    void setProtoTree(QTreeWidget *protoTree);
+    void setProtoTree(ProtoTree *protoTree);
     void setByteViewTab(ByteViewTab *byteViewTab);
     void clear();
     void writeRecent(FILE *rf);
@@ -48,7 +49,7 @@ protected:
 
 private:
     PacketListModel *m_packet_list_model;
-    QTreeWidget *m_protoTree;
+    ProtoTree *m_protoTree;
     ByteViewTab *m_byteViewTab;
 
 signals:

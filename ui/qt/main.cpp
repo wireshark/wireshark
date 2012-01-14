@@ -173,52 +173,10 @@ void pipe_input_set_handler(gint source, gpointer user_data, int *child_process,
 }
 
 static void
-main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
+main_cf_callback(gint event, gpointer data, gpointer user_data )
 {
-    g_log(NULL, G_LOG_LEVEL_DEBUG, "FIX: main_cf_callback %d %p", event, data);
-//    switch(event) {
-//    case(cf_cb_file_closing):
-//        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Closing");
-//        main_cf_cb_file_closing(data);
-//        break;
-//    case(cf_cb_file_closed):
-//        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Closed");
-//        main_cf_cb_file_closed(data);
-//        break;
-//    case(cf_cb_file_read_started):
-//        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Read started");
-//        main_cf_cb_file_read_started(data);
-//        break;
-//    case(cf_cb_file_read_finished):
-//        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Read finished");
-//        main_cf_cb_file_read_finished(data);
-//        break;
-//    case(cf_cb_packet_selected):
-//        main_cf_cb_packet_selected(data);
-//        break;
-//    case(cf_cb_packet_unselected):
-//        main_cf_cb_packet_unselected(data);
-//        break;
-//    case(cf_cb_field_unselected):
-//        main_cf_cb_field_unselected(data);
-//        break;
-//    case(cf_cb_file_save_started):
-//        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Save started");
-//        break;
-//    case(cf_cb_file_save_finished):
-//        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Save finished");
-//        break;
-//    case(cf_cb_file_save_reload_finished):
-//        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Reload finished");
-//        main_cf_cb_file_save_reload_finished(data);
-//        break;
-//    case(cf_cb_file_save_failed):
-//        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Save failed");
-//        break;
-//    default:
-//        g_warning("main_cf_callback: event %u unknown", event);
-//        g_assert_not_reached();
-//    }
+    Q_UNUSED(user_data);
+    wsApp->captureFileCallback(event, data);
 }
 
 // XXX Copied from gtk/main.c. This should be moved to a common location.

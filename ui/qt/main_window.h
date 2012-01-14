@@ -26,6 +26,12 @@
 
 #include <stdio.h>
 
+#include "config.h"
+
+#include <glib.h>
+
+#include "file.h"
+
 #include <QMainWindow>
 #include <QSplitter>
 #include "main_welcome.h"
@@ -54,8 +60,13 @@ private:
     QSplitter *splitterV;
     MainWelcome *mainWelcome;
     DisplayFilterCombo *dfComboBox;
+    capture_file *capFile;
 
 public slots:
+    void captureFileReadStarted(const capture_file *cf);
+    void captureFileReadFinished(const capture_file *cf);
+    void captureFileClosing(const capture_file *cf);
+    void captureFileClosed(const capture_file *cf);
 
 private slots:
     void closeCaptureFile();

@@ -41,6 +41,7 @@
 #include "ui_util.h"
 #include "globals.h"
 #include "qt_ui_utils.h"
+#include "main_statusbar.h"
 
 #include "gtk/recent.h"
 
@@ -56,8 +57,11 @@ static gboolean enable_color;
 static PacketList *cur_packet_list = NULL;
 
 guint
-new_packet_list_append(column_info *cinfo _U_, frame_data *fdata, packet_info *pinfo _U_)
+new_packet_list_append(column_info *cinfo, frame_data *fdata, packet_info *pinfo)
 {
+    Q_UNUSED(cinfo);
+    Q_UNUSED(pinfo);
+
     if (!cur_packet_list)
         return 0;
 
@@ -200,7 +204,7 @@ new_packet_list_thaw(void)
 //	/* Remove extra reference added by new_packet_list_freeze() */
 //	g_object_unref(packetlist);
 
-//	packets_bar_update();
+        packets_bar_update();
 }
 
 void
@@ -288,7 +292,7 @@ PacketList::PacketList(QWidget *parent) :
     m_byteViewTab = NULL;
 }
 
-void PacketList::setProtoTree (QTreeWidget *protoTree) {
+void PacketList::setProtoTree (ProtoTree *protoTree) {
     m_protoTree = protoTree;
 }
 
@@ -301,6 +305,7 @@ PacketListModel *PacketList::packetListModel() const {
 }
 
 void PacketList::showEvent (QShowEvent *event) {
+    Q_UNUSED(event);
 //    g_log(NULL, G_LOG_LEVEL_DEBUG, "cols: %d", cfile.cinfo.num_cols);
     for (int i = 0; i < cfile.cinfo.num_cols; i++) {
         int fmt, col_width;
@@ -321,8 +326,6 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
     QTreeView::selectionChanged(selected, deselected);
 
     if (m_protoTree) {
-        // Connect signals between the proto tree and byte views.
-
         int row = selected.first().top();
         cf_select_packet(&cfile, row);
 
@@ -330,10 +333,9 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
             return;
         }
 
-        proto_tree_draw(cfile.edt->tree, m_protoTree);
+        m_protoTree->fillProtocolTree(cfile.edt->tree);
     }
 
-    g_log(NULL, G_LOG_LEVEL_DEBUG, "bvt: %p", m_byteViewTab);
     if (m_byteViewTab && cfile.edt) {
         GSList *src_le;
         data_source *source;
@@ -350,6 +352,7 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
     }
 
     if (m_protoTree && m_byteViewTab) {
+        // Connect signals between the proto tree and byte views.
         connect(m_protoTree, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)),
                 m_byteViewTab, SLOT(protoTreeItemChanged(QTreeWidgetItem*)));
     }
@@ -369,7 +372,6 @@ void PacketList::clear() {
 //	 * Reset the sort column, use packetlist as model in case the list is frozen.
 //	 */
     cur_packet_list->sortByColumn(0, Qt::AscendingOrder);
-
 }
 
 void new_packet_list_recent_write_all(FILE *rf) {

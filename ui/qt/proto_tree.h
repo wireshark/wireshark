@@ -30,17 +30,23 @@
 
 #include <QTreeWidget>
 
-void proto_tree_draw(proto_tree *protocol_tree, QTreeWidget *protoTree);
 
 class ProtoTree : public QTreeWidget
 {
     Q_OBJECT
 public:
     explicit ProtoTree(QWidget *parent = 0);
+    void fillProtocolTree(proto_tree *protocol_tree);
+    void clear();
+
+private:
 
 signals:
+    void protoItemSelected(QString &);
+    void protoItemUnselected();
 
 public slots:
+    void updateSelectionStatus(QTreeWidgetItem*);
 
 };
 

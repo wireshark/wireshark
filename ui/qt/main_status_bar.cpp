@@ -29,12 +29,32 @@
 
 #include "main_status_bar.h"
 
-#include "main_statusbar.h"
+#include "wireshark_application.h"
 
-/* Temporary message timeouts */
-#define TEMPORARY_MSG_TIMEOUT (7 * 1000)
-#define TEMPORARY_FLASH_TIMEOUT (1 * 1000)
-#define TEMPORARY_FLASH_INTERVAL (TEMPORARY_FLASH_TIMEOUT / 4)
+#include "main_statusbar.h"
+#include "globals.h"
+
+#include <QSplitter>
+
+#ifdef HAVE_LIBPCAP
+#define DEF_READY_MESSAGE " Ready to load or capture"
+#else
+#define DEF_READY_MESSAGE " Ready to load file"
+#endif
+
+// XXX - The GTK+ code assigns priorities to these and pushes/pops accordingly.
+
+enum StatusContext {
+    STATUS_CTX_MAIN,
+    STATUS_CTX_FILE,
+    STATUS_CTX_FIELD,
+    STATUS_CTX_FILTER,
+    STATUS_CTX_TEMPORARY
+};
+
+// If we ever add support for multiple windows this will need to be replaced.
+// See also: main_window.cpp
+static MainStatusBar *cur_main_status_bar = NULL;
 
 /*
  * Push a formatted temporary message onto the statusbar.
@@ -44,21 +64,18 @@ statusbar_push_temporary_msg(const gchar *msg_format, ...)
 {
     va_list ap;
     gchar *msg;
-    guint msg_id;
+    QString pushMsg;
+
+    if (!cur_main_status_bar) return;
 
     va_start(ap, msg_format);
     msg = g_strdup_vprintf(msg_format, ap);
     va_end(ap);
 
-    g_log(NULL, G_LOG_LEVEL_DEBUG, "FIX: statusbar_push_temporary_msg: %s", msg);
-
-//    msg_id = gtk_statusbar_push(GTK_STATUSBAR(info_bar), main_ctx, msg);
+    pushMsg.fromUtf8(msg);
     g_free(msg);
 
-//    flash_time = TEMPORARY_FLASH_TIMEOUT - 1;
-//    g_timeout_add(TEMPORARY_FLASH_INTERVAL, statusbar_flash_temporary_msg, NULL);
-
-//    g_timeout_add(TEMPORARY_MSG_TIMEOUT, statusbar_remove_temporary_msg, GUINT_TO_POINTER(msg_id));
+    cur_main_status_bar->pushTemporaryStatus(pushMsg);
 }
 
 /*
@@ -67,41 +84,109 @@ statusbar_push_temporary_msg(const gchar *msg_format, ...)
 void
 packets_bar_update(void)
 {
-    g_log(NULL, G_LOG_LEVEL_DEBUG, "FIX: packets_bar_update");
-//    if(packets_bar) {
-//        /* Remove old status */
-//        if(packets_str) {
-//            gtk_statusbar_pop(GTK_STATUSBAR(packets_bar), packets_ctx);
-//        } else {
-//            packets_str = g_string_new ("");
-//	}
+    QString packetsStr = QString("");
 
-//        /* Do we have any packets? */
-//        if(cfile.count) {
-//            g_string_printf(packets_str, " Packets: %u Displayed: %u Marked: %u",
-//                            cfile.count, cfile.displayed_count, cfile.marked_count);
-//            if(cfile.drops_known) {
-//                g_string_append_printf(packets_str, " Dropped: %u", cfile.drops);
-//            }
-//            if(cfile.ignored_count > 0) {
-//                g_string_append_printf(packets_str, " Ignored: %u", cfile.ignored_count);
-//            }
-//            if(!cfile.is_tempfile){
-//                /* Loading an existing file */
-//                gulong computed_elapsed = cf_get_computed_elapsed();
-//                g_string_append_printf(packets_str, " Load time: %lu:%02lu.%03lu",
-//                                       computed_elapsed/60000,
-//                                       computed_elapsed%60000/1000,
-//                                       computed_elapsed%1000);
-//            }
-//        } else {
-//            g_string_printf(packets_str, " No Packets");
-//        }
-//        gtk_statusbar_push(GTK_STATUSBAR(packets_bar), packets_ctx, packets_str->str);
-//    }
+    if (!cur_main_status_bar) return;
+
+    cur_main_status_bar->popPacketStatus();
+
+    /* Do we have any packets? */
+    if (cfile.count) {
+        packetsStr.append(QString("Packets: %1 Displayed: %2 Marked: %3")
+                          .arg(cfile.count)
+                          .arg(cfile.displayed_count)
+                          .arg(cfile.marked_count));
+        if(cfile.drops_known) {
+            packetsStr.append(QString(" Dropped: %1").arg(cfile.drops));
+        }
+        if(cfile.ignored_count > 0) {
+            packetsStr.append(QString(" Ignored: %1").arg(cfile.ignored_count));
+        }
+        if(!cfile.is_tempfile) {
+            /* Loading an existing file */
+            gulong computed_elapsed = cf_get_computed_elapsed();
+            packetsStr.append(QString().sprintf(" Load time: %lu:%02lu.%03lu",
+                                        computed_elapsed/60000,
+                                        computed_elapsed%60000/1000,
+                                        computed_elapsed%1000));
+        }
+    } else {
+        packetsStr.append("No Packets");
+    }
+
+    cur_main_status_bar->pushPacketStatus(packetsStr);
 }
 
 MainStatusBar::MainStatusBar(QWidget *parent) :
     QStatusBar(parent)
 {
+    QSplitter *splitter = new QSplitter(this);
+    QString readyMsg(DEF_READY_MESSAGE);
+
+    // XXX - Add the expert level icon
+
+    m_infoStatus.setTemporaryContext(STATUS_CTX_TEMPORARY);
+    splitter->addWidget(&m_infoStatus);
+    splitter->addWidget(&m_packetStatus);
+    splitter->addWidget(&m_profileStatus);
+
+    splitter->setStretchFactor(0, 3);
+    splitter->setStretchFactor(1, 3);
+    splitter->setStretchFactor(2, 0);
+
+    addWidget(splitter, 1);
+
+    cur_main_status_bar = this;
+
+    m_infoStatus.pushText(readyMsg, STATUS_CTX_MAIN);
+    packets_bar_update();
 }
+
+void MainStatusBar::pushTemporaryStatus(QString &message) {
+    m_infoStatus.pushText(message, STATUS_CTX_TEMPORARY);
+}
+
+void MainStatusBar::popTemporaryStatus() {
+    m_infoStatus.popText(STATUS_CTX_TEMPORARY);
+}
+
+void MainStatusBar::pushFileStatus(QString &message) {
+    m_infoStatus.pushText(message, STATUS_CTX_FILE);
+}
+
+void MainStatusBar::popFileStatus() {
+    m_infoStatus.popText(STATUS_CTX_FILE);
+}
+
+void MainStatusBar::pushFieldStatus(QString &message) {
+    m_infoStatus.pushText(message, STATUS_CTX_FIELD);
+}
+
+void MainStatusBar::popFieldStatus() {
+    m_infoStatus.popText(STATUS_CTX_FIELD);
+}
+
+void MainStatusBar::pushFilterStatus(QString &message) {
+    m_infoStatus.pushText(message, STATUS_CTX_FILTER);
+}
+
+void MainStatusBar::popFilterStatus() {
+    m_infoStatus.popText(STATUS_CTX_FILTER);
+}
+
+void MainStatusBar::pushPacketStatus(QString &message) {
+    m_packetStatus.pushText(message, STATUS_CTX_MAIN);
+}
+
+void MainStatusBar::popPacketStatus() {
+    m_packetStatus.popText(STATUS_CTX_MAIN);
+}
+
+void MainStatusBar::pushProfileStatus(QString &message) {
+    m_profileStatus.pushText(message, STATUS_CTX_MAIN);
+}
+
+void MainStatusBar::popProfileStatus() {
+    m_profileStatus.popText(STATUS_CTX_MAIN);
+}
+

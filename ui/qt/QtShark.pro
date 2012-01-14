@@ -105,6 +105,7 @@ SOURCES += \
     recent_file_status.cpp \
     simple_dialog_qt.cpp \
     wireshark_application.cpp \
+    label_stack.cpp
 
 
 unix:SOURCES += ../../capture-pcap-util-unix.c
@@ -137,6 +138,7 @@ HEADERS  += \
     recent_file_status.h \
     simple_dialog_qt.h \
     wireshark_application.h \
+    label_stack.h
 
 
 FORMS += main_window.ui

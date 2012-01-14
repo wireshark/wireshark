@@ -24,16 +24,19 @@
 #include "main_window.h"
 #include "ui_main_window.h"
 
-#include "config.h"
+#include "globals.h"
 
-#include <glib.h>
-
+#include <epan/filesystem.h>
 #include <epan/prefs.h>
+
+#include "main_statusbar.h"
 
 #include "wireshark_application.h"
 #include "packet_list.h"
+#include "proto_tree.h"
 #include "byte_view_tab.h"
 #include "capture_file_dialog.h"
+#include "display_filter_edit.h"
 
 #include "qt_ui_utils.h"
 
@@ -42,8 +45,6 @@
 #include <QAction>
 #include <QToolButton>
 #include <QKeyEvent>
-
-#include "globals.h"
 
 //menu_recent_file_write_all
 
@@ -54,6 +55,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+    capFile = NULL;
     cur_main_window = this;
     ui->setupUi(this);
 
@@ -61,6 +63,10 @@ MainWindow::MainWindow(QWidget *parent) :
     updateRecentFiles();
 
     dfComboBox = new DisplayFilterCombo();
+    const DisplayFilterEdit *dfEdit = dynamic_cast<DisplayFilterEdit *>(dfComboBox->lineEdit());
+    connect(dfEdit, SIGNAL(pushFilterSyntaxStatus(QString&)), ui->statusBar, SLOT(pushFilterStatus(QString&)));
+    connect(dfEdit, SIGNAL(popFilterSyntaxStatus()), ui->statusBar, SLOT(popFilterStatus()));
+    connect(dfEdit, SIGNAL(pushFilterSyntaxWarning(QString&)), ui->statusBar, SLOT(pushTemporaryStatus(QString&)));
 
 #ifdef _WIN32
     // Qt <= 4.7 doesn't seem to style Windows toolbars. If we wanted to be really fancy we could use Blur Behind:
@@ -79,7 +85,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     PacketList *packetList = new PacketList(splitterV);
 
-    QTreeWidget *protoTree = new QTreeWidget(splitterV);
+    ProtoTree *protoTree = new ProtoTree(splitterV);
     protoTree->setHeaderHidden(true);
 
     ByteViewTab *byteViewTab = new ByteViewTab(splitterV);
@@ -97,7 +103,22 @@ MainWindow::MainWindow(QWidget *parent) :
 
     mainWelcome = new MainWelcome(ui->mainStack);
     ui->mainStack->addWidget(mainWelcome);
-    connect(mainWelcome, SIGNAL(recentFileActivated(QString&)), this, SLOT(openCaptureFile(QString&)));
+    connect(mainWelcome, SIGNAL(recentFileActivated(QString&)),
+            this, SLOT(openCaptureFile(QString&)));
+
+    connect(wsApp, SIGNAL(captureFileReadStarted(const capture_file*)),
+            this, SLOT(captureFileReadStarted(const capture_file*)));
+    connect(wsApp, SIGNAL(captureFileReadFinished(const capture_file*)),
+            this, SLOT(captureFileReadFinished(const capture_file*)));
+    connect(wsApp, SIGNAL(captureFileClosing(const capture_file*)),
+            this, SLOT(captureFileClosing(const capture_file*)));
+    connect(wsApp, SIGNAL(captureFileClosed(const capture_file*)),
+            this, SLOT(captureFileClosed(const capture_file*)));
+
+    connect(protoTree, SIGNAL(protoItemSelected(QString&)),
+            ui->statusBar, SLOT(pushFieldStatus(QString&)));
+    connect(protoTree, SIGNAL(protoItemUnselected()),
+            ui->statusBar, SLOT(popFieldStatus()));
 
     ui->mainStack->setCurrentWidget(mainWelcome);
 }
@@ -105,6 +126,72 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::keyPressEvent(QKeyEvent *event) {
+
+    if (event->modifiers() & Qt::ControlModifier && event->key() == Qt::Key_Slash) {
+        dfComboBox->setFocus(Qt::ShortcutFocusReason);
+        return;
+    }
+
+    QMainWindow::keyPressEvent(event);
+}
+
+void MainWindow::captureFileReadStarted(const capture_file *cf) {
+    if (cf != capFile) return;
+//    tap_param_dlg_update();
+
+    /* Set up main window for a capture file. */
+//    main_set_for_capture_file(TRUE);
+
+    ui->statusBar->popFileStatus();
+    QString msg = QString().sprintf("Loading: %s", get_basename(cf->filename));
+    ui->statusBar->pushFileStatus(msg);
+}
+
+void MainWindow::captureFileReadFinished(const capture_file *cf) {
+    if (cf != capFile) return;
+
+//    gchar *dir_path;
+
+//    if (!cf->is_tempfile && cf->filename) {
+//        /* Add this filename to the list of recent files in the "Recent Files" submenu */
+//        add_menu_recent_capture_file(cf->filename);
+
+//        /* Remember folder for next Open dialog and save it in recent */
+//	dir_path = get_dirname(g_strdup(cf->filename));
+//        set_last_open_dir(dir_path);
+//        g_free(dir_path);
+//    }
+//    set_display_filename(cf);
+
+//    /* Enable menu items that make sense if you have a capture file you've
+//       finished reading. */
+//    set_menus_for_capture_file(cf);
+
+//    /* Enable menu items that make sense if you have some captured packets. */
+//    set_menus_for_captured_packets(TRUE);
+
+    ui->statusBar->popFileStatus();
+    QString msg = QString().sprintf("%s", get_basename(cf->filename));
+    ui->statusBar->pushFileStatus(msg);
+}
+
+void MainWindow::captureFileClosing(const capture_file *cf) {
+    if (cf != capFile) return;
+
+    /* reset expert info indicator */
+//    status_expert_hide();
+//    gtk_widget_show(expert_info_none);
+}
+
+void MainWindow::captureFileClosed(const capture_file *cf) {
+    if (cf != capFile) return;
+    packets_bar_update();
+
+    ui->statusBar->popFileStatus();
+    capFile = NULL;
 }
 
 void MainWindow::closeCaptureFile() {
@@ -144,9 +231,11 @@ void MainWindow::openCaptureFile(QString &cfPath)
              try again. */
             if (rfcode != NULL)
                 dfilter_free(rfcode);
+            capFile = NULL;
             return;
         } else {
             ui->mainStack->setCurrentWidget(splitterV);
+            capFile = &cfile;
             cf_read(&cfile, FALSE);
         }
     }
@@ -216,14 +305,4 @@ void MainWindow::updateRecentFiles() {
             recentMenu->addAction(ui->actionDummyNoFilesFound);
         }
     }
-}
-
-void MainWindow::keyPressEvent(QKeyEvent *event) {
-
-    if (event->modifiers() & Qt::ControlModifier && event->key() == Qt::Key_Slash) {
-        dfComboBox->setFocus(Qt::ShortcutFocusReason);
-        return;
-    }
-
-    QMainWindow::keyPressEvent(event);
 }

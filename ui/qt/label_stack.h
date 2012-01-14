@@ -1,6 +1,6 @@
-/* mainStatus_bar.h
+/* label_stack.h
  *
- * $Id$
+ * $Id: mainStatus_bar.cpp 40378 2012-01-04 22:13:01Z gerald $
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -21,39 +21,38 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef MAINStatus_BAR_H
-#define MAINStatus_BAR_H
+#ifndef LABEL_STACK_H
+#define LABEL_STACK_H
 
-#include "label_stack.h"
+#include <QLabel>
+#include <QStack>
 
-#include <QStatusBar>
-
-class MainStatusBar : public QStatusBar
+class LabelStack : public QLabel
 {
     Q_OBJECT
 public:
-    explicit MainStatusBar(QWidget *parent = 0);
+    explicit LabelStack(QWidget *parent = 0);
+    void setTemporaryContext(int ctx);
+    void pushText(QString &text, int ctx);
 
 private:
-    LabelStack m_infoStatus;
-    LabelStack m_packetStatus;
-    LabelStack m_profileStatus;
+    typedef struct _StackItem {
+        QString text;
+        int ctx;
+    } StackItem;
+
+    int m_temporaryCtx;
+    QList<StackItem *> m_labels;
+
+    void fillLabel();
 
 signals:
 
 public slots:
-    void pushTemporaryStatus(QString &message);
-    void popTemporaryStatus();
-    void pushFileStatus(QString &message);
-    void popFileStatus();
-    void pushFieldStatus(QString &message);
-    void popFieldStatus();
-    void pushFilterStatus(QString &message);
-    void popFilterStatus();
-    void pushPacketStatus(QString &message);
-    void popPacketStatus();
-    void pushProfileStatus(QString &message);
-    void popProfileStatus();
+    void popText(int ctx);
+
+private slots:
+    void popTemporaryText();
 };
 
-#endif // MAINStatus_BAR_H
+#endif // LABEL_STACK_H

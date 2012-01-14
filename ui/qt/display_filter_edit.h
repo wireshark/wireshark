@@ -59,6 +59,9 @@ private:
     QToolButton *applyButton;
 
 signals:
+    void pushFilterSyntaxStatus(QString&);
+    void popFilterSyntaxStatus();
+    void pushFilterSyntaxWarning(QString&);
 
 public slots:
 

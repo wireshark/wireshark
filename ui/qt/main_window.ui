@@ -115,7 +115,7 @@
    <addaction name="actionStopCapture"/>
    <addaction name="separator"/>
   </widget>
-  <widget class="QStatusBar" name="statusBar"/>
+  <widget class="MainStatusBar" name="statusBar"/>
   <widget class="QToolBar" name="utilityToolBar">
    <property name="windowTitle">
     <string>toolBar</string>
@@ -197,6 +197,13 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>MainStatusBar</class>
+   <extends>QStatusBar</extends>
+   <header>main_status_bar.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="toolbar.qrc"/>
  </resources>

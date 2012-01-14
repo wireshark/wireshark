@@ -21,6 +21,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#include <stdio.h>
+
 #include "proto_tree.h"
 #include "monospace_font.h"
 
@@ -35,17 +37,6 @@ QColor        expert_color_warn       ( 0xf7, 0xf2, 0x53 );        /* yellow */
 QColor        expert_color_error      ( 0xff, 0x5c, 0x5c );        /* pale red */
 QColor        expert_color_foreground ( 0x00, 0x00, 0x00 );        /* black */
 QColor        hidden_proto_item       ( 0x44, 0x44, 0x44 );        /* gray */
-
-static void
-proto_tree_draw_node(proto_node *node, gpointer data);
-
-void proto_tree_draw(proto_tree *protocol_tree, QTreeWidget *protoTree) {
-    // Clear out previous tree
-    protoTree->clear();
-    protoTree->setFont(get_monospace_font());
-
-    proto_tree_children_foreach(protocol_tree, proto_tree_draw_node, protoTree->invisibleRootItem());
-}
 
 /* Fill a single protocol tree item with its string value and set its color. */
 static void
@@ -152,4 +143,76 @@ ProtoTree::ProtoTree(QWidget *parent) :
     QTreeWidget(parent)
 {
     setAccessibleName("Packet details");
+    setFont(get_monospace_font());
+
+    connect(this, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)),
+            this, SLOT(updateSelectionStatus(QTreeWidgetItem*)));
+}
+
+void ProtoTree::clear() {
+    updateSelectionStatus(NULL);
+    QTreeWidget::clear();
+}
+
+void ProtoTree::fillProtocolTree(proto_tree *protocol_tree) {
+    // Clear out previous tree
+    clear();
+
+    proto_tree_children_foreach(protocol_tree, proto_tree_draw_node, invisibleRootItem());
+}
+
+void ProtoTree::updateSelectionStatus(QTreeWidgetItem* item) {
+
+    if (item) {
+        field_info *fi;
+        QVariant v;
+        QString itemInfo;
+        int finfo_length;
+
+        v = item->data(0, Qt::UserRole);
+        fi = (field_info *) v.value<void *>();
+        if (!fi || !fi->hfinfo) return;
+
+        if (fi->hfinfo->blurb != NULL && fi->hfinfo->blurb[0] != '\0') {
+            itemInfo.append(QString().fromUtf8(fi->hfinfo->blurb));
+        } else {
+            itemInfo.append(QString().fromUtf8(fi->hfinfo->name));
+        }
+
+        if (!itemInfo.isEmpty()) {
+            itemInfo.append(" (" + QString().fromUtf8(fi->hfinfo->abbrev) + ")");
+
+            finfo_length = fi->length + fi->appendix_length;
+            if (finfo_length == 1) {
+                itemInfo.append(", 1 byte");
+            } else if (finfo_length > 1) {
+                itemInfo.append(QString(", %1 bytes").arg(finfo_length));
+            }
+
+            emit protoItemUnselected();
+            emit protoItemSelected(itemInfo);
+        } // else the GTK+ version pushes an empty string as described below.
+        /*
+         * Don't show anything if the field name is zero-length;
+         * the pseudo-field for "proto_tree_add_text()" is such
+         * a field, and we don't want "Text (text)" showing up
+         * on the status line if you've selected such a field.
+         *
+         * XXX - there are zero-length fields for which we *do*
+         * want to show the field name.
+         *
+         * XXX - perhaps the name and abbrev field should be null
+         * pointers rather than null strings for that pseudo-field,
+         * but we'd have to add checks for null pointers in some
+         * places if we did that.
+         *
+         * Or perhaps protocol tree items added with
+         * "proto_tree_add_text()" should have -1 as the field index,
+         * with no pseudo-field being used, but that might also
+         * require special checks for -1 to be added.
+         */
+
+    } else {
+        emit protoItemUnselected();
+    }
 }
