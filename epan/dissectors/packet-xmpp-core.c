@@ -49,25 +49,15 @@
 
 #include "epan/tvbparse.h"
 
-
-void xmpp_auth(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *packet);
-void xmpp_challenge_response_success(proto_tree *tree, tvbuff_t *tvb,
-    packet_info *pinfo, xmpp_element_t *packet, gint hf, gint ett, const char *col_info);
-
-void xmpp_iq(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *packet);
-
 static void xmpp_error(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *element);
 static void xmpp_error_text(proto_tree *tree, tvbuff_t *tvb, xmpp_element_t *element);
 
-void xmpp_presence(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *packet);
 static void xmpp_presence_status(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *element);
 
-void xmpp_message(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *packet);
 static void xmpp_message_thread(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *element);
 static void xmpp_message_body(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *element);
 static void xmpp_message_subject(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *element);
 
-void xmpp_failure(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *packet);
 static void xmpp_failure_text(proto_tree *tree, tvbuff_t *tvb, xmpp_element_t *element);
 
 static void xmpp_features_mechanisms(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *packet);
@@ -89,9 +79,9 @@ xmpp_iq(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *pac
         {"xml:lang", -1, FALSE, FALSE, NULL, NULL}
     };
 
-    conversation_t *conversation = NULL;
-    xmpp_conv_info_t *xmpp_info = NULL;
-    xmpp_transaction_t *reqresp_trans = NULL;
+    conversation_t     *conversation;
+    xmpp_conv_info_t   *xmpp_info;
+    xmpp_transaction_t *reqresp_trans;
 
     xmpp_elem_info elems_info [] = {
         {NAME_AND_ATTR, xmpp_name_attr_struct("query", "xmlns","http://jabber.org/protocol/disco#items"), xmpp_disco_items_query, ONE},
@@ -125,11 +115,11 @@ xmpp_iq(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *pac
         {NAME_AND_ATTR, xmpp_name_attr_struct("inputevt", "xmlns","http://jitsi.org/protocol/inputevt"), xmpp_jitsi_inputevt, ONE},
     };
 
-    attr_id = xmpp_get_attr(packet, "id");
-    attr_type = xmpp_get_attr(packet, "type");
+    attr_id      = xmpp_get_attr(packet, "id");
+    attr_type    = xmpp_get_attr(packet, "type");
 
     conversation = find_or_create_conversation(pinfo);
-    xmpp_info = conversation_get_proto_data(conversation, proto_xmpp);
+    xmpp_info    = conversation_get_proto_data(conversation, proto_xmpp);
 
     xmpp_iq_item = proto_tree_add_item(tree, hf_xmpp_iq, tvb, packet->offset, packet->length, ENC_LITTLE_ENDIAN);
     xmpp_iq_tree = proto_item_add_subtree(xmpp_iq_item,ett_xmpp_iq);
@@ -193,8 +183,6 @@ xmpp_iq(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *pac
             }
         }
     }
-
-
 }
 
 
@@ -259,7 +247,7 @@ xmpp_presence(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_
     proto_tree *presence_tree;
 
     const gchar *type_enums[] = {"error", "probe", "subscribe", "subscribed",
-        "unavailable", "unsubscribe", "unsubscribed"};
+                                 "unavailable", "unsubscribe", "unsubscribed"};
     xmpp_array_t *type_array = xmpp_ep_init_array_t(type_enums, array_length(type_enums));
 
     const gchar *show_enums[] = {"away", "chat", "dnd", "xa"};
@@ -348,7 +336,7 @@ xmpp_message(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t
     proto_item *message_item;
     proto_tree *message_tree;
 
-    const gchar *type_enums[] = {"chat", "error", "groupchat", "headline", "normal"};
+    const gchar  *type_enums[] = {"chat", "error", "groupchat", "headline", "normal"};
     xmpp_array_t *type_array = xmpp_ep_init_array_t(type_enums, array_length(type_enums));
 
     xmpp_attr_info attrs_info[] = {
@@ -374,10 +362,10 @@ xmpp_message(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t
 
     xmpp_element_t *chatstate;
 
-    xmpp_attr_t *id = NULL;
+    xmpp_attr_t *id;
 
-    conversation_t *conversation = NULL;
-    xmpp_conv_info_t *xmpp_info = NULL;
+    conversation_t *conversation;
+    xmpp_conv_info_t *xmpp_info;
 
     col_clear(pinfo->cinfo, COL_INFO);
     col_append_fstr(pinfo->cinfo, COL_INFO, "MESSAGE ");
@@ -625,26 +613,26 @@ xmpp_stream(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t 
 gboolean
 xmpp_stream_close(proto_tree *tree, tvbuff_t *tvb, packet_info* pinfo)
 {
-    tvbparse_t* tt;
-    tvbparse_elem_t* elem;
-    tvbparse_wanted_t* want_ignore = tvbparse_chars(1,1,0," \t\r\n",NULL,NULL,NULL);
-    tvbparse_wanted_t* want_name = tvbparse_chars(2,1,0,"abcdefghijklmnopqrstuvwxyz.-_ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",NULL,NULL,NULL);
-    tvbparse_wanted_t* want_stream_end_with_ns = tvbparse_set_seq(3, NULL, NULL, NULL,
-                                                               want_name,
-                                                               tvbparse_char(4, ":", NULL, NULL, NULL),
-                                                               want_name,
-                                                               NULL);
+    tvbparse_t        *tt;
+    tvbparse_elem_t   *elem;
+    tvbparse_wanted_t *want_ignore = tvbparse_chars(1,1,0," \t\r\n",NULL,NULL,NULL);
+    tvbparse_wanted_t *want_name = tvbparse_chars(2,1,0,"abcdefghijklmnopqrstuvwxyz.-_ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",NULL,NULL,NULL);
+    tvbparse_wanted_t *want_stream_end_with_ns = tvbparse_set_seq(3, NULL, NULL, NULL,
+                                                                  want_name,
+                                                                  tvbparse_char(4, ":", NULL, NULL, NULL),
+                                                                  want_name,
+                                                                  NULL);
 
-    tvbparse_wanted_t* want_stream_end = tvbparse_set_oneof(5, NULL, NULL, NULL,
-                                                               want_stream_end_with_ns,
-                                                               want_name,
-                                                               NULL);
+    tvbparse_wanted_t *want_stream_end = tvbparse_set_oneof(5, NULL, NULL, NULL,
+                                                            want_stream_end_with_ns,
+                                                            want_name,
+                                                            NULL);
 
-    tvbparse_wanted_t* want_stream_end_tag = tvbparse_set_seq(6, NULL, NULL, NULL,
-                                                               tvbparse_string(-1,"</",NULL,NULL,NULL),
-                                                               want_stream_end,
-                                                               tvbparse_char(-1,">",NULL,NULL,NULL),
-                                                               NULL);
+    tvbparse_wanted_t *want_stream_end_tag = tvbparse_set_seq(6, NULL, NULL, NULL,
+                                                              tvbparse_string(-1,"</",NULL,NULL,NULL),
+                                                              want_stream_end,
+                                                              tvbparse_char(-1,">",NULL,NULL,NULL),
+                                                              NULL);
     tt = tvbparse_init(tvb,0,-1,NULL,want_ignore);
 
     if((elem = tvbparse_get(tt,want_stream_end_tag))!=NULL)

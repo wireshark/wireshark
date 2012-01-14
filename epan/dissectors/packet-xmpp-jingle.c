@@ -56,8 +56,6 @@
 #include <packet-xmpp-gtalk.h>
 #include <packet-xmpp-other.h>
 
-void xmpp_jingle(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *element);
-
 static void xmpp_jingle_content(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp_element_t* element);
 static void xmpp_jingle_content_description_rtp(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp_element_t* element);
 static void xmpp_jingle_cont_desc_rtp_payload(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp_element_t* element);
