@@ -234,8 +234,8 @@ extern "C" {
    We support writing some many of these file types, too, so we
    distinguish between different versions of them. */
 #define WTAP_FILE_UNKNOWN                       0
-#define WTAP_FILE_WTAP                          1
-#define WTAP_FILE_PCAP                          2
+#define WTAP_FILE_PCAP                          1
+#define WTAP_FILE_PCAPNG                        2
 #define WTAP_FILE_PCAP_NSEC                     3
 #define WTAP_FILE_PCAP_AIX                      4
 #define WTAP_FILE_PCAP_SS991029                 5
@@ -283,19 +283,18 @@ extern "C" {
 #define WTAP_FILE_K12TEXT                       47
 #define WTAP_FILE_NETSCREEN                     48
 #define WTAP_FILE_COMMVIEW                      49
-#define WTAP_FILE_PCAPNG                        50
-#define WTAP_FILE_BTSNOOP                       51
-#define WTAP_FILE_X2E_XORAYA                    52
-#define WTAP_FILE_TNEF                          53
-#define WTAP_FILE_DCT3TRACE                     54
-#define WTAP_FILE_PACKETLOGGER                  55
-#define WTAP_FILE_DAINTREE_SNA                  56
-#define WTAP_FILE_NETSCALER_1_0                 57
-#define WTAP_FILE_NETSCALER_2_0                 58
-#define WTAP_FILE_JPEG_JFIF                     59 /* obsoleted by WTAP_FILE_MIME */
-#define WTAP_FILE_IPFIX                         60
-#define WTAP_FILE_MIME                          61
-#define WTAP_FILE_AETHRA			62
+#define WTAP_FILE_BTSNOOP                       50
+#define WTAP_FILE_X2E_XORAYA                    51
+#define WTAP_FILE_TNEF                          52
+#define WTAP_FILE_DCT3TRACE                     53
+#define WTAP_FILE_PACKETLOGGER                  54
+#define WTAP_FILE_DAINTREE_SNA                  55
+#define WTAP_FILE_NETSCALER_1_0                 56
+#define WTAP_FILE_NETSCALER_2_0                 57
+#define WTAP_FILE_JPEG_JFIF                     58 /* obsoleted by WTAP_FILE_MIME */
+#define WTAP_FILE_IPFIX                         59
+#define WTAP_FILE_MIME                          60
+#define WTAP_FILE_AETHRA			61
 
 #define WTAP_NUM_FILE_TYPES                     wtap_get_num_file_types()
 

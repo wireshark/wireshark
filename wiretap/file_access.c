@@ -409,14 +409,14 @@ static const struct file_type_info dump_open_table_base[] = {
 	{ NULL, NULL, NULL, NULL, FALSE, FALSE,
 	  NULL, NULL },
 
-	/* WTAP_FILE_WTAP (only used internally while capturing) */
-	{ NULL, NULL, NULL, NULL, FALSE, FALSE,
-	  NULL, NULL },
-
 	/* WTAP_FILE_PCAP */
         /* Gianluca Varenni suggests that we add "deprecated" to the description. */
 	{ "Wireshark/tcpdump/... - libpcap", "libpcap", "*.pcap;*.cap", ".pcap", FALSE, FALSE,
 	  libpcap_dump_can_write_encap, libpcap_dump_open },
+
+	/* WTAP_FILE_PCAPNG */
+	{ "Wireshark - pcapng", "pcapng", "*.pcapng", NULL, FALSE, TRUE,
+	  pcapng_dump_can_write_encap, pcapng_dump_open },
 
 	/* WTAP_FILE_PCAP_NSEC */
 	{ "Wireshark - nanosecond libpcap", "nseclibpcap", "*.pcap;*.cap", ".pcap", FALSE, FALSE,
@@ -605,10 +605,6 @@ static const struct file_type_info dump_open_table_base[] = {
 	/* WTAP_FILE_COMMVIEW */
 	{ "TamoSoft CommView", "commview", "*.ncf", ".ncf", FALSE, FALSE,
 	  commview_dump_can_write_encap, commview_dump_open },
-
-	/* WTAP_FILE_PCAPNG */
-	{ "Wireshark - pcapng", "pcapng", "*.pcapng", NULL, FALSE, TRUE,
-	  pcapng_dump_can_write_encap, pcapng_dump_open },
 
 	/* WTAP_FILE_BTSNOOP */
 	{ "Symbian OS btsnoop", "btsnoop", "*.log", ".log", FALSE, FALSE,
