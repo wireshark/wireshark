@@ -1,0 +1,75 @@
+-- C1222 PROTOCOL
+--
+
+C1222-PROTOCOL DEFINITIONS ::=
+BEGIN
+
+C1222-MESSAGE  ::= [APPLICATION 0] IMPLICIT SEQUENCE {
+    aSO-context			    [1] ASO-qualifier OPTIONAL,
+    called-AP-title		    [2] Called-AP-title OPTIONAL,
+    called-AP-invocation-id	    [4] Called-AP-invocation-id OPTIONAL,
+    calling-AP-title		    [6] Calling-AP-title OPTIONAL,
+    calling-AE-qualifier	    [7] Calling-AE-qualifier OPTIONAL,
+    calling-AP-invocation-id	    [8] Calling-AP-invocation-id,
+    mechanism-name		    [11] IMPLICIT Mechanism-name OPTIONAL,
+    calling-authentication-value    [12] Calling-authentication-value OPTIONAL,
+    user-information		    [30] User-information
+}
+
+ASO-qualifier ::= OBJECT IDENTIFIER
+AP-title ::= OBJECT IDENTIFIER
+Called-AP-title ::= AP-title
+Calling-AP-title ::= AP-title
+AP-invocation-id ::= INTEGER
+Called-AP-invocation-id ::= AP-invocation-id
+Calling-AP-invocation-id ::= AP-invocation-id
+AE-qualifier ::= INTEGER
+Calling-AE-qualifier ::= AE-qualifier
+Mechanism-name ::= OBJECT IDENTIFIER
+
+-- this is all of the authentication mechanism related stuff 
+
+Calling-authentication-value ::= [2] IMPLICIT SEQUENCE {
+    calling-authentication-value-indirect   INTEGER DEFAULT 0,
+    calling-authentication-value-encoding   Authentication-value-encoding
+}
+
+Authentication-value-encoding ::= CHOICE { 
+    calling-authentication-value-single-asn1	[0] Calling-authentication-value-single-asn1, 
+    calling-authentication-value-octet-aligned	[1] IMPLICIT OCTET STRING
+}
+
+Calling-authentication-value-single-asn1 ::= CHOICE { 
+    calling-authentication-value-c1222   Calling-authentication-value-c1222,
+    calling-authentication-value-c1221   Calling-authentication-value-c1221
+}
+
+Calling-authentication-value-c1222 ::= [1] IMPLICIT SEQUENCE {
+    key-id-element	[0] IMPLICIT Key-id-element OPTIONAL,
+    iv-element		[1] IMPLICIT Iv-element OPTIONAL
+}
+
+Key-id-element ::= OCTET STRING (SIZE(1))
+Iv-element ::= OCTET STRING (SIZE(4))
+
+Calling-authentication-value-c1221 ::= [0] IMPLICIT CHOICE {
+    c1221-auth-identification	[0] IMPLICIT OCTET STRING (SIZE(3|5..259)),
+    c1221-auth-request		[0] IMPLICIT OCTET STRING (SIZE(1..255)),
+    c1221-auth-response		[0] IMPLICIT OCTET STRING (SIZE(0|1..255)),
+    ...
+}
+
+-- now the user information (EPSEM) 
+User-information ::= EXTERNAL 
+
+--User-information EPSEM-TYPE ::= { ... }
+
+--EPSEM-TYPE ::= CLASS {
+--  &direct-reference OBJECT IDENTIFIER OPTIONAL,
+--  &octet-aligned [1] IMPLICIT OCTET STRING
+--}
+
+
+END
+
+

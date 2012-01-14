@@ -1,0 +1,99 @@
+# c1222.cnf
+# C1222 conformation file
+# Copyright 2010, Edward J. Beroset, edward.j.beroset@us.elster.com
+
+# $Id$
+
+#.MODULE_IMPORT
+IMPORT ../acse/acse.inf
+
+#.EXPORTS
+
+#.PDU
+C1222-MESSAGE
+
+#.NO_EMIT
+
+#.TYPE_RENAME
+
+#.FIELD_RENAME
+
+#.TYPE_ATTR 
+Calling-authentication-value-c1222/_untag/iv-element  BLURB="c1222.iv-element"
+Calling-authentication-value-c1222/_untag/key-id-element BLURB = "c1222.key-id-element"
+
+#.FN_BODY User-information
+  gint8 class;
+  gboolean pc, ind;
+  gint32 tag;
+  guint32 len;
+  proto_item *tf = NULL;
+  proto_tree *epsem_tree = NULL;
+  FILL_START;
+  
+  /* get Tag and Length */
+  offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
+  offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
+  FILL_TABLE_TRUNCATE(user_information, len+offset-start_offset);
+  if (tag == 0x8) {  /* BER_TAG_EXTERNAL */
+    offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
+    offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
+    if (tag == 0x1) { /* implicit octet string */
+      tf = proto_tree_add_item(tree, hf_c1222_user_information, tvb, offset, len, FALSE);
+      epsem_tree = proto_item_add_subtree(tf, ett_c1222_epsem);
+      dissect_epsem(tvb, offset, len, actx->pinfo, epsem_tree);
+      offset += len;
+    }
+  }
+
+#.FN_BODY ASO-qualifier
+  FILL_START;
+  %(DEFAULT_BODY)s
+  FILL_TABLE(aSO_context);
+
+#.FN_BODY Called-AP-title
+  FILL_START;
+  %(DEFAULT_BODY)s
+  FILL_TABLE(called_AP_title);
+
+#.FN_BODY Called-AP-invocation-id
+  FILL_START;
+  %(DEFAULT_BODY)s
+  FILL_TABLE(called_AP_invocation_id);
+
+#.FN_BODY Calling-AE-qualifier
+  FILL_START;
+  %(DEFAULT_BODY)s
+  FILL_TABLE(calling_AE_qualifier);
+
+#.FN_BODY Calling-AP-invocation-id
+  FILL_START;
+  %(DEFAULT_BODY)s
+  FILL_TABLE(calling_AP_invocation_id);
+
+#.FN_BODY Mechanism-name
+  FILL_START;
+  %(DEFAULT_BODY)s
+  FILL_TABLE(mechanism_name);
+
+#.FN_BODY Calling-authentication-value
+  FILL_START;
+  %(DEFAULT_BODY)s
+  FILL_TABLE(calling_authentication_value);
+
+#.FN_BODY Calling-AP-title
+  FILL_START;
+  %(DEFAULT_BODY)s
+  FILL_TABLE(calling_AP_title);
+
+#.FN_BODY Key-id-element
+  FILL_START;
+  %(DEFAULT_BODY)s
+  FILL_TABLE(key_id_element);
+
+#.FN_BODY Iv-element
+  FILL_START;
+  %(DEFAULT_BODY)s
+  FILL_TABLE(iv_element);
+
+#.END
