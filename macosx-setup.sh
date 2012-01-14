@@ -8,15 +8,17 @@
 # http://nplab.fh-muenster.de/groups/wiki/wiki/fb7a4/Building_Wireshark_on_SnowLeopard.html 
 #
 
-# To set up a GTK3 environment uncomment the line below
+# To set up a GTK3 environment
 # GTK3=1
+# To build cmake
+# CMAKE=1
 #
 # Versions to download and install.
 #
 # The following libraries are required.
 #
 GETTEXT_VERSION=0.18.1.1
-GLIB_VERSION=2.31.6
+GLIB_VERSION=2.31.8
 #
 # pkg-config 0.26 appears to have broken the "we have our own GLib"
 # stuff, even if you explicitly set GLIB_CFLAGS and GLIB_LIBS.
@@ -41,6 +43,9 @@ fi
 # xz is not available on OSX (Snow Leopard).
 #
 XZ_VERSION=5.0.3
+
+# In case we want to build with cmake
+CMAKE_VERSION=2.8.7
 
 #
 # The following libraries are optional.
@@ -117,7 +122,7 @@ then
 fi
 cd macosx-support-libs
 
-# Start with xz. It's required to unpack the current version of glib.
+# Start with xz: It is the sole download format of glib later than 2.31.2
 #
 echo "Downloading, building, and installing xz:"
 curl -O http://tukaani.org/xz/xz-$XZ_VERSION.tar.bz2 || exit 1
@@ -127,6 +132,18 @@ CFLAGS="-D_FORTIFY_SOURCE=0" ./configure || exit 1
 make -j 3 || exit 1
 $DO_MAKE_INSTALL || exit 1
 cd ..
+
+if [ -n "$CMAKE" ]; then
+  echo "Downloading, building, and installing CMAKE:"
+  cmake_dir=`expr $CMAKE_VERSION : '\([0-9][0-9]*\.[0-9][0-9]*\).*'`
+  curl -O http://www.cmake.org/files/v$cmake_dir/cmake-$CMAKE_VERSION.tar.gz || exit 1
+  gzcat cmake-$CMAKE_VERSION.tar.gz | tar xf - || exit 1
+  cd cmake-$CMAKE_VERSION
+  ./bootstrap --system-libs || exit 1
+  make -j 3 || exit 1
+  $DO_MAKE_INSTALL || exit 1
+  cd ..
+fi
 
 #
 # Start with GNU gettext; GLib requires it, and OS X doesn't have it
