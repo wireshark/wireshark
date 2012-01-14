@@ -1394,16 +1394,19 @@ static gboolean draw_area_draw(GtkWidget *widget, cairo_t *cr, gpointer data)
 /****************************************************************************/
 static gboolean expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer data)
 {
+	GtkAllocation allocation;
 	graph_analysis_data_t *user_data = data;
 	cairo_t *cr = gdk_cairo_create (gtk_widget_get_window(widget));
 
+
 	if (gtk_widget_is_drawable(widget)){
+		gtk_widget_get_allocation (widget, &allocation);
 #if GTK_CHECK_VERSION(2,22,0)
-		cairo_set_source_surface (cr, user_data->dlg.surface_main, event->area.x, event->area.y);
+		cairo_set_source_surface (cr, user_data->dlg.surface_main, 0, 0);
 #else
-		gdk_cairo_set_source_pixmap (cr, user_data->dlg.pixmap_main, event->area.x, event->area.y);
+		gdk_cairo_set_source_pixmap (cr, user_data->dlg.pixmap_main, 0, 0);
 #endif
-		cairo_rectangle (cr, event->area.x, event->area.y, event->area.width, event->area.height);
+		cairo_rectangle (cr, 0, 0, allocation.width, allocation.height);
 		cairo_fill (cr);
 
 		cairo_destroy (cr);
@@ -1447,16 +1450,18 @@ static gboolean draw_comments(GtkWidget *widget, cairo_t *cr, gpointer data)
 /****************************************************************************/
 static gboolean expose_event_comments(GtkWidget *widget, GdkEventExpose *event, gpointer data)
 {
+	GtkAllocation allocation;
 	graph_analysis_data_t *user_data = data;
 	cairo_t *cr = gdk_cairo_create (gtk_widget_get_window(widget));
 
 	if (gtk_widget_is_drawable(widget)){
+		gtk_widget_get_allocation (widget, &allocation);
 #if GTK_CHECK_VERSION(2,22,0)
-		cairo_set_source_surface (cr, user_data->dlg.surface_comments, event->area.x, event->area.y);
+		cairo_set_source_surface (cr, user_data->dlg.surface_comments, 0, 0);
 #else
-		gdk_cairo_set_source_pixmap (cr, user_data->dlg.pixmap_comments, event->area.x, event->area.y);
+		gdk_cairo_set_source_pixmap (cr, user_data->dlg.pixmap_comments,0, 0);
 #endif
-		cairo_rectangle (cr, event->area.x, event->area.y, event->area.width, event->area.height);
+		cairo_rectangle (cr, 0, 0, allocation.width, allocation.height);
 		cairo_fill (cr);
 
 		cairo_destroy (cr);
@@ -1497,16 +1502,18 @@ static gboolean draw_time(GtkWidget *widget, cairo_t *cr, gpointer data)
 /****************************************************************************/
 static gboolean expose_event_time(GtkWidget *widget, GdkEventExpose *event, gpointer data)
 {
+	GtkAllocation allocation;
 	graph_analysis_data_t *user_data = data;
 	cairo_t *cr = gdk_cairo_create (gtk_widget_get_window(widget));
 
 	if (gtk_widget_is_drawable(widget) ){
+		gtk_widget_get_allocation (widget, &allocation);
 #if GTK_CHECK_VERSION(2,22,0)
-		cairo_set_source_surface (cr, user_data->dlg.surface_time, event->area.x, event->area.y);
+		cairo_set_source_surface (cr, user_data->dlg.surface_time, 0, 0);
 #else
-		gdk_cairo_set_source_pixmap (cr, user_data->dlg.pixmap_time, event->area.x, event->area.y);
+		gdk_cairo_set_source_pixmap (cr, user_data->dlg.pixmap_time, 0, 0);
 #endif
-		cairo_rectangle (cr, event->area.x, event->area.y, event->area.width, event->area.height);
+		cairo_rectangle (cr, 0, 0, allocation.width, allocation.height);
 		cairo_fill (cr);
 
 		cairo_destroy (cr);
