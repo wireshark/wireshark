@@ -70,11 +70,6 @@
 
 /****************************************************************************/
 
-
-#define OK_TEXT "[ Ok ]"
-#define PT_UNDEFINED -1
-
-
 static GtkWidget *save_to_file_w = NULL;
 
 #define MAX_LABEL 50
@@ -151,8 +146,8 @@ static void graph_analysis_init_dlg(graph_analysis_data_t *user_data)
 	user_data->dlg.v_scrollbar=NULL;
 	user_data->dlg.v_scrollbar_adjustment=NULL;
 	user_data->dlg.hpane=NULL;
-	user_data->dlg.surface_width = 350;
-	user_data->dlg.surface_width=400;
+	user_data->dlg.surface_width=350;
+	user_data->dlg.surface_height=400;
 	user_data->dlg.first_node=0;
 	user_data->dlg.first_item=0;
 	user_data->dlg.left_x_border=0;
@@ -1760,16 +1755,16 @@ static void create_draw_area(graph_analysis_data_t *user_data, GtkWidget *box)
 
 	/* create "time" draw area */
 	user_data->dlg.draw_area_time=gtk_drawing_area_new();
-	gtk_widget_set_size_request(user_data->dlg.draw_area_time, TIME_WIDTH, user_data->dlg.surface_width);
+	gtk_widget_set_size_request(user_data->dlg.draw_area_time, TIME_WIDTH, user_data->dlg.surface_height);
 	frame_time = gtk_frame_new(NULL);
 	gtk_widget_show(frame_time);
 	gtk_container_add(GTK_CONTAINER(frame_time),user_data->dlg.draw_area_time);
 
 	/* create "comments" draw area */
 	user_data->dlg.draw_area_comments=gtk_drawing_area_new();
-	gtk_widget_set_size_request(user_data->dlg.draw_area_comments, COMMENT_WIDTH, user_data->dlg.surface_width);
+	gtk_widget_set_size_request(user_data->dlg.draw_area_comments, COMMENT_WIDTH, user_data->dlg.surface_height);
 	scroll_window_comments=gtk_scrolled_window_new(NULL, NULL);
-	gtk_widget_set_size_request(scroll_window_comments, (gint)(COMMENT_WIDTH/1.5), user_data->dlg.surface_width);
+	gtk_widget_set_size_request(scroll_window_comments, (gint)(COMMENT_WIDTH/1.5), user_data->dlg.surface_height);
 	/*
 	 * Set the scrollbar policy for the horizontal and vertical scrollbars
 	 * The policy determines when the scrollbar should appear
@@ -1799,12 +1794,12 @@ static void create_draw_area(graph_analysis_data_t *user_data, GtkWidget *box)
 		user_data->dlg.surface_width = 2 * NODE_WIDTH;
 	else
 		user_data->dlg.surface_width = user_data->num_nodes * NODE_WIDTH;
-	gtk_widget_set_size_request(user_data->dlg.draw_area, user_data->dlg.surface_width, user_data->dlg.surface_width);
+	gtk_widget_set_size_request(user_data->dlg.draw_area, user_data->dlg.surface_width, user_data->dlg.surface_height);
 	user_data->dlg.scroll_window=gtk_scrolled_window_new(NULL, NULL);
 	if ( user_data->num_nodes < 6)
-		gtk_widget_set_size_request(user_data->dlg.scroll_window, NODE_WIDTH*user_data->num_nodes, user_data->dlg.surface_width);
+		gtk_widget_set_size_request(user_data->dlg.scroll_window, NODE_WIDTH*user_data->num_nodes, user_data->dlg.surface_height);
 	else
-		gtk_widget_set_size_request(user_data->dlg.scroll_window, NODE_WIDTH*5, user_data->dlg.surface_width);
+		gtk_widget_set_size_request(user_data->dlg.scroll_window, NODE_WIDTH*5, user_data->dlg.surface_height);
 
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(user_data->dlg.scroll_window),
 		GTK_POLICY_ALWAYS,
@@ -2073,9 +2068,9 @@ void graph_analysis_update(graph_analysis_data_t *user_data)
 	user_data->dlg.surface_width = user_data->num_nodes * NODE_WIDTH;
 	gtk_widget_set_size_request(user_data->dlg.draw_area, user_data->dlg.surface_width, user_data->dlg.surface_width);
 	if (user_data->num_nodes < 6)
-		gtk_widget_set_size_request(user_data->dlg.scroll_window, NODE_WIDTH*user_data->num_nodes, user_data->dlg.surface_width);
+		gtk_widget_set_size_request(user_data->dlg.scroll_window, NODE_WIDTH*user_data->num_nodes, user_data->dlg.surface_height);
 	else
-		gtk_widget_set_size_request(user_data->dlg.scroll_window, NODE_WIDTH*5, user_data->dlg.surface_width);
+		gtk_widget_set_size_request(user_data->dlg.scroll_window, NODE_WIDTH*5, user_data->dlg.surface_height);
 
 	/* redraw the graph */
 	dialog_graph_redraw(user_data);
@@ -2092,11 +2087,11 @@ void graph_analysis_redraw(graph_analysis_data_t *user_data)
 	get_nodes(user_data);
 
 	user_data->dlg.surface_width = user_data->num_nodes * NODE_WIDTH;
-	gtk_widget_set_size_request(user_data->dlg.draw_area, user_data->dlg.surface_width, user_data->dlg.surface_width);
+	gtk_widget_set_size_request(user_data->dlg.draw_area, user_data->dlg.surface_width, user_data->dlg.surface_height);
 	if (user_data->num_nodes < 6)
-		gtk_widget_set_size_request(user_data->dlg.scroll_window, NODE_WIDTH*user_data->num_nodes, user_data->dlg.surface_width);
+		gtk_widget_set_size_request(user_data->dlg.scroll_window, NODE_WIDTH*user_data->num_nodes, user_data->dlg.surface_height);
 	else
-		gtk_widget_set_size_request(user_data->dlg.scroll_window, NODE_WIDTH*5, user_data->dlg.surface_width);
+		gtk_widget_set_size_request(user_data->dlg.scroll_window, NODE_WIDTH*5, user_data->dlg.surface_height);
 
 
 	/* redraw the graph */
