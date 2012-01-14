@@ -1392,7 +1392,7 @@ static gboolean draw_area_draw(GtkWidget *widget, cairo_t *cr, gpointer data)
 }
 #if !GTK_CHECK_VERSION(3,0,0)
 /****************************************************************************/
-static gboolean expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer data)
+static gboolean expose_event(GtkWidget *widget, GdkEventExpose *event _U_, gpointer data)
 {
 	GtkAllocation allocation;
 	graph_analysis_data_t *user_data = data;
@@ -1448,7 +1448,7 @@ static gboolean draw_comments(GtkWidget *widget, cairo_t *cr, gpointer data)
 }
 #if !GTK_CHECK_VERSION(3,0,0)
 /****************************************************************************/
-static gboolean expose_event_comments(GtkWidget *widget, GdkEventExpose *event, gpointer data)
+static gboolean expose_event_comments(GtkWidget *widget, GdkEventExpose *event _U_, gpointer data)
 {
 	GtkAllocation allocation;
 	graph_analysis_data_t *user_data = data;
@@ -1500,7 +1500,7 @@ static gboolean draw_time(GtkWidget *widget, cairo_t *cr, gpointer data)
 }
 #else
 /****************************************************************************/
-static gboolean expose_event_time(GtkWidget *widget, GdkEventExpose *event, gpointer data)
+static gboolean expose_event_time(GtkWidget *widget, GdkEventExpose *event _U_, gpointer data)
 {
 	GtkAllocation allocation;
 	graph_analysis_data_t *user_data = data;
