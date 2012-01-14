@@ -51,12 +51,12 @@
 #define TC_RSP         0x41
 
 #define LOWADR_LEN 17
-#define SUFFIX_LEN 2
+#define SUFFIX_LEN  2
 #define TOTAL_LEN (LOWADR_LEN + SUFFIX_LEN + 2)
 
 #define ELCOM_UNKNOWN_ENDIAN 0
-#define ELCOM_LITTLE_ENDIAN 1
-#define ELCOM_BIG_ENDIAN 2
+#define ELCOM_LITTLE_ENDIAN  1
+#define ELCOM_BIG_ENDIAN     2
 
 static int proto_elcom = -1;
 static int hf_elcom_response = -1;
@@ -170,9 +170,9 @@ dissect_lower_address(proto_item *ti_arg, gint ett_arg,
                       tvbuff_t *tvb, gint arg_offset,
                       int hf_endian, int hf_ip, int hf_port, int hf_suff)
 {
-        gint offset = arg_offset;
-        guint8 len1, len2;
-        guint8 *suffix;
+        gint        offset = arg_offset;
+        guint8      len1, len2;
+        guint8     *suffix;
         proto_tree *tree;
         proto_item *ti;
 
@@ -236,17 +236,17 @@ dissect_lower_address(proto_item *ti_arg, gint ett_arg,
 static gint
 dissect_userdata(proto_item *ti_arg, gint ett_arg, tvbuff_t *tvb, gint arg_offset)
 {
-        gint offset = arg_offset;
-        guint8 flen, lenbytes;
-        guint8 year, month, day, hour, min, sec;
-        guint16 msec;
+        gint        offset = arg_offset;
+        guint8      flen, lenbytes;
+        guint8      year, month, day, hour, min, sec;
+        guint16     msec;
         proto_tree *tree;
         proto_item *ti;
 
         tree = proto_item_add_subtree(ti_arg, ett_arg);
 
         /* length of User Data, should be 1 byte field ... */
-        flen = tvb_get_guint8(tvb, offset);
+        flen     = tvb_get_guint8(tvb, offset);
         lenbytes = 1;
 
         /* ... but sometimes it seems to be 2 bytes; try to be clever */
@@ -322,8 +322,8 @@ dissect_userdata(proto_item *ti_arg, gint ett_arg, tvbuff_t *tvb, gint arg_offse
 static gint
 dissect_datarequest(proto_item *ti_arg, gint ett_arg, tvbuff_t *tvb, gint arg_offset)
 {
-        gint offset = arg_offset;
-        guint8 gtype, oidlen;
+        gint        offset = arg_offset;
+        guint8      gtype, oidlen;
         proto_tree *tree, *tree2;
         proto_item *ti;
 
@@ -406,29 +406,31 @@ dissect_datarequest(proto_item *ti_arg, gint ett_arg, tvbuff_t *tvb, gint arg_of
         return offset;
 }
 
+/* XXX: Are all the tests against tvb_length() really the right way to handle invalid fields ?
+ *      It seems to me that invalid fields should should just add an expert item
+ *        or cause a "Malformed" exception.
+ */
 static void
 dissect_elcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-        gboolean        is_request, length_ok;
-        proto_tree      *elcom_tree;
-        proto_item      *ti, *hidden_item;
-        gint            offset = 0;
-        guint16         elcom_len;
-        guint8          elcom_msg_type;
-        guint8          *suffix;
+        gboolean    is_request, length_ok;
+        proto_tree *elcom_tree;
+        proto_item *ti, *hidden_item;
+        gint        offset = 0;
+        guint       elcom_len;
+        guint8      elcom_msg_type;
+        guint8     *suffix;
 
         /* Check that there's enough data */
         if (tvb_length(tvb) < 3)
                 return;
 
-        if (check_col(pinfo->cinfo, COL_PROTOCOL))
-                col_set_str(pinfo->cinfo, COL_PROTOCOL, "ELCOM");
-        if (check_col(pinfo->cinfo, COL_INFO))
-                col_clear(pinfo->cinfo, COL_INFO);
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "ELCOM");
+        col_clear(pinfo->cinfo, COL_INFO);
 
         is_request = (pinfo->match_port == pinfo->destport);
-        elcom_len = tvb_get_ntohs(tvb, 0);
-        length_ok = (tvb_length(tvb) == (guint16)(elcom_len+2));
+        elcom_len  = tvb_get_ntohs(tvb, 0);
+        length_ok  = (tvb_reported_length(tvb) == (elcom_len+2));
         if (check_col(pinfo->cinfo, COL_INFO)) {
                 col_add_fstr(pinfo->cinfo, COL_INFO, "%s Len=%d%s",
                              is_request ? "Request" : "Response",
@@ -439,6 +441,7 @@ dissect_elcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 switch (elcom_msg_type) {
                 case P_CONRQ:
                 case P_CONRS:
+
                         /* starting after elcom_len and elcom_msg_type,
                            initiator + responder + userdata fields must be there */
                         if (tvb_length_remaining(tvb, 3+TOTAL_LEN+TOTAL_LEN+3) < 0) return;
@@ -447,6 +450,7 @@ dissect_elcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         if (tvb_get_guint8(tvb, 3+1+LOWADR_LEN) != SUFFIX_LEN) return;
                         if (tvb_get_guint8(tvb, 3+TOTAL_LEN) != LOWADR_LEN) return;
                         if (tvb_get_guint8(tvb, 3+1+TOTAL_LEN+LOWADR_LEN) != SUFFIX_LEN) return;
+
                         /* finally believe that there is valid suffix */
                         suffix = tvb_get_string(tvb, 3+2+LOWADR_LEN, 2);
                         col_append_fstr(pinfo->cinfo, COL_INFO, " %s Connect", suffix);
@@ -513,7 +517,7 @@ dissect_elcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                  * /ELCOM-90 P Protocol spec/ p. 85...
                  */
 
-                /* We need the lenght here, hardcode the LOWADR_LEN = 21 */
+                /* We need the length here, hardcode the LOWADR_LEN = 21 */
                 ti = proto_tree_add_item(elcom_tree, hf_elcom_initiator, tvb, offset, TOTAL_LEN, ENC_BIG_ENDIAN);
                 offset = dissect_lower_address(ti, ett_elcom_initiator, tvb, offset,
                                                hf_elcom_initiator_endian,
@@ -591,7 +595,7 @@ proto_register_elcom(void)
                 },
 
                 { &hf_elcom_length,
-                  { "Lenght",        "elcom.length",
+                  { "Length",        "elcom.length",
                     FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
                 },
 
@@ -656,7 +660,7 @@ proto_register_elcom(void)
                 },
 
                 { &hf_elcom_userdata_length,
-                  { "Lenght",        "elcom.userdata.length",
+                  { "Length",        "elcom.userdata.length",
                     FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
                 },
 
