@@ -167,10 +167,10 @@ static void finalize_frame(void) {
 /* Fill in pseudo-header according to the encapsulation type	*/
 
 static void
-k12text_set_pseudo_header(wtap *wth, union wtap_pseudo_header *pseudo_header)
+k12text_set_pseudo_header(gint encap, union wtap_pseudo_header *pseudo_header)
 {
 	/* The file-encap is WTAP_ENCAP_PER_PACKET */
-	switch(wth->phdr.pkt_encap) {
+	switch(encap) {
 	    case WTAP_ENCAP_ETHERNET:
 		    pseudo_header->eth.fcs_len = 0;
 		    break;
@@ -256,7 +256,7 @@ k12text_read(wtap *wth, int *err, char ** err_info, gint64 *data_offset)
 	wth->phdr.caplen = wth->phdr.len = ii;
 
 	wth->phdr.pkt_encap = g_encap;
-	k12text_set_pseudo_header(wth, &wth->pseudo_header);
+	k12text_set_pseudo_header(g_encap, &wth->pseudo_header);
 
 	buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
 	memcpy(buffer_start_ptr(wth->frame_buffer), bb, wth->phdr.caplen);
@@ -295,7 +295,7 @@ k12text_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header *pseudo_h
 		return FALSE;
 	}
 
-	k12text_set_pseudo_header(wth, pseudo_header);
+	k12text_set_pseudo_header(g_encap, pseudo_header);
 
 	memcpy(pd, bb, length);
 
