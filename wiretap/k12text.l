@@ -187,7 +187,6 @@ k12text_set_pseudo_header(wtap *wth, union wtap_pseudo_header *pseudo_header)
 		    /* out ....						*/
 		    break;
 #endif
-	    case WTAP_ENCAP_UNKNOWN:
 	    default:
 		    break;
 	}
@@ -427,7 +426,6 @@ k12text_dump_can_write_encap(int encap)
 	case WTAP_ENCAP_ETHERNET:
 	case WTAP_ENCAP_MTP3:
 	case WTAP_ENCAP_CHDLC:
-	case WTAP_ENCAP_UNKNOWN:
 		return 0;
 	case WTAP_ENCAP_MTP2:
 	case WTAP_ENCAP_ATM_PDUS:
