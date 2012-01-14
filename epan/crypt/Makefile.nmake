@@ -9,7 +9,7 @@ include Makefile.common
 ############### no need to modify below this line #########
 
 CFLAGS=$(WARNINGS_ARE_ERRORS) $(STANDARD_CFLAGS) \
-	 /I../.. $(GLIB_CFLAGS)
+	 /I../.. $(GLIB_CFLAGS) $(GNUTLS_CFLAGS)
 
 .c.obj::
 	$(CC) $(CFLAGS)  -Fd.\ -c $<
@@ -20,7 +20,7 @@ airpdcap.lib: $(AIRPDCAP_OBJECTS)
 	link /lib /out:airpdcap.lib $(AIRPDCAP_OBJECTS)
 
 clean:
-        rm -f $(AIRPDCAP_OBJECTS) airpdcap.lib *.pdb
+	rm -f $(AIRPDCAP_OBJECTS) airpdcap.lib *.pdb
 
 distclean: clean
 
