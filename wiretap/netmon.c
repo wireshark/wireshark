@@ -947,7 +947,19 @@ static const int wtap_encap[] = {
 
 /* Returns 0 if we could write the specified encapsulation type,
    an error indication otherwise. */
-int netmon_dump_can_write_encap(int encap)
+int netmon_dump_can_write_encap_1_x(int encap)
+{
+	/*
+	 * Per-packet encapsulations are *not* supported in NetMon 1.x
+	 * format.
+	 */
+	if (encap < 0 || (unsigned) encap >= NUM_WTAP_ENCAPS || wtap_encap[encap] == -1)
+		return WTAP_ERR_UNSUPPORTED_ENCAP;
+
+	return 0;
+}
+
+int netmon_dump_can_write_encap_2_x(int encap)
 {
 	/*
 	 * Per-packet encapsulations are supported in NetMon 2.1

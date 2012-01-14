@@ -516,11 +516,11 @@ static const struct file_type_info dump_open_table_base[] = {
 
 	/* WTAP_FILE_NETMON_1_x */
 	{ "Microsoft NetMon 1.x", "netmon1", "*.cap", ".cap", TRUE, FALSE,
-	  netmon_dump_can_write_encap, netmon_dump_open },
+	  netmon_dump_can_write_encap_1_x, netmon_dump_open },
 
 	/* WTAP_FILE_NETMON_2_x */
 	{ "Microsoft NetMon 2.x", "netmon2", "*.cap", ".cap", TRUE, FALSE,
-	  netmon_dump_can_write_encap, netmon_dump_open },
+	  netmon_dump_can_write_encap_2_x, netmon_dump_open },
 
 	/* WTAP_FILE_NGSNIFFER_UNCOMPRESSED */
 	{ "NA Sniffer (DOS)", "ngsniffer", "*.cap;*.enc;*.trc;*.fdc;*.syc", ".cap", FALSE, FALSE,
