@@ -134,11 +134,6 @@ static void ref_time_packets(capture_file *cf);
 #define MIN_QUANTUM         200000
 #define MIN_NUMBER_OF_PACKET 1500
 
-/* Number of "frame_data" structures per memory chunk.
-   XXX - is this the right number? */
-#define FRAME_DATA_CHUNK_SIZE   1024
-
-
 /*
  * We could probably use g_signal_...() instead of the callbacks below but that
  * would require linking our CLI programs to libgobject and creating an object

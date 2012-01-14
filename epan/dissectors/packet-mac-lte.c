@@ -4062,7 +4062,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 
-/* Initializes the hash table and the mem_chunk area each time a new
+/* Initializes the hash tables each time a new
  * file is loaded or re-loaded in wireshark */
 static void
 mac_lte_init_protocol(void)

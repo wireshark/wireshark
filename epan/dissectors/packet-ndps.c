@@ -4098,7 +4098,7 @@ ndps_hash(gconstpointer v)
     return GPOINTER_TO_UINT(ndps_key->conversation) + ndps_key->ndps_xport;
 }
 
-/* Initializes the hash table and the mem_chunk area each time a new
+/* Initializes the hash table each time a new
  * file is loaded or re-loaded in wireshark */
 static void
 ndps_init_protocol(void)

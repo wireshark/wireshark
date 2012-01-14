@@ -233,7 +233,7 @@ void
 camelsrt_init_routine(void)
 {
 
-  /* free hash-tables and mem_chunks for SRT */
+  /* free hash-table for SRT */
   if (srt_calls != NULL) {
 #ifdef DEBUG_CAMELSRT
     dbg(16,"Destroy hash ");
@@ -241,7 +241,7 @@ camelsrt_init_routine(void)
     g_hash_table_destroy(srt_calls);
   }
 
-  /* create new hash-tables and mem_chunks for SRT */
+  /* create new hash-table for SRT */
   srt_calls = g_hash_table_new(camelsrt_call_hash, camelsrt_call_equal);
 #ifdef DEBUG_CAMELSRT
   dbg(16,"Create hash ");

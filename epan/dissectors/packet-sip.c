@@ -905,7 +905,7 @@ static gint sip_equal(gconstpointer v, gconstpointer v2)
 }
 
 
-/* Initializes the hash table and the mem_chunk area each time a new
+/* Initializes the hash table each time a new
  * file is loaded or re-loaded in wireshark */
 static void
 sip_init_protocol(void)

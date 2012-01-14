@@ -890,7 +890,7 @@ void
 tcapsrt_init_routine(void)
 {
 
-  /* free hash-tables and mem_chunks for SRT */
+  /* free hash-table for SRT */
   if (tcaphash_context != NULL) {
 #ifdef DEBUG_TCAPSRT
     dbg(16,"Destroy hash_context \n");
@@ -929,12 +929,12 @@ tcapsrt_init_routine(void)
 #ifdef DEBUG_TCAPSRT
   dbg(16,"Create hash \n");
 #endif
-  /* create new hash-tables and mem_chunks for SRT */
+  /* create new hash-tables for SRT */
   tcaphash_context = g_hash_table_new(tcaphash_context_calchash, tcaphash_context_equal);
-  tcaphash_begin = g_hash_table_new(tcaphash_begin_calchash, tcaphash_begin_equal);
-  tcaphash_cont = g_hash_table_new(tcaphash_cont_calchash, tcaphash_cont_equal);
-  tcaphash_end = g_hash_table_new(tcaphash_end_calchash, tcaphash_end_equal);
-  tcaphash_ansi = g_hash_table_new(tcaphash_ansi_calchash, tcaphash_ansi_equal);
+  tcaphash_begin   = g_hash_table_new(tcaphash_begin_calchash, tcaphash_begin_equal);
+  tcaphash_cont    = g_hash_table_new(tcaphash_cont_calchash, tcaphash_cont_equal);
+  tcaphash_end     = g_hash_table_new(tcaphash_end_calchash, tcaphash_end_equal);
+  tcaphash_ansi    = g_hash_table_new(tcaphash_ansi_calchash, tcaphash_ansi_equal);
 
   /* Reset the session counter */
   tcapsrt_global_SessionId=1;

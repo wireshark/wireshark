@@ -194,19 +194,16 @@ reassembled_hash(gconstpointer k)
 
 /*
  * For a fragment hash table entry, free the associated fragments.
- * If slices are used (GLIB >= 2.10) the entry value (fd_chain) is
- * freed herein and the entry is freed when fragment_free_key()
- * [or dcerpc_fragment_free_key()] is called (as a consequence of
- * returning TRUE from this function).
- * If mem_chunks are used, free the address data to which the key
- * refers.
+ * The entry value (fd_chain) is freed herein and the entry is freed
+ * when fragment_free_key() [or dcerpc_fragment_free_key()] is called
+ * (as a consequence of returning TRUE from this function).
  */
 static gboolean
 free_all_fragments(gpointer key_arg _U_, gpointer value, gpointer user_data _U_)
 {
 	fragment_data *fd_head, *tmp_fd;
 
-	/* If Glib version => 2.10 we do g_hash_table_new_full() and supply a function
+	/* g_hash_table_new_full() was used to supply a function
 	 * to free the key and the addresses.
 	 */
 	for (fd_head = value; fd_head != NULL; fd_head = tmp_fd) {

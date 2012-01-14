@@ -457,7 +457,7 @@ spx_hash_func(gconstpointer v)
 	return GPOINTER_TO_UINT(spx_key->conversation) + spx_key->spx_src;
 }
 
-/* Initializes the hash table and the mem_chunk area each time a new
+/* Initializes the hash table each time a new
  * file is loaded or re-loaded in wireshark */
 static void
 spx_init_protocol(void)
