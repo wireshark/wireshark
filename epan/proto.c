@@ -260,14 +260,7 @@ struct _protocol {
 /* List of all protocols */
 static GList *protocols = NULL;
 
-#define INITIAL_NUM_PROTOCOL_HFINFO 	1500
-
-/* Contains information about protocols and header fields. Used when
- * dissectors register their data */
-#if GLIB_CHECK_VERSION(2,10,0)
-#else
-static GMemChunk *gmc_hfinfo = NULL;
-#endif
+#define INITIAL_NUM_PROTOCOL_HFINFO	1500
 
 /* Contains information about a field when a dissector calls
  * proto_tree_add_item.  */
@@ -365,14 +358,6 @@ proto_init(void (register_all_protocols_func)(register_cb cb, gpointer client_da
 	proto_short_names = g_hash_table_new(wrs_str_hash, g_str_equal);
 	proto_filter_names = g_hash_table_new(wrs_str_hash, g_str_equal);
 
-#if GLIB_CHECK_VERSION(2,10,0)
-#else
-	gmc_hfinfo = g_mem_chunk_new("gmc_hfinfo",
-		sizeof(header_field_info),
-			INITIAL_NUM_PROTOCOL_HFINFO * sizeof(header_field_info),
-			G_ALLOC_ONLY);
-#endif
-
 	gpa_hfinfo.len=0;
 	gpa_hfinfo.allocated_len=0;
 	gpa_hfinfo.hfi=NULL;
@@ -450,12 +435,7 @@ proto_cleanup(void)
 		PROTO_REGISTRAR_GET_NTH(protocol->proto_id, hfinfo);
 		DISSECTOR_ASSERT(protocol->proto_id == hfinfo->id);
 
-#if GLIB_CHECK_VERSION(2,10,0)
 		g_slice_free(header_field_info, hfinfo);
-#else
-		g_mem_chunk_free(gmc_hfinfo, hfinfo);
-#endif
-
 		g_list_free(protocol->fields);
 		protocols = g_list_remove(protocols, protocol);
 		g_free(protocol);
@@ -475,14 +455,6 @@ proto_cleanup(void)
 		g_hash_table_destroy(proto_filter_names);
 		proto_filter_names = NULL;
 	}
-
-#if GLIB_CHECK_VERSION(2,10,0)
-#else
-	if (gmc_hfinfo) {
-		g_mem_chunk_destroy(gmc_hfinfo);
-		gmc_hfinfo = NULL;
-	}
-#endif
 
 	if(gpa_hfinfo.allocated_len){
 		gpa_hfinfo.len=0;
@@ -4435,11 +4407,7 @@ proto_register_protocol(const char *name, const char *short_name,
 	protocols = g_list_prepend(protocols, protocol);
 
 	/* Here we do allocate a new header_field_info struct */
-#if GLIB_CHECK_VERSION(2,10,0)
 	hfinfo = g_slice_new(header_field_info);
-#else
-	hfinfo = g_mem_chunk_alloc(gmc_hfinfo);
-#endif
 	hfinfo->name = name;
 	hfinfo->abbrev = filter_name;
 	hfinfo->type = FT_PROTOCOL;

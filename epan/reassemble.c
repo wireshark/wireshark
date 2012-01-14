@@ -408,18 +408,10 @@ fragment_delete(const packet_info *pinfo, const guint32 id, GHashTable *fragment
 
 		if( !(fd->flags&FD_NOT_MALLOCED) )
 			g_free(fd->data);
-#if GLIB_CHECK_VERSION(2,10,0)
 		g_slice_free(fragment_data, fd);
-#else
-		g_mem_chunk_free(fragment_data_chunk, fd);
-#endif
 		fd=tmp_fd;
 	}
-#if GLIB_CHECK_VERSION(2,10,0)
 	g_slice_free(fragment_data, fd_head);
-#else
-	g_mem_chunk_free(fragment_data_chunk, fd_head);
-#endif
 	g_hash_table_remove(fragment_table, &key);
 
 	return data;
@@ -586,16 +578,6 @@ fragment_unhash(GHashTable *fragment_table, fragment_key *key)
 	/*
 	 * Free the key itself.
 	 */
-#if GLIB_CHECK_VERSION(2,10,0)
-#else
-	/*
-	 * Free up the copies of the addresses from the old key.
-	 */
-	g_free((gpointer)key->src.data);
-	g_free((gpointer)key->dst.data);
-
-	g_mem_chunk_free(fragment_key_chunk, key);
-#endif
 }
 
 /*
@@ -668,11 +650,7 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, const int offset,
 	unsigned char *old_data;
 
 	/* create new fd describing this fragment */
-#if GLIB_CHECK_VERSION(2,10,0)
 	fd = g_slice_new(fragment_data);
-#else
-	fd = g_mem_chunk_alloc(fragment_data_chunk);
-#endif
 	fd->next = NULL;
 	fd->flags = 0;
 	fd->frame = pinfo->fd->num;
@@ -976,11 +954,7 @@ fragment_add_common(tvbuff_t *tvb, const int offset, const packet_info *pinfo, c
 		 * addresses, allocating new buffers for the address
 		 * data.
 		 */
-#if GLIB_CHECK_VERSION(2,10,0)
 		new_key = g_slice_new(fragment_key);
-#else
-		new_key = g_mem_chunk_alloc(fragment_key_chunk);
-#endif
 		COPY_ADDRESS(&new_key->src, &key.src);
 		COPY_ADDRESS(&new_key->dst, &key.dst);
 		new_key->id = key.id;
@@ -1067,11 +1041,7 @@ fragment_add_check(tvbuff_t *tvb, const int offset, const packet_info *pinfo,
 		 * addresses, allocating new buffers for the address
 		 * data.
 		 */
-#if GLIB_CHECK_VERSION(2,10,0)
 		new_key = g_slice_new(fragment_key);
-#else
-		new_key = g_mem_chunk_alloc(fragment_key_chunk);
-#endif
 		COPY_ADDRESS(&new_key->src, &key.src);
 		COPY_ADDRESS(&new_key->dst, &key.dst);
 		new_key->id = key.id;
@@ -1233,11 +1203,7 @@ fragment_add_seq_work(fragment_data *fd_head, tvbuff_t *tvb, const int offset,
 
 
 	/* create new fd describing this fragment */
-#if GLIB_CHECK_VERSION(2,10,0)
 	fd = g_slice_new(fragment_data);
-#else
-	fd = g_mem_chunk_alloc(fragment_data_chunk);
-#endif
 	fd->next = NULL;
 	fd->flags = 0;
 	fd->frame = pinfo->fd->num;
@@ -1753,12 +1719,7 @@ fragment_start_seq_check(const packet_info *pinfo, const guint32 id, GHashTable 
 
 	if (fd_head == NULL) {
 		/* Create list-head. */
-#if GLIB_CHECK_VERSION(2,10,0)
 		fd_head = g_slice_new(fragment_data);
-#else
-		fd_head = g_mem_chunk_alloc(fragment_data_chunk);
-#endif
-
 		fd_head->next = NULL;
 		fd_head->datalen = tot_len;
 		fd_head->offset = 0;
