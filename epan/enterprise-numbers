@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2012-01-08)
+(last updated 2012-01-14)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -366,9 +366,9 @@ Decimal
     Roland Bless
       ldap&tm.uka.de
 88
-  NYU
-    Bill Russell
-      russell&cmcl2.NYU.EDU
+  New York University
+    Jimmy Kyriannis
+      jimmy.kyriannis&nyu.edu
 89
   RND
     Rina Nethaniel
@@ -27730,9 +27730,9 @@ Decimal
     Vladimir A. Grishin
       info&alpha.ru
 6944
-  SERMEPA
-    Angel Lozano Rodriguez
-      alozano&sermepa.es
+  REDSYS (previous was 'SERMEPA')
+    Gonzalo Alvarez-Castellanos
+      galvarez&redsys.es
 6945
   LAKE Communications
     Mark McCarville
@@ -39222,9 +39222,9 @@ Decimal
     Alexander Finkelshtein
       alex&wanwall.com
 9817
-  WaveNET(PVT) Ltd.
-    Eranga Weeraratne
-      eranga&infotechs.lk
+  WaveNET International (Pvt) Ltd.
+    Vance Shipley
+      vance&wavenet.lk
 9818
   Xwave GmbH
     Marcus Spiegel
@@ -66683,9 +66683,9 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
     Michael Dickey
       mdickey&clickcadence.com
 16783
-  Abacus Technical Training Company
+  Abacus Technical Services
     Michael Hammond
-      MCTMike&Ameritech.net
+      MCTMike&AbacusTech.info
 16784
   Olson Technology, Inc.
     Tom Olson
@@ -116209,8 +116209,8 @@ Decentralization / Helenic Public Administra
       cia&fatbit.pipe2.net
 29157
   Bytemark Hosting
-    Alex Howells
-      alex&bytemark.co.uk
+    Patrick Cherry
+      iana&bytemark.co.uk
 29158
   Alinea Software Solutions SL
     J.C. Ramos
@@ -118521,7 +118521,7 @@ Decentralization / Helenic Public Administra
       iana&wartsila.com
 29735
   E.T.S.V. Scintilla
-    Leon Haverkotte
+    Koen Zandberg
       sot&scintilla.utwente.nl
 29736
   Unified Business Solutions
@@ -126710,8 +126710,8 @@ Decentralization / Helenic Public Administra
       rath&technikgruppe.com
 31782
   SyferLock Technology Corporation
-    Michael Forrest
-      mforrest&syferlock.com
+    Abu Marcose
+      support&syferlock.com
 31783
   MetroSouth Medical Center
     LeAndre Jones
@@ -148880,8 +148880,8 @@ Decentralization / Helenic Public Administra
       ymatsuo&oregano.ocn.ne.jp
 37324
   Albany Medical Center
-    Eddy Rospide
-      rospide&mail.amc.edu
+    Joseph Hoffman
+      hoffmaj&mail.amc.edu
 37325
   York College of Pennsylvania
     Kyle Smith
@@ -156354,6 +156354,210 @@ Decentralization / Helenic Public Administra
   IBSmm Engineering, spol. s r.o.
     Radomir Vrbovsky
       R.Vrbovsky&IBSmm.com
+39193
+  Vayosoft Network Technologies Ltd.
+    Jean Dubenko
+      jean&vayosoft.com
+39194
+  CSSS IUGS (Centre de Sante et des Services Sociaux - Institut Universitaire de Geriatrie de Sherbrooke)
+    Sylvain Gobeil
+      slgobeil.csss-iugs&ssss.gouv.qc.ca
+39195
+  Spawngrid, Inc.
+    Iurii Rashkovskyi
+      yrashk&spawngrid.com
+39196
+  Oxynux
+    Benjamin Collet
+      bcollet&oxynux.org
+39197
+  Xitek Design Ltd
+    Alan Jacks
+      support&xitekdesign.com
+39198
+  Brekeke Software, Inc.
+    Shinichi Mitsumata
+      mitu&brekeke.com
+39199
+  EXPRESSTRAK - DATS
+    Vijay Pavuluri
+      vijayp000&gmail.com
+39200
+  KTB COMPUTER SERVICES Co.,Ltd
+    Somporn Jarusinchai
+      somporn.jaru&ktbcs.co.th
+39201
+  redtoo ag
+    Daniel von Büren
+      Daniel.vonBueren&redtoo.com
+39202
+  ASP Alerce Tecnology SL
+    Alvaro Fernandez Corugedo Feilenreiter
+      acorugedo&aspalerce.es
+39203
+  Qualysoft Informatikai Zrt.
+    Jacint Toth
+      jacint.toth&qualysoft.com
+39204
+  QuanticEvents
+    Eric Fries
+      eric.fries&quanticevents.com
+39205
+  Broadnet Telecom Inc
+    Christian Mokbel
+      cmokbel&broadnet-telecom.ca
+39206
+  EITV - Entretenimento e Interatividade para TV Digital
+    Roberto Marchesini
+      roberto.marchesini&eitv.com.br
+39207
+  SparkYard, Inc.
+    Jonathan Layes
+      iana-pen-support&sparkyard.com
+39208
+  LivingObjects
+    Damien DUMEZ
+      damien.dumez&livingobjects.fr
+39209
+  Plexus Corp.
+    Scott Reynolds
+      hostmaster&plexus.com
+39210
+  Impulse Point LLC
+    Andrew Tams
+      atams&impulse.com
+39211
+  Positronics Enterprise Limited
+    Kelvin Chan
+      kelvin.chan&positronics.com
+39212
+  Prosyscor Ltd
+    Bradley Kite
+      support&prosyscor.com
+39213
+  Datakonsult Magnus Sandberg
+    Magnus Sandberg
+      oid&datakon.se
+39214
+  MT2IT
+    Joerg-Uwe Meyer
+      joerg-uwe.meyer&mt2it.com
+39215
+  Kernun
+    Vladimir Tulacka
+      iana&kernun.cz
+39216
+  BroadForward B.V.
+    Raymond van der Laan
+      raymond.van.der.laan&broadforward.com
+39217
+  Triple T Broadband PCL
+    Aroon Janthong
+      aroon.j&jasmine.com
+39218
+  Connection Electronics Ltd.
+    Victor Lau
+      victor&cel.hk
+39219
+  Overkiz
+    COSSERAT Hubert
+      h.cosserat&overkiz.com
+39220
+  Theoldmonk.net
+    Devendra Gera
+      iana.pen&theoldmonk.net
+39221
+  Pakedge Device and Software Inc
+    Dusan Jankov
+      dusan&pakedge.com
+39222
+  Patrick Shuff Industries
+    Patrick Shuff
+      patrick.shuff&gmail.com
+39223
+  ADNET Systems, Inc.
+    Lucas Yamanishi
+      lyamanishi&sesda2.com
+39224
+  Djipalo Junuz
+    Djipalo Junuz
+      djipalo.junuz&djipalo.com.ba
+39225
+  AVRO Electrics
+    Krzysztof Sroka
+      krzysztof.sroka&avro.com.pl
+39226
+  REWOO Technologies AG
+    Andreas Gall
+      administration&rewoo.com
+39227
+  GIE Vauban Humanis
+    Vincent Dussaucy
+      oid.admin&vaubanhumanis.com
+39228
+  Kemira Oyj
+    Hannu Strang
+      kits.infra&kemira.com
+39229
+  Convergence Technologies
+    Jeff Ehman
+      jehman&converge-tech.com
+39230
+  lenic.eu
+    Lukasz Kapiec
+      lukasz&lenic.eu
+39231
+  Hosting.com, Inc.
+    Darrell Hyde
+      darrell&hosting.com
+39232
+  Drogentherapiezentrum LAGO
+    Raphael Beer
+      raphael.beer&gmx.de
+39233
+  Saint John's Health System
+    Jennifer Marcum
+      jlmarcum&sjhsnet.org
+39234
+  Mitroko Inc.
+    Dmitry Stremkouski
+      mitroko&gmail.com
+39235
+  Exelis Inc.
+    Paul Lafferty 
+      paul.lafferty&exelisinc.com
+39236
+  Sacred Point Studios
+    Joshua Porter
+      jporter&sacredpointstudios.com
+39237
+  FW-Systeme GmbH
+    Reiner Onnen
+      onnen&fw-systeme.de
+39238
+  VelociData, Inc
+    Michael Henrichs
+      mhenrichs&velocidata.com
+39239
+  LittleJackal 
+    Paul Kiela
+      iana&littlejackal.com
+39240
+  Atacama Large Millimeter/submillimeter Array
+    Marcelo Bartsch
+      software&alma.cl
+39241
+  volkszaehler.org
+    Gerhard Bertelsmann
+      info&gerhard-bertelsmann.de
+39242
+  Krki IT
+    Lafo Mamone
+      krki-it&hotmail.com
+39243
+  VNLI LTD CO.
+    VINCENT KIBET KIRUI/ LILIAN CHEPKORIR KIRUI
+      vkirui11&yahoo.com
 
 
 End of Document

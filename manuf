@@ -14581,6 +14581,14 @@
 00:50:C2:F1:10:00/36	Organis                # Organis GmbH
 00:50:C2:F1:20:00/36	GeneralI               # General Industrial Controls Pvt Ltd
 00:50:C2:F1:30:00/36	PacketPl               # Packet Plus, Inc.
+00:50:C2:F1:40:00/36	VisionAe               # VISION SYSTEMS AERONAUTIC
+00:50:C2:F1:50:00/36	SascalDi               # Sascal Displays Ltd
+00:50:C2:F1:60:00/36	PeterHub               # Peter Huber Kï¿½ltemaschinenbau GmbH
+00:50:C2:F1:70:00/36	AbbTrans               # ABB Transmission and Distribution Automation Equipment (Xiamen) Co., Ltd
+00:50:C2:F1:80:00/36	VitecMul               # Vitec Multimedia
+00:50:C2:F1:90:00/36	NetlinkB               # Netlink Bilisim Sistemleri San. ve Tic. Ltd. Sti.
+00:50:C2:F1:A0:00/36	AquaMana               # Aqua Management
+00:50:C2:F1:B0:00/36	Saia-Bur               # Saia-Burgess Controls AG
 00:50:C4	Imd
 00:50:C5	AdsTechn               # ADS Technologies, Inc
 00:50:C6	LoopTele               # LOOP TELECOMMUNICATION INTERNATIONAL, INC.
@@ -16777,6 +16785,7 @@
 08:76:FF	ThomsonT               # Thomson Telecom Belgium
 08:86:3B	BelkinIn               # Belkin International, Inc.
 08:8D:C8	RyowaEle               # Ryowa Electronics Co.,Ltd
+08:8F:2C	HillsSou               # Hills Sound Vision & Lighting
 08:9F:97	LeroyAut               # LEROY AUTOMATION
 08:A1:2B	Shenzhen               # ShenZhen EZL Technology Co., Ltd
 08:A9:5A	Azurewav               # Azurewave
@@ -17466,6 +17475,7 @@
 40:F4:EC	Cisco                  # Cisco Systems
 40:F5:2E	LeicaMic               # Leica Microsystems (Schweiz) AG
 40:FC:89	Motorola               # Motorola Mobility, Inc.
+44:13:19	WkkTechn               # WKK TECHNOLOGY LTD.
 44:1E:A1	Hewlett-               # Hewlett-Packard Company
 44:25:BB	BambooEn               # Bamboo Entertainment Corporation
 44:2A:60	Apple                  # Apple, Inc.
@@ -17644,6 +17654,7 @@
 50:C9:71	GnNetcom               # GN Netcom A/S
 50:CC:F8	SamsungE               # Samsung Electro Mechanics
 50:CE:75	MeasyEle               # Measy Electronics Ltd
+50:D2:74	Steffes                # Steffes Corporation
 50:D6:D7	Takahata               # Takahata Precision
 50:E5:49	Giga-Byt               # GIGA-BYTE TECHNOLOGY CO.,LTD.
 50:EA:D6	Apple                  # Apple, Inc.
@@ -17842,6 +17853,7 @@
 64:1E:81	Dowslake               # Dowslake Microsystems
 64:20:0C	Apple                  # Apple, Inc.
 64:27:37	HonHaiPr               # Hon Hai Precision Ind. Co.,Ltd. 
+64:2D:B7	SeungilE               # SEUNGIL ELECTRONICS
 64:31:50	Hewlett-               # Hewlett-Packard Company
 64:31:7E	Dexin                  # Dexin Corporation
 64:34:09	BitwaveP               # BITwave Pte Ltd
@@ -18120,6 +18132,7 @@
 78:92:9C	IntelCor               # Intel Corporate
 78:99:8F	Mediline               # MEDILINE ITALIA SRL
 78:A0:51	IinetLab               # iiNet Labs Pty Ltd 
+78:A1:83	Advidia
 78:A2:A0	Nintendo               # Nintendo Co., Ltd.
 78:A3:E4	Apple                  # Apple, Inc.
 78:A5:DD	Shenzhen               # Shenzhen Smarteye Digital Electronics Co., Ltd
@@ -18543,6 +18556,7 @@
 98:F8:DB	MariniIm               # Marini Impianti Industriali s.r.l.
 98:FC:11	Cisco-Li               # Cisco-Linksys, LLC
 98:FE:03	Ericsson               # Ericsson - North America
+9C:01:11	Shenzhen               # Shenzhen Newabel Electronic Co., Ltd.
 9C:02:98	SamsungE               # Samsung Electronics Co.,Ltd 
 9C:18:74	NokiaDan               # Nokia Danmark A/S
 9C:1F:DD	Accupix                # Accupix Inc.
@@ -18725,6 +18739,7 @@ A8:BD:1A	HoneyBee               # Honey Bee (Hong Kong) Limited
 A8:C2:22	Tm-Resea               # TM-Research Inc.
 A8:CB:95	EastBest               # EAST BEST CO., LTD.
 A8:CE:90	Cvc
+A8:D0:E5	JuniperN               # Juniper Networks
 A8:D3:C8	Wachendo               # Wachendorff Elektronik  GmbH &amp; Co. KG
 A8:E0:18	Nokia                  # Nokia Corporation
 A8:E3:EE	SonyComp               # Sony Computer Entertainment Inc.
@@ -19662,6 +19677,7 @@ F4:3E:9D	BenuNetw               # Benu Networks, Inc.
 F4:42:27	SSResear               # S & S Research Inc.
 F4:44:50	Bnd                    # BND Co., Ltd.
 F4:45:ED	Portable               # Portable Innovation Technology Ltd.
+F4:48:48	Amscreen               # Amscreen Group Ltd
 F4:4E:FD	ActionsS               # Actions Semiconductor Co.,Ltd.(Cayman Islands)
 F4:50:EB	Telechip               # Telechips Inc
 F4:55:95	Hengbao                # HENGBAO Corporation LTD.
@@ -19707,6 +19723,7 @@ F8:35:53	MagentaR               # Magenta Research Ltd.
 F8:3D:FF	HuaweiTe               # Huawei Technologies Co., Ltd
 F8:46:2D	SyntecIn               # SYNTEC Incorporation
 F8:47:2D	X2genDig               # X2gen Digital Corp. Ltd
+F8:50:63	Verathon
 F8:52:DF	VnlEurop               # VNL Europe AB
 F8:66:F2	Cisco                  # Cisco Systems
 F8:69:71	SeibuEle               # Seibu Electric Co.,
