@@ -100,7 +100,6 @@ static int hf_c1222_epsem_flags_ed_class = -1;
 static int hf_c1222_epsem_flags_security_modes = -1;
 static int hf_c1222_epsem_flags_response_control = -1;
 /* and the structure of the flag components */
-/* 
 static const int *c1222_flags[] = {
   &hf_c1222_epsem_flags_reserved,
   &hf_c1222_epsem_flags_recovery,
@@ -110,7 +109,6 @@ static const int *c1222_flags[] = {
   &hf_c1222_epsem_flags_response_control,
   NULL
 };
-*/
 /* next the optional ed_class */
 static int hf_c1222_epsem_ed_class = -1;
 /* now the aggregate epsem */
@@ -859,7 +857,6 @@ ber_len_ok(tvbuff_t *tvb, int offset)
 static int
 dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_tree *tree)
 {
-  /* proto_tree *ft = NULL; */
   proto_tree *cmd_tree = NULL;
   proto_tree *ct = NULL;
   proto_tree *crypto_tree = NULL;
@@ -883,7 +880,7 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
   }
   /* parse the flags byte which is always unencrypted */
   flags = tvb_get_guint8(tvb, offset);
-  /* ft = proto_tree_add_bitmask(tree, tvb, offset, hf_c1222_epsem_flags, ett_c1222_flags, c1222_flags, FALSE);  */
+  proto_tree_add_bitmask(tree, tvb, offset, hf_c1222_epsem_flags, ett_c1222_flags, c1222_flags, FALSE);
   offset++;
   switch ((flags & C1222_EPSEM_FLAG_SECURITY_MODE) >> 2) {
     case EAX_MODE_CIPHERTEXT_AUTH:
