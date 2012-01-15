@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2012-01-04
+# 2012-01-11
 # 
 # Note
 # 
@@ -10178,7 +10178,8 @@ awacs-ice	4488/udp	# Apple Wide Area Connectivity [Rory_McGuire]                
 ipsec-nat-t	4500/tcp	# IPsec NAT-Traversal                                                                                                                                        [RFC3947]
 ipsec-nat-t	4500/udp	# IPsec NAT-Traversal                                                                                                                                        [RFC3947]
 # 4501               Unassigned                   [IANA]                                    [IANA]                                                                                                                                            De-registered 08 June 2001
-# 4502-4534            Unassigned
+a25-fap-fgw	4502/sctp	# A25 (FAP-FGW)                [ThreeGPP2]                               [Zhiming_Li]                                              2012-01-11
+# 4503-4534            Unassigned
 ehs	4535/tcp	# Event Heap Server
 ehs	4535/udp	# Event Heap Server
 ehs-ssl	4536/tcp	# Event Heap Server SSL        [Brad_Johanson]                           [Brad_Johanson]                                           2005-08
@@ -20780,6 +20781,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Thomas_Zwick]                                            Thomas Zwick                                    mailto:thomas.zwick&tz-software.de                            2011-10-12
 # [Thor_Olson]                                              Thor Olson                                      mailto:Thor&terabase.com
 # [Thorvald_Natvig]                                         Thorvald Natvig                                 mailto:thorvald&natvig.com
+# [ThreeGPP2]                                                                         3GPP2                 mailto:lizhiming&huawei.com                                   2012-01-11
 # [Tiago_Bittencourt_Si]                                    Tiago Bittencourt Silva                         mailto:tiagobs&ufpr.br                                        2005-08
 # [Tightrope_Media_Systems]                                                           Tightrope Media       mailto:sjann&trms.com                                         2011-10-17
 # Systems, Inc.
@@ -21138,6 +21140,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Zdenek_Kolba]                                            Zdenek Kolba                                    mailto:zdenek.kolba&id-karta.cz
 # [Zenon_Fortuna]                                           Zenon Fortuna                                   mailto:zenon&mips.com                                         2007-02
 # [Zhengli]                                                 Zhengli                                         mailto:std&iwncomm.com                                        2010-06-28
+# [Zhiming_Li]                                              Zhiming Li                3GPP2                 mailto:lizhiming&huawei.com                                   2012-01-11
 # [Zhizhong_Zhuang]                                         Zhizhong Zhuang                                 mailto:ZZhuang&optellios.com                                  2006-12
 # [Zia_Bhatti]                                              Zia Bhatti                                      mailto:zia&netright.com
 # [Ziad_Sawalha]                                            Ziad Sawalha              Rackspace Hosting     mailto:ziad.sawalha&rackspace.com                             2011-08-15
