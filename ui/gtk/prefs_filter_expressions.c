@@ -136,7 +136,7 @@ filter_expressions_prefs_show(void) {
 	"change its name.\nDrag an item to change its order.\nTick 'Enable' "
 	"to enable the filter in the buttons.");
 
-    /* Enabled buton */
+    /* Enabled button */
     renderer = gtk_cell_renderer_toggle_new();
     g_signal_connect(renderer, "toggled", G_CALLBACK(enable_toggled), store);
     column = gtk_tree_view_column_new_with_attributes(
