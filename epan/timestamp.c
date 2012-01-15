@@ -28,7 +28,7 @@
 
 #include "timestamp.h"
 
-/* Init with an invalid value, so that "recent" in gtk/menu.c can detect this
+/* Init with an invalid value, so that "recent" in ui/gtk/menu.c can detect this
  * and distinguish it from a command line value */
 static ts_type timestamp_type = TS_NOT_SET;
 

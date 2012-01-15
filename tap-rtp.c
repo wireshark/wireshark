@@ -6,7 +6,7 @@
  * Copyright 2008, Ericsson AB
  * By Balint Reczey <balint.reczey@ericsson.com>
  *
- * based on gtk/rtp_stream_dlg.c
+ * based on ui/gtk/rtp_stream_dlg.c
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
  *

@@ -55,7 +55,7 @@ InterfaceTree::InterfaceTree(QWidget *parent) :
             );
 
     if_list = capture_interface_list(&err, &err_str);
-    g_log(NULL, G_LOG_LEVEL_DEBUG, "FIX: move if_list_comparator_alph out of gtk/");
+    g_log(NULL, G_LOG_LEVEL_DEBUG, "FIX: move if_list_comparator_alph out of ui/gtk/");
 //    if_list = g_list_sort(if_list, if_list_comparator_alph);
 
     if (if_list == NULL && err == CANT_GET_INTERFACE_LIST) {

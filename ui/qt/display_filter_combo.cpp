@@ -24,7 +24,7 @@
 #include <stdio.h>
 
 #include "qt_ui_utils.h"
-#include "gtk/recent.h"
+#include "ui/gtk/recent.h"
 
 #include "display_filter_edit.h"
 

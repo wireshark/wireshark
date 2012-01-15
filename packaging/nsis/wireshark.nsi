@@ -669,7 +669,7 @@ File "..\..\tpncp\tpncp.dat"
 ; of the installation directory.
 ;
 SetOutPath $INSTDIR\ui
-File "..\..\gtk\ui\main-menubar-ui.xml"
+File "..\..\ui\gtk\ui\main-menubar-ui.xml"
 SetOutPath $INSTDIR
 
 ;

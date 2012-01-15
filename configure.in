@@ -856,7 +856,7 @@ else
 	#
 	wireshark_bin="wireshark\$(EXEEXT)"
 	wireshark_man="wireshark.1"
-        wireshark_SUBDIRS="codecs gtk"
+        wireshark_SUBDIRS="codecs ui/gtk"
 	# Don't use GLIB_CFLAGS
 	AM_PATH_GLIB_2_0(2.14.0, , AC_MSG_ERROR(GLib 2.14 or later distribution not found.), gthread gmodule)
 
@@ -1977,8 +1977,8 @@ AC_OUTPUT(
   epan/wslua/Makefile
   epan/wspython/Makefile
   codecs/Makefile
-  gtk/Makefile
-  gtk/doxygen.cfg
+  ui/gtk/Makefile
+  ui/gtk/doxygen.cfg
   help/Makefile
   packaging/Makefile
   packaging/macosx/Info.plist

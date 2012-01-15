@@ -43,7 +43,7 @@
 #include "qt_ui_utils.h"
 #include "main_statusbar.h"
 
-#include "gtk/recent.h"
+#include "ui/gtk/recent.h"
 
 #include <QTreeWidget>
 #include <QTabWidget>
@@ -74,7 +74,7 @@ new_packet_list_append(column_info *cinfo, frame_data *fdata, packet_info *pinfo
     return visible_pos;
 }
 
-// Copied from gtk/new_packet_list.c
+// Copied from ui/gtk/new_packet_list.c
 void new_packet_list_resize_column(gint col)
 {
     // xxx qtshark

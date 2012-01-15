@@ -6,7 +6,7 @@
  * Copyright 2008, Ericsson AB
  * By Balint Reczey <balint.reczey@ericsson.com>
  *
- * most functions are copied from gtk/rtp_stream.c and gtk/rtp_analysis.c
+ * most functions are copied from ui/gtk/rtp_stream.c and ui/gtk/rtp_analysis.c
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
  *
@@ -44,7 +44,7 @@
         case GCP_CMD_NOTIFY_REPLY: \
         case GCP_CMD_SVCCHG_REPLY: \
         case GCP_CMD_TOPOLOGY_REPLY: \
-        case GCP_CMD_REPLY: 
+        case GCP_CMD_REPLY:
 
 #define GCP_CMD_REQ_CASE \
         case GCP_CMD_ADD_REQ: \

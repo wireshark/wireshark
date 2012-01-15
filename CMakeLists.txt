@@ -422,7 +422,7 @@ add_subdirectory( wiretap )
 add_subdirectory( wsutil )
 
 if(BUILD_wireshark AND GTK_FOUND)
-	add_subdirectory( gtk )
+	add_subdirectory( ui/gtk )
 endif()
 
 # Basedir where to install guides
@@ -470,7 +470,7 @@ PRINT_ENABLED_FEATURES()
 PRINT_DISABLED_FEATURES()
 
 link_directories(
-	${CMAKE_BINARY_DIR}/gtk
+	${CMAKE_BINARY_DIR}/ui/gtk
 	${CMAKE_BINARY_DIR}/codecs
 	${CMAKE_BINARY_DIR}/epan
 	${CMAKE_BINARY_DIR}/wiretap

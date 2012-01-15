@@ -6,7 +6,7 @@
  * Copyright 2008, Ericsson AB
  * By Balint Reczey <balint.reczey@ericsson.com>
  *
- * most functions are copied from gtk/rtp_stream.c and gtk/rtp_analisys.c
+ * most functions are copied from ui/gtk/rtp_stream.c and ui/gtk/rtp_analisys.c
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
  *
@@ -32,7 +32,7 @@
 #ifndef TAP_RTP_COMMON_H_INCLUDED
 #define TAP_RTP_COMMON_H_INCLUDED
 
-#include "gtk/rtp_stream.h"
+#include "ui/gtk/rtp_stream.h"
 
 gint rtp_stream_info_cmp(gconstpointer, gconstpointer);
 void rtpstream_reset_cb(void*);

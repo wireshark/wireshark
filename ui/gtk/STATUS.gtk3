@@ -1,0 +1,34 @@
+Status of the GTK+ 3 port :
+===========================
+
+$Id$
+
+The port is done. We used the methods described in the "Migrating from
+GTK+ 2.x to GTK+ 3" document at:
+http://developer.gnome.org/gtk3/stable/gtk-migrating-2-to-3.html
+
+To build Wireshark with GTK3 instead of GTK2, use:
+
+  - cmake:     ENABLE_GTK3=ON
+  - configure: --with-gtk3
+  This will only work if building without gtkvumeter.c (which is used on Windows
+  only and only in the WLAN code). It also requires GTK3 to be installed.
+  GTK3 is available for Windows as a mingw build, see
+  http://lists-archives.org/gtk-devel/13233-fwd-precompiled-gtk3-for-windows.html
+  A Win32 port is in the making (and availalbe as source):
+  http://blogs.gnome.org/alexl/2011/11/25/gtk-work-on-windows/
+  The location of an experimental build can be found at:
+  http://www.pguridi.com.ar/2011/10/experimental-gtk-3-3-2-win32-build/
+
+Except in one place we are building on GTK2 using the compat flags
+  -DGTK_DISABLE_SINGLE_INCLUDES
+  -DGSEAL_ENABLE
+  -DGDK_DISABLE_DEPRECATED [works everywhere except tcp_graph.h]
+  -DGTK_DISABLE_DEPRECATED
+
+Summary: The only known files that cause some sort of problems (or lost
+         functionality) are:
+  - gtkvumeter.c (removed, only used for wlan on windows)
+  - proto_help.c (not ported to UI-MANAGER)
+  - tcp_graph.c (does not compile with GTK2 and GDK_DISABLE_DEPRECATED)
+

@@ -3481,7 +3481,7 @@ cf_select_packet(capture_file *cf, int row)
   if (fdata == NULL) {
     /* XXX - if a GtkCList's selection mode is GTK_SELECTION_BROWSE, when
        the first entry is added to it by "real_insert_row()", that row
-       is selected (see "real_insert_row()", in "gtk/gtkclist.c", in both
+       is selected (see "real_insert_row()", in "ui/gtk/gtkclist.c", in both
        our version and the vanilla GTK+ version).
 
        This means that a "select-row" signal is emitted; this causes

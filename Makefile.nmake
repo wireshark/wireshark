@@ -235,7 +235,7 @@ packaging_zip: all
 	rm -f wireshark.zip
 	zip -r -9 wireshark.zip $(INSTALL_DIR)/
 
-wireshark.bsc: *.sbr epan\*.sbr epan\dfilter\*.sbr epan\ftypes\*.sbr epan\wslua\*.sbr epan\dissectors\*.sbr gtk\*.sbr win32\*.sbr wiretap\*.sbr
+wireshark.bsc: *.sbr epan\*.sbr epan\dfilter\*.sbr epan\ftypes\*.sbr epan\wslua\*.sbr epan\dissectors\*.sbr ui\gtk\*.sbr win32\*.sbr wiretap\*.sbr
 	rm -f $@
 	$(BSCMAKE) @<<
 		/o $@ $?
@@ -252,10 +252,10 @@ $(RESOURCES): image
 
 wiretap\wiretap-$(WTAP_VERSION).lib: image $(ZLIB_DLL) wiretap
 
-wireshark.exe	: $(LIBS_CHECK) config.h $(wireshark_OBJECTS) codecs epan gtk win32 image\wireshark.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib gtk\libui.lib win32\libui_win32.lib plugins
+wireshark.exe	: $(LIBS_CHECK) config.h $(wireshark_OBJECTS) codecs epan ui\gtk win32 image\wireshark.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib ui\gtk\libui.lib win32\libui_win32.lib plugins
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:wireshark.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:windows $(wireshark_LIBS) $(GTK_LIBS) codecs\codecs.lib gtk\libui.lib win32\libui_win32.lib $(wireshark_OBJECTS) image\wireshark.res
+		/OUT:wireshark.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:windows $(wireshark_LIBS) $(GTK_LIBS) codecs\codecs.lib ui\gtk\libui.lib win32\libui_win32.lib $(wireshark_OBJECTS) image\wireshark.res
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "wireshark.exe.manifest" -outputresource:wireshark.exe;1
@@ -463,9 +463,9 @@ clean: clean-local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../codecs
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ../gtk
+	cd ../ui/gtk
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ../win32
+	cd ../../win32
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../epan
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
@@ -509,9 +509,9 @@ distclean: distclean-local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../codecs
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ../gtk
+	cd ../ui/gtk
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ../win32
+	cd ../../win32
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../epan
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
@@ -550,7 +550,7 @@ maintainer-clean: maintainer-clean-local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../gtk
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
-	cd ../win32
+	cd ../../win32
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../epan
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
@@ -649,14 +649,14 @@ wiretap::
 	cd ..
 
 codecs::
-        cd codecs
-        $(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
-        cd ..
+	cd codecs
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+	cd ..
 
 gtk:: help config.h svnversion.h doxygen
-	cd gtk
+	cd ui/gtk
 	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake libui.lib
-	cd ..
+	cd ../..
 
 win32::
 	cd win32
@@ -780,7 +780,7 @@ setup: verify_tools clean_setup process_libs
 # The process_libs target when invoked causes either a --libverify or a --download for all the required libraries.
 # (The choice is determined by the value of the macro WIN_SETUP_OPT).
 process_libs:
-    @if not exist "$(WIRESHARK_LIB_DIR)" md "$(WIRESHARK_LIB_DIR)"
+	@if not exist "$(WIRESHARK_LIB_DIR)" md "$(WIRESHARK_LIB_DIR)"
 !IFDEF GTK_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
 		gtk2 gtk+-bundle_$(GTK_PKG)_$(WIRESHARK_TARGET_PLATFORM).zip
@@ -1007,7 +1007,7 @@ install-generated-files:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake install-plugins
 	cd ..
 	if not exist $(INSTALL_DIR)\ui mkdir $(INSTALL_DIR)\ui
-	xcopy "gtk\ui\*.xml" $(INSTALL_DIR)\ui /d
+	xcopy "ui\gtk\ui\*.xml" $(INSTALL_DIR)\ui /d
 
 # "install-all" will copy all files needed to run Wireshark/Tshark
 # to the INSTALL_DIR, so you can run/debug Wireshark/Tshark from there.
@@ -1123,9 +1123,9 @@ checkapi: checkapi_local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
 	cd ../codecs
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
-	cd ../gtk
+	cd ../ui/gtk
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
-	cd ../win32
+	cd ../../win32
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
 	cd ../epan
 ##	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi

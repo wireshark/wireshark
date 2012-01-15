@@ -25,7 +25,7 @@
 #ifndef __QT_UI_UTILS_H__
 #define __QT_UI_UTILS_H__
 
-// xxx - copied from gtk/gui_utils.h
+// xxx - copied from ui/gtk/gui_utils.h
 
 #include <stdio.h>
 

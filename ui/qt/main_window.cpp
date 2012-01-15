@@ -250,7 +250,7 @@ void MainWindow::recentActionTriggered() {
     }
 }
 
-// XXX - Copied from gtk/menus.c
+// XXX - Copied from ui/gtk/menus.c
 
 /**
  * Add the capture filename (with an absolute path) to the "Recent Files" menu.

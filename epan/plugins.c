@@ -510,7 +510,7 @@ register_all_codecs(void)
 #endif	/* big HAVE_PLUGINS */
 
 /*
- * Dump plugin info to stdout. Copied from gtk/plugins_dlg.c:plugins_scan.
+ * Dump plugin info to stdout. Copied from ui/gtk/plugins_dlg.c:plugins_scan.
  */
 void
 plugins_dump_all(void)

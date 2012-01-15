@@ -57,15 +57,15 @@
 #include "../color_filters.h"
 #include "../merge.h"
 
-#include "gtk/file_dlg.h"
-#include "gtk/capture_file_dlg.h"
-#include "gtk/main.h"
-#include "gtk/menus.h"
-#include "gtk/drag_and_drop.h"
-#include "gtk/capture_dlg.h"
+#include "ui/gtk/file_dlg.h"
+#include "ui/gtk/capture_file_dlg.h"
+#include "ui/gtk/main.h"
+#include "ui/gtk/menus.h"
+#include "ui/gtk/drag_and_drop.h"
+#include "ui/gtk/capture_dlg.h"
 #include "win32/file_dlg_win32.h"
-#include "gtk/help_dlg.h"
-#include "gtk/export_sslkeys.h"
+#include "ui/gtk/help_dlg.h"
+#include "ui/gtk/export_sslkeys.h"
 
 typedef enum {
     merge_append,
@@ -1369,7 +1369,7 @@ open_file_hook_proc(HWND of_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     return 0;
 }
 
-/* XXX - Copied verbatim from gtk/capture_file_dlg.c.  Perhaps it
+/* XXX - Copied verbatim from ui/gtk/capture_file_dlg.c.  Perhaps it
  * should be in wiretap instead?
  */
 

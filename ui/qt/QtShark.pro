@@ -37,13 +37,13 @@ win32:INCLUDEPATH += \
     $${WIRESHARK_LIB_DIR}/AirPcap_Devpack_4_1_0_1622/Airpcap_Devpack/include \
     $${WIRESHARK_LIB_DIR}/zlib125/include
 
-# XXX - If we add ../../gtk/recent.c to SOURCES, jom will try to compile everything
-# in ../../gtk. Until we move the things we need in recent.c to a common file, simply
+# XXX - If we add ../gtk/recent.c to SOURCES, jom will try to compile everything
+# in ../gtk. Until we move the things we need in recent.c to a common file, simply
 # copy it to our current directory.
 recent.target = recent.c
-!win32:recent.commands = $$QMAKE_COPY ../../gtk/$$recent.target .
-win32:recent.commands = $$QMAKE_COPY ..\\..\\gtk\\$$recent.target .
-recent.depends = ../../gtk/$$recent.target
+!win32:recent.commands = $$QMAKE_COPY ../gtk/$$recent.target .
+win32:recent.commands = $$QMAKE_COPY ..\\gtk\\$$recent.target .
+recent.depends = ../gtk/$$recent.target
 QMAKE_EXTRA_TARGETS += recent
 
 SOURCES += \

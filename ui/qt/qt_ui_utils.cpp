@@ -26,9 +26,9 @@
 
 #include "qt_ui_utils.h"
 
-#include "gtk/recent.h"
+#include "ui/gtk/recent.h"
 
-// XXX - Copied from gtk/gui_utils.c
+// XXX - Copied from ui/gtk/gui_utils.c
 
 #define WINDOW_GEOM_KEY "window_geom"
 

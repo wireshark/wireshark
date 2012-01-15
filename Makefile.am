@@ -264,7 +264,7 @@ tpncp_DATA = \
 #
 uidir = $(pkgdatadir)/ui
 ui_DATA = \
-	gtk/ui/main-menubar-ui.xml
+	ui/gtk/ui/main-menubar-ui.xml
 
 #
 # Install the wimaxasncp directory files in the "wimaxasncp" subdirectory
@@ -323,13 +323,13 @@ endif
 # @GTK_LIBS@ (as those are also needed for X applications, and GTK+
 # applications are X applications).
 wireshark_LDADD = \
-	gtk/libui.a			\
-	gtk/libui_dirty.a		\
+	ui/gtk/libui.a			\
+	ui/gtk/libui_dirty.a		\
 	codecs/libcodec.a		\
 	wiretap/libwiretap.la		\
 	epan/libwireshark.la		\
 	wsutil/libwsutil.la		\
-	@SSL_LIBS@ 			\
+	@SSL_LIBS@			\
 	$(plugin_ldadd)			\
 	@PCAP_LIBS@			\
 	@GTK_LIBS@ -lm			\
@@ -582,8 +582,8 @@ EXTRA_DIST = \
 	capture-wpcap.h		\
 	capture_wpcap_packet.c  \
 	capture_wpcap_packet.h  \
-	cfilters 		\
-	colorfilters 		\
+	cfilters		\
+	colorfilters		\
 	config.h.win32		\
 	config.nmake		\
 	debian/changelog	\
@@ -616,7 +616,7 @@ EXTRA_DIST = \
 	debian/wireshark.manpages \
 	debian/wireshark.menu	\
 	epan/dfilter/README.dfilter	\
-	dfilters 		\
+	dfilters		\
 	doxygen.cfg.in		\
 	dumpcap.c	\
 	editcap.c		\
@@ -891,7 +891,7 @@ endif
 endif
 
 
-DIST_SUBDIRS = asn1 codecs doc epan gtk help packaging plugins tools wiretap wsutil docbook
+DIST_SUBDIRS = asn1 codecs doc epan ui/gtk help packaging plugins tools wiretap wsutil docbook
 
 if HAVE_PLUGINS
 SUBDIRS = tools wsutil wiretap epan plugins packaging help @wireshark_SUBDIRS@ . doc

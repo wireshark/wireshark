@@ -2,7 +2,7 @@
  * sip message counter for wireshark
  *
  * $Id$
- * Copied from gtk/sip_stat.c and tap-httpstat.c
+ * Copied from ui/gtk/sip_stat.c and tap-httpstat.c
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -42,7 +42,7 @@
 
 /* used to keep track of the statictics for an entire program interface */
 typedef struct _sip_stats_t {
-	char 		*filter;
+	char		*filter;
 	guint32		packets;        /* number of sip packets, including continuations */
 	guint32		resent_packets;
 	guint32		average_setup_time;
@@ -58,8 +58,8 @@ typedef struct _sip_stats_t {
  * for example it can be { 3, 404, "Not Found" ,...}
  * which means we captured 3 reply sip/1.1 404 Not Found */
 typedef struct _sip_response_code_t {
-	guint32 	 packets;		/* 3 */
-	guint	 	 response_code;		/* 404 */
+	guint32	 packets;		/* 3 */
+	guint		 response_code;		/* 404 */
 	const gchar	*name;			/* Not Found */
 	sipstat_t	*sp;
 } sip_response_code_t;
@@ -151,7 +151,7 @@ static const value_string vals_status_code[] = {
     { 606, "Not Acceptable"},
     { 699, "Global Failure - Others"},
 
-    { 0, 	NULL}
+    { 0,	NULL}
 };
 
 /* Create tables for responses and requests */

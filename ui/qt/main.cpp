@@ -80,7 +80,7 @@
 #include "u3.h"
 #include <wsutil/file_util.h>
 
-#include "gtk/recent.h"
+#include "ui/gtk/recent.h"
 
 #ifdef HAVE_LIBPCAP
 #include "capture_ui_utils.h"
@@ -141,7 +141,7 @@ void create_console(void);
 capture_options global_capture_opts;
 #endif
 
-// Copied from gtk/gui_utils.c
+// Copied from ui/gtk/gui_utils.c
 void pipe_input_set_handler(gint source, gpointer user_data, int *child_process, pipe_input_cb_t input_cb)
 {
 //    static pipe_input_t pipe_input;
@@ -179,7 +179,7 @@ main_cf_callback(gint event, gpointer data, gpointer user_data )
     wsApp->captureFileCallback(event, data);
 }
 
-// XXX Copied from gtk/main.c. This should be moved to a common location.
+// XXX Copied from ui/gtk/main.c. This should be moved to a common location.
 static e_prefs *
 read_configuration_files(char **gdp_path, char **dp_path)
 {

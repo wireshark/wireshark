@@ -40,7 +40,7 @@
 
 WiresharkApplication *wsApp = NULL;
 
-// XXX - Copied from gtk/file_dlg.c
+// XXX - Copied from ui/gtk/file_dlg.c
 
 static char *last_open_dir = NULL;
 static bool updated_last_open_dir = FALSE;
