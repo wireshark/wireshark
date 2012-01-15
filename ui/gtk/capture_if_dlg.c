@@ -70,7 +70,7 @@
 #include "ui/gtk/old-gtk-compat.h"
 
 #ifdef HAVE_AIRPCAP
-#include "../image/toolbar/capture_airpcap_16.xpm"
+#include "../../image/toolbar/capture_airpcap_16.xpm"
 #endif
 
 #if defined(HAVE_PCAP_REMOTE)
@@ -78,16 +78,16 @@
 #endif
 
 #ifdef _WIN32
-#include "../image/toolbar/capture_ethernet_16.xpm"
-#include "../image/toolbar/modem_16.xpm"
+#include "../../image/toolbar/capture_ethernet_16.xpm"
+#include "../../image/toolbar/modem_16.xpm"
 #endif
 
-#include "../image/toolbar/network_virtual_16.xpm"
+#include "../../image/toolbar/network_virtual_16.xpm"
 
 /* new buttons to be used instead of labels for 'Capture','Prepare',' */
-/*#include "../image/toolbar/capture_capture_16.xpm"*/
-/*#include "../image/toolbar/capture_prepare_16.xpm"*/
-/*#include "../image/toolbar/capture_details_16.xpm"*/
+/*#include "../../image/toolbar/capture_capture_16.xpm"*/
+/*#include "../../image/toolbar/capture_prepare_16.xpm"*/
+/*#include "../../image/toolbar/capture_details_16.xpm"*/
 
 
 #ifdef HAVE_AIRPCAP

@@ -91,21 +91,21 @@ expert_indicators.h:
 	echo "/* This file was automatically generated. DO NOT EDIT. */" > $@
 	echo >> $@
 	for elevel in chat error none note warn ; do \
-		gdk-pixbuf-csource --raw --name=expert_$${elevel}_pb_data ../image/expert_$${elevel}.png >> $@ ;\
+		gdk-pixbuf-csource --raw --name=expert_$${elevel}_pb_data ../../image/expert_$${elevel}.png >> $@ ;\
 	done
 
 network_icons.h:
 	echo "/* This file was automatically generated. DO NOT EDIT. */" > $@
 	echo >> $@
 	for icon in bluetooth usb wired wireless ; do \
-		gdk-pixbuf-csource --raw --name=network_$${icon}_pb_data ../image/toolbar/network_$${icon}_16.png >> $@ ;\
+		gdk-pixbuf-csource --raw --name=network_$${icon}_pb_data ../../image/toolbar/network_$${icon}_16.png >> $@ ;\
 	done
 
 remote_icons.h:
 	echo "/* This file was automatically generated. DO NOT EDIT. */" > $@
 	echo >> $@
 	for icon in arrow globe sat ; do \
-		gdk-pixbuf-csource --raw --name=remote_$${icon}_pb_data ../image/toolbar/remote_$${icon}_16.png >> $@ ;\
+		gdk-pixbuf-csource --raw --name=remote_$${icon}_pb_data ../../image/toolbar/remote_$${icon}_16.png >> $@ ;\
 	done
 
 EXTRA_DIST = \

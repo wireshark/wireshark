@@ -63,7 +63,7 @@
 #include "ui/gtk/webbrowser.h"
 #endif
 #endif /* HAVE_LIBPCAP */
-#include "../image/wssplash-dev.xpm"
+#include "../../image/wssplash-dev.xpm"
 #include "../version_info.h"
 
 #ifdef _WIN32
@@ -77,7 +77,7 @@
 #include "airpcap_gui_utils.h"
 #endif
 #if defined(HAVE_AIRPCAP)
-#include "../image/toolbar/capture_airpcap_16.xpm"
+#include "../../image/toolbar/capture_airpcap_16.xpm"
 #endif
 #if defined(HAVE_PCAP_REMOTE)
 #include "ui/gtk/remote_icons.h"

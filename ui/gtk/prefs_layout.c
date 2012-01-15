@@ -39,12 +39,12 @@
 #include "ui/gtk/main.h"
 #include "ui/gtk/dlg_utils.h"
 
-#include "../image/icon_layout_1.xpm"
-#include "../image/icon_layout_2.xpm"
-#include "../image/icon_layout_3.xpm"
-#include "../image/icon_layout_4.xpm"
-#include "../image/icon_layout_5.xpm"
-#include "../image/icon_layout_6.xpm"
+#include "../../image/icon_layout_1.xpm"
+#include "../../image/icon_layout_2.xpm"
+#include "../../image/icon_layout_3.xpm"
+#include "../../image/icon_layout_4.xpm"
+#include "../../image/icon_layout_5.xpm"
+#include "../../image/icon_layout_6.xpm"
 
 
 #define LAYOUT_QTY (layout_type_max - 1)

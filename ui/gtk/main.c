@@ -167,13 +167,13 @@
 #include "ui/gtk/old-gtk-compat.h"
 
 #ifdef HAVE_LIBPCAP
-#include "../image/wsicon16.xpm"
-#include "../image/wsicon32.xpm"
-#include "../image/wsicon48.xpm"
-#include "../image/wsicon64.xpm"
-#include "../image/wsiconcap16.xpm"
-#include "../image/wsiconcap32.xpm"
-#include "../image/wsiconcap48.xpm"
+#include "../../image/wsicon16.xpm"
+#include "../../image/wsicon32.xpm"
+#include "../../image/wsicon48.xpm"
+#include "../../image/wsicon64.xpm"
+#include "../../image/wsiconcap16.xpm"
+#include "../../image/wsiconcap32.xpm"
+#include "../../image/wsiconcap48.xpm"
 #endif
 
 #ifdef HAVE_AIRPCAP

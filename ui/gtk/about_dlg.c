@@ -52,7 +52,7 @@
 #include "ui/gtk/main.h"
 #include "ui/gtk/plugins_dlg.h"
 
-#include "../image/wssplash-dev.xpm"
+#include "../../image/wssplash-dev.xpm"
 #include "webbrowser.h"
 
 /*
