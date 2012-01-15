@@ -61,7 +61,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/report_err.h>
-#include <epan/crypt/crypt-md5.h>
+#include <epan/crypt/md5.h>
 #include <epan/sminmpec.h>
 #include <epan/filesystem.h>
 #include <epan/conversation.h>

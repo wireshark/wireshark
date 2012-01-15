@@ -43,7 +43,7 @@
 #include "strutil.h"
 #include "sigcomp-udvm.h"
 #include "sigcomp_state_hdlr.h"
-#include "crypt/crypt-sha1.h"
+#include "crypt/sha1.h"
 #include "wsutil/crc16.h"
 #include "except.h"
 

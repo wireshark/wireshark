@@ -45,14 +45,14 @@
 #include <epan/strutil.h>
 #include <epan/emem.h>
 #include <epan/pint.h>
-#include <epan/crypt/crypt-rc4.h>
+#include <epan/crypt/rc4.h>
 #include <epan/crypt/airpdcap_rijndael.h>
 
 #include "airpdcap_system.h"
 #include "airpdcap_int.h"
 
-#include "crypt-sha1.h"
-#include "crypt-md5.h"
+#include "sha1.h"
+#include "md5.h"
 
 #include "airpdcap_debug.h"
 

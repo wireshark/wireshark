@@ -30,7 +30,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/crypt/crypt-md5.h>
+#include <epan/crypt/md5.h>
 #include "packet-data.h"
 
 /* proto_data cannot be static because it's referenced in the

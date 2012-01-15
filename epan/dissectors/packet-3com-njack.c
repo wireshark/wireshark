@@ -512,7 +512,7 @@ dissect_tlvs(tvbuff_t *tvb, proto_tree *njack_tree, guint32 offset)
 }
 
 #if 0
-#include <epan/crypt/crypt-md5.h>
+#include <epan/crypt/md5.h>
 
 static gboolean
 verify_password(tvbuff_t *tvb, const char *password)

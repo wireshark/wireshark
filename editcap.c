@@ -58,7 +58,7 @@
 # include "wsutil/strptime.h"
 #endif
 
-#include "epan/crypt/crypt-md5.h"
+#include "epan/crypt/md5.h"
 #include "epan/plugins.h"
 #include "epan/report_err.h"
 #include "epan/filesystem.h"

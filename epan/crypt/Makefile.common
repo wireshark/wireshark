@@ -24,20 +24,21 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 LIBAIRPDCAP_SRC =		\
+	aes.c			\
 	airpdcap.c		\
 	airpdcap_ccmp.c		\
 	airpdcap_debug.c	\
 	airpdcap_rijndael.c	\
 	airpdcap_tkip.c		\
-	crypt-aes.c		\
-	crypt-des.c		\
-	crypt-md4.c		\
-	crypt-md5.c		\
-	crypt-rc4.c		\
-	crypt-sha1.c		\
-	eax.c
+	des.c			\
+	eax.c			\
+	md4.c			\
+	md5.c			\
+	rc4.c			\
+	sha1.c
 
 LIBAIRPDCAP_INCLUDES =	\
+	aes.h			\
 	airpdcap_debug.h	\
 	airpdcap_interop.h	\
 	airpdcap_int.h		\
@@ -45,11 +46,10 @@ LIBAIRPDCAP_INCLUDES =	\
 	airpdcap_system.h	\
 	airpdcap_user.h		\
 	airpdcap_ws.h		\
-	crypt-aes.h		\
-	crypt-des.h		\
-	crypt-md4.h		\
-	crypt-md5.h		\
-	crypt-rc4.h		\
-	crypt-sha1.h		\
+	des.h			\
+	md4.h			\
+	md5.h			\
+	rc4.h			\
+	sha1.h			\
 	eax.h			\
 	wep-wpadefs.h

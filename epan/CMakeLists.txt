@@ -45,13 +45,13 @@ set(CRYPT_FILES
 	crypt/airpdcap_debug.c
 	crypt/airpdcap_rijndael.c
 	crypt/airpdcap_tkip.c
-	crypt/crypt-aes.c
-	crypt/crypt-des.c
-	crypt/crypt-md4.c
-	crypt/crypt-md5.c
-	crypt/crypt-rc4.c
-	crypt/crypt-sha1.c
+	crypt/aes.c
+	crypt/des.c
 	crypt/eax.c
+	crypt/md4.c
+	crypt/md5.c
+	crypt/rc4.c
+	crypt/sha1.c
 )
 
 set(DFILTER_FILES

@@ -48,7 +48,7 @@
 
 #include "airpdcap_debug.h"
 #include <glib.h>
-#include "crypt-aes.h"
+#include "aes.h"
 
 /****************************************************************************/
 /*	Internal definitions							*/

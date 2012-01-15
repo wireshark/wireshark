@@ -47,10 +47,10 @@
 #include <epan/emem.h>
 #include <epan/tap.h>
 #include <epan/expert.h>
-#include <epan/crypt/crypt-rc4.h>
-#include <epan/crypt/crypt-md4.h>
-#include <epan/crypt/crypt-md5.h>
-#include <epan/crypt/crypt-des.h>
+#include <epan/crypt/rc4.h>
+#include <epan/crypt/md4.h>
+#include <epan/crypt/md5.h>
+#include <epan/crypt/des.h>
 #include "packet-dcerpc.h"
 #include "packet-gssapi.h"
 #include <wsutil/crc32.h>

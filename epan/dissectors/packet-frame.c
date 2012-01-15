@@ -39,7 +39,7 @@
 #include <epan/prefs.h>
 #include <epan/tap.h>
 #include <epan/expert.h>
-#include <epan/crypt/crypt-md5.h>
+#include <epan/crypt/md5.h>
 
 #include "color.h"
 #include "color_filters.h"
