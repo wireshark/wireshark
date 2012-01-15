@@ -79,7 +79,7 @@ static GtkWidget *save_to_file_w = NULL;
 #define TOP_Y_BORDER 40
 #define BOTTOM_Y_BORDER 2
 #define COMMENT_WIDTH 400
-#define TIME_WIDTH 50
+#define TIME_WIDTH 150
 
 #define NODE_CHARS_WIDTH 20
 #define CONV_TIME_HEADER       "Conv.| Time    "
@@ -305,9 +305,7 @@ static gboolean dialog_graph_dump_to_file(graph_analysis_data_t *user_data)
 	GString *label_string, *empty_line,*separator_line, *tmp_str, *tmp_str2;
 	char    *empty_header;
 	char     src_port[8],dst_port[8];
-#if 0
 	gchar	*time_str = g_malloc(COL_MAX_LEN);
-#endif
 	GList *list;
 
 	FILE  *of;
@@ -445,13 +443,13 @@ static gboolean dialog_graph_dump_to_file(graph_analysis_data_t *user_data)
 			fprintf(of, "%s", label_string->str);
 		}
 
+#if 0
 		/* write the time */
 		g_string_printf(label_string, "|%.3f", nstime_to_sec(&gai->fd->rel_ts));
-#if 0
-		/* Write the time, using the same format as in th etime col */
+#endif
+		/* Write the time, using the same format as in the time col */
 		set_fd_time(gai->fd, time_str);
 		g_string_printf(label_string, "|%s", time_str);
-#endif
 		enlarge_string(label_string, 10, ' ');
 		fprintf(of, "%s", label_string->str);
 
@@ -509,9 +507,7 @@ exit:
 	g_string_free(separator_line, TRUE);
 	g_string_free(tmp_str, TRUE);
 	g_string_free(tmp_str2, TRUE);
-#if 0
 	g_free(time_str);
-#endif
 	fclose (of);
 	return TRUE;
 
@@ -667,9 +663,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	char label_string[MAX_COMMENT];
 	GList *list;
 	cairo_t *cr;
-#if 0
 	gchar	*time_str = g_malloc(COL_MAX_LEN);
-#endif
 
 	GdkColor *color_p, *bg_color_p;
 	GdkColor black_color = {0, 0, 0, 0};
@@ -816,13 +810,12 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 
 	/* Calculate the x borders */
 	/* We use time from the last display item to calcultate the x left border */
-	/* XXX TODO: Use recent.gui_time_format to chose time format */
-	g_snprintf(label_string, MAX_LABEL, "%.3f", nstime_to_sec(&user_data->dlg.items[display_items-1].fd->rel_ts));
 #if 0
+	g_snprintf(label_string, MAX_LABEL, "%.3f", nstime_to_sec(&user_data->dlg.items[display_items-1].fd->rel_ts));
+#endif
 	/* Write the time, using the same format as in th etime col */
 	set_fd_time(user_data->dlg.items[display_items-1].fd, time_str);
 	g_snprintf(label_string, MAX_LABEL, "%s", time_str);
-#endif
 	layout = gtk_widget_create_pango_layout(user_data->dlg.draw_area_time, label_string);
 	middle_layout = gtk_widget_create_pango_layout(user_data->dlg.draw_area_time, label_string);
 	small_layout = gtk_widget_create_pango_layout(user_data->dlg.draw_area_time, label_string);
@@ -1009,12 +1002,13 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 
 	/* Draw the items */
 	for (current_item=0; current_item<display_items; current_item++){
+#if 0
 		/* Draw the time */
 		g_snprintf(label_string, MAX_LABEL, "%.3f", nstime_to_sec(&user_data->dlg.items[current_item].fd->rel_ts));
-#if 0
+#endif
+		/* Draw the time */
 		set_fd_time(user_data->dlg.items[current_item].fd, time_str);
 		g_snprintf(label_string, MAX_LABEL, "%s", time_str);
-#endif
 		pango_layout_set_text(layout, label_string, -1);
 		pango_layout_get_pixel_size(layout, &label_width, &label_height);
 #if GTK_CHECK_VERSION(2,22,0)
@@ -1251,9 +1245,8 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	}
 
 	g_object_unref(G_OBJECT(layout));
-#if 0
 	g_free(time_str);
-#endif
+
 	/* refresh the draw areas */
 	if (gtk_widget_is_drawable(user_data->dlg.draw_area_time) ){
 		cr = gdk_cairo_create (gtk_widget_get_window(user_data->dlg.draw_area_time));
@@ -1760,7 +1753,7 @@ static void create_draw_area(graph_analysis_data_t *user_data, GtkWidget *box)
 	hbox=gtk_hbox_new(FALSE, 0);
 	gtk_widget_show(hbox);
 
-	/* create "time" draw area */
+	/* create "time" draw area */ 
 	user_data->dlg.draw_area_time=gtk_drawing_area_new();
 	gtk_widget_set_size_request(user_data->dlg.draw_area_time, TIME_WIDTH, user_data->dlg.surface_height);
 	frame_time = gtk_frame_new(NULL);
@@ -1868,6 +1861,7 @@ static void create_draw_area(graph_analysis_data_t *user_data, GtkWidget *box)
 	gtk_widget_show(user_data->dlg.scroll_window);
 	gtk_widget_show(scroll_window_comments);
 
+	/* Allow the hbox with time to expand (TRUE, TRUE) */
 	gtk_box_pack_start(GTK_BOX(hbox), frame_time, FALSE, FALSE, 3);
 
 	user_data->dlg.hpane = gtk_hpaned_new();
