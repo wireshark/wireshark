@@ -548,7 +548,7 @@ maintainer-clean: maintainer-clean-local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../codecs
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
-	cd ../gtk
+	cd ../ui/gtk
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../../win32
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
