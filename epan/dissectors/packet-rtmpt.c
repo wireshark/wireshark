@@ -1092,7 +1092,7 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_conv_t 
         proto_tree      *rtmpt_tree = NULL;
         proto_tree      *rtmptroot_tree = NULL;
         proto_item      *ti = NULL;
-        static gint      iPreviousFrameNumber = -1;
+        static guint      iPreviousFrameNumber = 0;
         gint offset = 0;
 
         gchar *sDesc = NULL;
@@ -1103,12 +1103,12 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_conv_t 
 
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTMP");
 
-        RTMPT_DEBUG("Dissect: frame=%d prev=%d visited=%d len=%d col=%d tree=%p\n",
+        RTMPT_DEBUG("Dissect: frame=%u prev=%u visited=%d len=%d col=%d tree=%p\n",
                     pinfo->fd->num, iPreviousFrameNumber, pinfo->fd->flags.visited,
                     tvb_length_remaining(tvb, offset), check_col(pinfo->cinfo, COL_INFO), tree);
 
         /* This is a trick to know whether this is the first PDU in this packet or not */
-        if (iPreviousFrameNumber != (gint) PINFO_FD_NUM(pinfo))
+        if (iPreviousFrameNumber != PINFO_FD_NUM(pinfo))
                 col_clear(pinfo->cinfo, COL_INFO);
         else
                 col_append_str(pinfo->cinfo, COL_INFO, " | ");
