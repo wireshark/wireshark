@@ -170,7 +170,7 @@ blk_cmnt_stop  "*/"
 
 <INCLUDING>{filename}			{
 	if ( include_stack_ptr >= MAX_INCLUDE_DEPTH )
-		g_error("dtd_preparse: include files nested to deeply");
+		g_error("dtd_preparse: include files nested too deeply");
 
 	include_stack[include_stack_ptr++] = YY_CURRENT_BUFFER;
 	yyin = ws_fopen( yytext, "r" );
