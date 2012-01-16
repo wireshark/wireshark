@@ -255,7 +255,7 @@ wiretap\wiretap-$(WTAP_VERSION).lib: image $(ZLIB_DLL) wiretap
 wireshark.exe	: $(LIBS_CHECK) config.h $(wireshark_OBJECTS) codecs epan gtk win32 image\wireshark.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib ui\gtk\libui.lib win32\libui_win32.lib plugins
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:wireshark.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:windows $(wireshark_LIBS) $(GTK_LIBS) codecs\codecs.lib ui\gtk\libui.lib win32\libui_win32.lib $(wireshark_OBJECTS) image\wireshark.res
+		/OUT:wireshark.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:windows $(wireshark_LIBS) $(GTK_LIBS) codecs\codecs.lib ui\gtk\libui.lib ui\win32\libui_win32.lib $(wireshark_OBJECTS) image\wireshark.res
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "wireshark.exe.manifest" -outputresource:wireshark.exe;1
@@ -465,9 +465,9 @@ clean: clean-local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../ui/gtk
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ../../win32
+	cd ../win32
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ../epan
+	cd ../../epan
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../plugins
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
@@ -511,9 +511,9 @@ distclean: distclean-local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../ui/gtk
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ../../win32
+	cd ../win32
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ../epan
+	cd ../../epan
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../plugins
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
@@ -550,9 +550,9 @@ maintainer-clean: maintainer-clean-local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../ui/gtk
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
-	cd ../../win32
+	cd ../win32
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
-	cd ../epan
+	cd ../../epan
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../plugins
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
@@ -659,9 +659,9 @@ gtk:: help config.h svnversion.h doxygen
 	cd ../..
 
 win32::
-	cd win32
+	cd ui/win32
 	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake libui_win32.lib
-	cd ..
+	cd ../..
 
 epan:: $(RESOURCES) $(ZLIB_DLL) wiretap\wiretap-$(WTAP_VERSION).lib $(BUILT_SOURCES) doxygen
 	cd epan
@@ -1125,9 +1125,9 @@ checkapi: checkapi_local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
 	cd ../ui/gtk
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
-	cd ../../win32
+	cd ../win32
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
-	cd ../epan
+	cd ../../epan
 ##	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
 	cd ../epan/crypt
 ##	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi

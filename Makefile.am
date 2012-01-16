@@ -864,11 +864,11 @@ EXTRA_DIST = \
 	cmake/modules/UseMakeDissectorReg.cmake	\
 	cmake/modules/UseMakeTapReg.cmake	\
 	cmake/modules/readme.txt		\
-	win32/Makefile.nmake			\
-	win32/file_dlg_win32.c			\
-	win32/file_dlg_win32.h			\
-	win32/print_win32.c			\
-	win32/print_win32.h			\
+	ui/win32/Makefile.nmake			\
+	ui/win32/file_dlg_win32.c		\
+	ui/win32/file_dlg_win32.h		\
+	ui/win32/print_win32.c			\
+	ui/win32/print_win32.h			\
 	CPackConfig.txt				\
 	all.vcproj				\
 	dumpcap.vcproj				\
