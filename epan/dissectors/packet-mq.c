@@ -1246,13 +1246,13 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gboolean bEBCDIC = FALSE;
     gint iDistributionListSize = 0;
     struct mq_msg_properties tMsgProps;
-    static gint iPreviousFrameNumber = -1;
+    static guint iPreviousFrameNumber = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MQ");
     if (check_col(pinfo->cinfo, COL_INFO))
     {
         /* This is a trick to know whether this is the first PDU in this packet or not */
-        if (iPreviousFrameNumber != (gint) pinfo->fd->num)
+        if (iPreviousFrameNumber != pinfo->fd->num)
             col_clear(pinfo->cinfo, COL_INFO);
         else
             col_append_str(pinfo->cinfo, COL_INFO, " | ");
