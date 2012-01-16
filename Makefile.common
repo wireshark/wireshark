@@ -147,6 +147,7 @@ wireshark_SOURCES =	\
 	$(WIRESHARK_COMMON_SRC)	\
 	$(SHARK_COMMON_CAPTURE_SRC) \
 	airpcap_loader.c \
+	alert_box.c	\
 	capture.c	\
 	capture_info.c	\
 	capture_opts.c \
@@ -159,8 +160,7 @@ wireshark_SOURCES =	\
 	proto_hier_stats.c	\
 	summary.c	\
 	tempfile.c	\
-	u3.c		\
-	ui/alert_box.c
+	u3.c
 
 # corresponding headers
 wireshark_INCLUDES =	\

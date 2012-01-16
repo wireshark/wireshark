@@ -34,9 +34,9 @@
 #include <epan/filesystem.h>
 #include <epan/dfilter/dfilter.h>
 
-#include "alert_box.h"
+#include "ui/alert_box.h"
 
-#include "simple_dialog.h"
+#include "ui/simple_dialog.h"
 
 /*
  * Alert box for general errors.
