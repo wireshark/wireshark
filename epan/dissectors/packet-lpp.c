@@ -60,6 +60,9 @@ static int proto_lpp = -1;
 /*--- Included file: packet-lpp-hf.c ---*/
 #line 1 "../../asn1/lpp/packet-lpp-hf.c"
 static int hf_lpp_LPP_Message_PDU = -1;           /* LPP_Message */
+static int hf_lpp_lpp_Ellipsoid_Point_PDU = -1;   /* Ellipsoid_Point */
+static int hf_lpp_lpp_EllipsoidPointWithAltitude_PDU = -1;  /* EllipsoidPointWithAltitude */
+static int hf_lpp_lpp_HorizontalVelocity_PDU = -1;  /* HorizontalVelocity */
 static int hf_lpp_transactionID = -1;             /* LPP_TransactionID */
 static int hf_lpp_endTransaction = -1;            /* BOOLEAN */
 static int hf_lpp_sequenceNumber = -1;            /* SequenceNumber */
@@ -1498,7 +1501,7 @@ static const per_sequence_t RequestCapabilities_sequence[] = {
 
 static int
 dissect_lpp_RequestCapabilities(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 29 "../../asn1/lpp/lpp.cnf"
+#line 39 "../../asn1/lpp/lpp.cnf"
 
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Request Capabilities");
 
@@ -2282,7 +2285,7 @@ static const per_sequence_t ProvideCapabilities_sequence[] = {
 
 static int
 dissect_lpp_ProvideCapabilities(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 33 "../../asn1/lpp/lpp.cnf"
+#line 43 "../../asn1/lpp/lpp.cnf"
 
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Provide Capabilities");
 
@@ -3043,7 +3046,7 @@ static const per_sequence_t RequestAssistanceData_sequence[] = {
 
 static int
 dissect_lpp_RequestAssistanceData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 37 "../../asn1/lpp/lpp.cnf"
+#line 47 "../../asn1/lpp/lpp.cnf"
 
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Request Assistance Data");
 
@@ -5955,7 +5958,7 @@ static const per_sequence_t ProvideAssistanceData_sequence[] = {
 
 static int
 dissect_lpp_ProvideAssistanceData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 41 "../../asn1/lpp/lpp.cnf"
+#line 51 "../../asn1/lpp/lpp.cnf"
 
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Provide Assistance Data");
 
@@ -6353,7 +6356,7 @@ static const per_sequence_t RequestLocationInformation_sequence[] = {
 
 static int
 dissect_lpp_RequestLocationInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 45 "../../asn1/lpp/lpp.cnf"
+#line 55 "../../asn1/lpp/lpp.cnf"
 
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Request Location Information");
 
@@ -7537,7 +7540,7 @@ static const per_sequence_t ProvideLocationInformation_sequence[] = {
 
 static int
 dissect_lpp_ProvideLocationInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 49 "../../asn1/lpp/lpp.cnf"
+#line 59 "../../asn1/lpp/lpp.cnf"
 
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Provide Location Information");
 
@@ -7664,7 +7667,7 @@ static const per_sequence_t Abort_sequence[] = {
 
 static int
 dissect_lpp_Abort(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 53 "../../asn1/lpp/lpp.cnf"
+#line 63 "../../asn1/lpp/lpp.cnf"
 
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Abort");
 
@@ -7751,7 +7754,7 @@ static const per_choice_t Error_choice[] = {
 
 static int
 dissect_lpp_Error(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 57 "../../asn1/lpp/lpp.cnf"
+#line 67 "../../asn1/lpp/lpp.cnf"
 
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Error");
 
@@ -7860,7 +7863,7 @@ static const per_sequence_t LPP_Message_sequence[] = {
 
 static int
 dissect_lpp_LPP_Message(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 15 "../../asn1/lpp/lpp.cnf"
+#line 25 "../../asn1/lpp/lpp.cnf"
 	
   proto_tree_add_item(tree, proto_lpp, tvb, 0, -1, ENC_NA);
 
@@ -7882,6 +7885,30 @@ static int dissect_LPP_Message_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
   offset += 7; offset >>= 3;
   return offset;
 }
+int dissect_lpp_Ellipsoid_Point_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
+  offset = dissect_lpp_Ellipsoid_Point(tvb, offset, &asn1_ctx, tree, hf_lpp_lpp_Ellipsoid_Point_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+int dissect_lpp_EllipsoidPointWithAltitude_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
+  offset = dissect_lpp_EllipsoidPointWithAltitude(tvb, offset, &asn1_ctx, tree, hf_lpp_lpp_EllipsoidPointWithAltitude_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+int dissect_lpp_HorizontalVelocity_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
+  offset = dissect_lpp_HorizontalVelocity(tvb, offset, &asn1_ctx, tree, hf_lpp_lpp_HorizontalVelocity_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 
 
 /*--- End of included file: packet-lpp-fn.c ---*/
@@ -7899,6 +7926,18 @@ void proto_register_lpp(void) {
 #line 1 "../../asn1/lpp/packet-lpp-hfarr.c"
     { &hf_lpp_LPP_Message_PDU,
       { "LPP-Message", "lpp.LPP_Message",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lpp_lpp_Ellipsoid_Point_PDU,
+      { "Ellipsoid-Point", "lpp.Ellipsoid_Point",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lpp_lpp_EllipsoidPointWithAltitude_PDU,
+      { "EllipsoidPointWithAltitude", "lpp.EllipsoidPointWithAltitude",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lpp_lpp_HorizontalVelocity_PDU,
+      { "HorizontalVelocity", "lpp.HorizontalVelocity",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_lpp_transactionID,

@@ -8,9 +8,6 @@ PER
 UNALIGNED
 #.END
 
-#.OMIT_ASSIGNMENT
-#.END
-
 #.EXPORTS
 HandoverCommand
 HandoverCommand_PDU
@@ -21,6 +18,7 @@ UERadioAccessCapabilityInformation_PDU
 UE-EUTRA-Capability
 UE-EUTRA-Capability_PDU
 #UEInformationResponse
+#.END
 
 #.PDU_NEW
 HandoverCommand
@@ -44,6 +42,11 @@ VarShortMAC-Input
 VarMeasConfig
 VarMeasReportList
 VarMeasReport
+CellsTriggeredList
+VarLogMeasConfig-r10
+VarLogMeasReport-r10
+VarLogMeasInfoList-r10
+VarRLF-Report-r10
 
 #.FN_HDR UL-DCCH-Message
   actx->pinfo->link_dir = P2P_DIR_UL;
@@ -223,6 +226,80 @@ if(ue_eutra_cap_tvb){
     curr_bit_offset++;
   }
 
+#.FN_BODY UE-EUTRA-Capability-v1020-IEs/featureGroupIndicators-v1020 VAL_PTR = &featureGroupIndicatorsV1020_tvb
+  tvbuff_t *featureGroupIndicatorsV1020_tvb=NULL;
+%(DEFAULT_BODY)s
+  if(featureGroupIndicatorsV1020_tvb){
+    /* Dissect featureGroupIndicators-v1020 */
+    proto_tree *subtree;
+    gint curr_bit_offset = 0;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_featureGroupIndicatorsV1020);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_101, featureGroupIndicatorsV1020_tvb, curr_bit_offset, 1, FALSE);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_102, featureGroupIndicatorsV1020_tvb, curr_bit_offset, 1, FALSE);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_103, featureGroupIndicatorsV1020_tvb, curr_bit_offset, 1, FALSE);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_104, featureGroupIndicatorsV1020_tvb, curr_bit_offset, 1, FALSE);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_105, featureGroupIndicatorsV1020_tvb, curr_bit_offset, 1, FALSE);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_106, featureGroupIndicatorsV1020_tvb, curr_bit_offset, 1, FALSE);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_107, featureGroupIndicatorsV1020_tvb, curr_bit_offset, 1, FALSE);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_108, featureGroupIndicatorsV1020_tvb, curr_bit_offset, 1, FALSE);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_109, featureGroupIndicatorsV1020_tvb, curr_bit_offset, 1, FALSE);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_110, featureGroupIndicatorsV1020_tvb, curr_bit_offset, 1, FALSE);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_111, featureGroupIndicatorsV1020_tvb, curr_bit_offset, 1, FALSE);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_112, featureGroupIndicatorsV1020_tvb, curr_bit_offset, 1, FALSE);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_113, featureGroupIndicatorsV1020_tvb, curr_bit_offset, 1, FALSE);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_114, featureGroupIndicatorsV1020_tvb, curr_bit_offset, 1, FALSE);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_115, featureGroupIndicatorsV1020_tvb, curr_bit_offset, 1, FALSE);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_116, featureGroupIndicatorsV1020_tvb, curr_bit_offset, 1, FALSE);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_117, featureGroupIndicatorsV1020_tvb, curr_bit_offset, 1, FALSE);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_118, featureGroupIndicatorsV1020_tvb, curr_bit_offset, 1, FALSE);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_119, featureGroupIndicatorsV1020_tvb, curr_bit_offset, 1, FALSE);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_120, featureGroupIndicatorsV1020_tvb, curr_bit_offset, 1, FALSE);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_121, featureGroupIndicatorsV1020_tvb, curr_bit_offset, 1, FALSE);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_122, featureGroupIndicatorsV1020_tvb, curr_bit_offset, 1, FALSE);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_123, featureGroupIndicatorsV1020_tvb, curr_bit_offset, 1, FALSE);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_124, featureGroupIndicatorsV1020_tvb, curr_bit_offset, 1, FALSE);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_125, featureGroupIndicatorsV1020_tvb, curr_bit_offset, 1, FALSE);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_126, featureGroupIndicatorsV1020_tvb, curr_bit_offset, 1, FALSE);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_127, featureGroupIndicatorsV1020_tvb, curr_bit_offset, 1, FALSE);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_128, featureGroupIndicatorsV1020_tvb, curr_bit_offset, 1, FALSE);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_129, featureGroupIndicatorsV1020_tvb, curr_bit_offset, 1, FALSE);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_130, featureGroupIndicatorsV1020_tvb, curr_bit_offset, 1, FALSE);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_131, featureGroupIndicatorsV1020_tvb, curr_bit_offset, 1, FALSE);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_eutra_cap_feat_group_ind_132, featureGroupIndicatorsV1020_tvb, curr_bit_offset, 1, FALSE);
+    curr_bit_offset++;
+  }
+
 #.FN_BODY Handover
   lte_rrc_ho_target_rat_type_value = -1;
 %(DEFAULT_BODY)s
@@ -356,6 +433,49 @@ if(ue_eutra_cap_tvb){
     }
   }
 
+#.FN_BODY LocationInfo-r10/locationCoordinates-r10/ellipsoid-Point-r10 VAL_PTR = &ellipsoid_point_tvb
+  tvbuff_t *ellipsoid_point_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (ellipsoid_point_tvb) {
+    dissect_lpp_Ellipsoid_Point_PDU(ellipsoid_point_tvb, actx->pinfo, tree); 
+  }
+
+#.FN_BODY LocationInfo-r10/locationCoordinates-r10/ellipsoidPointWithAltitude-r10 VAL_PTR = &ellipsoid_point_with_alt_tvb
+  tvbuff_t *ellipsoid_point_with_alt_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (ellipsoid_point_with_alt_tvb) {
+    dissect_lpp_EllipsoidPointWithAltitude_PDU(ellipsoid_point_with_alt_tvb, actx->pinfo, tree); 
+  }
+
+#.FN_BODY LocationInfo-r10/horizontalVelocity-r10 VAL_PTR = &horizontal_velocity_tvb
+  tvbuff_t *horizontal_velocity_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (horizontal_velocity_tvb) {
+    dissect_lpp_HorizontalVelocity_PDU(horizontal_velocity_tvb, actx->pinfo, tree); 
+  }
+
+#.FN_BODY LocationInfo-r10/gnss-TOD-msec-r10 VAL_PTR = &gnss_tod_msec_tvb
+  tvbuff_t *gnss_tod_msec_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (gnss_tod_msec_tvb) {
+    asn1_ctx_t asn1_ctx;
+    asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, actx->pinfo);
+    dissect_per_constrained_integer(gnss_tod_msec_tvb, 0, &asn1_ctx, tree, hf_index, 0U, 3599999U, NULL, FALSE);
+  }
+
+#.FN_BODY AbsoluteTimeInfo-r10 VAL_PTR = &abs_time_info_tvb
+  tvbuff_t *abs_time_info_tvb = NULL;
+%(DEFAULT_BODY)s
+#.FN_FTR AbsoluteTimeInfo-r10
+  if (abs_time_info_tvb) {
+    const gchar *str;
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_neighCellConfig);
+    str = tvb_bcd_dig_to_ep_str(abs_time_info_tvb, 0, 6, NULL, FALSE);
+    proto_tree_add_text(subtree, abs_time_info_tvb, 0, 6, "%c%c-%c%c-%c%c %c%c:%c%c:%c%c", str[0], str[1],
+                        str[2], str[3], str[4], str[5], str[6], str[7], str[8], str[9], str[10], str[11]);
+  } 
+
 #.TYPE_ATTR
 SystemInformationBlockType9/hnb-Name TYPE=FT_STRING DISPLAY=BASE_NONE
 
@@ -374,6 +494,10 @@ col_append_str(actx->pinfo->cinfo, COL_INFO, "SystemInformationBlockType1 ");
 #.FN_HDR MBSFNAreaConfiguration-r9
 
 col_append_str(actx->pinfo->cinfo, COL_INFO, "MBSFNAreaConfiguration-r9 ");
+
+#.FN_HDR MBMSCountingRequest-r10
+
+col_append_str(actx->pinfo->cinfo, COL_INFO, "MBMSCountingRequest-r10 ");
 
 #.FN_HDR Paging
 
@@ -435,6 +559,14 @@ col_append_str(actx->pinfo->cinfo, COL_INFO, "CounterCheck ");
 
 col_append_str(actx->pinfo->cinfo, COL_INFO, "UEInformationRequest-r9 ");
 
+#.FN_HDR LoggedMeasurementConfiguration-r10
+
+col_append_str(actx->pinfo->cinfo, COL_INFO, "LoggedMeasurementConfiguration-r10 ");
+
+#.FN_HDR RNReconfiguration-r10
+
+col_append_str(actx->pinfo->cinfo, COL_INFO, "RNReconfiguration-r10 ");
+
 #.FN_HDR RRCConnectionReestablishmentRequest
 
 col_append_str(actx->pinfo->cinfo, COL_INFO, "RRCConnectionReestablishmentRequest ");
@@ -494,4 +626,16 @@ col_append_str(actx->pinfo->cinfo, COL_INFO, "UEInformationResponse-r9 ");
 #.FN_HDR ProximityIndication-r9
 
 col_append_str(actx->pinfo->cinfo, COL_INFO, "ProximityIndication-r9 ");
+
+#.FN_HDR RNReconfigurationComplete-r10
+
+col_append_str(actx->pinfo->cinfo, COL_INFO, "RNReconfigurationComplete-r10 ");
+
+#.FN_HDR MBMSCountingResponse-r10
+
+col_append_str(actx->pinfo->cinfo, COL_INFO, "MBMSCountingResponse-r10 ");
+
+#.FN_HDR InterFreqRSTDMeasurementIndication-r10
+
+col_append_str(actx->pinfo->cinfo, COL_INFO, "InterFreqRSTDMeasurementIndication-r10 ");
 

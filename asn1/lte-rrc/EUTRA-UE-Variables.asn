@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V9.7.0 (2011-06)
+-- 3GPP TS 36.331 V10.4.0 (2011-12)
 -- $Id$
 --
 EUTRA-UE-Variables DEFINITIONS AUTOMATIC TAGS ::=
@@ -6,10 +6,15 @@ EUTRA-UE-Variables DEFINITIONS AUTOMATIC TAGS ::=
 BEGIN
 
 IMPORTS
+	AbsoluteTimeInfo-r10,
+	AreaConfiguration-r10,
 	CarrierFreqGERAN,
 	CellIdentity,
 	SpeedStateScaleFactors,
 	C-RNTI,
+	LoggingDuration-r10,
+	LoggingInterval-r10,
+	LogMeasInfo-r10,
 	MeasId,
 	MeasIdToAddModList,
 	MeasObjectToAddModList,
@@ -20,12 +25,35 @@ IMPORTS
 	PhysCellIdGERAN,
 	PhysCellIdUTRA-FDD,
 	PhysCellIdUTRA-TDD,
+	PLMN-Identity,
 	QuantityConfig,
 	ReportConfigToAddModList,
+	RLF-Report-r9,
 	RSRP-Range,
+--	TraceRecordingSessionRef-r10,
+	TraceReference-r10,
 	maxCellMeas,
 	maxMeasId
 FROM EUTRA-RRC-Definitions;
+
+
+VarLogMeasConfig-r10 ::=				SEQUENCE {
+	areaConfiguration-r10			AreaConfiguration-r10		OPTIONAL,
+	loggingDuration-r10				LoggingDuration-r10,
+	loggingInterval-r10				LoggingInterval-r10
+}
+
+
+VarLogMeasReport-r10 ::=				SEQUENCE {
+	traceReference-r10					TraceReference-r10,
+	traceRecordingSessionRef-r10			OCTET STRING (SIZE (2)),
+	tce-Id-r10							OCTET STRING (SIZE (1)),
+	plmn-Identity-r10					PLMN-Identity,
+	absoluteTimeInfo-r10				AbsoluteTimeInfo-r10,
+	logMeasInfoList-r10					VarLogMeasInfoList-r10
+}
+
+VarLogMeasInfoList-r10 ::=				SEQUENCE (SIZE (1..maxLogMeas-r10)) OF LogMeasInfo-r10
 
 
 VarMeasConfig ::=					SEQUENCE {
@@ -37,7 +65,7 @@ VarMeasConfig ::=					SEQUENCE {
 	reportConfigList					ReportConfigToAddModList			OPTIONAL,
 	-- Other parameters
 	quantityConfig						QuantityConfig						OPTIONAL,
-	s-Measure							RSRP-Range							OPTIONAL,
+	s-Measure							INTEGER (-140..-44)					OPTIONAL,
 	speedStatePars						CHOICE {
 		release								NULL,
 		setup								SEQUENCE {
@@ -70,14 +98,20 @@ CellsTriggeredList ::=				SEQUENCE (SIZE (1..maxCellMeas)) OF CHOICE {
 	physCellIdCDMA2000						PhysCellIdCDMA2000
 }
 
+VarRLF-Report-r10 ::=				SEQUENCE {
+	rlf-Report-r10							RLF-Report-r9,
+	plmn-Identity-r10						PLMN-Identity
+}
+
+
 VarShortMAC-Input ::=					SEQUENCE {
 	cellIdentity							CellIdentity,
 	physCellId								PhysCellId,
 	c-RNTI									C-RNTI
 }
 
+maxLogMeas-r10				INTEGER ::= 4060-- Maximum number of logged measurement entries
+											--  that can be stored by the UE
 
 
 END
-
-

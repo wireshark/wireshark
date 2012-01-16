@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V9.7.0 (2011-06)
+-- 3GPP TS 36.331 V10.4.0 (2011-12)
 -- $Id$
 --
 EUTRA-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
@@ -12,10 +12,14 @@ IMPORTS
 	DL-DCCH-Message,
 	ARFCN-ValueEUTRA,
 	MasterInformationBlock,
+	maxFreq,
 	MeasConfig,
 	OtherConfig-r9,
 	PhysCellId,
 	RadioResourceConfigDedicated,
+	RSRP-Range,
+	RSRQ-Range,
+	SCellToAddModList-r10,
 	SecurityAlgorithmConfig,
 	ShortMAC-I,
 	SystemInformationBlockType1,
@@ -66,7 +70,7 @@ HandoverPreparationInformation-r8-IEs ::= SEQUENCE {
 
 HandoverPreparationInformation-v920-IEs	::= SEQUENCE {
 	ue-ConfigRelease-r9					ENUMERATED {
-										rel9, spare7, spare6, spare5, spare4, spare3,
+										rel9, rel10, spare6, spare5, spare4, spare3,
 										spare2, spare1, ...} 			OPTIONAL, 	-- Cond HO2
 	nonCriticalExtension				SEQUENCE {}						OPTIONAL
 }
@@ -106,8 +110,9 @@ AS-Config ::=				SEQUENCE {
 	[[	sourceSystemInformationBlockType1Ext	OCTET STRING (CONTAINING
 												SystemInformationBlockType1-v890-IEs)	OPTIONAL,
 		sourceOtherConfig-r9				OtherConfig-r9
+	]],
+	[[	sourceSCellConfigList-r10			SCellToAddModList-r10			OPTIONAL
 	]]
-
 }
 
 
@@ -145,6 +150,20 @@ RRM-Config ::=				SEQUENCE {
 									hr8, hr10, hr13, hr16, hr20, day1, day1hr12, day2,
 									day2hr12, day3, day4, day5, day7, day10, day14, day19,
 									day24, day30, dayMoreThan30}		OPTIONAL,
+	...,
+	[[	candidateCellInfoList-r10	CandidateCellInfoList-r10		OPTIONAL
+	]]
+}
+
+CandidateCellInfoList-r10 ::=	SEQUENCE (SIZE (1..maxFreq)) OF CandidateCellInfo-r10
+
+CandidateCellInfo-r10 ::=		SEQUENCE {
+	-- cellIdentification
+	physCellId-r10					PhysCellId,
+	dl-CarrierFreq-r10				ARFCN-ValueEUTRA,
+	-- available measurement results
+	rsrpResult-r10					RSRP-Range			OPTIONAL,
+	rsrqResult-r10					RSRQ-Range			OPTIONAL,
 	...
 }
 
@@ -154,5 +173,3 @@ maxReestabInfo				INTEGER ::= 32	-- Maximum number of KeNB* and shortMAC-I forwa
 
 
 END
-
-

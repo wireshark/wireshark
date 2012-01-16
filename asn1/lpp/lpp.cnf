@@ -8,8 +8,18 @@ PER
 UNALIGNED
 #.END
 
+#.EXPORTS
+Ellipsoid-Point_PDU
+EllipsoidPointWithAltitude_PDU
+HorizontalVelocity_PDU
+#.END
+
 #.PDU_NEW
 LPP-Message
+Ellipsoid-Point
+EllipsoidPointWithAltitude
+HorizontalVelocity
+#.END
 
 #.FN_HDR LPP-Message
 	
