@@ -134,6 +134,7 @@ ASN1_DISSECTOR_SRC = \
 	packet-lcsap.c \
 	packet-logotypecertextn.c \
 	packet-lppa.c \
+	packet-lte-rrc.c \
 	packet-mms.c \
 	packet-mpeg-audio.c \
 	packet-mpeg-pes.c \
@@ -184,7 +185,6 @@ DIRTY_ASN1_DISSECTOR_SRC = \
 	packet-gsm_map.c \
 	packet-ldap.c \
 	packet-lpp.c \
-	packet-lte-rrc.c \
 	packet-nbap.c \
 	packet-p1.c \
 	packet-pcap.c \
