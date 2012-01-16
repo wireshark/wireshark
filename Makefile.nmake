@@ -252,7 +252,7 @@ $(RESOURCES): image
 
 wiretap\wiretap-$(WTAP_VERSION).lib: image $(ZLIB_DLL) wiretap
 
-wireshark.exe	: $(LIBS_CHECK) config.h $(wireshark_OBJECTS) codecs epan gtk win32 image\wireshark.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib ui\gtk\libui.lib win32\libui_win32.lib plugins
+wireshark.exe	: $(LIBS_CHECK) config.h $(wireshark_OBJECTS) codecs epan gtk win32 image\wireshark.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib ui\gtk\libui.lib ui\win32\libui_win32.lib plugins
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:wireshark.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:windows $(wireshark_LIBS) $(GTK_LIBS) codecs\codecs.lib ui\gtk\libui.lib ui\win32\libui_win32.lib $(wireshark_OBJECTS) image\wireshark.res
