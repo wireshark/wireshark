@@ -661,12 +661,12 @@ static const value_string drda_dsstyp_abbr[] = {
   { 0,          NULL }
 };
 
-static gint iPreviousFrameNumber = -1;
+static guint iPreviousFrameNumber = 0;
 
 static void
 drda_init(void)
 {
-	iPreviousFrameNumber = -1;
+	iPreviousFrameNumber = 0;
 }
 
 static void
@@ -687,7 +687,7 @@ dissect_drda(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DRDA");
 	/* This is a trick to know whether this is the first PDU in this packet or not */
-	if (iPreviousFrameNumber != (gint) pinfo->fd->num)
+	if (iPreviousFrameNumber != pinfo->fd->num)
 		col_clear(pinfo->cinfo, COL_INFO);
 	else
 		col_append_str(pinfo->cinfo, COL_INFO, " | ");
