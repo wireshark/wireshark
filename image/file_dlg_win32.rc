@@ -1,6 +1,6 @@
 #include <windows.h>
 #include "richedit.h"
-#include "../win32/file_dlg_win32.h"
+#include "../ui/win32/file_dlg_win32.h"
 
 WIRESHARK_OPENFILENAME_TEMPLATE DIALOG 0, 0, 368, 94
 STYLE WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | DS_3DLOOK | DS_CONTROL
