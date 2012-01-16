@@ -49,7 +49,7 @@
 #include "capture_ui_utils.h"
 #include <wsutil/file_util.h>
 
-#include "simple_dialog.h"
+#include "ui/simple_dialog.h"
 
 #include <airpcap.h>
 #include "airpcap_loader.h"
