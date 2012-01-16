@@ -187,27 +187,27 @@ my %APIs = (
 		'g_win32_get_package_installation_directory',
 		'g_win32_get_package_installation_subdirectory',
 ##
-## Following Deprecated as of GLib 2.10; to be replaced only when Wireshark requires GLib 2.10 or later
-## Note: Only the commented out items are currently used by Wireshark
+## Following Deprecated as of GLib 2.10; Wireshark now requires GLIB 2.14 or newer
+##  so the following note is only of historical interest.
 ### GMemChunks should used *only* with GLib < 2.10.
 ###  There's an issue wherein GLib >= 2.10 g_mem_chunk_destroy doesn't actually free memory thus
 ###   leading to memory leaks.
 ###  So: either replace GMemChunk use with something else altogether
 ###      or use GMemChunks for GLib < 2.10 and GSlice (or whatever) for newer GLibs.
-## 2.10		'g_mem_chunk_alloc',				# "use slice allocator" (avail since 2.10)
-## 2.10		'g_mem_chunk_alloc0',				# "use slice allocator" (avail since 2.10)
-			'g_mem_chunk_clean',				# "use slice allocator" (avail since 2.10)
-## 2.10		'g_mem_chunk_create',				# "use slice allocator" (avail since 2.10)
-## 2.10		'g_mem_chunk_destroy',				# "use slice allocator" (avail since 2.10)
-## 2.10		'g_mem_chunk_free',					# "use slice allocator" (avail since 2.10)
-			'g_mem_chunk_info',					# "use slice allocator" (avail since 2.10)
-## 2.10		'g_mem_chunk_new',					# "use slice allocator" (avail since 2.10)
-			'g_mem_chunk_print',				# "use slice allocator" (avail since 2.10)
-			'g_mem_chunk_reset',				# "use slice allocator" (avail since 2.10)
-			'g_blow_chunks',					# "use slice allocator" (avail since 2.10,2.14)
-## 2.10		'g_chunk_free',						# g_slice_free (avail since 2.10)
-## 2.10		'g_chunk_new',						# g_slice_new  (avail since 2.10)
-			'g_chunk_new0',						# g_slice_new0 (avail since 2.10)
+		'g_mem_chunk_alloc',				# "use slice allocator" (avail since 2.10)
+		'g_mem_chunk_alloc0',				# "use slice allocator" (avail since 2.10)
+		'g_mem_chunk_clean',				# "use slice allocator" (avail since 2.10)
+		'g_mem_chunk_create',				# "use slice allocator" (avail since 2.10)
+		'g_mem_chunk_destroy',				# "use slice allocator" (avail since 2.10)
+		'g_mem_chunk_free',				# "use slice allocator" (avail since 2.10)
+		'g_mem_chunk_info',				# "use slice allocator" (avail since 2.10)
+		'g_mem_chunk_new',				# "use slice allocator" (avail since 2.10)
+		'g_mem_chunk_print',				# "use slice allocator" (avail since 2.10)
+		'g_mem_chunk_reset',				# "use slice allocator" (avail since 2.10)
+		'g_blow_chunks',				# "use slice allocator" (avail since 2.10,2.14)
+		'g_chunk_free',					# g_slice_free (avail since 2.10)
+		'g_chunk_new',					# g_slice_new  (avail since 2.10)
+		'g_chunk_new0',					# g_slice_new0 (avail since 2.10)
 ###
 ## Following Deprecated as of GLib 2.22;
 ## Note: Not currently used by Wireshark
