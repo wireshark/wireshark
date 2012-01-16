@@ -35,8 +35,8 @@
 #include <epan/proto.h>
 
 #include "../filters.h"
-#include "../simple_dialog.h"
-#include "../main_statusbar.h"
+#include "ui/simple_dialog.h"
+#include "ui/main_statusbar.h"
 
 #include "ui/gtk/main.h"
 #include "ui/gtk/filter_dlg.h"

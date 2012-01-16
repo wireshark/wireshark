@@ -36,7 +36,7 @@
 #include <epan/tap.h>
 #include <epan/dissectors/packet-wsp.h>
 
-#include "../simple_dialog.h"
+#include "ui/simple_dialog.h"
 #include "../globals.h"
 #include "../stat_menu.h"
 

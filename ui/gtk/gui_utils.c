@@ -41,7 +41,7 @@
 #include "epan/epan.h"
 
 #include <epan/packet_info.h>
-#include "../ui_util.h"
+#include "ui/ui_util.h"
 #include <wsutil/file_util.h>
 
 #include "ui/gtk/gtkglobals.h"

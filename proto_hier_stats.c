@@ -30,7 +30,7 @@
 
 #include "globals.h"
 #include "proto_hier_stats.h"
-#include "progress_dlg.h"
+#include "ui/progress_dlg.h"
 #include <epan/epan_dissect.h>
 #include <wtap.h>
 

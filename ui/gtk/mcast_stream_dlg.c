@@ -45,7 +45,7 @@
 
 #include "../globals.h"
 #include "../stat_menu.h"
-#include "../simple_dialog.h"
+#include "ui/simple_dialog.h"
 
 #include "ui/gtk/mcast_stream_dlg.h"
 #include "ui/gtk/mcast_stream.h"

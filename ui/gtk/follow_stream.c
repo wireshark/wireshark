@@ -41,10 +41,10 @@
 #include <epan/prefs.h>
 #include <epan/charsets.h>
 
-#include <../alert_box.h>
+#include <ui/alert_box.h>
 #include <../isprint.h>
 #include <../print.h>
-#include <../simple_dialog.h>
+#include <ui/simple_dialog.h>
 #include <wsutil/file_util.h>
 
 #include "ui/gtk/color_utils.h"

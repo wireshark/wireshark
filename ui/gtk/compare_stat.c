@@ -57,8 +57,9 @@
 #include <epan/in_cksum.h>
 
 #include "../stat_menu.h"
-#include "../simple_dialog.h"
 #include "../timestats.h"
+
+#include "ui/simple_dialog.h"
 
 #include "ui/gtk/gui_stat_menu.h"
 #include "ui/gtk/stock_icons.h"

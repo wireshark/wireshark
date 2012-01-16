@@ -32,7 +32,7 @@
 #include <gtk/gtk.h>
 
 #include "../proto_hier_stats.h"
-#include "../simple_dialog.h"
+#include "ui/simple_dialog.h"
 
 #include "ui/gtk/proto_hier_stats_dlg.h"
 #include "ui/gtk/dlg_utils.h"

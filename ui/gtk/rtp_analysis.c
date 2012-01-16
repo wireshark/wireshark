@@ -64,10 +64,10 @@
 
 #include "../util.h"
 #include "../g711.h"
-#include "../alert_box.h"
-#include "../simple_dialog.h"
+#include "ui/alert_box.h"
+#include "ui/simple_dialog.h"
 #include "../stat_menu.h"
-#include "../progress_dlg.h"
+#include "ui/progress_dlg.h"
 #include "../tempfile.h"
 #include <wsutil/file_util.h>
 

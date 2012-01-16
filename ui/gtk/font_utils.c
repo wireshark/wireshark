@@ -40,7 +40,7 @@
 #include <wsutil/unicode-utils.h>
 #endif
 
-#include "../simple_dialog.h"
+#include "ui/simple_dialog.h"
 
 #include "ui/gtk/main.h"
 #include "ui/gtk/recent.h"

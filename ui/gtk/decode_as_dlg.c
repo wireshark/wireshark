@@ -41,7 +41,7 @@
 
 #include <wsutil/file_util.h>
 
-#include "../simple_dialog.h"
+#include "ui/simple_dialog.h"
 
 #include "ui/gtk/main.h"
 #include "ui/gtk/decode_as_dlg.h"

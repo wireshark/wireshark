@@ -54,8 +54,8 @@
 #include <epan/tap.h>
 #include <epan/strutil.h>
 
-#include "../alert_box.h"
-#include "../simple_dialog.h"
+#include "ui/alert_box.h"
+#include "ui/simple_dialog.h"
 
 #include "ui/gtk/mcast_stream.h"
 #include "ui/gtk/mcast_stream_dlg.h"

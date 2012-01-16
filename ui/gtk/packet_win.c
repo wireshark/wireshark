@@ -60,9 +60,9 @@
 
 #include "../file.h"
 #include "../print.h"
-#include "../ui_util.h"
+#include "ui/ui_util.h"
 #include "../summary.h"
-#include "../simple_dialog.h"
+#include "ui/simple_dialog.h"
 
 #include "ui/gtk/font_utils.h"
 #include "ui/gtk/main.h"

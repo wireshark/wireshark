@@ -30,7 +30,7 @@
 
 #include <gtk/gtk.h>
 
-#include "../progress_dlg.h"
+#include "ui/progress_dlg.h"
 
 #include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/dlg_utils.h"

@@ -49,8 +49,8 @@
 #include <epan/charsets.h>
 
 #include "../file.h"
-#include "../alert_box.h"
-#include "../simple_dialog.h"
+#include "ui/alert_box.h"
+#include "ui/simple_dialog.h"
 #include "../tempfile.h"
 #include <wsutil/file_util.h>
 

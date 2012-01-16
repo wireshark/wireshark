@@ -36,7 +36,7 @@
 
 #include <epan/filesystem.h>
 
-#include "../simple_dialog.h"
+#include "ui/simple_dialog.h"
 #include "../fileset.h"
 
 #include "ui/gtk/gui_utils.h"

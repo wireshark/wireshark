@@ -35,7 +35,7 @@
 #include "epan/filesystem.h"
 #include <epan/prefs.h>
 
-#include "../simple_dialog.h"
+#include "ui/simple_dialog.h"
 
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/text_page_utils.h"

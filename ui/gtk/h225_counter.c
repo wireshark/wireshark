@@ -42,7 +42,7 @@
 #include <epan/tap.h>
 #include <epan/dissectors/packet-h225.h>
 
-#include "../simple_dialog.h"
+#include "ui/simple_dialog.h"
 #include "../file.h"
 #include "../stat_menu.h"
 

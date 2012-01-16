@@ -42,10 +42,10 @@
 #include "epan/prefs.h"
 #include <epan/packet.h>
 #include <epan/epan_dissect.h>
-#include "../ui_util.h"
-#include "../progress_dlg.h"
-#include "../simple_dialog.h"
-#include "../main_statusbar.h"
+#include "ui/ui_util.h"
+#include "ui/progress_dlg.h"
+#include "ui/simple_dialog.h"
+#include "ui/main_statusbar.h"
 #include "epan/emem.h"
 #include "globals.h"
 #include "ui/gtk/gtkglobals.h"

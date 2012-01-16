@@ -38,7 +38,7 @@
 
 #include "../file.h"
 #include "../print.h"
-#include "../simple_dialog.h"
+#include "ui/simple_dialog.h"
 
 #include "ui/gtk/main.h"
 #include "ui/gtk/prefs_column.h"

@@ -48,8 +48,8 @@
 #include <epan/addr_resolv.h>
 
 #include "../globals.h"
-#include "../alert_box.h"
-#include "../simple_dialog.h"
+#include "ui/alert_box.h"
+#include "ui/simple_dialog.h"
 #include "../tap-rtp-common.h"
 #include <wsutil/file_util.h>
 

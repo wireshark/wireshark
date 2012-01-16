@@ -43,9 +43,10 @@
 #include "color_filters.h"
 #include "file.h"
 #include <epan/dfilter/dfilter.h>
-#include "simple_dialog.h"
-#include "ui_util.h"
 #include <epan/prefs.h>
+
+#include "ui/simple_dialog.h"
+#include "ui/ui_util.h"
 
 #define RED_COMPONENT(x)   (guint16) (((((x) >> 16) & 0xff) * 65535 / 255))
 #define GREEN_COMPONENT(x) (guint16) (((((x) >>  8) & 0xff) * 65535 / 255))

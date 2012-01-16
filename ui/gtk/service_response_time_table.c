@@ -33,7 +33,7 @@
 
 #include "epan/packet_info.h"
 
-#include "../simple_dialog.h"
+#include "ui/simple_dialog.h"
 
 #include "ui/gtk/service_response_time_table.h"
 #include "ui/gtk/filter_utils.h"

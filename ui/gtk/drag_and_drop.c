@@ -38,10 +38,11 @@
 
 #include "../util.h"
 #include "../file.h"
-#include "../simple_dialog.h"
 #ifdef HAVE_LIBPCAP
 #include "../capture.h"
 #endif
+
+#include "ui/simple_dialog.h"
 
 #include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/capture_file_dlg.h"

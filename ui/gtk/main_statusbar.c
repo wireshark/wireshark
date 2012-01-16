@@ -46,6 +46,8 @@
 #include "../capture.h"
 #endif
 
+#include "ui/main_statusbar.h"
+
 #include "ui/gtk/recent.h"
 #include "ui/gtk/main.h"
 #include "ui/gtk/main_statusbar_private.h"
@@ -57,8 +59,6 @@
 #include "ui/gtk/expert_indicators.h"
 #include "ui/gtk/keys.h"
 #include "ui/gtk/menus.h"
-
-#include "main_statusbar.h"
 
 /*
  * The order below defines the priority of info bar contexts.

@@ -58,11 +58,7 @@
 #include "fileset.h"
 #include "tempfile.h"
 #include "merge.h"
-#include "alert_box.h"
-#include "simple_dialog.h"
-#include "main_statusbar.h"
-#include "progress_dlg.h"
-#include "ui_util.h"
+
 #include <epan/prefs.h>
 #include <epan/dfilter/dfilter.h>
 #include <epan/epan_dissect.h>
@@ -74,6 +70,12 @@
 #include <wsutil/file_util.h>
 #include <epan/strutil.h>
 #include <epan/addr_resolv.h>
+
+#include "ui/alert_box.h"
+#include "ui/simple_dialog.h"
+#include "ui/main_statusbar.h"
+#include "ui/progress_dlg.h"
+#include "ui/ui_util.h"
 
 #ifdef HAVE_LIBPCAP
 gboolean auto_scroll_live;

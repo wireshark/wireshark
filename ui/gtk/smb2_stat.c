@@ -40,7 +40,7 @@
 #include <epan/dissectors/packet-smb2.h>
 
 #include "../timestats.h"
-#include "../simple_dialog.h"
+#include "ui/simple_dialog.h"
 #include "../file.h"
 #include "../globals.h"
 #include "../stat_menu.h"

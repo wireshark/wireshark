@@ -31,6 +31,7 @@
 #endif
 
 #include <ctype.h>
+#include <string.h>
 
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
@@ -40,15 +41,13 @@
 #include <unistd.h>
 #endif
 
+#include <wsutil/file_util.h>
+
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 #if GTK_CHECK_VERSION(3,0,0)
 # include <gdk/gdkkeysyms-compat.h>
 #endif
-#include <wsutil/file_util.h>
-
-#include <string.h>
-
 
 #include <epan/filesystem.h>
 #include <epan/packet.h>
@@ -58,11 +57,12 @@
 #include <epan/dissectors/packet-ssl.h>
 #include <epan/dissectors/packet-ssl-utils.h>
 
-#include "../simple_dialog.h"
 #include "../isprint.h"
-#include "../alert_box.h"
-#include "../progress_dlg.h"
-#include "../ui_util.h"
+
+#include "ui/simple_dialog.h"
+#include "ui/alert_box.h"
+#include "ui/progress_dlg.h"
+#include "ui/ui_util.h"
 
 #include "ui/gtk/keys.h"
 #include "ui/gtk/color_utils.h"

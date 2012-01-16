@@ -39,8 +39,9 @@
 #include <epan/tap.h>
 #include <epan/nstime.h>
 
-#include "../simple_dialog.h"
 #include "../globals.h"
+
+#include "ui/simple_dialog.h"
 
 #include "ui/gtk/sat.h"
 #include "ui/gtk/conversations_table.h"

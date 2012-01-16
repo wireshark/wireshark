@@ -28,7 +28,7 @@
 # include "config.h"
 #endif
 
-#include <gtk/gtk.h>
+#include <string.h>
 
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
@@ -38,13 +38,16 @@
 #include <unistd.h>
 #endif
 
+#include <gtk/gtk.h>
+
 #include <epan/packet_info.h>
 #include <epan/prefs.h>
 #include <epan/tap.h>
 
-#include <../alert_box.h>
-#include <../simple_dialog.h>
 #include <wsutil/file_util.h>
+
+#include <ui/alert_box.h>
+#include <ui/simple_dialog.h>
 
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/file_dlg.h"
@@ -53,7 +56,6 @@
 #include "ui/gtk/main.h"
 #include "ui/gtk/stock_icons.h"
 #include "ui/gtk/export_object.h"
-#include <string.h>
 
 enum {
 	EO_PKT_NUM_COLUMN,

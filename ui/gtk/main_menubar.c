@@ -47,9 +47,9 @@
 #include <epan/filesystem.h>
 
 #include "../print.h"
-#include "../ui_util.h"
-#include "../simple_dialog.h"
-#include "../main_statusbar.h"
+#include "ui/ui_util.h"
+#include "ui/simple_dialog.h"
+#include "ui/main_statusbar.h"
 #include "../color_filters.h"
 #include "../stat_menu.h"
 #include "../u3.h"

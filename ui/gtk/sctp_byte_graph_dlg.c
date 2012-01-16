@@ -35,8 +35,8 @@
 #include <epan/strutil.h>
 
 #include "../globals.h"
-#include "../ui_util.h"
-#include "../simple_dialog.h"
+#include "ui/ui_util.h"
+#include "ui/simple_dialog.h"
 
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/main.h"

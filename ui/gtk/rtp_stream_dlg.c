@@ -41,7 +41,7 @@
 
 #include "../globals.h"
 #include "../stat_menu.h"
-#include "../simple_dialog.h"
+#include "ui/simple_dialog.h"
 
 #include "ui/gtk/rtp_stream_dlg.h"
 #include "ui/gtk/gui_stat_menu.h"

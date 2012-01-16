@@ -33,7 +33,7 @@
 #include <epan/stats_tree_priv.h>
 #include <epan/report_err.h>
 
-#include "../simple_dialog.h"
+#include "ui/simple_dialog.h"
 #include "../globals.h"
 #include "../stat_menu.h"
 

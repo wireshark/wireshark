@@ -41,7 +41,7 @@
 
 #include <epan/expert.h>
 
-#include "../simple_dialog.h"
+#include "ui/simple_dialog.h"
 
 #include "ui/gtk/expert_comp_table.h"
 #include "ui/gtk/filter_utils.h"

@@ -44,7 +44,7 @@
 
 #include <pcap.h>
 
-#include "../simple_dialog.h"
+#include "ui/simple_dialog.h"
 
 #include "ui/gtk/main.h"
 #include "ui/gtk/dlg_utils.h"

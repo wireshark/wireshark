@@ -40,12 +40,13 @@
 #include <epan/prefs.h>
 
 #include "../capture_ifinfo.h"
-#include "../simple_dialog.h"
 #include "../capture.h"
 #include "../capture-pcap-util.h"
 #include "../capture_ui_utils.h"
 #include "wsutil/file_util.h"
 #include <wiretap/wtap.h>
+
+#include "ui/simple_dialog.h"
 
 #ifdef _WIN32
 #include "ui/gtk/capture_if_details_dlg_win32.h"

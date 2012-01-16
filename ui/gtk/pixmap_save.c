@@ -33,7 +33,7 @@
 
 #include <epan/filesystem.h>
 
-#include "../simple_dialog.h"
+#include "ui/simple_dialog.h"
 
 #include "ui/gtk/pixmap_save.h"
 #include "ui/gtk/gui_utils.h"

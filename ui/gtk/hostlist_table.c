@@ -49,8 +49,8 @@
 
 #include <wsutil/file_util.h>
 
-#include "../simple_dialog.h"
-#include "../alert_box.h"
+#include "ui/simple_dialog.h"
+#include "ui/alert_box.h"
 #include "../tempfile.h"
 
 #include "ui/gtk/hostlist_table.h"

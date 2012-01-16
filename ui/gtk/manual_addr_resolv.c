@@ -35,7 +35,7 @@
 #include <gtk/gtk.h>
 
 #include "epan/addr_resolv.h"
-#include "../simple_dialog.h"
+#include "ui/simple_dialog.h"
 
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/gui_utils.h"

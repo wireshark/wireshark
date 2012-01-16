@@ -41,7 +41,7 @@
 #include <epan/dissectors/packet-ldap.h>
 
 #include "../timestats.h"
-#include "../simple_dialog.h"
+#include "ui/simple_dialog.h"
 #include "../file.h"
 #include "../stat_menu.h"
 

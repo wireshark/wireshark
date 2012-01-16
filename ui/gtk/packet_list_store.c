@@ -38,7 +38,9 @@
 #include <glib.h>
 
 #include "packet_list_store.h"
-#include "ui_util.h"
+
+#include "ui/progress_dlg.h"
+#include "ui/ui_util.h"
 
 #include <epan/epan_dissect.h>
 #include <epan/column_info.h>
@@ -49,8 +51,6 @@
 #include "color_filters.h"
 
 #include "globals.h"
-
-#include "../progress_dlg.h"
 
 static void packet_list_init(PacketList *pkg_tree);
 static void packet_list_class_init(PacketListClass *klass);

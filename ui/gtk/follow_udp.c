@@ -37,7 +37,7 @@
 #include <epan/strutil.h>
 #include <epan/tap.h>
 
-#include <../simple_dialog.h>
+#include <ui/simple_dialog.h>
 
 #include "gtkglobals.h"
 #include "ui/gtk/follow_stream.h"

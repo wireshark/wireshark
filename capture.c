@@ -47,13 +47,15 @@
 #include "capture_ui_utils.h"
 #include "util.h"
 #include "capture-pcap-util.h"
-#include "simple_dialog.h"
 #include <epan/prefs.h>
 
 #ifdef _WIN32
 #include "capture-wpcap.h"
 #endif
-#include "ui_util.h"
+
+#include "ui/simple_dialog.h"
+#include "ui/ui_util.h"
+
 #include "wsutil/file_util.h"
 #include "log.h"
 

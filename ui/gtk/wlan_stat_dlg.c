@@ -40,7 +40,7 @@
 #include <epan/dissectors/packet-ieee80211.h>
 #include <epan/strutil.h>
 
-#include "../simple_dialog.h"
+#include "ui/simple_dialog.h"
 #include "../stat_menu.h"
 
 #include "ui/gtk/gtkglobals.h"

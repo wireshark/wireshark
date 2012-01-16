@@ -31,7 +31,8 @@
 #include <gtk/gtk.h>
 
 #include "../color.h"
-#include "../simple_dialog.h"
+
+#include "ui/simple_dialog.h"
 
 #include "ui/gtk/color_utils.h"
 #include "ui/gtk/gtkglobals.h"

@@ -53,10 +53,10 @@
 #include <epan/funnel.h>
 
 #include "../timestats.h"
-#include "../simple_dialog.h"
+#include "ui/simple_dialog.h"
 #include "../file.h"
 #include "../stat_menu.h"
-#include "../progress_dlg.h"
+#include "ui/progress_dlg.h"
 #include "../color_filters.h"
 
 #include "ui/gtk/gui_utils.h"

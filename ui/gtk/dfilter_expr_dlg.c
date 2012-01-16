@@ -47,7 +47,7 @@
 
 #include <gtk/gtk.h>
 
-#include "../simple_dialog.h"
+#include "ui/simple_dialog.h"
 
 #include "ui/gtk/main.h"
 #include "ui/gtk/gui_utils.h"

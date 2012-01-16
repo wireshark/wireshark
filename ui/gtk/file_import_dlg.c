@@ -43,8 +43,9 @@
 #include <gtk/gtk.h>
 
 #include "filters.h"
-#include "simple_dialog.h"
-#include "alert_box.h"
+
+#include "ui/simple_dialog.h"
+#include "ui/alert_box.h"
 
 #include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/stock_icons.h"

@@ -37,9 +37,9 @@
 #include <epan/prefs.h>
 
 #include "../globals.h"
-#include "../alert_box.h"
-#include "../simple_dialog.h"
-#include "../main_statusbar.h"
+#include "ui/alert_box.h"
+#include "ui/simple_dialog.h"
+#include "ui/main_statusbar.h"
 
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/find_dlg.h"

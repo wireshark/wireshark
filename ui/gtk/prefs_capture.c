@@ -33,7 +33,7 @@
 
 #include <epan/prefs.h>
 
-#include "../simple_dialog.h"
+#include "ui/simple_dialog.h"
 #include "../capture_ifinfo.h"
 #include "../capture_ui_utils.h"
 

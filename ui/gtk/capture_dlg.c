@@ -45,10 +45,11 @@
 
 #include "../capture.h"
 #include "../capture_ifinfo.h"
-#include "../simple_dialog.h"
 #include "../capture-pcap-util.h"
 #include "../capture_ui_utils.h"
 #include "../ringbuffer.h"
+
+#include "ui/simple_dialog.h"
 
 #include "ui/gtk/main.h"
 #include "ui/gtk/menus.h"

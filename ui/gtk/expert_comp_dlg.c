@@ -39,8 +39,9 @@
 #include <epan/stat_cmd_args.h>
 #include <epan/prefs.h>
 
-#include "../simple_dialog.h"
 #include "../stat_menu.h"
+
+#include "ui/simple_dialog.h"
 
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/dlg_utils.h"

@@ -62,9 +62,9 @@
 #include <epan/dissectors/packet-iax2.h>
 #include <epan/rtp_pt.h>
 
-#include "../alert_box.h"
-#include "../simple_dialog.h"
-#include "../ui_util.h"
+#include "ui/alert_box.h"
+#include "ui/simple_dialog.h"
+#include "ui/ui_util.h"
 
 #include "ui/gtk/graph_analysis.h"
 #include "ui/gtk/voip_calls.h"

@@ -41,8 +41,10 @@
 #include "capture_opts.h"
 #include "capture_ui_utils.h"
 #endif
-#include "simple_dialog.h"
+
 #include <wsutil/file_util.h>
+
+#include "ui/simple_dialog.h"
 
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/color_utils.h"

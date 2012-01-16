@@ -40,14 +40,15 @@
 #include <epan/prefs.h>
 
 #include "../globals.h"
-#include "../alert_box.h"
-#include "../simple_dialog.h"
 #include "../color.h"
-#include "../ui_util.h"
 #include "../color_filters.h"
 #include "../merge.h"
 #include "../util.h"
 #include <wsutil/file_util.h>
+
+#include "ui/alert_box.h"
+#include "ui/simple_dialog.h"
+#include "ui/ui_util.h"
 
 #include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/keys.h"

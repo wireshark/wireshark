@@ -41,7 +41,7 @@
 #include <epan/frequency-utils.h>
 #include <epan/crypt/airpdcap_ws.h>
 
-#include "../simple_dialog.h"
+#include "ui/simple_dialog.h"
 
 #include "ui/gtk/main.h"
 #include "ui/gtk/dlg_utils.h"

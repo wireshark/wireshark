@@ -43,9 +43,10 @@
 #include <epan/dissectors/packet-diameter.h>
 
 #include "../timestats.h"
-#include "../simple_dialog.h"
 #include "../file.h"
 #include "../stat_menu.h"
+
+#include "ui/simple_dialog.h"
 
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/dlg_utils.h"

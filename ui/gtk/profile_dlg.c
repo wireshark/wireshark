@@ -38,7 +38,7 @@
 #include <epan/filesystem.h>
 #include <epan/prefs.h>
 
-#include "../simple_dialog.h"
+#include "ui/simple_dialog.h"
 #include <wsutil/file_util.h>
 
 #include "ui/gtk/main.h"

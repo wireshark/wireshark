@@ -46,8 +46,8 @@
 #include <epan/filesystem.h>
 #include <epan/tap.h>
 
-#include <../alert_box.h>
-#include <../simple_dialog.h>
+#include <ui/alert_box.h>
+#include <ui/simple_dialog.h>
 #include <../util.h>
 
 #include "gtkglobals.h"

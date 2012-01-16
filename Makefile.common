@@ -147,7 +147,6 @@ wireshark_SOURCES =	\
 	$(WIRESHARK_COMMON_SRC)	\
 	$(SHARK_COMMON_CAPTURE_SRC) \
 	airpcap_loader.c \
-	alert_box.c	\
 	capture.c	\
 	capture_info.c	\
 	capture_opts.c \
@@ -160,13 +159,14 @@ wireshark_SOURCES =	\
 	proto_hier_stats.c	\
 	summary.c	\
 	tempfile.c	\
-	u3.c
+	u3.c		\
+	ui/alert_box.c
 
 # corresponding headers
 wireshark_INCLUDES =	\
 	airpcap.h	\
 	airpcap_loader.h \
-	alert_box.h	\
+	ui/alert_box.h	\
 	capture.h	\
 	capture_info.h	\
 	capture_opts.h	\
@@ -175,16 +175,16 @@ wireshark_INCLUDES =	\
 	g711.h	\
 	globals.h	\
 	log.h	\
-	main_statusbar.h	\
+	ui/main_statusbar.h	\
 	merge.h	\
-	progress_dlg.h	\
+	ui/progress_dlg.h	\
 	proto_hier_stats.h	\
-	simple_dialog.h	\
+	ui/simple_dialog.h	\
 	stat_menu.h	\
 	summary.h	\
 	sync_pipe.h	\
 	u3.h	\
-	ui_util.h
+	ui/ui_util.h
 
 # tshark specifics
 tshark_SOURCES =	\

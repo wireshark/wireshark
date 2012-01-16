@@ -38,7 +38,7 @@
 #include <epan/filesystem.h>
 
 #include "../util.h"
-#include "../simple_dialog.h"
+#include "ui/simple_dialog.h"
 #include "../disabled_protos.h"
 
 #include "ui/gtk/main.h"

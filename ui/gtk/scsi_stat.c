@@ -46,7 +46,7 @@
 #include <epan/dissectors/packet-scsi-smc.h>
 #include <epan/dissectors/packet-scsi-osd.h>
 
-#include "../simple_dialog.h"
+#include "ui/simple_dialog.h"
 #include "../globals.h"
 #include "../stat_menu.h"
 

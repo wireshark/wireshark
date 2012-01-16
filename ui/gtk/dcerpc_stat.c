@@ -45,7 +45,8 @@
 #include <epan/dissectors/packet-dcerpc.h>
 
 #include "../stat_menu.h"
-#include "../simple_dialog.h"
+
+#include "ui/simple_dialog.h"
 
 #include "ui/gtk/gui_stat_menu.h"
 #include "ui/gtk/dlg_utils.h"

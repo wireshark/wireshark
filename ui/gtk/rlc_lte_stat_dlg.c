@@ -46,7 +46,7 @@
 #include <epan/tap.h>
 #include <epan/dissectors/packet-rlc-lte.h>
 
-#include "../simple_dialog.h"
+#include "ui/simple_dialog.h"
 #include "../stat_menu.h"
 
 #include "ui/gtk/dlg_utils.h"

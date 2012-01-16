@@ -55,10 +55,10 @@
 #include <epan/filesystem.h>
 
 #include "../isprint.h"
-#include "../alert_box.h"
-#include "../simple_dialog.h"
-#include "../progress_dlg.h"
-#include "../ui_util.h"
+#include "ui/alert_box.h"
+#include "ui/simple_dialog.h"
+#include "ui/progress_dlg.h"
+#include "ui/ui_util.h"
 #include <wsutil/file_util.h>
 
 #include "ui/gtk/keys.h"

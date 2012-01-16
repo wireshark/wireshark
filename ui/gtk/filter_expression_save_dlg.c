@@ -41,9 +41,11 @@
 #include <epan/filter_expressions.h>
 
 #include "../globals.h"
-#include "../alert_box.h"
-#include "../simple_dialog.h"
-#include "../main_statusbar.h"
+
+#include "ui/alert_box.h"
+#include "ui/simple_dialog.h"
+#include "ui/main_statusbar.h"
+#include "ui/ui_util.h"
 
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/filter_expression_save_dlg.h"
@@ -54,7 +56,7 @@
 #include "ui/gtk/filter_autocomplete.h"
 #include "ui/gtk/keys.h"
 #include "ui/gtk/help_dlg.h"
-#include "ui_util.h"
+
 #include "main.h"
 
 #include "main_filter_toolbar.h"

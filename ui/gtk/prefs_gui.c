@@ -31,7 +31,7 @@
 
 #include <epan/prefs.h>
 
-#include "../simple_dialog.h"
+#include "ui/simple_dialog.h"
 
 #include "ui/gtk/prefs_gui.h"
 #include "ui/gtk/gtkglobals.h"

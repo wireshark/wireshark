@@ -41,7 +41,7 @@
 #include <epan/prefs-int.h>
 #include <epan/column.h>
 
-#include "../simple_dialog.h"
+#include "ui/simple_dialog.h"
 #include "../u3.h"
 #include <wsutil/file_util.h>
 
