@@ -22,8 +22,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -81,7 +79,7 @@
 #ifdef _WIN32
 #include <gdk/gdkwin32.h>
 #include <windows.h>
-#include "win32/file_dlg_win32.h"
+#include "ui/win32/file_dlg_win32.h"
 #endif
 
 static void

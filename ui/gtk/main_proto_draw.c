@@ -78,7 +78,7 @@
 #ifdef _WIN32
 #include <gdk/gdkwin32.h>
 #include <windows.h>
-#include "win32/file_dlg_win32.h"
+#include "ui/win32/file_dlg_win32.h"
 #endif
 
 

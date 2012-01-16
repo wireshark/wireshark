@@ -60,7 +60,7 @@
 
 #ifdef _WIN32
 #include "../tempfile.h"
-#include "win32/print_win32.h"
+#include "ui/win32/print_win32.h"
 #endif
 
 /* static variable declarations to speed up the performance
