@@ -29,7 +29,7 @@
 #include <epan/filesystem.h>
 #include <epan/prefs.h>
 
-#include "main_statusbar.h"
+#include "ui/main_statusbar.h"
 
 #include "wireshark_application.h"
 #include "packet_list.h"

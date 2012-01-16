@@ -38,10 +38,11 @@
 #include "monospace_font.h"
 #include "proto_tree.h"
 
-#include "ui_util.h"
 #include "globals.h"
 #include "qt_ui_utils.h"
-#include "main_statusbar.h"
+
+#include "ui/main_statusbar.h"
+#include "ui/ui_util.h"
 
 #include "ui/gtk/recent.h"
 

@@ -31,8 +31,9 @@
 
 #include "wireshark_application.h"
 
-#include "main_statusbar.h"
 #include "globals.h"
+
+#include "ui/main_statusbar.h"
 
 #include <QSplitter>
 

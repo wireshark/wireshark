@@ -64,21 +64,22 @@
 #include "color.h"
 #include "color_filters.h"
 #include "print.h"
-#include "simple_dialog.h"
-#include "main_statusbar.h"
 #include "register.h"
 #include "ringbuffer.h"
-#include "ui_util.h"
 #include "util.h"
 #include "clopts_common.h"
 #include "console_io.h"
 #include "cmdarg_err.h"
 #include "version_info.h"
 #include "merge.h"
-#include "alert_box.h"
 #include "log.h"
 #include "u3.h"
 #include <wsutil/file_util.h>
+
+#include "ui/alert_box.h"
+#include "ui/main_statusbar.h"
+#include "ui/simple_dialog.h"
+#include "ui/ui_util.h"
 
 #include "ui/gtk/recent.h"
 

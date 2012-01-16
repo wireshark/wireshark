@@ -29,7 +29,7 @@
 
 #include "progress_dialog.h"
 
-#include "progress_dlg.h"
+#include "ui/progress_dlg.h"
 
 progdlg_t *
 delayed_create_progress_dlg(const gchar *task_title, const gchar *item_title,

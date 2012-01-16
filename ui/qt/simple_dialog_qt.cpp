@@ -31,8 +31,9 @@
 
 #include <epan/strutil.h>
 
+#include "ui/simple_dialog.h"
+
 #include "simple_dialog_qt.h"
-#include "simple_dialog.h"
 
 /* Simple dialog function - Displays a dialog box with the supplied message
  * text.
