@@ -49,25 +49,17 @@ typedef struct _scs_collection SCS_collection;
 #define SCS_LARGE_SIZE 4096
 #define SCS_HUGE_SIZE 65536
 
-#define SCS_SMALL_CHUNK_SIZE 4096
-#define SCS_MEDIUM_CHUNK_SIZE 1024
-#define SCS_LARGE_CHUNK_SIZE 256
-#define SCS_HUGE_CHUNK_SIZE 128
-
-extern void destroy_scs_collection(SCS_collection* c);
-extern SCS_collection* scs_init(void);
 extern gchar* scs_subscribe(SCS_collection* collection, const gchar* s);
 extern void scs_unsubscribe(SCS_collection* collection, gchar* s);
 extern gchar* scs_subscribe_printf(SCS_collection* collection, gchar* fmt, ...);
 
 /******* AVPs & Co. *********/
-#define AVP_CHUNK_SIZE 4096
 
 /* these are the defined oreators of avps */
 #define AVP_OP_EQUAL		'='
 #define AVP_OP_NOTEQUAL		'!'
 #define AVP_OP_STARTS		'^'
-#define AVP_OP_ENDS			'$'
+#define AVP_OP_ENDS		'$'
 #define AVP_OP_CONTAINS		'~'
 #define AVP_OP_LOWER		'<'
 #define AVP_OP_HIGHER		'>'
