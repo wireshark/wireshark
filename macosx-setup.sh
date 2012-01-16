@@ -139,7 +139,7 @@ if [ -n "$CMAKE" ]; then
   curl -O http://www.cmake.org/files/v$cmake_dir/cmake-$CMAKE_VERSION.tar.gz || exit 1
   gzcat cmake-$CMAKE_VERSION.tar.gz | tar xf - || exit 1
   cd cmake-$CMAKE_VERSION
-  ./bootstrap --system-libs || exit 1
+  ./bootstrap || exit 1
   make -j 3 || exit 1
   $DO_MAKE_INSTALL || exit 1
   cd ..
@@ -420,8 +420,19 @@ fi
 echo ""
 
 echo "You are now prepared to build Wireshark. To do so do:"
+echo "export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/X11/lib/pkgconfig"
+echo ""
+if [ -n "$CMAKE" ]; then
+  echo "mkdir build; cd build"
+  echo "cmake .."
+  echo
+  echo "or"
+  echo
+fi
 echo "./autogen.sh"
-echo "./configure"
+echo "mkdir build; cd build"
+echo "../configure"
+echo ""
 echo "make -j 3"
 echo "make install"
 
