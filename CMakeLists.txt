@@ -659,7 +659,7 @@ if(BUILD_wireshark AND GTK_FOUND)
 	)
 	set(wireshark_FILES
 		airpcap_loader.c
-		alert_box.c
+		ui/alert_box.c
 		capture.c
 		capture_info.c
 		capture_opts.c
