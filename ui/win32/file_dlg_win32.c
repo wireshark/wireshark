@@ -63,7 +63,7 @@
 #include "ui/gtk/menus.h"
 #include "ui/gtk/drag_and_drop.h"
 #include "ui/gtk/capture_dlg.h"
-#include "ui/win32/file_dlg_win32.h"
+#include "file_dlg_win32.h"
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/export_sslkeys.h"
 
