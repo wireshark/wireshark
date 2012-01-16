@@ -38,7 +38,8 @@
 #include <epan/epan.h>
 #include <epan/frequency-utils.h>
 
-#include "simple_dialog.h"
+#include "ui/simple_dialog.h"
+
 #include "main.h"
 #include "main_airpcap_toolbar.h"
 
