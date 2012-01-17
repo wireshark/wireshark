@@ -446,7 +446,7 @@ static int
 dissect_compressed_list(int expected_encoding_type _U_, packet_info *pinfo _U_,
                         proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-    proto_item *list_ti, *et_ti;
+    proto_item *list_ti /* , *et_ti */;
     proto_item *list_tree;
     guint8 first_byte = tvb_get_guint8(tvb, offset);
     guint8 ET, GP /* , PS, CC */, bit_mask_size;
@@ -458,7 +458,8 @@ dissect_compressed_list(int expected_encoding_type _U_, packet_info *pinfo _U_,
 
     /* Fixed fields from first byte */
     ET = (first_byte & 0xc0) >> 6;
-    et_ti = proto_tree_add_item(list_tree, hf_rohc_compressed_list_et, tvb, offset, 1, ENC_BIG_ENDIAN);
+    /* et_ti = proto_tree_add_item(list_tree, hf_rohc_compressed_list_et, tvb, offset, 1, ENC_BIG_ENDIAN); */
+    proto_tree_add_item(list_tree, hf_rohc_compressed_list_et, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_item_append_text(list_ti, " (type=%d - %s)",
                            ET, val_to_str_const(ET, compressed_list_encoding_type_vals, "Unknown"));
 #if 0
