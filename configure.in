@@ -224,7 +224,7 @@ fi
 AC_ARG_WITH([gtk3],
   AC_HELP_STRING( [--with-gtk3=@<:@yes/no@:>@],
                   [use GTK+ 3.0 instead of 2.0 @<:@default=no@:>@]),
-  with_gtk3="$withval", with_gtk="no")
+  with_gtk3="$withval", with_gtk3="no")
 
 
 # libsmi
