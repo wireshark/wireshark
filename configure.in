@@ -793,24 +793,26 @@ AC_DEFINE_UNQUOTED(DOC_DIR, "$docdir", [Directory for docs])
 # programs to be built with GTK+.
 #
 if test "x$enable_wireshark" = "xyes"; then
-if test "x$with_gtk3" = "xyes"; then
-	AM_PATH_GTK_3_0(3.0.0,
-        [
-                CFLAGS="$CFLAGS $GTK_CFLAGS"
-                CXXFLAGS="$CXXFLAGS $GTK_CFLAGS"
-                AC_DEFINE(HAVE_GTK, 1, [Define to 1 if compiling with GTK])
-        ], GTK_OK=no, gthread)
+	if test "x$with_gtk3" = "xyes"; then
+		AM_PATH_GTK_3_0(3.0.0,
+	        [
+        	        CFLAGS="$CFLAGS $GTK_CFLAGS"
+                	CXXFLAGS="$CXXFLAGS $GTK_CFLAGS"
+			have_gtk=yes
+	                AC_DEFINE(HAVE_GTK, 1, [Define to 1 if compiling with GTK])
+	        ], have_gtk=no, gthread)
 
+	else
+		AM_PATH_GTK_2_0(2.12.0,
+		[
+			CFLAGS="$CFLAGS $GTK_CFLAGS"
+			CXXFLAGS="$CXXFLAGS $GTK_CFLAGS"
+			have_gtk=yes
+			AC_DEFINE(HAVE_GTK, 1, [Define to 1 if compiling with GTK])
+		], have_gtk=no, gthread)
+	fi
 else
-	AM_PATH_GTK_2_0(2.12.0,
-	[
-		CFLAGS="$CFLAGS $GTK_CFLAGS"
-		CXXFLAGS="$CXXFLAGS $GTK_CFLAGS"
-		AC_DEFINE(HAVE_GTK, 1, [Define to 1 if compiling with GTK])
-	], GTK_OK=no, gthread)
-fi
-else
-	GTK_OK=no
+	have_gtk=no
 fi
 
 # GLib checks; we require GLib 2.14 or later, and require gmodule
@@ -826,7 +828,7 @@ fi
 # We don't add $GLIB_LIBS to LIBS, because we don't want to force all
 # programs to be built with GLib.
 #
-if test "$GTK_OK" = "no" ; then
+if test "$have_gtk" = "no" ; then
 	#
 	# We don't have GTK+.
 	# If they didn't explicitly say "--disable-wireshark", fail (so
@@ -955,7 +957,7 @@ main(void)
 	AC_MSG_RESULT($ac_cv_dladdr_finds_executable_path)
 fi
 
-if test "x$no_gtk" != "xyes"
+if test "x$have_gtk" == "xyes"
 then
     #
     # We have GTK+; do we want the OS X integration functions and,
