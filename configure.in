@@ -2020,12 +2020,24 @@ dnl AC_CONFIG_FILES([tools/setuid-root.pl], [chmod +x tools/setuid-root.pl])
 
 # Pretty messages
 
+if test "x$have_gtk" = "xyes"; then
+	if test "x$with_gtk3" = "xyes"; then
+		gui_lib_message=" (with GTK+ 3"
+	else
+		gui_lib_message=" (with GTK+ 2"
+	fi
+	if test "x$have_ige_mac" = "xyes"; then
+		gui_lib_message="$gui_lib_message and Mac OS X integration)"
+	else
+		gui_lib_message="$gui_lib_message)"
+	fi
+fi
+
 if test "x$enable_setcap_install" = "xyes" ; then
 	setcap_message="yes"
 else
 	setcap_message="no"
 fi
-
 
 if test "x$enable_setuid_install" = "xyes" ; then
 	setuid_message="yes"
@@ -2105,7 +2117,7 @@ fi
 
 echo ""
 echo "The Wireshark package has been configured with the following options."
-echo "                    Build wireshark : $enable_wireshark"
+echo "                    Build wireshark : $enable_wireshark""$gui_lib_message"
 echo "                       Build tshark : $enable_tshark"
 echo "                     Build capinfos : $enable_capinfos"
 echo "                      Build editcap : $enable_editcap"
