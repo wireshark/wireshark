@@ -799,7 +799,8 @@ if test "x$enable_wireshark" = "xyes"; then
         	        CFLAGS="$CFLAGS $GTK_CFLAGS"
                 	CXXFLAGS="$CXXFLAGS $GTK_CFLAGS"
 			have_gtk=yes
-	                AC_DEFINE(HAVE_GTK, 1, [Define to 1 if compiling with GTK])
+	                AC_DEFINE(HAVE_GTK, 1,
+			    [Define to 1 if compiling with GTK])
 	        ], have_gtk=no, gthread)
 
 	else
@@ -808,7 +809,8 @@ if test "x$enable_wireshark" = "xyes"; then
 			CFLAGS="$CFLAGS $GTK_CFLAGS"
 			CXXFLAGS="$CXXFLAGS $GTK_CFLAGS"
 			have_gtk=yes
-			AC_DEFINE(HAVE_GTK, 1, [Define to 1 if compiling with GTK])
+			AC_DEFINE(HAVE_GTK, 1,
+			    [Define to 1 if compiling with GTK])
 		], have_gtk=no, gthread)
 	fi
 else
@@ -957,7 +959,7 @@ main(void)
 	AC_MSG_RESULT($ac_cv_dladdr_finds_executable_path)
 fi
 
-if test "x$have_gtk" == "xyes"
+if test "x$have_gtk" = "xyes"
 then
     #
     # We have GTK+; do we want the OS X integration functions and,
