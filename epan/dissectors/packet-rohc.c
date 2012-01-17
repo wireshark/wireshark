@@ -125,8 +125,16 @@ static int hf_rohc_compressed_list = -1;
 static int hf_rohc_compressed_list_et = -1;
 static int hf_rohc_compressed_list_gp = -1;
 static int hf_rohc_compressed_list_ps = -1;
+static int hf_rohc_compressed_list_res = -1;
+static int hf_rohc_compressed_list_count = -1;
 static int hf_rohc_compressed_list_cc = -1;
+static int hf_rohc_compressed_list_xi_1 = -1;
 static int hf_rohc_compressed_list_gen_id = -1;
+static int hf_rohc_compressed_list_ref_id = -1;
+static int hf_rohc_compressed_list_mask_size = -1;
+static int hf_rohc_compressed_list_ins_bit_mask = -1;
+static int hf_rohc_compressed_list_rem_bit_mask = -1;
+static int hf_rohc_spare_bits = -1;
 
 
 static int ett_rohc = -1;
@@ -430,6 +438,10 @@ dissect_rohc_feedback_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
 }
 
 
+const true_false_string rohc_cmp_lst_mask_size_vals = { "15-bit mask", "7-bit mask" };
+
+
+/* 5.8.6.  Compressed list formats */
 static int
 dissect_compressed_list(int expected_encoding_type, packet_info *pinfo,
                         proto_tree *tree, tvbuff_t *tvb, int offset)
@@ -437,7 +449,7 @@ dissect_compressed_list(int expected_encoding_type, packet_info *pinfo,
     proto_item *list_ti, *et_ti;
     proto_item *list_tree;
     guint8 first_byte = tvb_get_guint8(tvb, offset);
-    guint8 ET, GP /* , PS, CC */;
+    guint8 ET, GP /* , PS, CC */, bit_mask_size;
     int start_offset = offset;
 
     /* Compressed list root */
@@ -449,27 +461,46 @@ dissect_compressed_list(int expected_encoding_type, packet_info *pinfo,
     et_ti = proto_tree_add_item(list_tree, hf_rohc_compressed_list_et, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_item_append_text(list_ti, " (type=%d - %s)",
                            ET, val_to_str_const(ET, compressed_list_encoding_type_vals, "Unknown"));
+#if 0
     if (ET != expected_encoding_type) {
         expert_add_info_format(pinfo, et_ti, PI_MALFORMED, PI_ERROR,
                                "Wrong compressed list encoding type (expected %d, got %d)",
                                expected_encoding_type, ET);
         return offset+1;
     }
-
+#endif
     GP = (first_byte & 0x20) >> 5;
     proto_tree_add_item(list_tree, hf_rohc_compressed_list_gp, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     switch (ET) {
         case 0:
-            /* 5.8.6.1 */
-            /* PS = (first_byte & 0x20) >> 4; */
+            /* 5.8.6.1 Encoding Type 0 (generic scheme)
+             *
+             *    0   1   2   3   4   5   6   7
+             *  +---+---+---+---+---+---+---+---+
+             *  | ET=0  |GP |PS |    CC = m     |
+             *  +---+---+---+---+---+---+---+---+
+             *  :            gen_id             :  1 octet, if GP = 1
+             *  +---+---+---+---+---+---+---+---+
+             *  |        XI 1, ..., XI m        |  m octets, or m * 4 bits
+             *  /                --- --- --- ---/
+             *  |               :    Padding    :  if PS = 0 and m is odd
+             *  +---+---+---+---+---+---+---+---+
+             *  |                               |
+             *  /       item 1, ..., item n     /  variable
+             *  |                               |
+             *  +---+---+---+---+---+---+---+---+
+			 *
+             */
+            /* PS = (first_byte & 0x10) >> 4; */
             proto_tree_add_item(list_tree, hf_rohc_compressed_list_ps, tvb, offset, 1, ENC_BIG_ENDIAN);
             /* CC = first_byte & 0x0f; */
             proto_tree_add_item(list_tree, hf_rohc_compressed_list_cc, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
 
+            /* GP: Indicates presence of gen_id field. */
             if (GP) {
-                proto_tree_add_item(list_tree, hf_rohc_compressed_list_cc, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(list_tree, hf_rohc_compressed_list_gen_id, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset++;
             }
 
@@ -477,17 +508,143 @@ dissect_compressed_list(int expected_encoding_type, packet_info *pinfo,
             break;
 
         case 1:
-            /* 5.8.6.2 */
-            /* TODO: */
+            /*
+             * 5.8.6.2.  Encoding Type 1 (insertion only scheme)
+             *
+             *      0   1   2   3   4   5   6   7
+             *    +---+---+---+---+---+---+---+---+
+             *    | ET=1  |GP |PS |     XI 1      |
+             *    +---+---+---+---+---+---+---+---+
+             *    :            gen_id             :  1 octet, if GP = 1
+             *    +---+---+---+---+---+---+---+---+
+             *    |            ref_id             |
+             *    +---+---+---+---+---+---+---+---+
+             *    /      insertion bit mask       /  1-2 octets
+             *    +---+---+---+---+---+---+---+---+
+             *    |            XI list            |  k octets, or (k - 1) * 4 bits
+             *    /                --- --- --- ---/
+             *    |               :    Padding    :  if PS = 0 and k is even
+             *    +---+---+---+---+---+---+---+---+
+             *    |                               |
+             *    /       item 1, ..., item n     /  variable
+             *    |                               |
+             *    +---+---+---+---+---+---+---+---+
+             *
+             */
+            proto_tree_add_item(list_tree, hf_rohc_compressed_list_ps, tvb, offset, 1, ENC_BIG_ENDIAN);
+			/* XI 1 */
+            proto_tree_add_item(list_tree, hf_rohc_compressed_list_xi_1, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
+            /* GP: Indicates presence of gen_id field. */
+            if (GP) {
+                proto_tree_add_item(list_tree, hf_rohc_compressed_list_gen_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset++;
+            }
+            proto_tree_add_item(list_tree, hf_rohc_compressed_list_ref_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            /*
+             *      insertion bit mask: Bit mask indicating the positions where new
+             *                items are to be inserted.  See Insertion Only scheme in
+             *                section 5.8.3.  The bit mask can have either of the
+             *                following two formats:
+             *
+             *
+             *           0   1   2   3   4   5   6   7
+             *         +---+---+---+---+---+---+---+---+
+             *         | 0 |        7-bit mask         |  bit 1 is the first bit
+             *         +---+---+---+---+---+---+---+---+
+             *
+             *         +---+---+---+---+---+---+---+---+
+             *         | 1 |                           |  bit 1 is the first bit
+             *         +---+      15-bit mask          +
+             *         |                               |  bit 7 is the last bit
+             *         +---+---+---+---+---+---+---+---+
+             */
+			bit_mask_size = (tvb_get_guint8(tvb,offset)&0x80)>>7;
+            proto_tree_add_item(list_tree, hf_rohc_compressed_list_mask_size, tvb, offset, 1, ENC_BIG_ENDIAN);
+			if(bit_mask_size){
+				proto_tree_add_bits_item(list_tree, hf_rohc_compressed_list_ins_bit_mask, tvb, (offset<<3)+1, 15, ENC_BIG_ENDIAN);
+				offset+=2;
+			}else{
+				proto_tree_add_bits_item(list_tree, hf_rohc_compressed_list_ins_bit_mask, tvb, (offset<<3)+1, 7, ENC_BIG_ENDIAN);
+				offset++;
+			}
+
+            /* TODO: */
             break;
         case 2:
-            /* 5.8.6.3 */
-            /* TODO: */
+            /*
+             *  5.8.6.3.  Encoding Type 2 (removal only scheme)
+			 *
+             *          0   1   2   3   4   5   6   7
+             *        +---+---+---+---+---+---+---+---+
+             *        | ET=2  |GP |res|     Count     |
+             *        +---+---+---+---+---+---+---+---+
+             *        :            gen_id             :  1 octet, if GP = 1
+             *        +---+---+---+---+---+---+---+---+
+             *        |            ref_id             |
+             *        +---+---+---+---+---+---+---+---+
+             *        /       removal bit mask        /  1-2 octets
+             *        +---+---+---+---+---+---+---+---+
+			 *
+             */
+            proto_tree_add_item(list_tree, hf_rohc_compressed_list_res, tvb, offset, 1, ENC_BIG_ENDIAN);
+            /* Count: Number of elements in ref_list. */
+            proto_tree_add_item(list_tree, hf_rohc_compressed_list_count, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
+            /* GP: Indicates presence of gen_id field. */
+            if (GP) {
+                proto_tree_add_item(list_tree, hf_rohc_compressed_list_gen_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset++;
+            }
+            proto_tree_add_item(list_tree, hf_rohc_compressed_list_ref_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+             /*
+              *  removal bit mask: Indicates the elements in ref_list to be
+              *  removed in order to obtain the current list.  See section
+              *  5.8.3.  The removal bit mask has the same format as the
+              *  insertion bit mask of section 5.8.6.3.
+              */
+
+			bit_mask_size = (tvb_get_guint8(tvb,offset)&0x80)>>7;
+            proto_tree_add_item(list_tree, hf_rohc_compressed_list_mask_size, tvb, offset, 1, ENC_BIG_ENDIAN);
+			if(bit_mask_size){
+				proto_tree_add_bits_item(list_tree, hf_rohc_compressed_list_rem_bit_mask, tvb, (offset<<3)+1, 15, ENC_BIG_ENDIAN);
+				offset+=2;
+			}else{
+				proto_tree_add_bits_item(list_tree, hf_rohc_compressed_list_rem_bit_mask, tvb, (offset<<3)+1, 7, ENC_BIG_ENDIAN);
+				offset++;
+			}
             break;
         case 3:
-            /* 5.8.6.4 */
+            /*
+             * 5.8.6.4.  Encoding Type 3 (remove then insert scheme)
+             *
+             *        See section 5.8.3 for a description of the Remove then insert
+             *        scheme.
+             *
+             *          0   1   2   3   4   5   6   7
+             *        +---+---+---+---+---+---+---+---+
+             *        | ET=3  |GP |PS |     XI 1      |
+             *        +---+---+---+---+---+---+---+---+
+             *        :            gen_id             :  1 octet, if GP = 1
+             *        +---+---+---+---+---+---+---+---+
+             *        |            ref_id             |
+             *        +---+---+---+---+---+---+---+---+
+             *        /       removal bit mask        /  1-2 octets
+             *        +---+---+---+---+---+---+---+---+
+             *        /      insertion bit mask       /  1-2 octets
+             *        +---+---+---+---+---+---+---+---+
+             *        |            XI list            |  k octets, or (k - 1) * 4 bits
+             *        /                --- --- --- ---/
+             *        |               :    Padding    :  if PS = 0 and k is even
+             *        +---+---+---+---+---+---+---+---+
+             *        |                               |
+             *        /       item 1, ..., item n     /  variable
+             *        |                               |
+             *        +---+---+---+---+---+---+---+---+
+             *
+             */
             /* TODO: */
             offset++;
             break;
@@ -570,6 +727,7 @@ dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, packet_info *pinfo, proto_tre
                 proto_tree_add_item(dynamic_ipv4_tree, hf_rohc_rtp_df, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(dynamic_ipv4_tree, hf_rohc_rtp_rnd, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(dynamic_ipv4_tree, hf_rohc_rtp_nbo, tvb, offset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_bits_item(dynamic_ipv4_tree, hf_rohc_spare_bits, tvb, (offset<<3)+3, 5, ENC_BIG_ENDIAN);
                 offset++;
                 /* Set proper length for subtree */
                 proto_item_set_len(root_ti, offset-tree_start_offset);
@@ -1910,15 +2068,63 @@ proto_register_rohc(void)
                 "Size of xi fields", HFILL
               }
             },
+            { &hf_rohc_compressed_list_res,
+              { "Reserved", "rohc.compressed-list.res",
+                FT_UINT8, BASE_DEC, NULL, 0x10,
+                NULL, HFILL
+              }
+            },
+			{ &hf_rohc_compressed_list_count,
+              { "Count", "rohc.compressed-list.count",
+                FT_UINT8, BASE_DEC, NULL, 0x0f,
+                NULL, HFILL
+              }
+            },
             { &hf_rohc_compressed_list_cc,
               { "CSRC Counter", "rohc.compressed-list.cc",
                 FT_UINT8, BASE_DEC, NULL, 0x0f,
                 "CSRC Counter from original RTP header", HFILL
               }
             },
+			{ &hf_rohc_compressed_list_xi_1,
+              { "XI 1", "rohc.compressed-list.xi_1",
+                FT_UINT8, BASE_DEC, NULL, 0x0f,
+                NULL, HFILL
+              }
+            },
             { &hf_rohc_compressed_list_gen_id,
               { "gen_id", "rohc.compressed-list.gen-id",
-                FT_UINT8, BASE_DEC, NULL, 0x0f,
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL
+              }
+            },
+			{ &hf_rohc_compressed_list_ref_id,
+              { "ref_id", "rohc.compressed-list.ref-id",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL
+              }
+            },
+			{ &hf_rohc_compressed_list_mask_size,
+              { "Mask size","rohc.compressed-list.mask_size",
+                FT_BOOLEAN, 8, TFS(&rohc_cmp_lst_mask_size_vals), 0x80,
+                NULL , HFILL
+              }
+            },
+			{ &hf_rohc_compressed_list_ins_bit_mask,
+              { "Insertion bit mask","rohc.compressed-list.ins_bit_mask",
+                FT_UINT16, BASE_HEX, NULL, 0x0,
+                NULL, HFILL
+              }
+            },
+			{ &hf_rohc_compressed_list_rem_bit_mask,
+              { "Removal bit mask","rohc.compressed-list.rem_bit_mask",
+                FT_UINT16, BASE_HEX, NULL, 0x0,
+                NULL, HFILL
+              }
+            },
+			{ &hf_rohc_spare_bits,
+              { "Spare bits(0)", "rohc.spare_bits",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL
               }
             },
