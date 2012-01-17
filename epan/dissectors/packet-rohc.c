@@ -449,7 +449,7 @@ dissect_compressed_list(int expected_encoding_type _U_, packet_info *pinfo _U_,
     proto_item *list_ti /* , *et_ti */;
     proto_item *list_tree;
     guint8 first_byte = tvb_get_guint8(tvb, offset);
-    guint8 ET, GP /* , PS, CC */, bit_mask_size;
+    guint8 ET, GP , PS, CC , bit_mask_size;
     int start_offset = offset;
 
     /* Compressed list root */
@@ -491,11 +491,18 @@ dissect_compressed_list(int expected_encoding_type _U_, packet_info *pinfo _U_,
              *  /       item 1, ..., item n     /  variable
              *  |                               |
              *  +---+---+---+---+---+---+---+---+
-			 *
+             *
              */
-            /* PS = (first_byte & 0x10) >> 4; */
+            /* PS = (first_byte & 0x10) >> 4; 
+             *       PS: Indicates size of XI fields:
+             *       PS = 0 indicates 4-bit XI fields;
+             *       PS = 1 indicates 8-bit XI fields.
+             */
+            PS = (first_byte & 0x10) >> 4; 
             proto_tree_add_item(list_tree, hf_rohc_compressed_list_ps, tvb, offset, 1, ENC_BIG_ENDIAN);
-            /* CC = first_byte & 0x0f; */
+            
+            /* CC: CSRC counter from original RTP header. */
+            CC = first_byte & 0x0f;
             proto_tree_add_item(list_tree, hf_rohc_compressed_list_cc, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
 
@@ -504,8 +511,33 @@ dissect_compressed_list(int expected_encoding_type _U_, packet_info *pinfo _U_,
                 proto_tree_add_item(list_tree, hf_rohc_compressed_list_gen_id, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset++;
             }
+            if(CC!=0){
+                /* TODO: calculate how many bytes to skip for items */
+                /*
+                 *       XI 1, ..., XI m: m XI items.  The format of an XI item is as
+                 *            follows:
+                 *
+                 *                 +---+---+---+---+
+                 *        PS = 0:  | X |   Index   |
+                 *                 +---+---+---+---+
+                 *
+                 *                    0   1   2   3   4   5   6   7
+                 *                  +---+---+---+---+---+---+---+---+
+                 *         PS = 1:  | X |           Index           |
+                 *                  +---+---+---+---+---+---+---+---+
+                 *
+                 *         X = 1 indicates that the item corresponding to the Index
+                 *               is sent in the item 0, ..., item n list.
+                 *         X = 0 indicates that the item corresponding to the Index is
+                 *               not sent.
+                 */
+                if(PS){
+                    /* PS = 1 indicates 8-bit XI fields. */
+                }else{
+                    /* PS = 0 indicates 4-bit XI fields; */
+                }
+            }
 
-            /* TODO: calculate how many bytes to skip for items */
             break;
 
         case 1:
@@ -532,9 +564,15 @@ dissect_compressed_list(int expected_encoding_type _U_, packet_info *pinfo _U_,
              *    +---+---+---+---+---+---+---+---+
              *
              */
+            PS = (first_byte & 0x10) >> 4; 
             proto_tree_add_item(list_tree, hf_rohc_compressed_list_ps, tvb, offset, 1, ENC_BIG_ENDIAN);
-			/* XI 1 */
-            proto_tree_add_item(list_tree, hf_rohc_compressed_list_xi_1, tvb, offset, 1, ENC_BIG_ENDIAN);
+            /*      XI 1: When PS = 0, the first 4-bit XI item is placed here.
+             *            When PS = 1, the field is set to zero when sending, and
+             *            ignored when receiving.
+             */
+            if(PS==0){
+                proto_tree_add_item(list_tree, hf_rohc_compressed_list_xi_1, tvb, offset, 1, ENC_BIG_ENDIAN);
+            }
             offset++;
             /* GP: Indicates presence of gen_id field. */
             if (GP) {
@@ -561,22 +599,31 @@ dissect_compressed_list(int expected_encoding_type _U_, packet_info *pinfo _U_,
              *         |                               |  bit 7 is the last bit
              *         +---+---+---+---+---+---+---+---+
              */
-			bit_mask_size = (tvb_get_guint8(tvb,offset)&0x80)>>7;
+            bit_mask_size = (tvb_get_guint8(tvb,offset)&0x80)>>7;
             proto_tree_add_item(list_tree, hf_rohc_compressed_list_mask_size, tvb, offset, 1, ENC_BIG_ENDIAN);
-			if(bit_mask_size){
-				proto_tree_add_bits_item(list_tree, hf_rohc_compressed_list_ins_bit_mask, tvb, (offset<<3)+1, 15, ENC_BIG_ENDIAN);
-				offset+=2;
-			}else{
-				proto_tree_add_bits_item(list_tree, hf_rohc_compressed_list_ins_bit_mask, tvb, (offset<<3)+1, 7, ENC_BIG_ENDIAN);
-				offset++;
-			}
+            if(bit_mask_size){
+                proto_tree_add_bits_item(list_tree, hf_rohc_compressed_list_ins_bit_mask, tvb, (offset<<3)+1, 15, ENC_BIG_ENDIAN);
+                offset+=2;
+            }else{
+                proto_tree_add_bits_item(list_tree, hf_rohc_compressed_list_ins_bit_mask, tvb, (offset<<3)+1, 7, ENC_BIG_ENDIAN);
+                offset++;
+            }
 
+            /* 
+             *      XI list: XI fields for items to be inserted.  When the insertion
+             *         bit mask has k ones, the total number of XI fields is k.  When
+             *         PS = 1, all XI fields are in the XI list.  When PS = 0, the
+             *         first XI field is in the XI 1 field, and the remaining k - 1
+             *         XI fields are in the XI list.
+             *
+             *      Padding: Present when PS = 0 and k is even.
+             */
             /* TODO: */
             break;
         case 2:
             /*
              *  5.8.6.3.  Encoding Type 2 (removal only scheme)
-			 *
+             *
              *          0   1   2   3   4   5   6   7
              *        +---+---+---+---+---+---+---+---+
              *        | ET=2  |GP |res|     Count     |
@@ -587,7 +634,7 @@ dissect_compressed_list(int expected_encoding_type _U_, packet_info *pinfo _U_,
              *        +---+---+---+---+---+---+---+---+
              *        /       removal bit mask        /  1-2 octets
              *        +---+---+---+---+---+---+---+---+
-			 *
+             *
              */
             proto_tree_add_item(list_tree, hf_rohc_compressed_list_res, tvb, offset, 1, ENC_BIG_ENDIAN);
             /* Count: Number of elements in ref_list. */
@@ -607,15 +654,15 @@ dissect_compressed_list(int expected_encoding_type _U_, packet_info *pinfo _U_,
               *  insertion bit mask of section 5.8.6.3.
               */
 
-			bit_mask_size = (tvb_get_guint8(tvb,offset)&0x80)>>7;
+            bit_mask_size = (tvb_get_guint8(tvb,offset)&0x80)>>7;
             proto_tree_add_item(list_tree, hf_rohc_compressed_list_mask_size, tvb, offset, 1, ENC_BIG_ENDIAN);
-			if(bit_mask_size){
-				proto_tree_add_bits_item(list_tree, hf_rohc_compressed_list_rem_bit_mask, tvb, (offset<<3)+1, 15, ENC_BIG_ENDIAN);
-				offset+=2;
-			}else{
-				proto_tree_add_bits_item(list_tree, hf_rohc_compressed_list_rem_bit_mask, tvb, (offset<<3)+1, 7, ENC_BIG_ENDIAN);
-				offset++;
-			}
+            if(bit_mask_size){
+                proto_tree_add_bits_item(list_tree, hf_rohc_compressed_list_rem_bit_mask, tvb, (offset<<3)+1, 15, ENC_BIG_ENDIAN);
+                offset+=2;
+            }else{
+                proto_tree_add_bits_item(list_tree, hf_rohc_compressed_list_rem_bit_mask, tvb, (offset<<3)+1, 7, ENC_BIG_ENDIAN);
+                offset++;
+            }
             break;
         case 3:
             /*
@@ -646,6 +693,69 @@ dissect_compressed_list(int expected_encoding_type _U_, packet_info *pinfo _U_,
              *        +---+---+---+---+---+---+---+---+
              *
              */
+            PS = (first_byte & 0x10) >> 4; 
+            proto_tree_add_item(list_tree, hf_rohc_compressed_list_ps, tvb, offset, 1, ENC_BIG_ENDIAN);
+            /*      XI 1: When PS = 0, the first 4-bit XI item is placed here.
+             *            When PS = 1, the field is set to zero when sending, and
+             *            ignored when receiving.
+             */
+            if(PS==0){
+                proto_tree_add_item(list_tree, hf_rohc_compressed_list_xi_1, tvb, offset, 1, ENC_BIG_ENDIAN);
+            }
+            offset++;
+            /* GP: Indicates presence of gen_id field. */
+            if (GP) {
+                proto_tree_add_item(list_tree, hf_rohc_compressed_list_gen_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset++;
+            }
+            proto_tree_add_item(list_tree, hf_rohc_compressed_list_ref_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+
+             /*
+              *  removal bit mask: Indicates the elements in ref_list to be
+              *  removed in order to obtain the current list.  See section
+              *  5.8.3.  The removal bit mask has the same format as the
+              *  insertion bit mask of section 5.8.6.3.
+              */
+
+            bit_mask_size = (tvb_get_guint8(tvb,offset)&0x80)>>7;
+            proto_tree_add_item(list_tree, hf_rohc_compressed_list_mask_size, tvb, offset, 1, ENC_BIG_ENDIAN);
+            if(bit_mask_size){
+                proto_tree_add_bits_item(list_tree, hf_rohc_compressed_list_rem_bit_mask, tvb, (offset<<3)+1, 15, ENC_BIG_ENDIAN);
+                offset+=2;
+            }else{
+                proto_tree_add_bits_item(list_tree, hf_rohc_compressed_list_rem_bit_mask, tvb, (offset<<3)+1, 7, ENC_BIG_ENDIAN);
+                offset++;
+            }
+            break;
+
+            /*
+             *      insertion bit mask: Bit mask indicating the positions where new
+             *                items are to be inserted.  See Insertion Only scheme in
+             *                section 5.8.3.  The bit mask can have either of the
+             *                following two formats:
+             *
+             *
+             *           0   1   2   3   4   5   6   7
+             *         +---+---+---+---+---+---+---+---+
+             *         | 0 |        7-bit mask         |  bit 1 is the first bit
+             *         +---+---+---+---+---+---+---+---+
+             *
+             *         +---+---+---+---+---+---+---+---+
+             *         | 1 |                           |  bit 1 is the first bit
+             *         +---+      15-bit mask          +
+             *         |                               |  bit 7 is the last bit
+             *         +---+---+---+---+---+---+---+---+
+             */
+            bit_mask_size = (tvb_get_guint8(tvb,offset)&0x80)>>7;
+            proto_tree_add_item(list_tree, hf_rohc_compressed_list_mask_size, tvb, offset, 1, ENC_BIG_ENDIAN);
+            if(bit_mask_size){
+                proto_tree_add_bits_item(list_tree, hf_rohc_compressed_list_ins_bit_mask, tvb, (offset<<3)+1, 15, ENC_BIG_ENDIAN);
+                offset+=2;
+            }else{
+                proto_tree_add_bits_item(list_tree, hf_rohc_compressed_list_ins_bit_mask, tvb, (offset<<3)+1, 7, ENC_BIG_ENDIAN);
+                offset++;
+            }
             /* TODO: */
             offset++;
             break;
