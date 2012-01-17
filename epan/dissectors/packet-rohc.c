@@ -443,7 +443,7 @@ const true_false_string rohc_cmp_lst_mask_size_vals = { "15-bit mask", "7-bit ma
 
 /* 5.8.6.  Compressed list formats */
 static int
-dissect_compressed_list(int expected_encoding_type, packet_info *pinfo,
+dissect_compressed_list(int expected_encoding_type _U_, packet_info *pinfo _U_,
                         proto_tree *tree, tvbuff_t *tvb, int offset)
 {
     proto_item *list_ti, *et_ti;
