@@ -66,14 +66,6 @@ struct remote_host_t {
     gboolean nocap_local;
 };
 
-/** @file
- * Utilities for Windows and other user interface functions.
- */
-
-/** @name Window Functions
- *  @todo Move these window functions to a new file win_utils.h?
- *  @{ */
-
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
