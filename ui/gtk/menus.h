@@ -29,10 +29,6 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/* Add a new recent capture filename to the "Recent Files" submenu
-   (duplicates will be ignored) */
-extern void add_menu_recent_capture_file(gchar *cf_name);
-
 /* Open a file(name)
    (will not ask to close existing capture file!) */
 extern void menu_open_filename(gchar *cf_name);
@@ -41,11 +37,6 @@ extern void menu_open_filename(gchar *cf_name);
  *  Menubar and context menus.
  *  @ingroup main_window_group
  */
-
-/** Write all recent capture filenames to the user's recent file.
- * @param rf recent file
- */
-extern void menu_recent_file_write_all(FILE *rf);
 
 /** User pushed a recent file submenu item.
  *

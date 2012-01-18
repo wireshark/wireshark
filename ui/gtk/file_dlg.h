@@ -99,12 +99,6 @@ extern void file_selection_set_extra_widget(GtkWidget *fs, GtkWidget *extra);
 extern void
 file_selection_browse(GtkWidget *file_bt, GtkWidget *file_te, const char *title, file_selection_action_t action);
 
-/** Get the latest opened directory.
- *
- * @return the dirname
- */
-extern char *get_last_open_dir(void);
-
 /** Set the latest opened directory.
  *  Will already be done when using file_selection_new().
  *

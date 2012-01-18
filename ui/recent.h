@@ -43,6 +43,12 @@ extern "C" {
 /** ???. */
 #define RECENT_KEY_DISPLAY_FILTER       "recent.display_filter"
 
+#define RECENT_KEY_COL_WIDTH            "column.width"
+
+#define RECENT_KEY_CAPTURE_FILTER       "recent.capture_filter"
+
+#define RECENT_KEY_REMOTE_HOST          "recent.remote_host"
+
 typedef struct _col_width_data {
   gint   cfmt;
   gchar *cfield;

@@ -47,12 +47,14 @@
 #include <epan/filesystem.h>
 
 #include "../print.h"
-#include "ui/ui_util.h"
-#include "ui/simple_dialog.h"
-#include "ui/main_statusbar.h"
 #include "../color_filters.h"
 #include "../stat_menu.h"
 #include "../u3.h"
+
+#include "ui/ui_util.h"
+#include "ui/recent.h"
+#include "ui/simple_dialog.h"
+#include "ui/main_statusbar.h"
 
 #include "ui/gtk/about_dlg.h"
 #include "ui/gtk/capture_dlg.h"
@@ -80,7 +82,6 @@
 #include "ui/gtk/keys.h"
 #include "ui/gtk/stock_icons.h"
 #include "ui/gtk/gtkglobals.h"
-#include "ui/gtk/recent.h"
 #include "ui/gtk/main_proto_draw.h"
 #include "ui/gtk/conversations_table.h"
 #include "ui/gtk/hostlist_table.h"

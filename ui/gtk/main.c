@@ -92,20 +92,24 @@
 #include "../color.h"
 #include "../color_filters.h"
 #include "../print.h"
-#include "ui/simple_dialog.h"
-#include "ui/main_statusbar.h"
 #include "../register.h"
 #include "../ringbuffer.h"
-#include "ui/ui_util.h"
 #include "../util.h"
 #include "../clopts_common.h"
 #include "../console_io.h"
 #include "../cmdarg_err.h"
 #include "../version_info.h"
 #include "../merge.h"
-#include "ui/alert_box.h"
 #include "../log.h"
 #include "../u3.h"
+
+#include "ui/alert_box.h"
+#include "ui/main_statusbar.h"
+#include "ui/recent.h"
+#include "ui/recent_utils.h"
+#include "ui/simple_dialog.h"
+#include "ui/ui_util.h"
+
 #include <wsutil/file_util.h>
 
 #ifdef HAVE_LIBPCAP
@@ -148,7 +152,6 @@
 #include "ui/gtk/packet_win.h"
 #include "ui/gtk/stock_icons.h"
 #include "ui/gtk/find_dlg.h"
-#include "ui/gtk/recent.h"
 #include "ui/gtk/follow_tcp.h"
 #include "ui/gtk/font_utils.h"
 #include "ui/gtk/about_dlg.h"

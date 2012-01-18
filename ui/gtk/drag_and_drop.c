@@ -42,6 +42,7 @@
 #include "../capture.h"
 #endif
 
+#include "ui/recent_utils.h"
 #include "ui/simple_dialog.h"
 
 #include "ui/gtk/gtkglobals.h"

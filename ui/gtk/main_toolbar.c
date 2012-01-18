@@ -38,6 +38,8 @@
 
 #include "../color_filters.h"
 
+#include "ui/recent.h"
+
 #ifdef HAVE_LIBPCAP
 #include "ui/gtk/capture_dlg.h"
 #include "ui/gtk/capture_if_dlg.h"
@@ -55,7 +57,6 @@
 #include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/stock_icons.h"
 #include "ui/gtk/keys.h"
-#include "ui/gtk/recent.h"
 #include "ui/gtk/packet_history.h"
 #include "ui/gtk/new_packet_list.h"
 

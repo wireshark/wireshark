@@ -40,10 +40,10 @@
 #include <wsutil/unicode-utils.h>
 #endif
 
+#include "ui/recent.h"
 #include "ui/simple_dialog.h"
 
 #include "ui/gtk/main.h"
-#include "ui/gtk/recent.h"
 #include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/font_utils.h"
 #include "ui/gtk/main_proto_draw.h"

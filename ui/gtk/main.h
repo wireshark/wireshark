@@ -301,22 +301,10 @@ extern void find_next_mark_cb(GtkWidget *widget, gpointer data, int action);
  */
 extern void find_prev_mark_cb(GtkWidget *widget, gpointer data, int action);
 
-/** Add a display filter coming from the user's recent file to the dfilter combo box.
- *
- * @param dftext the filter string
- */
-extern gboolean dfilter_combo_add_recent(gchar *dftext);
-
 #if 0
 /** Empty out the combobox entry field */
 extern void dfilter_combo_add_empty(void);
 #endif
-/** Write all non empty display filters (until maximum count)
- *  of the combo box GList to the user's recent file.
- *
- * @param rf the recent file
- */
-extern void dfilter_recent_combo_write_all(FILE *rf);
 
 /** Quit the program.
  *

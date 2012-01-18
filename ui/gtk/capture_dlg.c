@@ -49,6 +49,7 @@
 #include "../capture_ui_utils.h"
 #include "../ringbuffer.h"
 
+#include "ui/recent_utils.h"
 #include "ui/simple_dialog.h"
 
 #include "ui/gtk/main.h"

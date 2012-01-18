@@ -31,6 +31,7 @@
 
 #include <epan/prefs.h>
 
+#include "ui/recent.h"
 #include "ui/simple_dialog.h"
 
 #include "ui/gtk/prefs_gui.h"
@@ -45,7 +46,6 @@
 #include "ui/gtk/main_proto_draw.h"
 #include "ui/gtk/main_toolbar.h"
 #include "ui/gtk/font_utils.h"
-#include "ui/gtk/recent.h"
 #include "ui/gtk/webbrowser.h"
 #include "ui/gtk/main_welcome.h"
 

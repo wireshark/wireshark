@@ -58,7 +58,9 @@
 #include <epan/dissectors/packet-ipv6.h>
 
 #include <ui/alert_box.h>
+#include <ui/last_open_dir.h>
 #include <ui/simple_dialog.h>
+
 #include <wsutil/file_util.h>
 
 #include "ui/gtk/main.h"

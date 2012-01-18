@@ -26,13 +26,11 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
+
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-
-#ifndef QT_GUI_LIB
-#include <gtk/gtk.h>
-#endif
+#include <errno.h>
 
 #include <epan/epan.h>
 #include <epan/filesystem.h>
@@ -40,27 +38,17 @@
 #include <epan/prefs.h>
 #include <epan/prefs-int.h>
 #include <epan/column.h>
+#include <epan/timestamp.h>
 
+#include "ui/last_open_dir.h"
+#include "ui/recent.h"
+#include "ui/recent_utils.h"
 #include "ui/simple_dialog.h"
-#include "../u3.h"
+#include "ui/ui_util.h"
+
+#include "u3.h"
+
 #include <wsutil/file_util.h>
-
-#include "ui/gtk/recent.h"
-#ifndef QT_GUI_LIB
-#include "ui/gtk/main.h"
-#include "ui/gtk/menus.h"
-#include "ui/gtk/gui_utils.h"
-#include "ui/gtk/new_packet_list.h"
-#include "ui/gtk/file_dlg.h"
-#include "ui/gtk/cfilter_combo_utils.h"
-
-#ifdef HAVE_PCAP_REMOTE
-#include "ui/gtk/capture_dlg.h"
-#endif
-#else /* QT_GUI_LIB */
-#include "qt_ui_utils.h"
-#include "../file.h"
-#endif /* QT_GUI_LIB */
 
 #define RECENT_KEY_MAIN_TOOLBAR_SHOW        "gui.toolbar_main_show"
 #define RECENT_KEY_FILTER_TOOLBAR_SHOW      "gui.filter_toolbar_show"

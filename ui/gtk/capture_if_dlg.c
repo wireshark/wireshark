@@ -46,6 +46,7 @@
 #include "wsutil/file_util.h"
 #include <wiretap/wtap.h>
 
+#include "ui/recent.h"
 #include "ui/simple_dialog.h"
 
 #ifdef _WIN32
@@ -55,7 +56,6 @@
 #include "ui/gtk/stock_icons.h"
 #include "ui/gtk/capture_dlg.h"
 #include "ui/gtk/capture_if_dlg.h"
-#include "ui/gtk/recent.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/main.h"

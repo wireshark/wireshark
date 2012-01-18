@@ -60,9 +60,11 @@
 
 #include "../file.h"
 #include "../print.h"
-#include "ui/ui_util.h"
 #include "../summary.h"
+
+#include "ui/recent.h"
 #include "ui/simple_dialog.h"
+#include "ui/ui_util.h"
 
 #include "ui/gtk/font_utils.h"
 #include "ui/gtk/main.h"
@@ -71,7 +73,6 @@
 #include "ui/gtk/keys.h"
 #include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/gui_utils.h"
-#include "ui/gtk/recent.h"
 
 #define BV_SIZE 75
 #define TV_SIZE 95

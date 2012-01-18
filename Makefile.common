@@ -158,6 +158,7 @@ wireshark_SOURCES =	\
 	g711.c \
 	merge.c	\
 	proto_hier_stats.c	\
+	recent.c	\
 	summary.c	\
 	tempfile.c	\
 	u3.c
@@ -178,6 +179,8 @@ wireshark_INCLUDES =	\
 	ui/main_statusbar.h	\
 	merge.h	\
 	ui/progress_dlg.h	\
+	ui/recent.h	\
+	ui/recent_utils.h	\
 	proto_hier_stats.h	\
 	ui/simple_dialog.h	\
 	stat_menu.h	\

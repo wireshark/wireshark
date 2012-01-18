@@ -41,13 +41,15 @@
 #include "epan/epan.h"
 
 #include <epan/packet_info.h>
+
+#include "ui/recent.h"
 #include "ui/ui_util.h"
+
 #include <wsutil/file_util.h>
 
 #include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/font_utils.h"
-#include "ui/gtk/recent.h"
 
 #include "ui/gtk/old-gtk-compat.h"
 

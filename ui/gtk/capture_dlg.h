@@ -179,25 +179,6 @@ void
 activate_monitor (GtkTreeViewColumn *tree_column, GtkCellRenderer *renderer,
                   GtkTreeModel *tree_model, GtkTreeIter *iter, gpointer data);
 
-#ifdef HAVE_PCAP_REMOTE
-#define RECENT_KEY_REMOTE_HOST "recent.remote_host"
-
-/** Write all remote hosts to the recent file
- *
- * @param rf recent file
- */
-void
-capture_remote_combo_recent_write_all(FILE *rf);
-
-/** Add a new remote host from the recent file
- *
- * @param s string with hostname,port,auth_type
- * @return TRUE if correctly added
- */
-gboolean
-capture_remote_combo_add_recent(gchar *s);
-#endif
-
 gboolean
 dlg_window_present(void);
 

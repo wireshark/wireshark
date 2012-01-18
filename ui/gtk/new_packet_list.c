@@ -35,25 +35,28 @@
 #include <gtk/gtk.h>
 #include <glib.h>
 
+#include <epan/column_info.h>
+#include <epan/prefs.h>
+#include <epan/packet.h>
+#include <epan/epan_dissect.h>
+#include <epan/column.h>
+#include <epan/strutil.h>
+#include <epan/emem.h>
+
+#include "ui/main_statusbar.h"
+#include "ui/progress_dlg.h"
+#include "ui/recent.h"
+#include "ui/recent_utils.h"
+#include "ui/simple_dialog.h"
+#include "ui/ui_util.h"
+
 #include "gui_utils.h"
 #include "packet_list_store.h"
 #include "ui/gtk/new_packet_list.h"
-#include "epan/column_info.h"
-#include "epan/prefs.h"
-#include <epan/packet.h>
-#include <epan/epan_dissect.h>
-#include "ui/ui_util.h"
-#include "ui/progress_dlg.h"
-#include "ui/simple_dialog.h"
-#include "ui/main_statusbar.h"
-#include "epan/emem.h"
 #include "globals.h"
 #include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/font_utils.h"
 #include "ui/gtk/packet_history.h"
-#include "epan/column.h"
-#include "epan/strutil.h"
-#include "ui/gtk/recent.h"
 #include "ui/gtk/keys.h"
 #include "ui/gtk/menus.h"
 #include "color.h"

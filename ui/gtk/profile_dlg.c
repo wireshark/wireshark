@@ -38,7 +38,9 @@
 #include <epan/filesystem.h>
 #include <epan/prefs.h>
 
+#include "ui/recent.h"
 #include "ui/simple_dialog.h"
+
 #include <wsutil/file_util.h>
 
 #include "ui/gtk/main.h"
@@ -48,8 +50,8 @@
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/help_dlg.h"
-#include "ui/gtk/recent.h"
 #include "ui/gtk/old-gtk-compat.h"
+
 enum {
   NAME_COLUMN,
   GLOBAL_COLUMN,

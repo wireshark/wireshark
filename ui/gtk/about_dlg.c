@@ -43,6 +43,8 @@
 #include "../log.h"
 #include "../version_info.h"
 
+#include "ui/last_open_dir.h"
+
 #include "ui/gtk/about_dlg.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/dlg_utils.h"

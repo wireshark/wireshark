@@ -31,10 +31,12 @@
 
 #include <gtk/gtk.h>
 
+#include "ui/recent.h"
+#include "ui/recent_utils.h"
+
 #include "ui/gtk/main.h"
 #include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/cfilter_combo_utils.h"
-#include "ui/gtk/recent.h"
 
 
 /* XXX: use a preference for this setting! */

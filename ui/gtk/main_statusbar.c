@@ -47,8 +47,8 @@
 #endif
 
 #include "ui/main_statusbar.h"
+#include "ui/recent.h"
 
-#include "ui/gtk/recent.h"
 #include "ui/gtk/main.h"
 #include "ui/gtk/main_statusbar_private.h"
 #include "ui/gtk/gui_utils.h"

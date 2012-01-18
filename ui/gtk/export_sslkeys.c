@@ -57,9 +57,11 @@
 
 #include "../isprint.h"
 
-#include "ui/simple_dialog.h"
 #include "ui/alert_box.h"
+#include "ui/last_open_dir.h"
 #include "ui/progress_dlg.h"
+#include "ui/recent.h"
+#include "ui/simple_dialog.h"
 #include "ui/ui_util.h"
 
 #include "ui/gtk/keys.h"
@@ -73,7 +75,6 @@
 #include "ui/gtk/webbrowser.h"
 #include "ui/gtk/main.h"
 #include "ui/gtk/menus.h"
-#include "ui/gtk/recent.h"
 #include "ui/gtk/export_sslkeys.h"
 
 #ifdef _WIN32

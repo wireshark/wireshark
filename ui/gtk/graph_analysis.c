@@ -52,8 +52,12 @@
 #include <epan/filesystem.h>
 
 #include "../util.h"
-#include "ui/simple_dialog.h"
+
 #include "ui/alert_box.h"
+#include "ui/last_open_dir.h"
+#include "ui/recent.h"
+#include "ui/simple_dialog.h"
+
 #include <wsutil/file_util.h>
 
 #include "ui/gtk/gtkglobals.h"
@@ -62,7 +66,6 @@
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/main.h"
 #include "ui/gtk/graph_analysis.h"
-#include "ui/gtk/recent.h"
 
 #include "ui/gtk/old-gtk-compat.h"
 

@@ -47,6 +47,8 @@
 #include <wsutil/file_util.h>
 
 #include "ui/alert_box.h"
+#include "ui/last_open_dir.h"
+#include "ui/recent.h"
 #include "ui/simple_dialog.h"
 #include "ui/ui_util.h"
 
@@ -60,7 +62,6 @@
 #include "ui/gtk/drag_and_drop.h"
 #include "ui/gtk/main.h"
 #include "ui/gtk/menus.h"
-#include "ui/gtk/recent.h"
 #include "ui/gtk/color_dlg.h"
 #include "ui/gtk/new_packet_list.h"
 #ifdef HAVE_LIBPCAP

@@ -25,6 +25,8 @@
 #ifndef __GUI_UTILS_H__
 #define __GUI_UTILS_H__
 
+#include "ui/ui_util.h"
+
 /** @defgroup windows_group Windows
  *
  * There are the following toplevel windows:
@@ -158,20 +160,6 @@ extern void window_cancel_button_cb(GtkWidget *w _U_, gpointer data);
  */
 extern gboolean window_delete_event_cb(GtkWidget *win, GdkEvent *event _U_, gpointer user_data _U_);
 
-/** geometry values for use in window_get_geometry() and window_set_geometry() */
-typedef struct window_geometry_s {
-    gchar       *key;           /**< current key in hashtable (internally used only) */
-    gboolean    set_pos;        /**< set the x and y position values */
-    gint        x;              /**< the windows x position */
-    gint        y;              /**< the windows y position */
-    gboolean    set_size;       /**< set the width and height values */
-    gint        width;          /**< the windows width */
-    gint        height;         /**< the windows height */
-
-    gboolean    set_maximized;  /**< set the maximized state (GTK2 only) */
-    gboolean    maximized;      /**< the windows maximized state (GTK2 only) */
-} window_geometry_t;
-
 /** Get the geometry of a window.
  *
  * @param win the window from window_new()
@@ -186,21 +174,6 @@ extern void window_get_geometry(GtkWidget *win, window_geometry_t *geom);
  * @todo if main uses the window_new_with_geom() to save size and such, make this function static
  */
 extern void window_set_geometry(GtkWidget *win, window_geometry_t *geom);
-
-/** Write all geometry values of all windows to the recent file.
- * Will call write_recent_geom() for every existing window type.
- *
- * @param rf recent file handle from caller
- */
-extern void window_geom_recent_write_all(gpointer rf);
-
-/** Read in a single geometry key value pair from the recent file.
- *
- * @param name the geom_name of the window
- * @param key the subkey of this pair (e.g. "x")
- * @param value the new value (e.g. "123")
- */
-extern void window_geom_recent_read_pair(const char *name, const char *key, const char *value);
 
 /** Raise a top-level window and de-iconify it.
  *  This routine is used if the user has done something to

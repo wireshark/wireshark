@@ -31,8 +31,6 @@
  *  @ingroup main_window_group
  */
 
-#define RECENT_KEY_COL_WIDTH                "column.width"
-
 typedef enum {
   COLUMN_SELECTED_SORT_ASCENDING,
   COLUMN_SELECTED_SORT_DESCENDING,
@@ -134,12 +132,6 @@ typedef enum {
  *  @param copy_type Mode in which to copy data (e.g. tab-separated, CSV)
  */
 void new_packet_list_copy_summary_cb(gpointer data _U_, copy_summary_type copy_type);
-
-/** Write all packet list geometry values to the recent file.
- *
- *  @param rf recent file handle from caller
- */
-extern void new_packet_list_recent_write_all(FILE *rf);
 
 GtkWidget * new_packet_list_get_widget(void);
 void new_packet_list_colorize_packets(void);

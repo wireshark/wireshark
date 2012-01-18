@@ -64,11 +64,14 @@
 
 #include "../util.h"
 #include "../g711.h"
-#include "ui/alert_box.h"
-#include "ui/simple_dialog.h"
 #include "../stat_menu.h"
-#include "ui/progress_dlg.h"
 #include "../tempfile.h"
+
+#include "ui/alert_box.h"
+#include "ui/last_open_dir.h"
+#include "ui/progress_dlg.h"
+#include "ui/simple_dialog.h"
+
 #include <wsutil/file_util.h>
 
 #include "ui/gtk/gtkglobals.h"

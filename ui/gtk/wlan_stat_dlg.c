@@ -40,7 +40,9 @@
 #include <epan/dissectors/packet-ieee80211.h>
 #include <epan/strutil.h>
 
+#include "ui/recent.h"
 #include "ui/simple_dialog.h"
+
 #include "../stat_menu.h"
 
 #include "ui/gtk/gtkglobals.h"
@@ -48,7 +50,6 @@
 #include "ui/gtk/filter_utils.h"
 #include "ui/gtk/gui_stat_menu.h"
 #include "ui/gtk/gui_utils.h"
-#include "ui/gtk/recent.h"
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/main.h"
 #include "ui/gtk/utf8_entities.h"
