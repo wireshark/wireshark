@@ -135,6 +135,7 @@ static const value_string common_client_message_types[] = {
 
 #define sizeof_SpiceLinkHeader  16
 #define sizeof_SpiceDataHeader  18
+#define sizeof_SpiceMiniDataHeader  6
 
 /* playback server channel messages */
 #define SPICE_PLAYBACK_DATA    101
@@ -158,11 +159,19 @@ static const value_string playback_mode_vals[] = {
 };
 
 #define SPICE_PLAYBACK_CAP_CELT_0_5_1 1
+#define SPICE_PLAYBACK_CAP_VOLUME 2
 static const value_string playback_caps[] = {
     { SPICE_PLAYBACK_CAP_CELT_0_5_1, "PLAYBACK_CAP_CELT_0_5_1" },
+    { SPICE_PLAYBACK_CAP_VOLUME, "PLAYBACK_CAP_VOLUME" },
     { 0, NULL }
 };
 /* main channel */
+
+#define SPICE_MAIN_CAP_SEMI_SEAMLESS_MIGRATE 1
+static const value_string main_caps[] = {
+    { SPICE_MAIN_CAP_SEMI_SEAMLESS_MIGRATE, "MAIN_CAP_SEMI_SEAMLESS_MIGRATE" },
+    { 0, NULL }
+};
 
 /* main channel server messages */
 #define SPICE_MAIN_MIGRATE_BEGIN        101
@@ -544,6 +553,8 @@ typedef struct {
     spice_session_state_e next_state;
     guint8 channel_type;
     guint8 channel_id;
+    gboolean client_mini_header;
+    gboolean server_mini_header;
 } spice_conversation_t;
 
 typedef struct {
@@ -777,15 +788,18 @@ static const value_string Pixmap_types_vs[] = {
 #define SPICE_COMMON_CAP_PROTOCOL_AUTH_SELECTION 0
 #define SPICE_COMMON_CAP_AUTH_SPICE 1
 #define SPICE_COMMON_CAP_AUTH_SASL 2
+#define SPICE_COMMON_CAP_MINI_HEADER 3
 
 #define SPICE_COMMON_CAP_PROTOCOL_AUTH_SELECTION_MASK (1 << SPICE_COMMON_CAP_PROTOCOL_AUTH_SELECTION) /* 0x1 */
 #define SPICE_COMMON_CAP_AUTH_SPICE_MASK (1 << SPICE_COMMON_CAP_AUTH_SPICE) /* 0x2 */
 #define SPICE_COMMON_CAP_AUTH_SASL_MASK (1 << SPICE_COMMON_CAP_AUTH_SASL) /*0x4 */
+#define SPICE_COMMON_CAP_MINI_HEADER_MASK (1 << SPICE_COMMON_CAP_MINI_HEADER)
 
 static const value_string spice_auth_select_vs[] = {
     { SPICE_COMMON_CAP_PROTOCOL_AUTH_SELECTION, "Auth Selection" },
     { SPICE_COMMON_CAP_AUTH_SPICE, "Spice" },
     { SPICE_COMMON_CAP_AUTH_SASL, "SASL" },
+    { SPICE_COMMON_CAP_MINI_HEADER, "Mini header" },
     { 0, NULL }
 };
 
@@ -843,6 +857,7 @@ static gint ett_inputs_server = -1;
 static gint ett_record_client = -1;
 static gint ett_main_client = -1;
 static gint ett_spice_agent = -1;
+static gint ett_auth_tree = -1;
 static int proto_spice = -1;
 static int hf_spice_magic  = -1;
 static int hf_major_version  = -1;
@@ -869,10 +884,11 @@ static int hf_display_cap = -1;
 static int hf_inputs_cap = -1;
 static int hf_cursor_cap = -1;
 static int hf_record_cap = -1;
-static int hf_common_cap_auth = -1;
+static int hf_common_cap_byte1 = -1;
 static int hf_common_cap_auth_select = -1;
 static int hf_common_cap_auth_spice = -1;
 static int hf_common_cap_auth_sasl = -1;
+static int hf_common_cap_mini_header = -1;
 static int hf_playback_cap = -1;
 static int hf_playback_record_mode_timstamp = -1;
 static int hf_playback_record_mode = -1;
@@ -1757,21 +1773,30 @@ static const gchar* get_message_type_string(const guint16 message_type, const sp
     }
     return "Unknown message";
 }
+static void
+dissect_spice_mini_data_header(tvbuff_t *tvb, proto_tree *tree, const spice_conversation_t *spice_info, const gboolean client_message, const guint16 message_type, guint32 offset)
+{
+    if (tree) {
+        proto_tree_add_text(tree, tvb, offset, 2, "Message type: %s (%d)", get_message_type_string(message_type, spice_info, client_message), message_type);
+        offset += 2;
+        proto_tree_add_item(tree, hf_data_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    }
+}
 
 static void
 dissect_spice_data_header(tvbuff_t *tvb, proto_tree *tree, const spice_conversation_t *spice_info, const gboolean client_message, const guint16 message_type, guint32 *sublist_size, guint32 offset)
 {
-        *sublist_size = tvb_get_letohl(tvb, offset + 14);
+    *sublist_size = tvb_get_letohl(tvb, offset + 14);
 
     if (tree) {
-                proto_tree_add_item(tree, hf_serial, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-                offset += 8;
-                proto_tree_add_text(tree, tvb, offset, 2, "Message type: %s (%d)", get_message_type_string(message_type, spice_info, client_message), message_type);
-                offset += 2;
-                proto_tree_add_item(tree, hf_data_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-                offset += 4;
-                proto_tree_add_item(tree, hf_data_sublist, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        }
+        proto_tree_add_item(tree, hf_serial, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+        offset += 8;
+        proto_tree_add_text(tree, tvb, offset, 2, "Message type: %s (%d)", get_message_type_string(message_type, spice_info, client_message), message_type);
+        offset += 2;
+        proto_tree_add_item(tree, hf_data_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(tree, hf_data_sublist, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    }
 }
 
 
@@ -2538,27 +2563,40 @@ dissect_spice_data_server_pdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
     proto_tree *data_header_tree, *message_tree;
     guint16 message_type;
     guint32 message_size, sublist_size, old_offset;
-
-    message_type = tvb_get_letohs(tvb, offset + 8);
-    message_size = tvb_get_letohl(tvb, offset + 10);
-
-    msg_ti = proto_tree_add_text(tree, tvb, offset, 0,
-                                 "%s (%d bytes)",
-                                 get_message_type_string(message_type, spice_info, FALSE),
-                                 message_size + sizeof_SpiceDataHeader);
-    message_tree = proto_item_add_subtree(msg_ti, ett_message);
-
-    ti = proto_tree_add_item(message_tree, hf_data, tvb, offset, sizeof_SpiceDataHeader, ENC_NA);
-    data_header_tree = proto_item_add_subtree(ti, ett_data);
-
-    dissect_spice_data_header(tvb, data_header_tree, spice_info, FALSE, message_type, &sublist_size, offset);
-    proto_item_set_len(msg_ti, message_size + sizeof_SpiceDataHeader);
-    offset += sizeof_SpiceDataHeader;
+    guint32 header_size;
+    if (spice_info->client_mini_header && spice_info->server_mini_header) {
+        header_size = sizeof_SpiceMiniDataHeader;
+        message_type = tvb_get_letohs(tvb, offset);
+        message_size = tvb_get_letohl(tvb, offset +2);
+        msg_ti = proto_tree_add_text(tree, tvb, offset, 0,
+                                     "%s (%d bytes)",
+                                     get_message_type_string(message_type, spice_info, FALSE),
+                                     message_size + header_size);
+        message_tree = proto_item_add_subtree(msg_ti, ett_message);
+        ti = proto_tree_add_item(message_tree, hf_data, tvb, offset, header_size, ENC_NA);
+        data_header_tree = proto_item_add_subtree(ti, ett_data);
+        dissect_spice_mini_data_header(tvb, data_header_tree, spice_info, FALSE, message_type, offset);
+        proto_item_set_len(msg_ti, message_size + header_size);
+    } else {
+        header_size = sizeof_SpiceDataHeader;
+        message_type = tvb_get_letohs(tvb, offset + 8);
+        message_size = tvb_get_letohl(tvb, offset + 10);
+        msg_ti = proto_tree_add_text(tree, tvb, offset, 0,
+                                     "%s (%d bytes)",
+                                     get_message_type_string(message_type, spice_info, FALSE),
+                                     message_size + header_size);
+        message_tree = proto_item_add_subtree(msg_ti, ett_message);
+        ti = proto_tree_add_item(message_tree, hf_data, tvb, offset, header_size, ENC_NA);
+        data_header_tree = proto_item_add_subtree(ti, ett_data);
+        dissect_spice_data_header(tvb, data_header_tree, spice_info, FALSE, message_type, &sublist_size, offset);
+    }
+    proto_item_set_len(msg_ti, message_size + header_size);
+    offset += header_size;
     old_offset = offset;
 
     col_append_str(pinfo->cinfo, COL_INFO, get_message_type_string(message_type, spice_info, FALSE));
     if (message_type < SPICE_FIRST_AVAIL_MESSAGE) { /* this is a common message */
-        offset = dissect_spice_common_server_messages(tvb, message_tree, message_type, offset, total_message_size - sizeof_SpiceDataHeader);
+        offset = dissect_spice_common_server_messages(tvb, message_tree, message_type, offset, total_message_size - header_size);
         return offset;
     }
 
@@ -2591,9 +2629,9 @@ dissect_spice_data_server_pdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
 
     if((offset - old_offset) != message_size) {
         g_warning("dissect_spice_data_server_pdu() - FIXME:message type %s (%u) in packet %d was not fully dissected"
-                  " - dissected %d (offset %d [0x%x], total message size: %d).\r\n",
+                  " - dissected %d (offset %d [0x%x]), total message size: %d.\r\n",
                   get_message_type_string(message_type, spice_info, FALSE),
-                  message_type, pinfo->fd->num, offset - old_offset, offset, offset, message_size + sizeof_SpiceDataHeader);
+                  message_type, pinfo->fd->num, offset - old_offset, offset, offset, message_size + header_size);
         offset = old_offset + message_size;
     }
 
@@ -2607,19 +2645,26 @@ dissect_spice_data_client_pdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
     proto_tree *data_header_tree;
     guint16 message_type;
     guint32 /** message_size,**/ sublist_size;
+    guint32 header_size;
 
-    ti = proto_tree_add_item(tree, hf_data, tvb, offset, sizeof_SpiceDataHeader, ENC_NA);
-    data_header_tree = proto_item_add_subtree(ti, ett_data);
-
-    message_type = tvb_get_letohs(tvb, offset + 8);
-    /** message_size = tvb_get_letohl(tvb, offset + 10);  **/
-
-    dissect_spice_data_header(tvb, data_header_tree, spice_info, TRUE, message_type, &sublist_size, offset);
+    if (spice_info->client_mini_header && spice_info->server_mini_header) {
+        header_size = sizeof_SpiceMiniDataHeader;
+        ti = proto_tree_add_item(tree, hf_data, tvb, offset, header_size, ENC_NA);
+        data_header_tree = proto_item_add_subtree(ti, ett_data);
+        message_type = tvb_get_letohs(tvb, offset);
+        dissect_spice_mini_data_header(tvb, data_header_tree, spice_info, TRUE, message_type, offset);
+    } else {
+        header_size = sizeof_SpiceDataHeader;
+        ti = proto_tree_add_item(tree, hf_data, tvb, offset, header_size, ENC_NA);
+        data_header_tree = proto_item_add_subtree(ti, ett_data);
+        message_type = tvb_get_letohs(tvb, offset + 8);
+        /** message_size = tvb_get_letohl(tvb, offset + 10);  **/
+        dissect_spice_data_header(tvb, data_header_tree, spice_info, TRUE, message_type, &sublist_size, offset);
+    }
     col_append_str(pinfo->cinfo, COL_INFO, get_message_type_string(message_type, spice_info, TRUE));
-    offset += sizeof_SpiceDataHeader;
-
-    /* TODO: deal with sub-messages list first. As implementation does not uses sub-messsages list yet, */
-    /*       it cannot be implemented in the dissector yet. */
+    offset += header_size;
+        /* TODO: deal with sub-messages list first. As implementation does not uses sub-messsages list yet, */
+        /*       it cannot be implemented in the dissector yet. */
 
     if (message_type < SPICE_FIRST_AVAIL_MESSAGE) { /* this is a common message */
         return dissect_spice_common_client_messages(tvb, tree, message_type, offset);
@@ -2666,19 +2711,32 @@ dissect_spice_common_capabilities(tvbuff_t *tvb, proto_tree *tree, guint32 offse
 /* TODO: save common and per-channel capabilities in spice_info ? */
     int i;
     guint32 val;
+    proto_item *ti=NULL;
+    proto_tree *auth_tree;
+
     for(i = 0; i != caps_len ; i++) {
         val = tvb_get_letohl(tvb, offset);
         switch (i) {
-            case 0: /* Authentication */
+            case 0:
                 if (is_client) {
                     spice_info->client_auth = val;
                 } else {
                     spice_info->server_auth = val;
                 }
-                proto_tree_add_item(tree, hf_common_cap_auth, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-                proto_tree_add_boolean(tree, hf_common_cap_auth_select, tvb, offset, 4, val);
-                proto_tree_add_boolean(tree, hf_common_cap_auth_spice, tvb, offset, 4, val);
-                proto_tree_add_boolean(tree, hf_common_cap_auth_sasl, tvb, offset, 4, val);
+                ti = proto_tree_add_item(tree, hf_common_cap_byte1, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                auth_tree = proto_item_add_subtree(ti, ett_auth_tree);
+                proto_tree_add_boolean(auth_tree, hf_common_cap_auth_select, tvb, offset, 4, val);
+                proto_tree_add_boolean(auth_tree, hf_common_cap_auth_spice, tvb, offset, 4, val);
+                proto_tree_add_boolean(auth_tree, hf_common_cap_auth_sasl, tvb, offset, 4, val);
+          
+                proto_tree_add_boolean(tree, hf_common_cap_mini_header, tvb, offset, 4, val);
+                if (val && SPICE_COMMON_CAP_MINI_HEADER_MASK) {
+                    if (is_client) {
+                        spice_info->client_mini_header = TRUE;
+                    } else {
+                        spice_info->server_mini_header = TRUE;
+                    }
+                }
                 offset += 4;
                 break;
             default:
@@ -2740,28 +2798,27 @@ dissect_spice_link_client_pdu(tvbuff_t *tvb, proto_tree *tree, spice_conversatio
     }
     offset = sizeof_SpiceLinkHeader;
 
-    if (tree) {
-        proto_tree_add_item(tree, hf_conn_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(tree, hf_channel_type, tvb, offset + 4, 1, ENC_NA);
-        proto_tree_add_item(tree, hf_channel_id, tvb, offset + 5, 1, ENC_NA);
-
-        proto_tree_add_item(tree, hf_num_common_caps, tvb, offset + 6, 4, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(tree, hf_num_channel_caps, tvb, offset + 10, 4, ENC_LITTLE_ENDIAN);
-
-        proto_tree_add_item(tree, hf_caps_offset, tvb, offset + 14, 4, ENC_LITTLE_ENDIAN);
-    }
-
-    common_caps_len = tvb_get_letohl(tvb, offset + 6);
-    channel_caps_len = tvb_get_letohl(tvb, offset + 10);
-
     if (spice_info->channel_type == SPICE_CHANNEL_NONE) {
         spice_info->channel_type = tvb_get_guint8(tvb, offset + 4);
     }
-    offset += sizeof_SpiceDataHeader;
+    common_caps_len = tvb_get_letohl(tvb, offset + 6);
+    channel_caps_len = tvb_get_letohl(tvb, offset + 10);
+    proto_tree_add_item(tree, hf_conn_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_channel_type, tvb, offset, 1, ENC_NA);
+    offset += 1;
+    proto_tree_add_item(tree, hf_channel_id, tvb, offset, 1, ENC_NA);
+    offset += 1;
+    proto_tree_add_item(tree, hf_num_common_caps, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_num_channel_caps, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_caps_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
 
     if (common_caps_len > 0) {
         ti = proto_tree_add_text(tree, tvb, offset, common_caps_len * 4,
-                                 "Common Capabilities (%d bytes)",
+                                 "Client Common Capabilities (%d bytes)",
                                  common_caps_len * 4); /* caps_len multiplied by 4 as length is in UINT32 units   */
         caps_tree = proto_item_add_subtree(ti, ett_link_caps);
         dissect_spice_common_capabilities(tvb, caps_tree, offset, common_caps_len, spice_info, TRUE);
@@ -2769,7 +2826,7 @@ dissect_spice_link_client_pdu(tvbuff_t *tvb, proto_tree *tree, spice_conversatio
     }
     if (channel_caps_len > 0) {
         ti = proto_tree_add_text(tree, tvb, offset, channel_caps_len * 4,
-                                 "Channel Capabilities (%d bytes)",
+                                 "Client Channel-specific Capabilities (%d bytes)",
                                  channel_caps_len * 4); /* caps_len multiplied by 4 as length is in UINT32 units    */
         caps_tree = proto_item_add_subtree(ti, ett_link_caps);
         dissect_spice_link_capabilities(tvb, caps_tree, offset, channel_caps_len, spice_info);
@@ -2851,6 +2908,8 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         spice_info->next_state = SPICE_LINK_CLIENT;
         spice_info->client_auth = 0;
         spice_info->server_auth = 0;
+        spice_info->client_mini_header = FALSE;
+        spice_info->server_mini_header = FALSE;
         conversation_add_proto_data(conversation, proto_spice, spice_info);
     }
 
@@ -3337,9 +3396,9 @@ proto_register_spice(void)
             FT_UINT32, BASE_DEC, VALS(spice_auth_select_vs), 0x0,
             NULL, HFILL }
         },
-        { &hf_common_cap_auth,
-          { "Authentication capabilitity", "spice.common_cap_auth",
-            FT_UINT32, BASE_HEX_DEC, 0, 0,
+        { &hf_common_cap_byte1,
+          { "First byte capabilitities", "spice.common_cap_byte1",
+            FT_NONE, BASE_NONE, 0, 0,
             NULL, HFILL }
         },
         { &hf_common_cap_auth_select,
@@ -3355,6 +3414,11 @@ proto_register_spice(void)
         { &hf_common_cap_auth_sasl,
           { "Auth SASL", "spice.common_cap_auth_sasl",
             FT_BOOLEAN, 3, TFS(&tfs_set_notset), SPICE_COMMON_CAP_AUTH_SASL_MASK,
+            NULL, HFILL }
+        },
+        { &hf_common_cap_mini_header,
+          { "Mini Header", "spice.common_cap_mini_header",
+            FT_BOOLEAN, 4, TFS(&tfs_set_notset), SPICE_COMMON_CAP_MINI_HEADER_MASK,
             NULL, HFILL }
         },
         { &hf_playback_cap,
@@ -3897,7 +3961,8 @@ proto_register_spice(void)
         &ett_inputs_server,
         &ett_record_client,
         &ett_main_client,
-        &ett_spice_agent
+        &ett_spice_agent,
+        &ett_auth_tree
     };
 
     /* Register the protocol name and description */
