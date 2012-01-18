@@ -73,8 +73,8 @@
 
 #include "packet-snmp.h"
 
-#include <epan/crypt/crypt-sha1.h>
-#include <epan/crypt/crypt-md5.h>
+#include <epan/crypt/sha1.h>
+#include <epan/crypt/md5.h>
 #include <epan/expert.h>
 #include <epan/report_err.h>
 #include <epan/oids.h>

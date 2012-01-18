@@ -41,7 +41,7 @@
 #include "packet-dcerpc.h"
 #include "packet-gssapi.h"
 #include "packet-kerberos.h"
-#include <epan/crypt/crypt-rc4.h>
+#include <epan/crypt/rc4.h>
 #include <epan/conversation.h>
 #include <epan/emem.h>
 #include <epan/asn1.h>
@@ -313,7 +313,7 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 #ifdef HAVE_KERBEROS
-#include <epan/crypt/crypt-md5.h>
+#include <epan/crypt/md5.h>
 
 #ifndef KEYTYPE_ARCFOUR_56
 # define KEYTYPE_ARCFOUR_56 24
