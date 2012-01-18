@@ -713,6 +713,8 @@ static gint observer_to_wtap_encap(int observer_encap)
         return WTAP_ENCAP_TOKEN_RING;
     case OBSERVER_FIBRE_CHANNEL:
         return WTAP_ENCAP_FIBRE_CHANNEL_FC2_WITH_FRAME_DELIMS;
+	case OBSERVER_WIRELESS_802_11:
+		return WTAP_ENCAP_IEEE_802_11;
     case OBSERVER_UNDEFINED:
         return WTAP_ENCAP_UNKNOWN;
     }
