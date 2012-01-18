@@ -755,7 +755,7 @@ void proto_register_9P(void)
 		 {"Version", "9p.version", FT_STRING, BASE_NONE, NULL, 0x0,
 		  NULL, HFILL}},
 		{&hf_9P_afid,
-		 {"Afid", "9p.fid", FT_UINT32, BASE_DEC, NULL, 0x0,
+		 {"Afid", "9p.afid", FT_UINT32, BASE_DEC, NULL, 0x0,
 		  "Authenticating FID", HFILL}},
 		{&hf_9P_uname,
 		 {"Uname", "9p.uname", FT_STRING, BASE_NONE, NULL, 0x0,

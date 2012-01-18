@@ -439,7 +439,7 @@ proto_register_aoe(void)
     { &hf_aoe_flags_response,
       { "Response flag", "aoe.response", FT_BOOLEAN, 8, TFS(&tfs_response), AOE_FLAGS_RESPONSE, "Whether this is a response PDU or not", HFILL}},
     { &hf_aoe_flags_error,
-      { "Error flag", "aoe.error", FT_BOOLEAN, 8, TFS(&tfs_error), AOE_FLAGS_ERROR, "Whether this is an error PDU or not", HFILL}},
+      { "Error flag", "aoe.flags_error", FT_BOOLEAN, 8, TFS(&tfs_error), AOE_FLAGS_ERROR, "Whether this is an error PDU or not", HFILL}},
     { &hf_aoe_major,
       { "Major", "aoe.major", FT_UINT16, BASE_HEX, NULL, 0x0,
 	"Major address", HFILL}},

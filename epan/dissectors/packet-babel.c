@@ -486,7 +486,7 @@ proto_register_babel(void)
            NULL, 0, NULL, HFILL }
         },
         { &hf_babel_message_hopcount,
-          { "Hop Count", "babel.message.omitted", FT_UINT8, BASE_DEC,
+          { "Hop Count", "babel.message.hopcount", FT_UINT8, BASE_DEC,
             NULL, 0, NULL, HFILL }
         },
     };
