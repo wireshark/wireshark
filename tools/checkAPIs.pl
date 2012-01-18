@@ -270,7 +270,7 @@ my %deprecatedGtkFunctions = (
                 'gtk_action_disconnect_proxy',                  'E', # since 2.16: use gtk_activatable_set_related_action() (as of 2.16)
                 'gtk_action_unblock_activate_from',             'E', # since 2.16
                 'gtk_binding_entry_add',                        'E',
-                'gtk_binding_entry_add_signall',                'E',
+                'gtk_binding_entry_add_signal',                 'E',
                 'gtk_binding_entry_clear',                      'E',
                 'gtk_binding_parse_binding',                    'E',
                 'gtk_box_pack_end_defaults',                    'E',
@@ -394,8 +394,6 @@ my %deprecatedGtkFunctions = (
                 'gtk_color_selection_set_change_palette_hook',  'E',
                 'gtk_color_selection_set_color',                'E',
                 'gtk_color_selection_set_update_policy',        'E',
-                'gtk_combo_box_new_text',                       'E', # gtk_combo_box_text_new()
-                'GtkComboBoxEntry',                             'E', #
                 'gtk_combo_box_append_text',                    'E', #
                 'gtk_combo_box_entry_get_text_column',          'E', #
                 'gtk_combo_box_entry_new',                      'E', #
