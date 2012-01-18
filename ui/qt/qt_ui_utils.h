@@ -66,23 +66,6 @@ struct remote_host_t {
     gboolean nocap_local;
 };
 
-/** Write all remote hosts to the recent file
- *
- * @param rf recent file
- */
-void
-capture_remote_combo_recent_write_all(FILE *rf);
-
-/** Add a new remote host from the recent file
- *
- * @param s string with hostname,port,auth_type
- * @return TRUE if correctly added
- */
-gboolean
-capture_remote_combo_add_recent(gchar *s);
-
-
-
 /** @file
  * Utilities for Windows and other user interface functions.
  */
