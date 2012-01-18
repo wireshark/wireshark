@@ -671,6 +671,7 @@ if(BUILD_wireshark AND GTK_FOUND)
 		g711.c
 		merge.c
 		proto_hier_stats.c
+		recent.c
 		summary.c
 		tempfile.c
 		u3.c
