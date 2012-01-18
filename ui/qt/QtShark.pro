@@ -40,11 +40,11 @@ win32:INCLUDEPATH += \
 # XXX - If we add ../gtk/recent.c to SOURCES, jom will try to compile everything
 # in ../gtk. Until we move the things we need in recent.c to a common file, simply
 # copy it to our current directory.
-recent.target = recent.c
-!win32:recent.commands = $$QMAKE_COPY ../gtk/$$recent.target .
-win32:recent.commands = $$QMAKE_COPY ..\\gtk\\$$recent.target .
-recent.depends = ../gtk/$$recent.target
-QMAKE_EXTRA_TARGETS += recent
+#recent.target = recent.c
+#!win32:recent.commands = $$QMAKE_COPY ../gtk/$$recent.target .
+#win32:recent.commands = $$QMAKE_COPY ..\\gtk\\$$recent.target .
+#recent.depends = ../gtk/$$recent.target
+#QMAKE_EXTRA_TARGETS += recent
 
 SOURCES += \
     ../../airpcap_loader.c \
@@ -70,6 +70,7 @@ SOURCES += \
     ../../print.c \
     ../../proto_hier_stats.c      \
     ../../ps.c    \
+    ../../recent.c \
     ../../summary.c       \
     ../../sync_pipe_write.c       \
     ../../tap-megaco-common.c     \
@@ -101,7 +102,6 @@ SOURCES += \
     progress_dialog.cpp \
     proto_tree.cpp \
     qt_ui_utils.cpp \
-    recent.c \
     recent_file_status.cpp \
     simple_dialog_qt.cpp \
     wireshark_application.cpp \
