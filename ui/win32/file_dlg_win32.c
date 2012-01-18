@@ -57,6 +57,8 @@
 #include "../color_filters.h"
 #include "../merge.h"
 
+#include "ui/last_open_dir.h"
+
 #include "ui/gtk/file_dlg.h"
 #include "ui/gtk/capture_file_dlg.h"
 #include "ui/gtk/main.h"
