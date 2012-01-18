@@ -175,6 +175,7 @@ wireshark_INCLUDES =	\
 	filters.h	\
 	g711.h	\
 	globals.h	\
+	ui/last_open_dir.h	\
 	log.h	\
 	ui/main_statusbar.h	\
 	merge.h	\
