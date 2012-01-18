@@ -144,7 +144,7 @@ typedef struct packet_entry_header
 #define OBSERVER_ETHERNET        0x00
 #define OBSERVER_TOKENRING       0x01
 #define OBSERVER_FIBRE_CHANNEL   0x08
-#define OBSERVER_WIRELESS_802_11	0x09
+#define OBSERVER_WIRELESS_802_11 0x09
 
 /*
  * Packet type values.
