@@ -27,7 +27,7 @@
 
 #include "qt_ui_utils.h"
 
-#include "ui/gtk/recent.h"
+#include "ui/recent.h"
 
 #include <epan/prefs.h>
 
