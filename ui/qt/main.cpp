@@ -78,10 +78,9 @@
 
 #include "ui/alert_box.h"
 #include "ui/main_statusbar.h"
+#include "ui/recent.h"
 #include "ui/simple_dialog.h"
 #include "ui/ui_util.h"
-
-#include "ui/gtk/recent.h"
 
 #ifdef HAVE_LIBPCAP
 #include "capture_ui_utils.h"

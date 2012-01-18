@@ -76,7 +76,7 @@ set_last_open_dir(const char *dirname)
     last_open_dir = new_last_open_dir;
 }
 
-char *
+extern "C" char *
 get_last_open_dir(void)
 {
     return last_open_dir;
@@ -90,7 +90,7 @@ get_last_open_dir(void)
  * XXX - We might want to call SHAddToRecentDocs under Windows 7:
  * http://stackoverflow.com/questions/437212/how-do-you-register-a-most-recently-used-list-with-windows-in-preparation-for-win
  */
-void
+extern "C" void
 add_menu_recent_capture_file(gchar *cf_name) {
     QString normalized_cf_name = QString::fromUtf8(cf_name);
 //    QDir cf_path;
@@ -130,7 +130,7 @@ add_menu_recent_capture_file(gchar *cf_name) {
 }
 
 /* write all capture filenames of the menu to the user's recent file */
-void menu_recent_file_write_all(FILE *rf) {
+extern "C" void menu_recent_file_write_all(FILE *rf) {
 
     /* we have to iterate backwards through the children's list,
      * so we get the latest item last in the file.

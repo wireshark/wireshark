@@ -42,9 +42,8 @@
 #include "qt_ui_utils.h"
 
 #include "ui/main_statusbar.h"
+#include "ui/recent.h"
 #include "ui/ui_util.h"
-
-#include "ui/gtk/recent.h"
 
 #include <QTreeWidget>
 #include <QTabWidget>
@@ -375,7 +374,7 @@ void PacketList::clear() {
     cur_packet_list->sortByColumn(0, Qt::AscendingOrder);
 }
 
-void new_packet_list_recent_write_all(FILE *rf) {
+extern "C" void new_packet_list_recent_write_all(FILE *rf) {
     if (!cur_packet_list)
         return;
 

@@ -26,7 +26,8 @@
 
 #include "qt_ui_utils.h"
 
-#include "ui/gtk/recent.h"
+#include "ui/recent.h"
+#include "ui/ui_util.h"
 
 // XXX - Copied from ui/gtk/gui_utils.c
 
@@ -89,7 +90,7 @@ window_geom_load(const gchar *name, window_geometry_t *geom)
 
 
 /* read in a single key value pair from the recent file into the geometry hashtable */
-void
+extern "C" void
 window_geom_recent_read_pair(const char *name, const char *key, const char *value)
 {
     window_geometry_t geom;
@@ -145,7 +146,7 @@ window_geom_recent_read_pair(const char *name, const char *key, const char *valu
 }
 
 /* write all geometry values of all windows from the hashtable to the recent file */
-void
+extern "C" void
 window_geom_recent_write_all(gpointer rf)
 {
     /* init hashtable, if not already done */

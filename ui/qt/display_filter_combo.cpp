@@ -24,7 +24,7 @@
 #include <stdio.h>
 
 #include "qt_ui_utils.h"
-#include "ui/gtk/recent.h"
+#include "ui/recent.h"
 
 #include "display_filter_edit.h"
 
@@ -70,7 +70,7 @@ DisplayFilterCombo::DisplayFilterCombo(QWidget *parent) :
     completer()->setCompletionMode(QCompleter::PopupCompletion);
 }
 
-void dfilter_recent_combo_write_all(FILE *rf) {
+extern "C" void dfilter_recent_combo_write_all(FILE *rf) {
     if (!cur_display_filter_combo)
         return;
 
@@ -89,7 +89,7 @@ void DisplayFilterCombo::writeRecent(FILE *rf) {
     }
 }
 
-gboolean dfilter_combo_add_recent(gchar *filter) {
+extern "C" gboolean dfilter_combo_add_recent(gchar *filter) {
     if (!cur_display_filter_combo)
         return FALSE;
 
@@ -102,12 +102,12 @@ gboolean dfilter_combo_add_recent(gchar *filter) {
 // xxx - Move to an as-yet-to-be-written capture filter module along with ::addRecentCapture and ::writeRecentCapture
 QList<QString> cfilters;
 
-gboolean cfilter_combo_add_recent(gchar *filter) {
+extern "C" gboolean cfilter_combo_add_recent(gchar *filter) {
     cfilters.append(filter);
     return TRUE;
 }
 
-void cfilter_combo_recent_write_all(FILE *rf) {
+extern "C" void cfilter_combo_recent_write_all(FILE *rf) {
     QString cfilter;
 
     foreach (cfilter, cfilters) {
