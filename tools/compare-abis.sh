@@ -4,15 +4,17 @@
 # Compare ABIs of two Wireshark working copies
 # $Id$
 
+# Tested with abi-compliance-checker 1.96.1
+
 function acc () {
 	LIBNAME=$1
 	DIR=$2
 	# compare only dumped ABI descriptions first, then fall back to full comparison
 	# if no difference is found
-	if abi-compliance-checker -separately -l $LIBNAME \
+	if abi-compliance-checker -l $LIBNAME \
 		-d1 $V1_PATH/$DIR/.libs/$LIBNAME.abi.tar.gz \
 		-d2 $V2_PATH/$DIR/.libs/$LIBNAME.abi.tar.gz ; then
-		abi-compliance-checker -separately -l $LIBNAME \
+		abi-compliance-checker -l $LIBNAME \
 			-d1 $V1_PATH/$DIR/abi-descriptor.xml -relpath1 $V1_PATH/$DIR \
 			-v1 `ls  $V1_PATH/$DIR/.libs/$LIBNAME.so.?.?.?|sed 's/.*\.so\.//'` \
 			-d2 $V2_PATH/$DIR/abi-descriptor.xml -relpath2 $V2_PATH/$DIR \
