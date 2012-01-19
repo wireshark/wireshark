@@ -2179,12 +2179,12 @@ proto_register_dtls(void)
         "Fragment length of handshake message", HFILL }
     },
     { &hf_dtls_handshake_client_version,
-      { "Version", "dtls.handshake.version",
+      { "Version", "dtls.handshake.client_version",
         FT_UINT16, BASE_HEX, VALS(ssl_versions), 0x0,
         "Maximum version supported by client", HFILL }
     },
     { &hf_dtls_handshake_server_version,
-      { "Version", "dtls.handshake.version",
+      { "Version", "dtls.handshake.server_version",
         FT_UINT16, BASE_HEX, VALS(ssl_versions), 0x0,
         "Version selected by server", HFILL }
     },
@@ -2369,7 +2369,7 @@ proto_register_dtls(void)
         FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL }
     },
     { &hf_dtls_fragment_count,
-      { "Message fragment count", "dtls.fragment.error",
+      { "Message fragment count", "dtls.fragment.count",
         FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
     },
     { &hf_dtls_reassembled_in,

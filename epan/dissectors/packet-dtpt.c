@@ -1124,7 +1124,7 @@ proto_register_dtpt(void)
 	FT_BYTES, BASE_NONE, NULL, 0x0,
 	"Blob Data Block", HFILL }},
     { &hf_dtpt_connect_addr,
-      { "Address", "dtpt.blob.data",
+      { "Address", "dtpt.connect_addr",
 	FT_UINT32, BASE_DEC, NULL, 0x0,
 	"Connect to Address", HFILL }},
   };

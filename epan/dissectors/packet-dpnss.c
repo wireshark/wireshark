@@ -1588,7 +1588,7 @@ proto_register_dpnss(void)
             NULL, HFILL }
         },
         { &hf_dpnss_sic_oct2_net_ind_clk,
-            { "Network Independent Clock",           "dpnss.sic_oct2_sync_data_format",
+            { "Network Independent Clock",           "dpnss.sic_oct2_net_ind_clk",
             FT_BOOLEAN, 8, TFS(&dpnss_sic_oct2_net_ind_clk_vals), 0x40,
             NULL, HFILL }
         },

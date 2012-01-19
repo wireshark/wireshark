@@ -373,7 +373,7 @@ proto_register_cpha(void)
     { &hf_id_num,
     { "Number of IDs reported", "cpha.id_num", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
     { &hf_report_code,
-    { "Report code", "cpha.id_num", FT_UINT16, BASE_DEC, VALS(report_code_vals), 0x0, NULL, HFILL}},
+    { "Report code", "cpha.report_code", FT_UINT16, BASE_DEC, VALS(report_code_vals), 0x0, NULL, HFILL}},
     { &hf_ha_mode,
     { "HA mode", "cpha.ha_mode", FT_UINT16, BASE_DEC, VALS(ha_mode_vals), 0x0, NULL, HFILL}},
     { &hf_ha_time_unit,

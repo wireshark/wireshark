@@ -852,7 +852,7 @@ proto_register_dsi(void)
 		    FT_UINT16, BASE_DEC, NULL, 0xfff,
 		    "Number of minutes", HFILL }},
 		{ &hf_dsi_attn_flag_bitmap,
-		  { "Bitmap",          "dsi.attn_flag.time",
+		  { "Bitmap",          "dsi.attn_flag.bitmap",
 		    FT_UINT16, BASE_HEX, NULL, 0xfff,
 		    "Attention extended bitmap", HFILL }},
 
