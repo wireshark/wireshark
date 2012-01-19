@@ -65,10 +65,10 @@ static void dissect_mac_lte_framed(tvbuff_t *tvb, packet_info *pinfo,
     }
 
     /* If redissecting, use previous info struct (if available) */
-    p_mac_lte_info = p_get_proto_data(pinfo->fd, proto_mac_lte);
+    p_mac_lte_info = (struct mac_lte_info*)p_get_proto_data(pinfo->fd, proto_mac_lte);
     if (p_mac_lte_info == NULL) {
         /* Allocate new info struct for this frame */
-        p_mac_lte_info = se_alloc0(sizeof(struct mac_lte_info));
+        p_mac_lte_info = (struct mac_lte_info*)se_alloc0(sizeof(struct mac_lte_info));
         infoAlreadySet = FALSE;
     }
     else {
@@ -96,9 +96,7 @@ static void dissect_mac_lte_framed(tvbuff_t *tvb, packet_info *pinfo,
 
 void proto_register_mac_lte_framed(void)
 {
-    static hf_register_info hf[] =
-    {
-    };
+    static hf_register_info hf[0];
 
     static gint *ett[] =
     {
