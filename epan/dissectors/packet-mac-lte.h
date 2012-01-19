@@ -263,3 +263,7 @@ void set_mac_lte_channel_mapping(guint16 ueid, guint8 lcid,
 mac_lte_info *get_mac_lte_proto_data(packet_info *pinfo);
 void set_mac_lte_proto_data(packet_info *pinfo, mac_lte_info *p_mac_lte_info);
 
+/* Function to attempt to populate p_mac_lte_info using framing definition above */
+gboolean dissect_mac_lte_context_fields(struct mac_lte_info  *p_mac_lte_info, tvbuff_t *tvb,
+                                        gint *p_offset);
+

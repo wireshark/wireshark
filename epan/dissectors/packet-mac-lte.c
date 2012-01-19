@@ -926,59 +926,19 @@ static void call_with_catch_all(dissector_handle_t handle, tvbuff_t* tvb, packet
     ENDTRY
 }
 
-/* Heuristic dissector looks for supported framing protocol (see wiki page)  */
-static gboolean dissect_mac_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
-                                     proto_tree *tree)
+/* Dissect context fields in the format described in packet-mac-lte.h.
+   Return TRUE if the necessary information was successfully found */
+gboolean dissect_mac_lte_context_fields(struct mac_lte_info  *p_mac_lte_info, tvbuff_t *tvb,
+                                        gint *p_offset)
 {
-    gint                 offset = 0;
-    struct mac_lte_info  *p_mac_lte_info;
-    tvbuff_t             *mac_tvb;
-    guint8               tag = 0;
-    gboolean             infoAlreadySet = FALSE;
-
-    /* This is a heuristic dissector, which means we get all the UDP
-     * traffic not sent to a known dissector and not claimed by
-     * a heuristic dissector called before us!
-     */
-
-    if (!global_mac_lte_heur) {
-        return FALSE;
-    }
-
-    /* Do this again on re-dissection to re-discover offset of actual PDU */
-
-    /* Needs to be at least as long as:
-       - the signature string
-       - fixed header bytes
-       - tag for data
-       - at least one byte of MAC PDU payload */
-    if ((size_t)tvb_length_remaining(tvb, offset) < (strlen(MAC_LTE_START_STRING)+3+2)) {
-        return FALSE;
-    }
-
-    /* OK, compare with signature string */
-    if (tvb_strneql(tvb, offset, MAC_LTE_START_STRING, strlen(MAC_LTE_START_STRING)) != 0) {
-        return FALSE;
-    }
-    offset += (gint)strlen(MAC_LTE_START_STRING);
-
-    /* If redissecting, use previous info struct (if available) */
-    p_mac_lte_info = p_get_proto_data(pinfo->fd, proto_mac_lte);
-    if (p_mac_lte_info == NULL) {
-        /* Allocate new info struct for this frame */
-        p_mac_lte_info = se_alloc0(sizeof(struct mac_lte_info));
-        infoAlreadySet = FALSE;
-    }
-    else {
-        infoAlreadySet = TRUE;
-    }
-
+    gint    offset = *p_offset;
+    guint8  tag = 0;
 
     /* Read fixed fields */
     p_mac_lte_info->radioType = tvb_get_guint8(tvb, offset++);
     p_mac_lte_info->direction = tvb_get_guint8(tvb, offset++);
 
-    /* TODO: add this info to framing protocol */
+    /* TODO: currently no support for detailed PHY info... */
     if (p_mac_lte_info->direction == DIRECTION_UPLINK) {
         p_mac_lte_info->detailed_phy_info.ul_info.present = FALSE;
     }
@@ -1049,6 +1009,64 @@ static gboolean dissect_mac_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
                 return FALSE;
         }
     }
+
+    /* Pass out where offset is now */
+    *p_offset = offset;
+
+    return TRUE;
+}
+
+/* Heuristic dissector looks for supported framing protocol (see wiki page)  */
+static gboolean dissect_mac_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
+                                     proto_tree *tree)
+{
+    gint                 offset = 0;
+    struct mac_lte_info  *p_mac_lte_info;
+    tvbuff_t             *mac_tvb;
+    gboolean             infoAlreadySet = FALSE;
+
+    /* This is a heuristic dissector, which means we get all the UDP
+     * traffic not sent to a known dissector and not claimed by
+     * a heuristic dissector called before us!
+     */
+
+    if (!global_mac_lte_heur) {
+        return FALSE;
+    }
+
+    /* Do this again on re-dissection to re-discover offset of actual PDU */
+
+    /* Needs to be at least as long as:
+       - the signature string
+       - fixed header bytes
+       - tag for data
+       - at least one byte of MAC PDU payload */
+    if ((size_t)tvb_length_remaining(tvb, offset) < (strlen(MAC_LTE_START_STRING)+3+2)) {
+        return FALSE;
+    }
+
+    /* OK, compare with signature string */
+    if (tvb_strneql(tvb, offset, MAC_LTE_START_STRING, strlen(MAC_LTE_START_STRING)) != 0) {
+        return FALSE;
+    }
+    offset += (gint)strlen(MAC_LTE_START_STRING);
+
+    /* If redissecting, use previous info struct (if available) */
+    p_mac_lte_info = p_get_proto_data(pinfo->fd, proto_mac_lte);
+    if (p_mac_lte_info == NULL) {
+        /* Allocate new info struct for this frame */
+        p_mac_lte_info = se_alloc0(sizeof(struct mac_lte_info));
+        infoAlreadySet = FALSE;
+    }
+    else {
+        infoAlreadySet = TRUE;
+    }
+
+    /* Dissect the fields to populate p_mac_lte */
+    if (!dissect_mac_lte_context_fields(p_mac_lte_info, tvb, &offset)) {
+        return FALSE;
+    }
+
 
     if (!infoAlreadySet) {
         /* Store info in packet */

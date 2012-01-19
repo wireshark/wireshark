@@ -765,6 +765,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-m2ua.c
 	dissectors/packet-m3ua.c
 	dissectors/packet-mac-lte.c
+	dissectors/packet-mac-lte-framed.c
 	dissectors/packet-maccontrol.c
 	dissectors/packet-mactelnet.c
 	dissectors/packet-manolito.c
