@@ -7734,7 +7734,7 @@ proto_register_isup(void)
         NULL, HFILL }},
 
     { &hf_isup_forw_call_qor_attempt_indicator,
-      { "Query on Release attempt indicator",  "isup.forw_call_isdn_access_indicator",
+      { "Query on Release attempt indicator",  "isup.forw_call_qor_attempt_indicator",
         FT_BOOLEAN, 16, TFS(&isup_ISDN_qor_attempt_ind_value), N_16BIT_MASK,
         NULL, HFILL }},
 
@@ -8249,7 +8249,7 @@ proto_register_isup(void)
         NULL, HFILL }},
 
     { &hf_isup_dest_addr_len,
-      { "Destination Address length",  "isup.orig_addr_len",
+      { "Destination Address length",  "isup.dest_addr_len",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
 

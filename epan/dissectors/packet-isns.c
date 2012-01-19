@@ -1770,7 +1770,7 @@ void proto_register_isns(void)
 	    NULL, HFILL }},
 
 	{ &hf_isns_dd_id_next_id,
-	  { "DD ID Next ID", "isns.index",
+	  { "DD ID Next ID", "isns.dd_id_next_id",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
 	    NULL, HFILL }},
 
@@ -1790,7 +1790,7 @@ void proto_register_isns(void)
 	    NULL, HFILL }},
 
 	{ &hf_isns_vendor_oui,
-	  { "Vendor OUI", "isns.index",
+	  { "Vendor OUI", "isns.vendor_oui",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
 	    NULL, HFILL }},
 

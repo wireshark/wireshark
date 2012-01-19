@@ -4183,16 +4183,6 @@ void proto_register_gtpv2(void)
            FT_UINT32, BASE_DEC, NULL, 0x0,
            NULL, HFILL}
         },
-        /*{ &hf_gtpv2_ck,
-          {"CK", "gtpv2.ck",
-          FT_UINT_BYTES, BASE_NONE, NULL, 0x0,
-          NULL, HFILL}
-          },
-          { &hf_gtpv2_ik,
-          {"IK", "gtpv2.ik",
-          FT_UINT_BYTES, BASE_NONE, NULL, 0x0,
-          NULL, HFILL}
-          },*/
         { &hf_gtpv2_len_ms_classmark2,
           {"Length of Mobile Station Classmark2", "gtpv2.len_ms_classmark2",
            FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -4262,7 +4252,7 @@ void proto_register_gtpv2(void)
           FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL}
         },
         {&hf_gtpv2_sv_emind,
-         {"EmInd(Emergency Indicator)", "gtpv2.sv_ics",
+         {"EmInd(Emergency Indicator)", "gtpv2.sv_emind",
           FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL}
         },
 
@@ -5119,7 +5109,7 @@ void proto_register_gtpv2(void)
             FT_BOOLEAN, 8, TFS(&tfs_allowed_not_allowed), 0x01,
             NULL, HFILL }},
         { &hf_gtpv2_gena,
-          { "GERAN", "gtpv2.mm_context.una",
+          { "GERAN", "gtpv2.mm_context.gena",
             FT_BOOLEAN, 8, TFS(&tfs_allowed_not_allowed), 0x02,
             NULL, HFILL }
         },

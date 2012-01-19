@@ -705,7 +705,7 @@ proto_register_hdfs(void)
             NULL, HFILL }
         },
         { &hf_hdfs_flags,
-          { "HDFS authentication type", "hdfs.auth",
+          { "HDFS authentication type", "hdfs.auth_type",
             FT_UINT8, BASE_DEC,
             NULL, 0x0,
             NULL, HFILL }

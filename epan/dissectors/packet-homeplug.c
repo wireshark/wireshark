@@ -1683,12 +1683,12 @@ proto_register_homeplug(void)
     },
 
     { &hf_homeplug_loader_lwnvm,
-      { "Write NVM Data", "homeplug.loader.lrnvm",
+      { "Write NVM Data", "homeplug.loader.lwnvm",
       FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
     { &hf_homeplug_loader_lreset,
-      { "Reset", "homeplug.loader.mid",
+      { "Reset", "homeplug.loader.lreset",
       FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
@@ -1748,7 +1748,7 @@ proto_register_homeplug(void)
     },
 
     { &hf_homeplug_loader_gnvmp,
-      { "Get NVM Parameters", "homeplug.loader.nvmp",
+      { "Get NVM Parameters", "homeplug.loader.gnvmp",
       FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
@@ -1773,7 +1773,7 @@ proto_register_homeplug(void)
     },
 
     { &hf_homeplug_loader_snvmp,
-      { "Set NVM Parameters", "homeplug.loader.nvmp",
+      { "Set NVM Parameters", "homeplug.loader.snvmp",
       FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
