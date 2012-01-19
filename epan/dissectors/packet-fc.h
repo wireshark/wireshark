@@ -26,6 +26,8 @@
 #ifndef __PACKET_FC_H_
 #define __PACKET_FC_H_
 
+#include "packet-scsi.h"
+
 /* R_CTL upper bits creates a classification tree */
 #define FC_RCTL_DEV_DATA       0x00
 #define FC_RCTL_ELS            0x20

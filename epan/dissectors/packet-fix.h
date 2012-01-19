@@ -5,6 +5,12 @@
  *
  */
 
+typedef struct _fix_field {
+  int      tag;         /* FIX tag */
+  int      hf_id;
+  int      type;        /* */
+  const void *table;
+} fix_field;
 
    static const string_string messages_val[] = {
        { "0", "Heartbeat" },

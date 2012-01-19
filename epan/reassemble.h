@@ -26,6 +26,9 @@
  * the flags field of fd_head !!!
  */
 
+#ifndef REASSEMBLE_H
+#define REASSEMBLE_H
+
 /* only in fd_head: packet is defragmented */
 #define FD_DEFRAGMENTED		0x0001
 
@@ -314,3 +317,5 @@ show_fragment_tree(fragment_data *ipfd_head, const fragment_items *fit,
 extern gboolean
 show_fragment_seq_tree(fragment_data *ipfd_head, const fragment_items *fit,
     proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, proto_item **fi);
+
+#endif

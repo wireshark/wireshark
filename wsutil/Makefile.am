@@ -129,7 +129,7 @@ MAINTAINERCLEANFILES = \
 # Checked using version 1.21.12
 dumpabi: all abi-descriptor.xml
 	rm -rf abi-check-headers abi_dumps .libs/*.abi.tar.gz; \
-	mkdir abi-check-headers; cp *.h abi-check-headers/; \
+	mkdir abi-check-headers; cp ../config.h *.h abi-check-headers/; \
 	abi-compliance-checker -l libwsutil -v1 `ls  .libs/libwsutil.so.?.?.?|sed 's/.*\.so\.//'` \
 		-relpath $(abs_srcdir) -dump-abi abi-descriptor.xml && \
 	cp -f abi_dumps/libwsutil/libwsutil_* .libs/; \

@@ -43,13 +43,6 @@
 
 #include "packet-tcp.h"
 
-typedef struct _fix_field {
-    int         tag;    /* FIX tag */
-    int         hf_id;
-    int         type;   /* */
-    const void *table;
-} fix_field;
-
 typedef struct _fix_parameter {
     int field_len;
     int tag_len;

@@ -25,6 +25,8 @@
 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
+#ifndef PACKET_SES_H
+#define PACKET_SES_H
 
 #define PROTO_STRING_SES "ISO 8327-1 OSI Session Protocol"
 #define PROTO_STRING_SES_INFO "ISO 8327-1 OSI Session Protocol."
@@ -207,3 +209,4 @@ struct SESSION_DATA_STRUCTURE
 
 extern const value_string ses_vals[];
 
+#endif

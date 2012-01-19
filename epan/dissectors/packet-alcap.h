@@ -21,6 +21,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#ifndef PACKET_ALCAP_H
+#define PACKET_ALCAP_H
+
 #include <epan/dissectors/packet-e164.h>
 
 extern void alcap_tree_from_bearer_key(proto_tree* tree, tvbuff_t* tvb, const gchar* key);
@@ -57,3 +60,4 @@ typedef struct _alcap_message_info_t {
     guint release_cause;
 } alcap_message_info_t;
 
+#endif

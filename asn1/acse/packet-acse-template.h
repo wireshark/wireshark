@@ -26,6 +26,7 @@
 #ifndef PACKET_ACSE_H
 #define PACKET_ACSE_H
 
+#include <epan/asn1.h>
 #include "packet-acse-exp.h"
 
 #endif  /* PACKET_ACSE_H */

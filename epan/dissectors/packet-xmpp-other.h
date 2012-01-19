@@ -26,6 +26,8 @@
 #ifndef XMPP_OTHER_H
 #define XMPP_OTHER_H
 
+#include "packet-xmpp-utils.h"
+
 extern void xmpp_iq_bind(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *element);
 extern void xmpp_session(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *element);
 extern void xmpp_vcard(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *element);

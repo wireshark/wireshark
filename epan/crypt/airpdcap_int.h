@@ -41,6 +41,7 @@
 /*	File includes								*/
 
 #include "airpdcap_interop.h"
+#include "airpdcap_system.h"
 
 /****************************************************************************/
 

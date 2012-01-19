@@ -25,6 +25,8 @@
 #ifndef __RPC_DEFRAG_H__
 #define __RPC_DEFRAG_H__
 
+#include "reassemble.h"
+
 /*
  * RPC-over-TCP fragmentation.
  */
