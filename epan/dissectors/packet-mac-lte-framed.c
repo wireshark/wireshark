@@ -96,16 +96,20 @@ static void dissect_mac_lte_framed(tvbuff_t *tvb, packet_info *pinfo,
 
 void proto_register_mac_lte_framed(void)
 {
+/*
     static hf_register_info hf[0];
 
     static gint *ett[] =
     {
     };
+*/
 
     /* Register protocol. */
     proto_mac_lte_framed = proto_register_protocol("mac-lte-framed", "MAC-LTE-FRAMED", "mac-lte-framed");
+/*
     proto_register_field_array(proto_mac_lte_framed, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+*/
 
     /* Allow other dissectors to find this one by name. */
     register_dissector("mac-lte-framed", dissect_mac_lte_framed, proto_mac_lte_framed);
