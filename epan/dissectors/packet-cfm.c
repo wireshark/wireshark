@@ -1518,11 +1518,11 @@ void proto_register_cfm(void)
 			BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_cfm_maid_md_name_string,
-			{ "MD Name (String)", "cfm.maid.md.name", FT_STRING,
+			{ "MD Name (String)", "cfm.maid.md.name.string", FT_STRING,
 			BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_cfm_maid_md_name_hex,
-			{ "MD Name", "cfm.maid.md.name", FT_BYTES,
+			{ "MD Name", "cfm.maid.md.name.hex", FT_BYTES,
 			BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_cfm_maid_md_name_mac,
@@ -1542,11 +1542,11 @@ void proto_register_cfm(void)
 			BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_cfm_maid_ma_name_string,
-			{ "Short MA Name", "cfm.maid.ma.name", FT_STRING,
+			{ "Short MA Name", "cfm.maid.ma.name.string", FT_STRING,
 			BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_cfm_maid_ma_name_hex,
-			{ "Short MA Name", "cfm.maid.ma.name", FT_BYTES,
+			{ "Short MA Name", "cfm.maid.ma.name.hex", FT_BYTES,
 			BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_cfm_maid_padding,
@@ -1648,11 +1648,11 @@ void proto_register_cfm(void)
 			BASE_NONE, NULL, 0x0, NULL, HFILL	}
 		},
 		{ &hf_cfm_flags_ais_lck_Reserved,
-			{ "Reserved", "cfm.flags.reserved", FT_UINT8,
+			{ "Reserved", "cfm.flags.ais_lck_Reserved", FT_UINT8,
 			BASE_DEC, NULL, 0xF8, NULL, HFILL }
 		},
 		{ &hf_cfm_flags_ais_lck_Period,
-			{ "Period", "cfm.flags.period", FT_UINT8,
+			{ "Period", "cfm.flags.ais_lck_Period", FT_UINT8,
 			BASE_DEC, VALS(aislckperiodtypes), 0x07, NULL, HFILL }
 		},
 
@@ -1791,7 +1791,7 @@ void proto_register_cfm(void)
 			BASE_NONE, NULL, 0x0, NULL, HFILL	}
 		},
 		{ &hf_cfm_exm_exr_data,
-			{ "EXM/EXR data", "cfm.mcc.data", FT_BYTES,
+			{ "EXM/EXR data", "cfm.exm_exr.data", FT_BYTES,
 			BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 
@@ -1807,7 +1807,7 @@ void proto_register_cfm(void)
 			BASE_NONE, NULL, 0x0, NULL, HFILL	}
 		},
 		{ &hf_cfm_vsm_vsr_data,
-			{ "VSM/VSR data", "cfm.mcc.data", FT_BYTES,
+			{ "VSM/VSR data", "cfm.vsm_vsr.data", FT_BYTES,
 			BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 
@@ -1918,15 +1918,15 @@ void proto_register_cfm(void)
 			BASE_NONE, NULL, 0x0, NULL, HFILL	}
 		},
 		{ &hf_tlv_reply_ing_egr_portid_length,
-			{ "Chassis ID Length", "cfm.tlv.chassis.id.length", FT_UINT8,
+			{ "Chassis ID Length", "cfm.tlv.reply.ing.egr.portid.length", FT_UINT8,
 			BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{ &hf_tlv_reply_ing_egr_portid_subtype,
-			{ "Chassis ID Sub-type", "cfm.tlv.chassis.id.subtype", FT_UINT8,
+			{ "Chassis ID Sub-type", "cfm.tlv.reply.ing.egr.portid.subtype", FT_UINT8,
 			BASE_DEC, NULL, 0x0, NULL, HFILL}
 		},
 		{ &hf_tlv_reply_ing_egr_portid,
-			{ "Chassis ID", "cfm.tlv.chassis.id", FT_BYTES,
+			{ "Chassis ID", "cfm.tlv.reply.ing.egr.portid", FT_BYTES,
 			BASE_NONE, NULL, 0x0, NULL, HFILL}
 		},
 

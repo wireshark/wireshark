@@ -1578,7 +1578,7 @@ proto_register_cast(void)
     },
 
     { &hf_cast_callingParty,
-      { "Calling Party", "cast.callingPartyName",
+      { "Calling Party", "cast.callingParty",
 	FT_STRING, BASE_NONE, NULL, 0x0,
 	"The passed number of the calling party.",
 	HFILL }

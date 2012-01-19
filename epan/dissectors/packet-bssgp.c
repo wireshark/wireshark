@@ -6370,7 +6370,7 @@ proto_register_bssgp(void)
             "Cell Identity", HFILL }
         },
         { &hf_bssgp_flush_action,
-          { "Action", "bssgp.ci",
+          { "Action", "bssgp.flush_action",
             FT_UINT8, BASE_DEC, VALS(bssgp_flush_action_vals), 0x0,
             NULL, HFILL }
         },
@@ -6490,13 +6490,13 @@ proto_register_bssgp(void)
             NULL, HFILL }
         },
         { &hf_bssgp_r_default_ms,
-          { "R_default_MS(x 100 or in increments as defined by the Flow Control Granularity IE)", "bssgp.r",
+          { "R_default_MS(x 100 or in increments as defined by the Flow Control Granularity IE)", "bssgp.r_default_ms",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
 
         { &hf_bssgp_suspend_ref_no,
-          { "Suspend Reference Number", "bssgp.r_default_ms",
+          { "Suspend Reference Number", "bssgp.suspend_ref_no",
             FT_UINT8, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
@@ -6588,7 +6588,7 @@ proto_register_bssgp(void)
         },
 
         { &hf_bssgp_precedence,
-          { "Precedence", "bssgp.a_bit",
+          { "Precedence", "bssgp.precedence",
             FT_UINT8, BASE_DEC, NULL, 0x07,
             NULL, HFILL }
         },
@@ -6663,12 +6663,12 @@ proto_register_bssgp(void)
             NULL, HFILL }
         },
         { &hf_bssgp_ul_tfi,
-          { "UPLINK_TFI", "bssgp.global_tfi",
+          { "UPLINK_TFI", "bssgp.ul_tfi",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_bssgp_dl_tfi,
-          { "DOWNLINK_TFI", "bssgp.global_tfi",
+          { "DOWNLINK_TFI", "bssgp.dl_tfi",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
