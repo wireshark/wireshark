@@ -773,7 +773,7 @@ dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     proto_item *item, *root_ti;
     proto_tree *sub_tree=NULL, *dynamic_ipv4_tree, *dynamic_udp_tree, *dynamic_rtp_tree;
     guint8 oct, rx, cc, val_len = 0;
-    int i, start_offset, tree_start_offset;
+    int start_offset, tree_start_offset;
     guint8 tos, ttl, rnd, nbo;
     guint16 id;
     /*guint8     contributing_csrcs;*/
@@ -846,6 +846,8 @@ dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, packet_info *pinfo, proto_tre
                 /*   +---+---+---+---+---+---+---+---+
                  *   / Generic extension header list /  variable length
                  *   +---+---+---+---+---+---+---+---+
+				 *   Generic extension header list: Encoded according to section
+				 *   5.8.6.1, with all header items present in uncompressed form.
                  */
                 offset = dissect_compressed_list(0, pinfo, dynamic_ipv4_tree, tvb, offset);
 
@@ -945,13 +947,30 @@ dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, packet_info *pinfo, proto_tre
         timestamp = tvb_get_ntohl(tvb, offset);
         proto_tree_add_item(dynamic_rtp_tree, hf_rohc_rtp_timestamp, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset+=4;
-        if(cc > 0){
-            /* Dissect Generic CSRC list here */
-            for (i = 0; i < cc; i++ ) {
-                proto_tree_add_text(dynamic_rtp_tree, tvb, offset, 4, "CSRC item %u",i+1);
-                offset+=4;
-            }
-        }
+		/* RFC 4815
+		 * This field is always at least one octet in size, even if the
+		 *    list is empty (as opposed to the CSRC list in the uncompressed RTP
+		 *    header, which is not present when the RTP CC field is set to 0).
+		 * :
+		 * Generic CSRC list: CSRC list encoded according to section
+		 * 5.8.6.1, with all CSRC items present.
+		 * FORMAL ADDITION TO RFC 3095:
+		 *
+		 *      "The first octet in the dynamic part of the RTP header contains a
+		 *       CC field, as defined in Section 5.7.7.6.  A second occurrence
+		 *       appears in the 'Generic CSRC list', which is also in the dynamic
+		 *       part of the RTP header, where Encoding Type 0 is used according
+		 *       to the format defined in RFC 3095-5.8.6.1.
+		 *
+		 *       The compressor MUST set both occurrences of the CC field to the
+		 *       same value.
+		 *
+		 *       The decompressor MUST use the value of the CC field from the
+		 *       Encoding Type 0 within the Generic CRSC list, and it MUST thus
+		 *       ignore the first occurrence of the CC field."
+		 */
+
+        offset = dissect_compressed_list(0, pinfo, dynamic_rtp_tree, tvb, offset);
         /* : Reserved  | X |  Mode |TIS|TSS:  if RX = 1 */
         if(rx==0){
             return offset;
