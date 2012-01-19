@@ -772,7 +772,7 @@ dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
     proto_item *item, *root_ti;
     proto_tree *sub_tree=NULL, *dynamic_ipv4_tree, *dynamic_udp_tree, *dynamic_rtp_tree;
-    guint8 oct, rx, cc, val_len = 0;
+    guint8 oct, rx, /* cc, */ val_len = 0;
     int start_offset, tree_start_offset;
     guint8 tos, ttl, rnd, nbo;
     guint16 id;
@@ -935,7 +935,7 @@ dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, packet_info *pinfo, proto_tre
         proto_tree_add_item(dynamic_rtp_tree, hf_rohc_rtp_rx, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(dynamic_rtp_tree, hf_rohc_rtp_cc, tvb, offset, 1, ENC_BIG_ENDIAN);
         oct = tvb_get_guint8(tvb,offset);
-        cc = oct & 0x0f;
+        /* cc = oct & 0x0f; */
         rx = (oct >> 4)& 0x01;
         offset++;
         proto_tree_add_item(dynamic_rtp_tree, hf_rohc_rtp_m, tvb, offset, 1, ENC_BIG_ENDIAN);
