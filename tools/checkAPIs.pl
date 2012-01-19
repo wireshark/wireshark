@@ -133,21 +133,40 @@ my %APIs = (
                                                                 #  of NTVB_PORT -> NTVB_UINT)
 
                 ### Deprecated GLib/GObject functions/macros
-                # (The list is based upon the GLib 2.24.1 & GObject 2.24.1 documentation;
-                #  An entry may be commented out since it is currently
-                #  being used in Wireshark and since the replacement functionality
+                # (The list is based upon the GLib 2.30.2 & GObject 2.30.2 documentation;
+                #  An entry may be commented out if it is currently
+                #  being used in Wireshark and if the replacement functionality
                 #  is not available in all the GLib versions that Wireshark
-                #  currently supports (ie: versions starting with GLib 2.14)).
+                #  currently supports.
+                # Note: Wireshark currently (Jan 2012) requires GLib 2.14 or newer.
+                #  The Wireshark build currently (Jan 2012) defines G_DISABLE_DEPRECATED
+                #  so use of any of the following should cause the Wireshark build to fail and
+                #  therefore the tests for obsolete GLib function usage in checkAPIs should not be needed.
                 'G_ALLOC_AND_FREE',
                 'G_ALLOC_ONLY',
                 'g_allocator_free',                             # "use slice allocator" (avail since 2.10,2.14)
                 'g_allocator_new',                              # "use slice allocator" (avail since 2.10,2.14)
                 'g_async_queue_ref_unlocked',                   # g_async_queue_ref()   (OK since 2.8)
                 'g_async_queue_unref_and_unlock',               # g_async_queue_unref() (OK since 2.8)
+                'g_atomic_int_exchange_and_add',                # since 2.30
                 'g_basename',
+                'g_blow_chunks',                                # "use slice allocator" (avail since 2.10,2.14)
                 'g_cache_value_foreach',                        # g_cache_key_foreach()
+                'g_chunk_free',                                 # g_slice_free (avail since 2.10)
+                'g_chunk_new',                                  # g_slice_new  (avail since 2.10)
+                'g_chunk_new0',                                 # g_slice_new0 (avail since 2.10)
+                'g_completion_add_items',                       # since 2.26
+                'g_completion_clear_items',                     # since 2.26
+                'g_completion_complete',                        # since 2.26
+                'g_completion_complete_utf8',                   # since 2.26
+                'g_completion_free',                            # since 2.26
+                'g_completion_new',                             # since 2.26
+                'g_completion_remove_items',                    # since 2.26
+                'g_completion_set_compare',                     # since 2.26
+                'G_CONST_RETURN',                               # since 2.26
                 'g_date_set_time',                              # g_date_set_time_t (avail since 2.10)
                 'g_dirname',
+                'g_format_size_for_display',                    # since 2.30: use g_format_size()
                 'G_GNUC_FUNCTION',
                 'G_GNUC_PRETTY_FUNCTION',
                 'g_hash_table_freeze',
@@ -167,33 +186,7 @@ my %APIs = (
                 'g_main_quit',
                 'g_main_run',
                 'g_main_set_poll_func',
-                'g_node_pop_allocator',                         # "does nothing since 2.10"
-                'g_node_push_allocator',                        # "does nothing since 2.10"
-                'g_scanner_add_symbol',
-                'g_scanner_remove_symbol',
-                'g_scanner_foreach_symbol',
-                'g_scanner_freeze_symbol_table',
-                'g_scanner_thaw_symbol_table',
-                'g_slist_pop_allocator',                        # "does nothing since 2.10"
-                'g_slist_push_allocator',                       # "does nothing since 2.10"
-                'g_string_sprintf',                             # use g_string_printf() instead
-                'g_string_sprintfa',                            # use g_string_append_printf instead
-                'g_tree_traverse',
-                'g_value_set_boxed_take_ownership',
-                'g_value_set_object_take_ownership',
-                'g_value_set_param_take_ownership',
-                'g_value_set_string_take_ownership',
-                'G_WIN32_DLLMAIN_FOR_DLL_NAME',
-                'g_win32_get_package_installation_directory',
-                'g_win32_get_package_installation_subdirectory',
-##
-## Following Deprecated as of GLib 2.10; Wireshark now requires GLIB 2.14 or newer
-##  so the following note is only of historical interest.
-### GMemChunks should used *only* with GLib < 2.10.
-###  There's an issue wherein GLib >= 2.10 g_mem_chunk_destroy doesn't actually free memory thus
-###   leading to memory leaks.
-###  So: either replace GMemChunk use with something else altogether
-###      or use GMemChunks for GLib < 2.10 and GSlice (or whatever) for newer GLibs.
+                'g_mapped_file_free',                           # [as of 2.22: use g_map_file_unref]
                 'g_mem_chunk_alloc',                            # "use slice allocator" (avail since 2.10)
                 'g_mem_chunk_alloc0',                           # "use slice allocator" (avail since 2.10)
                 'g_mem_chunk_clean',                            # "use slice allocator" (avail since 2.10)
@@ -204,14 +197,45 @@ my %APIs = (
                 'g_mem_chunk_new',                              # "use slice allocator" (avail since 2.10)
                 'g_mem_chunk_print',                            # "use slice allocator" (avail since 2.10)
                 'g_mem_chunk_reset',                            # "use slice allocator" (avail since 2.10)
-                'g_blow_chunks',                                # "use slice allocator" (avail since 2.10,2.14)
-                'g_chunk_free',                                 # g_slice_free (avail since 2.10)
-                'g_chunk_new',                                  # g_slice_new  (avail since 2.10)
-                'g_chunk_new0',                                 # g_slice_new0 (avail since 2.10)
-###
-## Following Deprecated as of GLib 2.22;
-## Note: Not currently used by Wireshark
-                'g_mapped_file_free',                           # [as of 2.22: use g_map_file_unref]
+                'g_node_pop_allocator',                         # "does nothing since 2.10"
+                'g_node_push_allocator',                        # "does nothing since 2.10"
+                'g_relation_count',                             # since 2.26
+                'g_relation_delete',                            # since 2.26
+                'g_relation_destroy',                           # since 2.26
+                'g_relation_exists',                            # since 2.26
+                'g_relation_index',                             # since 2.26
+                'g_relation_insert',                            # since 2.26
+                'g_relation_new',                               # since 2.26
+                'g_relation_print',                             # since 2.26
+                'g_relation_select',                            # since 2.26
+                'g_scanner_add_symbol',
+                'g_scanner_remove_symbol',
+                'g_scanner_foreach_symbol',
+                'g_scanner_freeze_symbol_table',
+                'g_scanner_thaw_symbol_table',
+                'g_slist_pop_allocator',                        # "does nothing since 2.10"
+                'g_slist_push_allocator',                       # "does nothing since 2.10"
+                'g_source_get_current_time',                    # since 2.28: use g_source_get_time()
+                'g_strcasecmp',                                 #
+                'g_strdown',                                    #
+                'g_string_down',                                #
+                'g_string_sprintf',                             # use g_string_printf() instead
+                'g_string_sprintfa',                            # use g_string_append_printf instead
+                'g_string_up',                                  #
+                'g_strncasecmp',                                #
+                'g_strup',                                      #
+                'g_tree_traverse',
+                'g_tuples_destroy',                             # since 2.26
+                'g_tuples_index',                               # since 2.26
+                'g_unicode_canonical_decomposition',            # since 2.30: use g_unichar_fully_decompose()
+                'G_UNICODE_COMBINING_MARK',                     # since 2.30:use G_UNICODE_SPACING_MARK
+                'g_value_set_boxed_take_ownership',             # GObject
+                'g_value_set_object_take_ownership',            # GObject
+                'g_value_set_param_take_ownership',             # GObject
+                'g_value_set_string_take_ownership',            # Gobject
+                'G_WIN32_DLLMAIN_FOR_DLL_NAME',
+                'g_win32_get_package_installation_directory',
+                'g_win32_get_package_installation_subdirectory',
                 ] },
 
         # APIs that make the program exit. Dissectors shouldn't call these
@@ -938,35 +962,35 @@ my %deprecatedGtkFunctions = (
                 'gtk_vbutton_box_set_layout_default',           'E',
                 'gtk_vbutton_box_set_spacing_default',          'E',
                 'gtk_vruler_new',                               'E',
-                'GTK_WIDGET_APP_PAINTABLE',                     'E', # gtk_widget_get_app_paintable()           (avail since 2.18)
-                'GTK_WIDGET_CAN_DEFAULT',                       'E', # gtk_widget_get_can_default()             (avail since 2.18)
-                'GTK_WIDGET_CAN_FOCUS',                         'E', # gtk_widget_get_can_focus()               (avail since 2.18)
-                'GTK_WIDGET_COMPOSITE_CHILD',                   'E', # gtk_widget_get_composite_child()         (avail since 2.18)
-                'GTK_WIDGET_DOUBLE_BUFFERED',                   'E', # gtk_widget_get_double_buffered()         (avail since 2.18)
-                'GTK_WIDGET_DRAWABLE',                          'E', # gtk_widget_get_drawable()                (avail since 2.18)
-                'GTK_WIDGET_FLAGS',                             'E', # gtk_widget_get_flags()                   (avail since 2.18)
-                'GTK_WIDGET_HAS_DEFAULT',                       'E', # gtk_widget_get_has_default()             (avail since 2.18)
-                'GTK_WIDGET_HAS_FOCUS',                         'E', # gtk_widget_get_has_focus()               (avail since 2.18)
-                'GTK_WIDGET_HAS_GRAB',                          'E', # gtk_widget_get_has_grab()                (avail since 2.18)
-                'GTK_WIDGET_IS_SENSITIVE',                      'E', # gtk_widget_get_is_sensitive()            (avail since 2.18)
-                'GTK_WIDGET_MAPPED',                            'E', # gtk_widget_get_mapped()                  (avail since 2.18)
-                'GTK_WIDGET_NO_WINDOW',                         'E', # gtk_widget_get_no_window()               (avail since 2.18)
-                'GTK_WIDGET_PARENT_SENSITIVE',                  'E', # gtk_widget_get_parent_sensitive()        (avail since 2.18)
-                'GTK_WIDGET_RC_STYLE',                          'E', # gtk_widget_get_rc_style()                (avail since 2.18)
-                'GTK_WIDGET_REALIZED',                          'E', # gtk_widget_get_realized()                (avail since 2.18)
-                'GTK_WIDGET_RECEIVES_DEFAULT',                  'E', # gtk_widget_get_receives_default()        (avail since 2.18)
-                'GTK_WIDGET_SAVED_STATE',                       'E', # gtk_widget_get_saved_state()             (avail since 2.18)
-                'GTK_WIDGET_SENSITIVE',                         'E', # gtk_widget_get_sensitive()               (avail since 2.18)
+                'GTK_WIDGET_APP_PAINTABLE',                     'E', # gtk_widget_get_app_paintable()    (avail since 2.18)
+                'GTK_WIDGET_CAN_DEFAULT',                       'E', # gtk_widget_get_can_default()      (avail since 2.18)
+                'GTK_WIDGET_CAN_FOCUS',                         'E', # gtk_widget_get_can_focus()        (avail since 2.18)
+                'GTK_WIDGET_COMPOSITE_CHILD',                   'E', # gtk_widget_get_composite_child()  (avail since 2.18)
+                'GTK_WIDGET_DOUBLE_BUFFERED',                   'E', # gtk_widget_get_double_buffered()  (avail since 2.18)
+                'GTK_WIDGET_DRAWABLE',                          'E', # gtk_widget_get_drawable()         (avail since 2.18)
+                'GTK_WIDGET_FLAGS',                             'E', # gtk_widget_get_flags()            (avail since 2.18)
+                'GTK_WIDGET_HAS_DEFAULT',                       'E', # gtk_widget_get_has_default()      (avail since 2.18)
+                'GTK_WIDGET_HAS_FOCUS',                         'E', # gtk_widget_get_has_focus()        (avail since 2.18)
+                'GTK_WIDGET_HAS_GRAB',                          'E', # gtk_widget_get_has_grab()         (avail since 2.18)
+                'GTK_WIDGET_IS_SENSITIVE',                      'E', # gtk_widget_get_is_sensitive()     (avail since 2.18)
+                'GTK_WIDGET_MAPPED',                            'E', # gtk_widget_get_mapped()           (avail since 2.18)
+                'GTK_WIDGET_NO_WINDOW',                         'E', # gtk_widget_get_no_window()        (avail since 2.18)
+                'GTK_WIDGET_PARENT_SENSITIVE',                  'E', # gtk_widget_get_parent_sensitive() (avail since 2.18)
+                'GTK_WIDGET_RC_STYLE',                          'E', # gtk_widget_get_rc_style()         (avail since 2.18)
+                'GTK_WIDGET_REALIZED',                          'E', # gtk_widget_get_realized()         (avail since 2.18)
+                'GTK_WIDGET_RECEIVES_DEFAULT',                  'E', # gtk_widget_get_receives_default() (avail since 2.18)
+                'GTK_WIDGET_SAVED_STATE',                       'E', # gtk_widget_get_saved_state()      (avail since 2.18)
+                'GTK_WIDGET_SENSITIVE',                         'E', # gtk_widget_get_sensitive()        (avail since 2.18)
                 'GTK_WIDGET_SET_FLAGS',                         'W', # since GTK 2.22
-                'GTK_WIDGET_STATE',                             'E', # gtk_widget_get_state()                   (avail since 2.18)
-                'GTK_WIDGET_TOPLEVEL',                          'E', # gtk_widget_get_toplevel()                (avail since 2.18)
-                'GTK_WIDGET_TYPE',                              'E', # gtk_widget_get_type()                    (avail since 2.18)
+                'GTK_WIDGET_STATE',                             'E', # gtk_widget_get_state()            (avail since 2.18)
+                'GTK_WIDGET_TOPLEVEL',                          'E', # gtk_widget_get_toplevel()         (avail since 2.18)
+                'GTK_WIDGET_TYPE',                              'E', # gtk_widget_get_type()             (avail since 2.18)
                 'GTK_WIDGET_UNSET_FLAGS',                       'E',
-                'GTK_WIDGET_VISIBLE',                           'E', # gtk_widget_get_visible()                 (avail since 2.18)
+                'GTK_WIDGET_VISIBLE',                           'E', # gtk_widget_get_visible()          (avail since 2.18)
                 'gtk_widget_draw',                              'E', # gtk_widget_queue_draw_area():
                                                                      #  "in general a better choice if you want
                                                                      #  to draw a region of a widget."
-                'gtk_widget_get_action',                        'E', # gtk_activatable_get_related_action()     (avail since 2.16)
+                'gtk_widget_get_action',                        'E', # gtk_activatable_get_related_action() (avail since 2.16)
                 'gtk_widget_hide_all',                          'E',
                 'gtk_widget_pop_visual',                        'E',
                 'gtk_widget_push_visual',                       'E',
@@ -1254,7 +1278,7 @@ my %deprecatedGtkFunctions = (
 
 
 # Given a ref to a hash containing "functions" and "functions_count" entries:
-# Determine if the any of the list of APIs contained in the array referenced by "functions"
+# Determine if any item of the list of APIs contained in the array referenced by "functions"
 # exists in the file.
 # For each API which appears in the file:
 #     Push the API onto the provided list;
@@ -1304,11 +1328,11 @@ sub checkAPIsCalledWithTvbGetPtr($$$)
                 my @items;
                 my $cnt = 0;
 
-                @items = (${$fileContentsRef} =~ m/($api[^;]*;)/sg);
+                @items = (${$fileContentsRef} =~ m/ ($api [^;]* ; ) /xsg);
                 while (@items) {
                         my ($item) = @items;
                         shift @items;
-                        if ($item =~ /tvb_get_ptr/xos) {
+                        if ($item =~ / tvb_get_ptr /xos) {
                                 $cnt += 1;
                         }
                 }
