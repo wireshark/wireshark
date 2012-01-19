@@ -27,7 +27,7 @@
 #ifndef _PACKET_IAX2_H
 #define _PACKET_IAX2_H
 
-#include <tap-voip.h>
+#include <epan/tap-voip.h>
 
 /* Max version of IAX protocol we support */
 #define IAX_PROTO_VERSION	2
