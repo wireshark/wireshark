@@ -1358,7 +1358,7 @@ proto_register_xtp(void)
 			FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_aseg_adomain,
-			{ "Domain", "xtp.aseg.alen",
+			{ "Domain", "xtp.aseg.adomain",
 			FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_xtp_aseg_aformat,
