@@ -38,7 +38,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
- * Ref: 3GPP TS 29.060 
+ * Ref: 3GPP TS 29.060
  * http://www.3gpp.org/ftp/Specs/html-info/29060.htm
  * GTP' 3GPP TS 32.295
  */
@@ -3199,7 +3199,7 @@ static int decode_gtp_ptmsi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_,
     return 5;
 }
 
-/* 
+/*
  * adjust - how many bytes before offset should be highlighted
  */
 static int decode_qos_gprs(tvbuff_t * tvb, int offset, proto_tree * tree, const gchar * qos_str, guint8 adjust)
@@ -4444,7 +4444,7 @@ static void decode_apn(tvbuff_t * tvb, int offset, guint16 length, proto_tree * 
     }
 }
 
-/* 
+/*
  * GPRS:        9.60 v7.6.0, chapter 7.9.20
  * UMTS:        29.060 v4.0, chapter 7.7.29 PDP Context
  * TODO:        unify addr functions
@@ -5160,7 +5160,7 @@ static int decode_gtp_ran_tr_cont(tvbuff_t * tvb, int offset, packet_info * pinf
 
     next_tvb = tvb_new_subset(tvb, offset, length, length);
     if (bssgp_handle){
-        col_set_fence(pinfo->cinfo, COL_INFO); 
+        col_set_fence(pinfo->cinfo, COL_INFO);
         call_dissector(bssgp_handle, next_tvb, pinfo, ext_tree);
     }
 
@@ -6273,7 +6273,7 @@ decode_gtp_rim_ra_disc(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, prot
     offset++;
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
-    /* Octet 4 bits 4 - 1 is coded according to 3GPP TS 48.018 [20] 
+    /* Octet 4 bits 4 - 1 is coded according to 3GPP TS 48.018 [20]
      * RIM Routing Information IE octet 3 bits 4 - 1.
      * Bits 8 - 5 are coded "0000".
      */
@@ -6831,14 +6831,14 @@ static void dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
 			proto_tree_add_uint(flags_tree, hf_gtp_prime_flags_ver, tvb, 0, 1, gtp_hdr.flags);
 			proto_tree_add_uint(flags_tree, hf_gtp_flags_pt, tvb, 0, 1, gtp_hdr.flags);
 			proto_tree_add_uint(flags_tree, hf_gtp_flags_spare1, tvb, 0, 1, gtp_hdr.flags);
-			/* Bit 1 of octet 1 is not used in GTP' (except in v0), and it is marked '0' 
-			 * in the GTP' header. It is in use in GTP' v0 and distinguishes the used header-length. 
+			/* Bit 1 of octet 1 is not used in GTP' (except in v0), and it is marked '0'
+			 * in the GTP' header. It is in use in GTP' v0 and distinguishes the used header-length.
 			 * In the case of GTP' v0, this bit being marked one (1) indicates the usage of the 6
-			 * octets header. If the bit is set to '0' (usually the case) the 20-octet header is used. 
-			 * For all other versions of GTP', this bit is not used and is set to '0'. However, 
+			 * octets header. If the bit is set to '0' (usually the case) the 20-octet header is used.
+			 * For all other versions of GTP', this bit is not used and is set to '0'. However,
 			 * this does not suggest the use of the 20-octet header, rather a shorter 6-octet header.
 			 */
-			if(gtp_version==0){				
+			if(gtp_version==0){
 				proto_tree_add_item(flags_tree, hf_gtp_flags_hdr_length, tvb, 0, 1, ENC_BIG_ENDIAN);
 			}
 		}else{
@@ -7372,7 +7372,7 @@ void proto_register_gtp(void)
           NULL, HFILL}
         },
         {&hf_gtp_cipher_algorithm,
-         {"Cipher Algorithm", "gtp.no_of_vectors",
+         {"Cipher Algorithm", "gtp.cipher_algorithm",
           FT_UINT8, BASE_DEC, VALS(gtp_cipher_algorithm), 0x07,
           NULL, HFILL}
         },
@@ -7382,12 +7382,12 @@ void proto_register_gtp(void)
           "CKSN/KSI", HFILL}
         },
         {&hf_gtp_cksn,
-         {"Ciphering Key Sequence Number (CKSN)", "gtp.cksn_ksi",
+         {"Ciphering Key Sequence Number (CKSN)", "gtp.cksn",
           FT_UINT8, BASE_DEC, NULL, 0x07,
           "CKSN", HFILL}
         },
         {&hf_gtp_ksi,
-         {"Key Set Identifier (KSI)", "gtp.cksn_ksi",
+         {"Key Set Identifier (KSI)", "gtp.ksi",
           FT_UINT8, BASE_DEC, NULL, 0x07,
           "KSI", HFILL}
         },
@@ -7479,7 +7479,7 @@ void proto_register_gtp(void)
           FT_BOOLEAN, 8, NULL, 0x02,
           NULL, HFILL}},
         {&hf_gtp_cmn_flg_mbs_ran_pcd_rdy,
-         {"RAN Procedures Ready", "gtp.cmn_flg.ran_pcd_rd",
+         {"RAN Procedures Ready", "gtp.cmn_flg.mbs_ran_pcd_rdy",
           FT_BOOLEAN, 8, NULL, 0x04,
           NULL, HFILL}},
         {&hf_gtp_cmn_flg_mbs_cnt_inf,
@@ -7495,11 +7495,11 @@ void proto_register_gtp(void)
           FT_BOOLEAN, 8, NULL, 0x20,
           NULL, HFILL}},
         {&hf_gtp_cmn_flg_upgrd_qos_sup,
-         {"Upgrade QoS Supported", "gtp.cmn_flg.ran_pcd_rd",
+         {"Upgrade QoS Supported", "gtp.cmn_flg.upgrd_qos_sup",
           FT_BOOLEAN, 8, NULL, 0x40,
           NULL, HFILL}},
         {&hf_gtp_tmgi,
-         {"Temporary Mobile Group Identity (TMGI)", "gtp.cmn_flg.ran_pcd_rd",
+         {"Temporary Mobile Group Identity (TMGI)", "gtp.tmgi",
           FT_BYTES, BASE_NONE, NULL, 0x0,
           NULL, HFILL}},
         {&hf_gtp_no_of_mbms_sa_codes,

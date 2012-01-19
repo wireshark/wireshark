@@ -1561,7 +1561,7 @@ proto_register_gdsdb(void)
 			NULL, HFILL }
 		},
 		{ &hf_gdsdb_info_incarnation,
-			{ "Incarnation", "gdsdb.info.object",
+			{ "Incarnation", "gdsdb.info.incarnation",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},

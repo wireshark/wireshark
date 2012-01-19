@@ -200,7 +200,7 @@ void proto_register_egd(void)
           NULL, HFILL }
       },
       { &hf_egd_notime,
-        { "Timestamp", "egd.time",
+        { "Timestamp", "egd.notime",
           FT_UINT64, BASE_HEX,
           NULL, 0x0,
           NULL, HFILL }

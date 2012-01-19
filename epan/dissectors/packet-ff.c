@@ -16157,7 +16157,7 @@ proto_register_ff(void)
 		 */
 		{ &hf_ff_lr_get_info,
 			{ "LAN Redundancy Get Information",
-				"ff.lr.lr.get_info",
+				"ff.lr.get_info",
 				FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
 
@@ -16167,7 +16167,7 @@ proto_register_ff(void)
 		 */
 		{ &hf_ff_lr_get_info_req,
 			{ "LAN Redundancy Get Information Request",
-				"ff.lr.lr.get_info.req",
+				"ff.lr.get_info.req",
 				FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
 
@@ -16177,7 +16177,7 @@ proto_register_ff(void)
 		 */
 		{ &hf_ff_lr_get_info_rsp,
 			{ "LAN Redundancy Get Information Response",
-				"ff.lr.lr.get_info.rsp",
+				"ff.lr.get_info.rsp",
 				FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
 		{ &hf_ff_lr_get_info_rsp_lr_attrs_ver,
@@ -16232,7 +16232,7 @@ proto_register_ff(void)
 		 */
 		{ &hf_ff_lr_get_info_err,
 			{ "LAN Redundancy Get Information Error",
-				"ff.lr.lr.get_info.err",
+				"ff.lr.get_info.err",
 				FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
 		{ &hf_ff_lr_get_info_err_err_class,
@@ -16259,7 +16259,7 @@ proto_register_ff(void)
 		 * 6.5.4.2. LAN Redundancy Put Information (Confirmed Service Id = 2)
 		 */
 		{ &hf_ff_lr_put_info,
-			{ "LAN Redundancy Put Information", "ff.lr.lr.put_info",
+			{ "LAN Redundancy Put Information", "ff.lr.put_info",
 				FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
 
@@ -16268,7 +16268,7 @@ proto_register_ff(void)
 		 * 6.5.4.2.1. Request Message Parameters
 		 */
 		{ &hf_ff_lr_put_info_req,
-			{ "LAN Redundancy Put Information Request", "ff.lr.lr.put_info.req",
+			{ "LAN Redundancy Put Information Request", "ff.lr.put_info.req",
 				FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
 		{ &hf_ff_lr_put_info_req_lr_attrs_ver,
@@ -16323,7 +16323,7 @@ proto_register_ff(void)
 		 */
 		{ &hf_ff_lr_put_info_rsp,
 			{ "LAN Redundancy Put Information Response",
-				"ff.lr.lr.put_info.rsp",
+				"ff.lr.put_info.rsp",
 				FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
 		{ &hf_ff_lr_put_info_rsp_lr_attrs_ver,
@@ -16377,7 +16377,7 @@ proto_register_ff(void)
 		 * 6.5.4.2.3. Error Message Parameters
 		 */
 		{ &hf_ff_lr_put_info_err,
-			{ "LAN Redundancy Put Information Error", "ff.lr.lr.put_info.err",
+			{ "LAN Redundancy Put Information Error", "ff.lr.put_info.err",
 				FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
 		{ &hf_ff_lr_put_info_err_err_class,
@@ -16405,7 +16405,7 @@ proto_register_ff(void)
 		 */
 		{ &hf_ff_lr_get_statistics,
 			{ "LAN Redundancy Get Statistics",
-				"ff.lr.lr.get_statistics",
+				"ff.lr.get_statistics",
 				FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
 
@@ -16415,7 +16415,7 @@ proto_register_ff(void)
 		 */
 		{ &hf_ff_lr_get_statistics_req,
 			{ "LAN Redundancy Get Statistics Request",
-				"ff.lr.lr.get_statistics.req",
+				"ff.lr.get_statistics.req",
 				FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
 
@@ -16425,7 +16425,7 @@ proto_register_ff(void)
 		 */
 		{ &hf_ff_lr_get_statistics_rsp,
 			{ "LAN Redundancy Get Statistics Response",
-				"ff.lr.lr.get_statistics.rsp",
+				"ff.lr.get_statistics.rsp",
 				FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
 		{ &hf_ff_lr_get_statistics_rsp_num_diag_svr_ind_recv_a,
@@ -16469,7 +16469,7 @@ proto_register_ff(void)
 		 */
 		{ &hf_ff_lr_get_statistics_err,
 			{ "LAN Redundancy Get Statistics Error",
-				"ff.lr.lr.get_statistics.err",
+				"ff.lr.get_statistics.err",
 				FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
 		{ &hf_ff_lr_get_statistics_err_err_class,
@@ -16496,7 +16496,7 @@ proto_register_ff(void)
 		 * 6.5.4.4 Diagnostic Message (Unconfirmed Service Id = 1)
 		 */
 		{ &hf_ff_lr_diagnostic_msg,
-			{ "Diagnostic Message", "ff.lr.lr.diagnostic_msg",
+			{ "Diagnostic Message", "ff.lr.diagnostic_msg",
 				FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
 
@@ -16505,7 +16505,7 @@ proto_register_ff(void)
 		 * 6.5.4.4.1. Request Message Parameters
 		 */
 		{ &hf_ff_lr_diagnostic_msg_req,
-			{ "Diagnostic Message Request", "ff.lr.lr.diagnostic_msg",
+			{ "Diagnostic Message Request", "ff.lr.diagnostic_msg_req",
 				FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
 		{ &hf_ff_lr_diagnostic_msg_req_dev_idx,
