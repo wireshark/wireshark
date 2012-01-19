@@ -80,14 +80,14 @@ dissect_prp_redundancy_control_trailer(tvbuff_t *tvb, packet_info *pinfo _U_, pr
 {
     proto_item *ti;
     proto_tree *prp_tree;
-    guint i;
-    guint length;
-    guint offset;
-    guint16 lan_id;
-    guint16 lsdu_size;
-    guint16 prp1_suffix;
-    guint trailer_start;
-    guint trailer_length;
+    guint       i;
+    guint       length;
+    guint       offset;
+    guint16     lan_id;
+    guint16     lsdu_size;
+    guint16     prp1_suffix;
+    guint       trailer_start;
+    guint       trailer_length;
 
     if (!tree)
         return;
@@ -119,7 +119,7 @@ dissect_prp_redundancy_control_trailer(tvbuff_t *tvb, packet_info *pinfo _U_, pr
         lsdu_size = tvb_get_ntohs(tvb, (i+2)) & 0x0fff;
         if(lsdu_size == i+4-offset && (lan_id == 0xa || lan_id == 0xb))
         {
-            trailer_start = i;
+            trailer_start  = i;
             trailer_length = 4;
             break;
         }
@@ -141,7 +141,7 @@ dissect_prp_redundancy_control_trailer(tvbuff_t *tvb, packet_info *pinfo _U_, pr
             /* We don't check the lsdu_size, we just display whether
                it's correct. Helpful for testing, because different
                definitions of the lsdu_size did exist. */
-            trailer_start = length-6;
+            trailer_start  = length-6;
             trailer_length = 6;
         }
     }

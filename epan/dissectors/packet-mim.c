@@ -41,8 +41,6 @@ static int proto_fp = -1 ;
 static gint ett_mim = -1 ;
 static gint ett_hmac = -1 ;
 
-static module_t *mim_module;
-
 /* Main protocol items */
 static int hf_s_hmac = -1;
 static int hf_d_hmac = -1;
@@ -92,23 +90,23 @@ static dissector_handle_t eth_dissector ;
 
 #define FP_FIELD_LEN 3
 
-#define FP_EID_MASK 0xFCC0
+#define FP_EID_MASK    0x00FCC0
 #define FP_3B_EID_MASK 0xFCC000
 
-#define FP_UL_MASK 0x020000
-#define FP_IG_MASK 0x010000
-#define FP_EID2_MASK 0x00C000
-#define FP_RES_MASK 0x002000
-#define FP_OOO_MASK 0x001000
-#define FP_SWID_MASK 0x000FFF
+#define FP_UL_MASK     0x020000
+#define FP_IG_MASK     0x010000
+#define FP_EID2_MASK   0x00C000
+#define FP_RES_MASK    0x002000
+#define FP_OOO_MASK    0x001000
+#define FP_SWID_MASK   0x000FFF
 
-#define FP_BF_LEN 3
-#define FP_LID_LEN 2
+#define FP_BF_LEN    3
+#define FP_LID_LEN   2
 #define FP_SSWID_LEN 1
-#define FP_FTAG_LEN 2
+#define FP_FTAG_LEN  2
 
-#define FP_FTAG_MASK 0xFFC0
-#define FP_TTL_MASK 0x003F
+#define FP_FTAG_MASK     0xFFC0
+#define FP_TTL_MASK      0x003F
 
 #define FP_HMAC_IG_MASK    G_GINT64_CONSTANT(0x010000000000)
 #define FP_HMAC_SWID_MASK  G_GINT64_CONSTANT(0x000FFF000000)
@@ -198,21 +196,21 @@ fp_add_hmac (tvbuff_t *tvb, proto_tree *tree, int offset) {
 static int
 dissect_fp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 {
-  proto_item *ti ;
-  proto_tree *fp_tree ;
-  proto_tree *fp_addr_tree ;
-  tvbuff_t *next_tvb ;
-  int offset = 0 ;
-  guint64 hmac_src;
-  guint64 hmac_dst;
-  guint16 sswid = 0;
-  guint16 ssswid = 0;
-  guint16 slid = 0;
-  guint16 dswid = 0;
-  guint16 dsswid = 0;
-  guint16 dlid = 0;
+  proto_item   *ti ;
+  proto_tree   *fp_tree ;
+  proto_tree   *fp_addr_tree ;
+  tvbuff_t     *next_tvb ;
+  int           offset   = 0 ;
+  guint64       hmac_src;
+  guint64       hmac_dst;
+  guint16       sswid    = 0;
+  guint16       ssswid   = 0;
+  guint16       slid     = 0;
+  guint16       dswid    = 0;
+  guint16       dsswid   = 0;
+  guint16       dlid     = 0;
   const guint8 *dst_addr = NULL;
-  gboolean dest_ig = FALSE;
+  gboolean      dest_ig  = FALSE;
 
   col_set_str( pinfo->cinfo, COL_PROTOCOL, FP_PROTO_COL_NAME ) ;
   col_set_str( pinfo->cinfo, COL_INFO, FP_PROTO_COL_INFO ) ;
@@ -361,6 +359,8 @@ proto_register_mim(void)
     &ett_mim,
     &ett_hmac
   };
+
+  module_t *mim_module;
 
   proto_fp = proto_register_protocol("Cisco FabricPath", "CFP", "cfp");
 

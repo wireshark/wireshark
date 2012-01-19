@@ -38,7 +38,6 @@
 
 
 static int proto_hdcp = -1;
-static module_t *hdcp_module;
 static gboolean  hdcp_enable_dissector = FALSE;
 
 void proto_reg_handoff_hdcp(void);
@@ -114,12 +113,12 @@ static const msg_info_t msg_info[] = {
 static int
 dissect_hdcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    msg_info_t *mi;
-    proto_item *pi;
-    proto_tree *hdcp_tree = NULL, *cert_tree = NULL;
-    guint8 msg_id;
-    gboolean repeater;
-    guint16 reserved;
+    msg_info_t  *mi;
+    proto_item  *pi;
+    proto_tree  *hdcp_tree = NULL, *cert_tree = NULL;
+    guint8       msg_id;
+    gboolean     repeater;
+    guint16      reserved;
     ptvcursor_t *cursor;
 
     /* do the plausibility checks before setting up anything */
@@ -211,11 +210,6 @@ proto_register_hdcp(void)
 {
     guint i;
 
-    static gint *ett[] = {
-        &ett_hdcp,
-        &ett_hdcp_cert
-    };
-
     static hf_register_info hf[] = {
         { &hf_hdcp_msg_id,
             { "Message ID", "hdcp.msg_id", FT_UINT8, BASE_HEX,
@@ -264,13 +258,20 @@ proto_register_hdcp(void)
                 NULL, 0, NULL, HFILL } }
     };
 
+    static gint *ett[] = {
+        &ett_hdcp,
+        &ett_hdcp_cert
+    };
+
+    module_t *hdcp_module;
+
     msg_table = g_hash_table_new(g_direct_hash, g_direct_equal);
     for(i=0; i<array_length(msg_info); i++) {
         g_hash_table_insert(msg_table,
                 GUINT_TO_POINTER((guint)msg_info[i].id),
                 (gpointer)(&msg_info[i]));
     }
- 
+
     proto_hdcp = proto_register_protocol(
             "High bandwidth Digital Content Protection", "HDCP", "hdcp");
 
