@@ -49,7 +49,7 @@
 static dissector_handle_t ip_handle;
 static dissector_handle_t ipv6_handle;
 
-static GHashTable *rohc_cid_hash = NULL; 
+static GHashTable *rohc_cid_hash = NULL;
 
 /* Initialize the protocol and registered fields */
 static int proto_rohc           = -1;
@@ -493,14 +493,14 @@ dissect_compressed_list(int expected_encoding_type _U_, packet_info *pinfo _U_,
              *  +---+---+---+---+---+---+---+---+
              *
              */
-            /* PS = (first_byte & 0x10) >> 4; 
+            /* PS = (first_byte & 0x10) >> 4;
              *       PS: Indicates size of XI fields:
              *       PS = 0 indicates 4-bit XI fields;
              *       PS = 1 indicates 8-bit XI fields.
              */
-            PS = (first_byte & 0x10) >> 4; 
+            PS = (first_byte & 0x10) >> 4;
             proto_tree_add_item(list_tree, hf_rohc_compressed_list_ps, tvb, offset, 1, ENC_BIG_ENDIAN);
-            
+
             /* CC: CSRC counter from original RTP header. */
             CC = first_byte & 0x0f;
             proto_tree_add_item(list_tree, hf_rohc_compressed_list_cc, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -564,7 +564,7 @@ dissect_compressed_list(int expected_encoding_type _U_, packet_info *pinfo _U_,
              *    +---+---+---+---+---+---+---+---+
              *
              */
-            PS = (first_byte & 0x10) >> 4; 
+            PS = (first_byte & 0x10) >> 4;
             proto_tree_add_item(list_tree, hf_rohc_compressed_list_ps, tvb, offset, 1, ENC_BIG_ENDIAN);
             /*      XI 1: When PS = 0, the first 4-bit XI item is placed here.
              *            When PS = 1, the field is set to zero when sending, and
@@ -609,7 +609,7 @@ dissect_compressed_list(int expected_encoding_type _U_, packet_info *pinfo _U_,
                 offset++;
             }
 
-            /* 
+            /*
              *      XI list: XI fields for items to be inserted.  When the insertion
              *         bit mask has k ones, the total number of XI fields is k.  When
              *         PS = 1, all XI fields are in the XI list.  When PS = 0, the
@@ -693,7 +693,7 @@ dissect_compressed_list(int expected_encoding_type _U_, packet_info *pinfo _U_,
              *        +---+---+---+---+---+---+---+---+
              *
              */
-            PS = (first_byte & 0x10) >> 4; 
+            PS = (first_byte & 0x10) >> 4;
             proto_tree_add_item(list_tree, hf_rohc_compressed_list_ps, tvb, offset, 1, ENC_BIG_ENDIAN);
             /*      XI 1: When PS = 0, the first 4-bit XI item is placed here.
              *            When PS = 1, the field is set to zero when sending, and
@@ -727,7 +727,6 @@ dissect_compressed_list(int expected_encoding_type _U_, packet_info *pinfo _U_,
                 proto_tree_add_bits_item(list_tree, hf_rohc_compressed_list_rem_bit_mask, tvb, (offset<<3)+1, 7, ENC_BIG_ENDIAN);
                 offset++;
             }
-            break;
 
             /*
              *      insertion bit mask: Bit mask indicating the positions where new
