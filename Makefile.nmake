@@ -189,7 +189,7 @@ RESOURCES=image\wireshark.res image\libwireshark.res image\tshark.res \
 	image\rawshark.res image\libwsutil.res
 
 
-all: $(LIBS_CHECK) config.h tools image codecs $(C_ARES_DLL) $(ADNS_DLL) $(ZLIB_DLL) wsutil wiretap epan $(EXECUTABLES) $(RESOURCES) doc help install-all
+all: $(LIBS_CHECK) config.h ui/qt/config.pri tools image codecs $(C_ARES_DLL) $(ADNS_DLL) $(ZLIB_DLL) wsutil wiretap epan $(EXECUTABLES) $(RESOURCES) doc help install-all
 
 !IFDEF MAKENSIS
 packaging: all
@@ -390,17 +390,29 @@ config.h	: config.h.win32 config.nmake
 	    -e "s/@WANT_PACKET_EDITOR@/$(WANT_PACKET_EDITOR)/" \
 	    < config.h.win32 > $@
 
-ui\qt\config.pri: config.nmake
+ui\qt\config.pri: config.nmake Makefile.nmake
 	@echo Creating <<ui\qt\config.pri
+# Automatically generated from Makefile.nmake. Do not edit.
 VERSION = $(VERSION)
-WIRESHARK_LIB_DIR = $(WIRESHARK_LIB_DIR)
-GLIB_DIR = $(GTK_DIR)
-C_ARES_DIR = $(C_ARES_DIR)
-ZLIB_DIR = $(ZLIB_DIR)
-GNUTLS_DIR = $(GNUTLS_DIR)
-SMI_DIR = $(SMI_DIR)
-KFW_DIR = $(KFW_DIR)
-LUA_DIR = $(LUA_DIR)
+WIRESHARK_LIB_DIR = $(WIRESHARK_LIB_DIR:\=/)
+GLIB_DIR = $(GTK_DIR:\=/)
+C_ARES_DIR = $(C_ARES_DIR:\=/)
+ZLIB_DIR = $(ZLIB_DIR:\=/)
+GNUTLS_DIR = $(GNUTLS_DIR:\=/)
+SMI_DIR = $(SMI_DIR:\=/)
+KFW_DIR = $(KFW_DIR:\=/)
+LUA_DIR = $(LUA_DIR:\=/)
+
+MSVC_VARIANT = $(MSVC_VARIANT)
+
+WIRESHARK_LOCAL_CFLAGS = $(LOCAL_CFLAGS)
+WIRESHARK_STANDARD_CFLAGS = $(STANDARD_CFLAGS)
+
+QMAKE_CFLAGS += $(STANDARD_CFLAGS)
+QMAKE_CXXFLAGS += $(STANDARD_CFLAGS)
+
+DEFINES += _NEED_VAR_IMPORT_
+
 <<KEEP
 
 ps.c: tools\rdps.py print.ps

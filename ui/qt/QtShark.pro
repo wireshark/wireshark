@@ -24,7 +24,7 @@ unix {
 
 win32 {
     !include( config.pri ) {
-        error(Can't find config.pri. Have you run "nmake -f Makefile.nmake" two directories up?)
+        error("Can't find config.pri. Have you run 'nmake -f Makefile.nmake' two directories up?")
     }
 }
 
@@ -143,19 +143,6 @@ FORMS += main_window.ui
 
 DEFINES += HAVE_CONFIG_H INET6 REENTRANT
 unix:DEFINES += _U_=\"__attribute__((unused))\"
-win32:DEFINES += \
-    MSVC_VARIANT=MSVC2010 MSC_VER_REQUIRED=1600 \
-    _U_= _NEED_VAR_IMPORT_ \
-    _CRT_SECURE_NO_DEPRECATE _CRT_NONSTDC_NO_DEPRECATE _BIND_TO_CURRENT_CRT_VERSION=1 \
-
-
-# We need to pull in config.nmake somehow.
-#win32:DEFINES += MSC_VER_REQUIRED=1600 _U_= IPV6STRICT
-win32:WIRESHARK_LOCAL_CFLAGS = \
-    /Zi /W3 /MD /DWIN32_LEAN_AND_MEAN \
-    /MP /GS
-win32:QMAKE_CFLAGS += $${WIRESHARK_LOCAL_CFLAGS}
-win32:QMAKE_CXXFLAGS += $${WIRESHARK_LOCAL_CFLAGS}
 
 # http://stackoverflow.com/questions/3984104/qmake-how-to-copy-a-file-to-the-output
 unix: {

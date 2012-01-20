@@ -36,17 +36,21 @@ Wireshark. Instead of downloading the Qt SDK all-in-one package, download the
 Qt Libraries package that matches your compiler (VS 2008 or VS 2010) and Qt
 Creator for Windows.
 
-For the time being you must set win32:WIRESHARK_LIB_DIR in QtShark.pro to
-match the global build environment. The default location is
-c:/wireshark-win32-libs (yes, that's a forward slash).
+Settings in config.nmake are passed to the Qt environment via
+ui/qt/config.pri. This file should be created automatically when you
+compile Wireshark in the top-level source directory. You can create it
+by hand by running "nmake -f Makefile.nmake ui\qt\config.pri".
 
-Before compiling select "Projects" in the left toolbar, select "Build Settings"
-and do the following:
+Before compiling in Qt Creator select "Projects" in the left toolbar,
+select "Build Settings" and do the following:
 
 - In "Edit build configuration" make sure the "Release" build is selected.
   ("Debug" currently crashes.)
 - Make sure "Qt version" matches your version of Visual Studio.
 - Make sure "Tool chain" matches your Visual C++ version.
+
+If you require plugin support select "Run Settings" and add
+"WIRESHARK_RUN_FROM_BUILD_DIRECTORY=1" to the Run Environment.
 
 1.1.3 Linux
 
