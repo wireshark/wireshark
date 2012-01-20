@@ -71,9 +71,7 @@ static int hf_iuup_frame_number = -1;
 static int hf_iuup_fqc = -1;
 static int hf_iuup_rfci = -1;
 static int hf_iuup_hdr_crc = -1;
-static int hf_iuup_hdr_crc_error = -1;
 static int hf_iuup_payload_crc = -1;
-static int hf_iuup_payload_crc_error = -1;
 
 static int hf_iuup_ack_nack = -1;
 static int hf_iuup_frame_number_t14 = -1;
@@ -560,31 +558,29 @@ static void dissect_iuup_ratectl(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tr
 
 }
 
-static proto_item *add_hdr_crc(tvbuff_t* tvb, packet_info* pinfo, proto_item* iuup_tree, guint16 crccheck)
+static void add_hdr_crc(tvbuff_t* tvb, packet_info* pinfo, proto_item* iuup_tree, guint16 crccheck)
 {
     proto_item *crc_item;
+
+    crc_item = proto_tree_add_item(iuup_tree,hf_iuup_hdr_crc,tvb,2,1,ENC_BIG_ENDIAN);
     if (crccheck) {
-        crc_item = proto_tree_add_item(iuup_tree,hf_iuup_hdr_crc_error,tvb,2,1,ENC_BIG_ENDIAN);
+        proto_item_append_text(crc_item, "%s", " [incorrect]");
         expert_add_info_format(pinfo, crc_item, PI_CHECKSUM, PI_ERROR, "Bad checksum");
-    } else {
-        crc_item = proto_tree_add_item(iuup_tree,hf_iuup_hdr_crc,tvb,2,1,ENC_BIG_ENDIAN);
     }
-    return crc_item;
 }
 
-static proto_item *add_payload_crc(tvbuff_t* tvb, packet_info* pinfo, proto_item* iuup_tree)
+static void add_payload_crc(tvbuff_t* tvb, packet_info* pinfo, proto_item* iuup_tree)
 {
     proto_item *crc_item;
     int length = tvb_length(tvb);
     guint16 crc10 = tvb_get_ntohs(tvb, 2) & 0x3FF;
     guint16 crccheck = update_crc10_by_bytes(crc10, tvb_get_ptr(tvb, 4, length - 4), length - 4);
+
+    crc_item = proto_tree_add_item(iuup_tree,hf_iuup_payload_crc,tvb,2,2,ENC_BIG_ENDIAN);
     if (crccheck) {
-        crc_item = proto_tree_add_item(iuup_tree,hf_iuup_payload_crc_error,tvb,2,2,ENC_BIG_ENDIAN);
+        proto_item_append_text(crc_item, "%s", " [incorrect]");
         expert_add_info_format(pinfo, crc_item, PI_CHECKSUM, PI_ERROR, "Bad checksum");
-    } else {
-        crc_item = proto_tree_add_item(iuup_tree,hf_iuup_payload_crc,tvb,2,2,ENC_BIG_ENDIAN);
     }
-    return crc_item;
 }
 
 #define ACKNACK_MASK  0x0c
@@ -660,7 +656,7 @@ static void dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree)
         case PDUTYPE_DATA_NO_CRC:
             col_append_fstr(pinfo->cinfo, COL_INFO," RFCI %u", (guint)(second_octet & 0x3f));
 
-			if (!tree) 
+			if (!tree)
 				return;
             proto_tree_add_item(iuup_tree,hf_iuup_frame_number,tvb,0,1,ENC_BIG_ENDIAN);
             pi = proto_tree_add_item(iuup_tree,hf_iuup_fqc,tvb,1,1,ENC_BIG_ENDIAN);
@@ -767,7 +763,7 @@ static void dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree)
                 case PROC_ERROR:
                     col_append_str(pinfo->cinfo, COL_INFO, val_to_str(tvb_get_guint8(tvb,4) & 0x3f,iuup_error_causes,"Unknown (%u)"));
 
-					if (!tree) 
+					if (!tree)
 						return;
                     proto_tree_add_item(iuup_tree,hf_iuup_error_distance,tvb,4,1,ENC_BIG_ENDIAN);
                     pi = proto_tree_add_item(iuup_tree,hf_iuup_errorevt_cause_val,tvb,4,1,ENC_BIG_ENDIAN);
@@ -899,16 +895,14 @@ void proto_register_iuup(void) {
         { &hf_iuup_fqc, { "FQC", "iuup.fqc", FT_UINT8, BASE_DEC, VALS(iuup_fqcs),0xc0,"Frame Quality Classification",HFILL}},
         { &hf_iuup_rfci, { "RFCI", "iuup.rfci", FT_UINT8, BASE_HEX, NULL, 0x3f, "RAB sub-Flow Combination Indicator",HFILL}},
         { &hf_iuup_hdr_crc, { "Header CRC", "iuup.header_crc", FT_UINT8, BASE_HEX, NULL,0xfc,NULL,HFILL}},
-        { &hf_iuup_hdr_crc_error, { "Header CRC [incorrect]", "iuup.header_crc", FT_UINT8, BASE_HEX, NULL,0xfc,NULL,HFILL}},
         { &hf_iuup_payload_crc, { "Payload CRC", "iuup.payload_crc", FT_UINT16, BASE_HEX, NULL,0x03FF,NULL,HFILL}},
-        { &hf_iuup_payload_crc_error, { "Payload CRC [incorrect]", "iuup.payload_crc", FT_UINT16, BASE_HEX, NULL,0x03FF,NULL,HFILL}},
         { &hf_iuup_ack_nack, { "Ack/Nack", "iuup.ack", FT_UINT8, BASE_DEC, VALS(iuup_acknack_vals),0x0c,NULL,HFILL}},
-        { &hf_iuup_frame_number_t14, { "Frame Number", "iuup.framenum", FT_UINT8, BASE_DEC, NULL,0x03,NULL,HFILL}},
+        { &hf_iuup_frame_number_t14, { "Frame Number", "iuup.framenum_t14", FT_UINT8, BASE_DEC, NULL,0x03,NULL,HFILL}},
         { &hf_iuup_mode_version, { "Mode Version", "iuup.mode", FT_UINT8, BASE_HEX, NULL,0xf0,NULL,HFILL}},
         { &hf_iuup_procedure_indicator, { "Procedure", "iuup.procedure", FT_UINT8, BASE_DEC, VALS(iuup_procedures),0x0f,NULL,HFILL}},
         { &hf_iuup_error_cause_val, { "Error Cause", "iuup.error_cause", FT_UINT8, BASE_DEC, VALS(iuup_error_causes),0xfc,NULL,HFILL}},
         { &hf_iuup_error_distance, { "Error DISTANCE", "iuup.error_distance", FT_UINT8, BASE_DEC, VALS(iuup_error_distances),0xc0,NULL,HFILL}},
-        { &hf_iuup_errorevt_cause_val, { "Error Cause", "iuup.error_cause", FT_UINT8, BASE_DEC, NULL,0x3f,NULL,HFILL}},
+        { &hf_iuup_errorevt_cause_val, { "Error Cause", "iuup.errorevt_cause", FT_UINT8, BASE_DEC, NULL,0x3f,NULL,HFILL}},
         { &hf_iuup_time_align, { "Time Align", "iuup.time_align", FT_UINT8, BASE_HEX, NULL,0x0,NULL,HFILL}},
         { &hf_iuup_data_pdu_type, { "RFCI Data Pdu Type", "iuup.data_pdu_type", FT_UINT8, BASE_HEX, VALS(iuup_payload_pdu_type),0xF0,NULL,HFILL}},
 
