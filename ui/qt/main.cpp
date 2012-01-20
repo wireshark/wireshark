@@ -496,8 +496,9 @@ cmdarg_err_cont(const char *fmt, ...)
 
 static void
 console_log_handler(const char *log_domain, GLogLevelFlags log_level,
-                    const char *message, gpointer user_data _U_)
+                    const char *message, gpointer user_data)
 {
+    Q_UNUSED(user_data);
     QString level;
     QDateTime qt = QDateTime::currentDateTime();
 
@@ -856,6 +857,7 @@ int main(int argc, char *argv[])
             stats_tree taps plugins will be registered as tap listeners
             by stats_tree_stat.c and need to registered before that */
 
+    g_log(NULL, G_LOG_LEVEL_DEBUG, "plugin_dir: %s", get_plugin_dir());
   #ifdef HAVE_PLUGINS
     register_all_plugin_tap_listeners();
   #endif

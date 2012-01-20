@@ -122,6 +122,7 @@ int PacketListModel::visibleIndexOf(frame_data *fdata) const
 QModelIndex PacketListModel::index(int row, int column, const QModelIndex &parent)
             const
 {
+    Q_UNUSED(parent);
     if (row >= visibleRows.count() || row < 0 || column >= cf->cinfo.num_cols)
         return QModelIndex();
 
@@ -133,6 +134,7 @@ QModelIndex PacketListModel::index(int row, int column, const QModelIndex &paren
 // Everything is under the root.
 QModelIndex PacketListModel::parent(const QModelIndex &index) const
 {
+    Q_UNUSED(index);
     return QModelIndex();
 }
 
@@ -146,6 +148,7 @@ int PacketListModel::rowCount(const QModelIndex &parent) const
 
 int PacketListModel::columnCount(const QModelIndex &parent) const
 {
+    Q_UNUSED(parent);
     return cf->cinfo.num_cols;
 }
 

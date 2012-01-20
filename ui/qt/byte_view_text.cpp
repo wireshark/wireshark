@@ -82,14 +82,14 @@ ByteViewText::ByteViewText(QWidget *parent, tvbuff_t *tvb, proto_tree *tree, QTr
 void
 ByteViewText::hexPrintCommon()
 {
-    int            i = 0, j, k = 0, b, len;
+    int            i = 0, j, k = 0, len;
     const guint8  *pd;
     QString        line;
     static guchar  hexchars[16] = {
         '0', '1', '2', '3', '4', '5', '6', '7',
         '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
-    static const guint8 bitmask[8] = {
-        0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01 };
+//    static const guint8 bitmask[8] = {
+//        0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01 };
     guchar         c = '\0';
 
 //    progdlg_t  *progbar = NULL;
@@ -495,11 +495,11 @@ byte_num(int offset, int start_point)
 }
 
 // XXX - Copied from main_proto_draw.c
-static int
-bit_num(int offset, int start_point)
-{
-    return (offset - start_point) / 9;
-}
+//static int
+//bit_num(int offset, int start_point)
+//{
+//    return (offset - start_point) / 9;
+//}
 
 // XXX - Copied from main_proto_draw.c
 static int
