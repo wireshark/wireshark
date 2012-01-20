@@ -141,6 +141,12 @@ dnd_uri2filename(gchar *cf_name)
                     src++;
                 }
             }
+#ifdef _WIN32
+        } else if (*src == '/') {
+            *dest = '\\';
+            src++;
+            dest++;
+#endif
         } else {
             *dest = *src;
             src++;
@@ -382,12 +388,12 @@ gtk_osx_openFile (GtkOSXApplication *app _U_, gchar *path, gpointer user_data _U
     selection_path[length] = '\r';
     selection_path[length + 1] = '\n';
     selection_path[length + 2] = '\0';
-	
+
     gtk_selection_data_set_text(&selection_data, selection_path, length);
     dnd_data_received(NULL, NULL, 0, 0, &selection_data, DND_TARGET_URL, 0, 0);
-	
+
     g_free(selection_path);
-	
+
     return TRUE;
 }
 #endif
@@ -411,7 +417,7 @@ dnd_init(GtkWidget *w)
 
     /* get notified, if some dnd coming in */
     g_signal_connect(w, "drag_data_received", G_CALLBACK(dnd_data_received), NULL);
-#ifdef HAVE_GTKOSXAPPLICATION	
+#ifdef HAVE_GTKOSXAPPLICATION
     g_signal_connect(g_object_new(GTK_TYPE_OSX_APPLICATION, NULL), "NSApplicationOpenFile", G_CALLBACK(gtk_osx_openFile), NULL);
 #endif
 }
