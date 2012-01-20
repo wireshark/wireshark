@@ -228,7 +228,7 @@ endif()
 # - set HAVE_XXX
 
 #The minimum package list
-set(PACKAGELIST GLIB2 GMODULE2 GTHREAD2 M LEX YACC Perl SH)
+set(PACKAGELIST GLIB2 GMODULE2 GTHREAD2 M LEX YACC Perl SH PythonInterp)
 set(GLIB2_FIND_REQUIRED)
 set(GLIB2_MIN_VERSION 2.14.0)
 set(GTHREAD2_REQUIRED)
@@ -338,7 +338,7 @@ endforeach()
 #packaging
 include(CPackConfig.txt)
 
-if(PYTHON_FOUND)
+if(HAVE_LIBPYTHON)
 	set(HAVE_PYTHON 1)
 	set(PYTHON_DIR "${CMAKE_INSTALL_PREFIX}/lib/wireshark/python/${CPACK_PACKAGE_VERSION}")
 endif()
