@@ -10,7 +10,7 @@
  *
  * (c) Copyright 2011, Shobhank Sharma <ssharma5@ncsu.edu>
  *   -  update the VCCV bitmaps as per RFC 5885
- *	 
+ *
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -3298,7 +3298,7 @@ proto_register_ldp(void)
             NULL, 0x0, NULL, HFILL }},
 
         { &hf_ldp_tlv_lbl_req_msg_id,
-          { "Label Request Message ID", "ldp.tlv.lbl_req_msg_id", FT_UINT32, BASE_HEX,
+          { "Label Request Message ID", "ldp.msg.tlv.lbl_req_msg_id", FT_UINT32, BASE_HEX,
             NULL, 0x0, "Label Request Message to be aborted", HFILL }},
 
         { &hf_ldp_tlv_vendor_id,
@@ -3548,7 +3548,7 @@ proto_register_ldp(void)
         { &hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd1,
           { "BFD IP/UDP-encapsulated, for PW Fault Detection only", "ldp.msg.tlv.fec.vc.intparam.vccv.cvtype_bfd1", FT_BOOLEAN, 8,
             NULL, 0x04, "VC FEC Interface Param VCCV CV Type BFD IP/UDP-encapsulated, for PW Fault Detection only", HFILL }},
-	
+
 	{ &hf_ldp_tlv_fec_vc_intparam_vccv_cvtype_bfd2,
           { "BFD IP/UDP-encapsulated, for PW Fault Detection and AC/PW Fault Status Signaling", "ldp.msg.tlv.fec.vc.intparam.vccv.cvtype_bfd2", FT_BOOLEAN, 8,
             NULL, 0x08, "VC FEC Interface Param VCCV CV Type BFD IP/UDP-encapsulated, for PW Fault Detection and AC/PW Fault Status Signaling", HFILL }},
