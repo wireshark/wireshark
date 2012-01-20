@@ -1620,7 +1620,7 @@ AC_MSG_CHECKING(whether to use the Python interpreter for scripting)
 
 AC_ARG_WITH(python,
     AC_HELP_STRING( [--with-python@<:@=DIR@:>@],
-                    [use Python interpreter (installed in DIR, if supplied) @<:@default=yes, if available@:>@ (EXPERIMENTAL)]),
+                    [use Python interpreter (installed in DIR, if supplied) @<:@default=no@:>@ (EXPERIMENTAL)]),
 [
 	pythondir='${libdir}/wireshark/python/${VERSION}'
 	if test "x$withval" = "xno"
@@ -1634,12 +1634,11 @@ AC_ARG_WITH(python,
 		pythondir="$withval"
 	fi
 ],[
+	# By default (user didn't explicitly enable Python), don't enable
+	# Python support.
 	#
-	# Use the embeddable Python interpreter if it's present,
-	# otherwise don't.
-	#
-	want_pythin=ifavailable
-	pythondir='${libdir}/wireshark/python/${VERSION}'
+	want_python=no
+	#pythondir='${libdir}/wireshark/python/${VERSION}'
 ])
 if test "x$want_python" = "xno" ; then
         AC_MSG_RESULT(no)
