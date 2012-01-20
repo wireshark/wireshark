@@ -962,7 +962,7 @@ proto_register_lisp(void)
             { "P bit (Proxy-Map-Reply)", "lisp.mreg.flags.pmr",
             FT_BOOLEAN, 24, TFS(&tfs_set_notset), MAP_REG_FLAG_P, NULL, HFILL }},
         { &hf_lisp_mreg_flags_wmn,
-            { "M bit (Want-Map-Notify)", "lisp.mreg.flags.pmr",
+            { "M bit (Want-Map-Notify)", "lisp.mreg.flags.wmn",
             FT_BOOLEAN, 24, TFS(&tfs_set_notset), MAP_REG_FLAG_M, NULL, HFILL }},
         { &hf_lisp_mreg_res,
             { "Reserved bits", "lisp.mreg.res",

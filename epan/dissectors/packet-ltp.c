@@ -878,15 +878,15 @@ proto_register_ltp(void)
 		  FT_UINT64,BASE_DEC,NULL, 0x0, NULL, HFILL}
 	  },
 	  {&hf_ltp_trl_extn_tag,
-		  {"Extension tag","ltp.hdr.extn.tag",
+		  {"Extension tag","ltp.trl.extn.tag",
 		  FT_UINT8,BASE_HEX,NULL, 0x0, NULL, HFILL}
 	  },
 	  {&hf_ltp_trl_extn_len,
-		  {"Length","ltp.hdr.extn.len",
+		  {"Length","ltp.trl.extn.len",
 		  FT_UINT64,BASE_DEC,NULL, 0x0, NULL, HFILL}
 	  },
 	  {&hf_ltp_trl_extn_val,
-		  {"Value","ltp.hdr.extn.val",
+		  {"Value","ltp.trl.extn.val",
 		  FT_UINT64,BASE_DEC,NULL, 0x0, NULL, HFILL}
 	  },
 	  {&hf_ltp_fragments,
