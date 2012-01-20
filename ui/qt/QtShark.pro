@@ -21,14 +21,12 @@ unix {
 }
 
 # XXX We need to figure out how to pull this in from config.nmake.
-win32:WIRESHARK_LIB_DIR = c:/wireshark-win32-libs
-win32:GLIB_DIR = $${WIRESHARK_LIB_DIR}/gtk2
-win32:C_ARES_DIR = $${WIRESHARK_LIB_DIR}/c-ares-1.7.1-win32ws
-win32:ZLIB_DIR = $${WIRESHARK_LIB_DIR}/zlib125
-win32:GNUTLS_DIR = $${WIRESHARK_LIB_DIR}/gnutls-2.10.3-1.11-win32ws
-win32:SMI_DIR = $${WIRESHARK_LIB_DIR}/libsmi-svn-40773-win32ws
-win32:KFW_DIR = $${WIRESHARK_LIB_DIR}/kfw-3-2-2-i386-ws-vc6
-win32:LUA_DIR = $${WIRESHARK_LIB_DIR}/lua5.1.4
+
+win32 {
+    !include( config.pri ) {
+        error(Can't find config.pri. Have you run "nmake -f Makefile.nmake" two directories up?)
+    }
+}
 
 INCLUDEPATH += ../.. ../../wiretap
 win32:INCLUDEPATH += \
@@ -160,23 +158,23 @@ win32:QMAKE_CFLAGS += $${WIRESHARK_LOCAL_CFLAGS}
 win32:QMAKE_CXXFLAGS += $${WIRESHARK_LOCAL_CFLAGS}
 
 # http://stackoverflow.com/questions/3984104/qmake-how-to-copy-a-file-to-the-output
-unix:!mac {
+unix: {
     EXTRA_BINFILES = \
         ../../dumpcap \
-
+        ../../lib/*.so  \
+}
+unix:!mac {
     for(FILE,EXTRA_BINFILES){
         QMAKE_POST_LINK += $$quote(cp $${FILE} .$$escape_expand(\n\t))
     }
 }
 # qmake 2.01a / Qt 4.7.0 doesn't set DESTDIR on OS X.
 mac {
-    EXTRA_BINFILES = \
-        ../../dumpcap \
-
     for(FILE,EXTRA_BINFILES){
         QMAKE_POST_LINK += $$quote(cp $${FILE} Wireshark.app/Contents/MacOS$$escape_expand(\n\t))
     }
 }
+
 win32 {
     EXTRA_BINFILES = \
         ../../dumpcap.exe \
@@ -193,9 +191,19 @@ win32 {
 
     EXTRA_BINFILES ~= s,/,\\,g
     for(FILE,EXTRA_BINFILES){
-        message("$${DESTDIR_WIN}")
-        QMAKE_POST_LINK +=$$quote(cmd /c copy /y $${FILE} $(DESTDIR)$$escape_expand(\n\t))
+        QMAKE_POST_LINK +=$$quote($(COPY_FILE) $${FILE} $(DESTDIR)$$escape_expand(\n\t))
     }
+    PLUGINS_DIR = $(DESTDIR)\plugins\\$${VERSION}
+    QMAKE_POST_LINK +=$$quote($(CHK_DIR_EXISTS) $${PLUGINS_DIR} $(MKDIR) $${PLUGINS_DIR}$$escape_expand(\n\t))
+    QMAKE_POST_LINK +=$$quote($(COPY_FILE) ..\..\wireshark-gtk2\plugins\\$${VERSION}\*.dll $(DESTDIR)\plugins\\$${VERSION}$$escape_expand(\n\t))
+
+    # This doesn't depend on wireshark-gtk2. It also doesn't work.
+    #PLUGINS_IN_PWD=$${IN_PWD}
+    #PLUGINS_OUT_PWD=$${OUT_PWD}
+    #QMAKE_POST_LINK +=$$quote(cd $$replace(PLUGINS_IN_PWD, /, \\)\\..\\..\\plugins$$escape_expand(\n\t))
+    #QMAKE_POST_LINK +=$$quote(nmake -f Makefile.nmake INSTALL_DIR=$$replace(PLUGINS_OUT_PWD, /, \\)\\$(DESTDIR)$$escape_expand(\n\t))
+    #QMAKE_POST_LINK +=$$quote(cd $$replace(PLUGINS_IN_PWD, /, \\)$$escape_expand(\n\t))
+
 }
 
 macx:QMAKE_LFLAGS += \

@@ -390,6 +390,18 @@ config.h	: config.h.win32 config.nmake
 	    -e "s/@WANT_PACKET_EDITOR@/$(WANT_PACKET_EDITOR)/" \
 	    < config.h.win32 > $@
 
+ui\qt\config.pri: config.nmake
+	@echo Creating <<ui\qt\config.pri
+VERSION = $(VERSION)
+WIRESHARK_LIB_DIR = $(WIRESHARK_LIB_DIR)
+GLIB_DIR = $(GTK_DIR)
+C_ARES_DIR = $(C_ARES_DIR)
+ZLIB_DIR = $(ZLIB_DIR)
+GNUTLS_DIR = $(GNUTLS_DIR)
+SMI_DIR = $(SMI_DIR)
+KFW_DIR = $(KFW_DIR)
+LUA_DIR = $(LUA_DIR)
+<<KEEP
 
 ps.c: tools\rdps.py print.ps
 	$(PYTHON) tools\rdps.py print.ps ps.c
