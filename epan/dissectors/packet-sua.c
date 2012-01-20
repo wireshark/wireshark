@@ -411,7 +411,7 @@ new_assoc(guint32 calling, guint32 called)
 	return a;
 }
 
-static sua_assoc_info_t* 
+static sua_assoc_info_t*
 sua_assoc(packet_info* pinfo, address* opc, address* dpc, guint src_rn, guint dst_rn)
 {
 	guint32 opck, dpck;
@@ -421,7 +421,7 @@ sua_assoc(packet_info* pinfo, address* opc, address* dpc, guint src_rn, guint ds
 	}
 	opck = opc->type == AT_SS7PC ? mtp3_pc_hash(opc->data) : g_str_hash(address_to_str(opc));
 	dpck = dpc->type == AT_SS7PC ? mtp3_pc_hash(dpc->data) : g_str_hash(address_to_str(dpc));
-	switch (message_type) 
+	switch (message_type)
 	{
 		case MESSAGE_TYPE_CORE:
 		{
@@ -432,8 +432,8 @@ sua_assoc(packet_info* pinfo, address* opc, address* dpc, guint src_rn, guint ds
                 		{1,&src_rn},
                 		{0,NULL}
             		};
-			
-        	if (! ( assoc = se_tree_lookup32_array(assocs,bw_key) ) && ! pinfo->fd->flags.visited ) 
+
+        	if (! ( assoc = se_tree_lookup32_array(assocs,bw_key) ) && ! pinfo->fd->flags.visited )
 			{
                 assoc = new_assoc(opck, dpck);
         		se_tree_insert32_array(assocs,bw_key,assoc);
@@ -445,7 +445,7 @@ sua_assoc(packet_info* pinfo, address* opc, address* dpc, guint src_rn, guint ds
 		}
 
 		case MESSAGE_TYPE_COAK:
-        	{ 
+        	{
     		/* Calling and called is seen from initiator of CORE */
     		emem_tree_key_t fw_key[] = {
         				{1,&dpck},
@@ -487,7 +487,7 @@ sua_assoc(packet_info* pinfo, address* opc, address* dpc, guint src_rn, guint ds
         }
 
        	default:
-        	{ 
+        	{
     		emem_tree_key_t key[] = {
         				{1,&opck},
         				{1,&dpck},
@@ -543,7 +543,7 @@ dissect_info_string_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto
   guint16 info_string_length;
   tvbuff_t *next_tvb;
 
-  
+
   info_string_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
   /* If we have a SUA Info String sub dissector call it */
   if(sua_info_str_handle){
@@ -1874,13 +1874,11 @@ dissect_parameter(tvbuff_t *parameter_tvb,  packet_info *pinfo, proto_tree *tree
   length         = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   padding_length = tvb_length(parameter_tvb) - length;
 
-  /* If it's a known parameter it's present in the value_string.
-   * If param_tag_str = NULL then this is an unknown parameter
-   */
-  param_tag_str  = match_strval(tag, parameter_tag_values);
-
   if (tree) {
     /* Create proto_tree stuff */
+    /* If it's a known parameter it's present in the value_string.
+     * If param_tag_str = NULL then this is an unknown parameter
+     */
 	param_tag_str    = match_strval(tag, parameter_tag_values);
 	if(param_tag_str){
 		/* The parameter exists */
@@ -2139,7 +2137,7 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
 
 
   if ( message_class == MESSAGE_CLASS_CO_MESSAGE) {
-	  /* XXX: this might fail with multihomed SCTP (on a path failure during a call) 
+	  /* XXX: this might fail with multihomed SCTP (on a path failure during a call)
 	   * or with "load sharing"?
 	   */
 	  sccp_assoc_info_t* sccp_assoc;
