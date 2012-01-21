@@ -1489,7 +1489,8 @@ build_file_type_list(gboolean save, int *item_to_select) {
         }
 
         /* Construct the description. */
-        g_string_printf(description_str, "%s", wtap_file_type_string(ft));
+        g_string_printf(description_str, "%s (%s)", wtap_file_type_string(ft),
+                        pattern_str->str);
         str16 = utf_8to16(description_str->str);
         sa = g_array_append_vals(sa, str16, (guint) strlen(description_str->str));
         sa = g_array_append_val(sa, zero);
