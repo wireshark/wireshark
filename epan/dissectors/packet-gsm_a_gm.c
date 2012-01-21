@@ -3034,7 +3034,7 @@ de_gmm_ac_ref_nr_h(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
  * [9] 10.5.5.20 Service type
  */
 static const value_string gsm_a_gm_serv_type_vals[] = {
-	{ 0x00,	"Signaling" },
+	{ 0x00,	"Signalling" },
 	{ 0x01,	"Data" },
 	{ 0x02,	"Paging response" },
 	{ 0x03,	"MBMS Multicast Service Reception" },
@@ -3621,7 +3621,7 @@ de_sm_nsapi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
  */
 static const value_string gsm_a_sm_pco_ms2net_prot_vals[] = {
 	{ 0x01, "P-CSCF IPv6 Address Request" },
-	{ 0x02, "IM CN Subsystem Signaling Flag" },
+	{ 0x02, "IM CN Subsystem Signalling Flag" },
 	{ 0x03, "DNS Server IPv6 Address Request" },
 	{ 0x04, "Not Supported" },
 	{ 0x05, "MS Support of Network Requested Bearer Control indicator" },
@@ -3638,7 +3638,7 @@ static const value_string gsm_a_sm_pco_ms2net_prot_vals[] = {
 };
 static const value_string gsm_a_sm_pco_net2ms_prot_vals[] = {
 	{ 0x01, "P-CSCF IPv6 Address" },
-	{ 0x02, "IM CN Subsystem Signaling Flag" },
+	{ 0x02, "IM CN Subsystem Signalling Flag" },
 	{ 0x03, "DNS Server IPv6 Address" },
 	{ 0x04, "Policy Control rejection code" },
 	{ 0x05, "Selected Bearer Control Mode" },
@@ -4530,7 +4530,7 @@ de_sm_tear_down(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
  */
 static const range_string gsm_a_sm_packet_flow_id_vals[] = {
 	{ 0x00,	0x00, "Best Effort"},
-	{ 0x01,	0x01, "Signaling"},
+	{ 0x01,	0x01, "Signalling"},
 	{ 0x02,	0x02, "SMS"},
 	{ 0x03,	0x03, "TOM8"},
 	{ 0x04,	0x07, "Reserved"},
