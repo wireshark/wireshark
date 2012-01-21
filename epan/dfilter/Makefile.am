@@ -79,3 +79,8 @@ grammar.h : grammar.c
 grammar.c : $(LEMON)/lemon$(EXEEXT) $(srcdir)/$(LEMON)/lempar.c $(srcdir)/grammar.lemon
 	$(LEMON)/lemon$(EXEEXT) t=$(srcdir)/$(LEMON)/lempar.c $(srcdir)/grammar.lemon || \
 		(rm -f grammar.c grammar.h ; false)
+
+checkapi:
+	$(PERL) ../../tools/checkAPIs.pl -g termoutput \
+		$(GENERATOR_FILES)	\
+		$(NONGENERATED_C_FILES)
