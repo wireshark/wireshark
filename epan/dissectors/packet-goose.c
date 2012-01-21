@@ -115,6 +115,9 @@ static int hf_goose_visible_string = -1;          /* VisibleString */
 static int hf_goose_binary_time = -1;             /* TimeOfDay */
 static int hf_goose_bcd = -1;                     /* INTEGER */
 static int hf_goose_booleanArray = -1;            /* BIT_STRING */
+static int hf_goose_objId = -1;                   /* OBJECT_IDENTIFIER */
+static int hf_goose_mMSString = -1;               /* MMSString */
+static int hf_goose_utc_time = -1;                /* UtcTime */
 
 /*--- End of included file: packet-goose-hf.c ---*/
 #line 52 "../../asn1/goose/packet-goose-template.c"
@@ -594,6 +597,26 @@ dissect_goose_TimeOfDay(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 }
 
 
+
+static int
+dissect_goose_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_goose_MMSString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
+                                            actx, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+
+
 static const value_string goose_Data_vals[] = {
   {   1, "array" },
   {   2, "structure" },
@@ -608,6 +631,9 @@ static const value_string goose_Data_vals[] = {
   {  12, "binary-time" },
   {  13, "bcd" },
   {  14, "booleanArray" },
+  {  15, "objId" },
+  {  16, "mMSString" },
+  {  17, "utc-time" },
   { 0, NULL }
 };
 
@@ -625,6 +651,9 @@ static const ber_choice_t Data_choice[] = {
   {  12, &hf_goose_binary_time   , BER_CLASS_CON, 12, BER_FLAGS_IMPLTAG, dissect_goose_TimeOfDay },
   {  13, &hf_goose_bcd           , BER_CLASS_CON, 13, BER_FLAGS_IMPLTAG, dissect_goose_INTEGER },
   {  14, &hf_goose_booleanArray  , BER_CLASS_CON, 14, BER_FLAGS_IMPLTAG, dissect_goose_BIT_STRING },
+  {  15, &hf_goose_objId         , BER_CLASS_CON, 15, BER_FLAGS_IMPLTAG, dissect_goose_OBJECT_IDENTIFIER },
+  {  16, &hf_goose_mMSString     , BER_CLASS_CON, 16, BER_FLAGS_IMPLTAG, dissect_goose_MMSString },
+  {  17, &hf_goose_utc_time      , BER_CLASS_CON, 17, BER_FLAGS_IMPLTAG, dissect_goose_UtcTime },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -987,6 +1016,18 @@ void proto_register_goose(void) {
       { "booleanArray", "goose.booleanArray",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING", HFILL }},
+    { &hf_goose_objId,
+      { "objId", "goose.objId",
+        FT_OID, BASE_NONE, NULL, 0,
+        "OBJECT_IDENTIFIER", HFILL }},
+    { &hf_goose_mMSString,
+      { "mMSString", "goose.mMSString",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_goose_utc_time,
+      { "utc-time", "goose.utc_time",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "UtcTime", HFILL }},
 
 /*--- End of included file: packet-goose-hfarr.c ---*/
 #line 133 "../../asn1/goose/packet-goose-template.c"

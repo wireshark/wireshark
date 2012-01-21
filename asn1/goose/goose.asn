@@ -116,21 +116,29 @@ UtcTime ::= OCTET STRING -- format and size defined in 8.1.3.6.
 TimeOfDay ::= OCTET STRING -- (SIZE (4 | 6))
 FloatingPoint ::= OCTET STRING
 
-Data ::= CHOICE {
+
+Data ::= CHOICE
+	{
 	-- context tag 0 is reserved for AccessResult
-	array			[1] IMPLICIT SEQUENCE OF Data,
-	structure		[2] IMPLICIT SEQUENCE OF Data,
-	boolean			[3] IMPLICIT BOOLEAN,	
-	bit-string		[4] IMPLICIT BIT STRING,
-	integer			[5] IMPLICIT INTEGER,
-	unsigned		[6] IMPLICIT INTEGER,
-	floating-point	[7] IMPLICIT FloatingPoint,
-	real		 	[8] IMPLICIT REAL,
-	octet-string	[9] IMPLICIT OCTET STRING,
-	visible-string	[10] IMPLICIT VisibleString,
-	binary-time		[12] IMPLICIT TimeOfDay,
-	bcd				[13] IMPLICIT INTEGER,
-	booleanArray	[14] IMPLICIT BIT STRING
-}
+	array			    [1] IMPLICIT SEQUENCE OF Data,
+	structure		    [2] IMPLICIT SEQUENCE OF Data,
+	boolean			    [3] IMPLICIT BOOLEAN,	
+	bit-string		    [4] IMPLICIT BIT STRING,
+	integer			    [5] IMPLICIT INTEGER,
+	unsigned		    [6] IMPLICIT INTEGER,
+	floating-point		[7] IMPLICIT FloatingPoint,
+	real		 	    [8] IMPLICIT REAL,
+	octet-string		[9] IMPLICIT OCTET STRING,
+	visible-string		[10] IMPLICIT VisibleString,
+	binary-time		    [12] IMPLICIT TimeOfDay,
+	bcd			        [13] IMPLICIT INTEGER,
+	booleanArray		[14] IMPLICIT BIT STRING,
+    objId               [15] IMPLICIT OBJECT IDENTIFIER,
+  ...,
+    mMSString           [16] IMPLICIT MMSString,
+    utc-time            [17] IMPLICIT UtcTime				-- added by IEC61850 8.1 G3	
+    }
+
+MMSString ::= UTF8String
 
 END
