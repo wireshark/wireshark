@@ -447,9 +447,6 @@ typedef struct
 
 typedef struct
 {
-  gboolean Exist_LENGTH;
-  guint8   LENGTH;
-
   guint8   FINAL_ACK_INDICATION;
   guint8   BEGINNING_OF_WINDOW;
   guint8   END_OF_WINDOW;
@@ -462,7 +459,19 @@ typedef struct
 
   guint16  URBB_LENGTH;
   guint8   URBB[URBB_MAX_BITS/8];
+} EGPRS_AckNack_Desc_t;
+
+typedef struct
+{
+  guint8   UnionType;
+  EGPRS_AckNack_Desc_t Desc;
 } EGPRS_AckNack_t;
+
+typedef struct
+{
+  guint8   LENGTH;
+  EGPRS_AckNack_Desc_t Desc;
+} EGPRS_AckNack_w_len_t;
 
 
 /* <P1 Rest Octets>
