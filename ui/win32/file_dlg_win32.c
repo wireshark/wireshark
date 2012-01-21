@@ -1433,6 +1433,7 @@ build_file_type_list(gboolean save, int *item_to_select) {
     int   ft;
     guint index;
     GString* str = g_string_new("");
+    gchar sep;
     GSList *extensions_list, *extension;
     TCHAR *str16;
     GArray* sa = g_array_new(FALSE /*zero_terminated*/, FALSE /*clear_*/,2 /*element_size*/);
