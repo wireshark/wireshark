@@ -76,13 +76,13 @@ endif		# HAVE_DOXYGEN
 checkapi: checkapi-base checkapi-todo
 
 checkapi-base:
-	$(PERL) ../tools/checkAPIs.pl -g deprecated-gtk \
+	$(PERL) ../../tools/checkAPIs.pl -g deprecated-gtk \
 	$(WIRESHARK_GTK_SRC) \
 	$(WIRESHARK_TAP_SRC) \
 	capture_if_details_dlg_win32.c
 
 checkapi-todo:
-	$(PERL) ../tools/checkAPIs.pl -M -g deprecated-gtk-todo \
+	$(PERL) ../../tools/checkAPIs.pl -M -g deprecated-gtk-todo \
 	$(WIRESHARK_GTK_SRC) \
 	$(WIRESHARK_TAP_SRC) \
 	capture_if_details_dlg_win32.c
