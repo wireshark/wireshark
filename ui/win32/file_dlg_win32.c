@@ -1493,7 +1493,7 @@ build_file_type_list(gboolean save, int *item_to_select) {
              extension = g_slist_next(extension)) {
             if (sep != '\0')
                 g_string_append_c(str, sep);
-            g_string_append_printf(str, "%s", sep, (char *)extension->data);
+            g_string_append_printf(str, "%c%s", sep, (char *)extension->data);
             sep = ';';
         }
         str16 = utf_8to16(str->str);
