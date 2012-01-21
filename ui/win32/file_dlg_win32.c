@@ -1506,8 +1506,8 @@ build_file_type_list(gboolean save, int *item_to_select) {
         }
         index++;
     }
-    g_string_free(pattern_str);
-    g_string_free(description_str);
+    g_string_free(pattern_str, TRUE);
+    g_string_free(description_str, TRUE);
 
     /* terminate the array */
     sa = g_array_append_val(sa, zero);
