@@ -716,16 +716,85 @@ int wtap_short_string_to_file_type(const char *short_name)
 	return -1;	/* no such file type, or we can't write it */
 }
 
-/* file extensions to use. */
-const char *wtap_file_extensions_string(int filetype)
+/* Return a list of file extensions that are used by the specified file type.
+   This includes compressed extensions, e.g. not just "pcap" but also
+   "pcap.gz" if we can read gzipped files.
+
+   All strings in the list are allocated with g_malloc() and must be freed
+   with g_free(). */
+GSList *wtap_get_file_extensions_list(int filetype)
 {
+	gchar **extensions_set, **extensionp;
+	gchar *extension;
+	GSList *compressed_file_extensions, *compressed_file_extension;
+	GSList *extensions;
+
 	if (filetype < 0 || filetype >= wtap_num_file_types)
-		return NULL;
-	else
-		return dump_open_table[filetype].file_extensions;
+		return NULL;	/* not a valid file type */
+
+	if (dump_open_table[filetype].file_extensions == NULL)
+		return NULL;	/* valid, but no extensions list */
+
+	/*
+	 * Split the extension-list string into a set of extensions.
+	 */
+	extensions_set = g_strsplit(dump_open_table[filetype].file_extensions,
+	    ";", 0);
+
+	/*
+	 * Get the list of compressed-file extensions.
+	 */
+	compressed_file_extensions = wtap_get_compressed_file_extensions();
+
+	/*
+	 * Add each of those extensions to the list.
+	 */
+	extensions = NULL;	/* empty list, to start with */
+	for (extensionp = extensions_set; *extensionp != NULL; extensionp++) {
+		extension = *extensionp;
+
+		/*
+		 * XXX - skip past the "*.".
+		 */
+		extension += 2;
+
+		/*
+		 * Now add the extension.
+		 */
+		extensions = g_slist_append(extensions, g_strdup(extension));
+
+		/*
+		 * Now add the extensions for compressed-file versions of
+		 * that extension.
+		 */
+		for (compressed_file_extension = compressed_file_extensions;
+		    compressed_file_extension != NULL;
+		    compressed_file_extension = g_slist_next(compressed_file_extension)) {
+			extensions = g_slist_append(extensions,
+			    g_strdup_printf("%s.%s", extension,
+			      (gchar *)compressed_file_extension->data));
+		}
+	}
+	g_strfreev(extensions_set);
+	g_slist_free(compressed_file_extensions);
+	return extensions;
 }
 
-/* default file extension to use. */
+/*
+ * Free a list returned by wtap_file_extensions_list().
+ */
+void wtap_free_file_extensions_list(GSList *extensions)
+{
+	GSList *extension;
+
+	for (extension = extensions; extension != NULL;
+	    extension = g_slist_next(extension)) {
+		g_free(extension->data);
+	}
+	g_slist_free(extensions);
+}
+
+/* Return the default file extension to use with the specified file type. */
 const char *wtap_file_extension_default_string(int filetype)
 {
 	if (filetype < 0 || filetype >= wtap_num_file_types)

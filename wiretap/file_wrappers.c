@@ -73,6 +73,37 @@
  *	Bzip2 format: http://bzip.org/
  */
 
+/*
+ * List of extensions for compressed files.
+ * If we add support for more compressed file types, this table
+ * might be expanded to include routines to handle the various
+ * compression types.
+ */
+static const char *compressed_file_extensions[] = {
+#ifdef HAVE_LIBZ
+	"gz",
+#endif
+	NULL
+};
+
+/*
+ * Return a GSList of all the compressed file extensions.
+ * The data pointers all point to items in compressed_file_extensions[],
+ * so the GSList can just be freed with g_slist_free().
+ */
+GSList *
+wtap_get_compressed_file_extensions(void)
+{
+	const char **extension;
+	GSList *extensions;
+
+	extensions = NULL;
+	for (extension = &compressed_file_extensions[0]; *extension != NULL;
+	    extension++)
+		extensions = g_slist_append(extensions, (gpointer)(*extension));
+	return extensions;
+}
+
 /* #define GZBUFSIZE 8192 */
 #define GZBUFSIZE 4096
 

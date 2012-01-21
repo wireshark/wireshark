@@ -954,7 +954,8 @@ const char *wtap_file_type_string(int filetype);
 const char *wtap_file_type_short_string(int filetype);
 int wtap_short_string_to_file_type(const char *short_name);
 
-const char *wtap_file_extensions_string(int filetype);
+GSList *wtap_get_file_extensions_list(int filetype);
+void wtap_free_file_extensions_list(GSList *extensions);
 const char *wtap_file_extension_default_string(int filetype);
 
 const char *wtap_encap_string(int encap);

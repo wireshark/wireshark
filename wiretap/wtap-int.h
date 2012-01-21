@@ -342,6 +342,9 @@ extern gint wtap_num_file_types;
 #define g_ptr_array_len(a)      ((a)->len)
 #endif
 
+/*** get GSList of all compressed file extensions ***/
+GSList *wtap_get_compressed_file_extensions(void);
+
 #endif /* __WTAP_INT_H__ */
 
 /*

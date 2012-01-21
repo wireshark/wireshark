@@ -1433,6 +1433,7 @@ build_file_type_list(gboolean save, int *item_to_select) {
     int   ft;
     guint index;
     GString* str = g_string_new("");
+    GSList *extensions_list, *extension;
     TCHAR *str16;
     GArray* sa = g_array_new(FALSE /*zero_terminated*/, FALSE /*clear_*/,2 /*element_size*/);
     guint16 zero = 0;
@@ -1468,19 +1469,37 @@ build_file_type_list(gboolean save, int *item_to_select) {
         }
 
         /* OK, we can write it out in this type. */
-        if(wtap_file_type_string(ft) != NULL) {
-            g_string_printf(str, "%s (%s)", wtap_file_type_string(ft), wtap_file_extensions_string(ft));
-        } else {
+        if(wtap_file_type_string(ft) == NULL)
             continue;
+        extensions_list = wtap_get_file_extensions_list(ft);
+        if (extensions_list == NULL)
+            continue;
+        g_string_printf(str, "%s ", wtap_file_type_string(ft));
+        sep = '(';
+        for (extension = extensions_list; extension != NULL;
+             extension = g_slist_next(extension)) {
+            g_string_append_printf(str, "%c%s", sep, (char *)extension->data);
+            sep = ';';
+        }
+        g_string_printf(str, ")");
+        str16 = utf_8to16(str->str);
+        sa = g_array_append_vals(sa, str16, (guint) strlen(str->str));
+        sa = g_array_append_val(sa, zero);
+
+        g_string_printf(str, "");
+        sep = '\0';
+        for (extension = extensions_list; extension != NULL;
+             extension = g_slist_next(extension)) {
+            if (sep != '\0')
+                g_string_append_c(str, sep);
+            g_string_append_printf(str, "%s", sep, (char *)extension->data);
+            sep = ';';
         }
         str16 = utf_8to16(str->str);
         sa = g_array_append_vals(sa, str16, (guint) strlen(str->str));
         sa = g_array_append_val(sa, zero);
 
-        g_string_printf(str, "%s", wtap_file_extensions_string(ft));
-        str16 = utf_8to16(str->str);
-        sa = g_array_append_vals(sa, str16, (guint) strlen(str->str));
-        sa = g_array_append_val(sa, zero);
+        wtap_free_file_extensions_list(extensions_list);
 
         if (ft == cfile.cd_t && item_to_select != NULL) {
             /* Default to the same format as the file, if it's supported. */
