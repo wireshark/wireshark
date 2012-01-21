@@ -610,10 +610,6 @@ static const struct file_type_info dump_open_table_base[] = {
 	{ "Symbian OS btsnoop", "btsnoop", "*.log", ".log", FALSE, FALSE,
 	  btsnoop_dump_can_write_encap, btsnoop_dump_open_h4 },
 
-	/* WTAP_FILE_X2E_XORAYA */
-	{ NULL, NULL, NULL, NULL, FALSE, FALSE,
-	  NULL, NULL },
-
 	/* WTAP_FILE_TNEF */
 	{ "Transport-Neutral Encapsulation Format", "tnef", "*.*", NULL, FALSE, FALSE,
 	  NULL, NULL },
