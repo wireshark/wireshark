@@ -1432,7 +1432,8 @@ static TCHAR *
 build_file_type_list(gboolean save, int *item_to_select) {
     int   ft;
     guint index;
-    GString* str = g_string_new("");
+    GString* pattern_str = g_string_new("");
+    GString* description_str = g_string_new("");
     gchar sep;
     GSList *extensions_list, *extension;
     TCHAR *str16;
@@ -1475,29 +1476,26 @@ build_file_type_list(gboolean save, int *item_to_select) {
         extensions_list = wtap_get_file_extensions_list(ft);
         if (extensions_list == NULL)
             continue;
-        g_string_printf(str, "%s ", wtap_file_type_string(ft));
-        sep = '(';
-        for (extension = extensions_list; extension != NULL;
-             extension = g_slist_next(extension)) {
-            g_string_append_printf(str, "%c*.%s", sep, (char *)extension->data);
-            sep = ';';
-        }
-        g_string_append_printf(str, ")");
-        str16 = utf_8to16(str->str);
-        sa = g_array_append_vals(sa, str16, (guint) strlen(str->str));
-        sa = g_array_append_val(sa, zero);
 
-        g_string_printf(str, "");
+        /* Construct the list of patterns. */
+        g_string_printf(pattern_str, "");
         sep = '\0';
         for (extension = extensions_list; extension != NULL;
              extension = g_slist_next(extension)) {
             if (sep != '\0')
-                g_string_append_c(str, sep);
-            g_string_append_printf(str, "%c*.%s", sep, (char *)extension->data);
+                g_string_append_c(pattern_str, sep);
+            g_string_append_printf(pattern_str, "%c*.%s", sep, (char *)extension->data);
             sep = ';';
         }
-        str16 = utf_8to16(str->str);
-        sa = g_array_append_vals(sa, str16, (guint) strlen(str->str));
+
+        /* Construct the description. */
+        g_string_printf(description_str, "%s", wtap_file_type_string(ft));
+        str16 = utf_8to16(description_str->str);
+        sa = g_array_append_vals(sa, str16, (guint) strlen(description_str->str));
+        sa = g_array_append_val(sa, zero);
+
+        str16 = utf_8to16(pattern_str->str);
+        sa = g_array_append_vals(sa, str16, (guint) strlen(pattern_str->str));
         sa = g_array_append_val(sa, zero);
 
         wtap_free_file_extensions_list(extensions_list);
@@ -1508,6 +1506,8 @@ build_file_type_list(gboolean save, int *item_to_select) {
         }
         index++;
     }
+    g_string_free(pattern_str);
+    g_string_free(description_str);
 
     /* terminate the array */
     sa = g_array_append_val(sa, zero);
