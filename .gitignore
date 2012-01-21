@@ -35,7 +35,7 @@ epan/wslua/init.lua
 epan/wslua/register_wslua.c
 epan/wslua/taps.txt
 epan/wslua/taps_wslua.c
-gtk/wireshark-tap-register.c
+ui/gtk/wireshark-tap-register.c
 plugin.c
 plugins/mate/mate_parser.c
 ps.c
