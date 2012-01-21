@@ -163,6 +163,8 @@ static rlc_lte_ep_t* alloc_rlc_lte_ep(struct rlc_lte_tap_info *si, packet_info *
     ep->stats.UL_total_missing = 0;
     ep->stats.DL_total_missing = 0;
 
+    ep->next = NULL;
+
     return ep;
 }
 
