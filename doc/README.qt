@@ -18,7 +18,12 @@ QMake and make or nmake should work.
 The ui/qt directory is loosely coupled with the rest of the codebase. The main
 Wireshark sources must be built beforehand using CMake on Linux and OS X and
 nmake on Windows. Autotools + QMake is a basket full of crazy that hasn't yet
-been sorted and folded.
+been sorted and folded.  (Autotools + Boring Old Make, without using
+QMake at all, might actually be simpler:
+
+	http://www.mail-archive.com/automake@gnu.org/msg11149.html
+
+Work is in progress on this.)
 
 1.1 Prerequisites
 
