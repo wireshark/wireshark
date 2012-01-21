@@ -1,11 +1,11 @@
 /* packet-gsm_a_gm.c
- * Routines for GSM A Interface GPRS Mobilty Management and GPRS Session Management
+ * Routines for GSM A Interface GPRS Mobility Management and GPRS Session Management
  *
  * Copyright 2003, Michael Lum <mlum [AT] telostech.com>
  * In association with Telos Technology Inc.
  *
- * Added the GPRS Mobility Managment Protocol and
- * the GPRS Session Managment Protocol
+ * Added the GPRS Mobility Management Protocol and
+ * the GPRS Session Management Protocol
  *   Copyright 2004, Rene Pilz <rene.pilz [AT] ftw.com>
  *   In association with Telecommunications Research Center
  *   Vienna (ftw.)Betriebs-GmbH within the Project Metawin.
@@ -1061,7 +1061,7 @@ de_gmm_ms_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
 #define GET_DATA				/* check if we have enough bits left */ \
 	if ( curr_bits_length < bits_needed ) \
 		continue; \
-	/* check if oct has enougth bits */ \
+	/* check if oct has enough bits */ \
 	if ( bits_in_oct < bits_needed ) \
 	{ \
 		guint32 tmp_oct; \
@@ -2837,7 +2837,7 @@ static const range_string gmm_cause_vals[] = {
 	{ 0x60, 0x60, "Invalid mandatory information"},
 	{ 0x61, 0x61, "Message type non-existent or not implemented"},
 	{ 0x62, 0x62, "Message type not compatible with the protocol state"},
-	{ 0x63, 0x63, "Information element non-existent or notimplemented"},
+	{ 0x63, 0x63, "Information element non-existent or not implemented"},
 	{ 0x64, 0x64, "Conditional IE error"},
 	{ 0x65, 0x65, "Message not compatible with the protocol state"},
 
@@ -3034,7 +3034,7 @@ de_gmm_ac_ref_nr_h(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
  * [9] 10.5.5.20 Service type
  */
 static const value_string gsm_a_gm_serv_type_vals[] = {
-	{ 0x00,	"Signalling" },
+	{ 0x00,	"Signaling" },
 	{ 0x01,	"Data" },
 	{ 0x02,	"Paging response" },
 	{ 0x03,	"MBMS Multicast Service Reception" },
@@ -3938,7 +3938,7 @@ const value_string gsm_a_qos_del_of_err_sdu_vals[] = {
 	{ 0, NULL }
 };
 
- /* Delivery order, octet 6 (see 3GPP TS 23.107) Bits 5 4 3 */
+ /* Delivery order, octet 6 (see 3GPP TS 23.107) Bits 5 4 */
 const value_string gsm_a_qos_del_order_vals[] = {
 	{ 0, "Subscribed delivery order/Reserved" },
 	{ 1, "With delivery order ('yes')" },
@@ -5045,7 +5045,7 @@ guint16 (*gm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
 	de_gmm_update_res,	/* Update Result */
 	de_gmm_update_type,	/* Update Type */
 	de_gmm_ac_ref_nr,	/* A&C Reference Number */
-	de_gmm_ac_ref_nr_h, 	/* A&C Reference Numer - Info is in the high nibble */
+	de_gmm_ac_ref_nr_h, 	/* A&C Reference Number - Info is in the high nibble */
 	de_gmm_service_type,	/* Service Type */
 	NULL /* no associated data */,	/* Cell Notification */
 	de_gmm_ps_lcs_cap,	/* PS LCS Capability */
@@ -5501,7 +5501,7 @@ dtap_gmm_ident_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
 
 	pinfo->p2p_dir = P2P_DIR_SENT;
 
-/*  If the half octect that are about to get decoded is the LAST in the octetstream, the macro will call return BEFORE we get a chance to fix the index. The end result will be that the first half-octet will be decoded but not the last. */
+/*  If the half octet that are about to get decoded is the LAST in the octetstream, the macro will call return BEFORE we get a chance to fix the index. The end result will be that the first half-octet will be decoded but not the last. */
 #if 0
 	ELEM_MAND_V(GSM_A_PDU_TYPE_GM, DE_ID_TYPE_2, NULL);
 	curr_offset--;
