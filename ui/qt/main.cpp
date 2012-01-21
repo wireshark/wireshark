@@ -34,6 +34,10 @@
 #include "wsutil/wsgetopt.h"
 #endif
 
+#ifdef HAVE_LIBPORTAUDIO
+#include <portaudio.h>
+#endif /* HAVE_LIBPORTAUDIO */
+
 #include <epan/epan.h>
 #include <epan/filesystem.h>
 #include <wsutil/privileges.h>
@@ -544,6 +548,63 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
         qDebug() << qt.toString() << log_domain << " " << level << message;
     }
 
+// xxx based from ../gtk/main.c:get_gtk_compiled_info
+static void
+get_qt_compiled_info(GString *str)
+{
+  g_string_append(str, "with ");
+  g_string_append_printf(str,
+#ifdef QT_VERSION
+                     "Qt %s ", QT_VERSION_STR);
+#else
+                    "Qt (version unknown) ");
+#endif
+}
+
+// xxx copied from ../gtk/main.c
+static void
+get_gui_compiled_info(GString *str)
+{
+  epan_get_compiled_version_info(str);
+
+  g_string_append(str, ", ");
+#ifdef HAVE_LIBPORTAUDIO
+#ifdef PORTAUDIO_API_1
+  g_string_append(str, "with PortAudio <= V18");
+#else /* PORTAUDIO_API_1 */
+  g_string_append(str, "with ");
+  g_string_append(str, Pa_GetVersionText());
+#endif /* PORTAUDIO_API_1 */
+#else /* HAVE_LIBPORTAUDIO */
+  g_string_append(str, "without PortAudio");
+#endif /* HAVE_LIBPORTAUDIO */
+
+  g_string_append(str, ", ");
+#ifdef HAVE_AIRPCAP
+  get_compiled_airpcap_version(str);
+#else
+  g_string_append(str, "without AirPcap");
+#endif
+}
+
+// xxx copied from ../gtk/main.c
+static void
+get_gui_runtime_info(GString *str)
+{
+  epan_get_runtime_version_info(str);
+
+#ifdef HAVE_AIRPCAP
+  g_string_append(str, ", ");
+  get_runtime_airpcap_version(str);
+#endif
+
+
+  if(u3_active()) {
+    g_string_append(str, ", ");
+    u3_runtime_info(str);
+  }
+
+}
 
 /* And now our feature presentation... [ fade to music ] */
 int main(int argc, char *argv[])
@@ -699,12 +760,12 @@ int main(int argc, char *argv[])
     comp_info_str = g_string_new("Compiled ");
 
     // xxx qtshark
-    //get_compiled_version_info(comp_info_str, get_gtk_compiled_info, get_gui_compiled_info);
+    get_compiled_version_info(comp_info_str, get_qt_compiled_info, get_gui_compiled_info);
 
     /* Assemble the run-time version information string */
     runtime_info_str = g_string_new("Running ");
     // xxx qtshark
-    //get_runtime_version_info(runtime_info_str, get_gui_runtime_info);
+    get_runtime_version_info(runtime_info_str, get_gui_runtime_info);
 
     /* Read the profile independent recent file.  We have to do this here so we can */
     /* set the profile before it can be set from the command line parameterts */

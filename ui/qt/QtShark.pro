@@ -198,7 +198,7 @@ macx:QMAKE_LFLAGS += \
     -framework ApplicationServices -framework CoreFoundation -framework CoreServices
 
 unix:LIBS += -L../../lib -Wl,-rpath ../../lib -lwireshark -lwiretap -lwsutil \
-    -lpcap
+    -lpcap -lportaudio
 macx:LIBS += -Wl,-macosx_version_min,10.5 -liconv
 
 win32:LIBS += \

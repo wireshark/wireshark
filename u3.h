@@ -25,6 +25,10 @@
 #ifndef __U3_H__
 #define __U3_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 gboolean u3_active(void);
 
 void u3_runtime_info(GString *str);
@@ -34,5 +38,9 @@ void u3_deregister_pid(void);
 
 char * u3_expand_device_path(char *path);
 char * u3_contract_device_path(char *path);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* __U3_H__ */
