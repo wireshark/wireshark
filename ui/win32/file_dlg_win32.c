@@ -1482,7 +1482,7 @@ build_file_type_list(gboolean save, int *item_to_select) {
             g_string_append_printf(str, "%c%s", sep, (char *)extension->data);
             sep = ';';
         }
-        g_string_printf(str, ")");
+        g_string_append_printf(str, ")");
         str16 = utf_8to16(str->str);
         sa = g_array_append_vals(sa, str16, (guint) strlen(str->str));
         sa = g_array_append_val(sa, zero);
