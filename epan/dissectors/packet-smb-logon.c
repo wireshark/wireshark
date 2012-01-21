@@ -759,28 +759,28 @@ dissect_smb_pdc_response_ads(tvbuff_t *tvb, packet_info *pinfo _U_,
 	offset += 16;
 
 	/* forest dns name */
-	offset=dissect_ms_compressed_string(tvb, tree, offset, hf_forest_dns_name, FALSE, NULL);
+	offset=dissect_ms_compressed_string(tvb, tree, offset, hf_forest_dns_name, NULL);
 
 	/* domain dns name */
-	offset=dissect_ms_compressed_string(tvb, tree, offset, hf_domain_dns_name, FALSE, NULL);
+	offset=dissect_ms_compressed_string(tvb, tree, offset, hf_domain_dns_name, NULL);
 
 	/* server dns name */
-	offset=dissect_ms_compressed_string(tvb, tree, offset, hf_server_dns_name, FALSE, NULL);
+	offset=dissect_ms_compressed_string(tvb, tree, offset, hf_server_dns_name, NULL);
 
 	/* domain name */
-	offset=dissect_ms_compressed_string(tvb, tree, offset, hf_domain_name, FALSE, NULL);
+	offset=dissect_ms_compressed_string(tvb, tree, offset, hf_domain_name, NULL);
 
 	/* server name */
-	offset=dissect_ms_compressed_string(tvb, tree, offset, hf_server_name, FALSE, NULL);
+	offset=dissect_ms_compressed_string(tvb, tree, offset, hf_server_name, NULL);
 
 	/* user name */
-	offset=dissect_ms_compressed_string(tvb, tree, offset, hf_user_name, FALSE, NULL);
+	offset=dissect_ms_compressed_string(tvb, tree, offset, hf_user_name, NULL);
 
 	/* server_site name */
-	offset=dissect_ms_compressed_string(tvb, tree, offset, hf_server_site_name, FALSE, NULL);
+	offset=dissect_ms_compressed_string(tvb, tree, offset, hf_server_site_name, NULL);
 
 	/* client_site name */
-	offset=dissect_ms_compressed_string(tvb, tree, offset, hf_client_site_name, FALSE, NULL);
+	offset=dissect_ms_compressed_string(tvb, tree, offset, hf_client_site_name, NULL);
 
 	/* unknown uint8 type */
 	proto_tree_add_item(tree, hf_unknown8, tvb, offset, 1, TRUE);
