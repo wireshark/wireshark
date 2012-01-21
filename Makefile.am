@@ -1006,19 +1006,19 @@ dumpabi:
 
 checkapi_local:
 	$(PERL) tools/checkAPIs.pl \
-	$(TSHARK_TAP_SRC)
-#	$(wireshark_SOURCES)
+	$(TSHARK_TAP_SRC) \
+	$(wireshark_SOURCES)
 #	$(EXTRA_wireshark_SOURCES)
 
 checkapi: checkapi_local
 	cd wiretap && $(MAKE) checkapi
-	cd ../codecs && $(MAKE) checkapi
-##	cd ../gtk && $(MAKE) checkapi
-##	cd ../epan && $(MAKE) checkapi
-##	cd ../epan/crypt && $(MAKE) checkapi
-	cd ../dfilter && $(MAKE) checkapi
-##	cd ../ftypes && $(MAKE) checkapi
-##	cd ../wslua && $(MAKE) checkapi
-	cd ../dissectors && $(MAKE) checkapi
-	cd ../../plugins && $(MAKE) checkapi
-	cd ../wsutil && $(MAKE) checkapi
+	cd codecs && $(MAKE) checkapi
+	cd ui/gtk && $(MAKE) checkapi
+##	cd epan && $(MAKE) checkapi
+##	cd epan/crypt && $(MAKE) checkapi
+	cd epan/dfilter && $(MAKE) checkapi
+##	cd epan/ftypes && $(MAKE) checkapi
+##	cd epan/wslua && $(MAKE) checkapi
+	cd epan/dissectors && $(MAKE) checkapi
+	cd plugins && $(MAKE) checkapi
+	cd wsutil && $(MAKE) checkapi
