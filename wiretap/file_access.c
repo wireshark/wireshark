@@ -447,19 +447,19 @@ static const struct file_type_info dump_open_table_base[] = {
 	  _5views_dump_can_write_encap, _5views_dump_open },
 
 	/* WTAP_FILE_IPTRACE_1_0 */
-	{ "AIX iptrace 1.0", "iptrace_1", "*.*", NULL, FALSE, FALSE,
+	{ "AIX iptrace 1.0", "iptrace_1", NULL, NULL, FALSE, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_IPTRACE_2_0 */
-	{ "AIX iptrace 2.0", "iptrace_2", "*.*", NULL, FALSE, FALSE,
+	{ "AIX iptrace 2.0", "iptrace_2", NULL, NULL, FALSE, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_BER */
-	{ "ASN.1 Basic Encoding Rules", "ber", "*.*", NULL, FALSE, FALSE,
+	{ "ASN.1 Basic Encoding Rules", "ber", NULL, NULL, FALSE, FALSE,
 		NULL, NULL },
 
 	/* WTAP_FILE_HCIDUMP */
-	{ "Bluetooth HCI dump", "hcidump", "*.*", NULL, FALSE, FALSE,
+	{ "Bluetooth HCI dump", "hcidump", NULL, NULL, FALSE, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_CATAPULT_DCT2000 */
@@ -475,15 +475,15 @@ static const struct file_type_info dump_open_table_base[] = {
 	  NULL, NULL },
 
 	/* WTAP_FILE_COSINE */
-	{ "CoSine IPSX L2 capture", "cosine", "*.*", NULL, FALSE, FALSE,
+	{ "CoSine IPSX L2 capture", "cosine", NULL, NULL, FALSE, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_CSIDS */
-	{ "CSIDS IPLog", "csids", "*.*", NULL, FALSE, FALSE,
+	{ "CSIDS IPLog", "csids", NULL, NULL, FALSE, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_DBS_ETHERWATCH */
-	{ "DBS Etherwatch (VMS)", "etherwatch", "*.*", NULL, FALSE, FALSE,
+	{ "DBS Etherwatch (VMS)", "etherwatch", NULL, NULL, FALSE, FALSE,
 	  NULL, NULL},
 
 	/* WTAP_FILE_ERF */
@@ -495,23 +495,23 @@ static const struct file_type_info dump_open_table_base[] = {
 	   eyesdn_dump_can_write_encap, eyesdn_dump_open },
 
 	/* WTAP_FILE_NETTL */
-	{ "HP-UX nettl trace", "nettl", "*.TRC0;*.TRC1", ".TRC0", FALSE, FALSE,
+	{ "HP-UX nettl trace", "nettl", "*.trc0;*.trc1", ".trc0", FALSE, FALSE,
 	  nettl_dump_can_write_encap, nettl_dump_open },
 
 	/* WTAP_FILE_ISERIES */
-	{ "IBM iSeries comm. trace (ASCII)", "iseries_ascii", "*.*", NULL, FALSE, FALSE,
+	{ "IBM iSeries comm. trace (ASCII)", "iseries_ascii", NULL, NULL, FALSE, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_ISERIES_UNICODE */
-	{ "IBM iSeries comm. trace (UNICODE)", "iseries_unicode", "*.*", NULL, FALSE, FALSE,
+	{ "IBM iSeries comm. trace (UNICODE)", "iseries_unicode", NULL, NULL, FALSE, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_I4BTRACE */
-	{ "I4B ISDN trace", "i4btrace", "*.*", NULL, FALSE, FALSE,
+	{ "I4B ISDN trace", "i4btrace", NULL, NULL, FALSE, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_ASCEND */
-	{ "Lucent/Ascend access server trace", "ascend", "*.*", NULL, FALSE, FALSE,
+	{ "Lucent/Ascend access server trace", "ascend", NULL, NULL, FALSE, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_NETMON_1_x */
@@ -547,11 +547,11 @@ static const struct file_type_info dump_open_table_base[] = {
 	  lanalyzer_dump_can_write_encap, lanalyzer_dump_open },
 
 	/* WTAP_FILE_PPPDUMP */
-	{ "pppd log (pppdump format)", "pppd", "*.*", NULL, FALSE, FALSE,
+	{ "pppd log (pppdump format)", "pppd", NULL, NULL, FALSE, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_RADCOM */
-	{ "RADCOM WAN/LAN analyzer", "radcom", "*.*", NULL, FALSE, FALSE,
+	{ "RADCOM WAN/LAN analyzer", "radcom", NULL, NULL, FALSE, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_SNOOP */
@@ -563,7 +563,7 @@ static const struct file_type_info dump_open_table_base[] = {
 	  NULL, NULL },
 
 	/* WTAP_FILE_VMS */
-	{ "TCPIPtrace (VMS)", "tcpiptrace", "*.*", NULL, FALSE, FALSE,
+	{ "TCPIPtrace (VMS)", "tcpiptrace", NULL, NULL, FALSE, FALSE,
 	  NULL, NULL},
 
 	/* WTAP_FILE_K12 */
@@ -571,11 +571,11 @@ static const struct file_type_info dump_open_table_base[] = {
 		k12_dump_can_write_encap, k12_dump_open },
 
 	/* WTAP_FILE_TOSHIBA */
-	{ "Toshiba Compact ISDN Router snoop", "toshiba", "*.*", NULL, FALSE, FALSE,
+	{ "Toshiba Compact ISDN Router snoop", "toshiba", NULL, NULL, FALSE, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_VISUAL_NETWORKS */
-	{ "Visual Networks traffic capture", "visual", "*.*", NULL, TRUE, FALSE,
+	{ "Visual Networks traffic capture", "visual", NULL, NULL, TRUE, FALSE,
 	  visual_dump_can_write_encap, visual_dump_open },
 
 	/* WTAP_FILE_ETHERPEEK_V56 */
@@ -599,7 +599,7 @@ static const struct file_type_info dump_open_table_base[] = {
 	  k12text_dump_can_write_encap, k12text_dump_open },
 
 	/* WTAP_FILE_NETSCREEN */
-	{ "NetScreen snoop text file", "netscreen", "*.*", NULL, FALSE, FALSE,
+	{ "NetScreen snoop text file", "netscreen", NULL, NULL, FALSE, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_COMMVIEW */
@@ -611,7 +611,7 @@ static const struct file_type_info dump_open_table_base[] = {
 	  btsnoop_dump_can_write_encap, btsnoop_dump_open_h4 },
 
 	/* WTAP_FILE_TNEF */
-	{ "Transport-Neutral Encapsulation Format", "tnef", "*.*", NULL, FALSE, FALSE,
+	{ "Transport-Neutral Encapsulation Format", "tnef", NULL, NULL, FALSE, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_DCT3TRACE */
@@ -627,11 +627,11 @@ static const struct file_type_info dump_open_table_base[] = {
 	  NULL, NULL },
 
 	/* WTAP_FILE_NETSCALER_1_0 */
-	{ "NetScaler Trace (Version 1.0)", "nstrace10", "*.*", "*.*", TRUE, FALSE,
+	{ "NetScaler Trace (Version 1.0)", "nstrace10", NULL, NULL, TRUE, FALSE,
 	  nstrace_10_dump_can_write_encap, nstrace_dump_open },
 
 	/* WTAP_FILE_NETSCALER_2_0 */
-	{ "NetScaler Trace (Version 2.0)", "nstrace20", "*.cap", "*.cap", TRUE, FALSE,
+	{ "NetScaler Trace (Version 2.0)", "nstrace20", "*.cap", ".cap", TRUE, FALSE,
 	  nstrace_20_dump_can_write_encap, nstrace_dump_open },
 
 	/* WTAP_FILE_JPEG_JFIF */
