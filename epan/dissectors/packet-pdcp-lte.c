@@ -29,12 +29,14 @@
 
 #include <string.h>
 
+#include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/addr_resolv.h>
 #include <epan/emem.h>
 
+#include "packet-rlc-lte.h"
 #include "packet-pdcp-lte.h"
 
 /* Described in:
@@ -175,6 +177,7 @@ static int hf_pdcp_lte_rohc_payload = -1;
 static int hf_pdcp_lte_sequence_analysis = -1;
 static int hf_pdcp_lte_sequence_analysis_ok = -1;
 static int hf_pdcp_lte_sequence_analysis_previous_frame = -1;
+static int hf_pdcp_lte_sequence_analysis_next_frame = -1;
 static int hf_pdcp_lte_sequence_analysis_expected_sn = -1;
 
 static int hf_pdcp_lte_sequence_analysis_repeated = -1;
@@ -298,11 +301,15 @@ static dissector_handle_t ipv6_handle;
 static dissector_handle_t rohc_handle;
 static dissector_handle_t data_handle;
 
+
+#define SEQUENCE_ANALYSIS_RLC_ONLY  1
+#define SEQUENCE_ANALYSIS_PDCP_ONLY 2
+
 /* Preference variables */
 static gboolean global_pdcp_show_feedback_option_tag_length = FALSE;
 static gboolean global_pdcp_dissect_user_plane_as_ip = FALSE;
 static gboolean global_pdcp_dissect_signalling_plane_as_rrc = FALSE;
-static gboolean global_pdcp_check_sequence_numbers = FALSE;
+static gint     global_pdcp_check_sequence_numbers = FALSE;
 static gboolean global_pdcp_dissect_rohc = FALSE;
 
 
@@ -370,6 +377,7 @@ typedef struct
     gboolean  sequenceExpectedCorrect;
     guint16   sequenceExpected;
     guint32   previousFrameNum;
+    guint32   nextFrameNum;
 
     guint16   firstSN;
     guint16   lastSN;
@@ -429,6 +437,12 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
                                         tvb, 0, 0, TRUE);
             PROTO_ITEM_SET_GENERATED(ti);
             proto_item_append_text(seqnum_ti, " - OK");
+
+            /* Link to next SN in channel (if known) */
+            if (p->nextFrameNum != 0) {
+                proto_tree_add_uint(seqnum_tree, hf_pdcp_lte_sequence_analysis_next_frame,
+                                    tvb, 0, 0, p->nextFrameNum);
+            }
             break;
 
         case SN_Missing:
@@ -502,7 +516,7 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
     /* If find stat_report_in_frame already, use that and get out */
     if (pinfo->fd->flags.visited) {
         p_report_in_frame = (pdcp_sequence_report_in_frame*)g_hash_table_lookup(pdcp_lte_frame_sequence_analysis_report_hash,
-                                                                                &pinfo->fd->num);
+                                                                                GUINT_TO_POINTER(pinfo->fd->num));
         if (p_report_in_frame != NULL) {
             addChannelSequenceInfo(p_report_in_frame, p_pdcp_lte_info,
                                    sequenceNumber,
@@ -600,10 +614,23 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
         /* Update channel status to remember *this* frame */
         p_channel_status->previousFrameNum = pinfo->fd->num;
         p_channel_status->previousSequenceNumber = sequenceNumber;
+
+        if (p_report_in_frame->previousFrameNum != 0) {
+            /* Get report for previous frame */
+            pdcp_sequence_report_in_frame *p_previous_report;
+            p_previous_report = (pdcp_sequence_report_in_frame*)g_hash_table_lookup(pdcp_lte_frame_sequence_analysis_report_hash,
+                                                                                    GUINT_TO_POINTER(p_report_in_frame->previousFrameNum));
+            /* It really shouldn't be NULL... */
+            if (p_previous_report != NULL) {
+                /* Point it forward to this one */
+                p_previous_report->nextFrameNum = pinfo->fd->num;
+            }
+        }
     }
 
     /* Associate with this frame number */
-    g_hash_table_insert(pdcp_lte_frame_sequence_analysis_report_hash, &pinfo->fd->num, p_report_in_frame);
+    g_hash_table_insert(pdcp_lte_frame_sequence_analysis_report_hash,
+                        GUINT_TO_POINTER(pinfo->fd->num), p_report_in_frame);
 
     /* Add state report for this frame into tree */
     addChannelSequenceInfo(p_report_in_frame, p_pdcp_lte_info, sequenceNumber,
@@ -2124,15 +2151,31 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             return;
         }
 
-        /* For now, only do sequence analysis if RLC wasn't present in the frame */
-        /* This can be fixed once RLC does re-assembly... */
-        if (global_pdcp_check_sequence_numbers && seqnum_set &&
-             (p_get_proto_data(pinfo->fd, proto_rlc_lte) == NULL)) {
+        /* Do sequence analysis if configured to. */
+        if (seqnum_set) {
+            gboolean do_analysis = FALSE;
 
-            checkChannelSequenceInfo(pinfo, tvb, p_pdcp_info,
-                                     (guint16)seqnum, pdcp_tree);
+            switch (global_pdcp_check_sequence_numbers) {
+                case FALSE:
+                    break;
+                case SEQUENCE_ANALYSIS_RLC_ONLY:
+                    if ((p_get_proto_data(pinfo->fd, proto_rlc_lte) != NULL) &&
+                        !is_rlc_lte_frame_retx(pinfo, p_pdcp_info->direction)) {
+                        do_analysis = TRUE;
+                    }
+                    break;
+                case SEQUENCE_ANALYSIS_PDCP_ONLY:
+                    if (p_get_proto_data(pinfo->fd, proto_rlc_lte) == NULL) {
+                        do_analysis = TRUE;
+                    }
+                    break;
+            }
+                
+            if (do_analysis) {
+                checkChannelSequenceInfo(pinfo, tvb, p_pdcp_info,
+                                         (guint16)seqnum, pdcp_tree);
+            }
         }
-
     }
     else {
         /* Show that its a no-header PDU */
@@ -2629,6 +2672,12 @@ void proto_register_pdcp(void)
               NULL, HFILL
             }
         },
+        { &hf_pdcp_lte_sequence_analysis_next_frame,
+            { "Next frame for channel",
+              "pdcp-lte.sequence-analysis.next-frame", FT_FRAMENUM, BASE_NONE, 0, 0x0,
+              NULL, HFILL
+            }
+        },
         { &hf_pdcp_lte_sequence_analysis_expected_sn,
             { "Expected SN",
               "pdcp-lte.sequence-analysis.expected-sn", FT_UINT16, BASE_DEC, 0, 0x0,
@@ -3073,6 +3122,13 @@ void proto_register_pdcp(void)
         &ett_pdcp_rohc_report_bitmap
     };
 
+    static enum_val_t sequence_analysis_vals[] = {
+        {"no-analysis", "No-Analysis",      FALSE},
+        {"rlc-only",    "Only-RLC-frames",  SEQUENCE_ANALYSIS_RLC_ONLY},
+        {"pdcp-only",   "Only-PDCP-frames", SEQUENCE_ANALYSIS_PDCP_ONLY},
+        {NULL, NULL, -1}
+    };
+
     module_t *pdcp_lte_module;
 
     /* Register protocol. */
@@ -3098,10 +3154,10 @@ void proto_register_pdcp(void)
         &global_pdcp_dissect_signalling_plane_as_rrc);
 
     /* Check for missing sequence numbers */
-    prefs_register_bool_preference(pdcp_lte_module, "check_sequence_numbers",
+    prefs_register_enum_preference(pdcp_lte_module, "check_sequence_numbers",
         "Do sequence number analysis",
         "Do sequence number analysis",
-        &global_pdcp_check_sequence_numbers);
+        &global_pdcp_check_sequence_numbers, sequence_analysis_vals, FALSE);
 
     /* Attempt to dissect ROHC headers */
     prefs_register_bool_preference(pdcp_lte_module, "dissect_rohc",
