@@ -875,6 +875,7 @@ static void addChannelSequenceInfo(state_sequence_analysis_report_in_frame *p,
                                            val_to_str_const(p_rlc_lte_info->direction, direction_vals, "Unknown"),
                                            p_rlc_lte_info->ueid,
                                            p->firstSN);
+                    proto_item_append_text(seqnum_ti, " - MAC retx of SN %u", p->firstSN);
                     break;
 
                 case SN_Retx:
@@ -912,8 +913,7 @@ static void addChannelSequenceInfo(state_sequence_analysis_report_in_frame *p,
                                            p->firstSN,
                                            val_to_str_const(p_rlc_lte_info->direction, direction_vals, "Unknown"),
                                            p_rlc_lte_info->ueid);
-                    proto_item_append_text(seqnum_ti, "- SN %u Repeated",
-                                           p->firstSN);
+                    proto_item_append_text(seqnum_ti, "- SN %u Repeated", p->firstSN);
                     break;
 
                 case SN_Missing:
@@ -943,8 +943,7 @@ static void addChannelSequenceInfo(state_sequence_analysis_report_in_frame *p,
                                                p->firstSN,
                                                val_to_str_const(p_rlc_lte_info->direction, direction_vals, "Unknown"),
                                                p_rlc_lte_info->ueid);
-                        proto_item_append_text(seqnum_ti, " - SN missing (%u)",
-                                               p->firstSN);
+                        proto_item_append_text(seqnum_ti, " - SN missing (%u)", p->firstSN);
                         tap_info->missingSNs = 1;
                     }
                     break;
@@ -1155,10 +1154,8 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
                                    tap_info, pinfo, tree, tvb);
             return;
         }
-        else {
-            /* Give up - we must have tried already... */
-            return;
-        }
+
+        /* Don't just give up here... */
     }
 
 
@@ -1190,6 +1187,8 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
     /* Create space for frame state_report */
     p_report_in_frame = se_alloc(sizeof(state_sequence_analysis_report_in_frame));
 
+
+    /* Deal with according to channel mode */
     switch (p_channel_status->rlcMode) {
         case RLC_UM_MODE:
 
@@ -1299,6 +1298,10 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
             if (!createdChannel) {
                 expectedSequenceNumber = (p_channel_status->previousSequenceNumber + 1) % 1024;
             }
+            else {
+                /* Whatever we got is fine.. */
+                expectedSequenceNumber = sequenceNumber;
+            }
 
             /* For AM, may be:
                - expected Sequence number OR
@@ -1318,7 +1321,10 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
             }
 
             if (sequenceNumber != expectedSequenceNumber) {
-                reassembly_destroy(p_channel_status);
+                /* Don't trash reassembly info if this looks like a close  retx... */
+                if (((1024 + sequenceNumber - expectedSequenceNumber) % 1024) < 50) {
+                    reassembly_destroy(p_channel_status);
+                }
             }
 
             /* Expected? */
@@ -1356,7 +1362,6 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
                     ((number_of_segments > 1) || first_includes_start)) {
 
                     guint16 lastSegmentLength = tvb_length(tvb)-lastSegmentOffset;
-
                     if (global_rlc_lte_reassembly) {
                         reassembly_reset(p_channel_status);
                         reassembly_add_segment(p_channel_status, sequenceNumber,
@@ -1398,17 +1403,11 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
                 }
 
                 else {
-                    if (!createdChannel) {
-                        /* Ahead of expected SN. Assume frames have been missed */
-                        p_report_in_frame->state = SN_Missing;
+                    /* Ahead of expected SN. Assume frames have been missed */
+                    p_report_in_frame->state = SN_Missing;
 
-                        p_report_in_frame->firstSN = expectedSequenceNumber;
-                        p_report_in_frame->lastSN = (1024 + sequenceNumber-1) % 1024;
-                    }
-                    else {
-                        /* The log may not contain the very first SNs for this channel, so be forgiving... */
-                        p_report_in_frame->state = SN_OK;
-                    }
+                    p_report_in_frame->firstSN = expectedSequenceNumber;
+                    p_report_in_frame->lastSN = (1024 + sequenceNumber-1) % 1024;
 
                     /* Update channel state - forget about missed SNs */
                     p_report_in_frame->sequenceExpected = expectedSequenceNumber;
@@ -2425,6 +2424,21 @@ static gboolean dissect_rlc_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
     dissect_rlc_lte(rlc_tvb, pinfo, tree);
     return TRUE;
 }
+
+/* Return TRUE if the given packet is thought to be a retx */
+int is_rlc_lte_frame_retx(packet_info *pinfo, guint8 direction)
+{
+    if (is_mac_lte_frame_retx(pinfo, direction)) {
+        return TRUE;
+    }
+    else {
+        state_sequence_analysis_report_in_frame *p_report =
+            (state_sequence_analysis_report_in_frame*)g_hash_table_lookup(rlc_lte_frame_sequence_analysis_report_hash,
+                                                                          &pinfo->fd->num);
+        return (p_report->state != SN_OK);
+    }
+}
+
 
 
 /*****************************/
