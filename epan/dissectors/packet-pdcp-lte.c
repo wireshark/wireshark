@@ -355,19 +355,63 @@ static guint pdcp_channel_hash_func(gconstpointer v)
     return val1->ueId + val1->channelType + val1->channelId + val1->direction;
 }
 
-/* Hash table functions for frame reports */
 
-/* TODO: copied from packet-rlc-lte.c.  extern, or add to lib? */
-/* Equal keys */
-static gint pdcp_frame_equal(gconstpointer v, gconstpointer v2)
+/* Hash table types & functions for frame reports */
+
+typedef struct {
+    guint32            frameNumber;
+    unsigned           SN :       12;
+    unsigned           plane :    2;
+    unsigned           channelId: 5;
+    unsigned           direction: 1;
+} pdcp_result_hash_key;
+
+static gint pdcp_result_hash_equal(gconstpointer v, gconstpointer v2)
 {
-    return (v == v2);
+    const pdcp_result_hash_key* val1 = (pdcp_result_hash_key *)v;
+    const pdcp_result_hash_key* val2 = (pdcp_result_hash_key *)v2;
+
+    /* All fields must match */
+    return (memcmp(val1, val2, sizeof(pdcp_result_hash_key)) == 0);
 }
 
 /* Compute a hash value for a given key. */
-static guint pdcp_frame_hash_func(gconstpointer v)
+static guint pdcp_result_hash_func(gconstpointer v)
 {
-    return GPOINTER_TO_UINT(v);
+    const pdcp_result_hash_key* val1 = (pdcp_result_hash_key *)v;
+
+    /* TODO: check collision-rate / execution-time of these multipliers?  */
+    return val1->frameNumber + (val1->channelId<<13) +
+                               (val1->plane<<5) +
+                               (val1->SN<<18) +
+                               (val1->direction<<9);
+}
+
+/* Convenience function to get a pointer for the hash_func to work with */
+static gpointer get_report_hash_key(guint16 SN, guint32 frameNumber,
+                                    pdcp_lte_info *p_pdcp_lte_info,
+                                    gboolean do_persist)
+{
+    static pdcp_result_hash_key key;
+    pdcp_result_hash_key *p_key;
+
+    /* Only allocate a struct when will be adding entry */
+    if (do_persist) {
+        p_key = se_new0(pdcp_result_hash_key);
+    }
+    else {
+        memset(&key, 0, sizeof(pdcp_result_hash_key));
+        p_key = &key;
+    }
+
+    /* Fill in details, and return pointer */
+    p_key->frameNumber = frameNumber;
+    p_key->SN = SN;
+    p_key->plane = (guint8)p_pdcp_lte_info->plane;
+    p_key->channelId = p_pdcp_lte_info->channelId;
+    p_key->direction = p_pdcp_lte_info->direction;
+
+    return p_key;
 }
 
 
@@ -386,7 +430,8 @@ typedef struct
 } pdcp_sequence_report_in_frame;
 
 /* The sequence analysis frame report hash table instance itself   */
-static GHashTable *pdcp_lte_frame_sequence_analysis_report_hash = NULL;
+static GHashTable *pdcp_lte_sequence_analysis_report_hash = NULL;
+
 
 
 /* Add to the tree values associated with sequence analysis for this frame */
@@ -397,6 +442,7 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
 {
     proto_tree *seqnum_tree;
     proto_item *seqnum_ti;
+    proto_item *ti_expected_sn;
     proto_item *ti;
 
     /* Create subtree */
@@ -416,9 +462,9 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
     }
 
     /* Expected sequence number */
-    ti = proto_tree_add_uint(seqnum_tree, hf_pdcp_lte_sequence_analysis_expected_sn,
-                            tvb, 0, 0, p->sequenceExpected);
-    PROTO_ITEM_SET_GENERATED(ti);
+    ti_expected_sn = proto_tree_add_uint(seqnum_tree, hf_pdcp_lte_sequence_analysis_expected_sn,
+                                         tvb, 0, 0, p->sequenceExpected);
+    PROTO_ITEM_SET_GENERATED(ti_expected_sn);
 
     /* Make sure we have recognised SN length */
     switch (p_pdcp_lte_info->seqnum_length) {
@@ -433,6 +479,7 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
 
     switch (p->state) {
         case SN_OK:
+            PROTO_ITEM_SET_HIDDEN(ti_expected_sn);
             ti = proto_tree_add_boolean(seqnum_tree, hf_pdcp_lte_sequence_analysis_ok,
                                         tvb, 0, 0, TRUE);
             PROTO_ITEM_SET_GENERATED(ti);
@@ -490,7 +537,7 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
 
         default:
             /* Incorrect sequence number */
-            expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
+            expert_add_info_format(pinfo, ti_expected_sn, PI_SEQUENCE, PI_WARN,
                                    "Wrong Sequence Number for %s on UE %u - got %u, expected %u",
                                    val_to_str_const(p_pdcp_lte_info->direction, direction_vals, "Unknown"),
                                    p_pdcp_lte_info->ueid, sequenceNumber, p->sequenceExpected);
@@ -515,8 +562,11 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
 
     /* If find stat_report_in_frame already, use that and get out */
     if (pinfo->fd->flags.visited) {
-        p_report_in_frame = (pdcp_sequence_report_in_frame*)g_hash_table_lookup(pdcp_lte_frame_sequence_analysis_report_hash,
-                                                                                GUINT_TO_POINTER(pinfo->fd->num));
+        p_report_in_frame =
+            (pdcp_sequence_report_in_frame*)g_hash_table_lookup(pdcp_lte_sequence_analysis_report_hash,
+                                                                get_report_hash_key(sequenceNumber,
+                                                                                    pinfo->fd->num,
+                                                                                    p_pdcp_lte_info, FALSE));
         if (p_report_in_frame != NULL) {
             addChannelSequenceInfo(p_report_in_frame, p_pdcp_lte_info,
                                    sequenceNumber,
@@ -555,6 +605,7 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
 
     /* Create space for frame state_report */
     p_report_in_frame = se_new(pdcp_sequence_report_in_frame);
+    p_report_in_frame->nextFrameNum = 0;
 
     switch (p_pdcp_lte_info->seqnum_length) {
         case PDCP_SN_LENGTH_5_BITS:
@@ -618,8 +669,11 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
         if (p_report_in_frame->previousFrameNum != 0) {
             /* Get report for previous frame */
             pdcp_sequence_report_in_frame *p_previous_report;
-            p_previous_report = (pdcp_sequence_report_in_frame*)g_hash_table_lookup(pdcp_lte_frame_sequence_analysis_report_hash,
-                                                                                    GUINT_TO_POINTER(p_report_in_frame->previousFrameNum));
+            p_previous_report = (pdcp_sequence_report_in_frame*)g_hash_table_lookup(pdcp_lte_sequence_analysis_report_hash,
+                                                                                    get_report_hash_key((sequenceNumber+4095) % 4096,
+                                                                                                        p_report_in_frame->previousFrameNum,
+                                                                                                        p_pdcp_lte_info,
+                                                                                                        FALSE));
             /* It really shouldn't be NULL... */
             if (p_previous_report != NULL) {
                 /* Point it forward to this one */
@@ -629,8 +683,10 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
     }
 
     /* Associate with this frame number */
-    g_hash_table_insert(pdcp_lte_frame_sequence_analysis_report_hash,
-                        GUINT_TO_POINTER(pinfo->fd->num), p_report_in_frame);
+    g_hash_table_insert(pdcp_lte_sequence_analysis_report_hash,
+                        get_report_hash_key(sequenceNumber, pinfo->fd->num,
+                                            p_pdcp_lte_info, TRUE),
+                        p_report_in_frame);
 
     /* Add state report for this frame into tree */
     addChannelSequenceInfo(p_report_in_frame, p_pdcp_lte_info, sequenceNumber,
@@ -2470,14 +2526,14 @@ pdcp_lte_init_protocol(void)
     if (pdcp_sequence_analysis_channel_hash) {
         g_hash_table_destroy(pdcp_sequence_analysis_channel_hash);
     }
-    if (pdcp_lte_frame_sequence_analysis_report_hash) {
-        g_hash_table_destroy(pdcp_lte_frame_sequence_analysis_report_hash);
+    if (pdcp_lte_sequence_analysis_report_hash) {
+        g_hash_table_destroy(pdcp_lte_sequence_analysis_report_hash);
     }
 
 
     /* Now create them over */
     pdcp_sequence_analysis_channel_hash = g_hash_table_new(pdcp_channel_hash_func, pdcp_channel_equal);
-    pdcp_lte_frame_sequence_analysis_report_hash = g_hash_table_new(pdcp_frame_hash_func, pdcp_frame_equal);
+    pdcp_lte_sequence_analysis_report_hash = g_hash_table_new(pdcp_result_hash_func, pdcp_result_hash_equal);
 }
 
 
