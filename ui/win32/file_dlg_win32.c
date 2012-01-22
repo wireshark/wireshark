@@ -1471,21 +1471,27 @@ build_file_type_list(gboolean save, int *item_to_select) {
         }
 
         /* OK, we can write it out in this type. */
-        if(wtap_file_type_string(ft) == NULL)
-            continue;
         extensions_list = wtap_get_file_extensions_list(ft);
-        if (extensions_list == NULL)
-            continue;
-
-        /* Construct the list of patterns. */
-        g_string_printf(pattern_str, "");
-        sep = '\0';
-        for (extension = extensions_list; extension != NULL;
-             extension = g_slist_next(extension)) {
-            if (sep != '\0')
-                g_string_append_c(pattern_str, sep);
-            g_string_append_printf(pattern_str, "*.%s", (char *)extension->data);
-            sep = ';';
+        if (extensions_list == NULL) {
+            /* This file type doesn't have any particular extension
+               conventionally used for it, so we'll just use "*.*"
+               as the pattern; on Windows, that matches all file names
+	       - even those with no extension -  so we don't need to
+	       worry about compressed file extensions.  (It does not
+	       do so on UN*X; the right pattern on UN*X would just
+	       be "*".) */
+            g_string_printf(pattern_str, "*.*");
+        } else {
+            /* Construct the list of patterns. */
+            g_string_printf(pattern_str, "");
+            sep = '\0';
+            for (extension = extensions_list; extension != NULL;
+                 extension = g_slist_next(extension)) {
+                if (sep != '\0')
+                    g_string_append_c(pattern_str, sep);
+                g_string_append_printf(pattern_str, "*.%s", (char *)extension->data);
+                sep = ';';
+            }
         }
 
         /* Construct the description. */
