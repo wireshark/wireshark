@@ -51,6 +51,15 @@ select "Build Settings" and do the following:
 
 - In "Edit build configuration" make sure the "Release" build is selected.
   ("Debug" currently crashes.)
+  XXX: I was able to build and use a Debug configuration by first building
+       Wireshark with /MDd (instead of the normal /MD).
+       (/MDd is what QtCreator uses for the debug configuration).
+       [Is there a way to config QtCreator to use /MD to build a
+       debug Qt Wireshark ? As a complete Qt newbie I have as yet no idea].
+
+       Note: I did the debugging using the VC2010 debugger rather than
+       invoking the debugger (CDB ?) from QtCreator.
+
 - Make sure "Qt version" matches your version of Visual Studio.
 - Make sure "Tool chain" matches your Visual C++ version.
 
