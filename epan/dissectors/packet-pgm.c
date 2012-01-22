@@ -740,6 +740,10 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 
 			break;
 		}
+		default:{
+			ptvcursor_advance(cursor, genopts_len);
+			break;
+		}
 		}
 
 		opts_total_len -= genopts_len;
