@@ -2712,6 +2712,13 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     proto_item_set_len(pdu_header_ti, offset);
 
 
+    /* For DL, see if this is a retx.  Use whole PDU present (i.e. ignore padding if not logged) */
+    if (direction == DIRECTION_DOWNLINK) {
+        /* Result will be added to context tree */
+        TrackReportedDLHARQResend(pinfo, tvb, tvb_length_remaining(tvb, 0), context_tree, p_mac_lte_info);
+
+        tap_info->isPHYRetx = (p_mac_lte_info->dl_retx == dl_retx_yes);
+    }
 
 
     /************************************************************************/
@@ -3042,7 +3049,6 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         }
     }
 
-
     /* There might not be any data, if only headers (plus control data) were logged */
     is_truncated = ((tvb_length_remaining(tvb, offset) == 0) && expecting_body_data);
     truncated_ti = proto_tree_add_uint(tree, hf_mac_lte_sch_header_only, tvb, 0, 0,
@@ -3212,16 +3218,6 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         tap_info->bytes_for_lcid[lcids[n]] += data_length;
         tap_info->sdus_for_lcid[lcids[n]]++;
     }
-
-    /* Now know the length of the PDU without any padding (which may or may not be logged) */
-    /* For downlink frames marked as a resend, look for link back to previous tx */
-    if (direction == DIRECTION_DOWNLINK) {
-        /* Result will be added to context tree */
-        TrackReportedDLHARQResend(pinfo, tvb, offset, context_tree, p_mac_lte_info);
-
-        tap_info->isPHYRetx = (p_mac_lte_info->dl_retx == dl_retx_yes);
-    }
-
 
 
     /* Now padding, if present, extends to the end of the PDU */
