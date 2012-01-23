@@ -83,6 +83,8 @@ typedef struct pdcp_lte_info
     gboolean           rnd;
     gboolean           udp_checkum_present;
     unsigned short     profile;
+
+    guint8             is_retx;
 } pdcp_lte_info;
 
 

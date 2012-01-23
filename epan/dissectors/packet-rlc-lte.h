@@ -149,6 +149,3 @@ void set_rlc_lte_drb_pdcp_seqnum_length(guint16 ueid, guint8 drbid, guint8 userp
 #define RLC_LTE_PAYLOAD_TAG         0x01
 
 
-/* Accessor function to check if a frame was considered to be ReTx */
-int is_rlc_lte_frame_retx(packet_info *pinfo, guint8 direction);
-

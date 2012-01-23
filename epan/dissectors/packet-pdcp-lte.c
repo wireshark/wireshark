@@ -2216,7 +2216,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                     break;
                 case SEQUENCE_ANALYSIS_RLC_ONLY:
                     if ((p_get_proto_data(pinfo->fd, proto_rlc_lte) != NULL) &&
-                        !is_rlc_lte_frame_retx(pinfo, p_pdcp_info->direction)) {
+                        !p_pdcp_info->is_retx) {
                         do_analysis = TRUE;
                     }
                     break;
