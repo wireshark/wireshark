@@ -64,6 +64,7 @@
 #include <stdio.h>
 #include <time.h>
 #include "emem.h"
+#include "proto.h"
 
 /*
  * If a user _does_ pass in a too-small buffer, this is probably
@@ -96,6 +97,9 @@ bytestring_to_str(const guint8 *ad, guint32 len, char punct) {
   static const gchar hex_digits[16] =
       { '0', '1', '2', '3', '4', '5', '6', '7',
         '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
+  if (!ad) {
+    REPORT_DISSECTOR_BUG("Null pointer passed to bytestring_to_str()");
+  }
 
   if (punct)
     buflen=len*3;
