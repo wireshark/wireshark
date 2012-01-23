@@ -320,7 +320,7 @@ static gboolean global_pdcp_dissect_rohc = FALSE;
 typedef struct
 {
     guint16            ueId;
-    LogicalChannelType channelType;
+    guint8             plane;
     guint16            channelId;
     guint8             direction;
 } pdcp_channel_hash_key;
@@ -352,7 +352,7 @@ static guint pdcp_channel_hash_func(gconstpointer v)
     const pdcp_channel_hash_key* val1 = (pdcp_channel_hash_key *)v;
 
     /* TODO: use multipliers */
-    return val1->ueId + val1->channelType + val1->channelId + val1->direction;
+    return val1->ueId + val1->plane + val1->channelId + val1->direction;
 }
 
 
@@ -584,7 +584,7 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
     /* Create or find an entry for this channel state */
     memset(&channel_key, 0, sizeof(channel_key));
     channel_key.ueId = p_pdcp_lte_info->ueid;
-    channel_key.channelType = p_pdcp_lte_info->channelType;
+    channel_key.plane = p_pdcp_lte_info->plane;
     channel_key.channelId = p_pdcp_lte_info->channelId;
     channel_key.direction = p_pdcp_lte_info->direction;
 
