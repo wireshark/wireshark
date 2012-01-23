@@ -2728,7 +2728,7 @@ dissect_spice_common_capabilities(tvbuff_t *tvb, proto_tree *tree, guint32 offse
                 proto_tree_add_boolean(auth_tree, hf_common_cap_auth_select, tvb, offset, 4, val);
                 proto_tree_add_boolean(auth_tree, hf_common_cap_auth_spice, tvb, offset, 4, val);
                 proto_tree_add_boolean(auth_tree, hf_common_cap_auth_sasl, tvb, offset, 4, val);
-          
+
                 proto_tree_add_boolean(tree, hf_common_cap_mini_header, tvb, offset, 4, val);
                 if (val && SPICE_COMMON_CAP_MINI_HEADER_MASK) {
                     if (is_client) {
@@ -3197,19 +3197,26 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             offset = 0;
             while (offset < tvb_reported_length(tvb)) {
                 avail = tvb_length_remaining(tvb, offset);
-                pdu_len = sizeof_SpiceDataHeader;
-                GET_PDU_FROM_OFFSET(offset)
-                pdu_len = tvb_get_letohl(tvb, offset + 14); /* this is actually the sub-message list size */
-                if (pdu_len == 0) {
-                    /* if there are no sub-messages, get the usual message body size.   */
-                    /* Note that we do not dissect properly yet sub-messages - but they */
-                    /* are not used in the protcol either */
-                    pdu_len = tvb_get_letohl(tvb, offset + 10);
+                if (spice_info->client_mini_header && spice_info->server_mini_header) {
+                    pdu_len = sizeof_SpiceMiniDataHeader;
+                    GET_PDU_FROM_OFFSET(offset)
+                    pdu_len = tvb_get_letohl(tvb, offset + 2);
+                    pdu_len += sizeof_SpiceMiniDataHeader;
                 } else {
-                    pdu_len = tvb_get_letohl(tvb, offset + 10);
-                }
-                pdu_len += sizeof_SpiceDataHeader; /* +sizeof_SpiceDataHeader since you need to exclude the SPICE   */
+                    pdu_len = sizeof_SpiceDataHeader;
+                    GET_PDU_FROM_OFFSET(offset)
+                    pdu_len = tvb_get_letohl(tvb, offset + 14); /* this is actually the sub-message list size */
+                    if (pdu_len == 0) {
+                        /* if there are no sub-messages, get the usual message body size.   */
+                        /* Note that we do not dissect properly yet sub-messages - but they */
+                        /* are not used in the protcol either */
+                        pdu_len = tvb_get_letohl(tvb, offset + 10);
+                    } else {
+                        pdu_len = tvb_get_letohl(tvb, offset + 10);
+                    }
+                    pdu_len += sizeof_SpiceDataHeader; /* +sizeof_SpiceDataHeader since you need to exclude the SPICE   */
                                                    /* data header, which is sizeof_SpiceDataHeader (18) bytes long) */
+                }
                 GET_PDU_FROM_OFFSET(offset)
                 col_add_fstr(pinfo->cinfo, COL_PROTOCOL,
                              "Spice %s", val_to_str_const(spice_info->channel_type,channel_types_vs, "Unknown"));
