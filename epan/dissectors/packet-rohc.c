@@ -838,7 +838,7 @@ dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, packet_info *pinfo, proto_tre
                 proto_tree_add_item(dynamic_ipv4_tree, hf_rohc_rtp_df, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(dynamic_ipv4_tree, hf_rohc_rtp_rnd, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(dynamic_ipv4_tree, hf_rohc_rtp_nbo, tvb, offset, 1, ENC_BIG_ENDIAN);
-				proto_tree_add_bits_item(dynamic_ipv4_tree, hf_rohc_spare_bits, tvb, (offset<<3)+3, 5, ENC_BIG_ENDIAN);
+                proto_tree_add_bits_item(dynamic_ipv4_tree, hf_rohc_spare_bits, tvb, (offset<<3)+3, 5, ENC_BIG_ENDIAN);
                 offset++;
                 /* Set proper length for subtree */
                 proto_item_set_len(root_ti, offset-tree_start_offset);
@@ -846,8 +846,8 @@ dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, packet_info *pinfo, proto_tre
                 /*   +---+---+---+---+---+---+---+---+
                  *   / Generic extension header list /  variable length
                  *   +---+---+---+---+---+---+---+---+
-				 *   Generic extension header list: Encoded according to section
-				 *   5.8.6.1, with all header items present in uncompressed form.
+                 *   Generic extension header list: Encoded according to section
+                 *   5.8.6.1, with all header items present in uncompressed form.
                  */
                 offset = dissect_compressed_list(0, pinfo, dynamic_ipv4_tree, tvb, offset);
 
@@ -947,28 +947,28 @@ dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, packet_info *pinfo, proto_tre
         timestamp = tvb_get_ntohl(tvb, offset);
         proto_tree_add_item(dynamic_rtp_tree, hf_rohc_rtp_timestamp, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset+=4;
-		/* RFC 4815
-		 * This field is always at least one octet in size, even if the
-		 *    list is empty (as opposed to the CSRC list in the uncompressed RTP
-		 *    header, which is not present when the RTP CC field is set to 0).
-		 * :
-		 * Generic CSRC list: CSRC list encoded according to section
-		 * 5.8.6.1, with all CSRC items present.
-		 * FORMAL ADDITION TO RFC 3095:
-		 *
-		 *      "The first octet in the dynamic part of the RTP header contains a
-		 *       CC field, as defined in Section 5.7.7.6.  A second occurrence
-		 *       appears in the 'Generic CSRC list', which is also in the dynamic
-		 *       part of the RTP header, where Encoding Type 0 is used according
-		 *       to the format defined in RFC 3095-5.8.6.1.
-		 *
-		 *       The compressor MUST set both occurrences of the CC field to the
-		 *       same value.
-		 *
-		 *       The decompressor MUST use the value of the CC field from the
-		 *       Encoding Type 0 within the Generic CRSC list, and it MUST thus
-		 *       ignore the first occurrence of the CC field."
-		 */
+        /* RFC 4815
+         * This field is always at least one octet in size, even if the
+         *    list is empty (as opposed to the CSRC list in the uncompressed RTP
+         *    header, which is not present when the RTP CC field is set to 0).
+         * :
+         * Generic CSRC list: CSRC list encoded according to section
+         * 5.8.6.1, with all CSRC items present.
+         * FORMAL ADDITION TO RFC 3095:
+         *
+         *      "The first octet in the dynamic part of the RTP header contains a
+         *       CC field, as defined in Section 5.7.7.6.  A second occurrence
+         *       appears in the 'Generic CSRC list', which is also in the dynamic
+         *       part of the RTP header, where Encoding Type 0 is used according
+         *       to the format defined in RFC 3095-5.8.6.1.
+         *
+         *       The compressor MUST set both occurrences of the CC field to the
+         *       same value.
+         *
+         *       The decompressor MUST use the value of the CC field from the
+         *       Encoding Type 0 within the Generic CRSC list, and it MUST thus
+         *       ignore the first occurrence of the CC field."
+         */
 
         offset = dissect_compressed_list(0, pinfo, dynamic_rtp_tree, tvb, offset);
         /* : Reserved  | X |  Mode |TIS|TSS:  if RX = 1 */
@@ -1016,8 +1016,7 @@ dissect_rohc_ir_rtp_udp_profile_static(tvbuff_t *tvb, proto_tree *tree, packet_i
 
     proto_item *item, *ipv4_item, *udp_item, *rtp_item;
     proto_tree *sub_tree=NULL, *static_ipv4_tree, *static_udp_tree, *static_rtp_tree;
-    guint8 version;
-    guint8 protocol = 0; /* Something that's not UDP */
+    guint8 version, protocol;
     int start_offset, tree_start_offset;
 
     start_offset = offset;
@@ -1042,14 +1041,15 @@ dissect_rohc_ir_rtp_udp_profile_static(tvbuff_t *tvb, proto_tree *tree, packet_i
 
     /* IP static*/
     /* for all profiles except uncompressed */
-    if ( (profile != ROHC_PROFILE_UNCOMPRESSED) ) {
+    if (profile != ROHC_PROFILE_UNCOMPRESSED) {
         sub_tree = proto_item_add_subtree(item, ett_rohc_rtp_static);
         version = tvb_get_guint8(tvb,offset)>>4;
         proto_tree_add_item(sub_tree, hf_rohc_ip_version, tvb, offset, 1, ENC_BIG_ENDIAN);
-        if(rohc_cid_context){
+        if (rohc_cid_context) {
             rohc_cid_context->rohc_ip_version = version;
         }
-        switch(version){
+
+        switch(version) {
             case 4:
             {
                 /* 5.7.7.4.  Initialization of IPv4 Header [IPv4, section 3.1].
@@ -1085,6 +1085,7 @@ dissect_rohc_ir_rtp_udp_profile_static(tvbuff_t *tvb, proto_tree *tree, packet_i
             }
             break;
             case 6:
+            {
                 /* 5.7.7.3.  Initialization of IPv6 Header [IPv6]*/
                 /*   Static part:
                  *
@@ -1106,6 +1107,7 @@ dissect_rohc_ir_rtp_udp_profile_static(tvbuff_t *tvb, proto_tree *tree, packet_i
                 offset+=3;
 
                 /* Next Header */
+                protocol = tvb_get_guint8(tvb, offset);
                 proto_tree_add_item(sub_tree, hf_rohc_ipv6_nxt_hdr, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset++;
 
@@ -1118,71 +1120,74 @@ dissect_rohc_ir_rtp_udp_profile_static(tvbuff_t *tvb, proto_tree *tree, packet_i
                 offset+=16;
 
                 return offset;
+            }
             default:
                 proto_tree_add_text(sub_tree, tvb, offset, -1, "Error unknown version, only 4 or 6 allowed");
                 return -1;
         }
+    } else {
+        protocol = 0; /* Something other than UDP (which is checked for below) */
     }
 
-	if(protocol == IP_PROTO_UDP ){
-		/* UDP static */
-		if ((profile == ROHC_PROFILE_RTP) ||
-			(profile == ROHC_PROFILE_UDP)) {
-			/* 5.7.7.5.  Initialization of UDP Header [RFC-768].
-				* Static part
-				*/
-			guint16 source_port, dest_port, ssrc;
+    if (protocol == IP_PROTO_UDP) {
+        /* UDP static */
+        if ((profile == ROHC_PROFILE_RTP) ||
+            (profile == ROHC_PROFILE_UDP)) {
+            /* 5.7.7.5.  Initialization of UDP Header [RFC-768].
+             * Static part
+             */
+            guint16 source_port, dest_port, ssrc;
 
-			/* Create static UDP subtree */
-			tree_start_offset = offset;
-			udp_item = proto_tree_add_item(sub_tree, hf_rohc_static_udp, tvb, offset, -1, ENC_NA);
-			static_udp_tree = proto_item_add_subtree(udp_item, ett_rohc_static_udp);
-			/* Source Port */
-			source_port = tvb_get_ntohs(tvb, offset);
-			proto_tree_add_item(static_udp_tree, hf_rohc_rtp_udp_src_port, tvb, offset, 2, ENC_BIG_ENDIAN);
-			offset+=2;
-			/* Destination Port */
-			dest_port = tvb_get_ntohs(tvb, offset);
-			proto_tree_add_item(static_udp_tree, hf_rohc_rtp_udp_dst_port, tvb, offset, 2, ENC_BIG_ENDIAN);
-			offset+=2;
-			/* Set proper length for subtree */
-			proto_item_set_len(udp_item, offset-tree_start_offset);
-			/* Add summary to root item */
-			proto_item_append_text(udp_item, " (%u -> %u)", source_port, dest_port);
+            /* Create static UDP subtree */
+            tree_start_offset = offset;
+            udp_item = proto_tree_add_item(sub_tree, hf_rohc_static_udp, tvb, offset, -1, ENC_NA);
+            static_udp_tree = proto_item_add_subtree(udp_item, ett_rohc_static_udp);
+            /* Source Port */
+            source_port = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_item(static_udp_tree, hf_rohc_rtp_udp_src_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset+=2;
+            /* Destination Port */
+            dest_port = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_item(static_udp_tree, hf_rohc_rtp_udp_dst_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset+=2;
+            /* Set proper length for subtree */
+            proto_item_set_len(udp_item, offset-tree_start_offset);
+            /* Add summary to root item */
+            proto_item_append_text(udp_item, " (%u -> %u)", source_port, dest_port);
 
-			if(profile == ROHC_PROFILE_UDP){
-				if(d==TRUE){
-					offset = dissect_rohc_ir_rtp_profile_dynamic(tvb, pinfo, tree, offset, profile, rohc_cid_context);
-				}
-				proto_item_set_len(item, offset - start_offset);
-				return offset;
-			}
+            if (profile == ROHC_PROFILE_UDP) {
+                if (d==TRUE) {
+                    offset = dissect_rohc_ir_rtp_profile_dynamic(tvb, pinfo, tree, offset, profile, rohc_cid_context);
+                }
+                proto_item_set_len(item, offset - start_offset);
+                return offset;
+            }
 
-			/* RTP static */
-			/* 5.7.7.6.  Initialization of RTP Header [RTP]. */
-			/* Create static RTP subtree */
-			rtp_item = proto_tree_add_item(sub_tree, hf_rohc_static_rtp, tvb, offset, 4, ENC_NA);
-			static_rtp_tree = proto_item_add_subtree(rtp_item, ett_rohc_static_rtp);
+            /* RTP static */
+            /* 5.7.7.6.  Initialization of RTP Header [RTP]. */
+            /* Create static RTP subtree */
+            rtp_item = proto_tree_add_item(sub_tree, hf_rohc_static_rtp, tvb, offset, 4, ENC_NA);
+            static_rtp_tree = proto_item_add_subtree(rtp_item, ett_rohc_static_rtp);
 
-			/* SSRC */
-			ssrc = tvb_get_ntohl(tvb, offset);
-			proto_tree_add_item(static_rtp_tree, hf_rohc_rtp_ssrc, tvb, offset, 4, ENC_BIG_ENDIAN);
-			offset += 4;
+            /* SSRC */
+            ssrc = tvb_get_ntohl(tvb, offset);
+            proto_tree_add_item(static_rtp_tree, hf_rohc_rtp_ssrc, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
 
-			/* Add summary to root item */
-			proto_item_append_text(rtp_item, " (SSRC=%u)", ssrc);
+            /* Add summary to root item */
+            proto_item_append_text(rtp_item, " (SSRC=%u)", ssrc);
 
-			proto_item_set_len(item, offset - start_offset);
+            proto_item_set_len(item, offset - start_offset);
 
-			/* D:   D = 1 indicates that the dynamic chain is present. */
-			if(d==TRUE){
-				offset = dissect_rohc_ir_rtp_profile_dynamic(tvb, pinfo, tree, offset, profile, rohc_cid_context);
-			}
-		}
-	}else{
-		/* Not UDP */
-		proto_tree_add_text(sub_tree, tvb, offset, -1, "[Not dissected yet]");
-	}
+            /* D:   D = 1 indicates that the dynamic chain is present. */
+            if (d==TRUE) {
+                offset = dissect_rohc_ir_rtp_profile_dynamic(tvb, pinfo, tree, offset, profile, rohc_cid_context);
+            }
+        }
+    } else {
+            /* Not UDP */
+            proto_tree_add_text(sub_tree, tvb, offset, -1, "[Not dissected yet]");
+    }
     return offset;
 }
 
@@ -1263,7 +1268,7 @@ dissect_rohc_ir_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     proto_tree_add_item(ir_tree, hf_rohc_rtp_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    /* See if we have an entry for this CID 
+    /* See if we have an entry for this CID
      * Update it if we do otherwise create it
      * and fill in the info.
      */
@@ -1673,7 +1678,7 @@ start_over:
 
         /*g_warning("Lookup CID %u",cid);*/
         rohc_cid_context = (rohc_cid_context_t*)g_hash_table_lookup(rohc_cid_hash, GUINT_TO_POINTER(key));
-        if(rohc_cid_context){		
+        if(rohc_cid_context){
             /*g_warning("Found CID %u",cid);*/
         }else{
             rohc_cid_context = se_new(rohc_cid_context_t);
@@ -1760,10 +1765,10 @@ start_over:
  * needed to dissect subsequent packages.
  * XXXX ToDo:
  * A better Key than just the CID may have to be deviced.
- * 
+ *
  */
- 
- 
+
+
 static gint cid_hash_equal(gconstpointer v, gconstpointer v2)
 {
     return (v == v2);
@@ -2213,7 +2218,7 @@ proto_register_rohc(void)
                 NULL, HFILL
               }
             },
-			{ &hf_rohc_compressed_list_count,
+            { &hf_rohc_compressed_list_count,
               { "Count", "rohc.compressed-list.count",
                 FT_UINT8, BASE_DEC, NULL, 0x0f,
                 NULL, HFILL
@@ -2225,7 +2230,7 @@ proto_register_rohc(void)
                 "CSRC Counter from original RTP header", HFILL
               }
             },
-			{ &hf_rohc_compressed_list_xi_1,
+            { &hf_rohc_compressed_list_xi_1,
               { "XI 1", "rohc.compressed-list.xi_1",
                 FT_UINT8, BASE_DEC, NULL, 0x0f,
                 NULL, HFILL
@@ -2237,31 +2242,31 @@ proto_register_rohc(void)
                 NULL, HFILL
               }
             },
-			{ &hf_rohc_compressed_list_ref_id,
+            { &hf_rohc_compressed_list_ref_id,
               { "ref_id", "rohc.compressed-list.ref-id",
                 FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL
               }
             },
-			{ &hf_rohc_compressed_list_mask_size,
+            { &hf_rohc_compressed_list_mask_size,
               { "Mask size","rohc.compressed-list.mask_size",
                 FT_BOOLEAN, 8, TFS(&rohc_cmp_lst_mask_size_vals), 0x80,
                 NULL , HFILL
               }
             },
-			{ &hf_rohc_compressed_list_ins_bit_mask,
+            { &hf_rohc_compressed_list_ins_bit_mask,
               { "Insertion bit mask","rohc.compressed-list.ins_bit_mask",
                 FT_UINT16, BASE_HEX, NULL, 0x0,
                 NULL, HFILL
               }
             },
-			{ &hf_rohc_compressed_list_rem_bit_mask,
+            { &hf_rohc_compressed_list_rem_bit_mask,
               { "Removal bit mask","rohc.compressed-list.rem_bit_mask",
                 FT_UINT16, BASE_HEX, NULL, 0x0,
                 NULL, HFILL
               }
             },
-			{ &hf_rohc_spare_bits,
+            { &hf_rohc_spare_bits,
               { "Spare bits(0)", "rohc.spare_bits",
                 FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL
