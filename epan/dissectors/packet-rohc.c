@@ -48,6 +48,7 @@
 
 static dissector_handle_t ip_handle;
 static dissector_handle_t ipv6_handle;
+static dissector_handle_t data_handle;
 
 static GHashTable *rohc_cid_hash = NULL;
 
@@ -153,10 +154,6 @@ static int ett_rohc_dynamic_udp = -1;
 static int ett_rohc_dynamic_rtp = -1;
 static int ett_rohc_compressed_list = -1;
 
-/* IPv4 hard wired for now */
-static guint8 g_profile = 1;
-static guint8 g_version = 4;
-
 typedef struct _rohc_cid_context_t
 {
     guint16            rohc_ip_version;
@@ -197,6 +194,10 @@ static const value_string rohc_profile_vals[] =
     { 0x0108,    "v2 UDP-Lite" },            /*RFC 5225*/
     { 0, NULL },
 };
+
+/* IPv4 hard wired for now */
+static guint16 g_profile = ROHC_PROFILE_UNKNOWN;
+static guint8 g_version = 4;
 
 static const value_string rohc_acktype_vals[] =
 {
@@ -1438,7 +1439,7 @@ dissect_rohc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     rohc_info *p_rohc_info = NULL;
     rohc_info g_rohc_info;
     void *save_private_data = pinfo->private_data;
-    tvbuff_t *next_tvb;
+    tvbuff_t *next_tvb, *payload_tvb;
     rohc_cid_context_t *rohc_cid_context = NULL;
 
     if(pinfo->private_data == NULL){
@@ -1644,7 +1645,9 @@ start_over:
             /* Could not pare header */
             return;
         }
-        proto_tree_add_text(rohc_tree, tvb, offset, -1, "Data");
+        /*proto_tree_add_text(rohc_tree, tvb, offset, -1, "Data");*/
+        payload_tvb = tvb_new_subset_remaining(tvb, offset);
+        call_dissector_only(data_handle, payload_tvb, pinfo, rohc_tree);
         return;
     }
     if((oct&0xff) == 0xf8){
@@ -1654,7 +1657,9 @@ start_over:
             /* Could not pare header */
             return;
         }
-        proto_tree_add_text(rohc_tree, tvb, offset, -1, "Data");
+        /*proto_tree_add_text(rohc_tree, tvb, offset, -1, "Data");*/
+        payload_tvb = tvb_new_subset_remaining(tvb, offset);
+        call_dissector_only(data_handle, payload_tvb, pinfo, rohc_tree);
         return;
     }
 
@@ -1667,13 +1672,13 @@ start_over:
             /*g_warning("Found CID %u",cid);*/
         }else{
             rohc_cid_context = se_new(rohc_cid_context_t);
-            /*rohc_cid_context->rohc_ip_version;*/
-            /*rohc_cid_context->large_cid_present;*/
-            /*rohc_cid_context->mode     mode;*/
             /*rohc_cid_context->d_mode;*/
             /*rohc_cid_context->rnd;*/
             /*rohc_cid_context->udp_checkum_present;*/
-            rohc_cid_context->profile = ROHC_PROFILE_UNKNOWN;
+            rohc_cid_context->profile = p_rohc_info->profile;
+            rohc_cid_context->mode = p_rohc_info->mode;
+            rohc_cid_context->rohc_ip_version = p_rohc_info->rohc_ip_version;
+            rohc_cid_context->large_cid_present = p_rohc_info->large_cid_present;
             rohc_cid_context->prev_ir_frame_number = -1;
             rohc_cid_context->ir_frame_number = -1;
             p_add_proto_data(pinfo->fd, proto_rohc, rohc_cid_context);
@@ -2305,6 +2310,7 @@ proto_reg_handoff_rohc(void)
 
         ip_handle = find_dissector("ip");
         ipv6_handle = find_dissector("ipv6");
+        data_handle = find_dissector("data");
 
         Initialized = TRUE;
     }
