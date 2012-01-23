@@ -1016,7 +1016,7 @@ dissect_rohc_ir_rtp_udp_profile_static(tvbuff_t *tvb, proto_tree *tree, packet_i
 
     proto_item *item, *ipv4_item, *udp_item, *rtp_item;
     proto_tree *sub_tree=NULL, *static_ipv4_tree, *static_udp_tree, *static_rtp_tree;
-    guint8 version;
+    guint8 version, protocol;
     int start_offset, tree_start_offset;
 
     start_offset = offset;
@@ -1054,7 +1054,6 @@ dissect_rohc_ir_rtp_udp_profile_static(tvbuff_t *tvb, proto_tree *tree, packet_i
                 /* 5.7.7.4.  Initialization of IPv4 Header [IPv4, section 3.1].
                  * Static part:
                  */
-                guint8  protocol;
                 guint32 source, dest;
 
                 offset++;
@@ -1124,60 +1123,65 @@ dissect_rohc_ir_rtp_udp_profile_static(tvbuff_t *tvb, proto_tree *tree, packet_i
         }
     }
 
-    /* UDP static */
-    if ((profile == ROHC_PROFILE_RTP) ||
-        (profile == ROHC_PROFILE_UDP)) {
-        /* 5.7.7.5.  Initialization of UDP Header [RFC-768].
-         * Static part
-         */
-        guint16 source_port, dest_port, ssrc;
+	if(protocol == IP_PROTO_UDP ){
+		/* UDP static */
+		if ((profile == ROHC_PROFILE_RTP) ||
+			(profile == ROHC_PROFILE_UDP)) {
+			/* 5.7.7.5.  Initialization of UDP Header [RFC-768].
+				* Static part
+				*/
+			guint16 source_port, dest_port, ssrc;
 
-        /* Create static UDP subtree */
-        tree_start_offset = offset;
-        udp_item = proto_tree_add_item(sub_tree, hf_rohc_static_udp, tvb, offset, -1, ENC_NA);
-        static_udp_tree = proto_item_add_subtree(udp_item, ett_rohc_static_udp);
-        /* Source Port */
-        source_port = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(static_udp_tree, hf_rohc_rtp_udp_src_port, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset+=2;
-        /* Destination Port */
-        dest_port = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(static_udp_tree, hf_rohc_rtp_udp_dst_port, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset+=2;
-        /* Set proper length for subtree */
-        proto_item_set_len(udp_item, offset-tree_start_offset);
-        /* Add summary to root item */
-        proto_item_append_text(udp_item, " (%u -> %u)", source_port, dest_port);
+			/* Create static UDP subtree */
+			tree_start_offset = offset;
+			udp_item = proto_tree_add_item(sub_tree, hf_rohc_static_udp, tvb, offset, -1, ENC_NA);
+			static_udp_tree = proto_item_add_subtree(udp_item, ett_rohc_static_udp);
+			/* Source Port */
+			source_port = tvb_get_ntohs(tvb, offset);
+			proto_tree_add_item(static_udp_tree, hf_rohc_rtp_udp_src_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset+=2;
+			/* Destination Port */
+			dest_port = tvb_get_ntohs(tvb, offset);
+			proto_tree_add_item(static_udp_tree, hf_rohc_rtp_udp_dst_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset+=2;
+			/* Set proper length for subtree */
+			proto_item_set_len(udp_item, offset-tree_start_offset);
+			/* Add summary to root item */
+			proto_item_append_text(udp_item, " (%u -> %u)", source_port, dest_port);
 
-        if(profile == ROHC_PROFILE_UDP){
-            if(d==TRUE){
-                offset = dissect_rohc_ir_rtp_profile_dynamic(tvb, pinfo, tree, offset, profile, rohc_cid_context);
-            }
-            proto_item_set_len(item, offset - start_offset);
-            return offset;
-        }
+			if(profile == ROHC_PROFILE_UDP){
+				if(d==TRUE){
+					offset = dissect_rohc_ir_rtp_profile_dynamic(tvb, pinfo, tree, offset, profile, rohc_cid_context);
+				}
+				proto_item_set_len(item, offset - start_offset);
+				return offset;
+			}
 
-        /* RTP static */
-        /* 5.7.7.6.  Initialization of RTP Header [RTP]. */
-        /* Create static RTP subtree */
-        rtp_item = proto_tree_add_item(sub_tree, hf_rohc_static_rtp, tvb, offset, 4, ENC_NA);
-        static_rtp_tree = proto_item_add_subtree(rtp_item, ett_rohc_static_rtp);
+			/* RTP static */
+			/* 5.7.7.6.  Initialization of RTP Header [RTP]. */
+			/* Create static RTP subtree */
+			rtp_item = proto_tree_add_item(sub_tree, hf_rohc_static_rtp, tvb, offset, 4, ENC_NA);
+			static_rtp_tree = proto_item_add_subtree(rtp_item, ett_rohc_static_rtp);
 
-        /* SSRC */
-        ssrc = tvb_get_ntohl(tvb, offset);
-        proto_tree_add_item(static_rtp_tree, hf_rohc_rtp_ssrc, tvb, offset, 4, ENC_BIG_ENDIAN);
-        offset += 4;
+			/* SSRC */
+			ssrc = tvb_get_ntohl(tvb, offset);
+			proto_tree_add_item(static_rtp_tree, hf_rohc_rtp_ssrc, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
 
-        /* Add summary to root item */
-        proto_item_append_text(rtp_item, " (SSRC=%u)", ssrc);
+			/* Add summary to root item */
+			proto_item_append_text(rtp_item, " (SSRC=%u)", ssrc);
 
-        proto_item_set_len(item, offset - start_offset);
+			proto_item_set_len(item, offset - start_offset);
 
-        /* D:   D = 1 indicates that the dynamic chain is present. */
-        if(d==TRUE){
-            offset = dissect_rohc_ir_rtp_profile_dynamic(tvb, pinfo, tree, offset, profile, rohc_cid_context);
-        }
-    }
+			/* D:   D = 1 indicates that the dynamic chain is present. */
+			if(d==TRUE){
+				offset = dissect_rohc_ir_rtp_profile_dynamic(tvb, pinfo, tree, offset, profile, rohc_cid_context);
+			}
+		}
+	}else{
+		/* Not UDP */
+		proto_tree_add_text(sub_tree, tvb, offset, -1, "[Not dissected yet]");
+	}
     return offset;
 }
 
