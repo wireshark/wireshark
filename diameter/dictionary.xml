@@ -119,10 +119,12 @@
 		<command name="3GPP-Notify"                     code="323" vendor-id="None"/>         <!--[3GPP TS 29.272][RFC5516] -->
 		<command name="3GPP-ME-Identity-Check"          code="324" vendor-id="None"/>         <!--(ECR/ECA) [3GPP TS 29.272][RFC5516] -->
 		<command name="MIP6"                            code="325" vendor-id="None"/>         <!--(MIR/MIA) [RFC5778] -->
-		<command name="QoS-Authorization"               code="326" vendor-id="None"/>         <!--(QAR/QAA) [RFC-ietf-dime-diameter-qos-15] -->
-		<command name="QoS-Install"                     code="327" vendor-id="None"/>         <!--(QIR/QIA) [RFC-ietf-dime-diameter-qos-15] -->
-		<!--
-		328-8388607 Unassigned
+		<command name="QoS-Authorization"               code="326" vendor-id="None"/>         <!--(QAR/QAA) [RFC5866] -->
+    <command name="QoS-Install"                     code="327" vendor-id="None"/>         <!--(QIR/QIA) [RFC5866] -->
+    <command name="Capabilities-Update"             code="328" vendor-id="None"/>         <!--[RFC-ietf-dime-capablities-update-07] -->
+    <command name="IKEv2-SK"                        code="329" vendor-id="None"/>         <!--[RFC-ietf-dime-ikev2-psk-diameter-11] -->
+    <!--
+		330-8388607 Unassigned
 		8388608 WIMAX-HRPD-SFF Request/Answer [http://www.3gpp2.org/Public_html/specs/tsgx.cfm][3GPP2 X.S0058-0 v1.0][Avi_Lior]
 		8388609 WiMAX-Diameter-EAP-Request/Answer (WDER/WDEA) WDE [http://www.wimaxforum.org/resources/documents/technical/T33][WiMAX Release 1.5][Avi_Lior]
 		8388610 WiMAX-Change-of-Authorization-Request/Answer (WCAR/WCAA) WCA [http://www.wimaxforum.org/resources/documents/technical/T33][WiMAX Release 1.5][Avi_Lior]
@@ -139,6 +141,21 @@
     <command name="3GPP-Provide-Location"           code="8388620" vendor-id="None"/>         <!--(PLR/PLA) [http://www.3gpp.org/ftp/Specs/][3GPP TS 29.172 -->
     <command name="3GPP-Location-Report"            code="8388621" vendor-id="None"/>         <!--(PLR/PLA) [http://www.3gpp.org/ftp/Specs/][3GPP TS 29.172 -->
     <command name="3GPP-LCS-Routing-Info"           code="8388622" vendor-id="None"/>         <!--(PLR/PLA) [http://www.3gpp.org/ftp/Specs/][3GPP TS 29.172 -->
+<!-- 
+8388623 Notif-Request/Answer (NFR/NFA) [Tomas_Menzl] 
+8388624 Msg-Interface-Request/Answer (MIFR/MIFA) [Tomas_Menzl] 
+8388625 Mobile-Application-Request/Answer (MAPR/MAPA) [Tomas_Menzl] 
+8388626 Update Location Request/Answer (ULR / ULA) [3GPP2 publication X.S0057][Avi_Lior] 
+8388627 Cancel Location Request/Answer (CLR CLA) [3GPP2 publication X.S0057][Avi_Lior] 
+8388628 Juniper-Sync-Event (JSE) [Aleksey_Romanov] 
+8388629 Juniper-Session-Discovery (JSD) [Aleksey_Romanov] 
+8388630 Query Profile Request Answer (QPR/QPA) [3GPP2 publication X.S0057A E-UTRAN eHRPD7][Avi_Lior] 
+
+-->
+    <command name="Subscription Information Application" code="8388631" vendor-id="None"/>
+    <command name="Distributed Charging"                 code="8388632" vendor-id="None"/>
+    <command name="Ericsson-SL"                          code="8388633" vendor-id="None"/> <!-- Ericsson Spending Limit -->
+    <command name="Ericsson-SN"                          code="8388634" vendor-id="None"/> <!-- Ericsson Spending Status Notification -->
     <!-- 
     8388623-16777213 Unassigned
     16777214 Experimental code [RFC3588]
