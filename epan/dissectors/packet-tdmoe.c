@@ -138,7 +138,7 @@ proto_register_tdmoe(void)
 		{ "Yellow Alarm", "tdmoe.yellowalarm", FT_BOOLEAN, 8, NULL, TDMOE_YELLOW_ALARM_BITMASK,
 			NULL, HFILL }},
 		{ &hf_tdmoe_sig_bits_present,
-		{ "Sig bits present", "tdmoe.sig_bits", FT_BOOLEAN, 8, NULL, TDMOE_SIGBITS_BITMASK,
+		{ "Sig bits present", "tdmoe.sig_bits_present", FT_BOOLEAN, 8, NULL, TDMOE_SIGBITS_BITMASK,
 			NULL, HFILL }},
 		{ &hf_tdmoe_packet_counter,
 		{ "Counter", "tdmoe.counter", FT_UINT16, BASE_DEC, NULL, 0x0,

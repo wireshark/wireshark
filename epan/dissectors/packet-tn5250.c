@@ -5654,7 +5654,7 @@ proto_register_tn5250(void)
         FT_BOOLEAN, 8, TFS(&tn5250_field_wdsf_ds_flag2_6),
         0x20, NULL, HFILL }},
     { &hf_tn5250_wdsf_ds_flag2_reserved,
-      { "Reserved", "tn5250.wdsf_ds_flag3_reserved", FT_UINT8, BASE_HEX,
+      { "Reserved", "tn5250.wdsf_ds_flag2_reserved", FT_UINT8, BASE_HEX,
         NULL, 0xC0, NULL, HFILL }},
 
     { &hf_tn5250_wdsf_ds_flag3,
@@ -5685,7 +5685,7 @@ proto_register_tn5250(void)
       { "Reserved", "tn5250.wdsf_ds_gdc_reserved", FT_BOOLEAN, 8,
         NULL, 0x10, NULL, HFILL }},
     { &hf_tn5250_wdsf_ds_gdc_selection_techniques,
-      { "Selection Techniques", "tn5250.wdsf_ds_selection_techniques", FT_UINT8, BASE_HEX,
+      { "Selection Techniques", "tn5250.wdsf_ds_gdc_selection_techniques", FT_UINT8, BASE_HEX,
         VALS(vals_tn5250_wdsf_ds_gdc_selection_techniques), DS_SELECTION_TECHNIQUES_BITS, NULL, HFILL }},
 
     { &hf_tn5250_wdsf_ds_nws,
@@ -5699,11 +5699,11 @@ proto_register_tn5250(void)
       { "Reserved", "tn5250.wdsf_ds_nws_reserved", FT_BOOLEAN, 8,
         NULL, 0x10, NULL, HFILL }},
     { &hf_tn5250_wdsf_ds_nws_selection_techniques,
-      { "Selection Techniques", "tn5250.wdsf_ds_selection_techniques", FT_UINT8, BASE_HEX,
+      { "Selection Techniques", "tn5250.wdsf_ds_nws_selection_techniques", FT_UINT8, BASE_HEX,
         VALS(vals_tn5250_wdsf_ds_nws_selection_techniques), DS_NWS_SELECTION_TECHNIQUES_BITS, NULL, HFILL }},
 
     { &hf_tn5250_wdsf_ds_nws_wout,
-      { "NWS Without Mnemonic Underscore Characteristics", "tn5250.wdsf_ds_nws",
+      { "NWS Without Mnemonic Underscore Characteristics", "tn5250.wdsf_ds_nws_wout",
         FT_UINT8, BASE_HEX, NULL, 0,
         NULL, HFILL }},
     /* hf_tn5250_wdsf_ds_nws_wout uses same bitfields as hf_tn5250_wdsf_ds_nws */
@@ -6545,7 +6545,7 @@ proto_register_tn5250(void)
       { "Flag", "tn5250.wssf_ttw_flag",
         FT_UINT8, BASE_HEX, VALS(vals_tn5250_wssf_ttw_flag), 0,
         NULL, HFILL }},
-    /* XXX - the document says "Currently, this command is designed 
+    /* XXX - the document says "Currently, this command is designed
        only to pass ASCII data to some type of ASCII device."; should it
        be treated as an ASCII string? */
     { &hf_tn5250_wssf_ttw_data,
@@ -6776,7 +6776,7 @@ proto_register_tn5250(void)
         FT_UINT16, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_tn5250_dtsf_text_body_width,
-      { "Text Body Width", "tn5250.dtsf_text_body_height",
+      { "Text Body Width", "tn5250.dtsf_text_body_width",
         FT_UINT16, BASE_DEC, NULL, 0,
         NULL, HFILL }},
 
@@ -6882,7 +6882,7 @@ proto_register_tn5250(void)
         FT_BOOLEAN, 8, TFS(&tn5250_field_wts_flag2_6),
         0x20, NULL, HFILL }},
     { &hf_tn5250_wts_flag2_reserved2,
-      { "Reserved", "tn5250.wts_flag2_reserved", FT_UINT8, BASE_HEX,
+      { "Reserved", "tn5250.wts_flag2_reserved2", FT_UINT8, BASE_HEX,
         NULL, 0xC0, NULL, HFILL }},
 
     { &hf_tn5250_wts_flag3,

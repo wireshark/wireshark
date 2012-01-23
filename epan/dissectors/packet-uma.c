@@ -2026,12 +2026,12 @@ proto_register_uma(void)
 			NULL, HFILL }
 		},
 		{ &hf_uma_urr_dis_rej_cau,
-			{ "Discovery Reject Cause","uma.urr.is_rej_cau",
+			{ "Discovery Reject Cause","uma.urr.dis_rej_cau",
 			FT_UINT8,BASE_DEC,  VALS(uma_discovery_reject_cause_vals), 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_uma_urr_ECMC,
-			{ "ECMC, Early Classmark Sending Control","uma.urr.is_rej_cau",
+			{ "ECMC, Early Classmark Sending Control","uma.urr.ECMC",
 			FT_UINT8,BASE_DEC,  VALS(ECMC_vals), 0x2,
 			NULL, HFILL }
 		},
@@ -2041,7 +2041,7 @@ proto_register_uma(void)
 			NULL, HFILL }
 		},
 		{ &hf_uma_urr_GPRS,
-			{ "GPRS, GPRS Availability","uma.urr.is_rej_cau",
+			{ "GPRS, GPRS Availability","uma.urr.GPRS",
 			FT_UINT8,BASE_DEC,  VALS(GPRS_avail_vals), 0x10,
 			NULL, HFILL }
 		},
@@ -2131,7 +2131,7 @@ proto_register_uma(void)
 			NULL, HFILL }
 		},
 		{ &hf_uma_urr_register_reject_cause,
-			{ "Register Reject Cause","uma.urr.state",
+			{ "Register Reject Cause","uma.urr.reg_rej_cau",
 			FT_UINT8,BASE_DEC|BASE_EXT_STRING,  &register_reject_cause_vals_ext, 0x0,
 			NULL, HFILL }
 		},
@@ -2256,7 +2256,7 @@ proto_register_uma(void)
 			NULL, HFILL }
 		},
 		{ &hf_uma_urr_channel,
-			{ "Channel","uma.urr.establishment_cause",
+			{ "Channel","uma.urr.channel",
 			FT_UINT8,BASE_DEC,  VALS(channel_vals), 0x3,
 			NULL, HFILL }
 		},
@@ -2271,7 +2271,7 @@ proto_register_uma(void)
 			NULL, HFILL }
 		},
 		{ &hf_uma_urr_payload_type,
-			{ "Payload Type","uma.urr.sample_size",
+			{ "Payload Type","uma.urr.payload_type",
 			FT_UINT8,BASE_DEC,  NULL, 0x0,
 			NULL, HFILL }
 		},
@@ -2386,7 +2386,7 @@ proto_register_uma(void)
 			NULL, HFILL }
 		},
 		{ &hf_uma_urr_UNC_tcp_port,
-			{ "UNC TCP port","uma.urr.gprs_port",
+			{ "UNC TCP port","uma.urr.tcp_port",
 			FT_UINT16,BASE_DEC,  NULL, 0x0,
 			"UDP Port for GPRS user data transport", HFILL }
 		},

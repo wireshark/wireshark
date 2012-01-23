@@ -5230,7 +5230,7 @@ proto_register_tn3270(void)
         FT_UINT8, BASE_HEX, VALS(vals_color_identifications), 0x0,
         NULL, HFILL }},
     { &hf_tn3270_character_set,
-      { "Character Set",           "tn3270.color",
+      { "Character Set",           "tn3270.character_set",
         FT_UINT8, BASE_HEX, RVALS(rvals_character_set), 0x0,
         NULL, HFILL }},
     { &hf_tn3270_field_outlining,

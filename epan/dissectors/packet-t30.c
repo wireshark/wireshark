@@ -1188,7 +1188,7 @@ proto_register_t30(void)
             { "Ready to transmit a character or mixed mode document (polling)", "t30.fif.rttcmmd", FT_BOOLEAN,  8,
               TFS(&tfs_set_notset), 0x20, NULL, HFILL }},
         {  &hf_t30_fif_chrm,
-            { "Character mode", "t30.fif.cm", FT_BOOLEAN,  8,
+            { "Character mode", "t30.fif.chrm", FT_BOOLEAN,  8,
               TFS(&tfs_set_notset), 0x10, NULL, HFILL }},
         {  &hf_t30_fif_mm,
             { "Mixed mode (Annex E/T.4)", "t30.fif.mm", FT_BOOLEAN,  8,
