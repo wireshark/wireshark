@@ -8768,7 +8768,7 @@ proto_register_ndps(void)
             NULL, HFILL }},
 
         { &hf_ndps_ydimension_n64,
-          { "Y Dimension",    "ndps.xdimension_n64",
+          { "Y Dimension",    "ndps.ydimension_n64",
             FT_BYTES,    BASE_NONE,   NULL,   0x0,
             NULL, HFILL }},
 
@@ -9639,7 +9639,7 @@ proto_register_ndps(void)
             NULL, HFILL }},
 
         { &hf_problem_type,
-          { "Problem Type",    "ndps.get_resman_session_type",
+          { "Problem Type",    "ndps.problem_type",
             FT_UINT32,    BASE_HEX,   VALS(problem_type_enum),   0x0,
             NULL, HFILL }},
 

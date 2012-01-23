@@ -1179,7 +1179,7 @@ proto_register_mux27010 (void)
            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
         {&hf_mux27010_extended_header_end_pos_I,
-         { "End Position I", "mux27010.ext_header.end_byte_I",
+         { "End Position I", "mux27010.ext_header.end_pos_I",
            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
         {&hf_mux27010_extended_header_end_byte_I,
@@ -1207,7 +1207,7 @@ proto_register_mux27010 (void)
            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
         {&hf_mux27010_extended_header_end_pos_II,
-         { "End Position II", "mux27010.ext_header.end_byte_II",
+         { "End Position II", "mux27010.ext_header.end_pos_II",
            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
         {&hf_mux27010_extended_header_end_byte_II,
@@ -1235,7 +1235,7 @@ proto_register_mux27010 (void)
            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
         {&hf_mux27010_extended_header_end_pos_III,
-         { "End Position III", "mux27010.ext_header.end_byte_III",
+         { "End Position III", "mux27010.ext_header.end_pos_III",
            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
         {&hf_mux27010_extended_header_end_byte_III,

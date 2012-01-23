@@ -911,7 +911,7 @@ void proto_register_olsr(void) {
       }
     },
     { &hf_olsrorg_ns_count,
-      { "Count", "olsr.nlq",
+      { "Count", "olsr.ns.count",
         FT_UINT16, BASE_DEC, NULL, 0,
         "Number of nameservice messages", HFILL
       }

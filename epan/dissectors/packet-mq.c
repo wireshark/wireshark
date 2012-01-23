@@ -2802,10 +2802,10 @@ proto_register_mq(void)
           { "Buffer", "mq.ping.buffer", FT_BYTES, BASE_NONE, NULL, 0x0, "PING buffer", HFILL }},
 
         { &hf_mq_reset_length,
-          { "Length", "mq.ping.length", FT_UINT32, BASE_DEC, NULL, 0x0, "RESET length", HFILL }},
+          { "Length", "mq.reset.length", FT_UINT32, BASE_DEC, NULL, 0x0, "RESET length", HFILL }},
 
         { &hf_mq_reset_seqnum,
-          { "Sequence number", "mq.ping.seqnum", FT_UINT32, BASE_DEC, NULL, 0x0, "RESET sequence number", HFILL }},
+          { "Sequence number", "mq.reset.seqnum", FT_UINT32, BASE_DEC, NULL, 0x0, "RESET sequence number", HFILL }},
 
         { &hf_mq_status_length,
           { "Length", "mq.status.length", FT_UINT32, BASE_DEC, NULL, 0x0, "STATUS length", HFILL }},
@@ -2871,10 +2871,10 @@ proto_register_mq(void)
           { "Resolved queue manager name", "mq.od.resolvqmgr", FT_STRINGZ, BASE_NONE, NULL, 0x0, "OD resolved queue manager name", HFILL }},
 
         { &hf_mq_or_objname,
-          { "Object name", "mq.od.objname", FT_STRINGZ, BASE_NONE, NULL, 0x0, "OR object name", HFILL }},
+          { "Object name", "mq.or.objname", FT_STRINGZ, BASE_NONE, NULL, 0x0, "OR object name", HFILL }},
 
         { &hf_mq_or_objqmgrname,
-          { "Object queue manager name", "mq.od.objqmgrname", FT_STRINGZ, BASE_NONE, NULL, 0x0, "OR object queue manager name", HFILL }},
+          { "Object queue manager name", "mq.or.objqmgrname", FT_STRINGZ, BASE_NONE, NULL, 0x0, "OR object queue manager name", HFILL }},
 
         { &hf_mq_rr_completioncode,
           { "Completion code", "mq.rr.completioncode", FT_UINT32, BASE_DEC, NULL, 0x0, "OR completion code", HFILL }},
@@ -2982,7 +2982,7 @@ proto_register_mq(void)
           { "Message flags", "mq.md.msgflags", FT_UINT32, BASE_HEX, NULL, 0x0, "MD Message flags", HFILL }},
 
         { &hf_mq_md_originallength,
-          { "Original length", "mq.md.origdata", FT_INT32, BASE_DEC, NULL, 0x0, "MD Original length", HFILL }},
+          { "Original length", "mq.md.origlength", FT_INT32, BASE_DEC, NULL, 0x0, "MD Original length", HFILL }},
 
         { &hf_mq_md_hidden_lastformat,
           { "Last format", "mq.md.lastformat", FT_STRINGZ, BASE_NONE, NULL, 0x0, "MD Last format", HFILL }},
@@ -3081,7 +3081,7 @@ proto_register_mq(void)
           { "PMO structid", "mq.pmo.structid", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
         { &hf_mq_pmo_version,
-          { "Version", "mq.pmo.structid", FT_UINT32, BASE_DEC, NULL, 0x0, "PMO version", HFILL }},
+          { "Version", "mq.pmo.version", FT_UINT32, BASE_DEC, NULL, 0x0, "PMO version", HFILL }},
 
         { &hf_mq_pmo_options,
           { "Options", "mq.pmo.options", FT_UINT32, BASE_HEX, NULL, 0x0, "PMO options", HFILL }},

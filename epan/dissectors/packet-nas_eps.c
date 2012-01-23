@@ -4916,7 +4916,7 @@ void proto_register_nas_eps(void) {
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_spare_half_octet,
-        { "Spare half octet","nas_eps.emm.EPS_attach_result",
+        { "Spare half octet","nas_eps.emm.spare_half_octet",
         FT_UINT8,BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
@@ -5193,7 +5193,7 @@ void proto_register_nas_eps(void) {
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_ss_code,
-        { "SS Code","nas_eps.emm.eps_update_result_value",
+        { "SS Code","nas_eps.emm.ss_code",
         FT_UINT8,BASE_DEC, VALS(ssCode_vals), 0x0,
         NULL, HFILL }
     },
