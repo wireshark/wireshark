@@ -415,7 +415,7 @@ static const struct file_type_info dump_open_table_base[] = {
 	  libpcap_dump_can_write_encap, libpcap_dump_open },
 
 	/* WTAP_FILE_PCAPNG */
-	{ "Wireshark - pcapng", "pcapng", "*.pcapng", NULL, FALSE, TRUE,
+	{ "Wireshark - pcapng", "pcapng", "*.pcapng", ".pcapng", FALSE, TRUE,
 	  pcapng_dump_can_write_encap, pcapng_dump_open },
 
 	/* WTAP_FILE_PCAP_NSEC */
@@ -475,7 +475,7 @@ static const struct file_type_info dump_open_table_base[] = {
 	  NULL, NULL },
 
 	/* WTAP_FILE_COSINE */
-	{ "CoSine IPSX L2 capture", "cosine", NULL, NULL, FALSE, FALSE,
+	{ "CoSine IPSX L2 capture", "cosine", "*.txt", ".txt", FALSE, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_CSIDS */
@@ -483,7 +483,7 @@ static const struct file_type_info dump_open_table_base[] = {
 	  NULL, NULL },
 
 	/* WTAP_FILE_DBS_ETHERWATCH */
-	{ "DBS Etherwatch (VMS)", "etherwatch", NULL, NULL, FALSE, FALSE,
+	{ "DBS Etherwatch (VMS)", "etherwatch", "*.txt", ".txt", FALSE, FALSE,
 	  NULL, NULL},
 
 	/* WTAP_FILE_ERF */
@@ -499,11 +499,11 @@ static const struct file_type_info dump_open_table_base[] = {
 	  nettl_dump_can_write_encap, nettl_dump_open },
 
 	/* WTAP_FILE_ISERIES */
-	{ "IBM iSeries comm. trace (ASCII)", "iseries_ascii", NULL, NULL, FALSE, FALSE,
+	{ "IBM iSeries comm. trace (ASCII)", "iseries_ascii", "*.txt", ".txt", FALSE, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_ISERIES_UNICODE */
-	{ "IBM iSeries comm. trace (UNICODE)", "iseries_unicode", NULL, NULL, FALSE, FALSE,
+	{ "IBM iSeries comm. trace (UNICODE)", "iseries_unicode", "*.txt", ".txt", FALSE, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_I4BTRACE */
@@ -511,7 +511,7 @@ static const struct file_type_info dump_open_table_base[] = {
 	  NULL, NULL },
 
 	/* WTAP_FILE_ASCEND */
-	{ "Lucent/Ascend access server trace", "ascend", NULL, NULL, FALSE, FALSE,
+	{ "Lucent/Ascend access server trace", "ascend", "*.txt", ".txt", FALSE, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_NETMON_1_x */
@@ -563,7 +563,7 @@ static const struct file_type_info dump_open_table_base[] = {
 	  NULL, NULL },
 
 	/* WTAP_FILE_VMS */
-	{ "TCPIPtrace (VMS)", "tcpiptrace", NULL, NULL, FALSE, FALSE,
+	{ "TCPIPtrace (VMS)", "tcpiptrace", "*.txt", ".txt", FALSE, FALSE,
 	  NULL, NULL},
 
 	/* WTAP_FILE_K12 */
@@ -571,7 +571,7 @@ static const struct file_type_info dump_open_table_base[] = {
 		k12_dump_can_write_encap, k12_dump_open },
 
 	/* WTAP_FILE_TOSHIBA */
-	{ "Toshiba Compact ISDN Router snoop", "toshiba", NULL, NULL, FALSE, FALSE,
+	{ "Toshiba Compact ISDN Router snoop", "toshiba", "*.txt", ".txt", FALSE, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_VISUAL_NETWORKS */
@@ -599,7 +599,7 @@ static const struct file_type_info dump_open_table_base[] = {
 	  k12text_dump_can_write_encap, k12text_dump_open },
 
 	/* WTAP_FILE_NETSCREEN */
-	{ "NetScreen snoop text file", "netscreen", NULL, NULL, FALSE, FALSE,
+	{ "NetScreen snoop text file", "netscreen", "*.txt", ".txt", FALSE, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_COMMVIEW */
@@ -619,11 +619,11 @@ static const struct file_type_info dump_open_table_base[] = {
 	  NULL, NULL },
 
 	/* WTAP_FILE_PACKETLOGGER */
-	{ "PacketLogger", "pklg", "*.pklg", NULL, FALSE, FALSE,
+	{ "PacketLogger", "pklg", "*.pklg", ".pklg", FALSE, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_DAINTREE_SNA */
-	{ "Daintree SNA", "dsna", "*.dcf", NULL, FALSE, FALSE,
+	{ "Daintree SNA", "dsna", "*.dcf", ".dcf", FALSE, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_NETSCALER_1_0 */
@@ -639,7 +639,7 @@ static const struct file_type_info dump_open_table_base[] = {
 	  NULL, NULL },
 
 	/* WTAP_FILE_IPFIX */
-	{ "IPFIX File Format", "ipfix", "*.pfx;*.ipfix", NULL, FALSE, FALSE,
+	{ "IPFIX File Format", "ipfix", "*.pfx;*.ipfix", ".pfx", FALSE, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_ENCAP_MIME */
@@ -647,7 +647,7 @@ static const struct file_type_info dump_open_table_base[] = {
 	   NULL, NULL },
 
 	/* WTAP_FILE_AETHRA */
-	{ "Aethra .aps file", "aethra", "*.aps", NULL, FALSE, FALSE,
+	{ "Aethra .aps file", "aethra", "*.aps", ".aps", FALSE, FALSE,
 	  NULL, NULL },
 };
 
