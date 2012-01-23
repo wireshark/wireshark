@@ -291,7 +291,7 @@ print_usage(gboolean print_ver)
   fprintf(output, "  -w <outfile|->           write packets to a pcap-format file named \"outfile\"\n");
   fprintf(output, "                           (or to the standard output for \"-\")\n");
   fprintf(output, "  -C <config profile>      start with specified configuration profile\n");
-  fprintf(output, "  -F <output file type>    set the output file type, default is libpcap\n");
+  fprintf(output, "  -F <output file type>    set the output file type, default is pcapng\n");
   fprintf(output, "                           an empty \"-F\" option will list the file types\n");
   fprintf(output, "  -V                       add output of packet tree        (Packet Details)\n");
   fprintf(output, "  -O <protocols>           Only show packet details of these protocols, comma\n");

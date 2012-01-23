@@ -723,7 +723,7 @@ usage(gboolean is_error)
   fprintf(output, "  -i <seconds per file>  split the packet output to different files\n");
   fprintf(output, "                         based on uniform time intervals\n");
   fprintf(output, "                         with a maximum of <seconds per file> each.\n");
-  fprintf(output, "  -F <capture type>      set the output file type; default is libpcap.\n");
+  fprintf(output, "  -F <capture type>      set the output file type; default is pcapng.\n");
   fprintf(output, "                         an empty \"-F\" option will list the file types.\n");
   fprintf(output, "  -T <encap type>        set the output file encapsulation type;\n");
   fprintf(output, "                         default is the same as the input file.\n");

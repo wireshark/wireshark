@@ -124,7 +124,7 @@ usage(void)
   fprintf(stderr, "                    default is to merge based on frame timestamps.\n");
   fprintf(stderr, "  -s <snaplen>      truncate packets to <snaplen> bytes of data.\n");
   fprintf(stderr, "  -w <outfile>|-    set the output filename to <outfile> or '-' for stdout.\n");
-  fprintf(stderr, "  -F <capture type> set the output file type; default is libpcap.\n");
+  fprintf(stderr, "  -F <capture type> set the output file type; default is pcapng.\n");
   fprintf(stderr, "                    an empty \"-F\" option will list the file types.\n");
   fprintf(stderr, "  -T <encap type>   set the output file encapsulation type;\n");
   fprintf(stderr, "                    default is the same as the first input file.\n");

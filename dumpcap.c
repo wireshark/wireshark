@@ -364,7 +364,7 @@ print_usage(gboolean print_ver)
         output = stdout;
         fprintf(output,
                 "Dumpcap " VERSION "%s\n"
-                "Capture network packets and dump them into a libpcap file.\n"
+                "Capture network packets and dump them into a pcapng file.\n"
                 "See http://www.wireshark.org for more information.\n",
                 wireshark_svnversion);
     } else {
@@ -415,7 +415,8 @@ print_usage(gboolean print_ver)
     fprintf(output, "  -b <ringbuffer opt.> ... duration:NUM - switch to next file after NUM secs\n");
     fprintf(output, "                           filesize:NUM - switch to next file after NUM KB\n");
     fprintf(output, "                              files:NUM - ringbuffer: replace after NUM files\n");
-    fprintf(output, "  -n                       use pcapng format instead of pcap\n");
+    fprintf(output, "  -n                       use pcapng format instead of pcap (default)\n");
+    fprintf(output, "  -P                       use libpcap format instead of pcapng\n");
     fprintf(output, "\n");
     fprintf(output, "Miscellaneous:\n");
     fprintf(output, "  -t                       use a separate thread per interface\n");
@@ -423,8 +424,8 @@ print_usage(gboolean print_ver)
     fprintf(output, "  -v                       print version information and exit\n");
     fprintf(output, "  -h                       display this help and exit\n");
     fprintf(output, "\n");
-    fprintf(output, "Example: dumpcap -i eth0 -a duration:60 -w output.pcap\n");
-    fprintf(output, "\"Capture network packets from interface eth0 until 60s passed into output.pcap\"\n");
+    fprintf(output, "Example: dumpcap -i eth0 -a duration:60 -w output.pcapng\n");
+    fprintf(output, "\"Capture network packets from interface eth0 until 60s passed into output.pcapng\"\n");
     fprintf(output, "\n");
     fprintf(output, "Use Ctrl-C to stop capturing at any time.\n");
 }
