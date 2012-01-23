@@ -1016,7 +1016,8 @@ dissect_rohc_ir_rtp_udp_profile_static(tvbuff_t *tvb, proto_tree *tree, packet_i
 
     proto_item *item, *ipv4_item, *udp_item, *rtp_item;
     proto_tree *sub_tree=NULL, *static_ipv4_tree, *static_udp_tree, *static_rtp_tree;
-    guint8 version, protocol;
+    guint8 version;
+    guint8 protocol = 0; /* Something that's not UDP */
     int start_offset, tree_start_offset;
 
     start_offset = offset;
