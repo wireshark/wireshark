@@ -38,15 +38,15 @@
 #include <epan/filesystem.h>
 
 #include "../util.h"
-#include "../simple_dialog.h"
 #include "../disabled_protos.h"
 
-#include "gtk/main.h"
-#include "gtk/gui_utils.h"
-#include "gtk/dlg_utils.h"
-#include "gtk/proto_dlg.h"
-#include "gtk/help_dlg.h"
-
+#include "ui/simple_dialog.h"
+ 
+#include "ui/gtk/main.h"
+#include "ui/gtk/gui_utils.h"
+#include "ui/gtk/dlg_utils.h"
+#include "ui/gtk/proto_dlg.h"
+#include "ui/gtk/help_dlg.h"
 
 static gboolean proto_delete_event_cb(GtkWidget *, GdkEvent *, gpointer);
 static void proto_ok_cb(GtkWidget *, gpointer);
