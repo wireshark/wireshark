@@ -3564,7 +3564,7 @@ proto_register_smpp(void)
                 }
         },
         {       &hf_smpp_broadcast_content_type_info,
-                {       "Broadcast Content Type Info", "smpp.broadcast_content_type.type",
+                {       "Broadcast Content Type Info", "smpp.broadcast_content_type.info",
                         FT_BYTES, BASE_NONE, NULL, 0x00,
                         "Cell Broadcast content type Info", HFILL
                 }

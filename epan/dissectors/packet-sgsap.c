@@ -1505,7 +1505,7 @@ void proto_register_sgsap(void) {
         NULL, HFILL}
     },
     { &hf_sgsap_vlr_name,
-        {"VLR name", "sgsap.mme_name",
+        {"VLR name", "sgsap.vlr_name",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL}
     },

@@ -2005,7 +2005,7 @@ proto_register_sbus(void)
               },
 
               { &hf_sbus_addr_68k,
-                     { "Base address of bytes",           "sbus.addr_prog",
+                     { "Base address of bytes",           "sbus.addr_68k",
                      FT_UINT24, BASE_HEX, NULL, 0,
                      "Base address of bytes to read or write (68k address)", HFILL }
               },

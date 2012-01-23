@@ -4490,7 +4490,7 @@ proto_register_reload(void)
       }
     },
     { &hf_reload_forwarding_options,
-      { "options",    "reload.forwarding.option", FT_NONE,
+      { "options",    "reload.forwarding.options", FT_NONE,
         BASE_NONE,  NULL,   0x0,  NULL, HFILL
       }
     },
@@ -4510,7 +4510,7 @@ proto_register_reload(void)
       }
     },
     { &hf_reload_forwarding_option_flag_ignore_state_keeping,
-      { "IGNORE_STATE_KEEPING", "reload.forwarding.option.flag.response_copy", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x0,
+      { "IGNORE_STATE_KEEPING", "reload.forwarding.option.flag.ignore_state_keeping", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x0,
         NULL, HFILL
       }
     },
@@ -4855,7 +4855,7 @@ proto_register_reload(void)
       }
     },
     { &hf_reload_probe_information_data,
-      { "value (ProbeInformationData)",  "reload.probe_information", FT_NONE,
+      { "value (ProbeInformationData)",  "reload.probe_information_data", FT_NONE,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL
       }
     },
@@ -4885,7 +4885,7 @@ proto_register_reload(void)
       }
     },
     { &hf_reload_probeans_probe_info,
-      { "probe_info",  "reload.probeans", FT_NONE,
+      { "probe_info",  "reload.probe_info", FT_NONE,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL
       }
     },
@@ -5218,17 +5218,17 @@ proto_register_reload(void)
       }
     },
     { &hf_reload_kinddescription,
-      { "KindDescription",  "reload.configupdatereq.kinds",  FT_NONE,
+      { "KindDescription",  "reload.configupdatereq.kinddescription",  FT_NONE,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL
       }
     },
     { &hf_reload_pingreq,
-      { "PingReq",  "reload.padding",  FT_NONE,
+      { "PingReq",  "reload.pingreq",  FT_NONE,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL
       }
     },
     { &hf_reload_pingans,
-      { "PingAns",  "reload.padding",  FT_NONE,
+      { "PingAns",  "reload.pingans",  FT_NONE,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL
       }
     },
@@ -5254,7 +5254,7 @@ proto_register_reload(void)
       }
     },
     { &hf_reload_chordupdate_successors,
-      { "successors",  "reload.chordupdate.predecessors",  FT_NONE,
+      { "successors",  "reload.chordupdate.successors",  FT_NONE,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL
       }
     },
@@ -5289,7 +5289,7 @@ proto_register_reload(void)
       }
     },
     { &hf_reload_chordleave_successors,
-      { "successors",  "reload.chordleavedata.predecessors",  FT_NONE,
+      { "successors",  "reload.chordleavedata.successors",  FT_NONE,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL
       }
     },

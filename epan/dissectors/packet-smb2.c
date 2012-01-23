@@ -6586,7 +6586,7 @@ proto_register_smb2(void)
 		NULL, 0, "Find pattern", HFILL }},
 
 	{ &hf_smb2_find_info_blob,
-		{ "Info", "smb2.security_blob", FT_BYTES, BASE_NONE,
+		{ "Info", "smb2.find.info_blob", FT_BYTES, BASE_NONE,
 		NULL, 0, "Find Info", HFILL }},
 
 	{ &hf_smb2_ea_size,

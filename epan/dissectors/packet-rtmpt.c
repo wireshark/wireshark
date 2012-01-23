@@ -1931,7 +1931,7 @@ proto_register_rtmpt(void)
                     NULL, 0x0, "RTMPT SCM acknowledgement sequence number", HFILL }},
 
                 { &hf_rtmpt_scm_was,
-                  { "Window acknowledgement size", "rtmpt.scm.seq", FT_UINT32, BASE_DEC,
+                  { "Window acknowledgement size", "rtmpt.scm.was", FT_UINT32, BASE_DEC,
                     NULL, 0x0, "RTMPT SCM window acknowledgement size", HFILL }},
 
                 { &hf_rtmpt_scm_limittype,
@@ -1957,7 +1957,7 @@ proto_register_rtmpt(void)
                     NULL, 0x0, "RTMPT AMF boolean", HFILL }},
 
                 { &hf_rtmpt_amf_stringlength,
-                  { "String length", "rtmpt.amf.longstringlength", FT_UINT16, BASE_DEC,
+                  { "String length", "rtmpt.amf.stringlength", FT_UINT16, BASE_DEC,
                     NULL, 0x0, "RTMPT AMF string length", HFILL }},
 
                 { &hf_rtmpt_amf_string,
