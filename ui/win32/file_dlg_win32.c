@@ -322,8 +322,8 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
         file_name8 = g_string_new(utf_16to8(file_name16));
         file_last_dot = strrchr(file_name8->str,'.');
         if(file_last_dot == NULL || strlen(file_name8->str)-(file_last_dot-file_name8->str) > 5+1) {
-            if(wtap_file_extension_default_string(filetype) != NULL) {
-                g_string_append_printf(file_name8, ".%s", wtap_file_extension_default_string(filetype));
+            if(wtap_default_file_extension(filetype) != NULL) {
+                g_string_append_printf(file_name8, ".%s", wtap_default_file_extension(filetype));
             }
         }
 

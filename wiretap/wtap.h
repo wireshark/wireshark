@@ -842,13 +842,15 @@ struct file_type_info {
     /* should be NULL for all "pseudo" types that are only internally used and not read/writeable */
     const char *short_name;
 
-    /* the common file extensions for this type (seperated by semicolon) */
-    /* should be *.* if no common extension is applicable */
-    const char *file_extensions;
-
     /* the default file extension, used to save this type */
     /* should be NULL if no default extension is known */
-    const char *file_extension_default;
+    const char *default_file_extension;
+
+    /* a semicolon-separated list of additional file extensions */
+    /* used for this type */
+    /* should be NULL if no extensions, or no extensions other */
+    /* than the default extension, are known */
+    const char *additional_file_extensions;
 
     /* when writing this file format, is seeking required? */
     gboolean writing_must_seek;
@@ -956,7 +958,7 @@ int wtap_short_string_to_file_type(const char *short_name);
 
 GSList *wtap_get_file_extensions_list(int filetype);
 void wtap_free_file_extensions_list(GSList *extensions);
-const char *wtap_file_extension_default_string(int filetype);
+const char *wtap_default_file_extension(int filetype);
 
 const char *wtap_encap_string(int encap);
 const char *wtap_encap_short_string(int encap);

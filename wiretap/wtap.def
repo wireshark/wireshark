@@ -32,6 +32,7 @@ file_set_random_access
 wtap_buf_ptr
 wtap_cleareof
 wtap_close
+wtap_default_file_extension
 wtap_dump
 wtap_dump_can_open
 wtap_dump_can_write_encap
@@ -46,7 +47,6 @@ wtap_encap_string
 wtap_file_encap
 wtap_get_file_extensions_list
 wtap_free_file_extensions_list
-wtap_file_extension_default_string
 wtap_file_size
 wtap_file_tsprecision
 wtap_file_type
