@@ -794,13 +794,18 @@ void wtap_free_file_extensions_list(GSList *extensions)
 	g_slist_free(extensions);
 }
 
-/* Return the default file extension to use with the specified file type. */
+/* Return the default file extension to use with the specified file type;
+   that's just the extension, without any ".". */
 const char *wtap_file_extension_default_string(int filetype)
 {
 	if (filetype < 0 || filetype >= wtap_num_file_types)
 		return NULL;
-	else
-		return dump_open_table[filetype].file_extension_default;
+	else {
+		/*
+		 * XXX - skip past the ".".
+		 */
+		return dump_open_table[filetype].file_extension_default + 1;
+	}
 }
 
 gboolean wtap_dump_can_open(int filetype)

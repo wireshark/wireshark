@@ -323,7 +323,7 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
         file_last_dot = strrchr(file_name8->str,'.');
         if(file_last_dot == NULL || strlen(file_name8->str)-(file_last_dot-file_name8->str) > 5+1) {
             if(wtap_file_extension_default_string(filetype) != NULL) {
-                file_name8 = g_string_append(file_name8, wtap_file_extension_default_string(filetype));
+                file_name8 = g_string_append_printf(file_name8, ".%s", wtap_file_extension_default_string(filetype));
             }
         }
 
