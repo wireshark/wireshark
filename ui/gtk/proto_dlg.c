@@ -41,7 +41,7 @@
 #include "../disabled_protos.h"
 
 #include "ui/simple_dialog.h"
- 
+
 #include "ui/gtk/main.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/dlg_utils.h"
@@ -54,10 +54,14 @@ static void proto_apply_cb(GtkWidget *, gpointer);
 static void proto_save_cb(GtkWidget *, gpointer);
 static void proto_cancel_cb(GtkWidget *, gpointer);
 static void proto_destroy_cb(GtkWidget *, gpointer);
+#if defined(HEUR_DISSECTOR_LIST)
 static void heur_proto_destroy_cb(GtkWidget *, gpointer);
+#endif
 
 static void show_proto_selection(GtkListStore *proto_store);
+#if defined(HEUR_DISSECTOR_LIST)
 static void show_heur_selection(GtkListStore *proto_store);
+#endif
 static gboolean set_proto_selection(GtkWidget *);
 static gboolean revert_proto_selection(void);
 
@@ -73,8 +77,10 @@ static GtkWidget *proto_w = NULL;
 /* list of protocols */
 static GSList *protocol_list = NULL;
 
+#if defined(HEUR_DISSECTOR_LIST)
 /* list of heuristic protocols */
 static GSList *heur_protocol_list = NULL;
+#endif
 
 typedef struct protocol_data {
   const char  *name;
@@ -89,8 +95,9 @@ typedef struct protocol_data {
 #define STATUS_TXT(x) ((x) ? "" : DISABLED)
 
 
+#if defined(HEUR_DISSECTOR_LIST)
 static GtkWidget *
-build_heur_dissectors_treeview()
+build_heur_dissectors_treeview(void)
 {
   GtkWidget  *bbox, *proto_list, *label, *proto_sw, *proto_vb, *button,
              *ok_bt, *apply_bt, *save_bt, *cancel_bt, *help_bt;
@@ -219,9 +226,10 @@ build_heur_dissectors_treeview()
   return proto_vb;
 
 }
+#endif
 
 static GtkWidget *
-build_protocols_treeview()
+build_protocols_treeview(void)
 {
   GtkWidget  *bbox, *proto_list, *label, *proto_sw, *proto_vb, *button,
              *ok_bt, *apply_bt, *save_bt, *cancel_bt, *help_bt;
@@ -356,7 +364,7 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
 {
 
   GtkWidget *main_vb, *main_nb, *page_lb, *protocols_page;
-#if 0
+#if defined(HEUR_DISSECTOR_LIST)
   GtkWidget *heur_dissectors_page;
 #endif            
   if (proto_w != NULL) {
@@ -383,7 +391,7 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
   protocols_page = build_protocols_treeview();
   gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), protocols_page, page_lb);
 
-#if 0
+#if defined(HEUR_DISSECTOR_LIST)
   page_lb = gtk_label_new("Enabled Heuristic dissectors");
   heur_dissectors_page = build_heur_dissectors_treeview();
   gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), heur_dissectors_page, page_lb);
@@ -488,6 +496,7 @@ proto_destroy_cb(GtkWidget *w _U_, gpointer data _U_)
   }
 }
 
+#if defined(HEUR_DISSECTOR_LIST)
 static void
 heur_proto_destroy_cb(GtkWidget *w _U_, gpointer data _U_)
 {
@@ -503,6 +512,7 @@ heur_proto_destroy_cb(GtkWidget *w _U_, gpointer data _U_)
     heur_protocol_list = NULL;
   }
 }
+#endif
 
 /* Treat this as a cancel, by calling "proto_cancel_cb()".
    XXX - that'll destroy the Protocols dialog; will that upset
@@ -691,6 +701,7 @@ create_protocol_list(void)
       }
   }
 }
+#if defined(HEUR_DISSECTOR_LIST)
 static void
 get_heur_dissector(gpointer data, gpointer user_data)
 {
@@ -717,7 +728,6 @@ get_heur_dissector(gpointer data, gpointer user_data)
 	}
 }
 
-
 static void
 get_heur_dissector_tables(const char *table_name, gpointer table, gpointer w _U_)
 {
@@ -728,13 +738,14 @@ get_heur_dissector_tables(const char *table_name, gpointer table, gpointer w _U_
 	}
 
 }
+#endif
 
+#if defined(HEUR_DISSECTOR_LIST)
 static void
 create_heur_protocol_list(void)
 {
 	dissector_all_heur_tables_foreach_table(get_heur_dissector_tables, NULL);
 
-#if 0
   gint i;
   void *cookie;
   protocol_t *protocol;
@@ -756,8 +767,8 @@ create_heur_protocol_list(void)
 					    p, protocol_data_compare);
       }
   }
-#endif
 }
+#endif
 
 static void
 show_proto_selection(GtkListStore *proto_store)
@@ -782,6 +793,7 @@ show_proto_selection(GtkListStore *proto_store)
 
 } /* show_proto_selection */
 
+#if defined(HEUR_DISSECTOR_LIST)
 static void
 show_heur_selection(GtkListStore *proto_store)
 {
@@ -804,6 +816,7 @@ show_heur_selection(GtkListStore *proto_store)
   }
 
 } /* show_proto_selection */
+#endif
 
 static void
 proto_disable_dialog_cb(gpointer dialog _U_, gint btn, gpointer data)
