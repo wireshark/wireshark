@@ -3172,7 +3172,7 @@ static void menu_dissector_filter(capture_file *cf) {
 
     merge_id = gtk_ui_manager_new_merge_id (ui_manager_main_menubar);
 
-    action_group = gtk_action_group_new ("diessector-filters-group");
+    action_group = gtk_action_group_new ("dissector-filters-group");
 
     submenu_dissector_filters = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/ConversationFilterMenu");
     if(!submenu_dissector_filters){
@@ -3208,7 +3208,7 @@ static void menu_dissector_filter(capture_file *cf) {
     while(list_entry != NULL) {
         filter_entry = list_entry->data;
         action_name = g_strdup_printf ("filter-%u", i);
-        /*g_warning("action_name %s, filter_entry->name %s",action_name,filter_entry->name);*/
+        g_warning("action_name %s, filter_entry->name %s",action_name,filter_entry->name);
         action = g_object_new (GTK_TYPE_ACTION,
                  "name", action_name,
                  "label", filter_entry->name,
@@ -3836,10 +3836,8 @@ set_menu_sensitivity(GtkUIManager *ui_manager, const gchar *path, gint val)
 
     action = gtk_ui_manager_get_action(ui_manager, path);
     if(!action){
-#if 0
         fprintf (stderr, "Warning: set_menu_sensitivity couldn't find action path= %s\n",
                 path);
-#endif
         return;
     }
     gtk_action_set_sensitive (action, val); /* TRUE to make the action sensitive */
@@ -4885,7 +4883,7 @@ set_menus_for_selected_packet(capture_file *cf)
         gchar *path;
 
         filter_entry = list_entry->data;
-        path = g_strdup_printf("/Menubar/AnalyzeMenu/ConversationFilterMenu/filter-%u", i);
+        path = g_strdup_printf("/Menubar/AnalyzeMenu/ConversationFilterMenu/Filters/filter-%u", i);
 
         set_menu_sensitivity(ui_manager_main_menubar, path,
             menu_dissector_filter_spe_cb(/* frame_data *fd _U_*/ NULL, cf->edt, filter_entry));
