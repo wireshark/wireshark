@@ -3208,7 +3208,7 @@ static void menu_dissector_filter(capture_file *cf) {
     while(list_entry != NULL) {
         filter_entry = list_entry->data;
         action_name = g_strdup_printf ("filter-%u", i);
-        g_warning("action_name %s, filter_entry->name %s",action_name,filter_entry->name);
+        /*g_warning("action_name %s, filter_entry->name %s",action_name,filter_entry->name);*/
         action = g_object_new (GTK_TYPE_ACTION,
                  "name", action_name,
                  "label", filter_entry->name,
