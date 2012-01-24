@@ -38,6 +38,9 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/prefs.h>
+#include "ui/simple_dialog.h"
+#include "capture_ui_utils.h"
 
 #include "capture_opts.h"
 #include "ringbuffer.h"
@@ -57,6 +60,8 @@ capture_opts_init(capture_options *capture_opts, void *cf)
 {
   capture_opts->cf                              = cf;
   capture_opts->ifaces                          = g_array_new(FALSE, FALSE, sizeof(interface_options));
+  capture_opts->all_ifaces                      = g_array_new(FALSE, FALSE, sizeof(interface_t));
+  capture_opts->num_selected                    = 0;
   capture_opts->default_options.name            = NULL;
   capture_opts->default_options.descr           = NULL;
   capture_opts->default_options.cfilter         = NULL;
@@ -528,6 +533,169 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
 }
 
 int
+capture_opts_select_iface(capture_options *capture_opts, const char *optarg_str_p)
+{
+    long        adapter_index;
+    char        *p;
+    GList       *if_list;
+    if_info_t   *if_info;
+    int         err;
+    guint       i;
+    gchar       *err_str, *name = NULL;
+    interface_t device;
+    gboolean    found = FALSE;
+    interface_options interface_opts;
+
+    /*
+     * If the argument is a number, treat it as an index into the list
+     * of adapters, as printed by "tshark -D".
+     *
+     * This should be OK on UNIX systems, as interfaces shouldn't have
+     * names that begin with digits.  It can be useful on Windows, where
+     * more than one interface can have the same name.
+     */
+    adapter_index = strtol(optarg_str_p, &p, 10);
+    if (p != NULL && *p == '\0') {
+        if (adapter_index < 0) {
+            cmdarg_err("The specified adapter index is a negative number");
+            return 1;
+        }
+        if (adapter_index > INT_MAX) {
+            cmdarg_err("The specified adapter index is too large (greater than %d)",
+                       INT_MAX);
+            return 1;
+        }
+        if (adapter_index == 0) {
+            cmdarg_err("There is no interface with that adapter index");
+            return 1;
+        }
+        if_list = capture_interface_list(&err, &err_str);
+        if (if_list == NULL) {
+            switch (err) {
+
+            case CANT_GET_INTERFACE_LIST:
+                cmdarg_err("%s", err_str);
+                g_free(err_str);
+                break;
+
+            case NO_INTERFACES_FOUND:
+                cmdarg_err("There are no interfaces on which a capture can be done");
+                break;
+            }
+            return 2;
+        }
+        if_info = (if_info_t *)g_list_nth_data(if_list, adapter_index - 1);
+        if (if_info == NULL) {
+            cmdarg_err("There is no interface with that adapter index");
+            return 1;
+        }
+        name = g_strdup(if_info->name);
+        /*  We don't set iface_descr here because doing so requires
+         *  capture_ui_utils.c which requires epan/prefs.c which is
+         *  probably a bit too much dependency for here...
+         */
+        free_interface_list(if_list);
+    } else {
+        name = g_strdup(optarg_str_p);
+    }
+    if (capture_opts->all_ifaces->len > 0) {
+        for(i = 0; i < capture_opts->all_ifaces->len; i++) {
+            device = g_array_index(capture_opts->all_ifaces, interface_t, i);
+            if (strcmp(device.name, name) == 0) {
+                if (device.hidden) {
+                    cmdarg_err("Interface %s is hidden. You can't capture on hidden interfaces.", name);
+                    return 1;
+                }
+                device.selected = TRUE;
+                capture_opts->num_selected++;
+                capture_opts->all_ifaces = g_array_remove_index(capture_opts->all_ifaces, i);
+                g_array_insert_val(capture_opts->all_ifaces, i, device);
+                found = TRUE;
+                break;
+            }
+        } 
+        if (!found) {
+            device.name         = g_strdup(name);
+            device.display_name = g_strdup_printf("%s", device.name);
+            device.hidden       = FALSE;
+            device.selected     = TRUE;
+            device.type         = IF_PIPE;
+            device.pmode        = capture_opts->default_options.promisc_mode;
+            device.has_snaplen  = capture_opts->default_options.has_snaplen;
+            device.snaplen      = capture_opts->default_options.snaplen;
+            device.cfilter      = g_strdup(capture_opts->default_options.cfilter);
+            device.addresses    = NULL;
+            device.no_addresses = 0;
+            device.last_packets = 0;
+            device.links        = NULL;
+            device.active_dlt   = -1;
+            device.local        = TRUE;
+            device.locked       = FALSE;
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+            device.buffer = 1;
+            device.monitor_mode_enabled   = FALSE;
+            device.monitor_mode_supported = FALSE;
+#endif
+            g_array_append_val(capture_opts->all_ifaces, device);
+            capture_opts->num_selected++;
+        }
+    } else {
+        interface_opts.name = g_strdup(optarg_str_p);
+        interface_opts.descr = g_strdup(capture_opts->default_options.descr);
+        interface_opts.cfilter = g_strdup(capture_opts->default_options.cfilter);
+        interface_opts.snaplen = capture_opts->default_options.snaplen;
+        interface_opts.has_snaplen = capture_opts->default_options.has_snaplen;
+        interface_opts.linktype = capture_opts->default_options.linktype;
+        interface_opts.promisc_mode = capture_opts->default_options.promisc_mode;
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+        interface_opts.buffer_size = capture_opts->default_options.buffer_size;
+#endif
+        interface_opts.monitor_mode = capture_opts->default_options.monitor_mode;
+#ifdef HAVE_PCAP_REMOTE
+        interface_opts.src_type = capture_opts->default_options.src_type;
+        interface_opts.remote_host = g_strdup(capture_opts->default_options.remote_host);
+        interface_opts.remote_port = g_strdup(capture_opts->default_options.remote_port);
+        interface_opts.auth_type = capture_opts->default_options.auth_type;
+        interface_opts.auth_username = g_strdup(capture_opts->default_options.auth_username);
+        interface_opts.auth_password = g_strdup(capture_opts->default_options.auth_password);
+        interface_opts.datatx_udp = capture_opts->default_options.datatx_udp;
+        interface_opts.nocap_rpcap = capture_opts->default_options.nocap_rpcap;
+        interface_opts.nocap_local = capture_opts->default_options.nocap_local;
+#endif
+#ifdef HAVE_PCAP_SETSAMPLING
+        interface_opts.sampling_method = capture_opts->default_options.sampling_method;
+        interface_opts.sampling_param  = capture_opts->default_options.sampling_param;
+#endif
+        g_array_append_val(capture_opts->ifaces, interface_opts);
+
+        device.name         = g_strdup(name);
+        device.display_name = g_strdup_printf("%s", device.name);
+        device.hidden       = FALSE;
+        device.selected     = TRUE;
+        device.type         = IF_PIPE;
+        device.pmode        = capture_opts->default_options.promisc_mode;
+        device.has_snaplen  = capture_opts->default_options.has_snaplen;
+        device.snaplen      = capture_opts->default_options.snaplen;
+        device.cfilter      = g_strdup(capture_opts->default_options.cfilter);
+        device.addresses    = NULL;
+        device.no_addresses = 0;
+        device.last_packets = 0;
+        device.links        = NULL;
+        device.active_dlt   = -1;
+        device.local        = TRUE;
+        device.locked       = FALSE;
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+            device.buffer = 1;
+        device.monitor_mode_enabled   = FALSE;
+        device.monitor_mode_supported = FALSE;
+#endif
+        g_array_append_val(capture_opts->all_ifaces, device);
+        capture_opts->num_selected++;
+    }
+    return 0;
+}
+
+int
 capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_str_p, gboolean *start_capture)
 {
     int status, snaplen;
@@ -827,7 +995,7 @@ gboolean capture_opts_trim_iface(capture_options *capture_opts, const char *capt
 
 
     /* Did the user specify an interface to use? */
-    if (capture_opts->ifaces->len == 0) {
+    if (capture_opts->num_selected == 0 && capture_opts->ifaces->len == 0) {
         /* No - is a default specified in the preferences file? */
         if (capture_device != NULL) {
             /* Yes - use it. */
@@ -958,5 +1126,50 @@ static gboolean capture_opts_output_to_pipe(const char *save_file, gboolean *is_
 
   return 0;
 }
+
+void
+collect_ifaces(capture_options *capture_opts)
+{
+  guint i;
+  interface_t device;
+  interface_options interface_opts;
+  for (i = 0; i < capture_opts->all_ifaces->len; i++) {
+    device = g_array_index(capture_opts->all_ifaces, interface_t, i);
+    if (!device.hidden && device.selected) {
+      interface_opts.name = g_strdup(device.name);
+      interface_opts.descr = g_strdup(device.display_name);
+      interface_opts.monitor_mode = device.monitor_mode_enabled;
+      interface_opts.linktype = device.active_dlt;
+      interface_opts.cfilter = g_strdup(device.cfilter);
+      interface_opts.snaplen = device.snaplen;
+      interface_opts.has_snaplen = device.has_snaplen;
+      interface_opts.promisc_mode = device.pmode;
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+      interface_opts.buffer_size =  device.buffer;
+#endif
+      if (!device.local) {
+#ifdef HAVE_PCAP_REMOTE 
+        interface_opts.src_type = CAPTURE_IFREMOTE;
+        interface_opts.remote_host = g_strdup(device.remote_opts.remote_host_opts.remote_host);
+        interface_opts.remote_port = g_strdup(device.remote_opts.remote_host_opts.remote_port);
+        interface_opts.auth_type = device.remote_opts.remote_host_opts.auth_type;
+        interface_opts.auth_username = g_strdup(device.remote_opts.remote_host_opts.auth_username);
+        interface_opts.auth_password = g_strdup(device.remote_opts.remote_host_opts.auth_password);
+        interface_opts.datatx_udp = device.remote_opts.remote_host_opts.datatx_udp;
+        interface_opts.nocap_rpcap = device.remote_opts.remote_host_opts.nocap_rpcap;
+        interface_opts.nocap_local = device.remote_opts.remote_host_opts.nocap_local;
+#endif
+#ifdef HAVE_PCAP_SETSAMPLING
+        interface_opts.sampling_method = device.remote_opts.sampling_method;
+        interface_opts.sampling_param  = device.remote_opts.sampling_param;
+#endif
+      }
+      g_array_append_val(capture_opts->ifaces, interface_opts);
+    } else {
+      continue;
+    }
+  }
+}
+
 
 #endif /* HAVE_LIBPCAP */

@@ -81,49 +81,49 @@ static GList *capture_callbacks = NULL;
 static void
 capture_callback_invoke(int event, capture_options *capture_opts)
 {
-    capture_callback_data_t *cb;
-    GList *cb_item = capture_callbacks;
+  capture_callback_data_t *cb;
+  GList *cb_item = capture_callbacks;
 
-    /* there should be at least one interested */
-    g_assert(cb_item != NULL);
+  /* there should be at least one interested */
+  g_assert(cb_item != NULL);
 
-    while(cb_item != NULL) {
-        cb = cb_item->data;
-        cb->cb_fct(event, capture_opts, cb->user_data);
-        cb_item = g_list_next(cb_item);
-    }
+  while(cb_item != NULL) {
+    cb = cb_item->data;
+    cb->cb_fct(event, capture_opts, cb->user_data);
+    cb_item = g_list_next(cb_item);
+  }
 }
 
 
 void
 capture_callback_add(capture_callback_t func, gpointer user_data)
 {
-    capture_callback_data_t *cb;
+  capture_callback_data_t *cb;
 
-    cb = g_malloc(sizeof(capture_callback_data_t));
-    cb->cb_fct = func;
-    cb->user_data = user_data;
+  cb = g_malloc(sizeof(capture_callback_data_t));
+  cb->cb_fct = func;
+  cb->user_data = user_data;
 
-    capture_callbacks = g_list_append(capture_callbacks, cb);
+  capture_callbacks = g_list_append(capture_callbacks, cb);
 }
 
 void
 capture_callback_remove(capture_callback_t func)
 {
-    capture_callback_data_t *cb;
-    GList *cb_item = capture_callbacks;
+  capture_callback_data_t *cb;
+  GList *cb_item = capture_callbacks;
 
-    while(cb_item != NULL) {
-        cb = cb_item->data;
-        if(cb->cb_fct == func) {
-            capture_callbacks = g_list_remove(capture_callbacks, cb);
-            g_free(cb);
-            return;
-        }
-        cb_item = g_list_next(cb_item);
+  while(cb_item != NULL) {
+    cb = cb_item->data;
+    if(cb->cb_fct == func) {
+      capture_callbacks = g_list_remove(capture_callbacks, cb);
+      g_free(cb);
+      return;
     }
+    cb_item = g_list_next(cb_item);
+  }
 
-    g_assert_not_reached();
+  g_assert_not_reached();
 }
 
 /**
@@ -144,7 +144,7 @@ capture_start(capture_options *capture_opts)
 
   /* close the currently loaded capture file */
   cf_close(capture_opts->cf);
-
+  collect_ifaces(capture_opts);
   g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Start ...");
 
 #ifdef _WIN32
@@ -176,7 +176,6 @@ capture_start(capture_options *capture_opts)
   }
   cf_set_tempfile_source(capture_opts->cf, source->str);
   g_string_free(source, TRUE);
-
   /* try to start the capture child process */
   ret = sync_pipe_start(capture_opts);
   if(!ret) {
@@ -548,239 +547,242 @@ capture_input_cfilter_error_message(capture_options *capture_opts, guint i, char
 void
 capture_input_closed(capture_options *capture_opts, gchar *msg)
 {
-    int  err;
-    int  packet_count_save;
+  int  err;
+  int  packet_count_save;
 
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture stopped!");
-    g_assert(capture_opts->state == CAPTURE_PREPARING || capture_opts->state == CAPTURE_RUNNING);
+  g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture stopped!");
+  g_assert(capture_opts->state == CAPTURE_PREPARING || capture_opts->state == CAPTURE_RUNNING);
 
-    if (msg != NULL)
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", msg);
+  if (msg != NULL)
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", msg);
 
-    /* if we didn't start the capture, do a fake start. */
-    /* (happens if we got an error message - we won't get a filename then). */
-    if(capture_opts->state == CAPTURE_PREPARING) {
-        if(capture_opts->real_time_mode) {
-            capture_callback_invoke(capture_cb_capture_update_started, capture_opts);
-        } else {
-            capture_callback_invoke(capture_cb_capture_fixed_started, capture_opts);
-        }
-    }
-
+  /* if we didn't start the capture, do a fake start. */
+  /* (happens if we got an error message - we won't get a filename then). */
+  if(capture_opts->state == CAPTURE_PREPARING) {
     if(capture_opts->real_time_mode) {
-        cf_read_status_t status;
+      capture_callback_invoke(capture_cb_capture_update_started, capture_opts);
+    } else {
+      capture_callback_invoke(capture_cb_capture_fixed_started, capture_opts);
+    }
+  }
 
-        /* Read what remains of the capture file. */
-        status = cf_finish_tail(capture_opts->cf, &err);
+  if(capture_opts->real_time_mode) {
+    cf_read_status_t status;
 
-        /* XXX: If -Q (quit-after-cap) then cf->count clr'd below so save it first */
-        packet_count_save = cf_get_packet_count(capture_opts->cf);
-        /* Tell the GUI we are not doing a capture any more.
-           Must be done after the cf_finish_tail(), so file lengths are 
-           correctly displayed */
-        capture_callback_invoke(capture_cb_capture_update_finished, capture_opts);
+    /* Read what remains of the capture file. */
+    status = cf_finish_tail(capture_opts->cf, &err);
 
-        /* Finish the capture. */
-        switch (status) {
+    /* XXX: If -Q (quit-after-cap) then cf->count clr'd below so save it first */
+    packet_count_save = cf_get_packet_count(capture_opts->cf);
+    /* Tell the GUI we are not doing a capture any more.
+       Must be done after the cf_finish_tail(), so file lengths are 
+       correctly displayed */
+    capture_callback_invoke(capture_cb_capture_update_finished, capture_opts);
 
-        case CF_READ_OK:
-            if ((packet_count_save == 0) && !capture_opts->restart) {
-                simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
-"%sNo packets captured!%s\n"
-"\n"
-"As no data was captured, closing the %scapture file!\n"
-"\n"
-"\n"
-"Help about capturing can be found at:\n"
-"\n"
-"       http://wiki.wireshark.org/CaptureSetup"
+    /* Finish the capture. */
+    switch (status) {
+
+    case CF_READ_OK:
+      if ((packet_count_save == 0) && !capture_opts->restart) {
+        simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
+          "%sNo packets captured!%s\n"
+          "\n"
+          "As no data was captured, closing the %scapture file!\n"
+          "\n"
+          "\n"
+          "Help about capturing can be found at:\n"
+          "\n"
+          "       http://wiki.wireshark.org/CaptureSetup"
 #ifdef _WIN32
-"\n\n"
-"Wireless (Wi-Fi/WLAN):\n"
-"Try to switch off promiscuous mode in the Capture Options!"
+          "\n\n"
+          "Wireless (Wi-Fi/WLAN):\n"
+          "Try to switch off promiscuous mode in the Capture Options!"
 #endif
-"",
-              simple_dialog_primary_start(), simple_dialog_primary_end(),
-              cf_is_tempfile(capture_opts->cf) ? "temporary " : "");
-              cf_close(capture_opts->cf);
-            }
-            break;
-        case CF_READ_ERROR:
-          /* Just because we got an error, that doesn't mean we were unable
-             to read any of the file; we handle what we could get from the
-             file. */
-          break;
-
-        case CF_READ_ABORTED:
-          /* Exit by leaving the main loop, so that any quit functions
-             we registered get called. */
-          main_window_quit();
-	  break;
-        }
-
-    } else {
-        /* first of all, we are not doing a capture any more */
-        capture_callback_invoke(capture_cb_capture_fixed_finished, capture_opts);
-
-        /* this is a normal mode capture and if no error happened, read in the capture file data */
-        if(capture_opts->save_file != NULL) {
-            capture_input_read_all(capture_opts, cf_is_tempfile(capture_opts->cf),
-                cf_get_drops_known(capture_opts->cf), cf_get_drops(capture_opts->cf));
-        }
-    }
-
-    if(capture_opts->show_info)
-      capture_info_close();
-
-    capture_opts->state = CAPTURE_STOPPED;
-
-    /* if we couldn't open a capture file, there's nothing more for us to do */
-    if(capture_opts->save_file == NULL) {
+          "",
+          simple_dialog_primary_start(), simple_dialog_primary_end(),
+          cf_is_tempfile(capture_opts->cf) ? "temporary " : "");
         cf_close(capture_opts->cf);
-        return;
+      }
+      break;
+    case CF_READ_ERROR:
+      /* Just because we got an error, that doesn't mean we were unable
+         to read any of the file; we handle what we could get from the
+         file. */
+      break;
+
+    case CF_READ_ABORTED:
+      /* Exit by leaving the main loop, so that any quit functions
+         we registered get called. */
+      main_window_quit();
+      break;
     }
 
-    /* does the user wants to restart the current capture? */
-    if(capture_opts->restart) {
-        capture_opts->restart = FALSE;
+  } else {
+    /* first of all, we are not doing a capture any more */
+    capture_callback_invoke(capture_cb_capture_fixed_finished, capture_opts);
 
-        ws_unlink(capture_opts->save_file);
-
-        /* if it was a tempfile, throw away the old filename (so it will become a tempfile again) */
-        if(cf_is_tempfile(capture_opts->cf)) {
-            g_free(capture_opts->save_file);
-            capture_opts->save_file = NULL;
-        }
-
-        /* ... and start the capture again */
-        capture_start(capture_opts);
-    } else {
-        /* We're not doing a capture any more, so we don't have a save file. */
-        g_free(capture_opts->save_file);
-        capture_opts->save_file = NULL;
+    /* this is a normal mode capture and if no error happened, read in the capture file data */
+    if(capture_opts->save_file != NULL) {
+      capture_input_read_all(capture_opts, cf_is_tempfile(capture_opts->cf),
+        cf_get_drops_known(capture_opts->cf), cf_get_drops(capture_opts->cf));
     }
+  }
+
+  if(capture_opts->show_info)
+    capture_info_close();
+
+  capture_opts->state = CAPTURE_STOPPED;
+
+  /* if we couldn't open a capture file, there's nothing more for us to do */
+  if(capture_opts->save_file == NULL) {
+    cf_close(capture_opts->cf);
+    return;
+  }
+
+  /* does the user wants to restart the current capture? */
+  if(capture_opts->restart) {
+    capture_opts->restart = FALSE;
+
+    ws_unlink(capture_opts->save_file);
+
+    /* if it was a tempfile, throw away the old filename (so it will become a tempfile again) */
+    if(cf_is_tempfile(capture_opts->cf)) {
+      g_free(capture_opts->save_file);
+      capture_opts->save_file = NULL;
+    }
+
+    /* ... and start the capture again */
+    if (capture_opts->ifaces->len == 0) {
+      collect_ifaces(capture_opts);
+    }
+    capture_start(capture_opts);
+  } else {
+    /* We're not doing a capture any more, so we don't have a save file. */
+    g_free(capture_opts->save_file);
+    capture_opts->save_file = NULL;
+  }
 }
 
 if_stat_cache_t *
-capture_stat_start(GList *if_list) {
-    int stat_fd, fork_child;
-    gchar *msg;
-    if_stat_cache_t *sc = NULL;
-    GList *if_entry;
-    if_info_t *if_info;
-    if_stat_cache_item_t *sc_item;
+capture_stat_start(capture_options *capture_opts) {
+  int stat_fd, fork_child;
+  gchar *msg;
+  if_stat_cache_t *sc = NULL;
+  if_stat_cache_item_t *sc_item;
+  guint i;
+  interface_t device;
 
-    /* Fire up dumpcap. */
-    /*
-     * XXX - on systems with BPF, the number of BPF devices limits the
-     * number of devices on which you can capture simultaneously.
-     *
-     * This means that
-     *
-     *    1) this might fail if you run out of BPF devices
-     *
-     * and
-     *
-     *    2) opening every interface could leave too few BPF devices
-     *       for *other* programs.
-     *
-     * It also means the system could end up getting a lot of traffic
-     * that it has to pass through the networking stack and capture
-     * mechanism, so opening all the devices and presenting packet
-     * counts might not always be a good idea.
-     */
-     if (sync_interface_stats_open(&stat_fd, &fork_child, &msg) == 0) {
-        sc = g_malloc(sizeof(if_stat_cache_t));
-        sc->stat_fd = stat_fd;
-        sc->fork_child = fork_child;
-        sc->cache_list = NULL;
+  /* Fire up dumpcap. */
+  /*
+   * XXX - on systems with BPF, the number of BPF devices limits the
+   * number of devices on which you can capture simultaneously.
+   *
+   * This means that
+   *
+   *    1) this might fail if you run out of BPF devices
+   *
+   * and
+   *
+   *    2) opening every interface could leave too few BPF devices
+   *       for *other* programs.
+   *
+   * It also means the system could end up getting a lot of traffic
+   * that it has to pass through the networking stack and capture
+   * mechanism, so opening all the devices and presenting packet
+   * counts might not always be a good idea.
+   */
+  if (sync_interface_stats_open(&stat_fd, &fork_child, &msg) == 0) {
+    sc = g_malloc(sizeof(if_stat_cache_t));
+    sc->stat_fd = stat_fd;
+    sc->fork_child = fork_child;
+    sc->cache_list = NULL;
 
-        /* Initialize the cache */
-        for (if_entry = if_list; if_entry != NULL; if_entry = g_list_next(if_entry)) {
-            if_info = if_entry->data;
-            if (if_info) {
-                sc_item = g_malloc0(sizeof(if_stat_cache_item_t));
-                sc_item->name = g_strdup(if_info->name);
-                sc->cache_list = g_list_append(sc->cache_list, sc_item);
-            }
-        }
+    /* Initialize the cache */
+    for (i = 0; i < capture_opts->all_ifaces->len; i++) {
+      device = g_array_index(capture_opts->all_ifaces, interface_t, i);
+      if (&(device.if_info)) {
+        sc_item = g_malloc0(sizeof(if_stat_cache_item_t));
+        sc_item->name = g_strdup(device.if_info.name);
+        sc->cache_list = g_list_append(sc->cache_list, sc_item);
+      }
     }
-    return sc;
+  }
+  return sc;
 }
 
 #define MAX_STAT_LINE_LEN 500
 
 static void
 capture_stat_cache_update(if_stat_cache_t *sc) {
-    gchar stat_line[MAX_STAT_LINE_LEN];
-    gchar **stat_parts;
-    GList *sc_entry;
-    if_stat_cache_item_t *sc_item;
+  gchar stat_line[MAX_STAT_LINE_LEN];
+  gchar **stat_parts;
+  GList *sc_entry;
+  if_stat_cache_item_t *sc_item;
 
-    if (!sc)
-        return;
+  if (!sc)
+    return;
 
-    while (sync_pipe_gets_nonblock(sc->stat_fd, stat_line, MAX_STAT_LINE_LEN) > 0) {
-        g_strstrip(stat_line);
-        stat_parts = g_strsplit(stat_line, "\t", 3);
-        if (stat_parts[0] == NULL || stat_parts[1] == NULL ||
-            stat_parts[2] == NULL) {
-            g_strfreev(stat_parts);
-            continue;
-        }
-        for (sc_entry = sc->cache_list; sc_entry != NULL; sc_entry = g_list_next(sc_entry)) {
-            sc_item = sc_entry->data;
-            if (strcmp(sc_item->name, stat_parts[0]) == 0) {
-                sc_item->ps.ps_recv = (u_int) strtoul(stat_parts[1], NULL, 10);
-                sc_item->ps.ps_drop = (u_int) strtoul(stat_parts[2], NULL, 10);
-            }
-        }
-        g_strfreev(stat_parts);
+  while (sync_pipe_gets_nonblock(sc->stat_fd, stat_line, MAX_STAT_LINE_LEN) > 0) {
+    g_strstrip(stat_line);
+    stat_parts = g_strsplit(stat_line, "\t", 3);
+    if (stat_parts[0] == NULL || stat_parts[1] == NULL ||
+      stat_parts[2] == NULL) {
+      g_strfreev(stat_parts);
+      continue;
     }
+    for (sc_entry = sc->cache_list; sc_entry != NULL; sc_entry = g_list_next(sc_entry)) {
+      sc_item = sc_entry->data;
+      if (strcmp(sc_item->name, stat_parts[0]) == 0) {
+        sc_item->ps.ps_recv = (u_int) strtoul(stat_parts[1], NULL, 10);
+        sc_item->ps.ps_drop = (u_int) strtoul(stat_parts[2], NULL, 10);
+      }
+    }
+  g_strfreev(stat_parts);
+  }
 }
 
 gboolean
 capture_stats(if_stat_cache_t *sc, char *ifname, struct pcap_stat *ps) {
-    GList *sc_entry;
-    if_stat_cache_item_t *sc_item;
+  GList *sc_entry;
+  if_stat_cache_item_t *sc_item;
 
-    if (!sc || !ifname || !ps) {
-        return FALSE;
-    }
-
-    capture_stat_cache_update(sc);
-    for (sc_entry = sc->cache_list; sc_entry != NULL; sc_entry = g_list_next(sc_entry)) {
-        sc_item = sc_entry->data;
-        if (strcmp(sc_item->name, ifname) == 0) {
-            memcpy(ps, &sc_item->ps, sizeof(struct pcap_stat));
-            return TRUE;
-        }
-    }
+  if (!sc || !ifname || !ps) {
     return FALSE;
+  }
+
+  capture_stat_cache_update(sc);
+  for (sc_entry = sc->cache_list; sc_entry != NULL; sc_entry = g_list_next(sc_entry)) {
+    sc_item = sc_entry->data;
+    if (strcmp(sc_item->name, ifname) == 0) {
+      memcpy(ps, &sc_item->ps, sizeof(struct pcap_stat));
+      return TRUE;
+    }
+  }
+  return FALSE;
 }
 
 void
 capture_stat_stop(if_stat_cache_t *sc) {
-    GList *sc_entry;
-    if_stat_cache_item_t *sc_item;
-    int ret;
-    gchar *msg;
+  GList *sc_entry;
+  if_stat_cache_item_t *sc_item;
+  int ret;
+  gchar *msg;
 
-    if (!sc)
-        return;
+  if (!sc)
+    return;
 
-    ret = sync_interface_stats_close(&sc->stat_fd, &sc->fork_child, &msg);
-    if (ret == -1) {
-        /* XXX - report failure? */
-        g_free(msg);
-    }
+  ret = sync_interface_stats_close(&sc->stat_fd, &sc->fork_child, &msg);
+  if (ret == -1) {
+    /* XXX - report failure? */
+    g_free(msg);
+  }
 
-    for (sc_entry = sc->cache_list; sc_entry != NULL; sc_entry = g_list_next(sc_entry)) {
-        sc_item = sc_entry->data;
-        g_free(sc_item->name);
-        g_free(sc_item);
-    }
-    g_free(sc);
+  for (sc_entry = sc->cache_list; sc_entry != NULL; sc_entry = g_list_next(sc_entry)) {
+    sc_item = sc_entry->data;
+    g_free(sc_item->name);
+    g_free(sc_item);
+  }
+  g_free(sc);
 }
 
 #endif /* HAVE_LIBPCAP */

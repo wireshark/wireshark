@@ -124,7 +124,9 @@ stats_prefs_fetch(GtkWidget *w _U_)
 void
 stats_prefs_apply(GtkWidget *w _U_)
 {
+#if defined(_WIN32)
         reset_tap_update_timer();
+#endif
 }
 
 void
