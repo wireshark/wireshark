@@ -1497,7 +1497,6 @@ build_file_save_type_list(GArray *savable_file_types) {
             ft = g_array_index(savable_file_types, int, i);
             append_file_type(sa, ft);
         }
-        g_array_free(savable_file_types, TRUE);
     }
 
     /* terminate the array */
