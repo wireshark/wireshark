@@ -2225,7 +2225,7 @@ proto_register_bssap(void)
         FT_UINT8, BASE_DEC, VALS(bssap_plus_ie_id_values), 0x0,
         NULL, HFILL}},
         { &hf_bssap_plus_ie_len,
-          { "Length indicator", "bssap_plus.iei",
+          { "Length indicator", "bssap_plus.ie_len",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL}},
         { &hf_bssap_extension,
