@@ -47,7 +47,7 @@
  *
  * COMPLEMENT TO ITU-T RECOMMENDATION E.212 (05/2008)
  *
- * Find the bullentines here:
+ * Find the bulletins here:
  * http://www.itu.int/en/publications/ITU-T/Pages/publications.aspx?parent=T-SP&view=T-SP1
  * Some updates from Annex to ITU Operational Bulletin No. 992 of 15.XI.2011
  * http://www.itu.int/dms_pub/itu-t/opb/sp/T-SP-E.212B-2011-PDF-E.pdf
