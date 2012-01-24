@@ -49,7 +49,7 @@
  *
  * Find the bullentines here:
  * http://www.itu.int/en/publications/ITU-T/Pages/publications.aspx?parent=T-SP&view=T-SP1
- * Some updates from Annex to ITU Operational Bulletin No. 992 – 15.XI.2011
+ * Some updates from Annex to ITU Operational Bulletin No. 992 of 15.XI.2011
  * http://www.itu.int/dms_pub/itu-t/opb/sp/T-SP-E.212B-2011-PDF-E.pdf
  */
 static const value_string E212_codes[] = {
@@ -969,14 +969,14 @@ static const value_string mcc_mnc_codes[] = {
 	{  240250, "Digitel Mobile Srl" },
 	{  240260, "Beepsend AB" },
 	{  240270, "MyIndian AB" },
-	{  240280, "CoolTEL Aps A.B." }, 
-	{  240290, "Mercury International Carrier Services" }, 
+	{  240280, "CoolTEL Aps A.B." },
+	{  240290, "Mercury International Carrier Services" },
 	{  240300, "NextGen Mobile Ltd" },
 	{  240310, "Mobimax AB" },
 	{  240320, "Compatel Ltd" },
 	{  240330, "Mobile Arts AB" },
 	{  240340, "Tigo Ltd" },
-	{  240400, "ReWiCom Scandinavia AB" }, 
+	{  240400, "ReWiCom Scandinavia AB" },
 	{  242010, "Telenor Mobil AS" },
 	{  242020, "Netcom GSM AS" },
 	{  242030, "Teletopia Mobile Communications AS" },
@@ -2364,7 +2364,7 @@ dissect_e212_mcc_mnc_ep_str(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * known, do NOT print unknown.
 		 */
 		mcc_mnc_str = ep_strdup_printf("MCC %u %s, MNC %03u %s",
-			mcc, 
+			mcc,
 			val_to_str_ext_const(mcc,&E212_codes_ext,""),
 			mnc,
 			val_to_str_ext_const(mcc * 1000 + mnc, &mcc_mnc_codes_ext, ""));
@@ -2377,7 +2377,7 @@ dissect_e212_mcc_mnc_ep_str(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * known, do NOT print unknown.
 		 */
 		mcc_mnc_str = ep_strdup_printf("MCC %u %s, MNC %02u %s",
-			mcc, 
+			mcc,
 			val_to_str_ext_const(mcc,&E212_codes_ext,""),
 			mnc,
 			val_to_str_ext_const(mcc * 1000 + mnc, &mcc_mnc_codes_ext, ""));
