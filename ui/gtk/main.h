@@ -26,7 +26,6 @@
 #define __MAIN_H__
 
 #include "globals.h"
-#include "capture_opts.h"
 
 /** @defgroup main_window_group Main window
  * The main window has the following submodules:
@@ -333,10 +332,10 @@ extern gboolean main_filter_packets(capture_file *cf, const gchar *dftext,
 #ifdef _WIN32
 /** Win32 only: Create a console. Beware: cannot be closed again. */
 extern void create_console(void);
+#endif
 
 /** Restart the tap update display timer with new configured interval */
 extern void reset_tap_update_timer(void);
-#endif
 
 /** Fill in capture options with values from the preferences */
 extern void prefs_to_capture_opts(void);
@@ -351,8 +350,5 @@ extern void redissect_packets(void);
 extern GList *get_ip_address_list_from_packet_list_row(gpointer data);
 
 extern GtkWidget *pkt_scrollw;
-
-void hide_interface(gchar* new_hide);
-
 
 #endif /* __MAIN_H__ */

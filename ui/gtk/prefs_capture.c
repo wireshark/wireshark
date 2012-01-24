@@ -1424,7 +1424,6 @@ ifopts_write_new_hide(void)
 			g_free(new_hide);
 			prefs.capture_devices_hide = NULL;
 		}
-		hide_interface(g_strdup(new_hide));
 	}
 }
 

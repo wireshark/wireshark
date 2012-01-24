@@ -118,7 +118,6 @@
 #include "../capture_ifinfo.h"
 #include "../capture.h"
 #include "../capture_sync.h"
-extern gint if_list_comparator_alph (const void *first_arg, const void *second_arg);
 #endif
 
 #ifdef _WIN32
@@ -516,16 +515,16 @@ selected_ptree_ref_cb(GtkWidget *widget _U_, gpointer data _U_)
 static gboolean
 is_address_column (gint column)
 {
-    if (((cfile.cinfo.col_fmt[column] == COL_DEF_SRC) ||
-         (cfile.cinfo.col_fmt[column] == COL_RES_SRC) ||
-         (cfile.cinfo.col_fmt[column] == COL_DEF_DST) ||
-         (cfile.cinfo.col_fmt[column] == COL_RES_DST)) &&
-        strlen(cfile.cinfo.col_expr.col_expr_val[column]))
-    {
-        return TRUE;
-    }
+  if (((cfile.cinfo.col_fmt[column] == COL_DEF_SRC) ||
+       (cfile.cinfo.col_fmt[column] == COL_RES_SRC) ||
+       (cfile.cinfo.col_fmt[column] == COL_DEF_DST) ||
+       (cfile.cinfo.col_fmt[column] == COL_RES_DST)) &&
+      strlen(cfile.cinfo.col_expr.col_expr_val[column]))
+  {
+    return TRUE;
+  }
 
-    return FALSE;
+  return FALSE;
 }
 
 GList *
@@ -551,17 +550,17 @@ get_ip_address_list_from_packet_list_row(gpointer data)
         epan_dissect_run(&edt, &cfile.pseudo_header, cfile.pd, fdata, &cfile.cinfo);
         epan_dissect_fill_in_columns(&edt, TRUE, TRUE);
 
-        /* First check selected column */
-        if (is_address_column (column)) {
-            addr_list = g_list_append (addr_list, se_strdup_printf("%s", cfile.cinfo.col_expr.col_expr_val[column]));
+	/* First check selected column */
+	if (is_address_column (column)) {
+	  addr_list = g_list_append (addr_list, se_strdup_printf("%s", cfile.cinfo.col_expr.col_expr_val[column]));
         }
 
-        for (col = 0; col < cfile.cinfo.num_cols; col++) {
-            /* Then check all columns except the selected */
-            if ((col != column) && (is_address_column (col))) {
-                addr_list = g_list_append (addr_list, se_strdup_printf("%s", cfile.cinfo.col_expr.col_expr_val[col]));
-            }
-        }
+	for (col = 0; col < cfile.cinfo.num_cols; col++) {
+	  /* Then check all columns except the selected */
+	  if ((col != column) && (is_address_column (col))) {
+	    addr_list = g_list_append (addr_list, se_strdup_printf("%s", cfile.cinfo.col_expr.col_expr_val[col]));
+	  }
+	}
 
         epan_dissect_cleanup(&edt);
     }
@@ -694,23 +693,23 @@ copy_selected_plist_cb(GtkWidget *w _U_, gpointer data _U_, COPY_SELECTED_E acti
 /* mark as reference time frame */
 void
 set_frame_reftime(gboolean set, frame_data *frame, gint row) {
-    if (row == -1)
-        return;
-    if (set) {
-        frame->flags.ref_time=1;
-        cfile.ref_time_count++;
-    } else {
-        frame->flags.ref_time=0;
-        cfile.ref_time_count--;
-    }
-    cf_reftime_packets(&cfile);
-    if (!frame->flags.ref_time && !frame->flags.passed_dfilter) {
-        new_packet_list_freeze();
-        cfile.displayed_count--;
-        new_packet_list_recreate_visible_rows();
-        new_packet_list_thaw();
-    }
-    new_packet_list_queue_draw();
+  if (row == -1)
+    return;
+  if (set) {
+    frame->flags.ref_time=1;
+	cfile.ref_time_count++;
+  } else {
+    frame->flags.ref_time=0;
+    cfile.ref_time_count--;
+  }
+  cf_reftime_packets(&cfile);
+  if (!frame->flags.ref_time && !frame->flags.passed_dfilter) {
+    new_packet_list_freeze();
+    cfile.displayed_count--;
+    new_packet_list_recreate_visible_rows();
+    new_packet_list_thaw();
+  }
+  new_packet_list_queue_draw();
 }
 
 
@@ -720,8 +719,8 @@ static void reftime_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_
     case(ESD_BTN_YES):
         timestamp_set_type(TS_RELATIVE);
         recent.gui_time_format  = TS_RELATIVE;
-        cf_timestamp_auto_precision(&cfile);
-        new_packet_list_queue_draw();
+		cf_timestamp_auto_precision(&cfile);
+		new_packet_list_queue_draw();
         break;
     case(ESD_BTN_NO):
         break;
@@ -731,7 +730,7 @@ static void reftime_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_
 
     if (cfile.current_frame) {
       set_frame_reftime(!cfile.current_frame->flags.ref_time,
-      cfile.current_frame, cfile.current_row);
+			cfile.current_frame, cfile.current_row);
     }
 }
 
@@ -739,31 +738,31 @@ static void reftime_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_
 void
 reftime_frame_cb(GtkWidget *w _U_, gpointer data _U_, REFTIME_ACTION_E action)
 {
-    static GtkWidget *reftime_dialog = NULL;
+  static GtkWidget *reftime_dialog = NULL;
 
-    switch(action){
-    case REFTIME_TOGGLE:
-        if (cfile.current_frame) {
-            if(recent.gui_time_format != TS_RELATIVE && cfile.current_frame->flags.ref_time==0) {
-                reftime_dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_YES_NO,
-                    "%sSwitch to the appropriate Time Display Format?%s\n\n"
-                    "Time References don't work well with the currently selected Time Display Format.\n\n"
-                    "Do you want to switch to \"Seconds Since Beginning of Capture\" now?",
-                    simple_dialog_primary_start(), simple_dialog_primary_end());
-                simple_dialog_set_cb(reftime_dialog, reftime_answered_cb, NULL);
-            } else {
-                set_frame_reftime(!cfile.current_frame->flags.ref_time,
-                                  cfile.current_frame, cfile.current_row);
-            }
+  switch(action){
+  case REFTIME_TOGGLE:
+    if (cfile.current_frame) {
+        if(recent.gui_time_format != TS_RELATIVE && cfile.current_frame->flags.ref_time==0) {
+            reftime_dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_YES_NO,
+                "%sSwitch to the appropriate Time Display Format?%s\n\n"
+                "Time References don't work well with the currently selected Time Display Format.\n\n"
+                "Do you want to switch to \"Seconds Since Beginning of Capture\" now?",
+                simple_dialog_primary_start(), simple_dialog_primary_end());
+            simple_dialog_set_cb(reftime_dialog, reftime_answered_cb, NULL);
+        } else {
+            set_frame_reftime(!cfile.current_frame->flags.ref_time,
+                              cfile.current_frame, cfile.current_row);
         }
-        break;
-    case REFTIME_FIND_NEXT:
-        cf_find_packet_time_reference(&cfile, SD_FORWARD);
-        break;
-    case REFTIME_FIND_PREV:
-        cf_find_packet_time_reference(&cfile, SD_BACKWARD);
-        break;
     }
+    break;
+  case REFTIME_FIND_NEXT:
+    cf_find_packet_time_reference(&cfile, SD_FORWARD);
+    break;
+  case REFTIME_FIND_PREV:
+    cf_find_packet_time_reference(&cfile, SD_BACKWARD);
+    break;
+  }
 }
 
 void
@@ -876,47 +875,47 @@ tree_view_selection_changed_cb(GtkTreeSelection *sel, gpointer user_data _U_)
 }
 
 void collapse_all_cb(GtkWidget *widget _U_, gpointer data _U_) {
-    if (cfile.edt->tree)
-        collapse_all_tree(cfile.edt->tree, tree_view_gbl);
+  if (cfile.edt->tree)
+    collapse_all_tree(cfile.edt->tree, tree_view_gbl);
 }
 
 void expand_all_cb(GtkWidget *widget _U_, gpointer data _U_) {
-    if (cfile.edt->tree)
-        expand_all_tree(cfile.edt->tree, tree_view_gbl);
+  if (cfile.edt->tree)
+    expand_all_tree(cfile.edt->tree, tree_view_gbl);
 }
 
 void apply_as_custom_column_cb (GtkWidget *widget _U_, gpointer data _U_)
 {
-    if (cfile.finfo_selected) {
-        column_prefs_add_custom(COL_CUSTOM, cfile.finfo_selected->hfinfo->name,
-                                cfile.finfo_selected->hfinfo->abbrev,0);
-        /* Recreate the packet list according to new preferences */
-        new_packet_list_recreate ();
-        if (!prefs.gui_use_pref_save) {
-            prefs_main_write();
-        }
-        cfile.cinfo.columns_changed = FALSE; /* Reset value */
+  if (cfile.finfo_selected) {
+    column_prefs_add_custom(COL_CUSTOM, cfile.finfo_selected->hfinfo->name,
+                            cfile.finfo_selected->hfinfo->abbrev,0);
+    /* Recreate the packet list according to new preferences */
+    new_packet_list_recreate ();
+    if (!prefs.gui_use_pref_save) {
+      prefs_main_write();
     }
+    cfile.cinfo.columns_changed = FALSE; /* Reset value */
+  }
 }
 
 void expand_tree_cb(GtkWidget *widget _U_, gpointer data _U_) {
-    GtkTreePath  *path;
+  GtkTreePath  *path;
 
-    path = tree_find_by_field_info(GTK_TREE_VIEW(tree_view_gbl), cfile.finfo_selected);
-    if(path) {
-        /* the mouse position is at an entry, expand that one */
-        gtk_tree_view_expand_row(GTK_TREE_VIEW(tree_view_gbl), path, TRUE);
-        gtk_tree_path_free(path);
-    }
+  path = tree_find_by_field_info(GTK_TREE_VIEW(tree_view_gbl), cfile.finfo_selected);
+  if(path) {
+    /* the mouse position is at an entry, expand that one */
+    gtk_tree_view_expand_row(GTK_TREE_VIEW(tree_view_gbl), path, TRUE);
+    gtk_tree_path_free(path);
+  }
 }
 
 void resolve_name_cb(GtkWidget *widget _U_, gpointer data _U_) {
-    if (cfile.edt->tree) {
-        guint32 tmp = gbl_resolv_flags;
-        gbl_resolv_flags = RESOLV_ALL;
-        proto_tree_draw(cfile.edt->tree, tree_view_gbl);
-        gbl_resolv_flags = tmp;
-    }
+  if (cfile.edt->tree) {
+    guint32 tmp = gbl_resolv_flags;
+    gbl_resolv_flags = RESOLV_ALL;
+    proto_tree_draw(cfile.edt->tree, tree_view_gbl);
+    gbl_resolv_flags = tmp;
+  }
 }
 
 static void
@@ -930,100 +929,100 @@ main_set_for_capture_file(gboolean have_capture_file_in)
 gboolean
 main_do_quit(void)
 {
-    /* get the current geometry, before writing it to disk */
-    main_save_window_geometry(top_level);
+	/* get the current geometry, before writing it to disk */
+	main_save_window_geometry(top_level);
 
-    /* write user's recent file to disk
-     * It is no problem to write this file, even if we do not quit */
-    write_profile_recent();
-    write_recent();
+	/* write user's recent file to disk
+	 * It is no problem to write this file, even if we do not quit */
+	write_profile_recent();
+	write_recent();
 
-    /* XXX - should we check whether the capture file is an
-       unsaved temporary file for a live capture and, if so,
-       pop up a "do you want to exit without saving the capture
-       file?" dialog, and then just return, leaving said dialog
-       box to forcibly quit if the user clicks "OK"?
+	/* XXX - should we check whether the capture file is an
+	   unsaved temporary file for a live capture and, if so,
+	   pop up a "do you want to exit without saving the capture
+	   file?" dialog, and then just return, leaving said dialog
+	   box to forcibly quit if the user clicks "OK"?
 
-       If so, note that this should be done in a subroutine that
-       returns TRUE if we do so, and FALSE otherwise, and if it
-       returns TRUE we should return TRUE without nuking anything.
+	   If so, note that this should be done in a subroutine that
+	   returns TRUE if we do so, and FALSE otherwise, and if it
+	   returns TRUE we should return TRUE without nuking anything.
 
-       Note that, if we do that, we might also want to check if
-       an "Update list of packets in real time" capture is in
-       progress and, if so, ask whether they want to terminate
-       the capture and discard it, and return TRUE, before nuking
-       any child capture, if they say they don't want to do so. */
+	   Note that, if we do that, we might also want to check if
+	   an "Update list of packets in real time" capture is in
+	   progress and, if so, ask whether they want to terminate
+	   the capture and discard it, and return TRUE, before nuking
+	   any child capture, if they say they don't want to do so. */
 
 #ifdef HAVE_LIBPCAP
-    /* Nuke any child capture in progress. */
-    capture_kill_child(&global_capture_opts);
+	/* Nuke any child capture in progress. */
+	capture_kill_child(&global_capture_opts);
 #endif
 
-    /* Are we in the middle of reading a capture? */
-    if (cfile.state == FILE_READ_IN_PROGRESS) {
-        /* Yes, so we can't just close the file and quit, as
-           that may yank the rug out from under the read in
-           progress; instead, just set the state to
-           "FILE_READ_ABORTED" and return - the code doing the read
-           will check for that and, if it sees that, will clean
-           up and quit. */
-        cfile.state = FILE_READ_ABORTED;
+	/* Are we in the middle of reading a capture? */
+	if (cfile.state == FILE_READ_IN_PROGRESS) {
+		/* Yes, so we can't just close the file and quit, as
+		   that may yank the rug out from under the read in
+		   progress; instead, just set the state to
+		   "FILE_READ_ABORTED" and return - the code doing the read
+		   will check for that and, if it sees that, will clean
+		   up and quit. */
+		cfile.state = FILE_READ_ABORTED;
 
-        /* Say that the window should *not* be deleted;
-           that'll be done by the code that cleans up. */
-        return TRUE;
-    } else {
-        /* Close any capture file we have open; on some OSes, you
-           can't unlink a temporary capture file if you have it
-           open.
-           "cf_close()" will unlink it after closing it if
-           it's a temporary file.
+		/* Say that the window should *not* be deleted;
+		   that'll be done by the code that cleans up. */
+		return TRUE;
+	} else {
+		/* Close any capture file we have open; on some OSes, you
+		   can't unlink a temporary capture file if you have it
+		   open.
+		   "cf_close()" will unlink it after closing it if
+		   it's a temporary file.
 
-           We do this here, rather than after the main loop returns,
-           as, after the main loop returns, the main window may have
-           been destroyed (if this is called due to a "destroy"
-           even on the main window rather than due to the user
-           selecting a menu item), and there may be a crash
-           or other problem when "cf_close()" tries to
-           clean up stuff in the main window.
+		   We do this here, rather than after the main loop returns,
+		   as, after the main loop returns, the main window may have
+		   been destroyed (if this is called due to a "destroy"
+		   even on the main window rather than due to the user
+		   selecting a menu item), and there may be a crash
+		   or other problem when "cf_close()" tries to
+		   clean up stuff in the main window.
 
-           XXX - is there a better place to put this?
-           Or should we have a routine that *just* closes the
-           capture file, and doesn't do anything with the UI,
-           which we'd call here, and another routine that
-           calls that routine and also cleans up the UI, which
-           we'd call elsewhere? */
-        cf_close(&cfile);
+		   XXX - is there a better place to put this?
+		   Or should we have a routine that *just* closes the
+		   capture file, and doesn't do anything with the UI,
+		   which we'd call here, and another routine that
+		   calls that routine and also cleans up the UI, which
+		   we'd call elsewhere? */
+		cf_close(&cfile);
 
-        /* Exit by leaving the main loop, so that any quit functions
-           we registered get called. */
-        gtk_main_quit();
+		/* Exit by leaving the main loop, so that any quit functions
+		   we registered get called. */
+		gtk_main_quit();
 
-        /* Say that the window should be deleted. */
-        return FALSE;
-    }
+		/* Say that the window should be deleted. */
+		return FALSE;
+	}
 }
 
 static gboolean
 main_window_delete_event_cb(GtkWidget *widget _U_, GdkEvent *event _U_, gpointer data _U_)
 {
-    gpointer dialog;
+  gpointer dialog;
 
-    if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
-        gtk_window_present(GTK_WINDOW(top_level));
-        /* user didn't saved his current file, ask him */
-        dialog = simple_dialog(ESD_TYPE_CONFIRMATION,
-                    ((cfile.state == FILE_READ_IN_PROGRESS) ? ESD_BTNS_QUIT_DONTSAVE_CANCEL : ESD_BTNS_SAVE_QUIT_DONTSAVE_CANCEL),
-                    "%sSave capture file before program quit?%s\n\n"
-                    "If you quit the program without saving, your capture data will be discarded.",
-                    simple_dialog_primary_start(), simple_dialog_primary_end());
-        simple_dialog_set_cb(dialog, file_quit_answered_cb, NULL);
-        return TRUE;
-    } else {
-        /* unchanged file, just exit */
-        /* "main_do_quit()" indicates whether the main window should be deleted. */
-        return main_do_quit();
-    }
+  if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
+    gtk_window_present(GTK_WINDOW(top_level));
+    /* user didn't saved his current file, ask him */
+    dialog = simple_dialog(ESD_TYPE_CONFIRMATION,
+                ((cfile.state == FILE_READ_IN_PROGRESS) ? ESD_BTNS_QUIT_DONTSAVE_CANCEL : ESD_BTNS_SAVE_QUIT_DONTSAVE_CANCEL),
+                "%sSave capture file before program quit?%s\n\n"
+                "If you quit the program without saving, your capture data will be discarded.",
+                simple_dialog_primary_start(), simple_dialog_primary_end());
+    simple_dialog_set_cb(dialog, file_quit_answered_cb, NULL);
+    return TRUE;
+  } else {
+    /* unchanged file, just exit */
+    /* "main_do_quit()" indicates whether the main window should be deleted. */
+    return main_do_quit();
+  }
 }
 
 
@@ -1117,18 +1116,18 @@ file_quit_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
   gpointer dialog;
 
-    if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
+  if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
        /* user didn't saved his current file, ask him */
-        dialog = simple_dialog(ESD_TYPE_CONFIRMATION,
-                      ((cfile.state == FILE_READ_IN_PROGRESS) ? ESD_BTNS_QUIT_DONTSAVE_CANCEL : ESD_BTNS_SAVE_QUIT_DONTSAVE_CANCEL),
-                       "%sSave capture file before program quit?%s\n\n"
-                       "If you quit the program without saving, your capture data will be discarded.",
-                       simple_dialog_primary_start(), simple_dialog_primary_end());
-        simple_dialog_set_cb(dialog, file_quit_answered_cb, NULL);
-    } else {
-        /* unchanged file, just exit */
-        main_do_quit();
-    }
+       dialog = simple_dialog(ESD_TYPE_CONFIRMATION,
+                  ((cfile.state == FILE_READ_IN_PROGRESS) ? ESD_BTNS_QUIT_DONTSAVE_CANCEL : ESD_BTNS_SAVE_QUIT_DONTSAVE_CANCEL),
+                   "%sSave capture file before program quit?%s\n\n"
+                   "If you quit the program without saving, your capture data will be discarded.",
+                   simple_dialog_primary_start(), simple_dialog_primary_end());
+       simple_dialog_set_cb(dialog, file_quit_answered_cb, NULL);
+  } else {
+    /* unchanged file, just exit */
+    main_do_quit();
+  }
 }
 
 static void
@@ -1318,8 +1317,8 @@ cmdarg_err_cont(const char *fmt, ...)
 static gboolean
 tap_update_cb(gpointer data _U_)
 {
-    draw_tap_listeners(FALSE);
-    return TRUE;
+	draw_tap_listeners(FALSE);
+	return TRUE;
 }
 
 /* Restart the tap update display timer with new configured interval */
@@ -1332,18 +1331,18 @@ void reset_tap_update_timer(void)
 void
 protect_thread_critical_region(void)
 {
-    /* Threading support for TAP:s removed
-     * http://www.wireshark.org/lists/wireshark-dev/200611/msg00199.html
-     * See the commit for removed code:
-     * http://anonsvn.wireshark.org/viewvc/viewvc.cgi?view=rev&revision=35027
-     */
+	/* Threading support for TAP:s removed
+	 * http://www.wireshark.org/lists/wireshark-dev/200611/msg00199.html
+	 * See the commit for removed code:
+	 * http://anonsvn.wireshark.org/viewvc/viewvc.cgi?view=rev&revision=35027
+	 */
 }
 void
 unprotect_thread_critical_region(void)
 {
-    /* Threading support for TAP:s removed
-     * http://www.wireshark.org/lists/wireshark-dev/200611/msg00199.html
-     */
+	/* Threading support for TAP:s removed
+	 * http://www.wireshark.org/lists/wireshark-dev/200611/msg00199.html
+	 */
 
 }
 
@@ -1358,9 +1357,9 @@ resolv_update_cb(gpointer data _U_)
   /* Anything new show up? */
   if (host_name_lookup_process(NULL)) {
     if (gtk_widget_get_window(pkt_scrollw))
-      gdk_window_invalidate_rect(gtk_widget_get_window(pkt_scrollw), NULL, TRUE);
+	gdk_window_invalidate_rect(gtk_widget_get_window(pkt_scrollw), NULL, TRUE);
     if (gtk_widget_get_window(tv_scrollw))
-      gdk_window_invalidate_rect(gtk_widget_get_window(tv_scrollw), NULL, TRUE);
+	gdk_window_invalidate_rect(gtk_widget_get_window(tv_scrollw), NULL, TRUE);
   }
 
   /* Always check. Even if we don't do async lookups we could still get
@@ -1403,9 +1402,6 @@ npf_warning_dialog_cb(gpointer dialog, gint btn _U_, gpointer data _U_)
 static void
 main_cf_cb_file_closing(capture_file *cf)
 {
-#ifdef HAVE_LIBPCAP
-    int i;
-#endif
 
     /* if we have more than 10000 packets, show a splash screen while closing */
     /* XXX - don't know a better way to decide whether to show or not,
@@ -1424,14 +1420,6 @@ main_cf_cb_file_closing(capture_file *cf)
     destroy_packet_wins();
     file_save_as_destroy();
 
-#ifdef HAVE_LIBPCAP
-    if (global_capture_opts.ifaces && global_capture_opts.ifaces->len > 0) {
-        for (i = (int)global_capture_opts.ifaces->len-1; i >= 0; i--) {
-            global_capture_opts.ifaces = g_array_remove_index(global_capture_opts.ifaces, i);
-        }
-    } 
-#endif
-    
     /* Restore the standard title bar message. */
     set_main_window_name("The Wireshark Network Analyzer");
 
@@ -1478,7 +1466,7 @@ main_cf_cb_file_read_finished(capture_file *cf)
         add_menu_recent_capture_file(cf->filename);
 
         /* Remember folder for next Open dialog and save it in recent */
-        dir_path = get_dirname(g_strdup(cf->filename));
+	dir_path = get_dirname(g_strdup(cf->filename));
         set_last_open_dir(dir_path);
         g_free(dir_path);
     }
@@ -2047,7 +2035,6 @@ main(int argc, char *argv[])
   char                *gdp_path, *dp_path;
   int                  err;
 #ifdef HAVE_LIBPCAP
-  int                  error;
   gboolean             start_capture = FALSE;
   gboolean             list_link_layer_types = FALSE;
   GList               *if_list;
@@ -2365,28 +2352,28 @@ main(int argc, char *argv[])
   /* We might want to have component specific log levels later ... */
 
   log_flags =
-            G_LOG_LEVEL_ERROR|
-            G_LOG_LEVEL_CRITICAL|
-            G_LOG_LEVEL_WARNING|
-            G_LOG_LEVEL_MESSAGE|
-            G_LOG_LEVEL_INFO|
-            G_LOG_LEVEL_DEBUG|
-            G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION;
+		    G_LOG_LEVEL_ERROR|
+		    G_LOG_LEVEL_CRITICAL|
+		    G_LOG_LEVEL_WARNING|
+		    G_LOG_LEVEL_MESSAGE|
+		    G_LOG_LEVEL_INFO|
+		    G_LOG_LEVEL_DEBUG|
+		    G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION;
 
   g_log_set_handler(NULL,
-            log_flags,
-            console_log_handler, NULL /* user_data */);
+		    log_flags,
+		    console_log_handler, NULL /* user_data */);
   g_log_set_handler(LOG_DOMAIN_MAIN,
-            log_flags,
-            console_log_handler, NULL /* user_data */);
+		    log_flags,
+		    console_log_handler, NULL /* user_data */);
 
 #ifdef HAVE_LIBPCAP
   g_log_set_handler(LOG_DOMAIN_CAPTURE,
-            log_flags,
-            console_log_handler, NULL /* user_data */);
+		    log_flags,
+		    console_log_handler, NULL /* user_data */);
   g_log_set_handler(LOG_DOMAIN_CAPTURE_CHILD,
-            log_flags,
-            console_log_handler, NULL /* user_data */);
+		    log_flags,
+		    console_log_handler, NULL /* user_data */);
 
   /* Set the initial values in the capture options. This might be overwritten
      by preference settings and then again by the command line parameters. */
@@ -2420,7 +2407,7 @@ main(int argc, char *argv[])
      dissectors, and we must do it before we read the preferences, in
      case any dissectors register preferences. */
   epan_init(register_all_protocols,register_all_protocol_handoffs,
-            splash_update, (gpointer) splash_win,
+	    splash_update, (gpointer) splash_win,
             failure_alert_box,open_failure_alert_box,read_failure_alert_box,
             write_failure_alert_box);
 
@@ -2430,8 +2417,8 @@ main(int argc, char *argv[])
      as the "-z" argument can specify a registered tap. */
 
   /* we register the plugin taps before the other taps because
-     stats_tree taps plugins will be registered as tap listeners
-     by stats_tree_stat.c and need to registered before that */
+	  stats_tree taps plugins will be registered as tap listeners
+	  by stats_tree_stat.c and need to registered before that */
 
 #ifdef HAVE_PLUGINS
   register_all_plugin_tap_listeners();
@@ -2460,11 +2447,6 @@ main(int argc, char *argv[])
   /* Fill in capture options with values from the preferences */
   prefs_to_capture_opts();
 
-#ifdef HAVE_LIBPCAP
-  if (global_capture_opts.all_ifaces->len == 0) {
-    scan_local_interfaces(&global_capture_opts, &error);
-  }
-#endif
   /* Now get our args */
   while ((opt = getopt(argc, argv, optstring)) != -1) {
     switch (opt) {
@@ -2475,6 +2457,7 @@ main(int argc, char *argv[])
       case 'f':        /* capture filter */
       case 'k':        /* Start capture immediately */
       case 'H':        /* Hide capture info dialog box */
+      case 'i':        /* Use interface xxx */
       case 'p':        /* Don't capture in promiscuous mode */
 #ifdef HAVE_PCAP_CREATE
       case 'I':        /* Capture in monitor mode, if available */
@@ -2504,25 +2487,13 @@ main(int argc, char *argv[])
         break;
 #endif
 
-#ifdef HAVE_LIBPCAP
-      case 'i':       /* Use interface xxx */
-        status = capture_opts_select_iface(&global_capture_opts, optarg);
-        if (status != 0) {
-            exit(status);
-        }
-#else
-        capture_option_specified = TRUE;
-        arg_error = TRUE;
-#endif
-        break;
-        
       /*** all non capture option specific ***/
       case 'C':
         /* Configuration profile settings were already processed just ignore them this time*/
-        break;
+	break;
       case 'd':
-        dfilter = optarg;
-        break;
+	dfilter = optarg;
+	break;
       case 'j':        /* Search backwards for a matching packet from filter in option J */
         jump_backwards = TRUE;
         break;
@@ -2561,7 +2532,7 @@ main(int argc, char *argv[])
         badopt = string_to_name_resolve(optarg, &gbl_resolv_flags);
         if (badopt != '\0') {
           cmdarg_err("-N specifies unknown resolving option '%c'; valid options are 'm', 'n', and 't'",
-            badopt);
+			badopt);
           exit(1);
         }
         break;
@@ -2586,7 +2557,7 @@ main(int argc, char *argv[])
             case PREFS_SET_NO_SUCH_PREF:
             case PREFS_SET_OBSOLETE:
               cmdarg_err("-o flag \"%s\" specifies unknown preference/recent value",
-                optarg);
+	            optarg);
               exit(1);
               break;
             default:
@@ -2595,7 +2566,7 @@ main(int argc, char *argv[])
           break;
         case PREFS_SET_OBSOLETE:
           cmdarg_err("-o flag \"%s\" specifies obsolete preference",
-            optarg);
+			optarg);
           exit(1);
           break;
         default:
@@ -2606,9 +2577,9 @@ main(int argc, char *argv[])
         /* Path settings were already processed just ignore them this time*/
         break;
       case 'r':        /* Read capture file xxx */
-        /* We may set "last_open_dir" to "cf_name", and if we change
-        "last_open_dir" later, we free the old value, so we have to
-        set "cf_name" to something that's been allocated. */
+	/* We may set "last_open_dir" to "cf_name", and if we change
+	   "last_open_dir" later, we free the old value, so we have to
+	   set "cf_name" to something that's been allocated. */
         cf_name = g_strdup(optarg);
         break;
       case 'R':        /* Read file filter */
@@ -2659,11 +2630,11 @@ main(int argc, char *argv[])
            part of a tap filter.  Instead, we just add the argument
            to a list of stat arguments. */
         if (!process_stat_cmd_arg(optarg)) {
-          cmdarg_err("Invalid -z argument.");
-          cmdarg_err_cont("  -z argument must be one of :");
-          list_stat_cmd_args();
-          exit(1);
-        }
+	  cmdarg_err("Invalid -z argument.");
+	  cmdarg_err_cont("  -z argument must be one of :");
+	  list_stat_cmd_args();
+	  exit(1);
+	}
         break;
       default:
       case '?':        /* Bad flag - print usage message */
@@ -2750,18 +2721,23 @@ main(int argc, char *argv[])
        sense? */
     if (global_capture_opts.multi_files_on) {
       /* Ring buffer works only under certain conditions:
-      a) ring buffer does not work with temporary files;
-      b) real_time_mode and multi_files_on are mutually exclusive -
-         real_time_mode takes precedence;
-      c) it makes no sense to enable the ring buffer if the maximum
-         file size is set to "infinite". */
+	 a) ring buffer does not work with temporary files;
+	 b) real_time_mode and multi_files_on are mutually exclusive -
+	    real_time_mode takes precedence;
+	 c) it makes no sense to enable the ring buffer if the maximum
+	    file size is set to "infinite". */
       if (global_capture_opts.save_file == NULL) {
-        cmdarg_err("Ring buffer requested, but capture isn't being saved to a permanent file.");
-        global_capture_opts.multi_files_on = FALSE;
+	cmdarg_err("Ring buffer requested, but capture isn't being saved to a permanent file.");
+	global_capture_opts.multi_files_on = FALSE;
       }
+/*      if (global_capture_opts.real_time_mode) {
+	cmdarg_err("Ring buffer requested, but an \"Update list of packets in real time\" capture is being done.");
+	global_capture_opts.multi_files_on = FALSE;
+      }*/
       if (!global_capture_opts.has_autostop_filesize && !global_capture_opts.has_file_duration) {
-        cmdarg_err("Ring buffer requested, but no maximum capture file size or duration were specified.");
-        /* XXX - this must be redesigned as the conditions changed */
+	cmdarg_err("Ring buffer requested, but no maximum capture file size or duration were specified.");
+/* XXX - this must be redesigned as the conditions changed */
+/*	global_capture_opts.multi_files_on = FALSE;*/
       }
     }
   }
@@ -2778,32 +2754,23 @@ main(int argc, char *argv[])
     /* Get the list of link-layer types for the capture devices. */
     if_capabilities_t *caps;
     guint i;
-    interface_t device;
-    for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+    interface_options interface_opts;
 
-      device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-      if (device.selected) {
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-        caps = capture_get_if_capabilities(device.name, device.monitor_mode_supported, &err_str);
-#else
-        caps = capture_get_if_capabilities(device.name, FALSE, &err_str);
-#endif
-        if (caps == NULL) {
-          cmdarg_err("%s", err_str);
-          g_free(err_str);
-          exit(2);
-        }
-        if (caps->data_link_types == NULL) {
-          cmdarg_err("The capture device \"%s\" has no data link types.", device.name);
-          exit(2);
-        }
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-        capture_opts_print_if_capabilities(caps, device.name, device.monitor_mode_supported);
-#else
-        capture_opts_print_if_capabilities(caps, device.name, FALSE);
-#endif
-        free_if_capabilities(caps);
+    for (i = 0; i < global_capture_opts.ifaces->len; i++) {
+
+      interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
+      caps = capture_get_if_capabilities(interface_opts.name, interface_opts.monitor_mode, &err_str);
+      if (caps == NULL) {
+        cmdarg_err("%s", err_str);
+        g_free(err_str);
+        exit(2);
       }
+      if (caps->data_link_types == NULL) {
+        cmdarg_err("The capture device \"%s\" has no data link types.", interface_opts.name);
+        exit(2);
+      }
+      capture_opts_print_if_capabilities(caps, interface_opts.name, interface_opts.monitor_mode);
+      free_if_capabilities(caps);
     }
     exit(0);
   }
@@ -2818,19 +2785,52 @@ main(int argc, char *argv[])
   prefs_apply_all();
 
 #ifdef HAVE_LIBPCAP
-  if ((global_capture_opts.num_selected == 0) &&
+  if ((global_capture_opts.ifaces->len == 0) &&
       (prefs.capture_device != NULL)) {
-    guint i;
-    interface_t device;
-    for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-      device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-      if (!device.hidden && strcmp(device.display_name, prefs.capture_device) == 0) {
-        device.selected = TRUE;
-        global_capture_opts.num_selected++;
-        global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
-        g_array_insert_val(global_capture_opts.all_ifaces, i, device);
-        break;
+    GList *curr, *combo_list;
+    gboolean found = FALSE;
+
+    if_list = capture_interface_list(&err, NULL);
+    if (g_list_length(if_list) > 0) {
+      combo_list = build_capture_combo_list(if_list, FALSE);
+      free_interface_list(if_list);
+      for (curr = combo_list; curr; curr = g_list_next(curr)) {
+        if (strcmp(curr->data, prefs.capture_device) == 0) {
+          found = TRUE;
+          break;
+        }
       }
+    }
+    if (found) {
+      interface_options interface_opts;
+
+      interface_opts.name = g_strdup(get_if_name(prefs.capture_device));
+      interface_opts.descr = get_interface_descriptive_name(interface_opts.name);
+      interface_opts.monitor_mode = prefs_capture_device_monitor_mode(interface_opts.name);
+      interface_opts.linktype = capture_dev_user_linktype_find(interface_opts.name);
+      interface_opts.cfilter = g_strdup(global_capture_opts.default_options.cfilter);
+      interface_opts.snaplen = global_capture_opts.default_options.snaplen;
+      interface_opts.has_snaplen = global_capture_opts.default_options.has_snaplen;
+      interface_opts.promisc_mode = global_capture_opts.default_options.promisc_mode;
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+      interface_opts.buffer_size =  global_capture_opts.default_options.buffer_size;
+#endif
+#ifdef HAVE_PCAP_REMOTE
+      interface_opts.src_type = global_capture_opts.default_options.src_type;
+      interface_opts.remote_host = g_strdup(global_capture_opts.default_options.remote_host);
+      interface_opts.remote_port = g_strdup(global_capture_opts.default_options.remote_port);
+      interface_opts.auth_type = global_capture_opts.default_options.auth_type;
+      interface_opts.auth_username = g_strdup(global_capture_opts.default_options.auth_username);
+      interface_opts.auth_password = g_strdup(global_capture_opts.default_options.auth_password);
+      interface_opts.datatx_udp = global_capture_opts.default_options.datatx_udp;
+      interface_opts.nocap_rpcap = global_capture_opts.default_options.nocap_rpcap;
+      interface_opts.nocap_local = global_capture_opts.default_options.nocap_local;
+ #endif
+ #ifdef HAVE_PCAP_SETSAMPLING
+      interface_opts.sampling_method = global_capture_opts.default_options.sampling_method;
+      interface_opts.sampling_param  = global_capture_opts.default_options.sampling_param;
+ #endif
+      g_array_insert_val(global_capture_opts.ifaces, 0, interface_opts);
     }
   }
 #endif
@@ -2873,8 +2873,8 @@ main(int argc, char *argv[])
   recent_read_dynamic(&rf_path, &rf_open_errno);
   if (rf_path != NULL && rf_open_errno != 0) {
     simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-          "Could not open recent file\n\"%s\": %s.",
-          rf_path, g_strerror(rf_open_errno));
+		  "Could not open recent file\n\"%s\": %s.",
+		  rf_path, g_strerror(rf_open_errno));
   }
 
   color_filters_enable(recent.packet_list_colorize);
@@ -2996,15 +2996,15 @@ main(int argc, char *argv[])
           break;
         }
 
-        /* If the filename is not the absolute path, prepend the current dir. This happens
-           when wireshark is invoked from a cmd shell (e.g.,'wireshark -r file.pcap'). */
-        if (!g_path_is_absolute(cf_name)) {
-          char *old_cf_name = cf_name;
-          char *pwd = g_get_current_dir();
-          cf_name = g_strdup_printf("%s%s%s", pwd, G_DIR_SEPARATOR_S, cf_name);
-          g_free(old_cf_name);
-          g_free(pwd);
-        }
+	/* If the filename is not the absolute path, prepend the current dir. This happens
+	   when wireshark is invoked from a cmd shell (e.g.,'wireshark -r file.pcap'). */
+	if (!g_path_is_absolute(cf_name)) {
+	  char *old_cf_name = cf_name;
+	  char *pwd = g_get_current_dir();
+	  cf_name = g_strdup_printf("%s%s%s", pwd, G_DIR_SEPARATOR_S, cf_name);
+	  g_free(old_cf_name);
+	  g_free(pwd);
+	}
 
         /* Save the name of the containing directory specified in the
            path name, if any; we can write over cf_name, which is a
@@ -3019,7 +3019,7 @@ main(int argc, char *argv[])
           dfilter_free(rfcode);
         cfile.rfcode = NULL;
         show_main_window(FALSE);
-        /* Don't call check_and_warn_user_startup(): we did it above */
+	/* Don't call check_and_warn_user_startup(): we did it above */
         set_menus_for_capture_in_progress(FALSE);
         set_capture_if_dialog_for_capture_in_progress(FALSE);
       }
@@ -3039,10 +3039,10 @@ main(int argc, char *argv[])
       check_and_warn_user_startup(cf_name);
       if (capture_start(&global_capture_opts)) {
         /* The capture started.  Open stat windows; we do so after creating
-           the main window, to avoid GTK warnings, and after successfully
-           opening the capture file, so we know we have something to compute
-           stats on, and after registering all dissectors, so that MATE will
-           have registered its field array and we can have a tap filter with
+	   the main window, to avoid GTK warnings, and after successfully
+	   opening the capture file, so we know we have something to compute
+	   stats on, and after registering all dissectors, so that MATE will
+	   have registered its field array and we can have a tap filter with
            one of MATE's late-registered fields as part of the filter. */
         start_requested_stats();
       }
@@ -3121,9 +3121,9 @@ main(int argc, char *argv[])
 
 int _stdcall
 WinMain (struct HINSTANCE__ *hInstance,
-         struct HINSTANCE__ *hPrevInstance,
-         char               *lpszCmdLine,
-         int                 nCmdShow)
+	 struct HINSTANCE__ *hPrevInstance,
+	 char               *lpszCmdLine,
+	 int                 nCmdShow)
 {
   INITCOMMONCONTROLSEX comm_ctrl;
 
@@ -3224,7 +3224,7 @@ destroy_console(void)
 
 static void
 console_log_handler(const char *log_domain, GLogLevelFlags log_level,
-                    const char *message, gpointer user_data _U_)
+		    const char *message, gpointer user_data _U_)
 {
   time_t curr;
   struct tm *today;
@@ -3548,6 +3548,7 @@ main_widgets_show_or_hide(void)
     if (!have_capture_file) {
         if(welcome_pane) {
             gtk_widget_show(welcome_pane);
+            select_ifaces();
         }
     } else {
         gtk_widget_hide(welcome_pane);
@@ -3580,11 +3581,11 @@ static gboolean
 top_level_key_pressed_cb(GtkWidget *w _U_, GdkEventKey *event, gpointer user_data _U_)
 {
     if (event->keyval == GDK_F8) {
-        new_packet_list_next();
-        return TRUE;
+	new_packet_list_next();
+	return TRUE;
     } else if (event->keyval == GDK_F7) {
-        new_packet_list_prev();
-        return TRUE;
+	new_packet_list_prev();
+	return TRUE;
     } else if (event->state & NO_SHIFT_MOD_MASK) {
         return FALSE; /* Skip control, alt, and other modifiers */
     /*
@@ -3594,12 +3595,12 @@ top_level_key_pressed_cb(GtkWidget *w _U_, GdkEventKey *event, gpointer user_dat
      * for values < 127.
      */
     } else if (isascii(event->keyval) && isprint(event->keyval)) {
-        /* Forward the keypress on to the display filter entry */
-        if (main_display_filter_widget && !gtk_widget_is_focus(main_display_filter_widget)) {
-            gtk_window_set_focus(GTK_WINDOW(top_level), main_display_filter_widget);
+	/* Forward the keypress on to the display filter entry */
+	if (main_display_filter_widget && !gtk_widget_is_focus(main_display_filter_widget)) {
+	    gtk_window_set_focus(GTK_WINDOW(top_level), main_display_filter_widget);
             gtk_editable_set_position(GTK_EDITABLE(main_display_filter_widget), -1);
-        }
-        return FALSE;
+	}
+	return FALSE;
     }
     return FALSE;
 }
@@ -3738,115 +3739,115 @@ prefs_to_capture_opts(void)
 
 static void copy_global_profile (const gchar *profile_name)
 {
-    char  *pf_dir_path, *pf_dir_path2, *pf_filename;
+   char  *pf_dir_path, *pf_dir_path2, *pf_filename;
 
-    if (create_persconffile_profile(profile_name, &pf_dir_path) == -1) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-            "Can't create directory\n\"%s\":\n%s.",
-            pf_dir_path, g_strerror(errno));
+   if (create_persconffile_profile(profile_name, &pf_dir_path) == -1) {
+     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		   "Can't create directory\n\"%s\":\n%s.",
+		   pf_dir_path, g_strerror(errno));
 
-        g_free(pf_dir_path);
-    }
+     g_free(pf_dir_path);
+   }
 
-    if (copy_persconffile_profile(profile_name, profile_name, TRUE, &pf_filename,
-            &pf_dir_path, &pf_dir_path2) == -1) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-            "Can't copy file \"%s\" in directory\n\"%s\" to\n\"%s\":\n%s.",
-            pf_filename, pf_dir_path2, pf_dir_path, g_strerror(errno));
+   if (copy_persconffile_profile(profile_name, profile_name, TRUE, &pf_filename,
+				 &pf_dir_path, &pf_dir_path2) == -1) {
+     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		   "Can't copy file \"%s\" in directory\n\"%s\" to\n\"%s\":\n%s.",
+		   pf_filename, pf_dir_path2, pf_dir_path, g_strerror(errno));
 
-        g_free(pf_filename);
-        g_free(pf_dir_path);
-        g_free(pf_dir_path2);
-    }
+     g_free(pf_filename);
+     g_free(pf_dir_path);
+     g_free(pf_dir_path2);
+   }
 }
 
 /* Change configuration profile */
 void change_configuration_profile (const gchar *profile_name)
 {
-    char  *gdp_path, *dp_path;
-    char  *rf_path;
-    int    rf_open_errno;
+   char  *gdp_path, *dp_path;
+   char  *rf_path;
+   int    rf_open_errno;
 
-    /* First check if profile exists */
-    if (!profile_exists(profile_name, FALSE)) {
-        if (profile_exists(profile_name, TRUE)) {
-           /* Copy from global profile */
-            copy_global_profile (profile_name);
-        } else {
-            /* No personal and no global profile exists */
-            return;
-        }
-    }
+   /* First check if profile exists */
+   if (!profile_exists(profile_name, FALSE)) {
+     if (profile_exists(profile_name, TRUE)) {
+       /* Copy from global profile */
+       copy_global_profile (profile_name);
+     } else {
+       /* No personal and no global profile exists */
+       return;
+     }
+   }
 
-    /* Then check if changing to another profile */
-    if (profile_name && strcmp (profile_name, get_profile_name()) == 0) {
-        return;
-    }
+   /* Then check if changing to another profile */
+   if (profile_name && strcmp (profile_name, get_profile_name()) == 0) {
+     return;
+   }
 
-    /* Get the current geometry, before writing it to disk */
-    main_save_window_geometry(top_level);
+   /* Get the current geometry, before writing it to disk */
+   main_save_window_geometry(top_level);
 
-    if (profile_exists(get_profile_name(), FALSE)) {
-        /* Write recent file for profile we are leaving, if it still exists */
-        write_profile_recent();
-    }
+   if (profile_exists(get_profile_name(), FALSE)) {
+     /* Write recent file for profile we are leaving, if it still exists */
+     write_profile_recent();
+   }
 
-    /* Set profile name and update the status bar */
-    set_profile_name (profile_name);
-    profile_bar_update ();
-    filter_expression_reinit(FILTER_EXPRESSION_REINIT_DESTROY);
+   /* Set profile name and update the status bar */
+   set_profile_name (profile_name);
+   profile_bar_update ();
+   filter_expression_reinit(FILTER_EXPRESSION_REINIT_DESTROY);
 
-    /* Reset current preferences and apply the new */
-    prefs_reset();
-    menu_prefs_reset();
+   /* Reset current preferences and apply the new */
+   prefs_reset();
+   menu_prefs_reset();
 
-    (void) read_configuration_files (&gdp_path, &dp_path);
+   (void) read_configuration_files (&gdp_path, &dp_path);
 
-    recent_read_profile_static(&rf_path, &rf_open_errno);
-    if (rf_path != NULL && rf_open_errno != 0) {
-        simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-            "Could not open common recent file\n\"%s\": %s.",
-            rf_path, g_strerror(rf_open_errno));
-    }
-    if (recent.gui_fileopen_remembered_dir &&
-        test_for_directory(recent.gui_fileopen_remembered_dir) == EISDIR) {
-        set_last_open_dir(recent.gui_fileopen_remembered_dir);
-    }
-    timestamp_set_type (recent.gui_time_format);
-    timestamp_set_seconds_type (recent.gui_seconds_format);
-    color_filters_enable(recent.packet_list_colorize);
+   recent_read_profile_static(&rf_path, &rf_open_errno);
+   if (rf_path != NULL && rf_open_errno != 0) {
+     simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+		  "Could not open common recent file\n\"%s\": %s.",
+		  rf_path, g_strerror(rf_open_errno));
+   }
+   if (recent.gui_fileopen_remembered_dir &&
+       test_for_directory(recent.gui_fileopen_remembered_dir) == EISDIR) {
+     set_last_open_dir(recent.gui_fileopen_remembered_dir);
+   }
+   timestamp_set_type (recent.gui_time_format);
+   timestamp_set_seconds_type (recent.gui_seconds_format);
+   color_filters_enable(recent.packet_list_colorize);
 
-    prefs_to_capture_opts();
-    prefs_apply_all();
-    macros_post_update();
+   prefs_to_capture_opts();
+   prefs_apply_all();
+   macros_post_update();
 
-    /* Update window view and redraw the toolbar */
-    update_main_window_title();
-    filter_expression_reinit(FILTER_EXPRESSION_REINIT_CREATE);
-    toolbar_redraw_all();
+   /* Update window view and redraw the toolbar */
+   update_main_window_title();
+   filter_expression_reinit(FILTER_EXPRESSION_REINIT_CREATE);
+   toolbar_redraw_all();
 
-    /* Enable all protocols and disable from the disabled list */
-    proto_enable_all();
-    if (gdp_path == NULL && dp_path == NULL) {
-        set_disabled_protos_list();
-    }
+   /* Enable all protocols and disable from the disabled list */
+   proto_enable_all();
+   if (gdp_path == NULL && dp_path == NULL) {
+     set_disabled_protos_list();
+   }
 
-    /* Reload color filters */
-    color_filters_reload();
+   /* Reload color filters */
+   color_filters_reload();
 
-    /* Reload list of interfaces on welcome page */
-    welcome_if_panel_reload();
+   /* Reload list of interfaces on welcome page */
+   welcome_if_panel_reload();
 
-    /* Recreate the packet list according to new preferences */
-    new_packet_list_recreate ();
-    cfile.cinfo.columns_changed = FALSE; /* Reset value */
-    user_font_apply();
+   /* Recreate the packet list according to new preferences */
+   new_packet_list_recreate ();
+   cfile.cinfo.columns_changed = FALSE; /* Reset value */
+   user_font_apply();
 
-    /* Update menus with new recent values */
-    menu_recent_read_finished();
+   /* Update menus with new recent values */
+   menu_recent_read_finished();
 
-    /* Reload pane geometry, must be done after recreating the list */
-    main_pane_load_window_geometry();
+   /* Reload pane geometry, must be done after recreating the list */
+   main_pane_load_window_geometry();
 }
 
 /** redissect packets and update UI */
@@ -3855,313 +3856,3 @@ void redissect_packets(void)
     cf_redissect_packets(&cfile);
     status_expert_update();
 }
-
-#ifdef HAVE_LIBPCAP
-guint get_interface_type(gchar *name, gchar *description)
-{
-#if defined(__linux__)
-    ws_statb64 statb;
-    char *wireless_path;
-#endif
-#if defined(_WIN32)
-    /*
-     * Much digging failed to reveal any obvious way to get something such
-     * as the SNMP MIB-II ifType value for an interface:
-     *
-     *	http://www.iana.org/assignments/ianaiftype-mib
-     *
-     * by making some NDIS request.
-     */
-    if (description && (strstr(description,"generic dialup") != NULL ||
-            strstr(description,"PPP/SLIP") != NULL )) {
-        return IF_DIALUP;
-    } else if (description && (strstr(description,"Wireless") != NULL ||
-            strstr(description,"802.11") != NULL)) {
-        return IF_WIRELESS;
-    } else if (description && strstr(description,"AirPcap") != NULL ||
-            strstr(name,"airpcap")) {
-        return IF_AIRPCAP;
-    } else if (description && strstr(description, "Bluetooth") != NULL ) {
-        return IF_BLUETOOTH;
-    }
-#elif defined(__APPLE__)
-    /*
-     * XXX - yes, fetching all the network addresses for an interface
-     * gets you an AF_LINK address, of type "struct sockaddr_dl", and,
-     * yes, that includes an SNMP MIB-II ifType value.
-     *
-     * However, it's IFT_ETHER, i.e. Ethernet, for AirPort interfaces,
-     * not IFT_IEEE80211 (which isn't defined in OS X in any case).
-     *
-     * Perhaps some other BSD-flavored OSes won't make this mistake;
-     * however, FreeBSD 7.0 and OpenBSD 4.2, at least, appear to have
-     * made the same mistake, at least for my Belkin ZyDAS stick.
-     *
-     * On Mac OS X, one might be able to get the information one wants from
-     * IOKit.
-     */
-    if (strcmp(name, "en1") == 0) {
-        return IF_WIRELESS;
-    }
-    /*
-     * XXX - PPP devices have names beginning with "ppp" and an IFT_ of
-     * IFT_PPP, but they could be dial-up, or PPPoE, or mobile phone modem,
-     * or VPN, or... devices.  One might have to dive into the bowels of
-     * IOKit to find out.
-     */
-
-    /*
-     * XXX - there's currently no support for raw Bluetooth capture,
-     * and IP-over-Bluetooth devices just look like fake Ethernet
-     * devices.  There's also Bluetooth modem support, but that'll
-     * probably just give you a device that looks like a PPP device.
-     */
-#elif defined(__linux__)
-    /*
-     * Look for /sys/class/net/{device}/wireless.
-     */
-    wireless_path = g_strdup_printf("/sys/class/net/%s/wireless", name);
-    if (wireless_path != NULL) {
-        if (ws_stat64(wireless_path, &statb) == 0) {
-            g_free(wireless_path);
-            return IF_WIRELESS;
-        }
-    }
-    /*
-     * Bluetooth devices.
-     *
-     * XXX - this is for raw Bluetooth capture; what about IP-over-Bluetooth
-     * devices?
-     */
-    if ( strstr(name,"bluetooth") != NULL) {
-        return IF_BLUETOOTH;
-    }
-
-    /*
-     * USB devices.
-     */
-    if ( strstr(name,"usbmon") != NULL ) {
-        return IF_USB;
-    }
-#endif
-    /*
-     * Bridge, NAT, or host-only interfaces on VMWare hosts have the name
-     * vmnet[0-9]+ or VMnet[0-9+ on Windows. Guests might use a native
-     * (LANCE or E1000) driver or the vmxnet driver. These devices have an
-     * IFT_ of IFT_ETHER, so we have to check the name.
-     */
-    if ( g_ascii_strncasecmp(name, "vmnet", 5) == 0) {
-        return IF_VIRTUAL;
-    }
-
-    if ( g_ascii_strncasecmp(name, "vmxnet", 6) == 0) {
-        return IF_VIRTUAL;
-    }
-
-    if (description && strstr(description, "VMware") != NULL ) {
-        return IF_VIRTUAL;
-    }
-
-    return IF_WIRED;
-}
-
-void
-scan_local_interfaces(capture_options* capture_opts, int *error)
-{
-    GList             *if_entry, *lt_entry, *if_list;
-    if_info_t         *if_info, *temp;
-    char              *if_string="";
-    gchar             *descr, *str, *err_str = NULL;
-    if_capabilities_t *caps=NULL;
-    gint              linktype_count;
-    cap_settings_t    cap_settings;
-    GSList            *curr_addr;
-    int               ips = 0, i, err;
-    guint             count = 0;
-    if_addr_t         *addr, *temp_addr;
-    link_row          *link = NULL;
-    data_link_info_t  *data_link_info;
-    interface_t       device;
-    GString           *ip_str;
-
-    if (capture_opts->all_ifaces->len > 0) {
-        for (i = (int)capture_opts->all_ifaces->len-1; i >= 0; i--) {
-            device = g_array_index(capture_opts->all_ifaces, interface_t, i);
-            if (device.local) {
-                capture_opts->all_ifaces = g_array_remove_index(capture_opts->all_ifaces, i);
-            }
-        }
-    }
-    /* Scan through the list and build a list of strings to display. */
-    if_list = capture_interface_list(&err, &err_str);
-    *error = err;
-    count = 0;
-    for (if_entry = if_list; if_entry != NULL; if_entry = g_list_next(if_entry)) {
-        if_info = if_entry->data;
-        ip_str = g_string_new("");
-        str = "";
-        ips = 0;
-        device.name = g_strdup(if_info->name);
-        device.hidden = FALSE;
-        device.locked = FALSE;
-        temp = g_malloc0(sizeof(if_info_t));
-        temp->name = g_strdup(if_info->name);
-        temp->description = g_strdup(if_info->description);
-        temp->loopback = if_info->loopback;
-        /* Is this interface hidden and, if so, should we include it anyway? */
-
-        /* Do we have a user-supplied description? */
-        descr = capture_dev_user_descr_find(if_info->name);
-        if (descr != NULL) {
-            /* Yes, we have a user-supplied description; use it. */
-            if_string = g_strdup_printf("%s: %s", descr, if_info->name);
-            g_free(descr);
-        } else {
-            /* No, we don't have a user-supplied description; did we get
-            one from the OS or libpcap? */
-            if (if_info->description != NULL) {
-                /* Yes - use it. */
-                if_string = g_strdup_printf("%s: %s", if_info->description, if_info->name);
-            } else {
-                /* No. */
-                if_string = g_strdup(if_info->name);
-            }
-        }
-        if (if_info->loopback) {
-            device.display_name = g_strdup_printf("%s (loopback)", if_string);
-        } else {
-            device.display_name = g_strdup(if_string);
-        }
-        device.selected = FALSE;
-        if (prefs_is_capture_device_hidden(if_info->name)) {
-            device.hidden = TRUE;
-        } 
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-        device.buffer = capture_opts->default_options.buffer_size;
-#endif
-        device.pmode = capture_opts->default_options.promisc_mode;
-        device.has_snaplen = capture_opts->default_options.has_snaplen;
-        device.snaplen = capture_opts->default_options.snaplen;
-        device.type = get_interface_type(if_info->name, if_info->description);
-        device.cfilter = g_strdup(capture_opts->default_options.cfilter);
-        cap_settings = capture_get_cap_settings(if_info->name);
-        caps = capture_get_if_capabilities(if_info->name, cap_settings.monitor_mode, NULL);
-        for (; (curr_addr = g_slist_nth(if_info->addrs, ips)) != NULL; ips++) {
-            temp_addr = g_malloc0(sizeof(if_addr_t));
-            if (ips != 0) {
-                g_string_append(ip_str, "\n");
-            }
-            addr = (if_addr_t *)curr_addr->data;
-            if (addr) {
-                temp_addr->ifat_type = addr->ifat_type;
-                switch (addr->ifat_type) {
-                    case IF_AT_IPv4:
-                        temp_addr->addr.ip4_addr = addr->addr.ip4_addr;
-                        g_string_append(ip_str, ip_to_str((guint8 *)&addr->addr.ip4_addr));
-                        break;
-                    case IF_AT_IPv6:
-                        memcpy(temp_addr->addr.ip6_addr, addr->addr.ip6_addr, sizeof(addr->addr));
-                        g_string_append(ip_str,  ip6_to_str((struct e_in6_addr *)&addr->addr.ip6_addr));
-                        break;
-                    default:
-                        /* In case we add non-IP addresses */
-                        break;
-                }
-            } else {
-                g_free(temp_addr);
-                temp_addr = NULL;
-            }
-            if (temp_addr) {
-                temp->addrs = g_slist_append(temp->addrs, temp_addr);
-            }
-        }
-#ifdef HAVE_PCAP_REMOTE
-        device.remote_opts.src_type = CAPTURE_IFLOCAL;
-#endif
-        linktype_count = 0;
-        device.links = NULL;
-        if (caps != NULL) {
-#ifdef HAVE_PCAP_CREATE
-            device.monitor_mode_enabled = cap_settings.monitor_mode;
-            device.monitor_mode_supported = caps->can_set_rfmon;
-#endif 
-            for (lt_entry = caps->data_link_types; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
-                data_link_info = lt_entry->data;
-                if (data_link_info->description != NULL) {
-                    str = g_strdup_printf("%s", data_link_info->description);
-                } else {
-                    str = g_strdup_printf("%s (not supported)", data_link_info->name);
-                }
-                if (linktype_count == 0) {
-                    device.active_dlt = data_link_info->dlt;
-                }
-                link = (link_row *)g_malloc(sizeof(link_row));
-                link->dlt = data_link_info->dlt;
-                link->name = g_strdup(str);
-                device.links = g_list_append(device.links, link);
-                linktype_count++;
-            }
-        } else {
-            cap_settings.monitor_mode = FALSE;
-#ifdef HAVE_PCAP_CREATE
-            device.monitor_mode_enabled = FALSE;
-            device.monitor_mode_supported = FALSE;
-#endif
-            device.active_dlt = -1;
-        }
-        device.addresses = g_strdup(ip_str->str);
-        device.no_addresses = ips;
-        device.local = TRUE;
-        device.if_info = *temp;
-        device.last_packets = 0;
-
-        if (capture_opts->all_ifaces->len <= count) {
-            g_array_append_val(capture_opts->all_ifaces, device);
-            count = capture_opts->all_ifaces->len;
-        } else {
-            g_array_insert_val(capture_opts->all_ifaces, count, device);
-        }
-        if (caps != NULL) {
-            free_if_capabilities(caps);
-        }
-            
-        g_string_free(ip_str, TRUE);
-        count++;
-    }
-    free_interface_list(if_list);
-}
-
-void hide_interface(gchar* new_hide)
-{
-    gchar       *tok;
-    guint       i;
-    interface_t device;
-    gboolean    found = FALSE;
-    GList       *hidden_devices = NULL, *entry;
-    if (new_hide != NULL) {
-        for (tok = strtok (new_hide, ","); tok; tok = strtok(NULL, ",")) {
-            hidden_devices = g_list_append(hidden_devices, tok);
-        }
-    }
-    for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-        device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-        found = FALSE;
-        for (entry = hidden_devices; entry != NULL; entry = g_list_next(entry)) {
-            if (strcmp(entry->data, device.name)==0) {
-                device.hidden = TRUE;
-                if (device.selected) {
-                    device.selected = FALSE;
-                    global_capture_opts.num_selected--;
-                }
-                found = TRUE;
-                break;
-            }
-        } 
-        if (!found) {
-            device.hidden = FALSE;
-        }
-        global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
-        g_array_insert_val(global_capture_opts.all_ifaces, i, device);
-    }
-}
-#endif

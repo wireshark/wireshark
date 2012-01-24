@@ -114,7 +114,7 @@ typedef struct if_stat_cache_s if_stat_cache_t;
  * @param if_list A GList of if_info_t items
  * @return A pointer to the statistics state data.
  */
-extern if_stat_cache_t * capture_stat_start(capture_options *capture_opts);
+extern if_stat_cache_t * capture_stat_start(GList *if_list);
 
 /**
  * Fetch capture statistics, similar to pcap_stats().

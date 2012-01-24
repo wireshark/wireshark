@@ -40,6 +40,15 @@ typedef struct selected_name_s {
   gboolean activate;
 } selected_name_t;
 
+typedef struct displayed_interface_s {
+	gchar *name;
+	gchar *descr;
+	GtkWidget *icon;
+#ifdef HAVE_PCAP_REMOTE
+	remote_options remote_opts;
+#endif
+} displayed_interface;
+
 GtkWidget *welcome_new(void);
 
 /* reset the list of recently used files */
@@ -50,8 +59,6 @@ void main_welcome_add_recent_capture_file(const char *widget_cf_name, GObject *m
 
 /* reload the list of interfaces */
 void welcome_if_panel_reload(void);
-
-void welcome_if_tree_load(void);
 
 /** Push a status message into the welcome screen header similar to
  *  statusbar_push_*_msg(). This hides everything under the header.
@@ -78,10 +85,10 @@ void change_interface_selection(gchar* name, gboolean activate);
 
 void change_selection_for_all(gboolean enable);
 
-void update_welcome_list(void);
-
 #ifdef HAVE_PCAP_REMOTE
-void add_interface_to_list(guint index);
+void add_interface_to_list(gchar *name, gchar *descr, remote_options *remote_opts);
 #endif
+
+displayed_interface get_interface_data(gint index);
 
 #endif /* __MAIN_WELCOME_H__ */
