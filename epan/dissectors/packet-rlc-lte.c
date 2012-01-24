@@ -47,6 +47,8 @@
 /* TODO:
    - add intermediate results to segments leading to final reassembly
    - use multiple active rlc_channel_reassembly_info's per channel
+   - sequence analysis gets confused when we change cells and skip back
+     to SN 0. Maybe add cell-id to context and add to channel/result key?
 */
 
 /********************************/
@@ -322,10 +324,10 @@ static guint16 s_lengths[MAX_RLC_SDUS];
 /* Channel key */
 typedef struct
 {
-    guint16  ueId;
-    guint16  channelType;
-    guint16  channelId;
-    guint8   direction;
+    unsigned  ueId : 16;
+    unsigned  channelType : 3;
+    unsigned  channelId : 5;
+    unsigned  direction : 1;
 } channel_hash_key;
 
 
@@ -804,6 +806,8 @@ static gint rlc_channel_equal(gconstpointer v, gconstpointer v2)
     const channel_hash_key* val2 = v2;
 
     /* All fields must match */
+    /* N.B. Currently fits into one word, so could return (*v == *v2)
+       if we're sure they're initialised to 0... */
     return ((val1->ueId        == val2->ueId) &&
             (val1->channelType == val2->channelType) &&
             (val1->channelId   == val2->channelId) &&
@@ -878,7 +882,6 @@ static gpointer get_report_hash_key(guint16 SN, guint32 frameNumber,
 
     return p_key;
 }
-
 
 
 
