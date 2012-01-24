@@ -131,8 +131,8 @@ static void range_update_dynamics(HWND sf_hwnd, packet_range_t *range);
 static void range_handle_wm_initdialog(HWND dlg_hwnd, packet_range_t *range);
 static void range_handle_wm_command(HWND dlg_hwnd, HWND ctrl, WPARAM w_param, packet_range_t *range);
 
-static TCHAR *build_file_type_list(gboolean save, int *item_to_select);
-static int file_type_from_list_index(gboolean save, int index);
+static TCHAR *build_file_open_type_list(void);
+static TCHAR *build_file_save_type_list(GArray *savable_file_types);
 
 static int            filetype;
 static packet_range_t g_range;
@@ -212,7 +212,7 @@ win32_open_file (HWND h_wnd) {
 #else
     ofn->hInstance = (HINSTANCE) GetWindowLongPtr(h_wnd, GWLP_HINSTANCE);
 #endif
-    ofn->lpstrFilter = build_file_type_list(FALSE /*!save*/, NULL);
+    ofn->lpstrFilter = build_file_open_type_list();
     ofn->lpstrCustomFilter = NULL;
     ofn->nMaxCustFilter = 0;
     ofn->nFilterIndex = FILE_OPEN_DEFAULT;
@@ -264,6 +264,7 @@ win32_open_file (HWND h_wnd) {
 
 void
 win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer action_after_save_data) {
+    GArray *savable_file_types;
     OPENFILENAME *ofn;
     TCHAR  file_name16[MAX_PATH] = _T("");
     GString *file_name8;
@@ -274,6 +275,10 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
 #if (_MSC_VER >= 1500)
     OSVERSIONINFO osvi;
 #endif
+
+    savable_file_types = wtap_get_savable_file_types(cfile.cd_t, cfile.lnk_t);
+    if (savable_file_types == NULL)
+        return;  /* shouldn't happen - the "Save As..." item should be disabled if we can't save the file */
 
     /* see OPENFILENAME comment in win32_open_file */
 #if (_MSC_VER >= 1500)
@@ -297,10 +302,10 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
 #else
     ofn->hInstance = (HINSTANCE) GetWindowLongPtr(h_wnd, GWLP_HINSTANCE);
 #endif
-    ofn->lpstrFilter = build_file_type_list(TRUE /*save*/, &save_index);
+    ofn->lpstrFilter = build_file_save_type_list(savable_file_types);
     ofn->lpstrCustomFilter = NULL;
     ofn->nMaxCustFilter = 0;
-    ofn->nFilterIndex = save_index;
+    ofn->nFilterIndex = 1;  /* the first entry is the best match; 1-origin indexing */
     ofn->lpstrFile = file_name16;
     ofn->nMaxFile = MAX_PATH;
     ofn->lpstrFileTitle = NULL;
@@ -315,7 +320,7 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
     ofn->lpTemplateName = _T("WIRESHARK_SAVEFILENAME_TEMPLATE");
 
     if (GetSaveFileName(ofn)) {
-        filetype = file_type_from_list_index(TRUE /*save*/, ofn->nFilterIndex);
+        filetype = g_array_index(savable_file_types, int, ofn->nFilterIndex - 1);
 
         /* append the default file extension if there's none given by the user */
         /* (we expect a file extension to be at most 5 chars + the dot) */
@@ -356,6 +361,7 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
         if (cf_save(&cfile, file_name8->str, &g_range, filetype, FALSE) != CF_OK) {
             /* The write failed.  Try again. */
         AGAIN:
+            g_array_free(savable_file_types, TRUE);
             g_string_free(file_name8, TRUE /* free_segment */);
             g_free( (void *) ofn->lpstrFilter);
             g_free( (void *) ofn);
@@ -401,6 +407,7 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
         }
     }
     g_sf_hwnd = NULL;
+    g_array_free(savable_file_types, TRUE);
     g_free( (void *) ofn->lpstrFilter);
     g_free( (void *) ofn);
 }
@@ -443,7 +450,7 @@ win32_merge_file (HWND h_wnd) {
 #else
     ofn->hInstance = (HINSTANCE) GetWindowLongPtr(h_wnd, GWLP_HINSTANCE);
 #endif
-    ofn->lpstrFilter = build_file_type_list(FALSE /*!save*/, NULL);
+    ofn->lpstrFilter = build_file_open_type_list();
     ofn->lpstrCustomFilter = NULL;
     ofn->nMaxCustFilter = 0;
     ofn->nFilterIndex = FILE_MERGE_DEFAULT;
@@ -1398,128 +1405,99 @@ can_save_with_wiretap(int ft)
 
    The same applies for sel_curr, sel_all, sel_m_only, sel_m_range and sel_man_range
 */
-
-static int
-file_type_from_list_index(gboolean save, int index) {
-    int   ft;
-    int curr_index;
-
-    /* Check all file types. */
-    curr_index = 0;
-    for (ft = 0; ft < WTAP_NUM_FILE_TYPES; ft++) {
-        if (ft == WTAP_FILE_UNKNOWN)
-            continue;  /* not a real file type */
-        if (save && (!packet_range_process_all(&g_range) || ft != cfile.cd_t)) {
-            /* not all unfiltered packets or a different file type.  We have to use Wiretap. */
-            if (!can_save_with_wiretap(ft))
-                continue;       /* We can't. */
-        }
-
-        /* OK, we can write it out in this type. */
-        if(wtap_file_type_string(ft) == NULL) {
-            continue;
-        }
-
-        curr_index++;
-        if(curr_index == index) {
-            return ft;
-        }
-    }
-
-    return -1;
-}
-
-
-static TCHAR *
-build_file_type_list(gboolean save, int *item_to_select) {
-    int   ft;
-    guint index;
+static void
+append_file_type(GArray *sa, int ft)
+{
     GString* pattern_str = g_string_new("");
     GString* description_str = g_string_new("");
     gchar sep;
     GSList *extensions_list, *extension;
     TCHAR *str16;
+
+    extensions_list = wtap_get_file_extensions_list(ft);
+    if (extensions_list == NULL) {
+        /* This file type doesn't have any particular extension
+           conventionally used for it, so we'll just use "*.*"
+           as the pattern; on Windows, that matches all file names
+           - even those with no extension -  so we don't need to
+           worry about compressed file extensions.  (It does not
+           do so on UN*X; the right pattern on UN*X would just
+           be "*".) */
+           g_string_printf(pattern_str, "*.*");
+    } else {
+        /* Construct the list of patterns. */
+        g_string_printf(pattern_str, "");
+        sep = '\0';
+        for (extension = extensions_list; extension != NULL;
+             extension = g_slist_next(extension)) {
+            if (sep != '\0')
+                g_string_append_c(pattern_str, sep);
+            g_string_append_printf(pattern_str, "*.%s", (char *)extension->data);
+            sep = ';';
+        }
+    }
+    wtap_free_file_extensions_list(extensions_list);
+
+    /* Construct the description. */
+    g_string_printf(description_str, "%s (%s)", wtap_file_type_string(ft),
+                    pattern_str->str);
+    str16 = utf_8to16(description_str->str);
+    sa = g_array_append_vals(sa, str16, (guint) strlen(description_str->str));
+    sa = g_array_append_val(sa, zero);
+
+    str16 = utf_8to16(pattern_str->str);
+    sa = g_array_append_vals(sa, str16, (guint) strlen(pattern_str->str));
+    sa = g_array_append_val(sa, zero);
+
+}
+
+static TCHAR *
+build_file_open_type_list(void) {
+    int   ft;
     GArray* sa = g_array_new(FALSE /*zero_terminated*/, FALSE /*clear_*/,2 /*element_size*/);
     guint16 zero = 0;
 
 
-    /* Default to the first supported file type, if the file's current
-       type isn't supported. */
-    if(item_to_select) {
-        if(save) {
-            *item_to_select = FILE_SAVE_DEFAULT;
-        } else {
-            *item_to_select = FILE_OPEN_DEFAULT;
-        }
-    }
+    /* Add the "All Files" entry. */
+    str16 = utf_8to16("All Files (*.*)");
+    sa = g_array_append_vals(sa, str16, (guint) strlen("All Files (*.*)"));
+    sa = g_array_append_val(sa, zero);
+    str16 = utf_8to16("*.*");
+    sa = g_array_append_vals(sa, str16, (guint) strlen("*.*"));
+    sa = g_array_append_val(sa, zero);
 
-    /* append the "All Files" entry */
-    if (!save) {
-        str16 = utf_8to16("All Files (*.*)");
-        sa = g_array_append_vals(sa, str16, (guint) strlen("All Files (*.*)"));
-        sa = g_array_append_val(sa, zero);
-        str16 = utf_8to16("*.*");
-        sa = g_array_append_vals(sa, str16, (guint) strlen("*.*"));
-        sa = g_array_append_val(sa, zero);
-    }
-
-    /* Check all file types. */
-    index = 1;  /* the index is one based! */
+    /* Include all the file types Wireshark supports. */
     for (ft = 0; ft < WTAP_NUM_FILE_TYPES; ft++) {
         if (ft == WTAP_FILE_UNKNOWN)
             continue;  /* not a real file type */
 
-        if (save && (!packet_range_process_all(&g_range) || ft != cfile.cd_t)) {
-            /* not all unfiltered packets or a different file type.  We have to use Wiretap. */
-            if (!can_save_with_wiretap(ft))
-                continue;       /* We can't. */
-        }
-
-        /* OK, we can write it out in this type. */
-        extensions_list = wtap_get_file_extensions_list(ft);
-        if (extensions_list == NULL) {
-            /* This file type doesn't have any particular extension
-               conventionally used for it, so we'll just use "*.*"
-               as the pattern; on Windows, that matches all file names
-	       - even those with no extension -  so we don't need to
-	       worry about compressed file extensions.  (It does not
-	       do so on UN*X; the right pattern on UN*X would just
-	       be "*".) */
-            g_string_printf(pattern_str, "*.*");
-        } else {
-            /* Construct the list of patterns. */
-            g_string_printf(pattern_str, "");
-            sep = '\0';
-            for (extension = extensions_list; extension != NULL;
-                 extension = g_slist_next(extension)) {
-                if (sep != '\0')
-                    g_string_append_c(pattern_str, sep);
-                g_string_append_printf(pattern_str, "*.%s", (char *)extension->data);
-                sep = ';';
-            }
-        }
-
-        /* Construct the description. */
-        g_string_printf(description_str, "%s (%s)", wtap_file_type_string(ft),
-                        pattern_str->str);
-        str16 = utf_8to16(description_str->str);
-        sa = g_array_append_vals(sa, str16, (guint) strlen(description_str->str));
-        sa = g_array_append_val(sa, zero);
-
-        str16 = utf_8to16(pattern_str->str);
-        sa = g_array_append_vals(sa, str16, (guint) strlen(pattern_str->str));
-        sa = g_array_append_val(sa, zero);
-
-        wtap_free_file_extensions_list(extensions_list);
-
-        if (ft == cfile.cd_t && item_to_select != NULL) {
-            /* Default to the same format as the file, if it's supported. */
-            *item_to_select = index;
-        }
-        index++;
+        append_file_type(sa, ft);
     }
-    g_string_free(pattern_str, TRUE);
-    g_string_free(description_str, TRUE);
+
+    /* terminate the array */
+    sa = g_array_append_val(sa, zero);
+
+    return (TCHAR *) g_array_free(sa, FALSE /*free_segment*/);
+}
+
+static TCHAR *
+build_file_save_type_list(GArray *savable_file_types) {
+    guint i;
+    int   ft;
+    GArray* sa = g_array_new(FALSE /*zero_terminated*/, FALSE /*clear_*/,2 /*element_size*/);
+    guint16 zero = 0;
+
+    /* Get only the file types as which we can save this file. */
+    if (savable_file_types != NULL) {
+        /* OK, we have at least one file type we can save this file as.
+           (If we didn't, we shouldn't have gotten here in the first
+           place.)  Add them all to the filter list.  */
+        for (i = 0; i < savable_file_types->len; i++) {
+            ft = g_array_index(savable_file_types, int, i);
+            append_file_type(sa, ft);
+        }
+        g_array_free(savable_file_types, TRUE);
+    }
 
     /* terminate the array */
     sa = g_array_append_val(sa, zero);
