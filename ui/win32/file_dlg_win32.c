@@ -1489,14 +1489,9 @@ build_file_save_type_list(GArray *savable_file_types) {
     guint16 zero = 0;
 
     /* Get only the file types as which we can save this file. */
-    if (savable_file_types != NULL) {
-        /* OK, we have at least one file type we can save this file as.
-           (If we didn't, we shouldn't have gotten here in the first
-           place.)  Add them all to the filter list.  */
-        for (i = 0; i < savable_file_types->len; i++) {
-            ft = g_array_index(savable_file_types, int, i);
-            append_file_type(sa, ft);
-        }
+    for (i = 0; i < savable_file_types->len; i++) {
+        ft = g_array_index(savable_file_types, int, i);
+        append_file_type(sa, ft);
     }
 
     /* terminate the array */
