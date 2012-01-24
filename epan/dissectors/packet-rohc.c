@@ -121,6 +121,7 @@ static int hf_rohc_ipv6_hop_limit = -1;
 static int hf_rohc_ir_pkt_frame = -1;
 static int hf_rohc_ir_previous_frame = -1;
 static int hf_rohc_comp_sn = -1;
+static int hf_rohc_r_0_crc = -1;
 
 static int hf_rohc_compressed_list = -1;
 static int hf_rohc_compressed_list_et = -1;
@@ -263,6 +264,75 @@ static const value_string compressed_list_ps_vals[] =
     { 0, NULL },
 };
 
+/* 5.7.1. Packet type 0: UO-0, R-0, R-0-CRC */
+static int
+dissect_rohc_pkt_type_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint8 pkt_type, rohc_cid_context_t *rohc_cid_context)
+{
+    guint8 sn;
+
+    switch(rohc_cid_context->mode){
+        case RELIABLE_BIDIRECTIONAL: /* R-mode */
+            if((pkt_type&0xc0)==0x00){
+
+            /*   R-0
+                *
+                *     0   1   2   3   4   5   6   7
+                *   +---+---+---+---+---+---+---+---+
+                *   | 0   0 |          SN           |
+                *   +===+===+===+===+===+===+===+===+
+                */
+                col_set_str(pinfo->cinfo, COL_INFO, "R-0");
+                sn = tvb_get_bits8(tvb,(offset<<3)+2, 6);
+                proto_tree_add_bits_item(tree, hf_rohc_comp_sn, tvb, (offset<<3)+2, 6, ENC_BIG_ENDIAN);
+                offset++;
+                /* Show SN in info column */
+                col_append_fstr(pinfo->cinfo, COL_INFO, " (sn=%u)", sn);
+            }else if((pkt_type&0xc0)==0x40){
+            /*   R-0-CRC
+                *
+                *     0   1   2   3   4   5   6   7
+                *   +---+---+---+---+---+---+---+---+
+                *   | 0   1 |          SN           |
+                *   +===+===+===+===+===+===+===+===+
+                *   |SN |            CRC            |
+                *   +---+---+---+---+---+---+---+---+
+                */
+                col_set_str(pinfo->cinfo, COL_INFO, "R-0-CRC");
+				sn = tvb_get_bits8(tvb,(offset<<3)+2, 7);
+                proto_tree_add_bits_item(tree, hf_rohc_comp_sn, tvb, (offset<<3)+2, 7, ENC_BIG_ENDIAN);
+				offset++;
+				proto_tree_add_bits_item(tree, hf_rohc_r_0_crc, tvb, (offset<<3)+1, 7, ENC_BIG_ENDIAN);
+				offset++;
+                /* Show SN in info column */
+                col_append_fstr(pinfo->cinfo, COL_INFO, " (sn=%u)", sn);
+            }
+            break;
+        case UNIDIRECTIONAL: /* U-mode */
+            /* Fall trough */
+        case OPTIMISTIC_BIDIRECTIONAL: /* O-mode */
+            /*   UO-0
+                *
+                *     0   1   2   3   4   5   6   7
+                *   +---+---+---+---+---+---+---+---+
+                *   | 0 |      SN       |    CRC    |
+                *   +===+===+===+===+===+===+===+===+
+                */
+            col_set_str(pinfo->cinfo, COL_INFO, "U0-0");
+			sn = tvb_get_bits8(tvb,(offset<<3)+1, 4);
+            proto_tree_add_bits_item(tree, hf_rohc_comp_sn, tvb, (offset<<3)+1, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_bits_item(tree, hf_rohc_r_0_crc, tvb, (offset<<3)+5, 3, ENC_BIG_ENDIAN);
+			offset++;
+            /* Show SN in info column */
+            col_append_fstr(pinfo->cinfo, COL_INFO, " (sn=%u)", sn);
+            break;
+        default:
+            col_set_str(pinfo->cinfo, COL_INFO, "Packet type 0");
+            break;
+    }
+
+    return offset;
+
+}
 
 /* 4.5.6.  Self-describing variable-length values */
 static guint32
@@ -1706,52 +1776,9 @@ start_over:
        call_dissector(ipv6_handle, next_tvb, pinfo, tree);
     }
     else if((oct&0x80)==0x00){
+        /* XXX Only for RTP profile? */
         /* 5.7.1. Packet type 0: UO-0, R-0, R-0-CRC */
-        switch(rohc_cid_context->mode){
-            case RELIABLE_BIDIRECTIONAL: /* R-mode */
-                if((oct&0xc0)==0x00){
-
-                /*   R-0
-                 *
-                 *     0   1   2   3   4   5   6   7
-                 *   +---+---+---+---+---+---+---+---+
-                 *   | 0   0 |          SN           |
-                 *   +===+===+===+===+===+===+===+===+
-                 */
-                    col_set_str(pinfo->cinfo, COL_INFO, "R-0");
-                    proto_tree_add_bits_item(rohc_tree, hf_rohc_comp_sn, tvb, (offset<<3)+2, 6, ENC_BIG_ENDIAN);
-                }else if((oct&0xc0)==0x40){
-                    col_set_str(pinfo->cinfo, COL_INFO, "R-0-CRC");
-                /*   R-0-CRC
-                 *
-                 *     0   1   2   3   4   5   6   7
-                 *   +---+---+---+---+---+---+---+---+
-                 *   | 0   1 |          SN           |
-                 *   +===+===+===+===+===+===+===+===+
-                 *   |SN |            CRC            |
-                 *   +---+---+---+---+---+---+---+---+
-                 */
-                    proto_tree_add_bits_item(rohc_tree, hf_rohc_comp_sn, tvb, (offset<<3)+2, 7, ENC_BIG_ENDIAN);
-                }
-                break;
-            case UNIDIRECTIONAL: /* U-mode */
-                /* Fall trough */
-            case OPTIMISTIC_BIDIRECTIONAL: /* O-mode */
-                col_set_str(pinfo->cinfo, COL_INFO, "U0-0");
-                /*   UO-0
-                 *
-                 *     0   1   2   3   4   5   6   7
-                 *   +---+---+---+---+---+---+---+---+
-                 *   | 0 |      SN       |    CRC    |
-                 *   +===+===+===+===+===+===+===+===+
-                 */
-                 proto_tree_add_bits_item(rohc_tree, hf_rohc_comp_sn, tvb, (offset<<3)+1, 4, ENC_BIG_ENDIAN);
-
-                break;
-            default:
-                col_set_str(pinfo->cinfo, COL_INFO, "Packet type 0");
-                break;
-        }
+		offset = dissect_rohc_pkt_type_0(tvb, pinfo, rohc_tree, offset, oct, rohc_cid_context); 
     }else if ((oct&0xc0)==0x80){
         col_set_str(pinfo->cinfo, COL_INFO, "Packet type 1");
     }else if ((oct&0xe0)==0xc0){
@@ -2187,7 +2214,12 @@ proto_register_rohc(void)
                 NULL , HFILL
               }
             },
-
+			{ &hf_rohc_r_0_crc,
+              { "CRC","rohc.r_0_crc",
+                FT_UINT8, BASE_HEX, NULL, 0x0,
+                NULL , HFILL
+              }
+            },
             { &hf_rohc_compressed_list,
               { "Compressed List", "rohc.compressed-list",
                 FT_NONE, BASE_NONE, NULL, 0x0,
