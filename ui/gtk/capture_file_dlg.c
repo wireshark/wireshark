@@ -1102,16 +1102,6 @@ file_save_cmd_cb(GtkWidget *w _U_, gpointer data _U_) {
   file_save_as_cmd(after_save_no_action, NULL, FALSE);
 }
 
-static gboolean
-can_save_with_wiretap(int ft)
-{
-  /* To save a file with Wiretap, Wiretap has to handle that format,
-     and its code to handle that format must be able to write a file
-     with this file's encapsulation type. */
-  return wtap_dump_can_open(ft) && wtap_dump_can_write_encap(ft, cfile.lnk_t);
-}
-
-
 /* Attach a list of the valid 'save as' file types to a combo_box by
    checking what Wiretap supports.  Make the default type the first
    in the list.
@@ -1119,57 +1109,23 @@ can_save_with_wiretap(int ft)
 static void
 set_file_type_list(GtkWidget *combo_box, int default_file_type)
 {
-  int   ft;
-  int   other_file_type = -1;
+  GArray *savable_file_types;
+  guint i;
+  int ft;
 
-  /* Can we save this file in the default file type? */
-  if (!can_save_with_wiretap(default_file_type)) {
-    /* No - can we save it as a pcap-NG file? */
-    if (can_save_with_wiretap(WTAP_FILE_PCAPNG)) {
-      /* Yes - default to pcap-NG, instead. */
-      default_file_type = WTAP_FILE_PCAPNG;
-    } else {
-      /* OK, find the first file type we *can* save it as. */
-      for (ft = 0; ft < WTAP_NUM_FILE_TYPES; ft++) {
-        if (can_save_with_wiretap(ft)) {
-          /* OK, got it. */
-          default_file_type = ft;
-        }
-      }
+  savable_file_types = wtap_get_savable_file_types(default_file_type, cfile.lnk_t);
+
+  if (savable_file_types != NULL) {
+    /* OK, we have at least one file type we can save this file as.
+       (If we didn't, we shouldn't have gotten here in the first
+       place.)  Add them all to the combo box.  */
+    for (i = 0; i < savable_file_types->len; i++) {
+      ft = g_array_index(savable_file_types, int, i);
+      ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(combo_box),
+                                           wtap_file_type_string(ft),
+                                           GINT_TO_POINTER(ft));
     }
-  }
-
-  /* We should not get here unless there's at least one file type
-     we can save this as - otherwise, the "Save As..." menu item
-     should be disabled. */
-
-  /* Put the default file format first in the list. */
-  ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(combo_box),
-                                       wtap_file_type_string(default_file_type),
-                                       GINT_TO_POINTER(default_file_type));
-  /* If it's pcap, put pcap-NG right after it; otherwise, if it's pcap-NG,
-     put pcap right after it. */
-  if (default_file_type == WTAP_FILE_PCAP) {
-    if (can_save_with_wiretap(WTAP_FILE_PCAPNG))
-      other_file_type = WTAP_FILE_PCAPNG;
-  } else if (default_file_type == WTAP_FILE_PCAPNG) {
-    if (can_save_with_wiretap(WTAP_FILE_PCAP))
-      other_file_type = WTAP_FILE_PCAP;
-  }
-  if (other_file_type != -1) {
-    ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(combo_box),
-                                         wtap_file_type_string(other_file_type),
-                                         GINT_TO_POINTER(other_file_type));
-  }
-
-  /* Add all the other file types. */
-  for (ft = 0; ft < WTAP_NUM_FILE_TYPES; ft++) {
-    if (ft == default_file_type || ft == other_file_type)
-      continue; /* we've already done this one */
-    if (can_save_with_wiretap(ft)) {
-      /* OK, we can write it out in this type. */
-      ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(combo_box), wtap_file_type_string(ft), GINT_TO_POINTER(ft));
-    }
+    g_array_free(savable_file_types, TRUE);
   }
 }
 

@@ -951,14 +951,21 @@ struct addrinfo;
 gboolean wtap_dump_set_addrinfo_list(wtap_dumper *wdh, struct addrinfo *addrinfo_list);
 gboolean wtap_dump_close(wtap_dumper *, int *);
 
+/*
+ * Get a GArray of WTAP_FILE_ values for file types that can be used
+ * to save a file of a given type with a given WTAP_ENCAP_ type.
+ */
+GArray *wtap_get_savable_file_types(int file_type, int file_encap);
+
 /*** various string converter functions ***/
 const char *wtap_file_type_string(int filetype);
 const char *wtap_file_type_short_string(int filetype);
 int wtap_short_string_to_file_type(const char *short_name);
 
+/*** various file extension functions ***/
+const char *wtap_default_file_extension(int filetype);
 GSList *wtap_get_file_extensions_list(int filetype);
 void wtap_free_file_extensions_list(GSList *extensions);
-const char *wtap_default_file_extension(int filetype);
 
 const char *wtap_encap_string(int encap);
 const char *wtap_encap_short_string(int encap);

@@ -45,6 +45,7 @@ wtap_dump_set_addrinfo_list
 wtap_encap_short_string
 wtap_encap_string
 wtap_file_encap
+wtap_get_savable_file_types
 wtap_get_file_extensions_list
 wtap_free_file_extensions_list
 wtap_file_size
