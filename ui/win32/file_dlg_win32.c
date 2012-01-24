@@ -1407,6 +1407,8 @@ file_type_from_list_index(gboolean save, int index) {
     /* Check all file types. */
     curr_index = 0;
     for (ft = 0; ft < WTAP_NUM_FILE_TYPES; ft++) {
+        if (ft == WTAP_FILE_UNKNOWN)
+            continue;  /* not a real file type */
         if (save && (!packet_range_process_all(&g_range) || ft != cfile.cd_t)) {
             /* not all unfiltered packets or a different file type.  We have to use Wiretap. */
             if (!can_save_with_wiretap(ft))
@@ -1464,6 +1466,9 @@ build_file_type_list(gboolean save, int *item_to_select) {
     /* Check all file types. */
     index = 1;  /* the index is one based! */
     for (ft = 0; ft < WTAP_NUM_FILE_TYPES; ft++) {
+        if (ft == WTAP_FILE_UNKNOWN)
+            continue;  /* not a real file type */
+
         if (save && (!packet_range_process_all(&g_range) || ft != cfile.cd_t)) {
             /* not all unfiltered packets or a different file type.  We have to use Wiretap. */
             if (!can_save_with_wiretap(ft))
@@ -1542,6 +1547,9 @@ build_file_format_list(HWND sf_hwnd) {
     /* Check all file types. */
     index = 0;
     for (ft = 0; ft < WTAP_NUM_FILE_TYPES; ft++) {
+        if (ft == WTAP_FILE_UNKNOWN)
+            continue;  /* not a real file type */
+
         if (!packet_range_process_all(&g_range) || ft != cfile.cd_t) {
             /* not all unfiltered packets or a different file type.  We have to use Wiretap. */
             if (!can_save_with_wiretap(ft))
