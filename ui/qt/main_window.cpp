@@ -29,6 +29,8 @@
 #include <epan/filesystem.h>
 #include <epan/prefs.h>
 
+#include <wiretap/wtap.h>
+
 #include "ui/main_statusbar.h"
 
 #include "wireshark_application.h"
@@ -199,6 +201,86 @@ void MainWindow::closeCaptureFile() {
     ui->mainStack->setCurrentWidget(mainWelcome);
 }
 
+static void
+append_file_type(QStringList &filters, int ft)
+{
+    QString filter;
+    bool first;
+    GSList *extensions_list, *extension;
+
+    filter = wtap_file_type_string(ft);
+    filter += " (";
+    extensions_list = wtap_get_file_extensions_list(ft);
+    if (extensions_list == NULL) {
+        /* This file type doesn't have any particular extension
+           conventionally used for it, so we'll just use "*.*"
+           as the pattern; on Windows, that matches all file names
+           - even those with no extension -  so we don't need to
+           worry about compressed file extensions.  (It does not
+           do so on UN*X; the right pattern on UN*X would just
+           be "*".) */
+           filter += "*.*";
+    } else {
+        /* Construct the list of patterns. */
+        first = true;
+        for (extension = extensions_list; extension != NULL;
+             extension = g_slist_next(extension)) {
+            /* XXX - the documentation says the separator is a blank */
+            if (!first)
+                filter += ';';
+            filter += "*.";
+            filter += (char *)extension->data;
+            first = false;
+        }
+        wtap_free_file_extensions_list(extensions_list);
+    }
+    filter += ')';
+    filters += filter;
+    /* XXX - does QStringList's destructor destroy the strings in the list? */
+}
+
+static QStringList
+build_file_open_type_list(void) {
+    QStringList filters;	/* XXX - new? */
+    int   ft;
+
+
+    /* Add the "All Files" entry. */
+    filters << QString::QString("All Files (*.*)");
+
+    /* Include all the file types Wireshark supports. */
+    for (ft = 0; ft < WTAP_NUM_FILE_TYPES; ft++) {
+        if (ft == WTAP_FILE_UNKNOWN)
+            continue;  /* not a real file type */
+
+        append_file_type(filters, ft);
+    }
+
+    return filters;
+}
+
+#if 0
+static QStringList
+build_file_save_type_list(GArray *savable_file_types) {
+    QStringList filters = new QStringList;
+    guint i;
+    int   ft;
+
+    /* Get only the file types as which we can save this file. */
+    if (savable_file_types != NULL) {
+        /* OK, we have at least one file type we can save this file as.
+           (If we didn't, we shouldn't have gotten here in the first
+           place.)  Add them all to the filter list.  */
+        for (i = 0; i < savable_file_types->len; i++) {
+            ft = g_array_index(savable_file_types, int, i);
+            append_file_type(filters, ft);
+        }
+    }
+
+    return filters;
+}
+#endif
+
 void MainWindow::openCaptureFile(QString &cfPath)
  {
     dfilter_t   *rfcode = NULL;
@@ -209,7 +291,7 @@ void MainWindow::openCaptureFile(QString &cfPath)
 
         cfDlg.setLabelText(QFileDialog::FileName, tr("Wireshark: Open Capture File"));
         cfDlg.setDirectory("/Users/gcombs/Documents/Captures");
-        cfDlg.setNameFilter(tr("Capture Files (*.pcap *.pcapng)"));
+        cfDlg.setNameFilters(build_file_open_type_list());
         cfDlg.setFileMode(QFileDialog::ExistingFile);
 
         if (cfDlg.exec()) {
