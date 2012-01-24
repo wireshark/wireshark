@@ -801,6 +801,8 @@ static const value_string mcc_mnc_codes[] = {
 	{  208100, "S.F.R." },
 	{  208110, "S.F.R. (UMTS)" },
 	{  208130, "SFR (Zones Blanches)" },
+	{  208140, "Free Mobile (Iliad)" },
+	{  208150, "Free Mobile (Iliad)" },
 	{  208200, "Bouygues Telecom" },
 	{  208210, "Bouygues Telecom" },
 	{  208220, "Transatel" },
