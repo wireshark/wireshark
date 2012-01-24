@@ -240,7 +240,7 @@ delayed_create_progress_dlg(const gchar *task_title, const gchar *item_title,
     gdouble     min_display;
     progdlg_t  *dlg;
 
-#define INIT_DELAY          0.1 * 1e6
+#define INIT_DELAY          0.1 * 1e6 /* .1 second = 0.1e6 microseconds */
 #define MIN_DISPLAY_DEFAULT 2.0 * 1e6
 
     /* Create a progress dialog, but only if it's not likely to disappear
