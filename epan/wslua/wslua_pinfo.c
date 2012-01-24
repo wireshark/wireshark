@@ -95,7 +95,7 @@ WSLUA_METAMETHOD NSTime__tostring(lua_State* L) {
 
     if (!nstime) return 0;
 
-    lua_pushstring(L,ep_strdup_printf("%ld.%09d", nstime->secs, nstime->nsecs));
+    lua_pushstring(L,ep_strdup_printf("%ld.%09d", (long)nstime->secs, nstime->nsecs));
 
     WSLUA_RETURN(1); /* The string representing the nstime. */
 }
