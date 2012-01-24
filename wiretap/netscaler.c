@@ -146,8 +146,6 @@ typedef	struct nspr_hdev_v10
 
 /* NSPR_SIGNATURE_V10 structure */
 #define	NSPR_SIGSIZE_V10	56	/* signature value size in bytes */
-
-
 typedef	struct nspr_signature_v10
 {
 	nspr_header_v10_t phd;	/* performance header */
@@ -159,13 +157,14 @@ typedef	struct nspr_signature_v10
 #define	nspr_signature_v10_s	sizeof(nspr_signature_v10_t)
 
 /* NSPR_SIGNATURE_V20 structure */
+#define	NSPR_SIGSIZE_V20	sizeof(NSPR_SIGSTR_V20)	/* signature value size in bytes */
 typedef	struct nspr_signature_v20
 {
 	NSPR_HEADER_V20(sig);	/* short performance header */
 	guint8	sig_EndianType;	/* Endian Type for the data */
-	gchar	sig_Signature[1]; /* Signature value */
+	gchar	sig_Signature[NSPR_SIGSIZE_V20]; /* Signature value */
 } nspr_signature_v20_t;
-#define	nspr_signature_v20_s	(sizeof(nspr_signature_v20_t) -1)
+#define	nspr_signature_v20_s	sizeof(nspr_signature_v20_t)
 
 /* NSPR_ABSTIME_V10 and NSPR_SYSTARTIME_V10 structure */
 typedef	struct nspr_abstime_v10
@@ -401,8 +400,6 @@ typedef struct {
 	guint64 file_size;
 } nstrace_t;
 
-guint32 nspm_signature_isv10(gchar *sigp);
-guint32 nspm_signature_isv20(gchar *sigp);
 guint32 nspm_signature_version(wtap*, gchar*, gint32);
 gboolean nstrace_read(wtap *wth, int *err, gchar **err_info,
 		 gint64 *data_offset);
@@ -1103,21 +1100,19 @@ static gboolean nstrace_add_signature(wtap_dumper *wdh, int *err)
 
 	} else if (wdh->file_type == WTAP_FILE_NETSCALER_2_0)
 	{
-		gchar sig[nspr_signature_v20_s + sizeof(NSPR_SIGSTR_V20)];
-		nspr_signature_v20_t *sig20;
+		nspr_signature_v20_t sig20;
 
-		sig20 = (nspr_signature_v20_t *)&sig;
-		sig20->sig_RecordType = NSPR_SIGNATURE_V20;
-		sig20->sig_RecordSize = nspr_signature_v20_s + sizeof(NSPR_SIGSTR_V20);
-		memcpy(sig20->sig_Signature, NSPR_SIGSTR_V20, sizeof(NSPR_SIGSTR_V20));
+		sig20.sig_RecordType = NSPR_SIGNATURE_V20;
+		sig20.sig_RecordSize = nspr_signature_v20_s;
+		memcpy(sig20.sig_Signature, NSPR_SIGSTR_V20, sizeof(NSPR_SIGSTR_V20));
 
 		/* Write the record into the file */
-		if (!wtap_dump_file_write(wdh, sig20, sig20->sig_RecordSize,
+		if (!wtap_dump_file_write(wdh, &sig20, sig20.sig_RecordSize,
 		    err))
 			return FALSE;
 
 		/* Move forward the page offset */
-		nstrace->page_offset += (guint16) sig20->sig_RecordSize;
+		nstrace->page_offset += (guint16) sig20.sig_RecordSize;
 
 	} else
 	{
