@@ -144,6 +144,14 @@ FORMS += main_window.ui
 DEFINES += HAVE_CONFIG_H INET6 REENTRANT
 unix:DEFINES += _U_=\"__attribute__((unused))\"
 
+macx:QMAKE_LFLAGS += \
+    -framework CoreServices \
+    -framework ApplicationServices -framework CoreFoundation -framework CoreServices
+
+unix:LIBS += -L../../lib -Wl,-rpath ../../lib -lwireshark -lwiretap -lwsutil \
+    -lpcap -lportaudio
+macx:LIBS += -Wl,-macosx_version_min,10.5 -liconv
+
 # http://stackoverflow.com/questions/3984104/qmake-how-to-copy-a-file-to-the-output
 unix: {
     EXTRA_BINFILES = \
@@ -163,6 +171,33 @@ mac {
 }
 
 win32 {
+    LIBS += \
+        wsock32.lib user32.lib shell32.lib comctl32.lib \
+        -L../../epan -llibwireshark -L../../wsutil -llibwsutil -L../../wiretap -lwiretap-1.7.0 \
+        -L$${GLIB_DIR}/lib -lglib-2.0 -lgmodule-2.0
+
+    !isEmpty(PORTAUDIO_DIR) {
+        PA_SOURCES = \
+            common/pa_allocation.c \
+            common/pa_converters.c \
+            common/pa_cpuload.c \
+            common/pa_dither.c \
+            common/pa_front.c \
+            common/pa_process.c \
+            common/pa_skeleton.c \
+            common/pa_stream.c \
+            common/pa_trace.c \
+            hostapi/wmme/pa_win_wmme.c \
+            os/win/pa_win_hostapis.c \
+            os/win/pa_win_util.c \
+            os/win/pa_win_waveformat.c \
+            os/win/pa_x86_plain_converters.c
+
+        for(FILE,PA_SOURCES){
+            SOURCES += $${PORTAUDIO_DIR}/src/$${FILE}
+        }
+    }
+
     EXTRA_BINFILES = \
         ../../dumpcap.exe \
         ../../epan/libwireshark.dll ../../wiretap/wiretap-1.7.0.dll ../../wsutil/libwsutil.dll \
@@ -193,18 +228,6 @@ win32 {
 
 }
 
-macx:QMAKE_LFLAGS += \
-    -framework CoreServices \
-    -framework ApplicationServices -framework CoreFoundation -framework CoreServices
-
-unix:LIBS += -L../../lib -Wl,-rpath ../../lib -lwireshark -lwiretap -lwsutil \
-    -lpcap -lportaudio
-macx:LIBS += -Wl,-macosx_version_min,10.5 -liconv
-
-win32:LIBS += \
-    wsock32.lib user32.lib shell32.lib comctl32.lib \
-    -L../../epan -llibwireshark -L../../wsutil -llibwsutil -L../../wiretap -lwiretap-1.7.0 \
-    -L$${GLIB_DIR}/lib -lglib-2.0 -lgmodule-2.0
 
 RESOURCES += \
     toolbar.qrc \

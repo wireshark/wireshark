@@ -392,7 +392,7 @@ config.h	: config.h.win32 config.nmake
 
 ui\qt\config.pri: config.nmake Makefile.nmake
 	@echo Creating <<ui\qt\config.pri
-# Automatically generated from Makefile.nmake. Do not edit.
+# Automatically generated from Makefile.nmake. Edit there, not here.
 VERSION = $(VERSION)
 WIRESHARK_LIB_DIR = $(WIRESHARK_LIB_DIR:\=/)
 GLIB_DIR = $(GTK_DIR:\=/)
@@ -402,14 +402,15 @@ GNUTLS_DIR = $(GNUTLS_DIR:\=/)
 SMI_DIR = $(SMI_DIR:\=/)
 KFW_DIR = $(KFW_DIR:\=/)
 LUA_DIR = $(LUA_DIR:\=/)
+PORTAUDIO_DIR = $(PORTAUDIO_DIR:\=/)
 
 MSVC_VARIANT = $(MSVC_VARIANT)
 
 WIRESHARK_LOCAL_CFLAGS = $(LOCAL_CFLAGS)
 WIRESHARK_STANDARD_CFLAGS = $(STANDARD_CFLAGS)
 
-QMAKE_CFLAGS += $(STANDARD_CFLAGS)
-QMAKE_CXXFLAGS += $(STANDARD_CFLAGS)
+QMAKE_CFLAGS += $(STANDARD_CFLAGS) $(PORTAUDIO_CFLAGS:\=/)
+QMAKE_CXXFLAGS += $(STANDARD_CFLAGS) $(PORTAUDIO_CFLAGS:\=/)
 
 DEFINES += _NEED_VAR_IMPORT_
 
