@@ -2124,18 +2124,21 @@ de_esm_apn_aggr_max_br(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
  */
 
 /* Quality of Service Class Identifier (QCI), octet 3 (see 3GPP TS 23.203 [7]) */
-static const value_string nas_eps_qci_vals[] = {
-    { 0,    "UE -> NW Network selects the QCI / NW -> UE Reserved"},
-    { 1,    "QCI 1"},
-    { 2,    "QCI 2"},
-    { 3,    "QCI 3"},
-    { 4,    "QCI 4"},
-    { 5,    "QCI 5"},
-    { 6,    "QCI 6"},
-    { 7,    "QCI 7"},
-    { 8,    "QCI 8"},
-    { 9,    "QCI 9"},
-    { 0, NULL }
+static const range_string nas_eps_qci_vals[] = {
+    { 0x00, 0x00, "UE -> NW Network selects the QCI / NW -> UE Reserved"},
+    { 0x01, 0x01, "QCI 1"},
+    { 0x02, 0x02, "QCI 2"},
+    { 0x03, 0x03, "QCI 3"},
+    { 0x04, 0x04, "QCI 4"},
+    { 0x05, 0x05, "QCI 5"},
+    { 0x06, 0x06, "QCI 6"},
+    { 0x07, 0x07, "QCI 7"},
+    { 0x08, 0x08, "QCI 8"},
+    { 0x09, 0x09, "QCI 9"},
+    { 0x0A, 0x7F, "Reserved"},
+    { 0x80, 0xFE, "Operator-specific QCI"},
+    { 0xFF, 0xFF, "Reserved"},
+    { 0,    0,    NULL }
 };
 
 
@@ -5254,7 +5257,7 @@ void proto_register_nas_eps(void) {
     },
     { &hf_nas_eps_qci,
         { "Quality of Service Class Identifier (QCI)","nas_eps.emm.qci",
-        FT_UINT8,BASE_DEC, VALS(nas_eps_qci_vals), 0x0,
+        FT_UINT8,(BASE_DEC|BASE_RANGE_STRING), RVALS(nas_eps_qci_vals), 0x0,
         NULL, HFILL }
     },
     { &hf_nas_eps_mbr_ul,
