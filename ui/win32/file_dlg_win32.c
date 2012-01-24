@@ -270,7 +270,6 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
     GString *file_name8;
     gchar *file_last_dot;
     gchar *dirname;
-    int save_index;
     int    ofnsize;
 #if (_MSC_VER >= 1500)
     OSVERSIONINFO osvi;
@@ -1413,6 +1412,7 @@ append_file_type(GArray *sa, int ft)
     gchar sep;
     GSList *extensions_list, *extension;
     TCHAR *str16;
+    guint16 zero = 0;
 
     extensions_list = wtap_get_file_extensions_list(ft);
     if (extensions_list == NULL) {
@@ -1453,6 +1453,7 @@ append_file_type(GArray *sa, int ft)
 
 static TCHAR *
 build_file_open_type_list(void) {
+    TCHAR *str16;
     int   ft;
     GArray* sa = g_array_new(FALSE /*zero_terminated*/, FALSE /*clear_*/,2 /*element_size*/);
     guint16 zero = 0;
