@@ -1435,8 +1435,8 @@ append_file_type(GArray *sa, int ft)
             g_string_append_printf(pattern_str, "*.%s", (char *)extension->data);
             sep = ';';
         }
+        wtap_free_file_extensions_list(extensions_list);
     }
-    wtap_free_file_extensions_list(extensions_list);
 
     /* Construct the description. */
     g_string_printf(description_str, "%s (%s)", wtap_file_type_string(ft),
