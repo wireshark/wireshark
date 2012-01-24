@@ -801,7 +801,7 @@ if test "x$enable_wireshark" = "xyes"; then
 			have_gtk=yes
 	                AC_DEFINE(HAVE_GTK, 1,
 			    [Define to 1 if compiling with GTK])
-	        ], have_gtk=no, gthread)
+	        ], have_gtk=no)
 
 	else
 		AM_PATH_GTK_2_0(2.12.0,
@@ -811,7 +811,7 @@ if test "x$enable_wireshark" = "xyes"; then
 			have_gtk=yes
 			AC_DEFINE(HAVE_GTK, 1,
 			    [Define to 1 if compiling with GTK])
-		], have_gtk=no, gthread)
+		], have_gtk=no)
 	fi
 else
 	have_gtk=no

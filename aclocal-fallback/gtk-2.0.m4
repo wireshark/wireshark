@@ -15,11 +15,8 @@ AC_ARG_ENABLE(gtktest, [  --disable-gtktest       do not try to compile and run 
   pkg_config_args=gtk+-2.0
   for module in . $4
   do
-      case "$module" in
-         gthread)
-             pkg_config_args="$pkg_config_args gthread-2.0"
-         ;;
-      esac
+      # No modules to check for now
+      :
   done
 
   no_gtk=""
