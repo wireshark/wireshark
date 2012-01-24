@@ -349,6 +349,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-ascend.c
 	dissectors/packet-asf.c
 	dissectors/packet-assa_r3.c
+	dissectors/packet-at.c
 	dissectors/packet-atalk.c
 	dissectors/packet-atm.c
 	dissectors/packet-atmtcp.c
@@ -1077,7 +1078,6 @@ set(DISSECTOR_SRC
 	dissectors/packet-umts_fp.c
 	dissectors/packet-umts_mac.c
 	dissectors/packet-usb.c
-	dissectors/packet-usb-at.c
 	dissectors/packet-usb-ccid.c
 	dissectors/packet-usb-hid.c
 	dissectors/packet-usb-hub.c

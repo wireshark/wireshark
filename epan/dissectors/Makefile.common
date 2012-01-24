@@ -267,6 +267,7 @@ DISSECTOR_SRC = \
 	packet-ascend.c		\
 	packet-asf.c		\
 	packet-assa_r3.c	\
+	packet-at.c		\
 	packet-atalk.c		\
 	packet-atm.c		\
 	packet-atmtcp.c		\
@@ -995,7 +996,6 @@ DISSECTOR_SRC = \
 	packet-umts_fp.c	\
 	packet-umts_mac.c	\
 	packet-usb.c		\
-	packet-usb-at.c		\
 	packet-usb-ccid.c	\
 	packet-usb-hid.c	\
 	packet-usb-hub.c	\

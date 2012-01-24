@@ -1,5 +1,5 @@
-/* packet-usb-at.c
- * Dissector for USB/AT Commands
+/* packet-at.c
+ * Dissector for AT Commands
  *
  * Copyright 2011, Tyson Key <tyson.key@gmail.com>
  *
@@ -57,7 +57,7 @@ static gboolean allowed_chars(tvbuff_t *tvb)
 }
 
 /* Experimental approach based upon the one used for PPP */
-static gboolean dissect_usb_at(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static gboolean heur_dissect_at(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     const gchar at_magic1[2] = {0x0d, 0x0a};
     const gchar at_magic2[3] = {0x0d, 0x0d, 0x0a};
@@ -119,7 +119,7 @@ proto_register_at_command(void)
 void
 proto_reg_handoff_at_command(void)
 {
-    heur_dissector_add("usb.bulk", dissect_usb_at, proto_at);
-    heur_dissector_add("usb.control", dissect_usb_at, proto_at);
+    heur_dissector_add("usb.bulk", heur_dissect_at, proto_at);
+    heur_dissector_add("usb.control", heur_dissect_at, proto_at);
 }
 
