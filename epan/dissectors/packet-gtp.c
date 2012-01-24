@@ -4230,13 +4230,14 @@ static int decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const 
             max_dl_ext = wrapped_tvb_get_guint8(tvb, offset + (13 - 1) * utf8_type + 1, utf8_type);
             guar_dl_ext = wrapped_tvb_get_guint8(tvb, offset + (14 - 1) * utf8_type + 1, utf8_type);
         }
-        if (length > 17) {
+        if (length > 16) {
             max_ul_ext = wrapped_tvb_get_guint8(tvb, offset + (15 - 1) * utf8_type + 1, utf8_type);
             guar_ul_ext = wrapped_tvb_get_guint8(tvb, offset + (16 - 1) * utf8_type + 1, utf8_type);
         }
 
-        /* See above comments for the changes
-         * */
+        /* 
+         * See above comments for the changes
+         */
         proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_traf_class, tvb, offset + (4 - 1) * utf8_type + 1, utf8_type, traf_class);
         proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_del_order, tvb, offset + (4 - 1) * utf8_type + 1, utf8_type, del_order);
         proto_tree_add_uint(ext_tree_qos, hf_gtp_qos_del_err_sdu, tvb, offset + (4 - 1) * utf8_type + 1, utf8_type, del_err_sdu);
