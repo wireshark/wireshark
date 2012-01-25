@@ -31,10 +31,6 @@
 
 #include "packet-mac-lte.h"
 
-/*
- * Doesn't do a detailed dissection of the lines of the message, just treat as text.
- */
-
 
 /* Initialize the protocol and registered fields. */
 static int proto_mac_lte_framed = -1;
@@ -49,6 +45,8 @@ static void dissect_mac_lte_framed(tvbuff_t *tvb, packet_info *pinfo,
     struct mac_lte_info  *p_mac_lte_info;
     tvbuff_t             *mac_tvb;
     gboolean             infoAlreadySet = FALSE;
+
+    /* Need to find enabled mac-lte dissector */
     dissector_handle_t   mac_lte_handle = find_dissector("mac-lte");
     if (!mac_lte_handle) {
         return;
@@ -80,9 +78,8 @@ static void dissect_mac_lte_framed(tvbuff_t *tvb, packet_info *pinfo,
         return;
     }
 
-
+    /* Store info in packet (first time) */
     if (!infoAlreadySet) {
-        /* Store info in packet */
         p_add_proto_data(pinfo->fd, proto_mac_lte, p_mac_lte_info);
     }
 
@@ -96,20 +93,8 @@ static void dissect_mac_lte_framed(tvbuff_t *tvb, packet_info *pinfo,
 
 void proto_register_mac_lte_framed(void)
 {
-/*
-    static hf_register_info hf[0];
-
-    static gint *ett[] =
-    {
-    };
-*/
-
     /* Register protocol. */
     proto_mac_lte_framed = proto_register_protocol("mac-lte-framed", "MAC-LTE-FRAMED", "mac-lte-framed");
-/*
-    proto_register_field_array(proto_mac_lte_framed, hf, array_length(hf));
-    proto_register_subtree_array(ett, array_length(ett));
-*/
 
     /* Allow other dissectors to find this one by name. */
     register_dissector("mac-lte-framed", dissect_mac_lte_framed, proto_mac_lte_framed);
