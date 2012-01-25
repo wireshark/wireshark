@@ -158,13 +158,13 @@ unix: {
         ../../dumpcap \
         ../../lib/*.so  \
 }
-unix:!mac {
+unix:!macx {
     for(FILE,EXTRA_BINFILES){
         QMAKE_POST_LINK += $$quote(cp $${FILE} .$$escape_expand(\n\t))
     }
 }
 # qmake 2.01a / Qt 4.7.0 doesn't set DESTDIR on OS X.
-mac {
+macx {
     for(FILE,EXTRA_BINFILES){
         QMAKE_POST_LINK += $$quote(cp $${FILE} Wireshark.app/Contents/MacOS$$escape_expand(\n\t))
     }
