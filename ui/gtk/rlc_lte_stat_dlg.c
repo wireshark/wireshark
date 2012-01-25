@@ -356,7 +356,7 @@ static rlc_lte_ep_t* alloc_rlc_lte_ep(struct rlc_lte_tap_info *si, packet_info *
 /* Return string for RLC mode for display */
 static const char *print_rlc_channel_mode(guint8 mode)
 {
-    static char unknown[16];
+    static char unknown[32];
 
     switch (mode) {
         case RLC_TM_MODE:  return "TM";
@@ -365,7 +365,7 @@ static const char *print_rlc_channel_mode(guint8 mode)
         case RLC_PREDEF:   return "Predef";
 
         default:
-            g_snprintf(unknown, 32, "Unknown (%u)", mode);
+            g_snprintf(unknown, sizeof(unknown), "Unknown (%u)", mode);
             return unknown;
     }
 }
@@ -494,6 +494,7 @@ rlc_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
     }
 
     if (channel_stats != NULL) {
+        /* (Over)-write these params */
         channel_stats->inUse = TRUE;
         channel_stats->iter_valid = FALSE;
         channel_stats->rlcMode = si->rlcMode;
@@ -646,7 +647,7 @@ rlc_lte_channels(rlc_lte_ep_t *rlc_stat_ep, rlc_lte_stat_t *hs)
                 channel_stats->iter_valid = TRUE;
             }
 
-            g_snprintf(buff, 32, "SRB-%u", n+1);
+            g_snprintf(buff, sizeof(buff), "SRB-%u", n+1);
 
             /* Set each column for this row */
             gtk_list_store_set(channels_store, &channel_stats->iter,
@@ -690,7 +691,7 @@ rlc_lte_channels(rlc_lte_ep_t *rlc_stat_ep, rlc_lte_stat_t *hs)
                 channel_stats->iter_valid = TRUE;
             }
 
-            g_snprintf(buff, 32, "DRB-%u", n+1);
+            g_snprintf(buff, sizeof(buff), "DRB-%u", n+1);
 
             /* Set each column for this row */
             gtk_list_store_set(channels_store, &channel_stats->iter,
