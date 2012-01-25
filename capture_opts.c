@@ -976,7 +976,6 @@ collect_ifaces(capture_options *capture_opts)
     if (!device.hidden && device.selected) {
       interface_opts.name = g_strdup(device.name);
       interface_opts.descr = g_strdup(device.display_name);
-      interface_opts.monitor_mode = device.monitor_mode_enabled;
       interface_opts.linktype = device.active_dlt;
       interface_opts.cfilter = g_strdup(device.cfilter);
       interface_opts.snaplen = device.snaplen;
@@ -984,9 +983,10 @@ collect_ifaces(capture_options *capture_opts)
       interface_opts.promisc_mode = device.pmode;
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
       interface_opts.buffer_size =  device.buffer;
+      interface_opts.monitor_mode = device.monitor_mode_enabled;
 #endif
       if (!device.local) {
-#ifdef HAVE_PCAP_REMOTE 
+#ifdef HAVE_PCAP_REMOTE
         interface_opts.src_type = CAPTURE_IFREMOTE;
         interface_opts.remote_host = g_strdup(device.remote_opts.remote_host_opts.remote_host);
         interface_opts.remote_port = g_strdup(device.remote_opts.remote_host_opts.remote_port);
