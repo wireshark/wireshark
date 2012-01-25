@@ -968,7 +968,7 @@ dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     }
 
     /* RTP  dynamic*/
-    if ( (profile == ROHC_PROFILE_RTP)      ) {
+    if (profile == ROHC_PROFILE_RTP) {
         /* 5.7.7.6.  Initialization of RTP Header
          * Dynamic part:
          * Checksum
