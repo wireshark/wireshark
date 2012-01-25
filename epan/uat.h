@@ -511,7 +511,10 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out
 #define UAT_PROTO_DEF(basename, field_name, dissector_field, name_field, rec_t) \
 static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, const void* u1 _U_, const void* u2 _U_) {\
 	if (len) { \
-		((rec_t*)rec)->name_field = g_strndup(buf,len); g_ascii_strdown(((rec_t*)rec)->name_field, -1); g_strchug(((rec_t*)rec)->name_field); \
+		gchar *tmp = g_strndup(buf,len); \
+		((rec_t*)rec)->name_field = g_ascii_strdown(tmp, -1); \
+		g_free(tmp); \
+		g_strchug(((rec_t*)rec)->name_field); \
 		((rec_t*)rec)->dissector_field = find_dissector(((rec_t*)rec)->name_field); \
 	} else { \
 		((rec_t*)rec)->dissector_field = find_dissector("data"); \
