@@ -734,7 +734,7 @@ gboolean on_selection_changed(GtkTreeSelection *selection _U_,
     gchar *if_name;
     guint i;
     interface_t device;
-    
+
     gtk_tree_model_get_iter (model, &iter, path);
     gtk_tree_model_get (model, &iter, IFACE_NAME, &if_name, -1);
     for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
@@ -895,7 +895,7 @@ welcome_if_tree_load(void)
                 if (device.selected) {
                     gtk_tree_selection_select_iter(entry, &iter);
                 }
-            } 
+            }
         }
         changed = TRUE;
     }
@@ -977,7 +977,9 @@ welcome_new(void)
     GtkWidget *topic_to_fill;
     GtkWidget *file_child_box;
     gchar     *label_text;
+#ifdef HAVE_LIBPCAP
     int       error;
+#endif
 #ifdef _WIN32
     LONG reg_ret;
     DWORD chimney_enabled = 0;
