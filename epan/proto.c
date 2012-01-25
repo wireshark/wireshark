@@ -4777,8 +4777,8 @@ static void tmp_fld_check_assert(header_field_info *hfinfo) {
 	    { BASE_HEX_DEC|BASE_RANGE_STRING,	"BASE_HEX_DEC|BASE_RANGE_STRING" },
 	    { BASE_CUSTOM|BASE_RANGE_STRING,	"BASE_CUSTOM|BASE_RANGE_STRING" },
 	    { ABSOLUTE_TIME_LOCAL,		"ABSOLUTE_TIME_LOCAL" },
-	    { ABSOLUTE_TIME_UTC,		"ABSOLUTE_TIME_LOCAL" },
-	    { ABSOLUTE_TIME_DOY_UTC,		"ABSOLUTE_TIME_LOCAL" },
+	    { ABSOLUTE_TIME_UTC,		"ABSOLUTE_TIME_UTC" },
+	    { ABSOLUTE_TIME_DOY_UTC,		"ABSOLUTE_TIME_DOY_UTC" },
 	    { 0,				NULL } };
 
 	/* The field must have a name (with length > 0) */
