@@ -2730,7 +2730,7 @@ dissect_spice_common_capabilities(tvbuff_t *tvb, proto_tree *tree, guint32 offse
                 proto_tree_add_boolean(auth_tree, hf_common_cap_auth_sasl, tvb, offset, 4, val);
 
                 proto_tree_add_boolean(tree, hf_common_cap_mini_header, tvb, offset, 4, val);
-                if (val && SPICE_COMMON_CAP_MINI_HEADER_MASK) {
+                if (val & SPICE_COMMON_CAP_MINI_HEADER_MASK) {
                     if (is_client) {
                         spice_info->client_mini_header = TRUE;
                     } else {
