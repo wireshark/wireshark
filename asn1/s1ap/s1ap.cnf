@@ -54,7 +54,7 @@ TargetRNC-ToSourceRNC-TransparentContainer
 
 #.OMIT_ASSIGNMENT
 # Get rid of unused code warnings
-ProtocolIE-FieldPair 
+ProtocolIE-FieldPair
 ProtocolIE-ContainerPair
 ProtocolIE-ContainerPairList
 ProtocolError-IE-ContainerList
@@ -93,17 +93,17 @@ ProtocolIE-Field/value ie_field_value
 
 
 
-#.FN_PARS ProtocolIE-Field/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldValue 
+#.FN_PARS ProtocolIE-Field/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldValue
 # Currently not used
-# FN_PARS ProtocolIE-FieldPair/firstValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldPairFirstValue 
-# FN_PARS ProtocolIE-FieldPair/secondValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldPairSecondValue 
+# FN_PARS ProtocolIE-FieldPair/firstValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldPairFirstValue
+# FN_PARS ProtocolIE-FieldPair/secondValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldPairSecondValue
 
 #.FN_PARS ProtocolExtensionID  VAL_PTR=&ProtocolExtensionID
 #.FN_PARS ProtocolExtensionField/extensionValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolExtensionFieldExtensionValue
 
 #.FN_PARS  ProcedureCode  VAL_PTR = &ProcedureCode
 #.FN_FTR ProcedureCode
-     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
+     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s",
                  val_to_str_ext(ProcedureCode, &s1ap_ProcedureCode_vals_ext,
                             "unknown message"));
 #.END
@@ -194,9 +194,9 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        3, 3, FALSE, &parameter_tvb);
-	if(tvb_length(tvb)==0) 
+	if(tvb_length(tvb)==0)
 		return offset;
-		
+
 	if (!parameter_tvb)
 		return offset;
 	dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, tree, 0, FALSE);
@@ -214,7 +214,7 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
     return offset;
 
   length = tvb_length(parameter_tvb);
- 
+
   is_ascii = TRUE;
   for (p_offset=0; p_offset < length; p_offset++){
 	 if(!isalpha(tvb_get_guint8(parameter_tvb, p_offset ))){
@@ -231,7 +231,7 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 #.FN_BODY NAS-PDU VAL_PTR = &parameter_tvb
 
   tvbuff_t *parameter_tvb=NULL;
-  
+
 %(DEFAULT_BODY)s
 
   if ((tvb_length(parameter_tvb)>0)&&(nas_eps_handle))
@@ -240,7 +240,7 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 #.FN_BODY LPPa-PDU VAL_PTR = &parameter_tvb
 
   tvbuff_t *parameter_tvb=NULL;
-  
+
 %(DEFAULT_BODY)s
 
   if ((tvb_length(parameter_tvb)>0)&&(lppa_handle))
@@ -250,12 +250,12 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
   tvbuff_t *parameter_tvb=NULL;
   proto_tree *subtree;
   gint tvb_len;
-  
+
 %(DEFAULT_BODY)s
   if (!parameter_tvb)
     return offset;
 
-# The Transport Layer Address signalled in S1-AP messages is a bit string of 
+# The Transport Layer Address signalled in S1-AP messages is a bit string of
 # a)	32 bits in case of IPv4 address according to [6]; and
 # b)	128 bits in case of IPv6 address according to [5].
 	/* Get the length */
@@ -292,24 +292,24 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 	handover_type_value = 0;
 #.FN_HDR HandoverRequest
 	handover_type_value = 0;
-	
+
 #.FN_BODY Source-ToTarget-TransparentContainer VAL_PTR = &parameter_tvb
 # I think the message is "directly encoded" into the octest string(no "double encoding")
 # (Compare RANAP)
 # Annex A
 # ...Therefore the container content is encoded according to the
 # rules which are specified for the target radio system. In section 8.4.1.2,
-# it is described how the container shall be encoded with respect to the scenario 
+# it is described how the container shall be encoded with respect to the scenario
 # in which it is used.
  tvbuff_t *parameter_tvb;
  proto_tree *subtree;
- 
+
 %(DEFAULT_BODY)s
 
 	subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_ToTargetTransparentContainer);
 
     switch(handover_type_value){
-   /*  
+   /*
     HandoverType ::= ENUMERATED {
     intralte,
     ltetoutran,
@@ -317,23 +317,23 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
     utrantolte,
     gerantolte,
     ...
-    } */ 
+    } */
 		case 0:
-		/* intralte 
+		/* intralte
 			Intra E-UTRAN handover Source eNB to Target eNB
-			Transparent Container 36.413	
+			Transparent Container 36.413
 		 */
 		dissect_SourceeNB_ToTargeteNB_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree);
 		break;
 		case 1:
-		/* ltetoutran 
+		/* ltetoutran
 			Source RNC to Target RNC
 			Transparent Container 25.413
 		*/
 		dissect_ranap_SourceRNC_ToTargetRNC_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree);
 		break;
 		case 2:
-		/* ltetogeran 
+		/* ltetogeran
 			Source BSS to Target BSS
 			Transparent Container 48.018
 		*/
@@ -356,13 +356,13 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 
  tvbuff_t *parameter_tvb;
  proto_tree *subtree;
-  
+
 %(DEFAULT_BODY)s
 
 	subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_ToSourceTransparentContainer);
 
     switch(handover_type_value){
-   /*  
+   /*
     HandoverType ::= ENUMERATED {
     intralte,
     ltetoutran,
@@ -370,23 +370,23 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
     utrantolte,
     gerantolte,
     ...
-    } */ 
+    } */
 		case 0:
-		/* intralte 
+		/* intralte
 			Intra E-UTRAN handover Target eNB to Source eNB
-			Transparent Container 36.413	
+			Transparent Container 36.413
 		 */
 		dissect_TargeteNB_ToSourceeNB_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree);
 		break;
 		case 1:
-		/* ltetoutran 
+		/* ltetoutran
 			Target RNC to Source RNC
 			Transparent Container 25.413
 		*/
 		dissect_ranap_TargetRNC_ToSourceRNC_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree);
 		break;
 		case 2:
-		/* ltetogeran 
+		/* ltetogeran
 			Target BSS to Source BSS
 			Transparent Container 48.018
 		*/
@@ -414,36 +414,36 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 # Includes the RRC Handover Preparation Information message as defined
 # in subclause 10.2.2 of [16].
 # [16] 3GPP TS 36.331: "Evolved Universal Terrestrial Radio Access (E-UTRAN); Radio Resource
-#  Control (RRC) Protocol Specification3GPP TS 36.331: 
+#  Control (RRC) Protocol Specification3GPP TS 36.331:
 # "Evolved Universal Terrestrial Radio Access (E-UTRAN); Radio Resource
 # Control (RRC) Protocol Specification.
-# : 
+# :
 # 9.2.1.7 Source eNB to Target eNB Transparent Container
 # The Source eNB to target eNB Transparent Container IE is an information element
-# that is produced by the source eNB and is transmitted to the target eNB. 
+# that is produced by the source eNB and is transmitted to the target eNB.
 # For inter-system handovers to E-UTRAN, the IE is transmitted from the external
 # handover source to the target eNB. This IE is transparent to the EPC.
 #
-# RRC Container M OCTET STRING Includes the RRC Handover Preparation Information 
+# RRC Container M OCTET STRING Includes the RRC Handover Preparation Information
 # message as defined in subclause 10.2.2 of [16].
 # :
 # 9.2.1.8 Target eNB to Source eNB Transparent Container
-# The Target eNB to Source eNB Transparent Container IE is an information element 
-# that is produced by the target eNB and is transmitted to the source eNB. 
+# The Target eNB to Source eNB Transparent Container IE is an information element
+# that is produced by the target eNB and is transmitted to the source eNB.
 # For inter-system handovers to E-UTRAN, the IE is transmitted from the target
 # eNB to the external relocation source.
 # :
 # RRC Container M OCTET STRING Includes the RRC E-UTRA Handover Command message
 # as defined in subclause 10.2.2 of [16].
 # --- End quote ---
-# Source eNB to Target eNB Transparent Container is present in 
+# Source eNB to Target eNB Transparent Container is present in
 # HandoverRequired and HandoverRequest.
 # Target eNB to Source eNB Transparent Container is present in
-# HandoverCommand and HandoverRequestAcknowledge. 
+# HandoverCommand and HandoverRequestAcknowledge.
 
  tvbuff_t *parameter_tvb;
  proto_tree *subtree;
-  
+
 %(DEFAULT_BODY)s
   if (!parameter_tvb)
     return offset;
@@ -462,9 +462,9 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 		default:
 			break;
 	}
-			
-		
-	
+
+
+
 
 #.FN_BODY UERadioCapability VAL_PTR = &parameter_tvb
  tvbuff_t *parameter_tvb;
@@ -490,11 +490,11 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 
    subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_RIMInformation);
    if ((tvb_length(parameter_tvb)>0)&&(bssgp_handle)){
-    col_set_fence(%(ACTX)s->pinfo->cinfo, COL_INFO); 
+    col_set_fence(%(ACTX)s->pinfo->cinfo, COL_INFO);
     call_dissector(bssgp_handle,parameter_tvb,%(ACTX)s->pinfo, subtree);
    }
 
- 
+
 #.TYPE_ATTR
 ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC|BASE_EXT_STRING STRINGS = &s1ap_ProtocolIE_ID_vals_ext
 
@@ -760,16 +760,16 @@ SupportedTAs							N s1ap.ies id-SupportedTAs
 TimeToWait								N s1ap.ies id-TimeToWait
 UEAggregateMaximumBitrate				N s1ap.ies id-uEaggregateMaximumBitrate
 TAI										N s1ap.ies id-TAI
-E-RABReleaseListBearerRelComp			N s1ap.ies id-E-RABReleaseListBearerRelComp				
-Cdma2000PDU								N s1ap.ies id-cdma2000PDU										
-Cdma2000RATType							N s1ap.ies id-cdma2000RATType									
-Cdma2000SectorID						N s1ap.ies id-cdma2000SectorID									
-SecurityKey								N s1ap.ies id-SecurityKey										
-UERadioCapability						N s1ap.ies id-UERadioCapability								
-GUMMEI									N s1ap.ies id-GUMMEI-ID										
-E-RABInformationListItem				N s1ap.ies id-E-RABInformationListItem						
-Direct-Forwarding-Path-Availability		N s1ap.ies id-Direct-Forwarding-Path-Availability				
-UEIdentityIndexValue					N s1ap.ies id-UEIdentityIndexValue								
+E-RABReleaseListBearerRelComp			N s1ap.ies id-E-RABReleaseListBearerRelComp
+Cdma2000PDU								N s1ap.ies id-cdma2000PDU
+Cdma2000RATType							N s1ap.ies id-cdma2000RATType
+Cdma2000SectorID						N s1ap.ies id-cdma2000SectorID
+SecurityKey								N s1ap.ies id-SecurityKey
+UERadioCapability						N s1ap.ies id-UERadioCapability
+GUMMEI									N s1ap.ies id-GUMMEI-ID
+E-RABInformationListItem				N s1ap.ies id-E-RABInformationListItem
+Direct-Forwarding-Path-Availability		N s1ap.ies id-Direct-Forwarding-Path-Availability
+UEIdentityIndexValue					N s1ap.ies id-UEIdentityIndexValue
 Cdma2000HOStatus						N s1ap.ies id-cdma2000HOStatus
 Cdma2000HORequiredIndication			N s1ap.ies id-cdma2000HORequiredIndication
 RelativeMMECapacity						N s1ap.ies id-RelativeMMECapacity
@@ -926,7 +926,7 @@ MMEConfigurationUpdateFailure			N s1ap.proc.uout id-MMEConfigurationUpdate
 
 UplinkS1cdma2000tunneling				N s1ap.proc.imsg id-UplinkS1cdma2000tunneling
 
-UEContextModificationRequest			N s1ap.proc.imsg id-UEContextModification 
+UEContextModificationRequest			N s1ap.proc.imsg id-UEContextModification
 UEContextModificationResponse			N s1ap.proc.sout id-UEContextModification
 UEContextModificationFailure			N s1ap.proc.uout id-UEContextModification
 
@@ -980,6 +980,101 @@ UplinkUEAssociatedLPPaTransport			N s1ap.proc.imsg id-uplinkUEAssociatedLPPaTran
 DownlinkNonUEAssociatedLPPaTransport	N s1ap.proc.imsg id-downlinkNonUEAssociatedLPPaTransport
 
 UplinkNonUEAssociatedLPPaTransport		N s1ap.proc.imsg id-uplinkNonUEAssociatedLPPaTransport
+
+
+#.FN_HDR E-RABSetupRequest
+     col_append_str(actx->pinfo->cinfo, COL_INFO, ", E_RABSetupRequest ");
+#.FN_HDR E-RABSetupResponse
+     col_append_str(actx->pinfo->cinfo, COL_INFO, ", E_RABSetupResponse ");
+#.FN_HDR E-RABModifyRequest
+     col_append_str(actx->pinfo->cinfo, COL_INFO, ", E_RABModifyRequest ");
+#.FN_HDR E-RABModifyResponse
+     col_append_str(actx->pinfo->cinfo, COL_INFO, ", E_RABModifyResponse ");
+#.FN_HDR E-RABReleaseCommand
+     col_append_str(actx->pinfo->cinfo, COL_INFO, ", E_RABReleaseCommand ");
+#.FN_HDR E-RABReleaseResponse
+     col_append_str(actx->pinfo->cinfo, COL_INFO, ", E_RABReleaseResponse ");
+#.FN_HDR E-RABReleaseIndication
+     col_append_str(actx->pinfo->cinfo, COL_INFO, ", E_RABReleaseIndication ");
+
+#.FN_HDR InitialContextSetupRequest
+     col_append_str(actx->pinfo->cinfo, COL_INFO, ", InitialContextSetupRequest ");
+#.FN_HDR InitialContextSetupResponse
+     col_append_str(actx->pinfo->cinfo, COL_INFO, ", InitialContextSetupResponse ");
+#.FN_HDR InitialContextSetupFailure
+     col_append_str(actx->pinfo->cinfo, COL_INFO, ", InitialContextSetupFailure ");
+#.FN_HDR UEContextReleaseRequest
+     col_append_str(actx->pinfo->cinfo, COL_INFO, ", UEContextReleaseRequest ");
+#.FN_HDR UEContextReleaseCommand
+     col_append_str(actx->pinfo->cinfo, COL_INFO, ", UEContextReleaseCommand ");
+#.FN_HDR UEContextReleaseComplete
+     col_append_str(actx->pinfo->cinfo, COL_INFO, ", UEContextReleaseComplete ");
+#.FN_HDR UEContextModificationRequest
+     col_append_str(actx->pinfo->cinfo, COL_INFO, ", UEContextModificationRequest ");
+#.FN_HDR UEContextModificationResponse
+     col_append_str(actx->pinfo->cinfo, COL_INFO, ", UEContextModificationResponse ");
+#.FN_HDR UEContextModificationFailure
+     col_append_str(actx->pinfo->cinfo, COL_INFO, ", UEContextModificationFailure ");
+
+#.FN_HDR HandoverRequired
+     col_append_str(actx->pinfo->cinfo, COL_INFO, ", HandoverRequired ");
+#.FN_HDR HandoverCommand
+     col_append_str(actx->pinfo->cinfo, COL_INFO, ", HandoverCommand ");
+#.FN_HDR HandoverPreparationFailure
+     col_append_str(actx->pinfo->cinfo, COL_INFO, ", HandoverPreparationFailure ");
+#.FN_HDR HandoverRequest
+     col_append_str(actx->pinfo->cinfo, COL_INFO, ", HandoverRequest ");
+#.FN_HDR HandoverRequestAcknowledge
+     col_append_str(actx->pinfo->cinfo, COL_INFO, ", HandoverRequestAcknowledge ");
+#.FN_HDR HandoverFailure
+     col_append_str(actx->pinfo->cinfo, COL_INFO, ", HandoverFailure ");
+#.FN_HDR HandoverNotify
+     col_append_str(actx->pinfo->cinfo, COL_INFO, ", HandoverNotify ");
+#.FN_HDR PathSwitchRequest
+     col_append_str(actx->pinfo->cinfo, COL_INFO, ", PathSwitchRequest ");
+#.FN_HDR PathSwitchRequestAcknowledge
+     col_append_str(actx->pinfo->cinfo, COL_INFO, ", PathSwitchRequestAcknowledge ");
+#.FN_HDR PathSwitchRequestFailure
+     col_append_str(actx->pinfo->cinfo, COL_INFO, ", PathSwitchRequestFailure ");
+#.FN_HDR HandoverCancel
+     col_append_str(actx->pinfo->cinfo, COL_INFO, ", HandoverCancel ");
+#.FN_HDR HandoverCancelAcknowledge
+     col_append_str(actx->pinfo->cinfo, COL_INFO, ", HandoverCancelAcknowledge ");
+
+
+#.FN_HDR Reset
+     col_append_str(actx->pinfo->cinfo, COL_INFO, ", Reset ");
+#.FN_HDR ResetAcknowledge
+     col_append_str(actx->pinfo->cinfo, COL_INFO, ", ResetAcknowledge ");
+# FN_HDR ErrorIndication
+#    col_append_str(actx->pinfo->cinfo, COL_INFO, ", ErrorIndication ");
+#.FN_HDR S1SetupRequest
+     col_append_str(actx->pinfo->cinfo, COL_INFO, ", S1SetupRequest ");
+#.FN_HDR S1SetupResponse
+     col_append_str(actx->pinfo->cinfo, COL_INFO, ", S1SetupResponse ");
+#.FN_HDR S1SetupFailure
+     col_append_str(actx->pinfo->cinfo, COL_INFO, ", S1SetupFailure ");
+#.FN_HDR ENBConfigurationUpdate
+     col_append_str(actx->pinfo->cinfo, COL_INFO, ", ENBConfigurationUpdate ");
+#.FN_HDR ENBConfigurationUpdateAcknowledge
+     col_append_str(actx->pinfo->cinfo, COL_INFO, ", ENBConfigurationUpdateAcknowledge ");
+#.FN_HDR ENBConfigurationUpdateFailure
+     col_append_str(actx->pinfo->cinfo, COL_INFO, ", ENBConfigurationUpdateFailure ");
+#.FN_HDR MMEConfigurationUpdate
+     col_append_str(actx->pinfo->cinfo, COL_INFO, ", MMEConfigurationUpdate ");
+#.FN_HDR MMEConfigurationUpdateAcknowledge
+     col_append_str(actx->pinfo->cinfo, COL_INFO, ", MMEConfigurationUpdateAcknowledge ");
+#.FN_HDR MMEConfigurationUpdateFailure
+     col_append_str(actx->pinfo->cinfo, COL_INFO, ", MMEConfigurationUpdateFailure ");
+
+#.FN_HDR WriteReplaceWarningRequest
+     col_append_str(actx->pinfo->cinfo, COL_INFO, ", WriteReplaceWarningRequest ");
+#.FN_HDR WriteReplaceWarningResponse
+     col_append_str(actx->pinfo->cinfo, COL_INFO, ", WriteReplaceWarningResponse ");
+#.FN_HDR KillRequest
+     col_append_str(actx->pinfo->cinfo, COL_INFO, ", KillRequest ");
+#.FN_HDR KillResponse
+     col_append_str(actx->pinfo->cinfo, COL_INFO, ", KillResponse ");
 
 
 #.TYPE_ATTR
