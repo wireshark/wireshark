@@ -49,12 +49,12 @@ class CaptureFileDialog : public QFileDialog
     // Yes, that's four implementations of the same window.
     //
     // If a plain native open file dialog is good enough we can just the static
-    // version of QFileDialog::getOpenFileName. (Commenting out Q_OBJECT below
-    // has the same effect.)
+    // version of QFileDialog::getOpenFileName. (Commenting out Q_OBJECT and
+    // "explicit" below has the same effect.)
 
     Q_OBJECT
 public:
-    CaptureFileDialog(QWidget *parent = 0);
+    explicit CaptureFileDialog(QWidget *parent = 0);
 
 signals:
 
