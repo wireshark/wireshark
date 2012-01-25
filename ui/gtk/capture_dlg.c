@@ -669,7 +669,7 @@ iftype_combo_box_add (GtkWidget *iftype_cbx)
 {
   GtkTreeModel *model;
   GtkTreeIter iter;
-  struct remote_host *rh;
+  struct remote_host_info *rh;
   gboolean create_new = FALSE;
   gchar *string;
   guint i, pos = REMOTE_HOST_START;
@@ -1502,7 +1502,7 @@ static void
 recent_print_remote_host (gpointer key _U_, gpointer value, gpointer user)
 {
   FILE *rf = user;
-  struct remote_host *ri = value;
+  struct remote_host_info *ri = value;
 
   fprintf (rf, RECENT_KEY_REMOTE_HOST ": %s,%s,%d\n", ri->remote_host, ri->remote_port, ri->auth_type);
 }
@@ -1521,7 +1521,7 @@ capture_remote_combo_add_recent(gchar *s)
 {
   GList *vals = prefs_get_string_list (s);
   GList *valp = vals;
-  struct remote_host *rh;
+  struct remote_host_info *rh;
   gint auth_type;
   char *p;
 

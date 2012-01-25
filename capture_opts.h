@@ -90,7 +90,7 @@ typedef enum {
 } interface_type;
 
 #ifdef HAVE_PCAP_REMOTE
-struct remote_host {
+struct remote_host_info {
     gchar *remote_host;          /**< Host name or network address for remote capturing */
     gchar *remote_port;          /**< TCP port of remote RPCAP server */
     gint auth_type;              /**< Authentication type */
@@ -103,7 +103,7 @@ struct remote_host {
 
 typedef struct remote_options_tag {
     capture_source src_type;
-    struct remote_host remote_host_opts;
+    struct remote_host_info remote_host_opts;
 #ifdef HAVE_PCAP_SETSAMPLING
     capture_sampling sampling_method;
     int sampling_param;
