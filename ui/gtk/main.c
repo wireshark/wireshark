@@ -2788,7 +2788,7 @@ main(int argc, char *argv[])
 
       device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
       if (device.selected) {
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#if defined(HAVE_PCAP_CREATE)
         caps = capture_get_if_capabilities(device.name, device.monitor_mode_supported, &err_str);
 #else
         caps = capture_get_if_capabilities(device.name, FALSE, &err_str);
@@ -2802,7 +2802,7 @@ main(int argc, char *argv[])
           cmdarg_err("The capture device \"%s\" has no data link types.", device.name);
           exit(2);
         }
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#if defined(HAVE_PCAP_CREATE)
         capture_opts_print_if_capabilities(caps, device.name, device.monitor_mode_supported);
 #else
         capture_opts_print_if_capabilities(caps, device.name, FALSE);
@@ -4082,7 +4082,7 @@ scan_local_interfaces(capture_options* capture_opts, int *error)
         linktype_count = 0;
         device.links = NULL;
         if (caps != NULL) {
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#if defined(HAVE_PCAP_CREATE)
             device.monitor_mode_enabled = cap_settings.monitor_mode;
             device.monitor_mode_supported = caps->can_set_rfmon;
 #endif 
@@ -4104,7 +4104,7 @@ scan_local_interfaces(capture_options* capture_opts, int *error)
             }
         } else {
             cap_settings.monitor_mode = FALSE;
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#if defined(HAVE_PCAP_CREATE)
             device.monitor_mode_enabled = FALSE;
             device.monitor_mode_supported = FALSE;
 #endif
@@ -4127,7 +4127,7 @@ scan_local_interfaces(capture_options* capture_opts, int *error)
         	for (j = 0; j < capture_opts->ifaces->len; j++) {
         		interface_opts = g_array_index(capture_opts->ifaces, interface_options, j);
         		if (strcmp(interface_opts.name, device.name) == 0) {       		    
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+#if defined(HAVE_PCAP_CREATE)
         			device.buffer = interface_opts.buffer_size;
         			device.monitor_mode_enabled = interface_opts.monitor_mode;
 #endif
@@ -4175,6 +4175,8 @@ scan_local_interfaces(capture_options* capture_opts, int *error)
             device.type         = IF_PIPE;
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
         	device.buffer = interface_opts.buffer_size;
+#endif
+#if defined(HAVE_PCAP_CREATE)
         	device.monitor_mode_enabled = interface_opts.monitor_mode;
         	device.monitor_mode_supported = FALSE;
 #endif
