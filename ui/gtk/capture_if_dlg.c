@@ -165,12 +165,10 @@ store_selected(GtkWidget *choose_bt, gpointer name)
 {
   interface_t device;
   guint i;
-  gboolean found;
+
   for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
     device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-    found = FALSE;
     if (strcmp(name, device.if_info.name) == 0) {
-      found = TRUE;
       if (!device.locked) {
         device.selected ^= 1;
         if (device.selected) {
@@ -566,14 +564,12 @@ capture_if_stop_cb(GtkWidget *w _U_, gpointer d _U_)
 static void
 make_gtk_array(void)
 {
-  interface_t   device;
   if_dlg_data_t data;
   guint         i;
 
   gtk_list = g_array_new(FALSE, FALSE, sizeof(if_dlg_data_t));
 
   for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-     device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
      data.device_lb  = NULL;
      data.descr_lb   = NULL;
      data.ip_lb      = NULL;
