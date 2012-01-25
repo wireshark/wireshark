@@ -38,6 +38,9 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/prefs.h>
+#include "ui/simple_dialog.h"
+#include "capture_ui_utils.h"
 
 #include "capture_opts.h"
 #include "ringbuffer.h"
@@ -57,6 +60,8 @@ capture_opts_init(capture_options *capture_opts, void *cf)
 {
   capture_opts->cf                              = cf;
   capture_opts->ifaces                          = g_array_new(FALSE, FALSE, sizeof(interface_options));
+  capture_opts->all_ifaces                      = g_array_new(FALSE, FALSE, sizeof(interface_t));
+  capture_opts->num_selected                    = 0;
   capture_opts->default_options.name            = NULL;
   capture_opts->default_options.descr           = NULL;
   capture_opts->default_options.cfilter         = NULL;
@@ -431,7 +436,7 @@ get_auth_arguments(capture_options *capture_opts, const char *arg)
 }
 #endif
 
-static int
+int
 capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str_p)
 {
     long        adapter_index;
@@ -526,6 +531,7 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
 
     return 0;
 }
+
 
 int
 capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_str_p, gboolean *start_capture)
@@ -827,7 +833,7 @@ gboolean capture_opts_trim_iface(capture_options *capture_opts, const char *capt
 
 
     /* Did the user specify an interface to use? */
-    if (capture_opts->ifaces->len == 0) {
+    if (capture_opts->num_selected == 0 && capture_opts->ifaces->len == 0) {
         /* No - is a default specified in the preferences file? */
         if (capture_device != NULL) {
             /* Yes - use it. */
@@ -958,5 +964,50 @@ static gboolean capture_opts_output_to_pipe(const char *save_file, gboolean *is_
 
   return 0;
 }
+
+void
+collect_ifaces(capture_options *capture_opts)
+{
+  guint i;
+  interface_t device;
+  interface_options interface_opts;
+  for (i = 0; i < capture_opts->all_ifaces->len; i++) {
+    device = g_array_index(capture_opts->all_ifaces, interface_t, i);
+    if (!device.hidden && device.selected) {
+      interface_opts.name = g_strdup(device.name);
+      interface_opts.descr = g_strdup(device.display_name);
+      interface_opts.monitor_mode = device.monitor_mode_enabled;
+      interface_opts.linktype = device.active_dlt;
+      interface_opts.cfilter = g_strdup(device.cfilter);
+      interface_opts.snaplen = device.snaplen;
+      interface_opts.has_snaplen = device.has_snaplen;
+      interface_opts.promisc_mode = device.pmode;
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+      interface_opts.buffer_size =  device.buffer;
+#endif
+      if (!device.local) {
+#ifdef HAVE_PCAP_REMOTE 
+        interface_opts.src_type = CAPTURE_IFREMOTE;
+        interface_opts.remote_host = g_strdup(device.remote_opts.remote_host_opts.remote_host);
+        interface_opts.remote_port = g_strdup(device.remote_opts.remote_host_opts.remote_port);
+        interface_opts.auth_type = device.remote_opts.remote_host_opts.auth_type;
+        interface_opts.auth_username = g_strdup(device.remote_opts.remote_host_opts.auth_username);
+        interface_opts.auth_password = g_strdup(device.remote_opts.remote_host_opts.auth_password);
+        interface_opts.datatx_udp = device.remote_opts.remote_host_opts.datatx_udp;
+        interface_opts.nocap_rpcap = device.remote_opts.remote_host_opts.nocap_rpcap;
+        interface_opts.nocap_local = device.remote_opts.remote_host_opts.nocap_local;
+#endif
+#ifdef HAVE_PCAP_SETSAMPLING
+        interface_opts.sampling_method = device.remote_opts.sampling_method;
+        interface_opts.sampling_param  = device.remote_opts.sampling_param;
+#endif
+      }
+      g_array_append_val(capture_opts->ifaces, interface_opts);
+    } else {
+      continue;
+    }
+  }
+}
+
 
 #endif /* HAVE_LIBPCAP */

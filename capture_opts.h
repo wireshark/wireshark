@@ -77,6 +77,73 @@ typedef enum {
 } capture_sampling;
 #endif
 
+typedef enum {
+    IF_WIRED,
+    IF_AIRPCAP,
+    IF_PIPE,
+    IF_STDIN,
+    IF_BLUETOOTH,
+    IF_WIRELESS,
+    IF_DIALUP,
+    IF_USB,
+    IF_VIRTUAL
+} interface_type;
+
+#ifdef HAVE_PCAP_REMOTE
+struct remote_host {
+    gchar *remote_host;          /**< Host name or network address for remote capturing */
+    gchar *remote_port;          /**< TCP port of remote RPCAP server */
+    gint auth_type;              /**< Authentication type */
+    gchar *auth_username;        /**< Remote authentication parameters */
+    gchar *auth_password;        /**< Remote authentication parameters */
+    gboolean datatx_udp;
+    gboolean nocap_rpcap;
+    gboolean nocap_local;
+};
+
+typedef struct remote_options_tag {
+    capture_source src_type;
+    struct remote_host remote_host_opts;
+#ifdef HAVE_PCAP_SETSAMPLING
+    capture_sampling sampling_method;
+    int sampling_param;
+#endif
+} remote_options;
+#endif /* HAVE_PCAP_REMOTE */
+
+typedef struct interface_tag {
+    gchar *name;
+    gchar *display_name;
+    guint type;
+    gchar *addresses;
+    gint no_addresses;
+    gchar *cfilter;
+    GList *links;
+    gint active_dlt;
+    gboolean pmode;
+    gboolean has_snaplen;
+    guint snaplen;
+    gboolean local;
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+    gint buffer;
+    gboolean monitor_mode_enabled;
+    gboolean monitor_mode_supported;
+#endif
+#ifdef HAVE_PCAP_REMOTE
+    remote_options remote_opts;
+#endif
+    guint32     last_packets;
+    if_info_t   if_info;
+    gboolean    selected;
+    gboolean    hidden;
+    gboolean    locked;
+} interface_t;
+
+typedef struct link_row_tag {
+    gchar *name;
+    gint dlt;
+} link_row;
+
 typedef struct interface_options_tag {
     gchar *name;
     gchar *descr;
@@ -112,6 +179,8 @@ typedef struct capture_options_tag {
     void     *cf;                   /**< handle to cfile (note: untyped handle) */
     GArray   *ifaces;               /**< array of interfaces.
                                          Currently only used by dumpcap. */
+    GArray   *all_ifaces;
+    guint    num_selected;
     interface_options default_options;
     gboolean saving_to_file;        /**< TRUE if capture is writing to a file */
     gchar    *save_file;            /**< the capture file name */
@@ -169,6 +238,9 @@ capture_opts_init(capture_options *capture_opts, void *cf);
 extern int
 capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg, gboolean *start_capture);
 
+extern int
+capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str_p);
+
 /* log content of capture_opts */
 extern void
 capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_options *capture_opts);
@@ -193,6 +265,24 @@ capture_opts_trim_ring_num_files(capture_options *capture_opts);
 /* trim the interface entry */
 extern gboolean
 capture_opts_trim_iface(capture_options *capture_opts, const char *capture_device);
+
+extern void
+collect_ifaces(capture_options *capture_opts);
+
+typedef struct {
+    gboolean monitor_mode;
+    int linktype;
+} cap_settings_t;
+
+/** Get capture settings for interface
+ *
+ * @param if_name interface name
+ */
+cap_settings_t
+capture_get_cap_settings (gchar *if_name);
+
+extern void 
+scan_local_interfaces(capture_options* capture_opts, int *error);
 
 #ifdef __cplusplus
 }

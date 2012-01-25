@@ -463,9 +463,11 @@ sync_pipe_start(capture_options *capture_opts) {
         }
 #endif
 
+#ifdef HAVE_PCAP_CREATE
         if (interface_opts.monitor_mode) {
             argv = sync_pipe_add_arg(argv, &argc, "-I");
         }
+#endif
 
 #ifdef HAVE_PCAP_REMOTE
         if (interface_opts.datatx_udp)

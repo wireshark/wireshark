@@ -95,6 +95,7 @@
 #endif /* HAVE_LIBPCAP */
 #include "log.h"
 #include <epan/funnel.h>
+#include "capture_opts.h"
 
 /*
  * This is the template for the decode as option; it is shared between the
