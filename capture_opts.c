@@ -983,6 +983,8 @@ collect_ifaces(capture_options *capture_opts)
       interface_opts.promisc_mode = device.pmode;
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
       interface_opts.buffer_size =  device.buffer;
+#endif
+#ifdef HAVE_PCAP_CREATE
       interface_opts.monitor_mode = device.monitor_mode_enabled;
 #endif
       if (!device.local) {

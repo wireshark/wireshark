@@ -126,6 +126,8 @@ typedef struct interface_tag {
     gboolean local;
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
     gint buffer;
+#endif
+#ifdef HAVE_PCAP_CREATE
     gboolean monitor_mode_enabled;
     gboolean monitor_mode_supported;
 #endif
