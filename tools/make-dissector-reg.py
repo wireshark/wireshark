@@ -59,7 +59,7 @@ elif registertype == "dissectors":
  */
 """
 else:
-	print "Unknown output type '%s'" % registertype
+	print(("Unknown output type '%s'" % registertype))
 	sys.exit(1)
 
 
@@ -77,7 +77,7 @@ for file in files:
 		filenames.append(os.path.join(srcdir, file))
 
 if len(filenames) < 1:
-	print "No files found"
+	print("No files found")
 	sys.exit(1)
 
 
@@ -118,18 +118,23 @@ if cache_filename:
 		cache_file = open(cache_filename, 'rb')
 		cache = pickle.load(cache_file)
 		cache_file.close()
-		if not cache.has_key(VERSION_KEY) or cache[VERSION_KEY] != CUR_VERSION:
+		if VERSION_KEY not in cache or cache[VERSION_KEY] != CUR_VERSION:
 			cache = {VERSION_KEY: CUR_VERSION}
 	except:
 		cache = {VERSION_KEY: CUR_VERSION}
 
+print(("Registering %d files, %d cached" % (len(filenames), len(list(cache.keys()))-1)))
+
 # Grep
+cache_hits = 0
+cache_misses = 0
 for filename in filenames:
 	file = open(filename)
 	cur_mtime = os.fstat(file.fileno())[ST_MTIME]
-	if cache and cache.has_key(filename):
+	if cache and filename in cache:
 		cdict = cache[filename]
 		if cur_mtime == cdict['mtime']:
+			cache_hits += 1
 #			print "Pulling %s from cache" % (filename)
 			regs['proto_reg'].extend(cdict['proto_reg'])
 			regs['handoff_reg'].extend(cdict['handoff_reg'])
@@ -138,6 +143,7 @@ for filename in filenames:
 			continue
 	# We don't have a cache entry
 	if cache is not None:
+		cache_misses += 1
 		cache[filename] = {
 			'mtime': cur_mtime,
 			'proto_reg': [],
@@ -158,6 +164,8 @@ for filename in filenames:
 					cache[filename][sym_type].append(symbol)
 	file.close()
 
+print(("Cache hits: %d, misses: %d" % (cache_hits, cache_misses)))
+
 if cache is not None and cache_filename is not None:
 	cache_file = open(cache_filename, 'wb')
 	pickle.dump(cache, cache_file)
@@ -165,7 +173,7 @@ if cache is not None and cache_filename is not None:
 
 # Make sure we actually processed something
 if len(regs['proto_reg']) < 1:
-	print "No protocol registrations found"
+	print("No protocol registrations found")
 	sys.exit(1)
 
 # Sort the lists to make them pretty
@@ -252,7 +260,7 @@ register_wtap_module(void)
 		reg_code.write(line)
 
 	reg_code.write("}\n");
-        reg_code.write("#endif\n");
+	reg_code.write("#endif\n");
 else:
 	reg_code.write("""
 static gulong proto_reg_count(void)
@@ -301,5 +309,3 @@ except OSError:
 
 # Move from tmp file to final file
 os.rename(tmp_filename, final_filename)
-
-
