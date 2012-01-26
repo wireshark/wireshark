@@ -48,6 +48,7 @@
 #include "packet-gsm_map.h"
 #include "packet-gsm_sms.h"
 #include <epan/sctpppids.h>
+#include "packet-cell_broadcast.h"
 
 #define PNAME  "UTRAN IuBC interface SABP signaling"
 #define PSNAME "SABP"
@@ -99,7 +100,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-sabp-val.h ---*/
-#line 49 "../../asn1/sabp/packet-sabp-template.c"
+#line 50 "../../asn1/sabp/packet-sabp-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_sabp = -1;
@@ -189,13 +190,15 @@ static int hf_sabp_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
 static int hf_sabp_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
 
 /*--- End of included file: packet-sabp-hf.c ---*/
-#line 55 "../../asn1/sabp/packet-sabp-template.c"
+#line 56 "../../asn1/sabp/packet-sabp-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_sabp = -1;
 static int ett_sabp_e212 = -1;
 static int ett_sabp_cbs_data_coding = -1;
 static int ett_sabp_bcast_msg = -1;
+static int ett_sabp_cbs_serial_number = -1;
+static int ett_sabp_cbs_new_serial_number = -1;
 
 
 /*--- Included file: packet-sabp-ett.c ---*/
@@ -241,7 +244,7 @@ static gint ett_sabp_SuccessfulOutcome = -1;
 static gint ett_sabp_UnsuccessfulOutcome = -1;
 
 /*--- End of included file: packet-sabp-ett.c ---*/
-#line 63 "../../asn1/sabp/packet-sabp-template.c"
+#line 66 "../../asn1/sabp/packet-sabp-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -477,8 +480,16 @@ dissect_sabp_Available_Bandwidth(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 static int
 dissect_sabp_Broadcast_Message_Content(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 211 "../../asn1/sabp/sabp.cnf"
+ tvbuff_t *parameter_tvb=NULL;
+
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 9968, FALSE, NULL);
+                                     1, 9968, FALSE, &parameter_tvb);
+
+	if (!parameter_tvb)
+		return offset;
+        dissect_umts_cell_broadcast_message(parameter_tvb, actx->pinfo, proto_tree_get_root(tree));
+
 
   return offset;
 }
@@ -660,12 +671,10 @@ dissect_sabp_Data_Coding_Scheme(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
                                      8, 8, FALSE, &parameter_tvb);
 
-
 	if (!parameter_tvb)
 		return offset;
 	subtree = proto_item_add_subtree(actx->created_item, ett_sabp_cbs_data_coding);
-	sms_encoding = dissect_cbs_data_coding_scheme(parameter_tvb, actx->pinfo, subtree);
-
+	sms_encoding = dissect_cbs_data_coding_scheme(parameter_tvb, actx->pinfo, subtree, 0);
 
 
 
@@ -753,8 +762,17 @@ dissect_sabp_Failure_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_sabp_Message_Identifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 183 "../../asn1/sabp/sabp.cnf"
+ tvbuff_t *parameter_tvb=NULL;
+
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     16, 16, FALSE, NULL);
+                                     16, 16, FALSE, &parameter_tvb);
+
+	if (!parameter_tvb)
+		return offset;
+        dissect_cbs_message_identifier(parameter_tvb, tree, 0);
+
+
 
   return offset;
 }
@@ -763,8 +781,19 @@ dissect_sabp_Message_Identifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static int
 dissect_sabp_Serial_Number(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 191 "../../asn1/sabp/sabp.cnf"
+ tvbuff_t *parameter_tvb=NULL;
+ proto_tree *subtree;
+
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     16, 16, FALSE, NULL);
+                                     16, 16, FALSE, &parameter_tvb);
+
+	if (!parameter_tvb)
+		return offset;
+	subtree = proto_item_add_subtree(actx->created_item, ett_sabp_cbs_serial_number);
+        dissect_cbs_serial_number(parameter_tvb, subtree, 0);
+
+
 
   return offset;
 }
@@ -773,7 +802,18 @@ dissect_sabp_Serial_Number(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 static int
 dissect_sabp_New_Serial_Number(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 201 "../../asn1/sabp/sabp.cnf"
+ tvbuff_t *parameter_tvb=NULL;
+ proto_tree *subtree;
+
   offset = dissect_sabp_Serial_Number(tvb, offset, actx, tree, hf_index);
+
+	if (!parameter_tvb)
+		return offset;
+	subtree = proto_item_add_subtree(actx->created_item, ett_sabp_cbs_new_serial_number);
+        dissect_cbs_serial_number(parameter_tvb, subtree, 0);
+
+
 
   return offset;
 }
@@ -1682,7 +1722,7 @@ static int dissect_SABP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-sabp-fn.c ---*/
-#line 87 "../../asn1/sabp/packet-sabp-template.c"
+#line 90 "../../asn1/sabp/packet-sabp-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -2093,7 +2133,7 @@ void proto_register_sabp(void) {
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-sabp-hfarr.c ---*/
-#line 177 "../../asn1/sabp/packet-sabp-template.c"
+#line 180 "../../asn1/sabp/packet-sabp-template.c"
   };
 
   /* List of subtrees */
@@ -2102,6 +2142,8 @@ void proto_register_sabp(void) {
 		  &ett_sabp_e212,
 		  &ett_sabp_cbs_data_coding,
 		  &ett_sabp_bcast_msg,
+          &ett_sabp_cbs_serial_number,
+          &ett_sabp_cbs_new_serial_number,
 
 /*--- Included file: packet-sabp-ettarr.c ---*/
 #line 1 "../../asn1/sabp/packet-sabp-ettarr.c"
@@ -2146,7 +2188,7 @@ void proto_register_sabp(void) {
     &ett_sabp_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-sabp-ettarr.c ---*/
-#line 186 "../../asn1/sabp/packet-sabp-template.c"
+#line 191 "../../asn1/sabp/packet-sabp-template.c"
   };
 
 
@@ -2229,7 +2271,7 @@ proto_reg_handoff_sabp(void)
 
 
 /*--- End of included file: packet-sabp-dis-tab.c ---*/
-#line 223 "../../asn1/sabp/packet-sabp-template.c"
+#line 228 "../../asn1/sabp/packet-sabp-template.c"
 
 }
 

@@ -59,7 +59,7 @@ extern const value_string gsm_map_PDP_Type_Organisation_vals[];
 extern const value_string gsm_map_ietf_defined_pdp_vals[];
 extern const value_string gsm_map_etsi_defined_pdp_vals[];
 
-guint8 dissect_cbs_data_coding_scheme(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree);
+guint8 dissect_cbs_data_coding_scheme(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint16 offset);
 void dissect_gsm_map_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree);
 
 

@@ -171,6 +171,8 @@ static int ett_ie_message_id = -1;
 static int ett_ie_sys_info_type = -1;
 
 static proto_tree *top_tree;
+static dissector_handle_t gsm_cbch_handle;
+static dissector_handle_t gsm_cbs_handle;
 static dissector_handle_t gsm_a_ccch_handle;
 static dissector_handle_t gsm_a_dtap_handle;
 static dissector_handle_t gsm_a_sacch_handle;
@@ -1977,6 +1979,7 @@ dissect_rsl_ie_smscb_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 {
     proto_item *ti;
     proto_tree *ie_tree;
+    tvbuff_t    *next_tvb;
 
     guint       length;
     guint8      ie_id;
@@ -2002,7 +2005,8 @@ dissect_rsl_ie_smscb_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     /*
      * SMSCB frame
      */
-    proto_tree_add_text(ie_tree, tvb,offset,length,"SMSCB frame");
+    next_tvb = tvb_new_subset(tvb, offset, length, length);
+    call_dissector(gsm_cbch_handle, next_tvb, pinfo, top_tree);
 
     offset = offset + length;
 
@@ -2202,6 +2206,7 @@ dissect_rsl_ie_smscb_mess(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 {
     proto_item *ti;
     proto_tree *ie_tree;
+    tvbuff_t    *next_tvb;
     guint length;
     guint8 ie_id;
     int ie_offset;
@@ -2228,7 +2233,8 @@ dissect_rsl_ie_smscb_mess(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
      * SMSCB Message
      */
 
-    proto_tree_add_text(ie_tree, tvb,offset,length ,"SMSCB Message");
+    next_tvb = tvb_new_subset(tvb, offset, length, length);
+    call_dissector(gsm_cbs_handle, next_tvb, pinfo, top_tree);
 
     offset = ie_offset + length;
 
@@ -3985,6 +3991,8 @@ proto_reg_handoff_rsl(void)
     rsl_handle = create_dissector_handle(dissect_rsl, proto_rsl);
     dissector_add_uint("lapd.gsm.sapi", LAPD_GSM_SAPI_RA_SIG_PROC, rsl_handle);
 
+    gsm_cbch_handle = find_dissector("gsm_cbch");
+    gsm_cbs_handle = find_dissector("gsm_cell_broadcast");
     gsm_a_ccch_handle = find_dissector("gsm_a_ccch");
     gsm_a_dtap_handle = find_dissector("gsm_a_dtap");
     gsm_a_sacch_handle = find_dissector("gsm_a_sacch");

@@ -40,6 +40,7 @@
 #include "packet-gsm_map.h"
 #include "packet-gsm_sms.h"
 #include <epan/sctpppids.h>
+#include "packet-cell_broadcast.h"
 
 #define PNAME  "UTRAN IuBC interface SABP signaling"
 #define PSNAME "SABP"
@@ -58,6 +59,8 @@ static int ett_sabp = -1;
 static int ett_sabp_e212 = -1;
 static int ett_sabp_cbs_data_coding = -1;
 static int ett_sabp_bcast_msg = -1;
+static int ett_sabp_cbs_serial_number = -1;
+static int ett_sabp_cbs_new_serial_number = -1;
 
 #include "packet-sabp-ett.c"
 
@@ -182,6 +185,8 @@ void proto_register_sabp(void) {
 		  &ett_sabp_e212,
 		  &ett_sabp_cbs_data_coding,
 		  &ett_sabp_bcast_msg,
+          &ett_sabp_cbs_serial_number,
+          &ett_sabp_cbs_new_serial_number,
 #include "packet-sabp-ettarr.c"
   };
 

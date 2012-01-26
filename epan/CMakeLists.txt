@@ -397,6 +397,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-catapult-dct2000.c
 	dissectors/packet-ccsds.c
 	dissectors/packet-cdp.c
+	dissectors/packet-cell_broadcast.c
 	dissectors/packet-cfm.c
 	dissectors/packet-cgmp.c
 	dissectors/packet-chdlc.c
@@ -608,8 +609,9 @@ set(DISSECTOR_SRC
 	dissectors/packet-gsm_a_rr.c
 	dissectors/packet-gsm_bsslap.c
 	dissectors/packet-gsm_bssmap_le.c
-	dissectors/packet-gsm_rlcmac.c
+	dissectors/packet-gsm_cbch.c
 	dissectors/packet-gsm_ipa.c
+	dissectors/packet-gsm_rlcmac.c
 	dissectors/packet-gsm_sms.c
 	dissectors/packet-gsm_sms_ud.c
 	dissectors/packet-gsm_um.c

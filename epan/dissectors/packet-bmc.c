@@ -32,6 +32,10 @@
 
 #include <epan/bitswap.h>
 #include <epan/packet.h>
+#include <epan/asn1.h> /* needed for packet-gsm_map.h */
+
+#include "packet-cell_broadcast.h"
+#include "packet-gsm_map.h"
 
 static int dissect_bmc_cbs_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_bmc_schedule_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -138,19 +142,21 @@ dissect_bmc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static int
 dissect_bmc_cbs_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
+    tvbuff_t *cell_broadcast_tvb;
     gint offset=1;
 
-    proto_tree_add_item(tree, hf_bmc_message_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+    dissect_cbs_message_identifier(tvb, tree, offset);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_bmc_serial_number, tvb, offset, 2, ENC_BIG_ENDIAN);
+    dissect_cbs_serial_number(tvb, tree, offset);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_bmc_data_coding_scheme, tvb, offset, 1, ENC_BIG_ENDIAN);
+    dissect_cbs_data_coding_scheme(tvb, pinfo, tree, offset);
     offset += 1;
 
-    proto_tree_add_item(tree, hf_bmc_cb_data, tvb, offset, tvb_length_remaining(tvb,offset), ENC_NA);
-    offset = tvb_length(tvb);
+    cell_broadcast_tvb = tvb_new_subset(tvb, offset, -1, -1);
+    dissect_umts_cell_broadcast_message(cell_broadcast_tvb, pinfo, tree);
+    offset = tvb_length(cell_broadcast_tvb);
 
     return offset;
 }

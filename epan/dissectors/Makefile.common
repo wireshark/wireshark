@@ -315,6 +315,7 @@ DISSECTOR_SRC = \
 	packet-catapult-dct2000.c \
 	packet-ccsds.c		\
 	packet-cdp.c		\
+	packet-cell_broadcast.c \
 	packet-cfm.c		\
 	packet-cgmp.c		\
 	packet-chdlc.c		\
@@ -526,6 +527,7 @@ DISSECTOR_SRC = \
 	packet-gsm_a_rr.c	\
 	packet-gsm_bsslap.c	\
 	packet-gsm_bssmap_le.c	\
+	packet-gsm_cbch.c       \
 	packet-gsm_ipa.c	\
 	packet-gsm_rlcmac.c	\
 	packet-gsm_sms.c	\
@@ -1116,6 +1118,7 @@ DISSECTOR_INCLUDES =	\
 	packet-c1222.h	\
 	packet-camel.h	\
 	packet-cdt.h	\
+	packet-cell_broadcast.h	\
 	packet-charging_ase.h	\
 	packet-chdlc.h	\
 	packet-cimd.h	\

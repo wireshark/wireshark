@@ -2716,24 +2716,24 @@ static const value_string gsm_map_cbs_coding_grp15_class_vals[] = {
 
 /* 3GPP TS 23.038 version 7.0.0 Release 7 */
 guint8
-dissect_cbs_data_coding_scheme(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+dissect_cbs_data_coding_scheme(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint16 offset)
 {
 	guint8 octet;
 	guint8 coding_grp;
 	guint8 character_set;
 
-	octet = tvb_get_guint8(tvb,0);
+	octet = tvb_get_guint8(tvb,offset);
 	coding_grp = octet >>4;
-	proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp, tvb, 0, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	sms_encoding = SMS_ENCODING_NOT_SET;
 	switch (coding_grp){
 	case 0:
-		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp0_lang, tvb, 0, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp0_lang, tvb, offset, 1, ENC_BIG_ENDIAN);
 		sms_encoding = SMS_ENCODING_7BIT;
 		break;
 	case 1:
-		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp1_lang, tvb, 0, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp1_lang, tvb, offset, 1, ENC_BIG_ENDIAN);
 		if ((octet & 0x0f)== 0){
 			sms_encoding = SMS_ENCODING_7BIT_LANG;
 		}else{
@@ -2741,11 +2741,11 @@ dissect_cbs_data_coding_scheme(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 		}
 		break;
 	case 2:
-		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp2_lang, tvb, 0, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp2_lang, tvb, offset, 1, ENC_BIG_ENDIAN);
 		sms_encoding = SMS_ENCODING_7BIT;
 		break;
 	case 3:
-		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp3_lang, tvb, 0, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp3_lang, tvb, offset, 1, ENC_BIG_ENDIAN);
 		sms_encoding = SMS_ENCODING_7BIT;
 		break;
 		/* Coding_grp 01xx */
@@ -2757,11 +2757,11 @@ dissect_cbs_data_coding_scheme(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 		  /* FALLTHRU */
 	case 7:
 		  /* FALLTHRU */
-		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp4_7_comp, tvb, 0, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp4_7_class_ind, tvb, 0, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp4_7_char_set, tvb, 0, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp4_7_comp, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp4_7_class_ind, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp4_7_char_set, tvb, offset, 1, ENC_BIG_ENDIAN);
 		if ((octet & 0x10)== 0x10){
-			proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp4_7_class, tvb, 0, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp4_7_class, tvb, offset, 1, ENC_BIG_ENDIAN);
 		}
 		/* Bits 3 and 2 indicate the character set being used, */
 		character_set = (octet&0x0c)>>2;
@@ -2791,8 +2791,8 @@ dissect_cbs_data_coding_scheme(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 		break;
 	case 9:
 		/* Message with User Data Header (UDH) structure:*/
-		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp4_7_char_set, tvb, 0, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp4_7_class, tvb, 0, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp4_7_char_set, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp4_7_class, tvb, offset, 1, ENC_BIG_ENDIAN);
 		character_set = (octet&0x0c)>>2;
 		switch (character_set){
 		case 0:
@@ -2832,8 +2832,8 @@ dissect_cbs_data_coding_scheme(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 		break;
 	case 15:
 		/* Data coding / message handling */
-		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp15_mess_code, tvb, 0, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp15_class, tvb, 0, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp15_mess_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp15_class, tvb, offset, 1, ENC_BIG_ENDIAN);
 		character_set = (octet&0x04)>>2;
 		if (character_set == 0){
 			sms_encoding = SMS_ENCODING_7BIT;
@@ -4501,7 +4501,7 @@ dissect_gsm_map_ss_USSD_DataCodingScheme(gboolean implicit_tag _U_, tvbuff_t *tv
   if (!parameter_tvb)
      return offset;
   subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_cbs_data_coding);
-  dissect_cbs_data_coding_scheme(parameter_tvb, actx->pinfo, subtree);
+  dissect_cbs_data_coding_scheme(parameter_tvb, actx->pinfo, subtree, 0);
 
 
 

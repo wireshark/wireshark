@@ -178,6 +178,40 @@ Error-Indication                       N sabp.proc.imsg id-Error-Indication
 	if (!parameter_tvb)
 		return offset;
 	subtree = proto_item_add_subtree(actx->created_item, ett_sabp_cbs_data_coding);
-	sms_encoding = dissect_cbs_data_coding_scheme(parameter_tvb, actx->pinfo, subtree);
+	sms_encoding = dissect_cbs_data_coding_scheme(parameter_tvb, actx->pinfo, subtree, 0);
 
+#.FN_BODY Message-Identifier VAL_PTR = &parameter_tvb
+ tvbuff_t *parameter_tvb=NULL;
 
+%(DEFAULT_BODY)s
+	if (!parameter_tvb)
+		return offset;
+        dissect_cbs_message_identifier(parameter_tvb, tree, 0);
+
+#.FN_BODY Serial-Number VAL_PTR = &parameter_tvb
+ tvbuff_t *parameter_tvb=NULL;
+ proto_tree *subtree;
+
+%(DEFAULT_BODY)s
+	if (!parameter_tvb)
+		return offset;
+	subtree = proto_item_add_subtree(actx->created_item, ett_sabp_cbs_serial_number);
+        dissect_cbs_serial_number(parameter_tvb, subtree, 0);
+
+#.FN_BODY New-Serial-Number VAL_PTR = &parameter_tvb
+ tvbuff_t *parameter_tvb=NULL;
+ proto_tree *subtree;
+
+%(DEFAULT_BODY)s
+	if (!parameter_tvb)
+		return offset;
+	subtree = proto_item_add_subtree(actx->created_item, ett_sabp_cbs_new_serial_number);
+        dissect_cbs_serial_number(parameter_tvb, subtree, 0);
+
+#.FN_BODY Broadcast-Message-Content VAL_PTR = &parameter_tvb
+ tvbuff_t *parameter_tvb=NULL;
+
+%(DEFAULT_BODY)s
+	if (!parameter_tvb)
+		return offset;
+        dissect_umts_cell_broadcast_message(parameter_tvb, actx->pinfo, proto_tree_get_root(tree));

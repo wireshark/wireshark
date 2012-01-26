@@ -1,5 +1,5 @@
 
-#.OPT
+#.OPT 
 -b
 #-d satcom
 #-s packet-gsm_map-tmp
@@ -436,7 +436,7 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
   if (!parameter_tvb)
      return offset;
   subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_cbs_data_coding);
-  dissect_cbs_data_coding_scheme(parameter_tvb, actx->pinfo, subtree);
+  dissect_cbs_data_coding_scheme(parameter_tvb, actx->pinfo, subtree, 0);
 
 #.FN_BODY USSD-String VAL_PTR = &parameter_tvb
 
