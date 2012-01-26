@@ -95,20 +95,24 @@
 #define GSMTAP_BURST_PHY_ATTRIBUTES     0x15	/* WiMAX PHY Attributes burst */
 
 /* ====== DO NOT MAKE UNAPPROVED MODIFICATIONS HERE ===== */
-#define GSMTAP_CHANNEL_UNKNOWN		0x00
-#define GSMTAP_CHANNEL_BCCH			0x01
-#define GSMTAP_CHANNEL_CCCH			0x02
-#define GSMTAP_CHANNEL_RACH			0x03
-#define GSMTAP_CHANNEL_AGCH			0x04
-#define GSMTAP_CHANNEL_PCH			0x05
-#define GSMTAP_CHANNEL_SDCCH		0x06
-#define GSMTAP_CHANNEL_SDCCH4		0x07
-#define GSMTAP_CHANNEL_SDCCH8		0x08
-#define GSMTAP_CHANNEL_TCH_F		0x09
-#define GSMTAP_CHANNEL_TCH_H		0x0a
-#define GSMTAP_CHANNEL_PACCH		0x0b
-#define GSMTAP_CHANNEL_ACCH			0x80
-
+/* sub-types for TYPE_UM */
+#define GSMTAP_CHANNEL_UNKNOWN    0x00
+#define GSMTAP_CHANNEL_BCCH       0x01
+#define GSMTAP_CHANNEL_CCCH       0x02
+#define GSMTAP_CHANNEL_RACH       0x03
+#define GSMTAP_CHANNEL_AGCH       0x04
+#define GSMTAP_CHANNEL_PCH        0x05
+#define GSMTAP_CHANNEL_SDCCH      0x06
+#define GSMTAP_CHANNEL_SDCCH4     0x07
+#define GSMTAP_CHANNEL_SDCCH8     0x08
+#define GSMTAP_CHANNEL_TCH_F      0x09
+#define GSMTAP_CHANNEL_TCH_H      0x0a
+#define GSMTAP_CHANNEL_PACCH      0x0b
+#define GSMTAP_CHANNEL_CBCH52     0x0c
+#define GSMTAP_CHANNEL_PDCH       0x0d
+#define GSMTAP_CHANNEL_PTCCH      0x0e
+#define GSMTAP_CHANNEL_CBCH51     0x0f
+#define GSMTAP_CHANNEL_ACCH       0x80
 
 /* ====== DO NOT MAKE UNAPPROVED MODIFICATIONS HERE ===== */
 /* sub-types for TYPE_TETRA_AIR */
@@ -187,6 +191,7 @@ enum {
 	GSMTAP_SUB_PDU,
 	GSMTAP_SUB_HACK,
 	GSMTAP_SUB_PHY_ATTRIBUTES,
+	GSMTAP_SUB_CBCH,
 
 	GSMTAP_SUB_MAX
 };
@@ -225,8 +230,13 @@ static const value_string gsmtap_channels[] = {
 	{ GSMTAP_CHANNEL_SDCCH8,	"SDCCH/8" },
 	{ GSMTAP_CHANNEL_TCH_F,		"FACCH/F" },
 	{ GSMTAP_CHANNEL_TCH_H,		"FACCH/H" },
-	{ GSMTAP_CHANNEL_PACCH,		"PACCH"},
-	{ GSMTAP_CHANNEL_ACCH|
+	{ GSMTAP_CHANNEL_PACCH,		"PACCH" },
+	{ GSMTAP_CHANNEL_CBCH52,    "CBCH" },
+	{ GSMTAP_CHANNEL_PDCH,      "PDCH" },
+	{ GSMTAP_CHANNEL_PTCCH,     "PTTCH" },
+	{ GSMTAP_CHANNEL_CBCH51,    "CBCH" },
+
+    { GSMTAP_CHANNEL_ACCH|
 	  GSMTAP_CHANNEL_SDCCH,		"LSACCH" },
 	{ GSMTAP_CHANNEL_ACCH|
 	  GSMTAP_CHANNEL_SDCCH4,	"SACCH/4" },
@@ -362,6 +372,8 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case GSMTAP_CHANNEL_CCCH:
 		case GSMTAP_CHANNEL_PCH:
 		case GSMTAP_CHANNEL_AGCH:
+		case GSMTAP_CHANNEL_CBCH51:
+        case GSMTAP_CHANNEL_CBCH52:
 			col_set_str(pinfo->cinfo, COL_RES_NET_DST, "Broadcast");
 			break;
 		default:
@@ -454,6 +466,12 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				sub_handle = GSMTAP_SUB_UM_RLC_MAC_DL;
 			}
 			break;
+
+        case GSMTAP_CHANNEL_CBCH51:
+        case GSMTAP_CHANNEL_CBCH52:
+           sub_handle = GSMTAP_SUB_CBCH;
+			break;
+
 		case GSMTAP_CHANNEL_RACH:
 		default:
 			sub_handle = GSMTAP_SUB_DATA;
@@ -579,6 +597,7 @@ proto_reg_handoff_gsmtap(void)
 	sub_handles[GSMTAP_SUB_PDU] = find_dissector("wimax_pdu_burst_handler");
 	sub_handles[GSMTAP_SUB_HACK] = find_dissector("wimax_hack_burst_handler");
 	sub_handles[GSMTAP_SUB_PHY_ATTRIBUTES] = find_dissector("wimax_phy_attributes_burst_handler");
+	sub_handles[GSMTAP_SUB_CBCH] = find_dissector("gsm_cbch");
 	gsmtap_handle = create_dissector_handle(dissect_gsmtap, proto_gsmtap);
 	dissector_add_uint("udp.port", GSMTAP_UDP_PORT, gsmtap_handle);
 }
