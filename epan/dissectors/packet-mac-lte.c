@@ -2712,7 +2712,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     } while ((number_of_headers < MAX_HEADERS_IN_PDU) && extension);
 
     /* Check that we didn't reach the end of the subheader array... */
-    if (number_of_headers <= MAX_HEADERS_IN_PDU) {
+    if (number_of_headers >= MAX_HEADERS_IN_PDU) {
         proto_item *ti = proto_tree_add_text(tree, tvb, offset, 1,
                                              "Reached %u subheaders - frame obviously malformed",
                                              MAX_HEADERS_IN_PDU);
@@ -3508,7 +3508,7 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
     } while ((number_of_headers < MAX_HEADERS_IN_PDU) && extension);
 
     /* Check that we didn't reach the end of the subheader array... */
-    if (number_of_headers <= MAX_HEADERS_IN_PDU) {
+    if (number_of_headers >= MAX_HEADERS_IN_PDU) {
         proto_item *ti = proto_tree_add_text(tree, tvb, offset, 1,
                                              "Reached %u subheaders - frame obviously malformed",
                                              MAX_HEADERS_IN_PDU);
