@@ -123,7 +123,7 @@ if cache_filename:
 	except:
 		cache = {VERSION_KEY: CUR_VERSION}
 
-print(("Registering %d files, %d cached" % (len(filenames), len(list(cache.keys()))-1)))
+	print(("Registering %d files, %d cached" % (len(filenames), len(list(cache.keys()))-1)))
 
 # Grep
 cache_hits = 0
@@ -164,12 +164,12 @@ for filename in filenames:
 					cache[filename][sym_type].append(symbol)
 	file.close()
 
-print(("Cache hits: %d, misses: %d" % (cache_hits, cache_misses)))
 
 if cache is not None and cache_filename is not None:
 	cache_file = open(cache_filename, 'wb')
 	pickle.dump(cache, cache_file)
 	cache_file.close()
+	print(("Cache hits: %d, misses: %d" % (cache_hits, cache_misses)))
 
 # Make sure we actually processed something
 if len(regs['proto_reg']) < 1:
