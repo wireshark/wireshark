@@ -1852,15 +1852,22 @@ static void TrackReportedDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatil
 /* Return TRUE if the given packet is thought to be a retx */
 int is_mac_lte_frame_retx(packet_info *pinfo, guint8 direction)
 {
+    struct mac_lte_info *p_mac_lte_info = p_get_proto_data(pinfo->fd, proto_mac_lte);
+
     if (direction == DIRECTION_UPLINK) {
         /* For UL, retx count is stored in per-packet struct */
-        struct mac_lte_info *p_mac_lte_info = p_get_proto_data(pinfo->fd, proto_mac_lte);
         return ((p_mac_lte_info != NULL) && (p_mac_lte_info->reTxCount > 0));
     }
     else {
-        /* For DL, must consult result table */
-        DLHARQResult *result = g_hash_table_lookup(mac_lte_dl_harq_result_hash, GUINT_TO_POINTER(pinfo->fd->num));
-        return ((result != NULL) && result->previousSet);
+        /* Use answer if told directly */
+        if (p_mac_lte_info->dl_retx == dl_retx_yes) {
+            return TRUE;
+        }
+        else {
+            /* Otherwise look up in table */
+            DLHARQResult *result = g_hash_table_lookup(mac_lte_dl_harq_result_hash, GUINT_TO_POINTER(pinfo->fd->num));
+            return ((result != NULL) && result->previousSet);
+        }
     }
 }
 
@@ -2702,7 +2709,19 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         proto_item_set_len(pdu_subheader_ti, offset - offset_start_subheader);
 
         number_of_headers++;
-    } while (extension);
+    } while ((number_of_headers < MAX_HEADERS_IN_PDU) && extension);
+
+    /* Check that we didn't reach the end of the subheader array... */
+    if (number_of_headers <= MAX_HEADERS_IN_PDU) {
+        proto_item *ti = proto_tree_add_text(tree, tvb, offset, 1,
+                                             "Reached %u subheaders - frame obviously malformed",
+                                             MAX_HEADERS_IN_PDU);
+        expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                               "Reached %u subheaders - frame obviously malformed",
+                               MAX_HEADERS_IN_PDU);
+        return;
+    }
+
 
     /* Append summary to overall PDU header root */
     proto_item_append_text(pdu_header_ti, " (%u subheaders)",
@@ -3486,7 +3505,19 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
         proto_item_set_len(pdu_subheader_ti, offset - offset_start_subheader);
 
         number_of_headers++;
-    } while (extension);
+    } while ((number_of_headers < MAX_HEADERS_IN_PDU) && extension);
+
+    /* Check that we didn't reach the end of the subheader array... */
+    if (number_of_headers <= MAX_HEADERS_IN_PDU) {
+        proto_item *ti = proto_tree_add_text(tree, tvb, offset, 1,
+                                             "Reached %u subheaders - frame obviously malformed",
+                                             MAX_HEADERS_IN_PDU);
+        expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                               "Reached %u subheaders - frame obviously malformed",
+                               MAX_HEADERS_IN_PDU);
+        return;
+    }
+
 
     /* Append summary to overall PDU header root */
     proto_item_append_text(pdu_header_ti, " (%u subheaders)",
