@@ -1846,7 +1846,7 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   gboolean      found = FALSE;
   gint          num_supported_link_types;
   guint         i;
-  gchar         *tok, *name;
+  gchar         *tok, *name = NULL;
   GtkCellRenderer *renderer;
   GtkListStore    *store;
 
