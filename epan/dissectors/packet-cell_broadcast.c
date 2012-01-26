@@ -312,8 +312,8 @@ dissect_gsm_cell_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    guint8 sms_encoding, total_pages, current_page;
    guint32       offset = 0;
    guint32       len, msg_key;
-   proto_item     *cbs_page_item = NULL, *cbs_page_item2 = NULL;
-   proto_tree    *cbs_page_tree = NULL, *cbs_page_subtree = NULL;
+   proto_item     *cbs_page_item = NULL;
+   proto_tree    *cbs_page_tree = NULL;
    guint16 serial_number, message_id;
    tvbuff_t *cbs_page_tvb = NULL;
    tvbuff_t *cbs_msg_tvb = NULL;
@@ -407,7 +407,7 @@ void dissect_umts_cell_broadcast_message(tvbuff_t *tvb, packet_info *pinfo, prot
    msg_len = tvb_length(cbs_msg_tvb);
    cbs_item2 = proto_tree_add_text(cbs_tree, tvb, offset, -1, "Cell Broadcast Message Contents (length: %d)", msg_len);
    cbs_subtree = proto_item_add_subtree(cbs_item2, ett_cbs_msg);
-   proto_tree_add_text(cbs_subtree, cbs_msg_tvb , 0, tvb_length(cbs_msg_tvb), tvb_get_ephemeral_string(cbs_msg_tvb, 0, msg_len));
+   proto_tree_add_text(cbs_subtree, cbs_msg_tvb , 0, tvb_length(cbs_msg_tvb), "%s", tvb_get_ephemeral_string(cbs_msg_tvb, 0, msg_len));
 }
 
 /* Register the protocol with Wireshark */
