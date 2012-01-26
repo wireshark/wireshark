@@ -1278,11 +1278,11 @@ static void add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *p
 #define get_delta_seconds_value(val,tvb,start,len,ok) \
     get_integer_value(val,tvb,start,len,ok)
 
-/* NOTE - Don't forget to g_free() the str value after its usage as the
- * tvb_get_stringz() functions return g_malloc()ed memory! */
+/* NOTE - Do NOT call g_free() for the str returned after using it because the
+ * get_text_string() macro now returns ep_alloc'd memory. */
 #define get_text_string(str,tvb,start,len,ok) \
     if (is_text_string(tvb_get_guint8(tvb,start))) { \
-        str = (gchar *)tvb_get_stringz(tvb,start,(gint *)&len); \
+        str = (gchar *)tvb_get_ephemeral_stringz(tvb,start,(gint *)&len); \
         ok = TRUE; \
     } else { len = 0; str = NULL; ok = FALSE; }
 #define get_token_text(str,tvb,start,len,ok) \
@@ -2046,11 +2046,12 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
         peek = tvb_get_guint8(tvb, off); \
         if (is_text_string(peek)) { \
             get_extension_media(val_str, tvb, off, len, ok); \
-            /* As we're using val_str, it is automatically g_free()d */ \
-            off += len; /* off now points to 1st byte after string */ \
-            tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
-            ti = proto_tree_add_string (tree, hf_hdr_ ## underscored, \
+            if (ok) { \
+                off += len; /* off now points to 1st byte after string */ \
+                tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
+                ti = proto_tree_add_string (tree, hf_hdr_ ## underscored, \
                     tvb, hdr_start, offset - hdr_start, val_str); \
+            } \
         } else if (is_integer_value(peek)) { \
             get_integer_value(val, tvb, off, len, ok); \
             if (ok) { \
@@ -2151,7 +2152,6 @@ add_content_type(proto_tree *tree, tvbuff_t *tvb, guint32 val_start,
             ti = proto_tree_add_string(tree, hf_hdr_content_type,
                     tvb, hdr_start, offset - hdr_start,
                     val_str);
-            /* As we're using val_str, it is automatically g_free()d */
             *textual_content = g_strdup(val_str);
             *well_known_content = 0;
         } else {
@@ -2171,12 +2171,12 @@ add_content_type(proto_tree *tree, tvbuff_t *tvb, guint32 val_start,
         if (is_text_string(peek)) {
             DebugLog(("add_content_type() - General form - extension-media\n"));
             get_extension_media(val_str, tvb, off, len, ok);
-            /* As we're using val_str, it is automatically g_free()d */
-            /* ??? Not sure anymore, we're in wkh_3, not in wkh_2 ! */
-            off += len; /* off now points to 1st byte after string */
-            tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start);
-            ti = proto_tree_add_string (tree, hf_hdr_content_type,
+            if (ok) {
+                off += len; /* off now points to 1st byte after string */
+                tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start);
+                ti = proto_tree_add_string (tree, hf_hdr_content_type,
                     tvb, hdr_start, offset - hdr_start, val_str);
+            }
             /* Following statement: required? */
             *textual_content = g_strdup(val_str);
             *well_known_content = 0;
@@ -2241,11 +2241,12 @@ wkh_ ## underscored (proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_
         peek = tvb_get_guint8(tvb, off); \
         if (is_text_string(peek)) { \
             get_token_text(val_str, tvb, off, len, ok); \
-            /* As we're using val_str, it is automatically g_free()d */ \
-            off += len; /* off now points to 1st byte after string */ \
-            tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
-            ti = proto_tree_add_string (tree, hf_hdr_ ## underscored, \
-                    tvb, hdr_start, offset - hdr_start, val_str); \
+            if (ok) { \
+                off += len; /* off now points to 1st byte after string */ \
+                tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
+                ti = proto_tree_add_string (tree, hf_hdr_ ## underscored, \
+                        tvb, hdr_start, offset - hdr_start, val_str); \
+            } \
         } else if (is_integer_value(peek)) { \
             get_integer_value(val, tvb, off, len, ok); \
             if (ok) { \
@@ -2669,7 +2670,6 @@ wkh_accept_encoding(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
                 tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start);
                 ti = proto_tree_add_string(tree, hf_hdr_accept_encoding,
                         tvb, hdr_start, offset - hdr_start, str);
-                g_free(str);
             }
             off += len;
         }
@@ -2737,7 +2737,6 @@ wkh_content_disposition(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, pack
                 tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start);
                 ti = proto_tree_add_string(tree, hf_hdr_content_disposition,
                         tvb, hdr_start, offset - hdr_start, str);
-                g_free(str);
             }
             off += len;
         }
@@ -3085,7 +3084,6 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, \
                 val_str = g_strdup_printf("; realm=%s", str); \
                 proto_item_append_string(ti, val_str); \
                 g_free( (gpointer) val_str); \
-                g_free(str); \
                 off += len; \
             } \
         } else { /* Authentication-scheme: token-text */ \
@@ -3099,7 +3097,6 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, \
                 proto_tree_add_string(subtree, \
                         hf_hdr_ ## underscored ## _scheme, \
                         tvb, hdr_start, off - hdr_start, str); \
-                g_free(str); \
                 off += len; \
                 /* Realm: text-string */ \
                 get_text_string(str,tvb,off,len,ok); \
@@ -3110,7 +3107,6 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, \
                     val_str = g_strdup_printf("; realm=%s", str); \
                     proto_item_append_string(ti, val_str); \
                     g_free( (gpointer) val_str); \
-                    g_free(str); \
                     off += len; \
                     /* Auth-params: parameter - TODO */ \
                     while (off < offset) /* Parse parameters */ \
@@ -3169,7 +3165,6 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, \
                 val_str = g_strdup_printf("; user-id=%s", str); \
                 proto_item_append_string(ti, val_str); \
                 g_free( (gpointer) val_str); \
-                g_free(str); \
                 off += len; \
                 /* Password: text-string */ \
                 get_text_string(str,tvb,off,len,ok); \
@@ -3180,7 +3175,6 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, \
                     val_str = g_strdup_printf("; password=%s", str); \
                     proto_item_append_string(ti, val_str); \
                     g_free( (gpointer) val_str); \
-                    g_free(str); \
                     off += len; \
                 } \
             } \
@@ -3194,7 +3188,6 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, \
                 proto_tree_add_string(subtree, \
                         hf_hdr_ ## underscored ## _scheme, \
                         tvb, hdr_start, off - hdr_start, str); \
-                g_free(str); \
                 off += len; \
                 /* Auth-params: parameter - TODO */ \
                 while (off < offset) /* Parse parameters */ \
@@ -3430,7 +3423,6 @@ wkh_cache_control(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_inf
                             get_token_text(val_str, tvb, off, len, ok);
                             if (ok) {
                                 proto_item_append_string(ti, val_str);
-                                g_free( (gpointer) val_str);
                                 off += len;
                             }
                         }
@@ -3465,7 +3457,6 @@ wkh_cache_control(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_inf
                 tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start);
                 ti = proto_tree_add_string(tree, hf_hdr_cache_control,
                         tvb, hdr_start, offset - hdr_start, val_str);
-                g_free( (gpointer) val_str);
                 get_integer_value(val, tvb, off, len, ok);
                 if (ok) { /* Integer-value */
                     val_str = g_strdup_printf("=%u", val);
@@ -3488,7 +3479,6 @@ wkh_cache_control(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_inf
                             /* TODO - check that we have Token-text or 0x00 */
                             proto_item_append_string(ti, val_str);
                         }
-                        g_free( (gpointer) val_str);
                     }
                 }
             }
@@ -3551,7 +3541,6 @@ wkh_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pin
                     val_str = g_strdup_printf("; agent=%s", str);
                     proto_item_append_string(ti, val_str);
                     g_free( (gpointer) val_str); /* proto_XXX creates a copy */
-                    g_free(str);
                     off += len;
                     get_text_string(str, tvb, off, len, ok);
                     if (ok) { /* Valid warn-text string */
@@ -3561,7 +3550,6 @@ wkh_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pin
                         val_str = g_strdup_printf("; text=%s", str);
                         proto_item_append_string(ti, val_str);
                         g_free( (gpointer) val_str); /* proto_XXX creates a copy */
-                        g_free(str);
                         off += len;
                     }
                 }
@@ -3606,6 +3594,9 @@ wkh_profile_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
                         tvb, hdr_start, offset - hdr_start, val_str);
                 get_uri_value(str, tvb, off, len, ok);
                 if (ok) { /* Valid warn-target string */
+                    /* TODO: Why did we just call get_uri_value() and not use
+                     * the str, since the pointer to it is immediately
+                     * forgotten with the call to g_strdup_printf()? */
                     off += len;
                     str = g_strdup_printf("; target=%s", val_str);
                     proto_item_append_string(ti, str);
@@ -3672,7 +3663,6 @@ static guint32 wkh_encoding_version (proto_tree *tree, tvbuff_t *tvb,
                     str = g_strdup_printf(": %s", val_str);
                     proto_item_append_string(ti, str);
                     g_free(str);
-                    g_free( (gpointer) val_str);
                 }
             }
         }
@@ -3831,7 +3821,6 @@ static guint32 wkh_te (proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packe
                 tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start);
                 ti = proto_tree_add_string(tree, hf_hdr_te,
                         tvb, hdr_start, off - hdr_start, val_str);
-                g_free( (gpointer) val_str);
                 off += len;
             }
         }
@@ -4018,8 +4007,6 @@ wkh_content_type_header(openwave_x_up_proxy_push_accept,
         proto_item_append_string(ti, str); \
         DebugLog(("\tFreeing str [%s]\n", str)); \
         g_free(str); \
-        DebugLog(("\tFreeing val_str [%s]\n", val_str)); \
-        g_free( (gpointer) val_str); \
         offset += val_len; \
     } else { \
         DebugLog(("\tError: invalid parameter value!\n")); \
@@ -4056,7 +4043,6 @@ wkh_content_type_header(openwave_x_up_proxy_push_accept,
         } \
         proto_item_append_string(ti, str); \
         g_free(str); \
-        g_free( (gpointer) val_str); \
         offset += val_len; \
     } else { \
         proto_tree_add_string(tree, hf, tvb, start, len, \
@@ -4129,8 +4115,6 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
                 proto_item_append_string(ti, s);
                 DebugLog(("Freeing s\n"));
                 g_free(s);
-                DebugLog(("Freeing val_str\n"));
-                g_free( (gpointer) val_str);
                 DebugLog(("Done!\n"));
             } else { /* Try integer value */
                 DebugLog(("Trying integer parameter value.\n"));
@@ -4154,7 +4138,6 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
                     offset = start + len; /* Skip to end of buffer */
                 }
             }
-            g_free(str);
         }
         DebugLog(("parameter() - Untyped - End\n"));
         return offset;
@@ -5610,12 +5593,10 @@ add_capabilities (proto_tree *tree, tvbuff_t *tvb, guint8 pdu_type)
                             capaName, offset));
                 proto_tree_add_text(wsp_capabilities, tvb, capaStart, capaLen,
                         "Unknown or invalid textual capability: %s", capaName);
-                g_free(capaName);
                 /* Skip this capability */
                 offset = capaStart + capaLen;
                 continue;
             }
-            g_free(capaName);
             offset += len;
             /* Now offset points to the 1st value byte of the capability. */
         } else if (peek < 0x80) {
@@ -5747,7 +5728,6 @@ add_capabilities (proto_tree *tree, tvbuff_t *tvb, guint8 pdu_type)
                                     valStr));
                         proto_item_append_string(ti, valStr);
                         g_free(valStr);
-                        g_free(str);
                         offset += len;
                     }
                 } else {
@@ -5787,7 +5767,6 @@ add_capabilities (proto_tree *tree, tvbuff_t *tvb, guint8 pdu_type)
                                     valStr));
                         proto_item_append_string(ti, valStr);
                         g_free(valStr);
-                        g_free(str);
                         offset += len;
                     }
                 } else {
