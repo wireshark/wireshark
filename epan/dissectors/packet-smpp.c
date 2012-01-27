@@ -1167,6 +1167,14 @@ smpp_mktime(const char *datestr, time_t *secs, int *nsecs)
 
     if (relative == FALSE) {
         *secs = mktime(&r_time);
+	/* Subtract out the timezone information since we will adjust for
+	 * timezone below and then display in UTC.
+	 */
+#ifdef _WIN32
+	*secs -= _timezone;
+#else
+	*secs -= timezone;
+#endif
         *nsecs = (datestr[12] - '0') * 100000000;
         t_diff = (10 * (datestr[13] - '0') + (datestr[14] - '0')) * 900;
         if (datestr[15] == '+')
@@ -2865,7 +2873,7 @@ proto_register_smpp(void)
         },
         {   &hf_smpp_schedule_delivery_time,
             {   "Scheduled delivery time", "smpp.schedule_delivery_time",
-                FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00,
+                FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x00,
                 "Scheduled time for delivery of short message.",
                 HFILL
             }
@@ -2879,7 +2887,7 @@ proto_register_smpp(void)
         },
         {   &hf_smpp_validity_period,
             {   "Validity period", "smpp.validity_period",
-                FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00,
+                FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x00,
                 "Validity period of this message.",
                 HFILL
             }
@@ -2977,7 +2985,7 @@ proto_register_smpp(void)
         },
         {   &hf_smpp_final_date,
             {   "Final date", "smpp.final_date",
-                FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00,
+                FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x00,
                 "Date-time when the queried message reached a final state.",
                 HFILL
             }
@@ -3619,7 +3627,7 @@ proto_register_smpp(void)
         },
         {       &hf_smpp_broadcast_end_time,
                 {       "Broadcast Message - End Time", "smpp.broadcast_end_time",
-                        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00,
+                        FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x00,
                         "Cell Broadcast Message - Date and time at which MC set the state of the message to terminated", HFILL
                 }
         },
