@@ -246,7 +246,7 @@ build_file_open_type_list(void) {
 
 
     /* Add the "All Files" entry. */
-    filters << QString::QString("All Files (*.*)");
+    filters << QString("All Files (*.*)");
 
     /* Include all the file types Wireshark supports. */
     for (ft = 0; ft < WTAP_NUM_FILE_TYPES; ft++) {
