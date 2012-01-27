@@ -769,7 +769,7 @@ LOCAL_CFLAGS= $(LOCAL_CFLAGS) /analyze:WX-
 !ENDIF
 
 #STANDARD_CFLAGS are flags used for *Wireshark* compiles (not stuff like lemon, etc)
-STANDARD_CFLAGS=-DHAVE_CONFIG_H -D_U_="" $(LOCAL_CFLAGS) $(WARNINGS_CFLAGS)
+STANDARD_CFLAGS=-DHAVE_CONFIG_H -D_U_="" /DPCAP_VERSION="\"$(PCAP_VERSION)\"" $(LOCAL_CFLAGS) $(WARNINGS_CFLAGS)
 
 #Comment out the following if warnings are not to be treated as errors
 WARNINGS_ARE_ERRORS=-WX
