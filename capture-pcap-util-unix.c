@@ -353,7 +353,7 @@ get_compiled_pcap_version(GString *str)
 	 * So, for now, we just give up on reporting the version
 	 * of libpcap with which we were compiled.
 	 */
-	g_string_append(str, "with libpcap (version unknown)");
+	g_string_append(str, "with libpcap");
 }
 
 /*
