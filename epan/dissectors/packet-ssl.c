@@ -5253,7 +5253,6 @@ proto_register_ssl(void)
         &ett_ssl_keyex_params,
         &ett_ssl_cert_status,
         &ett_ssl_ocsp_resp,
-        &ett_ssl_keyex_params,
         &ett_pct_cipher_suites,
         &ett_pct_hash_suites,
         &ett_pct_cert_suites,
