@@ -320,40 +320,40 @@ proto_register_ccid(void)
     static hf_register_info hf[] = {
 
         {&hf_ccid_bMessageType,
-         { "Message Type", "ccid.bMessageType", FT_UINT8, BASE_HEX,
+         { "Message Type", "usbccid.bMessageType", FT_UINT8, BASE_HEX,
            VALS(ccid_messagetypes_vals), 0x0, NULL, HFILL }},
         {&hf_ccid_dwLength,
-         { "Packet Length", "ccid.dwLength", FT_UINT8, BASE_DEC,
+         { "Packet Length", "usbccid.dwLength", FT_UINT8, BASE_DEC,
            NULL, 0x0, NULL, HFILL }},
         {&hf_ccid_bSlot,
-         { "Slot", "ccid.bSlot", FT_UINT8, BASE_DEC,
+         { "Slot", "usbccid.bSlot", FT_UINT8, BASE_DEC,
            NULL, 0x0, NULL, HFILL }},
         {&hf_ccid_bSeq,
-         { "Sequence", "ccid.bSeq", FT_UINT8, BASE_DEC,
+         { "Sequence", "usbccid.bSeq", FT_UINT8, BASE_DEC,
            NULL, 0x0, NULL, HFILL }},
         {&hf_ccid_bStatus,
-         { "Status", "ccid.bStatus", FT_UINT8, BASE_DEC,
+         { "Status", "usbccid.bStatus", FT_UINT8, BASE_DEC,
            NULL, 0x0, NULL, HFILL }},
         {&hf_ccid_bError,
-         { "Error", "ccid.bError", FT_UINT8, BASE_DEC,
+         { "Error", "usbccid.bError", FT_UINT8, BASE_DEC,
            NULL, 0x0, NULL, HFILL }},
         {&hf_ccid_bChainParameter,
-         { "Chain Parameter", "ccid.bChainParameter", FT_UINT8, BASE_DEC,
+         { "Chain Parameter", "usbccid.bChainParameter", FT_UINT8, BASE_DEC,
            NULL, 0x0, NULL, HFILL }},
         {&hf_ccid_bPowerSelect,
-         { "Voltage Level", "ccid.bPowerSelect", FT_UINT8, BASE_HEX,
+         { "Voltage Level", "usbccid.bPowerSelect", FT_UINT8, BASE_HEX,
            VALS(ccid_voltage_levels_vals), 0x0, NULL, HFILL }},
         {&hf_ccid_bClockStatus,
-         { "Clock Status", "ccid.bClockStatus", FT_UINT8, BASE_HEX,
+         { "Clock Status", "usbccid.bClockStatus", FT_UINT8, BASE_HEX,
            VALS(ccid_clock_states_vals), 0x0, NULL, HFILL }},
         {&hf_ccid_bProtocolNum,
-         { "Data Structure Type", "ccid.bProtocolNum", FT_UINT8, BASE_HEX,
+         { "Data Structure Type", "usbccid.bProtocolNum", FT_UINT8, BASE_HEX,
            VALS(ccid_proto_structs_vals), 0x0, NULL, HFILL }},
         {&hf_ccid_bBWI,
-         { "Block Wait Time Integer", "ccid.bBWI", FT_UINT8, BASE_HEX,
+         { "Block Wait Time Integer", "usbccid.bBWI", FT_UINT8, BASE_HEX,
            NULL, 0x0, NULL, HFILL }},
         {&hf_ccid_wLevelParameter,
-         { "Level Parameter", "ccid.wLevelParameter", FT_UINT8, BASE_HEX,
+         { "Level Parameter", "usbccid.wLevelParameter", FT_UINT8, BASE_HEX,
            NULL, 0x0, NULL, HFILL }}
 
     };
@@ -362,14 +362,14 @@ proto_register_ccid(void)
         &ett_ccid
     };
 
-    proto_ccid = proto_register_protocol("USB CCID", "USBCCID", "ccid");
+    proto_ccid = proto_register_protocol("USB CCID", "USBCCID", "usbccid");
     proto_register_field_array(proto_ccid, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    ccid_dissector_table = register_dissector_table("ccid.payload",
+    ccid_dissector_table = register_dissector_table("usbccid.payload",
                                                     "CCID Payload", FT_UINT8, BASE_DEC);
 
-    register_dissector("ccid", dissect_ccid, proto_ccid);
+    register_dissector("usbccid", dissect_ccid, proto_ccid);
 }
 
 /* Handler registration */
@@ -379,7 +379,7 @@ proto_reg_handoff_ccid(void)
     dissector_handle_t usb_ccid_bulk_handle;
 
     data_handle = find_dissector("data");
-    usb_ccid_bulk_handle = find_dissector("ccid");
+    usb_ccid_bulk_handle = find_dissector("usbccid");
     dissector_add_uint("usb.bulk", IF_CLASS_SMART_CARD, usb_ccid_bulk_handle);
 }
 
