@@ -79,12 +79,24 @@ typedef struct tlv_time_info {
     (_tlv_time_info).length = GUINT16_TO_LE((_tlv_time_info).length); \
 	(_tlv_time_info).time_format = GUINT32_FROM_LE((_tlv_time_info).time_format)
 
+typedef struct tlv_wireless_info {
+	guint8 quality;
+	guint8 signalStrength;
+	guint8 rate;
+	guint8 frequency;
+	guint8 qualityPercent;
+	guint8 strengthPercent;
+	guint8 conditions;
+	guint8 reserved;
+} tlv_wireless_info;
+
 /*
  * TLV type values.
  */
 #define INFORMATION_TYPE_ALIAS_LIST		0x01
 #define INFORMATION_TYPE_COMMENT		0x02	/* ASCII text */
 #define INFORMATION_TYPE_TIME_INFO		0x04
+#define INFORMATION_TYPE_WIRELESS		0x101
 
 /*
  * TVL TIME_INFO values.
