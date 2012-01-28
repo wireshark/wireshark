@@ -896,13 +896,16 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (tree && stat_info->http_host && stat_info->request_uri) {
 		proto_item *e_ti;
-		size_t size = strlen("http://") + strlen(stat_info->http_host)
+		gchar* hostname = g_strstrip(g_strdup(stat_info->http_host));
+		size_t size = strlen("http://") + strlen(hostname)
 			    + strlen(stat_info->request_uri) + 1;
 		char *uri = ep_alloc(size);
 
 		g_snprintf(uri, (gulong)size, "%s://%s%s",
 			   "http",	/* XXX, https? */
-			    stat_info->http_host, stat_info->request_uri);
+			    hostname, stat_info->request_uri);
+
+		g_free(hostname);
 
 		e_ti = proto_tree_add_string(http_tree,
 					     hf_http_request_full_uri, tvb, 0,
