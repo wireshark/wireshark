@@ -391,6 +391,9 @@ static guint16 evaluate_meta_item_dxt(proto_tree *meta_tree, tvbuff_t *tvb, pack
             switch (aal5proto) {
                 case META_AAL5PROTO_MTP3:
                     p_sscop_info->subdissector = sscf_nni_handle;
+                    /* hint for ATM dissector that this frame contains SSCOP */
+                    memset(&pinfo->pseudo_header->atm, 0, sizeof(pinfo->pseudo_header->atm));
+                    pinfo->pseudo_header->atm.type = TRAF_SSCOP;
                     break;
                 case META_AAL5PROTO_ALCAP:
                     p_sscop_info->subdissector = alcap_handle;

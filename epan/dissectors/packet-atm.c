@@ -729,6 +729,7 @@ static const value_string aal5_hltype_vals[] = {
   { TRAF_SPANS,             "FORE SPANS" },
   { TRAF_IPSILON,           "Ipsilon" },
   { TRAF_GPRS_NS,           "GPRS NS" },
+  { TRAF_SSCOP,             "SSCOP" },
   { 0,              NULL }
 };
 
@@ -1096,6 +1097,10 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   case AAL_5:
     switch (pinfo->pseudo_header->atm.type) {
+
+    case TRAF_SSCOP:
+      call_dissector(sscop_handle, next_tvb, pinfo, tree);
+      break;
 
     case TRAF_FR:
       call_dissector(fr_handle, next_tvb, pinfo, tree);
