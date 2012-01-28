@@ -47,6 +47,7 @@
 #define META_PROTO_DXT_NBAP           69
 #define META_PROTO_DXT_ATM_AAL2       76
 #define META_PROTO_DXT_FP_HINT        82
+#define META_PROTO_DXT_HDLC          106
 #define META_PROTO_DXT_CONTAINER     127
 #define META_PROTO_DXT_FP_CAPTURE    193
 #define META_PROTO_DXT_UTRAN_CAPSULE 194
@@ -136,6 +137,7 @@ static dissector_handle_t nbap_handle;
 static dissector_handle_t ethwithfcs_handle;
 static dissector_handle_t ethwithoutfcs_handle;
 static dissector_handle_t fphint_handle;
+static dissector_handle_t mtp2_handle;
 
 static dissector_table_t meta_dissector_table;
 
@@ -149,6 +151,7 @@ static const value_string meta_proto_vals[] = {
     { META_PROTO_DXT_ETHERNET,      "Ethernet without FCS" },
     { META_PROTO_DXT_ETHERNET_CRC,  "Ethernet with FCS" },
     { META_PROTO_DXT_FP_HINT,       "FP Hint" },
+    { META_PROTO_DXT_HDLC,          "HDLC" },
     { META_PROTO_DXT_ERF_AAL5,      "ERF AAL5" },
     { META_PROTO_DXT_ATM_AAL2,      "ATM AAL2" },
     { META_PROTO_DXT_ATM,           "ATM" },
@@ -503,7 +506,7 @@ dissect_meta(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint32             aal2_ext, atm_hdr;
     proto_tree         *meta_tree      = NULL;
     proto_item         *ti             = NULL;
-    tvbuff_t           *next_tvb;
+    tvbuff_t           *next_tvb       = NULL;
     dissector_handle_t  next_dissector = NULL;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "META");
@@ -574,12 +577,19 @@ dissect_meta(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     pinfo->pseudo_header->atm.aal = AAL_5;
                     next_dissector = atm_untrunc_handle;
                     break;
+                case META_PROTO_DXT_HDLC:
+                    next_dissector = mtp2_handle;
+                    next_tvb = tvb_new_subset(tvb, item_len + META_HEADER_SIZE,
+                        tvb_reported_length(tvb)-item_len-META_HEADER_SIZE-2, -1);
+                    break;
                 default:
                     next_dissector =
                         dissector_get_uint_handle(meta_dissector_table, proto);
             }
     }
-    next_tvb = tvb_new_subset_remaining(tvb, item_len + META_HEADER_SIZE);
+    if (!next_tvb)
+        next_tvb = tvb_new_subset_remaining(tvb, item_len + META_HEADER_SIZE);
+
     call_dissector(next_dissector ? next_dissector : data_handle,
         next_tvb, pinfo, tree);
 }
@@ -657,4 +667,5 @@ proto_reg_handoff_meta(void)
     ethwithfcs_handle = find_dissector("eth_withfcs");
     ethwithoutfcs_handle = find_dissector("eth_withoutfcs");
     fphint_handle = find_dissector("fp_hint");
+    mtp2_handle = find_dissector("mtp2");
 }
