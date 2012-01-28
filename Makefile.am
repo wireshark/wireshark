@@ -267,6 +267,69 @@ ui_DATA = \
 	ui/gtk/ui/main-menubar-ui.xml
 
 #
+# Install the ui/gt directory files in the "ui/qt" subdirectory
+# of that directory
+#
+uiqtdir = $(pkgdatadir)/ui/qt
+uiqt_DATA = \
+	ui/qt/byte_view_tab.cpp	\
+	ui/qt/byte_view_tab.h \
+	ui/qt/byte_view_text.cpp	\
+	ui/qt/byte_view_text.h	\
+	ui/qt/capture_file_dialog.cpp	\
+	ui/qt/capture_file_dialog.h	\
+	ui/qt/capture_info_dialog.cpp	\
+	ui/qt/capture_info_dialog.h	\
+	ui/qt/capture_interface_dialog.cpp	\
+	ui/qt/capture_interface_dialog.h	\
+	ui/qt/capture_start_24.png	\
+	ui/qt/capture_start_active_24.png	\
+	ui/qt/capture_stop_24.png	\
+	ui/qt/color_dialog.cpp	\
+	ui/qt/color_dialog.h	\
+	ui/qt/color_utils.cpp	\
+	ui/qt/color_utils.h	\
+	ui/qt/dfilter_apply_hover.png	\
+	ui/qt/dfilter_apply_normal.png	\
+	ui/qt/dfilter_apply_pressed.png	\
+	ui/qt/dfilter_bookmark_hover.png	\
+	ui/qt/dfilter_bookmark_normal.png	\
+	ui/qt/dfilter_bookmark_pressed.png	\
+	ui/qt/dfilter_dropdown.png	\
+	ui/qt/dfilter_erase_active.png	\
+	ui/qt/dfilter_erase_normal.png	\
+	ui/qt/dfilter_erase_selected.png	\
+	ui/qt/dfilter_refresh_active.png	\
+	ui/qt/dfilter_refresh_normal.png	\
+	ui/qt/display_filter_16.svg	\
+	ui/qt/display_filter_combo.cpp	\
+	ui/qt/display_filter_combo.h	\
+	ui/qt/display_filter_edit.cpp	\
+	ui/qt/display_filter_edit.h	\
+	ui/qt/display_filter.qrc	\
+	ui/qt/fileset_dialog.cpp	\
+	ui/qt/fileset_dialog.h	\
+	ui/qt/gpl-template.txt	\
+	ui/qt/interface_tree.cpp	\
+	ui/qt/interface_tree.h	\
+	ui/qt/label_stack.cpp	\
+	ui/qt/label_stack.h	\
+	ui/qt/main.cpp	\
+	ui/qt/main_status_bar.cpp	\
+	ui/qt/main_status_bar.h	\
+	ui/qt/main_welcome.cpp	\
+	ui/qt/main_welcome.h	\
+	ui/qt/main_window.cpp	\
+	ui/qt/main_window.h	\
+	ui/qt/main_window.ui	\
+	ui/qt/monospace_font.cpp	\
+	ui/qt/monospace_font.h	\
+	ui/qt/packet_list.cpp	\
+	ui/qt/packet_list.h	\
+	ui/qt/packet_list_model.cpp	\
+	ui/qt/packet_list_model.h
+
+#
 # Install the wimaxasncp directory files in the "wimaxasncp" subdirectory
 # of that directory
 #
@@ -809,6 +872,7 @@ EXTRA_DIST = \
 	$(radius_DATA)		\
 	$(tpncp_DATA)		\
 	$(ui_DATA)		\
+	$(uiqt_DATA)		\
 	$(wimaxasncp_DATA)	\
 	randpkt.c		\
 	smi_modules		\
