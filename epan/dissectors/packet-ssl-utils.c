@@ -32,6 +32,7 @@
 #endif
 
 #include "packet-ssl-utils.h"
+#include "packet-ssl.h"
 
 #include <epan/emem.h>
 #include <epan/strutil.h>
@@ -2555,14 +2556,30 @@ ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, gint ct,
         worklen, ssl->version_netorder, ct, decoder->seq);
     if(ssl->version_netorder==SSLV3_VERSION){
         if(ssl3_check_mac(decoder,ct,out_str->data,worklen,mac) < 0) {
-            ssl_debug_printf("ssl_decrypt_record: mac failed\n");
-            return -1;
+			if(ssl_ignore_mac_failed) {
+			ssl_debug_printf("ssl_decrypt_record: mac failed, but ignored for troubleshooting ;-)\n");
+            }
+			else{
+				ssl_debug_printf("ssl_decrypt_record: mac failed\n");
+				return -1;
+			}
+        }
+        else{
+            ssl_debug_printf("ssl_decrypt_record: mac ok\n");
         }
     }
     else if(ssl->version_netorder==TLSV1_VERSION || ssl->version_netorder==TLSV1DOT1_VERSION || ssl->version_netorder==TLSV1DOT2_VERSION){
         if(tls_check_mac(decoder,ct,ssl->version_netorder,out_str->data,worklen,mac)< 0) {
-            ssl_debug_printf("ssl_decrypt_record: mac failed\n");
-            return -1;
+			if(ssl_ignore_mac_failed) {
+			ssl_debug_printf("ssl_decrypt_record: mac failed, but ignored for troubleshooting ;-)\n");
+            }
+			else{
+				ssl_debug_printf("ssl_decrypt_record: mac failed\n");
+				return -1;
+			}
+        }
+        else{
+            ssl_debug_printf("ssl_decrypt_record: mac ok\n");
         }
     }
     else if(ssl->version_netorder==DTLSV1DOT0_VERSION ||
@@ -2570,11 +2587,20 @@ ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, gint ct,
         /* following the openssl dtls errors the right test is:
         if(dtls_check_mac(decoder,ct,ssl->version_netorder,out_str->data,worklen,mac)< 0) { */
         if(tls_check_mac(decoder,ct,TLSV1_VERSION,out_str->data,worklen,mac)< 0) {
-            ssl_debug_printf("ssl_decrypt_record: mac failed\n");
-            return -1;
+			if(ssl_ignore_mac_failed) {
+			ssl_debug_printf("ssl_decrypt_record: mac failed, but ignored for troubleshooting ;-)\n");
+            }
+			else{
+				ssl_debug_printf("ssl_decrypt_record: mac failed\n");
+				return -1;
+			}
         }
+        else{
+            ssl_debug_printf("ssl_decrypt_record: mac ok\n");
+        }
+
     }
-    ssl_debug_printf("ssl_decrypt_record: mac ok\n");
+   /* ssl_debug_printf("ssl_decrypt_record: mac ok\n"); */
     *outl = worklen;
 
     if (decoder->compression > 0) {

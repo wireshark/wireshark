@@ -123,6 +123,7 @@ static guint nssldecrypt = 0;
 
 static gboolean ssl_desegment = TRUE;
 static gboolean ssl_desegment_app_data = TRUE;
+gboolean ssl_ignore_mac_failed = FALSE;
 
 
 /*********************************************************************
@@ -5325,6 +5326,11 @@ proto_register_ssl(void)
              "Reassemble SSL Application Data spanning multiple SSL records",
              "Whether the SSL dissector should reassemble SSL Application Data spanning multiple SSL records. ",
              &ssl_desegment_app_data);
+        prefs_register_bool_preference(ssl_module,
+             "ignore_ssl_mac_failed",
+             "Message Authentication Code (MAC), ignore \"mac failed\"",
+             "For troubleshooting ignore the mac check result and decrypt also if the Message Authentication Code (MAC) fails.",
+             &ssl_ignore_mac_failed);
 #ifdef HAVE_LIBGNUTLS
         prefs_register_string_preference(ssl_module, "psk", "Pre-Shared-Key",
              "Pre-Shared-Key as HEX string, should be 0 to 16 bytes",
