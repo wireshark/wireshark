@@ -1231,14 +1231,8 @@ col_set_cls_time(const frame_data *fd, column_info *cinfo, const gint col)
   }
 }
 
-/* Set the format of the variable time format.
-   XXX - this is called from "file.c" when the user changes the time
-   format they want for "command-line-specified" time; it's a bit ugly
-   that we have to export it, but if we go to a CList-like widget that
-   invokes callbacks to get the text for the columns rather than
-   requiring us to stuff the text into the widget from outside, we
-   might be able to clean this up. */
-void
+/* Set the format of the variable time format. */
+static void
 col_set_fmt_time(const frame_data *fd, column_info *cinfo, const gint fmt, const gint col)
 {
   COL_CHECK_REF_TIME(fd, cinfo->col_buf[col]);

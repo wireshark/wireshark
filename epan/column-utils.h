@@ -52,12 +52,6 @@ extern void	col_setup(column_info *cinfo, const gint num_cols);
  */
 extern void	col_init(column_info *cinfo);
 
-/** Set the format of the "variable time format".
- *
- * Internal, don't use this in dissectors!
- */
-extern void	col_set_fmt_time(const frame_data *fd, column_info *cinfo, const gint fmt, const gint col);
-
 /** Fill in all columns of the given packet which are based on values from frame_data.
  *
  * Internal, don't use this in dissectors!
