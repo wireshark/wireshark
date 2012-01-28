@@ -531,10 +531,11 @@ static int rtp_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *e
 		rtp_selected = TRUE;
 	}
 	/* add this RTP for future listening using the RTP Player*/
+	if (rtp_selected) {
 #ifdef HAVE_LIBPORTAUDIO
-	if (rtp_selected)
 		add_rtp_packet(rtpinfo, pinfo);
 #endif
+   }
 
 	return 0;
 }
