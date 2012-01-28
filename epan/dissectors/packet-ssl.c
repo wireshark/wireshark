@@ -181,12 +181,24 @@ static gint hf_ssl_handshake_cert_type        = -1;
 static gint hf_ssl_handshake_server_keyex_p_len     = -1;
 static gint hf_ssl_handshake_server_keyex_g_len     = -1;
 static gint hf_ssl_handshake_server_keyex_ys_len    = -1;
+static gint hf_ssl_handshake_server_keyex_point_len = -1;
 static gint hf_ssl_handshake_client_keyex_yc_len    = -1;
+static gint hf_ssl_handshake_client_keyex_point_len = -1;
+static gint hf_ssl_handshake_client_keyex_epms_len  = -1;
+static gint hf_ssl_handshake_server_keyex_modulus_len = -1;
+static gint hf_ssl_handshake_server_keyex_exponent_len = -1;
 static gint hf_ssl_handshake_server_keyex_sig_len   = -1;
 static gint hf_ssl_handshake_server_keyex_p         = -1;
 static gint hf_ssl_handshake_server_keyex_g         = -1;
 static gint hf_ssl_handshake_server_keyex_ys        = -1;
 static gint hf_ssl_handshake_client_keyex_yc        = -1;
+static gint hf_ssl_handshake_server_keyex_curve_type = -1;
+static gint hf_ssl_handshake_server_keyex_named_curve = -1;
+static gint hf_ssl_handshake_server_keyex_point     = -1;
+static gint hf_ssl_handshake_client_keyex_epms      = -1;
+static gint hf_ssl_handshake_client_keyex_point     = -1;
+static gint hf_ssl_handshake_server_keyex_modulus   = -1;
+static gint hf_ssl_handshake_server_keyex_exponent  = -1;
 static gint hf_ssl_handshake_server_keyex_sig       = -1;
 static gint hf_ssl_handshake_sig_hash_alg_len = -1;
 static gint hf_ssl_handshake_sig_hash_algs    = -1;
@@ -460,13 +472,31 @@ static void dissect_ssl3_hnd_cert_req(tvbuff_t *tvb,
                                       guint32 offset, packet_info *pinfo,
                                       const guint* conv_version);
 
+static void dissect_ssl3_hnd_srv_keyex_ecdh(tvbuff_t *tvb,
+                                          proto_tree *tree,
+                                          guint32 offset, guint32 length);
+
+
 static void dissect_ssl3_hnd_srv_keyex_dh(tvbuff_t *tvb,
+                                          proto_tree *tree,
+                                          guint32 offset, guint32 length);
+
+static void dissect_ssl3_hnd_srv_keyex_rsa(tvbuff_t *tvb,
+                                          proto_tree *tree,
+                                          guint32 offset, guint32 length);
+
+static void dissect_ssl3_hnd_cli_keyex_ecdh(tvbuff_t *tvb,
                                           proto_tree *tree,
                                           guint32 offset, guint32 length);
 
 static void dissect_ssl3_hnd_cli_keyex_dh(tvbuff_t *tvb,
                                           proto_tree *tree,
                                           guint32 offset, guint32 length);
+
+static void dissect_ssl3_hnd_cli_keyex_rsa(tvbuff_t *tvb,
+                                          proto_tree *tree,
+                                          guint32 offset, guint32 length);
+
 
 static void dissect_ssl3_hnd_finished(tvbuff_t *tvb,
                                       proto_tree *tree,
@@ -1880,14 +1910,20 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 break;
 
             case SSL_HND_SERVER_KEY_EXCHG:
-                /* Only supports (a couple) Diffie-Hellman key exchanges.
-                   Have to keep some state if you want to also support RSA
-                   (server key exchange is optional and appears to be rare for RSA)
-                */
                 {
-                    if (conv_cipher == 0x39 || conv_cipher == 0x33) {
-                        dissect_ssl3_hnd_srv_keyex_dh(tvb, ssl_hand_tree, offset, length);
-                    }
+                	switch(ssl_get_keyex_alg(conv_cipher)) {
+                	case KEX_DH:
+                		dissect_ssl3_hnd_srv_keyex_dh(tvb, ssl_hand_tree, offset, length);
+                		break;
+                	case KEX_RSA:
+                		dissect_ssl3_hnd_srv_keyex_rsa(tvb, ssl_hand_tree, offset, length);
+                		break;
+                	case KEX_ECDH:
+                		dissect_ssl3_hnd_srv_keyex_ecdh(tvb, ssl_hand_tree, offset, length);
+                		break;
+                	default:
+                		break;
+                	}
                 }
                 break;
 
@@ -1904,9 +1940,19 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 break;
 
             case SSL_HND_CLIENT_KEY_EXCHG:
-                if (conv_cipher == 0x39 || conv_cipher == 0x33) {
-                    dissect_ssl3_hnd_cli_keyex_dh(tvb, ssl_hand_tree, offset, length);
-                }
+            	switch(ssl_get_keyex_alg(conv_cipher)) {
+            	case KEX_DH:
+            		dissect_ssl3_hnd_cli_keyex_dh(tvb, ssl_hand_tree, offset, length);
+            		break;
+            	case KEX_RSA:
+            		dissect_ssl3_hnd_cli_keyex_rsa(tvb, ssl_hand_tree, offset, length);
+            		break;
+            	case KEX_ECDH:
+            		dissect_ssl3_hnd_cli_keyex_ecdh(tvb, ssl_hand_tree, offset, length);
+            		break;
+            	default:
+            		break;
+            	}
                 {
                     /* PAOLO: here we can have all the data to build session key*/
 
@@ -2729,7 +2775,108 @@ dissect_ssl3_hnd_cert_req(tvbuff_t *tvb,
 }
 
 static void
-dissect_ssl3_hnd_srv_keyex_dh(tvbuff_t *tvb, proto_tree *tree,
+dissect_ssl3_hnd_srv_keyex_ecdh(tvbuff_t *tvb, proto_tree *tree, 
+                              guint32 offset, guint32 length)
+{
+    gint curve_type, curve_type_offset;
+    gint named_curve, named_curve_offset;
+    gint point_len, point_len_offset;
+    gint sig_len, sig_len_offset;
+    proto_item *ti_ecdh;
+    proto_tree *ssl_ecdh_tree;
+    guint32 orig_offset;
+    
+    orig_offset = offset;
+    
+    curve_type_offset = offset;
+    curve_type = tvb_get_guint8(tvb, offset);
+    if (curve_type != 3)
+        return; /* only named_curves are supported */
+    offset++;
+    if ((offset - orig_offset) > length) {
+        return;
+    }
+
+    named_curve_offset = offset;    
+    named_curve = tvb_get_ntohs(tvb, offset);
+    offset += 2;
+    if ((offset - orig_offset) > length) {
+        return;
+    }
+
+    point_len_offset = offset;
+    point_len = tvb_get_guint8(tvb, offset);
+    if ((offset + point_len - orig_offset) > length) {
+        return;
+    }
+    offset += 1 + point_len;
+    
+    sig_len_offset = offset;
+    sig_len = tvb_get_ntohs(tvb, offset);
+    offset += 2 + sig_len;
+    if ((offset - orig_offset) != length) {
+        /* Lengths don't line up (wasn't what we expected?) */
+        return;
+    }
+     
+    ti_ecdh = proto_tree_add_text(tree, tvb, orig_offset, 
+                (offset - orig_offset), "EC Diffie-Hellman Server Params");
+    ssl_ecdh_tree = proto_item_add_subtree(ti_ecdh, ett_ssl_keyex_params);
+    
+    /* curve_type */
+    proto_tree_add_uint(ssl_ecdh_tree, hf_ssl_handshake_server_keyex_curve_type,
+        tvb, curve_type_offset, 1, curve_type);
+    
+    /* named_curve */
+    proto_tree_add_uint(ssl_ecdh_tree, hf_ssl_handshake_server_keyex_named_curve,
+        tvb, named_curve_offset, 2, named_curve);
+    
+    /* point */
+    proto_tree_add_uint(ssl_ecdh_tree, hf_ssl_handshake_server_keyex_point_len,
+        tvb, point_len_offset, 1, point_len);
+    proto_tree_add_item(ssl_ecdh_tree, hf_ssl_handshake_server_keyex_point,
+            tvb, point_len_offset+1, point_len, ENC_NA);
+    
+    /* Sig */
+    proto_tree_add_uint(ssl_ecdh_tree, hf_ssl_handshake_server_keyex_sig_len,
+        tvb, sig_len_offset, 2, sig_len);
+    proto_tree_add_item(ssl_ecdh_tree, hf_ssl_handshake_server_keyex_sig,
+            tvb, sig_len_offset + 2, sig_len, ENC_NA);
+    
+}
+
+static void
+dissect_ssl3_hnd_cli_keyex_ecdh(tvbuff_t *tvb, proto_tree *tree, 
+                              guint32 offset, guint32 length)
+{
+    gint point_len, point_len_offset;
+    proto_item *ti_ecdh;
+    proto_tree *ssl_ecdh_tree;
+    guint32 orig_offset;
+    
+    orig_offset = offset;
+    
+    point_len_offset = offset;
+    point_len = tvb_get_guint8(tvb, offset);
+    if ((offset + point_len - orig_offset) > length) {
+        return;
+    }
+    offset += 1 + point_len;
+         
+    ti_ecdh = proto_tree_add_text(tree, tvb, orig_offset, 
+                (offset - orig_offset), "EC Diffie-Hellman Client Params");
+    ssl_ecdh_tree = proto_item_add_subtree(ti_ecdh, ett_ssl_keyex_params);
+        
+    /* point */
+    proto_tree_add_uint(ssl_ecdh_tree, hf_ssl_handshake_client_keyex_point_len,
+        tvb, point_len_offset, 1, point_len);
+    proto_tree_add_item(ssl_ecdh_tree, hf_ssl_handshake_client_keyex_point,
+            tvb, point_len_offset+1, point_len, ENC_NA);
+    
+}
+
+static void
+dissect_ssl3_hnd_srv_keyex_dh(tvbuff_t *tvb, proto_tree *tree, 
                               guint32 offset, guint32 length)
 {
     gint p_len, p_len_offset;
@@ -2739,26 +2886,92 @@ dissect_ssl3_hnd_srv_keyex_dh(tvbuff_t *tvb, proto_tree *tree,
     proto_item *ti_dh;
     proto_tree *ssl_dh_tree;
     guint32 orig_offset;
-
+    
     orig_offset = offset;
-
+    
     p_len_offset = offset;
     p_len = tvb_get_ntohs(tvb, offset);
     offset += 2 + p_len;
     if ((offset - orig_offset) > length) {
         return;
     }
-
+    
     g_len_offset = offset;
     g_len = tvb_get_ntohs(tvb, offset);
     offset += 2 + g_len;
     if ((offset - orig_offset) > length) {
         return;
     }
-
+    
     ys_len_offset = offset;
     ys_len = tvb_get_ntohs(tvb, offset);
     offset += 2 + ys_len;
+    if ((offset - orig_offset) > length) {
+        return;
+    }
+    
+    sig_len_offset = offset;
+    sig_len = tvb_get_ntohs(tvb, offset);
+    offset += 2 + sig_len;
+    if ((offset - orig_offset) != length) {
+        /* Lengths don't line up (wasn't what we expected?) */
+        return;
+    }
+     
+    ti_dh = proto_tree_add_text(tree, tvb, orig_offset, 
+                (offset - orig_offset), "Diffie-Hellman Server Params");
+    ssl_dh_tree = proto_item_add_subtree(ti_dh, ett_ssl_keyex_params);
+    
+    /* p */
+    proto_tree_add_uint(ssl_dh_tree, hf_ssl_handshake_server_keyex_p_len,
+        tvb, p_len_offset, 2, p_len);
+    proto_tree_add_item(ssl_dh_tree, hf_ssl_handshake_server_keyex_p,
+            tvb, p_len_offset + 2, p_len, ENC_NA);
+    
+    /* g */
+    proto_tree_add_uint(ssl_dh_tree, hf_ssl_handshake_server_keyex_g_len,
+        tvb, g_len_offset, 2, g_len);
+    proto_tree_add_item(ssl_dh_tree, hf_ssl_handshake_server_keyex_g,
+            tvb, g_len_offset + 2, g_len, ENC_NA);
+    
+    /* Ys */
+    proto_tree_add_uint(ssl_dh_tree, hf_ssl_handshake_server_keyex_ys_len,
+        tvb, ys_len_offset, 2, ys_len);
+    proto_tree_add_item(ssl_dh_tree, hf_ssl_handshake_server_keyex_ys,
+            tvb, ys_len_offset + 2, ys_len, ENC_NA);
+    
+    /* Sig */
+    proto_tree_add_uint(ssl_dh_tree, hf_ssl_handshake_server_keyex_sig_len,
+        tvb, sig_len_offset, 2, sig_len);
+    proto_tree_add_item(ssl_dh_tree, hf_ssl_handshake_server_keyex_sig,
+            tvb, sig_len_offset + 2, sig_len, ENC_NA);
+    
+}
+
+/* Only used in RSA-EXPORT cipher suites */
+static void
+dissect_ssl3_hnd_srv_keyex_rsa(tvbuff_t *tvb, proto_tree *tree,
+                              guint32 offset, guint32 length)
+{
+    gint modulus_len, modulus_len_offset;
+    gint exponent_len, exponent_len_offset;
+    gint sig_len, sig_len_offset;
+    proto_item *ti_rsa;
+    proto_tree *ssl_rsa_tree;
+    guint32 orig_offset;
+
+    orig_offset = offset;
+
+    modulus_len_offset = offset;
+    modulus_len = tvb_get_ntohs(tvb, offset);
+    offset += 2 + modulus_len;
+    if ((offset - orig_offset) > length) {
+        return;
+    }
+
+    exponent_len_offset = offset;
+    exponent_len = tvb_get_ntohs(tvb, offset);
+    offset += 2 + exponent_len;
     if ((offset - orig_offset) > length) {
         return;
     }
@@ -2771,35 +2984,30 @@ dissect_ssl3_hnd_srv_keyex_dh(tvbuff_t *tvb, proto_tree *tree,
         return;
     }
 
-    ti_dh = proto_tree_add_text(tree, tvb, orig_offset,
-                (offset - orig_offset), "Diffie-Hellman Server Params");
-    ssl_dh_tree = proto_item_add_subtree(ti_dh, ett_ssl_keyex_params);
+    ti_rsa = proto_tree_add_text(tree, tvb, orig_offset,
+                (offset - orig_offset), "RSA-EXPORT Server Params");
+    ssl_rsa_tree = proto_item_add_subtree(ti_rsa, ett_ssl_keyex_params);
 
-    /* p */
-    proto_tree_add_uint(ssl_dh_tree, hf_ssl_handshake_server_keyex_p_len,
-        tvb, p_len_offset, 2, p_len);
-    proto_tree_add_item(ssl_dh_tree, hf_ssl_handshake_server_keyex_p,
-            tvb, p_len_offset + 2, p_len, ENC_NA);
+    /* modulus */
+    proto_tree_add_uint(ssl_rsa_tree, hf_ssl_handshake_server_keyex_modulus_len,
+        tvb, modulus_len_offset, 2, modulus_len);
+    proto_tree_add_item(ssl_rsa_tree, hf_ssl_handshake_server_keyex_modulus,
+            tvb, modulus_len_offset + 2, modulus_len, ENC_NA);
 
-    /* g */
-    proto_tree_add_uint(ssl_dh_tree, hf_ssl_handshake_server_keyex_g_len,
-        tvb, g_len_offset, 2, g_len);
-    proto_tree_add_item(ssl_dh_tree, hf_ssl_handshake_server_keyex_g,
-            tvb, g_len_offset + 2, g_len, ENC_NA);
-
-    /* Ys */
-    proto_tree_add_uint(ssl_dh_tree, hf_ssl_handshake_server_keyex_ys_len,
-        tvb, ys_len_offset, 2, ys_len);
-    proto_tree_add_item(ssl_dh_tree, hf_ssl_handshake_server_keyex_ys,
-            tvb, ys_len_offset + 2, ys_len, ENC_NA);
+    /* exponent */
+    proto_tree_add_uint(ssl_rsa_tree, hf_ssl_handshake_server_keyex_exponent_len,
+        tvb, exponent_len_offset, 2, exponent_len);
+    proto_tree_add_item(ssl_rsa_tree, hf_ssl_handshake_server_keyex_exponent,
+            tvb, exponent_len_offset + 2, exponent_len, ENC_NA);
 
     /* Sig */
-    proto_tree_add_uint(ssl_dh_tree, hf_ssl_handshake_server_keyex_sig_len,
+    proto_tree_add_uint(ssl_rsa_tree, hf_ssl_handshake_server_keyex_sig_len,
         tvb, sig_len_offset, 2, sig_len);
-    proto_tree_add_item(ssl_dh_tree, hf_ssl_handshake_server_keyex_sig,
+    proto_tree_add_item(ssl_rsa_tree, hf_ssl_handshake_server_keyex_sig,
             tvb, sig_len_offset + 2, sig_len, ENC_NA);
 
 }
+
 
 static void
 dissect_ssl3_hnd_cli_keyex_dh(tvbuff_t *tvb, proto_tree *tree,
@@ -2809,26 +3017,56 @@ dissect_ssl3_hnd_cli_keyex_dh(tvbuff_t *tvb, proto_tree *tree,
     proto_item *ti_dh;
     proto_tree *ssl_dh_tree;
     guint32 orig_offset;
-
+    
     orig_offset = offset;
-
+    
     yc_len_offset = offset;
     yc_len = tvb_get_ntohs(tvb, offset);
     offset += 2 + yc_len;
     if ((offset - orig_offset) != length) {
         return;
     }
-
-    ti_dh = proto_tree_add_text(tree, tvb, orig_offset,
+    
+    ti_dh = proto_tree_add_text(tree, tvb, orig_offset, 
                 (offset - orig_offset), "Diffie-Hellman Client Params");
     ssl_dh_tree = proto_item_add_subtree(ti_dh, ett_ssl_keyex_params);
-
-    /* Yc */
+    
+    /* encrypted PreMaster secret */
     proto_tree_add_uint(ssl_dh_tree, hf_ssl_handshake_client_keyex_yc_len,
         tvb, yc_len_offset, 2, yc_len);
     proto_tree_add_item(ssl_dh_tree, hf_ssl_handshake_client_keyex_yc,
             tvb, yc_len_offset + 2, yc_len, ENC_NA);
 }
+ 
+static void
+dissect_ssl3_hnd_cli_keyex_rsa(tvbuff_t *tvb, proto_tree *tree,
+                              guint32 offset, guint32 length)
+{
+    gint epms_len, epms_len_offset;
+    proto_item *ti_rsa;
+    proto_tree *ssl_rsa_tree;
+    guint32 orig_offset;
+
+    orig_offset = offset;
+
+    epms_len_offset = offset;
+    epms_len = tvb_get_ntohs(tvb, offset);
+    offset += 2 + epms_len;
+    if ((offset - orig_offset) != length) {
+        return;
+    }
+
+    ti_rsa = proto_tree_add_text(tree, tvb, orig_offset,
+                (offset - orig_offset), "RSA Encrypted PreMaster Secret");
+    ssl_rsa_tree = proto_item_add_subtree(ti_rsa, ett_ssl_keyex_params);
+
+    /* Yc */
+    proto_tree_add_uint(ssl_rsa_tree, hf_ssl_handshake_client_keyex_epms_len,
+        tvb, epms_len_offset, 2, epms_len);
+    proto_tree_add_item(ssl_rsa_tree, hf_ssl_handshake_client_keyex_epms,
+            tvb, epms_len_offset + 2, epms_len, ENC_NA);
+}
+
 
 
 
@@ -4648,6 +4886,36 @@ proto_register_ssl(void)
             FT_UINT16, BASE_DEC, NULL, 0x0,
             "Length of client's Diffie-Hellman public key", HFILL }
         },
+        { &hf_ssl_handshake_client_keyex_point_len,
+          { "Pubkey Length", "ssl.handshake.client_point_len",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            "Length of client's EC Diffie-Hellman public key", HFILL }
+        },
+        { &hf_ssl_handshake_server_keyex_point_len,
+          { "Pubkey Length", "ssl.handshake.server_point_len",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            "Length of server's EC Diffie-Hellman public key", HFILL }
+        },
+        { &hf_ssl_handshake_client_keyex_epms_len,
+          { "Encrypted PreMaster length", "ssl.handshake.epms_len",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Length of encrypted PreMaster secret", HFILL }
+        },
+        { &hf_ssl_handshake_client_keyex_epms,
+          { "Encrypted PreMaster", "ssl.handshake.epms",
+        	FT_BYTES, BASE_NONE, NULL, 0x0,
+            "Encrypted PreMaster secret", HFILL }
+        },
+        { &hf_ssl_handshake_server_keyex_modulus_len,
+          { "modulus Length", "ssl.handshake.modulus_len",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Length of RSA-EXPORT modulus", HFILL }
+        },
+        { &hf_ssl_handshake_server_keyex_exponent_len,
+          { "exponent Length", "ssl.handshake.exponent_len",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Length of RSA-EXPORT exponent", HFILL }
+        },
         { &hf_ssl_handshake_server_keyex_sig_len,
           { "Signature Length", "ssl.handshake.sig_len",
             FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -4663,6 +4931,16 @@ proto_register_ssl(void)
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "Diffie-Hellman g", HFILL }
         },
+        { &hf_ssl_handshake_server_keyex_curve_type,
+            { "curve_type", "ssl.handshake.server_curve_type",
+              FT_UINT8, BASE_HEX, VALS(ssl_curve_types), 0x0,
+              "Server curve_type", HFILL }
+        },
+        { &hf_ssl_handshake_server_keyex_named_curve,
+            { "named_curve", "ssl.handshake.server_named_curve",
+              FT_UINT16, BASE_HEX, VALS(ssl_extension_curves), 0x0,
+              "Server named_curve", HFILL }
+        },
         { &hf_ssl_handshake_server_keyex_ys,
           { "pubkey", "ssl.handshake.ys",
             FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -4672,6 +4950,26 @@ proto_register_ssl(void)
           { "pubkey", "ssl.handshake.yc",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "Diffie-Hellman client pubkey", HFILL }
+        },
+        { &hf_ssl_handshake_server_keyex_point,
+          { "pubkey", "ssl.handshake.server_point",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            "EC Diffie-Hellman server pubkey", HFILL }
+        },
+        { &hf_ssl_handshake_client_keyex_point,
+          { "pubkey", "ssl.handshake.client_point",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            "EC Diffie-Hellman client pubkey", HFILL }
+        },
+        { &hf_ssl_handshake_server_keyex_modulus,
+          { "modulus", "ssl.handshake.modulus",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            "RSA-EXPORT modulus", HFILL }
+        },
+        { &hf_ssl_handshake_server_keyex_exponent,
+          { "exponent", "ssl.handshake.exponent",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            "RSA-EXPORT exponent", HFILL }
         },
         { &hf_ssl_handshake_server_keyex_sig,
           { "signature", "ssl.handshake.sig",
@@ -4954,6 +5252,7 @@ proto_register_ssl(void)
         &ett_ssl_keyex_params,
         &ett_ssl_cert_status,
         &ett_ssl_ocsp_resp,
+        &ett_ssl_keyex_params,
         &ett_pct_cipher_suites,
         &ett_pct_hash_suites,
         &ett_pct_cert_suites,

@@ -182,6 +182,7 @@ extern const value_string tls_certificate_type[];
 extern const value_string tls_cert_status_type[];
 extern const value_string ssl_extension_curves[];
 extern const value_string ssl_extension_ec_point_formats[];
+extern const value_string ssl_curve_types[];
 
 /* XXX Should we use GByteArray instead? */
 typedef struct _StringInfo {
@@ -250,6 +251,7 @@ typedef struct _SslDecoder {
 #define KEX_RSA         0x10
 #define KEX_DH          0x11
 #define KEX_PSK         0x12
+#define KEX_ECDH        0x13
 
 #define SIG_RSA         0x20
 #define SIG_DSS         0x21
@@ -355,6 +357,8 @@ typedef struct _ssldecrypt_assoc_t {
     char* keyfile;
     char* password;
 } ssldecrypt_assoc_t;
+
+gint ssl_get_keyex_alg(gint cipher);
 
 gboolean ssldecrypt_uat_fld_ip_chk_cb(void*, const char*, unsigned, const void*, const void*, const char** err);
 gboolean ssldecrypt_uat_fld_port_chk_cb(void*, const char*, unsigned, const void*, const void*, const char** err);
