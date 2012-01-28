@@ -141,6 +141,7 @@ static dissector_table_t l2cap_service_dissector_table;
 /* This table maps cid values to psm values.
  * The same table is used both for SCID and DCID.
  * For received CIDs we mask the cid with 0x8000 in this table
+ * Table is indexed by array: CID and frame number which created CID
  */
 static emem_tree_t *cid_to_psm_table = NULL;
 static emem_tree_t *psm_to_service_table = NULL;
@@ -151,6 +152,8 @@ typedef struct _config_data_t {
 	emem_tree_t *start_fragments;  /* indexed by pinfo->fd->num */
 } config_data_t;
 typedef struct _psm_data_t {
+	guint16			scid;
+	guint16			dcid;
 	guint16			psm;
 	gboolean            local_service;
 	config_data_t	in;
@@ -397,7 +400,13 @@ dissect_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 	}
 
 	if (pinfo->fd->flags.visited == 0) {
+		emem_tree_key_t key[3];
+		guint32 kcid;
+		guint32 frame_number;
+
 		psm_data=se_alloc(sizeof(psm_data_t));
+		psm_data->scid = (scid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x8000 : 0x0000));
+		psm_data->dcid = 0;
 		psm_data->psm=psm;
 		psm_data->local_service = (pinfo->p2p_dir == P2P_DIR_RECV) ? TRUE : FALSE;
 		psm_data->in.mode=0;
@@ -406,8 +415,18 @@ dissect_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 		psm_data->out.mode=0;
 		psm_data->out.txwindow=0;
 		psm_data->out.start_fragments=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "bthci_l2cap fragment starts");
-		se_tree_insert32(cid_to_psm_table, scid|((pinfo->p2p_dir == P2P_DIR_RECV)?0x8000:0x0000), psm_data);
 
+		frame_number = pinfo->fd->num;
+		kcid = scid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x8000 : 0x0000);
+
+		key[0].length = 1;
+		key[0].key = &kcid;
+		key[1].length = 1;
+		key[1].key = &frame_number;
+		key[2].length = 0;
+		key[2].key = NULL;
+
+		se_tree_insert32_array(cid_to_psm_table, key, psm_data);
 	}
 	return offset;
 }
@@ -574,9 +593,24 @@ dissect_configrequest(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_t
 	psm_data_t *psm_data;
 	config_data_t *config_data;
 	guint16 dcid;
+	emem_tree_key_t key[3];
+	guint32 kcid;
+	guint32 frame_number;
 
 	dcid = tvb_get_letohs(tvb, offset);
-	psm_data=se_tree_lookup32(cid_to_psm_table, dcid|((pinfo->p2p_dir==P2P_DIR_RECV)?0x0000:0x8000));
+
+	frame_number = pinfo->fd->num;
+	kcid = dcid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x0000 : 0x8000);
+
+	key[0].length = 1;
+	key[0].key = &kcid;
+	key[1].length = 1;
+	key[1].key = &frame_number;
+	key[2].length = 0;
+	key[2].key = NULL;
+
+	psm_data = se_tree_lookup32_array_le(cid_to_psm_table, key);
+
 	proto_tree_add_item(tree, hf_btl2cap_dcid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset+=2;
 
@@ -586,7 +620,7 @@ dissect_configrequest(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_t
 	offset+=2;
 
 	if(tvb_length_remaining(tvb, offset)){
-		if (psm_data)
+		if (psm_data && psm_data->dcid == (dcid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x0000 : 0x8000)))
 			if(pinfo->p2p_dir==P2P_DIR_RECV)
 				config_data = &(psm_data->out);
 			else
@@ -714,9 +748,24 @@ dissect_configresponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
 	psm_data_t *psm_data;
 	config_data_t *config_data;
 	guint16 scid, result;
+	emem_tree_key_t key[3];
+	guint32 kcid;
+	guint32 frame_number;
 
 	scid = tvb_get_letohs(tvb, offset);
-	psm_data=se_tree_lookup32(cid_to_psm_table, scid|((pinfo->p2p_dir==P2P_DIR_RECV)?0x0000:0x8000));
+
+	frame_number = pinfo->fd->num;
+	kcid = scid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x0000 : 0x8000);
+
+	key[0].length = 1;
+	key[0].key = &kcid;
+	key[1].length = 1;
+	key[1].key = &frame_number;
+	key[2].length = 0;
+	key[2].key = NULL;
+
+	psm_data = se_tree_lookup32_array_le(cid_to_psm_table, key);
+
 	proto_tree_add_item(tree, hf_btl2cap_scid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset+=2;
 
@@ -730,7 +779,7 @@ dissect_configresponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
 	col_append_fstr(pinfo->cinfo, COL_INFO, " - %s (SCID: 0x%04x)", val_to_str(result, configuration_result_vals, "Unknown"), scid);
 
 	if(tvb_length_remaining(tvb, offset)){
-		if (psm_data)
+		if (psm_data && psm_data->scid == (scid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x0000 : 0x8000)))
 			if(pinfo->p2p_dir==P2P_DIR_RECV)
 				config_data = &(psm_data->out);
 			else
@@ -748,6 +797,9 @@ dissect_connresponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 {
 	guint16 scid, dcid, result;
 	psm_data_t *psm_data;
+	emem_tree_key_t key[3];
+	guint32 kcid;
+	guint32 frame_number;
 
 	dcid = tvb_get_letohs(tvb, offset);
 	proto_tree_add_item(tree, hf_btl2cap_dcid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -772,8 +824,31 @@ dissect_connresponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 	}
 
 	if (pinfo->fd->flags.visited == 0) {
-		if((psm_data=se_tree_lookup32(cid_to_psm_table, scid|((pinfo->p2p_dir==P2P_DIR_RECV)?0x0000:0x8000)))){
-			se_tree_insert32(cid_to_psm_table, dcid|((pinfo->p2p_dir == P2P_DIR_RECV)?0x8000:0x0000), psm_data);
+		frame_number = pinfo->fd->num;
+		kcid = scid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x0000 : 0x8000);
+
+		key[0].length = 1;
+		key[0].key = &kcid;
+		key[1].length = 1;
+		key[1].key = &frame_number;
+		key[2].length = 0;
+		key[2].key = NULL;
+
+		psm_data = se_tree_lookup32_array_le(cid_to_psm_table, key);
+
+		if (psm_data && psm_data->scid == (scid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x0000 : 0x8000))) {
+			frame_number = pinfo->fd->num;
+			kcid = dcid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x8000 : 0x0000);
+
+			key[0].length = 1;
+			key[0].key = &kcid;
+			key[1].length = 1;
+			key[1].key = &frame_number;
+			key[2].length = 0;
+			key[2].key = NULL;
+			psm_data->dcid = dcid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x8000 : 0x0000);
+
+			se_tree_insert32_array(cid_to_psm_table, key, psm_data);
 		}
 	}
 
@@ -1301,8 +1376,25 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 	}
 	else /* if(cid >= BTL2CAP_FIXED_CID_MAX) */ { /* Connection oriented channel */
-		if((psm_data=se_tree_lookup32(cid_to_psm_table, cid|((pinfo->p2p_dir==P2P_DIR_RECV)?0x0000:0x8000)))){
+		emem_tree_key_t key[3];
+		guint32 kcid;
+		guint32 frame_number;
+
+		frame_number = pinfo->fd->num;
+		kcid = cid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x0000 : 0x8000);
+
+		key[0].length = 1;
+		key[0].key = &kcid;
+		key[1].length = 1;
+		key[1].key = &frame_number;
+		key[2].length = 0;
+		key[2].key = NULL;
+
+		psm_data = se_tree_lookup32_array_le(cid_to_psm_table, key);
+
+		if (psm_data && (psm_data->scid == (cid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x0000 : 0x8000)) || (psm_data->dcid == (cid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x0000 : 0x8000))))) {
 			psm=psm_data->psm;
+
 			if(pinfo->p2p_dir==P2P_DIR_RECV)
 				config_data = &(psm_data->in);
 			else
