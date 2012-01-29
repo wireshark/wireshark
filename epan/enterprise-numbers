@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2012-01-22)
+(last updated 2012-01-28)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -4742,9 +4742,9 @@ Decimal
     Stephane Appleton
       +33 1607 20205
 1182
-  YAMAHA Corporation Tsuneyuki
-    Koikeda
-      koikeda&lab3.yamaha.co.jp
+  Yamaha Corporation
+    Ryota Hirose
+      hirose&soundnet.yamaha.co.jp
 1183
   Illinois State University
     Scott Genung
@@ -42290,9 +42290,9 @@ Decimal
     Gabriel Contursi
       gcontursi&netizen.com.ar
 10584
-  NLRI Technology
+  Hopcount Limited
     Joe Abley
-      jabley&automagic.org
+      jabley&hopcount.ca
 10585
   Paris-alesia
     Francois Cattin
@@ -73924,8 +73924,8 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
       sysadmin&unimib.it
 18593
   Ministry of Finance, Tax Administration of the Republic of Slovenia
-    Franc Mocilar
-      franc.mocilar&gov.si
+    Breda Hudej
+      Breda.Hudej&gov.si
 18594
   Globalvision Media
     Peter Brownell
@@ -77749,9 +77749,9 @@ Servicos
     Martin Ronner
       martin.ronner&frox.com
 19549
-  ENGREN.NET
+  Uni-Q Systems (previous was 'ENGREN.NET')
     Hans Engren
-      hans&ENGREN.NET
+      hans.engren&uni-q.se
 19550
   an Academic Network at Sao Paulo (ANSP)
     Jorge Futoshi Yamamoto
@@ -105508,9 +105508,9 @@ S.A
     Jeff Whitman
       jwhitman&jwnetsource.com
 26484
-  Arch Rock Corporation
+  Cisco Systems, Inc. (previous was 'Arch Rock Corporation')
     Philip Buonadonna
-      pbuonadonna&archrock.com
+      pbuonado&cisco.com
 26485
   Cryoserver Ltd
     Chris Jolly
@@ -124314,8 +124314,8 @@ Decentralization / Helenic Public Administra
       slamberty&vdl.lu
 31183
   The Logic Group Enterprises Ltd
-    Darren Brooks
-      darren.brooks&the-logic-group.com
+    Paul Milliken
+      paul.milliken&the-logic-group.com
 31184
   EWE AG
     Stephan Backhaus
@@ -125409,9 +125409,9 @@ Decentralization / Helenic Public Administra
     Sean Kent
       ryoohki&gmail.com
 31457
-  Meebo Inc.
+  Meebo, Inc.
     Paul Handly
-      paulh&meebo.com
+      paulh&meebo-inc.com
 31458
   RAVIOLIKINGDOM.COM
     Steve Antonini /Ferdinando Ferrari
@@ -138039,7 +138039,7 @@ Decentralization / Helenic Public Administra
       sysadm&ikron.hu
 34614
   Technocats GmbH
-    John Williams
+    John Ainhirn-Williams
       john.williams&technocats.org
 34615
   Magyar Államkincstár / Hungarian State Treasury
@@ -156639,7 +156639,7 @@ Decentralization / Helenic Public Administra
     Moritz Neeb
       moritz.neeb&akademischerverein.de
 39264
-  New Rock Technolegies
+  New Rock Technologies, Inc.
     Hai Wang
       hwang&newrocktech.com
 39265
@@ -156710,6 +156710,154 @@ Decentralization / Helenic Public Administra
   ST Enclosures for Electronics Systems LTD
     Avi Talmor
       avi&st-enclosures.com
+39282
+  Infinet Financial Systems
+    Huw Williams
+      huw.williams&infinetfs.com
+39283
+  TeleWare PLC
+    Dr David Hodgson
+      David.Hodgson&teleware.com
+39284
+  Mountain States Health Alliance
+    Kimberly Trent
+      trentkk&msha.com
+39285
+  Prime Engineering Ltd
+    Jeff Johnson
+      jeff.johnson&primeeng.ca
+39286
+  Wargaming.net LLP
+    Michael Loginovsky
+      admins&wargaming.net
+39287
+  Unimed Litoral
+    Claudio Renato Santiago
+      claudio.santiago&unimedlitoral.com.br
+39288
+  Fimasys
+    Jeremie Grauer
+      admin&fimasys.fr
+39289
+  SPAUN electronic GmbH & Co. KG
+    Kevin Spaun
+      kspaun&spaun.de
+39290
+  Citibank, N.A.
+    Papa Faye
+      papa.faye&citi.com
+39291
+  SugarCRM, LLC
+    Denise Stockman
+      dstockman&sugarcrm.com
+39292
+  Victoria's Secret
+    Tim Ebbers
+      VSDNewmediaTechSvcs&Limitedbrands.com
+39293
+  MARS
+    Fabio De Marzo
+      fabio.de.marzo&effem.com
+39294
+  Rue La La
+    Zach Armstrong
+      zarmstrong&ruelala.com
+39295
+  Yakima Valley Memorial Hospital
+    Robert J Waller
+      robwaller&yvmh.org
+39296
+  Salford Software Ltd
+    Paul Heaney
+      paul.heaney&salfordsoftware.co.uk
+39297
+  Beijing YUKUAN Technology Co.,Ltd
+    Dai xinghe
+      daixinghe&163.com
+39298
+  Banque du Bois AG
+    John Ainhirn-Williams
+      jaw&banquedubois.com
+39299
+  McPherson Hospital, Inc
+    Angela Hall
+      angelah&mcphersonhospital.org
+39300
+  Sherwood Compliance Services Ltd.
+    Stu Coates
+      stuart.coates&sherwoodcompliance.co.uk
+39301
+  oikaze
+    Yasuhisa Mine
+      mine&oikaze.jp
+39302
+  Essent NV
+    Marco Spoel
+      marco.spoel&essent.nl
+39303
+  Ospow
+    Gérald Colangelo
+      gcolangelo&ospow.com
+39304
+  Shine Data AB
+    Thomas Ostmans
+      thomas.ostmans&shinedata.se
+39305
+  WiVDO, Lda
+    Luis Figueiredo
+      luisfigueiredo&wivdo.com
+39306
+  Intellidesign
+    Andrew Ward
+      andrew&intellidesign.com.au
+39307
+  Clealink Technology Co., Ltd.
+    Takamichi Mizuhara
+      snmp&clealink.jp
+39308
+  Blinkenlichten Open Source Solutions
+    Rouven Sacha
+      info&blinkenlichten.de
+39309
+  Centrum Promocji i Rozwoju Inicjatyw Obywatelskich OPUS
+    Wojciech Pietruszewski
+      admin&opus.org.pl
+39310
+  Sønderborg Kommune
+    Martin Paulsen
+      hostmaster&sonderborg.dk
+39311
+  Wellspan
+    David Smith
+      dsmith14&wellspan.org
+39312
+  Brookhaven Memorial Hospital
+    Mary Ellen Shortell
+      meshortell&bmhmc.org
+39313
+  iFAX Solutions, Inc.
+    Patrice Fournier
+      patrice.fournier&ifax.com
+39314
+  Efactures (JLEM)
+    Laradji nacer
+      nacer.laradji&gmail.com
+39315
+  Xelion b.v.
+    Hans Bos
+      snmp.pen.registratie&xelion.nl
+39316
+  Savtira
+    Zoltan Patay
+      zpatay&savtira.com
+39317
+  Systems Solutions & Development Technologies Ltd
+    Firoze Muhammad Zahidur Rahman
+      jewel&ssd-tech.com
+39318
+  QUALIS AUDIO, INC.
+    RICHARD CABOT
+      snmp&qualisaudio.com
 
 
 End of Document
