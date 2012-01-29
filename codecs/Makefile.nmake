@@ -29,7 +29,7 @@ G711udecode.obj: G711u\G711udecode.c G711u\G711udecode.h G711u\G711utable.h
 	$(CC) $(CFLAGS) -Fd.\ -c G711u\G711udecode.c /Fo%|fF.obj
 
 clean:
-        rm -f $(CODEC_OBJECTS) codecs.lib *.pdb
+        rm -f $(CODEC_OBJECTS) codecs.lib *.pdb *.sbr
 
 distclean: clean
 

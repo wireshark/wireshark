@@ -48,7 +48,7 @@ clean :
 		libwsutil.exp \
 		libwsutil.dll \
 		libwsutil.dll.manifest \
-		*.pdb
+		*.pdb *.sbr
 
 distclean: clean
 

@@ -59,7 +59,7 @@ clean :
 		wiretap-*.exp \
 		wiretap-*.dll \
 		wiretap-*.dll.manifest \
-		*.pdb
+		*.pdb *.sbr
 
 #
 # We remove the generated files with "distclean" because one of them,
