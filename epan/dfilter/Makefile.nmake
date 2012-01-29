@@ -35,7 +35,7 @@ $(OBJECTS): ..\..\config.h
 	cd epan\dfilter
 
 clean:
-	rm -f $(OBJECTS) dfilter.lib *.pdb
+	rm -f $(OBJECTS) dfilter.lib *.pdb *.sbr
 
 #
 # We remove the generated files with "distclean" because one of them,

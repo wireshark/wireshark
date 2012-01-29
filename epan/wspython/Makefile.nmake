@@ -20,7 +20,7 @@ wspython.lib: $(LIBWSPYTHON_OBJECTS)
 	link /lib /out:wspython.lib $(LIBWSPYTHON_OBJECTS)
 
 clean:
-	rm -f $(LIBWSPYTHON_OBJECTS) wspython.lib *.pdb
+	rm -f $(LIBWSPYTHON_OBJECTS) wspython.lib *.pdb *.sbr
 
 distclean: clean
 

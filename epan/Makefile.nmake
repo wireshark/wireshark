@@ -109,7 +109,7 @@ libwireshark.lib	: ..\config.h $(LIBWIRESHARK_OBJECTS) crypt ftypes dfilter $(WS
 clean-local:
 	rm -f $(LIBWIRESHARK_OBJECTS) $(EXTRA_OBJECTS) \
 		libwireshark.lib libwireshark.dll *.manifest libwireshark.exp \
-		*.pdb doxygen.cfg html/*.* \
+		*.pdb *.sbr doxygen.cfg html/*.* \
 		exntest.obj exntest.exe reassemble_test.obj reassemble_test.exe tvbtest.obj tvbtest.exe
 	if exist html rm -rf html
 

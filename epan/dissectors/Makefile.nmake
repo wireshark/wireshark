@@ -106,7 +106,7 @@ x11-dissector: ..\..\tools/process-x11-fields.pl x11-fields ..\..\tools/process-
 	$(PERL) ../../tools/process-x11-xcb.pl
 
 clean:
-	rm -f dissectors.lib *.pdb register.c-tmp register-cache.pkl \
+	rm -f dissectors.lib *.pdb *.sbr register.c-tmp register-cache.pkl \
 		$(DISSECTOR_OBJECTS) $(DISSECTOR_SUPPORT_OBJECTS)
 
 distclean: clean

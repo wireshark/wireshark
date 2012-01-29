@@ -20,7 +20,7 @@ airpdcap.lib: $(AIRPDCAP_OBJECTS)
 	link /lib /out:airpdcap.lib $(AIRPDCAP_OBJECTS)
 
 clean:
-	rm -f $(AIRPDCAP_OBJECTS) airpdcap.lib *.pdb
+	rm -f $(AIRPDCAP_OBJECTS) airpdcap.lib *.pdb *.sbr
 
 distclean: clean
 
