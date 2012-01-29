@@ -58,7 +58,7 @@ easy_codec_plugin.obj : easy_codec_plugin.c
 
 clean:
 	rm -f $(OBJECTS) $(PLUGIN_NAME).dll $(PLUGIN_NAME).dll.manifest $(PLUGIN_NAME).exp \
-	    $(RESOURCE) $(PLUGIN_NAME).rc $(PLUGIN_NAME).lib *.pdb
+	    $(RESOURCE) $(PLUGIN_NAME).rc $(PLUGIN_NAME).lib *.pdb *.sbr
 
 distclean: clean
 

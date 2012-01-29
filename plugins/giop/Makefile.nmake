@@ -42,7 +42,7 @@ clean:
 	rm -f $(OBJECTS) cosnaming.dll cosnaming.exp cosnaming.lib \
 		coseventcomm.dll coseventcomm.exp coseventcomm.lib \
 		tango.dll tango.exp tango.lib \
-		parlay.dll parlay.exp parlay.lib *.pdb \
+		parlay.dll parlay.exp parlay.lib *.pdb *.sbr \
 		cosnaming.dll.manifest coseventcomm.dll.manifest \
 		parlay.dll.manifest tango.dll.manifest
 

@@ -104,7 +104,7 @@ wimaxasncp_dict.obj :   wimaxasncp_dict.c
 	$(CC) $(CVARSDLL) $(GENERATED_CFLAGS) -Fd.\ -c $?
 
 clean:
-	rm -f $(OBJECTS) $(RESOURCE) plugin.c *.pdb \
+	rm -f $(OBJECTS) $(RESOURCE) plugin.c *.pdb *.sbr \
 	    $(PLUGIN_NAME).dll $(PLUGIN_NAME).dll.manifest $(PLUGIN_NAME).lib \
 	    $(PLUGIN_NAME).exp $(PLUGIN_NAME).rc
 

@@ -37,7 +37,7 @@ mate.dll mate.exp mate.lib : $(OBJECTS) $(LINK_PLUGIN_WITH)
 !ENDIF
 
 clean:
-	rm -f $(OBJECTS) mate.dll mate.exp mate.lib *.pdb
+	rm -f $(OBJECTS) mate.dll mate.exp mate.lib *.pdb *.sbr
 
 #
 # We remove the generated files with "distclean" because one of them,

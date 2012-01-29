@@ -100,7 +100,7 @@ plugin.c: $(DISSECTOR_SRC) moduleinfo.h ../../tools/make-dissector-reg
 !ENDIF
 
 clean:
-	rm -f $(OBJECTS) $(RESOURCE) plugin.c *.pdb \
+	rm -f $(OBJECTS) $(RESOURCE) plugin.c *.pdb *.sbr \
 	    $(PLUGIN_NAME).dll $(PLUGIN_NAME).dll.manifest $(PLUGIN_NAME).lib \
 	    $(PLUGIN_NAME).exp $(PLUGIN_NAME).rc
 
