@@ -195,7 +195,7 @@ rather than
 	11644473600ULL
 
 Don't assume that you can scan through a va_list initialized by va_start
-more than once without closing it with va_end and re-initalizing it with
+more than once without closing it with va_end and re-initializing it with
 va_start.  This applies even if you're not scanning through it yourself,
 but are calling a routine that scans through it, such as vfprintf() or
 one of the routines in Wireshark that takes a format and a va_list as an
@@ -995,7 +995,7 @@ proto_register_PROTOABBREV(void)
    Use this function instead of prefs_register_protocol if you want to group
    preferences of several protocols under one preferences subtree.
    Argument subtree identifies grouping tree node name, several subnodes can be
-   specified usign slash '/' (e.g. "OSI/X.500" - protocol preferences will be
+   specified using slash '/' (e.g. "OSI/X.500" - protocol preferences will be
    accessible under Protocols->OSI->X.500-><PROTOSHORTNAME> preferences node.
 */
   PROTOABBREV_module = prefs_register_protocol_subtree(const char *subtree,
@@ -1354,7 +1354,7 @@ gchar *tvb_bcd_dig_to_ep_str(tvbuff_t *tvb, const gint offset, const gint len, d
 Given a tvbuff, an offset into the tvbuff, and a length that starts
 at that offset (which may be -1 for "all the way to the end of the
 tvbuff"), fetch BCD encoded digits from a tvbuff starting from either
-the low or high half byte, formating the digits according to an input digit set,
+the low or high half byte, formatting the digits according to an input digit set,
 if NUll a default digit set of 0-9 returning "?" for overdecadic digits will be used.
 A pointer to the EP allocated string will be returned.
 Note: a tvbuff content of 0xf is considered a 'filler' and will end the conversion.
@@ -1737,11 +1737,11 @@ The type of value this field holds. The current field types are:
 				displayed as seconds and 9 digits
 				after the decimal point.
 	FT_STRING		A string of characters, not necessarily
-				NUL-terminated, but possibly NUL-padded.
+				NULL-terminated, but possibly NULL-padded.
 				This, and the other string-of-characters
 				types, are to be used for text strings,
 				not raw binary data.
-	FT_STRINGZ		A NUL-terminated string of characters.
+	FT_STRINGZ		A NULL-terminated string of characters.
 				The string length is normally the length
 				given in the proto_tree_add_item() call.
 				However if the length given in the call
@@ -1880,7 +1880,7 @@ If all of a contiguous range of values from min to max are present in the array
 the value will be used as as a direct index into a value_string array.
 
 If the values in the array are not contiguous (ie: there are "gaps"), but are
-in assending order a binary search will be used.
+in ascending order a binary search will be used.
 
 Note: "gaps" in a value_string array can be filled with "empty" entries eg:
 {value, "Unknown"} so that direct access to the array is is possible.
@@ -1889,11 +1889,11 @@ The init macro (see below) will perform a check on the value string the first
 time it is used to determine which search algorithm fits and fall back to a
 linear search if the value_string does not meet the criteria above.
 
-Use this macro to initialise the extended value_string at comile time:
+Use this macro to initialize the extended value_string at compile time:
 
 static value_string_ext valstringname_ext = VALUE_STRING_EXT_INIT(valstringname);
 
-Extended value strings can be created at runtime by calling
+Extended value strings can be created at run time by calling
    value_string_ext_new(<ptr to value_string array>,
                         <total number of entries in the value_string_array>, /* include {0, NULL} entry */
                         <value_string_name>);
@@ -2370,7 +2370,7 @@ Other encodings will be added in the future.
 
 For FT_ABSOLUTE_TIME fields, the encoding specifies the form in which
 the time stamp is specified, as well as its byte order.  The time stamp
-encodings that are curretly supported are:
+encodings that are currently supported are:
 
 	ENC_TIME_TIMESPEC - seconds (4 bytes) and nanoseconds (4 bytes)
 		of time since January 1, 1970, midnight UTC.
@@ -2696,7 +2696,7 @@ Example: (from the SCSI dissector)
 	...
 	static gint ett_scsi_inq_peripheral = -1;
 	...
-	static const int *peripheal_fields[] = {
+	static const int *peripheral_fields[] = {
 		&hf_scsi_inq_qualifier,
 		&hf_scsi_inq_devtype,
 		NULL
@@ -2704,7 +2704,7 @@ Example: (from the SCSI dissector)
 	...
 	/* Qualifier and DeviceType */
 	proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_inq_peripheral,
-		ett_scsi_inq_peripheral, peripheal_fields, FALSE);
+		ett_scsi_inq_peripheral, peripheral_fields, FALSE);
 	offset+=1;
 	...
         { &hf_scsi_inq_peripheral,
@@ -3320,7 +3320,7 @@ Last but not least, there MUST be a preference in each dissector that
 uses conversation timestamps that makes it possible to enable and
 disable the calculation of conversation timestamps. The main argument
 for this is that a higher level conversation is able to overwrite
-the values of lowel level conversations in these two columns. Being
+the values of lower level conversations in these two columns. Being
 able to actively select which protocols may overwrite the conversation
 timestamp columns gives the user the power to control these columns.
 (A second reason is that conversation timestamps use the per-packet
