@@ -236,11 +236,12 @@ packaging_zip: all
 	zip -r -9 wireshark.zip $(INSTALL_DIR)/
 
 wireshark.bsc: *.sbr epan\*.sbr epan\dfilter\*.sbr epan\ftypes\*.sbr epan\wslua\*.sbr epan\dissectors\*.sbr ui\gtk\*.sbr win32\*.sbr wiretap\*.sbr
+# FIXME: Add epan/wspython/*.sbr when we support Python embedding
+# wireshark.bsc: *.sbr codecs/*.sbr epan/*.sbr epan/crypt/*.sbr epan/dfilter/*.sbr epan/dissectors/*.sbr epan/ftypes/*.sbr epan/wslua/*.sbr ui/gtk/*.sbr plugins/asn1/*.sbr plugins/docsis/*.sbr plugins/ethercat/*.sbr plugins/giop/*.sbr plugins/gryphon/*.sbr plugins/irda/*.sbr plugins/m2m/*.sbr plugins/mate/*.sbr plugins/opcua/*.sbr plugins/profinet/*.sbr plugins/stats_tree/*.sbr plugins/unistim/*.sbr plugins/wimax/*.sbr plugins/wimaxasncp/*.sbr tools/lemon/*.sbr wiretap/*.sbr wsutil/*.sbr
 	rm -f $@
 	$(BSCMAKE) @<<
 		/o $@ $?
 <<
-	xcopy $@ $(INSTALL_DIR)\ /d
 
 pdb_zip: all
 	cd $(INSTALL_DIR)
@@ -467,7 +468,7 @@ text2pcap.obj mergecap.obj capinfos.obj editcap.obj version_info.obj: svnversion
 
 clean-local:
 	rm -f $(wireshark_OBJECTS) $(tshark_OBJECTS) $(dumpcap_OBJECTS) $(rawshark_OBJECTS) \
- 		$(EXECUTABLES) *.pdb *.exe.manifest \
+ 		$(EXECUTABLES) *.pdb *.sbr *.exe.manifest \
 		capinfos.obj editcap.obj mergecap.obj text2pcap.obj \
 		nio-ie5.obj update.obj \
 		text2pcap-scanner.obj text2pcap-scanner.c rdps.obj \
@@ -969,6 +970,7 @@ install-generated-files:
 	if exist ".\wsutil\libwsutil.pdb" xcopy ".\wsutil\libwsutil.pdb" $(INSTALL_DIR) /d
 	if exist wireshark.exe copy wireshark.exe $(INSTALL_DIR)\wireshark.exe
 	if exist wireshark.pdb copy wireshark.pdb $(INSTALL_DIR)\wireshark.pdb
+	if exist wireshark.bsc copy wireshark.bsc $(INSTALL_DIR)\wireshark.bsc
 	if exist ".\docbook\user-guide.chm" xcopy ".\docbook\user-guide.chm" $(INSTALL_DIR) /d
 	if exist capinfos.exe xcopy capinfos.exe $(INSTALL_DIR) /d
 	if exist capinfos.pdb xcopy capinfos.pdb $(INSTALL_DIR) /d

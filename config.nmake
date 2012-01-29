@@ -704,6 +704,8 @@ MANIFEST_INFO_REQUIRED=1
 # Compiler flags:
 # /W3                               Warning level 3 (0 less - 4 most, 1 default)
 # /Zi                               Create .pdb file for debugging
+# /FR                               Create .sbr file with complete symbolic information
+#                                   add to local flags if you want to build the .sbr files.
 # /MD                               Use "multithread- and DLL-specific version" of run-time libraries
 #                                    msvc documentation states that /MD causes _MT and _DLL to be defined
 #                                    See: http://msdn.microsoft.com/en-us/library/2kzt1wy3%28v=VS.90%29.aspx
