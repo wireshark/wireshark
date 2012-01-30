@@ -1521,7 +1521,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
             if (ssl) {
                 ssl->version_netorder = version;
                 ssl->state |= SSL_VERSION;
-                ssl_debug_printf("dissect_ssl3_record found version 0x%04X -> state 0x%02X\n", ssl->version_netorder, ssl->state);
+                ssl_debug_printf("dissect_ssl3_record found version 0x%04X(TLS 1.0) -> state 0x%02X\n", ssl->version_netorder, ssl->state);
             }
             /*ssl_set_conv_version(pinfo, ssl->version);*/
         }
@@ -1532,7 +1532,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
             if (ssl) {
                 ssl->version_netorder = version;
                 ssl->state |= SSL_VERSION;
-                ssl_debug_printf("dissect_ssl3_record found version 0x%04X -> state 0x%02X\n", ssl->version_netorder, ssl->state);
+                ssl_debug_printf("dissect_ssl3_record found version 0x%04X(TLS 1.1) -> state 0x%02X\n", ssl->version_netorder, ssl->state);
             }
             /*ssl_set_conv_version(pinfo, ssl->version);*/
         }
@@ -1543,7 +1543,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
             if (ssl) {
                 ssl->version_netorder = version;
                 ssl->state |= SSL_VERSION;
-                ssl_debug_printf("dissect_ssl3_record found version 0x%04X -> state 0x%02X\n", ssl->version_netorder, ssl->state);
+                ssl_debug_printf("dissect_ssl3_record found version 0x%04X(TLS 1.2) -> state 0x%02X\n", ssl->version_netorder, ssl->state);
             }
             /*ssl_set_conv_version(pinfo, ssl->version);*/
         }
@@ -1562,7 +1562,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
     /*
      * now dissect the next layer
      */
-    ssl_debug_printf("dissect_ssl3_record: content_type %d\n",content_type);
+    ssl_debug_printf("dissect_ssl3_record: content_type %d %s\n",content_type, val_to_str(content_type, ssl_31_content_type, "unknown"));
 
     /* PAOLO try to decrypt each record (we must keep ciphers "in sync")
      * store plain text only for app data */
