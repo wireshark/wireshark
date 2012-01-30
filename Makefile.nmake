@@ -189,7 +189,7 @@ RESOURCES=image\wireshark.res image\libwireshark.res image\tshark.res \
 	image\rawshark.res image\libwsutil.res
 
 
-all: $(LIBS_CHECK) config.h ui/qt/config.pri tools image codecs $(C_ARES_DLL) $(ADNS_DLL) $(ZLIB_DLL) wsutil wiretap epan $(EXECUTABLES) $(RESOURCES) doc help install-all
+all: $(LIBS_CHECK) config.h ui\qt\config.pri tools image codecs $(C_ARES_DLL) $(ADNS_DLL) $(ZLIB_DLL) wsutil wiretap epan $(EXECUTABLES) $(RESOURCES) doc help install-all
 
 !IFDEF MAKENSIS
 packaging: all
