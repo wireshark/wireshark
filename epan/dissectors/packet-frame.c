@@ -496,9 +496,6 @@ show_exception(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		    "%s",
 		    exception_message == NULL ?
 		        dissector_error_nomsg : exception_message);
-
-		if (getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG") != NULL)
-			abort();
 		break;
 
 	default:
