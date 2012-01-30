@@ -49,6 +49,7 @@
 #include <epan/prefs.h>
 #include <epan/emem.h>
 #include "packet-q708.h"
+#include "packet-sccp.h"
 
 /* Initialize the protocol and registered fields */
 static int proto_mtp3  = -1;
@@ -120,6 +121,7 @@ gint mtp3_standard = ITU_STANDARD;
 static gboolean mtp3_use_ansi_5_bit_sls = FALSE;
 static gboolean mtp3_use_japan_5_bit_sls = FALSE;
 static gboolean mtp3_show_itu_priority = FALSE;
+static gboolean mtp3_heuristic_standard = FALSE;
 static gint mtp3_addr_fmt = MTP3_ADDR_FMT_DASHED;
 static mtp3_addr_pc_t* mtp3_addr_dpc;
 static mtp3_addr_pc_t* mtp3_addr_opc;
@@ -644,69 +646,127 @@ dissect_mtp3_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     call_dissector(data_handle, payload_tvb, pinfo, tree);
 }
 
+#define HEURISTIC_FAILED_STANDARD 0xffff
+static guint
+heur_mtp3_standard(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,  guint8 si)
+{
+
+    guint32 len;
+    tvbuff_t *payload;
+
+    len = tvb_length(tvb);
+    switch (si) {
+    case 3:
+        {
+            payload = tvb_new_subset(tvb, ITU_HEADER_LENGTH, len-ITU_HEADER_LENGTH, len-ITU_HEADER_LENGTH);
+            if (looks_like_valid_sccp(payload, ITU_STANDARD)) {
+                return ITU_STANDARD;
+            }
+            payload = tvb_new_subset(tvb, ANSI_HEADER_LENGTH, len-ANSI_HEADER_LENGTH, len-ANSI_HEADER_LENGTH);
+            if (looks_like_valid_sccp(payload, ANSI_STANDARD)) {
+                return ANSI_STANDARD;
+            }
+            payload = tvb_new_subset(tvb, ANSI_HEADER_LENGTH, len-ANSI_HEADER_LENGTH, len-ANSI_HEADER_LENGTH);
+            if (looks_like_valid_sccp(payload, CHINESE_ITU_STANDARD)) {
+                return CHINESE_ITU_STANDARD;
+            }
+            payload = tvb_new_subset(tvb, JAPAN_HEADER_LENGTH, len-JAPAN_HEADER_LENGTH, len-JAPAN_HEADER_LENGTH);
+            if (looks_like_valid_sccp(payload, JAPAN_STANDARD)) {
+                return JAPAN_STANDARD;
+            }
+
+            return HEURISTIC_FAILED_STANDARD;
+
+        }
+    default:
+        return HEURISTIC_FAILED_STANDARD;
+    }
+
+}
+
+static const value_string mtp3_standard_vals[] = {
+        { ITU_STANDARD,			"ITU_STANDARD" },
+        { ANSI_STANDARD,		"ANSI_STANDARD" },
+        { CHINESE_ITU_STANDARD, "CHINESE_ITU_STANDARD" },
+        { JAPAN_STANDARD,		"JAPAN_STANDARD" },
+        { 0,    NULL }
+};
+
 /* Code to actually dissect the packets */
 static void
 dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  void* pd_save;
-  mtp3_tap_rec_t* tap_rec = ep_alloc0(sizeof(mtp3_tap_rec_t));
+    void* pd_save;
+    mtp3_tap_rec_t* tap_rec = ep_alloc0(sizeof(mtp3_tap_rec_t));
+    guint heuristic_standard, pref_mtp3_standard;
+    guint8 si;
 
-  /* Set up structures needed to add the protocol subtree and manage it */
-  proto_item *mtp3_item = NULL;
-  proto_tree *mtp3_tree = NULL;
+    /* Set up structures needed to add the protocol subtree and manage it */
+    proto_item *mtp3_item = NULL, *gen_item;
+    proto_tree *mtp3_tree = NULL;
 
-  /* Make entries in Protocol column on summary display */
-  switch(mtp3_standard) {
+    pref_mtp3_standard = mtp3_standard;
+
+    mtp3_item = proto_tree_add_item(tree, proto_mtp3, tvb, 0, 0, ENC_NA);
+
+    si = tvb_get_guint8(tvb, SIO_OFFSET) & SERVICE_INDICATOR_MASK;
+    if (mtp3_heuristic_standard) {
+        heuristic_standard = heur_mtp3_standard(tvb, pinfo, tree,  si);
+        if(heuristic_standard==HEURISTIC_FAILED_STANDARD){
+            gen_item = proto_tree_add_text(tree, tvb, 0, 0, "Could not determine Heuristic using %s", val_to_str(mtp3_standard, mtp3_standard_vals, "unknown"));
+        }else{
+            gen_item = proto_tree_add_text(tree, tvb, 0, 0, "%s", val_to_str(heuristic_standard, mtp3_standard_vals, "unknown"));
+            mtp3_standard = heuristic_standard;
+        }
+        PROTO_ITEM_SET_GENERATED(gen_item);
+    }
+
+    /* Make entries in Protocol column on summary display */
+    switch(mtp3_standard) {
     case ITU_STANDARD:
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP3 (Int. ITU)");
-      break;
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP3 (Int. ITU)");
+        proto_item_set_len(mtp3_item, ITU_HEADER_LENGTH);
+        break;
     case ANSI_STANDARD:
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP3 (ANSI)");
-      break;
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP3 (ANSI)");
+        proto_item_set_len(mtp3_item, ANSI_HEADER_LENGTH);
+        break;
     case CHINESE_ITU_STANDARD:
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP3 (Chin. ITU)");
-      break;
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP3 (Chin. ITU)");
+        proto_item_set_len(mtp3_item, ANSI_HEADER_LENGTH);
+        break;
     case JAPAN_STANDARD:
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP3 (Japan)");
-      break;
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP3 (Japan)");
+        proto_item_set_len(mtp3_item, JAPAN_HEADER_LENGTH);
+        break;
     };
 
-  if (tree) {
-    /* create display subtree for the protocol */
-    switch (mtp3_standard) {
-    case ITU_STANDARD:
-      mtp3_item = proto_tree_add_item(tree, proto_mtp3, tvb, 0, ITU_HEADER_LENGTH, ENC_NA);
-      break;
-    case ANSI_STANDARD:
-    case CHINESE_ITU_STANDARD:
-      mtp3_item = proto_tree_add_item(tree, proto_mtp3, tvb, 0, ANSI_HEADER_LENGTH, ENC_NA);
-      break;
-    case JAPAN_STANDARD:
-      mtp3_item = proto_tree_add_item(tree, proto_mtp3, tvb, 0, JAPAN_HEADER_LENGTH, ENC_NA);
-      break;
+    if (tree) {
+        /* create display subtree for the protocol */
+        mtp3_tree = proto_item_add_subtree(mtp3_item, ett_mtp3);
     }
-    mtp3_tree = proto_item_add_subtree(mtp3_item, ett_mtp3);
 
-  }
+    mtp3_addr_opc = ep_alloc0(sizeof(mtp3_addr_pc_t));
+    mtp3_addr_dpc = ep_alloc0(sizeof(mtp3_addr_pc_t));
 
-  mtp3_addr_opc = ep_alloc0(sizeof(mtp3_addr_pc_t));
-  mtp3_addr_dpc = ep_alloc0(sizeof(mtp3_addr_pc_t));
+    /* Dissect the packet (even if !tree so can call sub-dissectors and update
+    * the source and destination address columns) */
+    dissect_mtp3_sio(tvb, pinfo, mtp3_tree, &pd_save);
+    dissect_mtp3_routing_label(tvb, pinfo, mtp3_tree);
 
-  /* Dissect the packet (even if !tree so can call sub-dissectors and update
-   * the source and destination address columns) */
-  dissect_mtp3_sio(tvb, pinfo, mtp3_tree, &pd_save);
-  dissect_mtp3_routing_label(tvb, pinfo, mtp3_tree);
+    memcpy(&(tap_rec->addr_opc),mtp3_addr_opc,sizeof(mtp3_addr_pc_t));
+    memcpy(&(tap_rec->addr_dpc),mtp3_addr_dpc,sizeof(mtp3_addr_pc_t));
 
-  memcpy(&(tap_rec->addr_opc),mtp3_addr_opc,sizeof(mtp3_addr_pc_t));
-  memcpy(&(tap_rec->addr_dpc),mtp3_addr_dpc,sizeof(mtp3_addr_pc_t));
+    tap_rec->si_code = (tvb_get_guint8(tvb, SIO_OFFSET) & SERVICE_INDICATOR_MASK);
+    tap_rec->size = tvb_length(tvb);
 
-  tap_rec->si_code = (tvb_get_guint8(tvb, SIO_OFFSET) & SERVICE_INDICATOR_MASK);
-  tap_rec->size = tvb_length(tvb);
+    tap_queue_packet(mtp3_tap, pinfo, tap_rec);
 
-  tap_queue_packet(mtp3_tap, pinfo, tap_rec);
+    dissect_mtp3_payload(tvb, pinfo, tree);
+    pinfo->private_data = pd_save;
 
-  dissect_mtp3_payload(tvb, pinfo, tree);
-  pinfo->private_data = pd_save;
+    mtp3_standard = pref_mtp3_standard;
+
 }
 
 void
@@ -805,6 +865,11 @@ proto_register_mtp3(void)
   mtp3_tap = register_tap("mtp3");
 
   mtp3_module = prefs_register_protocol(proto_mtp3, NULL);
+
+  prefs_register_bool_preference(mtp3_module, "heuristic_standard",
+                                 "Try to determine the MTP3 standard heuristically",
+                                 "This only works for SCCP traffic for now",
+                                 &mtp3_heuristic_standard);
 
   prefs_register_enum_preference(mtp3_module, "standard", "MTP3 standard",
                                  "The SS7 standard used in MTP3 packets",

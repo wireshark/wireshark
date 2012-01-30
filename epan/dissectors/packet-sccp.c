@@ -818,6 +818,171 @@ static const value_string assoc_protos[] = {
 	{ 0,			NULL }
 };
 
+gboolean
+sccp_called_calling_looks_valid(tvbuff_t *tvb, guint8 my_mtp3_standard)
+{
+    guint8 ai, ri, gti, ssni, pci;
+
+    /* TVB starts with parameter length */
+    ai = tvb_get_guint8(tvb, 1);
+    if (my_mtp3_standard == ANSI_STANDARD && (ai & ANSI_NATIONAL_MASK) == 0)
+	return FALSE;
+
+    gti = (ai & GTI_MASK) >> GTI_SHIFT;
+    if (my_mtp3_standard == ANSI_STANDARD) {
+        if (gti > 2)
+	    return FALSE;
+    } else {
+        if (gti > 4)
+	    return FALSE;
+    }
+
+    ri = ai & ROUTING_INDICATOR_MASK >> ROUTING_INDICATOR_SHIFT;
+    if (my_mtp3_standard == ANSI_STANDARD) {
+	pci = ai & ANSI_PC_INDICATOR_MASK;
+	ssni = ai & ANSI_SSN_INDICATOR_MASK;
+    } else {
+	ssni = ai & ITU_SSN_INDICATOR_MASK;
+	pci = ai & ITU_PC_INDICATOR_MASK;
+    }
+
+    /* Route on SSN with no SSN? */
+    if (ri == ROUTE_ON_SSN && ssni == 0)
+	return FALSE;
+    /* Route on GT with no GT? */
+    if (ri != ROUTE_ON_SSN && gti == AI_GTI_NO_GT)
+	return FALSE;
+
+    return TRUE;
+}
+
+gboolean
+looks_like_valid_sccp(tvbuff_t *tvb, guint8 my_mtp3_standard)
+{
+    guint8 msgtype, msg_class, cause, offset;
+    guint16 called_ptr = 0;
+    guint16 calling_ptr = 0;
+    guint16 data_ptr = 0;
+    guint16 opt_ptr = 0;
+    guint32 len = tvb_length(tvb);
+
+    /* Ensure we can do some basic checks without throwing an exception.
+    * Accesses beyond this length need to check the length first because
+    * we don't want to throw an exception in here...
+    */
+    if (len < 6)
+        return FALSE;
+
+    msgtype = tvb_get_guint8(tvb, SCCP_MSG_TYPE_OFFSET);
+    if (!match_strval(msgtype, sccp_message_type_acro_values)) {
+        return FALSE;
+    }
+    offset = SCCP_MSG_TYPE_LENGTH;
+
+    /*
+    Still to be done:
+    SCCP_MSG_TYPE_RLSD
+    SCCP_MSG_TYPE_RLC
+    SCCP_MSG_TYPE_DT1
+    SCCP_MSG_TYPE_DT2
+    SCCP_MSG_TYPE_AK
+    SCCP_MSG_TYPE_UDTS
+    SCCP_MSG_TYPE_ED
+    SCCP_MSG_TYPE_EA
+    SCCP_MSG_TYPE_RSR
+    SCCP_MSG_TYPE_RSC
+    SCCP_MSG_TYPE_ERR
+    SCCP_MSG_TYPE_IT
+    SCCP_MSG_TYPE_XUDTS
+    SCCP_MSG_TYPE_LUDT
+    SCCP_MSG_TYPE_LUDTS
+    */
+
+    switch (msgtype) {
+    case SCCP_MSG_TYPE_DT1: /* 6 */
+        if(len<8){
+            /* Mandatory parameter(data)+ at least one data */
+            return FALSE;
+        }
+        data_ptr = tvb_get_guint8(tvb, offset+DESTINATION_LOCAL_REFERENCE_LENGTH+1);
+        if(tvb_get_guint8(tvb, data_ptr) > len){
+            return FALSE;
+        }
+        break;
+    case SCCP_MSG_TYPE_DT2: /* 7 */
+        g_warning("Unhandled msg type %u", msgtype);
+        return FALSE;
+        break;
+    case SCCP_MSG_TYPE_UDT:
+    case SCCP_MSG_TYPE_XUDT: /* 0x11 */
+        {
+            /* Class lower four bits */
+            msg_class = tvb_get_guint8(tvb, offset)&0x0f;
+            if (msg_class > 1)
+                return FALSE;
+            offset += PROTOCOL_CLASS_LENGTH;
+
+            if (msgtype == SCCP_MSG_TYPE_XUDT)
+                offset += HOP_COUNTER_LENGTH;
+
+            called_ptr = tvb_get_guint8(tvb, offset) + offset;
+            calling_ptr = tvb_get_guint8(tvb, offset+1) + offset+1;
+            data_ptr = tvb_get_guint8(tvb, offset+2) + offset+2;
+            if (msgtype == SCCP_MSG_TYPE_XUDT)
+                opt_ptr = tvb_get_guint8(tvb, offset+3) + offset+3;
+
+            /* Check that all the pointers are within bounds */
+            if (called_ptr > len || calling_ptr > len || data_ptr > len || opt_ptr > len)
+                return FALSE;
+
+            /* Check that the lengths of the variable parameters are within bounds */
+            if (tvb_get_guint8(tvb, called_ptr) > len ||
+                tvb_get_guint8(tvb, calling_ptr) > len ||
+                tvb_get_guint8(tvb, data_ptr) > len)
+                return FALSE;
+            if (msgtype == SCCP_MSG_TYPE_XUDT && tvb_get_guint8(tvb, opt_ptr) > len)
+                return FALSE;
+        }
+        break;
+    case SCCP_MSG_TYPE_CR:
+        {
+            /* Class lower four bits */
+            msg_class = tvb_get_guint8(tvb, SCCP_MSG_TYPE_LENGTH+3) & 0x0f;
+            if (msg_class != 2)
+                return FALSE;
+        }
+        break;
+    case SCCP_MSG_TYPE_CC: /* 2 */
+        {
+            /* Class lower four bits */
+            msg_class = tvb_get_guint8(tvb, SCCP_MSG_TYPE_LENGTH+6)&0x0f;
+            if (msg_class != 2)
+                return FALSE;
+        }
+        break;
+    case SCCP_MSG_TYPE_CREF:
+        {
+            cause = tvb_get_guint8(tvb, SCCP_MSG_TYPE_LENGTH+3);
+            if (!match_strval(cause, sccp_release_cause_values))
+                return FALSE;
+        }
+        break;
+    default:
+        g_warning("Unhandled msg type %u", msgtype);
+        return FALSE;
+    }
+
+    if (called_ptr) {
+        guint8 param_len = tvb_get_guint8(tvb, called_ptr);
+        tvbuff_t *param_tvb = tvb_new_subset(tvb, called_ptr, param_len, param_len);
+
+        if (!sccp_called_calling_looks_valid(param_tvb, my_mtp3_standard))
+            return FALSE;
+    }
+
+    return TRUE;
+}
+
 static sccp_assoc_info_t *
 new_assoc(guint32 calling, guint32 called)
 {
@@ -1546,7 +1711,7 @@ dissect_sccp_calling_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 static void
 dissect_sccp_class_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint length)
 {
-  guint8 class;
+  guint8 msg_class;
   proto_item *pi;
   gboolean invalid_class = FALSE;
 
@@ -1557,12 +1722,12 @@ dissect_sccp_class_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
     return;
   }
 
-  class = tvb_get_guint8(tvb, 0) & CLASS_CLASS_MASK;
-  pi = proto_tree_add_uint(tree, hf_sccp_class, tvb, 0, length, class);
+  msg_class = tvb_get_guint8(tvb, 0) & CLASS_CLASS_MASK;
+  pi = proto_tree_add_uint(tree, hf_sccp_class, tvb, 0, length, msg_class);
 
   switch(message_type) {
   case SCCP_MSG_TYPE_DT1:
-    if (class != 2)
+    if (msg_class != 2)
       invalid_class = TRUE;
     break;
   case SCCP_MSG_TYPE_DT2:
@@ -1571,7 +1736,7 @@ dissect_sccp_class_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
   case SCCP_MSG_TYPE_EA:
   case SCCP_MSG_TYPE_RSR:
   case SCCP_MSG_TYPE_RSC:
-    if (class != 3)
+    if (msg_class != 3)
       invalid_class = TRUE;
     break;
   case SCCP_MSG_TYPE_CR:
@@ -1581,7 +1746,7 @@ dissect_sccp_class_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
   case SCCP_MSG_TYPE_RLC:
   case SCCP_MSG_TYPE_ERR:
   case SCCP_MSG_TYPE_IT:
-    if (class != 2 && class != 3)
+    if (msg_class != 2 && msg_class != 3)
       invalid_class = TRUE;
     break;
   case SCCP_MSG_TYPE_UDT:
@@ -1590,7 +1755,7 @@ dissect_sccp_class_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
   case SCCP_MSG_TYPE_XUDTS:
   case SCCP_MSG_TYPE_LUDT:
   case SCCP_MSG_TYPE_LUDTS:
-    if (class != 0 && class != 1)
+    if (msg_class != 0 && msg_class != 1)
       invalid_class = TRUE;
     break;
   }
@@ -1598,7 +1763,7 @@ dissect_sccp_class_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
   if (invalid_class)
     expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR, "Unexpected message class for this message type");
 
-  if (class == 0 || class == 1) {
+  if (msg_class == 0 || msg_class == 1) {
     guint8 handling = tvb_get_guint8(tvb, 0) & CLASS_SPARE_HANDLING_MASK;
 
     pi = proto_tree_add_item(tree, hf_sccp_handling, tvb, 0, length, ENC_NA);
