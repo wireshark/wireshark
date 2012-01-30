@@ -4608,7 +4608,7 @@ set_menus_for_capture_file(capture_file *cf)
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/SaveAs", FALSE);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Export", FALSE);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/Reload", FALSE);
-        set_toolbar_for_capture_file(FALSE);
+        set_toolbar_for_capture_file(FALSE, FALSE);
         set_toolbar_for_unsaved_capture_file(FALSE);
     } else {
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Merge", TRUE);
@@ -4625,7 +4625,7 @@ set_menus_for_capture_file(capture_file *cf)
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Export", TRUE);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/Reload", TRUE);
         set_toolbar_for_unsaved_capture_file(!cf->user_saved);
-        set_toolbar_for_capture_file(TRUE);
+        set_toolbar_for_capture_file(TRUE, cf_can_save_as(cf) || !cf->user_saved);
     }
 }
 

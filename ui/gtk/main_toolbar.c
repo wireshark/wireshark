@@ -104,9 +104,9 @@ toolbar_redraw_all(void)
 
 /* Enable or disable toolbar items based on whether you have a capture file
    you've finished reading. */
-void set_toolbar_for_capture_file(gboolean have_capture_file) {
+void set_toolbar_for_capture_file(gboolean have_capture_file, gboolean can_save_as) {
     if (toolbar_init) {
-	gtk_widget_set_sensitive(GTK_WIDGET(save_button), have_capture_file);
+	gtk_widget_set_sensitive(GTK_WIDGET(save_button), have_capture_file && can_save_as);
         gtk_widget_set_sensitive(GTK_WIDGET(close_button), have_capture_file);
         gtk_widget_set_sensitive(GTK_WIDGET(reload_button), have_capture_file);
     }
@@ -408,7 +408,7 @@ toolbar_new(void)
     toolbar_init = TRUE;
     set_toolbar_for_unsaved_capture_file(FALSE);
     set_toolbar_for_captured_packets(FALSE);
-    set_toolbar_for_capture_file(FALSE);
+    set_toolbar_for_capture_file(FALSE, FALSE);
 #ifdef HAVE_LIBPCAP
     set_toolbar_for_capture_in_progress(FALSE);
 #endif /* HAVE_LIBPCAP */
