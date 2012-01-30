@@ -20,12 +20,78 @@ unix {
     }
 }
 
-# XXX We need to figure out how to pull this in from config.nmake.
+xwin32 {
+message( )
+message(CONFIG:)
+message(  $$CONFIG)
+message( )
+message(CFLAGS:)
+message(  $$QMAKE_CFLAGS)
+message(  $$QMAKE_CFLAGS_RELEASE)
+message(  $$QMAKE_CFLAGS_DEBUG)
+message( )
+message(LFLAGS:)
+message(  $$QMAKE_LFLAGS)
+message(  $$QMAKE_LFLAGS_RELEASE)
+message(  $$QMAKE_LFLAGS_DEBUG)
+}
 
 win32 {
+    # Note:
+    # Windows Wireshark is compiled with /MD and thus must
+    #  be linked with the "release" versions of the Qt libraries
+    #  which are also compiled with /MD.
+    #
+    # Also: Windows Wireshark is compiled with /Zi and linked with /DEBUG
+    #  which enables source level Wireshark debugging using the
+    #  Windows Visual Studio debugger.
+    #  So: QMAKE_CFLAGS, QMAKE_CXXFLAGS and QMAKE_LFLAGS are set to match
+    #  those used building Windows Wireshark. (See config.pri).
+    #  Among other things source-level debugging of the Qt version of Wireshark
+    # (including the ui/qt source) is thus enabled.
+    #
+    #  Note that in this case source level debugging of the Qt
+    #  *libraries* will not be possible since the Qt release libs are
+    #  not compiled with /Zi (and not linked with /DEBUG).
+    #  The Qt "debug" libraries are compiled with /MDd. To build a
+    #  Wireshark-Qt debug version with the ability to do source level debugging
+    #  of the Qt libraries themselves requires that Wireshark first be built with /MDd.
+    #  Presumably doing source-level Qt library debugging shoyuld rarely be needed.
+
+    # We want to build only the QtShark linked with the QT "release" libraries
+    #  so disable debug & etc.
+##    CONFIG -= release
+    CONFIG -= debug
+    CONFIG -= debug_and_release
+
+    # Use only Wireshark CFLAGS and LDFLAGS from config.nmake (as provided via config.pri)
+    #  for building the "release" version of Wireshark-Qt
+    # (e.g., so we don't get the Qt release CFLAGS [specifically /O2]
+    QMAKE_CFLAGS_RELEASE = ""
+    QMAKE_LFLAGS_RELEASE = ""
+
+    # XXX We need to figure out how to pull this in from config.nmake.
     !include( config.pri ) {
         error("Can't find config.pri. Have you run 'nmake -f Makefile.nmake' two directories up?")
     }
+
+    DESTDIR = wireshark-qt
+}
+
+xwin32 {
+message( )
+message(CONFIG:)
+message(  $$CONFIG)
+message( )
+message(CFLAGS:)
+message(  $$QMAKE_CFLAGS)
+message(  $$QMAKE_CFLAGS_RELEASE)
+message(  $$QMAKE_CFLAGS_DEBUG)
+message( )
+message(LFLAGS:)
+message(  $$QMAKE_LFLAGS)
+message(  $$QMAKE_LFLAGS_RELEASE)
+message(  $$QMAKE_LFLAGS_DEBUG)
 }
 
 INCLUDEPATH += ../.. ../../wiretap
