@@ -32,6 +32,8 @@
 #include <glib.h>
 #include <gmodule.h>
 
+#include <epan/strutil.h>
+
 #include "capture_ifinfo.h"
 #include "capture-pcap-util.h"
 #include "capture-pcap-util-int.h"
@@ -903,7 +905,7 @@ cant_get_if_list_error_message(const char *err_str)
 void
 get_compiled_pcap_version(GString *str)
 {
-	g_string_append(str, "with WinPcap (" PCAP_VERSION ")");
+	g_string_append(str, "with WinPcap (" STRINGIFY(PCAP_VERSION) ")");
 }
 
 /*
