@@ -1520,7 +1520,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
     gboolean has_more_pars = TRUE;
     tvbuff_t *h245_tvb;
     encoding_name_and_rate_t *encoding_name_and_rate;
-	guint8 master_key_length = 0, master_salt_length = 0;
+    guint8 master_key_length = 0, master_salt_length = 0;
 
     offset = 0;
     next_offset = 0;
@@ -1775,7 +1775,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
         break;
     case SDP_CRYPTO:
        /* http://tools.ietf.org/html/rfc4568
-	    * 9.1.  Generic "Crypto" Attribute Grammar
+        * 9.1.  Generic "Crypto" Attribute Grammar
         *
         *   The ABNF grammar for the crypto attribute is defined below:
         *
@@ -1801,7 +1801,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
         /* tag */
         next_offset = tvb_find_guint8(tvb,offset,-1,' ');
         tokenlen = next_offset - offset;
-        proto_tree_add_uint(sdp_media_attribute_tree, hf_sdp_crypto_tag, tvb, offset, tokenlen, 
+        proto_tree_add_uint(sdp_media_attribute_tree, hf_sdp_crypto_tag, tvb, offset, tokenlen,
             atoi((char*)tvb_get_ephemeral_string(tvb, offset, tokenlen)));
         offset=next_offset+1;
 
@@ -1809,85 +1809,90 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
         next_offset = tvb_find_guint8(tvb,offset,-1,' ');
         tokenlen = next_offset - offset;
         proto_tree_add_item(sdp_media_attribute_tree, hf_sdp_crypto_crypto_suite, tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
-		if(tvb_strncaseeql(tvb, offset, "AES_CM_128_HMAC_SHA1_80",tokenlen) == 0){
-			master_key_length = 16; /* 128 bits = 16 octets */
-			master_salt_length = 14; /* 112 bits = 14 octets */
-		}else if(tvb_strncaseeql(tvb, offset, "AES_CM_128_HMAC_SHA1_32",tokenlen) == 0){
-			master_key_length = 16; /* 128 bits = 16 octets */
-			master_salt_length = 14; /* 112 bits = 14 octets */
-		}else if(tvb_strncaseeql(tvb, offset, "F8_128_HMAC_SHA1_80",tokenlen) == 0){
-			master_key_length = 16; /* 128 bits = 16 octets */
-			master_salt_length = 14; /* 112 bits = 14 octets */
-		}
+        if(tvb_strncaseeql(tvb, offset, "AES_CM_128_HMAC_SHA1_80",tokenlen) == 0){
+            master_key_length = 16; /* 128 bits = 16 octets */
+            master_salt_length = 14; /* 112 bits = 14 octets */
+        }else if(tvb_strncaseeql(tvb, offset, "AES_CM_128_HMAC_SHA1_32",tokenlen) == 0){
+            master_key_length = 16; /* 128 bits = 16 octets */
+            master_salt_length = 14; /* 112 bits = 14 octets */
+        }else if(tvb_strncaseeql(tvb, offset, "F8_128_HMAC_SHA1_80",tokenlen) == 0){
+            master_key_length = 16; /* 128 bits = 16 octets */
+            master_salt_length = 14; /* 112 bits = 14 octets */
+        }
         offset=next_offset+1;
 
         /* key-params */
         while(has_more_pars==TRUE){
             int param_end_offset;
-			tvbuff_t *key_salt_tvb;
-			gchar *data_p = NULL;
+            tvbuff_t *key_salt_tvb;
+            gchar *data_p = NULL;
 
             param_end_offset = tvb_find_guint8(tvb,offset,-1,';');
             if(param_end_offset == -1){
                 has_more_pars = FALSE;
-                param_end_offset= tvb_length(tvb);
+                param_end_offset = tvb_length(tvb);
             }
             parameter_item = proto_tree_add_text(sdp_media_attribute_tree, tvb, offset, param_end_offset-offset, "Key parameters");
             parameter_tree = proto_item_add_subtree(parameter_item, ett_sdp_crypto_key_parameters);
 
-			/* key-method or key-method-ext */
-			next_offset = tvb_find_guint8(tvb,offset,-1,':');
-			if(tvb_strncaseeql(tvb, offset, "inline", next_offset-offset) == 0){
-				/* XXX only for SRTP? */
-				/* srtp-key-info       = key-salt ["|" lifetime] ["|" mki] */
-				offset = next_offset +1;
-				next_offset = tvb_find_guint8(tvb,offset,-1,'|');
-				if(next_offset == -1){
-					tokenlen = param_end_offset - offset;
-				}else{
-					tokenlen = next_offset - offset;
-				}
+            /* key-method or key-method-ext */
+            next_offset = tvb_find_guint8(tvb,offset,-1,':');
+            if(next_offset == -1){
+                expert_add_info_format(pinfo, parameter_item, PI_MALFORMED, PI_NOTE,
+                                       "Invalid key-param (no ':' delimiter)");
+                break;
+            }
+            if(tvb_strncaseeql(tvb, offset, "inline", next_offset-offset) == 0){
+                /* XXX only for SRTP? */
+                /* srtp-key-info       = key-salt ["|" lifetime] ["|" mki] */
+                offset = next_offset +1;
+                next_offset = tvb_find_guint8(tvb,offset,-1,'|');
+                if(next_offset == -1){
+                    tokenlen = param_end_offset - offset;
+                }else{
+                    tokenlen = next_offset - offset;
+                }
                 data_p = tvb_get_ephemeral_string(tvb, offset, tokenlen);
                 key_salt_tvb = base64_to_tvb(tvb, data_p);
                 add_new_data_source(pinfo, key_salt_tvb, "Key_Salt_tvb");
-				if(master_key_length !=0){
-					proto_tree_add_text(parameter_tree, tvb, offset, tokenlen, "Key and Salt");
-					proto_tree_add_item(parameter_tree, hf_sdp_crypto_master_key, key_salt_tvb, 0, master_key_length, ENC_ASCII|ENC_NA);
-					proto_tree_add_item(parameter_tree, hf_sdp_crypto_master_salt, key_salt_tvb, master_key_length, master_salt_length, ENC_ASCII|ENC_NA);
-				}else{
-					proto_tree_add_text(parameter_tree, key_salt_tvb, 0, -1, "Key and Salt");
-				}
-				/*  ["|" lifetime] ["|" mki] are optional */
-				if(next_offset != -1){
+                if(master_key_length !=0){
+                    proto_tree_add_text(parameter_tree, tvb, offset, tokenlen, "Key and Salt");
+                    proto_tree_add_item(parameter_tree, hf_sdp_crypto_master_key, key_salt_tvb, 0, master_key_length, ENC_ASCII|ENC_NA);
+                    proto_tree_add_item(parameter_tree, hf_sdp_crypto_master_salt, key_salt_tvb, master_key_length, master_salt_length, ENC_ASCII|ENC_NA);
+                }else{
+                    proto_tree_add_text(parameter_tree, key_salt_tvb, 0, -1, "Key and Salt");
+                }
 
-					offset = next_offset + 1;
-					next_offset = tvb_find_guint8(tvb,offset,-1,'|');
-					if(next_offset != -1){
-						/*lifetime           = ["2^"] 1*(DIGIT)   ; see section 6.1 for "2^" */
-						tokenlen = next_offset - offset;
-						proto_tree_add_item(parameter_tree, hf_sdp_crypto_lifetime, tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
-						offset = next_offset + 1;
-					}
-					/* mki                 = mki-value ":" mki-length
-					 *
-					 * mki-value           = 1*DIGIT 
-					 */
-					next_offset = tvb_find_guint8(tvb,offset,-1,':');
-					tokenlen = next_offset - offset;
-					proto_tree_add_item(parameter_tree, hf_sdp_crypto_mki, tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
-					offset = next_offset + 1;
+                /*  ["|" lifetime] ["|" mki] are optional */
+                if(next_offset != -1){
+                    offset = next_offset + 1;
+                    next_offset = tvb_find_guint8(tvb,offset,-1,'|');
+                    if(next_offset != -1){
+                        /*lifetime           = ["2^"] 1*(DIGIT)   ; see section 6.1 for "2^" */
+                        tokenlen = next_offset - offset;
+                        proto_tree_add_item(parameter_tree, hf_sdp_crypto_lifetime, tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
+                        offset = next_offset + 1;
+                    }
+                    /* mki                 = mki-value ":" mki-length
+                     *
+                     * mki-value           = 1*DIGIT
+                     */
+                    next_offset = tvb_find_guint8(tvb,offset,-1,':');
+                    tokenlen = next_offset - offset;
+                    proto_tree_add_item(parameter_tree, hf_sdp_crypto_mki, tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
+                    offset = next_offset + 1;
 
-					/* mki-length          = 1*3DIGIT   ; range 1..128. */
-					next_offset = param_end_offset;
-					tokenlen = next_offset - offset;
-					proto_tree_add_item(parameter_tree, hf_sdp_crypto_mki_length, tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
-				}
-				offset = param_end_offset;
-			}else{
-				tokenlen = param_end_offset -  next_offset+1;
-				proto_tree_add_text(parameter_tree, tvb, next_offset+1, tokenlen, "%s",tvb_get_ephemeral_string(tvb, next_offset+1, tokenlen));
-				offset = param_end_offset;
-			}
+                    /* mki-length          = 1*3DIGIT   ; range 1..128. */
+                    next_offset = param_end_offset;
+                    tokenlen = next_offset - offset;
+                    proto_tree_add_item(parameter_tree, hf_sdp_crypto_mki_length, tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
+                }
+                offset = param_end_offset;
+            }else{
+                tokenlen = param_end_offset -  next_offset+1;
+                proto_tree_add_text(parameter_tree, tvb, next_offset+1, tokenlen, "%s", tvb_get_ephemeral_string(tvb, next_offset+1, tokenlen));
+                offset = param_end_offset;
+            }
         }
 
         break;
@@ -2155,31 +2160,31 @@ proto_register_sdp(void)
       { "Key Management Data",
         "sdp.key_mgmt.data", FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
-	{ &hf_sdp_crypto_tag,
+    { &hf_sdp_crypto_tag,
       { "tag",
         "sdp.crypto.tag", FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
-	{ &hf_sdp_crypto_crypto_suite,
+    { &hf_sdp_crypto_crypto_suite,
       { "Crypto suite",
         "sdp.crypto.crypto_suite", FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
-	{ &hf_sdp_crypto_master_key,
+    { &hf_sdp_crypto_master_key,
       { "Master Key",
         "sdp.crypto.master_key", FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
-	{ &hf_sdp_crypto_master_salt,
+    { &hf_sdp_crypto_master_salt,
       { "Mater salt",
         "sdp.crypto.master_salt", FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
-	{ &hf_sdp_crypto_lifetime,
+    { &hf_sdp_crypto_lifetime,
       { "Lifetime",
         "sdp.crypto.lifetime", FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
-	{ &hf_sdp_crypto_mki,
+    { &hf_sdp_crypto_mki,
       { "mki-value",
         "sdp.crypto.mki-valu", FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
-	{ &hf_sdp_crypto_mki_length,
+    { &hf_sdp_crypto_mki_length,
       { "mki_length",
         "sdp.crypto.mki_length", FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
@@ -2198,7 +2203,7 @@ proto_register_sdp(void)
     &ett_sdp_media_attribute,
     &ett_sdp_fmtp,
     &ett_sdp_key_mgmt,
-	&ett_sdp_crypto_key_parameters,
+    &ett_sdp_crypto_key_parameters,
   };
 
   module_t *sdp_module;
