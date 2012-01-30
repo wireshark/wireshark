@@ -2600,8 +2600,8 @@ ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, gint ct,
         }
 
     }
-   /* ssl_debug_printf("ssl_decrypt_record: mac ok\n"); */
-    *outl = worklen;
+
+	*outl = worklen;
 
     if (decoder->compression > 0) {
       ssl_debug_printf("ssl_decrypt_record: compression method %d\n", decoder->compression);
