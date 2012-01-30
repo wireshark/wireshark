@@ -189,7 +189,7 @@ RESOURCES=image\wireshark.res image\libwireshark.res image\tshark.res \
 	image\rawshark.res image\libwsutil.res
 
 
-all: $(LIBS_CHECK) config.h ui\qt\config.pri tools image codecs $(C_ARES_DLL) $(ADNS_DLL) $(ZLIB_DLL) wsutil wiretap epan $(EXECUTABLES) $(RESOURCES) doc help install-all
+all: $(LIBS_CHECK) config.h ui\qt\config.pri tools image codecs $(C_ARES_DLL) $(ADNS_DLL) $(ZLIB_DLL) wsutil wiretap epan $(EXECUTABLES) wireshark.bsc $(RESOURCES) doc help install-all
 
 !IFDEF MAKENSIS
 packaging: all
@@ -235,13 +235,22 @@ packaging_zip: all
 	rm -f wireshark.zip
 	zip -r -9 wireshark.zip $(INSTALL_DIR)/
 
-wireshark.bsc: *.sbr epan\*.sbr epan\dfilter\*.sbr epan\ftypes\*.sbr epan\wslua\*.sbr epan\dissectors\*.sbr ui\gtk\*.sbr win32\*.sbr wiretap\*.sbr
-# FIXME: Add epan/wspython/*.sbr when we support Python embedding
-# wireshark.bsc: *.sbr codecs/*.sbr epan/*.sbr epan/crypt/*.sbr epan/dfilter/*.sbr epan/dissectors/*.sbr epan/ftypes/*.sbr epan/wslua/*.sbr ui/gtk/*.sbr plugins/asn1/*.sbr plugins/docsis/*.sbr plugins/ethercat/*.sbr plugins/giop/*.sbr plugins/gryphon/*.sbr plugins/irda/*.sbr plugins/m2m/*.sbr plugins/mate/*.sbr plugins/opcua/*.sbr plugins/profinet/*.sbr plugins/stats_tree/*.sbr plugins/unistim/*.sbr plugins/wimax/*.sbr plugins/wimaxasncp/*.sbr tools/lemon/*.sbr wiretap/*.sbr wsutil/*.sbr
-	rm -f $@
+!IFDEF WIRESHARK_GENERATE_BSC_FILE
+# FIXME: Add epan\wspython\*.sbr when we support Python embedding
+# Note: Certain .sbr files which cause bscmake warning "too many references... ignoring ..."
+wireshark.bsc: *.sbr codecs\*.sbr epan\*.sbr epan\crypt\*.sbr epan\dfilter\*.sbr \
+               epan\dissectors\*.sbr epan\ftypes\*.sbr epan\wslua\*.sbr ui\gtk\*.sbr \
+               plugins\asn1\*.sbr plugins\docsis\*.sbr plugins\ethercat\*.sbr \
+               plugins\giop\*.sbr plugins\gryphon\*.sbr plugins\irda\*.sbr plugins\m2m\*.sbr \
+               plugins\mate\*.sbr plugins\opcua\*.sbr plugins\profinet\*.sbr plugins\stats_tree\*.sbr \
+               plugins\unistim\*.sbr plugins\wimax\*.sbr plugins\wimaxasncp\*.sbr \
+               wiretap\*.sbr wsutil\*.sbr
 	$(BSCMAKE) @<<
 		/o $@ $?
 <<
+!ELSE
+wireshark.bsc:
+!ENDIF
 
 pdb_zip: all
 	cd $(INSTALL_DIR)

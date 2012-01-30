@@ -702,19 +702,22 @@ MANIFEST_INFO_REQUIRED=1
 !ENDIF
 
 # Compiler flags:
-# /W3                               Warning level 3 (0 less - 4 most, 1 default)
-# /Zi                               Create .pdb file for debugging
-# /FR                               Create .sbr file with complete symbolic information
-#                                   add to local flags if you want to build the .sbr files.
-# /MD                               Use "multithread- and DLL-specific version" of run-time libraries
+# /W3                               Warning level 3 (0 less - 4 most, 1 default).
+# /Zi                               Create .pdb file for debugging.
+# /FR                               Create .sbr file with complete symbolic information.
+#                                   add to standard CFLAGS if you want to build the .sbr files
+#                                     for Wireshark compiles.
+#                                     Warning: using /FR for Wireshark requires ~1Gig of additional disk space
+#                                     XXX: provides less functionality for VC8, ... than for previous compilers ?
+# /MD                               Use "multithread- and DLL-specific version" of run-time libraries.
 #                                    msvc documentation states that /MD causes _MT and _DLL to be defined
 #                                    See: http://msdn.microsoft.com/en-us/library/2kzt1wy3%28v=VS.90%29.aspx
-# /D_CRT_SECURE_NO_DEPRECATE        Don't warn for "insecure" calls,
-#                                     see MSDN "Security Enhancements in the CRT"
-# /D_CRT_NONSTDC_NO_DEPRECATE       Don't warn for "Deprecated CRT Functions" as MSDN calls this
-# /D_BIND_TO_CURRENT_CRT_VERSION=1  Make sure our CRT and manifest versions match
+# /D_CRT_SECURE_NO_DEPRECATE        Don't warn for "insecure" calls;
+#                                     see MSDN "Security Enhancements in the CRT".
+# /D_CRT_NONSTDC_NO_DEPRECATE       Don't warn for "Deprecated CRT Functions" as MSDN calls this.
+# /D_BIND_TO_CURRENT_CRT_VERSION=1  Make sure our CRT and manifest versions match.
 #                                    (http://msdn.microsoft.com/en-us/library/cc664727.aspx)
-# /DWIN32_LEAN_AND_MEAN             Don't include unnecessary Windows include files (see windows.h)
+# /DWIN32_LEAN_AND_MEAN             Don't include unnecessary Windows include files (see windows.h).
 # /MANIFEST:no                      Don't create a SxS manifest. Makes sure our plugins don't load
 #                                     a second copy of the CRT.
 #
@@ -773,11 +776,13 @@ LOCAL_CFLAGS= $(LOCAL_CFLAGS) /analyze:WX-
 #STANDARD_CFLAGS are flags used for *Wireshark* compiles (not stuff like lemon, etc)
 STANDARD_CFLAGS=-DHAVE_CONFIG_H -D_U_="" /DPCAP_VERSION=$(PCAP_VERSION) $(LOCAL_CFLAGS) $(WARNINGS_CFLAGS)
 
+# Optional: Define WIRESHARK_GENERATE_BSC_FILE to generate .sbr files for input to bscmake
+!IFDEF WIRESHARK_GENERATE_BSC_FILE
+STANDARD_CFLAGS= $(STANDARD_CFLAGS) /FR
+!ENDIF
+
 #Comment out the following if warnings are not to be treated as errors
 WARNINGS_ARE_ERRORS=-WX
-
-## XXX: _MT and _DLL are defined when /MD is used so CVARSDLL is apparently unneeded
-##CVARSDLL=-D_MT -D_DLL
 
 # Linker flags:
 # /DEBUG  generate debug info
