@@ -30,6 +30,11 @@ message(  $$QMAKE_CFLAGS)
 message(  $$QMAKE_CFLAGS_RELEASE)
 message(  $$QMAKE_CFLAGS_DEBUG)
 message( )
+message(CXXFLAGS:)
+message(  $$QMAKE_CXXFLAGS)
+message(  $$QMAKE_CXXFLAGS_RELEASE)
+message(  $$QMAKE_CXXFLAGS_DEBUG)
+message( )
 message(LFLAGS:)
 message(  $$QMAKE_LFLAGS)
 message(  $$QMAKE_LFLAGS_RELEASE)
@@ -67,8 +72,9 @@ win32 {
     # Use only Wireshark CFLAGS and LDFLAGS from config.nmake (as provided via config.pri)
     #  for building the "release" version of Wireshark-Qt
     # (e.g., so we don't get the Qt release CFLAGS [specifically /O2]
-    QMAKE_CFLAGS_RELEASE = ""
-    QMAKE_LFLAGS_RELEASE = ""
+    QMAKE_CFLAGS_RELEASE   = ""
+    QMAKE_CXXFLAGS_RELEASE = ""
+    QMAKE_LFLAGS_RELEASE   = ""
 
     # XXX We need to figure out how to pull this in from config.nmake.
     !include( config.pri ) {
@@ -87,6 +93,11 @@ message(CFLAGS:)
 message(  $$QMAKE_CFLAGS)
 message(  $$QMAKE_CFLAGS_RELEASE)
 message(  $$QMAKE_CFLAGS_DEBUG)
+message( )
+message(CXXFLAGS:)
+message(  $$QMAKE_CXXFLAGS)
+message(  $$QMAKE_CXXFLAGS_RELEASE)
+message(  $$QMAKE_CXXFLAGS_DEBUG)
 message( )
 message(LFLAGS:)
 message(  $$QMAKE_LFLAGS)
