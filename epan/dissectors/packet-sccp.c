@@ -1449,250 +1449,241 @@ dissect_sccp_3byte_pc(tvbuff_t *tvb, proto_tree *call_tree, guint offset,
  */
 static void
 dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
-				  guint length, gboolean called)
+    guint length, gboolean called)
 {
-  proto_item *call_item = 0, *call_ai_item = 0, *item, *hidden_item, *expert_item;
-  proto_tree *call_tree = 0, *call_ai_tree = 0;
-  guint offset;
-  guint8 national = 0xFFU, routing_ind, gti, pci, ssni, ssn;
-  tvbuff_t *gt_tvb;
-  dissector_handle_t ssn_dissector = NULL, tcap_ssn_dissector = NULL;
-  const char *ssn_dissector_short_name = NULL;
-  const char *tcap_ssn_dissector_short_name = NULL;
+    proto_item *call_item = 0, *call_ai_item = 0, *item, *hidden_item, *expert_item;
+    proto_tree *call_tree = 0, *call_ai_tree = 0;
+    guint offset;
+    guint8 national = 0xFFU, routing_ind, gti, pci, ssni, ssn;
+    tvbuff_t *gt_tvb;
+    dissector_handle_t ssn_dissector = NULL, tcap_ssn_dissector = NULL;
+    const char *ssn_dissector_short_name = NULL;
+    const char *tcap_ssn_dissector_short_name = NULL;
 
-  call_item = proto_tree_add_text(tree, tvb, 0, length,
-				  "%s Party address (%u byte%s)",
-				  called ? "Called" : "Calling", length,
-				  plurality(length, "", "s"));
-  call_tree = proto_item_add_subtree(call_item, called ? ett_sccp_called
-						       : ett_sccp_calling);
+    call_item = proto_tree_add_text(tree, tvb, 0, length,
+        "%s Party address (%u byte%s)",
+        called ? "Called" : "Calling", length,
+        plurality(length, "", "s"));
+    call_tree = proto_item_add_subtree(call_item, called ? ett_sccp_called : ett_sccp_calling);
 
-  call_ai_item = proto_tree_add_text(call_tree, tvb, 0,
-				     ADDRESS_INDICATOR_LENGTH,
-				     "Address Indicator");
-  call_ai_tree = proto_item_add_subtree(call_ai_item, called ? ett_sccp_called_ai
-							     : ett_sccp_calling_ai);
+    call_ai_item = proto_tree_add_text(call_tree, tvb, 0,
+        ADDRESS_INDICATOR_LENGTH,
+        "Address Indicator");
+    call_ai_tree = proto_item_add_subtree(call_ai_item, called ? ett_sccp_called_ai : ett_sccp_calling_ai);
 
-  if (decode_mtp3_standard == ANSI_STANDARD)
-  {
-    national = tvb_get_guint8(tvb, 0) & ANSI_NATIONAL_MASK;
-    expert_item = proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_national_indicator
-							   : hf_sccp_calling_national_indicator,
-				      tvb, 0, ADDRESS_INDICATOR_LENGTH, national);
-    if (national == 0)
-          expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_WARN, "Address is coded to "
-				 "international standards.  This doesn't normally happen in ANSI "
-				 "networks.");
-  }
-
-  routing_ind = tvb_get_guint8(tvb, 0) & ROUTING_INDICATOR_MASK;
-  proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_routing_indicator
-					   : hf_sccp_calling_routing_indicator,
-		      tvb, 0, ADDRESS_INDICATOR_LENGTH, routing_ind);
-  /* Only shift off the other bits after adding the item */
-  routing_ind >>= ROUTING_INDICATOR_SHIFT;
-
-  gti = tvb_get_guint8(tvb, 0) & GTI_MASK;
-
-  if (decode_mtp3_standard == ITU_STANDARD ||
-      decode_mtp3_standard == CHINESE_ITU_STANDARD ||
-      decode_mtp3_standard == JAPAN_STANDARD ||
-      national == 0) {
-
-    proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_itu_global_title_indicator
-					     : hf_sccp_calling_itu_global_title_indicator,
-			tvb, 0, ADDRESS_INDICATOR_LENGTH, gti);
-
-    ssni = tvb_get_guint8(tvb, 0) & ITU_SSN_INDICATOR_MASK;
-    expert_item = proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_itu_ssn_indicator
-							   : hf_sccp_calling_itu_ssn_indicator,
-				      tvb, 0, ADDRESS_INDICATOR_LENGTH, ssni);
-    if (routing_ind == ROUTE_ON_SSN && ssni == 0) {
-      expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_WARN,
-			     "Message is routed on SSN, but SSN is not present");
+    if (decode_mtp3_standard == ANSI_STANDARD) {
+        national = tvb_get_guint8(tvb, 0) & ANSI_NATIONAL_MASK;
+        expert_item = proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_national_indicator
+            : hf_sccp_calling_national_indicator,
+            tvb, 0, ADDRESS_INDICATOR_LENGTH, national);
+        if (national == 0)
+            expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_WARN, "Address is coded to "
+            "international standards.  This doesn't normally happen in ANSI "
+            "networks.");
     }
 
-    pci = tvb_get_guint8(tvb, 0) & ITU_PC_INDICATOR_MASK;
-    proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_itu_point_code_indicator
-					     : hf_sccp_calling_itu_point_code_indicator,
-			tvb, 0, ADDRESS_INDICATOR_LENGTH, pci);
+    routing_ind = tvb_get_guint8(tvb, 0) & ROUTING_INDICATOR_MASK;
+    proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_routing_indicator : hf_sccp_calling_routing_indicator,
+        tvb, 0, ADDRESS_INDICATOR_LENGTH, routing_ind);
+    /* Only shift off the other bits after adding the item */
+    routing_ind >>= ROUTING_INDICATOR_SHIFT;
 
-    offset = ADDRESS_INDICATOR_LENGTH;
+    gti = tvb_get_guint8(tvb, 0) & GTI_MASK;
 
-    /* Dissect PC (if present) */
-    if (pci) {
-      if (decode_mtp3_standard == ITU_STANDARD || national == 0) {
-        if (length < offset + ITU_PC_LENGTH){
-          expert_item = proto_tree_add_text(call_tree, tvb, 0, -1, "Wrong length indicated (%u) should be at least %u, PC is %u octets", length, offset + ITU_PC_LENGTH, ITU_PC_LENGTH);
-          expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_ERROR, "Wrong length indicated");
-          PROTO_ITEM_SET_GENERATED(expert_item);
-          return;
+    if (decode_mtp3_standard == ITU_STANDARD ||
+        decode_mtp3_standard == CHINESE_ITU_STANDARD ||
+        decode_mtp3_standard == JAPAN_STANDARD ||
+        national == 0) {
+
+            proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_itu_global_title_indicator : hf_sccp_calling_itu_global_title_indicator,
+                tvb, 0, ADDRESS_INDICATOR_LENGTH, gti);
+
+            ssni = tvb_get_guint8(tvb, 0) & ITU_SSN_INDICATOR_MASK;
+            expert_item = proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_itu_ssn_indicator : hf_sccp_calling_itu_ssn_indicator,
+                tvb, 0, ADDRESS_INDICATOR_LENGTH, ssni);
+            if (routing_ind == ROUTE_ON_SSN && ssni == 0) {
+                expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_WARN,
+                    "Message is routed on SSN, but SSN is not present");
+            }
+
+            pci = tvb_get_guint8(tvb, 0) & ITU_PC_INDICATOR_MASK;
+            proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_itu_point_code_indicator : hf_sccp_calling_itu_point_code_indicator,
+                tvb, 0, ADDRESS_INDICATOR_LENGTH, pci);
+
+            offset = ADDRESS_INDICATOR_LENGTH;
+
+            /* Dissect PC (if present) */
+            if (pci) {
+                if (decode_mtp3_standard == ITU_STANDARD || national == 0) {
+                    if (length < offset + ITU_PC_LENGTH){
+                        expert_item = proto_tree_add_text(call_tree, tvb, 0, -1, "Wrong length indicated (%u) should be at least %u, PC is %u octets", length, offset + ITU_PC_LENGTH, ITU_PC_LENGTH);
+                        expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_ERROR, "Wrong length indicated");
+                        PROTO_ITEM_SET_GENERATED(expert_item);
+                        return;
+                    }
+                    proto_tree_add_item(call_tree, called ? hf_sccp_called_itu_pc : hf_sccp_calling_itu_pc,
+                        tvb, offset, ITU_PC_LENGTH, ENC_LITTLE_ENDIAN);
+                    offset += ITU_PC_LENGTH;
+
+                } else if (decode_mtp3_standard == JAPAN_STANDARD) {
+
+                    if (length < offset + JAPAN_PC_LENGTH){
+                        expert_item = proto_tree_add_text(call_tree, tvb, 0, -1, "Wrong length indicated (%u) should be at least %u, PC is %u octets", length, offset + JAPAN_PC_LENGTH, JAPAN_PC_LENGTH);
+                        expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_ERROR, "Wrong length indicated");
+                        PROTO_ITEM_SET_GENERATED(expert_item);
+                        return;
+                    }
+                    proto_tree_add_item(call_tree, called ? hf_sccp_called_japan_pc : hf_sccp_calling_japan_pc,
+                        tvb, offset, JAPAN_PC_LENGTH, ENC_LITTLE_ENDIAN);
+
+                    offset += JAPAN_PC_LENGTH;
+
+                } else /* CHINESE_ITU_STANDARD */ {
+
+                    if (length < offset + ANSI_PC_LENGTH){
+                        expert_item = proto_tree_add_text(call_tree, tvb, 0, -1, "Wrong length indicated (%u) should be at least %u, PC is %u octets", length, offset + ANSI_PC_LENGTH, ANSI_PC_LENGTH);
+                        expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_ERROR, "Wrong length indicated");
+                        PROTO_ITEM_SET_GENERATED(expert_item);
+                        return;
+                    }
+                    offset = dissect_sccp_3byte_pc(tvb, call_tree, offset, called);
+
+                }
+            }
+
+            /* Dissect SSN (if present) */
+            if (ssni) {
+                ssn = tvb_get_guint8(tvb, offset);
+
+                if (routing_ind == ROUTE_ON_SSN && ssn == 0) {
+                    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_WARN,
+                        "Message is routed on SSN, but SSN is zero (unspecified)");
+                }
+
+                if (called && assoc)
+                    assoc->called_ssn = ssn;
+                else if (assoc)
+                    assoc->calling_ssn = ssn;
+
+                if (is_connectionless(message_type) && sccp_msg) {
+                    guint *ssn_ptr = called ? &(sccp_msg->data.ud.called_ssn) : &(sccp_msg->data.ud.calling_ssn);
+
+                    *ssn_ptr  = ssn;
+                }
+
+                proto_tree_add_uint(call_tree, called ? hf_sccp_called_ssn
+                    : hf_sccp_calling_ssn,
+                    tvb, offset, ADDRESS_SSN_LENGTH, ssn);
+                hidden_item = proto_tree_add_uint(call_tree, hf_sccp_ssn, tvb, offset,
+                    ADDRESS_SSN_LENGTH, ssn);
+                PROTO_ITEM_SET_HIDDEN(hidden_item);
+
+                offset += ADDRESS_SSN_LENGTH;
+
+                /* Get the dissector handle of the dissector registered for this ssn
+                * And print it's name.
+                */
+                ssn_dissector = dissector_get_uint_handle(sccp_ssn_dissector_table, ssn);
+
+                if (ssn_dissector) {
+                    ssn_dissector_short_name = dissector_handle_get_short_name(ssn_dissector);
+
+                    if(ssn_dissector_short_name) {
+                        item = proto_tree_add_text(call_tree, tvb, offset - 1, ADDRESS_SSN_LENGTH, "Linked to %s", ssn_dissector_short_name);
+                        PROTO_ITEM_SET_GENERATED(item);
+
+                        if (g_ascii_strncasecmp("TCAP", ssn_dissector_short_name, 4)== 0) {
+                            tcap_ssn_dissector = get_itu_tcap_subdissector(ssn);
+
+                            if(tcap_ssn_dissector) {
+                                tcap_ssn_dissector_short_name = dissector_handle_get_short_name(tcap_ssn_dissector);
+                                proto_item_append_text(item,", TCAP SSN linked to %s", tcap_ssn_dissector_short_name);
+                            }
+                        }
+                    } /* short name */
+                } /* ssn_dissector */
+            } /* ssni */
+
+            /* Dissect GT (if present) */
+            if (gti != AI_GTI_NO_GT) {
+                if (length < offset)
+                    return;
+
+                gt_tvb = tvb_new_subset(tvb, offset, (length - offset),
+                    (length - offset));
+                dissect_sccp_global_title(gt_tvb, pinfo, call_tree, (length - offset), gti,
+                    (routing_ind == ROUTE_ON_GT), called);
+            }
+
+    } else if (decode_mtp3_standard == ANSI_STANDARD) {
+
+        proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_ansi_global_title_indicator
+            : hf_sccp_calling_ansi_global_title_indicator,
+            tvb, 0, ADDRESS_INDICATOR_LENGTH, gti);
+
+        pci = tvb_get_guint8(tvb, 0) & ANSI_PC_INDICATOR_MASK;
+        proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_ansi_point_code_indicator
+            : hf_sccp_calling_ansi_point_code_indicator,
+            tvb, 0, ADDRESS_INDICATOR_LENGTH, pci);
+
+        ssni = tvb_get_guint8(tvb, 0) & ANSI_SSN_INDICATOR_MASK;
+        expert_item = proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_ansi_ssn_indicator
+            : hf_sccp_calling_ansi_ssn_indicator,
+            tvb, 0, ADDRESS_INDICATOR_LENGTH, ssni);
+        if (routing_ind == ROUTE_ON_SSN && ssni == 0) {
+            expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_WARN,
+                "Message is routed on SSN, but SSN is not present");
         }
-        proto_tree_add_item(call_tree, called ? hf_sccp_called_itu_pc
-                                              : hf_sccp_calling_itu_pc,
-                            tvb, offset, ITU_PC_LENGTH, ENC_LITTLE_ENDIAN);
-        offset += ITU_PC_LENGTH;
 
-      } else if (decode_mtp3_standard == JAPAN_STANDARD) {
+        offset = ADDRESS_INDICATOR_LENGTH;
 
-        if (length < offset + JAPAN_PC_LENGTH){
-          expert_item = proto_tree_add_text(call_tree, tvb, 0, -1, "Wrong length indicated (%u) should be at least %u, PC is %u octets", length, offset + JAPAN_PC_LENGTH, JAPAN_PC_LENGTH);
-          expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_ERROR, "Wrong length indicated");
-          PROTO_ITEM_SET_GENERATED(expert_item);
-          return;
+        /* Dissect SSN (if present) */
+        if (ssni) {
+            ssn = tvb_get_guint8(tvb, offset);
+
+            if (routing_ind == ROUTE_ON_SSN && ssn == 0) {
+                expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_WARN,
+                    "Message is routed on SSN, but SSN is zero (unspecified)");
+            }
+
+            if (called && assoc) {
+                assoc->called_ssn = ssn;
+            } else if (assoc) {
+                assoc->calling_ssn = ssn;
+            }
+
+            if (is_connectionless(message_type) && sccp_msg) {
+                guint *ssn_ptr = called ? &(sccp_msg->data.ud.called_ssn) : &(sccp_msg->data.ud.calling_ssn);
+
+                *ssn_ptr  = ssn;
+            }
+
+            proto_tree_add_uint(call_tree, called ? hf_sccp_called_ssn
+                : hf_sccp_calling_ssn,
+                tvb, offset, ADDRESS_SSN_LENGTH, ssn);
+            hidden_item = proto_tree_add_uint(call_tree, hf_sccp_ssn, tvb, offset,
+                ADDRESS_SSN_LENGTH, ssn);
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
+
+            offset += ADDRESS_SSN_LENGTH;
         }
-        proto_tree_add_item(call_tree, called ? hf_sccp_called_japan_pc
-                                              : hf_sccp_calling_japan_pc,
-                            tvb, offset, JAPAN_PC_LENGTH, ENC_LITTLE_ENDIAN);
 
-        offset += JAPAN_PC_LENGTH;
-
-      } else /* CHINESE_ITU_STANDARD */ {
-
-        if (length < offset + ANSI_PC_LENGTH){
-          expert_item = proto_tree_add_text(call_tree, tvb, 0, -1, "Wrong length indicated (%u) should be at least %u, PC is %u octets", length, offset + ANSI_PC_LENGTH, ANSI_PC_LENGTH);
-          expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_ERROR, "Wrong length indicated");
-          PROTO_ITEM_SET_GENERATED(expert_item);
-           return;
+        /* Dissect PC (if present) */
+        if (pci) {
+            offset = dissect_sccp_3byte_pc(tvb, call_tree, offset, called);
         }
-        offset = dissect_sccp_3byte_pc(tvb, call_tree, offset, called);
 
-      }
+        /* Dissect GT (if present) */
+        if (gti != AI_GTI_NO_GT) {
+            if (length < offset)
+                return;
+            gt_tvb = tvb_new_subset(tvb, offset, (length - offset),
+                (length - offset));
+            dissect_sccp_global_title(gt_tvb, pinfo, call_tree, (length - offset), gti,
+                (routing_ind == ROUTE_ON_GT), called);
+        }
+
     }
-
-    /* Dissect SSN (if present) */
-    if (ssni) {
-      ssn = tvb_get_guint8(tvb, offset);
-
-      if (routing_ind == ROUTE_ON_SSN && ssn == 0) {
-	expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_WARN,
-			       "Message is routed on SSN, but SSN is zero (unspecified)");
-      }
-
-      if (called && assoc)
-	assoc->called_ssn = ssn;
-      else if (assoc)
-	assoc->calling_ssn = ssn;
-
-      if (is_connectionless(message_type) && sccp_msg) {
-	guint *ssn_ptr = called ? &(sccp_msg->data.ud.called_ssn) : &(sccp_msg->data.ud.calling_ssn);
-
-	*ssn_ptr  = ssn;
-      }
-
-      proto_tree_add_uint(call_tree, called ? hf_sccp_called_ssn
-					    : hf_sccp_calling_ssn,
-			  tvb, offset, ADDRESS_SSN_LENGTH, ssn);
-      hidden_item = proto_tree_add_uint(call_tree, hf_sccp_ssn, tvb, offset,
-					ADDRESS_SSN_LENGTH, ssn);
-      PROTO_ITEM_SET_HIDDEN(hidden_item);
-
-      offset += ADDRESS_SSN_LENGTH;
-
-      /* Get the dissector handle of the dissector registered for this ssn
-       * And print it's name.
-       */
-      ssn_dissector = dissector_get_uint_handle(sccp_ssn_dissector_table, ssn);
-
-      if (ssn_dissector) {
-	ssn_dissector_short_name = dissector_handle_get_short_name(ssn_dissector);
-
-	if(ssn_dissector_short_name) {
-	  item = proto_tree_add_text(call_tree, tvb, offset - 1, ADDRESS_SSN_LENGTH, "Linked to %s", ssn_dissector_short_name);
-	  PROTO_ITEM_SET_GENERATED(item);
-
-	  if (g_ascii_strncasecmp("TCAP", ssn_dissector_short_name, 4)== 0) {
-	    tcap_ssn_dissector = get_itu_tcap_subdissector(ssn);
-
-	    if(tcap_ssn_dissector) {
-	      tcap_ssn_dissector_short_name = dissector_handle_get_short_name(tcap_ssn_dissector);
-	      proto_item_append_text(item,", TCAP SSN linked to %s", tcap_ssn_dissector_short_name);
-	    }
-	  }
-	} /* short name */
-      } /* ssn_dissector */
-    } /* ssni */
-
-    /* Dissect GT (if present) */
-    if (gti != AI_GTI_NO_GT) {
-      if (length < offset)
-	return;
-
-      gt_tvb = tvb_new_subset(tvb, offset, (length - offset),
-			      (length - offset));
-      dissect_sccp_global_title(gt_tvb, pinfo, call_tree, (length - offset), gti,
-				(routing_ind == ROUTE_ON_GT), called);
-    }
-
-  } else if (decode_mtp3_standard == ANSI_STANDARD) {
-
-    proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_ansi_global_title_indicator
-					     : hf_sccp_calling_ansi_global_title_indicator,
-			tvb, 0, ADDRESS_INDICATOR_LENGTH, gti);
-
-    pci = tvb_get_guint8(tvb, 0) & ANSI_PC_INDICATOR_MASK;
-    proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_ansi_point_code_indicator
-					     : hf_sccp_calling_ansi_point_code_indicator,
-			tvb, 0, ADDRESS_INDICATOR_LENGTH, pci);
-
-    ssni = tvb_get_guint8(tvb, 0) & ANSI_SSN_INDICATOR_MASK;
-    expert_item = proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_ansi_ssn_indicator
-							   : hf_sccp_calling_ansi_ssn_indicator,
-				      tvb, 0, ADDRESS_INDICATOR_LENGTH, ssni);
-    if (routing_ind == ROUTE_ON_SSN && ssni == 0) {
-      expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_WARN,
-			     "Message is routed on SSN, but SSN is not present");
-    }
-
-    offset = ADDRESS_INDICATOR_LENGTH;
-
-    /* Dissect SSN (if present) */
-    if (ssni) {
-      ssn = tvb_get_guint8(tvb, offset);
-
-      if (routing_ind == ROUTE_ON_SSN && ssn == 0) {
-	expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_WARN,
-			       "Message is routed on SSN, but SSN is zero (unspecified)");
-      }
-
-      if (called && assoc) {
-	assoc->called_ssn = ssn;
-      } else if (assoc) {
-	assoc->calling_ssn = ssn;
-      }
-
-      if (is_connectionless(message_type) && sccp_msg) {
-	guint *ssn_ptr = called ? &(sccp_msg->data.ud.called_ssn) : &(sccp_msg->data.ud.calling_ssn);
-
-	*ssn_ptr  = ssn;
-      }
-
-      proto_tree_add_uint(call_tree, called ? hf_sccp_called_ssn
-					    : hf_sccp_calling_ssn,
-			  tvb, offset, ADDRESS_SSN_LENGTH, ssn);
-      hidden_item = proto_tree_add_uint(call_tree, hf_sccp_ssn, tvb, offset,
-					ADDRESS_SSN_LENGTH, ssn);
-      PROTO_ITEM_SET_HIDDEN(hidden_item);
-
-      offset += ADDRESS_SSN_LENGTH;
-    }
-
-    /* Dissect PC (if present) */
-    if (pci) {
-      offset = dissect_sccp_3byte_pc(tvb, call_tree, offset, called);
-    }
-
-    /* Dissect GT (if present) */
-    if (gti != AI_GTI_NO_GT) {
-      if (length < offset)
-		  return;
-      gt_tvb = tvb_new_subset(tvb, offset, (length - offset),
-			      (length - offset));
-      dissect_sccp_global_title(gt_tvb, pinfo, call_tree, (length - offset), gti,
-				(routing_ind == ROUTE_ON_GT), called);
-    }
-
-  }
 
 }
 
