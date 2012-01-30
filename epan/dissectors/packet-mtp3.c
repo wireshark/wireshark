@@ -648,7 +648,7 @@ dissect_mtp3_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 #define HEURISTIC_FAILED_STANDARD 0xffff
 static guint
-heur_mtp3_standard(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,  guint8 si)
+heur_mtp3_standard(tvbuff_t *tvb, packet_info *pinfo _U_, guint8 si)
 {
 
     guint32 len;
@@ -711,7 +711,7 @@ dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     si = tvb_get_guint8(tvb, SIO_OFFSET) & SERVICE_INDICATOR_MASK;
     if (mtp3_heuristic_standard) {
-        heuristic_standard = heur_mtp3_standard(tvb, pinfo, tree,  si);
+        heuristic_standard = heur_mtp3_standard(tvb, pinfo, si);
         if(heuristic_standard==HEURISTIC_FAILED_STANDARD){
             gen_item = proto_tree_add_text(tree, tvb, 0, 0, "Could not determine Heuristic using %s", val_to_str(mtp3_standard, mtp3_standard_vals, "unknown"));
         }else{
