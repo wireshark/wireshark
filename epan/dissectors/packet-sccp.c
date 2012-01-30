@@ -867,9 +867,9 @@ looks_like_valid_sccp(tvbuff_t *tvb, guint8 my_mtp3_standard)
     guint32 len = tvb_length(tvb);
 
     /* Ensure we can do some basic checks without throwing an exception.
-    * Accesses beyond this length need to check the length first because
-    * we don't want to throw an exception in here...
-    */
+     * Accesses beyond this length need to check the length first because
+     * we don't want to throw an exception in here...
+     */
     if (len < 6)
         return FALSE;
 
@@ -881,16 +881,7 @@ looks_like_valid_sccp(tvbuff_t *tvb, guint8 my_mtp3_standard)
 
     /*
     Still to be done:
-    SCCP_MSG_TYPE_RLSD
-    SCCP_MSG_TYPE_RLC
-    SCCP_MSG_TYPE_DT1
-    SCCP_MSG_TYPE_DT2
-    SCCP_MSG_TYPE_AK
     SCCP_MSG_TYPE_UDTS
-    SCCP_MSG_TYPE_ED
-    SCCP_MSG_TYPE_EA
-    SCCP_MSG_TYPE_RSR
-    SCCP_MSG_TYPE_RSC
     SCCP_MSG_TYPE_ERR
     SCCP_MSG_TYPE_IT
     SCCP_MSG_TYPE_XUDTS
@@ -899,25 +890,20 @@ looks_like_valid_sccp(tvbuff_t *tvb, guint8 my_mtp3_standard)
     */
 
     switch (msgtype) {
-    case SCCP_MSG_TYPE_DT1: /* 6 */
-        if(len<8){
-            /* Mandatory parameter(data)+ at least one data */
-            return FALSE;
-        }
-        data_ptr = tvb_get_guint8(tvb, offset+DESTINATION_LOCAL_REFERENCE_LENGTH+1);
-        if(tvb_get_guint8(tvb, data_ptr) > len){
-            return FALSE;
-        }
-        break;
-    case SCCP_MSG_TYPE_DT2: /* 7 */
-        g_warning("Unhandled msg type %u", msgtype);
+    case SCCP_MSG_TYPE_AK:
+    case SCCP_MSG_TYPE_DT2:
+    case SCCP_MSG_TYPE_EA:
+    case SCCP_MSG_TYPE_ED:
+    case SCCP_MSG_TYPE_RSC:
+    case SCCP_MSG_TYPE_RSR:
+	/* Class-3 is never actually used in the real world */
         return FALSE;
         break;
     case SCCP_MSG_TYPE_UDT:
     case SCCP_MSG_TYPE_XUDT: /* 0x11 */
         {
             /* Class lower four bits */
-            msg_class = tvb_get_guint8(tvb, offset)&0x0f;
+            msg_class = tvb_get_guint8(tvb, offset) & CLASS_CLASS_MASK;
             if (msg_class > 1)
                 return FALSE;
             offset += PROTOCOL_CLASS_LENGTH;
@@ -946,27 +932,61 @@ looks_like_valid_sccp(tvbuff_t *tvb, guint8 my_mtp3_standard)
         break;
     case SCCP_MSG_TYPE_CR:
         {
-            /* Class lower four bits */
-            msg_class = tvb_get_guint8(tvb, SCCP_MSG_TYPE_LENGTH+3) & 0x0f;
+	    offset += DESTINATION_LOCAL_REFERENCE_LENGTH;
+
+            msg_class = tvb_get_guint8(tvb, offset) & CLASS_CLASS_MASK;
             if (msg_class != 2)
                 return FALSE;
         }
         break;
     case SCCP_MSG_TYPE_CC: /* 2 */
         {
-            /* Class lower four bits */
-            msg_class = tvb_get_guint8(tvb, SCCP_MSG_TYPE_LENGTH+6)&0x0f;
+	    offset += DESTINATION_LOCAL_REFERENCE_LENGTH;
+	    offset += SOURCE_LOCAL_REFERENCE_LENGTH;
+
+            msg_class = tvb_get_guint8(tvb, offset) & CLASS_CLASS_MASK;
             if (msg_class != 2)
                 return FALSE;
         }
         break;
     case SCCP_MSG_TYPE_CREF:
         {
-            cause = tvb_get_guint8(tvb, SCCP_MSG_TYPE_LENGTH+3);
+	    offset += DESTINATION_LOCAL_REFERENCE_LENGTH;
+
+            cause = tvb_get_guint8(tvb, offset);
+            if (!match_strval(cause, sccp_refusal_cause_values))
+                return FALSE;
+        }
+        break;
+    case SCCP_MSG_TYPE_RLSD:
+        {
+	    offset += DESTINATION_LOCAL_REFERENCE_LENGTH;
+	    offset += SOURCE_LOCAL_REFERENCE_LENGTH;
+
+            cause = tvb_get_guint8(tvb, offset);
             if (!match_strval(cause, sccp_release_cause_values))
                 return FALSE;
         }
         break;
+    case SCCP_MSG_TYPE_RLC:
+        {
+	    if (len != 7)
+		return FALSE;
+        }
+        break;
+    case SCCP_MSG_TYPE_DT1: /* 6 */
+        if (len < 7) {
+            /* Mandatory parameter(data)+ at least one data */
+            return FALSE;
+        }
+	offset += DESTINATION_LOCAL_REFERENCE_LENGTH;
+	offset += POINTER_LENGTH;
+        data_ptr = tvb_get_guint8(tvb, offset);
+        if (tvb_get_guint8(tvb, data_ptr) > len) {
+            return FALSE;
+        }
+        break;
+
     default:
         g_warning("Unhandled msg type %u", msgtype);
         return FALSE;
