@@ -118,15 +118,17 @@ void set_toolbar_for_unsaved_capture_file(gboolean have_unsaved_capture_file) {
 
     if (toolbar_init) {
         if(have_unsaved_capture_file) {
-	gtk_tool_button_set_stock_id(GTK_TOOL_BUTTON(save_button),
-	    GTK_STOCK_SAVE);
-        gtk_widget_set_tooltip_text(GTK_WIDGET(save_button),SAVE_BUTTON_TOOLTIP_TEXT);
-        g_object_set_data(G_OBJECT(save_button), "save", GINT_TO_POINTER(1));
+            if (strcmp(gtk_tool_button_get_stock_id(GTK_TOOL_BUTTON(save_button)), GTK_STOCK_SAVE) != 0) {
+                gtk_tool_button_set_stock_id(GTK_TOOL_BUTTON(save_button), GTK_STOCK_SAVE);
+                gtk_widget_set_tooltip_text(GTK_WIDGET(save_button),SAVE_BUTTON_TOOLTIP_TEXT);
+                g_object_set_data(G_OBJECT(save_button), "save", GINT_TO_POINTER(1));
+            }
         } else {
-	gtk_tool_button_set_stock_id(GTK_TOOL_BUTTON(save_button),
-	    GTK_STOCK_SAVE_AS);
-        gtk_widget_set_tooltip_text(GTK_WIDGET(save_button), SAVE_AS_BUTTON_TOOLTIP_TEXT);
-        g_object_set_data(G_OBJECT(save_button), "save", GINT_TO_POINTER(0));
+            if (strcmp(gtk_tool_button_get_stock_id(GTK_TOOL_BUTTON(save_button)), GTK_STOCK_SAVE_AS) != 0) {
+                gtk_tool_button_set_stock_id(GTK_TOOL_BUTTON(save_button), GTK_STOCK_SAVE_AS);
+                gtk_widget_set_tooltip_text(GTK_WIDGET(save_button), SAVE_AS_BUTTON_TOOLTIP_TEXT);
+                g_object_set_data(G_OBJECT(save_button), "save", GINT_TO_POINTER(0));
+            }
         }
         /*gtk_widget_set_sensitive((GTK_WIDGET(save_button), have_unsaved_capture_file);
         gtk_widget_set_sensitive(GTK_WIDGET(save_as_button), !have_unsaved_capture_file);*/
