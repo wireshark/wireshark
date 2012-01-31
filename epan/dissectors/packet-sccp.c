@@ -871,12 +871,13 @@ sccp_called_calling_looks_valid(tvbuff_t *tvb, guint8 my_mtp3_standard, gboolean
 gboolean
 looks_like_valid_sccp(tvbuff_t *tvb, guint8 my_mtp3_standard)
 {
-    guint8 msgtype, msg_class, cause, offset;
-    guint16 called_ptr = 0;
-    guint16 calling_ptr = 0;
-    guint16 data_ptr = 0;
-    guint16 opt_ptr = 0;
-    guint32 len = tvb_length(tvb);
+    guint offset;
+    guint8 msgtype, msg_class, cause;
+    guint called_ptr = 0;
+    guint calling_ptr = 0;
+    guint data_ptr = 0;
+    guint opt_ptr = 0;
+    guint len = tvb_length(tvb);
 
     /* Ensure we can do some basic checks without throwing an exception.
      * Accesses beyond this length need to check the length first because
