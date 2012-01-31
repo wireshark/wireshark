@@ -893,7 +893,6 @@ looks_like_valid_sccp(tvbuff_t *tvb, guint8 my_mtp3_standard)
 
     /*
     Still to be done:
-    SCCP_MSG_TYPE_UDTS
     SCCP_MSG_TYPE_ERR
     SCCP_MSG_TYPE_IT
     SCCP_MSG_TYPE_XUDTS
@@ -1059,24 +1058,24 @@ looks_like_valid_sccp(tvbuff_t *tvb, guint8 my_mtp3_standard)
 
 	/* Check that the optional pointer is within bounds */
 	if (opt_ptr+1U > len)
-	    return FALSE; 
+	    return FALSE;
 
 	opt_param = tvb_get_guint8(tvb, opt_ptr);
 	/* Check if the (1st) parameter tag is valid */
 	if (!match_strval(opt_param, sccp_parameter_values))
-	    return FALSE; 
+	    return FALSE;
 
 	/* Check that the (1st) parameter length is within bounds */
 	if (opt_param != PARAMETER_END_OF_OPTIONAL_PARAMETERS  &&
 	    opt_ptr+2U <= len &&
 	    tvb_get_guint8(tvb, opt_ptr+1U) < len)
-	    return FALSE; 
+	    return FALSE;
 
 	/* If we're at the end of the parameters, are we also at the end of the
 	 * message?
 	 */
 	if (opt_param == PARAMETER_END_OF_OPTIONAL_PARAMETERS && opt_ptr+1U != len)
-	    return FALSE; 
+	    return FALSE;
     }
 
     return TRUE;
@@ -1114,7 +1113,7 @@ get_sccp_assoc(packet_info* pinfo, guint offset, guint32 src_lr, guint32 dst_lr,
     guint32 opck, dpck;
     address* opc = &(pinfo->src);
     address* dpc = &(pinfo->dst);
-    guint framenum = pinfo->fd->num;
+    guint framenum = PINFO_FD_NUM(pinfo);
 
     if(assoc)
         return assoc;
@@ -1134,7 +1133,7 @@ get_sccp_assoc(packet_info* pinfo, guint offset, guint32 src_lr, guint32 dst_lr,
 		{0, NULL}
             };
 
-            if (! ( assoc = se_tree_lookup32_array(assocs,bw_key) ) && ! pinfo->fd->flags.visited ) {
+            if (! ( assoc = se_tree_lookup32_array(assocs,bw_key) ) && ! PINFO_FD_VISITED(pinfo) ) {
                 assoc = new_assoc(opck, dpck);
                 se_tree_insert32_array(assocs, bw_key, assoc);
                 assoc->has_bw_key = TRUE;
@@ -1167,12 +1166,12 @@ get_sccp_assoc(packet_info* pinfo, guint offset, guint32 src_lr, guint32 dst_lr,
 
             pinfo->p2p_dir = P2P_DIR_RECV;
 
-            if ( ! pinfo->fd->flags.visited && ! assoc->has_bw_key ) {
+            if ( ! PINFO_FD_VISITED(pinfo) && ! assoc->has_bw_key ) {
                 se_tree_insert32_array(assocs, bw_key, assoc);
                 assoc->has_bw_key = TRUE;
             }
 
-            if ( ! pinfo->fd->flags.visited && ! assoc->has_fw_key ) {
+            if ( ! PINFO_FD_VISITED(pinfo) && ! assoc->has_fw_key ) {
                 se_tree_insert32_array(assocs, fw_key, assoc);
                 assoc->has_fw_key = TRUE;
             }
@@ -1201,12 +1200,12 @@ get_sccp_assoc(packet_info* pinfo, guint offset, guint32 src_lr, guint32 dst_lr,
 
             pinfo->p2p_dir = P2P_DIR_SENT;
 
-            if ( ! pinfo->fd->flags.visited && ! assoc->has_bw_key ) {
+            if ( ! PINFO_FD_VISITED(pinfo) && ! assoc->has_bw_key ) {
                 se_tree_insert32_array(assocs, bw_key, assoc);
                 assoc->has_bw_key = TRUE;
             }
 
-            if ( ! pinfo->fd->flags.visited && ! assoc->has_fw_key ) {
+            if ( ! PINFO_FD_VISITED(pinfo) && ! assoc->has_fw_key ) {
                 se_tree_insert32_array(assocs, fw_key, assoc);
                 assoc->has_fw_key = TRUE;
             }
@@ -1233,7 +1232,7 @@ get_sccp_assoc(packet_info* pinfo, guint offset, guint32 src_lr, guint32 dst_lr,
     }
 
     if (assoc && trace_sccp) {
-        if ( ! pinfo->fd->flags.visited) {
+        if ( ! PINFO_FD_VISITED(pinfo)) {
             sccp_msg_info_t* msg = se_alloc0(sizeof(sccp_msg_info_t));
             msg->framenum = framenum;
             msg->offset = offset;
@@ -2441,7 +2440,7 @@ static sccp_msg_info_t *
 new_ud_msg(packet_info* pinfo, guint32 msg_type _U_)
 {
 	sccp_msg_info_t* m = ep_alloc0(sizeof(sccp_msg_info_t));
-	m->framenum = pinfo->fd->num;
+	m->framenum = PINFO_FD_NUM(pinfo);
 	m->data.ud.calling_gt = NULL;
 	m->data.ud.called_gt = NULL;
 
@@ -3080,7 +3079,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 			if (m->data.co.label)
 				proto_item_append_text(pi," %s", m->data.co.label);
 
-			if (m->framenum == pinfo->fd->num && m->offset == msg_offset ) {
+			if (m->framenum == PINFO_FD_NUM(pinfo) && m->offset == msg_offset ) {
 				tap_queue_packet(sccp_tap, pinfo, m);
 				proto_item_append_text(pi," (current)");
 			}
