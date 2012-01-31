@@ -893,8 +893,6 @@ looks_like_valid_sccp(tvbuff_t *tvb, guint8 my_mtp3_standard)
 
     /*
     Still to be done:
-    SCCP_MSG_TYPE_ERR
-    SCCP_MSG_TYPE_IT
     SCCP_MSG_TYPE_XUDTS
     SCCP_MSG_TYPE_LUDT
     SCCP_MSG_TYPE_LUDTS
@@ -950,9 +948,9 @@ looks_like_valid_sccp(tvbuff_t *tvb, guint8 my_mtp3_standard)
                 return FALSE;
 
             /* Check that the lengths of the variable parameters are within bounds */
-            if (tvb_get_guint8(tvb, called_ptr) > len ||
-                tvb_get_guint8(tvb, calling_ptr) > len ||
-                tvb_get_guint8(tvb, data_ptr) > len)
+            if (tvb_get_guint8(tvb, called_ptr)+offset > len ||
+                tvb_get_guint8(tvb, calling_ptr)+offset > len ||
+                tvb_get_guint8(tvb, data_ptr)+offset > len)
                 return FALSE;
         }
         break;
@@ -967,6 +965,13 @@ looks_like_valid_sccp(tvbuff_t *tvb, guint8 my_mtp3_standard)
         break;
     case SCCP_MSG_TYPE_CC: /* 2 */
         {
+	    if (len < SCCP_MSG_TYPE_LENGTH
+		      + DESTINATION_LOCAL_REFERENCE_LENGTH
+		      + SOURCE_LOCAL_REFERENCE_LENGTH
+		      + PROTOCOL_CLASS_LENGTH
+		      + POINTER_LENGTH)
+		return FALSE;
+
 	    offset += DESTINATION_LOCAL_REFERENCE_LENGTH;
 	    offset += SOURCE_LOCAL_REFERENCE_LENGTH;
 
@@ -996,6 +1001,13 @@ looks_like_valid_sccp(tvbuff_t *tvb, guint8 my_mtp3_standard)
         break;
     case SCCP_MSG_TYPE_RLSD:
         {
+	    if (len < SCCP_MSG_TYPE_LENGTH
+		      + DESTINATION_LOCAL_REFERENCE_LENGTH
+		      + SOURCE_LOCAL_REFERENCE_LENGTH
+		      + RELEASE_CAUSE_LENGTH
+		      + POINTER_LENGTH)
+		return FALSE;
+
 	    offset += DESTINATION_LOCAL_REFERENCE_LENGTH;
 	    offset += SOURCE_LOCAL_REFERENCE_LENGTH;
 
@@ -1004,8 +1016,6 @@ looks_like_valid_sccp(tvbuff_t *tvb, guint8 my_mtp3_standard)
                 return FALSE;
 	    offset += RELEASE_CAUSE_LENGTH;
 
-	    if (offset + 1U > len)
-                return FALSE;
 	    opt_ptr = tvb_get_guint8(tvb, offset);
 	    if (opt_ptr)
 		opt_ptr += offset;
@@ -1013,32 +1023,72 @@ looks_like_valid_sccp(tvbuff_t *tvb, guint8 my_mtp3_standard)
         break;
     case SCCP_MSG_TYPE_RLC:
         {
-	    if (len != 7)
+	    if (len != SCCP_MSG_TYPE_LENGTH
+		       + DESTINATION_LOCAL_REFERENCE_LENGTH
+		       + SOURCE_LOCAL_REFERENCE_LENGTH)
 		return FALSE;
         }
         break;
-    case SCCP_MSG_TYPE_DT1: /* 6 */
-        if (len < 8) {
-            /* Mandatory parameter(data)+ at least one data */
-            return FALSE;
+    case SCCP_MSG_TYPE_ERR:
+        {
+	    if (len != SCCP_MSG_TYPE_LENGTH
+		       + DESTINATION_LOCAL_REFERENCE_LENGTH
+		       + ERROR_CAUSE_LENGTH)
+		return FALSE;
+
+	    offset += DESTINATION_LOCAL_REFERENCE_LENGTH;
+
+            cause = tvb_get_guint8(tvb, offset);
+            if (!match_strval(cause, sccp_error_cause_values))
+                return FALSE;
         }
-	offset += DESTINATION_LOCAL_REFERENCE_LENGTH;
-
-	/* Are any of the spare bits in set? */
-	if (tvb_get_guint8(tvb, offset) & ~SEGMENTING_REASSEMBLING_MASK)
-	    return FALSE;
-	offset += SEGMENTING_REASSEMBLING_LENGTH;
-
-        data_ptr = tvb_get_guint8(tvb, offset) + offset;
-	/* Verify the data pointer is within bounds */
-	if (data_ptr > len)
-            return FALSE;
-	offset += POINTER_LENGTH;
-
-	/* Verify the data length uses the rest of the message */
-        if (tvb_get_guint8(tvb, data_ptr) + offset + 1U != len)
-            return FALSE;
         break;
+    case SCCP_MSG_TYPE_DT1: /* 6 */
+	{
+	    if (len < SCCP_MSG_TYPE_LENGTH
+		      + DESTINATION_LOCAL_REFERENCE_LENGTH
+		      + SEGMENTING_REASSEMBLING_LENGTH
+		      + POINTER_LENGTH
+		      + PARAMETER_LENGTH_LENGTH
+		      + 1) /* At least 1 byte of payload */
+		return FALSE;
+	    offset += DESTINATION_LOCAL_REFERENCE_LENGTH;
+
+	    /* Are any of the spare bits in set? */
+	    if (tvb_get_guint8(tvb, offset) & ~SEGMENTING_REASSEMBLING_MASK)
+		return FALSE;
+	    offset += SEGMENTING_REASSEMBLING_LENGTH;
+
+	    data_ptr = tvb_get_guint8(tvb, offset) + offset;
+	    /* Verify the data pointer is within bounds */
+	    if (data_ptr > len)
+		return FALSE;
+	    offset += POINTER_LENGTH;
+
+	    /* Verify the data length uses the rest of the message */
+	    if (tvb_get_guint8(tvb, data_ptr) + offset + 1U != len)
+		return FALSE;
+	}
+	break;
+    case SCCP_MSG_TYPE_IT:
+	{
+	    if (len < SCCP_MSG_TYPE_LENGTH
+		      + DESTINATION_LOCAL_REFERENCE_LENGTH
+		      + SOURCE_LOCAL_REFERENCE_LENGTH
+		      + PROTOCOL_CLASS_LENGTH
+		      + SEQUENCING_SEGMENTING_LENGTH
+		      + CREDIT_LENGTH)
+		return FALSE;
+
+	    offset += DESTINATION_LOCAL_REFERENCE_LENGTH;
+	    offset += SOURCE_LOCAL_REFERENCE_LENGTH;
+
+            msg_class = tvb_get_guint8(tvb, offset) & CLASS_CLASS_MASK;
+            if (msg_class != 2)
+                return FALSE;
+	    offset += PROTOCOL_CLASS_LENGTH;
+	}
+	break;
 
     default:
         g_warning("Unhandled msg type %u", msgtype);
@@ -1047,11 +1097,29 @@ looks_like_valid_sccp(tvbuff_t *tvb, guint8 my_mtp3_standard)
 
     if (called_ptr) {
         guint8 param_len = tvb_get_guint8(tvb, called_ptr);
-        tvbuff_t *param_tvb = tvb_new_subset(tvb, called_ptr, param_len, param_len);
+        tvbuff_t *param_tvb;
+
+	if (param_len == 0)
+            return FALSE;
+	param_tvb = tvb_new_subset(tvb, called_ptr, param_len, param_len);
 
         if (!sccp_called_calling_looks_valid(param_tvb, my_mtp3_standard, !is_connectionless(msgtype)))
             return FALSE;
     }
+
+#if 0
+    if (calling_ptr) {
+        guint8 param_len = tvb_get_guint8(tvb, calling_ptr);
+        tvbuff_t *param_tvb;
+
+	if (param_len == 0)
+            return FALSE;
+        param_tvb = tvb_new_subset(tvb, calling_ptr, param_len, param_len);
+
+        if (!sccp_called_calling_looks_valid(param_tvb, my_mtp3_standard, !is_connectionless(msgtype)))
+            return FALSE;
+    }
+#endif
 
     if (opt_ptr) {
 	guint8 opt_param;
@@ -1061,14 +1129,14 @@ looks_like_valid_sccp(tvbuff_t *tvb, guint8 my_mtp3_standard)
 	    return FALSE;
 
 	opt_param = tvb_get_guint8(tvb, opt_ptr);
-	/* Check if the (1st) parameter tag is valid */
+	/* Check if the (1st) optional parameter tag is valid */
 	if (!match_strval(opt_param, sccp_parameter_values))
 	    return FALSE;
 
 	/* Check that the (1st) parameter length is within bounds */
 	if (opt_param != PARAMETER_END_OF_OPTIONAL_PARAMETERS  &&
 	    opt_ptr+2U <= len &&
-	    tvb_get_guint8(tvb, opt_ptr+1U) < len)
+	    tvb_get_guint8(tvb, opt_ptr+1U)+offset > len)
 	    return FALSE;
 
 	/* If we're at the end of the parameters, are we also at the end of the
