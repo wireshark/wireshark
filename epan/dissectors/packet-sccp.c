@@ -818,8 +818,13 @@ static const value_string assoc_protos[] = {
 	{ 0,			NULL }
 };
 
-gboolean
-sccp_called_calling_looks_valid(tvbuff_t *tvb, guint8 my_mtp3_standard)
+#define is_connectionless(m) \
+         ( m == SCCP_MSG_TYPE_UDT || m == SCCP_MSG_TYPE_UDTS  \
+        || m == SCCP_MSG_TYPE_XUDT|| m == SCCP_MSG_TYPE_XUDTS \
+        || m == SCCP_MSG_TYPE_LUDT|| m == SCCP_MSG_TYPE_LUDTS)
+
+static gboolean
+sccp_called_calling_looks_valid(tvbuff_t *tvb, guint8 my_mtp3_standard, gboolean is_co)
 {
     guint8 ai, ri, gti, ssni, pci;
 
@@ -849,8 +854,15 @@ sccp_called_calling_looks_valid(tvbuff_t *tvb, guint8 my_mtp3_standard)
     /* Route on SSN with no SSN? */
     if (ri == ROUTE_ON_SSN && ssni == 0)
 	return FALSE;
+
     /* Route on GT with no GT? */
-    if (ri != ROUTE_ON_SSN && gti == AI_GTI_NO_GT)
+    if (ri == ROUTE_ON_GT && gti == AI_GTI_NO_GT)
+	return FALSE;
+
+    /* GT routed and connection-oriented (Class-2)?
+     * Yes, that's theoretically possible, but it's not used.
+     */
+    if (ri == ROUTE_ON_GT && is_co)
 	return FALSE;
 
     return TRUE;
@@ -901,21 +913,38 @@ looks_like_valid_sccp(tvbuff_t *tvb, guint8 my_mtp3_standard)
         break;
     case SCCP_MSG_TYPE_UDT:
     case SCCP_MSG_TYPE_XUDT: /* 0x11 */
+    case SCCP_MSG_TYPE_UDTS:
         {
-            /* Class lower four bits */
-            msg_class = tvb_get_guint8(tvb, offset) & CLASS_CLASS_MASK;
-            if (msg_class > 1)
-                return FALSE;
-            offset += PROTOCOL_CLASS_LENGTH;
+	    if (msgtype == SCCP_MSG_TYPE_UDT || msgtype == SCCP_MSG_TYPE_XUDT) {
+		/* Class lower four bits */
+		msg_class = tvb_get_guint8(tvb, offset) & CLASS_CLASS_MASK;
+		if (msg_class > 1)
+		    return FALSE;
+		offset += PROTOCOL_CLASS_LENGTH;
+	    }
 
             if (msgtype == SCCP_MSG_TYPE_XUDT)
                 offset += HOP_COUNTER_LENGTH;
 
+	    if (msgtype == SCCP_MSG_TYPE_UDTS) {
+		cause = tvb_get_guint8(tvb, offset);
+		if (!match_strval(cause, sccp_return_cause_values))
+		    return FALSE;
+		offset += RETURN_CAUSE_LENGTH;
+	    }
+
             called_ptr = tvb_get_guint8(tvb, offset) + offset;
-            calling_ptr = tvb_get_guint8(tvb, offset+1) + offset+1;
-            data_ptr = tvb_get_guint8(tvb, offset+2) + offset+2;
-            if (msgtype == SCCP_MSG_TYPE_XUDT)
-                opt_ptr = tvb_get_guint8(tvb, offset+3) + offset+3;
+	    offset += POINTER_LENGTH;
+            calling_ptr = tvb_get_guint8(tvb, offset) + offset;
+	    offset += POINTER_LENGTH;
+            data_ptr = tvb_get_guint8(tvb, offset) + offset;
+	    offset += POINTER_LENGTH;
+            if (msgtype == SCCP_MSG_TYPE_XUDT) {
+                opt_ptr = tvb_get_guint8(tvb, offset);
+		if (opt_ptr)
+		    opt_ptr += offset;
+		offset += POINTER_LENGTH;
+	    }
 
             /* Check that all the pointers are within bounds */
             if (called_ptr > len || calling_ptr > len || data_ptr > len || opt_ptr > len)
@@ -925,8 +954,6 @@ looks_like_valid_sccp(tvbuff_t *tvb, guint8 my_mtp3_standard)
             if (tvb_get_guint8(tvb, called_ptr) > len ||
                 tvb_get_guint8(tvb, calling_ptr) > len ||
                 tvb_get_guint8(tvb, data_ptr) > len)
-                return FALSE;
-            if (msgtype == SCCP_MSG_TYPE_XUDT && tvb_get_guint8(tvb, opt_ptr) > len)
                 return FALSE;
         }
         break;
@@ -947,6 +974,11 @@ looks_like_valid_sccp(tvbuff_t *tvb, guint8 my_mtp3_standard)
             msg_class = tvb_get_guint8(tvb, offset) & CLASS_CLASS_MASK;
             if (msg_class != 2)
                 return FALSE;
+	    offset += PROTOCOL_CLASS_LENGTH;
+
+	    opt_ptr = tvb_get_guint8(tvb, offset);
+	    if (opt_ptr)
+		opt_ptr += offset;
         }
         break;
     case SCCP_MSG_TYPE_CREF:
@@ -956,6 +988,11 @@ looks_like_valid_sccp(tvbuff_t *tvb, guint8 my_mtp3_standard)
             cause = tvb_get_guint8(tvb, offset);
             if (!match_strval(cause, sccp_refusal_cause_values))
                 return FALSE;
+	    offset += REFUSAL_CAUSE_LENGTH;
+
+	    opt_ptr = tvb_get_guint8(tvb, offset);
+	    if (opt_ptr)
+		opt_ptr += offset;
         }
         break;
     case SCCP_MSG_TYPE_RLSD:
@@ -966,6 +1003,13 @@ looks_like_valid_sccp(tvbuff_t *tvb, guint8 my_mtp3_standard)
             cause = tvb_get_guint8(tvb, offset);
             if (!match_strval(cause, sccp_release_cause_values))
                 return FALSE;
+	    offset += RELEASE_CAUSE_LENGTH;
+
+	    if (offset + 1U > len)
+                return FALSE;
+	    opt_ptr = tvb_get_guint8(tvb, offset);
+	    if (opt_ptr)
+		opt_ptr += offset;
         }
         break;
     case SCCP_MSG_TYPE_RLC:
@@ -975,16 +1019,26 @@ looks_like_valid_sccp(tvbuff_t *tvb, guint8 my_mtp3_standard)
         }
         break;
     case SCCP_MSG_TYPE_DT1: /* 6 */
-        if (len < 7) {
+        if (len < 8) {
             /* Mandatory parameter(data)+ at least one data */
             return FALSE;
         }
 	offset += DESTINATION_LOCAL_REFERENCE_LENGTH;
-	offset += POINTER_LENGTH;
-        data_ptr = tvb_get_guint8(tvb, offset);
-        if (tvb_get_guint8(tvb, data_ptr) > len) {
+
+	/* Are any of the spare bits in set? */
+	if (tvb_get_guint8(tvb, offset) & ~SEGMENTING_REASSEMBLING_MASK)
+	    return FALSE;
+	offset += SEGMENTING_REASSEMBLING_LENGTH;
+
+        data_ptr = tvb_get_guint8(tvb, offset) + offset;
+	/* Verify the data pointer is within bounds */
+	if (data_ptr > len)
             return FALSE;
-        }
+	offset += POINTER_LENGTH;
+
+	/* Verify the data length uses the rest of the message */
+        if (tvb_get_guint8(tvb, data_ptr) + offset + 1U != len)
+            return FALSE;
         break;
 
     default:
@@ -996,8 +1050,33 @@ looks_like_valid_sccp(tvbuff_t *tvb, guint8 my_mtp3_standard)
         guint8 param_len = tvb_get_guint8(tvb, called_ptr);
         tvbuff_t *param_tvb = tvb_new_subset(tvb, called_ptr, param_len, param_len);
 
-        if (!sccp_called_calling_looks_valid(param_tvb, my_mtp3_standard))
+        if (!sccp_called_calling_looks_valid(param_tvb, my_mtp3_standard, !is_connectionless(msgtype)))
             return FALSE;
+    }
+
+    if (opt_ptr) {
+	guint8 opt_param;
+
+	/* Check that the optional pointer is within bounds */
+	if (opt_ptr+1U > len)
+	    return FALSE; 
+
+	opt_param = tvb_get_guint8(tvb, opt_ptr);
+	/* Check if the (1st) parameter tag is valid */
+	if (!match_strval(opt_param, sccp_parameter_values))
+	    return FALSE; 
+
+	/* Check that the (1st) parameter length is within bounds */
+	if (opt_param != PARAMETER_END_OF_OPTIONAL_PARAMETERS  &&
+	    opt_ptr+2U <= len &&
+	    tvb_get_guint8(tvb, opt_ptr+1U) < len)
+	    return FALSE; 
+
+	/* If we're at the end of the parameters, are we also at the end of the
+	 * message?
+	 */
+	if (opt_param == PARAMETER_END_OF_OPTIONAL_PARAMETERS && opt_ptr+1U != len)
+	    return FALSE; 
     }
 
     return TRUE;
@@ -1251,12 +1330,6 @@ dissect_sccp_slr_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
   if (show_key_params)
     col_append_fstr(pinfo->cinfo, COL_INFO, "SLR=%d ", slr);
 }
-
-
-#define is_connectionless(m) \
-         ( m == SCCP_MSG_TYPE_UDT || m == SCCP_MSG_TYPE_UDTS  \
-        || m == SCCP_MSG_TYPE_XUDT|| m == SCCP_MSG_TYPE_XUDTS \
-        || m == SCCP_MSG_TYPE_LUDT|| m == SCCP_MSG_TYPE_LUDTS)
 
 static proto_tree *
 dissect_sccp_gt_address_information(tvbuff_t *tvb, packet_info *pinfo,
