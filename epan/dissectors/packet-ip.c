@@ -618,7 +618,7 @@ static const value_string ipopt_type_number_vals[] = {
   {IPOPT_MTUP & IPOPT_NUMBER_MASK, "MTU probe"},
   {IPOPT_MTUR & IPOPT_NUMBER_MASK, "MTU Reply"},
   {IPOPT_FINN & IPOPT_NUMBER_MASK, "Experimental Flow Control"},
-  {IPOPT_VISA & IPOPT_NUMBER_MASK, "Expermental Access Control"},
+  {IPOPT_VISA & IPOPT_NUMBER_MASK, "Experimental Access Control"},
   {IPOPT_ENCODE & IPOPT_NUMBER_MASK, "Ask Estrin"},
   {IPOPT_IMITD & IPOPT_NUMBER_MASK, "IMI Traffic Descriptor"},
   {IPOPT_EIP & IPOPT_NUMBER_MASK, "Extended Internet Protocol"},
@@ -793,7 +793,7 @@ dissect_ipopt_cipso(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
         cat_str = ep_alloc0(cat_str_len);
 
         /* we checked the length above so the highest category value
-         * possibile here is 240 */
+         * possible here is 240 */
         while (byte_spot < (taglen - 4)) {
           bitmask = 0x80;
           bit_spot = 0;
@@ -845,7 +845,7 @@ dissect_ipopt_cipso(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
       /* skip past alignment octet */
       offset += 3;
 
-      /* sensitvity level */
+      /* sensitivity level */
       proto_tree_add_text(field_tree, tvb, offset, 1, "Sensitivity Level: %u",
                           tvb_get_guint8(tvb, offset));
       offset += 1;
@@ -883,7 +883,7 @@ dissect_ipopt_cipso(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
       /* skip past alignment octet */
       offset += 3;
 
-      /* sensitvity level */
+      /* sensitivity level */
       proto_tree_add_text(field_tree, tvb, offset, 1, "Sensitivity Level: %u",
                           tvb_get_guint8(tvb, offset));
       offset += 1;
@@ -1722,7 +1722,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
                         hi_nibble(iph->ip_v_hl));
   }
 
-  /* if IP is not referenced from any filters we dont need to worry about
+  /* if IP is not referenced from any filters we don't need to worry about
      generating any tree items.  We must do this after we created the actual
      protocol above so that proto hier stat still works though.
      XXX: Note that because of the following optimization expert items must
@@ -2157,8 +2157,8 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
      XXX - setting the columns only after trying various dissectors means
      that if one of those dissectors throws an exception, the frame won't
-     even be labelled as an IP frame; ideally, if a frame being dissected
-     throws an exception, it'll be labelled as a mangled frame of the
+     even be labeled as an IP frame; ideally, if a frame being dissected
+     throws an exception, it'll be labeled as a mangled frame of the
      type in question. */
   } else if (!dissector_try_uint(ip_dissector_table, nxt, next_tvb, pinfo,
                                  parent_tree)) {

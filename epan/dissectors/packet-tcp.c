@@ -820,7 +820,7 @@ printf("REV list lastflags:0x%04x base_seq:0x%08x:\n",tcpd->rev->lastsegmentflag
 
     /* ZERO WINDOW PROBE
      * it is a zero window probe if
-     *  the sequnece number is the next expected one
+     *  the sequence number is the next expected one
      *  the window in the other direction is 0
      *  the segment is exactly 1 byte
      */
@@ -904,8 +904,8 @@ printf("REV list lastflags:0x%04x base_seq:0x%08x:\n",tcpd->rev->lastsegmentflag
 
     /* WINDOW FULL
      * If we know the window scaling
-     * and if this segment contains data ang goes all the way to the
-     * edge of the advertized window
+     * and if this segment contains data and goes all the way to the
+     * edge of the advertised window
      * then we mark it as WINDOW FULL
      * SYN/RST/FIN packets are never WINDOW FULL
      */
@@ -1007,7 +1007,7 @@ finished_fwd:
             tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE, tcpd);
         }
         tcpd->ta->flags|=TCP_A_ACK_LOST_PACKET;
-        /* update 'max seq to be acked' in the other direction so we dont get
+        /* update 'max seq to be acked' in the other direction so we don't get
          * this indication again.
          */
         tcpd->rev->maxseqtobeacked=tcpd->rev->nextseq;
@@ -1096,8 +1096,8 @@ finished_checking_retransmission_type:
 
     /* Store the highest number seen so far for nextseq so we can detect
      * when we receive segments that arrive with a "hole"
-     * If we dont have anything since before, just store what we got.
-     * ZeroWindowProbes are special and dont really advance the nextseq
+     * If we don't have anything since before, just store what we got.
+     * ZeroWindowProbes are special and don't really advance the nextseq
      */
     if(GT_SEQ(nextseq, tcpd->fwd->nextseq) || !tcpd->fwd->nextseq) {
         if( !tcpd->ta || !(tcpd->ta->flags&TCP_A_ZERO_WINDOW_PROBE) ){
@@ -1109,7 +1109,7 @@ finished_checking_retransmission_type:
     }
 
     /* Store the highest continuous seq number seen so far for 'max seq to be acked',
-     so we can detect TCP_A_ACK_LOST_PACKET contition
+     so we can detect TCP_A_ACK_LOST_PACKET condition
      */
     if(EQ_SEQ(seq, tcpd->fwd->maxseqtobeacked) || !tcpd->fwd->maxseqtobeacked) {
         if( !tcpd->ta || !(tcpd->ta->flags&TCP_A_ZERO_WINDOW_PROBE) ){
@@ -1135,7 +1135,7 @@ finished_checking_retransmission_type:
     }
 
 
-    /* remove all segments this ACKs and we dont need to keep around any more
+    /* remove all segments this ACKs and we don't need to keep around any more
      */
     ackcount=0;
     prevual = NULL;
@@ -1222,7 +1222,7 @@ tcp_sequence_number_analysis_print_retransmission(packet_info * pinfo,
 {
     proto_item * flags_item;
 
-    /* TCP Rentransmission */
+    /* TCP Retransmission */
     if (ta->flags & TCP_A_RETRANSMISSION) {
         flags_item=proto_tree_add_none_format(flags_tree,
                                               hf_tcp_analysis_retransmission,
@@ -1245,7 +1245,7 @@ tcp_sequence_number_analysis_print_retransmission(packet_info * pinfo,
             PROTO_ITEM_SET_GENERATED(flags_item);
         }
     }
-    /* TCP Fast Rentransmission */
+    /* TCP Fast Retransmission */
     if (ta->flags & TCP_A_FAST_RETRANSMISSION) {
         flags_item=proto_tree_add_none_format(flags_tree,
                                               hf_tcp_analysis_fast_retransmission,
@@ -1754,7 +1754,7 @@ again:
              * So update nxtpdu to point at least to the start
              * of the next segment.
              * (If the subdissector asks for even more data we
-             * will advance nxtpdu even furhter later down in
+             * will advance nxtpdu even further later down in
              * the code.)
              */
             msp->nxtpdu = nxtseq;
@@ -1957,7 +1957,7 @@ again:
                      * which we stopped.
                      *
                      * Convert that back into an offset
-                     * relative to the beginninng of
+                     * relative to the beginning of
                      * "tvb", by taking the length of
                      * "tvb" and subtracting the offset
                      * relative to the end.
@@ -2066,8 +2066,8 @@ again:
         /* there was another pdu following this one. */
         pinfo->can_desegment = 2;
         /* we also have to prevent the dissector from changing the
-         * PROTOCOL and INFO colums since what follows may be an
-         * incomplete PDU and we dont want it be changed back from
+         * PROTOCOL and INFO columns since what follows may be an
+         * incomplete PDU and we don't want it be changed back from
          *  <Protocol>   to <TCP>
          * XXX There is no good way to block the PROTOCOL column
          * from being changed yet so we set the entire row unwritable.
@@ -2974,7 +2974,7 @@ dissect_tcpopt_scps(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
         guint8 extended_cap_length;
 
         if (flow->scps_capable != 1) {
-            /* There was no SCPS capabilities option preceeding this */
+            /* There was no SCPS capabilities option preceding this */
             proto_tree_add_uint_format(opt_tree, hf_tcp_option_scps_vector,
                                        tvb, offset, optlen, 0,
                                        "Illegal SCPS Extended Capabilities (%d bytes)",
@@ -3022,7 +3022,7 @@ dissect_tcpopt_scps(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
                  * Treat the extended capability data area as opaque;
                  * If one desires to parse the extended capability data
                  * (say, in a vendor aware build of wireshark), it would
-                 * be trigged here.
+                 * be triggered here.
                  */
                 local_offset += extended_cap_length;
             }
@@ -3112,7 +3112,7 @@ dissect_tcpopt_snack(const ip_tcp_opt *optp, tvbuff_t *tvb,
 
     tcpd = get_tcp_conversation_data(NULL,pinfo);
 
-    /* The SNACK option reports missing data with a granualarity of segments. */
+    /* The SNACK option reports missing data with a granularity of segments. */
     relative_hole_offset = tvb_get_ntohs(tvb, offset + 2);
     relative_hole_size = tvb_get_ntohs(tvb, offset + 4);
 
@@ -3693,7 +3693,7 @@ static const ip_tcp_opt tcpopts[] = {
     },
     {
         TCPOPT_SNACK,
-        "Selective Negative Acknowledgement",
+        "Selective Negative Acknowledgment",
         NULL,
         FIXED_LENGTH,
         TCPOLEN_SNACK,
@@ -3908,7 +3908,7 @@ process_tcp_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
         }
         /* if offset is -1 this means that this segment is known
          * to be fully inside a previously detected pdu
-         * so we dont even need to try to dissect it either.
+         * so we don't even need to try to dissect it either.
          */
         if( (offset!=-1) &&
             decode_tcp_ports(tvb, offset, pinfo, tree, src_port,
@@ -3937,7 +3937,7 @@ process_tcp_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
     }
     CATCH_ALL {
         /* We got an exception. At this point the dissection is
-         * completely aborted and execution will be transfered back
+         * completely aborted and execution will be transferred back
          * to (probably) the frame dissector.
          * Here we have to place whatever we want the dissector
          * to do before aborting the tcp dissection.
@@ -4270,7 +4270,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tcph->th_flags & TH_ACK) {
         if (tree) {
             if (tcp_relative_seq){
-                proto_tree_add_uint_format(tcp_tree, hf_tcp_ack, tvb, offset + 8, 4, tcph->th_ack, "Acknowledgement number: %u    (relative ack number)", tcph->th_ack);
+                proto_tree_add_uint_format(tcp_tree, hf_tcp_ack, tvb, offset + 8, 4, tcph->th_ack, "Acknowledgment number: %u    (relative ack number)", tcph->th_ack);
             } else {
                 proto_tree_add_uint(tcp_tree, hf_tcp_ack, tvb, offset + 8, 4, tcph->th_ack);
             }
@@ -4280,10 +4280,10 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ack = tvb_get_ntohl(tvb, offset+8);
         if (ack != 0){
             item = proto_tree_add_uint_format(tcp_tree, hf_tcp_ack, tvb, offset + 8, 4, ack,
-                       "Acknowledgement Number: 0x%08x [should be 0x00000000 because ACK flag is not set]",
+                       "Acknowledgment Number: 0x%08x [should be 0x00000000 because ACK flag is not set]",
                        ack);
             expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN,
-                "Acknowledgement number: Broken TCP. The acknowledge field is nonzero while the ACK flag is not set");
+                "Acknowledgment number: Broken TCP. The acknowledge field is nonzero while the ACK flag is not set");
         }
     }
 
@@ -4587,7 +4587,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if( data_out_file ) {
             reassemble_tcp( tcpd->stream,                         /* tcp stream index */
                             tcph->th_seq,                         /* sequence number */
-                            tcph->th_ack,                         /* acknowledgement number */
+                            tcph->th_ack,                         /* acknowledgment number */
                             tcph->th_seglen,                      /* data length */
                             (gchar*)tvb_get_ptr(tvb, offset, length_remaining), /* data */
                             length_remaining,                     /* captured data length */
@@ -4751,7 +4751,7 @@ proto_register_tcp(void)
             NULL, HFILL }},
 
         { &hf_tcp_ack,
-        { "Acknowledgement number", "tcp.ack", FT_UINT32, BASE_DEC, NULL, 0x0,
+        { "Acknowledgment number", "tcp.ack", FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_tcp_hdr_len,
@@ -4783,7 +4783,7 @@ proto_register_tcp(void)
             NULL, HFILL }},
 
         { &hf_tcp_flags_ack,
-        { "Acknowledgement",        "tcp.flags.ack", FT_BOOLEAN, 12, TFS(&tfs_set_notset), TH_ACK,
+        { "Acknowledgment",        "tcp.flags.ack", FT_BOOLEAN, 12, TFS(&tfs_set_notset), TH_ACK,
             NULL, HFILL }},
 
         { &hf_tcp_flags_push,
@@ -5196,7 +5196,7 @@ proto_register_tcp(void)
             "TCP SCPS Extended Capability Length in bytes", HFILL}},
 
         { &hf_tcp_option_snack,
-          { "TCP Selective Negative Acknowledgement Option",
+          { "TCP Selective Negative Acknowledgment Option",
             "tcp.options.snack",
             FT_BOOLEAN, BASE_NONE, NULL,  0x0,
             NULL, HFILL}},
