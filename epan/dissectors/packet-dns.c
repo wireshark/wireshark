@@ -161,7 +161,7 @@ typedef struct _dns_conv_info_t {
 #define TCP_PORT_MDNS           5353
 #define UDP_PORT_LLMNR          5355
 #if 0
-/* PPID used for DNS/SCTP (will be changed when IANA assgined) */
+/* PPID used for DNS/SCTP (will be changed when IANA assigned) */
 #define DNS_PAYLOAD_PROTOCOL_ID 1000
 #endif
 
@@ -773,7 +773,7 @@ expand_dns_name(tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
 
       default:
 	*name="<Unknown extended label>";
-	/* Parsing will propably fail from here on, since the */
+	/* Parsing will probably fail from here on, since the */
 	/* label length is unknown... */
 	len = offset - start_offset;
         if (len < min_len)

@@ -475,11 +475,11 @@ struct rfc3825_location_decimal_t {
 	double latitude;        /* latitude in degrees, allowed range from -90deg to 90deg */
 	double latitude_res;    /* the uncertainty of the latitude in grad, "0.01" means +-0.01deg
 				   from the altitude. During conversion this will be rounded to
-				   next smaller value which can be respresented in fixpoint arithmetic */
+				   next smaller value which can be represented in fixpoint arithmetic */
 	double longitude;       /* longitude in degrees, range from -180deg to 180deg */
 	double longitude_res;   /* the uncertainty of the longitude in grad, "0.01" means +-0.01deg
 				   from the longitude. During conversion this will be rounded to
-				   next smaller value which can be respresented in fixpoint arithmetic */
+				   next smaller value which can be represented in fixpoint arithmetic */
 	double altitude;        /* the altitude, depending on alt_type this are meters or floors, no range limit */
 	double altitude_res;    /* the uncertainty of the altitude in either:
 				   - altitude-type=meters: "10" means 10 meters which means +-10 meters from the altitude
@@ -824,7 +824,7 @@ static const value_string cl_dss_id_type_vals[] = {
 /* bootp options administration */
 #define BOOTP_OPT_NUM   256
 
-/* Re-define structure.  Values to be upated by bootp_init_protocol */
+/* Re-define structure.  Values to be updated by bootp_init_protocol */
 static struct opt_info bootp_opt[BOOTP_OPT_NUM];
 
 static struct opt_info default_bootp_opt[BOOTP_OPT_NUM] = {
@@ -924,7 +924,7 @@ static struct opt_info default_bootp_opt[BOOTP_OPT_NUM] = {
 /*  93 */ { "Client System Architecture",		val_u_short, &hf_bootp_option_client_system_architecture },
 /*  94 */ { "Client Network Device Interface",		special, NULL},
 /*  95 */ { "LDAP [TODO:RFC3679]",			opaque, NULL },
-/*  96 */ { "Removed/Unassigend",			opaque, NULL },
+/*  96 */ { "Removed/Unassigned",			opaque, NULL },
 /*  97 */ { "UUID/GUID-based Client Identifier",	special, NULL},
 /*  98 */ { "Open Group's User Authentication [TODO:RFC2485]",	opaque, NULL },
 /*  99 */ { "Civic Addresses Configuration",		special, NULL},
@@ -936,14 +936,14 @@ static struct opt_info default_bootp_opt[BOOTP_OPT_NUM] = {
 /* 105 */ { "Removed/unassigned",			opaque, NULL },
 /* 106 */ { "Removed/unassigned",			opaque, NULL },
 /* 107 */ { "Removed/unassigned",			opaque, NULL },
-/* 108 */ { "Removed/Unassigend",			opaque, NULL },
+/* 108 */ { "Removed/Unassigned",			opaque, NULL },
 /* 109 */ { "Unassigned",				opaque, NULL },
-/* 110 */ { "Removed/Uassigend",			opaque, NULL },
+/* 110 */ { "Removed/Unassigned",			opaque, NULL },
 /* 111 */ { "Unassigned",				opaque, NULL },
 /* 112 */ { "NetInfo Parent Server Address",		ipv4_list, &hf_bootp_option_netinfo_parent_server_address },
 /* 113 */ { "NetInfo Parent Server Tag",		string, &hf_bootp_option_netinfo_parent_server_tag },
 /* 114 */ { "URL [TODO:RFC3679]",			opaque, NULL },
-/* 115 */ { "Removed/Unassigend",			opaque, NULL },
+/* 115 */ { "Removed/Unassigned",			opaque, NULL },
 /* 116 */ { "DHCP Auto-Configuration",			val_u_byte, &hf_bootp_option_dhcp_auto_configuration },
 /* 117 */ { "Name Service Search [TODO:RFC2937]",	opaque, NULL },
 /* 118 */ { "Subnet Selection Option",		       	ipv4_list, &hf_bootp_option_subnet_selection_option },
@@ -955,7 +955,7 @@ static struct opt_info default_bootp_opt[BOOTP_OPT_NUM] = {
 /* 124 */ { "V-I Vendor Class",				special, NULL},
 /* 125 */ { "V-I Vendor-specific Information",		special, NULL},
 /* 126 */ { "Removed/Unassigned",			opaque, NULL },
-/* 127 */ { "Removed/Unassigend",			opaque, NULL },
+/* 127 */ { "Removed/Unassigned",			opaque, NULL },
 /* 128 */ { "DOCSIS full security server IP [TODO]",	opaque, NULL },
 /* 129 */ { "PXE - undefined (vendor specific)",	opaque, NULL },
 /* 130 */ { "PXE - undefined (vendor specific)",	opaque, NULL },
@@ -1489,7 +1489,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		return consumed;
 	}
 
-	/* function type may be overriden and that shouldn't be a 'saved' change */
+	/* function type may be overridden and that shouldn't be a 'saved' change */
 	ftype = opt->ftype;
 
 	optoff = voff+2;
@@ -1531,7 +1531,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 	case 43:	/* Vendor-Specific Info */
 		s_option = tvb_get_guint8(tvb, optoff);
 
-		/* PXE protocol 2.1 as described in the intel specs */
+		/* PXE protocol 2.1 as described in the Intel specs */
 		if (*vendor_class_id_p != NULL &&
 		    strncmp((const gchar*)*vendor_class_id_p, "PXEClient", strlen("PXEClient")) == 0) {
 			proto_item_append_text(vti, " (PXEClient)");
@@ -1558,7 +1558,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		} else if (s_option==58 || s_option==64 || s_option==65
 			|| s_option==66 || s_option==67) {
 			/* Note that this is a rather weak (permissive) heuristic, */
-			/* but since it comes last, i guess this is ok. */
+			/* but since it comes last, I guess this is OK. */
 			/* Add any stronger (less permissive) heuristics before this! */
 			/* Alcatel-Lucent DHCP Extensions */
 			proto_item_append_text(vti, " (Alcatel-Lucent)");
@@ -2609,7 +2609,7 @@ rfc3825_lci_to_fixpoint(const unsigned char lci[16], struct rfc3825_location_fix
 		                      ((gint32)0x03<<30);
 
 	} else {
-		/* Altitudee is positive */
+		/* Altitude is positive */
 		fixpoint->altitude = (((gint32)lci[11] & 0x3F)<<24) | ((gint32)lci[12]<<16) |
 		                     ((gint32)lci[13]<<8) | ((gint32)lci[14]);
 	}
@@ -3907,9 +3907,9 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len, gboo
 	}
 	else
 	{
-		/* Option 60 is formatted as an ascii string.
+		/* Option 60 is formatted as an ASCII string.
 		   Since the capabilities are the same for both options
-		   I am converting the Option 60 values from ascii to
+		   I am converting the Option 60 values from ASCII to
 		   uint8s to allow the same parser to work for both */
 		off += DOCSIS_CM_CAP_TLV_OFF;
 		tvb_memcpy (tvb, asc_val, off, 2);
@@ -3939,9 +3939,9 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len, gboo
 		}
 		else
 		{
-			/* Option 60 is formatted as an ascii string.  Since the capabilities
+			/* Option 60 is formatted as an ASCII string.  Since the capabilities
 			   are the same for both options I am converting the Option 60 values
-			   from ascii to uint8s to allow the same parser to work for both */
+			   from ASCII to uint8s to allow the same parser to work for both */
 			get_opt60_tlv(tvb, off, &tlv_type, &tlv_len, &val_other);
 			ti =  proto_tree_add_uint_format(v_tree, hf_bootp_docsis_cm_cap_type, tvb, off,
                                                          (tlv_len * 2) + 4,
