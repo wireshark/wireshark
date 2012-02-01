@@ -223,6 +223,11 @@ typedef struct {
   char *media_proto[SDP_MAX_RTP_CHANNELS];
   transport_media_pt_t media[SDP_MAX_RTP_CHANNELS];
   gint8 media_count;
+  /* SRTP related info */
+  guint      encryption_algorithm;
+  guint      auth_algorithm;
+  guint      mki_len;                /* number of octets used for the MKI in the RTP payload */
+  guint      auth_tag_len;           /* number of octets used for the Auth Tag in the RTP payload */
 } transport_info_t;
 
 
@@ -305,6 +310,8 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   sdp_packet_info *sdp_pi;
   gchar       *unknown_encoding = ep_strdup("Unknown");
 
+  struct srtp_info *srtp_info = NULL;
+
   /* Initialise packet info for passing to tap */
   sdp_pi = ep_alloc(sizeof(sdp_packet_info));
   sdp_pi->summary_str[0] = '\0';
@@ -313,6 +320,18 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   transport_info.connection_address=NULL;
   transport_info.connection_type=NULL;
   transport_info.media_type=NULL;
+
+  /* Initialise SRTP crypto info XXX note currently we only handle one crypto line in the SDP
+   * We should probably handle offer/answer and session updates etc(SIP) quite possibly the whole handling of
+   * seting up the RTP conversations should be done by the signaling protocol(s) calling the SDP dissector
+   * and the SDP dissector just provide the relevant data.
+   */
+  transport_info.encryption_algorithm = SRTP_ENC_ALG_NOT_SET; 
+  transport_info.auth_algorithm = SRTP_AUTH_ALG_NONE;
+  transport_info.mki_len = 0;                /* number of octets used for the MKI in the RTP payload */
+  transport_info.auth_tag_len = 0;           /* number of octets used for the Auth Tag in the RTP payload */
+
+
   for (n=0; n < SDP_NO_OF_PT; n++){
     transport_info.encoding_name[n]=unknown_encoding;
     transport_info.sample_rate[n] = 0;
@@ -516,9 +535,16 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       src_addr.data=(guint8*)&ipaddr;
       if(rtp_handle){
         if (is_srtp) {
-          struct srtp_info *dummy_srtp_info = se_alloc0(sizeof(struct srtp_info));
+          srtp_info = se_alloc0(sizeof(struct srtp_info));
+          if(transport_info.encryption_algorithm != SRTP_ENC_ALG_NOT_SET){
+              srtp_info->encryption_algorithm = transport_info.encryption_algorithm;
+              srtp_info->auth_algorithm = transport_info.auth_algorithm;
+              srtp_info->mki_len = transport_info.mki_len;
+              srtp_info->auth_tag_len = transport_info.auth_tag_len;
+
+          }
           srtp_add_address(pinfo, &src_addr, port, 0, "SDP", pinfo->fd->num, is_video,
-                           transport_info.media[n].rtp_dyn_payload, dummy_srtp_info);
+                           transport_info.media[n].rtp_dyn_payload, srtp_info);
         } else {
           rtp_add_address(pinfo, &src_addr, port, 0, "SDP", pinfo->fd->num, is_video,
                           transport_info.media[n].rtp_dyn_payload);
@@ -527,7 +553,11 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
       if(rtcp_handle){
         port++;
-        rtcp_add_address(pinfo, &src_addr, port, 0, "SDP", pinfo->fd->num);
+        if(is_srtp){
+            srtcp_add_address(pinfo, &src_addr, port, 0, "SDP", pinfo->fd->num, srtp_info);
+        }else{
+            rtcp_add_address(pinfo, &src_addr, port, 0, "SDP", pinfo->fd->num);
+        }
       }
     }
 
@@ -1810,12 +1840,34 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
         tokenlen = next_offset - offset;
         proto_tree_add_item(sdp_media_attribute_tree, hf_sdp_crypto_crypto_suite, tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
         if(tvb_strncaseeql(tvb, offset, "AES_CM_128_HMAC_SHA1_80",tokenlen) == 0){
+
+            /* XXX This may only work in simple cases */
+            if(transport_info->encryption_algorithm == SRTP_ENC_ALG_NOT_SET){
+                transport_info->encryption_algorithm = SRTP_ENC_ALG_AES_CM;
+                transport_info->auth_algorithm = SRTP_AUTH_ALG_HMAC_SHA1;			                          
+                /* number of octets used for the Auth Tag in the RTP payload */
+                transport_info->auth_tag_len = 10;
+            }
             master_key_length = 16; /* 128 bits = 16 octets */
             master_salt_length = 14; /* 112 bits = 14 octets */
         }else if(tvb_strncaseeql(tvb, offset, "AES_CM_128_HMAC_SHA1_32",tokenlen) == 0){
+            /* XXX This may only work in simple cases */
+            if(transport_info->encryption_algorithm == SRTP_ENC_ALG_NOT_SET){
+                transport_info->encryption_algorithm = SRTP_ENC_ALG_AES_CM;
+                transport_info->auth_algorithm = SRTP_AUTH_ALG_HMAC_SHA1;			                          
+                /* number of octets used for the Auth Tag in the RTP payload */
+                transport_info->auth_tag_len = 4;
+            }
             master_key_length = 16; /* 128 bits = 16 octets */
             master_salt_length = 14; /* 112 bits = 14 octets */
         }else if(tvb_strncaseeql(tvb, offset, "F8_128_HMAC_SHA1_80",tokenlen) == 0){
+            if(transport_info->encryption_algorithm == SRTP_ENC_ALG_NOT_SET){
+                /* XXX This may only work in simple cases */
+                transport_info->encryption_algorithm = SRTP_ENC_ALG_AES_F8;
+                transport_info->auth_algorithm = SRTP_AUTH_ALG_HMAC_SHA1;			                          
+                /* number of octets used for the Auth Tag in the RTP payload */
+                transport_info->auth_tag_len = 10;
+            }
             master_key_length = 16; /* 128 bits = 16 octets */
             master_salt_length = 14; /* 112 bits = 14 octets */
         }
@@ -1885,6 +1937,10 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
                     /* mki-length          = 1*3DIGIT   ; range 1..128. */
                     next_offset = param_end_offset;
                     tokenlen = next_offset - offset;
+
+                    /* This will not work if more than one parameter */
+                    /* number of octets used for the MKI in the RTP payload */
+                    transport_info->mki_len = atoi((char*)tvb_get_ephemeral_string(tvb, offset, tokenlen));
                     proto_tree_add_item(parameter_tree, hf_sdp_crypto_mki_length, tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
                 }
                 offset = param_end_offset;

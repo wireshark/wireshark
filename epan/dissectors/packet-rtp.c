@@ -761,7 +761,7 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
 		srtp_info = p_conv_data->srtp_info;
 		payload_len -= srtp_info->mki_len + srtp_info->auth_tag_len;
 #if 0
-#error Currently the srtp_info structure contains no cypher data, see packet-sdp.c adding dummy_srtp_info structure
+#error Currently the srtp_info structure contains no cipher data, see packet-sdp.c adding dummy_srtp_info structure
 		if (p_conv_data->srtp_info->encryption_algorithm==SRTP_ENC_ALG_NULL) {
 			if (rtp_tree)
 				proto_tree_add_text(rtp_tree, newtvb, offset, payload_len, "SRTP Payload with NULL encryption");

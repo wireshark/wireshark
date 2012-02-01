@@ -59,40 +59,41 @@ struct _rtp_info {
 /* definitions for SRTP dissection */
 
 /* Encryption algorithms */
-#define SRTP_ENC_ALG_NULL		0	/* non-encrypted SRTP payload - may still be authenticated */
-#define SRTP_ENC_ALG_AES_CM		1	/* SRTP default algorithm */
-#define SRTP_ENC_ALG_AES_F8		2
+#define SRTP_ENC_ALG_NOT_SET	0	/* Data not available/empty record */
+#define SRTP_ENC_ALG_NULL		1	/* non-encrypted SRTP payload - may still be authenticated */
+#define SRTP_ENC_ALG_AES_CM		2	/* SRTP default algorithm */
+#define SRTP_ENC_ALG_AES_F8		3
 
 /* Authentication algorithms */
-#define SRTP_AUTH_ALG_NONE		0	/* no auth tag in SRTP/RTP payload */
+#define SRTP_AUTH_ALG_NONE			0	/* no auth tag in SRTP/RTP payload */
 #define SRTP_AUTH_ALG_HMAC_SHA1		1	/* SRTP default algorithm */
 
 
 #if 0	/* these are only needed once the dissector include the crypto functions to decrypt and/or authenticate */
 struct srtp_key_info
 {
-	guint8		*master_key;			/* pointer to an se_alloc'ed master key */
-	guint8		*master_salt;			/* pointer to an se_alloc'ed salt for this master key - NULL if no salt */
-	guint8		key_generation_rate;	/* encoded as the power of 2, 0..24, or 255 (=zero rate) */
-										/* Either the MKI value is used (in which case from=to=0), or the <from,to> values are used (and MKI=0) */
-	guint32		from_roc;				/* 32 MSBs of a 48 bit value - frame from which this key is valid (roll-over counter part) */
-	guint16		from_seq;				/* 16 LSBs of a 48 bit value - frame from which this key is valid (sequence number part) */
-	guint32		to_roc;					/* 32 MSBs of a 48 bit value - frame to which this key is valid (roll-over counter part) */
-	guint16		to_seq;					/* 16 LSBs of a 48 bit value - frame to which this key is valid (sequence number part) */
-	guint32		mki;					/* the MKI value associated with this key */
+    guint8		*master_key;			/* pointer to an se_alloc'ed master key */
+    guint8		*master_salt;			/* pointer to an se_alloc'ed salt for this master key - NULL if no salt */
+    guint8		key_generation_rate;	/* encoded as the power of 2, 0..24, or 255 (=zero rate) */
+                                        /* Either the MKI value is used (in which case from=to=0), or the <from,to> values are used (and MKI=0) */
+    guint32		from_roc;				/* 32 MSBs of a 48 bit value - frame from which this key is valid (roll-over counter part) */
+    guint16		from_seq;				/* 16 LSBs of a 48 bit value - frame from which this key is valid (sequence number part) */
+    guint32		to_roc;					/* 32 MSBs of a 48 bit value - frame to which this key is valid (roll-over counter part) */
+    guint16		to_seq;					/* 16 LSBs of a 48 bit value - frame to which this key is valid (sequence number part) */
+    guint32		mki;					/* the MKI value associated with this key */
 };
 #endif
 
 struct srtp_info
 {
-	guint      encryption_algorithm;	/* at present only NULL vs non-NULL matter */
-	guint      auth_algorithm;			/* at present only NULL vs non-NULL matter */
-	guint      mki_len;					/* number of octets used for the MKI in the RTP payload */
-	guint      auth_tag_len;			/* number of octets used for the Auth Tag in the RTP payload */
+    guint      encryption_algorithm;	/* at present only NULL vs non-NULL matter */
+    guint      auth_algorithm;			/* at present only NULL vs non-NULL matter */
+    guint      mki_len;					/* number of octets used for the MKI in the RTP payload */
+    guint      auth_tag_len;			/* number of octets used for the Auth Tag in the RTP payload */
 #if 0	/* these are only needed once the dissector include the crypto functions to decrypt and/or authenticate */
-	struct srtp_key_info **master_keys; /* an array of pointers to master keys and their info, the array and each key struct being se_alloc'ed  */
-	void       *enc_alg_info,			/* algorithm-dependent info struct - may be void for default alg with default params */
-	void       *auth_alg_info			/* algorithm-dependent info struct - void for default alg with default params */
+    struct srtp_key_info **master_keys; /* an array of pointers to master keys and their info, the array and each key struct being se_alloc'ed  */
+    void       *enc_alg_info,			/* algorithm-dependent info struct - may be void for default alg with default params */
+    void       *auth_alg_info			/* algorithm-dependent info struct - void for default alg with default params */
 #endif
 };
 
