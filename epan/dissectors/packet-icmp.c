@@ -1061,7 +1061,7 @@ static guint32 get_best_guess_mstimeofday(tvbuff_t *tvb, gint offset, guint32 co
     /* Account for the special case from RFC 792 as best we can by clearing
      * the msb.  Ref: [Page 16] of http://tools.ietf.org/html/rfc792:
 
-        If the time is not available in miliseconds or cannot be provided
+        If the time is not available in milliseconds or cannot be provided
         with respect to midnight UT then any time can be inserted in a
         timestamp provided the high order bit of the timestamp is also set
         to indicate this non-standard value.
@@ -1091,8 +1091,8 @@ static guint32 get_best_guess_mstimeofday(tvbuff_t *tvb, gint offset, guint32 co
     }
 
     /* Both are bigger than MSPERDAY, but neither one's msb's are set.  This
-     * is cleary invalid, but now what TODO?  For now, take the one closest to
-     * the commparative timestamp, which is another way of saying, "let's
+     * is clearly invalid, but now what TODO?  For now, take the one closest to
+     * the comparative timestamp, which is another way of saying, "let's
      * return a deterministic wild guess. */
     if (abs(be_ts - comp_ts) < abs(le_ts - comp_ts))
         return (be_ts);
@@ -1665,7 +1665,7 @@ proto_register_icmp(void)
       { "MTU", "icmp.int_info.mtu", FT_BOOLEAN, 8, NULL, INT_INFO_MTU, 
         "True: MTU present; False: MTU not present", HFILL }},
     { &hf_icmp_int_info_afi,
-      { "Address Family Identfier", "icmp.int_info.afi", FT_UINT16, BASE_DEC, NULL, 0x0, 
+      { "Address Family Identifier", "icmp.int_info.afi", FT_UINT16, BASE_DEC, NULL, 0x0, 
         "Address Family of the interface address", HFILL }},
     { &hf_icmp_int_info_ipv4,
 		{ "Source",		"icmp.int_info.ip", FT_IPv4, BASE_NONE, NULL, 0x0,

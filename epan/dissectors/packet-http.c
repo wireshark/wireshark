@@ -958,7 +958,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 * which would require subdissectors to deal intelligently
 	 * with empty segments.
 	 *
-	 * Acccording to RFC 2616, however, 1xx responses, 204 responses,
+	 * According to RFC 2616, however, 1xx responses, 204 responses,
 	 * and 304 responses MUST NOT include a message body; if no
 	 * content length is specified for them, we don't attempt to
 	 * dissect the body.
@@ -1745,7 +1745,7 @@ http_payload_subdissector(tvbuff_t *tvb, proto_tree *tree,
 
 	if(strings[0] != NULL && strings[1] != NULL) {
 		/*
-		 * The string was successfuly split in two
+		 * The string was successfully split in two
 		 * Create a proxy-connect subtree
 		 */
 		if(tree) {
@@ -2670,7 +2670,7 @@ proto_register_http(void)
 	    &http_desegment_body);
 	prefs_register_bool_preference(http_module, "dechunk_body",
 	    "Reassemble chunked transfer-coded bodies",
-	    "Whether to reassemble bodies of entities that are transfered "
+	    "Whether to reassemble bodies of entities that are transferred "
 	    "using the \"Transfer-Encoding: chunked\" method",
 	    &http_dechunk_body);
 #ifdef HAVE_LIBZ

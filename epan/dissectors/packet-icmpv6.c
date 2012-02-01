@@ -80,7 +80,7 @@
  * RFC 5269: Distributing a Symmetric Fast Mobile IPv6 (FMIPv6) Handover Key Using SEcure Neighbor Discovery (SEND)
  * RFC 5271: Mobile IPv6 Fast Handovers for 3G CDMA Networks
  * RFC 6275: Mobility Support in IPv6
- * draft-ieft-roll-rpl-19.txt: RPL: IPv6 Routing Protocol for Low power and Lossy Networks
+ * draft-ietf-roll-rpl-19.txt: RPL: IPv6 Routing Protocol for Low power and Lossy Networks
  * draft-ietf-csi-proxy-send-05: Secure Proxy ND Support for SEND
  * draft-ietf-6lowpan-nd-18: Neighbor Discovery Optimization for Low Power and Lossy Networks (6LoWPAN)
  * http://www.iana.org/assignments/icmpv6-parameters (last updated 2011-04-08)
@@ -575,7 +575,7 @@ static const value_string icmpv6_type_val[] = {
     { ICMP6_MCAST_ROUTER_SOLICIT,  "Multicast Router Solicitation" },                   /* [RFC4286] */
     { ICMP6_MCAST_ROUTER_TERM,     "Multicast Router Termination" },                    /* [RFC4286] */
     { ICMP6_FMIPV6_MESSAGES,       "FMIPv6" },                                          /* [RFC5568] */
-    { ICMP6_RPL_CONTROL,           "RPL Control" },                                     /* draft-ieft-roll-rpl-19.txt Pending IANA */
+    { ICMP6_RPL_CONTROL,           "RPL Control" },                                     /* draft-ietf-roll-rpl-19.txt Pending IANA */
     { ICMP6_6LOWPANND_DAR,         "Duplicate Address Request"},                        /* draft-ietf-6lowpan-nd-18.txt Pending IANA */
     { ICMP6_6LOWPANND_DAC,         "Duplicate Address Confirmation"},                   /* draft-ietf-6lowpan-nd-18.txt Pending IANA */
     { 200,                         "Private experimentation" },                         /* [RFC4443] */
@@ -602,7 +602,7 @@ static const value_string icmpv6_unreach_code_val[] = {
     { ICMP6_DST_UNREACH_NOPORT,      "Port unreachable" },
     { ICMP6_DST_UNREACH_INGR_EGR,    "Source address failed ingress/egress policy" },
     { ICMP6_DST_UNREACH_REJECT,      "Reject route to destination" },
-    { ICMP6_DST_UNREACH_ERROR,       "Error in Source Routing Header" }, /* [draft-ieft-roll-rpl-19.txt] */
+    { ICMP6_DST_UNREACH_ERROR,       "Error in Source Routing Header" }, /* [draft-ietf-roll-rpl-19.txt] */
     { 0, NULL }
 };
 
@@ -801,8 +801,8 @@ static const true_false_string tfs_ni_flag_a = {
 #define ND_OPT_DNS_SEARCH_LIST          31
 #define ND_OPT_PROXY_SIGNATURE          32
 /* draft-6lowpan-nd types, pending IANA assignment */
-#define ND_OPT_ADDR_REGISTRATION        131 /* Conflit with RFC6106.. */
-#define ND_OPT_6LOWPAN_CONTEXT          132 /* Conflit with draft-ietf-csi-proxy-send-05.txt.. */
+#define ND_OPT_ADDR_REGISTRATION        131 /* Conflict with RFC6106.. */
+#define ND_OPT_6LOWPAN_CONTEXT          132 /* Conflict with draft-ietf-csi-proxy-send-05.txt.. */
 #define ND_OPT_AUTH_BORDER_ROUTER       33
 
 static const value_string option_vals[] = {
@@ -839,7 +839,7 @@ static const value_string option_vals[] = {
 /* 32 */   { ND_OPT_PROXY_SIGNATURE,           "Proxy Signature (PS)" },                   /* [draft-ietf-csi-proxy-send-05.txt] */
 /* 31 */   { ND_OPT_ADDR_REGISTRATION,         "Address Registration Option" },            /* [draft-ietf-6lowpan-nd-18.txt] */
 /* 32 */   { ND_OPT_6LOWPAN_CONTEXT,           "6LoWPAN Context Option" },                 /* [draft-ietf-6lowpan-nd-18.txt] */
-/* 33 */   { ND_OPT_AUTH_BORDER_ROUTER,        "Authorative Border Router" },              /* [draft-ietf-6lowpan-nd-18.txt] */
+/* 33 */   { ND_OPT_AUTH_BORDER_ROUTER,        "Authoritative Border Router" },              /* [draft-ietf-6lowpan-nd-18.txt] */
 /* 34-137  Unassigned */
    { 138,                              "CARD Request" },                           /* [RFC4065] */
    { 139,                              "CARD Reply" },                             /* [RFC4065] */
@@ -1025,11 +1025,11 @@ static const value_string rpl_code_val[] = {
     { ICMP6_RPL_DIS,    "DODAG Information Solicitation" },
     { ICMP6_RPL_DIO,    "DODAG Information Object" },
     { ICMP6_RPL_DAO,    "Destination Advertisement Object" },
-    { ICMP6_RPL_DAOACK, "Destination Advertisement Object Acknowledgement" },
+    { ICMP6_RPL_DAOACK, "Destination Advertisement Object Acknowledgment" },
     { ICMP6_RPL_SDIS,   "Secure DODAG Information Solicitation" },
     { ICMP6_RPL_SDIO,   "Secure DODAG Information Object" },
     { ICMP6_RPL_SDAO,   "Secure Destination Advertisement Object" },
-    { ICMP6_RPL_SDAOACK,"Secure Destination Advertisement Object Acknowledgement" },
+    { ICMP6_RPL_SDAOACK,"Secure Destination Advertisement Object Acknowledgment" },
     { ICMP6_RPL_CC,     "Consistency Check" },
     { 0, NULL }
 };
@@ -1531,7 +1531,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 opt_offset += par_len;
 
                 /* Padding */
-                /* TODO: Calculate padding length and exlude from the signature */
+                /* TODO: Calculate padding length and exclude from the signature */
                 break;
             }
             case ND_OPT_TIMESTAMP: /* Timestamp Option (13) */
@@ -2015,7 +2015,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_digital_signature_padding , tvb, opt_offset, par_len, ENC_NA);
                 opt_offset += par_len;
                 /* Padding */
-                /* TODO: Calculate padding length and exlude from the signature */
+                /* TODO: Calculate padding length and exclude from the signature */
                 break;
             }
             case ND_OPT_ADDR_REGISTRATION: /* Address Registration (TBD1 Pending IANA...) */
@@ -2413,7 +2413,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
                 }
                 opt_offset += 4;
 
-                /* Preferrred Lifetime */
+                /* Preferred Lifetime */
                 ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_prefix_plifetime, tvb, opt_offset, 4, ENC_BIG_ENDIAN);
                 switch(tvb_get_ntohl(tvb, opt_offset)){
                     case 0xffffffff:
@@ -3937,7 +3937,7 @@ proto_register_icmpv6(void)
           { "Nonce", "icmpv6.opt.nonce", FT_BYTES, BASE_NONE, NULL, 0x0,
             "A field containing a random number selected by the sender of the solicitation message", HFILL }},
         { &hf_icmpv6_opt_certificate_padding,
-          { "Certificat and Padding", "icmpv6.opt.certificate_padding", FT_NONE, BASE_NONE, NULL, 0x0,
+          { "Certificate and Padding", "icmpv6.opt.certificate_padding", FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
         { &hf_icmpv6_opt_ipa_option_code,
           { "Option-code", "icmpv6.opt.ipa.option_code", FT_UINT8, BASE_DEC, VALS(nd_opt_ipa_option_code_val), 0x00,
@@ -3992,7 +3992,7 @@ proto_register_icmpv6(void)
             "This value indicates the validity of the MAP's address and the RCoA.", HFILL }},
         { &hf_icmpv6_opt_map_global_address,
           { "Global Address", "icmpv6.opt.map.global_address", FT_IPv6, BASE_NONE, NULL, 0x0,
-            "TOne of the MAP's global addresses", HFILL }},
+            "One of the MAP's global addresses", HFILL }},
         { &hf_icmpv6_opt_route_info_flag,
           { "Flag", "icmpv6.opt.route_info.flag", FT_UINT8, BASE_HEX, NULL, 0x00,
             NULL, HFILL }},
@@ -4543,7 +4543,7 @@ proto_register_icmpv6(void)
            { "Flag", "icmpv6.rpl.cc.flag", FT_UINT8, BASE_HEX, NULL, 0x0,
              NULL, HFILL }},
         { &hf_icmpv6_rpl_cc_flag_r,
-           { "Reponse (R)", "icmpv6.rpl.cc.flag.r", FT_BOOLEAN, 8, NULL, RPL_CC_FLAG_R,
+           { "Response (R)", "icmpv6.rpl.cc.flag.r", FT_BOOLEAN, 8, NULL, RPL_CC_FLAG_R,
              "Indicates whether the CC message is a response", HFILL }},
         { &hf_icmpv6_rpl_cc_flag_rsv,
            { "Reserved", "icmpv6.rpl.cc.flag.rsv", FT_UINT8, BASE_DEC, NULL, RPL_CC_FLAG_RESERVED,

@@ -551,7 +551,7 @@ enum {
   IPv6_RT_HEADER_RPL=4
 };
 
-/* Routeing Header Types */
+/* Routing Header Types */
 static const value_string routing_header_type[] = {
   { IPv6_RT_HEADER_SOURCE_ROUTING, "IPv6 Source Routing" },
   { IPv6_RT_HEADER_NIMROD, "Nimrod" },
@@ -1478,7 +1478,7 @@ static const value_string shimctrlvals[] = {
     { SHIM6_TYPE_R1BIS,     "R1bis" },
     { SHIM6_TYPE_I2BIS,     "I2bis" },
     { SHIM6_TYPE_UPD_REQ,   "Update Request" },
-    { SHIM6_TYPE_UPD_ACK,   "Update Acknowledgement" },
+    { SHIM6_TYPE_UPD_ACK,   "Update Acknowledgment" },
     { SHIM6_TYPE_KEEPALIVE, "Keepalive" },
     { SHIM6_TYPE_PROBE,     "Probe" },
     { 0, NULL }
@@ -2297,7 +2297,7 @@ proto_register_ipv6(void)
     { &hf_ipv6_routing_hdr_type,
       { "Type",                 "ipv6.routing_hdr.type",
                                 FT_UINT8, BASE_DEC, VALS(routing_header_type), 0x0,
-                                "Routeing Header Type", HFILL }},
+                                "Routing Header Type", HFILL }},
     { &hf_ipv6_routing_hdr_left,
       { "Segments Left",        "ipv6.routing_hdr.left",
                                 FT_UINT8, BASE_DEC, NULL, 0x0,
