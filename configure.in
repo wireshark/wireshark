@@ -1916,6 +1916,7 @@ AC_OUTPUT(
   asn1/lpp/Makefile
   asn1/lppa/Makefile
   asn1/lte-rrc/Makefile
+  asn1/m3ap/Makefile
   asn1/mms/Makefile
   asn1/mpeg-audio/Makefile
   asn1/mpeg-pes/Makefile
