@@ -107,7 +107,7 @@ add_menu_recent_capture_file(gchar *cf_name) {
      */
     unsigned int cnt = 1;
     foreach (ri, wsApp->recent_item_list()) {
-        /* if this element string is one of our special items (seperator, ...) or
+        /* if this element string is one of our special items (separator, ...) or
          * already in the list or
          * this element is above maximum count (too old), remove it
          */
