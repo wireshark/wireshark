@@ -25,6 +25,7 @@ ProtocolIE-ID
 ProtocolIE-FieldPair
 ProtocolIE-ContainerPair
 ProtocolIE-ContainerPairList
+Presence
 
 #.TYPE_RENAME
 InitiatingMessage/value InitiatingMessage_value
@@ -54,9 +55,8 @@ ProtocolIE-Field/value ie_field_value
 # FN_PARS ProtocolIE-FieldPair/firstValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldPairFirstValue
 # FN_PARS ProtocolIE-FieldPair/secondValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldPairSecondValue
 
-# Currently not used
-# FN_PARS ProtocolExtensionID  VAL_PTR=&ProtocolExtensionID
-# FN_PARS ProtocolExtensionField/extensionValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolExtensionFieldExtensionValue
+#.FN_PARS ProtocolExtensionID  VAL_PTR=&ProtocolExtensionID
+#.FN_PARS ProtocolExtensionField/extensionValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolExtensionFieldExtensionValue
 
 #.FN_PARS  ProcedureCode  VAL_PTR = &ProcedureCode
 #.FN_FTR ProcedureCode

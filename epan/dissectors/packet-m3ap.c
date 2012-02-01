@@ -314,23 +314,6 @@ dissect_m3ap_Criticality(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 }
 
 
-static const value_string m3ap_Presence_vals[] = {
-  {   0, "optional" },
-  {   1, "conditional" },
-  {   2, "mandatory" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_m3ap_Presence(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     3, NULL, FALSE, 0, NULL);
-
-  return offset;
-}
-
-
 
 static int
 dissect_m3ap_INTEGER_0_maxPrivateIEs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -436,7 +419,7 @@ dissect_m3ap_ProtocolIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, maxProtocolIEs, &ProtocolIE_ID, FALSE);
 
-#line 47 "../../asn1/m3ap/m3ap.cnf"
+#line 48 "../../asn1/m3ap/m3ap.cnf"
   if (tree) {
     proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str_ext(ProtocolIE_ID, &m3ap_ProtocolIE_ID_vals_ext, "unknown (%d)"));
   }
@@ -535,7 +518,7 @@ dissect_m3ap_ProtocolIE_ContainerList(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
 static int
 dissect_m3ap_T_extensionValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_open_type(tvb, offset, actx, tree, hf_index, NULL);
+  offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, dissect_ProtocolExtensionFieldExtensionValue);
 
   return offset;
 }
