@@ -826,7 +826,7 @@ static const value_string assoc_protos[] = {
 static gboolean
 sccp_called_calling_looks_valid(tvbuff_t *tvb, guint8 my_mtp3_standard, gboolean is_co)
 {
-    guint8 ai, ri, gti, ssni, pci;
+    guint8 ai, ri, gti, ssni /* , pci */;
 
     /* TVB starts with parameter length */
     ai = tvb_get_guint8(tvb, 1);
@@ -844,11 +844,11 @@ sccp_called_calling_looks_valid(tvbuff_t *tvb, guint8 my_mtp3_standard, gboolean
 
     ri = ai & ROUTING_INDICATOR_MASK >> ROUTING_INDICATOR_SHIFT;
     if (my_mtp3_standard == ANSI_STANDARD) {
-	pci = ai & ANSI_PC_INDICATOR_MASK;
+	/* pci = ai & ANSI_PC_INDICATOR_MASK; */
 	ssni = ai & ANSI_SSN_INDICATOR_MASK;
     } else {
 	ssni = ai & ITU_SSN_INDICATOR_MASK;
-	pci = ai & ITU_PC_INDICATOR_MASK;
+	/* pci = ai & ITU_PC_INDICATOR_MASK; */
     }
 
     /* Route on SSN with no SSN? */
