@@ -1,0 +1,208 @@
+# m3ap.cnf
+# m3ap conformation file
+# $Id$
+
+#.OPT
+PER
+ALIGNED
+#.END
+
+#.EXPORTS
+
+#.PDU_NEW
+M3AP-PDU
+
+#.MAKE_ENUM
+ProcedureCode
+ProtocolIE-ID
+
+#.USE_VALS_EXT
+ProcedureCode
+ProtocolIE-ID
+
+#.OMIT_ASSIGNMENT
+# Get rid of unused code warnings
+ProtocolIE-FieldPair
+ProtocolIE-ContainerPair
+ProtocolIE-ContainerPairList
+
+#.TYPE_RENAME
+InitiatingMessage/value InitiatingMessage_value
+SuccessfulOutcome/value SuccessfulOutcome_value
+UnsuccessfulOutcome/value UnsuccessfulOutcome_value
+
+#.FIELD_RENAME
+InitiatingMessage/value initiatingMessagevalue
+UnsuccessfulOutcome/value unsuccessfulOutcome_value
+SuccessfulOutcome/value successfulOutcome_value
+
+PrivateIE-Field/id private_id
+ProtocolExtensionField/id ext_id
+
+PrivateIE-Field/value private_value
+ProtocolIE-Field/value ie_field_value
+
+#.FN_PARS ProtocolIE-ID  VAL_PTR=&ProtocolIE_ID
+#.FN_FTR ProtocolIE-ID
+  if (tree) {
+    proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str_ext(ProtocolIE_ID, &m3ap_ProtocolIE_ID_vals_ext, "unknown (%d)"));
+  }
+#.END
+
+#.FN_PARS ProtocolIE-Field/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldValue
+# Currently not used
+# FN_PARS ProtocolIE-FieldPair/firstValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldPairFirstValue
+# FN_PARS ProtocolIE-FieldPair/secondValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldPairSecondValue
+
+# Currently not used
+# FN_PARS ProtocolExtensionID  VAL_PTR=&ProtocolExtensionID
+# FN_PARS ProtocolExtensionField/extensionValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolExtensionFieldExtensionValue
+
+#.FN_PARS  ProcedureCode  VAL_PTR = &ProcedureCode
+#.FN_FTR ProcedureCode
+     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s",
+                 val_to_str_ext(ProcedureCode, &m3ap_ProcedureCode_vals_ext,
+                            "unknown message"));
+#.END
+
+#.FN_PARS InitiatingMessage/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_InitiatingMessageValue
+#.FN_HDR InitiatingMessage/value
+	message_type = INITIATING_MESSAGE;
+#.FN_PARS SuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_SuccessfulOutcomeValue
+#.FN_HDR SuccessfulOutcome/value
+	message_type = SUCCESSFUL_OUTCOME;
+#.FN_PARS UnsuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_UnsuccessfulOutcomeValue
+#.FN_HDR UnsuccessfulOutcome/value
+	message_type = UNSUCCESSFUL_OUTCOME;
+
+#--- Parameterization is not supported in asn2wrs ---
+
+#ProtocolIE-ContainerList {INTEGER : lowerBound, INTEGER : upperBound, M3AP-PROTOCOL-IES : IEsSetParam} ::=
+#	SEQUENCE (SIZE (lowerBound..upperBound)) OF
+#	ProtocolIE-Container {{IEsSetParam}}
+
+#.FN_PARS ProtocolIE-ContainerList
+MIN_VAL = asn1_param_get_integer(%(ACTX)s,"lowerBound")
+MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
+#.FN_HDR ProtocolIE-ContainerList
+  static const asn1_par_def_t ProtocolIE_ContainerList_pars[] = {
+    { "lowerBound", ASN1_PAR_INTEGER },
+    { "upperBound", ASN1_PAR_INTEGER },
+    { NULL, 0 }
+  };
+  asn1_stack_frame_check(actx, "ProtocolIE-ContainerList", ProtocolIE_ContainerList_pars);
+#.END
+
+#ProtocolIE-ContainerPairList {INTEGER : lowerBound, INTEGER : upperBound, M3AP-PROTOCOL-IES-PAIR : IEsSetParam} ::=
+#	SEQUENCE (SIZE (lowerBound..upperBound)) OF
+#	ProtocolIE-ContainerPair {{IEsSetParam}}
+
+# FN_PARS ProtocolIE-ContainerPairList
+#MIN_VAL = asn1_param_get_integer(%(ACTX)s,"lowerBound")
+#MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
+# FN_HDR ProtocolIE-ContainerPairList
+#  static const asn1_par_def_t ProtocolIE_ContainerPairList_pars[] = {
+#    { "lowerBound", ASN1_PAR_INTEGER },
+#    { "upperBound", ASN1_PAR_INTEGER },
+#    { NULL, 0 }
+#  };
+#  asn1_stack_frame_check(actx, "ProtocolIE-ContainerPairList", ProtocolIE_ContainerPairList_pars);
+# END
+
+# Handle 64 bit constraint
+#.FN_PARS BitRate FN_VARIANT = _64b
+
+#.ASSIGN_VALUE_TO_TYPE  # M3AP does not have constants assigned to types, they are pure INTEGER
+# ProcedureCode
+id-mBMSsessionStart											ProcedureCode
+id-mBMSsessionStop											ProcedureCode
+id-errorIndication											ProcedureCode
+id-privateMessage											ProcedureCode
+id-Reset													ProcedureCode
+id-mBMSsessionUpdate										ProcedureCode
+id-mCEConfigurationUpdate									ProcedureCode
+id-m3Setup													ProcedureCode
+
+# ProtocolIE
+id-MME-MBMS-M3AP-ID											ProtocolIE-ID
+id-MCE-MBMS-M3AP-ID											ProtocolIE-ID
+id-TMGI														ProtocolIE-ID
+id-MBMS-Session-ID											ProtocolIE-ID
+id-MBMS-E-RAB-QoS-Parameters								ProtocolIE-ID
+id-MBMS-Session-Duration									ProtocolIE-ID
+id-MBMS-Service-Area										ProtocolIE-ID
+id-TNL-Information											ProtocolIE-ID
+id-CriticalityDiagnostics									ProtocolIE-ID
+id-Cause													ProtocolIE-ID
+id-MBMS-Service-Area-List									ProtocolIE-ID
+id-MBMS-Service-Area-List-Item								ProtocolIE-ID
+id-TimeToWait												ProtocolIE-ID
+id-ResetType												ProtocolIE-ID
+id-MBMS-Service-associatedLogicalM3-ConnectionItem			ProtocolIE-ID
+id-MBMS-Service-associatedLogicalM3-ConnectionListResAck	ProtocolIE-ID
+id-MinimumTimeToMBMSDataTransfer							ProtocolIE-ID
+id-AllocationAndRetentionPriority							ProtocolIE-ID
+id-Global-MCE-ID											ProtocolIE-ID
+id-MCEname													ProtocolIE-ID
+id-MBMSServiceAreaList										ProtocolIE-ID
+id-Time-ofMBMS-DataTransfer									ProtocolIE-ID
+id-Time-ofMBMS-DataStop										ProtocolIE-ID
+#.END
+
+#.REGISTER_NEW
+
+#M3AP-PROTOCOL-IES
+MME-MBMS-M3AP-ID											N m3ap.ies id-MME-MBMS-M3AP-ID
+MCE-MBMS-M3AP-ID											N m3ap.ies id-MCE-MBMS-M3AP-ID
+TMGI														N m3ap.ies id-TMGI	
+MBMS-Session-ID												N m3ap.ies id-MBMS-Session-ID
+MBMS-E-RAB-QoS-Parameters									N m3ap.ies id-MBMS-E-RAB-QoS-Parameters
+MBMS-Session-Duration										N m3ap.ies id-MBMS-Session-Duration
+MBMS-Service-Area											N m3ap.ies id-MBMS-Service-Area
+TNL-Information												N m3ap.ies id-TNL-Information
+CriticalityDiagnostics										N m3ap.ies id-CriticalityDiagnostics
+Cause														N m3ap.ies id-Cause
+#MBMS-Service-Area-List										N m3ap.ies id-MBMS-Service-Area-List
+#MBMS-Service-Area-List-Item								N m3ap.ies id-MBMS-Service-Area-List-Item
+TimeToWait													N m3ap.ies id-TimeToWait
+ResetType													N m3ap.ies id-ResetType
+MBMS-Service-associatedLogicalM3-ConnectionItem				N m3ap.ies id-MBMS-Service-associatedLogicalM3-ConnectionItem
+MBMS-Service-associatedLogicalM3-ConnectionListResAck		N m3ap.ies id-MBMS-Service-associatedLogicalM3-ConnectionListResAck
+MinimumTimeToMBMSDataTransfer								N m3ap.ies id-MinimumTimeToMBMSDataTransfer
+AllocationAndRetentionPriority								N m3ap.ies id-AllocationAndRetentionPriority
+Global-MCE-ID												N m3ap.ies id-Global-MCE-ID
+MCEname														N m3ap.ies id-MCEname
+MBMSServiceAreaListItem										N m3ap.ies id-MBMSServiceAreaList
+Absolute-Time-ofMBMS-Data									N m3ap.ies id-Time-ofMBMS-DataTransfer
+Absolute-Time-ofMBMS-Data									N m3ap.ies id-Time-ofMBMS-DataStop	
+
+#M3AP-ELEMENTARY-PROCEDURE
+MBMSSessionStartRequest										N m3ap.proc.imsg id-mBMSsessionStart
+MBMSSessionStartResponse									N m3ap.proc.sout id-mBMSsessionStart
+MBMSSessionStartFailure										N m3ap.proc.uout id-mBMSsessionStart
+
+MBMSSessionStopRequest										N m3ap.proc.imsg id-mBMSsessionStop
+MBMSSessionStopResponse										N m3ap.proc.sout id-mBMSsessionStop
+
+MBMSSessionUpdateRequest									N m3ap.proc.imsg id-mBMSsessionUpdate
+MBMSSessionUpdateResponse									N m3ap.proc.sout id-mBMSsessionUpdate
+MBMSSessionUpdateFailure									N m3ap.proc.uout id-mBMSsessionUpdate
+
+ErrorIndication												N m3ap.proc.imsg id-errorIndication
+
+Reset														N m3ap.proc.imsg id-Reset
+ResetAcknowledge											N m3ap.proc.sout id-Reset
+
+PrivateMessage												N m3ap.proc.imsg id-privateMessage
+
+MCEConfigurationUpdate										N m3ap.proc.imsg id-mCEConfigurationUpdate
+MCEConfigurationUpdateAcknowledge							N m3ap.proc.sout id-mCEConfigurationUpdate	
+MCEConfigurationUpdateFailure								N m3ap.proc.uout id-mCEConfigurationUpdate
+
+M3SetupRequest												N m3ap.proc.imsg id-m3Setup
+M3SetupResponse												N m3ap.proc.sout id-m3Setup
+M3SetupFailure												N m3ap.proc.uout id-m3Setup
+
+#.TYPE_ATTR 
+BitRate TYPE = FT_UINT64 DISPLAY = BASE_DEC STRINGS = NULL
+#.END

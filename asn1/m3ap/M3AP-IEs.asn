@@ -1,0 +1,298 @@
+-- M3AP-IEs.asn
+--
+-- 3GPP TS 36.444 V11.0.0 (2011-12)
+-- http://www.3gpp.org/ftp/Specs/archive/36_series/36.444/36444-b00.zip
+--
+-- 9.3.5	Information Element Definitions
+--
+-- $Id$
+--
+
+-- **************************************************************
+--
+-- Information Element Definitions
+--
+-- **************************************************************
+
+M3AP-IEs {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+eps-Access (21) modules (3) m3ap (5) version1 (1) m3ap-IEs (2) }
+
+DEFINITIONS AUTOMATIC TAGS ::= 
+
+BEGIN
+
+IMPORTS
+	id-AllocationAndRetentionPriority,
+	maxnoofMBMSServiceAreasPerMCE,
+	maxnooferrors
+
+FROM M3AP-Constants
+
+	Criticality,
+	ProcedureCode,
+	ProtocolIE-ID,
+	TriggeringMessage
+FROM M3AP-CommonDataTypes
+
+	ProtocolExtensionContainer{},
+	ProtocolIE-Single-Container{},
+	M3AP-PROTOCOL-EXTENSION,
+	M3AP-PROTOCOL-IES
+FROM M3AP-Containers;
+
+-- A
+
+Absolute-Time-ofMBMS-Data			::= BIT STRING (SIZE (64))
+
+AllocationAndRetentionPriority ::= SEQUENCE {
+	priorityLevel				PriorityLevel,
+	pre-emptionCapability		Pre-emptionCapability,
+	pre-emptionVulnerability	Pre-emptionVulnerability,
+	iE-Extensions				ProtocolExtensionContainer { {AllocationAndRetentionPriority-ExtIEs} } OPTIONAL
+}
+
+AllocationAndRetentionPriority-ExtIEs M3AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+-- B
+
+BitRate	::= INTEGER (0..10000000000) 
+
+-- C
+
+Cause ::= CHOICE {
+	radioNetwork		CauseRadioNetwork,
+	transport			CauseTransport,
+	nAS					CauseNAS,
+	protocol			CauseProtocol,
+	misc				CauseMisc,
+	...
+}
+
+CauseMisc ::= ENUMERATED {
+	control-processing-overload,
+	not-enough-user-plane-processing-resources,
+	hardware-failure,
+	om-intervention,
+	unspecified,
+	...
+}
+
+CauseNAS ::= ENUMERATED {
+	unspecified,
+	...
+}
+
+CauseProtocol ::= ENUMERATED {
+	transfer-syntax-error,
+	abstract-syntax-error-reject,
+	abstract-syntax-error-ignore-and-notify,
+	message-not-compatible-with-receiver-state,
+	semantic-error,
+	abstract-syntax-error-falsely-constructed-message,
+	unspecified,
+	...
+}
+
+CauseRadioNetwork ::= ENUMERATED {
+	unknown-or-already-allocated-MME-MBMS-M3AP-ID,
+	unknown-or-already-allocated-MCE-MBMS-M3AP-ID,
+	unknown-or-inconsistent-pair-of-MBMS-M3AP-IDs,
+	radio-resources-not-available,
+	invalid-QoS-combination,
+	interaction-with-other-procedure,
+	not-supported-QCI-value,
+	unspecified,
+	...
+
+}
+
+CauseTransport ::= ENUMERATED {
+	transport-resource-unavailable,
+	unspecified,
+	...
+}
+
+CriticalityDiagnostics ::= SEQUENCE {
+	procedureCode					ProcedureCode					OPTIONAL,
+	triggeringMessage				TriggeringMessage				OPTIONAL,
+	procedureCriticality			Criticality						OPTIONAL,
+	iEsCriticalityDiagnostics		CriticalityDiagnostics-IE-List	OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { {CriticalityDiagnostics-ExtIEs} }	OPTIONAL,
+	...
+}
+
+
+CriticalityDiagnostics-ExtIEs M3AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+CriticalityDiagnostics-IE-List ::= SEQUENCE (SIZE (1..maxnooferrors)) OF
+	SEQUENCE {
+		iECriticality			Criticality,
+		iE-ID					ProtocolIE-ID,
+		typeOfError				TypeOfError,
+		iE-Extensions			ProtocolExtensionContainer { {CriticalityDiagnostics-IE-List-ExtIEs} } OPTIONAL,
+		...
+}
+
+CriticalityDiagnostics-IE-List-ExtIEs M3AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+-- D
+-- E
+
+ExtendedMCE-ID ::= OCTET STRING (SIZE(1))
+
+-- F
+-- G
+
+Global-MCE-ID ::= SEQUENCE {
+	pLMN-Identity			PLMN-Identity,
+	mCE-ID					MCE-ID,
+	extendedMCE-ID			ExtendedMCE-ID,
+	iE-Extensions			ProtocolExtensionContainer { {GlobalMCE-ID-ExtIEs} } OPTIONAL,
+	...
+}
+
+GlobalMCE-ID-ExtIEs M3AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+GBR-QosInformation ::= SEQUENCE {
+	mBMS-E-RAB-MaximumBitrateDL			BitRate,
+	mBMS-E-RAB-GuaranteedBitrateDL		BitRate,
+	iE-Extensions					ProtocolExtensionContainer { { GBR-QosInformation-ExtIEs} } OPTIONAL,
+	...
+}
+
+GBR-QosInformation-ExtIEs M3AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+GTP-TEID					::= OCTET STRING (SIZE (4))
+
+-- H
+-- I
+
+IPAddress			::= OCTET STRING (SIZE(4..16, ...))
+
+-- J
+-- K
+-- L
+-- M
+
+MBMS-E-RAB-QoS-Parameters ::= SEQUENCE {
+	qCI								QCI,
+	gbrQosInformation				GBR-QosInformation													OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { { MBMS-E-RAB-QoS-Parameters-ExtIEs} }	OPTIONAL,
+	...
+}
+
+MBMS-E-RAB-QoS-Parameters-ExtIEs M3AP-PROTOCOL-EXTENSION ::= {
+-- Extension for Release 10 ARP support --
+	{ID id-AllocationAndRetentionPriority	CRITICALITY ignore	EXTENSION AllocationAndRetentionPriority	PRESENCE mandatory},
+	...
+}
+
+MBMS-Service-associatedLogicalM3-ConnectionItem ::= SEQUENCE {
+	mME-MBMS-M3AP-ID				MME-MBMS-M3AP-ID OPTIONAL,
+	mCE-MBMS-M3AP-ID				MCE-MBMS-M3AP-ID OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { { MBMS-Service-associatedLogicalM3-ConnectionItemExtIEs} } OPTIONAL,
+	...
+}
+
+
+MBMS-Service-associatedLogicalM3-ConnectionItemExtIEs M3AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+MBMSServiceArea1 ::= OCTET STRING (SIZE (2))
+
+MBMS-Service-Area			::= OCTET STRING
+
+
+MBMS-Session-Duration ::= OCTET STRING (SIZE (3))
+
+MBMS-Session-ID ::= OCTET STRING (SIZE (1))
+
+
+MCE-MBMS-M3AP-ID			::= INTEGER (0..65535)
+
+MCE-ID ::= OCTET STRING (SIZE(2))
+
+MCEname ::= PrintableString (SIZE (1..150,...))
+
+MinimumTimeToMBMSDataTransfer	::= OCTET STRING (SIZE (1))
+
+MME-MBMS-M3AP-ID		::= INTEGER (0..65535)
+
+-- N
+-- O
+-- P
+
+Pre-emptionCapability ::= ENUMERATED {
+	shall-not-trigger-pre-emption,
+	may-trigger-pre-emption
+}
+
+Pre-emptionVulnerability ::= ENUMERATED {
+	not-pre-emptable,
+	pre-emptable
+}
+
+PriorityLevel	::= INTEGER { spare (0), highest (1), lowest (14), no-priority (15) } (0..15)
+
+PLMN-Identity ::= OCTET STRING (SIZE(3))
+
+-- Q
+
+QCI ::= INTEGER (0..255)
+
+-- R
+-- S
+-- T
+
+TimeToWait ::= ENUMERATED {v1s, v2s, v5s, v10s, v20s, v60s, ...}
+
+TMGI ::= SEQUENCE {
+	pLMNidentity			PLMN-Identity,
+	serviceID				OCTET STRING (SIZE (3)),
+	iE-Extensions			ProtocolExtensionContainer { {TMGI-ExtIEs} } OPTIONAL
+}
+
+TMGI-ExtIEs M3AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+TNL-Information ::= SEQUENCE {
+	iPMCAddress						IPAddress, 
+	iPSourceAddress					IPAddress,
+	gTP-DLTEID						GTP-TEID,
+	iE-Extensions					ProtocolExtensionContainer { {TNL-Information-ExtIEs} } OPTIONAL,
+	...
+}
+
+TNL-Information-ExtIEs M3AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+TypeOfError ::= ENUMERATED {
+	not-understood,
+	missing,
+	...
+}
+
+
+-- U
+-- V
+-- W
+-- X
+-- Y
+-- Z
+
+END

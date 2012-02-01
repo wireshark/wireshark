@@ -1,0 +1,58 @@
+-- M3AP-CommonDataTypes.asn
+--
+-- 3GPP TS 36.444 V11.0.0 (2011-12)
+-- http://www.3gpp.org/ftp/Specs/archive/36_series/36.444/36444-b00.zip
+--
+-- 9.3.6	Common Definitions
+--
+-- $Id$
+--
+
+-- **************************************************************
+--
+-- Common definitions
+--
+-- **************************************************************
+
+M3AP-CommonDataTypes {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+eps-Access (21) modules (3) m3ap (5) version1 (1) m3ap-CommonDataTypes (3)  }
+
+DEFINITIONS AUTOMATIC TAGS ::= 
+
+BEGIN
+
+-- **************************************************************
+--
+-- Extension constants
+--
+-- **************************************************************
+
+maxPrivateIEs 									INTEGER ::= 65535
+maxProtocolExtensions 							INTEGER ::= 65535
+maxProtocolIEs									INTEGER ::= 65535
+
+-- **************************************************************
+--
+-- Common Data Types
+--
+-- **************************************************************
+
+Criticality		::= ENUMERATED { reject, ignore, notify }
+
+Presence		::= ENUMERATED { optional, conditional, mandatory }
+
+PrivateIE-ID	::= CHOICE {
+	local				INTEGER (0.. maxPrivateIEs),
+	global				OBJECT IDENTIFIER
+}
+
+ProcedureCode		::= INTEGER (0..255)
+
+
+ProtocolIE-ID		::= INTEGER (0..maxProtocolIEs)
+
+
+TriggeringMessage	::= ENUMERATED { initiating-message, successful-outcome, unsuccessful-outcome}
+
+END

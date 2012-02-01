@@ -1,0 +1,204 @@
+-- M3AP-Containers.asn
+--
+-- 3GPP TS 36.444 V11.0.0 (2011-12)
+-- http://www.3gpp.org/ftp/Specs/archive/36_series/36.444/36444-b00.zip
+--
+-- 9.3.8	Container Definitions
+--
+-- $Id$
+--
+
+-- **************************************************************
+--
+-- Container definitions
+--
+-- **************************************************************
+
+M3AP-Containers {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+eps-Access (21) modules (3) m3ap (5) version1 (1) m3ap-Containers (5)  }
+
+DEFINITIONS AUTOMATIC TAGS ::= 
+
+BEGIN
+
+-- **************************************************************
+--
+-- IE parameter types from other modules.
+--
+-- **************************************************************
+
+IMPORTS
+	maxPrivateIEs,
+	maxProtocolExtensions,
+	maxProtocolIEs,
+	Criticality,
+	Presence,
+	PrivateIE-ID,
+	ProtocolIE-ID	
+FROM M3AP-CommonDataTypes;
+
+-- **************************************************************
+--
+-- Class Definition for Protocol IEs
+--
+-- **************************************************************
+
+M3AP-PROTOCOL-IES ::= CLASS {
+	&id				ProtocolIE-ID 			UNIQUE,
+	&criticality	Criticality,
+	&Value,
+	&presence		Presence
+}
+WITH SYNTAX {
+	ID				&id
+	CRITICALITY		&criticality
+	TYPE			&Value
+	PRESENCE		&presence
+}
+
+-- **************************************************************
+--
+-- Class Definition for Protocol IEs
+--
+-- **************************************************************
+
+M3AP-PROTOCOL-IES-PAIR ::= CLASS {
+	&id						ProtocolIE-ID 		UNIQUE,
+	&firstCriticality		Criticality,
+	&FirstValue,
+	&secondCriticality		Criticality,
+	&SecondValue,
+	&presence				Presence
+}
+WITH SYNTAX {
+	ID						&id
+	FIRST CRITICALITY 		&firstCriticality
+	FIRST TYPE				&FirstValue
+	SECOND CRITICALITY 		&secondCriticality
+	SECOND TYPE				&SecondValue
+	PRESENCE				&presence
+}
+
+-- **************************************************************
+--
+-- Class Definition for Protocol Extensions
+--
+-- **************************************************************
+
+M3AP-PROTOCOL-EXTENSION ::= CLASS {
+	&id					ProtocolIE-ID 		UNIQUE,
+	&criticality		Criticality,
+	&Extension,
+	&presence			Presence
+}
+WITH SYNTAX {
+	ID					&id
+	CRITICALITY			&criticality
+	EXTENSION			&Extension
+	PRESENCE			&presence
+}
+
+-- **************************************************************
+--
+-- Class Definition for Private IEs
+--
+-- **************************************************************
+
+M3AP-PRIVATE-IES ::= CLASS {
+	&id					PrivateIE-ID,
+	&criticality		Criticality,
+	&Value,
+	&presence			Presence
+}
+WITH SYNTAX {
+	ID					&id
+	CRITICALITY			&criticality
+	TYPE				&Value
+	PRESENCE			&presence
+}
+
+-- **************************************************************
+--
+-- Container for Protocol IEs
+--
+-- **************************************************************
+
+ProtocolIE-Container {M3AP-PROTOCOL-IES : IEsSetParam} ::= 
+	SEQUENCE (SIZE (0..maxProtocolIEs)) OF
+	ProtocolIE-Field {{IEsSetParam}}
+
+ProtocolIE-Single-Container {M3AP-PROTOCOL-IES : IEsSetParam} ::= 
+	ProtocolIE-Field {{IEsSetParam}}
+
+ProtocolIE-Field {M3AP-PROTOCOL-IES : IEsSetParam} ::= SEQUENCE {
+	id				M3AP-PROTOCOL-IES.&id					({IEsSetParam}),
+	criticality		M3AP-PROTOCOL-IES.&criticality			({IEsSetParam}{@id}),
+	value			M3AP-PROTOCOL-IES.&Value	        	({IEsSetParam}{@id})
+}
+
+-- **************************************************************
+--
+-- Container for Protocol IE Pairs
+--
+-- **************************************************************
+
+ProtocolIE-ContainerPair {M3AP-PROTOCOL-IES-PAIR : IEsSetParam} ::= 
+	SEQUENCE (SIZE (0..maxProtocolIEs)) OF
+	ProtocolIE-FieldPair {{IEsSetParam}}
+
+ProtocolIE-FieldPair {M3AP-PROTOCOL-IES-PAIR : IEsSetParam} ::= SEQUENCE {
+	id					M3AP-PROTOCOL-IES-PAIR.&id					({IEsSetParam}),
+	firstCriticality	M3AP-PROTOCOL-IES-PAIR.&firstCriticality	({IEsSetParam}{@id}),
+	firstValue			M3AP-PROTOCOL-IES-PAIR.&FirstValue	        ({IEsSetParam}{@id}),
+	secondCriticality	M3AP-PROTOCOL-IES-PAIR.&secondCriticality	({IEsSetParam}{@id}),
+	secondValue			M3AP-PROTOCOL-IES-PAIR.&SecondValue	        ({IEsSetParam}{@id})
+}
+
+-- **************************************************************
+--
+-- Container Lists for Protocol IE Containers
+--
+-- **************************************************************
+
+ProtocolIE-ContainerList {INTEGER : lowerBound, INTEGER : upperBound, M3AP-PROTOCOL-IES : IEsSetParam} ::=
+	SEQUENCE (SIZE (lowerBound..upperBound)) OF
+	ProtocolIE-Container {{IEsSetParam}}
+
+ProtocolIE-ContainerPairList {INTEGER : lowerBound, INTEGER : upperBound, M3AP-PROTOCOL-IES-PAIR : IEsSetParam} ::=
+	SEQUENCE (SIZE (lowerBound..upperBound)) OF
+	ProtocolIE-ContainerPair {{IEsSetParam}}
+
+-- **************************************************************
+--
+-- Container for Protocol Extensions
+--
+-- **************************************************************
+
+ProtocolExtensionContainer {M3AP-PROTOCOL-EXTENSION : ExtensionSetParam} ::= 
+	SEQUENCE (SIZE (1..maxProtocolExtensions)) OF
+	ProtocolExtensionField {{ExtensionSetParam}}
+
+ProtocolExtensionField {M3AP-PROTOCOL-EXTENSION : ExtensionSetParam} ::= SEQUENCE {
+	id					M3AP-PROTOCOL-EXTENSION.&id				({ExtensionSetParam}),
+	criticality			M3AP-PROTOCOL-EXTENSION.&criticality	({ExtensionSetParam}{@id}),
+	extensionValue		M3AP-PROTOCOL-EXTENSION.&Extension		({ExtensionSetParam}{@id})
+}
+
+-- **************************************************************
+--
+-- Container for Private IEs
+--
+-- **************************************************************
+
+PrivateIE-Container {M3AP-PRIVATE-IES : IEsSetParam} ::= 
+	SEQUENCE (SIZE (1..maxPrivateIEs)) OF
+	PrivateIE-Field {{IEsSetParam}}
+
+PrivateIE-Field {M3AP-PRIVATE-IES : IEsSetParam} ::= SEQUENCE {
+	id				M3AP-PRIVATE-IES.&id			({IEsSetParam}),
+	criticality		M3AP-PRIVATE-IES.&criticality	({IEsSetParam}{@id}),
+	value			M3AP-PRIVATE-IES.&Value			({IEsSetParam}{@id})
+}
+
+END

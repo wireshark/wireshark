@@ -1,0 +1,215 @@
+-- M3AP-PDU-Descriptions.asn
+--
+-- 3GPP TS 36.444 V11.0.0 (2011-12)
+-- http://www.3gpp.org/ftp/Specs/archive/36_series/36.444/36444-b00.zip 
+--
+-- 9.3.3	Elementary Procedure Definitions
+--
+-- $Id$
+--
+
+-- **************************************************************
+--
+-- Elementary Procedure definitions
+--
+-- **************************************************************
+
+M3AP-PDU-Descriptions {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+eps-Access (21) modules (3) m3ap (5) version1 (1) m3ap-PDU-Descriptions (0) }
+DEFINITIONS AUTOMATIC TAGS ::= 
+
+BEGIN
+
+-- **************************************************************
+--
+-- IE parameter types from other modules.
+--
+-- **************************************************************
+
+IMPORTS
+	Criticality,
+	ProcedureCode
+FROM M3AP-CommonDataTypes
+
+	MBMSSessionStartRequest,
+	MBMSSessionStartResponse,
+	MBMSSessionStartFailure,
+	MBMSSessionStopRequest,
+	MBMSSessionStopResponse,
+	MBMSSessionUpdateRequest,
+	MBMSSessionUpdateResponse,
+	MBMSSessionUpdateFailure,
+	MCEConfigurationUpdate,
+	MCEConfigurationUpdateAcknowledge,
+	MCEConfigurationUpdateFailure,
+	M3SetupRequest,
+	M3SetupResponse,
+	M3SetupFailure,
+	ErrorIndication,
+	Reset,
+	ResetAcknowledge,
+	PrivateMessage
+
+FROM M3AP-PDU-Contents
+
+	id-mBMSsessionStart,
+	id-mBMSsessionStop,
+	id-mBMSsessionUpdate,
+	id-mCEConfigurationUpdate,
+	id-m3Setup,
+	id-errorIndication,
+	id-Reset,
+	id-privateMessage
+FROM M3AP-Constants;
+
+
+-- **************************************************************
+--
+-- Interface Elementary Procedure Class
+--
+-- **************************************************************
+
+M3AP-ELEMENTARY-PROCEDURE ::= CLASS {
+	&InitiatingMessage				,
+	&SuccessfulOutcome				OPTIONAL,
+	&UnsuccessfulOutcome				OPTIONAL,
+	&procedureCode			ProcedureCode 	UNIQUE,
+	&criticality			Criticality 	DEFAULT ignore
+}
+WITH SYNTAX {
+	INITIATING MESSAGE		&InitiatingMessage
+	[SUCCESSFUL OUTCOME		&SuccessfulOutcome]
+	[UNSUCCESSFUL OUTCOME		&UnsuccessfulOutcome]
+	PROCEDURE CODE			&procedureCode
+	[CRITICALITY			&criticality]
+}
+
+-- **************************************************************
+--
+-- Interface PDU Definition
+--
+-- **************************************************************
+
+M3AP-PDU ::= CHOICE {
+	initiatingMessage	InitiatingMessage,
+	successfulOutcome	SuccessfulOutcome,
+	unsuccessfulOutcome	UnsuccessfulOutcome,
+	...
+}
+
+InitiatingMessage ::= SEQUENCE {
+	procedureCode	M3AP-ELEMENTARY-PROCEDURE.&procedureCode		({M3AP-ELEMENTARY-PROCEDURES}),
+	criticality		M3AP-ELEMENTARY-PROCEDURE.&criticality			({M3AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
+	value			M3AP-ELEMENTARY-PROCEDURE.&InitiatingMessage	({M3AP-ELEMENTARY-PROCEDURES}{@procedureCode})
+}
+
+SuccessfulOutcome ::= SEQUENCE {
+	procedureCode	M3AP-ELEMENTARY-PROCEDURE.&procedureCode		({M3AP-ELEMENTARY-PROCEDURES}),
+	criticality		M3AP-ELEMENTARY-PROCEDURE.&criticality			({M3AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
+	value			M3AP-ELEMENTARY-PROCEDURE.&SuccessfulOutcome	({M3AP-ELEMENTARY-PROCEDURES}{@procedureCode})
+}
+
+UnsuccessfulOutcome ::= SEQUENCE {
+	procedureCode	M3AP-ELEMENTARY-PROCEDURE.&procedureCode		({M3AP-ELEMENTARY-PROCEDURES}),
+	criticality		M3AP-ELEMENTARY-PROCEDURE.&criticality			({M3AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
+	value			M3AP-ELEMENTARY-PROCEDURE.&UnsuccessfulOutcome	({M3AP-ELEMENTARY-PROCEDURES}{@procedureCode})
+}
+
+
+-- **************************************************************
+--
+-- Interface Elementary Procedure List
+--
+-- **************************************************************
+
+M3AP-ELEMENTARY-PROCEDURES M3AP-ELEMENTARY-PROCEDURE ::= {
+	M3AP-ELEMENTARY-PROCEDURES-CLASS-1			|
+	M3AP-ELEMENTARY-PROCEDURES-CLASS-2			,
+	...
+}
+
+M3AP-ELEMENTARY-PROCEDURES-CLASS-1 M3AP-ELEMENTARY-PROCEDURE ::= {
+	mBMSsessionStart											|
+	mBMSsessionStop												|
+	mBMSsessionUpdate											|
+	reset														|
+	m3Setup														|
+	mCEConfigurationUpdate										,
+	...
+}
+
+M3AP-ELEMENTARY-PROCEDURES-CLASS-2 M3AP-ELEMENTARY-PROCEDURE ::= {
+	errorIndication							|
+	privateMessage							,
+	...
+
+}
+
+
+-- **************************************************************
+--
+-- Interface Elementary Procedures
+--
+-- **************************************************************
+
+mBMSsessionStart M3AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		MBMSSessionStartRequest
+	SUCCESSFUL OUTCOME		MBMSSessionStartResponse
+	UNSUCCESSFUL OUTCOME	MBMSSessionStartFailure
+	PROCEDURE CODE			id-mBMSsessionStart
+	CRITICALITY				reject
+}
+
+mBMSsessionStop M3AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		MBMSSessionStopRequest
+	SUCCESSFUL OUTCOME		MBMSSessionStopResponse
+	PROCEDURE CODE			id-mBMSsessionStop
+	CRITICALITY				reject
+}
+
+mBMSsessionUpdate M3AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		MBMSSessionUpdateRequest
+	SUCCESSFUL OUTCOME		MBMSSessionUpdateResponse
+	UNSUCCESSFUL OUTCOME	MBMSSessionUpdateFailure
+	PROCEDURE CODE			id-mBMSsessionUpdate
+	CRITICALITY				reject
+}
+
+errorIndication M3AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		ErrorIndication
+	PROCEDURE CODE			id-errorIndication
+	CRITICALITY				ignore
+}
+
+reset M3AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE	Reset
+	SUCCESSFUL OUTCOME	ResetAcknowledge
+	PROCEDURE CODE		id-Reset
+	CRITICALITY			reject
+}
+
+privateMessage			M3AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		PrivateMessage
+	PROCEDURE CODE			id-privateMessage
+	CRITICALITY				ignore
+}
+
+mCEConfigurationUpdate M3AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		MCEConfigurationUpdate
+	SUCCESSFUL OUTCOME		MCEConfigurationUpdateAcknowledge
+	UNSUCCESSFUL OUTCOME	MCEConfigurationUpdateFailure
+	PROCEDURE CODE			id-mCEConfigurationUpdate
+	CRITICALITY				reject
+}
+
+
+m3Setup M3AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		M3SetupRequest
+	SUCCESSFUL OUTCOME		M3SetupResponse
+	UNSUCCESSFUL OUTCOME	M3SetupFailure
+	PROCEDURE CODE			id-m3Setup
+	CRITICALITY				reject
+}
+
+END

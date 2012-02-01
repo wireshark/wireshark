@@ -1,0 +1,474 @@
+-- M3AP-PDU-Contents.asn
+--
+-- 3GPP TS 36.444 V11.0.0 (2011-12)
+-- http://www.3gpp.org/ftp/Specs/archive/36_series/36.444/36444-b00.zip 
+--
+-- 9.3.4	PDU Definitions
+--
+-- $Id$
+--
+
+-- **************************************************************
+--
+-- PDU definitions for M3AP.
+--
+-- **************************************************************
+
+M3AP-PDU-Contents {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+eps-Access (21) modules (3) m3ap (5) version1 (1) m3ap-PDU-Contents (1) }
+DEFINITIONS AUTOMATIC TAGS ::= 
+
+BEGIN
+
+-- **************************************************************
+--
+-- IE parameter types from other modules.
+--
+-- **************************************************************
+
+IMPORTS
+	
+	Absolute-Time-ofMBMS-Data,
+	Cause,
+	CriticalityDiagnostics,
+	Global-MCE-ID,
+	MBMS-E-RAB-QoS-Parameters,
+	MBMS-Service-associatedLogicalM3-ConnectionItem,
+	MBMS-Service-Area,
+	MBMSServiceArea1,
+	MBMS-Session-Duration,
+	MBMS-Session-ID,
+	MCE-MBMS-M3AP-ID,
+	MCEname,
+	MinimumTimeToMBMSDataTransfer,
+	MME-MBMS-M3AP-ID,
+	TimeToWait,
+	TMGI,
+	TNL-Information
+
+FROM M3AP-IEs
+
+	PrivateIE-Container{},
+	ProtocolExtensionContainer{},
+	ProtocolIE-Container{},
+	ProtocolIE-ContainerList{},
+	ProtocolIE-ContainerPair{},
+	ProtocolIE-ContainerPairList{},
+	ProtocolIE-Single-Container{},
+	M3AP-PRIVATE-IES,
+	M3AP-PROTOCOL-EXTENSION,
+	M3AP-PROTOCOL-IES,
+	M3AP-PROTOCOL-IES-PAIR
+FROM M3AP-Containers
+
+	id-AllocationAndRetentionPriority,
+	id-MCE-MBMS-M3AP-ID,
+	id-MME-MBMS-M3AP-ID,
+	id-TMGI,
+	id-MBMS-Session-ID,
+	id-MBMS-E-RAB-QoS-Parameters,
+	id-MBMS-Session-Duration,
+	id-MBMS-Service-Area,
+	id-TNL-Information,
+	id-CriticalityDiagnostics,
+	id-Cause,
+	id-MBMS-Service-Area-List,
+	id-MBMS-Service-Area-List-Item,
+	id-TimeToWait,
+	id-ResetType,
+	id-MBMS-Service-associatedLogicalM3-ConnectionItem,
+	id-MBMS-Service-associatedLogicalM3-ConnectionListResAck,
+	id-MBMSServiceAreaList,
+	id-MinimumTimeToMBMSDataTransfer,
+	id-Time-ofMBMS-DataStop,
+	id-Time-ofMBMS-DataTransfer,
+	id-Global-MCE-ID,
+	id-MCEname,
+	maxnoofMBMSServiceAreasPerMCE,
+	maxnooferrors,
+	maxNrOfIndividualM3ConnectionsToReset
+
+FROM M3AP-Constants;
+
+-- **************************************************************
+--
+-- MBMS SESSION START REQUEST
+--
+-- **************************************************************
+
+MBMSSessionStartRequest ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{MBMSSessionStartRequest-IEs}},
+	...
+}
+
+MBMSSessionStartRequest-IEs M3AP-PROTOCOL-IES ::= {
+	{ ID id-MME-MBMS-M3AP-ID					CRITICALITY reject	TYPE MME-MBMS-M3AP-ID						PRESENCE mandatory}|
+	{ ID id-TMGI								CRITICALITY reject	TYPE TMGI		 							PRESENCE mandatory}|
+	{ ID id-MBMS-Session-ID						CRITICALITY ignore	TYPE MBMS-Session-ID						PRESENCE optional}|
+	{ ID id-MBMS-E-RAB-QoS-Parameters			CRITICALITY reject	TYPE MBMS-E-RAB-QoS-Parameters			PRESENCE mandatory}|
+	{ ID id-MBMS-Session-Duration				CRITICALITY reject	TYPE MBMS-Session-Duration					PRESENCE mandatory}|
+	{ ID id-MBMS-Service-Area					CRITICALITY reject	TYPE MBMS-Service-Area						PRESENCE mandatory}|
+	{ ID id-MinimumTimeToMBMSDataTransfer		CRITICALITY reject	TYPE MinimumTimeToMBMSDataTransfer		PRESENCE mandatory}|
+	{ ID id-TNL-Information						CRITICALITY reject	TYPE TNL-Information						PRESENCE mandatory}|
+	{ ID id-Time-ofMBMS-DataTransfer			CRITICALITY ignore	TYPE Absolute-Time-ofMBMS-Data			PRESENCE optional},
+	...
+}
+
+-- **************************************************************
+--
+-- MBMS SESSION START RESPONSE
+--
+-- **************************************************************
+
+MBMSSessionStartResponse ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{ MBMSSessionStartResponse-IEs}},
+	...
+}
+
+MBMSSessionStartResponse-IEs M3AP-PROTOCOL-IES ::= {
+	{ ID id-MME-MBMS-M3AP-ID					CRITICALITY ignore	TYPE MME-MBMS-M3AP-ID					PRESENCE mandatory } |
+	{ ID id-MCE-MBMS-M3AP-ID					CRITICALITY ignore	TYPE MCE-MBMS-M3AP-ID					PRESENCE mandatory } |
+	{ ID id-CriticalityDiagnostics				CRITICALITY ignore	TYPE CriticalityDiagnostics				PRESENCE optional  },
+	...
+}
+
+
+-- **************************************************************
+--
+-- MBMS SESSION START FAILURE
+--
+-- **************************************************************
+
+MBMSSessionStartFailure ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{ MBMSSessionStartFailure-IEs}},
+	...
+}
+
+MBMSSessionStartFailure-IEs M3AP-PROTOCOL-IES ::= {
+	{ ID id-MME-MBMS-M3AP-ID					CRITICALITY ignore	TYPE MME-MBMS-M3AP-ID					PRESENCE mandatory } |
+	{ ID id-Cause								CRITICALITY ignore	TYPE Cause								PRESENCE mandatory } |
+	{ ID id-CriticalityDiagnostics				CRITICALITY ignore	TYPE CriticalityDiagnostics				PRESENCE optional  },
+	...
+}
+
+
+-- **************************************************************
+--
+-- MBMS SESSION STOP REQUEST
+--
+-- **************************************************************
+
+MBMSSessionStopRequest ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{MBMSSessionStopRequest-IEs}},
+	...
+}
+
+MBMSSessionStopRequest-IEs M3AP-PROTOCOL-IES ::= {
+	{ ID id-MME-MBMS-M3AP-ID				CRITICALITY reject	TYPE MME-MBMS-M3AP-ID					PRESENCE mandatory}|
+	{ ID id-MCE-MBMS-M3AP-ID				CRITICALITY reject	TYPE MCE-MBMS-M3AP-ID					PRESENCE mandatory}|
+	{ ID id-Time-ofMBMS-DataStop			CRITICALITY ignore	TYPE Absolute-Time-ofMBMS-Data			PRESENCE optional},
+	...
+}
+
+-- **************************************************************
+--
+-- MBMS SESSION STOP RESPONSE
+--
+-- **************************************************************
+
+MBMSSessionStopResponse ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{ MBMSSessionStopResponse-IEs}},
+	...
+}
+
+MBMSSessionStopResponse-IEs M3AP-PROTOCOL-IES ::= {
+	{ ID id-MME-MBMS-M3AP-ID					CRITICALITY ignore	TYPE MME-MBMS-M3AP-ID					PRESENCE mandatory } |
+	{ ID id-MCE-MBMS-M3AP-ID					CRITICALITY ignore	TYPE MCE-MBMS-M3AP-ID					PRESENCE mandatory } |
+	{ ID id-CriticalityDiagnostics				CRITICALITY ignore	TYPE CriticalityDiagnostics				PRESENCE optional  } ,
+	...
+}
+
+-- **************************************************************
+--
+-- MBMS SESSION UPDATE REQUEST
+--
+-- **************************************************************
+
+MBMSSessionUpdateRequest ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{MBMSSessionUpdateRequest-IEs}},
+	...
+}
+
+MBMSSessionUpdateRequest-IEs M3AP-PROTOCOL-IES ::= {
+	{ ID id-MME-MBMS-M3AP-ID					CRITICALITY reject	TYPE MME-MBMS-M3AP-ID					PRESENCE mandatory}|
+	{ ID id-MCE-MBMS-M3AP-ID					CRITICALITY reject	TYPE MCE-MBMS-M3AP-ID					PRESENCE mandatory}|
+	{ ID id-TMGI								CRITICALITY reject	TYPE TMGI		 						PRESENCE mandatory}|
+	{ ID id-MBMS-Session-ID						CRITICALITY ignore	TYPE MBMS-Session-ID					PRESENCE optional}|
+	{ ID id-MBMS-E-RAB-QoS-Parameters			CRITICALITY reject	TYPE MBMS-E-RAB-QoS-Parameters		PRESENCE mandatory}|
+	{ ID id-MBMS-Session-Duration				CRITICALITY reject	TYPE MBMS-Session-Duration				PRESENCE mandatory}|
+	{ ID id-MBMS-Service-Area					CRITICALITY ignore	TYPE MBMS-Service-Area					PRESENCE optional}|
+	{ ID id-MinimumTimeToMBMSDataTransfer		CRITICALITY reject	TYPE MinimumTimeToMBMSDataTransfer	PRESENCE mandatory}|
+	{ ID id-TNL-Information						CRITICALITY ignore	TYPE TNL-Information					PRESENCE optional}|
+	{ ID id-Time-ofMBMS-DataTransfer			CRITICALITY ignore	TYPE Absolute-Time-ofMBMS-Data		PRESENCE optional},
+	...
+}
+
+-- **************************************************************
+--
+-- MBMS SESSION UPDATE RESPONSE
+--
+-- **************************************************************
+
+MBMSSessionUpdateResponse ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{ MBMSSessionUpdateResponse-IEs}},
+	...
+}
+
+MBMSSessionUpdateResponse-IEs M3AP-PROTOCOL-IES ::= {
+	{ ID id-MME-MBMS-M3AP-ID					CRITICALITY ignore	TYPE MME-MBMS-M3AP-ID					PRESENCE mandatory } |
+	{ ID id-MCE-MBMS-M3AP-ID					CRITICALITY ignore	TYPE MCE-MBMS-M3AP-ID					PRESENCE mandatory } |
+	{ ID id-CriticalityDiagnostics				CRITICALITY ignore	TYPE CriticalityDiagnostics				PRESENCE optional  },
+	...
+}
+
+-- **************************************************************
+--
+-- MBMS SESSION UPDATE FAILURE
+--
+-- **************************************************************
+
+MBMSSessionUpdateFailure ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{ MBMSSessionUpdateFailure-IEs}},
+	...
+}
+
+MBMSSessionUpdateFailure-IEs M3AP-PROTOCOL-IES ::= {
+	{ ID id-MME-MBMS-M3AP-ID					CRITICALITY ignore	TYPE MME-MBMS-M3AP-ID					PRESENCE mandatory } |
+	{ ID id-MCE-MBMS-M3AP-ID					CRITICALITY ignore	TYPE MCE-MBMS-M3AP-ID					PRESENCE mandatory } |
+	{ ID id-Cause								CRITICALITY ignore	TYPE Cause								PRESENCE mandatory } |
+	{ ID id-CriticalityDiagnostics				CRITICALITY ignore	TYPE CriticalityDiagnostics				PRESENCE optional  },
+	...
+}
+
+-- **************************************************************
+--
+-- ERROR INDICATION
+--
+-- **************************************************************
+
+ErrorIndication ::= SEQUENCE {
+	protocolIEs                     ProtocolIE-Container       {{ErrorIndication-IEs}},
+	...
+}
+
+ErrorIndication-IEs M3AP-PROTOCOL-IES ::= {
+	{ ID id-MME-MBMS-M3AP-ID				CRITICALITY ignore	TYPE MME-MBMS-M3AP-ID				PRESENCE optional	} |
+	{ ID id-MCE-MBMS-M3AP-ID				CRITICALITY ignore	TYPE MCE-MBMS-M3AP-ID				PRESENCE optional	} |
+	{ ID id-Cause							CRITICALITY ignore	TYPE Cause						PRESENCE optional	} |
+	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional	} ,
+	...
+}
+
+
+-- **************************************************************
+--
+-- Reset
+--
+-- **************************************************************
+
+Reset ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { {ResetIEs} },
+	...
+}
+
+ResetIEs M3AP-PROTOCOL-IES ::= {
+	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE mandatory	}|
+	{ ID id-ResetType				CRITICALITY reject	TYPE ResetType			PRESENCE mandatory	},
+	...
+}
+
+ResetType ::= CHOICE {
+	m3-Interface		ResetAll,
+	partOfM3-Interface		MBMS-Service-associatedLogicalM3-ConnectionListRes,
+	...
+}
+
+
+
+ResetAll ::= ENUMERATED {
+	reset-all,
+	...
+}
+
+MBMS-Service-associatedLogicalM3-ConnectionListRes ::= SEQUENCE (SIZE(1.. maxNrOfIndividualM3ConnectionsToReset)) OF ProtocolIE-Single-Container { { MBMS-Service-associatedLogicalM3-ConnectionItemRes } }
+
+MBMS-Service-associatedLogicalM3-ConnectionItemRes 	M3AP-PROTOCOL-IES ::= {
+	{ ID id-MBMS-Service-associatedLogicalM3-ConnectionItem	 CRITICALITY reject 	TYPE MBMS-Service-associatedLogicalM3-ConnectionItem 	PRESENCE mandatory },
+	...
+}
+
+
+-- **************************************************************
+--
+-- Reset Acknowledge
+--
+-- **************************************************************
+
+ResetAcknowledge ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { {ResetAcknowledgeIEs} },
+	...
+}
+
+ResetAcknowledgeIEs M3AP-PROTOCOL-IES ::= {
+	{ ID id-MBMS-Service-associatedLogicalM3-ConnectionListResAck		CRITICALITY ignore	TYPE MBMS-Service-associatedLogicalM3-ConnectionListResAck			PRESENCE optional	}|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional	},
+	...
+}
+
+MBMS-Service-associatedLogicalM3-ConnectionListResAck ::= SEQUENCE (SIZE(1.. maxNrOfIndividualM3ConnectionsToReset)) OF ProtocolIE-Single-Container { { MBMS-Service-associatedLogicalM3-ConnectionItemResAck } }
+
+MBMS-Service-associatedLogicalM3-ConnectionItemResAck	M3AP-PROTOCOL-IES ::= {
+	{ ID id-MBMS-Service-associatedLogicalM3-ConnectionItem	CRITICALITY ignore	TYPE MBMS-Service-associatedLogicalM3-ConnectionItem	PRESENCE mandatory },
+	...
+}
+
+-- **************************************************************
+--
+-- PRIVATE MESSAGE
+--
+-- **************************************************************
+
+PrivateMessage ::= SEQUENCE {
+	privateIEs		PrivateIE-Container  {{PrivateMessage-IEs}},
+	...
+}
+
+PrivateMessage-IEs M3AP-PRIVATE-IES ::= {
+	...
+}
+
+
+-- **************************************************************
+--
+-- M3 SETUP ELEMENTARY PROCEDURE
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- M3 Setup Request
+--
+-- **************************************************************
+
+M3SetupRequest ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { {M3SetupRequestIEs} },
+	...
+}
+
+M3SetupRequestIEs M3AP-PROTOCOL-IES ::= {
+	{ ID id-Global-MCE-ID			CRITICALITY reject	TYPE Global-MCE-ID					PRESENCE mandatory}|
+	{ ID id-MCEname					CRITICALITY ignore	TYPE MCEname						PRESENCE optional}|
+	{ ID id-MBMSServiceAreaList		CRITICALITY reject	TYPE MBMSServiceAreaListItem		PRESENCE mandatory},
+	...
+}
+
+
+MBMSServiceAreaListItem ::= SEQUENCE (SIZE(1..maxnoofMBMSServiceAreasPerMCE)) OF MBMSServiceArea1
+
+
+-- **************************************************************
+--
+-- M3 Setup Response
+--
+-- **************************************************************
+
+M3SetupResponse ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { {M3SetupResponseIEs} },
+	...
+}
+
+
+M3SetupResponseIEs M3AP-PROTOCOL-IES ::= {
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional},
+	...
+}
+
+-- **************************************************************
+--
+-- M3 Setup Failure
+--
+-- **************************************************************
+
+M3SetupFailure ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { {M3SetupFailureIEs} },
+	...
+}
+
+M3SetupFailureIEs M3AP-PROTOCOL-IES ::= {
+	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE mandatory}|
+	{ ID id-TimeToWait					CRITICALITY ignore	TYPE TimeToWait					PRESENCE optional}|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional},
+	...
+}
+
+-- **************************************************************
+--
+-- MCE CONFIGURATION UPDATE ELEMENTARY PROCEDURE
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- MCE Configuration Update 
+--
+-- **************************************************************
+
+MCEConfigurationUpdate ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { {MCEConfigurationUpdateIEs} },
+	...
+}
+
+MCEConfigurationUpdateIEs M3AP-PROTOCOL-IES ::= {
+	{ ID id-Global-MCE-ID			CRITICALITY reject	TYPE Global-MCE-ID					PRESENCE optional}|
+	{ ID id-MCEname					CRITICALITY ignore	TYPE MCEname						PRESENCE optional}|
+	{ ID id-MBMSServiceAreaList		CRITICALITY reject	TYPE MBMSServiceAreaListItem		PRESENCE optional},
+	...
+}
+
+-- **************************************************************
+--
+-- MCE Configuration Update Acknowledge
+--
+-- **************************************************************
+
+MCEConfigurationUpdateAcknowledge ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { {MCEConfigurationUpdateAcknowledgeIEs} },
+	...
+}
+
+
+MCEConfigurationUpdateAcknowledgeIEs M3AP-PROTOCOL-IES ::= {
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional	},
+	...
+}
+
+-- **************************************************************
+--
+-- MCE Configuration Update Failure
+--
+-- **************************************************************
+
+MCEConfigurationUpdateFailure ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { {MCEConfigurationUpdateFailureIEs} },
+	...
+}
+
+MCEConfigurationUpdateFailureIEs M3AP-PROTOCOL-IES ::= {
+	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE mandatory}|
+	{ ID id-TimeToWait					CRITICALITY ignore	TYPE TimeToWait					PRESENCE optional}|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional},
+	...
+}
+
+END

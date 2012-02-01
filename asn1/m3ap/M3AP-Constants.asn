@@ -1,0 +1,86 @@
+-- M3AP-Constants.asn
+--
+-- 3GPP TS 36.444 V11.0.0 (2011-12)
+-- http://www.3gpp.org/ftp/Specs/archive/36_series/36.444/36444-b00.zip
+--
+-- 9.3.7	Constant Definitions
+--
+-- $Id$
+--
+
+-- **************************************************************
+--
+-- Constant definitions
+--
+-- **************************************************************
+
+M3AP-Constants {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+eps-Access (21) modules (3) m3ap (5) version1 (1) m3ap-Constants (4) }
+
+DEFINITIONS AUTOMATIC TAGS ::= 
+
+BEGIN
+
+IMPORTS
+	ProcedureCode,
+	ProtocolIE-ID
+FROM M3AP-CommonDataTypes;
+
+-- **************************************************************
+--
+-- Elementary Procedures
+--
+-- **************************************************************
+
+id-mBMSsessionStart												ProcedureCode ::= 0
+id-mBMSsessionStop												ProcedureCode ::= 1
+id-errorIndication												ProcedureCode ::= 2
+id-privateMessage												ProcedureCode ::= 3
+id-Reset														ProcedureCode ::= 4
+id-mBMSsessionUpdate											ProcedureCode ::= 5
+id-mCEConfigurationUpdate										ProcedureCode ::= 6
+id-m3Setup														ProcedureCode ::= 7
+
+
+
+-- **************************************************************
+--
+-- Lists
+--
+-- **************************************************************
+
+maxnoofMBMSServiceAreasPerMCE				INTEGER ::= 65536
+maxnooferrors								INTEGER ::= 256
+maxNrOfIndividualM3ConnectionsToReset		INTEGER ::= 256
+
+-- **************************************************************
+--
+-- IEs
+--
+-- **************************************************************
+
+id-MME-MBMS-M3AP-ID															ProtocolIE-ID ::= 0
+id-MCE-MBMS-M3AP-ID															ProtocolIE-ID ::= 1
+id-TMGI																		ProtocolIE-ID ::= 2
+id-MBMS-Session-ID															ProtocolIE-ID ::= 3
+id-MBMS-E-RAB-QoS-Parameters												ProtocolIE-ID ::= 4
+id-MBMS-Session-Duration													ProtocolIE-ID ::= 5
+id-MBMS-Service-Area														ProtocolIE-ID ::= 6
+id-TNL-Information															ProtocolIE-ID ::= 7
+id-CriticalityDiagnostics													ProtocolIE-ID ::= 8
+id-Cause																	ProtocolIE-ID ::= 9
+id-MBMS-Service-Area-List													ProtocolIE-ID ::= 10
+id-MBMS-Service-Area-List-Item												ProtocolIE-ID ::= 11
+id-TimeToWait																ProtocolIE-ID ::= 12
+id-ResetType																ProtocolIE-ID ::= 13
+id-MBMS-Service-associatedLogicalM3-ConnectionItem							ProtocolIE-ID ::= 14
+id-MBMS-Service-associatedLogicalM3-ConnectionListResAck					ProtocolIE-ID ::= 15
+id-MinimumTimeToMBMSDataTransfer											ProtocolIE-ID ::= 16
+id-AllocationAndRetentionPriority											ProtocolIE-ID ::= 17
+id-Global-MCE-ID															ProtocolIE-ID ::= 18
+id-MCEname																	ProtocolIE-ID ::= 19
+id-MBMSServiceAreaList														ProtocolIE-ID ::= 20
+id-Time-ofMBMS-DataTransfer													ProtocolIE-ID ::= 21
+id-Time-ofMBMS-DataStop														ProtocolIE-ID ::= 22
+END
