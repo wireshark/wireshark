@@ -25,20 +25,6 @@ message( )
 message(CONFIG:)
 message(  $$CONFIG)
 message( )
-message(CFLAGS:)
-message(  $$QMAKE_CFLAGS)
-message(  $$QMAKE_CFLAGS_RELEASE)
-message(  $$QMAKE_CFLAGS_DEBUG)
-message( )
-message(CXXFLAGS:)
-message(  $$QMAKE_CXXFLAGS)
-message(  $$QMAKE_CXXFLAGS_RELEASE)
-message(  $$QMAKE_CXXFLAGS_DEBUG)
-message( )
-message(LFLAGS:)
-message(  $$QMAKE_LFLAGS)
-message(  $$QMAKE_LFLAGS_RELEASE)
-message(  $$QMAKE_LFLAGS_DEBUG)
 }
 
 win32 {
@@ -69,7 +55,7 @@ win32 {
     CONFIG -= debug
     CONFIG -= debug_and_release
 
-    # Use only Wireshark CFLAGS and LDFLAGS from config.nmake (as provided via config.pri)
+    # Use only Wireshark CFLAGS, CXXFLAGS and LDFLAGS from config.nmake (as provided via config.pri)
     #  for building the "release" version of Wireshark-Qt
     # (e.g., so we don't get the Qt release CFLAGS [specifically /O2]
     QMAKE_CFLAGS_RELEASE   = ""
@@ -82,27 +68,11 @@ win32 {
     }
 
     DESTDIR = wireshark-qt
-}
 
-xwin32 {
-message( )
-message(CONFIG:)
-message(  $$CONFIG)
-message( )
-message(CFLAGS:)
-message(  $$QMAKE_CFLAGS)
-message(  $$QMAKE_CFLAGS_RELEASE)
-message(  $$QMAKE_CFLAGS_DEBUG)
-message( )
-message(CXXFLAGS:)
-message(  $$QMAKE_CXXFLAGS)
-message(  $$QMAKE_CXXFLAGS_RELEASE)
-message(  $$QMAKE_CXXFLAGS_DEBUG)
-message( )
-message(LFLAGS:)
-message(  $$QMAKE_LFLAGS)
-message(  $$QMAKE_LFLAGS_RELEASE)
-message(  $$QMAKE_LFLAGS_DEBUG)
+    !wireshark_manifest_info_required {
+        CONFIG -= embed_manifest_dll
+        CONFIG -= embed_manifest_exe
+    }
 }
 
 INCLUDEPATH += ../.. ../../wiretap
@@ -237,13 +207,13 @@ unix: {
 }
 unix:!macx {
     for(FILE,EXTRA_BINFILES){
-        QMAKE_POST_LINK += $$quote(cp $${FILE} .$$escape_expand(\n\t))
+        QMAKE_POST_LINK += $$quote(cp $${FILE} .$$escape_expand(\\n\\t))
     }
 }
 # qmake 2.01a / Qt 4.7.0 doesn't set DESTDIR on OS X.
 macx {
     for(FILE,EXTRA_BINFILES){
-        QMAKE_POST_LINK += $$quote(cp $${FILE} Wireshark.app/Contents/MacOS$$escape_expand(\n\t))
+        QMAKE_POST_LINK += $$quote(cp $${FILE} Wireshark.app/Contents/MacOS$$escape_expand(\\n\\t))
     }
 }
 
@@ -290,18 +260,18 @@ win32 {
 
     EXTRA_BINFILES ~= s,/,\\,g
     for(FILE,EXTRA_BINFILES){
-        QMAKE_POST_LINK +=$$quote($(COPY_FILE) $${FILE} $(DESTDIR)$$escape_expand(\n\t))
+        QMAKE_POST_LINK +=$$quote($(COPY_FILE) $${FILE} $(DESTDIR)$$escape_expand(\\n\\t))
     }
-    PLUGINS_DIR = $(DESTDIR)\plugins\\$${VERSION}
-    QMAKE_POST_LINK +=$$quote($(CHK_DIR_EXISTS) $${PLUGINS_DIR} $(MKDIR) $${PLUGINS_DIR}$$escape_expand(\n\t))
-    QMAKE_POST_LINK +=$$quote($(COPY_FILE) ..\..\wireshark-gtk2\plugins\\$${VERSION}\*.dll $(DESTDIR)\plugins\\$${VERSION}$$escape_expand(\n\t))
+    PLUGINS_DIR = $(DESTDIR)\\plugins\\$${VERSION}
+    QMAKE_POST_LINK +=$$quote($(CHK_DIR_EXISTS) $${PLUGINS_DIR} $(MKDIR) $${PLUGINS_DIR}$$escape_expand(\\n\\t))
+    QMAKE_POST_LINK +=$$quote($(COPY_FILE) ..\\..\\wireshark-gtk2\\plugins\\$${VERSION}\\*.dll $(DESTDIR)\\plugins\\$${VERSION}$$escape_expand(\\n\\t))
 
     # This doesn't depend on wireshark-gtk2. It also doesn't work.
     #PLUGINS_IN_PWD=$${IN_PWD}
     #PLUGINS_OUT_PWD=$${OUT_PWD}
-    #QMAKE_POST_LINK +=$$quote(cd $$replace(PLUGINS_IN_PWD, /, \\)\\..\\..\\plugins$$escape_expand(\n\t))
-    #QMAKE_POST_LINK +=$$quote(nmake -f Makefile.nmake INSTALL_DIR=$$replace(PLUGINS_OUT_PWD, /, \\)\\$(DESTDIR)$$escape_expand(\n\t))
-    #QMAKE_POST_LINK +=$$quote(cd $$replace(PLUGINS_IN_PWD, /, \\)$$escape_expand(\n\t))
+    #QMAKE_POST_LINK +=$$quote(cd $$replace(PLUGINS_IN_PWD, /, \\)\\..\\..\\plugins$$escape_expand(\\n\\t))
+    #QMAKE_POST_LINK +=$$quote(nmake -f Makefile.nmake INSTALL_DIR=$$replace(PLUGINS_OUT_PWD, /, \\)\\$(DESTDIR)$$escape_expand(\\n\\t))
+    #QMAKE_POST_LINK +=$$quote(cd $$replace(PLUGINS_IN_PWD, /, \\)$$escape_expand(\\n\\t))
 
 }
 
@@ -312,3 +282,5 @@ RESOURCES += \
     display_filter.qrc
 
 ICON = ../../packaging/macosx/Resources/Wireshark.icns
+
+win32: QMAKE_CLEAN += *.pdb
