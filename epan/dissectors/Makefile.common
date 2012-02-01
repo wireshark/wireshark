@@ -135,6 +135,7 @@ ASN1_DISSECTOR_SRC = \
 	packet-logotypecertextn.c \
 	packet-lppa.c \
 	packet-lte-rrc.c \
+	packet-m3ap.c \
 	packet-mms.c \
 	packet-mpeg-audio.c \
 	packet-mpeg-pes.c \

@@ -221,6 +221,7 @@ set(ASN1_DISSECTOR_SRC
 	dissectors/packet-logotypecertextn.c
 	dissectors/packet-lppa.c
 	dissectors/packet-lte-rrc.c
+	dissectors/packet-m3ap.c
 	dissectors/packet-mms.c
 	dissectors/packet-mpeg-audio.c
 	dissectors/packet-mpeg-pes.c

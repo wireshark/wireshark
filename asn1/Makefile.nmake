@@ -124,6 +124,7 @@ PER_LIST= \
 	lppa			\
 	lte-rrc			\
 	nbap			\
+	m3ap			\
 	mpeg-audio		\
 	mpeg-pes		\
 	pcap			\

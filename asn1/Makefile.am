@@ -70,6 +70,7 @@ SUBDIRS = 		\
 	lpp \
 	lppa \
 	lte-rrc		\
+	m3ap	\
 	mms		\
 	mpeg-audio	\
 	mpeg-pes	\
