@@ -1,0 +1,171 @@
+# CMakeLists.txt
+#
+# $Id$
+#
+# Wireshark - Network traffic analyzer
+# By Gerald Combs <gerald@wireshark.org>
+# Copyright 1998 Gerald Combs
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+#
+
+
+set(QTSHARK_C_SRC
+	../../airpcap_loader.c
+	../../alert_box.c
+	../../capture-pcap-util.c
+	../../capture.c
+	../../capture_ifinfo.c
+	../../capture_info.c
+	../../capture_opts.c
+	../../capture_sync.c
+	../../capture_ui_utils.c
+	../../cfile.c
+	../../clopts_common.c
+	../../color_filters.c
+	../../disabled_protos.c
+	../../file.c
+	../../fileset.c
+	../../filters.c
+	../../frame_data_sequence.c
+	../../g711.c
+	../../merge.c
+	../../packet-range.c
+	../../print.c
+	../../proto_hier_stats.c
+	../../ps.c
+	../../recent.c
+	../../summary.c
+	../../sync_pipe_write.c
+	../../tap-megaco-common.c
+	../../tap-rtp-common.c
+	../../tempfile.c
+	../../timestats.c
+	../../u3.c
+	../../util.c
+	../../version_info.c
+)
+
+# All .h files which inherit from QObject aka which use the Q_OBJECT macro
+# need to go here.
+set(QTSHARK_H_SRC
+	byte_view_tab.h
+	byte_view_text.h
+	capture_file_dialog.h
+	capture_info_dialog.h
+	capture_interface_dialog.h
+	color_dialog.h
+	color_utils.h
+	display_filter_combo.h
+	display_filter_edit.h
+	fileset_dialog.h
+	interface_tree.h
+	label_stack.h
+	main_status_bar.h
+	main_welcome.h
+	main_window.h
+	monospace_font.h
+	packet_list.h
+	packet_list_model.h
+	packet_list_record.h
+	progress_dialog.h
+	proto_tree.h
+	qt_ui_utils.h
+	recent_file_status.h
+	simple_dialog_qt.h
+	wireshark_application.h
+)
+
+set(QTSHARK_CPP_SRC
+	byte_view_tab.cpp
+	byte_view_text.cpp
+	capture_file_dialog.cpp
+	capture_info_dialog.cpp
+	capture_interface_dialog.cpp
+	color_dialog.cpp
+	color_utils.cpp
+	display_filter_combo.cpp
+	display_filter_edit.cpp
+	fileset_dialog.cpp
+	interface_tree.cpp
+	label_stack.cpp
+	main.cpp
+	main_status_bar.cpp
+	main_welcome.cpp
+	main_window.cpp
+	monospace_font.cpp
+	packet_list.cpp
+	packet_list_model.cpp
+	packet_list_record.cpp
+	progress_dialog.cpp
+	proto_tree.cpp
+	qt_ui_utils.cpp
+	recent_file_status.cpp
+	simple_dialog_qt.cpp
+	wireshark_application.cpp
+)
+
+set(QTSHARK_SRC
+	${QTSHARK_C_SRC}
+	${QTSHARK_CPP_SRC}
+)
+
+set(QTSHARK_UI
+	main_window.ui
+)
+
+QT4_WRAP_UI(QTSHARK_UI_SRC ${QTSHARK_UI})
+
+QT4_WRAP_CPP(QTSHARK_MOC_SRC ${QTSHARK_H_SRC})
+
+set(CLEAN_FILES
+	${QTSHARK_SRC}
+)
+
+if (WERROR)
+	set_source_files_properties(
+		${CLEAN_FILES}
+		PROPERTIES
+		COMPILE_FLAGS -Werror
+	)
+endif()
+
+ADD_DEFINITIONS(${QT_DEFINITIONS})
+
+add_library(qtui STATIC
+	${QTSHARK_SRC}
+	${QTSHARK_UI_SRC}
+	${QTSHARK_MOC_SRC}
+)
+set_target_properties(qtui PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
+
+install(
+	DIRECTORY
+		ui
+	DIRECTORY_PERMISSIONS
+		OWNER_EXECUTE OWNER_WRITE OWNER_READ
+		GROUP_EXECUTE GROUP_READ
+		WORLD_EXECUTE WORLD_READ
+	DESTINATION
+		${CMAKE_INSTALL_DATADIR}/${CPACK_PACKAGE_NAME}
+	PATTERN ".svn" EXCLUDE
+)
+
+#install(TARGETS ui
+#	LIBRARY DESTINATION lib
+#	RUNTIME DESTINATION lib
+#	ARCHIVE DESTINATION lib
+#)
+
