@@ -219,46 +219,62 @@ dissect_option_route( guchar parm_type, int offset, guchar parm_len,
   guchar      netl     = 0;
   guchar      last_hop = 0;
   guchar      cnt_hops = 0;
+  guchar      crr      = 0;
 
   proto_item *ti;
   proto_tree *osi_route_tree = NULL;
 
-  static const value_string osi_opt_route[] = {
-        { 0x03, "No Network Entity Titles Recorded Yet"},
-        { 0xff, "Recording Terminated !"},
-        { 0,    NULL} };
-
   if ( parm_type == OSI_OPT_SOURCE_ROUTING ) {
     next_hop = tvb_get_guint8(tvb, offset + 1 );
     netl     = tvb_get_guint8(tvb, next_hop + 2 );
-    this_hop = offset + 3;         /* points to first netl */
-
+    this_hop = offset + 2;         /* points to first netl */
+    
     ti = proto_tree_add_text( tree, tvb, offset + next_hop, netl,
             "Source Routing: %s   ( Next Hop Highlighted In Data Buffer )",
             (tvb_get_guint8(tvb, offset) == 0) ? "Partial Source Routing" :
                                                  "Complete Source Routing"  );
   }
-  else {
+  else if ( parm_type == OSI_OPT_RECORD_OF_ROUTE ) {
+    crr = tvb_get_guint8(tvb, offset );
     last_hop = tvb_get_guint8(tvb, offset + 1 );
-        /* points to the end of the list */
-    netl     = tvb_get_guint8(tvb, last_hop );
-        /* mis-used to highlight buffer */
+    ti = proto_tree_add_text( tree, tvb, offset , parm_len ,
+            "Route Recording: %s ",
+            (crr == 0) ? "Partial Route Recording" :
+                         "Complete Route Recording"  );
+    osi_route_tree = proto_item_add_subtree( ti, ott_osi_route );
 
-    ti = proto_tree_add_text( tree, tvb, offset + next_hop, netl,
-            "Record of Route: %s : %s",
-            (tvb_get_guint8(tvb, offset) == 0) ? "Partial Source Routing" :
-                                                 "Complete Source Routing" ,
-            val_to_str( last_hop, osi_opt_route, "Unknown (0x%x" ) );
-    if ( 255 == last_hop )
-      this_hop = parm_len + 1;   /* recording terminated, nothing to show */
+    /* Complete Route Recording or Partial Route Recording */
+    if (crr == 0)
+      proto_tree_add_text( osi_route_tree, tvb, offset , 1,
+			   "Partial Route Recording");
+    if (crr == 1)
+      proto_tree_add_text( osi_route_tree, tvb, offset , 1,
+			   "Complete Route Recording");
+    /* "last_hop" is either :
+     *  0x03 : special value for no NET recorded yet.
+     *  0xFF : special value telling there is no more place 
+               in the Route Recording Allocated Length and
+               therefore next NETs won't be recorded.
+    *  Other value : Total length of recorded NETs so far. 
+    */
+    if (last_hop == 0x03)
+      proto_tree_add_text( osi_route_tree, tvb, offset + 1, 1,
+				"No Network Entity Titles Recorded Yet");
+    if (last_hop == 0xFF)
+      proto_tree_add_text( osi_route_tree, tvb, offset + 1, 1,
+			   "Recording Terminated : No more space !");
+    netl = tvb_get_guint8(tvb, this_hop + 2 );
+
+    if ( last_hop == 255 || last_hop == 0x03 )
+      this_hop = parm_len + 1;   /* recording terminated,
+				    or not begun, nothing to show */
     else
-      this_hop = offset + 3;
+    this_hop = offset + 2;         /* points to first netl */
   }
-  osi_route_tree = proto_item_add_subtree( ti, ott_osi_route );
-
-  while ( this_hop < parm_len ) {
-    netl = tvb_get_guint8(tvb, this_hop + 1);
-    proto_tree_add_text( osi_route_tree, tvb, offset + this_hop, netl,
+  
+  while ( this_hop < offset + last_hop -2 ) { /* -2 for crr and last_hop */
+    netl = tvb_get_guint8(tvb, this_hop );
+    proto_tree_add_text( osi_route_tree, tvb, this_hop , netl + 1,
                   "Hop #%3u NETL: %2u, NET: %s",
                   cnt_hops++,
                   netl,
