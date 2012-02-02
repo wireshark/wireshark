@@ -258,13 +258,13 @@ register_tap_files(wireshark-tap-register.c
 	${WIRESHARK_TAP_SRC}
 )
 
-add_library(ui STATIC
+add_library(gtkui STATIC
 	${WIRESHARK_GTK_SRC}
 	${WIRESHARK_TAP_SRC}
 	${PLATFORM_UI_SRC}
 	wireshark-tap-register.c
 )
-set_target_properties(ui PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
+set_target_properties(gtkui PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 
 install(
 	DIRECTORY

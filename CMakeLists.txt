@@ -241,7 +241,7 @@ if(ENABLE_PCAP)
 	set(PACKAGELIST ${PACKAGELIST} PCAP)
 endif()
 
-#Build the gui ?
+# Build the GTK-GUI?
 if(BUILD_wireshark)
 	if(ENABLE_GTK3)
 		set(PACKAGELIST ${PACKAGELIST} GTK3)
@@ -251,6 +251,12 @@ if(BUILD_wireshark)
 		set(GTK2_FIND_VERSION 2.12)
 		set(GTK2_DEBUG false)
 	endif()
+endif()
+
+# Build the Qt GUI?
+if(BUILD_qtshark)
+	set(PACKAGELIST ${PACKAGELIST} QT)
+	# set(QT_OPTIONS 4.7.1 REQUIRED QtCore QtGui)
 endif()
 
 # SMI SNMP
@@ -319,12 +325,17 @@ set(PROGLIST text2pcap mergecap capinfos editcap dumpcap)
 
 #Let's loop the package list
 foreach(PACKAGE ${PACKAGELIST})
-	if(${PACKAGE}_OPTIONS)
-		find_package(${PACKAGE} ${${PACKAGE}_OPTIONS})
-	elseif(${PACKAGE}_REQUIRED)
-		find_package(${PACKAGE} REQUIRED)
+	if(${PACKAGE} EQUAL "QT")
+		set(PACKAGE_NAME "Qt4")
 	else()
-		find_package(${PACKAGE})
+		set(PACKAGE_NAME ${PACKAGE})
+	endif()
+	if(${PACKAGE}_OPTIONS)
+		find_package(${PACKAGE_NAME} ${${PACKAGE}_OPTIONS})
+	elseif(${PACKAGE}_REQUIRED)
+		find_package(${PACKAGE_NAME} REQUIRED)
+	else()
+		find_package(${PACKAGE_NAME})
 	endif()
 	message(${PACKAGE}_FOUND)
 	if (${PACKAGE}_FOUND)
@@ -425,6 +436,11 @@ if(BUILD_wireshark AND GTK_FOUND)
 	add_subdirectory( ui/gtk )
 endif()
 
+if(BUILD_qtshark AND QT_FOUND)
+	add_subdirectory( ui/qt )
+endif()
+
+
 # Basedir where to install guides
 set(DOC_DIR "$ENV{docdir}")
 message(STATUS "docdir: ${DOC_DIR}")
@@ -471,6 +487,7 @@ PRINT_DISABLED_FEATURES()
 
 link_directories(
 	${CMAKE_BINARY_DIR}/ui/gtk
+	${CMAKE_BINARY_DIR}/ui/qt
 	${CMAKE_BINARY_DIR}/codecs
 	${CMAKE_BINARY_DIR}/epan
 	${CMAKE_BINARY_DIR}/wiretap
@@ -645,18 +662,7 @@ set(LIBEPAN_LIBS
 		${M_LIBRARIES}
 )
 
-if(BUILD_wireshark AND GTK_FOUND)
-	set(wireshark_LIBS
-		ui
-		${GTK2_LIBRARIES}
-		${GTK3_LIBRARIES}
-		${GTHREAD2_LIBRARIES}
-		codecs
-		${PORTAUDIO_LIBRARIES}
-		${LIBEPAN_LIBS}
-		${APPLE_CORE_SERVICES_LIBRARY}
-		${APPLE_COCOA_LIBRARY}
-	)
+if( (BUILD_wireshark AND GTK_FOUND) OR (BUILD_qtshark AND QT_FOUND) )
 	set(wireshark_FILES
 		airpcap_loader.c
 		alert_box.c
@@ -678,11 +684,47 @@ if(BUILD_wireshark AND GTK_FOUND)
 		${SHARK_COMMON_CAPTURE_SRC}
 		${WIRESHARK_COMMON_SRC}
 	)
+endif()
+
+if(BUILD_wireshark AND GTK_FOUND)
+	set(wireshark_LIBS
+		gtkui
+		${GTK2_LIBRARIES}
+		${GTK3_LIBRARIES}
+		${GTHREAD2_LIBRARIES}
+		codecs
+		${PORTAUDIO_LIBRARIES}
+		${LIBEPAN_LIBS}
+		${APPLE_CORE_SERVICES_LIBRARY}
+		${APPLE_COCOA_LIBRARY}
+	)
+	# qtshark and wireshark share wireshark_FILES
+
 	add_executable(wireshark ${wireshark_FILES})
 	add_dependencies(wireshark svnversion)
 	set_target_properties(wireshark PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 	target_link_libraries(wireshark ${wireshark_LIBS})
 	install(TARGETS wireshark RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+endif()
+
+if(BUILD_qtshark AND QT_FOUND)
+	set(qtshark_LIBS
+		qtui
+		${QT_LIBRARIES}
+		${GTHREAD2_LIBRARIES}
+		codecs
+		${PORTAUDIO_LIBRARIES}
+		${LIBEPAN_LIBS}
+		${APPLE_CORE_SERVICES_LIBRARY}
+		${APPLE_COCOA_LIBRARY}
+	)
+	# qtshark and wireshark share wireshark_FILES
+
+	add_executable(qtshark ${wireshark_FILES})
+	add_dependencies(qtshark svnversion)
+	set_target_properties(qtshark PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
+	target_link_libraries(qtshark ${qtshark_LIBS})
+	install(TARGETS qtshark RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
 register_tap_files(tshark-tap-register.c

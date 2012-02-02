@@ -2,7 +2,8 @@
 
 # $Id$
 
-option(BUILD_wireshark   "Build the GUI version of Wireshark" ON)
+option(BUILD_wireshark   "Build the GTK-GUI version of Wireshark" ON)
+option(BUILD_qtshark     "Build the QT-GUI version of Wireshark" OFF)
 option(BUILD_tshark      "Build tshark" ON)
 option(BUILD_rawshark    "Build rawshark" ON)
 option(BUILD_dumpcap     "Build dumpcap" ON)
