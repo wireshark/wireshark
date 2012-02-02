@@ -846,9 +846,9 @@ process_libs:
 !IFDEF ZLIB_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
 !if "$(WIRESHARK_TARGET_PLATFORM)" == "win32"
-		zlib125 zlib-1.2.5.zip
+		zlib126 zlib126ws.zip
 !else
-		zlib125 zlib125ws.zip
+		zlib126 zlib126ws.zip
 !endif
 !ENDIF
 !IFDEF LUA_DIR
