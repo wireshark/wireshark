@@ -15,13 +15,26 @@ The Qt interface for Wireshark has been compiled and tested on Mac OS X 10.6
 Compilation via Qt Creator has been tested but command-line compilation using
 QMake and make or nmake should work.
 
-The ui/qt directory is loosely coupled with the rest of the codebase. The main
-Wireshark sources must be built beforehand using CMake on Linux and OS X and
-nmake on Windows. Autotools + QMake is a basket full of crazy that hasn't yet
-been sorted and folded.  (Autotools + Boring Old Make, without using
-QMake at all, might actually be simpler:
+There are several ways of building qtshark:
+
+1) Using qtcreator:
+   The ui/qt directory is loosely coupled with the rest of the codebase. The main
+   Wireshark sources must be built beforehand using CMake on Linux and OS X and
+   nmake on Windows. Autotools + QMake is a basket full of crazy that hasn't yet
+   been sorted and folded.  (Autotools + Boring Old Make, without using
+   QMake at all, might actually be simpler:
 
 	http://www.mail-archive.com/automake@gnu.org/msg11149.html
+
+2) Using cmake:
+   set BUILD_qtshark to ON (default: OFF) in CmakeOptions.txt (may be set
+   in parallel with BUILD_wireshark).
+   Do the normal out-of-tree or in-tree build.
+   This has only been tested on a current openSUSE Linux system with fairly
+   current QT and cmake. It may be necessary to copy the FindQt4.cmake and
+   supporting files from cmake to Wireshark's cmake/modules/
+   If using cmake installing qtcreator is not required. Basically almost
+   all stuff below can be ignored ;-)
 
 Work is in progress on this.)
 
