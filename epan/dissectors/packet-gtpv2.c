@@ -339,6 +339,10 @@ static int hf_gtpv2_bss_con_xid = -1;
 static int hf_gtpv2_home_enodeb_id = -1;
 static int hf_gtpv2_tac = -1;
 
+/* MBMS */
+static int hf_gtpv2_mbms_service_area_nr = -1;
+static int hf_gtpv2_mbms_service_area_id = -1;
+
 static gint ett_gtpv2 = -1;
 static gint ett_gtpv2_flags = -1;
 static gint ett_gtpv2_ie = -1;
@@ -493,13 +497,18 @@ static const value_string gtpv2_message_type_vals[] = {
     /* SGW to SGSN/MME (S4/S11) */
     {176, "Downlink Data Notification"},
     {177, "Downlink Data Notification Acknowledgement"},
-    /* SGW to SGSN (S4) */
-    {178, "Update Bearer Complete"},
-    /* 179-191 For future use */
-    /* Other */
+    {178, "Reserved. Allocated in earlier version of the specification."},
+    {179, "PGW Restart Notification"},
+    {180, "PGW Restart Notification Acknowledge"},
+    /* 181-199 For future use */
+    /* SGW to PGW, PGW to SGW (S5/S8) */
     {200, "Update PDN Connection Set Request"},
     {201, "Update PDN Connection Set Response"},
-    /* 202 to 230 For future use */
+    /* 202 to 210 For future use */
+    /* MME to SGW (S11) */
+    {211, "Modify Access Bearers Request"},
+    {212, "Modify Access Bearers Response"},
+    /* 213 to 230 For future use */
     /* MBMS GW to MME/SGSN (Sm/Sn) */
     {231, "MBMS Session Start Request"},
     {323, "MBMS Session Start Response"},
@@ -599,6 +608,33 @@ static const value_string gtpv2_message_type_vals[] = {
 #define GTPV2_IE_NODE_TYPE              135
 #define GTPV2_IE_FQDN                   136
 #define GTPV2_IE_TI                     137
+#define GTPV2_IE_MBMS_SESSION_DURATION  138
+#define GTPV2_IE_MBMS_SERVICE_AREA      139
+#define GTPV2_IE_MBMS_SESSION_ID        140
+#define GTPV2_IE_MBMS_FLOW_ID           141
+#define GTPV2_IE_MBMS_IP_MC_DIST        142
+#define GTPV2_IE_MBMS_DIST_ACK          143
+#define GTPV2_IE_RFSP_INDEX             144
+#define GTPV2_IE_UCI                    145
+#define GTPV2_IE_CSG_INFO_REP_ACTION    146
+#define GTPV2_IE_CSG_ID                 147
+#define GTPV2_IE_CMI                    148
+#define GTPV2_IE_SERVICE_INDICATOR      149
+#define GTPV2_IE_DETACH_TYPE            150
+#define GTPV2_IE_LDN                    151
+#define GTPV2_IE_NODE_FEATURES          152
+#define GTPV2_IE_MBMS_TIME_TO_DATA_XFER 153
+#define GTPV2_IE_THROTTLING             154
+#define GTPV2_IE_ARP                    155
+#define GTPV2_IE_EPC_TIMER              156
+#define GTPV2_IE_SIG_PRIO_IND           157
+#define GTPV2_IE_TMGI                   158
+#define GTPV2_IE_ADD_MM_CONT_FOR_SRVCC  159
+#define GTPV2_IE_ADD_FLAGS_FOR_SRVCC    160
+#define GTPV2_IE_MMBR                   161
+#define GTPV2_IE_MDT_CONFIG             162
+#define GTPV2_IE_APCO                   163
+/* 164 to 254 reserved for future use */
 #define GTPV2_IE_PRIVATE_EXT            255
 
 #define SPARE                               0X0
@@ -713,13 +749,21 @@ static const value_string gtpv2_element_type_vals[] = {
     {148, "CSG Membership Indication (CMI)"},                                   /* Extendable / 8.79 */
     {149, "Service indicator"},                                                 /* Fixed Length / 8.80 */
     {150, "Detach Type"},                                                       /* Fixed Length / 8.81 */
-    {151, "Local Distiguished Name (LDN)"},                                     /* Variable / 8.82 */
+    {151, "Local Distiguished Name (LDN)"},                                     /* Variable Length / 8.82 */
     {152, "Node Features"},                                                     /* Extendable / 8.83 */
     {153, "MBMS Time to Data Transfer"},                                        /* Extendable / 8.84 */
     {154, "Throttling"},                                                        /* Extendable / 8.85 */
     {155, "Allocation/Retention Priority (ARP)"},                               /* Extendable / 8.86 */
-    /* 156 to 254 Spare. For future use.  */                                    /* For future use. FFS */
-    {255, "Private Extension"},                                                 /* Extension Extendable / 8.67 */
+    {156, "EPC Timer"},                                                         /* Extendable / 8.87 */
+    {157, "Signalling Priority Indication"},                                    /* Extendable / 8.88 */
+    {158, "Temporary Mobile Group Identity"},                                   /* Extendable / 8.89 */
+    {159, "Additional MM context for SRVCC"},                                   /* Extendable / 8.90 */
+    {160, "Additional flags for SRVCC"},                                        /* Extendable / 8.91 */
+    {161, "Max MBR/APN-AMBR (MMBR)"},                                           /* Extendable / 8.92 */
+    {162, "MDT Configuration"},                                                 /* Extendable / 8.93 */
+    {163, "Additional Protocol Configuration Options (APCO)"},                  /* Extendable / 8.94 */
+    /* 164 to 254 Spare. For future use.  */                                    /* For future use. FFS */
+    {255, "Private Extension"},                                                 /* Variable Length / 8.67 */
     {0, NULL}
 };
 
@@ -3806,98 +3850,472 @@ dissect_gtpv2_ti(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_
 
 }
 
+/*
+ * 8.69 MBMS Session Duration
+ */
+static void
+dissect_gtpv2_mbms_session_duration(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+{
+    int bit_offset = 0;
+    guint32 days;
+    guint32 hours;
+    guint32 seconds;
+     
+    /* From 3GPP TS 29.061 17.7.7 MBMS-Session-Duration AVP */
+    /* Total length is three; is it suitable to use tvb_get_bits32() in order to extract 24 bits? */
+    /* Bits: ssss ssss ssss ssss sddd dddd 0000 0000 where s bits = seconds, d bits = days
+     * Will tvb_get_bits32() put the bits in the correct positions? 
+     * It should be:     0000 0000 0000 000s ssss ssss ssss ssss (maximum = 131,071, maximum allowed = 86,400)
+     * But I fear it is: ssss ssss ssss ssss s000 0000 0000 0000 (maximum = a very big number!)
+     * The same for days. */
+    seconds = tvb_get_bits32(tvb, bit_offset, 17, ENC_BIG_ENDIAN);
+    bit_offset += 17;
+
+    days = tvb_get_bits32(tvb, bit_offset, 7, ENC_BIG_ENDIAN);
+    bit_offset += 7;
+
+    /* The lowest value of this AVP (i.e. all 0:s) is reserved to indicate an indefinite value to denote sessions that are expected to be always-on. */
+    /* Since the maximum allowed values for both seconds and days are smaller than the maximum permitted by the number of bits,
+     * I've implemented a basic check. */
+    if((days>18) || (seconds>86400)) {
+        /* Report potentially malformed packet */
+    } 
+
+    if((seconds&days) == 0xFFFFFFFF) {
+        proto_item_append_text(item, "Indefinite (always-on)");
+    }else {
+        hours = seconds / 60;
+        seconds = seconds % 60;
+
+        proto_item_append_text(item, "%d Day(s) %d Hour(s) %d Second(s)", days, hours, seconds);
+    }
+}
+
+/*
+ * 8.70 MBMS Service Area
+ */
+static void
+dissect_gtpv2_mbms_service_area(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+{
+    int offset = 0;
+
+    /* 3GPP TS 29.061 17.7.6 MBMS-Service-Area AVP */
+    proto_tree_add_item(tree, hf_gtpv2_mbms_service_area_nr, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    /* A consecutive list of MBMS Service Area Identities follow, each with a length of two octets. */
+    while(offset<length) {
+        /* 3GPP TS 23.003 15.3 Structure of MBMS SAI
+         * The value 0 denotes the whole of PLMN as the MBMS Service Area */
+        guint16 sai = tvb_get_bits16(tvb, 0, 16, ENC_BIG_ENDIAN);
+        if(sai == 0) {
+            proto_item_append_text(item, "Entire PLMN");
+        }
+        else {
+            proto_tree_add_item(tree, hf_gtpv2_mbms_service_area_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+        }
+        offset += 2;
+    }
+}
+
+/*
+ * 8.71 MBMS Session Identifier
+ */
+static void
+dissect_gtpv2_mbms_session_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, _U_ guint8 message_type _U_, guint8 instance _U_)
+{
+    /* One octet OctetString.
+     * Need something extra to further dissect these? 3GPP TS 29.061 17.7.11. */
+    proto_item *expert_item;
+
+    expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
+    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_NOTE, "IE data not dissected yet");
+    PROTO_ITEM_SET_GENERATED(expert_item);
+
+}
+
+/* 
+ * 8.72 MBMS Flow Identifier
+ */
+static void
+dissect_gtpv2_mbms_flow_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+{
+    /* Two octets OctetString. 
+     * 3GPP TS 29.061 17.7.23 */ 
+    proto_item *expert_item;
+
+    expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
+    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_NOTE, "IE data not dissected yet");
+    PROTO_ITEM_SET_GENERATED(expert_item);
+
+}
+
+/* 
+ * 8.73 MBMS IP Multicast Distribution
+ */
+static void
+dissect_gtpv2_mbms_ip_mc_dist(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+{
+    proto_item *expert_item;
+
+    expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
+    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_NOTE, "IE data not dissected yet");
+    PROTO_ITEM_SET_GENERATED(expert_item);
+}
+
+
+
+/* 8.74 MBMS Distribution Acknowledge */
+static void
+dissect_gtpv2_mbms_dist_ack(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+{
+    proto_item *expert_item;
+
+    expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
+    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_NOTE, "IE data not dissected yet");
+    PROTO_ITEM_SET_GENERATED(expert_item);
+}
+
+
+/* 8.75 User CSG Information (UCI) */
+static void
+dissect_gtpv2_uci(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+{
+    proto_item *expert_item;
+
+    expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
+    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_NOTE, "IE data not dissected yet");
+    PROTO_ITEM_SET_GENERATED(expert_item);
+}
+
+/* 8.76 CSG Information Reporting Action */
+static void
+dissect_gtpv2_csg_info_rep_action(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+{
+    proto_item *expert_item;
+
+    expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
+    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_NOTE, "IE data not dissected yet");
+    PROTO_ITEM_SET_GENERATED(expert_item);
+}
+
+/* 8.77 RFSP Index */
+static void
+dissect_gtpv2_rfsp_index(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+{
+    proto_item *expert_item;
+
+    expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
+    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_NOTE, "IE data not dissected yet");
+    PROTO_ITEM_SET_GENERATED(expert_item);
+}
+
+/* 8.78 CSG ID */
+static void
+dissect_gtpv2_csg_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+{
+    proto_item *expert_item;
+
+    expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
+    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_NOTE, "IE data not dissected yet");
+    PROTO_ITEM_SET_GENERATED(expert_item);
+}
+
+/* 8.79 CSG Membership Indication (CMI) */
+static void
+dissect_gtpv2_cmi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+{
+    proto_item *expert_item;
+
+    expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
+    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_NOTE, "IE data not dissected yet");
+    PROTO_ITEM_SET_GENERATED(expert_item);
+}
+
+/* 8.80 Service indicator */
+static void
+dissect_gtpv2_service_indicator(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+{
+    proto_item *expert_item;
+
+    expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
+    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_NOTE, "IE data not dissected yet");
+    PROTO_ITEM_SET_GENERATED(expert_item);
+}
+
+/* 8.81 Detach Type */
+static void
+dissect_gtpv2_detach_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+{
+    proto_item *expert_item;
+
+    expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
+    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_NOTE, "IE data not dissected yet");
+    PROTO_ITEM_SET_GENERATED(expert_item);
+}
+
+/* 8.82 Local Distinguished Name (LDN) */
+static void
+dissect_gtpv2_ldn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+{
+    proto_item *expert_item;
+
+    expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
+    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_NOTE, "IE data not dissected yet");
+    PROTO_ITEM_SET_GENERATED(expert_item);
+}
+
+/* 8.83 Node Features */
+static void
+dissect_gtpv2_node_features(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+{
+    proto_item *expert_item;
+
+    expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
+    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_NOTE, "IE data not dissected yet");
+    PROTO_ITEM_SET_GENERATED(expert_item);
+}
+
+/* 8.84 MBMS Time to Data Transfer */
+static void
+dissect_gtpv2_mbms_time_to_data_xfer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+{
+    proto_item *expert_item;
+
+    expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
+    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_NOTE, "IE data not dissected yet");
+    PROTO_ITEM_SET_GENERATED(expert_item);
+}
+
+/* 8.85 Throttling */
+static void
+dissect_gtpv2_throttling(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+{
+    proto_item *expert_item;
+
+    expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
+    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_NOTE, "IE data not dissected yet");
+    PROTO_ITEM_SET_GENERATED(expert_item);
+}
+
+/* 8.86 Allocation/Retention Priority (ARP) */
+static void
+dissect_gtpv2_arp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+{
+    proto_item *expert_item;
+
+    expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
+    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_NOTE, "IE data not dissected yet");
+    PROTO_ITEM_SET_GENERATED(expert_item);
+}
+
+/* 8.87 EPC Timer */
+static void
+dissect_gtpv2_epc_timer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+{
+    proto_item *expert_item;
+
+    expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
+    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_NOTE, "IE data not dissected yet");
+    PROTO_ITEM_SET_GENERATED(expert_item);
+}
+
+/* 8.88 Signalling Priority Indication */
+static void
+dissect_gtpv2_sig_prio_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+{
+    proto_item *expert_item;
+
+    expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
+    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_NOTE, "IE data not dissected yet");
+    PROTO_ITEM_SET_GENERATED(expert_item);
+}
+
+/* 8.89 Temporary Mobile Group Identity (TMGI) */
+static void
+dissect_gtpv2_tmgi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+{
+    proto_item *expert_item;
+
+    expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
+    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_NOTE, "IE data not dissected yet");
+    PROTO_ITEM_SET_GENERATED(expert_item);
+}
+
+/* 8.90 Additional MM context for SRVCC */
+static void
+dissect_gtpv2_add_mm_cont_for_srvcc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+{
+    proto_item *expert_item;
+
+    expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
+    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_NOTE, "IE data not dissected yet");
+    PROTO_ITEM_SET_GENERATED(expert_item);
+}
+
+/* 8.91 Additional flags for SRVCC */
+static void
+dissect_gtpv2_add_flags_for_srvcc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+{
+    proto_item *expert_item;
+
+    expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
+    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_NOTE, "IE data not dissected yet");
+    PROTO_ITEM_SET_GENERATED(expert_item);
+}
+
+/* 8.92 Max MBR/APN-AMBR (MMBR) */
+static void
+dissect_gtpv2_mmbr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+{
+    proto_item *expert_item;
+
+    expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
+    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_NOTE, "IE data not dissected yet");
+    PROTO_ITEM_SET_GENERATED(expert_item);
+}
+
+/* 8.93 MDT Configuration */
+static void
+dissect_gtpv2_mdt_config(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+{
+    proto_item *expert_item;
+
+    expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
+    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_NOTE, "IE data not dissected yet");
+    PROTO_ITEM_SET_GENERATED(expert_item);
+}
+
+/* 8.94 Additional Protocol Configuration Options (APCO) */
+static void
+dissect_gtpv2_apco(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+{
+    proto_item *expert_item;
+
+    expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
+    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_NOTE, "IE data not dissected yet");
+    PROTO_ITEM_SET_GENERATED(expert_item);
+}
+
+
 typedef struct _gtpv2_ie {
     int ie_type;
     void (*decode) (tvbuff_t *, packet_info *, proto_tree *, proto_item *, guint16, guint8, guint8);
 } gtpv2_ie_t;
 
 static const gtpv2_ie_t gtpv2_ies[] = {
-    {GTPV2_IE_IMSI, dissect_gtpv2_imsi},
-    {GTPV2_IE_CAUSE, dissect_gtpv2_cause},                           /* 2, Cause (without embedded offending IE) 8.4 */
-    {GTPV2_REC_REST_CNT, dissect_gtpv2_recovery},                    /* 3, Recovery (Restart Counter) 8.5 */
-                                                                     /* 4-50 Reserved for S101 interface Extendable / See 3GPP TS 29.276 [14] */
-/*Start SRVCC Messages 3GPP TS 29.280 */
-    {GTPV2_IE_STN_SR, dissect_gtpv2_stn_sr},                            /* 51 51 STN-SR */
-    {GTPV2_IE_SRC_TGT_TRANS_CON, dissect_gtpv2_src_tgt_trans_con},      /* 52 Source to Target Transparent Container */
-    {GTPV2_IE_TGT_SRC_TRANS_CON , dissect_gtpv2_tgt_src_trans_con},     /* 53 Target to Source Transparent Container */
-    {GTPV2_IE_MM_CON_EUTRAN_SRVCC, dissect_gtpv2_mm_con_eutran_srvcc},  /* 54 MM Context for E-UTRAN SRVCC */
-    {GTPV2_IE_MM_CON_UTRAN_SRVCC, dissect_gtpv2_mm_con_utran_srvcc},    /* 55 MM Context for UTRAN SRVCC */
-    {GTPV2_IE_SRVCC_CAUSE, dissect_gtpv2_srvcc_cause},                  /* 56 SRVCC Cause */
-    {GTPV2_IE_TGT_RNC_ID, dissect_gtpv2_tgt_rnc_id},                    /* 57 Target RNC ID */
-    {GTPV2_IE_TGT_GLOGAL_CELL_ID, dissect_gtpv2_tgt_global_cell_id},    /* 58 Target Global Cell ID */
-    {GTPV2_IE_TEID_C, dissect_gtpv2_teid_c},                            /* 59 TEID-C */
-    {GTPV2_IE_SV_FLAGS, dissect_gtpv2_sv_flags},                        /* 60 Sv Flags */
-    {GTPV2_IE_SAI, dissect_gtpv2_sai},                                  /* 61 Service Area Identifie */
-    /* 61-70 Reserved for Sv interface Extendable / See 3GPP TS 29.280 [15] */
+    {GTPV2_IE_IMSI, dissect_gtpv2_imsi},                                   /* 1, Internal Mobile Subscriber Identity (IMSI) */
+    {GTPV2_IE_CAUSE, dissect_gtpv2_cause},                                 /* 2, Cause (without embedded offending IE) 8.4 */
+    {GTPV2_REC_REST_CNT, dissect_gtpv2_recovery},                          /* 3, Recovery (Restart Counter) 8.5 */
+                                                                           /* 4-50 Reserved for S101 interface Extendable / See 3GPP TS 29.276 [14] */
+    /*Start SRVCC Messages 3GPP TS 29.280 */
+    {GTPV2_IE_STN_SR, dissect_gtpv2_stn_sr},                               /* 51 51 STN-SR */
+    {GTPV2_IE_SRC_TGT_TRANS_CON, dissect_gtpv2_src_tgt_trans_con},         /* 52 Source to Target Transparent Container */
+    {GTPV2_IE_TGT_SRC_TRANS_CON , dissect_gtpv2_tgt_src_trans_con},        /* 53 Target to Source Transparent Container */
+    {GTPV2_IE_MM_CON_EUTRAN_SRVCC, dissect_gtpv2_mm_con_eutran_srvcc},     /* 54 MM Context for E-UTRAN SRVCC */
+    {GTPV2_IE_MM_CON_UTRAN_SRVCC, dissect_gtpv2_mm_con_utran_srvcc},       /* 55 MM Context for UTRAN SRVCC */
+    {GTPV2_IE_SRVCC_CAUSE, dissect_gtpv2_srvcc_cause},                     /* 56 SRVCC Cause */
+    {GTPV2_IE_TGT_RNC_ID, dissect_gtpv2_tgt_rnc_id},                       /* 57 Target RNC ID */
+    {GTPV2_IE_TGT_GLOGAL_CELL_ID, dissect_gtpv2_tgt_global_cell_id},       /* 58 Target Global Cell ID */
+    {GTPV2_IE_TEID_C, dissect_gtpv2_teid_c},                               /* 59 TEID-C */
+    {GTPV2_IE_SV_FLAGS, dissect_gtpv2_sv_flags},                           /* 60 Sv Flags */
+    {GTPV2_IE_SAI, dissect_gtpv2_sai},                                     /* 61 Service Area Identifie */
+                                                                           /* 61-70 Reserved for Sv interface Extendable / See 3GPP TS 29.280 [15] */
 
-    {GTPV2_APN, dissect_gtpv2_apn},                                  /* 71, Access Point Name (APN) 8.6 */
-    {GTPV2_AMBR, dissect_gtpv2_ambr},                                /* 72, Aggregate Maximum Bit Rate (AMBR) */
-    {GTPV2_EBI, dissect_gtpv2_ebi},                                  /* 73, EPS Bearer ID (EBI)  8.8 */
-    {GTPV2_IP_ADDRESS, dissect_gtpv2_ip_address},                    /* 74, IP Address */
-    {GTPV2_MEI, dissect_gtpv2_mei},                                  /* 74, Mobile Equipment Identity */
-    {GTPV2_IE_MSISDN, dissect_gtpv2_msisdn},                         /* 76, MSISDN 8.11 */
-    {GTPV2_INDICATION, dissect_gtpv2_ind},                           /* 77 Indication 8.12 */
-    {GTPV2_PCO, dissect_gtpv2_pco},                                  /* 78 Protocol Configuration Options (PCO) 8.13 */
-    {GTPV2_PAA, dissect_gtpv2_paa},                                  /* 79 PDN Address Allocation (PAA) 8.14 */
-    {GTPV2_BEARER_QOS,dissect_gtpv2_bearer_qos},                     /* 80 Bearer Level Quality of Service (Bearer QoS) 8.15 */
-    {GTPV2_IE_FLOW_QOS, dissect_gtpv2_flow_qos},                     /* 81 Flow Quality of Service (Flow QoS) 8.16 */
-    {GTPV2_IE_RAT_TYPE, dissect_gtpv2_rat_type},                     /* 82, RAT Type  8.17 */
-    {GTPV2_IE_SERV_NET, dissect_gtpv2_serv_net},                     /* 83, Serving Network 8.18 */
-    {GTPV2_IE_BEARER_TFT, dissect_gtpv2_bearer_tft},                 /* 84, Bearer TFT 8.19 */
-    {GTPV2_IE_TAD, dissect_gtpv2_tad},                               /* 85, Traffic Aggregate Description 8.20 */
-    {GTPV2_IE_ULI, dissect_gtpv2_uli},                               /* 86, User Location Info (ULI) 8.22 */
-    {GTPV2_IE_F_TEID, dissect_gtpv2_f_teid},                         /* 87, Fully Qualified Tunnel Endpoint Identifier (F-TEID) 8.23 */
-    {GTPV2_IE_TMSI, dissect_gtpv2_tmsi},                             /* 88, TMSI 8.23 */
-    {GTPV2_IE_GLOBAL_CNID, dissect_gtpv2_g_cn_id},                   /* 89, Global CN-Id 8.25 */
-    {GTPV2_IE_S103PDF, dissect_gtpv2_s103pdf},                       /* 90, S103 PDN Data Forwarding Info (S103PDF) 8.25 */
-    {GTPV2_IE_S1UDF, dissect_gtpv2_s1udf},                           /* 91, S1-U Data Forwarding (S1UDF) 8.26 */
-    {GTPV2_IE_DEL_VAL, dissect_gtpv2_delay_value},                   /* 92, Delay Value 8.29 */
-    {GTPV2_IE_BEARER_CTX,dissect_gtpv2_bearer_ctx},                  /* 93, Bearer Context  8.31 */
-    {GTPV2_IE_CHAR_ID, dissect_gtpv2_charging_id},                   /* 94, Charging Id */
-    {GTPV2_IE_CHAR_CHAR, dissect_gtpv2_char_char},                   /* 95 Charging Characteristic */
-    {GTPV2_IE_TRA_INFO, dissect_gtpv2_tra_info},                     /* 96, Trace Information 8.31 */
-    {GTPV2_BEARER_FLAG, dissect_gtpv2_bearer_flag},                  /* 97, Bearer Flag */
-                                                                     /* 98, Void 8.33 */
-    {GTPV2_IE_PDN_TYPE, dissect_gtpv2_pdn_type},                     /* 99, PDN Type */
-    {GTPV2_IE_PTI, dissect_gtpv2_pti},                               /* 100, Procedure Transaction Id */
-    {GTPV2_IE_DRX_PARAM, dissect_gtpv2_drx_param},                   /* 101, DRX Parameter 8.36 */
-    {GTPV2_IE_UE_NET_CAPABILITY, dissect_gtpv2_ue_net_capability},   /* 102, UE network capability 8.37 */
-    {GTPV2_IE_MM_CONTEXT_GSM_T, dissect_gtpv2_mm_context_gsm_t},     /* 103, MM Context 8.38 GSM Key and Triplets */
-    {GTPV2_IE_MM_CONTEXT_UTMS_CQ, dissect_gtpv2_mm_context_utms_cq}, /* 104, MM Context 8.38 */
-    {GTPV2_IE_MM_CONTEXT_GSM_CQ, dissect_gtpv2_mm_context_gsm_cq},   /* 105, MM Context 8.38 */
-    {GTPV2_IE_MM_CONTEXT_UTMS_Q, dissect_gtpv2_mm_context_utms_q},   /* 106, MM Context 8.38 */
-    {GTPV2_IE_MM_CONTEXT_EPS_QQ, dissect_gtpv2_mm_context_eps_qq},   /* 107, MM Context 8.38 */
-    {GTPV2_IE_MM_CONTEXT_UTMS_QQ, dissect_gtpv2_mm_context_utms_qq}, /* 108, MM Context 8.38 */
-    {GTPV2_IE_PDN_CONNECTION, dissect_gtpv2_PDN_conn},               /* 109, PDN Connection */
-    {GTPV2_IE_PDN_NUMBERS, dissect_gtpv2_pdn_numbers},               /* 110, PDN Numbers 8.40 */
-    {GTPV2_IE_P_TMSI, dissect_gtpv2_p_tmsi},                         /* 111, P-TMSI 8.41 */
-    {GTPV2_IE_P_TMSI_SIG, dissect_gtpv2_p_tmsi_sig},                 /* 112, P-TMSI Signature 8.42 */
-    {GTPV2_IE_HOP_COUNTER, dissect_gtpv2_hop_counter},               /* 113, Hop Counter 8.43 */
-    {GTPV2_IE_UE_TIME_ZONE, dissect_gtpv2_ue_time_zone},             /* 114, UE Time Zone */
-    {GTPV2_IE_TRACE_REFERENCE, dissect_gtpv2_trace_reference},       /* 115, Trace Reference 8.45 */
-    {GTPV2_IE_COMPLETE_REQUEST_MSG, dissect_complete_request_msg},   /* 116, Complete Request message 8.46 */
-    {GTPV2_IE_GUTI, dissect_gtpv2_guti},                             /* 117, GUTI 8.47 */
-    {GTPV2_IE_F_CONTAINER, dissect_gtpv2_F_container},               /* 118, Fully Qualified Container (F-Container) */
-    {GTPV2_IE_F_CAUSE, dissect_gtpv2_F_cause},                       /* 119, Fully Qualified Cause (F-Cause) */
-    {GTPV2_IE_SEL_PLMN_ID, dissect_gtpv2_sel_plmn_id},               /* 120, Selected PLMN ID 8.50 */
-    {GTPV2_IE_TARGET_ID, dissect_gtpv2_target_id},                   /* 121, Target Identification */
-                                                                     /* 122, Void 8.52 */
-    {GTPV2_IE_PKT_FLOW_ID, dissect_gtpv2_pkt_flow_id},               /* 123, Packet Flow ID 8.53 */
-    {GTPV2_IE_RAB_CONTEXT, dissect_gtpv2_rab_context},               /* 124, RAB Context 8.54 */
-    {GTPV2_IE_S_RNC_PDCP_CTX_INFO, dissect_gtpv2_s_rnc_pdcp_ctx_info},  /* 125, Source RNC PDCP context info 8.55 */
-    {GTPV2_IE_UDP_S_PORT_NR, dissect_udp_s_port_nr},                 /* 126, UDP Source Port Number 8.56 */
-    {GTPV2_IE_APN_RESTRICTION, dissect_gtpv2_apn_rest},              /* 127, APN Restriction */
-    {GTPV2_IE_SEL_MODE,dissect_gtpv2_selec_mode},                    /* 128 Selection Mode */
-    {GTPV2_IE_SOURCE_IDENT, dissect_gtpv2_source_ident},             /* 129, Source Identification 8.59 */
-    {GTPV2_IE_BEARER_CONTROL_MODE,dissect_gtpv2_bearer_control_mode}, /* 130 Bearer Control Mode*/
-    {GTPV2_IE_CNG_REP_ACT ,dissect_gtpv2_cng_rep_act},               /* 131 Change Reporting Action 8.61 */
-    {GTPV2_IE_FQ_CSID, dissect_gtpv2_fq_csid},                       /* 132, Fully Qualified PDN Connection Set Identifier (FQ-CSID) 8.62 */
-    {GTPV2_IE_CHANNEL_NEEDED, dissect_gtpv2_channel_needed},         /* 133, Channel Needed 8.63 */
-    {GTPV2_IE_EMLPP_PRI, dissect_gtpv2_emlpp_pri},                   /* 134, eMLPP Priority 8.64 */
-    {GTPV2_IE_NODE_TYPE ,dissect_gtpv2_node_type},                   /* 135 Node Type 8.65 */
-    {GTPV2_IE_FQDN, dissect_gtpv2_fqdn},                             /* 136 8.66 Fully Qualified Domain Name (FQDN) */
-    {GTPV2_IE_TI, dissect_gtpv2_ti},                                 /* 137 8.68 Transaction Identifier (TI) */
-                                                    /* 137-254 Spare. For future use. FFS */
+    {GTPV2_APN, dissect_gtpv2_apn},                                        /* 71, Access Point Name (APN) 8.6 */
+    {GTPV2_AMBR, dissect_gtpv2_ambr},                                      /* 72, Aggregate Maximum Bit Rate (AMBR) */
+    {GTPV2_EBI, dissect_gtpv2_ebi},                                        /* 73, EPS Bearer ID (EBI)  8.8 */
+    {GTPV2_IP_ADDRESS, dissect_gtpv2_ip_address},                          /* 74, IP Address */
+    {GTPV2_MEI, dissect_gtpv2_mei},                                        /* 74, Mobile Equipment Identity */
+    {GTPV2_IE_MSISDN, dissect_gtpv2_msisdn},                               /* 76, MSISDN 8.11 */
+    {GTPV2_INDICATION, dissect_gtpv2_ind},                                 /* 77 Indication 8.12 */
+    {GTPV2_PCO, dissect_gtpv2_pco},                                        /* 78 Protocol Configuration Options (PCO) 8.13 */
+    {GTPV2_PAA, dissect_gtpv2_paa},                                        /* 79 PDN Address Allocation (PAA) 8.14 */
+    {GTPV2_BEARER_QOS,dissect_gtpv2_bearer_qos},                           /* 80 Bearer Level Quality of Service (Bearer QoS) 8.15 */
+    {GTPV2_IE_FLOW_QOS, dissect_gtpv2_flow_qos},                           /* 81 Flow Quality of Service (Flow QoS) 8.16 */
+    {GTPV2_IE_RAT_TYPE, dissect_gtpv2_rat_type},                           /* 82, RAT Type  8.17 */
+    {GTPV2_IE_SERV_NET, dissect_gtpv2_serv_net},                           /* 83, Serving Network 8.18 */
+    {GTPV2_IE_BEARER_TFT, dissect_gtpv2_bearer_tft},                       /* 84, Bearer TFT 8.19 */
+    {GTPV2_IE_TAD, dissect_gtpv2_tad},                                     /* 85, Traffic Aggregate Description 8.20 */
+    {GTPV2_IE_ULI, dissect_gtpv2_uli},                                     /* 86, User Location Info (ULI) 8.22 */
+    {GTPV2_IE_F_TEID, dissect_gtpv2_f_teid},                               /* 87, Fully Qualified Tunnel Endpoint Identifier (F-TEID) 8.23 */
+    {GTPV2_IE_TMSI, dissect_gtpv2_tmsi},                                   /* 88, TMSI 8.23 */
+    {GTPV2_IE_GLOBAL_CNID, dissect_gtpv2_g_cn_id},                         /* 89, Global CN-Id 8.25 */
+    {GTPV2_IE_S103PDF, dissect_gtpv2_s103pdf},                             /* 90, S103 PDN Data Forwarding Info (S103PDF) 8.25 */
+    {GTPV2_IE_S1UDF, dissect_gtpv2_s1udf},                                 /* 91, S1-U Data Forwarding (S1UDF) 8.26 */
+    {GTPV2_IE_DEL_VAL, dissect_gtpv2_delay_value},                         /* 92, Delay Value 8.29 */
+    {GTPV2_IE_BEARER_CTX,dissect_gtpv2_bearer_ctx},                        /* 93, Bearer Context  8.31 */
+    {GTPV2_IE_CHAR_ID, dissect_gtpv2_charging_id},                         /* 94, Charging Id */
+    {GTPV2_IE_CHAR_CHAR, dissect_gtpv2_char_char},                         /* 95 Charging Characteristic */
+    {GTPV2_IE_TRA_INFO, dissect_gtpv2_tra_info},                           /* 96, Trace Information 8.31 */
+    {GTPV2_BEARER_FLAG, dissect_gtpv2_bearer_flag},                        /* 97, Bearer Flag */
+                                                                           /* 98, Void 8.33 */
+    {GTPV2_IE_PDN_TYPE, dissect_gtpv2_pdn_type},                           /* 99, PDN Type */
+    {GTPV2_IE_PTI, dissect_gtpv2_pti},                                     /* 100, Procedure Transaction Id */
+    {GTPV2_IE_DRX_PARAM, dissect_gtpv2_drx_param},                         /* 101, DRX Parameter 8.36 */
+    {GTPV2_IE_UE_NET_CAPABILITY, dissect_gtpv2_ue_net_capability},         /* 102, UE network capability 8.37 */
+    {GTPV2_IE_MM_CONTEXT_GSM_T, dissect_gtpv2_mm_context_gsm_t},           /* 103, MM Context 8.38 GSM Key and Triplets */
+    {GTPV2_IE_MM_CONTEXT_UTMS_CQ, dissect_gtpv2_mm_context_utms_cq},       /* 104, MM Context 8.38 */
+    {GTPV2_IE_MM_CONTEXT_GSM_CQ, dissect_gtpv2_mm_context_gsm_cq},         /* 105, MM Context 8.38 */
+    {GTPV2_IE_MM_CONTEXT_UTMS_Q, dissect_gtpv2_mm_context_utms_q},         /* 106, MM Context 8.38 */
+    {GTPV2_IE_MM_CONTEXT_EPS_QQ, dissect_gtpv2_mm_context_eps_qq},         /* 107, MM Context 8.38 */
+    {GTPV2_IE_MM_CONTEXT_UTMS_QQ, dissect_gtpv2_mm_context_utms_qq},       /* 108, MM Context 8.38 */
+    {GTPV2_IE_PDN_CONNECTION, dissect_gtpv2_PDN_conn},                     /* 109, PDN Connection */
+    {GTPV2_IE_PDN_NUMBERS, dissect_gtpv2_pdn_numbers},                     /* 110, PDN Numbers 8.40 */
+    {GTPV2_IE_P_TMSI, dissect_gtpv2_p_tmsi},                               /* 111, P-TMSI 8.41 */
+    {GTPV2_IE_P_TMSI_SIG, dissect_gtpv2_p_tmsi_sig},                       /* 112, P-TMSI Signature 8.42 */
+    {GTPV2_IE_HOP_COUNTER, dissect_gtpv2_hop_counter},                     /* 113, Hop Counter 8.43 */
+    {GTPV2_IE_UE_TIME_ZONE, dissect_gtpv2_ue_time_zone},                   /* 114, UE Time Zone */
+    {GTPV2_IE_TRACE_REFERENCE, dissect_gtpv2_trace_reference},             /* 115, Trace Reference 8.45 */
+    {GTPV2_IE_COMPLETE_REQUEST_MSG, dissect_complete_request_msg},         /* 116, Complete Request message 8.46 */
+    {GTPV2_IE_GUTI, dissect_gtpv2_guti},                                   /* 117, GUTI 8.47 */
+    {GTPV2_IE_F_CONTAINER, dissect_gtpv2_F_container},                     /* 118, Fully Qualified Container (F-Container) */
+    {GTPV2_IE_F_CAUSE, dissect_gtpv2_F_cause},                             /* 119, Fully Qualified Cause (F-Cause) */
+    {GTPV2_IE_SEL_PLMN_ID, dissect_gtpv2_sel_plmn_id},                     /* 120, Selected PLMN ID 8.50 */
+    {GTPV2_IE_TARGET_ID, dissect_gtpv2_target_id},                         /* 121, Target Identification */
+                                                                           /* 122, Void 8.52 */
+    {GTPV2_IE_PKT_FLOW_ID, dissect_gtpv2_pkt_flow_id},                     /* 123, Packet Flow ID 8.53 */
+    {GTPV2_IE_RAB_CONTEXT, dissect_gtpv2_rab_context},                     /* 124, RAB Context 8.54 */
+    {GTPV2_IE_S_RNC_PDCP_CTX_INFO, dissect_gtpv2_s_rnc_pdcp_ctx_info},     /* 125, Source RNC PDCP context info 8.55 */
+    {GTPV2_IE_UDP_S_PORT_NR, dissect_udp_s_port_nr},                       /* 126, UDP Source Port Number 8.56 */
+    {GTPV2_IE_APN_RESTRICTION, dissect_gtpv2_apn_rest},                    /* 127, APN Restriction */
+    {GTPV2_IE_SEL_MODE,dissect_gtpv2_selec_mode},                          /* 128, Selection Mode */
+    {GTPV2_IE_SOURCE_IDENT, dissect_gtpv2_source_ident},                   /* 129, Source Identification 8.59 */
+    {GTPV2_IE_BEARER_CONTROL_MODE,dissect_gtpv2_bearer_control_mode},      /* 130, Bearer Control Mode */
+    {GTPV2_IE_CNG_REP_ACT ,dissect_gtpv2_cng_rep_act},                     /* 131, Change Reporting Action 8.61 */
+    {GTPV2_IE_FQ_CSID, dissect_gtpv2_fq_csid},                             /* 132, Fully Qualified PDN Connection Set Identifier (FQ-CSID) 8.62 */
+    {GTPV2_IE_CHANNEL_NEEDED, dissect_gtpv2_channel_needed},               /* 133, Channel Needed 8.63 */
+    {GTPV2_IE_EMLPP_PRI, dissect_gtpv2_emlpp_pri},                         /* 134, eMLPP Priority 8.64 */
+    {GTPV2_IE_NODE_TYPE ,dissect_gtpv2_node_type},                         /* 135, Node Type 8.65 */
+    {GTPV2_IE_FQDN, dissect_gtpv2_fqdn},                                   /* 136, 8.66 Fully Qualified Domain Name (FQDN) */
+    {GTPV2_IE_TI, dissect_gtpv2_ti},                                       /* 137, 8.68 Transaction Identifier (TI) */
+    {GTPV2_IE_MBMS_SESSION_DURATION, dissect_gtpv2_mbms_session_duration}, /* 138, 8.69 MBMS Session Duration */
+    {GTPV2_IE_MBMS_SERVICE_AREA, dissect_gtpv2_mbms_service_area},         /* 139, 8.70 MBMS Service Area */
+    {GTPV2_IE_MBMS_SESSION_ID, dissect_gtpv2_mbms_session_id},             /* 140, 8.71 MBMS Session Identifier */
+    {GTPV2_IE_MBMS_FLOW_ID, dissect_gtpv2_mbms_flow_id},                   /* 141, 8.72 MBMS Flow Identifier */
+    {GTPV2_IE_MBMS_IP_MC_DIST, dissect_gtpv2_mbms_ip_mc_dist},             /* 142, 8.73 MBMS IP Multicast Distribution */
+    {GTPV2_IE_MBMS_DIST_ACK, dissect_gtpv2_mbms_dist_ack},                 /* 143, 8.74 MBMS Distribution Acknowledge */
+    {GTPV2_IE_RFSP_INDEX, dissect_gtpv2_rfsp_index},                       /* 144, 8.77 RFSP Index */
+    {GTPV2_IE_UCI, dissect_gtpv2_uci},                                     /* 145, 8.75 User CSG Information (UCI) */
+    {GTPV2_IE_CSG_INFO_REP_ACTION, dissect_gtpv2_csg_info_rep_action},     /* 146, 8.76 CSG Information Reporting Action */
+    {GTPV2_IE_CSG_ID, dissect_gtpv2_csg_id},                               /* 147, 8.78 CSG ID */
+    {GTPV2_IE_CMI, dissect_gtpv2_cmi},                                     /* 148, 8.79 CSG Membership Indication (CMI) */
+    {GTPV2_IE_SERVICE_INDICATOR, dissect_gtpv2_service_indicator},         /* 149, 8.80 Service indicator */
+    {GTPV2_IE_DETACH_TYPE, dissect_gtpv2_detach_type},                     /* 150, 8.81 Detach Type */
+    {GTPV2_IE_LDN, dissect_gtpv2_ldn},                                     /* 151, 8.82 Local Distinguished Name (LDN) */
+    {GTPV2_IE_NODE_FEATURES, dissect_gtpv2_node_features},                 /* 152, 8.83 Node Features */
+    {GTPV2_IE_MBMS_TIME_TO_DATA_XFER, dissect_gtpv2_mbms_time_to_data_xfer}, /* 153, 8.84 MBMS Time to Data Transfer */
+    {GTPV2_IE_THROTTLING, dissect_gtpv2_throttling},                       /* 154, 8.85 Throttling */
+    {GTPV2_IE_ARP, dissect_gtpv2_arp},                                     /* 155, 8.86 Allocation/Retention Priority (ARP) */
+    {GTPV2_IE_EPC_TIMER, dissect_gtpv2_epc_timer},                         /* 156, 8.87 EPC Timer */
+    {GTPV2_IE_SIG_PRIO_IND, dissect_gtpv2_sig_prio_ind},                   /* 157, 8.88 Signalling Priority Indication */
+    {GTPV2_IE_TMGI, dissect_gtpv2_tmgi},                                   /* 158, 8.89 Temporary Mobile Group Identity (TMGI) */
+    {GTPV2_IE_ADD_MM_CONT_FOR_SRVCC, dissect_gtpv2_add_mm_cont_for_srvcc}, /* 159, 8.90 Additional MM context for SRVCC */
+    {GTPV2_IE_ADD_FLAGS_FOR_SRVCC, dissect_gtpv2_add_flags_for_srvcc},     /* 160, 8.91 Additional flags for SRVCC */
+    {GTPV2_IE_MMBR, dissect_gtpv2_mmbr},                                   /* 161, 8.92 Max MBR/APN-AMBR (MMBR) */
+    {GTPV2_IE_MDT_CONFIG, dissect_gtpv2_mdt_config},                       /* 162, 8.93 MDT Configuration */
+    {GTPV2_IE_APCO, dissect_gtpv2_apco},                                   /* 163, 8.94 Additional Protocol Configuration Options (APCO) */
+                                                    /* 164-254 Spare. For future use. FFS */
     {GTPV2_IE_PRIVATE_EXT,dissect_gtpv2_private_ext},
 
     {0, dissect_gtpv2_unknown}
@@ -5359,6 +5777,16 @@ void proto_register_gtpv2(void)
           {"Tracking Area Code (TAC)", "gtpv2.tac",
            FT_UINT16, BASE_DEC, NULL, 0x0,
            NULL, HFILL}
+        },
+        { &hf_gtpv2_mbms_service_area_nr,
+          {"Number of MBMS Service Area codes", "gtpv2.mbms_service_area_nr",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        { &hf_gtpv2_mbms_service_area_id,
+          {"MBMS Service Area code (Service Area Identity)", "gtpv2_mbms_service_area_id",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
         },
     };
 
