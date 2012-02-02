@@ -38,6 +38,7 @@
 #include <epan/nlpid.h>
 #include <epan/ppptypes.h>
 #include <epan/chdlctypes.h>
+#include <epan/ipproto.h>
 #include "packet-osi.h"
 #include "packet-isis.h"
 #include "packet-esis.h"
@@ -45,6 +46,7 @@
 
 static int  proto_osi         = -1;
 static dissector_handle_t osi_handle;
+
 
 /* Preferences for OSI over TPKT over TCP */
 static gboolean tpkt_desegment = FALSE;
@@ -297,8 +299,10 @@ proto_reg_handoff_osi(void)
     dissector_add_uint("chdlctype", CHDLCTYPE_OSI, osi_handle);
     dissector_add_uint("null.type", BSD_AF_ISO, osi_handle);
     dissector_add_uint("gre.proto", SAP_OSINL5, osi_handle);
+    dissector_add_uint("ip.proto", IP_PROTO_ISOIP, osi_handle); /*  ISO-TP4 ISO Transport Protocol Class 4 [RFC905,RC77] */  
     data_handle = find_dissector("data");
     ppp_handle  = find_dissector("ppp");
+  
 
     osi_tpkt_handle = create_dissector_handle(dissect_osi_tpkt, proto_osi);
     dissector_add_handle("tcp.port", osi_tpkt_handle); /* for 'decode-as' */
