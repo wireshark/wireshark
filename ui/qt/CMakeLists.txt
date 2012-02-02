@@ -123,14 +123,19 @@ set_target_properties(qtui PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 
 install(
 	DIRECTORY
-		ui
+		.
 	DIRECTORY_PERMISSIONS
 		OWNER_EXECUTE OWNER_WRITE OWNER_READ
 		GROUP_EXECUTE GROUP_READ
 		WORLD_EXECUTE WORLD_READ
 	DESTINATION
 		${CMAKE_INSTALL_DATADIR}/${CPACK_PACKAGE_NAME}
-	PATTERN ".svn" EXCLUDE
+	FILES_MATCHING
+	# FIXME: Which (if any) of these files need to be installed - and
+	#	 where?
+	PATTERN "*.qrc"
+	PATTERN	"*.svg"
+	PATTERN "*.png"
 )
 
 #install(TARGETS ui
