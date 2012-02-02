@@ -21,7 +21,7 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #
 
-project(Wireshark C)
+project(Wireshark C CXX)
 
 cmake_minimum_required(VERSION 2.6)
 set(CMAKE_BACKWARDS_COMPATIBILITY 2.6)
@@ -186,9 +186,9 @@ else()
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCC)
-	add_definitions( -D_U_=__attribute__\(\(unused\)\) )
+	set (C_UNUSED "__attribute__((unused))" )
 else()
-	add_definitions( -D_U_=\"\" )
+	set (C_UNUSED "" )
 endif()
 
 set(WIRESHARK_LD_FLAGS
@@ -325,7 +325,7 @@ set(PROGLIST text2pcap mergecap capinfos editcap dumpcap)
 
 #Let's loop the package list
 foreach(PACKAGE ${PACKAGELIST})
-	if(${PACKAGE} EQUAL "QT")
+	if(${PACKAGE} STREQUAL "QT")
 		set(PACKAGE_NAME "Qt4")
 	else()
 		set(PACKAGE_NAME ${PACKAGE})
@@ -382,6 +382,13 @@ endif()
 # That's the name autofoo uses
 if(HAVE_LIBZLIB)
 	set(HAVE_LIBZ 1)
+endif()
+# QT_LIBRARIES and QT_INCLUDES are not set above. They require extra magic:
+if(QT_FOUND)
+	include(${QT_USE_FILE})
+	include_directories(${QT_INCLUDE_DIR})
+	message(STATUS "QT includes: ${QT_INCLUDE_DIR}")
+	message(STATUS "QT libs: ${QT_LIBRARIES}")
 endif()
 
 include(ConfigureChecks.cmake)
