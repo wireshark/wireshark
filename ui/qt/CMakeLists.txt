@@ -90,6 +90,11 @@ set(QTSHARK_UI
 	main_window.ui
 )
 
+include_directories(
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_BINARY_DIR}
+)
+
 QT4_WRAP_UI(QTSHARK_UI_SRC ${QTSHARK_UI})
 
 QT4_WRAP_CPP(QTSHARK_MOC_SRC ${QTSHARK_H_SRC})
