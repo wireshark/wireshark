@@ -97,7 +97,12 @@ include_directories(
 
 QT4_WRAP_UI(QTSHARK_UI_SRC ${QTSHARK_UI})
 
+# For now, do the moc stuff manually
 QT4_WRAP_CPP(QTSHARK_MOC_SRC ${QTSHARK_H_SRC})
+# Starting with cmake 2.8.6, we may also use
+# set(CMAKE_AUTOMOC TRUE)
+# or
+# set_target_properties(${some-source-files} PROPERTIES AUTOMOC TRUE)
 
 set(CLEAN_FILES
 	# It's too early to care about clean files
