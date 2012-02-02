@@ -20,7 +20,7 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
-PROTOCOL_NAME=hi2operations
+PROTOCOL_NAME=HI2Operations
 
 ASN_FILE_LIST = HI2Operations_ver11.asn \
 	UmtsHI2Operations.asn \

@@ -116,6 +116,7 @@ ASN1_DISSECTOR_SRC = \
 	packet-ess.c \
 	packet-ftam.c \
 	packet-goose.c \
+	packet-HI2Operations.c \
 	packet-h225.c \
 	packet-h235.c \
 	packet-h245.c \
@@ -127,7 +128,6 @@ ASN1_DISSECTOR_SRC = \
 	packet-h450-ros.c \
 	packet-h460.c \
 	packet-h501.c \
-	packet-hi2operations.c \
 	packet-hnbap.c \
 	packet-idmp.c \
 	packet-inap.c \
