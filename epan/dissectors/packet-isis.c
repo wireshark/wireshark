@@ -306,6 +306,8 @@ proto_register_isis(void) {
     proto_register_field_array(proto_isis, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
+	register_dissector("isis", dissect_isis, proto_isis);
+
     /*
      * Call registration routines for other source files in the ISIS
      * dissector.
