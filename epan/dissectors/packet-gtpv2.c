@@ -3854,17 +3854,17 @@ dissect_gtpv2_ti(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_
  * 8.69 MBMS Session Duration
  */
 static void
-dissect_gtpv2_mbms_session_duration(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
+dissect_gtpv2_mbms_session_duration(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, proto_item *item, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
     int bit_offset = 0;
     guint32 days;
     guint32 hours;
     guint32 seconds;
-     
+
     /* From 3GPP TS 29.061 17.7.7 MBMS-Session-Duration AVP */
     /* Total length is three; is it suitable to use tvb_get_bits32() in order to extract 24 bits? */
     /* Bits: ssss ssss ssss ssss sddd dddd 0000 0000 where s bits = seconds, d bits = days
-     * Will tvb_get_bits32() put the bits in the correct positions? 
+     * Will tvb_get_bits32() put the bits in the correct positions?
      * It should be:     0000 0000 0000 000s ssss ssss ssss ssss (maximum = 131,071, maximum allowed = 86,400)
      * But I fear it is: ssss ssss ssss ssss s000 0000 0000 0000 (maximum = a very big number!)
      * The same for days. */
@@ -3879,7 +3879,7 @@ dissect_gtpv2_mbms_session_duration(tvbuff_t *tvb, packet_info *pinfo _U_, proto
      * I've implemented a basic check. */
     if((days>18) || (seconds>86400)) {
         /* Report potentially malformed packet */
-    } 
+    }
 
     if((seconds&days) == 0xFFFFFFFF) {
         proto_item_append_text(item, "Indefinite (always-on)");
@@ -3934,14 +3934,14 @@ dissect_gtpv2_mbms_session_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 
 }
 
-/* 
+/*
  * 8.72 MBMS Flow Identifier
  */
 static void
 dissect_gtpv2_mbms_flow_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
-    /* Two octets OctetString. 
-     * 3GPP TS 29.061 17.7.23 */ 
+    /* Two octets OctetString.
+     * 3GPP TS 29.061 17.7.23 */
     proto_item *expert_item;
 
     expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
@@ -3950,7 +3950,7 @@ dissect_gtpv2_mbms_flow_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
 }
 
-/* 
+/*
  * 8.73 MBMS IP Multicast Distribution
  */
 static void
