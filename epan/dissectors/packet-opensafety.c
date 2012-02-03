@@ -942,7 +942,7 @@ dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo , prot
     else if ( (OSS_FRAME_ID(bytes, frameStart1) ^ OPENSAFETY_MSG_SNMT_SERVICE_RESPONSE) == 0 )
     {
         proto_tree_add_uint(snmt_tree, hf_oss_snmt_service_id, message_tvb, OSS_FRAME_POS_DATA + frameStart1, 1, db0);
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str_const(db0, message_service_type, " "));
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str_const(db0, message_service_type, "Unknown"));
 
         proto_tree_add_uint(snmt_tree, hf_oss_snmt_master, message_tvb, OSS_FRAME_POS_ADDR + frameStart1, 2, addr);
         proto_tree_add_uint(snmt_tree, hf_oss_snmt_slave, message_tvb, frameStart2 + 3, 2, taddr);
@@ -968,7 +968,7 @@ dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo , prot
     else if ( (OSS_FRAME_ID(bytes, frameStart1) ^ OPENSAFETY_MSG_SNMT_SERVICE_REQUEST) == 0 )
     {
         proto_tree_add_uint(snmt_tree, hf_oss_snmt_service_id, message_tvb, OSS_FRAME_POS_DATA + frameStart1, 1, db0);
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str_const(db0, message_service_type, " "));
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str_const(db0, message_service_type, "Unknown"));
 
         if ( (db0 ^ OPENSAFETY_MSG_SNMT_EXT_SCM_SET_TO_STOP) == 0 || (db0 ^ OPENSAFETY_MSG_SNMT_EXT_SCM_SET_TO_OP) == 0 )
         {
@@ -1029,9 +1029,8 @@ dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo , prot
     }
 }
 
-static void
-dissect_opensafety_checksum(tvbuff_t *message_tvb, proto_tree *opensafety_tree ,
-        guint8 * bytes, guint16 frameStart1 )
+static gboolean
+dissect_opensafety_checksum(tvbuff_t *message_tvb, proto_tree *opensafety_tree, guint8 * bytes, guint16 frameStart1 )
 {
     guint16 frameCrc;
     guint16 calcCrc;
@@ -1063,11 +1062,14 @@ dissect_opensafety_checksum(tvbuff_t *message_tvb, proto_tree *opensafety_tree ,
     /* using the defines, as the values can change */
     proto_tree_add_uint(checksum_tree, hf_oss_crc_type, message_tvb, start, length,
             ( dataLength > OSS_PAYLOAD_MAXSIZE_FOR_CRC8 ? OPENSAFETY_CHECKSUM_CRC16 : OPENSAFETY_CHECKSUM_CRC8 ) );
+
+    return (gboolean) (frameCrc == calcCrc);
 }
 
 static gboolean
 dissect_opensafety_message(guint16 frameStart1, guint16 frameStart2, guint8 type,
-                           tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *opensafety_tree, guint8 u_nrInPackage)
+                           tvbuff_t *message_tvb, packet_info *pinfo,
+                           proto_item *opensafety_item, proto_tree *opensafety_tree, guint8 u_nrInPackage)
 {
     guint8 b_ID;
     guint length;
@@ -1075,7 +1077,7 @@ dissect_opensafety_message(guint16 frameStart1, guint16 frameStart2, guint8 type
     GByteArray *scmUDID = NULL;
     gboolean validSCMUDID;
     proto_item * item;
-    gboolean messageTypeUnknown;
+    gboolean messageTypeUnknown, crcValid;
 
     messageTypeUnknown = FALSE;
     length = tvb_length(message_tvb);
@@ -1142,6 +1144,7 @@ dissect_opensafety_message(guint16 frameStart1, guint16 frameStart2, guint8 type
             }
         }
 
+        crcValid = FALSE;
         item = proto_tree_add_uint(opensafety_tree, hf_oss_length, message_tvb, OSS_FRAME_POS_LEN + frameStart1, 1, OSS_FRAME_LENGTH(bytes, frameStart1));
         if ( messageTypeUnknown )
         {
@@ -1149,7 +1152,25 @@ dissect_opensafety_message(guint16 frameStart1, guint16 frameStart2, guint8 type
         }
         else
         {
-            dissect_opensafety_checksum ( message_tvb, opensafety_tree, bytes, frameStart1 );
+            crcValid = dissect_opensafety_checksum ( message_tvb, opensafety_tree, bytes, frameStart1 );
+        }
+
+        if ( ! crcValid )
+        {
+        	expert_add_info_format(pinfo, opensafety_item, PI_MALFORMED, PI_ERROR,
+        			"Frame 1 CRC invalid => possible error in package" );
+        }
+
+        /* with SNMT's we can check if the ID's for the frames match. Rare randomized packages do have
+         * an issue, where an frame 1 can be valid. The id's for both frames must differ, as well as
+         * the addresses, but addresses won't be checked yet, as there are issues with SDN xored on it */
+        if ( crcValid && type == OPENSAFETY_SNMT_MESSAGE_TYPE )
+        {
+        	if ( OSS_FRAME_ID(bytes, frameStart1) != OSS_FRAME_ID(bytes, frameStart2) )
+        	{
+			expert_add_info_format(pinfo, opensafety_item, PI_MALFORMED, PI_ERROR,
+					"Frame 1 is valid, frame 2 id is invalid => error in openSAFETY frame" );
+        	}
         }
     }
 
@@ -1351,8 +1372,10 @@ opensafety_package_dissector(const gchar * protocolName, const gchar * sub_diss_
                 opensafety_tree = NULL;
             }
 
-            if ( dissect_opensafety_message(frameStart1, frameStart2, type, next_tvb, pinfo, opensafety_tree, found) == TRUE )
+            if ( dissect_opensafety_message(frameStart1, frameStart2, type, next_tvb, pinfo, opensafety_item, opensafety_tree, found) == TRUE )
                 packageCounter++;
+            else
+            	markAsMalformed = TRUE;
 
             if ( tree && markAsMalformed )
             {
