@@ -899,6 +899,7 @@ looks_like_valid_sccp(guint32 frame_num _U_, tvbuff_t *tvb, guint8 my_mtp3_stand
     guint calling_ptr = 0;
     guint data_ptr = 0;
     guint opt_ptr = 0;
+    guint8 pointer_length = POINTER_LENGTH;
     guint len = tvb_length(tvb);
 
     /* Ensure we can do some basic checks without throwing an exception.
@@ -914,26 +915,13 @@ looks_like_valid_sccp(guint32 frame_num _U_, tvbuff_t *tvb, guint8 my_mtp3_stand
     }
     offset = SCCP_MSG_TYPE_LENGTH;
 
-    /*
-    Still to be done:
-    SCCP_MSG_TYPE_LUDT
-    SCCP_MSG_TYPE_LUDTS
-    */
-
     switch (msgtype) {
-    case SCCP_MSG_TYPE_AK:
-    case SCCP_MSG_TYPE_DT2:
-    case SCCP_MSG_TYPE_EA:
-    case SCCP_MSG_TYPE_ED:
-    case SCCP_MSG_TYPE_RSC:
-    case SCCP_MSG_TYPE_RSR:
-	/* Class-3 is never actually used in the real world */
-	RETURN_FALSE;
-	break;
     case SCCP_MSG_TYPE_UDT:
-    case SCCP_MSG_TYPE_XUDT: /* 0x11 */
+    case SCCP_MSG_TYPE_XUDT:
+    case SCCP_MSG_TYPE_LUDT:
     case SCCP_MSG_TYPE_UDTS:
     case SCCP_MSG_TYPE_XUDTS:
+    case SCCP_MSG_TYPE_LUDTS:
 	{
 	    if (msgtype == SCCP_MSG_TYPE_XUDT || msgtype == SCCP_MSG_TYPE_XUDTS) {
 		if (SCCP_MSG_TYPE_LENGTH +
@@ -946,44 +934,70 @@ looks_like_valid_sccp(guint32 frame_num _U_, tvbuff_t *tvb, guint8 my_mtp3_stand
 		    RETURN_FALSE;
 	    }
 
-	    if (msgtype == SCCP_MSG_TYPE_UDT || msgtype == SCCP_MSG_TYPE_XUDT) {
+	    if (msgtype == SCCP_MSG_TYPE_LUDT || msgtype == SCCP_MSG_TYPE_LUDTS) {
+		if (SCCP_MSG_TYPE_LENGTH +
+		    PROTOCOL_CLASS_LENGTH + /* or Cause for LUDTS */
+		    HOP_COUNTER_LENGTH +
+		    POINTER_LENGTH_LONG +
+		    POINTER_LENGTH_LONG +
+		    POINTER_LENGTH_LONG +
+		    POINTER_LENGTH_LONG > len)
+		    RETURN_FALSE;
+
+		pointer_length = POINTER_LENGTH_LONG;
+	    }
+
+	    if (msgtype == SCCP_MSG_TYPE_UDT || msgtype == SCCP_MSG_TYPE_XUDT ||
+		msgtype == SCCP_MSG_TYPE_LUDT) {
+
 		msg_class = tvb_get_guint8(tvb, offset) & CLASS_CLASS_MASK;
 		if (msg_class > 1)
 		    RETURN_FALSE;
 		offset += PROTOCOL_CLASS_LENGTH;
 	    }
 
-	    if (msgtype == SCCP_MSG_TYPE_XUDT)
+	    if (msgtype == SCCP_MSG_TYPE_XUDT || msgtype == SCCP_MSG_TYPE_LUDT)
 		offset += HOP_COUNTER_LENGTH;
 
 	    if (msgtype == SCCP_MSG_TYPE_UDTS ||
-		msgtype == SCCP_MSG_TYPE_XUDTS) {
+		msgtype == SCCP_MSG_TYPE_XUDTS ||
+		msgtype == SCCP_MSG_TYPE_LUDTS) {
+
 		cause = tvb_get_guint8(tvb, offset);
 		if (!match_strval(cause, sccp_return_cause_values))
 		    RETURN_FALSE;
 		offset += RETURN_CAUSE_LENGTH;
 	    }
 
-	    if (msgtype == SCCP_MSG_TYPE_XUDTS)
+	    if (msgtype == SCCP_MSG_TYPE_XUDTS || msgtype == SCCP_MSG_TYPE_LUDTS)
 		offset += HOP_COUNTER_LENGTH;
 
-	    called_ptr = tvb_get_guint8(tvb, offset);
+	    if (msgtype == SCCP_MSG_TYPE_LUDT || msgtype == SCCP_MSG_TYPE_LUDTS)
+		called_ptr = tvb_get_letohs(tvb, offset);
+	    else
+		called_ptr = tvb_get_guint8(tvb, offset);
 	    if (called_ptr == 0) /* Mandatory variable parameters must be present */
 		RETURN_FALSE;
 	    called_ptr += offset;
-	    offset += POINTER_LENGTH;
+	    offset += pointer_length;
 
-	    calling_ptr = tvb_get_guint8(tvb, offset);
+	    if (msgtype == SCCP_MSG_TYPE_LUDT || msgtype == SCCP_MSG_TYPE_LUDTS)
+		calling_ptr = tvb_get_letohs(tvb, offset);
+	    else
+		calling_ptr = tvb_get_guint8(tvb, offset);
 	    if (calling_ptr == 0) /* Mandatory variable parameters must be present */
 		RETURN_FALSE;
 	    calling_ptr += offset;
-	    offset += POINTER_LENGTH;
+	    offset += pointer_length;
 
-	    data_ptr = tvb_get_guint8(tvb, offset);
+	    if (msgtype == SCCP_MSG_TYPE_LUDT || msgtype == SCCP_MSG_TYPE_LUDTS)
+		data_ptr = tvb_get_letohs(tvb, offset);
+	    else
+		data_ptr = tvb_get_guint8(tvb, offset);
 	    if (data_ptr == 0) /* Mandatory variable parameters must be present */
 		RETURN_FALSE;
 	    data_ptr += offset;
-	    offset += POINTER_LENGTH;
+	    offset += pointer_length;
 
 	    if (msgtype == SCCP_MSG_TYPE_XUDT || msgtype == SCCP_MSG_TYPE_XUDTS) {
 		opt_ptr = tvb_get_guint8(tvb, offset);
@@ -996,9 +1010,15 @@ looks_like_valid_sccp(guint32 frame_num _U_, tvbuff_t *tvb, guint8 my_mtp3_stand
 
 	    /* Check that the lengths of the variable parameters are within bounds */
 	    if (tvb_get_guint8(tvb, called_ptr)+called_ptr > len ||
-		tvb_get_guint8(tvb, calling_ptr)+calling_ptr > len ||
-		tvb_get_guint8(tvb, data_ptr)+data_ptr > len)
+		tvb_get_guint8(tvb, calling_ptr)+calling_ptr > len)
 		RETURN_FALSE;
+	    if (msgtype == SCCP_MSG_TYPE_LUDT || msgtype == SCCP_MSG_TYPE_LUDTS) {
+		if (tvb_get_letohs(tvb, data_ptr)+data_ptr > len)
+		    RETURN_FALSE;
+	    } else {
+		if (tvb_get_guint8(tvb, data_ptr)+data_ptr > len)
+		    RETURN_FALSE;
+	    }
 	}
 	break;
     case SCCP_MSG_TYPE_CR:
@@ -1014,7 +1034,7 @@ looks_like_valid_sccp(guint32 frame_num _U_, tvbuff_t *tvb, guint8 my_mtp3_stand
 		RETURN_FALSE;
 	}
     break;
-    case SCCP_MSG_TYPE_CC: /* 2 */
+    case SCCP_MSG_TYPE_CC:
 	{
 	    if (len < SCCP_MSG_TYPE_LENGTH
 		      + DESTINATION_LOCAL_REFERENCE_LENGTH
@@ -1134,7 +1154,7 @@ looks_like_valid_sccp(guint32 frame_num _U_, tvbuff_t *tvb, guint8 my_mtp3_stand
 		RETURN_FALSE;
 	}
 	break;
-    case SCCP_MSG_TYPE_DT1: /* 6 */
+    case SCCP_MSG_TYPE_DT1:
 	{
 	    if (len < SCCP_MSG_TYPE_LENGTH
 		      + DESTINATION_LOCAL_REFERENCE_LENGTH
@@ -1184,10 +1204,18 @@ looks_like_valid_sccp(guint32 frame_num _U_, tvbuff_t *tvb, guint8 my_mtp3_stand
 	    offset += PROTOCOL_CLASS_LENGTH;
 	}
 	break;
+    case SCCP_MSG_TYPE_AK:
+    case SCCP_MSG_TYPE_DT2:
+    case SCCP_MSG_TYPE_EA:
+    case SCCP_MSG_TYPE_ED:
+    case SCCP_MSG_TYPE_RSC:
+    case SCCP_MSG_TYPE_RSR:
+	/* Class-3 is never actually used in the real world */
+	RETURN_FALSE;
+	break;
 
     default:
-	g_warning("Unhandled msg type %u", msgtype);
-	RETURN_FALSE;
+	DISSECTOR_ASSERT_NOT_REACHED();
     }
 
     if (called_ptr) {
