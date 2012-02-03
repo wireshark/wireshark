@@ -79,6 +79,7 @@ static int hf_pdcp_lte_cid_inclusion_info = -1;
 static int hf_pdcp_lte_large_cid_present = -1;
 
 /* PDCP header fields */
+static int hf_pdcp_lte_control_plane_reserved = -1;
 static int hf_pdcp_lte_seq_num_5 = -1;
 static int hf_pdcp_lte_seq_num_7 = -1;
 static int hf_pdcp_lte_reserved3 = -1;
@@ -319,6 +320,7 @@ static gboolean global_pdcp_dissect_rohc = FALSE;
 /* Channel key */
 typedef struct
 {
+    /* TODO: use bit fields to fit into 32 bits... */
     guint16            ueId;
     guint8             plane;
     guint16            channelId;
@@ -2047,6 +2049,15 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             guint32 mac;
             guint32 data_length;
 
+            /* Verify 3 reserved bits are 0 */
+            guint8 reserved = (tvb_get_guint8(tvb, offset) & 0xe0) >> 5;
+            proto_item *ti = proto_tree_add_item(pdcp_tree, hf_pdcp_lte_control_plane_reserved,
+                                                 tvb, offset, 1, ENC_BIG_ENDIAN);
+            if (reserved != 0) {
+                expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
+                                       "PDCP signalling header reserved bits not zero");
+            }
+
             /* 5-bit sequence number */
             seqnum = tvb_get_guint8(tvb, offset) & 0x1f;
             seqnum_set = TRUE;
@@ -2636,6 +2647,12 @@ void proto_register_pdcp(void)
             }
         },
 
+        { &hf_pdcp_lte_control_plane_reserved,
+            { "Reserved",
+              "pdcp-lte.reserved", FT_UINT8, BASE_DEC, NULL, 0xe0,
+              NULL, HFILL
+            }
+        },
         { &hf_pdcp_lte_seq_num_5,
             { "Seq Num",
               "pdcp-lte.seq-num", FT_UINT8, BASE_DEC, NULL, 0x1f,
