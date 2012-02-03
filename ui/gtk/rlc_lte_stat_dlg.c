@@ -273,8 +273,7 @@ static void enable_filter_controls(guint8 enabled, guint8 rlcMode, rlc_lte_stat_
 
 
 /* Reset the statistics window */
-static void
-rlc_lte_stat_reset(void *phs)
+static void rlc_lte_stat_reset(void *phs)
 {
     rlc_lte_stat_t* rlc_lte_stat = (rlc_lte_stat_t *)phs;
     rlc_lte_ep_t* list = rlc_lte_stat->ep_list;
@@ -372,8 +371,7 @@ static const char *print_rlc_channel_mode(guint8 mode)
 
 
 /* Process stat struct for a RLC LTE frame */
-static int
-rlc_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
+static int rlc_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
                     const void *phi)
 {
     /* Get reference to stat window instance */
@@ -586,8 +584,7 @@ static float calculate_bw(nstime_t *start_time, nstime_t *stop_time, guint32 byt
 
 
 /* Draw the channels table according to the current UE selection */
-static void
-rlc_lte_channels(rlc_lte_ep_t *rlc_stat_ep, rlc_lte_stat_t *hs)
+static void rlc_lte_channels(rlc_lte_ep_t *rlc_stat_ep, rlc_lte_stat_t *hs)
 {
     GtkListStore *channels_store = GTK_LIST_STORE(gtk_tree_view_get_model(hs->channel_table));
     rlc_channel_stats *channel_stats;
@@ -719,8 +716,7 @@ rlc_lte_channels(rlc_lte_ep_t *rlc_stat_ep, rlc_lte_stat_t *hs)
 
 
 /* (Re)draw the whole dialog window */
-static void
-rlc_lte_stat_draw(void *phs)
+static void rlc_lte_stat_draw(void *phs)
 {
     gchar   buff[32];
     guint16 number_of_ues = 0;
@@ -920,14 +916,13 @@ static void win_destroy_cb(GtkWindow *win _U_, gpointer data)
 }
 
 
-
-static void
-toggle_show_mac(GtkWidget *widget, gpointer data)
+/* When source of packets (MAC or RLC-only) changes, re-display */
+static void toggle_show_mac(GtkWidget *widget, gpointer data)
 {
     rlc_lte_stat_t *hs = (rlc_lte_stat_t *)data;
 
     /* Read state */
-    hs->show_mac = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget));
+    hs->show_mac = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget));
 
     /* Retap */
     cf_retap_packets(&cfile);
@@ -1033,11 +1028,11 @@ static void set_channel_filter_expression(guint16  ueid,
             if (rlcMode == RLC_AM_MODE) {
                 /* Always filter status PDUs */
                 offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset,
-                                     " and (rlc-lte.direction == 1 and rlc-lte.am.frame_type == 0)");
+                                     " and (rlc-lte.direction == 1 and rlc-lte.am.frame-type == 0)");
                 if (!statusOnlyPDUs) {
                     /* Also filter data */
                     offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset,
-                                         " or (rlc-lte.direction == 0 and rlc-lte.am.frame_type == 1)");
+                                         " or (rlc-lte.direction == 0 and rlc-lte.am.frame-type == 1)");
                 }
             }
             else {
@@ -1048,11 +1043,11 @@ static void set_channel_filter_expression(guint16  ueid,
             if (rlcMode == RLC_AM_MODE) {
                 /* Always filter status PDs */
                 offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset,
-                                     " and (rlc-lte.direction == 0 and rlc-lte.am.frame_type == 0)");
+                                     " and (rlc-lte.direction == 0 and rlc-lte.am.frame-type == 0)");
                 if (!statusOnlyPDUs) {
                     /* Also filter data */
                     offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset,
-                                         " or (rlc-lte.direction == 1 and rlc-lte.am.frame_type == 1)");
+                                         " or (rlc-lte.direction == 1 and rlc-lte.am.frame-type == 1)");
                 }
             }
             else {
@@ -1062,7 +1057,7 @@ static void set_channel_filter_expression(guint16  ueid,
         case UL_and_DL:
             if (rlcMode == RLC_AM_MODE) {
                 if (statusOnlyPDUs) {
-                    g_snprintf(buffer+offset, MAX_FILTER_LEN-offset, " and (rlc-lte.am.frame_type == 0)");
+                    g_snprintf(buffer+offset, MAX_FILTER_LEN-offset, " and (rlc-lte.am.frame-type == 0)");
                 }
             }
 

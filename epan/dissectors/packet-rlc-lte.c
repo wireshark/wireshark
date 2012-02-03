@@ -203,7 +203,7 @@ static const value_string rlc_mode_short_vals[] =
     { RLC_TM_MODE,      "TM"},
     { RLC_UM_MODE,      "UM"},
     { RLC_AM_MODE,      "AM"},
-    { RLC_PREDEF,       "PREDEFINED"},
+    { RLC_PREDEF,       "PREDEFINED"},  /* For data testing */
     { 0, NULL }
 };
 
@@ -1152,6 +1152,12 @@ static void addChannelSequenceInfo(sequence_analysis_report *p,
                                                     tvb, 0, 0, TRUE);
                         PROTO_ITEM_SET_GENERATED(ti);
                         proto_item_append_text(seqnum_ti, " - OK");
+
+                        /* Link to next SN in channel (if known) */
+                        if (p->nextFrameNum != 0) {
+                            proto_tree_add_uint(seqnum_tree, hf_rlc_lte_sequence_analysis_next_frame,
+                                                tvb, 0, 0, p->nextFrameNum);
+                        }
                         break;
 
                     default:
@@ -1370,6 +1376,29 @@ static sequence_analysis_state checkChannelSequenceInfo(packet_info *pinfo, tvbu
                         reassembly_add_segment(p_channel_status, sequenceNumber,
                                                pinfo->fd->num,
                                                tvb, lastSegmentOffset, lastSegmentLength);
+                    }
+                }
+
+                if (p_report_in_frame->previousFrameNum != 0) {
+                    /* Get report for previous frame */
+                    sequence_analysis_report *p_previous_report;
+                    guint16 snLimit;
+                    if (p_rlc_lte_info->UMSequenceNumberLength == 5) {
+                        snLimit = 32;
+                    }
+                    else {
+                        snLimit = 1024;
+                    }
+
+                    p_previous_report = (sequence_analysis_report*)g_hash_table_lookup(sequence_analysis_report_hash,
+                                                                                       get_report_hash_key((sequenceNumber+snLimit-1) % snLimit,
+                                                                                                           p_report_in_frame->previousFrameNum,
+                                                                                                           p_rlc_lte_info,
+                                                                                                           FALSE));
+                    /* It really shouldn't be NULL... */
+                    if (p_previous_report != NULL) {
+                        /* Point it forward to this one */
+                        p_previous_report->nextFrameNum = pinfo->fd->num;
                     }
                 }
             }
@@ -2812,7 +2841,7 @@ void proto_register_rlc_lte(void)
         },
         { &hf_rlc_lte_context_pdu_length,
             { "PDU Length",
-              "rlc-lte.pdu_length", FT_UINT16, BASE_DEC, 0, 0x0,
+              "rlc-lte.pdu-length", FT_UINT16, BASE_DEC, 0, 0x0,
               "Length of PDU (in bytes)", HFILL
             }
         },
@@ -2919,7 +2948,7 @@ void proto_register_rlc_lte(void)
         },
         { &hf_rlc_lte_am_data_control,
             { "Frame type",
-              "rlc-lte.am.frame_type", FT_UINT8, BASE_HEX, VALS(data_or_control_vals), 0x80,
+              "rlc-lte.am.frame-type", FT_UINT8, BASE_HEX, VALS(data_or_control_vals), 0x80,
               "AM Frame Type (Control or Data)", HFILL
             }
         },
@@ -3219,7 +3248,7 @@ void proto_register_rlc_lte(void)
     prefs_register_enum_preference(rlc_lte_module, "call_pdcp_for_drb",
         "Call PDCP dissector for DRB PDUs",
         "Call PDCP dissector for user-plane PDUs.  Note that without reassembly, it can"
-        "only be called for complete PDus (i.e. not segmented over RLC)",
+        "only be called for complete PDUs (i.e. not segmented over RLC)",
         &global_rlc_lte_call_pdcp_for_drb, pdcp_drb_col_vals, FALSE);
 
 
