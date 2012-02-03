@@ -50,6 +50,7 @@
 #include <epan/emem.h>
 #include "packet-q708.h"
 #include "packet-sccp.h"
+#include "packet-frame.h"
 
 /* Initialize the protocol and registered fields */
 static int proto_mtp3  = -1;
@@ -117,6 +118,15 @@ static gint japan_pc_structure = JAPAN_PC_STRUCTURE_NONE;
 
 #include <packet-mtp3.h>
 gint mtp3_standard = ITU_STANDARD;
+gint pref_mtp3_standard;
+
+static const value_string mtp3_standard_vals[] = {
+	{ ITU_STANDARD,			"ITU_STANDARD" },
+	{ ANSI_STANDARD,		"ANSI_STANDARD" },
+	{ CHINESE_ITU_STANDARD,		"CHINESE_ITU_STANDARD" },
+	{ JAPAN_STANDARD,		"JAPAN_STANDARD" },
+	{ 0,				NULL }
+};
 
 static gboolean mtp3_use_ansi_5_bit_sls = FALSE;
 static gboolean mtp3_use_japan_5_bit_sls = FALSE;
@@ -683,13 +693,11 @@ heur_mtp3_standard(tvbuff_t *tvb, packet_info *pinfo, guint8 si)
 
 }
 
-static const value_string mtp3_standard_vals[] = {
-	{ ITU_STANDARD,			"ITU_STANDARD" },
-	{ ANSI_STANDARD,		"ANSI_STANDARD" },
-	{ CHINESE_ITU_STANDARD,		"CHINESE_ITU_STANDARD" },
-	{ JAPAN_STANDARD,		"JAPAN_STANDARD" },
-	{ 0,    NULL }
-};
+void
+reset_mtp3_standard(void)
+{
+    mtp3_standard = pref_mtp3_standard;
+}
 
 /* Code to actually dissect the packets */
 static void
@@ -697,7 +705,7 @@ dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     void* pd_save;
     mtp3_tap_rec_t* tap_rec = ep_alloc0(sizeof(mtp3_tap_rec_t));
-    guint heuristic_standard, pref_mtp3_standard;
+    guint heuristic_standard;
     guint8 si;
 
     /* Set up structures needed to add the protocol subtree and manage it */
@@ -716,9 +724,14 @@ dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	} else {
 	    gen_item = proto_tree_add_text(tree, tvb, 0, 0, "%s", val_to_str(heuristic_standard, mtp3_standard_vals, "unknown"));
 	    mtp3_standard = heuristic_standard;
+
+	    /* Register a frame-end routine to ensure mtp3_standard is set
+	     * back, even if an exception is thrown.
+	     */
+	    register_frame_end_routine(reset_mtp3_standard);
 	}
 	PROTO_ITEM_SET_GENERATED(gen_item);
-}
+    }
 
     /* Make entries in Protocol column on summary display */
     switch(mtp3_standard) {
@@ -763,9 +776,6 @@ dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     dissect_mtp3_payload(tvb, pinfo, tree);
     pinfo->private_data = pd_save;
-
-    mtp3_standard = pref_mtp3_standard;
-
 }
 
 void
