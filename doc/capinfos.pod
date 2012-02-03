@@ -319,8 +319,8 @@ into spreadsheet applications.
 
 =head1 SEE ALSO
 
-tcpdump(8), pcap(3), wireshark(1), mergecap(1), editcap(1), tshark(1),
-dumpcap(1)
+pcap(3), wireshark(1), mergecap(1), editcap(1), tshark(1),
+dumpcap(1), pcap-filter(7) or tcpdump(8) if it doesn't exist
 
 =head1 NOTES
 

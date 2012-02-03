@@ -36,14 +36,14 @@ I<outfile>
 
 =head1 DESCRIPTION
 
-B<Editcap> is a program that reads some or all of the captured packets from the 
-I<infile>, optionally converts them in various ways and writes the 
-resulting packets to the capture I<outfile> (or outfiles). 
+B<Editcap> is a program that reads some or all of the captured packets from theg
+I<infile>, optionally converts them in various ways and writes theg
+resulting packets to the capture I<outfile> (or outfiles).g
 
-By default, it reads all packets from the I<infile> and writes them to the 
+By default, it reads all packets from the I<infile> and writes them to theg
 I<outfile> in libpcap file format.
 
-An optional list of packet numbers can be specified on the command tail; 
+An optional list of packet numbers can be specified on the command tail;g
 individual packet numbers separated by whitespace and/or ranges of packet
 numbers can be specified as I<start>-I<end>, referring to all packets from
 I<start> to I<end>.  By default the selected packets with those numbers will
@@ -55,9 +55,9 @@ B<Editcap> can also be used to remove duplicate packets.  Several different
 options (B<-d>, B<-D> and B<-w>) are used to control the packet window
 or relative time window to be used for duplicate comparison.
 
-B<Editcap> is able to detect, read and write the same capture files that 
+B<Editcap> is able to detect, read and write the same capture files thatg
 are supported by B<Wireshark>.
-The input file doesn't need a specific filename extension; the file 
+The input file doesn't need a specific filename extension; the fileg
 format and an optional gzip compression will be automatically detected.
 Near the beginning of the DESCRIPTION section of wireshark(1) or
 L<http://www.wireshark.org/docs/man-pages/wireshark.html>
@@ -75,9 +75,9 @@ file; B<editcap -F> provides a list of the available output formats.
 =item -c  E<lt>packets per fileE<gt>
 
 Splits the packet output to different files based on uniform packet counts
-with a maximum of <packets per file> each. Each output file will 
-be created with a suffix -nnnnn, starting with 00000. If the specified 
-number of packets is written to the output file, the next output file is 
+with a maximum of <packets per file> each. Each output file willg
+be created with a suffix -nnnnn, starting with 00000. If the specifiedg
+number of packets is written to the output file, the next output file isg
 opened. The default is to use a single output file.
 
 =item -C  E<lt>choplenE<gt>
@@ -92,8 +92,8 @@ bytes at the end of each packet.
 
 =item -d
 
-Attempts to remove duplicate packets.  The length and MD5 hash of the 
-current packet are compared to the previous four (4) packets.  If a 
+Attempts to remove duplicate packets.  The length and MD5 hash of theg
+current packet are compared to the previous four (4) packets.  If ag
 match is found, the current packet is skipped.  This option is equivalent
 to using the option B<-D 5>.
 
@@ -132,15 +132,15 @@ to six (6) decimal places (millionths of a second).
 NOTE: Specifying large <dup time window> values with large tracefiles can
 result in very long processing times for B<editcap>.
 
-NOTE: The B<-w> option assumes that the packets are in chronological order.  
-If the packets are NOT in chronological order then the B<-w> duplication 
+NOTE: The B<-w> option assumes that the packets are in chronological order.g
+If the packets are NOT in chronological order then the B<-w> duplicationg
 removal option may not identify some duplicates.
 
 =item -E  E<lt>error probabilityE<gt>
 
 Sets the probability that bytes in the output file are randomly changed.
-B<Editcap> uses that probability (between 0.0 and 1.0 inclusive) 
-to apply errors to each data byte in the file.  For instance, a 
+B<Editcap> uses that probability (between 0.0 and 1.0 inclusive)g
+to apply errors to each data byte in the file.  For instance, ag
 probability of 0.02 means that each byte has a 2% chance of having an error.
 
 This option is meant to be used for fuzz-testing protocol dissectors.
@@ -148,7 +148,7 @@ This option is meant to be used for fuzz-testing protocol dissectors.
 =item -F  E<lt>file formatE<gt>
 
 Sets the file format of the output capture file.
-B<Editcap> can write the file in several formats, B<editcap -F> 
+B<Editcap> can write the file in several formats, B<editcap -F>g
 provides a list of the available output formats. The default
 is the B<libpcap> format.
 
@@ -193,9 +193,9 @@ Prints the version and options and exits.
 =item -i  E<lt>seconds per fileE<gt>
 
 Splits the packet output to different files based on uniform time intervals
-using a maximum interval of <seconds per file> each. Each output file will 
-be created with a suffix -nnnnn, starting with 00000. If packets for the specified 
-time interval are written to the output file, the next output file is 
+using a maximum interval of <seconds per file> each. Each output file willg
+be created with a suffix -nnnnn, starting with 00000. If packets for the specifiedg
+time interval are written to the output file, the next output file isg
 opened. The default is to use a single output file.
 
 =item -r
@@ -210,7 +210,7 @@ Sets the snapshot length to use when writing the data.
 If the B<-s> flag is used to specify a snapshot length, packets in the
 input file with more captured data than the specified snapshot length
 will have only the amount of data specified by the snapshot length
-written to the output file.  
+written to the output file.g
 
 This may be useful if the program that is
 to read the output file cannot handle packets larger than a certain size
@@ -227,7 +227,7 @@ adjustment will be applied to all selected packets in the capture file.
 The adjustment is specified as [-]I<seconds>[I<.fractional seconds>].
 For example, B<-t> 3600 advances the timestamp on selected packets by one
 hour while B<-t> -0.5 reduces the timestamp on selected packets by
-one-half second.  
+one-half second.g
 
 This feature is useful when synchronizing dumps
 collected on different machines where the time difference between the
@@ -235,35 +235,35 @@ two machines is known or can be estimated.
 
 =item -S  E<lt>strict time adjustmentE<gt>
 
-Time adjust selected packets to insure strict chronological order. 
+Time adjust selected packets to insure strict chronological order.g
 
 The <strict time adjustment> value represents relative seconds
 specified as [-]I<seconds>[I<.fractional seconds>].
 
-As the capture file is processed each packet's absolute time is 
-I<possibly> adjusted to be equal to or greater than the previous 
-packet's absolute timestamp depending on the <strict time 
-adjustment> value.  
+As the capture file is processed each packet's absolute time isg
+I<possibly> adjusted to be equal to or greater than the previousg
+packet's absolute timestamp depending on the <strict timeg
+adjustment> value.g
 
-If <strict time adjustment> value is 0 or greater (e.g. 0.000001) 
-then B<only> packets with a timestamp less than the previous packet 
-will adjusted.  The adjusted timestamp value will be set to be 
-equal to the timestamp value of the previous packet plus the value 
-of the <strict time adjustment> value.  A <strict time adjustment> 
-value of 0 will adjust the minimum number of timestamp values 
-necessary to insure that the resulting capture file is in 
+If <strict time adjustment> value is 0 or greater (e.g. 0.000001)g
+then B<only> packets with a timestamp less than the previous packetg
+will adjusted.  The adjusted timestamp value will be set to beg
+equal to the timestamp value of the previous packet plus the valueg
+of the <strict time adjustment> value.  A <strict time adjustment>g
+value of 0 will adjust the minimum number of timestamp valuesg
+necessary to insure that the resulting capture file is ing
 strict chronological order.
 
-If <strict time adjustment> value is specified as a 
-negative value, then the timestamp values of B<all> 
-packets will be adjusted to be equal to the timestamp value 
-of the previous packet plus the absolute value of the 
+If <strict time adjustment> value is specified as ag
+negative value, then the timestamp values of B<all>g
+packets will be adjusted to be equal to the timestamp valueg
+of the previous packet plus the absolute value of theg
 <lt>strict time adjustment<gt> value. A <strict time
 adjustment> value of -0 will result in all packets
 having the timestamp value of the first packet.
 
 This feature is useful when the trace file has an occasional
-packet with a negative delta time relative to the previous 
+packet with a negative delta time relative to the previousg
 packet.
 
 =item -T  E<lt>encapsulation typeE<gt>
@@ -271,9 +271,9 @@ packet.
 Sets the packet encapsulation type of the output capture file.
 If the B<-T> flag is used to specify an encapsulation type, the
 encapsulation type of the output capture file will be forced to the
-specified type. 
+specified type.g
 B<editcap -T> provides a list of the available types. The default
-type is the one appropriate to the encapsulation type of the input 
+type is the one appropriate to the encapsulation type of the inputg
 capture file.
 
 Note: this merely
@@ -368,8 +368,8 @@ To introduce 5% random errors in a capture file use:
 
 =head1 SEE ALSO
 
-tcpdump(8), pcap(3), wireshark(1), tshark(1), mergecap(1), dumpcap(1),
-capinfos(1), text2pcap(1), od(1)
+pcap(3), wireshark(1), tshark(1), mergecap(1), dumpcap(1), capinfos(1),
+text2pcap(1), od(1), pcap-filter(7) or tcpdump(8) if it doesn't exist.
 
 =head1 NOTES
 

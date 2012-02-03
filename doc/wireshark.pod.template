@@ -2435,7 +2435,7 @@ protocols built into Wireshark are.
 
 =head1 CAPTURE FILTER SYNTAX
 
-See the manual page of pcap-filter(4) or, if that doesn't exist, tcpdump(8),
+See the manual page of pcap-filter(7) or, if that doesn't exist, tcpdump(8),
 or, if that doesn't exist, L<http://wiki.wireshark.org/CaptureFilters>.
 
 =head1 DISPLAY FILTER SYNTAX
@@ -2799,8 +2799,8 @@ of the capture after it stops; it's primarily useful for testing.
 
 =head1 SEE ALSO
 
-wireshark-filter(4), tshark(1), editcap(1), pcap-filter(4), tcpdump(8),
-pcap(3), dumpcap(1), mergecap(1), text2pcap(1)
+wireshark-filter(4), tshark(1), editcap(1), pcap(3), dumpcap(1), mergecap(1),
+text2pcap(1), pcap-filter(7) or tcpdump(8) if it doesn't exist.
 
 =head1 NOTES
 

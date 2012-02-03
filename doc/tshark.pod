@@ -1273,7 +1273,7 @@ include the tcp protocol, with a severity of note or higher.
 
 =head1 CAPTURE FILTER SYNTAX
 
-See the manual page of pcap-filter(4) or, if that doesn't exist, tcpdump(8),
+See the manual page of pcap-filter(7) or, if that doesn't exist, tcpdump(8),
 or, if that doesn't exist, L<http://wiki.wireshark.org/CaptureFilters>.
 
 =head1 READ FILTER SYNTAX
@@ -1526,8 +1526,8 @@ auditing code.
 
 =head1 SEE ALSO
 
-wireshark-filter(4), wireshark(1), editcap(1), pcap-filter(4), tcpdump(8),
-pcap(3), dumpcap(1), text2pcap(1), mergecap(1)
+wireshark-filter(4), wireshark(1), editcap(1), pcap(3), dumpcap(1),
+text2pcap(1), mergecap(1), pcap-filter(7) or tcpdump(8) if it doesn't exist.
 
 =head1 NOTES
 

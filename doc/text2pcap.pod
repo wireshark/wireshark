@@ -120,7 +120,7 @@ packets.
 Include a dummy Ethernet header before each packet. Specify the L3PID
 for the Ethernet header in hex. Use this option if your dump has Layer
 3 header and payload (e.g. IP header), but no Layer 2
-encapsulation. Example: I<-e 0x806> to specify an ARP packet. 
+encapsulation. Example: I<-e 0x806> to specify an ARP packet.
 
 For IP packets, instead of generating a fake Ethernet header you can
 also use I<-l 12> to indicate a raw IP packet to Wireshark. Note that
@@ -134,7 +134,7 @@ Include dummy IP headers before each packet. Specify the IP protocol
 for the packet in decimal. Use this option if your dump is the payload
 of an IP packet (i.e. has complete L4 information) but does not have
 an IP header with each packet. Note that an appropriate Ethernet header
-is automatically included with each packet as well. 
+is automatically included with each packet as well.
 Example: I<-i 46> to specify an RSVP packet (IP protocol 46).
 
 =item -m E<lt>max-packetE<gt>
@@ -153,8 +153,8 @@ TCP packets.
 Include dummy UDP headers before each packet. Specify the source and
 destination UDP ports for the packet in decimal. Use this option if
 your dump is the UDP payload of a packet but does not include any UDP,
-IP or Ethernet headers. Note that appropriate Ethernet and IP headers 
-are automatically also included with each packet. 
+IP or Ethernet headers. Note that appropriate Ethernet and IP headers
+are automatically also included with each packet.
 Example: I<-u1000,69> to make the packets look like TFTP/UDP packets.
 
 =item -T E<lt>srcportE<gt>,E<lt>destportE<gt>
@@ -162,16 +162,16 @@ Example: I<-u1000,69> to make the packets look like TFTP/UDP packets.
 Include dummy TCP headers before each packet. Specify the source and
 destination TCP ports for the packet in decimal. Use this option if
 your dump is the TCP payload of a packet but does not include any TCP,
-IP or Ethernet headers. Note that appropriate Ethernet and IP headers 
+IP or Ethernet headers. Note that appropriate Ethernet and IP headers
 are automatically also included with each packet.
 Sequence numbers will start at 0.
 
 =item -s E<lt>srcportE<gt>,E<lt>destportE<gt>,E<lt>tagE<gt>
 
 Include dummy SCTP headers before each packet.  Specify, in decimal, the
-source and destination SCTP ports, and verification tag, for the packet. 
+source and destination SCTP ports, and verification tag, for the packet.
 Use this option if your dump is the SCTP payload of a packet but does
-not include any SCTP, IP or Ethernet headers.  Note that appropriate 
+not include any SCTP, IP or Ethernet headers.  Note that appropriate
 Ethernet and IP headers are automatically also included with each
 packet.  A CRC32C checksum will be put into the SCTP header.
 
@@ -182,7 +182,7 @@ source and destination SCTP ports, and a verification tag of 0, for the
 packet, and prepend a dummy SCTP DATA chunk header with a payload
 protocol identifier if I<ppi>.  Use this option if your dump is the SCTP
 payload of a packet but does not include any SCTP, IP or Ethernet
-headers.  Note that appropriate Ethernet and IP headers are 
+headers.  Note that appropriate Ethernet and IP headers are
 automatically included with each packet.  A CRC32C checksum will be put
 into the SCTP header.
 
@@ -210,8 +210,8 @@ B<NOTE:> Do not enable it if the input file does not contain the ASCII text dump
 
 =head1 SEE ALSO
 
-od(1), tcpdump(8), pcap(3), wireshark(1), tshark(1), dumpcap(1), mergecap(1),
-editcap(1), strptime(3).
+od(1), pcap(3), wireshark(1), tshark(1), dumpcap(1), mergecap(1),
+editcap(1), strptime(3), pcap-filter(7) or tcpdump(8) if it doesn't exist.
 
 =head1 NOTES
 

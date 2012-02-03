@@ -485,8 +485,8 @@ auditing code.
 
 =head1 SEE ALSO
 
-wireshark-filter(4), wireshark(1), tshark(1), editcap(1), tcpdump(8),
-pcap(3), dumpcap(1), text2pcap(1)
+wireshark-filter(4), wireshark(1), tshark(1), editcap(1), pcap(3), dumpcap(1),
+text2pcap(1), pcap-filter(7) or tcpdump(8) if it doesn't exist.
 
 =head1 NOTES
 

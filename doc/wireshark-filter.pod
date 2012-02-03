@@ -410,13 +410,14 @@ Regular expressions in the "matches" operator are provided with B<libpcre>,
 the Perl-Compatible Regular Expressions library: see B<http://www.pcre.org/>.
 
 This manpage does not describe the capture filter syntax, which is
-different. See the manual page of pcap-filter(4) or, if that doesn't exist,
+different. See the manual page of pcap-filter(7) or, if that doesn't exist,
 tcpdump(8), or, if that doesn't exist, L<http://wiki.wireshark.org/CaptureFilters>
 for a description of capture filters.
 
 =head1 SEE ALSO
 
-wireshark(1), tshark(1), editcap(1), pcap-filter(4), tcpdump(8), pcap(3)
+wireshark(1), tshark(1), editcap(1), pcap(3), pcap-filter(7) or tcpdump(8) if it
+doesn't exist.
 
 =head1 AUTHORS
 
