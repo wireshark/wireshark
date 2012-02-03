@@ -16,9 +16,9 @@ To build Wireshark with GTK3 instead of GTK2, use:
   GTK3 is available for Windows as a mingw build, see
   http://lists-archives.org/gtk-devel/13233-fwd-precompiled-gtk3-for-windows.html
   A Win32 port is in the making (and availalbe as source):
-  http://blogs.gnome.org/alexl/2011/11/25/gtk-work-on-windows/
-  The location of an experimental build can be found at:
-  http://www.pguridi.com.ar/2011/10/experimental-gtk-3-3-2-win32-build/
+  http://mail.gnome.org/archives/gtk-devel-list/2012-January/msg00101.html
+  The location of an experimental Win32 build can be found at:
+  http://www.optionexplicit.be/projects/gnome-windows/GTK+3/
 
 Except in one place we are building on GTK2 using the compat flags
   -DGTK_DISABLE_SINGLE_INCLUDES
@@ -30,5 +30,7 @@ Summary: The only known files that cause some sort of problems (or lost
          functionality) are:
   - gtkvumeter.c (removed, only used for wlan on windows)
   - proto_help.c (not ported to UI-MANAGER)
+  - tcp-graph: the crosshais are not right
+  - audiograph doesn't work
   - tcp_graph.c (does not compile with GTK2 and GDK_DISABLE_DEPRECATED)
 
