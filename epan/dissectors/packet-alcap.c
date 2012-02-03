@@ -41,14 +41,13 @@
 #include <epan/emem.h>
 #include <epan/prefs.h>
 #include "packet-alcap.h"
+#include "packet-mtp3.h"
 #include <epan/dissectors/packet-isup.h>
 #include <epan/expert.h>
 
 #define ALCAP_MSG_HEADER_LEN     6
 #define ALCAP_PARM_HEADER_LEN    3
 #define FIELD_NSAP_ADDRESS_LEN  20
-
-#define ALCAP_SI                12
 
 static const value_string msg_type_strings[] = {
     {  1,   "Block confirm (BLC)" },
@@ -1796,5 +1795,5 @@ proto_reg_handoff_alcap(void)
 {
     dissector_handle_t alcap_handle = create_dissector_handle(dissect_alcap, proto_alcap);
 
-    dissector_add_uint("mtp3.service_indicator", ALCAP_SI, alcap_handle);
+    dissector_add_uint("mtp3.service_indicator", MTP_SI_AAL2, alcap_handle);
 }

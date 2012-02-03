@@ -182,41 +182,41 @@ static mtp3_addr_pc_t* mtp3_addr_opc;
 
 /* the higher values are taken from the M3UA RFC */
 static const value_string mtp3_service_indicator_code_vals[] = {
-	{ 0x0,  "Signalling Network Management Message (SNM)" },
-	{ 0x1,  "Maintenance Regular Message (MTN)" },
-	{ 0x2,  "Maintenance Special Message (MTNS)" },
-	{ 0x3,  "SCCP" },
-	{ 0x4,  "TUP" },
-	{ 0x5,  "ISUP" },
-	{ 0x6,  "DUP (call and circuit related messages)" },
-	{ 0x7,  "DUP (facility registration and cancellation message)" },
-	{ 0x8,  "MTP testing user part" },
-	{ 0x9,  "Broadband ISUP" },
-	{ 0xa,  "Satellite ISUP" },
-	{ 0xb,  "Spare" },
-	{ 0xc,  "AAL type2 Signaling" },
-	{ 0xd,  "Bearer Independent Call Control (BICC)" },
-	{ 0xe,  "Gateway Control Protocol" },
-	{ 0xf,  "Spare" },
-	{ 0,    NULL }
+	{ MTP_SI_SNM,		"Signalling Network Management Message (SNM)" },
+	{ MTP_SI_MTN,		"Maintenance Regular Message (MTN)" },
+	{ MTP_SI_MTNS,		"Maintenance Special Message (MTNS)" },
+	{ MTP_SI_SCCP,		"SCCP" },
+	{ MTP_SI_TUP,		"TUP" },
+	{ MTP_SI_ISUP,		"ISUP" },
+	{ MTP_SI_DUP_CC,	"DUP (call and circuit related messages)" },
+	{ MTP_SI_DUP_FAC,	"DUP (facility registration and cancellation message)" },
+	{ MTP_SI_MTP_TEST,	"MTP testing user part" },
+	{ MTP_SI_ISUP_B,	"Broadband ISUP" },
+	{ MTP_SI_ISUP_S,	"Satellite ISUP" },
+	{ 0xb,			"Spare" },
+	{ MTP_SI_AAL2,		"AAL type2 Signaling" },
+	{ MTP_SI_BICC,		"Bearer Independent Call Control (BICC)" },
+	{ MTP_SI_GCP,		"Gateway Control Protocol" },
+	{ 0xf,			"Spare" },
+	{ 0,    		NULL }
 };
 
 const value_string mtp3_service_indicator_code_short_vals[] = {
-	{ 0x0,  "SNM" },
-	{ 0x1,  "MTN" },
-	{ 0x2,  "MTNS" },
-	{ 0x3,  "SCCP" },
-	{ 0x4,  "TUP" },
-	{ 0x5,  "ISUP" },
-	{ 0x6,  "DUP (CC)" },
-	{ 0x7,  "DUP (FAC/CANC)" },
-	{ 0x8,  "MTP Test" },
-	{ 0x9,  "ISUP-b" },
-	{ 0xa,  "ISUP-s" },
-	{ 0xc,  "AAL type 2" },
-	{ 0xd,  "BICC" },
-	{ 0xe,  "GCP" },
-	{ 0,    NULL }
+	{ MTP_SI_SNM,		"SNM" },
+	{ MTP_SI_MTN,		"MTN" },
+	{ MTP_SI_MTNS,		"MTNS" },
+	{ MTP_SI_SCCP,		"SCCP" },
+	{ MTP_SI_TUP,		"TUP" },
+	{ MTP_SI_ISUP,		"ISUP" },
+	{ MTP_SI_DUP_CC,	"DUP (CC)" },
+	{ MTP_SI_DUP_FAC,	"DUP (FAC/CANC)" },
+	{ MTP_SI_MTP_TEST,	"MTP Test" },
+	{ MTP_SI_ISUP_B,	"ISUP-b" },
+	{ MTP_SI_ISUP_S,	"ISUP-s" },
+	{ MTP_SI_AAL2,		"AAL type 2" },
+	{ MTP_SI_BICC,		"BICC" },
+	{ MTP_SI_GCP,		"GCP" },
+	{ 0,			NULL }
 };
 
 static const value_string network_indicator_vals[] = {
@@ -665,7 +665,7 @@ heur_mtp3_standard(tvbuff_t *tvb, packet_info *pinfo, guint8 si)
 
     len = tvb_length(tvb);
     switch (si) {
-    case 3:
+    case MTP_SI_SCCP:
 	{
 	    payload = tvb_new_subset(tvb, ITU_HEADER_LENGTH, len-ITU_HEADER_LENGTH, len-ITU_HEADER_LENGTH);
 	    if (looks_like_valid_sccp(PINFO_FD_NUM(pinfo), payload, ITU_STANDARD)) {
@@ -762,12 +762,12 @@ dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     mtp3_addr_dpc = ep_alloc0(sizeof(mtp3_addr_pc_t));
 
     /* Dissect the packet (even if !tree so can call sub-dissectors and update
-    * the source and destination address columns) */
+     * the source and destination address columns) */
     dissect_mtp3_sio(tvb, pinfo, mtp3_tree, &pd_save);
     dissect_mtp3_routing_label(tvb, pinfo, mtp3_tree);
 
-    memcpy(&(tap_rec->addr_opc),mtp3_addr_opc,sizeof(mtp3_addr_pc_t));
-    memcpy(&(tap_rec->addr_dpc),mtp3_addr_dpc,sizeof(mtp3_addr_pc_t));
+    memcpy(&(tap_rec->addr_opc), mtp3_addr_opc, sizeof(mtp3_addr_pc_t));
+    memcpy(&(tap_rec->addr_dpc), mtp3_addr_dpc, sizeof(mtp3_addr_pc_t));
 
     tap_rec->si_code = (tvb_get_guint8(tvb, SIO_OFFSET) & SERVICE_INDICATOR_MASK);
     tap_rec->size = tvb_length(tvb);

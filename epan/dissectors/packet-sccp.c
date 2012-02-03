@@ -66,8 +66,6 @@ void proto_reg_handoff_sccp(void);
 
 static Standard_Type decode_mtp3_standard;
 
-#define SCCP_SI 3
-
 #define SCCP_MSG_TYPE_OFFSET 0
 #define SCCP_MSG_TYPE_LENGTH 1
 #define POINTER_LENGTH      1
@@ -3954,7 +3952,7 @@ proto_reg_handoff_sccp(void)
     sccp_handle = find_dissector("sccp");
 
     dissector_add_uint("wtap_encap", WTAP_ENCAP_SCCP, sccp_handle);
-    dissector_add_uint("mtp3.service_indicator", SCCP_SI, sccp_handle);
+    dissector_add_uint("mtp3.service_indicator", MTP_SI_SCCP, sccp_handle);
     dissector_add_string("tali.opcode", "sccp", sccp_handle);
 
     data_handle = find_dissector("data");

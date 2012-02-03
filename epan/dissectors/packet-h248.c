@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-h248.c                                                              */
-/* ../../tools/asn2wrs.py -b -p h248 -c ./h248.cnf -s ./packet-h248-template -D . -O ../../epan/dissectors h248v3.asn h248v1support.asn */
+/* ../../../tools/asn2wrs.py -b -p h248 -c ../../../asn1/h248/h248.cnf -s ../../../asn1/h248/packet-h248-template -D ../../../asn1/h248 -O ../../../epan/dissectors h248v3.asn h248v1support.asn */
 
 /* Input file: packet-h248-template.c */
 
@@ -41,13 +41,11 @@
 #include <epan/tap.h>
 #include "packet-tpkt.h"
 #include <ctype.h>
+#include "packet-mtp3.h"
 
 #define PNAME  "H.248 MEGACO"
 #define PSNAME "H248"
 #define PFNAME "h248"
-
-#define GATEWAY_CONTROL_PROTOCOL_USER_ID 14
-
 
 /* Initialize the protocol and registered fields */
 static int proto_h248                   = -1;
@@ -397,7 +395,7 @@ static int hf_h248_NotifyCompletion_otherReason = -1;
 static int hf_h248_NotifyCompletion_onIteration = -1;
 
 /*--- End of included file: packet-h248-hf.c ---*/
-#line 75 "../../asn1/h248/packet-h248-template.c"
+#line 73 "../../asn1/h248/packet-h248-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_h248 = -1;
@@ -565,7 +563,7 @@ static gint ett_h248_T_extraInfo_01 = -1;
 static gint ett_h248_SigParameterV1 = -1;
 
 /*--- End of included file: packet-h248-ett.c ---*/
-#line 92 "../../asn1/h248/packet-h248-template.c"
+#line 90 "../../asn1/h248/packet-h248-template.c"
 
 static dissector_handle_t h248_term_handle;
 
@@ -5341,7 +5339,7 @@ dissect_h248_SigParameterV1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 
 /*--- End of included file: packet-h248-fn.c ---*/
-#line 1328 "../../asn1/h248/packet-h248-template.c"
+#line 1326 "../../asn1/h248/packet-h248-template.c"
 
 static void dissect_h248_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     dissect_tpkt_encap(tvb, pinfo, tree, h248_desegment, h248_handle);
@@ -6734,7 +6732,7 @@ void proto_register_h248(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-h248-hfarr.c ---*/
-#line 1468 "../../asn1/h248/packet-h248-template.c"
+#line 1466 "../../asn1/h248/packet-h248-template.c"
 
         GCP_HF_ARR_ELEMS("h248",h248_arrel)
 
@@ -6903,7 +6901,7 @@ void proto_register_h248(void) {
     &ett_h248_SigParameterV1,
 
 /*--- End of included file: packet-h248-ettarr.c ---*/
-#line 1486 "../../asn1/h248/packet-h248-template.c"
+#line 1484 "../../asn1/h248/packet-h248-template.c"
     };
 
     module_t *h248_module;
@@ -6958,7 +6956,7 @@ void proto_reg_handoff_h248(void) {
     if (!initialized) {
         h248_handle = find_dissector("h248");
         h248_tpkt_handle = find_dissector("h248.tpkt");
-        dissector_add_uint("mtp3.service_indicator", GATEWAY_CONTROL_PROTOCOL_USER_ID, h248_handle);
+        dissector_add_uint("mtp3.service_indicator", MTP_SI_GCP, h248_handle);
         h248_term_handle = find_dissector("h248term");
         initialized = TRUE;
     } else {

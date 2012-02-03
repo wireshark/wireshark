@@ -47,11 +47,6 @@
 
 #include <packet-mtp3.h>
 
-/* MTP3 Service Indicators used by this dissector */
-#define MTP3MG_SI 0
-#define MTP3MG_ITU_TEST_SI 1
-#define MTP3MG_ANSI_TEST_SI 2
-
 #define H0H1_LENGTH 1
 #define H0_MASK     0x0f
 #define H1_MASK     0xf0
@@ -1038,8 +1033,8 @@ dissect_mtp3mg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*
      *  Dissect the message
      */
-    if(pinfo->private_data == (void *)MTP3MG_ANSI_TEST_SI ||
-       pinfo->private_data == (void *)MTP3MG_ITU_TEST_SI)
+    if(pinfo->private_data == (void *)MTP_SI_MTN || /* ITU */
+       pinfo->private_data == (void *)MTP_SI_MTNS)  /* ANSI */
     {	/* Test messages */
 
 	if (mtp3_standard == JAPAN_STANDARD)
@@ -1525,12 +1520,12 @@ proto_reg_handoff_mtp3mg(void)
 
     mtp3mg_handle = find_dissector("mtp3mg");
 
-    dissector_add_uint("mtp3.service_indicator", MTP3MG_SI, mtp3mg_handle);
+    dissector_add_uint("mtp3.service_indicator", MTP_SI_SNM, mtp3mg_handle);
 
     /*  SI 1 is unused in ANSI and SI 2 is unused in ITU, so it's okay for us
      *  to grab both (regardless of mtp3.standard setting) here.
      */
-    dissector_add_uint("mtp3.service_indicator", MTP3MG_ITU_TEST_SI, mtp3mg_handle);
-    dissector_add_uint("mtp3.service_indicator", MTP3MG_ANSI_TEST_SI, mtp3mg_handle);
+    dissector_add_uint("mtp3.service_indicator", MTP_SI_MTN, mtp3mg_handle);
+    dissector_add_uint("mtp3.service_indicator", MTP_SI_MTNS, mtp3mg_handle);
 }
 

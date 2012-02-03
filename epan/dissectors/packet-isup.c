@@ -58,8 +58,6 @@
 
 static gint isup_standard = ITU_STANDARD;
 
-#define MTP3_ISUP_SERVICE_INDICATOR     5
-#define MTP3_BICC_SERVICE_INDICATOR     13
 #define ASCII_NUMBER_DELTA              0x30
 #define ASCII_LETTER_DELTA              0x37
 
@@ -8664,7 +8662,7 @@ proto_reg_handoff_isup(void)
 
   isup_handle = create_dissector_handle(dissect_isup, proto_isup);
   application_isup_handle = create_dissector_handle(dissect_application_isup, proto_isup);
-  dissector_add_uint("mtp3.service_indicator", MTP3_ISUP_SERVICE_INDICATOR, isup_handle);
+  dissector_add_uint("mtp3.service_indicator", MTP_SI_ISUP, isup_handle);
   dissector_add_string("media_type","application/isup", application_isup_handle);
   dissector_add_string("tali.opcode", "isot", isup_handle);
 
@@ -8704,6 +8702,6 @@ proto_reg_handoff_bicc(void)
   q931_ie_handle = find_dissector("q931.ie");
 
   bicc_handle = create_dissector_handle(dissect_bicc, proto_bicc);
-  dissector_add_uint("mtp3.service_indicator", MTP3_BICC_SERVICE_INDICATOR, bicc_handle);
+  dissector_add_uint("mtp3.service_indicator", MTP_SI_BICC, bicc_handle);
   dissector_add_uint("sctp.ppi", BICC_PAYLOAD_PROTOCOL_ID, bicc_handle);
 }

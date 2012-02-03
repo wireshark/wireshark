@@ -96,6 +96,21 @@ extern void	dissect_mtp3_3byte_pc(tvbuff_t *tvb, guint offset,
  */
 WS_VAR_IMPORT const value_string mtp3_service_indicator_code_short_vals[];
 
+#define MTP_SI_SNM	0x0
+#define MTP_SI_MTN	0x1
+#define MTP_SI_MTNS	0x2
+#define MTP_SI_SCCP	0x3
+#define MTP_SI_TUP	0x4
+#define MTP_SI_ISUP	0x5
+#define MTP_SI_DUP_CC	0x6
+#define MTP_SI_DUP_FAC	0x7
+#define MTP_SI_MTP_TEST	0x8
+#define MTP_SI_ISUP_B	0x9
+#define MTP_SI_ISUP_S	0xa
+#define MTP_SI_AAL2	0xc
+#define MTP_SI_BICC	0xd
+#define MTP_SI_GCP	0xe
+
 /*
  * I only want to gather stats for non-spare SI codes
  */

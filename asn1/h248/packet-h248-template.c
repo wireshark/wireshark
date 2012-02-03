@@ -33,13 +33,11 @@
 #include <epan/tap.h>
 #include "packet-tpkt.h"
 #include <ctype.h>
+#include "packet-mtp3.h"
 
 #define PNAME  "H.248 MEGACO"
 #define PSNAME "H248"
 #define PFNAME "h248"
-
-#define GATEWAY_CONTROL_PROTOCOL_USER_ID 14
-
 
 /* Initialize the protocol and registered fields */
 static int proto_h248                   = -1;
@@ -1537,7 +1535,7 @@ void proto_reg_handoff_h248(void) {
     if (!initialized) {
         h248_handle = find_dissector("h248");
         h248_tpkt_handle = find_dissector("h248.tpkt");
-        dissector_add_uint("mtp3.service_indicator", GATEWAY_CONTROL_PROTOCOL_USER_ID, h248_handle);
+        dissector_add_uint("mtp3.service_indicator", MTP_SI_GCP, h248_handle);
         h248_term_handle = find_dissector("h248term");
         initialized = TRUE;
     } else {
