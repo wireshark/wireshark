@@ -819,57 +819,79 @@ static const value_string assoc_protos[] = {
 };
 
 #define is_connectionless(m) \
-         ( m == SCCP_MSG_TYPE_UDT || m == SCCP_MSG_TYPE_UDTS  \
-        || m == SCCP_MSG_TYPE_XUDT|| m == SCCP_MSG_TYPE_XUDTS \
-        || m == SCCP_MSG_TYPE_LUDT|| m == SCCP_MSG_TYPE_LUDTS)
+	 ( m == SCCP_MSG_TYPE_UDT || m == SCCP_MSG_TYPE_UDTS  \
+	|| m == SCCP_MSG_TYPE_XUDT|| m == SCCP_MSG_TYPE_XUDTS \
+	|| m == SCCP_MSG_TYPE_LUDT|| m == SCCP_MSG_TYPE_LUDTS)
+
+#define RETURN_FALSE \
+    { \
+	/*g_warning("Frame %d not protocol %d @ line %d", frame_num, my_mtp3_standard, __LINE__);*/ \
+	return FALSE; \
+    }
 
 static gboolean
-sccp_called_calling_looks_valid(tvbuff_t *tvb, guint8 my_mtp3_standard, gboolean is_co)
+sccp_called_calling_looks_valid(guint32 frame_num _U_, tvbuff_t *tvb, guint8 my_mtp3_standard, gboolean is_co)
 {
-    guint8 ai, ri, gti, ssni /* , pci */;
+    guint8 ai, ri, gti, ssni, pci;
+    guint8 len_needed = 1; /* need at least the Address Indicator */
+    guint len = tvb_length(tvb);
 
-    /* TVB starts with parameter length */
-    ai = tvb_get_guint8(tvb, 1);
+    ai = tvb_get_guint8(tvb, 0);
     if (my_mtp3_standard == ANSI_STANDARD && (ai & ANSI_NATIONAL_MASK) == 0)
-	return FALSE;
+	RETURN_FALSE;
 
     gti = (ai & GTI_MASK) >> GTI_SHIFT;
     if (my_mtp3_standard == ANSI_STANDARD) {
-        if (gti > 2)
-	    return FALSE;
+	if (gti > 2)
+	    RETURN_FALSE;
     } else {
-        if (gti > 4)
-	    return FALSE;
+	if (gti > 4)
+	    RETURN_FALSE;
     }
 
-    ri = ai & ROUTING_INDICATOR_MASK >> ROUTING_INDICATOR_SHIFT;
+    ri = (ai & ROUTING_INDICATOR_MASK) >> ROUTING_INDICATOR_SHIFT;
     if (my_mtp3_standard == ANSI_STANDARD) {
-	/* pci = ai & ANSI_PC_INDICATOR_MASK; */
+	pci = ai & ANSI_PC_INDICATOR_MASK;
 	ssni = ai & ANSI_SSN_INDICATOR_MASK;
     } else {
 	ssni = ai & ITU_SSN_INDICATOR_MASK;
-	/* pci = ai & ITU_PC_INDICATOR_MASK; */
+	pci = ai & ITU_PC_INDICATOR_MASK;
     }
 
     /* Route on SSN with no SSN? */
     if (ri == ROUTE_ON_SSN && ssni == 0)
-	return FALSE;
+	RETURN_FALSE;
 
     /* Route on GT with no GT? */
     if (ri == ROUTE_ON_GT && gti == AI_GTI_NO_GT)
-	return FALSE;
+	RETURN_FALSE;
 
     /* GT routed and connection-oriented (Class-2)?
      * Yes, that's theoretically possible, but it's not used.
      */
     if (ri == ROUTE_ON_GT && is_co)
-	return FALSE;
+	RETURN_FALSE;
+
+    if (ssni)
+	len_needed += ADDRESS_SSN_LENGTH;
+    if (pci) {
+	if (my_mtp3_standard == ANSI_STANDARD ||
+	    my_mtp3_standard == CHINESE_ITU_STANDARD)
+	    len_needed += ANSI_PC_LENGTH;
+	else
+	    len_needed += ITU_PC_LENGTH;
+    }
+    if (gti)
+	len_needed += 2;
+
+    if (len_needed > len)
+	RETURN_FALSE;
 
     return TRUE;
 }
 
 gboolean
-looks_like_valid_sccp(tvbuff_t *tvb, guint8 my_mtp3_standard)
+looks_like_valid_sccp(guint32 frame_num _U_, tvbuff_t *tvb, guint8 my_mtp3_standard)
 {
     guint offset;
     guint8 msgtype, msg_class, cause;
@@ -884,17 +906,16 @@ looks_like_valid_sccp(tvbuff_t *tvb, guint8 my_mtp3_standard)
      * we don't want to throw an exception in here...
      */
     if (len < 6)
-        return FALSE;
+	RETURN_FALSE;
 
     msgtype = tvb_get_guint8(tvb, SCCP_MSG_TYPE_OFFSET);
     if (!match_strval(msgtype, sccp_message_type_acro_values)) {
-        return FALSE;
+	RETURN_FALSE;
     }
     offset = SCCP_MSG_TYPE_LENGTH;
 
     /*
     Still to be done:
-    SCCP_MSG_TYPE_XUDTS
     SCCP_MSG_TYPE_LUDT
     SCCP_MSG_TYPE_LUDTS
     */
@@ -907,143 +928,212 @@ looks_like_valid_sccp(tvbuff_t *tvb, guint8 my_mtp3_standard)
     case SCCP_MSG_TYPE_RSC:
     case SCCP_MSG_TYPE_RSR:
 	/* Class-3 is never actually used in the real world */
-        return FALSE;
-        break;
+	RETURN_FALSE;
+	break;
     case SCCP_MSG_TYPE_UDT:
     case SCCP_MSG_TYPE_XUDT: /* 0x11 */
     case SCCP_MSG_TYPE_UDTS:
-        {
+    case SCCP_MSG_TYPE_XUDTS:
+	{
+	    if (msgtype == SCCP_MSG_TYPE_XUDT || msgtype == SCCP_MSG_TYPE_XUDTS) {
+		if (SCCP_MSG_TYPE_LENGTH +
+		    PROTOCOL_CLASS_LENGTH + /* or Cause for XUDTS */
+		    HOP_COUNTER_LENGTH +
+		    POINTER_LENGTH +
+		    POINTER_LENGTH +
+		    POINTER_LENGTH +
+		    POINTER_LENGTH > len)
+		    RETURN_FALSE;
+	    }
+
 	    if (msgtype == SCCP_MSG_TYPE_UDT || msgtype == SCCP_MSG_TYPE_XUDT) {
-		/* Class lower four bits */
 		msg_class = tvb_get_guint8(tvb, offset) & CLASS_CLASS_MASK;
 		if (msg_class > 1)
-		    return FALSE;
+		    RETURN_FALSE;
 		offset += PROTOCOL_CLASS_LENGTH;
 	    }
 
-            if (msgtype == SCCP_MSG_TYPE_XUDT)
-                offset += HOP_COUNTER_LENGTH;
+	    if (msgtype == SCCP_MSG_TYPE_XUDT)
+		offset += HOP_COUNTER_LENGTH;
 
-	    if (msgtype == SCCP_MSG_TYPE_UDTS) {
+	    if (msgtype == SCCP_MSG_TYPE_UDTS ||
+		msgtype == SCCP_MSG_TYPE_XUDTS) {
 		cause = tvb_get_guint8(tvb, offset);
 		if (!match_strval(cause, sccp_return_cause_values))
-		    return FALSE;
+		    RETURN_FALSE;
 		offset += RETURN_CAUSE_LENGTH;
 	    }
 
-            called_ptr = tvb_get_guint8(tvb, offset) + offset;
+	    if (msgtype == SCCP_MSG_TYPE_XUDTS)
+		offset += HOP_COUNTER_LENGTH;
+
+	    called_ptr = tvb_get_guint8(tvb, offset);
+	    if (called_ptr == 0) /* Mandatory variable parameters must be present */
+		RETURN_FALSE;
+	    called_ptr += offset;
 	    offset += POINTER_LENGTH;
-            calling_ptr = tvb_get_guint8(tvb, offset) + offset;
+
+	    calling_ptr = tvb_get_guint8(tvb, offset);
+	    if (calling_ptr == 0) /* Mandatory variable parameters must be present */
+		RETURN_FALSE;
+	    calling_ptr += offset;
 	    offset += POINTER_LENGTH;
-            data_ptr = tvb_get_guint8(tvb, offset) + offset;
+
+	    data_ptr = tvb_get_guint8(tvb, offset);
+	    if (data_ptr == 0) /* Mandatory variable parameters must be present */
+		RETURN_FALSE;
+	    data_ptr += offset;
 	    offset += POINTER_LENGTH;
-            if (msgtype == SCCP_MSG_TYPE_XUDT) {
-                opt_ptr = tvb_get_guint8(tvb, offset);
-		if (opt_ptr)
-		    opt_ptr += offset;
+
+	    if (msgtype == SCCP_MSG_TYPE_XUDT || msgtype == SCCP_MSG_TYPE_XUDTS) {
+		opt_ptr = tvb_get_guint8(tvb, offset);
 		offset += POINTER_LENGTH;
 	    }
 
-            /* Check that all the pointers are within bounds */
-            if (called_ptr > len || calling_ptr > len || data_ptr > len || opt_ptr > len)
-                return FALSE;
+	    /* Check that the variable pointers are within bounds */
+	    if (called_ptr > len || calling_ptr > len || data_ptr > len)
+		RETURN_FALSE;
 
-            /* Check that the lengths of the variable parameters are within bounds */
-            if (tvb_get_guint8(tvb, called_ptr)+offset > len ||
-                tvb_get_guint8(tvb, calling_ptr)+offset > len ||
-                tvb_get_guint8(tvb, data_ptr)+offset > len)
-                return FALSE;
-        }
-        break;
+	    /* Check that the lengths of the variable parameters are within bounds */
+	    if (tvb_get_guint8(tvb, called_ptr)+called_ptr > len ||
+		tvb_get_guint8(tvb, calling_ptr)+calling_ptr > len ||
+		tvb_get_guint8(tvb, data_ptr)+data_ptr > len)
+		RETURN_FALSE;
+	}
+	break;
     case SCCP_MSG_TYPE_CR:
-        {
+	{
 	    offset += DESTINATION_LOCAL_REFERENCE_LENGTH;
 
-            msg_class = tvb_get_guint8(tvb, offset) & CLASS_CLASS_MASK;
-            if (msg_class != 2)
-                return FALSE;
-        }
-        break;
+	    /* Class is only the lower 4 bits, but the upper 4 bits are spare
+	     * in Class-2.  Don't mask them off so the below comparison also
+	     * fails if any of those spare bits are set.
+	     */
+	    msg_class = tvb_get_guint8(tvb, offset);
+	    if (msg_class != 2)
+		RETURN_FALSE;
+	}
+    break;
     case SCCP_MSG_TYPE_CC: /* 2 */
-        {
+	{
 	    if (len < SCCP_MSG_TYPE_LENGTH
 		      + DESTINATION_LOCAL_REFERENCE_LENGTH
 		      + SOURCE_LOCAL_REFERENCE_LENGTH
 		      + PROTOCOL_CLASS_LENGTH
 		      + POINTER_LENGTH)
-		return FALSE;
+		RETURN_FALSE;
 
 	    offset += DESTINATION_LOCAL_REFERENCE_LENGTH;
 	    offset += SOURCE_LOCAL_REFERENCE_LENGTH;
 
-            msg_class = tvb_get_guint8(tvb, offset) & CLASS_CLASS_MASK;
-            if (msg_class != 2)
-                return FALSE;
+	    /* Class is only the lower 4 bits, but the upper 4 bits are spare
+	     * in Class-2.  Don't mask them off so the below comparison also
+	     * fails if any of those spare bits are set.
+	     */
+	    msg_class = tvb_get_guint8(tvb, offset);
+	    if (msg_class != 2)
+		RETURN_FALSE;
 	    offset += PROTOCOL_CLASS_LENGTH;
 
 	    opt_ptr = tvb_get_guint8(tvb, offset);
-	    if (opt_ptr)
-		opt_ptr += offset;
-        }
-        break;
+	    offset += POINTER_LENGTH;
+
+	    /* If the pointer isn't 0 (no optional parameters) or 1 (optional
+	     * parameter starts immediately after the pointer) then what would
+	     * be between the pointer and the parameter?
+	     */
+	    if (opt_ptr > 1)
+		RETURN_FALSE;
+
+	    /* If there are no optional parameters, are we at the end of the
+	     * message?
+	     */
+	    if (opt_ptr == 0 && offset != len)
+		RETURN_FALSE;
+	}
+	break;
     case SCCP_MSG_TYPE_CREF:
-        {
+	{
 	    offset += DESTINATION_LOCAL_REFERENCE_LENGTH;
 
-            cause = tvb_get_guint8(tvb, offset);
-            if (!match_strval(cause, sccp_refusal_cause_values))
-                return FALSE;
+	    cause = tvb_get_guint8(tvb, offset);
+	    if (!match_strval(cause, sccp_refusal_cause_values))
+		RETURN_FALSE;
 	    offset += REFUSAL_CAUSE_LENGTH;
 
 	    opt_ptr = tvb_get_guint8(tvb, offset);
-	    if (opt_ptr)
-		opt_ptr += offset;
-        }
-        break;
+	    offset += POINTER_LENGTH;
+
+	    /* If the pointer isn't 0 (no optional parameters) or 1 (optional
+	     * parameter starts immediately after the pointer) then what would
+	     * be between the pointer and the parameter?
+	     */
+	    if (opt_ptr > 1)
+		RETURN_FALSE;
+
+	    /* If there are no optional parameters, are we at the end of the
+	     * message?
+	     */
+	    if (opt_ptr == 0 && offset != len)
+		RETURN_FALSE;
+	}
+	break;
     case SCCP_MSG_TYPE_RLSD:
-        {
+	{
 	    if (len < SCCP_MSG_TYPE_LENGTH
 		      + DESTINATION_LOCAL_REFERENCE_LENGTH
 		      + SOURCE_LOCAL_REFERENCE_LENGTH
 		      + RELEASE_CAUSE_LENGTH
 		      + POINTER_LENGTH)
-		return FALSE;
+		RETURN_FALSE;
 
 	    offset += DESTINATION_LOCAL_REFERENCE_LENGTH;
 	    offset += SOURCE_LOCAL_REFERENCE_LENGTH;
 
-            cause = tvb_get_guint8(tvb, offset);
-            if (!match_strval(cause, sccp_release_cause_values))
-                return FALSE;
+	    cause = tvb_get_guint8(tvb, offset);
+	    if (!match_strval(cause, sccp_release_cause_values))
+		RETURN_FALSE;
 	    offset += RELEASE_CAUSE_LENGTH;
 
 	    opt_ptr = tvb_get_guint8(tvb, offset);
-	    if (opt_ptr)
-		opt_ptr += offset;
-        }
-        break;
+	    offset += POINTER_LENGTH;
+
+	    /* If the pointer isn't 0 (no optional parameters) or 1 (optional
+	     * parameter starts immediately after the pointer) then what would
+	     * be between the pointer and the parameter?
+	     */
+	    if (opt_ptr > 1)
+		RETURN_FALSE;
+
+	    /* If there are no optional parameters, are we at the end of the
+	     * message?
+	     */
+	    if (opt_ptr == 0 && offset != len)
+		RETURN_FALSE;
+	}
+	break;
     case SCCP_MSG_TYPE_RLC:
-        {
+	{
 	    if (len != SCCP_MSG_TYPE_LENGTH
 		       + DESTINATION_LOCAL_REFERENCE_LENGTH
 		       + SOURCE_LOCAL_REFERENCE_LENGTH)
-		return FALSE;
-        }
-        break;
+		RETURN_FALSE;
+	}
+	break;
     case SCCP_MSG_TYPE_ERR:
-        {
+	{
 	    if (len != SCCP_MSG_TYPE_LENGTH
 		       + DESTINATION_LOCAL_REFERENCE_LENGTH
 		       + ERROR_CAUSE_LENGTH)
-		return FALSE;
+		RETURN_FALSE;
 
 	    offset += DESTINATION_LOCAL_REFERENCE_LENGTH;
 
-            cause = tvb_get_guint8(tvb, offset);
-            if (!match_strval(cause, sccp_error_cause_values))
-                return FALSE;
-        }
-        break;
+	    cause = tvb_get_guint8(tvb, offset);
+	    if (!match_strval(cause, sccp_error_cause_values))
+		RETURN_FALSE;
+	}
+	break;
     case SCCP_MSG_TYPE_DT1: /* 6 */
 	{
 	    if (len < SCCP_MSG_TYPE_LENGTH
@@ -1052,23 +1142,23 @@ looks_like_valid_sccp(tvbuff_t *tvb, guint8 my_mtp3_standard)
 		      + POINTER_LENGTH
 		      + PARAMETER_LENGTH_LENGTH
 		      + 1) /* At least 1 byte of payload */
-		return FALSE;
+		RETURN_FALSE;
 	    offset += DESTINATION_LOCAL_REFERENCE_LENGTH;
 
 	    /* Are any of the spare bits in set? */
 	    if (tvb_get_guint8(tvb, offset) & ~SEGMENTING_REASSEMBLING_MASK)
-		return FALSE;
+		RETURN_FALSE;
 	    offset += SEGMENTING_REASSEMBLING_LENGTH;
 
 	    data_ptr = tvb_get_guint8(tvb, offset) + offset;
 	    /* Verify the data pointer is within bounds */
 	    if (data_ptr > len)
-		return FALSE;
+		RETURN_FALSE;
 	    offset += POINTER_LENGTH;
 
 	    /* Verify the data length uses the rest of the message */
 	    if (tvb_get_guint8(tvb, data_ptr) + offset + 1U != len)
-		return FALSE;
+		RETURN_FALSE;
 	}
 	break;
     case SCCP_MSG_TYPE_IT:
@@ -1079,72 +1169,76 @@ looks_like_valid_sccp(tvbuff_t *tvb, guint8 my_mtp3_standard)
 		      + PROTOCOL_CLASS_LENGTH
 		      + SEQUENCING_SEGMENTING_LENGTH
 		      + CREDIT_LENGTH)
-		return FALSE;
+		RETURN_FALSE;
 
 	    offset += DESTINATION_LOCAL_REFERENCE_LENGTH;
 	    offset += SOURCE_LOCAL_REFERENCE_LENGTH;
 
-            msg_class = tvb_get_guint8(tvb, offset) & CLASS_CLASS_MASK;
-            if (msg_class != 2)
-                return FALSE;
+	    /* Class is only the lower 4 bits, but the upper 4 bits are spare
+	     * in Class-2.  Don't mask them off so the below comparison also
+	     * fails if any of those spare bits are set.
+	     */
+	    msg_class = tvb_get_guint8(tvb, offset);
+	    if (msg_class != 2)
+		RETURN_FALSE;
 	    offset += PROTOCOL_CLASS_LENGTH;
 	}
 	break;
 
     default:
-        g_warning("Unhandled msg type %u", msgtype);
-        return FALSE;
+	g_warning("Unhandled msg type %u", msgtype);
+	RETURN_FALSE;
     }
 
     if (called_ptr) {
-        guint8 param_len = tvb_get_guint8(tvb, called_ptr);
-        tvbuff_t *param_tvb;
+	guint8 param_len = tvb_get_guint8(tvb, called_ptr);
+	tvbuff_t *param_tvb;
 
 	if (param_len == 0)
-            return FALSE;
-	param_tvb = tvb_new_subset(tvb, called_ptr, param_len, param_len);
+	    RETURN_FALSE;
+	param_tvb = tvb_new_subset(tvb, called_ptr+1, param_len, param_len);
 
-        if (!sccp_called_calling_looks_valid(param_tvb, my_mtp3_standard, !is_connectionless(msgtype)))
-            return FALSE;
+	if (!sccp_called_calling_looks_valid(frame_num, param_tvb, my_mtp3_standard, !is_connectionless(msgtype)))
+	    RETURN_FALSE;
     }
 
-#if 0
     if (calling_ptr) {
-        guint8 param_len = tvb_get_guint8(tvb, calling_ptr);
-        tvbuff_t *param_tvb;
+	guint8 param_len = tvb_get_guint8(tvb, calling_ptr);
+	tvbuff_t *param_tvb;
 
 	if (param_len == 0)
-            return FALSE;
-        param_tvb = tvb_new_subset(tvb, calling_ptr, param_len, param_len);
+	    RETURN_FALSE;
+	param_tvb = tvb_new_subset(tvb, calling_ptr+1, param_len, param_len);
 
-        if (!sccp_called_calling_looks_valid(param_tvb, my_mtp3_standard, !is_connectionless(msgtype)))
-            return FALSE;
+	if (!sccp_called_calling_looks_valid(frame_num, param_tvb, my_mtp3_standard, !is_connectionless(msgtype)))
+	    RETURN_FALSE;
     }
-#endif
 
     if (opt_ptr) {
 	guint8 opt_param;
 
+	opt_ptr += offset-1; /* (offset was already incremented) */
+
 	/* Check that the optional pointer is within bounds */
-	if (opt_ptr+1U > len)
-	    return FALSE;
+	if (opt_ptr > len)
+	    RETURN_FALSE;
 
 	opt_param = tvb_get_guint8(tvb, opt_ptr);
 	/* Check if the (1st) optional parameter tag is valid */
 	if (!match_strval(opt_param, sccp_parameter_values))
-	    return FALSE;
+	    RETURN_FALSE;
 
 	/* Check that the (1st) parameter length is within bounds */
 	if (opt_param != PARAMETER_END_OF_OPTIONAL_PARAMETERS  &&
-	    opt_ptr+2U <= len &&
+	    opt_ptr+1U <= len &&
 	    tvb_get_guint8(tvb, opt_ptr+1U)+offset > len)
-	    return FALSE;
+	    RETURN_FALSE;
 
 	/* If we're at the end of the parameters, are we also at the end of the
 	 * message?
 	 */
 	if (opt_param == PARAMETER_END_OF_OPTIONAL_PARAMETERS && opt_ptr+1U != len)
-	    return FALSE;
+	    RETURN_FALSE;
     }
 
     return TRUE;
@@ -1185,153 +1279,153 @@ get_sccp_assoc(packet_info* pinfo, guint offset, guint32 src_lr, guint32 dst_lr,
     guint framenum = PINFO_FD_NUM(pinfo);
 
     if(assoc)
-        return assoc;
+	return assoc;
 
     opck = opc->type == AT_SS7PC ? mtp3_pc_hash((const mtp3_addr_pc_t *)opc->data) : g_str_hash(ep_address_to_str(opc));
     dpck = dpc->type == AT_SS7PC ? mtp3_pc_hash((const mtp3_addr_pc_t *)dpc->data) : g_str_hash(ep_address_to_str(dpc));
 
 
     switch (msg_type) {
-        case SCCP_MSG_TYPE_CR:
-        {
-            /* CR contains the opc,dpc,dlr key of backward messages swapped as dpc,opc,slr  */
-            emem_tree_key_t bw_key[] = {
-                {1, &dpck},
+	case SCCP_MSG_TYPE_CR:
+	{
+	    /* CR contains the opc,dpc,dlr key of backward messages swapped as dpc,opc,slr  */
+	    emem_tree_key_t bw_key[] = {
+		{1, &dpck},
 		{1, &opck},
 		{1, &src_lr},
 		{0, NULL}
-            };
+	    };
 
-            if (! ( assoc = se_tree_lookup32_array(assocs,bw_key) ) && ! PINFO_FD_VISITED(pinfo) ) {
-                assoc = new_assoc(opck, dpck);
-                se_tree_insert32_array(assocs, bw_key, assoc);
-                assoc->has_bw_key = TRUE;
-            }
+	    if (! ( assoc = se_tree_lookup32_array(assocs,bw_key) ) && ! PINFO_FD_VISITED(pinfo) ) {
+		assoc = new_assoc(opck, dpck);
+		se_tree_insert32_array(assocs, bw_key, assoc);
+		assoc->has_bw_key = TRUE;
+	    }
 
-            pinfo->p2p_dir = P2P_DIR_SENT;
+	    pinfo->p2p_dir = P2P_DIR_SENT;
 
-            break;
-        }
-        case SCCP_MSG_TYPE_CC:
-        {
-            emem_tree_key_t fw_key[] = {
-                {1, &dpck}, {1, &opck}, {1, &src_lr}, {0, NULL}
-            };
-            emem_tree_key_t bw_key[] = {
-                {1, &opck}, {1, &dpck}, {1, &dst_lr}, {0, NULL}
-            };
+	    break;
+	}
+	case SCCP_MSG_TYPE_CC:
+	{
+	    emem_tree_key_t fw_key[] = {
+		{1, &dpck}, {1, &opck}, {1, &src_lr}, {0, NULL}
+	    };
+	    emem_tree_key_t bw_key[] = {
+		{1, &opck}, {1, &dpck}, {1, &dst_lr}, {0, NULL}
+	    };
 
-            if ( ( assoc = se_tree_lookup32_array(assocs, bw_key) ) ) {
-                goto got_assoc;
-            }
+	    if ( ( assoc = se_tree_lookup32_array(assocs, bw_key) ) ) {
+		goto got_assoc;
+	    }
 
-            if ( (assoc = se_tree_lookup32_array(assocs, fw_key) ) ) {
-                goto got_assoc;
-            }
+	    if ( (assoc = se_tree_lookup32_array(assocs, fw_key) ) ) {
+		goto got_assoc;
+	    }
 
-            assoc = new_assoc(dpck,opck);
+	    assoc = new_assoc(dpck,opck);
 
      got_assoc:
 
-            pinfo->p2p_dir = P2P_DIR_RECV;
+	    pinfo->p2p_dir = P2P_DIR_RECV;
 
-            if ( ! PINFO_FD_VISITED(pinfo) && ! assoc->has_bw_key ) {
-                se_tree_insert32_array(assocs, bw_key, assoc);
-                assoc->has_bw_key = TRUE;
-            }
+	    if ( ! PINFO_FD_VISITED(pinfo) && ! assoc->has_bw_key ) {
+		se_tree_insert32_array(assocs, bw_key, assoc);
+		assoc->has_bw_key = TRUE;
+	    }
 
-            if ( ! PINFO_FD_VISITED(pinfo) && ! assoc->has_fw_key ) {
-                se_tree_insert32_array(assocs, fw_key, assoc);
-                assoc->has_fw_key = TRUE;
-            }
+	    if ( ! PINFO_FD_VISITED(pinfo) && ! assoc->has_fw_key ) {
+		se_tree_insert32_array(assocs, fw_key, assoc);
+		assoc->has_fw_key = TRUE;
+	    }
 
-            break;
-        }
-        case SCCP_MSG_TYPE_RLC:
-        {
-            emem_tree_key_t bw_key[] = {
-                {1, &dpck}, {1, &opck}, {1, &src_lr}, {0, NULL}
-            };
-            emem_tree_key_t fw_key[] = {
-                {1, &opck}, {1, &dpck}, {1, &dst_lr}, {0, NULL}
-            };
-            if ( ( assoc = se_tree_lookup32_array(assocs, bw_key) ) ) {
-                goto got_assoc_rlc;
-            }
+	    break;
+	}
+	case SCCP_MSG_TYPE_RLC:
+	{
+	    emem_tree_key_t bw_key[] = {
+		{1, &dpck}, {1, &opck}, {1, &src_lr}, {0, NULL}
+	    };
+	    emem_tree_key_t fw_key[] = {
+		{1, &opck}, {1, &dpck}, {1, &dst_lr}, {0, NULL}
+	    };
+	    if ( ( assoc = se_tree_lookup32_array(assocs, bw_key) ) ) {
+		goto got_assoc_rlc;
+	    }
 
-            if ( (assoc = se_tree_lookup32_array(assocs, fw_key) ) ) {
-                goto got_assoc_rlc;
-            }
+	    if ( (assoc = se_tree_lookup32_array(assocs, fw_key) ) ) {
+		goto got_assoc_rlc;
+	    }
 
-            assoc = new_assoc(dpck, opck);
+	    assoc = new_assoc(dpck, opck);
 
      got_assoc_rlc:
 
-            pinfo->p2p_dir = P2P_DIR_SENT;
+	    pinfo->p2p_dir = P2P_DIR_SENT;
 
-            if ( ! PINFO_FD_VISITED(pinfo) && ! assoc->has_bw_key ) {
-                se_tree_insert32_array(assocs, bw_key, assoc);
-                assoc->has_bw_key = TRUE;
-            }
+	    if ( ! PINFO_FD_VISITED(pinfo) && ! assoc->has_bw_key ) {
+		se_tree_insert32_array(assocs, bw_key, assoc);
+		assoc->has_bw_key = TRUE;
+	    }
 
-            if ( ! PINFO_FD_VISITED(pinfo) && ! assoc->has_fw_key ) {
-                se_tree_insert32_array(assocs, fw_key, assoc);
-                assoc->has_fw_key = TRUE;
-            }
-            break;
-        }
-        default:
-        {
-            emem_tree_key_t key[] = {
-                {1, &opck}, {1, &dpck}, {1, &dst_lr}, {0, NULL}
-            };
+	    if ( ! PINFO_FD_VISITED(pinfo) && ! assoc->has_fw_key ) {
+		se_tree_insert32_array(assocs, fw_key, assoc);
+		assoc->has_fw_key = TRUE;
+	    }
+	    break;
+	}
+	default:
+	{
+	    emem_tree_key_t key[] = {
+		{1, &opck}, {1, &dpck}, {1, &dst_lr}, {0, NULL}
+	    };
 
-            assoc = se_tree_lookup32_array(assocs, key);
+	    assoc = se_tree_lookup32_array(assocs, key);
 
-            if (assoc) {
-                if (assoc->calling_dpc == dpck) {
-                    pinfo->p2p_dir = P2P_DIR_RECV;
-                } else {
-                    pinfo->p2p_dir = P2P_DIR_SENT;
-                }
-            }
+	    if (assoc) {
+		if (assoc->calling_dpc == dpck) {
+		    pinfo->p2p_dir = P2P_DIR_RECV;
+		} else {
+		    pinfo->p2p_dir = P2P_DIR_SENT;
+		}
+	    }
 
-            break;
-        }
+	    break;
+	}
     }
 
     if (assoc && trace_sccp) {
-        if ( ! PINFO_FD_VISITED(pinfo)) {
-            sccp_msg_info_t* msg = se_alloc0(sizeof(sccp_msg_info_t));
-            msg->framenum = framenum;
-            msg->offset = offset;
-            msg->data.co.next = NULL;
-            msg->data.co.assoc = assoc;
-            msg->data.co.label = NULL;
-            msg->data.co.comment = NULL;
-            msg->type = msg_type;
+	if ( ! PINFO_FD_VISITED(pinfo)) {
+	    sccp_msg_info_t* msg = se_alloc0(sizeof(sccp_msg_info_t));
+	    msg->framenum = framenum;
+	    msg->offset = offset;
+	    msg->data.co.next = NULL;
+	    msg->data.co.assoc = assoc;
+	    msg->data.co.label = NULL;
+	    msg->data.co.comment = NULL;
+	    msg->type = msg_type;
 
-            if (assoc->msgs) {
-                sccp_msg_info_t* m;
-                for (m = assoc->msgs; m->data.co.next; m = m->data.co.next) ;
-                m->data.co.next = msg;
-            } else {
-                assoc->msgs = msg;
-            }
+	    if (assoc->msgs) {
+		sccp_msg_info_t* m;
+		for (m = assoc->msgs; m->data.co.next; m = m->data.co.next) ;
+		m->data.co.next = msg;
+	    } else {
+		assoc->msgs = msg;
+	    }
 
-            assoc->curr_msg = msg;
+	    assoc->curr_msg = msg;
 
-        } else {
+	} else {
 
-            sccp_msg_info_t* m;
+	    sccp_msg_info_t* m;
 
-            for (m = assoc->msgs; m; m = m->data.co.next) {
-                if (m->framenum == framenum && m->offset == offset) {
-                    assoc->curr_msg = m;
-                    break;
-                }
-            }
-        }
+	    for (m = assoc->msgs; m; m = m->data.co.next) {
+		if (m->framenum == framenum && m->offset == offset) {
+		    assoc->curr_msg = m;
+		    break;
+		}
+	    }
+	}
     }
 
     return assoc ? assoc : &no_assoc;
@@ -1346,15 +1440,15 @@ dissect_sccp_unknown_message(tvbuff_t *message_tvb, proto_tree *sccp_tree)
   message_length = tvb_length(message_tvb);
 
   proto_tree_add_text(sccp_tree, message_tvb, 0, message_length,
-                      "Unknown message (%u byte%s)",
-                      message_length, plurality(message_length, "", "s"));
+		      "Unknown message (%u byte%s)",
+		      message_length, plurality(message_length, "", "s"));
 }
 
 static void
 dissect_sccp_unknown_param(tvbuff_t *tvb, proto_tree *tree, guint8 type, guint length)
 {
   proto_tree_add_text(tree, tvb, 0, length, "Unknown parameter 0x%x (%u byte%s)",
-                      type, length, plurality(length, "", "s"));
+		      type, length, plurality(length, "", "s"));
 }
 
 static void
@@ -1622,227 +1716,227 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
     const char *tcap_ssn_dissector_short_name = NULL;
 
     call_item = proto_tree_add_text(tree, tvb, 0, length,
-        "%s Party address (%u byte%s)",
-        called ? "Called" : "Calling", length,
-        plurality(length, "", "s"));
+	"%s Party address (%u byte%s)",
+	called ? "Called" : "Calling", length,
+	plurality(length, "", "s"));
     call_tree = proto_item_add_subtree(call_item, called ? ett_sccp_called : ett_sccp_calling);
 
     call_ai_item = proto_tree_add_text(call_tree, tvb, 0,
-        ADDRESS_INDICATOR_LENGTH,
-        "Address Indicator");
+					ADDRESS_INDICATOR_LENGTH,
+					"Address Indicator");
     call_ai_tree = proto_item_add_subtree(call_ai_item, called ? ett_sccp_called_ai : ett_sccp_calling_ai);
 
     if (decode_mtp3_standard == ANSI_STANDARD) {
-        national = tvb_get_guint8(tvb, 0) & ANSI_NATIONAL_MASK;
-        expert_item = proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_national_indicator
-            : hf_sccp_calling_national_indicator,
-            tvb, 0, ADDRESS_INDICATOR_LENGTH, national);
-        if (national == 0)
-            expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_WARN, "Address is coded to "
-            "international standards.  This doesn't normally happen in ANSI "
-            "networks.");
+	national = tvb_get_guint8(tvb, 0) & ANSI_NATIONAL_MASK;
+	expert_item = proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_national_indicator
+	    : hf_sccp_calling_national_indicator,
+	    tvb, 0, ADDRESS_INDICATOR_LENGTH, national);
+	if (national == 0)
+	    expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_WARN, "Address is coded to "
+	    "international standards.  This doesn't normally happen in ANSI "
+	    "networks.");
     }
 
     routing_ind = tvb_get_guint8(tvb, 0) & ROUTING_INDICATOR_MASK;
     proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_routing_indicator : hf_sccp_calling_routing_indicator,
-        tvb, 0, ADDRESS_INDICATOR_LENGTH, routing_ind);
+			tvb, 0, ADDRESS_INDICATOR_LENGTH, routing_ind);
     /* Only shift off the other bits after adding the item */
     routing_ind >>= ROUTING_INDICATOR_SHIFT;
 
     gti = tvb_get_guint8(tvb, 0) & GTI_MASK;
 
     if (decode_mtp3_standard == ITU_STANDARD ||
-        decode_mtp3_standard == CHINESE_ITU_STANDARD ||
-        decode_mtp3_standard == JAPAN_STANDARD ||
-        national == 0) {
+	decode_mtp3_standard == CHINESE_ITU_STANDARD ||
+	decode_mtp3_standard == JAPAN_STANDARD ||
+	national == 0) {
 
-            proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_itu_global_title_indicator : hf_sccp_calling_itu_global_title_indicator,
-                tvb, 0, ADDRESS_INDICATOR_LENGTH, gti);
+	proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_itu_global_title_indicator : hf_sccp_calling_itu_global_title_indicator,
+	    tvb, 0, ADDRESS_INDICATOR_LENGTH, gti);
 
-            ssni = tvb_get_guint8(tvb, 0) & ITU_SSN_INDICATOR_MASK;
-            expert_item = proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_itu_ssn_indicator : hf_sccp_calling_itu_ssn_indicator,
-                tvb, 0, ADDRESS_INDICATOR_LENGTH, ssni);
-            if (routing_ind == ROUTE_ON_SSN && ssni == 0) {
-                expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_WARN,
-                    "Message is routed on SSN, but SSN is not present");
-            }
+	ssni = tvb_get_guint8(tvb, 0) & ITU_SSN_INDICATOR_MASK;
+	expert_item = proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_itu_ssn_indicator : hf_sccp_calling_itu_ssn_indicator,
+	    tvb, 0, ADDRESS_INDICATOR_LENGTH, ssni);
+	if (routing_ind == ROUTE_ON_SSN && ssni == 0) {
+	    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_WARN,
+		"Message is routed on SSN, but SSN is not present");
+	}
 
-            pci = tvb_get_guint8(tvb, 0) & ITU_PC_INDICATOR_MASK;
-            proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_itu_point_code_indicator : hf_sccp_calling_itu_point_code_indicator,
-                tvb, 0, ADDRESS_INDICATOR_LENGTH, pci);
+	pci = tvb_get_guint8(tvb, 0) & ITU_PC_INDICATOR_MASK;
+	proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_itu_point_code_indicator : hf_sccp_calling_itu_point_code_indicator,
+	    tvb, 0, ADDRESS_INDICATOR_LENGTH, pci);
 
-            offset = ADDRESS_INDICATOR_LENGTH;
+	offset = ADDRESS_INDICATOR_LENGTH;
 
-            /* Dissect PC (if present) */
-            if (pci) {
-                if (decode_mtp3_standard == ITU_STANDARD || national == 0) {
-                    if (length < offset + ITU_PC_LENGTH){
-                        expert_item = proto_tree_add_text(call_tree, tvb, 0, -1, "Wrong length indicated (%u) should be at least %u, PC is %u octets", length, offset + ITU_PC_LENGTH, ITU_PC_LENGTH);
-                        expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_ERROR, "Wrong length indicated");
-                        PROTO_ITEM_SET_GENERATED(expert_item);
-                        return;
-                    }
-                    proto_tree_add_item(call_tree, called ? hf_sccp_called_itu_pc : hf_sccp_calling_itu_pc,
-                        tvb, offset, ITU_PC_LENGTH, ENC_LITTLE_ENDIAN);
-                    offset += ITU_PC_LENGTH;
+	/* Dissect PC (if present) */
+	if (pci) {
+	    if (decode_mtp3_standard == ITU_STANDARD || national == 0) {
+		if (length < offset + ITU_PC_LENGTH){
+		    expert_item = proto_tree_add_text(call_tree, tvb, 0, -1, "Wrong length indicated (%u) should be at least %u, PC is %u octets", length, offset + ITU_PC_LENGTH, ITU_PC_LENGTH);
+		    expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_ERROR, "Wrong length indicated");
+		    PROTO_ITEM_SET_GENERATED(expert_item);
+		    return;
+		}
+		proto_tree_add_item(call_tree, called ? hf_sccp_called_itu_pc : hf_sccp_calling_itu_pc,
+		    tvb, offset, ITU_PC_LENGTH, ENC_LITTLE_ENDIAN);
+		offset += ITU_PC_LENGTH;
 
-                } else if (decode_mtp3_standard == JAPAN_STANDARD) {
+	    } else if (decode_mtp3_standard == JAPAN_STANDARD) {
 
-                    if (length < offset + JAPAN_PC_LENGTH){
-                        expert_item = proto_tree_add_text(call_tree, tvb, 0, -1, "Wrong length indicated (%u) should be at least %u, PC is %u octets", length, offset + JAPAN_PC_LENGTH, JAPAN_PC_LENGTH);
-                        expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_ERROR, "Wrong length indicated");
-                        PROTO_ITEM_SET_GENERATED(expert_item);
-                        return;
-                    }
-                    proto_tree_add_item(call_tree, called ? hf_sccp_called_japan_pc : hf_sccp_calling_japan_pc,
-                        tvb, offset, JAPAN_PC_LENGTH, ENC_LITTLE_ENDIAN);
+		if (length < offset + JAPAN_PC_LENGTH){
+		    expert_item = proto_tree_add_text(call_tree, tvb, 0, -1, "Wrong length indicated (%u) should be at least %u, PC is %u octets", length, offset + JAPAN_PC_LENGTH, JAPAN_PC_LENGTH);
+		    expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_ERROR, "Wrong length indicated");
+		    PROTO_ITEM_SET_GENERATED(expert_item);
+		    return;
+		}
+		proto_tree_add_item(call_tree, called ? hf_sccp_called_japan_pc : hf_sccp_calling_japan_pc,
+		    tvb, offset, JAPAN_PC_LENGTH, ENC_LITTLE_ENDIAN);
 
-                    offset += JAPAN_PC_LENGTH;
+		offset += JAPAN_PC_LENGTH;
 
-                } else /* CHINESE_ITU_STANDARD */ {
+	    } else /* CHINESE_ITU_STANDARD */ {
 
-                    if (length < offset + ANSI_PC_LENGTH){
-                        expert_item = proto_tree_add_text(call_tree, tvb, 0, -1, "Wrong length indicated (%u) should be at least %u, PC is %u octets", length, offset + ANSI_PC_LENGTH, ANSI_PC_LENGTH);
-                        expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_ERROR, "Wrong length indicated");
-                        PROTO_ITEM_SET_GENERATED(expert_item);
-                        return;
-                    }
-                    offset = dissect_sccp_3byte_pc(tvb, call_tree, offset, called);
+		if (length < offset + ANSI_PC_LENGTH){
+		    expert_item = proto_tree_add_text(call_tree, tvb, 0, -1, "Wrong length indicated (%u) should be at least %u, PC is %u octets", length, offset + ANSI_PC_LENGTH, ANSI_PC_LENGTH);
+		    expert_add_info_format(pinfo, expert_item, PI_MALFORMED, PI_ERROR, "Wrong length indicated");
+		    PROTO_ITEM_SET_GENERATED(expert_item);
+		    return;
+		}
+		offset = dissect_sccp_3byte_pc(tvb, call_tree, offset, called);
 
-                }
-            }
+	    }
+	}
 
-            /* Dissect SSN (if present) */
-            if (ssni) {
-                ssn = tvb_get_guint8(tvb, offset);
+	/* Dissect SSN (if present) */
+	if (ssni) {
+	    ssn = tvb_get_guint8(tvb, offset);
 
-                if (routing_ind == ROUTE_ON_SSN && ssn == 0) {
-                    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_WARN,
-                        "Message is routed on SSN, but SSN is zero (unspecified)");
-                }
+	    if (routing_ind == ROUTE_ON_SSN && ssn == 0) {
+		expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_WARN,
+		    "Message is routed on SSN, but SSN is zero (unspecified)");
+	    }
 
-                if (called && assoc)
-                    assoc->called_ssn = ssn;
-                else if (assoc)
-                    assoc->calling_ssn = ssn;
+	    if (called && assoc)
+		assoc->called_ssn = ssn;
+	    else if (assoc)
+		assoc->calling_ssn = ssn;
 
-                if (is_connectionless(message_type) && sccp_msg) {
-                    guint *ssn_ptr = called ? &(sccp_msg->data.ud.called_ssn) : &(sccp_msg->data.ud.calling_ssn);
+	    if (is_connectionless(message_type) && sccp_msg) {
+		guint *ssn_ptr = called ? &(sccp_msg->data.ud.called_ssn) : &(sccp_msg->data.ud.calling_ssn);
 
-                    *ssn_ptr  = ssn;
-                }
+		*ssn_ptr  = ssn;
+	    }
 
-                proto_tree_add_uint(call_tree, called ? hf_sccp_called_ssn
-                    : hf_sccp_calling_ssn,
-                    tvb, offset, ADDRESS_SSN_LENGTH, ssn);
-                hidden_item = proto_tree_add_uint(call_tree, hf_sccp_ssn, tvb, offset,
-                    ADDRESS_SSN_LENGTH, ssn);
-                PROTO_ITEM_SET_HIDDEN(hidden_item);
+	    proto_tree_add_uint(call_tree, called ? hf_sccp_called_ssn
+		: hf_sccp_calling_ssn,
+		tvb, offset, ADDRESS_SSN_LENGTH, ssn);
+	    hidden_item = proto_tree_add_uint(call_tree, hf_sccp_ssn, tvb, offset,
+		ADDRESS_SSN_LENGTH, ssn);
+	    PROTO_ITEM_SET_HIDDEN(hidden_item);
 
-                offset += ADDRESS_SSN_LENGTH;
+	    offset += ADDRESS_SSN_LENGTH;
 
-                /* Get the dissector handle of the dissector registered for this ssn
-                * And print it's name.
-                */
-                ssn_dissector = dissector_get_uint_handle(sccp_ssn_dissector_table, ssn);
+	    /* Get the dissector handle of the dissector registered for this ssn
+	    * And print it's name.
+	    */
+	    ssn_dissector = dissector_get_uint_handle(sccp_ssn_dissector_table, ssn);
 
-                if (ssn_dissector) {
-                    ssn_dissector_short_name = dissector_handle_get_short_name(ssn_dissector);
+	    if (ssn_dissector) {
+		ssn_dissector_short_name = dissector_handle_get_short_name(ssn_dissector);
 
-                    if(ssn_dissector_short_name) {
-                        item = proto_tree_add_text(call_tree, tvb, offset - 1, ADDRESS_SSN_LENGTH, "Linked to %s", ssn_dissector_short_name);
-                        PROTO_ITEM_SET_GENERATED(item);
+		if(ssn_dissector_short_name) {
+		    item = proto_tree_add_text(call_tree, tvb, offset - 1, ADDRESS_SSN_LENGTH, "Linked to %s", ssn_dissector_short_name);
+		    PROTO_ITEM_SET_GENERATED(item);
 
-                        if (g_ascii_strncasecmp("TCAP", ssn_dissector_short_name, 4)== 0) {
-                            tcap_ssn_dissector = get_itu_tcap_subdissector(ssn);
+		    if (g_ascii_strncasecmp("TCAP", ssn_dissector_short_name, 4)== 0) {
+			tcap_ssn_dissector = get_itu_tcap_subdissector(ssn);
 
-                            if(tcap_ssn_dissector) {
-                                tcap_ssn_dissector_short_name = dissector_handle_get_short_name(tcap_ssn_dissector);
-                                proto_item_append_text(item,", TCAP SSN linked to %s", tcap_ssn_dissector_short_name);
-                            }
-                        }
-                    } /* short name */
-                } /* ssn_dissector */
-            } /* ssni */
+			if(tcap_ssn_dissector) {
+			    tcap_ssn_dissector_short_name = dissector_handle_get_short_name(tcap_ssn_dissector);
+			    proto_item_append_text(item,", TCAP SSN linked to %s", tcap_ssn_dissector_short_name);
+			}
+		    }
+		} /* short name */
+	    } /* ssn_dissector */
+	} /* ssni */
 
-            /* Dissect GT (if present) */
-            if (gti != AI_GTI_NO_GT) {
-                if (length < offset)
-                    return;
+	/* Dissect GT (if present) */
+	if (gti != AI_GTI_NO_GT) {
+	    if (length < offset)
+		return;
 
-                gt_tvb = tvb_new_subset(tvb, offset, (length - offset),
-                    (length - offset));
-                dissect_sccp_global_title(gt_tvb, pinfo, call_tree, (length - offset), gti,
-                    (routing_ind == ROUTE_ON_GT), called);
-            }
+	    gt_tvb = tvb_new_subset(tvb, offset, (length - offset),
+		(length - offset));
+	    dissect_sccp_global_title(gt_tvb, pinfo, call_tree, (length - offset), gti,
+		(routing_ind == ROUTE_ON_GT), called);
+	}
 
     } else if (decode_mtp3_standard == ANSI_STANDARD) {
 
-        proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_ansi_global_title_indicator
-            : hf_sccp_calling_ansi_global_title_indicator,
-            tvb, 0, ADDRESS_INDICATOR_LENGTH, gti);
+	proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_ansi_global_title_indicator
+	    : hf_sccp_calling_ansi_global_title_indicator,
+	    tvb, 0, ADDRESS_INDICATOR_LENGTH, gti);
 
-        pci = tvb_get_guint8(tvb, 0) & ANSI_PC_INDICATOR_MASK;
-        proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_ansi_point_code_indicator
-            : hf_sccp_calling_ansi_point_code_indicator,
-            tvb, 0, ADDRESS_INDICATOR_LENGTH, pci);
+	pci = tvb_get_guint8(tvb, 0) & ANSI_PC_INDICATOR_MASK;
+	proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_ansi_point_code_indicator
+	    : hf_sccp_calling_ansi_point_code_indicator,
+	    tvb, 0, ADDRESS_INDICATOR_LENGTH, pci);
 
-        ssni = tvb_get_guint8(tvb, 0) & ANSI_SSN_INDICATOR_MASK;
-        expert_item = proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_ansi_ssn_indicator
-            : hf_sccp_calling_ansi_ssn_indicator,
-            tvb, 0, ADDRESS_INDICATOR_LENGTH, ssni);
-        if (routing_ind == ROUTE_ON_SSN && ssni == 0) {
-            expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_WARN,
-                "Message is routed on SSN, but SSN is not present");
-        }
+	ssni = tvb_get_guint8(tvb, 0) & ANSI_SSN_INDICATOR_MASK;
+	expert_item = proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_ansi_ssn_indicator
+	    : hf_sccp_calling_ansi_ssn_indicator,
+	    tvb, 0, ADDRESS_INDICATOR_LENGTH, ssni);
+	if (routing_ind == ROUTE_ON_SSN && ssni == 0) {
+	    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_WARN,
+		"Message is routed on SSN, but SSN is not present");
+	}
 
-        offset = ADDRESS_INDICATOR_LENGTH;
+	offset = ADDRESS_INDICATOR_LENGTH;
 
-        /* Dissect SSN (if present) */
-        if (ssni) {
-            ssn = tvb_get_guint8(tvb, offset);
+	/* Dissect SSN (if present) */
+	if (ssni) {
+	    ssn = tvb_get_guint8(tvb, offset);
 
-            if (routing_ind == ROUTE_ON_SSN && ssn == 0) {
-                expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_WARN,
-                    "Message is routed on SSN, but SSN is zero (unspecified)");
-            }
+	    if (routing_ind == ROUTE_ON_SSN && ssn == 0) {
+		expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_WARN,
+		    "Message is routed on SSN, but SSN is zero (unspecified)");
+	    }
 
-            if (called && assoc) {
-                assoc->called_ssn = ssn;
-            } else if (assoc) {
-                assoc->calling_ssn = ssn;
-            }
+	    if (called && assoc) {
+		assoc->called_ssn = ssn;
+	    } else if (assoc) {
+		assoc->calling_ssn = ssn;
+	    }
 
-            if (is_connectionless(message_type) && sccp_msg) {
-                guint *ssn_ptr = called ? &(sccp_msg->data.ud.called_ssn) : &(sccp_msg->data.ud.calling_ssn);
+	    if (is_connectionless(message_type) && sccp_msg) {
+		guint *ssn_ptr = called ? &(sccp_msg->data.ud.called_ssn) : &(sccp_msg->data.ud.calling_ssn);
 
-                *ssn_ptr  = ssn;
-            }
+		*ssn_ptr  = ssn;
+	    }
 
-            proto_tree_add_uint(call_tree, called ? hf_sccp_called_ssn
-                : hf_sccp_calling_ssn,
-                tvb, offset, ADDRESS_SSN_LENGTH, ssn);
-            hidden_item = proto_tree_add_uint(call_tree, hf_sccp_ssn, tvb, offset,
-                ADDRESS_SSN_LENGTH, ssn);
-            PROTO_ITEM_SET_HIDDEN(hidden_item);
+	    proto_tree_add_uint(call_tree, called ? hf_sccp_called_ssn
+		: hf_sccp_calling_ssn,
+		tvb, offset, ADDRESS_SSN_LENGTH, ssn);
+	    hidden_item = proto_tree_add_uint(call_tree, hf_sccp_ssn, tvb, offset,
+		ADDRESS_SSN_LENGTH, ssn);
+	    PROTO_ITEM_SET_HIDDEN(hidden_item);
 
-            offset += ADDRESS_SSN_LENGTH;
-        }
+	    offset += ADDRESS_SSN_LENGTH;
+	}
 
-        /* Dissect PC (if present) */
-        if (pci) {
-            offset = dissect_sccp_3byte_pc(tvb, call_tree, offset, called);
-        }
+	/* Dissect PC (if present) */
+	if (pci) {
+	    offset = dissect_sccp_3byte_pc(tvb, call_tree, offset, called);
+	}
 
-        /* Dissect GT (if present) */
-        if (gti != AI_GTI_NO_GT) {
-            if (length < offset)
-                return;
-            gt_tvb = tvb_new_subset(tvb, offset, (length - offset),
-                (length - offset));
-            dissect_sccp_global_title(gt_tvb, pinfo, call_tree, (length - offset), gti,
-                (routing_ind == ROUTE_ON_GT), called);
-        }
+	/* Dissect GT (if present) */
+	if (gti != AI_GTI_NO_GT) {
+	    if (length < offset)
+		return;
+	    gt_tvb = tvb_new_subset(tvb, offset, (length - offset),
+		(length - offset));
+	    dissect_sccp_global_title(gt_tvb, pinfo, call_tree, (length - offset), gti,
+		(routing_ind == ROUTE_ON_GT), called);
+	}
 
     }
 
@@ -2109,39 +2203,39 @@ dissect_sccp_data_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     const mtp3_addr_pc_t* opc = NULL;
 
     if (trace_sccp && assoc && assoc != &no_assoc) {
-        pinfo->sccp_info = assoc->curr_msg;
+	pinfo->sccp_info = assoc->curr_msg;
     } else {
-        pinfo->sccp_info = NULL;
+	pinfo->sccp_info = NULL;
     }
 
     if (assoc) {
-        switch (pinfo->p2p_dir) {
-        case P2P_DIR_SENT:
-            ssn = assoc->calling_ssn;
-            other_ssn = assoc->called_ssn;
-            dpc = (const mtp3_addr_pc_t*)pinfo->dst.data;
-            opc = (const mtp3_addr_pc_t*)pinfo->src.data;
-            break;
-        case P2P_DIR_RECV:
-            ssn = assoc->called_ssn;
-            other_ssn = assoc->calling_ssn;
-            dpc = (const mtp3_addr_pc_t*)pinfo->src.data;
-            opc = (const mtp3_addr_pc_t*)pinfo->dst.data;
-            break;
-        default:
-            ssn = assoc->called_ssn;
-            other_ssn = assoc->calling_ssn;
-            dpc = (const mtp3_addr_pc_t*)pinfo->dst.data;
-            opc = (const mtp3_addr_pc_t*)pinfo->src.data;
-            break;
-        }
+	switch (pinfo->p2p_dir) {
+	case P2P_DIR_SENT:
+	    ssn = assoc->calling_ssn;
+	    other_ssn = assoc->called_ssn;
+	    dpc = (const mtp3_addr_pc_t*)pinfo->dst.data;
+	    opc = (const mtp3_addr_pc_t*)pinfo->src.data;
+	    break;
+	case P2P_DIR_RECV:
+	    ssn = assoc->called_ssn;
+	    other_ssn = assoc->calling_ssn;
+	    dpc = (const mtp3_addr_pc_t*)pinfo->src.data;
+	    opc = (const mtp3_addr_pc_t*)pinfo->dst.data;
+	    break;
+	default:
+	    ssn = assoc->called_ssn;
+	    other_ssn = assoc->calling_ssn;
+	    dpc = (const mtp3_addr_pc_t*)pinfo->dst.data;
+	    opc = (const mtp3_addr_pc_t*)pinfo->src.data;
+	    break;
+	}
     }
 
 
     if (num_sccp_users && pinfo->src.type == AT_SS7PC) {
 	guint i;
 	dissector_handle_t handle = NULL;
-        gboolean uses_tcap = FALSE;
+	gboolean uses_tcap = FALSE;
 
 	for (i=0; i < num_sccp_users; i++) {
 	    sccp_user_t* u = &(sccp_users[i]);
@@ -2185,8 +2279,8 @@ dissect_sccp_data_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* try user default subdissector */
     if (default_handle) {
-        call_dissector(default_handle, tvb, pinfo, tree);
-        return;
+	call_dissector(default_handle, tvb, pinfo, tree);
+	return;
     }
 
     /* No sub-dissection occured, treat it as raw data */

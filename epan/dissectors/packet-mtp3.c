@@ -172,49 +172,49 @@ static mtp3_addr_pc_t* mtp3_addr_opc;
 
 /* the higher values are taken from the M3UA RFC */
 static const value_string mtp3_service_indicator_code_vals[] = {
-        { 0x0,  "Signalling Network Management Message (SNM)" },
-        { 0x1,  "Maintenance Regular Message (MTN)" },
-        { 0x2,  "Maintenance Special Message (MTNS)" },
-        { 0x3,  "SCCP" },
-        { 0x4,  "TUP" },
-        { 0x5,  "ISUP" },
-        { 0x6,  "DUP (call and circuit related messages)" },
-        { 0x7,  "DUP (facility registration and cancellation message)" },
-        { 0x8,  "MTP testing user part" },
-        { 0x9,  "Broadband ISUP" },
-        { 0xa,  "Satellite ISUP" },
-        { 0xb,  "Spare" },
-        { 0xc,  "AAL type2 Signaling" },
-        { 0xd,  "Bearer Independent Call Control (BICC)" },
-        { 0xe,  "Gateway Control Protocol" },
-        { 0xf,  "Spare" },
-        { 0,    NULL }
+	{ 0x0,  "Signalling Network Management Message (SNM)" },
+	{ 0x1,  "Maintenance Regular Message (MTN)" },
+	{ 0x2,  "Maintenance Special Message (MTNS)" },
+	{ 0x3,  "SCCP" },
+	{ 0x4,  "TUP" },
+	{ 0x5,  "ISUP" },
+	{ 0x6,  "DUP (call and circuit related messages)" },
+	{ 0x7,  "DUP (facility registration and cancellation message)" },
+	{ 0x8,  "MTP testing user part" },
+	{ 0x9,  "Broadband ISUP" },
+	{ 0xa,  "Satellite ISUP" },
+	{ 0xb,  "Spare" },
+	{ 0xc,  "AAL type2 Signaling" },
+	{ 0xd,  "Bearer Independent Call Control (BICC)" },
+	{ 0xe,  "Gateway Control Protocol" },
+	{ 0xf,  "Spare" },
+	{ 0,    NULL }
 };
 
 const value_string mtp3_service_indicator_code_short_vals[] = {
-        { 0x0,  "SNM" },
-        { 0x1,  "MTN" },
-        { 0x2,  "MTNS" },
-        { 0x3,  "SCCP" },
-        { 0x4,  "TUP" },
-        { 0x5,  "ISUP" },
-        { 0x6,  "DUP (CC)" },
-        { 0x7,  "DUP (FAC/CANC)" },
-        { 0x8,  "MTP Test" },
-        { 0x9,  "ISUP-b" },
-        { 0xa,  "ISUP-s" },
-        { 0xc,  "AAL type 2" },
-        { 0xd,  "BICC" },
-        { 0xe,  "GCP" },
-        { 0,    NULL }
+	{ 0x0,  "SNM" },
+	{ 0x1,  "MTN" },
+	{ 0x2,  "MTNS" },
+	{ 0x3,  "SCCP" },
+	{ 0x4,  "TUP" },
+	{ 0x5,  "ISUP" },
+	{ 0x6,  "DUP (CC)" },
+	{ 0x7,  "DUP (FAC/CANC)" },
+	{ 0x8,  "MTP Test" },
+	{ 0x9,  "ISUP-b" },
+	{ 0xa,  "ISUP-s" },
+	{ 0xc,  "AAL type 2" },
+	{ 0xd,  "BICC" },
+	{ 0xe,  "GCP" },
+	{ 0,    NULL }
 };
 
 static const value_string network_indicator_vals[] = {
-        { 0x0,  "International network" },
-        { 0x1,  "Spare (for international use only)" },
-        { 0x2,  "National network" },
-        { 0x3,  "Reserved for national use" },
-        { 0,    NULL }
+	{ 0x0,  "International network" },
+	{ 0x1,  "Spare (for international use only)" },
+	{ 0x2,  "National network" },
+	{ 0x3,  "Reserved for national use" },
+	{ 0,    NULL }
 };
 
 static dissector_handle_t data_handle;
@@ -231,19 +231,19 @@ mtp3_pc_to_str_buf(const guint32 pc, gchar *buf, int buf_len)
   {
     case ITU_STANDARD:
       switch (itu_pc_structure) {
-        case ITU_PC_STRUCTURE_NONE:
-          g_snprintf(buf, buf_len, "%u", pc);
-          break;
-        case ITU_PC_STRUCTURE_3_8_3:
-          /* this format is used in international ITU networks */
-          g_snprintf(buf, buf_len, "%u-%u-%u", (pc & 0x3800)>>11, (pc & 0x7f8) >> 3, (pc & 0x07) >> 0);
-          break;
-        case ITU_PC_STRUCTURE_4_3_4_3:
-          /* this format is used in some national ITU networks, the German one for example. */
-          g_snprintf(buf, buf_len, "%u-%u-%u-%u", (pc & 0x3c00) >>10, (pc & 0x0380) >> 7, (pc & 0x0078) >> 3, (pc & 0x0007) >> 0);
-          break;
-        default:
-          DISSECTOR_ASSERT_NOT_REACHED();
+	case ITU_PC_STRUCTURE_NONE:
+	  g_snprintf(buf, buf_len, "%u", pc);
+	  break;
+	case ITU_PC_STRUCTURE_3_8_3:
+	  /* this format is used in international ITU networks */
+	  g_snprintf(buf, buf_len, "%u-%u-%u", (pc & 0x3800)>>11, (pc & 0x7f8) >> 3, (pc & 0x07) >> 0);
+	  break;
+	case ITU_PC_STRUCTURE_4_3_4_3:
+	  /* this format is used in some national ITU networks, the German one for example. */
+	  g_snprintf(buf, buf_len, "%u-%u-%u-%u", (pc & 0x3c00) >>10, (pc & 0x0380) >> 7, (pc & 0x0078) >> 3, (pc & 0x0007) >> 0);
+	  break;
+	default:
+	  DISSECTOR_ASSERT_NOT_REACHED();
       }
       break;
     case ANSI_STANDARD:
@@ -252,24 +252,24 @@ mtp3_pc_to_str_buf(const guint32 pc, gchar *buf, int buf_len)
       break;
     case JAPAN_STANDARD:
       switch (japan_pc_structure) {
-        case JAPAN_PC_STRUCTURE_NONE:
+	case JAPAN_PC_STRUCTURE_NONE:
 	  g_snprintf(buf, buf_len, "%u", pc);
 	  break;
-        case JAPAN_PC_STRUCTURE_7_4_5:
+	case JAPAN_PC_STRUCTURE_7_4_5:
 	  /* This format is specified by NTT */
 	  g_snprintf(buf, buf_len, "%u-%u-%u", (pc & 0xfe00)>>9, (pc & 0x1e0)>>5, (pc & 0x1f));
 	  break;
-        case JAPAN_PC_STRUCTURE_3_4_4_5:
+	case JAPAN_PC_STRUCTURE_3_4_4_5:
 	  /* Where does this format come from? */
 	  g_snprintf(buf, buf_len, "%u-%u-%u-%u", (pc & 0xe000)>>13, (pc & 0x1e00)>>9, (pc & 0x1e0)>>5, (pc & 0x1f));
 	  break;
-        default:
-          DISSECTOR_ASSERT_NOT_REACHED();
+	default:
+	  DISSECTOR_ASSERT_NOT_REACHED();
       }
       break;
     default:
       DISSECTOR_ASSERT_NOT_REACHED();
-  }
+    }
 }
 
 #define MAX_STRUCTURED_PC_LENGTH 20
@@ -300,10 +300,8 @@ mtp3_pc_structured(void)
  */
 
 void
-mtp3_addr_to_str_buf(
-  const mtp3_addr_pc_t  *addr_pc_p,
-  gchar                 *buf,
-  int                   buf_len)
+mtp3_addr_to_str_buf(const mtp3_addr_pc_t  *addr_pc_p,
+		     gchar *buf, int buf_len)
 {
   switch (mtp3_addr_fmt)
   {
@@ -380,21 +378,22 @@ mtp3_addr_to_str_buf(
   }
 }
 
-guint32 mtp3_pc_hash(const mtp3_addr_pc_t *addr_pc_p) {
-	guint32 pc;
+guint32
+mtp3_pc_hash(const mtp3_addr_pc_t *addr_pc_p) {
+    guint32 pc;
 
-	switch (addr_pc_p->type)
-	{
-		case ITU_STANDARD:
-			pc = (addr_pc_p->pc & ITU_PC_MASK) | ((addr_pc_p->ni % 4) << 14) ;
-			break;
-		default:
-			/* assuming 24-bit */
-			pc = (addr_pc_p->pc & ANSI_PC_MASK) | ((addr_pc_p->ni) << 24) ;
-			break;
-	}
+    switch (addr_pc_p->type)
+    {
+	case ITU_STANDARD:
+	    pc = (addr_pc_p->pc & ITU_PC_MASK) | ((addr_pc_p->ni % 4) << 14) ;
+	    break;
+	default:
+	    /* assuming 24-bit */
+	    pc = (addr_pc_p->pc & ANSI_PC_MASK) | ((addr_pc_p->ni) << 24) ;
+	    break;
+    }
 
-	return pc;
+    return pc;
 }
 
 /*  Common function for dissecting 3-byte (ANSI or China) PCs. */
@@ -564,9 +563,9 @@ dissect_mtp3_routing_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_t
     /* SLS */
     if (mtp3_standard == ANSI_STANDARD) {
       if (mtp3_use_ansi_5_bit_sls)
-        proto_tree_add_item(label_tree, hf_mtp3_ansi_5_bit_sls, tvb, ANSI_SLS_OFFSET, SLS_LENGTH, ENC_NA);
+	proto_tree_add_item(label_tree, hf_mtp3_ansi_5_bit_sls, tvb, ANSI_SLS_OFFSET, SLS_LENGTH, ENC_NA);
       else
-        proto_tree_add_item(label_tree, hf_mtp3_ansi_8_bit_sls, tvb, ANSI_SLS_OFFSET, SLS_LENGTH, ENC_NA);
+	proto_tree_add_item(label_tree, hf_mtp3_ansi_8_bit_sls, tvb, ANSI_SLS_OFFSET, SLS_LENGTH, ENC_NA);
     } else /* CHINESE_ITU_STANDARD */ {
       proto_tree_add_item(label_tree, hf_mtp3_chinese_itu_sls, tvb, ANSI_SLS_OFFSET, SLS_LENGTH, ENC_NA);
     }
@@ -648,7 +647,7 @@ dissect_mtp3_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 #define HEURISTIC_FAILED_STANDARD 0xffff
 static guint
-heur_mtp3_standard(tvbuff_t *tvb, packet_info *pinfo _U_, guint8 si)
+heur_mtp3_standard(tvbuff_t *tvb, packet_info *pinfo, guint8 si)
 {
 
     guint32 len;
@@ -657,39 +656,39 @@ heur_mtp3_standard(tvbuff_t *tvb, packet_info *pinfo _U_, guint8 si)
     len = tvb_length(tvb);
     switch (si) {
     case 3:
-        {
-            payload = tvb_new_subset(tvb, ITU_HEADER_LENGTH, len-ITU_HEADER_LENGTH, len-ITU_HEADER_LENGTH);
-            if (looks_like_valid_sccp(payload, ITU_STANDARD)) {
-                return ITU_STANDARD;
-            }
-            payload = tvb_new_subset(tvb, ANSI_HEADER_LENGTH, len-ANSI_HEADER_LENGTH, len-ANSI_HEADER_LENGTH);
-            if (looks_like_valid_sccp(payload, ANSI_STANDARD)) {
-                return ANSI_STANDARD;
-            }
-            payload = tvb_new_subset(tvb, ANSI_HEADER_LENGTH, len-ANSI_HEADER_LENGTH, len-ANSI_HEADER_LENGTH);
-            if (looks_like_valid_sccp(payload, CHINESE_ITU_STANDARD)) {
-                return CHINESE_ITU_STANDARD;
-            }
-            payload = tvb_new_subset(tvb, JAPAN_HEADER_LENGTH, len-JAPAN_HEADER_LENGTH, len-JAPAN_HEADER_LENGTH);
-            if (looks_like_valid_sccp(payload, JAPAN_STANDARD)) {
-                return JAPAN_STANDARD;
-            }
+	{
+	    payload = tvb_new_subset(tvb, ITU_HEADER_LENGTH, len-ITU_HEADER_LENGTH, len-ITU_HEADER_LENGTH);
+	    if (looks_like_valid_sccp(PINFO_FD_NUM(pinfo), payload, ITU_STANDARD)) {
+		return ITU_STANDARD;
+	    }
+	    payload = tvb_new_subset(tvb, ANSI_HEADER_LENGTH, len-ANSI_HEADER_LENGTH, len-ANSI_HEADER_LENGTH);
+	    if (looks_like_valid_sccp(PINFO_FD_NUM(pinfo), payload, ANSI_STANDARD)) {
+		return ANSI_STANDARD;
+	    }
+	    payload = tvb_new_subset(tvb, ANSI_HEADER_LENGTH, len-ANSI_HEADER_LENGTH, len-ANSI_HEADER_LENGTH);
+	    if (looks_like_valid_sccp(PINFO_FD_NUM(pinfo), payload, CHINESE_ITU_STANDARD)) {
+		return CHINESE_ITU_STANDARD;
+	    }
+	    payload = tvb_new_subset(tvb, JAPAN_HEADER_LENGTH, len-JAPAN_HEADER_LENGTH, len-JAPAN_HEADER_LENGTH);
+	    if (looks_like_valid_sccp(PINFO_FD_NUM(pinfo), payload, JAPAN_STANDARD)) {
+		return JAPAN_STANDARD;
+	    }
 
-            return HEURISTIC_FAILED_STANDARD;
+	    return HEURISTIC_FAILED_STANDARD;
 
-        }
+	}
     default:
-        return HEURISTIC_FAILED_STANDARD;
+	return HEURISTIC_FAILED_STANDARD;
     }
 
 }
 
 static const value_string mtp3_standard_vals[] = {
-        { ITU_STANDARD,			"ITU_STANDARD" },
-        { ANSI_STANDARD,		"ANSI_STANDARD" },
-        { CHINESE_ITU_STANDARD, "CHINESE_ITU_STANDARD" },
-        { JAPAN_STANDARD,		"JAPAN_STANDARD" },
-        { 0,    NULL }
+	{ ITU_STANDARD,			"ITU_STANDARD" },
+	{ ANSI_STANDARD,		"ANSI_STANDARD" },
+	{ CHINESE_ITU_STANDARD,		"CHINESE_ITU_STANDARD" },
+	{ JAPAN_STANDARD,		"JAPAN_STANDARD" },
+	{ 0,    NULL }
 };
 
 /* Code to actually dissect the packets */
@@ -711,39 +710,39 @@ dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     si = tvb_get_guint8(tvb, SIO_OFFSET) & SERVICE_INDICATOR_MASK;
     if (mtp3_heuristic_standard) {
-        heuristic_standard = heur_mtp3_standard(tvb, pinfo, si);
-        if(heuristic_standard==HEURISTIC_FAILED_STANDARD){
-            gen_item = proto_tree_add_text(tree, tvb, 0, 0, "Could not determine Heuristic using %s", val_to_str(mtp3_standard, mtp3_standard_vals, "unknown"));
-        }else{
-            gen_item = proto_tree_add_text(tree, tvb, 0, 0, "%s", val_to_str(heuristic_standard, mtp3_standard_vals, "unknown"));
-            mtp3_standard = heuristic_standard;
-        }
-        PROTO_ITEM_SET_GENERATED(gen_item);
-    }
+	heuristic_standard = heur_mtp3_standard(tvb, pinfo, si);
+	if (heuristic_standard == HEURISTIC_FAILED_STANDARD) {
+	    gen_item = proto_tree_add_text(tree, tvb, 0, 0, "Could not determine Heuristic using %s", val_to_str(mtp3_standard, mtp3_standard_vals, "unknown"));
+	} else {
+	    gen_item = proto_tree_add_text(tree, tvb, 0, 0, "%s", val_to_str(heuristic_standard, mtp3_standard_vals, "unknown"));
+	    mtp3_standard = heuristic_standard;
+	}
+	PROTO_ITEM_SET_GENERATED(gen_item);
+}
 
     /* Make entries in Protocol column on summary display */
     switch(mtp3_standard) {
     case ITU_STANDARD:
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP3 (Int. ITU)");
-        proto_item_set_len(mtp3_item, ITU_HEADER_LENGTH);
-        break;
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP3 (Int. ITU)");
+	proto_item_set_len(mtp3_item, ITU_HEADER_LENGTH);
+	break;
     case ANSI_STANDARD:
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP3 (ANSI)");
-        proto_item_set_len(mtp3_item, ANSI_HEADER_LENGTH);
-        break;
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP3 (ANSI)");
+	proto_item_set_len(mtp3_item, ANSI_HEADER_LENGTH);
+	break;
     case CHINESE_ITU_STANDARD:
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP3 (Chin. ITU)");
-        proto_item_set_len(mtp3_item, ANSI_HEADER_LENGTH);
-        break;
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP3 (Chin. ITU)");
+	proto_item_set_len(mtp3_item, ANSI_HEADER_LENGTH);
+	break;
     case JAPAN_STANDARD:
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP3 (Japan)");
-        proto_item_set_len(mtp3_item, JAPAN_HEADER_LENGTH);
-        break;
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP3 (Japan)");
+	proto_item_set_len(mtp3_item, JAPAN_HEADER_LENGTH);
+	break;
     };
 
     if (tree) {
-        /* create display subtree for the protocol */
-        mtp3_tree = proto_item_add_subtree(mtp3_item, ett_mtp3);
+	/* create display subtree for the protocol */
+	mtp3_tree = proto_item_add_subtree(mtp3_item, ett_mtp3);
     }
 
     mtp3_addr_opc = ep_alloc0(sizeof(mtp3_addr_pc_t));
@@ -819,39 +818,39 @@ proto_register_mtp3(void)
   };
 
   static enum_val_t mtp3_options[] = {
-    { "itu",         "ITU",         ITU_STANDARD },
-    { "ansi",        "ANSI",        ANSI_STANDARD },
-    { "chinese-itu", "Chinese ITU", CHINESE_ITU_STANDARD },
-    { "japan",       "Japan",       JAPAN_STANDARD },
+    { "itu",		"ITU",		ITU_STANDARD },
+    { "ansi",		"ANSI",		ANSI_STANDARD },
+    { "chinese-itu",	"Chinese ITU",	CHINESE_ITU_STANDARD },
+    { "japan",		"Japan",	JAPAN_STANDARD },
     { NULL, NULL, 0 }
   };
 
   static enum_val_t mtp3_addr_fmt_str_e[] = {
-    { "decimal",        "Decimal",              MTP3_ADDR_FMT_DEC },
-    { "hexadecimal",    "Hexadecimal",          MTP3_ADDR_FMT_HEX },
-    { "ni-decimal",     "NI-Decimal",           MTP3_ADDR_FMT_NI_DEC },
+    { "decimal",	"Decimal",		MTP3_ADDR_FMT_DEC },
+    { "hexadecimal",	"Hexadecimal",		MTP3_ADDR_FMT_HEX },
+    { "ni-decimal",     "NI-Decimal",		MTP3_ADDR_FMT_NI_DEC },
     { "ni-hexadecimal", "NI-Hexadecimal",       MTP3_ADDR_FMT_NI_HEX },
-    { "dashed",         "Dashed",               MTP3_ADDR_FMT_DASHED },
-    { NULL,             NULL,                   0 }
+    { "dashed",		"Dashed",		MTP3_ADDR_FMT_DASHED },
+    { NULL,		NULL,			0 }
   };
 
   static enum_val_t itu_pc_structures[] = {
-    { "unstructured", "Unstructured", ITU_PC_STRUCTURE_NONE},
-    { "3-8-3",        "3-8-3",        ITU_PC_STRUCTURE_3_8_3 },
-    { "4-3-4-3",      "4-3-4-3",      ITU_PC_STRUCTURE_4_3_4_3 },
-    { NULL,           NULL,           0 }
+    { "unstructured",	"Unstructured",	ITU_PC_STRUCTURE_NONE},
+    { "3-8-3",		"3-8-3",	ITU_PC_STRUCTURE_3_8_3 },
+    { "4-3-4-3",	"4-3-4-3",	ITU_PC_STRUCTURE_4_3_4_3 },
+    { NULL,		NULL,		0 }
   };
 
   static enum_val_t japan_pc_structures[] = {
-    { "unstructured", "Unstructured", JAPAN_PC_STRUCTURE_NONE},
-    { "7-4-5",        "7-4-5",        JAPAN_PC_STRUCTURE_7_4_5 },
-    { "3-4-4-5",      "3-4-4-5",      JAPAN_PC_STRUCTURE_3_4_4_5 },
-    { NULL,           NULL,           0 }
+    { "unstructured",	"Unstructured",	JAPAN_PC_STRUCTURE_NONE},
+    { "7-4-5",		"7-4-5",	JAPAN_PC_STRUCTURE_7_4_5 },
+    { "3-4-4-5",	"3-4-4-5",	JAPAN_PC_STRUCTURE_3_4_4_5 },
+    { NULL,		NULL,		0 }
   };
 
  /* Register the protocol name and description */
   proto_mtp3 = proto_register_protocol("Message Transfer Part Level 3",
-                                       "MTP3", "mtp3");
+				       "MTP3", "mtp3");
   register_dissector("mtp3", dissect_mtp3, proto_mtp3);
 
   /* Required function calls to register the header fields and subtrees used */
@@ -859,48 +858,48 @@ proto_register_mtp3(void)
   proto_register_subtree_array(ett, array_length(ett));
 
   mtp3_sio_dissector_table = register_dissector_table("mtp3.service_indicator",
-                                                      "MTP3 Service indicator",
-                                                      FT_UINT8, BASE_HEX);
+						      "MTP3 Service indicator",
+						      FT_UINT8, BASE_HEX);
 
   mtp3_tap = register_tap("mtp3");
 
   mtp3_module = prefs_register_protocol(proto_mtp3, NULL);
 
   prefs_register_bool_preference(mtp3_module, "heuristic_standard",
-                                 "Try to determine the MTP3 standard heuristically",
-                                 "This only works for SCCP traffic for now",
-                                 &mtp3_heuristic_standard);
+				 "Try to determine the MTP3 standard heuristically",
+				 "This only works for SCCP traffic for now",
+				 &mtp3_heuristic_standard);
 
   prefs_register_enum_preference(mtp3_module, "standard", "MTP3 standard",
-                                 "The SS7 standard used in MTP3 packets",
-                                 &mtp3_standard, mtp3_options, FALSE);
+				 "The SS7 standard used in MTP3 packets",
+				 &mtp3_standard, mtp3_options, FALSE);
 
   prefs_register_enum_preference(mtp3_module, "itu_pc_structure", "ITU Pointcode structure",
-                                 "The structure of the pointcodes in ITU networks",
-                                 &itu_pc_structure, itu_pc_structures, FALSE);
+				 "The structure of the pointcodes in ITU networks",
+				 &itu_pc_structure, itu_pc_structures, FALSE);
 
   prefs_register_enum_preference(mtp3_module, "japan_pc_structure", "Japan Pointcode structure",
-                                 "The structure of the pointcodes in Japan networks",
-                                 &japan_pc_structure, japan_pc_structures, FALSE);
+				 "The structure of the pointcodes in Japan networks",
+				 &japan_pc_structure, japan_pc_structures, FALSE);
 
   prefs_register_bool_preference(mtp3_module, "ansi_5_bit_sls",
-                                 "Use 5-bit SLS (ANSI only)",
-                                 "Use 5-bit (instead of 8-bit) SLS in ANSI MTP3 packets",
-                                 &mtp3_use_ansi_5_bit_sls);
+				 "Use 5-bit SLS (ANSI only)",
+				 "Use 5-bit (instead of 8-bit) SLS in ANSI MTP3 packets",
+				 &mtp3_use_ansi_5_bit_sls);
 
   prefs_register_bool_preference(mtp3_module, "japan_5_bit_sls",
-                                 "Use 5-bit SLS (Japan only)",
-                                 "Use 5-bit (instead of 4-bit) SLS in Japan MTP3 packets",
-                                 &mtp3_use_japan_5_bit_sls);
+				 "Use 5-bit SLS (Japan only)",
+				 "Use 5-bit (instead of 4-bit) SLS in Japan MTP3 packets",
+				 &mtp3_use_japan_5_bit_sls);
 
   prefs_register_enum_preference(mtp3_module, "addr_format", "Address Format",
-                                 "Format for point code in the address columns",
-                                 &mtp3_addr_fmt, mtp3_addr_fmt_str_e, FALSE);
+				 "Format for point code in the address columns",
+				 &mtp3_addr_fmt, mtp3_addr_fmt_str_e, FALSE);
 
   prefs_register_bool_preference(mtp3_module, "itu_priority",
-                                 "Show MSU priority (national option, ITU and China ITU only)",
-                                 "Decode the spare bits of the SIO as the MSU priority (a national option in ITU)",
-                                 &mtp3_show_itu_priority);
+				 "Show MSU priority (national option, ITU and China ITU only)",
+				 "Decode the spare bits of the SIO as the MSU priority (a national option in ITU)",
+				 &mtp3_show_itu_priority);
 
 }
 
