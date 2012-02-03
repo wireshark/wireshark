@@ -254,7 +254,7 @@ dissect_i2c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (!is_event) {
-		if (!sub_check[sub_selected] || sub_check[sub_selected](pinfo)) {
+		if (sub_check[sub_selected] && sub_check[sub_selected](pinfo)) {
 			call_dissector(sub_handles[sub_selected], tvb, pinfo, tree);
 		} else {
 			call_dissector(sub_handles[SUB_DATA], tvb, pinfo, tree);
