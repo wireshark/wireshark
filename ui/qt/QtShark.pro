@@ -6,7 +6,7 @@
 
 QT += core gui
 
-TARGET = Wireshark
+TARGET = qtshark
 TEMPLATE = app
 
 unix {
