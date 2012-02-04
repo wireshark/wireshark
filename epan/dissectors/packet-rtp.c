@@ -1150,6 +1150,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	gboolean    is_srtp = FALSE;
 	unsigned int i            = 0;
 	unsigned int hdr_extension= 0;
+	unsigned int hdr_extension_id = 0;
 	unsigned int padding_count;
 	gint        length, reported_length;
 	int         data_len;
@@ -1399,7 +1400,8 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	/* Optional RTP header extension */
 	if ( extension_set ) {
 		/* Defined by profile field is 16 bits (2 octets) */
-		if ( tree ) proto_tree_add_uint( rtp_tree, hf_rtp_prof_define, tvb, offset, 2, tvb_get_ntohs( tvb, offset ) );
+		hdr_extension_id = tvb_get_ntohs( tvb, offset );
+		if ( tree ) proto_tree_add_uint( rtp_tree, hf_rtp_prof_define, tvb, offset, 2, hdr_extension_id );
 		offset += 2;
 
 		hdr_extension = tvb_get_ntohs( tvb, offset );
@@ -1413,8 +1415,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
 			/* pass interpretation of header extension to a registered subdissector */
 			newtvb = tvb_new_subset(tvb, offset, hdr_extension * 4, hdr_extension * 4);
-			if ( !(rtp_info->info_payload_type_str && dissector_try_string(rtp_hdr_ext_dissector_table,
-				rtp_info->info_payload_type_str, newtvb, pinfo, rtp_hext_tree)) ) {
+			if ( !(dissector_try_uint(rtp_hdr_ext_dissector_table, hdr_extension_id, newtvb, pinfo, rtp_hext_tree)) ) {
 				hdrext_offset = offset;
 				for ( i = 0; i < hdr_extension; i++ ) {
 					if ( tree ) proto_tree_add_uint( rtp_hext_tree, hf_rtp_hdr_ext, tvb, hdrext_offset, 4, tvb_get_ntohl( tvb, hdrext_offset ) );
@@ -2130,7 +2131,7 @@ proto_register_rtp(void)
 
 
 	rtp_hdr_ext_dissector_table = register_dissector_table("rtp_hdr_ext",
-							       "RTP header extension", FT_STRING, BASE_NONE);
+	                               "RTP header extension", FT_UINT32, BASE_HEX);
 
 	rtp_module = prefs_register_protocol(proto_rtp, proto_reg_handoff_rtp);
 
