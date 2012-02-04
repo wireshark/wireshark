@@ -207,6 +207,7 @@ static int hf_ieee802154_nonask_phy_sfd = -1;
 static int hf_ieee802154_nonask_phy_length = -1;
 
 static int proto_ieee802154 = -1;
+static int hf_ieee802154_frame_length = -1;
 static int hf_ieee802154_frame_type = -1;
 static int hf_ieee802154_security = -1;
 static int hf_ieee802154_pending = -1;
@@ -216,9 +217,9 @@ static int hf_ieee802154_seqno = -1;
 static int hf_ieee802154_src_addr_mode = -1;
 static int hf_ieee802154_dst_addr_mode = -1;
 static int hf_ieee802154_version = -1;
-static int hf_ieee802154_dst_pan = -1;
-static int hf_ieee802154_dst_addr16 = -1;
-static int hf_ieee802154_dst_addr64 = -1;
+static int hf_ieee802154_dst_panID = -1;
+static int hf_ieee802154_dst16 = -1;
+static int hf_ieee802154_dst64 = -1;
 static int hf_ieee802154_src_panID = -1;
 static int hf_ieee802154_src16 = -1;
 static int hf_ieee802154_src64 = -1;
@@ -613,6 +614,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     tvbuff_t                *volatile payload_tvb;
     proto_tree              *volatile ieee802154_tree = NULL;
     proto_item              *volatile proto_root = NULL;
+    proto_item              *hidden_item;
     proto_item              *ti;
     void                    *pd_save;
 
@@ -653,6 +655,10 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         col_add_fstr(pinfo->cinfo, COL_PACKET_LENGTH, "%i", tvb_length(tvb));
     }
 
+    /* Add the packet length to the filter field */    
+    hidden_item = proto_tree_add_uint(tree, hf_ieee802154_frame_length, NULL, 0, 0, tvb_reported_length(tvb));
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
+
     /*=====================================================
      * FRAME CONTROL FIELD
      *=====================================================
@@ -690,7 +696,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
          (packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT) ) {
         packet->dst_pan = tvb_get_letohs(tvb, offset);
         if (tree) {
-            proto_tree_add_uint(ieee802154_tree, hf_ieee802154_dst_pan, tvb, offset, 2, packet->dst_pan);
+            proto_tree_add_uint(ieee802154_tree, hf_ieee802154_dst_panID, tvb, offset, 2, packet->dst_pan);
         }
         offset += 2;
     }
@@ -715,7 +721,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         SET_ADDRESS(&pinfo->dst, AT_STRINGZ, (int)strlen(dst_addr)+1, dst_addr);
 
         if (tree) {
-            proto_tree_add_uint(ieee802154_tree, hf_ieee802154_dst_addr16, tvb, offset, 2, packet->dst16);
+            proto_tree_add_uint(ieee802154_tree, hf_ieee802154_dst16, tvb, offset, 2, packet->dst16);
             proto_item_append_text(proto_root, ", Dst: %s", dst_addr);
         }
 
@@ -742,7 +748,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         SET_ADDRESS(&pinfo->dl_dst, AT_EUI64, 8, addr);
         SET_ADDRESS(&pinfo->dst, AT_EUI64, 8, addr);
         if (tree) {
-            proto_tree_add_item(ieee802154_tree, hf_ieee802154_dst_addr64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ieee802154_tree, hf_ieee802154_dst64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             proto_item_append_text(proto_root, ", Dst: %s", get_eui64_name(packet->dst64));
         }
         if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -2408,6 +2414,11 @@ void proto_register_ieee802154(void)
     };
 
     static hf_register_info hf[] = {
+
+        { &hf_ieee802154_frame_length,
+        { "Frame Length",                   "wpan.frame_length", FT_UINT8, BASE_DEC, NULL, 0x0,
+            "Frame Length as reported from lower layer", HFILL }},
+
         { &hf_ieee802154_frame_type,
         { "Frame Type",                     "wpan.frame_type", FT_UINT16, BASE_HEX, VALS(ieee802154_frame_types),
             IEEE802154_FCF_TYPE_MASK, NULL, HFILL }},
@@ -2444,16 +2455,16 @@ void proto_register_ieee802154(void)
         { "Frame Version",                  "wpan.version", FT_UINT16, BASE_DEC, NULL, IEEE802154_FCF_VERSION,
             NULL, HFILL }},
 
-        { &hf_ieee802154_dst_pan,
+        { &hf_ieee802154_dst_panID,
         { "Destination PAN",                "wpan.dst_pan", FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
 
-        { &hf_ieee802154_dst_addr16,
-        { "Destination",                    "wpan.dst_addr16", FT_UINT16, BASE_HEX, NULL, 0x0,
+        { &hf_ieee802154_dst16,
+        { "Destination",                    "wpan.dst16", FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
 
-        { &hf_ieee802154_dst_addr64,
-        { "Destination",                    "wpan.dst_addr64", FT_EUI64, BASE_NONE, NULL, 0x0,
+        { &hf_ieee802154_dst64,
+        { "Destination",                    "wpan.dst64", FT_EUI64, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ieee802154_src_panID,
