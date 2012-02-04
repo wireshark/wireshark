@@ -108,6 +108,16 @@ help/faq.txt
 pod2htm[di].tmp
 wireshark.pod
 
+# Qt #
+######
+qtshark
+/ui/qt/*.qrc.depends
+/ui/qt/*.pro.user
+/ui/qt/moc_*.cpp
+/ui/qt/moc_*.cxx
+/ui/qt/qrc_*.cpp
+/ui/qt/qrc_*.cxx
+/ui/qt/ui_*.h
 
 # Misc #
 ########
