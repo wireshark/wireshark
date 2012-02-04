@@ -332,15 +332,17 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *ti;
 	proto_tree *gsmtap_tree = NULL;
 	tvbuff_t *payload_tvb, *l1h_tvb = NULL;
-	guint8 hdr_len, type, sub_type;
+	guint8 hdr_len, type, sub_type, timeslot, subslot;
 	guint16 arfcn;
 
 	len = tvb_length(tvb);
 
 	hdr_len = tvb_get_guint8(tvb, offset + 1) <<2;
 	type = tvb_get_guint8(tvb, offset + 2);
-	sub_type = tvb_get_guint8(tvb, offset + 12);
+	timeslot = tvb_get_guint8(tvb, offset + 3);
 	arfcn = tvb_get_ntohs(tvb, offset + 4);
+	sub_type = tvb_get_guint8(tvb, offset + 12);
+	subslot = tvb_get_guint8(tvb, offset + 14);
 
 	/* In case of a SACCH, there is a two-byte L1 header in front
 	 * of the packet (see TS 04.04) */
@@ -383,6 +385,10 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* p2p_dir is used by the LAPDm dissector */
 		pinfo->p2p_dir = P2P_DIR_RECV;
 	}
+
+	/* Try to build an identifier of different 'streams' */
+	/* (AFCN _cant_ be used because of hopping */
+	pinfo->circuit_id = (timeslot << 3) | subslot;
 
 	if (tree) {
 		guint8 channel;

@@ -289,15 +289,20 @@ dissect_lapdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     {
             fragment_data *fd_m = NULL;
             tvbuff_t *reassembled = NULL;
+            guint32 fragment_id;
             gboolean save_fragmented = pinfo->fragmented;
 
             pinfo->fragmented = m;
+
+            /* Rely on caller to provide a way to group fragments */
+            fragment_id = (pinfo->circuit_id << 4) | (sapi << 1) | pinfo->p2p_dir;
+
             /* This doesn't seem the best way of doing it as doesn't
                take N(S) into account, but N(S) isn't always 0 for
                the first fragment!
              */
             fd_m = fragment_add_seq_next (payload, 0, pinfo,
-                                0, /* guint32 ID for fragments belonging together */
+                                fragment_id, /* guint32 ID for fragments belonging together */
                                 lapdm_fragment_table, /* list of message fragments */
                                 lapdm_reassembled_table, /* list of reassembled messages */
                                 /*n_s guint32 fragment sequence number */
