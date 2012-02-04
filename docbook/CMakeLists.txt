@@ -284,6 +284,10 @@ XML2HTML(
 	WSUG_GRAPHICS
 )
 
+# 2do: Merge A4 and letter into the smallest dimension of each format.
+#      Use   --stringparam  page.height <letter-height>mm --stringparam  page.width <at-width>mm
+#      Test the effect of this on letter and a4 printers first (ps and non-ps).
+
 XML2PDF(
 	user-guide-a4.pdf
 	WSUG_SOURCE
