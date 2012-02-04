@@ -107,8 +107,10 @@ static int hf_meta_item_direction = -1;
 static int hf_meta_item_ts = -1;
 static int hf_meta_item_phylinkid = -1;
 static int hf_meta_item_nsapi = -1;
-static int hf_meta_item_imsi = -1;
-static int hf_meta_item_imei = -1;
+static int hf_meta_item_imsi_value = -1;
+static int hf_meta_item_imsi_digits = -1;
+static int hf_meta_item_imei_value = -1;
+static int hf_meta_item_imei_digits = -1;
 static int hf_meta_item_signaling = -1;
 static int hf_meta_item_incomplete = -1;
 static int hf_meta_item_deciphered = -1;
@@ -127,6 +129,8 @@ static int hf_meta_item_called = -1;
 static gint ett_meta = -1;
 static gint ett_meta_item = -1;
 static gint ett_meta_cell = -1;
+static gint ett_meta_imsi = -1;
+static gint ett_meta_imei = -1;
 
 /* default handle */
 static dissector_handle_t data_handle;
@@ -311,8 +315,8 @@ static guint16 evaluate_meta_item_dxt(proto_tree *meta_tree, tvbuff_t *tvb, pack
     guint64             ts, imsi, imei, cell;
     sscop_payload_info *p_sscop_info;
     const gchar        *imsi_str, *imei_str;
-    proto_item         *cell_item;
-    proto_tree         *cell_tree = NULL;
+    proto_item         *cell_item, *imsi_item, *imei_item;
+    proto_tree         *cell_tree = NULL, *imsi_tree = NULL, *imei_tree = NULL;
 
     id = tvb_get_letohs(tvb, offs); offs += 2;
     type = tvb_get_guint8(tvb, offs); offs++;
@@ -344,14 +348,20 @@ static guint16 evaluate_meta_item_dxt(proto_tree *meta_tree, tvbuff_t *tvb, pack
         case META_ID_IMSI:
             imsi     = tvb_get_letoh64(tvb, offs);
             imsi_str = tvb_bcd_dig_to_ep_str(tvb, offs, 8, NULL, FALSE);
-            proto_tree_add_uint64_format(meta_tree, hf_meta_item_imsi,
-                                         tvb, offs, 8, imsi, "IMSI: %s", imsi_str);
+            imsi_item = proto_tree_add_string(meta_tree, hf_meta_item_imsi_digits, tvb,
+                offs, 8, imsi_str);
+            imsi_tree = proto_item_add_subtree(imsi_item, ett_meta_imsi);
+            proto_tree_add_uint64(imsi_tree, hf_meta_item_imsi_value,
+                tvb, offs, 8, imsi);
             break;
         case META_ID_IMEI:
             imei     = tvb_get_letoh64(tvb, offs);
             imei_str = tvb_bcd_dig_to_ep_str(tvb, offs, 8, NULL, FALSE);
-            proto_tree_add_uint64_format(meta_tree, hf_meta_item_imei,
-                                         tvb, offs, 8, imei, "IMEI: %s", imei_str);
+            imei_item = proto_tree_add_string(meta_tree, hf_meta_item_imei_digits, tvb,
+                offs, 8, imei_str);
+            imei_tree = proto_item_add_subtree(imei_item, ett_meta_imei);
+            proto_tree_add_uint64(imei_tree, hf_meta_item_imei_value,
+                tvb, offs, 8, imei);
             break;
         case META_ID_APN:
             apn = tvb_get_string(tvb, offs, len);
@@ -616,8 +626,10 @@ proto_register_meta(void)
         { &hf_meta_item_ts, { "Timestamp", "meta.timestamp", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_meta_item_phylinkid, { "Physical Link ID", "meta.phylinkid", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_meta_item_nsapi, { "NSAPI", "meta.nsapi", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
-        { &hf_meta_item_imsi, { "IMSI", "meta.imsi", FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL } },
-        { &hf_meta_item_imei, { "IMEI", "meta.imei", FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL } },
+        { &hf_meta_item_imsi_digits, { "IMSI digits", "meta.imsi_digits", FT_STRINGZ, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_meta_item_imsi_value, { "IMSI value", "meta.imsi_value", FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL } },
+        { &hf_meta_item_imei_digits, { "IMEI digits", "meta.imei_digits", FT_STRINGZ, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_meta_item_imei_value, { "IMEI value", "meta.imei_value", FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL } },
         { &hf_meta_item_signaling, { "Signaling", "meta.signaling", FT_BOOLEAN, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_meta_item_incomplete, { "Incomplete", "meta.incomplete", FT_BOOLEAN, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_meta_item_deciphered, { "Deciphered", "meta.deciphered", FT_BOOLEAN, BASE_NONE, NULL, 0, NULL, HFILL } },
@@ -637,7 +649,9 @@ proto_register_meta(void)
     static gint *ett[] = {
         &ett_meta,
         &ett_meta_item,
-        &ett_meta_cell
+        &ett_meta_cell,
+        &ett_meta_imsi,
+        &ett_meta_imei
     };
 
     proto_meta = proto_register_protocol("Metadata", "META", "meta");
