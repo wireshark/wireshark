@@ -71,6 +71,7 @@ typedef struct conversation_key {
 
 typedef struct conversation {
 	struct conversation *next;	/** pointer to next conversation on hash chain */
+	struct conversation *last;	/** pointer to the last conversation on hash chain */
 	guint32	index;				/** unique ID for conversation */
 	guint32 setup_frame;		/** frame number that setup this conversation */
 	GSList *data_list;			/** list of data associated with conversation */

@@ -509,10 +509,10 @@ conversation_new(const guint32 setup_frame, const address *addr1, const address 
 				"A conversation template may not be constructed without wildcard options");
 */
 	GHashTable* hashtable;
-	conversation_t *conversation;
-	conversation_t *tc;
+	conversation_t *conversation=NULL, *prev=NULL;
 	conversation_key existing_key;
 	conversation_key *new_key;
+	guint conv_in_ht=0;
 
 	if (options & NO_ADDR2) {
 		if (options & (NO_PORT2|NO_PORT2_FORCE)) {
@@ -535,7 +535,8 @@ conversation_new(const guint32 setup_frame, const address *addr1, const address 
 	existing_key.port2 = port2;
 
 	conversation = g_hash_table_lookup(hashtable, &existing_key);
-	tc = conversation; /* Remember if lookup was successful */
+	if(NULL!=conversation)
+		conv_in_ht=1;
 
 	new_key = se_alloc(sizeof(struct conversation_key));
 	new_key->next = conversation_keys;
@@ -547,15 +548,37 @@ conversation_new(const guint32 setup_frame, const address *addr1, const address 
 	new_key->port2 = port2;
 
 	if (conversation) {
-		for (; conversation->next; conversation = conversation->next)
-			;
-		conversation->next = se_alloc(sizeof(conversation_t));
-		conversation = conversation->next;
+		/* the list is ordered on setup_frame */
+		if(setup_frame>=conversation->last->setup_frame) {
+			/* add it to the end */
+			conversation->last->next=se_alloc(sizeof(conversation_t));
+			prev=conversation->last->next;
+			prev->next=NULL;
+			conversation->last=prev;
+			conversation = prev;
+		} else {
+			for (prev=NULL; (setup_frame>conversation->setup_frame) && conversation->next; prev=conversation, conversation = conversation->next)
+				;
+			if(prev) {
+				prev->next = se_alloc(sizeof(conversation_t));
+				prev->next->next = conversation;
+				conversation = prev->next;
+			} else {
+				/* change the head of the list */
+				prev = se_alloc(sizeof(conversation_t));
+				prev->next = conversation;
+				prev->last = conversation->last;
+				conversation->last=NULL;
+				conversation = prev;
+				conv_in_ht=0;
+			}
+		}
 	} else {
 		conversation = se_alloc(sizeof(conversation_t));
+		conversation->next = NULL;
+		conversation->last = conversation;
 	}
 
-	conversation->next = NULL;
 	conversation->index = new_index;
 	conversation->setup_frame = setup_frame;
 	conversation->data_list = NULL;
@@ -571,7 +594,7 @@ conversation_new(const guint32 setup_frame, const address *addr1, const address 
 
 	/* only insert a hash table entry if this
 	 * is the first conversation with this key */
-	if (!tc)
+	if (!conv_in_ht)
 		g_hash_table_insert(hashtable, new_key, conversation);
 
 	return conversation;
@@ -653,9 +676,10 @@ static conversation_t *
 conversation_lookup_hashtable(GHashTable *hashtable, const guint32 frame_num, const address *addr1, const address *addr2,
     const port_type ptype, const guint32 port1, const guint32 port2)
 {
-	conversation_t* conversation;
-	conversation_t* match;
+	conversation_t* conversation=NULL;
+	conversation_t* match=NULL;
 	conversation_key key;
+	guint found=0;
 
 	/*
 	 * We don't make a copy of the address data, we just copy the
@@ -668,15 +692,24 @@ conversation_lookup_hashtable(GHashTable *hashtable, const guint32 frame_num, co
 	key.port2 = port2;
 
 	match = g_hash_table_lookup(hashtable, &key);
+		
+	if (match && (match->setup_frame > frame_num))
+		match = NULL;
 
 	if (match) {
+		if(match->last->setup_frame<=frame_num)
+			return match;
 		for (conversation = match->next; conversation; conversation = conversation->next) {
 			if ((conversation->setup_frame <= frame_num)
-				&& (conversation->setup_frame > match->setup_frame))
-				match = conversation;
+				&& (conversation->setup_frame > match->setup_frame)) {
+					match = conversation;
+					found=1;
+			} else if(conversation->setup_frame>frame_num)
+				/* we are past the frame_num */
+				break;
 		}
-		if (match->setup_frame > frame_num)
-			match = NULL;
+		if(!found)
+			match=NULL;	
 	}
 
 	return match;
