@@ -263,6 +263,10 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
 {
     wsApp = this;
 
+    Q_INIT_RESOURCE(display_filter);
+    Q_INIT_RESOURCE(toolbar);
+    Q_INIT_RESOURCE(welcome);
+
     recentTimer = new QTimer(this);
     connect(recentTimer, SIGNAL(timeout()), this, SLOT(refreshRecentFiles()));
     recentTimer->start(2000);
