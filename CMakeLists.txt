@@ -489,6 +489,7 @@ configure_file(${CMAKE_SOURCE_DIR}/cmakeconfig.h.in ${CMAKE_BINARY_DIR}/config.h
 
 include(FeatureSummary)
 #SET_FEATURE_INFO(NAME DESCRIPTION [URL [COMMENT] ]
+#FEATURE_SUMMARY(WHAT ALL) Requires removal of our local copy of FeatureSummary
 PRINT_ENABLED_FEATURES()
 PRINT_DISABLED_FEATURES()
 
@@ -615,7 +616,6 @@ set(TSHARK_TAP_SRC
 
 set(INSTALL_DIRS
 	diameter
-	docbook
 	dtds
 	help
 	radius
@@ -1056,3 +1056,20 @@ install(
 	PATTERN "Makefile.*" EXCLUDE
 	PATTERN "faq.py" EXCLUDE
 )
+
+message(STATUS "Debugging docdir install: ${DOC_DIR}")
+
+if(${DOC_DIR})
+	INSTALL(
+		DIRECTORY
+			${CMAKE_BINARY_DIR}/docbook/
+		DIRECTORY_PERMISSIONS
+			OWNER_EXECUTE OWNER_WRITE OWNER_READ
+			GROUP_EXECUTE GROUP_READ
+			WORLD_EXECUTE WORLD_READ
+		DESTINATION
+			${DOC_DIR}/guides
+#		PATTERN "*.pdf" 
+	)
+endif()
+
