@@ -770,11 +770,16 @@ voip_calls_dlg_update(GList *listx)
 			voip_calls_get_info()->rejected_calls);
 		gtk_label_set_text(GTK_LABEL(status_label), label_text);
 
+		/* Disable the re-ordering */
+		gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(list_store), GTK_TREE_SORTABLE_UNSORTED_SORT_COLUMN_ID, GTK_SORT_ASCENDING);
+
 		listx = g_list_first(listx);
 		while (listx) {
 			add_to_list_store((voip_calls_info_t*)(listx->data));
 			listx = g_list_next(listx);
 		}
+		/* Enable the re-ordering */
+		gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(list_store), CALL_COL_START_TIME, GTK_SORT_ASCENDING);
 
 		g_snprintf(label_text, sizeof(label_text),
 			"Detected %u VoIP %s. Selected %u %s.",
