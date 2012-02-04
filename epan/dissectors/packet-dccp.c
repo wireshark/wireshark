@@ -29,7 +29,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-
 /* NOTES:
  *
  * Nov 13, 2006: makes checksum computation dependent
@@ -47,7 +46,7 @@
  */
 
 #ifdef HAVE_CONFIG_H
-# include "config.h"
+#include "config.h"
 #endif
 
 #include <stdio.h>
@@ -67,74 +66,78 @@
 #include <epan/conversation.h>
 #include <epan/tap.h>
 
-/* Some definitions and the dissect_options() logic have been taken from Arnaldo Carvalho de Melo's DCCP implementation, thanks! */
+/*
+ * Some definitions and the dissect_options() logic have been taken
+ * from Arnaldo Carvalho de Melo's DCCP implementation, thanks!
+ */
 
-#define DCCP_HDR_LEN                    16      /* base DCCP header length, with 48 bits seqnums */
-#define DCCP_HDR_LEN_MIN		12      /*                        , with 24 bits seqnum */
-#define DCCP_HDR_PKT_TYPES_LEN_MAX      12      /* max per packet type extra header length */
-#define DCCP_OPT_LEN_MAX                1008
-#define DCCP_HDR_LEN_MAX                (DCCP_HDR_LEN + DCCP_HDR_PKT_TYPES_LEN_MAX + DCCP_OPT_LEN_MAX)
-
+#define DCCP_HDR_LEN 16     /* base DCCP header length, with 48 bits seqnums */
+#define DCCP_HDR_LEN_MIN 12 /* with 24 bits seqnum */
+#define DCCP_HDR_PKT_TYPES_LEN_MAX 12 /* max per packet type extra
+                                       * header length
+                                       */
+#define DCCP_OPT_LEN_MAX 1008
+#define DCCP_HDR_LEN_MAX (DCCP_HDR_LEN + DCCP_HDR_PKT_TYPES_LEN_MAX + \
+                          DCCP_OPT_LEN_MAX)
 
 static const value_string dccp_packet_type_vals[] = {
-        {0x0, "Request"},
-        {0x1, "Response"},
-        {0x2, "Data"},
-        {0x3, "Ack"},
-        {0x4, "DataAck"},
-        {0x5, "CloseReq"},
-        {0x6, "Close"},
-        {0x7, "Reset"},
-	{0x8, "Sync"},
-	{0x9, "SyncAck"},
-	{0xA, "Reserved"},
-	{0xB, "Reserved"},
-	{0xC, "Reserved"},
-	{0xD, "Reserved"},
-	{0xE, "Reserved"},
-	{0xF, "Reserved"},
-        {0, NULL}
+    {0x0, "Request" },
+    {0x1, "Response"},
+    {0x2, "Data"    },
+    {0x3, "Ack"     },
+    {0x4, "DataAck" },
+    {0x5, "CloseReq"},
+    {0x6, "Close"   },
+    {0x7, "Reset"   },
+    {0x8, "Sync"    },
+    {0x9, "SyncAck" },
+    {0xA, "Reserved"},
+    {0xB, "Reserved"},
+    {0xC, "Reserved"},
+    {0xD, "Reserved"},
+    {0xE, "Reserved"},
+    {0xF, "Reserved"},
+    {0,   NULL      }
 };
 
 static const value_string dccp_reset_code_vals[] = {
-        {0x00, "Unspecified"},
-        {0x01, "Closed"},
-        {0x02, "Aborted"},
-        {0x03, "No Connection"},
-        {0x04, "Packet Error"},
-        {0x05, "Option Error"},
-        {0x06, "Mandatory Error"},
-        {0x07, "Connection Refused"},
-	{0x08, "Bad Service Code"},
-	{0x09, "Too Busy"},
-	{0x0A, "Bad Init Cookie"},
-	{0x0B, "Aggression Penalty"},
-	{0x0C, "Reserved"},
-        {0, NULL}
+    {0x00, "Unspecified"       },
+    {0x01, "Closed"            },
+    {0x02, "Aborted"           },
+    {0x03, "No Connection"     },
+    {0x04, "Packet Error"      },
+    {0x05, "Option Error"      },
+    {0x06, "Mandatory Error"   },
+    {0x07, "Connection Refused"},
+    {0x08, "Bad Service Code"  },
+    {0x09, "Too Busy"          },
+    {0x0A, "Bad Init Cookie"   },
+    {0x0B, "Aggression Penalty"},
+    {0x0C, "Reserved"          },
+    {0,    NULL                }
 };
 
 static const value_string dccp_feature_options_vals[] = {
-        {0x20, "Change L"},
-	{0x21, "Confirm L"},
-	{0x22, "Change R"},
-	{0x23, "Confirm R"},
-        {0, NULL}
+    {0x20, "Change L" },
+    {0x21, "Confirm L"},
+    {0x22, "Change R" },
+    {0x23, "Confirm R"},
+    {0,    NULL       }
 };
 
 static const value_string dccp_feature_numbers_vals[] = {
-        {0x01, "CCID"},
-        {0x02, "Allow Short Seqnums"},
-        {0x03, "Sequence Window"},
-        {0x04, "ECN Incapable"},
-        {0x05, "Ack Ratio"},
-        {0x06, "Send Ack Vector"},
-        {0x07, "Send NDP Count"},
-	{0x08, "Minimum Checksum Coverage"},
-	{0x09, "Check Data Checksum"},
-	{0xC0, "Send Loss Event Rate"},		/* CCID3, RFC 4342, 8.5 */
-        {0, NULL}
+    {0x01, "CCID"                     },
+    {0x02, "Allow Short Seqnums"      },
+    {0x03, "Sequence Window"          },
+    {0x04, "ECN Incapable"            },
+    {0x05, "Ack Ratio"                },
+    {0x06, "Send Ack Vector"          },
+    {0x07, "Send NDP Count"           },
+    {0x08, "Minimum Checksum Coverage"},
+    {0x09, "Check Data Checksum"      },
+    {0xC0, "Send Loss Event Rate"     }, /* CCID3, RFC 4342, 8.5 */
+    {0,    NULL                       }
 };
-
 
 #if 0
 #define DBG(str, args...)       do {\
@@ -151,7 +154,6 @@ static const value_string dccp_feature_numbers_vals[] = {
 #define DBG1(format, arg1)
 #define DBG2(format, arg1, arg2)
 #endif /* 0/1 */
-
 
 static int proto_dccp = -1;
 static int dccp_tap = -1;
