@@ -756,12 +756,16 @@ print_current_user(void) {
     cur_group = get_cur_groupname();
     fprintf(stderr, "Running as user \"%s\" and group \"%s\".",
       cur_user, cur_group);
+    if (running_with_special_privs()) {
+      fprintf(stderr, "Running as user \"%s\" and group \"%s\". This could be dangerous.\n",
+         cur_user, cur_group);
+    }
+    else {
+      fprintf(stdout, "Running as user \"%s\" and group \"%s\".",
+         cur_user, cur_group);
+    }
     g_free(cur_user);
     g_free(cur_group);
-    if (running_with_special_privs()) {
-      fprintf(stderr, " This could be dangerous.");
-    }
-    fprintf(stderr, "\n");
   }
 }
 
@@ -2110,7 +2114,7 @@ capture(void)
   } else {
     g_string_append_printf(str, "%u interfaces", global_capture_opts.ifaces->len);
   }
-  fprintf(stderr, "Capturing on %s\n", str->str);
+  fprintf(stdout, "Capturing on %s\n", str->str);
   g_string_free(str, TRUE);
 
   ret = sync_pipe_start(&global_capture_opts);
@@ -2369,7 +2373,7 @@ report_counts(void)
   if (!print_packet_counts) {
     /* Report the count only if we aren't printing a packet count
        as packets arrive. */
-    fprintf(stderr, "%u packet%s captured\n", packet_count,
+    fprintf(stdout, "%u packet%s captured\n", packet_count,
             plurality(packet_count, "", "s"));
   }
 #ifdef SIGINFO
