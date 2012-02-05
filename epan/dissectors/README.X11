@@ -9,6 +9,39 @@ epan/dissectors directory, run the following commands:
  git clone git://anongit.freedesktop.org/xcb/proto xcbproto
  git clone git://anongit.freedesktop.org/git/mesa/mesa
 
+As of this writing, mesa will provide:
+ src/mapi/glapi/gen/gl_API.xml
+and xcbproto provides:
+ bigreq.xml
+ composite.xml
+ damage.xml
+ dpms.xml
+ dri2.xml
+ ge.xml
+ glx.xml
+ randr.xml
+ record.xml
+ render.xml
+ res.xml
+ screensaver.xml
+ shape.xml
+ shm.xml
+ sync.xml
+ xc_misc.xml
+ xevie.xml
+ xf86dri.xml
+ xf86vidmode.xml
+ xfixes.xml
+ xinerama.xml
+ xinput.xml
+ xkb.xml
+ xprint.xml
+ xproto.xml (ignored)
+ xselinux.xml
+ xtest.xml
+ xv.xml
+ xvmc.xml
+  
 Or, if you have already cloned those repositories, "git pull" each one to bring
 it up to date. Please be aware that the Mesa repository is rather large; it is
 slightly more than 53MB as of this writing.
