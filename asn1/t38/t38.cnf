@@ -82,7 +82,7 @@ VAL_PTR=&Data_Field_field_type_value
                 frag_msg = fragment_add_seq(tvb, offset, actx->pinfo,
                     p_t38_packet_conv_info->reass_ID, /* ID for fragments belonging together */
                     data_fragment_table, /* list of message fragments */
-                    seq_number + Data_Field_item_num - (guint32)p_t38_packet_conv_info->reass_start_seqnum,  /* fragment sequence number */
+                    seq_number + Data_Field_item_num - (guint32)p_t38_packet_conv_info->reass_start_seqnum + (guint32)p_t38_packet_conv_info->additional_hdlc_data_field_counter,  /* fragment sequence number */
                     /*0,*/
                     0, /* fragment length */
                     FALSE); /* More fragments */
@@ -143,6 +143,8 @@ VAL_PTR=&Data_Field_field_type_value
         if ( p_t38_conv && ( ((Data_Field_field_type_value >0) && (Data_Field_field_type_value <6)) || (Data_Field_field_type_value == 7) ) ){
             p_t38_conv_info->reass_ID = 0;
             p_t38_conv_info->reass_start_seqnum = -1;
+            p_t38_conv_info->additional_hdlc_data_field_counter = 0;
+            p_t38_conv_info->seqnum_prev_data_field = -1;
         }
         t38_info->Data_Field_field_type_value = Data_Field_field_type_value;
     }
@@ -186,24 +188,34 @@ VAL_PTR=&Data_Field_field_type_value
                     p_t38_conv_info->reass_ID = actx->pinfo->fd->num;
                     p_t38_conv_info->reass_start_seqnum = seq_number;
                     p_t38_conv_info->time_first_t4_data = nstime_to_sec(&actx->pinfo->fd->rel_ts);
+                    p_t38_conv_info->additional_hdlc_data_field_counter = 0;
                     p_t38_packet_conv_info->reass_ID = p_t38_conv_info->reass_ID;
                     p_t38_packet_conv_info->reass_start_seqnum = p_t38_conv_info->reass_start_seqnum;
+                    p_t38_packet_conv_info->seqnum_prev_data_field = p_t38_conv_info->seqnum_prev_data_field;
+                    p_t38_packet_conv_info->additional_hdlc_data_field_counter = p_t38_conv_info->additional_hdlc_data_field_counter;
                     p_t38_packet_conv_info->time_first_t4_data = p_t38_conv_info->time_first_t4_data;
             }
-
+            if (seq_number == (guint32)p_t38_packet_conv_info->seqnum_prev_data_field){
+	           p_t38_packet_conv_info->additional_hdlc_data_field_counter ++;
+                   if(p_t38_conv){
+                     p_t38_conv_info->additional_hdlc_data_field_counter =  p_t38_packet_conv_info->additional_hdlc_data_field_counter;
+                   }
+	    }
             frag_msg = fragment_add_seq(value_tvb, 0, actx->pinfo,
                 p_t38_packet_conv_info->reass_ID, /* ID for fragments belonging together */
                 data_fragment_table, /* list of message fragments */
-                seq_number - (guint32)p_t38_packet_conv_info->reass_start_seqnum, /* fragment sequence number */
+                seq_number - (guint32)p_t38_packet_conv_info->reass_start_seqnum + (guint32)p_t38_packet_conv_info->additional_hdlc_data_field_counter, /* fragment sequence number */
                 value_len, /* fragment length */
                 TRUE); /* More fragments */
-
+            p_t38_packet_conv_info->seqnum_prev_data_field = (gint32)seq_number;
             process_reassembled_data(tvb, offset, actx->pinfo,
                         "Reassembled T38", frag_msg, &data_frag_items, NULL, tree);
 
             if (!frag_msg) { /* Not last packet of reassembled */
                 if (Data_Field_field_type_value == 0) {
-                    col_append_fstr(actx->pinfo->cinfo, COL_INFO," (HDLC fragment %u)", seq_number - (guint32)p_t38_packet_conv_info->reass_start_seqnum);
+                    col_append_fstr(actx->pinfo->cinfo, COL_INFO," (HDLC fragment %u)", 
+                                                                     seq_number + (guint32)p_t38_packet_conv_info->additional_hdlc_data_field_counter 
+                                                                       - (guint32)p_t38_packet_conv_info->reass_start_seqnum);
                 } else {
                     col_append_fstr(actx->pinfo->cinfo, COL_INFO," (t4-data fragment %u)", seq_number - (guint32)p_t38_packet_conv_info->reass_start_seqnum);
                 }

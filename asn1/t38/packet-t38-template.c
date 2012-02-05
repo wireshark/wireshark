@@ -458,6 +458,8 @@ init_t38_info_conv(packet_info *pinfo)
 			p_t38_conv->src_t38_info.packet_lost = 0;
 			p_t38_conv->src_t38_info.burst_lost = 0;
 			p_t38_conv->src_t38_info.time_first_t4_data = 0;
+			p_t38_conv->src_t38_info.additional_hdlc_data_field_counter = 0;
+			p_t38_conv->src_t38_info.seqnum_prev_data_field = -1;
 
 			p_t38_conv->dst_t38_info.reass_ID = 0;
 			p_t38_conv->dst_t38_info.reass_start_seqnum = -1;
@@ -466,6 +468,8 @@ init_t38_info_conv(packet_info *pinfo)
 			p_t38_conv->dst_t38_info.packet_lost = 0;
 			p_t38_conv->dst_t38_info.burst_lost = 0;
 			p_t38_conv->dst_t38_info.time_first_t4_data = 0;
+			p_t38_conv->dst_t38_info.additional_hdlc_data_field_counter = 0;
+			p_t38_conv->dst_t38_info.seqnum_prev_data_field = -1;
 
 			conversation_add_proto_data(p_conv, proto_t38, p_t38_conv);
 		}

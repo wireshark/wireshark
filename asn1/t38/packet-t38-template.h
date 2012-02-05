@@ -49,6 +49,7 @@ typedef struct _t38_packet_info {
 /* Info to save the State to reassemble Data (e.g. HDLC) and the Setup (e.g. SDP) in T38 conversations */
 typedef struct _t38_conv_info
 {
+	
 	guint32 reass_ID;
 	int reass_start_seqnum;
 	guint32 reass_data_type;
@@ -56,6 +57,9 @@ typedef struct _t38_conv_info
 	guint32 packet_lost;
 	guint32 burst_lost;
 	double time_first_t4_data; 
+	guint32 additional_hdlc_data_field_counter;
+	gint32 seqnum_prev_data_field;
+	
 } t38_conv_info;
 
 /* Info to save the State to reassemble Data (e.g. HDLC) and the Setup (e.g. SDP) in T38 conversations */
