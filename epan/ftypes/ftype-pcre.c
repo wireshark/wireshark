@@ -49,18 +49,52 @@ gregex_fvalue_free(fvalue_t *fv)
     }
 }
 
+/* Determines whether pattern needs to match raw byte sequences */
+static gboolean
+raw_flag_needed(const gchar *pattern)
+{
+    gboolean found = FALSE;
+    const gchar *s = pattern;
+    size_t i, len;
+
+    /* find any character whose hex value is two letters */
+    len = strlen(s);
+    for (i = 0; i < len; i++) {
+        if ((s[i] >= '\xAA' && s[i] <= '\xAF') ||
+            (s[i] >= '\xBA' && s[i] <= '\xBF') ||
+            (s[i] >= '\xCA' && s[i] <= '\xCF') ||
+            (s[i] >= '\xDA' && s[i] <= '\xDF') ||
+            (s[i] >= '\xEA' && s[i] <= '\xEF') ||
+            (s[i] >= '\xFA' && s[i] <= '\xFF'))
+        {
+            found = TRUE;
+            break;
+        }
+    }
+    return found;
+}
+
 /* Generate a FT_PCRE from a parsed string pattern.
  * Uses the specified logfunc() to report errors. */
 static gboolean
 val_from_string(fvalue_t *fv, char *pattern, LogFunc logfunc)
 {
     GError *regex_error = NULL;
+    GRegexCompileFlags cflags = G_REGEX_OPTIMIZE;
+
+    /* Set RAW flag only if pattern requires matching raw byte
+       sequences. Otherwise, omit it so that GRegex treats its
+       input as UTF8-encoded string. */
+    if (raw_flag_needed(pattern)) {
+        cflags |= G_REGEX_RAW;
+    }
+
     /* Free up the old value, if we have one */
     gregex_fvalue_free(fv);
 
     fv->value.re = g_regex_new(
             pattern,            /* pattern */
-            G_REGEX_OPTIMIZE,   /* Compile options */
+            cflags,             /* Compile options */
             0,                  /* Match options */
             &regex_error        /* Compile / study errors */
             );
