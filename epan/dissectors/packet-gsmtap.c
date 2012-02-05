@@ -185,13 +185,14 @@ enum {
 	GSMTAP_SUB_SNDCP,
 	GSMTAP_SUB_ABIS,
 	/* WiMAX sub handles */
-	GSMTAP_SUB_CDMA_CODE, 
+	GSMTAP_SUB_CDMA_CODE,
 	GSMTAP_SUB_FCH,
 	GSMTAP_SUB_FFB,
 	GSMTAP_SUB_PDU,
 	GSMTAP_SUB_HACK,
 	GSMTAP_SUB_PHY_ATTRIBUTES,
 	GSMTAP_SUB_CBCH,
+	GSMTAP_SUB_SIM,
 
 	GSMTAP_SUB_MAX
 };
@@ -209,7 +210,7 @@ static const value_string gsmtap_bursts[] = {
 	{ GSMTAP_BURST_DUMMY,		"DUMMY" },
 	{ GSMTAP_BURST_ACCESS,		"RACH" },
 	/* WiMAX bursts */
- 	{ GSMTAP_BURST_CDMA_CODE,       "CDMA Code"  },
+	{ GSMTAP_BURST_CDMA_CODE,       "CDMA Code"  },
 	{ GSMTAP_BURST_FCH,             "FCH"  },
 	{ GSMTAP_BURST_FFB,             "Fast Feedback" },
 	{ GSMTAP_BURST_PDU,             "PDU" },
@@ -362,6 +363,13 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSMTAP");
 
+	/* Some GSMTAP types are completely unrelated to the Um air interface */
+	switch (type) {
+	case GSMTAP_TYPE_SIM:
+		call_dissector(sub_handles[GSMTAP_SUB_SIM], payload_tvb, pinfo, tree);
+		return;
+	}
+
 	if (arfcn & GSMTAP_ARFCN_F_UPLINK) {
 		col_append_str(pinfo->cinfo, COL_RES_NET_SRC, "MS");
 		col_append_str(pinfo->cinfo, COL_RES_NET_DST, "BTS");
@@ -497,30 +505,30 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		handle_tetra(tvb_get_guint8(tvb, offset+12), payload_tvb, pinfo, tree);
 		return;
 	case GSMTAP_TYPE_WMX_BURST:
-		switch (sub_type) { 
-	        case GSMTAP_BURST_CDMA_CODE: 
+		switch (sub_type) {
+	        case GSMTAP_BURST_CDMA_CODE:
 			sub_handle = GSMTAP_SUB_CDMA_CODE;
 			break;
-	        case GSMTAP_BURST_FCH: 
+	        case GSMTAP_BURST_FCH:
 			sub_handle = GSMTAP_SUB_FCH;
 			break;
-	        case GSMTAP_BURST_FFB: 
+	        case GSMTAP_BURST_FFB:
 			sub_handle = GSMTAP_SUB_FFB;
 			break;
-	        case GSMTAP_BURST_PDU: 
+	        case GSMTAP_BURST_PDU:
 			sub_handle = GSMTAP_SUB_PDU;
 			break;
-	        case GSMTAP_BURST_HACK: 
+	        case GSMTAP_BURST_HACK:
 			sub_handle = GSMTAP_SUB_HACK;
 			break;
-	        case GSMTAP_BURST_PHY_ATTRIBUTES: 
+	        case GSMTAP_BURST_PHY_ATTRIBUTES:
 			sub_handle = GSMTAP_SUB_PHY_ATTRIBUTES;
 			break;
-	        default: 
-	                sub_handle = GSMTAP_SUB_DATA; 
-	                break; 
+	        default:
+	                sub_handle = GSMTAP_SUB_DATA;
+	                break;
 	        }
- 		break;
+		break;
 	case GSMTAP_TYPE_UM_BURST:
 	default:
 		sub_handle = GSMTAP_SUB_DATA;
@@ -597,9 +605,10 @@ proto_reg_handoff_gsmtap(void)
 	sub_handles[GSMTAP_SUB_LLC] = find_dissector("llcgprs");
 	sub_handles[GSMTAP_SUB_SNDCP] = find_dissector("sndcp");
 	sub_handles[GSMTAP_SUB_ABIS] = find_dissector("gsm_a_dtap");
-	sub_handles[GSMTAP_SUB_CDMA_CODE] = find_dissector("wimax_cdma_code_burst_handler"); 
-	sub_handles[GSMTAP_SUB_FCH] = find_dissector("wimax_fch_burst_handler"); 
-	sub_handles[GSMTAP_SUB_FFB] = find_dissector("wimax_ffb_burst_handler"); 
+	sub_handles[GSMTAP_SUB_SIM] = find_dissector("gsm_sim");
+	sub_handles[GSMTAP_SUB_CDMA_CODE] = find_dissector("wimax_cdma_code_burst_handler");
+	sub_handles[GSMTAP_SUB_FCH] = find_dissector("wimax_fch_burst_handler");
+	sub_handles[GSMTAP_SUB_FFB] = find_dissector("wimax_ffb_burst_handler");
 	sub_handles[GSMTAP_SUB_PDU] = find_dissector("wimax_pdu_burst_handler");
 	sub_handles[GSMTAP_SUB_HACK] = find_dissector("wimax_hack_burst_handler");
 	sub_handles[GSMTAP_SUB_PHY_ATTRIBUTES] = find_dissector("wimax_phy_attributes_burst_handler");

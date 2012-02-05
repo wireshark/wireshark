@@ -475,6 +475,7 @@ DISSECTOR_SRC = \
 	packet-eth.c		\
 	packet-etherip.c	\
 	packet-ethertype.c	\
+	packet-etsi_card_app_toolkit.c	\
 	packet-evrc.c		\
 	packet-exec.c		\
 	packet-extreme.c	\
@@ -533,6 +534,7 @@ DISSECTOR_SRC = \
 	packet-gsm_cbch.c       \
 	packet-gsm_ipa.c	\
 	packet-gsm_rlcmac.c	\
+	packet-gsm_sim.c	\
 	packet-gsm_sms.c	\
 	packet-gsm_sms_ud.c	\
 	packet-gsm_um.c		\
