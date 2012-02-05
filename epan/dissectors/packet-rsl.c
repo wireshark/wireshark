@@ -2,6 +2,7 @@
  * Routines for Radio Signalling Link (RSL) dissection.
  *
  * Copyright 2007, 2011, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2009-2011, Harald Welte <laforge@gnumonks.org>
  *
  * $Id$
  *
@@ -38,6 +39,10 @@
 
 #include "packet-gsm_a_common.h"
 #include "lapd_sapi.h"
+#include <epan/prefs.h>
+
+#include "packet-rtp.h"
+#include "packet-rtcp.h"
 
 /* Initialize the protocol and registered fields */
 static int proto_rsl        = -1;
@@ -112,6 +117,24 @@ static int hf_rsl_emlpp_prio           = -1;
 static int hf_rsl_rtd                  = -1;
 static int hf_rsl_delay_ind            = -1;
 static int hf_rsl_tfo                  = -1;
+static int hf_rsl_speech_mode_s		= -1;
+static int hf_rsl_speech_mode_m		= -1;
+static int hf_rsl_conn_id		= -1;
+static int hf_rsl_rtp_payload		= -1;
+static int hf_rsl_rtp_csd_fmt_d		= -1;
+static int hf_rsl_rtp_csd_fmt_ir	= -1;
+static int hf_rsl_local_port		= -1;
+static int hf_rsl_remote_port		= -1;
+static int hf_rsl_local_ip		= -1;
+static int hf_rsl_remote_ip		= -1;
+static int hf_rsl_cstat_tx_pkts		= -1;
+static int hf_rsl_cstat_tx_octs		= -1;
+static int hf_rsl_cstat_rx_pkts		= -1;
+static int hf_rsl_cstat_rx_octs		= -1;
+static int hf_rsl_cstat_lost_pkts	= -1;
+static int hf_rsl_cstat_ia_jitter	= -1;
+static int hf_rsl_cstat_avg_tx_dly	= -1;
+
 
 /* Initialize the subtree pointers */
 static int ett_rsl = -1;
@@ -169,6 +192,14 @@ static int ett_ie_cause = -1;
 static int ett_ie_meas_res_no = -1;
 static int ett_ie_message_id = -1;
 static int ett_ie_sys_info_type = -1;
+static int ett_ie_speech_mode = -1;
+static int ett_ie_conn_id = -1;
+static int ett_ie_remote_ip = -1;
+static int ett_ie_remote_port = -1;
+static int ett_ie_local_port = -1;
+static int ett_ie_local_ip = -1;
+static int ett_ie_rtp_payload = -1;
+
 
 static proto_tree *top_tree;
 static dissector_handle_t gsm_cbch_handle;
@@ -176,6 +207,9 @@ static dissector_handle_t gsm_cbs_handle;
 static dissector_handle_t gsm_a_ccch_handle;
 static dissector_handle_t gsm_a_dtap_handle;
 static dissector_handle_t gsm_a_sacch_handle;
+
+/* Decode things as nanoBTS traces */
+static gboolean global_rsl_use_nano_bts = FALSE;
 
 /* Forward declarations */
 static int dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
@@ -206,8 +240,10 @@ static const value_string rsl_msg_disc_vals[] = {
     {  0x06,    "Common Channel Management messages" },
     {  0x08,    "TRX Management messages" },
     {  0x16,    "Location Services messages" },
+    {  0x3f,	"ip.access Vendor Specific messages" },
     { 0,            NULL }
 };
+#define RSL_MSGDISC_IPACCESS	0x3f
 /*
  * 9.2 MESSAGE TYPE
  */
@@ -275,6 +311,49 @@ static const value_string rsl_msg_disc_vals[] = {
     /*  0 1 - - - - - - Location Services messages: */
 #define RSL_MSG_LOC_INF                 65  /* 8.7.1 */
 
+/* Vendor-Specific messages of ip.access nanoBTS. There is no public documentation
+ * about those extensions, all information in this dissector is based on lawful
+ * protocol reverse enginering by Harald Welte <laforge@gnumonks.org> */
+#define RSL_MSG_TYPE_IPAC_MEAS_PP_DEF	0x60
+#define RSL_MSG_TYPE_IPAC_HO_CAND_INQ	0x61
+#define RSL_MSG_TYPE_IPAC_HO_CAND_RESP	0x62
+
+#define RSL_MSG_TYPE_IPAC_PDCH_ACT	0x48
+#define RSL_MSG_TYPE_IPAC_PDCH_ACT_ACK	0x49
+#define RSL_MSG_TYPE_IPAC_PDCH_ACT_NACK	0x4a
+#define RSL_MSG_TYPE_IPAC_PDCH_DEACT	0x4b
+#define RSL_MSG_TYPE_IPAC_PDCH_DEACT_ACK 0x4c
+#define RSL_MSG_TYPE_IPAC_PDCH_DEACT_NACK 0x4d
+
+#define RSL_MSG_TYPE_IPAC_CRCX		0x70
+#define RSL_MSG_TYPE_IPAC_CRCX_ACK	0x71
+#define RSL_MSG_TYPE_IPAC_CRCX_NACK	0x72
+#define RSL_MSG_TYPE_IPAC_MDCX		0x73
+#define RSL_MSG_TYPE_IPAC_MDCX_ACK	0x74
+#define RSL_MSG_TYPE_IPAC_MDCX_NACK	0x75
+#define RSL_MSG_TYPE_IPAC_DLCX_IND	0x76
+#define RSL_MSG_TYPE_IPAC_DLCX		0x77
+#define RSL_MSG_TYPE_IPAC_DLCX_ACK	0x78
+#define RSL_MSG_TYPE_IPAC_DLCX_NACK	0x79
+
+#define RSL_IE_IPAC_SRTP_CONFIG		0xe0
+#define RSL_IE_IPAC_PROXY_UDP		0xe1
+#define RSL_IE_IPAC_BSCMPL_TOUT		0xe2
+#define RSL_IE_IPAC_REMOTE_IP		0xf0
+#define RSL_IE_IPAC_REMOTE_PORT		0xf1
+#define RSL_IE_IPAC_RTP_PAYLOAD		0xf2
+#define RSL_IE_IPAC_LOCAL_PORT		0xf3
+#define RSL_IE_IPAC_SPEECH_MODE		0xf4
+#define RSL_IE_IPAC_LOCAL_IP		0xf5
+#define RSL_IE_IPAC_CONN_STAT		0xf6
+#define RSL_IE_IPAC_HO_C_PARMS		0xf7
+#define RSL_IE_IPAC_CONN_ID		0xf8
+#define RSL_IE_IPAC_RTP_CSD_FMT		0xf9
+#define RSL_IE_IPAC_RTP_JIT_BUF		0xfa
+#define RSL_IE_IPAC_RTP_COMPR		0xfb
+#define RSL_IE_IPAC_RTP_PAYLOAD2	0xfc
+#define RSL_IE_IPAC_RTP_MPLEX		0xfd
+#define RSL_IE_IPAC_RTP_MPLEX_ID	0xfe
 
 static const value_string rsl_msg_type_vals[] = {
       /*    0 0 0 0 - - - - Radio Link Layer Management messages: */
@@ -337,6 +416,26 @@ static const value_string rsl_msg_type_vals[] = {
     {  0x3f,    "TFO MODification REQuest" },                   /* 8.4.31 */
     /*  0 1 - - - - - - Location Services messages: */
     {  0x41,    "Location Information" },                       /* 8.7.1 */
+    /* ip.access */
+    {  0x48,	"ip.access PDCH ACTIVATION" },
+    {  0x49,	"ip.access PDCH ACTIVATION ACK" },
+    {  0x4a,	"ip.access PDCH ACTIVATION NACK" },
+    {  0x4b,	"ip.access PDCH DEACTIVATION" },
+    {  0x4c,	"ip.access PDCH DEACTIVATION ACK" },
+    {  0x4d,	"ip.access PDCH DEACTIVATION NACK" },
+    {  0x60,	"ip.access MEASurement PREPROCessing DeFauLT" },
+    {  0x61,	"ip.access HANDOover CANDidate ENQuiry" },
+    {  0x62,	"ip.access HANDOover CANDidate RESPonse" },
+    {  0x70,	"ip.access CRCX" },
+    {  0x71,	"ip.access CRCX ACK" },
+    {  0x72,	"ip.access CRCX NACK" },
+    {  0x73,	"ip.access MDCX" },
+    {  0x74,	"ip.access MDCX ACK" },
+    {  0x75,	"ip.access MDCX NACK" },
+    {  0x76,	"ip.access DLCX INDication" },
+    {  0x77,	"ip.access DLCX" },
+    {  0x78,	"ip.access DLCX ACK" },
+    {  0x79,	"ip.access DLCX NACK" },
     { 0,        NULL }
 };
 static value_string_ext rsl_msg_type_vals_ext = VALUE_STRING_EXT_INIT(rsl_msg_type_vals);
@@ -372,9 +471,10 @@ static value_string_ext rsl_msg_type_vals_ext = VALUE_STRING_EXT_INIT(rsl_msg_ty
 
 #define RSL_IE_SYS_INFO_TYPE            30
 
-
-
-
+#define RSL_IE_MS_POWER_PARAM		31
+#define RSL_IE_BS_POWER_PARAM		32
+#define RSL_IE_PREPROC_PARAM		33
+#define RSL_IE_PREPROC_MEAS		34
 #define RSL_IE_FULL_IMM_ASS_INF         35
 #define RSL_IE_SMSCB_INF                36
 #define RSL_IE_FULL_MS_TIMING_OFFSET    37
@@ -477,6 +577,24 @@ static const value_string rsl_ie_type_vals[] = {
             Not used
 
     */
+	{ 0xe0,		"SRTP Configuration" },
+	{ 0xe1,		"BSC Proxy UDP Port" },
+	{ 0xe2,		"BSC Multiplex Timeout" },
+	{ 0xf0,		"Remote IP Address" },
+	{ 0xf1,		"Remote RTP Port" },
+	{ 0xf2,		"RTP Payload Type" },
+	{ 0xf3,		"Local RTP Port" },
+	{ 0xf4,		"Speech Mode" },
+	{ 0xf5,		"Local IP Address" },
+	{ 0xf6,		"Connection Statistics" },
+	{ 0xf7,		"Handover C Parameters" },
+	{ 0xf8,		"Connection Identifier" },
+	{ 0xf9,		"RTP CSD Format" },
+	{ 0xfa,		"RTP Jitter Buffer" },
+	{ 0xfb,		"RTP Compression" },
+	{ 0xfc,		"RTP Payload Type 2" },
+	{ 0xfd,		"RTP Multiplex" },
+	{ 0xfe,		"RTP Multiplex Identifier" },
     { 0,            NULL }
 };
 static value_string_ext rsl_ie_type_vals_ext = VALUE_STRING_EXT_INIT(rsl_ie_type_vals);
@@ -514,6 +632,28 @@ static const value_string rsl_ch_no_Cbits_vals[] = {
     { 0,            NULL }
 };
 static value_string_ext rsl_ch_no_Cbits_vals_ext = VALUE_STRING_EXT_INIT(rsl_ch_no_Cbits_vals);
+
+/* From openbsc/include/openbsc/tlv.h */
+enum tlv_type {
+	TLV_TYPE_UNKNOWN,
+	TLV_TYPE_FIXED,
+	TLV_TYPE_T,
+	TLV_TYPE_TV,
+	TLV_TYPE_TLV,
+	TLV_TYPE_TL16V,
+};
+
+struct tlv_def {
+	enum tlv_type type;
+	guint8 fixed_len;
+};
+
+struct tlv_definition {
+	struct tlv_def def[0xff];
+};
+
+/* This structure is initialized in proto_register_rsl() */
+static struct tlv_definition rsl_att_tlvdef;
 
 /* 9.3.1 Channel number         9.3.1   M TV 2 */
 static int
@@ -2945,12 +3085,162 @@ dissect_rsl_ie_tfo_transp_cont(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 }
 
 static int
+dissct_rsl_ipaccess_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,				    int offset)
+{
+	guint8 msg_type;
+	guint32 local_addr = 0;
+	guint16 local_port = 0;
+	address src_addr;
+
+	msg_type = tvb_get_guint8(tvb, offset)&0x7f;
+	offset++;
+
+	/* parse TLV attributes */
+	while (tvb_reported_length_remaining(tvb, offset) > 0) {
+		guint8 tag;
+		unsigned int len, hlen, len_len;
+		const struct tlv_def *tdef;
+		proto_item *ti;
+		proto_tree *ie_tree;
+
+		tag = tvb_get_guint8(tvb, offset);
+		tdef = &rsl_att_tlvdef.def[tag];
+
+		switch (tdef->type) {
+		case TLV_TYPE_FIXED:
+			hlen = 1;
+			len_len = 0;
+			len = tdef->fixed_len;
+			break;
+		case TLV_TYPE_T:
+			hlen = 1;
+			len_len = 0;
+			len = 0;
+			break;
+		case TLV_TYPE_TV:
+			hlen = 1;
+			len_len = 0;
+			len = 1;
+			break;
+		case TLV_TYPE_TLV:
+			hlen = 2;
+			len_len = 1;
+			len = tvb_get_guint8(tvb, offset+1);
+			break;
+		case TLV_TYPE_TL16V:
+			hlen = 3;
+			len_len = 2;
+			len = tvb_get_guint8(tvb, offset+1) << 8 |
+					tvb_get_guint8(tvb, offset+2);
+			break;
+		case TLV_TYPE_UNKNOWN:
+		default:
+			hlen = len_len = len = 0;
+			DISSECTOR_ASSERT_NOT_REACHED();
+			break;
+		}
+
+		ti = proto_tree_add_item(tree, hf_rsl_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+		ie_tree = proto_item_add_subtree(ti, ett_ie_local_port);
+		offset += hlen;
+
+		switch (tag) {
+		case RSL_IE_CH_NO:
+			dissect_rsl_ie_ch_no(tvb, pinfo, ie_tree, offset, FALSE);
+			break;
+		case RSL_IE_FRAME_NO:
+			dissect_rsl_ie_frame_no(tvb, pinfo, ie_tree, offset, FALSE);
+			break;
+		case RSL_IE_MS_POW:
+			dissect_rsl_ie_ms_pow(tvb, pinfo, ie_tree, offset, FALSE);
+			break;
+		case RSL_IE_IPAC_REMOTE_IP:
+			proto_tree_add_item(ie_tree, hf_rsl_remote_ip, tvb,
+					    offset, len, ENC_BIG_ENDIAN);
+			break;
+		case RSL_IE_IPAC_REMOTE_PORT:
+			proto_tree_add_item(ie_tree, hf_rsl_remote_port, tvb,
+					    offset, len, ENC_BIG_ENDIAN);
+			break;
+		case RSL_IE_IPAC_LOCAL_IP:
+			proto_tree_add_item(ie_tree, hf_rsl_local_ip, tvb,
+					    offset, len, ENC_BIG_ENDIAN);
+			local_addr = tvb_get_ipv4(tvb, offset);
+			break;
+		case RSL_IE_IPAC_LOCAL_PORT:
+			proto_tree_add_item(ie_tree, hf_rsl_local_port, tvb,
+					    offset, len, ENC_BIG_ENDIAN);
+			local_port = tvb_get_ntohs(tvb, offset);
+			break;
+		case RSL_IE_IPAC_SPEECH_MODE:
+			proto_tree_add_item(ie_tree, hf_rsl_speech_mode_s, tvb,
+					    offset, len, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ie_tree, hf_rsl_speech_mode_m, tvb,
+					    offset, len, ENC_BIG_ENDIAN);
+			break;
+		case RSL_IE_IPAC_RTP_PAYLOAD:
+		case RSL_IE_IPAC_RTP_PAYLOAD2:
+			proto_tree_add_item(ie_tree, hf_rsl_rtp_payload, tvb,
+					    offset, len, ENC_BIG_ENDIAN);
+			break;
+		case RSL_IE_IPAC_RTP_CSD_FMT:
+			proto_tree_add_item(ie_tree, hf_rsl_rtp_csd_fmt_d, tvb,
+					    offset, len, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ie_tree, hf_rsl_rtp_csd_fmt_ir, tvb,
+					    offset, len, ENC_BIG_ENDIAN);
+			break;
+		case RSL_IE_IPAC_CONN_ID:
+			proto_tree_add_item(ie_tree, hf_rsl_conn_id, tvb,
+					    offset, len, ENC_BIG_ENDIAN);
+			break;
+		case RSL_IE_IPAC_CONN_STAT:
+			proto_tree_add_item(ie_tree, hf_rsl_cstat_tx_pkts, tvb,
+					    offset, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ie_tree, hf_rsl_cstat_tx_octs, tvb,
+					    offset+4, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ie_tree, hf_rsl_cstat_rx_pkts, tvb,
+					    offset+8, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ie_tree, hf_rsl_cstat_rx_octs, tvb,
+					    offset+12, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ie_tree, hf_rsl_cstat_lost_pkts, tvb,
+					    offset+16, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ie_tree, hf_rsl_cstat_ia_jitter, tvb,
+					    offset+20, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ie_tree, hf_rsl_cstat_avg_tx_dly, tvb,
+					    offset+24, 4, ENC_BIG_ENDIAN);
+			break;
+		}
+		offset += len;
+	}
+
+	switch (msg_type) {
+	case RSL_MSG_TYPE_IPAC_CRCX_ACK:
+		/* Notify the RTP and RTCP dissectors about a new RTP stream */
+		src_addr.type = AT_IPv4;
+		src_addr.len = 4;
+		src_addr.data = (guint8 *)&local_addr;
+		rtp_add_address(pinfo, &src_addr, local_port, 0,
+				"GSM A-bis/IP", pinfo->fd->num, 0, NULL);
+		rtcp_add_address(pinfo, &src_addr, local_port+1, 0,
+				 "GSM A-bis/IP", pinfo->fd->num);
+		break;
+	}
+	return offset;
+}
+
+static int
 dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
-    guint8  msg_type;
+    guint8  msg_disc, msg_type;
 
+    msg_disc = tvb_get_guint8(tvb, offset++) >> 1;
     msg_type = tvb_get_guint8(tvb,offset)&0x7f;
     proto_tree_add_item(tree, hf_rsl_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    if (msg_disc == RSL_MSGDISC_IPACCESS) {
+        offset = dissct_rsl_ipaccess_msg(tvb, pinfo, tree, offset);
+        return offset;
+    }
     offset++;
 
     switch (msg_type){
@@ -3518,6 +3808,19 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         /* LLP APDU 9.3.58 M LV 2-N */
         offset = dissect_rsl_ie_llp_apdu(tvb, pinfo, tree, offset, TRUE);
         break;
+	/* the following messages are ip.access specific but sent without
+	 * ip.access memssage discriminator */
+    case RSL_MSG_TYPE_IPAC_MEAS_PP_DEF:
+    case RSL_MSG_TYPE_IPAC_HO_CAND_INQ:
+    case RSL_MSG_TYPE_IPAC_HO_CAND_RESP:
+    case RSL_MSG_TYPE_IPAC_PDCH_ACT:
+    case RSL_MSG_TYPE_IPAC_PDCH_ACT_ACK:
+    case RSL_MSG_TYPE_IPAC_PDCH_ACT_NACK:
+    case RSL_MSG_TYPE_IPAC_PDCH_DEACT:
+    case RSL_MSG_TYPE_IPAC_PDCH_DEACT_ACK:
+    case RSL_MSG_TYPE_IPAC_PDCH_DEACT_NACK:
+        if (global_rsl_use_nano_bts)
+            offset = dissct_rsl_ipaccess_msg(tvb, pinfo, tree, offset-1);
     default:
         break;
     }
@@ -3525,6 +3828,40 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
     return offset;
 
 }
+
+static const value_string rsl_ipacc_spm_s_vals[] = {
+	{ 0,	"GSM FR codec (GSM type 1, FS)" },
+	{ 1,	"GSM EFR codec (GSM type 2, FS)" },
+	{ 2, 	"GSM AMR/FR codec (GSM type 3, FS)" },
+	{ 3,	"GSM HR codec (GSM type 1, HS)" },
+	{ 5,	"GSM AMR/HR codec (GSM type 3, HS)" },
+	{ 0xf,	"As specified by RTP Payload Type IE" },
+	{ 0,	NULL }
+};
+
+static const value_string rsl_ipacc_spm_m_vals[] = {
+	{ 0,	"Send and Receive" },
+	{ 1,	"Receive Only" },
+	{ 2,	"Send Only" },
+	{ 0, 	NULL }
+};
+
+static const value_string rsl_ipacc_rtp_csd_fmt_d_vals[] = {
+	{ 0,	"External TRAU format" },
+	{ 1,	"Non-TRAU Packed format" },
+	{ 2,	"TRAU within the BTS" },
+	{ 3,	"IWF-Free BTS-BTS Data" },
+	{ 0, 	NULL }
+};
+
+static const value_string rsl_ipacc_rtp_csd_fmt_ir_vals[] = {
+	{ 0,	"8kb/s" },
+	{ 1,	"16kb/s" },
+	{ 2,	"32kb/s" },
+	{ 3,	"64kb/s" },
+	{ 0,	NULL }
+};
+
 static void
 dissect_rsl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -3545,12 +3882,19 @@ dissect_rsl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     top_tree = tree;
     if (tree) {
         ti = proto_tree_add_item(tree, proto_rsl, tvb, 0, -1, ENC_NA);
+
+	/* if nanoBTS specific vendor messages are not enabled, skip */
+	if (!global_rsl_use_nano_bts) {
+		guint8 msg_disc = tvb_get_guint8(tvb, offset) >> 1;
+
+		if (msg_disc == RSL_MSGDISC_IPACCESS)
+			return;
+	}
         rsl_tree = proto_item_add_subtree(ti, ett_rsl);
 
         /* 9.1 Message discriminator */
         proto_tree_add_item(rsl_tree, hf_rsl_msg_dsc, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(rsl_tree, hf_rsl_T_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset++;
 
         offset = dissct_rsl_msg(tvb, pinfo, rsl_tree, offset);
 
@@ -3914,6 +4258,78 @@ void proto_register_rsl(void)
             FT_UINT8, BASE_DEC, VALS(rsl_emlpp_prio_vals), 0x03,
             NULL, HFILL }
         },
+		{ &hf_rsl_speech_mode_s,
+			{ "ip.access Speech Mode S", "rsl.ipacc.speech_mode_s",
+			  FT_UINT8, BASE_HEX, VALS(rsl_ipacc_spm_s_vals),
+			  0xf, NULL, HFILL }
+		},
+		{ &hf_rsl_speech_mode_m,
+			{ "ip.access Speech Mode M", "rsl.ipacc.speech_mode_m",
+			  FT_UINT8, BASE_HEX, VALS(rsl_ipacc_spm_m_vals),
+			  0xf0, NULL, HFILL }
+		},
+		{ &hf_rsl_conn_id,
+			{ "ip.access Connection ID",	"rsl.ipacc.conn_id",
+			  FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_rsl_rtp_payload,
+			{ "ip.access RTP Payload Type",	"rsl.ipacc.rtp_payload",
+			  FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_rsl_rtp_csd_fmt_d,
+			{ "ip.access RTP CSD Format D", "rsl.ipacc.rtp_csd_fmt_d",
+			  FT_UINT8, BASE_HEX, VALS(rsl_ipacc_rtp_csd_fmt_d_vals),
+			  0x0f, NULL, HFILL },
+		},
+		{ &hf_rsl_rtp_csd_fmt_ir,
+			{ "ip.access RTP CSD Format IR", "rsl.ipacc.rtp_csd_fmt_ir",
+			  FT_UINT8, BASE_HEX, VALS(rsl_ipacc_rtp_csd_fmt_ir_vals),
+			  0xf0, NULL, HFILL },
+		},
+		{ &hf_rsl_local_port,
+			{ "ip.access Local RTP Port",	"rsl.ipacc.local_port",
+			  FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL },
+		},
+		{ &hf_rsl_remote_port,
+			{ "ip.access Remote RTP Port",	"rsl.ipacc.remote_port",
+			  FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL },
+		},
+		{ &hf_rsl_local_ip,
+			{ "ip.access Local IP Address",	"rsl.ipacc.local_ip",
+			  FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL },
+		},
+		{ &hf_rsl_remote_ip,
+			{ "ip.access Remote IP Address", "rsl.ipacc.remote_ip",
+			  FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL },
+		},
+		{ &hf_rsl_cstat_tx_pkts,
+			{ "Packets Sent", "rsl.ipacc.cstat.tx_pkts",
+			  FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
+		},
+		{ &hf_rsl_cstat_tx_octs,
+			{ "Octets Sent", "rsl.ipacc.cstat.tx_octets",
+			  FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
+		},
+		{ &hf_rsl_cstat_rx_pkts,
+			{ "Packets Received", "rsl.ipacc.cstat.rx_pkts",
+			  FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
+		},
+		{ &hf_rsl_cstat_rx_octs,
+			{ "Octets Received", "rsl.ipacc.cstat.rx_octets",
+			  FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
+		},
+		{ &hf_rsl_cstat_lost_pkts,
+			{ "Packets Lost", "rsl.ipacc.cstat.lost_pkts",
+			  FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
+		},
+		{ &hf_rsl_cstat_ia_jitter,
+			{ "Inter-arrival Jitter", "rsl.ipacc.cstat.ia_jitter",
+			  FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
+		},
+		{ &hf_rsl_cstat_avg_tx_dly,
+			{ "Average Tx Delay", "rsl.ipacc.cstat.avg_tx_delay",
+			  FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
+		},
     };
     static gint *ett[] = {
         &ett_rsl,
@@ -3971,7 +4387,94 @@ void proto_register_rsl(void)
         &ett_ie_meas_res_no,
         &ett_ie_message_id,
         &ett_ie_sys_info_type,
+	&ett_ie_speech_mode,
+	&ett_ie_conn_id,
+	&ett_ie_remote_ip,
+	&ett_ie_remote_port,
+	&ett_ie_local_port,
+	&ett_ie_local_ip,
+	&ett_ie_rtp_payload,
     };
+	module_t *rsl_module;
+
+#define RSL_ATT_TLVDEF(_attr, _type, _fixed_len)		\
+	rsl_att_tlvdef.def[_attr].type = _type;			\
+	rsl_att_tlvdef.def[_attr].fixed_len = _fixed_len;	\
+
+	/* We register even the standard RSL IE TVLs here, not just the
+	 * ip.access vendor specific elements.  This is due to the fact that we
+	 * don't have any formal specification for the ip.access RSL dialect,
+	 * and this way any standard elements will be 'known' to the TLV
+	 * parser, which can then gracefully skip over such elements and
+	 * continue decoding the message.  This will work even if the switch
+	 * statement in dissct_rsl_ipaccess_msg() doesn't contain explicit code
+	 * to decode them (yet?).
+	 */
+	RSL_ATT_TLVDEF(RSL_IE_CH_NO,		TLV_TYPE_TV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_LINK_ID,		TLV_TYPE_TV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_ACT_TYPE,		TLV_TYPE_TV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_BS_POW,		TLV_TYPE_TV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_CH_ID,		TLV_TYPE_TLV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_CH_MODE,		TLV_TYPE_TLV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_ENC_INF,		TLV_TYPE_TLV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_FRAME_NO,		TLV_TYPE_FIXED,		2);
+	RSL_ATT_TLVDEF(RSL_IE_HO_REF,		TLV_TYPE_TV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_L1_INF,		TLV_TYPE_FIXED,		2);
+	RSL_ATT_TLVDEF(RSL_IE_L3_INF,		TLV_TYPE_TL16V,		0);
+	RSL_ATT_TLVDEF(RSL_IE_MS_ID,		TLV_TYPE_TLV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_MS_POW,		TLV_TYPE_TV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_PAGING_GRP,	TLV_TYPE_TV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_PAGING_LOAD,	TLV_TYPE_FIXED,		2);
+	RSL_ATT_TLVDEF(RSL_IE_PHY_CTX,		TLV_TYPE_TLV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_ACCESS_DELAY,	TLV_TYPE_TV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_RACH_LOAD,	TLV_TYPE_TLV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_REQ_REF,		TLV_TYPE_FIXED,		3);
+	RSL_ATT_TLVDEF(RSL_IE_REL_MODE,		TLV_TYPE_TV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_RESOURCE_INF,	TLV_TYPE_TLV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_RLM_CAUSE,	TLV_TYPE_TLV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_STARTING_TIME,	TLV_TYPE_FIXED,		2);
+	RSL_ATT_TLVDEF(RSL_IE_TIMING_ADV,	TLV_TYPE_TV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_UPLINK_MEAS,	TLV_TYPE_TLV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_CAUSE,		TLV_TYPE_TLV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_MEAS_RES_NO,	TLV_TYPE_TV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_MESSAGE_ID,	TLV_TYPE_TV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_SYS_INFO_TYPE,	TLV_TYPE_TV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_MS_POWER_PARAM,	TLV_TYPE_TLV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_BS_POWER_PARAM,	TLV_TYPE_TLV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_PREPROC_PARAM,	TLV_TYPE_TLV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_PREPROC_MEAS,	TLV_TYPE_TLV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_ERR_MSG,		TLV_TYPE_TLV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_FULL_BCCH_INF,	TLV_TYPE_TLV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_CH_NEEDED,	TLV_TYPE_TV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_CB_CMD_TYPE,	TLV_TYPE_TV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_SMSCB_MESS,	TLV_TYPE_TLV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_FULL_IMM_ASS_INF,	TLV_TYPE_TLV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_CBCH_LOAD_INF,	TLV_TYPE_TV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_SMSCB_CH_IND,	TLV_TYPE_TV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_GRP_CALL_REF,	TLV_TYPE_TLV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_CH_DESC,		TLV_TYPE_TLV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_NCH_DRX_INF,	TLV_TYPE_TLV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_CMD_IND,		TLV_TYPE_TLV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_EMLPP_PRIO,	TLV_TYPE_TV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_UIC,		TLV_TYPE_TLV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_MAIN_CH_REF,	TLV_TYPE_TV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_MULTIRATE_CONF,	TLV_TYPE_TLV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_MULTIRATE_CNTRL,	TLV_TYPE_TV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_SUP_CODEC_TYPES,	TLV_TYPE_TLV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_CODEC_CONF,	TLV_TYPE_TLV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_RTD,		TLV_TYPE_TV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_TFO_STATUS,	TLV_TYPE_TV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_LLP_APDU,		TLV_TYPE_TLV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_IPAC_REMOTE_IP,	TLV_TYPE_FIXED,		4);
+	RSL_ATT_TLVDEF(RSL_IE_IPAC_REMOTE_PORT,	TLV_TYPE_FIXED,		2);
+	RSL_ATT_TLVDEF(RSL_IE_IPAC_LOCAL_IP,	TLV_TYPE_FIXED,		4);
+	RSL_ATT_TLVDEF(RSL_IE_IPAC_CONN_STAT,	TLV_TYPE_TLV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_IPAC_LOCAL_PORT,	TLV_TYPE_FIXED,		2);
+	RSL_ATT_TLVDEF(RSL_IE_IPAC_SPEECH_MODE,	TLV_TYPE_TV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_IPAC_CONN_ID,	TLV_TYPE_FIXED,		2);
+	RSL_ATT_TLVDEF(RSL_IE_IPAC_RTP_PAYLOAD2,TLV_TYPE_TV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_IPAC_RTP_PAYLOAD, TLV_TYPE_TV,		0);
+	RSL_ATT_TLVDEF(RSL_IE_IPAC_RTP_CSD_FMT, TLV_TYPE_TV,		0);
 
     /* Register the protocol name and description */
     proto_rsl = proto_register_protocol("Radio Signalling Link (RSL)", "RSL", "rsl");
@@ -3981,6 +4484,11 @@ void proto_register_rsl(void)
 
     register_dissector("gsm_abis_rsl", dissect_rsl, proto_rsl);
 
+	rsl_module = prefs_register_protocol(proto_rsl, proto_reg_handoff_rsl);
+	prefs_register_bool_preference(rsl_module, "use_ipaccess_rsl",
+			"Use nanoBTS definitions",
+			"Use ipaccess nanoBTS specific definitions for RSL",
+			&global_rsl_use_nano_bts);
 }
 
 void
@@ -3997,4 +4505,3 @@ proto_reg_handoff_rsl(void)
     gsm_a_dtap_handle = find_dissector("gsm_a_dtap");
     gsm_a_sacch_handle = find_dissector("gsm_a_sacch");
 }
-
