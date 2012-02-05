@@ -1057,9 +1057,9 @@ install(
 	PATTERN "faq.py" EXCLUDE
 )
 
-message(STATUS "Debugging docdir install: ${DOC_DIR}")
 
-if(${DOC_DIR})
+if(DOC_DIR)
+	message(STATUS "Docdir install: ${DOC_DIR}")
 	INSTALL(
 		DIRECTORY
 			${CMAKE_BINARY_DIR}/docbook/
@@ -1069,7 +1069,7 @@ if(${DOC_DIR})
 			WORLD_EXECUTE WORLD_READ
 		DESTINATION
 			${DOC_DIR}/guides
-#		PATTERN "*.pdf" 
+		PATTERN "*.pdf"
 	)
 endif()
 
