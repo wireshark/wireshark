@@ -24,7 +24,7 @@
  */
 
 /*
- *	AASP over SIP 
+ *	AASP over SIP
  *	Content-Type: message/x-aasp-signalling
  */
 
@@ -139,7 +139,7 @@ static const value_string szCmdID[] =
  *	Dissect single command
  */
 static void
-dissect_a_binary_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_a_binary_command(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
     proto_item *ti;
     proto_tree *subtree;
@@ -227,7 +227,7 @@ dissect_a_binary_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             else
             {
                 proto_tree_add_item(subtree, hf_a_data, tvb, 1, -1, ENC_NA);
-            } 
+            }
             break;
         }
     case DATE_TIME_INFO:
@@ -407,7 +407,7 @@ dissect_aasp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_clear(pinfo->cinfo, COL_INFO);
     col_append_str(pinfo->cinfo, COL_PROTOCOL, "/AASP");
 
-    if(tree) 
+    if(tree)
     {
         guint i, prev;
 
@@ -423,7 +423,8 @@ dissect_aasp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 switch(tvb_get_guint8(tvb, i))
                 {
-                /*case CONTEXT_INFO:
+#if 0
+                case CONTEXT_INFO:
                     {
                         /* 86:02:00:02:00:23:04:00 * /
                         /* 86:02:00:12:00:23:04:00 * /
@@ -442,7 +443,8 @@ dissect_aasp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         case 0x02:  i +=  8; break;
                         }
                         break;
-                    }*/
+                    }
+#endif
                 default:	i = searchNext(tvb, i+1, n); break;
                 }
                 dissect_a_binary_command(tvb_new_subset(tvb, prev, i-prev, i-prev), pinfo, aasp_tree);
@@ -467,47 +469,47 @@ proto_register_aasp(void)
 
     /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
-        { &hf_a_data, 
+        { &hf_a_data,
           { "Data", "aasp.bin.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-        { &hf_a_cmd, 
+        { &hf_a_cmd,
           { "Bin Cmd", "aasp.a", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-        { &hf_a_id, 
+        { &hf_a_id,
           { "ID", "aasp.a.id", FT_UINT8, BASE_DEC, VALS(szCmdID), 0, NULL, HFILL }},
-        { &hf_a_length, 
+        { &hf_a_length,
           { "Length", "aasp.bin.length", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-        { &hf_a_text, 
+        { &hf_a_text,
           { "Text", "aasp.bin.text", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-        { &hf_a_line, 
+        { &hf_a_line,
           { "Line", "aasp.bin.line", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-        { &hf_a_cdpn, 
+        { &hf_a_cdpn,
           { "CDPN", "aasp.bin.cdpn", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-        { &hf_a_button_id, 
+        { &hf_a_button_id,
           { "Button ID", "aasp.bin.btnid", FT_UINT8, BASE_HEX_DEC, NULL, 0, NULL, HFILL }},
 
-        { &hf_a_attr, 
+        { &hf_a_attr,
           { "Attribute", "aasp.a.attr", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 
-        { &hf_a_item, 
+        { &hf_a_item,
           { "Info item", "aasp.bin.infoitem", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
-        { &hf_a_hour, 
+        { &hf_a_hour,
           { "Hour", "aasp.bin.hour", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-        { &hf_a_minute, 
+        { &hf_a_minute,
           { "Minute", "aasp.bin.minute", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-        { &hf_a_day, 
+        { &hf_a_day,
           { "Day", "aasp.bin.day", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-        { &hf_a_month, 
+        { &hf_a_month,
           { "Month", "aasp.bin.month", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-        { &hf_a_weekofyear, 
-          { "Week of the year", "aasp.bin.weekofyear", FT_UINT8, BASE_DEC, NULL, 0, 
+        { &hf_a_weekofyear,
+          { "Week of the year", "aasp.bin.weekofyear", FT_UINT8, BASE_DEC, NULL, 0,
             "Week number in the year", HFILL }},
-        { &hf_a_weekday, 
-          { "Weekday", "aasp.bin.weekday", FT_STRING, BASE_NONE, NULL, 0, 
+        { &hf_a_weekday,
+          { "Weekday", "aasp.bin.weekday", FT_STRING, BASE_NONE, NULL, 0,
             "Short weekday name in the PBX current language", HFILL }},
-        { &hf_a_month_name, 
-          { "Month name", "aasp.bin.monthname", FT_STRING, BASE_NONE, NULL, 0, 
+        { &hf_a_month_name,
+          { "Month name", "aasp.bin.monthname", FT_STRING, BASE_NONE, NULL, 0,
             "Short month name in the PBX current language", HFILL }},
-        { &hf_a_weekofyear_prefix, 
-          { "Week of the year prefix", "aasp.bin.weekofyearprefix", FT_STRING, BASE_NONE, NULL, 0, 
+        { &hf_a_weekofyear_prefix,
+          { "Week of the year prefix", "aasp.bin.weekofyearprefix", FT_STRING, BASE_NONE, NULL, 0,
             "Precedes the number on the screen which is the week number in year", HFILL }},
     };
 
