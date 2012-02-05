@@ -851,6 +851,7 @@ DISSECTOR_SRC = \
 	packet-reload-framing.c \
 	packet-retix-bpdu.c	\
 	packet-rfc2190.c	\
+	packet-rfid-felica.c	\
 	packet-rgmp.c		\
 	packet-rip.c		\
 	packet-ripng.c		\
