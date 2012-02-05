@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2012-01-20
+# 2012-02-02
 # 
 # Note
 # 
@@ -1314,8 +1314,10 @@ intecourier	495/tcp	# intecourier                  [Steve_Favor]                
 intecourier	495/udp	# intecourier                  [Steve_Favor]                             [Steve_Favor]
 pim-rp-disc	496/tcp	# PIM-RP-DISC                  [Dino_Farinacci]                          [Dino_Farinacci]
 pim-rp-disc	496/udp	# PIM-RP-DISC                  [Dino_Farinacci]                          [Dino_Farinacci]
-dantz	497/tcp	# dantz                        [Richard_Zulch]                           [Richard_Zulch]
-dantz	497/udp	# dantz                        [Richard_Zulch]                           [Richard_Zulch]
+retrospect	497/tcp	# Retrospect backup and        [Retrospect_Inc]                          [JG_Heithcock]                                                         2012-02-02
+# restore service
+retrospect	497/udp	# Retrospect backup and        [Retrospect_Inc]                          [JG_Heithcock]                                                         2012-02-02
+# restore service
 siam	498/tcp	# siam                         [Philippe_Gilbert]                        [Philippe_Gilbert]
 siam	498/udp	# siam                         [Philippe_Gilbert]                        [Philippe_Gilbert]
 iso-ill	499/tcp	# ISO ILL Protocol             [Mark_H_Needleman]                        [Mark_H_Needleman]
@@ -10094,7 +10096,10 @@ rsqlserver	4430/tcp	# REAL SQL Server              [Marco_Bambini]              
 rsqlserver	4430/udp	# REAL SQL Server              [Marco_Bambini]                           [Marco_Bambini]                                           2008-08-28
 wspipe	4431/tcp	# adWISE Pipe                  [Heikki_E]                                [Heikki_E]                                                2009-06-18
 # 4431        udp    Reserved
-# 4432-4440            Unassigned
+# 4432               Unassigned
+vop	4433/tcp	# Versile Object Protocol      [Versile_AS]                              [Tore_Skaug]                                              2012-02-01
+# 4433        udp    Reserved
+# 4434-4440            Unassigned
 # 4441        tcp    Reserved
 netblox	4441/udp	# Netblox Protocol             [Brian_S_Locke]                           [Brian_S_Locke]                                           2008-07-10
 saris	4442/tcp	# Saris
@@ -10265,7 +10270,7 @@ iax	4569/udp	# Inter-Asterisk eXchange      [Benjamin_Kowarsch]                 
 # All of these TXT record keys are optional, they may be
 # omitted. Further keys may be added in the future.
 # 4570-4589            Unassigned
-rid	4590/tcp	# RID over HTTP/TLS                                                                                                                                          [RFC6046]
+rid	4590/tcp	# RID over HTTP/TLS            [IESG]                                    [IETF_Chair]                                                                        [RFC-ietf-mile-rfc6046-bis-09]
 # 4590        udp    Reserved
 l3t-at-an	4591/tcp	# HRPD L3T (AT-AN)             [Avi_Lior]                                [Avi_Lior]                                                2009-02-27
 l3t-at-an	4591/udp	# HRPD L3T (AT-AN)             [Avi_Lior]                                [Avi_Lior]                                                2009-02-27
@@ -15155,7 +15160,10 @@ diamondport	33331/udp	# DiamondCentral Interface     [Edward_Browdy]            
 # 33332              Unassigned
 dgi-serv	33333/tcp	# Digital Gaslight Service     [George_Flanagin]                         [George_Flanagin]                                         2010-03-02
 # 33333       udp    Reserved
-# 33334-33433           Unassigned
+speedtrace	33334/tcp	# SpeedTrace TraceAgent        [Holger_Heinrich]                         [Holger_Heinrich]                                         2012-02-01
+speedtrace-disc	33334/udp	# SpeedTrace TraceAgent        [Holger_Heinrich]                         [Holger_Heinrich]                                         2012-02-01
+# Discovery
+# 33335-33433           Unassigned
 traceroute	33434/tcp	# traceroute use               [IANA]                                    [IANA]
 traceroute	33434/udp	# traceroute use               [IANA]                                    [IANA]
 # 33435-33655           Unassigned
@@ -16593,12 +16601,6 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # Control Protocol
 # z-wave                         tcp    Z-Wave Service Discovery     [Sigma_Designs_Inc]                       [Anders_Brandt_2]                                         2011-10-03                                                                              Defined TXT keys: NIF, EP, LM
 # z-wave                         udp    Z-Wave Service Discovery     [Sigma_Designs_Inc]                       [Anders_Brandt_2]                                         2011-10-03                                                                              Defined TXT keys: NIF, EP, LM
-# 
-# Footnotes
-# 
-# [1] It is only appropriate to use these values in explicitly-
-# configured experiments; they MUST NOT be shipped as defaults in
-# implementations.  See RFC 3692 for details.
 # 
 # People
 # 
@@ -18280,6 +18282,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # Development GmbH
 # [Hoa_Nguyen]                                              Hoa Nguyen                                      mailto:hoan&cup.hp.com
 # [Hokey_Stenn]                                             Hokey Stenn                                     mailto:hokey&plus5.com
+# [Holger_Heinrich]                                         Holger Heinrich                                 mailto:holger2222&googlemail.com                              2012-02-01
 # [Holger_Kruse]                                            Holger Kruse                                    mailto:holger&rebol.net
 # [Holger_Lochner]                                          Holger Lochner                                  mailto:holger.lochner&daimler.com                             2011-04-06
 # [Holger_Reif]                                             Holger Reif                                     mailto:Holger.Reif&prakinf.tu-ilmenau.de
@@ -18575,6 +18578,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Jesus_Ortiz]                                             Jesus Ortiz                                     mailto:jesus_ortiz&emotion.com
 # [Jesus_Ortiz_2]                                           Jesus Ortiz                                     mailto:Jesus_A._Ortiz&notes.emotion.com
 # [Jeurgen_Broesamle]                                       Jeurgen Broesamle                               mailto:juergb&bbn.hp.com
+# [JG_Heithcock]                                            JG Heithcock              Retrospect, Inc.      mailto:JG.Heithcock&retrospect.com                            2012-02-02
 # [Jian_Fan]                                                Jian Fan                                        mailto:fjian&dmfsys.com                                       2002-02
 # [Jilles_Oldenbeuving]                                     Jilles Oldenbeuving                             mailto:ojilles&hotmail.com                                    2002-06
 # [Jim_Baldridge]                                           Jim Baldridge                                   mailto:jimb&rpower.com
@@ -20055,6 +20059,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Rene_Jager]                                              Rene Jager                                      mailto:renej&frog.nl
 # [Rene_Kurt]                                               Rene Kurt                                       mailto:rene.kurt&adasoft.ch                                   2005-08
 # [Resource_Allocation]                                     Resource Allocation Team                        mailto:resources&littlehall.com                               2010-09-27
+# [Retrospect_Inc]                                                                    Retrospect, Inc.      mailto:JG.Heithcock&retrospect.com                            2012-02-02
 # [Reuven_Harrison]                                         Reuven Harrison                                 mailto:rnd_ana&checkpoint.com
 # [Reuven_Harrison_2]                                       Reuven Harrison                                 mailto:rharrison&checkpoint.com                               2003-01
 # [Reyk_Floeter]                                            Reyk Floeter                                    mailto:reyk&vantronix.net                                     2008-02-27
@@ -20096,7 +20101,6 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Richard_Thurman]                                         Richard Thurman                                 mailto:richt&fireking.com                                     2003-04
 # [Richard_Walters]                                         Richard Walters                                 mailto:walters&cs.ucdavis.edu
 # [Richard_Warren]                                          Richard Warren                                  mailto:richard&cambridgepixel.com                             2008-09-17
-# [Richard_Zulch]                                           Richard Zulch                                   mailto:richard_zulch&dantz.com
 # [Richard_de_Mornay]                                       Richard de Mornay                               mailto:rdemornay&norton-lambert.com
 # [Rick_Adams]                                              Rick Adams                                      mailto:rick&uunet.uu.net
 # [Rick_Carlos]                                             Rick Carlos                                     mailto:rick&ticipa.csc.ti.com
@@ -20905,6 +20909,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Tony_Walker]                                             Tony Walker                                     mailto:tony&cryptocard.com
 # [Tony_de_Rijk]                                            Tony de Rijk                                    mailto:idotechnology&mac.com
 # [Tor_Slettnes]                                            Tor Slettnes                                    mailto:slettntn&appliedbiosystems.com
+# [Tore_Skaug]                                              Tore Skaug                Versile AS            mailto:tore.skaug&versile.com                                 2012-02-01
 # [Torsten_Rendelmann]                                      Torsten Rendelmann                              mailto:torsten.rendelmann&procos.com
 # [Torsten_Scheffler]                                       Torsten Scheffler                               mailto:pdnetadmin&pdnet.info
 # [Toru_Murai]                                              Toru Murai                                      mailto:murai&saint.nm.fujitsu.co.jp
@@ -20973,6 +20978,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Ventureforth_Inc]                                                                  Ventureforth Inc.     mailto:support&ventureforth.com                               2011-11-03
 # [Vera_Heinau]                                             Vera Heinau                                     mailto:heinau&fu-berlin.de
 # [Verek]                                                   Verek                                           mailto:info&verek.com
+# [Versile_AS]                                                                        Versile AS            mailto:contact&versile.com                                    2012-02-01
 # [Vick_Keshishian]                                         Vick Keshishian                                 mailto:vickenK&192.219.82.71
 # [Victor_Galis]                                            Victor Galis                                    mailto:galis&satchmo.virtualprototypes.ca
 # [Victor_Griswold]                                         Victor Griswold                                 mailto:vgris&aironet.com
@@ -21160,4 +21166,10 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [mackin]                                                                                                  mailto:mackin&us.oracle.com
 # [naonao]                                                                                                  mailto:naonao&kikaku.mmp.fujitsu.co.jp
 # [sn_w_of_renegade_lab]                                                              sn0w of renegade labs mailto:sn0w&devious.tsongkie.com                              2003-11
+# 
+# Footnote
+# 
+# [1] It is only appropriate to use these values in explicitly-
+# configured experiments; they MUST NOT be shipped as defaults in
+# implementations.  See RFC 3692 for details.
 
