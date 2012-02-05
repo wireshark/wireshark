@@ -293,6 +293,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-6lowpan.c
 	dissectors/packet-9p.c
 	dissectors/packet-aarp.c
+	dissectors/packet-aastra-aasp.c
 	dissectors/packet-acap.c
 	dissectors/packet-acn.c
 	dissectors/packet-actrace.c
