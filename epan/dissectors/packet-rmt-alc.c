@@ -284,4 +284,5 @@ void proto_register_alc(void)
 	module = prefs_register_protocol(proto, proto_reg_handoff_alc);
 	alc_prefs_register(&preferences, module);
 
+	register_dissector("alc", dissect_alc, proto);
 }
