@@ -592,6 +592,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-ftp.c
 	dissectors/packet-fw1.c
 	dissectors/packet-g723.c
+	dissectors/packet-gadu-gadu.c
 	dissectors/packet-gdsdb.c
 	dissectors/packet-gift.c
 	dissectors/packet-giop.c

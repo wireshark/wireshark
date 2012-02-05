@@ -511,6 +511,7 @@ DISSECTOR_SRC = \
 	packet-ftp.c		\
 	packet-fw1.c		\
 	packet-g723.c		\
+	packet-gadu-gadu.c	\
 	packet-gdsdb.c		\
 	packet-gift.c		\
 	packet-giop.c		\
