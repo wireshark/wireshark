@@ -65,47 +65,41 @@ dissect_goose(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 	int offset = 0;
 	int old_offset;
-	guint16 data;
+	guint16 length;
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	asn1_ctx_t asn1_ctx;
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
-	if (parent_tree){
-		item = proto_tree_add_item(parent_tree, proto_goose, tvb, 0, -1, ENC_NA);
-		tree = proto_item_add_subtree(item, ett_goose);
-	}
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, PNAME);
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	/* APPID */
-	if (tree && tvb_reported_length_remaining(tvb, offset) >= 2) {
-		data = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_uint(tree, hf_goose_appid, tvb, offset, 2, data);
-	}
-	/* Length */
-	if (tree && tvb_reported_length_remaining(tvb, offset) >= 4) {
-		data = tvb_get_ntohs(tvb, offset + 2);
-		proto_tree_add_uint(tree, hf_goose_length, tvb, offset + 2, 2, data);
-	}
-	/* Reserved 1 */
-	if (tree && tvb_reported_length_remaining(tvb, offset) >= 6) {
-		data = tvb_get_ntohs(tvb, offset + 4);
-		proto_tree_add_uint(tree, hf_goose_reserve1, tvb, offset + 4, 2, data);
-	}
-	/* Reserved 2 */
-	if (tree && tvb_reported_length_remaining(tvb, offset) >= 8) {
-		data = tvb_get_ntohs(tvb, offset + 6);
-		proto_tree_add_uint(tree, hf_goose_reserve2, tvb, offset + 6, 2, data);
-	}
+	if (parent_tree){
+		item = proto_tree_add_item(parent_tree, proto_goose, tvb, 0, -1, ENC_NA);
+		tree = proto_item_add_subtree(item, ett_goose);
 
-	offset = 8;
-	while (tree && tvb_reported_length_remaining(tvb, offset) > 0){
-		old_offset = offset;
-		offset = dissect_goose_GOOSEpdu(FALSE, tvb, offset, &asn1_ctx , tree, -1);
-		if (offset == old_offset) {
-			proto_tree_add_text(tree, tvb, offset, -1, "Internal error, zero-byte GOOSE PDU");
-			break;
+
+		/* APPID */
+		proto_tree_add_item(tree, hf_goose_appid, tvb, offset, 2, ENC_BIG_ENDIAN);
+
+		/* Length */
+		length = tvb_get_ntohs(tvb, offset + 2);
+		proto_tree_add_item(tree, hf_goose_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+
+		/* Reserved 1 */
+		proto_tree_add_item(tree, hf_goose_reserve1, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
+
+		/* Reserved 2 */
+		proto_tree_add_item(tree, hf_goose_reserve2, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
+
+		offset = 8;
+		while (offset < length){
+			old_offset = offset;
+			offset = dissect_goose_GOOSEpdu(FALSE, tvb, offset, &asn1_ctx , tree, -1);
+			if (offset == old_offset) {
+				proto_tree_add_text(tree, tvb, offset, -1, "Internal error, zero-byte GOOSE PDU");
+				return;
+			}
 		}
 	}
 }
