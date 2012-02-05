@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2012-01-28)
+(last updated 2012-02-04)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -7376,7 +7376,7 @@ Decimal
 1840
   Inmarsat
     Steve Cox
-      steve_cox&inmarsat.com
+      steve.cox&inmarsat.com
 1841
   TIMS Technology Ltd
     Oliver Goh
@@ -12643,8 +12643,8 @@ Decimal
       rd2mahhs&maspro.co.jp
 3159
   Utimaco Safeware AG
-    Frederik Loeckx
-      frederik.loeckx&utimaco.de
+    Dieter Bong
+      dieter.bong&utimaco.de
 3160
   Financial Information System Center (FISC)
     Thomson Hsu
@@ -56180,8 +56180,8 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
       jm.mesona&til-technologies.fr
 14156
   University of Reading
-    Bob Franklin
-      hostmaster&reading.ac.uk
+    Andy Gatward
+      noc&reading.ac.uk
 14157
   FHLBank Topeka
     John Thompson
@@ -107260,8 +107260,8 @@ Institute
       Domenico.Rotondi&TXTGroup.Com
 26921
   MPI for Mathematics
-    Fabian Urhausen
-      urhausen&mpim-bonn.mpg.de
+    Willy Tegast
+      pen-contact&mpim-bonn.mpg.de
 26922
   TD2 Consulting, LLC
     Trey Drake
@@ -110195,9 +110195,9 @@ Decentralization / Helenic Public Administra
     Josh Forester
       josh.iana.org&myrunning.com
 27654
-  Involve Ltd.
+  Tain Malta Ltd. (previously was 'Involve Ltd.')
     Hans Engren
-      hans.engren&involve.com.mt
+      noc&tain.com
 27655
   IFP
     Rainer Faulstich
@@ -156571,9 +156571,9 @@ Decentralization / Helenic Public Administra
     Tobias Mucke
       tobias.mucke&mbda-systems.de
 39247
-  Imalogix
+  medInt Holdings LLC (previous was 'Imalogix')
     David Naylor
-      David.Naylor&imalogix.com
+      david.naylor&mihllc.com
 39248
   STEC
     Swapna Yasarapu
@@ -156858,6 +156858,162 @@ Decentralization / Helenic Public Administra
   QUALIS AUDIO, INC.
     RICHARD CABOT
       snmp&qualisaudio.com
+39319
+  mr-brooks.com
+    Darren Brooks
+      contact&mr-brooks.com
+39320
+  Canada Revenue Agency
+    Nicolas Tolstoy
+      Nicolas.Tolstoy&cra-arc.gc.ca
+39321
+  Schooneman.net
+    Ivo Schooneman
+      ivo&schooneman.net
+39322
+  Champlain Valley Physicians Hospital Medical Center
+    Kelly Ahern
+      kahern&cvph.org
+39323
+  E2E4 TECHNOLOGIES
+    VENKATASIVAKUMAR BOYALAKUNTLA
+      shiva&e2e4tech.com
+39324
+  OS NEXUS, Inc
+    Steven Umbehocker
+      steve&osnexus.com
+39325
+  SecuAvail, Inc.
+    Kenji Matsuura
+      matsuura&secuavail.com
+39326
+  University of Neuchatel
+    Antoine Jacot-Descombes
+      antoine.jacot-descombes&unine.ch
+39327
+  ID Cyber-Identity Ltd
+    Adrian Mueller
+      info&cyber-identity.com
+39328
+  SeaWell Networks
+    Ram Ranganathan
+      ramr&seawellnetworks.com
+39329
+  Lesley University
+    Scott Bendekgey
+      sbendekg&lesley.edu
+39330
+  Dalian Jinghaofeng Techbology Co., Ltd
+    John Terry
+      yujinjun5&126.com
+39331
+  SurGATE Labs
+    ismail yenigul
+      ismail.yenigul&surgate.com
+39332
+  Zuercher Lehrbetriebsverband ICT
+    Primus Hofmann
+      technik&zli.ch
+39333
+  m3 bauprojektmanagement gmbh
+    Joachim Konetzki
+      joachim.konetzki&m3-gmbh.de
+39334
+  RADMOR S.A.
+    Marcin Lewandowski
+      marcin.lewandowski&radmor.com.pl
+39335
+  basis Volume Limited
+    Dr Charlton Tavares
+      cptavares&btconnect.com
+39336
+  Kraus
+    Christian Kraus
+      uni&christiankraus.de
+39337
+  Elephant Bird Consulting
+    Tom Geudens
+      tom.geudens&hush.ai
+39338
+  Operate4all
+    Rene Stoutjesdijk
+      r.stoutjesdijk&operate4all.eu
+39339
+  Bagsbug
+    Agnes FENAUX
+      agnes.fenaux&bagsbug.net
+39340
+  Kingsbrook Jewish Medical Center
+    Melissa Gonzalez
+      MGonzalez&kingsbrook.org
+39341
+  Soifdinfo
+    Kpama Frédéric
+      contact&soifdinfo.fr
+39342
+  CSF Sistemi S.r.l.
+    Marco De Lellis
+      marco.delellis&gruppocsf.com
+39343
+  Vennetics Limited
+    Ivan McShane
+      ivan.mcshane&vennetics.com
+39344
+  NextNav, LLC
+    Frank Patry
+      it&nextnav.com
+39345
+  ConCen
+    Tom Potts
+      yeti&concen.org
+39346
+  Communaute d'agglomeration Herault Mediterranee
+    Laurent Miserey
+      l.miserey&agglohm.net
+39347
+  LeoNux
+    Leon Baker
+      leon&leonux.co.za
+39348
+  Hochschule für Telekommunikaton Leipzig
+    Haiko Wolf
+      wolf&hft-leipzig.de
+39349
+  National Observatory of Athens
+    Nikolaos Milas
+      nmilas&noa.gr
+39350
+  SuperNAS
+    Eric de Hooge
+      ericdehooge&supernas.eu
+39351
+  Voxbone SA
+    Laurent JARBINET
+      laurent&voxbone.com
+39352
+  Adirondack Community College
+    Bryan Goodwin
+      goodwinb&sunyacc.edu
+39353
+  Biogen Idec
+    Aldrin Carao
+      Aldrin.Carao&biogenidec.com
+39354
+  Oceus Networks, Inc.
+    Kevin Stiles
+      kstiles&oceusnetworks.com
+39355
+  Jeanes Hospital
+    Andrew Gavin
+      andy.gavin&tuhs.temple.edu
+39356
+  Showa University
+    Hiromasa Inoue
+      itcenter&ic.showa-u.ac.jp
+39357
+  INSTITUTO FEDERAL DO CEARÁ - IFCE
+    Antonio Rodrigo dos Santos Silva
+      rodrigosantos&ifce.edu.br
 
 
 End of Document
