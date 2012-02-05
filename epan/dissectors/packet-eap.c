@@ -738,7 +738,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tree)
       proto_tree_add_uint(eap_tree, hf_eap_type, tvb, 4, 1, eap_type);
 
-    if (len > 5) {
+    if (len > 5 || (len == 5 && eap_type == EAP_TYPE_ID)) {
       int     offset = 5;
       gint    size   = len - offset;
 
@@ -752,8 +752,10 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			      size, plurality(size, "", "s"),
 			      tvb_format_text(tvb, offset, size));
          }
-	if(!pinfo->fd->flags.visited)
+	if(!pinfo->fd->flags.visited) {
 	  conversation_state->leap_state = 0;
+	  conversation_state->eap_tls_seq = -1;
+	}
 	break;
 
       /*********************************************************************
@@ -816,6 +818,8 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	more_fragments = test_flag(flags,EAP_TLS_FLAG_M);
 	has_length = test_flag(flags,EAP_TLS_FLAG_L);
+	if (test_flag(flags,EAP_TLS_FLAG_S)) 
+		conversation_state->eap_tls_seq = -1;
 
 	/* Flags field, 1 byte */
 	if (tree) {
