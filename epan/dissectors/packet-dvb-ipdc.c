@@ -64,16 +64,16 @@ dissect_ipdc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* call into flute */
 	len = tvb_reported_length_remaining(tvb, 0);
 
+/* FIXME: make proper use of esg_tree, everythign else is a logic bug */
 	if (tree) {
-		proto_item *ti;
-		proto_tree *esg_tree;
+		/* proto_item *ti; */
+		/* proto_tree *esg_tree; */
 
-		ti = proto_tree_add_protocol_format(tree, proto_ipdc,
+		/* ti = */ proto_tree_add_protocol_format(tree, proto_ipdc,
 				tvb, 0, len,
 				"ESG Bootstrap");
-		esg_tree = proto_item_add_subtree(ti, ett_ipdc);
+		/* esg_tree = proto_item_add_subtree(ti, ett_ipdc); */
 	}
-
 
 	next_tvb = tvb_new_subset(tvb, 0, len, len);
 	call_dissector(sub_handles[SUB_FLUTE], next_tvb, pinfo, tree);
