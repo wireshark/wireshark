@@ -192,6 +192,7 @@ typedef struct
 {
   guint8     bits;
   guint8     value;
+  gboolean   keep_bits;
   CSN_DESCR descr;
 } CSN_ChoiceElement_t;
 
@@ -457,6 +458,18 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
         {CSN_TYPE, 0, {(void*)CSNDESCR_##_MEMBER_TYPE}, offsetof(_STRUCT, _MEMBER), FALSE, #_MEMBER, {(StreamSerializeFcn_t)0}}
 
 /******************************************************************************
+ * M_TYPE_LABEL(Par1, Par2, Par3, Par4)
+ * Same as M_TYPE but allows to define a custom string for the subtree
+ * <list> ::= {1 <type>} ** 0 ;
+ *      Par1: C structure name
+ *      Par2: C structure element name
+ *      Par3: type of member
+ *      Par4: C string for the text
+ *****************************************************************************/
+#define M_TYPE_LABEL(_STRUCT, _MEMBER, _MEMBER_TYPE, _LABEL)\
+        {CSN_TYPE, 0, {(void*)CSNDESCR_##_MEMBER_TYPE}, offsetof(_STRUCT, _MEMBER), FALSE, _LABEL, {(StreamSerializeFcn_t)0}}
+
+/******************************************************************************
  * M_UNION(Par1, Par2)
  * Informs the CSN.1 library that a union follows and how many possible choices
  * there are in the union. The actual value of the choice, which points out the
@@ -506,16 +519,36 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
         {CSN_CHOICE, _ElementCount, {(void*)_CHOICE}, offsetof(_STRUCT, _MEMBER), FALSE, #_CHOICE, {(StreamSerializeFcn_t)0}}
 
 /******************************************************************************
+ * M_CHOICE_IL(Par1, Par2, Par3, Par4)
+ * See M_CHOICE above, but displayed inline (i.e. no specific elements are
+ * displayed to show there was a choice
+ *****************************************************************************/
+#define M_CHOICE_IL(_STRUCT, _MEMBER, _CHOICE, _ElementCount)\
+	{CSN_CHOICE, _ElementCount, {(void*)_CHOICE}, offsetof(_STRUCT, _MEMBER), FALSE, NULL, {(StreamSerializeFcn_t)0}}
+
+/******************************************************************************
  * M_FIXED(Par1, Par2, Par3)
  * Defines a fixed value of type integer which should be fetched from or stored 
  * in  the message
  *      Par1: C structure name
  *      Par2: gives the length of the fixed number in bits.
  *      Par3: the value of the number. If the expected value is not present in 
-*             the message the unpacking procedure is aborted
+ *            the message the unpacking procedure is aborted
  *****************************************************************************/
 #define M_FIXED(_STRUCT, _BITS, _BITVALUE)\
         {CSN_FIXED, _BITS, {0}, _BITVALUE, FALSE, #_BITVALUE, {(StreamSerializeFcn_t)0}}
+
+/******************************************************************************
+ * M_FIXED_LABEL(Par1, Par2, Par3, Par4)
+ * Same as M_FIXED but allows to define a custom string for the subtree
+ *      Par1: C structure name
+ *      Par2: gives the length of the fixed number in bits.
+ *      Par3: the value of the number. If the expected value is not present in 
+ *            the message the unpacking procedure is aborted
+ *      Par4: C string for the text
+ *****************************************************************************/
+#define M_FIXED_LABEL(_STRUCT, _BITS, _BITVALUE, _LABEL)\
+	{CSN_FIXED, _BITS, {0}, _BITVALUE, FALSE, _LABEL, {(StreamSerializeFcn_t)0}}
 
 /******************************************************************************
  * M_SERIALIZE(Par1, Par2, Par3)
