@@ -17,6 +17,9 @@
  * Support for Huawei SMPP+ extensions
  * introduced by Xu Bo and enhance by Abhik Sarkar
  *
+ * Enhanced error code handling
+ * provided by Stipe Tolj from Kannel.
+ *
  * $Id$
  *
  * Refer to the AUTHORS file or the AUTHORS section in the man page
@@ -410,6 +413,16 @@ static const value_string vals_command_status[] = {     /* Status       */
     { 0x00000111, "Broadcast Service Group is invalid." },
     { 0x00000112, "Broadcast Channel Indicator is invalid." },
     { 0, NULL }
+};
+
+static const range_string reserved_command_status[] = {     /* Reserved ranges */
+    { 0x00000016, 0x00000032, "[Reserved]" },
+    { 0x00000035, 0x0000003F, "[Reserved]" },
+    { 0x00000068, 0x000000BF, "[Reserved]" },
+    { 0x000000C5, 0x000000FD, "[Reserved]" },
+    { 0x00000400, 0x000004FF, "[Message center vendor-specific error code]" },
+    { 0x00000500, 0xFFFFFFFF, "[Reserved]" },
+    { 0, 0, NULL }
 };
 
 static const value_string vals_tlv_tags[] = {
@@ -2330,7 +2343,7 @@ huawei_sm_result_notify_resp(proto_tree *tree, tvbuff_t *tvb)
  *      at least the fixed header is there
  *      it has a correct overall PDU length
  *      it is a 'well-known' operation
- *      has a 'well-known' status
+ *      has a 'well-known' or 'reserved' status
  */
 static gboolean
 dissect_smpp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -2348,7 +2361,8 @@ dissect_smpp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (match_strval(command_id, vals_command_id) == NULL)
         return FALSE;
     command_status = tvb_get_ntohl(tvb, 8);     /* ..with known status  */
-    if (match_strval(command_status, vals_command_status) == NULL)
+    if (match_strval(command_status, vals_command_status) == NULL &&
+    		match_strrval(command_status, reserved_command_status) == NULL)
         return FALSE;
     dissect_smpp(tvb, pinfo, tree);
     return TRUE;
@@ -2433,8 +2447,14 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += 4;
     command_status = tvb_get_ntohl(tvb, offset);
     if (command_id & 0x80000000) {
-        command_status_str = val_to_str(command_status, vals_command_status,
-                "(Reserved Error 0x%08X)");
+        /* PDU is a response. */
+    	command_status_str = match_strval(command_status, vals_command_status);
+    	if (command_status_str == NULL) {
+    		/* Check if the reserved value is in the vendor-specific range. */
+    		command_status_str = (command_status >= 0x400 && command_status <= 0x4FF ?
+    				ep_strdup_printf("Vendor-specific Error (0x%08X)", command_status) :
+    				ep_strdup_printf("(Reserved Error 0x%08X)", command_status));
+    	}
     }
     offset += 4;
     sequence_number = tvb_get_ntohl(tvb, offset);
