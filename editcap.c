@@ -12,11 +12,6 @@
 #include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdarg.h>
-
 /*
  * Just make sure we include the prototype for strptime as well
  * (needed for glibc 2.2) but make sure we do this only if not
@@ -26,9 +21,13 @@
 #ifndef __USE_XOPEN
 #  define __USE_XOPEN
 #endif
+#ifndef _XOPEN_SOURCE
+#  define _XOPEN_SOURCE
+#endif
 
 #include <time.h>
 #include <glib.h>
+#include <glib/gprintf.h>
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -196,7 +195,7 @@ fileset_extract_prefix_suffix(const char *fname, gchar **fprefix, gchar **fsuffi
 
     save_file = g_strdup(fname);
     if (save_file == NULL) {
-      fprintf(stderr, "editcap: Out of memory\n");
+      g_fprintf(stderr, "editcap: Out of memory\n");
       return FALSE;
     }
 
@@ -236,32 +235,32 @@ add_selection(char *sel)
 
   if (++max_selected >= MAX_SELECTIONS) {
     /* Let the user know we stopped selecting */
-    printf("Out of room for packet selections!\n");
+    g_print("Out of room for packet selections!\n");
     return(FALSE);
   }
 
-  printf("Add_Selected: %s\n", sel);
+  g_printf("Add_Selected: %s\n", sel);
 
   if ((locn = strchr(sel, '-')) == NULL) { /* No dash, so a single number? */
 
-    printf("Not inclusive ...");
+    g_print("Not inclusive ...");
 
     selectfrm[max_selected].inclusive = 0;
     selectfrm[max_selected].first = atoi(sel);
 
-    printf(" %i\n", selectfrm[max_selected].first);
+    g_printf(" %i\n", selectfrm[max_selected].first);
 
   }
   else {
 
-    printf("Inclusive ...");
+    g_print("Inclusive ...");
 
     next = locn + 1;
     selectfrm[max_selected].inclusive = 1;
     selectfrm[max_selected].first = atoi(sel);
     selectfrm[max_selected].second = atoi(next);
 
-    printf(" %i, %i\n", selectfrm[max_selected].first, selectfrm[max_selected].second);
+    g_printf(" %i, %i\n", selectfrm[max_selected].first, selectfrm[max_selected].second);
 
   }
 
@@ -328,12 +327,12 @@ set_time_adjustment(char *optarg_str_p)
   } else {
       val = strtol(optarg_str_p, &frac, 10);
       if (frac == NULL || frac == optarg_str_p || val == LONG_MIN || val == LONG_MAX) {
-          fprintf(stderr, "editcap: \"%s\" isn't a valid time adjustment\n",
+          g_fprintf(stderr, "editcap: \"%s\" isn't a valid time adjustment\n",
                   optarg_str_p);
           exit(1);
       }
       if (val < 0) {            /* implies '--' since we caught '-' above  */
-          fprintf(stderr, "editcap: \"%s\" isn't a valid time adjustment\n",
+          g_fprintf(stderr, "editcap: \"%s\" isn't a valid time adjustment\n",
                   optarg_str_p);
           exit(1);
       }
@@ -350,7 +349,7 @@ set_time_adjustment(char *optarg_str_p)
     }
     if (*frac != '.' || end == NULL || end == frac
         || val < 0 || val > ONE_MILLION || val == LONG_MIN || val == LONG_MAX) {
-      fprintf(stderr, "editcap: \"%s\" isn't a valid time adjustment\n",
+      g_fprintf(stderr, "editcap: \"%s\" isn't a valid time adjustment\n",
               optarg_str_p);
       exit(1);
     }
@@ -403,12 +402,12 @@ set_strict_time_adj(char *optarg_str_p)
   } else {
       val = strtol(optarg_str_p, &frac, 10);
       if (frac == NULL || frac == optarg_str_p || val == LONG_MIN || val == LONG_MAX) {
-          fprintf(stderr, "editcap: \"%s\" isn't a valid time adjustment\n",
+          g_fprintf(stderr, "editcap: \"%s\" isn't a valid time adjustment\n",
                   optarg_str_p);
           exit(1);
       }
       if (val < 0) {            /* implies '--' since we caught '-' above  */
-          fprintf(stderr, "editcap: \"%s\" isn't a valid time adjustment\n",
+          g_fprintf(stderr, "editcap: \"%s\" isn't a valid time adjustment\n",
                   optarg_str_p);
           exit(1);
       }
@@ -425,7 +424,7 @@ set_strict_time_adj(char *optarg_str_p)
     }
     if (*frac != '.' || end == NULL || end == frac
         || val < 0 || val > ONE_MILLION || val == LONG_MIN || val == LONG_MAX) {
-      fprintf(stderr, "editcap: \"%s\" isn't a valid time adjustment\n",
+      g_fprintf(stderr, "editcap: \"%s\" isn't a valid time adjustment\n",
               optarg_str_p);
       exit(1);
     }
@@ -473,12 +472,12 @@ set_rel_time(char *optarg_str_p)
   } else {
       val = strtol(optarg_str_p, &frac, 10);
       if (frac == NULL || frac == optarg_str_p || val == LONG_MIN || val == LONG_MAX) {
-          fprintf(stderr, "1: editcap: \"%s\" isn't a valid rel time value\n",
+          g_fprintf(stderr, "1: editcap: \"%s\" isn't a valid rel time value\n",
                   optarg_str_p);
           exit(1);
       }
       if (val < 0) {            /* implies '--' since we caught '-' above  */
-          fprintf(stderr, "2: editcap: \"%s\" isn't a valid rel time value\n",
+          g_fprintf(stderr, "2: editcap: \"%s\" isn't a valid rel time value\n",
                   optarg_str_p);
           exit(1);
       }
@@ -495,7 +494,7 @@ set_rel_time(char *optarg_str_p)
     }
     if (*frac != '.' || end == NULL || end == frac
         || val < 0 || val > ONE_BILLION || val == LONG_MIN || val == LONG_MAX) {
-      fprintf(stderr, "3: editcap: \"%s\" isn't a valid rel time value\n",
+      g_fprintf(stderr, "3: editcap: \"%s\" isn't a valid rel time value\n",
               optarg_str_p);
       exit(1);
     }
@@ -667,75 +666,75 @@ usage(gboolean is_error)
     " (" SVNVERSION " from " SVNPATH ")"
 #endif
     "\n", VERSION);
-  fprintf(output, "Edit and/or translate the format of capture files.\n");
-  fprintf(output, "See http://www.wireshark.org for more information.\n");
-  fprintf(output, "\n");
-  fprintf(output, "Usage: editcap [options] ... <infile> <outfile> [ <packet#>[-<packet#>] ... ]\n");
-  fprintf(output, "\n");
-  fprintf(output, "<infile> and <outfile> must both be present.\n");
-  fprintf(output, "A single packet or a range of packets can be selected.\n");
-  fprintf(output, "\n");
-  fprintf(output, "Packet selection:\n");
-  fprintf(output, "  -r                     keep the selected packets; default is to delete them.\n");
-  fprintf(output, "  -A <start time>        only output packets whose timestamp is after (or equal\n");
-  fprintf(output, "                         to) the given time (format as YYYY-MM-DD hh:mm:ss).\n");
-  fprintf(output, "  -B <stop time>         only output packets whose timestamp is before the\n");
-  fprintf(output, "                         given time (format as YYYY-MM-DD hh:mm:ss).\n");
-  fprintf(output, "\n");
-  fprintf(output, "Duplicate packet removal:\n");
-  fprintf(output, "  -d                     remove packet if duplicate (window == %d).\n", DEFAULT_DUP_DEPTH);
-  fprintf(output, "  -D <dup window>        remove packet if duplicate; configurable <dup window>\n");
-  fprintf(output, "                         Valid <dup window> values are 0 to %d.\n", MAX_DUP_DEPTH);
-  fprintf(output, "                         NOTE: A <dup window> of 0 with -v (verbose option) is\n");
-  fprintf(output, "                         useful to print MD5 hashes.\n");
-  fprintf(output, "  -w <dup time window>   remove packet if duplicate packet is found EQUAL TO OR\n");
-  fprintf(output, "                         LESS THAN <dup time window> prior to current packet.\n");
-  fprintf(output, "                         A <dup time window> is specified in relative seconds\n");
-  fprintf(output, "                         (e.g. 0.000001).\n");
-  fprintf(output, "\n");
-  fprintf(output, "           NOTE: The use of the 'Duplicate packet removal' options with\n");
-  fprintf(output, "           other editcap options except -v may not always work as expected.\n");
-  fprintf(output, "           Specifically the -r, -t or -S options will very likely NOT have the\n");
-  fprintf(output, "           desired effect if combined with the -d, -D or -w.\n");
-  fprintf(output, "\n");
-  fprintf(output, "Packet manipulation:\n");
-  fprintf(output, "  -s <snaplen>           truncate each packet to max. <snaplen> bytes of data.\n");
-  fprintf(output, "  -C <choplen>           chop each packet by <choplen> bytes. Positive values\n");
-  fprintf(output, "                         chop at the packet beginning, negative values at the\n");
-  fprintf(output, "                         packet end.\n");
-  fprintf(output, "  -t <time adjustment>   adjust the timestamp of each packet;\n");
-  fprintf(output, "                         <time adjustment> is in relative seconds (e.g. -0.5).\n");
-  fprintf(output, "  -S <strict adjustment> adjust timestamp of packets if necessary to insure\n");
-  fprintf(output, "                         strict chronological increasing order. The <strict\n");
-  fprintf(output, "                         adjustment> is specified in relative seconds with\n");
-  fprintf(output, "                         values of 0 or 0.000001 being the most reasonable.\n");
-  fprintf(output, "                         A negative adjustment value will modify timestamps so\n");
-  fprintf(output, "                         that each packet's delta time is the absolute value\n");
-  fprintf(output, "                         of the adjustment specified. A value of -0 will set\n");
-  fprintf(output, "                         all packets to the timestamp of the first packet.\n");
-  fprintf(output, "  -E <error probability> set the probability (between 0.0 and 1.0 incl.)\n");
-  fprintf(output, "                         that a particular packet byte will be randomly changed.\n");
-  fprintf(output, "\n");
-  fprintf(output, "Output File(s):\n");
-  fprintf(output, "  -c <packets per file>  split the packet output to different files\n");
-  fprintf(output, "                         based on uniform packet counts\n");
-  fprintf(output, "                         with a maximum of <packets per file> each.\n");
-  fprintf(output, "  -i <seconds per file>  split the packet output to different files\n");
-  fprintf(output, "                         based on uniform time intervals\n");
-  fprintf(output, "                         with a maximum of <seconds per file> each.\n");
-  fprintf(output, "  -F <capture type>      set the output file type; default is pcapng.\n");
-  fprintf(output, "                         an empty \"-F\" option will list the file types.\n");
-  fprintf(output, "  -T <encap type>        set the output file encapsulation type;\n");
-  fprintf(output, "                         default is the same as the input file.\n");
-  fprintf(output, "                         an empty \"-T\" option will list the encapsulation types.\n");
-  fprintf(output, "\n");
-  fprintf(output, "Miscellaneous:\n");
-  fprintf(output, "  -h                     display this help and exit.\n");
-  fprintf(output, "  -v                     verbose output.\n");
-  fprintf(output, "                         If -v is used with any of the 'Duplicate Packet\n");
-  fprintf(output, "                         Removal' options (-d, -D or -w) then Packet lengths\n");
-  fprintf(output, "                         and MD5 hashes are printed to standard-out.\n");
-  fprintf(output, "\n");
+  g_fprintf(output, "Edit and/or translate the format of capture files.\n");
+  g_fprintf(output, "See http://www.wireshark.org for more information.\n");
+  g_fprintf(output, "\n");
+  g_fprintf(output, "Usage: editcap [options] ... <infile> <outfile> [ <packet#>[-<packet#>] ... ]\n");
+  g_fprintf(output, "\n");
+  g_fprintf(output, "<infile> and <outfile> must both be present.\n");
+  g_fprintf(output, "A single packet or a range of packets can be selected.\n");
+  g_fprintf(output, "\n");
+  g_fprintf(output, "Packet selection:\n");
+  g_fprintf(output, "  -r                     keep the selected packets; default is to delete them.\n");
+  g_fprintf(output, "  -A <start time>        only output packets whose timestamp is after (or equal\n");
+  g_fprintf(output, "                         to) the given time (format as YYYY-MM-DD hh:mm:ss).\n");
+  g_fprintf(output, "  -B <stop time>         only output packets whose timestamp is before the\n");
+  g_fprintf(output, "                         given time (format as YYYY-MM-DD hh:mm:ss).\n");
+  g_fprintf(output, "\n");
+  g_fprintf(output, "Duplicate packet removal:\n");
+  g_fprintf(output, "  -d                     remove packet if duplicate (window == %d).\n", DEFAULT_DUP_DEPTH);
+  g_fprintf(output, "  -D <dup window>        remove packet if duplicate; configurable <dup window>\n");
+  g_fprintf(output, "                         Valid <dup window> values are 0 to %d.\n", MAX_DUP_DEPTH);
+  g_fprintf(output, "                         NOTE: A <dup window> of 0 with -v (verbose option) is\n");
+  g_fprintf(output, "                         useful to print MD5 hashes.\n");
+  g_fprintf(output, "  -w <dup time window>   remove packet if duplicate packet is found EQUAL TO OR\n");
+  g_fprintf(output, "                         LESS THAN <dup time window> prior to current packet.\n");
+  g_fprintf(output, "                         A <dup time window> is specified in relative seconds\n");
+  g_fprintf(output, "                         (e.g. 0.000001).\n");
+  g_fprintf(output, "\n");
+  g_fprintf(output, "           NOTE: The use of the 'Duplicate packet removal' options with\n");
+  g_fprintf(output, "           other editcap options except -v may not always work as expected.\n");
+  g_fprintf(output, "           Specifically the -r, -t or -S options will very likely NOT have the\n");
+  g_fprintf(output, "           desired effect if combined with the -d, -D or -w.\n");
+  g_fprintf(output, "\n");
+  g_fprintf(output, "Packet manipulation:\n");
+  g_fprintf(output, "  -s <snaplen>           truncate each packet to max. <snaplen> bytes of data.\n");
+  g_fprintf(output, "  -C <choplen>           chop each packet by <choplen> bytes. Positive values\n");
+  g_fprintf(output, "                         chop at the packet beginning, negative values at the\n");
+  g_fprintf(output, "                         packet end.\n");
+  g_fprintf(output, "  -t <time adjustment>   adjust the timestamp of each packet;\n");
+  g_fprintf(output, "                         <time adjustment> is in relative seconds (e.g. -0.5).\n");
+  g_fprintf(output, "  -S <strict adjustment> adjust timestamp of packets if necessary to insure\n");
+  g_fprintf(output, "                         strict chronological increasing order. The <strict\n");
+  g_fprintf(output, "                         adjustment> is specified in relative seconds with\n");
+  g_fprintf(output, "                         values of 0 or 0.000001 being the most reasonable.\n");
+  g_fprintf(output, "                         A negative adjustment value will modify timestamps so\n");
+  g_fprintf(output, "                         that each packet's delta time is the absolute value\n");
+  g_fprintf(output, "                         of the adjustment specified. A value of -0 will set\n");
+  g_fprintf(output, "                         all packets to the timestamp of the first packet.\n");
+  g_fprintf(output, "  -E <error probability> set the probability (between 0.0 and 1.0 incl.)\n");
+  g_fprintf(output, "                         that a particular packet byte will be randomly changed.\n");
+  g_fprintf(output, "\n");
+  g_fprintf(output, "Output File(s):\n");
+  g_fprintf(output, "  -c <packets per file>  split the packet output to different files\n");
+  g_fprintf(output, "                         based on uniform packet counts\n");
+  g_fprintf(output, "                         with a maximum of <packets per file> each.\n");
+  g_fprintf(output, "  -i <seconds per file>  split the packet output to different files\n");
+  g_fprintf(output, "                         based on uniform time intervals\n");
+  g_fprintf(output, "                         with a maximum of <seconds per file> each.\n");
+  g_fprintf(output, "  -F <capture type>      set the output file type; default is pcapng.\n");
+  g_fprintf(output, "                         an empty \"-F\" option will list the file types.\n");
+  g_fprintf(output, "  -T <encap type>        set the output file encapsulation type;\n");
+  g_fprintf(output, "                         default is the same as the input file.\n");
+  g_fprintf(output, "                         an empty \"-T\" option will list the encapsulation types.\n");
+  g_fprintf(output, "\n");
+  g_fprintf(output, "Miscellaneous:\n");
+  g_fprintf(output, "  -h                     display this help and exit.\n");
+  g_fprintf(output, "  -v                     verbose output.\n");
+  g_fprintf(output, "                         If -v is used with any of the 'Duplicate Packet\n");
+  g_fprintf(output, "                         Removal' options (-d, -D or -w) then Packet lengths\n");
+  g_fprintf(output, "                         and MD5 hashes are printed to standard-out.\n");
+  g_fprintf(output, "\n");
 }
 
 struct string_elem {
@@ -753,7 +752,7 @@ string_compare(gconstpointer a, gconstpointer b)
 static void
 string_elem_print(gpointer data, gpointer not_used _U_)
 {
-    fprintf(stderr, "    %s - %s\n",
+    g_fprintf(stderr, "    %s - %s\n",
         ((struct string_elem *)data)->sstr,
         ((struct string_elem *)data)->lstr);
 }
@@ -765,7 +764,7 @@ list_capture_types(void) {
     GSList *list = NULL;
 
     captypes = g_malloc(sizeof(struct string_elem) * WTAP_NUM_FILE_TYPES);
-    fprintf(stderr, "editcap: The available capture file types for the \"-F\" flag are:\n");
+    g_fprintf(stderr, "editcap: The available capture file types for the \"-F\" flag are:\n");
     for (i = 0; i < WTAP_NUM_FILE_TYPES; i++) {
       if (wtap_dump_can_open(i)) {
         captypes[i].sstr = wtap_file_type_short_string(i);
@@ -785,7 +784,7 @@ list_encap_types(void) {
     GSList *list = NULL;
 
     encaps = g_malloc(sizeof(struct string_elem) * WTAP_NUM_ENCAP_TYPES);
-    fprintf(stderr, "editcap: The available encapsulation types for the \"-T\" flag are:\n");
+    g_fprintf(stderr, "editcap: The available encapsulation types for the \"-T\" flag are:\n");
     for (i = 0; i < WTAP_NUM_ENCAP_TYPES; i++) {
         encaps[i].sstr = wtap_encap_short_string(i);
         if (encaps[i].sstr != NULL) {
@@ -873,7 +872,7 @@ main(int argc, char *argv[])
     case 'E':
       err_prob = strtod(optarg, &p);
       if (p == optarg || err_prob < 0.0 || err_prob > 1.0) {
-        fprintf(stderr, "editcap: probability \"%s\" must be between 0.0 and 1.0\n",
+        g_fprintf(stderr, "editcap: probability \"%s\" must be between 0.0 and 1.0\n",
             optarg);
         exit(1);
       }
@@ -883,7 +882,7 @@ main(int argc, char *argv[])
     case 'F':
       out_file_type = wtap_short_string_to_file_type(optarg);
       if (out_file_type < 0) {
-        fprintf(stderr, "editcap: \"%s\" isn't a valid capture file type\n\n",
+        g_fprintf(stderr, "editcap: \"%s\" isn't a valid capture file type\n\n",
             optarg);
         list_capture_types();
         exit(1);
@@ -893,12 +892,12 @@ main(int argc, char *argv[])
     case 'c':
       split_packet_count = strtol(optarg, &p, 10);
       if (p == optarg || *p != '\0') {
-        fprintf(stderr, "editcap: \"%s\" isn't a valid packet count\n",
+        g_fprintf(stderr, "editcap: \"%s\" isn't a valid packet count\n",
             optarg);
         exit(1);
       }
       if (split_packet_count <= 0) {
-        fprintf(stderr, "editcap: \"%d\" packet count must be larger than zero\n",
+        g_fprintf(stderr, "editcap: \"%d\" packet count must be larger than zero\n",
             split_packet_count);
         exit(1);
       }
@@ -907,7 +906,7 @@ main(int argc, char *argv[])
     case 'C':
       choplen = strtol(optarg, &p, 10);
       if (p == optarg || *p != '\0') {
-        fprintf(stderr, "editcap: \"%s\" isn't a valid chop length\n",
+        g_fprintf(stderr, "editcap: \"%s\" isn't a valid chop length\n",
             optarg);
         exit(1);
       }
@@ -924,12 +923,12 @@ main(int argc, char *argv[])
       dup_detect_by_time = FALSE;
       dup_window = strtol(optarg, &p, 10);
       if (p == optarg || *p != '\0') {
-        fprintf(stderr, "editcap: \"%s\" isn't a valid duplicate window value\n",
+        g_fprintf(stderr, "editcap: \"%s\" isn't a valid duplicate window value\n",
             optarg);
         exit(1);
       }
       if (dup_window < 0 || dup_window > MAX_DUP_DEPTH) {
-        fprintf(stderr, "editcap: \"%d\" duplicate window value must be between 0 and %d inclusive.\n",
+        g_fprintf(stderr, "editcap: \"%d\" duplicate window value must be between 0 and %d inclusive.\n",
             dup_window, MAX_DUP_DEPTH);
         exit(1);
       }
@@ -968,7 +967,7 @@ main(int argc, char *argv[])
     case 's':
       snaplen = strtol(optarg, &p, 10);
       if (p == optarg || *p != '\0') {
-        fprintf(stderr, "editcap: \"%s\" isn't a valid snapshot length\n",
+        g_fprintf(stderr, "editcap: \"%s\" isn't a valid snapshot length\n",
                 optarg);
         exit(1);
       }
@@ -986,7 +985,7 @@ main(int argc, char *argv[])
     case 'T':
       out_frame_type = wtap_short_string_to_encap(optarg);
       if (out_frame_type < 0) {
-        fprintf(stderr, "editcap: \"%s\" isn't a valid encapsulation type\n\n",
+        g_fprintf(stderr, "editcap: \"%s\" isn't a valid encapsulation type\n\n",
           optarg);
         list_encap_types();
         exit(1);
@@ -1000,7 +999,7 @@ main(int argc, char *argv[])
     case 'i': /* break capture file based on time interval */
       secs_per_block = atoi(optarg);
       if(secs_per_block <= 0) {
-        fprintf(stderr, "editcap: \"%s\" isn't a valid time interval\n\n", optarg);
+        g_fprintf(stderr, "editcap: \"%s\" isn't a valid time interval\n\n", optarg);
         exit(1);
         }
       break;
@@ -1012,7 +1011,7 @@ main(int argc, char *argv[])
       memset(&starttm,0,sizeof(struct tm));
 
       if(!strptime(optarg,"%Y-%m-%d %T",&starttm)) {
-        fprintf(stderr, "editcap: \"%s\" isn't a valid time format\n\n", optarg);
+        g_fprintf(stderr, "editcap: \"%s\" isn't a valid time format\n\n", optarg);
         exit(1);
       }
 
@@ -1030,7 +1029,7 @@ main(int argc, char *argv[])
       memset(&stoptm,0,sizeof(struct tm));
 
       if(!strptime(optarg,"%Y-%m-%d %T",&stoptm)) {
-        fprintf(stderr, "editcap: \"%s\" isn't a valid time format\n\n", optarg);
+        g_fprintf(stderr, "editcap: \"%s\" isn't a valid time format\n\n", optarg);
         exit(1);
       }
       check_startstop = TRUE;
@@ -1043,7 +1042,7 @@ main(int argc, char *argv[])
   }
 
 #ifdef DEBUG
-  printf("Optind = %i, argc = %i\n", optind, argc);
+  g_printf("Optind = %i, argc = %i\n", optind, argc);
 #endif
 
   if ((argc - optind) < 1) {
@@ -1067,27 +1066,27 @@ main(int argc, char *argv[])
   nstime_set_unset(&block_start);
 
   if (starttime > stoptime) {
-    fprintf(stderr, "editcap: start time is after the stop time\n");
+    g_fprintf(stderr, "editcap: start time is after the stop time\n");
     exit(1);
   }
 
   if (split_packet_count > 0 && secs_per_block > 0) {
-    fprintf(stderr, "editcap: can't split on both packet count and time interval\n");
-    fprintf(stderr, "editcap: at the same time\n");
+    g_fprintf(stderr, "editcap: can't split on both packet count and time interval\n");
+    g_fprintf(stderr, "editcap: at the same time\n");
     exit(1);
   }
 
   wth = wtap_open_offline(argv[optind], &err, &err_info, FALSE);
 
   if (!wth) {
-    fprintf(stderr, "editcap: Can't open %s: %s\n", argv[optind],
+    g_fprintf(stderr, "editcap: Can't open %s: %s\n", argv[optind],
         wtap_strerror(err));
     switch (err) {
 
     case WTAP_ERR_UNSUPPORTED:
     case WTAP_ERR_UNSUPPORTED_ENCAP:
     case WTAP_ERR_BAD_FILE:
-      fprintf(stderr, "(%s)\n", err_info);
+      g_fprintf(stderr, "(%s)\n", err_info);
       g_free(err_info);
       break;
     }
@@ -1096,7 +1095,7 @@ main(int argc, char *argv[])
   }
 
   if (verbose) {
-    fprintf(stderr, "File %s is a %s capture file.\n", argv[optind],
+    g_fprintf(stderr, "File %s is a %s capture file.\n", argv[optind],
             wtap_file_type_string(wtap_file_type(wth)));
   }
 
@@ -1144,7 +1143,7 @@ main(int argc, char *argv[])
           snaplen ? MIN(snaplen, wtap_snapshot_length(wth)) : wtap_snapshot_length(wth),
           FALSE /* compressed */, &err);
         if (pdh == NULL) {
-          fprintf(stderr, "editcap: Can't open or create %s: %s\n", filename,
+          g_fprintf(stderr, "editcap: Can't open or create %s: %s\n", filename,
                   wtap_strerror(err));
           exit(2);
         }
@@ -1158,7 +1157,7 @@ main(int argc, char *argv[])
                 phdr->ts.nsecs >= block_start.nsecs )) { /* time for the next file */
 
           if (!wtap_dump_close(pdh, &err)) {
-            fprintf(stderr, "editcap: Error writing to %s: %s\n", filename,
+            g_fprintf(stderr, "editcap: Error writing to %s: %s\n", filename,
                 wtap_strerror(err));
             exit(2);
           }
@@ -1168,7 +1167,7 @@ main(int argc, char *argv[])
           g_assert(filename);
 
           if (verbose) {
-            fprintf(stderr, "Continuing writing in file %s\n", filename);
+            g_fprintf(stderr, "Continuing writing in file %s\n", filename);
           }
 
           pdh = wtap_dump_open(filename, out_file_type, out_frame_type,
@@ -1176,7 +1175,7 @@ main(int argc, char *argv[])
             FALSE /* compressed */, &err);
 
           if (pdh == NULL) {
-            fprintf(stderr, "editcap: Can't open or create %s: %s\n", filename,
+            g_fprintf(stderr, "editcap: Can't open or create %s: %s\n", filename,
               wtap_strerror(err));
             exit(2);
           }
@@ -1189,7 +1188,7 @@ main(int argc, char *argv[])
         if (written_count > 0 &&
             written_count % split_packet_count == 0) {
           if (!wtap_dump_close(pdh, &err)) {
-            fprintf(stderr, "editcap: Error writing to %s: %s\n", filename,
+            g_fprintf(stderr, "editcap: Error writing to %s: %s\n", filename,
                 wtap_strerror(err));
             exit(2);
           }
@@ -1199,14 +1198,14 @@ main(int argc, char *argv[])
           g_assert(filename);
 
           if (verbose) {
-            fprintf(stderr, "Continuing writing in file %s\n", filename);
+            g_fprintf(stderr, "Continuing writing in file %s\n", filename);
           }
 
           pdh = wtap_dump_open(filename, out_file_type, out_frame_type,
             snaplen ? MIN(snaplen, wtap_snapshot_length(wth)) : wtap_snapshot_length(wth),
             FALSE /* compressed */, &err);
           if (pdh == NULL) {
-            fprintf(stderr, "editcap: Can't open or create %s: %s\n", filename,
+            g_fprintf(stderr, "editcap: Can't open or create %s: %s\n", filename,
                 wtap_strerror(err));
             exit(2);
           }
@@ -1219,7 +1218,7 @@ main(int argc, char *argv[])
       if ( ts_okay && ((!selected(count) && !keep_em) || (selected(count) && keep_em)) ) {
 
         if (verbose && !dup_detect && !dup_detect_by_time)
-          printf("Packet: %u\n", count);
+          g_printf("Packet: %u\n", count);
 
         /* We simply write it, perhaps after truncating it; we could do other
            things, like modify it. */
@@ -1273,7 +1272,7 @@ main(int argc, char *argv[])
                  * situation since trace files usually have packets in
                  * chronological order (oldest to newest).
                  */
-                /* printf("++out of order, need to adjust this packet!\n"); */
+                /* g_printf("++out of order, need to adjust this packet!\n"); */
                 snap_phdr = *phdr;
                 snap_phdr.ts.secs = previous_time.secs + strict_time_adj.tv.tv_sec;
                 snap_phdr.ts.nsecs = previous_time.nsecs;
@@ -1346,22 +1345,22 @@ main(int argc, char *argv[])
         if (dup_detect) {
           if (is_duplicate(buf, phdr->caplen)) {
             if (verbose) {
-              fprintf(stdout, "Skipped: %u, Len: %u, MD5 Hash: ", count, phdr->caplen);
+              g_fprintf(stdout, "Skipped: %u, Len: %u, MD5 Hash: ", count, phdr->caplen);
               for (i = 0; i < 16; i++) {
-                fprintf(stdout, "%02x", (unsigned char)fd_hash[cur_dup_entry].digest[i]);
+                g_fprintf(stdout, "%02x", (unsigned char)fd_hash[cur_dup_entry].digest[i]);
               }
-              fprintf(stdout, "\n");
+              g_fprintf(stdout, "\n");
             }
             duplicate_count++;
             count++;
             continue;
           } else {
             if (verbose) {
-              fprintf(stdout, "Packet: %u, Len: %u, MD5 Hash: ", count, phdr->caplen);
+              g_fprintf(stdout, "Packet: %u, Len: %u, MD5 Hash: ", count, phdr->caplen);
               for (i = 0; i < 16; i++) {
-                fprintf(stdout, "%02x", (unsigned char)fd_hash[cur_dup_entry].digest[i]);
+                g_fprintf(stdout, "%02x", (unsigned char)fd_hash[cur_dup_entry].digest[i]);
               }
-              fprintf(stdout, "\n");
+              g_fprintf(stdout, "\n");
             }
           }
         }
@@ -1375,22 +1374,22 @@ main(int argc, char *argv[])
 
           if (is_duplicate_rel_time(buf, phdr->caplen, &current)) {
             if (verbose) {
-              fprintf(stdout, "Skipped: %u, Len: %u, MD5 Hash: ", count, phdr->caplen);
+              g_fprintf(stdout, "Skipped: %u, Len: %u, MD5 Hash: ", count, phdr->caplen);
               for (i = 0; i < 16; i++) {
-                fprintf(stdout, "%02x", (unsigned char)fd_hash[cur_dup_entry].digest[i]);
+                g_fprintf(stdout, "%02x", (unsigned char)fd_hash[cur_dup_entry].digest[i]);
               }
-              fprintf(stdout, "\n");
+              g_fprintf(stdout, "\n");
             }
             duplicate_count++;
             count++;
             continue;
           } else {
             if (verbose) {
-              fprintf(stdout, "Packet: %u, Len: %u, MD5 Hash: ", count, phdr->caplen);
+              g_fprintf(stdout, "Packet: %u, Len: %u, MD5 Hash: ", count, phdr->caplen);
               for (i = 0; i < 16; i++) {
-                fprintf(stdout, "%02x", (unsigned char)fd_hash[cur_dup_entry].digest[i]);
+                g_fprintf(stdout, "%02x", (unsigned char)fd_hash[cur_dup_entry].digest[i]);
               }
-              fprintf(stdout, "\n");
+              g_fprintf(stdout, "\n");
             }
           }
         }
@@ -1453,12 +1452,12 @@ main(int argc, char *argv[])
              * This is a problem with the particular frame we're writing;
              * note that, and give the frame number.
              */
-            fprintf(stderr, "editcap: Frame %u of \"%s\" has a network type that can't be saved in a file with that format\n.",
+            g_fprintf(stderr, "editcap: Frame %u of \"%s\" has a network type that can't be saved in a file with that format\n.",
                     read_count, argv[optind]);
             break;
 
           default:
-            fprintf(stderr, "editcap: Error writing to %s: %s\n",
+            g_fprintf(stderr, "editcap: Error writing to %s: %s\n",
                     filename, wtap_strerror(err));
             break;
           }
@@ -1474,7 +1473,7 @@ main(int argc, char *argv[])
 
     if (err != 0) {
       /* Print a message noting that the read failed somewhere along the line. */
-      fprintf(stderr,
+      g_fprintf(stderr,
               "editcap: An error occurred while reading \"%s\": %s.\n",
               argv[optind], wtap_strerror(err));
       switch (err) {
@@ -1482,7 +1481,7 @@ main(int argc, char *argv[])
       case WTAP_ERR_UNSUPPORTED:
       case WTAP_ERR_UNSUPPORTED_ENCAP:
       case WTAP_ERR_BAD_FILE:
-        fprintf(stderr, "(%s)\n", err_info);
+        g_fprintf(stderr, "(%s)\n", err_info);
         g_free(err_info);
         break;
       }
@@ -1497,7 +1496,7 @@ main(int argc, char *argv[])
         snaplen ? MIN(snaplen, wtap_snapshot_length(wth)): wtap_snapshot_length(wth),
         FALSE /* compressed */, &err);
       if (pdh == NULL) {
-        fprintf(stderr, "editcap: Can't open or create %s: %s\n", filename,
+        g_fprintf(stderr, "editcap: Can't open or create %s: %s\n", filename,
         wtap_strerror(err));
         exit(2);
       }
@@ -1505,7 +1504,7 @@ main(int argc, char *argv[])
 
     if (!wtap_dump_close(pdh, &err)) {
 
-      fprintf(stderr, "editcap: Error writing to %s: %s\n", filename,
+      g_fprintf(stderr, "editcap: Error writing to %s: %s\n", filename,
           wtap_strerror(err));
       exit(2);
 
@@ -1514,11 +1513,11 @@ main(int argc, char *argv[])
   }
 
   if (dup_detect) {
-    fprintf(stdout, "%u packet%s seen, %u packet%s skipped with duplicate window of %u packets.\n",
+    g_fprintf(stdout, "%u packet%s seen, %u packet%s skipped with duplicate window of %u packets.\n",
                 count - 1, plurality(count - 1, "", "s"),
                 duplicate_count, plurality(duplicate_count, "", "s"), dup_window);
   } else if (dup_detect_by_time) {
-    fprintf(stdout, "%u packet%s seen, %u packet%s skipped with duplicate time window equal to or less than %ld.%09ld seconds.\n",
+    g_fprintf(stdout, "%u packet%s seen, %u packet%s skipped with duplicate time window equal to or less than %ld.%09ld seconds.\n",
                 count - 1, plurality(count - 1, "", "s"),
                 duplicate_count, plurality(duplicate_count, "", "s"),
                 (long)relative_time_window.secs, (long int)relative_time_window.nsecs);
