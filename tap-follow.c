@@ -461,7 +461,7 @@ followDraw(
   rewind(fp->filep);
   for (chunk = 0;;)
   {
-    len = fread(&sc, 1, sizeof sc, fp->filep);
+    len = (guint32)fread(&sc, 1, sizeof sc, fp->filep);
     if (len != sizeof sc)
     {
       /* no data */
@@ -607,7 +607,7 @@ followDraw(
 
     for (;;)
     {
-      len = fread(&sc, 1, sizeof sc, fp->filep);
+      len = (guint32)fread(&sc, 1, sizeof sc, fp->filep);
       if (len != sizeof sc)
       {
         /* no more data */
@@ -636,7 +636,7 @@ followArgStrncmp(
   const char *  strp
   )
 {
-  int           len     = strlen(strp);
+  int           len     = (guint32)strlen(strp);
 
   if (strncmp(*optargp, strp, len) == 0)
   {
