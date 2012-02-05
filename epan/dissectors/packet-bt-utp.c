@@ -335,50 +335,43 @@ dissect_utp_extension(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, in
 static int
 dissect_bt_utp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_tree *sub_tree = NULL;
-  int decoded_length = 0;
-  guint8 extension_type;
-
-  /* set the protocol column */
-  col_set_str(pinfo->cinfo, COL_PROTOCOL, "BT-uTP");
-  /* set the info column */
-  col_set_str( pinfo->cinfo, COL_INFO, "uTorrent Transport Protocol" );
-
-  if(tree)
-  {
-    proto_item *ti;
-    ti = proto_tree_add_item(tree, proto_bt_utp, tvb, 0, -1, ENC_NA);
-    sub_tree = proto_item_add_subtree(ti, ett_bt_utp);
-  }
-
-  /* Determine header version */
-
-  if (!utp_is_v1(tvb)) {
-      decoded_length = dissect_utp_header_v0(tvb, pinfo, sub_tree, decoded_length, &extension_type);
-  } else {
-      decoded_length = dissect_utp_header_v1(tvb, pinfo, sub_tree,  decoded_length, &extension_type);
-  }
-
-  decoded_length = dissect_utp_extension(tvb, pinfo, sub_tree, decoded_length, &extension_type);
-
-  return decoded_length;
-}
-
-static gboolean test_bt_utp_packet (tvbuff_t *tvb, packet_info *pinfo,
-                                        proto_tree *tree)
-{
-   conversation_t *conversation;
+  conversation_t *conversation;
 
   /* try dissecting */
   if( tvb_get_guint8(tvb,0)=='d' )
   {
-      conversation = find_or_create_conversation(pinfo);
-      conversation_set_dissector(conversation, bt_utp_handle);
+    proto_tree *sub_tree = NULL;
+    int decoded_length = 0;
+    guint8 extension_type;
 
-      dissect_bt_utp(tvb, pinfo, tree);
-      return TRUE;
-   }
-   return FALSE;
+    conversation = find_or_create_conversation(pinfo);
+    conversation_set_dissector(conversation, bt_utp_handle);
+
+    /* set the protocol column */
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "BT-uTP");
+    /* set the info column */
+    col_set_str( pinfo->cinfo, COL_INFO, "uTorrent Transport Protocol" );
+
+    if(tree)
+    {
+      proto_item *ti;
+      ti = proto_tree_add_item(tree, proto_bt_utp, tvb, 0, -1, ENC_NA);
+      sub_tree = proto_item_add_subtree(ti, ett_bt_utp);
+    }
+
+    /* Determine header version */
+
+    if (!utp_is_v1(tvb)) {
+      decoded_length = dissect_utp_header_v0(tvb, pinfo, sub_tree, decoded_length, &extension_type);
+    } else {
+      decoded_length = dissect_utp_header_v1(tvb, pinfo, sub_tree,  decoded_length, &extension_type);
+    }
+
+    decoded_length = dissect_utp_extension(tvb, pinfo, sub_tree, decoded_length, &extension_type);
+
+    return decoded_length;
+  }
+  return 0;
 }
 
 void
@@ -489,7 +482,10 @@ proto_register_bt_utp(void)
 void
 proto_reg_handoff_bt_utp(void)
 {
-  heur_dissector_add("udp", test_bt_utp_packet, proto_bt_utp);
+  heur_dissector_add("udp", dissect_bt_utp, proto_bt_utp);
+
+  bt_utp_handle = new_create_dissector_handle(dissect_bt_utp, proto_bt_utp);
+  dissector_add_handle("udp.port", bt_utp_handle);
 }
 /*
  * Editor modelines
