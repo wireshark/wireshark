@@ -46,6 +46,7 @@
 #include <epan/tap.h>
 #include <epan/tvbuff-int.h>
 
+#include "wsutil/file_util.h"
 #include "tempfile.h"
 
 WS_VAR_IMPORT FILE *data_out_file;
@@ -149,7 +150,7 @@ followStrFilter(
     switch (fp->type)
     {
     case type_TCP:
-      len = snprintf(filter, sizeof filter,
+      len = g_snprintf(filter, sizeof filter,
                      "tcp.stream eq %d", fp->index);
       break;
     case type_UDP:
@@ -165,7 +166,7 @@ followStrFilter(
     switch (fp->type)
     {
     case type_TCP:
-      len = snprintf(filter, sizeof filter,
+      len = g_snprintf(filter, sizeof filter,
                      "((ip%s.src eq %s and tcp.srcport eq %d) and "
                      "(ip%s.dst eq %s and tcp.dstport eq %d))"
                      " or "
@@ -177,7 +178,7 @@ followStrFilter(
                      verp, ip0, fp->port[0]);
       break;
     case type_UDP:
-      len = snprintf(filter, sizeof filter,
+      len = g_snprintf(filter, sizeof filter,
                      "((ip%s.src eq %s and udp.srcport eq %d) and "
                      "(ip%s.dst eq %s and udp.dstport eq %d))"
                      " or "
@@ -221,7 +222,7 @@ followFileClose(
 
   if (fp->filenamep != NULL)
   {
-    unlink(fp->filenamep);
+    ws_unlink(fp->filenamep);
     g_free(fp->filenamep);
     fp->filenamep = NULL;
   }
@@ -251,16 +252,16 @@ followFileOpen(
   fp->filenamep = g_strdup(tempfilep);
   if (fp->filenamep == NULL)
   {
-    close(fd);
-    unlink(tempfilep);
+    ws_close(fd);
+    ws_unlink(tempfilep);
     followExit("Error duping temp file name.");
   }
 
   fp->filep = fdopen(fd, "w+b");
   if (fp->filep == NULL)
   {
-    close(fd);
-    unlink(fp->filenamep);
+    ws_close(fd);
+    ws_unlink(fp->filenamep);
     g_free(fp->filenamep);
     fp->filenamep = NULL;
     followExit("Error opening temp file stream.");
@@ -365,7 +366,7 @@ followPrintHex(
     if ((ii % BYTES_PER_LINE) == 0)
     {
       /* new line */
-      sprintf(line, "%0*X", OFFSET_LEN, offset);
+      g_snprintf(line, LINE_LEN + 1, "%0*X", OFFSET_LEN, offset);
       memset(line + HEX_START - OFFSET_SPACE, ' ',
              HEX_LEN + OFFSET_SPACE + HEX_SPACE);
 
