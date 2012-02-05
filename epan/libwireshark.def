@@ -457,6 +457,8 @@ find_sid_name
 find_stream_circ
 find_tap_id
 follow_stats
+follow_tcp_addr
+follow_tcp_index
 format_text
 format_uri
 fragment_add

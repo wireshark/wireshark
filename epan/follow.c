@@ -143,6 +143,62 @@ build_follow_filter( packet_info *pi ) {
   return buf;
 }
 
+static gboolean         find_tcp_addr;
+static address          tcp_addr[2];
+static gboolean         find_tcp_index;
+
+/* select a tcp stream to follow via it's address/port pairs */
+gboolean
+follow_tcp_addr(const address *addr0, guint port0,
+                const address *addr1, guint port1)
+{
+  if (addr0 == NULL || addr1 == NULL || addr0->type != addr1->type ||
+      port0 > G_MAXUINT16 || port1 > G_MAXUINT16 )  {
+    return FALSE;
+  }
+
+  if (find_tcp_index || find_tcp_addr) {
+    return FALSE;
+  }
+
+  switch (addr0->type) {
+  default:
+    return FALSE;
+  case AT_IPv4:
+  case AT_IPv6:
+    is_ipv6 = addr0->type == AT_IPv6;
+    break;
+  }
+
+  find_tcp_index = TRUE;
+
+  memcpy(ip_address[0], addr0->data, addr0->len);
+  SET_ADDRESS(&tcp_addr[0], addr0->type, addr0->len, ip_address[0]);
+  port[0] = port0;
+
+  memcpy(ip_address[1], addr1->data, addr1->len);
+  SET_ADDRESS(&tcp_addr[1], addr1->type, addr1->len, ip_address[1]);
+  port[1] = port1;
+
+  return TRUE;
+}
+
+/* select a tcp stream to follow via it's index */
+gboolean
+follow_tcp_index(guint32 index)
+{
+  if (find_tcp_index || find_tcp_addr) {
+    return FALSE;
+  }
+
+  find_tcp_addr = TRUE;
+  tcp_stream_to_follow = index;
+  memset(ip_address, 0, sizeof ip_address);
+  port[0] = port[1] = 0;
+
+  return TRUE;
+}
+
 /* here we are going to try and reconstruct the data portion of a TCP
    session. We will try and handle duplicates, TCP fragments, and out
    of order packets in a smart way. */
@@ -166,7 +222,22 @@ reassemble_tcp( guint32 tcp_stream, gulong sequence, gulong acknowledgement,
   src_index = -1;
 
   /* First, check if this packet should be processed. */
-  if ( tcp_stream != tcp_stream_to_follow )
+  if (find_tcp_index) {
+    if ((port[0] == srcport && port[1] == dstport &&
+         ADDRESSES_EQUAL(&tcp_addr[0], net_src) &&
+         ADDRESSES_EQUAL(&tcp_addr[1], net_dst))
+        ||
+        (port[1] == srcport && port[0] == dstport &&
+         ADDRESSES_EQUAL(&tcp_addr[1], net_src) &&
+         ADDRESSES_EQUAL(&tcp_addr[0], net_dst))) {
+      find_tcp_index = FALSE;
+      tcp_stream_to_follow = tcp_stream;
+    }
+    else {
+      return;
+    }
+  }
+  else if ( tcp_stream != tcp_stream_to_follow )
     return;
 
   if ((net_src->type != AT_IPv4 && net_src->type != AT_IPv6) ||
@@ -180,6 +251,15 @@ reassemble_tcp( guint32 tcp_stream, gulong sequence, gulong acknowledgement,
 
   memcpy(srcx, net_src->data, len);
   memcpy(dstx, net_dst->data, len);
+
+  /* follow_tcp_index() needs to learn address/port pairs */
+  if (find_tcp_addr) {
+    find_tcp_addr = FALSE;
+    memcpy(ip_address[0], net_src->data, net_src->len);
+    port[0] = srcport;
+    memcpy(ip_address[1], net_dst->data, net_dst->len);
+    port[1] = dstport;
+  }
 
   /* Check to see if we have seen this source IP and port before.
      (Yes, we have to check both source IP and port; the connection
@@ -399,6 +479,8 @@ reset_tcp_reassembly(void)
 
   empty_tcp_stream = TRUE;
   incomplete_tcp_stream = FALSE;
+  find_tcp_addr = FALSE;
+  find_tcp_index = FALSE;
   for( i=0; i<2; i++ ) {
     seq[i] = 0;
     memset(src_addr[i], '\0', MAX_IPADDR_LEN);

@@ -583,6 +583,7 @@ set(TSHARK_TAP_SRC
 	tap-dcerpcstat.c
 	tap-diameter-avp.c
 	tap-expert.c
+	tap-follow.c
 	tap-funnel.c
 	tap-gsm_astat.c
 	tap-h225counter.c
