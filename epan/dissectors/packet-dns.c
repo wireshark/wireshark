@@ -1623,7 +1623,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     {
       int rr_len = data_len;
       guint16 flags;
-      proto_item *tf;
+      proto_item *tf, *ti_gen;
       proto_tree *flags_tree;
       guint8 algo;
       guint16 key_id;
@@ -1666,7 +1666,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 	rr_len -= 1;
 
 	key_id = compute_key_id(tvb, cur_offset-4, rr_len+4, algo);
-	proto_tree_add_text(rr_tree, tvb, 0, 0, "Key id: %u", key_id);
+	ti_gen = proto_tree_add_text(rr_tree, tvb, 0, 0, "Key id: %u", key_id);
+	PROTO_ITEM_SET_GENERATED(ti_gen);
 
 	if (rr_len != 0)
 	  proto_tree_add_text(rr_tree, tvb, cur_offset, rr_len, "Public key");
@@ -1678,7 +1679,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     {
       int rr_len = data_len;
       guint16 flags;
-      proto_item *tf;
+      proto_item *tf, *ti_gen;
       proto_tree *flags_tree;
       guint8 algo;
       guint16 key_id;
@@ -1742,7 +1743,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 	rr_len -= 1;
 
 	key_id = compute_key_id(tvb, cur_offset-4, rr_len+4, algo);
-	proto_tree_add_text(rr_tree, tvb, 0, 0, "Key id: %u", key_id);
+	ti_gen = proto_tree_add_text(rr_tree, tvb, 0, 0, "Key id: %u", key_id);
+	PROTO_ITEM_SET_GENERATED(ti_gen);
 
 	if (rr_len != 0)
 	  proto_tree_add_text(rr_tree, tvb, cur_offset, rr_len, "Public key");
