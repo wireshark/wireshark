@@ -312,12 +312,12 @@ static void dissect_dtls_hnd_cli_hello(tvbuff_t *tvb,
                                        guint32 offset, guint32 length,
                                        SslDecryptSession* ssl);
 
-static void dissect_dtls_hnd_hello_verify_request(tvbuff_t *tvb,
+static int dissect_dtls_hnd_hello_verify_request(tvbuff_t *tvb,
                                                   proto_tree *tree,
                                                   guint32 offset,
                                                   SslDecryptSession* ssl);
 
-static void dissect_dtls_hnd_srv_hello(tvbuff_t *tvb,
+static int dissect_dtls_hnd_srv_hello(tvbuff_t *tvb,
                                        proto_tree *tree,
                                        guint32 offset, guint32 length,
                                        SslDecryptSession* ssl);
@@ -936,7 +936,7 @@ dissect_dtls_change_cipher_spec(tvbuff_t *tvb,
                           val_to_str_const(*conv_version, ssl_version_short_names, "SSL"),
                           val_to_str(content_type, ssl_31_content_type, "unknown"));
       proto_tree_add_item(tree, hf_dtls_change_cipher_spec, tvb,
-                          offset++, 1, ENC_NA);
+                          offset, 1, ENC_NA);
     }
 }
 
@@ -1003,7 +1003,7 @@ dissect_dtls_alert(tvbuff_t *tvb, packet_info *pinfo,
                               tvb, offset++, 1, ENC_BIG_ENDIAN);
 
           proto_tree_add_item(ssl_alert_tree, hf_dtls_alert_message_description,
-                              tvb, offset++, 1, ENC_BIG_ENDIAN);
+                              tvb, offset, 1, ENC_BIG_ENDIAN);
         }
       else
         {
@@ -1356,7 +1356,6 @@ dissect_dtls_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
   nstime_t gmt_unix_time;
   guint8   session_id_length;
 
-  session_id_length = 0;
   if (ssl)
     {
       /* get proper peer information*/
@@ -1421,7 +1420,7 @@ dissect_dtls_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
     }
 
   /* XXXX */
-  return session_id_length+33;
+  return offset;
 }
 
 static gint
@@ -1501,10 +1500,6 @@ dissect_dtls_hnd_cli_hello(tvbuff_t *tvb,
   guint16     start_offset   = offset;
   guint8      cookie_length;
 
-  cipher_suite_length        = 0;
-  compression_methods_length = 0;
-  cookie_length              = 0;
-
   if (tree || ssl)
     {
       /* show the client version */
@@ -1514,7 +1509,7 @@ dissect_dtls_hnd_cli_hello(tvbuff_t *tvb,
       offset += 2;
 
       /* show the fields in common with server hello */
-      offset += dissect_dtls_hnd_hello_common(tvb, tree, offset, ssl, 0);
+      offset = dissect_dtls_hnd_hello_common(tvb, tree, offset, ssl, 0);
 
       /* look for a cookie */
       cookie_length = tvb_get_guint8(tvb, offset);
@@ -1613,7 +1608,7 @@ dissect_dtls_hnd_cli_hello(tvbuff_t *tvb,
 
       if (length > offset - start_offset)
         {
-          offset = dissect_dtls_hnd_hello_ext(tvb, tree, offset,
+          dissect_dtls_hnd_hello_ext(tvb, tree, offset,
                                               length -
                                               (offset - start_offset));
         }
@@ -1621,7 +1616,7 @@ dissect_dtls_hnd_cli_hello(tvbuff_t *tvb,
 }
 
 
-static void
+static int
 dissect_dtls_hnd_hello_verify_request(tvbuff_t *tvb, proto_tree *tree,
                                       guint32 offset, SslDecryptSession* ssl)
 {
@@ -1634,7 +1629,6 @@ dissect_dtls_hnd_hello_verify_request(tvbuff_t *tvb, proto_tree *tree,
 
   guint8 cookie_length;
 
-  cookie_length = 0;
 
   if (tree || ssl)
     {
@@ -1648,7 +1642,7 @@ dissect_dtls_hnd_hello_verify_request(tvbuff_t *tvb, proto_tree *tree,
       /* look for a cookie */
       cookie_length = tvb_get_guint8(tvb, offset);
       if (!tree)
-        return;
+        return offset;
 
       proto_tree_add_uint(tree, hf_dtls_handshake_cookie_len,
                           tvb, offset, 1, cookie_length);
@@ -1664,10 +1658,10 @@ dissect_dtls_hnd_hello_verify_request(tvbuff_t *tvb, proto_tree *tree,
           offset += cookie_length;
         }
     }
-
+    return offset;
 }
 
-static void
+static int
 dissect_dtls_hnd_srv_hello(tvbuff_t *tvb,
                            proto_tree *tree, guint32 offset, guint32 length, SslDecryptSession* ssl)
 {
@@ -1696,7 +1690,7 @@ dissect_dtls_hnd_srv_hello(tvbuff_t *tvb,
       /* first display the elements conveniently in
        * common with client hello
        */
-      offset += dissect_dtls_hnd_hello_common(tvb, tree, offset, ssl, 1);
+      offset = dissect_dtls_hnd_hello_common(tvb, tree, offset, ssl, 1);
 
       /* PAOLO: handle session cipher suite  */
       if (ssl) {
@@ -1730,7 +1724,7 @@ dissect_dtls_hnd_srv_hello(tvbuff_t *tvb,
       }
     no_cipher:
       if (!tree)
-        return;
+        return offset;
 
       /* now the server-selected cipher suite */
       proto_tree_add_item(tree, hf_dtls_handshake_cipher_suite,
@@ -1749,6 +1743,7 @@ dissect_dtls_hnd_srv_hello(tvbuff_t *tvb,
                                               (offset - start_offset));
         }
     }
+    return offset;
 }
 
 static void
@@ -1837,9 +1832,6 @@ dissect_dtls_hnd_cert_req(tvbuff_t *tvb,
   proto_tree *subtree;
   guint8      cert_types_count;
   gint        dnames_length;
-
-  cert_types_count = 0;
-  dnames_length    = 0;
 
   if (tree)
     {
