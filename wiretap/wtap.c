@@ -515,7 +515,10 @@ static struct encap_type_info encap_table_base[] = {
 	{ "netANALYZER-Transparent", "netanalyzer-transparent" },
 
 	/* WTAP_ENCAP_IP_OVER_IB */
-	{ "IP over Infiniband", "ip-over-ib" }
+	{ "IP over Infiniband", "ip-over-ib" },
+
+	/* WTAP_ENCAP_MPEG_2_TS */
+	{ "ISO/IEC 13818-1 MPEG2-TS", "mp2ts" }
 };
 
 gint wtap_num_encap_types = sizeof(encap_table_base) / sizeof(struct encap_type_info);

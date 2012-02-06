@@ -378,6 +378,8 @@ static const struct {
 	{ 241,		WTAP_ENCAP_NETANALYZER_TRANSPARENT },
 	/* IP-over-Infiniband, as specified by RFC 4391 section 6 */
 	{ 242,		WTAP_ENCAP_IP_OVER_IB },
+	/* ISO/IEC 13818-1 MPEG2-TS packets */
+	{ 243,		WTAP_ENCAP_MPEG_2_TS },
 
 	/*
 	 * To repeat:
