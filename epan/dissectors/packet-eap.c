@@ -1051,7 +1051,6 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    proto_tree_add_text(eap_tree, tvb, offset, 1,
 				"Version: %i",field);
 	  }
-	  size--;
 	  offset++;
 
 	  /* Unused  (byte) */
@@ -1060,7 +1059,6 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    proto_tree_add_text(eap_tree, tvb, offset, 1,
 				"Reserved: %i",field);
 	  }
-	  size--;
 	  offset++;
 
 	  /* Count   (byte) */
@@ -1069,7 +1067,6 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    proto_tree_add_text(eap_tree, tvb, offset, 1,
 				"Count: %i",count);
 	  }
-	  size--;
 	  offset++;
 
 	  /* Data    (byte*Count) */
@@ -1135,8 +1132,6 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	  } /* END: if (tree) */
 
-
-	  size   -= count;
 	  offset += count;
 
 	  /* Name    (Length-(8+Count)) */
@@ -1147,8 +1142,6 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				namesize, plurality(count, "", "s"),
 				tvb_format_text(tvb, offset, namesize));
 	  }
-	  size   -= namesize;
-	  offset += namesize;
 	}
 
 	break; /* EAP_TYPE_LEAP */
