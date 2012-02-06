@@ -5434,7 +5434,6 @@ static int decode_gtp_usr_loc_inf(tvbuff_t * tvb, int offset, packet_info * pinf
             offset+=3;
             proto_tree_add_item(rai_tree, hf_gtp_rai_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(rai_tree, hf_gtp_rai_rac, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset+=4;
 			break;
 		default:
 			proto_tree_add_text(tree, tvb, offset, length - 1, "Unknown Location type data");
