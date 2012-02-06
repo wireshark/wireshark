@@ -951,13 +951,13 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
    */
   if (!iseries->ipv6_trace) 
   {
-  num_items_scanned = sscanf (asciibuf + 32, "%4x", &pkt_len);
+  sscanf (asciibuf + 32, "%4x", &pkt_len);
   wth->phdr.len = pkt_len + 14;
   }
   else
   {
-  num_items_scanned = sscanf (asciibuf + 36, "%4x", &pkt_len);
-    wth->phdr.len = pkt_len + 14;
+  sscanf (asciibuf + 36, "%4x", &pkt_len);
+  wth->phdr.len = pkt_len + 14;
   }
   if (wth->phdr.caplen > wth->phdr.len)
     wth->phdr.len = wth->phdr.caplen;
