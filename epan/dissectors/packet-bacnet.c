@@ -192,13 +192,6 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset = 0;
 	bacnet_version = tvb_get_guint8(tvb, offset);
 	bacnet_control = tvb_get_guint8(tvb, offset+1);
-	bacnet_dlen = 0;
-	bacnet_slen = 0;
-	bacnet_mesgtyp = 0;
-	bacnet_rejectreason = 0;
-	bacnet_rportnum = 0;
-	bacnet_pinfolen =0;
-	i = 0;
 
 	/* I don't know the length of the NPDU yet; Setting the length after dissection */
 	ti = proto_tree_add_item(tree, proto_bacnet, tvb, 0, -1, ENC_NA);
