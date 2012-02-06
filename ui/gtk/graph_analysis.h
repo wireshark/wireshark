@@ -56,7 +56,8 @@ typedef struct _graph_analysis_item {
 /* defines the graph analysis structure */
 typedef struct _graph_analysis_info {
 	int     nconv;       /* number of conversations in the list */
-	GList*  list;   /* list with the graph analysis items */
+	GList*  list;        /* list with the graph analysis items */
+	GHashTable *ht;      /* hash table for retrieving graph analysis items */
 } graph_analysis_info_t;
 
 /* max number of nodes to display, each node will be an IP address */
