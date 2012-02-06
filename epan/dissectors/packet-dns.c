@@ -924,16 +924,14 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
   int dns_class;
   int qu;
   const char *type_name;
-  int data_offset;
   int data_start;
   proto_tree *q_tree;
   proto_item *tq;
 
-  data_start = data_offset = offset;
+  data_start = offset;
 
   len = get_dns_name_type_class(tvb, offset, dns_data_offset, &name, &name_len,
     &type, &dns_class);
-  data_offset += len;
   if (is_mdns) {
     /* Split the QU flag and the class */
     qu = dns_class & C_QU;
@@ -977,7 +975,10 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
     offset += 2;
   }
 
-  return data_offset - data_start;
+  if(data_start + len != offset) {
+    /* Add expert info ? (about incorrect len...)*/
+  }
+  return len;
 }
 
 
@@ -1978,7 +1979,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 			"Next domain name: %s", name_out);
 	cur_offset += next_domain_name_len;
 	rr_len -= next_domain_name_len;
-        cur_offset += dissect_type_bitmap(rr_tree, tvb, cur_offset, rr_len);
+        dissect_type_bitmap(rr_tree, tvb, cur_offset, rr_len);
 
     }
     break;
@@ -2007,7 +2008,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         proto_tree_add_item(rr_tree, hf_dns_nsec3_hash_value, tvb, cur_offset, hash_len, ENC_NA);
         cur_offset += hash_len;
         rr_len = data_len - (cur_offset - initial_offset);
-        cur_offset += dissect_type_bitmap(rr_tree, tvb, cur_offset, rr_len);
+        dissect_type_bitmap(rr_tree, tvb, cur_offset, rr_len);
 
     }
     break;
@@ -2321,8 +2322,6 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 	  if (rr_len < tkey_otherlen)
 	    goto bad_rr;
 	  proto_tree_add_text(rr_tree, tvb, cur_offset, tkey_otherlen, "Other Data");
-	  cur_offset += tkey_otherlen;
-	  rr_len -= tkey_otherlen;
 	}
 
     }
@@ -2418,8 +2417,6 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 	  if (rr_len < tsig_otherlen)
 	    goto bad_rr;
 	  proto_tree_add_item(rr_tree, hf_dns_tsig_other_data, tvb, cur_offset, tsig_otherlen, ENC_NA);
-	  cur_offset += tsig_otherlen;
-	  rr_len -= tsig_otherlen;
 	}
 
     }
@@ -2526,7 +2523,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 		       cache_timeout);
 
       cur_offset += 4;
-      rr_len -= 4;
+      /* rr_len -= 4; */
 
       /* XXX Fix data length */
       dname_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &dname);
@@ -2600,7 +2597,6 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       regex = tvb_get_ephemeral_string(tvb, offset, regex_len);
       offset += regex_len;
       replacement_len = get_dns_name(tvb, offset, 0, dns_data_offset, &replacement);
-      offset++;
       name_out = format_text(replacement, strlen(replacement));
 
       if (cinfo != NULL)
@@ -2921,7 +2917,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         cur_offset += px_map822_len;
         px_mapx400_len = get_dns_name(tvb, cur_offset, 0, dns_data_offset, &px_mapx400_dnsname);
         proto_tree_add_text(rr_tree, tvb, cur_offset, px_mapx400_len, "MAPX400: %s", format_text(px_mapx400_dnsname, strlen(px_mapx400_dnsname)) );
-        cur_offset += px_mapx400_len;
+        /*cur_offset += px_mapx400_len;*/
       }
     break;
 
@@ -3326,7 +3322,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
 
   if (add > 0) {
-    cur_off += dissect_answer_records(tvb, cur_off, dns_data_offset, add,
+    dissect_answer_records(tvb, cur_off, dns_data_offset, add,
 				      NULL, dns_tree, "Additional records",
 				      pinfo, is_mdns);
   }
