@@ -3617,7 +3617,6 @@ make_menu_xml(const char *path) {
     char        **p;
     char        **tokens;
     const char  *tok = path;
-    char        *lbl;
     gchar       *markup;
     guint       num_menus;
     size_t      len;
@@ -3646,10 +3645,6 @@ make_menu_xml(const char *path) {
         if (g_strcmp0(tok, "-") == 0) {
             xml = g_string_append(xml, "<separator/>\n");
         } else {
-            /* strip label from token...it's used later in menu actions */
-            lbl = strchr(tok, '|');
-            if (lbl != NULL) *lbl++ = '\0';
-
             markup = g_markup_printf_escaped("<menu action='%s'>\n", tok);
             xml = g_string_append(xml, markup);
             g_free(markup);
@@ -3665,10 +3660,6 @@ make_menu_xml(const char *path) {
         if (g_strcmp0(tok, "-") == 0) {
             xml = g_string_append(xml, "<separator/>\n");
         } else {
-            /* strip label from token...it's used later in menu actions */
-            lbl = strchr(tok, '|');
-            if (lbl != NULL) *lbl++ = '\0';
-
             /* append self-closing menu-item tag */
             markup = g_markup_printf_escaped("<menuitem action='%s'/>\n", tok);
             xml = g_string_append(xml, markup);
