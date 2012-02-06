@@ -3429,7 +3429,6 @@ void main_widgets_rearrange(void) {
     default:
         main_first_pane = NULL;
         main_second_pane = NULL;
-        split_top_left = FALSE;
         g_assert_not_reached();
     }
     if (split_top_left) {
@@ -4007,7 +4006,6 @@ scan_local_interfaces(capture_options* capture_opts, int *error)
     for (if_entry = if_list; if_entry != NULL; if_entry = g_list_next(if_entry)) {
         if_info = if_entry->data;
         ip_str = g_string_new("");
-        str = "";
         ips = 0;
         device.name = g_strdup(if_info->name);
         device.hidden = FALSE;
