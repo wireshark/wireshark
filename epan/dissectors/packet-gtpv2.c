@@ -1005,7 +1005,6 @@ dissect_gtpv2_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pro
     /* a(n+4) Spare Instance */
     proto_tree_add_bits_item(tree, hf_gtpv2_spare_half_octet, tvb, offset>>3, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gtpv2_instance, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset++;
 
 }
 
@@ -1127,7 +1126,6 @@ dissect_gtpv2_mm_con_eutran_srvcc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     fi = proto_tree_add_text(tree, tvb, offset, elm_len, "Supported Codec List  %s", tvb_bytes_to_str(tvb, offset, elm_len));
     ms_tree = proto_item_add_subtree(fi, ett_gtpv2_supp_codec_list);
     de_sup_codec_list(tvb, ms_tree, pinfo, offset, elm_len, NULL, 0);
-    offset = offset+elm_len;
 
 }
 
@@ -1176,7 +1174,6 @@ dissect_gtpv2_mm_con_utran_srvcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     fi = proto_tree_add_text(tree, tvb, offset, elm_len, "Supported Codec List  %s", tvb_bytes_to_str(tvb, offset, elm_len));
     ms_tree = proto_item_add_subtree(fi, ett_gtpv2_supp_codec_list);
     de_sup_codec_list(tvb, ms_tree, pinfo, offset, elm_len, NULL, 0);
-    offset = offset+elm_len;
 
 }
 
@@ -1202,10 +1199,9 @@ dissect_gtpv2_srvcc_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     int     offset = 0;
     guint8  srvcc_cause;
 
-    srvcc_cause = tvb_get_guint8(tvb, 0);
-    proto_tree_add_item(tree, hf_gtpv2_srvcc_cause, tvb, 0, 1, ENC_BIG_ENDIAN);
+    srvcc_cause = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_gtpv2_srvcc_cause, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_item_append_text(item, "%s (%u)", val_to_str_ext_const(srvcc_cause, &gtpv2_srvcc_cause_vals_ext, "Unknown"),srvcc_cause);
-    offset++;
 
 }
 
@@ -1247,8 +1243,6 @@ dissect_gtpv2_tgt_rnc_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pr
 
     proto_tree_add_item(subtree, hf_gtpv2_lac, tvb, curr_offset+3, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_gtpv2_rnc_id, tvb, curr_offset+5, 1, ENC_BIG_ENDIAN);
-
-    curr_offset+=6;
 
     /* no length check possible */
 
@@ -1292,8 +1286,6 @@ dissect_gtpv2_tgt_global_cell_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
     proto_tree_add_item(subtree, hf_gtpv2_lac, tvb, curr_offset+3, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_gtpv2_tgt_g_cell_id, tvb, curr_offset+5, 1, ENC_BIG_ENDIAN);
-
-    curr_offset+=6;
 
     /* no length check possible */
 
@@ -1349,7 +1341,6 @@ dissect_gtpv2_sai(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_ite
      * least significant bit. The SAC is defined by the operator. See 3GPP TS 23.003 [4] subclause 12.5 for more information
      */
     proto_tree_add_item(tree, hf_gtpv2_sac, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset+=2;
 }
 
 /*End SRVCC Messages*/
@@ -1599,7 +1590,6 @@ dissect_gtpv2_paa(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
     case 1:
         /* IPv4 */
         proto_tree_add_item(tree, hf_gtpv2_pdn_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
-        offset+=4;
         break;
     case 2:
         /* IPv6*/
@@ -1611,7 +1601,6 @@ dissect_gtpv2_paa(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
         proto_tree_add_item(tree, hf_gtpv2_pdn_ipv6_len, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
         proto_tree_add_item(tree, hf_gtpv2_pdn_ipv6, tvb, offset, 16, ENC_NA);
-        offset+=16;
         break;
     case 3:
         /* IPv4/IPv6 */
@@ -1628,7 +1617,6 @@ dissect_gtpv2_paa(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
         proto_tree_add_item(tree, hf_gtpv2_pdn_ipv6, tvb, offset, 16, ENC_NA);
         offset+=16;
         proto_tree_add_item(tree, hf_gtpv2_pdn_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
-        offset+=4;
         break;
     default:
         break;
@@ -1655,7 +1643,6 @@ dissect_gtpv2_bearer_qos(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     proto_tree_add_item(tree, hf_gtpv2_bearer_qos_gbr_up, tvb, offset, 5, ENC_BIG_ENDIAN);
     offset= offset+5;
     proto_tree_add_item(tree, hf_gtpv2_bearer_qos_gbr_down, tvb, offset, 5, ENC_BIG_ENDIAN);
-    offset= offset+5;
 }
 
 /*
@@ -1675,7 +1662,6 @@ dissect_gtpv2_flow_qos(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
     proto_tree_add_item(tree, hf_gtpv2_flow_qos_gbr_up, tvb, offset, 5, ENC_BIG_ENDIAN);
     offset= offset+5;
     proto_tree_add_item(tree, hf_gtpv2_flow_qos_gbr_down, tvb, offset, 5, ENC_BIG_ENDIAN);
-    offset= offset+5;
 }
 
 /*
@@ -1870,7 +1856,6 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item
          * responsibility of each administration. Coding using full hexadecimal representation shall be used.
          */
         proto_tree_add_item(part_tree, hf_gtpv2_uli_lai_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset+=2;
 
     }
 
@@ -2064,7 +2049,6 @@ dissect_gtpv2_f_teid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pr
     {
         proto_tree_add_item(tree, hf_gtpv2_f_teid_ipv6, tvb, offset, 16, ENC_NA);
         proto_item_append_text(item, ", IPv6 %s", tvb_ip6_to_str(tvb, offset));
-        offset= offset+16;
     }
 }
 /*
@@ -2770,7 +2754,7 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     proto_tree  *flag_tree, *auth_qua_tree = NULL, *net_cap_tree,
                 *msnt_cap_tree, *vd_pref_tree, *accrstdata_tree;
     gint         offset;
-    guint8       nhi, nr_qui, nr_qua, tmp;
+    guint8       nhi, nr_qua, tmp;
 
     offset = 0;
 
@@ -2800,10 +2784,8 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
      * Number of        | Number of       | UAMB  | OSCI
      * Quintuplets      | Quadruplet      |  RI   |
      */
-    nr_qui = tvb_get_guint8(tvb, offset);
     nr_qua = tvb_get_guint8(tvb, offset) & 0x1c;
 
-    nr_qui >>= 5;
     nr_qua >>= 2;
 
     proto_tree_add_item(flag_tree, hf_gtpv2_mm_context_nr_qui, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2973,7 +2955,7 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     {
         vd_pref_item = proto_tree_add_text(tree, tvb, offset, tmp, "Voice Domain Preference and UE's Usage Setting");
         vd_pref_tree = proto_item_add_subtree(vd_pref_item, ett_gtpv2_vd_pref);
-        offset+=de_gmm_voice_domain_pref(tvb, vd_pref_tree, pinfo, offset, tmp, NULL, 0);
+        de_gmm_voice_domain_pref(tvb, vd_pref_tree, pinfo, offset, tmp, NULL, 0);
     }
 
 }
@@ -3254,7 +3236,6 @@ dissect_gtpv2_F_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
                 proto_tree_add_item(sub_tree, hf_gtpv2_bss_con_xid_len, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset++;
                 proto_tree_add_item(sub_tree, hf_gtpv2_bss_con_xid, tvb, offset, xid_len, ENC_BIG_ENDIAN);
-                offset += xid_len;
             }
             return;
         default:
@@ -3461,7 +3442,6 @@ dissect_gtpv2_target_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
         offset+=4;
         /* Octet 13 to 14 Tracking Area Code (TAC) */
         proto_tree_add_item(tree, hf_gtpv2_tac, tvb, offset, 2 , ENC_BIG_ENDIAN);
-        offset+=2;
         return;
 
     default:
@@ -3608,8 +3588,7 @@ dissect_gtpv2_source_ident(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         /* The Source Type is Cell ID for PS handover from GERAN A/Gb mode. In this case the coding of the Source ID field
          * shall be same as the Octets 3 to 10 of the Cell Identifier IEI in 3GPP TS 48.018 [34].
          */
-        de_cell_id(tvb, tree, pinfo, offset, 8, NULL, 0);
-        offset+=8;
+        de_cell_id(tvb, tree, pinfo, offset, 8, NULL, 0);;
         break;
     case 1:
         /* The Source Type is RNC ID for PS handover from GERAN Iu mode or for inter-RAT handover from UTRAN. In this
@@ -3888,7 +3867,6 @@ dissect_gtpv2_mbms_session_duration(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     bit_offset += 17;
 
     days = tvb_get_bits32(tvb, bit_offset, 7, ENC_BIG_ENDIAN);
-    bit_offset += 7;
 
     /* Maximum allowed value for days: 18.
      * Maximum allowed value for seconds: 86,400 */
