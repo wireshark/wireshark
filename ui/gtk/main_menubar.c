@@ -1236,6 +1236,7 @@ static const char *ui_desc_menubar =
 "        <menuitem name='NCP' action='/Statistics/ServiceResponseTime/NCP'/>\n"
 "        <menuitem name='RADIUS' action='/Statistics/ServiceResponseTime/RADIUS'/>\n"
 "        <menuitem name='SCSI' action='/Statistics/ServiceResponseTime/SCSI'/>\n"
+"        <menuitem name='SMB' action='/Statistics/ServiceResponseTime/SMB'/>\n"
 "        <menuitem name='SMB2' action='/Statistics/ServiceResponseTime/SMB2'/>\n"
 "      </menu>\n"
 "      <separator/>\n"
