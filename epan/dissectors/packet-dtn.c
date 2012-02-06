@@ -1615,7 +1615,7 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset)
     guint8 record_type;
     guint8 status;
     guint8 reason;
-    int record_size = 0;
+    int start_offset = offset;
     int sdnv_length;
     int timestamp_sequence;
     int endpoint_length;
@@ -1648,7 +1648,7 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset)
 
         proto_tree_add_text(admin_record_tree, tvb, offset, 1,
                                 "Administrative Record Type: Bundle Status Report");
-        ++record_size; ++offset;
+        ++offset;
 
         /* Decode Bundle Status Report Flags */
         status = tvb_get_guint8(tvb, offset);
@@ -1668,7 +1668,7 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset)
                                                 tvb, offset, 1, status);
         proto_tree_add_boolean(status_flag_tree, hf_bundle_admin_acked,
                                                 tvb, offset, 1, status);
-        ++record_size; ++offset;
+        ++offset;
 
         reason = tvb_get_guint8(tvb, offset);
         if(reason == 0) {
@@ -1681,20 +1681,20 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset)
                                         val_to_str(reason, status_report_reason_codes,
                                                         "Invalid"));
         }
-        ++record_size; ++offset;
+        ++offset;
         if(record_type & ADMIN_REC_FLAGS_FRAGMENT) {
             sdnv_length = add_sdnv_to_tree(admin_record_tree, tvb, offset,
                                                         "Fragment Offset");
             if(sdnv_length <= 0) {
                 return 0;
             }
-            offset += sdnv_length; record_size += sdnv_length;
+            offset += sdnv_length;
             sdnv_length = add_sdnv_to_tree(admin_record_tree, tvb, offset,
                                                         "Fragment Length");
             if(sdnv_length <= 0) {
                 return 0;
             }
-            offset += sdnv_length; record_size += sdnv_length;
+            offset += sdnv_length;
         }
         if(status & ADMIN_STATUS_FLAGS_RECEIVED) {
             sdnv_length = add_dtn_time_to_tree(admin_record_tree, tvb, offset,
@@ -1702,7 +1702,7 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset)
             if(sdnv_length <= 0) {
                 return 0;
             }
-            offset += sdnv_length; record_size += sdnv_length;
+            offset += sdnv_length;
         }
         if(status & ADMIN_STATUS_FLAGS_ACCEPTED) {
             sdnv_length = add_dtn_time_to_tree(admin_record_tree, tvb, offset,
@@ -1710,7 +1710,7 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset)
             if(sdnv_length <= 0) {
                 return 0;
             }
-            offset += sdnv_length; record_size += sdnv_length;
+            offset += sdnv_length;
         }
         if(status & ADMIN_STATUS_FLAGS_FORWARDED) {
             sdnv_length = add_dtn_time_to_tree(admin_record_tree, tvb, offset,
@@ -1718,7 +1718,7 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset)
             if(sdnv_length <= 0) {
                 return 0;
             }
-            offset += sdnv_length; record_size += sdnv_length;
+            offset += sdnv_length;
         }
         if(status & ADMIN_STATUS_FLAGS_DELIVERED) {
             sdnv_length = add_dtn_time_to_tree(admin_record_tree, tvb, offset,
@@ -1726,7 +1726,7 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset)
             if(sdnv_length <= 0) {
                 return 0;
             }
-            offset += sdnv_length; record_size += sdnv_length;
+            offset += sdnv_length;
         }
         if(status & ADMIN_STATUS_FLAGS_DELETED) {
             sdnv_length = add_dtn_time_to_tree(admin_record_tree, tvb, offset,
@@ -1734,7 +1734,7 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset)
             if(sdnv_length <= 0) {
                 return 0;
             }
-            offset += sdnv_length; record_size += sdnv_length;
+            offset += sdnv_length;
         }
         if(status & ADMIN_STATUS_FLAGS_ACKNOWLEDGED) {
             sdnv_length = add_dtn_time_to_tree(admin_record_tree, tvb, offset,
@@ -1742,7 +1742,7 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset)
             if(sdnv_length <= 0) {
                 return 0;
             }
-            offset += sdnv_length; record_size += sdnv_length;
+            offset += sdnv_length;
         }
 
         /* Get 2 SDNVs for Creation Timestamp */
@@ -1751,7 +1751,7 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset)
         if(sdnv_length <= 0) {
             return 0;
         }
-        offset += sdnv_length; record_size += sdnv_length;
+        offset += sdnv_length;
 
         timestamp_sequence = evaluate_sdnv(tvb, offset, &sdnv_length);
         timestamp_sequence_item = proto_tree_add_text(admin_record_tree, tvb, offset, sdnv_length, " ");
@@ -1771,7 +1771,7 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset)
             proto_item_set_text(timestamp_sequence_item,
                                 "Timestamp Sequence Number: %d", timestamp_sequence);
         }
-        offset += sdnv_length; record_size += sdnv_length;
+        offset += sdnv_length;
 
         endpoint_length = evaluate_sdnv(tvb, offset, &sdnv_length);
         if(endpoint_length < 0) {
@@ -1779,7 +1779,7 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset)
         }
         proto_tree_add_text(admin_record_tree, tvb, offset, sdnv_length,
                                         "Endpoint Length: %d", endpoint_length);
-        offset += sdnv_length; record_size += sdnv_length;
+        offset += sdnv_length;
 
         /*
          * Endpoint name may not be null terminated. This routine is supposed
@@ -1788,14 +1788,14 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset)
         string_ptr = tvb_get_ephemeral_string(tvb, offset, endpoint_length);
         proto_tree_add_text(admin_record_tree, tvb, offset, endpoint_length,
                                                 "Bundle Endpoint ID: %s", string_ptr);
-        offset += endpoint_length; record_size += endpoint_length;
+        offset += endpoint_length;
 
-        return record_size;
+        return offset - start_offset;
     }
     case ADMIN_REC_TYPE_CUSTODY_SIGNAL:
         proto_tree_add_text(admin_record_tree, tvb, offset, 1,
                                 "Administrative Record Type: Custody Signal");
-        ++record_size; ++offset;
+        ++offset;
 
         status = tvb_get_guint8(tvb, offset);
         proto_tree_add_text(admin_record_tree, tvb, offset, 1,
@@ -1811,20 +1811,20 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset)
                                 val_to_str(status & ADMIN_REC_CUSTODY_REASON_MASK,
                                                 custody_signal_reason_codes, "Invalid"));
         }
-        ++record_size; ++offset;
+        ++offset;
         if(record_type & ADMIN_REC_FLAGS_FRAGMENT) {
             sdnv_length = add_sdnv_to_tree(admin_record_tree, tvb, offset,
                                                         "Fragment Offset");
             if(sdnv_length <= 0) {
                 return 0;
             }
-            offset += sdnv_length; record_size += sdnv_length;
+            offset += sdnv_length;
             sdnv_length = add_sdnv_to_tree(admin_record_tree, tvb, offset,
                                                         "Fragment Length");
             if(sdnv_length <= 0) {
                 return 0;
             }
-            offset += sdnv_length; record_size += sdnv_length;
+            offset += sdnv_length;
         }
 
         /* Signal Time */
@@ -1833,7 +1833,7 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset)
         if(sdnv_length <= 0) {
             return 0;
         }
-        offset += sdnv_length; record_size += sdnv_length;
+        offset += sdnv_length;
 
         /* Timestamp copy */
         sdnv_length = add_sdnv_time_to_tree(admin_record_tree, tvb, offset,
@@ -1841,7 +1841,7 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset)
         if(sdnv_length <= 0) {
             return 0;
         }
-        offset += sdnv_length; record_size += sdnv_length;
+        offset += sdnv_length;
 
         timestamp_sequence = evaluate_sdnv(tvb, offset, &sdnv_length);
         timestamp_sequence_item = proto_tree_add_text(admin_record_tree, tvb, offset, sdnv_length, " ");
@@ -1862,7 +1862,7 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset)
                "Timestamp Sequence Number: %d", timestamp_sequence);
         }
 
-        offset += sdnv_length; record_size += sdnv_length;
+        offset += sdnv_length;
 
         endpoint_length = evaluate_sdnv(tvb, offset, &sdnv_length);
         if(endpoint_length < 0) {
@@ -1870,12 +1870,12 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset)
         }
         proto_tree_add_text(admin_record_tree, tvb, offset, sdnv_length,
                                         "Endpoint Length: %d", endpoint_length);
-        offset += sdnv_length; record_size += sdnv_length;
+        offset += sdnv_length;
         string_ptr = tvb_get_ephemeral_string(tvb, offset, endpoint_length);
         proto_tree_add_text(admin_record_tree, tvb, offset, endpoint_length,
                                                 "Bundle Endpoint ID: %s", string_ptr);
-        offset += endpoint_length; record_size += endpoint_length;
-        return record_size;
+        offset += endpoint_length;
+        return offset - start_offset;
 
     }   /* End Switch */
 
