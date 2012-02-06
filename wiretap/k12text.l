@@ -400,7 +400,6 @@ k12text_dump(wtap_dumper *wdh _U_, const struct wtap_pkthdr *phdr,
 	}
 
 	wl = g_snprintf(p, left, "\r\n\r\n");
-	p+= wl;
 	left -= wl;
 
 	ret = wtap_dump_file_write(wdh, buf, K12BUF_SIZE - left, err);
