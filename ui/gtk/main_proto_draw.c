@@ -1730,7 +1730,6 @@ packet_hex_editor_print(GtkWidget *bv, const guint8 *pd, frame_data *fd, int off
         break;
 
 	default:
-		bmask = 0x00;
 		g_assert_not_reached();
 		break;
     }
