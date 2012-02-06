@@ -339,7 +339,7 @@ dissect_epl_v1_asnd(proto_tree *epl_v1_tree, tvbuff_t *tvb, gint offset)
 
 
 /* Code to actually dissect the packets */
-static gboolean
+static int
 dissect_epl_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint8  epl_v1_service, epl_v1_dest, epl_v1_src, epl_v1_ainv_ch, epl_v1_asnd_ch;
@@ -448,7 +448,7 @@ dissect_epl_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	default: /* not a valid MessageType - can't dissect any further. */
 		return FALSE;
 	}
-	return TRUE;
+	return offset;
 }
 
 
