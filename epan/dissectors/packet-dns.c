@@ -3076,8 +3076,6 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   proto_tree *dns_tree = NULL, *field_tree;
   proto_item *ti, *tf;
   guint16    id, flags, opcode, rcode, quest, ans, auth, add;
-  char *buf;
-  int bufpos;
   int cur_off;
   gboolean isupdate;
   conversation_t *conversation;
@@ -3088,10 +3086,6 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   col_clear(pinfo->cinfo, COL_INFO);
 
-#define MAX_BUF_SIZE (128+1)
-  buf=ep_alloc(MAX_BUF_SIZE);
-  buf[0]=0;
-  bufpos=0;
 
   /* To do: check for errs, etc. */
   id    = tvb_get_ntohs(tvb, offset + DNS_ID);
@@ -3100,21 +3094,16 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   rcode  = (guint16)  (flags & F_RCODE);
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
-    bufpos=0;
-    bufpos+=MIN(MAX_BUF_SIZE-bufpos,
-		g_snprintf(buf+bufpos, MAX_BUF_SIZE-bufpos, "%s%s 0x%04x",
-		val_to_str(opcode, opcode_vals, "Unknown operation (%u)"),
-		(flags&F_RESPONSE)?" response":"",
-		id));
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s%s 0x%04x ", 
+                val_to_str(opcode, opcode_vals, "Unknown operation (%u)"),
+                (flags&F_RESPONSE)?" response":"", id);
 
     if (flags & F_RESPONSE) {
       if (rcode != RCODE_NOERROR) {
-	bufpos+=MIN(MAX_BUF_SIZE-bufpos,
-		    g_snprintf(buf+bufpos, MAX_BUF_SIZE-bufpos, ", %s",
-			val_to_str(rcode, rcode_vals, "Unknown error (%u)")));
+        col_append_str(pinfo-> cinfo,COL_INFO,
+                val_to_str(rcode, rcode_vals, "Unknown error (%u)"));
       }
     }
-    col_add_str(pinfo->cinfo, COL_INFO, buf);
     cinfo = pinfo->cinfo;
   } else {
     /* Set "cinfo" to NULL; we pass a NULL "cinfo" to the query and answer
@@ -3214,20 +3203,14 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   proto_tree_add_uint(dns_tree, hf_dns_transaction_id, tvb,
 	offset + DNS_ID, 2, id);
 
-  bufpos=0;
-  bufpos+=MIN(MAX_BUF_SIZE-bufpos,
-		g_snprintf(buf+bufpos, MAX_BUF_SIZE-bufpos, "%s",
-		val_to_str(opcode, opcode_vals, "Unknown operation")));
+  tf = proto_tree_add_item(dns_tree, hf_dns_flags, tvb,
+                offset + DNS_FLAGS, 2, ENC_BIG_ENDIAN);
+  proto_item_append_text(tf, " %s",
+                val_to_str(opcode, opcode_vals, "Unknown operation"));
   if (flags & F_RESPONSE) {
-    bufpos+=MIN(MAX_BUF_SIZE-bufpos,
-		g_snprintf(buf+bufpos, MAX_BUF_SIZE-bufpos, " response, %s",
-		val_to_str(rcode, rcode_vals, "Unknown error")));
+  proto_item_append_text(tf, " response, %s",
+		val_to_str(rcode, rcode_vals, "Unknown error"));
   }
-  tf = proto_tree_add_uint_format(dns_tree, hf_dns_flags, tvb,
-		offset + DNS_FLAGS, 2,
-		flags,
-		"Flags: 0x%04x (%s)",
-		flags, buf);
   field_tree = proto_item_add_subtree(tf, ett_dns_flags);
   proto_tree_add_item(field_tree, hf_dns_flags_response,
 		tvb, offset + DNS_FLAGS, 2, ENC_BIG_ENDIAN);
