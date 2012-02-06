@@ -2067,6 +2067,20 @@ dissect_amqp_0_9_field_table(tvbuff_t *tvb, packet_info *pinfo, int offset, guin
             amqp_typename = "void";
             value = "";
             break;
+        case 'A':
+            /*  TODO: make it recursive here  */
+            amqp_typename = "array";
+            if (length < 4)
+                goto too_short;
+            vallen = tvb_get_ntohl(tvb, offset);
+            offset += 4;
+            length -= 4;
+            value = "...";
+            if (length < vallen)
+                goto too_short;
+            offset += vallen;
+            length -= vallen;
+            break;
         default:
             amqp_typename = "";
             value = NULL;
