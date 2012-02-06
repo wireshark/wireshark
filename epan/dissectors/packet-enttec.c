@@ -342,7 +342,7 @@ dissect_enttec_reset(tvbuff_t *tvb _U_, guint offset, proto_tree *tree _U_)
 	return offset;
 }
 
-static void
+static int
 dissect_enttec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	gint offset = 0;
@@ -397,6 +397,7 @@ dissect_enttec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 
 	}
+	return offset;
 }
 
 void
@@ -546,7 +547,7 @@ proto_reg_handoff_enttec(void) {
 	static guint tcp_port_enttec;
 
 	if(!enttec_initialized) {
-		enttec_handle = create_dissector_handle(dissect_enttec,proto_enttec);
+		enttec_handle = new_create_dissector_handle(dissect_enttec,proto_enttec);
 		enttec_initialized = TRUE;
 	} else {
 		dissector_delete_uint("udp.port",udp_port_enttec,enttec_handle);
