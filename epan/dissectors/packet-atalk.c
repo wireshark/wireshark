@@ -1169,8 +1169,7 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     proto_tree_add_string(sub_tree, hf_asp_server_utf8_name, tvb, ofs, ulen, tmp);
     ofs += ulen;
   }
-  /* FIXME: offset is not updated */
-  return offset;
+  return ofs;
 }
 
 /* -----------------------------
@@ -1178,7 +1177,7 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 */
 #define PAD(x)      { proto_tree_add_item(pap_tree, hf_pap_pad, tvb, offset,  x, ENC_NA); offset += x; }
 
-static void
+static int
 dissect_pap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   int offset = 0;
@@ -1262,6 +1261,7 @@ dissect_pap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   default:  /* unknown */
     break;
   }
+  return offset;
 }
 
 /* -----------------------------
@@ -1309,7 +1309,7 @@ get_transaction(tvbuff_t *tvb, packet_info *pinfo)
 }
 
 
-static void
+static int
 dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   struct aspinfo *aspinfo;
@@ -1324,7 +1324,7 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   aspinfo = get_transaction(tvb, pinfo);
   if (!aspinfo)
-     return;
+     return 0;
 
   fn = (guint8) aspinfo->command;
 
@@ -1446,6 +1446,7 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
     }
   }
+  return offset;
 }
 
 /* -----------------------------
@@ -2452,8 +2453,8 @@ proto_reg_handoff_atalk(void)
   atp_handle = create_dissector_handle(dissect_atp, proto_atp);
   dissector_add_uint("ddp.type", DDP_ATP, atp_handle);
 
-  asp_handle = create_dissector_handle(dissect_asp, proto_asp);
-  pap_handle = create_dissector_handle(dissect_pap, proto_pap);
+  asp_handle = new_create_dissector_handle(dissect_asp, proto_asp);
+  pap_handle = new_create_dissector_handle(dissect_pap, proto_pap);
 
   rtmp_request_handle = create_dissector_handle(dissect_rtmp_request, proto_rtmp);
   rtmp_data_handle = create_dissector_handle(dissect_rtmp_data, proto_rtmp);
