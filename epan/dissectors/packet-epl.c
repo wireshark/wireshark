@@ -476,7 +476,7 @@ static gint dissect_epl_sdo_command_read_by_index(proto_tree *epl_tree, tvbuff_t
 
 static const gchar* decode_epl_address(guchar adr);
 
-static gboolean dissect_epl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static gint dissect_epl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 
 /* Initialize the protocol and registered fields */
@@ -661,7 +661,7 @@ gboolean show_soc_flags = FALSE;
 
 
 /* Code to actually dissect the packets */
-static gboolean
+static int
 dissect_epl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint8 epl_mtyp, epl_src, epl_dest;
@@ -813,7 +813,7 @@ dissect_epl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             return FALSE;
     }
 
-    return TRUE;
+    return offset;
 }
 
 
@@ -1480,7 +1480,6 @@ dissect_epl_sdo_command(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo,
     guint16 segment_size;
 
     offset += 1;
-    segmented = FALSE;
 
     command_id = tvb_get_guint8(tvb, offset + 2);
 
