@@ -951,10 +951,10 @@ dissect_gsm_apdu(guint8 ins, guint8 p1, guint8 p2, guint8 p3,
 		return -1;
 	}
 
-	return 0;
+	return offset;
 }
 
-static void
+static int
 dissect_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	guint8 cla, ins, p1, p2, p3;
@@ -1012,7 +1012,7 @@ dissect_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 		col_append_fstr(pinfo->cinfo, COL_INFO, ": %s ", get_sw_string(sw));
 		break;
 	}
-
+	return offset;
 }
 
 static void
