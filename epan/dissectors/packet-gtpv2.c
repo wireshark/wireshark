@@ -344,7 +344,7 @@ static int hf_gtpv2_mbms_service_area_nr = -1;
 static int hf_gtpv2_mbms_service_area_id = -1;
 static int hf_gtpv2_mbms_session_id = -1;
 static int hf_gtpv2_mbms_flow_id = -1;
-static int hf_gtpv2_mbms_ip_mc_dist_cteid = -1;
+static int hf_gtpv2_cteid = -1;
 static int hf_gtpv2_ip_addr_type = -1;
 static int hf_gtpv2_ip_addr_len = -1;
 static int hf_gtpv2_mbms_ip_mc_dist_addrv4 = -1;
@@ -353,13 +353,9 @@ static int hf_gtpv2_mbms_ip_mc_src_addrv4 = -1;
 static int hf_gtpv2_mbms_ip_mc_src_addrv6 = -1;
 static int hf_gtpv2_mbms_hc_indicator = -1;
 static int hf_gtpv2_mbms_dist_indication = -1;
-static int hf_gtpv2_ms_cm2_len = -1;
-static int hf_gtpv2_ms_cm2_rev_level = -1;
-static int hf_gtpv2_ms_cm2_es_ind = -1;
-static int hf_gtpv2_ms_cm2_encrypt_a51 = -1;
-static int hf_gtpv2_ms_cm2_rf_pwr_capability = -1;
-static int hf_gtpv2_ms_cm2_ps_capability = -1;
-static int hf_gtpv2_ms_cm2_ss_screening_ind = -1;
+static int hf_gtpv2_mbms_service_id = -1;
+static int hf_gtpv2_add_flags_for_srvcc_ics = -1;
+static int hf_gtpv2_vsrvcc_flag = -1;
 
 static gint ett_gtpv2 = -1;
 static gint ett_gtpv2_flags = -1;
@@ -399,7 +395,6 @@ static gint ett_gtpv2_mm_context_net_cap = -1;
 static gint ett_gtpv2_ms_network_capability = -1;
 static gint ett_gtpv2_vd_pref = -1;
 static gint ett_gtpv2_access_rest_data = -1;
-static gint ett_gtpv2_ms_cm2 = -1;
 
 /* Definition of User Location Info (AVP 22) masks */
 #define GTPv2_ULI_CGI_MASK          0x01
@@ -3895,13 +3890,13 @@ dissect_gtpv2_mbms_session_duration(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     days = tvb_get_bits32(tvb, bit_offset, 7, ENC_BIG_ENDIAN);
     bit_offset += 7;
 
-    /* The lowest value of this AVP (i.e. all 0:s) is reserved to indicate an indefinite value to denote sessions that are expected to be always-on. */
-    /* Since the maximum allowed values for both seconds and days are smaller than the maximum permitted by the number of bits,
-     * I've implemented a basic check. */
+    /* Maximum allowed value for days: 18.
+     * Maximum allowed value for seconds: 86,400 */
     if((days>18) || (seconds>86400)) {
-        /* Report potentially malformed packet */
+        proto_tree_add_text(tree, tvb, offset, offset+3, "Days or Seconds out or allowed range");
     } 
 
+    /* The lowest value of this AVP (i.e. all 0:s) is reserved to indicate an indefinite value to denote sessions that are expected to be always-on. */
     if((seconds&days) == 0xffffffff) {
         proto_item_append_text(item, "Indefinite (always-on)");
     } else {
@@ -3923,6 +3918,7 @@ static void
 dissect_gtpv2_mbms_service_area(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
     int offset = 0;
+    proto_item *sai_item;
 
     /* 3GPP TS 29.061 17.7.6 MBMS-Service-Area AVP */
     proto_tree_add_item(tree, hf_gtpv2_mbms_service_area_nr, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3930,18 +3926,15 @@ dissect_gtpv2_mbms_service_area(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
     /* A consecutive list of MBMS Service Area Identities follow, each with a length of two octets. */
     while(offset<length) {
-        /* 3GPP TS 23.003 15.3 Structure of MBMS SAI
-         * The value 0 denotes the whole of PLMN as the MBMS Service Area */
+        /* 3GPP TS 23.003 15.3 Structure of MBMS SAI */
         guint16 sai = tvb_get_bits16(tvb, 0, 16, ENC_BIG_ENDIAN);
+        sai_item = proto_tree_add_item(tree, hf_gtpv2_mbms_service_area_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+        /* The value 0 denotes the whole of PLMN as the MBMS Service Area */
         if(sai == 0) {
-            proto_item_append_text(item, "Entire PLMN");
-        }
-        else {
-            proto_tree_add_item(tree, hf_gtpv2_mbms_service_area_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_item_append_text(sai_item, "Entire PLMN");
         }
         offset += 2;
     }
-
 }
 
 /*
@@ -3988,7 +3981,7 @@ dissect_gtpv2_mbms_ip_mc_dist(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 {
     int offset = 0;
 
-    proto_tree_add_item(tree, hf_gtpv2_mbms_ip_mc_dist_cteid, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_cteid, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     proto_tree_add_item(tree, hf_gtpv2_ip_addr_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -4002,8 +3995,6 @@ dissect_gtpv2_mbms_ip_mc_dist(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
         offset += 1;
         proto_tree_add_item(tree, hf_gtpv2_mbms_ip_mc_dist_addrv6, tvb, offset, 16, ENC_NA);
         offset += 16;
-    } else {
-        /* Malformed? */
     }
 
     proto_tree_add_item(tree, hf_gtpv2_ip_addr_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -4017,8 +4008,6 @@ dissect_gtpv2_mbms_ip_mc_dist(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
         offset += 1;
         proto_tree_add_item(tree, hf_gtpv2_mbms_ip_mc_src_addrv6, tvb, offset, 16, ENC_NA);
         offset += 16;
-    } else {
-        /* Malformed? */
     }
 
     proto_tree_add_item(tree, hf_gtpv2_mbms_hc_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -4153,7 +4142,9 @@ dissect_gtpv2_node_features(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     PROTO_ITEM_SET_GENERATED(expert_item);
 }
 
-/* 8.84 MBMS Time to Data Transfer */
+/* 8.84
+ * MBMS Time to Data Transfer
+ */
 static void
 dissect_gtpv2_mbms_time_to_data_xfer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
@@ -4218,85 +4209,76 @@ dissect_gtpv2_sig_prio_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 static void
 dissect_gtpv2_tmgi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
-    proto_item *expert_item;
+    int offset = 0;
 
-    expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
-    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_NOTE, "IE data not dissected yet");
-    PROTO_ITEM_SET_GENERATED(expert_item);
+    proto_tree_add_item(tree, hf_gtpv2_mbms_service_id, tvb, offset, 3, ENC_NA);
+    offset += 3;
+
+    dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, TRUE);
+    offset += 3;
+
+    if(length > offset)
+        proto_tree_add_text(tree, tvb, offset, length-offset, "Spare: %s", tvb_bytes_to_str(tvb, offset, length-offset));
 }
 
 /*
  * 8.90 Additional MM context for SRVCC
  * 3GPP TS 29.274 Figure 8.90-1
  */
-
-static const value_string gtpv2_ms_cm2_rev_level_vals[] = {
-    {0, "Reserved for GSM phase 1"},
-    {1, "Used by GSM phase 2 mobile stations"},
-    {2, "Used by mobile stations supporting R99 or later versions of the protocol"},
-    {3, "Reserved for future use; if received, then use the highest revision level supported by network"},
-    {0, NULL}
-};
-
-static const true_false_string gtpv2_ms_yesorno = {
-    "No",
-    "Yes"
-};
-
-static const value_string gtpv2_ms_cm2_rf_pwr_capability_vals[] = {
-    {0, "Class 1"},
-    {1, "Class 2"},
-    {2, "Class 3"},
-    {3, "Class 4"},
-    {4, "Class 5"},
-    {5, "Reserved"},
-    {6, "Reserved"},
-    {7, "RF Power Capability is irrelevant"},
-    {0, NULL}
-};
-
-static const value_string gtpv2_ms_cm2_ss_screening_ind_vals[] ={
-    {0, NULL}
-    
-};
-
 static void
 dissect_gtpv2_add_mm_cont_for_srvcc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
     int offset = 0;
-    proto_item *ms_cm2_item;
-    proto_tree *ms_cm2_tree;
-    /*proto_item *ms_cm3_item;*/
-    /*proto_tree *ms_cm3_tree;*/
-    guint8 ms_cm2_len;
-    /*guint8 ms_cm3_len;*/
+    proto_item *ms_cm_item;
+    proto_tree *ms_cm_tree;
+    guint8 elm_len;
 
-    /* 3GPP TS 24.008 Section 10.5.1.6
-     * Presuming that we are ignoring octet 1 "MS Classmark 2 IEI" and start with octet 2 "Length of MS Classmark 2", documentation isn't perfectly clear. */
-    ms_cm2_len = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_gtpv2_ms_cm2_len, tvb, offset, 1, ENC_BIG_ENDIAN);
-    ms_cm2_item = proto_tree_add_text(tree, tvb, offset, ms_cm2_len, "Mobile Station Classmark 2");
-    ms_cm2_tree = proto_item_add_subtree(ms_cm2_item, ett_gtpv2_ms_cm2);
+    /* Length of Mobile Station Classmark 2 */
+    elm_len = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_gtpv2_len_ms_classmark2, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
-    proto_tree_add_item(ms_cm2_tree, hf_gtpv2_ms_cm2_rev_level, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(ms_cm2_tree, hf_gtpv2_ms_cm2_es_ind, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(ms_cm2_tree, hf_gtpv2_ms_cm2_encrypt_a51, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(ms_cm2_tree, hf_gtpv2_ms_cm2_rf_pwr_capability, tvb, offset, 1, ENC_BIG_ENDIAN);
+    ms_cm_item = proto_tree_add_text(tree, tvb, offset, elm_len, "Mobile Station Classmark 2  %s", tvb_bytes_to_str(tvb, offset, elm_len));
+    ms_cm_tree = proto_item_add_subtree(ms_cm_item, ett_gtpv2_ms_mark);
+    /* Mobile Station Classmark 2 */
+    de_ms_cm_2(tvb, ms_cm_tree, pinfo, offset, elm_len, NULL, 0);
+    offset = offset + elm_len;
+
+    /* Length of Mobile Station Classmark 3 */
+    elm_len = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_gtpv2_len_ms_classmark3, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
-    proto_tree_add_item(ms_cm2_tree, hf_gtpv2_ms_cm2_ps_capability, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(ms_cm2_tree, hf_gtpv2_ms_cm2_ss_screening_ind, tvb, offset, 1, ENC_BIG_ENDIAN);
-    /* incomplete... */
+    ms_cm_item = proto_tree_add_text(tree, tvb, offset, elm_len, "Mobile Station Classmark3  %s", tvb_bytes_to_str(tvb, offset, elm_len));
+    ms_cm_tree = proto_item_add_subtree(ms_cm_item, ett_gtpv2_ms_mark);
+    /* Mobile Station Classmark 3 */
+    de_ms_cm_3(tvb, ms_cm_tree, pinfo, offset, elm_len, NULL, 0);
+    offset = offset + elm_len;
+
+    /* Length of Supported Codec List */
+    elm_len = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_gtpv2_len_supp_codec_list, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    ms_cm_item = proto_tree_add_text(tree, tvb, offset, elm_len, "Supported Codec List  %s", tvb_bytes_to_str(tvb, offset, elm_len));
+    ms_cm_tree = proto_item_add_subtree(ms_cm_item, ett_gtpv2_supp_codec_list);
+    /* Supported Codec List */
+    de_sup_codec_list(tvb, ms_cm_tree, pinfo, offset, elm_len, NULL, 0);
+    offset = offset + elm_len;
+
+    if(length > offset)
+        proto_tree_add_text(tree, tvb, offset, length-offset, "Spare: %s", tvb_bytes_to_str(tvb, offset, length-offset));
 }
 
 /* 8.91 Additional flags for SRVCC */
 static void
 dissect_gtpv2_add_flags_for_srvcc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
-    proto_item *expert_item;
+    int offset = 0;
 
-    expert_item = proto_tree_add_text(tree, tvb, 0, length, "IE data not dissected yet");
-    expert_add_info_format(pinfo, expert_item, PI_PROTOCOL, PI_NOTE, "IE data not dissected yet");
-    PROTO_ITEM_SET_GENERATED(expert_item);
+    proto_tree_add_item(tree, hf_gtpv2_add_flags_for_srvcc_ics, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_vsrvcc_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    if(length > 1)
+        proto_tree_add_text(tree, tvb, offset, length-1, "Spare: %s", tvb_bytes_to_str(tvb, offset, length-1));
 }
 
 /* 8.92 Max MBR/APN-AMBR (MMBR) */
@@ -5933,6 +5915,11 @@ void proto_register_gtpv2(void)
           FT_BYTES, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
+        { &hf_gtpv2_cteid,
+          {"Common Tunnel Endpoint Identifiere", "gtpv2.cetid",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
         { &hf_gtpv2_ip_addr_type,
           {"IP Address Type", "gtpv2.ip_addr_type",
           FT_UINT8, BASE_DEC, NULL, 0xc0,
@@ -5973,39 +5960,19 @@ void proto_register_gtpv2(void)
           FT_UINT8, BASE_DEC, VALS(gtpv2_mbms_dist_indication_vals), 0x03,
           NULL, HFILL}
         },
-        { &hf_gtpv2_ms_cm2_len,
-          {"Length of the Mobile Station Classmark 2", "gtpv2.ms_cm2_len",
-          FT_UINT8, BASE_DEC, NULL, 0x0,
+        { &hf_gtpv2_mbms_service_id,
+          {"MBMS Service ID", "gtpv2.mbms_service_id",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
           NULL, HFILL}
         },
-        { &hf_gtpv2_ms_cm2_rev_level,
-          {"Revision level", "gtpv2.ms_cm2_rev_level",
-          FT_UINT8, BASE_DEC, VALS(gtpv2_ms_cm2_rev_level_vals), 0x60,
+        { &hf_gtpv2_add_flags_for_srvcc_ics,
+          {"ICS (IMS Centralized Service)", "gtpv2.add_flags_for_srvcc_ics",
+          FT_BOOLEAN, 8, NULL, 0x01,
           NULL, HFILL}
         },
-        { &hf_gtpv2_ms_cm2_es_ind,
-          {"Controlled Early Classmark Sending implemented", "gtpv2.ms_cm2_es_ind",
-          FT_BOOLEAN, 8, TFS(&gtpv2_ms_yesorno), 0x10,
-          NULL, HFILL}
-        },
-        { &hf_gtpv2_ms_cm2_encrypt_a51,
-          {"Encryption Algorithm A5/1 supported", "gtpv2.ms_cm2_encrypt_a51",
-          FT_BOOLEAN, 8, TFS(&gtpv2_ms_yesorno), 0x80,
-          NULL, HFILL}
-        },
-        { &hf_gtpv2_ms_cm2_rf_pwr_capability,
-          {"RF Power Capability", "gtpv2.ms_cm2_rf_pwr_capability",
-          FT_UINT8, BASE_DEC, VALS(gtpv2_ms_cm2_rf_pwr_capability_vals), 0x07,
-          NULL, HFILL}
-        },
-        { &hf_gtpv2_ms_cm2_ps_capability,
-          {"Psuedo-Synchronization Capability present", "gtpv2.ms_cm2_ps_capability",
-          FT_BOOLEAN, 8, TFS(&gtpv2_ms_yesorno), 0x40,
-          NULL, HFILL}
-        },
-        { &hf_gtpv2_ms_cm2_ss_screening_ind,
-          {"SS Screening Indicator", "gtpv2.ms_cm2_ss_screening_ind",
-          FT_UINT8, BASE_DEC, VALS(gtpv2_ms_cm2_ss_screening_ind_vals), 0x30,
+        { &hf_gtpv2_vsrvcc_flag,
+          {"VF (vSRVCC Flag)", "gtpv2.vsrvcc_flag",
+          FT_BOOLEAN, 8, NULL, 0x02,
           NULL, HFILL}
         },
     };
@@ -6049,7 +6016,6 @@ void proto_register_gtpv2(void)
         &ett_gtpv2_ms_network_capability,
         &ett_gtpv2_vd_pref,
         &ett_gtpv2_access_rest_data,
-        &ett_gtpv2_ms_cm2,
     };
 
     proto_gtpv2 = proto_register_protocol("GPRS Tunneling Protocol V2", "GTPv2", "gtpv2");
