@@ -1159,7 +1159,7 @@ dissect_dpnss_sup_info_str(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 }
 
 
-static void
+static int
 dissect_dpnss_LbL_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *sic_field_item, *ind_field_item;
@@ -1251,10 +1251,11 @@ dissect_dpnss_LbL_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
         }
     }
+	return offset;
 }
 
 
-static void
+static int
 dissect_dpnss_e2e_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *sel_field_item, *sic_field_item, *ind_field_item;
@@ -1349,9 +1350,10 @@ dissect_dpnss_e2e_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
         }
     }
+    return offset;
 }
 
-static void
+static int
 dissect_dpnss_cc_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *sel_field_item, *sic_field_item, *ind_field_item;
@@ -1479,6 +1481,7 @@ dissect_dpnss_cc_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
         }
     }
+    return offset;
 }
 /* Code to actually dissect the packets */
 static void
