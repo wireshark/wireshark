@@ -626,6 +626,13 @@ static const value_string v9_v10_template_types[] = {
     { 37023, "TRANSPORT_RTP_JITTER_MEAN" },
     { 37024, "TRANSPORT_RTP_JITTER_MIN" },
     { 37025, "TRANSPORT_RTP_JITTER_MAX" },
+    { 37041, "TRANSPORT_RTP_PAYLOAD_TYPE" },
+    { 37071, "TRANSPORT_BYTES_OUT_OF_ORDER" },
+    { 37074, "TRANSPORT_PACKETS_OUT_OF_ORDER" },
+    { 37083, "TRANSPORT_TCP_WINDOWS_SIZE_MIN" },
+    { 37084, "TRANSPORT_TCP_WINDOWS_SIZE_MAX" },
+    { 37085, "TRANSPORT_TCP_WINDOWS_SIZE_MEAN" },
+    { 37086, "TRANSPORT_TCP_MAXIMUM_SEGMENT_SIZE" },
     { 40000, "AAA_USERNAME" },
     { 40001, "XLATE_SRC_ADDR_IPV4" },
     { 40002, "XLATE_DST_ADDR_IPV4" },
@@ -941,6 +948,7 @@ static value_string_ext selector_algorithm_ext = VALUE_STRING_EXT_INIT(selector_
 static const value_string performance_monitor_specials[] = {
     { 0xFFFFFFFF, "Not Measured"},
     { 0xFFFF, "Not Measured"},
+    { 0xFF, "Not Measured"},
     { 0, NULL }
 };
 
@@ -1329,6 +1337,20 @@ static int      hf_cflow_transport_rtp_jitter_min            = -1;      /* ID: 3
 static int      hf_cflow_transport_rtp_jitter_min_string     = -1;      /* ID: 37024 */
 static int      hf_cflow_transport_rtp_jitter_max            = -1;      /* ID: 37025 */
 static int      hf_cflow_transport_rtp_jitter_max_string     = -1;      /* ID: 37025 */
+
+static int      hf_cflow_transport_rtp_payload_type          = -1;      /* ID: 37041 */
+static int      hf_cflow_transport_rtp_payload_type_string   = -1;      /* ID: 37041 */
+static int      hf_cflow_transport_bytes_out_of_order        = -1;      /* ID: 37071 */
+static int      hf_cflow_transport_packets_out_of_order      = -1;      /* ID: 37074 */
+static int      hf_cflow_transport_packets_out_of_order_string      = -1;      /* ID: 37074 */
+static int      hf_cflow_transport_tcp_window_size_min       = -1;      /* ID: 37083 */ 
+static int      hf_cflow_transport_tcp_window_size_min_string = -1;      /* ID: 37083 */
+static int      hf_cflow_transport_tcp_window_size_max       = -1;      /* ID: 37084  */
+static int      hf_cflow_transport_tcp_window_size_max_string = -1;      /* ID: 37084 */ 
+static int      hf_cflow_transport_tcp_window_size_mean      = -1;     /* ID: 37085  */
+static int      hf_cflow_transport_tcp_window_size_mean_string = -1;     /* ID: 37085  */
+static int      hf_cflow_transport_tcp_maximum_segment_size  = -1;     /* ID: 37086  */
+static int      hf_cflow_transport_tcp_maximum_segment_size_string = -1;     /* ID: 37086 */
 
 /* Ericsson SE NAT Logging */
 static int      hf_cflow_nat_context_id         = -1;   /* ID: 24628 */
@@ -4372,8 +4394,75 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
                                          tvb, offset, length, &ts);
             }
             break;
+        case 37041: /* transport_payload_type */
+            if (tvb_get_guint8(tvb,offset)== 0xFF) {
+                ti = proto_tree_add_item(pdutree, hf_cflow_transport_rtp_payload_type_string,
+                                         tvb, offset, length, ENC_BIG_ENDIAN);
+            } else {
+                ti = proto_tree_add_item(pdutree, hf_cflow_transport_rtp_payload_type,
+                                         tvb, offset, length, ENC_BIG_ENDIAN);
+            }
+            break;
+        case 37071: /* bytes_out_of_order */
+            if (tvb_get_ntoh64(tvb,offset)== 0xFFFFFFFFFFFFFFFF) {
+                /* need to add custom code to show "Not Measured"  */
+                proto_tree_add_text(pdutree, tvb, offset, 8,
+                                    "Transport Bytes Out of Order: Not Measured (0x%"G_GINT64_MODIFIER"x)",
+                                    tvb_get_ntoh64(tvb,offset));
+                ti = proto_tree_add_item(pdutree, hf_cflow_transport_bytes_out_of_order,
+                                         tvb, offset, length, ENC_BIG_ENDIAN);
+            } else {
+                ti = proto_tree_add_item(pdutree, hf_cflow_transport_bytes_out_of_order,
+                                         tvb, offset, length, ENC_BIG_ENDIAN);
+            }
+            break;
+        case 37074: /* packets_out_of_order */
+            if (tvb_get_ntohl(tvb,offset)== 0xFFFFFFFF) {
+                ti = proto_tree_add_item(pdutree, hf_cflow_transport_packets_out_of_order_string,
+                                         tvb, offset, length, ENC_BIG_ENDIAN);
+            } else {
+                ti = proto_tree_add_item(pdutree, hf_cflow_transport_bytes_out_of_order,
+                                         tvb, offset, length, ENC_BIG_ENDIAN);
+            }
+            break;
+        case 37083: /* tcp_window_size_min */
+            if (tvb_get_ntohl(tvb,offset)== 0xFFFFFFFF) {
+                ti = proto_tree_add_item(pdutree, hf_cflow_transport_tcp_window_size_min_string,
+                                         tvb, offset, length, ENC_BIG_ENDIAN);
+            } else {
+                ti = proto_tree_add_item(pdutree, hf_cflow_transport_tcp_window_size_min,
+                                         tvb, offset, length, ENC_BIG_ENDIAN);
+            }
+            break;
 
+        case 37084: /* tcp_window_size_max */
+            if (tvb_get_ntohl(tvb,offset)== 0xFFFFFFFF) {
+                ti = proto_tree_add_item(pdutree, hf_cflow_transport_tcp_window_size_max_string,
+                                         tvb, offset, length, ENC_BIG_ENDIAN);
+            } else {
+                ti = proto_tree_add_item(pdutree, hf_cflow_transport_tcp_window_size_max,
+                                         tvb, offset, length, ENC_BIG_ENDIAN);
+            }
+            break;
 
+        case 37085: /* tcp_window_size_mean */
+            if (tvb_get_ntohl(tvb,offset)== 0xFFFFFFFF) {
+                ti = proto_tree_add_item(pdutree, hf_cflow_transport_tcp_window_size_mean_string,
+                                         tvb, offset, length, ENC_BIG_ENDIAN);
+            } else {
+                ti = proto_tree_add_item(pdutree, hf_cflow_transport_tcp_window_size_mean,
+                                         tvb, offset, length, ENC_BIG_ENDIAN);
+            }
+            break;
+        case 37086: /* tcp_maximum_segment_size */
+            if (tvb_get_ntohs(tvb,offset)== 0xFFFF) {
+                ti = proto_tree_add_item(pdutree, hf_cflow_transport_tcp_maximum_segment_size_string,
+                                         tvb, offset, length, ENC_BIG_ENDIAN);
+            } else {
+                ti = proto_tree_add_item(pdutree, hf_cflow_transport_tcp_maximum_segment_size,
+                                         tvb, offset, length, ENC_BIG_ENDIAN);
+            }
+            break;
             /* Ericsson SE NAT Logging */
         case 24628: /* natContextId */
             ti = proto_tree_add_item(pdutree, hf_cflow_nat_context_id,
@@ -7262,7 +7351,7 @@ proto_register_netflow(void)
         {&hf_cflow_transport_round_trip_time_string,
          {"Transport Round-Trip-Time",
           "cflow.transport_rtt",
-          FT_UINT32, BASE_DEC, VALS(performance_monitor_specials), 0x0,
+          FT_UINT32, BASE_HEX, VALS(performance_monitor_specials), 0x0,
           NULL, HFILL}
         },
         {&hf_cflow_transport_round_trip_time,
@@ -7341,6 +7430,85 @@ proto_register_netflow(void)
          {"RTP Max Jitter",
           "cflow.transport_jitter_max",
           FT_UINT32, BASE_HEX, VALS(performance_monitor_specials), 0x0,
+          NULL, HFILL}
+        },
+
+        {&hf_cflow_transport_rtp_payload_type,
+         {"RTP Payload Type",
+          "cflow.rtp_payload_type",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_cflow_transport_rtp_payload_type_string,
+         {"RTP Payload Type",
+          "cflow.rtp_payload_type",
+          FT_UINT8, BASE_HEX, VALS(performance_monitor_specials), 0x0,
+          NULL, HFILL}
+        },
+        {&hf_cflow_transport_bytes_out_of_order,
+         {"Transport Bytes Out of Order",
+          "cflow.transport_bytes_out_of_ordera",
+          FT_UINT64, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_cflow_transport_packets_out_of_order,
+         {"Transport Packets Out of Order",
+          "cflow.transport_packets_out_of_order",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_cflow_transport_packets_out_of_order_string,
+         {"Transport Packets Out of Order",
+          "cflow.transport_packets_out_of_order",
+          FT_UINT32, BASE_HEX, VALS(performance_monitor_specials), 0x0,
+          NULL, HFILL}
+        },
+       {&hf_cflow_transport_tcp_window_size_min,
+         {"Transport TCP Window Size Min",
+          "cflow.transport_tcp_window_size_min",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+       {&hf_cflow_transport_tcp_window_size_min_string,
+         {"Transport TCP Window Size Min",
+          "cflow.transport_tcp_window_size_min",
+          FT_UINT32, BASE_HEX, VALS(performance_monitor_specials), 0x0,
+          NULL, HFILL}
+        },
+       {&hf_cflow_transport_tcp_window_size_max,
+         {"Transport TCP Window Size Max",
+          "cflow.transport_tcp_window_size_max",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+       {&hf_cflow_transport_tcp_window_size_max_string,
+         {"Transport TCP Window Size Max",
+          "cflow.transport_tcp_window_size_max",
+          FT_UINT32, BASE_HEX, VALS(performance_monitor_specials), 0x0,
+          NULL, HFILL}
+        },
+       {&hf_cflow_transport_tcp_window_size_mean,
+         {"Transport TCP Window Size Mean",
+          "cflow.transport_tcp_window_size_mean",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+       {&hf_cflow_transport_tcp_window_size_mean_string,
+         {"Transport TCP Window Size Mean",
+          "cflow.transport_tcp_window_size_mean",
+          FT_UINT32, BASE_HEX, VALS(performance_monitor_specials), 0x0,
+          NULL, HFILL}
+        },
+       {&hf_cflow_transport_tcp_maximum_segment_size,
+         {"Transport TCP Maximum Segment Size",
+          "cflow.transport_tcp_maximum_segment_size",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+       {&hf_cflow_transport_tcp_maximum_segment_size_string,
+         {"Transport TCP Maximum Segment Size",
+          "cflow.transport_tcp_maximum_segment_size",
+          FT_UINT16, BASE_HEX, VALS(performance_monitor_specials), 0x0,
           NULL, HFILL}
         },
         /* Ericsson SE NAT Logging */
