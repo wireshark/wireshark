@@ -63,6 +63,10 @@ typedef enum _voip_protocol {
 		VOIP_COMMON
 } voip_protocol;
 
+typedef enum _hash_indexes {
+		SIP_HASH=0
+} hash_indexes;
+
 extern const char *voip_protocol_name[];
 
 /* defines specific SIP data */
@@ -157,6 +161,7 @@ typedef struct _voip_calls_info {
 typedef struct _voip_calls_tapinfo {
 	int     ncalls;       /* number of call */
 	GList*  callsinfo_list;   /* list with all calls */
+	GHashTable* callsinfo_hashtable[1]; /* array of hashes per voip protocol; currently only the one for SIP is used */
 	int     npackets;       /* total number of packets of all calls */
 	voip_calls_info_t* filter_calls_fwd;  /* used as filter in some tap modes */
 	guint32 launch_count;   /* number of times the tap has been run */
@@ -164,6 +169,7 @@ typedef struct _voip_calls_tapinfo {
 	int completed_calls;
 	int rejected_calls;
 	graph_analysis_info_t* graph_analysis;
+	gboolean reversed;
 	gboolean redraw;
 	/* 
 	 * Now add dummy variables, one for each tap listener.

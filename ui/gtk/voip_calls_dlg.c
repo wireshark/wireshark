@@ -325,6 +325,13 @@ on_graph_bt_clicked(GtkButton *button _U_, gpointer user_data _U_)
 	GList* listb;
 	voip_calls_info_t *listinfo;
 
+	if(!voip_calls_get_info()->reversed) {
+		voip_calls_get_info()->callsinfo_list=
+			g_list_reverse(voip_calls_get_info()->callsinfo_list);
+		voip_calls_get_info()->graph_analysis->list=
+			g_list_reverse(voip_calls_get_info()->graph_analysis->list);
+		voip_calls_get_info()->reversed=1;
+	}
 	/* reset the "display" parameter in graph analysis */
 	listb = g_list_first(voip_calls_get_info()->graph_analysis->list);
 	while (listb) {
@@ -756,7 +763,12 @@ voip_calls_dlg_create(void)
 void
 voip_calls_dlg_update(GList *listx)
 {
+	GtkTreeView       *list_view;
+	GtkTreeSortable   *sortable;
 	gchar label_text[256];
+
+	list_view = GTK_TREE_VIEW(list);
+	sortable = GTK_TREE_SORTABLE(list_store);
 	if (voip_calls_dlg != NULL) {
 		calls_nb = 0;
 		calls_ns = 0;
@@ -771,7 +783,8 @@ voip_calls_dlg_update(GList *listx)
 		gtk_label_set_text(GTK_LABEL(status_label), label_text);
 
 		/* Disable the re-ordering */
-		gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(list_store), GTK_TREE_SORTABLE_UNSORTED_SORT_COLUMN_ID, GTK_SORT_ASCENDING);
+		gtk_tree_sortable_set_sort_column_id(sortable, GTK_TREE_SORTABLE_UNSORTED_SORT_COLUMN_ID, GTK_SORT_ASCENDING);
+
 
 		listx = g_list_first(listx);
 		while (listx) {
@@ -779,7 +792,8 @@ voip_calls_dlg_update(GList *listx)
 			listx = g_list_next(listx);
 		}
 		/* Enable the re-ordering */
-		gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(list_store), CALL_COL_START_TIME, GTK_SORT_ASCENDING);
+		gtk_tree_sortable_set_sort_column_id(sortable, CALL_COL_START_TIME, GTK_SORT_ASCENDING);
+
 
 		g_snprintf(label_text, sizeof(label_text),
 			"Detected %u VoIP %s. Selected %u %s.",
