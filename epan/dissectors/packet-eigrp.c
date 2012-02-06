@@ -1670,7 +1670,7 @@ dissect_eigrp_general_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
 }
 
 /**
- *@fn void dissect_eigrp_ipv4_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
+ *@fn int dissect_eigrp_ipv4_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
  *				   packet_info *pinfo, guint16 tlv)
  *
  * @param[in|out] tree	detail dissection result
@@ -1678,7 +1678,7 @@ dissect_eigrp_general_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
  * @param[in] pinfo	general data about the protocol
  * @param[in] tlv	Specific TLV in to be dissected
  *
- * @return void
+ * @return int		number of bytes process
  *
  * @par
  * Dissect the Legacy IPv4 route TLV; handles both the internal and external
@@ -1701,7 +1701,7 @@ dissect_eigrp_general_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
  *   | Reliability  |      Load     |  Internal Tag   |   Flag       |
  *   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  */
-static void
+static int
 dissect_eigrp_ipv4_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
 			packet_info *pinfo, guint16 tlv)
 {
@@ -1722,6 +1722,8 @@ dissect_eigrp_ipv4_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
 
     /* dissect addresses */
     offset = dissect_eigrp_ipv4_addr(ti, tree, tvb, pinfo, offset, unreachable);
+
+    return offset;
 }
 
 /**
@@ -1820,7 +1822,7 @@ dissect_eigrp_ipv6_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
 }
 
 /**
- *@fn void dissect_eigrp_ipx_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
+ *@fn int dissect_eigrp_ipx_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
  *				  packet_info *pinfo, guint16 tlv)
  *
  * @param[in|out] tree	detail dissection result
@@ -1828,7 +1830,7 @@ dissect_eigrp_ipv6_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
  * @param[in] pinfo	general data about the protocol
  * @param[in] tlv	Specific TLV in to be dissected
  *
- * @return void
+ * @return int		number of bytes process
  *
  * @par
  * Dissect the legacy IPX route TLV; handles both the internal and external
@@ -1873,7 +1875,7 @@ dissect_eigrp_ipv6_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
  *
  *
  */
-static void
+static int
 dissect_eigrp_ipx_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
 		       packet_info *pinfo, guint16 tlv)
 {
@@ -1893,6 +1895,8 @@ dissect_eigrp_ipx_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
 
     /* dissect addresses */
     offset = dissect_eigrp_ipx_addr(ti, tree, tvb, pinfo, offset, unreachable);
+
+    return offset;
 }
 
 /**
@@ -1905,7 +1909,7 @@ dissect_eigrp_ipx_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
  * @param[in] ti	protocol item
  * @param[in] tlv	Specific TLV in to be dissected
  *
- * @return void
+ * @return int		number of bytes process
  *
  * @par
  * Dissect the Multi-Topology route TLV; This packet format has been deprecated
@@ -1940,7 +1944,7 @@ dissect_eigrp_ipx_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
  *   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  *
  */
-static void
+static int
 dissect_eigrp_multi_topology_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
 				  packet_info *pinfo, guint16 tlv)
 {
@@ -2004,7 +2008,7 @@ dissect_eigrp_multi_topology_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tv
 	expert_add_info_format(pinfo, sub_ti, PI_MALFORMED, PI_ERROR, "Unknown AFI");
     }
 
-    return;
+    return offset;
 }
 
 /**
@@ -2314,7 +2318,7 @@ dissect_eigrp_wide_metric (proto_tree *tree, tvbuff_t *tvb, int offset)
 }
 
 /**
- *@fn void dissect_eigrp_multi_protocol_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
+ *@fn int dissect_eigrp_multi_protocol_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
  *					     packet_info *pinfo, guint16 tlv)
 
  *
@@ -2323,7 +2327,7 @@ dissect_eigrp_wide_metric (proto_tree *tree, tvbuff_t *tvb, int offset)
  * @param[in] ti	protocol item
  * @param[in] pinfo	general data about the protocol
  *
- * @return void
+ * @return int		number of bytes process
  *
  * @par
  * Dissect the Multi-Protocol (TLV Version 2.0) TLV format definition. The following
@@ -2347,7 +2351,7 @@ dissect_eigrp_wide_metric (proto_tree *tree, tvbuff_t *tvb, int offset)
  *   |\/\/\/       Destination (Family Specific Length)        \/\/\/|
  *   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  */
-static void
+static int
 dissect_eigrp_multi_protocol_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
 				  packet_info *pinfo, guint16 tlv)
 {
@@ -2409,7 +2413,7 @@ dissect_eigrp_multi_protocol_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tv
 	expert_add_info_format(pinfo, sub_ti, PI_MALFORMED, PI_ERROR, "Unknown AFI");
     }
 
-    return;
+    return offset;
 }
 
 /**
