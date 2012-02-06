@@ -928,7 +928,7 @@ dissect_disconnrequestresponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
 	return offset;
 }
 
-static void
+static int
 dissect_b_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *btl2cap_tree, guint16 psm, gboolean local_service, guint16 length, int offset)
 {
 	tvbuff_t *next_tvb;
@@ -964,6 +964,7 @@ dissect_b_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
 		proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, ENC_NA);
 		offset+=tvb_length_remaining(tvb, offset);
 	}
+	return offset;
 }
 
 typedef struct _sdu_reassembly_t
@@ -976,7 +977,7 @@ typedef struct _sdu_reassembly_t
 	int cur_off;	/* counter used by reassembly */
 } sdu_reassembly_t;
 
-static void
+static int
 dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *btl2cap_tree, psm_data_t *psm_data, guint16 length, int offset, config_data_t *config_data)
 {
 	tvbuff_t *next_tvb = NULL;
@@ -1111,9 +1112,10 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
 	offset+=(tvb_length_remaining(tvb, offset) - 2);
 	proto_tree_add_item(btl2cap_tree, hf_btl2cap_fcs, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
+	return offset;
 }
 
-static void
+static int
 dissect_s_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, proto_tree *btl2cap_tree, guint16 psm _U_, guint16 length _U_, int offset, config_data_t *config_data _U_)
 {
 	proto_item* ti_control;
@@ -1146,6 +1148,7 @@ dissect_s_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, proto_t
 	offset += 2;
 	proto_tree_add_item(ti_control_subtree, hf_btl2cap_fcs, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
+	return offset;
 }
 
 /* Code to actually dissect the packets
@@ -1336,7 +1339,6 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, ENC_NA);
 			}
 		}
-		offset+=tvb_length_remaining(tvb, offset);
 	}
 	else if(cid < BTL2CAP_FIXED_CID_MAX) {
 		if (cid == BTL2CAP_FIXED_CID_AMP_MAN) {
