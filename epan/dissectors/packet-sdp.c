@@ -663,8 +663,6 @@ dissect_sdp_owner(tvbuff_t *tvb, proto_item *ti){
   gint offset,next_offset,tokenlen;
 
   offset = 0;
-  next_offset = 0;
-  tokenlen = 0;
 
   sdp_owner_tree = proto_item_add_subtree(ti,ett_sdp_owner);
 
@@ -733,8 +731,6 @@ dissect_sdp_connection_info(tvbuff_t *tvb, proto_item* ti,
   gint offset,next_offset,tokenlen;
 
   offset = 0;
-  next_offset = 0;
-  tokenlen = 0;
 
   sdp_connection_info_tree = proto_item_add_subtree(ti,
                                                     ett_sdp_connection_info);
@@ -808,8 +804,6 @@ dissect_sdp_bandwidth(tvbuff_t *tvb, proto_item *ti){
   gboolean unit_is_bps = FALSE;
 
   offset = 0;
-  next_offset = 0;
-  tokenlen = 0;
 
   sdp_bandwidth_tree = proto_item_add_subtree(ti,ett_sdp_bandwidth);
 
@@ -850,8 +844,6 @@ static void dissect_sdp_time(tvbuff_t *tvb, proto_item* ti){
   gint offset,next_offset, tokenlen;
 
   offset = 0;
-  next_offset = 0;
-  tokenlen = 0;
 
   sdp_time_tree = proto_item_add_subtree(ti,ett_sdp_time);
 
@@ -874,8 +866,6 @@ static void dissect_sdp_repeat_time(tvbuff_t *tvb, proto_item* ti){
   gint offset,next_offset, tokenlen;
 
   offset = 0;
-  next_offset = 0;
-  tokenlen = 0;
 
   sdp_repeat_time_tree = proto_item_add_subtree(ti,ett_sdp_time);
 
@@ -916,9 +906,8 @@ static void
 dissect_sdp_timezone(tvbuff_t *tvb, proto_item* ti){
   proto_tree* sdp_timezone_tree;
   gint offset, next_offset, tokenlen;
+
   offset = 0;
-  next_offset = 0;
-  tokenlen = 0;
 
   sdp_timezone_tree = proto_item_add_subtree(ti,ett_sdp_timezone);
 
@@ -950,8 +939,6 @@ static void dissect_sdp_encryption_key(tvbuff_t *tvb, proto_item * ti){
   gint offset, next_offset, tokenlen;
 
   offset = 0;
-  next_offset = 0;
-  tokenlen = 0;
 
   sdp_encryption_key_tree = proto_item_add_subtree(ti,ett_sdp_encryption_key);
 
@@ -1029,8 +1016,6 @@ static void dissect_sdp_session_attribute(tvbuff_t *tvb, packet_info * pinfo, pr
     guint8 *field_name;
 
     offset = 0;
-    next_offset = 0;
-    tokenlen = 0;
 
     sdp_session_attribute_tree = proto_item_add_subtree(ti,
         ett_sdp_session_attribute);
@@ -1099,8 +1084,6 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
   guint8 *media_format;
 
   offset = 0;
-  next_offset = 0;
-  tokenlen = 0;
 
   /* Re-initialise for a new media description */
   msrp_transport_address_set = FALSE;
@@ -1553,8 +1536,6 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
     guint8 master_key_length = 0, master_salt_length = 0;
 
     offset = 0;
-    next_offset = 0;
-    tokenlen = 0;
 
     /* Create attribute tree */
     sdp_media_attribute_tree = proto_item_add_subtree(ti,
