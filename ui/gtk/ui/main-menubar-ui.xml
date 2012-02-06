@@ -258,6 +258,7 @@ xml description of Wireshark's main menubar, loaded from main_menubar.c in the g
         <menuitem name='NCP' action='/Statistics/ServiceResponseTime/NCP'/>
         <menuitem name='RADIUS' action='/Statistics/ServiceResponseTime/RADIUS'/>
         <menuitem name='SCSI' action='/Statistics/ServiceResponseTime/SCSI'/>
+        <menuitem name='SMB' action='/Statistics/ServiceResponseTime/SMB'/>
         <menuitem name='SMB2' action='/Statistics/ServiceResponseTime/SMB2'/>
       </menu>
       <separator/>
