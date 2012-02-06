@@ -573,7 +573,6 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
   isValid = FALSE;
   for (line = 1; line < ISERIES_PKT_LINES_TO_CHECK; line++)
     {
-      cur_off = file_tell (fh);
       if (file_gets (data, ISERIES_LINE_LENGTH, fh) == NULL)
 	{
 	  *err = file_error (fh, err_info);
