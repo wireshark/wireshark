@@ -983,7 +983,7 @@ filter will be used in the calculations.
 The table is presented with one line for each conversation and displays
 the number of packets/bytes in each direction as well as the total
 number of packets/bytes.  The table is sorted according to the total
-number of bytes.
+number of frames.
 
 =item B<-z> proto,colinfo,I<filter>,I<field>
 
