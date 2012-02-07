@@ -2,7 +2,7 @@
  * Routines for packet dissection of GSM SIM APDUs (GSM TS 11.11)
  *
  *	GSM TS 11.11 / 3GPP TS 51.011
- *	3GPP TS 31.102
+ * 	3GPP TS 31.102
  * Copyright 2010-2011 by Harald Welte <laforge@gnumonks.org>
  *
  * $Id$
@@ -785,7 +785,6 @@ dissect_bertlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		/* FIXME: properly follow BER coding rules */
 		tag = tvb_get_guint8(tvb, pos++);
-/* FIXME: what happens if len = 0? */
 		len = tvb_get_guint8(tvb, pos++);
 
 		subtvb = tvb_new_subset(tvb, pos, len, len);
@@ -800,9 +799,9 @@ dissect_bertlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 
-#define P1_OFFS		0
-#define P2_OFFS		1
-#define P3_OFFS		2
+#define P1_OFFS 	0
+#define P2_OFFS 	1
+#define P3_OFFS 	2
 #define DATA_OFFS	3
 
 static int

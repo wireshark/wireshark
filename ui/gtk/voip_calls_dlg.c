@@ -763,11 +763,11 @@ voip_calls_dlg_create(void)
 void
 voip_calls_dlg_update(GList *listx)
 {
-	GtkTreeView       *list_view;
+	/* GtkTreeView       *list_view; */
 	GtkTreeSortable   *sortable;
 	gchar label_text[256];
 
-	list_view = GTK_TREE_VIEW(list);
+	/* list_view = GTK_TREE_VIEW(list); */
 	sortable = GTK_TREE_SORTABLE(list_store);
 	if (voip_calls_dlg != NULL) {
 		calls_nb = 0;
