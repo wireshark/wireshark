@@ -708,8 +708,6 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
 					remaining_len = 0;
 					break;
 				}
-				if (remaining_len - stuff_len <= 0)
-					break;
 			}
 
 			if (stuff_len) {
@@ -723,8 +721,6 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
 				}
 				remaining_len -= stuff_len;
 
-				if (remaining_len == 0)
-					goto save_state;
 			}
 
 
