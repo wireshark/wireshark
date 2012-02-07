@@ -168,7 +168,7 @@ static gint ett_felica = -1;
 static void dissect_felica(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *item;
-    proto_tree *felica_tree;
+    proto_tree *felica_tree = NULL;
     guint8 opcode;
     guint8 rwe_pos = 0;
     tvbuff_t *rwe_resp_data_tvb;
