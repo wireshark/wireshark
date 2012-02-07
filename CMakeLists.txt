@@ -449,7 +449,7 @@ endif()
 
 
 # Basedir where to install guides
-set(DOC_DIR "$ENV{docdir}")
+set(DOC_DIR "$ENV{docdir}" CACHE FILEPATH "Installation directory for ug and dg pdfs.")
 message(STATUS "docdir: ${DOC_DIR}")
 
 if(ENABLE_GUIDES)
