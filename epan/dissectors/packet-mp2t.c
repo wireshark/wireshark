@@ -516,7 +516,7 @@ mp2t_get_packet_length(tvbuff_t *tvb, guint offset, packet_info *pinfo,
 
 	if (frag_tvb)
 		tvb_free(frag_tvb);
-	
+
 	return pkt_len;
 }
 
@@ -526,7 +526,7 @@ mp2t_fragment_handle(tvbuff_t *tvb, guint offset, packet_info *pinfo,
 					guint frag_offset, guint frag_len,
 					gboolean fragment_last, enum pid_payload_type pload_type)
 {
-	proto_item *ti;
+	/* proto_item *ti; */
 	fragment_data *frag_msg = NULL;
 	tvbuff_t *new_tvb = NULL;
 	gboolean save_fragmented;
@@ -548,10 +548,10 @@ mp2t_fragment_handle(tvbuff_t *tvb, guint offset, packet_info *pinfo,
 			NULL, tree);
 
 	if (new_tvb) {
-		ti = proto_tree_add_text(tree, tvb, 0, 0, "MPEG TS Packet (reassembled)");
+		/* ti = */ proto_tree_add_text(tree, tvb, 0, 0, "MPEG TS Packet (reassembled)");
 		mp2t_dissect_packet(new_tvb, pload_type, pinfo, tree);
 	}
-	
+
 	pinfo->fragmented = save_fragmented;
 
 	return;
@@ -644,7 +644,7 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
 			spdata->fragmentation = fragmentation;
 			spdata->frag_id = frag_id;
 			se_tree_insert32(pdata->subpacket_table, offset, (void *)spdata);
-									 
+
 		}
 
 	} else {
@@ -659,7 +659,7 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
 		if (!spdata) {
 			/* Occurs for the first sub packets in the capture which cannot be reassembled */
 			return;
-		}	
+		}
 
 		frag_cur_pos = spdata->frag_cur_pos;
 		frag_tot_len = spdata->frag_tot_len;
@@ -679,7 +679,7 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
 
 	/* The begining of a new packet is present */
 	if (pusi_flag) {
-		
+
 		/* Looks like we already have some stuff in the buffer */
 		if (fragmentation) {
 			mp2t_fragment_handle(tvb, offset, pinfo, tree, frag_id, frag_cur_pos,
@@ -715,10 +715,10 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
 				offset += stuff_len;
 				remaining_len -= stuff_len;
 
-				if (!remaining_len) 
+				if (!remaining_len)
 					goto save_state;
 			}
-		
+
 
 			/* Get the next packet's size if possible */
 			frag_tot_len = mp2t_get_packet_length(tvb, offset, pinfo, frag_id, pid_analysis->pload_type);
@@ -750,7 +750,7 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
 			goto save_state;
 
 		}
-		
+
 	}
 
 	/* There are remaining bytes. Add them to the fragment list */
@@ -941,7 +941,7 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
 	guint32 pid;
 	guint32 cc;
 	guint32 pusi_flag;
-	guint8 pointer;
+	/* guint8 pointer; */
 
 	proto_item *ti = NULL;
 	proto_item *hi = NULL;
@@ -976,8 +976,10 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
 	proto_tree_add_item( mp2t_header_tree, hf_mp2t_cc, tvb, offset, 4, ENC_BIG_ENDIAN);
 
 
+	/*
 	if (pusi_flag)
 		pointer = tvb_get_guint8(tvb, offset);
+	*/
 
 	afc = (header & MP2T_AFC_MASK) >> MP2T_AFC_SHIFT;
 
@@ -989,7 +991,7 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
 			pid_analysis->pload_type = pid_pload_null;
 		} else if (pid == MP2T_PID_DOCSIS) {
 			pid_analysis->pload_type = pid_pload_docsis;
-		} 
+		}
 	}
 
 	if (pid_analysis->pload_type == pid_pload_docsis && afc) {
@@ -1003,7 +1005,7 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
 		col_set_str(pinfo->cinfo, COL_INFO, "NULL packet");
 		proto_item_append_text(afci, " (Should be 0 for NULL packets)");
 		return;
-	} 
+	}
 
 	offset += 4;
 
