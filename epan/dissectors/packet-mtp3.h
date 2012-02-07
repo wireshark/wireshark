@@ -31,6 +31,9 @@ typedef enum {
 } Standard_Type;
 
 extern gint mtp3_standard;
+extern gboolean mtp3_heuristic_standard;
+
+WS_VAR_IMPORT const value_string mtp3_standard_vals[];
 
 typedef enum {
   MTP3_ADDR_FMT_DEC		= 1,

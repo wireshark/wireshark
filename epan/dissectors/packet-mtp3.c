@@ -118,9 +118,11 @@ static gint japan_pc_structure = JAPAN_PC_STRUCTURE_NONE;
 
 #include <packet-mtp3.h>
 gint mtp3_standard = ITU_STANDARD;
-gint pref_mtp3_standard;
+gboolean mtp3_heuristic_standard = FALSE;
 
-static const value_string mtp3_standard_vals[] = {
+static gint pref_mtp3_standard;
+
+const value_string mtp3_standard_vals[] = {
 	{ ITU_STANDARD,			"ITU_STANDARD" },
 	{ ANSI_STANDARD,		"ANSI_STANDARD" },
 	{ CHINESE_ITU_STANDARD,		"CHINESE_ITU_STANDARD" },
@@ -131,7 +133,6 @@ static const value_string mtp3_standard_vals[] = {
 static gboolean mtp3_use_ansi_5_bit_sls = FALSE;
 static gboolean mtp3_use_japan_5_bit_sls = FALSE;
 static gboolean mtp3_show_itu_priority = FALSE;
-static gboolean mtp3_heuristic_standard = FALSE;
 static gint mtp3_addr_fmt = MTP3_ADDR_FMT_DASHED;
 static mtp3_addr_pc_t* mtp3_addr_dpc;
 static mtp3_addr_pc_t* mtp3_addr_opc;
@@ -693,7 +694,7 @@ heur_mtp3_standard(tvbuff_t *tvb, packet_info *pinfo, guint8 si)
 
 }
 
-void
+static void
 reset_mtp3_standard(void)
 {
     mtp3_standard = pref_mtp3_standard;
@@ -705,7 +706,7 @@ dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     void* pd_save;
     mtp3_tap_rec_t* tap_rec = ep_alloc0(sizeof(mtp3_tap_rec_t));
-    guint heuristic_standard;
+    gint heuristic_standard;
     guint8 si;
 
     /* Set up structures needed to add the protocol subtree and manage it */
@@ -776,6 +777,8 @@ dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     dissect_mtp3_payload(tvb, pinfo, tree);
     pinfo->private_data = pd_save;
+
+    mtp3_standard = pref_mtp3_standard;
 }
 
 void
