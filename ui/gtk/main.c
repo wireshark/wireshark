@@ -3347,7 +3347,7 @@ static GtkWidget *main_widget_layout(gint layout_content)
 void main_widgets_rearrange(void) {
     GtkWidget *first_pane_widget1, *first_pane_widget2;
     GtkWidget *second_pane_widget1, *second_pane_widget2;
-    gboolean split_top_left;
+    gboolean split_top_left = FALSE;
 
     /* be a bit faster */
     gtk_widget_hide(main_vbox);
