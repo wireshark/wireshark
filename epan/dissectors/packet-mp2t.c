@@ -424,7 +424,7 @@ static GHashTable *mp2t_reassembled_table = NULL;
 
 static void
 mp2t_dissect_packet(tvbuff_t *tvb, enum pid_payload_type pload_type,
-				packet_info *pinfo, proto_tree *tree)
+		    packet_info *pinfo, proto_tree *tree)
 {
 	dissector_handle_t handle = NULL;
 
@@ -522,9 +522,9 @@ mp2t_get_packet_length(tvbuff_t *tvb, guint offset, packet_info *pinfo,
 
 static void
 mp2t_fragment_handle(tvbuff_t *tvb, guint offset, packet_info *pinfo,
-					proto_tree *tree, guint32 frag_id,
-					guint frag_offset, guint frag_len,
-					gboolean fragment_last, enum pid_payload_type pload_type)
+		     proto_tree *tree, guint32 frag_id,
+		     guint frag_offset, guint frag_len,
+		     gboolean fragment_last, enum pid_payload_type pload_type)
 {
 	/* proto_item *ti; */
 	fragment_data *frag_msg = NULL;
@@ -578,8 +578,8 @@ mp2t_fragment_handle(tvbuff_t *tvb, guint offset, packet_info *pinfo,
  */
 static void
 mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len, packet_info *pinfo,
-                                 proto_tree *tree, proto_tree *header_tree, guint32 pusi_flag,
-				 pid_analysis_data_t *pid_analysis)
+                                proto_tree *tree, proto_tree *header_tree, guint32 pusi_flag,
+				pid_analysis_data_t *pid_analysis)
 {
 	tvbuff_t *next_tvb;
 	guint8 pointer = 0;
@@ -704,6 +704,10 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
 			stuff_len = 0;
 			while ((tvb_get_guint8(tvb, offset + stuff_len) == 0xFF)) {
 				stuff_len++;
+				if (stuff_len >= remaining_len) {
+					remaining_len = 0;
+					break;
+				}
 				if (remaining_len - stuff_len <= 0)
 					break;
 			}
@@ -713,9 +717,13 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
 				stuff_tree = proto_item_add_subtree(si, ett_stuff);
 				proto_tree_add_item(stuff_tree, hf_mp2t_stuff_bytes, tvb, offset, stuff_len, ENC_NA);
 				offset += stuff_len;
+				if (stuff_len >= remaining_len) {
+					remaining_len = 0;
+					goto save_state;
+				}
 				remaining_len -= stuff_len;
 
-				if (!remaining_len)
+				if (remaining_len == 0)
 					goto save_state;
 			}
 
@@ -744,7 +752,7 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
 
 		}
 
-		if (!remaining_len) {
+		if (remaining_len == 0) {
 			pid_analysis->frag_cur_pos = 0;
 			pid_analysis->frag_tot_len = 0;
 			goto save_state;
@@ -1198,7 +1206,11 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
 		}
 	}
 
-	payload_len = MP2T_PACKET_SIZE - (offset - start_offset);
+	if ((offset - start_offset) < MP2T_PACKET_SIZE)
+		payload_len = MP2T_PACKET_SIZE - (offset - start_offset);
+	else
+		payload_len = 0;
+
 	if (!payload_len)
 		return;
 
