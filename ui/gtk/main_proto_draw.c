@@ -1717,7 +1717,7 @@ packet_hex_editor_print(GtkWidget *bv, const guint8 *pd, frame_data *fd, int off
     /* to redraw the display if preferences change.             */
 
     int bstart = offset, bend = (bstart != -1) ? offset+1 : -1;
-    guint32 bmask; int bmask_le = 0;
+    guint32 bmask=0; int bmask_le = 0;
     int astart = -1, aend = -1;
 
     switch (recent.gui_bytes_view) {
