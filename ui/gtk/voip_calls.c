@@ -392,7 +392,7 @@ static void insert_to_graph_t38(voip_calls_tapinfo_t *tapinfo _U_, packet_info *
 		item_num++;
 	}
 
-	if (!inserted) tapinfo->graph_analysis->list = g_list_append(tapinfo->graph_analysis->list, new_gai);
+	if (!inserted) tapinfo->graph_analysis->list = g_list_prepend(tapinfo->graph_analysis->list, new_gai);
 }
 
 /****************************************************************************/
@@ -563,7 +563,7 @@ RTP_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, void cons
 		strinfo->start_fd = pinfo->fd;
 		strinfo->setup_frame_number = pi->info_setup_frame_num;
 		strinfo->rtp_event = -1;
-		tapinfo->list = g_list_append(tapinfo->list, strinfo);
+		tapinfo->list = g_list_prepend(tapinfo->list, strinfo);
 	}
 
 	if (strinfo!=NULL){
@@ -774,7 +774,7 @@ T38_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 			callsinfo->free_prot_info = NULL;
 			callsinfo->npackets = 0;
 			callsinfo->call_num = tapinfo->ncalls++;
-			tapinfo->callsinfo_list = g_list_append(tapinfo->callsinfo_list, callsinfo);
+			tapinfo->callsinfo_list = g_list_prepend(tapinfo->callsinfo_list, callsinfo);
 		}
 		++(callsinfo->npackets);
 		/* increment the packets counter of all calls */
@@ -1164,7 +1164,7 @@ isup_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 		tmp_isupinfo->cic = pinfo->circuit_id;
 		callsinfo->npackets = 0;
 		callsinfo->call_num = tapinfo->ncalls++;
-		tapinfo->callsinfo_list = g_list_append(tapinfo->callsinfo_list, callsinfo);
+		tapinfo->callsinfo_list = g_list_prepend(tapinfo->callsinfo_list, callsinfo);
 	}
 
 
@@ -1589,7 +1589,7 @@ q931_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 			tmp_actrace_isdn_info->trunk=actrace_trunk;
 			callsinfo->npackets = 0;
 			callsinfo->call_num = tapinfo->ncalls++;
-			tapinfo->callsinfo_list = g_list_append(tapinfo->callsinfo_list, callsinfo);
+			tapinfo->callsinfo_list = g_list_prepend(tapinfo->callsinfo_list, callsinfo);
 		}
 
 		callsinfo->stop_fd = pinfo->fd;
@@ -1693,7 +1693,7 @@ remove_tap_listener_q931_calls(void)
 
 static void add_h245_Address(h323_calls_info_t *h323info,  h245_address_t *h245_address)
 {
-	h323info->h245_list = g_list_append(h323info->h245_list, h245_address);
+	h323info->h245_list = g_list_prepend(h323info->h245_list, h245_address);
 }
 
 
@@ -1811,7 +1811,7 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 		callsinfo->call_num = tapinfo->ncalls++;
 		callsinfo->npackets = 0;
 
-		tapinfo->callsinfo_list = g_list_append(tapinfo->callsinfo_list, callsinfo);
+		tapinfo->callsinfo_list = g_list_prepend(tapinfo->callsinfo_list, callsinfo);
 	}
 
 	if (callsinfo!=NULL){
@@ -2428,7 +2428,7 @@ MGCPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 		tmp_mgcpinfo->fromEndpoint = fromEndpoint;
 		callsinfo->npackets = 0;
 		callsinfo->call_num = tapinfo->ncalls++;
-		tapinfo->callsinfo_list = g_list_append(tapinfo->callsinfo_list, callsinfo);
+		tapinfo->callsinfo_list = g_list_prepend(tapinfo->callsinfo_list, callsinfo);
 	}
 
 	g_assert(tmp_mgcpinfo != NULL);
@@ -2639,7 +2639,7 @@ ACTRACEcalls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, 
 			tmp_actrace_cas_info->trunk=actrace_trunk;
 			callsinfo->npackets = 0;
 			callsinfo->call_num = tapinfo->ncalls++;
-			tapinfo->callsinfo_list = g_list_append(tapinfo->callsinfo_list, callsinfo);
+			tapinfo->callsinfo_list = g_list_prepend(tapinfo->callsinfo_list, callsinfo);
 		}
 
 		callsinfo->stop_fd = pinfo->fd;
@@ -2775,7 +2775,7 @@ static int h248_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *
 
 		callsinfo->selected = FALSE;
 
-		tapinfo->callsinfo_list = g_list_append(tapinfo->callsinfo_list, callsinfo);
+		tapinfo->callsinfo_list = g_list_prepend(tapinfo->callsinfo_list, callsinfo);
 
 	} else {
 		GString *s = g_string_new("");
@@ -2932,7 +2932,7 @@ static int sccp_calls(packet_info *pinfo, const void *prot_info) {
 		callsinfo->selected = FALSE;
 		callsinfo->call_num = tapinfo->ncalls++;
 
-		tapinfo->callsinfo_list = g_list_append(tapinfo->callsinfo_list, callsinfo);
+		tapinfo->callsinfo_list = g_list_prepend(tapinfo->callsinfo_list, callsinfo);
 	} else {
 
 		if ( assoc->calling_party ) {
@@ -3170,7 +3170,7 @@ unistim_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_,
 				callsinfo->free_prot_info = g_free;
 				callsinfo->npackets = 0;
 				callsinfo->call_num = tapinfo->ncalls++;
-				tapinfo->callsinfo_list = g_list_append(tapinfo->callsinfo_list, callsinfo);
+				tapinfo->callsinfo_list = g_list_prepend(tapinfo->callsinfo_list, callsinfo);
 
 			} else {
 
@@ -3419,7 +3419,7 @@ unistim_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_,
 			callsinfo->free_prot_info = g_free;
 			callsinfo->npackets = 0;
 			callsinfo->call_num = tapinfo->ncalls++;
-			tapinfo->callsinfo_list = g_list_append(tapinfo->callsinfo_list, callsinfo);
+			tapinfo->callsinfo_list = g_list_prepend(tapinfo->callsinfo_list, callsinfo);
 
 				/* Open stream */
 			/* Signifies the start of the call so set start_sec & start_usec */
@@ -3631,7 +3631,7 @@ skinny_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, 
 		callsinfo->stop_fd = pinfo->fd;
 
 		callsinfo->selected = FALSE;
-		tapinfo->callsinfo_list = g_list_append(tapinfo->callsinfo_list, callsinfo);
+		tapinfo->callsinfo_list = g_list_prepend(tapinfo->callsinfo_list, callsinfo);
 	} else {
 		if (si->callingParty) {
 			g_free(callsinfo->from_identity);
@@ -3829,7 +3829,7 @@ iax2_calls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, c
 		callsinfo->stop_fd = pinfo->fd;
 
 		callsinfo->selected = FALSE;
-		tapinfo->callsinfo_list = g_list_append(tapinfo->callsinfo_list, callsinfo);
+		tapinfo->callsinfo_list = g_list_prepend(tapinfo->callsinfo_list, callsinfo);
 
 	} else {
 		if ((ii->callState > 0) && (ii->callState < (sizeof(tap_iax_voip_state)/sizeof(tap_iax_voip_state[0]))))
@@ -3945,7 +3945,7 @@ VoIPcalls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 		callsinfo->call_num = tapinfo->ncalls++;
 		callsinfo->npackets = 0;
 
-		tapinfo->callsinfo_list = g_list_append(tapinfo->callsinfo_list, callsinfo);
+		tapinfo->callsinfo_list = g_list_prepend(tapinfo->callsinfo_list, callsinfo);
 	}
 
 	if (callsinfo != NULL) {
