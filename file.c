@@ -3786,7 +3786,10 @@ cf_save(capture_file *cf, const char *fname, packet_range_t *range, guint save_f
       goto fail;
     }
 
-    /* XXX - we let the user save a subset of the packets.
+    /* Add address resolution */
+    wtap_dump_set_addrinfo_list(pdh, get_addrinfo_list());
+
+	/* XXX - we let the user save a subset of the packets.
 
        If we do that, should we make that file the current file?  If so,
        it means we can no longer get at the other packets.  What does
