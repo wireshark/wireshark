@@ -442,17 +442,17 @@ static const value_string usb_bmAttributes_transfer_vals[] = {
 
 static const value_string usb_bmAttributes_sync_vals[] = {
     {0x00,      "No Sync"},
-    {0x04,      "Asynchronous"},
-    {0x08,      "Adaptive"},
-    {0x0c,      "Synchronous"},
+    {0x01,      "Asynchronous"},
+    {0x02,      "Adaptive"},
+    {0x03,      "Synchronous"},
     {0,NULL}
 };
 
 static const value_string usb_bmAttributes_behaviour_vals[] = {
     {0x00,      "Data-Endpoint"},
-    {0x10,      "Explicit Feedback-Endpoint"},
-    {0x20,      "Implicit Feedback-Data-Endpoint"},
-    {0x30,      "Reserved"},
+    {0x01,      "Explicit Feedback-Endpoint"},
+    {0x02,      "Implicit Feedback-Data-Endpoint"},
+    {0x03,      "Reserved"},
     {0,NULL}
 };
 
