@@ -1149,6 +1149,11 @@ finished_checking_retransmission_type:
             tcpd->ta->frame_acked=ual->frame;
             nstime_delta(&tcpd->ta->ts, &pinfo->fd->abs_ts, &ual->ts);
         }
+        /* If this acknowledges part of the segment, adjust the segment info for the acked part */
+        else if (GT_SEQ(ack, ual->seq) && LE_SEQ(ack, ual->nextseq)) {
+            ual->seq = ack;
+            continue;
+        }
         /* If this acknowledges a segment prior to this one, leave this segment alone and move on */
         else if (GT_SEQ(ual->nextseq,ack)){
             prevual = ual;
