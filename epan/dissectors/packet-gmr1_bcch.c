@@ -999,8 +999,8 @@ static const value_string si1_randomization_period_vals[] = {
 static void
 dissect_gmr1_bcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_item *bcch_item = NULL;
-	proto_tree *bcch_tree = NULL;
+	/* proto_item *bcch_item = NULL; */
+	/* proto_tree *bcch_tree = NULL; */
 	csnStream_t  ar;
 	gboolean is_si1;
 
@@ -1008,11 +1008,11 @@ dissect_gmr1_bcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	is_si1 = tvb_get_bits8(tvb, 0, 5) & 1;
 
-	bcch_item = proto_tree_add_protocol_format(
+	/* bcch_item = */ proto_tree_add_protocol_format(
 		tree, proto_gmr1_bcch, tvb, 0, -1,
 		"GMR-1 BCCH - System Information type %d", is_si1 ? 1 : 2
 	);
-	bcch_tree = proto_item_add_subtree(bcch_item, ett_gmr1_bcch);
+	/* bcch_tree = proto_item_add_subtree(bcch_item, ett_gmr1_bcch); */
 
 	csnStreamInit(&ar, 0, tvb_length(tvb)*8);
 #if 0
