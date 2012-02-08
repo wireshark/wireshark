@@ -542,9 +542,9 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 			break;
 
-        case GSMTAP_CHANNEL_CBCH51:
-        case GSMTAP_CHANNEL_CBCH52:
-           sub_handle = GSMTAP_SUB_CBCH;
+	        case GSMTAP_CHANNEL_CBCH51:
+		case GSMTAP_CHANNEL_CBCH52:
+			sub_handle = GSMTAP_SUB_CBCH;
 			break;
 
 		case GSMTAP_CHANNEL_RACH:
