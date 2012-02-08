@@ -105,11 +105,19 @@ static nstime_t time_at_start_of_count;
    Key is unsigned32 */
 static GHashTable *address_hash_table = NULL;
 
-struct address_hash_value {
+typedef struct address_hash_value {
   guint8    mac[6];
   guint     frame_num;
   time_t    time_of_entry;
-};
+} address_hash_value;
+
+/* Map of ((frame Num, IP address) -> MAC address) */
+static GHashTable *duplicate_result_hash_table = NULL;
+
+typedef struct duplicate_result_key {
+    guint32 frame_number;
+    guint32 ip_address;
+} duplicate_result_key;
 
 
 /* Definitions taken from Linux "linux/if_arp.h" header file, and from
@@ -436,6 +444,23 @@ static gint address_equal_func(gconstpointer v, gconstpointer v2)
   return v == v2;
 }
 
+static guint duplicate_result_hash_func(gconstpointer v)
+{
+  duplicate_result_key *key = (duplicate_result_key*)v;
+  return (key->frame_number + key->ip_address);
+}
+
+static gint duplicate_result_equal_func(gconstpointer v, gconstpointer v2)
+{
+  duplicate_result_key *key1 = (duplicate_result_key*)v;
+  duplicate_result_key *key2 = (duplicate_result_key*)v2;
+
+  return (memcmp(key1, key2, sizeof(duplicate_result_key)) == 0);
+}
+
+
+
+
 /* Check to see if this mac & ip pair represent 2 devices trying to share
    the same IP address - report if found (+ return TRUE and set out param) */
 static gboolean check_for_duplicate_addresses(packet_info *pinfo, proto_tree *tree,
@@ -443,73 +468,96 @@ static gboolean check_for_duplicate_addresses(packet_info *pinfo, proto_tree *tr
                                               const guint8 *mac, guint32 ip,
                                               guint32 *duplicate_ip)
 {
-  struct   address_hash_value *value;
-  gboolean return_value = FALSE;
+  address_hash_value *value;
+  address_hash_value *result = NULL;
+  duplicate_result_key result_key = {pinfo->fd->num, ip};
 
-  /* Look up any existing entries */
-  value = g_hash_table_lookup(address_hash_table, GUINT_TO_POINTER(ip));
+  /* Look up existing result */
+  if (pinfo->fd->flags.visited) {
+      result = g_hash_table_lookup(duplicate_result_hash_table,
+                                   &result_key);
+  }
+  else {
+      /* First time around, need to work out if represents duplicate and
+         store result */
 
-  /* If MAC matches table, just update details */
-  if (value != NULL)
-  {
-    if (pinfo->fd->num > value->frame_num)
-    {
-      if ((memcmp(value->mac, mac, 6) == 0))
+      /* Look up current assignment of IP address */
+      value = g_hash_table_lookup(address_hash_table, GUINT_TO_POINTER(ip));
+
+      /* If MAC matches table, just update details */
+      if (value != NULL)
       {
-        /* Same MAC as before - update existing entry */
-        value->frame_num = pinfo->fd->num;
-        value->time_of_entry = pinfo->fd->abs_ts.secs;
+        if (pinfo->fd->num > value->frame_num)
+        {
+          if ((memcmp(value->mac, mac, 6) == 0))
+          {
+            /* Same MAC as before - update existing entry */
+            value->frame_num = pinfo->fd->num;
+            value->time_of_entry = pinfo->fd->abs_ts.secs;
+          }
+          else
+          {
+            /* Create result and store in result table */
+            duplicate_result_key *persistent_key = se_alloc(sizeof(duplicate_result_key));
+            memcpy(persistent_key, &result_key, sizeof(duplicate_result_key));
+
+            result = se_alloc(sizeof(address_hash_value));
+            memcpy(result, value, sizeof(address_hash_value));
+
+            g_hash_table_insert(duplicate_result_hash_table, persistent_key, result);
+          }
+        }
       }
       else
       {
-        /* Doesn't match earlier MAC - report! */
-        proto_tree *duplicate_tree;
+        /* No existing entry. Prepare one */
+        value = se_alloc(sizeof(struct address_hash_value));
+        memcpy(value->mac, mac, 6);
+        value->frame_num = pinfo->fd->num;
+        value->time_of_entry = pinfo->fd->abs_ts.secs;
 
-        /* Create subtree */
-        proto_item *ti = proto_tree_add_none_format(tree, hf_arp_duplicate_ip_address,
-                                                    tvb, 0, 0,
-                                                    "Duplicate IP address detected for %s (%s) - also in use by %s (frame %u)",
-                                                    arpproaddr_to_str((guint8*)&ip, 4, ETHERTYPE_IP),
-                                                    ether_to_str(mac),
-                                                    ether_to_str(value->mac),
-                                                    value->frame_num);
-        PROTO_ITEM_SET_GENERATED(ti);
-        duplicate_tree = proto_item_add_subtree(ti, ett_arp_duplicate_address);
-
-        /* Add item for navigating to earlier frame */
-        ti = proto_tree_add_uint(duplicate_tree, hf_arp_duplicate_ip_address_earlier_frame,
-                                 tvb, 0, 0, value->frame_num);
-        PROTO_ITEM_SET_GENERATED(ti);
-        expert_add_info_format(pinfo, ti,
-                               PI_SEQUENCE, PI_WARN,
-                               "Duplicate IP address configured (%s)",
-                               arpproaddr_to_str((guint8*)&ip, 4, ETHERTYPE_IP));
-
-        /* Time since that frame was seen */
-        ti = proto_tree_add_uint(duplicate_tree,
-                                 hf_arp_duplicate_ip_address_seconds_since_earlier_frame,
-                                 tvb, 0, 0,
-                                 (guint32)(pinfo->fd->abs_ts.secs - value->time_of_entry));
-        PROTO_ITEM_SET_GENERATED(ti);
-
-        *duplicate_ip = ip;
-        return_value = TRUE;
+        /* Add it */
+        g_hash_table_insert(address_hash_table, GUINT_TO_POINTER(ip), value);
       }
-    }
-  }
-  else
-  {
-    /* No existing entry. Prepare one */
-    value = se_alloc(sizeof(struct address_hash_value));
-    memcpy(value->mac, mac, 6);
-    value->frame_num = pinfo->fd->num;
-    value->time_of_entry = pinfo->fd->abs_ts.secs;
-
-    /* Add it */
-    g_hash_table_insert(address_hash_table, GUINT_TO_POINTER(ip), value);
   }
 
-  return return_value;
+  /* Add report to tree if we found a duplicate */
+  if (result != NULL) {
+    proto_tree *duplicate_tree;
+
+    /* Create subtree */
+    proto_item *ti = proto_tree_add_none_format(tree, hf_arp_duplicate_ip_address,
+                                                tvb, 0, 0,
+                                                "Duplicate IP address detected for %s (%s) - also in use by %s (frame %u)",
+                                                arpproaddr_to_str((guint8*)&ip, 4, ETHERTYPE_IP),
+                                                ether_to_str(mac),
+                                                ether_to_str(result->mac),
+                                                result->frame_num);
+    PROTO_ITEM_SET_GENERATED(ti);
+    duplicate_tree = proto_item_add_subtree(ti, ett_arp_duplicate_address);
+
+    /* Add item for navigating to earlier frame */
+    ti = proto_tree_add_uint(duplicate_tree, hf_arp_duplicate_ip_address_earlier_frame,
+                             tvb, 0, 0, result->frame_num);
+    PROTO_ITEM_SET_GENERATED(ti);
+    expert_add_info_format(pinfo, ti,
+                           PI_SEQUENCE, PI_WARN,
+                           "Duplicate IP address configured (%s)",
+                           arpproaddr_to_str((guint8*)&ip, 4, ETHERTYPE_IP));
+
+    /* Time since that frame was seen */
+    ti = proto_tree_add_uint(duplicate_tree,
+                             hf_arp_duplicate_ip_address_seconds_since_earlier_frame,
+                             tvb, 0, 0,
+                             (guint32)(pinfo->fd->abs_ts.secs - result->time_of_entry));
+    PROTO_ITEM_SET_GENERATED(ti);
+
+    /* Set out parameter */
+    *duplicate_ip = ip;
+  }
+
+
+  return (result != NULL);
 }
 
 
@@ -520,11 +568,18 @@ static void
 arp_init_protocol(void)
 {
   /* Destroy any existing hashes. */
-  if (address_hash_table)
+  if (address_hash_table) {
     g_hash_table_destroy(address_hash_table);
+  }
+  if (duplicate_result_hash_table) {
+    g_hash_table_destroy(duplicate_result_hash_table);
+  }
+
 
   /* Now create it over */
   address_hash_table = g_hash_table_new(address_hash_func, address_equal_func);
+  duplicate_result_hash_table = g_hash_table_new(duplicate_result_hash_func,
+                                                 duplicate_result_equal_func);
 }
 
 
