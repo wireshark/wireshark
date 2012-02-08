@@ -4603,7 +4603,7 @@ set_menus_for_capture_file(capture_file *cf)
         set_toolbar_for_capture_file(FALSE, FALSE);
         set_toolbar_for_unsaved_capture_file(FALSE);
     } else {
-        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Merge", TRUE);
+        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Merge", cf_can_save_as(cf));
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Close", TRUE);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Save", !cf->user_saved);
         /*
