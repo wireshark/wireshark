@@ -1070,6 +1070,7 @@ if(DOC_DIR)
 			WORLD_EXECUTE WORLD_READ
 		DESTINATION
 			${DOC_DIR}/guides
+		FILES_MATCHING
 		PATTERN "*.pdf"
 	)
 endif()
