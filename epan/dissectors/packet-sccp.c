@@ -1000,6 +1000,18 @@ looks_like_valid_sccp(guint32 frame_num _U_, tvbuff_t *tvb, guint8 my_mtp3_stand
 	    if (msgtype == SCCP_MSG_TYPE_XUDT || msgtype == SCCP_MSG_TYPE_XUDTS) {
 		opt_ptr = tvb_get_guint8(tvb, offset);
 		offset += POINTER_LENGTH;
+	    } else if (msgtype == SCCP_MSG_TYPE_LUDT || msgtype == SCCP_MSG_TYPE_LUDTS) {
+		opt_ptr = tvb_get_letohs(tvb, offset);
+		offset += POINTER_LENGTH_LONG;
+	    }
+
+	    if (msgtype == SCCP_MSG_TYPE_LUDT || msgtype == SCCP_MSG_TYPE_LUDTS) {
+		/* Long pointers count from the 2nd (MSB) octet of the pointer */
+	    	called_ptr += 1;
+		calling_ptr += 1;
+		data_ptr += 1;
+		if (opt_ptr)
+		    opt_ptr += 1;
 	    }
 
 	    /* Check that the variable pointers are within bounds */
