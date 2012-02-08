@@ -799,9 +799,9 @@ dissect_bertlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 
-#define P1_OFFS 	0
-#define P2_OFFS 	1
-#define P3_OFFS 	2
+#define P1_OFFS		0
+#define P2_OFFS		1
+#define P3_OFFS		2
 #define DATA_OFFS	3
 
 static int
