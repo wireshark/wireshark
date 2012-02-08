@@ -9,6 +9,13 @@ QT += core gui
 TARGET = qtshark
 TEMPLATE = app
 
+xxx {
+    message( )
+    message(CONFIG:)
+    message(  $$CONFIG)
+    message( )
+}
+
 unix {
     CONFIG += link_pkgconfig
     PKGCONFIG += \
@@ -18,13 +25,6 @@ unix {
     eval(PKGCONFIG += zlib) {
         PKGCONFIG += zlib
     }
-}
-
-xwin32 {
-message( )
-message(CONFIG:)
-message(  $$CONFIG)
-message( )
 }
 
 win32 {
@@ -82,16 +82,7 @@ win32:INCLUDEPATH += \
     $${WIRESHARK_LIB_DIR}/AirPcap_Devpack_4_1_0_1622/Airpcap_Devpack/include \
     $${WIRESHARK_LIB_DIR}/zlib125/include
 
-# XXX - If we add ../gtk/recent.c to SOURCES, jom will try to compile everything
-# in ../gtk. Until we move the things we need in recent.c to a common file, simply
-# copy it to our current directory.
-#recent.target = recent.c
-#!win32:recent.commands = $$QMAKE_COPY ../gtk/$$recent.target .
-#win32:recent.commands = $$QMAKE_COPY ..\\gtk\\$$recent.target .
-#recent.depends = ../gtk/$$recent.target
-#QMAKE_EXTRA_TARGETS += recent
-
-SOURCES += \
+SOURCES_WS_C = \
     ../../airpcap_loader.c \
     ../../alert_box.c     \
     ../../capture-pcap-util.c     \
@@ -124,7 +115,12 @@ SOURCES += \
     ../../timestats.c     \
     ../../u3.c \
     ../../util.c  \
-    ../../version_info.c \
+    ../../version_info.c
+
+unix:SOURCES_WS_C += ../../capture-pcap-util-unix.c
+win32:SOURCES_WS_C += ../../capture-wpcap.c ../../capture_wpcap_packet.c
+
+SOURCES_QT_CPP = \
     byte_view_tab.cpp \
     byte_view_text.cpp \
     capture_file_dialog.cpp \
@@ -153,11 +149,10 @@ SOURCES += \
     label_stack.cpp
 
 
-unix:SOURCES += ../../capture-pcap-util-unix.c
-win32:SOURCES += ../../capture-wpcap.c ../../capture_wpcap_packet.c
+HEADERS_WS_C  = \
+    ../../wsutil/privileges.h
 
-HEADERS  += \
-    ../../wsutil/privileges.h \
+HEADERS_QT_CPP = \
     byte_view_tab.h \
     byte_view_text.h \
     capture_file_dialog.h \
@@ -185,8 +180,43 @@ HEADERS  += \
     wireshark_application.h \
     label_stack.h
 
-
 FORMS += main_window.ui
+
+win32 { ## These should be in config.pri ??
+    !isEmpty(PORTAUDIO_DIR) {
+        PA_OBJECTS = \
+            ../gtk/pa_allocation.obj \
+            ../gtk/pa_converters.obj \
+            ../gtk/pa_cpuload.obj \
+            ../gtk/pa_dither.obj \
+            ../gtk/pa_front.obj \
+            ../gtk/pa_process.obj \
+            ../gtk/pa_skeleton.obj \
+            ../gtk/pa_stream.obj \
+            ../gtk/pa_trace.obj \
+            ../gtk/pa_win_wmme.obj \
+            ../gtk/pa_win_hostapis.obj \
+            ../gtk/pa_win_util.obj \
+            ../gtk/pa_win_waveformat.obj \
+            ../gtk/pa_x86_plain_converters.obj
+        PA_OBJECTS ~= s,/,\\,g
+    }
+}
+
+win32 {
+    SOURCES += $$SOURCES_QT_CPP
+    HEADERS += $$HEADERS_WS_C
+    HEADERS += $$HEADERS_QT_CPP
+    OBJECTS_WS_C = $$SOURCES_WS_C
+    OBJECTS_WS_C ~= s/[.]c/.obj/g
+    OBJECTS_WS_C ~= s,/,\\,g
+} else {
+## XXX: Shouldn't need to (re)compile WS_C sources ??
+    SOURCES += $$SOURCES_WS_C
+    SOURCES += $$SOURCES_QT_CPP
+    HEADERS += $$HEADERS_WS_C
+    HEADERS += $$HEADERS_QT_CPP
+}
 
 DEFINES += HAVE_CONFIG_H INET6 REENTRANT
 unix:DEFINES += _U_=\"__attribute__((unused))\"
@@ -218,32 +248,13 @@ macx {
 }
 
 win32 {
+    # Add the wireshark objects to LIBS
+    LIBS += $$OBJECTS_WS_C
+    LIBS += $$PA_OBJECTS
     LIBS += \
         wsock32.lib user32.lib shell32.lib comctl32.lib \
         -L../../epan -llibwireshark -L../../wsutil -llibwsutil -L../../wiretap -lwiretap-1.7.0 \
         -L$${GLIB_DIR}/lib -lglib-2.0 -lgmodule-2.0
-
-    !isEmpty(PORTAUDIO_DIR) {
-        PA_SOURCES = \
-            common/pa_allocation.c \
-            common/pa_converters.c \
-            common/pa_cpuload.c \
-            common/pa_dither.c \
-            common/pa_front.c \
-            common/pa_process.c \
-            common/pa_skeleton.c \
-            common/pa_stream.c \
-            common/pa_trace.c \
-            hostapi/wmme/pa_win_wmme.c \
-            os/win/pa_win_hostapis.c \
-            os/win/pa_win_util.c \
-            os/win/pa_win_waveformat.c \
-            os/win/pa_x86_plain_converters.c
-
-        for(FILE,PA_SOURCES){
-            SOURCES += $${PORTAUDIO_DIR}/src/$${FILE}
-        }
-    }
 
     EXTRA_BINFILES = \
         ../../dumpcap.exe \
