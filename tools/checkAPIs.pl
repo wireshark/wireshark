@@ -1303,6 +1303,43 @@ sub findAPIinFile($$$)
         }
 }
 
+sub checkAddTextCalls($$)
+{
+	my ($fileContentsRef, $filename) = @_;
+	my $add_text_count = 0;
+	my $okay_add_text_count = 0;
+	my $add_xxx_count = 0;
+
+	# First count how many proto_tree_add_text() calls there are in total
+	while (${$fileContentsRef} =~ m/ \W* proto_tree_add_text \W* \( /gox) {
+		$add_text_count++;
+	}
+	# Then count how many of them are "okay" by virtue of their generate proto_item
+	# being used (e.g., to hang a subtree off of)
+	while (${$fileContentsRef} =~ m/ \W* [a-zA-Z0-9]+ \W* = \W* proto_tree_add_text \W* \( /gox) {
+		$okay_add_text_count++;
+	}
+	# Then count how many proto_tree_add_*() calls there are
+	while (${$fileContentsRef} =~ m/ \W proto_tree_add_[a-z]+ \W* \( /gox) {
+		$add_xxx_count++;
+	}
+
+	#printf "add_text_count %d, okay_add_text_count %d\n", $add_text_count, $okay_add_text_count;
+	$add_xxx_count -= $add_text_count;
+	$add_text_count -= $okay_add_text_count;
+
+	# Don't bother with files with small counts
+	if ($add_xxx_count < 10 || $add_text_count < 10) {
+		return;
+	}
+
+	my $percentage = 100*$add_text_count/$add_xxx_count;
+	if ($percentage > 50) {
+		printf "%s: found %d useless add_text() vs. %d add_<something else>() calls (%.2f%%)\n",
+			$filename, $add_text_count, $add_xxx_count, $percentage;
+	}
+}
+
 # APIs which (generally) should not be called with an argument of tvb_get_ptr()
 my @TvbPtrAPIs = (
         # Use NULL for the value_ptr instead of tvb_get_ptr() (only if the
@@ -1668,10 +1705,11 @@ while ($_ = $ARGV[0])
         }
 
         #checkAPIsCalledWithTvbGetPtr(\@TvbPtrAPIs, \$fileContents, \@foundAPIs);
-
         #if (@foundAPIs) {
         #       print STDERR "Found APIs with embedded tvb_get_ptr() calls in ".$filename.": ".join(',', @foundAPIs)."\n"
         #}
+
+	#checkAddTextCalls(\$fileContents, $filename);
 
         # Brute force check for value_string arrays which are missing {0, NULL} as the final (terminating) array entry
         if ($check_value_string_array_null_termination) {
