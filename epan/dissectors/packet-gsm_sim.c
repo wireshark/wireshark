@@ -1668,6 +1668,10 @@ proto_reg_handoff_gsm_sim(void)
 	static gboolean initialized = FALSE;
 
 	if (!initialized) {
+		dissector_handle_t dtap_handle;
+		dtap_handle = find_dissector("gsm_sim");
+		dissector_add_uint("gsmtap.type", 4, dtap_handle);
+
 		sub_handle_cap = find_dissector("etsi_cat");
 	} else {
 		/* preferences have been changed */
