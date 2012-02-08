@@ -1,7 +1,7 @@
 /* packet-gsmtap.c
  * Routines for GSMTAP captures
  *
- * (C) 2008-2011 by Harald Welte <laforge@gnumonks.org>
+ * (C) 2008-2012 by Harald Welte <laforge@gnumonks.org>
  * (C) 2011 by Holger Hans Peter Freyther
  *
  * $Id$
@@ -113,6 +113,14 @@
 #define GSMTAP_CHANNEL_PDCH       0x0d
 #define GSMTAP_CHANNEL_PTCCH      0x0e
 #define GSMTAP_CHANNEL_CBCH51     0x0f
+
+/* GPRS Coding Scheme CS1..4 */
+#define GSMTAP_GPRS_CS_BASE	0x20
+#define GSMTAP_GPRS_CS(N)	(GSMTAP_GPRS_CS_BASE + N)
+/* (E) GPRS Coding Scheme MCS0..9 */
+#define GSMTAP_GPRS_MCS_BASE	0x30
+#define GSMTAP_GPRS_MCS(N)	(GSMTAP_GPRS_MCS_BASE + N)
+
 #define GSMTAP_CHANNEL_ACCH       0x80
 
 /* ====== DO NOT MAKE UNAPPROVED MODIFICATIONS HERE ===== */
