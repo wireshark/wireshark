@@ -1012,6 +1012,7 @@ static const char *ui_desc_menubar =
 "          <separator/>\n"
 "        </menu>\n"
 "      <menuitem name='SelectedPacketBytes' action='/File/Export/SelectedPacketBytes'/>\n"
+"      <menuitem name='SSLSessionKeys' action='/File/Export/SslSessionKeys'/>\n"
 "        <menu name= 'Objects' action='/File/Export/Objects'>\n"
 "          <menuitem name='HTTP' action='/File/Export/Objects/HTTP'/>\n"
 "          <menuitem name='DICOM' action='/File/Export/Objects/DICOM'/>\n"
