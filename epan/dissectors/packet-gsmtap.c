@@ -74,6 +74,7 @@
 #define GSMTAP_TYPE_WMX_BURST		0x07	/* WiMAX burst */
 #define GSMTAP_TYPE_GB_LLC			0x08 /* GPRS Gb interface: LLC */
 #define GSMTAP_TYPE_GB_SNDCP		0x09 /* GPRS Gb interface: SNDCP */
+#define GSMTAP_TYPE_GMR1_UM				0x0a	/* GMR-1 L2 packets */
 
 /* ====== DO NOT MAKE UNAPPROVED MODIFICATIONS HERE ===== */
 #define GSMTAP_BURST_UNKNOWN		0x00
@@ -125,6 +126,28 @@
 #define GSMTAP_TETRA_STCH			0x07
 #define GSMTAP_TETRA_TCH_F			0x08
 
+/* ====== DO NOT MAKE UNAPPROVED MODIFICATIONS HERE ===== */
+/* sub-types for TYPE_GMR1 */
+#define GSMTAP_GMR1_UNKNOWN			0x00
+#define GSMTAP_GMR1_BCCH			0x01
+#define GSMTAP_GMR1_CCCH			0x02	/* either AGCH or PCH */
+#define GSMTAP_GMR1_PCH				0x03
+#define GSMTAP_GMR1_AGCH			0x04
+#define GSMTAP_GMR1_BACH			0x05
+#define GSMTAP_GMR1_RACH			0x06
+#define GSMTAP_GMR1_CBCH			0x07
+#define GSMTAP_GMR1_SDCCH			0x08
+#define GSMTAP_GMR1_TACCH			0x09
+#define GSMTAP_GMR1_GBCH			0x0a
+
+#define GSMTAP_GMR1_SACCH			0x01	/* to be combined with _TCH{6,9}   */
+#define GSMTAP_GMR1_FACCH			0x02	/* to be combines with _TCH{3,6,9} */
+#define GSMTAP_GMR1_DKAB			0x03	/* to be combined with _TCH3 */
+#define GSMTAP_GMR1_TCH3			0x10
+#define GSMTAP_GMR1_TCH6			0x14
+#define GSMTAP_GMR1_TCH9			0x18
+
+
 #define GSMTAP_ARFCN_F_PCS			0x8000
 #define GSMTAP_ARFCN_F_UPLINK		0x4000
 #define GSMTAP_ARFCN_MASK			0x3fff
@@ -167,6 +190,7 @@ static int hf_gsmtap_frame_nr = -1;
 static int hf_gsmtap_burst_type = -1;
 static int hf_gsmtap_channel_type = -1;
 static int hf_gsmtap_tetra_channel_type = -1;
+static int hf_gsmtap_gmr1_channel_type = -1;
 static int hf_gsmtap_antenna = -1;
 
 static int hf_sacch_l1h_power_lev = -1;
@@ -193,6 +217,8 @@ enum {
 	GSMTAP_SUB_PHY_ATTRIBUTES,
 	GSMTAP_SUB_CBCH,
 	GSMTAP_SUB_SIM,
+	/* GMR-1 sub handles */
+	GSMTAP_SUB_GMR1_BCCH,
 
 	GSMTAP_SUB_MAX
 };
@@ -262,6 +288,35 @@ static const value_string gsmtap_tetra_channels[] = {
 	{ 0,				NULL     },
 };
 
+static const value_string gsmtap_gmr1_channels[] = {
+	{ GSMTAP_GMR1_BCCH,		"BCCH" },
+	{ GSMTAP_GMR1_CCCH,		"CCCH" },
+	{ GSMTAP_GMR1_PCH,		"PCH" },
+	{ GSMTAP_GMR1_AGCH,		"AGCH" },
+	{ GSMTAP_GMR1_BACH,		"BACH" },
+	{ GSMTAP_GMR1_RACH,		"RACH" },
+	{ GSMTAP_GMR1_CBCH,		"CBCH" },
+	{ GSMTAP_GMR1_SDCCH,		"SDCCH" },
+	{ GSMTAP_GMR1_TACCH,		"TACCH" },
+	{ GSMTAP_GMR1_GBCH,		"GBCH" },
+	{ GSMTAP_GMR1_TCH3,		"TCH3" },
+	{ GSMTAP_GMR1_TCH3|
+	  GSMTAP_GMR1_FACCH,		"FACCH3" },
+	{ GSMTAP_GMR1_TCH3|
+	  GSMTAP_GMR1_DKAB,		"DKAB" },
+	{ GSMTAP_GMR1_TCH6,		"TCH6" },
+	{ GSMTAP_GMR1_TCH6|
+	  GSMTAP_GMR1_FACCH,		"FACCH6" },
+	{ GSMTAP_GMR1_TCH6|
+	  GSMTAP_GMR1_SACCH,		"SACCH6" },
+	{ GSMTAP_GMR1_TCH9,		"TCH9" },
+	{ GSMTAP_GMR1_TCH9|
+	  GSMTAP_GMR1_FACCH,		"FACCH9" },
+	{ GSMTAP_GMR1_TCH9|
+	  GSMTAP_GMR1_SACCH,		"SACCH9" },
+	{ 0,				NULL },
+};
+
 /* the mapping is not complete */
 static const int gsmtap_to_tetra[9] = {
 	0,
@@ -283,6 +338,7 @@ static const value_string gsmtap_types[] = {
 	{ GSMTAP_TYPE_TETRA_I1, "TETRA V+D"},
 	{ GSMTAP_TTPE_TETRA_I1_BURST, "TETRA V+D burst"},
 	{ GSMTAP_TYPE_WMX_BURST,"WiMAX burst" },
+	{ GSMTAP_TYPE_GMR1_UM, "GMR-1 air interfeace (MES-MS<->GTS)" },
 	{ 0,			NULL },
 };
 
@@ -404,6 +460,8 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		channel = tvb_get_guint8(tvb, offset+12);
 		if (type == GSMTAP_TYPE_TETRA_I1)
 			channel_str = val_to_str(channel, gsmtap_tetra_channels, "Unknown: %d");
+		else if (type == GSMTAP_TYPE_GMR1_UM)
+			channel_str = val_to_str(channel, gsmtap_gmr1_channels, "Unknown: %d");
 		else
 			channel_str = val_to_str(channel, gsmtap_channels, "Unknown: %d");
 
@@ -445,6 +503,9 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					    tvb, offset+12, 1, ENC_BIG_ENDIAN);
 		else if (type == GSMTAP_TYPE_WMX_BURST)
 			proto_tree_add_item(gsmtap_tree, hf_gsmtap_burst_type,
+					    tvb, offset+12, 1, ENC_BIG_ENDIAN);
+		else if (type == GSMTAP_TYPE_GMR1_UM)
+			proto_tree_add_item(gsmtap_tree, hf_gsmtap_gmr1_channel_type,
 					    tvb, offset+12, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(gsmtap_tree, hf_gsmtap_antenna,
 				    tvb, offset+13, 1, ENC_BIG_ENDIAN);
@@ -528,6 +589,16 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	                sub_handle = GSMTAP_SUB_DATA;
 	                break;
 	        }
+ 		break;
+	case GSMTAP_TYPE_GMR1_UM:
+		switch (sub_type) {
+		case GSMTAP_GMR1_BCCH:
+			sub_handle = GSMTAP_SUB_GMR1_BCCH;
+			break;
+		default:
+			sub_handle = GSMTAP_SUB_DATA;
+			break;
+		}
 		break;
 	case GSMTAP_TYPE_UM_BURST:
 	default:
@@ -570,6 +641,8 @@ proto_register_gsmtap(void)
 		  FT_UINT8, BASE_DEC, VALS(gsmtap_channels), 0, NULL, HFILL }},
 		{ &hf_gsmtap_tetra_channel_type, { "Channel Type", "gsmtap.tetra_chan_type",
 		  FT_UINT8, BASE_DEC, VALS(gsmtap_tetra_channels), 0, NULL, HFILL }},
+		{ &hf_gsmtap_gmr1_channel_type, { "Channel Type", "gsmtap.gmr1_chan_type",
+		  FT_UINT8, BASE_DEC, VALS(gsmtap_gmr1_channels), 0, NULL, HFILL }},
 		{ &hf_gsmtap_antenna, { "Antenna Number", "gsmtap.antenna",
 		  FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
 		{ &hf_gsmtap_subslot, { "Sub-Slot", "gsmtap.sub_slot",
@@ -613,6 +686,7 @@ proto_reg_handoff_gsmtap(void)
 	sub_handles[GSMTAP_SUB_HACK] = find_dissector("wimax_hack_burst_handler");
 	sub_handles[GSMTAP_SUB_PHY_ATTRIBUTES] = find_dissector("wimax_phy_attributes_burst_handler");
 	sub_handles[GSMTAP_SUB_CBCH] = find_dissector("gsm_cbch");
+	sub_handles[GSMTAP_SUB_GMR1_BCCH] = find_dissector("gmr1_bcch");
 	gsmtap_handle = create_dissector_handle(dissect_gsmtap, proto_gsmtap);
 	dissector_add_uint("udp.port", GSMTAP_UDP_PORT, gsmtap_handle);
 }

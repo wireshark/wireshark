@@ -262,13 +262,14 @@ typedef struct {
 	Seg2A_LAInfo_t LAInfo;
 } Segment2Abis_t;
 
-#if 0
 typedef struct {
+	guint8 _dummy; /* Remove when dissection is written */
 } Segment2B_t;
 
 typedef struct {
+	guint8 _dummy; /* Remove when dissection is written */
 } Segment2Bbis_t;
-#endif
+
 	/* Segment 3A - [1] 11.5.2.71 */
 typedef struct {
 	guint16 MCC;
@@ -306,88 +307,115 @@ typedef struct {
 	Seg3A_MiscInfo_t MiscInfo;
 	guint8 Spare;
 } Segment3A_t;
-#if 0
+
 typedef struct {
+	guint8 _dummy; /* Remove when dissection is written */
 } Segment3B_t;
 
 typedef struct {
+	guint8 _dummy; /* Remove when dissection is written */
 } Segment3Bbis_t;
 
 typedef struct {
+	guint8 _dummy; /* Remove when dissection is written */
 } Segment3C_t;
 
 typedef struct {
+	guint8 _dummy; /* Remove when dissection is written */
 } Segment3D_t;
 
 typedef struct {
+	guint8 _dummy; /* Remove when dissection is written */
 } Segment3E_t;
 
 typedef struct {
+	guint8 _dummy; /* Remove when dissection is written */
 } Segment3Ebis_t;
 
 typedef struct {
+	guint8 _dummy; /* Remove when dissection is written */
 } Segment3F_t;
 
 typedef struct {
+	guint8 _dummy; /* Remove when dissection is written */
 } Segment3G_t;
 
 typedef struct {
+	guint8 _dummy; /* Remove when dissection is written */
 } Segment3Gbis_t;
 
 typedef struct {
+	guint8 _dummy; /* Remove when dissection is written */
 } Segment3H_t;
 
 typedef struct {
+	guint8 _dummy; /* Remove when dissection is written */
 } Segment3I_t;
 
 typedef struct {
+	guint8 _dummy; /* Remove when dissection is written */
 } Segment3J_t;
 
 typedef struct {
+	guint8 _dummy; /* Remove when dissection is written */
 } Segment3Jbis_t;
 
 typedef struct {
+	guint8 _dummy; /* Remove when dissection is written */
 } Segment3Kbis_t;
 
 typedef struct {
+	guint8 _dummy; /* Remove when dissection is written */
 } Segment3L_t;
 
 typedef struct {
+	guint8 _dummy; /* Remove when dissection is written */
 } Segment3M_t;
 
 typedef struct {
+	guint8 _dummy; /* Remove when dissection is written */
 } Segment4A_t;
 
 typedef struct {
+	guint8 _dummy; /* Remove when dissection is written */
 } Segment4B_t;
 
 typedef struct {
+	guint8 _dummy; /* Remove when dissection is written */
 } Segment4C_t;
 
 typedef struct {
+	guint8 _dummy; /* Remove when dissection is written */
 } Segment4D_t;
 
 typedef struct {
+	guint8 _dummy; /* Remove when dissection is written */
 } Segment4E_t;
 
 typedef struct {
+	guint8 _dummy; /* Remove when dissection is written */
 } Segment4F_t;
 
 typedef struct {
+	guint8 _dummy; /* Remove when dissection is written */
 } Segment4G_t;
 
 typedef struct {
+	guint8 _dummy; /* Remove when dissection is written */
 } Segment4H_t;
 
 typedef struct {
+	guint8 _dummy; /* Remove when dissection is written */
 } Segment4I_t;
 
 typedef struct {
+	guint8 _dummy; /* Remove when dissection is written */
 } Segment4J_t;
 
 typedef struct {
+	guint8 _dummy; /* Remove when dissection is written */
 } Segment4K_t;
-#endif
+
 /* System informations structures */
 
 	/* System Information type 1 - [1] 10.1.31 */
@@ -397,7 +425,7 @@ typedef struct {
 	guint8		Randomization_Period;
 	guint8		Spare;
 } SI1_Block_Header_t;
-#if 0
+
 typedef struct {
 	SI1_Block_Header_t	Block_Header;
 	Segment1A_t		Segment1A;
@@ -429,14 +457,14 @@ typedef struct {
 		Segment4K_t		Segment4K;
 	} u;
 } SystemInformation1_t;
-#endif
+
 	/* System Information type 2 - [1] 10.1.32 */
 typedef struct {
 	guint8		Protocol_Version;
 	guint8		Block_Type;
 	guint8		Spare;
 } SI2_Block_Header_t;
-#if 0
+
 typedef struct {
 	SI2_Block_Header_t	Block_Header;
 	guint8			SegmentType;
@@ -449,7 +477,7 @@ typedef struct {
 		Segment3J_t		Segment3J;
 	} u;
 } SystemInformation2_t;
-#endif
+
 
 /* ------------------------------------------------------------------------ */
 /* CSN1 parsing definitions                                                 */
@@ -828,7 +856,7 @@ CSN_DESCR_BEGIN(SI1_Block_Header_t)
   M_UINT       (SI1_Block_Header_t, Randomization_Period, 2, &hf_si1_randomization_period),
   M_UINT       (SI1_Block_Header_t, Spare, 1, &hf_si_spare),
 CSN_DESCR_END  (SI1_Block_Header_t);
-#if 0
+
 static const
 CSN_ChoiceElement_t SI1_SegmentChoice[] =
 {
@@ -857,6 +885,7 @@ CSN_ChoiceElement_t SI1_SegmentChoice[] =
   {7, 0x69, 1, M_TYPE_LABEL(SystemInformation1_t, u.Segment4J,    Segment4J_t,    "Segment 4J")},
   {7, 0x6a, 1, M_TYPE_LABEL(SystemInformation1_t, u.Segment4K,    Segment4K_t,    "Segment 4K")},
 };
+
 static const
 CSN_DESCR_BEGIN(SystemInformation1_t)
   M_TYPE_LABEL (SystemInformation1_t, Block_Header, SI1_Block_Header_t, "Block Header"),
@@ -889,7 +918,6 @@ CSN_DESCR_BEGIN(SystemInformation2_t)
   M_CHOICE_IL  (SystemInformation2_t, SegmentType, SI2_SegmentChoice, ElementsOf(SI2_SegmentChoice)),
 CSN_DESCR_END  (SystemInformation2_t)
 
-#endif
 
 /* ------------------------------------------------------------------------ */
 /* Fields values                                                            */
@@ -999,8 +1027,8 @@ static const value_string si1_randomization_period_vals[] = {
 static void
 dissect_gmr1_bcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	/* proto_item *bcch_item = NULL; */
-	/* proto_tree *bcch_tree = NULL; */
+	proto_item *bcch_item = NULL; 
+	proto_tree *bcch_tree = NULL; 
 	csnStream_t  ar;
 	gboolean is_si1;
 
@@ -1008,14 +1036,14 @@ dissect_gmr1_bcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	is_si1 = tvb_get_bits8(tvb, 0, 5) & 1;
 
-	/* bcch_item = */ proto_tree_add_protocol_format(
+	 bcch_item =  proto_tree_add_protocol_format(
 		tree, proto_gmr1_bcch, tvb, 0, -1,
 		"GMR-1 BCCH - System Information type %d", is_si1 ? 1 : 2
 	);
-	/* bcch_tree = proto_item_add_subtree(bcch_item, ett_gmr1_bcch); */
+	 bcch_tree = proto_item_add_subtree(bcch_item, ett_gmr1_bcch); 
 
 	csnStreamInit(&ar, 0, tvb_length(tvb)*8);
-#if 0
+
 	/* SI1 or SI2 */
 	if (is_si1) {
 		SystemInformation1_t *data;
@@ -1036,7 +1064,6 @@ dissect_gmr1_bcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			SI2_SegmentChoice[data->SegmentType].descr.sz
 		);
 	}
-#endif
 }
 
 void
