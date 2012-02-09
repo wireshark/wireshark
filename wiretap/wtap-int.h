@@ -62,11 +62,13 @@ struct wtap {
 	void			(*subtype_sequential_close)(struct wtap*);
 	void			(*subtype_close)(struct wtap*);
 	int			file_encap;	/* per-file, for those
-						   file formats that have
-						   per-file encapsulation
-						   types */
+											 * file formats that have
+											 * per-file encapsulation
+											 * types
+											 */
 	int			tsprecision;	/* timestamp precision of the lower 32bits
-						 * e.g. WTAP_FILE_TSPREC_USEC */
+												 * e.g. WTAP_FILE_TSPREC_USEC
+												 */
 	wtap_new_ipv4_callback_t add_new_ipv4;
 	wtap_new_ipv6_callback_t add_new_ipv6;
 	GPtrArray *fast_seek;

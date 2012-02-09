@@ -70,7 +70,7 @@
 #include "pcap-encap.h"
 #include "pcapng.h"
 
-#if 0
+#if 1
 #define pcapng_debug0(str) g_warning(str)
 #define pcapng_debug1(str,p1) g_warning(str,p1)
 #define pcapng_debug2(str,p1,p2) g_warning(str,p1,p2)
@@ -151,7 +151,7 @@ typedef struct pcapng_simple_packet_block_s {
 	/* ... Padding ... */
 } pcapng_simple_packet_block_t;
 
-/* pcapng: simple packet block */
+/* pcapng: name resolution block */
 typedef struct pcapng_name_resolution_block_s {
 	guint16 record_type;
 	guint16 record_len;
@@ -1558,6 +1558,12 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 		wth->phdr.pkt_encap = int_data.wtap_encap;
 		wth->phdr.ts.secs = (time_t)(ts / time_units_per_second);
 		wth->phdr.ts.nsecs = (int)(((ts % time_units_per_second) * 1000000000) / time_units_per_second);
+
+		wth->phdr.interface_id = wblock.data.packet.interface_id;
+		wth->phdr.drops_count  = wblock.data.packet.drops_count;
+		wth->phdr.opt_comment  = wblock.data.packet.opt_comment;
+		wth->phdr.drop_count   = wblock.data.packet.drop_count;
+		wth->phdr.pack_flags   = wblock.data.packet.pack_flags;
 	} else {
 		wth->phdr.pkt_encap = WTAP_ENCAP_UNKNOWN;
 		*err = WTAP_ERR_BAD_FILE;
