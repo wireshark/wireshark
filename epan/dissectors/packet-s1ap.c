@@ -1078,6 +1078,7 @@ static guint32 ProtocolExtensionID;
 static guint gbl_s1apSctpPort=SCTP_PORT_S1AP;
 static guint32 handover_type_value;
 static guint32 message_type;
+static gboolean g_s1ap_dissect_container = TRUE;
 
 /* Dissector tables */
 static dissector_table_t s1ap_ies_dissector_table;
@@ -4249,7 +4250,7 @@ dissect_s1ap_RequestType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static int
 dissect_s1ap_RIMInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 483 "../../asn1/s1ap/s1ap.cnf"
+#line 486 "../../asn1/s1ap/s1ap.cnf"
  tvbuff_t *parameter_tvb;
  proto_tree *subtree;
 
@@ -4352,7 +4353,7 @@ dissect_s1ap_RepetitionPeriod(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 static int
 dissect_s1ap_RRC_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 412 "../../asn1/s1ap/s1ap.cnf"
+#line 415 "../../asn1/s1ap/s1ap.cnf"
 
 
  tvbuff_t *parameter_tvb;
@@ -4592,50 +4593,51 @@ dissect_s1ap_Source_ToTarget_TransparentContainer(tvbuff_t *tvb _U_, int offset 
                                        NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
 
 
-	subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_ToTargetTransparentContainer);
+	if (g_s1ap_dissect_container) {
+		subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_ToTargetTransparentContainer);
 
-    switch(handover_type_value){
-   /*
-    HandoverType ::= ENUMERATED {
-    intralte,
-    ltetoutran,
-    ltetogeran,
-    utrantolte,
-    gerantolte,
-    ...
-    } */
-		case 0:
-		/* intralte
-			Intra E-UTRAN handover Source eNB to Target eNB
-			Transparent Container 36.413
-		 */
-		dissect_SourceeNB_ToTargeteNB_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree);
-		break;
-		case 1:
-		/* ltetoutran
-			Source RNC to Target RNC
-			Transparent Container 25.413
-		*/
-		dissect_ranap_SourceRNC_ToTargetRNC_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree);
-		break;
-		case 2:
-		/* ltetogeran
-			Source BSS to Target BSS
-			Transparent Container 48.018
-		*/
-		de_bssgp_source_BSS_to_target_BSS_transp_cont(parameter_tvb, subtree, actx->pinfo, 0, tvb_length(parameter_tvb), NULL, 0);
-		break;
-		case 3:
-		/* utrantolte */
-		break;
-		case 4:
-		/* gerantolte */
-		break;
-		default:
-		DISSECTOR_ASSERT_NOT_REACHED();
-		break;
+    	switch(handover_type_value){
+		/*
+    	HandoverType ::= ENUMERATED {
+    	intralte,
+    	ltetoutran,
+    	ltetogeran,
+    	utrantolte,
+    	gerantolte,
+    	...
+    	} */
+			case 0:
+			/* intralte
+				Intra E-UTRAN handover Source eNB to Target eNB
+				Transparent Container 36.413
+		 	*/
+			dissect_SourceeNB_ToTargeteNB_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree);
+			break;
+			case 1:
+			/* ltetoutran
+				Source RNC to Target RNC
+				Transparent Container 25.413
+			*/
+			dissect_ranap_SourceRNC_ToTargetRNC_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree);
+			break;
+			case 2:
+			/* ltetogeran
+				Source BSS to Target BSS
+				Transparent Container 48.018
+			*/
+			de_bssgp_source_BSS_to_target_BSS_transp_cont(parameter_tvb, subtree, actx->pinfo, 0, tvb_length(parameter_tvb), NULL, 0);
+			break;
+			case 3:
+			/* utrantolte */
+			break;
+			case 4:
+			/* gerantolte */
+			break;
+			default:
+			DISSECTOR_ASSERT_NOT_REACHED();
+			break;
+		}
 	}
-
 
 
   return offset;
@@ -4935,7 +4937,7 @@ dissect_s1ap_TargeteNB_ToSourceeNB_TransparentContainer(tvbuff_t *tvb _U_, int o
 
 static int
 dissect_s1ap_Target_ToSource_TransparentContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 356 "../../asn1/s1ap/s1ap.cnf"
+#line 357 "../../asn1/s1ap/s1ap.cnf"
 
  tvbuff_t *parameter_tvb;
  proto_tree *subtree;
@@ -4944,49 +4946,51 @@ dissect_s1ap_Target_ToSource_TransparentContainer(tvbuff_t *tvb _U_, int offset 
                                        NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
 
 
-	subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_ToSourceTransparentContainer);
+	if (g_s1ap_dissect_container) {
+		subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_ToSourceTransparentContainer);
 
-    switch(handover_type_value){
-   /*
-    HandoverType ::= ENUMERATED {
-    intralte,
-    ltetoutran,
-    ltetogeran,
-    utrantolte,
-    gerantolte,
-    ...
-    } */
-		case 0:
-		/* intralte
-			Intra E-UTRAN handover Target eNB to Source eNB
-			Transparent Container 36.413
-		 */
-		dissect_TargeteNB_ToSourceeNB_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree);
-		break;
-		case 1:
-		/* ltetoutran
-			Target RNC to Source RNC
-			Transparent Container 25.413
-		*/
-		dissect_ranap_TargetRNC_ToSourceRNC_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree);
-		break;
-		case 2:
-		/* ltetogeran
-			Target BSS to Source BSS
-			Transparent Container 48.018
-		*/
-		de_bssgp_target_BSS_to_source_BSS_transp_cont(parameter_tvb, subtree, actx->pinfo, 0, tvb_length(parameter_tvb), NULL, 0);
-
-		break;
-		case 3:
-		/* utrantolte */
-		break;
-		case 4:
-		/* gerantolte */
-		break;
-		default:
-		DISSECTOR_ASSERT_NOT_REACHED();
-		break;
+    	switch(handover_type_value){
+		/*
+    	HandoverType ::= ENUMERATED {
+    	intralte,
+    	ltetoutran,
+    	ltetogeran,
+    	utrantolte,
+    	gerantolte,
+    	...
+    	} */
+			case 0:
+			/* intralte
+				Intra E-UTRAN handover Target eNB to Source eNB
+				Transparent Container 36.413
+		 	*/
+			dissect_TargeteNB_ToSourceeNB_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree);
+			break;
+			case 1:
+			/* ltetoutran
+				Target RNC to Source RNC
+				Transparent Container 25.413
+			*/
+			dissect_ranap_TargetRNC_ToSourceRNC_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree);
+			break;
+			case 2:
+			/* ltetogeran
+				Target BSS to Source BSS
+				Transparent Container 48.018
+			*/
+			de_bssgp_target_BSS_to_source_BSS_transp_cont(parameter_tvb, subtree, actx->pinfo, 0, tvb_length(parameter_tvb), NULL, 0);
+	
+			break;
+			case 3:
+			/* utrantolte */
+			break;
+			case 4:
+			/* gerantolte */
+			break;
+			default:
+			DISSECTOR_ASSERT_NOT_REACHED();
+			break;
+		}
 	}
 
 
@@ -5180,7 +5184,7 @@ dissect_s1ap_UEPagingID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
 static int
 dissect_s1ap_UERadioCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 470 "../../asn1/s1ap/s1ap.cnf"
+#line 473 "../../asn1/s1ap/s1ap.cnf"
  tvbuff_t *parameter_tvb;
  proto_tree *subtree;
 
@@ -5400,7 +5404,7 @@ static const per_sequence_t HandoverPreparationFailure_sequence[] = {
 
 static int
 dissect_s1ap_HandoverPreparationFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1024 "../../asn1/s1ap/s1ap.cnf"
+#line 1027 "../../asn1/s1ap/s1ap.cnf"
      col_append_str(actx->pinfo->cinfo, COL_INFO, ", HandoverPreparationFailure ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -5463,7 +5467,7 @@ static const per_sequence_t HandoverRequestAcknowledge_sequence[] = {
 
 static int
 dissect_s1ap_HandoverRequestAcknowledge(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1028 "../../asn1/s1ap/s1ap.cnf"
+#line 1031 "../../asn1/s1ap/s1ap.cnf"
      col_append_str(actx->pinfo->cinfo, COL_INFO, ", HandoverRequestAcknowledge ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -5535,7 +5539,7 @@ static const per_sequence_t HandoverFailure_sequence[] = {
 
 static int
 dissect_s1ap_HandoverFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1030 "../../asn1/s1ap/s1ap.cnf"
+#line 1033 "../../asn1/s1ap/s1ap.cnf"
      col_append_str(actx->pinfo->cinfo, COL_INFO, ", HandoverFailure ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -5552,7 +5556,7 @@ static const per_sequence_t HandoverNotify_sequence[] = {
 
 static int
 dissect_s1ap_HandoverNotify(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1032 "../../asn1/s1ap/s1ap.cnf"
+#line 1035 "../../asn1/s1ap/s1ap.cnf"
      col_append_str(actx->pinfo->cinfo, COL_INFO, ", HandoverNotify ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -5569,7 +5573,7 @@ static const per_sequence_t PathSwitchRequest_sequence[] = {
 
 static int
 dissect_s1ap_PathSwitchRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1034 "../../asn1/s1ap/s1ap.cnf"
+#line 1037 "../../asn1/s1ap/s1ap.cnf"
      col_append_str(actx->pinfo->cinfo, COL_INFO, ", PathSwitchRequest ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -5612,7 +5616,7 @@ static const per_sequence_t PathSwitchRequestAcknowledge_sequence[] = {
 
 static int
 dissect_s1ap_PathSwitchRequestAcknowledge(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1036 "../../asn1/s1ap/s1ap.cnf"
+#line 1039 "../../asn1/s1ap/s1ap.cnf"
      col_append_str(actx->pinfo->cinfo, COL_INFO, ", PathSwitchRequestAcknowledge ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -5655,7 +5659,7 @@ static const per_sequence_t PathSwitchRequestFailure_sequence[] = {
 
 static int
 dissect_s1ap_PathSwitchRequestFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1038 "../../asn1/s1ap/s1ap.cnf"
+#line 1041 "../../asn1/s1ap/s1ap.cnf"
      col_append_str(actx->pinfo->cinfo, COL_INFO, ", PathSwitchRequestFailure ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -5672,7 +5676,7 @@ static const per_sequence_t HandoverCancel_sequence[] = {
 
 static int
 dissect_s1ap_HandoverCancel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1040 "../../asn1/s1ap/s1ap.cnf"
+#line 1043 "../../asn1/s1ap/s1ap.cnf"
      col_append_str(actx->pinfo->cinfo, COL_INFO, ", HandoverCancel ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -5689,7 +5693,7 @@ static const per_sequence_t HandoverCancelAcknowledge_sequence[] = {
 
 static int
 dissect_s1ap_HandoverCancelAcknowledge(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1042 "../../asn1/s1ap/s1ap.cnf"
+#line 1045 "../../asn1/s1ap/s1ap.cnf"
      col_append_str(actx->pinfo->cinfo, COL_INFO, ", HandoverCancelAcknowledge ");
 
 
@@ -5708,7 +5712,7 @@ static const per_sequence_t E_RABSetupRequest_sequence[] = {
 
 static int
 dissect_s1ap_E_RABSetupRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 986 "../../asn1/s1ap/s1ap.cnf"
+#line 989 "../../asn1/s1ap/s1ap.cnf"
      col_append_str(actx->pinfo->cinfo, COL_INFO, ", E_RABSetupRequest ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -5758,7 +5762,7 @@ static const per_sequence_t E_RABSetupResponse_sequence[] = {
 
 static int
 dissect_s1ap_E_RABSetupResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 988 "../../asn1/s1ap/s1ap.cnf"
+#line 991 "../../asn1/s1ap/s1ap.cnf"
      col_append_str(actx->pinfo->cinfo, COL_INFO, ", E_RABSetupResponse ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -5806,7 +5810,7 @@ static const per_sequence_t E_RABModifyRequest_sequence[] = {
 
 static int
 dissect_s1ap_E_RABModifyRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 990 "../../asn1/s1ap/s1ap.cnf"
+#line 993 "../../asn1/s1ap/s1ap.cnf"
      col_append_str(actx->pinfo->cinfo, COL_INFO, ", E_RABModifyRequest ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -5854,7 +5858,7 @@ static const per_sequence_t E_RABModifyResponse_sequence[] = {
 
 static int
 dissect_s1ap_E_RABModifyResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 992 "../../asn1/s1ap/s1ap.cnf"
+#line 995 "../../asn1/s1ap/s1ap.cnf"
      col_append_str(actx->pinfo->cinfo, COL_INFO, ", E_RABModifyResponse ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -5900,7 +5904,7 @@ static const per_sequence_t E_RABReleaseCommand_sequence[] = {
 
 static int
 dissect_s1ap_E_RABReleaseCommand(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 994 "../../asn1/s1ap/s1ap.cnf"
+#line 997 "../../asn1/s1ap/s1ap.cnf"
      col_append_str(actx->pinfo->cinfo, COL_INFO, ", E_RABReleaseCommand ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -5917,7 +5921,7 @@ static const per_sequence_t E_RABReleaseResponse_sequence[] = {
 
 static int
 dissect_s1ap_E_RABReleaseResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 996 "../../asn1/s1ap/s1ap.cnf"
+#line 999 "../../asn1/s1ap/s1ap.cnf"
      col_append_str(actx->pinfo->cinfo, COL_INFO, ", E_RABReleaseResponse ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -5963,7 +5967,7 @@ static const per_sequence_t E_RABReleaseIndication_sequence[] = {
 
 static int
 dissect_s1ap_E_RABReleaseIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 998 "../../asn1/s1ap/s1ap.cnf"
+#line 1001 "../../asn1/s1ap/s1ap.cnf"
      col_append_str(actx->pinfo->cinfo, COL_INFO, ", E_RABReleaseIndication ");
 
 
@@ -5981,7 +5985,7 @@ static const per_sequence_t InitialContextSetupRequest_sequence[] = {
 
 static int
 dissect_s1ap_InitialContextSetupRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1001 "../../asn1/s1ap/s1ap.cnf"
+#line 1004 "../../asn1/s1ap/s1ap.cnf"
      col_append_str(actx->pinfo->cinfo, COL_INFO, ", InitialContextSetupRequest ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -6031,7 +6035,7 @@ static const per_sequence_t InitialContextSetupResponse_sequence[] = {
 
 static int
 dissect_s1ap_InitialContextSetupResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1003 "../../asn1/s1ap/s1ap.cnf"
+#line 1006 "../../asn1/s1ap/s1ap.cnf"
      col_append_str(actx->pinfo->cinfo, COL_INFO, ", InitialContextSetupResponse ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -6079,7 +6083,7 @@ static const per_sequence_t InitialContextSetupFailure_sequence[] = {
 
 static int
 dissect_s1ap_InitialContextSetupFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1005 "../../asn1/s1ap/s1ap.cnf"
+#line 1008 "../../asn1/s1ap/s1ap.cnf"
      col_append_str(actx->pinfo->cinfo, COL_INFO, ", InitialContextSetupFailure ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -6139,7 +6143,7 @@ static const per_sequence_t UEContextReleaseRequest_sequence[] = {
 
 static int
 dissect_s1ap_UEContextReleaseRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1007 "../../asn1/s1ap/s1ap.cnf"
+#line 1010 "../../asn1/s1ap/s1ap.cnf"
      col_append_str(actx->pinfo->cinfo, COL_INFO, ", UEContextReleaseRequest ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -6156,7 +6160,7 @@ static const per_sequence_t UEContextReleaseCommand_sequence[] = {
 
 static int
 dissect_s1ap_UEContextReleaseCommand(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1009 "../../asn1/s1ap/s1ap.cnf"
+#line 1012 "../../asn1/s1ap/s1ap.cnf"
      col_append_str(actx->pinfo->cinfo, COL_INFO, ", UEContextReleaseCommand ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -6173,7 +6177,7 @@ static const per_sequence_t UEContextReleaseComplete_sequence[] = {
 
 static int
 dissect_s1ap_UEContextReleaseComplete(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1011 "../../asn1/s1ap/s1ap.cnf"
+#line 1014 "../../asn1/s1ap/s1ap.cnf"
      col_append_str(actx->pinfo->cinfo, COL_INFO, ", UEContextReleaseComplete ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -6190,7 +6194,7 @@ static const per_sequence_t UEContextModificationRequest_sequence[] = {
 
 static int
 dissect_s1ap_UEContextModificationRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1013 "../../asn1/s1ap/s1ap.cnf"
+#line 1016 "../../asn1/s1ap/s1ap.cnf"
      col_append_str(actx->pinfo->cinfo, COL_INFO, ", UEContextModificationRequest ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -6207,7 +6211,7 @@ static const per_sequence_t UEContextModificationResponse_sequence[] = {
 
 static int
 dissect_s1ap_UEContextModificationResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1015 "../../asn1/s1ap/s1ap.cnf"
+#line 1018 "../../asn1/s1ap/s1ap.cnf"
      col_append_str(actx->pinfo->cinfo, COL_INFO, ", UEContextModificationResponse ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -6224,7 +6228,7 @@ static const per_sequence_t UEContextModificationFailure_sequence[] = {
 
 static int
 dissect_s1ap_UEContextModificationFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1017 "../../asn1/s1ap/s1ap.cnf"
+#line 1020 "../../asn1/s1ap/s1ap.cnf"
      col_append_str(actx->pinfo->cinfo, COL_INFO, ", UEContextModificationFailure ");
 
 
@@ -6313,7 +6317,7 @@ static const per_sequence_t Reset_sequence[] = {
 
 static int
 dissect_s1ap_Reset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1046 "../../asn1/s1ap/s1ap.cnf"
+#line 1049 "../../asn1/s1ap/s1ap.cnf"
      col_append_str(actx->pinfo->cinfo, COL_INFO, ", Reset ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -6381,7 +6385,7 @@ static const per_sequence_t ResetAcknowledge_sequence[] = {
 
 static int
 dissect_s1ap_ResetAcknowledge(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1048 "../../asn1/s1ap/s1ap.cnf"
+#line 1051 "../../asn1/s1ap/s1ap.cnf"
      col_append_str(actx->pinfo->cinfo, COL_INFO, ", ResetAcknowledge ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -6426,7 +6430,7 @@ static const per_sequence_t S1SetupRequest_sequence[] = {
 
 static int
 dissect_s1ap_S1SetupRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1052 "../../asn1/s1ap/s1ap.cnf"
+#line 1055 "../../asn1/s1ap/s1ap.cnf"
      col_append_str(actx->pinfo->cinfo, COL_INFO, ", S1SetupRequest ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -6443,7 +6447,7 @@ static const per_sequence_t S1SetupResponse_sequence[] = {
 
 static int
 dissect_s1ap_S1SetupResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1054 "../../asn1/s1ap/s1ap.cnf"
+#line 1057 "../../asn1/s1ap/s1ap.cnf"
      col_append_str(actx->pinfo->cinfo, COL_INFO, ", S1SetupResponse ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -6460,7 +6464,7 @@ static const per_sequence_t S1SetupFailure_sequence[] = {
 
 static int
 dissect_s1ap_S1SetupFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1056 "../../asn1/s1ap/s1ap.cnf"
+#line 1059 "../../asn1/s1ap/s1ap.cnf"
      col_append_str(actx->pinfo->cinfo, COL_INFO, ", S1SetupFailure ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -6477,7 +6481,7 @@ static const per_sequence_t ENBConfigurationUpdate_sequence[] = {
 
 static int
 dissect_s1ap_ENBConfigurationUpdate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1058 "../../asn1/s1ap/s1ap.cnf"
+#line 1061 "../../asn1/s1ap/s1ap.cnf"
      col_append_str(actx->pinfo->cinfo, COL_INFO, ", ENBConfigurationUpdate ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -6494,7 +6498,7 @@ static const per_sequence_t ENBConfigurationUpdateAcknowledge_sequence[] = {
 
 static int
 dissect_s1ap_ENBConfigurationUpdateAcknowledge(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1060 "../../asn1/s1ap/s1ap.cnf"
+#line 1063 "../../asn1/s1ap/s1ap.cnf"
      col_append_str(actx->pinfo->cinfo, COL_INFO, ", ENBConfigurationUpdateAcknowledge ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -6511,7 +6515,7 @@ static const per_sequence_t ENBConfigurationUpdateFailure_sequence[] = {
 
 static int
 dissect_s1ap_ENBConfigurationUpdateFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1062 "../../asn1/s1ap/s1ap.cnf"
+#line 1065 "../../asn1/s1ap/s1ap.cnf"
      col_append_str(actx->pinfo->cinfo, COL_INFO, ", ENBConfigurationUpdateFailure ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -6528,7 +6532,7 @@ static const per_sequence_t MMEConfigurationUpdate_sequence[] = {
 
 static int
 dissect_s1ap_MMEConfigurationUpdate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1064 "../../asn1/s1ap/s1ap.cnf"
+#line 1067 "../../asn1/s1ap/s1ap.cnf"
      col_append_str(actx->pinfo->cinfo, COL_INFO, ", MMEConfigurationUpdate ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -6545,7 +6549,7 @@ static const per_sequence_t MMEConfigurationUpdateAcknowledge_sequence[] = {
 
 static int
 dissect_s1ap_MMEConfigurationUpdateAcknowledge(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1066 "../../asn1/s1ap/s1ap.cnf"
+#line 1069 "../../asn1/s1ap/s1ap.cnf"
      col_append_str(actx->pinfo->cinfo, COL_INFO, ", MMEConfigurationUpdateAcknowledge ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -6562,7 +6566,7 @@ static const per_sequence_t MMEConfigurationUpdateFailure_sequence[] = {
 
 static int
 dissect_s1ap_MMEConfigurationUpdateFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1068 "../../asn1/s1ap/s1ap.cnf"
+#line 1071 "../../asn1/s1ap/s1ap.cnf"
      col_append_str(actx->pinfo->cinfo, COL_INFO, ", MMEConfigurationUpdateFailure ");
 
 
@@ -6776,7 +6780,7 @@ static const per_sequence_t WriteReplaceWarningRequest_sequence[] = {
 
 static int
 dissect_s1ap_WriteReplaceWarningRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1071 "../../asn1/s1ap/s1ap.cnf"
+#line 1074 "../../asn1/s1ap/s1ap.cnf"
      col_append_str(actx->pinfo->cinfo, COL_INFO, ", WriteReplaceWarningRequest ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -6793,7 +6797,7 @@ static const per_sequence_t WriteReplaceWarningResponse_sequence[] = {
 
 static int
 dissect_s1ap_WriteReplaceWarningResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1073 "../../asn1/s1ap/s1ap.cnf"
+#line 1076 "../../asn1/s1ap/s1ap.cnf"
      col_append_str(actx->pinfo->cinfo, COL_INFO, ", WriteReplaceWarningResponse ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -6900,7 +6904,7 @@ static const per_sequence_t KillRequest_sequence[] = {
 
 static int
 dissect_s1ap_KillRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1075 "../../asn1/s1ap/s1ap.cnf"
+#line 1078 "../../asn1/s1ap/s1ap.cnf"
      col_append_str(actx->pinfo->cinfo, COL_INFO, ", KillRequest ");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -6917,7 +6921,7 @@ static const per_sequence_t KillResponse_sequence[] = {
 
 static int
 dissect_s1ap_KillResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 1077 "../../asn1/s1ap/s1ap.cnf"
+#line 1080 "../../asn1/s1ap/s1ap.cnf"
      col_append_str(actx->pinfo->cinfo, COL_INFO, ", KillResponse ");
 
 
@@ -9149,7 +9153,7 @@ int dissect_s1ap_SONtransferCause_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
 
 /*--- End of included file: packet-s1ap-fn.c ---*/
-#line 131 "../../asn1/s1ap/packet-s1ap-template.c"
+#line 132 "../../asn1/s1ap/packet-s1ap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -9440,7 +9444,7 @@ proto_reg_handoff_s1ap(void)
 
 
 /*--- End of included file: packet-s1ap-dis-tab.c ---*/
-#line 203 "../../asn1/s1ap/packet-s1ap-template.c"
+#line 204 "../../asn1/s1ap/packet-s1ap-template.c"
 	} else {
 		if (SctpPort != 0) {
 			dissector_delete_uint("sctp.port", SctpPort, s1ap_handle);
@@ -11341,7 +11345,7 @@ void proto_register_s1ap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-s1ap-hfarr.c ---*/
-#line 231 "../../asn1/s1ap/packet-s1ap-template.c"
+#line 232 "../../asn1/s1ap/packet-s1ap-template.c"
   };
 
   /* List of subtrees */
@@ -11597,7 +11601,7 @@ void proto_register_s1ap(void) {
     &ett_s1ap_CandidateCellList,
 
 /*--- End of included file: packet-s1ap-ettarr.c ---*/
-#line 243 "../../asn1/s1ap/packet-s1ap-template.c"
+#line 244 "../../asn1/s1ap/packet-s1ap-template.c"
   };
 
   module_t *s1ap_module;
@@ -11628,6 +11632,7 @@ void proto_register_s1ap(void) {
                                  "Set the SCTP port for S1AP messages",
                                  10,
                                  &gbl_s1apSctpPort);
+  prefs_register_bool_preference(s1ap_module, "dissect_container", "Dissect TransparentContainer", "Dissect TransparentContainers that are opaque to S1AP", &g_s1ap_dissect_container);
 
 }
 

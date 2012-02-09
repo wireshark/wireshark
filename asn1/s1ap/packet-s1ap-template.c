@@ -98,6 +98,7 @@ static guint32 ProtocolExtensionID;
 static guint gbl_s1apSctpPort=SCTP_PORT_S1AP;
 static guint32 handover_type_value;
 static guint32 message_type;
+static gboolean g_s1ap_dissect_container = TRUE;
 
 /* Dissector tables */
 static dissector_table_t s1ap_ies_dissector_table;
@@ -270,6 +271,7 @@ void proto_register_s1ap(void) {
                                  "Set the SCTP port for S1AP messages",
                                  10,
                                  &gbl_s1apSctpPort);
+  prefs_register_bool_preference(s1ap_module, "dissect_container", "Dissect TransparentContainer", "Dissect TransparentContainers that are opaque to S1AP", &g_s1ap_dissect_container);
 
 }
 

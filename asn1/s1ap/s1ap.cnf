@@ -306,50 +306,51 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 
 %(DEFAULT_BODY)s
 
-	subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_ToTargetTransparentContainer);
+	if (g_s1ap_dissect_container) {
+		subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_ToTargetTransparentContainer);
 
-    switch(handover_type_value){
-   /*
-    HandoverType ::= ENUMERATED {
-    intralte,
-    ltetoutran,
-    ltetogeran,
-    utrantolte,
-    gerantolte,
-    ...
-    } */
-		case 0:
-		/* intralte
-			Intra E-UTRAN handover Source eNB to Target eNB
-			Transparent Container 36.413
-		 */
-		dissect_SourceeNB_ToTargeteNB_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree);
-		break;
-		case 1:
-		/* ltetoutran
-			Source RNC to Target RNC
-			Transparent Container 25.413
-		*/
-		dissect_ranap_SourceRNC_ToTargetRNC_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree);
-		break;
-		case 2:
-		/* ltetogeran
-			Source BSS to Target BSS
-			Transparent Container 48.018
-		*/
-		de_bssgp_source_BSS_to_target_BSS_transp_cont(parameter_tvb, subtree, actx->pinfo, 0, tvb_length(parameter_tvb), NULL, 0);
-		break;
-		case 3:
-		/* utrantolte */
-		break;
-		case 4:
-		/* gerantolte */
-		break;
-		default:
-		DISSECTOR_ASSERT_NOT_REACHED();
-		break;
+    	switch(handover_type_value){
+		/*
+    	HandoverType ::= ENUMERATED {
+    	intralte,
+    	ltetoutran,
+    	ltetogeran,
+    	utrantolte,
+    	gerantolte,
+    	...
+    	} */
+			case 0:
+			/* intralte
+				Intra E-UTRAN handover Source eNB to Target eNB
+				Transparent Container 36.413
+		 	*/
+			dissect_SourceeNB_ToTargeteNB_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree);
+			break;
+			case 1:
+			/* ltetoutran
+				Source RNC to Target RNC
+				Transparent Container 25.413
+			*/
+			dissect_ranap_SourceRNC_ToTargetRNC_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree);
+			break;
+			case 2:
+			/* ltetogeran
+				Source BSS to Target BSS
+				Transparent Container 48.018
+			*/
+			de_bssgp_source_BSS_to_target_BSS_transp_cont(parameter_tvb, subtree, actx->pinfo, 0, tvb_length(parameter_tvb), NULL, 0);
+			break;
+			case 3:
+			/* utrantolte */
+			break;
+			case 4:
+			/* gerantolte */
+			break;
+			default:
+			DISSECTOR_ASSERT_NOT_REACHED();
+			break;
+		}
 	}
-
 #.FN_BODY Target-ToSource-TransparentContainer VAL_PTR = &parameter_tvb
 # I think the message is "directly encoded" into the octest string(no "double encoding")
 # See Target-ToSource-TransparentContainer in RANAP
@@ -359,49 +360,51 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 
 %(DEFAULT_BODY)s
 
-	subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_ToSourceTransparentContainer);
+	if (g_s1ap_dissect_container) {
+		subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_ToSourceTransparentContainer);
 
-    switch(handover_type_value){
-   /*
-    HandoverType ::= ENUMERATED {
-    intralte,
-    ltetoutran,
-    ltetogeran,
-    utrantolte,
-    gerantolte,
-    ...
-    } */
-		case 0:
-		/* intralte
-			Intra E-UTRAN handover Target eNB to Source eNB
-			Transparent Container 36.413
-		 */
-		dissect_TargeteNB_ToSourceeNB_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree);
-		break;
-		case 1:
-		/* ltetoutran
-			Target RNC to Source RNC
-			Transparent Container 25.413
-		*/
-		dissect_ranap_TargetRNC_ToSourceRNC_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree);
-		break;
-		case 2:
-		/* ltetogeran
-			Target BSS to Source BSS
-			Transparent Container 48.018
-		*/
-		de_bssgp_target_BSS_to_source_BSS_transp_cont(parameter_tvb, subtree, actx->pinfo, 0, tvb_length(parameter_tvb), NULL, 0);
-
-		break;
-		case 3:
-		/* utrantolte */
-		break;
-		case 4:
-		/* gerantolte */
-		break;
-		default:
-		DISSECTOR_ASSERT_NOT_REACHED();
-		break;
+    	switch(handover_type_value){
+		/*
+    	HandoverType ::= ENUMERATED {
+    	intralte,
+    	ltetoutran,
+    	ltetogeran,
+    	utrantolte,
+    	gerantolte,
+    	...
+    	} */
+			case 0:
+			/* intralte
+				Intra E-UTRAN handover Target eNB to Source eNB
+				Transparent Container 36.413
+		 	*/
+			dissect_TargeteNB_ToSourceeNB_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree);
+			break;
+			case 1:
+			/* ltetoutran
+				Target RNC to Source RNC
+				Transparent Container 25.413
+			*/
+			dissect_ranap_TargetRNC_ToSourceRNC_TransparentContainer_PDU(parameter_tvb, actx->pinfo, subtree);
+			break;
+			case 2:
+			/* ltetogeran
+				Target BSS to Source BSS
+				Transparent Container 48.018
+			*/
+			de_bssgp_target_BSS_to_source_BSS_transp_cont(parameter_tvb, subtree, actx->pinfo, 0, tvb_length(parameter_tvb), NULL, 0);
+	
+			break;
+			case 3:
+			/* utrantolte */
+			break;
+			case 4:
+			/* gerantolte */
+			break;
+			default:
+			DISSECTOR_ASSERT_NOT_REACHED();
+			break;
+		}
 	}
 #SourceBSS-ToTargetBSS-TransparentContainer
 #SourceRNC-ToTargetRNC-TransparentContainer
