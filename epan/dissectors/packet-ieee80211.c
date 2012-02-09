@@ -6889,7 +6889,7 @@ dissect_ht_info_ie_1_1(proto_tree * tree, tvbuff_t * tvb, int offset,
     return;
   }
 
-  info = tvb_get_guint8 (tvb, offset);
+
   proto_tree_add_item(cap_tree, hf_ieee80211_ht_info_primary_channel, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
   info = tvb_get_guint8 (tvb, ++offset);
@@ -7551,7 +7551,7 @@ dissect_interworking(packet_info *pinfo, proto_tree *tree, proto_item *item,
   if (tvb_reported_length_remaining(tvb, offset) < len || len == 0) {
     expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
                            "Truncated Interworking element");
-    return 2 + len;
+    return offset;
   }
 
   proto_tree_add_item(tree, hf_ieee80211_tag_interworking_access_network_type,
@@ -7582,7 +7582,7 @@ dissect_interworking(packet_info *pinfo, proto_tree *tree, proto_item *item,
                            "Invalid Interworking element length");
   }
 
-  return 2 + len;
+  return offset;
 }
 
 static guint
@@ -10073,7 +10073,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       dissect_frame_control(hdr_tree, tvb, wlan_broken_fc, 0);
 
       if (frame_type_subtype == CTRL_PS_POLL)
-        proto_tree_add_uint(hdr_tree, hf_ieee80211_assoc_id, tvb, 2, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_uint(hdr_tree, hf_ieee80211_assoc_id, tvb, 2, 2, ENC_LITTLE_ENDIAN); //Need check this line....
 
       else
         proto_tree_add_uint (hdr_tree, hf_ieee80211_did_duration, tvb, 2, 2,
@@ -10154,7 +10154,6 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
         ctrl_type_subtype = COMPOSE_FRAME_TYPE(ctrl_fcf);
       } else {
         offset = 10; /* FC + D/ID + Address 1 */
-        ctrl_fcf = fcf;
         ctrl_type_subtype = frame_type_subtype;
       }
 
@@ -10277,7 +10276,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
                   bar_control);
                 offset += 2;
 
-                offset += add_fixed_field(hdr_tree, tvb, offset,
+                /*offset +=*/ add_fixed_field(hdr_tree, tvb, offset,
                   FIELD_BLOCK_ACK_SSC);
                 break;
               }
@@ -10288,7 +10287,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
                   bar_control);
                 offset += 2;
 
-                offset += add_fixed_field(hdr_tree, tvb, offset,
+                /*offset +=*/ add_fixed_field(hdr_tree, tvb, offset,
                   FIELD_BLOCK_ACK_SSC);
                 break;
               }
@@ -10365,7 +10364,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 
                 offset += add_fixed_field(hdr_tree, tvb, offset, FIELD_BLOCK_ACK_SSC);
                 proto_tree_add_item(hdr_tree, hf_ieee80211_block_ack_bitmap, tvb, offset, 128, ENC_NA);
-                offset += 128;
+                /*offset += 128;*/
                 break;
               }
               case 2: /* Compressed BlockAck */
@@ -10391,7 +10390,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
                   proto_tree_add_uint_format_value(ba_bitmap_tree, hf_ieee80211_block_ack_bitmap_missing_frame,
                                                    tvb, offset + (f/8), 1, ssn + f, "%u", ssn + f);
                 }
-                offset += 8;
+                /*offset += 8;*/
                 break;
               }
               case 3:  /* Multi-TID BlockAck */
@@ -16807,10 +16806,10 @@ void set_airpdcap_keys(void)
         key.KeyType = AIRPDCAP_KEY_TYPE_WPA_PMK;
 
         bytes = g_byte_array_new();
-        res = hex_str_to_bytes(dk->key->str, bytes, FALSE);
+        hex_str_to_bytes(dk->key->str, bytes, FALSE);
 
         /* XXX - Pass the correct array of bytes... */
-        if (bytes-> len <= AIRPDCAP_WPA_PMK_LEN) {
+        if (bytes->len <= AIRPDCAP_WPA_PMK_LEN) {
           memcpy(key.KeyData.Wpa.Pmk, bytes->data, bytes->len);
 
           keys->Keys[keys->nKeys] = key;
