@@ -1366,7 +1366,7 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
                 break;
 
               default:
-                ptr = tvb_get_ptr(tvb, offset + 2, ies_len);
+                ptr = tvb_get_ephemeral_string(tvb, offset + 2, ies_len);
                 ie_item =
                   proto_tree_add_string_format(ies_tree, hf_IAX_IE_UNKNOWN_BYTES,
                                                tvb, offset+2, ies_len, ptr,
