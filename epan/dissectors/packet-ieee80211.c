@@ -10073,7 +10073,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       dissect_frame_control(hdr_tree, tvb, wlan_broken_fc, 0);
 
       if (frame_type_subtype == CTRL_PS_POLL)
-        proto_tree_add_uint(hdr_tree, hf_ieee80211_assoc_id, tvb, 2, 2, ENC_LITTLE_ENDIAN); //Need check this line....
+        proto_tree_add_uint(hdr_tree, hf_ieee80211_assoc_id, tvb, 2, 2, ENC_LITTLE_ENDIAN); /* Need check this line.... */
 
       else
         proto_tree_add_uint (hdr_tree, hf_ieee80211_did_duration, tvb, 2, 2,
@@ -12438,7 +12438,7 @@ proto_register_ieee80211 (void)
     {&hf_ieee80211_block_ack_bitmap,
      {"Block Ack Bitmap", "wlan.ba.bm",
       FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-      
+
     {&hf_ieee80211_block_ack_bitmap_missing_frame,
      {"Missing frame", "wlan.ba.bm.missing_frame",
       FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
