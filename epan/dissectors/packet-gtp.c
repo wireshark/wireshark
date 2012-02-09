@@ -6451,6 +6451,15 @@ static int decode_gtp_bearer_cntrl_mod(tvbuff_t * tvb, int offset, packet_info *
 }
 
 /*
+ * 7.7.84 MBMS Flow Identifier
+ * 7.7.85 MBMS IP Multicast Distribution
+ * 7.7.86 MBMS Distribution Acknowledgement
+ * 7.7.87 Reliable INTER RAT HANDOVER INFO
+ * 7.7.88 RFSP Index
+ * 7.7.89 PDP Type
+ * 7.7.90 Fully Qualified Domain Name (FQDN)
+ */
+/*
  * 7.7.91 Evolved Allocation/Retention Priority I
  */
 static int decode_gtp_evolved_allc_rtn_p1(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
@@ -6476,6 +6485,29 @@ static int decode_gtp_evolved_allc_rtn_p1(tvbuff_t * tvb, int offset, packet_inf
 
 
 }
+
+/*
+ * 7.7.92 Evolved Allocation/Retention Priority II
+ * 7.7.93 Extended Common Flags
+ * 7.7.94 User CSG Information (UCI)
+ * 7.7.95 CSG Information Reporting Action
+ * 7.7.96 CSG ID
+ * 7.7.97 CSG Membership Indication (CMI)
+ * 7.7.98 APN Aggregate Maximum Bit Rate (APN-AMBR)
+ * 7.7.99 UE Network Capability
+ * 7.7.100 UE-AMBR
+ * 7.7.101 APN-AMBR with NSAPI
+ * 7.7.102 GGSN Back-Off Time
+ * 7.7.103 Signalling Priority Indication
+ * 7.7.104 Signalling Priority Indication with NSAPI
+ * 7.7.105 Higher bitrates than 16 Mbps flag
+ * 7.7.106 Max MBR/APN-AMBR
+ * 7.7.107 Additional MM context for SRVCC
+ * 7.7.108 Additional flags for SRVCC
+ * 7.7.109 STN-SR
+ * 7.7.110 C-MSISDN
+ * 7.7.111 Extended RANAP Cause
+ */
 /* GPRS:        12.15
  * UMTS:        33.015
  */
