@@ -4764,7 +4764,7 @@ proto_register_tcp(void)
             NULL, HFILL }},
 
         { &hf_tcp_flags,
-        { "Flags",          "tcp.flags", FT_UINT8, BASE_HEX, NULL, 0x0,
+        { "Flags",          "tcp.flags", FT_UINT16, BASE_HEX, NULL, TH_MASK,
             NULL, HFILL }},
 
         { &hf_tcp_flags_res,
