@@ -61,13 +61,6 @@
 
 #include "ui/gtk/old-gtk-compat.h"
 
-#define TH_FIN    0x01
-#define TH_SYN    0x02
-#define TH_RST    0x04
-#define TH_PUSH   0x08
-#define TH_ACK    0x10
-#define TH_URG    0x20
-
 #define TCP_SYN(flags)		( flags & TH_SYN )
 #define TCP_ACK(flags)		( flags & TH_ACK )
 #define TCP_FIN(flags)		( flags & TH_FIN )
