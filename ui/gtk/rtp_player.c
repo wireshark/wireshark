@@ -1864,7 +1864,7 @@ play_channels(void)
 	GtkWidget *dialog;
 
 	/* we should never be here if we are in PLAY and !PAUSE */
-	g_assert(!rtp_channels->stop && !rtp_channels->pause);
+	g_assert(rtp_channels->stop || rtp_channels->pause);
 
 	/* if we are in PAUSE change the state */
 	if (rtp_channels->pause) {
