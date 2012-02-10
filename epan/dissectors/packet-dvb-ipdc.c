@@ -42,8 +42,8 @@ static gint ett_ipdc = -1;
 
 
 enum {
-	SUB_FLUTE,
-	SUB_MAX,
+    SUB_FLUTE,
+    SUB_MAX,
 };
 
 static dissector_handle_t sub_handles[SUB_MAX];
@@ -55,64 +55,58 @@ static dissector_handle_t sub_handles[SUB_MAX];
 static void
 dissect_ipdc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	tvbuff_t *next_tvb;
-	guint16 len;
+    tvbuff_t *next_tvb;
+    guint16 len;
+    proto_tree *esg_tree = NULL;
 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPDC");
-	col_clear(pinfo->cinfo, COL_INFO);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPDC");
+    col_clear(pinfo->cinfo, COL_INFO);
 
-	/* call into flute */
-	len = tvb_reported_length_remaining(tvb, 0);
+    /* call into flute */
+    len = tvb_reported_length_remaining(tvb, 0);
 
-/* FIXME: make proper use of esg_tree, everythign else is a logic bug */
-	if (tree) {
-		/* proto_item *ti; */
-		/* proto_tree *esg_tree; */
+    if (tree) {
+        proto_item *ti;
 
-		/* ti = */ proto_tree_add_protocol_format(tree, proto_ipdc,
-				tvb, 0, len,
-				"ESG Bootstrap");
-		/* esg_tree = proto_item_add_subtree(ti, ett_ipdc); */
-	}
+        ti = proto_tree_add_protocol_format(tree, proto_ipdc, tvb, 0, len,
+            "ESG Bootstrap");
+        esg_tree = proto_item_add_subtree(ti, ett_ipdc);
+    }
 
-	next_tvb = tvb_new_subset(tvb, 0, len, len);
-	call_dissector(sub_handles[SUB_FLUTE], next_tvb, pinfo, tree);
+    next_tvb = tvb_new_subset(tvb, 0, len, len);
+    call_dissector(sub_handles[SUB_FLUTE], next_tvb, pinfo, esg_tree);
 }
 
 void
 proto_register_dvb_ipdc(void)
 {
-	static hf_register_info hf[] = {
-		{&hf_ipdc_esg_bootstrap_xml,
-		 {"ESG Provider Discovery", "ipdc.bootstrap",
-		  FT_STRING, BASE_NONE, NULL, 0x0,
-		  "List of ESG Providers", HFILL}
-		},
-	};
+    static hf_register_info hf[] = {
+        {&hf_ipdc_esg_bootstrap_xml,
+            {"ESG Provider Discovery", "ipdc.bootstrap",
+            FT_STRING, BASE_NONE, NULL, 0x0, "List of ESG Providers", HFILL}}
+    };
 
-	static gint *ett[] = {
-		&ett_ipdc,
-	};
+    static gint *ett[] = {
+        &ett_ipdc,
+    };
 
-	proto_ipdc =
-	    proto_register_protocol("ETSI IPDC Bootstrap",
-				    "ESG Bootstrap", "dvb_ipdc");
-	proto_register_field_array(proto_ipdc, hf, array_length(hf));
-	proto_register_subtree_array(ett, array_length(ett));
+    proto_ipdc = proto_register_protocol("ETSI IPDC Bootstrap",
+        "ESG Bootstrap", "dvb_ipdc");
+    proto_register_field_array(proto_ipdc, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector("dvb_ipdc", dissect_ipdc, proto_ipdc);
+    register_dissector("dvb_ipdc", dissect_ipdc, proto_ipdc);
 }
 
 void
 proto_reg_handoff_dvb_ipdc(void)
 {
-	dissector_handle_t ipdc_handle;
+    dissector_handle_t ipdc_handle;
 
-	sub_handles[SUB_FLUTE] = find_dissector("alc");
+    sub_handles[SUB_FLUTE] = find_dissector("alc");
 
-	ipdc_handle = create_dissector_handle(dissect_ipdc, proto_ipdc);
-	dissector_add_uint("udp.port", UDP_PORT_IPDC_ESG_BOOTSTRAP, ipdc_handle);
-
+    ipdc_handle = create_dissector_handle(dissect_ipdc, proto_ipdc);
+    dissector_add_uint("udp.port", UDP_PORT_IPDC_ESG_BOOTSTRAP, ipdc_handle);
 }
 
 /*
