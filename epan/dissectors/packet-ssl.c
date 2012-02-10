@@ -357,13 +357,11 @@ ssl_init(void)
 
 /* parse ssl related preferences (private keys and ports association strings) */
 static void
-ssl_parse(void)
+ssl_parse_uat(void)
 {
     ep_stack_t tmp_stack;
     SslAssociation *tmp_assoc;
     guint i;
-    gchar **old_keys, **parts, *err;
-    GString *uat_entry = g_string_new("");
 
     ssl_set_debug(ssl_debug_file_name);
 
@@ -383,24 +381,6 @@ ssl_parse(void)
     /* parse private keys string, load available keys and put them in key hash*/
     ssl_key_hash = g_hash_table_new(ssl_private_key_hash,ssl_private_key_equal);
 
-    /* Import old-style keys */
-    if (ssldecrypt_uat && ssl_keys_list && ssl_keys_list[0]) {
-        old_keys = g_strsplit(ssl_keys_list, ";", 0);
-        for (i = 0; old_keys[i] != NULL; i++) {
-            parts = g_strsplit(old_keys[i], ",", 4);
-            if (parts[0] && parts[1] && parts[2] && parts[3]) {
-                g_string_printf(uat_entry, "\"%s\",\"%s\",\"%s\",\"%s\",\"\"",
-                                parts[0], parts[1], parts[2], parts[3]);
-                if (!uat_load_str(ssldecrypt_uat, uat_entry->str, &err)) {
-                    ssl_debug_printf("ssl_parse: Can't load UAT string %s: %s\n",
-                                     uat_entry->str, err);
-                }
-            }
-            g_strfreev(parts);
-        }
-        g_strfreev(old_keys);
-    }
-    g_string_free(uat_entry, TRUE);
 
     if (nssldecrypt > 0) {
         for (i = 0; i < nssldecrypt; i++) {
@@ -410,6 +390,33 @@ ssl_parse(void)
     }
 
     ssl_debug_flush();
+}
+
+static void
+ssl_parse_old_keys(void)
+{
+    gchar **old_keys, **parts, *err;
+    GString *uat_entry = g_string_new("");
+    guint i;
+
+    /* Import old-style keys */
+    if (ssldecrypt_uat && ssl_keys_list && ssl_keys_list[0]) {
+        old_keys = g_strsplit(ssl_keys_list, ";", 0);
+        for (i = 0; old_keys[i] != NULL; i++) {
+            parts = g_strsplit(old_keys[i], ",", 4);
+            if (parts[0] && parts[1] && parts[2] && parts[3]) {
+                g_string_printf(uat_entry, "\"%s\",\"%s\",\"%s\",\"%s\",\"\"",
+                                parts[0], parts[1], parts[2], parts[3]);
+                if (!uat_load_str(ssldecrypt_uat, uat_entry->str, &err)) {
+                    ssl_debug_printf("ssl_parse_old_keys: Can't load UAT string %s: %s\n",
+                                     uat_entry->str, err);
+                }
+            }
+            g_strfreev(parts);
+        }
+        g_strfreev(old_keys);
+    }
+    g_string_free(uat_entry, TRUE);
 }
 
 /*********************************************************************
@@ -5295,7 +5302,7 @@ proto_register_ssl(void)
             ssldecrypt_copy_cb,
             ssldecrypt_update_cb,
             ssldecrypt_free_cb,
-            ssl_parse,
+            ssl_parse_uat,
             sslkeylist_uats_flds);
 
         prefs_register_uat_preference(ssl_module, "key_table",
@@ -5377,7 +5384,8 @@ proto_reg_handoff_ssl(void)
 {
 
     /* parse key list */
-    ssl_parse();
+    ssl_parse_uat();
+    ssl_parse_old_keys();
 }
 
 void
