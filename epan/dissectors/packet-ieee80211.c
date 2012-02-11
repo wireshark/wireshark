@@ -5872,7 +5872,8 @@ dissect_vendor_ie_wpawme(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 
       proto_item *wpa_sub_ucs_item, *wpa_sub_akms_item;
       proto_tree *wpa_mcs_tree, *wpa_ucs_tree, *wpa_akms_tree;
       proto_tree *wpa_sub_ucs_tree, *wpa_sub_akms_tree;
-      guint16 i, ucs_count, akms_count;
+      guint16 ucs_count, akms_count;
+      guint i;
 
       proto_tree_add_item(tree, hf_ieee80211_wfa_ie_wpa_version, tvb, offset, 2, ENC_LITTLE_ENDIAN);
       offset += 2;
@@ -6431,7 +6432,8 @@ dissect_rsn_ie(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 tag_len)
   proto_item *rsn_sub_pcs_item, *rsn_sub_akms_item;
   proto_tree *rsn_gcs_tree, *rsn_pcs_tree, *rsn_akms_tree, *rsn_cap_tree, *rsn_pmkid_tree, *rsn_gmcs_tree;
   proto_tree *rsn_sub_pcs_tree, *rsn_sub_akms_tree;
-  guint16 i, pcs_count, akms_count, pmkid_count;
+  guint16 pcs_count, akms_count, pmkid_count;
+  guint i;
   int tag_end = offset + tag_len;
 
   proto_tree_add_item(tree, hf_ieee80211_rsn_version, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -11295,7 +11297,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       if (is_amsdu && tvb_reported_length_remaining(next_tvb, 0) > 4){
         tvbuff_t *volatile msdu_tvb = NULL;
         guint32 msdu_offset = 0;
-        guint16 i = 1;
+        guint i = 1;
         const guint8 *lcl_src = NULL;
         const guint8 *lcl_dst = NULL;
         guint16 msdu_length;
