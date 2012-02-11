@@ -25,7 +25,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-
+// Just set me to activate debug #define DEBUG_NTLMSSP
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -578,15 +578,19 @@ create_ntlmssp_v2_key(const char *nt_password _U_, const guint8 *serverchallenge
     return;
   }
   while (i < nb_pass ) {
-    /*fprintf(stderr,"Turn %d, ",i);*/
+    #ifdef DEBUG_NTLMSSP
+    fprintf(stderr,"Turn %d, ",i);
+    #endif
     memcpy(nt_password_hash,pass_list[i].md4,NTLMSSP_KEY_LEN);
-    /*printnbyte(nt_password_hash,NTLMSSP_KEY_LEN,"Current NT password hash: ","\n");*/
+    printnbyte(nt_password_hash,NTLMSSP_KEY_LEN,"Current NT password hash: ","\n");
     i++;
     /* ntowf computation */
     memset(buf,0,512);
     memcpy(buf,user_uppercase,user_len*2);
     memcpy(buf+user_len*2,domain_name_unicode,domain_len*2);
     md5_hmac(buf,domain_len*2+user_len*2,nt_password_hash,NTLMSSP_KEY_LEN,ntowf);
+    printnbyte(ntowf,NTLMSSP_KEY_LEN,"NTOWF: ","\n");
+
     /* LM response */
     memset(buf,0,512);
     memcpy(buf,serverchallenge,8);
