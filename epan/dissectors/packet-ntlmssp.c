@@ -2115,6 +2115,8 @@ decrypt_data_payload(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
                                      encrypted_block_length,
                                      encrypted_block_length);
 
+  add_new_data_source(pinfo, decr_tvb,
+                      "Decrypted data");
   pinfo->gssapi_decrypted_tvb =  decr_tvb;
 }
 
