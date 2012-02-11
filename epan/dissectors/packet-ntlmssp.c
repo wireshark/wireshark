@@ -491,6 +491,7 @@ get_md4pass_list(md4_pass** p_pass_list,const char* nt_password)
       nb_pass++;
     }
   }
+  memset(nt_password_unicode, 0, sizeof(nt_password_unicode));
   memset(nt_password_hash,0,NTLMSSP_KEY_LEN);
   if (nt_password[0] != '\0' && ( strlen(nt_password) < 129 )) {
     nb_pass++;
