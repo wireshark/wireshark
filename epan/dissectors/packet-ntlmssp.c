@@ -1,6 +1,6 @@
 /* packet-ntlmssp.c
  * Add-on for better NTLM v1/v2 handling
- * Copyright 2009 Matthieu Patou <matthieu.patou@matws.net>
+ * Copyright 2009,2012 Matthieu Patou <mat@matws.net>
  * Routines for NTLM Secure Service Provider
  * Devin Heitmueller <dheitmueller@netilla.com>
  * Copyright 2003, Tim Potter <tpot@samba.org>
@@ -276,7 +276,7 @@ static gint ett_ntlmssp_ntlmv2_response_item = -1;
 /* Configuration variables */
 const char *gbl_nt_password = NULL;
 
-#define MAX_BLOB_SIZE 256
+#define MAX_BLOB_SIZE 10240
 typedef struct _ntlmssp_blob {
   guint16 length;
   guint8 contents[MAX_BLOB_SIZE];
