@@ -572,6 +572,7 @@ static const true_false_string user_account_control_account_disabled= {
 typedef struct _netlogon_auth_key {
     address src;
     address dst;
+    guint32 srcport;
     guint32 dstport;
     char * name;
 } netlogon_auth_key;
@@ -582,7 +583,7 @@ netlogon_auth_equal (gconstpointer k1, gconstpointer k2)
     const netlogon_auth_key *key1 = (const netlogon_auth_key *)k1;
     const netlogon_auth_key *key2 = (const netlogon_auth_key *)k2;
     if(key1->name == NULL || key2->name ==NULL)
-        return ((key1->dstport == key2->dstport) && ADDRESSES_EQUAL(&key1->src,&key2->src) &&
+        return ((key1->srcport == key2->srcport) && (key1->dstport == key2->dstport) && ADDRESSES_EQUAL(&key1->src,&key2->src) &&
                 ADDRESSES_EQUAL(&key1->dst,&key2->dst));
     else
         return ((strcmp(key1->name,key2->name)==0) && ADDRESSES_EQUAL(&key1->src,&key2->src) &&
@@ -596,6 +597,7 @@ netlogon_auth_hash (gconstpointer k)
     guint hash_val1;
     if(key1->name == NULL) {
         hash_val1 = key1->dstport;
+        hash_val1 += key1->srcport;
     }
     else {
         unsigned int i = 0;
@@ -2472,6 +2474,7 @@ static void generate_hash_key(packet_info *pinfo,unsigned char is_server,netlogo
 {
     if(is_server) {
         key->dstport = pinfo->srcport;
+        key->srcport = pinfo->destport;
         COPY_ADDRESS(&key->dst,&pinfo->src);
         COPY_ADDRESS(&key->src,&pinfo->dst);
         /* name has been durably allocated */
@@ -2481,6 +2484,7 @@ static void generate_hash_key(packet_info *pinfo,unsigned char is_server,netlogo
         COPY_ADDRESS(&key->dst,&pinfo->dst);
         COPY_ADDRESS(&key->src,&pinfo->src);
         key->dstport = pinfo->destport;
+        key->srcport = pinfo->srcport;
         /* name has been durably allocated */
         key->name = name;
     }
@@ -6904,6 +6908,7 @@ netlogon_dissect_netrserverauthenticate23_reply(tvbuff_t *tvb, int offset,
     vars = (netlogon_auth_vars *)g_hash_table_lookup(netlogon_auths, &key);
     if(vars != NULL) {
         debugprintf("Found some vars (ie. server/client challenges), let's see if I can get a session key\n");
+        debugprintf("Context Id = %d \n", pinfo->dcectxid);
         while(vars != NULL && vars->next_start != -1 && vars->next_start < (int) pinfo->fd->num ) {
             debugprintf("looping auth reply...\n");
             vars = vars->next;
