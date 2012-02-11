@@ -799,6 +799,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-mount.c
 	dissectors/packet-mp2t.c
 	dissectors/packet-mp4ves.c
+	dissectors/packet-mpeg-sect.c
 	dissectors/packet-mpeg1.c
 	dissectors/packet-mpls.c
 	dissectors/packet-mpls-echo.c
