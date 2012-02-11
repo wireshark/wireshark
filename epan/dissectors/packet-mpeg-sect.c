@@ -162,12 +162,12 @@ dissect_mpeg_sect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	set_actual_length(tvb, section_length + 3);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MPEG SECT");
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Table ID 0x%hhX", table_id);
+	col_add_fstr(pinfo->cinfo, COL_INFO, "Table ID 0x%08x", table_id);
 
 	ti = proto_tree_add_item(tree, proto_mpeg_sect, tvb, offset, -1, ENC_NA);
 	mpeg_sect_tree = proto_item_add_subtree(ti, ett_mpeg_sect);
 
-	proto_item_append_text(ti, " Table_ID=0x%hhx", table_id);
+	proto_item_append_text(ti, " Table_ID=0x%08x", table_id);
 
 	if (syntax_indicator) {
 		/* Pass everything but the CRC */
