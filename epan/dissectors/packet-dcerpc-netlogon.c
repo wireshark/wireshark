@@ -2538,11 +2538,12 @@ netlogon_dissect_netrserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
         g_hash_table_insert(netlogon_auths, key, vars);
     }
     else {
-        while(existing_vars->next != NULL && existing_vars->start <= vars->start) {
+        while(existing_vars->next != NULL && existing_vars->start < vars->start) {
+            debugprintf("Looping to find existing vars ...\n");
             existing_vars = existing_vars->next;
         }
-        if(existing_vars->next != NULL || existing_vars == vars) {
-            debugprintf("It seems that I already record this vars %d\n",vars->start);
+        if(existing_vars->next != NULL || existing_vars->start == vars->start) {
+            debugprintf("It seems that I already record this vars start packet = %d\n",vars->start);
         }
         else {
             debugprintf("Adding a new entry with this start packet = %d\n",vars->start);
