@@ -6952,7 +6952,9 @@ netlogon_dissect_netrserverauthenticate23_reply(tvbuff_t *tvb, int offset,
                     md5_hmac(md5,16,(guint8*) &password,16,session_key);
                     crypt_des_ecb(buf,(unsigned char*)&vars->server_challenge,session_key,1);
                     crypt_des_ecb((unsigned char*)&calculated_cred,buf,session_key+7,1);
-                    //printnbyte((guint8*)&calculated_cred,8,"Calculated creds:","\n");
+#if 0
+                    printnbyte((guint8*)&calculated_cred,8,"Calculated creds:","\n");
+#endif
                     if(calculated_cred==server_cred) {
                         found = 1;
                         break;
