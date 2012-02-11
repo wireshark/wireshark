@@ -919,7 +919,12 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 	/* FCS length default */
 	fcslen = pn->if_fcslen;
 
-	/* Options */
+	/* Options 
+	 * opt_comment    1
+	 * epb_flags      2
+	 * epb_hash       3
+	 * epb_dropcount  4
+	 */
 	errno = WTAP_ERR_CANT_READ;
 	to_read = block_total_length
         - (int)sizeof(pcapng_block_header_t)
@@ -967,6 +972,24 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 				pcapng_debug1("pcapng_read_if_descr_block: pack_flags %u (ignored)", wblock->data.packet.pack_flags);
 			} else {
 				pcapng_debug1("pcapng_read_if_descr_block: pack_flags length %u not 4 as expected", oh.option_length);
+			}
+			break;
+			case(3): /* epb_hash */
+			pcapng_debug2("pcapng_read_packet_block: epb_hash %u currently not handled - ignoring %u bytes",
+				      oh.option_code, oh.option_length);
+			break;
+			case(4): /* epb_dropcount */
+			if(oh.option_length == 4) {
+				/*  Don't cast a char[] into a guint32--the
+				 *  char[] may not be aligned correctly.
+				 */
+				memcpy(&wblock->data.packet.drop_count, option_content, sizeof(guint32));
+				if(pn->byte_swapped)
+					wblock->data.packet.drop_count = BSWAP32(wblock->data.packet.drop_count);
+
+				pcapng_debug1("pcapng_read_if_descr_block: drop_count %u", wblock->data.packet.drop_count);
+			} else {
+				pcapng_debug1("pcapng_read_if_descr_block: drop_count length %u not 4 as expected", oh.option_length);
 			}
 			break;
 		    default:
