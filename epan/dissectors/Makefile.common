@@ -447,6 +447,7 @@ DISSECTOR_SRC = \
 	packet-dtp.c		\
 	packet-dtpt.c		\
 	packet-dua.c		\
+	packet-dvb-data-mpe.c	\
 	packet-dvb-ipdc.c	\
 	packet-dvbci.c		\
 	packet-dvmrp.c		\
