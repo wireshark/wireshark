@@ -717,6 +717,7 @@ DISSECTOR_SRC = \
 	packet-mount.c		\
 	packet-mp2t.c		\
 	packet-mp4ves.c		\
+	packet-mpeg-pat.c	\
 	packet-mpeg-sect.c	\
 	packet-mpeg1.c		\
 	packet-mpls.c		\
