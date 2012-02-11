@@ -57,10 +57,9 @@ static gint ett_mpeg_pat_prog = -1;
 #define MPEG_PAT_PROGRAM_RESERVED_MASK		0xE000
 #define MPEG_PAT_PROGRAM_MAP_PID_MASK		0x1FFF
 
-static const value_string mpeg_pat_cur_next_vals[] = {
+static const true_false_string mpeg_pat_cur_next_vals = {
 	
-	{ 0x0, "Not yet applicable" },
-	{ 0x1, "Currently applicable" },
+	"Currently applicable", "Not yet applicable"
 
 };
 
@@ -153,7 +152,7 @@ proto_register_mpeg_pat(void)
 
 		{ &hf_mpeg_pat_current_next_indicator, {
 			"Current/Next Indicator", "mpeg_pat.cur_next_ind",
-			FT_UINT8, BASE_HEX, VALS(mpeg_pat_cur_next_vals), MPEG_PAT_CURRENT_NEXT_INDICATOR_MASK, NULL, HFILL
+			FT_BOOLEAN, 8, TFS(&mpeg_pat_cur_next_vals), MPEG_PAT_CURRENT_NEXT_INDICATOR_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_pat_section_number, {
