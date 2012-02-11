@@ -86,7 +86,7 @@ dissect_mpeg_pat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (!tree)
 		return;
 
-	length = tvb_length_remaining(tvb, offset);
+	length = tvb_reported_length_remaining(tvb, offset);
 
 	proto_tree_add_item(mpeg_pat_tree, hf_mpeg_pat_transport_stream_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
