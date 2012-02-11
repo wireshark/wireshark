@@ -151,9 +151,6 @@ dissect_mpeg_sect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	tvbuff_t *pload_tvb = NULL;
 
-	if (tvb_length(tvb) < 3)
-		return;
-
 	table_id = tvb_get_guint8(tvb, offset);
 	header = tvb_get_ntohs(tvb, offset + 1);
 	syntax_indicator = header & MPEG_SECT_SYNTAX_INDICATOR_MASK;
