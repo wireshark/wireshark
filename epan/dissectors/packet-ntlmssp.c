@@ -29,9 +29,7 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-#ifdef DEBUG_NTLMSSP
 #include <stdio.h>
-#endif
 #include <string.h>
 #include <ctype.h>
 
@@ -976,6 +974,8 @@ dissect_ntlmssp_blob (tvbuff_t *tvb, int offset,
                              hf_ntlmssp_ntlm_client_challenge,
                              tvb, blob_offset, 8, ENC_NA);
       }
+    } else {
+      printf("NTLM v2 key is %d bytes long, too big for our %d buffer\n", blob_length, MAX_BLOB_SIZE);
     }
   }
 
