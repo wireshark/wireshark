@@ -1289,7 +1289,7 @@ dissect_ntlmssp_target_info_list(tvbuff_t *tvb, proto_tree *tree,
       if (content_length > 0) {
         const gchar *text;
 
-        text = tvb_get_ephemeral_unicode_string(tvb, content_offset, content_length / 2, ENC_LITTLE_ENDIAN);
+        text = tvb_get_ephemeral_unicode_string(tvb, content_offset, content_length, ENC_LITTLE_ENDIAN);
         proto_tree_add_string(target_info_tree, *hf_array_p[item_type],
                               tvb, content_offset, content_length, text);
         proto_item_append_text(target_info_tf, ": %s", text);
