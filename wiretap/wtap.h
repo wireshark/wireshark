@@ -821,17 +821,15 @@ struct wtap_nstime {
 };
 
 struct wtap_pkthdr {
-	struct wtap_nstime ts;
+	struct wtap_nstime	ts;
 	guint32				caplen;			/* data length in the file */
 	guint32				len;			/* data length on the wire */
-	int pkt_encap;
+	int					pkt_encap;
 	/* pcapng variables */
 	guint32				interface_id;   /* identifier of the interface. */
-	guint16				drops_count;    /* drops count, only valid for packet block */
-										/* 0xffff if information not available */
 	/* options */
 	gchar				*opt_comment;	/* NULL if not available */
-	guint64				drop_count;
+	guint64				drop_count;		/* number of packets lost (by the interface and the operating system) between this packet and the preceding one. */
 	guint32				pack_flags;     /* XXX - 0 for now (any value for "we don't have it"?) */
 };
 

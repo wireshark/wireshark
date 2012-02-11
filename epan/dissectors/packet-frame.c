@@ -45,6 +45,7 @@
 #include "color_filters.h"
 
 int proto_frame = -1;
+int proto_pkt_comment = -1;
 int hf_frame_arrival_time = -1;
 int hf_frame_shift_offset = -1;
 int hf_frame_arrival_time_epoch = -1;
@@ -65,12 +66,15 @@ static int hf_link_number = -1;
 static int hf_frame_protocols = -1;
 static int hf_frame_color_filter_name = -1;
 static int hf_frame_color_filter_text = -1;
+static int hf_frame_interface_id = -1;
+static int hf_comments_text = -1;
 
 static int proto_short = -1;
 int proto_malformed = -1;
 static int proto_unreassembled = -1;
 
 static gint ett_frame = -1;
+static gint ett_comments = -1;
 
 static int frame_tap = -1;
 
@@ -121,7 +125,8 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_item	*volatile ti = NULL;
 	guint		cap_len = 0, frame_len = 0;
 	proto_tree	*volatile tree;
-        proto_item  *item;
+	proto_tree  *comments_tree;
+    proto_item  *item;
 	const gchar *cap_plurality, *frame_plurality;
 
 	tree=parent_tree;
@@ -177,6 +182,15 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		}
 	}
 
+	if(pinfo->fd->opt_comment){
+		item = proto_tree_add_item(tree, proto_pkt_comment, tvb, 0, -1, ENC_NA);
+		comments_tree = proto_item_add_subtree(item, ett_comments);
+		proto_tree_add_string_format(comments_tree, hf_comments_text, tvb, 0, -1,
+							                   pinfo->fd->opt_comment, "%s",
+							                   pinfo->fd->opt_comment);
+
+	}
+
 	/* if FRAME is not referenced from any filters we dont need to worry about
 	   generating any tree items.  */
 	if(!proto_field_is_referenced(tree, proto_frame)) {
@@ -197,15 +211,17 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 		if (generate_bits_field)
 			ti = proto_tree_add_protocol_format(tree, proto_frame, tvb, 0, -1,
-			    "Frame %u: %u byte%s on wire (%u bits), %u byte%s captured (%u bits)",
+			    "Frame %u: %u byte%s on wire (%u bits), %u byte%s captured (%u bits) on interface %u",
 			    pinfo->fd->num, frame_len, frame_plurality, frame_len * 8,
-			    cap_len, cap_plurality, cap_len * 8);
+			    cap_len, cap_plurality, cap_len * 8, pinfo->fd->interface_id);
 		else
 			ti = proto_tree_add_protocol_format(tree, proto_frame, tvb, 0, -1,
-			    "Frame %u: %u byte%s on wire, %u byte%s captured", pinfo->fd->num,
-			     frame_len, frame_plurality, cap_len, cap_plurality);
+			    "Frame %u: %u byte%s on wire, %u byte%s captured, on interface %u", pinfo->fd->num,
+			     frame_len, frame_plurality, cap_len, cap_plurality, pinfo->fd->interface_id);
 
 		fh_tree = proto_item_add_subtree(ti, ett_frame);
+
+		proto_tree_add_uint(fh_tree, hf_frame_interface_id, tvb, 0, 0, pinfo->fd->interface_id);
 
 		proto_tree_add_time(fh_tree, hf_frame_arrival_time, tvb,
 				    0, 0, &(pinfo->fd->abs_ts));
@@ -619,10 +635,19 @@ proto_register_frame(void)
 
 		{ &hf_frame_color_filter_text,
 		{ "Coloring Rule String", "frame.coloring_rule.string", FT_STRING, BASE_NONE, NULL, 0x0,
-			"The frame matched this coloring rule string", HFILL }}
+			"The frame matched this coloring rule string", HFILL }},
+
+		{ &hf_frame_interface_id,
+		{ "Interface id",		"frame.interface_id", FT_UINT32, BASE_DEC, NULL, 0x0,
+			NULL, HFILL }},
+
+		{ &hf_comments_text,
+		{ "Comment", "comment", FT_STRING, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }},
 	};
 	static gint *ett[] = {
-		&ett_frame
+		&ett_frame,
+		&ett_comments
 	};
 	module_t *frame_module;
 
@@ -630,6 +655,7 @@ proto_register_frame(void)
 	    "Wiretap encapsulation type", FT_UINT32, BASE_DEC);
 
 	proto_frame = proto_register_protocol("Frame", "Frame", "frame");
+	proto_pkt_comment = proto_register_protocol("Packet comments", "Pkt_Comment", "pkt_comment");
 	proto_register_field_array(proto_frame, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	register_dissector("frame",dissect_frame,proto_frame);

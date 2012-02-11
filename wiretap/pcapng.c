@@ -946,8 +946,8 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 			break;
 		    case(1): /* opt_comment */
 			if(oh.option_length > 0 && oh.option_length < sizeof(option_content)) {
-				wblock->data.packet.opt_comment = g_strndup(option_content, sizeof(option_content));
-				pcapng_debug1("pcapng_read_packet_block: opt_comment %s", wblock->data.packet.opt_comment);
+				wblock->data.packet.opt_comment = g_strndup(option_content, oh.option_length);
+				pcapng_debug2("pcapng_read_packet_block: length %u opt_comment '%s'", oh.option_length, wblock->data.packet.opt_comment);
 			} else {
 				pcapng_debug1("pcapng_read_packet_block: opt_comment length %u seems strange", oh.option_length);
 			}
@@ -1560,7 +1560,6 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 		wth->phdr.ts.nsecs = (int)(((ts % time_units_per_second) * 1000000000) / time_units_per_second);
 
 		wth->phdr.interface_id = wblock.data.packet.interface_id;
-		wth->phdr.drops_count  = wblock.data.packet.drops_count;
 		wth->phdr.opt_comment  = wblock.data.packet.opt_comment;
 		wth->phdr.drop_count   = wblock.data.packet.drop_count;
 		wth->phdr.pack_flags   = wblock.data.packet.pack_flags;
@@ -1738,6 +1737,10 @@ pcapng_write_packet_block(wtap_dumper *wdh, wtapng_block_t *wblock, int *err)
 	const guint32 zero_pad = 0;
 	guint32 pad_len;
 	guint32 phdr_len;
+	gboolean have_options = FALSE;
+	guint32 options_total_length = 0;
+	guint32 options_hdr = 0; 
+	guint32 comment_len = 0, comment_pad_len = 0;
 
 	phdr_len = (guint32)pcap_get_phdr_size(wblock->data.packet.wtap_encap, wblock->pseudo_header);
 	if ((phdr_len + wblock->data.packet.cap_len) % 4) {
@@ -1746,9 +1749,27 @@ pcapng_write_packet_block(wtap_dumper *wdh, wtapng_block_t *wblock, int *err)
 		pad_len = 0;
 	}
 
+	/* Check if we should write comment option */
+	if(wblock->data.packet.opt_comment){
+		have_options = TRUE;
+		comment_len = (guint32)strlen(wblock->data.packet.opt_comment) & 0xffff;
+		if((comment_len % 4)){
+			comment_pad_len = 4 - (comment_len % 4);
+		}else{
+			comment_pad_len = 0;
+		}
+		options_total_length = options_total_length + comment_len + comment_pad_len + 4 /* comment options tag */ ;
+	}
+
+	if(have_options){
+		/* End-of optios tag */
+		options_total_length += 4;
+	}
+
+
 	/* write (enhanced) packet block header */
 	bh.block_type = wblock->type;
-	bh.block_total_length = (guint32)sizeof(bh) + (guint32)sizeof(epb) + phdr_len + wblock->data.packet.cap_len + pad_len /* + options */ + 4;
+	bh.block_total_length = (guint32)sizeof(bh) + (guint32)sizeof(epb) + phdr_len + wblock->data.packet.cap_len + pad_len + options_total_length + 4;
 
 	if (!wtap_dump_file_write(wdh, &bh, sizeof bh, err))
 		return FALSE;
@@ -1785,6 +1806,59 @@ pcapng_write_packet_block(wtap_dumper *wdh, wtapng_block_t *wblock, int *err)
 	}
 
 	/* XXX - write (optional) block options */
+	/* options defined in Section 2.5 (Options) 
+	 * Name           Code Length     Description 
+	 * opt_comment    1    variable   A UTF-8 string containing a comment that is associated to the current block. 
+	 *
+	 * Enhanced Packet Block options
+	 * epb_flags      2    4          A flags word containing link-layer information. A complete specification of 
+	 *                                the allowed flags can be found in Appendix A (Packet Block Flags Word). 
+	 * epb_hash       3    variable   This option contains a hash of the packet. The first byte specifies the hashing algorithm, 
+	 *                                while the following bytes contain the actual hash, whose size depends on the hashing algorithm, 
+	 *								  and hence from the value in the first bit. The hashing algorithm can be: 2s complement 
+	 *								  (algorithm byte = 0, size=XXX), XOR (algorithm byte = 1, size=XXX), CRC32 (algorithm byte = 2, size = 4), 
+	 *								  MD-5 (algorithm byte = 3, size=XXX), SHA-1 (algorithm byte = 4, size=XXX). 
+	 *								  The hash covers only the packet, not the header added by the capture driver: 
+	 *								  this gives the possibility to calculate it inside the network card. 
+	 *								  The hash allows easier comparison/merging of different capture files, and reliable data transfer between the 
+	 *								  data acquisition system and the capture library. 
+	 * epb_dropcount   4   8          A 64bit integer value specifying the number of packets lost (by the interface and the operating system) 
+	 *                                between this packet and the preceding one.
+	 * opt_endofopt    0   0          It delimits the end of the optional fields. This block cannot be repeated within a given list of options. 
+	 */
+	if(wblock->data.packet.opt_comment){
+		options_hdr = comment_len;
+		options_hdr = options_hdr << 16;
+		/* Option 1  */
+		options_hdr += 1;
+		if (!wtap_dump_file_write(wdh, &options_hdr, 4, err))
+			return FALSE;
+		wdh->bytes_dumped += 4;
+
+		/* Write the comments string */
+		pcapng_debug3("pcapng_write_packet_block, comment:'%s' comment_len %u comment_pad_len %u" , wblock->data.packet.opt_comment, comment_len, comment_pad_len);
+		if (!wtap_dump_file_write(wdh, wblock->data.packet.opt_comment, comment_len, err))
+			return FALSE;
+		wdh->bytes_dumped += comment_len;
+
+		/* write padding (if any) */
+		if (comment_pad_len != 0) {
+			if (!wtap_dump_file_write(wdh, &zero_pad, comment_pad_len, err))
+				return FALSE;
+			wdh->bytes_dumped += comment_pad_len;
+		}
+
+		pcapng_debug2("pcapng_write_packet_block: Wrote Options comments: comment_len %u, comment_pad_len %u",
+			comment_len,
+			comment_pad_len);
+	}
+
+	/* Write end of options if we have otions */
+	if(have_options){
+		if (!wtap_dump_file_write(wdh, &zero_pad, 4, err))
+			return FALSE;
+		wdh->bytes_dumped += 4;
+	}
 
 	/* write block footer */
 	if (!wtap_dump_file_write(wdh, &bh.block_total_length,
@@ -2017,8 +2091,8 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
 	ts = (((guint64)phdr->ts.secs) * 1000000) + (phdr->ts.nsecs / 1000);
 
 	/* Split the 64-bit timestamp into two 32-bit pieces */
-        wblock.data.packet.ts_high      = (guint32)(ts >> 32);
-        wblock.data.packet.ts_low       = (guint32)ts;
+    wblock.data.packet.ts_high      = (guint32)(ts >> 32);
+    wblock.data.packet.ts_low       = (guint32)ts;
 
 	wblock.data.packet.cap_len      = phdr->caplen;
 	wblock.data.packet.packet_len   = phdr->len;
@@ -2026,8 +2100,9 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
 	wblock.data.packet.wtap_encap   = phdr->pkt_encap;
 
 	/* currently unused */
-	wblock.data.packet.drop_count   = -1;
-	wblock.data.packet.opt_comment  = NULL;
+	wblock.data.packet.drop_count   = phdr->drop_count;
+	wblock.data.packet.opt_comment  = phdr->opt_comment;
+	pcapng_debug1("pcapng_dump: Comment %s",phdr->opt_comment);
 
 	if (!pcapng_write_block(wdh, &wblock, err)) {
 		return FALSE;

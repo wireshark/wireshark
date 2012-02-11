@@ -40,14 +40,15 @@
    it's 1-origin.  In various contexts, 0 as a frame number means "frame
    number unknown". */
 typedef struct _frame_data {
-  GSList      *pfd;         /**< Per frame proto data */
-  guint32      num;         /**< Frame number */
-  guint32      pkt_len;     /**< Packet length */
-  guint32      cap_len;     /**< Amount actually captured */
-  guint32      cum_bytes;   /**< Cumulative bytes into the capture */
-  gint64       file_off;    /**< File offset */
-  guint16      subnum;      /**< subframe number, for protocols that require this */
-  gint16       lnk_t;       /**< Per-packet encapsulation/data-link type */
+  GSList      *pfd;          /**< Per frame proto data */
+  guint32      num;          /**< Frame number */
+  guint32      interface_id; /**< identifier of the interface. */
+  guint32      pkt_len;      /**< Packet length */
+  guint32      cap_len;      /**< Amount actually captured */
+  guint32      cum_bytes;    /**< Cumulative bytes into the capture */
+  gint64       file_off;     /**< File offset */
+  guint16      subnum;       /**< subframe number, for protocols that require this */
+  gint16       lnk_t;        /**< Per-packet encapsulation/data-link type */
   struct {
     unsigned int passed_dfilter : 1; /**< 1 = display, 0 = no display */
     unsigned int encoding       : 2; /**< Character encoding (ASCII, EBCDIC...) */
@@ -57,13 +58,14 @@ typedef struct _frame_data {
     unsigned int ignored        : 1; /**< 1 = ignore this frame, 0 = normal */
   } flags;
 
-  const void *color_filter; /**< Per-packet matching color_filter_t object */
+  const void *color_filter;  /**< Per-packet matching color_filter_t object */
 
-  nstime_t     abs_ts;      /**< Absolute timestamp */
-  nstime_t     shift_offset;/**< How much the abs_tm of the frame is shifted */
-  nstime_t     rel_ts;      /**< Relative timestamp (yes, it can be negative) */
-  nstime_t     del_dis_ts;  /**< Delta timestamp to previous displayed frame (yes, it can be negative) */
-  nstime_t     del_cap_ts;  /**< Delta timestamp to previous captured frame (yes, it can be negative) */
+  nstime_t     abs_ts;       /**< Absolute timestamp */
+  nstime_t     shift_offset; /**< How much the abs_tm of the frame is shifted */
+  nstime_t     rel_ts;       /**< Relative timestamp (yes, it can be negative) */
+  nstime_t     del_dis_ts;   /**< Delta timestamp to previous displayed frame (yes, it can be negative) */
+  nstime_t     del_cap_ts;   /**< Delta timestamp to previous captured frame (yes, it can be negative) */
+  gchar        *opt_comment; /**< NULL if not available */
 } frame_data;
 
 #ifdef WANT_PACKET_EDITOR

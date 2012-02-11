@@ -45,33 +45,33 @@ typedef gboolean (*subtype_read_func)(struct wtap*, int*, char**, gint64*);
 typedef gboolean (*subtype_seek_read_func)(struct wtap*, gint64, union wtap_pseudo_header*,
 					guint8*, int, int *, char **);
 struct wtap {
-	FILE_T			fh;
-	FILE_T			random_fh;    /* Secondary FILE_T for random access */
-	int			file_type;
-	guint			snapshot_length;
-	struct Buffer		*frame_buffer;
-	struct wtap_pkthdr	phdr;
-	union wtap_pseudo_header pseudo_header;
+	FILE_T						fh;
+	FILE_T						random_fh;    /* Secondary FILE_T for random access */
+	int							file_type;
+	guint						snapshot_length;
+	struct Buffer				*frame_buffer;
+	struct wtap_pkthdr			phdr;
+	union wtap_pseudo_header	pseudo_header;
 
-	gint64			data_offset;
+	gint64						data_offset;
 
-	void			*priv;
+	void						*priv;
 
-	subtype_read_func	subtype_read;
-	subtype_seek_read_func	subtype_seek_read;
-	void			(*subtype_sequential_close)(struct wtap*);
-	void			(*subtype_close)(struct wtap*);
-	int			file_encap;	/* per-file, for those
+	subtype_read_func			subtype_read;
+	subtype_seek_read_func		subtype_seek_read;
+	void						(*subtype_sequential_close)(struct wtap*);
+	void						(*subtype_close)(struct wtap*);
+	int							file_encap;	/* per-file, for those
 											 * file formats that have
 											 * per-file encapsulation
 											 * types
 											 */
-	int			tsprecision;	/* timestamp precision of the lower 32bits
+	int							tsprecision;	/* timestamp precision of the lower 32bits
 												 * e.g. WTAP_FILE_TSPREC_USEC
 												 */
-	wtap_new_ipv4_callback_t add_new_ipv4;
-	wtap_new_ipv6_callback_t add_new_ipv6;
-	GPtrArray *fast_seek;
+	wtap_new_ipv4_callback_t	add_new_ipv4;
+	wtap_new_ipv6_callback_t	add_new_ipv6;
+	GPtrArray					*fast_seek;
 };
 
 struct wtap_dumper;

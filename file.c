@@ -3645,12 +3645,19 @@ save_packet(capture_file *cf _U_, frame_data *fdata,
   int           err;
 
   /* init the wtap header for saving */
-  hdr.ts.secs    = fdata->abs_ts.secs;
-  hdr.ts.nsecs   = fdata->abs_ts.nsecs;
-  hdr.caplen     = fdata->cap_len;
-  hdr.len        = fdata->pkt_len;
-  hdr.pkt_encap  = fdata->lnk_t;
-
+  hdr.ts.secs      = fdata->abs_ts.secs;
+  hdr.ts.nsecs     = fdata->abs_ts.nsecs;
+  hdr.caplen       = fdata->cap_len;
+  hdr.len          = fdata->pkt_len;
+  hdr.pkt_encap    = fdata->lnk_t;
+  /* pcapng */
+  hdr.interface_id = fdata->interface_id;   /* identifier of the interface. */
+  /* options */
+  hdr.opt_comment  = fdata->opt_comment; /* NULL if not available */
+#if 0
+  hdr.drop_count   =
+  hdr.pack_flags   =     /* XXX - 0 for now (any value for "we don't have it"?) */
+#endif
   /* and save the packet */
   if (!wtap_dump(args->pdh, &hdr, pseudo_header, pd, &err)) {
     if (err < 0) {

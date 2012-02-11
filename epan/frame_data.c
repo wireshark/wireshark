@@ -194,6 +194,7 @@ frame_data_init(frame_data *fdata, guint32 num,
 {
   fdata->pfd = NULL;
   fdata->num = num;
+  fdata->interface_id = phdr->interface_id;
   fdata->pkt_len = phdr->len;
   fdata->cum_bytes = cum_bytes + phdr->len;
   fdata->cap_len = phdr->caplen;
@@ -212,6 +213,7 @@ frame_data_init(frame_data *fdata, guint32 num,
   fdata->flags.ref_time = 0;
   fdata->flags.ignored = 0;
   fdata->color_filter = NULL;
+  fdata->opt_comment = phdr->opt_comment;
 }
 
 void
