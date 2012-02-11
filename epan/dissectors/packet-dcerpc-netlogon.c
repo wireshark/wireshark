@@ -2518,9 +2518,9 @@ netlogon_dissect_netrserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
         cb_wstr_postprocess,
         GINT_TO_POINTER(CB_STR_COL_INFO |CB_STR_SAVE | 1));
 
-    debugprintf("1)Len %d offset %d txt %s\n",strlen(dcv->private_data),offset,(char*)dcv->private_data);
+    debugprintf("1)Len %d offset %d txt %s\n",(int) strlen(dcv->private_data),offset,(char*)dcv->private_data);
     vars->client_name = se_strdup(dcv->private_data);
-    debugprintf("2)Len %d offset %d txt %s\n",strlen(dcv->private_data),offset,vars->client_name);
+    debugprintf("2)Len %d offset %d txt %s\n",(int) strlen(dcv->private_data),offset,vars->client_name);
 
     offset = dissect_dcerpc_8bytes(tvb, offset, pinfo, tree, drep,
                                    hf_client_challenge,&vars->client_challenge);
@@ -2534,6 +2534,7 @@ netlogon_dissect_netrserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
     existing_vars = NULL;
     existing_vars = g_hash_table_lookup(netlogon_auths, key);
     if (!existing_vars) {
+        debugprintf("Adding initial vars with this start packet = %d\n",vars->start);
         g_hash_table_insert(netlogon_auths, key, vars);
     }
     else {
@@ -2544,6 +2545,7 @@ netlogon_dissect_netrserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
             debugprintf("It seems that I already record this vars %d\n",vars->start);
         }
         else {
+            debugprintf("Adding a new entry with this start packet = %d\n",vars->start);
             existing_vars->next_start = pinfo->fd->num;
             existing_vars->next = vars;
         }
@@ -2569,7 +2571,6 @@ netlogon_dissect_netrserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
             existing_vars->next_start = pinfo->fd->num;
             existing_vars->next = vars;
         }
-    }
 #endif
     return offset;
 }
@@ -2597,7 +2598,7 @@ netlogon_dissect_netrserverreqchallenge_reply(tvbuff_t *tvb, int offset,
         while(vars !=NULL && vars->next_start != -1 && vars->next_start < (int)pinfo->fd->num )
         {
             vars = vars->next;
-            debugprintf("looping challenge reply... %d %d \n",vars->next_start,pinfo->fd->num);
+            debugprintf("looping challenge reply... %d %d \n", vars->next_start, pinfo->fd->num);
         }
         if(vars == NULL)
         {
@@ -6897,10 +6898,11 @@ netlogon_dissect_netrserverauthenticate23_reply(tvbuff_t *tvb, int offset,
     offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
                               hf_netlogon_rc, NULL);
 
-    generate_hash_key(pinfo,1,&key,NULL);
+    generate_hash_key(pinfo, 1 , &key, NULL);
 
     vars = (netlogon_auth_vars *)g_hash_table_lookup(netlogon_auths, &key);
     if(vars != NULL) {
+        debugprintf("Found some vars (ie. server/client challenges), let's see if I can get a session key\n");
         while(vars != NULL && vars->next_start != -1 && vars->next_start < (int) pinfo->fd->num ) {
             debugprintf("looping auth reply...\n");
             vars = vars->next;
@@ -6934,7 +6936,9 @@ netlogon_dissect_netrserverauthenticate23_reply(tvbuff_t *tvb, int offset,
                 md5_append(&md5state,(unsigned char*)&vars->client_challenge,8);
                 md5_append(&md5state,(unsigned char*)&vars->server_challenge,8);
                 md5_finish(&md5state,md5);
-                /*printnbyte(md5,8,"MD5:","\n");*/
+                printnbyte(md5,8,"MD5:","\n");
+                printnbyte((guint8*)&vars->client_challenge,8,"Client challenge:","\n");
+                printnbyte((guint8*)&vars->server_challenge,8,"Server challenge:","\n");
                 printnbyte((guint8*)&server_cred,8,"Server creds:","\n");
                 for(i=0;i<list_size;i++)
                 {
@@ -6942,7 +6946,7 @@ netlogon_dissect_netrserverauthenticate23_reply(tvbuff_t *tvb, int offset,
                     md5_hmac(md5,16,(guint8*) &password,16,session_key);
                     crypt_des_ecb(buf,(unsigned char*)&vars->server_challenge,session_key,1);
                     crypt_des_ecb((unsigned char*)&calculated_cred,buf,session_key+7,1);
-                    /*printnbyte((guint8*)&calculated_cred,8,"Calculated creds:","\n");*/
+                    //printnbyte((guint8*)&calculated_cred,8,"Calculated creds:","\n");
                     if(calculated_cred==server_cred) {
                         found = 1;
                         break;
@@ -6952,11 +6956,13 @@ netlogon_dissect_netrserverauthenticate23_reply(tvbuff_t *tvb, int offset,
             else if( flags&NETLOGON_FLAG_USEAES)
             {
                 /*Not implemented*/
+                debugprintf("AES not supported yet\n");
                 memset(session_key,0,16);
             }
             else
             {
                 /*Not implemented*/
+                debugprintf("Else case not implemented\n");
                 memset(session_key,0,16);
             }
             if(found) {
@@ -6964,10 +6970,14 @@ netlogon_dissect_netrserverauthenticate23_reply(tvbuff_t *tvb, int offset,
                 debugprintf("Found the good session key !\n");
             }
             else {
+                debugprintf("Session key not found !\n");
                 memset(&vars->session_key,0,16);
             }
         }
+    } else {
+        printnbyte((guint8*)&vars->session_key, 16, "Session key:","\n");
     }
+
     return offset;
 }
 
