@@ -2210,6 +2210,11 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         break;
     case URB_ISOCHRONOUS:
         {
+        guint32 iso_numdesc = 0;
+        proto_item *ti = NULL;
+        ti=proto_tree_add_uint(tree, hf_usb_bInterfaceClass, tvb, offset, 0, usb_conv_info->interfaceClass);
+        PROTO_ITEM_SET_GENERATED(ti);
+
         /* All fields which belong to Linux usbmon headers are in host-endian
          * byte order. The fields coming from the USB communication are in little
          * endian format (see usb_20.pdf, chapter 8.1 Byte/Bit ordering).
@@ -2218,10 +2223,8 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
          * than packet was captured then the necessary swapping happens in
          * wiretap/pcap-common.c, pcap_process_linux_usb_pseudoheader().
          */
-        guint32 iso_numdesc = 0;
 
         if (setup_flag == 0) {
-            proto_item *ti = NULL;
             proto_tree *setup_tree = NULL;
             int type_2;
 
