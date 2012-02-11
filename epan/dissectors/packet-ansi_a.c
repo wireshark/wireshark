@@ -715,7 +715,6 @@ static dissector_handle_t dtap_handle;
 static dissector_table_t is637_dissector_table; /* IS-637-A Transport Layer (SMS) */
 static dissector_table_t is683_dissector_table; /* IS-683-A (OTA) */
 static dissector_table_t is801_dissector_table; /* IS-801 (PLD) */
-static packet_info *g_pinfo;
 static proto_tree *g_tree;
 static address rtp_src_addr;
 static guint32 rtp_ipv4_addr;
@@ -946,7 +945,7 @@ ansi_a_so_int_to_str(
  * IOS 6.2.2.6
  */
 static guint8
-elem_chan_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
+elem_chan_num(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
     guint32     value;
     guint32     curr_offset;
@@ -999,7 +998,7 @@ elem_chan_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
  * IOS 6.2.2.7
  */
 static guint8
-elem_chan_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_chan_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -1112,7 +1111,7 @@ elem_chan_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
  * IOS 5 4.2.83
  */
 static guint8
-elem_return_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+elem_return_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint8      oct;
     const gchar *str;
@@ -1157,7 +1156,7 @@ elem_return_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_
  * IOS 6.2.2.8
  */
 static guint8
-elem_rf_chan_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
+elem_rf_chan_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint32     value;
@@ -1234,7 +1233,7 @@ elem_rf_chan_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, 
  * IOS 5 4.2.86
  */
 static guint8
-elem_sr_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_sr_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -1269,7 +1268,7 @@ elem_sr_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
  * IOS 6.2.2.9
  */
 static guint8
-elem_sid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
+elem_sid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
     guint32     value;
     guint32     curr_offset;
@@ -1307,7 +1306,7 @@ elem_sid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *
  * IOS 6.2.2.10
  */
 static guint8
-elem_is95_chan_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_is95_chan_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint32     value;
@@ -1423,7 +1422,7 @@ elem_is95_chan_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
  * IOS 6.2.2.12
  */
 static guint8
-elem_enc_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_enc_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint8      oct_len;
@@ -1533,7 +1532,7 @@ elem_enc_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
  * IOS 6.2.2.15
  */
 static guint8
-elem_cm_info_type_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_cm_info_type_2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8      oct, oct2;
     guint8      num_bands, band_class_count;
@@ -1914,7 +1913,7 @@ elem_cm_info_type_2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
  * IOS 6.2.2.16
  */
 static guint8
-elem_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_mid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint8      *poctets;
@@ -2298,7 +2297,7 @@ elem_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_
  * IOS 6.2.2.17
  */
 static guint8
-elem_sci(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
+elem_sci(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -2333,7 +2332,7 @@ elem_sci(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *
  * IOS 6.2.2.18
  */
 static guint8
-elem_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_prio(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -2382,7 +2381,7 @@ elem_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
  * IOS 5 4.2.79
  */
 static guint8
-elem_p_rev(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_p_rev(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -2407,7 +2406,7 @@ elem_p_rev(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
  * IOS 6.2.2.19
  */
 static guint8
-elem_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint32     value;
@@ -2693,7 +2692,7 @@ elem_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 }
 
 static guint8
-elem_cell_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_cell_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -2732,7 +2731,7 @@ elem_cell_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
  * IOS 6.2.2.21
  */
 static guint8
-elem_cell_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_cell_id_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint8      consumed;
@@ -2805,7 +2804,7 @@ elem_cell_id_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
  * IOS 6.2.2.22
  */
 static guint8
-elem_cic(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
+elem_cic(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
     guint32     value;
     guint32     curr_offset;
@@ -2841,7 +2840,7 @@ elem_cic(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *
  * IOS 6.2.2.23
  */
 static guint8
-elem_cic_ext(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
+elem_cic_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint32     value;
@@ -2904,7 +2903,7 @@ elem_cic_ext(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gch
  * IOS 5 4.2.21
  */
 static guint8
-elem_ssci(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+elem_ssci(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -3062,7 +3061,7 @@ elem_downlink_re_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len,
  * IOS 6.2.2.25
  */
 static guint8
-elem_downlink_re(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_downlink_re(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint32     curr_offset;
 
@@ -3080,7 +3079,7 @@ elem_downlink_re(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
  * IOS 6.2.2.140
  */
 static guint8
-elem_downlink_re_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_downlink_re_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8      consumed;
     guint8      num_envs;
@@ -3163,7 +3162,7 @@ elem_downlink_re_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
  * IOS 6.2.2.30
  */
 static guint8
-elem_pdsn_ip_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+elem_pdsn_ip_addr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint32     curr_offset;
 
@@ -3182,7 +3181,7 @@ elem_pdsn_ip_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
  * IOS 5 4.2.24
  */
 static guint8
-elem_s_pdsn_ip_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+elem_s_pdsn_ip_addr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint32     curr_offset;
 
@@ -3201,7 +3200,7 @@ elem_s_pdsn_ip_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
  * IOS 6.2.2.31
  */
 static guint8
-elem_ho_pow_lev(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_ho_pow_lev(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint8      consumed;
@@ -3320,7 +3319,7 @@ elem_ho_pow_lev(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
  * IOS 6.2.2.32
  */
 static guint8
-elem_uz_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_uz_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint32     value;
     guint32     curr_offset;
@@ -3351,7 +3350,7 @@ elem_uz_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
  * IOS 5 4.2.77
  */
 static guint8
-elem_info_rec_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_info_rec_req(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8      rec_type;
     guint8      num_recs;
@@ -3398,7 +3397,7 @@ elem_info_rec_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
  * IOS 6.2.2.34
  */
 static guint8
-elem_is2000_chan_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+elem_is2000_chan_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint8      oct;
     guint8      num_chan;
@@ -3594,7 +3593,7 @@ elem_is2000_chan_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
  * IOS 6.2.2.36
  */
 static guint8
-elem_is95_ms_meas_chan_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_is95_ms_meas_chan_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint32     value;
@@ -3651,7 +3650,7 @@ elem_is95_ms_meas_chan_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
  * IOS 6.2.2.37
  */
 static guint8
-elem_clg_party_ascii_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_clg_party_ascii_num(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -3782,7 +3781,7 @@ elem_clg_party_ascii_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
  * IOS 6.2.2.38
  */
 static guint8
-elem_l3_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+elem_l3_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint32     curr_offset;
     tvbuff_t    *l3_tvb;
@@ -3797,7 +3796,7 @@ elem_l3_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
      */
     l3_tvb = tvb_new_subset(tvb, curr_offset, len, len);
 
-    call_dissector(dtap_handle, l3_tvb, g_pinfo, g_tree);
+    call_dissector(dtap_handle, l3_tvb, pinfo, g_tree);
 
     curr_offset += len;
 
@@ -3831,7 +3830,7 @@ elem_l3_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
  * IOS 6.2.2.43
  */
 static guint8
-elem_lai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+elem_lai(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint8      oct;
     guint16     value;
@@ -3886,7 +3885,7 @@ elem_lai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *
  * IOS 6.2.2.44
  */
 static guint8
-elem_rej_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
+elem_rej_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -3942,7 +3941,7 @@ elem_rej_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, g
  * IOS 5 4.2.78
  */
 static guint8
-elem_anchor_pdsn_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+elem_anchor_pdsn_addr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint32     curr_offset;
 
@@ -3961,7 +3960,7 @@ elem_anchor_pdsn_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
  * IOS 5 4.2.80
  */
 static guint8
-elem_anchor_pp_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+elem_anchor_pp_addr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint32     curr_offset;
 
@@ -3980,7 +3979,7 @@ elem_anchor_pp_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
  * IOS 6.2.2.45
  */
 static guint8
-elem_auth_chlg_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_auth_chlg_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -4034,7 +4033,7 @@ elem_auth_chlg_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len,
  * IOS 6.2.2.46
  */
 static guint8
-elem_auth_resp_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_auth_resp_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -4087,7 +4086,7 @@ elem_auth_resp_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len,
  * IOS 6.2.2.47
  */
 static guint8
-elem_auth_param_count(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
+elem_auth_param_count(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -4122,7 +4121,7 @@ elem_auth_param_count(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
  * IOS 6.2.2.48
  */
 static guint8
-elem_mwi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
+elem_mwi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -4155,7 +4154,7 @@ elem_mwi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *
  * IOS 6.2.2.50
  */
 static guint8
-elem_signal(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
+elem_signal(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -4243,7 +4242,7 @@ elem_signal(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gcha
  * IOS 6.2.2.52
  */
 static guint8
-elem_cld_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_cld_party_bcd_num(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint8      *poctets;
@@ -4329,7 +4328,7 @@ elem_cld_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
  */
 #ifdef MAYBE_USED_FOR_OLDER_CODECS
 static guint8
-elem_clg_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_clg_party_bcd_num(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint8      *poctets;
@@ -4465,7 +4464,7 @@ elem_clg_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
  * IOS 6.2.2.54
  */
 static guint8
-elem_qos_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_qos_params(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -4500,7 +4499,7 @@ elem_qos_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
  * IOS 6.2.2.55
  */
 static guint8
-elem_cause_l3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_cause_l3(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -4674,7 +4673,7 @@ elem_cause_l3(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
  * IOS 6.2.2.58
  */
 static guint8
-elem_xmode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_xmode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -4720,7 +4719,7 @@ elem_xmode(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
  * IOS 6.2.2.61
  */
 static guint8
-elem_reg_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
+elem_reg_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -4764,7 +4763,7 @@ elem_reg_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gc
  * IOS 6.2.2.62
  */
 static guint8
-elem_tag(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
+elem_tag(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
     guint32     value;
     guint32     curr_offset;
@@ -4791,7 +4790,7 @@ elem_tag(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *
  * IOS 6.2.2.63
  */
 static guint8
-elem_hho_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
+elem_hho_params(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
     guint8      oct;
     gint        temp_int;
@@ -4978,7 +4977,7 @@ elem_hho_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, 
  * IOS 6.2.2.65
  */
 static guint8
-elem_sw_ver(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_sw_ver(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8      major, minor, point;
     guint32     curr_offset;
@@ -5031,7 +5030,7 @@ elem_sw_ver(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
  * IOS 6.2.2.66
  */
 static guint8
-elem_so(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
+elem_so(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string, int string_len)
 {
     guint16     value;
     guint32     curr_offset;
@@ -5077,7 +5076,7 @@ elem_so(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *a
  * IOS 5 4.2.73
  */
 static guint8
-elem_soci(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_soci(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -5112,7 +5111,7 @@ elem_soci(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
  * IOS 5 4.2.74
  */
 static guint8
-elem_so_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_so_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint8      num_so;
@@ -5177,7 +5176,7 @@ elem_so_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 
         curr_offset++;
 
-        curr_offset += elem_so(tvb, subtree, curr_offset, len, add_string, string_len);
+        curr_offset += elem_so(tvb, pinfo, subtree, curr_offset, len, add_string, string_len);
         add_string[0] = '\0';
 
         inst++;
@@ -5198,7 +5197,7 @@ elem_so_list(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
  * IOS 5 4.2.70
  */
 static guint8
-elem_acc_net_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_acc_net_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint32     value;
     guint32     sid, nid, pzid;
@@ -5282,7 +5281,7 @@ static const value_string ansi_a_adds_strings[] = {
  * IOS 6.2.2.67
  */
 static guint8
-elem_adds_user_part(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_adds_user_part(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint32     value;
@@ -5335,7 +5334,7 @@ elem_adds_user_part(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
         adds_tvb = tvb_new_subset(tvb, curr_offset, len - 1, len - 1);
 
         dissector_try_uint(is637_dissector_table,
-            0, adds_tvb, g_pinfo, g_tree);
+            0, adds_tvb, pinfo, g_tree);
 
         curr_offset += (len - 1);
         break;
@@ -5344,7 +5343,7 @@ elem_adds_user_part(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
         adds_tvb = tvb_new_subset(tvb, curr_offset, len - 1, len - 1);
 
         dissector_try_uint(is683_dissector_table,
-            (g_pinfo->p2p_dir == P2P_DIR_RECV), adds_tvb, g_pinfo, g_tree);
+            (pinfo->p2p_dir == P2P_DIR_RECV), adds_tvb, pinfo, g_tree);
 
         curr_offset += (len - 1);
         break;
@@ -5353,7 +5352,7 @@ elem_adds_user_part(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
         adds_tvb = tvb_new_subset(tvb, curr_offset, len - 1, len - 1);
 
         dissector_try_uint(is801_dissector_table,
-            (g_pinfo->p2p_dir == P2P_DIR_RECV), adds_tvb, g_pinfo, g_tree);
+            (pinfo->p2p_dir == P2P_DIR_RECV), adds_tvb, pinfo, g_tree);
 
         curr_offset += (len - 1);
         break;
@@ -5415,7 +5414,7 @@ elem_adds_user_part(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
  * IOS 5 4.2.75
  */
 static guint8
-elem_amps_hho_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+elem_amps_hho_param(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -5447,7 +5446,7 @@ elem_amps_hho_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
  * IOS 6.2.2.68
  */
 static guint8
-elem_is2000_scr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+elem_is2000_scr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint8      oct, num_con_rec, i;
     guint8      bit_mask, bit_offset;
@@ -5815,7 +5814,7 @@ elem_is2000_scr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
  * IOS 6.2.2.69
  */
 static guint8
-elem_is2000_nn_scr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+elem_is2000_nn_scr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -5868,7 +5867,7 @@ elem_is2000_nn_scr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
  * IOS 6.2.2.70
  */
 static guint8
-elem_is2000_mob_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+elem_is2000_mob_cap(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint8      oct;
     guint8      oct_len;
@@ -6200,7 +6199,7 @@ elem_is2000_mob_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
  * IOS 6.2.2.71
  */
 static guint8
-elem_ptype(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_ptype(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint32     value;
     guint32     curr_offset;
@@ -6238,7 +6237,7 @@ elem_ptype(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
  * IOS 6.2.2.72
  */
 static guint8
-elem_fwd_ms_info_recs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_fwd_ms_info_recs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint8      oct_len;
@@ -6528,7 +6527,7 @@ elem_fwd_ms_info_recs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
  * IOS 6.2.2.72
  */
 static guint8
-elem_rev_ms_info_recs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_rev_ms_info_recs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint8      oct_len;
@@ -6871,7 +6870,7 @@ elem_rev_ms_info_recs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
  * IOS 6.2.2.73
  */
 static guint8
-elem_ext_ho_dir_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+elem_ext_ho_dir_params(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint8      oct;
     guint32     value;
@@ -7089,7 +7088,7 @@ elem_ext_ho_dir_params(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
  * IOS 6.2.2.79
  */
 static guint8
-elem_cdma_sowd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_cdma_sowd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint32     value;
@@ -7098,7 +7097,7 @@ elem_cdma_sowd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 
     curr_offset = offset;
 
-    curr_offset += elem_cell_id(tvb, tree, offset, len, add_string, string_len);
+    curr_offset += elem_cell_id(tvb, pinfo, tree, offset, len, add_string, string_len);
     add_string[0] = '\0';
 
     value = tvb_get_ntohs(tvb, curr_offset);
@@ -7163,7 +7162,7 @@ elem_cdma_sowd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
  * IOS 6.2.2.82
  */
 static guint8
-elem_re_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+elem_re_res(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -7355,7 +7354,7 @@ elem_re_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len _U_, gcha
  * IOS 6.2.2.105
  */
 static guint8
-elem_cld_party_ascii_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_cld_party_ascii_num(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -7435,7 +7434,7 @@ elem_cld_party_ascii_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
  * IOS 6.2.2.106
  */
 static guint8
-elem_band_class(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_band_class(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -7497,7 +7496,7 @@ elem_band_class(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
  * IOS 6.2.2.110
  */
 static guint8
-elem_is2000_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+elem_is2000_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint32     curr_offset;
 
@@ -7531,7 +7530,7 @@ elem_is2000_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
  * IOS 6.2.2.114
  */
 static guint8
-elem_auth_event(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+elem_auth_event(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -7688,7 +7687,7 @@ elem_auth_event(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
  * IOS 6.2.2.138
  */
 static guint8
-elem_psmm_count(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+elem_psmm_count(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -7721,7 +7720,7 @@ elem_psmm_count(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
  * IOS 6.2.2.139
  */
 static guint8
-elem_geo_loc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+elem_geo_loc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint32     curr_offset;
 
@@ -7780,7 +7779,7 @@ elem_geo_loc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
  * IOS 6.2.2.148
  */
 static guint8
-elem_cct_group(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_cct_group(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint32     value;
@@ -7859,7 +7858,7 @@ elem_cct_group(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
  * IOS 6.2.2.149
  */
 static guint8
-elem_paca_ts(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+elem_paca_ts(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint32     curr_offset;
 
@@ -7878,7 +7877,7 @@ elem_paca_ts(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
  * IOS 6.2.2.150
  */
 static guint8
-elem_paca_order(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_paca_order(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -7927,7 +7926,7 @@ elem_paca_order(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
  * IOS 6.2.2.151
  */
 static guint8
-elem_paca_reoi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_paca_reoi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -7961,7 +7960,7 @@ elem_paca_reoi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
  * IOS 5 4.2.89
  */
 static guint8
-elem_a2p_bearer_session(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+elem_a2p_bearer_session(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -8061,7 +8060,7 @@ free_encoding_name_str(void *ptr)
  * IOS 5 4.2.90
  */
 static guint8
-elem_a2p_bearer_format(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+elem_a2p_bearer_format(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint8                              oct;
     proto_item                          *item;
@@ -8330,8 +8329,8 @@ elem_a2p_bearer_format(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
             rtp_dyn_payload_used = TRUE;
 
             first_assigned_found = TRUE;
-            rtp_add_address(g_pinfo, &rtp_src_addr, rtp_port, 0, "IOS5",
-                g_pinfo->fd->num, FALSE, rtp_dyn_payload);
+            rtp_add_address(pinfo, &rtp_src_addr, rtp_port, 0, "IOS5",
+                pinfo->fd->num, FALSE, rtp_dyn_payload);
         }
 
         if (in_band_format_assigned)
@@ -8364,7 +8363,7 @@ elem_a2p_bearer_format(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
  * IOS 5 4.2.88
  */
 static guint8
-elem_ms_des_freq(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
+elem_ms_des_freq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8      oct;
     guint32     value;
@@ -8421,7 +8420,7 @@ elem_ms_des_freq(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
  * IOS 5 4.2.87
  */
 static guint8
-elem_plcm_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+elem_plcm_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -8590,7 +8589,7 @@ static elem_idx_t ansi_a_elem_1_max = 0;
 #define MAX_IOS401_NUM_ELEM_1 (sizeof(ansi_a_ios401_elem_1_strings)/sizeof(ext_value_string_t))
 #define MAX_IOS501_NUM_ELEM_1 (sizeof(ansi_a_ios501_elem_1_strings)/sizeof(ext_value_string_t))
 static gint ett_ansi_elem_1[MAX(MAX_IOS401_NUM_ELEM_1, MAX_IOS501_NUM_ELEM_1)];
-static guint8 (*elem_1_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) =
+static guint8 (*elem_1_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len) =
 {
     elem_acc_net_id,                /* Access Network Identifiers */
     elem_adds_user_part,            /* ADDS User Part */
@@ -8690,7 +8689,7 @@ static guint8 (*elem_1_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, g
  * Type Length Value (TLV) element dissector
  */
 static guint8
-elem_tlv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, guint len _U_, const gchar *name_add)
+elem_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, guint32 offset, guint len _U_, const gchar *name_add)
 {
     guint8      oct, parm_len;
     guint8      consumed;
@@ -8749,7 +8748,7 @@ elem_tlv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, guint 
                 a_add_string = (gchar *) ep_alloc(1024);
                 a_add_string[0] = '\0';
                 consumed =
-                    (*elem_1_fcn[dec_idx])(tvb, subtree, curr_offset + 2,
+                    (*elem_1_fcn[dec_idx])(tvb, pinfo, subtree, curr_offset + 2,
                         parm_len, a_add_string, 1024);
 
                 if (a_add_string[0] != '\0')
@@ -8772,7 +8771,7 @@ elem_tlv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, guint 
  * is not defined for these.
  */
 static guint8
-elem_tv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, const gchar *name_add)
+elem_tv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, guint32 offset, const gchar *name_add)
 {
     guint8      oct;
     guint8      consumed;
@@ -8826,7 +8825,7 @@ elem_tv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, const g
 
             a_add_string = (gchar *) ep_alloc(1024);
             a_add_string[0] = '\0';
-            consumed = (*elem_1_fcn[dec_idx])(tvb, subtree, curr_offset + 1, -1, a_add_string, 1024);
+            consumed = (*elem_1_fcn[dec_idx])(tvb, pinfo, subtree, curr_offset + 1, -1, a_add_string, 1024);
 
             if (a_add_string[0] != '\0')
             {
@@ -8849,7 +8848,7 @@ elem_tv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, const g
  * is not defined for these.
  */
 static guint8
-elem_t(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, const gchar *name_add)
+elem_t(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, elem_idx_t idx, guint32 offset, const gchar *name_add)
 {
     guint8      oct;
     guint32     curr_offset;
@@ -8884,7 +8883,7 @@ elem_t(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, const gc
  * Length Value (LV) element dissector
  */
 static guint8
-elem_lv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, guint len _U_, const gchar *name_add)
+elem_lv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, guint32 offset, guint len _U_, const gchar *name_add)
 {
     guint8      parm_len;
     guint8      consumed;
@@ -8936,7 +8935,7 @@ elem_lv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, guint l
             a_add_string = (gchar *) ep_alloc(1024);
             a_add_string[0] = '\0';
             consumed =
-                (*elem_1_fcn[dec_idx])(tvb, subtree, curr_offset + 1,
+                (*elem_1_fcn[dec_idx])(tvb, pinfo, subtree, curr_offset + 1,
                     parm_len, a_add_string, 1024);
 
             if (a_add_string[0] != '\0')
@@ -8956,7 +8955,7 @@ elem_lv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, guint l
  * is not defined for these.
  */
 static guint8
-elem_v(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset)
+elem_v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, elem_idx_t idx, guint32 offset)
 {
     guint8      consumed;
     guint32     curr_offset;
@@ -8989,7 +8988,7 @@ elem_v(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset)
 
         a_add_string = (gchar *) ep_alloc(1024);
         a_add_string[0] = '\0';
-        consumed = (*elem_1_fcn[dec_idx])(tvb, tree, curr_offset, -1, a_add_string, 1024);
+        consumed = (*elem_1_fcn[dec_idx])(tvb, pinfo, tree, curr_offset, -1, a_add_string, 1024);
     }
 
     return(consumed);
@@ -8998,7 +8997,7 @@ elem_v(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset)
 
 #define ELEM_MAND_TLV(elem_idx, elem_name_addition) \
 {\
-    if ((consumed = elem_tlv(tvb, tree, elem_idx, curr_offset, curr_len, elem_name_addition)) > 0) \
+    if ((consumed = elem_tlv(tvb, pinfo, tree, elem_idx, curr_offset, curr_len, elem_name_addition)) > 0) \
     { \
         curr_offset += consumed; \
         curr_len -= consumed; \
@@ -9018,7 +9017,7 @@ elem_v(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset)
 
 #define ELEM_OPT_TLV(elem_idx, elem_name_addition) \
 {\
-    if ((consumed = elem_tlv(tvb, tree, elem_idx, curr_offset, curr_len, elem_name_addition)) > 0) \
+    if ((consumed = elem_tlv(tvb, pinfo, tree, elem_idx, curr_offset, curr_len, elem_name_addition)) > 0) \
     { \
         curr_offset += consumed; \
         curr_len -= consumed; \
@@ -9028,7 +9027,7 @@ elem_v(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset)
 
 #define ELEM_MAND_TV(elem_idx, elem_name_addition) \
 {\
-    if ((consumed = elem_tv(tvb, tree, elem_idx, curr_offset, elem_name_addition)) > 0) \
+    if ((consumed = elem_tv(tvb, pinfo, tree, elem_idx, curr_offset, elem_name_addition)) > 0) \
     { \
         curr_offset += consumed; \
         curr_len -= consumed; \
@@ -9048,7 +9047,7 @@ elem_v(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset)
 
 #define ELEM_OPT_TV(elem_idx, elem_name_addition) \
 {\
-    if ((consumed = elem_tv(tvb, tree, elem_idx, curr_offset, elem_name_addition)) > 0) \
+    if ((consumed = elem_tv(tvb, pinfo, tree, elem_idx, curr_offset, elem_name_addition)) > 0) \
     { \
         curr_offset += consumed; \
         curr_len -= consumed; \
@@ -9058,7 +9057,7 @@ elem_v(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset)
 
 #define ELEM_OPT_T(elem_idx, elem_name_addition) \
 {\
-    if ((consumed = elem_t(tvb, tree, elem_idx, curr_offset, elem_name_addition)) > 0) \
+    if ((consumed = elem_t(tvb, pinfo, tree, elem_idx, curr_offset, elem_name_addition)) > 0) \
     { \
         curr_offset += consumed; \
         curr_len -= consumed; \
@@ -9068,7 +9067,7 @@ elem_v(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset)
 
 #define ELEM_MAND_LV(elem_idx, elem_name_addition) \
 {\
-    if ((consumed = elem_lv(tvb, tree, elem_idx, curr_offset, curr_len, elem_name_addition)) > 0) \
+    if ((consumed = elem_lv(tvb, pinfo, tree, elem_idx, curr_offset, curr_len, elem_name_addition)) > 0) \
     { \
         curr_offset += consumed; \
         curr_len -= consumed; \
@@ -9082,7 +9081,7 @@ elem_v(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset)
 
 #define ELEM_MAND_V(elem_idx) \
 {\
-    if ((consumed = elem_v(tvb, tree, elem_idx, curr_offset)) > 0) \
+    if ((consumed = elem_v(tvb, pinfo, tree, elem_idx, curr_offset)) > 0) \
     { \
         curr_offset += consumed; \
         curr_len -= consumed; \
@@ -9099,7 +9098,7 @@ elem_v(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset)
  * IOS 6.1.2.1
  */
 static void
-bsmap_cl3_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_cl3_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint8      consumed;
     guint32     curr_offset;
@@ -9119,7 +9118,7 @@ bsmap_cl3_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 6.1.2.2
  */
 static void
-dtap_cm_srvc_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_cm_srvc_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9238,7 +9237,7 @@ dtap_cm_srvc_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 5 3.1.3
  */
 static void
-dtap_cm_srvc_req_cont(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_cm_srvc_req_cont(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9260,7 +9259,7 @@ dtap_cm_srvc_req_cont(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
  * IOS 6.1.2.3
  */
 static void
-bsmap_page_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_page_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9303,7 +9302,7 @@ bsmap_page_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 6.1.2.4
  */
 static void
-dtap_page_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_page_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9366,7 +9365,7 @@ dtap_page_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 6.1.2.12
  */
 static void
-dtap_progress(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_progress(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9388,7 +9387,7 @@ dtap_progress(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 5 3.8.1
  */
 static void
-dtap_srvc_redirection(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_srvc_redirection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9416,7 +9415,7 @@ dtap_srvc_redirection(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
  * IOS 5 3.1.11
  */
 static void
-dtap_srvc_release(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_srvc_release(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9438,7 +9437,7 @@ dtap_srvc_release(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 5 3.1.12
  */
 static void
-dtap_srvc_release_complete(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_srvc_release_complete(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9456,7 +9455,7 @@ dtap_srvc_release_complete(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guin
  * IOS 6.1.2.15
  */
 static void
-bsmap_ass_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_ass_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint8      consumed;
     guint32     curr_offset;
@@ -9509,7 +9508,7 @@ bsmap_ass_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 6.1.2.16
  */
 static void
-bsmap_ass_complete(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_ass_complete(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint8      consumed;
     guint32     curr_offset;
@@ -9544,7 +9543,7 @@ bsmap_ass_complete(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 6.1.2.17
  */
 static void
-bsmap_ass_failure(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_ass_failure(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint8      consumed;
     guint32     curr_offset;
@@ -9564,7 +9563,7 @@ bsmap_ass_failure(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 6.1.2.20
  */
 static void
-bsmap_clr_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_clr_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint8      consumed;
     guint32     curr_offset;
@@ -9584,7 +9583,7 @@ bsmap_clr_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 6.1.2.21
  */
 static void
-bsmap_clr_command(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_clr_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint8      consumed;
     guint32     curr_offset;
@@ -9604,7 +9603,7 @@ bsmap_clr_command(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 6.1.2.22
  */
 static void
-bsmap_clr_complete(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_clr_complete(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint8      consumed;
     guint32     curr_offset;
@@ -9624,7 +9623,7 @@ bsmap_clr_complete(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 6.1.2.24
  */
 static void
-dtap_alert_with_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_alert_with_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9644,7 +9643,7 @@ dtap_alert_with_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 6.1.2.28
  */
 static void
-bsmap_bs_srvc_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_bs_srvc_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9674,7 +9673,7 @@ bsmap_bs_srvc_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 6.1.2.29
  */
 static void
-bsmap_bs_srvc_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_bs_srvc_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9700,7 +9699,7 @@ bsmap_bs_srvc_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 5 3.1.19
  */
 static void
-bsmap_add_srvc_noti(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_add_srvc_noti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9722,7 +9721,7 @@ bsmap_add_srvc_noti(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 5 3.1.20
  */
 static void
-dtap_add_srvc_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_add_srvc_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9756,7 +9755,7 @@ dtap_add_srvc_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 5 3.1.10
  */
 static void
-dtap_connect(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_connect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9774,7 +9773,7 @@ dtap_connect(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 6.1.3.7
  */
 static void
-dtap_flash_with_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_flash_with_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9793,7 +9792,7 @@ dtap_flash_with_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 
     ELEM_OPT_TV(ANSI_A_E_TAG, "");
 
-    if (g_pinfo->p2p_dir == P2P_DIR_RECV)
+    if (pinfo->p2p_dir == P2P_DIR_RECV)
     {
         ELEM_OPT_TLV(ANSI_A_E_REV_MS_INFO_RECS, "");
     }
@@ -9813,7 +9812,7 @@ dtap_flash_with_info(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 6.1.3.8
  */
 static void
-dtap_flash_with_info_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_flash_with_info_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9833,7 +9832,7 @@ dtap_flash_with_info_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
  * IOS 6.1.3.9
  */
 static void
-bsmap_feat_noti(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_feat_noti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9873,7 +9872,7 @@ bsmap_feat_noti(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 6.1.3.10
  */
 static void
-bsmap_feat_noti_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_feat_noti_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9893,7 +9892,7 @@ bsmap_feat_noti_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 6.1.3.11
  */
 static void
-bsmap_paca_command(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_paca_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9913,7 +9912,7 @@ bsmap_paca_command(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 6.1.3.12
  */
 static void
-bsmap_paca_command_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_paca_command_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9931,7 +9930,7 @@ bsmap_paca_command_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
  * IOS 6.1.3.13
  */
 static void
-bsmap_paca_update(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_paca_update(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9969,7 +9968,7 @@ bsmap_paca_update(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 6.1.3.14
  */
 static void
-bsmap_paca_update_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_paca_update_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -9991,7 +9990,7 @@ bsmap_paca_update_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
  * IOS 5 3.2.9
  */
 static void
-bsmap_rm_pos_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_rm_pos_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10009,7 +10008,7 @@ bsmap_rm_pos_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 5 3.2.10
  */
 static void
-bsmap_rm_pos_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_rm_pos_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10033,7 +10032,7 @@ bsmap_rm_pos_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 6.1.4.1
  */
 static void
-bsmap_auth_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_auth_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10064,7 +10063,7 @@ bsmap_auth_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 static void
-dtap_auth_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_auth_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10084,7 +10083,7 @@ dtap_auth_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 6.1.4.2
  */
 static void
-bsmap_auth_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_auth_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10111,7 +10110,7 @@ bsmap_auth_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * Section 3.1.21
  */
 static void
-bsmap_bearer_upd_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_bearer_upd_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10132,7 +10131,7 @@ bsmap_bearer_upd_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * Section 3.1.22
  */
 static void
-bsmap_bearer_upd_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_bearer_upd_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10155,7 +10154,7 @@ bsmap_bearer_upd_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
  * Section 3.1.23
  */
 static void
-bsmap_bearer_upd_reqd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_bearer_upd_reqd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10174,7 +10173,7 @@ bsmap_bearer_upd_reqd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 }
 
 static void
-dtap_auth_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_auth_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10192,7 +10191,7 @@ dtap_auth_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 6.1.4.3
  */
 static void
-bsmap_user_zone_update(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_user_zone_update(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10210,7 +10209,7 @@ bsmap_user_zone_update(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
  * IOS 5 3.3.16
  */
 static void
-dtap_user_zone_update_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_user_zone_update_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10228,7 +10227,7 @@ dtap_user_zone_update_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
  * IOS 5 3.3.17
  */
 static void
-dtap_user_zone_update(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_user_zone_update(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10246,7 +10245,7 @@ dtap_user_zone_update(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
  * IOS 5 3.3.18
  */
 static void
-bsmap_user_zone_reject(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_user_zone_reject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10278,7 +10277,7 @@ bsmap_user_zone_reject(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
  * IOS 5 3.3.18
  */
 static void
-dtap_user_zone_reject(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_user_zone_reject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10296,7 +10295,7 @@ dtap_user_zone_reject(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
  * IOS 5 3.3.19
  */
 static void
-bsmap_reg_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_reg_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10326,7 +10325,7 @@ bsmap_reg_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 5 3.3.20
  */
 static void
-bsmap_ms_reg_noti(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_ms_reg_noti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10344,7 +10343,7 @@ bsmap_ms_reg_noti(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 5 3.3.21
  */
 static void
-bsmap_bs_auth_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_bs_auth_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10362,7 +10361,7 @@ bsmap_bs_auth_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 5 3.3.22
  */
 static void
-bsmap_bs_auth_req_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_bs_auth_req_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10380,7 +10379,7 @@ bsmap_bs_auth_req_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
  * IOS 6.1.4.4
  */
 static void
-dtap_ssd_update_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_ssd_update_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10398,7 +10397,7 @@ dtap_ssd_update_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 6.1.4.5
  */
 static void
-dtap_bs_challenge(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_bs_challenge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10416,7 +10415,7 @@ dtap_bs_challenge(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 6.1.4.6
  */
 static void
-dtap_bs_challenge_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_bs_challenge_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10434,7 +10433,7 @@ dtap_bs_challenge_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
  * IOS 6.1.4.7
  */
 static void
-dtap_ssd_update_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_ssd_update_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10452,7 +10451,7 @@ dtap_ssd_update_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 6.1.4.8
  */
 static void
-dtap_lu_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_lu_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10502,7 +10501,7 @@ dtap_lu_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 6.1.4.9
  */
 static void
-dtap_lu_accept(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_lu_accept(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10533,7 +10532,7 @@ dtap_lu_accept(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 6.1.4.10
  */
 static void
-dtap_lu_reject(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_lu_reject(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10560,7 +10559,7 @@ dtap_lu_reject(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 6.1.4.18
  */
 static void
-bsmap_priv_mode_command(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_priv_mode_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10578,7 +10577,7 @@ bsmap_priv_mode_command(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
  * IOS 6.1.4.19
  */
 static void
-bsmap_priv_mode_complete(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_priv_mode_complete(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10598,7 +10597,7 @@ bsmap_priv_mode_complete(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
  * IOS 5 3.3.14
  */
 static void
-bsmap_status_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_status_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10636,7 +10635,7 @@ bsmap_status_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 5 3.3.14
  */
 static void
-dtap_status_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_status_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10655,7 +10654,7 @@ dtap_status_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 5 3.3.15
  */
 static void
-bsmap_status_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_status_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10681,7 +10680,7 @@ bsmap_status_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 5 3.3.15
  */
 static void
-dtap_status_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_status_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10699,7 +10698,7 @@ dtap_status_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 6.1.5.4
  */
 static void
-bsmap_ho_reqd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_ho_reqd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10782,7 +10781,7 @@ bsmap_ho_reqd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 6.1.5.5
  */
 static void
-bsmap_ho_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_ho_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10876,7 +10875,7 @@ bsmap_ho_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 6.1.5.6
  */
 static void
-bsmap_ho_req_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_ho_req_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10925,7 +10924,7 @@ bsmap_ho_req_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 6.1.5.7
  */
 static void
-bsmap_ho_failure(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_ho_failure(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10943,7 +10942,7 @@ bsmap_ho_failure(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 6.1.5.8
  */
 static void
-bsmap_ho_command(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_ho_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -10996,7 +10995,7 @@ bsmap_ho_command(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 5 3.4.6
  */
 static void
-bsmap_ho_complete(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_ho_complete(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -11014,7 +11013,7 @@ bsmap_ho_complete(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 6.1.5.9
  */
 static void
-bsmap_ho_reqd_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_ho_reqd_rej(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -11032,7 +11031,7 @@ bsmap_ho_reqd_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 6.1.5.12
  */
 static void
-bsmap_ho_performed(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_ho_performed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -11058,7 +11057,7 @@ bsmap_ho_performed(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 6.1.6.2
  */
 static void
-bsmap_block(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -11080,7 +11079,7 @@ bsmap_block(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 6.1.6.3
  */
 static void
-bsmap_block_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_block_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -11098,7 +11097,7 @@ bsmap_block_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 6.1.6.4
  */
 static void
-bsmap_unblock(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_unblock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -11118,7 +11117,7 @@ bsmap_unblock(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 6.1.6.5
  */
 static void
-bsmap_unblock_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_unblock_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -11136,7 +11135,7 @@ bsmap_unblock_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 6.1.6.6
  */
 static void
-bsmap_reset(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_reset(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -11156,7 +11155,7 @@ bsmap_reset(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 6.1.6.7
  */
 static void
-bsmap_reset_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_reset_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -11174,7 +11173,7 @@ bsmap_reset_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 6.1.6.8
  */
 static void
-bsmap_reset_cct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_reset_cct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -11196,7 +11195,7 @@ bsmap_reset_cct(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 6.1.6.9
  */
 static void
-bsmap_reset_cct_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_reset_cct_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -11214,7 +11213,7 @@ bsmap_reset_cct_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 6.1.6.10
  */
 static void
-bsmap_xmode_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_xmode_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -11232,7 +11231,7 @@ bsmap_xmode_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 6.1.6.11
  */
 static void
-bsmap_xmode_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_xmode_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -11250,7 +11249,7 @@ bsmap_xmode_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 6.1.7.1
  */
 static void
-bsmap_adds_page(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_adds_page(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -11284,7 +11283,7 @@ bsmap_adds_page(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 6.1.7.2
  */
 static void
-bsmap_adds_transfer(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_adds_transfer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -11338,7 +11337,7 @@ bsmap_adds_transfer(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 5 3.6.4
  */
 static void
-bsmap_adds_transfer_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_adds_transfer_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -11360,7 +11359,7 @@ bsmap_adds_transfer_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
  * IOS 6.1.7.3
  */
 static void
-dtap_adds_deliver(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_adds_deliver(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -11382,7 +11381,7 @@ dtap_adds_deliver(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 6.1.7.4
  */
 static void
-bsmap_adds_page_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_adds_page_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -11410,7 +11409,7 @@ bsmap_adds_page_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
  * IOS 6.1.7.5
  */
 static void
-dtap_adds_deliver_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_adds_deliver_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -11430,7 +11429,7 @@ dtap_adds_deliver_ack(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
  * IOS 6.1.8.1
  */
 static void
-bsmap_rejection(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+bsmap_rejection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -11451,7 +11450,7 @@ bsmap_rejection(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 }
 
 static void
-dtap_rejection(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+dtap_rejection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
 {
     guint32     curr_offset;
     guint32     consumed;
@@ -11474,7 +11473,7 @@ dtap_rejection(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 #define ANSI_A_IOS401_BSMAP_NUM_MSG (sizeof(ansi_a_ios401_bsmap_strings)/sizeof(ext_value_string_t))
 #define ANSI_A_IOS501_BSMAP_NUM_MSG (sizeof(ansi_a_ios501_bsmap_strings)/sizeof(ext_value_string_t))
 static gint ett_bsmap_msg[MAX(ANSI_A_IOS401_BSMAP_NUM_MSG, ANSI_A_IOS501_BSMAP_NUM_MSG)];
-static void (*bsmap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) =
+static void (*bsmap_msg_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len) =
 {
     bsmap_add_srvc_noti,            /* Additional Service Notification */
     bsmap_adds_page,                /* ADDS Page */
@@ -11544,7 +11543,7 @@ static void (*bsmap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, 
 #define ANSI_A_IOS401_DTAP_NUM_MSG (sizeof(ansi_a_ios401_dtap_strings)/sizeof(ext_value_string_t))
 #define ANSI_A_IOS501_DTAP_NUM_MSG (sizeof(ansi_a_ios501_dtap_strings)/sizeof(ext_value_string_t))
 static gint ett_dtap_msg[MAX(ANSI_A_IOS401_DTAP_NUM_MSG, ANSI_A_IOS501_DTAP_NUM_MSG)];
-static void (*dtap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) =
+static void (*dtap_msg_fcn[])(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len) =
 {
     dtap_add_srvc_req,              /* Additional Service Request */
     dtap_adds_deliver,              /* ADDS Deliver */
@@ -11660,7 +11659,6 @@ dissect_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset = 0;
     saved_offset = offset;
 
-    g_pinfo = pinfo;
     g_tree = tree;
 
     len = tvb_length(tvb);
@@ -11724,7 +11722,7 @@ dissect_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     else
     {
-        (*bsmap_msg_fcn[dec_idx])(tvb, bsmap_tree, offset, len - offset);
+        (*bsmap_msg_fcn[dec_idx])(tvb, pinfo, bsmap_tree, offset, len - offset);
     }
 }
 
@@ -11774,7 +11772,6 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset = 0;
     saved_offset = offset;
 
-    g_pinfo = pinfo;
     g_tree = tree;
 
     /*
@@ -11915,7 +11912,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     else
     {
-        (*dtap_msg_fcn[dec_idx])(tvb, dtap_tree, offset, len - offset);
+        (*dtap_msg_fcn[dec_idx])(tvb, pinfo, dtap_tree, offset, len - offset);
     }
 }
 
