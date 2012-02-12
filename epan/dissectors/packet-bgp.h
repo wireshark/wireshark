@@ -45,16 +45,7 @@
 #define BGP_CAPABILITY    6
 #define BGP_ROUTE_REFRESH_CISCO 0x80
 
-
-/* BGP NOTIFICATION message */
-struct bgp_notification {
-    guint8 bgpn_marker[BGP_MARKER_SIZE];
-    guint16 bgpn_len;
-    guint8 bgpn_type;
-    guint8 bgpn_major;
-    guint8 bgpn_minor;
-    /* data should follow */
-};
+;
 
 /* BGP ROUTE-REFRESH message */
 struct bgp_route_refresh {

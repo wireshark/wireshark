@@ -76,25 +76,33 @@ static const value_string bgptypevals[] = {
     { 0, NULL }
 };
 
+#define BGP_MAJOR_ERROR_MSG_HDR 1
+#define BGP_MAJOR_ERROR_OPEN_MSG 2
+#define BGP_MAJOR_ERROR_UPDATE_MSG 3
+#define BGP_MAJOR_ERROR_HT_EXPIRED 4
+#define BGP_MAJOR_ERROR_STATE_MACHINE 5
+#define BGP_MAJOR_ERROR_CEASE 6
+#define BGP_MAJOR_ERROR_CAP_MSG 7
+
 static const value_string bgpnotify_major[] = {
-    { 1, "Message Header Error" },
-    { 2, "OPEN Message Error" },
-    { 3, "UPDATE Message Error" },
-    { 4, "Hold Timer Expired" },
-    { 5, "Finite State Machine Error" },
-    { 6, "Cease" },
-    { 7, "CAPABILITY Message Error" },
+    { BGP_MAJOR_ERROR_MSG_HDR, "Message Header Error" },
+    { BGP_MAJOR_ERROR_OPEN_MSG, "OPEN Message Error" },
+    { BGP_MAJOR_ERROR_UPDATE_MSG, "UPDATE Message Error" },
+    { BGP_MAJOR_ERROR_HT_EXPIRED, "Hold Timer Expired" },
+    { BGP_MAJOR_ERROR_STATE_MACHINE, "Finite State Machine Error" },
+    { BGP_MAJOR_ERROR_CEASE, "Cease" },
+    { BGP_MAJOR_ERROR_CAP_MSG, "CAPABILITY Message Error" },
     { 0, NULL }
 };
 
-static const value_string bgpnotify_minor_1[] = {
+static const value_string bgpnotify_minor_msg_hdr[] = {
     { 1, "Connection Not Synchronized" },
     { 2, "Bad Message Length" },
     { 3, "Bad Message Type" },
     { 0, NULL }
 };
 
-static const value_string bgpnotify_minor_2[] = {
+static const value_string bgpnotify_minor_open_msg[] = {
     { 1, "Unsupported Version Number" },
     { 2, "Bad Peer AS" },
     { 3, "Bad BGP Identifier" },
@@ -105,7 +113,7 @@ static const value_string bgpnotify_minor_2[] = {
     { 0, NULL }
 };
 
-static const value_string bgpnotify_minor_3[] = {
+static const value_string bgpnotify_minor_update_msg[] = {
     { 1, "Malformed Attribute List" },
     { 2, "Unrecognized Well-known Attribute" },
     { 3, "Missing Well-known Attribute" },
@@ -121,34 +129,23 @@ static const value_string bgpnotify_minor_3[] = {
 };
 
 /* draft-ietf-idr-cease-subcode-02 */
-static const value_string bgpnotify_minor_6[] = {
-    { 1,                        "Maximum Number of Prefixes Reached"},
-    { 2,                        "Administratively Shutdown"},
-    { 3,                        "Peer Unconfigured"},
-    { 4,                        "Administratively Reset"},
-    { 5,                        "Connection Rejected"},
-    { 6,                        "Other Configuration Change"},
-    { 7,                        "Connection Collision Resolution"},
+static const value_string bgpnotify_minor_cease[] = {
+    { 1, "Maximum Number of Prefixes Reached"},
+    { 2, "Administratively Shutdown"},
+    { 3, "Peer Unconfigured"},
+    { 4, "Administratively Reset"},
+    { 5, "Connection Rejected"},
+    { 6, "Other Configuration Change"},
+    { 7, "Connection Collision Resolution"},
     { 0, NULL }
 };
 
-static const value_string bgpnotify_minor_7[] = {
+static const value_string bgpnotify_minor_cap_msg[] = {
     { 1, "Invalid Action Value" },
     { 2, "Invalid Capability Length" },
     { 3, "Malformed Capability Value" },
     { 4, "Unsupported Capability Code" },
     { 0, NULL }
-};
-
-static const value_string *bgpnotify_minor[] = {
-    NULL,
-    bgpnotify_minor_1, /* open */
-    bgpnotify_minor_2, /* update */
-    bgpnotify_minor_3, /* notification */
-    NULL,              /* hold-timer expired */
-    NULL,              /* FSM error */
-    bgpnotify_minor_6, /* cease */
-    bgpnotify_minor_7  /* capability */
 };
 
 static const value_string bgpattr_origin[] = {
@@ -387,6 +384,16 @@ static int hf_bgp_open_opt_param_type = -1;
 static int hf_bgp_open_opt_param_len = -1;
 static int hf_bgp_open_opt_param_auth = -1;
 static int hf_bgp_open_opt_param_unknown = -1;
+static int hf_bgp_notify_major_error = -1;
+static int hf_bgp_notify_minor_msg_hdr = -1;
+static int hf_bgp_notify_minor_open_msg = -1;
+static int hf_bgp_notify_minor_update_msg = -1;
+static int hf_bgp_notify_minor_ht_expired = -1;
+static int hf_bgp_notify_minor_state_machine = -1;
+static int hf_bgp_notify_minor_cease = -1;
+static int hf_bgp_notify_minor_cap_msg = -1;
+static int hf_bgp_notify_minor_unknown = -1;
+static int hf_bgp_notify_data = -1;
 static int hf_bgp_cap = -1;
 static int hf_bgp_cap_type = -1;
 static int hf_bgp_cap_length = -1;
@@ -3167,40 +3174,54 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
  * Dissect a BGP NOTIFICATION message.
  */
 static void
-dissect_bgp_notification(tvbuff_t *tvb, proto_tree *tree)
+dissect_bgp_notification(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
 {
-    struct bgp_notification bgpn;   /* BGP NOTIFICATION message */
     int                     hlen;   /* message length           */
-    const char              *p;     /* string pointer           */
+    int                     offset;
+    guint                   major_error;
+    proto_item              *ti;
 
-    /* snarf message */
-    tvb_memcpy(tvb, bgpn.bgpn_marker, 0, BGP_MIN_NOTIFICATION_MSG_SIZE);
-    hlen = g_ntohs(bgpn.bgpn_len);
+    hlen =  tvb_get_ntohs(tvb, BGP_MARKER_SIZE);
+    offset = BGP_MARKER_SIZE + 2 + 1;
+
 
     /* print error code */
-    proto_tree_add_text(tree, tvb,
-        offsetof(struct bgp_notification, bgpn_major), 1,
-        "Error code: %s (%u)",
-        val_to_str(bgpn.bgpn_major, bgpnotify_major, "Unknown"),
-        bgpn.bgpn_major);
+    proto_tree_add_item(tree, hf_bgp_notify_major_error, tvb, offset, 1, ENC_NA);
+    major_error = tvb_get_guint8(tvb, offset);
+    offset += 1;
 
-    /* print error subcode */
-    if (bgpn.bgpn_major < array_length(bgpnotify_minor)
-     && bgpnotify_minor[bgpn.bgpn_major] != NULL) {
-        p = val_to_str(bgpn.bgpn_minor, bgpnotify_minor[bgpn.bgpn_major],
-            "Unknown");
-    } else if (bgpn.bgpn_minor == 0)
-        p = "Unspecified";
-    else
-        p = "Unknown";
-    proto_tree_add_text(tree, tvb,
-        offsetof(struct bgp_notification, bgpn_minor), 1,
-        "Error subcode: %s (%u)", p, bgpn.bgpn_minor);
+    switch(major_error){
+        case BGP_MAJOR_ERROR_MSG_HDR:
+            proto_tree_add_item(tree, hf_bgp_notify_minor_msg_hdr, tvb, offset, 1, ENC_NA);
+        break;
+        case BGP_MAJOR_ERROR_OPEN_MSG:
+            proto_tree_add_item(tree, hf_bgp_notify_minor_open_msg, tvb, offset, 1, ENC_NA);
+        break;
+        case BGP_MAJOR_ERROR_UPDATE_MSG:
+            proto_tree_add_item(tree,hf_bgp_notify_minor_update_msg, tvb, offset, 1, ENC_NA);
+        break;
+        case BGP_MAJOR_ERROR_HT_EXPIRED:
+            proto_tree_add_item(tree, hf_bgp_notify_minor_ht_expired, tvb, offset,  1, ENC_NA);
+        break;
+        case BGP_MAJOR_ERROR_STATE_MACHINE:
+            proto_tree_add_item(tree, hf_bgp_notify_minor_state_machine, tvb, offset, 1, ENC_NA);
+        break;
+        case BGP_MAJOR_ERROR_CEASE:
+            proto_tree_add_item(tree, hf_bgp_notify_minor_cease, tvb, offset, 1, ENC_NA);
+        break;
+        case BGP_MAJOR_ERROR_CAP_MSG:
+            proto_tree_add_item(tree, hf_bgp_notify_minor_cap_msg, tvb, offset, 1, ENC_NA);
+        break;
+        default:
+            ti = proto_tree_add_item(tree, hf_bgp_notify_minor_unknown, tvb, offset, 1, ENC_NA);
+            expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_NOTE, "Unknown notification error (%d)",major_error);
+        break;
+    }
+    offset += 1;
 
     /* only print if there is optional data */
     if (hlen > BGP_MIN_NOTIFICATION_MSG_SIZE) {
-        proto_tree_add_text(tree, tvb, BGP_MIN_NOTIFICATION_MSG_SIZE,
-            hlen - BGP_MIN_NOTIFICATION_MSG_SIZE, "Data");
+        proto_tree_add_item(tree, hf_bgp_notify_data, tvb, offset, hlen - BGP_MIN_NOTIFICATION_MSG_SIZE, ENC_NA);
     }
 }
 
@@ -3416,7 +3437,7 @@ dissect_bgp_pdu(tvbuff_t *volatile tvb, packet_info *pinfo, proto_tree *tree,
                 dissect_bgp_update(tvb, bgp_tree);
                 break;
             case BGP_NOTIFICATION:
-                dissect_bgp_notification(tvb, bgp_tree);
+                dissect_bgp_notification(tvb, bgp_tree, pinfo);
                 break;
             case BGP_KEEPALIVE:
                 /* no data in KEEPALIVE messages */
@@ -3686,6 +3707,39 @@ proto_register_bgp(void)
       { &hf_bgp_open_opt_param_unknown,
         { "Unknown", "bgp.open.opt.param.unknown", FT_BYTES, BASE_NONE,
           NULL, 0x0, "Unknown Parameter", HFILL }},
+        /* Notification error */
+      { &hf_bgp_notify_major_error,
+        { "Major error Code", "bgp.notify.major_error", FT_UINT8, BASE_DEC,
+          VALS(bgpnotify_major), 0x0, NULL, HFILL }},
+      { &hf_bgp_notify_minor_msg_hdr,
+        { "Minor error Code (Message Header)", "bgp.notify.minor_error", FT_UINT8, BASE_DEC,
+          VALS(bgpnotify_minor_msg_hdr), 0x0, NULL, HFILL }},
+      { &hf_bgp_notify_minor_open_msg,
+        { "Minor error Code (Open Message)", "bgp.notify.minor_error", FT_UINT8, BASE_DEC,
+          VALS(bgpnotify_minor_open_msg), 0x0, NULL, HFILL }},
+      { &hf_bgp_notify_minor_update_msg,
+        { "Minor error Code (Update Message)", "bgp.notify.minor_error", FT_UINT8, BASE_DEC,
+          VALS(bgpnotify_minor_update_msg), 0x0, NULL, HFILL }},
+      { &hf_bgp_notify_minor_ht_expired,
+        { "Minor error Code (Hold Timer Expired)", "bgp.notify.minor_error", FT_UINT8, BASE_DEC,
+          NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_notify_minor_state_machine,
+        { "Minor error Code (State Machine)", "bgp.notify.minor_error", FT_UINT8, BASE_DEC,
+          NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_notify_minor_cease,
+        { "Minor error Code (Cease)", "bgp.notify.minor_error", FT_UINT8, BASE_DEC,
+          VALS(bgpnotify_minor_cease), 0x0, NULL, HFILL }},
+      { &hf_bgp_notify_minor_cap_msg,
+        { "Minor error Code (Capability Message)", "bgp.notify.minor_error", FT_UINT8, BASE_DEC,
+          VALS(bgpnotify_minor_cap_msg), 0x0, NULL, HFILL }},
+      { &hf_bgp_notify_minor_unknown,
+        { "Minor error Code (Unknown)", "bgp.notify.minor_error", FT_UINT8, BASE_DEC,
+          NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_notify_data,
+        { "Data", "bgp.notify.minor_error", FT_BYTES, BASE_NONE,
+          NULL, 0x0, NULL, HFILL }},
+
+        /* Capability */
       { &hf_bgp_cap,
         { "Capability", "bgp.cap", FT_NONE, BASE_NONE,
           NULL, 0x0, NULL, HFILL }},
