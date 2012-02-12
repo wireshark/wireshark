@@ -54,8 +54,10 @@ edit_packet_comment_dlg (GtkAction *action _U_, gpointer data)
   GtkWidget *box1;
   GtkWidget *view;
   GtkTextBuffer *buffer;
+  gchar *opt_comment;
+  const gchar *buf_str;
 
-  edit_or_add_pkt_comment_dlg = dlg_window_new ("Edit or Add Packet Comments");
+  edit_or_add_pkt_comment_dlg = dlg_window_new ("Edit or Add Packet Comments(Not working yet)");
   gtk_widget_set_size_request (edit_or_add_pkt_comment_dlg, 310, 80);
   gtk_window_set_resizable (GTK_WINDOW (edit_or_add_pkt_comment_dlg), TRUE); 
   gtk_container_set_border_width (GTK_CONTAINER (edit_or_add_pkt_comment_dlg), 0);
@@ -66,7 +68,14 @@ edit_packet_comment_dlg (GtkAction *action _U_, gpointer data)
   
   view = gtk_text_view_new ();
   buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (view));
-  gtk_text_buffer_set_text (buffer, "Funktion not implemented yet", -1);
+
+  /* Get the comment */
+  opt_comment = get_packet_comment_from_packet_list_row(data);
+  /*g_warning("Fetched comment '%s'",opt_comment);*/
+
+  buf_str = g_strdup_printf(opt_comment);
+  
+  gtk_text_buffer_set_text (buffer, buf_str, -1);
   gtk_container_add(GTK_CONTAINER(box1), view);
   gtk_widget_show (view);
 

@@ -350,6 +350,9 @@ extern void redissect_packets(void);
 /** Fetch all IP addresses from selected row */
 extern GList *get_ip_address_list_from_packet_list_row(gpointer data);
 
+/** Fetch packet comment from selected row */
+extern gchar *get_packet_comment_from_packet_list_row(gpointer data);
+
 extern GtkWidget *pkt_scrollw;
 
 void hide_interface(gchar* new_hide);
