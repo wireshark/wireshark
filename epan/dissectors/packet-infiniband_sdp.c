@@ -274,7 +274,7 @@ manual_override:
             proto_tree_add_item(SDP_EH_header_tree, hf_ib_sdp_src_ip, tvb, local_offset, 16, ENC_NA); local_offset += 16;
             proto_tree_add_item(SDP_EH_header_tree, hf_ib_sdp_dst_ip, tvb, local_offset, 16, ENC_NA); local_offset += 16;
             local_offset += 2;  /* skip reserved */
-            proto_tree_add_item(SDP_EH_header_tree, hf_ib_sdp_extmaxadverts, tvb, local_offset, 2, ENC_BIG_ENDIAN); local_offset += 2;
+            proto_tree_add_item(SDP_EH_header_tree, hf_ib_sdp_extmaxadverts, tvb, local_offset, 2, ENC_BIG_ENDIAN); /*local_offset += 2;*/
             break;
         case HelloAck:
             proto_tree_add_item(SDP_header_tree, hf_ib_sdp_hah, tvb, local_offset, 48, ENC_NA);
