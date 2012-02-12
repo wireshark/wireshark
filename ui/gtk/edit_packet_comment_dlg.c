@@ -46,25 +46,37 @@
 GtkWidget *edit_or_add_pkt_comment_dlg = NULL;
 
 
+static void
+pkt_comment_text_buff_clear_cb(GtkWidget *w _U_, GtkWidget *view)
+{
+  GtkTextBuffer *buffer;
+
+  buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (view));
+  gtk_text_buffer_set_text (buffer, "", -1);
+
+}
+
 
 void
 edit_packet_comment_dlg (GtkAction *action _U_, gpointer data)
 {
 
-  GtkWidget *box1;
+  GtkWidget *vbox;
   GtkWidget *view;
+  GtkWidget *bbox;
+  GtkWidget *save_bt, *clear_bt, *close_bt, *help_bt;
   GtkTextBuffer *buffer;
   gchar *opt_comment;
   const gchar *buf_str;
 
   edit_or_add_pkt_comment_dlg = dlg_window_new ("Edit or Add Packet Comments(Not working yet)");
-  gtk_widget_set_size_request (edit_or_add_pkt_comment_dlg, 310, 80);
+  gtk_widget_set_size_request (edit_or_add_pkt_comment_dlg, 400, 80);
   gtk_window_set_resizable (GTK_WINDOW (edit_or_add_pkt_comment_dlg), TRUE); 
   gtk_container_set_border_width (GTK_CONTAINER (edit_or_add_pkt_comment_dlg), 0);
 
-  box1 = gtk_vbox_new (FALSE, 0);
-  gtk_container_add (GTK_CONTAINER (edit_or_add_pkt_comment_dlg), box1);
-  gtk_widget_show (box1);
+  vbox = gtk_vbox_new (FALSE, 0);
+  gtk_container_add (GTK_CONTAINER (edit_or_add_pkt_comment_dlg), vbox);
+  gtk_widget_show (vbox);
   
   view = gtk_text_view_new ();
   buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (view));
@@ -73,11 +85,33 @@ edit_packet_comment_dlg (GtkAction *action _U_, gpointer data)
   opt_comment = get_packet_comment_from_packet_list_row(data);
   /*g_warning("Fetched comment '%s'",opt_comment);*/
 
-  buf_str = g_strdup_printf("%s", opt_comment);
-  
-  gtk_text_buffer_set_text (buffer, buf_str, -1);
-  gtk_container_add(GTK_CONTAINER(box1), view);
+  if(opt_comment){
+	  buf_str = g_strdup_printf("%s", opt_comment);
+	  gtk_text_buffer_set_text (buffer, buf_str, -1);
+  }
+  gtk_container_add(GTK_CONTAINER(vbox), view);
   gtk_widget_show (view);
+
+  /* Button row. */
+  bbox = dlg_button_row_new (GTK_STOCK_SAVE, GTK_STOCK_CLEAR, GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
+  gtk_box_pack_end (GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
+
+  save_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_OK);
+  g_signal_connect (save_bt, "clicked", /*G_CALLBACK(man_addr_resolv_ok)*/NULL, NULL);
+  gtk_widget_set_sensitive (save_bt, FALSE);
+
+  clear_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLEAR);
+  g_signal_connect(clear_bt, "clicked", G_CALLBACK(pkt_comment_text_buff_clear_cb), view);
+
+  close_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_CLOSE);
+  window_set_cancel_button (edit_or_add_pkt_comment_dlg, close_bt, window_cancel_button_cb);
+
+  help_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_HELP);
+  g_signal_connect (help_bt, "clicked",/* G_CALLBACK(topic_cb)*/NULL, /*(gpointer)HELP_MANUAL_ADDR_RESOLVE_DIALOG*/NULL);
+
+  gtk_widget_grab_default (save_bt);
+  g_signal_connect (edit_or_add_pkt_comment_dlg, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+
 
   gtk_widget_show (edit_or_add_pkt_comment_dlg);
 
