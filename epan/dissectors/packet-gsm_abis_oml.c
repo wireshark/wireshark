@@ -1562,7 +1562,6 @@ dissect_oml_attrs(tvbuff_t *tvb, int base_offs, packet_info *pinfo,
 			break;
 		case TLV_TYPE_UNKNOWN: /* fall through */
 		default:
-			hlen = len_len = len = 0;
 			DISSECTOR_ASSERT_NOT_REACHED();
 			break;
 		}
@@ -1807,7 +1806,7 @@ dissect_oml_manuf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	return dissect_oml_fom(tvb, pinfo, tree, offset, top_ti);
 }
 
-static void
+static int
 dissect_abis_oml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti;
@@ -1847,6 +1846,8 @@ dissect_abis_oml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		}
 	}
+
+	return offset;
 }
 
 void
@@ -2345,7 +2346,7 @@ proto_register_abis_oml(void)
 
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector("gsm_abis_oml", dissect_abis_oml, proto_abis_oml);
+	new_register_dissector("gsm_abis_oml", dissect_abis_oml, proto_abis_oml);
 
 	oml_module = prefs_register_protocol(proto_abis_oml, proto_reg_handoff_abis_oml);
 	prefs_register_enum_preference(oml_module, "oml_dialect",
@@ -2364,7 +2365,7 @@ proto_reg_handoff_abis_oml(void)
 	if (!initialized) {
 		dissector_handle_t abis_oml_handle;
 
-		abis_oml_handle = create_dissector_handle(dissect_abis_oml,
+		abis_oml_handle = new_create_dissector_handle(dissect_abis_oml,
 							  proto_abis_oml);
 		dissector_add_uint("lapd.gsm.sapi", LAPD_GSM_SAPI_OM_PROC,
 				   abis_oml_handle);
