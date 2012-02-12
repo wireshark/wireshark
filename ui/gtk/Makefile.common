@@ -257,6 +257,7 @@ noinst_HEADERS = \
 	dissector_tables_dlg.h	\
 	dlg_utils.h	\
 	drag_and_drop.h	\
+	edit_packet_comment_dlg.h \
 	expert_comp_dlg.h	\
 	expert_comp_table.h	\
 	expert_indicators.h	\
