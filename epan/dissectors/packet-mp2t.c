@@ -622,7 +622,7 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
 			/* Bogus pointer */
 			expert_add_info_format(pinfo, pi, PI_MALFORMED,
 			    PI_ERROR,
-			    "Pointer value is too large (> remaining data length %u",
+			    "Pointer value is too large (> remaining data length %u)",
 			    remaining_len);
 		}
 
