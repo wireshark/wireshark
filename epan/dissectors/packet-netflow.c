@@ -3306,7 +3306,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
 
         case 139: /* icmpTypeCodeIPv6 */
-            ti = proto_tree_add_item(pdutree, hf_cflow_icmp_ipv6_type,
+            proto_tree_add_item(pdutree, hf_cflow_icmp_ipv6_type,
                                      tvb, offset, 1, ENC_NA);
             ti = proto_tree_add_item(pdutree, hf_cflow_icmp_ipv6_code,
                                      tvb, offset + 1, 1, ENC_NA);
