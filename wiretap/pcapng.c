@@ -969,9 +969,9 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 					/* The FCS length is present */
 					fcslen = (wblock->data.packet.pack_flags & 0x000001E0) >> 5;
 				}
-				pcapng_debug1("pcapng_read_if_descr_block: pack_flags %u (ignored)", wblock->data.packet.pack_flags);
+				pcapng_debug1("pcapng_read_packet_block: pack_flags %u (ignored)", wblock->data.packet.pack_flags);
 			} else {
-				pcapng_debug1("pcapng_read_if_descr_block: pack_flags length %u not 4 as expected", oh.option_length);
+				pcapng_debug1("pcapng_read_packet_block: pack_flags length %u not 4 as expected", oh.option_length);
 			}
 			break;
 			case(3): /* epb_hash */
@@ -987,9 +987,9 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 				if(pn->byte_swapped)
 					wblock->data.packet.drop_count = BSWAP32(wblock->data.packet.drop_count);
 
-				pcapng_debug1("pcapng_read_if_descr_block: drop_count %u", wblock->data.packet.drop_count);
+				pcapng_debug1("pcapng_read_packet_block: drop_count %u", wblock->data.packet.drop_count);
 			} else {
-				pcapng_debug1("pcapng_read_if_descr_block: drop_count length %u not 4 as expected", oh.option_length);
+				pcapng_debug1("pcapng_read_packet_block: drop_count length %u not 4 as expected", oh.option_length);
 			}
 			break;
 		    default:
