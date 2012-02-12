@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2012-02-02
+# 2012-02-10
 # 
 # Note
 # 
@@ -5022,6 +5022,7 @@ efi-mg	2224/udp	# Easy Flexible                [Thomas_Efer]                    
 # Internet/Multiplayer Games
 rcip-itu	2225/tcp	# Resource Connection          [ITU_TSB]                                 [ITU_TSB]
 # Initiation Protocol
+# 2225        udp    Reserved
 rcip-itu	2225/sctp	# Resource Connection          [ITU_TSB]                                 [ITU_TSB]
 # Initiation Protocol
 di-drm	2226/tcp	# Digital Instinct DRM
@@ -8229,6 +8230,7 @@ watcomdebug	3563/udp	# Watcom Debug                 [Dave_Neudoerffer]          
 esimport	3564/tcp	# Electromed SIM port          [Francois_Marchand]                       [Francois_Marchand]                                       2002-08
 esimport	3564/udp	# Electromed SIM port          [Francois_Marchand]                       [Francois_Marchand]                                       2002-08
 m2pa	3565/tcp	# M2PA                                                                                                                                                       [RFC4165]
+# 3565        udp    Reserved
 m2pa	3565/sctp	# M2PA                                                                                                                                                       [RFC4165]
 quest-data-hub	3566/tcp	# Quest Data Hub               [Greg_Cottman_2]                          [Greg_Cottman_2]                                          2010-10-18
 # 3566        udp    Reserved                                                                                                                                      2010-10-18
@@ -8858,6 +8860,7 @@ asap-tcp	3863/tcp	# asap tcp port
 asap-udp	3863/udp	# asap udp port                                                                                                                                              [RFC5352]
 asap-sctp	3863/sctp	# asap sctp                                                                                                                                                  [RFC5352]
 asap-tcp-tls	3864/tcp	# asap/tls tcp port                                                                                                                                          [RFC5352]
+# 3864        udp    Reserved                                                                                                                                                                                                                 This entry has been removed on 2006-06-23.
 asap-sctp-tls	3864/sctp	# asap-sctp/tls                                                                                                                                              [RFC5352]
 xpl	3865/tcp	# xpl automation protocol      [Ian_Lowe]                                [Ian_Lowe]                                                2003-08
 xpl	3865/udp	# xpl automation protocol      [Ian_Lowe]                                [Ian_Lowe]                                                2003-08
@@ -11557,10 +11560,12 @@ rscd	5750/udp	# Bladelogic Agent Service     [Brian_Trevor]                     
 # 5751-5754            Unassigned
 openmailg	5755/tcp	# OpenMail Desk Gateway server [OpenMail_Encyclopedi][Don_Loughry]       [OpenMail_Encyclopedi][Don_Loughry]
 openmailg	5755/udp	# OpenMail Desk Gateway server [OpenMail_Encyclopedi][Don_Loughry]       [OpenMail_Encyclopedi][Don_Loughry]
+# 5756               Unassigned
 x500ms	5757/tcp	# OpenMail X.500 Directory     [OpenMail_Encyclopedi][Don_Loughry]       [OpenMail_Encyclopedi][Don_Loughry]
 # Server
 x500ms	5757/udp	# OpenMail X.500 Directory     [OpenMail_Encyclopedi][Don_Loughry]       [OpenMail_Encyclopedi][Don_Loughry]
 # Server
+# 5758-5765            Unassigned
 openmailns	5766/tcp	# OpenMail NewMail Server      [OpenMail_Encyclopedi][Don_Loughry]       [OpenMail_Encyclopedi][Don_Loughry]
 openmailns	5766/udp	# OpenMail NewMail Server      [OpenMail_Encyclopedi][Don_Loughry]       [OpenMail_Encyclopedi][Don_Loughry]
 s-openmail	5767/tcp	# OpenMail Suer Agent Layer    [OpenMail_Encyclopedi][Don_Loughry]       [OpenMail_Encyclopedi][Don_Loughry]
@@ -12745,6 +12750,7 @@ pmd	7431/tcp	# OpenView DM ovc/xmpv3 api    [Dave_Lamb]                         
 # pipe
 pmd	7431/udp	# OpenView DM ovc/xmpv3 api    [Dave_Lamb]                               [Dave_Lamb]
 # pipe
+# 7432-7436            Unassigned
 faximum	7437/tcp	# Faximum                      [George_Pajari]                           [George_Pajari]
 faximum	7437/udp	# Faximum                      [George_Pajari]                           [George_Pajari]
 # 7438-7442            Unassigned
@@ -13892,7 +13898,10 @@ apc-9952	9952/tcp	# APC 9952                     [American_Power_Conve]         
 apc-9952	9952/udp	# APC 9952                     [American_Power_Conve]                    [American_Power_Conve]
 acis	9953/tcp	# 9953                         [Thomas_Guth]                             [Thomas_Guth]                                             2006-01
 acis	9953/udp	# 9953                         [Thomas_Guth]                             [Thomas_Guth]                                             2006-01
-# 9954-9955            Unassigned
+hinp	9954/tcp	# HaloteC Instrument Network   [HaloteC_Instruments]                     [Michel_Stam]                                             2012-02-07
+# Protocol
+# 9954        udp    Reserved
+# 9955               Unassigned
 # 9956        tcp    Reserved
 alljoyn	9956/udp	# Alljoyn Name Service         [Qualcomm_Innovation_Center]              [Craig_Dowell]                                            2011-12-21
 # 9957-9965            Unassigned
@@ -14235,7 +14244,8 @@ accuracer-dbms	12008/tcp	# Accuracer Database System    [Alexander_V_Ivanov]    
 # Admin
 accuracer-dbms	12008/udp	# Accuracer Database System    [Alexander_V_Ivanov]                      [Alexander_V_Ivanov]                                      2004-12
 # Admin
-# 12009              Unassigned
+# 12009       tcp    Reserved
+ghvpn	12009/udp	# Green Hills VPN              [Green_Hills_Software]                    [Tom_R_Zavisca]                                           2012-02-07
 edbsrvr	12010/tcp	# ElevateDB Server             [Tim_Young]                               [Tim_Young]                                               2009-05-06
 # 12010       udp    Reserved
 # 12011              Unassigned
@@ -14818,7 +14828,11 @@ inovaport6	23005/tcp	# Inova LightLink Server Type  [Chris_Koeritz_3]           
 # 6
 inovaport6	23005/udp	# Inova LightLink Server Type  [Chris_Koeritz_3]                         [Chris_Koeritz_3]                                         2006-10
 # 6
-# 23006-23271           Unassigned
+# 23006-23052           Unassigned
+gntp	23053/tcp	# Generic Notification         [Growl_Project]                           [Chris_Forsythe]                                          2012-02-07
+# Transport Protocol
+# 23053       udp    Reserved
+# 23054-23271           Unassigned
 # 23272       tcp    Reserved
 s102	23272/udp	# S102 application             [Kimmo_Kymalainen]                        [Kimmo_Kymalainen]                                        2009-08-26
 # 23273-23332           Unassigned
@@ -15281,7 +15295,10 @@ ip-provision	43190/udp	# IP-PROVISION                 [Roman_Kriis]             
 noit-transport	43191/tcp	# Reconnoiter Agent Data       [Theo_Schlossnagle]                       [Theo_Schlossnagle]                                       2009-05-19
 # Transport
 # 43191       udp    Reserved
-# 43192-43439           Unassigned
+# 43192-43438           Unassigned
+eq3-update	43439/tcp	# EQ3 firmware update          [eQ-3_AG]                                 [Falk_Werner]                                             2012-02-10
+eq3-config	43439/udp	# EQ3 discovery and            [eQ-3_AG]                                 [Falk_Werner]                                             2012-02-10
+# configuration
 ew-mgmt	43440/tcp	# Cisco EnergyWise Management
 ew-disc-cmd	43440/udp	# Cisco EnergyWise Discovery   [John_Parello]                            [John_Parello]                                            2009-05-19
 # and Command Flooding
@@ -17260,6 +17277,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Chris_Eich]                                              Chris Eich                Enphase Energy, Inc.  mailto:ceich&enphaseenergy.com                                2011-11-08
 # [Chris_Farey]                                             Chris Farey               StorMagic Ltd         mailto:chris_farey&stormagic.com                              2011-12-16
 # [Chris_Flynn]                                             Chris Flynn                                     mailto:cflynn&landmark.com
+# [Chris_Forsythe]                                          Chris Forsythe            The Growl Project     mailto:chris&growl.info                                       2012-02-07
 # [Chris_Greene]                                            Chris Greene                                    mailto:cgreeneOA&avidsports.com
 # [Chris_Griffin]                                           Chris Griffin                                   mailto:cgriffin&dka.com
 # [Chris_Griffiths]                                         Chris Griffiths                                 mailto:chris_griffiths&cable.comcast.com                      2008-07-28
@@ -17884,6 +17902,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Enphase_Energy_Inc]                                                                Enphase Energy, Inc.  mailto:ceich&enphaseenergy.com                                2011-11-08
 # [Enrique_Corujo]                                          Enrique Corujo                                  mailto:enrique&caclearing.com                                 2006-02
 # [Environics_Oy]                                           Environics Oy                                   mailto:pasi.nuutinmaki&environics.fi
+# [eQ-3_AG]                                                                           eQ-3 AG               mailto:andreas.hueschemenger&eq-3.de                          2012-02-10
 # [Eran_Gampel]                                             Eran Gampel                                     mailto:eran&aoe6.net
 # [Erhan_Soyer_Osman]                                       Erhan Soyer-Osman                               mailto:erhanso&microsoft.com                                  2008-03-26
 # [Eric_Anderson]                                           Eric Anderson                                   mailto:eanderson&netvision.com                                2003-06
@@ -17952,14 +17971,15 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Extensis]                                                Extensis                                        mailto:webmaster&extensis.com
 # [Eyal_Yardeni]                                            Eyal Yardeni                                    mailto:eyal.yardeni&smarts.com                                2003-11
 # [Ezinne_Oji]                                              Ezinne Oji                                      mailto:ezinne.oji&t-mobile.com                                2006-06
-# [FAUCONNET_Ingenierie]                                                              FAUCONNET Ingenierie  mailto:dev&fisa.fr                                            2011-05-19
-# SA
 # [F_Englert]                                               Fl SQRTDEGvio Englert                           mailto:flavio&elipse.com.br                                   2007-09-17
 # [Fabrizio_Guglielmino]                                    Fabrizio Guglielmino                            mailto:guglielmino&infitsrl.com
 # [Fabrizio_Massimo_Fer]                                    Fabrizio Massimo Ferrara                        mailto:fmf&gesi.it                                            2002-02
 # [Fahad_Gilani]                                            Fahad Gilani                                    mailto:fahad&guidedways.com
 # [Faith_Zack]                                              Faith Zack                                      mailto:faithz&sco.com
+# [Falk_Werner]                                             Falk Werner               eQ-3 AG               mailto:falk.werner&entwicklung.eq-3.de                        2012-02-10
 # [Farid_Faez]                                              Farid Faez                                      mailto:farid_faez&hp.com
+# [FAUCONNET_Ingenierie]                                                              FAUCONNET Ingenierie  mailto:dev&fisa.fr                                            2011-05-19
+# SA
 # [Federico_Heinz]                                          Federico Heinz                                  mailto:federico&heinz.com
 # [Federico_Lucifredi]                                      Federico Lucifredi                              mailto:flucifredi&novell.com                                  2009-09-25
 # [Feitian_Technologies]                                    Feitian Technologies                            mailto:product&ftsafe.com                                     2010-09-15
@@ -18157,6 +18177,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Graham_Wooden]                                           Graham Wooden                                   mailto:graham&g-rock.net
 # [Grant_Gilchrist]                                         Grant Gilchrist                                 mailto:grant&enernex.com                                      2010-10-18
 # [Grant_Kirby]                                             Grant Kirby                                     mailto:grant_kirby&ccm.al.intel.com
+# [Green_Hills_Software]                                                              Green Hills Software  mailto:iana-contact&ghs.com                                   2012-02-07
 # [Greg_Bailey]                                             Greg Bailey                                     mailto:gbailey&lxpro.com                                      2003-04
 # [Greg_Banks]                                              Greg Banks                                      mailto:gnb&sgi.com                                            2004-11
 # [Greg_Bodine]                                             Greg Bodine                                     mailto:gregory.bodine&ca.com                                  2002-02
@@ -18189,6 +18210,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Gregory_Hostettler]                                      Gregory Hostettler                              mailto:ghostettler&caracal.ch                                 2004-11
 # [Gregory_Power]                                           Gregory Power                                   mailto:gpower&apple.com
 # [Gregory_Richards]                                        Gregory Richards                                mailto:Richards&codu.org                                      2002-04
+# [Growl_Project]                                                                     The Growl Project     mailto:support&growl.info                                     2012-02-07
 # [Guhan_Suriyanarayana]                                    Guhan Suriyanarayanan                           mailto:guhans&microsoft.com                                   2006-03
 # [Guido_Kiener]                                            Guido Kiener                                    mailto:Guido.Kiener&rohde-schwarz.com                         2008-12-04
 # [Gur_Kimchi]                                              Gur Kimchi                                      mailto:gkimchi&microsoft.com                                  2008-05-20
@@ -18205,6 +18227,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Hal_Henderson]                                           Hal Henderson                                   mailto:hhenders&novell.com
 # [Hali_Lindbloom]                                          Hali Lindbloom                                  mailto:halil&docent.com
 # [Hall_Research]                                                                     Hall Research         mailto:vishal&hallresearch.com                                2011-11-29
+# [HaloteC_Instruments]                                                               HaloteC Instruments   mailto:michel.stam&halotec.com                                2012-02-07
+# B.V.
 # [Hani_Abdelazim]                                          Hani Abdelazim                                  mailto:hani&apple.com
 # [Hannes_K]                                                Hannes K SQRTSlber                              mailto:hannes.kaelber&x2e.de                                  2010-09-13
 # [Hans_Christoph_Stein]                                    Hans-Christoph Steiner                          mailto:hans&eds.org
@@ -19495,6 +19519,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Michael_Zunke_2]                                         Michael Zunke                                   mailto:Michael.Zunke&ealaddin.com                             2010-07-23
 # [Michaela_Vanderveen]                                     Michaela Vanderveen                             mailto:mvandervn&yahoo.com                                    2007-02
 # [Michel_Bourget]                                          Michel Bourget                                  mailto:michel&sgi.com                                         2009-01-06
+# [Michel_Stam]                                             Michel Stam               HaloteC Instruments   mailto:michel.stam&halotec.com                                2012-02-07
+# B.V.
 # [Micromat]                                                Micromat                                        mailto:support&micromat.com
 # [Microsoft_Corporation]                                                             Microsoft Corporation mailto:pratshar&microsoft.com                                 2011-08-04
 # [MIDI_Manufacturers_Assoc_Inc]                                                      MIDI Manufacturers    mailto:info&midi.org                                          2011-11-14
@@ -20870,6 +20896,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Tom_Nys]                                                 Tom Nys                                         mailto:tom.nys.tn&belgium.agfa.com
 # [Tom_Pusateri]                                            Tom Pusateri                                    mailto:pusateri&juniper.net                                   2004-12
 # [Tom_Quinlan]                                             Tom Quinlan                                     mailto:tquinlan&digitechinc.com
+# [Tom_R_Zavisca]                                           Tom R. Zavisca            Green Hills Software  mailto:iana-contact&ghs.com                                   2012-02-07
 # [Tom_Snauwaert]                                           Tom Snauwaert                                   mailto:tom.snauwaert&st-electronics.be
 # [Tom_Spidell]                                             Tom Spidell                                     mailto:spidell&persoft.com
 # [Tom_Strack]                                              Tom Strack                                      mailto:TSTRACK&advnw.com
