@@ -73,7 +73,7 @@ edit_packet_comment_dlg (GtkAction *action _U_, gpointer data)
   opt_comment = get_packet_comment_from_packet_list_row(data);
   /*g_warning("Fetched comment '%s'",opt_comment);*/
 
-  buf_str = g_strdup_printf(opt_comment);
+  buf_str = g_strdup_printf("%s", opt_comment);
   
   gtk_text_buffer_set_text (buffer, buf_str, -1);
   gtk_container_add(GTK_CONTAINER(box1), view);
