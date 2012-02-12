@@ -741,7 +741,6 @@ dissect_swils_elp (tvbuff_t *tvb, proto_tree *elp_tree, guint8 isreq _U_)
                                fcwwn_to_str (elp.req_sname));
         offset += 8;
 
-        flags="";
         if (elp.clsf_svcparm[0] & 0x80) {
             if (elp.clsf_svcparm[4] & 0x20) {
                 flags="Class F Valid | X_ID Interlock";
@@ -764,7 +763,6 @@ dissect_swils_elp (tvbuff_t *tvb, proto_tree *elp_tree, guint8 isreq _U_)
         proto_tree_add_item (elp_tree, hf_swils_elp_clsf_openseq, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 4;
 
-        flags="";
         if (elp.cls1_svcparm[0] & 0x80) {
 #define MAX_FLAGS_LEN 40
             char *flagsbuf;
@@ -786,7 +784,6 @@ dissect_swils_elp (tvbuff_t *tvb, proto_tree *elp_tree, guint8 isreq _U_)
             }
             if (elp.cls1_svcparm[0] & 0x10) {
                 returned_length = g_snprintf (flagsbuf+stroff, MAX_FLAGS_LEN-stroff, " | LKS");
-                stroff += MIN(returned_length, MAX_FLAGS_LEN-stroff);
             }
             flags=flagsbuf;
         }
@@ -802,7 +799,6 @@ dissect_swils_elp (tvbuff_t *tvb, proto_tree *elp_tree, guint8 isreq _U_)
         }
         offset += 2;
 
-        flags="";
         if (elp.cls2_svcparm[0] & 0x80) {
             if (elp.cls2_svcparm[0] & 0x08) {
                 flags="Class 2 Valid | Seq Delivery";
@@ -825,7 +821,6 @@ dissect_swils_elp (tvbuff_t *tvb, proto_tree *elp_tree, guint8 isreq _U_)
         }
         offset += 2;
 
-        flags="";
         if (elp.cls3_svcparm[0] & 0x80) {
             if (elp.cls3_svcparm[0] & 0x08) {
                 flags="Class 3 Valid | Seq Delivery";
