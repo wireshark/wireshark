@@ -1304,25 +1304,17 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 			bits_needed = 1;
 			GET_DATA;
 
-			if (( oct>>(32-bits_needed) ) == 1 )
+			if (( oct>>(32-bits_needed) ) != 1 )
 			{
-				curr_bits_length -= bits_needed;
-				oct <<= bits_needed;
-				bits_in_oct -= bits_needed;
-				bit_offset++;
-
-				if (( curr_len*8 + bits_in_oct ) < 11 )
-					break;
-				curr_bits_length = 11;
-			}
-			else
-			{
-				curr_bits_length -= bits_needed;
-				oct <<= bits_needed;
-				bits_in_oct -= bits_needed;
-				bit_offset++;
 				break;
 			}
+			oct <<= bits_needed;
+			bits_in_oct -= bits_needed;
+			bit_offset++;
+
+			if (( curr_len*8 + bits_in_oct ) < 11 )
+				break;
+			curr_bits_length = 11;
 		}
 
 		indx++;
@@ -3197,8 +3189,8 @@ de_gmm_req_ms_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 	proto_tree_add_bits_item(tree, hf_gsm_a_gm_req_ms_info_irat2, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset++;
 	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
-	bit_offset+=2;
-	curr_offset++;
+	/*bit_offset+=2;
+	curr_offset++;*/
 
 	return len;
 }
@@ -3254,8 +3246,8 @@ de_gmm_voice_domain_pref(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
 	proto_tree_add_bits_item(tree, hf_gsm_a_gm_ue_usage_setting, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset++;
 	proto_tree_add_bits_item(tree, hf_gsm_a_gm_voice_domain_pref_for_eutran, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
-	bit_offset+=2;
-	curr_offset++;
+	/*bit_offset+=2;
+	curr_offset++;*/
 
 	return len;
 }
@@ -3273,8 +3265,6 @@ de_gc_context_stat(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
 	proto_tree  *tf_tree = NULL;
 
 	curr_offset = offset;
-
-	oct = tvb_get_guint8(tvb, curr_offset);
 
 	tf = proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
@@ -3482,8 +3472,6 @@ de_gc_mbms_context_stat(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 
 	curr_offset = offset;
 
-	oct = tvb_get_guint8(tvb, curr_offset);
-
 	tf = proto_tree_add_text(tree,
 		tvb, curr_offset, 1,
 		"MBMS Context Status");
@@ -3550,9 +3538,10 @@ de_gc_uplink_data_stat(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
 	proto_tree_add_bits_item(tree, hf_gsm_a_gm_nsapi_9_ul_stat, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset++;
 	proto_tree_add_bits_item(tree, hf_gsm_a_gm_nsapi_8_ul_stat, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+/*
 	bit_offset++;
 	curr_offset++;
-
+*/
 	return(len);
 }
 
@@ -3741,7 +3730,6 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 				break;
 			case 0x0004:
 				if (link_dir == P2P_DIR_DL) {
-					oct = tvb_get_guint8(tvb, curr_offset);
 					proto_tree_add_text(tree,tvb, curr_offset, 1, "Reject Code: 0x%02x (%u)", e_len , e_len);
 				}
 				break;
@@ -4094,7 +4082,6 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 	curr_offset+= 1;
 
 	/* Octet 4 */
-	oct = tvb_get_guint8(tvb, curr_offset);
 	proto_tree_add_item(tree, hf_gsm_a_qos_peak_thr, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset << 3) + 4, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_gsm_a_qos_prec_class, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
