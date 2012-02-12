@@ -379,7 +379,7 @@ static const value_string elsm_subtype_vals[] = {
 	{ 0,		NULL }
 };
 
-static void
+static int
 dissect_tlv_header(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length _U_, proto_tree *tree)
 {
 	proto_item	*tlv_item;
@@ -409,6 +409,8 @@ dissect_tlv_header(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length
 	proto_tree_add_uint(tlv_tree, hf_edp_tlv_length, tvb, offset, 2,
 		tlv_length);
 	offset += 2;
+
+	return offset;
 }
 
 static void
@@ -434,7 +436,7 @@ dissect_display_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, p
 		display_name);
 }
 
-static void
+static int
 dissect_null_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length _U_, proto_tree *tree)
 {
 	proto_item	*null_item;
@@ -447,9 +449,11 @@ dissect_null_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length _U_, 
 
 	dissect_tlv_header(tvb, pinfo, offset, 4, null_tree);
 	offset += 4;
+
+	return offset;
 }
 
-static void
+static int
 dissect_info_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_tree *tree)
 {
 	proto_item *ver_item;
@@ -526,9 +530,11 @@ dissect_info_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 	proto_tree_add_item(info_tree, hf_edp_info_vchassconn, tvb, offset, 16,
 		ENC_NA);
 	offset += 16;
+
+	return offset;
 }
 
-static void
+static int
 dissect_vlan_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_tree *tree)
 {
 	proto_item	*flags_item;
@@ -553,7 +559,7 @@ dissect_vlan_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 		too_short_item = proto_tree_add_text(vlan_tree, tvb, 0, 0,
 		    "TLV is too short");
 		PROTO_ITEM_SET_GENERATED(too_short_item);
-		return;
+		return offset;
 	}
 	flags_item = proto_tree_add_item(vlan_tree, hf_edp_vlan_flags, tvb, offset, 1,
 		ENC_BIG_ENDIAN);
@@ -574,7 +580,7 @@ dissect_vlan_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 		too_short_item = proto_tree_add_text(vlan_tree, tvb, 0, 0,
 		    "TLV is too short");
 		PROTO_ITEM_SET_GENERATED(too_short_item);
-		return;
+		return offset;
 	}
 	proto_tree_add_item(vlan_tree, hf_edp_vlan_reserved1, tvb, offset, 1,
 		ENC_NA);
@@ -585,7 +591,7 @@ dissect_vlan_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 		too_short_item = proto_tree_add_text(vlan_tree, tvb, 0, 0,
 		    "TLV is too short");
 		PROTO_ITEM_SET_GENERATED(too_short_item);
-		return;
+		return offset;
 	}
 	vlan_id = tvb_get_ntohs(tvb, offset);
 	if (check_col(pinfo->cinfo, COL_INFO))
@@ -600,7 +606,7 @@ dissect_vlan_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 		too_short_item = proto_tree_add_text(vlan_tree, tvb, 0, 0,
 		    "TLV is too short");
 		PROTO_ITEM_SET_GENERATED(too_short_item);
-		return;
+		return offset;
 	}
 	proto_tree_add_item(vlan_tree, hf_edp_vlan_reserved2, tvb, offset, 4,
 		ENC_NA);
@@ -611,7 +617,7 @@ dissect_vlan_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 		too_short_item = proto_tree_add_text(vlan_tree, tvb, 0, 0,
 		    "TLV is too short");
 		PROTO_ITEM_SET_GENERATED(too_short_item);
-		return;
+		return offset;
 	}
 	proto_tree_add_item(vlan_tree, hf_edp_vlan_ip, tvb, offset, 4,
 		ENC_BIG_ENDIAN);
@@ -624,9 +630,12 @@ dissect_vlan_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 	proto_tree_add_string(vlan_tree, hf_edp_vlan_name, tvb, offset, length,
 		vlan_name);
 	offset += length;
+
+
+	return offset;
 }
 
-static void
+static int
 dissect_esrp_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_tree *tree)
 {
 	proto_item	*esrp_item;
@@ -679,9 +688,11 @@ dissect_esrp_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 	offset += 2;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ESRP");
+
+	return offset;
 }
 
-static void
+static int
 dissect_eaps_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length _U_, proto_tree *tree)
 {
 	proto_item	*eaps_item;
@@ -749,9 +760,11 @@ dissect_eaps_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length _U_, 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, " ID: %d, MAC: %s",
 			ctrlvlanid, sysmac_str);
+
+	return offset;
 }
 
-static void
+static int
 dissect_esl_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_tree *tree)
 {
 	proto_item	*esl_item;
@@ -859,15 +872,16 @@ dissect_esl_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto
 	proto_tree_add_item(esl_tree, hf_edp_esl_rest, tvb, offset, length,
 		ENC_NA);
 	offset += length;
-	length = 0;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ESL");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, " ID: %d, MAC: %s",
 			ctrlvlanid, sysmac_str);
+
+	return offset;
 }
 
-static void
+static int
 dissect_elsm_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
 	proto_tree *tree, guint16 seqno)
 {
@@ -894,23 +908,21 @@ dissect_elsm_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
 
 	dissect_tlv_header(tvb, pinfo, offset, 4, elsm_tree);
 	offset += 4;
-	length -= 4;
 
 	/* The rest is actually guesswork */
 	proto_tree_add_item(elsm_tree, hf_edp_elsm_type, tvb, offset, 1,
 		ENC_BIG_ENDIAN);
 	offset += 1;
-	length -= 1;
 
 	proto_tree_add_item(elsm_tree, hf_edp_elsm_subtype, tvb, offset, 1,
 		ENC_BIG_ENDIAN);
 	offset += 1;
-	length -= 1;
 
 	proto_tree_add_item(elsm_tree, hf_edp_elsm_magic, tvb, offset, 2,
 		ENC_NA);
 	offset += 2;
-	length -= 2;
+
+	return offset;
 }
 
 static void
@@ -1050,7 +1062,6 @@ dissect_edp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	                	proto_tree_add_text(edp_tree, tvb, offset, 4,
                     			"Too few bytes left for TLV: %u (< 4)",
 					data_length - offset);
-				offset += 4;
 				break;
 			}
 			tlv_type = tvb_get_guint8(tvb, offset + 1);
@@ -1059,7 +1070,6 @@ dissect_edp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if ((tlv_length < 4) || (tlv_length > (data_length - offset))) {
 	                	proto_tree_add_text(edp_tree, tvb, offset, 0,
                     			"TLV with invalid length: %u", tlv_length);
-				last = TRUE;
 				break;
 			}
 			if (check_col(pinfo->cinfo, COL_INFO) &&
