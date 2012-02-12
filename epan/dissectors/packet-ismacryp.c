@@ -613,7 +613,7 @@ static offset_struct* dissect_auheader( tvbuff_t *tvb, offset_struct *poffset, p
 		ismacryp_item = proto_tree_add_bits_item(ismacryp_header_tree,hf_ismacryp_au_size,
 							 tvb, bit_offset, au_size_length, ENC_BIG_ENDIAN);
 		proto_item_append_text(ismacryp_item, " bytes: Length=%d bits",au_size_length); /* add AU size info */
-		bit_offset+=au_size_length;
+		/*bit_offset+=au_size_length;*/
 		add_bits(poffset, au_size_length);
 	}
 	/* AU Index */
@@ -623,7 +623,7 @@ static offset_struct* dissect_auheader( tvbuff_t *tvb, offset_struct *poffset, p
 		ismacryp_item = proto_tree_add_bits_item(ismacryp_header_tree,hf_ismacryp_au_index,
 							 tvb, bit_offset, au_index_length, ENC_BIG_ENDIAN);
 		proto_item_append_text(ismacryp_item, " bits: Length=%d bits",au_index_length); /* add AU index info */
-		bit_offset+=au_index_length;
+		/*bit_offset+=au_index_length;*/
 		add_bits(poffset, au_index_length);
 	}
 	/* AU index delta */
@@ -633,7 +633,7 @@ static offset_struct* dissect_auheader( tvbuff_t *tvb, offset_struct *poffset, p
 		ismacryp_item = proto_tree_add_bits_item(ismacryp_header_tree,hf_ismacryp_au_index_delta,
 							 tvb, bit_offset, au_index_delta_length, ENC_BIG_ENDIAN);
 		proto_item_append_text(ismacryp_item, ": Length=%d bits", au_index_delta_length); /* add AU index info */
-		bit_offset+=au_index_delta_length;
+		/*bit_offset+=au_index_delta_length;*/
 		add_bits(poffset, au_index_delta_length);
 	}
 	/* CTS delta value */
