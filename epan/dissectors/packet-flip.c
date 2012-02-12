@@ -378,9 +378,6 @@ dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ext_hdr = FALSE;
 
     bytes_dissected = 0;
-    payload_len     = 0;
-    frame_len       = 0;
-    flip_len        = 0;
     offset          = 0;
 
     is_faulty_frame     = FALSE;
@@ -579,7 +576,6 @@ dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         gint               data_len;
         gboolean           has_user_messed_up;
 
-        data_len = 0;
         has_user_messed_up = FALSE;
 
         payload_tvb = tvb_new_subset(flip_tvb, offset,
