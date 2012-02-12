@@ -106,7 +106,7 @@ static gboolean observer_seek_read(wtap *wth, gint64 seek_off,
     union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
     int *err, gchar **err_info);
 static int read_packet_header(FILE_T fh, union wtap_pseudo_header *pseudo_header, 
-	packet_entry_header *packet_header, int *err, gchar **err_info);
+    packet_entry_header *packet_header, int *err, gchar **err_info);
 static int read_packet_data(FILE_T fh, int offset_to_frame, int current_offset_from_packet_header,
     guint8 *pd, int length, int *err, char **err_info);
 static gboolean skip_to_next_packet(wtap *wth, int offset_to_next_packet,
@@ -276,7 +276,7 @@ static gboolean observer_read(wtap *wth, int *err, gchar **err_info,
         *data_offset = wth->data_offset;
 
         /* process the packet header, including TLVs */
-		bytes_consumed = read_packet_header(wth->fh, &wth->pseudo_header, &packet_header, err,
+        bytes_consumed = read_packet_header(wth->fh, &wth->pseudo_header, &packet_header, err,
             err_info);
         if (bytes_consumed <= 0)
             return FALSE;    /* EOF or error */
@@ -344,9 +344,9 @@ static gboolean observer_read(wtap *wth, int *err, gchar **err_info,
         /* There is no FCS in the frame */
         wth->pseudo_header.eth.fcs_len = 0;
         break;
-	case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
-		/* Updated in read_packet_header */
-		break;
+    case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
+        /* Updated in read_packet_header */
+        break;
     }
 
     /* set-up the packet buffer */
@@ -384,7 +384,7 @@ static gboolean observer_seek_read(wtap *wth, gint64 seek_off,
         return FALSE;
 
     /* process the packet header, including TLVs */
-	offset = read_packet_header(wth->random_fh, pseudo_header, &packet_header, err,
+    offset = read_packet_header(wth->random_fh, pseudo_header, &packet_header, err,
         err_info);
     if (offset <= 0)
         return FALSE;    /* EOF or error */
@@ -396,9 +396,9 @@ static gboolean observer_seek_read(wtap *wth, gint64 seek_off,
         /* There is no FCS in the frame */
         pseudo_header->eth.fcs_len = 0;
         break;
-	case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
-		/* Updated in read_packet_header */
-		break;
+    case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
+        /* Updated in read_packet_header */
+        break;
     }
 
     /* read the frame data */
@@ -411,14 +411,14 @@ static gboolean observer_seek_read(wtap *wth, gint64 seek_off,
 
 static int
 read_packet_header(FILE_T fh, union wtap_pseudo_header *pseudo_header, 
-	packet_entry_header *packet_header, int *err, gchar **err_info)
+    packet_entry_header *packet_header, int *err, gchar **err_info)
 {
     int offset;
     int bytes_read;
     guint i;
     tlv_header tlvh;
     int seek_increment;
-	tlv_wireless_info wireless_header;
+    tlv_wireless_info wireless_header;
 
     offset = 0;
 
@@ -481,29 +481,29 @@ read_packet_header(FILE_T fh, union wtap_pseudo_header *pseudo_header,
         /* process (or skip over) the current TLV */
         switch (tlvh.type) {
         case INFORMATION_TYPE_WIRELESS:
-			bytes_read = file_read(&wireless_header, sizeof wireless_header, fh);
-			if (bytes_read != sizeof wireless_header) {
-				*err = file_error(fh, err_info);
+            bytes_read = file_read(&wireless_header, sizeof wireless_header, fh);
+            if (bytes_read != sizeof wireless_header) {
+                *err = file_error(fh, err_info);
                 if(*err == 0)
                     *err = WTAP_ERR_SHORT_READ;
                 return -1;
-			}
-			/* update the pseudo header */
-			pseudo_header->ieee_802_11.fcs_len = 0;
-			pseudo_header->ieee_802_11.channel = wireless_header.frequency;
-			pseudo_header->ieee_802_11.data_rate = wireless_header.rate;
-			pseudo_header->ieee_802_11.signal_level = wireless_header.strengthPercent;
-			offset += bytes_read;
+            }
+            /* update the pseudo header */
+            pseudo_header->ieee_802_11.fcs_len = 0;
+            pseudo_header->ieee_802_11.channel = wireless_header.frequency;
+            pseudo_header->ieee_802_11.data_rate = wireless_header.rate;
+            pseudo_header->ieee_802_11.signal_level = wireless_header.strengthPercent;
+            offset += bytes_read;
             break;
         default:
-			/* skip the TLV data */
-			seek_increment = tlvh.length - (int)sizeof tlvh;
-			if (seek_increment > 0) {
-				if (file_seek(fh, seek_increment, SEEK_CUR, err) == -1)
-					return -1;
-			}
-			offset += seek_increment;
-		}
+            /* skip the TLV data */
+            seek_increment = tlvh.length - (int)sizeof tlvh;
+            if (seek_increment > 0) {
+                if (file_seek(fh, seek_increment, SEEK_CUR, err) == -1)
+                    return -1;
+            }
+            offset += seek_increment;
+        }
     }
 
     return offset;
