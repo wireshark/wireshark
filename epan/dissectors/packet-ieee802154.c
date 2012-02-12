@@ -2013,7 +2013,7 @@ ccm_init_block(gchar *block, gboolean adata, gint M, guint64 addr, ieee802154_pa
         block[i++] = packet->security_level;
     /* Plaintext length. */
     block[i++] = (guint8)((ctr_val >> 8) & 0xff);
-    block[i++] = (guint8)((ctr_val >> 0) & 0xff);
+    block[i] = (guint8)((ctr_val >> 0) & 0xff);
 } /* ccm_init_block */
 
 /*FUNCTION:------------------------------------------------------
