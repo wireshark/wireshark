@@ -70,6 +70,7 @@ WIRESHARK_GTK_SRC = \
 	dissector_tables_dlg.c	\
 	dlg_utils.c	\
 	drag_and_drop.c 	\
+	edit_packet_comment_dlg.c	\
 	expert_comp_table.c    \
 	export_object.c	       \
 	export_object_dicom.c	\

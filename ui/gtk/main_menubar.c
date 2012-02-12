@@ -105,6 +105,7 @@
 #include "ui/gtk/utf8_entities.h"
 #include "ui/gtk/expert_comp_dlg.h"
 #include "ui/gtk/time_shift_dlg.h"
+#include "ui/gtk/edit_packet_comment_dlg.h"
 
 #include "ui/gtk/new_packet_list.h"
 
@@ -1551,7 +1552,7 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Edit/Un-TimeReferenceAllPackets",NULL,               "Un-Time Reference All Packets",        "<alt><control>T",          NULL,           G_CALLBACK(new_packet_list_untime_reference_all_frames_cb) },
    { "/Edit/FindNextTimeReference",     NULL,               "Find Next Time Reference",             "<alt><control>N",          NULL,           G_CALLBACK(find_next_ref_time_cb) },
    { "/Edit/FindPreviousTimeReference", NULL,               "Find Previous Time Reference",         "<alt><control>B",          NULL,           G_CALLBACK(find_previous_ref_time_cb) },
-   { "/Edit/TimeShift",             WIRESHARK_STOCK_TIME,   "Time Shift...",                "<shift><control>T",                NULL,           G_CALLBACK(time_shift_cb) },
+   { "/Edit/TimeShift",             WIRESHARK_STOCK_TIME,   "Time Shift...",                        "<shift><control>T",        NULL,           G_CALLBACK(time_shift_cb) },
 
    { "/Edit/ConfigurationProfiles", NULL,                   "_Configuration Profiles...",           "<shift><control>A",        NULL,           G_CALLBACK(profile_dialog_cb) },
    { "/Edit/Preferences",           GTK_STOCK_PREFERENCES,  "_Preferences...",                      "<shift><control>P",        NULL,           G_CALLBACK(menus_prefs_cb) },
@@ -2603,6 +2604,7 @@ static const char *ui_desc_packet_list_menu_popup =
 "     <menuitem name='IgnorePacket' action='/IgnorePacket'/>\n"
 "     <menuitem name='SetTimeReference' action='/Set Time Reference'/>\n"
 "     <menuitem name='TimeShift' action='/TimeShift'/>\n"
+"     <menuitem name='AddEditPktComment' action='/Edit/AddEditPktComment'/>\n"
 "     <separator/>\n"
 "     <menuitem name='ManuallyResolveAddress' action='/ManuallyResolveAddress'/>\n"
 "     <separator/>\n"
@@ -2729,9 +2731,10 @@ static const GtkActionEntry packet_list_menu_popup_action_entries[] = {
   { "/MarkPacket",                      NULL,                   "Mark Packet (toggle)",         NULL,                   NULL,           G_CALLBACK(new_packet_list_mark_frame_cb) },
   { "/IgnorePacket",                    NULL,                   "Ignore Packet (toggle)",       NULL,                   NULL,           G_CALLBACK(new_packet_list_ignore_frame_cb) },
   { "/Set Time Reference",              WIRESHARK_STOCK_TIME,   "Set Time Reference (toggle)",  NULL,                   NULL,           G_CALLBACK(packet_list_menu_set_ref_time_cb) },
-  { "/TimeShift",                       WIRESHARK_STOCK_TIME,   "Time Shift...",                    NULL,                   NULL,           G_CALLBACK(time_shift_cb) },
+  { "/TimeShift",                       WIRESHARK_STOCK_TIME,   "Time Shift...",                NULL,                   NULL,           G_CALLBACK(time_shift_cb) },
   { "/ManuallyResolveAddress",          NULL,                   "Manually Resolve Address",     NULL,                   NULL,           G_CALLBACK(manual_addr_resolv_dlg) },
   { "/Apply as Filter",                 NULL,                   "Apply as Filter",              NULL,                   NULL,           NULL },
+  { "/Edit/AddEditPktComment",          WIRESHARK_STOCK_EDIT,   "Edit or Add packet Comment",   NULL,                   NULL,           G_CALLBACK(edit_packet_comment_dlg) },
 
   { "/Apply as Filter/Selected",        NULL, "_Selected" ,             NULL, NULL, G_CALLBACK(packet_list_menu_apply_selected_cb) },
   { "/Apply as Filter/Not Selected",    NULL, "_Not Selected",          NULL, NULL, G_CALLBACK(packet_list_menu_apply_not_selected_cb) },
