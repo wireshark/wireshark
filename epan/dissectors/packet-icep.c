@@ -258,7 +258,7 @@ static void dissect_ice_string(proto_tree *tree, int hf_icep,
 	if ( dest != NULL )
 		*dest = s;
 
-	offset += Size;
+	/*offset += Size;*/
 	(*consumed) += Size;
 	return;
 }
@@ -737,7 +737,8 @@ static void dissect_icep_request_common(tvbuff_t *tvb, guint32 offset,
 	if ( consumed == -1 )
 		goto error;
 
-	offset += consumed; DBG1("consumed --> %d\n", consumed);
+	/*offset += consumed;*/
+	 DBG1("consumed --> %d\n", consumed);
 	(*total_consumed) += consumed;
 
 	return;
@@ -817,7 +818,7 @@ static void dissect_icep_request(tvbuff_t *tvb, guint32 offset, proto_tree *icep
 	if ( consumed == -1 )
 		return;
 
-	offset += consumed;
+	/*offset += consumed;*/
 	DBG1("consumed --> %d\n", consumed);
 }
 
@@ -1028,7 +1029,7 @@ static void dissect_icep_reply(tvbuff_t *tvb, guint32 offset, proto_tree *icep_t
 					reported_reply_data - tvb_data_remained);
 		}
 
-		offset += tvb_data_remained;
+		/*offset += tvb_data_remained;*/
 		DBG1("consumed --> %d\n", tvb_data_remained);
 		return;
 	}
@@ -1048,7 +1049,7 @@ static void dissect_icep_reply(tvbuff_t *tvb, guint32 offset, proto_tree *icep_t
 					    "Reply data (empty)");
 	}
 
-	offset += reported_reply_data;
+	/*offset += reported_reply_data;*/
 	DBG1("consumed --> %d\n", reported_reply_data);
 }
 
