@@ -283,7 +283,7 @@ dissect_fc4features_and_type (proto_tree *parent_tree, tvbuff_t *tvb, int offset
         if (flags&0x01){
             proto_item_append_text(item, "  T");
         }
-        flags&=(~( 0x01 ));
+        /*flags&=(~( 0x01 ));*/
     }
 
     proto_tree_add_item (tree, hf_fcdns_req_fc4type, tvb, offset+1, 1, ENC_BIG_ENDIAN);
@@ -315,7 +315,7 @@ dissect_fc4features (proto_tree *parent_tree, tvbuff_t *tvb, int offset)
     if (flags&0x01){
         proto_item_append_text(item, "  T");
     }
-    flags&=(~( 0x01 ));
+    /*flags&=(~( 0x01 ));*/
 }
 
 
@@ -380,7 +380,7 @@ dissect_fc4type (proto_tree *parent_tree, tvbuff_t *tvb, int offset, int hfindex
     if (flags&0x0010){
         proto_item_append_text(item, "  LLC/SNAP");
     }
-    flags&=(~( 0x0010 ));
+    /*flags&=(~( 0x0010 ));*/
 
 
     flags = tvb_get_ntohl (tvb, offset+4);
@@ -401,7 +401,7 @@ dissect_fc4type (proto_tree *parent_tree, tvbuff_t *tvb, int offset, int hfindex
     if (flags&0x0001){
         proto_item_append_text(item, "  GS3");
     }
-    flags&=(~( 0x0001 ));
+    /*flags&=(~( 0x0001 ));*/
 
 
     flags = tvb_get_ntohl (tvb, offset+8);
@@ -410,7 +410,7 @@ dissect_fc4type (proto_tree *parent_tree, tvbuff_t *tvb, int offset, int hfindex
     if (flags&0x0001){
         proto_item_append_text(item, "  VI");
     }
-    flags&=(~( 0x0001 ));
+    /*flags&=(~( 0x0001 ));*/
 }
 
 /* Code to actually dissect the packets */
