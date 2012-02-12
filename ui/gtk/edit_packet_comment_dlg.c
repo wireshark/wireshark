@@ -51,9 +51,26 @@ void
 edit_packet_comment_dlg (GtkAction *action _U_, gpointer data)
 {
 
-      GtkWidget *dialog = simple_dialog (ESD_TYPE_ERROR, ESD_BTN_OK,
-					 "Not implemented yet");
+  GtkWidget *box1;
+  GtkWidget *view;
+  GtkTextBuffer *buffer;
 
+  edit_or_add_pkt_comment_dlg = dlg_window_new ("Edit or Add Packet Comments");
+  gtk_widget_set_size_request (edit_or_add_pkt_comment_dlg, 310, 80);
+  gtk_window_set_resizable (GTK_WINDOW (edit_or_add_pkt_comment_dlg), TRUE); 
+  gtk_container_set_border_width (GTK_CONTAINER (edit_or_add_pkt_comment_dlg), 0);
+
+  box1 = gtk_vbox_new (FALSE, 0);
+  gtk_container_add (GTK_CONTAINER (edit_or_add_pkt_comment_dlg), box1);
+  gtk_widget_show (box1);
+  
+  view = gtk_text_view_new ();
+  buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (view));
+  gtk_text_buffer_set_text (buffer, "Funktion not implemented yet", -1);
+  gtk_container_add(GTK_CONTAINER(box1), view);
+  gtk_widget_show (view);
+
+  gtk_widget_show (edit_or_add_pkt_comment_dlg);
 
 
 }
