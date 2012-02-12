@@ -40,6 +40,7 @@
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/main.h"
 #include "ui/gtk/menus.h"
+#include "ui/gtk/new_packet_list.h"
 #include "ui/gtk/edit_packet_comment_dlg.h"
 #include "ui/gtk/old-gtk-compat.h"
 
@@ -58,7 +59,7 @@ pkt_comment_text_buff_clear_cb(GtkWidget *w _U_, GtkWidget *view)
 
 
 void
-edit_packet_comment_dlg (GtkAction *action _U_, gpointer data)
+edit_packet_comment_dlg (GtkAction *action _U_, gpointer data _U_)
 {
 
   GtkWidget *vbox;
@@ -82,7 +83,7 @@ edit_packet_comment_dlg (GtkAction *action _U_, gpointer data)
   buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (view));
 
   /* Get the comment */
-  opt_comment = get_packet_comment_from_packet_list_row(data);
+  opt_comment = new_packet_list_get_packet_comment();
   /*g_warning("Fetched comment '%s'",opt_comment);*/
 
   if(opt_comment){

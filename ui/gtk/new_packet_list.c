@@ -1700,6 +1700,24 @@ new_packet_list_copy_summary_cb(gpointer data _U_, copy_summary_type copy_type)
 	g_string_free(text,TRUE);
 }
 
+gchar *
+new_packet_list_get_packet_comment(void)
+{
+	GtkTreeModel *model;
+	GtkTreeSelection *selection;
+	GtkTreeIter iter;
+	PacketListRecord *record;
+
+	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view));
+	/* model is filled with the current model as a convenience. */
+	if (!gtk_tree_selection_get_selected(selection, &model, &iter))
+		return NULL;
+
+	record = new_packet_list_get_record(model, &iter);
+
+	return record->fdata->opt_comment;
+}
+
 void
 new_packet_list_recent_write_all(FILE *rf)
 {

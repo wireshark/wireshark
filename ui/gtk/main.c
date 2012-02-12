@@ -629,17 +629,6 @@ get_filter_from_packet_list_row_and_column(gpointer data)
     return buf;
 }
 
-gchar *
-get_packet_comment_from_packet_list_row(gpointer data)
-{
-    gint    row = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(data), E_MPACKET_LIST_ROW_KEY));
-    frame_data *fdata;
-
-    fdata = (frame_data *) new_packet_list_get_row_data(row);
-
-	return fdata->opt_comment;
-}
-
 void
 match_selected_plist_cb(GtkWidget *w _U_, gpointer data, MATCH_SELECTED_E action)
 {

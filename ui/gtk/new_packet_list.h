@@ -133,6 +133,8 @@ typedef enum {
  */
 void new_packet_list_copy_summary_cb(gpointer data _U_, copy_summary_type copy_type);
 
+gchar *new_packet_list_get_packet_comment(void);
+
 GtkWidget * new_packet_list_get_widget(void);
 void new_packet_list_colorize_packets(void);
 

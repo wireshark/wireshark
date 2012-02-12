@@ -1054,6 +1054,7 @@ static const char *ui_desc_menubar =
 "        <menuitem name='TimeShift' action='/Edit/TimeShift'/>\n"
 "        <separator/>\n"
 "        <menuitem name='EditPacket' action='/Edit/EditPacket'/>\n"
+"        <menuitem name='AddEditPktComment' action='/Edit/AddEditPktComment'/>\n"
 "        <separator/>\n"
 "        <menuitem name='ConfigurationProfiles' action='/Edit/ConfigurationProfiles'/>\n"
 "        <menuitem name='Preferences' action='/Edit/Preferences'/>\n"
@@ -1557,6 +1558,7 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Edit/ConfigurationProfiles", NULL,                   "_Configuration Profiles...",           "<shift><control>A",        NULL,           G_CALLBACK(profile_dialog_cb) },
    { "/Edit/Preferences",           GTK_STOCK_PREFERENCES,  "_Preferences...",                      "<shift><control>P",        NULL,           G_CALLBACK(menus_prefs_cb) },
    { "/Edit/EditPacket",                NULL,               "_Edit Packet",                         NULL,                       NULL,           G_CALLBACK(edit_window_cb) },
+   { "/Edit/AddEditPktComment",         WIRESHARK_STOCK_EDIT,   "Edit or Add Packet Comment...",   NULL,                   NULL,           G_CALLBACK(edit_packet_comment_dlg) },
 
    { "/View/TimeDisplayFormat",     NULL,                   "_Time Display Format",                 NULL,                       NULL,           NULL },
 
@@ -2734,7 +2736,7 @@ static const GtkActionEntry packet_list_menu_popup_action_entries[] = {
   { "/TimeShift",                       WIRESHARK_STOCK_TIME,   "Time Shift...",                NULL,                   NULL,           G_CALLBACK(time_shift_cb) },
   { "/ManuallyResolveAddress",          NULL,                   "Manually Resolve Address",     NULL,                   NULL,           G_CALLBACK(manual_addr_resolv_dlg) },
   { "/Apply as Filter",                 NULL,                   "Apply as Filter",              NULL,                   NULL,           NULL },
-  { "/Edit/AddEditPktComment",          WIRESHARK_STOCK_EDIT,   "Edit or Add packet Comment",   NULL,                   NULL,           G_CALLBACK(edit_packet_comment_dlg) },
+  { "/Edit/AddEditPktComment",          WIRESHARK_STOCK_EDIT,   "Edit or Add Packet Comment...",   NULL,                   NULL,           G_CALLBACK(edit_packet_comment_dlg) },
 
   { "/Apply as Filter/Selected",        NULL, "_Selected" ,             NULL, NULL, G_CALLBACK(packet_list_menu_apply_selected_cb) },
   { "/Apply as Filter/Not Selected",    NULL, "_Not Selected",          NULL, NULL, G_CALLBACK(packet_list_menu_apply_not_selected_cb) },
@@ -4768,7 +4770,9 @@ set_menus_for_selected_packet(capture_file *cf)
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/EditPacket",
                          frame_selected);
 #endif /* WANT_PACKET_EDITOR */
-   set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/IgnorePacket",
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/AddEditPktComment",
+                         frame_selected);
+    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/IgnorePacket",
                          frame_selected);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/IgnoreAllDisplayedPackets",
                          cf->displayed_count > 0 && cf->displayed_count != cf->count);
