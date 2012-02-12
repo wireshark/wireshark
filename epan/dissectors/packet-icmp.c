@@ -901,9 +901,6 @@ dissect_extensions(tvbuff_t *tvb, gint offset, proto_tree *tree)
         }
 
 
-        /* Default cases will set this flag to TRUE */
-        unknown_object = FALSE;
-
         switch (class_num)
         {
             case MPLS_STACK_ENTRY_OBJECT_CLASS:
