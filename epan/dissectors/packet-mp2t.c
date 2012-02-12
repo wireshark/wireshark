@@ -583,6 +583,7 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
 {
 	tvbuff_t *next_tvb;
 	guint8 pointer = 0;
+	proto_item *pi;
 	guint stuff_len = 0;
 	proto_item *si;
 	proto_tree *stuff_tree;
@@ -613,10 +614,17 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
 	/* PES packet don't have pointer fields, others do */
 	if (pusi_flag && pid_analysis->pload_type != pid_pload_pes) {
 		pointer = tvb_get_guint8(tvb, offset);
-		proto_tree_add_text(header_tree, tvb, offset, 1,
-		"Pointer: %u", tvb_get_guint8(tvb, offset));
+		pi = proto_tree_add_text(header_tree, tvb, offset, 1,
+		    "Pointer: %u", tvb_get_guint8(tvb, offset));
 		offset++;
 		remaining_len--;
+		if (pointer > remaining_len) {
+			/* Bogus pointer */
+			expert_add_info_format(pinfo, pi, PI_MALFORMED,
+			    PI_ERROR,
+			    "Pointer value is too large (> remaining data length %u",
+			    remaining_len);
+		}
 
 	}
 
@@ -679,6 +687,16 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
 
 	/* The begining of a new packet is present */
 	if (pusi_flag) {
+
+		if (pointer > remaining_len) {
+			/*
+			 * Quit, so we don't use the bogus pointer value;
+			 * that could cause remaining_len to become
+			 * "negative", meaning it becomes a very large
+			 * positive value.
+			 */
+			return;
+		}
 
 		/* Looks like we already have some stuff in the buffer */
 		if (fragmentation) {
