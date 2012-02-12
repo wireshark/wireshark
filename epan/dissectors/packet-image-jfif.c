@@ -462,14 +462,15 @@ process_sos_header(proto_tree *tree, tvbuff_t *tvb, guint32 len _U_,
     proto_tree_add_item(subtree, hf_sos_se, tvb, offset++, 1, ENC_BIG_ENDIAN);
 
     proto_tree_add_item(subtree, hf_sos_ah, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_sos_al, tvb, offset++, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_sos_al, tvb, offset, 1, ENC_BIG_ENDIAN);
+    /* offset ++ */;
 }
 
 /* Process an APP0 block.
  *
  * XXX - This code only works on US-ASCII systems!!!
  */
-static void
+static int
 process_app0_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
         guint16 marker, const char *marker_name)
 {
@@ -481,7 +482,7 @@ process_app0_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
     gint str_size;
 
     if (!tree)
-        return;
+        return 0 ;
 
     ti = proto_tree_add_item(tree, hf_marker_segment,
             tvb, 0, -1, ENC_NA);
@@ -554,14 +555,14 @@ process_app0_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
         proto_tree_add_text(subtree, tvb, offset, -1,
                 "Remaining segment data (%u bytes)", len - 2 - str_size);
     }
-    return;
+    return offset;
 }
 
 /* Process an APP1 block.
  *
  * XXX - This code only works on US-ASCII systems!!!
  */
-static void
+static int
 process_app1_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
         guint16 marker, const char *marker_name)
 {
@@ -573,7 +574,7 @@ process_app1_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
     int tiff_start;
 
     if (!tree)
-        return;
+        return 0;
 
     ti = proto_tree_add_item(tree, hf_marker_segment,
             tvb, 0, -1, ENC_NA);
@@ -612,7 +613,7 @@ process_app1_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
             /* Error: invalid endianness encoding */
             proto_tree_add_text(subtree, tvb, offset, 2,
                     "Incorrect endianness encoding - skipping the remainder of this application marker");
-            return;
+            return offset;
         }
         offset += 2;
         /*
@@ -638,7 +639,7 @@ process_app1_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
             proto_tree_add_text(subtree, tvb, offset, 4,
                 "Start offset of IFD starting from the TIFF header start: %u bytes (bogus, should be >= %u",
                 val_32, offset + 4 - tiff_start);
-            return;
+            return offset;
         }
         proto_tree_add_text(subtree, tvb, offset, 4,
             "Start offset of IFD starting from the TIFF header start: %u bytes",
@@ -701,7 +702,7 @@ process_app1_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
                 proto_tree_add_text(subtree, tvb, offset, 4,
                     "Offset to next IFD from start of TIFF header: %u bytes (bogus, should be >= %u)",
                     val_32, offset + 4 - tiff_start);
-                return;
+                return offset;
             }
             proto_tree_add_text(subtree, tvb, offset, 4,
                 "Offset to next IFD from start of TIFF header: %u bytes",
@@ -715,6 +716,7 @@ process_app1_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
                 "Remaining segment data (%u bytes)", len - 2 - str_size);
         proto_item_append_text(ti, " (Unknown identifier)");
     }
+    return offset;
 }
 
 /* Process an APP2 block.
