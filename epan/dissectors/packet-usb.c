@@ -155,6 +155,7 @@ static gboolean try_heuristics = TRUE;
 
 static dissector_table_t usb_bulk_dissector_table;
 static dissector_table_t usb_control_dissector_table;
+static dissector_table_t usb_descriptor_dissector_table;
 static heur_dissector_list_t heur_bulk_subdissector_list;
 static heur_dissector_list_t heur_control_subdissector_list;
 
@@ -744,6 +745,7 @@ get_usb_conv_info(conversation_t *conversation)
         /* no not yet so create some */
         usb_conv_info = se_alloc0(sizeof(usb_conv_info_t));
         usb_conv_info->interfaceClass=IF_CLASS_UNKNOWN;
+        usb_conv_info->interfaceSubclass = IF_SUBCLASS_UNKNOWN;
         usb_conv_info->transactions=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "usb transactions");
 
         conversation_add_proto_data(conversation, proto_usb, usb_conv_info);
@@ -1064,6 +1066,8 @@ dissect_usb_interface_descriptor(packet_info *pinfo, proto_tree *parent_tree, tv
 
     /* bInterfaceSubClass */
     proto_tree_add_item(tree, hf_usb_bInterfaceSubClass, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    /* save the subclass so we can access it later in class-specific descriptors */
+    usb_conv_info->interfaceSubclass = tvb_get_guint8(tvb, offset);
     offset++;
 
     /* bInterfaceProtocol */
@@ -1322,6 +1326,7 @@ dissect_usb_configuration_descriptor(packet_info *pinfo _U_, proto_tree *parent_
     /* decode any additional interface and endpoint descriptors */
     while(len>(old_offset-offset)){
         guint8 next_type;
+        tvbuff_t *next_tvb = NULL;
 
         if(tvb_length_remaining(tvb, offset)<2){
             break;
@@ -1335,7 +1340,12 @@ dissect_usb_configuration_descriptor(packet_info *pinfo _U_, proto_tree *parent_
             offset=dissect_usb_endpoint_descriptor(pinfo, parent_tree, tvb, offset, usb_trans_info, usb_conv_info);
             break;
         default:
-            offset=dissect_usb_unknown_descriptor(pinfo, parent_tree, tvb, offset, usb_trans_info, usb_conv_info);
+            next_tvb = tvb_new_subset_remaining(tvb, offset);
+            if (dissector_try_uint(usb_descriptor_dissector_table, usb_conv_info->interfaceClass, next_tvb, pinfo, parent_tree)){
+                offset += tvb_get_guint8(next_tvb, 0);
+            } else {
+                offset=dissect_usb_unknown_descriptor(pinfo, parent_tree, tvb, offset, usb_trans_info, usb_conv_info);
+            }
             break;
             /* was: return offset; */
         }
@@ -2763,6 +2773,8 @@ proto_register_usb(void)
     usb_control_dissector_table = register_dissector_table("usb.control",
         "USB control endpoint", FT_UINT8, BASE_DEC);
     register_heur_dissector_list("usb.control", &heur_control_subdissector_list);
+    usb_descriptor_dissector_table = register_dissector_table("usb.descriptor",
+        "USB descriptor", FT_UINT8, BASE_DEC);
 
     usb_module = prefs_register_protocol(proto_usb, NULL);
     prefs_register_bool_preference(usb_module, "try_heuristics",

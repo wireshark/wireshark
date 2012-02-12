@@ -60,6 +60,7 @@ typedef struct _usb_trans_info_t {
 /* there is one such structure for each device/endpoint conversation */
 struct _usb_conv_info_t {
     guint16 interfaceClass;		/* class for this conversation */
+    guint16 interfaceSubclass;	/* Most recent interface descriptor subclass */
     emem_tree_t *transactions;
     usb_trans_info_t *usb_trans_info; /* pointer to the current transaction */
     void *class_data;	/* private class/id decode data */
@@ -120,6 +121,7 @@ typedef struct _usb_tap_data_t {
 #define IF_CLASS_APPLICATION_SPECIFIC	0xfe
 #define IF_CLASS_VENDOR_SPECIFIC	0xff
 
+#define IF_SUBCLASS_UNKNOWN		0xffff
 
 /* bmRequestType values */
 #define USB_DIR_OUT                     0               /* to device */
