@@ -75,6 +75,7 @@
 #include "packet-gsm_a_common.h"
 #include "packet-e212.h"
 #include "packet-ppp.h"
+#include "ipproto.h"
 
 /* PROTOTYPES/FORWARDS */
 
@@ -241,6 +242,7 @@ static int hf_gsm_a_tft_port = -1;
 static int hf_gsm_a_tft_port_low = -1;
 static int hf_gsm_a_tft_port_high = -1;
 static int hf_gsm_a_tft_security = -1;
+static int hf_gsm_a_tft_traffic_class = -1;
 static int hf_gsm_a_tft_traffic_mask = -1;
 static int hf_gsm_a_tft_flow_label_type = -1;
 static int hf_gsm_a_tft_param_id = -1;
@@ -4775,7 +4777,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 
 				case 0x70:
 					str="Type of service/Traffic class type";
-					proto_tree_add_item(comp_tree,hf_gsm_a_qos_traffic_cls,tvb,curr_offset,1,ENC_BIG_ENDIAN);
+					proto_tree_add_item(comp_tree,hf_gsm_a_tft_traffic_class,tvb,curr_offset,1,ENC_BIG_ENDIAN);
 					curr_offset++;
 					proto_tree_add_item(comp_tree,hf_gsm_a_tft_traffic_mask,tvb,curr_offset,1,ENC_BIG_ENDIAN);
 					curr_offset++;
@@ -6736,7 +6738,7 @@ proto_register_gsm_a_gm(void)
 	},
 	{ &hf_gsm_a_tft_protocol_header,
 		{ "Protocol/header", "gsm_a.tft.protocol_header",
-		  FT_UINT8, BASE_HEX, NULL, 0x0,
+		  FT_UINT8, BASE_HEX|BASE_EXT_STRING, (&ipproto_val_ext), 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_tft_port,
@@ -6757,6 +6759,11 @@ proto_register_gsm_a_gm(void)
 	{ &hf_gsm_a_tft_security,
 		{ "IPSec security parameter index", "gsm_a.tft.security",
 		  FT_UINT32, BASE_HEX, NULL, 0x0,
+		NULL, HFILL }
+	},
+	{ &hf_gsm_a_tft_traffic_class,
+		{ "Type of service/Traffic class field", "gsm_a.tft.traffic_class",
+		  FT_UINT8, BASE_HEX, NULL, 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_tft_traffic_mask,
