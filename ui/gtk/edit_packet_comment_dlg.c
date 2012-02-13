@@ -1,5 +1,6 @@
 /* edit_packet_comment_dlg.c
  * Dialog box for editing or adding packet comments.
+ * Copyright 2012 Anders Broman <anders.broman@ericsson.com>
  *
  * $Id$
  *
@@ -57,6 +58,27 @@ pkt_comment_text_buff_clear_cb(GtkWidget *w _U_, GtkWidget *view)
 
 }
 
+static void
+pkt_comment_text_buff_save_cb(GtkWidget *w, GtkWidget *view)
+{
+  GtkTextBuffer *buffer;
+  GtkTextIter start_iter;
+  GtkTextIter end_iter;
+  gchar *new_packet_comment = NULL;
+
+  buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (view));
+  gtk_text_buffer_get_start_iter (buffer, &start_iter);
+  gtk_text_buffer_get_end_iter (buffer, &end_iter);
+
+  new_packet_comment = gtk_text_buffer_get_text (buffer, &start_iter, &end_iter, FALSE /* whether to include invisible text */);  
+
+  /*g_warning("The new comment is '%s'",new_packet_comment);*/
+
+  new_packet_list_update_packet_comment(new_packet_comment);
+
+  /*window_destroy(w);*/
+
+}
 
 void
 edit_packet_comment_dlg (GtkAction *action _U_, gpointer data _U_)
@@ -66,7 +88,7 @@ edit_packet_comment_dlg (GtkAction *action _U_, gpointer data _U_)
   GtkWidget *view;
   GtkWidget *bbox;
   GtkWidget *save_bt, *clear_bt, *close_bt, *help_bt;
-  GtkTextBuffer *buffer;
+  GtkTextBuffer *buffer = NULL;
   gchar *opt_comment;
   const gchar *buf_str;
 
@@ -97,9 +119,9 @@ edit_packet_comment_dlg (GtkAction *action _U_, gpointer data _U_)
   bbox = dlg_button_row_new (GTK_STOCK_SAVE, GTK_STOCK_CLEAR, GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
   gtk_box_pack_end (GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
-  save_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_OK);
-  g_signal_connect (save_bt, "clicked", /*G_CALLBACK(man_addr_resolv_ok)*/NULL, NULL);
-  gtk_widget_set_sensitive (save_bt, FALSE);
+  save_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_SAVE);
+  g_signal_connect (save_bt, "clicked", G_CALLBACK(pkt_comment_text_buff_save_cb), view);
+  gtk_widget_set_sensitive (save_bt, TRUE);
 
   clear_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLEAR);
   g_signal_connect(clear_bt, "clicked", G_CALLBACK(pkt_comment_text_buff_clear_cb), view);
@@ -109,6 +131,7 @@ edit_packet_comment_dlg (GtkAction *action _U_, gpointer data _U_)
 
   help_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_HELP);
   g_signal_connect (help_bt, "clicked",/* G_CALLBACK(topic_cb)*/NULL, /*(gpointer)HELP_MANUAL_ADDR_RESOLVE_DIALOG*/NULL);
+  gtk_widget_set_sensitive (help_bt, FALSE);
 
   gtk_widget_grab_default (save_bt);
   g_signal_connect (edit_or_add_pkt_comment_dlg, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
