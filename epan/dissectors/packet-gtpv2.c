@@ -4479,8 +4479,9 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
     proto_tree *gtpv2_tree, *flags_tree;
     proto_item *ti, *tf;
-    guint8 message_type, t_flag;
+    guint8 message_type, t_flag, p_flag;
     int offset = 0;
+    guint16 msg_length;
 
 
     /* Currently we get called from the GTP dissector no need to check the version */
@@ -4493,6 +4494,8 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 
     proto_tree_add_item(tree, proto_gtpv2, tvb, offset, -1, ENC_NA);
+    p_flag = (tvb_get_guint8(tvb,offset) & 0x10)>>4;
+    msg_length = tvb_get_ntohs(tvb, offset+2);
 
     if (tree) {
         ti = proto_tree_add_text(tree, tvb, offset, -1, "%s", val_to_str(message_type, gtpv2_message_type_vals, "Unknown"));
@@ -4544,6 +4547,19 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
         dissect_gtpv2_ie_common(tvb, pinfo, gtpv2_tree, offset, message_type);
     }
+    /* Bit 5 represents a "P" flag. If the "P" flag is set to "0", 
+     * no piggybacked message shall be present. If the "P" flag is set to "1",
+     * then another GTPv2-C message with its own header and body shall be present 
+     * at the end of the current message.
+     */
+    if(p_flag){
+        tvbuff_t   *new_tvb;
+        /* Octets 3 to 4 represent the Length field. This field shall indicate the length of the message in octets excluding the
+         * mandatory part of the GTP-C header (the first 4 octets).
+         */
+        new_tvb = tvb_new_subset_remaining(tvb,msg_length+4);
+        dissect_gtpv2(new_tvb, pinfo, tree);
+    }
 
 
 }
@@ -4577,12 +4593,12 @@ void proto_register_gtpv2(void)
           NULL, HFILL}
         },
         {&hf_gtpv2_p,
-         {"P", "gtpv2.p",
+         {"Piggybacking flag (P)", "gtpv2.p",
           FT_UINT8, BASE_DEC, NULL, 0x10,
           "If Piggybacked message is present or not", HFILL}
         },
         { &hf_gtpv2_t,
-          {"T", "gtpv2.t",
+          {"TEID flag (T)", "gtpv2.t",
            FT_UINT8, BASE_DEC, NULL, 0x08,
            "If TEID field is present or not", HFILL}
         },
