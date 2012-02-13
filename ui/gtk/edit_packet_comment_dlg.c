@@ -59,7 +59,7 @@ pkt_comment_text_buff_clear_cb(GtkWidget *w _U_, GtkWidget *view)
 }
 
 static void
-pkt_comment_text_buff_save_cb(GtkWidget *w, GtkWidget *view)
+pkt_comment_text_buff_save_cb(GtkWidget *w _U_, GtkWidget *view)
 {
   GtkTextBuffer *buffer;
   GtkTextIter start_iter;
