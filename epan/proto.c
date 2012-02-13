@@ -107,6 +107,8 @@ wrs_count_bitshift(const guint32 bitmask)
 		return(NULL);						\
 	PTREE_DATA(tree)->count++;					\
 	if (PTREE_DATA(tree)->count > MAX_TREE_ITEMS) {			\
+		if (getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG") != NULL) \
+			abort();					\
 		/* Let the exception handler add items to the tree */	\
 		PTREE_DATA(tree)->count = 0;				\
 		THROW_MESSAGE(DissectorError,				\
