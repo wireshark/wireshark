@@ -96,6 +96,8 @@ static gint ett_vines_llc = -1;
 
 static int proto_vines_ip = -1;
 static int hf_vines_ip_protocol = -1;
+static int hf_vines_ip_checksum = -1;
+static int hf_vines_ip_length = -1;
 
 static gint ett_vines_ip = -1;
 static gint ett_vines_ip_tctl = -1;
@@ -416,9 +418,9 @@ dissect_vines_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	SET_ADDRESS(&pinfo->net_dst, AT_VINES, VINES_ADDR_LEN, dst_addr);
 	SET_ADDRESS(&pinfo->dst, AT_VINES, VINES_ADDR_LEN, dst_addr);
 
- 	/* helpers to transport control */
+	/* helpers to transport control */
 	if (memcmp(viph.vip_dst, bcast_addr, VINES_ADDR_LEN) == 0)
- 		is_broadcast = TRUE;
+		is_broadcast = TRUE;
 
 	/*
 	 * Adjust the length of this tvbuff to include only the Vines IP
@@ -431,13 +433,15 @@ dissect_vines_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					 offset, viph.vip_pktlen,
 					 ENC_NA);
 		vip_tree = proto_item_add_subtree(ti, ett_vines_ip);
-		proto_tree_add_text(vip_tree, tvb, offset,      2,
-				    "Packet checksum: 0x%04x",
-				    viph.vip_chksum);
-		proto_tree_add_text(vip_tree, tvb, offset +  2, 2,
-				    "Packet length: %u",
-				    viph.vip_pktlen);
-		ti = proto_tree_add_text(vip_tree, tvb, offset +  4, 1,
+		proto_tree_add_item(vip_tree, hf_vines_ip_checksum,
+			tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset += 2;
+
+		proto_tree_add_item(vip_tree, hf_vines_ip_length,
+			tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset += 2;
+
+		ti = proto_tree_add_text(vip_tree, tvb, offset, 1,
 				    "Transport control: 0x%02x",
 				    viph.vip_tctl);
 		tctl_tree = proto_item_add_subtree(ti, ett_vines_ip_tctl);
@@ -445,44 +449,52 @@ dissect_vines_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * XXX - bit 0x80 is "Normal" if 0; what is it if 1?
 		 */
 		if (is_broadcast) {
-			proto_tree_add_text(tctl_tree, tvb, offset + 4, 1, "%s",
+			proto_tree_add_item(vip_tree, hf_vines_ip_length,
+				tvb, offset, 1, ENC_NA);
+			proto_tree_add_text(tctl_tree, tvb, offset, 1, "%s",
 			    decode_boolean_bitfield(viph.vip_tctl, 0x40, 1*8,
 			      "Router nodes",
 			      "All nodes"));
-			proto_tree_add_text(tctl_tree, tvb, offset + 4, 1, "%s",
+			proto_tree_add_text(tctl_tree, tvb, offset, 1, "%s",
 			    decode_enumerated_bitfield(viph.vip_tctl, 0x30, 1*8,
 				      class_vals, "%s"));
 		} else {
-			proto_tree_add_text(tctl_tree, tvb, offset + 4, 1, "%s",
+			proto_tree_add_text(tctl_tree, tvb, offset, 1, "%s",
 			    decode_boolean_bitfield(viph.vip_tctl, 0x40, 1*8,
 			      "Forwarding router can handle redirect packets",
 			      "Forwarding router cannot handle redirect packets"));
-			proto_tree_add_text(tctl_tree, tvb, offset + 4, 1, "%s",
+			proto_tree_add_text(tctl_tree, tvb, offset, 1, "%s",
 			    decode_boolean_bitfield(viph.vip_tctl, 0x20, 1*8,
 			      "Return metric notification packet",
 			      "Do not return metric notification packet"));
-			proto_tree_add_text(tctl_tree, tvb, offset + 4, 1, "%s",
+			proto_tree_add_text(tctl_tree, tvb, offset, 1, "%s",
 			    decode_boolean_bitfield(viph.vip_tctl, 0x10, 1*8,
 			      "Return exception notification packet",
 			      "Do not return exception notification packet"));
 		}
-		proto_tree_add_text(tctl_tree, tvb, offset + 4, 1, "%s",
+		proto_tree_add_text(tctl_tree, tvb, offset, 1, "%s",
 		    decode_numeric_bitfield(viph.vip_tctl, 0x0F, 1*8,
 			"Hop count remaining = %u"));
-		proto_tree_add_uint(vip_tree, hf_vines_ip_protocol, tvb,
-				    offset +  5, 1,
-				    viph.vip_proto);
-		proto_tree_add_text(vip_tree, tvb, offset +  6,
+		offset += 1;
+
+		proto_tree_add_item(vip_tree, hf_vines_ip_protocol, tvb,
+				    offset, 1, ENC_NA);
+		offset += 1;
+
+		proto_tree_add_text(vip_tree, tvb, offset,
 				    VINES_ADDR_LEN,
 				    "Destination: %s",
-				    tvb_vines_addr_to_str(tvb, offset + 6));
-		proto_tree_add_text(vip_tree, tvb, offset +  12,
+				    tvb_vines_addr_to_str(tvb, offset));
+		offset += 6;
+
+		proto_tree_add_text(vip_tree, tvb, offset,
 				    VINES_ADDR_LEN,
 				    "Source: %s",
-				    tvb_vines_addr_to_str(tvb, offset + 12));
+				    tvb_vines_addr_to_str(tvb, offset));
+		offset += 6;
+	} else {
+		offset += 18;
 	}
-
-	offset += 18;
 	next_tvb = tvb_new_subset_remaining(tvb, offset);
 	if (!dissector_try_uint(vines_ip_dissector_table, viph.vip_proto,
 	    next_tvb, pinfo, tree))
@@ -501,7 +513,18 @@ proto_register_vines_ip(void)
 	  { &hf_vines_ip_protocol,
 	    { "Protocol",			"vines_ip.protocol",
 	      FT_UINT8,		BASE_HEX,	VALS(proto_vals),	0x0,
-	      "Vines protocol", HFILL }}
+	      "Vines protocol", HFILL }},
+
+	  { &hf_vines_ip_checksum,
+	    { "Packet checksum",		"vines_ip.checksum",
+	      FT_UINT16,	BASE_HEX,	NULL,		0x0,
+	      NULL,		HFILL }},
+
+	  { &hf_vines_ip_length,
+	    { "Packet length",			"vines_ip.length",
+	      FT_UINT16,	BASE_DEC,	NULL,		0x0,
+	      NULL,		HFILL }},
+
 	};
 
 	proto_vines_ip = proto_register_protocol("Banyan Vines IP", "Vines IP",
@@ -631,7 +654,7 @@ dissect_vines_ipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		switch (viph.vipc_pkttype) {
 
 		case PKTTYPE_DGRAM:
-	 		col_add_fstr(pinfo->cinfo, COL_INFO,
+			col_add_fstr(pinfo->cinfo, COL_INFO,
 				     "%s D=%04x S=%04x",
 				     val_to_str(viph.vipc_pkttype, pkttype_vals,
 				         "Unknown packet type (0x%02x)"),
@@ -639,7 +662,7 @@ dissect_vines_ipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 
 		case PKTTYPE_ERR:
-	 		col_add_fstr(pinfo->cinfo, COL_INFO,
+			col_add_fstr(pinfo->cinfo, COL_INFO,
 				     "%s NS=%u NR=%u Err=%s RID=%04x LID=%04x D=%04x S=%04x",
 				     val_to_str(viph.vipc_pkttype, pkttype_vals,
 				         "Unknown packet type (0x%02x)"),
@@ -651,7 +674,7 @@ dissect_vines_ipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 
 		default:
-	 		col_add_fstr(pinfo->cinfo, COL_INFO,
+			col_add_fstr(pinfo->cinfo, COL_INFO,
 				     "%s NS=%u NR=%u Len=%u RID=%04x LID=%04x D=%04x S=%04x",
 				     val_to_str(viph.vipc_pkttype, pkttype_vals,
 				         "Unknown packet type (0x%02x)"),
@@ -826,7 +849,7 @@ dissect_vines_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines SPP");
 	if (check_col(pinfo->cinfo, COL_INFO))
- 		col_add_fstr(pinfo->cinfo, COL_INFO,
+		col_add_fstr(pinfo->cinfo, COL_INFO,
 			     "%s NS=%u NR=%u Window=%u RID=%04x LID=%04x D=%04x S=%04x",
 			     val_to_str(viph.vspp_pkttype, pkttype_vals,
 			         "Unknown packet type (0x%02x)"),
