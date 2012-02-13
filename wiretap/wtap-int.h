@@ -88,9 +88,9 @@ typedef gboolean (*subtype_close_func)(struct wtap_dumper*, int*);
 
 struct wtap_dumper {
 	WFILE_T			fh;
-	int			file_type;
-	int			snaplen;
-	int			encap;
+	int				file_type;
+	int				snaplen;
+	int				encap;
 	gboolean		compressed;
 	gint64			bytes_dumped;
 
@@ -100,7 +100,7 @@ struct wtap_dumper {
 	subtype_close_func	subtype_close;
 
 	int			tsprecision;	/* timestamp precision of the lower 32bits
-							 * e.g. WTAP_FILE_TSPREC_USEC */
+								 * e.g. WTAP_FILE_TSPREC_USEC */
 	struct addrinfo *addrinfo_list;
 };
 
