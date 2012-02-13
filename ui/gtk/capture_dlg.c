@@ -1677,6 +1677,7 @@ update_options_table(gint index)
       path_str = g_strdup_printf("%d", index);
       path = gtk_tree_path_new_from_string(path_str);
       model = gtk_tree_view_get_model(if_cb);
+      gtk_tree_model_get_iter(model, &iter, path);
       gtk_tree_model_get(model, &iter, CAPTURE, &enabled, -1);
       if (enabled == FALSE) {
         device.selected = TRUE;
@@ -1697,6 +1698,7 @@ update_options_table(gint index)
         gtk_widget_set_sensitive(ok_bt, FALSE);
       }
       gtk_tree_path_free (path);
+      g_free(path_str);
     }
     if (interfaces_dialog_window_present()) {
       update_selected_interface(g_strdup(device.name));
