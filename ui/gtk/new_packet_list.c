@@ -1719,6 +1719,28 @@ new_packet_list_get_packet_comment(void)
 }
 
 void
+new_packet_list_update_packet_comment(gchar *new_packet_comment)
+{
+
+	GtkTreeModel *model;
+	GtkTreeSelection *selection;
+	GtkTreeIter iter;
+	PacketListRecord *record;
+
+	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(packetlist->view));
+	/* model is filled with the current model as a convenience. */
+	if (!gtk_tree_selection_get_selected(selection, &model, &iter))
+		return;
+
+	record = new_packet_list_get_record(model, &iter);
+	g_free(record->fdata->opt_comment);
+	record->fdata->opt_comment = new_packet_comment;
+
+	new_packet_list_queue_draw();
+
+}
+
+void
 new_packet_list_recent_write_all(FILE *rf)
 {
 	gint col, width, num_cols, col_fmt;
