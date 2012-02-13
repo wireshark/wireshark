@@ -179,7 +179,7 @@ static void add_charstring_value(const gchar *tag_desc, proto_tree *tree,
 static int add_value_head(const gchar *tag_desc, proto_tree *tree,
     tvbuff_t *tvb, int offset, int name_length, int value_length, char **name_val);
 
-static void
+static int
 dissect_ipp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree *ipp_tree;
@@ -189,6 +189,24 @@ dissect_ipp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    /* XXX - should this be based on the HTTP header? */
 	guint16 status_code;
 	const gchar *status_fmt;
+
+	/* First, do some heuristics to determine if this is an IPP packet */
+
+	/* Is there enough data to tell if this is IPP? */
+	if (tvb_length(tvb) < 8)
+		return 0;
+
+	/* Is the major version reasonable? */
+	if (tvb_get_guint8(tvb, 0) > 2)
+		return 0; /* Not IPP (at least not yet) */
+
+	if (is_request) {
+		if (!match_strval(tvb_get_ntohs(tvb, 2), operation_vals))
+			return 0; /* Not IPP */
+	} else {
+		if ((tvb_get_ntohs(tvb, 2) & STATUS_TYPE_MASK) > STATUS_SERVER_ERROR)
+			return 0; /* Not IPP */
+	}
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPP");
 	if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -257,6 +275,8 @@ dissect_ipp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    ipp_tree);
 		}
 	}
+
+	return(tvb_length(tvb));
 }
 
 #define	TAG_TYPE(tag)		((tag) & 0xF0)
@@ -709,7 +729,7 @@ proto_reg_handoff_ipp(void)
 	/*
 	 * Register ourselves as running atop HTTP and using port 631.
 	 */
-	ipp_handle = create_dissector_handle(dissect_ipp, proto_ipp);
+	ipp_handle = new_create_dissector_handle(dissect_ipp, proto_ipp);
 	http_dissector_add(631, ipp_handle);
 	dissector_add_string("media_type", "application/ipp", ipp_handle);
         data_handle = find_dissector("data");
