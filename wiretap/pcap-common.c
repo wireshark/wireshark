@@ -1602,6 +1602,18 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 			return -1;	/* Read error */
 
 		phdr_len += size;
+
+		if (check_packet_size &&
+		    packet_size < (guint)phdr_len) {
+			/*
+			 * Uh-oh, the packet isn't big enough for the pseudo-
+			 * header.
+			 */
+			*err = WTAP_ERR_BAD_FILE;
+			*err_info = g_strdup_printf("pcap: ERF file has a %u-byte packet, too small for a pseudo-header with ex- and sub-headers (%d)",
+			    packet_size, phdr_len);
+			return -1;
+		}
 		break;
 
 	case WTAP_ENCAP_I2C:
