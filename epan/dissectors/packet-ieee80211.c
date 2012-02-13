@@ -3049,7 +3049,7 @@ int add_mimo_csi_matrices_report (proto_tree *tree, tvbuff_t *tvb, int offset, m
   snr_item = proto_tree_add_text(tree, tvb, offset, mimo_cntrl.nc, "Signal to Noise Ratio");
   snr_tree = proto_item_add_subtree (snr_item, ett_mimo_report);
 
-  for (i=1; i <= mimo_cntrl.nr; i++)
+  for (i = 1; i <= mimo_cntrl.nr; i++)
   {
     guint8 snr;
 
@@ -3077,7 +3077,7 @@ int add_mimo_beamforming_feedback_report (proto_tree *tree, tvbuff_t *tvb, int o
   snr_item = proto_tree_add_text(tree, tvb, offset, mimo_cntrl.nc, "Signal to Noise Ratio");
   snr_tree = proto_item_add_subtree (snr_item, ett_mimo_report);
 
-  for (i=1; i <= mimo_cntrl.nc; i++)
+  for (i = 1; i <= mimo_cntrl.nc; i++)
   {
     guint8 snr;
 
@@ -3105,7 +3105,7 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
   snr_item = proto_tree_add_text(tree, tvb, offset, mimo_cntrl.nc, "Signal to Noise Ratio");
   snr_tree = proto_item_add_subtree (snr_item, ett_mimo_report);
 
-  for (i=1; i <= mimo_cntrl.nc; i++)
+  for (i = 1; i <= mimo_cntrl.nc; i++)
   {
     guint8 snr;
 
@@ -5899,7 +5899,7 @@ dissect_vendor_ie_wpawme(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 
 
       wpa_ucs_item = proto_tree_add_item(tree, hf_ieee80211_wfa_ie_wpa_ucs_list, tvb, offset, ucs_count * 4, ENC_NA);
       wpa_ucs_tree = proto_item_add_subtree(wpa_ucs_item, ett_wpa_ucs_tree);
-      for(i=1; i <= ucs_count; i++)
+      for(i = 1; i <= ucs_count; i++)
       {
         wpa_sub_ucs_item = proto_tree_add_item(wpa_ucs_tree, hf_ieee80211_wfa_ie_wpa_ucs, tvb, offset, 4, ENC_BIG_ENDIAN);
         wpa_sub_ucs_tree = proto_item_add_subtree(wpa_sub_ucs_item, ett_wpa_sub_ucs_tree);
@@ -5923,7 +5923,7 @@ dissect_vendor_ie_wpawme(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 
 
       wpa_akms_item = proto_tree_add_item(tree, hf_ieee80211_wfa_ie_wpa_akms_list, tvb, offset, akms_count * 4, ENC_NA);
       wpa_akms_tree = proto_item_add_subtree(wpa_akms_item, ett_wpa_akms_tree);
-      for(i=1; i <= akms_count; i++)
+      for(i = 1; i <= akms_count; i++)
       {
         wpa_sub_akms_item = proto_tree_add_item(wpa_akms_tree, hf_ieee80211_wfa_ie_wpa_akms, tvb, offset, 4, ENC_BIG_ENDIAN);
         wpa_sub_akms_tree = proto_item_add_subtree(wpa_sub_akms_item, ett_wpa_sub_akms_tree);
@@ -6461,7 +6461,7 @@ dissect_rsn_ie(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 tag_len)
 
   rsn_pcs_item = proto_tree_add_item(tree, hf_ieee80211_rsn_pcs_list, tvb, offset, pcs_count * 4, ENC_NA);
   rsn_pcs_tree = proto_item_add_subtree(rsn_pcs_item, ett_rsn_pcs_tree);
-  for(i=1; i <= pcs_count; i++)
+  for(i = 1; i <= pcs_count; i++)
   {
     rsn_sub_pcs_item = proto_tree_add_item(rsn_pcs_tree, hf_ieee80211_rsn_pcs, tvb, offset, 4, ENC_BIG_ENDIAN);
     rsn_sub_pcs_tree = proto_item_add_subtree(rsn_sub_pcs_item, ett_rsn_sub_pcs_tree);
@@ -6485,7 +6485,7 @@ dissect_rsn_ie(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 tag_len)
 
   rsn_akms_item = proto_tree_add_item(tree, hf_ieee80211_rsn_akms_list, tvb, offset, akms_count * 4, ENC_NA);
   rsn_akms_tree = proto_item_add_subtree(rsn_akms_item, ett_rsn_akms_tree);
-  for(i=1; i <= akms_count; i++)
+  for(i = 1; i <= akms_count; i++)
   {
     rsn_sub_akms_item = proto_tree_add_item(rsn_akms_tree, hf_ieee80211_rsn_akms, tvb, offset, 4, ENC_BIG_ENDIAN);
     rsn_sub_akms_tree = proto_item_add_subtree(rsn_sub_akms_item, ett_rsn_sub_akms_tree);
@@ -6525,7 +6525,7 @@ dissect_rsn_ie(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 tag_len)
 
   rsn_pmkid_item = proto_tree_add_item(tree, hf_ieee80211_rsn_pmkid_list, tvb, offset, pmkid_count * 16, ENC_NA);
   rsn_pmkid_tree = proto_item_add_subtree(rsn_pmkid_item, ett_rsn_pmkid_tree);
-  for(i=1; i <= pmkid_count; i++)
+  for(i = 1; i <= pmkid_count; i++)
   {
     proto_tree_add_item(rsn_pmkid_tree, hf_ieee80211_rsn_pmkid, tvb, offset, 16, ENC_NA);
     offset +=16;
@@ -8393,7 +8393,7 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
       {
         proto_item *chan_item;
         proto_tree *chan_tree;
-        guint i=1;
+        guint i = 1;
 
         offset += 2;
         if (tag_len % 2 == 1) {
@@ -10295,7 +10295,8 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
               }
               case 3: /* Multi-TID BlockAckReq */
               {
-                guint8 tid_count, i;
+                guint8 tid_count;
+                guint i;
                 proto_tree *bar_mtid_tree, *bar_mtid_sub_tree;
 
                 tid_count = ((bar_control & 0xF000) >> 12) + 1;
@@ -10397,7 +10398,8 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
               }
               case 3:  /* Multi-TID BlockAck */
               {
-                guint8 tid_count, i;
+                guint8 tid_count;
+                guint i;
                 proto_tree *ba_mtid_tree, *ba_mtid_sub_tree;
 
                 tid_count = ((ba_control & 0xF000) >> 12) + 1;
@@ -10409,7 +10411,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 
                 ba_parent_item = proto_tree_add_text (hdr_tree, tvb, offset, tid_count*4, "Per TID Info");
                 ba_mtid_tree = proto_item_add_subtree(ba_parent_item, ett_block_ack);
-                for (i=1; i<=tid_count; i++) {
+                for (i = 1; i <= tid_count; i++) {
                   ba_parent_item = proto_tree_add_uint(ba_mtid_tree, hf_ieee80211_block_ack_multi_tid_info, tvb, offset, 4, i);
                   ba_mtid_sub_tree = proto_item_add_subtree(ba_parent_item, ett_block_ack);
 
