@@ -979,17 +979,17 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 				      oh.option_code, oh.option_length);
 			break;
 			case(4): /* epb_dropcount */
-			if(oh.option_length == 4) {
+			if(oh.option_length == 8) {
 				/*  Don't cast a char[] into a guint32--the
 				 *  char[] may not be aligned correctly.
 				 */
-				memcpy(&wblock->data.packet.drop_count, option_content, sizeof(guint32));
+				memcpy(&wblock->data.packet.drop_count, option_content, sizeof(guint64));
 				if(pn->byte_swapped)
-					wblock->data.packet.drop_count = BSWAP32(wblock->data.packet.drop_count);
+					wblock->data.packet.drop_count = BSWAP64(wblock->data.packet.drop_count);
 
-				pcapng_debug1("pcapng_read_packet_block: drop_count %u", wblock->data.packet.drop_count);
+				pcapng_debug1("pcapng_read_packet_block: drop_count %" G_GINT64_MODIFIER "u", wblock->data.packet.drop_count);
 			} else {
-				pcapng_debug1("pcapng_read_packet_block: drop_count length %u not 4 as expected", oh.option_length);
+				pcapng_debug1("pcapng_read_packet_block: drop_count length %u not 8 as expected", oh.option_length);
 			}
 			break;
 		    default:
