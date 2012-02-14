@@ -4482,6 +4482,7 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     guint8 message_type, t_flag, p_flag;
     int offset = 0;
     guint16 msg_length;
+    tvbuff_t   *msg_tvb;
 
 
     /* Currently we get called from the GTP dissector no need to check the version */
@@ -4493,12 +4494,12 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     col_add_str(pinfo->cinfo, COL_INFO, val_to_str(message_type, gtpv2_message_type_vals, "Unknown"));
 
 
-    proto_tree_add_item(tree, proto_gtpv2, tvb, offset, -1, ENC_NA);
     p_flag = (tvb_get_guint8(tvb,offset) & 0x10)>>4;
     msg_length = tvb_get_ntohs(tvb, offset+2);
+    proto_tree_add_item(tree, proto_gtpv2, tvb, offset, msg_length+4, ENC_NA);
 
     if (tree) {
-        ti = proto_tree_add_text(tree, tvb, offset, -1, "%s", val_to_str(message_type, gtpv2_message_type_vals, "Unknown"));
+        ti = proto_tree_add_text(tree, tvb, offset, msg_length+4, "%s", val_to_str(message_type, gtpv2_message_type_vals, "Unknown"));
         gtpv2_tree = proto_item_add_subtree(ti, ett_gtpv2);
 
         /* Control Plane GTP uses a variable length header. Control Plane GTP header
@@ -4545,7 +4546,12 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         proto_tree_add_item(gtpv2_tree, hf_gtpv2_spare, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset+=1;
 
-        dissect_gtpv2_ie_common(tvb, pinfo, gtpv2_tree, offset, message_type);
+        if(p_flag){
+            msg_tvb = tvb_new_subset(tvb, 0, msg_length+4, msg_length+4);
+            dissect_gtpv2_ie_common(msg_tvb, pinfo, gtpv2_tree, offset, message_type);
+        }else{
+            dissect_gtpv2_ie_common(tvb, pinfo, gtpv2_tree, offset, message_type);
+        }    
     }
     /* Bit 5 represents a "P" flag. If the "P" flag is set to "0", 
      * no piggybacked message shall be present. If the "P" flag is set to "1",
@@ -4553,12 +4559,12 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
      * at the end of the current message.
      */
     if(p_flag){
-        tvbuff_t   *new_tvb;
+        tvbuff_t   *new_p_tvb;
         /* Octets 3 to 4 represent the Length field. This field shall indicate the length of the message in octets excluding the
          * mandatory part of the GTP-C header (the first 4 octets).
          */
-        new_tvb = tvb_new_subset_remaining(tvb,msg_length+4);
-        dissect_gtpv2(new_tvb, pinfo, tree);
+        new_p_tvb = tvb_new_subset_remaining(tvb,msg_length+4);
+        dissect_gtpv2(new_p_tvb, pinfo, tree);
     }
 
 
