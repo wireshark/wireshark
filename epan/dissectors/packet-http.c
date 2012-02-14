@@ -1193,13 +1193,11 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		/*
 		 * Do subdissector checks.
 		 *
-		 * First, check whether some subdissector asked that they
-		 * be called if something was on some particular port.
+		 * First, if we have a Content-Type value, check whether
+		 * there's a subdissector for that media type.
 		 */
-
-		handle = dissector_get_uint_handle(port_subdissector_table,
-		    pinfo->match_uint);
-		if (handle == NULL && headers.content_type != NULL) {
+		handle = NULL;
+		if (headers.content_type != NULL) {
 			/*
 			 * We didn't find any subdissector that
 			 * registered for the port, and we have a
@@ -1223,12 +1221,24 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			    media_type_subdissector_table,
 			    headers.content_type);
 			if (handle == NULL &&
-			    !strncmp(headers.content_type, "multipart/", sizeof("multipart/")-1)) {
+			    strncmp(headers.content_type, "multipart/", sizeof("multipart/")-1) == 0) {
 				/* Try to decode the unknown multipart subtype anyway */
 				handle = dissector_get_string_handle(
 				    media_type_subdissector_table,
 				    "multipart/");
 			}
+		}
+
+		/*
+		 * Now, if we didn't find such a subdissector, check
+		 * whether some subdissector asked that they be called
+		 * if HTTP traffic was on some particular port.  This
+		 * handles protocols that use HTTP syntax but don't have
+		 * a media type and instead use a specified port.
+		 */
+		if (handle == NULL) {
+			handle = dissector_get_uint_handle(port_subdissector_table,
+			    pinfo->match_uint);
 		}
 
 		if (handle != NULL) {
