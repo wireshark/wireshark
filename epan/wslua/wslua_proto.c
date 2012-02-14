@@ -198,7 +198,7 @@ WSLUA_CONSTRUCTOR Pref_enum(lua_State* L) {
 WSLUA_CONSTRUCTOR Pref_range(lua_State* L) {
     /* Creates a range preference to be added to a Protocol's prefs table. */
 #define WSLUA_ARG_Pref_range_LABEL 1 /* The Label (text in the right side of the preference input) for this preference */
-#define WSLUA_ARG_Pref_range_DEFAULT 2 /* The default value for this preference */
+#define WSLUA_ARG_Pref_range_DEFAULT 2 /* The default value for this preference, e.g., "53", "10-30", or "10-30,53,55,100-120" */
 #define WSLUA_ARG_Pref_range_DESCR 3 /* A description of what this preference is */
 #define WSLUA_ARG_Pref_range_MAX 4 /* The maximum value */
     return new_pref(L,PREF_RANGE);
