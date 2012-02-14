@@ -171,7 +171,7 @@ typedef struct pcapng_option_header_s {
 	guint16 option_code;
 	guint16 option_length;
 	/* ... x bytes Option Body ... */
-    /* ... Padding ... */
+	/* ... Padding ... */
 } pcapng_option_header_t;
 
 /* Block types */
@@ -399,10 +399,10 @@ pcapng_read_section_header_block(FILE_T fh, gboolean first_block,
 {
 	int	bytes_read;
 	int	block_read;
-	int to_read;
+	int to_read, opt_cont_buf_len;
 	pcapng_section_header_block_t shb;
 	pcapng_option_header_t oh;
-	char option_content[100]; /* XXX - size might need to be increased, if we see longer options */
+	char *option_content = NULL; /* Allocate as large as the options block */
 
 
 	/* read block content */
@@ -486,18 +486,23 @@ pcapng_read_section_header_block(FILE_T fh, gboolean first_block,
 	/* Option defaults */
 	wblock->data.section.opt_comment	= NULL;
 	wblock->data.section.shb_hardware	= NULL;
-	wblock->data.section.shb_os		= NULL;
+	wblock->data.section.shb_os			= NULL;
 	wblock->data.section.shb_user_appl	= NULL;
 
 	/* Options */
 	errno = WTAP_ERR_CANT_READ;
-	to_read = bh->block_total_length
-        - (int)sizeof(pcapng_block_header_t)
-        - (int)sizeof (pcapng_section_header_block_t)
-        - (int)sizeof(bh->block_total_length);
+	to_read = bh->block_total_length -
+	          (int)sizeof(pcapng_block_header_t) -
+	          (int)sizeof(pcapng_section_header_block_t) -
+	          (int)sizeof(bh->block_total_length);
+	/* Allocate enough memory to hold all options */
+	opt_cont_buf_len = to_read;
+	option_content = g_malloc(opt_cont_buf_len);
+	pcapng_debug1("pcapng_read_section_header_block: Options %u bytes", to_read);
 	while(to_read > 0) {
 		/* read option */
-		bytes_read = pcapng_read_option(fh, pn, &oh, option_content, sizeof(option_content), err, err_info);
+		pcapng_debug1("pcapng_read_section_header_block: Options %u bytes remaining", to_read);
+		bytes_read = pcapng_read_option(fh, pn, &oh, option_content, opt_cont_buf_len, err, err_info);
 		if (bytes_read <= 0) {
 			pcapng_debug0("pcapng_read_section_header_block: failed to read option");
 			return bytes_read;
@@ -515,32 +520,32 @@ pcapng_read_section_header_block(FILE_T fh, gboolean first_block,
 			to_read = 0;
 			break;
 		    case(1): /* opt_comment */
-			if(oh.option_length > 0 && oh.option_length < sizeof(option_content)) {
-				wblock->data.section.opt_comment = g_strndup(option_content, sizeof(option_content));
+			if(oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
+				wblock->data.section.opt_comment = g_strndup(option_content, oh.option_length);
 				pcapng_debug1("pcapng_read_section_header_block: opt_comment %s", wblock->data.section.opt_comment);
 			} else {
 				pcapng_debug1("pcapng_read_section_header_block: opt_comment length %u seems strange", oh.option_length);
 			}
 			break;
 		    case(2): /* shb_hardware */
-			if(oh.option_length > 0 && oh.option_length < sizeof(option_content)) {
-				wblock->data.section.shb_hardware = g_strndup(option_content, sizeof(option_content));
+			if(oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
+				wblock->data.section.shb_hardware = g_strndup(option_content, oh.option_length);
 				pcapng_debug1("pcapng_read_section_header_block: shb_hardware %s", wblock->data.section.shb_hardware);
 			} else {
 				pcapng_debug1("pcapng_read_section_header_block: shb_hardware length %u seems strange", oh.option_length);
 			}
 			break;
 		    case(3): /* shb_os */
-			if(oh.option_length > 0 && oh.option_length < sizeof(option_content)) {
-				wblock->data.section.shb_os = g_strndup(option_content, sizeof(option_content));
+			if(oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
+				wblock->data.section.shb_os = g_strndup(option_content, oh.option_length);
 				pcapng_debug1("pcapng_read_section_header_block: shb_os %s", wblock->data.section.shb_os);
 			} else {
-				pcapng_debug1("pcapng_read_section_header_block: shb_os length %u seems strange", oh.option_length);
+				pcapng_debug2("pcapng_read_section_header_block: shb_os length %u seems strange, opt buffsize %u", oh.option_length,to_read);
 			}
 			break;
 		    case(4): /* shb_userappl */
-			if(oh.option_length > 0 && oh.option_length < sizeof(option_content)) {
-				wblock->data.section.shb_user_appl = g_strndup(option_content, sizeof(option_content));
+			if(oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
+				wblock->data.section.shb_user_appl = g_strndup(option_content, oh.option_length);
 				pcapng_debug1("pcapng_read_section_header_block: shb_userappl %s", wblock->data.section.shb_user_appl);
 			} else {
 				pcapng_debug1("pcapng_read_section_header_block: shb_userappl length %u seems strange", oh.option_length);
@@ -551,6 +556,7 @@ pcapng_read_section_header_block(FILE_T fh, gboolean first_block,
 				      oh.option_code, oh.option_length);
 		}
 	}
+	g_free(option_content);
 
 	if (pn->interface_data != NULL) {
 		g_array_free(pn->interface_data, TRUE);
@@ -637,10 +643,10 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 
 	/* Options */
 	errno = WTAP_ERR_CANT_READ;
-	to_read = bh->block_total_length
-        - (int)sizeof(pcapng_block_header_t)
-        - (int)sizeof (pcapng_interface_description_block_t)
-        - (int)sizeof(bh->block_total_length);
+	to_read = bh->block_total_length -
+	          (int)sizeof(pcapng_block_header_t) -
+	          (int)sizeof (pcapng_interface_description_block_t) -
+	          (int)sizeof(bh->block_total_length);
 	while (to_read > 0) {
 		/* read option */
 		bytes_read = pcapng_read_option(fh, pn, &oh, option_content, sizeof(option_content), err, err_info);
@@ -926,10 +932,10 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 	 * epb_dropcount  4
 	 */
 	errno = WTAP_ERR_CANT_READ;
-	to_read = block_total_length
-        - (int)sizeof(pcapng_block_header_t)
-        - block_read    /* fixed and variable part, including padding */
-        - (int)sizeof(bh->block_total_length);
+	to_read = block_total_length -
+	          (int)sizeof(pcapng_block_header_t) -
+	          block_read -    /* fixed and variable part, including padding */
+	          (int)sizeof(bh->block_total_length);
 	while(to_read > 0) {
 		/* read option */
 		bytes_read = pcapng_read_option(fh, pn, &oh, option_content, sizeof(option_content), err, err_info);
@@ -1254,10 +1260,10 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
 
 	/* Options */
 	errno = WTAP_ERR_CANT_READ;
-	to_read = bh->block_total_length
-        - sizeof(pcapng_block_header_t)
-        - block_read    /* fixed and variable part, including padding */
-        - sizeof(bh->block_total_length);
+	to_read = bh->block_total_length -
+	          sizeof(pcapng_block_header_t) -
+	          block_read -    /* fixed and variable part, including padding */
+	          sizeof(bh->block_total_length);
 	while(to_read > 0) {
 		/* read option */
 		bytes_read = pcapng_read_option(fh, pn, &oh, option_content, sizeof(option_content), err, err_info);
@@ -2114,8 +2120,8 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
 	ts = (((guint64)phdr->ts.secs) * 1000000) + (phdr->ts.nsecs / 1000);
 
 	/* Split the 64-bit timestamp into two 32-bit pieces */
-    wblock.data.packet.ts_high      = (guint32)(ts >> 32);
-    wblock.data.packet.ts_low       = (guint32)ts;
+	wblock.data.packet.ts_high      = (guint32)(ts >> 32);
+	wblock.data.packet.ts_low       = (guint32)ts;
 
 	wblock.data.packet.cap_len      = phdr->caplen;
 	wblock.data.packet.packet_len   = phdr->len;

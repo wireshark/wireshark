@@ -25,25 +25,40 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-/* Returns a FILE * to write to on success, NULL on failure */
+/** Returns a FILE * to write to on success, NULL on failure */
 extern FILE *
 libpcap_fdopen(int fd, int *err);
 
-/* Write the file header to a dump file.
+/** Write the file header to a dump file.
    Returns TRUE on success, FALSE on failure.
    Sets "*err" to an error code, or 0 for a short write, on failure*/
 extern gboolean
 libpcap_write_file_header(FILE *fp, int linktype, int snaplen, long *bytes_written, int *err);
 
-/* Write a record for a packet to a dump file.
+/** Write a record for a packet to a dump file.
    Returns TRUE on success, FALSE on failure. */
 extern gboolean
 libpcap_write_packet(FILE *fp, const struct pcap_pkthdr *phdr, const u_char *pd,
     long *bytes_written, int *err);
 
+/** Write a section header block (SHB)
+ *
+ */
 extern gboolean
-libpcap_write_session_header_block(FILE *fp,
-                                   const char *appname,
+libpcap_write_session_header_block(FILE *fp,             /**< File pointer */
+                                   const char *comment,  /**< Comment on the section, Optinon 1 opt_comment
+                                                          * A UTF-8 string containing a comment that is associated to the current block.
+                                                          */
+                                   const char *hw,       /**< HW, Optinon 2 shb_hardware 
+                                                          * An UTF-8 string containing the description of the hardware  used to create this section.
+                                                          */
+                                   const char *os,       /**< Operating system name, Optinon 3 shb_os 
+                                                          * An UTF-8 string containing the name of the operating system used to create this section.
+                                                          */
+                                   const char *appname,  /**< Application name, Optinon 4 shb_userappl 
+                                                          * An UTF-8 string containing the name of the application  used to create this section.
+                                                          */
+                                   guint64 section_length,
                                    long *bytes_written,
                                    int *err);
 

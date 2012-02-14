@@ -160,7 +160,7 @@ struct option {
 #define OPT_ENDOFOPT 0
 #define OPT_COMMENT  1 /* currently not used */
 #define SHB_HARDWARE 2 /* currently not used */
-#define SHB_OS       3 /* currently not used */
+#define SHB_OS       3 
 #define SHB_USERAPPL 4
 #define IDB_NAME     2
 #define IDB_FILTER  11
@@ -268,7 +268,11 @@ libpcap_write_packet(FILE *fp, const struct pcap_pkthdr *phdr, const u_char *pd,
 
 gboolean
 libpcap_write_session_header_block(FILE *fp,
+                                   const char *comment,
+                                   const char *hw,
+                                   const char *os,
                                    const char *appname,
+                                   guint64 section_length,
                                    long *bytes_written,
                                    int *err)
 {
@@ -276,12 +280,34 @@ libpcap_write_session_header_block(FILE *fp,
 	struct option option;
 	guint32 block_total_length;
 	const guint32 padding = 0;
+	gboolean have_options = FALSE;
 
+	/* Size of base header */
 	block_total_length = sizeof(struct shb) +
 	                     sizeof(guint32);
-	if ((strlen(appname) > 0) && (strlen(appname) < G_MAXUINT16)) {
-		block_total_length += 2 * sizeof(struct option) +
+	if ((comment)&&(strlen(comment) > 0) && (strlen(comment) < G_MAXUINT16)) {
+		block_total_length += sizeof(struct option) +
+		                      (guint16)(ADD_PADDING(strlen(comment) + 1));
+		have_options = TRUE;
+	}
+	if ((hw)&&(strlen(hw) > 0) && (strlen(hw) < G_MAXUINT16)) {
+		block_total_length += sizeof(struct option) +
+		                      (guint16)(ADD_PADDING(strlen(hw) + 1));
+		have_options = TRUE;
+	}
+	if ((os)&&(strlen(os) > 0) && (strlen(os) < G_MAXUINT16)) {
+		block_total_length += sizeof(struct option) +
+		                      (guint16)(ADD_PADDING(strlen(os) + 1));
+		have_options = TRUE;
+	}
+	if ((appname)&&(strlen(appname) > 0) && (strlen(appname) < G_MAXUINT16)) {
+		block_total_length += sizeof(struct option) +
 		                      (guint16)(ADD_PADDING(strlen(appname) + 1));
+		have_options = TRUE;
+	}
+	/* If we have options add size of end-of-options */
+	if(have_options){
+		block_total_length += sizeof(struct option);
 	}
 	/* write shb header */
 	shb.block_type = SECTION_HEADER_BLOCK_TYPE;
@@ -289,10 +315,40 @@ libpcap_write_session_header_block(FILE *fp,
 	shb.byte_order_magic = PCAPNG_MAGIC;
 	shb.major_version = PCAPNG_MAJOR_VERSION;
 	shb.minor_version = PCAPNG_MINOR_VERSION;
-	shb.section_length = -1;
+	shb.section_length = section_length;
 	WRITE_DATA(fp, &shb, sizeof(struct shb), *bytes_written, err);
 
-	if ((strlen(appname) > 0) && (strlen(appname) < G_MAXUINT16)) {
+	if ((comment)&&(strlen(comment) > 0) && (strlen(comment) < G_MAXUINT16)) {
+		/* write opt_comment options */
+		option.type = OPT_COMMENT;
+		option.value_length = (guint16)(strlen(comment) + 1);
+		WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
+		WRITE_DATA(fp, comment, strlen(comment) + 1, *bytes_written, err);
+		if ((strlen(comment) + 1) % 4) {
+			WRITE_DATA(fp, &padding, 4 - (strlen(hw) + 1) % 4, *bytes_written, err);
+		}
+	}
+	if ((hw)&&(strlen(hw) > 0) && (strlen(hw) < G_MAXUINT16)) {
+		/* write shb_hardware options */
+		option.type = SHB_HARDWARE;
+		option.value_length = (guint16)(strlen(hw) + 1);
+		WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
+		WRITE_DATA(fp, hw, strlen(hw) + 1, *bytes_written, err);
+		if ((strlen(hw) + 1) % 4) {
+			WRITE_DATA(fp, &padding, 4 - (strlen(hw) + 1) % 4, *bytes_written, err);
+		}
+	}
+	if ((os)&&(strlen(os) > 0) && (strlen(os) < G_MAXUINT16)) {
+		/* write shb_os options */
+		option.type = SHB_OS;
+		option.value_length = (guint16)(strlen(os) + 1);
+		WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
+		WRITE_DATA(fp, os, strlen(os) + 1, *bytes_written, err);
+		if ((strlen(os) + 1) % 4) {
+			WRITE_DATA(fp, &padding, 4 - (strlen(os) + 1) % 4, *bytes_written, err);
+		}
+	}
+	if ((appname)&&(strlen(appname) > 0) && (strlen(appname) < G_MAXUINT16)) {
 		/* write shb_userappl options */
 		option.type = SHB_USERAPPL;
 		option.value_length = (guint16)(strlen(appname) + 1);
@@ -301,11 +357,14 @@ libpcap_write_session_header_block(FILE *fp,
 		if ((strlen(appname) + 1) % 4) {
 			WRITE_DATA(fp, &padding, 4 - (strlen(appname) + 1) % 4, *bytes_written, err);
 		}
-		/* write last option */
+	}
+	if(have_options){
+		/* write end of options */
 		option.type = OPT_ENDOFOPT;
 		option.value_length = 0;
 		WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
 	}
+
 	/* write the trailing block total length */
 	WRITE_DATA(fp, &block_total_length, sizeof(guint32), *bytes_written, err);
 	return TRUE;

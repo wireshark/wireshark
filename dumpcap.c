@@ -2559,9 +2559,23 @@ capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *err
     if (ld->pdh) {
         if (capture_opts->use_pcapng) {
             char appname[100];
+            GString             *runtime_info_str;
+
+            runtime_info_str = g_string_new("");
+            get_runtime_version_info(runtime_info_str, NULL);
 
             g_snprintf(appname, sizeof(appname), "Dumpcap " VERSION "%s", wireshark_svnversion);
-            successful = libpcap_write_session_header_block(ld->pdh, appname, &ld->bytes_written, &err);
+            successful = libpcap_write_session_header_block(ld->pdh, 
+                                NULL,                        /* Comment*/
+                                NULL,                        /* HW*/
+                                runtime_info_str->str,       /* OS*/
+                                appname,
+								-1,                          /* section_length */
+                                &ld->bytes_written, 
+                                &err);
+
+            g_string_free(runtime_info_str, TRUE);
+
             for (i = 0; successful && (i < capture_opts->ifaces->len); i++) {
                 interface_opts = g_array_index(capture_opts->ifaces, interface_options, i);
                 pcap_opts = g_array_index(ld->pcaps, pcap_options *, i);
@@ -2994,9 +3008,23 @@ do_file_switch_or_stop(capture_options *capture_opts,
             global_ld.bytes_written = 0;
             if (capture_opts->use_pcapng) {
                 char appname[100];
+                GString             *runtime_info_str;
+
+                runtime_info_str = g_string_new("");
+                get_runtime_version_info(runtime_info_str, NULL);
 
                 g_snprintf(appname, sizeof(appname), "Dumpcap " VERSION "%s", wireshark_svnversion);
-                successful = libpcap_write_session_header_block(global_ld.pdh, appname, &(global_ld.bytes_written), &global_ld.err);
+                successful = libpcap_write_session_header_block(global_ld.pdh, 
+                                NULL,                        /* Comment */
+                                NULL,                        /* HW */
+                                runtime_info_str->str,       /* OS */
+                                appname,
+								-1,                          /* section_length */
+                                &(global_ld.bytes_written), 
+                                &global_ld.err);
+
+                g_string_free(runtime_info_str, TRUE);
+
                 for (i = 0; successful && (i < capture_opts->ifaces->len); i++) {
                     interface_opts = g_array_index(capture_opts->ifaces, interface_options, i);
                     pcap_opts = g_array_index(global_ld.pcaps, pcap_options *, i);
