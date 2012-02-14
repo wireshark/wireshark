@@ -924,7 +924,7 @@ dissect_rtp_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				/* this nargery is to insert the fragment tree into the main tree
 				 * between the RTP protocol entry and the subdissector entry */
 				show_fragment_tree(fd_head, &rtp_fragment_items, tree, pinfo, newtvb, &frag_tree_item);
-				rtp_tree_item = proto_item_get_parent( proto_tree_get_parent( rtp_tree ));
+				rtp_tree_item = proto_tree_get_parent( rtp_tree );
 				if( frag_tree_item && rtp_tree_item )
 					proto_tree_move_item( tree, rtp_tree_item, frag_tree_item );
 

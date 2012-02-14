@@ -2106,7 +2106,7 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
         /* this nargery is to insert the fragment tree into the main tree
          * between the IAX protocol entry and the subdissector entry */
         show_fragment_tree(fd_head, &iax2_fragment_items, tree, pinfo, next_tvb, &frag_tree_item);
-        iax_tree_item = proto_item_get_parent( proto_tree_get_parent( iax2_tree ));
+        iax_tree_item = proto_tree_get_parent( iax2_tree );
         if( frag_tree_item && iax_tree_item )
           proto_tree_move_item( tree, iax_tree_item, frag_tree_item );
 
