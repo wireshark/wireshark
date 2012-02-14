@@ -6213,7 +6213,7 @@ dissect_vendor_ie_atheros_cap(proto_item * item _U_, tvbuff_t *tvb, int offset)
 static void
 dissect_vendor_ie_atheros(proto_item * item _U_, proto_tree * ietree,
                           tvbuff_t * tvb, int offset, guint tag_len,
-                          packet_info * pinfo, int tag_end, proto_item *ti_len)
+                          packet_info * pinfo, proto_item *ti_len)
 {
   guint8 type;
   guint8 subtype;
@@ -6221,22 +6221,25 @@ dissect_vendor_ie_atheros(proto_item * item _U_, proto_tree * ietree,
   proto_item *cap_item;
   proto_item *ti;
 
-  if (tag_len <= 6) {
-        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag length %u too short, must be >= 6", tag_len);
+  if (tag_len <= 3) {
+        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag length %u too short, must be >= 6", tag_len+3); /* Add length of OUI to tag_length */
         return;
   }
   proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_type, tvb, offset, 1, ENC_NA);
   type = tvb_get_guint8(tvb, offset);
   proto_item_append_text(item, ": %s", val_to_str(type, atheros_ie_type_vals, "Unknown"));
   offset += 1;
+  tag_len -= 1;
 
   proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_subtype, tvb, offset, 1, ENC_NA);
   subtype = tvb_get_guint8(tvb, offset);
   offset += 1;
+  tag_len -= 1;
 
   proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_version, tvb, offset, 1, ENC_NA);
   version = tvb_get_guint8(tvb, offset);
   offset += 1;
+  tag_len -= 1;
 
   if(version == 0)
   {
@@ -6249,9 +6252,11 @@ dissect_vendor_ie_atheros(proto_item * item _U_, proto_tree * ietree,
             cap_item = proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_advcap_cap, tvb, offset, 1, ENC_NA);
             dissect_vendor_ie_atheros_cap(cap_item, tvb, offset);
             offset += 1;
+            tag_len -= 1;
 
             proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_advcap_defkey, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
+            tag_len -= 2;
             break;
           }
           default:
@@ -6267,23 +6272,29 @@ dissect_vendor_ie_atheros(proto_item * item _U_, proto_tree * ietree,
           {
             proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_xr_info, tvb, offset, 1, ENC_NA);
             offset += 1;
+            tag_len -= 1;
 
             proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_xr_base_bssid, tvb, offset, 6, ENC_NA);
             offset += 6;
+            tag_len -= 6;
 
             proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_xr_xr_bssid, tvb, offset, 6, ENC_NA);
             offset += 6;
+            tag_len -= 6;
 
             proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_xr_xr_beacon, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
+            tag_len -= 2;
 
             cap_item = proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_xr_base_cap, tvb, offset, 1, ENC_NA);
             dissect_vendor_ie_atheros_cap(cap_item, tvb, offset);
             offset += 1;
+            tag_len -= 1;
 
             cap_item = proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_xr_xr_cap, tvb, offset, 1, ENC_NA);
             dissect_vendor_ie_atheros_cap(cap_item, tvb, offset);
             offset += 1;
+            tag_len -= 1;
             break;
           }
           default:
@@ -6298,12 +6309,10 @@ dissect_vendor_ie_atheros(proto_item * item _U_, proto_tree * ietree,
 
     }
   }
-  if(offset < tag_end){
-   ti = proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_data, tvb, offset, tag_end - offset, ENC_NA);
+  if(tag_len > 0 ){
+   ti = proto_tree_add_item(ietree, hf_ieee80211_atheros_ie_data, tvb, offset, tag_len, ENC_NA);
    expert_add_info_format(pinfo, ti, PI_UNDECODED, PI_WARN, "Unknown Data (not interpreted)");
   }
-
-
 }
 
 typedef enum {
@@ -9147,31 +9156,33 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
           proto_tree_add_item(ti, hf_ieee80211_tag_vendor_oui_type, tvb, offset + 3, 1, ENC_BIG_ENDIAN);
         }
 
-#define WPAWME_OUI  0x0050F2
-#define RSNOUI_VAL  0x000FAC
-#define PRE11N_OUI  0x00904c
-
       switch (oui) {
+        /* 802.11 specific vendor ids */
+#       define WPAWME_OUI  0x0050F2
+#       define RSNOUI_VAL  0x000FAC
+#       define PRE11N_OUI  0x00904c
         case WPAWME_OUI:
           offset = dissect_vendor_ie_wpawme(tree, tvb, offset + 3, tag_len, ftype);
           break;
         case RSNOUI_VAL:
           dissect_vendor_ie_rsn(ti, tree, tag_tvb);
           break;
-        case OUI_CISCOWL:  /* Cisco Wireless (Aironet) */
-          dissect_vendor_ie_aironet(ti, tree, tvb, offset + 3, tag_len - 3);
-          break;
         case PRE11N_OUI:
           dissect_vendor_ie_ht(ti, tree, tag_tvb);
-          break;
-        case OUI_MARVELL:
-          dissect_vendor_ie_marvell(ti, tree, tvb, offset + 3, tag_len - 3);
           break;
         case OUI_WFA:
           dissect_vendor_ie_wfa(pinfo, ti, tag_tvb);
           break;
+
+        /* Normal IEEE vendor ids (from oui.h) */
+        case OUI_CISCOWL:  /* Cisco Wireless (Aironet) */
+          dissect_vendor_ie_aironet(ti, tree, tvb, offset + 3, tag_len - 3);
+          break;
+        case OUI_MARVELL:
+          dissect_vendor_ie_marvell(ti, tree, tvb, offset + 3, tag_len - 3);
+          break;
         case OUI_ATHEROS:
-          dissect_vendor_ie_atheros(ti, tree, tvb, offset + 3, tag_len, pinfo, tag_end, ti_len);
+          dissect_vendor_ie_atheros(ti, tree, tvb, offset + 3, tag_len - 3, pinfo, ti_len);
           break;
         default:
           proto_tree_add_string (tree, hf_ieee80211_tag_interpretation, tvb, offset + 3,
@@ -9181,8 +9192,6 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
 
       }
       break;
-
-
 
     case TAG_MOBILITY_DOMAIN:
       dissect_mobility_domain(tree, tvb, offset + 2, tag_len);
