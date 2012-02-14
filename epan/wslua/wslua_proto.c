@@ -463,12 +463,12 @@ struct base_display_string_t {
 };
 
 static const struct base_display_string_t base_displays[] = {
-    {"BASE_NONE", BASE_NONE},
-    {"BASE_DEC", BASE_DEC},
-    {"BASE_HEX", BASE_HEX},
-    {"BASE_OCT", BASE_OCT},
-    {"BASE_DEC_HEX", BASE_DEC_HEX},
-    {"BASE_HEX_DEC", BASE_HEX_DEC},
+    {"base.NONE", BASE_NONE},
+    {"base.DEC", BASE_DEC},
+    {"base.HEX", BASE_HEX},
+    {"base.OCT", BASE_OCT},
+    {"base.DEC_HEX", BASE_DEC_HEX},
+    {"base.HEX_DEC", BASE_HEX_DEC},
     /* for FT_BOOLEAN, how wide the parent bitfield is */
     {"8",8},
     {"16",16},
@@ -596,7 +596,7 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) { /* Creates a new field to be us
 #define WSLUA_ARG_ProtoField_new_ABBR 2 /* Filter name of the field (the string that is used in filters).  */
 #define WSLUA_ARG_ProtoField_new_TYPE 3 /* Field Type (FT_*).  */
 #define WSLUA_OPTARG_ProtoField_new_VOIDSTRING 4 /* A VoidString object. */
-#define WSLUA_OPTARG_ProtoField_new_BASE 5 /* The representation BASE_*. */
+#define WSLUA_OPTARG_ProtoField_new_BASE 5 /* The representation: one of base.NONE, base.DEC, base.HEX, base.OCT, base.DEC_HEX, base.HEX_DEC */
 #define WSLUA_OPTARG_ProtoField_new_MASK 6 /* The bitmask to be used.  */
 #define WSLUA_OPTARG_ProtoField_new_DESCR 7 /* The description of the field.  */
 
@@ -668,12 +668,12 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
 
     if (type == FT_FRAMENUM) {
 	if (base != BASE_NONE)
-	    luaL_argerror(L, 3, "FT_FRAMENUMs must use BASE_NONE");
+	    luaL_argerror(L, 3, "FT_FRAMENUMs must use base.NONE");
 	else if (mask)
 	    luaL_argerror(L, 3, "FT_FRAMENUMs can not have a bitmask");
     } else if (base < BASE_DEC || base > BASE_HEX_DEC) {
-        luaL_argerror(L, 3, "Base must be either BASE_DEC, BASE_HEX, BASE_OCT,"
-                      " BASE_DEC_HEX, BASE_DEC_HEX or BASE_HEX_DEC");
+        luaL_argerror(L, 3, "Base must be either base.DEC, base.HEX, base.OCT,"
+                      " base.DEC_HEX, base.DEC_HEX or base.HEX_DEC");
         return 0;
     } else if (vs && (type == FT_INT64 || type == FT_UINT64)) {
       luaL_argerror(L, 4, "This type does not support value string");
@@ -830,7 +830,7 @@ static int ProtoField_boolean(lua_State* L, enum ftenum type) {
     const gchar* blob = luaL_optstring(L,6,NULL);
 
     if (mask == 0x0 && base != BASE_NONE) {
-        luaL_argerror(L,2,"Fieldbase (fielddisplay) must be BASE_NONE"
+        luaL_argerror(L,2,"Fieldbase (fielddisplay) must be base.NONE"
                       " if bitmask is zero.");
         return 0;
     }
@@ -869,7 +869,7 @@ static int ProtoField_boolean(lua_State* L, enum ftenum type) {
 /* _WSLUA_CONSTRUCTOR_ ProtoField_bool */
 /* WSLUA_ARG_Protofield_bool_ABBR Abbreviated name of the field (the string used in filters)  */
 /* WSLUA_OPTARG_Protofield_bool_NAME Actual name of the field (the string that appears in the tree)  */
-/* WSLUA_OPTARG_Protofield_bool_DISPLAY how wide the parent bitfield is (BASE_NONE is used for NULL-value) */
+/* WSLUA_OPTARG_Protofield_bool_DISPLAY how wide the parent bitfield is (base.NONE is used for NULL-value) */
 /* WSLUA_OPTARG_Protofield_bool_TRUE_FALSE_STRING A table containing the text that corresponds to the values  */
 /* WSLUA_OPTARG_Protofield_bool_MASK Integer mask of this field  */
 /* WSLUA_OPTARG_Protofield_bool_DESC Description of the field  */
@@ -1553,7 +1553,7 @@ WSLUA_CONSTRUCTOR DissectorTable_new (lua_State *L) {
 #define WSLUA_ARG_DissectorTable_new_TABLENAME 1 /* The short name of the table. */
 #define WSLUA_OPTARG_DissectorTable_new_UINAME 2 /* The name of the table in the User Interface (defaults to the name given). */
 #define WSLUA_OPTARG_DissectorTable_new_TYPE 3 /* Either FT_UINT* or FT_STRING (defaults to FT_UINT32) */
-#define WSLUA_OPTARG_DissectorTable_new_BASE 4 /* Either BASE_NONE, BASE_DEC, BASE_HEX, BASE_OCT, BASE_DEC_HEX or BASE_HEX_DEC (defaults to BASE_DEC) */
+#define WSLUA_OPTARG_DissectorTable_new_BASE 4 /* Either base.NONE, base.DEC, base.HEX, base.OCT, base.DEC_HEX or base.HEX_DEC (defaults to base.DEC) */
     gchar* name = (void*)luaL_checkstring(L,WSLUA_ARG_DissectorTable_new_TABLENAME);
     gchar* ui_name = (void*)luaL_optstring(L,WSLUA_OPTARG_DissectorTable_new_UINAME,name);
     enum ftenum type = luaL_optint(L,WSLUA_OPTARG_DissectorTable_new_TYPE,FT_UINT32);
