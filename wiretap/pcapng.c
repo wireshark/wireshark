@@ -70,7 +70,7 @@
 #include "pcap-encap.h"
 #include "pcapng.h"
 
-#if 0
+#if 1
 #define pcapng_debug0(str) g_warning(str)
 #define pcapng_debug1(str,p1) g_warning(str,p1)
 #define pcapng_debug2(str,p1,p2) g_warning(str,p1,p2)
@@ -174,6 +174,11 @@ typedef struct pcapng_option_header_s {
 	/* ... Padding ... */
 } pcapng_option_header_t;
 
+struct option {
+	guint16 type;
+	guint16 value_length;
+};
+
 /* Block types */
 #define BLOCK_TYPE_IDB 0x00000001 /* Interface Description Block */
 #define BLOCK_TYPE_PB  0x00000002 /* Packet Block (obsolete) */
@@ -183,19 +188,25 @@ typedef struct pcapng_option_header_s {
 #define BLOCK_TYPE_EPB 0x00000006 /* Enhanced Packet Block */
 #define BLOCK_TYPE_SHB 0x0A0D0D0A /* Section Header Block */
 
-
+/* Options */
+#define OPT_COMMENT      1
+#define OPT_SHB_HARDWARE 2
+#define OPT_SHB_OS		 3
+#define OPT_SHB_USERAPPL 4
 
 /* Capture section */
+#if 0
+/* Moved to wtap.h */
 typedef struct wtapng_section_s {
 	/* mandatory */
 	guint64				section_length;
 	/* options */
 	gchar				*opt_comment;	/* NULL if not available */
 	gchar				*shb_hardware;	/* NULL if not available */
-	gchar				*shb_os;	/* NULL if not available */
+	gchar				*shb_os;		/* NULL if not available */
 	gchar				*shb_user_appl;	/* NULL if not available */
 } wtapng_section_t;
-
+#endif
 /* Interface Description */
 typedef struct wtapng_if_descr_s {
 	/* mandatory */
@@ -203,7 +214,7 @@ typedef struct wtapng_if_descr_s {
 	guint32				snap_len;
 	/* options */
 	gchar				*opt_comment;	/* NULL if not available */
-	gchar				*if_name;	/* NULL if not available */
+	gchar				*if_name;		/* NULL if not available */
 	gchar				*if_description;/* NULL if not available */
 	/* XXX: if_IPv4addr */
 	/* XXX: if_IPv6addr */
@@ -304,8 +315,25 @@ typedef struct wtapng_block_s {
 typedef struct interface_data_s {
 	int wtap_encap;
 	guint64 time_units_per_second;
+	/* if_name 2 A UTF-8 string containing the name of the device used to capture data.*/
+	/* if_description 3 Variable A UTF-8 string containing the description of the device used to capture data.  */
 } interface_data_t;
 
+/*
+ * if_name        2  A UTF-8 string containing the name of the device used to capture data. "eth0" / "\Device\NPF_{AD1CE675-96D0-47C5-ADD0-2504B9126B68}" / ... 
+ * if_description 3  A UTF-8 string containing the description of the device used to capture data. "Broadcom NetXtreme" / "First Ethernet Interface" / ... 
+ * if_IPv4addr    4  Interface network address and netmask. This option can be repeated multiple times within the same Interface Description Block when multiple IPv4 addresses are assigned to the interface. 192 168 1 1 255 255 255 0 
+ * if_IPv6addr    5  Interface network address and prefix length (stored in the last byte). This option can be repeated multiple times within the same Interface Description Block when multiple IPv6 addresses are assigned to the interface. 2001:0db8:85a3:08d3:1319:8a2e:0370:7344/64 is written (in hex) as "20 01 0d b8 85 a3 08 d3 13 19 8a 2e 03 70 73 44 40" 
+ * if_MACaddr     6  Interface Hardware MAC address (48 bits). 00 01 02 03 04 05 
+ * if_EUIaddr     7  Interface Hardware EUI address (64 bits), if available. TODO: give a good example 
+ * if_speed       8  Interface speed (in bps). 100000000 for 100Mbps 
+ * if_tsresol     9  Resolution of timestamps. If the Most Significant Bit is equal to zero, the remaining bits indicates the resolution of the timestamp as as a negative power of 10 (e.g. 6 means microsecond resolution, timestamps are the number of microseconds since 1/1/1970). If the Most Significant Bit is equal to one, the remaining bits indicates the resolution as as negative power of 2 (e.g. 10 means 1/1024 of second). If this option is not present, a resolution of 10^-6 is assumed (i.e. timestamps have the same resolution of the standard 'libpcap' timestamps). 6 
+ * if_tzone      10  Time zone for GMT support (TODO: specify better). TODO: give a good example 
+ * if_filter     11  The filter (e.g. "capture only TCP traffic") used to capture traffic. The first byte of the Option Data keeps a code of the filter used (e.g. if this is a libpcap string, or BPF bytecode, and more). More details about this format will be presented in Appendix XXX (TODO). (TODO: better use different options for different fields? e.g. if_filter_pcap, if_filter_bpf, ...) 00 "tcp port 23 and host 10.0.0.5" 
+ * if_os         12  A UTF-8 string containing the name of the operating system of the machine in which this interface is installed. This can be different from the same information that can be contained by the Section Header Block (Section 3.1 (Section Header Block (mandatory))) because the capture can have been done on a remote machine. "Windows XP SP2" / "openSUSE 10.2" / ... 
+ * if_fcslen     13  An integer value that specified the length of the Frame Check Sequence (in bits) for this interface. For link layers whose FCS length can change during time, the Packet Block Flags Word can be used (see Appendix A (Packet Block Flags Word)). 4 
+ * if_tsoffset   14  A 64 bits integer value that specifies an offset (in seconds) that must be added to the timestamp of each packet to obtain the absolute timestamp of a packet. If the option is missing, the timestamps stored in the packet must be considered absolute timestamps. The time zone of the offset can be specified with the option if_tzone. TODO: won't a if_tsoffset_low for fractional second offsets be useful for highly syncronized capture systems? 1234 
+ */
 
 typedef struct {
 	gboolean byte_swapped;
@@ -543,12 +571,12 @@ pcapng_read_section_header_block(FILE_T fh, gboolean first_block,
 				pcapng_debug2("pcapng_read_section_header_block: shb_os length %u seems strange, opt buffsize %u", oh.option_length,to_read);
 			}
 			break;
-		    case(4): /* shb_userappl */
+		    case(4): /* shb_user_appl */
 			if(oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
 				wblock->data.section.shb_user_appl = g_strndup(option_content, oh.option_length);
-				pcapng_debug1("pcapng_read_section_header_block: shb_userappl %s", wblock->data.section.shb_user_appl);
+				pcapng_debug1("pcapng_read_section_header_block: shb_user_appl %s", wblock->data.section.shb_user_appl);
 			} else {
-				pcapng_debug1("pcapng_read_section_header_block: shb_userappl length %u seems strange", oh.option_length);
+				pcapng_debug1("pcapng_read_section_header_block: shb_user_appl length %u seems strange", oh.option_length);
 			}
 			break;
 		    default:
@@ -1505,6 +1533,11 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
 		return 0;
 	}
 
+	wth->shb_hdr.opt_comment	= wblock.data.section.opt_comment;
+	wth->shb_hdr.shb_hardware	= wblock.data.section.shb_hardware;
+	wth->shb_hdr.shb_os			= wblock.data.section.shb_os;
+	wth->shb_hdr.shb_user_appl	= wblock.data.section.shb_user_appl;
+
 	wth->file_encap = WTAP_ENCAP_UNKNOWN;
 	wth->snapshot_length = 0;
 	wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
@@ -1678,11 +1711,72 @@ pcapng_write_section_header_block(wtap_dumper *wdh, wtapng_block_t *wblock, int 
 {
 	pcapng_block_header_t bh;
 	pcapng_section_header_block_t shb;
+	const guint32 zero_pad = 0;
+	gboolean have_options = FALSE;
+	struct option option_hdr;                   /* guint16 type, guint16 value_length; */
+	guint32 options_total_length = 0;
+	guint32 comment_len = 0, shb_hardware_len = 0, shb_os_len = 0, shb_user_appl_len = 0; 
+	guint32	comment_pad_len = 0, shb_hardware_pad_len = 0, shb_os_pad_len = 0, shb_user_appl_pad_len = 0;
 
+	if(wdh->shb_hdr){
+		pcapng_debug0("pcapng_write_section_header_block: Have shb_hdr");
+		/* Check if we should write comment option */
+		if(wdh->shb_hdr->opt_comment){
+			have_options = TRUE;
+			comment_len = (guint32)strlen(wdh->shb_hdr->opt_comment) & 0xffff;
+			if((comment_len % 4)){
+				comment_pad_len = 4 - (comment_len % 4);
+			}else{
+				comment_pad_len = 0;
+			}
+			options_total_length = options_total_length + comment_len + comment_pad_len + 4 /* comment options tag */ ;
+		}
+
+		/* Check if we should write shb_hardware option */
+		if(wdh->shb_hdr->shb_hardware){
+			have_options = TRUE;
+			shb_hardware_len = (guint32)strlen(wdh->shb_hdr->shb_hardware) & 0xffff;
+			if((shb_hardware_len % 4)){
+				shb_hardware_pad_len = 4 - (shb_hardware_len % 4);
+			}else{
+				shb_hardware_pad_len = 0;
+			}
+			options_total_length = options_total_length + shb_hardware_len + shb_hardware_pad_len + 4 /* options tag */ ;
+		}
+
+		/* Check if we should write shb_os option */
+		if(wdh->shb_hdr->shb_os){
+			have_options = TRUE;
+			shb_os_len = (guint32)strlen(wdh->shb_hdr->shb_os) & 0xffff;
+			if((shb_os_len % 4)){
+				shb_os_pad_len = 4 - (shb_os_len % 4);
+			}else{
+				shb_os_pad_len = 0;
+			}
+			options_total_length = options_total_length + shb_os_len + shb_os_pad_len + 4 /* options tag */ ;
+		}
+
+		/* Check if we should write shb_user_appl option */
+		if(wdh->shb_hdr->shb_user_appl){
+			have_options = TRUE;
+			shb_user_appl_len = (guint32)strlen(wdh->shb_hdr->shb_user_appl) & 0xffff;
+			if((shb_user_appl_len % 4)){
+				shb_user_appl_pad_len = 4 - (shb_user_appl_len % 4);
+			}else{
+				shb_user_appl_pad_len = 0;
+			}
+			options_total_length = options_total_length + shb_user_appl_len + shb_user_appl_pad_len + 4 /* options tag */ ;
+		}
+		if(have_options){
+			/* End-of-optios tag */
+			options_total_length += 4;
+		}
+	}
 
 	/* write block header */
 	bh.block_type = wblock->type;
-	bh.block_total_length = sizeof(bh) + sizeof(shb) /* + options */ + 4;
+	bh.block_total_length = sizeof(bh) + sizeof(shb) + options_total_length + 4;
+	pcapng_debug2("pcapng_write_section_header_block: Total len %u, Options total len %u",bh.block_total_length, options_total_length);
 
 	if (!wtap_dump_file_write(wdh, &bh, sizeof bh, err))
 		return FALSE;
@@ -1699,7 +1793,103 @@ pcapng_write_section_header_block(wtap_dumper *wdh, wtapng_block_t *wblock, int 
 		return FALSE;
 	wdh->bytes_dumped += sizeof shb;
 
-	/* XXX - write (optional) block options */
+	/* XXX - write (optional) block options 
+	 * opt_comment  1 
+	 * shb_hardware 2
+	 * shb_os       3 
+	 * shb_user_appl 4 
+	 */
+
+	if(comment_len){
+		option_hdr.type		 = OPT_COMMENT;
+		option_hdr.value_length = comment_len;
+		if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
+			return FALSE;
+		wdh->bytes_dumped += 4;
+
+		/* Write the comments string */
+		pcapng_debug3("pcapng_write_packet_block, comment:'%s' comment_len %u comment_pad_len %u" , wdh->shb_hdr->opt_comment, comment_len, comment_pad_len);
+		if (!wtap_dump_file_write(wdh, wdh->shb_hdr->opt_comment, comment_len, err))
+			return FALSE;
+		wdh->bytes_dumped += comment_len;
+
+		/* write padding (if any) */
+		if (comment_pad_len != 0) {
+			if (!wtap_dump_file_write(wdh, &zero_pad, comment_pad_len, err))
+				return FALSE;
+			wdh->bytes_dumped += comment_pad_len;
+		}
+	}
+
+	if(shb_hardware_len){
+		option_hdr.type		 = OPT_SHB_HARDWARE;
+		option_hdr.value_length = shb_hardware_len;
+		if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
+			return FALSE;
+		wdh->bytes_dumped += 4;
+
+		/* Write the string */
+		pcapng_debug3("pcapng_write_packet_block, shb_hardware:'%s' shb_hardware_len %u shb_hardware_pad_len %u" , wdh->shb_hdr->shb_hardware, shb_hardware_len, shb_hardware_pad_len);
+		if (!wtap_dump_file_write(wdh, wdh->shb_hdr->shb_hardware, shb_hardware_len, err))
+			return FALSE;
+		wdh->bytes_dumped += shb_hardware_len;
+
+		/* write padding (if any) */
+		if (shb_hardware_pad_len != 0) {
+			if (!wtap_dump_file_write(wdh, &zero_pad, shb_hardware_pad_len, err))
+				return FALSE;
+			wdh->bytes_dumped += shb_hardware_pad_len;
+		}
+	}
+
+	if(shb_os_len){
+		option_hdr.type		 = OPT_SHB_OS;
+		option_hdr.value_length = shb_os_len;
+		if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
+			return FALSE;
+		wdh->bytes_dumped += 4;
+
+		/* Write the string */
+		pcapng_debug3("pcapng_write_packet_block, shb_os:'%s' shb_os_len %u shb_os_pad_len %u" , wdh->shb_hdr->shb_os, shb_os_len, shb_os_pad_len);
+		if (!wtap_dump_file_write(wdh, wdh->shb_hdr->shb_os, shb_os_len, err))
+			return FALSE;
+		wdh->bytes_dumped += shb_os_len;
+
+		/* write padding (if any) */
+		if (shb_os_pad_len != 0) {
+			if (!wtap_dump_file_write(wdh, &zero_pad, shb_os_pad_len, err))
+				return FALSE;
+			wdh->bytes_dumped += shb_os_pad_len;
+		}
+	}
+
+	if(shb_user_appl_len){
+		option_hdr.type		 = OPT_SHB_USERAPPL;
+		option_hdr.value_length = shb_user_appl_len;
+		if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
+			return FALSE;
+		wdh->bytes_dumped += 4;
+
+		/* Write the comments string */
+		pcapng_debug3("pcapng_write_packet_block, shb_user_appl:'%s' shb_user_appl_len %u shb_user_appl_pad_len %u" , wdh->shb_hdr->shb_user_appl, shb_user_appl_len, shb_user_appl_pad_len);
+		if (!wtap_dump_file_write(wdh, wdh->shb_hdr->shb_user_appl, shb_user_appl_len, err))
+			return FALSE;
+		wdh->bytes_dumped += shb_user_appl_len;
+
+		/* write padding (if any) */
+		if (shb_user_appl_pad_len != 0) {
+			if (!wtap_dump_file_write(wdh, &zero_pad, shb_user_appl_pad_len, err))
+				return FALSE;
+			wdh->bytes_dumped += shb_user_appl_pad_len;
+		}
+	}
+
+	/* Write end of options if we have otions */
+	if(have_options){
+		if (!wtap_dump_file_write(wdh, &zero_pad, 4, err))
+			return FALSE;
+		wdh->bytes_dumped += 4;
+	}
 
 	/* write block footer */
 	if (!wtap_dump_file_write(wdh, &bh.block_total_length,
@@ -2179,11 +2369,18 @@ pcapng_dump_open(wtap_dumper *wdh, int *err)
 	wblock.type = BLOCK_TYPE_SHB;
 	wblock.data.section.section_length = -1;
 
-	/* XXX - options unused */
-	wblock.data.section.opt_comment   = NULL;
-	wblock.data.section.shb_hardware  = NULL;
-	wblock.data.section.shb_os        = NULL;
-	wblock.data.section.shb_user_appl = NULL;
+	/* Options */
+	if(wdh->shb_hdr){
+		wblock.data.section.opt_comment   = wdh->shb_hdr->opt_comment;
+		wblock.data.section.shb_hardware  = wdh->shb_hdr->shb_hardware;
+		wblock.data.section.shb_os        = wdh->shb_hdr->shb_os;
+		wblock.data.section.shb_user_appl = wdh->shb_hdr->shb_user_appl;
+	}else{
+		wblock.data.section.opt_comment   = NULL;
+		wblock.data.section.shb_hardware  = NULL;
+		wblock.data.section.shb_os        = NULL;
+		wblock.data.section.shb_user_appl = NULL;
+	}
 
 	if (!pcapng_write_block(wdh, &wblock, err)) {
 		return FALSE;

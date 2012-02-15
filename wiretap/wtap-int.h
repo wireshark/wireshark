@@ -51,6 +51,7 @@ struct wtap {
 	guint						snapshot_length;
 	struct Buffer				*frame_buffer;
 	struct wtap_pkthdr			phdr;
+	struct wtapng_section_s		shb_hdr;
 	union wtap_pseudo_header	pseudo_header;
 
 	gint64						data_offset;
@@ -99,9 +100,10 @@ struct wtap_dumper {
 	subtype_write_func	subtype_write;
 	subtype_close_func	subtype_close;
 
-	int			tsprecision;	/* timestamp precision of the lower 32bits
-								 * e.g. WTAP_FILE_TSPREC_USEC */
-	struct addrinfo *addrinfo_list;
+	int							tsprecision;	/* timestamp precision of the lower 32bits
+												 * e.g. WTAP_FILE_TSPREC_USEC */
+	struct addrinfo				*addrinfo_list;
+	struct wtapng_section_s		*shb_hdr;
 };
 
 extern gboolean wtap_dump_file_write(wtap_dumper *wdh, const void *buf,

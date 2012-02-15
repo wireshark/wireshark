@@ -96,6 +96,22 @@ wtap_file_tsprecision(wtap *wth)
 	return wth->tsprecision;
 }
 
+wtapng_section_t* wtap_file_get_shb_info(wtap *wth)
+{
+	wtapng_section_t		*shb_hdr;
+
+	shb_hdr = g_new(wtapng_section_t,1);
+	shb_hdr->section_length = wth->shb_hdr.section_length;
+	/* options */
+	shb_hdr->opt_comment   =	wth->shb_hdr.opt_comment;	/* NULL if not available */
+	shb_hdr->shb_hardware  =	wth->shb_hdr.shb_hardware;	/* NULL if not available, UTF-8 string containing the description of the hardware used to create this section. */
+	shb_hdr->shb_os        =	wth->shb_hdr.shb_os;		/* NULL if not available, UTF-8 string containing the name of the operating system used to create this section. */
+	shb_hdr->shb_user_appl =	wth->shb_hdr.shb_user_appl;	/* NULL if not available, UTF-8 string containing the name of the application used to create this section. */
+
+
+	return shb_hdr;
+}
+
 /* Table of the encapsulation types we know about. */
 struct encap_type_info {
 	const char *name;

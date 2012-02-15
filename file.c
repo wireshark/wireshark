@@ -3786,8 +3786,12 @@ cf_save(capture_file *cf, const char *fname, packet_range_t *range, guint save_f
     /* Either we're filtering packets, or we're saving in a different
        format; we can't do that by copying or moving the capture file,
        we have to do it by writing the packets out in Wiretap. */
-    pdh = wtap_dump_open(fname, save_format, cf->lnk_t, cf->snap,
-        compressed, &err);
+
+    wtapng_section_t *shb_hdr;
+
+	shb_hdr = wtap_file_get_shb_info(cf->wth);
+	pdh = wtap_dump_open_ng(fname, save_format, cf->lnk_t, cf->snap,
+        compressed, shb_hdr, &err);
     if (pdh == NULL) {
       cf_open_failure_alert_box(fname, err, NULL, TRUE, save_format);
       goto fail;

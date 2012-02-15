@@ -976,6 +976,12 @@ static int wtap_dump_file_close(wtap_dumper *wdh);
 wtap_dumper* wtap_dump_open(const char *filename, int filetype, int encap,
 				int snaplen, gboolean compressed, int *err)
 {
+	return wtap_dump_open_ng(filename, filetype, encap,snaplen, compressed, NULL, err);
+}
+
+wtap_dumper* wtap_dump_open_ng(const char *filename, int filetype, int encap,
+				int snaplen, gboolean compressed, wtapng_section_t *shb_hdr, int *err)
+{
 	wtap_dumper *wdh;
 	WFILE_T fh;
 
@@ -988,7 +994,10 @@ wtap_dumper* wtap_dump_open(const char *filename, int filetype, int encap,
 	wdh = wtap_dump_alloc_wdh(filetype, encap, snaplen, compressed, err);
 	if (wdh == NULL)
 		return NULL;	/* couldn't allocate it */
-
+	
+	/* Set Section Header Block data */
+	wdh->shb_hdr = shb_hdr;
+	
 	/* "-" means stdout */
 	if (strcmp(filename, "-") == 0) {
 		if (compressed) {

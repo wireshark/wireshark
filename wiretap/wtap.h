@@ -833,6 +833,19 @@ struct wtap_pkthdr {
 	guint32				pack_flags;     /* XXX - 0 for now (any value for "we don't have it"?) */
 };
 
+/**
+ * Holds the option strings from pcapng:s Section Header block(SHB).
+ */
+typedef struct wtapng_section_s {
+	/* mandatory */
+	guint64				section_length;
+	/* options */
+	gchar				*opt_comment;	/* NULL if not available */
+	gchar				*shb_hardware;	/* NULL if not available, UTF-8 string containing the description of the hardware used to create this section. */
+	gchar				*shb_os;		/* NULL if not available, UTF-8 string containing the name of the operating system used to create this section. */
+	gchar				*shb_user_appl;	/* NULL if not available, UTF-8 string containing the name of the application used to create this section. */
+} wtapng_section_t;
+
 struct Buffer;
 struct wtap_dumper;
 
@@ -928,7 +941,7 @@ guint8 *wtap_buf_ptr(wtap *wth);
 
 /*** get various information snippets about the current file ***/
 
-/* Return an approximation of the amount of data we've read sequentially
+/** Return an approximation of the amount of data we've read sequentially
  * from the file so far. */
 gint64 wtap_read_so_far(wtap *wth);
 gint64 wtap_file_size(wtap *wth, int *err);
@@ -936,6 +949,7 @@ guint wtap_snapshot_length(wtap *wth); /* per file */
 int wtap_file_type(wtap *wth);
 int wtap_file_encap(wtap *wth);
 int wtap_file_tsprecision(wtap *wth);
+wtapng_section_t* wtap_file_get_shb_info(wtap *wth);
 
 /*** close the current file ***/
 void wtap_sequential_close(wtap *wth);
@@ -946,10 +960,16 @@ gboolean wtap_dump_can_open(int filetype);
 gboolean wtap_dump_can_write_encap(int filetype, int encap);
 gboolean wtap_dump_can_compress(int filetype);
 gboolean wtap_dump_has_name_resolution(int filetype);
+
 wtap_dumper* wtap_dump_open(const char *filename, int filetype, int encap,
 	int snaplen, gboolean compressed, int *err);
+
+wtap_dumper* wtap_dump_open_ng(const char *filename, int filetype, int encap,
+	int snaplen, gboolean compressed, wtapng_section_t *shb_hdr,int *err);
+
 wtap_dumper* wtap_dump_fdopen(int fd, int filetype, int encap, int snaplen,
 	gboolean compressed, int *err);
+
 gboolean wtap_dump(wtap_dumper *, const struct wtap_pkthdr *,
 	const union wtap_pseudo_header *pseudo_header, const guint8 *, int *err);
 void wtap_dump_flush(wtap_dumper *);
