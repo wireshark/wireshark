@@ -4180,7 +4180,8 @@ nas_esm_pdn_con_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
     /* Fix the lengths */
     curr_len--;
     curr_offset++;
-
+    if (curr_len == 0)
+        return;
 
     /* D- ESM information transfer flag 9.9.4.5 O TV 1 */
     ELEM_OPT_TV_SHORT( 0xd0 , NAS_PDU_TYPE_ESM, DE_ESM_INF_TRF_FLG , NULL );
@@ -5307,7 +5308,7 @@ void proto_register_nas_eps(void) {
     },
     { &hf_nas_eps_esm_eit,
         { "EIT (ESM information transfer)", "nas_eps.emm.eit",
-        FT_BOOLEAN, 8, TFS(&nas_eps_emm_active_flg_value), 0x01,
+        FT_BOOLEAN, 8, TFS(&nas_eps_emm_eit_vals), 0x01,
         NULL, HFILL }
     },
     { &hf_nas_eps_esm_lnkd_eps_bearer_id,
