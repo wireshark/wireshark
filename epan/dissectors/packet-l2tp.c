@@ -89,6 +89,11 @@ static int hf_l2tp_l2_spec_g = -1;
 static int hf_l2tp_l2_spec_c = -1;
 static int hf_l2tp_l2_spec_u = -1;
 static int hf_l2tp_cisco_avp_type = -1;
+static int hf_l2tp_avp_assigned_tunnel_id = -1;
+static int hf_l2tp_avp_assigned_control_conn_id = -1;
+static int hf_l2tp_avp_assigned_session_id = -1;
+static int hf_l2tp_avp_remote_session_id = -1;
+static int hf_l2tp_avp_local_session_id = -1;
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -901,8 +906,7 @@ static void process_control_avps(tvbuff_t *tvb,
 				break;
 
 			case ASSIGNED_TUNNEL_ID:
-				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2,
-						    "Tunnel ID: %u", tvb_get_ntohs(tvb, idx));
+				proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_assigned_tunnel_id, tvb, idx, 2, ENC_BIG_ENDIAN);
 				break;
 
 			case RECEIVE_WINDOW_SIZE:
@@ -953,9 +957,7 @@ static void process_control_avps(tvbuff_t *tvb,
 				break;
 
 			case ASSIGNED_SESSION:
-				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2,
-						    "Assigned Session: %u",
-						    tvb_get_ntohs(tvb, idx));
+				proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_assigned_session_id, tvb, idx, 2, ENC_BIG_ENDIAN);
 				break;
 
 			case CALL_SERIAL_NUMBER:
@@ -1225,9 +1227,8 @@ static void process_control_avps(tvbuff_t *tvb,
 						    tvb_get_ntohl(tvb, idx));
 				break;
 			case ASSIGNED_CONTROL_CONN_ID:
-				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
-						    "Assigned Control Connection ID: %u",
-						    tvb_get_ntohl(tvb, idx));
+				proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_assigned_control_conn_id,
+						    tvb, idx, 4, ENC_BIG_ENDIAN);
 				break;
 			case PW_CAPABILITY_LIST:
 				te = proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
@@ -1246,14 +1247,12 @@ static void process_control_avps(tvbuff_t *tvb,
 				}
 				break;
 			case LOCAL_SESSION_ID:
-				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
-						    "Local Session ID: %u",
-						    tvb_get_ntohl(tvb, idx));
+				proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_local_session_id,
+						    tvb, idx, 4, ENC_BIG_ENDIAN);
 				break;
 			case REMOTE_SESSION_ID:
-				proto_tree_add_text(l2tp_avp_tree, tvb, idx, 4,
-						    "Remote Session ID: %u",
-						    tvb_get_ntohl(tvb, idx));
+				proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_remote_session_id,
+						    tvb, idx, 4, ENC_BIG_ENDIAN);
 				break;
 			case ASSIGNED_COOKIE:
 				proto_tree_add_text(l2tp_avp_tree, tvb, idx, avp_len,
@@ -2091,6 +2090,25 @@ proto_register_l2tp(void)
 		{ "Type", "l2tp.avp.ciscotype", FT_UINT16, BASE_DEC, VALS(cisco_avp_type_vals), 0,
 			"AVP Type", HFILL }},
 
+		{ &hf_l2tp_avp_assigned_tunnel_id,
+		{ "Assigned Tunnel ID", "l2tp.avp.assigned_tunnel_id", FT_UINT16, BASE_DEC, NULL, 0,
+			NULL, HFILL }},
+
+		{ &hf_l2tp_avp_assigned_control_conn_id,
+		{ "Assigned Control Connection ID", "l2tp.avp.assigned_control_conn_id", FT_UINT32, BASE_DEC, NULL, 0,
+			NULL, HFILL }},
+
+		{ &hf_l2tp_avp_assigned_session_id,
+		{ "Assigned Session ID", "l2tp.avp.assigned_session_id", FT_UINT16, BASE_DEC, NULL, 0,
+			NULL, HFILL }},
+
+		{ &hf_l2tp_avp_remote_session_id,
+		{ "Remote Session ID", "l2tp.avp.remote_session_id", FT_UINT32, BASE_DEC, NULL, 0,
+			NULL, HFILL }},
+
+		{ &hf_l2tp_avp_local_session_id,
+		{ "Local Session ID", "l2tp.avp.local_session_id", FT_UINT32, BASE_DEC, NULL, 0,
+			NULL, HFILL }},
 	};
 
 	static gint *ett[] = {
