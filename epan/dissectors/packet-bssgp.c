@@ -492,6 +492,11 @@ x83 Reliable Inter RAT Handover Info
 x84 SON Transfer Application Identity
 x85 CSG Identifier
 x86 TAC
+x87 Redirect Attempt Flag
+x88 Redirection Indication
+x89 Redirection Completed
+x8a Unconfirmed send state variable
+x8b IRAT Measurement Configuration
 */
 
 /* Macros */
@@ -3839,7 +3844,7 @@ bssgp_dl_unitdata(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
     /* MS Radio Access Capability (note 2) MS Radio Access Capability/11.3.22 O TLV 7-? */
     ELEM_OPT_TELV(BSSGP_IEI_MS_RADIO_ACCESS_CAPABILITY, GSM_A_PDU_TYPE_GM, DE_MS_RAD_ACC_CAP , NULL);
     /* Priority (note 3) Priority/11.3.27 O TLV 3 */
-    ELEM_OPT_TELV(0x0b, GSM_A_PDU_TYPE_BSSMAP, BE_PRIO, NULL);
+    ELEM_OPT_TELV(0x17, GSM_A_PDU_TYPE_BSSMAP, BE_PRIO, NULL);
     /* DRX Parameters DRX Parameters/11.3.11 O TLV 4 */
     ELEM_OPT_TELV(0x0a , GSM_A_PDU_TYPE_GM, DE_DRX_PARAM , NULL);
     /* IMSI IMSI/11.3.14 O TLV 5-10 */
@@ -4804,7 +4809,7 @@ bssgp_create_bss_pfc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
     /* MS Radio Access Capability MS Radio Access Capability/11.3.22 O (note 1) TLV 7-? */
     ELEM_OPT_TELV(BSSGP_IEI_MS_RADIO_ACCESS_CAPABILITY, GSM_A_PDU_TYPE_GM, DE_MS_RAD_ACC_CAP , NULL);
     /* Allocation/Retention Priority Priority/11.3.27 O TLV 3 */
-    ELEM_OPT_TELV(0x0b, GSM_A_PDU_TYPE_BSSMAP, BE_PRIO, NULL);
+    ELEM_OPT_TELV(0x17, GSM_A_PDU_TYPE_BSSMAP, BE_PRIO, NULL);
     /* T10 GPRS Timer/11.3.44 C (note 2) TLV 3 */
     ELEM_MAND_TELV(BSSGP_IEI_GPRS_TIMER, BSSGP_PDU_TYPE, DE_BSSGP_GPRS_TIMER , " - T10");
     /* Inter RAT Handover Info Inter RAT Handover Info/11.3.94 O (note 3) TLV 3-? */
@@ -5717,7 +5722,7 @@ bssgp_mbms_session_start_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
     /* Time to MBMS Data Transfer Time to MBMS Data Transfer/11.3.92 M TLV 3 */
     ELEM_MAND_TELV(0x71, BSSGP_PDU_TYPE, DE_BSSGP_TIME_TO_MBMS_DATA_TRAN, NULL);
     /* Allocation/Retention Priority Priority/11.3.27 O TLV 3 */
-    ELEM_OPT_TELV(0x0b, GSM_A_PDU_TYPE_BSSMAP, BE_PRIO, NULL);
+    ELEM_OPT_TELV(0x17, GSM_A_PDU_TYPE_BSSMAP, BE_PRIO, NULL);
     /* MBMS Session Repetition Number MBMS Session Repetition Number/11.3.93 O TLV 3 */
     ELEM_MAND_TELV(0x72, BSSGP_PDU_TYPE, DE_BSSGP_MBMS_SESSION_REP_NO, NULL);
 
@@ -5845,7 +5850,7 @@ bssgp_mbms_session_update_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
     /* Time to MBMS Data Transfer Time to MBMS Data Transfer/11.3.92 M TLV 3 */
     ELEM_MAND_TELV(0x71, BSSGP_PDU_TYPE, DE_BSSGP_TIME_TO_MBMS_DATA_TRAN, NULL);
     /* Allocation/Retention Priority Priority/11.3.27 O TLV 3 */
-    ELEM_OPT_TELV(0x0b, GSM_A_PDU_TYPE_BSSMAP, BE_PRIO, NULL);
+    ELEM_OPT_TELV(0x17, GSM_A_PDU_TYPE_BSSMAP, BE_PRIO, NULL);
     /* MBMS Session Repetition Number MBMS Session Repetition Number/11.3.93 O TLV 3 */
     ELEM_MAND_TELV(0x72, BSSGP_PDU_TYPE, DE_BSSGP_MBMS_SESSION_REP_NO, NULL);
 
