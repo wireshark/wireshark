@@ -99,6 +99,7 @@ void proto_register_p772(void) {
 
   /* Register protocol */
   proto_p772 = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  register_dissector("p772", dissect_p772, proto_p772);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_p772, hf, array_length(hf));

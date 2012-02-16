@@ -1631,6 +1631,7 @@ void proto_register_p772(void) {
 
   /* Register protocol */
   proto_p772 = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  register_dissector("p772", dissect_p772, proto_p772);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_p772, hf, array_length(hf));
@@ -1679,7 +1680,7 @@ void proto_reg_handoff_p772(void) {
 
 
 /*--- End of included file: packet-p772-dis-tab.c ---*/
-#line 115 "../../asn1/p772/packet-p772-template.c"
+#line 116 "../../asn1/p772/packet-p772-template.c"
 
   register_ber_oid_dissector("1.3.26.0.4406.0.4.1", dissect_p772, proto_p772, "STANAG 4406");
 }
