@@ -10136,13 +10136,17 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 
         proto_tree_add_ether (hdr_tree, hf_ieee80211_addr_sa, tvb, 10, 6, src);
 
+        proto_tree_add_item (hdr_tree, hf_ieee80211_addr_bssid, tvb, 16, 6, ENC_NA);
+
         /* add items for wlan.addr filter */
         hidden_item = proto_tree_add_ether (hdr_tree, hf_ieee80211_addr, tvb, 4, 6, dst);
         PROTO_ITEM_SET_HIDDEN(hidden_item);
         hidden_item = proto_tree_add_ether (hdr_tree, hf_ieee80211_addr, tvb, 10, 6, src);
         PROTO_ITEM_SET_HIDDEN(hidden_item);
 
-        proto_tree_add_item (hdr_tree, hf_ieee80211_addr_bssid, tvb, 16, 6, ENC_NA);
+        hidden_item = proto_tree_add_item (hdr_tree, hf_ieee80211_addr, tvb, 16, 6, ENC_NA);
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
+
 
         proto_tree_add_uint (hdr_tree, hf_ieee80211_frag_number, tvb, 22, 2,
             frag_number);
@@ -10224,6 +10228,8 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
           set_src_addr_cols(pinfo, src, "BSSID");
           if (tree) {
             proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_NA);
+            hidden_item = proto_tree_add_item (hdr_tree, hf_ieee80211_addr, tvb, offset, 6, ENC_NA);
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
           }
           break;
         }
@@ -10234,6 +10240,8 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
           set_src_addr_cols(pinfo, src, "TA");
           if (tree) {
             proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_NA);
+            hidden_item = proto_tree_add_item (hdr_tree, hf_ieee80211_addr, tvb, offset, 6, ENC_NA);
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
           }
           break;
         }
@@ -10257,6 +10265,8 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
             proto_tree *bar_sub_tree;
 
             proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_NA);
+            hidden_item = proto_tree_add_item (hdr_tree, hf_ieee80211_addr, tvb, offset, 6, ENC_NA);
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
             offset += 6;
 
             bar_control = tvb_get_letohs(tvb, offset);
@@ -10346,6 +10356,8 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
             proto_tree *ba_sub_tree;
 
             proto_tree_add_item(hdr_tree, hf_ieee80211_addr_ta, tvb, offset, 6, ENC_NA);
+            hidden_item = proto_tree_add_item (hdr_tree, hf_ieee80211_addr, tvb, offset, 6, ENC_NA);
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
             offset += 6;
 
             ba_control = tvb_get_letohs(tvb, offset);
@@ -10515,6 +10527,8 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
             PROTO_ITEM_SET_HIDDEN(hidden_item);
             hidden_item = proto_tree_add_ether (hdr_tree, hf_ieee80211_addr, tvb, 10, 6, src);
             PROTO_ITEM_SET_HIDDEN(hidden_item);
+            hidden_item = proto_tree_add_item (hdr_tree, hf_ieee80211_addr, tvb, 16, 6, ENC_NA);
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
             break;
 
           case DATA_ADDR_T2:
@@ -10528,6 +10542,8 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 
             /* add items for wlan.addr filter */
             hidden_item = proto_tree_add_ether (hdr_tree, hf_ieee80211_addr, tvb, 4, 6, dst);
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
+            hidden_item = proto_tree_add_item (hdr_tree, hf_ieee80211_addr, tvb, 10, 6, ENC_NA);
             PROTO_ITEM_SET_HIDDEN(hidden_item);
             hidden_item = proto_tree_add_ether (hdr_tree, hf_ieee80211_addr, tvb, 16, 6, src);
             PROTO_ITEM_SET_HIDDEN(hidden_item);
@@ -10544,6 +10560,8 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
                seq_number);
 
             /* add items for wlan.addr filter */
+            hidden_item = proto_tree_add_item (hdr_tree, hf_ieee80211_addr, tvb, 4, 6, ENC_NA);
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
             hidden_item = proto_tree_add_ether (hdr_tree, hf_ieee80211_addr, tvb, 10, 6, src);
             PROTO_ITEM_SET_HIDDEN(hidden_item);
             hidden_item = proto_tree_add_ether (hdr_tree, hf_ieee80211_addr, tvb, 16, 6, dst);
@@ -10561,6 +10579,10 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
             proto_tree_add_ether (hdr_tree, hf_ieee80211_addr_sa, tvb, 24, 6, src);
 
             /* add items for wlan.addr filter */
+            hidden_item = proto_tree_add_item (hdr_tree, hf_ieee80211_addr, tvb, 4, 6, ENC_NA);
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
+            hidden_item = proto_tree_add_item (hdr_tree, hf_ieee80211_addr, tvb, 10, 6, ENC_NA);
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
             hidden_item = proto_tree_add_ether (hdr_tree, hf_ieee80211_addr, tvb, 16, 6, dst);
             PROTO_ITEM_SET_HIDDEN(hidden_item);
             hidden_item = proto_tree_add_ether (hdr_tree, hf_ieee80211_addr, tvb, 24, 6, src);
@@ -12210,8 +12232,8 @@ proto_register_ieee80211 (void)
       "Source Hardware Address", HFILL }},
 
     { &hf_ieee80211_addr,
-      {"Source or Destination address", "wlan.addr", FT_ETHER, BASE_NONE, NULL, 0,
-       "Source or Destination Hardware Address", HFILL }},
+      {"Hardware address", "wlan.addr", FT_ETHER, BASE_NONE, NULL, 0,
+       "SA, DA, BSSID, RA or TA Hardware Address", HFILL }},
 
     {&hf_ieee80211_addr_ra,
      {"Receiver address", "wlan.ra", FT_ETHER, BASE_NONE, NULL, 0,
