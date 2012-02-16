@@ -371,6 +371,7 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   gboolean           first_record_in_frame;
   SslDecryptSession *ssl_session;
   guint*             conv_version;
+  Ssl_private_key_t *private_key;
 
   ti                    = NULL;
   dtls_tree             = NULL;
@@ -420,9 +421,13 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * is not always available
      * Note that with HAVE_LIBGNUTLS undefined private_key is allways 0
      * and thus decryption never engaged*/
-    ssl_session->private_key = g_hash_table_lookup(dtls_key_hash, &dummy);
-    if (!ssl_session->private_key)
+    private_key = g_hash_table_lookup(dtls_key_hash, &dummy);
+    if (!private_key) {
       ssl_debug_printf("dissect_dtls can't find private key for this server!\n");
+    }
+    else {
+      ssl_session->private_key = private_key->sexp_pkey;
+    }
   }
   conv_version= & ssl_session->version;
 
@@ -582,6 +587,11 @@ decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
   else {
     ssl_debug_printf("decrypt_dtls_record: using client decoder\n");
     decoder = ssl->client;
+  }
+
+  if (!decoder) {
+    ssl_debug_printf("decrypt_dtls_record: no decoder available\n");
+    return ret;
   }
 
   /* ensure we have enough storage space for decrypted data */
@@ -806,6 +816,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
     col_append_str(pinfo->cinfo, COL_INFO, "Change Cipher Spec");
     dissect_dtls_change_cipher_spec(tvb, dtls_record_tree,
                                     offset, conv_version, content_type);
+    if (ssl) ssl_change_cipher(ssl, ssl_packet_from_server(ssl, dtls_associations, pinfo));
     break;
   case SSL_ID_ALERT:
     {
@@ -1315,6 +1326,18 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 break;
               }
 
+              /* Skip leading two bytes length field. Older openssl's DTLS implementation seems not to have this field.
+               * See implementation note in RFC 4346 section 7.4.7.1
+               */
+              if (ssl->cipher_suite.kex==KEX_RSA && ssl->version_netorder != DTLSV1DOT0_VERSION_NOT) {
+                encrlen = tvb_get_ntohs(tvb, offset);
+                skip = 2;
+                if (encrlen > length - 2) {
+                  ssl_debug_printf("dissect_dtls_handshake wrong encrypted length (%d max %d)\n", encrlen, length);
+                  break;
+                }
+              }
+
               encrypted_pre_master.data = se_alloc(encrlen);
               encrypted_pre_master.data_len = encrlen;
               tvb_memcpy(tvb, encrypted_pre_master.data, offset+skip, encrlen);
@@ -1362,67 +1385,71 @@ dissect_dtls_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
   nstime_t gmt_unix_time;
   guint8   session_id_length;
 
-  if (ssl)
+  if (tree || ssl)
     {
-      /* get proper peer information*/
-      StringInfo* rnd;
-      if (from_server)
-        rnd = &ssl->server_random;
-      else
-        rnd = &ssl->client_random;
+	  if (ssl)
+		{
+		  /* get proper peer information*/
+		  StringInfo* rnd;
+		  if (from_server)
+			rnd = &ssl->server_random;
+		  else
+			rnd = &ssl->client_random;
 
-      /* get provided random for keyring generation*/
-      tvb_memcpy(tvb, rnd->data, offset, 32);
-      rnd->data_len = 32;
-      if (from_server)
-        ssl->state |= SSL_SERVER_RANDOM;
-      else
-        ssl->state |= SSL_CLIENT_RANDOM;
-      ssl_debug_printf("dissect_dtls_hnd_hello_common found random state %X\n",
-                       ssl->state);
-
-      session_id_length = tvb_get_guint8(tvb, offset + 32);
-      /* check stored session id info */
-      if (from_server && (session_id_length == ssl->session_id.data_len) &&
-          (tvb_memeql(tvb, offset+33, ssl->session_id.data, session_id_length) == 0))
-        {
-          /* clinet/server id match: try to restore a previous cached session*/
-          ssl_restore_session(ssl, dtls_session_hash);
+		  /* get provided random for keyring generation*/
+		  tvb_memcpy(tvb, rnd->data, offset, 32);
+		  rnd->data_len = 32;
+		  if (from_server)
+			ssl->state |= SSL_SERVER_RANDOM;
+		  else
+			ssl->state |= SSL_CLIENT_RANDOM;
+		  ssl_debug_printf("dissect_dtls_hnd_hello_common found random state %X\n",
+						   ssl->state);
         }
-      else {
-        tvb_memcpy(tvb,ssl->session_id.data, offset+33, session_id_length);
-        ssl->session_id.data_len = session_id_length;
-      }
-    }
 
-  if (tree)
-    {
       /* show the time */
-      gmt_unix_time.secs  = tvb_get_ntohl(tvb, offset);
-      gmt_unix_time.nsecs = 0;
-      proto_tree_add_time(tree, hf_dtls_handshake_random_time,
-                          tvb, offset, 4, &gmt_unix_time);
+      if (tree)
+        {
+          gmt_unix_time.secs  = tvb_get_ntohl(tvb, offset);
+          gmt_unix_time.nsecs = 0;
+          proto_tree_add_time(tree, hf_dtls_handshake_random_time,
+                              tvb, offset, 4, &gmt_unix_time);
+        }
       offset += 4;
 
       /* show the random bytes */
-      proto_tree_add_item(tree, hf_dtls_handshake_random_bytes,
-                          tvb, offset, 28, ENC_NA);
+      if (tree)
+          proto_tree_add_item(tree, hf_dtls_handshake_random_bytes,
+                              tvb, offset, 28, ENC_NA);
       offset += 28;
 
       /* show the session id */
       session_id_length = tvb_get_guint8(tvb, offset);
-      proto_tree_add_item(tree, hf_dtls_handshake_session_id_len,
-                          tvb, offset++, 1, ENC_BIG_ENDIAN);
-      if (session_id_length > 0)
+      if (tree)
+          proto_tree_add_item(tree, hf_dtls_handshake_session_id_len,
+                              tvb, offset, 1, ENC_BIG_ENDIAN);
+	  offset++;
+      if (ssl)
         {
-          proto_tree_add_bytes_format(tree, hf_dtls_handshake_session_id,
-                                      tvb, offset, session_id_length,
-                                      NULL, "Session ID (%u byte%s)",
-                                      session_id_length,
-                                      plurality(session_id_length, "", "s"));
-          offset += session_id_length;
+          /* check stored session id info */
+          if (from_server && (session_id_length == ssl->session_id.data_len) &&
+              (tvb_memeql(tvb, offset, ssl->session_id.data, session_id_length) == 0))
+            {
+              /* clinet/server id match: try to restore a previous cached session*/
+              ssl_restore_session(ssl, dtls_session_hash);
+            }
+          else {
+            tvb_memcpy(tvb,ssl->session_id.data, offset, session_id_length);
+            ssl->session_id.data_len = session_id_length;
+          }
         }
-
+	  if (tree && session_id_length > 0)
+		  proto_tree_add_bytes_format(tree, hf_dtls_handshake_session_id,
+									  tvb, offset, session_id_length,
+									  NULL, "Session ID (%u byte%s)",
+									  session_id_length,
+									  plurality(session_id_length, "", "s"));
+	  offset += session_id_length;
     }
 
   /* XXXX */
@@ -1729,6 +1756,10 @@ dissect_dtls_hnd_srv_hello(tvbuff_t *tvb,
         ssl->state |= SSL_HAVE_SESSION_KEY;
       }
     no_cipher:
+      if (ssl) {
+        /* store selected compression method for decompression */
+        ssl->compression = tvb_get_guint8(tvb, offset+2);
+      }
       if (!tree)
         return offset;
 

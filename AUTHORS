@@ -2919,6 +2919,7 @@ Christian Durrer	<christian.durrer [AT] sensemail.ch> {
 Naoyoshi Ueda		<piyomaru3141 [AT] gmail.com> {
 	IKEv2 decryption support
 	TLS 1.2 decryption support
+	DTLS 1.0 decryption fixes
 }
 
 Javier Cardona		<javier [AT] cozybit.com> {
