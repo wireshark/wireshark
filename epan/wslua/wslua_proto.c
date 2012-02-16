@@ -408,33 +408,33 @@ WSLUA_CLASS_DEFINE(ProtoField,FAIL_ON_NULL("null ProtoField"),NOP);
     /* A Protocol field (to be used when adding items to the dissection tree) */
 
 static const wslua_ft_types_t ftenums[] = {
-    {"FT_BOOLEAN",FT_BOOLEAN},
-    {"FT_UINT8",FT_UINT8},
-    {"FT_UINT16",FT_UINT16},
-    {"FT_UINT24",FT_UINT24},
-    {"FT_UINT32",FT_UINT32},
-    {"FT_UINT64",FT_UINT64},
-    {"FT_INT8",FT_INT8},
-    {"FT_INT16",FT_INT16},
-    {"FT_INT24",FT_INT24},
-    {"FT_INT32",FT_INT32},
-    {"FT_INT64",FT_INT64},
-    {"FT_FLOAT",FT_FLOAT},
-    {"FT_DOUBLE",FT_DOUBLE},
-    {"FT_ABSOLUTE_TIME",FT_ABSOLUTE_TIME},
-    {"FT_RELATIVE_TIME",FT_RELATIVE_TIME},
-    {"FT_STRING",FT_STRING},
-    {"FT_STRINGZ",FT_STRINGZ},
-    {"FT_ETHER",FT_ETHER},
-    {"FT_BYTES",FT_BYTES},
-    {"FT_UINT_BYTES",FT_UINT_BYTES},
-    {"FT_IPv4",FT_IPv4},
-    {"FT_IPv6",FT_IPv6},
-    {"FT_IPXNET",FT_IPXNET},
-    {"FT_FRAMENUM",FT_FRAMENUM},
-    {"FT_GUID",FT_GUID},
-    {"FT_OID",FT_OID},
-    {NULL,FT_NONE}
+    {"ftypes.BOOLEAN", FT_BOOLEAN},
+    {"ftypes.UINT8", FT_UINT8},
+    {"ftypes.UINT16", FT_UINT16},
+    {"ftypes.UINT24", FT_UINT24},
+    {"ftypes.UINT32", FT_UINT32},
+    {"ftypes.UINT64", FT_UINT64},
+    {"ftypes.INT8", FT_INT8},
+    {"ftypes.INT16", FT_INT16},
+    {"ftypes.INT24", FT_INT24},
+    {"ftypes.INT32", FT_INT32},
+    {"ftypes.INT64", FT_INT64},
+    {"ftypes.FLOAT", FT_FLOAT},
+    {"ftypes.DOUBLE", FT_DOUBLE},
+    {"ftypes.ABSOLUTE_TIME", FT_ABSOLUTE_TIME},
+    {"ftypes.RELATIVE_TIME", FT_RELATIVE_TIME},
+    {"ftypes.STRING", FT_STRING},
+    {"ftypes.STRINGZ", FT_STRINGZ},
+    {"ftypes.ETHER", FT_ETHER},
+    {"ftypes.BYTES", FT_BYTES},
+    {"ftypes.UINT_BYTES", FT_UINT_BYTES},
+    {"ftypes.IPv4", FT_IPv4},
+    {"ftypes.IPv6", FT_IPv6},
+    {"ftypes.IPXNET", FT_IPXNET},
+    {"ftypes.FRAMENUM", FT_FRAMENUM},
+    {"ftypes.GUID", FT_GUID},
+    {"ftypes.OID", FT_OID},
+    {NULL, FT_NONE}
 };
 
 static enum ftenum get_ftenum(const gchar* type) {
@@ -594,7 +594,12 @@ static true_false_string* true_false_string_from_table(lua_State* L, int idx) {
 WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) { /* Creates a new field to be used in a protocol. */
 #define WSLUA_ARG_ProtoField_new_NAME 1 /* Actual name of the field (the string that appears in the tree).  */
 #define WSLUA_ARG_ProtoField_new_ABBR 2 /* Filter name of the field (the string that is used in filters).  */
-#define WSLUA_ARG_ProtoField_new_TYPE 3 /* Field Type (FT_*).  */
+#define WSLUA_ARG_ProtoField_new_TYPE 3 /* Field Type: one of ftypes.NONE, ftypes.PROTOCOL, ftypes.BOOLEAN,
+	ftypes.UINT8, ftypes.UINT16, ftypes.UINT24, ftypes.UINT32, ftypes.UINT64, ftypes.INT8, ftypes.INT16
+	ftypes.INT24, ftypes.INT32, ftypes.INT64, ftypes.FLOAT, ftypes.DOUBLE, ftypes.ABSOLUTE_TIME
+	ftypes.RELATIVE_TIME, ftypes.STRING, ftypes.STRINGZ, ftypes.UINT_STRING, ftypes.ETHER, ftypes.BYTES
+	ftypes.UINT_BYTES, ftypes.IPv4, ftypes.IPv6, ftypes.IPXNET, ftypes.FRAMENUM, ftypes.PCRE, ftypes.GUID
+	ftypes.OID, ftypes.EUI64 */
 #define WSLUA_OPTARG_ProtoField_new_VOIDSTRING 4 /* A VoidString object. */
 #define WSLUA_OPTARG_ProtoField_new_BASE 5 /* The representation: one of base.NONE, base.DEC, base.HEX, base.OCT, base.DEC_HEX, base.HEX_DEC */
 #define WSLUA_OPTARG_ProtoField_new_MASK 6 /* The bitmask to be used.  */
@@ -614,7 +619,7 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) { /* Creates a new field to be us
 
     /*XXX do it better*/
     if (f->type == FT_NONE)
-        WSLUA_ARG_ERROR(ProtoField_new,TYPE,"invalid FT_type");
+        WSLUA_ARG_ERROR(ProtoField_new,TYPE,"invalid ftypes");
 
     if (proto_check_field_name(f->abbr)) {
       WSLUA_ARG_ERROR(ProtoField_new,ABBR,"Invalid char in abbrev");
@@ -668,9 +673,9 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
 
     if (type == FT_FRAMENUM) {
 	if (base != BASE_NONE)
-	    luaL_argerror(L, 3, "FT_FRAMENUMs must use base.NONE");
+	    luaL_argerror(L, 3, "ftypes.FRAMENUMs must use base.NONE");
 	else if (mask)
-	    luaL_argerror(L, 3, "FT_FRAMENUMs can not have a bitmask");
+	    luaL_argerror(L, 3, "ftypes.FRAMENUMs can not have a bitmask");
     } else if (base < BASE_DEC || base > BASE_HEX_DEC) {
         luaL_argerror(L, 3, "Base must be either base.DEC, base.HEX, base.OCT,"
                       " base.DEC_HEX, base.DEC_HEX or base.HEX_DEC");
@@ -892,7 +897,7 @@ static int ProtoField_time(lua_State* L,enum ftenum type) {
 
     if (type == FT_ABSOLUTE_TIME) {
       if (base < ABSOLUTE_TIME_LOCAL || base > ABSOLUTE_TIME_DOY_UTC) {
-        luaL_argerror(L, 3, "Base must be either LOCAL, UTC or DOY_UTC");
+        luaL_argerror(L, 3, "Base must be either LOCAL, UTC, or DOY_UTC");
         return 0;
       }
     }
@@ -1552,7 +1557,7 @@ WSLUA_CONSTRUCTOR DissectorTable_new (lua_State *L) {
     /* Creates a new DissectorTable for your dissector's use. */
 #define WSLUA_ARG_DissectorTable_new_TABLENAME 1 /* The short name of the table. */
 #define WSLUA_OPTARG_DissectorTable_new_UINAME 2 /* The name of the table in the User Interface (defaults to the name given). */
-#define WSLUA_OPTARG_DissectorTable_new_TYPE 3 /* Either FT_UINT* or FT_STRING (defaults to FT_UINT32) */
+#define WSLUA_OPTARG_DissectorTable_new_TYPE 3 /* Either ftypes.UINT{8,16,24,32} or ftypes.STRING (defaults to ftypes.UINT32) */
 #define WSLUA_OPTARG_DissectorTable_new_BASE 4 /* Either base.NONE, base.DEC, base.HEX, base.OCT, base.DEC_HEX or base.HEX_DEC (defaults to base.DEC) */
     gchar* name = (void*)luaL_checkstring(L,WSLUA_ARG_DissectorTable_new_TABLENAME);
     gchar* ui_name = (void*)luaL_optstring(L,WSLUA_OPTARG_DissectorTable_new_UINAME,name);
@@ -1580,7 +1585,7 @@ WSLUA_CONSTRUCTOR DissectorTable_new (lua_State *L) {
         }
             WSLUA_RETURN(1); /* The newly created DissectorTable */
         default:
-            WSLUA_OPTARG_ERROR(DissectorTable_new,TYPE,"must be FTUINT* or FT_STRING");
+            WSLUA_OPTARG_ERROR(DissectorTable_new,TYPE,"must be ftypes.UINT{8,16,24,32} or ftypes.STRING");
     }
     return 0;
 }
