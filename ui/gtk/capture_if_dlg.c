@@ -250,12 +250,9 @@ capture_prepare_cb(GtkWidget *prepare_bt _U_, gpointer if_data _U_)
 #ifdef _WIN32
 /* capture details button was pressed */
 static void
-capture_details_cb(GtkWidget *details_bt _U_, gpointer if_data)
+capture_details_cb(GtkWidget *details_bt _U_, gpointer name)
 {
-  if_dlg_data_t *if_dlg_data = if_data;
-
-
-  capture_if_details_open(if_dlg_data->device);
+  capture_if_details_open(name);
 }
 #endif
 
