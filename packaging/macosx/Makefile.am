@@ -80,7 +80,15 @@ EXTRA_DIST = \
 	Scripts/wireshark-postinstall.sh	\
 	utility-launcher	\
 	root.ds_store	\
-	util.ds_store
+	util.ds_store	\
+	Wireshark_package.pmdoc/01wireshark-contents.xml	\
+	Wireshark_package.pmdoc/01wireshark.xml		\
+	Wireshark_package.pmdoc/02chmodbpf-contents.xml	\
+	Wireshark_package.pmdoc/02chmodbpf.xml			\
+	Wireshark_package.pmdoc/03utility-contents.xml		\
+	Wireshark_package.pmdoc/03utility.xml			\
+	Wireshark_package.pmdoc/index.xml
+
 
 COPYING.txt: ../../COPYING
 	cp $< $@
