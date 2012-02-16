@@ -2911,6 +2911,12 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
 #endif
     switch (err) {
 
+    case WTAP_ERR_UNSUPPORTED:
+      cmdarg_err("The file \"%s\" contains record data that TShark doesn't support.\n(%s)",
+                 cf->filename, err_info);
+      g_free(err_info);
+      break;
+
     case WTAP_ERR_UNSUPPORTED_ENCAP:
       cmdarg_err("The file \"%s\" has a packet with a network type that TShark doesn't support.\n(%s)",
                  cf->filename, err_info);
@@ -3617,6 +3623,11 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
       errmsg = "The file \"%s\" is a \"special file\" or socket or other non-regular file.";
       break;
 
+    case WTAP_ERR_RANDOM_OPEN_PIPE:
+      /* Seen only when opening a capture file for reading. */
+      errmsg = "The file \"%s\" is a pipe or FIFO; TShark can't read pipe or FIFO files in two-pass mode.";
+      break;
+
     case WTAP_ERR_FILE_UNKNOWN_FORMAT:
       /* Seen only when opening a capture file for reading. */
       errmsg = "The file \"%s\" isn't a capture file in a format TShark understands.";
@@ -3691,6 +3702,10 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
 
     case WTAP_ERR_SHORT_WRITE:
       errmsg = "A full header couldn't be written to the file \"%s\".";
+      break;
+
+    case WTAP_ERR_COMPRESSION_NOT_SUPPORTED:
+      errmsg = "This file type cannot be written as a compressed file.";
       break;
 
     case WTAP_ERR_DECOMPRESS:

@@ -587,9 +587,7 @@ pcapng_read_section_header_block(FILE_T fh, gboolean first_block,
 	g_free(option_content);
 
 	if (pn->interface_data != NULL) {
-		g_array_free(pn->interface_data, TRUE);
-		pn->interface_data = NULL;
-		*err = WTAP_ERR_BAD_FILE;
+		*err = WTAP_ERR_UNSUPPORTED;
 		*err_info = g_strdup_printf("pcapng: multiple section header blocks not supported.");
 		return 0;
 	}

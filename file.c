@@ -688,6 +688,14 @@ cf_read(capture_file *cf, gboolean from_save)
        if any. */
     switch (err) {
 
+    case WTAP_ERR_UNSUPPORTED:
+      g_snprintf(errmsg_errno, sizeof(errmsg_errno),
+                 "The capture file contains record data that TShark doesn't support.\n(%s)",
+                 err_info);
+      g_free(err_info);
+      errmsg = errmsg_errno;
+      break;
+
     case WTAP_ERR_UNSUPPORTED_ENCAP:
       g_snprintf(errmsg_errno, sizeof(errmsg_errno),
                  "The capture file has a packet with a network type that Wireshark doesn't support.\n(%s)",
@@ -3996,7 +4004,7 @@ cf_open_failure_alert_box(const char *filename, int err, gchar *err_info,
 
     case WTAP_ERR_COMPRESSION_NOT_SUPPORTED:
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-            "Gzip compression not supported by this file type.");
+            "This file type cannot be written as a compressed file.");
       break;
 
     case WTAP_ERR_DECOMPRESS:
