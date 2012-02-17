@@ -3494,27 +3494,27 @@ gboolean query_tooltip_tree_view_cb (GtkWidget  *widget,
       case 0: g_snprintf (buffer, 511, "Choose which interface (network adapter) will be used to capture packets from. "
                 "Be sure to select the correct one, as it's a common mistake to select the wrong interface.");
               break;
-      case 1: g_snprintf (buffer, 511, "Lists the interface name and the IP address(es) assigned to it. ");
+      case 2: g_snprintf (buffer, 511, "Lists the interface name and the IP address(es) assigned to it. ");
               break;
-      case 2: g_snprintf (buffer, 511, "Link-layer type the interface supports.");
+      case 3: g_snprintf (buffer, 511, "Link-layer type the interface supports.");
               break;
-      case 3: g_snprintf (buffer, 511, "Usually a network adapter will only capture the traffic sent to its own network address. "
+      case 4: g_snprintf (buffer, 511, "Usually a network adapter will only capture the traffic sent to its own network address. "
                 "If you want to capture all traffic that the network adapter can \"see\", promiscuous mode should be configured.");
               break;
-      case 4: g_snprintf(buffer, 511, "Limit the maximum number of bytes to be captured from each packet. This size includes the "
+      case 5: g_snprintf(buffer, 511, "Limit the maximum number of bytes to be captured from each packet. This size includes the "
                 "link-layer header and all subsequent headers. ");
               break;
-      case 5: g_snprintf (buffer, 511, "The memory buffer size used while capturing."
+      case 6: g_snprintf (buffer, 511, "The memory buffer size used while capturing."
                 "If you notice packet drops, you can try to increase this size.");
               break;
-      case 6: g_snprintf (buffer, 511, "Usually a Wi-Fi adapter will, even in promiscuous mode, only capture "
+      case 7: g_snprintf (buffer, 511, "Usually a Wi-Fi adapter will, even in promiscuous mode, only capture "
                 "the traffic on the BSS to which it's associated. "
                 "If you want to capture all traffic that the Wi-Fi adapter can \"receive\", mark this option."
                 "In order to see IEEE 802.11 headers or to see radio information for captured packets,"
                 "it might be necessary to turn this option on.\n\n"
                 "Note that, in monitor mode, the adapter might disassociate from the network to which it's associated. mode");
               break;
-      case 7: g_snprintf(buffer, 511, "Selected capture filter to reduce the amount of packets to be captured.");
+      case 8: g_snprintf(buffer, 511, "Selected capture filter to reduce the amount of packets to be captured.");
               break;
       default: g_snprintf(buffer, 511, "another option");
     }
