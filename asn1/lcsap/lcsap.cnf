@@ -56,16 +56,24 @@ ProtocolIE-Field/value ie_field_value
 #.END
 
 
-#.FN_PARS ProtocolIE-Field/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldValue 
+#.FN_PARS ProtocolIE-Field/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldValue
 #.FN_PARS ProtocolExtensionID  VAL_PTR=&ProtocolExtensionID
 #.FN_PARS ProtocolExtensionField/extensionValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolExtensionFieldExtensionValue
 
 #.FN_PARS Payload-Type VAL_PTR=&PayloadType
 
+# LCSAP connectionless-transfer
+# procedures, which according to 3GPP TS 29.171 LCS-AP, can only contain an LPPa
+# payload within the APDU IE of the procedure.
+
+#.FN_HDR Connectionless-Information
+
+  PayloadType = 1;  /* LPPa */
+
 #.FN_BODY APDU VAL_PTR = &parameter_tvb
 
   tvbuff_t *parameter_tvb=NULL;
-  
+
 %(DEFAULT_BODY)s
 
   if (parameter_tvb) {
@@ -94,9 +102,9 @@ ProtocolIE-Field/value ie_field_value
 	if (check_col(actx->pinfo->cinfo, COL_INFO))
 	{
 		guint8 tmp = tvb_get_guint8(tvb, 0);
-			
+
 		if(tmp == 0)
-				
+
 		col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%sReq",
 			   val_to_str(ProcedureCode, lcsap_ProcedureCode_vals,
 			        "unknown message"));
@@ -107,18 +115,18 @@ ProtocolIE-Field/value ie_field_value
 				    "unknown message"));
 			else
 				col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s",
-				  val_to_str(ProcedureCode, lcsap_ProcedureCode_vals,	
+				  val_to_str(ProcedureCode, lcsap_ProcedureCode_vals,
 				    "unknown message"));
- 
+
 	}
 
-        if (ProcedureCode != 0) 
+        if (ProcedureCode != 0)
 	{
-                
+
 		_pro_code.code = ProcedureCode;
- 
+
 		actx->pinfo->private_data = &_pro_code;
-   
+
 	}
 #.END
 
@@ -164,9 +172,9 @@ ProtocolIE-Field/value ie_field_value
   tvbuff_t *parameter_tvb=NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        3, 3, FALSE, &parameter_tvb);
-	if(tvb_length(tvb)==0) 
+	if(tvb_length(tvb)==0)
 		return offset;
-		
+
 	if (!parameter_tvb)
 		return offset;
 	dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, tree, 0, FALSE);
@@ -238,9 +246,9 @@ Velocity-Estimate                       N lcsap.ies id-Velocity-Estimate
 
 
 
-Location-Request                       N lcsap.proc.imsg id-Location-Service-Request 
-Location-Response                      N lcsap.proc.sout id-Location-Service-Request 
-Location-Response                      N lcsap.proc.uout id-Location-Service-Request 
+Location-Request                       N lcsap.proc.imsg id-Location-Service-Request
+Location-Response                      N lcsap.proc.sout id-Location-Service-Request
+Location-Response                      N lcsap.proc.uout id-Location-Service-Request
 
 Connection-Oriented-Information        N lcsap.proc.imsg id-Connection-Oriented-Information-Transfer
 

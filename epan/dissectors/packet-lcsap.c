@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-lcsap.c                                                             */
-/* ../../tools/asn2wrs.py -p lcsap -c ./lcsap.cnf -s ./packet-lcsap-template -D . -O ../../epan/dissectors LCS-AP-CommonDataTypes.asn LCS-AP-Constants.asn LCS-AP-Containers.asn LCS-AP-IEs.asn LCS-AP-PDU-Contents.asn LCS-AP-PDU-Descriptions.asn */
+/* ../../../tools/asn2wrs.py -p lcsap -c ../../../asn1/lcsap/lcsap.cnf -s ../../../asn1/lcsap/packet-lcsap-template -D ../../../asn1/lcsap -O ../../../epan/dissectors LCS-AP-CommonDataTypes.asn LCS-AP-Constants.asn LCS-AP-Containers.asn LCS-AP-IEs.asn LCS-AP-PDU-Contents.asn LCS-AP-PDU-Descriptions.asn */
 
 /* Input file: packet-lcsap-template.c */
 
@@ -345,14 +345,14 @@ dissect_lcsap_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &ProcedureCode, FALSE);
 
-#line 93 "../../asn1/lcsap/lcsap.cnf"
+#line 101 "../../asn1/lcsap/lcsap.cnf"
 
 	if (check_col(actx->pinfo->cinfo, COL_INFO))
 	{
 		guint8 tmp = tvb_get_guint8(tvb, 0);
-			
+
 		if(tmp == 0)
-				
+
 		col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%sReq",
 			   val_to_str(ProcedureCode, lcsap_ProcedureCode_vals,
 			        "unknown message"));
@@ -363,18 +363,18 @@ dissect_lcsap_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 				    "unknown message"));
 			else
 				col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s",
-				  val_to_str(ProcedureCode, lcsap_ProcedureCode_vals,	
+				  val_to_str(ProcedureCode, lcsap_ProcedureCode_vals,
 				    "unknown message"));
- 
+
 	}
 
-        if (ProcedureCode != 0) 
+        if (ProcedureCode != 0)
 	{
-                
+
 		_pro_code.code = ProcedureCode;
- 
+
 		actx->pinfo->private_data = &_pro_code;
-   
+
 	}
 
   return offset;
@@ -513,10 +513,10 @@ dissect_lcsap_ProtocolExtensionContainer(tvbuff_t *tvb _U_, int offset _U_, asn1
 
 static int
 dissect_lcsap_APDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 66 "../../asn1/lcsap/lcsap.cnf"
+#line 74 "../../asn1/lcsap/lcsap.cnf"
 
   tvbuff_t *parameter_tvb=NULL;
-  
+
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
 
@@ -678,13 +678,13 @@ dissect_lcsap_DegreesLongitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_lcsap_PLMN_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 164 "../../asn1/lcsap/lcsap.cnf"
+#line 172 "../../asn1/lcsap/lcsap.cnf"
   tvbuff_t *parameter_tvb=NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        3, 3, FALSE, &parameter_tvb);
-	if(tvb_length(tvb)==0) 
+	if(tvb_length(tvb)==0)
 		return offset;
-		
+
 	if (!parameter_tvb)
 		return offset;
 	dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, tree, 0, FALSE);
@@ -1678,6 +1678,11 @@ static const per_sequence_t Connectionless_Information_sequence[] = {
 
 static int
 dissect_lcsap_Connectionless_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 70 "../../asn1/lcsap/lcsap.cnf"
+
+  PayloadType = 1;  /* LPPa */
+
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lcsap_Connectionless_Information, Connectionless_Information_sequence);
 
