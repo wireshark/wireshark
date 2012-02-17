@@ -88,6 +88,8 @@ strptime
 ; str_util.c
 ascii_strdown_inplace
 ascii_strup_inplace
+isprint_string
+isdigit_string
 
 ; type_util.c
 type_util_gdouble_to_guint64

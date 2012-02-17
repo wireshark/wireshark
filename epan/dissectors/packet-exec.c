@@ -39,13 +39,10 @@
 #include <epan/emem.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <wsutil/str_util.h>
 
 /* The exec protocol uses TCP port 512 per its IANA assignment */
 #define EXEC_PORT 512
-
-/* Forward declaration we need below */
-static gboolean exec_isprint_string(guchar *string);
-static gboolean exec_isdigit_string(guchar *string);
 
 /* Variables for our preferences */
 static gboolean preference_info_show_username = TRUE;
@@ -240,7 +237,7 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * It is optional, so it may only be 1 character long
 		 * (the NULL)
 		 */
-		if(length == 1 || (exec_isdigit_string(field_stringz)
+		if(length == 1 || (isdigit_string(field_stringz)
 		&& length <= EXEC_STDERR_PORT_LEN)){
 			proto_tree_add_string(exec_tree, hf_exec_stderr_port, tvb, offset, length, (gchar*)field_stringz);
 			 /* Next field we need */
@@ -261,7 +258,7 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		/* Check if this looks like the username field */
 		if(length != 1 && length <= EXEC_USERNAME_LEN
-		&& exec_isprint_string(field_stringz)){
+		&& isprint_string(field_stringz)){
 			proto_tree_add_string(exec_tree, hf_exec_username, tvb, offset, length, (gchar*)field_stringz);
 
 			/* Store the username so we can display it in the
@@ -289,7 +286,7 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		/* Check if this looks like the password field */
 		if(length != 1 && length <= EXEC_PASSWORD_LEN
-		&& exec_isprint_string(field_stringz)){
+		&& isprint_string(field_stringz)){
 			proto_tree_add_string(exec_tree, hf_exec_password, tvb, offset, length, (gchar*)field_stringz);
 
 			/* Next field we need */
@@ -312,7 +309,7 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		/* Check if this looks like the command field */
 		if(length != 1 && length <= EXEC_COMMAND_LEN
-		&& exec_isprint_string(field_stringz)){
+		&& isprint_string(field_stringz)){
 			proto_tree_add_string(exec_tree, hf_exec_command, tvb, offset, length, (gchar*)field_stringz);
 
 			/* Store the username so we can display it in the
@@ -411,40 +408,4 @@ proto_reg_handoff_exec(void)
 
 	exec_handle = create_dissector_handle(dissect_exec, proto_exec);
 	dissector_add_uint("tcp.port", EXEC_PORT, exec_handle);
-}
-
-/* Custom function to check if an entire string is printable. */
-static gboolean
-exec_isprint_string(guchar *string)
-{
-	guint position;
-
-	/* Loop until we reach the end of the string (a null) */
-	for(position = 0; string[position] != '\0'; position++){
-		if(!isprint(string[position])){
-			/* The string contains a non-printable character */
-			return FALSE;
-		}
-	}
-
-	/* The string contains only printable characters */
-	return TRUE;
-}
-
-/* Custom function to check if an entire string is digits. */
-static gboolean
-exec_isdigit_string(guchar *string)
-{
-	guint position;
-
-	/* Loop until we reach the end of the string (a null) */
-	for(position = 0; string[position] != '\0'; position++){
-		if(!isdigit(string[position])){
-			/* The string contains a non-digit character */
-			return FALSE;
-		}
-	}
-
-	/* The string contains only digits */
-	return TRUE;
 }

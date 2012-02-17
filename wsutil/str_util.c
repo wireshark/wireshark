@@ -29,6 +29,8 @@
 #include <glib.h>
 #include "str_util.h"
 
+#include <ctype.h>
+
 /* Convert all ASCII letters to lower case, in place. */
 gchar *
 ascii_strdown_inplace(gchar *str)
@@ -51,4 +53,40 @@ ascii_strup_inplace(gchar *str)
 		*s = g_ascii_toupper (*s);
 
         return (str);
+}
+
+/* Check if an entire string is printable. */
+gboolean
+isprint_string(guchar *str)
+{
+	guint pos;
+
+	/* Loop until we reach the end of the string (a null) */
+	for(pos = 0; str[pos] != '\0'; pos++){
+		if(!isprint(str[pos])){
+			/* The string contains a non-printable character */
+			return FALSE;
+		}
+	}
+
+	/* The string contains only printable characters */
+	return TRUE;
+}
+
+/* Check if an entire string is digits. */
+gboolean
+isdigit_string(guchar *str)
+{
+	guint pos;
+
+	/* Loop until we reach the end of the string (a null) */
+	for(pos = 0; str[pos] != '\0'; pos++){
+		if(!isdigit(str[pos])){
+			/* The string contains a non-digit character */
+			return FALSE;
+		}
+	}
+
+	/* The string contains only digits */
+	return TRUE;
 }

@@ -59,4 +59,18 @@ gchar *ascii_strdown_inplace(gchar *str);
  */
 gchar *ascii_strup_inplace(gchar *str);
 
+/** Check if an entire string consists of printable characters
+ *  
+ * @param str The string to be checked
+ * @return    TRUE if the entire string is printable, otherwise FALSE
+ */
+gboolean isprint_string(guchar *string);
+
+/** Check if an entire string consists of digits
+ *  
+ * @param str The string to be checked
+ * @return    TRUE if the entire string is digits, otherwise FALSE
+ */
+gboolean isdigit_string(guchar *string);
+
 #endif /* __STR_UTIL_H__ */
