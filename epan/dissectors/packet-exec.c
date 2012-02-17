@@ -312,7 +312,7 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		&& isprint_string(field_stringz)){
 			proto_tree_add_string(exec_tree, hf_exec_command, tvb, offset, length, (gchar*)field_stringz);
 
-			/* Store the username so we can display it in the
+			/* Store the command so we can display it in the
 			 * info column of the entire conversation
 			 */
 			if(!hash_info->command){
