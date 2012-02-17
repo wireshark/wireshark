@@ -211,6 +211,7 @@ struct bgp_attr {
 #define SAFNUM_LAB_VPNUNICAST  128    /* Draft-rosen-rfc2547bis-03 */
 #define SAFNUM_LAB_VPNMULCAST  129
 #define SAFNUM_LAB_VPNUNIMULC  130
+#define SAFNUM_ROUTE_TARGET    132    /* RFC 4684 Constrained Route Distribution for BGP/MPLS IP VPN */
 
 /* BGP Additional Paths Capability */
 #define BGP_ADDPATH_RECEIVE  0x01

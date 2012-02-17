@@ -292,6 +292,7 @@ static const value_string bgpattr_nlri_safi[] = {
     { SAFNUM_LAB_VPNUNICAST, "Labeled VPN Unicast" },        /* draft-rosen-rfc2547bis-03 */
     { SAFNUM_LAB_VPNMULCAST, "Labeled VPN Multicast" },
     { SAFNUM_LAB_VPNUNIMULC, "Labeled VPN Unicast+Multicast" },
+    { SAFNUM_ROUTE_TARGET, "Route Target Filter" },
     { 0, NULL }
 };
 
@@ -944,7 +945,7 @@ decode_MPLS_stack(tvbuff_t *tvb, gint offset, emem_strbuf_t *stack_strbuf)
  */
 
 static int
-mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, emem_strbuf_t *strbuf)
+mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, emem_strbuf_t *strbuf, gint nhlen)
 {
     int                 length;                         /* length of the address in byte */
     guint32             ip4addr,ip4addr2;               /* IPv4 address                 */
@@ -959,6 +960,17 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, emem_strbu
                 case SAFNUM_UNIMULC:
                 case SAFNUM_MPLS_LABEL:
                 case SAFNUM_ENCAPSULATION:
+                case SAFNUM_ROUTE_TARGET:
+                    /* RTF NHop can be IPv4 or IPv6. They are differentiated by length of the field*/
+                    length = nhlen;
+                    if (nhlen == 4) {
+                        ep_strbuf_append(strbuf, tvb_ip_to_str(tvb, offset));
+                    } else if (nhlen == 16) {
+                        ep_strbuf_append(strbuf, tvb_ip6_to_str(tvb, offset));
+                    } else {
+                        ep_strbuf_append(strbuf, "Unknown address");
+                    }
+                    break;
                 case SAFNUM_TUNNEL:
                     length = 4 ;
                     ip4addr = tvb_get_ipv4(tvb, offset);
@@ -1111,6 +1123,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
     struct e_in6_addr   ip6addr;            /* IPv6 address                 */
     guint16             rd_type;            /* Route Distinguisher type     */
     emem_strbuf_t      *stack_strbuf;       /* label stack                  */
+    emem_strbuf_t      *comm_strbuf;
 
     switch (afi) {
 
@@ -1169,6 +1182,59 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                 total_length = decode_mcast_vpn_nlri(tree, tvb, offset, afi);
                 if (total_length < 0)
                     return -1;
+                break;
+            case SAFNUM_ROUTE_TARGET:
+                plen = tvb_get_guint8(tvb, offset);
+
+                if (plen == 0) {
+                    proto_tree_add_text(tree, tvb, offset, 1,
+                                        "%s Wildcard route target", tag);
+                    total_length = 1;
+                    break;
+                }
+
+                if ((plen < 32) || (plen > 96)) {
+                    proto_tree_add_text(tree, tvb, offset, 1,
+                                        "%s Route target length %u invalid",
+                                        tag, plen);
+                    return -1;
+                }
+
+                length = (plen + 7)/8;
+                comm_strbuf = ep_strbuf_new_label(NULL);
+
+                switch (tvb_get_ntohs(tvb, offset + 1 + 4)) {
+                case BGP_EXT_COM_RT_0:
+                    ep_strbuf_printf(comm_strbuf, "%u:%u",
+                                     tvb_get_ntohs(tvb, offset + 1 + 6),
+                                     tvb_get_ntohl(tvb, offset + 1 + 8));
+                    break;
+                case BGP_EXT_COM_RT_1:
+                    ep_strbuf_printf(comm_strbuf, "%s:%u",
+                                     tvb_ip_to_str(tvb, offset + 1 + 6),
+                                     tvb_get_ntohs(tvb, offset + 1 + 10));
+                    break;
+                case BGP_EXT_COM_RT_2:
+                    ep_strbuf_printf(comm_strbuf, "%u:%u", 
+                                     tvb_get_ntohl(tvb, 6), 
+                                     tvb_get_ntohs(tvb, offset + 1 + 10));
+                    break;
+                default:
+                    ep_strbuf_printf(comm_strbuf, "Invalid RT type");
+                    break;
+                }
+                ti = proto_tree_add_text(tree, tvb, offset + 1, length, "%s %u:%s/%u", 
+                                    tag, tvb_get_ntohl(tvb, offset + 1 + 0),
+                                    comm_strbuf->str,
+                                    plen);
+                prefix_tree = proto_item_add_subtree(ti, ett_bgp_prefix);
+                proto_tree_add_text(prefix_tree, tvb, offset, 1, "%s Prefix length: %u",
+                                                    tag, plen);
+                proto_tree_add_text(prefix_tree, tvb, offset + 1, 4, "%s Originating AS: %u",
+                                                    tag, tvb_get_ntohl(tvb, offset + 1 + 0));
+                proto_tree_add_text(prefix_tree, tvb, offset + 1 + 4, length - 4, "%s Community prefix: %s",
+                                                    tag, comm_strbuf->str);
+                total_length = 1 + length;
                 break;
             case SAFNUM_ENCAPSULATION:
                 plen =  tvb_get_guint8(tvb, offset);
@@ -2700,7 +2766,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                             j = 0;
                             while (j < nexthop_len) {
                                 advance = mp_addr_to_str(af, saf, tvb, o + i + aoff + 4 + j,
-                                                         junk_emstr) ;
+                                                         junk_emstr, nexthop_len) ;
                                 if (advance == 0) /* catch if this is a unknown AFI type*/
                                     break;
                                 if (j + advance > nexthop_len)
