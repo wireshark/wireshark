@@ -1179,20 +1179,35 @@ smpp_mktime(const char *datestr, time_t *secs, int *nsecs)
     r_time.tm_isdst = -1;
 
     if (relative == FALSE) {
+	struct tm *gm, *local_time;
+	int gm_hour, gm_min;
+	time_t current_time;
+
         *secs = mktime(&r_time);
+
 	/* Subtract out the timezone information since we will adjust for
-	 * timezone below and then display in UTC.
+	 * the presented time's timezone below and then display in UTC.
+	 *
+	 * To do that, first determine the current timezone's offset to UTC.
 	 */
-#ifdef _WIN32
-	*secs -= _timezone;
-#else
-	*secs -= timezone;
-#endif
+	current_time = time(NULL);
+	gm = gmtime(&current_time);
+	gm_hour = gm->tm_hour;
+	gm_min = gm->tm_min;
+	local_time = localtime(&current_time);
+	/* Then subtract out that difference (whether the difference is
+	 * measured in hours, minutes, or both).
+	 */
+	*secs -= 3600*(gm_hour - local_time->tm_hour);
+	*secs -= 60*(gm_min - local_time->tm_min);
+
         *nsecs = (datestr[12] - '0') * 100000000;
         t_diff = (10 * (datestr[13] - '0') + (datestr[14] - '0')) * 900;
-        if (datestr[15] == '+')
+        if (datestr[15] == '-')
+	    /* Represented time is behind UTC, shift it forward to UTC */
             *secs += t_diff;
-        else if (datestr[15] == '-')
+        else if (datestr[15] == '+')
+	    /* Represented time is ahead of UTC, shift it backward to UTC */
             *secs -= t_diff;
     } else {
         *secs = r_time.tm_sec + 60 *
