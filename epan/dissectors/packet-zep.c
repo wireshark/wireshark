@@ -220,7 +220,7 @@ static void dissect_zep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     proto_tree_add_uint(zep_tree, hf_zep_lqi, tvb, 8, 1, zep_data.lqi);
                 }
                 pi = proto_tree_add_time(zep_tree, hf_zep_timestamp, tvb, 9, 8, &(zep_data.ntp_time));
-                proto_item_append_text(pi, " (%lu.%09lus)", (unsigned long)zep_data.ntp_time.secs, (unsigned long)zep_data.ntp_time.nsecs);
+                proto_item_append_text(pi, " (%ld.%09ds)", (long)zep_data.ntp_time.secs, zep_data.ntp_time.nsecs);
                 proto_tree_add_uint(zep_tree, hf_zep_seqno, tvb, 17, 4, zep_data.seqno);
             }
         }
