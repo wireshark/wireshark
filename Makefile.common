@@ -67,7 +67,7 @@ WIRESHARK_COMMON_INCLUDES =	\
 	capture-pcap-util.h	\
 	capture-pcap-util-int.h	\
 	cfile.h			\
-	clopts_common.hs	\
+	clopts_common.h		\
 	cmdarg_err.h		\
 	console_io.h		\
 	color.h			\
