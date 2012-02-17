@@ -567,7 +567,6 @@ set(WIRESHARK_COMMON_SRC
 	svnversion.h
 	sync_pipe_write.c
 	timestats.c
-	ui/util.c
 	tap-megaco-common.c
 	tap-rtp-common.c
 	version_info.c
@@ -689,6 +688,7 @@ if( (BUILD_wireshark AND GTK_FOUND) OR (BUILD_qtshark AND QT_FOUND) )
 		summary.c
 		tempfile.c
 		u3.c
+		ui/util.c
 		${SHARK_COMMON_CAPTURE_SRC}
 		${WIRESHARK_COMMON_SRC}
 	)
@@ -750,6 +750,7 @@ if(BUILD_tshark)
 		tempfile.c
 		tshark-tap-register.c
 		tshark.c
+		ui/util.c
 		${TSHARK_TAP_SRC}
 		${SHARK_COMMON_CAPTURE_SRC}
 	        ${WIRESHARK_COMMON_SRC}
@@ -769,6 +770,7 @@ if(BUILD_rawshark AND PCAP_FOUND)
 	set(rawshark_FILES
 	        ${WIRESHARK_COMMON_SRC}
 		rawshark.c
+		ui/util.c
 	)
 	add_executable(rawshark ${rawshark_FILES})
 	add_dependencies(rawshark svnversion)

@@ -46,18 +46,17 @@ GENERATED_FILES = $(GENERATED_C_FILES) $(GENERATED_HEADER_FILES)
 
 # sources common for wireshark, tshark, and rawshark
 WIRESHARK_COMMON_SRC =	\
-	$(PLATFORM_SRC) \
+	$(PLATFORM_SRC)		\
 	capture-pcap-util.c	\
-	cfile.c	\
-	clopts_common.c	\
+	cfile.c			\
+	clopts_common.c		\
 	disabled_protos.c	\
 	frame_data_sequence.c	\
-	packet-range.c	\
-	print.c	\
-	ps.c	\
+	packet-range.c		\
+	print.c			\
+	ps.c			\
 	sync_pipe_write.c	\
-	timestats.c	\
-	ui/util.c	\
+	timestats.c		\
 	tap-megaco-common.c	\
 	tap-rtp-common.c	\
 	version_info.c
@@ -67,25 +66,25 @@ WIRESHARK_COMMON_INCLUDES =	\
 	svnversion.h		\
 	capture-pcap-util.h	\
 	capture-pcap-util-int.h	\
-	cfile.h	\
-	clopts_common.h	\
-	cmdarg_err.h	\
-	console_io.h	\
-	color.h	\
+	cfile.h			\
+	clopts_common.hs	\
+	cmdarg_err.h		\
+	console_io.h		\
+	color.h			\
 	disabled_protos.h	\
-	file.h	\
-	fileset.h	\
+	file.h			\
+	fileset.h		\
 	frame_data_sequence.h	\
-	isprint.h	\
-	packet-range.h	\
-	print.h	\
-	ps.h	\
-	register.h	\
-	tempfile.h	\
-	timestats.h	\
-	ui/util.h	\
+	isprint.h		\
+	packet-range.h		\
+	print.h			\
+	ps.h			\
+	register.h		\
+	tempfile.h		\
+	timestats.h		\
 	tap-megaco-common.h	\
 	tap-rtp-common.h	\
+	ui/util.h		\
 	version_info.h
 
 # sources common for wireshark and tshark, but not rawshark;
@@ -162,7 +161,8 @@ wireshark_SOURCES =	\
 	recent.c	\
 	summary.c	\
 	tempfile.c	\
-	u3.c
+	u3.c		\
+	ui/util.c
 
 # corresponding headers
 wireshark_INCLUDES =	\
@@ -199,12 +199,14 @@ tshark_SOURCES =	\
 	capture_opts.c		\
 	tempfile.c		\
 	tshark-tap-register.c	\
-	tshark.c
+	tshark.c		\
+	ui/util.c
 
 # rawshark specifics
 rawshark_SOURCES =	\
 	$(WIRESHARK_COMMON_SRC)	\
-	rawshark.c
+	rawshark.c		\
+	ui/util.c
 
 # text2pcap specifics
 text2pcap_SOURCES = \
