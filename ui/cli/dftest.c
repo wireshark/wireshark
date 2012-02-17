@@ -40,7 +40,7 @@
 #include <epan/filesystem.h>
 #include <wsutil/privileges.h>
 #include <epan/prefs.h>
-#include "util.h"
+#include "ui/util.h"
 #include "epan/dfilter/dfilter.h"
 #include "register.h"
 

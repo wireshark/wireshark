@@ -79,7 +79,7 @@
 #include <epan/column.h>
 #include "print.h"
 #include <epan/addr_resolv.h>
-#include "util.h"
+#include "ui/util.h"
 #include "clopts_common.h"
 #include "cmdarg_err.h"
 #include "version_info.h"

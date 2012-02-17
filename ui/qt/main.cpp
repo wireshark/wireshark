@@ -70,7 +70,7 @@
 #include "print.h"
 #include "register.h"
 #include "ringbuffer.h"
-#include "util.h"
+#include "ui/util.h"
 #include "clopts_common.h"
 #include "console_io.h"
 #include "cmdarg_err.h"

@@ -45,7 +45,7 @@
 #include "capture_sync.h"
 #include "capture_info.h"
 #include "capture_ui_utils.h"
-#include "util.h"
+#include "ui/util.h"
 #include "capture-pcap-util.h"
 #include <epan/prefs.h>
 

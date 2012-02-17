@@ -45,7 +45,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/strutil.h>
 
-#include "util.h"
+#include "ui/util.h"
 
 /*
  * Collect command-line arguments as a string consisting of the arguments,
