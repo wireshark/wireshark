@@ -622,7 +622,7 @@ ntp_to_nstime(tvbuff_t *tvb, gint offset, nstime_t *nstime)
 	nstime->secs  = tvb_get_ntohl(tvb, offset);
 	if (nstime->secs)
 		nstime->secs -= NTP_BASETIME;
-	nstime->nsecs = (int)(1000000000*tvb_get_ntohl(tvb, offset+4)/NTP_FLOAT_DENOM);
+	nstime->nsecs = (int)(tvb_get_ntohl(tvb, offset+4)/(NTP_FLOAT_DENOM/1000000000.0));
 }
 
 /* dissect_ntp - dissects NTP packet data
