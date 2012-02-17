@@ -32,7 +32,7 @@
 #include <epan/prefs.h>
 
 #include "../print.h"
-#include "../util.h"
+#include "ui/util.h"
 
 #include "ui/gtk/prefs_print.h"
 #include "ui/gtk/keys.h"

@@ -37,7 +37,7 @@
 #include "../print.h"
 #include "ui/alert_box.h"
 #include "ui/simple_dialog.h"
-#include "../util.h"
+#include "ui/util.h"
 #include <wsutil/file_util.h>
 
 #include "ui/gtk/gtkglobals.h"

@@ -37,7 +37,7 @@
 #include <epan/prefs.h>
 #include <epan/filesystem.h>
 
-#include "../util.h"
+#include "ui/util.h"
 #include "../disabled_protos.h"
 
 #include "ui/simple_dialog.h"

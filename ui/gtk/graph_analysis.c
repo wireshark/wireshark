@@ -51,7 +51,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/filesystem.h>
 
-#include "../util.h"
+#include "ui/util.h"
 
 #include "ui/alert_box.h"
 #include "ui/last_open_dir.h"

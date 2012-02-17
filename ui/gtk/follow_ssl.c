@@ -48,7 +48,7 @@
 
 #include <ui/alert_box.h>
 #include <ui/simple_dialog.h>
-#include <../util.h>
+#include <ui/util.h>
 
 #include "gtkglobals.h"
 #include "ui/gtk/color_utils.h"

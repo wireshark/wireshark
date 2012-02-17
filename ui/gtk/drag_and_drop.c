@@ -36,7 +36,7 @@
 
 #include <epan/prefs.h>
 
-#include "../util.h"
+#include "ui/util.h"
 #include "../file.h"
 #ifdef HAVE_LIBPCAP
 #include "../capture.h"

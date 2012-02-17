@@ -43,7 +43,7 @@
 #include "../color.h"
 #include "../color_filters.h"
 #include "../merge.h"
-#include "../util.h"
+#include "ui/util.h"
 #include <wsutil/file_util.h>
 
 #include "ui/alert_box.h"

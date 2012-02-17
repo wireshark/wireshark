@@ -62,7 +62,7 @@
 #include <epan/stat_cmd_args.h>
 #include <epan/strutil.h>
 
-#include "../util.h"
+#include "ui/util.h"
 #include "../g711.h"
 #include "../stat_menu.h"
 #include "../tempfile.h"
