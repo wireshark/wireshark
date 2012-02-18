@@ -1,0 +1,58 @@
+# Makefile.common
+#     Contains the stuff from Makefile.am and Makefile.nmake that is
+#     a) common to both files and
+#     b) portable between both files
+#
+# $Id$
+#
+# Wireshark - Network traffic analyzer
+# By Gerald Combs <gerald@wireshark.org>
+# Copyright 1998 Gerald Combs
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+
+# Generated header files that we want in the distribution.
+GENERATED_HEADER_FILES =
+
+# Generated C source files that we want in the distribution.
+GENERATED_C_FILES =
+
+GENERATED_H_FILES =
+
+DIRTY_GENERATED_C_FILES =
+
+# All the generated files we want in the distribution.
+GENERATED_FILES = \
+	$(GENERATED_HEADER_FILES) \
+	$(GENERATED_C_FILES) \
+	$(GENERATED_H_FILES) \
+	$(DIRTY_GENERATED_C_FILES)
+
+# Files that generate compileable files
+GENERATOR_FILES =
+
+WIRESHARK_UI_SRC = \
+	util.c
+
+noinst_HEADERS = \
+	alert_box.h		\
+	last_open_dir.h		\
+	main_statusbar.h	\
+	progress_dlg.h		\
+	recent.h		\
+	recent_utils.h		\
+	simple_dialog.h		\
+	ui_util.h		\
+	util.h

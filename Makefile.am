@@ -386,6 +386,7 @@ endif
 # @GTK_LIBS@ (as those are also needed for X applications, and GTK+
 # applications are X applications).
 wireshark_LDADD = \
+	ui/libui.a			\
 	ui/gtk/libgtkui.a		\
 	ui/gtk/libgtkui_dirty.a		\
 	codecs/libcodec.a		\
@@ -416,6 +417,7 @@ endif
 
 # Libraries and plugin flags with which to link tshark.
 tshark_LDADD = \
+	ui/libui.a			\
 	wiretap/libwiretap.la		\
 	epan/libwireshark.la		\
 	wsutil/libwsutil.la		\
@@ -443,6 +445,7 @@ endif
 
 # Libraries and plugin flags with which to link rawshark.
 rawshark_LDADD = \
+	ui/libui.a			\
 	wiretap/libwiretap.la		\
 	epan/libwireshark.la		\
 	wsutil/libwsutil.la		\
@@ -509,6 +512,7 @@ randpkt_CFLAGS = $(AM_CLEAN_CFLAGS)
 
 # Libraries and plugin flags with which to link dftest.
 dftest_LDADD = \
+	ui/libui.a			\
 	wiretap/libwiretap.la		\
 	wsutil/libwsutil.la		\
 	epan/libwireshark.la		\
@@ -955,7 +959,7 @@ endif
 endif
 
 
-DIST_SUBDIRS = asn1 codecs doc epan ui/gtk help packaging plugins tools wiretap wsutil docbook
+DIST_SUBDIRS = asn1 codecs doc epan ui ui/gtk help packaging plugins tools wiretap wsutil docbook
 
 if HAVE_PLUGINS
 SUBDIRS = tools wsutil wiretap epan plugins packaging help @wireshark_SUBDIRS@ . doc
@@ -1077,6 +1081,7 @@ checkapi_local:
 checkapi: checkapi_local
 	cd wiretap && $(MAKE) checkapi
 	cd codecs && $(MAKE) checkapi
+	cd ui && $(MAKE) checkapi
 	cd ui/gtk && $(MAKE) checkapi
 ##	cd epan && $(MAKE) checkapi
 ##	cd epan/crypt && $(MAKE) checkapi

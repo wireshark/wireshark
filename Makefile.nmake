@@ -238,13 +238,33 @@ packaging_zip: all
 !IFDEF WIRESHARK_GENERATE_BSC_FILE
 # FIXME: Add epan\wspython\*.sbr when we support Python embedding
 # Note: Certain .sbr files which cause bscmake warning "too many references... ignoring ..."
-wireshark.bsc: *.sbr codecs\*.sbr epan\*.sbr epan\crypt\*.sbr epan\dfilter\*.sbr \
-               epan\dissectors\*.sbr epan\ftypes\*.sbr epan\wslua\*.sbr ui\gtk\*.sbr \
-               plugins\asn1\*.sbr plugins\docsis\*.sbr plugins\ethercat\*.sbr \
-               plugins\giop\*.sbr plugins\gryphon\*.sbr plugins\irda\*.sbr plugins\m2m\*.sbr \
-               plugins\mate\*.sbr plugins\opcua\*.sbr plugins\profinet\*.sbr plugins\stats_tree\*.sbr \
-               plugins\unistim\*.sbr plugins\wimax\*.sbr plugins\wimaxasncp\*.sbr \
-               wiretap\*.sbr wsutil\*.sbr
+wireshark.bsc: \
+	*.sbr				\
+	codecs\*.sbr			\
+	epan\*.sbr			\
+	epan\crypt\*.sbr		\
+	epan\dfilter\*.sbr		\
+	epan\dissectors\*.sbr		\
+	epan\ftypes\*.sbr		\
+	epan\wslua\*.sbr		\
+	ui\*.sbr			\
+	ui\gtk\*.sbr			\
+	plugins\asn1\*.sbr		\
+	plugins\docsis\*.sbr		\
+	plugins\ethercat\*.sbr		\
+	plugins\giop\*.sbr		\
+	plugins\gryphon\*.sbr		\
+	plugins\irda\*.sbr		\
+	plugins\m2m\*.sbr		\
+	plugins\mate\*.sbr		\
+	plugins\opcua\*.sbr		\
+	plugins\profinet\*.sbr		\
+	lugins\stats_tree\*.sbr		\
+	plugins\unistim\*.sbr		\
+	plugins\wimax\*.sbr		\
+	plugins\wimaxasncp\*.sbr	\
+	wiretap\*.sbr			\
+	wsutil\*.sbr
 	$(BSCMAKE) @<<
 		/o $@ $?
 <<
@@ -262,28 +282,28 @@ $(RESOURCES): image
 
 wiretap\wiretap-$(WTAP_VERSION).lib: image $(ZLIB_DLL) wiretap
 
-wireshark.exe	: $(LIBS_CHECK) config.h $(wireshark_OBJECTS) codecs epan gtk win32 image\wireshark.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib ui\gtk\libgtkui.lib ui\win32\libgtkui_win32.lib plugins
+wireshark.exe	: $(LIBS_CHECK) config.h $(wireshark_OBJECTS) codecs epan gtk ui win32 image\wireshark.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib ui\libui.lib ui\gtk\libgtkui.lib ui\win32\libgtkui_win32.lib plugins
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:wireshark.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:windows $(wireshark_LIBS) $(GTK_LIBS) codecs\codecs.lib ui\gtk\libgtkui.lib ui\win32\libgtkui_win32.lib $(wireshark_OBJECTS) image\wireshark.res
+		/OUT:wireshark.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:windows $(wireshark_LIBS) $(GTK_LIBS) codecs\codecs.lib ui\libui.lib ui\gtk\libgtkui.lib ui\win32\libgtkui_win32.lib $(wireshark_OBJECTS) image\wireshark.res
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "wireshark.exe.manifest" -outputresource:wireshark.exe;1
 !ENDIF
 
-tshark.exe	: $(LIBS_CHECK) config.h $(tshark_OBJECTS) epan image\tshark.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib plugins
+tshark.exe	: $(LIBS_CHECK) config.h $(tshark_OBJECTS) epan ui image\tshark.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib plugins
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:tshark.exe $(conflags) $(conlibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console $(tshark_LIBS) $(tshark_OBJECTS) image\tshark.res
+		/OUT:tshark.exe $(conflags) $(conlibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console $(tshark_LIBS) $(tshark_OBJECTS) ui\libui.lib image\tshark.res
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "tshark.exe.manifest" -outputresource:tshark.exe;1
 !ENDIF
 
-rawshark.exe	: $(LIBS_CHECK) config.h $(rawshark_OBJECTS) epan image\rawshark.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib plugins
+rawshark.exe	: $(LIBS_CHECK) config.h $(rawshark_OBJECTS) epan ui image\rawshark.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib plugins
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:rawshark.exe $(conflags) $(conlibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console $(rawshark_LIBS) $(rawshark_OBJECTS) image\rawshark.res
+		/OUT:rawshark.exe $(conflags) $(conlibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console $(rawshark_LIBS) $(rawshark_OBJECTS) ui\libui.lib image\rawshark.res
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "rawshark.exe.manifest" -outputresource:rawshark.exe;1
@@ -331,10 +351,10 @@ text2pcap.exe	: $(LIBS_CHECK) config.h text2pcap.obj text2pcap-scanner.obj wsuti
 	mt.exe -nologo -manifest "text2pcap.exe.manifest" -outputresource:text2pcap.exe;1
 !ENDIF
 
-dftest.exe	: $(dftest_OBJECTS) epan
+dftest.exe	: $(dftest_OBJECTS) epan ui
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:dftest.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(dftest_LIBS) $(dftest_OBJECTS)
+		/OUT:dftest.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(dftest_LIBS) ui\libui.lib $(dftest_OBJECTS)
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "dftest.exe.manifest" -outputresource:dftest.exe;1
@@ -499,7 +519,9 @@ clean: clean-local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../codecs
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ../ui/gtk
+	cd ../ui
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd gtk
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../win32
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
@@ -545,7 +567,9 @@ distclean: distclean-local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../codecs
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ../ui/gtk
+	cd ../ui
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd gtk
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../win32
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
@@ -584,7 +608,9 @@ maintainer-clean: maintainer-clean-local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../codecs
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
-	cd ../ui/gtk
+	cd ../ui
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	cd gtk
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../win32
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
@@ -687,6 +713,11 @@ wiretap::
 codecs::
 	cd codecs
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+	cd ..
+
+ui:: help config.h svnversion.h doxygen
+	cd ui
+	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake libui.lib
 	cd ..
 
 gtk:: help config.h svnversion.h doxygen
@@ -1160,7 +1191,9 @@ checkapi: checkapi_local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
 	cd ../codecs
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
-	cd ../ui/gtk
+	cd ../ui
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
+	cd gtk
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
 	cd ../win32
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi

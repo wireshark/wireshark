@@ -84,7 +84,6 @@ WIRESHARK_COMMON_INCLUDES =	\
 	timestats.h		\
 	tap-megaco-common.h	\
 	tap-rtp-common.h	\
-	ui/util.h		\
 	version_info.h
 
 # sources common for wireshark and tshark, but not rawshark;
@@ -161,14 +160,12 @@ wireshark_SOURCES =	\
 	recent.c	\
 	summary.c	\
 	tempfile.c	\
-	u3.c		\
-	ui/util.c
+	u3.c
 
 # corresponding headers
 wireshark_INCLUDES =	\
 	airpcap.h	\
 	airpcap_loader.h \
-	ui/alert_box.h	\
 	capture.h	\
 	capture_info.h	\
 	capture_opts.h	\
@@ -176,20 +173,13 @@ wireshark_INCLUDES =	\
 	filters.h	\
 	g711.h	\
 	globals.h	\
-	ui/last_open_dir.h	\
 	log.h	\
-	ui/main_statusbar.h	\
 	merge.h	\
-	ui/progress_dlg.h	\
-	ui/recent.h	\
-	ui/recent_utils.h	\
 	proto_hier_stats.h	\
-	ui/simple_dialog.h	\
 	stat_menu.h	\
 	summary.h	\
 	sync_pipe.h	\
-	u3.h	\
-	ui/ui_util.h
+	u3.h
 
 # tshark specifics
 tshark_SOURCES =	\
@@ -199,14 +189,12 @@ tshark_SOURCES =	\
 	capture_opts.c		\
 	tempfile.c		\
 	tshark-tap-register.c	\
-	tshark.c		\
-	ui/util.c
+	tshark.c
 
 # rawshark specifics
 rawshark_SOURCES =	\
 	$(WIRESHARK_COMMON_SRC)	\
-	rawshark.c		\
-	ui/util.c
+	rawshark.c
 
 # text2pcap specifics
 text2pcap_SOURCES = \
@@ -232,8 +220,7 @@ capinfos_SOURCES = \
 
 # dftest specifics
 dftest_SOURCES =	\
-	ui/cli/dftest.c	\
-	ui/util.c
+	ui/cli/dftest.c
 
 # randpkt specifics
 randpkt_SOURCES = \
