@@ -63,8 +63,8 @@ WIRESHARK_GTK_OBJECTS = \
 	$(DIRTY_GENERATED_C_FILES:.c=.obj) \
 	$(PORT_AUDIO_SRC:.c=.obj)
 
-libui.lib	: ..\..\config.h $(WIRESHARK_GTK_OBJECTS) $(WIRESHARK_TAP_OBJECTS)
-	link /lib /out:libui.lib $(WIRESHARK_GTK_OBJECTS) $(WIRESHARK_TAP_OBJECTS) winmm.lib
+libgtkui.lib	: ..\..\config.h $(WIRESHARK_GTK_OBJECTS) $(WIRESHARK_TAP_OBJECTS)
+	link /lib /out:libgtkui.lib $(WIRESHARK_GTK_OBJECTS) $(WIRESHARK_TAP_OBJECTS) winmm.lib
 
 # The shell script runs slowly, as multiple greps and seds are run
 # for each input file; this is especially slow on Windows.  Therefore,
@@ -145,7 +145,7 @@ pa_win_waveformat.obj: $(PORTAUDIO_DIR)\src\os\win\pa_win_waveformat.c
 !ENDIF
 
 clean:
-	rm -f $(WIRESHARK_GTK_OBJECTS) $(WIRESHARK_TAP_OBJECTS) libui.lib *.pdb doxygen.cfg html/*.* wireshark-tap-register-cache.pkl
+	rm -f $(WIRESHARK_GTK_OBJECTS) $(WIRESHARK_TAP_OBJECTS) libgtkui.lib *.pdb doxygen.cfg html/*.* wireshark-tap-register-cache.pkl
 	if exist html rmdir html
 
 distclean: clean

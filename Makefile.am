@@ -386,8 +386,8 @@ endif
 # @GTK_LIBS@ (as those are also needed for X applications, and GTK+
 # applications are X applications).
 wireshark_LDADD = \
-	ui/gtk/libui.a			\
-	ui/gtk/libui_dirty.a		\
+	ui/gtk/libgtkui.a		\
+	ui/gtk/libgtkui_dirty.a		\
 	codecs/libcodec.a		\
 	wiretap/libwiretap.la		\
 	epan/libwireshark.la		\

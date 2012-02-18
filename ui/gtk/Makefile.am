@@ -28,11 +28,11 @@ if HAVE_WARNINGS_AS_ERRORS
 AM_CLEAN_CFLAGS = -Werror
 endif
 
-noinst_LIBRARIES = libui.a libui_dirty.a
+noinst_LIBRARIES = libgtkui.a libgtkui_dirty.a
 
 CLEANFILES = \
-	libui.a		\
-	libui_dirty.a	\
+	libgtkui.a		\
+	libgtkui_dirty.a	\
 	*~
 
 MAINTAINERCLEANFILES = \
@@ -47,22 +47,22 @@ wireshark-tap-register.c: $(WIRESHARK_TAP_SRC) $(top_srcdir)/tools/make-tapreg-d
 	@echo Making wireshark-tap-register.c
 	@$(top_srcdir)/tools/make-tapreg-dotc wireshark-tap-register.c $(srcdir) $(WIRESHARK_TAP_SRC)
 
-libui_a_SOURCES = \
+libgtkui_a_SOURCES = \
 	$(WIRESHARK_GTK_SRC) \
 	$(GENERATED_C_FILES) \
 	$(GENERATED_H_FILES) \
 	$(noinst_HEADERS) \
 	$(WIRESHARK_TAP_SRC)
 
-libui_a_CFLAGS = $(AM_CLEAN_CFLAGS)
+libgtkui_a_CFLAGS = $(AM_CLEAN_CFLAGS)
 
-libui_a_DEPENDENCIES =
+libgtkui_a_DEPENDENCIES =
 
 
-libui_dirty_a_SOURCES = \
+libgtkui_dirty_a_SOURCES = \
 	$(DIRTY_GENERATED_C_FILES)
 
-libui_dirty_a_DEPENDENCIES =
+libgtkui_dirty_a_DEPENDENCIES =
 
 # Common headers
 AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap $(LIBGCRYPT_CFLAGS) $(LIBGNUTLS_CFLAGS) $(PORTAUDIO_INCLUDES)
@@ -120,7 +120,7 @@ EXTRA_DIST = \
 	capture_if_details_dlg_win32.c	\
 	capture_if_details_dlg_win32.h	\
 	doxygen.cfg.in			\
-	libui.vcproj			\
+	libgtkui.vcproj			\
 	main_airpcap_toolbar.c		\
 	Makefile.common			\
 	Makefile.nmake			\

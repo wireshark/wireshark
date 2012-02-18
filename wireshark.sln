@@ -13,7 +13,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wireshark", "wireshark.vcpr
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libwiretap", "wiretap\libwiretap.vcproj", "{CD04EABB-BA03-446F-9A63-A00C08138E91}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libui", "ui\gtk\libui.vcproj", "{57231C4A-CF70-4CC6-8AED-4C1D6ABC3E94}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libgtkui", "ui\gtk\libgtkui.vcproj", "{57231C4A-CF70-4CC6-8AED-4C1D6ABC3E94}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dumpcap", "dumpcap.vcproj", "{D1417D47-E273-4A90-A49B-6BAF4485CA58}"
 EndProject
