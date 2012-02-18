@@ -13,10 +13,14 @@ dropped since the last successful read by returning -1 and setting
 CVS version of libpcap ignores EFAULT on AIX; it appears that this fixes
 the problem.
 
-Some earlier notes: the notes about libpcap may not apply, with libpcap
-0.7.1, but they're preserved here for historical reasons.
+Some earlier notes:
 
-The glib, gtk+, and Ethereal notes still apply.
+The notes about libpcap may not apply, with libpcap 0.7.1 and later, but
+they're preserved here for historical reasons.
+
+The notes about glib, gtk+, and Ethereal may not apply, as we're now
+using GLib 2.x and GTK+ 2.x, and don't have our own gtkclist.c, but
+they're also preserved for historical reasons.
 
 After much work and toil, Craig Rodrigues was able to compile libpcap
 and Ethereal on AIX 4.3.2.  His odyssey is document in various e-mails
