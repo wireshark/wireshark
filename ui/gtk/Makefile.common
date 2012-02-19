@@ -27,23 +27,20 @@
 include Makefile_custom.common
 
 # Generated header files that we want in the distribution.
-GENERATED_HEADER_FILES =
+GENERATED_HEADER_FILES = \
+	text_import_scanner_lex.h
 
 # Generated C source files that we want in the distribution.
 GENERATED_C_FILES = \
 	wireshark-tap-register.c
 
-GENERATED_H_FILES = \
-	text_import_scanner_lex.h
-
 DIRTY_GENERATED_C_FILES = \
 	text_import_scanner.c
 
-# All the generated files we want in the distribution.
+# All the generated files.
 GENERATED_FILES = \
 	$(GENERATED_HEADER_FILES) \
 	$(GENERATED_C_FILES) \
-	$(GENERATED_H_FILES) \
 	$(DIRTY_GENERATED_C_FILES)
 
 # Files that generate compileable files

@@ -30,15 +30,12 @@ GENERATED_HEADER_FILES =
 GENERATED_C_FILES = \
 	tshark-tap-register.c
 
-GENERATED_H_FILES =
-
 DIRTY_GENERATED_C_FILES =
 
-# All the generated files we want in the distribution.
+# All the generated files.
 GENERATED_FILES = \
 	$(GENERATED_HEADER_FILES) \
 	$(GENERATED_C_FILES) \
-	$(GENERATED_H_FILES) \
 	$(DIRTY_GENERATED_C_FILES)
 
 # Files that generate compileable files

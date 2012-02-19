@@ -31,6 +31,7 @@ include Makefile.common
 WIRESHARK_GTK_SRC = \
 	$(WIRESHARK_GTK_SRC) \
 	$(GENERATED_C_FILES) \
+	$(DIRTY_GENERATED_C_FILES) \
 	capture_if_details_dlg_win32.c
 
 PORT_AUDIO_SRC = \
@@ -55,13 +56,11 @@ PORT_AUDIO_SRC = \
 	pa_win_wmme.c
 !ENDIF
 
-WIRESHARK_TAP_OBJECTS = $(WIRESHARK_TAP_SRC:.c=.obj)
-
-
 WIRESHARK_GTK_OBJECTS = \
 	$(WIRESHARK_GTK_SRC:.c=.obj) \
-	$(DIRTY_GENERATED_C_FILES:.c=.obj) \
 	$(PORT_AUDIO_SRC:.c=.obj)
+
+WIRESHARK_TAP_OBJECTS = $(WIRESHARK_TAP_SRC:.c=.obj)
 
 libgtkui.lib	: ..\..\config.h $(WIRESHARK_GTK_OBJECTS) $(WIRESHARK_TAP_OBJECTS)
 	link /lib /out:libgtkui.lib $(WIRESHARK_GTK_OBJECTS) $(WIRESHARK_TAP_OBJECTS) winmm.lib

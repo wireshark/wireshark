@@ -38,8 +38,6 @@ MAINTAINERCLEANFILES = \
 	$(GENERATED_FILES)	\
 	Makefile.in
 
-RUNLEX=$(top_srcdir)/tools/runlex.sh
-
 #
 # Build "tshark-tap-register.c", which contains a function
 # "register_all_tap_listeners()"
@@ -58,11 +56,12 @@ tshark-tap-register.c: $(TSHARK_TAP_SRC) $(top_srcdir)/tools/make-tapreg-dotc
 	@echo Making tshark-tap-register.c
 	@$(top_srcdir)/tools/make-tapreg-dotc tshark-tap-register.c $(srcdir) $(TSHARK_TAP_SRC)
 
+# All sources that should be put in the source distribution tarball
 libcliui_a_SOURCES = \
-	$(GENERATED_C_FILES) \
-	$(GENERATED_H_FILES) \
+	$(TSHARK_TAP_SRC) \
 	$(noinst_HEADERS) \
-	$(TSHARK_TAP_SRC)
+	$(GENERATED_HEADER_FILES) \
+	$(GENERATED_C_FILES)
 
 libcliui_a_CFLAGS = $(AM_CLEAN_CFLAGS)
 

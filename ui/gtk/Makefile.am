@@ -63,15 +63,14 @@ wireshark-tap-register.c: $(WIRESHARK_TAP_SRC) $(top_srcdir)/tools/make-tapreg-d
 
 libgtkui_a_SOURCES = \
 	$(WIRESHARK_GTK_SRC) \
-	$(GENERATED_C_FILES) \
-	$(GENERATED_H_FILES) \
+	$(WIRESHARK_TAP_SRC) \
 	$(noinst_HEADERS) \
-	$(WIRESHARK_TAP_SRC)
+	$(GENERATED_HEADER_FILES) \
+	$(GENERATED_C_FILES)
 
 libgtkui_a_CFLAGS = $(AM_CLEAN_CFLAGS)
 
 libgtkui_a_DEPENDENCIES =
-
 
 libgtkui_dirty_a_SOURCES = \
 	$(DIRTY_GENERATED_C_FILES)
@@ -128,7 +127,7 @@ pipe_icon.h:
 	gdk-pixbuf-csource --raw --name=pipe_pb_data ../../image/toolbar/pipe_16.png >> $@
 
 EXTRA_DIST = \
-	$(GENERATOR_FILES)	\
+	$(GENERATOR_FILES)		\
 	airpcap_dlg.c			\
 	airpcap_gui_utils.c		\
 	capture_if_details_dlg_win32.c	\
