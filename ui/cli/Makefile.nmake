@@ -45,15 +45,15 @@ TSHARK_TAP_OBJECTS = $(TSHARK_TAP_SRC:.c=.obj)
 # The second argument is the directory in which the source files live.
 # All subsequent arguments are the files to scan.
 #
-tshark-tap-register.c: $(TSHARK_TAP_SRC) tools\make-tapreg-dotc
+tshark-tap-register.c: $(TSHARK_TAP_SRC) ..\..\tools\make-tapreg-dotc
 	@echo Making tshark-tap-register.c
-	@$(SH) tools/make-tapreg-dotc tshark-tap-register.c . $(TSHARK_TAP_SRC)
+	@$(SH) ../../tools/make-tapreg-dotc tshark-tap-register.c . $(TSHARK_TAP_SRC)
 
-libcliui.lib	: ..\..\config.h $(TSHARK_TAP_OBJECTS)
-	link /lib /out:libcliui.lib $(TSHARK_TAP_OBJECTS)
+libcliui.lib	: ..\..\config.h $(TSHARK_TAP_OBJECTS) tshark-tap-register.obj
+	link /lib /out:libcliui.lib $(TSHARK_TAP_OBJECTS) tshark-tap-register.obj
 
 clean:
-	rm -f $(TSHARK_TAP_OBJECTS) libcliui.lib *.pdb doxygen.cfg html/*.* wireshark-tap-register-cache.pkl
+	rm -f $(TSHARK_TAP_OBJECTS) tshark-tap-register.obj libcliui.lib *.pdb doxygen.cfg html/*.* wireshark-tap-register-cache.pkl
 	if exist html rmdir html
 
 distclean: clean
