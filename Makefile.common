@@ -220,7 +220,7 @@ capinfos_SOURCES = \
 
 # dftest specifics
 dftest_SOURCES =	\
-	ui/cli/dftest.c
+	dftest.c
 
 # randpkt specifics
 randpkt_SOURCES = \
