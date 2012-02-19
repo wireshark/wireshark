@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2012-02-10
+# 2012-02-17
 # 
 # Note
 # 
@@ -15676,7 +15676,15 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # bri                                   RFID Reader Basic Reader     [Thaddeus_Ternes]                         [Thaddeus_Ternes]                                                                                                                                 Defined TXT keys: None
 # Interface
 # bsqdea                                Backup Simplicity            [Qdea]                                    [Qdea]                                                                                                                                            Defined TXT keys: None
+# caldav                         tcp    Calendaring Extensions to    [IESG]                                    [IETF_Chair]                                              2012-02-17                [draft-daboo-srv-caldav]                                      This is an extension of the http service. Defined TXT keys:
+# WebDAV (CalDAV) - non-TLS                                                                                                                                                                                                path=<context path>
+# caldavs                        tcp    Calendaring Extensions to    [IESG]                                    [IETF_Chair]                                              2012-02-17                [draft-daboo-srv-caldav]                                      This is an extension of the https service. Defined TXT keys:
+# WebDAV (CalDAV) - over TLS                                                                                                                                                                                               path=<context path>
 # caltalk                               CalTalk                      [Joe_Groff]                               [Joe_Groff]                                                                                                                                       Defined TXT keys: None
+# carddav                        tcp    vCard Extensions to WebDAV   [IESG]                                    [IETF_Chair]                                              2012-02-17                [RFC6352]                                                     This is an extension of the http service. Defined TXT keys:
+# (CardDAV) - non-TLS                                                                                                                                                                                                      path=<context path>
+# carddavs                       tcp    vCard Extensions to WebDAV   [IESG]                                    [IETF_Chair]                                              2012-02-17                [RFC6352]                                                     This is an extension of the https service. Defined TXT keys:
+# (CardDAV) - over TLS                                                                                                                                                                                                     path=<context path>
 # cardsend                              Card Send Protocol           [Jeff_Grossman]                           [Jeff_Grossman]                                                                                                                                   Defined TXT keys: Proprietary
 # carousel                       tcp    Carousel Player Protocol     [Tightrope_Media_Systems]                 [Scott_Jann]                                              2011-10-17                                                                              Defined TXT keys: None
 # IP and Closed-Circuit                                                                                                                                                                                                    Defined TXT keys: u=<username>, p=<password>, path=<path to
