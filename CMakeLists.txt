@@ -784,7 +784,7 @@ if(BUILD_dftest)
 		${LIBEPAN_LIBS}
 	)
 	set(dftest_FILES
-		ui/cli/dftest.c
+		dftest.c
 		ui/util.c
 	)
 	add_executable(dftest ${dftest_FILES})
