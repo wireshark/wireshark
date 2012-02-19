@@ -28,11 +28,15 @@ include Makefile.common
 
 
 # if you add files here, be sure to include them also in Makefile.am EXTRA_DIST
-WIRESHARK_GTK_SRC = \
+WIRESHARK_CLEAN_LIBGTKUI_SRC = \
 	$(WIRESHARK_GTK_SRC) \
+	$(WIRESHARK_TAP_SRC) \
 	$(GENERATED_C_FILES) \
-	$(DIRTY_GENERATED_C_FILES) \
 	capture_if_details_dlg_win32.c
+
+WIRESHARK_LIBGTKUI_SRC = \
+	$(WIRESHARK_CLEAN_LIBGTKUI_SRC) \
+	$(DIRTY_GENERATED_C_FILES) \
 
 PORT_AUDIO_SRC = \
 !IFDEF PORTAUDIO_DIR
@@ -56,14 +60,12 @@ PORT_AUDIO_SRC = \
 	pa_win_wmme.c
 !ENDIF
 
-WIRESHARK_GTK_OBJECTS = \
-	$(WIRESHARK_GTK_SRC:.c=.obj) \
+WIRESHARK_LIBGTKUI_OBJECTS = \
+	$(WIRESHARK_LIBGTKUI_SRC:.c=.obj) \
 	$(PORT_AUDIO_SRC:.c=.obj)
 
-WIRESHARK_TAP_OBJECTS = $(WIRESHARK_TAP_SRC:.c=.obj)
-
-libgtkui.lib	: ..\..\config.h $(WIRESHARK_GTK_OBJECTS) $(WIRESHARK_TAP_OBJECTS)
-	link /lib /out:libgtkui.lib $(WIRESHARK_GTK_OBJECTS) $(WIRESHARK_TAP_OBJECTS) winmm.lib
+libgtkui.lib	: ..\..\config.h $(WIRESHARK_LIBGTKUI_OBJECTS)
+	link /lib /out:libgtkui.lib $(WIRESHARK_LIBGTKUI_OBJECTS) winmm.lib
 
 # The shell script runs slowly, as multiple greps and seds are run
 # for each input file; this is especially slow on Windows.  Therefore,
@@ -144,7 +146,7 @@ pa_win_waveformat.obj: $(PORTAUDIO_DIR)\src\os\win\pa_win_waveformat.c
 !ENDIF
 
 clean:
-	rm -f $(WIRESHARK_GTK_OBJECTS) $(WIRESHARK_TAP_OBJECTS) libgtkui.lib *.pdb doxygen.cfg html/*.* wireshark-tap-register-cache.pkl
+	rm -f $(WIRESHARK_LIBGTKUI_OBJECTS) libgtkui.lib *.pdb doxygen.cfg html/*.* wireshark-tap-register-cache.pkl
 	if exist html rmdir html
 
 distclean: clean
@@ -177,10 +179,10 @@ checkapi: checkapi-base checkapi-todo
 
 checkapi-base:
 	$(PERL) ../../tools/checkAPIs.pl -g deprecated-gtk \
-	$(WIRESHARK_GTK_SRC) \
+	$(WIRESHARK_CLEAN_LIBGTKUI_SRC) \
 	$(WIRESHARK_TAP_SRC)
 
 checkapi-todo:
 	$(PERL) ../../tools/checkAPIs.pl -M -g deprecated-gtk-todo \
-	$(WIRESHARK_GTK_SRC) \
+	$(WIRESHARK_CLEAN_LIBGTKUI_SRC) \
 	$(WIRESHARK_TAP_SRC)

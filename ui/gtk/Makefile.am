@@ -61,12 +61,15 @@ wireshark-tap-register.c: $(WIRESHARK_TAP_SRC) $(top_srcdir)/tools/make-tapreg-d
 	@echo Making wireshark-tap-register.c
 	@$(top_srcdir)/tools/make-tapreg-dotc wireshark-tap-register.c $(srcdir) $(WIRESHARK_TAP_SRC)
 
+WIRESHARK_CLEAN_LIBGTKUI_SRC = \
+ 	$(WIRESHARK_GTK_SRC) \
+	$(WIRESHAR_TAP_SRC) \
+ 	$(GENERATED_C_FILES)
+
 libgtkui_a_SOURCES = \
-	$(WIRESHARK_GTK_SRC) \
-	$(WIRESHARK_TAP_SRC) \
+	$(WIRESHARK_CLEAN_LIBGTKUI_SRC) \
 	$(noinst_HEADERS) \
-	$(GENERATED_HEADER_FILES) \
-	$(GENERATED_C_FILES)
+	$(GENERATED_HEADER_FILES)
 
 libgtkui_a_CFLAGS = $(AM_CLEAN_CFLAGS)
 
@@ -90,8 +93,7 @@ checkapi: checkapi-base checkapi-todo
 
 checkapi-base:
 	$(PERL) ../../tools/checkAPIs.pl -g deprecated-gtk \
-	$(WIRESHARK_GTK_SRC) \
-	$(WIRESHARK_TAP_SRC) \
+	$(WIRESHARK_CLEAN_LIBGTKUI_SRC) \
 	capture_if_details_dlg_win32.c
 
 checkapi-todo:
