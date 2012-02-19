@@ -38,8 +38,7 @@ GENERATED_HEADER_FILES = \
 
 # C source files generated from source files.
 GENERATED_C_FILES = \
-	$(BUILT_C_FILES)	\
-	tshark-tap-register.c
+	$(BUILT_C_FILES)
 
 # All the generated files.
 GENERATED_FILES = $(GENERATED_C_FILES) $(GENERATED_HEADER_FILES)
@@ -99,48 +98,6 @@ SHARK_COMMON_CAPTURE_INCLUDES =	\
 	capture_sync.h		\
 	capture_ui_utils.h
 
-# sources for TShark taps
-TSHARK_TAP_SRC =	\
-	ui/cli/tap-afpstat.c	\
-	ui/cli/tap-ansi_astat.c	\
-	ui/cli/tap-bootpstat.c	\
-	ui/cli/tap-camelcounter.c	\
-	ui/cli/tap-camelsrt.c	\
-	ui/cli/tap-comparestat.c	\
-	ui/cli/tap-dcerpcstat.c	\
-	ui/cli/tap-diameter-avp.c \
-	ui/cli/tap-expert.c	\
-	ui/cli/tap-follow.c	\
-	ui/cli/tap-funnel.c	\
-	ui/cli/tap-gsm_astat.c	\
-	ui/cli/tap-h225counter.c	\
-	ui/cli/tap-h225rassrt.c	\
-	ui/cli/tap-hosts.c	\
-	ui/cli/tap-httpstat.c	\
-	ui/cli/tap-icmpstat.c	\
-	ui/cli/tap-icmpv6stat.c	\
-	ui/cli/tap-iostat.c	\
-	ui/cli/tap-iousers.c	\
-	ui/cli/tap-macltestat.c	\
-	ui/cli/tap-mgcpstat.c	\
-	ui/cli/tap-megacostat.c	\
-	ui/cli/tap-protocolinfo.c	\
-	ui/cli/tap-protohierstat.c	\
-	ui/cli/tap-radiusstat.c	\
-	ui/cli/tap-rlcltestat.c	\
-	ui/cli/tap-rpcstat.c	\
-	ui/cli/tap-rpcprogs.c	\
-	ui/cli/tap-rtp.c	\
-	ui/cli/tap-rtspstat.c	\
-	ui/cli/tap-scsistat.c	\
-	ui/cli/tap-sctpchunkstat.c	\
-	ui/cli/tap-sipstat.c	\
-	ui/cli/tap-smbsids.c	\
-	ui/cli/tap-smbstat.c	\
-	ui/cli/tap-stats_tree.c	\
-	ui/cli/tap-sv.c		\
-	ui/cli/tap-wspstat.c
-
 # wireshark specifics
 wireshark_SOURCES =	\
 	$(WIRESHARK_COMMON_SRC)	\
@@ -185,10 +142,8 @@ wireshark_INCLUDES =	\
 tshark_SOURCES =	\
 	$(WIRESHARK_COMMON_SRC)	\
 	$(SHARK_COMMON_CAPTURE_SRC) \
-	$(TSHARK_TAP_SRC)	\
 	capture_opts.c		\
 	tempfile.c		\
-	tshark-tap-register.c	\
 	tshark.c
 
 # rawshark specifics

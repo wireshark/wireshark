@@ -417,6 +417,7 @@ endif
 
 # Libraries and plugin flags with which to link tshark.
 tshark_LDADD = \
+	ui/cli/libcliui.a		\
 	ui/libui.a			\
 	wiretap/libwiretap.la		\
 	epan/libwireshark.la		\
@@ -565,24 +566,6 @@ SUFFIXES = .sh
 .sh:
 	rm -f $@ $@.tmp
 	$(editsh) $< > $@.tmp && chmod +x $@.tmp && mv $@.tmp $@
-
-#
-# Build "tshark-tap-register.c", which contains a function
-# "register_all_tap_listeners()"
-# that calls the register routines for all tshark tap listeners.
-#
-# We do this by grepping through sources.
-#
-# Formatting conventions:  The name of the tap_listener_register_*
-# routines must start in column zero, or must be preceded only by
-# "void " starting in column zero, and must not be inside #if.
-#
-# The first argument is the directory in which the source files live.
-# All subsequent arguments are the files to scan.
-#
-tshark-tap-register.c: $(TSHARK_TAP_SRC) $(srcdir)/tools/make-tapreg-dotc
-	@echo Making tshark-tap-register.c
-	@$(srcdir)/tools/make-tapreg-dotc tshark-tap-register.c $(srcdir) $(TSHARK_TAP_SRC)
 
 ps.c: print.ps $(srcdir)/tools/rdps.py
 	$(PYTHON) $(srcdir)/tools/rdps.py $(srcdir)/print.ps ps.c
@@ -962,9 +945,9 @@ endif
 DIST_SUBDIRS = asn1 codecs doc epan ui ui/gtk help packaging plugins tools wiretap wsutil docbook
 
 if HAVE_PLUGINS
-SUBDIRS = tools wsutil wiretap epan plugins packaging help @wireshark_SUBDIRS@ . doc
+SUBDIRS = tools wsutil wiretap epan plugins packaging help @wireshark_SUBDIRS@ ui/cli . doc
 else
-SUBDIRS = tools wsutil wiretap epan packaging help @wireshark_SUBDIRS@ . doc
+SUBDIRS = tools wsutil wiretap epan packaging help @wireshark_SUBDIRS@ ui/cli . doc
 endif
 
 help/faq.txt: $(srcdir)/help/faq.py

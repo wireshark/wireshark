@@ -285,16 +285,16 @@ wiretap\wiretap-$(WTAP_VERSION).lib: image $(ZLIB_DLL) wiretap
 wireshark.exe	: $(LIBS_CHECK) config.h $(wireshark_OBJECTS) codecs epan gtk ui win32 image\wireshark.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib ui\libui.lib ui\gtk\libgtkui.lib ui\win32\libgtkui_win32.lib plugins
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:wireshark.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:windows $(wireshark_LIBS) $(GTK_LIBS) codecs\codecs.lib ui\libui.lib ui\gtk\libgtkui.lib ui\win32\libgtkui_win32.lib $(wireshark_OBJECTS) image\wireshark.res
+		/OUT:wireshark.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:windows $(wireshark_LIBS) $(GTK_LIBS) codecs\codecs.lib ui\gtk\libgtkui.lib ui\win32\libgtkui_win32.lib ui\libui.lib $(wireshark_OBJECTS) image\wireshark.res
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "wireshark.exe.manifest" -outputresource:wireshark.exe;1
 !ENDIF
 
-tshark.exe	: $(LIBS_CHECK) config.h $(tshark_OBJECTS) epan ui image\tshark.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib plugins
+tshark.exe	: $(LIBS_CHECK) config.h $(tshark_OBJECTS) epan cli ui image\tshark.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib plugins
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:tshark.exe $(conflags) $(conlibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console $(tshark_LIBS) $(tshark_OBJECTS) ui\libui.lib image\tshark.res
+		/OUT:tshark.exe $(conflags) $(conlibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console $(tshark_LIBS) $(tshark_OBJECTS) ui\cli\libcliui.lib ui\libui.lib image\tshark.res
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "tshark.exe.manifest" -outputresource:tshark.exe;1
@@ -464,25 +464,6 @@ svnversion.h: $(SVNENTRIES)
 	$(PERL) make-version.pl
 
 
-#
-# Build "tshark-tap-register.c", which contains a function
-# "register_all_tap_listeners()"
-# that calls the register routines for all TShark tap listeners.
-#
-# We do this by grepping through sources.
-#
-# Formatting conventions:  The name of the tap_listener_register_*
-# routines must start in column zero, or must be preceded only by
-# "void " starting in column zero, and must not be inside #if.
-#
-# The first argument is the name of the file to write.
-# The second argument is the directory in which the source files live.
-# All subsequent arguments are the files to scan.
-#
-tshark-tap-register.c: $(TSHARK_TAP_SRC) tools\make-tapreg-dotc
-	@echo Making tshark-tap-register.c
-	@$(SH) tools/make-tapreg-dotc tshark-tap-register.c . $(TSHARK_TAP_SRC)
-
 text2pcap-scanner.c : text2pcap-scanner.l
 	$(LEX) -otext2pcap-scanner.c text2pcap-scanner.l
 
@@ -524,6 +505,8 @@ clean: clean-local
 	cd gtk
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../win32
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ../cli
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../../epan
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
@@ -573,6 +556,8 @@ distclean: distclean-local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../win32
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../cli
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../../epan
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../plugins
@@ -613,6 +598,8 @@ maintainer-clean: maintainer-clean-local
 	cd gtk
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../win32
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	cd ../cli
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../../epan
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
@@ -728,6 +715,11 @@ gtk:: help config.h svnversion.h doxygen
 win32::
 	cd ui/win32
 	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake libgtkui_win32.lib
+	cd ../..
+
+cli:: help config.h svnversion.h doxygen
+	cd ui/cli
+	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake libcliui.lib
 	cd ../..
 
 epan:: $(RESOURCES) $(ZLIB_DLL) wiretap\wiretap-$(WTAP_VERSION).lib $(BUILT_SOURCES) doxygen
