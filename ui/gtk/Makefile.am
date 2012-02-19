@@ -43,6 +43,20 @@ RUNLEX=$(top_srcdir)/tools/runlex.sh
 
 text_import_scanner_lex.h: text_import_scanner.c
 
+#
+# Build "wireshark-tap-register.c", which contains a function
+# "register_all_tap_listeners()"
+# that calls the register routines for all wireshark tap listeners.
+#
+# We do this by grepping through sources.
+#
+# Formatting conventions:  The name of the tap_listener_register_*
+# routines must start in column zero, or must be preceded only by
+# "void " starting in column zero, and must not be inside #if.
+#
+# The first argument is the directory in which the source files live.
+# All subsequent arguments are the files to scan.
+#
 wireshark-tap-register.c: $(WIRESHARK_TAP_SRC) $(top_srcdir)/tools/make-tapreg-dotc
 	@echo Making wireshark-tap-register.c
 	@$(top_srcdir)/tools/make-tapreg-dotc wireshark-tap-register.c $(srcdir) $(WIRESHARK_TAP_SRC)
