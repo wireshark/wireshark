@@ -942,7 +942,7 @@ endif
 endif
 
 
-DIST_SUBDIRS = asn1 codecs doc epan ui ui/gtk help packaging plugins tools wiretap wsutil docbook
+DIST_SUBDIRS = asn1 codecs doc epan ui ui/cli ui/gtk help packaging plugins tools wiretap wsutil docbook
 
 if HAVE_PLUGINS
 SUBDIRS = tools wsutil wiretap epan plugins packaging help @wireshark_SUBDIRS@ ui/cli . doc
