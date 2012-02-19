@@ -12,7 +12,7 @@ include ..\Makefile.nmake.inc
 GENERATED_CFLAGS=\
 	$(STANDARD_CFLAGS) \
 	-D_NEED_VAR_IMPORT_ /Zm800 \
-	/I.. /I../wiretap $(GTK_CFLAGS) $(GNUTLS_CFLAGS) \
+	/I.. /I../wiretap $(GLIB_CFLAGS) $(GNUTLS_CFLAGS) \
 	/I$(PCAP_DIR)\WPCAP\LIBPCAP /I$(PCAP_DIR)\WPCAP\LIBPCAP\bpf \
 	/I$(PCAP_DIR)\WPCAP\LIBPCAP\lbl \
 	/I$(PCAP_DIR)\include $(AIRPCAP_CFLAGS) \
