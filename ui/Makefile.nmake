@@ -34,7 +34,7 @@ WIRESHARK_UI_SRC = \
 
 WIRESHARK_UI_OBJECTS = \
 	$(WIRESHARK_UI_SRC:.c=.obj) \
-	$(DIRTY_GENERATED_C_FILES:.c=.obj)
+	$(GENERATED_C_FILES:.c=.obj)
 
 libui.lib	: ..\config.h $(WIRESHARK_UI_OBJECTS)
 	link /lib /out:libui.lib $(WIRESHARK_UI_OBJECTS)

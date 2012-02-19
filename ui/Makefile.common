@@ -29,15 +29,12 @@ GENERATED_HEADER_FILES =
 # Generated C source files that we want in the distribution.
 GENERATED_C_FILES =
 
-GENERATED_H_FILES =
-
 DIRTY_GENERATED_C_FILES =
 
 # All the generated files we want in the distribution.
 GENERATED_FILES = \
 	$(GENERATED_HEADER_FILES) \
 	$(GENERATED_C_FILES) \
-	$(GENERATED_H_FILES) \
 	$(DIRTY_GENERATED_C_FILES)
 
 # Files that generate compileable files
