@@ -25,11 +25,11 @@ WIRESHARK_WIN32_SRC = \
 
 WIRESHARK_WIN32_OBJECTS = $(WIRESHARK_WIN32_SRC:.c=.obj)
 
-libui_win32.lib	: ..\..\config.h $(WIRESHARK_WIN32_OBJECTS)
-	link /lib /out:libui_win32.lib $(WIRESHARK_WIN32_OBJECTS) winmm.lib
+libgtkui_win32.lib	: ..\..\config.h $(WIRESHARK_WIN32_OBJECTS)
+	link /lib /out:libgtkui_win32.lib $(WIRESHARK_WIN32_OBJECTS) winmm.lib
 
 clean:
-	rm -f $(WIRESHARK_WIN32_OBJECTS) libui_win32.lib *.pdb
+	rm -f $(WIRESHARK_WIN32_OBJECTS) libgtkui_win32.lib *.pdb
 
 distclean: clean
 
