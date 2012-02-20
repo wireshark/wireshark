@@ -407,7 +407,7 @@ dissect_datarequest(proto_item *ti_arg, gint ett_arg, tvbuff_t *tvb, gint arg_of
 }
 
 /* XXX: Are all the tests against tvb_length() really the right way to handle invalid fields ?
- *      It seems to me that invalid fields should should just add an expert item
+ *      It seems to me that invalid fields should just add an expert item
  *        or cause a "Malformed" exception.
  */
 static void
@@ -478,8 +478,6 @@ dissect_elcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         col_append_str(pinfo->cinfo, COL_INFO, " Response");
                         break;
                 }
-
-                return;
         }
 
         if (!tree)
