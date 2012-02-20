@@ -3388,6 +3388,10 @@ Holger Hans Peter Freyther <zecke [AT] selfish.org> {
 	DVB-H IPDC ESG
 }
 
+Paul Erkkila <pee [AT] erkkila.org> {
+	Hazelcast Dissector
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
