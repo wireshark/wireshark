@@ -302,7 +302,7 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 # it is described how the container shall be encoded with respect to the scenario
 # in which it is used.
  tvbuff_t *parameter_tvb;
- proto_tree *subtree;
+ proto_tree *subtree = NULL;
 
 %(DEFAULT_BODY)s
 
@@ -356,7 +356,7 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 # See Target-ToSource-TransparentContainer in RANAP
 
  tvbuff_t *parameter_tvb;
- proto_tree *subtree;
+ proto_tree *subtree = NULL;
 
 %(DEFAULT_BODY)s
 
@@ -445,12 +445,13 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 # HandoverCommand and HandoverRequestAcknowledge.
 
  tvbuff_t *parameter_tvb;
- proto_tree *subtree;
+ proto_tree *subtree = NULL;
 
 %(DEFAULT_BODY)s
   if (!parameter_tvb)
     return offset;
 
+if (g_s1ap_dissect_container) {
 	subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_RRCContainer);
 
 	switch(message_type){
@@ -465,20 +466,23 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 		default:
 			break;
 	}
+}
 
 
 
 
 #.FN_BODY UERadioCapability VAL_PTR = &parameter_tvb
  tvbuff_t *parameter_tvb;
- proto_tree *subtree;
+ proto_tree *subtree = NULL;
 
 %(DEFAULT_BODY)s
   if (!parameter_tvb)
     return offset;
 
+if (g_s1ap_dissect_container) {
         subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_UERadioCapability);
         dissect_lte_rrc_UERadioAccessCapabilityInformation_PDU(parameter_tvb, actx->pinfo, subtree);
+}
 
 # 9.2.3.24 RIM Information
 # Contains the BSSGP RIM PDU
