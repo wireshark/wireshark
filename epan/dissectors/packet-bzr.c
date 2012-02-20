@@ -53,8 +53,8 @@ static gint hf_bzr_result = -1;
 static gint hf_bzr_packet_protocol_version = -1;
 static gint hf_bzr_packet_kind = -1;
 
-#define REQUEST_VERSION_TWO "bzr request 2\n"
-#define RESPONSE_VERSION_TWO "bzr response 2\n"
+#define REQUEST_VERSION_TWO   "bzr request 2\n"
+#define RESPONSE_VERSION_TWO  "bzr response 2\n"
 #define MESSAGE_VERSION_THREE "bzr message 3 (bzr 1.6)\n"
 
 #define TCP_PORT_BZR   4155
@@ -181,8 +181,7 @@ dissect_body(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree)
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
         cmd = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(tree, hf_bzr_packet_kind, tvb, offset, 1,
-                            ENC_NA);
+        proto_tree_add_item(tree, hf_bzr_packet_kind, tvb, offset, 1, ENC_NA);
         offset += 1;
 
         switch (cmd) {
@@ -227,13 +226,13 @@ dissect_bzr_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     offset += dissect_prefixed_bencode(tvb, offset, pinfo, bzr_tree);
-    offset += dissect_body(tvb, offset, pinfo, bzr_tree);
+    /*offset +=*/ dissect_body(tvb, offset, pinfo, bzr_tree);
 }
 
 static void
 dissect_bzr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    gint offset = 0, pdu_len;
+    gint      offset = 0, pdu_len;
     tvbuff_t *next_tvb;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BZR");
