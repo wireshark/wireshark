@@ -298,11 +298,11 @@ dissect_rohc_pkt_type_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
                 *   +---+---+---+---+---+---+---+---+
                 */
                 col_set_str(pinfo->cinfo, COL_INFO, "R-0-CRC");
-				sn = tvb_get_bits8(tvb,(offset<<3)+2, 7);
+                sn = tvb_get_bits8(tvb,(offset<<3)+2, 7);
                 proto_tree_add_bits_item(tree, hf_rohc_comp_sn, tvb, (offset<<3)+2, 7, ENC_BIG_ENDIAN);
-				offset++;
-				proto_tree_add_bits_item(tree, hf_rohc_r_0_crc, tvb, (offset<<3)+1, 7, ENC_BIG_ENDIAN);
-				offset++;
+                offset++;
+                proto_tree_add_bits_item(tree, hf_rohc_r_0_crc, tvb, (offset<<3)+1, 7, ENC_BIG_ENDIAN);
+                offset++;
                 /* Show SN in info column */
                 col_append_fstr(pinfo->cinfo, COL_INFO, " (sn=%u)", sn);
             }
@@ -318,10 +318,10 @@ dissect_rohc_pkt_type_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
                 *   +===+===+===+===+===+===+===+===+
                 */
             col_set_str(pinfo->cinfo, COL_INFO, "U0-0");
-			sn = tvb_get_bits8(tvb,(offset<<3)+1, 4);
+            sn = tvb_get_bits8(tvb,(offset<<3)+1, 4);
             proto_tree_add_bits_item(tree, hf_rohc_comp_sn, tvb, (offset<<3)+1, 4, ENC_BIG_ENDIAN);
-			proto_tree_add_bits_item(tree, hf_rohc_r_0_crc, tvb, (offset<<3)+5, 3, ENC_BIG_ENDIAN);
-			offset++;
+            proto_tree_add_bits_item(tree, hf_rohc_r_0_crc, tvb, (offset<<3)+5, 3, ENC_BIG_ENDIAN);
+            offset++;
             /* Show SN in info column */
             col_append_fstr(pinfo->cinfo, COL_INFO, " (sn=%u)", sn);
             break;
@@ -337,9 +337,9 @@ dissect_rohc_pkt_type_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 /* 4.5.6.  Self-describing variable-length values */
 static guint32
 get_self_describing_var_len_val(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_index, guint8 *val_len){
-    guint8 oct;
+    guint8  oct;
     guint32 val = 0;
-    int num_bits = 0, bit_offset = offset <<3;
+    int     num_bits = 0, bit_offset = offset <<3;
 
     oct = tvb_get_guint8(tvb, offset);
     if((oct&0x80)==0){
@@ -380,11 +380,11 @@ get_self_describing_var_len_val(tvbuff_t *tvb, proto_tree *tree, int offset, int
 static void
 dissect_rohc_feedback_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset, gint16 feedback_data_len, rohc_info *p_rohc_info, guint16 cid){
 
-    proto_item *ti;
-    proto_tree *rohc_feedback_tree;
-    guint8 opt, opt_len, oct;
-    rohc_cid_context_t *rohc_cid_context=NULL;
-    gint key = cid;
+    proto_item         *ti;
+    proto_tree         *rohc_feedback_tree;
+    guint8              opt, opt_len, oct;
+    rohc_cid_context_t *rohc_cid_context = NULL;
+    gint                key = cid;
 
 
     if (!pinfo->fd->flags.visited){
@@ -519,9 +519,9 @@ dissect_compressed_list(int expected_encoding_type _U_, packet_info *pinfo _U_,
 {
     proto_item *list_ti /* , *et_ti */;
     proto_item *list_tree;
-    guint8 first_byte = tvb_get_guint8(tvb, offset);
-    guint8 ET, GP , PS, CC , bit_mask_size;
-    int start_offset = offset;
+    guint8      first_byte = tvb_get_guint8(tvb, offset);
+    guint8      ET, GP , PS, CC , bit_mask_size;
+    int         start_offset = offset;
 
     /* Compressed list root */
     list_ti = proto_tree_add_item(tree, hf_rohc_compressed_list, tvb, offset, -1, ENC_NA);
@@ -841,17 +841,17 @@ dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, packet_info *pinfo, proto_tre
                                     int offset, guint8 profile, rohc_cid_context_t *rohc_cid_context){
 
     proto_item *item, *root_ti;
-    proto_tree *sub_tree=NULL, *dynamic_ipv4_tree, *dynamic_udp_tree, *dynamic_rtp_tree;
-    guint8 oct, rx, /* cc, */ val_len = 0;
-    int start_offset, tree_start_offset;
-    guint8 tos, ttl, rnd, nbo;
-    guint16 id;
+    proto_tree *sub_tree = NULL, *dynamic_ipv4_tree, *dynamic_udp_tree, *dynamic_rtp_tree;
+    guint8      oct, rx, /* cc, */ val_len = 0;
+    int         start_offset, tree_start_offset;
+    guint8      tos, ttl, rnd, nbo;
+    guint16     id;
     /*guint8     contributing_csrcs;*/
-    guint16    sequence_number;
-    guint32    timestamp;
+    guint16     sequence_number;
+    guint32     timestamp;
 #if 0
-    guint8     tis=0, tss=0;
-    guint64    ts_stride=0;
+    guint8      tis = 0, tss=0;
+    guint64     ts_stride = 0;
 #endif
     start_offset = offset;
     switch(profile){
@@ -1085,9 +1085,9 @@ static int
 dissect_rohc_ir_rtp_udp_profile_static(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, int offset, gboolean d, guint8 profile, rohc_cid_context_t *rohc_cid_context){
 
     proto_item *item, *ipv4_item, *udp_item, *rtp_item;
-    proto_tree *sub_tree=NULL, *static_ipv4_tree, *static_udp_tree, *static_rtp_tree;
-    guint8 version, protocol;
-    int start_offset, tree_start_offset;
+    proto_tree *sub_tree = NULL, *static_ipv4_tree, *static_udp_tree, *static_rtp_tree;
+    guint8      version, protocol;
+    int         start_offset, tree_start_offset;
 
     start_offset = offset;
     switch(profile){
@@ -1265,13 +1265,13 @@ static int
 dissect_rohc_ir_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
                        int offset, guint16 cid, gboolean is_add_cid, rohc_info *p_rohc_info)
 {
-    proto_item *ir_item, *item;
-    proto_tree *ir_tree;
-    int x_bit_offset;
-    gboolean d = FALSE;
-    guint8 oct, profile, val_len;
-    gint16 feedback_data_len = 0;
-    tvbuff_t *next_tvb;
+    proto_item         *ir_item, *item;
+    proto_tree         *ir_tree;
+    int                 x_bit_offset;
+    gboolean            d = FALSE;
+    guint8              oct, profile, val_len;
+    gint16              feedback_data_len = 0;
+    tvbuff_t           *next_tvb;
     rohc_cid_context_t *rohc_cid_context = NULL;
 
     /* This function is potentially called from both dissect_rohc and dissect_pdcp_lte
@@ -1420,10 +1420,10 @@ static int
 dissect_rohc_ir_dyn_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
                            int offset, guint16 cid, gboolean is_add_cid, rohc_info *p_rohc_info)
 {
-    proto_item *ir_item, *item;
-    proto_tree *ir_tree;
-    guint8 profile, val_len;
-    gint16 feedback_data_len = 0;
+    proto_item         *ir_item, *item;
+    proto_tree         *ir_tree;
+    guint8              profile, val_len;
+    gint16              feedback_data_len = 0;
     rohc_cid_context_t *rohc_cid_context;
 
     if((p_rohc_info->large_cid_present == FALSE) && (is_add_cid == FALSE)){
@@ -1510,17 +1510,17 @@ dissect_rohc_ir_dyn_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 static void
 dissect_rohc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_item *ti, *item, *conf_item;
-    proto_tree *rohc_tree, *sub_tree = NULL, *conf_tree;
-    int offset = 0, length;
-    guint8 oct, code, size, val_len;
-    gint16 feedback_data_len = 0, cid = 0;
-    gboolean is_add_cid = FALSE;
-    rohc_info *p_rohc_info = NULL;
-    rohc_info g_rohc_info;
-    void *save_private_data = pinfo->private_data;
-    tvbuff_t *next_tvb, *payload_tvb;
-    rohc_cid_context_t *rohc_cid_context = NULL;
+    proto_item         *ti, *item, *conf_item;
+    proto_tree         *rohc_tree, *sub_tree = NULL, *conf_tree;
+    int                 offset               = 0, length;
+    guint8              oct, code, size, val_len;
+    gint16              feedback_data_len    = 0, cid = 0;
+    gboolean            is_add_cid           = FALSE;
+    rohc_info          *p_rohc_info          = NULL;
+    rohc_info           g_rohc_info;
+    void               *save_private_data    = pinfo->private_data;
+    tvbuff_t           *next_tvb, *payload_tvb;
+    rohc_cid_context_t *rohc_cid_context     = NULL;
 
     if(pinfo->private_data == NULL){
         g_rohc_info.rohc_compression    = FALSE;
@@ -1591,18 +1591,18 @@ dissect_rohc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 #if 0
-            /*rohc_cid_context->rohc_ip_version;*/
-            /*rohc_cid_context->large_cid_present;*/
-            /*rohc_cid_context->mode     mode;*/
-            /*rohc_cid_context->d_mode;*/
-            /*rohc_cid_context->rnd;*/
-            /*rohc_cid_context->udp_checkum_present;*/
-            rohc_cid_context->profile = profile;
-            rohc_cid_context->prev_ir_frame_number = -1;
-            rohc_cid_context->ir_frame_number = pinfo->fd->num;
+    /*rohc_cid_context->rohc_ip_version;*/
+    /*rohc_cid_context->large_cid_present;*/
+    /*rohc_cid_context->mode     mode;*/
+    /*rohc_cid_context->d_mode;*/
+    /*rohc_cid_context->rnd;*/
+    /*rohc_cid_context->udp_checkum_present;*/
+    rohc_cid_context->profile = profile;
+    rohc_cid_context->prev_ir_frame_number = -1;
+    rohc_cid_context->ir_frame_number = pinfo->fd->num;
 #endif
 #if 0
-    "Profile:(%s)", val_to_str(p_rohc_info->profile, rohc_profile_vals, "Unknown"));
+/*    "Profile:(%s)", val_to_str(p_rohc_info->profile, rohc_profile_vals, "Unknown")); */
     if(p_rohc_info->large_cid_present == FALSE){
         item = proto_tree_add_text(rohc_tree, tvb, offset, -1, "Small CID configured");
         PROTO_ITEM_SET_GENERATED(item);
@@ -1778,7 +1778,7 @@ start_over:
     else if((oct&0x80)==0x00){
         /* XXX Only for RTP profile? */
         /* 5.7.1. Packet type 0: UO-0, R-0, R-0-CRC */
-		offset = dissect_rohc_pkt_type_0(tvb, pinfo, rohc_tree, offset, oct, rohc_cid_context); 
+        offset = dissect_rohc_pkt_type_0(tvb, pinfo, rohc_tree, offset, oct, rohc_cid_context);
     }else if ((oct&0xc0)==0x80){
         col_set_str(pinfo->cinfo, COL_INFO, "Packet type 1");
     }else if ((oct&0xe0)==0xc0){
@@ -2214,7 +2214,7 @@ proto_register_rohc(void)
                 NULL , HFILL
               }
             },
-			{ &hf_rohc_r_0_crc,
+            { &hf_rohc_r_0_crc,
               { "CRC","rohc.r_0_crc",
                 FT_UINT8, BASE_HEX, NULL, 0x0,
                 NULL , HFILL
@@ -2341,21 +2341,12 @@ proto_register_rohc(void)
 void
 proto_reg_handoff_rohc(void)
 {
-    static gboolean Initialized = FALSE;
-
     dissector_handle_t rohc_handle;
 
     rohc_handle = create_dissector_handle(dissect_rohc, proto_rohc);
     dissector_add_uint("ethertype", ETHERTYPE_ROHC, rohc_handle);
 
-    if (!Initialized) {
-
-        ip_handle = find_dissector("ip");
-        ipv6_handle = find_dissector("ipv6");
-        data_handle = find_dissector("data");
-
-        Initialized = TRUE;
-    }
-
-
+    ip_handle   = find_dissector("ip");
+    ipv6_handle = find_dissector("ipv6");
+    data_handle = find_dissector("data");
 }
