@@ -167,11 +167,9 @@ typedef void (WINAPI *nativesi_func_ptr)(LPSYSTEM_INFO);
 #endif
 
 /*
- * Get various library run-time versions, and the OS version, and append
- * them to the specified GString.
+ * Get the OS version, and append it to the GString
  */
-void
-get_runtime_version_info(GString *str, void (*additional_info)(GString *))
+void get_os_version_info(GString *str)
 {
 #if defined(_WIN32)
 	OSVERSIONINFOEX info;
@@ -183,11 +181,6 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 #if HAVE_OS_X_FRAMEWORKS
 	SInt32 macosx_ver, macosx_major_ver, macosx_minor_ver, macosx_bugfix_ver;
 #endif
-#ifndef _WIN32
-	gchar *lang;
-#endif
-
-	g_string_append(str, "on ");
 
 #if defined(_WIN32)
 	/*
@@ -469,6 +462,23 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 #else
 	g_string_append(str, "an unknown OS");
 #endif
+}
+
+
+/*
+ * Get various library run-time versions, and the OS version, and append
+ * them to the specified GString.
+ */
+void
+get_runtime_version_info(GString *str, void (*additional_info)(GString *))
+{
+#ifndef _WIN32
+	gchar *lang;
+#endif
+
+	g_string_append(str, "on ");
+
+	get_os_version_info(str);
 
 #ifndef _WIN32
 	/* Locale */

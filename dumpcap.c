@@ -2559,22 +2559,22 @@ capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *err
     if (ld->pdh) {
         if (capture_opts->use_pcapng) {
             char appname[100];
-            GString             *runtime_info_str;
+            GString             *os_info_str;
 
-            runtime_info_str = g_string_new("");
-            get_runtime_version_info(runtime_info_str, NULL);
+            os_info_str = g_string_new("");
+            get_os_version_info(os_info_str);
 
             g_snprintf(appname, sizeof(appname), "Dumpcap " VERSION "%s", wireshark_svnversion);
             successful = libpcap_write_session_header_block(ld->pdh, 
                                 NULL,                        /* Comment*/
                                 NULL,                        /* HW*/
-                                runtime_info_str->str,       /* OS*/
+                                os_info_str->str,            /* OS*/
                                 appname,
 								-1,                          /* section_length */
                                 &ld->bytes_written, 
                                 &err);
 
-            g_string_free(runtime_info_str, TRUE);
+            g_string_free(os_info_str, TRUE);
 
             for (i = 0; successful && (i < capture_opts->ifaces->len); i++) {
                 interface_opts = g_array_index(capture_opts->ifaces, interface_options, i);

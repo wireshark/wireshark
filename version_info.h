@@ -52,6 +52,11 @@ void get_compiled_version_info(GString *str,
     void (*append_info)(GString *));
 
 /*
+ * Get the OS version, and append it to the GString
+ */
+void get_os_version_info(GString *str);
+
+/*
  * Get various library run-time versions, and the OS version, and append
  * them to the specified GString.
  */
