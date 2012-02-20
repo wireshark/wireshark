@@ -49,6 +49,7 @@ wtap_file_encap
 wtap_get_savable_file_types
 wtap_get_file_extensions_list
 wtap_free_file_extensions_list
+wtap_file_get_idb_info
 wtap_file_get_shb_info
 wtap_file_size
 wtap_file_tsprecision

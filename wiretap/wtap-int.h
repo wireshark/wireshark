@@ -44,14 +44,19 @@ int wtap_fstat(wtap *wth, ws_statb64 *statb, int *err);
 typedef gboolean (*subtype_read_func)(struct wtap*, int*, char**, gint64*);
 typedef gboolean (*subtype_seek_read_func)(struct wtap*, gint64, union wtap_pseudo_header*,
 					guint8*, int, int *, char **);
+/**
+ * Struct holding data of the currently read file.
+ */
 struct wtap {
 	FILE_T						fh;
-	FILE_T						random_fh;    /* Secondary FILE_T for random access */
+	FILE_T						random_fh;				/**< Secondary FILE_T for random access */
 	int							file_type;
 	guint						snapshot_length;
 	struct Buffer				*frame_buffer;
 	struct wtap_pkthdr			phdr;
 	struct wtapng_section_s		shb_hdr;
+	guint						number_of_interfaces;   /**< The number of interfaces a capture was made on, number of IDB:s in a pcapng file or equivalent(?)*/
+	GArray						*interface_data;		/**< An array holding the interface data from pcapng IDB:s or equivalent(?)*/
 	union wtap_pseudo_header	pseudo_header;
 
 	gint64						data_offset;
@@ -100,10 +105,13 @@ struct wtap_dumper {
 	subtype_write_func	subtype_write;
 	subtype_close_func	subtype_close;
 
-	int							tsprecision;	/* timestamp precision of the lower 32bits
-												 * e.g. WTAP_FILE_TSPREC_USEC */
+	int							tsprecision;	/**< timestamp precision of the lower 32bits
+												 * e.g. WTAP_FILE_TSPREC_USEC
+												 */
 	struct addrinfo				*addrinfo_list;
 	struct wtapng_section_s		*shb_hdr;
+	guint						number_of_interfaces;   /**< The number of interfaces a capture was made on, number of IDB:s in a pcapng file or equivalent(?)*/
+	GArray						*interface_data;		/**< An array holding the interface data from pcapng IDB:s or equivalent(?) NULL if not present.*/
 };
 
 extern gboolean wtap_dump_file_write(wtap_dumper *wdh, const void *buf,

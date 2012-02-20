@@ -112,6 +112,18 @@ wtapng_section_t* wtap_file_get_shb_info(wtap *wth)
 	return shb_hdr;
 }
 
+wtapng_iface_dsecriptions_t* wtap_file_get_idb_info(wtap *wth)
+{
+	wtapng_iface_dsecriptions_t *idb_info;
+
+	idb_info = g_new(wtapng_iface_dsecriptions_t,1);
+
+	idb_info->number_of_interfaces	= wth->number_of_interfaces;
+	idb_info->interface_data		= wth->interface_data;
+
+	return idb_info;
+}
+
 /* Table of the encapsulation types we know about. */
 struct encap_type_info {
 	const char *name;

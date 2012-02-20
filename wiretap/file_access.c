@@ -976,11 +976,11 @@ static int wtap_dump_file_close(wtap_dumper *wdh);
 wtap_dumper* wtap_dump_open(const char *filename, int filetype, int encap,
 				int snaplen, gboolean compressed, int *err)
 {
-	return wtap_dump_open_ng(filename, filetype, encap,snaplen, compressed, NULL, err);
+	return wtap_dump_open_ng(filename, filetype, encap,snaplen, compressed, NULL, NULL, err);
 }
 
 wtap_dumper* wtap_dump_open_ng(const char *filename, int filetype, int encap,
-				int snaplen, gboolean compressed, wtapng_section_t *shb_hdr, int *err)
+				int snaplen, gboolean compressed, wtapng_section_t *shb_hdr, wtapng_iface_dsecriptions_t *idb_inf, int *err)
 {
 	wtap_dumper *wdh;
 	WFILE_T fh;
@@ -997,6 +997,10 @@ wtap_dumper* wtap_dump_open_ng(const char *filename, int filetype, int encap,
 	
 	/* Set Section Header Block data */
 	wdh->shb_hdr = shb_hdr;
+	/* Set Interface Description Block data */
+	wdh->number_of_interfaces	= idb_inf->number_of_interfaces;
+	wdh->interface_data			= idb_inf->interface_data;
+	g_free(idb_inf);
 	
 	/* "-" means stdout */
 	if (strcmp(filename, "-") == 0) {

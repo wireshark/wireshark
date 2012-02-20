@@ -846,6 +846,63 @@ typedef struct wtapng_section_s {
 	gchar				*shb_user_appl;	/* NULL if not available, UTF-8 string containing the name of the application used to create this section. */
 } wtapng_section_t;
 
+
+/** struct holding the information to build IDB:s
+ *  the interface_data array holds an array of wtapng_if_descr_t
+ *  one per interface.
+ */
+typedef struct wtapng_iface_dsecriptions_s {
+	guint number_of_interfaces;
+	GArray *interface_data;
+} wtapng_iface_dsecriptions_t;
+
+/* Interface Description 
+ *
+ * Options:
+ * if_name        2  A UTF-8 string containing the name of the device used to capture data. "eth0" / "\Device\NPF_{AD1CE675-96D0-47C5-ADD0-2504B9126B68}" / ... 
+ * if_description 3  A UTF-8 string containing the description of the device used to capture data. "Broadcom NetXtreme" / "First Ethernet Interface" / ... 
+ * if_IPv4addr    4  Interface network address and netmask. This option can be repeated multiple times within the same Interface Description Block when multiple IPv4 addresses are assigned to the interface. 192 168 1 1 255 255 255 0 
+ * if_IPv6addr    5  Interface network address and prefix length (stored in the last byte). This option can be repeated multiple times within the same Interface Description Block when multiple IPv6 addresses are assigned to the interface. 2001:0db8:85a3:08d3:1319:8a2e:0370:7344/64 is written (in hex) as "20 01 0d b8 85 a3 08 d3 13 19 8a 2e 03 70 73 44 40" 
+ * if_MACaddr     6  Interface Hardware MAC address (48 bits). 00 01 02 03 04 05 
+ * if_EUIaddr     7  Interface Hardware EUI address (64 bits), if available. TODO: give a good example 
+ * if_speed       8  Interface speed (in bps). 100000000 for 100Mbps 
+ * if_tsresol     9  Resolution of timestamps. If the Most Significant Bit is equal to zero, the remaining bits indicates the resolution of the timestamp as as a negative power of 10 (e.g. 6 means microsecond resolution, timestamps are the number of microseconds since 1/1/1970). If the Most Significant Bit is equal to one, the remaining bits indicates the resolution as as negative power of 2 (e.g. 10 means 1/1024 of second). If this option is not present, a resolution of 10^-6 is assumed (i.e. timestamps have the same resolution of the standard 'libpcap' timestamps). 6 
+ * if_tzone      10  Time zone for GMT support (TODO: specify better). TODO: give a good example 
+ * if_filter     11  The filter (e.g. "capture only TCP traffic") used to capture traffic. The first byte of the Option Data keeps a code of the filter used (e.g. if this is a libpcap string, or BPF bytecode, and more). More details about this format will be presented in Appendix XXX (TODO). (TODO: better use different options for different fields? e.g. if_filter_pcap, if_filter_bpf, ...) 00 "tcp port 23 and host 10.0.0.5" 
+ * if_os         12  A UTF-8 string containing the name of the operating system of the machine in which this interface is installed. This can be different from the same information that can be contained by the Section Header Block (Section 3.1 (Section Header Block (mandatory))) because the capture can have been done on a remote machine. "Windows XP SP2" / "openSUSE 10.2" / ... 
+ * if_fcslen     13  An integer value that specified the length of the Frame Check Sequence (in bits) for this interface. For link layers whose FCS length can change during time, the Packet Block Flags Word can be used (see Appendix A (Packet Block Flags Word)). 4 
+ * if_tsoffset   14  A 64 bits integer value that specifies an offset (in seconds) that must be added to the timestamp of each packet to obtain the absolute timestamp of a packet. If the option is missing, the timestamps stored in the packet must be considered absolute timestamps. The time zone of the offset can be specified with the option if_tzone. TODO: won't a if_tsoffset_low for fractional second offsets be useful for highly syncronized capture systems? 1234 
+ */
+/**
+ * Interface description data
+ */
+typedef struct wtapng_if_descr_s {
+	int					wtap_encap;    /**< link_type translated to wtap_encap */
+	guint64				time_units_per_second;
+	/* mandatory */
+	guint16				link_type;
+	guint32				snap_len;
+	/* options */
+	gchar				*opt_comment;	/**< NULL if not available */
+	gchar				*if_name;		/**< NULL if not available, opt 2 A UTF-8 string containing the name of the device used to capture data. */
+	gchar				*if_description;/**< NULL if not available, opt 3 A UTF-8 string containing the description of the device used to capture data. */
+	/* XXX: if_IPv4addr opt 4  Interface network address and netmask.*/
+	/* XXX: if_IPv6addr opt 5  Interface network address and prefix length (stored in the last byte).*/
+	/* XXX: if_MACaddr  opt 6  Interface Hardware MAC address (48 bits).*/
+	/* XXX: if_EUIaddr  opt 7  Interface Hardware EUI address (64 bits)*/
+	guint64				if_speed;	/**< 0xFFFFFFFF if unknown, opt 8  Interface speed (in bps). 100000000 for 100Mbps */
+	guint8				if_tsresol;	/**< default is 6 for microsecond resolution, opt 9  Resolution of timestamps. 
+									 * If the Most Significant Bit is equal to zero, the remaining bits indicates the resolution of the timestamp as as a negative power of 10
+									 */
+	/* XXX: if_tzone      10  Time zone for GMT support (TODO: specify better). */
+	gchar				*if_filter;	/**< NULL if not available, opt 11  The filter (e.g. "capture only TCP traffic") used to capture traffic.
+									 * The first byte of the Option Data keeps a code of the filter used (e.g. if this is a libpcap string, or BPF bytecode, and more).
+									 */
+	gchar				*if_os;		/**< NULL if not available, 12  A UTF-8 string containing the name of the operating system of the machine in which this interface is installed. */
+	gint8				if_fcslen;	/**< -1 if unknown or changes between packets, opt 13  An integer value that specified the length of the Frame Check Sequence (in bits) for this interface. */
+	/* XXX: guint64	if_tsoffset; opt 14  A 64 bits integer value that specifies an offset (in seconds)...*/
+} wtapng_if_descr_t;
+
 struct Buffer;
 struct wtap_dumper;
 
@@ -950,6 +1007,7 @@ int wtap_file_type(wtap *wth);
 int wtap_file_encap(wtap *wth);
 int wtap_file_tsprecision(wtap *wth);
 wtapng_section_t* wtap_file_get_shb_info(wtap *wth);
+wtapng_iface_dsecriptions_t *wtap_file_get_idb_info(wtap *wth);
 
 /*** close the current file ***/
 void wtap_sequential_close(wtap *wth);
@@ -965,7 +1023,7 @@ wtap_dumper* wtap_dump_open(const char *filename, int filetype, int encap,
 	int snaplen, gboolean compressed, int *err);
 
 wtap_dumper* wtap_dump_open_ng(const char *filename, int filetype, int encap,
-	int snaplen, gboolean compressed, wtapng_section_t *shb_hdr,int *err);
+	int snaplen, gboolean compressed, wtapng_section_t *shb_hdr, wtapng_iface_dsecriptions_t *idb_inf, int *err);
 
 wtap_dumper* wtap_dump_fdopen(int fd, int filetype, int encap, int snaplen,
 	gboolean compressed, int *err);
