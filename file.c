@@ -3796,7 +3796,7 @@ cf_save(capture_file *cf, const char *fname, packet_range_t *range, guint save_f
        we have to do it by writing the packets out in Wiretap. */
 
     wtapng_section_t *shb_hdr = NULL;
-	wtapng_iface_dsecriptions_t *idb_inf = NULL;
+	wtapng_iface_descriptions_t *idb_inf = NULL;
 
 	shb_hdr = wtap_file_get_shb_info(cf->wth);
 	idb_inf = wtap_file_get_idb_info(cf->wth);

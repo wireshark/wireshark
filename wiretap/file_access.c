@@ -980,7 +980,7 @@ wtap_dumper* wtap_dump_open(const char *filename, int filetype, int encap,
 }
 
 wtap_dumper* wtap_dump_open_ng(const char *filename, int filetype, int encap,
-				int snaplen, gboolean compressed, wtapng_section_t *shb_hdr, wtapng_iface_dsecriptions_t *idb_inf, int *err)
+				int snaplen, gboolean compressed, wtapng_section_t *shb_hdr, wtapng_iface_descriptions_t *idb_inf, int *err)
 {
 	wtap_dumper *wdh;
 	WFILE_T fh;

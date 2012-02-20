@@ -851,10 +851,10 @@ typedef struct wtapng_section_s {
  *  the interface_data array holds an array of wtapng_if_descr_t
  *  one per interface.
  */
-typedef struct wtapng_iface_dsecriptions_s {
+typedef struct wtapng_iface_descriptions_s {
 	guint number_of_interfaces;
 	GArray *interface_data;
-} wtapng_iface_dsecriptions_t;
+} wtapng_iface_descriptions_t;
 
 /* Interface Description 
  *
@@ -1007,7 +1007,7 @@ int wtap_file_type(wtap *wth);
 int wtap_file_encap(wtap *wth);
 int wtap_file_tsprecision(wtap *wth);
 wtapng_section_t* wtap_file_get_shb_info(wtap *wth);
-wtapng_iface_dsecriptions_t *wtap_file_get_idb_info(wtap *wth);
+wtapng_iface_descriptions_t *wtap_file_get_idb_info(wtap *wth);
 
 /*** close the current file ***/
 void wtap_sequential_close(wtap *wth);
@@ -1023,7 +1023,7 @@ wtap_dumper* wtap_dump_open(const char *filename, int filetype, int encap,
 	int snaplen, gboolean compressed, int *err);
 
 wtap_dumper* wtap_dump_open_ng(const char *filename, int filetype, int encap,
-	int snaplen, gboolean compressed, wtapng_section_t *shb_hdr, wtapng_iface_dsecriptions_t *idb_inf, int *err);
+	int snaplen, gboolean compressed, wtapng_section_t *shb_hdr, wtapng_iface_descriptions_t *idb_inf, int *err);
 
 wtap_dumper* wtap_dump_fdopen(int fd, int filetype, int encap, int snaplen,
 	gboolean compressed, int *err);
