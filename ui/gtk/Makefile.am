@@ -63,7 +63,7 @@ wireshark-tap-register.c: $(WIRESHARK_TAP_SRC) $(top_srcdir)/tools/make-tapreg-d
 
 WIRESHARK_CLEAN_LIBGTKUI_SRC = \
  	$(WIRESHARK_GTK_SRC) \
-	$(WIRESHAR_TAP_SRC) \
+	$(WIRESHARK_TAP_SRC) \
  	$(GENERATED_C_FILES)
 
 libgtkui_a_SOURCES = \
