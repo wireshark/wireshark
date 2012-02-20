@@ -44,6 +44,7 @@
 #define PFNAME "ulp"
 
 static dissector_handle_t rrlp_handle;
+static dissector_handle_t lpp_handle;
 
 /* IANA Registered Ports
  * oma-ulp         7275/tcp    OMA UserPlane Location
@@ -144,6 +145,7 @@ proto_reg_handoff_ulp(void)
 		ulp_handle = find_dissector("ulp");
 		dissector_add_string("media_type","application/oma-supl-ulp", ulp_handle);
 		rrlp_handle = find_dissector("rrlp");
+		lpp_handle = find_dissector("lpp");
 		initialized = TRUE;
 	} else {
 		dissector_delete_uint("tcp.port", local_ulp_port, ulp_handle);

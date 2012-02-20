@@ -52,6 +52,7 @@
 #define PFNAME "ulp"
 
 static dissector_handle_t rrlp_handle;
+static dissector_handle_t lpp_handle;
 
 /* IANA Registered Ports
  * oma-ulp         7275/tcp    OMA UserPlane Location
@@ -360,7 +361,7 @@ static int hf_ulp_gPSTOWhour = -1;                /* INTEGER_0_167 */
 static int hf_ulp_gANSSday = -1;                  /* INTEGER_0_8191 */
 static int hf_ulp_gANSSTODhour = -1;              /* INTEGER_0_23 */
 static int hf_ulp_lPPPayload = -1;                /* T_lPPPayload */
-static int hf_ulp_lPPPayload_item = -1;           /* OCTET_STRING_SIZE_1_60000 */
+static int hf_ulp_lPPPayload_item = -1;           /* T_lPPPayload_item */
 static int hf_ulp_tIA801Payload = -1;             /* T_tIA801Payload */
 static int hf_ulp_tIA801Payload_item = -1;        /* OCTET_STRING_SIZE_1_60000 */
 static int hf_ulp_maj = -1;                       /* INTEGER_0_255 */
@@ -669,7 +670,7 @@ static int hf_ulp_GANSSSignals_signal7 = -1;
 static int hf_ulp_GANSSSignals_signal8 = -1;
 
 /*--- End of included file: packet-ulp-hf.c ---*/
-#line 63 "../../asn1/ulp/packet-ulp-template.c"
+#line 64 "../../asn1/ulp/packet-ulp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ulp = -1;
@@ -886,7 +887,7 @@ static gint ett_ulp_PolygonArea = -1;
 static gint ett_ulp_PolygonDescription = -1;
 
 /*--- End of included file: packet-ulp-ett.c ---*/
-#line 67 "../../asn1/ulp/packet-ulp-template.c"
+#line 68 "../../asn1/ulp/packet-ulp-template.c"
 
 /* Include constants */
 
@@ -909,7 +910,7 @@ static gint ett_ulp_PolygonDescription = -1;
 #define maxWimaxBSMeas                 32
 
 /*--- End of included file: packet-ulp-val.h ---*/
-#line 70 "../../asn1/ulp/packet-ulp-template.c"
+#line 71 "../../asn1/ulp/packet-ulp-template.c"
 
 
 
@@ -3488,7 +3489,7 @@ dissect_ulp_MultipleLocationIds(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static int
 dissect_ulp_T_sip_uri(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 59 "../../asn1/ulp/ulp.cnf"
+#line 67 "../../asn1/ulp/ulp.cnf"
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
                                                       1, 255, FALSE, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:./-_~%#@?", 72,
                                                       NULL);
@@ -3501,7 +3502,7 @@ dissect_ulp_T_sip_uri(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
 static int
 dissect_ulp_T_ims_public_identity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 64 "../../asn1/ulp/ulp.cnf"
+#line 72 "../../asn1/ulp/ulp.cnf"
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
                                                       1, 255, FALSE, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:./-_~%#@?", 72,
                                                       NULL);
@@ -3514,7 +3515,7 @@ dissect_ulp_T_ims_public_identity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 static int
 dissect_ulp_T_uri(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 69 "../../asn1/ulp/ulp.cnf"
+#line 77 "../../asn1/ulp/ulp.cnf"
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
                                                       1, 255, FALSE, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./-_~%#", 69,
                                                       NULL);
@@ -4475,6 +4476,39 @@ dissect_ulp_T_rrlpPayload(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 
 
+  return offset;
+}
+
+
+
+static int
+dissect_ulp_T_lPPPayload_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 57 "../../asn1/ulp/ulp.cnf"
+ tvbuff_t *lpp_tvb;
+
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       1, 60000, FALSE, &lpp_tvb);
+
+
+  if (lpp_tvb && lpp_handle) {
+	call_dissector(lpp_handle, lpp_tvb, actx->pinfo, tree);
+  }
+
+
+
+  return offset;
+}
+
+
+static const per_sequence_t T_lPPPayload_sequence_of[1] = {
+  { &hf_ulp_lPPPayload_item , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ulp_T_lPPPayload_item },
+};
+
+static int
+dissect_ulp_T_lPPPayload(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_ulp_T_lPPPayload, T_lPPPayload_sequence_of,
+                                                  1, 3, FALSE);
 
   return offset;
 }
@@ -4485,20 +4519,6 @@ static int
 dissect_ulp_OCTET_STRING_SIZE_1_60000(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        1, 60000, FALSE, NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t T_lPPPayload_sequence_of[1] = {
-  { &hf_ulp_lPPPayload_item , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ulp_OCTET_STRING_SIZE_1_60000 },
-};
-
-static int
-dissect_ulp_T_lPPPayload(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
-                                                  ett_ulp_T_lPPPayload, T_lPPPayload_sequence_of,
-                                                  1, 3, FALSE);
 
   return offset;
 }
@@ -6251,7 +6271,7 @@ static void dissect_ULP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-ulp-fn.c ---*/
-#line 73 "../../asn1/ulp/packet-ulp-template.c"
+#line 74 "../../asn1/ulp/packet-ulp-template.c"
 
 
 static guint
@@ -7442,7 +7462,7 @@ void proto_register_ulp(void) {
     { &hf_ulp_lPPPayload_item,
       { "lPPPayload item", "ulp.lPPPayload_item",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING_SIZE_1_60000", HFILL }},
+        NULL, HFILL }},
     { &hf_ulp_tIA801Payload,
       { "tIA801Payload", "ulp.tIA801Payload",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -8665,7 +8685,7 @@ void proto_register_ulp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ulp-hfarr.c ---*/
-#line 98 "../../asn1/ulp/packet-ulp-template.c"
+#line 99 "../../asn1/ulp/packet-ulp-template.c"
   };
 
   /* List of subtrees */
@@ -8884,7 +8904,7 @@ void proto_register_ulp(void) {
     &ett_ulp_PolygonDescription,
 
 /*--- End of included file: packet-ulp-ettarr.c ---*/
-#line 104 "../../asn1/ulp/packet-ulp-template.c"
+#line 105 "../../asn1/ulp/packet-ulp-template.c"
   };
 
   module_t *ulp_module;
@@ -8928,6 +8948,7 @@ proto_reg_handoff_ulp(void)
 		ulp_handle = find_dissector("ulp");
 		dissector_add_string("media_type","application/oma-supl-ulp", ulp_handle);
 		rrlp_handle = find_dissector("rrlp");
+		lpp_handle = find_dissector("lpp");
 		initialized = TRUE;
 	} else {
 		dissector_delete_uint("tcp.port", local_ulp_port, ulp_handle);

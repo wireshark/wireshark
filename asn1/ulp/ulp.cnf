@@ -53,6 +53,14 @@ guint32 UlpMessage;
 	call_dissector(rrlp_handle, rrlp_tvb, %(ACTX)s->pinfo, tree);
   }
 
+#.FN_BODY Ver2-PosPayLoad-extension/lPPPayload/_item  VAL_PTR = &lpp_tvb
+ tvbuff_t *lpp_tvb;
+
+%(DEFAULT_BODY)s
+
+  if (lpp_tvb && lpp_handle) {
+	call_dissector(lpp_handle, lpp_tvb, %(ACTX)s->pinfo, tree);
+  }
 
 #.FN_BODY ThirdPartyID/sip-uri
 # asn2wrs does not handle '%' in the resticted string ( Has to be there twice)
