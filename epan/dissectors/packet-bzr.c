@@ -102,7 +102,7 @@ get_bzr_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
     /* Headers */
     len += get_bzr_prefixed_len(tvb, next_offset);
 
-    while (tvb_length_remaining(tvb, offset + len) > 0) {
+    while (tvb_reported_length_remaining(tvb, offset + len) > 0) {
         cmd = tvb_get_guint8(tvb, offset + len);
         len += 1;
 
