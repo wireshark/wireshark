@@ -46,8 +46,8 @@ dissect_ipoib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *fh_tree;
   proto_item *ti;
-  tvbuff_t *next_tvb;
-  guint16 type;
+  tvbuff_t   *next_tvb;
+  guint16     type;
 
   /* load the top pane info. This should be overwritten by
      the next protocol in the stack */
@@ -64,7 +64,7 @@ dissect_ipoib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   next_tvb = tvb_new_subset_remaining(tvb, 4);
-  
+
   type = tvb_get_ntohs(tvb, 0);
   switch (type) {
   case ETHERTYPE_IP:
@@ -86,7 +86,7 @@ void
 proto_register_ipoib(void)
 {
   static hf_register_info hf[] = {
-    { &hf_type,        
+    { &hf_type,
       { "Type", "ipoib.type",
         FT_UINT16, BASE_HEX, VALS(etype_vals), 0x0,
         NULL, HFILL }},
@@ -95,7 +95,7 @@ proto_register_ipoib(void)
         FT_UINT16, BASE_HEX, NULL, 0x0,
         NULL, HFILL }}
   };
-  
+
   static gint *ett[] = {
     &ett_raw
   };
@@ -113,8 +113,8 @@ proto_reg_handoff_ipoib(void)
   /*
    * Get handles for the ARP, IP and IPv6 dissectors.
    */
-  arp_handle = find_dissector("arp");
-  ip_handle = find_dissector("ip");
+  arp_handle  = find_dissector("arp");
+  ip_handle   = find_dissector("ip");
   ipv6_handle = find_dissector("ipv6");
 
   ipoib_handle = create_dissector_handle(dissect_ipoib, proto_ipoib);
