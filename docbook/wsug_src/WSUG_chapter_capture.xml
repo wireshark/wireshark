@@ -35,13 +35,13 @@
 	the last x files, useful for a "very long term" capture, see <xref 
 	linkend="ChCapCaptureFiles"/>.
 	</para></listitem>
-	</itemizedlist>
-	The capture engine still lacks the following features:
-	<itemizedlist>
 	<listitem><para>
 	Simultaneous capturing from multiple network interfaces (however, you 
 	can start multiple instances of Wireshark and merge capture files later).
 	</para></listitem>
+	</itemizedlist>
+	The capture engine still lacks the following features:
+	<itemizedlist>
 	<listitem><para>
 	Stop capturing (or doing some other action), depending on the captured 
 	data.
@@ -162,6 +162,11 @@ wireshark -i eth0 -k
 	interfaces available than listed.
 	</para>
 	</note>
+	</para>
+	<para>
+	As it is possible to simultaneously capture packets from multiple interfaces,
+	the toggle buttons can be used to select one or more interfaces. 
+	</para>
 	<figure id="ChCapCaptureInterfacesDialogWin32">
 	<title>The "Capture Interfaces" dialog box on Microsoft Windows</title>
 	<graphic entityref="WiresharkCaptureInterfacesDialogWin32" format="PNG"/>
@@ -192,7 +197,7 @@ wireshark -i eth0 -k
 		  The first IP address Wireshark could find for this interface.
 		  You can click on the address to cycle through other addresses
 		  assigned to it, if available.
-		  If no address could be found "unknown" will be displayed.
+		  If no address could be found "none" will be displayed.
 	      </para>
 	    </listitem>
 	  </varlistentry>
@@ -223,15 +228,16 @@ wireshark -i eth0 -k
 	  <varlistentry><term><command>Start</command></term>
 	    <listitem>
 	      <para>
-		  Start a capture on this interface immediately, using the settings 
-		  from the last capture.
+		  Start a capture on all selected interfaces immediately, using the settings 
+		  from the last capture or the default settings, if no options have been
+		  set.
 	      </para>
 	    </listitem>
 	  </varlistentry>
 	  <varlistentry><term><command>Options</command></term>
 	    <listitem>
 	      <para>
-		  Open the Capture Options dialog with this interface selected, see 
+		  Open the Capture Options dialog with the marked interfaces selected, see 
 		  <xref linkend="ChCapCaptureOptions"/>.
 	      </para>
 	    </listitem>
@@ -259,13 +265,12 @@ wireshark -i eth0 -k
 	    </listitem>
 	  </varlistentry>
 	</variablelist>
-	</para>
   </section>
 
     <section id="ChCapCaptureOptions">
       <title>The "Capture Options" dialog box</title>
       <para>
-	When you select Start... from the Capture menu (or use the corresponding 
+	When you select Options... from the Capture menu (or use the corresponding 
 	item in the "Main" toolbar), Wireshark pops 
 	up the "Capture Options" dialog box as shown in 
 	<xref linkend="ChCapCaptureOptionsDialog"/>.
@@ -280,216 +285,91 @@ wireshark -i eth0 -k
 	keeping the defaults as this should work well in many cases.
 	</para>
 	</tip>
-	<para>
-	You can set the following fields in this dialog box:
-	</para>
 	<section><title>Capture frame</title>
-	<variablelist>
-	  <varlistentry><term><command>Interface (Windows only)</command></term>
+	<para>
+	The table shows the settings for all available interfaces:
+ 	<itemizedlist>
 	    <listitem>
 	      <para>
-		The drop down list allows you to select the group of interfaces you
-		want look at. Normally that would be the local interfaces, but here you
-		can also select a remote interface. Any previously opened remote
-		interfaces will be added to this list also.
+			The name of the interface and its IP addresses. If no address could 
+		  	be resolved from the system, "none" will be shown.
 	      </para>
-	    </listitem>
-	  </varlistentry>
-	  <varlistentry><term><command>Interface</command></term>
-	    <listitem>
-	      <para>
-		This field specifies the interface you want to capture on. You can
-		only capture on one interface, and you can only capture on interfaces
-		that Wireshark has found on the system, either local or remote. It is
-		a drop-down list, so simply click on the button on the right hand side
-		and select the interface you want. It defaults to the first
-		non-loopback interface that supports capturing, and if there are none,
-		the first loopback interface. On some systems, loopback interfaces
-		cannot be used for capturing
-	      </para>
-		  <note>
+		<note>
 		  <title>Note</title>
 		  <para>loopback interfaces are not available on Windows platforms.</para>
 		  </note>
-	      <para>
-		This field performs the same function as the 
-		<command>-i &lt;interface></command> command line option.
-	      </para>
 	    </listitem>
-	  </varlistentry>
-	  <varlistentry><term><command>IP address</command></term>
+	    <listitem>
+              <para>
+			The link-layer header type.
+	      </para>
+ 	    </listitem>
+            <listitem>
+	      <para>
+			The information whether promicuous mode is enabled or disabled.
+	      </para>
+ 	    </listitem>
 	    <listitem>
 	      <para>
-		  The IP address(es) of the selected interface. If no address could 
-		  be resolved from the system, "unknown" will be shown.
-	      </para>
-	    </listitem>
-	  </varlistentry>
-	  <varlistentry><term><command>Link-layer header type</command></term>
+		The maximum amount of data that will be captured for each packet. 
+		The default value is set to the 65535 bytes.
+              </para>
+ 	    </listitem>
 	    <listitem>
 	      <para>
-		  Unless you are in the rare situation that you need this, just keep 
-		  the default. For a detailed description, see 
-		  <xref linkend="ChCapLinkLayerHeader"/>
-	      </para>
-	    </listitem>
-	  </varlistentry>
-	  <varlistentry><term><command>Wireless settings (Windows only)</command></term>
+		The size of the kernel buffer that is reserved to keep the captured packets.
+              </para>
+ 	    </listitem>
+            <listitem>
+	      <para>
+                  The information whether packets will be captured in monitor mode (Unix/Linux only).
+              </para>
+ 	    </listitem>
+            <listitem>
+	      <para>
+                  The chosen capture filter.
+              </para>
+ 	    </listitem>
+	</itemizedlist>
+	By marking the
+	checkboxes in the first column the interfaces are selected to be
+	captured from. By double-clicking on an interface the "Edit Interface Settings" 
+	dialog box as shown in 
+	<xref linkend="ChCapEditInterfacesSettingsDialog"/> will be opened.
+	</para>
+	  <variablelist>
+	   <varlistentry>
+	    <term>
+	      <command>Capture on all interfaces</command>
+	    </term>
 	    <listitem>
 	      <para>
-		Here you can set the settings for wireless capture using the AirPCap adapter.
-		For a detailed description, see the AirPCap Users Guide.
+		 As Wireshark can capture on multiple interfaces, it is possible to choose to capture on all available interfaces.
 	      </para>
-	    </listitem>
-	  </varlistentry>
-	  <varlistentry><term><command>Remote settings (Windows only)</command></term>
-	    <listitem>
-	      <para>
-		Here you can set the settings for remote capture.
-		For a detailed description, see  <xref linkend="ChCapInterfaceRemoteSection"/>
-	      </para>
-	    </listitem>
-	  </varlistentry>
-	  <varlistentry><term><command>Buffer size: n megabyte(s)</command></term>
-	    <listitem>
-	      <para>
-		  Enter the buffer size to be used while capturing. This is the size 
-		  of the kernel buffer which will keep the captured packets, until 
-		  they are written to disk. If you encounter packet drops, try 
-		  increasing this value.
-	      </para>
-	    </listitem>
+            </listitem>
 	  </varlistentry>
 	  <varlistentry>
 	    <term>
-	      <command>Capture packets in promiscuous mode</command>
+	      <command>Capture all packets in promiscuous mode</command>
 	    </term>
 	    <listitem>
 	      <para>
 		This checkbox allows you to specify that Wireshark 
-		should put the interface in promiscuous mode when capturing. 
-		If you do not specify this, Wireshark will only capture the 
-		packets going to or from your computer (not 
-		all packets on your LAN segment).
+		should put all interfaces in promiscuous mode when capturing. 
 	      </para>
-	      <note>
-		<title>Note</title>
-		<para>
-		  If some other process has put the interface in 
-		  promiscuous mode you may be capturing in promiscuous 
-		  mode even if you turn off this option.
-		</para>
-	      </note>
-	      <note>
-		<title>Note</title>
-		<para>
-		Even in promiscuous mode you still won't necessarily see all packets 
-		on your LAN segment, see <ulink url="&WiresharkFAQPromiscPage;"/> for 
-		some more explanations.
-		</para>
-	      </note>
 	    </listitem>
 	  </varlistentry>
 	  <varlistentry>
 	    <term>
-	      <command>Capture packets in monitor mode (Unix/Linux only)</command>
-	    </term>
-	    <listitem>
-	      <para>
-		This checkbox allows you to setup the Wireless interface to capture
-		all traffic it can receive, not just the traffic on the BSS to which
-		it is associated, which can happen even when you set promiscuous mode.
-		Also it might be necessary to turn this option on in order to see
-		IEEE 802.11 headers and/or radio information from the captured frames.
-	      </para>
-	      <note>
-		<title>Note</title>
-		<para>
-		  In monitor mode the adapter might disassociate itself from the network
-		  it was associated to.
-		</para>
-	      </note>
-	    </listitem>
-	  </varlistentry>
-	  <varlistentry>
-	    <term>
-	      <command>Capture packets in pcap-ng format</command>
-	    </term>
-	    <listitem>
-	      <para>
-		This checkbox allows you to specify that Wireshark saves the captured
-		packets in pcap-ng format. This next generation capture file format is
-		currently in development.
-	      </para>
-	      <warning>
-		<title>Warning</title>
-		<para>
-		This is an experimental feature. The resulting saved file may or may
-		not be valid. See <ulink url="&WiresharkWikiPcapNgPage;"/> for more
-		details on pcap-ng.
-		</para>
-	      </warning>
-	    </listitem>
-	  </varlistentry>
-	  <varlistentry><term><command>Limit each packet to n bytes</command></term>
-	    <listitem>
-	      <para>
-		This field allows you to specify the maximum amount of 
-		data that will be captured for each packet, and is 
-		sometimes referred to as the <command>snaplen</command>. If disabled, 
-		the value is set to the maximum 65535, which will be sufficient for most
-		protocols. Some rules of thumb:
-	      </para>
-		<itemizedlist>
-	    <listitem>
-	      <para>
-			If you are unsure, just keep the default value.
-	      </para>
-	    </listitem>
-	    <listitem>
-	      <para>
-			If you don't need all of the data in a packet - for example, if you
-			only need the link-layer, IP, and TCP headers - you might want to
-			choose a small snapshot length, as less CPU time is required for
-			copying packets, less buffer space is required for packets, and thus
-			perhaps fewer packets will be dropped if traffic is very heavy.
-	      </para>
-	    </listitem>
-	    <listitem>
-	      <para>
-			If you don't capture all of the data in a packet, you might find that
-			the packet data you want is in the part that's dropped, or that
-			reassembly isn't possible as the data required for reassembly is
-			missing.
-	      </para>
-	    </listitem>
-		</itemizedlist>
-	    </listitem>
-	  </varlistentry>
-	  <varlistentry><term><command>Capture Filter</command></term>
-	    <listitem>
-	      <para>
-		This field allows you to specify a capture filter. 
-		Capture filters are discussed in more details in 
-		<xref linkend="ChCapCaptureFilterSection"/>. It defaults to empty, or 
-		  no filter.
-	      </para>
-	      <para>
-		You can also click on the button labeled "Capture Filter", and Wireshark 
-		will bring up the Capture Filters dialog box and allow you to create 
-		and/or select a filter.  Please see 
-		<xref linkend="ChWorkDefineFilterSection"/>
-	      </para>
-	    </listitem>
-	  </varlistentry>
-	  <varlistentry><term><command>Compile BPF</command></term>
-	    <listitem>
-	      <para>
-		This button allows you to compile the capture filter into BPF code and
-		pop up a window showing you the resulting pseudo code. This can help in 
-		understanding the working of the capture filter you created.
-	      </para>
-	    </listitem>
+              <command>Manage Interfaces</command>
+            </term>
+            <listitem>
+            <para>
+		The "Manage Interfaces" button leads you to 
+		<xref linkend="ChCapManageInterfacesDialog"/> where pipes can be defined,
+		local interfaces scanned or hidden, or remote interfaces added (Windows only).
+            </para>
+            </listitem>
 	  </varlistentry>
 	</variablelist>
 	</section>
@@ -519,6 +399,20 @@ wireshark -i eth0 -k
 	      <para>
 			Instead of using a single file, Wireshark will automatically switch 
 			to a new one, if a specific trigger condition is reached.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term>
+	      <command>Use pcap-ng format</command>
+	    </term>
+	    <listitem>
+	      <para>
+		This checkbox allows you to specify that Wireshark saves the captured
+		packets in pcap-ng format. This next generation capture file format is
+		currently in development. If more than one interface is chosen for 
+		capturing, this checkbox is set by default. See 
+		<ulink url="&WiresharkWikiPcapNgPage;"/> for more details on pcap-ng.
 	      </para>
 	    </listitem>
 	  </varlistentry>
@@ -680,6 +574,247 @@ wireshark -i eth0 -k
     </section>
     </section>
 
+    <section id="ChCapEditInterfaceSettingsSection">
+      <title>The "Edit Interface Settings" dialog box</title>
+      <para>
+      If you double-click on an interface in <xref linkend="ChCapCaptureOptionsDialog"/>
+      the following dialog box pops up.
+      </para>
+      <figure id="ChCapEditInterfacesSettingsDialog">
+      <title>The "Edit Interface Settings" dialog box</title>
+      <graphic entityref="WiresharkCaptureEditInterfacesSettingsDialog" format="PNG"/>
+      </figure>
+      <para>
+      You can set the following fields in this dialog box:
+      </para>
+      <variablelist>
+          <varlistentry><term><command>IP address</command></term>
+	    <listitem>
+	      <para>
+		  The IP address(es) of the selected interface. If no address could 
+		  be resolved from the system, "none" will be shown.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>Link-layer header type</command></term>
+	    <listitem>
+	      <para>
+		  Unless you are in the rare situation that you need this, just keep 
+		  the default. For a detailed description, see 
+		  <xref linkend="ChCapLinkLayerHeader"/>
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>Wireless settings (Windows only)</command></term>
+	    <listitem>
+	      <para>
+		Here you can set the settings for wireless capture using the AirPCap adapter.
+		For a detailed description, see the AirPCap Users Guide.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>Remote settings (Windows only)</command></term>
+	    <listitem>
+	      <para>
+		Here you can set the settings for remote capture.
+		For a detailed description, see  <xref linkend="ChCapInterfaceRemoteSection"/>
+	      </para>
+	    </listitem>
+	  </varlistentry>
+          <varlistentry>
+	    <term>
+	      <command>Capture packets in promiscuous mode</command>
+	    </term>
+	    <listitem>
+	      <para>
+		This checkbox allows you to specify that Wireshark 
+		should put the interface in promiscuous mode when capturing. 
+		If you do not specify this, Wireshark will only capture the 
+		packets going to or from your computer (not 
+		all packets on your LAN segment).
+	      </para>
+	      <note>
+		<title>Note</title>
+		<para>
+		  If some other process has put the interface in 
+		  promiscuous mode you may be capturing in promiscuous 
+		  mode even if you turn off this option.
+		</para>
+	      </note>
+	      <note>
+		<title>Note</title>
+		<para>
+		Even in promiscuous mode you still won't necessarily see all packets 
+		on your LAN segment, see <ulink url="&WiresharkFAQPromiscPage;"/> for 
+		some more explanations.
+		</para>
+	      </note>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>Limit each packet to n bytes</command></term>
+	    <listitem>
+	      <para>
+		This field allows you to specify the maximum amount of 
+		data that will be captured for each packet, and is 
+		sometimes referred to as the <command>snaplen</command>. If disabled, 
+		the value is set to the maximum 65535, which will be sufficient for most
+		protocols. Some rules of thumb:
+	      </para>
+		<itemizedlist>
+	    <listitem>
+	      <para>
+			If you are unsure, just keep the default value.
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+			If you don't need all of the data in a packet - for example, if you
+			only need the link-layer, IP, and TCP headers - you might want to
+			choose a small snapshot length, as less CPU time is required for
+			copying packets, less buffer space is required for packets, and thus
+			perhaps fewer packets will be dropped if traffic is very heavy.
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+			If you don't capture all of the data in a packet, you might find that
+			the packet data you want is in the part that's dropped, or that
+			reassembly isn't possible as the data required for reassembly is
+			missing.
+	      </para>
+	    </listitem>
+		</itemizedlist>
+	    </listitem>
+	  </varlistentry>
+          <varlistentry><term><command>Buffer size: n megabyte(s)</command></term>
+	    <listitem>
+	      <para>
+		  Enter the buffer size to be used while capturing. This is the size 
+		  of the kernel buffer which will keep the captured packets, until 
+		  they are written to disk. If you encounter packet drops, try 
+		  increasing this value.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
+	    <term>
+	      <command>Capture packets in monitor mode (Unix/Linux only)</command>
+	    </term>
+	    <listitem>
+	      <para>
+		This checkbox allows you to setup the Wireless interface to capture
+		all traffic it can receive, not just the traffic on the BSS to which
+		it is associated, which can happen even when you set promiscuous mode.
+		Also it might be necessary to turn this option on in order to see
+		IEEE 802.11 headers and/or radio information from the captured frames.
+	      </para>
+	      <note>
+		<title>Note</title>
+		<para>
+		  In monitor mode the adapter might disassociate itself from the network
+		  it was associated to.
+		</para>
+	      </note>
+	    </listitem>
+	  </varlistentry>
+          <varlistentry><term><command>Capture Filter</command></term>
+	    <listitem>
+	      <para>
+		This field allows you to specify a capture filter. 
+		Capture filters are discussed in more details in 
+		<xref linkend="ChCapCaptureFilterSection"/>. It defaults to empty, or 
+		  no filter.
+	      </para>
+	      <para>
+		You can also click on the button labeled "Capture Filter", and Wireshark 
+		will bring up the Capture Filters dialog box and allow you to create 
+		and/or select a filter.  Please see 
+		<xref linkend="ChWorkDefineFilterSection"/>
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>Compile BPF</command></term>
+	    <listitem>
+	      <para>
+		This button allows you to compile the capture filter into BPF code and
+		pop up a window showing you the resulting pseudo code. This can help in 
+		understanding the working of the capture filter you created.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+      </variablelist>
+    </section>
+
+   <section id="ChCapManageInterfacesSection">
+      <title>The "Add New Interfaces" dialog box</title>
+      <para>
+	As a central point to manage interfaces this dialog box consists of three tabs
+	to add or remove interfaces.
+      </para>
+     <figure id="ChCapManageInterfacesDialog">
+      <title>The "Add New Interfaces" dialog box</title>
+      <graphic entityref="WiresharkCaptureManageInterfacesDialog" format="PNG"/>
+      </figure> 
+	<section>
+	<title>Add or remove pipes</title>
+	  <figure id="ChCapManageInterfacesPipesDialog">
+      <title>The "Add New Interfaces - Pipes" dialog box</title>
+      <graphic entityref="WiresharkCaptureManageInterfacesPipesDialog" format="PNG"/>
+      </figure>
+	<para>To successfully add a pipe, this pipe must have already been created.
+	Click the "New" button and type the name of the pipe including its path.
+	Alternatively, the "Browse" button can be used to locate the pipe.
+	With the "Save" button the pipe is added to the list of available interfaces. 
+	Afterwards, other pipes can be added.
+	</para>
+	<para>
+	To remove a pipe from the list of interfaces it first has to be selected. Then
+	click the "Delete" button. 
+	</para>
+	</section>
+	<section>
+	<title>Add or hide local interfaces</title>
+	  <figure id="ChCapManageInterfacesLocalDialog">
+      <title>The "Add New Interfaces - Local Interfaces" dialog box</title>
+      <graphic entityref="WiresharkCaptureManageInterfacesLocalDialog" format="PNG"/>
+      </figure>
+	<para>
+	The tab "Local Interfaces" contains a list of available local interfaces, including
+	the hidden ones, which are not shown in the other lists.
+	</para>
+	<para>
+	If a new local interface is added, for example, a wireless interface has been 
+	activated, it is not automatically added to the list to prevent the constant scanning
+	for a change in the list of available interfaces. To renew the list a rescan can be done.
+	</para>
+	<para>
+	One way to hide an interface is to change the preferences. If the "Hide" checkbox 
+	is activated and the "Apply" button clicked, the interface will not be seen in the 
+	lists of the "Capture Options" or "Capture Interfaces" dialog box any more. The changes
+	are also saved in the "Preferences" file.
+	</para>
+	</section>
+	<section>
+	<title>Add or hide remote interfaces</title>
+	  <figure id="ChCapManageInterfacesRemoteDialog">
+      <title>The "Add New Interfaces - Remote Interfaces" dialog box</title>
+      <graphic entityref="WiresharkCaptureManageInterfacesRemoteDialog" format="PNG"/>
+      </figure>
+	<para>
+	In this tab interfaces on remote hosts can be added. One or more of these
+	interfaces can be hidden. In contrast to the local interfaces they are not
+	saved in the "Preferences" file. 
+	</para>
+	<para>
+	To remove a host including all its interfaces from the list, it has to be
+	selected. Then click the "Delete" button.
+	</para>
+	<para>
+	For a detailed description, see  <xref linkend="ChCapInterfaceRemoteSection"/>
+	</para>
+	</section>
+    </section>
+
     <section id="ChCapInterfaceRemoteSection">
       <title>The "Remote Capture Interfaces" dialog box</title>
       <para>
@@ -709,9 +844,9 @@ wireshark -i eth0 -k
       </para>
       </note>
       <para>
-	  To access the Remote Capture Interfaces dialog use the Interfaces
-	  dropdown list on the "Capture Options" dialog, see
-	  <xref linkend="ChCapCaptureOptionsDialog"/>, and select "Remote...".
+	  To access the Remote Capture Interfaces dialog use the 
+	  "Add New Interfaces - Remote" dialog, see
+	  <xref linkend="ChCapManageInterfacesRemoteDialog"/>, and select "Add".
       </para>
       <section><title>Remote Capture Interfaces</title>
       <figure id="ChCapInterfaceRemoteDialog">
@@ -727,7 +862,9 @@ wireshark -i eth0 -k
 	    <listitem>
 	      <para>
 		  Enter the IP address or host name of the target platform where the
-		  Remote Packet Capture Protocol service is listening.
+		  Remote Packet Capture Protocol service is listening. The drop down list
+		  contains the hosts that have previously been successfully contacted.
+		  The list can be emptied by choosing "Clear list" from the drop down list. 
 	      </para>
 	    </listitem>
 	  </varlistentry>
@@ -759,7 +896,7 @@ wireshark -i eth0 -k
 	  </varlistentry>
 	</variablelist>
       </section>
-      <section><title>Remote Capture</title>
+     <!-- <section><title>Remote Capture</title>
       <para>
 	  When the connection to the Remote Packet Capture Protocol service is
 	  successfully established the "Capture Options" dialog looks like this,
@@ -775,11 +912,12 @@ wireshark -i eth0 -k
 	  interfaces on the remote target. After selecting the desired interface
 	  just click <command>Start</command> to start the remote capture.
       </para>
-      </section>
+      </section> -->
       <section><title>Remote Capture Settings</title>
       <para>
 	  The remote capture can be further fine tuned to match your situation.
-	  The <command>Remote Settings</command> button gives you this option.
+	  The <command>Remote Settings</command> button in 
+	  <xref linkend="ChCapEditInterfacesSettingsDialog"/> gives you this option.
 	  It pops up the dialog shown in
 	  <xref linkend="ChCapInterfaceRemoteSettingsDialog"/>.
       </para>

@@ -259,9 +259,14 @@ FILE SECTION
   <!ENTITY WiresharkCaptureInterfacesDialog SYSTEM "./wsug_graphics/ws-capture-interfaces.png" NDATA PNG>
   <!ENTITY WiresharkCaptureInterfacesDialogWin32 SYSTEM "./wsug_graphics/ws-capture-interfaces-win32.png" NDATA PNG>
   <!ENTITY WiresharkCaptureOptionsDialog SYSTEM "./wsug_graphics/ws-capture-options.png" NDATA PNG>
+  <!ENTITY WiresharkCaptureEditInterfacesSettingsDialog SYSTEM "./wsug_graphics/ws-capture-options-settings.png" NDATA PNG>
+  <!ENTITY WiresharkCaptureManageInterfacesDialog SYSTEM "./wsug_graphics/ws-capture-options-manage-interfaces.png" NDATA PNG>
+  <!ENTITY WiresharkCaptureManageInterfacesPipesDialog SYSTEM "./wsug_graphics/ws-capture-options-manage-interfaces-pipes.png" NDATA PNG>
+  <!ENTITY WiresharkCaptureManageInterfacesLocalDialog SYSTEM "./wsug_graphics/ws-capture-options-manage-interfaces-local.png" NDATA PNG>
+  <!ENTITY WiresharkCaptureManageInterfacesRemoteDialog SYSTEM "./wsug_graphics/ws-capture-options-manage-interfaces-remote.png" NDATA PNG>
   <!ENTITY WiresharkCaptureInterfaceDetailsDialog SYSTEM "./wsug_graphics/ws-capture-interface-details.png" NDATA PNG>
   <!ENTITY WiresharkCaptureInfoDialog SYSTEM "./wsug_graphics/ws-capture-info.png" NDATA PNG>
-  <!ENTITY WiresharkCaptureOptionsRemoteInterfacesDialog SYSTEM "./wsug_graphics/ws-capture-options-remote-interface.png" NDATA PNG>
+  <!ENTITY WiresharkCaptureOptionsRemoteInterfacesDialog SYSTEM "./wsug_graphics/ws-capture-options-manage-interfaces-remote-plus.png" NDATA PNG>
   <!ENTITY WiresharkCaptureOptionsRemoteCaptureDialog SYSTEM "./wsug_graphics/ws-capture-options-remote-capture.png" NDATA PNG>
   <!ENTITY WiresharkCaptureOptionsRemoteSettingsDialog SYSTEM "./wsug_graphics/ws-capture-options-remote-settings.png" NDATA PNG>
 
