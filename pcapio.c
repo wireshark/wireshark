@@ -396,35 +396,35 @@ libpcap_write_interface_description_block(FILE *fp,
 
     block_total_length = sizeof(struct idb) + sizeof(guint32);
     /* OPT_COMMENT */
-    if ((strlen(comment) > 0) && (strlen(comment) < G_MAXUINT16)) {
+    if ((comment)&&(strlen(comment) > 0) && (strlen(comment) < G_MAXUINT16)) {
         block_total_length += sizeof(struct option) +
                               (guint16)(ADD_PADDING(strlen(comment) + 1));
         have_options = TRUE;
     }
 
     /* IDB_DESCRIPTION */
-    if ((strlen(descr) > 0) && (strlen(descr) < G_MAXUINT16)) {
+    if ((descr)&&(strlen(descr) > 0) && (strlen(descr) < G_MAXUINT16)) {
         block_total_length += sizeof(struct option) +
                               (guint16)(ADD_PADDING(strlen(descr) + 1));
         have_options = TRUE;
     }
 
     /* IDB_NAME */
-    if ((strlen(name) > 0) && (strlen(name) < G_MAXUINT16)) {
+    if ((name)&&(strlen(name) > 0) && (strlen(name) < G_MAXUINT16)) {
         block_total_length += sizeof(struct option) +
                               (guint16)(ADD_PADDING(strlen(name) + 1));
         have_options = TRUE;
     }
 
     /* IDB_FILTER */
-    if ((strlen(filter) > 0) && (strlen(filter) < G_MAXUINT16)) {
+    if ((filter)&&(strlen(filter) > 0) && (strlen(filter) < G_MAXUINT16)) {
         block_total_length += sizeof(struct option) +
                               (guint16)(ADD_PADDING(strlen(filter) + 1));
         have_options = TRUE;
     }
 
     /* IDB_OS */
-    if ((strlen(os) > 0) && (strlen(os) < G_MAXUINT16)) {
+    if ((os)&&(strlen(os) > 0) && (strlen(os) < G_MAXUINT16)) {
         block_total_length += sizeof(struct option) +
                               (guint16)(ADD_PADDING(strlen(os) + 1));
         have_options = TRUE;
@@ -452,7 +452,7 @@ libpcap_write_interface_description_block(FILE *fp,
     idb.snap_len = snap_len;
     WRITE_DATA(fp, &idb, sizeof(struct idb), *bytes_written, err);
     /* write comment string if applicable */
-    if ((strlen(comment) > 0) && (strlen(comment) < G_MAXUINT16)) {
+    if ((comment)&&(strlen(comment) > 0) && (strlen(comment) < G_MAXUINT16)) {
         option.type = OPT_COMMENT;
         option.value_length = (guint16)(strlen(comment) + 1);
         WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
@@ -462,7 +462,7 @@ libpcap_write_interface_description_block(FILE *fp,
         }
     }
     /* write interface name string if applicable */
-    if ((strlen(name) > 0) && (strlen(name) < G_MAXUINT16)) {
+    if ((name)&&(strlen(name) > 0) && (strlen(name) < G_MAXUINT16)) {
         option.type = IDB_NAME;
         option.value_length = (guint16)(strlen(name) + 1);
         WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
@@ -472,7 +472,7 @@ libpcap_write_interface_description_block(FILE *fp,
         }
     }
     /* write interface description string if applicable */
-    if ((strlen(descr) > 0) && (strlen(descr) < G_MAXUINT16)) {
+    if ((descr)&&(strlen(descr) > 0) && (strlen(descr) < G_MAXUINT16)) {
         option.type = IDB_DESCRIPTION;
         option.value_length = (guint16)(strlen(descr) + 1);
         WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
@@ -482,7 +482,7 @@ libpcap_write_interface_description_block(FILE *fp,
         }
     }
     /* write filter string if applicable */
-    if ((strlen(filter) > 0) && (strlen(filter) < G_MAXUINT16)) {
+    if ((filter)&&(strlen(filter) > 0) && (strlen(filter) < G_MAXUINT16)) {
         option.type = IDB_FILTER;
         option.value_length = (guint16)(strlen(filter) + 1);
         WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
@@ -493,7 +493,7 @@ libpcap_write_interface_description_block(FILE *fp,
     }
 
     /* write os string if applicable */
-    if ((strlen(os) > 0) && (strlen(os) < G_MAXUINT16)) {
+    if ((os)&&(strlen(os) > 0) && (strlen(os) < G_MAXUINT16)) {
         option.type = IDB_OS;
         option.value_length = (guint16)(strlen(filter) + 1);
         WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
