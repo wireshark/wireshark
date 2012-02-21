@@ -461,7 +461,7 @@ pcapng_read_section_header_block(FILE_T fh, gboolean first_block,
 		}
 
 		/* A bad block */
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("pcapng_read_section_header_block: unknown byte-order magic number 0x%08x", shb.magic);
 		return 0;
 	}
@@ -495,10 +495,12 @@ pcapng_read_section_header_block(FILE_T fh, gboolean first_block,
         - (int)sizeof(pcapng_block_header_t)
         - (int)sizeof (pcapng_section_header_block_t)
         - (int)sizeof(bh->block_total_length);
+
 	/* Allocate enough memory to hold all options */
 	opt_cont_buf_len = to_read;
 	option_content = g_malloc(opt_cont_buf_len);
 	pcapng_debug1("pcapng_read_section_header_block: Options %u bytes", to_read);
+
 	while(to_read > 0) {
 		/* read option */
 		pcapng_debug1("pcapng_read_section_header_block: Options %u bytes remaining", to_read);
@@ -577,18 +579,17 @@ static int
 pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 			   wtapng_block_t *wblock, int *err, gchar **err_info)
 {
-	guint64 time_units_per_second;
+	guint64 time_units_per_second = 1000000; /* default */
 	int	bytes_read;
 	int	block_read;
-	int to_read;
+	int to_read, opt_cont_buf_len;
 	pcapng_interface_description_block_t idb;
 	pcapng_option_header_t oh;
 	interface_data_t int_data;
 	gint encap;
-	char option_content[100]; /* XXX - size might need to be increased, if we see longer options */
+	char *option_content = NULL; /* Allocate as large as the options block */
 
 
-	time_units_per_second = 1000000; /* default */
 	/* read block content */
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(&idb, sizeof idb, fh);
@@ -647,9 +648,14 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
         - (int)sizeof(pcapng_block_header_t)
         - (int)sizeof (pcapng_interface_description_block_t)
         - (int)sizeof(bh->block_total_length);
+
+	/* Allocate enough memory to hold all options */
+	opt_cont_buf_len = to_read;
+	option_content = g_malloc(opt_cont_buf_len);
+
 	while (to_read > 0) {
 		/* read option */
-		bytes_read = pcapng_read_option(fh, pn, &oh, option_content, sizeof(option_content), err, err_info);
+		bytes_read = pcapng_read_option(fh, pn, &oh, option_content, opt_cont_buf_len, err, err_info);
 		if (bytes_read <= 0) {
 			pcapng_debug0("pcapng_read_if_descr_block: failed to read option");
 			return bytes_read;
@@ -667,24 +673,24 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 			to_read = 0;
 			break;
 		    case(1): /* opt_comment */
-			if(oh.option_length > 0 && oh.option_length < sizeof(option_content)) {
-				wblock->data.if_descr.opt_comment = g_strndup(option_content, sizeof(option_content));
+			if(oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
+				wblock->data.if_descr.opt_comment = g_strndup(option_content, oh.option_length);
 				pcapng_debug1("pcapng_read_if_descr_block: opt_comment %s", wblock->data.if_descr.opt_comment);
 			} else {
 				pcapng_debug1("pcapng_read_if_descr_block: opt_comment length %u seems strange", oh.option_length);
 			}
 			break;
 		    case(2): /* if_name */
-			if(oh.option_length > 0 && oh.option_length < sizeof(option_content)) {
-				wblock->data.if_descr.if_name = g_strndup(option_content, sizeof(option_content));
+			if(oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
+				wblock->data.if_descr.if_name = g_strndup(option_content, oh.option_length);
 				pcapng_debug1("pcapng_read_if_descr_block: if_name %s", wblock->data.if_descr.if_name);
 			} else {
 				pcapng_debug1("pcapng_read_if_descr_block: if_name length %u seems strange", oh.option_length);
 			}
 			break;
 		    case(3): /* if_description */
-			if(oh.option_length > 0 && oh.option_length < sizeof(option_content)) {
-			    wblock->data.if_descr.if_description = g_strndup(option_content, sizeof(option_content));
+			if(oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
+			    wblock->data.if_descr.if_description = g_strndup(option_content,oh.option_length);
 				pcapng_debug1("pcapng_read_if_descr_block: if_description %s", wblock->data.if_descr.if_description);
 			} else {
 				pcapng_debug1("pcapng_read_if_descr_block: if_description length %u seems strange", oh.option_length);
@@ -734,8 +740,8 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 			}
 			break;
 		    case(11): /* if_filter */
-			if(oh.option_length > 0 && oh.option_length < sizeof(option_content)) {
-				wblock->data.if_descr.if_filter = g_strndup(option_content, sizeof(option_content));
+			if(oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
+				wblock->data.if_descr.if_filter = g_strndup(option_content, oh.option_length);
 				pcapng_debug1("pcapng_read_if_descr_block: if_filter %s", wblock->data.if_descr.if_filter);
 			} else {
 				pcapng_debug1("pcapng_read_if_descr_block: if_filter length %u seems strange", oh.option_length);
@@ -756,6 +762,8 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 				      oh.option_code, oh.option_length);
 		}
 	}
+
+	g_free(option_content);
 
 	encap = wtap_pcap_encap_to_wtap_encap(wblock->data.if_descr.link_type);
 	if (*wblock->file_encap == WTAP_ENCAP_UNKNOWN) {
@@ -779,7 +787,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 {
 	int bytes_read;
 	int block_read;
-	int to_read;
+	int to_read, opt_cont_buf_len;
 	guint64 file_offset64;
 	pcapng_enhanced_packet_block_t epb;
 	pcapng_packet_block_t pb;
@@ -787,7 +795,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 	pcapng_option_header_t oh;
 	gint wtap_encap;
 	int pseudo_header_len;
-	char option_content[100]; /* XXX - size might need to be increased, if we see longer options */
+	char *option_content = NULL; /* Allocate as large as the options block */
 	int fcslen;
 
 	/* "(Enhanced) Packet Block" read fixed part */
@@ -804,16 +812,16 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 		if (pn->byte_swapped) {
 			wblock->data.packet.interface_id	= BSWAP32(epb.interface_id);
 			wblock->data.packet.drops_count		= -1; /* invalid */
-			wblock->data.packet.ts_high		= BSWAP32(epb.timestamp_high);
-			wblock->data.packet.ts_low		= BSWAP32(epb.timestamp_low);
-			wblock->data.packet.cap_len		= BSWAP32(epb.captured_len);
+			wblock->data.packet.ts_high			= BSWAP32(epb.timestamp_high);
+			wblock->data.packet.ts_low			= BSWAP32(epb.timestamp_low);
+			wblock->data.packet.cap_len			= BSWAP32(epb.captured_len);
 			wblock->data.packet.packet_len		= BSWAP32(epb.packet_len);
 		} else {
 			wblock->data.packet.interface_id	= epb.interface_id;
 			wblock->data.packet.drops_count		= -1; /* invalid */
-			wblock->data.packet.ts_high		= epb.timestamp_high;
-			wblock->data.packet.ts_low		= epb.timestamp_low;
-			wblock->data.packet.cap_len		= epb.captured_len;
+			wblock->data.packet.ts_high			= epb.timestamp_high;
+			wblock->data.packet.ts_low			= epb.timestamp_low;
+			wblock->data.packet.cap_len			= epb.captured_len;
 			wblock->data.packet.packet_len		= epb.packet_len;
 		}
 	} else {
@@ -828,16 +836,16 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 		if (pn->byte_swapped) {
 			wblock->data.packet.interface_id	= BSWAP16(pb.interface_id);
 			wblock->data.packet.drops_count		= BSWAP16(pb.drops_count);
-			wblock->data.packet.ts_high		= BSWAP32(pb.timestamp_high);
-			wblock->data.packet.ts_low		= BSWAP32(pb.timestamp_low);
-			wblock->data.packet.cap_len		= BSWAP32(pb.captured_len);
+			wblock->data.packet.ts_high			= BSWAP32(pb.timestamp_high);
+			wblock->data.packet.ts_low			= BSWAP32(pb.timestamp_low);
+			wblock->data.packet.cap_len			= BSWAP32(pb.captured_len);
 			wblock->data.packet.packet_len		= BSWAP32(pb.packet_len);
 		} else {
 			wblock->data.packet.interface_id	= pb.interface_id;
 			wblock->data.packet.drops_count		= pb.drops_count;
-			wblock->data.packet.ts_high		= pb.timestamp_high;
-			wblock->data.packet.ts_low		= pb.timestamp_low;
-			wblock->data.packet.cap_len		= pb.captured_len;
+			wblock->data.packet.ts_high			= pb.timestamp_high;
+			wblock->data.packet.ts_low			= pb.timestamp_low;
+			wblock->data.packet.cap_len			= pb.captured_len;
 			wblock->data.packet.packet_len		= pb.packet_len;
 		}
 	}
@@ -931,15 +939,25 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 	/* FCS length default */
 	fcslen = pn->if_fcslen;
 
-	/* Options */
+	/* Options 
+	 * opt_comment    1
+	 * epb_flags      2
+	 * epb_hash       3
+	 * epb_dropcount  4
+	 */
 	errno = WTAP_ERR_CANT_READ;
 	to_read = block_total_length
         - (int)sizeof(pcapng_block_header_t)
         - block_read    /* fixed and variable part, including padding */
         - (int)sizeof(bh->block_total_length);
+
+	/* Allocate enough memory to hold all options */
+	opt_cont_buf_len = to_read;
+	option_content = g_malloc(opt_cont_buf_len);
+
 	while(to_read > 0) {
 		/* read option */
-		bytes_read = pcapng_read_option(fh, pn, &oh, option_content, sizeof(option_content), err, err_info);
+		bytes_read = pcapng_read_option(fh, pn, &oh, option_content, opt_cont_buf_len, err, err_info);
 		if (bytes_read <= 0) {
 			pcapng_debug0("pcapng_read_packet_block: failed to read option");
 			return bytes_read;
@@ -957,8 +975,8 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 			to_read = 0;
 			break;
 		    case(1): /* opt_comment */
-			if(oh.option_length > 0 && oh.option_length < sizeof(option_content)) {
-				wblock->data.packet.opt_comment = g_strndup(option_content, sizeof(option_content));
+			if(oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
+				wblock->data.packet.opt_comment = g_strndup(option_content, oh.option_length);
 				pcapng_debug1("pcapng_read_packet_block: opt_comment %s", wblock->data.packet.opt_comment);
 			} else {
 				pcapng_debug1("pcapng_read_packet_block: opt_comment length %u seems strange", oh.option_length);
@@ -1028,7 +1046,7 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
 					     - (guint32)sizeof(bh->block_total_length);
 
 	if (wblock->data.simple_packet.cap_len > WTAP_MAX_PACKET_SIZE) {
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("pcapng_read_simple_packet_block: cap_len %u is larger than WTAP_MAX_PACKET_SIZE %u.",
 		    wblock->data.simple_packet.cap_len, WTAP_MAX_PACKET_SIZE);
 		return 0;
@@ -1218,7 +1236,7 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
 	int to_read;
 	pcapng_interface_statistics_block_t isb;
 	pcapng_option_header_t oh;
-	char option_content[100]; /* XXX - size might need to be increased, if we see longer options */
+	char *option_content = NULL; /* Allocate as large as the options block */
 
 
 	/* "Interface Statistics Block" read fixed part */
@@ -1253,9 +1271,14 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
         - sizeof(pcapng_block_header_t)
         - block_read    /* fixed and variable part, including padding */
         - sizeof(bh->block_total_length);
+
+	/* Allocate enough memory to hold all options */
+	opt_cont_buf_len = to_read;
+	option_content = g_malloc(opt_cont_buf_len);
+
 	while(to_read > 0) {
 		/* read option */
-		bytes_read = pcapng_read_option(fh, pn, &oh, option_content, sizeof(option_content), err, err_info);
+		bytes_read = pcapng_read_option(fh, pn, &oh, option_content, opt_cont_buf_len, err, err_info);
 		if (bytes_read <= 0) {
 			pcapng_debug0("pcapng_read_interface_statistics_block: failed to read option");
 			return bytes_read;
@@ -1273,8 +1296,8 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
 			to_read = 0;
 			break;
 		    case(1): /* opt_comment */
-			if(oh.option_length > 0 && oh.option_length < sizeof(option_content)) {
-				wblock->data.if_stats.opt_comment = g_strndup(option_content, sizeof(option_content));
+			if(oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
+				wblock->data.if_stats.opt_comment = g_strndup(option_content, oh.option_length);
 				pcapng_debug1("pcapng_read_interface_statistics_block: opt_comment %s", wblock->data.if_stats.opt_comment);
 			} else {
 				pcapng_debug1("pcapng_read_interface_statistics_block: opt_comment length %u seems strange", oh.option_length);
