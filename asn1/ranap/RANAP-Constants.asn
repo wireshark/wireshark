@@ -1,6 +1,6 @@
 -- RANAP-Constants.asn
 --
--- 3GPP TS 25.413 V10.2.0 (2011-06)
+-- 3GPP TS 25.413 V10.4.0 (2011-12)
 -- http://www.3gpp.org/ftp/Specs/html-info/25413.htm
 --
 -- 9.3.6	Constant Definitions
@@ -35,9 +35,6 @@ id-RelocationCancel					INTEGER ::= 4
 id-SRNS-ContextTransfer				INTEGER ::= 5
 id-SecurityModeControl				INTEGER ::= 6
 id-DataVolumeReport					INTEGER ::= 7
--- WS
-id-Not-Used-8						INTEGER ::= 8
--- End WS
 id-Reset							INTEGER ::= 9
 id-RAB-ReleaseRequest				INTEGER ::= 10
 id-Iu-ReleaseRequest				INTEGER ::= 11
@@ -124,7 +121,7 @@ maxGANSSSet							INTEGER ::= 9
 maxNrOfCSGs							INTEGER ::= 256
 maxNrOfEUTRAFreqs					INTEGER ::= 8
 maxNrOfCellIds						INTEGER ::= 32
-maxNrOfRACs							INTEGER ::= 8
+maxNrOfRAIs							INTEGER ::= 8
 maxNrOfLAIs							INTEGER ::= 8
 
 -- **************************************************************
@@ -134,10 +131,6 @@ maxNrOfLAIs							INTEGER ::= 8
 -- **************************************************************
 
 id-AreaIdentity 								INTEGER ::= 0
--- WS Extension
-id-Not-Used-1	 								INTEGER ::= 1
-id-Not-Used-2	 								INTEGER ::= 2
--- end WS extension
 id-CN-DomainIndicator 							INTEGER ::= 3
 id-Cause 										INTEGER ::= 4
 id-ChosenEncryptionAlgorithm 					INTEGER ::= 5
@@ -208,10 +201,6 @@ id-UE-ID 										INTEGER ::= 69
 id-UL-GTP-PDU-SequenceNumber 					INTEGER ::= 70
 id-RAB-FailedtoReportItem						INTEGER ::= 71
 id-RAB-FailedtoReportList 						INTEGER ::= 72
--- WS Extension
-id-Not-Used-73	 								INTEGER ::= 73
-id-Not-Used-74	 								INTEGER ::= 74
---end
 id-KeyStatus									INTEGER ::= 75
 id-DRX-CycleLengthCoefficient 					INTEGER ::= 76
 id-IuSigConIdList								INTEGER ::= 77
@@ -238,10 +227,6 @@ id-LastKnownServiceArea							INTEGER ::= 97
 id-SRB-TrCH-Mapping								INTEGER ::= 98
 id-InterSystemInformation-TransparentContainer	INTEGER ::= 99
 id-NewBSS-To-OldBSS-Information 						INTEGER ::= 100
--- Ws Extension
-id-Not-Used-101	 										INTEGER ::= 101
-id-Not-Used-102			 								INTEGER ::= 102
--- end
 id-SourceRNC-PDCP-context-info							INTEGER ::= 103
 id-InformationTransferID								INTEGER ::= 104
 id-SNA-Access-Information								INTEGER ::= 105
@@ -371,9 +356,6 @@ id-SRVCC-Operation-Possible								INTEGER ::= 228
 id-CSG-Id-List											INTEGER ::= 229
 id-PSRABtobeReplaced									INTEGER ::= 230
 id-E-UTRAN-Service-Handover								INTEGER ::= 231
--- Ws Extension
-id-Not-Used-232	 										INTEGER ::= 232
--- end
 id-UE-AggregateMaximumBitRate							INTEGER ::= 233
 id-CSG-Membership-Status 								INTEGER ::= 234
 id-Cell-Access-Mode										INTEGER ::= 235
@@ -387,10 +369,11 @@ id-Correlation-ID										INTEGER ::= 242
 id-IRAT-Measurement-Configuration						INTEGER ::= 243
 id-MDT-Configuration									INTEGER ::= 244
 id-Priority-Class-Indicator								INTEGER ::= 245
--- Ws Extension
-id-Not-Used-246	 										INTEGER ::= 246
 id-RNSAPRelocationParameters							INTEGER ::= 247
 id-RABParametersList									INTEGER ::= 248
 id-Management-Based-MDT-Allowed							INTEGER ::= 249
+id-HigherBitratesThan16MbpsFlag							INTEGER ::= 250
+id-Trace-Collection-Entity-IP-Addess					INTEGER ::= 251
+id-End-Of-CSFB											INTEGER ::= 252
 
 END

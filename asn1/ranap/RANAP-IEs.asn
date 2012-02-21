@@ -1,6 +1,6 @@
 -- RANAP-IEs.asn
 --
--- 3GPP TS 25.413 V10.2.0 (2011-06)
+-- 3GPP TS 25.413 V10.4.0 (2011-12)
 -- http://www.3gpp.org/ftp/Specs/html-info/25413.htm
 --
 -- 9.3.4	Information Element Definitions
@@ -49,7 +49,7 @@ IMPORTS
 	maxGANSSSet,
 	maxNrOfEUTRAFreqs,
 	maxNrOfCellIds,
-	maxNrOfRACs,
+	maxNrOfRAIs,
 	maxNrOfLAIs,
 	maxNrOfVol,
 
@@ -112,7 +112,7 @@ FROM RANAP-Containers;
 
 -- A
 
-AccuracyFulfilmentIndicator ::= ENUMERATED {
+AccuracyFulfilmentIndicator ::= ENUMERATED{
 	requested-Accuracy-Fulfilled,
 	requested-Accuracy-Not-Fulfilled,
 	...
@@ -272,7 +272,7 @@ Ass-RAB-Parameters ::= SEQUENCE {
 
 Ass-RAB-Parameters-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
 -- Extension for Release 7 to indicate an extended assigned Guaranteed Bitrate --
-	{ ID id-Ass-RAB-Parameter-ExtendedGuaranteedBitrateList		CRITICALITY reject	EXTENSION Ass-RAB-Parameter-ExtendedGuaranteedBitrateList 	PRESENCE optional }|
+	{ ID id-Ass-RAB-Parameter-ExtendedGuaranteedBitrateList		CRITICALITY reject	EXTENSION Ass-RAB-Parameter-ExtendedGuaranteedBitrateList 	 PRESENCE optional }|
 -- Extension for Release 7 to indicate an extended assigned Maximum Bitrate --
 	{ ID id-Ass-RAB-Parameter-ExtendedMaxBitrateList		CRITICALITY reject	EXTENSION Ass-RAB-Parameter-ExtendedMaxBitrateList 	PRESENCE optional }|
 -- Extension for Release 8 to indicate an supported assigned Maximum Bitrate --
@@ -693,6 +693,11 @@ EncryptionInformation-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
 EncryptionKey 				::= BIT STRING (SIZE (128))
 -- Reference: 33.102
 
+End-Of-CSFB ::= ENUMERATED{
+	end-of-CSFB,
+	...
+}
+
 EquipmentsToBeTraced ::= CHOICE {
 	iMEIlist				IMEIList,
 	iMEISVlist				IMEISVList,
@@ -904,6 +909,12 @@ GuaranteedBitrate			::= INTEGER (0..16000000)
 -- Unit is bits per sec
 
 -- H
+
+HigherBitratesThan16MbpsFlag ::= ENUMERATED{
+	allowed,
+	not-allowed,
+	...
+}
 
 HS-DSCH-MAC-d-Flow-ID		::= INTEGER (0.. maxNrOfHSDSCHMACdFlows-1)
 
@@ -1239,12 +1250,11 @@ MDTAreaScope		::=	CHOICE {
 	cellbased			CellBased,
 	labased				LABased,
 	rabased				RABased,
-	plmn-area-based		PLMNAreaBased,
+	plmn-area-based		NULL,
 	...
 }
 
 MDT-Configuration	::= SEQUENCE {
-		mdtRecordingSessionReference	TraceRecordingSessionReference,	
 		mdtActivation					MDT-Activation,
 		mdtAreaScope					MDTAreaScope,
 		mdtMode							MDTMode,
@@ -1435,15 +1445,6 @@ LoggingDuration	::=	ENUMERATED {
 ...}
 
 
-PLMNAreaBased	::= SEQUENCE {
-	plmnID			PLMNidentity,
-	iE-Extensions		ProtocolExtensionContainer { {PLMNAreaBased-ExtIEs} } OPTIONAL,
-	...
-}
-
-PLMNAreaBased-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
-	...
-}
 
 PLMNidentity 				::= TBCD-STRING (SIZE (3))
 
@@ -1524,7 +1525,7 @@ RAB-AsymmetryIndicator::= ENUMERATED {
 }
 
 RABased	::= SEQUENCE {
-	racList			RAC-List,
+	raiList			RAI-List,
 	iE-Extensions	ProtocolExtensionContainer { {RABased-ExtIEs} } OPTIONAL,
 	...
 }
@@ -1533,8 +1534,9 @@ RABased-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
-RAC-List	::= SEQUENCE (SIZE (1..maxNrOfRACs)) OF
-	RAC
+
+RAI-List	::= SEQUENCE (SIZE (1..maxNrOfRAIs)) OF
+	RAI
 
 RABDataVolumeReport ::= SEQUENCE (SIZE (1..maxNrOfVol)) OF
 	SEQUENCE {
@@ -1882,7 +1884,6 @@ RTLoadValue	::= INTEGER (0..100)
 -- S
 
 SAC					::= OCTET STRING (SIZE (2))
-
 SAI ::= SEQUENCE {
 	pLMNidentity				PLMNidentity,
 	lAC				LAC,
@@ -1901,7 +1902,6 @@ SAPI ::= ENUMERATED {
 }
 
 SessionUpdateID ::= INTEGER (0.. 1048575)
-
 Shared-Network-Information ::= SEQUENCE {
 		pLMNs-in-shared-network			PLMNs-in-shared-network,
 		iE-Extensions			ProtocolExtensionContainer { {Shared-Network-Information-ExtIEs} } OPTIONAL,

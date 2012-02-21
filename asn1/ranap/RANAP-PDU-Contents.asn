@@ -1,6 +1,6 @@
 -- RANAP-PDU-Contents.asn
 --
--- 3GPP TS 25.413 V10.2.0 (2011-06)
+-- 3GPP TS 25.413 V10.4.0 (2011-12)
 -- http://www.3gpp.org/ftp/Specs/html-info/25413.htm
 --
 -- 9.3.3	PDU Definitions
@@ -171,10 +171,11 @@ IMPORTS
 	RABParametersList,
 	MDT-Configuration,
 	Priority-Class-Indicator,
-	Management-Based-MDT-Allowed
+	Management-Based-MDT-Allowed,
+	HigherBitratesThan16MbpsFlag,
+	End-Of-CSFB
 
 FROM RANAP-IEs
-
 
 	PrivateIE-Container{},
 	ProtocolExtensionContainer{},
@@ -397,7 +398,10 @@ FROM RANAP-Containers
 	id-RNSAPRelocationParameters,
 	id-RABParametersList,
 	id-Priority-Class-Indicator,
-	id-Management-Based-MDT-Allowed
+	id-Management-Based-MDT-Allowed,
+	id-HigherBitratesThan16MbpsFlag,
+	id-Trace-Collection-Entity-IP-Addess,
+	id-End-Of-CSFB
 
 FROM RANAP-Constants;
 
@@ -437,6 +441,7 @@ Iu-ReleaseCommandIEs RANAP-PROTOCOL-IES ::= {
 }
 
 Iu-ReleaseCommandExtensions RANAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-End-Of-CSFB				CRITICALITY ignore	EXTENSION End-Of-CSFB		PRESENCE optional	},
 	...
 }
 
@@ -1459,6 +1464,8 @@ RelocationCompleteIEs RANAP-PROTOCOL-IES ::= {
 }
 
 RelocationCompleteExtensions RANAP-PROTOCOL-EXTENSION ::= {
+-- Extension for Release 9 to enable the CN to handle potential UE NAS QoS issues related to higher bitrates -- 
+	{ ID id-HigherBitratesThan16MbpsFlag		CRITICALITY ignore	EXTENSION HigherBitratesThan16MbpsFlag		PRESENCE optional },
 	...
 }
 
@@ -1512,8 +1519,10 @@ RAB-SetupItem-EnhancedRelocCompleteReq-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
 }
 
 EnhancedRelocationCompleteRequestExtensions RANAP-PROTOCOL-EXTENSION ::= {
-	{ ID id-ChosenIntegrityProtectionAlgorithm	CRITICALITY ignore	EXTENSION ChosenIntegrityProtectionAlgorithm		PRESENCE optional	} |
-	{ ID id-ChosenEncryptionAlgorithm		CRITICALITY ignore	EXTENSION ChosenEncryptionAlgorithm			PRESENCE optional	},
+	{ ID id-ChosenIntegrityProtectionAlgorithm	CRITICALITY ignore	EXTENSION ChosenIntegrityProtectionAlgorithm		PRESENCE optional}|
+	{ ID id-ChosenEncryptionAlgorithm			CRITICALITY ignore	EXTENSION ChosenEncryptionAlgorithm					PRESENCE optional}|
+-- Extension for Release 9 to enable the CN to handle potential UE NAS QoS issues related to higher bitrates -- 
+	{ ID id-HigherBitratesThan16MbpsFlag		CRITICALITY ignore	EXTENSION HigherBitratesThan16MbpsFlag				PRESENCE optional},
 	...
 }
 
@@ -1740,9 +1749,11 @@ CN-InvokeTraceIEs RANAP-PROTOCOL-IES ::= {
 
 CN-InvokeTraceExtensions RANAP-PROTOCOL-EXTENSION ::= {
 -- Extension for Release 6 to enable signalling based activation for Subscriber and Equipment Trace over Iu interface --
-	{ ID id-TracePropagationParameters		CRITICALITY ignore	EXTENSION TracePropagationParameters		PRESENCE optional} |
+	{ ID id-TracePropagationParameters			CRITICALITY ignore	EXTENSION TracePropagationParameters		PRESENCE optional}|
 -- Extension for Release 10 to support MDT--
-	{ ID id-MDT-Configuration				CRITICALITY ignore	EXTENSION MDT-Configuration					PRESENCE optional} ,
+	{ ID id-MDT-Configuration					CRITICALITY ignore	EXTENSION MDT-Configuration						PRESENCE optional}|
+-- Extension for Release 10 to support MDT--
+	{ ID id-Trace-Collection-Entity-IP-Addess	CRITICALITY ignore	EXTENSION TransportLayerAddress				PRESENCE optional},
 	...
 }
 
@@ -1886,23 +1897,25 @@ InitialUE-MessageIEs RANAP-PROTOCOL-IES ::= {
 
 InitialUE-MessageExtensions RANAP-PROTOCOL-EXTENSION ::= {
 -- Extension for Release 5 to enable GERAN support over Iu-cs --
-	{ ID id-GERAN-Classmark					CRITICALITY ignore	EXTENSION GERAN-Classmark			PRESENCE optional}|
+	{ ID id-GERAN-Classmark					CRITICALITY ignore	EXTENSION GERAN-Classmark					PRESENCE optional}|
 -- Extension for Release 6 to convey the selected PLMN id in shared networks --
-	{ ID id-SelectedPLMN-ID	 				CRITICALITY ignore	EXTENSION PLMNidentity				PRESENCE optional}|
+	{ ID id-SelectedPLMN-ID	 				CRITICALITY ignore	EXTENSION PLMNidentity						PRESENCE optional}|
 -- Extension for Release 6 to enable rerouting in MOCN configuration for network sharing non-supporting UEs --
-	{ ID id-PermanentNAS-UE-ID				CRITICALITY ignore	EXTENSION PermanentNAS-UE-ID		PRESENCE optional}|
+	{ ID id-PermanentNAS-UE-ID				CRITICALITY ignore	EXTENSION PermanentNAS-UE-ID				PRESENCE optional}|
 -- Extension for Release 6 to enable rerouting in MOCN configuration for network sharing non-supporting UEs --
-	{ ID id-NAS-SequenceNumber				CRITICALITY ignore	EXTENSION NAS-SequenceNumber		PRESENCE optional}|
+	{ ID id-NAS-SequenceNumber				CRITICALITY ignore	EXTENSION NAS-SequenceNumber				PRESENCE optional}|
 -- Extension for Release 6 to indicate rerouting in MOCN configuration for network sharing non-supporting UEs --
-	{ ID id-RedirectAttemptFlag				CRITICALITY ignore	EXTENSION RedirectAttemptFlag		PRESENCE optional}|
+	{ ID id-RedirectAttemptFlag				CRITICALITY ignore	EXTENSION RedirectAttemptFlag				PRESENCE optional}|
 -- Extension for Release 7 to indicate extended RNC-ID --
-	{ ID id-ExtendedRNC-ID					CRITICALITY reject	EXTENSION ExtendedRNC-ID			PRESENCE optional}|
+	{ ID id-ExtendedRNC-ID					CRITICALITY reject	EXTENSION ExtendedRNC-ID					PRESENCE optional}|
 -- Extension for Release 8 to support CSG --
-	{ ID id-CSG-Id							CRITICALITY reject	EXTENSION CSG-Id					PRESENCE optional}|
+	{ ID id-CSG-Id							CRITICALITY reject	EXTENSION CSG-Id							PRESENCE optional}|
 -- Extension for Release 9 to allow communication of the cell access mode -- 
-	{ ID id-Cell-Access-Mode				CRITICALITY reject	EXTENSION Cell-Access-Mode			PRESENCE optional}|
+	{ ID id-Cell-Access-Mode				CRITICALITY reject	EXTENSION Cell-Access-Mode					PRESENCE optional}|
 -- Extension for Release 10 to support LIPA -- 
-	{ ID id-LGW-TransportLayerAddress		CRITICALITY reject	EXTENSION TransportLayerAddress		PRESENCE optional},
+	{ ID id-LGW-TransportLayerAddress		CRITICALITY reject	EXTENSION TransportLayerAddress				PRESENCE optional}|
+-- Extension for Release 9 to enable the CN to handle potential UE NAS QoS issues related to higher bitrates -- 
+	{ ID id-HigherBitratesThan16MbpsFlag	CRITICALITY ignore	EXTENSION HigherBitratesThan16MbpsFlag	PRESENCE optional},
 	...
 }
 
@@ -3482,3 +3495,4 @@ SRVCC-CSKeysResponseExtensions RANAP-PROTOCOL-EXTENSION ::= {
 
 
 END
+

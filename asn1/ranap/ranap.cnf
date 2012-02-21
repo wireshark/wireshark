@@ -22,7 +22,7 @@ TargetRNC-ID_PDU
 RANAP-PDU
 SourceCellID
 SourceRNC-ToTargetRNC-TransparentContainer
-TargetRNC-ToSourceRNC_TransparentContainer
+TargetRNC-ToSourceRNC-TransparentContainer
 TargetRNC-ID
 
 #.MAKE_ENUM
@@ -678,6 +678,9 @@ id-Not-Used-246												ProtocolIE-ID
 id-RNSAPRelocationParameters								ProtocolIE-ID
 id-RABParametersList										ProtocolIE-ID
 id-Management-Based-MDT-Allowed								ProtocolIE-ID
+id-HigherBitratesThan16MbpsFlag								ProtocolIE-ID
+id-Trace-Collection-Entity-IP-Addess						ProtocolIE-ID
+id-End-Of-CSFB												ProtocolIE-ID
 #.END
 
 #.REGISTER_NEW
@@ -936,6 +939,9 @@ Priority-Class-Indicator								N ranap.extension id-Priority-Class-Indicator
 RNSAPRelocationParameters								N ranap.extension id-RNSAPRelocationParameters
 RABParametersList										N ranap.extension id-RABParametersList
 Management-Based-MDT-Allowed							N ranap.extension id-Management-Based-MDT-Allowed
+HigherBitratesThan16MbpsFlag							N ranap.extension id-HigherBitratesThan16MbpsFlag
+TransportLayerAddress									N ranap.extension id-Trace-Collection-Entity-IP-Addess
+End-Of-CSFB												N ranap.extension id-End-Of-CSFB
 
 #RANAP-ELEMENTARY-PROCEDURE
 Iu-ReleaseCommand							N ranap.proc.imsg id-Iu-Release
