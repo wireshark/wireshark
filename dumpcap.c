@@ -2584,15 +2584,15 @@ capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *err
                 }
                 successful = libpcap_write_interface_description_block(global_ld.pdh,
                                                                     NULL,                                              /* OPT_COMMENT       1 */
-                                                                    interface_opts.name,                               /* IDB_NAME	       2 */
+                                                                    interface_opts.name,                               /* IDB_NAME          2 */
                                                                     NULL,                                              /* IDB_DESCRIPTION   3 */
                                                                     interface_opts.cfilter?interface_opts.cfilter:"",  /* IDB_FILTER       11 */
-																	os_info_str->str,                                  /* IDB_OS	          12 */
+                                                                    os_info_str->str,                                  /* IDB_OS           12 */
                                                                     pcap_opts->linktype,
                                                                     pcap_opts->snaplen,
                                                                     &(global_ld.bytes_written),
-																	0,                                                 /* IDB_IF_SPEED       8 */
-																	0,                                                 /* IDB_TSRESOL        9 */
+                                                                    0,                                                 /* IDB_IF_SPEED      8 */
+                                                                    0,                                                 /* IDB_TSRESOL       9 */
                                                                     &global_ld.err);
             }
 
