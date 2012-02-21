@@ -38,6 +38,8 @@
 
 static dissector_handle_t bacapp_handle;
 static dissector_handle_t data_handle;
+/* Defined to allow vendor identifier registration of private transfer dissectors */
+static dissector_table_t bacnet_dissector_table;
 
 static const char*
 bacnet_mesgtyp_name (guint8 bacnet_mesgtyp){
@@ -184,6 +186,7 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8 bacnet_pinfolen;
 	guint8 i;
 	tvbuff_t *next_tvb;
+	guint32 vendor_id;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BACnet-NPDU");
 
@@ -345,11 +348,18 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		* not present, but we don't know about that: No length field...
 		*/
 		if (bacnet_mesgtyp > 0x7f) {
-			proto_tree_add_item(bacnet_tree, hf_bacnet_vendor,
-				tvb, offset, 2, ENC_BIG_ENDIAN);
-			offset += 2;
-			call_dissector(data_handle,
-				tvb_new_subset_remaining(tvb, offset), pinfo, tree);
+			/* Note: our next_tvb includes message type and vendor id! */
+			next_tvb = tvb_new_subset_remaining(tvb, offset-1);
+			vendor_id = tvb_get_ntohs(tvb, offset);
+			proto_tree_add_uint(bacnet_tree, hf_bacnet_vendor, tvb,
+					offset, 2, vendor_id);
+			offset += 2;	/* vendor_id */
+			if (dissector_try_uint(bacnet_dissector_table,
+					vendor_id, next_tvb, pinfo, bacnet_tree)) {
+					/* we parsed it so skip over length and we are done */
+					/* Note: offset has now been bumped for message type and vendor id so we take that out of our next_tvb size */
+					offset += tvb_length(next_tvb) -3;
+			}
 		}
 		/* Performance Index (in I-Could-Be-Router-To-Network) */
 		if (bacnet_mesgtyp == BAC_NET_ICB_R) {
@@ -614,6 +624,10 @@ proto_register_bacnet(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	register_dissector("bacnet", dissect_bacnet, proto_bacnet);
+
+	bacnet_dissector_table = register_dissector_table("bacnet.vendor",
+							  "BACnet Vendor Identifier",
+							  FT_UINT8, BASE_HEX);
 }
 
 void
