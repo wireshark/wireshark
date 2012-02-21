@@ -157,16 +157,20 @@ struct option {
 	guint16 type;
 	guint16 value_length;
 };
-#define OPT_ENDOFOPT 0
-#define OPT_COMMENT  1 /* currently not used */
-#define SHB_HARDWARE 2 /* currently not used */
-#define SHB_OS       3 
-#define SHB_USERAPPL 4
-#define IDB_NAME     2
-#define IDB_FILTER  11
-#define ISB_IFRECV   4
-#define ISB_IFDROP   5
-#define ISB_FILTERACCEPT 6
+#define OPT_ENDOFOPT      0
+#define OPT_COMMENT       1 
+#define SHB_HARDWARE      2 /* currently not used */
+#define SHB_OS            3 
+#define SHB_USERAPPL      4
+#define IDB_NAME          2
+#define IDB_DESCRIPTION   3
+#define IDB_IF_SPEED      8
+#define IDB_TSRESOL       9
+#define IDB_FILTER	     11
+#define IDB_OS			 12
+#define ISB_IFRECV        4
+#define ISB_IFDROP        5
+#define ISB_FILTERACCEPT  6
 
 #define ADD_PADDING(x) ((((x) + 3) >> 2) << 2)
 
@@ -372,68 +376,159 @@ libpcap_write_session_header_block(FILE *fp,
 
 gboolean
 libpcap_write_interface_description_block(FILE *fp,
-                                          const char *name,
-                                          const char *filter,
+                                          const char *comment,	/* OPT_COMMENT       1 */
+                                          const char *name,		/* IDB_NAME	         2 */
+                                          const char *descr,	/* IDB_DESCRIPTION   3 */
+                                          const char *filter,	/* IDB_FILTER       11 */
+                                          const char *os,		/* IDB_OS	        12 */
                                           int link_type,
                                           int snap_len,
                                           long *bytes_written,
+                                          guint64 if_speed,		/* IDB_IF_SPEED       8 */
+                                          guint8 tsresol,		/* IDB_TSRESOL        9 */
                                           int *err)
 {
-	struct idb idb;
-	struct option option;
-	guint32 block_total_length;
-	const guint32 padding = 0;
+    struct idb idb;
+    struct option option;
+    guint32 block_total_length;
+    const guint32 padding = 0;
+    gboolean have_options = FALSE;
 
-	block_total_length = sizeof(struct idb) + sizeof(guint32);
-	if ((strlen(name) > 0) && (strlen(name) < G_MAXUINT16)) {
-		block_total_length += sizeof(struct option) +
-		                      (guint16)(ADD_PADDING(strlen(name) + 1));
-	}
-	if ((strlen(filter) > 0) && (strlen(filter) < G_MAXUINT16)) {
-		block_total_length += sizeof(struct option) +
-		                      (guint16)(ADD_PADDING(strlen(filter) + 1));
-	}
-	if (((strlen(name) > 0) && (strlen(name) < G_MAXUINT16)) ||
-	    ((strlen(filter) > 0) && (strlen(filter) < G_MAXUINT16))) {
-		block_total_length += sizeof(struct option);
-	}
-	/* write block header */
-	idb.block_type = INTERFACE_DESCRIPTION_BLOCK_TYPE;
-	idb.block_total_length = block_total_length;
-	idb.link_type = link_type;
-	idb.reserved = 0;
-	idb.snap_len = snap_len;
-	WRITE_DATA(fp, &idb, sizeof(struct idb), *bytes_written, err);
-	/* write interface name string if applicable */
-	if ((strlen(name) > 0) && (strlen(name) < G_MAXUINT16)) {
-		option.type = IDB_NAME;
-		option.value_length = (guint16)(strlen(name) + 1);
-		WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
-		WRITE_DATA(fp, name, strlen(name) + 1, *bytes_written, err);
-		if ((strlen(name) + 1) % 4) {
-			WRITE_DATA(fp, &padding, 4 - (strlen(name) + 1) % 4 , *bytes_written, err);
-		}
-	}
-	/* write filter string if applicable */
-	if ((strlen(filter) > 0) && (strlen(filter) < G_MAXUINT16)) {
-		option.type = IDB_FILTER;
-		option.value_length = (guint16)(strlen(filter) + 1);
-		WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
-		WRITE_DATA(fp, filter, strlen(filter) + 1, *bytes_written, err);
-		if ((strlen(filter) + 1) % 4) {
-			WRITE_DATA(fp, &padding, 4 - (strlen(filter) + 1) % 4 , *bytes_written, err);
-		}
-	}
-	/* write endofopt option if there were any options */
-	if (((strlen(name) > 0) && (strlen(name) < G_MAXUINT16)) ||
-	    ((strlen(filter) > 0) && (strlen(filter) < G_MAXUINT16))) {
-		option.type = OPT_ENDOFOPT;
-		option.value_length = 0;
-		WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
-	}
-	/* write the trailing Block Total Length */
-	WRITE_DATA(fp, &block_total_length, sizeof(guint32), *bytes_written, err);
-	return TRUE;
+    block_total_length = sizeof(struct idb) + sizeof(guint32);
+    /* OPT_COMMENT */
+    if ((strlen(comment) > 0) && (strlen(comment) < G_MAXUINT16)) {
+        block_total_length += sizeof(struct option) +
+                              (guint16)(ADD_PADDING(strlen(comment) + 1));
+        have_options = TRUE;
+    }
+
+    /* IDB_DESCRIPTION */
+    if ((strlen(descr) > 0) && (strlen(descr) < G_MAXUINT16)) {
+        block_total_length += sizeof(struct option) +
+                              (guint16)(ADD_PADDING(strlen(descr) + 1));
+        have_options = TRUE;
+    }
+
+    /* IDB_NAME */
+    if ((strlen(name) > 0) && (strlen(name) < G_MAXUINT16)) {
+        block_total_length += sizeof(struct option) +
+                              (guint16)(ADD_PADDING(strlen(name) + 1));
+        have_options = TRUE;
+    }
+
+    /* IDB_FILTER */
+    if ((strlen(filter) > 0) && (strlen(filter) < G_MAXUINT16)) {
+        block_total_length += sizeof(struct option) +
+                              (guint16)(ADD_PADDING(strlen(filter) + 1));
+        have_options = TRUE;
+    }
+
+    /* IDB_OS */
+    if ((strlen(os) > 0) && (strlen(os) < G_MAXUINT16)) {
+        block_total_length += sizeof(struct option) +
+                              (guint16)(ADD_PADDING(strlen(os) + 1));
+        have_options = TRUE;
+    }
+
+    /* IDB_IF_SPEED       8 */
+    if(if_speed != 0){
+        block_total_length += sizeof(struct option) + sizeof(guint64);
+        have_options = TRUE;
+    }
+    /* IDB_TSRESOL        9 */
+    if(tsresol != 0){
+        block_total_length += sizeof(struct option) + sizeof(struct option);
+        have_options = TRUE;
+    }
+    /* If we have options add size of end-of-options */
+    if(have_options){
+        block_total_length += sizeof(struct option);
+    }
+    /* write block header */
+    idb.block_type = INTERFACE_DESCRIPTION_BLOCK_TYPE;
+    idb.block_total_length = block_total_length;
+    idb.link_type = link_type;
+    idb.reserved = 0;
+    idb.snap_len = snap_len;
+    WRITE_DATA(fp, &idb, sizeof(struct idb), *bytes_written, err);
+    /* write comment string if applicable */
+    if ((strlen(comment) > 0) && (strlen(comment) < G_MAXUINT16)) {
+        option.type = OPT_COMMENT;
+        option.value_length = (guint16)(strlen(comment) + 1);
+        WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
+        WRITE_DATA(fp, comment, strlen(comment) + 1, *bytes_written, err);
+        if ((strlen(comment) + 1) % 4) {
+            WRITE_DATA(fp, &padding, 4 - (strlen(comment) + 1) % 4 , *bytes_written, err);
+        }
+    }
+    /* write interface name string if applicable */
+    if ((strlen(name) > 0) && (strlen(name) < G_MAXUINT16)) {
+        option.type = IDB_NAME;
+        option.value_length = (guint16)(strlen(name) + 1);
+        WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
+        WRITE_DATA(fp, name, strlen(name) + 1, *bytes_written, err);
+        if ((strlen(name) + 1) % 4) {
+            WRITE_DATA(fp, &padding, 4 - (strlen(name) + 1) % 4 , *bytes_written, err);
+        }
+    }
+    /* write interface description string if applicable */
+    if ((strlen(descr) > 0) && (strlen(descr) < G_MAXUINT16)) {
+        option.type = IDB_DESCRIPTION;
+        option.value_length = (guint16)(strlen(descr) + 1);
+        WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
+        WRITE_DATA(fp, name, strlen(descr) + 1, *bytes_written, err);
+        if ((strlen(descr) + 1) % 4) {
+            WRITE_DATA(fp, &padding, 4 - (strlen(descr) + 1) % 4 , *bytes_written, err);
+        }
+    }
+    /* write filter string if applicable */
+    if ((strlen(filter) > 0) && (strlen(filter) < G_MAXUINT16)) {
+        option.type = IDB_FILTER;
+        option.value_length = (guint16)(strlen(filter) + 1);
+        WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
+        WRITE_DATA(fp, filter, strlen(filter) + 1, *bytes_written, err);
+        if ((strlen(filter) + 1) % 4) {
+            WRITE_DATA(fp, &padding, 4 - (strlen(filter) + 1) % 4 , *bytes_written, err);
+        }
+    }
+
+    /* write os string if applicable */
+    if ((strlen(os) > 0) && (strlen(os) < G_MAXUINT16)) {
+        option.type = IDB_OS;
+        option.value_length = (guint16)(strlen(filter) + 1);
+        WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
+        WRITE_DATA(fp, filter, strlen(os) + 1, *bytes_written, err);
+        if ((strlen(os) + 1) % 4) {
+            WRITE_DATA(fp, &padding, 4 - (strlen(os) + 1) % 4 , *bytes_written, err);
+        }
+    }
+
+
+    /* IDB_IF_SPEED       8 */
+    if(if_speed != 0){
+        option.type = IDB_IF_SPEED;
+        option.value_length = sizeof(guint64);
+        WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
+        WRITE_DATA(fp, &if_speed, sizeof(guint64), *bytes_written, err);
+    }
+    /* IDB_TSRESOL        9 */
+    if(tsresol != 0){
+        option.type = IDB_TSRESOL;
+        option.value_length = sizeof(guint8);
+        WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
+        WRITE_DATA(fp, &if_speed, sizeof(guint8), *bytes_written, err);
+        WRITE_DATA(fp, &padding, 3 , *bytes_written, err);
+    }
+
+    if(have_options){
+        /* write end of options */
+        option.type = OPT_ENDOFOPT;
+        option.value_length = 0;
+        WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
+    }
+    /* write the trailing Block Total Length */
+    WRITE_DATA(fp, &block_total_length, sizeof(guint32), *bytes_written, err);
+    return TRUE;
 }
 
 /* Write a record for a packet to a dump file.

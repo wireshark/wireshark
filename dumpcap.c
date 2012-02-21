@@ -2584,13 +2584,18 @@ capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *err
                 } else {
                     pcap_opts->snaplen = pcap_snapshot(pcap_opts->pcap_h);
                 }
-                successful = libpcap_write_interface_description_block(ld->pdh,
-                                                                       interface_opts.name,
-                                                                       interface_opts.cfilter?interface_opts.cfilter:"",
-                                                                       pcap_opts->linktype,
-                                                                       pcap_opts->snaplen,
-                                                                       &ld->bytes_written,
-                                                                       &err);
+                successful = libpcap_write_interface_description_block(global_ld.pdh,
+                                                                    NULL,                                              /* OPT_COMMENT       1 */
+                                                                    interface_opts.name,                               /* IDB_NAME	       2 */
+                                                                    NULL,                                              /* IDB_DESCRIPTION   3 */
+                                                                    interface_opts.cfilter?interface_opts.cfilter:"",  /* IDB_FILTER       11 */
+																	os_info_str->str,                                  /* IDB_OS	          12 */
+                                                                    pcap_opts->linktype,
+                                                                    pcap_opts->snaplen,
+                                                                    &(global_ld.bytes_written),
+																	0,                                                 /* IDB_IF_SPEED       8 */
+																	0,                                                 /* IDB_TSRESOL        9 */
+                                                                    &global_ld.err);
             }
         } else {
             pcap_opts = g_array_index(ld->pcaps, pcap_options *, 0);
@@ -3029,11 +3034,16 @@ do_file_switch_or_stop(capture_options *capture_opts,
                     interface_opts = g_array_index(capture_opts->ifaces, interface_options, i);
                     pcap_opts = g_array_index(global_ld.pcaps, pcap_options *, i);
                     successful = libpcap_write_interface_description_block(global_ld.pdh,
-                                                                           interface_opts.name,
-                                                                           interface_opts.cfilter?interface_opts.cfilter:"",
+                                                                           NULL,                                              /* OPT_COMMENT       1 */
+                                                                           interface_opts.name,                               /* IDB_NAME	       2 */
+                                                                           NULL,                                              /* IDB_DESCRIPTION   3 */
+                                                                           interface_opts.cfilter?interface_opts.cfilter:"",  /* IDB_FILTER       11 */
+                                                                           os_info_str->str,                                  /* IDB_OS	          12 */
                                                                            pcap_opts->linktype,
                                                                            pcap_opts->snaplen,
                                                                            &(global_ld.bytes_written),
+                                                                           0,                                                 /* IDB_IF_SPEED       8 */
+                                                                           0,                                                 /* IDB_TSRESOL        9 */
                                                                            &global_ld.err);
                 }
             } else {

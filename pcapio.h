@@ -64,11 +64,16 @@ libpcap_write_session_header_block(FILE *fp,             /**< File pointer */
 
 extern gboolean
 libpcap_write_interface_description_block(FILE *fp,
-                                          const char *name,
-                                          const char *filter,
+                                          const char *comment,  /* OPT_COMMENT       1 */
+                                          const char *name,     /* IDB_NAME	         2 */
+                                          const char *descr,    /* IDB_DESCRIPTION   3 */
+                                          const char *filter,   /* IDB_FILTER       11 */
+                                          const char *os,		/* IDB_OS			12 */
                                           int link_type,
                                           int snap_len,
                                           long *bytes_written,
+                                          guint64 if_speed,		/* IDB_IF_SPEED       8 */
+                                          guint8 tsresol,		/* IDB_TSRESOL        9 */
                                           int *err);
 
 extern gboolean
