@@ -2158,7 +2158,7 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_block_t *wblock, int *err)
 	 */
 	if (wblock->data.if_descr.if_os) {
 		have_options = TRUE;
-		if_name_len = (guint32)strlen(wblock->data.if_descr.if_os) & 0xffff;
+		if_os_len = (guint32)strlen(wblock->data.if_descr.if_os) & 0xffff;
 		if ((if_os_len % 4)) {
 			if_os_pad_len = 4 - (if_os_len % 4);
 		} else {
@@ -2220,10 +2220,10 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_block_t *wblock, int *err)
 		}
 	}
 	/*
-	 * if_name        2  A UTF-8 string containing the name of the device used to capture data. 
+	 * if_name        2  A UTF-8 string containing the name of the device used to capture data.
 	 */
 	if (if_name_len) {
-		option_hdr.type		 = IDB_OPT_IF_NAME;
+		option_hdr.type = IDB_OPT_IF_NAME;
 		option_hdr.value_length = if_name_len;
 		if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
 			return FALSE;
@@ -2233,7 +2233,7 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_block_t *wblock, int *err)
 		pcapng_debug3("pcapng_write_if_descr_block, if_name:'%s' if_name_len %u if_name_pad_len %u" , wblock->data.if_descr.if_name, if_name_len, if_name_pad_len);
 		if (!wtap_dump_file_write(wdh, wblock->data.if_descr.if_name, if_name_len, err))
 			return FALSE;
-		wdh->bytes_dumped += comment_len;
+		wdh->bytes_dumped += if_name_len;
 
 		/* write padding (if any) */
 		if (if_name_pad_len != 0) {
