@@ -144,6 +144,23 @@ typedef struct if_dlg_data_s {
 static gboolean gbl_capture_in_progress = FALSE;
 
 void
+add_interface(void)
+{
+  if_dlg_data_t data;
+  data.device_lb = NULL;
+  data.descr_lb   = NULL;
+  data.ip_lb      = NULL;
+  data.curr_lb    = NULL;
+  data.last_lb    = NULL;
+  data.choose_bt  = NULL;
+#ifdef _WIN32
+  data.details_bt = NULL;
+#endif
+  g_array_append_val(gtk_list, data);
+  refresh_if_window();
+}
+
+void
 update_selected_interface(gchar *name)
 {
   guint i;
@@ -262,7 +279,7 @@ update_if(gchar *name, if_stat_cache_t *sc)
 {
   struct pcap_stat stats;
   gchar *str;
-  guint diff, ifs;
+  guint diff, ifs, data_ifs;
   interface_t  device;
   if_dlg_data_t data;
   gboolean  found = FALSE;
@@ -280,17 +297,23 @@ update_if(gchar *name, if_stat_cache_t *sc)
   data.curr_lb = NULL;
   data.last_lb = NULL;
   if (sc) {
-    for (ifs = 0; ifs < global_capture_opts.all_ifaces->len; ifs++) {
-        device = g_array_index(global_capture_opts.all_ifaces, interface_t, ifs);
-        data = g_array_index(gtk_list, if_dlg_data_t, ifs);
+    for (ifs = 0, data_ifs = 0; ifs < global_capture_opts.all_ifaces->len; ifs++) {
+      device = g_array_index(global_capture_opts.all_ifaces, interface_t, ifs);
+      if (device.type != IF_PIPE) {
+        data = g_array_index(gtk_list, if_dlg_data_t, data_ifs++);
         if (!device.hidden && strcmp(name, device.name) == 0) {
           found = TRUE;
           break;
         }
+      }
     }
     if (found) {
       if (capture_stats(sc, name, &stats)) {
-        diff = stats.ps_recv - device.last_packets;
+        if ((int)(stats.ps_recv - device.last_packets) < 0) {
+          diff = 0;
+        } else {
+          diff = stats.ps_recv - device.last_packets;
+        }
         device.last_packets = stats.ps_recv;
 
         str = g_strdup_printf("%u", device.last_packets);
@@ -353,12 +376,11 @@ capture_if_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
   g_source_remove(timer_id);
 
   free_interface_list(if_list);
-
+  if (sc)
+    capture_stat_stop(sc);
+  window_destroy(GTK_WIDGET(cap_if_w));
   /* Note that we no longer have a "Capture Options" dialog box. */
   cap_if_w = NULL;
-
-  capture_stat_stop(sc);
-
 #ifdef HAVE_AIRPCAP
   airpcap_set_toolbar_stop_capture(airpcap_if_active);
 #endif
@@ -849,7 +871,8 @@ gboolean interfaces_dialog_window_present(void)
 
 void refresh_if_window(void)
 {
-  capture_if_destroy_cb(NULL, NULL);
+  destroy_if_window();
+  cap_if_w = NULL;
   capture_if_cb(NULL, NULL);
 }
 

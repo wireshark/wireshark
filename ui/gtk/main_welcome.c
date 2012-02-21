@@ -838,6 +838,38 @@ select_ifaces(void)
 #endif
 }
 
+#ifdef HAVE_LIBPCAP
+void
+change_interface_name(gchar *oldname, guint index)
+{
+    GtkWidget        *view;
+    GtkTreeModel     *model;
+    GtkTreeIter      iter;
+    interface_t      device;
+    GtkTreeSelection *entry;
+    gchar            *optname;
+
+    view = g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES);
+    entry = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
+    model = gtk_tree_view_get_model(GTK_TREE_VIEW(view));
+
+		device = g_array_index(global_capture_opts.all_ifaces, interface_t, index);
+		if (gtk_tree_model_get_iter_first (model, &iter)) {
+      	do {
+      			gtk_tree_model_get(model, &iter, IFACE_NAME, &optname, -1);
+      			if (strcmp(optname, oldname) == 0) {
+    						gtk_list_store_set(GTK_LIST_STORE(model), &iter, ICON, gtk_image_get_pixbuf(GTK_IMAGE(capture_get_if_icon(&device))), IFACE_DESCR, device.display_name, IFACE_NAME, device.name, -1);
+    						if (device.selected) {
+        						gtk_tree_selection_select_iter(entry, &iter);
+   							}
+   							break;
+    				}
+    		} while (gtk_tree_model_iter_next(model, &iter));
+    		g_free(optname);
+    }
+}
+#endif
+
 #ifdef HAVE_PCAP_REMOTE
 void
 add_interface_to_list(guint index)

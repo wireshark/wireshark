@@ -137,6 +137,8 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
     const gchar *save_all     = NULL;
     const gchar *stop         = NULL;
     const gchar *yes          = NULL;
+    const gchar *refresh      = NULL;
+    const gchar *add          = NULL;
 #ifdef HAVE_GEOIP
     const gchar *map          = NULL;
 #endif /* HAVE_GEOIP */
@@ -169,6 +171,10 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
             close = stock_id;
         } else if (strcmp(stock_id, GTK_STOCK_CLEAR) == 0) {
             clear = stock_id;
+        } else if (strcmp(stock_id, GTK_STOCK_REFRESH) == 0) {
+            refresh = stock_id;
+        } else if (strcmp(stock_id, GTK_STOCK_ADD) == 0) {
+           add = stock_id;
 #ifdef HAVE_LIBPCAP
         } else if (strcmp(stock_id, WIRESHARK_STOCK_CAPTURE_START) == 0) {
             cap_start = stock_id;
@@ -264,6 +270,24 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
         GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
 #endif
         g_object_set_data(G_OBJECT(hbox), copy, button);
+        gtk_box_pack_start(GTK_BOX(help_hbox), button, FALSE, FALSE, 0);
+        gtk_widget_show(button);
+        buttons--;
+    }
+
+    /* do we have a refresh button? -> special handling for it */
+    if (refresh) {
+        button = gtk_button_new_from_stock(refresh);
+        g_object_set_data(G_OBJECT(hbox), refresh, button);
+        gtk_box_pack_start(GTK_BOX(help_hbox), button, FALSE, FALSE, 0);
+        gtk_widget_show(button);
+        buttons--;
+    }
+
+    /* do we have an add button? -> special handling for it */
+    if (add) {
+        button = gtk_button_new_from_stock(add);
+        g_object_set_data(G_OBJECT(hbox), add, button);
         gtk_box_pack_start(GTK_BOX(help_hbox), button, FALSE, FALSE, 0);
         gtk_widget_show(button);
         buttons--;

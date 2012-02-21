@@ -84,4 +84,7 @@ void update_welcome_list(void);
 void add_interface_to_list(guint index);
 #endif
 
+#ifdef HAVE_LIBPCAP
+void change_interface_name(gchar *oldname, guint index);
+#endif
 #endif /* __MAIN_WELCOME_H__ */

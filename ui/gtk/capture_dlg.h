@@ -95,27 +95,31 @@ void capture_start_confirmed(void);
 void
 capture_air_cb(GtkWidget *widget, gpointer data);
 
-#if 0
-/*
- * We remember the capture settings for each interface when a capture
- * is started on it; the next time we select that interface we start
- * out with those settings.
- *
- * XXX - we currently only do that for monitor mode and the link-layer
- * type; arguably we should do it for the snapshot length, and perhaps
- * promiscuous mode.
- */
-typedef struct {
-    gboolean monitor_mode;
-    int linktype;
-} cap_settings_t;
+#ifdef HAVE_PCAP_REMOTE
+struct remote_host {
+  gchar    *remote_host;          /**< Host name or network address for remote capturing */
+  gchar    *remote_port;          /**< TCP port of remote RPCAP server */
+  gint      auth_type;            /**< Authentication type */
+  gchar    *auth_username;        /**< Remote authentication parameters */
+  gchar    *auth_password;        /**< Remote authentication parameters */
+};
 
-/** Get capture settings for interface
+#define RECENT_KEY_REMOTE_HOST "recent.remote_host"
+
+/** Write all remote hosts to the recent file
  *
- * @param if_name interface name
+ * @param rf recent file
  */
-cap_settings_t
-capture_get_cap_settings (gchar *if_name);
+void
+capture_remote_combo_recent_write_all(FILE *rf);
+
+/** Add a new remote host from the recent file
+ *
+ * @param s string with hostname,port,auth_type
+ * @return TRUE if correctly added
+ */
+gboolean 
+capture_remote_combo_add_recent(gchar *s);
 #endif
 
 GtkTreeModel*

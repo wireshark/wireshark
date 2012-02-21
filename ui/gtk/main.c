@@ -4007,6 +4007,9 @@ scan_local_interfaces(capture_options* capture_opts, int *error)
         if_info = if_entry->data;
         ip_str = g_string_new("");
         ips = 0;
+        if (strstr(if_info->name, "rpcap:")) {
+            continue;
+        }
         device.name = g_strdup(if_info->name);
         device.hidden = FALSE;
         device.locked = FALSE;

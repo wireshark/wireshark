@@ -57,6 +57,9 @@ gboolean
 interfaces_dialog_window_present(void);
 
 void
+add_interface(void);
+
+void
 refresh_if_window(void);
 
 void

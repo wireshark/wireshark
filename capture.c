@@ -699,7 +699,7 @@ capture_stat_start(capture_options *capture_opts) {
     /* Initialize the cache */
     for (i = 0; i < capture_opts->all_ifaces->len; i++) {
       device = g_array_index(capture_opts->all_ifaces, interface_t, i);
-      if (&(device.if_info)) {
+      if (device.type != IF_PIPE && &(device.if_info)) {
         sc_item = g_malloc0(sizeof(if_stat_cache_item_t));
         sc_item->name = g_strdup(device.if_info.name);
         sc->cache_list = g_list_append(sc->cache_list, sc_item);
