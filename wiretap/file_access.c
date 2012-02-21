@@ -998,10 +998,15 @@ wtap_dumper* wtap_dump_open_ng(const char *filename, int filetype, int encap,
 	/* Set Section Header Block data */
 	wdh->shb_hdr = shb_hdr;
 	/* Set Interface Description Block data */
-	wdh->number_of_interfaces	= idb_inf->number_of_interfaces;
-	wdh->interface_data			= idb_inf->interface_data;
-	g_free(idb_inf);
-	
+	if (idb_inf != NULL) {
+		wdh->number_of_interfaces = idb_inf->number_of_interfaces;
+		wdh->interface_data = idb_inf->interface_data;
+		g_free(idb_inf);
+	} else {
+		wdh->number_of_interfaces= 0;
+		wdh->interface_data= NULL;
+	}
+
 	/* "-" means stdout */
 	if (strcmp(filename, "-") == 0) {
 		if (compressed) {
