@@ -502,9 +502,9 @@ libpcap_write_interface_description_block(FILE *fp,
 	/* write os string if applicable */
 	if ((os != NULL) && (strlen(os) > 0) && (strlen(os) < G_MAXUINT16)) {
 		option.type = IDB_OS;
-		option.value_length = (guint16)(strlen(filter) + 1);
+		option.value_length = (guint16)(strlen(os) + 1);
 		WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
-		WRITE_DATA(fp, filter, strlen(os) + 1, *bytes_written, err);
+		WRITE_DATA(fp, os, strlen(os) + 1, *bytes_written, err);
 		if ((strlen(os) + 1) % 4) {
 			WRITE_DATA(fp, &padding, 4 - (strlen(os) + 1) % 4 , *bytes_written, err);
 		}
