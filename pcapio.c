@@ -166,8 +166,8 @@ struct option {
 #define IDB_DESCRIPTION   3
 #define IDB_IF_SPEED      8
 #define IDB_TSRESOL       9
-#define IDB_FILTER	     11
-#define IDB_OS			 12
+#define IDB_FILTER       11
+#define IDB_OS           12
 #define ISB_IFRECV        4
 #define ISB_IFDROP        5
 #define ISB_FILTERACCEPT  6
