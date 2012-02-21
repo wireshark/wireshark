@@ -998,7 +998,7 @@ wtap_dumper* wtap_dump_open_ng(const char *filename, int filetype, int encap,
 	/* Set Section Header Block data */
 	wdh->shb_hdr = shb_hdr;
 	/* Set Interface Description Block data */
-	if (idb_inf != NULL) {
+	if ((idb_inf != NULL) && (idb_inf->number_of_interfaces > 0)) {
 		wdh->number_of_interfaces = idb_inf->number_of_interfaces;
 		wdh->interface_data = idb_inf->interface_data;
 		g_free(idb_inf);

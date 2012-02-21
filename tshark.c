@@ -2677,9 +2677,17 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
   char         *save_file_string = NULL;
   gboolean     filtering_tap_listeners;
   guint        tap_flags;
+  wtapng_section_t *shb_hdr;
+  wtapng_iface_descriptions_t *idb_inf;
 
+  shb_hdr = wtap_file_get_shb_info(cf->wth);
+  idb_inf = wtap_file_get_idb_info(cf->wth);
 #ifdef PCAP_NG_DEFAULT
-  linktype = WTAP_ENCAP_PER_PACKET;
+  if (idb_inf->number_of_interfaces > 0) {
+    linktype = WTAP_ENCAP_PER_PACKET;
+  } else {
+    linktype = wtap_file_encap(cf->wth);
+  }
 #else
   linktype = wtap_file_encap(cf->wth);
 #endif
@@ -2693,16 +2701,8 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
       /* Snapshot length of input file not known. */
       snapshot_length = WTAP_MAX_PACKET_SIZE;
     }
-    /*
-     * XXX
-     * As long as we don't use wtap_dump_open_ng(), we can't use
-     * WTAP_ENCAP_PER_PACKET since there is no way to write out
-     * an IDB.
-     * So overwrite the above assignment for now!
-     */
-    linktype = wtap_file_encap(cf->wth);
-    pdh = wtap_dump_open(save_file, out_file_type, linktype, snapshot_length,
-                         FALSE /* compressed */, &err);
+    pdh = wtap_dump_open_ng(save_file, out_file_type, linktype, snapshot_length,
+        FALSE /* compressed */, shb_hdr, idb_inf, &err);
 
     if (pdh == NULL) {
       /* We couldn't set up to write to the capture file. */
