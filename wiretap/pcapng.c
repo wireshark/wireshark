@@ -70,7 +70,7 @@
 #include "pcap-encap.h"
 #include "pcapng.h"
 
-#if 0
+#if 1
 #define pcapng_debug0(str) g_warning(str)
 #define pcapng_debug1(str,p1) g_warning(str,p1)
 #define pcapng_debug2(str,p1,p2) g_warning(str,p1,p2)
@@ -189,9 +189,10 @@ struct option {
 #define BLOCK_TYPE_SHB 0x0A0D0D0A /* Section Header Block */
 
 /* Options */
+#define OPT_EOFOPT       0
 #define OPT_COMMENT      1
 #define OPT_SHB_HARDWARE 2
-#define OPT_SHB_OS		 3
+#define OPT_SHB_OS       3
 #define OPT_SHB_USERAPPL 4
 
 /* Capture section */
@@ -242,7 +243,7 @@ typedef struct wtapng_if_descr_s {
 	/* XXX: if_IPv6addr opt 5  Interface network address and prefix length (stored in the last byte).*/
 	/* XXX: if_MACaddr  opt 6  Interface Hardware MAC address (48 bits).*/
 	/* XXX: if_EUIaddr  opt 7  Interface Hardware EUI address (64 bits)*/
-	guint64				if_speed;	/* 0xFFFFFFFF if unknown, opt 8  Interface speed (in bps). 100000000 for 100Mbps */
+	guint64				if_speed;	/* 0 if unknown, opt 8  Interface speed (in bps). 100000000 for 100Mbps */
 	guint8				if_tsresol;	/* default is 6 for microsecond resolution, opt 9  Resolution of timestamps. 
 									 * If the Most Significant Bit is equal to zero, the remaining bits indicates the resolution of the timestamp as as a negative power of 10
 									 */
@@ -667,18 +668,18 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 	}
 
 	/* Option defaults */
-	wblock->data.if_descr.opt_comment		= NULL;
-	wblock->data.if_descr.if_name			= NULL;
-	wblock->data.if_descr.if_description	= NULL;
+	wblock->data.if_descr.opt_comment = NULL;
+	wblock->data.if_descr.if_name = NULL;
+	wblock->data.if_descr.if_description = NULL;
 	/* XXX: if_IPv4addr */
 	/* XXX: if_IPv6addr */
 	/* XXX: if_MACaddr */
 	/* XXX: if_EUIaddr */
-	wblock->data.if_descr.if_speed			= 0;			/* "unknown" */
-	wblock->data.if_descr.if_tsresol		= 6;			/* default is 6 for microsecond resolution */
-	wblock->data.if_descr.if_filter			= NULL;
-	wblock->data.if_descr.if_os				= NULL;
-	wblock->data.if_descr.if_fcslen			= -1;			/* unknown or changes between packets */
+	wblock->data.if_descr.if_speed = 0;			/* "unknown" */
+	wblock->data.if_descr.if_tsresol = 6;			/* default is 6 for microsecond resolution */
+	wblock->data.if_descr.if_filter = NULL;
+	wblock->data.if_descr.if_os = NULL;
+	wblock->data.if_descr.if_fcslen = -1;			/* unknown or changes between packets */
 	/* XXX: guint64	if_tsoffset; */
 
 
@@ -713,7 +714,7 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 			to_read = 0;
 			break;
 		    case(1): /* opt_comment */
-			if(oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
+			if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
 				wblock->data.if_descr.opt_comment = g_strndup(option_content, oh.option_length);
 				pcapng_debug1("pcapng_read_if_descr_block: opt_comment %s", wblock->data.if_descr.opt_comment);
 			} else {
@@ -721,7 +722,7 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 			}
 			break;
 		    case(2): /* if_name */
-			if(oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
+			if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
 				wblock->data.if_descr.if_name = g_strndup(option_content, oh.option_length);
 				pcapng_debug1("pcapng_read_if_descr_block: if_name %s", wblock->data.if_descr.if_name);
 			} else {
@@ -729,7 +730,7 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 			}
 			break;
 		    case(3): /* if_description */
-			if(oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
+			if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
 			    wblock->data.if_descr.if_description = g_strndup(option_content, oh.option_length);
 				pcapng_debug1("pcapng_read_if_descr_block: if_description %s", wblock->data.if_descr.if_description);
 			} else {
@@ -743,7 +744,7 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 			 * if_EUIaddr     7  Interface Hardware EUI address (64 bits), if available. TODO: give a good example 
 			 */
 		    case(8): /* if_speed */
-			if(oh.option_length == 8) {
+			if (oh.option_length == 8) {
 				/*  Don't cast a char[] into a guint64--the
 				 *  char[] may not be aligned correctly.
 				 */
@@ -791,7 +792,7 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 			 * if_tzone      10  Time zone for GMT support (TODO: specify better). TODO: give a good example 
 			 */
 		    case(11): /* if_filter */
-			if(oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
+			if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
 				wblock->data.if_descr.if_filter = g_strndup(option_content, oh.option_length);
 				pcapng_debug1("pcapng_read_if_descr_block: if_filter %s", wblock->data.if_descr.if_filter);
 			} else {
@@ -804,7 +805,7 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 			 * This can be different from the same information that can be contained by the Section Header Block (Section 3.1 (Section Header Block (mandatory))) 
 			 * because the capture can have been done on a remote machine. "Windows XP SP2" / "openSUSE 10.2" / ... 
 			 */
-			if(oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
+			if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
 			    wblock->data.if_descr.if_os = g_strndup(option_content, oh.option_length);
 				pcapng_debug1("pcapng_read_if_descr_block: if_os %s", wblock->data.if_descr.if_os);
 			} else {
@@ -812,7 +813,7 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 			}
 			break;
 		    case(13): /* if_fcslen */
-			if(oh.option_length == 1) {
+			if (oh.option_length == 1) {
 				wblock->data.if_descr.if_fcslen = option_content[0];
 				pn->if_fcslen = wblock->data.if_descr.if_fcslen;
 				pcapng_debug1("pcapng_read_if_descr_block: if_fcslen %u", wblock->data.if_descr.if_fcslen);
@@ -1871,56 +1872,56 @@ pcapng_write_section_header_block(wtap_dumper *wdh, wtapng_block_t *wblock, int 
 	guint32 comment_len = 0, shb_hardware_len = 0, shb_os_len = 0, shb_user_appl_len = 0; 
 	guint32	comment_pad_len = 0, shb_hardware_pad_len = 0, shb_os_pad_len = 0, shb_user_appl_pad_len = 0;
 
-	if(wdh->shb_hdr){
+	if (wdh->shb_hdr) {
 		pcapng_debug0("pcapng_write_section_header_block: Have shb_hdr");
 		/* Check if we should write comment option */
-		if(wdh->shb_hdr->opt_comment){
+		if (wdh->shb_hdr->opt_comment) {
 			have_options = TRUE;
 			comment_len = (guint32)strlen(wdh->shb_hdr->opt_comment) & 0xffff;
-			if((comment_len % 4)){
+			if ((comment_len % 4)) {
 				comment_pad_len = 4 - (comment_len % 4);
-			}else{
+			} else {
 				comment_pad_len = 0;
 			}
 			options_total_length = options_total_length + comment_len + comment_pad_len + 4 /* comment options tag */ ;
 		}
 
 		/* Check if we should write shb_hardware option */
-		if(wdh->shb_hdr->shb_hardware){
+		if (wdh->shb_hdr->shb_hardware) {
 			have_options = TRUE;
 			shb_hardware_len = (guint32)strlen(wdh->shb_hdr->shb_hardware) & 0xffff;
-			if((shb_hardware_len % 4)){
+			if ((shb_hardware_len % 4)) {
 				shb_hardware_pad_len = 4 - (shb_hardware_len % 4);
-			}else{
+			} else {
 				shb_hardware_pad_len = 0;
 			}
 			options_total_length = options_total_length + shb_hardware_len + shb_hardware_pad_len + 4 /* options tag */ ;
 		}
 
 		/* Check if we should write shb_os option */
-		if(wdh->shb_hdr->shb_os){
+		if (wdh->shb_hdr->shb_os) {
 			have_options = TRUE;
 			shb_os_len = (guint32)strlen(wdh->shb_hdr->shb_os) & 0xffff;
-			if((shb_os_len % 4)){
+			if ((shb_os_len % 4)) {
 				shb_os_pad_len = 4 - (shb_os_len % 4);
-			}else{
+			} else {
 				shb_os_pad_len = 0;
 			}
 			options_total_length = options_total_length + shb_os_len + shb_os_pad_len + 4 /* options tag */ ;
 		}
 
 		/* Check if we should write shb_user_appl option */
-		if(wdh->shb_hdr->shb_user_appl){
+		if (wdh->shb_hdr->shb_user_appl) {
 			have_options = TRUE;
 			shb_user_appl_len = (guint32)strlen(wdh->shb_hdr->shb_user_appl) & 0xffff;
-			if((shb_user_appl_len % 4)){
+			if ((shb_user_appl_len % 4)) {
 				shb_user_appl_pad_len = 4 - (shb_user_appl_len % 4);
-			}else{
+			} else {
 				shb_user_appl_pad_len = 0;
 			}
 			options_total_length = options_total_length + shb_user_appl_len + shb_user_appl_pad_len + 4 /* options tag */ ;
 		}
-		if(have_options){
+		if (have_options) {
 			/* End-of-optios tag */
 			options_total_length += 4;
 		}
@@ -1953,7 +1954,7 @@ pcapng_write_section_header_block(wtap_dumper *wdh, wtapng_block_t *wblock, int 
 	 * shb_user_appl 4 
 	 */
 
-	if(comment_len){
+	if (comment_len) {
 		option_hdr.type		 = OPT_COMMENT;
 		option_hdr.value_length = comment_len;
 		if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
@@ -1974,7 +1975,7 @@ pcapng_write_section_header_block(wtap_dumper *wdh, wtapng_block_t *wblock, int 
 		}
 	}
 
-	if(shb_hardware_len){
+	if (shb_hardware_len) {
 		option_hdr.type		 = OPT_SHB_HARDWARE;
 		option_hdr.value_length = shb_hardware_len;
 		if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
@@ -1995,7 +1996,7 @@ pcapng_write_section_header_block(wtap_dumper *wdh, wtapng_block_t *wblock, int 
 		}
 	}
 
-	if(shb_os_len){
+	if (shb_os_len) {
 		option_hdr.type		 = OPT_SHB_OS;
 		option_hdr.value_length = shb_os_len;
 		if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
@@ -2016,7 +2017,7 @@ pcapng_write_section_header_block(wtap_dumper *wdh, wtapng_block_t *wblock, int 
 		}
 	}
 
-	if(shb_user_appl_len){
+	if (shb_user_appl_len) {
 		option_hdr.type		 = OPT_SHB_USERAPPL;
 		option_hdr.value_length = shb_user_appl_len;
 		if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
@@ -2038,7 +2039,9 @@ pcapng_write_section_header_block(wtap_dumper *wdh, wtapng_block_t *wblock, int 
 	}
 
 	/* Write end of options if we have otions */
-	if(have_options){
+	if (have_options) {
+		option_hdr.type = OPT_EOFOPT;
+		option_hdr.value_length = 0;
 		if (!wtap_dump_file_write(wdh, &zero_pad, 4, err))
 			return FALSE;
 		wdh->bytes_dumped += 4;
@@ -2084,12 +2087,12 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_block_t *wblock, int *err)
 	}
 
 	/* Calculate options length */
-	if(wblock->data.if_descr.opt_comment){
+	if (wblock->data.if_descr.opt_comment) {
 		have_options = TRUE;
 		comment_len = (guint32)strlen(wblock->data.if_descr.opt_comment) & 0xffff;
-		if((comment_len % 4)){
+		if ((comment_len % 4)){
 			comment_pad_len = 4 - (comment_len % 4);
-		}else{
+		} else {
 			comment_pad_len = 0;
 		}
 		options_total_length = options_total_length + comment_len + comment_pad_len + 4 /* comment options tag */ ;
@@ -2098,12 +2101,12 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_block_t *wblock, int *err)
 	/*
 	 * if_name        2  A UTF-8 string containing the name of the device used to capture data. 
 	 */
-	if(wblock->data.if_descr.if_name){
+	if (wblock->data.if_descr.if_name){
 		have_options = TRUE;
 		if_name_len = (guint32)strlen(wblock->data.if_descr.if_name) & 0xffff;
-		if((if_name_len % 4)){
+		if ((if_name_len % 4)) {
 			if_name_pad_len = 4 - (if_name_len % 4);
-		}else{
+		} else {
 			if_name_pad_len = 0;
 		}
 		options_total_length = options_total_length + if_name_len + if_name_pad_len + 4 /* comment options tag */ ;
@@ -2112,12 +2115,12 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_block_t *wblock, int *err)
 	/*
 	 * if_description 3  A UTF-8 string containing the description of the device used to capture data. 
 	 */
-	if(wblock->data.if_descr.if_description){
+	if (wblock->data.if_descr.if_description) {
 		have_options = TRUE;
 		if_name_len = (guint32)strlen(wblock->data.if_descr.if_description) & 0xffff;
-		if((if_description_len % 4)){
+		if ((if_description_len % 4)) {
 			if_description_pad_len = 4 - (if_description_len % 4);
-		}else{
+		} else {
 			if_description_pad_len = 0;
 		}
 		options_total_length = options_total_length + if_description_len + if_description_pad_len + 4 /* comment options tag */ ;
@@ -2131,14 +2134,14 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_block_t *wblock, int *err)
 	/*
 	 * if_speed       8  Interface speed (in bps). 100000000 for 100Mbps 
 	 */
-	if(wblock->data.if_descr.if_speed != 0){
+	if (wblock->data.if_descr.if_speed != 0) {
 		have_options = TRUE;
 		options_total_length = options_total_length + 8 + 4;
 	}
 	/*
 	 * if_tsresol     9  Resolution of timestamps.
 	 */
-	if(wblock->data.if_descr.if_tsresol != 0){
+	if (wblock->data.if_descr.if_tsresol != 0) {
 		have_options = TRUE;
 		options_total_length = options_total_length + 4 + 4;
 	}
@@ -2148,17 +2151,17 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_block_t *wblock, int *err)
 	/*
 	 * if_filter     11  The filter (e.g. "capture only TCP traffic") used to capture traffic. 
 	 */
-	if(wblock->data.if_descr.if_filter){
+	if (wblock->data.if_descr.if_filter) {
 	}
 	/*
 	 * if_os         12  A UTF-8 string containing the name of the operating system of the machine in which this interface is installed. 
 	 */
-	if(wblock->data.if_descr.if_os){
+	if (wblock->data.if_descr.if_os) {
 		have_options = TRUE;
 		if_name_len = (guint32)strlen(wblock->data.if_descr.if_os) & 0xffff;
-		if((if_os_len % 4)){
+		if ((if_os_len % 4)) {
 			if_os_pad_len = 4 - (if_os_len % 4);
-		}else{
+		} else {
 			if_os_pad_len = 0;
 		}
 		options_total_length = options_total_length + if_os_len + if_os_pad_len + 4 /* comment options tag */ ;
@@ -2166,14 +2169,14 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_block_t *wblock, int *err)
 	/*
 	 * if_fcslen     13  An integer value that specified the length of the Frame Check Sequence (in bits) for this interface. 
 	 */
-	if(wblock->data.if_descr.opt_comment){
+	if (wblock->data.if_descr.opt_comment) {
 	}
 	/* Not used
 	 * if_tsoffset   14  A 64 bits integer value that specifies an offset (in seconds) that must be added to the timestamp of each packet 
 	 * to obtain the absolute timestamp of a packet. If the option is missing, the timestamps stored in the packet must be considered absolute timestamps.
 	 */
 
-	if(have_options){
+	if (have_options) {
 		/* End-of-optios tag */
 		options_total_length += 4;
 	}
@@ -2196,7 +2199,7 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_block_t *wblock, int *err)
 	wdh->bytes_dumped += sizeof idb;
 
 	/* XXX - write (optional) block options */
-	if(comment_len){
+	if (comment_len) {
 		option_hdr.type		 = OPT_COMMENT;
 		option_hdr.value_length = comment_len;
 		if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
@@ -2219,7 +2222,7 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_block_t *wblock, int *err)
 	/*
 	 * if_name        2  A UTF-8 string containing the name of the device used to capture data. 
 	 */
-	if(if_name_len){
+	if (if_name_len) {
 		option_hdr.type		 = IDB_OPT_IF_NAME;
 		option_hdr.value_length = if_name_len;
 		if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
@@ -2242,7 +2245,7 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_block_t *wblock, int *err)
 	/*
 	 * if_description 3  A UTF-8 string containing the description of the device used to capture data. 
 	 */
-	if(if_description_len){
+	if (if_description_len) {
 		option_hdr.type		 = IDB_OPT_IF_NAME;
 		option_hdr.value_length = if_description_len;
 		if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
@@ -2271,7 +2274,8 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_block_t *wblock, int *err)
 	/*
 	 * if_speed       8  Interface speed (in bps). 100000000 for 100Mbps 
 	 */
-	if(wblock->data.if_descr.if_speed != 0){
+	if (wblock->data.if_descr.if_speed != 0) {
+		printf("HJKHJHK\n");
 		option_hdr.type		 = IDB_OPT_IF_SPEED;
 		option_hdr.value_length = 8;
 		if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
@@ -2287,7 +2291,7 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_block_t *wblock, int *err)
 	/*
 	 * if_tsresol     9  Resolution of timestamps.
 	 */
-	if(wblock->data.if_descr.if_tsresol != 0){
+	if (wblock->data.if_descr.if_tsresol != 0) {
 		option_hdr.type		 = IDB_OPT_IF_TSRESOL;
 		option_hdr.value_length = 1;
 		if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
@@ -2312,7 +2316,7 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_block_t *wblock, int *err)
 	/*
 	 * if_os         12  A UTF-8 string containing the name of the operating system of the machine in which this interface is installed. 
 	 */
-	if(if_os_len){
+	if (if_os_len) {
 		option_hdr.type		 = IDB_OPT_IF_OS;
 		option_hdr.value_length = if_os_len;
 		if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
@@ -2331,6 +2335,14 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_block_t *wblock, int *err)
 				return FALSE;
 			wdh->bytes_dumped += if_os_pad_len;
 		}
+	}
+
+	if (have_options) {
+		option_hdr.type = OPT_EOFOPT;
+		option_hdr.value_length = 0;
+		if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
+			return FALSE;
+		wdh->bytes_dumped += 4;
 	}
 
 	/*
