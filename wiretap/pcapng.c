@@ -932,6 +932,13 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 	              wblock->data.packet.cap_len,
 	              wblock->data.packet.interface_id);
 
+	if (wblock->data.packet.packet_len > WTAP_MAX_PACKET_SIZE) {
+		*err = WTAP_ERR_BAD_RECORD;
+		*err_info = g_strdup_printf("pcapng_read_packet_block: packet_len %u is larger than WTAP_MAX_PACKET_SIZE %u.",
+		    wblock->data.packet.packet_len, WTAP_MAX_PACKET_SIZE);
+		return 0;
+	}
+
 	wtap_encap = pcapng_get_encap(wblock->data.packet.interface_id, pn);
 	pcapng_debug3("pcapng_read_packet_block: encapsulation = %d (%s), pseudo header size = %d.",
 	               wtap_encap,
@@ -1082,6 +1089,8 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 		}
 	}
 
+	g_free(option_content);
+
 	pcap_read_post_process(WTAP_FILE_PCAPNG, wtap_encap,
 	    (union wtap_pseudo_header *)wblock->pseudo_header,
 	    (guint8 *) (wblock->frame_buffer),
@@ -1130,6 +1139,13 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
 	}
 	pcapng_debug1("pcapng_read_simple_packet_block: packet data: packet_len %u",
 	               wblock->data.simple_packet.packet_len);
+
+	if (wblock->data.simple_packet.packet_len > WTAP_MAX_PACKET_SIZE) {
+		*err = WTAP_ERR_BAD_RECORD;
+		*err_info = g_strdup_printf("pcapng_read_simple_packet_block: packet_len %u is larger than WTAP_MAX_PACKET_SIZE %u.",
+		    wblock->data.simple_packet.packet_len, WTAP_MAX_PACKET_SIZE);
+		return 0;
+	}
 
 	encap = pcapng_get_encap(0, pn);
 	pcapng_debug1("pcapng_read_simple_packet_block: Need to read pseudo header of size %d",
@@ -1307,7 +1323,7 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
 	int to_read;
 	pcapng_interface_statistics_block_t isb;
 	pcapng_option_header_t oh;
-	char option_content[100]; /* XXX - size might need to be increased, if we see longer options */
+	char *option_content = NULL; /* Allocate as large as the options block */
 
 
 	/* "Interface Statistics Block" read fixed part */
@@ -1342,9 +1358,14 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
 	          sizeof(pcapng_block_header_t) -
 	          block_read -    /* fixed and variable part, including padding */
 	          sizeof(bh->block_total_length);
+
+	/* Allocate enough memory to hold all options */
+	opt_cont_buf_len = to_read;
+	option_content = g_malloc(opt_cont_buf_len);
+
 	while(to_read > 0) {
 		/* read option */
-		bytes_read = pcapng_read_option(fh, pn, &oh, option_content, sizeof(option_content), err, err_info);
+		bytes_read = pcapng_read_option(fh, pn, &oh, option_content, opt_cont_buf_len, err, err_info);
 		if (bytes_read <= 0) {
 			pcapng_debug0("pcapng_read_interface_statistics_block: failed to read option");
 			return bytes_read;
@@ -1362,8 +1383,8 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
 			to_read = 0;
 			break;
 		    case(1): /* opt_comment */
-			if(oh.option_length > 0 && oh.option_length < sizeof(option_content)) {
-				wblock->data.if_stats.opt_comment = g_strndup(option_content, sizeof(option_content));
+			if(oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
+				wblock->data.if_stats.opt_comment = g_strndup(option_content, oh.option_length);
 				pcapng_debug1("pcapng_read_interface_statistics_block: opt_comment %s", wblock->data.if_stats.opt_comment);
 			} else {
 				pcapng_debug1("pcapng_read_interface_statistics_block: opt_comment length %u seems strange", oh.option_length);
@@ -1400,6 +1421,8 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
 				      oh.option_code, oh.option_length);
 		}
 	}
+
+	g_free(option_content);
 
     return block_read;
 }
