@@ -2720,17 +2720,23 @@ pcapng_dump_open(wtap_dumper *wdh, int *err)
 	wdh->priv = (void *)pcapng;
 	pcapng->interface_data = g_array_new(FALSE, FALSE, sizeof(wtapng_if_descr_t));
 
+	if ((wdh->number_of_interfaces == 0) || (wdh->interface_data == NULL)) {
+		pcapng_debug0("There are no interfaces. Can't handle that...");
+		*err = WTAP_ERR_INTERNAL;
+		return FALSE;
+	}
+
 	/* write the section header block */
 	wblock.type = BLOCK_TYPE_SHB;
 	wblock.data.section.section_length = -1;
 
 	/* Options */
-	if(wdh->shb_hdr){
+	if (wdh->shb_hdr) {
 		wblock.data.section.opt_comment   = wdh->shb_hdr->opt_comment;
 		wblock.data.section.shb_hardware  = wdh->shb_hdr->shb_hardware;
 		wblock.data.section.shb_os        = wdh->shb_hdr->shb_os;
 		wblock.data.section.shb_user_appl = wdh->shb_hdr->shb_user_appl;
-	}else{
+	} else {
 		wblock.data.section.opt_comment   = NULL;
 		wblock.data.section.shb_hardware  = NULL;
 		wblock.data.section.shb_os        = NULL;
@@ -2743,14 +2749,9 @@ pcapng_dump_open(wtap_dumper *wdh, int *err)
 	pcapng_debug0("pcapng_dump_open: wrote section header block.");
 
 	/* Write the Interface description blocks */
-	pcapng_debug1("pcapng_dump_open: Number of IDB:s to write (number of interfaces) %u",wdh->number_of_interfaces);
-	
-	if(wdh->number_of_interfaces==0){
-		/* XXX fill in *err */
-		return FALSE;
-	}
+	pcapng_debug1("pcapng_dump_open: Number of IDB:s to write (number of interfaces) %u", wdh->number_of_interfaces);
 
-	for(i=0; i < (int)wdh->number_of_interfaces; i++){
+	for (i = 0; i < (int)wdh->number_of_interfaces; i++) {
 
 		/* Get the interface description */
 		wtapng_if_descr_t int_data;
@@ -2758,27 +2759,36 @@ pcapng_dump_open(wtap_dumper *wdh, int *err)
 		int_data = g_array_index(wdh->interface_data, wtapng_if_descr_t, i);
 
 		/* write the interface description block */
-		wblock.data.if_descr.link_type		= int_data.link_type;
-		wblock.data.if_descr.wtap_encap		= int_data.wtap_encap;
-		wblock.data.if_descr.snap_len		= int_data.snap_len;
+		wblock.data.if_descr.link_type = int_data.link_type;
+		wblock.data.if_descr.wtap_encap = int_data.wtap_encap;
+		wblock.data.if_descr.snap_len = int_data.snap_len;
 		/* options */
-		wblock.data.if_descr.opt_comment	= int_data.opt_comment;		/* NULL if not available */
-		wblock.data.if_descr.if_name		= int_data.if_name;			/* NULL if not available, opt 2 A UTF-8 string containing the name of the device used to capture data. */
-		wblock.data.if_descr.if_description	= int_data.if_description;	/* NULL if not available, opt 3 A UTF-8 string containing the description of the device used to capture data. */
+		/* NULL if not available */
+		wblock.data.if_descr.opt_comment = int_data.opt_comment;
+		/* NULL if not available, opt 2 A UTF-8 string containing the name of the device used to capture data. */
+		wblock.data.if_descr.if_name = int_data.if_name;
+		/* NULL if not available, opt 3 A UTF-8 string containing the description of the device used to capture data. */
+		wblock.data.if_descr.if_description = int_data.if_description;
 		/* XXX: if_IPv4addr opt 4  Interface network address and netmask.*/
 		/* XXX: if_IPv6addr opt 5  Interface network address and prefix length (stored in the last byte).*/
 		/* XXX: if_MACaddr  opt 6  Interface Hardware MAC address (48 bits).*/
 		/* XXX: if_EUIaddr  opt 7  Interface Hardware EUI address (64 bits)*/
-		wblock.data.if_descr.if_speed		= int_data.if_speed;		/* 0xFFFFFFFF if unknown, opt 8  Interface speed (in bps). 100000000 for 100Mbps */
-		wblock.data.if_descr.if_tsresol		= int_data.if_tsresol;		/* default is 6 for microsecond resolution, opt 9  Resolution of timestamps. 
-												 * If the Most Significant Bit is equal to zero, the remaining bits indicates the resolution of the timestamp as as a negative power of 10
-												 */
+		/* 0xFFFFFFFF if unknown, opt 8  Interface speed (in bps). 100000000 for 100Mbps */
+		wblock.data.if_descr.if_speed = int_data.if_speed;
+		/* default is 6 for microsecond resolution, opt 9  Resolution of timestamps.
+		 * If the Most Significant Bit is equal to zero, the remaining bits indicates
+		 * the resolution of the timestamp as as a negative power of 10
+		 */
+		wblock.data.if_descr.if_tsresol = int_data.if_tsresol;
 		/* XXX: if_tzone      10  Time zone for GMT support (TODO: specify better). */
-		wblock.data.if_descr.if_filter		= int_data.if_filter;		/* NULL if not available, opt 11  The filter (e.g. "capture only TCP traffic") used to capture traffic.
-																		 * The first byte of the Option Data keeps a code of the filter used (e.g. if this is a libpcap string, or BPF bytecode, and more).
-																		 */
-		wblock.data.if_descr.if_os			= int_data.if_os;			/* NULL if not available, 12  A UTF-8 string containing the name of the operating system of the machine in which this interface is installed. */
-		wblock.data.if_descr.if_fcslen		= int_data.if_fcslen;		/* -1 if unknown or changes between packets, opt 13  An integer value that specified the length of the Frame Check Sequence (in bits) for this interface. */
+		/* NULL if not available, opt 11  The filter (e.g. "capture only TCP traffic") used to capture traffic.
+		 * The first byte of the Option Data keeps a code of the filter used (e.g. if this is a libpcap string, or BPF bytecode, and more).
+		 */
+		wblock.data.if_descr.if_filter = int_data.if_filter;
+		/* NULL if not available, 12  A UTF-8 string containing the name of the operating system of the machine in which this interface is installed. */
+		wblock.data.if_descr.if_os = int_data.if_os;
+		/* -1 if unknown or changes between packets, opt 13  An integer value that specified the length of the Frame Check Sequence (in bits) for this interface. */
+		wblock.data.if_descr.if_fcslen = int_data.if_fcslen;		
 		/* XXX: guint64	if_tsoffset; opt 14  A 64 bits integer value that specifies an offset (in seconds)...*/
 
 		wblock.frame_buffer            = NULL;
