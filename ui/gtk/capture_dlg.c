@@ -2626,7 +2626,9 @@ add_pipe_cb(gpointer w _U_)
     device.no_addresses = 0;
     device.last_packets = 0;
     device.links        = NULL;
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
     device.buffer       = 1;
+#endif
     device.active_dlt   = -1;
     device.if_info.name = NULL;
     device.if_info.description = NULL;
