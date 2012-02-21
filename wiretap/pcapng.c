@@ -1235,7 +1235,7 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
 {
 	int bytes_read;
 	int block_read;
-	int to_read;
+	int to_read, opt_cont_buf_len;
 	pcapng_interface_statistics_block_t isb;
 	pcapng_option_header_t oh;
 	char *option_content = NULL; /* Allocate as large as the options block */
