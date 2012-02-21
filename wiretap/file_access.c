@@ -85,7 +85,7 @@
 #include "netscaler.h"
 #include "mime_file.h"
 #include "ipfix.h"
-
+#include "pcap-encap.h"
 
 /* The open_file_* routines should return:
  *
@@ -994,7 +994,7 @@ wtap_dumper* wtap_dump_open_ng(const char *filename, int filetype, int encap,
 	wdh = wtap_dump_alloc_wdh(filetype, encap, snaplen, compressed, err);
 	if (wdh == NULL)
 		return NULL;	/* couldn't allocate it */
-	
+
 	/* Set Section Header Block data */
 	wdh->shb_hdr = shb_hdr;
 	/* Set Interface Description Block data */
@@ -1003,8 +1003,23 @@ wtap_dumper* wtap_dump_open_ng(const char *filename, int filetype, int encap,
 		wdh->interface_data = idb_inf->interface_data;
 		g_free(idb_inf);
 	} else {
-		wdh->number_of_interfaces= 0;
-		wdh->interface_data= NULL;
+		wtapng_if_descr_t descr;
+
+		descr.wtap_encap = encap;
+		descr.time_units_per_second = 0;
+		descr.link_type = wtap_wtap_encap_to_pcap_encap(encap);
+		descr.snap_len = snaplen;
+		descr.opt_comment = NULL;
+		descr.if_name = NULL;
+		descr.if_description = NULL;
+		descr.if_speed = 0;
+		descr.if_tsresol = 6;
+		descr.if_filter= NULL;
+		descr.if_os = NULL;
+		descr.if_fcslen = -1;
+		wdh->number_of_interfaces= 1;
+		wdh->interface_data= g_array_new(FALSE, FALSE, sizeof(wtapng_if_descr_t));
+		g_array_append_val(wdh->interface_data, descr);
 	}
 
 	/* "-" means stdout */
