@@ -461,7 +461,7 @@ pcapng_read_section_header_block(FILE_T fh, gboolean first_block,
 		}
 
 		/* A bad block */
-		*err = WTAP_ERR_BAD_FILE;
+		*err = WTAP_ERR_BAD_RECORD;
 		*err_info = g_strdup_printf("pcapng_read_section_header_block: unknown byte-order magic number 0x%08x", shb.magic);
 		return 0;
 	}
@@ -1048,7 +1048,7 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
 					     - (guint32)sizeof(bh->block_total_length);
 
 	if (wblock->data.simple_packet.cap_len > WTAP_MAX_PACKET_SIZE) {
-		*err = WTAP_ERR_BAD_FILE;
+		*err = WTAP_ERR_BAD_RECORD;
 		*err_info = g_strdup_printf("pcapng_read_simple_packet_block: cap_len %u is larger than WTAP_MAX_PACKET_SIZE %u.",
 		    wblock->data.simple_packet.cap_len, WTAP_MAX_PACKET_SIZE);
 		return 0;
