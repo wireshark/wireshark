@@ -2693,6 +2693,14 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
       /* Snapshot length of input file not known. */
       snapshot_length = WTAP_MAX_PACKET_SIZE;
     }
+    /*
+     * XXX
+     * As long as we don't use wtap_dump_open_ng(), we can't use
+     * WTAP_ENCAP_PER_PACKET since there is no way to write out
+     * an IDB.
+     * So overwrite the above assignment for now!
+     */
+    linktype = wtap_file_encap(cf->wth);
     pdh = wtap_dump_open(save_file, out_file_type, linktype, snapshot_length,
                          FALSE /* compressed */, &err);
 
