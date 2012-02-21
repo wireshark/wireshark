@@ -2574,8 +2574,6 @@ capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *err
                                 &ld->bytes_written, 
                                 &err);
 
-            g_string_free(os_info_str, TRUE);
-
             for (i = 0; successful && (i < capture_opts->ifaces->len); i++) {
                 interface_opts = g_array_index(capture_opts->ifaces, interface_options, i);
                 pcap_opts = g_array_index(ld->pcaps, pcap_options *, i);
@@ -2597,6 +2595,9 @@ capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *err
 																	0,                                                 /* IDB_TSRESOL        9 */
                                                                     &global_ld.err);
             }
+
+            g_string_free(os_info_str, TRUE);
+
         } else {
             pcap_opts = g_array_index(ld->pcaps, pcap_options *, 0);
             if (pcap_opts->from_cap_pipe) {
@@ -3028,8 +3029,6 @@ do_file_switch_or_stop(capture_options *capture_opts,
                                 &(global_ld.bytes_written), 
                                 &global_ld.err);
 
-                g_string_free(os_info_str, TRUE);
-
                 for (i = 0; successful && (i < capture_opts->ifaces->len); i++) {
                     interface_opts = g_array_index(capture_opts->ifaces, interface_options, i);
                     pcap_opts = g_array_index(global_ld.pcaps, pcap_options *, i);
@@ -3046,6 +3045,9 @@ do_file_switch_or_stop(capture_options *capture_opts,
                                                                            0,                                                 /* IDB_TSRESOL        9 */
                                                                            &global_ld.err);
                 }
+
+                g_string_free(os_info_str, TRUE);
+
             } else {
                 pcap_opts = g_array_index(global_ld.pcaps, pcap_options *, 0);
                 successful = libpcap_write_file_header(global_ld.pdh, pcap_opts->linktype, pcap_opts->snaplen,
