@@ -1606,10 +1606,10 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
 	 * means "this isn't a pcap-NG file, try some other file
 	 * type".
 	 */	 
-	wth->shb_hdr.opt_comment	= wblock.data.section.opt_comment;
-	wth->shb_hdr.shb_hardware	= wblock.data.section.shb_hardware;
-	wth->shb_hdr.shb_os			= wblock.data.section.shb_os;
-	wth->shb_hdr.shb_user_appl	= wblock.data.section.shb_user_appl;
+	wth->shb_hdr.opt_comment = wblock.data.section.opt_comment;
+	wth->shb_hdr.shb_hardware = wblock.data.section.shb_hardware;
+	wth->shb_hdr.shb_os = wblock.data.section.shb_os;
+	wth->shb_hdr.shb_user_appl = wblock.data.section.shb_user_appl;
 
 	wth->file_encap = WTAP_ENCAP_UNKNOWN;
 	wth->snapshot_length = 0;
@@ -1639,24 +1639,24 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
 			return -1;
 		}
 
-		int_data.wtap_encap						= wblock.data.if_descr.wtap_encap;
-		int_data.time_units_per_second			= wblock.data.if_descr.time_units_per_second;
-		int_data.link_type						= wblock.data.if_descr.link_type;
-		int_data.snap_len						= wblock.data.if_descr.snap_len;
+		int_data.wtap_encap = wblock.data.if_descr.wtap_encap;
+		int_data.time_units_per_second = wblock.data.if_descr.time_units_per_second;
+		int_data.link_type = wblock.data.if_descr.link_type;
+		int_data.snap_len = wblock.data.if_descr.snap_len;
 		/* Options */
-		int_data.opt_comment					= wblock.data.if_descr.opt_comment;
-		int_data.if_name						= wblock.data.if_descr.if_name;
-		int_data.if_description					= wblock.data.if_descr.if_description;
+		int_data.opt_comment = wblock.data.if_descr.opt_comment;
+		int_data.if_name = wblock.data.if_descr.if_name;
+		int_data.if_description = wblock.data.if_descr.if_description;
 		/* XXX: if_IPv4addr opt 4  Interface network address and netmask.*/
 		/* XXX: if_IPv6addr opt 5  Interface network address and prefix length (stored in the last byte).*/
 		/* XXX: if_MACaddr  opt 6  Interface Hardware MAC address (48 bits).*/
 		/* XXX: if_EUIaddr  opt 7  Interface Hardware EUI address (64 bits)*/
-		int_data.if_speed						= wblock.data.if_descr.if_speed;
-		int_data.if_tsresol						= wblock.data.if_descr.if_tsresol;
+		int_data.if_speed = wblock.data.if_descr.if_speed;
+		int_data.if_tsresol = wblock.data.if_descr.if_tsresol;
 		/* XXX: if_tzone      10  Time zone for GMT support (TODO: specify better). */
-		int_data.if_filter						= wblock.data.if_descr.if_filter;
-		int_data.if_os							= wblock.data.if_descr.if_os;
-		int_data.if_fcslen						= wblock.data.if_descr.if_fcslen;
+		int_data.if_filter = wblock.data.if_descr.if_filter;
+		int_data.if_os = wblock.data.if_descr.if_os;
+		int_data.if_fcslen = wblock.data.if_descr.if_fcslen;
 		/* XXX if_tsoffset; opt 14  A 64 bits integer value that specifies an offset (in seconds)...*/
 
 		g_array_append_val(wth->interface_data, int_data);
@@ -1674,6 +1674,10 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
 		/* Try to read the (next) block header */
 		errno = WTAP_ERR_CANT_READ;
 		bytes_read = file_read(&bh, sizeof bh, wth->fh);
+		if (bytes_read == 0) {
+			pcapng_debug0("No more IDBs available...");
+			break;
+		}
 		if (bytes_read != sizeof bh) {
 			*err = file_error(wth->fh, err_info);
 			pcapng_debug3("pcapng_open:  Check for more IDB:s, file_read() returned %d instead of %u, err = %d.", bytes_read, (unsigned int)sizeof bh, *err);
@@ -1682,7 +1686,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
 			return -1;
 		}
 
-		/* go back to whwre we where */
+		/* go back to where we were */
 		file_seek(wth->fh, wth->data_offset, SEEK_SET, err);
 
 		if (pn.byte_swapped) {
