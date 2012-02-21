@@ -36,8 +36,7 @@
 	linkend="ChCapCaptureFiles"/>.
 	</para></listitem>
 	<listitem><para>
-	Simultaneous capturing from multiple network interfaces (however, you 
-	can start multiple instances of Wireshark and merge capture files later).
+	Simultaneous capturing from multiple network interfaces.
 	</para></listitem>
 	</itemizedlist>
 	The capture engine still lacks the following features:
