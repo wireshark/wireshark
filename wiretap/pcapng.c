@@ -932,13 +932,6 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 	              wblock->data.packet.cap_len,
 	              wblock->data.packet.interface_id);
 
-	if (wblock->data.packet.packet_len > WTAP_MAX_PACKET_SIZE) {
-		*err = WTAP_ERR_BAD_RECORD;
-		*err_info = g_strdup_printf("pcapng_read_packet_block: packet_len %u is larger than WTAP_MAX_PACKET_SIZE %u.",
-		    wblock->data.packet.packet_len, WTAP_MAX_PACKET_SIZE);
-		return 0;
-	}
-
 	wtap_encap = pcapng_get_encap(wblock->data.packet.interface_id, pn);
 	pcapng_debug3("pcapng_read_packet_block: encapsulation = %d (%s), pseudo header size = %d.",
 	               wtap_encap,
@@ -1140,13 +1133,6 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
 	pcapng_debug1("pcapng_read_simple_packet_block: packet data: packet_len %u",
 	               wblock->data.simple_packet.packet_len);
 
-	if (wblock->data.simple_packet.packet_len > WTAP_MAX_PACKET_SIZE) {
-		*err = WTAP_ERR_BAD_RECORD;
-		*err_info = g_strdup_printf("pcapng_read_simple_packet_block: packet_len %u is larger than WTAP_MAX_PACKET_SIZE %u.",
-		    wblock->data.simple_packet.packet_len, WTAP_MAX_PACKET_SIZE);
-		return 0;
-	}
-
 	encap = pcapng_get_encap(0, pn);
 	pcapng_debug1("pcapng_read_simple_packet_block: Need to read pseudo header of size %d",
 	              pcap_get_phdr_size(encap, wblock->pseudo_header));
@@ -1320,7 +1306,7 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
 {
 	int bytes_read;
 	int block_read;
-	int to_read;
+	int to_read, opt_cont_buf_len;
 	pcapng_interface_statistics_block_t isb;
 	pcapng_option_header_t oh;
 	char *option_content = NULL; /* Allocate as large as the options block */
