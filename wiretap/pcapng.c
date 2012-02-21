@@ -1612,7 +1612,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
 	wth->interface_data = g_array_new(FALSE, FALSE, sizeof(wtapng_if_descr_t));
 	wth->number_of_interfaces = 0;
 
-	/* Loop ower all IDB:s */
+	/* Loop ower all IDB:s that appear before any packets */
 	while(1){
 		bytes_read = pcapng_read_block(wth->fh, FALSE, &pn, &wblock, err, err_info);
 		wth->data_offset += bytes_read;
