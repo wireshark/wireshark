@@ -1005,6 +1005,8 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 		}
 	}
 
+	g_free(option_content);
+
 	pcap_read_post_process(WTAP_FILE_PCAPNG, wtap_encap,
 	    (union wtap_pseudo_header *)wblock->pseudo_header,
 	    (guint8 *) (wblock->frame_buffer),
@@ -1335,7 +1337,9 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
 		}
 	}
 
-    return block_read;
+	g_free(option_content);
+    
+	return block_read;
 }
 
 
