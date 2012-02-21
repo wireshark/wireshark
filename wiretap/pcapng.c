@@ -1600,6 +1600,12 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
 	}
 	pn.shb_read = TRUE;
 
+	/*
+	 * At this point, we've decided this is a pcap-NG file, not
+	 * some other type of file, so we can't return 0, as that
+	 * means "this isn't a pcap-NG file, try some other file
+	 * type".
+	 */	 
 	wth->shb_hdr.opt_comment	= wblock.data.section.opt_comment;
 	wth->shb_hdr.shb_hardware	= wblock.data.section.shb_hardware;
 	wth->shb_hdr.shb_os			= wblock.data.section.shb_os;
@@ -1628,9 +1634,9 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
 		if (bytes_read <= 0) {
 			pcapng_debug0("pcapng_open: couldn't read IDB");
 			*err = file_error(wth->fh, err_info);
-			if (*err != 0)
-				return -1;
-			return 0;
+			if (*err == 0)
+				*err = WTAP_ERR_SHORT_READ;
+			return -1;
 		}
 
 		int_data.wtap_encap						= wblock.data.if_descr.wtap_encap;
@@ -1671,9 +1677,9 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
 		if (bytes_read != sizeof bh) {
 			*err = file_error(wth->fh, err_info);
 			pcapng_debug3("pcapng_open:  Check for more IDB:s, file_read() returned %d instead of %u, err = %d.", bytes_read, (unsigned int)sizeof bh, *err);
-			if (*err != 0)
-				return -1;
-			return 0;
+			if (*err == 0)
+				*err = WTAP_ERR_SHORT_READ;
+			return -1;
 		}
 
 		/* go back to whwre we where */
@@ -1686,7 +1692,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
 		pcapng_debug1("pcapng_open: Check for more IDB:s block_type 0x%x", bh.block_type);
 
 		if (bh.block_type != BLOCK_TYPE_IDB){
-				break;	/* No more IDB:s */
+			break;	/* No more IDB:s */
 		}
 	}
 
