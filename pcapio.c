@@ -168,10 +168,13 @@ struct option {
 #define IDB_TSRESOL       9
 #define IDB_FILTER       11
 #define IDB_OS           12
+#define ISB_STARTTIME     2
+#define ISB_ENDTIME       3
 #define ISB_IFRECV        4
 #define ISB_IFDROP        5
 #define ISB_FILTERACCEPT  6
-
+#define ISB_OSDROP        7
+#define ISB_USRDELIV      8
 #define ADD_PADDING(x) ((((x) + 3) >> 2) << 2)
 
 #define WRITE_DATA(file_pointer, data_pointer, data_length, written_length, error_pointer) \
@@ -580,6 +583,9 @@ libpcap_write_interface_statistics_block(FILE *fp,
                                          guint32 interface_id,
                                          pcap_t *pd,
                                          long *bytes_written,
+                                         const char *comment,   /* OPT_COMMENT           1 */
+                                         guint64 isb_starttime, /* ISB_STARTTIME         2 */
+                                         guint64 isb_endtime,   /* ISB_ENDTIME           3 */
                                          int *err)
 {
 	struct isb isb;
@@ -594,7 +600,8 @@ libpcap_write_interface_statistics_block(FILE *fp,
 	guint64 timestamp;
 	guint64 counter;
 	gboolean stats_retrieved;
-
+	gboolean have_options = FALSE;
+	const guint32 padding = 0;
 #ifdef _WIN32
 	/*
 	 * Current time, represented as 100-nanosecond intervals since
@@ -636,18 +643,64 @@ libpcap_write_interface_statistics_block(FILE *fp,
 		g_warning("pcap_stats() failed.");
 	} else {
 		stats_retrieved = TRUE;
+		have_options = TRUE;
 	}
 	block_total_length = sizeof(struct isb) +
 	                     sizeof(guint32);
 	if (stats_retrieved) {
-		block_total_length += 3 * sizeof(struct option) + 2 * sizeof(guint64);
+		block_total_length += 2 * sizeof(struct option) + 2 * sizeof(guint64); /* ISB_IFRECV + ISB_IFDROP */
 	}
+	/* OPT_COMMENT */
+	if ((comment != NULL) && (strlen(comment) > 0) && (strlen(comment) < G_MAXUINT16)) {
+		block_total_length += sizeof(struct option) +
+		                      (guint16)(ADD_PADDING(strlen(comment) + 1));
+		have_options = TRUE;
+	}
+	if (isb_starttime !=0) {
+		block_total_length += sizeof(struct option) + sizeof(guint64); /* ISB_STARTTIME */
+		have_options = TRUE;
+	}
+	if (isb_endtime) {
+		block_total_length += sizeof(struct option) + sizeof(guint64); /* ISB_ENDTIME */
+		have_options = TRUE;
+	}
+	/* If we have options add size of end-of-options */
+	if (have_options) {
+		block_total_length += sizeof(struct option);
+	}
+
 	isb.block_type = INTERFACE_STATISTICS_BLOCK_TYPE;
 	isb.block_total_length = block_total_length;
 	isb.interface_id = interface_id;
 	isb.timestamp_high = (guint32)((timestamp>>32) & 0xffffffff);
 	isb.timestamp_low = (guint32)(timestamp & 0xffffffff);
 	WRITE_DATA(fp, &isb, sizeof(struct isb), *bytes_written, err);
+
+	/* write comment string if applicable */
+	if ((comment != NULL) && (strlen(comment) > 0) && (strlen(comment) < G_MAXUINT16)) {
+		option.type = OPT_COMMENT;
+		option.value_length = (guint16)(strlen(comment) + 1);
+		WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
+		WRITE_DATA(fp, comment, strlen(comment) + 1, *bytes_written, err);
+		if ((strlen(comment) + 1) % 4) {
+			WRITE_DATA(fp, &padding, 4 - (strlen(comment) + 1) % 4 , *bytes_written, err);
+		}
+	}
+
+	if (isb_starttime !=0) {
+		option.type = ISB_STARTTIME;
+		option.value_length = sizeof(guint64);
+		counter = stats.ps_recv;
+		WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
+		WRITE_DATA(fp, &isb_starttime, sizeof(guint64), *bytes_written, err);
+	}
+	if (isb_endtime) {
+		option.type = ISB_ENDTIME;
+		option.value_length = sizeof(guint64);
+		counter = stats.ps_recv;
+		WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
+		WRITE_DATA(fp, &isb_endtime, sizeof(guint64), *bytes_written, err);
+	}
 	if (stats_retrieved) {
 		/* */
 		option.type = ISB_IFRECV;
@@ -661,11 +714,14 @@ libpcap_write_interface_statistics_block(FILE *fp,
 		counter = stats.ps_drop;
 		WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
 		WRITE_DATA(fp, &counter, sizeof(guint64), *bytes_written, err);
-		/* last option */
+	}
+	if (have_options) {
+		/* write end of options */
 		option.type = OPT_ENDOFOPT;
 		option.value_length = 0;
 		WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
 	}
+
 	WRITE_DATA(fp, &block_total_length, sizeof(guint32), *bytes_written, err);
 
 	return TRUE;

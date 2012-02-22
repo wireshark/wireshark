@@ -2653,10 +2653,20 @@ capture_loop_close_output(capture_options *capture_opts, loop_data *ld, int *err
         return ringbuf_libpcap_dump_close(&capture_opts->save_file, err_close);
     } else {
         if (capture_opts->use_pcapng) {
+			char comment[30];
+			guint64 isb_endtime = 0;
+			g_snprintf(comment, sizeof(comment), "Capture_loop_close_output");
             for (i = 0; i < global_ld.pcaps->len; i++) {
                 pcap_opts = g_array_index(global_ld.pcaps, pcap_options *, i);
                 if (!pcap_opts->from_cap_pipe) {
-                    libpcap_write_interface_statistics_block(ld->pdh, i, pcap_opts->pcap_h, &ld->bytes_written, err_close);
+                    libpcap_write_interface_statistics_block(ld->pdh, 
+						i, 
+						pcap_opts->pcap_h, 
+						&ld->bytes_written, 
+                        comment,            /* OPT_COMMENT           1 */
+                        0,                  /* ISB_STARTTIME         2 */
+                        isb_endtime,        /* ISB_ENDTIME           3 */
+						err_close);
                 }
             }
         }
