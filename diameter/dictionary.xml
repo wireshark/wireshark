@@ -4726,7 +4726,7 @@ Note: The AVP codes from 1119 to 1199 are reserved for TS 29.140
 		<avp name="SRES" code="1454" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<type type-name="OctetString"/>
 		</avp>
-		<-- Requesting-Node-Type is from old (v8.1.0 - v8.2.0) versions of 29.272. -->
+		<!-- Requesting-Node-Type is from old (v8.1.0 - v8.2.0) versions of 29.272. -->
 		<avp name="Requesting-Node-Type" code="1455" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
 			<enum name="MME" code="0"/>
