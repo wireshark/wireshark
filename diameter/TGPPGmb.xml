@@ -190,7 +190,7 @@
       <type type-name="OctetString"/>
     </avp>
 -->
-    <avp name="TMGI" code="900" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<avp name="TMGI" code="900" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="OctetString"/>
 		</avp>
 		<avp name="Required-MBMS-Bearer-Capabilities" code="901" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
@@ -275,7 +275,29 @@
 			<enum name="uncompressed-header" code="0"/>
 			<enum name="compressed-header" code="1"/>
 		</avp>
+		<avp name="MBMS-Access-Indicator" code="923" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="UTRAN" code="0"/>
+			<enum name="E-UTRAN" code="1"/>
+			<enum name="UTRAN-AND-E-UTRAN" code="2"/>
+		</avp>
+		<avp name="MBMS-GW-SSM-IP-Address" code="924" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="IPAddress"/>
+		</avp>
+		<avp name="MBMS-GW-SSM-IPv6-Address" code="925" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="MBMS-BMSC-SSM-UDP-Port" code="926" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="MBMS-GW-UDP-Port" code="927" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="MBMS-GW-UDP-Port-Indicator" code="928" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="UDP-PORT-REQUIRED" code="1"/>
+		</avp>
 <!--
-Note: The AVP codes from 923 to 999 are reserved for TS 29.061
+Note: The AVP codes from 929 to 999 are reserved for TS 29.061
 -->
 	</application>

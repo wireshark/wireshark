@@ -119,10 +119,12 @@
 		<command name="3GPP-Notify"                     code="323" vendor-id="None"/>         <!--[3GPP TS 29.272][RFC5516] -->
 		<command name="3GPP-ME-Identity-Check"          code="324" vendor-id="None"/>         <!--(ECR/ECA) [3GPP TS 29.272][RFC5516] -->
 		<command name="MIP6"                            code="325" vendor-id="None"/>         <!--(MIR/MIA) [RFC5778] -->
-		<command name="QoS-Authorization"               code="326" vendor-id="None"/>         <!--(QAR/QAA) [RFC-ietf-dime-diameter-qos-15] -->
-		<command name="QoS-Install"                     code="327" vendor-id="None"/>         <!--(QIR/QIA) [RFC-ietf-dime-diameter-qos-15] -->
-		<!--
-		328-8388607 Unassigned
+		<command name="QoS-Authorization"               code="326" vendor-id="None"/>         <!--(QAR/QAA) [RFC5866] -->
+    <command name="QoS-Install"                     code="327" vendor-id="None"/>         <!--(QIR/QIA) [RFC5866] -->
+    <command name="Capabilities-Update"             code="328" vendor-id="None"/>         <!--[RFC-ietf-dime-capablities-update-07] -->
+    <command name="IKEv2-SK"                        code="329" vendor-id="None"/>         <!--[RFC-ietf-dime-ikev2-psk-diameter-11] -->
+    <!--
+		330-8388607 Unassigned
 		8388608 WIMAX-HRPD-SFF Request/Answer [http://www.3gpp2.org/Public_html/specs/tsgx.cfm][3GPP2 X.S0058-0 v1.0][Avi_Lior]
 		8388609 WiMAX-Diameter-EAP-Request/Answer (WDER/WDEA) WDE [http://www.wimaxforum.org/resources/documents/technical/T33][WiMAX Release 1.5][Avi_Lior]
 		8388610 WiMAX-Change-of-Authorization-Request/Answer (WCAR/WCAA) WCA [http://www.wimaxforum.org/resources/documents/technical/T33][WiMAX Release 1.5][Avi_Lior]
@@ -139,6 +141,21 @@
     <command name="3GPP-Provide-Location"           code="8388620" vendor-id="None"/>         <!--(PLR/PLA) [http://www.3gpp.org/ftp/Specs/][3GPP TS 29.172 -->
     <command name="3GPP-Location-Report"            code="8388621" vendor-id="None"/>         <!--(PLR/PLA) [http://www.3gpp.org/ftp/Specs/][3GPP TS 29.172 -->
     <command name="3GPP-LCS-Routing-Info"           code="8388622" vendor-id="None"/>         <!--(PLR/PLA) [http://www.3gpp.org/ftp/Specs/][3GPP TS 29.172 -->
+<!-- 
+8388623 Notif-Request/Answer (NFR/NFA) [Tomas_Menzl] 
+8388624 Msg-Interface-Request/Answer (MIFR/MIFA) [Tomas_Menzl] 
+8388625 Mobile-Application-Request/Answer (MAPR/MAPA) [Tomas_Menzl] 
+8388626 Update Location Request/Answer (ULR / ULA) [3GPP2 publication X.S0057][Avi_Lior] 
+8388627 Cancel Location Request/Answer (CLR CLA) [3GPP2 publication X.S0057][Avi_Lior] 
+8388628 Juniper-Sync-Event (JSE) [Aleksey_Romanov] 
+8388629 Juniper-Session-Discovery (JSD) [Aleksey_Romanov] 
+8388630 Query Profile Request Answer (QPR/QPA) [3GPP2 publication X.S0057A E-UTRAN eHRPD7][Avi_Lior] 
+
+-->
+    <command name="Subscription Information Application" code="8388631" vendor-id="None"/>
+    <command name="Distributed Charging"                 code="8388632" vendor-id="None"/>
+    <command name="Ericsson-SL"                          code="8388633" vendor-id="None"/> <!-- Ericsson Spending Limit -->
+    <command name="Ericsson-SN"                          code="8388634" vendor-id="None"/> <!-- Ericsson Spending Status Notification -->
     <!-- 
     8388623-16777213 Unassigned
     16777214 Experimental code [RFC3588]
@@ -1638,6 +1655,43 @@
 			<enum name="Juniper-Example" code="16777270"/>
 			<enum name="ITU-T Ri" code="16777271"/>
 			<enum name="3GPP S6b" code="16777272"/>
+      <!--
+16777273 Juniper JGx [Claudio_Lordello] 
+16777274 ITU-T Rd [ITU-T Rec. Q.3306.1][Janusz_Pieczerak] 
+16777275 ADMI Notification Application [Tomas_Menzl] 
+16777276 ADMI Messaging Interface Application [Tomas_Menzl] 
+16777277 Peter-Service VSI [Alexey_Grishin] 
+16777278 ETSI Rr request model [ETSI TS 183 071][Miguel_Angel_Reina_Ortega] 
+16777279 ETSI Rr delegated model [ETSI TS 183 071][Miguel_Angel_Reina_Ortega] 
+16777280 WIMAX HRPD Interworking [3GPP2 X.S0058-0 v1.0][Avi_Lior] 
+16777281 WiMAX Network Access Authentication and Authorization Diameter Application (WNAAADA) [WiMAX Release 1.5][Avi_Lior] 
+16777282 WiMAX Network Accounting Diameter Application (WNADA) [WiMAX Release 1.5][Avi_Lior] 
+16777283 WiMAX MIP4 Diameter Application (WM4DA) [WiMAX Release 1.5][Avi_Lior] 
+16777284 WiMAX MIP6 Diameter Application (WM6DA) [WiMAX Release 1.5][Avi_Lior] 
+16777285 WiMAX DHCP Diameter Application (WDDA) [WiMAX Release 1.5][Avi_Lior] 
+16777286 WiMAX-Location-Authentication-Authorization Diameter Application (WLAADA) [WiMAX Release 1.5][Avi_Lior] 
+16777287 WiMAX-Policy-and-Charging-Control-R3-Policies Diameter Application (WiMAX PCC-R3-P) [WiMAX Release 1.5][Avi_Lior] 
+16777288 WiMAX-Policy-and-Charging-Control-R3-OFfline-Charging Diameter Application (WiMAX PCC-R3-OFC) [WiMAX Release 1.5][Avi_Lior] 
+16777289 WiMAX-Policy-and-Charging-Control-R3-Offline-Charging-Prime Diameter Application (WiMAX PCC-R3-OFC-PRIME) [WiMAX Release 1.5][Avi_Lior] 
+16777290 WiMAX-Policy-and-Charging-Control-R3-Online-Charging Diameter Application (WiMAX PCC-R3-OC) [WiMAX Release 1.5][Avi_Lior] 
+16777291 3GPP SLh [3GPP TS 29.173][Kimmo_Kymalainen] 
+16777292 3GPP SGmb [3GPP TS 29.061][Kimmo_Kymalainen] 
+16777293 CMDI - Cloudmark Diameter Interface [Sanjiv_Parikh] 
+16777294 Camiant DRMA [Tarek_Abou-Assali][Michael_Mercurio] 
+16777295 PiLTE Interworking Diameter Application [3GPP2 publication X.S0057][Avi_Lior] 
+16777296 Juniper-Sessions-Recovery (JSR) [Aleksey_Romanov] 
+16777297 Vedicis LiveProxy [Francois-Frederic_Ozog] 
+16777298 Pi*3GPP2 Diameter Application [3GPP2 publication X.S0057A E-UTRAN eHRPD][Avi_Lior] 
+16777299 Sandvine Rf+ [Yoni_Eitan] 
+16777300 Subscription Information Application [Lars_Anglert] 
+16777301 Ericsson Charging-DCIP [Lars_Anglert] 
+-->
+      <enum name="3GPP Sy" code="16777302"/>
+      <enum name="3GPP Sd" code="16777303"/>
+      <enum name="Ericsson Sy" code="16777304"/>
+      <!--
+16777305 HP DTD [Chiranjeev_Agrawal][J_V_Kishore]       
+      -->
 			<enum name="Relay" code="4294967295"/>
 		</avp>
 		<avp name="Acct-Application-Id" code="259" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
@@ -1708,7 +1762,45 @@
 			<enum name="Juniper-Example" code="16777270"/>
 			<enum name="ITU-T Ri" code="16777271"/>
 			<enum name="3GPP S6b" code="16777272"/>
-			<enum name="Relay" code="4294967295"/>
+      <!--
+16777273 Juniper JGx [Claudio_Lordello] 
+16777274 ITU-T Rd [ITU-T Rec. Q.3306.1][Janusz_Pieczerak] 
+16777275 ADMI Notification Application [Tomas_Menzl] 
+16777276 ADMI Messaging Interface Application [Tomas_Menzl] 
+16777277 Peter-Service VSI [Alexey_Grishin] 
+16777278 ETSI Rr request model [ETSI TS 183 071][Miguel_Angel_Reina_Ortega] 
+16777279 ETSI Rr delegated model [ETSI TS 183 071][Miguel_Angel_Reina_Ortega] 
+16777280 WIMAX HRPD Interworking [3GPP2 X.S0058-0 v1.0][Avi_Lior] 
+16777281 WiMAX Network Access Authentication and Authorization Diameter Application (WNAAADA) [WiMAX Release 1.5][Avi_Lior] 
+16777282 WiMAX Network Accounting Diameter Application (WNADA) [WiMAX Release 1.5][Avi_Lior] 
+16777283 WiMAX MIP4 Diameter Application (WM4DA) [WiMAX Release 1.5][Avi_Lior] 
+16777284 WiMAX MIP6 Diameter Application (WM6DA) [WiMAX Release 1.5][Avi_Lior] 
+16777285 WiMAX DHCP Diameter Application (WDDA) [WiMAX Release 1.5][Avi_Lior] 
+16777286 WiMAX-Location-Authentication-Authorization Diameter Application (WLAADA) [WiMAX Release 1.5][Avi_Lior] 
+16777287 WiMAX-Policy-and-Charging-Control-R3-Policies Diameter Application (WiMAX PCC-R3-P) [WiMAX Release 1.5][Avi_Lior] 
+16777288 WiMAX-Policy-and-Charging-Control-R3-OFfline-Charging Diameter Application (WiMAX PCC-R3-OFC) [WiMAX Release 1.5][Avi_Lior] 
+16777289 WiMAX-Policy-and-Charging-Control-R3-Offline-Charging-Prime Diameter Application (WiMAX PCC-R3-OFC-PRIME) [WiMAX Release 1.5][Avi_Lior] 
+16777290 WiMAX-Policy-and-Charging-Control-R3-Online-Charging Diameter Application (WiMAX PCC-R3-OC) [WiMAX Release 1.5][Avi_Lior] 
+16777291 3GPP SLh [3GPP TS 29.173][Kimmo_Kymalainen] 
+16777292 3GPP SGmb [3GPP TS 29.061][Kimmo_Kymalainen] 
+16777293 CMDI - Cloudmark Diameter Interface [Sanjiv_Parikh] 
+16777294 Camiant DRMA [Tarek_Abou-Assali][Michael_Mercurio] 
+16777295 PiLTE Interworking Diameter Application [3GPP2 publication X.S0057][Avi_Lior] 
+16777296 Juniper-Sessions-Recovery (JSR) [Aleksey_Romanov] 
+16777297 Vedicis LiveProxy [Francois-Frederic_Ozog] 
+16777298 Pi*3GPP2 Diameter Application [3GPP2 publication X.S0057A E-UTRAN eHRPD][Avi_Lior] 
+16777299 Sandvine Rf+ [Yoni_Eitan] 
+16777300 Subscription Information Application [Lars_Anglert] 
+16777301 Ericsson Charging-DCIP [Lars_Anglert] 
+-->
+      <enum name="3GPP Sy" code="16777302"/>
+      <enum name="3GPP Sd" code="16777303"/>
+      <enum name="Ericsson Sy" code="16777304"/>
+      <!--
+16777305 HP DTD [Chiranjeev_Agrawal][J_V_Kishore]       
+      -->
+
+      <enum name="Relay" code="4294967295"/>
 			</avp>
 		<avp name="Vendor-Specific-Application-Id" code="260" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
 			<grouped>
@@ -2477,9 +2569,15 @@
 576 QoS-Parameters [RFC5777]
 577 Excess-Treatment [RFC5777]
 578 QoS-Capability [RFC5777]
-579 QoS-Authorization-Data [RFC-ietf-dime-diameter-qos-15]
-580 Bound-Auth-Session-Id [RFC-ietf-dime-diameter-qos-15]
-581-0xffffff Unassigned -->
+579 QoS-Authorization-Data [RFC5866] 
+580 Bound-Auth-Session-Id [RFC5866] 
+581 Key [RFC-ietf-dime-local-keytran-14] 
+582 Key-Type [RFC-ietf-dime-local-keytran-14] 
+583 Keying-Material [RFC-ietf-dime-local-keytran-14] 
+584 Key-Lifetime [RFC-ietf-dime-local-keytran-14] 
+585 Key-SPI [RFC-ietf-dime-local-keytran-14] 
+586 Key-Name [RFC-ietf-dime-local-keytran-14] 
+587-0xffffff Unassigned -->
 
 <!-- ************************ END DIAMETER BASE PROTOCOL AVPS ******************* -->
 
@@ -3260,99 +3358,8 @@ Note: The AVP codes from 800 to 822 are reserved for TS 32.299.
 			<enum name="Alphanumeric Shortcode" code="5"/>
 			<enum name="Other" code="6"/>
 		</avp>
-		<avp name="TMGI" code="900" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="OctetString"/>
-		</avp>
-		<avp name="Required-MBMS-Bearer-Capabilities" code="901" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="UTF8String"/>
-		</avp>
-		<avp name="MBMS-StartStop-Indicatio" code="902" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="Enumerated"/>
-			<enum name="START" code="0"/>
-			<enum name="STOP" code="1"/>
-			<enum name="UPDATE" code="2"/>
-		</avp>
-		<avp name="MBMS-Service-Area" code="903" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="OctetString"/>
-		</avp>
-		<avp name="MBMS-Session-Duration" code="904" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="Unsigned32"/>
-		</avp>
-		<avp name="Alternative-APN" code="905" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="UTF8String"/>
-		</avp>
-		<avp name="MBMS-Service-Type" code="906" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="Enumerated"/>
-			<enum name="MULTICAST" code="0"/>
-			<enum name="BROADCAST" code="1"/>
-		</avp>
-		<avp name="MBMS-2G-3G-Indicator" code="907" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="Enumerated"/>
-			<enum name="2G" code="0"/>
-			<enum name="3G" code="1"/>
-			<enum name="2G-AND-3G" code="2"/>
-		</avp>
-		<avp name="MBMS-Session-Identity" code="908" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="OctetString"/>
-		</avp>
-		<avp name="RAI" code="909" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="UTF8String"/>
-		</avp>
-		<avp name="Additional-MBMS-Trace-Info" code="910" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="OctetString"/>
-		</avp>
-		<avp name="MBMS-Time-To-Data-Transfe" code="911" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="Unsigned32"/>
-		</avp>
-		<avp name="MBMS-Session-Identity-Repetition-Number" code="912" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="Unsigned32"/>
-		</avp>
-		<avp name="MBMS-Required-QoS" code="913" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="UTF8String"/>
-		</avp>
-		<avp name="MBMS-Counting-Information" code="914" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="Enumerated"/>
-			<enum name="COUNTING-NOT-APPLICABLE" code="0"/>
-			<enum name="COUNTING-APPLICABLE" code="1"/>
-		</avp>
-		<avp name="MBMS-User-Data-Mode-Indication" code="915" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="Enumerated"/>
-			<enum name="Unicast" code="0"/>
-			<enum name="Multicast and Unicast" code="1"/>
-		</avp>
-		<avp name="MBMS-GGSN-Address" code="916" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="UTF8String"/>
-		</avp>
-		<avp name="MBMS-GGSN-IPv6-Address" code="917" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="UTF8String"/>
-		</avp>
-		<avp name="MBMS-BMSC-SSM-IP-Address" code="918" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="UTF8String"/>
-		</avp>
-		<avp name="MBMS-BMSC-SSM-IPv6-Address" code="919" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="UTF8String"/>
-		</avp>
-		<avp name="MBMS-Flow-Identifier" code="920" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="OctetString"/>
-		</avp>
-		<avp name="CN-IP-Multicast-Distribution" code="921" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="Enumerated"/>
-			<enum name="NO-IP-MULTICAST" code="0"/>
-			<enum name="IP-MULTICAST" code="1"/>
-		</avp>
-		<avp name="CN-IP-Multicast-Distribution" code="922" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="Enumerated"/>
-			<enum name="uncompressed-header" code="0"/>
-			<enum name="compressed-header" code="1"/>
-		</avp>
-		<avp name="MBMS-Access-Indicator" code="923" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="Enumerated"/>
-			<enum name="UTRAN" code="0"/>
-			<enum name="E-UTRAN" code="1"/>
-			<enum name="UTRAN-AND-E-UTRAN" code="2"/>
-		</avp>
 <!--
-Note: The AVP codes from 924 to 999 are reserved for TS 29.061
+Note: The AVP codes from 900 to 999 are reserved for TS 29.061
 29.210 -> 3GPP TS 29.212
 ******** Found in TGPPGmb.xml ********
 -->
@@ -4719,7 +4726,7 @@ Note: The AVP codes from 1119 to 1199 are reserved for TS 29.140
 		<avp name="SRES" code="1454" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<type type-name="OctetString"/>
 		</avp>
-		<-- Requesting-Node-Type is from old (v8.1.0 - v8.2.0) versions of 29.272. -->
+		<!-- Requesting-Node-Type is from old (v8.1.0 - v8.2.0) versions of 29.272. -->
 		<avp name="Requesting-Node-Type" code="1455" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
 			<enum name="MME" code="0"/>
@@ -5805,7 +5812,9 @@ http://www.3gcn.org/TGPP2/TSGX/Projects/X.P0013-B%20IP%20Network%20-%20MMD/X.S00
 	</application>
 	<application id="16777266" name="3GPP Gxx" uri="http://www.3gpp.org/ftp/Specs/html-info/29212.htm">
 	</application>
-	&nasreq;
+  <application id="16777304" name="Ericsson Sy" uri="http://www.3gpp.org/ftp/Specs/html-info/29212.htm">
+  </application>
+  &nasreq;
 	&eap;
 	&mobileipv4;
 	&chargecontrol;
