@@ -1251,7 +1251,7 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
 		wblock->data.simple_packet.packet_len	= spb.packet_len;
 	}
 
-	wblock->data.simple_packet.cap_len = bh->block_total_length -
+	wblock->data.simple_packet.cap_len = bh->block_total_length
 					     - (guint32)sizeof(pcapng_simple_packet_block_t)
 					     - (guint32)sizeof(bh->block_total_length);
 
