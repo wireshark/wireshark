@@ -660,7 +660,7 @@ libpcap_write_interface_statistics_block(FILE *fp,
 		block_total_length += sizeof(struct option) + sizeof(guint64); /* ISB_STARTTIME */
 		have_options = TRUE;
 	}
-	if (isb_endtime) {
+	if (isb_endtime !=0) {
 		block_total_length += sizeof(struct option) + sizeof(guint64); /* ISB_ENDTIME */
 		have_options = TRUE;
 	}
@@ -690,14 +690,12 @@ libpcap_write_interface_statistics_block(FILE *fp,
 	if (isb_starttime !=0) {
 		option.type = ISB_STARTTIME;
 		option.value_length = sizeof(guint64);
-		counter = stats.ps_recv;
 		WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
 		WRITE_DATA(fp, &isb_starttime, sizeof(guint64), *bytes_written, err);
 	}
-	if (isb_endtime) {
+	if (isb_endtime !=0) {
 		option.type = ISB_ENDTIME;
 		option.value_length = sizeof(guint64);
-		counter = stats.ps_recv;
 		WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
 		WRITE_DATA(fp, &isb_endtime, sizeof(guint64), *bytes_written, err);
 	}

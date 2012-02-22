@@ -70,7 +70,7 @@
 #include "pcap-encap.h"
 #include "pcapng.h"
 
-#if 0
+#if 1
 #define pcapng_debug0(str) g_warning(str)
 #define pcapng_debug1(str,p1) g_warning(str,p1)
 #define pcapng_debug2(str,p1,p2) g_warning(str,p1,p2)
@@ -298,21 +298,18 @@ typedef struct wtapng_name_res_s {
 /* Interface Statistics */
 typedef struct wtapng_if_stats_s {
 	/* mandatory */
-	guint64				interface_id;
+	guint32				interface_id;
 	guint32				ts_high;
 	guint32				ts_low;
 	/* options */
 	gchar				*opt_comment;	/* NULL if not available */
-	/* XXX */
-	/*guint32			isb_starttime_high;*/
-	/*guint32			isb_starttime_low;*/
-	/*guint32			isb_endtime_high;*/
-	/*guint32			isb_endtime_low;*/
+	guint64				isb_starttime;
+	guint64				isb_endtime;
 	guint64				isb_ifrecv;
 	guint64				isb_ifdrop;
-	/*guint64			isb_filteraccept;*/
-	/*guint64			isb_osdrop;*/
-	/*guint64			isb_usrdeliv;*/
+	guint64				isb_filteraccept;
+	guint64				isb_osdrop;
+	guint64				isb_usrdeliv;
 } wtapng_if_stats_t;
 
 
@@ -1377,6 +1374,32 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
 				pcapng_debug1("pcapng_read_interface_statistics_block: opt_comment length %u seems strange", oh.option_length);
 			}
 			break;
+		    case(2): /* isb_starttime */
+			if(oh.option_length == 8) {
+				/*  Don't cast a char[] into a guint32--the
+				 *  char[] may not be aligned correctly.
+				 */
+				memcpy(&wblock->data.if_stats.isb_starttime, option_content, sizeof(guint64));
+				if(pn->byte_swapped)
+					wblock->data.if_stats.isb_starttime = BSWAP64(wblock->data.if_stats.isb_starttime);
+				pcapng_debug1("pcapng_read_interface_statistics_block: isb_starttime %" G_GINT64_MODIFIER "u", wblock->data.if_stats.isb_starttime);
+			} else {
+				pcapng_debug1("pcapng_read_interface_statistics_block: isb_starttime length %u not 8 as expected", oh.option_length);
+			}
+			break;
+		    case(3): /* isb_endtime */
+			if(oh.option_length == 8) {
+				/*  Don't cast a char[] into a guint32--the
+				 *  char[] may not be aligned correctly.
+				 */
+				memcpy(&wblock->data.if_stats.isb_endtime, option_content, sizeof(guint64));
+				if(pn->byte_swapped)
+					wblock->data.if_stats.isb_endtime = BSWAP64(wblock->data.if_stats.isb_endtime);
+				pcapng_debug1("pcapng_read_interface_statistics_block: isb_endtime %" G_GINT64_MODIFIER "u", wblock->data.if_stats.isb_endtime);
+			} else {
+				pcapng_debug1("pcapng_read_interface_statistics_block: isb_starttime length %u not 8 as expected", oh.option_length);
+			}
+			break;
 		    case(4): /* isb_ifrecv */
 			if(oh.option_length == 8) {
 				/*  Don't cast a char[] into a guint32--the
@@ -1401,6 +1424,45 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
 				pcapng_debug1("pcapng_read_interface_statistics_block: isb_ifdrop %" G_GINT64_MODIFIER "u", wblock->data.if_stats.isb_ifdrop);
 			} else {
 				pcapng_debug1("pcapng_read_interface_statistics_block: isb_ifdrop length %u not 8 as expected", oh.option_length);
+			}
+			break;
+		    case(6): /* isb_filteraccept 6 */
+			if(oh.option_length == 8) {
+				/*  Don't cast a char[] into a guint32--the
+				 *  char[] may not be aligned correctly.
+				 */
+				memcpy(&wblock->data.if_stats.isb_filteraccept, option_content, sizeof(guint64));
+				if(pn->byte_swapped)
+					wblock->data.if_stats.isb_ifdrop = BSWAP64(wblock->data.if_stats.isb_filteraccept);
+				pcapng_debug1("pcapng_read_interface_statistics_block: isb_filteraccept %" G_GINT64_MODIFIER "u", wblock->data.if_stats.isb_filteraccept);
+			} else {
+				pcapng_debug1("pcapng_read_interface_statistics_block: isb_filteraccept length %u not 8 as expected", oh.option_length);
+			}
+			break;
+		    case(7): /* isb_osdrop 7 */
+			if(oh.option_length == 8) {
+				/*  Don't cast a char[] into a guint32--the
+				 *  char[] may not be aligned correctly.
+				 */
+				memcpy(&wblock->data.if_stats.isb_osdrop, option_content, sizeof(guint64));
+				if(pn->byte_swapped)
+					wblock->data.if_stats.isb_osdrop = BSWAP64(wblock->data.if_stats.isb_osdrop);
+				pcapng_debug1("pcapng_read_interface_statistics_block: isb_osdrop %" G_GINT64_MODIFIER "u", wblock->data.if_stats.isb_osdrop);
+			} else {
+				pcapng_debug1("pcapng_read_interface_statistics_block: isb_osdrop length %u not 8 as expected", oh.option_length);
+			}
+			break;
+		    case(8): /* isb_usrdeliv 8  */
+			if(oh.option_length == 8) {
+				/*  Don't cast a char[] into a guint32--the
+				 *  char[] may not be aligned correctly.
+				 */
+				memcpy(&wblock->data.if_stats.isb_usrdeliv, option_content, sizeof(guint64));
+				if(pn->byte_swapped)
+					wblock->data.if_stats.isb_usrdeliv = BSWAP64(wblock->data.if_stats.isb_osdrop);
+				pcapng_debug1("pcapng_read_interface_statistics_block: isb_usrdeliv %" G_GINT64_MODIFIER "u", wblock->data.if_stats.isb_usrdeliv);
+			} else {
+				pcapng_debug1("pcapng_read_interface_statistics_block: isb_usrdeliv length %u not 8 as expected", oh.option_length);
 			}
 			break;
 		    default:
@@ -2366,6 +2428,117 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_block_t *wblock, int *err)
 	return TRUE;
 }
 
+static gboolean
+pcapng_write_interface_statistics_block(wtap_dumper *wdh, wtapng_block_t *wblock, int *err)
+{
+
+	pcapng_block_header_t bh;
+	pcapng_interface_statistics_block_t isb;
+	const guint32 zero_pad = 0;
+	gboolean have_options = FALSE;
+	struct option option_hdr;                   /* guint16 type, guint16 value_length; */
+	guint32 options_total_length = 0;
+	guint32 comment_len = 0;
+	guint32 comment_pad_len = 0;
+
+	pcapng_debug0("pcapng_write_interface_statistics_block");
+
+
+	/* Calculate options length */
+	if (wblock->data.if_descr.opt_comment) {
+		have_options = TRUE;
+		comment_len = (guint32)strlen(wblock->data.if_descr.opt_comment) & 0xffff;
+		if ((comment_len % 4)){
+			comment_pad_len = 4 - (comment_len % 4);
+		} else {
+			comment_pad_len = 0;
+		}
+		options_total_length = options_total_length + comment_len + comment_pad_len + 4 /* comment options tag */ ;
+	}
+	/* XXX */
+	/*guint32			isb_starttime_high;*/
+	/*guint32			isb_starttime_low;*/
+	/*guint32			isb_endtime_high;*/
+	/*guint32			isb_endtime_low;*/
+	/*guint64				isb_ifrecv;*/
+	/*guint64				isb_ifdrop;*/
+	/*guint64			isb_filteraccept;*/
+	/*guint64			isb_osdrop;*/
+	/*guint64			isb_usrdeliv;*/
+
+
+	/* write block header */
+	if (have_options) {
+		/* End-of-optios tag */
+		options_total_length += 4;
+	}
+
+	/* write block header */
+	bh.block_type = wblock->type;
+	bh.block_total_length = sizeof(bh) + sizeof(isb) + options_total_length + 4;
+
+	if (!wtap_dump_file_write(wdh, &bh, sizeof bh, err))
+		return FALSE;
+	wdh->bytes_dumped += sizeof bh;
+
+	/* write block fixed content */
+	isb.interface_id		= wblock->data.if_stats.interface_id;
+	isb.timestamp_high		= wblock->data.if_stats.ts_high;
+	isb.timestamp_low		= wblock->data.if_stats.ts_low;
+
+
+	if (!wtap_dump_file_write(wdh, &isb, sizeof isb, err))
+		return FALSE;
+	wdh->bytes_dumped += sizeof isb;
+
+	/* write (optional) block options */
+	if (comment_len) {
+		option_hdr.type		 = OPT_COMMENT;
+		option_hdr.value_length = comment_len;
+		if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
+			return FALSE;
+		wdh->bytes_dumped += 4;
+
+		/* Write the comments string */
+		pcapng_debug3("pcapng_write_if_descr_block, comment:'%s' comment_len %u comment_pad_len %u" , wblock->data.if_descr.opt_comment, comment_len, comment_pad_len);
+		if (!wtap_dump_file_write(wdh, wblock->data.if_descr.opt_comment, comment_len, err))
+			return FALSE;
+		wdh->bytes_dumped += comment_len;
+
+		/* write padding (if any) */
+		if (comment_pad_len != 0) {
+			if (!wtap_dump_file_write(wdh, &zero_pad, comment_pad_len, err))
+				return FALSE;
+			wdh->bytes_dumped += comment_pad_len;
+		}
+	}
+	/* XXX */
+	/*guint32			isb_starttime */
+	/*guint32			isb_endtime */
+	/*guint64			isb_ifrecv;*/
+	/*guint64			isb_ifdrop;*/
+	/*guint64			isb_filteraccept;*/
+	/*guint64			isb_osdrop;*/
+	/*guint64			isb_usrdeliv;*/
+
+	if (have_options) {
+		option_hdr.type = OPT_EOFOPT;
+		option_hdr.value_length = 0;
+		if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
+			return FALSE;
+		wdh->bytes_dumped += 4;
+	}
+
+	/* write block footer */
+	if (!wtap_dump_file_write(wdh, &bh.block_total_length,
+	    sizeof bh.block_total_length, err))
+		return FALSE;
+	wdh->bytes_dumped += sizeof bh.block_total_length;
+
+	return TRUE;
+
+}
+
 
 static gboolean
 pcapng_write_packet_block(wtap_dumper *wdh, wtapng_block_t *wblock, int *err)
@@ -2618,6 +2791,9 @@ pcapng_write_block(wtap_dumper *wdh, /*pcapng_t *pn, */wtapng_block_t *wblock, i
 	    case(BLOCK_TYPE_PB):
 		/* Packet Block is obsolete */
 		return FALSE;
+		case(BLOCK_TYPE_ISB):
+		/* Interface Statistics Block */
+		return pcapng_write_interface_statistics_block(wdh, wblock, err);
 	    case(BLOCK_TYPE_EPB):
 		return pcapng_write_packet_block(wdh, wblock, err);
 	    default:

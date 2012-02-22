@@ -65,7 +65,7 @@ libpcap_write_session_header_block(FILE *fp,             /**< File pointer */
 extern gboolean
 libpcap_write_interface_description_block(FILE *fp,
                                           const char *comment,  /* OPT_COMMENT           1 */
-                                          const char *name,     /* IDB_NAME	         2 */
+                                          const char *name,     /* IDB_NAME			     2 */
                                           const char *descr,    /* IDB_DESCRIPTION       3 */
                                           const char *filter,   /* IDB_FILTER           11 */
                                           const char *os,       /* IDB_OS               12 */
