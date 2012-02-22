@@ -1632,6 +1632,10 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
 	while(1){
 		bytes_read = pcapng_read_block(wth->fh, FALSE, &pn, &wblock, err, err_info);
 		wth->data_offset += bytes_read;
+		if (bytes_read == 0) {
+			pcapng_debug0("No more IDBs available...");
+			break;
+		}
 		if (bytes_read <= 0) {
 			pcapng_debug0("pcapng_open: couldn't read IDB");
 			*err = file_error(wth->fh, err_info);
