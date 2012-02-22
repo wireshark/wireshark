@@ -2605,7 +2605,11 @@ Note: The AVP codes from 256 to 299 are reserved for future use.
 315 Charging-Nodes Grouped
 316 Primary-OCS-Charging-Function-Name DiameterIdentity
 317 Secondary-OCS-Charging-Function-Name DiameterIdentity
-318 3GPP-AAA-Server-Name DiameterIdentity 29.234 [6]
+-->
+    <avp name="3GPP-AAA-Server-Name" may-encrypt="yes" vendor-id="TGPP" vendor-bit="must" mandatory="must" code="318">
+      <type type-name="DiameterIdentity"/>
+    </avp>
+    <!--
 319 Maximum-Number-Accesses Unsigned32
 Note: The AVP codes from 320 to 399 are reserved for TS 29.234
 -->
@@ -5802,7 +5806,9 @@ http://www.3gcn.org/TGPP2/TSGX/Projects/X.P0013-B%20IP%20Network%20-%20MMD/X.S00
 	</application>
 	<application id="16777238" name="3GPP Gx" uri="http://www.3gpp.org/ftp/Specs/html-info/29212.htm">
 	</application>
-	<application id="16777251" name="3GPP S6a/S6d" uri="http://www.ietf.org/rfc/rfc5516.txt?number=5516">
+  <application id="16777250" name="3GPP STa" uri="http://www.3gpp.org/ftp/Specs/html-info/29273.htm">
+  </application>
+  <application id="16777251" name="3GPP S6a/S6d" uri="http://www.ietf.org/rfc/rfc5516.txt?number=5516">
 	</application>
 	<application id="16777252" name="3GPP S13/S13'" uri="http://www.ietf.org/rfc/rfc5516.txt?number=5516">
 	</application>
@@ -5812,6 +5818,8 @@ http://www.3gcn.org/TGPP2/TSGX/Projects/X.P0013-B%20IP%20Network%20-%20MMD/X.S00
 	</application>
 	<application id="16777266" name="3GPP Gxx" uri="http://www.3gpp.org/ftp/Specs/html-info/29212.htm">
 	</application>
+  <application id="16777272" name="3GPP S6b" uri="http://www.3gpp.org/ftp/Specs/html-info/29273.htm">
+  </application>
   <application id="16777304" name="Ericsson Sy" uri="http://www.3gpp.org/ftp/Specs/html-info/29212.htm">
   </application>
   &nasreq;
