@@ -66,6 +66,8 @@ typedef struct
 } csnStream_t;
 
 typedef gint16 (*StreamSerializeFcn_t)(proto_tree *tree, csnStream_t* ar, tvbuff_t *tvb, void* data, int ett_csn1);
+typedef CSN_CallBackStatus_t (*DissectorCallbackFcn_t)(proto_tree *tree, tvbuff_t *tvb, void* param1, void* param2, int bit_offset, int ett_csn1);
+
 
 typedef enum
 {

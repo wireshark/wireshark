@@ -5086,4 +5086,7 @@ typedef struct
 
 } EnhancedMeasurementReport_t;
 
+extern gint f_k(gint k, gint *w, gint range);
+
+
 #endif /* __PACKET_GSM_RLCMAC_H__ */

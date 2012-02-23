@@ -42,6 +42,7 @@
 #define STANDARD_TAG 1
 #define REVERSED_TAG 0
 
+
 static const unsigned char ixBitsTab[] = {0, 1, 1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 5};
 
 
@@ -1539,7 +1540,13 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
 
       case CSN_CALLBACK:
       {
-        return ProcessError(tree, tvb, bit_offset,"csnStreamDissector Callback not implemented", -1, pDescr);
+        guint16  no_of_bits;
+        DissectorCallbackFcn_t callback = (DissectorCallbackFcn_t)pDescr->descr.ptr;
+
+        no_of_bits = callback(tree, tvb, pvDATA(data, pDescr->i), pvDATA(data, pDescr->offset), bit_offset, ett_csn1);
+        bit_offset += no_of_bits;
+        
+        pDescr++;
         break;
       }
 
