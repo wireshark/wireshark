@@ -142,12 +142,16 @@ static const value_string common_client_message_types[] = {
 #define SPICE_PLAYBACK_MODE    102
 #define SPICE_PLAYBACK_START   103
 #define SPICE_PLAYBACK_STOP    104
+#define SPICE_PLAYBACK_VOLUME  105
+#define SPICE_PLAYBACK_MUTE    106
 
 static const value_string playback_server_message_types[] = {
     { SPICE_PLAYBACK_DATA,       "Server PLAYBACK_DATA" },
     { SPICE_PLAYBACK_MODE,       "Server PLAYBACK_MODE" },
     { SPICE_PLAYBACK_START,      "Server PLAYBACK_START" },
     { SPICE_PLAYBACK_STOP,       "Server PLAYBACK_STOP" },
+    { SPICE_PLAYBACK_VOLUME,     "Server PLAYBACK_VOLUME" },
+    { SPICE_PLAYBACK_MUTE,       "Server PLAYBACK_MUTE" },
     { 0, NULL }
 };
 
@@ -158,21 +162,16 @@ static const value_string playback_mode_vals[] = {
     { 0, NULL }
 };
 
-#define SPICE_PLAYBACK_CAP_CELT_0_5_1 1
-#define SPICE_PLAYBACK_CAP_VOLUME 2
-static const value_string playback_caps[] = {
-    { SPICE_PLAYBACK_CAP_CELT_0_5_1, "PLAYBACK_CAP_CELT_0_5_1" },
-    { SPICE_PLAYBACK_CAP_VOLUME, "PLAYBACK_CAP_VOLUME" },
-    { 0, NULL }
-};
+#define SPICE_PLAYBACK_CAP_CELT_0_5_1 0
+#define SPICE_PLAYBACK_CAP_VOLUME 1
+
+#define SPICE_PLAYBACK_CAP_CELT_0_5_1_MASK (1 << SPICE_PLAYBACK_CAP_CELT_0_5_1) 
+#define SPICE_PLAYBACK_CAP_VOLUME_MASK (1 << SPICE_PLAYBACK_CAP_VOLUME) /* 0x2 */
+
 /* main channel */
 
-#define SPICE_MAIN_CAP_SEMI_SEAMLESS_MIGRATE 1
-static const value_string main_caps[] = {
-    { SPICE_MAIN_CAP_SEMI_SEAMLESS_MIGRATE, "MAIN_CAP_SEMI_SEAMLESS_MIGRATE" },
-    { 0, NULL }
-};
-
+#define SPICE_MAIN_CAP_SEMI_SEAMLESS_MIGRATE 0
+#define SPICE_MAIN_CAP_SEMI_SEAMLESS_MIGRATE_MASK (1 << SPICE_MAIN_CAP_SEMI_SEAMLESS_MIGRATE)
 /* main channel server messages */
 #define SPICE_MAIN_MIGRATE_BEGIN        101
 #define SPICE_MAIN_MIGRATE_CANCEL       102
@@ -284,10 +283,9 @@ static const value_string record_client_message_types[] = {
 };
 
 /* record channel capabilities - same as playback */
-static const value_string record_caps[] = {
-    { SPICE_PLAYBACK_CAP_CELT_0_5_1, "PLAYBACK_CAP_CELT_0_5_1" },
-    { 0, NULL }
-};
+#define SPICE_RECORD_CAP_CELT_0_5_1 0
+
+#define SPICE_RECORD_CAP_CELT_0_5_1_MASK (1 << SPICE_RECORD_CAP_CELT_0_5_1) 
 
 /* display channel */
 /* display channel server messages */
@@ -858,6 +856,7 @@ static gint ett_record_client = -1;
 static gint ett_main_client = -1;
 static gint ett_spice_agent = -1;
 static gint ett_auth_tree = -1;
+static gint ett_cap_tree = -1;
 static int proto_spice = -1;
 static int hf_spice_magic  = -1;
 static int hf_major_version  = -1;
@@ -877,19 +876,17 @@ static int hf_data_sublist = -1;
 static int hf_link_client = -1;
 static int hf_link_server = -1;
 static int hf_ticket_client = -1;
-static gint hf_auth_select_client = -1;
+static int hf_auth_select_client = -1;
 static int hf_ticket_server = -1;
-static int hf_main_cap = -1;
+static int hf_main_cap_semi_migrate = -1;
 static int hf_display_cap = -1;
 static int hf_inputs_cap = -1;
 static int hf_cursor_cap = -1;
-static int hf_record_cap = -1;
 static int hf_common_cap_byte1 = -1;
 static int hf_common_cap_auth_select = -1;
 static int hf_common_cap_auth_spice = -1;
 static int hf_common_cap_auth_sasl = -1;
 static int hf_common_cap_mini_header = -1;
-static int hf_playback_cap = -1;
 static int hf_playback_record_mode_timstamp = -1;
 static int hf_playback_record_mode = -1;
 static int hf_red_set_ack_generation = -1;
@@ -983,6 +980,9 @@ static int hf_main_client_agent_tokens = -1;
 static int hf_tranparent_src_color = -1;
 static int hf_tranparent_true_color = -1;
 static int hf_spice_sasl_auth_result = -1;
+static int hf_playback_cap_celt = -1;
+static int hf_playback_cap_volume = -1;
+static int hf_record_cap_celt = -1;
 
 static dissector_handle_t jpeg_handle;
 
@@ -2064,6 +2064,30 @@ dissect_spice_display_server(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
             data_size = dissect_Image(tvb, tree, pinfo, offset);
             offset += data_size;
             break;
+        case SPICE_DISPLAY_DRAW_ROP3:
+            displayBaseLen = dissect_DisplayBase(tvb, tree, offset);
+            offset += displayBaseLen;
+            /* SpiceImage *src_bitmap */
+            dissect_ID(tvb, tree, offset);
+            offset += 4;
+
+            /* source area */
+            dissect_SpiceRect(tvb, tree, offset, -1);
+            offset += sizeof_SpiceRect;
+            
+            data_size = dissect_Brush(tvb, tree, offset);
+            offset += data_size;
+
+            proto_tree_add_text(tree, tvb, offset, 1, "ROP3");
+            offset += 1; 
+            proto_tree_add_text(tree, tvb, offset, 1, "scale mode");
+            offset += 1;
+            
+            offset += dissect_Mask(tvb, tree, offset);
+            /*FIXME - need to understand what the rest of the message contains. */
+            data_size = dissect_Image(tvb, tree, pinfo, offset);
+            offset += data_size;
+            break;
         case SPICE_DISPLAY_INVAL_ALL_PALETTES:
             proto_tree_add_text(tree, tvb, offset, 0, "DISPLAY_INVAL_ALL_PALETTES message");
             break;
@@ -2508,8 +2532,8 @@ dissect_spice_inputs_client(tvbuff_t *tvb, proto_tree *tree, const guint16 messa
             inputs_tree = proto_item_add_subtree(ti, ett_inputs_client);
             dissect_POINT32(tvb, inputs_tree, offset);
             offset += sizeof(point32_t);
-            proto_tree_add_item(inputs_tree, hf_button_state, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-            offset += 4;
+            proto_tree_add_item(inputs_tree, hf_button_state, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
             break;
         case SPICEC_INPUTS_MOUSE_PRESS:
             ti = proto_tree_add_text(tree, tvb, offset, 3, "Client MOUSE_PRESS message");
@@ -2752,14 +2776,35 @@ dissect_spice_link_capabilities(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
 {
 /* TODO: save common and per-channel capabilities in spice_info ? */
     int i;
-
+    guint32 val;
+    proto_item *ti=NULL;
+    proto_tree *cap_tree;
+    
     for(i = 0; i != caps_len ; i++) {
+        val = tvb_get_letohl(tvb, offset);
         switch (spice_info->channel_type) {
             case SPICE_CHANNEL_PLAYBACK:
-                proto_tree_add_item(tree, hf_playback_cap, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                switch (i) {
+                    case 0:
+                        ti = proto_tree_add_item(tree, hf_common_cap_byte1, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                        cap_tree = proto_item_add_subtree(ti, ett_cap_tree);
+                        proto_tree_add_boolean(cap_tree, hf_playback_cap_celt, tvb, offset, 4, val);
+                        proto_tree_add_boolean(cap_tree, hf_playback_cap_volume, tvb, offset, 4, val);
+                        break;
+                    default:
+                        break;
+                }
                 break;
             case SPICE_CHANNEL_MAIN:
-                proto_tree_add_item(tree, hf_main_cap, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                switch (i) {
+                    case 0:
+                        ti = proto_tree_add_item(tree, hf_common_cap_byte1, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                        cap_tree = proto_item_add_subtree(ti, ett_cap_tree);
+                        proto_tree_add_boolean(cap_tree, hf_main_cap_semi_migrate, tvb, offset, 4, val);
+                        break;
+                    default:
+                        break;
+                }
                 break;
             case SPICE_CHANNEL_DISPLAY:
                 proto_tree_add_item(tree, hf_display_cap, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -2771,7 +2816,15 @@ dissect_spice_link_capabilities(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
                 proto_tree_add_item(tree, hf_cursor_cap, tvb, offset, 4, ENC_LITTLE_ENDIAN);
                 break;
             case SPICE_CHANNEL_RECORD:
-                proto_tree_add_item(tree, hf_record_cap, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                switch (i) {
+                    case 0:
+                        ti = proto_tree_add_item(tree, hf_common_cap_byte1, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                        cap_tree = proto_item_add_subtree(ti, ett_cap_tree);
+                        proto_tree_add_boolean(cap_tree, hf_record_cap_celt, tvb, offset, 4, val);
+                        break;
+                    default:
+                        break;
+                }
                 break;
             default:
                 proto_tree_add_text(tree, tvb, offset, 0, "Unknown channel - cannot dissect");
@@ -2911,6 +2964,7 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         spice_info->client_mini_header = FALSE;
         spice_info->server_mini_header = FALSE;
         conversation_add_proto_data(conversation, proto_spice, spice_info);
+        conversation_set_dissector(conversation, spice_handle);
     }
 
     per_packet_info = p_get_proto_data(pinfo->fd, proto_spice);
@@ -3284,13 +3338,8 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static gboolean
 test_spice_protocol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    conversation_t *conversation;
 
     if (tvb_reported_length(tvb) >= 4 && tvb_get_ntohl(tvb, 0) == SPICE_MAGIC) {
-        conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
-                                        pinfo->ptype, pinfo->srcport,
-                                        pinfo->destport, 0);
-        conversation_set_dissector(conversation, spice_handle);
         dissect_spice(tvb, pinfo, tree);
         return TRUE;
     }
@@ -3404,7 +3453,7 @@ proto_register_spice(void)
             NULL, HFILL }
         },
         { &hf_common_cap_byte1,
-          { "First byte capabilitities", "spice.common_cap_byte1",
+          { "Capabilitities", "spice.common_cap_byte1",
             FT_NONE, BASE_NONE, 0, 0,
             NULL, HFILL }
         },
@@ -3428,14 +3477,19 @@ proto_register_spice(void)
             FT_BOOLEAN, 4, TFS(&tfs_set_notset), SPICE_COMMON_CAP_MINI_HEADER_MASK,
             NULL, HFILL }
         },
-        { &hf_playback_cap,
-          { "Playback channel capability", "spice.playback_cap",
-            FT_UINT32, BASE_DEC, VALS(playback_caps), 0x0,
+        { &hf_playback_cap_celt,
+          { "CELT 0.5.1 playback channel support", "spice.playback_cap_celt",
+            FT_BOOLEAN, 3, TFS(&tfs_set_notset), SPICE_PLAYBACK_CAP_CELT_0_5_1_MASK,
             NULL, HFILL }
         },
-        { &hf_record_cap,
-          { "Record channel capability", "spice.record_cap",
-            FT_UINT32, BASE_DEC, VALS(record_caps), 0x0,
+        { &hf_playback_cap_volume,
+          { "Volume playback channel support", "spice.playback_cap_volume",
+            FT_BOOLEAN, 3, TFS(&tfs_set_notset), SPICE_PLAYBACK_CAP_VOLUME_MASK,
+            NULL, HFILL }
+        },        
+        { &hf_record_cap_celt,
+          { "CELT 0.5.1 record channel support", "spice.record_cap_celt",
+            FT_BOOLEAN, 3, TFS(&tfs_set_notset), SPICE_RECORD_CAP_CELT_0_5_1_MASK,
             NULL, HFILL }
         },
         { &hf_cursor_cap,
@@ -3448,9 +3502,9 @@ proto_register_spice(void)
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_main_cap,
-          { "Main channel capability", "spice.main_cap",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
+        { &hf_main_cap_semi_migrate,
+          { "Semi-seamless migratation capability", "spice.main_cap_semi_migrate",
+            FT_BOOLEAN, 3, TFS(&tfs_set_notset), SPICE_MAIN_CAP_SEMI_SEAMLESS_MIGRATE_MASK,
             NULL, HFILL }
         },
         { &hf_display_cap,
@@ -3969,7 +4023,8 @@ proto_register_spice(void)
         &ett_record_client,
         &ett_main_client,
         &ett_spice_agent,
-        &ett_auth_tree
+        &ett_auth_tree,
+        &ett_cap_tree
     };
 
     /* Register the protocol name and description */
