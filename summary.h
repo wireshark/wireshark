@@ -67,6 +67,11 @@ typedef struct _summary_tally {
     guint64     drops;			/**< number of packet drops */
     const char	*dfilter;		/**< display filter */
     gboolean    is_tempfile;
+	/* from SHB, use summary_fill_shb_inf() to get values */
+    gchar       *opt_comment;   /**< comment from SHB block */
+    gchar       *shb_hardware;  /**< Capture HW from SHB block */
+    gchar       *shb_os;        /**< The OS the capture was made on from SHB block */
+    gchar       *shb_user_appl; /**< The application that made the capture from SHB block */
     /* capture related, use summary_fill_in_capture() to get values */
     GArray	*ifaces;
     gboolean	legacy;

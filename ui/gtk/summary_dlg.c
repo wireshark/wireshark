@@ -55,6 +55,7 @@
 
 #define SUM_STR_MAX     1024
 #define FILTER_SNIP_LEN 50
+#define SHB_STR_SNIP_LEN 50
 
 
 static void
@@ -241,6 +242,21 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   /* Capture */
   add_string_to_table(table, &row, "", "");
   add_string_to_table_sensitive(table, &row, "Capture", "", (summary.ifaces->len > 0));
+  if(summary.shb_hardware){
+	  /* trucate the string to a reasonable length */
+	  g_snprintf(string_buff, SHB_STR_SNIP_LEN, "%s",summary.shb_hardware);
+      add_string_to_table(table, &row, "Capture HW:",string_buff);
+  }
+  if(summary.shb_os){
+	  /* trucate the strings to a reasonable length */
+	  g_snprintf(string_buff, SHB_STR_SNIP_LEN, "%s",summary.shb_os);
+      add_string_to_table(table, &row, "OS:", string_buff);
+  }
+  if(summary.shb_user_appl){
+	  /* trucate the string to a reasonable length */
+	  g_snprintf(string_buff, SHB_STR_SNIP_LEN, "%s",summary.shb_user_appl);
+      add_string_to_table(table, &row, "Capture application:", string_buff);
+  }
   scrolled_window = gtk_scrolled_window_new (NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (scrolled_window), 5);
   gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window),

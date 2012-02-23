@@ -93,6 +93,7 @@ summary_fill_in(capture_file *cf, summary_tally *st)
 
   frame_data    *first_frame, *cur_frame;
   guint32        framenum;
+  wtapng_section_t* shb_inf;
 
   st->start_time = 0;
   st->stop_time = 0;
@@ -131,6 +132,16 @@ summary_fill_in(capture_file *cf, summary_tally *st)
   st->drops_known = cf->drops_known;
   st->drops = cf->drops;
   st->dfilter = cf->dfilter;
+
+  /* Get info from SHB */
+  shb_inf = wtap_file_get_shb_info(cf->wth);
+
+  shb_inf = wtap_file_get_shb_info(cf->wth);
+  st->opt_comment    = shb_inf->opt_comment;
+  st->shb_hardware   = shb_inf->shb_hardware;
+  st->shb_os         = shb_inf->shb_os;
+  st->shb_user_appl  = shb_inf->shb_user_appl;
+  g_free(shb_inf);
 
   st->ifaces  = g_array_new(FALSE, FALSE, sizeof(iface_options));
 }
@@ -180,6 +191,7 @@ summary_fill_in_capture(capture_file *cf,capture_options *capture_opts, summary_
       iface.linktype = wtapng_if_descr.link_type;
       g_array_append_val(st->ifaces, iface);
     }
+	g_free(idb_info);
   }
 }
 #endif
