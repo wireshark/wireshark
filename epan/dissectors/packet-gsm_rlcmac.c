@@ -3504,7 +3504,7 @@ CSN_DESCR_BEGIN(Cell_Selection_Params_With_FreqDiff_t)
   M_TYPE       (Cell_Selection_Params_With_FreqDiff_t, Cell_SelectionParams, Cell_Selection_t),
 CSN_DESCR_END  (Cell_Selection_Params_With_FreqDiff_t)
 
-CSN_CallBackStatus_t callback_init_Cell_Selection_Params_FREQUENCY_DIFF(proto_tree *tree, tvbuff_t *tvb, void* param1, void* param2, int bit_offset, int ett_csn1)
+CSN_CallBackStatus_t callback_init_Cell_Selection_Params_FREQUENCY_DIFF(proto_tree *tree _U_, tvbuff_t *tvb _U_, void* param1, void* param2, int bit_offset _U_, int ett_csn1 _U_)
 {
     guint  i;
     guint8 freq_diff_len = *(guint8*)param1;
@@ -3623,7 +3623,7 @@ static const CSN_DESCR_BEGIN(CellSelectionParamsWithFreqDiff_t)
 CSN_DESCR_END  (CellSelectionParamsWithFreqDiff_t)
 
 
-CSN_CallBackStatus_t callback_init_Cell_Sel_Param_2_FREQUENCY_DIFF(proto_tree *tree, tvbuff_t *tvb, void* param1, void* param2, int bit_offset, int ett_csn1)
+CSN_CallBackStatus_t callback_init_Cell_Sel_Param_2_FREQUENCY_DIFF(proto_tree *tree _U_, tvbuff_t *tvb _U_, void* param1, void* param2, int bit_offset _U_, int ett_csn1 _U_)
 {
     guint  i;
     guint8 freq_diff_len = *(guint8*)param1;
@@ -3821,7 +3821,7 @@ CSN_DESCR_BEGIN(CDMA2000_Description_t)
 CSN_DESCR_END  (CDMA2000_Description_t)
 
 const static guint8 NR_OF_FDD_CELLS_map[32] = {0, 10, 19, 28, 36, 44, 52, 60, 67, 74, 81, 88, 95, 102, 109, 116, 122, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-CSN_CallBackStatus_t callback_UTRAN_FDD_map_NrOfFrequencies(proto_tree *tree, tvbuff_t *tvb, void* param1, void* param2, int bit_offset, int ett_csn1)
+CSN_CallBackStatus_t callback_UTRAN_FDD_map_NrOfFrequencies(proto_tree *tree _U_, tvbuff_t *tvb _U_, void* param1, void* param2, int bit_offset _U_, int ett_csn1 _U_)
 {   /* TS 44.060 Table 11.2.9b.2.a */
     guint8 * pNrOfCells = (guint8*)param1;
     guint8 * pBitsInCellInfo = (guint8*)param2;
@@ -3838,7 +3838,7 @@ CSN_CallBackStatus_t callback_UTRAN_FDD_map_NrOfFrequencies(proto_tree *tree, tv
     return 0;
 }
 
-CSN_CallBackStatus_t callback_UTRAN_FDD_compute_FDD_CELL_INFORMATION(proto_tree *tree, tvbuff_t *tvb, void* param1, void* param2, int bit_offset, int ett_csn1)
+CSN_CallBackStatus_t callback_UTRAN_FDD_compute_FDD_CELL_INFORMATION(proto_tree *tree, tvbuff_t *tvb, void* param1, void* param2 _U_, int bit_offset, int ett_csn1)
 {
     proto_item   *ti;
     proto_tree   *subtree;
@@ -3923,7 +3923,7 @@ CSN_DESCR_END  (UTRAN_FDD_Description_t)
 
 
 const static guint8 NR_OF_TDD_CELLS_map[32] = {0, 9, 17, 25, 32, 39, 46, 53, 59, 65, 71, 77, 83, 89, 95, 101, 106, 111, 116, 121, 126, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-CSN_CallBackStatus_t callback_UTRAN_TDD_map_NrOfFrequencies(proto_tree *tree, tvbuff_t *tvb, void* param1, void* param2, int bit_offset, int ett_csn1)
+CSN_CallBackStatus_t callback_UTRAN_TDD_map_NrOfFrequencies(proto_tree *tree _U_, tvbuff_t *tvb _U_, void* param1, void* param2, int bit_offset _U_, int ett_csn1 _U_)
 {  /* TS 44.060 Table 11.2.9b.2.b */
     guint8 * pNrOfCells = (guint8*)param1;
     guint8 * pBitsInCellInfo = (guint8*)param2;
@@ -3940,7 +3940,7 @@ CSN_CallBackStatus_t callback_UTRAN_TDD_map_NrOfFrequencies(proto_tree *tree, tv
     return 0;
 }
 
-CSN_CallBackStatus_t callback_UTRAN_TDD_compute_TDD_CELL_INFORMATION(proto_tree *tree, tvbuff_t *tvb, void* param1, void* param2, int bit_offset, int ett_csn1)
+CSN_CallBackStatus_t callback_UTRAN_TDD_compute_TDD_CELL_INFORMATION(proto_tree *tree, tvbuff_t *tvb, void* param1, void* param2 _U_, int bit_offset, int ett_csn1)
 {
     proto_item   *ti;
     proto_tree   *subtree;
@@ -4162,7 +4162,7 @@ CSN_DESCR_BEGIN(lu_ModeOnlyCellSelectionParamsWithFreqDiff_t)
   M_TYPE       (lu_ModeOnlyCellSelectionParamsWithFreqDiff_t, lu_ModeOnlyCellSelectionParams, lu_ModeOnlyCellSelection_t),
 CSN_DESCR_END  (lu_ModeOnlyCellSelectionParamsWithFreqDiff_t)
 
-CSN_CallBackStatus_t callback_init_luMode_Cell_Sel_Param_FREQUENCY_DIFF(proto_tree *tree, tvbuff_t *tvb, void* param1, void* param2, int bit_offset, int ett_csn1)
+CSN_CallBackStatus_t callback_init_luMode_Cell_Sel_Param_FREQUENCY_DIFF(proto_tree *tree _U_, tvbuff_t *tvb _U_, void* param1, void* param2, int bit_offset _U_, int ett_csn1 _U_)
 {
     guint  i;
     guint8 freq_diff_len = *(guint8*)param1;
@@ -5757,7 +5757,7 @@ CSN_DESCR_BEGIN(COMPACT_Neighbour_Cell_Param_Remaining_t)
   M_TYPE       (COMPACT_Neighbour_Cell_Param_Remaining_t,  COMPACT_Cell_Sel_Remain_Cells, COMPACT_Cell_Sel_t),
 CSN_DESCR_END  (COMPACT_Neighbour_Cell_Param_Remaining_t)
 
-CSN_CallBackStatus_t callback_init_COMP_Ncell_Param_FREQUENCY_DIFF(proto_tree *tree, tvbuff_t *tvb, void* param1, void* param2, int bit_offset, int ett_csn1)
+CSN_CallBackStatus_t callback_init_COMP_Ncell_Param_FREQUENCY_DIFF(proto_tree *tree _U_, tvbuff_t *tvb _U_, void* param1, void* param2, int bit_offset _U_, int ett_csn1 _U_)
 {
     guint  i;
     guint8 freq_diff_len = *(guint8*)param1;
