@@ -70,7 +70,7 @@
 #include "pcap-encap.h"
 #include "pcapng.h"
 
-#if 0
+#if 1
 #define pcapng_debug0(str) g_warning(str)
 #define pcapng_debug1(str,p1) g_warning(str,p1)
 #define pcapng_debug2(str,p1,p2) g_warning(str,p1,p2)
@@ -1515,7 +1515,7 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
 		wblock->data.if_stats.ts_high		= isb.timestamp_high;
 		wblock->data.if_stats.ts_low		= isb.timestamp_low;
 	}
-	pcapng_debug1("pcapng_read_interface_statistics_block: interface_id %" G_GINT64_MODIFIER "u", wblock->data.if_stats.interface_id);
+	pcapng_debug1("pcapng_read_interface_statistics_block: interface_id %u", wblock->data.if_stats.interface_id);
 
 	/* Option defaults */
 	wblock->data.if_stats.opt_comment = NULL;
