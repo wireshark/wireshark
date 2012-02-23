@@ -3683,7 +3683,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 	 * All other values are interpreted as PPP in this version of the protocol.
 	 * (3GPP TS 24.008 version 9.4.0 Release 9)
 	 */
-	proto_tree_add_text(tree,tvb, curr_offset, 1, "Configuration Protocol: PPP (%u)",oct&0x07);
+	proto_tree_add_text(tree,tvb, curr_offset, 1, "Configuration Protocol: PPP for use with IP PDP type or IP PDN type (%u)",oct&0x07);
 	curr_len--;
 	curr_offset++;
 
