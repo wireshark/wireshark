@@ -1347,7 +1347,7 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t
 		 * No.
 		 */
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("pcapng_read_name_resolution_block: total block length %u is too small (< %u)",
+		*err_info = g_strdup_printf("pcapng_read_name_resolution_block: total block length %u of an NRB is less than the minimum NRB size %u",
 			      bh->block_total_length, MIN_NRB_SIZE);
 		return -1;
 	}
@@ -1662,12 +1662,18 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
 
 
 static int
-pcapng_read_unknown_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn _U_, wtapng_block_t *wblock _U_,int *err, gchar **err_info _U_)
+pcapng_read_unknown_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn _U_, wtapng_block_t *wblock _U_, int *err, gchar **err_info)
 {
 	int block_read;
 	guint64 file_offset64;
 	guint32 block_total_length;
 
+	if (bh->block_total_length < MIN_BLOCK_SIZE) {
+		*err = WTAP_ERR_BAD_FILE;
+		*err_info = g_strdup_printf("pcapng_read_unknown_block: total block length %u of an unknown block type is less than the minimum block size %u",
+			      bh->block_total_length, MIN_BLOCK_SIZE);
+		return -1;
+	}
 
 	/* add padding bytes to "block total length" */
 	/* (the "block total length" of some example files don't contain any padding bytes!) */
@@ -1733,19 +1739,6 @@ pcapng_read_block(FILE_T fh, gboolean first_block, pcapng_t *pn, wtapng_block_t 
 		 */
 		if (bh.block_type != BLOCK_TYPE_SHB)
 			return 0;	/* not a pcap-ng file */
-	}
-
-	if (bh.block_total_length < MIN_BLOCK_SIZE) {
-		/*
-		 * This isn't even enough for the block type and 2
-		 * block total length fields.
-		 */
-		if (first_block)
-			return 0;	/* probably not a pcap-ng file */
-		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("pcapng_read_block: total block length %u is too small (< %u)",
-			      bh.block_total_length, (guint32)MIN_BLOCK_SIZE);
-		return -1;
 	}
 
 	switch(bh.block_type) {
