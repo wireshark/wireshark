@@ -133,6 +133,12 @@ static int hf_usb_bEndpointAddress_number = -1;
 static int hf_usb_response_in = -1;
 static int hf_usb_time = -1;
 static int hf_usb_request_in = -1;
+static int hf_usb_bFirstInterface = -1;
+static int hf_usb_bInterfaceCount = -1;
+static int hf_usb_bFunctionClass = -1;
+static int hf_usb_bFunctionSubClass = -1;
+static int hf_usb_bFunctionProtocol = -1;
+static int hf_usb_iFunction = -1;
 
 static gint usb_hdr = -1;
 static gint usb_setup_hdr = -1;
@@ -315,7 +321,7 @@ static const value_string usb_langid_vals[] = {
 
 static value_string_ext usb_langid_vals_ext = VALUE_STRING_EXT_INIT(usb_langid_vals);
 
-static const value_string usb_interfaceclass_vals[] = {
+static const value_string usb_class_vals[] = {
     {IF_CLASS_FROM_INTERFACE_DESC,      "Use class info in Interface Descriptor"},
     {IF_CLASS_AUDIO,                    "AUDIO"},
     {IF_CLASS_COMMUNICATIONS,           "COMMUNICATIONS"},
@@ -1202,6 +1208,60 @@ dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree, tvb
     return offset;
 }
 
+/* ECN */
+static int
+dissect_usb_interface_assn_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree,
+	tvbuff_t *tvb, int offset, usb_trans_info_t *usb_trans_info _U_,
+	usb_conv_info_t *usb_conv_info _U_)
+{
+    proto_item *item=NULL;
+    proto_tree *tree=NULL;
+    int old_offset=offset;
+
+    if(parent_tree){
+        item=proto_tree_add_text(parent_tree, tvb, offset, -1, "INTERFACE ASSOCIATION DESCRIPTOR");
+        tree=proto_item_add_subtree(item, ett_descriptor_device);
+    }
+
+    /* bLength */
+    proto_tree_add_item(tree, hf_usb_bLength, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+
+    /* bDescriptorType */
+    proto_tree_add_item(tree, hf_usb_bDescriptorType, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+
+    /* bFirstInterface */
+    proto_tree_add_item(tree, hf_usb_bFirstInterface, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+
+    /* bInterfaceCount */
+    proto_tree_add_item(tree, hf_usb_bInterfaceCount, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+
+    /* bFunctionClass */
+    proto_tree_add_item(tree, hf_usb_bFunctionClass, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+
+    /* bFunctionSubclass */
+    proto_tree_add_item(tree, hf_usb_bFunctionSubClass, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+
+    /* bFunctionProtocol */
+    proto_tree_add_item(tree, hf_usb_bFunctionProtocol, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+
+    /* iFunction */
+    proto_tree_add_item(tree, hf_usb_iFunction, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+
+    if(item){
+        proto_item_set_len(item, offset-old_offset);
+    }
+
+    return offset;
+}
+
 static int
 dissect_usb_unknown_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree, tvbuff_t *tvb, int offset, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
 {
@@ -1338,6 +1398,9 @@ dissect_usb_configuration_descriptor(packet_info *pinfo _U_, proto_tree *parent_
             break;
         case USB_DT_ENDPOINT:
             offset=dissect_usb_endpoint_descriptor(pinfo, parent_tree, tvb, offset, usb_trans_info, usb_conv_info);
+            break;
+        case USB_DT_INTERFACE_ASSOCIATION:
+            offset=dissect_usb_interface_assn_descriptor(pinfo, parent_tree, tvb, offset, usb_trans_info, usb_conv_info);
             break;
         default:
             next_tvb = tvb_new_subset_remaining(tvb, offset);
@@ -2585,8 +2648,8 @@ proto_register_usb(void)
             NULL, 0x0, NULL, HFILL }},
 
         { &hf_usb_bDeviceClass,
-          { "bDeviceClass", "usb.bDeviceClass", FT_UINT8, BASE_DEC,
-            NULL, 0x0, NULL, HFILL }},
+          { "bDeviceClass", "usb.bDeviceClass", FT_UINT8, BASE_HEX,
+            VALS(usb_class_vals), 0x0, NULL, HFILL }},
 
         { &hf_usb_bDeviceSubClass,
           { "bDeviceSubClass", "usb.bDeviceSubClass", FT_UINT8, BASE_DEC,
@@ -2650,7 +2713,7 @@ proto_register_usb(void)
 
         { &hf_usb_bInterfaceClass,
           { "bInterfaceClass", "usb.bInterfaceClass", FT_UINT8, BASE_HEX,
-            VALS(usb_interfaceclass_vals), 0x0, NULL, HFILL }},
+            VALS(usb_class_vals), 0x0, NULL, HFILL }},
 
         { &hf_usb_bInterfaceSubClass,
           { "bInterfaceSubClass", "usb.bInterfaceSubClass", FT_UINT8, BASE_HEX,
@@ -2747,7 +2810,31 @@ proto_register_usb(void)
         { &hf_usb_response_in,
           { "Response in", "usb.response_in", FT_FRAMENUM, BASE_NONE,
             NULL, 0, "The response to this packet is in this packet", HFILL }},
-    };
+
+        { &hf_usb_bFirstInterface,
+          { "bFirstInterface", "usb.bFirstInterface", FT_UINT8, BASE_DEC,
+            NULL, 0x0, NULL, HFILL }},
+
+        { &hf_usb_bInterfaceCount,
+          { "bInterfaceCount", "usb.bInterfaceCount", FT_UINT8, BASE_DEC,
+            NULL, 0x0, NULL, HFILL }},
+
+        { &hf_usb_bFunctionClass,
+          { "bFunctionClass", "usb.bFunctionClass", FT_UINT8, BASE_HEX,
+            VALS(usb_class_vals), 0x0, NULL, HFILL }},
+
+        { &hf_usb_bFunctionSubClass,
+          { "bFunctionSubClass", "usb.bFunctionSubClass", FT_UINT8, BASE_HEX,
+            NULL, 0x0, NULL, HFILL }},
+
+        { &hf_usb_bFunctionProtocol,
+          { "bFunctionProtocol", "usb.bFunctionProtocol", FT_UINT8, BASE_HEX,
+            NULL, 0x0, NULL, HFILL }},
+
+        { &hf_usb_iFunction,
+          { "iFunction", "usb.iFunction", FT_UINT8, BASE_DEC,
+            NULL, 0x0, NULL, HFILL }},
+   };
 
     static gint *usb_subtrees[] = {
         &usb_hdr,
