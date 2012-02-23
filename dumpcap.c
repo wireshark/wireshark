@@ -337,6 +337,7 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
 static capture_options global_capture_opts;
 static gboolean quiet = FALSE;
 static gboolean use_threads = FALSE;
+static guint64 start_time;
 
 static void capture_loop_write_packet_cb(u_char *pcap_opts_p, const struct pcap_pkthdr *phdr,
                                          const u_char *pd);
@@ -356,8 +357,9 @@ static void report_cfilter_error(capture_options *capture_opts, guint i, const c
 #define MSG_MAX_LENGTH 4096
 
 /* Copied from pcapio.c libpcap_write_interface_statistics_block()*/
-static guint64 create_timestamp(void){
-        guint64 timestamp;
+static guint64
+create_timestamp(void) {
+    guint64 timestamp;
 #ifdef _WIN32
     FILETIME now;
 #else
@@ -2642,23 +2644,6 @@ capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *err
                                                                        0,                                                 /* IDB_IF_SPEED      8 */
                                                                        0,                                                 /* IDB_TSRESOL       9 */
                                                                        &global_ld.err);
-                if(successful == TRUE){
-                    char comment[30];
-                    guint64 isb_starttime = create_timestamp();
-                    g_snprintf(comment, sizeof(comment), "capture_loop_init_output");
-                        
-                    pcap_opts = g_array_index(global_ld.pcaps, pcap_options *, i);
-                    if (!pcap_opts->from_cap_pipe) {
-                        successful = libpcap_write_interface_statistics_block(ld->pdh, 
-                                                i, 
-                                                pcap_opts->pcap_h, 
-                                                &ld->bytes_written, 
-                                                comment,            /* OPT_COMMENT           1 */
-                                                isb_starttime,      /* ISB_STARTTIME         2 */
-                                                0,                  /* ISB_ENDTIME           3 */
-                                                &global_ld.err);
-                    }
-                }
             }
 
             g_string_free(os_info_str, TRUE);
@@ -2711,6 +2696,7 @@ capture_loop_close_output(capture_options *capture_opts, loop_data *ld, int *err
 
     unsigned int i;
     pcap_options *pcap_opts;
+    guint64 end_time = create_timestamp();
 
     g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_close_output");
 
@@ -2718,20 +2704,17 @@ capture_loop_close_output(capture_options *capture_opts, loop_data *ld, int *err
         return ringbuf_libpcap_dump_close(&capture_opts->save_file, err_close);
     } else {
         if (capture_opts->use_pcapng) {
-			char comment[30];
-			guint64 isb_endtime = create_timestamp();
-			g_snprintf(comment, sizeof(comment), "Capture_loop_close_output");
             for (i = 0; i < global_ld.pcaps->len; i++) {
                 pcap_opts = g_array_index(global_ld.pcaps, pcap_options *, i);
                 if (!pcap_opts->from_cap_pipe) {
-                    libpcap_write_interface_statistics_block(ld->pdh, 
-						i, 
-						pcap_opts->pcap_h, 
-						&ld->bytes_written, 
-                        comment,            /* OPT_COMMENT           1 */
-                        0,                  /* ISB_STARTTIME         2 */
-                        isb_endtime,        /* ISB_ENDTIME           3 */
-						err_close);
+                    libpcap_write_interface_statistics_block(ld->pdh,
+                                                             i,
+                                                             pcap_opts->pcap_h,
+                                                             &ld->bytes_written,
+                                                             "Counters provided by libpcap",
+                                                             start_time,
+                                                             end_time,
+                                                             err_close);
                 }
             }
         }
@@ -3319,7 +3302,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 #else
     gettimeofday(&upd_time, NULL);
 #endif
-
+    start_time = create_timestamp();
     g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Capture loop running!");
 
     /* WOW, everything is prepared! */
