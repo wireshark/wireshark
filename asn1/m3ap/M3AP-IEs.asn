@@ -153,7 +153,8 @@ ExtendedMCE-ID ::= OCTET STRING (SIZE(1))
 Global-MCE-ID ::= SEQUENCE {
 	pLMN-Identity			PLMN-Identity,
 	mCE-ID					MCE-ID,
-	extendedMCE-ID			ExtendedMCE-ID,
+-- WS 3GPP Spec error fixed.
+	extendedMCE-ID			ExtendedMCE-ID OPTIONAL,
 	iE-Extensions			ProtocolExtensionContainer { {GlobalMCE-ID-ExtIEs} } OPTIONAL,
 	...
 }

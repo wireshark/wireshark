@@ -899,7 +899,7 @@ dissect_m3ap_MCE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 static const per_sequence_t Global_MCE_ID_sequence[] = {
   { &hf_m3ap_pLMN_Identity  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_m3ap_PLMN_Identity },
   { &hf_m3ap_mCE_ID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_m3ap_MCE_ID },
-  { &hf_m3ap_extendedMCE_ID , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_m3ap_ExtendedMCE_ID },
+  { &hf_m3ap_extendedMCE_ID , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_m3ap_ExtendedMCE_ID },
   { &hf_m3ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_m3ap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
