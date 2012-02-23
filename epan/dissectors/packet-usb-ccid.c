@@ -34,6 +34,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/dissectors/packet-usb.h>
+#include <epan/prefs.h>
 
 static int proto_ccid = -1;
 
@@ -142,6 +143,19 @@ static dissector_table_t  ccid_dissector_table;
 
 /* Subtree handles: set by register_subtree_array */
 static gint ett_ccid = -1;
+
+/* Table of payload types - adapted from the I2C dissector*/
+enum {
+    SUB_DATA = 0,
+    SUB_GSM_SIM,
+
+    SUB_MAX
+};
+
+typedef gboolean (*sub_checkfunc_t)(packet_info *);
+
+static dissector_handle_t sub_handles[SUB_MAX];
+static gint sub_selected = SUB_DATA;
 
 static void
 dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -254,7 +268,12 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_item(ccid_tree, hf_ccid_wLevelParameter, tvb, 8, 2, ENC_LITTLE_ENDIAN);
 
             next_tvb = tvb_new_subset_remaining(tvb, 10);
-            call_dissector(data_handle, next_tvb, pinfo, tree);
+
+        if (sub_selected != SUB_DATA) {
+            call_dissector(sub_handles[sub_selected], next_tvb, pinfo, tree);
+		} else {
+		  call_dissector(sub_handles[SUB_DATA], next_tvb, pinfo, tree);
+		}
 
             col_set_str(pinfo->cinfo, COL_INFO, "PC to Reader: Transfer Block");
             break;
@@ -362,9 +381,21 @@ proto_register_ccid(void)
         &ett_ccid
     };
 
+    static const enum_val_t sub_enum_vals[] = {
+        { "data", "Data", SUB_DATA },
+        { "gsm_sim", "GSM SIM", SUB_GSM_SIM },
+        { NULL, NULL, 0 }
+    };
+    
+    module_t *pref_mod;
+    
     proto_ccid = proto_register_protocol("USB CCID", "USBCCID", "usbccid");
     proto_register_field_array(proto_ccid, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    
+    pref_mod = prefs_register_protocol(proto_ccid, NULL);
+    prefs_register_enum_preference(pref_mod, "prtype", "PC -> Reader Payload Type", "How commands from the PC to the reader are interpreted",
+        &sub_selected, sub_enum_vals, FALSE);
 
     ccid_dissector_table = register_dissector_table("usbccid.payload",
                                                     "CCID Payload", FT_UINT8, BASE_DEC);
@@ -378,9 +409,13 @@ proto_reg_handoff_ccid(void)
 {
     dissector_handle_t usb_ccid_bulk_handle;
 
-    data_handle = find_dissector("data");
     usb_ccid_bulk_handle = find_dissector("usbccid");
     dissector_add_uint("usb.bulk", IF_CLASS_SMART_CARD, usb_ccid_bulk_handle);
+    
+    sub_handles[SUB_DATA] = find_dissector("data");
+
+    data_handle = sub_handles[SUB_DATA];
+    sub_handles[SUB_GSM_SIM] = find_dissector("gsm_sim");
 }
 
 /*
