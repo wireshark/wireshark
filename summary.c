@@ -138,11 +138,13 @@ summary_fill_in(capture_file *cf, summary_tally *st)
 
 #ifdef HAVE_LIBPCAP
 void
-summary_fill_in_capture(capture_options *capture_opts, summary_tally *st)
+summary_fill_in_capture(capture_file *cf,capture_options *capture_opts, summary_tally *st)
 {
   iface_options iface;
   interface_options interface_opts;
   guint i;
+  wtapng_iface_descriptions_t* idb_info;
+  wtapng_if_descr_t wtapng_if_descr;
 
   while (st->ifaces->len > 0) {
     iface = g_array_index(st->ifaces, iface_options, 0);
@@ -164,6 +166,22 @@ summary_fill_in_capture(capture_options *capture_opts, summary_tally *st)
       iface.linktype = interface_opts.linktype;
       g_array_append_val(st->ifaces, iface);
     }
+  }else{
+	idb_info = wtap_file_get_idb_info(cf->wth);
+	for (i = 0; i < idb_info->number_of_interfaces; i++) {
+      wtapng_if_descr = g_array_index(idb_info->interface_data, wtapng_if_descr_t, i);
+      iface.cfilter = g_strdup(wtapng_if_descr.if_filter);
+      iface.name = g_strdup(wtapng_if_descr.if_name);
+      iface.descr = g_strdup(wtapng_if_descr.if_description);
+      iface.drops_known = FALSE;
+      iface.drops = 0;
+      /*iface.has_snap = wtapng_if_descr.has_snaplen;*/
+      iface.snap = wtapng_if_descr.snap_len;
+      iface.linktype = wtapng_if_descr.link_type;
+      g_array_append_val(st->ifaces, iface);
+	  }
+
+
   }
 }
 #endif

@@ -167,7 +167,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   /* initial computations */
   summary_fill_in(&cfile, &summary);
 #ifdef HAVE_LIBPCAP
-  summary_fill_in_capture(&global_capture_opts, &summary);
+  summary_fill_in_capture(&cfile, &global_capture_opts, &summary);
 #endif
   seconds = summary.stop_time - summary.start_time;
   disp_seconds = summary.filtered_stop - summary.filtered_start;
