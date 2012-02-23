@@ -4999,6 +4999,12 @@ Note: The AVP codes from 1119 to 1199 are reserved for TS 29.140
 				<gavp name="Trace-Reference"/>
 			</grouped>
 		</avp>
+    <avp name="MIP-FA-RK" may-encrypt="yes" vendor-id="TGPP" vendor-bit="must" mandatory="must" code="1506">
+      <type type-name="OctetString"/>
+    </avp>
+    <avp name="MIP-FA-RK-SPI" may-encrypt="yes" vendor-id="TGPP" vendor-bit="must" mandatory="must" code="1507">
+      <type type-name="Unsigned32"/>
+    </avp>    
 <!--
 Note: The AVP codes from 1485 to 1499 are reserved for TS 29.272.
 Note: The AVP codes from 1506 to 1599 are reserved for TS 29.273
