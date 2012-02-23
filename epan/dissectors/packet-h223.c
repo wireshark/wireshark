@@ -825,14 +825,14 @@ dissect_mux_sdu_fragment(tvbuff_t *volatile next_tvb, packet_info *pinfo,
 static guint32
 mux_element_sublist_size( h223_mux_element* me )
 {
-    h223_mux_element *current_me = me;
+    h223_mux_element *current_me = me->next;
     guint32 length = 0;
     while ( current_me ) {
-        current_me = current_me->next;
         if ( current_me->sublist )
             length += current_me->repeat_count * mux_element_sublist_size( current_me->sublist );
         else
             length += current_me->repeat_count;
+        current_me = current_me->next;
     }
     if ( length == 0 ) { /* should never happen, but to avoid infinite loops... */
         DISSECTOR_ASSERT_NOT_REACHED();
