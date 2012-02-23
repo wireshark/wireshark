@@ -138,13 +138,12 @@ static const value_string ccid_proto_structs_vals[] = {
     {0x00, NULL}
 };
 
-static dissector_handle_t data_handle;
 static dissector_table_t  ccid_dissector_table;
 
 /* Subtree handles: set by register_subtree_array */
 static gint ett_ccid = -1;
 
-/* Table of payload types - adapted from the I2C dissector*/
+/* Table of payload types - adapted from the I2C dissector */
 enum {
     SUB_DATA = 0,
     SUB_GSM_SIM,
@@ -189,8 +188,7 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_text(ccid_tree, tvb, 8, 2, "Reserved for Future Use");
 
             next_tvb = tvb_new_subset_remaining(tvb, 10);
-
-            call_dissector(data_handle, next_tvb, pinfo, ccid_tree);
+            call_dissector(sub_handles[SUB_DATA], next_tvb, pinfo, ccid_tree);
 
             col_set_str(pinfo->cinfo, COL_INFO, "PC to Reader: Set Parameters");
             break;
@@ -300,7 +298,7 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_item(ccid_tree, hf_ccid_bChainParameter, tvb, 9, 1, ENC_LITTLE_ENDIAN);
 
             next_tvb = tvb_new_subset_remaining(tvb, 10);
-            call_dissector(data_handle, next_tvb, pinfo, ccid_tree);
+            call_dissector(sub_handles[SUB_DATA], next_tvb, pinfo, ccid_tree);
             break;
 
         case RDR_PC_SLOT_STATUS:
@@ -413,8 +411,6 @@ proto_reg_handoff_ccid(void)
     dissector_add_uint("usb.bulk", IF_CLASS_SMART_CARD, usb_ccid_bulk_handle);
     
     sub_handles[SUB_DATA] = find_dissector("data");
-
-    data_handle = sub_handles[SUB_DATA];
     sub_handles[SUB_GSM_SIM] = find_dissector("gsm_sim");
 }
 
