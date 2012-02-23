@@ -795,6 +795,8 @@ add_byte_views(epan_dissect_t *edt, GtkWidget *tree_view,
 {
     GSList *src_le;
     data_source *src;
+    int i, count = 0;
+    data_source *srccpy, *srcptr;
 
     /*
      * Get rid of all the old notebook tabs.
@@ -806,9 +808,27 @@ add_byte_views(epan_dissect_t *edt, GtkWidget *tree_view,
      * Add to the specified byte view notebook tabs for hex dumps
      * of all the data sources for the specified frame.
      */
+    /* Note:
+     * The fundamental problem is that the edt->pi.data_src, etc. in the
+     * following loop was using the ep memory pool and while in the loop,
+     * any update caused by add_byte_tab() would trigger another
+     * epan_dissect_run() call which will reset the memory pool and invalidate
+     * the content of edt->pi.data_src linked list.
+     * As a work-around the data_src linked list may be
+     * copied over to a local (stack) storage.
+     * The other data structure, such as src->tvb and edt->tree may need be
+     * copied as well, but not done in this workaround. */
+    for (src_le = edt->pi.data_src; src_le != NULL; src_le = src_le->next) {
+        count++;
+    }
+    srccpy = srcptr = (data_source *) g_malloc(count*sizeof(data_source));
     for (src_le = edt->pi.data_src; src_le != NULL; src_le = src_le->next) {
         src = src_le->data;
-        add_byte_tab(byte_nb_ptr, get_data_source_name(src), src->tvb, edt->tree,
+	*srcptr = *src;
+	srcptr++;
+    }
+    for (i = 0; i < count; i++) {
+        add_byte_tab(byte_nb_ptr, get_data_source_name(&srccpy[i]), srccpy[i].tvb, edt->tree,
                      tree_view);
     }
 
