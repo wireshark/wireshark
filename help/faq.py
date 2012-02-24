@@ -1352,12 +1352,13 @@ caused the problem; when capturing packets, Wireshark normally writes
 captured packets to a temporary file, which will probably be in
 <tt>/tmp</tt> or <tt>/var/tmp</tt> on UNIX-flavored OSes, <tt>\TEMP</tt>
 on the main system disk (normally <tt>C:</tt>) on Windows 9x/Me/NT 4.0,
-and <tt>\Documents and Settings\</tt><var>your login
-name</var><tt>\Local Settings\Temp</tt> on the main system disk on
-Windows 2000/Windows XP/Windows Server 2003, so the capture file will
-probably be there.  It will have a name of the form,
-<tt>wireshark_iface_YYYYmmddHHMMSS_XXXXXX</tt>.  Please don't send
-a trace file greater than 1 MB when compressed; instead, make it
+<tt>\Documents and Settings\</tt><var>your login name</var>
+<tt>\Local Settings\Temp</tt> on the main system disk on
+Windows 2000/Windows XP/Windows Server 2003, and
+<tt>\Users\<var>your login name</var>\AppData\Local\Temp</tt> on the main system disk on
+Windows 7, so the capture file will probably be there.  It will have a name
+of the form, <tt>wireshark_iface_YYYYmmddHHMMSS_XXXXXX</tt>.  Please don't
+send a trace file greater than 1 MB when compressed; instead, make it
 available via FTP or HTTP, or say it's available but leave it up to a
 developer to ask for it.  If the trace file contains sensitive
 information (e.g., passwords), then please do not send it.
