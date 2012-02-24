@@ -152,7 +152,7 @@ void
 summary_fill_in_capture(capture_file *cf,capture_options *capture_opts, summary_tally *st)
 {
   iface_options iface;
-  interface_options interface_opts;
+  interface_t device;
   guint i;
   wtapng_iface_descriptions_t* idb_info;
   wtapng_if_descr_t wtapng_if_descr;
@@ -165,16 +165,19 @@ summary_fill_in_capture(capture_file *cf,capture_options *capture_opts, summary_
     g_free(iface.cfilter);
   }
   if (st->is_tempfile) {
-    for (i = 0; i < capture_opts->ifaces->len; i++) {
-      interface_opts = g_array_index(capture_opts->ifaces, interface_options, i);
-      iface.cfilter = g_strdup(interface_opts.cfilter);
-      iface.name = g_strdup(interface_opts.name);
-      iface.descr = g_strdup(interface_opts.descr);
-      iface.drops_known = FALSE;
-      iface.drops = 0;
-      iface.has_snap = interface_opts.has_snaplen;
-      iface.snap = interface_opts.snaplen;
-      iface.linktype = interface_opts.linktype;
+    for (i = 0; i < capture_opts->all_ifaces->len; i++) {
+      device = g_array_index(capture_opts->all_ifaces, interface_t, i);
+      if (!device.selected) {
+        continue;
+      }
+      iface.cfilter = g_strdup(device.cfilter);
+      iface.name = g_strdup(device.name);
+      iface.descr = g_strdup(device.display_name);
+      iface.drops_known = cf->drops_known;
+      iface.drops = cf->drops;
+      iface.has_snap = device.has_snaplen;
+      iface.snap = device.snaplen;
+      iface.linktype = device.active_dlt;
       g_array_append_val(st->ifaces, iface);
     }
   } else {
