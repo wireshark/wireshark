@@ -111,6 +111,10 @@ static int hf_mip_cvse_vendor_org_id = -1;
 static int hf_mip_cvse_verizon_cvse_type = -1;
 static int hf_mip_cvse_vendor_cvse_type = -1;
 static int hf_mip_cvse_vendor_cvse_value = -1;
+static int hf_mip_nvse_reserved = -1;
+static int hf_mip_nvse_vendor_org_id = -1;
+static int hf_mip_nvse_vendor_nvse_type = -1;
+static int hf_mip_nvse_vendor_nvse_value = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_mip = -1;
@@ -417,7 +421,10 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
   gint          hdrLen;
   guint32       cvse_vendor_id;
   guint16       cvse_vendor_type;
+  guint32       nvse_vendor_id;
+  guint16       nvse_vendor_type;
   int           cvse_local_offset= 0;
+  int           nvse_local_offset= 0;
 
   /* None of this really matters if we don't have a tree */
   if (!tree) return;
@@ -601,6 +608,7 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
       }
       break;
 
+    case OLD_CVSE_EXT:      /* RFC 3115 */
     case CVSE_EXT:          /* RFC 3115 */
       /*
        * Very nasty . . breaks normal extensions, since the length is
@@ -632,9 +640,26 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
       proto_tree_add_item(ext_tree, hf_mip_cvse_vendor_cvse_value, tvb, cvse_local_offset, ext_len - 6, ENC_NA);
       break;
 
-    case OLD_CVSE_EXT:      /* RFC 3115 */
     case OLD_NVSE_EXT:      /* RFC 3115 */
     case NVSE_EXT:          /* RFC 3115 */
+      proto_tree_add_item(ext_tree, hf_mip_nvse_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+
+      /* Vendor/Org ID */
+      /*Vendor ID & nvse type & nvse value are included in ext_len, so do not increment offset for them here.*/
+      nvse_local_offset = offset + hdrLen;
+      proto_tree_add_item(ext_tree, hf_mip_nvse_vendor_org_id, tvb, nvse_local_offset, 4, ENC_BIG_ENDIAN);
+      nvse_vendor_id = tvb_get_ntohl(tvb, nvse_local_offset);
+      nvse_local_offset+=4;
+
+      /*Vendor NVSE Type*/
+      nvse_vendor_type = tvb_get_ntohs(tvb, nvse_local_offset);
+      proto_tree_add_uint(ext_tree, hf_mip_nvse_vendor_nvse_type, tvb, nvse_local_offset, 2, nvse_vendor_type);
+      nvse_local_offset+=2;
+
+      /* Vendor-NVSE-Value */
+      proto_tree_add_item(ext_tree, hf_mip_nvse_vendor_nvse_value, tvb, nvse_local_offset, ext_len - 8, ENC_NA);
+      break;
+
     case MF_CHALLENGE_EXT:  /* RFC 3012 */
       /* The default dissector is good here.  The challenge is all hex anyway. */
     default:
@@ -1233,6 +1258,26 @@ void proto_register_mip(void)
     },
     { &hf_mip_cvse_vendor_cvse_value ,
       { "Vendor CVSE Value",                "mip.ext.cvse.vendor_value",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_mip_nvse_reserved,
+      { "Reserved",                "mip.ext.nvse.reserved",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_mip_nvse_vendor_org_id,
+      { "Vendor ID",                "mip.ext.nvse.vendor_id",
+        FT_UINT32, BASE_DEC|BASE_EXT_STRING, &sminmpec_values_ext, 0,
+        NULL, HFILL }
+    },
+    { &hf_mip_nvse_vendor_nvse_type ,
+      { "Vendor Type",                "mip.ext.nvse.vendor_type",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_mip_nvse_vendor_nvse_value ,
+      { "Vendor Value",                "mip.ext.nvse.vendor_value",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }
     }
