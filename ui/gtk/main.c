@@ -1429,9 +1429,9 @@ main_cf_cb_file_closing(capture_file *cf)
         for (i = (int)global_capture_opts.ifaces->len-1; i >= 0; i--) {
             global_capture_opts.ifaces = g_array_remove_index(global_capture_opts.ifaces, i);
         }
-    } 
+    }
 #endif
-    
+
     /* Restore the standard title bar message. */
     set_main_window_name("The Wireshark Network Analyzer");
 
