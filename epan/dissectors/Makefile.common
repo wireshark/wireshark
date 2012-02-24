@@ -1231,6 +1231,7 @@ DISSECTOR_INCLUDES =	\
 	packet-h450-ros.h	\
 	packet-hci_h4.h	\
 	packet-hclnfsd.h	\
+	packet-hdcp.h	\
 	packet-hpext.h	\
 	packet-http.h	\
 	packet-i2c.h	\
