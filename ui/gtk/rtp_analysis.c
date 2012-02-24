@@ -1463,17 +1463,15 @@ static gint expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer data
 }
 #endif
 /****************************************************************************/
-static gint configure_event(GtkWidget *widget, GdkEventConfigure *event _U_)
+static gint configure_event(GtkWidget *widget, GdkEventConfigure *event _U_, gpointer data)
 {
-	user_data_t *user_data;
+    user_data_t *user_data = data;
 	GtkWidget *bt_save;
 	GtkAllocation widget_alloc;
 	cairo_t *cr;
 #if GTK_CHECK_VERSION(2,22,0)
 	surface_info_t *surface_info = g_new(surface_info_t, 1);
 #endif
-
-	user_data=(user_data_t *)g_object_get_data(G_OBJECT(widget), "user_data_t");
 
 	if(!user_data){
 		exit(10);
