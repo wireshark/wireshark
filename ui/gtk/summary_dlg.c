@@ -317,11 +317,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
     g_snprintf(string_buff3, SUM_STR_MAX, "unknown");
     g_snprintf(string_buff4, SUM_STR_MAX, "unknown");
 #endif
-    if (iface.has_snap) {
-      g_snprintf(string_buff5, SUM_STR_MAX, "%u bytes", iface.snap);
-    } else {
-      g_snprintf(string_buff5, SUM_STR_MAX, "unknown");
-    }
+    g_snprintf(string_buff5, SUM_STR_MAX, "%u bytes", iface.snap);
     gtk_list_store_append(store, &iter);
     gtk_list_store_set(store, &iter, 0, string_buff, 1, string_buff2, 2, string_buff3, 3, string_buff4, 4, string_buff5,-1);
   }
