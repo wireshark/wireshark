@@ -5624,10 +5624,12 @@ Note: The AVP codes from 2408 to 2499 are reserved for TS 29.173
       </avp>
 
       <avp name="LCS-QoS" code="2504" vendor-bit="must" vendor-id="TGPP">
-        <gavp name="LCS-QoS-Class"/>
-        <gavp name="Vertical-Accuracy "/>
-        <gavp name="Vertical-Requested"/>
-        <gavp name="Response-Time"/>
+        <grouped>
+          <gavp name="LCS-QoS-Class"/>
+          <gavp name="Vertical-Accuracy "/>
+          <gavp name="Vertical-Requested"/>
+          <gavp name="Response-Time"/>
+        </grouped>
       </avp>
 
       <!--      
@@ -5684,11 +5686,15 @@ Note: The AVP codes from 2408 to 2499 are reserved for TS 29.173
       </avp>
 
       <avp name="LCS-Privacy-Check-Non-Session" code="2521" vendor-bit="must" vendor-id="TGPP">
-        <gavp name="LCS-Privacy-Check"/>
+        <grouped>
+          <gavp name="LCS-Privacy-Check"/>
+        </grouped>
       </avp>
 
       <avp name="LCS-Privacy-Check-Session" code="2522" vendor-bit="must" vendor-id="TGPP">
-        <gavp name="LCS-Privacy-Check"/>
+        <grouped>
+          <gavp name="LCS-Privacy-Check"/>
+        </grouped>
       </avp>
 
       <avp name="LCS-QoS-Class" code="2523" vendor-bit="must" vendor-id="TGPP">

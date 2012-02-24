@@ -153,16 +153,18 @@ http://www.iana.org/assignments/aaa-parameters
 			<enum name="Nonces" code="3"/>
 		</avp>
 		<avp name="MIP-Originating-Foreign-AAA" code="347" mandatory="must" protected="may" vendor-bit="mustnot" may-encrypt="yes">
-			<type type-name="Grouped"/>
+			<grouped>
 				<gavp name="Origin-Realm"/>
 				<gavp name="Origin-Host"/>
 				<gavp name="AVP"/>
+			</grouped>
 		</avp>
 		<avp name="MIP-Home-Agent-Host" code="348" mandatory="must" protected="may" vendor-bit="mustnot" may-encrypt="no">
-			<type type-name="Grouped"/>
+			<grouped>
 				<gavp name="Destination-Realm"/>
 				<gavp name="Destination-Host"/>
 				<gavp name="AVP"/>
+			</grouped>
 		</avp>
 <!--
 349-362        Unassigned

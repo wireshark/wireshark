@@ -30,10 +30,11 @@ Is defined in gqpolicy.xml
     </avp>
 
     <avp name="Acceptable-Service-Info" code="526" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
-       <type type-name="Grouped" /> 
+       <grouped> 
           <gavp name="Media-Component-Description"/>
           <gavp name="Max-Requested-Bandwidth-UL"/>
           <gavp name="Max-Requested-Bandwidth-DL"/>
+       </grouped> 
     </avp>
 
     <avp name="Service-Info-Status" code="527" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
