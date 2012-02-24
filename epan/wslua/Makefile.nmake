@@ -12,7 +12,7 @@ CFLAGS=$(WARNINGS_ARE_ERRORS) $(STANDARD_CFLAGS) \
 	/I$(PCAP_DIR)\include
 
 .c.obj::
-   $(CC) $(CVARSDLL) $(CFLAGS) -Fd.\ -c $<
+   $(CC) $(CFLAGS) -Fd.\ -c $<
 
 MODULES = 	\
 	lua_bitop.c \

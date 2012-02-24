@@ -60,7 +60,7 @@ libwireshark_LIBS = \
 	dissectors\dissectors.lib
 
 .c.obj::
-	$(CC) $(CVARSDLL) $(CFLAGS) -Fd.\ -c $<
+	$(CC) $(CFLAGS) -Fd.\ -c $<
 
 LIBWIRESHARK_OBJECTS = $(LIBWIRESHARK_ALL_SRC:.c=.obj)
 
@@ -297,23 +297,23 @@ RUNLEX=..\tools\runlex.sh
 
 diam_dict_lex.h: diam_dict.c
 diam_dict.obj : diam_dict.c
-	$(CC) $(CVARSDLL) $(GENERATED_CFLAGS) -Fd.\ -c $?
+	$(CC) $(GENERATED_CFLAGS) -Fd.\ -c $?
 
 dtd_parse_lex.h: dtd_parse.c
 dtd_parse.obj : dtd_parse.c
-	$(CC) $(CVARSDLL) $(GENERATED_CFLAGS) -Fd.\ -c $?
+	$(CC) $(GENERATED_CFLAGS) -Fd.\ -c $?
 
 dtd_preparse_lex.h: dtd_preparse.c
 dtd_preparse.obj : dtd_preparse.c
-	$(CC) $(CVARSDLL) $(GENERATED_CFLAGS) -Fd.\ -c $?
+	$(CC) $(GENERATED_CFLAGS) -Fd.\ -c $?
 
 radius_dict_lex.h: radius_dict.c
 radius_dict.obj : radius_dict.c
-	$(CC) $(CVARSDLL) $(GENERATED_CFLAGS) -Fd.\ -c $?
+	$(CC) $(GENERATED_CFLAGS) -Fd.\ -c $?
 
 uat_load_lex.h: uat_load.c
 uat_load.obj : uat_load.c
-	$(CC) $(CVARSDLL) $(GENERATED_CFLAGS) -Fd.\ -c $?
+	$(CC) $(GENERATED_CFLAGS) -Fd.\ -c $?
 
 LEMON=..\tools\lemon
 

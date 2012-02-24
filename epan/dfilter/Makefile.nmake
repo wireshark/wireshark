@@ -20,7 +20,7 @@ GENERATED_CFLAGS=\
 CFLAGS=$(WARNINGS_ARE_ERRORS) $(GENERATED_CFLAGS)
 
 .c.obj::
-   $(CC) $(CVARSDLL) $(CFLAGS) -Fd.\ -c $<
+   $(CC) $(CFLAGS) -Fd.\ -c $<
 
 OBJECTS=$(NONGENERATED_C_FILES:.c=.obj) $(GENERATED_C_FILES:.c=.obj)
 
@@ -55,7 +55,7 @@ RUNLEX=..\..\tools\runlex.sh
 
 scanner_lex.h : scanner.c
 scanner.obj : scanner.c grammar.h
-	$(CC) $(CVARSDLL) $(GENERATED_CFLAGS) -Fd.\ -c scanner.c
+	$(CC) $(GENERATED_CFLAGS) -Fd.\ -c scanner.c
 
 grammar.h : grammar.c
 grammar.c : $(LEMON)\lemon.exe $(LEMON)\lempar.c grammar.lemon

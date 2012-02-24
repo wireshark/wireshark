@@ -16,7 +16,7 @@ CFLAGS=$(WARNINGS_ARE_ERRORS) $(STANDARD_CFLAGS) \
 	/I$(PCAP_DIR)\include
 
 .c.obj::
-   $(CC) $(CVARSDLL) $(CFLAGS) -Fd.\ -c $<
+   $(CC) $(CFLAGS) -Fd.\ -c $<
 
 # For use when making libwsutil.dll
 libwsutil_LIBS = $(GLIB_LIBS)

@@ -16,7 +16,7 @@ CFLAGS=$(WARNINGS_ARE_ERRORS) $(STANDARD_CFLAGS) \
 	/I$(PCAP_DIR)\include $(AIRPCAP_CFLAGS)
 
 .c.obj::
-	$(CC) $(CVARSDLL) $(CFLAGS) $(WSUG_CFLAGS) -Fd.\ -c $<
+	$(CC) $(CFLAGS) $(WSUG_CFLAGS) -Fd.\ -c $<
 
 # if you add files here, be sure to include them also in Makefile.am EXTRA_DIST in the main Wireshark directory
 WIRESHARK_WIN32_SRC = \

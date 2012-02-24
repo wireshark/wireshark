@@ -17,7 +17,7 @@ LDFLAGS = /NOLOGO /INCREMENTAL:no /MACHINE:I386 /ENTRY:mainCRTStartup $(LOCAL_LD
 CFLAGS=$(WARNINGS_ARE_ERRORS) -DHAVE_CONFIG_H $(LOCAL_CFLAGS) -I$(TOPDIR) $(GLIB_CFLAGS) $(GNUTLS_CFLAGS)
 
 .c.obj::
-	$(CC) $(CVARSDLL) $(CFLAGS) -Fd.\ -c $<
+	$(CC) $(CFLAGS) -Fd.\ -c $<
 
 all:	utest.exe libgcrypt-11.dll libgpg-error-0.dll
 

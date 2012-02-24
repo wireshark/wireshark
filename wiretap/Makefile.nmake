@@ -18,7 +18,7 @@ GENERATED_CFLAGS=\
 CFLAGS=$(WARNINGS_ARE_ERRORS) $(GENERATED_CFLAGS)
 
 .c.obj::
-	$(CC) $(CVARSDLL) $(CFLAGS) -Fd.\ -c $<
+	$(CC) $(CFLAGS) -Fd.\ -c $<
 
 OBJECTS=$(NONGENERATED_C_FILES:.c=.obj) $(GENERATED_C_FILES:.c=.obj)
 
@@ -44,11 +44,11 @@ RUNLEX = ..\tools\runlex.sh
 
 ascend_scanner_lex.h : ascend_scanner.c
 ascend_scanner.obj : ascend_scanner.c ascend.h
-	$(CC) $(CVARSDLL) $(GENERATED_CFLAGS) -Fd.\ -c ascend_scanner.c
+	$(CC) $(GENERATED_CFLAGS) -Fd.\ -c ascend_scanner.c
 
 k12text_lex.h : k12text.c
 k12text.obj : k12text.c
-	$(CC) $(CVARSDLL) $(GENERATED_CFLAGS) -Fd.\ -c $?
+	$(CC) $(GENERATED_CFLAGS) -Fd.\ -c $?
 
 ascend.c ascend.h : ascend.y
 	$(YACC) $(YACC_OPTS) -d -p ascend ascend.y -o ascend.c

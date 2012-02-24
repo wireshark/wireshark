@@ -101,7 +101,7 @@ RUNLEX = ..\..\tools\runlex.sh
 
 wimaxasncp_dict_lex.h : wimaxasncp_dict.c
 wimaxasncp_dict.obj :   wimaxasncp_dict.c
-	$(CC) $(CVARSDLL) $(GENERATED_CFLAGS) -Fd.\ -c $?
+	$(CC) $(GENERATED_CFLAGS) -Fd.\ -c $?
 
 clean:
 	rm -f $(OBJECTS) $(RESOURCE) plugin.c *.pdb *.sbr \

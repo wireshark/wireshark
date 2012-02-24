@@ -22,7 +22,7 @@ GENERATED_CFLAGS=\
 CFLAGS=$(WARNINGS_ARE_ERRORS) $(GENERATED_CFLAGS)
 
 .c.obj::
-	$(CC) $(CVARSDLL) $(CFLAGS) $(WSUG_CFLAGS) -Fd.\ -c $<
+	$(CC) $(CFLAGS) $(WSUG_CFLAGS) -Fd.\ -c $<
 
 include Makefile.common
 

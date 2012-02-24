@@ -19,7 +19,7 @@ CFLAGS= $(WARNINGS_ARE_ERRORS) $(STANDARD_CFLAGS) \
 	/I$(PCAP_DIR)\include
 
 .c.obj::
-   $(CC) $(CVARSDLL) $(CFLAGS) -Fd.\ -c $<
+   $(CC) $(CFLAGS) -Fd.\ -c $<
 
 DISSECTOR_OBJECTS = \
 	$(ALL_DISSECTORS_SRC:.c=.obj)
@@ -39,7 +39,7 @@ dissectors.lib: register.obj packet-ncp2222.c $(GENERATED_HEADER_FILES) ../../co
     "$(MSVC_VARIANT)" != "MSVC2010EE"
 # Disable debug for large dissectors
 packet-rrc.obj : packet-rrc.c
-   $(CC) $(CVARSDLL) $(CFLAGS) /Zd /Fd.\ -c $?
+   $(CC) $(CFLAGS) /Zd /Fd.\ -c $?
 !ENDIF
 
 #

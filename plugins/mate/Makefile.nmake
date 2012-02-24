@@ -122,7 +122,7 @@ RUNLEX = ..\..\tools\runlex.sh
 
 mate_parser_lex.h : mate_parser.c
 mate_parser.obj : mate_parser.c
-	$(CC) $(CVARSDLL) $(GENERATED_CFLAGS) -Fd.\ -c $?
+	$(CC) $(GENERATED_CFLAGS) -Fd.\ -c $?
 
 mate_grammar.h : mate_grammar.c
 mate_grammar.c : mate_grammar.lemon $(LEMON)\lemon.exe
