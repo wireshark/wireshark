@@ -68,6 +68,10 @@ my %APIs = (
                 'strndup',
                 # Windows doesn't have this; use g_ascii_strtoull() instead
                 'strtoull',
+                ### non-portable: fails on Windows Wireshark built with VC newer than VC6
+                # See https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6695#c2
+                'g_fprintf',
+                'g_vfprintf',
                 ### non-ANSI C
                 # use memset, memcpy, memcmp instead of these:
                 'bzero',
