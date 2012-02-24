@@ -332,7 +332,7 @@ libpcap_write_session_header_block(FILE *fp,
 		WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
 		WRITE_DATA(fp, comment, strlen(comment) + 1, *bytes_written, err);
 		if ((strlen(comment) + 1) % 4) {
-			WRITE_DATA(fp, &padding, 4 - (strlen(hw) + 1) % 4, *bytes_written, err);
+			WRITE_DATA(fp, &padding, 4 - (strlen(comment) + 1) % 4, *bytes_written, err);
 		}
 	}
 	if ((hw != NULL) && (strlen(hw) > 0) && (strlen(hw) < G_MAXUINT16)) {
