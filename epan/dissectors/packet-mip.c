@@ -421,7 +421,6 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
   gint          hdrLen;
   guint32       cvse_vendor_id;
   guint16       cvse_vendor_type;
-  guint32       nvse_vendor_id;
   guint16       nvse_vendor_type;
   int           cvse_local_offset= 0;
   int           nvse_local_offset= 0;
@@ -648,7 +647,6 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
       /*Vendor ID & nvse type & nvse value are included in ext_len, so do not increment offset for them here.*/
       nvse_local_offset = offset + hdrLen;
       proto_tree_add_item(ext_tree, hf_mip_nvse_vendor_org_id, tvb, nvse_local_offset, 4, ENC_BIG_ENDIAN);
-      nvse_vendor_id = tvb_get_ntohl(tvb, nvse_local_offset);
       nvse_local_offset+=4;
 
       /*Vendor NVSE Type*/
