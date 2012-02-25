@@ -526,7 +526,7 @@ libpcap_write_interface_description_block(FILE *fp,
 		option.type = IDB_TSRESOL;
 		option.value_length = sizeof(guint8);
 		WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
-		WRITE_DATA(fp, &if_speed, sizeof(guint8), *bytes_written, err);
+		WRITE_DATA(fp, &tsresol, sizeof(guint8), *bytes_written, err);
 		WRITE_DATA(fp, &padding, 3 , *bytes_written, err);
 	}
 
