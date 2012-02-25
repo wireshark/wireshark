@@ -47,7 +47,6 @@ static gboolean ber_read(wtap *wth, int *err, gchar **err_info, gint64 *data_off
   guint8 *buf;
   gint64 file_size;
   int packet_size;
-  ws_statb64 statb;
 
   *err = 0;
 
@@ -79,13 +78,12 @@ static gboolean ber_read(wtap *wth, int *err, gchar **err_info, gint64 *data_off
 
   wth->data_offset += packet_size;
 
+  wth->phdr.presence_flags = 0; /* yes, we have no bananas^Wtime stamp */
+
   wth->phdr.caplen = packet_size;
   wth->phdr.len = packet_size;
 
-  if (wtap_fstat(wth, &statb, err) == -1)
-    return FALSE;
-
-  wth->phdr.ts.secs = statb.st_mtime;
+  wth->phdr.ts.secs = 0;
   wth->phdr.ts.nsecs = 0;
 
   return TRUE;

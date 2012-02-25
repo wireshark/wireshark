@@ -152,6 +152,8 @@ daintree_sna_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 		wth->data_offset += strlen(readLine);
 	} while (readLine[0] == COMMENT_LINE);
 
+	wth->phdr.presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
+
 	/* parse one line of capture data */
 	if (sscanf(readLine, "%*s %18" G_GINT64_MODIFIER "u.%9d %9u %" READDATA_MAX_FIELD_SIZE "s",
 	    &seconds, &wth->phdr.ts.nsecs, &wth->phdr.len, readData) != 4) {

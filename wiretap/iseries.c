@@ -616,6 +616,8 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
       return -1;
     }
 
+  wth->phdr.presence_flags = WTAP_HAS_CAP_LEN;
+
   /*
    * If we have Wiretap Header then populate it here
    *
@@ -625,6 +627,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
    */
   if (iseries->have_date)
     {
+      wth->phdr.presence_flags |= WTAP_HAS_TS;
       tm.tm_year = 100 + iseries->year;
       tm.tm_mon = iseries->month - 1;
       tm.tm_mday = iseries->day;
@@ -645,9 +648,9 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
 	}
     }
 
-    wth->phdr.caplen = cap_len;
-    wth->phdr.pkt_encap = WTAP_ENCAP_ETHERNET;
-    pseudo_header->eth.fcs_len = -1;
+  wth->phdr.caplen = cap_len;
+  wth->phdr.pkt_encap = WTAP_ENCAP_ETHERNET;
+  pseudo_header->eth.fcs_len = -1;
 
   /*
    * Start Reading packet contents

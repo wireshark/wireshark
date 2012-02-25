@@ -640,6 +640,7 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	    length, padlen);
 	return -1;
     }
+    phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
     phdr->len = length - padlen;
     if (caplen < padlen) {
 	*err = WTAP_ERR_BAD_FILE;

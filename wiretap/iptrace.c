@@ -212,6 +212,7 @@ static gboolean iptrace_read_1_0(wtap *wth, int *err, gchar **err_info,
 		return FALSE;	/* Read error */
 	wth->data_offset += packet_size;
 
+	wth->phdr.presence_flags = WTAP_HAS_TS;
 	wth->phdr.len = packet_size;
 	wth->phdr.caplen = packet_size;
 	wth->phdr.ts.secs = pntohl(&header[4]);
@@ -426,6 +427,7 @@ static gboolean iptrace_read_2_0(wtap *wth, int *err, gchar **err_info,
 		return FALSE;	/* Read error */
 	wth->data_offset += packet_size;
 
+	wth->phdr.presence_flags = WTAP_HAS_TS;
 	wth->phdr.len = packet_size;
 	wth->phdr.caplen = packet_size;
 	wth->phdr.ts.secs = pntohl(&header[32]);

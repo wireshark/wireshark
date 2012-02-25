@@ -298,6 +298,7 @@ packet, hdr.rec_type, packet_size, hdr.flags);
 
 found:
 	msecs = pletohl(hdr.timestamp);
+	wth->phdr.presence_flags = WTAP_HAS_TS;
 	wth->phdr.ts.secs = aethra->start + (msecs / 1000);
 	wth->phdr.ts.nsecs = (msecs % 1000) * 1000000;
 	wth->phdr.caplen = packet_size;

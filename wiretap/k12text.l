@@ -250,6 +250,8 @@ k12text_read(wtap *wth, int *err, char ** err_info, gint64 *data_offset)
 	*data_offset = wth->data_offset;       /* file position for beginning of this frame   */
 	wth->data_offset += file_bytes_read;   /* file position after end of this frame       */
 
+	wth->phdr.presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
+
 	wth->phdr.ts.secs = 946681200 + (3600*g_h) + (60*g_m) + g_s;
 	wth->phdr.ts.nsecs = 1000000*g_ms + 1000*g_ns;
 

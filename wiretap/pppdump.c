@@ -356,6 +356,7 @@ pppdump_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	*data_offset = state->pkt_cnt;
 	state->pkt_cnt++;
 
+	wth->phdr.presence_flags = WTAP_HAS_TS;
 	wth->phdr.len		= num_bytes;
 	wth->phdr.caplen	= num_bytes;
 	wth->phdr.ts.secs	= state->timestamp;

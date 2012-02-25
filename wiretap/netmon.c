@@ -677,6 +677,7 @@ again:
 	}
 	secs += (time_t)(t/1000000000);
 	nsecs = (guint32)(t%1000000000);
+	wth->phdr.presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 	wth->phdr.ts.secs = netmon->start_secs + secs;
 	wth->phdr.ts.nsecs = nsecs;
 	wth->phdr.caplen = packet_size;

@@ -444,6 +444,7 @@ parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err, gchar **err_info)
         tm.tm_year -= 1900;
 
 	tm.tm_isdst = -1;
+        wth->phdr.presence_flags = WTAP_HAS_TS;
         wth->phdr.ts.secs = mktime(&tm);
         wth->phdr.ts.nsecs = csec * 10000000;
         wth->phdr.caplen = pkt_len;

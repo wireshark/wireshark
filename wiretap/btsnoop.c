@@ -206,6 +206,7 @@ static gboolean btsnoop_read(wtap *wth, int *err, gchar **err_info,
 	ts = GINT64_FROM_BE(hdr.ts_usec);
 	ts -= KUnixTimeBase;
 
+	wth->phdr.presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 	wth->phdr.ts.secs = (guint)(ts / 1000000);
 	wth->phdr.ts.nsecs = (guint)((ts % 1000000) * 1000);
 	wth->phdr.caplen = packet_size;

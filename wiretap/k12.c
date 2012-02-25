@@ -450,6 +450,8 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info, gint64 *data_off
 
     wth->data_offset = offset;
 
+    wth->phdr.presence_flags = WTAP_HAS_TS;
+
     ts = pntohll(buffer + K12_PACKET_TIMESTAMP);
 
     wth->phdr.ts.secs = (guint32) ((ts / 2000000) + 631152000);

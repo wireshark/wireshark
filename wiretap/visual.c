@@ -379,6 +379,8 @@ static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
     }
     wth->data_offset += packet_size;
 
+    wth->phdr.presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
+
     /* Set the packet time and length. */
     t = visual->start_time;
     t += ((double)pletohl(&vpkt_hdr.ts_delta))*1000;

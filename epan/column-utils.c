@@ -626,11 +626,14 @@ set_abs_date_time(const frame_data *fd, gchar *buf, gboolean local)
   struct tm *tmp;
   time_t then;
 
-  then = fd->abs_ts.secs;
-  if (local)
-     tmp = localtime(&then);
-  else
-     tmp = gmtime(&then);
+  if (fd->flags.has_ts) {
+    then = fd->abs_ts.secs;
+    if (local)
+       tmp = localtime(&then);
+    else
+       tmp = gmtime(&then);
+  } else
+    tmp = NULL;
   if (tmp != NULL) {
       switch(timestamp_get_precision()) {
       case TS_PREC_FIXED_SEC:
@@ -919,6 +922,10 @@ set_time_hour_min_sec(const nstime_t *ts, gchar *buf)
 static void
 col_set_rel_time(const frame_data *fd, column_info *cinfo, const int col)
 {
+  if (!fd->flags.has_ts) {
+    cinfo->col_buf[col][0] = '\0';
+    return;
+  }
   switch (timestamp_get_seconds_type()) {
   case TS_SECONDS_DEFAULT:
     set_time_seconds(&fd->rel_ts, cinfo->col_buf[col]);
@@ -960,6 +967,10 @@ col_set_delta_time(const frame_data *fd, column_info *cinfo, const int col)
 static void
 col_set_delta_time_dis(const frame_data *fd, column_info *cinfo, const int col)
 {
+  if (!fd->flags.has_ts) {
+    cinfo->col_buf[col][0] = '\0';
+    return;
+  }
   switch (timestamp_get_seconds_type()) {
   case TS_SECONDS_DEFAULT:
     set_time_seconds(&fd->del_dis_ts, cinfo->col_buf[col]);
@@ -984,11 +995,14 @@ set_abs_time(const frame_data *fd, gchar *buf, gboolean local)
   struct tm *tmp;
   time_t then;
 
-  then = fd->abs_ts.secs;
-  if (local)
-     tmp = localtime(&then);
-  else
-     tmp = gmtime(&then);
+  if (fd->flags.has_ts) {
+    then = fd->abs_ts.secs;
+    if (local)
+       tmp = localtime(&then);
+    else
+       tmp = gmtime(&then);
+  } else
+    tmp = NULL;
   if (tmp != NULL) {
       switch(timestamp_get_precision()) {
       case TS_PREC_FIXED_SEC:
@@ -1067,9 +1081,13 @@ col_set_utc_time(const frame_data *fd, column_info *cinfo, const int col)
   cinfo->col_data[col] = cinfo->col_buf[col];
 }
 
-static gint
+static gboolean
 set_epoch_time(const frame_data *fd, gchar *buf)
 {
+  if (!fd->flags.has_ts) {
+    buf[0] = '\0';
+    return FALSE;
+  }
   switch(timestamp_get_precision()) {
       case TS_PREC_FIXED_SEC:
       case TS_PREC_AUTO_SEC:
@@ -1104,7 +1122,7 @@ set_epoch_time(const frame_data *fd, gchar *buf)
       default:
           g_assert_not_reached();
   }
-  return 1;
+  return TRUE;
 }
 
 static void
@@ -1131,42 +1149,54 @@ set_fd_time(frame_data *fd, gchar *buf)
       break;
 
     case TS_RELATIVE:
-	  switch (timestamp_get_seconds_type()) {
-	  case TS_SECONDS_DEFAULT:
-		set_time_seconds(&fd->rel_ts, buf);
-		break;
-	  case TS_SECONDS_HOUR_MIN_SEC:
-		set_time_seconds(&fd->rel_ts, buf);
-		break;
-	  default:
-		g_assert_not_reached();
-	  }
+      if (fd->flags.has_ts) {
+        switch (timestamp_get_seconds_type()) {
+        case TS_SECONDS_DEFAULT:
+          set_time_seconds(&fd->rel_ts, buf);
+          break;
+        case TS_SECONDS_HOUR_MIN_SEC:
+          set_time_seconds(&fd->rel_ts, buf);
+          break;
+        default:
+          g_assert_not_reached();
+        }
+      } else {
+        buf[0] = '\0';
+      }
       break;
 
     case TS_DELTA:
-		switch (timestamp_get_seconds_type()) {
-		case TS_SECONDS_DEFAULT:
-			set_time_seconds(&fd->del_cap_ts, buf);
-		break;
-		case TS_SECONDS_HOUR_MIN_SEC:
-			set_time_hour_min_sec(&fd->del_cap_ts, buf);
-			break;
-		default:
-			g_assert_not_reached();
-		}
+      if (fd->flags.has_ts) {
+        switch (timestamp_get_seconds_type()) {
+        case TS_SECONDS_DEFAULT:
+          set_time_seconds(&fd->del_cap_ts, buf);
+          break;
+        case TS_SECONDS_HOUR_MIN_SEC:
+          set_time_hour_min_sec(&fd->del_cap_ts, buf);
+          break;
+        default:
+          g_assert_not_reached();
+        }
+      } else {
+        buf[0] = '\0';
+      }
       break;
 
     case TS_DELTA_DIS:
-	  switch (timestamp_get_seconds_type()) {
-	  case TS_SECONDS_DEFAULT:
-		set_time_seconds(&fd->del_dis_ts, buf);
-		break;
-	  case TS_SECONDS_HOUR_MIN_SEC:
-		set_time_hour_min_sec(&fd->del_dis_ts, buf);
-		break;
-	  default:
-		g_assert_not_reached();
-	  }
+      if (fd->flags.has_ts) {
+        switch (timestamp_get_seconds_type()) {
+        case TS_SECONDS_DEFAULT:
+          set_time_seconds(&fd->del_dis_ts, buf);
+          break;
+        case TS_SECONDS_HOUR_MIN_SEC:
+          set_time_hour_min_sec(&fd->del_dis_ts, buf);
+          break;
+        default:
+          g_assert_not_reached();
+        }
+      } else {
+        buf[0] = '\0';
+      }
       break;
 
     case TS_EPOCH:
@@ -1182,9 +1212,9 @@ set_fd_time(frame_data *fd, gchar *buf)
       break;
 
     case TS_NOT_SET:
-    /* code is missing for this case, but I don't know which [jmayer20051219] */
-    g_assert(FALSE);
-        break;
+      /* code is missing for this case, but I don't know which [jmayer20051219] */
+      g_assert(FALSE);
+      break;
   }
 }
 

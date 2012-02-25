@@ -821,17 +821,45 @@ struct wtap_nstime {
 };
 
 struct wtap_pkthdr {
+	guint32			presence_flags;	/* what stuff do we have? */
 	struct wtap_nstime	ts;
-	guint32				caplen;			/* data length in the file */
-	guint32				len;			/* data length on the wire */
-	int					pkt_encap;
+	guint32			caplen;		/* data length in the file */
+	guint32			len;		/* data length on the wire */
+	int			pkt_encap;
 	/* pcapng variables */
-	guint32				interface_id;   /* identifier of the interface. */
+	guint32			interface_id;   /* identifier of the interface. */
 	/* options */
-	gchar				*opt_comment;	/* NULL if not available */
-	guint64				drop_count;		/* number of packets lost (by the interface and the operating system) between this packet and the preceding one. */
-	guint32				pack_flags;     /* XXX - 0 for now (any value for "we don't have it"?) */
+	gchar			*opt_comment;	/* NULL if not available */
+	guint64			drop_count;	/* number of packets lost (by the interface and the operating system) between this packet and the preceding one. */
+	guint32			pack_flags;     /* XXX - 0 for now (any value for "we don't have it"?) */
 };
+
+/*
+ * Bits in presence_flags, indicating which of the fields we have.
+ *
+ * For the time stamp, we may need some more flags to indicate
+ * whether the time stamp is an absolute date-and-time stamp, an
+ * absolute time-only stamp (which can make relative time
+ * calculations tricky, as you could in theory have two time
+ * stamps separated by an unknown number of days), or a time stamp
+ * relative to some unspecified time in the past (see mpeg.c).
+ *
+ * There is no presence flag for len - there has to be *some* length
+ * value for the packet.  (The "captured length" can be missing if
+ * the file format doesn't report a captured length distinct from
+ * the on-the-network length because the application(s) producing those
+ * files don't support slicing packets.)
+ *
+ * There could be a presence flag for the packet encapsulation - if it's
+ * absent, use the file encapsulation - but it's not clear that's useful;
+ * we currently do that in the module for the file format.
+ */
+#define WTAP_HAS_TS		0x00000001	/* time stamp */
+#define WTAP_HAS_CAP_LEN	0x00000002	/* captured length separate from on-the-network length */
+#define WTAP_HAS_INTERFACE_ID	0x00000004	/* interface ID */
+#define WTAP_HAS_COMMENTS	0x00000008	/* comments */
+#define WTAP_HAS_DROP_COUNT	0x00000010	/* drop count */
+#define WTAP_HAS_PACK_FLAGS	0x00000020	/* packet flags */
 
 /**
  * Holds the option strings from pcapng:s Section Header block(SHB).

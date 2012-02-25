@@ -1198,6 +1198,7 @@ found:
 		return FALSE;
 	}
 
+	wth->phdr.presence_flags = true_size ? WTAP_HAS_TS|WTAP_HAS_CAP_LEN : WTAP_HAS_TS;
 	wth->phdr.len = true_size ? true_size : size;
 	wth->phdr.caplen = size;
 

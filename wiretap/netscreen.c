@@ -233,6 +233,8 @@ static gboolean netscreen_read(wtap *wth, int *err, gchar **err_info,
 	if (offset < 0)
 		return FALSE;
 
+	wth->phdr.presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
+
 	/* Parse the header */
 	pkt_len = parse_netscreen_rec_hdr(wth, line, cap_int, &cap_dir, cap_dst,
 		&wth->pseudo_header, err, err_info);

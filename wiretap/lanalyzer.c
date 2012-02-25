@@ -522,6 +522,8 @@ static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
 		return FALSE;
 	}
 
+	wth->phdr.presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
+
 	time_low = pletohs(&descriptor[8]);
 	time_med = pletohs(&descriptor[10]);
 	time_high = pletohs(&descriptor[12]);

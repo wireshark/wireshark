@@ -591,6 +591,7 @@ static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
 		return FALSE;	/* Read error */
 	wth->data_offset += packet_size;
 
+	wth->phdr.presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 	wth->phdr.ts.secs = g_ntohl(hdr.ts_sec);
 	wth->phdr.ts.nsecs = g_ntohl(hdr.ts_usec) * 1000;
 	wth->phdr.caplen = packet_size;

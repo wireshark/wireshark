@@ -1008,6 +1008,7 @@ reread:
 	    &wth->pseudo_header, &hdr);
 
 	if (netxray->version_major == 0) {
+		wth->phdr.presence_flags = WTAP_HAS_TS;
 		t = (double)pletohl(&hdr.old_hdr.timelo)
 		    + (double)pletohl(&hdr.old_hdr.timehi)*4294967296.0;
 		t /= netxray->ticks_per_sec;
@@ -1022,6 +1023,7 @@ reread:
 		wth->phdr.caplen = packet_size - padding;
 		wth->phdr.len = wth->phdr.caplen;
 	} else {
+		wth->phdr.presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 		t = (double)pletohl(&hdr.hdr_1_x.timelo)
 		    + (double)pletohl(&hdr.hdr_1_x.timehi)*4294967296.0;
 		t /= netxray->ticks_per_sec;

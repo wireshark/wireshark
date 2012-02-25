@@ -367,6 +367,7 @@ parse_eyesdn_rec_hdr(wtap *wth, FILE_T fh,
 	}
 
 	if (wth) {
+		wth->phdr.presence_flags = WTAP_HAS_TS;
 		wth->phdr.ts.secs = secs;
 		wth->phdr.ts.nsecs = usecs * 1000;
 		wth->phdr.caplen = pkt_len;

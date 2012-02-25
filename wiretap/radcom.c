@@ -308,6 +308,8 @@ static gboolean radcom_read(wtap *wth, int *err, gchar **err_info,
 		real_length -= 2;
 	}
 
+	wth->phdr.presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
+
 	wth->phdr.len = real_length;
 	wth->phdr.caplen = length;
 

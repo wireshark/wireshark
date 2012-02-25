@@ -262,6 +262,7 @@ _5views_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	TimeStamped_Header.Utc = pletohl(&TimeStamped_Header.Utc);
 	TimeStamped_Header.NanoSecondes =
 	    pletohl(&TimeStamped_Header.NanoSecondes);
+	wth->phdr.presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 	wth->phdr.ts.secs = TimeStamped_Header.Utc;
 	wth->phdr.ts.nsecs = TimeStamped_Header.NanoSecondes;
 	wth->phdr.caplen = packet_size;

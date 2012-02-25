@@ -700,6 +700,8 @@ gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *data_of
 			case NSPR_PDPKTRACEFULLTXB_V10:
 			case NSPR_PDPKTRACEFULLRX_V10:
 
+				wth->phdr.presence_flags = WTAP_HAS_TS;
+
 				nsg_creltime += ns_hrtime2nsec(pletohl(&fp->fp_RelTimeHr));
 				wth->phdr.ts.secs = nstrace->nspm_curtime + (guint32) (nsg_creltime / 1000000000);
 				wth->phdr.ts.nsecs = (guint32) (nsg_creltime % 1000000000);
@@ -723,6 +725,8 @@ gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *data_of
 			case NSPR_PDPKTRACEPARTTX_V10:
 			case NSPR_PDPKTRACEPARTTXB_V10:
 			case NSPR_PDPKTRACEPARTRX_V10:
+
+				wth->phdr.presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 
 				nsg_creltime += ns_hrtime2nsec(pletohl(&pp->pp_RelTimeHr));
 				wth->phdr.ts.secs = nstrace->nspm_curtime + (guint32) (nsg_creltime / 1000000000);
@@ -777,6 +781,7 @@ gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *data_of
 
 #define TIMEDEFV20(fp,type) \
 	do {\
+		wth->phdr.presence_flags |= WTAP_HAS_TS;\
 		nsg_creltime += ns_hrtime2nsec(pletohl(fp->type##_RelTimeHr));\
 		wth->phdr.ts.secs = nstrace->nspm_curtime + (guint32) (nsg_creltime / 1000000000);\
 		wth->phdr.ts.nsecs = (guint32) (nsg_creltime % 1000000000);\
@@ -784,6 +789,7 @@ gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *data_of
 
 #define TIMEDEFV23(fp,type) \
 	do {\
+		wth->phdr.presence_flags |= WTAP_HAS_TS;\
 		/* access _AbsTimeHr as a 64bit value */\
 		nsg_creltime = pletohll(fp->type##_AbsTimeHr);\
 		wth->phdr.ts.secs = (guint32) (nsg_creltime / 1000000000);\
@@ -795,6 +801,7 @@ gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *data_of
 
 #define PPSIZEDEFV20(pp,ver) \
 	do {\
+		wth->phdr.presence_flags |= WTAP_HAS_CAP_LEN;\
 		wth->phdr.len = pletohs(&pp->pp_PktSizeOrg) + nspr_pktracepart_v##ver##_s;\
 		wth->phdr.caplen = nspr_getv20recordsize((nspr_hd_v20_t *)pp);\
 	}while(0)

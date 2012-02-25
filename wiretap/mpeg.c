@@ -232,6 +232,7 @@ mpeg_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 				packet_size, err, err_info))
 		return FALSE;
 	wth->data_offset += packet_size;
+	wth->phdr.presence_flags = WTAP_HAS_TS; /* XXX - relative, not absolute! */
 	wth->phdr.ts = ts;
 	wth->phdr.caplen = packet_size;
 	wth->phdr.len = packet_size;
@@ -297,7 +298,7 @@ good_magic:
 
 	mpeg = (mpeg_t *)g_malloc(sizeof(mpeg_t));
 	wth->priv = (void *)mpeg;
-	mpeg->now.secs = time(NULL);
+	mpeg->now.secs = 0;
 	mpeg->now.nsecs = 0;
 	mpeg->t0 = mpeg->now.secs;
 

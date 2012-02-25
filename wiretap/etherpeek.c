@@ -402,6 +402,8 @@ static gboolean etherpeek_read_v7(wtap *wth, int *err, gchar **err_info,
 		sliceLength = length;
 	}
 
+	wth->phdr.presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
+	
 	/* fill in packet header length values before slicelength may be
 	   adjusted */
 	wth->phdr.len    = length;

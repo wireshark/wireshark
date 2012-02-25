@@ -377,6 +377,7 @@ static int erf_read_header(FILE_T fh,
   if (phdr != NULL) {
     guint64 ts = pletohll(&erf_header->ts);
 
+    phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
     phdr->ts.secs = (long) (ts >> 32);
     ts = ((ts & 0xffffffff) * 1000 * 1000 * 1000);
     ts += (ts & 0x80000000) << 1; /* rounding */

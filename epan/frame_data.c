@@ -212,6 +212,8 @@ frame_data_init(frame_data *fdata, guint32 num,
   fdata->flags.marked = 0;
   fdata->flags.ref_time = 0;
   fdata->flags.ignored = 0;
+  fdata->flags.has_ts = (phdr->presence_flags & WTAP_HAS_TS) ? 1 : 0;
+  fdata->flags.has_if_id = (phdr->presence_flags & WTAP_HAS_INTERFACE_ID) ? 1 : 0;
   fdata->color_filter = NULL;
   fdata->opt_comment = phdr->opt_comment;
 }

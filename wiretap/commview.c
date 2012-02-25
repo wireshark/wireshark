@@ -212,6 +212,8 @@ commview_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 
 	wth->data_offset += cv_hdr.data_len;
 
+	wth->phdr.presence_flags = WTAP_HAS_TS;
+
 	wth->phdr.len = cv_hdr.data_len;
 	wth->phdr.caplen = cv_hdr.data_len;
 

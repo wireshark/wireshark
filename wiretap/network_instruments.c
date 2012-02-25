@@ -303,6 +303,7 @@ static gboolean observer_read(wtap *wth, int *err, gchar **err_info,
     }
 
     /* set the wiretap packet header fields */
+    wth->phdr.presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
     wth->phdr.pkt_encap = observer_to_wtap_encap(packet_header.network_type);
     if(wth->file_encap == WTAP_ENCAP_FIBRE_CHANNEL_FC2_WITH_FRAME_DELIMS) {
         wth->phdr.len = packet_header.network_size;

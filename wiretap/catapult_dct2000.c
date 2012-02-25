@@ -334,6 +334,8 @@ catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
 
             g_snprintf(timestamp_string, MAX_TIMESTAMP_LEN, "%d.%04d", seconds, useconds/100);
 
+            wth->phdr.presence_flags = WTAP_HAS_TS;
+
             /* All packets go to Catapult DCT2000 stub dissector */
             wth->phdr.pkt_encap = WTAP_ENCAP_CATAPULT_DCT2000;
 

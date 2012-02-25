@@ -195,9 +195,11 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	   generating any tree items.  */
 	if(!proto_field_is_referenced(tree, proto_frame)) {
 		tree=NULL;
-        if(pinfo->fd->abs_ts.nsecs < 0 || pinfo->fd->abs_ts.nsecs >= 1000000000)
-		expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_WARN,
-				       "Arrival Time: Fractional second out of range (0-1000000000)");
+		if(pinfo->fd->flags.has_ts) {
+			if(pinfo->fd->abs_ts.nsecs < 0 || pinfo->fd->abs_ts.nsecs >= 1000000000)
+				expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_WARN,
+						       "Arrival Time: Fractional second out of range (0-1000000000)");
+		}
 	} else {
 		proto_tree	*fh_tree;
 		gboolean old_visible;
@@ -209,52 +211,61 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		cap_plurality = plurality(cap_len, "", "s");
 		frame_plurality = plurality(frame_len, "", "s");
 
+		ti = proto_tree_add_protocol_format(tree, proto_frame, tvb, 0, -1,
+		    "Frame %u: %u byte%s on wire",
+		    pinfo->fd->num, frame_len, frame_plurality);
 		if (generate_bits_field)
-			ti = proto_tree_add_protocol_format(tree, proto_frame, tvb, 0, -1,
-			    "Frame %u: %u byte%s on wire (%u bits), %u byte%s captured (%u bits) on interface %u",
-			    pinfo->fd->num, frame_len, frame_plurality, frame_len * 8,
-			    cap_len, cap_plurality, cap_len * 8, pinfo->fd->interface_id);
-		else
-			ti = proto_tree_add_protocol_format(tree, proto_frame, tvb, 0, -1,
-			    "Frame %u: %u byte%s on wire, %u byte%s captured, on interface %u", pinfo->fd->num,
-			     frame_len, frame_plurality, cap_len, cap_plurality, pinfo->fd->interface_id);
+			proto_item_append_text(ti, " (%u bits)", frame_len * 8);
+		proto_item_append_text(ti, ", %u byte%s captured",
+		    cap_len, cap_plurality);
+		if (generate_bits_field) {
+			proto_item_append_text(ti, " (%u bits)",
+			    cap_len * 8);
+		}
+		if (pinfo->fd->flags.has_if_id) {
+			proto_item_append_text(ti, " on interface %u",
+			    pinfo->fd->interface_id);
+		}
 
 		fh_tree = proto_item_add_subtree(ti, ett_frame);
 
-		proto_tree_add_uint(fh_tree, hf_frame_interface_id, tvb, 0, 0, pinfo->fd->interface_id);
+		if (pinfo->fd->flags.has_if_id)
+			proto_tree_add_uint(fh_tree, hf_frame_interface_id, tvb, 0, 0, pinfo->fd->interface_id);
 
-		proto_tree_add_time(fh_tree, hf_frame_arrival_time, tvb,
-				    0, 0, &(pinfo->fd->abs_ts));
-		if(pinfo->fd->abs_ts.nsecs < 0 || pinfo->fd->abs_ts.nsecs >= 1000000000) {
-			item = proto_tree_add_none_format(fh_tree, hf_frame_time_invalid, tvb,
-							  0, 0, "Arrival Time: Fractional second %09ld is invalid, the valid range is 0-1000000000", (long) pinfo->fd->abs_ts.nsecs);
-			PROTO_ITEM_SET_GENERATED(item);
-			expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "Arrival Time: Fractional second out of range (0-1000000000)");
-		}
-		item = proto_tree_add_time(fh_tree, hf_frame_shift_offset, tvb,
-				    0, 0, &(pinfo->fd->shift_offset));
-		PROTO_ITEM_SET_GENERATED(item);
-
-		if(generate_epoch_time) {
-			proto_tree_add_time(fh_tree, hf_frame_arrival_time_epoch, tvb,
+		if (pinfo->fd->flags.has_ts) {
+			proto_tree_add_time(fh_tree, hf_frame_arrival_time, tvb,
 					    0, 0, &(pinfo->fd->abs_ts));
-		}
+			if(pinfo->fd->abs_ts.nsecs < 0 || pinfo->fd->abs_ts.nsecs >= 1000000000) {
+				item = proto_tree_add_none_format(fh_tree, hf_frame_time_invalid, tvb,
+								  0, 0, "Arrival Time: Fractional second %09ld is invalid, the valid range is 0-1000000000", (long) pinfo->fd->abs_ts.nsecs);
+				PROTO_ITEM_SET_GENERATED(item);
+				expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "Arrival Time: Fractional second out of range (0-1000000000)");
+			}
+			item = proto_tree_add_time(fh_tree, hf_frame_shift_offset, tvb,
+					    0, 0, &(pinfo->fd->shift_offset));
+			PROTO_ITEM_SET_GENERATED(item);
 
-		item = proto_tree_add_time(fh_tree, hf_frame_time_delta, tvb,
-					   0, 0, &(pinfo->fd->del_cap_ts));
-		PROTO_ITEM_SET_GENERATED(item);
+			if(generate_epoch_time) {
+				proto_tree_add_time(fh_tree, hf_frame_arrival_time_epoch, tvb,
+						    0, 0, &(pinfo->fd->abs_ts));
+			}
 
-		item = proto_tree_add_time(fh_tree, hf_frame_time_delta_displayed, tvb,
-					   0, 0, &(pinfo->fd->del_dis_ts));
-		PROTO_ITEM_SET_GENERATED(item);
+			item = proto_tree_add_time(fh_tree, hf_frame_time_delta, tvb,
+						   0, 0, &(pinfo->fd->del_cap_ts));
+			PROTO_ITEM_SET_GENERATED(item);
 
-		item = proto_tree_add_time(fh_tree, hf_frame_time_relative, tvb,
-					   0, 0, &(pinfo->fd->rel_ts));
-		PROTO_ITEM_SET_GENERATED(item);
+			item = proto_tree_add_time(fh_tree, hf_frame_time_delta_displayed, tvb,
+						   0, 0, &(pinfo->fd->del_dis_ts));
+			PROTO_ITEM_SET_GENERATED(item);
 
-		if(pinfo->fd->flags.ref_time){
-			ti = proto_tree_add_item(fh_tree, hf_frame_time_reference, tvb, 0, 0, ENC_NA);
-			PROTO_ITEM_SET_GENERATED(ti);
+			item = proto_tree_add_time(fh_tree, hf_frame_time_relative, tvb,
+						   0, 0, &(pinfo->fd->rel_ts));
+			PROTO_ITEM_SET_GENERATED(item);
+
+			if(pinfo->fd->flags.ref_time){
+				ti = proto_tree_add_item(fh_tree, hf_frame_time_reference, tvb, 0, 0, ENC_NA);
+				PROTO_ITEM_SET_GENERATED(ti);
+			}
 		}
 
 		proto_tree_add_uint(fh_tree, hf_frame_number, tvb,

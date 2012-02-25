@@ -131,6 +131,8 @@ packetlogger_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 
 	wth->data_offset += (pl_hdr.len + 4);
 
+	wth->phdr.presence_flags = WTAP_HAS_TS;
+
 	wth->phdr.len = pl_hdr.len - 8;
 	wth->phdr.caplen = pl_hdr.len - 8;
 

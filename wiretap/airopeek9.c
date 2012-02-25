@@ -517,6 +517,8 @@ static gboolean airopeekv9_read(wtap *wth, int *err, gchar **err_info,
 	return FALSE;
     }
 
+    wth->phdr.presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
+
     /* fill in packet header length values before slicelength may be
        adjusted */
     wth->phdr.len    = hdr_info.length;

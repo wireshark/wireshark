@@ -661,6 +661,8 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 		return FALSE;	/* Read error */
 	wth->data_offset += packet_size;
 
+	wth->phdr.presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
+
 	/* Update the Timestamp, if not already done */
 	if (wth->file_encap != WTAP_ENCAP_ERF) {
 	  wth->phdr.ts.secs = hdr.hdr.ts_sec;

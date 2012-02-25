@@ -2027,6 +2027,14 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 		id = (gint)wblock.data.packet.interface_id;
 		int_data = g_array_index(pcapng->interface_data, interface_data_t, id);
 		time_units_per_second = int_data.time_units_per_second;
+		/* XXX - not WTAP_HAS_TS for an SPB */
+		wth->phdr.presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID;
+		if (wblock.data.packet.opt_comment != NULL)
+			wth->phdr.presence_flags |= WTAP_HAS_COMMENTS;
+		/* XXX - only if the option is present, for an EPB */
+		wth->phdr.presence_flags |= WTAP_HAS_DROP_COUNT;
+		/* XXX - only if the option is present */
+		wth->phdr.presence_flags |= WTAP_HAS_PACK_FLAGS;
 		wth->phdr.pkt_encap = int_data.wtap_encap;
 		wth->phdr.ts.secs = (time_t)(ts / time_units_per_second);
 		wth->phdr.ts.nsecs = (int)(((ts % time_units_per_second) * 1000000000) / time_units_per_second);

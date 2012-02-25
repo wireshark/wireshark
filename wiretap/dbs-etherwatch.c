@@ -477,6 +477,8 @@ parse_dbs_etherwatch_packet(wtap *wth, FILE_T fh, guint8* buf, int *err,
 	}
 
 	if (wth) {
+		wth->phdr.presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
+
 		p = strstr(months, mon);
 		if (p)
 			tm.tm_mon = (int)(p - months) / 3;

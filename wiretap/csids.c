@@ -187,6 +187,7 @@ static gboolean csids_read(wtap *wth, int *err, gchar **err_info,
 
   wth->data_offset += hdr.caplen;
 
+  wth->phdr.presence_flags = WTAP_HAS_TS;
   wth->phdr.len = hdr.caplen;
   wth->phdr.caplen = hdr.caplen;
   wth->phdr.ts.secs = hdr.seconds;

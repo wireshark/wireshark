@@ -93,7 +93,9 @@ mime_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 		return FALSE;
 	}
 
-	wth->phdr.ts.secs = (time_t) wth->data_offset;
+	wth->phdr.presence_flags = 0;
+
+	wth->phdr.ts.secs = 0;
 	wth->phdr.ts.nsecs = 0;
 
 	*data_offset = wth->data_offset;

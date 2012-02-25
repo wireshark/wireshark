@@ -352,6 +352,7 @@ static gboolean dct3trace_read(wtap *wth, int *err, gchar **err_info,
 	}
 
 	/* We've got a full packet! */
+	wth->phdr.presence_flags = 0; /* no time stamp, no separate "on the wire" length */
 	wth->phdr.ts.secs = 0;
 	wth->phdr.ts.nsecs = 0;
 	wth->phdr.caplen = buf_len;

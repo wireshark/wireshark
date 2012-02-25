@@ -275,6 +275,7 @@ ipfix_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
     wtap_file_read_expected_bytes(buffer_start_ptr(wth->frame_buffer),
                    msg_hdr.message_length, wth->fh, err, err_info);
 
+    wth->phdr.presence_flags = 0;
     wth->phdr.len = msg_hdr.message_length;
     wth->phdr.caplen = msg_hdr.message_length;
     wth->phdr.ts.secs =  0;

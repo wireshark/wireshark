@@ -355,6 +355,7 @@ parse_toshiba_rec_hdr(wtap *wth, FILE_T fh,
 	}
 
 	if (wth) {
+		wth->phdr.presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 		wth->phdr.ts.secs = hr * 3600 + min * 60 + sec;
 		wth->phdr.ts.nsecs = csec * 10000000;
 		wth->phdr.caplen = pkt_len;

@@ -56,6 +56,8 @@ typedef struct _frame_data {
     unsigned int marked         : 1; /**< 1 = marked by user, 0 = normal */
     unsigned int ref_time       : 1; /**< 1 = marked as a reference time frame, 0 = normal */
     unsigned int ignored        : 1; /**< 1 = ignore this frame, 0 = normal */
+    unsigned int has_ts         : 1; /**< 1 = has time stamp, 0 = no time stamp */
+    unsigned int has_if_id      : 1; /**< 1 = has interface ID, 0 = no interface ID */
   } flags;
 
   const void *color_filter;  /**< Per-packet matching color_filter_t object */

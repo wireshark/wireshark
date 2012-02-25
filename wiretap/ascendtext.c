@@ -317,6 +317,7 @@ static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
     if (ascend->inittime > header.secs)
       ascend->inittime -= header.secs;
   }
+  wth->phdr.presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
   wth->phdr.ts.secs = header.secs + ascend->inittime;
   wth->phdr.ts.nsecs = header.usecs * 1000;
   wth->phdr.caplen = header.caplen;
