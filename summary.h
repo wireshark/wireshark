@@ -61,19 +61,19 @@ typedef struct _summary_tally {
     double 	filtered_start;		/**< time in seconds, with msec resolution */
     double 	filtered_stop;		/**< time in seconds, with msec resolution */
     const char	*filename;
-    gint64	file_length;		/**< file length in bytes */
-    int		file_type;		/**< wiretap file type */
-    int		encap_type;		/**< wiretap encapsulation type */
+    gint64		file_length;	/**< file length in bytes */
+    int			file_type;		/**< wiretap file type */
+    int			encap_type;		/**< wiretap encapsulation type */
     gboolean	has_snap;		/**< TRUE if maximum capture packet length is known */
-    int		snap;			/**< Maximum captured packet length */
-    gboolean    drops_known;		/**< TRUE if number of packet drops is known */
+    int			snap;			/**< Maximum captured packet length */
+    gboolean    drops_known;	/**< TRUE if number of packet drops is known */
     guint64     drops;			/**< number of packet drops */
     const char	*dfilter;		/**< display filter */
     gboolean    is_tempfile;
 	/* from SHB, use summary_fill_shb_inf() to get values */
     gchar       *opt_comment;   	/**< comment from SHB block */
     gchar       *shb_hardware;		/**< Capture HW from SHB block */
-    gchar       *shb_os;		/**< The OS the capture was made on from SHB block */
+    gchar       *shb_os;			/**< The OS the capture was made on from SHB block */
     gchar       *shb_user_appl;		/**< The application that made the capture from SHB block */
     /* capture related, use summary_fill_in_capture() to get values */
     GArray	*ifaces;
@@ -87,6 +87,8 @@ summary_fill_in(capture_file *cf, summary_tally *st);
 extern void
 summary_fill_in_capture(capture_file *cf, capture_options *capture_opts, summary_tally *st);
 #endif
+extern void
+summary_update_comment(capture_file *cf, gchar *comment);
 
 #endif /* summary.h */
 

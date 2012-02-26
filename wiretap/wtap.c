@@ -112,6 +112,13 @@ wtapng_section_t* wtap_file_get_shb_info(wtap *wth)
 	return shb_hdr;
 }
 
+void wtap_write_shb_comment(wtap *wth, gchar *comment)
+{
+	g_free(wth->shb_hdr.opt_comment);
+	wth->shb_hdr.opt_comment = comment;
+
+}
+
 wtapng_iface_descriptions_t* wtap_file_get_idb_info(wtap *wth)
 {
 	wtapng_iface_descriptions_t *idb_info;

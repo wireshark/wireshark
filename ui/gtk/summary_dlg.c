@@ -129,6 +129,36 @@ time_to_string(char *string_buff, gulong string_buff_size, time_t ti_time)
              ti_tm->tm_sec);
 }
 
+static void
+summary_comment_text_buff_save_cb(GtkWidget *w _U_, GtkWidget *view)
+{
+  GtkTextBuffer *buffer;
+  GtkTextIter start_iter;
+  GtkTextIter end_iter;
+  gchar *new_comment = NULL;
+
+  buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (view));
+  gtk_text_buffer_get_start_iter (buffer, &start_iter);
+  gtk_text_buffer_get_end_iter (buffer, &end_iter);
+
+  new_comment = gtk_text_buffer_get_text (buffer, &start_iter, &end_iter, FALSE /* whether to include invisible text */);  
+
+  /*g_warning("The new comment is '%s'",new_packet_comment);*/
+
+  summary_update_comment(&cfile, new_comment);
+
+}
+
+static void
+summary_comment_text_buff_clear_cb(GtkWidget *w _U_, GtkWidget *view)
+{
+  GtkTextBuffer *buffer;
+
+  buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (view));
+  gtk_text_buffer_set_text (buffer, "", -1);
+
+}
+
 void
 summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
 {
@@ -222,10 +252,53 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
     add_string_to_table(table, &row, "Packet size limit:", string_buff);
   }
 
-  if (summary.opt_comment != NULL) {
-    /* comment */
-    add_string_to_table(table, &row, "Comment:", summary.opt_comment);
-  }
+  /* Only allow editing of comment if filetype is PCAPNG */
+  if(summary.file_type == WTAP_FILE_PCAPNG){
+	  GtkWidget *comment_vbox;
+	  GtkWidget *view;
+	  GtkTextBuffer *buffer = NULL;
+	  const gchar *buf_str;
+	  GtkWidget *save_bt, *clear_bt;
+
+	  comment_vbox = gtk_vbox_new (FALSE, 0);
+	  gtk_container_add (GTK_CONTAINER (main_vb), comment_vbox);
+	  gtk_widget_show (comment_vbox);
+
+	  view = gtk_text_view_new ();
+	  buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (view));
+	  if(summary.opt_comment == NULL){
+		  buf_str = g_strdup_printf("[None]");
+	  }else{
+		  buf_str = g_strdup_printf("%s", summary.opt_comment);
+	  }
+	  gtk_text_buffer_set_text (buffer, buf_str, -1);
+	  gtk_container_add(GTK_CONTAINER(comment_vbox), view);
+	  gtk_widget_show (view);
+
+	  /* Button row. */
+	  bbox = dlg_button_row_new (GTK_STOCK_SAVE, GTK_STOCK_CLEAR, NULL);
+	  gtk_box_pack_end (GTK_BOX(comment_vbox), bbox, FALSE, FALSE, 0);
+
+	  save_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_SAVE);
+	  g_signal_connect (save_bt, "clicked", G_CALLBACK(summary_comment_text_buff_save_cb), view);
+	  gtk_widget_set_sensitive (save_bt, TRUE);
+	  gtk_widget_set_tooltip_text(save_bt,
+			     "You need to save the the capture file as well to save the updated comment");
+
+
+	  clear_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLEAR);
+	  g_signal_connect(clear_bt, "clicked", G_CALLBACK(summary_comment_text_buff_clear_cb), view);
+	  gtk_widget_set_tooltip_text(clear_bt,
+			     "Clears the text from the box, not the capture");
+
+	  gtk_widget_grab_default (save_bt);
+
+  }else{
+	  if (summary.opt_comment != NULL) {
+		/* comment */
+		add_string_to_table(table, &row, "Comment:", summary.opt_comment);
+	  }
+ }
 
   /*
    * We must have no un-time-stamped packets (i.e., the number of

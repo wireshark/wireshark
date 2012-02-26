@@ -1036,6 +1036,7 @@ int wtap_file_encap(wtap *wth);
 int wtap_file_tsprecision(wtap *wth);
 wtapng_section_t* wtap_file_get_shb_info(wtap *wth);
 wtapng_iface_descriptions_t *wtap_file_get_idb_info(wtap *wth);
+void wtap_write_shb_comment(wtap *wth, gchar *comment);
 
 /*** close the current file ***/
 void wtap_sequential_close(wtap *wth);

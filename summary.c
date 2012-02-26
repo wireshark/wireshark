@@ -220,3 +220,12 @@ summary_fill_in_capture(capture_file *cf,capture_options *capture_opts, summary_
   }
 }
 #endif
+
+void
+summary_update_comment(capture_file *cf, gchar *comment)
+{
+
+  /* Get info from SHB */
+  wtap_write_shb_comment(cf->wth, comment);
+
+}
