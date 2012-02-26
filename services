@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2012-02-17
+# 2012-02-24
 # 
 # Note
 # 
@@ -874,7 +874,13 @@ pip	321/tcp	# PIP                          [Gordon_Mohr]                        
 pip	321/udp	# PIP                          [Gordon_Mohr]                             [Gordon_Mohr]
 rtsps	322/tcp	# RTSPS                        [Anders_Klemets]                          [Anders_Klemets]
 rtsps	322/udp	# RTSPS                        [Anders_Klemets]                          [Anders_Klemets]
-# 323-332             Unassigned
+rpki-rtr	323/tcp	# Resource PKI to Router       [IESG]                                    [IETF_Chair]                                                                        [RFC-ietf-sidr-rpki-rtr-26]
+# Protocol
+# 323        udp    Reserved
+rpki-rtr-tls	324/tcp	# Resource PKI to Router       [IESG]                                    [IETF_Chair]                                                                        [RFC-ietf-sidr-rpki-rtr-26]
+# Protocol over TLS
+# 324        udp    Reserved
+# 325-332             Unassigned
 texar	333/tcp	# Texar Security Port          [Eugen_Bacic]                             [Eugen_Bacic]
 texar	333/udp	# Texar Security Port          [Eugen_Bacic]                             [Eugen_Bacic]
 # 334-343             Unassigned
@@ -7523,8 +7529,8 @@ vidigo	3231/tcp	# (previous was: Delta         [Peter_Ijkhout]                  
 # VidiGo communication
 vidigo	3231/udp	# (previous was: Delta         [Peter_Ijkhout]                           [Peter_Ijkhout]
 # Solutions Direct)
-mdtp	3232/tcp	# MDT port                                                                                                                                                   [RFC-ietf-l3vpn-2547bis-mcast-10]
-mdtp	3232/udp	# MDT port                                                                                                                                                   [RFC-ietf-l3vpn-2547bis-mcast-10]
+mdtp	3232/tcp	# MDT port                                                                                                                                      2012-02-21   [RFC6513]
+mdtp	3232/udp	# MDT port                                                                                                                                      2012-02-21   [RFC6513]
 whisker	3233/tcp	# WhiskerControl main port     [Rudolf_Cardinal]                         [Rudolf_Cardinal]                                         2002-02
 whisker	3233/udp	# WhiskerControl main port     [Rudolf_Cardinal]                         [Rudolf_Cardinal]                                         2002-02
 alchemy	3234/tcp	# Alchemy Server               [Mikhail_Belov]                           [Mikhail_Belov]                                           2002-02
@@ -9519,8 +9525,8 @@ brlp-2	4103/tcp	# Braille protocol
 brlp-2	4103/udp	# Braille protocol
 brlp-3	4104/tcp	# Braille protocol             [Sebastien_Hinderer]                      [Sebastien_Hinderer]                                      2006-03
 brlp-3	4104/udp	# Braille protocol             [Sebastien_Hinderer]                      [Sebastien_Hinderer]                                      2006-03
-shofarplayer	4105/tcp	# ShofarPlayer                 [John_Kozlowski]                          [John_Kozlowski]                                          2006-07
-shofarplayer	4105/udp	# ShofarPlayer                 [John_Kozlowski]                          [John_Kozlowski]                                          2006-07
+shofar	4105/tcp	# Shofar                       [ShofarNexus]                             [John_Kozlowski]                                          2006-07      2012-02-20
+shofar	4105/udp	# Shofar                       [ShofarNexus]                             [John_Kozlowski]                                          2006-07      2012-02-20
 synchronite	4106/tcp	# Synchronite                  [James_Figgins]                           [James_Figgins]                                           2006-07
 synchronite	4106/udp	# Synchronite                  [James_Figgins]                           [James_Figgins]                                           2006-07
 j-ac	4107/tcp	# JDL Accounting LAN Service   [Takashi_Sahara]                          [Takashi_Sahara]                                          2006-09
@@ -15660,6 +15666,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # bfagent                               BuildForge Agent             [Joe_Senner_2]                            [Joe_Senner_2]                                                                                                                                    Defined TXT keys: None
 # bigbangchess                          Big Bang Chess               [Freeverse_Software]                      [Freeverse_Software]                                                                                                                              Defined TXT keys: None
 # bigbangmancala                        Big Bang Mancala             [Freeverse_Software]                      [Freeverse_Software]                                                                                                                              Defined TXT keys: None
+# bitflit                        tcp    Data transfer service        [Ramesh_Gupta]                            [Ramesh_Gupta]                                            2012-02-21                                                                              Defined TXT keys: provider, vendor, user, host, deploy,
+# prototype, schedule
 # bittorrent                            BitTorrent Zeroconf Peer     [Robin_Perkins]                           [Robin_Perkins]                                                                                                                                   Defined TXT keys: None
 # Discovery Protocol
 # Little Black Book                                                                                                                                                                                                        Defined TXT keys: product=<application name>
@@ -18732,7 +18740,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [John_Kane]                                               John Kane                                       mailto:johnkan&microsoft.com
 # [John_Keaveney]                                           John Keaveney                                   mailto:johnkeaveney&targusinfo.com
 # [John_Kelly]                                              John Kelly                                      mailto:johnk&bellhow.com
-# [John_Kozlowski]                                          John Kozlowski                                  mailto:John.Kozlowski&heritagesystems.com                     2006-07
+# [John_Kozlowski]                                          John Kozlowski            ShofarNexus.com       mailto:John.Kozlowski&ShofarNexus.com                         2012-02-20
 # [John_Legh_Page]                                          John Legh-Page                                  mailto:john.legh-page&argis.com
 # [John_Light]                                              John Light                                      mailto:johnl&gssc.gss.com
 # [John_Linn]                                               John Linn                                       mailto:jlinn&securitydynamics.com
@@ -20044,6 +20052,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Ram_Sudama]                                              Ram Sudama                                      mailto:rsudama&on.com
 # [Ramakrishna_Nadendla]                                    Ramakrishna Nadendla                            mailto:rama_nadendla&agilent.com                              2002-08
 # [Ramana_Kovi]                                             Ramana Kovi                                     mailto:ramana&kovi.com
+# [Ramesh_Gupta]                                            Ramesh Gupta                                    mailto:ramesh&guptas.net                                      2012-02-21
 # [Rami_Rubin]                                              Rami Rubin                                      mailto:rami&hybrid.com
 # [Ramindur_Singh]                                          Ramindur Singh                                  mailto:Ramindur.Singh&blackcrowsoftware.com                   2008-12-04
 # [Ramiro_Sarmiento]                                        Ramiro Sarmiento                                mailto:ramiro&kabira.com
@@ -20487,6 +20496,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Shivakumar_S_Govind]                                     Shivakumar S.                                   mailto:shivak&eng.sun.com
 # Govindarajapuram
 # [Shivaun_Albright]                                        Shivaun Albright                                mailto:shivaun_albright&hp.com                                2002-04
+# [ShofarNexus]                                                                       ShofarNexus.com       mailto:John.Kozlowski&ShofarNexus.com                         2012-02-20
 # [Shoichi_Tachibana]                                       Shoichi Tachibana                               mailto:tatibana&yk.fujitsu.co.jp
 # [Shree_Murthy]                                            Shree Murthy                                    mailto:shree&cisco.com                                        2009-10-29
 # [Shu_Wei_Tan]                                             Shu-Wei Tan                                     mailto:stan&omnicomtech.com                                   2003-03
