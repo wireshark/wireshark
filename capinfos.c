@@ -148,7 +148,7 @@ static gboolean cap_data_rate_byte = TRUE;  /* Report data rate bytes/sec */
 static gboolean cap_data_rate_bit = TRUE;   /* Report data rate bites/sec */
 static gboolean cap_packet_size = TRUE;     /* Report average packet size */
 static gboolean cap_packet_rate = TRUE;     /* Report average packet rate */
-static gboolean cap_in_order = TRUE;        /* Report if packets are in chronological order (True/False) */
+static gboolean cap_order = TRUE;           /* Report if packets are in chronological order (True/False) */
 
 #ifdef HAVE_LIBGCRYPT
 static gboolean cap_file_hashes = TRUE;     /* Calculate file hashes */
@@ -172,6 +172,22 @@ static gchar file_md5[HASH_STR_SIZE];
 #define FILE_HASH_OPT ""
 #endif /* HAVE_LIBGCRYPT */
 
+/*
+ * If we have at least two packets with time stamps, and they're not in
+ * order - i.e., the later packet has a time stamp older than the earlier
+ * packet - the time stamps are known not to be in order.
+ *
+ * If every packet has a time stamp, and they're all in order, the time
+ * stamp is known to be in order.
+ *
+ * Otherwise, we have no idea.
+ */
+typedef enum {
+  IN_ORDER,
+  NOT_IN_ORDER,
+  ORDER_UNKNOWN
+} order_t;
+
 typedef struct _capture_info {
   const char    *filename;
   guint16       file_type;
@@ -179,6 +195,7 @@ typedef struct _capture_info {
   gint64        filesize;
 
   guint64       packet_bytes;
+  gboolean      times_known;
   double        start_time;
   double        stop_time;
   guint32       packet_count;
@@ -193,7 +210,8 @@ typedef struct _capture_info {
   double        packet_rate;
   double        packet_size;
   double        data_rate;              /* in bytes */
-  gboolean      in_order;
+  gboolean      know_order;
+  order_t       order;
 
   int          *encap_counts;           /* array of per_packet encap counts; array has one entry per wtap_encap type */
 } capture_info;
@@ -213,7 +231,7 @@ enable_all_infos(void)
   cap_duration = TRUE;
   cap_start_time = TRUE;
   cap_end_time = TRUE;
-  cap_in_order = TRUE;
+  cap_order = TRUE;
 
   cap_data_rate_byte = TRUE;
   cap_data_rate_bit = TRUE;
@@ -240,7 +258,7 @@ disable_all_infos(void)
   cap_duration       = FALSE;
   cap_start_time     = FALSE;
   cap_end_time       = FALSE;
-  cap_in_order       = FALSE;
+  cap_order          = FALSE;
 
   cap_data_rate_byte = FALSE;
   cap_data_rate_bit  = FALSE;
@@ -252,6 +270,25 @@ disable_all_infos(void)
 #endif /* HAVE_LIBGCRYPT */
 }
 
+static const gchar *
+order_string(order_t order)
+{
+  switch (order) {
+
+  case IN_ORDER:
+    return "True";
+
+  case NOT_IN_ORDER:
+    return "False";
+
+  case ORDER_UNKNOWN:
+    return "Unknown";
+
+  default:
+    return "???";  /* "cannot happen" (the next step is "Profit!") */
+  }
+}
+
 static gchar *
 time_string(time_t timer, capture_info *cf_info, gboolean want_lf)
 {
@@ -259,7 +296,7 @@ time_string(time_t timer, capture_info *cf_info, gboolean want_lf)
   static gchar time_string_buf[20];
   char *time_string_ctime;
 
-  if (cf_info->packet_count > 0) {
+  if (cf_info->times_known && cf_info->packet_count > 0) {
     if (time_as_secs) {
       /* XXX - Would it be useful to show sub-second precision? */
       g_snprintf(time_string_buf, 20, "%lu%s", (unsigned long)timer, lf);
@@ -344,13 +381,23 @@ print_stats(const gchar *filename, capture_info *cf_info)
   if (cap_packet_count)   printf     ("Number of packets:   %u\n", cf_info->packet_count);
   if (cap_file_size)      printf     ("File size:           %" G_GINT64_MODIFIER "d bytes\n", cf_info->filesize);
   if (cap_data_size)      printf     ("Data size:           %" G_GINT64_MODIFIER "u bytes\n", cf_info->packet_bytes);
-  if (cap_duration)       print_value("Capture duration:    ", 0, " seconds",   cf_info->duration);
-  if (cap_start_time)     printf     ("Start time:          %s", time_string(start_time_t, cf_info, TRUE));
-  if (cap_end_time)       printf     ("End time:            %s", time_string(stop_time_t, cf_info, TRUE));
-  if (cap_data_rate_byte) print_value("Data byte rate:      ", 2, " bytes/sec",   cf_info->data_rate);
-  if (cap_data_rate_bit)  print_value("Data bit rate:       ", 2, " bits/sec",    cf_info->data_rate*8);
+  if (cf_info->times_known) {
+    if (cap_duration)
+                          print_value("Capture duration:    ", 0, " seconds",   cf_info->duration);
+    if (cap_start_time)
+                          printf     ("Start time:          %s", time_string(start_time_t, cf_info, TRUE));
+    if (cap_end_time)
+                          printf     ("End time:            %s", time_string(stop_time_t, cf_info, TRUE));
+    if (cap_data_rate_byte)
+                          print_value("Data byte rate:      ", 2, " bytes/sec",   cf_info->data_rate);
+    if (cap_data_rate_bit)
+                          print_value("Data bit rate:       ", 2, " bits/sec",    cf_info->data_rate*8);
+  }
   if (cap_packet_size)    printf     ("Average packet size: %.2f bytes\n",        cf_info->packet_size);
-  if (cap_packet_rate)    print_value("Average packet rate: ", 2, " packets/sec", cf_info->packet_rate);
+  if (cf_info->times_known) {
+    if (cap_packet_rate) 
+                          print_value("Average packet rate: ", 2, " packets/sec", cf_info->packet_rate);
+  }
 #ifdef HAVE_LIBGCRYPT
   if (cap_file_hashes) {
                           printf     ("SHA1:                %s\n", file_sha1);
@@ -358,7 +405,7 @@ print_stats(const gchar *filename, capture_info *cf_info)
                           printf     ("MD5:                 %s\n", file_md5);
   }
 #endif /* HAVE_LIBGCRYPT */
-  if (cap_in_order)       printf     ("Strict time order:   %s\n", (cf_info->in_order) ? "True" : "False");
+  if (cap_order)          printf     ("Strict time order:   %s\n", order_string(cf_info->order));
 }
 
 static void
@@ -411,7 +458,7 @@ print_stats_table_header(void)
                           print_stats_table_header_label("MD5");
   }
 #endif /* HAVE_LIBGCRYPT */
-  if (cap_in_order)       print_stats_table_header_label("Strict time order");
+  if (cap_order)          print_stats_table_header_label("Strict time order");
 
   printf("\n");
 }
@@ -508,7 +555,10 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
   if (cap_duration) {
     putsep();
     putquote();
-    printf("%f", cf_info->duration);
+    if (cf_info->times_known)
+      printf("%f", cf_info->duration);
+    else
+      printf("n/a");
     putquote();
   }
 
@@ -529,14 +579,20 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
   if (cap_data_rate_byte) {
     putsep();
     putquote();
-    printf("%.2f", cf_info->data_rate);
+    if (cf_info->times_known)
+      printf("%.2f", cf_info->data_rate);
+    else
+      printf("n/a");
     putquote();
   }
 
   if (cap_data_rate_bit) {
     putsep();
     putquote();
-    printf("%.2f", cf_info->data_rate*8);
+    if (cf_info->times_known)
+      printf("%.2f", cf_info->data_rate*8);
+    else
+      printf("n/a");
     putquote();
   }
 
@@ -550,7 +606,10 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
   if (cap_packet_rate) {
     putsep();
     putquote();
-    printf("%.2f", cf_info->packet_rate);
+    if (cf_info->times_known)
+      printf("%.2f", cf_info->packet_rate);
+    else
+      printf("n/a");
     putquote();
   }
 
@@ -573,10 +632,10 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
   }
 #endif /* HAVE_LIBGCRYPT */
 
-  if (cap_in_order) {
+  if (cap_order) {
     putsep();
     putquote();
-    printf("%s", (cf_info->in_order) ? "True" : "False");
+    printf("%s", order_string(cf_info->order));
     putquote();
   }
 
@@ -597,32 +656,40 @@ process_cap_file(wtap *wth, const char *filename)
   guint32               snaplen_max_inferred =          0;
   const struct wtap_pkthdr *phdr;
   capture_info          cf_info;
+  gboolean		have_times = TRUE;
   double                start_time = 0;
   double                stop_time  = 0;
   double                cur_time   = 0;
   double		prev_time = 0;
-  gboolean		in_order = TRUE;
+  gboolean		know_order = FALSE;
+  order_t		order = IN_ORDER;
 
   cf_info.encap_counts = g_malloc0(WTAP_NUM_ENCAP_TYPES * sizeof(int));
 
   /* Tally up data that we need to parse through the file to find */
   while (wtap_read(wth, &err, &err_info, &data_offset))  {
     phdr = wtap_phdr(wth);
-    prev_time = cur_time;
-    cur_time = secs_nsecs(&phdr->ts);
-    if(packet==0) {
-      start_time = cur_time;
-      stop_time = cur_time;
+    if (phdr->presence_flags & WTAP_HAS_TS) {
       prev_time = cur_time;
-    }
-    if (cur_time < prev_time) {
-      in_order = FALSE;
-    }
-    if (cur_time < start_time) {
-      start_time = cur_time;
-    }
-    if (cur_time > stop_time) {
-      stop_time = cur_time;
+      cur_time = secs_nsecs(&phdr->ts);
+      if(packet==0) {
+        start_time = cur_time;
+        stop_time = cur_time;
+        prev_time = cur_time;
+      }
+      if (cur_time < prev_time) {
+        order = NOT_IN_ORDER;
+      }
+      if (cur_time < start_time) {
+        start_time = cur_time;
+      }
+      if (cur_time > stop_time) {
+        stop_time = cur_time;
+      }
+    } else {
+      have_times = FALSE; /* at least one packet has no time stamp */
+      if (order != NOT_IN_ORDER)
+        order = ORDER_UNKNOWN;
     }
 
     bytes+=phdr->len;
@@ -700,10 +767,12 @@ process_cap_file(wtap *wth, const char *filename)
   cf_info.packet_count = packet;
 
   /* File Times */
+  cf_info.times_known = have_times;
   cf_info.start_time = start_time;
   cf_info.stop_time = stop_time;
   cf_info.duration = stop_time-start_time;
-  cf_info.in_order = in_order;
+  cf_info.know_order = know_order;
+  cf_info.order = order;
 
   /* Number of packet bytes */
   cf_info.packet_bytes = bytes;
@@ -960,7 +1029,7 @@ main(int argc, char *argv[])
 
     case 'o':
       if (report_all_infos) disable_all_infos();
-      cap_in_order = TRUE;
+      cap_order = TRUE;
       break;
 
     case 'C':
