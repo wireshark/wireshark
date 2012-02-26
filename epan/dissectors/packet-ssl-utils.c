@@ -405,6 +405,7 @@ const value_string ssl_31_content_type[] = {
     { 21, "Alert" },
     { 22, "Handshake" },
     { 23, "Application Data" },
+    { 24, "Heartbeat" },
     { 0x00, NULL }
 };
 
@@ -481,6 +482,18 @@ const value_string ssl_31_handshake_type[] = {
     { SSL_HND_CLIENT_KEY_EXCHG,  "Client Key Exchange" },
     { SSL_HND_FINISHED,          "Finished" },
     { SSL_HND_CERT_STATUS,       "Certificate Status" },
+    { 0x00, NULL }
+};
+
+const value_string tls_heartbeat_type[] = {
+    { 1, "Request" },
+    { 2, "Response" },
+    { 0x00, NULL }
+};
+
+const value_string tls_heartbeat_mode[] = {
+    { 1, "Peer allowed to send requests" },
+    { 2, "Peer not allowed to send requests" },
     { 0x00, NULL }
 };
 
@@ -899,6 +912,7 @@ const value_string tls_hello_extension_types[] = {
     { 12, "srp" },  /* RFC 5054 */
     { 13, "signature_algorithms" },  /* RFC 5246 */
     { 14, "use_srtp" },
+    { SSL_HND_HELLO_EXT_HEARTBEAT, "Heartbeat" },  /* RFC 6520 */
     { 35, "SessionTicket TLS" },  /* RFC 4507 */
     { 65281, "renegotiation_info" },
     { 0, NULL }
@@ -3270,16 +3284,18 @@ ssl_association_add(GTree* associations, dissector_handle_t handle, guint port, 
         assoc->handle = find_dissector("data");
     }
 
-    if(!assoc->handle) {
+    if (!assoc->handle) {
         fprintf(stderr, "association_add() could not find handle for protocol:%s\n",protocol);
     } else {
-        if(port) {
-            if(tcp)
+        if (port) {
+            if (tcp)
                 dissector_add_uint("tcp.port", port, handle);
             else
                 dissector_add_uint("udp.port", port, handle);
         }
         g_tree_insert(associations, assoc, assoc);
+
+        dissector_add("sctp.port", port, handle);
     }
 }
 
@@ -3586,7 +3602,7 @@ ssl_restore_session(SslDecryptSession* ssl, GHashTable *session_hash)
 int
 ssl_is_valid_content_type(guint8 type)
 {
-    if (type >= 0x14 && type <= 0x17)
+    if (type >= 0x14 && type <= 0x18)
     {
         return 1;
     }

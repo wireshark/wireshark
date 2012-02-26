@@ -71,6 +71,7 @@
 #define SSL_ID_ALERT                   0x15
 #define SSL_ID_HANDSHAKE               0x16
 #define SSL_ID_APP_DATA                0x17
+#define SSL_ID_HEARTBEAT               0x18
 
 #define SSL_HND_HELLO_REQUEST          0
 #define SSL_HND_CLIENT_HELLO           1
@@ -146,6 +147,7 @@
 
 #define SSL_HND_HELLO_EXT_ELLIPTIC_CURVES    0x000a
 #define SSL_HND_HELLO_EXT_EC_POINT_FORMATS   0x000b
+#define SSL_HND_HELLO_EXT_HEARTBEAT          0x000f
 
 #define SSL_HND_CERT_STATUS_TYPE_OCSP  1
 
@@ -162,6 +164,8 @@ extern const value_string ssl_31_change_cipher_spec[];
 extern const value_string ssl_31_alert_level[];
 extern const value_string ssl_31_alert_description[];
 extern const value_string ssl_31_handshake_type[];
+extern const value_string tls_heartbeat_type[];
+extern const value_string tls_heartbeat_mode[];
 extern const value_string ssl_31_compression_method[];
 extern const value_string ssl_31_key_exchange_algorithm[];
 extern const value_string ssl_31_signature_algorithm[];

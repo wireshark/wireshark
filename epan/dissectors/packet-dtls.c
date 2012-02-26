@@ -133,6 +133,13 @@ static gint hf_dtls_handshake_dnames            = -1;
 static gint hf_dtls_handshake_dname_len         = -1;
 static gint hf_dtls_handshake_dname             = -1;
 
+static gint hf_dtls_heartbeat_extension_mode          = -1;
+static gint hf_dtls_heartbeat_message                 = -1;
+static gint hf_dtls_heartbeat_message_type            = -1;
+static gint hf_dtls_heartbeat_message_payload_length  = -1;
+static gint hf_dtls_heartbeat_message_payload         = -1;
+static gint hf_dtls_heartbeat_message_padding         = -1;
+
 static gint hf_dtls_fragments                   = -1;
 static gint hf_dtls_fragment                    = -1;
 static gint hf_dtls_fragment_overlap            = -1;
@@ -149,6 +156,7 @@ static gint ett_dtls                   = -1;
 static gint ett_dtls_record            = -1;
 static gint ett_dtls_alert             = -1;
 static gint ett_dtls_handshake         = -1;
+static gint ett_dtls_heartbeat         = -1;
 static gint ett_dtls_cipher_suites     = -1;
 static gint ett_dtls_comp_methods      = -1;
 static gint ett_dtls_extension         = -1;
@@ -311,6 +319,11 @@ static void dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
                                    guint32 record_length,
                                    guint *conv_version,
                                    SslDecryptSession *conv_data, guint8 content_type);
+
+/* heartbeat message dissector */
+static void dissect_dtls_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
+                                   proto_tree *tree, guint32 offset,
+                                   guint *conv_version, guint32 record_length);
 
 
 static void dissect_dtls_hnd_cli_hello(tvbuff_t *tvb,
@@ -923,6 +936,27 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree_add_item(dtls_record_tree, hf_dtls_record_appdata, tvb,
                         offset, record_length, ENC_NA);
     break;
+  case SSL_ID_HEARTBEAT:
+  {
+    tvbuff_t* decrypted;
+
+    if (ssl && decrypt_dtls_record(tvb, pinfo, offset,
+                                   record_length, content_type, ssl, FALSE))
+      ssl_add_record_info(proto_dtls, pinfo, dtls_decrypted_data.data,
+                          dtls_decrypted_data_avail, offset);
+
+    /* try to retrive and use decrypted alert record, if any. */
+    decrypted = ssl_get_record_info(tvb, proto_dtls, pinfo, offset);
+    if (decrypted) {
+      dissect_dtls_heartbeat(decrypted, pinfo, dtls_record_tree, 0,
+                             conv_version, record_length);
+      add_new_data_source(pinfo, decrypted, "Decrypted SSL record");
+    } else {
+      dissect_dtls_heartbeat(tvb, pinfo, dtls_record_tree, offset,
+                             conv_version, record_length);
+    }
+    break;
+  }
 
   default:
     /* shouldn't get here since we check above for valid types */
@@ -1377,6 +1411,86 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
     }
 }
 
+/* dissects the heartbeat message, filling in the tree */
+static void
+dissect_dtls_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
+                       proto_tree *tree, guint32 offset,
+                       guint* conv_version, guint32 record_length)
+{
+  /*     struct {
+   *         HeartbeatMessageType type;
+   *         uint16 payload_length;
+   *         opaque payload;
+   *         opaque padding;
+   *     } HeartbeatMessage;
+   */
+
+  proto_tree  *ti;
+  proto_tree  *dtls_heartbeat_tree;
+  const gchar *type;
+  guint8       byte;
+  guint16      payload_length;
+  guint16      padding_length;
+
+  dtls_heartbeat_tree = NULL;
+
+  if (tree) {
+    ti = proto_tree_add_item(tree, hf_dtls_heartbeat_message, tvb,
+                             offset, record_length - 32, ENC_NA);
+    dtls_heartbeat_tree = proto_item_add_subtree(ti, ett_dtls_heartbeat);
+  }
+
+  /*
+   * set the record layer label
+   */
+
+  /* first lookup the names for the message type and the payload length */
+  byte = tvb_get_guint8(tvb, offset);
+  type = match_strval(byte, tls_heartbeat_type);
+
+  payload_length = tvb_get_ntohs(tvb, offset + 1);
+  padding_length = record_length - 3 - payload_length;
+
+  /* now set the text in the record layer line */
+  if (type && (payload_length <= record_length - 16 - 3)) {
+    col_append_fstr(pinfo->cinfo, COL_INFO, "Heartbeat %s", type);
+  } else {
+    col_append_str(pinfo->cinfo, COL_INFO, "Encrypted Heartbeat");
+  }
+
+  if (tree) {
+    if (type && (payload_length <= record_length - 16 - 3)) {
+      proto_item_set_text(tree, "%s Record Layer: Heartbeat "
+                                "%s",
+                                val_to_str_const(*conv_version, ssl_version_short_names, "SSL"),
+                                type);
+      proto_tree_add_item(dtls_heartbeat_tree, hf_dtls_heartbeat_message_type,
+                          tvb, offset, 1, ENC_BIG_ENDIAN);
+      offset += 1;
+      proto_tree_add_uint(dtls_heartbeat_tree, hf_dtls_heartbeat_message_payload_length,
+                          tvb, offset, 2, payload_length);
+      offset += 2;
+      proto_tree_add_bytes_format(dtls_heartbeat_tree, hf_dtls_heartbeat_message_payload,
+                                  tvb, offset, payload_length,
+                                  NULL, "Payload (%u byte%s)",
+                                  payload_length,
+                                  plurality(payload_length, "", "s"));
+      offset += payload_length;
+      proto_tree_add_bytes_format(dtls_heartbeat_tree, hf_dtls_heartbeat_message_padding,
+                                  tvb, offset, padding_length,
+                                  NULL, "Padding and HMAC (%u byte%s)",
+                                  padding_length,
+                                  plurality(padding_length, "", "s"));
+    } else {
+      proto_item_set_text(tree,
+                         "%s Record Layer: Encrypted Heartbeat",
+                         val_to_str_const(*conv_version, ssl_version_short_names, "SSL"));
+      proto_item_set_text(dtls_heartbeat_tree,
+                          "Encrypted Heartbeat Message");
+    }
+  }
+}
+
 static gint
 dissect_dtls_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
                               guint32 offset, SslDecryptSession* ssl, gint from_server)
@@ -1497,11 +1611,20 @@ dissect_dtls_hnd_hello_ext(tvbuff_t *tvb,
                           tvb, offset, 2, ext_len);
       offset += 2;
 
-      proto_tree_add_bytes_format(ext_tree, hf_dtls_handshake_extension_data,
-                                  tvb, offset, ext_len, NULL,
-                                  "Data (%u byte%s)", ext_len,
-                                  plurality(ext_len, "", "s"));
-      offset += ext_len;
+      switch (ext_type) {
+      case SSL_HND_HELLO_EXT_HEARTBEAT:
+          proto_tree_add_item(ext_tree, hf_dtls_heartbeat_extension_mode,
+                              tvb, offset, 1, ENC_BIG_ENDIAN);
+          break;
+      default:
+          proto_tree_add_bytes_format(ext_tree, hf_dtls_handshake_extension_data,
+                                      tvb, offset, ext_len, NULL,
+                                      "Data (%u byte%s)",
+                                      ext_len, plurality(ext_len, "", "s"));
+          offset += ext_len;
+          break;
+      }
+
       left   -= 2 + 2 + ext_len;
     }
 
@@ -2369,6 +2492,33 @@ proto_register_dtls(void)
         FT_BYTES, BASE_NONE, NULL, 0x0,
         "Distinguished name of a CA that server trusts", HFILL }
     },
+    { &hf_dtls_heartbeat_extension_mode,
+      { "Mode", "dtls.handshake.extension.heartbeat.mode",
+        FT_UINT8, BASE_DEC, VALS(tls_heartbeat_mode), 0x0,
+        "Heartbeat extension mode", HFILL }
+    },
+    { &hf_dtls_heartbeat_message,
+      { "Heartbeat Message", "dtls.heartbeat_message",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_dtls_heartbeat_message_type,
+      { "Type", "dtls.heartbeat_message.type",
+        FT_UINT8, BASE_DEC, VALS(tls_heartbeat_type), 0x0,
+        "Heartbeat message type", HFILL }
+    },
+    { &hf_dtls_heartbeat_message_payload_length,
+      { "Payload Length", "dtls.heartbeat_message.payload_length",
+        FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+    },
+    { &hf_dtls_heartbeat_message_payload,
+      { "Payload Length", "dtls.heartbeat_message.payload",
+        FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }
+    },
+    { &hf_dtls_heartbeat_message_padding,
+      { "Payload Length", "dtls.heartbeat_message.padding",
+        FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }
+    },
     { &hf_dtls_fragments,
       { "Message fragments", "dtls.fragments",
         FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
@@ -2419,6 +2569,7 @@ proto_register_dtls(void)
     &ett_dtls_record,
     &ett_dtls_alert,
     &ett_dtls_handshake,
+    &ett_dtls_heartbeat,
     &ett_dtls_cipher_suites,
     &ett_dtls_comp_methods,
     &ett_dtls_extension,

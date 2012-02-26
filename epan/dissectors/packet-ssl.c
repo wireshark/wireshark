@@ -254,11 +254,19 @@ static int hf_ssl_segment_too_long_fragment   = -1;
 static int hf_ssl_segment_error               = -1;
 static int hf_ssl_segment_count               = -1;
 
+static gint hf_ssl_heartbeat_extension_mode          = -1;
+static gint hf_ssl_heartbeat_message                 = -1;
+static gint hf_ssl_heartbeat_message_type            = -1;
+static gint hf_ssl_heartbeat_message_payload_length  = -1;
+static gint hf_ssl_heartbeat_message_payload         = -1;
+static gint hf_ssl_heartbeat_message_padding         = -1;
+
 /* Initialize the subtree pointers */
 static gint ett_ssl                   = -1;
 static gint ett_ssl_record            = -1;
 static gint ett_ssl_alert             = -1;
 static gint ett_ssl_handshake         = -1;
+static gint ett_ssl_heartbeat         = -1;
 static gint ett_ssl_cipher_suites     = -1;
 static gint ett_ssl_comp_methods      = -1;
 static gint ett_ssl_extension         = -1;
@@ -454,6 +462,11 @@ static void dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                                    guint32 record_length,
                                    guint *conv_version, guint conv_cipher,
                                    SslDecryptSession *conv_data, const guint8 content_type);
+
+/* heartbeat message dissector */
+static void dissect_ssl3_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
+                                   proto_tree *tree, guint32 offset,
+                                   guint *conv_version, guint32 record_length);
 
 /* hello extension dissector */
 static gint dissect_ssl3_hnd_hello_ext_elliptic_curves(tvbuff_t *tvb,
@@ -1659,6 +1672,25 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         dissect_ssl_payload(tvb, pinfo, offset, tree, association);
 
         break;
+    case SSL_ID_HEARTBEAT:
+    {
+        tvbuff_t* decrypted;
+
+        if (ssl && decrypt_ssl3_record(tvb, pinfo, offset,
+                record_length, content_type, ssl, FALSE))
+            ssl_add_record_info(proto_ssl, pinfo, ssl_decrypted_data.data,
+                                ssl_decrypted_data_avail, offset);
+
+        /* try to retrieve and use decrypted handshake record, if any. */
+        decrypted = ssl_get_record_info(tvb, proto_ssl, pinfo, offset);
+        if (decrypted) {
+            add_new_data_source(pinfo, decrypted, "Decrypted SSL record");
+            dissect_ssl3_heartbeat(decrypted, pinfo, ssl_record_tree, 0, conv_version, record_length);
+        } else {
+            dissect_ssl3_heartbeat(tvb, pinfo, ssl_record_tree, offset, conv_version, record_length);
+        }
+        break;
+    }
 
     default:
         /* shouldn't get here since we check above for valid types */
@@ -2107,6 +2139,86 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
     }
 }
 
+/* dissects the heartbeat message, filling in the tree */
+static void
+dissect_ssl3_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
+                       proto_tree *tree, guint32 offset,
+                       guint* conv_version, guint32 record_length)
+{
+    /*     struct {
+     *         HeartbeatMessageType type;
+     *         uint16 payload_length;
+     *         opaque payload;
+     *         opaque padding;
+     *     } HeartbeatMessage;
+     */
+
+    proto_tree  *ti;
+    proto_tree  *tls_heartbeat_tree;
+    const gchar *type;
+    guint8       byte;
+    guint16      payload_length;
+    guint16      padding_length;
+
+    tls_heartbeat_tree = NULL;
+
+    if (tree) {
+        ti = proto_tree_add_item(tree, hf_ssl_heartbeat_message, tvb,
+                                 offset, record_length - 32, ENC_NA);
+        tls_heartbeat_tree = proto_item_add_subtree(ti, ett_ssl_heartbeat);
+    }
+
+    /*
+     * set the record layer label
+     */
+
+    /* first lookup the names for the message type and the payload length */
+    byte = tvb_get_guint8(tvb, offset);
+    type = match_strval(byte, tls_heartbeat_type);
+
+    payload_length = tvb_get_ntohs(tvb, offset + 1);
+    padding_length = record_length - 3 - payload_length;
+
+    /* now set the text in the record layer line */
+    if (type && (payload_length <= record_length - 16 - 3)) {
+        col_append_fstr(pinfo->cinfo, COL_INFO, "Heartbeat %s", type);
+    } else {
+        col_append_str(pinfo->cinfo, COL_INFO, "Encrypted Heartbeat");
+    }
+
+    if (tree) {
+        if (type && (payload_length <= record_length - 16 - 3)) {
+            proto_item_set_text(tree, "%s Record Layer: Heartbeat "
+                                "%s",
+                                val_to_str_const(*conv_version, ssl_version_short_names, "SSL"),
+                                type);
+            proto_tree_add_item(tls_heartbeat_tree, hf_ssl_heartbeat_message_type,
+                                tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_uint(tls_heartbeat_tree, hf_ssl_heartbeat_message_payload_length,
+                                tvb, offset, 2, payload_length);
+            offset += 2;
+            proto_tree_add_bytes_format(tls_heartbeat_tree, hf_ssl_heartbeat_message_payload,
+                                        tvb, offset, payload_length,
+                                        NULL, "Payload (%u byte%s)",
+                                        payload_length,
+                                        plurality(payload_length, "", "s"));
+            offset += payload_length;
+            proto_tree_add_bytes_format(tls_heartbeat_tree, hf_ssl_heartbeat_message_padding,
+                                        tvb, offset, padding_length,
+                                        NULL, "Padding and HMAC (%u byte%s)",
+                                        padding_length,
+                                        plurality(padding_length, "", "s"));
+        } else {
+            proto_item_set_text(tree,
+                                "%s Record Layer: Encrypted Heartbeat",
+                                val_to_str_const(*conv_version, ssl_version_short_names, "SSL"));
+            proto_item_set_text(tls_heartbeat_tree,
+                                "Encrypted Heartbeat Message");
+        }
+    }
+}
+
 static gint
 dissect_ssl3_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
                               guint32 offset, SslDecryptSession* ssl, gint from_server)
@@ -2232,6 +2344,10 @@ dissect_ssl3_hnd_hello_ext(tvbuff_t *tvb,
             break;
         case SSL_HND_HELLO_EXT_EC_POINT_FORMATS:
             offset = dissect_ssl3_hnd_hello_ext_ec_point_formats(tvb, ext_tree, offset);
+            break;
+        case SSL_HND_HELLO_EXT_HEARTBEAT:
+            proto_tree_add_item(ext_tree, hf_ssl_heartbeat_extension_mode,
+                                tvb, offset, 1, ENC_BIG_ENDIAN);
             break;
         default:
             proto_tree_add_bytes_format(ext_tree, hf_ssl_handshake_extension_data,
@@ -5064,6 +5180,33 @@ proto_register_ssl(void)
             FT_NONE, BASE_NONE, NULL, 0x0,
             "Distinguished name of a CA that server trusts", HFILL }
         },
+        { &hf_ssl_heartbeat_extension_mode,
+          { "Mode", "ssl.handshake.extension.heartbeat.mode",
+            FT_UINT8, BASE_DEC, VALS(tls_heartbeat_mode), 0x0,
+            "Heartbeat extension mode", HFILL }
+        },
+        { &hf_ssl_heartbeat_message,
+          { "Heartbeat Message", "ssl.heartbeat_message",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_ssl_heartbeat_message_type,
+          { "Type", "ssl.heartbeat_message.type",
+            FT_UINT8, BASE_DEC, VALS(tls_heartbeat_type), 0x0,
+            "Heartbeat message type", HFILL }
+        },
+        { &hf_ssl_heartbeat_message_payload_length,
+          { "Payload Length", "ssl.heartbeat_message.payload_length",
+            FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_ssl_heartbeat_message_payload,
+          { "Payload Length", "ssl.heartbeat_message.payload",
+            FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }
+        },
+        { &hf_ssl_heartbeat_message_padding,
+          { "Payload Length", "ssl.heartbeat_message.padding",
+            FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }
+        },
         { &hf_ssl2_handshake_challenge,
           { "Challenge", "ssl.handshake.challenge",
             FT_NONE, BASE_NONE, NULL, 0x0,
@@ -5246,6 +5389,7 @@ proto_register_ssl(void)
         &ett_ssl_record,
         &ett_ssl_alert,
         &ett_ssl_handshake,
+        &ett_ssl_heartbeat,
         &ett_ssl_cipher_suites,
         &ett_ssl_comp_methods,
         &ett_ssl_extension,
