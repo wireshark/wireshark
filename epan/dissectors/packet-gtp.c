@@ -13,7 +13,7 @@
  * Copyright 2011, Grzegorz Szczytowski <grzegorz.szczytowski@gmail.com>
  *
  * Updates and corrections:
- * Copyright 2011, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2011-2012, Anders Broman <anders.broman@ericsson.com>
  *
  * PDCP PDU number extension header support added by Martin Isaksson <martin.isaksson@ericsson.com>
  *
@@ -7096,6 +7096,7 @@ static void dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
 		} else
 			offset = 20;
 
+		proto_tree_add_text(tree, tvb, offset, gtp_hdr.length, "T-PDU Data %u bytes", gtp_hdr.length);
 		/* Can only handle one extension header type... */
 		if (noOfExtHdrs != 0) offset+= 1 + noOfExtHdrs*4;
 
@@ -7131,6 +7132,19 @@ static void dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
 
 		col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "GTP <");
 		col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
+	}else{
+		if (gtp_prime)
+			offset = 6;
+		else if (gtp_version == 1) {
+			if (gtp_hdr.flags & 0x07) {
+				offset = 11;
+				if (tvb_get_guint8(tvb, offset) == 0)
+					offset++;
+			} else
+				offset = 8;
+		} else
+			offset = 20;
+		proto_tree_add_text(tree, tvb, offset, gtp_hdr.length, "T-PDU Data %u bytes", gtp_hdr.length);
 	}
 	pinfo->private_data = pd_save;
 }
