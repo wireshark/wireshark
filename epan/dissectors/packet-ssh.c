@@ -148,6 +148,7 @@ static gint ett_ssh2= -1;
 static gboolean ssh_desegment = TRUE;
 
 #define TCP_PORT_SSH  22
+#define SCTP_PORT_SSH 22
 
 /* Message Numbers (from RFC 4250) (1-255) */
 
@@ -1337,4 +1338,5 @@ proto_reg_handoff_ssh(void)
 	ssh_handle = create_dissector_handle(dissect_ssh, proto_ssh);
 
 	dissector_add_uint("tcp.port", TCP_PORT_SSH, ssh_handle);
+	dissector_add_uint("sctp.port", SCTP_PORT_SSH, ssh_handle);
 }
