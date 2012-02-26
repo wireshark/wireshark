@@ -43,47 +43,66 @@ tally_frame_data(frame_data *cur_frame, summary_tally *sum_tally)
 {
   double cur_time;
 
-  cur_time = nstime_to_sec(&cur_frame->abs_ts);
-
-  if (cur_time < sum_tally->start_time) {
-    sum_tally->start_time = cur_time;
-  }
-  if (cur_time > sum_tally->stop_time){
-    sum_tally->stop_time = cur_time;
-  }
   sum_tally->bytes += cur_frame->pkt_len;
   if (cur_frame->flags.passed_dfilter){
-    if (sum_tally->filtered_count==0){
-	    sum_tally->filtered_start= cur_time;
-	    sum_tally->filtered_stop = cur_time;
-    } else {
-	    if (cur_time < sum_tally->filtered_start) {
-		    sum_tally->filtered_start = cur_time;
-	    }
-	    if (cur_time > sum_tally->filtered_stop) {
-		    sum_tally->filtered_stop = cur_time;
-	    }
-    }
     sum_tally->filtered_count++;
-    sum_tally->filtered_bytes += cur_frame->pkt_len ;
+    sum_tally->filtered_bytes += cur_frame->pkt_len;
   }
   if (cur_frame->flags.marked){
-    if (sum_tally->marked_count==0){
-	    sum_tally->marked_start= cur_time;
-	    sum_tally->marked_stop = cur_time;
-    } else {
-	    if (cur_time < sum_tally->marked_start) {
-		    sum_tally->marked_start = cur_time;
-	    }
-	    if (cur_time > sum_tally->marked_stop) {
-		    sum_tally->marked_stop = cur_time;
-	    }
-    }
     sum_tally->marked_count++;
-    sum_tally->marked_bytes += cur_frame->pkt_len ;
+    sum_tally->marked_bytes += cur_frame->pkt_len;
   }
   if (cur_frame->flags.ignored){
     sum_tally->ignored_count++;
+  }
+
+  if (cur_frame->flags.has_ts) {
+    /* This packet has a time stamp. */
+    cur_time = nstime_to_sec(&cur_frame->abs_ts);
+
+    sum_tally->packet_count_ts++;
+    if (cur_time < sum_tally->start_time) {
+      sum_tally->start_time = cur_time;
+    }
+    if (cur_time > sum_tally->stop_time){
+      sum_tally->stop_time = cur_time;
+    }
+    if (cur_frame->flags.passed_dfilter){
+      sum_tally->filtered_count_ts++;
+      /*
+       * If we've seen one filtered packet, this is the first
+       * one.
+       */
+      if (sum_tally->filtered_count == 1){
+        sum_tally->filtered_start= cur_time;
+        sum_tally->filtered_stop = cur_time;
+      } else {
+        if (cur_time < sum_tally->filtered_start) {
+          sum_tally->filtered_start = cur_time;
+        }
+        if (cur_time > sum_tally->filtered_stop) {
+          sum_tally->filtered_stop = cur_time;
+        }
+      }
+    }
+    if (cur_frame->flags.marked){
+      sum_tally->marked_count_ts++;
+      /*
+       * If we've seen one marked packet, this is the first
+       * one.
+       */
+      if (sum_tally->marked_count == 1){
+        sum_tally->marked_start= cur_time;
+        sum_tally->marked_stop = cur_time;
+      } else {
+        if (cur_time < sum_tally->marked_start) {
+          sum_tally->marked_start = cur_time;
+        }
+        if (cur_time > sum_tally->marked_stop) {
+          sum_tally->marked_stop = cur_time;
+        }
+      }
+    }
   }
 }
 
@@ -95,14 +114,17 @@ summary_fill_in(capture_file *cf, summary_tally *st)
   guint32        framenum;
   wtapng_section_t* shb_inf;
 
+  st->packet_count_ts = 0;
   st->start_time = 0;
   st->stop_time = 0;
   st->bytes = 0;
   st->filtered_count = 0;
+  st->filtered_count_ts = 0;
   st->filtered_start = 0;
   st->filtered_stop = 0;
   st->filtered_bytes = 0;
   st->marked_count = 0;
+  st->marked_count_ts = 0;
   st->marked_start = 0;
   st->marked_stop = 0;
   st->marked_bytes = 0;
@@ -194,7 +216,7 @@ summary_fill_in_capture(capture_file *cf,capture_options *capture_opts, summary_
       iface.linktype = wtapng_if_descr.link_type;
       g_array_append_val(st->ifaces, iface);
     }
-	g_free(idb_info);
+    g_free(idb_info);
   }
 }
 #endif

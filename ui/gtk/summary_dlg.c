@@ -170,6 +170,14 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
 #ifdef HAVE_LIBPCAP
   summary_fill_in_capture(&cfile, &global_capture_opts, &summary);
 #endif
+  /*
+   * Note: the start and stop times are initialized to 0, so if we
+   * have zero or one packets of the type in question that have
+   * time stamps, the elapsed times will be zero, just as if we
+   * have both start and stop time stamps but they're the same.
+   * That means we can avoid some checks for whether we have more
+   * than one packet of the type in question with time stamps.
+   */
   seconds = summary.stop_time - summary.start_time;
   disp_seconds = summary.filtered_stop - summary.filtered_start;
   marked_seconds = summary.marked_stop - summary.marked_start;
@@ -214,30 +222,43 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
     add_string_to_table(table, &row, "Packet size limit:", string_buff);
   }
 
+  /*
+   * We must have no un-time-stamped packets (i.e., the number of
+   * time-stamped packets must be the same as the number of packets),
+   * and at least one time-stamped packet, in order for the start
+   * and stop times to be valid.
+   */
+  if (summary.packet_count_ts == summary.packet_count &&
+      summary.packet_count >= 1) {
+    /* Time */
+    add_string_to_table(table, &row, "", "");
+    add_string_to_table(table, &row, "Time", "");
 
-  /* Time */
-  add_string_to_table(table, &row, "", "");
-  add_string_to_table(table, &row, "Time", "");
+    /* start time */
+    time_to_string(string_buff, SUM_STR_MAX, (time_t)summary.start_time);
+    add_string_to_table(table, &row, "First packet:", string_buff);
 
-  /* start time */
-  time_to_string(string_buff, SUM_STR_MAX, (time_t)summary.start_time);
-  add_string_to_table(table, &row, "First packet:", string_buff);
+    /* stop time */
+    time_to_string(string_buff, SUM_STR_MAX, (time_t)summary.stop_time);
+    add_string_to_table(table, &row, "Last packet:", string_buff);
 
-  /* stop time */
-  time_to_string(string_buff, SUM_STR_MAX, (time_t)summary.stop_time);
-  add_string_to_table(table, &row, "Last packet:", string_buff);
-
-  /* elapsed seconds */
-  elapsed_time = (unsigned int)summary.elapsed_time;
-  if(elapsed_time/86400) {
-      g_snprintf(string_buff, SUM_STR_MAX, "%02u days %02u:%02u:%02u",
-        elapsed_time/86400, elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
-  } else {
-      g_snprintf(string_buff, SUM_STR_MAX, "%02u:%02u:%02u",
-        elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
+    /*
+     * We must have at least two time-stamped packets for the elapsed time
+     * to be valid.
+     */
+    if (summary.packet_count_ts >= 2) {
+      /* elapsed seconds */
+      elapsed_time = (unsigned int)summary.elapsed_time;
+      if(elapsed_time/86400) {
+          g_snprintf(string_buff, SUM_STR_MAX, "%02u days %02u:%02u:%02u",
+            elapsed_time/86400, elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
+      } else {
+          g_snprintf(string_buff, SUM_STR_MAX, "%02u:%02u:%02u",
+            elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
+      }
+      add_string_to_table(table, &row, "Elapsed:", string_buff);
+    }
   }
-  add_string_to_table(table, &row, "Elapsed:", string_buff);
-
 
   /* Capture */
   add_string_to_table(table, &row, "", "");
@@ -395,7 +416,8 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   } else {
     string_buff3[0] = '\0';
   }
-  add_string_to_list(list, "Between first and last packet", string_buff, string_buff2, string_buff3);
+  if (string_buff[0] != '\0' || string_buff2[0] != '\0' || string_buff3[0] != '\0')
+    add_string_to_list(list, "Between first and last packet", string_buff, string_buff2, string_buff3);
 
   /* Packets per second */
   if (seconds > 0) {
@@ -413,6 +435,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   } else {
     string_buff3[0] = '\0';
   }
+  if (string_buff[0] != '\0' || string_buff2[0] != '\0' || string_buff3[0] != '\0')
   add_string_to_list(list, "Avg. packets/sec", string_buff, string_buff2, string_buff3);
 
   /* Packet size */
@@ -437,7 +460,8 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   } else {
     string_buff3[0] = '\0';
   }
-  add_string_to_list(list, "Avg. packet size", string_buff, string_buff2, string_buff3);
+  if (string_buff[0] != '\0' || string_buff2[0] != '\0' || string_buff3[0] != '\0')
+    add_string_to_list(list, "Avg. packet size", string_buff, string_buff2, string_buff3);
 
   /* Byte count */
   g_snprintf(string_buff, SUM_STR_MAX, "%" G_GINT64_MODIFIER "u", summary.bytes);
@@ -451,7 +475,8 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   } else {
     string_buff3[0] = '\0';
   }
-  add_string_to_list(list, "Bytes", string_buff, string_buff2, string_buff3);
+  if (string_buff[0] != '\0' || string_buff2[0] != '\0' || string_buff3[0] != '\0')
+    add_string_to_list(list, "Bytes", string_buff, string_buff2, string_buff3);
 
   /* Bytes per second */
   if (seconds > 0){
@@ -472,7 +497,8 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   } else {
     string_buff3[0] = '\0';
   }
-  add_string_to_list(list, "Avg. bytes/sec", string_buff, string_buff2, string_buff3);
+  if (string_buff[0] != '\0' || string_buff2[0] != '\0' || string_buff3[0] != '\0')
+    add_string_to_list(list, "Avg. bytes/sec", string_buff, string_buff2, string_buff3);
 
   /* MBit per second */
   if (seconds > 0) {
@@ -496,7 +522,8 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   } else {
     string_buff3[0] = '\0';
   }
-  add_string_to_list(list, "Avg. MBit/sec", string_buff, string_buff2, string_buff3);
+  if (string_buff[0] != '\0' || string_buff2[0] != '\0' || string_buff3[0] != '\0')
+    add_string_to_list(list, "Avg. MBit/sec", string_buff, string_buff2, string_buff3);
 
 
   /* Button row. */

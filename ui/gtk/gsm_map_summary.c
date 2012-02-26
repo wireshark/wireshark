@@ -90,7 +90,7 @@ void gsm_map_stat_gtk_sum_cb(GtkAction *action _U_, gpointer user_data _U_)
   /* initialize the tally */
   summary_fill_in(&cfile, &summary);
 
-  /* initial compututations */
+  /* initial computations */
   seconds = summary.stop_time - summary.start_time;
 
   sum_open_w = dlg_window_new("GSM MAP Statistics: Summary");  /* transient_for top_level */
@@ -138,12 +138,21 @@ void gsm_map_stat_gtk_sum_cb(GtkAction *action _U_, gpointer user_data _U_)
   gtk_container_add(GTK_CONTAINER(data_fr), data_box);
   gtk_widget_show(data_box);
 
-  /* seconds */
-  g_snprintf(string_buff, SUM_STR_MAX, "Elapsed time: %.3f seconds", summary.elapsed_time);
-  add_string_to_box(string_buff, data_box);
+  /*
+   * We must have no un-time-stamped packets (i.e., the number of
+   * time-stamped packets must be the same as the number of packets),
+   * and at least two time-stamped packets, in order for the elapsed
+   * time to be valid.
+   */
+  if (summary.packet_count_ts == summary.packet_count &&
+      summary.packet_count_ts >= 2) {
+    /* seconds */
+    g_snprintf(string_buff, SUM_STR_MAX, "Elapsed time: %.3f seconds", summary.elapsed_time);
+    add_string_to_box(string_buff, data_box);
 
-  g_snprintf(string_buff, SUM_STR_MAX, "Between first and last packet: %.3f seconds", seconds);
-  add_string_to_box(string_buff, data_box);
+    g_snprintf(string_buff, SUM_STR_MAX, "Between first and last packet: %.3f seconds", seconds);
+    add_string_to_box(string_buff, data_box);
+  }
 
   /* Packet count */
   g_snprintf(string_buff, SUM_STR_MAX, "Packet count: %i", summary.packet_count);
@@ -178,12 +187,21 @@ void gsm_map_stat_gtk_sum_cb(GtkAction *action _U_, gpointer user_data _U_)
   g_snprintf(string_buff, SUM_STR_MAX, "Total number of Invokes: %u", tot_invokes);
   add_string_to_box(string_buff, invoke_box);
 
-  /* Total number of invokes per second */
-  if (seconds)
-	g_snprintf(string_buff, SUM_STR_MAX, "Total number of Invokes per second: %.2f", tot_invokes/seconds);
-  else
-	g_snprintf(string_buff, SUM_STR_MAX, "Total number of Invokes per second: N/A");
-  add_string_to_box(string_buff, invoke_box);
+  /*
+   * We must have no un-time-stamped packets (i.e., the number of
+   * time-stamped packets must be the same as the number of packets),
+   * and at least two time-stamped packets, in order for the elapsed
+   * time to be valid.
+   */
+  if (summary.packet_count_ts == summary.packet_count &&
+      summary.packet_count_ts >= 2) {
+    /* Total number of invokes per second */
+    if (seconds)
+      g_snprintf(string_buff, SUM_STR_MAX, "Total number of Invokes per second: %.2f", tot_invokes/seconds);
+    else
+      g_snprintf(string_buff, SUM_STR_MAX, "Total number of Invokes per second: N/A");
+    add_string_to_box(string_buff, invoke_box);
+  }
 
   /* Total size of invokes */
   g_snprintf(string_buff, SUM_STR_MAX, "Total number of bytes for Invokes: %.0f", tot_invokes_size);
@@ -191,17 +209,26 @@ void gsm_map_stat_gtk_sum_cb(GtkAction *action _U_, gpointer user_data _U_)
 
   /* Average size of invokes */
   if (tot_invokes)
-	g_snprintf(string_buff, SUM_STR_MAX, "Average number of bytes per Invoke: %.2f", tot_invokes_size/tot_invokes);
+    g_snprintf(string_buff, SUM_STR_MAX, "Average number of bytes per Invoke: %.2f", tot_invokes_size/tot_invokes);
   else
-	g_snprintf(string_buff, SUM_STR_MAX, "Average number of bytes per Invoke: N/A");
+    g_snprintf(string_buff, SUM_STR_MAX, "Average number of bytes per Invoke: N/A");
   add_string_to_box(string_buff, invoke_box);
 
-  /* Average size of invokes per second */
-  if (seconds)
-	g_snprintf(string_buff, SUM_STR_MAX, "Average number of bytes per second: %.2f", tot_invokes_size/seconds);
-  else
-	g_snprintf(string_buff, SUM_STR_MAX, "Average number of bytes per second: N/A");
-  add_string_to_box(string_buff, invoke_box);
+  /*
+   * We must have no un-time-stamped packets (i.e., the number of
+   * time-stamped packets must be the same as the number of packets),
+   * and at least two time-stamped packets, in order for the elapsed
+   * time to be valid.
+   */
+  if (summary.packet_count_ts == summary.packet_count &&
+      summary.packet_count_ts >= 2) {
+    /* Average size of invokes per second */
+    if (seconds)
+      g_snprintf(string_buff, SUM_STR_MAX, "Average number of bytes per second: %.2f", tot_invokes_size/seconds);
+    else
+      g_snprintf(string_buff, SUM_STR_MAX, "Average number of bytes per second: N/A");
+    add_string_to_box(string_buff, invoke_box);
+  }
 
   /* Return Results frame */
   rr_fr = gtk_frame_new("Return Results");
@@ -216,12 +243,21 @@ void gsm_map_stat_gtk_sum_cb(GtkAction *action _U_, gpointer user_data _U_)
   g_snprintf(string_buff, SUM_STR_MAX, "Total number of Return Results: %u", tot_rr);
   add_string_to_box(string_buff, rr_box);
 
-  /* Total number of return results per second */
-  if (seconds)
-	g_snprintf(string_buff, SUM_STR_MAX, "Total number of Return Results per second: %.2f", tot_rr/seconds);
-  else
-	g_snprintf(string_buff, SUM_STR_MAX, "Total number of Return Results per second: N/A");
-  add_string_to_box(string_buff, rr_box);
+  /*
+   * We must have no un-time-stamped packets (i.e., the number of
+   * time-stamped packets must be the same as the number of packets),
+   * and at least two time-stamped packets, in order for the elapsed
+   * time to be valid.
+   */
+  if (summary.packet_count_ts == summary.packet_count &&
+      summary.packet_count_ts >= 2) {
+    /* Total number of return results per second */
+    if (seconds)
+      g_snprintf(string_buff, SUM_STR_MAX, "Total number of Return Results per second: %.2f", tot_rr/seconds);
+    else
+      g_snprintf(string_buff, SUM_STR_MAX, "Total number of Return Results per second: N/A");
+    add_string_to_box(string_buff, rr_box);
+  }
 
   /* Total size of return results */
   g_snprintf(string_buff, SUM_STR_MAX, "Total number of bytes for Return Results: %.0f", tot_rr_size);
@@ -229,17 +265,26 @@ void gsm_map_stat_gtk_sum_cb(GtkAction *action _U_, gpointer user_data _U_)
 
   /* Average size of return results */
   if (tot_rr)
-	g_snprintf(string_buff, SUM_STR_MAX, "Average number of bytes per Return Result: %.2f", tot_rr_size/tot_rr);
+    g_snprintf(string_buff, SUM_STR_MAX, "Average number of bytes per Return Result: %.2f", tot_rr_size/tot_rr);
   else
-	g_snprintf(string_buff, SUM_STR_MAX, "Average number of bytes per Return Result: N/A");
+    g_snprintf(string_buff, SUM_STR_MAX, "Average number of bytes per Return Result: N/A");
   add_string_to_box(string_buff, rr_box);
 
-  /* Average size of return results per second */
-  if (seconds)
-	g_snprintf(string_buff, SUM_STR_MAX, "Average number of bytes per second: %.2f", tot_rr_size/seconds);
-  else
-	g_snprintf(string_buff, SUM_STR_MAX, "Average number of bytes per second: N/A");
-  add_string_to_box(string_buff, rr_box);
+  /*
+   * We must have no un-time-stamped packets (i.e., the number of
+   * time-stamped packets must be the same as the number of packets),
+   * and at least two time-stamped packets, in order for the elapsed
+   * time to be valid.
+   */
+  if (summary.packet_count_ts == summary.packet_count &&
+      summary.packet_count_ts >= 2) {
+    /* Average size of return results per second */
+    if (seconds)
+      g_snprintf(string_buff, SUM_STR_MAX, "Average number of bytes per second: %.2f", tot_rr_size/seconds);
+    else
+      g_snprintf(string_buff, SUM_STR_MAX, "Average number of bytes per second: N/A");
+    add_string_to_box(string_buff, rr_box);
+  }
 
   /* Totals frame */
   tot_fr = gtk_frame_new("Totals");
@@ -254,30 +299,47 @@ void gsm_map_stat_gtk_sum_cb(GtkAction *action _U_, gpointer user_data _U_)
   g_snprintf(string_buff, SUM_STR_MAX, "Total number of GSM MAP messages: %u", tot_invokes + tot_rr);
   add_string_to_box(string_buff, tot_box);
 
-  if (seconds)
-	g_snprintf(string_buff, SUM_STR_MAX, "Total number of GSM MAP messages per second: %.2f",
-		(tot_invokes + tot_rr)/seconds);
-  else
-	g_snprintf(string_buff, SUM_STR_MAX, "Total number of GSM MAP messages per second: N/A");
-  add_string_to_box(string_buff, tot_box);
+  /*
+   * We must have no un-time-stamped packets (i.e., the number of
+   * time-stamped packets must be the same as the number of packets),
+   * and at least two time-stamped packets, in order for the elapsed
+   * time to be valid.
+   */
+  if (summary.packet_count_ts == summary.packet_count &&
+      summary.packet_count_ts >= 2) {
+    if (seconds)
+      g_snprintf(string_buff, SUM_STR_MAX, "Total number of GSM MAP messages per second: %.2f",
+                 (tot_invokes + tot_rr)/seconds);
+    else
+      g_snprintf(string_buff, SUM_STR_MAX, "Total number of GSM MAP messages per second: N/A");
+    add_string_to_box(string_buff, tot_box);
+  }
 
   g_snprintf(string_buff, SUM_STR_MAX, "Total number of bytes for GSM MAP messages: %.0f", tot_invokes_size + tot_rr_size);
   add_string_to_box(string_buff, tot_box);
 
   if (tot_invokes + tot_rr)
-	g_snprintf(string_buff, SUM_STR_MAX, "Average number of bytes per GSM MAP messages: %.2f",
-		(tot_invokes_size + tot_rr_size)/(tot_invokes + tot_rr));
+    g_snprintf(string_buff, SUM_STR_MAX, "Average number of bytes per GSM MAP messages: %.2f",
+               (tot_invokes_size + tot_rr_size)/(tot_invokes + tot_rr));
   else
-	g_snprintf(string_buff, SUM_STR_MAX, "Average number of bytes per GSM MAP messages: N/A");
+    g_snprintf(string_buff, SUM_STR_MAX, "Average number of bytes per GSM MAP messages: N/A");
   add_string_to_box(string_buff, tot_box);
 
-  if (seconds)
-	g_snprintf(string_buff, SUM_STR_MAX, "Average number of bytes second: %.2f",
-		(tot_invokes_size + tot_rr_size)/seconds);
-  else
-	  g_snprintf(string_buff, SUM_STR_MAX, "Average number of bytes second: N/A");
-  add_string_to_box(string_buff, tot_box);
-
+  /*
+   * We must have no un-time-stamped packets (i.e., the number of
+   * time-stamped packets must be the same as the number of packets),
+   * and at least two time-stamped packets, in order for the elapsed
+   * time to be valid.
+   */
+  if (summary.packet_count_ts == summary.packet_count &&
+      summary.packet_count_ts >= 2) {
+    if (seconds)
+      g_snprintf(string_buff, SUM_STR_MAX, "Average number of bytes second: %.2f",
+                 (tot_invokes_size + tot_rr_size)/seconds);
+    else
+      g_snprintf(string_buff, SUM_STR_MAX, "Average number of bytes second: N/A");
+    add_string_to_box(string_buff, tot_box);
+  }
 
   /* Button row. */
   bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);

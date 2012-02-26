@@ -286,7 +286,7 @@ void mtp3_sum_gtk_sum_cb(GtkAction *action _U_, gpointer user_data _U_)
   /* initialize the tally */
   summary_fill_in(&cfile, &summary);
 
-  /* initial compututations */
+  /* initial computations */
   seconds = summary.stop_time - summary.start_time;
 
   sum_open_w = dlg_window_new("MTP3 Statistics: Summary");  /* transient_for top_level */
@@ -335,12 +335,21 @@ void mtp3_sum_gtk_sum_cb(GtkAction *action _U_, gpointer user_data _U_)
   gtk_container_add(GTK_CONTAINER(data_fr), data_box);
   gtk_widget_show(data_box);
 
-  /* seconds */
-  g_snprintf(string_buff, SUM_STR_MAX, "Elapsed time: %.3f seconds", summary.elapsed_time);
-  add_string_to_box(string_buff, data_box);
+  /*
+   * We must have no un-time-stamped packets (i.e., the number of
+   * time-stamped packets must be the same as the number of packets),
+   * and at least two time-stamped packets, in order for the elapsed
+   * time to be valid.
+   */
+  if (summary.packet_count_ts == summary.packet_count &&
+      summary.packet_count_ts >= 2) {
+    /* seconds */
+    g_snprintf(string_buff, SUM_STR_MAX, "Elapsed time: %.3f seconds", summary.elapsed_time);
+    add_string_to_box(string_buff, data_box);
 
-  g_snprintf(string_buff, SUM_STR_MAX, "Between first and last packet: %.3f seconds", seconds);
-  add_string_to_box(string_buff, data_box);
+    g_snprintf(string_buff, SUM_STR_MAX, "Between first and last packet: %.3f seconds", seconds);
+    add_string_to_box(string_buff, data_box);
+  }
 
   /* Packet count */
   g_snprintf(string_buff, SUM_STR_MAX, "Packet count: %i", summary.packet_count);
@@ -351,7 +360,7 @@ void mtp3_sum_gtk_sum_cb(GtkAction *action _U_, gpointer user_data _U_)
   gtk_container_add(GTK_CONTAINER(main_vb), table_fr);
   gtk_widget_show(table_fr);
 
-   table = create_list();
+  table = create_list();
 
   gtk_container_add(GTK_CONTAINER(table_fr), table);
   gtk_widget_show(table);
@@ -371,32 +380,50 @@ void mtp3_sum_gtk_sum_cb(GtkAction *action _U_, gpointer user_data _U_)
   g_snprintf(string_buff, SUM_STR_MAX, "Total MSUs: %u", tot_num_msus);
   add_string_to_box(string_buff, tot_box);
 
-  if (seconds) {
-		g_snprintf(string_buff, SUM_STR_MAX, "MSUs/second: %.2f", tot_num_msus/seconds);
+  /*
+   * We must have no un-time-stamped packets (i.e., the number of
+   * time-stamped packets must be the same as the number of packets),
+   * and at least two time-stamped packets, in order for the elapsed
+   * time to be valid.
+   */
+  if (summary.packet_count_ts == summary.packet_count &&
+      summary.packet_count_ts >= 2) {
+    if (seconds) {
+      g_snprintf(string_buff, SUM_STR_MAX, "MSUs/second: %.2f", tot_num_msus/seconds);
+    }
+    else {
+      g_snprintf(string_buff, SUM_STR_MAX, "MSUs/second: N/A");
+    }
+    add_string_to_box(string_buff, tot_box);
   }
-  else {
-		g_snprintf(string_buff, SUM_STR_MAX, "MSUs/second: N/A");
-  }
-  add_string_to_box(string_buff, tot_box);
 
   g_snprintf(string_buff, SUM_STR_MAX, "Total Bytes: %.0f", tot_num_bytes);
   add_string_to_box(string_buff, tot_box);
 
   if (tot_num_msus) {
-		g_snprintf(string_buff, SUM_STR_MAX, "Average Bytes/MSU: %.2f", tot_num_bytes/tot_num_msus);
+    g_snprintf(string_buff, SUM_STR_MAX, "Average Bytes/MSU: %.2f", tot_num_bytes/tot_num_msus);
   }
   else {
-	    g_snprintf(string_buff, SUM_STR_MAX, "Average Bytes/MSU: N/A");
+    g_snprintf(string_buff, SUM_STR_MAX, "Average Bytes/MSU: N/A");
   }
   add_string_to_box(string_buff, tot_box);
 
-  if (seconds) {
-	  g_snprintf(string_buff, SUM_STR_MAX, "Bytes/second: %.2f", tot_num_bytes/seconds);
+  /*
+   * We must have no un-time-stamped packets (i.e., the number of
+   * time-stamped packets must be the same as the number of packets),
+   * and at least two time-stamped packets, in order for the elapsed
+   * time to be valid.
+   */
+  if (summary.packet_count_ts == summary.packet_count &&
+      summary.packet_count_ts >= 2) {
+    if (seconds) {
+      g_snprintf(string_buff, SUM_STR_MAX, "Bytes/second: %.2f", tot_num_bytes/seconds);
+    }
+    else {
+      g_snprintf(string_buff, SUM_STR_MAX, "Bytes/second: N/A");
+    }
+    add_string_to_box(string_buff, tot_box);
   }
-  else {
-	  g_snprintf(string_buff, SUM_STR_MAX, "Bytes/second: N/A");
-  }
-  add_string_to_box(string_buff, tot_box);
 
   /* Button row. */
   bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
