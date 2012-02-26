@@ -278,6 +278,8 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 {
 	int bytes_read;
 	LA_RecordHeader rec_header;
+	char header_fixed[2];
+	char *comment;
 	char summary[210];
 	guint16 board_type, mxslc;
 	guint16 record_type, record_length;
@@ -302,6 +304,39 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 		return 0;
 	}
 
+	/* Read the major and minor version numbers */
+	if (record_length < 2) {
+		/* Not enough room for the major and minor version numbers. */
+		*err = WTAP_ERR_BAD_FILE;
+		*err_info = g_strdup_printf("lanalyzer: trace header record length %u < 2",
+		    record_length);
+		return -1;
+	}
+	bytes_read = file_read(&header_fixed, sizeof header_fixed, wth->fh);
+	if (bytes_read != sizeof header_fixed) {
+		*err = file_error(wth->fh, err_info);
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return -1;
+	}
+	wth->data_offset += sizeof header_fixed;
+	record_length -= sizeof header_fixed;
+
+	if (record_length != 0) {
+		/* Read the rest of the record as a comment. */
+		comment = g_malloc(record_length + 1);
+		bytes_read = file_read(comment, record_length, wth->fh);
+		if (bytes_read != record_length) {
+			*err = file_error(wth->fh, err_info);
+			if (*err == 0)
+				*err = WTAP_ERR_SHORT_READ;
+			return -1;
+		}
+		comment[record_length] = '\0';
+		wth->data_offset += record_length;
+		wth->shb_hdr.opt_comment = comment;
+	}
+
 	/* If we made it this far, then the file is a LANAlyzer file.
 	 * Let's get some info from it. Note that we get wth->snapshot_length
 	 * from a record later in the file. */
@@ -315,11 +350,6 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 
 	/* Read records until we find the start of packets */
 	while (1) {
-		if (file_seek(wth->fh, record_length, SEEK_CUR, err) == -1) {
-			g_free(wth->priv);
-			return -1;
-		}
-		wth->data_offset += record_length;
 		errno = WTAP_ERR_CANT_READ;
 		bytes_read = file_read(&rec_header, LA_RecordHeaderSize, wth->fh);
 		if (bytes_read != LA_RecordHeaderSize) {
@@ -382,7 +412,6 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 				mxslc = pletohs(&summary[30]);
 				wth->snapshot_length = mxslc;
 
-				record_length = 0; /* to fake the next iteration of while() */
 				board_type = pletohs(&summary[188]);
 				switch (board_type) {
 					case BOARD_325:
@@ -412,7 +441,12 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 				return 1;
 
 			default:
-				; /* no action */
+				if (file_seek(wth->fh, record_length, SEEK_CUR, err) == -1) {
+					g_free(wth->priv);
+					return -1;
+				}
+				wth->data_offset += record_length;
+				break;
 		}
 	}
 }

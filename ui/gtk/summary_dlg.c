@@ -222,6 +222,11 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
     add_string_to_table(table, &row, "Packet size limit:", string_buff);
   }
 
+  if (summary.opt_comment != NULL) {
+    /* comment */
+    add_string_to_table(table, &row, "Comment:", summary.opt_comment);
+  }
+
   /*
    * We must have no un-time-stamped packets (i.e., the number of
    * time-stamped packets must be the same as the number of packets),
