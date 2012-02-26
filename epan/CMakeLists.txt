@@ -181,8 +181,6 @@ set(DIRTY_PIDL_DISSECTOR_SRC
 	dissectors/packet-dcerpc-lsa.c
 	dissectors/packet-dcerpc-mapi.c
 	dissectors/packet-dcerpc-winreg.c
-	dissectors/packet-ehdlc.c
-	dissectors/packet-gsm_abis_om2000.c
 )
 set(ASN1_DISSECTOR_SRC
 	dissectors/packet-acp133.c
@@ -544,6 +542,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-edonkey.c
 	dissectors/packet-erldp.c
 	dissectors/packet-egd.c
+	dissectors/packet-ehdlc.c
 	dissectors/packet-ehs.c
 	dissectors/packet-eigrp.c
 	dissectors/packet-elcom.c
@@ -616,6 +615,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-gsm_a_gm.c
 	dissectors/packet-gsm_a_rp.c
 	dissectors/packet-gsm_a_rr.c
+	dissectors/packet-gsm_abis_om2000.c
 	dissectors/packet-gsm_abis_oml.c
 	dissectors/packet-gsm_bsslap.c
 	dissectors/packet-gsm_bssmap_le.c
