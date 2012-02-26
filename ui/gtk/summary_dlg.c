@@ -146,6 +146,8 @@ summary_comment_text_buff_save_cb(GtkWidget *w _U_, GtkWidget *view)
   /*g_warning("The new comment is '%s'",new_packet_comment);*/
 
   summary_update_comment(&cfile, new_comment);
+  /* Mark the file as unsaved, caues a popup asking to save the file if we quit the file */
+  cfile.user_saved = FALSE;
 
 }
 
