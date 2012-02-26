@@ -460,6 +460,7 @@ DISSECTOR_SRC = \
 	packet-edonkey.c	\
 	packet-erldp.c		\
 	packet-egd.c		\
+	packet-ehdlc.c		\
 	packet-ehs.c		\
 	packet-eigrp.c		\
 	packet-elcom.c		\
@@ -532,6 +533,7 @@ DISSECTOR_SRC = \
 	packet-gsm_a_gm.c	\
 	packet-gsm_a_rp.c	\
 	packet-gsm_a_rr.c	\
+	packet-gsm_abis_om2000.c	\
 	packet-gsm_abis_oml.c	\
 	packet-gsm_bsslap.c	\
 	packet-gsm_bssmap_le.c	\

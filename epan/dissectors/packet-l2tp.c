@@ -153,6 +153,7 @@ static enum_val_t l2tpv3_cookies[] = {
 #define L2TPv3_PROTOCOL_AAL5    6
 #define L2TPv3_PROTOCOL_LAPD    7
 #define L2TPv3_PROTOCOL_DOCSIS_DMPT 8
+#define L2TPv3_PROTOCOL_ERICSSON 9
 
 static enum_val_t l2tpv3_protocols[] = {
     {"eth",     "Ethernet",     L2TPv3_PROTOCOL_ETH},
@@ -164,6 +165,7 @@ static enum_val_t l2tpv3_protocols[] = {
     {"aal5",    "AAL5",         L2TPv3_PROTOCOL_AAL5},
     {"lapd",    "LAPD",         L2TPv3_PROTOCOL_LAPD},
     {"docsis-dmpt", "DOCSIS-DMPT", L2TPv3_PROTOCOL_DOCSIS_DMPT},
+    {"ehdlc",	"Ericsson HDLC", L2TPv3_PROTOCOL_ERICSSON},
     {NULL, NULL, 0}
 };
 
@@ -588,6 +590,7 @@ static dissector_handle_t atm_oam_handle;
 static dissector_handle_t llc_handle;
 static dissector_handle_t lapd_handle;
 static dissector_handle_t mp2t_handle;
+static dissector_handle_t ehdlc_handle;
 static dissector_handle_t data_handle;
 
 /*
@@ -1494,6 +1497,9 @@ process_l2tpv3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	case L2TPv3_PROTOCOL_LAPD:
 		call_dissector(lapd_handle, next_tvb, pinfo, tree);
 		break;
+	case L2TPv3_PROTOCOL_ERICSSON:
+		call_dissector(ehdlc_handle, next_tvb, pinfo, tree);
+		break;
 	default:
 		call_dissector(data_handle, next_tvb, pinfo, tree);
 		break;
@@ -2185,5 +2191,6 @@ proto_reg_handoff_l2tp(void)
 	llc_handle = find_dissector("llc");
 	lapd_handle = find_dissector("lapd");
 	mp2t_handle = find_dissector("mp2t");
+	ehdlc_handle = find_dissector("ehdlc");
 	data_handle = find_dissector("data");
 }

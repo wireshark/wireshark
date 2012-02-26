@@ -181,6 +181,8 @@ set(DIRTY_PIDL_DISSECTOR_SRC
 	dissectors/packet-dcerpc-lsa.c
 	dissectors/packet-dcerpc-mapi.c
 	dissectors/packet-dcerpc-winreg.c
+	dissectors/packet-ehdlc.c
+	dissectors/packet-gsm_abis_om2000.c
 )
 set(ASN1_DISSECTOR_SRC
 	dissectors/packet-acp133.c
