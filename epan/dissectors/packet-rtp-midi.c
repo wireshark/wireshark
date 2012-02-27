@@ -4298,14 +4298,11 @@ decode_sysex_common_tuning( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
  */
 static unsigned int
 decode_sysex_common_nrt_gm( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
-	guint8		 sub_id		= 0;
 	int		 consumed	= 0;
 
 	if ( data_len < 1 )
 		return consumed;
 
-	/* first we retrieve the sub-command */
-	sub_id = tvb_get_guint8( tvb, offset );
 	proto_tree_add_item( tree, hf_rtp_midi_sysex_common_nrt_gm, tvb, offset, 1, ENC_BIG_ENDIAN );
 	offset++;
 	data_len--;
@@ -4319,14 +4316,11 @@ decode_sysex_common_nrt_gm( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
  */
 static unsigned int
 decode_sysex_common_nrt_dls( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
-	guint8		 sub_id		= 0;
 	int		 consumed	= 0;
 
 	if ( data_len < 1 )
 		return consumed;
 
-	/* first we retrieve the sub-command */
-	sub_id = tvb_get_guint8( tvb, offset );
 	proto_tree_add_item( tree, hf_rtp_midi_sysex_common_nrt_dls, tvb, offset, 1, ENC_BIG_ENDIAN );
 	offset++;
 	data_len--;
@@ -4436,14 +4430,11 @@ decode_sysex_common_nrt_ack( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
  */
 static unsigned int
 decode_sysex_common_nrt_mtc( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
-	guint8		 sub_id		= 0;
 	int		 consumed	= 0;
 
 	if ( data_len < 1 )
 		return consumed;
 
-	/* first we retrieve the sub-command */
-	sub_id = tvb_get_guint8( tvb, offset );
 	proto_tree_add_item( tree, hf_rtp_midi_sysex_common_nrt_mtc, tvb, offset, 1, ENC_BIG_ENDIAN );
 	offset++;
 	data_len--;
@@ -4531,14 +4522,11 @@ decode_sysex_common_nrt_mtc( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
  */
 static unsigned int
 decode_sysex_common_rt_mtc_cue( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
-	guint8		 sub_id		= 0;
 	int		 consumed	= 0;
 
 	if ( data_len < 1 )
 		return consumed;
 
-	/* first we retrieve the sub-command */
-	sub_id = tvb_get_guint8( tvb, offset );
 	proto_tree_add_item( tree, hf_rtp_midi_sysex_common_rt_mtc_cueing, tvb, offset, 1, ENC_BIG_ENDIAN );
 	offset++;
 	data_len--;
@@ -4583,7 +4571,6 @@ decode_sysex_common_rt_mtc_cue( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 static unsigned int
 decode_sysex_common_nrt( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
 	guint8		 common_nrt	= 0;
-	guint8		 device_id	= 0;
 	const gchar	*nrt_str	= NULL;
 	proto_item	*command_item	= NULL;
 	proto_tree	*command_tree	= NULL;
@@ -4593,7 +4580,6 @@ decode_sysex_common_nrt( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	if ( data_len < 1 )
 		return consumed;
 
-	device_id = tvb_get_guint8( tvb, offset );
 	proto_tree_add_item( tree, hf_rtp_midi_sysex_common_device_id, tvb, offset, 1, ENC_BIG_ENDIAN );
 	offset++;
 	data_len--;
@@ -4835,14 +4821,11 @@ decode_sysex_common_rt_mtc( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
  */
 static unsigned int
 decode_sysex_common_rt_sc( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
-	guint8		 sub_id		= 0;
 	int		 consumed	= 0;
 
 	if ( data_len < 1 )
 		return consumed;
 
-	/* first we retrieve the sub-command */
-	sub_id = tvb_get_guint8( tvb, offset );
 	proto_tree_add_item( tree, hf_rtp_midi_sysex_common_rt_sc, tvb, offset, 1, ENC_BIG_ENDIAN );
 	offset++;
 	data_len--;
@@ -5000,14 +4983,11 @@ decode_sysex_common_rt_dc( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
  */
 static unsigned int
 decode_sysex_common_rt_mmc_command( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
-	guint8		 sub_id		= 0;
 	int		 consumed	= 0;
 
 	if ( data_len < 1 )
 		return consumed;
 
-	/* first we retrieve the sub-command */
-	sub_id = tvb_get_guint8( tvb, offset );
 	proto_tree_add_item( tree, hf_rtp_midi_sysex_common_rt_mmc_commands, tvb, offset, 1, ENC_BIG_ENDIAN );
 	offset++;
 	data_len--;
@@ -5022,14 +5002,11 @@ decode_sysex_common_rt_mmc_command( tvbuff_t *tvb, packet_info *pinfo _U_, proto
  */
 static unsigned int
 decode_sysex_common_rt_mmc_response( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
-	guint8		 sub_id		= 0;
 	int		 consumed	= 0;
 
 	if ( data_len < 1 )
 		return consumed;
 
-	/* first we retrieve the sub-command */
-	sub_id = tvb_get_guint8( tvb, offset );
 	proto_tree_add_item( tree, hf_rtp_midi_sysex_common_rt_mmc_responses, tvb, offset, 1, ENC_BIG_ENDIAN );
 	offset++;
 	data_len--;
@@ -5049,7 +5026,6 @@ decode_sysex_common_rt_mmc_response( tvbuff_t *tvb, packet_info *pinfo _U_, prot
 static unsigned int
 decode_sysex_common_rt( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
 	guint8		 common_rt	= 0;
-	guint8		 device_id	= 0;
 	const gchar	*rt_str		= NULL;
 	proto_item	*command_item	= NULL;
 	proto_tree	*command_tree	= NULL;
@@ -5059,7 +5035,6 @@ decode_sysex_common_rt( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	if ( data_len < 1 )
 		return consumed;
 
-	device_id = tvb_get_guint8( tvb, offset );
 	proto_tree_add_item( tree, hf_rtp_midi_sysex_common_device_id, tvb, offset, 1, ENC_BIG_ENDIAN );
 	offset++;
 	data_len--;
@@ -5357,7 +5332,7 @@ decode_song_position_pointer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
 	/* broken: we have only one further octet */
 	if ( cmd_len < 2 ) {
-		command_item = proto_tree_add_text( tree, tvb, offset - 1, 2, "TRUNCATED: %s" status_str );
+		command_item = proto_tree_add_text( tree, tvb, offset - 1, 2, "TRUNCATED: %s", status_str );
 		command_tree = proto_item_add_subtree( command_item, ett_rtp_midi_command );
 		proto_tree_add_item( command_tree, hf_rtp_midi_common_status, tvb, offset - 1, 1, ENC_BIG_ENDIAN );
 		proto_tree_add_item( command_tree, hf_rtp_midi_spp_truncated, tvb, offset, 1, ENC_BIG_ENDIAN );
