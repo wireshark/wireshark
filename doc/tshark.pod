@@ -1083,9 +1083,9 @@ This option can only be used once on the command line.
 Collect statistics for all RTP streams and calculate max. delta, max. and
 mean jitter and packet loss percentages.
 
-=item B<-z> scsi,srt,I<cmdset>[,<filter>]
+=item B<-z> scsi,srt,I<cmdset>[,I<filter>]
 
-Collect call/reply SRT (Service Response Time) data for SCSI commandset <cmdset>.
+Collect call/reply SRT (Service Response Time) data for SCSI commandset I<cmdset>.
 
 Commandsets are 0:SBC   1:SSC  5:MMC
 
@@ -1254,7 +1254,7 @@ UEs with a UEId of more than 3000.
 =item B<-z> expert[I<,error|,warn|,note|,chat>][I<,filter>]
 
 Collects information about all expert info, and will display them in order,
-grouped by severity. 
+grouped by severity.
 
 Example: B<-z expert,sip> will show expert items of all severity for frames that
 match the sip protocol.
@@ -1266,6 +1266,61 @@ on those calls that match that filter.
 
 Example: B<-z "expert,note,tcp"> will only collect expert items for frames that
 include the tcp protocol, with a severity of note or higher.
+
+=item B<-z> follow,I<prot>,I<mode>,I<filter>[I<,range>]
+
+Displays the contents of a TCP or UDP stream between two nodes.  The data
+sent by the second node is prefixed with a tab to differentiate it from the
+data sent by the first node.
+
+I<prot> specifies the transport protocol.  It can be one of:
+  B<tcp>   TCP
+  B<udp>   UDP
+
+I<mode> specifies the output mode.  It can be one of:
+  B<ascii> ASCII output with dots for non-printable characters
+  B<hex>   Hexadecimal and ASCII data with offsets
+  B<raw>   Hexadecimal data
+
+Since the output in B<ascii> mode may contain newlines, the length of each section
+of output plus a newline precedes each section of output.
+
+I<filter> specifies the stream to be displayed.  UDP streams are selected with
+IP address plus port pairs.  TCP streams are selected with either the stream
+index or IP address plus port pairs.  For example:
+  B<ip-addr0>:B<port0>,B<ip-addr1>:B<port1>
+  B<tcp-stream-index>
+
+I<range> optionally specifies which "chunks" of the stream should be displayed.
+
+Example: B<-z "follow,tcp,hex,1"> will display the contents of the first TCP
+stream in "hex" format.
+
+  ===================================================================
+  Follow: tcp,hex
+  Filter: tcp.stream eq 1
+  Node 0: 200.57.7.197:32891
+  Node 1: 200.57.7.198:2906
+  00000000  00 00 00 22 00 00 00 07  00 0a 85 02 07 e9 00 02  ...".... ........
+  00000010  07 e9 06 0f 00 0d 00 04  00 00 00 01 00 03 00 06  ........ ........
+  00000020  1f 00 06 04 00 00                                 ......
+      00000000  00 01 00 00                                       ....
+      00000026  00 02 00 00
+
+Example: B<-z "follow,tcp,ascii,200.57.7.197:32891,200.57.7.198:2906"> will
+display the contents of a TCP stream between 200.57.7.197 port 32891 and
+200.57.7.98 port 2906.
+
+  ===================================================================
+  Follow: tcp,ascii
+  Filter: (ommitted for readability)
+  Node 0: 200.57.7.197:32891
+  Node 1: 200.57.7.198:2906
+  38
+  ...".....
+  ................
+      4
+      ....
 
 =back
 
