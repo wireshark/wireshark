@@ -2181,332 +2181,332 @@ static const value_string rtp_midi_mtc_fm_type_values[] = {
 	{ 0,								NULL }
 };
 
-static const true_false_string rtp_midi_cs_flag_b[] = {
+static const true_false_string rtp_midi_cs_flag_b= {
 	"Long Header: 2 octets",
-	"Short Header: 1 octet",
+	"Short Header: 1 octet"
 };
 
-static const true_false_string rtp_midi_cs_flag_j[] = {
+static const true_false_string rtp_midi_cs_flag_j= {
 	"Journal present",
 	"No Journal present"
 };
 
-static const true_false_string rtp_midi_cs_flag_z[] = {
+static const true_false_string rtp_midi_cs_flag_z= {
 	"Delta-Time present for first MIDI-command",
 	"No Delta-Time for first MIDI-command"
 };
 
-static const true_false_string rtp_midi_cs_flag_p[] = {
+static const true_false_string rtp_midi_cs_flag_p= {
 	"Status byte was NOT present in original MIDI-command",
 	"Status byte was present in original MIDI-command"
 };
 
-static const true_false_string rtp_midi_js_flag_y[] = {
+static const true_false_string rtp_midi_js_flag_y = {
 	"System-jounral present",
 	"System-journal NOT present"
 };
 
-static const true_false_string rtp_midi_js_flag_s[] = {
+static const true_false_string rtp_midi_js_flag_s = {
 	"Standard journal behaviour",
 	"Journal encodes data in preceding RTP-packet"
 };
 
-static const true_false_string rtp_midi_js_flag_a[] = {
+static const true_false_string rtp_midi_js_flag_a = {
 	"Channel-journal present",
 	"Channel-journal NOT present"
 };
 
-static const true_false_string rtp_midi_js_flag_h[] = {
+static const true_false_string rtp_midi_js_flag_h = {
 	"Enhanced Encoding",
 	"Standard Encoding"
 };
 
-static const true_false_string rtp_midi_sj_flag_d[] = {
+static const true_false_string rtp_midi_sj_flag_d = {
 	"Chapter D journal present",
 	"Chapter D journal NOT present"
 };
 
-static const true_false_string rtp_midi_sj_flag_v[] = {
+static const true_false_string rtp_midi_sj_flag_v = {
 	"Chapter V journal present",
 	"Chapter V journal NOT present"
 };
 
-static const true_false_string rtp_midi_sj_flag_q[] = {
+static const true_false_string rtp_midi_sj_flag_q = {
 	"Chapter Q journal present",
 	"Chapter Q journal NOT present"
 };
 
-static const true_false_string rtp_midi_sj_flag_f[] = {
+static const true_false_string rtp_midi_sj_flag_f = {
 	"Chapter F journal present",
 	"Chapter F journal NOT present"
 };
 
-static const true_false_string rtp_midi_sj_flag_x[] = {
+static const true_false_string rtp_midi_sj_flag_x = {
 	"Chapter X journal present",
 	"Chapter X journal NOT present"
 };
 
-static const true_false_string rtp_midi_cj_flag_p[] = {
+static const true_false_string rtp_midi_cj_flag_p = {
 	"Chapter P journal present",
 	"Chapter P journal NOT present"
 };
 
-static const true_false_string rtp_midi_cj_flag_c[] = {
+static const true_false_string rtp_midi_cj_flag_c = {
 	"Chapter C journal present",
 	"Chapter C journal NOT present"
 };
 
-static const true_false_string rtp_midi_cj_flag_m[] = {
+static const true_false_string rtp_midi_cj_flag_m = {
 	"Chapter M journal present",
 	"Chapter M journal NOT present"
 };
 
-static const true_false_string rtp_midi_cj_flag_w[] = {
+static const true_false_string rtp_midi_cj_flag_w = {
 	"Chapter W journal present",
 	"Chapter W journal NOT present"
 };
 
-static const true_false_string rtp_midi_cj_flag_n[] = {
+static const true_false_string rtp_midi_cj_flag_n = {
 	"Chapter N journal present",
 	"Chapter N journal NOT present"
 };
 
-static const true_false_string rtp_midi_cj_flag_e[] = {
+static const true_false_string rtp_midi_cj_flag_e = {
 	"Chapter E journal present",
 	"Chapter E journal NOT present"
 };
 
-static const true_false_string rtp_midi_cj_flag_t[] = {
+static const true_false_string rtp_midi_cj_flag_t = {
 	"Chapter T journal present",
 	"Chapter T journal NOT present"
 };
 
-static const true_false_string rtp_midi_cj_flag_a[] = {
+static const true_false_string rtp_midi_cj_flag_a = {
 	"Chapter A journal present",
 	"Chapter A journal NOT present"
 };
 
-static const true_false_string rtp_midi_cj_chapter_c_flag_a[] = {
+static const true_false_string rtp_midi_cj_chapter_c_flag_a = {
 	"Alternative Coding",
 	"Value Coding"
 };
 
-static const true_false_string rtp_midi_cj_chapter_m_flag_p[] = {
+static const true_false_string rtp_midi_cj_chapter_m_flag_p = {
 	"Pending field is encoded",
 	"Pending field is NOT encoded"
 };
 
-static const true_false_string rtp_midi_cj_chapter_m_flag_e[] = {
+static const true_false_string rtp_midi_cj_chapter_m_flag_e = {
 	"Initiated transaction is in progress",
 	"NO transaction in progress"
 };
 
-static const true_false_string rtp_midi_cj_chapter_m_flag_u[] = {
+static const true_false_string rtp_midi_cj_chapter_m_flag_u = {
 	"All parameters are RPNs",
 	"Parameters may include NRPNs"
 };
 
-static const true_false_string rtp_midi_cj_chapter_m_flag_w[] = {
+static const true_false_string rtp_midi_cj_chapter_m_flag_w = {
 	"All parameters are NRPNs",
 	"Parameters may include RPNs"
 };
 
-static const true_false_string rtp_midi_cj_chapter_m_flag_z[] = {
+static const true_false_string rtp_midi_cj_chapter_m_flag_z = {
 	"Only LSB parameters",
 	"Parameters may have LSB & MSB"
 };
 
-static const true_false_string rtp_midi_cj_chapter_m_flag_q[] = {
+static const true_false_string rtp_midi_cj_chapter_m_flag_q = {
 	"Pending encodes NRPN MSB",
 	"Pending encodes RPN MSB"
 };
 
-static const true_false_string rtp_midi_cj_chapter_m_log_flag_q[] = {
+static const true_false_string rtp_midi_cj_chapter_m_log_flag_q = {
 	"NRPN parameter encoded",
 	"RPN parameter encoded"
 };
 
-static const true_false_string rtp_midi_cj_chapter_m_log_flag_j[] = {
+static const true_false_string rtp_midi_cj_chapter_m_log_flag_j = {
 	"ENTRY-MSB field present",
 	"ENTRY-MSB field NOT present"
 };
 
-static const true_false_string rtp_midi_cj_chapter_m_log_flag_k[] = {
+static const true_false_string rtp_midi_cj_chapter_m_log_flag_k = {
 	"ENTRY-LSB field present",
 	"ENTRY-LSB field NOT present"
 };
 
-static const true_false_string rtp_midi_cj_chapter_m_log_flag_l[] = {
+static const true_false_string rtp_midi_cj_chapter_m_log_flag_l = {
 	"A-Button field present",
 	"A-Button field NOT present"
 };
 
-static const true_false_string rtp_midi_cj_chapter_m_log_flag_m[] = {
+static const true_false_string rtp_midi_cj_chapter_m_log_flag_m = {
 	"C-Button field present",
 	"C-Button field NOT present"
 };
 
-static const true_false_string rtp_midi_cj_chapter_m_log_flag_n[] = {
+static const true_false_string rtp_midi_cj_chapter_m_log_flag_n = {
 	"Count field present",
 	"Count field NOT present"
 };
 
-static const true_false_string rtp_midi_cj_chapter_m_log_flag_t[] = {
+static const true_false_string rtp_midi_cj_chapter_m_log_flag_t = {
 	"Count Tool used",
 	"Count Tool NOT used"
 };
 
-static const true_false_string rtp_midi_cj_chapter_m_log_flag_v[] = {
+static const true_false_string rtp_midi_cj_chapter_m_log_flag_v = {
 	"Value Tool used",
 	"Value Tool NOT used"
 };
 
-static const true_false_string rtp_midi_cj_chapter_m_log_flag_r[] = {
+static const true_false_string rtp_midi_cj_chapter_m_log_flag_r = {
 	"Reserved-Flag set",
 	"Reserved-Flag NOT set"
 };
 
-static const true_false_string rtp_midi_cj_chapter_m_log_flag_x[] = {
+static const true_false_string rtp_midi_cj_chapter_m_log_flag_x = {
 	"Precedes most recent Control Change command for ctrl=121",
 	"Does not precede most recent Control Change command for ctrl=121"
 };
 
-static const true_false_string rtp_midi_cj_chapter_m_log_flag_g[] = {
+static const true_false_string rtp_midi_cj_chapter_m_log_flag_g = {
 	"negative value",
 	"positive value"
 };
 
-static const true_false_string rtp_midi_cj_chapter_n_log_flag_y[] = {
+static const true_false_string rtp_midi_cj_chapter_n_log_flag_y = {
 	"Execute Note-On",
 	"Skip Note-On"
 };
 
-static const true_false_string rtp_midi_cj_chapter_e_log_flag_v[] = {
+static const true_false_string rtp_midi_cj_chapter_e_log_flag_v = {
 	"Encodes Note-Off velocity",
 	"Encodes Note-On/Off count"
 };
 
-static const true_false_string rtp_midi_cj_chapter_a_log_flag_x[] = {
+static const true_false_string rtp_midi_cj_chapter_a_log_flag_x = {
 	"Precedes most recent Control Change command for ctrl=123-127",
 	"Does not precede most recent Control Change command for ctrl=123-127"
 };
 
-static const true_false_string rtp_midi_cj_chapter_p_log_flag_x[] = {
+static const true_false_string rtp_midi_cj_chapter_p_log_flag_x = {
 	"Reset all controllers received between MSB and LSB",
 	"NO Reset all controllers received between MSB and LSB"
 };
 
-static const true_false_string rtp_midi_sj_chapter_d_flag_b[] = {
+static const true_false_string rtp_midi_sj_chapter_d_flag_b = {
 	"Reset field present",
 	"Reset field NOT present"
 };
 
-static const true_false_string rtp_midi_sj_chapter_d_flag_g[] = {
+static const true_false_string rtp_midi_sj_chapter_d_flag_g = {
 	"Tune request field present",
 	"Tune request field NOT present"
 };
 
-static const true_false_string rtp_midi_sj_chapter_d_flag_h[] = {
+static const true_false_string rtp_midi_sj_chapter_d_flag_h = {
 	"Song select field present",
 	"Song select field NOT present"
 };
 
-static const true_false_string rtp_midi_sj_chapter_d_flag_j[] = {
+static const true_false_string rtp_midi_sj_chapter_d_flag_j = {
 	"Undefined system common 0xF4 field present",
 	"Undefined system common 0xF4 field NOT present"
 };
 
-static const true_false_string rtp_midi_sj_chapter_d_flag_k[] = {
+static const true_false_string rtp_midi_sj_chapter_d_flag_k = {
 	"Undefined system common 0xF5 field present",
 	"Undefined system common 0xF5 field NOT present"
 };
 
-static const true_false_string rtp_midi_sj_chapter_d_flag_y[] = {
+static const true_false_string rtp_midi_sj_chapter_d_flag_y = {
 	"Undefined system common 0xF9 field present",
 	"Undefined system common 0xF9 field NOT present"
 };
 
-static const true_false_string rtp_midi_sj_chapter_d_flag_z[] = {
+static const true_false_string rtp_midi_sj_chapter_d_flag_z = {
 	"Undefined system common 0xFD field present",
 	"Undefined system common 0xFD field NOT present"
 };
 
-static const true_false_string rtp_midi_sj_chapter_d_syscom_flag_c[] = {
+static const true_false_string rtp_midi_sj_chapter_d_syscom_flag_c = {
 	"Count field present",
 	"Count field NOT present"
 };
 
-static const true_false_string rtp_midi_sj_chapter_d_syscom_flag_v[] = {
+static const true_false_string rtp_midi_sj_chapter_d_syscom_flag_v = {
 	"Value field present",
 	"Value field NOT present"
 };
 
-static const true_false_string rtp_midi_sj_chapter_d_syscom_flag_l[] = {
+static const true_false_string rtp_midi_sj_chapter_d_syscom_flag_l = {
 	"Legal field present",
 	"Legal field NOT present"
 };
 
-static const true_false_string rtp_midi_sj_chapter_q_flag_n[] = {
+static const true_false_string rtp_midi_sj_chapter_q_flag_n = {
 	"Active Start / Continue",
 	"NO active Start / Stop Continue"
 };
 
-static const true_false_string rtp_midi_sj_chapter_q_flag_d[] = {
+static const true_false_string rtp_midi_sj_chapter_q_flag_d = {
 	"Song position already reached",
 	"Song position yet to be reached"
 };
 
-static const true_false_string rtp_midi_sj_chapter_q_flag_c[] = {
+static const true_false_string rtp_midi_sj_chapter_q_flag_c = {
 	"Clock field present",
 	"Clock field NOT present"
 };
 
-static const true_false_string rtp_midi_sj_chapter_q_flag_t[] = {
+static const true_false_string rtp_midi_sj_chapter_q_flag_t = {
 	"Timetools field present",
 	"Timetools field NOT present"
 };
 
-static const true_false_string rtp_midi_sj_chapter_f_flag_c[] = {
+static const true_false_string rtp_midi_sj_chapter_f_flag_c = {
 	"Complete field present",
 	"Complete field NOT present"
 };
 
-static const true_false_string rtp_midi_sj_chapter_f_flag_p[] = {
+static const true_false_string rtp_midi_sj_chapter_f_flag_p = {
 	"Partial field present",
 	"Partial field NOT present"
 };
 
-static const true_false_string rtp_midi_sj_chapter_f_flag_q[] = {
+static const true_false_string rtp_midi_sj_chapter_f_flag_q = {
 	"Complete field contains quarter frames",
 	"Complete field contains full frame format"
 };
 
-static const true_false_string rtp_midi_sj_chapter_f_flag_d[] = {
+static const true_false_string rtp_midi_sj_chapter_f_flag_d = {
 	"Tape head is moving reverse",
 	"Tape head is moving forward or undefined"
 };
 
-static const true_false_string rtp_midi_sj_chapter_x_flag_t[] = {
+static const true_false_string rtp_midi_sj_chapter_x_flag_t = {
 	"TCOUNT field present",
 	"TCOUNT field NOT present"
 };
 
-static const true_false_string rtp_midi_sj_chapter_x_flag_c[] = {
+static const true_false_string rtp_midi_sj_chapter_x_flag_c = {
 	"COUNT field present",
 	"COUNT field NOT present"
 };
 
-static const true_false_string rtp_midi_sj_chapter_x_flag_f[] = {
+static const true_false_string rtp_midi_sj_chapter_x_flag_f = {
 	"FIRST field present",
 	"FIRST field NOT present"
 };
 
-static const true_false_string rtp_midi_sj_chapter_x_flag_d[] = {
+static const true_false_string rtp_midi_sj_chapter_x_flag_d = {
 	"DATA field present",
 	"DATA field not present"
 };
 
-static const true_false_string rtp_midi_sj_chapter_x_flag_l[] = {
+static const true_false_string rtp_midi_sj_chapter_x_flag_l = {
 	"List Tool used",
 	"Recency Tool used"
 };
@@ -2913,7 +2913,7 @@ void proto_reg_handoff_rtp_midi( void );
  * This decodes the delta-time before a MIDI-command
  */
 static int
-decodetime(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int offset, unsigned int cmd_len)
+decodetime(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int cmd_len)
 {
 	guint8		octet;
 	unsigned int	consumed;
@@ -3410,7 +3410,7 @@ decode_channel_pressure(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uns
  * Here pitch-bend is decoded.
  */
 static int
-decode_pitch_bend_change(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int cmd_count, unsigned int offset, unsigned int cmd_len, guint8 status, unsigned int rsoffset, gboolean using_rs ) {
+decode_pitch_bend_change(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int cmd_count, unsigned int offset, unsigned int cmd_len, guint8 status, unsigned int rsoffset, gboolean using_rs ) {
 
 	guint8		 octet1		= 0;
 	guint8		 octet2		= 0;
@@ -3730,7 +3730,7 @@ decode_control_change(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
  * Here a Sysex-Common Non-Realtime Sample Dump Header command is decoded.
  */
 static unsigned int
-decode_sysex_common_nrt_sd_hdr( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
+decode_sysex_common_nrt_sd_hdr( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
 	int		 consumed	= 0;
 
 	if ( data_len < 2 )
@@ -3803,7 +3803,7 @@ decode_sysex_common_nrt_sd_hdr( tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
  * Here a Sysex-Common Non-Realtime Sample Dump Packet command is decoded.
  */
 static unsigned int
-decode_sysex_common_nrt_sd_packet( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
+decode_sysex_common_nrt_sd_packet( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
 	int		 consumed	= 0;
 
 	if ( data_len < 1 )
@@ -3841,7 +3841,7 @@ decode_sysex_common_nrt_sd_packet( tvbuff_t *tvb, packet_info *pinfo, proto_tree
  * Here a Sysex-Common Non-Realtime Sample Dump Request command is decoded.
  */
 static unsigned int
-decode_sysex_common_nrt_sd_req( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
+decode_sysex_common_nrt_sd_req( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
 	int		 consumed	= 0;
 
 	if ( data_len < 2 )
@@ -3861,7 +3861,7 @@ decode_sysex_common_nrt_sd_req( tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
  * Here a Sysex-Common Non-Realtime Sample Dump Extension command is decoded.
  */
 static unsigned int
-decode_sysex_common_nrt_sd_ext( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
+decode_sysex_common_nrt_sd_ext( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
 	guint8		 sub_id		= 0;
 	int		 consumed	= 0;
 
@@ -3951,7 +3951,7 @@ decode_sysex_common_nrt_sd_ext( tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
  * Here a Sysex-Common Non-Realtime General Information command is decoded.
  */
 static unsigned int
-decode_sysex_common_nrt_gi( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
+decode_sysex_common_nrt_gi( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
 	guint8		 sub_id		= 0;
 	guint8		 manu_short	= 0;
 	int		 consumed	= 0;
@@ -4032,7 +4032,7 @@ decode_sysex_common_nrt_gi( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  * Here a Sysex-Common Non-Realtime File Dump command is decoded.
  */
 static unsigned int
-decode_sysex_common_nrt_fd( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
+decode_sysex_common_nrt_fd( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
 	guint8		 sub_id		= 0;
 	int		 consumed	= 0;
 
@@ -4161,7 +4161,7 @@ decode_sysex_common_nrt_fd( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  * As the code-points do not overlap, both RT and NRT are decoded here...
  */
 static unsigned int
-decode_sysex_common_tuning( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
+decode_sysex_common_tuning( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
 
 	proto_item	*tune_item	= NULL;
 	proto_tree	*tune_tree	= NULL;
@@ -4298,7 +4298,7 @@ decode_sysex_common_tuning( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  * Here a Sysex-Common Non-Realtime General MIDI command is decoded.
  */
 static unsigned int
-decode_sysex_common_nrt_gm( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
+decode_sysex_common_nrt_gm( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
 	guint8		 sub_id		= 0;
 	int		 consumed	= 0;
 
@@ -4319,7 +4319,7 @@ decode_sysex_common_nrt_gm( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  * Here a Sysex-Common Non-Realtime Downloadable Sounds command is decoded.
  */
 static unsigned int
-decode_sysex_common_nrt_dls( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
+decode_sysex_common_nrt_dls( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
 	guint8		 sub_id		= 0;
 	int		 consumed	= 0;
 
@@ -4340,7 +4340,7 @@ decode_sysex_common_nrt_dls( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
  * Here a Sysex-Common Non-Realtime End Of File command is decoded.
  */
 static unsigned int
-decode_sysex_common_nrt_eof( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
+decode_sysex_common_nrt_eof( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
 	int		 consumed	= 0;
 
 	if ( data_len < 1 )
@@ -4359,7 +4359,7 @@ decode_sysex_common_nrt_eof( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
  * Here a Sysex-Common Non-Realtime Wait command is decoded.
  */
 static unsigned int
-decode_sysex_common_nrt_wait( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
+decode_sysex_common_nrt_wait( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
 	int		 consumed	= 0;
 
 	if ( data_len < 1 )
@@ -4378,7 +4378,7 @@ decode_sysex_common_nrt_wait( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
  * Here a Sysex-Common Non-Realtime Cancel command is decoded.
  */
 static unsigned int
-decode_sysex_common_nrt_cancel( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
+decode_sysex_common_nrt_cancel( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
 	int		 consumed	= 0;
 
 	if ( data_len < 1 )
@@ -4397,7 +4397,7 @@ decode_sysex_common_nrt_cancel( tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
  * Here a Sysex-Common Non-Realtime NAK command is decoded.
  */
 static unsigned int
-decode_sysex_common_nrt_nak( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
+decode_sysex_common_nrt_nak( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
 	int		 consumed	= 0;
 
 	if ( data_len < 1 )
@@ -4416,7 +4416,7 @@ decode_sysex_common_nrt_nak( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
  * Here a Sysex-Common Non-Realtime ACK command is decoded.
  */
 static unsigned int
-decode_sysex_common_nrt_ack( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
+decode_sysex_common_nrt_ack( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
 	int		 consumed	= 0;
 
 	if ( data_len < 1 )
@@ -4436,7 +4436,7 @@ decode_sysex_common_nrt_ack( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
  * as the codepoints are the same, we decode both realtime and non-realtime here.
  */
 static unsigned int
-decode_sysex_common_nrt_mtc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
+decode_sysex_common_nrt_mtc( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
 	guint8		 sub_id		= 0;
 	int		 consumed	= 0;
 
@@ -4531,7 +4531,7 @@ decode_sysex_common_nrt_mtc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
  * As the codepoints are the same, we decode both realtime and non-realtime here.
  */
 static unsigned int
-decode_sysex_common_rt_mtc_cue( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
+decode_sysex_common_rt_mtc_cue( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
 	guint8		 sub_id		= 0;
 	int		 consumed	= 0;
 
@@ -4582,7 +4582,7 @@ decode_sysex_common_rt_mtc_cue( tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
  * Here a Sysex-Common Non-Realtime command is decoded.
  */
 static unsigned int
-decode_sysex_common_nrt( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
+decode_sysex_common_nrt( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
 	guint8		 common_nrt	= 0;
 	guint8		 device_id	= 0;
 	const gchar	*nrt_str	= NULL;
@@ -4608,7 +4608,7 @@ decode_sysex_common_nrt( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, un
 
 	nrt_str = val_to_str( common_nrt, rtp_midi_sysex_common_nrt, "Unknown 0x%02x" );
 
-	command_item = proto_tree_add_text(tree, tvb, offset, data_len, nrt_str );
+	command_item = proto_tree_add_text(tree, tvb, offset, data_len, "%s",nrt_str );
 	command_tree = proto_item_add_subtree( command_item, ett_rtp_midi_sysex_common_nrt );
 	proto_tree_add_item( command_tree, hf_rtp_midi_sysex_common_non_realtime, tvb, offset, 1, ENC_BIG_ENDIAN );
 
@@ -4690,7 +4690,7 @@ decode_sysex_common_nrt( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, un
  * Here a Sysex-Common Realtime MIDI Time Code command is decoded.
  */
 static unsigned int
-decode_sysex_common_rt_mtc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
+decode_sysex_common_rt_mtc( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
 	guint8		 sub_id		= 0;
 	int		 consumed	= 0;
 
@@ -4835,7 +4835,7 @@ decode_sysex_common_rt_mtc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  * Here a Sysex-Common Realtime MIDI Show Control command is decoded.
  */
 static unsigned int
-decode_sysex_common_rt_sc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
+decode_sysex_common_rt_sc( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
 	guint8		 sub_id		= 0;
 	int		 consumed	= 0;
 
@@ -4857,7 +4857,7 @@ decode_sysex_common_rt_sc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
  * Here a Sysex-Common Realtime Notation Information command is decoded.
  */
 static unsigned int
-decode_sysex_common_rt_ni( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
+decode_sysex_common_rt_ni( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
 	guint8		 sub_id		= 0;
 	int		 consumed	= 0;
 	int		 bytes		= 0;
@@ -4954,7 +4954,7 @@ decode_sysex_common_rt_ni( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
  * Here a Sysex-Common Realtime Device Control command is decoded.
  */
 static unsigned int
-decode_sysex_common_rt_dc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
+decode_sysex_common_rt_dc( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
 	guint8		 sub_id		= 0;
 	int		 consumed	= 0;
 
@@ -5000,7 +5000,7 @@ decode_sysex_common_rt_dc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
  * Here a Sysex-Common Realtime MIDI Machine Control command is decoded.
  */
 static unsigned int
-decode_sysex_common_rt_mmc_command( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
+decode_sysex_common_rt_mmc_command( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
 	guint8		 sub_id		= 0;
 	int		 consumed	= 0;
 
@@ -5022,7 +5022,7 @@ decode_sysex_common_rt_mmc_command( tvbuff_t *tvb, packet_info *pinfo, proto_tre
  * Here a Sysex-Common Realtime MIDI Machine Control response is decoded.
  */
 static unsigned int
-decode_sysex_common_rt_mmc_response( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
+decode_sysex_common_rt_mmc_response( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
 	guint8		 sub_id		= 0;
 	int		 consumed	= 0;
 
@@ -5048,7 +5048,7 @@ decode_sysex_common_rt_mmc_response( tvbuff_t *tvb, packet_info *pinfo, proto_tr
  * Here a Sysex-Common Realtime command is decoded.
  */
 static unsigned int
-decode_sysex_common_rt( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
+decode_sysex_common_rt( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
 	guint8		 common_rt	= 0;
 	guint8		 device_id	= 0;
 	const gchar	*rt_str		= NULL;
@@ -5073,7 +5073,7 @@ decode_sysex_common_rt( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uns
 	common_rt = tvb_get_guint8( tvb, offset );
 	rt_str = val_to_str( common_rt, rtp_midi_sysex_common_rt, "Unknown 0x%02x" );
 
-	command_item = proto_tree_add_text(tree, tvb, offset, data_len, rt_str );
+	command_item = proto_tree_add_text(tree, tvb, offset, data_len, "%s", rt_str );
 	command_tree = proto_item_add_subtree( command_item, ett_rtp_midi_sysex_common_rt );
 	proto_tree_add_item( command_tree, hf_rtp_midi_sysex_common_realtime, tvb, offset, 1, ENC_BIG_ENDIAN );
 
@@ -5132,7 +5132,7 @@ decode_sysex_common_rt( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uns
  * We don't know what this data encodes, so we just dump it.
  */
 static unsigned int
-decode_sysex_common_educational( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
+decode_sysex_common_educational( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len ) {
 	proto_item	*command_item	= NULL;
 	proto_tree	*command_tree	= NULL;
 	int		 consumed	= 0;
@@ -5153,7 +5153,7 @@ decode_sysex_common_educational( tvbuff_t *tvb, packet_info *pinfo, proto_tree *
  * We don't know what this data encodes, so we just dump it.
  */
 static unsigned int
-decode_sysex_common_manufacturer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int offset, unsigned int data_len, unsigned int manu_code ) {
+decode_sysex_common_manufacturer( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len, unsigned int manu_code ) {
 	proto_item	*command_item	= NULL;
 	proto_tree	*command_tree	= NULL;
 	int		 consumed	= 0;
@@ -5180,7 +5180,7 @@ decode_sysex_common_manufacturer( tvbuff_t *tvb, packet_info *pinfo, proto_tree 
  * Here a Sysex-Start command is decoded.
  */
 static unsigned int
-decode_sysex_start(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int cmd_count, unsigned int offset, unsigned int cmd_len ) {
+decode_sysex_start(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int cmd_count, unsigned int offset, unsigned int cmd_len ) {
 	guint8		 octet		= 0;
 	guint8		 manu_short	= 0;
 	const gchar	*status_str	= NULL;
@@ -5221,7 +5221,7 @@ decode_sysex_start(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned
 	/* the unknown data we have does not include the trailing status-command */
 	data_len = consumed - 1;
 
-	command_item = proto_tree_add_text(tree, tvb, offset - 1, 1 + consumed, status_str );
+	command_item = proto_tree_add_text(tree, tvb, offset - 1, 1 + consumed, "%s", status_str );
 	command_tree = proto_item_add_subtree( command_item, ett_rtp_midi_command );
 	proto_tree_add_item( command_tree, hf_rtp_midi_common_status, tvb, offset - 1, 1, ENC_BIG_ENDIAN );
 
@@ -5284,7 +5284,7 @@ decode_sysex_start(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned
  * Here the MIDI-Time-Code (MTC) Quarter Frame command is decoded.
  */
 static int
-decode_mtc_quarter_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int cmd_count, unsigned int offset, unsigned int cmd_len ) {
+decode_mtc_quarter_frame(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int cmd_count, unsigned int offset, unsigned int cmd_len ) {
 	guint8		 value		= 0;
 	const gchar	*status_str	= NULL;
 	proto_item	*command_item	= NULL;
@@ -5311,7 +5311,7 @@ decode_mtc_quarter_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, un
 	}
 
 
-	command_item = proto_tree_add_text(tree, tvb, offset - 1, 2, status_str );
+	command_item = proto_tree_add_text(tree, tvb, offset - 1, 2, "%s", status_str );
 	command_tree = proto_item_add_subtree( command_item, ett_rtp_midi_command );
 	proto_tree_add_item( command_tree, hf_rtp_midi_common_status, tvb, offset - 1, 1, ENC_BIG_ENDIAN );
 	proto_tree_add_item( command_tree, hf_rtp_midi_quarter_frame_type, tvb, offset, 1, ENC_BIG_ENDIAN );
@@ -5329,7 +5329,7 @@ decode_mtc_quarter_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, un
  * Here the Song Position Pointer command is decoded.
  */
 static int
-decode_song_position_pointer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int cmd_count, unsigned int offset, unsigned int cmd_len ) {
+decode_song_position_pointer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int cmd_count, unsigned int offset, unsigned int cmd_len ) {
 	guint8		 octet1		= 0;
 	guint8		 octet2		= 0;
 	guint8		 position	= 0;
@@ -5396,7 +5396,7 @@ decode_song_position_pointer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
  * Here a Song-Select command is decoded.
  */
 static int
-decode_song_select(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int cmd_count, unsigned int offset, unsigned int cmd_len ) {
+decode_song_select(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int cmd_count, unsigned int offset, unsigned int cmd_len ) {
 	guint8		 song_nr	= 0;
 	const gchar	*status_str	= NULL;
 	proto_item	*command_item	= NULL;
@@ -5439,7 +5439,7 @@ decode_song_select(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned
  * Here the undefined common-command 0xf4 is decoded.
  */
 static int
-decode_undefined_f4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int cmd_count, unsigned int offset, unsigned int cmd_len ) {
+decode_undefined_f4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int cmd_count, unsigned int offset, unsigned int cmd_len ) {
 	guint8		 octet		= 0;
 	const gchar	*status_str	= NULL;
 	proto_item	*command_item	= NULL;
@@ -5459,7 +5459,7 @@ decode_undefined_f4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigne
 		}
 	}
 
-	command_item = proto_tree_add_text(tree, tvb, offset - 1, 1 + consumed, status_str );
+	command_item = proto_tree_add_text(tree, tvb, offset - 1, 1 + consumed, "%s", status_str );
 	command_tree = proto_item_add_subtree( command_item, ett_rtp_midi_command );
 	proto_tree_add_item( command_tree, hf_rtp_midi_common_status, tvb, offset - 1, 1, ENC_BIG_ENDIAN );
 	/* just add the unknown data to the tree */
@@ -5478,7 +5478,7 @@ decode_undefined_f4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigne
  * Here the undefined common-command 0xf5 is decoded.
  */
 static int
-decode_undefined_f5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int cmd_count, unsigned int offset, unsigned int cmd_len ) {
+decode_undefined_f5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int cmd_count, unsigned int offset, unsigned int cmd_len ) {
 	guint8		 octet		= 0;
 	const gchar	*status_str	= NULL;
 	proto_item	*command_item	= NULL;
@@ -5497,7 +5497,7 @@ decode_undefined_f5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigne
 		}
 	}
 
-	command_item = proto_tree_add_text(tree, tvb, offset - 1, 1 + consumed, status_str );
+	command_item = proto_tree_add_text(tree, tvb, offset - 1, 1 + consumed, "%s", status_str );
 	command_tree = proto_item_add_subtree( command_item, ett_rtp_midi_command );
 	proto_tree_add_item( command_tree, hf_rtp_midi_common_status, tvb, offset - 1, 1, ENC_BIG_ENDIAN );
 	/* just add the unknown data to the tree */
@@ -5516,13 +5516,13 @@ decode_undefined_f5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigne
  * Here a Tune-Request command is decoded.
  */
 static int
-decode_tune_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int cmd_count, unsigned int offset, unsigned int cmd_len ) {
+decode_tune_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int cmd_count, unsigned int offset, unsigned int cmd_len ) {
 	const gchar	*status_str	= NULL;
 	proto_item	*command_item	= NULL;
 	proto_tree	*command_tree	= NULL;
 
 	status_str = val_to_str( RTP_MIDI_STATUS_COMMON_TUNE_REQUEST, rtp_midi_common_status, rtp_midi_unknown_value_hex );
-	command_item = proto_tree_add_text(tree, tvb, offset - 1, 1, status_str );
+	command_item = proto_tree_add_text(tree, tvb, offset - 1, 1, "%s", status_str );
 	command_tree = proto_item_add_subtree( command_item, ett_rtp_midi_command );
 	proto_tree_add_item( command_tree, hf_rtp_midi_common_status, tvb, offset - 1, 1, ENC_BIG_ENDIAN );
 
@@ -5538,7 +5538,7 @@ decode_tune_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigne
  * Here a Sysex-End command is decoded - in RTP-MIDI this has a special semantic, it either starts a segmented Sysex-frame or a Sysex-Cancel
  */
 static int
-decode_sysex_end(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int cmd_count, unsigned int offset, unsigned int cmd_len ) {
+decode_sysex_end(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int cmd_count, unsigned int offset, unsigned int cmd_len ) {
 	guint8		 octet		= 0;
 	const gchar	*status_str	= NULL;
 	proto_item	*command_item	= NULL;
@@ -5571,7 +5571,7 @@ decode_sysex_end(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned i
 		}
 	}
 
-	command_item = proto_tree_add_text(tree, tvb, offset - 1, 1 + consumed, status_str );
+	command_item = proto_tree_add_text(tree, tvb, offset - 1, 1 + consumed, "%s", status_str );
 	command_tree = proto_item_add_subtree( command_item, ett_rtp_midi_command );
 	proto_tree_add_item( command_tree, hf_rtp_midi_common_status, tvb, offset - 1, 1, ENC_BIG_ENDIAN );
 	proto_tree_add_item( command_tree, hf_rtp_midi_unknown_data, tvb, offset, consumed - 1, ENC_NA );
@@ -5597,7 +5597,7 @@ decode_sysex_end(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned i
  */
 
 static int
-decodemidi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int cmd_count, unsigned int offset, unsigned int cmd_len, guint8 *runningstatus, unsigned int *rsoffset )
+decodemidi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int cmd_count, unsigned int offset, unsigned int cmd_len, guint8 *runningstatus, unsigned int *rsoffset )
 {
 	guint8		 octet		= 0;
 	const gchar	*valstr		= NULL;
@@ -5640,7 +5640,7 @@ decodemidi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int cmd
 	 * not be intermingled with other MIDI-commands, so we handle this case right here and return */
 	if ( octet >= 0xf8 ) {
 		valstr =  val_to_str( octet, rtp_midi_common_status, rtp_midi_unknown_value_hex );
-		command_item = proto_tree_add_text(tree, tvb, offset, 1, valstr );
+		command_item = proto_tree_add_text(tree, tvb, offset, 1, "%s", valstr );
 		command_tree = proto_item_add_subtree( command_item, ett_rtp_midi_command);
 		proto_tree_add_item( command_tree, hf_rtp_midi_common_status, tvb, offset, 1, ENC_BIG_ENDIAN );
 
@@ -5763,11 +5763,10 @@ decodemidi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int cmd
  * Here the chapter c of the channel-journal is decoded.
  */
 static int
-decode_cj_chapter_c( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int offset ) {
+decode_cj_chapter_c( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset ) {
 	proto_item			*ti				= NULL;
 	proto_tree			*rtp_midi_cj_chapter_tree	= NULL;
 	proto_tree			*rtp_midi_loglist_tree		= NULL;
-	proto_tree			*rtp_midi_loglist_item_tree	= NULL;
 	int				 consumed			= 0;
 	guint8				 octet;
 	int				 count;
@@ -5834,7 +5833,7 @@ decode_cj_chapter_c( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsign
  * Here the chapter m of the channel-journal is decoded, possibly the most complex part of the RTP-MIDI stuff ;-)
  */
 static int
-decode_cj_chapter_m( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int offset ) {
+decode_cj_chapter_m( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset ) {
 	proto_item			*ti				= NULL;
 	proto_tree			*rtp_midi_cj_chapter_tree	= NULL;
 	proto_tree			*rtp_midi_loglist_tree		= NULL;
@@ -6071,11 +6070,10 @@ decode_cj_chapter_m( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsign
  * Here the chapter n of the channel-journal is decoded.
  */
 static int
-decode_cj_chapter_n( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int offset ) {
+decode_cj_chapter_n( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset ) {
 	proto_item			*ti				= NULL;
 	proto_tree			*rtp_midi_cj_chapter_tree	= NULL;
 	proto_tree			*rtp_midi_loglist_tree		= NULL;
-	proto_tree			*rtp_midi_loglist_item_tree	= NULL;
 	const gchar			*note_str			= NULL;
 	int				 consumed			= 0;
 	guint16				 header;
@@ -6186,11 +6184,10 @@ decode_cj_chapter_n( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsign
  * Here the chapter e of the channel-journal is decoded.
  */
 static int
-decode_cj_chapter_e( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int offset ) {
+decode_cj_chapter_e( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset ) {
 	proto_item			*ti				= NULL;
 	proto_tree			*rtp_midi_cj_chapter_tree	= NULL;
 	proto_tree			*rtp_midi_loglist_tree		= NULL;
-	proto_tree			*rtp_midi_loglist_item_tree	= NULL;
 	const gchar			*note_str			= NULL;
 	int				 consumed			= 0;
 	guint8				 header;
@@ -6275,7 +6272,7 @@ decode_cj_chapter_e( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsign
  * Here the chapter a of the channel-journal is decoded.
  */
 static int
-decode_cj_chapter_a( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int offset ) {
+decode_cj_chapter_a( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset ) {
 	proto_item			*ti				= NULL;
 	proto_tree			*rtp_midi_cj_chapter_tree	= NULL;
 	proto_tree			*rtp_midi_loglist_tree		= NULL;
@@ -6351,7 +6348,7 @@ decode_cj_chapter_a( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsign
  * Here a channel-journal is decoded.
  */
 static int
-decode_channel_journal( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int offset ) {
+decode_channel_journal( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset ) {
 	proto_item			*ti				= NULL;
 	proto_tree			*rtp_midi_chanjournal_tree	= NULL;
 	proto_tree			*rtp_midi_cj_chapters_tree	= NULL;
@@ -6370,7 +6367,7 @@ decode_channel_journal( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uns
 	chanflags = tvb_get_ntoh24( tvb, offset );
 	chanjourlen = ( chanflags & RTP_MIDI_CJ_MASK_LENGTH ) >> 8;
 
-	ti = proto_tree_add_text( tree, tvb, offset, chanjourlen, val_to_str( ( chanflags & RTP_MIDI_CJ_MASK_CHANNEL ) >> RTP_MIDI_CJ_CHANNEL_SHIFT, rtp_midi_channels, rtp_midi_unknown_value_hex ) );
+	ti = proto_tree_add_text( tree, tvb, offset, chanjourlen, "%s", val_to_str( ( chanflags & RTP_MIDI_CJ_MASK_CHANNEL ) >> RTP_MIDI_CJ_CHANNEL_SHIFT, rtp_midi_channels, rtp_midi_unknown_value_hex ) );
 	rtp_midi_chanjournal_tree = proto_item_add_subtree( ti, ett_rtp_midi_channeljournal );
 
 	proto_tree_add_item( rtp_midi_chanjournal_tree, hf_rtp_midi_chanjour_sflag, tvb, offset, 3, ENC_BIG_ENDIAN );
@@ -6519,7 +6516,7 @@ decode_channel_journal( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uns
  * Here the chapter D F4-field of the system-journal is decoded.
  */
 static int
-decode_sj_chapter_d_f4( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int offset ) {
+decode_sj_chapter_d_f4( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset ) {
 
 	proto_item	*ti			= NULL;
 	proto_tree	*rtp_midi_field_tree	= NULL;
@@ -6619,7 +6616,7 @@ decode_sj_chapter_d_f4( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uns
  * Here the chapter D F5-field of the system-journal is decoded.
  */
 static int
-decode_sj_chapter_d_f5( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int offset ) {
+decode_sj_chapter_d_f5( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset ) {
 
 	proto_item	*ti			= NULL;
 	proto_tree	*rtp_midi_field_tree	= NULL;
@@ -6717,7 +6714,7 @@ decode_sj_chapter_d_f5( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uns
  * Here the chapter D F9-field of the system-journal is decoded.
  */
 static int
-decode_sj_chapter_d_f9( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int offset ) {
+decode_sj_chapter_d_f9( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset ) {
 
 	proto_item	*ti			= NULL;
 	proto_tree	*rtp_midi_field_tree	= NULL;
@@ -6794,7 +6791,7 @@ decode_sj_chapter_d_f9( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uns
  * Here the chapter D FD-field of the system-journal is decoded.
  */
 static int
-decode_sj_chapter_d_fd( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int offset ) {
+decode_sj_chapter_d_fd( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset ) {
 
 	proto_item	*ti			= NULL;
 	proto_tree	*rtp_midi_field_tree	= NULL;
@@ -6872,12 +6869,11 @@ decode_sj_chapter_d_fd( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uns
  * Here the chapter D of the channel-journal is decoded.
  */
 static int
-decode_sj_chapter_d( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int offset ) {
+decode_sj_chapter_d( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset ) {
 	proto_item			*ti				= NULL;
 	proto_item			*tix				= NULL;
 	proto_tree			*rtp_midi_sj_chapter_tree	= NULL;
 	proto_tree			*rtp_midi_field_tree		= NULL;
-	proto_tree			*rtp_midi_loglist_item_tree	= NULL;
 	guint8				header;
 	int				consumed = 0;
 	int				ext_consumed;
@@ -7011,7 +7007,7 @@ decode_sj_chapter_d( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsign
  * Here the chapter Q of the channel-journal is decoded.
  */
 static int
-decode_sj_chapter_q( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int offset ) {
+decode_sj_chapter_q( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset ) {
 	proto_item			*ti				= NULL;
 	proto_tree			*rtp_midi_sj_chapter_tree	= NULL;
 	guint8				header;
@@ -7079,7 +7075,7 @@ decode_sj_chapter_q( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsign
  * Here the chapter F of the channel-journal is decoded.
  */
 static int
-decode_sj_chapter_f( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int offset ) {
+decode_sj_chapter_f( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset ) {
 	proto_item			*ti				= NULL;
 	proto_tree			*rtp_midi_sj_chapter_tree	= NULL;
 	proto_tree			*rtp_midi_sj_field_tree		= NULL;
@@ -7173,7 +7169,7 @@ decode_sj_chapter_f( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsign
  * Here the chapter X of the channel-journal is decoded.
  */
 static int
-decode_sj_chapter_x( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int offset, unsigned int max_length ) {
+decode_sj_chapter_x( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int max_length ) {
 	proto_item			*ti				= NULL;
 	proto_tree			*rtp_midi_sj_chapter_tree	= NULL;
 	proto_tree			*rtp_midi_sj_data_tree		= NULL;
@@ -7310,7 +7306,7 @@ decode_sj_chapter_x( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsign
  * Here the system-journal is decoded.
  */
 static int
-decode_system_journal( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned int offset ) {
+decode_system_journal( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset ) {
 	proto_item			*ti				= NULL;
 	proto_tree			*rtp_midi_sysjournal_tree	= NULL;
 	proto_tree			*rtp_midi_sj_chapters_tree	= NULL;
@@ -7431,7 +7427,7 @@ decode_system_journal( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsi
  */
 
 static void
-dissect_rtp_midi( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
+dissect_rtp_midi( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree )
 {
 	proto_item			*ti				= NULL;
 	proto_item			*command_item			= NULL;
