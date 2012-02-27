@@ -179,31 +179,14 @@
 #define CI_NETWORK_SEG_SAFETY       0x10
 #define CI_NETWORK_SEG_EXTENDED     0x1F
 
+#define CI_TRANSPORT_CLASS_MASK     0x0F
+#define CI_PRODUCTION_TRIGGER_MASK  0x70
+#define CI_PRODUCTION_DIR_MASK      0x80
+
 #define CONN_TYPE_NULL              0
 #define CONN_TYPE_MULTICAST         1
 #define CONN_TYPE_P2P               2
 #define CONN_TYPE_RESERVED          3
-
-
-/* Device Profiles */
-#define DP_GEN_DEV                           0x00
-#define DP_AC_DRIVE                          0x02
-#define DP_MOTOR_OVERLOAD                    0x03
-#define DP_LIMIT_SWITCH                      0x04
-#define DP_IND_PROX_SWITCH                   0x05
-#define DP_PHOTO_SENSOR                      0x06
-#define DP_GENP_DISC_IO                      0x07
-#define DP_RESOLVER                          0x09
-#define DP_COM_ADAPTER                       0x0C
-#define DP_POS_CNT                           0x10
-#define DP_DC_DRIVE                          0x13
-#define DP_CONTACTOR                         0x15
-#define DP_MOTOR_STARTER                     0x16
-#define DP_SOFT_START                        0x17
-#define DP_HMI                               0x18
-#define DP_MASS_FLOW_CNT                     0x1A
-#define DP_PNEUM_VALVE                       0x1B
-#define DP_VACUUM_PRES_GAUGE                 0x1C
 
 /* Define common services */
 #define GENERIC_SC_LIST \
@@ -262,12 +245,12 @@ enum cip_datatype {
    cip_word,
    cip_dword,
    cip_lword,
-   cip_dissector_func,
-
-   /* Currently not supported */
    cip_date,
    cip_time_of_day,
    cip_date_and_time,
+   cip_dissector_func,
+
+   /* Currently not supported */
    cip_string2,
    cip_stringN,
    cip_stringi
@@ -293,6 +276,12 @@ typedef struct cip_connID_info {
    guint8  type;
 } cip_connID_info_t;
 
+enum cip_safety_format_type {CIP_SAFETY_BASE_FORMAT, CIP_SAFETY_EXTENDED_FORMAT};
+
+typedef struct cip_safety_epath_info {
+   gboolean safety_seg;
+   enum cip_safety_format_type format;
+} cip_safety_epath_info_t;
 
 typedef struct cip_conn_info {
    guint16 ConnSerialNumber;
@@ -300,7 +289,8 @@ typedef struct cip_conn_info {
    guint32 DeviceSerialNumber;
    cip_connID_info_t O2T;
    cip_connID_info_t T2O;
-   guint8 TransportClass;
+   guint8 TransportClass_trigger;
+   cip_safety_epath_info_t safety;
 } cip_conn_info_t;
 
 typedef struct cip_req_info {
@@ -316,7 +306,9 @@ typedef struct cip_req_info {
 /*
 ** Exported functions
 */
-extern void dissect_epath( tvbuff_t *tvb, packet_info *pinfo, proto_item *epath_item, int offset, int path_length, gboolean generate, cip_simple_request_info_t* req_data);
+extern void dissect_epath( tvbuff_t *tvb, packet_info *pinfo, proto_item *epath_item, int offset, int path_length, 
+                          gboolean generate, gboolean packed, cip_simple_request_info_t* req_data, cip_safety_epath_info_t* safety);
+extern void dissect_cip_date_and_time(proto_tree *tree, tvbuff_t *tvb, int offset, int hf_datetime);
 
 /*
 ** Exported variables

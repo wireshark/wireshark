@@ -84,7 +84,8 @@ typedef struct {
    cip_req_info_t* cip_info;
 } enip_request_info_t;
 
-void enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo);
+enum enip_connid_type {ECIDT_UNKNOWN, ECIDT_O2T, ECIDT_T2O};
+
 void enip_close_cip_connection( packet_info *pinfo, guint16 ConnSerialNumber, guint16 VendorID, guint32 DeviceSerialNumber );
 
 extern attribute_info_t enip_attribute_vals[29];

@@ -326,6 +326,7 @@ DISSECTOR_SRC = \
 	packet-cimetrics.c	\
 	packet-cip.c		\
 	packet-cipmotion.c	\
+	packet-cipsafety.c	\
 	packet-cisco-erspan.c	\
 	packet-cisco-oui.c	\
 	packet-cisco-sm.c	\
@@ -1139,6 +1140,7 @@ DISSECTOR_INCLUDES =	\
 	packet-chdlc.h	\
 	packet-cimd.h	\
 	packet-cip.h	\
+	packet-cipsafety.h	\
 	packet-clearcase.h	\
 	packet-clip.h	\
 	packet-cmip.h \
