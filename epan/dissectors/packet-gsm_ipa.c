@@ -35,8 +35,11 @@
 #include <epan/prefs.h>
 
 /*
- * Protocol used by ip.access's nanoBTS GSM picocells to transport the GSM
- * A-bis interface over TCP and UDP.
+ * Protocol used by ip.access's nanoBTS/nanoGSM GSM picocells:
+ *
+ *	http://www.ipaccess.com/en/nanoGSM-picocell
+ *
+ * to transport the GSM A-bis interface over TCP and UDP.
  *
  * See
  *
