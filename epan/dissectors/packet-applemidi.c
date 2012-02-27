@@ -293,7 +293,7 @@ dissect_applemidi_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
 
 	guint16		 command;
 	conversation_t	*p_conv;
-	struct _rtp_conversation_info *p_conv_data = NULL;
+	/*struct _rtp_conversation_info *p_conv_data = NULL;*/
 	encoding_name_and_rate_t *encoding_name_and_rate = NULL;
 	GHashTable *rtp_dyn_payload = NULL;
 	gint *key;
