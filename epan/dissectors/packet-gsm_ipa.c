@@ -1,5 +1,5 @@
 /* packet-gsm_ipa.c
- * Routines for packet dissection of ip.access GSM over IP
+ * Routines for packet dissection of ip.access GSM A-bis over IP
  * Copyright 2009 by Harald Welte <laforge@gnumonks.org>
  * Copyright 2009, 2010 by Holger Hans Peter Freyther <zecke@selfish.org>
  *
@@ -34,13 +34,43 @@
 #include <epan/ipproto.h>
 #include <epan/prefs.h>
 
-/* http://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xml
+/*
+ * Protocol used by ip.access's nanoBTS GSM picocells to transport the GSM
+ * A-bis interface over TCP and UDP.
+ *
+ * See
+ *
+ *	http://openbsc.osmocom.org/trac/wiki/nanoBTS
+ *
+ * for some information about this protocol determined by reverse-
+ * engineering.
+ */
+
+/*
+ * These ports are also registered for other protocols, as per
+ *
+ * http://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xml
  *
  * exlm-agent     3002
  * cgms           3003
  * ii-admin       3006
  * vrml-multi-use 4200-4299
  * commplex-main  5000
+ *
+ * But, as that document says:
+ *
+ ************************************************************************
+ * PLEASE NOTE THE FOLLOWING:                                           *
+ *                                                                      *
+ * ASSIGNMENT OF A PORT NUMBER DOES NOT IN ANY WAY IMPLY AN             *
+ * ENDORSEMENT OF AN APPLICATION OR PRODUCT, AND THE FACT THAT NETWORK  *
+ * TRAFFIC IS FLOWING TO OR FROM A REGISTERED PORT DOES NOT MEAN THAT   *
+ * IT IS "GOOD" TRAFFIC, NOR THAT IT NECESSARILY CORRESPONDS TO THE     *
+ * ASSIGNED SERVICE. FIREWALL AND SYSTEM ADMINISTRATORS SHOULD          *
+ * CHOOSE HOW TO CONFIGURE THEIR SYSTEMS BASED ON THEIR KNOWLEDGE OF    *
+ * THE TRAFFIC IN QUESTION, NOT WHETHER THERE IS A PORT NUMBER          *
+ * REGISTERED OR NOT.                                                   *
+ ************************************************************************
  */
 #define IPA_TCP_PORTS "3002,3003,3006,4249,4250,5000"
 #define IPA_UDP_PORTS "3006"
