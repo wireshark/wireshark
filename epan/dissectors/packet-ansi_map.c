@@ -2469,7 +2469,7 @@ dissect_ansi_map_extendedsystemmytypecode(tvbuff_t *tvb, packet_info *pinfo _U_,
     /* Type (octet 1) */
     proto_tree_add_item(subtree, hf_ansi_map_msc_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    offset = dissect_ansi_map_SystemMyTypeCode(TRUE, tvb, offset, actx, subtree, hf_ansi_map_systemMyTypeCode);
+    dissect_ansi_map_SystemMyTypeCode(TRUE, tvb, offset, actx, subtree, hf_ansi_map_systemMyTypeCode);
 }
 
 
@@ -2742,17 +2742,18 @@ static const value_string ansi_map_onetimefeatureindicator_cnar_vals[]  = {
 };
 static void
 dissect_ansi_map_onetimefeatureindicator(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, asn1_ctx_t *actx _U_){
+    /*
     int offset = 0;
     proto_tree *subtree;
 
 
     subtree = proto_item_add_subtree(actx->created_item, ett_mscid);
-
+    */
     /* Calling Number Identification Restriction (CNIR) (octet 1, bits G and H)*/
     /* MessageWaitingNotification (MWN) (octet 1, bits E and F) */
     /* Call Waiting for Incoming Call (CWIC) (octet 1, bits C and D) */
     /* Call Waiting for Future Incoming Call (CWFI) (octet 1, bits A and B) */
-    offset++;
+    /*offset++;*/
     /* Calling Name Restriction (CNAR) (octet 2, bits E and F) */
     /* Flash Privileges (Flash) (octet 2, bits C and D) */
     /* Priority Access and Channel Assignment (PACA) (octet 2, bits A and B)*/
@@ -3960,9 +3961,6 @@ static const true_false_string ansi_map_Availability_bool_val  = {
 static void
 dissect_ansi_map_callingpartyname(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, asn1_ctx_t *actx _U_){
 
-    proto_tree *subtree;
-
-    subtree = proto_item_add_subtree(actx->created_item, ett_callingpartyname);
     /* Availability (octet 1, bit E) N.S0012-0 v 1.0*/
 
     /* Presentation Status (octet 1, bits A and B) */
@@ -10616,7 +10614,6 @@ static int
 dissect_ansi_map_SMS_BearerData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 274 "../../asn1/ansi_map/ansi_map.cnf"
 	int length;
-    proto_tree *subtree;
 	SMS_BearerData_tvb = NULL;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -10626,7 +10623,6 @@ dissect_ansi_map_SMS_BearerData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 		/* A zero length OCTET STRING will return a zero length tvb */
 		length = tvb_length_remaining(SMS_BearerData_tvb,0);
 		if (length <=0){
-			subtree = proto_item_add_subtree(actx->created_item, ett_sms_bearer_data);
 			proto_item_append_text(actx->created_item," length %u",length);
 			SMS_BearerData_tvb = NULL;
 			return offset;
@@ -10663,7 +10659,6 @@ dissect_ansi_map_SMS_TeleserviceIdentifier(gboolean implicit_tag _U_, tvbuff_t *
 #line 319 "../../asn1/ansi_map/ansi_map.cnf"
 
 	int length;
-    proto_tree *subtree;
 	tvbuff_t *parameter_tvb = NULL;
 	ansi_map_sms_tele_id = -1;
 
@@ -10674,7 +10669,6 @@ dissect_ansi_map_SMS_TeleserviceIdentifier(gboolean implicit_tag _U_, tvbuff_t *
 		/* A zero length OCTET STRING will return a zero length tvb */
 		length = tvb_length_remaining(parameter_tvb,0);
 		if (length <=0){
-			subtree = proto_item_add_subtree(actx->created_item, ett_sms_teleserviceIdentifier);
 			proto_item_append_text(actx->created_item, " length %u",length);
 			return offset;
 		}
@@ -16208,8 +16202,6 @@ find_saved_invokedata(asn1_ctx_t *actx){
     char *buf;
 
     buf=ep_alloc(1024);
-    src_str = ep_address_to_str(src);
-    dst_str = ep_address_to_str(dst);
 
     /* Data from the TCAP dissector */
     if (actx->pinfo->private_data != NULL){
@@ -16294,14 +16286,14 @@ dissect_ansi_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ansi_map_is_invoke = TRUE;
         col_add_fstr(pinfo->cinfo, COL_INFO,"%s Invoke ", val_to_str_ext(OperationCode, &ansi_map_opr_code_strings_ext, "Unknown ANSI-MAP PDU (%u)"));
         proto_item_append_text(p_private_tcap->d.OperationCode_item," %s",val_to_str_ext(OperationCode, &ansi_map_opr_code_strings_ext, "Unknown ANSI-MAP PDU (%u)"));
-        offset = dissect_invokeData(ansi_map_tree, tvb, 0, &asn1_ctx);
+        dissect_invokeData(ansi_map_tree, tvb, 0, &asn1_ctx);
         update_saved_invokedata(pinfo, ansi_map_tree, tvb);
         break;
     case 2:
         OperationCode = find_saved_invokedata(&asn1_ctx);
         col_add_fstr(pinfo->cinfo, COL_INFO,"%s ReturnResult ", val_to_str_ext(OperationCode, &ansi_map_opr_code_strings_ext, "Unknown ANSI-MAP PDU (%u)"));
         proto_item_append_text(p_private_tcap->d.OperationCode_item," %s",val_to_str_ext(OperationCode, &ansi_map_opr_code_strings_ext, "Unknown ANSI-MAP PDU (%u)"));
-        offset = dissect_returnData(ansi_map_tree, tvb, 0, &asn1_ctx);
+        dissect_returnData(ansi_map_tree, tvb, 0, &asn1_ctx);
         break;
     case 3:
         col_add_fstr(pinfo->cinfo, COL_INFO,"%s ReturnError ", val_to_str_ext(OperationCode, &ansi_map_opr_code_strings_ext, "Unknown ANSI-MAP PDU (%u)"));

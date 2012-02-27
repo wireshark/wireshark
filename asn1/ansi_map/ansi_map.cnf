@@ -272,7 +272,6 @@ TerminalType
 # 6.5.2.124
 #.FN_BODY SMS-BearerData VAL_PTR = &SMS_BearerData_tvb
 	int length;
-    proto_tree *subtree;
 	SMS_BearerData_tvb = NULL;
 
 %(DEFAULT_BODY)s
@@ -280,7 +279,6 @@ TerminalType
 		/* A zero length OCTET STRING will return a zero length tvb */
 		length = tvb_length_remaining(SMS_BearerData_tvb,0);
 		if (length <=0){
-			subtree = proto_item_add_subtree(actx->created_item, ett_sms_bearer_data);
 			proto_item_append_text(actx->created_item," length %%u",length);
 			SMS_BearerData_tvb = NULL;
 			return offset;
@@ -318,7 +316,6 @@ TerminalType
 #.FN_BODY SMS-TeleserviceIdentifier VAL_PTR = &parameter_tvb
 
 	int length;
-    proto_tree *subtree;
 	tvbuff_t *parameter_tvb = NULL;
 	ansi_map_sms_tele_id = -1;
 
@@ -327,7 +324,6 @@ TerminalType
 		/* A zero length OCTET STRING will return a zero length tvb */
 		length = tvb_length_remaining(parameter_tvb,0);
 		if (length <=0){
-			subtree = proto_item_add_subtree(actx->created_item, ett_sms_teleserviceIdentifier);
 			proto_item_append_text(actx->created_item, " length %%u",length);
 			return offset;
 		}
