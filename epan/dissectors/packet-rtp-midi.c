@@ -3416,7 +3416,6 @@ decode_pitch_bend_change(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	guint8		 octet2		= 0;
 	guint8		 pitch		= 0;
 	const gchar	*status_str	= NULL;
-	const gchar	*note_str	= NULL;
 	proto_item	*command_item   = NULL;
 	proto_tree	*command_tree   = NULL;
 
@@ -5153,7 +5152,7 @@ decode_sysex_common_educational( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
  * We don't know what this data encodes, so we just dump it.
  */
 static unsigned int
-decode_sysex_common_manufacturer( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len, unsigned int manu_code ) {
+decode_sysex_common_manufacturer( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int offset, unsigned int data_len, unsigned int manu_code _U_) {
 	proto_item	*command_item	= NULL;
 	proto_tree	*command_tree	= NULL;
 	int		 consumed	= 0;
@@ -5186,7 +5185,6 @@ decode_sysex_start(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsi
 	const gchar	*status_str	= NULL;
 	proto_item	*command_item	= NULL;
 	proto_tree	*command_tree	= NULL;
-	proto_tree	*manu_tree	= NULL;
 	int		 consumed	= 0;
 	int		 data_len	= 0;
 	int		 ext_consumed	= 0;
@@ -5359,7 +5357,7 @@ decode_song_position_pointer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
 	/* broken: we have only one further octet */
 	if ( cmd_len < 2 ) {
-		command_item = proto_tree_add_text( tree, tvb, offset - 1, 2, "TRUNCATED: %s" );
+		command_item = proto_tree_add_text( tree, tvb, offset - 1, 2, "TRUNCATED: %s" status_str );
 		command_tree = proto_item_add_subtree( command_item, ett_rtp_midi_command );
 		proto_tree_add_item( command_tree, hf_rtp_midi_common_status, tvb, offset - 1, 1, ENC_BIG_ENDIAN );
 		proto_tree_add_item( command_tree, hf_rtp_midi_spp_truncated, tvb, offset, 1, ENC_BIG_ENDIAN );
@@ -5516,7 +5514,7 @@ decode_undefined_f5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, uns
  * Here a Tune-Request command is decoded.
  */
 static int
-decode_tune_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int cmd_count, unsigned int offset, unsigned int cmd_len ) {
+decode_tune_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int cmd_count, unsigned int offset, unsigned int cmd_len _U_ ) {
 	const gchar	*status_str	= NULL;
 	proto_item	*command_item	= NULL;
 	proto_tree	*command_tree	= NULL;
@@ -5601,7 +5599,6 @@ decodemidi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned int
 {
 	guint8		 octet		= 0;
 	const gchar	*valstr		= NULL;
-	const gchar	*valstr2	= NULL;
 	int		 consumed	= 0;
 	int		 ext_consumed	= 0;
 	gboolean	 using_rs	= FALSE;
@@ -6276,7 +6273,6 @@ decode_cj_chapter_a( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 	proto_item			*ti				= NULL;
 	proto_tree			*rtp_midi_cj_chapter_tree	= NULL;
 	proto_tree			*rtp_midi_loglist_tree		= NULL;
-	proto_tree			*rtp_midi_loglist_item_tree	= NULL;
 	const gchar			*note_str			= NULL;
 	int				 consumed			= 0;
 	guint8				 header;
