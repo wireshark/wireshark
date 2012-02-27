@@ -1735,6 +1735,8 @@ new_packet_list_update_packet_comment(gchar *new_packet_comment)
 	record = new_packet_list_get_record(model, &iter);
 	g_free(record->fdata->opt_comment);
 	record->fdata->opt_comment = new_packet_comment;
+	/* Mark the file as unsaved, caues a popup asking to save the file if we quit the file */
+	cfile.user_saved = FALSE;
 
 	new_packet_list_queue_draw();
 
