@@ -139,6 +139,7 @@ static void dissect_tpncp_data(gint data_id, tvbuff_t *tvb, proto_item *item,
     gint16 g_short;
     guint16 g_ushort;
     gint8 g_char;
+    guint8 g_uchar;
     gchar *g_str = NULL;
     gint g_str_len, counter, bitshift, bitmask;
     tpncp_data_field_info *current_tpncp_data_field_info = NULL;
@@ -161,21 +162,23 @@ static void dissect_tpncp_data(gint data_id, tvbuff_t *tvb, proto_item *item,
                     g_free(g_str);
                 }
                 else { /* add single char */
-                    g_char = tvb_get_guint8(tvb, *offset);
+                    g_uchar = tvb_get_guint8(tvb, *offset);
                     /* bitfields */
                     if (current_tpncp_data_field_info->tpncp_data_field_size != 8) {
                         for (counter = 0, bitmask = 0x0, bitshift = bitindex;
                              counter < current_tpncp_data_field_info->tpncp_data_field_size;
                              counter++)
                             bitmask |= bits[bitindex++]; /* Bitmask of interesting bits. */
-                        g_char &= bitmask;
-                        g_char >>= bitshift;
+                        g_uchar &= bitmask;
+                        g_uchar >>= bitshift;
                     }
-                    if (current_tpncp_data_field_info->tpncp_data_field_sign) {
+                    if (current_tpncp_data_field_info->tpncp_data_field_sign || current_tpncp_data_field_info->tpncp_data_field_size != 8) {
                         proto_tree_add_uint(ltree, current_tpncp_data_field_info->tpncp_data_field_descr,
-                                            tvb, *offset, 1, g_char);
+                                            tvb, *offset, 1, g_uchar);
                     }
                     else {
+                        /* signed*/
+                        g_char = (gint8)g_uchar;
                         proto_tree_add_int(ltree, current_tpncp_data_field_info->tpncp_data_field_descr,
                                            tvb, *offset, 1, g_char);
                     }
