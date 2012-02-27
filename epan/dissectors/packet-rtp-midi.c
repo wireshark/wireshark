@@ -7437,20 +7437,19 @@ dissect_rtp_midi( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree )
 	proto_tree			*rtp_midi_journal_tree		= NULL;
 	proto_tree			*rtp_midi_chanjournals_tree	= NULL;
 	unsigned int			 offset				= 0;
-	struct _rtp_conversation_info	*p_conv_data			= NULL;
 
 	guint8				flags;				/* used for command-section and journal-section*/
 	guint8				octet;
-	unsigned int			cmd_len;
-	unsigned int			cmd_count;
+	unsigned int		cmd_len;
+	unsigned int		cmd_count;
 	guint8				runningstatus;
 
-	unsigned int			consumed;
-	unsigned int			rsoffset;
+	int					consumed;
+	unsigned int		rsoffset;
 
 	guint8				totchan;
 
-	unsigned int			i;
+	unsigned int		i;
 
 	col_set_str( pinfo->cinfo, COL_PROTOCOL, RTP_MIDI_DISSECTOR_SHORTNAME );
 	col_clear( pinfo->cinfo, COL_INFO );
