@@ -3295,7 +3295,7 @@ ssl_association_add(GTree* associations, dissector_handle_t handle, guint port, 
         }
         g_tree_insert(associations, assoc, assoc);
 
-        dissector_add("sctp.port", port, handle);
+        dissector_add_uint("sctp.port", port, handle);
     }
 }
 
