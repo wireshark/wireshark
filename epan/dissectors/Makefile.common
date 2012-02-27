@@ -893,6 +893,7 @@ DISSECTOR_SRC = \
 	packet-rtmpt.c		\
 	packet-rtnet.c		\
 	packet-rtp-events.c	\
+	packet-rtp-midi.c	\
 	packet-rtp.c		\
 	packet-rtps.c		\
 	packet-rtps2.c		\

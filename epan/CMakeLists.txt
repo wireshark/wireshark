@@ -975,6 +975,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-rtmpt.c
 	dissectors/packet-rtnet.c
 	dissectors/packet-rtp-events.c
+	dissectors/packet-rtp-midi.c
 	dissectors/packet-rtp.c
 	dissectors/packet-rtps.c
 	dissectors/packet-rtps2.c
