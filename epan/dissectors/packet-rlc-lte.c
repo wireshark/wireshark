@@ -2007,6 +2007,11 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
         }
     }
 
+    /* Show number of extensions in header root */
+    if (s_number_of_extensions > 0) {
+        proto_item_append_text(um_header_ti, " (%u extensions)", s_number_of_extensions);
+    }
+
     /* Call sequence analysis function now */
     if (((global_rlc_lte_um_sequence_analysis == SEQUENCE_ANALYSIS_MAC_ONLY) &&
          (p_get_proto_data(pinfo->fd, proto_mac_lte) != NULL)) ||
@@ -2347,6 +2352,11 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
 
     /* Header is now complete */
     proto_item_set_len(am_header_ti, offset-start_offset);
+
+    /* Show number of extensions in header root */
+    if (s_number_of_extensions > 0) {
+        proto_item_append_text(am_header_ti, " (%u extensions)", s_number_of_extensions);
+    }
 
     /* Extract these 2 flags from framing_info */
     first_includes_start = (framing_info & 0x02) == 0;
