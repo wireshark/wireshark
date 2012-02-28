@@ -130,6 +130,49 @@ const value_string eap_type_vals[] = {
 };
 
 /*
+References:
+  1) http://www.iana.org/assignments/eapsimaka-numbers/eapsimaka-numbers.xml
+  3) RFC4186
+  3) RFC4187
+  4) RFC5448
+  5) 3GPP TS 24.302
+*/
+
+const value_string eap_sim_aka_attributes[] = {
+	{ 1, "AT_RAND" },
+	{ 2, "AT_AUTN" },
+	{ 3, "AT_RES" },
+	{ 4, "AT_AUTS" },
+	{ 6, "AT_PADDING" },
+	{ 7, "AT_NONCE_MT" },
+	{ 10, "AT_PERMANENT_ID_REQ" },
+	{ 11, "AT_MAC" },
+	{ 12, "AT_NOTIFICATION" },
+	{ 13, "AT_ANY_ID_REQ" },
+	{ 14, "AT_IDENTITY" },
+	{ 15, "AT_VERSION_LIST" },
+	{ 16, "AT_SELECTED_VERSION" },
+	{ 17, "AT_FULLAUTH_ID_REQ" },
+	{ 19, "AT_COUNTER" },
+	{ 20, "AT_COUNTER_TOO_SMALL" },
+	{ 21, "AT_NONCE_S" },
+	{ 22, "AT_CLIENT_ERROR_CODE" },
+	{ 23,  "AT_KDF_INPUT"},
+	{ 24,  "AT_KDF"},
+	{ 129, "AT_IV" },
+	{ 130, "AT_ENCR_DATA" },
+	{ 132, "AT_NEXT_PSEUDONYM" },
+	{ 133, "AT_NEXT_REAUTH_ID" },
+	{ 134, "AT_CHECKCODE" },
+	{ 135, "AT_RESULT_IND" },
+	{ 136, "AT_BIDDING" },
+	{ 137, "AT_IPMS_IND" },
+	{ 138, "AT_IPMS_RES" },
+	{ 139, "AT_TRUST_IND" },
+	{ 0, NULL }
+};
+
+/*
  * State information for EAP-TLS (RFC2716) and Lightweight EAP:
  *
  *	http://www.missl.cs.umd.edu/wireless/ethereal/leap.txt
@@ -435,29 +478,6 @@ dissect_eap_sim(proto_tree *eap_tree, tvbuff_t *tvb, int offset, gint size)
 		{ SIM_CLIENT_ERROR, "Client-Error" },
 		{ 0, NULL }
 	};
-	static const value_string attributes[] = {
-		{ 1, "AT_RAND" },
-		{ 6, "AT_PADDING" },
-		{ 7, "AT_NONCE_MT" },
-		{ 10, "AT_PERMANENT_ID_REQ" },
-		{ 11, "AT_MAC" },
-		{ 12, "AT_NOTIFICATION" },
-		{ 13, "AT_ANY_ID_REQ" },
-		{ 14, "AT_IDENTITY" },
-		{ 15, "AT_VERSION_LIST" },
-		{ 16, "AT_SELECTED_VERSION" },
-		{ 17, "AT_FULLAUTH_ID_REQ" },
-		{ 19, "AT_COUNTER" },
-		{ 20, "AT_COUNTER_TOO_SMALL" },
-		{ 21, "AT_NONCE_S" },
-		{ 22, "AT_CLIENT_ERROR_CODE" },
-		{ 129, "AT_IV" },
-		{ 130, "AT_ENCR_DATA" },
-		{ 132, "AT_NEXT_PSEUDONYM" },
-		{ 133, "AT_NEXT_REAUTH_ID" },
-		{ 135, "AT_RESULT_IND" },
-		{ 0, NULL }
-	};
 
 	subtype = tvb_get_guint8(tvb, offset);
 	proto_tree_add_text(eap_tree, tvb, offset, 1,
@@ -488,7 +508,7 @@ dissect_eap_sim(proto_tree *eap_tree, tvbuff_t *tvb, int offset, gint size)
 
 		pi = proto_tree_add_text(eap_tree, tvb, aoffset, aleft,
 					 "Attribute: %s",
-					 val_to_str(type, attributes,
+					 val_to_str(type, eap_sim_aka_attributes,
 						    "Unknown %u"));
 		attr_tree = proto_item_add_subtree(pi, ett_eap_sim_attr);
 		proto_tree_add_text(attr_tree, tvb, aoffset, 1,
@@ -535,32 +555,6 @@ dissect_eap_aka(proto_tree *eap_tree, tvbuff_t *tvb, int offset, gint size)
 		{ AKA_CLIENT_ERROR, "Client-Error" },
 		{ 0, NULL }
 	};
-	static const value_string attributes[] = {
-		{ 1, "AT_RAND" },
-		{ 2, "AT_AUTN" },
-		{ 3, "AT_RES" },
-		{ 4, "AT_AUTS" },
-		{ 6, "AT_PADDING" },
-		{ 10, "AT_PERMANENT_ID_REQ" },
-		{ 11, "AT_MAC" },
-		{ 12, "AT_NOTIFICATION" },
-		{ 13, "AT_ANY_ID_REQ" },
-		{ 14, "AT_IDENTITY" },
-		{ 17, "AT_FULLAUTH_ID_REQ" },
-		{ 19, "AT_COUNTER" },
-		{ 20, "AT_COUNTER_TOO_SMALL" },
-		{ 21, "AT_NONCE_S" },
-		{ 22, "AT_CLIENT_ERROR_CODE" },
-		{ 23,  "AT_KDF_INPUT"},
-		{ 24,  "AT_KDF"},
-		{ 129, "AT_IV" },
-		{ 130, "AT_ENCR_DATA" },
-		{ 132, "AT_NEXT_PSEUDONYM" },
-		{ 133, "AT_NEXT_REAUTH_ID" },
-		{ 134, "AT_CHECKCODE" },
-		{ 135, "AT_RESULT_IND" },
-		{ 0, NULL }
-	};
 
 	subtype = tvb_get_guint8(tvb, offset);
 	proto_tree_add_text(eap_tree, tvb, offset, 1,
@@ -591,7 +585,7 @@ dissect_eap_aka(proto_tree *eap_tree, tvbuff_t *tvb, int offset, gint size)
 
 		pi = proto_tree_add_text(eap_tree, tvb, aoffset, aleft,
 					 "Attribute: %s",
-					 val_to_str(type, attributes,
+					 val_to_str(type, eap_sim_aka_attributes,
 						    "Unknown %u"));
 		attr_tree = proto_item_add_subtree(pi, ett_eap_aka_attr);
 		proto_tree_add_text(attr_tree, tvb, aoffset, 1,
