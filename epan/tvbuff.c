@@ -1778,7 +1778,8 @@ _tvb_get_bits64(tvbuff_t *tvb, gint bit_offset, const gint total_no_of_bits)
         guint8 remaining_bit_length = total_no_of_bits;
 
         /* get the bits up to the first octet boundary */
-		required_bits_in_first_octet %= 8;
+        value = 0;
+        required_bits_in_first_octet %= 8;
         if(required_bits_in_first_octet != 0)
         {
             value = tvb_get_guint8(tvb, octet_offset) & bit_mask8[required_bits_in_first_octet];
