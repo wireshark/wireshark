@@ -61,7 +61,7 @@ static const guint8*
 ensure_contiguous(tvbuff_t *tvb, const gint offset, const gint length);
 
 
-static guint64 
+static guint64
 _tvb_get_bits64(tvbuff_t *tvb, gint bit_offset, const gint total_no_of_bits);
 
 static void
@@ -1623,7 +1623,7 @@ tvb_get_guid(tvbuff_t *tvb, const gint offset, e_guid_t *guid, const guint repre
 	}
 }
 
-static const guint8 bit_mask8[] = {
+static const guint8 inverse_bit_mask8[] = {
 	0xff,
 	0x7f,
 	0x3f,
@@ -1634,11 +1634,23 @@ static const guint8 bit_mask8[] = {
 	0x01
 };
 
+static const guint8 bit_mask8[] = {
+	0x00,
+	0x01,
+	0x03,
+	0x07,
+	0x0f,
+	0x1f,
+	0x3f,
+	0x7f,
+	0xff
+};
+
 /* Get 1 - 8 bits */
 guint8
 tvb_get_bits8(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits)
 {
-   return (guint8)_tvb_get_bits64(tvb, bit_offset, no_of_bits);
+	return (guint8)_tvb_get_bits64(tvb, bit_offset, no_of_bits);
 }
 
 /* Get 1 - 16 bits */
@@ -1651,7 +1663,7 @@ tvb_get_bits_buf(tvbuff_t *tvb, gint bit_offset, gint no_of_bits, guint8 *buf, g
 
 	bit_offset    = bit_offset & 0x7;
 
-	bit_mask  = (lsb0) ? 0xff : bit_mask8[bit_offset];
+	bit_mask  = (lsb0) ? 0xff : inverse_bit_mask8[bit_offset];
 	bit_shift = (lsb0) ? bit_offset : (8 - bit_offset);
 
 	if (G_LIKELY(bit_offset != 0)) {
@@ -1680,9 +1692,9 @@ tvb_get_bits_buf(tvbuff_t *tvb, gint bit_offset, gint no_of_bits, guint8 *buf, g
 
 			if (lsb0) {
 				if (tot_no_bits > 8)
-					value = (GUINT16_SWAP_LE_BE(value) >> bit_offset) & (bit_mask8[8-no_of_bits]);
+					value = (GUINT16_SWAP_LE_BE(value) >> bit_offset) & (bit_mask8[no_of_bits]);
 				else
-					value = (value >> bit_offset) & (bit_mask8[8-no_of_bits]);
+					value = (value >> bit_offset) & (bit_mask8[no_of_bits]);
 
 				/* value = (value & ((1 << tot_no_bits)-1)) >> bit_offset; */
 
@@ -1706,7 +1718,7 @@ tvb_get_bits_buf(tvbuff_t *tvb, gint bit_offset, gint no_of_bits, guint8 *buf, g
 		/* something left? */
 		if (no_of_bits > 0) {
 			if (lsb0)
-				*buf = tvb_get_guint8(tvb, offset) & bit_mask8[8-no_of_bits]; /* read: ((1 << no_of_bits)-1) */
+				*buf = tvb_get_guint8(tvb, offset) & bit_mask8[no_of_bits]; /* read: ((1 << no_of_bits)-1) */
 			else
 				*buf = tvb_get_guint8(tvb, offset) >> (8-no_of_bits);
 		}
@@ -1735,24 +1747,24 @@ ep_tvb_get_bits(tvbuff_t *tvb, gint bit_offset, gint no_of_bits, gboolean lsb0)
 guint16
 tvb_get_bits16(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits,const guint encoding _U_)
 {
-   /* note that encoding has no meaning here, as the tvb is considered to contain an octet array */
-    return (guint16)_tvb_get_bits64(tvb, bit_offset, no_of_bits);
+	/* note that encoding has no meaning here, as the tvb is considered to contain an octet array */
+	return (guint16)_tvb_get_bits64(tvb, bit_offset, no_of_bits);
 }
 
 /* Get 1 - 32 bits */
 guint32
 tvb_get_bits32(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits, const guint encoding _U_)
 {
-   /* note that encoding has no meaning here, as the tvb is considered to contain an octet array */
-    return (guint32)_tvb_get_bits64(tvb, bit_offset, no_of_bits);
+	/* note that encoding has no meaning here, as the tvb is considered to contain an octet array */
+	return (guint32)_tvb_get_bits64(tvb, bit_offset, no_of_bits);
 }
 
 /* Get 1 - 64 bits */
 guint64
 tvb_get_bits64(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits, const guint encoding _U_)
 {
-   /* note that encoding has no meaning here, as the tvb is considered to contain an octet array */
-    return _tvb_get_bits64(tvb, bit_offset, no_of_bits);
+	/* note that encoding has no meaning here, as the tvb is considered to contain an octet array */
+	return _tvb_get_bits64(tvb, bit_offset, no_of_bits);
 }
 /*
  * This function will dissect a sequence of bits that does not need to be byte aligned; the bits
@@ -1763,82 +1775,82 @@ tvb_get_bits64(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits, const guin
 static guint64
 _tvb_get_bits64(tvbuff_t *tvb, gint bit_offset, const gint total_no_of_bits)
 {
-    guint64 value;
-    guint octet_offset = bit_offset >> 3;
-    guint8 required_bits_in_first_octet = 8 - (bit_offset % 8);
+	guint64 value;
+	guint octet_offset = bit_offset >> 3;
+	guint8 required_bits_in_first_octet = 8 - (bit_offset % 8);
 
-    if(required_bits_in_first_octet > total_no_of_bits)
-    {
-        /* the required bits don't extend to the end of the first octet */
-        guint8 right_shift = required_bits_in_first_octet - total_no_of_bits;
-        value = (tvb_get_guint8(tvb, octet_offset) >> right_shift) & bit_mask8[total_no_of_bits];
-    }
-    else
-    {
-        guint8 remaining_bit_length = total_no_of_bits;
+	if(required_bits_in_first_octet > total_no_of_bits)
+	{
+		/* the required bits don't extend to the end of the first octet */
+		guint8 right_shift = required_bits_in_first_octet - total_no_of_bits;
+		value = (tvb_get_guint8(tvb, octet_offset) >> right_shift) & bit_mask8[total_no_of_bits];
+	}
+	else
+	{
+		guint8 remaining_bit_length = total_no_of_bits;
 
-        /* get the bits up to the first octet boundary */
-        value = 0;
-        required_bits_in_first_octet %= 8;
-        if(required_bits_in_first_octet != 0)
-        {
-            value = tvb_get_guint8(tvb, octet_offset) & bit_mask8[required_bits_in_first_octet];
-            remaining_bit_length -= required_bits_in_first_octet;
-            octet_offset ++;
-        }
-        /* take the biggest words, shorts or octets that we can */
-        while (remaining_bit_length > 7)
-        {
-           switch (remaining_bit_length >> 4)
-           {
-              case 0:
-                 /* 8 - 15 bits. (note that 0 - 7 would have dropped out of the while() loop) */
-                 value <<= 8;
-                 value += tvb_get_guint8(tvb, octet_offset);
-                 remaining_bit_length -= 8;
-                 octet_offset ++;
-                 break;
+		/* get the bits up to the first octet boundary */
+		value = 0;
+		required_bits_in_first_octet %= 8;
+		if(required_bits_in_first_octet != 0)
+		{
+			value = tvb_get_guint8(tvb, octet_offset) & bit_mask8[required_bits_in_first_octet];
+			remaining_bit_length -= required_bits_in_first_octet;
+			octet_offset ++;
+		}
+		/* take the biggest words, shorts or octets that we can */
+		while (remaining_bit_length > 7)
+		{
+			switch (remaining_bit_length >> 4)
+			{
+			case 0:
+				/* 8 - 15 bits. (note that 0 - 7 would have dropped out of the while() loop) */
+				value <<= 8;
+				value += tvb_get_guint8(tvb, octet_offset);
+				remaining_bit_length -= 8;
+				octet_offset ++;
+				break;
 
-              case 1:
-                 /* 16 - 31 bits */
-                 value <<= 16;
-                 value += tvb_get_ntohs(tvb, octet_offset);
-                 remaining_bit_length -= 16;
-                 octet_offset += 2;
-                 break;
+			case 1:
+				/* 16 - 31 bits */
+				value <<= 16;
+				value += tvb_get_ntohs(tvb, octet_offset);
+				remaining_bit_length -= 16;
+				octet_offset += 2;
+				break;
 
-              case 2:
-              case 3:
-                 /* 32 - 63 bits */
-                 value <<= 32;
-                 value += tvb_get_ntohl(tvb, octet_offset);
-                 remaining_bit_length -= 32;
-                 octet_offset += 4;
-                 break;
+			case 2:
+			case 3:
+				/* 32 - 63 bits */
+				value <<= 32;
+				value += tvb_get_ntohl(tvb, octet_offset);
+				remaining_bit_length -= 32;
+				octet_offset += 4;
+				break;
 
-              default:
-                 /* 64 bits (or more???) */
-                 value = tvb_get_ntoh64(tvb, octet_offset);
-                 remaining_bit_length -= 64;
-                 octet_offset += 8;
-                 break;
-           }
-        }
-        /* get bits from any partial octet at the tail */
-        if(remaining_bit_length)
-        {
-            value <<= remaining_bit_length;
-            value += (tvb_get_guint8(tvb, octet_offset) >> (8 - remaining_bit_length));
-        }
-    }
-    return value;
+			default:
+				/* 64 bits (or more???) */
+				value = tvb_get_ntoh64(tvb, octet_offset);
+				remaining_bit_length -= 64;
+				octet_offset += 8;
+				break;
+			}
+		}
+		/* get bits from any partial octet at the tail */
+		if(remaining_bit_length)
+		{
+			value <<= remaining_bit_length;
+			value += (tvb_get_guint8(tvb, octet_offset) >> (8 - remaining_bit_length));
+		}
+	}
+	return value;
 }
 /* Get 1 - 32 bits (should be deprecated as same as tvb_get_bits32??) */
 guint32
 tvb_get_bits(tvbuff_t *tvb, const gint bit_offset, const gint no_of_bits, const guint encoding _U_)
 {
-   /* note that encoding has no meaning here, as the tvb is considered to contain an octet array */
-    return (guint32)_tvb_get_bits64(tvb, bit_offset, no_of_bits);
+	/* note that encoding has no meaning here, as the tvb is considered to contain an octet array */
+	return (guint32)_tvb_get_bits64(tvb, bit_offset, no_of_bits);
 }
 
 /* Find first occurence of needle in tvbuff, starting at offset. Searches
