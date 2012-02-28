@@ -39,23 +39,7 @@
 #include <epan/oui.h>
 #include <epan/afn.h>
 
-/* TLV Types */
-#define END_OF_LLDPDU_TLV_TYPE		0x00	/* Mandatory */
-#define CHASSIS_ID_TLV_TYPE		0x01	/* Mandatory */
-#define PORT_ID_TLV_TYPE		0x02	/* Mandatory */
-#define TIME_TO_LIVE_TLV_TYPE		0x03	/* Mandatory */
-#define PORT_DESCRIPTION_TLV_TYPE	0x04
-#define SYSTEM_NAME_TLV_TYPE		0x05
-#define SYSTEM_DESCRIPTION_TLV_TYPE	0x06
-#define SYSTEM_CAPABILITIES_TLV_TYPE	0x07
-#define MANAGEMENT_ADDR_TLV_TYPE	0x08
-#define ORGANIZATION_SPECIFIC_TLV_TYPE	0x7F
-
-/* Masks */
-#define TLV_TYPE_MASK		0xFE00
-#define TLV_TYPE(value)		(((value) & TLV_TYPE_MASK) >> 9)
-#define TLV_INFO_LEN_MASK	0x01FF
-#define TLV_INFO_LEN(value)	((value) & TLV_INFO_LEN_MASK)
+#include "packet-lldp.h"
 
 /* Initialize the protocol and registered fields */
 static int proto_lldp = -1;
@@ -175,16 +159,6 @@ static const value_string interface_subtype_values[] = {
 	{ 0, NULL}
 };
 
-static const value_string tlv_oui_subtype_vals[] = {
-	{ OUI_IEEE_802_1,     	"IEEE 802.1" },
-	{ OUI_IEEE_802_3,     	"IEEE 802.3" },
-	{ OUI_MEDIA_ENDPOINT,	"TIA" },
-	{ OUI_PROFINET,         "PROFINET" },
-	{ OUI_CISCO_2,          "Cisco" },
-	{ OUI_IEEE_802_1QBG,	"IEEE 802.1Qbg" },
-	{ 0, NULL }
-};
-
 /* IEEE 802.1 Subtypes */
 static const value_string ieee_802_1_subtypes[] = {
 	{ 0x01,	"Port VLAN ID" },
@@ -218,14 +192,6 @@ static const value_string media_subtypes[] = {
 	{ 11, 	"Inventory - Asset ID" },
 	{ 0, NULL }
 };
-
-/* IEEE 802.1Qbg Subtypes */
-static const value_string ieee_802_1qbg_subtypes[] = {
-	{ 0x00, "EVB" },
-	{ 0x01, "CDCP" },
-	{ 0, NULL }
-};
-
 
 /* Media Class Values */
 static const value_string media_class_values[] = {
@@ -936,7 +902,7 @@ dissect_lldp_time_to_live(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 }
 
 /* Dissect End of LLDPDU TLV (Mandatory) */
-static gint32
+gint32
 dissect_lldp_end_of_lldpdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
 {
 	guint16 tempLen;

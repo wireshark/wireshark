@@ -208,6 +208,7 @@ http://www.cisco.com/univercd/cc/td/doc/product/software/ios113ed/113ed_cr/ibm_r
 	{ OUI_SONY_ERICSSON_6,	"Sony Ericsson Mobile Communications AB" },
 	{ OUI_SONY_ERICSSON_7,	"Sony Ericsson Mobile Communications AB" },
 	{ OUI_SONY_ERICSSON_8,	"Sony Ericsson Mobile Communications AB" },
+	{ OUI_IEEE_802_1QBG,	"IEEE 802.1Qbg" },
 	{ OUI_TURBOCELL,		"Karlnet (Turbocell)" },
 	{ OUI_CISCOWL,			"Cisco Wireless (Aironet) L2" },
 	{ OUI_MARVELL,			"Marvell Semiconductor" },
