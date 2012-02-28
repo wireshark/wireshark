@@ -1854,11 +1854,11 @@ dissect_minipacket (tvbuff_t * tvb, guint32 offset, guint16 scallno, packet_info
 }
 
 
-static guint32 dissect_trunkcall_ts (tvbuff_t * tvb, guint32 offset, proto_tree * iax2_tree)
+static guint32 dissect_trunkcall_ts (tvbuff_t * tvb, guint32 offset, proto_tree * iax2_tree, guint16 * scallno)
 {
   proto_item *call_item;
   proto_tree *call_tree;
-  guint16 datalen, rlen, ts, scallno;
+  guint16 datalen, rlen, ts;
   /*
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |     Data Length (in octets)   |R|     Source Call Number      |
@@ -1871,13 +1871,13 @@ static guint32 dissect_trunkcall_ts (tvbuff_t * tvb, guint32 offset, proto_tree 
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    */
   datalen = tvb_get_ntohs(tvb, offset);
-  scallno = tvb_get_ntohs(tvb, offset + 2);
+  *scallno = tvb_get_ntohs(tvb, offset + 2);
   ts = tvb_get_ntohs(tvb, offset + 4);
 
   rlen = MIN(tvb_length(tvb) - offset - 6, datalen);
 
   if( iax2_tree ) {
-    call_item = proto_tree_add_text(iax2_tree, tvb, offset, rlen + 6, "Trunk call from %u, ts: %u", scallno, ts);
+    call_item = proto_tree_add_text(iax2_tree, tvb, offset, rlen + 6, "Trunk call from %u, ts: %u", *scallno, ts);
     call_tree = proto_item_add_subtree(call_item, ett_iax2_trunk_call);
 
     proto_tree_add_item(call_tree, hf_iax2_trunk_call_len, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1890,11 +1890,11 @@ static guint32 dissect_trunkcall_ts (tvbuff_t * tvb, guint32 offset, proto_tree 
   return offset;
 }
 
-static guint32 dissect_trunkcall_nots (tvbuff_t * tvb, guint32 offset, proto_tree * iax2_tree)
+static guint32 dissect_trunkcall_nots (tvbuff_t * tvb, guint32 offset, proto_tree * iax2_tree, guint16 * scallno)
 {
   proto_item *call_item;
   proto_tree *call_tree;
-  guint16 datalen, rlen, scallno;
+  guint16 datalen, rlen;
   /*
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |R|      Source Call Number     |     Data Length (in octets)   |
@@ -1904,13 +1904,13 @@ static guint32 dissect_trunkcall_nots (tvbuff_t * tvb, guint32 offset, proto_tre
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    */
-  scallno = tvb_get_ntohs(tvb, offset);
+  *scallno = tvb_get_ntohs(tvb, offset);
   datalen = tvb_get_ntohs(tvb, offset + 2);
 
   rlen = MIN(tvb_length(tvb) - offset - 4, datalen);
 
   if( iax2_tree ) {
-    call_item = proto_tree_add_text(iax2_tree, tvb, offset, rlen + 6, "Trunk call from %u", scallno);
+    call_item = proto_tree_add_text(iax2_tree, tvb, offset, rlen + 6, "Trunk call from %u", *scallno);
     call_tree = proto_item_add_subtree(call_item, ett_iax2_trunk_call);
 
     proto_tree_add_item(call_tree, hf_iax2_trunk_call_scallno, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1922,16 +1922,58 @@ static guint32 dissect_trunkcall_nots (tvbuff_t * tvb, guint32 offset, proto_tre
   return offset;
 }
 
+typedef struct _call_list {
+  guint16 scallno;
+  struct _call_list *next;
+} call_list;
+
+static call_list *call_list_append(call_list *list, guint16 scallno)
+{
+  call_list *node = ep_alloc0(sizeof(call_list));
+
+  node->scallno = scallno;
+
+  if (list) {
+    call_list *cur = list;
+    while (cur->next) {
+      cur = cur->next;
+    }
+    cur->next = node;
+    return list;
+  } else {
+    return node;
+  }
+}
+
+static gboolean call_list_find(call_list *list, guint16 scallno)
+{
+  for (; list; list = list->next) {
+    if (list->scallno == scallno) {
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
+
+static guint call_list_length(call_list *list)
+{
+  guint count = 0;
+  for (; list; list = list->next) {
+    count++;
+  }
+  return count;
+}
 
 static guint32 dissect_trunkpacket (tvbuff_t * tvb, guint32 offset,
                                         guint16 scallno _U_, packet_info * pinfo,
                                         proto_tree * iax2_tree, proto_tree *main_tree _U_)
 {
   guint8 cmddata, trunkts;
-  int ncalls = 0;
+  guint nframes = 0, ncalls = 0;
   /*iax_packet_data *iax_packet;*/
   proto_item *cd, *nc = NULL;
   proto_tree *field_tree = NULL;
+  call_list *calls = NULL;
 
   cmddata = tvb_get_guint8(tvb, offset + 1);
   trunkts = cmddata & IAX2_TRUNK_TS;
@@ -1965,17 +2007,27 @@ static guint32 dissect_trunkpacket (tvbuff_t * tvb, guint32 offset,
   if( trunkts ) {
     /* Trunk calls with timestamp */
     while(tvb_length_remaining(tvb, offset) >= 6) {
-      offset = dissect_trunkcall_ts (tvb, offset, iax2_tree);
-      ncalls++;
-    }
+      guint16 scallno;
+      offset = dissect_trunkcall_ts (tvb, offset, iax2_tree, &scallno);
+      if (!call_list_find (calls, scallno)) {
+        calls = call_list_append (calls, scallno);
+      }
+      nframes++;
+	}
   }
   else {
     /* Trunk calls without timestamp */
     while(tvb_length_remaining(tvb, offset) >= 4) {
-      offset = dissect_trunkcall_nots (tvb, offset, iax2_tree);
-      ncalls++;
+      guint16 scallno;
+      offset = dissect_trunkcall_nots (tvb, offset, iax2_tree, &scallno);
+      if (!call_list_find (calls, scallno)) {
+        calls = call_list_append (calls, scallno);
+      }
+      nframes++;
     }
   }
+
+  ncalls = call_list_length (calls);
 
   if( iax2_tree ) {
     /* number of items */
@@ -1983,7 +2035,9 @@ static guint32 dissect_trunkpacket (tvbuff_t * tvb, guint32 offset,
     PROTO_ITEM_SET_GENERATED(nc);
   }
 
-  col_add_fstr (pinfo->cinfo, COL_INFO, "Trunk packet with %d calls", ncalls);
+  col_add_fstr (pinfo->cinfo, COL_INFO, "Trunk packet with %d media frame%s for %d call%s",
+                nframes, plurality(nframes, "", "s"),
+                ncalls, plurality(ncalls, "", "s"));
 
   return offset;
 }
