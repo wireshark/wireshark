@@ -92,7 +92,7 @@ edit_packet_comment_dlg (GtkAction *action _U_, gpointer data _U_)
   gchar *opt_comment;
   const gchar *buf_str;
 
-  edit_or_add_pkt_comment_dlg = dlg_window_new ("Edit or Add Packet Comments(Not working yet)");
+  edit_or_add_pkt_comment_dlg = dlg_window_new ("Edit or Add Packet Comments");
   gtk_widget_set_size_request (edit_or_add_pkt_comment_dlg, 400, 80);
   gtk_window_set_resizable (GTK_WINDOW (edit_or_add_pkt_comment_dlg), TRUE); 
   gtk_container_set_border_width (GTK_CONTAINER (edit_or_add_pkt_comment_dlg), 0);
