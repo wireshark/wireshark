@@ -253,19 +253,29 @@ tvbtest.exe: $(TVBTEST_OBJ)
 
 # Object files for reassemble_test
 REASSEMBLE_TEST_OBJ=reassemble_test.obj \
-	packet.obj \
-	tvbuff.obj \
-	except.obj \
-	to_str.obj \
-	strutil.obj \
-	charsets.obj \
-	emem.obj \
-	reassemble.obj
+REASSEMBLE_TEST_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
+	wsock32.lib user32.lib \
+	$(GLIB_LIBS) \
+	wsutil\libwsutil.lib \
+	$(GNUTLS_LIBS) \
+	$(PYTHON_LIBS) \
+!IFDEF ENABLE_LIBWIRESHARK
+	epan\libwireshark.lib \
+!ELSE
+	epan\dissectors\dissectors.lib \
+	epan\wireshark.lib \
+	epan\crypt\airpdcap.lib \
+	epan\dfilter\dfilter.lib \
+	epan\ftypes\ftypes.lib \
+	$(C_ARES_LIBS) \
+	$(ADNS_LIBS) \
+	$(ZLIB_LIBS)
+!ENDIF
 
 reassemble_test.exe: $(REASSEMBLE_TEST_OBJ)
 	@echo Linking $@
 	$(LINK) /OUT:$@ $(conflags) $(conlibsdll) $(LOCAL_LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console \
-                $(GLIB_LIBS) $(ZLIB_LIBS) $(REASSEMBLE_TEST_OBJ)
+                $(REASSEMBLE_TEST_LIBS) $(GLIB_LIBS) $(ZLIB_LIBS) $(REASSEMBLE_TEST_OBJ)
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "$@.manifest" -outputresource:$@;1
 !ENDIF

@@ -127,6 +127,7 @@ create_persconffile_dir
 create_persconffile_profile
 data_out_file                   DATA
 dcerpc_add_conv_to_bind_table
+dcerpc_fragment_table_init
 dcerpc_get_proto_hf_opnum
 dcerpc_get_proto_name
 dcerpc_get_proto_sub_dissector
@@ -463,8 +464,10 @@ format_text
 format_uri
 fragment_add
 fragment_add_check
+fragment_add_dcerpc_dg
 fragment_add_multiple_ok
 fragment_add_seq
+fragment_add_seq_802_11
 fragment_add_seq_check
 fragment_add_seq_next
 fragment_delete

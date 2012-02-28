@@ -1,6 +1,7 @@
 # Makefile.am
-# Automake file for the EPAN library
-# (Ethereal Protocol ANalyzer Library)
+# Automake file for the libwireshark library
+# (EPAN is a historical name; it stands for Ethereal Protocol ANalyzer
+# Library)
 #
 # $Id$
 #
@@ -150,12 +151,11 @@ libwireshark_la_DEPENDENCIES = \
 	${top_builddir}/wiretap/libwiretap.la \
 	libwireshark.sym
 
-#EXTRA_PROGRAMS = reassemble_test
-#reassemble_test_LDADD = $(GLIB_LIBS)
-
-reassemble_test: reassemble_test.o packet.o tvbuff.o except.o to_str.o strutil.o emem.o \
-                 reassemble.o charsets.o
-	$(LINK) $^ $(GLIB_LIBS) -lz
+EXTRA_PROGRAMS = reassemble_test
+reassemble_test_LDADD = \
+	libwireshark.la \
+	$(GLIB_LIBS) \
+	-lz
 
 tvbtest: tvbtest.o tvbuff.o except.o to_str.o strutil.o emem.o charsets.o
 	$(LINK) $^ $(GLIB_LIBS) -lz
