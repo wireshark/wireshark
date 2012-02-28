@@ -190,7 +190,7 @@ dissect_vdp_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32
 	guint32 tempOffset = offset;
 	guint32 oui;
 	const char *ouiStr;
-	guint8 subType;
+	guint8 subType, format;
 	const char *subTypeStr;
 
 	proto_tree	*ecp_vdp_tlv_subtree = NULL;
@@ -244,6 +244,7 @@ dissect_vdp_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32
 	proto_tree_add_item(ecp_vdp_tlv_subtree, hf_ecp_vdp_instanceid, tvb, tempOffset, 16, ENC_NA);
 	tempOffset += 16;
 
+	format = tvb_get_guint8(tvb, tempOffset);
 	proto_tree_add_item(ecp_vdp_tlv_subtree, hf_ecp_vdp_format, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
 	tempOffset++;
 
