@@ -253,20 +253,20 @@ tvbtest.exe: $(TVBTEST_OBJ)
 
 # Object files for reassemble_test
 REASSEMBLE_TEST_OBJ=reassemble_test.obj
-REASSEMBLE_TEST_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
+REASSEMBLE_TEST_LIBS= ..\wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib \
 	$(GLIB_LIBS) \
-	wsutil\libwsutil.lib \
+	..\wsutil\libwsutil.lib \
 	$(GNUTLS_LIBS) \
 	$(PYTHON_LIBS) \
 !IFDEF ENABLE_LIBWIRESHARK
-	epan\libwireshark.lib \
+	libwireshark.lib \
 !ELSE
-	epan\dissectors\dissectors.lib \
-	epan\wireshark.lib \
-	epan\crypt\airpdcap.lib \
-	epan\dfilter\dfilter.lib \
-	epan\ftypes\ftypes.lib \
+	dissectors\dissectors.lib \
+	wireshark.lib \
+	crypt\airpdcap.lib \
+	dfilter\dfilter.lib \
+	ftypes\ftypes.lib \
 	$(C_ARES_LIBS) \
 	$(ADNS_LIBS) \
 	$(ZLIB_LIBS)
