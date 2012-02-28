@@ -295,17 +295,22 @@ extern void tvb_get_ntohguid(tvbuff_t *tvb, const gint offset, e_guid_t *guid);
 extern void tvb_get_letohguid(tvbuff_t *tvb, const gint offset, e_guid_t *guid);
 extern void tvb_get_guid(tvbuff_t *tvb, const gint offset, e_guid_t *guid, const guint representation);
 
-/* Fetch a specified number of bits from bit offset in a tvb */
+/* Fetch a specified number of bits from bit offset in a tvb.
+   All of these functions are equivalent, except for the type of the retun value. 
+   Note that the parameter encoding (where supplied) is meaningless and ignored */
+
+/* get 1 - 8 bits returned in a guint8 */
 extern guint8 tvb_get_bits8(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits);
+/* get 1 - 16 bits returned in a guint16 */
 extern guint16 tvb_get_bits16(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits, const guint encoding);
+/* get 1 - 32 bits returned in a guint32 */
 extern guint32 tvb_get_bits32(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits, const guint encoding);
+/* get 1 - 64 bits returned in a guint64 */
 extern guint64 tvb_get_bits64(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits, const guint encoding);
 
 /**
- * Fetch a specified number of bits from bit offset in a tvb, but allow number
- * of bits to range between 1 and 32. If the requested number of bits is known
- * beforehand, or its range can be handled by a single function of the group
- * above, use one of them instead.
+ *  This function has EXACTLY the same behaviour as
+ *  tvb_get_bits32()
  */
 extern guint32 tvb_get_bits(tvbuff_t *tvb, const gint bit_offset, const gint no_of_bits, const guint encoding);
 

@@ -60,6 +60,10 @@ ensure_contiguous_no_exception(tvbuff_t *tvb, const gint offset, const gint leng
 static const guint8*
 ensure_contiguous(tvbuff_t *tvb, const gint offset, const gint length);
 
+
+static guint64 
+_tvb_get_bits64(tvbuff_t *tvb, gint bit_offset, const gint total_no_of_bits);
+
 static void
 tvb_init(tvbuff_t *tvb, const tvbuff_type type)
 {
@@ -1630,51 +1634,14 @@ static const guint8 bit_mask8[] = {
 	0x01
 };
 
-/* Bit offset mask for number of bits = 8 - 16 */
-static const guint16 bit_mask16[] = {
-	0xffff,
-	0x7fff,
-	0x3fff,
-	0x1fff,
-	0x0fff,
-	0x07ff,
-	0x03ff,
-	0x01ff
-};
-
 /* Get 1 - 8 bits */
 guint8
 tvb_get_bits8(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits)
 {
-	gint	offset;
-	guint16	value = 0;
-	guint8	tot_no_bits;
-
-	if (no_of_bits>8) {
-		DISSECTOR_ASSERT_NOT_REACHED();
-	}
-	/* Byte align offset */
-	offset = bit_offset>>3;
-
-	/* Find out which mask to use for the most significant octet
-	 * by convering bit_offset into the offset into the first
-	 * fetched octet.
-	 */
-	bit_offset = bit_offset & 0x7;
-	tot_no_bits = bit_offset+no_of_bits;
-	if (tot_no_bits<=8) {
-		/* Read one octet, mask off bit_offset bits and left shift out the unused bits */
-		value = tvb_get_guint8(tvb,offset) & bit_mask8[bit_offset];
-		value = value >> (8-tot_no_bits);
-	} else {
-		/* Read two octets, mask off bit_offset bits and left shift out the unused bits */
-		value = tvb_get_ntohs(tvb,offset) & bit_mask16[bit_offset];
-		value = value >> (16 - tot_no_bits);
-	}
-
-	return (guint8)value;
+   return (guint8)_tvb_get_bits64(tvb, bit_offset, no_of_bits);
 }
 
+/* Get 1 - 16 bits */
 void
 tvb_get_bits_buf(tvbuff_t *tvb, gint bit_offset, gint no_of_bits, guint8 *buf, gboolean lsb0)
 {
@@ -1765,197 +1732,112 @@ ep_tvb_get_bits(tvbuff_t *tvb, gint bit_offset, gint no_of_bits, gboolean lsb0)
 }
 
 /* Get 9 - 16 bits */
-/* Bit offset mask for number of bits = 16 - 32 */
-static const guint32 bit_mask32[] = {
-	0xffffffff,
-	0x7fffffff,
-	0x3fffffff,
-	0x1fffffff,
-	0x0fffffff,
-	0x07ffffff,
-	0x03ffffff,
-	0x01ffffff
-};
-
 guint16
 tvb_get_bits16(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits,const guint encoding)
 {
-	gint	offset;
-	guint16	value   = 0;
-	guint16	tempval = 0;
-	guint8	tot_no_bits;
-
-	if ((no_of_bits<=8)||(no_of_bits>16)) {
-		/* If bits <= 8 use tvb_get_bits8 */
-		DISSECTOR_ASSERT_NOT_REACHED();
-	}
-	/*
-	 * For backwards compatibility, treat all non-zero values as
-	 * meaning "little-endian".
-	 */
-	if (encoding) {
-		DISSECTOR_ASSERT_NOT_REACHED();
-		/* This part is not implemented yet */
-	}
-
-	/* Byte align offset */
-	offset = bit_offset>>3;
-
-	/* Find out which mask to use for the most significant octet
-	 * by convering bit_offset into the offset into the first
-	 * fetched octet.
-	 */
-	bit_offset = bit_offset & 0x7;
-	tot_no_bits = bit_offset+no_of_bits;
-	/* Read two octets and mask off bit_offset bits */
-	value = tvb_get_ntohs(tvb,offset) & bit_mask16[bit_offset];
-	if (tot_no_bits < 16) {
-		/* Left shift out the unused bits */
-		value = value >> (16 - tot_no_bits);
-	} else if (tot_no_bits > 16) {
-		/* Spans three octets, read next octet and shift as needed */
-		value   = value << (tot_no_bits - 16);
-		tempval = tvb_get_guint8(tvb,offset+2);
-		tempval = tempval >> (24-tot_no_bits);
-		value = value | tempval;
-	}
-
-	return value;
+   /* note that encoding has no meaning here, as the tvb is considered to contain an octet array */
+    return (guint16)_tvb_get_bits64(tvb, bit_offset, no_of_bits);
 }
 
-/* Bit offset mask for number of bits = 32 - 64 */
-static const guint64 bit_mask64[] = {
-	G_GINT64_CONSTANT(0xffffffffffffffffU),
-	G_GINT64_CONSTANT(0x7fffffffffffffffU),
-	G_GINT64_CONSTANT(0x3fffffffffffffffU),
-	G_GINT64_CONSTANT(0x1fffffffffffffffU),
-	G_GINT64_CONSTANT(0x0fffffffffffffffU),
-	G_GINT64_CONSTANT(0x07ffffffffffffffU),
-	G_GINT64_CONSTANT(0x03ffffffffffffffU),
-	G_GINT64_CONSTANT(0x01ffffffffffffffU)
-};
-
+/* Get 1 - 32 bits */
 guint32
 tvb_get_bits32(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits, const guint encoding)
 {
-	gint	offset;
-	guint32	value         = 0;
-	guint32	tempval       = 0;
-	guint8	tot_no_bits;
-	guint8	tot_no_octets = 0;
-	guint8	i             = 0;
-	gint8	shift         = 0;
-
-	if ((no_of_bits<=16)||(no_of_bits>32)) {
-		/* If bits <= 16 use tvb_get_bits8 or tvb_get_bits16 */
-		DISSECTOR_ASSERT_NOT_REACHED();
-	}
-	/*
-	 * For backwards compatibility, treat all non-zero values as
-	 * meaning "little-endian".
-	 */
-	if (encoding) {
-		DISSECTOR_ASSERT_NOT_REACHED();
-		/* This part is not implemented yet */
-	}
-
-	/* Byte align offset */
-	offset = bit_offset>>3;
-
-	bit_offset = bit_offset & 0x7;
-	tot_no_bits = bit_offset+no_of_bits;
-	tot_no_octets = tot_no_bits / 8;
-	if (tot_no_bits % 8)
-		tot_no_octets++;
-	shift = no_of_bits - (8 - bit_offset);
-
-	value = tvb_get_guint8(tvb, offset) & bit_mask8[bit_offset];
-	value = value << shift;
-
-	for (i = 1; i < tot_no_octets; i++)
-	{
-		shift = shift - 8;
-		tempval = tvb_get_guint8(tvb, offset+i);
-		if (shift >= 0)
-		{
-			tempval = tempval << shift;
-		}
-		else
-		{
-			tempval = tempval >> (- shift);
-		}
-		value = value | tempval;
-	}
-
-	return value;
+   /* note that encoding has no meaning here, as the tvb is considered to contain an octet array */
+    return (guint32)_tvb_get_bits64(tvb, bit_offset, no_of_bits);
 }
 
+/* Get 1 - 64 bits */
 guint64
 tvb_get_bits64(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits, const guint encoding)
 {
-	gint	offset;
-	guint64	value   = 0;
-	guint64	tempval = 0;
-	guint8	tot_no_bits;
-
-	if ((no_of_bits<=32)||(no_of_bits>64)) {
-		/* If bits <= 32 use tvb_get_bits8, tvb_get_bits16 or tvb_get_bits32 */
-		DISSECTOR_ASSERT_NOT_REACHED();
-	}
-	/*
-	 * For backwards compatibility, treat all non-zero values as
-	 * meaning "little-endian".
-	 */
-	if (encoding) {
-		DISSECTOR_ASSERT_NOT_REACHED();
-		/* This part is not implemented yet */
-	}
-
-	/* Byte align offset */
-	offset = bit_offset>>3;
-
-	/* Find out which mask to use for the most significant octet
-	 * by convering bit_offset into the offset into the first
-	 * fetched octet.
-	 */
-	bit_offset = bit_offset & 0x7;
-	tot_no_bits = bit_offset+no_of_bits;
-	/* Read eight octets and mask off bit_offset bits */
-	value = tvb_get_ntoh64(tvb,offset) & bit_mask64[bit_offset];
-	if (tot_no_bits < 64) {
-		/* Left shift out the unused bits */
-		value   = value >> (64 - tot_no_bits);
-	} else if (tot_no_bits > 64) {
-		/* Spans nine octets, read next octet and shift as needed */
-		value   = value << (tot_no_bits - 64);
-		tempval = tvb_get_guint8(tvb,offset+8);
-		tempval = tempval >> (72-tot_no_bits);
-		value   = value | tempval;
-	}
-
-	return value;
+   /* note that encoding has no meaning here, as the tvb is considered to contain an octet array */
+    return _tvb_get_bits64(tvb, bit_offset, no_of_bits);
 }
+/*
+ * This function will dissect a sequence of bits that does not need to be byte aligned; the bits
+ * set will be shown in the tree as ..10 10.. and the integer value returned if return_value is set.
+ * Offset should be given in bits from the start of the tvb.
+ * The function tolerates requests for more than 64 bits, but will only return the least significant 64 bits.
+ */
+static guint64 
+_tvb_get_bits64(tvbuff_t *tvb, gint bit_offset, const gint total_no_of_bits)
+{
+    guint64 value;
+    guint octet_offset = bit_offset >> 3;
+    guint8 required_bits_in_first_octet = 8 - (bit_offset % 8);
 
+    if(required_bits_in_first_octet > total_no_of_bits)
+    {
+        /* the required bits don't extend to the end of the first octet */
+        guint8 right_shift = required_bits_in_first_octet - total_no_of_bits;
+        value = (tvb_get_guint8(tvb, octet_offset) >> right_shift) & bit_mask8[total_no_of_bits];
+    }
+    else
+    {
+        guint8 remaining_bit_length = total_no_of_bits;
+
+        /* get the bits up to the first octet boundary */
+		required_bits_in_first_octet %= 8;
+        if(required_bits_in_first_octet != 0)
+        {
+            value = tvb_get_guint8(tvb, octet_offset) & bit_mask8[required_bits_in_first_octet];
+            remaining_bit_length -= required_bits_in_first_octet;
+            octet_offset ++;
+        } 
+        /* take the biggest words, shorts or octets that we can */
+        while (remaining_bit_length > 7)
+        {
+           switch (remaining_bit_length >> 4)
+           {
+              case 0:
+                 /* 8 - 15 bits. (note that 0 - 7 would have dropped out of the while() loop) */
+                 value <<= 8;
+                 value += tvb_get_guint8(tvb, octet_offset);
+                 remaining_bit_length -= 8;
+                 octet_offset ++;
+                 break;
+
+              case 1:
+                 /* 16 - 31 bits */
+                 value <<= 16;
+                 value += tvb_get_ntohs(tvb, octet_offset);
+                 remaining_bit_length -= 16;
+                 octet_offset += 2;
+                 break;
+
+              case 2:
+              case 3:
+                 /* 32 - 63 bits */
+                 value <<= 32;
+                 value += tvb_get_ntohl(tvb, octet_offset);
+                 remaining_bit_length -= 32;
+                 octet_offset += 4;
+                 break;
+
+              default:
+                 /* 64 bits (or more???) */
+                 value = tvb_get_ntoh64(tvb, octet_offset);
+                 remaining_bit_length -= 64;
+                 octet_offset += 8;
+                 break;
+           }
+        }
+        /* get bits from any partial octet at the tail */
+        if(remaining_bit_length)
+        {
+            value <<= remaining_bit_length;
+            value += (tvb_get_guint8(tvb, octet_offset) >> (8 - remaining_bit_length));
+        }
+    }
+    return value;
+}
+/* Get 1 - 32 bits (should be deprecated as same as tvb_get_bits32??) */
 guint32
 tvb_get_bits(tvbuff_t *tvb, const gint bit_offset, const gint no_of_bits, const guint encoding)
 {
-	/* This function can handle only up to 32 requested bits */
-	if (no_of_bits > 32)
-		DISSECTOR_ASSERT_NOT_REACHED();
-
-	if (no_of_bits == 0)
-		return 0;
-
-	/* Number of requested bits is in range [17, 32] */
-	if (no_of_bits > 16)
-		return tvb_get_bits32(tvb, bit_offset, no_of_bits, encoding);
-
-	/* Number of requested bits is in range [9, 16] */
-	if (no_of_bits > 8)
-		return tvb_get_bits16(tvb, bit_offset, no_of_bits, encoding);
-
-	/* Number of requested bits is in range [1, 8] */
-	return tvb_get_bits8(tvb, bit_offset, no_of_bits);
+   /* note that encoding has no meaning here, as the tvb is considered to contain an octet array */
+    return (guint32)_tvb_get_bits64(tvb, bit_offset, no_of_bits);
 }
 
 /* Find first occurence of needle in tvbuff, starting at offset. Searches
