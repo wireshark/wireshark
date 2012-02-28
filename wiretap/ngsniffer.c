@@ -83,10 +83,22 @@ static const char ngsniffer_magic[] = {
 /*
  * and now for some unknown header types
  */
-#define REC_HEADER1	6	/* Header containing serial numbers? */
+#define REC_HEADER1	6	/* Header containing various information,
+				 * not yet reverse engineered - some binary,
+				 * some strings (Serial numbers?  Names
+				 * under which the software is registered?
+				 * Software version numbers?  Mysterious
+				 * strings such as "PA-55X" and "PA-30X"
+				 * and "PA-57X" and "PA-11X"?), some strings
+				 * that are partially overwritten
+				 * ("UNSERIALIZED", "Network General
+				 * Corporation"), differing from major
+				 * version to major version */
 #define REC_HEADER2	7	/* Header containing ??? */
 #define REC_V2DESC	8	/* In version 2 sniffer traces contains
-				 * infos about this capturing session.
+				 * info about this capturing session,
+				 * in the form of a multi-line string
+				 * with NL as the line separator.
 				 * Collides with REC_FRAME4 */
 #define REC_HEADER3	13	/* Retransmission counts? */
 #define REC_HEADER4	14	/* ? */
