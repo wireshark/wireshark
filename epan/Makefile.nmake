@@ -252,7 +252,7 @@ tvbtest.exe: $(TVBTEST_OBJ)
 !ENDIF
 
 # Object files for reassemble_test
-REASSEMBLE_TEST_OBJ=reassemble_test.obj \
+REASSEMBLE_TEST_OBJ=reassemble_test.obj
 REASSEMBLE_TEST_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib \
 	$(GLIB_LIBS) \
