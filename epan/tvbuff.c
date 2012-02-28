@@ -1733,7 +1733,7 @@ ep_tvb_get_bits(tvbuff_t *tvb, gint bit_offset, gint no_of_bits, gboolean lsb0)
 
 /* Get 9 - 16 bits */
 guint16
-tvb_get_bits16(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits,const guint encoding)
+tvb_get_bits16(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits,const guint encoding _U_)
 {
    /* note that encoding has no meaning here, as the tvb is considered to contain an octet array */
     return (guint16)_tvb_get_bits64(tvb, bit_offset, no_of_bits);
@@ -1741,7 +1741,7 @@ tvb_get_bits16(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits,const guint
 
 /* Get 1 - 32 bits */
 guint32
-tvb_get_bits32(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits, const guint encoding)
+tvb_get_bits32(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits, const guint encoding _U_)
 {
    /* note that encoding has no meaning here, as the tvb is considered to contain an octet array */
     return (guint32)_tvb_get_bits64(tvb, bit_offset, no_of_bits);
@@ -1749,7 +1749,7 @@ tvb_get_bits32(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits, const guin
 
 /* Get 1 - 64 bits */
 guint64
-tvb_get_bits64(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits, const guint encoding)
+tvb_get_bits64(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits, const guint encoding _U_)
 {
    /* note that encoding has no meaning here, as the tvb is considered to contain an octet array */
     return _tvb_get_bits64(tvb, bit_offset, no_of_bits);
@@ -1760,7 +1760,7 @@ tvb_get_bits64(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits, const guin
  * Offset should be given in bits from the start of the tvb.
  * The function tolerates requests for more than 64 bits, but will only return the least significant 64 bits.
  */
-static guint64 
+static guint64
 _tvb_get_bits64(tvbuff_t *tvb, gint bit_offset, const gint total_no_of_bits)
 {
     guint64 value;
@@ -1784,7 +1784,7 @@ _tvb_get_bits64(tvbuff_t *tvb, gint bit_offset, const gint total_no_of_bits)
             value = tvb_get_guint8(tvb, octet_offset) & bit_mask8[required_bits_in_first_octet];
             remaining_bit_length -= required_bits_in_first_octet;
             octet_offset ++;
-        } 
+        }
         /* take the biggest words, shorts or octets that we can */
         while (remaining_bit_length > 7)
         {
@@ -1834,7 +1834,7 @@ _tvb_get_bits64(tvbuff_t *tvb, gint bit_offset, const gint total_no_of_bits)
 }
 /* Get 1 - 32 bits (should be deprecated as same as tvb_get_bits32??) */
 guint32
-tvb_get_bits(tvbuff_t *tvb, const gint bit_offset, const gint no_of_bits, const guint encoding)
+tvb_get_bits(tvbuff_t *tvb, const gint bit_offset, const gint no_of_bits, const guint encoding _U_)
 {
    /* note that encoding has no meaning here, as the tvb is considered to contain an octet array */
     return (guint32)_tvb_get_bits64(tvb, bit_offset, no_of_bits);
