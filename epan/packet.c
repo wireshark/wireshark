@@ -238,6 +238,15 @@ free_data_sources(packet_info *pinfo)
 	}
 }
 
+void
+mark_frame_as_depended_upon(packet_info *pinfo, guint32 frame_num)
+{
+	/* Don't mark a frame as dependent on itself */
+	if (frame_num != PINFO_FD_NUM(pinfo)) {
+		pinfo->dependent_frames = g_slist_prepend(pinfo->dependent_frames, GUINT_TO_POINTER(frame_num));
+	}
+}
+
 /* Allow dissectors to register a "final_registration" routine
  * that is run like the proto_register_XXX() routine, but at the
  * end of the epan_init() function; that is, *after* all other

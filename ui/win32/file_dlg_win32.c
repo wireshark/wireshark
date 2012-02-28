@@ -1571,6 +1571,7 @@ save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
             packet_range_init(&g_range);
             /* default to displayed packets */
             g_range.process_filtered   = TRUE;
+	    g_range.include_dependents   = TRUE;
 
             /* Fill in the file format list */
             /*build_file_format_list(sf_hwnd);*/
@@ -1662,6 +1663,7 @@ range_update_dynamics(HWND dlg_hwnd, packet_range_t *range) {
     TCHAR    static_val[STATIC_LABEL_CHARS];
     gint     selected_num;
     guint32  ignored_cnt = 0, displayed_ignored_cnt = 0;
+    guint32       displayed_cnt;
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_DISPLAYED_BTN);
     if (SendMessage(cur_ctrl, BM_GETCHECK, 0, 0) == BST_CHECKED)
@@ -1679,10 +1681,14 @@ range_update_dynamics(HWND dlg_hwnd, packet_range_t *range) {
 
     cur_ctrl = GetDlgItem(dlg_hwnd, EWFD_ALL_PKTS_DISP);
     EnableWindow(cur_ctrl, filtered_active);
+    if (range->include_dependents)
+      displayed_cnt = range->displayed_plus_dependents_cnt;
+    else
+      displayed_cnt = range->displayed_cnt;
     if (range->remove_ignored) {
-        _snwprintf(static_val, STATIC_LABEL_CHARS, _T("%u"), range->displayed_cnt - range->displayed_ignored_cnt);
+        _snwprintf(static_val, STATIC_LABEL_CHARS, _T("%u"), displayed_cnt - range->displayed_ignored_cnt);
     } else {
-        _snwprintf(static_val, STATIC_LABEL_CHARS, _T("%u"), range->displayed_cnt);
+        _snwprintf(static_val, STATIC_LABEL_CHARS, _T("%u"), displayed_cnt);
     }
     SetWindowText(cur_ctrl, static_val);
 

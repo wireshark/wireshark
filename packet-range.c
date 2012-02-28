@@ -66,6 +66,7 @@ static void packet_range_calc(packet_range_t *range) {
     range->displayed_cnt          = 0L;
     range->displayed_marked_cnt   = 0L;
     range->displayed_mark_range_cnt=0L;
+    range->displayed_plus_dependents_cnt    = 0L;
     range->displayed_ignored_cnt            = 0L;
     range->displayed_ignored_marked_cnt     = 0L;
     range->displayed_ignored_mark_range_cnt = 0L;
@@ -94,6 +95,10 @@ static void packet_range_calc(packet_range_t *range) {
             }
             if (packet->flags.passed_dfilter) {
                 range->displayed_cnt++;
+            }
+            if (packet->flags.passed_dfilter ||
+		packet->flags.dependent_of_displayed) {
+                range->displayed_plus_dependents_cnt++;
             }
             if (packet->flags.marked) {
                 if (packet->flags.ignored) {
@@ -292,8 +297,12 @@ range_process_e packet_range_process_packet(packet_range_t *range, frame_data *f
         g_assert_not_reached();
     }
 
-    /* this packet has to pass the display filter but didn't? -> try next */
-    if (range->process_filtered && fdata->flags.passed_dfilter == FALSE) {
+    /* This packet has to pass the display filter but didn't?
+     * Try next, but only if we're not including dependent packets and this
+     * packet happens to be a dependency on something that is displayed.
+     */
+    if ((range->process_filtered && fdata->flags.passed_dfilter == FALSE) &&
+	!(range->include_dependents && fdata->flags.dependent_of_displayed)) {
         return range_process_next;
     }
 

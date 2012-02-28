@@ -1184,6 +1184,7 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
   /* init the packet range */
   packet_range_init(&range);
   range.process_filtered = save_only_displayed;
+  range.include_dependents = TRUE;
 
   /* build the file selection */
   file_save_as_w = file_selection_new ("Wireshark: Save Capture File As",
@@ -1207,7 +1208,7 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
   gtk_widget_show(range_fr);
 
   /* range table */
-  range_tb = range_new(&range);
+  range_tb = range_new(&range, TRUE);
   gtk_container_add(GTK_CONTAINER(range_fr), range_tb);
   gtk_widget_show(range_tb);
 

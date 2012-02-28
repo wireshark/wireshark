@@ -49,6 +49,7 @@ typedef struct packet_range_tag {
     packet_range_e  process;            /* which range to process */
     gboolean        process_filtered;   /* captured or filtered packets */
     gboolean        remove_ignored;     /* remove ignored packets */
+    gboolean        include_dependents;	/* True if packets which are dependents of others should be processed */
 
     /* user specified range(s) and, if null, error status */
     range_t         *user_range;
@@ -69,6 +70,7 @@ typedef struct packet_range_tag {
 
     /* current packet counts (displayed) */
     guint32  displayed_cnt;
+    guint32  displayed_plus_dependents_cnt;
     guint32  displayed_marked_cnt;
     guint32  displayed_mark_range_cnt;
     guint32  displayed_user_range_cnt;

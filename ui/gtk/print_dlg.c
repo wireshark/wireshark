@@ -681,7 +681,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   gtk_box_pack_start(GTK_BOX(packet_hb), range_fr, FALSE, FALSE, 0);
   gtk_widget_show(range_fr);
 
-  range_tb = range_new(&args->range);
+  range_tb = range_new(&args->range, FALSE);
   gtk_container_add(GTK_CONTAINER(range_fr), range_tb);
   gtk_widget_show(range_tb);
 

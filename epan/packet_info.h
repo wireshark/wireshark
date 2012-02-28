@@ -200,9 +200,8 @@ typedef struct _packet_info {
   guint8 zbee_stack_vers;   /* ZigBee stack version number, present in the ZigBee network layer, but
                              * impacts the packet format at all layers of the ZigBee stack.
                              */
-  int link_dir;				/* 3GPP messages are sometime different UP link(UL) or Downlink(DL)
-							 *
-							 */
+  int link_dir;		    /* 3GPP messages are sometime different UP link(UL) or Downlink(DL) */
+  GSList* dependent_frames;	/* A list of frames which this one depends on */
 } packet_info;
 
 /* For old code that hasn't yet been changed. */

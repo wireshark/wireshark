@@ -172,6 +172,8 @@ epan_dissect_init(epan_dissect_t *edt, const gboolean create_proto_tree, const g
 		edt->tree = NULL;
 	}
 
+	edt->pi.dependent_frames = NULL;
+
 	return edt;
 }
 

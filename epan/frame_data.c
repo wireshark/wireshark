@@ -207,6 +207,7 @@ frame_data_init(frame_data *fdata, guint32 num,
   fdata->shift_offset.secs = 0;
   fdata->shift_offset.nsecs = 0;
   fdata->flags.passed_dfilter = 0;
+  fdata->flags.dependent_of_displayed = 0;
   fdata->flags.encoding = PACKET_CHAR_ENC_CHAR_ASCII;
   fdata->flags.visited = 0;
   fdata->flags.marked = 0;

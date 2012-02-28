@@ -1898,7 +1898,8 @@ process_reassembled_data(tvbuff_t *tvb, const int offset, packet_info *pinfo,
  */
 static void
 show_fragment(fragment_data *fd, const int offset, const fragment_items *fit,
-	proto_tree *ft, proto_item *fi, const gboolean first_frag, const guint32 count, tvbuff_t *tvb)
+	proto_tree *ft, proto_item *fi, const gboolean first_frag,
+	const guint32 count, tvbuff_t *tvb, packet_info *pinfo)
 {
 	proto_item *fei=NULL;
 	int hf;
@@ -1942,6 +1943,7 @@ show_fragment(fragment_data *fd, const int offset, const fragment_items *fit,
 			plurality(fd->len, "", "s"));
 	}
 	PROTO_ITEM_SET_GENERATED(fei);
+	mark_frame_as_depended_upon(pinfo, fd->frame);
 	if (fd->flags & (FD_OVERLAP|FD_OVERLAPCONFLICT
 		|FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
 		/* this fragment has some flags set, create a subtree
@@ -2023,7 +2025,7 @@ show_fragment_tree(fragment_data *fd_head, const fragment_items *fit,
 		count++;
 	}
 	for (fd = fd_head->next; fd != NULL; fd = fd->next) {
-		show_fragment(fd, fd->offset, fit, ft, *fi, first_frag, count, tvb);
+		show_fragment(fd, fd->offset, fit, ft, *fi, first_frag, count, tvb, pinfo);
 		first_frag = FALSE;
 	}
 
@@ -2077,7 +2079,7 @@ show_fragment_seq_tree(fragment_data *fd_head, const fragment_items *fit,
 			next_offset += fd->len;
 		}
 		last_fd = fd;
-		show_fragment(fd, offset, fit, ft, *fi, first_frag, count, tvb);
+		show_fragment(fd, offset, fit, ft, *fi, first_frag, count, tvb, pinfo);
 		first_frag = FALSE;
 	}
 

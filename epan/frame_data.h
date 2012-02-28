@@ -51,6 +51,7 @@ typedef struct _frame_data {
   gint16       lnk_t;        /**< Per-packet encapsulation/data-link type */
   struct {
     unsigned int passed_dfilter : 1; /**< 1 = display, 0 = no display */
+    unsigned int dependent_of_displayed : 1; /**< 1 if a displayed frame depends on this frame */
     unsigned int encoding       : 2; /**< Character encoding (ASCII, EBCDIC...) */
     unsigned int visited        : 1; /**< Has this packet been visited yet? 1=Yes,0=No*/
     unsigned int marked         : 1; /**< 1 = marked by user, 0 = normal */

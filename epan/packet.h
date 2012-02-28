@@ -447,6 +447,14 @@ extern const char* get_data_source_name(data_source *src);
  */
 extern void free_data_sources(packet_info *pinfo);
 
+/* Mark another frame as depended upon by the current frame.
+ *
+ * This information is used to ensure that the dependend-upon frame is saved
+ * if the user does a File->Save-As of only the Displayed packets and the
+ * current frame passed the display filter.
+ */
+extern void mark_frame_as_depended_upon(packet_info *pinfo, guint32 frame_num);
+
 /*
  * Dissectors should never modify the packet data.
  */

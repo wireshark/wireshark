@@ -1066,6 +1066,17 @@ void cf_set_rfcode(capture_file *cf, dfilter_t *rfcode)
   cf->rfcode = rfcode;
 }
 
+static void
+find_and_mark_frame_depended_upon(gpointer data, gpointer user_data)
+{
+  frame_data *dependent_fd;
+  guint32 dependent_frame = GPOINTER_TO_UINT(data);
+  capture_file *cf = (capture_file *)user_data;
+
+  dependent_fd = frame_data_sequence_find(cf->frames, dependent_frame);
+  dependent_fd->flags.dependent_of_displayed = 1;
+}
+
 static int
 add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     dfilter_t *dfcode, gboolean filtering_tap_listeners,
@@ -1114,9 +1125,18 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
   if (dfcode != NULL) {
     if (refilter) {
       fdata->flags.passed_dfilter = dfilter_apply_edt(dfcode, &edt) ? 1 : 0;
+
+    /* This frame passed the display filter but it may depend on other
+     * (potentially not displayed) frames.  Find those frames and mark them
+     * as depended upon.
+     */
+      g_slist_foreach(edt.pi.dependent_frames, find_and_mark_frame_depended_upon, cf);
     }
   } else
     fdata->flags.passed_dfilter = 1;
+
+  /* We're done with this list */
+  g_slist_free(edt.pi.dependent_frames);
 
   if(fdata->flags.passed_dfilter || fdata->flags.ref_time)
     cf->displayed_count++;
@@ -1983,8 +2003,8 @@ ref_time_packets(capture_file *cf)
         cf->elapsed_time = fdata->rel_ts;
     }
 
-    /* If this frame is displayed, get the time elapsed between the 
-     previous displayed packet and this packet. */ 
+    /* If this frame is displayed, get the time elapsed between the
+     previous displayed packet and this packet. */
     if( fdata->flags.passed_dfilter ) {
         nstime_delta(&fdata->del_dis_ts, &fdata->abs_ts, &prev_dis_ts);
         prev_dis_ts = fdata->abs_ts;

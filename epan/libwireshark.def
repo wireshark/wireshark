@@ -646,6 +646,7 @@ list_stat_cmd_args
 llc_add_oui
 LocationRejectReason_vals       DATA
 make_printable_string
+mark_frame_as_depended_upon
 match_strrval
 match_strrval_idx
 match_strval

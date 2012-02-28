@@ -42,9 +42,10 @@ extern gboolean range_check_validity(packet_range_t *range);
 /** Create a new range widget.
  *
  * @param range the range to set
+ * @param saving TRUE if range is selecting packets to save
  * @return the new range widget
  */
-extern GtkWidget *range_new(packet_range_t *range);
+extern GtkWidget *range_new(packet_range_t *range, gboolean saving);
 
 /* Update all "dynamic" range things.
  *
