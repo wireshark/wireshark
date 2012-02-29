@@ -103,6 +103,8 @@ typedef enum
   CSN_UINT_OFFSET,        /* unpack will add offset, inverse pack will subtract offset */
   CSN_UINT_LH,            /* Low High extraction of int */
   CSN_SERIALIZE,
+  CSN_SPLIT_BITS,
+  CSN_SPLIT_BITS_CRUMB,
   CSN_TRAP_ERROR
 } csn_type_t;
 
@@ -178,6 +180,7 @@ typedef struct
   {
     void*     ptr;
     guint32   value;
+    crumb_spec_t const *crumb_spec;
   } descr;
   size_t      offset;
   gboolean    may_be_null;
@@ -307,6 +310,29 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
  *****************************************************************************/
 #define M_UINT(_STRUCT, _MEMBER, _BITS, _HF_PTR)\
         {CSN_UINT, _BITS, {0}, offsetof(_STRUCT, _MEMBER), FALSE, #_MEMBER, {(StreamSerializeFcn_t) _HF_PTR}}
+
+/******************************************************************************
+ * M_UINT_SPLIT(Par1, Par2, Par3, Par4)
+ * Defines an integer number split into segments which may be reordered or have gaps between them.
+ *      Par1: C structure name
+ *      Par2: C structure element name
+ *      Par3: bits_spec_t array
+ *      Par4: bit-width of the aggregate field
+ *      Par4: pointer to the header field
+ *****************************************************************************/
+#define M_SPLIT_BITS(_STRUCT, _MEMBER, _SPEC, _BITS, _HF_PTR)\
+        {CSN_SPLIT_BITS, _BITS, {_SPEC}, offsetof(_STRUCT, _MEMBER), FALSE, #_MEMBER, {(StreamSerializeFcn_t) _HF_PTR}}
+
+/******************************************************************************
+ * M_NULL_SPLIT(Par1, Par2, Par3, Par4)
+ * Defines a subsequent segment of a split integer type.
+ *      Par1: C structure name
+ *      Par2: C structure element name
+ *      Par3: bits_spec_t array
+ *      Par4: segment number (0 based)
+ *****************************************************************************/
+#define M_BITS_CRUMB(_STRUCT, _MEMBER, _SPEC, _SEG, _HF_PTR)\
+        {CSN_SPLIT_BITS_CRUMB, _SEG, {_SPEC}, 0, FALSE, #_MEMBER, {(StreamSerializeFcn_t) _HF_PTR}}
 
 /******************************************************************************
  * M_UINT_OR_NULL(Par1, Par2, Par3, Par4)

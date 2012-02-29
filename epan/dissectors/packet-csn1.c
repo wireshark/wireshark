@@ -371,6 +371,55 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
         break;
       }
 
+        case CSN_SPLIT_BITS:
+        {
+          guint8 no_of_value_bits = (guint8) pDescr->i;
+          guint64 value;
+
+          proto_tree_add_split_bits_ret_val(tree, *pDescr->serialize.hf_ptr, tvb, bit_offset, pDescr->descr.crumb_spec, &value);
+          if (no_of_value_bits <= 8)
+          {
+            pui8      = pui8DATA(data, pDescr->offset);
+            *pui8     = (guint8)value;
+          }
+          else if (no_of_value_bits <= 16)
+          {
+            pui16       = pui16DATA(data, pDescr->offset);
+            *pui16      = (guint16)value;
+          }
+          else if (no_of_value_bits <= 32)
+          {
+            pui32       = pui32DATA(data, pDescr->offset);
+            *pui32      = (guint32)value;
+          }
+          else
+          {
+            return ProcessError(tree, tvb, bit_offset,"csnStreamDissector", CSN_ERROR_GENERAL, pDescr);
+          }
+
+          pDescr++;
+          break;
+        }
+
+        case CSN_SPLIT_BITS_CRUMB:
+        {
+          if (remaining_bits_len >= pDescr->descr.crumb_spec[pDescr->i].crumb_bit_length)
+          {
+             proto_tree_add_split_bits_crumb(tree, *pDescr->serialize.hf_ptr, tvb, bit_offset, 
+                                             pDescr->descr.crumb_spec, pDescr->i);
+
+          remaining_bits_len -= pDescr->descr.crumb_spec[pDescr->i].crumb_bit_length;
+          bit_offset += pDescr->descr.crumb_spec[pDescr->i].crumb_bit_length;
+          }
+          else
+          {
+            return ProcessError(tree, tvb, bit_offset,"csnStreamDissector", CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, pDescr);
+          }
+
+          pDescr++;
+          break;
+        }
+
       case CSN_UINT_ARRAY:
       {
         guint8  no_of_bits  = (guint8) pDescr->i;

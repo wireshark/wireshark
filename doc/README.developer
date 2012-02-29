@@ -2318,6 +2318,14 @@ protocol or field labels to the proto_tree:
 	proto_tree_add_bitmask_text(tree, tvb, offset, len, name, fallback,
 		ett, fields, little_endian, flags);
 
+        proto_item *
+        proto_tree_add_split_bits_ret_val(tree, hf_index, tvb, bit_offset,
+                crumb_spec, return_value);
+
+        void 
+        proto_tree_add_split_bits_crumb(tree, hf_index, tvb, bit_offset,
+                crumb_spec, crumb_index);
+
 The 'tree' argument is the tree to which the item is to be added.  The
 'tvb' argument is the tvbuff from which the item's value is being
 extracted; the 'start' argument is the offset from the beginning of that
@@ -2671,6 +2679,16 @@ Output format:
 proto_tree_add_bits_ret_val()
 -----------------------------
 Works in the same way but also returns the value of the read bits.
+
+proto_tree_add_split_bits_ret_val()
+-----------------------------------
+Similar, but is used for items that are made of 2 or more smaller sets of bits (crumbs)
+which are not contiguous, but are concatenated to form the actual value.  The size of 
+the crumbs and the order of assembly are specified in an array of crumb_spec structures.
+
+proto_tree_add_split_bits_crumb()
+---------------------------------
+Helper function for the above, to add text for each crumb as it is encountered.
 
 proto_tree_add_bitmask() and proto_tree_add_bitmask_text()
 ----------------------------------------------------------
