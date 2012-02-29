@@ -114,7 +114,7 @@ SOURCES_WS_C = \
     ../../tempfile.c      \
     ../../timestats.c     \
     ../../u3.c \
-    ../../util.c  \
+    ../../ui/util.c  \
     ../../version_info.c
 
 unix:SOURCES_WS_C += ../../capture-pcap-util-unix.c
