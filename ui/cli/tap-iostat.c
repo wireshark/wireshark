@@ -852,7 +852,7 @@ iostat_draw(void *arg)
             printcenter (calc_type_table[type].func_name, col_w[j].val, numpad);
 	    }
 	}
-    if (filler_s > 0)
+    if (filler_s != 0)
         printf("%s|", filler_s);
     printf("\n|-");
 
@@ -986,7 +986,7 @@ iostat_draw(void *arg)
                 printf(fmt, (guint64)0);
             }
         }
-        if (filler_s > 0)
+        if (filler_s != 0)
             printf("%s|", filler_s);
         printf("\n");
         t += interval;
