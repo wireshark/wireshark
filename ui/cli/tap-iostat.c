@@ -757,7 +757,8 @@ iostat_draw(void *arg)
     /* Display the list of filters and their column numbers vertically */
     printf("|\n| Col");
     for(j=0; j<num_cols; j++){
-        printf((j==0 ? "%2u: %s" : "|    %2u: %s"), j+1);
+        /*printf((j==0 ? "%2u: %s" : "|    %2u: %s"), j+1); make it compile XXX fix me*/
+        printf((j==0 ? "%2u: " : "|    %2u: "), j+1);
         if (!iot->filters[j] || (iot->filters[j]==0)) {
             /*
             * An empty (no filter) comma field was specified */
