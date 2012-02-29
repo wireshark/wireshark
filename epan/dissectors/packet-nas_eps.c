@@ -920,7 +920,7 @@ static const value_string nas_eps_emm_EPS_attach_result_values[] = {
 static const value_string nas_eps_emm_eps_att_type_vals[] = {
     { 0,    "EPS attach(unused)"},
     { 1,    "EPS attach"},
-    { 2,    "Combined handover EPS/IMSI attach"},
+    { 2,    "Combined EPS/IMSI attach"},
     { 3,    "EPS attach(unused)"},
     { 4,    "EPS attach(unused)"},
     { 5,    "EPS attach(unused)"},
