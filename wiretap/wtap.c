@@ -100,6 +100,8 @@ wtapng_section_t* wtap_file_get_shb_info(wtap *wth)
 {
 	wtapng_section_t		*shb_hdr;
 
+	if(wth == NULL)
+		return NULL;
 	shb_hdr = g_new(wtapng_section_t,1);
 	shb_hdr->section_length = wth->shb_hdr.section_length;
 	/* options */

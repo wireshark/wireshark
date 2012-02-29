@@ -59,6 +59,7 @@
 #include "ui/gtk/expert_indicators.h"
 #include "ui/gtk/keys.h"
 #include "ui/gtk/menus.h"
+#include "ui/gtk/edit_packet_comment_dlg.h"
 
 /*
  * The order below defines the priority of info bar contexts.
@@ -84,6 +85,8 @@ static GtkWidget    *info_bar, *info_bar_event, *packets_bar, *profile_bar, *pro
 static GtkWidget    *expert_info_error, *expert_info_warn, *expert_info_note;
 static GtkWidget    *expert_info_chat, *expert_info_none;
 
+static GtkWidget    *capture_comment_none, *capture_comment;
+
 static guint         main_ctx, file_ctx, help_ctx, filter_ctx, packets_ctx, profile_ctx;
 static guint         status_levels[NUM_STATUS_LEVELS];
 static GString      *packets_str = NULL;
@@ -94,6 +97,7 @@ static void info_bar_new(void);
 static void packets_bar_new(void);
 static void profile_bar_new(void);
 static void status_expert_new(void);
+static void status_capture_comment_new(void);
 
 /* Temporary message timeouts */
 #define TEMPORARY_MSG_TIMEOUT (7 * 1000)
@@ -309,6 +313,9 @@ statusbar_new(void)
     /* expert info indicator */
     status_expert_new();
 
+	/* Capture comments indicator */
+	status_capture_comment_new();
+
     /* Pane for the statusbar */
     status_pane_left = gtk_hpaned_new();
     gtk_widget_show(status_pane_left);
@@ -358,7 +365,10 @@ statusbar_widgets_emptying(GtkWidget *statusbar)
     g_object_ref(G_OBJECT(expert_info_note));
     g_object_ref(G_OBJECT(expert_info_chat));
     g_object_ref(G_OBJECT(expert_info_none));
+    g_object_ref(G_OBJECT(capture_comment));
+    g_object_ref(G_OBJECT(capture_comment_none));
 
+	
     /* empty all containers participating */
     gtk_container_foreach(GTK_CONTAINER(statusbar),     foreach_remove_a_child, statusbar);
     gtk_container_foreach(GTK_CONTAINER(status_pane_left),   foreach_remove_a_child, status_pane_left);
@@ -373,6 +383,8 @@ statusbar_widgets_pack(GtkWidget *statusbar)
     gtk_box_pack_start(GTK_BOX(statusbar), expert_info_note, FALSE, FALSE, 2);
     gtk_box_pack_start(GTK_BOX(statusbar), expert_info_chat, FALSE, FALSE, 2);
     gtk_box_pack_start(GTK_BOX(statusbar), expert_info_none, FALSE, FALSE, 2);
+    gtk_box_pack_start(GTK_BOX(statusbar), capture_comment, FALSE, FALSE, 2);
+    gtk_box_pack_start(GTK_BOX(statusbar), capture_comment_none, FALSE, FALSE, 2);
     gtk_box_pack_start(GTK_BOX(statusbar), status_pane_left, TRUE, TRUE, 0);
     gtk_paned_pack1(GTK_PANED(status_pane_left), info_bar_event, FALSE, FALSE);
     gtk_paned_pack2(GTK_PANED(status_pane_left), status_pane_right, TRUE, FALSE);
@@ -527,6 +539,13 @@ expert_comp_dlg_event_cb(GtkWidget *w _U_, GdkEventButton *event _U_, gpointer u
     return TRUE;
 }
 
+static gboolean
+edit_capture_comment_dlg_event_cb(GtkWidget *w _U_, GdkEventButton *event _U_, gpointer user_data _U_)
+{
+    edit_capture_dlg_launch();
+    return TRUE;
+}
+
 static void
 status_expert_new(void)
 {
@@ -605,6 +624,55 @@ status_expert_update(void)
 }
 
 static void
+status_capture_comment_new(void)
+{
+	GtkWidget *comment_image;
+
+	/* XXX Comment exist LED, change to use it's own stuff and other color? */
+    comment_image = pixbuf_to_widget(expert_chat_pb_data);
+    gtk_widget_set_tooltip_text(comment_image, "Capture comment present, click to read");
+    gtk_widget_show(comment_image);
+    capture_comment = gtk_event_box_new();
+    gtk_container_add(GTK_CONTAINER(capture_comment), comment_image);
+    g_signal_connect(capture_comment, "button_press_event", G_CALLBACK(edit_capture_comment_dlg_event_cb), NULL);
+
+	/* XXX No Comment exist LED, change to use it's own stuff and other color? */
+    comment_image = pixbuf_to_widget(expert_none_pb_data);
+    gtk_widget_set_tooltip_text(comment_image, "No capture comment, click to add");
+    gtk_widget_show(comment_image);
+    capture_comment_none = gtk_event_box_new();
+    gtk_container_add(GTK_CONTAINER(capture_comment_none), comment_image);
+    g_signal_connect(capture_comment_none, "button_press_event", G_CALLBACK(edit_capture_comment_dlg_event_cb), NULL);
+    gtk_widget_show(capture_comment_none);
+
+}
+
+static void
+status_capture_comment_hide(void)
+{
+    /* reset capture coment info indicator */
+    gtk_widget_hide(capture_comment);
+    gtk_widget_hide(capture_comment_none);
+}
+
+void
+status_capture_comment_update(void)
+{
+	const gchar *comment_str;
+
+    status_capture_comment_hide();
+
+	comment_str = cf_read_shb_comment(&cfile);
+
+	if(comment_str != NULL){
+		gtk_widget_show(capture_comment);
+	}else{
+		gtk_widget_show(capture_comment_none);
+	}
+
+}
+
+static void
 statusbar_set_filename(const char *file_name, gint64 file_length, nstime_t *file_elapsed_time)
 {
     gchar       *size_str;
@@ -672,6 +740,7 @@ statusbar_cf_file_read_finished_cb(capture_file *cf)
 {
     statusbar_pop_file_msg();
     statusbar_set_filename(cf->filename, cf->f_datalen, &(cf->elapsed_time));
+	status_capture_comment_update();
 }
 
 

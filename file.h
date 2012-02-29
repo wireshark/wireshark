@@ -580,6 +580,23 @@ cf_status_t
 cf_merge_files(char **out_filename, int in_file_count,
                char *const *in_filenames, int file_type, gboolean do_append);
 
+
+/**
+ * Get the comment on a capture from the SHB data block
+ *
+ * @param cf the capture file
+ */
+const gchar* cf_read_shb_comment(capture_file *cf);
+
+/**
+ * Update(replace) the comment on a capture from the SHB data block
+ *
+ * @param cf the capture file
+ * @param comment the string replacing the old comment
+ */
+void cf_update_capture_comment(capture_file *cf, gchar *comment);
+
+
 #if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
 void read_keytab_file(const char *);
 #endif

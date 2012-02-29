@@ -3650,6 +3650,37 @@ cf_unignore_frame(capture_file *cf, frame_data *frame)
   }
 }
 
+/*
+ * Read the comment in SHB block 
+ */
+
+const gchar* 
+cf_read_shb_comment(capture_file *cf)
+{
+  wtapng_section_t* shb_inf;
+  const gchar *temp_str;
+
+
+  /* Get info from SHB */
+  shb_inf = wtap_file_get_shb_info(cf->wth);
+  if(shb_inf == NULL)
+	  return NULL;
+  temp_str = shb_inf->opt_comment;
+  g_free(shb_inf);
+
+  return temp_str;
+
+}
+
+void
+cf_update_capture_comment(capture_file *cf, gchar *comment)
+{
+
+  /* Get info from SHB */
+  wtap_write_shb_comment(cf->wth, comment);
+
+}
+
 typedef struct {
   wtap_dumper *pdh;
   const char  *fname;

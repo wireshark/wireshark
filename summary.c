@@ -159,11 +159,18 @@ summary_fill_in(capture_file *cf, summary_tally *st)
   shb_inf = wtap_file_get_shb_info(cf->wth);
 
   shb_inf = wtap_file_get_shb_info(cf->wth);
-  st->opt_comment    = shb_inf->opt_comment;
-  st->shb_hardware   = shb_inf->shb_hardware;
-  st->shb_os         = shb_inf->shb_os;
-  st->shb_user_appl  = shb_inf->shb_user_appl;
-  g_free(shb_inf);
+  if(shb_inf == NULL){
+	  st->opt_comment    = NULL;
+	  st->shb_hardware   = NULL;
+	  st->shb_os         = NULL;
+	  st->shb_user_appl  = NULL;
+  }else{
+	  st->opt_comment    = shb_inf->opt_comment;
+	  st->shb_hardware   = shb_inf->shb_hardware;
+	  st->shb_os         = shb_inf->shb_os;
+	  st->shb_user_appl  = shb_inf->shb_user_appl;
+	  g_free(shb_inf);
+  }
 
   st->ifaces  = g_array_new(FALSE, FALSE, sizeof(iface_options));
 }
