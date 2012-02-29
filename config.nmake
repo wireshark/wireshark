@@ -224,8 +224,8 @@ EXPAT_DLL=libexpat-1.dll
 INTL_DLL=intl.dll
 # This macro is used by the setup target.
 #GTK_PKG=2.16.6-20100912
-GTK_PKG=2.22.1-20101227
-#GTK_PKG=2.24.10-20120208
+#GTK_PKG=2.22.1-20101227
+GTK_PKG=2.24.10-20120208
 
 #
 # Mandatory: Version numbers of GTK and pango.
@@ -234,8 +234,8 @@ GTK_PKG=2.22.1-20101227
 # These macros are used by the nsis installer script and by the setup target.
 #
 #GTK_INST_VERSION=2.16
-GTK_INST_VERSION=2.22
-#GTK_INST_VERSION=2.24
+#GTK_INST_VERSION=2.22
+GTK_INST_VERSION=2.24
 
 #
 # Optional: WinPcap developer's pack to capture network traffic.
