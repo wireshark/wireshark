@@ -73,8 +73,8 @@ typedef struct _io_stat_t {
 	gint64 interval;	  /* The user-specified time interval (us) */
     guint invl_prec;      /* Decimal precision of the time interval (1=10s, 2=100s etc) */
 	guint32 num_cols;     /* The number of columns of statistics in the table */
-	struct _io_stat_item_t 
-        *items;           /* Each item is a single cell in the table */   
+	struct _io_stat_item_t
+        *items;           /* Each item is a single cell in the table */
 	const char **filters; /* 'io,stat' cmd strings (e.g., "AVG(smb.time)smb.time") */
     guint64 *max_vals;    /* The max value sans the decimal or nsecs portion in each stat column */
     guint32 *max_frames;  /* The max number of frames in each stat column */
@@ -108,7 +108,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
     GPtrArray *gp;
 	guint i;
     int ftype;
-    
+
     mit = arg;
     parent = mit->parent;
 	relative_time = (gint64)(pinfo->fd->rel_ts.secs*1000000) + (pinfo->fd->rel_ts.nsecs+500)/1000;
@@ -123,7 +123,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 	}
 
 	/* If we have moved into a new interval (row), create a new io_stat_item_t struct for every interval
-    *  between the last struct and this one. If an item was not found in a previous interval, an empty 
+    *  between the last struct and this one. If an item was not found in a previous interval, an empty
     *  struct will be created for it. */
 	rt = relative_time;
 	while (rt >= it->time + parent->interval) {
@@ -185,7 +185,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 					it->counter += (gint64)fvalue_get_integer64(&((field_info *)gp->pdata[i])->value);
 					break;
 				case FT_FLOAT:
-					it->float_counter += 
+					it->float_counter +=
                         (gfloat)fvalue_get_floating(&((field_info *)gp->pdata[i])->value);
 					break;
 				case FT_DOUBLE:
@@ -238,7 +238,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 					val = fvalue_get_integer64(&((field_info *)gp->pdata[i])->value);
 					if (((it->frames==1) && (i==0)) || ((gint64)val < (gint64)(it->counter))) {
 						it->counter=val;
-					} 
+					}
 					break;
 				case FT_FLOAT:
 					float_val=(gfloat)fvalue_get_floating(&((field_info *)gp->pdata[i])->value);
@@ -250,7 +250,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 					double_val=fvalue_get_floating(&((field_info *)gp->pdata[i])->value);
 					if (((it->frames==1) && (i==0)) || (double_val < it->double_counter)) {
 						it->double_counter=double_val;
-					} 
+					}
 					break;
 				case FT_RELATIVE_TIME:
 					new_time=fvalue_get(&((field_info *)gp->pdata[i])->value);
@@ -283,7 +283,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 					break;
 				case FT_UINT64:
 					val = fvalue_get_integer64(&((field_info *)gp->pdata[i])->value);
-					if(val > it->counter) 
+					if(val > it->counter)
 						it->counter=val;
 					break;
 				case FT_INT8:
@@ -291,12 +291,12 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 				case FT_INT24:
 				case FT_INT32:
 					val = fvalue_get_sinteger(&((field_info *)gp->pdata[i])->value);
-					if((gint32)val > (gint32)it->counter) 
+					if((gint32)val > (gint32)it->counter)
 						it->counter=val;
 					break;
 				case FT_INT64:
 					val = fvalue_get_integer64(&((field_info *)gp->pdata[i])->value);
-					if ((gint64)val > (gint64)it->counter) 
+					if ((gint64)val > (gint64)it->counter)
 						it->counter=val;
 					break;
 				case FT_FLOAT:
@@ -323,7 +323,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 		gp=proto_get_finfo_ptr_array(edt->tree, it->hf_index);
 		if(gp){
 			guint64 val;
-		
+
 			ftype=proto_registrar_get_ftype(it->hf_index);
 			for(i=0;i<gp->len;i++){
 				it->num++;
@@ -396,21 +396,21 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 		}
 		break;
 	}
-  	/* Store the highest value for this item in order to determine the width of each stat column. 
+  	/* Store the highest value for this item in order to determine the width of each stat column.
     *  For real numbers we only need to know its magnitude (the value to the left of the decimal point
     *  so round it up before storing it as an integer in max_vals. For AVG of RELATIVE_TIME fields,
     *  calc the average, round it to the next second and store the seconds. For all other calc types
-    *  of RELATIVE_TIME fields, store the counters without modification. 
+    *  of RELATIVE_TIME fields, store the counters without modification.
     *  fields. */
     switch(it->calc_type) {
 	    case CALC_TYPE_FRAMES:
 	    case CALC_TYPE_FRAMES_AND_BYTES:
-            parent->max_frames[it->colnum] = 
+            parent->max_frames[it->colnum] =
                 MAX(parent->max_frames[it->colnum], (guint32) it->frames);
             if (it->calc_type==CALC_TYPE_FRAMES_AND_BYTES)
-                parent->max_vals[it->colnum] = 
+                parent->max_vals[it->colnum] =
                     MAX(parent->max_vals[it->colnum], it->counter);
-	    
+
         case CALC_TYPE_BYTES:
 	    case CALC_TYPE_COUNT:
 	    case CALC_TYPE_LOAD:
@@ -421,20 +421,20 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 	    case CALC_TYPE_MAX:
             switch(ftype) {
 			    case FT_FLOAT:
-				    parent->max_vals[it->colnum] = 
+				    parent->max_vals[it->colnum] =
                         MAX(parent->max_vals[it->colnum], (guint64)(it->float_counter+0.5));
 				    break;
 			    case FT_DOUBLE:
-				    parent->max_vals[it->colnum] = 
+				    parent->max_vals[it->colnum] =
                         MAX(parent->max_vals[it->colnum],(guint64)(it->double_counter+0.5));
 				    break;
 			    case FT_RELATIVE_TIME:
-                    parent->max_vals[it->colnum] = 
-                        MAX(parent->max_vals[it->colnum], it->counter); 
-				    break;			    
+                    parent->max_vals[it->colnum] =
+                        MAX(parent->max_vals[it->colnum], it->counter);
+				    break;
                 default:
                     /* UINT16-64 and INT8-64 */
-                    parent->max_vals[it->colnum] = 
+                    parent->max_vals[it->colnum] =
                         MAX(parent->max_vals[it->colnum], it->counter);
                     break;
 	        }
@@ -442,20 +442,20 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 	    case CALC_TYPE_AVG:
             switch(ftype) {
 			    case FT_FLOAT:
-				    parent->max_vals[it->colnum] = 
+				    parent->max_vals[it->colnum] =
                         MAX(parent->max_vals[it->colnum], (guint64)it->float_counter/it->num);
 				    break;
 			    case FT_DOUBLE:
-				    parent->max_vals[it->colnum] = 
+				    parent->max_vals[it->colnum] =
                         MAX(parent->max_vals[it->colnum],(guint64)it->double_counter/it->num);
 				    break;
 			    case FT_RELATIVE_TIME:
-                    parent->max_vals[it->colnum] = 
-                        MAX(parent->max_vals[it->colnum], ((it->counter/it->num) + 500000000) / NANOSECS_PER_SEC); 
+                    parent->max_vals[it->colnum] =
+                        MAX(parent->max_vals[it->colnum], ((it->counter/it->num) + 500000000) / NANOSECS_PER_SEC);
 				    break;
                 default:
                     /* UINT16-64 and INT8-64 */
-                    parent->max_vals[it->colnum] = 
+                    parent->max_vals[it->colnum] =
                         MAX(parent->max_vals[it->colnum], it->counter/it->num);
                     break;
 	        }
@@ -463,15 +463,15 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
     return TRUE;
 }
 
-static int 
+static int
 magnitude (guint64 val, int max_w)
 {
     int i, mag=0;
 
     for (i=0; i<max_w; i++) {
         mag++;
-        if ((val /= 10)==0) 
-            break;            
+        if ((val /= 10)==0)
+            break;
     }
     return(mag);
 }
@@ -484,11 +484,11 @@ printcenter (const char *label, int lenval, int numpad)
 
     len = (int)strlen(spaces) - (((lenval-lenlab) / 2) + numpad);
     if (len > 0 && len < 6)
-        spaces_s = &spaces[len];       
+        spaces_s = &spaces[len];
     if ((lenval-lenlab)%2==0) {
         printf("%s%s%s|", spaces_s, label, spaces_s);
     } else {
-        printf("%s%s%s|", spaces_s-1, label, spaces_s);             
+        printf("%s%s%s|", spaces_s-1, label, spaces_s);
     }
 }
 
@@ -503,18 +503,19 @@ iostat_draw(void *arg)
 	guint32 num;
     guint64 t, invl_end;
     gint64 interval, duration;
-	int i, j, k, num_cols, num_rows, div, dur_secs, dur_mag, invl_mag, invl_prec, tabrow_w,
-	    borderlen, invl_col_w, numpad=1, namelen, len_filt, type, maxfltr_w, ftype;
+    int i, j, k, num_cols, num_rows, div, dur_secs, dur_mag, invl_mag;
+    int invl_prec, tabrow_w, borderlen, invl_col_w, numpad=1, namelen;
+    int len_filt, type, maxfltr_w, ftype;
     int fr_mag;    /* The magnitude of the max frame number in this column */
     int val_mag;   /* The magnitude of the max value in this column */
     gboolean last_row=FALSE;
     char *spaces, *spaces_s, *filler_s=0, *val_mag_s=" ", *fr_mag_s=" ", **fmts, *fmt;
     const char *filter;
-    gchar *dur_mag_s=" ", *invl_mag_s=" ", *invl_prec_s=" ", *invl_fmt, *full_fmt;
-	io_stat_item_t *mit=arg;
-	io_stat_t *iot;
-	io_stat_item_t **stat_cols, *item;
-    column_width *col_w; 
+    gchar *dur_mag_s, *invl_mag_s, *invl_prec_s, *invl_fmt, *full_fmt;
+    io_stat_item_t *mit=arg;
+    io_stat_t *iot;
+    io_stat_item_t **stat_cols, *item;
+    column_width *col_w;
 
     iot = mit->parent;
     num_cols = iot->num_cols;
@@ -539,20 +540,20 @@ iostat_draw(void *arg)
     /* Calc the capture duration's magnitude (dur_mag) */
     dur_secs = (int)duration/1000000;
     dur_mag = magnitude((guint64)dur_secs, 5);
-    itoa(dur_mag, dur_mag_s, 10);
+    dur_mag_s = g_strdup_printf("%d", dur_mag);
 
- 
+
     /* Calc the interval's magnitude */
-    invl_mag = magnitude((guint64)interval/1000000, 5); 
+    invl_mag = magnitude((guint64)interval/1000000, 5);
 
     /* Set or get the interval precision */
     if (interval==duration) {
-        /* 
+        /*
         * An interval arg of 0 or an interval size exceeding the capture duration was specified.
         * Set the decimal precision of duration based on its magnitude. */
         if (dur_mag >= 2)
             invl_prec = 1;
-        else if (dur_mag==1) 
+        else if (dur_mag==1)
             invl_prec = 3;
         else
             invl_prec = 6;
@@ -568,7 +569,7 @@ iostat_draw(void *arg)
     for (i=0; i<invl_prec; i++)
         div /= 10;
     duration = duration + (5*(div/10));
-    if (iot->interval==G_MAXINT32) 
+    if (iot->interval==G_MAXINT32)
         interval = duration;
 
     /* Recalc the dur_mag in case rounding has increased its magnitude */
@@ -576,7 +577,7 @@ iostat_draw(void *arg)
     dur_mag = magnitude((guint64)dur_secs, 5);
 
     /* Calc the width of the time interval column (incl borders and padding). */
-    if (invl_prec==0) 
+    if (invl_prec==0)
         invl_col_w = (2*dur_mag) + 8;
     else
         invl_col_w = (2*dur_mag) + (2*invl_prec) + 10;
@@ -602,18 +603,18 @@ iostat_draw(void *arg)
             fr_mag = MAX(6, fr_mag);
             col_w[j].fr = fr_mag;
             tabrow_w += col_w[j].fr + 3;
-            itoa(fr_mag, fr_mag_s, 10);
+	    fr_mag_s = g_strdup_printf("%d", fr_mag);
 
             if (type==CALC_TYPE_FRAMES) {
-                fmt = g_strconcat(" %", fr_mag_s, "u |", NULL);                    
-            } else { 
-                /* CALC_TYPE_FRAMES_AND_BYTES 
+                fmt = g_strconcat(" %", fr_mag_s, "u |", NULL);
+            } else {
+                /* CALC_TYPE_FRAMES_AND_BYTES
                 */
                 val_mag = magnitude(iot->max_vals[j], 15);
                 val_mag = MAX(5, val_mag);
                 col_w[j].val = val_mag;
                 tabrow_w += (col_w[j].val + 3);
-                itoa(val_mag, val_mag_s, 10);
+		val_mag_s = g_strdup_printf("%d", val_mag);
                 fmt = g_strconcat(" %", fr_mag_s, "u |", " %", val_mag_s, G_GINT64_MODIFIER, "u |", NULL);
             }
             fmts[j] = fmt;
@@ -626,22 +627,22 @@ iostat_draw(void *arg)
             val_mag = magnitude(iot->max_vals[j], 15);
             val_mag = MAX(5, val_mag);
             col_w[j].val = val_mag;
-            itoa(val_mag, val_mag_s, 10);
+	    val_mag_s = g_strdup_printf("%d", val_mag);
             fmt = g_strconcat(" %", val_mag_s, G_GINT64_MODIFIER, "u |", NULL);
             break;
-            
+
         default:
             ftype = proto_registrar_get_ftype(stat_cols[j]->hf_index);
-            switch (ftype) {    
+            switch (ftype) {
                 case FT_FLOAT:
                 case FT_DOUBLE:
                     val_mag = magnitude(iot->max_vals[j], 15);
-                    itoa(val_mag, val_mag_s, 10);
+		    val_mag_s = g_strdup_printf("%d", val_mag);
                     fmt = g_strconcat(" %", val_mag_s, ".6f |", NULL);
                     col_w[j].val = val_mag + 7;
                     break;
                 case FT_RELATIVE_TIME:
-                    /* Convert FT_RELATIVE_TIME field to seconds 
+                    /* Convert FT_RELATIVE_TIME field to seconds
                     *  CALC_TYPE_LOAD was already converted in iostat_packet() ) */
                     if (type==CALC_TYPE_LOAD) {
                         iot->max_vals[j] /= interval;
@@ -649,17 +650,17 @@ iostat_draw(void *arg)
                         iot->max_vals[j] = (iot->max_vals[j] + 500000000) / NANOSECS_PER_SEC;
                     }
                     val_mag = magnitude(iot->max_vals[j], 15);
-                    itoa(val_mag, val_mag_s, 10);
+		    val_mag_s = g_strdup_printf("%d", val_mag);
                     fmt = g_strconcat(" %", val_mag_s, "u.%06u |", NULL);
                     col_w[j].val = val_mag + 7;
-                   break;	
-                
+                   break;
+
                 default:
                     val_mag = magnitude(iot->max_vals[j], 15);
                     val_mag = MAX(namelen, val_mag);
                     col_w[j].val = val_mag;
-                    itoa(val_mag, val_mag_s, 10);
-                    
+		    val_mag_s = g_strdup_printf("%d", val_mag);
+
                     switch (ftype) {
                     case FT_UINT8:
                     case FT_UINT16:
@@ -667,7 +668,7 @@ iostat_draw(void *arg)
 		            case FT_UINT32:
 		            case FT_UINT64:
                         fmt = g_strconcat(" %", val_mag_s, G_GINT64_MODIFIER, "u |", NULL);
-                        break;            
+                        break;
                     case FT_INT8:
 		            case FT_INT16:
 		            case FT_INT24:
@@ -682,7 +683,7 @@ iostat_draw(void *arg)
         fmts[j] = fmt;
     } /* End of for loop (columns) */
 
-    borderlen = MAX(borderlen, tabrow_w); 
+    borderlen = MAX(borderlen, tabrow_w);
 
     /* Calc the max width of the list of filters. */
     maxfltr_w = 0;
@@ -697,7 +698,7 @@ iostat_draw(void *arg)
     /* The stat table is not wrapped (by tshark) but filter is wrapped at the width of the stats table
     *  (which currently = borderlen); however, if the filter width exceeds the table width and the
     *  table width is less than 102 bytes, set borderlen to the lesser of the max filter width and 102.
-    *  The filters will wrap at the lesser of borderlen-2 and the last space in the filter. 
+    *  The filters will wrap at the lesser of borderlen-2 and the last space in the filter.
     *  NOTE: 102 is the typical size of a user window when the font is fixed width (e.g., COURIER 10).
     *  XXX: A pref could be added to change the max width from the default size of 102. */
     if (maxfltr_w > borderlen && borderlen < 102)
@@ -705,28 +706,28 @@ iostat_draw(void *arg)
 
     /* Prevent double right border by adding a space */
     if (borderlen-tabrow_w==1)
-        borderlen++; 
+        borderlen++;
 
     /* Display the top border */
     printf("\n");
     for (i=0; i<borderlen; i++)
 	    printf("=");
-    
+
     spaces = (char*) g_malloc(borderlen+1);
-    for (i=0; i<borderlen; i++) 
+    for (i=0; i<borderlen; i++)
         spaces[i] = ' ';
     spaces[borderlen] = '\0';
-    
+
     spaces_s = &spaces[16];
     printf("\n| IO Statistics%s|\n", spaces_s);
     spaces_s = &spaces[2];
     printf("|%s|\n", spaces_s);
-   
-    itoa(invl_mag, invl_mag_s, 10);
-    itoa(invl_prec, invl_prec_s, 10);
+
+    invl_mag_s = g_strdup_printf("%d", invl_mag);
+    invl_prec_s = g_strdup_printf("%d", invl_prec);
     if (invl_prec > 0) {
-        itoa(invl_prec, invl_prec_s, 10);
-        invl_fmt = g_strconcat("%", invl_mag_s, "u.%0", invl_prec_s, "u", NULL);            
+        invl_prec_s = g_strdup_printf("%d", invl_prec);
+        invl_fmt = g_strconcat("%", invl_mag_s, "u.%0", invl_prec_s, "u", NULL);
         if (interval==duration) {
             full_fmt = g_strconcat("| Interval size: ", invl_fmt, " secs (dur)%s", NULL);
             spaces_s = &spaces[30+invl_mag+invl_prec];
@@ -742,27 +743,30 @@ iostat_draw(void *arg)
         spaces_s = &spaces[23 + invl_mag];
         printf(full_fmt, (guint32)interval/1000000, spaces_s);
     }
+    g_free(invl_mag_s);
     g_free(invl_fmt);
     g_free(full_fmt);
 
-    if (invl_prec > 0) 
+    if (invl_prec > 0)
         invl_fmt = g_strconcat("%", dur_mag_s, "u.%0", invl_prec_s, "u", NULL);
-    else 
+    else
         invl_fmt = g_strconcat("%", dur_mag_s, "u", NULL);
-    
+    g_free(invl_prec_s);
+    g_free(dur_mag_s);
+
     /* Display the list of filters and their column numbers vertically */
     printf("|\n| Col");
     for(j=0; j<num_cols; j++){
         printf((j==0 ? "%2u: %s" : "|    %2u: %s"), j+1);
-        if (!iot->filters[j] || (iot->filters[j]==0)) { 
-            /* 
+        if (!iot->filters[j] || (iot->filters[j]==0)) {
+            /*
             * An empty (no filter) comma field was specified */
             spaces_s = &spaces[16 + 10];
             printf("Frames and bytes%s|\n", spaces_s);
         } else {
             filter = iot->filters[j];
             len_filt = (int)strlen(filter);
-            
+
             /* If the width of the widest filter exceeds the width of the stat table, borderlen has
             *  been set to 102 bytes above and filters wider than 102 will wrap at 91 bytes. */
             if (len_filt+11 <= borderlen) {
@@ -776,11 +780,11 @@ iostat_draw(void *arg)
                 gchar *sfilter1, *sfilter2;
                 const char *pos;
                 int len, next_start, max_w=borderlen-11;
-                
+
                 do {
                     if (len_filt > max_w) {
                         sfilter1 = g_strndup(filter, max_w);
-                        /* 
+                        /*
                         * Find the pos of the last space in sfilter1. If a space is found, set
                         * sfilter2 to the string prior to that space, and print it; otherwise, wrap
                         * the filter at max_w. */
@@ -804,7 +808,7 @@ iostat_draw(void *arg)
                         printf("%s%s|\n", filter, &spaces[(strlen(filter))+10]);
                         break;
                     }
-                } while (1); 
+                } while (1);
             }
         }
 	}
@@ -823,11 +827,11 @@ iostat_draw(void *arg)
 	for(j=0; j<num_cols; j++) {
         item = stat_cols[j];
 		if(item->calc_type==CALC_TYPE_FRAMES_AND_BYTES)
-            spaces_s = &spaces[borderlen - (col_w[j].fr + col_w[j].val)] - 3; 
+            spaces_s = &spaces[borderlen - (col_w[j].fr + col_w[j].val)] - 3;
         else if (item->calc_type==CALC_TYPE_FRAMES)
-            spaces_s = &spaces[borderlen - col_w[j].fr]; 
+            spaces_s = &spaces[borderlen - col_w[j].fr];
         else
-            spaces_s = &spaces[borderlen - col_w[j].val]; 
+            spaces_s = &spaces[borderlen - col_w[j].val];
 
         printf("%-2u%s|", j+1, spaces_s);
 	}
@@ -835,7 +839,7 @@ iostat_draw(void *arg)
         filler_s = &spaces[tabrow_w+1];
         printf("%s|", filler_s);
     }
-    
+
 	printf("\n| Interval");
     spaces_s = &spaces[borderlen-(invl_col_w-11)];
     printf("%s|", spaces_s);
@@ -896,8 +900,8 @@ iostat_draw(void *arg)
             /*
             * Point to the list for this stat (column). */
             item = stat_cols[j];
-            /* 
-            * Point to the item in the current row (time interval i) within this list. */            
+            /*
+            * Point to the item in the current row (time interval i) within this list. */
             for (k=0; k<i; k++)
                 if (item && item->next)
                     item = item->next;
@@ -968,8 +972,8 @@ iostat_draw(void *arg)
 				        case FT_RELATIVE_TIME:
                             if (!last_row) {
                                 printf(fmt,
-                                    (int) (item->counter/interval), 
-                                    (int)((item->counter%interval)*1000000 / interval));                        
+                                    (int) (item->counter/interval),
+                                    (int)((item->counter%interval)*1000000 / interval));
                             } else {
                                 printf(fmt,
                                     (int) (item->counter/(invl_end-t)),
@@ -990,7 +994,7 @@ iostat_draw(void *arg)
             printf("%s|", filler_s);
         printf("\n");
         t += interval;
-       
+
     }
 	for(i=0;i<borderlen;i++){
 		printf("=");
@@ -1037,14 +1041,14 @@ register_io_tap(io_stat_t *io, int i, const char *filter)
 				p=filter+namelen+1;
 				parenp=strchr(p, ')');
 				if(!parenp){
-					fprintf(stderr, 
+					fprintf(stderr,
                         "\ntshark: Closing parenthesis missing from calculated expression.\n");
 					exit(10);
 				}
 
 				if(io->items[i].calc_type==CALC_TYPE_FRAMES || io->items[i].calc_type==CALC_TYPE_BYTES){
 					if(parenp!=p) {
-						fprintf(stderr, 
+						fprintf(stderr,
                             "\ntshark: %s does not require or allow a field name within the parens.\n",
 							calc_type_table[j].func_name);
 						exit(10);
@@ -1176,7 +1180,7 @@ iostat_init(const char *optarg, void* userdata _U_)
 		fprintf(stderr, "\ntshark: invalid \"-z io,stat,<interval>[,<filter>]\" argument\n");
 		exit(1);
 	}
-	
+
     io = g_malloc(sizeof(io_stat_t));
 
 	/* If interval is 0, calculate statistics over the whole file by setting the interval to
@@ -1190,7 +1194,7 @@ iostat_init(const char *optarg, void* userdata _U_)
         /*
         * Determine what interval precision the user has specified */
         io->invl_prec = 6;
-        for (i=10; i<10000000; i*=10) { 
+        for (i=10; i<10000000; i*=10) {
             if (io->interval%i > 0)
                 break;
             io->invl_prec--;
@@ -1226,7 +1230,7 @@ iostat_init(const char *optarg, void* userdata _U_)
     for (i=0; i<io->num_cols; i++) {
         io->max_vals[i] = 0;
         io->max_frames[i] = 0;
-    } 
+    }
 
     /* Register a tap listener for each filter */
     if((!filters) || (filters[0]==0)) {
