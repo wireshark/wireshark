@@ -215,13 +215,13 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 				case FT_UINT24:
 				case FT_UINT32:
 					val = fvalue_get_uinteger(&((field_info *)gp->pdata[i])->value);
-					if ((it->frames==1 && i==0) || (val < it->counter)) {
+					if (((it->frames==1) && (i==0)) || (val < it->counter)) {
 						it->counter=val;
 					}
 					break;
 				case FT_UINT64:
 					val = fvalue_get_integer64(&((field_info *)gp->pdata[i])->value);
-					if((it->frames==1)&&(i==0) || (val < it->counter)){
+					if (((it->frames==1) && (i==0)) || (val < it->counter)){
 						it->counter=val;
 					}
 					break;
@@ -230,32 +230,32 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 				case FT_INT24:
 				case FT_INT32:
 					val = fvalue_get_sinteger(&((field_info *)gp->pdata[i])->value);
-					if((it->frames==1)&&(i==0) || ((gint32)val < (gint32)(it->counter))) {
+					if (((it->frames==1) && (i==0)) || ((gint32)val < (gint32)(it->counter))) {
 						it->counter=val;
 					}
 					break;
 				case FT_INT64:
 					val = fvalue_get_integer64(&((field_info *)gp->pdata[i])->value);
-					if((it->frames==1)&&(i==0) || ((gint64)val < (gint64)(it->counter))) {
+					if (((it->frames==1) && (i==0)) || ((gint64)val < (gint64)(it->counter))) {
 						it->counter=val;
 					} 
 					break;
 				case FT_FLOAT:
 					float_val=(gfloat)fvalue_get_floating(&((field_info *)gp->pdata[i])->value);
-					if((it->frames==1)&&(i==0) || (float_val < it->float_counter)) {
+					if (((it->frames==1) && (i==0)) || (float_val < it->float_counter)) {
 						it->float_counter=float_val;
 					}
 					break;
 				case FT_DOUBLE:
 					double_val=fvalue_get_floating(&((field_info *)gp->pdata[i])->value);
-					if((it->frames==1)&&(i==0) || (double_val < it->double_counter)) {
+					if (((it->frames==1) && (i==0)) || (double_val < it->double_counter)) {
 						it->double_counter=double_val;
 					} 
 					break;
 				case FT_RELATIVE_TIME:
 					new_time=fvalue_get(&((field_info *)gp->pdata[i])->value);
 					val = (guint64)(new_time->secs) * NANOSECS_PER_SEC + new_time->nsecs;
-					if((it->frames==1)&&(i==0) || (val < it->counter)) {
+					if (((it->frames==1) && (i==0)) || (val < it->counter)) {
 						it->counter=val;
 					}
 					break;
@@ -406,15 +406,15 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 	    case CALC_TYPE_FRAMES:
 	    case CALC_TYPE_FRAMES_AND_BYTES:
             parent->max_frames[it->colnum] = 
-                max(parent->max_frames[it->colnum], (guint32) it->frames);
+                MAX(parent->max_frames[it->colnum], (guint32) it->frames);
             if (it->calc_type==CALC_TYPE_FRAMES_AND_BYTES)
                 parent->max_vals[it->colnum] = 
-                    max(parent->max_vals[it->colnum], it->counter);
+                    MAX(parent->max_vals[it->colnum], it->counter);
 	    
         case CALC_TYPE_BYTES:
 	    case CALC_TYPE_COUNT:
 	    case CALC_TYPE_LOAD:
-            parent->max_vals[it->colnum] = max(parent->max_vals[it->colnum], it->counter);
+            parent->max_vals[it->colnum] = MAX(parent->max_vals[it->colnum], it->counter);
             break;
 	    case CALC_TYPE_SUM:
 	    case CALC_TYPE_MIN:
@@ -422,20 +422,20 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
             switch(ftype) {
 			    case FT_FLOAT:
 				    parent->max_vals[it->colnum] = 
-                        max(parent->max_vals[it->colnum], (guint64)(it->float_counter+0.5));
+                        MAX(parent->max_vals[it->colnum], (guint64)(it->float_counter+0.5));
 				    break;
 			    case FT_DOUBLE:
 				    parent->max_vals[it->colnum] = 
-                        max(parent->max_vals[it->colnum],(guint64)(it->double_counter+0.5));
+                        MAX(parent->max_vals[it->colnum],(guint64)(it->double_counter+0.5));
 				    break;
 			    case FT_RELATIVE_TIME:
                     parent->max_vals[it->colnum] = 
-                        max(parent->max_vals[it->colnum], it->counter); 
+                        MAX(parent->max_vals[it->colnum], it->counter); 
 				    break;			    
                 default:
                     /* UINT16-64 and INT8-64 */
                     parent->max_vals[it->colnum] = 
-                        max(parent->max_vals[it->colnum], it->counter);
+                        MAX(parent->max_vals[it->colnum], it->counter);
                     break;
 	        }
             break;
@@ -443,20 +443,20 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
             switch(ftype) {
 			    case FT_FLOAT:
 				    parent->max_vals[it->colnum] = 
-                        max(parent->max_vals[it->colnum], (guint64)it->float_counter/it->num);
+                        MAX(parent->max_vals[it->colnum], (guint64)it->float_counter/it->num);
 				    break;
 			    case FT_DOUBLE:
 				    parent->max_vals[it->colnum] = 
-                        max(parent->max_vals[it->colnum],(guint64)it->double_counter/it->num);
+                        MAX(parent->max_vals[it->colnum],(guint64)it->double_counter/it->num);
 				    break;
 			    case FT_RELATIVE_TIME:
                     parent->max_vals[it->colnum] = 
-                        max(parent->max_vals[it->colnum], ((it->counter/it->num) + 500000000) / NANOSECS_PER_SEC); 
+                        MAX(parent->max_vals[it->colnum], ((it->counter/it->num) + 500000000) / NANOSECS_PER_SEC); 
 				    break;
                 default:
                     /* UINT16-64 and INT8-64 */
                     parent->max_vals[it->colnum] = 
-                        max(parent->max_vals[it->colnum], it->counter/it->num);
+                        MAX(parent->max_vals[it->colnum], it->counter/it->num);
                     break;
 	        }
     }
@@ -540,6 +540,7 @@ iostat_draw(void *arg)
     dur_secs = (int)duration/1000000;
     dur_mag = magnitude((guint64)dur_secs, 5);
     itoa(dur_mag, dur_mag_s, 10);
+
  
     /* Calc the interval's magnitude */
     invl_mag = magnitude((guint64)interval/1000000, 5); 
@@ -579,8 +580,8 @@ iostat_draw(void *arg)
         invl_col_w = (2*dur_mag) + 8;
     else
         invl_col_w = (2*dur_mag) + (2*invl_prec) + 10;
-    invl_col_w = max(invl_col_w, 12);
-    borderlen = max(borderlen, invl_col_w);
+    invl_col_w = MAX(invl_col_w, 12);
+    borderlen = MAX(borderlen, invl_col_w);
 
     /* Calc the total width of each row in the stats table and build the printf format string for each
     *  column based on its field type, width, and name length.
@@ -598,22 +599,22 @@ iostat_draw(void *arg)
 	    || type==CALC_TYPE_FRAMES_AND_BYTES) {
 
             fr_mag = magnitude(iot->max_frames[j], 15);
-            fr_mag = max(6, fr_mag);
+            fr_mag = MAX(6, fr_mag);
             col_w[j].fr = fr_mag;
             tabrow_w += col_w[j].fr + 3;
             itoa(fr_mag, fr_mag_s, 10);
 
             if (type==CALC_TYPE_FRAMES) {
-                fmt = g_strconcat(" %", fr_mag_s, "u |", '\0');                    
+                fmt = g_strconcat(" %", fr_mag_s, "u |", NULL);                    
             } else { 
                 /* CALC_TYPE_FRAMES_AND_BYTES 
                 */
                 val_mag = magnitude(iot->max_vals[j], 15);
-                val_mag = max(5, val_mag);
+                val_mag = MAX(5, val_mag);
                 col_w[j].val = val_mag;
                 tabrow_w += (col_w[j].val + 3);
                 itoa(val_mag, val_mag_s, 10);
-                fmt = g_strconcat(" %", fr_mag_s, "u |", " %", val_mag_s, G_GINT64_MODIFIER, "u |", '\0');
+                fmt = g_strconcat(" %", fr_mag_s, "u |", " %", val_mag_s, G_GINT64_MODIFIER, "u |", NULL);
             }
             fmts[j] = fmt;
             continue;
@@ -623,10 +624,10 @@ iostat_draw(void *arg)
         case CALC_TYPE_COUNT:
 
             val_mag = magnitude(iot->max_vals[j], 15);
-            val_mag = max(5, val_mag);
+            val_mag = MAX(5, val_mag);
             col_w[j].val = val_mag;
             itoa(val_mag, val_mag_s, 10);
-            fmt = g_strconcat(" %", val_mag_s, G_GINT64_MODIFIER, "u |", '\0');
+            fmt = g_strconcat(" %", val_mag_s, G_GINT64_MODIFIER, "u |", NULL);
             break;
             
         default:
@@ -636,7 +637,7 @@ iostat_draw(void *arg)
                 case FT_DOUBLE:
                     val_mag = magnitude(iot->max_vals[j], 15);
                     itoa(val_mag, val_mag_s, 10);
-                    fmt = g_strconcat(" %", val_mag_s, ".6f |", '\0');
+                    fmt = g_strconcat(" %", val_mag_s, ".6f |", NULL);
                     col_w[j].val = val_mag + 7;
                     break;
                 case FT_RELATIVE_TIME:
@@ -649,13 +650,13 @@ iostat_draw(void *arg)
                     }
                     val_mag = magnitude(iot->max_vals[j], 15);
                     itoa(val_mag, val_mag_s, 10);
-                    fmt = g_strconcat(" %", val_mag_s, "u.%06u |", '\0');
+                    fmt = g_strconcat(" %", val_mag_s, "u.%06u |", NULL);
                     col_w[j].val = val_mag + 7;
                    break;	
                 
                 default:
                     val_mag = magnitude(iot->max_vals[j], 15);
-                    val_mag = max(namelen, val_mag);
+                    val_mag = MAX(namelen, val_mag);
                     col_w[j].val = val_mag;
                     itoa(val_mag, val_mag_s, 10);
                     
@@ -665,14 +666,14 @@ iostat_draw(void *arg)
 		            case FT_UINT24:
 		            case FT_UINT32:
 		            case FT_UINT64:
-                        fmt = g_strconcat(" %", val_mag_s, G_GINT64_MODIFIER, "u |", '\0');
+                        fmt = g_strconcat(" %", val_mag_s, G_GINT64_MODIFIER, "u |", NULL);
                         break;            
                     case FT_INT8:
 		            case FT_INT16:
 		            case FT_INT24:
 		            case FT_INT32:
 		            case FT_INT64:
-                        fmt = g_strconcat(" %", val_mag_s, G_GINT64_MODIFIER, "d |", '\0');
+                        fmt = g_strconcat(" %", val_mag_s, G_GINT64_MODIFIER, "d |", NULL);
                         break;
                     }
             } /* End of ftype switch */
@@ -681,16 +682,16 @@ iostat_draw(void *arg)
         fmts[j] = fmt;
     } /* End of for loop (columns) */
 
-    borderlen = max(borderlen, tabrow_w); 
+    borderlen = MAX(borderlen, tabrow_w); 
 
     /* Calc the max width of the list of filters. */
     maxfltr_w = 0;
     for(j=0; j<num_cols; j++) {
         if (iot->filters[j]) {
             k = (int)strlen(iot->filters[j]) + 11;
-            maxfltr_w = max(maxfltr_w, k);
+            maxfltr_w = MAX(maxfltr_w, k);
         } else {
-            maxfltr_w = max(maxfltr_w, 26);
+            maxfltr_w = MAX(maxfltr_w, 26);
         }
     }
     /* The stat table is not wrapped (by tshark) but filter is wrapped at the width of the stats table
@@ -700,7 +701,7 @@ iostat_draw(void *arg)
     *  NOTE: 102 is the typical size of a user window when the font is fixed width (e.g., COURIER 10).
     *  XXX: A pref could be added to change the max width from the default size of 102. */
     if (maxfltr_w > borderlen && borderlen < 102)
-            borderlen = min(maxfltr_w, 102);
+            borderlen = MIN(maxfltr_w, 102);
 
     /* Prevent double right border by adding a space */
     if (borderlen-tabrow_w==1)
@@ -725,19 +726,19 @@ iostat_draw(void *arg)
     itoa(invl_prec, invl_prec_s, 10);
     if (invl_prec > 0) {
         itoa(invl_prec, invl_prec_s, 10);
-        invl_fmt = g_strconcat("%", invl_mag_s, "u.%0", invl_prec_s, "u", '\0');            
+        invl_fmt = g_strconcat("%", invl_mag_s, "u.%0", invl_prec_s, "u", NULL);            
         if (interval==duration) {
-            full_fmt = g_strconcat("| Interval size: ", invl_fmt, " secs (dur)%s", '\0');
+            full_fmt = g_strconcat("| Interval size: ", invl_fmt, " secs (dur)%s", NULL);
             spaces_s = &spaces[30+invl_mag+invl_prec];
         } else {
-            full_fmt = g_strconcat("| Interval size: ", invl_fmt, " secs%s", '\0');
+            full_fmt = g_strconcat("| Interval size: ", invl_fmt, " secs%s", NULL);
             spaces_s = &spaces[24+invl_mag+invl_prec];
         }
         printf(full_fmt, (guint32)interval/1000000,
                             (guint32)((interval%1000000)/div), spaces_s);
     } else {
-        invl_fmt = g_strconcat("%", invl_mag_s, "u", '\0');
-        full_fmt = g_strconcat("| Interval size: ", invl_fmt, " secs%s", '\0');
+        invl_fmt = g_strconcat("%", invl_mag_s, "u", NULL);
+        full_fmt = g_strconcat("| Interval size: ", invl_fmt, " secs%s", NULL);
         spaces_s = &spaces[23 + invl_mag];
         printf(full_fmt, (guint32)interval/1000000, spaces_s);
     }
@@ -745,9 +746,9 @@ iostat_draw(void *arg)
     g_free(full_fmt);
 
     if (invl_prec > 0) 
-        invl_fmt = g_strconcat("%", dur_mag_s, "u.%0", invl_prec_s, "u", '\0');
+        invl_fmt = g_strconcat("%", dur_mag_s, "u.%0", invl_prec_s, "u", NULL);
     else 
-        invl_fmt = g_strconcat("%", dur_mag_s, "u", '\0');
+        invl_fmt = g_strconcat("%", dur_mag_s, "u", NULL);
     
     /* Display the list of filters and their column numbers vertically */
     printf("|\n| Col");
@@ -864,7 +865,7 @@ iostat_draw(void *arg)
 
 	printf("\n");
 	t=0;
-    full_fmt = g_strconcat("| ", invl_fmt, " <> ", invl_fmt, " |", '\0');
+    full_fmt = g_strconcat("| ", invl_fmt, " <> ", invl_fmt, " |", NULL);
     num_rows = (int)(duration/interval) + (((duration%interval+500000)/1000000) > 0 ? 1 : 0);
 
     /* Display the table values.
