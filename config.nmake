@@ -104,7 +104,7 @@ PROCESSOR_ARCHITECTURE=amd64
 
 # "Microsoft Visual Studio 2010"
 # Visual C++ 10.0, _MSC_VER 1600, msvcr100.dll
-MSVC_VARIANT=MSVC2010
+#MSVC_VARIANT=MSVC2010
 
 # "Microsoft Visual C++ 2010 Express Edition"
 # Visual C++ 10.0, _MSC_VER 1600, msvcr100.dll
