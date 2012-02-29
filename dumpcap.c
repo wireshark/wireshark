@@ -1992,6 +1992,7 @@ cap_pipe_open_live(char *pipename,
         pcap_opts->cap_pipe_byte_swapped = TRUE;
         pcap_opts->cap_pipe_modified = TRUE;
         break;
+    /* XXX - Add support for PCAP_NSEC_MAGIC and PCAP_SWAPPED_NSEC_MAGIC */
     default:
         /* Not a "libpcap" type we know about. */
         g_snprintf(errmsg, errmsgl, "Unrecognized libpcap format");
@@ -2625,13 +2626,13 @@ capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *err
             get_os_version_info(os_info_str);
 
             g_snprintf(appname, sizeof(appname), "Dumpcap " VERSION "%s", wireshark_svnversion);
-            successful = libpcap_write_session_header_block(ld->pdh, 
+            successful = libpcap_write_session_header_block(ld->pdh,
                                 NULL,                        /* Comment*/
                                 NULL,                        /* HW*/
                                 os_info_str->str,            /* OS*/
                                 appname,
                                 -1,                          /* section_length */
-                                &ld->bytes_written, 
+                                &ld->bytes_written,
                                 &err);
 
             for (i = 0; successful && (i < capture_opts->ifaces->len); i++) {
@@ -3088,13 +3089,13 @@ do_file_switch_or_stop(capture_options *capture_opts,
                 get_os_version_info(os_info_str);
 
                 g_snprintf(appname, sizeof(appname), "Dumpcap " VERSION "%s", wireshark_svnversion);
-                successful = libpcap_write_session_header_block(global_ld.pdh, 
+                successful = libpcap_write_session_header_block(global_ld.pdh,
                                 NULL,                        /* Comment */
                                 NULL,                        /* HW */
                                 os_info_str->str,            /* OS */
                                 appname,
 								-1,                          /* section_length */
-                                &(global_ld.bytes_written), 
+                                &(global_ld.bytes_written),
                                 &global_ld.err);
 
                 for (i = 0; successful && (i < capture_opts->ifaces->len); i++) {
