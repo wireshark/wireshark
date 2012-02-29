@@ -104,7 +104,7 @@ PROCESSOR_ARCHITECTURE=amd64
 
 # "Microsoft Visual Studio 2010"
 # Visual C++ 10.0, _MSC_VER 1600, msvcr100.dll
-#MSVC_VARIANT=MSVC2010
+MSVC_VARIANT=MSVC2010
 
 # "Microsoft Visual C++ 2010 Express Edition"
 # Visual C++ 10.0, _MSC_VER 1600, msvcr100.dll
@@ -225,6 +225,7 @@ INTL_DLL=intl.dll
 # This macro is used by the setup target.
 #GTK_PKG=2.16.6-20100912
 GTK_PKG=2.22.1-20101227
+#GTK_PKG=2.24.10-20120208
 
 #
 # Mandatory: Version numbers of GTK and pango.
@@ -234,6 +235,7 @@ GTK_PKG=2.22.1-20101227
 #
 #GTK_INST_VERSION=2.16
 GTK_INST_VERSION=2.22
+#GTK_INST_VERSION=2.24
 
 #
 # Optional: WinPcap developer's pack to capture network traffic.
