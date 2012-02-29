@@ -676,8 +676,8 @@ static struct iftype_info iftype[] = {
 static void
 iftype_combo_box_add_remote_separators (GtkWidget *iftype_cbx)
 {
-  gtk_combo_box_text_append_text(GTK_COMBO_BOX(iftype_cbx), REMOTE_HOST_SEPARATOR);
-  gtk_combo_box_text_append_text(GTK_COMBO_BOX(iftype_cbx), "Clear list");
+  gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(iftype_cbx), REMOTE_HOST_SEPARATOR);
+  gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(iftype_cbx), "Clear list");
 }
 
 static void
@@ -696,7 +696,7 @@ iftype_combo_box_add (GtkWidget *iftype_cbx, interface_t *device)
     if (g_hash_table_size (remote_host_list) == 0) {
       iftype_combo_box_add_remote_separators (iftype_cbx);
     }
-    gtk_combo_box_text_insert_text(GTK_COMBO_BOX(iftype_cbx), pos, device->remote_opts.remote_host_opts.remote_host);
+    gtk_combo_box_text_insert_text(GTK_COMBO_BOX_TEXT(iftype_cbx), pos, device->remote_opts.remote_host_opts.remote_host);
     rh->remote_host = g_strdup (device->remote_opts.remote_host_opts.remote_host);
     create_new = TRUE;
   } else {
@@ -741,7 +741,7 @@ iftype_combo_box_add (GtkWidget *iftype_cbx, interface_t *device)
 static void
 iftype_combo_box_add_remote_host (gpointer key, gpointer value _U_, gpointer user_data)
 {
-  gtk_combo_box_text_insert_text(GTK_COMBO_BOX(user_data), REMOTE_HOST_START, key);
+  gtk_combo_box_text_insert_text(GTK_COMBO_BOX_TEXT(user_data), REMOTE_HOST_START, key);
 
 /*  if (g_array_index(global_capture_opts.ifaces, interface_options, 0).src_type == CAPTURE_IFREMOTE) {*/
     /* Ensure we select the correct entry */
@@ -1075,7 +1075,7 @@ capture_remote_ok_cb(GtkWidget *win _U_, GtkWidget *remote_w)
   }
 
   host_te = (GtkWidget *)g_object_get_data(G_OBJECT(remote_w), E_REMOTE_HOST_TE_KEY);
-  hostname = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX(host_te));
+  hostname = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(host_te));
   port_te = (GtkWidget *)g_object_get_data(G_OBJECT(remote_w), E_REMOTE_PORT_TE_KEY);
   auth_pwd_rb = (GtkWidget *)g_object_get_data(G_OBJECT(remote_w),
                                                E_REMOTE_AUTH_PASSWD_KEY);
@@ -1139,13 +1139,13 @@ select_if_type_cb(GtkComboBox *iftype_cbx, gpointer data _U_)
     g_hash_table_foreach_remove (remote_host_list, free_remote_host, NULL);
 	num_remote += 2;
 	while (num_remote--) { /* Remove separator lines and "Clear" item */
-	  gtk_combo_box_text_remove (iftype_cbx, num_remote);
+	  gtk_combo_box_text_remove (GTK_COMBO_BOX_TEXT(iftype_cbx), num_remote);
 	}
     remote_w = g_object_get_data(G_OBJECT(new_interfaces_w), E_CAP_REMOTE_DIALOG_PTR_KEY);
 	window_destroy(GTK_WIDGET(remote_w));
     capture_remote_cb(GTK_WIDGET(iftype_cbx), FALSE);
   } else {
-    string = gtk_combo_box_text_get_active_text (GTK_COMBO_BOX(iftype_cbx));
+    string = gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT(iftype_cbx));
 	rh = g_hash_table_lookup (remote_host_list, string);
 	g_free (string);
 	if (rh) {
