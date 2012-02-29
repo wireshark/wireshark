@@ -2079,7 +2079,9 @@ cap_pipe_dispatch(loop_data *ld, pcap_options *pcap_opts, guchar *data, char *er
     enum { PD_REC_HDR_READ, PD_DATA_READ, PD_PIPE_EOF, PD_PIPE_ERR,
            PD_ERR } result;
 #ifdef _WIN32
+#if !GLIB_CHECK_VERSION(2,31,18)
     GTimeVal wait_time;
+#endif
     gpointer q_status;
 #else
     int b;
@@ -2125,9 +2127,13 @@ cap_pipe_dispatch(loop_data *ld, pcap_options *pcap_opts, guchar *data, char *er
         }
         pcap_opts->cap_pipe_bytes_read += b;
 #else
+#if GLIB_CHECK_VERSION(2,31,18)
+        q_status = g_async_queue_timeout_pop(pcap_opts->cap_pipe_done_q, PIPE_READ_TIMEOUT);
+#else
         g_get_current_time(&wait_time);
         g_time_val_add(&wait_time, PIPE_READ_TIMEOUT);
         q_status = g_async_queue_timed_pop(pcap_opts->cap_pipe_done_q, &wait_time);
+#endif
         if (pcap_opts->cap_pipe_err == PIPEOF) {
             result = PD_PIPE_EOF;
             break;
@@ -2174,9 +2180,13 @@ cap_pipe_dispatch(loop_data *ld, pcap_options *pcap_opts, guchar *data, char *er
         }
         pcap_opts->cap_pipe_bytes_read += b;
 #else
+#if GLIB_CHECK_VERSION(2,31,18)
+        q_status = g_async_queue_timeout_pop(pcap_opts->cap_pipe_done_q, PIPE_READ_TIMEOUT);
+#else
         g_get_current_time(&wait_time);
         g_time_val_add(&wait_time, PIPE_READ_TIMEOUT);
         q_status = g_async_queue_timed_pop(pcap_opts->cap_pipe_done_q, &wait_time);
+#endif
         if (pcap_opts->cap_pipe_err == PIPEOF) {
             result = PD_PIPE_EOF;
             break;
@@ -3324,13 +3334,18 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
     while (global_ld.go) {
         /* dispatch incoming packets */
         if (use_threads) {
-            GTimeVal write_thread_time;
             pcap_queue_element *queue_element;
+#if GLIB_CHECK_VERSION(2,31,18)
+
+            queue_element = g_async_queue_timeout_pop_unlocked(pcap_queue, WRITER_THREAD_TIMEOUT);
+#else
+            GTimeVal write_thread_time;
 
             g_get_current_time(&write_thread_time);
             g_time_val_add(&write_thread_time, WRITER_THREAD_TIMEOUT);
             g_async_queue_lock(pcap_queue);
             queue_element = g_async_queue_timed_pop_unlocked(pcap_queue, &write_thread_time);
+#endif
             if (queue_element) {
                 pcap_queue_bytes -= queue_element->phdr.caplen;
                 pcap_queue_packets -= 1;
