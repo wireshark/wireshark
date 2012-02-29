@@ -7301,13 +7301,7 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb
 	if (tot_no_bits & 0x07)
 		length++;
 
-	if (no_of_bits < 9){
-		value = tvb_get_bits8(tvb, bit_offset, no_of_bits);
-	}else if(no_of_bits < 17){
-		value = tvb_get_bits16(tvb, bit_offset, no_of_bits, encoding);
-	}else if(no_of_bits < 33){
-		value = tvb_get_bits32(tvb, bit_offset, no_of_bits, encoding);
-	}else if(no_of_bits < 65){
+	if(no_of_bits < 65){
 		value = tvb_get_bits64(tvb, bit_offset, no_of_bits, encoding);
 	}else{
 		DISSECTOR_ASSERT_NOT_REACHED();
@@ -7387,6 +7381,144 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb
 }
 
 proto_item *
+proto_tree_add_split_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb,
+			                      const gint bit_offset, const crumb_spec_t *crumb_spec, 
+                                  guint64 *return_value)
+{
+    proto_item *pi;
+	gint	octet_offset, mask_initial_bit_offset, mask_greatest_bit_offset = 0;
+	guint	octet_length;
+	guint8	i = 0;
+	char *bf_str = NULL, lbl_str[ITEM_LABEL_LENGTH];
+	header_field_info *hf_field;
+	guint64 value = 0, composite_bitmask = 0, composite_bitmap = 0;
+	const true_false_string *tfstring;
+
+	/* We can't fake it just yet. We have to fill in the 'return_value' parameter */
+	PROTO_REGISTRAR_GET_NTH(hf_index, hf_field);
+
+	if(hf_field -> bitmask != 0) {
+		REPORT_DISSECTOR_BUG(ep_strdup_printf("Incompatible use of proto_tree_add_bits_ret_val with field '%s' (%s) with bitmask != 0",
+				     hf_field->abbrev, hf_field->name));
+	}
+
+    mask_initial_bit_offset = bit_offset % 8;
+
+    while(crumb_spec[i].crumb_bit_length != 0)
+    {   
+        guint64 crumb_mask, crumb_value;
+        guint8 crumb_end_bit_offset;
+
+        DISSECTOR_ASSERT(i < 64);
+        crumb_value = tvb_get_bits64(tvb, bit_offset + crumb_spec[i].crumb_bit_offset, crumb_spec[i].crumb_bit_length, ENC_BIG_ENDIAN);
+        value += crumb_value;
+
+        /* the bitmask is 64 bit, left-aligned, starting at the first bit of the octet containing the initial offset */
+        /* if the mask is beyond 32 bits, then give up on bit map display
+           this could be improved in future, probably showing a table of 32 or 64 bits per row */
+        if (mask_greatest_bit_offset < 32)
+        {
+           crumb_end_bit_offset = mask_initial_bit_offset + crumb_spec[i].crumb_bit_offset + crumb_spec[i].crumb_bit_length;
+           crumb_mask = (1 << crumb_spec[i].crumb_bit_length) - 1;
+
+           if(crumb_end_bit_offset > mask_greatest_bit_offset)
+           {
+               mask_greatest_bit_offset = crumb_end_bit_offset;
+           }
+           composite_bitmask |= (crumb_mask << (64 - crumb_end_bit_offset));
+           composite_bitmap |= (crumb_value << (64 - crumb_end_bit_offset));
+        }
+        /* shift left for the next segment */
+        value <<= crumb_spec[++i].crumb_bit_length;
+    }
+    if(return_value){
+        *return_value=value;
+    }
+
+    /* Coast clear. Try and fake it */
+    TRY_TO_FAKE_THIS_ITEM(tree, hf_index, hf_field);
+
+    /* initialise the fromat string */
+    bf_str=ep_alloc(256);
+    bf_str[0] = '\0';
+
+    octet_offset = bit_offset >> 3;
+
+    /* round up mask length to nearest octet */
+    octet_length = ((mask_greatest_bit_offset + 7) >> 3);
+    mask_greatest_bit_offset = octet_length << 3;
+
+    /* as noted above, we currently only produce a bitmap if the crumbs span less than 4 octets of the tvb,
+       it would be a useful enhancement to eliminate this restriction. */
+    if (mask_greatest_bit_offset <= 32)
+    {
+       other_decode_bitfield_value(bf_str, (guint32)(composite_bitmap >> (64 - mask_greatest_bit_offset)), 
+                                   (guint32)(composite_bitmask >> (64 - mask_greatest_bit_offset)), 
+                                   mask_greatest_bit_offset);
+    }
+
+	switch(hf_field->type){
+	case FT_BOOLEAN: /* it is a bit odd to have a boolean encoded as split-bits, but possible, I suppose? */
+		/* Boolean field */
+		tfstring = (const true_false_string *) &tfs_true_false;
+		if (hf_field->strings)
+			tfstring = (const true_false_string *) hf_field->strings;
+		return proto_tree_add_boolean_format(tree, hf_index, tvb, octet_offset, octet_length, (guint32)value,
+			"%s = %s: %s",
+			bf_str, hf_field->name,
+			(guint32)value ? tfstring->true_string : tfstring->false_string);
+		break;
+
+	case FT_UINT8:
+	case FT_UINT16:
+	case FT_UINT24:
+	case FT_UINT32:
+		pi = proto_tree_add_uint(tree, hf_index, tvb, octet_offset, octet_length, (guint32)value);
+		fill_label_uint(PITEM_FINFO(pi), lbl_str);
+		break;
+
+	case FT_INT8:
+	case FT_INT16:
+	case FT_INT24:
+	case FT_INT32:
+		pi = proto_tree_add_int(tree, hf_index, tvb, octet_offset, octet_length, (gint32)value);
+		fill_label_int(PITEM_FINFO(pi), lbl_str);
+		break;
+
+	case FT_UINT64:
+		pi = proto_tree_add_uint64(tree, hf_index, tvb, octet_offset, octet_length, value);
+		fill_label_uint64(PITEM_FINFO(pi), lbl_str);
+		break;
+
+	case FT_INT64:
+		pi = proto_tree_add_int64(tree, hf_index, tvb, octet_offset, octet_length, (gint64)value);
+		fill_label_int64(PITEM_FINFO(pi), lbl_str);
+		break;
+
+	default:
+		DISSECTOR_ASSERT_NOT_REACHED();
+		return NULL;
+		break;
+	}
+	proto_item_set_text(pi, "%s = %s", bf_str, lbl_str);
+	return pi;
+}
+
+void 
+proto_tree_add_split_bits_crumb(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const gint bit_offset, 
+                                const crumb_spec_t *crumb_spec, guint16 crumb_index)
+{
+   header_field_info	*hf_info;
+
+   PROTO_REGISTRAR_GET_NTH(hf_index, hf_info);
+   proto_tree_add_text(tree, tvb, bit_offset >> 3, ((bit_offset + crumb_spec[crumb_index].crumb_bit_length - 1) >> 3) - (bit_offset >> 3) + 1,
+                       "%s crumb %d of %s (decoded above)", 
+                       decode_bits_in_field(bit_offset, crumb_spec[crumb_index].crumb_bit_length, 
+                                            tvb_get_bits(tvb, bit_offset, crumb_spec[crumb_index].crumb_bit_length, ENC_BIG_ENDIAN)), 
+                                            crumb_index, hf_info->name);
+}
+
+proto_item *
 proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb,
 			    const gint bit_offset, const gint no_of_bits,
 			    guint64 *return_value, const guint encoding)
@@ -7436,14 +7568,8 @@ _proto_tree_add_bits_format_value(proto_tree *tree, const int hf_index,
 	if (tot_no_bits & 0x07)
 		length++;
 
-	if (no_of_bits < 9){
-		value = tvb_get_bits8(tvb, bit_offset, no_of_bits);
-	}else if(no_of_bits < 17){
-		value = tvb_get_bits16(tvb, bit_offset, no_of_bits, FALSE);
-	}else if(no_of_bits < 33){
-		value = tvb_get_bits32(tvb, bit_offset, no_of_bits, FALSE);
-	}else if(no_of_bits < 65){
-		value = tvb_get_bits64(tvb, bit_offset, no_of_bits, FALSE);
+	if(no_of_bits < 65){
+		value = tvb_get_bits64(tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
 	}else{
 		DISSECTOR_ASSERT_NOT_REACHED();
 		return NULL;

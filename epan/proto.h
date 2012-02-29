@@ -384,6 +384,20 @@ typedef struct field_info {
 
 
 /*
+ * This structure describes one segment of a split-bits item
+ * crumb_bit_offset is the bit offset in the input tvb of the first (most significant) bit of this crumb 
+ * crumb_bit_length is the number of contiguous bits of this crumb.
+ * The first element of an array of bits_specs describes the most significant crumb of the output value.
+ * The second element of an array of bits_specs describes the next-most significant crumb of the output value, etc.
+ * The array is terminated by a sentinal entry with crumb_bit_length of 0.
+*/
+typedef struct
+{
+    guint  crumb_bit_offset;
+    guint8 crumb_bit_length;
+}crumb_spec_t;
+
+/*
  * Flag fields.  Do not assign values greater than 0x00000080 unless you
  * shuffle the expert information upward; see below.
  */
@@ -1882,6 +1896,44 @@ proto_tree_add_bitmask_text(proto_tree *tree, tvbuff_t *tvb, const guint offset,
  @return the newly created item */
 extern proto_item *
 proto_tree_add_bits_item(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const gint bit_offset, const gint no_of_bits, const guint encoding);
+
+/** Add bits to a proto_tree, using the text label registered to that item.
+*  The item is extracted from the tvbuff handed to it as a set
+*  of crumbs (segments) of contiguous bits, specified by an
+*  array of crumb_spec elements.  The crumbs are assembled to
+*  create the value.  There may be any number of crumbs
+*  specifying up to a total of 64 bits which may occur anywhere
+*  within the tvb. If the span of the crumbs within the tvb is 4
+*  octets or less, a bitmap of the crumbs is produced.
+ @param tree the tree to append this item to
+ @param hf_index field index. Fields for use with this function should have bitmask==0.
+ @param tvb the tv buffer of the current data
+ @param bit_offset of the first crumb in tvb expressed in bits 
+ @param pointer to crumb_spec array
+ @param return_value if a pointer is passed here the value is returned.
+ @return the newly created item */
+extern proto_item *
+proto_tree_add_split_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb,
+			    const gint bit_offset, const crumb_spec_t *crumb_spec,
+			    guint64 *return_value);
+
+
+/** Add bitmap text for a split-bits crumb to a proto_tree,
+*  using the text label registered to an item. The bitmap is
+*  extracted from the tvbuff handed to it as a crumb (segment)
+*  of contiguous bits, specified by one of an array of
+*  crumb_spec elements. This function is normally called once
+*  per crumb, after the call to
+   proto_tree_add_split_bits_ret_val
+ @param tree the tree to append this item to
+ @param hf_index field index. Fields for use with this function should have bitmask==0.
+ @param tvb the tv buffer of the current data
+ @param bit_offset of the first crumb in tvb expressed in bits 
+ @param pointer to crumb_spec array
+ @param index into the crumb_spec array for this crumb */
+void 
+proto_tree_add_split_bits_crumb(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const gint bit_offset, 
+                                const crumb_spec_t *crumb_spec, guint16 crumb_index);
 
 /** Add bits to a proto_tree, using the text label registered to that item.
    The item is extracted from the tvbuff handed to it.
