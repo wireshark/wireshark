@@ -97,7 +97,7 @@ dfvm_value_t*
 dfvm_value_new(dfvm_value_type_t type);
 
 void
-dfvm_dump(FILE *f, GPtrArray *insns);
+dfvm_dump(FILE *f, dfilter_t *df);
 
 gboolean
 dfvm_apply(dfilter_t *df, proto_tree *tree);

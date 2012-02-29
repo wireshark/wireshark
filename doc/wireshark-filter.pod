@@ -253,7 +253,18 @@ or
 
     frame[-4:] == 0.1.2.3
 
-You can concatenate slices using the comma operator:
+A slice is alwasy compared against either a string or a byte sequence.
+As a special case, when the slice is only 1 byte wide, you can compare
+it against a hex integer that 0xff or less (which means it fits inside
+one byte). This is not allowed for byte sequences greater than one byte,
+because then one would need to specify the endianness of the multi-byte
+integer. Also, this is not allowed for decimal numbers, since they
+would be confused with hex numbers that are already allowed as
+byte strings. Neverthelss, single-byte hex integers can be convienent:
+
+    frame[4] == 0xff
+
+Slices can be combined. You can concatenate them using the comma operator:
 
     ftp[1,3-5,9:] == 01:03:04:05:09:0a:0b
 

@@ -88,7 +88,7 @@ dfvm_value_new(dfvm_value_type_t type)
 
 
 void
-dfvm_dump(FILE *f, GPtrArray *insns)
+dfvm_dump(FILE *f, dfilter_t *df)
 {
 	int		id, length;
 	dfvm_insn_t	*insn;
@@ -99,12 +99,55 @@ dfvm_dump(FILE *f, GPtrArray *insns)
 	char		*value_str;
 	GSList		*range_list;
 	drange_node	*range_item;
-
-	length = insns->len;
-
+        
+        /* First dump the constant initializations */
+        fprintf(f, "Constants:\n");
+	length = df->consts->len;
 	for (id = 0; id < length; id++) {
 
-		insn = g_ptr_array_index(insns, id);
+		insn = g_ptr_array_index(df->consts, id);
+		arg1 = insn->arg1;
+		arg2 = insn->arg2;
+
+		switch (insn->op) {
+			case PUT_FVALUE:
+				value_str = fvalue_to_string_repr(arg1->value.fvalue,
+					FTREPR_DFILTER, NULL);
+				fprintf(f, "%05d PUT_FVALUE\t%s <%s> -> reg#%u\n",
+					id, value_str,
+					fvalue_type_name(arg1->value.fvalue),
+					arg2->value.numeric);
+				g_free(value_str);
+				break;
+			case CHECK_EXISTS:
+			case READ_TREE:
+			case CALL_FUNCTION:
+			case MK_RANGE:
+			case ANY_EQ:
+			case ANY_NE:
+			case ANY_GT:
+			case ANY_GE:
+			case ANY_LT:
+			case ANY_LE:
+			case ANY_BITWISE_AND:
+			case ANY_CONTAINS:
+			case ANY_MATCHES:
+			case NOT:
+			case RETURN:
+			case IF_TRUE_GOTO:
+			case IF_FALSE_GOTO:
+			default:
+				g_assert_not_reached();
+				break;
+		}
+	}
+
+        fprintf(f, "\nInstructions:\n");
+        /* Now dump the operations */
+	length = df->insns->len;
+	for (id = 0; id < length; id++) {
+
+		insn = g_ptr_array_index(df->insns, id);
 		arg1 = insn->arg1;
 		arg2 = insn->arg2;
 		arg3 = insn->arg3;
@@ -135,13 +178,8 @@ dfvm_dump(FILE *f, GPtrArray *insns)
 				break;
 
 			case PUT_FVALUE:
-				value_str = fvalue_to_string_repr(arg1->value.fvalue,
-					FTREPR_DFILTER, NULL);
-				fprintf(f, "%05d PUT_FVALUE\t%s <%s> -> reg#%u\n",
-					id, value_str,
-					fvalue_type_name(arg1->value.fvalue),
-					arg2->value.numeric);
-				g_free(value_str);
+                                /* We already dumped these */
+                                g_assert_not_reached();
 				break;
 
 			case MK_RANGE:
@@ -519,6 +557,7 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
 
 			case PUT_FVALUE:
 #if 0
+                                /* These were handled in the constants initialization */
 				accum = put_fvalue(df,
 						arg1->value.fvalue, arg2->value.numeric);
 				break;

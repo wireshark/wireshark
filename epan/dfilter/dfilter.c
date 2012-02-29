@@ -409,7 +409,7 @@ dfilter_dump(dfilter_t *df)
 	guint i;
 	const gchar *sep = "";
 
-	dfvm_dump(stdout, df->insns);
+	dfvm_dump(stdout, df);
 
 	if (df->deprecated && df->deprecated->len) {
 		printf("\nDeprecated tokens: ");

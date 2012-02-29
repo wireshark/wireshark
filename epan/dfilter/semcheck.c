@@ -811,6 +811,7 @@ check_relation_LHS_RANGE(const char *relation_string, FtypeCanFunc can_func _U_,
 	fvalue_t		*fvalue;
 	char			*s;
 	drange_node		*rn;
+        int                     len_range;
 
 	type2 = stnode_type_id(st_arg2);
 	hfinfo1 = sttype_range_hfinfo(st_arg1);
@@ -871,12 +872,33 @@ check_relation_LHS_RANGE(const char *relation_string, FtypeCanFunc can_func _U_,
 	else if (type2 == STTYPE_UNPARSED) {
 		DebugLog(("    5 check_relation_LHS_RANGE(type2 = STTYPE_UNPARSED)\n"));
 		s = stnode_data(st_arg2);
+                len_range = drange_get_total_length(sttype_range_drange(st_arg1));
 		if (strcmp(relation_string, "matches") == 0) {
 			/* Convert to a FT_PCRE */
 			fvalue = fvalue_from_unparsed(FT_PCRE, s, FALSE, dfilter_fail);
-		} else {
-			fvalue = fvalue_from_unparsed(FT_BYTES, s, allow_partial_value, dfilter_fail);
 		}
+
+                /* The RHS should be FT_BYTES. However, there is a special case where
+                 * the range slice on the LHS is one byte long. In that case, it is natural
+                 * for the user to specify a normal hex integer on the RHS, with the "0x"
+                 * notation, as in "slice[0] == 0x10". We can't allow this for any
+                 * slices that are longer than one byte, because then we'd have to know
+                 * which endianness the byte string should be in. */
+                else if (len_range == 1 && strlen(s) == 4 && strncmp(s, "0x", 2) == 0) {
+                    /* Even if the RHS string starts with "0x", it still could fail to
+                     * be an integer.  Try converting it here. */
+                    fvalue = fvalue_from_unparsed(FT_UINT8, s, allow_partial_value, dfilter_fail);
+                    if (fvalue) {
+                        FVALUE_FREE(fvalue);
+                        /* The value doees indeed fit into 8 bits. Create a BYTE_STRING
+                         * from it. Since we know that the last 2 characters are a valid
+                         * hex string, just use those directly. */
+                        fvalue = fvalue_from_unparsed(FT_BYTES, s+2, allow_partial_value, dfilter_fail);
+                    }
+                }
+                else {
+                    fvalue = fvalue_from_unparsed(FT_BYTES, s, allow_partial_value, dfilter_fail);
+                }
 		if (!fvalue) {
 			DebugLog(("    5 check_relation_LHS_RANGE(type2 = STTYPE_UNPARSED): Could not convert from string!\n"));
 			THROW(TypeError);

@@ -1299,6 +1299,45 @@ class Scanner(Test):
 		ck_dquote_5,
 		]
 
+class Range(Test):
+	"""Tests range routines"""
+
+        # This test uess ipx.src.node with value 00:aa:00:a3:e3:a4
+
+	def ck_slice_1_pos(self):
+		return self.DFilterCount(pkt_ipx_rip,
+			"ipx.src.node[1] == aa", 1)
+
+	def ck_slice_1_neg(self):
+		return self.DFilterCount(pkt_ipx_rip,
+			"ipx.src.node[1] == bb", 0)
+
+	def ck_slice_1_hex_pos(self):
+		return self.DFilterCount(pkt_ipx_rip,
+			"ipx.src.node[1] == 0xaa", 1)
+
+	def ck_slice_1_hex_neg(self):
+		return self.DFilterCount(pkt_ipx_rip,
+			"ipx.src.node[1] == 0xbb", 0)
+
+	def ck_slice_2_pos(self):
+		return self.DFilterCount(pkt_ipx_rip,
+                        "ipx.src.node[3:2] == a3:e3", 1)
+
+	def ck_slice_2_neg(self):
+		return self.DFilterCount(pkt_ipx_rip,
+                        "ipx.src.node[3:2] == cc:dd", 0)
+
+	tests = [
+		ck_slice_1_pos,
+		ck_slice_1_neg,
+		ck_slice_1_hex_pos,
+		ck_slice_1_hex_neg,
+		ck_slice_2_pos,
+		ck_slice_2_neg,
+		]
+
+
 ################################################################################
 
 # These are the test objects to run.
@@ -1309,6 +1348,7 @@ all_tests = [
 	Double(),
 	Integer(),
 	IPv4(),
+        Range(),
 	Scanner(),
 	String(),
 	Time(),
