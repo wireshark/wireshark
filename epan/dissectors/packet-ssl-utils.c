@@ -1312,7 +1312,6 @@ ssl_cipher_setiv(SSL_CIPHER_CTX *cipher, guchar* iv, gint iv_len)
     gint ret;
     /* gint i; */
     /* gcry_cipher_hd_t c; */
-    ret=0;
     /*c=(gcry_cipher_hd_t)*cipher;*/
 
     ssl_debug_printf("--------------------------------------------------------------------");
@@ -1408,7 +1407,7 @@ ssl_private_key_to_str(SSL_PRIVATE_KEY* pk)
 #ifndef SSL_FAST
     n = gcry_sexp_sprint(pk, GCRYSEXP_FMT_ADVANCED, NULL, 0);
     buf = ep_alloc(n);
-    n = gcry_sexp_sprint(pk, GCRYSEXP_FMT_ADVANCED, buf, n);
+    /*n = gcry_sexp_sprint(pk, GCRYSEXP_FMT_ADVANCED, buf, n);*/
     str = buf;
 #else /* SSL_FAST */
     str = "TO DO: dump mpi gcry_mpi_print()";
@@ -1752,9 +1751,12 @@ tls_prf(StringInfo* secret, const gchar *usage,
     }
 
     ptr=seed.data;
-    memcpy(ptr,usage,usage_len); ptr+=usage_len;
-    memcpy(ptr,rnd1->data,rnd1->data_len); ptr+=rnd1->data_len;
-    memcpy(ptr,rnd2->data,rnd2->data_len); ptr+=rnd2->data_len;
+    memcpy(ptr,usage,usage_len);
+    ptr+=usage_len;
+    memcpy(ptr,rnd1->data,rnd1->data_len);
+    ptr+=rnd1->data_len;
+    memcpy(ptr,rnd2->data,rnd2->data_len);
+    /*ptr+=rnd2->data_len;*/
 
     /* initalize buffer for client/server seeds*/
     s_l=secret->data_len/2 + secret->data_len%2;
@@ -1978,7 +1980,6 @@ ssl_create_decoder(SslCipherSuite *cipher_suite, gint compression,
 {
     SslDecoder *dec;
     gint ciph;
-    ciph=0;
 
     dec = se_alloc0(sizeof(SslDecoder));
     /* Find the SSLeay cipher */
@@ -2082,7 +2083,7 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
 
     if(ssl_session->cipher_suite.block>1){
         c_iv=ptr; ptr+=ssl_session->cipher_suite.block;
-        s_iv=ptr; ptr+=ssl_session->cipher_suite.block;
+        s_iv=ptr; /*ptr+=ssl_session->cipher_suite.block;*/
     }
 
     if(ssl_session->cipher_suite.export){
@@ -2903,7 +2904,6 @@ ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd) {
                     if (bag_type >= GNUTLS_BAG_UNKNOWN) continue;
                     ssl_debug_printf( "Bag %d/%d decrypted: %s\n", i, j, BAGTYPE(bag_type));
                 }
-                ret = 0;
             }
 
             ret = gnutls_pkcs12_bag_get_data(bag, j, &data);
@@ -3807,14 +3807,12 @@ void
 ssl_debug_printf(const gchar* fmt, ...)
 {
     va_list ap;
-    gint ret;
-    ret=0;
 
     if (!ssl_debug_file)
         return;
 
     va_start(ap, fmt);
-    ret += vfprintf(ssl_debug_file, fmt, ap);
+    vfprintf(ssl_debug_file, fmt, ap);
     va_end(ap);
 }
 
