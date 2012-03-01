@@ -728,6 +728,7 @@ DISSECTOR_SRC = \
 	packet-mpeg1.c		\
 	packet-mpls.c		\
 	packet-mpls-echo.c	\
+	packet-mpls-pm.c	\
 	packet-mq.c		\
 	packet-mq-pcf.c		\
 	packet-mrdisc.c		\

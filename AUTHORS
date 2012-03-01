@@ -2351,6 +2351,7 @@ Francesco Fondelli	<francesco.fondelli [AT] gmail.com> {
 	    user preference option.
 	RSVP IF_ID ERROR_STRING TLV support, RFC 4783
 	Support for Vendor Private objects, RFC 3936
+	Support for MPLS Packet Loss and Delay Measurement, RFC 6374
 }
 
 Artem Tamazov           <artem.tamazov [AT] tellabs.com> {

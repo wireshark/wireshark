@@ -809,6 +809,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-mpeg1.c
 	dissectors/packet-mpls.c
 	dissectors/packet-mpls-echo.c
+	dissectors/packet-mpls-pm.c
 	dissectors/packet-mq.c
 	dissectors/packet-mq-pcf.c
 	dissectors/packet-mrdisc.c

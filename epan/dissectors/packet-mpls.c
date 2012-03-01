@@ -115,6 +115,11 @@ static dissector_handle_t dissector_data;
 static dissector_handle_t dissector_ipv6;
 static dissector_handle_t dissector_ip;
 static dissector_handle_t dissector_bfd;
+static dissector_handle_t dissector_mpls_pm_dlm;
+static dissector_handle_t dissector_mpls_pm_ilm;
+static dissector_handle_t dissector_mpls_pm_dm;
+static dissector_handle_t dissector_mpls_pm_dlm_dm;
+static dissector_handle_t dissector_mpls_pm_ilm_dm;
 static dissector_handle_t dissector_pw_eth_heuristic;
 static dissector_handle_t dissector_pw_fr;
 static dissector_handle_t dissector_pw_hdlc_nocw_fr;
@@ -489,6 +494,26 @@ dissect_pw_ach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     else if (0x57 == channel_type /*IPv6, RFC4385 clause 6.*/)
     {
         call_dissector(dissector_ipv6, next_tvb, pinfo, tree);
+    }
+    else if (channel_type == 0x000A) /* FF: MPLS PM, RFC 6374, DLM */
+    {
+        call_dissector(dissector_mpls_pm_dlm, next_tvb, pinfo, tree);
+    }
+    else if (channel_type == 0x000B) /* FF: MPLS PM, RFC 6374, ILM */
+    {
+        call_dissector(dissector_mpls_pm_ilm, next_tvb, pinfo, tree);
+    }
+    else if (channel_type == 0x000C) /* FF: MPLS PM, RFC 6374, DM */
+    {
+        call_dissector(dissector_mpls_pm_dm, next_tvb, pinfo, tree);
+    }
+    else if (channel_type == 0x000D) /* FF: MPLS PM, RFC 6374, DLM+DM */
+    {
+        call_dissector(dissector_mpls_pm_dlm_dm, next_tvb, pinfo, tree);
+    }
+    else if (channel_type == 0x000E) /* FF: MPLS PM, RFC 6374, ILM+DM */
+    {
+        call_dissector(dissector_mpls_pm_ilm_dm, next_tvb, pinfo, tree);
     }
     else
     {
@@ -1042,6 +1067,11 @@ proto_reg_handoff_mpls(void)
     dissector_ipv6                  = find_dissector("ipv6");
     dissector_ip                    = find_dissector("ip");
     dissector_bfd                   = find_dissector("bfd");
+    dissector_mpls_pm_dlm           = find_dissector("mpls_pm_dlm");
+    dissector_mpls_pm_ilm           = find_dissector("mpls_pm_ilm");
+    dissector_mpls_pm_dm            = find_dissector("mpls_pm_dm");
+    dissector_mpls_pm_dlm_dm        = find_dissector("mpls_pm_dlm_dm");
+    dissector_mpls_pm_ilm_dm        = find_dissector("mpls_pm_ilm_dm");
     dissector_pw_eth_heuristic      = find_dissector("pw_eth_heuristic");
     dissector_pw_fr                 = find_dissector("pw_fr");
     dissector_pw_hdlc_nocw_fr       = find_dissector("pw_hdlc_nocw_fr");
