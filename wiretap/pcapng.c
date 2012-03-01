@@ -1509,13 +1509,13 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
 	block_read = bytes_read;
 
 	if(pn->byte_swapped) {
-		wblock->data.if_stats.interface_id	= BSWAP64(isb.interface_id);
-		wblock->data.if_stats.ts_high		= BSWAP32(isb.timestamp_high);
-		wblock->data.if_stats.ts_low		= BSWAP32(isb.timestamp_low);
+		wblock->data.if_stats.interface_id = BSWAP32(isb.interface_id);
+		wblock->data.if_stats.ts_high      = BSWAP32(isb.timestamp_high);
+		wblock->data.if_stats.ts_low       = BSWAP32(isb.timestamp_low);
 	} else {
-		wblock->data.if_stats.interface_id	= isb.interface_id;
-		wblock->data.if_stats.ts_high		= isb.timestamp_high;
-		wblock->data.if_stats.ts_low		= isb.timestamp_low;
+		wblock->data.if_stats.interface_id = isb.interface_id;
+		wblock->data.if_stats.ts_high      = isb.timestamp_high;
+		wblock->data.if_stats.ts_low       = isb.timestamp_low;
 	}
 	pcapng_debug1("pcapng_read_interface_statistics_block: interface_id %u", wblock->data.if_stats.interface_id);
 
