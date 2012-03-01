@@ -550,6 +550,7 @@ value_list_sel_cb(GtkTreeSelection *sel, gpointer value_entry_arg)
 
         case BASE_NONE:
         case BASE_DEC:
+        case BASE_DEC_HEX:
             switch (hfinfo->type) {
 
             case FT_UINT8:
@@ -572,6 +573,7 @@ value_list_sel_cb(GtkTreeSelection *sel, gpointer value_entry_arg)
             break;
 
         case BASE_HEX:
+        case BASE_HEX_DEC:
             value_display_string = g_strdup_printf("0x%x", value->value);
             break;
 
