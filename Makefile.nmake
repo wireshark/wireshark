@@ -936,14 +936,15 @@ clean_setup:
     rm -r -f gtk+
     rm -r -f gtk-wimp
     rm -r -f kfw-2.5
+    rm -r -f kfw-3-2-2-final
     rm -r -f kfw-3.2.2-ws1
-    rm -r -f kfw-3.2.2-i386-ws-vc6
+    rm -r -f kfw-3-2-2-i386-ws-vc6
     rm -r -f libiconv-1.9.1.bin.woe32
     rm -r -f lua5.1
     rm -r -f lua5.1.4
     rm -r -f libsmi-0.4.5
     rm -r -f libsmi-0.4.8
-    rm -r -f libsmi-win??-svn-40773
+    rm -r -f libsmi-svn-40773-win??ws
     rm -r -f nasm-2.00
     rm -r -f nasm-2.02
     rm -r -f nasm-2.09.08
@@ -951,18 +952,19 @@ clean_setup:
     rm -r -f pcre-7.0
     rm -r -f portaudio_v19
     rm -r -f portaudio_v19_2
+    rm -r -f upx301w
+    rm -r -f upx303w
     rm -r -f user-guide
-    rm -r -f WpdPack
+    rm -r -f zlib123
+    rm -r -f zlib125
+    rm -r -f zlib-1.2.5
+    rm -r -f zlib123-dll
     rm -r -f AirPcap_Devpack_1_0_0_594
     rm -r -f AirPcap_Devpack_4_0_0_1480
     rm -r -f AirPcap_Devpack_4_1_0_1622
-    rm -r -f zlib123
-    rm -r -f zlib-1.2.5
-    rm -r -f zlib123-dll
-    rm -r -f upx301w
-    rm -r -f upx303w
     rm -r -f GeoIP-1.4.5ws
     rm -r -f GeoIP-1.4.6-win??ws
+    rm -r -f WpdPack
     cd "$(MAKEDIR)"
 
 ################################################################################
