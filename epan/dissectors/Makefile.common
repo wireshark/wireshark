@@ -1010,6 +1010,9 @@ DISSECTOR_SRC = \
 	packet-tzsp.c		\
 	packet-ua.c		\
 	packet-uaudp.c		\
+	packet-ua3g.c		\
+	packet-uasip.c		\
+	packet-noe.c		\
 	packet-ucp.c		\
 	packet-udld.c		\
 	packet-udp.c		\

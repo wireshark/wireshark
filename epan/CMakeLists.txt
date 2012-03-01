@@ -1091,6 +1091,9 @@ set(DISSECTOR_SRC
 	dissectors/packet-tzsp.c
 	dissectors/packet-ua.c
 	dissectors/packet-uaudp.c
+	dissectors/packet-ua3g.c
+	dissectors/packet-uasip.c
+	dissectors/packet-noe.c
 	dissectors/packet-ucp.c
 	dissectors/packet-udld.c
 	dissectors/packet-udp.c
