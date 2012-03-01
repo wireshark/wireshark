@@ -1418,8 +1418,9 @@ DISSECTOR_INCLUDES =	\
 	packet-tns.h	\
 	packet-tpkt.h	\
 	packet-tr.h	\
-	packet-tte.h \
-	packet-ua.h \
+	packet-tte.h	\
+	packet-ua.h	\
+	packet-uaudp.h	\
 	packet-udp.h	\
 	packet-umts_fp.h	\
 	packet-umts_mac.h	\
