@@ -1353,9 +1353,9 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t
 	}
 
 	errno = WTAP_ERR_CANT_READ;
-	to_read = bh->block_total_length - MIN_NRB_SIZE;
+	to_read = bh->block_total_length - 8 - 4; /* We have read the header adn should not read the final block_total_length */
 	
-	pcapng_debug0("pcapng_read_name_resolution_block");
+	pcapng_debug1("pcapng_read_name_resolution_block, total %d bytes", bh->block_total_length);
 
 	while (block_read < to_read) {
 		/*
@@ -2968,6 +2968,9 @@ pcapng_write_name_resolution_block(wtap_dumper *wdh, pcapng_dump_t *pcapng, int 
 	rec_off += 4;
 
 	memcpy(rec_data + rec_off, &bh.block_total_length, sizeof(bh.block_total_length));
+	rec_off += 4;
+
+	pcapng_debug2("pcapng_write_name_resolution_block: Write bh.block_total_length bytes %d, rec_off %u", bh.block_total_length, rec_off);
 
 	if (!wtap_dump_file_write(wdh, rec_data, bh.block_total_length, err)) {
 		g_free(rec_data);
