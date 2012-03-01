@@ -2383,7 +2383,7 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_block_t *wblock, int *err)
 	 */
 	if (wblock->data.if_descr.if_description) {
 		have_options = TRUE;
-		if_name_len = (guint32)strlen(wblock->data.if_descr.if_description) & 0xffff;
+		if_description_len = (guint32)strlen(wblock->data.if_descr.if_description) & 0xffff;
 		if ((if_description_len % 4)) {
 			if_description_pad_len = 4 - (if_description_len % 4);
 		} else {
