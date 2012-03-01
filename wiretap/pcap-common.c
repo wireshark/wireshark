@@ -159,6 +159,11 @@ static const struct {
 	{ 50,		WTAP_ENCAP_PPP },
 
 	/*
+	 * Used by NetBSD and OpenBSD pppoe(4).
+	 */
+	{ 51,		WTAP_ENCAP_PPP_ETHER },
+
+	/*
 	 * Apparently used by the Axent Raptor firewall (now Symantec
 	 * Enterprise Firewall).
 	 * Thanks, Axent, for not reserving that type with tcpdump.org

@@ -1289,6 +1289,7 @@ void proto_reg_handoff_pppoes(void)
 	dissector_handle_t pppoes_handle  =
 	    create_dissector_handle(dissect_pppoes, proto_pppoes);
 	dissector_add_uint("ethertype", ETHERTYPE_PPPOES, pppoes_handle);
+	dissector_add_uint("wtap_encap", WTAP_ENCAP_PPP_ETHER, pppoes_handle);
 
 	/* Get a handle for the PPP dissector */
 	ppp_handle = find_dissector("ppp");

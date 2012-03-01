@@ -555,7 +555,10 @@ static struct encap_type_info encap_table_base[] = {
 	{ "IP over Infiniband", "ip-over-ib" },
 
 	/* WTAP_ENCAP_MPEG_2_TS */
-	{ "ISO/IEC 13818-1 MPEG2-TS", "mp2ts" }
+	{ "ISO/IEC 13818-1 MPEG2-TS", "mp2ts" },
+
+	/* WTAP_ENCAP_PPP_ETHER */
+	{ "PPP-over-Ethernet session", "pppoes" }
 };
 
 gint wtap_num_encap_types = sizeof(encap_table_base) / sizeof(struct encap_type_info);
