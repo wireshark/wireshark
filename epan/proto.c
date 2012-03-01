@@ -4728,7 +4728,8 @@ const guchar fld_abbrev_chars[256] = {
 };
 
 /* temporary function containing assert part for easier profiling */
-static void tmp_fld_check_assert(header_field_info *hfinfo) {
+static void
+tmp_fld_check_assert(header_field_info *hfinfo) {
 	static const value_string hf_types[] = {
 	    { FT_NONE,		"FT_NONE" },
 	    { FT_PROTOCOL,	"FT_PROTOCOL" },
@@ -4795,12 +4796,8 @@ static void tmp_fld_check_assert(header_field_info *hfinfo) {
 	}
 
 	/* fields with an empty string for an abbreviation aren't filterable */
-	/* XXX - so why aren't we checking for an empty string here?? */
-	if (!hfinfo->abbrev)
+	if (!hfinfo->abbrev || !hfinfo->abbrev[0])
 		g_error("Field '%s' does not have an abbreviation\n", hfinfo->name);
-	/* Okay, let's at least put out a warning and see if anyone complains */
-	if (!hfinfo->abbrev[0])
-		g_warning("Field '%s' does not have an abbreviation", hfinfo->name);
 
 	/*  These types of fields are allowed to have value_strings,
 	 *  true_false_strings or a protocol_t struct
