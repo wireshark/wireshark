@@ -1354,6 +1354,8 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t
 
 	errno = WTAP_ERR_CANT_READ;
 	to_read = bh->block_total_length - MIN_NRB_SIZE;
+	
+	pcapng_debug0("pcapng_read_name_resolution_block");
 
 	while (block_read < to_read) {
 		/*
@@ -1491,7 +1493,7 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
 		 * No.
 		 */
 		*err = WTAP_ERR_BAD_FILE;
-		*err_info = g_strdup_printf("pcapng_read_name_resolution_block: total block length %u is too small (< %u)",
+		*err_info = g_strdup_printf("pcapng_read_interface_statistics_block: total block length %u is too small (< %u)",
 			      bh->block_total_length, MIN_NRB_SIZE);
 		return -1;
 	}
