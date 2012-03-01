@@ -50,7 +50,7 @@ GENERATED_CFLAGS=\
 CFLAGS=$(WARNINGS_ARE_ERRORS) $(GENERATED_CFLAGS)
 
 .c.obj::
-	$(CC) $(CVARSDLL) $(CFLAGS) -Fd.\ -c $<
+	$(CC) $(CFLAGS) -Fd.\ -c $<
 
 PLATFORM_SRC = capture-wpcap.c capture_wpcap_packet.c
 
@@ -468,7 +468,7 @@ text2pcap-scanner.c : text2pcap-scanner.l
 	$(LEX) -otext2pcap-scanner.c text2pcap-scanner.l
 
 text2pcap-scanner.obj : text2pcap-scanner.c
-	$(CC) $(CVARSDLL) $(GENERATED_CFLAGS) -Fd.\ -c $?
+	$(CC) $(GENERATED_CFLAGS) -Fd.\ -c $?
 
 #
 # The following targets will rebuild their respective objs
