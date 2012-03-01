@@ -162,7 +162,9 @@ edit_packet_comment_dlg (GtkAction *action _U_, gpointer data _U_)
   window_set_cancel_button (edit_or_add_pkt_comment_dlg, close_bt, window_cancel_button_cb);
 
   help_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_HELP);
+#if 0
   g_signal_connect (help_bt, "clicked",/* G_CALLBACK(topic_cb)*/NULL, /*(gpointer)HELP_MANUAL_ADDR_RESOLVE_DIALOG*/NULL);
+#endif
   gtk_widget_set_sensitive (help_bt, FALSE);
 
   gtk_widget_grab_default (save_bt);
@@ -240,7 +242,9 @@ edit_capture_dlg_launch (void)
   window_set_cancel_button (edit_or_add_capture_comment_dlg, close_bt, window_cancel_button_cb);
 
   help_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_HELP);
+#if 0
   g_signal_connect (help_bt, "clicked",/* G_CALLBACK(topic_cb)*/NULL, /*(gpointer)HELP_MANUAL_ADDR_RESOLVE_DIALOG*/NULL);
+#endif
   gtk_widget_set_sensitive (help_bt, FALSE);
 
   gtk_widget_grab_default (save_bt);
