@@ -1992,7 +1992,7 @@ cap_pipe_open_live(char *pipename,
         pcap_opts->cap_pipe_byte_swapped = TRUE;
         pcap_opts->cap_pipe_modified = TRUE;
         break;
-    /* XXX - Add support for PCAP_NSEC_MAGIC and PCAP_SWAPPED_NSEC_MAGIC */
+    /* XXX - Add support for PCAP_NSEC_MAGIC and PCAP_SWAPPED_NSEC_MAGIC? */
     default:
         /* Not a "libpcap" type we know about. */
         g_snprintf(errmsg, errmsgl, "Unrecognized libpcap format");
