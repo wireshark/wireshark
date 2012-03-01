@@ -51,8 +51,8 @@
 #include "ui/gtk/edit_packet_comment_dlg.h"
 #include "ui/gtk/old-gtk-compat.h"
 
-GtkWidget *edit_or_add_pkt_comment_dlg = NULL;
-GtkWidget *edit_or_add_capture_comment_dlg = NULL;
+static GtkWidget *edit_or_add_pkt_comment_dlg = NULL;
+static GtkWidget *edit_or_add_capture_comment_dlg = NULL;
 
 
 static void
@@ -141,8 +141,8 @@ edit_packet_comment_dlg (GtkAction *action _U_, gpointer data _U_)
   /*g_warning("Fetched comment '%s'",opt_comment);*/
 
   if(opt_comment){
-	  buf_str = g_strdup_printf("%s", opt_comment);
-	  gtk_text_buffer_set_text (buffer, buf_str, -1);
+    buf_str = g_strdup_printf("%s", opt_comment);
+    gtk_text_buffer_set_text (buffer, buf_str, -1);
   }
   gtk_container_add(GTK_CONTAINER(vbox), view);
   gtk_widget_show (view);
@@ -174,6 +174,13 @@ edit_packet_comment_dlg (GtkAction *action _U_, gpointer data _U_)
 
 }
 
+static void
+edit_capture_comment_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
+{
+  /* Note that we no longer have an "Edit Capture Comment" dialog box. */
+  edit_or_add_capture_comment_dlg = NULL;
+}
+
 void 
 edit_capture_dlg_launch (void)
 {
@@ -186,10 +193,19 @@ edit_capture_dlg_launch (void)
   const gchar *comment_str = NULL;
   const gchar *buf_str;
 
+  if (edit_or_add_capture_comment_dlg != NULL) {
+    /* There's already an "Edit Capture Comment" dialog box; reactivate it. */
+    reactivate_window(edit_or_add_capture_comment_dlg);
+    return;
+  }
+
   edit_or_add_capture_comment_dlg = dlg_window_new ("Edit or Add Capture Comments");
   gtk_widget_set_size_request (edit_or_add_capture_comment_dlg, 500, 160);
   gtk_window_set_resizable (GTK_WINDOW (edit_or_add_capture_comment_dlg), TRUE); 
   gtk_container_set_border_width (GTK_CONTAINER (edit_or_add_capture_comment_dlg), 0);
+
+  g_signal_connect(edit_or_add_capture_comment_dlg, "destroy",
+                   G_CALLBACK(edit_capture_comment_destroy_cb), NULL);
 
   vbox = gtk_vbox_new (FALSE, 0);
   gtk_container_add (GTK_CONTAINER (edit_or_add_capture_comment_dlg), vbox);
@@ -203,8 +219,8 @@ edit_capture_dlg_launch (void)
   /*g_warning("Fetched comment '%s'",opt_comment);*/
 
   if(comment_str != NULL){
-	  buf_str = g_strdup_printf("%s", comment_str);
-	  gtk_text_buffer_set_text (buffer, buf_str, -1);
+    buf_str = g_strdup_printf("%s", comment_str);
+    gtk_text_buffer_set_text (buffer, buf_str, -1);
   }
   gtk_container_add(GTK_CONTAINER(vbox), view);
   gtk_widget_show (view);
