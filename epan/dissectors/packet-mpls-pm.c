@@ -613,14 +613,14 @@ static void
 dissect_mpls_pm_dlm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     /* the message formats for direct and inferred LM are identical */
-    return dissect_mpls_pm_loss(tvb, pinfo, tree, DLM);
+    dissect_mpls_pm_loss(tvb, pinfo, tree, DLM);
 }
 
 static void
 dissect_mpls_pm_ilm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     /* the message formats for direct and inferred LM are identical */
-    return dissect_mpls_pm_loss(tvb, pinfo, tree, ILM);
+    dissect_mpls_pm_loss(tvb, pinfo, tree, ILM);
 }
 
 static void
