@@ -204,7 +204,7 @@ static void dissect_9P_dm(tvbuff_t * tvb,  proto_item * tree,int offset,int iscr
 static void dissect_9P_qid(tvbuff_t * tvb,  proto_tree * tree,int offset);
 
 /* Dissect 9P messages*/
-static void dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+static int dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
 	guint32 /*ninesz,*/tmp,i;
 	guint16 tmp16;
@@ -228,13 +228,13 @@ static void dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	if(strcmp(mname,"Unknown") == 0) {
 		col_add_fstr(pinfo->cinfo, COL_INFO, "9P Data Continuation(?) (Tag %u)",(guint)ninemsg);
 
-		return;
+		return 0;
 	}
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, "%s Tag=%u",mname,(guint)tvb_get_letohs(tvb,offset+5));
 
 	if (!tree) /*not much more of one line summary interrest yet.. */
-		return;
+		return 0;
 
 	ti = proto_tree_add_item(tree, proto_9P, tvb, 0, -1, ENC_NA);
 	ninep_tree = proto_item_add_subtree(ti, ett_9P);
@@ -567,6 +567,7 @@ static void dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		offset += tmp16+2;
 		break;
 	}
+	return offset;
 }
 /* dissect 9P open mode flags */
 static void dissect_9P_mode(tvbuff_t * tvb,  proto_item * item,int offset)
@@ -823,7 +824,7 @@ void proto_reg_handoff_9P(void)
 
 	data_handle = find_dissector("data");
 
-	ninep_handle = create_dissector_handle(dissect_9P, proto_9P);
+	ninep_handle = new_create_dissector_handle(dissect_9P, proto_9P);
 
 	dissector_add_uint("tcp.port", NINEPORT, ninep_handle);
 }
