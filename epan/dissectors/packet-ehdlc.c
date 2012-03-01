@@ -114,45 +114,46 @@ static dissector_handle_t sub_handles[SUB_MAX];
 static void
 dissect_ehdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	gint remaining;
-	int offset = 4;
+	int  offset = 4;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "EHDLC");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	while ((remaining = tvb_reported_length_remaining(tvb, offset)) > 0) {
-		proto_item *ti = NULL;
-		proto_tree *ehdlc_tree = NULL;
-		guint16 len, msg_type;
-		tvbuff_t *next_tvb;
-		guint16 control;
-		gboolean is_response = 0, is_extended = TRUE;
-		gint header_length = 2;	/* Address + Length field */
+	while (tvb_reported_length_remaining(tvb, offset) > 0) {
+		proto_item *ti            = NULL;
+		proto_tree *ehdlc_tree    = NULL;
+		guint16     len, msg_type;
+		tvbuff_t   *next_tvb;
+		guint16     control;
+		gboolean    is_response   = FALSE, is_extended = TRUE;
+		gint        header_length = 2; /* Address + Length field */
 
-		msg_type = tvb_get_guint8(tvb, offset);
-		len = tvb_get_guint8(tvb, offset+1);
+		msg_type      = tvb_get_guint8(tvb, offset);
+		len           = tvb_get_guint8(tvb, offset+1);
 #if 0
 		col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
 		                val_to_str(msg_type, ehdlc_protocol_vals,
 		                           "unknown 0x%02x"));
 #endif
 		if (tree) {
+			/* Use MIN(...,...) in the following to prevent a premature */
+			/* exception before we try to dissect whatever is available. */
 			ti = proto_tree_add_protocol_format(tree, proto_ehdlc,
-					tvb, offset, len,
+					tvb, offset, MIN(len, tvb_length_remaining(tvb,offset)),
 					"Ericsson HDLC protocol, type: %s",
 					val_to_str(msg_type, ehdlc_protocol_vals,
 						   "unknown 0x%02x"));
 			ehdlc_tree = proto_item_add_subtree(ti, ett_ehdlc);
 			proto_tree_add_item(ehdlc_tree, hf_ehdlc_protocol,
-					    tvb, offset, 1, FALSE);
+					    tvb, offset, 1, ENC_BIG_ENDIAN);
 #if 0
 			proto_tree_add_item(ehdlc_tree, hf_ehdlc_sapi,
-					    tvb, offset, 1, FALSE);
+					    tvb, offset, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(ehdlc_tree, hf_ehdlc_c_r,
-					    tvb, offset, 1, FALSE);
+					    tvb, offset, 1, ENC_BIG_ENDIAN);
 #endif
 			proto_tree_add_item(ehdlc_tree, hf_ehdlc_data_len,
-					    tvb, offset+1, 1, FALSE);
+					    tvb, offset+1, 1, ENC_BIG_ENDIAN);
 		}
 
 		control = dissect_xdlc_control(tvb, offset+2, pinfo, ehdlc_tree, hf_ehdlc_control,
@@ -162,7 +163,7 @@ dissect_ehdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		if (XDLC_IS_INFORMATION(control)) {
 			next_tvb = tvb_new_subset(tvb, offset+header_length,
-						  len-header_length, len);
+						  len-header_length, len-header_length);
 
 			switch (msg_type) {
 			case 0x20:
@@ -195,7 +196,7 @@ dissect_ehdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 * 08 01 05	Window Size Rx */
 			proto_tree_add_item(ehdlc_tree, hf_ehdlc_xid_payload,
 					    tvb, offset+header_length,
-					    len-header_length, FALSE);
+					    len-header_length, ENC_NA);
 		}
 
 		if (len == 0)
@@ -204,7 +205,8 @@ dissect_ehdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 }
 
-void proto_register_ehdlc(void)
+void
+proto_register_ehdlc(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_ehdlc_data_len,
@@ -314,9 +316,10 @@ void proto_register_ehdlc(void)
 	register_dissector("ehdlc", dissect_ehdlc, proto_ehdlc);
 }
 
-void proto_reg_handoff_ehdlc(void)
+void
+proto_reg_handoff_ehdlc(void)
 {
-	sub_handles[SUB_RSL] = find_dissector("gsm_abis_rsl");
-	sub_handles[SUB_OML] = find_dissector("gsm_abis_oml");
+	sub_handles[SUB_RSL]  = find_dissector("gsm_abis_rsl");
+	sub_handles[SUB_OML]  = find_dissector("gsm_abis_oml");
 	sub_handles[SUB_DATA] = find_dissector("data");
 }
