@@ -802,20 +802,20 @@ static guint64 decode_utf8(guint64 utf8)
 			((utf8 & 0x3F00) >> 2) +
 			(utf8 & 0x3F);
 	}
-	else if(utf8 <= 0xFFFFFFFFFF)
+	else if(utf8 <= G_GINT64_CONSTANT(0xFFFFFFFFFF))
 	{
 		unicode =
-			((utf8 & 0x0300000000) >> 8) +
+			((utf8 & G_GINT64_CONSTANT(0x0300000000)) >> 8) +
 			((utf8 & 0x3F000000) >> 6) +
 			((utf8 & 0x3F0000) >> 4) +
 			((utf8 & 0x3F00) >> 2) +
 			(utf8 & 0x3F);
 	}
-	else if(utf8 <= 0xFFFFFFFFFFFF)
+	else if(utf8 <= G_GINT64_CONSTANT(0xFFFFFFFFFFFF))
 	{
 		unicode =
-			((utf8 & 0x010000000000) >> 10) +
-			((utf8 & 0x3F00000000) >> 8) +
+			((utf8 & G_GINT64_CONSTANT(0x010000000000)) >> 10) +
+			((utf8 & G_GINT64_CONSTANT(0x3F00000000)) >> 8) +
 			((utf8 & 0x3F000000) >> 6) +
 			((utf8 & 0x3F0000) >> 4) +
 			((utf8 & 0x3F00) >> 2) +
