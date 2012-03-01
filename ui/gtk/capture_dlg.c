@@ -1881,7 +1881,7 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   gboolean      found = FALSE;
   gint          num_supported_link_types;
   guint         i;
-  gchar         *tok, *name = NULL;
+  gchar         *tok, *name;
   GtkCellRenderer *renderer;
   GtkListStore    *store;
 
@@ -1918,6 +1918,8 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
     gtk_tree_model_get(model, &iter, IFACE_NAME, &name, -1);
   } else if (window == cap_open_w) {
     gtk_tree_model_get(model, &iter, IFACE_HIDDEN_NAME, &name, -1);
+  } else {
+    return;
   }
   
   for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
