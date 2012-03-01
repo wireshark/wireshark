@@ -165,7 +165,8 @@ typedef enum {
   CT_ISUP,		/* ISDN User Part CIC */
   CT_IAX2,		/* IAX2 call id */
   CT_H223,		/* H.223 logical channel number */
-  CT_BICC		/* BICC Circuit identifier */
+  CT_BICC,		/* BICC Circuit identifier */
+  CT_DVBCI		/* DVB-CI session number */
   /* Could also have ATM VPI/VCI pairs */
 } circuit_type;
 

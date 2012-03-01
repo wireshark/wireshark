@@ -37,6 +37,7 @@
 
 #include <glib.h>
 #include <epan/addr_resolv.h>
+#include <epan/circuit.h>
 #include <epan/packet.h>
 #include <epan/reassemble.h>
 #include <epan/prefs.h>
@@ -316,7 +317,7 @@
 #define CC_PIN_BAD         0x0
 #define CC_PIN_CAM_BUSY    0x1
 #define CC_PIN_OK          0x2
-#define CC_PIN_UNCONFIRMED 0x3 
+#define CC_PIN_UNCONFIRMED 0x3
 #define CC_PIN_VB_NOT_REQ  0x4
 #define CC_PIN_CSA         0x5
 
@@ -501,7 +502,7 @@ dissect_dvbci_payload_sas(guint32 tag, gint len_field _U_,
 #define T_CC_SAC_DATA_CNF               0x9F9008
 #define T_CC_SAC_SYNC_REQ               0x9F9009
 #define T_CC_SAC_SYNC_CNF               0x9F9010
-#define T_CC_PIN_CAPABILITIES_REQ       0x9F9011                              
+#define T_CC_PIN_CAPABILITIES_REQ       0x9F9011
 #define T_CC_PIN_CAPABILITIES_REPLY     0x9F9012
 #define T_CC_PIN_CMD                    0x9F9013
 #define T_CC_PIN_REPLY                  0x9F9014
@@ -565,9 +566,9 @@ static const apdu_info_t apdu_info[] = {
     {T_REPLACE,             0, 5,             DATA_CAM_TO_HOST, dissect_dvbci_payload_hc},
     {T_CLEAR_REPLACE,       0, 1,             DATA_CAM_TO_HOST, dissect_dvbci_payload_hc},
     {T_ASK_RELEASE,         0, 0,             DATA_HOST_TO_CAM, NULL},
-    {T_TUNE_BROADCAST_REQ,  5, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_hc}, 
-    {T_TUNE_REPLY,          1, 1,             DATA_HOST_TO_CAM, dissect_dvbci_payload_hc},  
-    {T_ASK_RELEASE_REPLY,   1, 1,             DATA_CAM_TO_HOST, dissect_dvbci_payload_hc}, 
+    {T_TUNE_BROADCAST_REQ,  5, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_hc},
+    {T_TUNE_REPLY,          1, 1,             DATA_HOST_TO_CAM, dissect_dvbci_payload_hc},
+    {T_ASK_RELEASE_REPLY,   1, 1,             DATA_CAM_TO_HOST, dissect_dvbci_payload_hc},
 
     {T_DATE_TIME_ENQ,       0, 1,             DATA_CAM_TO_HOST, dissect_dvbci_payload_dt},
     {T_DATE_TIME,           5, LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_dt},
@@ -800,6 +801,10 @@ static int hf_dvbci_spdu_tag = -1;
 static int hf_dvbci_sess_status = -1;
 static int hf_dvbci_sess_nb = -1;
 static int hf_dvbci_close_sess_status = -1;
+static int hf_dvbci_res_id_type = -1;
+static int hf_dvbci_res_class = -1;
+static int hf_dvbci_res_type = -1;
+static int hf_dvbci_res_ver = -1;
 static int hf_dvbci_apdu_tag = -1;
 static int hf_dvbci_app_type = -1;
 static int hf_dvbci_app_manf = -1;
@@ -1489,7 +1494,7 @@ dissect_opp_cap_loop(guint8 cap_loop_len, const gchar *title,
         int item_hf, guint item_len,
         tvbuff_t *tvb, gint offset,
         packet_info *pinfo _U_, proto_tree *tree)
-{ 
+{
     proto_item *ti = NULL;
     proto_tree *loop_tree = NULL;
     guint i;
@@ -1514,10 +1519,10 @@ dissect_opp_cap_loop(guint8 cap_loop_len, const gchar *title,
 /* read a utc_time field in an apdu and write it to utc_time
    the encoding of the field is according to DVB-SI specification, section 5.2.5
    16bit modified julian day (MJD), 24bit 6*4bit BCD digits hhmmss
-   return the length in bytes or -1 for error */ 
+   return the length in bytes or -1 for error */
 static gint
 read_utc_time(tvbuff_t *tvb, gint offset, nstime_t *utc_time)
-{ 
+{
     gint bcd_time_offset; /* start offset of the bcd time in the tvbuff */
     guint8 hour, min, sec;
 
@@ -1626,7 +1631,7 @@ dissect_conn_desc(tvbuff_t *tvb, gint offset,
                     tvb, offset, FT_IPv6_LEN, ENC_NA);
             offset += FT_IPv6_LEN;
         }
-        else 
+        else
             offset += FT_IPv6_LEN;
 
         port = tvb_get_ntohs(tvb, offset);
@@ -1867,7 +1872,7 @@ decrypt_sac_msg_body(
     unsigned char    *clear_data = NULL;
     tvbuff_t         *clear_tvb = NULL;
     unsigned char    *sek = NULL, *siv = NULL;
-    
+
     if (enc_cip != CC_SAC_ENC_AES128_CBC)
         goto end;
     if (len%AES_BLOCK_LEN != 0)
@@ -1915,7 +1920,7 @@ end:
     return clear_tvb;
 }
 
-#else 
+#else
 /* HAVE_LIBGRYPT is not set */
 static tvbuff_t *
 decrypt_sac_msg_body(guint8 enc_cip _U_,
@@ -2143,13 +2148,34 @@ dissect_dvbci_text(const gchar *title, tvbuff_t *tvb, gint offset,
 }
 
 
-static void
-dissect_dvbci_res_id(tvbuff_t *tvb, gint offset,
-        packet_info *pinfo, proto_tree *tree, guint32 res_id,
-        gboolean show_col_info)
+static proto_item *
+dissect_res_id(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+        proto_tree *tree, guint32 res_id, gboolean show_col_info)
 {
-    proto_item *ti   = NULL;
+    proto_item *ti = NULL;
     proto_tree *res_tree = NULL;
+    gint tvb_data_len;
+
+    /* there's two possible inputs for this function
+        the resource id is either in a tvbuff_t (tvb!=NULL, res_id==0)
+        or in a guint32 (tvb==NULL, res_id!=0) */
+
+    if (tvb) {
+        /* resource id comes in via tvbuff */
+        if (res_id!=0)
+            return NULL;
+        res_id = tvb_get_ntohl(tvb, offset);
+        tvb_data_len = RES_ID_LEN;
+    }
+    else {
+        /* resource id comes in via guint32 */
+        if (res_id==0)
+            return NULL;
+        /* we'll call proto_tree_add_...( tvb==NULL, offset==0, length==0 )
+           this creates a filterable item without any reference to a tvb */
+        offset = 0;
+        tvb_data_len = 0;
+    }
 
     if (show_col_info) {
         col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s Version %d",
@@ -2159,24 +2185,33 @@ dissect_dvbci_res_id(tvbuff_t *tvb, gint offset,
     }
 
     if (tree) {
-        ti = proto_tree_add_text(
-                tree, tvb, offset, RES_ID_LEN, "Resource ID: 0x%04x", res_id);
-
+        ti = proto_tree_add_text(tree, tvb, offset, tvb_data_len,
+                "Resource ID: 0x%04x", res_id);
         res_tree = proto_item_add_subtree(ti, ett_dvbci_res);
 
-        proto_tree_add_text(res_tree, tvb, 0, 0, "%s",
-                decode_numeric_bitfield(res_id, RES_ID_TYPE_MASK, 32,
-                    "Resource ID Type: 0x%x"));
-        proto_tree_add_text(res_tree, tvb, 0, 0, "%s",
-                decode_enumerated_bitfield_shifted(res_id, RES_CLASS_MASK, 32,
-                    dvbci_res_class, "Resource Class: %s"));
-        proto_tree_add_text(res_tree, tvb, 0, 0, "%s",
-                decode_numeric_bitfield(res_id, RES_TYPE_MASK, 32,
-                    "Resource Type: 0x%x"));
-        proto_tree_add_text(res_tree, tvb, 0, 0, "%s",
-                decode_numeric_bitfield(res_id, RES_VER_MASK, 32,
-                    "Resource Version: 0x%x"));
+        /* parameter "value" == complete resource id,
+           RES_..._MASK will be applied by the hf definition */
+        proto_tree_add_uint_format(res_tree, hf_dvbci_res_id_type,
+                  tvb, offset, tvb_data_len, res_id, "%s",
+                  decode_numeric_bitfield(res_id, RES_ID_TYPE_MASK, 32,
+                      "Resource ID Type: 0x%x"));
+        proto_tree_add_uint_format(res_tree, hf_dvbci_res_class,
+                  tvb, offset, tvb_data_len, res_id, "%s (%s)",
+                  decode_numeric_bitfield(res_id, RES_CLASS_MASK, 32,
+                      "Resource Class: 0x%x"),
+                  val_to_str_const(RES_CLASS(res_id), dvbci_res_class,
+                      "Invalid Resource class"));
+        proto_tree_add_uint_format(res_tree, hf_dvbci_res_type,
+                  tvb, offset, tvb_data_len, res_id, "%s",
+                  decode_numeric_bitfield(res_id, RES_TYPE_MASK, 32,
+                      "Resource Type: 0x%x"));
+        proto_tree_add_uint_format(res_tree, hf_dvbci_res_ver,
+                  tvb, offset, tvb_data_len, res_id, "%s",
+                  decode_numeric_bitfield(res_id, RES_VER_MASK, 32,
+                      "Resource Version: 0x%x"));
     }
+
+    return ti;
 }
 
 /* dissect the body of a resource manager apdu */
@@ -2187,7 +2222,6 @@ dissect_dvbci_payload_rm(guint32 tag, gint len_field,
 {
     const gchar *tag_str;
     proto_item *pi;
-    guint32 res_id;
 
     if (tag==T_PROFILE) {
         if (len_field % RES_ID_LEN) {
@@ -2201,8 +2235,7 @@ dissect_dvbci_payload_rm(guint32 tag, gint len_field,
         }
 
         while (tvb_reported_length_remaining(tvb, offset) > 0) {
-            res_id = tvb_get_ntohl(tvb, offset);
-            dissect_dvbci_res_id(tvb, offset, pinfo, tree, res_id, FALSE);
+            dissect_res_id(tvb, offset, pinfo, tree, 0, FALSE);
             offset += RES_ID_LEN;
         }
     }
@@ -2335,7 +2368,7 @@ dissect_dvbci_payload_ca(guint32 tag, gint len_field,
                 tree, hf_dvbci_prog_num, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
         byte = tvb_get_guint8(tvb,offset);
-        proto_tree_add_text(tree, tvb, offset, 1, 
+        proto_tree_add_text(tree, tvb, offset, 1,
                 "Version number: 0x%x, Current-next indicator: 0x%x",
                 (byte&0x3E) >> 1, byte&0x01);
         offset++;
@@ -2795,7 +2828,7 @@ dissect_dvbci_payload_cc(guint32 tag, gint len_field _U_,
     nstime_t utc_time;
     guint8 pin_stat;
     guint8 evt_cent;
-    
+
     switch(tag) {
         case T_CC_OPEN_CNF:
             proto_tree_add_item(tree, hf_dvbci_cc_sys_id_bitmask,
@@ -2869,7 +2902,7 @@ dissect_dvbci_payload_cc(guint32 tag, gint len_field _U_,
                 sac_tree = proto_item_add_subtree(ti, ett_dvbci_sac_msg_body);
                 if (tag==T_CC_SAC_DATA_REQ || tag==T_CC_SAC_DATA_CNF) {
                     sac_payload_data_len = dissect_cc_data_payload(tag,
-                        clear_sac_body_tvb, 0, pinfo, sac_tree); 
+                        clear_sac_body_tvb, 0, pinfo, sac_tree);
                 }
                 else if (tag==T_CC_SAC_SYNC_REQ) {
                     sac_payload_data_len = 0;
@@ -3159,7 +3192,7 @@ dissect_dvbci_payload_lsc(guint32 tag, gint len_field,
             proto_tree_add_item(tree, hf_dvbci_comms_cmd_id,
                     tvb, offset, 1, ENC_BIG_ENDIAN);
             id = tvb_get_guint8(tvb, offset);
-            col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s", 
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s",
                     val_to_str(id, dvbci_comms_cmd_id, "Unknown: %d"));
             offset++;
             switch(id) {
@@ -3221,7 +3254,7 @@ dissect_dvbci_payload_lsc(guint32 tag, gint len_field,
                     proto_tree_add_uint_format(tree, hf_dvbci_phase_id,
                             tvb, offset, 1, phase_id, "Phase ID %d", phase_id);
                     col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
-                            "received #%d", phase_id); 
+                            "received #%d", phase_id);
                     break;
                 default:
                     break;
@@ -3231,7 +3264,7 @@ dissect_dvbci_payload_lsc(guint32 tag, gint len_field,
             proto_tree_add_item(tree, hf_dvbci_comms_rep_id,
                     tvb, offset, 1, ENC_BIG_ENDIAN);
             id = tvb_get_guint8(tvb,offset);
-            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s", 
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s",
                     val_to_str(id, dvbci_comms_rep_id, "Unknown: %d"));
             offset++;
             ret_val = tvb_get_guint8(tvb,offset);
@@ -3392,7 +3425,7 @@ dissect_dvbci_payload_opp(guint32 tag, gint len_field _U_,
           cap_loop_len = tvb_get_guint8(tvb, offset);
           proto_tree_add_text(tree, tvb, offset, 1,
                   "Application capabilities loop length: %d", cap_loop_len);
-          dissect_opp_cap_loop(cap_loop_len, 
+          dissect_opp_cap_loop(cap_loop_len,
                   "Application capabilities loop",
                   hf_dvbci_app_cap_bytes, 2,
                   tvb, offset, pinfo, tree);
@@ -3452,7 +3485,7 @@ dissect_dvbci_payload_sas(guint32 tag, gint len_field _U_,
             offset += 8;
             if (tag == T_SAS_CONNECT_CNF) {
                 sas_status = tvb_get_guint8(tvb, offset);
-                col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, 
+                col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
                         (sas_status == SAS_SESS_STATE_CONNECTED ?
                          "Ok" : "Error"));
                 proto_tree_add_item(tree, hf_dvbci_sas_sess_state,
@@ -3583,11 +3616,14 @@ dissect_dvbci_spdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree *sess_tree = NULL;
     guint8 tag;
     const gchar *tag_str;
-    gint offset;
+    circuit_t *circuit = NULL;
     proto_item *pi;
+    gint offset;
     guint32 len_field;
     const spdu_info_t *si;
+    proto_item *res_id_it = NULL;
     guint32 res_id;
+    guint16 ssnb = 0;  /* session numbers start with 1, 0 is invalid */
     guint8 sess_stat;
     tvbuff_t *payload_tvb = NULL;
     gint payload_len;
@@ -3644,33 +3680,40 @@ dissect_dvbci_spdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     switch(tag)
     {
         case T_OPEN_SESSION_REQUEST:
-            res_id = tvb_get_ntohl(tvb, offset); /* get 32bit big-endian */
-            dissect_dvbci_res_id(tvb, offset, pinfo, sess_tree, res_id, TRUE);
+            res_id_it = dissect_res_id(tvb, offset, pinfo, sess_tree, 0, TRUE);
             break;
         case T_CREATE_SESSION:
-            res_id = tvb_get_ntohl(tvb, offset);
-            dissect_dvbci_res_id(tvb, offset, pinfo, sess_tree, res_id, TRUE);
+            res_id_it = dissect_res_id(tvb, offset, pinfo, sess_tree, 0, TRUE);
             /* DVB-CI uses network byte order == big endian */
-            proto_tree_add_item(
-                    sess_tree, hf_dvbci_sess_nb, tvb,
-                    offset+4, 2, ENC_BIG_ENDIAN);
+            ssnb = tvb_get_ntohs(tvb, offset+RES_ID_LEN);
+            proto_tree_add_item(sess_tree, hf_dvbci_sess_nb,
+                    tvb, offset+RES_ID_LEN, 2, ENC_BIG_ENDIAN);
             break;
         case T_OPEN_SESSION_RESPONSE:
         case T_CREATE_SESSION_RESPONSE:
             sess_stat = tvb_get_guint8(tvb, offset);
-            proto_tree_add_item(
-                    sess_tree, hf_dvbci_sess_status, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(sess_tree, hf_dvbci_sess_status,
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
             res_id = tvb_get_ntohl(tvb, offset+1);
-            dissect_dvbci_res_id(tvb, offset+1, pinfo, sess_tree, res_id, TRUE);
+            res_id_it = dissect_res_id(tvb, offset+1, pinfo, sess_tree, 0, TRUE);
+            ssnb = tvb_get_ntohs(tvb, offset+1+RES_ID_LEN);
             proto_tree_add_item(sess_tree, hf_dvbci_sess_nb, tvb,
                     offset+1+RES_ID_LEN, 2, ENC_BIG_ENDIAN);
-            if (sess_stat == SESS_OPENED)
-                col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
-                        "Session opened");
-            else
+            if (sess_stat != SESS_OPENED) {
                 col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Error");
+                break;
+            }
+            col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Session opened");
+            circuit = circuit_new(CT_DVBCI, (guint32)ssnb, pinfo->fd->num);
+            if (circuit) {
+                /* we always add the resource id immediately after the circuit
+                   was created */
+                circuit_add_proto_data(
+                        circuit, proto_dvbci, GUINT_TO_POINTER(res_id));
+            }
             break;
         case T_CLOSE_SESSION_REQUEST:
+            ssnb = tvb_get_ntohs(tvb, offset);
             proto_tree_add_item(
                     sess_tree, hf_dvbci_sess_nb, tvb,
                     offset, 2, ENC_BIG_ENDIAN);
@@ -3680,17 +3723,17 @@ dissect_dvbci_spdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_tree_add_item(
                     sess_tree, hf_dvbci_close_sess_status, tvb,
                     offset, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(
-                    sess_tree, hf_dvbci_sess_nb, tvb,
-                    offset+1, 2, ENC_BIG_ENDIAN);
-            if (sess_stat == SESS_CLOSED) {
-                col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
-                        "Session closed");
-            }
-            else
-                col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Error");
+            col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
+                    sess_stat==SESS_CLOSED ? "Session closed" : "Error");
+            ssnb = tvb_get_ntohs(tvb, offset+1);
+            proto_tree_add_item(sess_tree, hf_dvbci_sess_nb,
+                    tvb, offset+1, 2, ENC_BIG_ENDIAN);
+            circuit = find_circuit(CT_DVBCI, (guint32)ssnb, pinfo->fd->num);
+            if (circuit)
+                close_circuit(circuit, pinfo->fd->num);
             break;
         case T_SESSION_NUMBER:
+            ssnb = tvb_get_ntohs(tvb, offset);
             proto_tree_add_item(
                     sess_tree, hf_dvbci_sess_nb, tvb,
                     offset, 2, ENC_BIG_ENDIAN);
@@ -3700,6 +3743,19 @@ dissect_dvbci_spdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             break;
         default:
             break;
+    }
+
+    if (ssnb && !circuit)
+        circuit = find_circuit(CT_DVBCI, (guint32)ssnb, pinfo->fd->num);
+
+    /* if the packet contains no resource id, we add the cached id from
+       the circuit so that each packet has a resource id that can be
+       used for filtering */
+    if (circuit && !res_id_it) {
+        /* when a circuit is found, it always contains a valid resource id */
+        res_id = GPOINTER_TO_UINT(circuit_get_proto_data(circuit, proto_dvbci));
+        res_id_it = dissect_res_id(NULL, 0, pinfo, sess_tree, res_id, TRUE);
+        PROTO_ITEM_SET_GENERATED(res_id_it);
     }
 
     if (payload_tvb) {
@@ -3921,9 +3977,9 @@ dissect_dvbci_tpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             process_reassembled_data() returns the remainder of the tvb
             which is body|status part
            if there's more than one fragment, payload_tvb contains only
-            the reassembled bodies as expected 
+            the reassembled bodies as expected
            to work around this issue, we use a dedicated body_tvb as
-            input to reassembly routines */ 
+            input to reassembly routines */
         body_tvb = tvb_new_subset(tvb, offset, body_len, body_len);
         frag_msg = fragment_add_seq_next(body_tvb, 0, pinfo,
                 SEQ_ID_TRANSPORT_LAYER,
@@ -4379,6 +4435,18 @@ proto_register_dvbci(void)
         { &hf_dvbci_close_sess_status,
             { "Session Status", "dvb-ci.close_session_status", FT_UINT8,
                 BASE_HEX, VALS(dvbci_close_sess_status), 0, NULL, HFILL } },
+        { &hf_dvbci_res_id_type,
+            { "Resource ID Type", "dvb-ci.res.id_type", FT_UINT32,
+                BASE_HEX, NULL, RES_ID_TYPE_MASK, NULL, HFILL } },
+        { &hf_dvbci_res_class,
+            { "Resource Class", "dvb-ci.res.class", FT_UINT32,
+                BASE_HEX, NULL, RES_CLASS_MASK, NULL, HFILL } },
+        { &hf_dvbci_res_type,
+            { "Resource Type", "dvb-ci.res.type", FT_UINT32,
+                BASE_HEX, NULL, RES_TYPE_MASK, NULL, HFILL } },
+        { &hf_dvbci_res_ver,
+            { "Resource Version", "dvb-ci.res.version", FT_UINT32,
+                BASE_HEX, NULL, RES_VER_MASK, NULL, HFILL } },
         { &hf_dvbci_apdu_tag,
             { "APDU Tag", "dvb-ci.apdu_tag", FT_UINT24, BASE_HEX,
                 VALS(dvbci_apdu_tag), 0, NULL, HFILL } },
@@ -4761,7 +4829,7 @@ proto_register_dvbci(void)
             { "NIT", "dvb-ci.opp.nit", FT_BYTES, BASE_NONE,
                 NULL, 0, NULL, HFILL } },
         { &hf_dvbci_info_valid,
-            { "Info valid", "dvb-ci.opp.info_valid", FT_UINT8, 
+            { "Info valid", "dvb-ci.opp.info_valid", FT_UINT8,
                 BASE_HEX, NULL, 0x08, NULL, HFILL } },
         { &hf_dvbci_info_ver_op_info,
             { "Info version", "dvb-ci.opp.info_ver", FT_UINT8, BASE_HEX,
@@ -4826,13 +4894,13 @@ proto_register_dvbci(void)
             { "Next unprocessed descriptor number", "dvb-ci.opp.desc_num",
                 FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
         { &hf_dvbci_sig_strength,
-            { "Signal strength", "dvb-ci.opp.sig_strength", FT_UINT8, 
+            { "Signal strength", "dvb-ci.opp.sig_strength", FT_UINT8,
                 BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_dvbci_sig_qual,
-            { "Signal quality", "dvb-ci.opp.sig_qual", FT_UINT8, 
+            { "Signal quality", "dvb-ci.opp.sig_qual", FT_UINT8,
                 BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_dvbci_opp_tune_status,
-            { "Tuning status", "dvb-ci.opp.tune_status", FT_UINT8, 
+            { "Tuning status", "dvb-ci.opp.tune_status", FT_UINT8,
                 BASE_HEX, NULL, 0xF0, NULL, HFILL } },
         { &hf_dvbci_opp_desc_loop_len,
            { "Descriptor loop length", "dvb-ci.opp.desc_loop_len", FT_UINT16,
