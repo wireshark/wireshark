@@ -7381,7 +7381,7 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb
 }
 
 proto_item *
-proto_tree_add_split_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb,
+proto_tree_add_split_bits_item_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb,
 			                      const gint bit_offset, const crumb_spec_t *crumb_spec, 
                                   guint64 *return_value)
 {

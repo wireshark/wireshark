@@ -376,7 +376,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
           guint8 no_of_value_bits = (guint8) pDescr->i;
           guint64 value;
 
-          proto_tree_add_split_bits_ret_val(tree, *pDescr->serialize.hf_ptr, tvb, bit_offset, pDescr->descr.crumb_spec, &value);
+          proto_tree_add_split_bits_item_ret_val(tree, *pDescr->serialize.hf_ptr, tvb, bit_offset, pDescr->descr.crumb_spec, &value);
           if (no_of_value_bits <= 8)
           {
             pui8      = pui8DATA(data, pDescr->offset);

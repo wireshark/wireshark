@@ -475,6 +475,8 @@ typedef proto_node proto_item;
 
 /* expert severities */
 #define PI_SEVERITY_MASK	0x00F00000	/**< mask usually for internal use only! */
+/** Packet is commented */
+#define PI_COMMENT		0x00100000
 /** Usual workflow, e.g. TCP connection establishing */
 #define PI_CHAT			0x00200000
 /** Notable messages, e.g. an application returned an "usual" error code like HTTP 404 */
@@ -1913,7 +1915,7 @@ proto_tree_add_bits_item(proto_tree *tree, const int hf_index, tvbuff_t *tvb, co
  @param return_value if a pointer is passed here the value is returned.
  @return the newly created item */
 extern proto_item *
-proto_tree_add_split_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb,
+proto_tree_add_split_bits_item_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb,
 			    const gint bit_offset, const crumb_spec_t *crumb_spec,
 			    guint64 *return_value);
 
@@ -1924,7 +1926,7 @@ proto_tree_add_split_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t
 *  of contiguous bits, specified by one of an array of
 *  crumb_spec elements. This function is normally called once
 *  per crumb, after the call to
-   proto_tree_add_split_bits_ret_val
+   proto_tree_add_split_bits_item_ret_val
  @param tree the tree to append this item to
  @param hf_index field index. Fields for use with this function should have bitmask==0.
  @param tvb the tv buffer of the current data
