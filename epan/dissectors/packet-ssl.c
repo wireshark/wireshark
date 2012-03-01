@@ -4674,11 +4674,13 @@ ssl_looks_like_valid_pct_handshake(tvbuff_t *tvb, const guint32 offset,
         /* version follows msg byte, so verify that this is valid */
         version = tvb_get_ntohs(tvb, offset+1);
         ret = (version == PCT_VERSION_1);
+        break;
 
     case PCT_MSG_SERVER_HELLO:
         /* version is one byte after msg_type */
         version = tvb_get_ntohs(tvb, offset+2);
         ret = (version == PCT_VERSION_1);
+        break;
 
     case PCT_MSG_CLIENT_MASTER_KEY:
         /* sum of various length fields must be less than record length */
