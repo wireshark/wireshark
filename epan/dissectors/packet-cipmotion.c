@@ -1229,7 +1229,7 @@ dissect_set_axis_attr_list_request (tvbuff_t* tvb, proto_tree* tree, guint32 off
       }
 
       /* Display the value of this attribute */
-      proto_tree_add_item(attr_tree, hf_cip_attribute_data, tvb, offset + attribute_start, attribute_size, ENC_NA);
+      proto_tree_add_item(attr_tree, hf_cip_attribute_data, tvb, local_offset + attribute_start, attribute_size, ENC_NA);
 
       /* Round the attribute size up so the next attribute lines up on a 32-bit boundary */
       if (attribute_size % 4 != 0)
