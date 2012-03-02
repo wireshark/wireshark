@@ -1851,7 +1851,6 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		break;
 
 	case 79:	/* SLP Service Scope Option RFC2610 Added by Greg Morris (gmorris@novell.com)*/
-		byte = tvb_get_guint8(tvb, optoff);
 		proto_tree_add_item(v_tree, hf_bootp_option_slp_service_scope_value, tvb, optoff, 1, ENC_BIG_ENDIAN);
 
 		optoff++;
@@ -1989,7 +1988,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 
 					proto_tree_add_item(v_tree, hf_bootp_option_dhcp_authentication_secret_id, tvb, optoff, 4, ENC_BIG_ENDIAN);
 					optoff += 4;
-					optleft -= 4;
+					/*optleft -= 4;*/
 					proto_tree_add_item(v_tree, hf_bootp_option_dhcp_authentication_hmac_md5_hash, tvb, optoff, 16, ENC_ASCII|ENC_NA);
 					break;
 				}
@@ -2151,7 +2150,6 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 			break;
 		}
 
-		optend = optoff + optlen;
 		optleft = optlen;
 
 		while (optleft > 0) {
