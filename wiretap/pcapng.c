@@ -1285,7 +1285,9 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t
 	}
 
 	errno = WTAP_ERR_CANT_READ;
-	to_read = bh->block_total_length - MIN_NRB_SIZE;
+	to_read = bh->block_total_length - 8 - 4; /* We have read the header adn should not read the final block_total_length */
+	
+	pcapng_debug1("pcapng_read_name_resolution_block, total %d bytes", bh->block_total_length);
 
 	while (block_read < to_read) {
 		/*
@@ -1423,7 +1425,7 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
 		 * No.
 		 */
 		*err = WTAP_ERR_BAD_RECORD;
-		*err_info = g_strdup_printf("pcapng_read_name_resolution_block: total block length %u is too small (< %u)",
+		*err_info = g_strdup_printf("pcapng_read_interface_statistics_block: total block length %u is too small (< %u)",
 			      bh->block_total_length, MIN_NRB_SIZE);
 		return -1;
 	}
@@ -1439,7 +1441,7 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
 	block_read = bytes_read;
 
 	if(pn->byte_swapped) {
-		wblock->data.if_stats.interface_id	= BSWAP64(isb.interface_id);
+		wblock->data.if_stats.interface_id	= BSWAP32(isb.interface_id);
 		wblock->data.if_stats.ts_high		= BSWAP32(isb.timestamp_high);
 		wblock->data.if_stats.ts_low		= BSWAP32(isb.timestamp_low);
 	} else {
