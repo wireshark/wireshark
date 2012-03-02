@@ -3306,7 +3306,7 @@ dissect_ldap_DirSyncFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 	int otheroffset = offset;
 	if(!implicit_tag){
-		otheroffset=dissect_ber_identifier(actx->pinfo, tree, tvb, otheroffset, &ber_class, &pc, &tag);
+		dissect_ber_identifier(actx->pinfo, tree, tvb, otheroffset, &ber_class, &pc, &tag);
 		otheroffset=dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, NULL);
 	} else {
 		gint32 remaining=tvb_length_remaining(tvb, offset);
@@ -4077,7 +4077,6 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
 	    }
           }
       }
-      offset += sasl_msg_len;
     } else {
 	/* plain LDAP, so dissect the payload */
 	dissect_ldap_payload(tvb, pinfo, ldap_tree, ldap_info, is_mscldap);
@@ -4662,7 +4661,7 @@ this_was_not_sasl:
 	}
 
 	/* check that length makes sense */
-	offset=get_ber_length(tvb, 1, &ldap_len, &ind);
+	get_ber_length(tvb, 1, &ldap_len, &ind);
 
 	/* dont check ind since indefinite length is never used for ldap (famous last words)*/
 	if(ldap_len<2){
@@ -4720,7 +4719,7 @@ this_was_not_normal_ldap:
 	  ldap_info->start_tls_frame = 0; /* make sure we don't call SSL again */
 	  pinfo->can_desegment++; /* ignore this LDAP layer so SSL can use the TCP resegment */
 
-	  offset = call_dissector(ssl_handle, tvb, pinfo, tree);
+	  call_dissector(ssl_handle, tvb, pinfo, tree);
 
 	  ldap_info->start_tls_frame = old_start_tls_frame;
 	  ssl_dissector_delete(tcp_port, "ldap", TRUE);
@@ -5612,7 +5611,7 @@ void proto_register_ldap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 2071 "../../asn1/ldap/packet-ldap-template.c"
+#line 2070 "../../asn1/ldap/packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -5687,7 +5686,7 @@ void proto_register_ldap(void) {
     &ett_ldap_T_warning,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 2084 "../../asn1/ldap/packet-ldap-template.c"
+#line 2083 "../../asn1/ldap/packet-ldap-template.c"
   };
 
     module_t *ldap_module;
@@ -5818,7 +5817,7 @@ proto_reg_handoff_ldap(void)
 
 
 /*--- End of included file: packet-ldap-dis-tab.c ---*/
-#line 2198 "../../asn1/ldap/packet-ldap-template.c"
+#line 2197 "../../asn1/ldap/packet-ldap-template.c"
 
 
 }
