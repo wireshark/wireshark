@@ -1095,7 +1095,7 @@ dissect_cip_s_validator_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, 
                gaa_offset += dissect_s_validator_app_data_path(pinfo, cmd_data_tree, pi, tvb, offset+4+add_stat_size+gaa_offset, item_length-4-add_stat_size-gaa_offset);
                proto_tree_add_item(cmd_data_tree, hf_cip_svalidator_error_code, tvb, offset+4+add_stat_size+gaa_offset, 2, ENC_LITTLE_ENDIAN );
                gaa_offset += 2;
-               gaa_offset += dissect_s_validator_prod_cons_fault_count(pinfo, cmd_data_tree, pi, tvb, offset+4+add_stat_size+gaa_offset, item_length-4-add_stat_size-gaa_offset);
+               /*gaa_offset +=*/ dissect_s_validator_prod_cons_fault_count(pinfo, cmd_data_tree, pi, tvb, offset+4+add_stat_size+gaa_offset, item_length-4-add_stat_size-gaa_offset);
             }
             else
             {
