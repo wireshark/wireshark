@@ -189,12 +189,16 @@ static const value_string pmt_vals[] = {
 #define MPLS_PM_TSF_NTP 2
 #define MPLS_PM_TSF_PTP 3
 const range_string mpls_pm_time_stamp_format_rvals[] = {
-    { MPLS_PM_TSF_NULL, MPLS_PM_TSF_NULL,  "Null Timestamp"                                 },
-    { MPLS_PM_TSF_SEQ, MPLS_PM_TSF_SEQ,  "Sequence Number"                                  },
-    { MPLS_PM_TSF_NTP, MPLS_PM_TSF_NTP,  "Network Time Protocol version 4 64-bit Timestamp" },
-    { MPLS_PM_TSF_PTP, MPLS_PM_TSF_PTP,  "Truncated IEEE 1588v2 PTP Timestamp"              },
-    { 4, 15, "Unassigned"                                                                   },
-    { 0,  0,  NULL                                                                          }
+    { MPLS_PM_TSF_NULL, MPLS_PM_TSF_NULL, 
+      "Null Timestamp"                                   },
+    { MPLS_PM_TSF_SEQ, MPLS_PM_TSF_SEQ, 
+      "Sequence Number"                                  },
+    { MPLS_PM_TSF_NTP, MPLS_PM_TSF_NTP,
+      "Network Time Protocol version 4 64-bit Timestamp" },
+    { MPLS_PM_TSF_PTP, MPLS_PM_TSF_PTP,
+      "Truncated IEEE 1588v2 PTP Timestamp"              },
+    { 4, 15, "Unassigned"                                },
+    { 0,  0, NULL                                        }
 };
 
 static void
@@ -216,7 +220,7 @@ mpls_pm_dissect_counter(tvbuff_t *tvb, proto_tree *pm_tree,
         switch (i) {
         case 1:
             ti = proto_tree_add_item(pm_tree, hf_mpls_pm_counter1, tvb,
-                                         offset, 8, ENC_BIG_ENDIAN);
+                                     offset, 8, ENC_BIG_ENDIAN);
             proto_item_append_text(ti, " %s (A_Tx)", unit);
             break;
         case 2:
@@ -240,7 +244,7 @@ mpls_pm_dissect_counter(tvbuff_t *tvb, proto_tree *pm_tree,
         switch (i) {
         case 1:
             ti = proto_tree_add_item(pm_tree, hf_mpls_pm_counter1, tvb,
-                                         offset, 8, ENC_BIG_ENDIAN);
+                                     offset, 8, ENC_BIG_ENDIAN);
             proto_item_append_text(ti, " %s (B_Tx)", unit);
             break;
         case 2:
@@ -292,7 +296,7 @@ mpls_pm_dissect_timestamp(tvbuff_t *tvb, proto_tree *pm_tree,
                 break;
             case MPLS_PM_TSF_NTP:
                 proto_tree_add_item(pm_tree, hf_mpls_pm_timestamp1_q_ntp, tvb,
-                                    offset, 8, ENC_TIME_NTP | ENC_BIG_ENDIAN);
+                                    offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
                 break;
             case MPLS_PM_TSF_PTP:
                 {
@@ -352,7 +356,7 @@ mpls_pm_dissect_timestamp(tvbuff_t *tvb, proto_tree *pm_tree,
                 break;
             case MPLS_PM_TSF_NTP:
                 proto_tree_add_item(pm_tree, hf_mpls_pm_timestamp1_r_ntp, tvb,
-                                    offset, 8, ENC_TIME_NTP | ENC_BIG_ENDIAN);
+                                    offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
                 break;
             case MPLS_PM_TSF_PTP:
                 {
@@ -387,7 +391,7 @@ mpls_pm_dissect_timestamp(tvbuff_t *tvb, proto_tree *pm_tree,
                 break;
             case MPLS_PM_TSF_NTP:
                 proto_tree_add_item(pm_tree, hf_mpls_pm_timestamp3_r_ntp, tvb,
-                                    offset, 8, ENC_TIME_NTP | ENC_BIG_ENDIAN);
+                                    offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
                 break;
             case MPLS_PM_TSF_PTP:
                 {
@@ -417,7 +421,7 @@ mpls_pm_dissect_timestamp(tvbuff_t *tvb, proto_tree *pm_tree,
                 break;
             case MPLS_PM_TSF_NTP:
                 proto_tree_add_item(pm_tree, hf_mpls_pm_timestamp4_r_ntp, tvb,
-                                    offset, 8, ENC_TIME_NTP | ENC_BIG_ENDIAN);
+                                    offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
                 break;
             case MPLS_PM_TSF_PTP:
                 {
@@ -530,11 +534,15 @@ dissect_mpls_pm_loss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* ctrl flags subtree */
 
-    ti = proto_tree_add_item(pm_tree, hf_mpls_pm_flags, tvb, offset, 1, ENC_NA);
+    ti = proto_tree_add_item(pm_tree, hf_mpls_pm_flags, tvb, 
+                             offset, 1, ENC_NA);
     pm_tree_flags = proto_item_add_subtree(ti, ett_mpls_pm_flags);
-    proto_tree_add_item(pm_tree_flags, hf_mpls_pm_flags_r, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(pm_tree_flags, hf_mpls_pm_flags_t, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(pm_tree_flags, hf_mpls_pm_flags_res, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(pm_tree_flags, hf_mpls_pm_flags_r, tvb, 
+                        offset, 1, ENC_NA);
+    proto_tree_add_item(pm_tree_flags, hf_mpls_pm_flags_t, tvb, 
+                        offset, 1, ENC_NA);
+    proto_tree_add_item(pm_tree_flags, hf_mpls_pm_flags_res, tvb, 
+                        offset, 1, ENC_NA);
     offset += 1;
 
     if (query) {
@@ -551,12 +559,16 @@ dissect_mpls_pm_loss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += 2;
 
     /* data flags subtree */
-    ti = proto_tree_add_item(pm_tree, hf_mpls_pm_dflags, tvb, offset, 1, ENC_NA);
+    ti = proto_tree_add_item(pm_tree, hf_mpls_pm_dflags, tvb, 
+                             offset, 1, ENC_NA);
     pm_tree_dflags = proto_item_add_subtree(ti, ett_mpls_pm_dflags);
-    proto_tree_add_item(pm_tree_dflags, hf_mpls_pm_dflags_x, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(pm_tree_dflags, hf_mpls_pm_dflags_x, tvb, 
+                        offset, 1, ENC_NA);
     bflag = (tvb_get_guint8(tvb, offset) & 0x40) ? TRUE : FALSE;
-    proto_tree_add_item(pm_tree_dflags, hf_mpls_pm_dflags_b, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(pm_tree_dflags, hf_mpls_pm_dflags_res, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(pm_tree_dflags, hf_mpls_pm_dflags_b, tvb, 
+                        offset, 1, ENC_NA);
+    proto_tree_add_item(pm_tree_dflags, hf_mpls_pm_dflags_res, tvb, 
+                        offset, 1, ENC_NA);
 
     otf = tvb_get_guint8(tvb, offset) & 0x0F;
     proto_tree_add_item(pm_tree, hf_mpls_pm_otf, tvb,
@@ -584,7 +596,7 @@ dissect_mpls_pm_loss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         break;
     case MPLS_PM_TSF_NTP:
         proto_tree_add_item(pm_tree, hf_mpls_pm_origin_timestamp_ntp, tvb,
-                            offset, 8, ENC_TIME_NTP | ENC_BIG_ENDIAN);
+                            offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
         break;
     case MPLS_PM_TSF_PTP:
         {
@@ -657,9 +669,12 @@ dissect_mpls_pm_delay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* ctrl flags subtree */
     ti = proto_tree_add_item(pm_tree, hf_mpls_pm_flags, tvb, offset, 1, ENC_NA);
     pm_tree_flags = proto_item_add_subtree(ti, ett_mpls_pm_flags);
-    proto_tree_add_item(pm_tree_flags, hf_mpls_pm_flags_r, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(pm_tree_flags, hf_mpls_pm_flags_t, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(pm_tree_flags, hf_mpls_pm_flags_res, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(pm_tree_flags, hf_mpls_pm_flags_r, tvb, 
+                        offset, 1, ENC_NA);
+    proto_tree_add_item(pm_tree_flags, hf_mpls_pm_flags_t, tvb, 
+                        offset, 1, ENC_NA);
+    proto_tree_add_item(pm_tree_flags, hf_mpls_pm_flags_res, tvb, 
+                        offset, 1, ENC_NA);
     offset += 1;
 
     if (query) {
@@ -750,9 +765,12 @@ dissect_mpls_pm_combined(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* ctrl flags subtree */
     ti = proto_tree_add_item(pm_tree, hf_mpls_pm_flags, tvb, offset, 1, ENC_NA);
     pm_tree_flags = proto_item_add_subtree(ti, ett_mpls_pm_flags);
-    proto_tree_add_item(pm_tree_flags, hf_mpls_pm_flags_r, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(pm_tree_flags, hf_mpls_pm_flags_t, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(pm_tree_flags, hf_mpls_pm_flags_res, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(pm_tree_flags, hf_mpls_pm_flags_r, tvb, 
+                        offset, 1, ENC_NA);
+    proto_tree_add_item(pm_tree_flags, hf_mpls_pm_flags_t, tvb, 
+                        offset, 1, ENC_NA);
+    proto_tree_add_item(pm_tree_flags, hf_mpls_pm_flags_res, tvb, 
+                        offset, 1, ENC_NA);
     offset += 1;
 
     if (query) {
@@ -769,12 +787,16 @@ dissect_mpls_pm_combined(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += 2;
 
     /* data flags subtree */
-    ti = proto_tree_add_item(pm_tree, hf_mpls_pm_dflags, tvb, offset, 1, ENC_NA);
+    ti = proto_tree_add_item(pm_tree, hf_mpls_pm_dflags, tvb, 
+                             offset, 1, ENC_NA);
     pm_tree_dflags = proto_item_add_subtree(ti, ett_mpls_pm_dflags);
-    proto_tree_add_item(pm_tree_dflags, hf_mpls_pm_dflags_x, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(pm_tree_dflags, hf_mpls_pm_dflags_x, tvb, 
+                        offset, 1, ENC_NA);
     bflag = (tvb_get_guint8(tvb, offset) & 0x40) ? TRUE : FALSE;
-    proto_tree_add_item(pm_tree_dflags, hf_mpls_pm_dflags_b, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(pm_tree_dflags, hf_mpls_pm_dflags_res, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(pm_tree_dflags, hf_mpls_pm_dflags_b, tvb, 
+                        offset, 1, ENC_NA);
+    proto_tree_add_item(pm_tree_dflags, hf_mpls_pm_dflags_res, tvb, 
+                        offset, 1, ENC_NA);
 
     /*
      * FF: the roles of the OTF and Origin Timestamp fields for LM are
@@ -1411,15 +1433,16 @@ proto_reg_handoff_mpls_pm(void)
     mpls_pm_ilm_dm_handle =
         create_dissector_handle(dissect_mpls_pm_ilm_dm, proto_mpls_pm_ilm_dm);
 }
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4
- * tab-width: 8
+ * tab-width: 4
  * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=4 tabstop=8 expandtab:
- * :indentSize=4:tabSize=8:noTabs=true:
+ * vi: set shiftwidth=4 tabstop=4 expandtab:
+ * :indentSize=4:tabSize=4:noTabs=true:
  */
