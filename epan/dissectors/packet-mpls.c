@@ -588,7 +588,7 @@ dissect_pw_mcw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     call_dissector( dissector_data, next_tvb, pinfo, tree );
 }
 
-static void
+static int
 dissect_mpls_oam_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *mpls_tree,
                      int offset, guint8 exp, guint8 bos, guint8 ttl)
 {
@@ -613,24 +613,24 @@ dissect_mpls_oam_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
                                 (functype == 0x07) ? "FDD" : "reserved/unknown");
             }
         }
-        return;
+        return 0;
     }
 
     /* sanity checks */
     if (!mpls_tree)
-        return;
+        return 0;
 
     if (!tvb_bytes_exist(tvb, offset, 44)) {
         /* ITU-T Y.1711, 5.3: OAM pdus must have a minimum payload length of 44 bytes */
         proto_tree_add_text(mpls_tree, tvb, offset, -1, "Error: must have a minimum payload length of 44 bytes");
-        return;
+        return 0;
     }
 
     ti = proto_tree_add_text(mpls_tree, tvb, offset, 44, "MPLS Operation & Maintenance");
     mpls_oam_tree = proto_item_add_subtree(ti, ett_mpls_oam);
 
     if (!mpls_oam_tree)
-        return;
+        return 0;
 
     /* checks for exp, bos and ttl encoding */
 
@@ -788,12 +788,14 @@ dissect_mpls_oam_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
 
     default:
         proto_tree_add_text(mpls_oam_tree, tvb, offset - 1, -1, "Unknown MPLS OAM pdu");
-        return;
+        return 0;
     }
 
     /* BIP16 */
     proto_tree_add_item(mpls_oam_tree, hf_mpls_oam_bip16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset+=2;
+
+    return offset;
 }
 
 static void
