@@ -634,7 +634,7 @@ expert_dlg_draw(void *data)
     }
 
     if(etd->label) {
-        title = g_strdup_printf("Errors: %u Warnings: %u Notes: %u Chats: %u, Packet comments",
+        title = g_strdup_printf("Errors: %u Warnings: %u Notes: %u Chats: %u, Packet comments: %u",
                                 etd->error_events, etd->warn_events,
                                 etd->note_events, etd->chat_events, etd->pkt_comments_events);
         gtk_label_set_text(GTK_LABEL(etd->label), title);
