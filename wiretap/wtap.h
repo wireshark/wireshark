@@ -227,7 +227,7 @@ extern "C" {
 #define WTAP_ENCAP_NETANALYZER                  135
 #define WTAP_ENCAP_NETANALYZER_TRANSPARENT      136
 #define WTAP_ENCAP_IP_OVER_IB                   137
-#define WTAP_ENCAP_MPEG_2_TS			138
+#define WTAP_ENCAP_MPEG_2_TS                    138
 #define WTAP_ENCAP_PPP_ETHER			139
 
 #define WTAP_NUM_ENCAP_TYPES                    wtap_get_num_encap_types()
@@ -295,7 +295,8 @@ extern "C" {
 #define WTAP_FILE_JPEG_JFIF                     57 /* obsoleted by WTAP_FILE_MIME */
 #define WTAP_FILE_IPFIX                         58
 #define WTAP_FILE_MIME                          59
-#define WTAP_FILE_AETHRA			60
+#define WTAP_FILE_AETHRA                        60
+#define WTAP_FILE_MPEG_2_TS                     61
 
 #define WTAP_NUM_FILE_TYPES                     wtap_get_num_file_types()
 

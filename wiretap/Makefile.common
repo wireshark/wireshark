@@ -59,6 +59,7 @@ NONGENERATED_C_FILES = \
 	lanalyzer.c		\
 	libpcap.c		\
 	mpeg.c			\
+	mp2t.c			\
 	netmon.c		\
 	netscaler.c		\
 	netscreen.c		\
@@ -111,6 +112,7 @@ NONGENERATED_HEADER_FILES = \
 	lanalyzer.h		\
 	libpcap.h		\
 	mpeg.h			\
+	mp2t.h			\
 	netmon.h		\
 	netscreen.h		\
 	netscaler.h		\

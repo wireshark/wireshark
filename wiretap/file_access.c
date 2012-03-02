@@ -72,6 +72,7 @@
 #include "k12.h"
 #include "ber.h"
 #include "catapult_dct2000.h"
+#include "mp2t.h"
 #include "mpeg.h"
 #include "netscreen.h"
 #include "commview.h"
@@ -132,6 +133,7 @@ static wtap_open_routine_t open_routines_base[] = {
 	packetlogger_open, /* This type does not have a magic number, but its
 			    * files are sometimes grabbed by mpeg_open. */
 	mpeg_open,
+	mp2t_open,
 	tnef_open,
 	dct3trace_open,
 	daintree_sna_open,
@@ -592,6 +594,10 @@ static const struct file_type_info dump_open_table_base[] = {
 
 	/* WTAP_FILE_MPEG */
 	{ "MPEG", "mpeg", "mpeg", "mpg;mp3", FALSE, FALSE,
+	  NULL, NULL },
+
+	/* WTAP_FILE_MPEG_2_TS */
+	{ "MP2T", "mp2t", "mp2t", "mp2t;ts;mpg", FALSE, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_K12TEXT  */

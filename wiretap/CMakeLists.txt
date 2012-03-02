@@ -53,6 +53,7 @@ set(WIRETAP_FILES
 	libpcap.c
 	mpeg.c
 	mime_file.c
+	mp2t.c
 	netmon.c
 	netscaler.c
 	netscreen.c
