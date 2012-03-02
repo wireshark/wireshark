@@ -1888,33 +1888,6 @@ dissect_cipmotion(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
    }
 }
 
-static gboolean
-dissect_cipmotion_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-   if (
-      /* The total message size is 10 bytes long at a minimum, 2 bytes for the
-       * update id and 8 bytes for the protocol header */
-      (tvb_length(tvb) >= 10) &&
-      /* The connection format is between 4 and 7 (fixed format message is very unlikely) */
-      ( (tvb_get_guint8(tvb, 2) >= 4) ||
-        (tvb_get_guint8(tvb, 2) <= 7) )  &&
-      /* The datagram format revision is 2 */
-      (tvb_get_guint8(tvb, 3) == 2) &&
-      /* The node control field is a maximum of Fh */
-      (tvb_get_guint8(tvb, 5) <= 0x0F) &&
-      /* If all valid bits are set in the time data set the value is 0x0F at a maximum  */
-      (tvb_get_guint8(tvb, 9) <= 0x0F) )
-   {
-      /* ...then attempt a dissection */
-      dissect_cipmotion(tvb, pinfo, tree);
-      return TRUE;
-   }
-   else
-   {
-      return FALSE;
-   }
-}
-
 /*
  * Function name: proto_register_cipmotion
  *
@@ -2181,6 +2154,8 @@ proto_register_cipmotion(void)
 
    /* Register the subtrees for the protocol dissection */
    proto_register_subtree_array(cip_subtree, array_length(cip_subtree));
+
+   register_dissector( "cipmotion", dissect_cipmotion, proto_cipmotion);
 }
 
 /*
@@ -2194,7 +2169,6 @@ proto_register_cipmotion(void)
 void
 proto_reg_handoff_cipmotion(void)
 {
-   heur_dissector_add("enip.cpf.conndata", dissect_cipmotion_heur, proto_cipmotion);
 }
 
 

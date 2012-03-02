@@ -408,7 +408,7 @@ static const value_string cip_svalidator_type_conn_type_vals[] = {
 };
 
 void
-dissect_unid(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_item *pi, const char* ssn_name, int hf_ssn_timestamp, 
+dissect_unid(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_item *pi, const char* ssn_name, int hf_ssn_timestamp,
              int hf_ssn_date, int hf_ssn_time, int hf_macid, gint ett, gint ett_ssn)
 {
    proto_tree *tree, *ssn_tree;
@@ -509,7 +509,7 @@ dissect_cip_s_supervisor_data( proto_tree *item_tree, tvbuff_t *tvb, int offset,
             {
             case SC_SSUPER_VALIDATE_CONFIGURATION:
                proto_tree_add_item(cmd_data_tree, hf_cip_ssupervisor_validate_configuration_sccrc, tvb, offset+4+add_stat_size, 4, ENC_LITTLE_ENDIAN);
-               dissect_cipsafety_ssn(cmd_data_tree, tvb, pinfo, offset+4+add_stat_size+4, hf_cip_ssupervisor_validate_configuration_scts_timestamp, 
+               dissect_cipsafety_ssn(cmd_data_tree, tvb, pinfo, offset+4+add_stat_size+4, hf_cip_ssupervisor_validate_configuration_scts_timestamp,
                                  hf_cip_ssupervisor_validate_configuration_scts_date, hf_cip_ssupervisor_validate_configuration_scts_time);
                break;
             }
@@ -569,7 +569,7 @@ dissect_cip_s_supervisor_data( proto_tree *item_tree, tvbuff_t *tvb, int offset,
             break;
          case SC_SSUPER_VALIDATE_CONFIGURATION:
             proto_tree_add_item(cmd_data_tree, hf_cip_ssupervisor_validate_configuration_sccrc, tvb, offset+2+req_path_size, 4, ENC_LITTLE_ENDIAN);
-            dissect_cipsafety_ssn(cmd_data_tree, tvb, pinfo, offset+2+req_path_size+4, hf_cip_ssupervisor_validate_configuration_scts_timestamp, 
+            dissect_cipsafety_ssn(cmd_data_tree, tvb, pinfo, offset+2+req_path_size+4, hf_cip_ssupervisor_validate_configuration_scts_timestamp,
                                  hf_cip_ssupervisor_validate_configuration_scts_date, hf_cip_ssupervisor_validate_configuration_scts_time);
             break;
          case SC_SSUPER_SET_PASSWORD:
@@ -668,7 +668,7 @@ int dissect_s_supervisor_exception_detail(proto_tree *tree, proto_item *item, tv
    return size+1;
 }
 
-int dissect_s_supervisor_exception_detail_alarm(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, 
+int dissect_s_supervisor_exception_detail_alarm(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                              int offset, int total_len)
 {
    proto_item *pi;
@@ -677,7 +677,7 @@ int dissect_s_supervisor_exception_detail_alarm(packet_info *pinfo, proto_tree *
 
    pi = proto_tree_add_text(tree, tvb, offset, 1, "Common Exception Detail");
    item_tree = proto_item_add_subtree(pi, ett_exception_detail_alarm_common);
-   size = dissect_s_supervisor_exception_detail(item_tree, pi, tvb, offset, 
+   size = dissect_s_supervisor_exception_detail(item_tree, pi, tvb, offset,
                hf_cip_ssupervisor_exception_detail_alarm_ced_size, hf_cip_ssupervisor_exception_detail_alarm_ced_detail);
    if (size == 0)
    {
@@ -688,7 +688,7 @@ int dissect_s_supervisor_exception_detail_alarm(packet_info *pinfo, proto_tree *
 
    pi = proto_tree_add_text(tree, tvb, offset, 1, "Device Exception Detail");
    item_tree = proto_item_add_subtree(pi, ett_exception_detail_alarm_device);
-   size = dissect_s_supervisor_exception_detail(item_tree, pi, tvb, offset, 
+   size = dissect_s_supervisor_exception_detail(item_tree, pi, tvb, offset,
                hf_cip_ssupervisor_exception_detail_alarm_ded_size, hf_cip_ssupervisor_exception_detail_alarm_ded_detail);
    if (size == 0)
    {
@@ -699,7 +699,7 @@ int dissect_s_supervisor_exception_detail_alarm(packet_info *pinfo, proto_tree *
 
    pi = proto_tree_add_text(tree, tvb, offset, 1, "Manufacturer Exception Detail");
    item_tree = proto_item_add_subtree(pi, ett_exception_detail_alarm_manufacturer);
-   size = dissect_s_supervisor_exception_detail(item_tree, pi, tvb, offset, 
+   size = dissect_s_supervisor_exception_detail(item_tree, pi, tvb, offset,
                hf_cip_ssupervisor_exception_detail_alarm_med_size, hf_cip_ssupervisor_exception_detail_alarm_med_detail);
    if (size == 0)
    {
@@ -711,7 +711,7 @@ int dissect_s_supervisor_exception_detail_alarm(packet_info *pinfo, proto_tree *
    return total_size;
 }
 
-int dissect_s_supervisor_exception_detail_warning(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, 
+int dissect_s_supervisor_exception_detail_warning(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                              int offset, int total_len)
 {
    proto_item *pi;
@@ -720,7 +720,7 @@ int dissect_s_supervisor_exception_detail_warning(packet_info *pinfo, proto_tree
 
    pi = proto_tree_add_text(tree, tvb, offset, 1, "Common Exception Detail");
    item_tree = proto_item_add_subtree(pi, ett_exception_detail_warning_common);
-   size = dissect_s_supervisor_exception_detail(item_tree, pi, tvb, offset, 
+   size = dissect_s_supervisor_exception_detail(item_tree, pi, tvb, offset,
                hf_cip_ssupervisor_exception_detail_warning_ced_size, hf_cip_ssupervisor_exception_detail_warning_ced_detail);
    if (size == 0)
    {
@@ -731,7 +731,7 @@ int dissect_s_supervisor_exception_detail_warning(packet_info *pinfo, proto_tree
 
    pi = proto_tree_add_text(tree, tvb, offset, 1, "Device Exception Detail");
    item_tree = proto_item_add_subtree(pi, ett_exception_detail_warning_device);
-   size = dissect_s_supervisor_exception_detail(item_tree, pi, tvb, offset, 
+   size = dissect_s_supervisor_exception_detail(item_tree, pi, tvb, offset,
                hf_cip_ssupervisor_exception_detail_warning_ded_size, hf_cip_ssupervisor_exception_detail_warning_ded_detail);
    if (size == 0)
    {
@@ -742,7 +742,7 @@ int dissect_s_supervisor_exception_detail_warning(packet_info *pinfo, proto_tree
 
    pi = proto_tree_add_text(tree, tvb, offset, 1, "Manufacturer Exception Detail");
    item_tree = proto_item_add_subtree(pi, ett_exception_detail_warning_manufacturer);
-   size = dissect_s_supervisor_exception_detail(item_tree, pi, tvb, offset, 
+   size = dissect_s_supervisor_exception_detail(item_tree, pi, tvb, offset,
                hf_cip_ssupervisor_exception_detail_warning_med_size, hf_cip_ssupervisor_exception_detail_warning_med_detail);
    if (size == 0)
    {
@@ -754,7 +754,7 @@ int dissect_s_supervisor_exception_detail_warning(packet_info *pinfo, proto_tree
    return total_size;
 }
 
-int dissect_s_supervisor_configuration_unid(packet_info *pinfo, proto_tree *tree _U_, proto_item *item, tvbuff_t *tvb, 
+int dissect_s_supervisor_configuration_unid(packet_info *pinfo, proto_tree *tree _U_, proto_item *item, tvbuff_t *tvb,
                              int offset, int total_len)
 {
    if (total_len < 10)
@@ -763,13 +763,13 @@ int dissect_s_supervisor_configuration_unid(packet_info *pinfo, proto_tree *tree
       return total_len;
    }
 
-   dissect_unid(tvb, pinfo, offset, item, "CFUNID SSN", hf_cip_ssupervisor_configuration_unid_ssn_timestamp, 
-                  hf_cip_ssupervisor_configuration_unid_ssn_date, hf_cip_ssupervisor_configuration_unid_ssn_time, 
+   dissect_unid(tvb, pinfo, offset, item, "CFUNID SSN", hf_cip_ssupervisor_configuration_unid_ssn_timestamp,
+                  hf_cip_ssupervisor_configuration_unid_ssn_date, hf_cip_ssupervisor_configuration_unid_ssn_time,
                   hf_cip_ssupervisor_configuration_unid_macid, ett_ssupervisor_configuration_unid, ett_ssupervisor_configuration_unid_ssn);
    return 10;
 }
 
-int dissect_s_supervisor_safety_configuration_id(packet_info *pinfo, proto_tree *tree _U_, proto_item *item, tvbuff_t *tvb, 
+int dissect_s_supervisor_safety_configuration_id(packet_info *pinfo, proto_tree *tree _U_, proto_item *item, tvbuff_t *tvb,
                              int offset, int total_len)
 {
    if (total_len < 10)
@@ -778,13 +778,13 @@ int dissect_s_supervisor_safety_configuration_id(packet_info *pinfo, proto_tree 
       return total_len;
    }
 
-   dissect_unid(tvb, pinfo, offset, item, "SCID SSN", hf_cip_ssupervisor_safety_configuration_id_ssn_timestamp, 
+   dissect_unid(tvb, pinfo, offset, item, "SCID SSN", hf_cip_ssupervisor_safety_configuration_id_ssn_timestamp,
                   hf_cip_ssupervisor_safety_configuration_id_ssn_date, hf_cip_ssupervisor_safety_configuration_id_ssn_time,
                   hf_cip_ssupervisor_safety_configuration_id_macid, ett_ssupervisor_safety_configuration_id, ett_ssupervisor_safety_configuration_id_ssn);
    return 10;
 }
 
-int dissect_s_supervisor_target_unid(packet_info *pinfo, proto_tree *tree _U_, proto_item *item, tvbuff_t *tvb, 
+int dissect_s_supervisor_target_unid(packet_info *pinfo, proto_tree *tree _U_, proto_item *item, tvbuff_t *tvb,
                              int offset, int total_len)
 {
    if (total_len < 10)
@@ -793,13 +793,13 @@ int dissect_s_supervisor_target_unid(packet_info *pinfo, proto_tree *tree _U_, p
       return total_len;
    }
 
-   dissect_unid(tvb, pinfo, offset, item, "TUNID SSN", hf_cip_ssupervisor_target_unid_ssn_timestamp, 
+   dissect_unid(tvb, pinfo, offset, item, "TUNID SSN", hf_cip_ssupervisor_target_unid_ssn_timestamp,
                   hf_cip_ssupervisor_target_unid_ssn_date, hf_cip_ssupervisor_target_unid_ssn_time,
                   hf_cip_ssupervisor_target_unid_macid, ett_ssupervisor_target_unid, ett_ssupervisor_target_unid_ssn);
    return 10;
 }
 
-int dissect_s_supervisor_output_connection_point_owners(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, 
+int dissect_s_supervisor_output_connection_point_owners(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                              int offset, int total_len)
 {
    guint16 i, num_entries;
@@ -829,8 +829,8 @@ int dissect_s_supervisor_output_connection_point_owners(packet_info *pinfo, prot
             return total_len;
          }
 
-         dissect_unid(tvb, pinfo, offset+attr_len, entry_item, "OCPUNID SSN", hf_cip_ssupervisor_output_cp_owners_ocpunid_ssn_timestamp, 
-                        hf_cip_ssupervisor_output_cp_owners_ocpunid_ssn_date, hf_cip_ssupervisor_output_cp_owners_ocpunid_ssn_time, 
+         dissect_unid(tvb, pinfo, offset+attr_len, entry_item, "OCPUNID SSN", hf_cip_ssupervisor_output_cp_owners_ocpunid_ssn_timestamp,
+                        hf_cip_ssupervisor_output_cp_owners_ocpunid_ssn_date, hf_cip_ssupervisor_output_cp_owners_ocpunid_ssn_time,
                         hf_cip_ssupervisor_output_cp_owners_ocpunid_macid, ett_ssupervisor_output_cp_owners_ocpunid, ett_ssupervisor_output_cp_owners_ocpunid_ssn);
          attr_len += 10;
 
@@ -853,7 +853,7 @@ int dissect_s_supervisor_output_connection_point_owners(packet_info *pinfo, prot
    return attr_len;
 }
 
-int dissect_s_supervisor_proposed_tunid(packet_info *pinfo, proto_tree *tree _U_, proto_item *item, tvbuff_t *tvb, 
+int dissect_s_supervisor_proposed_tunid(packet_info *pinfo, proto_tree *tree _U_, proto_item *item, tvbuff_t *tvb,
                              int offset, int total_len)
 {
    if (total_len < 10)
@@ -862,7 +862,7 @@ int dissect_s_supervisor_proposed_tunid(packet_info *pinfo, proto_tree *tree _U_
       return total_len;
    }
 
-   dissect_unid(tvb, pinfo, offset, item, "Proposed TUNID SSN", hf_cip_ssupervisor_proposed_tunid_ssn_timestamp, 
+   dissect_unid(tvb, pinfo, offset, item, "Proposed TUNID SSN", hf_cip_ssupervisor_proposed_tunid_ssn_timestamp,
                   hf_cip_ssupervisor_proposed_tunid_ssn_date, hf_cip_ssupervisor_proposed_tunid_ssn_time,
                   hf_cip_ssupervisor_proposed_tunid_macid, ett_ssupervisor_proposed_tunid, ett_ssupervisor_proposed_tunid_ssn);
    return 10;
@@ -873,7 +873,7 @@ int dissect_s_supervisor_proposed_tunid(packet_info *pinfo, proto_tree *tree _U_
  * Dissector for CIP Safety Validator Object
  *
  ************************************************/
-int dissect_s_validator_type(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, 
+int dissect_s_validator_type(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                              int offset, int total_len)
 {
    proto_item *pi;
@@ -887,12 +887,12 @@ int dissect_s_validator_type(packet_info *pinfo, proto_tree *tree, proto_item *i
 
    pi = proto_tree_add_item(tree, hf_cip_svalidator_type, tvb, offset, 1, ENC_LITTLE_ENDIAN );
    item_tree = proto_item_add_subtree(pi, ett_svalidator_type);
-   proto_tree_add_item(item_tree, hf_cip_svalidator_type_pc, tvb, offset, 1, ENC_LITTLE_ENDIAN );   
-   proto_tree_add_item(item_tree, hf_cip_svalidator_type_conn_type, tvb, offset, 1, ENC_LITTLE_ENDIAN );   
+   proto_tree_add_item(item_tree, hf_cip_svalidator_type_pc, tvb, offset, 1, ENC_LITTLE_ENDIAN );
+   proto_tree_add_item(item_tree, hf_cip_svalidator_type_conn_type, tvb, offset, 1, ENC_LITTLE_ENDIAN );
    return 1;
 }
 
-int dissect_s_validator_time_coord_msg_min_mult(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, 
+int dissect_s_validator_time_coord_msg_min_mult(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                              int offset, int total_len)
 {
    int i, size;
@@ -914,7 +914,7 @@ int dissect_s_validator_time_coord_msg_min_mult(packet_info *pinfo, proto_tree *
    return (size+1);
 }
 
-int dissect_s_validator_network_time_multiplier(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, 
+int dissect_s_validator_network_time_multiplier(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                              int offset, int total_len)
 {
    int i, size;
@@ -936,7 +936,7 @@ int dissect_s_validator_network_time_multiplier(packet_info *pinfo, proto_tree *
    return (size+1);
 }
 
-int dissect_s_validator_timeout_multiplier(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, 
+int dissect_s_validator_timeout_multiplier(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                              int offset, int total_len)
 {
    int i, size;
@@ -958,7 +958,7 @@ int dissect_s_validator_timeout_multiplier(packet_info *pinfo, proto_tree *tree,
    return (size+1);
 }
 
-int dissect_s_validator_coordination_conn_inst(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, 
+int dissect_s_validator_coordination_conn_inst(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                              int offset, int total_len)
 {
    int i, size;
@@ -980,14 +980,14 @@ int dissect_s_validator_coordination_conn_inst(packet_info *pinfo, proto_tree *t
    return (size+1);
 }
 
-int dissect_s_validator_app_data_path(packet_info *pinfo, proto_tree *tree _U_, proto_item *item, tvbuff_t *tvb, 
+int dissect_s_validator_app_data_path(packet_info *pinfo, proto_tree *tree _U_, proto_item *item, tvbuff_t *tvb,
                              int offset, int total_len)
 {
    dissect_epath(tvb, pinfo, item, offset, total_len, FALSE, FALSE, NULL, NULL);
    return total_len;
 }
 
-int dissect_s_validator_prod_cons_fault_count(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, 
+int dissect_s_validator_prod_cons_fault_count(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                              int offset, int total_len)
 {
    int i, size;
@@ -1070,7 +1070,7 @@ dissect_cip_s_validator_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, 
          {
             /* Success responses */
             if (((service & 0x7F) == SC_GET_ATT_ALL) &&
-                (req_data.iInstance != (guint32)-1) && 
+                (req_data.iInstance != (guint32)-1) &&
                 (req_data.iInstance != 0))
             {
                /* Get Attribute All (instance) response */
@@ -1233,7 +1233,7 @@ dissect_mode_byte( proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pin
 
    mode_byte = tvb_get_guint8(tvb, offset);
 
-   /* dissect Mode Byte bits */ 
+   /* dissect Mode Byte bits */
    mode_item = proto_tree_add_item(tree, hf_cipsafety_mode_byte, tvb, offset, 1, ENC_LITTLE_ENDIAN);
    mode_tree = proto_item_add_subtree( mode_item, ett_cipsafety_mode_byte);
 
@@ -1245,7 +1245,7 @@ dissect_mode_byte( proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pin
    tbd2_item = proto_tree_add_item(mode_tree, hf_cipsafety_mode_byte_tbd_2_bit, tvb, offset, 1, ENC_LITTLE_ENDIAN);
    run_idle_item = proto_tree_add_item(mode_tree, hf_cipsafety_mode_byte_run_idle, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
-   /* verify Mode Byte bits */ 
+   /* verify Mode Byte bits */
    /* TBD */
    if ((((mode_byte & 0x20) >> 5) & 0x01) == (((mode_byte & 0x04) >> 2) & 0x01))
       expert_add_info_format(pinfo, tbd_item, PI_PROTOCOL, PI_WARN, "TBD_2_bit not complemented");
@@ -1272,7 +1272,7 @@ dissect_ack_byte( proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinf
    ack_byte = tvb_get_guint8(tvb, offset);
 */
 
-   /* dissect Ack Byte bits */ 
+   /* dissect Ack Byte bits */
    ack_item = proto_tree_add_item(tree, hf_cipsafety_ack_byte, tvb, offset, 1, ENC_LITTLE_ENDIAN);
    ack_tree = proto_item_add_subtree( ack_item, ett_cipsafety_ack_byte);
 
@@ -1295,7 +1295,7 @@ dissect_mcast_byte( proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pi
    mcast_byte = tvb_get_guint8(tvb, offset);
 */
 
-   /* dissect MCast Byte bits */ 
+   /* dissect MCast Byte bits */
    mcast_item = proto_tree_add_item(tree, hf_cipsafety_mcast_byte, tvb, offset, 1, ENC_LITTLE_ENDIAN);
    mcast_tree = proto_item_add_subtree( mcast_item, ett_cipsafety_mcast_byte);
 
@@ -1379,20 +1379,22 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
          else
          {
             /* Long Format (3-250 bytes I/O data) */
-            if (item_length%2 == 0)
+            if (item_length%2 == 1)
             {
                /* Malformed packet */
                expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Malformed CIP Safety I/O packet");
                return;
             }
 
-            io_data_size = multicast ? ((item_length-11)/2) : ((item_length-5)/2);
+            io_data_size = multicast ? ((item_length-14)/2) : ((item_length-8)/2);
 
             proto_tree_add_item(tree, hf_cipsafety_data, tvb, 0, io_data_size, ENC_LITTLE_ENDIAN);
             dissect_mode_byte(tree, tvb, io_data_size, pinfo);
             proto_tree_add_item(tree, hf_cipsafety_crc_s3, tvb, io_data_size+1, 2, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(tree, hf_cipsafety_complement_data, tvb, io_data_size+3, io_data_size, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(tree, hf_cipsafety_crc_s3, tvb, (io_data_size*2)+3, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_cipsafety_timestamp, tvb, (io_data_size*2)+5, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_cipsafety_crc_s1, tvb, (io_data_size*2)+7, 1, ENC_LITTLE_ENDIAN);
 
             if (multicast)
             {
@@ -1481,22 +1483,7 @@ dissect_cipsafety(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    }
 }
 
-static gboolean
-dissect_cipsafety_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-   cip_safety_info_t* safety_info = (cip_safety_info_t*)p_get_proto_data( pinfo->fd, proto_cipsafety );
-
-   if (safety_info != NULL)
-   {
-      dissect_cipsafety(tvb, pinfo, tree);
-      return TRUE;
-   }
-
-   return FALSE;
-}
-
-
-int dissect_sercosiii_link_error_count_p1p2(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, 
+int dissect_sercosiii_link_error_count_p1p2(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                              int offset, int total_len)
 {
    if (total_len < 4)
@@ -1505,12 +1492,12 @@ int dissect_sercosiii_link_error_count_p1p2(packet_info *pinfo, proto_tree *tree
       return total_len;
    }
 
-   proto_tree_add_item(tree, hf_cip_sercosiii_link_error_count_p1, tvb, offset, 2, ENC_LITTLE_ENDIAN );   
-   proto_tree_add_item(tree, hf_cip_sercosiii_link_error_count_p2, tvb, offset+2, 2, ENC_LITTLE_ENDIAN );   
+   proto_tree_add_item(tree, hf_cip_sercosiii_link_error_count_p1, tvb, offset, 2, ENC_LITTLE_ENDIAN );
+   proto_tree_add_item(tree, hf_cip_sercosiii_link_error_count_p2, tvb, offset+2, 2, ENC_LITTLE_ENDIAN );
    return 4;
 }
 
-int dissect_tcpip_ssn(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, 
+int dissect_tcpip_ssn(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                              int offset, int total_len)
 {
    if (total_len < 6)
@@ -1861,6 +1848,7 @@ proto_register_cipsafety(void)
    proto_register_field_array(proto_cipsafety, hf, array_length(hf));
    proto_register_subtree_array(ett, array_length(ett));
    register_init_routine(&cipsafety_init_protocol);
+   register_dissector( "cipsafety", dissect_cipsafety, proto_cipsafety);
 
    /* Register CIP Safety objects */
    proto_cip_class_s_supervisor = proto_register_protocol("CIP Safety Supervisor",
@@ -1885,8 +1873,6 @@ proto_register_cipsafety(void)
 void
 proto_reg_handoff_cipsafety(void)
 {
-   heur_dissector_add("enip.cpf.conndata", dissect_cipsafety_heur, proto_cipsafety);
-
    /* Create and register dissector handle for Safety Supervisor */
    cip_class_s_supervisor_handle = new_create_dissector_handle( dissect_cip_class_s_supervisor, proto_cip_class_s_supervisor );
    dissector_add_uint( "cip.class.iface", CI_CLS_SAFETY_SUPERVISOR, cip_class_s_supervisor_handle );

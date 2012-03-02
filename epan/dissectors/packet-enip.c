@@ -257,7 +257,8 @@ static dissector_table_t   subdissector_srrd_table;
 static dissector_table_t   subdissector_sud_table;
 static dissector_handle_t  data_handle;
 static dissector_handle_t  arp_handle;
-static heur_dissector_list_t   heur_subdissector_conndata_table;
+static dissector_handle_t  cipsafety_handle;
+static dissector_handle_t  cipmotion_handle;
 
 static gboolean enip_desegment = TRUE;
 static gboolean enip_OTrun_idle = TRUE;
@@ -674,6 +675,7 @@ typedef struct enip_conn_val {
    guint32 closeframe;
    guint32 connid;
    cip_safety_epath_info_t safety;
+   gboolean motion;
 } enip_conn_val_t;
 
 typedef struct _enip_conv_info_t {
@@ -690,7 +692,7 @@ enip_conn_equal(gconstpointer v, gconstpointer w)
   const enip_conn_key_t *v1 = (const enip_conn_key_t *)v;
   const enip_conn_key_t *v2 = (const enip_conn_key_t *)w;
 
-  if ((v1->ConnSerialNumber == v2->ConnSerialNumber) && 
+  if ((v1->ConnSerialNumber == v2->ConnSerialNumber) &&
       (v1->VendorID == v2->VendorID) &&
       (v1->DeviceSerialNumber == v2->DeviceSerialNumber) &&
       ((v1->O2TConnID == 0) || (v2->O2TConnID == 0) || (v1->O2TConnID == v2->O2TConnID)) &&
@@ -742,6 +744,7 @@ enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
       conn_val->T2OConnID = connInfo->T2O.connID;
       conn_val->TransportClass_trigger = connInfo->TransportClass_trigger;
       conn_val->safety = connInfo->safety;
+      conn_val->motion = connInfo->motion;
       conn_val->openframe = pinfo->fd->num;
       conn_val->closeframe = 0;
       conn_val->connid = enip_unique_connid++;
@@ -772,7 +775,7 @@ enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
 	      if((conversation = find_conversation(pinfo->fd->num, &pinfo->dst, &dest_address,
 				           PT_UDP, connInfo->O2T.port, 0, NO_PORT_B)) == NULL) {
 
-             conversation = conversation_new(pinfo->fd->num, &pinfo->dst, &dest_address, 
+             conversation = conversation_new(pinfo->fd->num, &pinfo->dst, &dest_address,
                      PT_UDP, connInfo->O2T.port, 0, NO_PORT2);
 	      }
 
@@ -965,7 +968,7 @@ enip_get_io_connid(packet_info *pinfo, guint32 connid, enum enip_connid_type* pc
 }
 
 
-int dissect_tcpip_status(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, 
+int dissect_tcpip_status(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                              int offset, int total_len)
 
 {
@@ -989,7 +992,7 @@ int dissect_tcpip_status(packet_info *pinfo, proto_tree *tree, proto_item *item,
    return 4;
 }
 
-int dissect_tcpip_config_cap(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, 
+int dissect_tcpip_config_cap(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                              int offset, int total_len)
 
 {
@@ -1017,7 +1020,7 @@ int dissect_tcpip_config_cap(packet_info *pinfo, proto_tree *tree, proto_item *i
    return 4;
 }
 
-int dissect_tcpip_config_control(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, 
+int dissect_tcpip_config_control(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                              int offset, int total_len)
 
 {
@@ -1039,7 +1042,7 @@ int dissect_tcpip_config_control(packet_info *pinfo, proto_tree *tree, proto_ite
    return 4;
 }
 
-int dissect_tcpip_physical_link(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, 
+int dissect_tcpip_physical_link(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                              int offset, int total_len)
 
 {
@@ -1061,7 +1064,7 @@ int dissect_tcpip_physical_link(packet_info *pinfo, proto_tree *tree, proto_item
    return path_size+2;
 }
 
-int dissect_tcpip_interface_config(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, 
+int dissect_tcpip_interface_config(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                              int offset, int total_len)
 
 {
@@ -1085,7 +1088,7 @@ int dissect_tcpip_interface_config(packet_info *pinfo, proto_tree *tree, proto_i
    return (22+domain_length);
 }
 
-int dissect_tcpip_mcast_config(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, 
+int dissect_tcpip_mcast_config(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                              int offset, int total_len)
 
 {
@@ -1102,7 +1105,7 @@ int dissect_tcpip_mcast_config(packet_info *pinfo, proto_tree *tree, proto_item 
    return 8;
 }
 
-int dissect_tcpip_last_conflict(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, 
+int dissect_tcpip_last_conflict(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                              int offset, int total_len)
 
 {
@@ -1116,20 +1119,20 @@ int dissect_tcpip_last_conflict(packet_info *pinfo, proto_tree *tree, proto_item
 
    proto_tree_add_item(tree, hf_tcpip_lcd_acd_activity, tvb, offset, 1, ENC_LITTLE_ENDIAN);
    proto_tree_add_item(tree, hf_tcpip_lcd_remote_mac, tvb, offset+1, 6, ENC_LITTLE_ENDIAN);
-   
+
    if( tvb_get_guint8(tvb, offset) == 0 )
-      proto_tree_add_item(tree, hf_tcpip_lcd_arp_pdu, tvb, offset+7, 28, ENC_LITTLE_ENDIAN);        
+      proto_tree_add_item(tree, hf_tcpip_lcd_arp_pdu, tvb, offset+7, 28, ENC_LITTLE_ENDIAN);
    else
-   {      
+   {
       /* Call ARP dissector */
       next_tvb = tvb_new_subset(tvb, offset+7, 28, 28);
       call_dissector(arp_handle, next_tvb, pinfo, tree);
    }
-   
+
    return 35;
 }
 
-int dissect_elink_interface_flags(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, 
+int dissect_elink_interface_flags(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                              int offset, int total_len)
 
 {
@@ -1154,7 +1157,7 @@ int dissect_elink_interface_flags(packet_info *pinfo, proto_tree *tree, proto_it
    return 4;
 }
 
-int dissect_elink_interface_counters(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, 
+int dissect_elink_interface_counters(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                              int offset, int total_len)
 
 {
@@ -1178,7 +1181,7 @@ int dissect_elink_interface_counters(packet_info *pinfo, proto_tree *tree, proto
    return 44;
 }
 
-int dissect_elink_media_counters(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, 
+int dissect_elink_media_counters(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                              int offset, int total_len)
 
 {
@@ -1203,7 +1206,7 @@ int dissect_elink_media_counters(packet_info *pinfo, proto_tree *tree, proto_ite
    return 48;
 }
 
-int dissect_elink_interface_control(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, 
+int dissect_elink_interface_control(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                              int offset, int total_len)
 
 {
@@ -1299,7 +1302,7 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
             FwdOpenReply = FALSE;
    enum enip_connid_type connid_type = ECIDT_UNKNOWN;
    cip_safety_info_t* cip_safety;
-            
+
    /* Create item count tree */
    item_count = tvb_get_letohs( tvb, offset );
    count_item = proto_tree_add_item( tree, hf_enip_cpf_itemcount, tvb, offset, 2, ENC_LITTLE_ENDIAN );
@@ -1364,10 +1367,10 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                /* Check if this is a ForwardOpen packet, because special handling is needed
                   to handle connection conversations */
                if ((request_info != NULL) && (request_info->cip_info != NULL) &&
-                   (request_info->cip_info->connInfo != NULL) && 
+                   (request_info->cip_info->connInfo != NULL) &&
                    (request_key != NULL) &&
-                   (((request_info->cip_info->bService & 0x7F) == SC_CM_FWD_OPEN) || 
-                    ((request_info->cip_info->bService & 0x7F) == SC_CM_LARGE_FWD_OPEN))&& 
+                   (((request_info->cip_info->bService & 0x7F) == SC_CM_FWD_OPEN) ||
+                    ((request_info->cip_info->bService & 0x7F) == SC_CM_LARGE_FWD_OPEN))&&
                     (request_info->cip_info->dissector == dissector_get_uint_handle( subdissector_class_table, CI_CLS_CM)))
                {
                   if (request_key->requesttype == ENIP_REQUEST_PACKET)
@@ -1423,21 +1426,21 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                   if (tvb_length_remaining(tvb, offset+6) > 0)
                   {
                       next_tvb = tvb_new_subset(tvb, offset+6, item_length, item_length);
-                      /* Add any possible safety related data */
-                      if ((conn_info != NULL) && (conn_info->safety.safety_seg == TRUE))
+                      if (conn_info != NULL)
                       {
-                         cip_safety = se_alloc(sizeof(cip_safety_info_t));
-                         cip_safety->conn_type = connid_type;
-                         cip_safety->server_dir = (conn_info->TransportClass_trigger & CI_PRODUCTION_DIR_MASK) ? TRUE : FALSE;
-                         cip_safety->format = conn_info->safety.format;
-                         p_add_proto_data(pinfo->fd, proto_cipsafety, cip_safety);
-                      }
-                      
-                      if(!dissector_try_heuristic(heur_subdissector_conndata_table, next_tvb, pinfo, dissector_tree))
-                      {
-                         if (conn_info == NULL)
+                         if (conn_info->safety.safety_seg == TRUE)
                          {
-                            proto_tree_add_item(item_tree, hf_enip_connection_transport_data, tvb, offset+6, item_length, ENC_NA);
+                            /* Add any possible safety related data */
+                            cip_safety = se_alloc(sizeof(cip_safety_info_t));
+                            cip_safety->conn_type = connid_type;
+                            cip_safety->server_dir = (conn_info->TransportClass_trigger & CI_PRODUCTION_DIR_MASK) ? TRUE : FALSE;
+                            cip_safety->format = conn_info->safety.format;
+                            p_add_proto_data(pinfo->fd, proto_cipsafety, cip_safety);
+                            call_dissector(cipsafety_handle, next_tvb, pinfo, dissector_tree);
+                         }
+                         else if (conn_info->motion == TRUE)
+                         {
+                            call_dissector(cipmotion_handle, next_tvb, pinfo, dissector_tree);
                          }
                          else
                          {
@@ -1462,6 +1465,10 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
 
                             proto_tree_add_item(item_tree, hf_enip_connection_transport_data, tvb, offset+6+(item_length-io_length), io_length, ENC_NA);
                          }
+                      }
+                      else
+                      {
+                         proto_tree_add_item(item_tree, hf_enip_connection_transport_data, tvb, offset+6, item_length, ENC_NA);
                       }
                   }
                } /* End of if send unit data */
@@ -2404,10 +2411,6 @@ proto_register_enip(void)
    proto_register_field_array(proto_dlr, hfdlr, array_length(hfdlr));
    proto_register_subtree_array(ettdlr, array_length(ettdlr));
 
-   /* Register a heuristic dissector on the data in the message so encapsulated protocols
-    * can dissect the data without modifying this file */
-   register_heur_dissector_list("enip.cpf.conndata", &heur_subdissector_conndata_table);
-
 } /* end of proto_register_enip() */
 
 
@@ -2439,6 +2442,10 @@ proto_reg_handoff_enip(void)
 
    /* Find ARP dissector for TCP/IP object */
    arp_handle = find_dissector("arp");
+
+   /* I/O data dissectors */
+   cipsafety_handle = find_dissector("cipsafety");
+   cipmotion_handle = find_dissector("cipmotion");
 
    /* Register for EtherNet/IP Device Level Ring protocol */
    dlr_handle = new_create_dissector_handle(dissect_dlr, proto_dlr);

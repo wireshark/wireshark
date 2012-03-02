@@ -150,7 +150,7 @@ static int hf_cip_mb_read_discrete_inputs_num_inputs      = -1;
 static int hf_cip_mb_read_discrete_inputs_data            = -1;
 static int hf_cip_mb_read_holding_register_start_addr     = -1;
 static int hf_cip_mb_read_holding_register_num_registers  = -1;
-static int hf_cip_mb_read_holding_register_data           = -1; 
+static int hf_cip_mb_read_holding_register_data           = -1;
 static int hf_cip_mb_read_input_register_start_addr       = -1;
 static int hf_cip_mb_read_input_register_num_registers    = -1;
 static int hf_cip_mb_read_input_register_data             = -1;
@@ -2466,7 +2466,7 @@ dissect_cia(tvbuff_t *tvb, int offset, int* pathpos, unsigned char segment_type,
          {
             *ret_item = proto_tree_add_item( tree, hf16, tvb, offset + *pathpos + 2, 2, ENC_LITTLE_ENDIAN);
          }
-         
+
       }
       if (vals == NULL)
       {
@@ -2642,7 +2642,7 @@ dissect_transport_type_trigger(tvbuff_t *tvb, int offset, proto_tree *tree,
 }
 
 /* Dissect EPATH */
-void dissect_epath( tvbuff_t *tvb, packet_info *pinfo, proto_item *epath_item, int offset, int path_length, 
+void dissect_epath( tvbuff_t *tvb, packet_info *pinfo, proto_item *epath_item, int offset, int path_length,
                     gboolean generate, gboolean packed, cip_simple_request_info_t* req_data, cip_safety_epath_info_t* safety)
 {
    int pathpos, temp_data, temp_data2, seg_size, i;
@@ -3088,17 +3088,17 @@ void dissect_epath( tvbuff_t *tvb, packet_info *pinfo, proto_item *epath_item, i
                         dissect_cipsafety_ssn(safety_tree, tvb, pinfo, offset+pathpos+8, hf_cip_seg_safety_configuration_timestamp, hf_cip_seg_safety_configuration_date, hf_cip_seg_safety_configuration_time);
                         proto_tree_add_item(safety_tree, hf_cip_seg_safety_time_correction_epi, tvb, offset+pathpos+14, 4, ENC_LITTLE_ENDIAN );
                         dissect_net_param16(tvb, offset+pathpos+18, safety_tree,
-                              hf_cip_seg_safety_time_correction_net_params, hf_cip_seg_safety_time_correction_own, 
-                              hf_cip_seg_safety_time_correction_typ, hf_cip_seg_safety_time_correction_prio, 
-                              hf_cip_seg_safety_time_correction_fixed_var, hf_cip_seg_safety_time_correction_con_size, 
+                              hf_cip_seg_safety_time_correction_net_params, hf_cip_seg_safety_time_correction_own,
+                              hf_cip_seg_safety_time_correction_typ, hf_cip_seg_safety_time_correction_prio,
+                              hf_cip_seg_safety_time_correction_fixed_var, hf_cip_seg_safety_time_correction_con_size,
                               ett_network_seg_safety_time_correction_net_params);
                         it = proto_tree_add_item(safety_tree, hf_cip_seg_safety_tunid, tvb, offset+pathpos+20, 10, ENC_NA);
                         dissect_unid(tvb, pinfo, offset+pathpos+20, it, "Target UNID SNN", hf_cip_seg_safety_tunid_ssn_timestamp,
-                           hf_cip_seg_safety_tunid_ssn_date, hf_cip_seg_safety_tunid_ssn_time, hf_cip_seg_safety_tunid_macid, 
+                           hf_cip_seg_safety_tunid_ssn_date, hf_cip_seg_safety_tunid_ssn_time, hf_cip_seg_safety_tunid_macid,
                            ett_cip_seg_safety_tunid, ett_cip_seg_safety_tunid_ssn);
                         it = proto_tree_add_item(safety_tree, hf_cip_seg_safety_ounid, tvb, offset+pathpos+30, 10, ENC_NA);
-                        dissect_unid(tvb, pinfo, offset+pathpos+30, it, "Originator UNID SSN", hf_cip_seg_safety_ounid_ssn_timestamp, 
-                           hf_cip_seg_safety_ounid_ssn_date, hf_cip_seg_safety_ounid_ssn_time, hf_cip_seg_safety_ounid_macid, 
+                        dissect_unid(tvb, pinfo, offset+pathpos+30, it, "Originator UNID SSN", hf_cip_seg_safety_ounid_ssn_timestamp,
+                           hf_cip_seg_safety_ounid_ssn_date, hf_cip_seg_safety_ounid_ssn_time, hf_cip_seg_safety_ounid_macid,
                            ett_cip_seg_safety_ounid, ett_cip_seg_safety_ounid_ssn);
                         proto_tree_add_item(safety_tree, hf_cip_seg_safety_ping_eri_multiplier, tvb, offset+pathpos+40, 2, ENC_LITTLE_ENDIAN );
                         proto_tree_add_item(safety_tree, hf_cip_seg_safety_time_coord_msg_min_multiplier, tvb, offset+pathpos+42, 2, ENC_LITTLE_ENDIAN );
@@ -3117,9 +3117,9 @@ void dissect_epath( tvbuff_t *tvb, packet_info *pinfo, proto_item *epath_item, i
                         proto_tree_add_item(safety_tree, hf_cip_seg_safety_time_correction_conn_id, tvb, offset+pathpos+4, 4, ENC_LITTLE_ENDIAN );
                         proto_tree_add_item(safety_tree, hf_cip_seg_safety_ping_eri_multiplier, tvb, offset+pathpos+8, 2, ENC_LITTLE_ENDIAN );
                         dissect_net_param16(tvb, offset+pathpos+10, safety_tree,
-                              hf_cip_seg_safety_time_correction_net_params, hf_cip_seg_safety_time_correction_own, 
-                              hf_cip_seg_safety_time_correction_typ, hf_cip_seg_safety_time_correction_prio, 
-                              hf_cip_seg_safety_time_correction_fixed_var, hf_cip_seg_safety_time_correction_con_size, 
+                              hf_cip_seg_safety_time_correction_net_params, hf_cip_seg_safety_time_correction_own,
+                              hf_cip_seg_safety_time_correction_typ, hf_cip_seg_safety_time_correction_prio,
+                              hf_cip_seg_safety_time_correction_fixed_var, hf_cip_seg_safety_time_correction_con_size,
                               ett_network_seg_safety_time_correction_net_params);
                         break;
                      case 2:
@@ -3132,17 +3132,17 @@ void dissect_epath( tvbuff_t *tvb, packet_info *pinfo, proto_item *epath_item, i
                         dissect_cipsafety_ssn(safety_tree, tvb, pinfo, offset+pathpos+8, hf_cip_seg_safety_configuration_timestamp, hf_cip_seg_safety_configuration_date, hf_cip_seg_safety_configuration_time);
                         proto_tree_add_item(safety_tree, hf_cip_seg_safety_time_correction_epi, tvb, offset+pathpos+14, 4, ENC_LITTLE_ENDIAN );
                         dissect_net_param16(tvb, offset+pathpos+18, safety_tree,
-                              hf_cip_seg_safety_time_correction_net_params, hf_cip_seg_safety_time_correction_own, 
-                              hf_cip_seg_safety_time_correction_typ, hf_cip_seg_safety_time_correction_prio, 
-                              hf_cip_seg_safety_time_correction_fixed_var, hf_cip_seg_safety_time_correction_con_size, 
+                              hf_cip_seg_safety_time_correction_net_params, hf_cip_seg_safety_time_correction_own,
+                              hf_cip_seg_safety_time_correction_typ, hf_cip_seg_safety_time_correction_prio,
+                              hf_cip_seg_safety_time_correction_fixed_var, hf_cip_seg_safety_time_correction_con_size,
                               ett_network_seg_safety_time_correction_net_params);
                         it = proto_tree_add_item(safety_tree, hf_cip_seg_safety_tunid, tvb, offset+pathpos+20, 10, ENC_NA);
                         dissect_unid(tvb, pinfo, offset+pathpos+20, it, "Target UNID SNN", hf_cip_seg_safety_tunid_ssn_timestamp,
-                           hf_cip_seg_safety_tunid_ssn_date, hf_cip_seg_safety_tunid_ssn_time, hf_cip_seg_safety_tunid_macid, 
+                           hf_cip_seg_safety_tunid_ssn_date, hf_cip_seg_safety_tunid_ssn_time, hf_cip_seg_safety_tunid_macid,
                            ett_cip_seg_safety_tunid, ett_cip_seg_safety_tunid_ssn);
                         it = proto_tree_add_item(safety_tree, hf_cip_seg_safety_ounid, tvb, offset+pathpos+30, 10, ENC_NA);
-                        dissect_unid(tvb, pinfo, offset+pathpos+30, it, "Originator UNID SSN", hf_cip_seg_safety_ounid_ssn_timestamp, 
-                           hf_cip_seg_safety_ounid_ssn_date, hf_cip_seg_safety_ounid_ssn_time, hf_cip_seg_safety_ounid_macid, 
+                        dissect_unid(tvb, pinfo, offset+pathpos+30, it, "Originator UNID SSN", hf_cip_seg_safety_ounid_ssn_timestamp,
+                           hf_cip_seg_safety_ounid_ssn_date, hf_cip_seg_safety_ounid_ssn_time, hf_cip_seg_safety_ounid_macid,
                            ett_cip_seg_safety_ounid, ett_cip_seg_safety_ounid_ssn);
                         proto_tree_add_item(safety_tree, hf_cip_seg_safety_ping_eri_multiplier, tvb, offset+pathpos+40, 2, ENC_LITTLE_ENDIAN );
                         proto_tree_add_item(safety_tree, hf_cip_seg_safety_time_coord_msg_min_multiplier, tvb, offset+pathpos+42, 2, ENC_LITTLE_ENDIAN );
@@ -4120,6 +4120,7 @@ dissect_cip_cm_fwd_open_req(cip_req_info_t *preq_info, proto_tree *cmd_tree, tvb
    guint32 O2TConnID, T2OConnID, DeviceSerialNumber;
    guint16 ConnSerialNumber, VendorID;
    guint8 TransportClass_trigger, O2TType, T2OType;
+   cip_simple_request_info_t connection_path;
    cip_safety_epath_info_t safety_fwdopen;
 
    dissect_cip_cm_timeout(cmd_tree, tvb, offset);
@@ -4194,7 +4195,7 @@ dissect_cip_cm_fwd_open_req(cip_req_info_t *preq_info, proto_tree *cmd_tree, tvb
 
    /* Add the epath */
    pi = proto_tree_add_text(cmd_tree, tvb, offset+26+net_param_offset+6, conn_path_size, "Connection Path: ");
-   dissect_epath( tvb, pinfo, pi, offset+26+net_param_offset+6, conn_path_size, FALSE, FALSE, NULL, &safety_fwdopen);
+   dissect_epath( tvb, pinfo, pi, offset+26+net_param_offset+6, conn_path_size, FALSE, FALSE, &connection_path, &safety_fwdopen);
 
    if (pinfo->fd->flags.visited)
       return;
@@ -4212,6 +4213,7 @@ dissect_cip_cm_fwd_open_req(cip_req_info_t *preq_info, proto_tree *cmd_tree, tvb
       preq_info->connInfo->TransportClass_trigger = TransportClass_trigger;
       preq_info->connInfo->T2O.type = T2OType;
       preq_info->connInfo->O2T.type = O2TType;
+      preq_info->connInfo->motion = (connection_path.iClass == 0x42) ? TRUE : FALSE;
       preq_info->connInfo->safety = safety_fwdopen;
       /* To be filled in by Ethernet/IP encap layer */
       preq_info->connInfo->O2T.ipaddress = 0;

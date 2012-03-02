@@ -291,6 +291,7 @@ typedef struct cip_conn_info {
    cip_connID_info_t T2O;
    guint8 TransportClass_trigger;
    cip_safety_epath_info_t safety;
+   gboolean motion;
 } cip_conn_info_t;
 
 typedef struct cip_req_info {
@@ -306,7 +307,7 @@ typedef struct cip_req_info {
 /*
 ** Exported functions
 */
-extern void dissect_epath( tvbuff_t *tvb, packet_info *pinfo, proto_item *epath_item, int offset, int path_length, 
+extern void dissect_epath( tvbuff_t *tvb, packet_info *pinfo, proto_item *epath_item, int offset, int path_length,
                           gboolean generate, gboolean packed, cip_simple_request_info_t* req_data, cip_safety_epath_info_t* safety);
 extern void dissect_cip_date_and_time(proto_tree *tree, tvbuff_t *tvb, int offset, int hf_datetime);
 
