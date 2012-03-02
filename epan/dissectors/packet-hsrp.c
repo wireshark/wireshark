@@ -411,7 +411,6 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                      auth_buf);
         			offset += 8;
         			proto_tree_add_item(hsrp_tree, hf_hsrp_virt_ip_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
-        			offset += 4;
         		} else if (opcode == 3) {
         			proto_tree_add_item(hsrp_tree, hf_hsrp_adv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
         			offset += 2;
@@ -426,7 +425,6 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         			proto_tree_add_item(hsrp_tree, hf_hsrp_adv_passivegrp, tvb, offset, 2, ENC_BIG_ENDIAN);
         			offset += 2;
         			proto_tree_add_item(hsrp_tree, hf_hsrp_adv_reserved2, tvb, offset, 4, ENC_BIG_ENDIAN);
-        			offset += 4;
         		} else {
         			next_tvb = tvb_new_subset_remaining(tvb, offset);
         			call_dissector(data_handle, next_tvb, pinfo, hsrp_tree);
@@ -435,7 +433,7 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         } else if ((pinfo->dst.type == AT_IPv4 && strcmp(dst,HSRP2_DST_IP_ADDR) == 0) ||
 		   (pinfo->dst.type == AT_IPv6 && pinfo->destport == UDP_PORT_HSRP2_V6)) {
                 /* HSRPv2 */
-                guint offset = 0, offset2;
+                guint offset = 0;
                 proto_item *ti = NULL;
                 proto_tree *hsrp_tree = NULL;
                 guint8 type,len;
@@ -451,7 +449,6 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         type = tvb_get_guint8(tvb, offset);
                         len = tvb_get_guint8(tvb, offset+1);
 
-		        offset2 = offset;
                         if (type == 1 && len == 40) {
                                 /* Group State TLV */
                                 guint8 opcode, state = 0, ipver;
@@ -519,7 +516,6 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         			call_dissector(data_handle, next_tvb, pinfo, hsrp_tree);
                                                 break;
 					}
-                                        offset+=16;
 				}
                         } else if (type == 2 && len == 4) {
                                 /* Interface State TLV */
@@ -542,7 +538,6 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 			proto_tree_add_item(interface_state_tlv, hf_hsrp2_active_group, tvb, offset, 2, ENC_BIG_ENDIAN);
                                         offset+=2;
                 			proto_tree_add_item(interface_state_tlv, hf_hsrp2_passive_group, tvb, offset, 2, ENC_BIG_ENDIAN);
-                                        offset+=2;
                                 }
                         } else if (type == 3 && len == 8) {
                                 /* Text Authentication TLV */
@@ -563,7 +558,6 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                              "Authentication Data: %sDefault (%s)",
                                                              (tvb_strneql(tvb, offset, "cisco", strlen("cisco"))) == 0 ? "" : "Non-",
                                                              auth_buf);
-                			offset += 8;
                                 }
                         } else if (type == 4 && len == 28) {
                                 /* Text Authentication TLV */
@@ -587,7 +581,6 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                         proto_tree_add_item(md5_auth_tlv, hf_hsrp2_md5_key_id, tvb, offset, 4, ENC_BIG_ENDIAN);
                                         offset+=4;
                                         proto_tree_add_item(md5_auth_tlv, hf_hsrp2_md5_auth_data, tvb, offset, 16, ENC_BIG_ENDIAN);
-                                        offset += 16;
                                 }
                         } else {
                                 /* Undefined TLV */
@@ -597,7 +590,6 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				}
                                 break;
 			}
-		        offset = offset2+len+2;
 		}
         }
 
