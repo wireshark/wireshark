@@ -85,7 +85,7 @@ static const value_string cmd_code_vals[] = {
   { 0, NULL }
 };
 
-static void dissect_bjnp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_bjnp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *bjnp_tree;
   proto_item *ti;
@@ -134,6 +134,7 @@ static void dissect_bjnp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item (bjnp_tree, hf_payload, tvb, offset, payload_len, ENC_NA);
     offset += payload_len;
   }
+  return offset;
 }
 
 void proto_register_bjnp (void)
@@ -167,7 +168,7 @@ void proto_register_bjnp (void)
   };
 
   proto_bjnp = proto_register_protocol (PNAME, PSNAME, PFNAME);
-  register_dissector (PFNAME, dissect_bjnp, proto_bjnp);
+  new_register_dissector (PFNAME, dissect_bjnp, proto_bjnp);
 
   proto_register_field_array (proto_bjnp, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
