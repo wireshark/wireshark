@@ -2690,7 +2690,7 @@ dissect_17221_aem(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
          for(i = 0; i < mr_counter; ++i) {
             next_tvb = tvb_new_subset(tvb, mr_offset, 8, 8);
-            dissect_17221_stream_format(tvb, mr_subtree);
+            dissect_17221_stream_format(next_tvb, mr_subtree);
             mr_offset += 8;
          }
          break;
@@ -2888,13 +2888,13 @@ dissect_17221_aem(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
          mr_subtree = proto_item_add_subtree(mr_item, ett_aem_clock_source_flags);
          /* all flags reserved */
          /* end clock_source_flags subtree */
-         proto_tree_add_item(aem_tree, hf_aem_clock_source_type, tvb,
+         proto_tree_add_item(mr_subtree, hf_aem_clock_source_type, tvb,
                AEM_OFFSET_CLOCK_SOURCE_TYPE, 2, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aem_tree, hf_aecp_clock_source_id, tvb,
+         proto_tree_add_item(mr_subtree, hf_aecp_clock_source_id, tvb,
                AEM_OFFSET_CLOCK_SOURCE_ID_CLK, 8, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aem_tree, hf_aem_clock_source_location_type, tvb,
+         proto_tree_add_item(mr_subtree, hf_aem_clock_source_location_type, tvb,
                AEM_OFFSET_CLOCK_SOURCE_LOCATION_TYPE, 2, ENC_BIG_ENDIAN);
-         proto_tree_add_item(aem_tree, hf_aem_clock_source_location_id, tvb,
+         proto_tree_add_item(mr_subtree, hf_aem_clock_source_location_id, tvb,
                AEM_OFFSET_CLOCK_SOURCE_LOCATION_ID, 2, ENC_BIG_ENDIAN);
          break;
       case AEM_DESCRIPTOR_AUDIO_MAP:
@@ -3119,8 +3119,8 @@ dissect_17221_aem(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
          for(i = 0; i < 7; ++i) {
             proto_tree_add_item(aem_tree, hf_aem_string, tvb,
                   mr_offset, 64, ENC_ASCII|ENC_NA);
+            mr_offset += 64;
          }
-         mr_offset += 64;
          break;
       case AEM_DESCRIPTOR_MATRIX_SIGNAL:
          proto_tree_add_item(aem_tree, hf_aem_signals_count, tvb,
