@@ -1025,7 +1025,7 @@ de_emm_eps_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
             curr_offset++;
             /* M-TMSI Octet 10 - 13 */
             proto_tree_add_item(tree, hf_nas_eps_emm_m_tmsi, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
-            curr_offset+=4;
+            /*curr_offset+=4;*/
             break;
         default:
             proto_tree_add_text(tree, tvb, curr_offset, len - 1, "Type of identity not known");
@@ -1074,7 +1074,7 @@ de_emm_eps_net_feature_sup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     proto_tree_add_bits_item(tree, hf_nas_eps_emm_emc_bs_type, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
     bit_offset += 1;
     proto_tree_add_bits_item(tree, hf_nas_eps_emm_ims_vops_type, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
-    bit_offset += 1;
+    /*bit_offset += 1;*/
 
     return len;
 }
@@ -1250,7 +1250,7 @@ de_emm_nas_key_set_id_bits(tvbuff_t *tvb, proto_tree *tree, guint32 bit_offset, 
     if(add_string){
         proto_item_append_text(item, "%s", add_string);
     }
-    bit_offset+=3;
+    /*bit_offset+=3;*/
 }
 /*
  * Note used for TV Short
@@ -1271,7 +1271,7 @@ de_emm_nas_key_set_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
     bit_offset++;
     /* NAS key set identifier (octet 1) */
     proto_tree_add_bits_item(tree, hf_nas_eps_emm_nas_key_set_id, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
-    bit_offset+=3;
+    /*bit_offset+=3;*/
     curr_offset++;
 
     return(curr_offset - offset);
@@ -1392,7 +1392,7 @@ de_emm_paging_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 
     proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, curr_offset<<3, 7, ENC_BIG_ENDIAN);
     proto_tree_add_bits_item(tree, hf_nas_eps_emm_paging_id, tvb, (curr_offset<<3)+7, 1, ENC_BIG_ENDIAN);
-    curr_offset+=len;
+    /*curr_offset+=len;*/
 
     return(len);
 }
@@ -2664,7 +2664,7 @@ nas_emm_attach_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
     proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
     bit_offset++;
     proto_tree_add_bits_item(tree, hf_nas_eps_emm_EPS_attach_result, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
-    bit_offset+=3;
+    /*bit_offset+=3;*/
     /* Fix up the lengths */
     curr_len--;
     curr_offset++;
@@ -2763,7 +2763,7 @@ nas_emm_attach_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
     proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
     bit_offset++;
     proto_tree_add_bits_item(tree, hf_nas_eps_emm_eps_att_type, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
-    bit_offset+=3;
+    /*bit_offset+=3;*/
 
     /* Fix the lengths */
     curr_len--;
@@ -2849,7 +2849,7 @@ nas_emm_auth_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
      * NAS key set identifierASME   NAS key set identifier 9.9.3.21 M   V   1/2
      */
     de_emm_nas_key_set_id_bits(tvb, tree, bit_offset, " ASME");
-    bit_offset+=4;
+    /*bit_offset+=4;*/
 
     /* Fix the lengths */
     curr_len--;
@@ -2902,8 +2902,6 @@ nas_emm_cs_serv_not(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
     curr_offset = offset;
     curr_len = len;
 
-    consumed = 0;
-
     /* Paging identity  Paging identity 9.9.3.25A   M   V   1 */
     ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_PAGING_ID, NULL);
     /* 60   CLI CLI 9.9.3.38    O   TLV 3-12 */
@@ -2948,7 +2946,7 @@ nas_emm_detach_req_UL(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
     proto_tree_add_bits_item(tree, hf_nas_eps_emm_switch_off, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
     bit_offset++;
     proto_tree_add_bits_item(tree, hf_nas_eps_emm_detach_type_UL, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
-    bit_offset+=3;
+   /* bit_offset+=3;*/
 
     /* Fix the lengths */
     curr_len--;
@@ -2982,7 +2980,7 @@ nas_emm_detach_req_DL(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
     proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
     bit_offset++;
     proto_tree_add_bits_item(tree, hf_nas_eps_emm_detach_type_DL, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
-    bit_offset+=3;
+    /*bit_offset+=3;*/
 
     /* Fix the lengths */
     curr_len--;
@@ -3114,7 +3112,7 @@ nas_emm_ext_serv_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
     bit_offset+=4;
     /* Service type Service type 9.9.3.27   M   V   1/2 Service type*/
     proto_tree_add_bits_item(tree, hf_nas_eps_service_type, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
-    bit_offset+=4;
+    /*bit_offset+=4;*/
     /* Fix up the lengths */
     curr_len--;
     curr_offset++;
@@ -3177,7 +3175,7 @@ nas_emm_id_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
 
     /* Identity type    Identity type 2 9.9.3.17    M   V   1/2 */
     proto_tree_add_bits_item(tree, hf_nas_eps_emm_id_type2, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
-    bit_offset+=4;
+    /*bit_offset+=4;*/
     /*consumed = 1;*/
 
 
@@ -3230,7 +3228,7 @@ nas_emm_sec_mode_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
     bit_offset+=4;
     /*  NAS key set identifierASME  NAS key set identifier 9.9.3.21 M   V   1/2 */
     de_emm_nas_key_set_id_bits(tvb, tree, bit_offset, " ASME");
-    bit_offset+=4;
+    /*bit_offset+=4;*/
 
     /* Fix up the lengths */
     curr_len--;
@@ -3400,7 +3398,7 @@ nas_emm_trac_area_upd_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
     proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
     bit_offset++;
     proto_tree_add_bits_item(tree, hf_nas_eps_eps_update_result_value, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
-    bit_offset+=3;
+    /*bit_offset+=3;*/
     /* Fix up the lengths */
     curr_len--;
     curr_offset++;
@@ -3482,7 +3480,7 @@ nas_emm_trac_area_upd_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
     proto_tree_add_bits_item(tree, hf_nas_eps_active_flg, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
     bit_offset++;
     proto_tree_add_bits_item(tree, hf_nas_eps_eps_update_type_value, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
-    bit_offset+=3;
+    /*bit_offset+=3;*/
 
     /* Fix the lengths */
     curr_len--;
@@ -3681,7 +3679,7 @@ nas_esm_act_ded_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, packet_info 
     bit_offset+=4;
     /* Linked EPS bearer identity   Linked EPS bearer identity 9.9.4.6  M   V   1/2 */
     proto_tree_add_bits_item(tree, hf_nas_eps_esm_linked_bearer_id, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
-    bit_offset+=4;
+    /*bit_offset+=4;*/
     /* Fix the lengths */
     curr_len--;
     curr_offset++;
@@ -3843,7 +3841,7 @@ nas_esm_bearer_res_all_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
     bit_offset+=4;
     /*  Linked EPS bearer identity  Linked EPS bearer identity 9.9.4.6  M   V   1/2 */
     proto_tree_add_bits_item(tree, hf_nas_eps_esm_linked_bearer_id, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
-    bit_offset+=4;
+    /*bit_offset+=4;*/
     /* Fix the lengths */
     curr_len--;
     curr_offset++;
@@ -3902,7 +3900,7 @@ nas_esm_bearer_res_mod_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
     bit_offset+=4;
     /* EPS bearer identity for packet filter    Linked EPS bearer identity 9.9.4.6  M   V   1/2 */
     proto_tree_add_bits_item(tree, hf_nas_eps_esm_linked_bearer_id, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
-    bit_offset+=4;
+    /*bit_offset+=4;*/
     /* Fix the lengths */
     curr_len--;
     curr_offset++;
@@ -4176,7 +4174,7 @@ nas_esm_pdn_con_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 
     /* Request type 9.9.4.14 M V 1/2 */
     proto_tree_add_bits_item(tree, hf_nas_eps_esm_request_type, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
-    bit_offset+=4;
+    /*bit_offset+=4;*/
     /* Fix the lengths */
     curr_len--;
     curr_offset++;
@@ -4237,7 +4235,7 @@ nas_esm_pdn_disc_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
     bit_offset+=4;
     /* Linked EPS bearer identity   Linked EPS bearer identity 9.9.4.6  M   V   1/2 */
     proto_tree_add_bits_item(tree, hf_nas_eps_esm_linked_bearer_id, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
-    bit_offset+=4;
+    /*bit_offset+=4;*/
     /* Fix the lengths */
     curr_len--;
     curr_offset++;
