@@ -1795,7 +1795,6 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
             udp.length = g_htons(length + sizeof(struct udp_hdr));
         }
         else {
-            length = dgram_size - sizeof(struct udp_hdr);
             udp.length = g_htons(dgram_size);
         }
 
