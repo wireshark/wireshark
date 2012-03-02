@@ -301,8 +301,8 @@ typedef struct wtapng_if_descr_s {
 /* Packets */
 typedef struct wtapng_packet_s {
 	/* mandatory */
-	guint32				ts_high;		/* seconds since 1.1.1970 */
-	guint32				ts_low;			/* fraction of seconds, depends on if_tsresol */
+	guint32				ts_high;	/* seconds since 1.1.1970 */
+	guint32				ts_low;		/* fraction of seconds, depends on if_tsresol */
 	guint32				cap_len;        /* data length in the file */
 	guint32				packet_len;     /* data length on the wire */
 	guint32				interface_id;   /* identifier of the interface. */
@@ -310,8 +310,6 @@ typedef struct wtapng_packet_s {
 										/* 0xffff if information no available */
 	/* options */
 	gchar				*opt_comment;	/* NULL if not available */
-	guint64				drop_count;
-	guint32				pack_flags;     /* XXX - 0 for now (any value for "we don't have it"?) */
 	/* pack_hash */
 
 	guint32 			pseudo_header_len;
@@ -397,22 +395,6 @@ typedef struct {
 	wtap_new_ipv4_callback_t add_new_ipv4;
 	wtap_new_ipv6_callback_t add_new_ipv6;
 } pcapng_t;
-
-static int
-pcapng_get_encap(gint id, pcapng_t *pn)
-{
-	interface_data_t int_data;
-
-
-	if ((id >= 0) && ((guint)id < pn->number_of_interfaces)) {
-		int_data = g_array_index(pn->interface_data, interface_data_t, id);
-		pcapng_debug2("pcapng_get_encap: id %i, wtap_encap %i",id, int_data.wtap_encap);
-		return int_data.wtap_encap;
-	} else {
-		pcapng_debug2("pcapng_get_encap: id %i number_of_interfaces %u, wtap_encap = WTAP_ERR_UNSUPPORTED_ENCAP",id,pn->number_of_interfaces);
-		return WTAP_ERR_UNSUPPORTED_ENCAP;
-	}
-}
 
 static int
 pcapng_read_option(FILE_T fh, pcapng_t *pn, pcapng_option_header_t *oh,
@@ -916,8 +898,9 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 	pcapng_packet_block_t pb;
 	guint32 block_total_length;
 	guint32 padding;
+	interface_data_t int_data;
+	guint64 ts;
 	pcapng_option_header_t oh;
-	gint wtap_encap;
 	int pseudo_header_len;
 	char *option_content = NULL; /* Allocate as large as the options block */
 	int fcslen;
@@ -996,7 +979,6 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 			wblock->data.packet.cap_len		= pb.captured_len;
 			wblock->data.packet.packet_len		= pb.packet_len;
 		}
-
 	}
 
 	/*
@@ -1059,16 +1041,28 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 	              wblock->data.packet.cap_len,
 	              wblock->data.packet.interface_id);
 
-	wtap_encap = pcapng_get_encap(wblock->data.packet.interface_id, pn);
+	if (wblock->data.packet.interface_id >= pn->number_of_interfaces) {
+		*err = WTAP_ERR_BAD_FILE;
+		*err_info = g_strdup_printf("pcapng: interface index %u is not less than interface count %u.",
+		    wblock->data.packet.interface_id, pn->number_of_interfaces);
+		return FALSE;
+	}
+	int_data = g_array_index(pn->interface_data, interface_data_t,
+	    wblock->data.packet.interface_id);
+
+	wblock->packet_header->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID;
+
 	pcapng_debug3("pcapng_read_packet_block: encapsulation = %d (%s), pseudo header size = %d.",
-	               wtap_encap,
-	               wtap_encap_string(wtap_encap),
-	               pcap_get_phdr_size(wtap_encap, wblock->pseudo_header));
+	               int_data.wtap_encap,
+	               wtap_encap_string(int_data.wtap_encap),
+	               pcap_get_phdr_size(int_data.wtap_encap, wblock->pseudo_header));
+	wblock->packet_header->interface_id = wblock->data.packet.interface_id;
+	wblock->packet_header->pkt_encap = int_data.wtap_encap;
 
 	memset((void *)wblock->pseudo_header, 0, sizeof(union wtap_pseudo_header));
 	pseudo_header_len = pcap_process_pseudo_header(fh,
 	                                               WTAP_FILE_PCAPNG,
-	                                               wtap_encap,
+	                                               int_data.wtap_encap,
 	                                               wblock->data.packet.cap_len,
 	                                               TRUE,
 	                                               wblock->packet_header,
@@ -1076,14 +1070,21 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 	                                               err,
 	                                               err_info);
 	if (pseudo_header_len < 0) {
-		return 0;
+		return FALSE;
 	}
 	wblock->data.packet.pseudo_header_len = (guint32)pseudo_header_len;
 	block_read += pseudo_header_len;
-	if (pseudo_header_len != pcap_get_phdr_size(wtap_encap, wblock->pseudo_header)) {
+	if (pseudo_header_len != pcap_get_phdr_size(int_data.wtap_encap, wblock->pseudo_header)) {
 		pcapng_debug1("pcapng_read_packet_block: Could only read %d bytes for pseudo header.",
 		              pseudo_header_len);
 	}
+	wblock->packet_header->caplen = wblock->data.packet.cap_len - wblock->data.packet.pseudo_header_len;
+	wblock->packet_header->len = wblock->data.packet.packet_len - wblock->data.packet.pseudo_header_len;
+
+	/* Combine the two 32-bit pieces of the timestamp into one 64-bit value */
+	ts = (((guint64)wblock->data.packet.ts_high) << 32) | ((guint64)wblock->data.packet.ts_low);
+	wblock->packet_header->ts.secs = (time_t)(ts / int_data.time_units_per_second);
+	wblock->packet_header->ts.nsecs = (int)(((ts % int_data.time_units_per_second) * 1000000000) / int_data.time_units_per_second);
 
 	/* "(Enhanced) Packet Block" read capture data */
 	errno = WTAP_ERR_CANT_READ;
@@ -1110,9 +1111,9 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 	}
 
 	/* Option defaults */
-	wblock->data.packet.opt_comment = NULL;
-	wblock->data.packet.drop_count  = -1;
-	wblock->data.packet.pack_flags  = 0;    /* XXX - is 0 ok to signal "not used"? */
+	wblock->packet_header->opt_comment = NULL;
+	wblock->packet_header->drop_count  = -1;
+	wblock->packet_header->pack_flags  = 0;
 
 	/* FCS length default */
 	fcslen = pn->if_fcslen;
@@ -1154,8 +1155,9 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 			break;
 		    case(1): /* opt_comment */
 			if(oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
-				wblock->data.packet.opt_comment = g_strndup(option_content, oh.option_length);
-				pcapng_debug2("pcapng_read_packet_block: length %u opt_comment '%s'", oh.option_length, wblock->data.packet.opt_comment);
+				wblock->packet_header->presence_flags |= WTAP_HAS_COMMENTS;
+				wblock->packet_header->opt_comment = g_strndup(option_content, oh.option_length);
+				pcapng_debug2("pcapng_read_packet_block: length %u opt_comment '%s'", oh.option_length, wblock->packet_header->opt_comment);
 			} else {
 				pcapng_debug1("pcapng_read_packet_block: opt_comment length %u seems strange", oh.option_length);
 			}
@@ -1165,32 +1167,34 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 				/*  Don't cast a char[] into a guint32--the
 				 *  char[] may not be aligned correctly.
 				 */
-				memcpy(&wblock->data.packet.pack_flags, option_content, sizeof(guint32));
+				wblock->packet_header->presence_flags |= WTAP_HAS_PACK_FLAGS;
+				memcpy(&wblock->packet_header->pack_flags, option_content, sizeof(guint32));
 				if(pn->byte_swapped)
-					wblock->data.packet.pack_flags = BSWAP32(wblock->data.packet.pack_flags);
-				if (wblock->data.packet.pack_flags & 0x000001E0) {
+					wblock->packet_header->pack_flags = BSWAP32(wblock->packet_header->pack_flags);
+				if (wblock->packet_header->pack_flags & 0x000001E0) {
 					/* The FCS length is present */
-					fcslen = (wblock->data.packet.pack_flags & 0x000001E0) >> 5;
+					fcslen = (wblock->packet_header->pack_flags & 0x000001E0) >> 5;
 				}
-				pcapng_debug1("pcapng_read_packet_block: pack_flags %u (ignored)", wblock->data.packet.pack_flags);
+				pcapng_debug1("pcapng_read_packet_block: pack_flags %u (ignored)", wblock->packet_header->pack_flags);
 			} else {
 				pcapng_debug1("pcapng_read_packet_block: pack_flags length %u not 4 as expected", oh.option_length);
 			}
 			break;
-			case(3): /* epb_hash */
+		    case(3): /* epb_hash */
 			pcapng_debug2("pcapng_read_packet_block: epb_hash %u currently not handled - ignoring %u bytes",
 				      oh.option_code, oh.option_length);
 			break;
-			case(4): /* epb_dropcount */
+		    case(4): /* epb_dropcount */
 			if(oh.option_length == 8) {
 				/*  Don't cast a char[] into a guint32--the
 				 *  char[] may not be aligned correctly.
 				 */
-				memcpy(&wblock->data.packet.drop_count, option_content, sizeof(guint64));
+				wblock->packet_header->presence_flags |= WTAP_HAS_DROP_COUNT;
+				memcpy(&wblock->packet_header->drop_count, option_content, sizeof(guint64));
 				if(pn->byte_swapped)
-					wblock->data.packet.drop_count = BSWAP64(wblock->data.packet.drop_count);
+					wblock->packet_header->drop_count = BSWAP64(wblock->packet_header->drop_count);
 
-				pcapng_debug1("pcapng_read_packet_block: drop_count %" G_GINT64_MODIFIER "u", wblock->data.packet.drop_count);
+				pcapng_debug1("pcapng_read_packet_block: drop_count %" G_GINT64_MODIFIER "u", wblock->packet_header->drop_count);
 			} else {
 				pcapng_debug1("pcapng_read_packet_block: drop_count length %u not 8 as expected", oh.option_length);
 			}
@@ -1203,7 +1207,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 
 	g_free(option_content);
 
-	pcap_read_post_process(WTAP_FILE_PCAPNG, wtap_encap,
+	pcap_read_post_process(WTAP_FILE_PCAPNG, int_data.wtap_encap,
 	    (union wtap_pseudo_header *)wblock->pseudo_header,
 	    (guint8 *) (wblock->frame_buffer),
 	    (int) (wblock->data.packet.cap_len - pseudo_header_len),
@@ -1218,7 +1222,7 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
 	int bytes_read;
 	int block_read;
 	guint64 file_offset64;
-	gint encap;
+	interface_data_t int_data;
 	int pseudo_header_len;
 	pcapng_simple_packet_block_t spb;
 
@@ -1264,14 +1268,32 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
 	pcapng_debug1("pcapng_read_simple_packet_block: packet data: packet_len %u",
 	               wblock->data.simple_packet.packet_len);
 
-	encap = pcapng_get_encap(0, pn);
+	if (0 >= pn->number_of_interfaces) {
+		*err = WTAP_ERR_BAD_FILE;
+		*err_info = g_strdup_printf("pcapng: interface index 0 is not less than interface count %u.",
+		    pn->number_of_interfaces);
+		return FALSE;
+	}
+	int_data = g_array_index(pn->interface_data, interface_data_t, 0);
+
 	pcapng_debug1("pcapng_read_simple_packet_block: Need to read pseudo header of size %d",
-	              pcap_get_phdr_size(encap, wblock->pseudo_header));
+	              pcap_get_phdr_size(int_data.wtap_encap, wblock->pseudo_header));
+
+	/* No time stamp in a simple packet block; no options, either */
+	wblock->packet_header->presence_flags = WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID;
+	wblock->packet_header->interface_id = 0;
+	wblock->packet_header->pkt_encap = int_data.wtap_encap;
+	wblock->packet_header->ts.secs = 0;
+	wblock->packet_header->ts.nsecs = 0;
+	wblock->packet_header->interface_id = 0;
+	wblock->packet_header->opt_comment = NULL;
+	wblock->packet_header->drop_count = 0;
+	wblock->packet_header->pack_flags = 0;
 
 	memset((void *)wblock->pseudo_header, 0, sizeof(union wtap_pseudo_header));
 	pseudo_header_len = pcap_process_pseudo_header(fh,
 	                                               WTAP_FILE_PCAPNG,
-	                                               encap,
+	                                               int_data.wtap_encap,
 	                                               wblock->data.simple_packet.cap_len,
 	                                               TRUE,
 	                                               wblock->packet_header,
@@ -1282,8 +1304,10 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
 		return 0;
 	}
 	wblock->data.simple_packet.pseudo_header_len = (guint32)pseudo_header_len;
+	wblock->packet_header->caplen = wblock->data.simple_packet.cap_len - wblock->data.simple_packet.pseudo_header_len;
+	wblock->packet_header->len = wblock->data.packet.packet_len - wblock->data.simple_packet.pseudo_header_len;
 	block_read += pseudo_header_len;
-	if (pseudo_header_len != pcap_get_phdr_size(encap, wblock->pseudo_header)) {
+	if (pseudo_header_len != pcap_get_phdr_size(int_data.wtap_encap, wblock->pseudo_header)) {
 		pcapng_debug1("pcapng_read_simple_packet_block: Could only read %d bytes for pseudo header.",
 		              pseudo_header_len);
 	}
@@ -1314,7 +1338,7 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
 		block_read += 4 - (wblock->data.simple_packet.cap_len % 4);
 	}
 
-	pcap_read_post_process(WTAP_FILE_PCAPNG, encap,
+	pcap_read_post_process(WTAP_FILE_PCAPNG, int_data.wtap_encap,
 	    (union wtap_pseudo_header *)wblock->pseudo_header,
 	    (guint8 *) (wblock->frame_buffer),
 	    (int) wblock->data.simple_packet.cap_len,
@@ -1971,7 +1995,6 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
 	pcapng_t *pcapng = (pcapng_t *)wth->priv;
 	int bytes_read;
-	guint64 ts;
 	wtapng_block_t wblock;
 
 	pcapng_debug1("pcapng_read: wth->data_offset is initially %" G_GINT64_MODIFIER "u", wth->data_offset);
@@ -2016,35 +2039,7 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 		pcapng_debug1("pcapng_read: *data_offset is updated to %" G_GINT64_MODIFIER "u", *data_offset);
 	}
 
-	/* Combine the two 32-bit pieces of the timestamp into one 64-bit value */
-	ts = (((guint64)wblock.data.packet.ts_high) << 32) | ((guint64)wblock.data.packet.ts_low);
-
-	wth->phdr.caplen = wblock.data.packet.cap_len - wblock.data.packet.pseudo_header_len;
-	wth->phdr.len = wblock.data.packet.packet_len - wblock.data.packet.pseudo_header_len;
 	if (wblock.data.packet.interface_id < pcapng->number_of_interfaces) {
-		interface_data_t int_data;
-		guint64 time_units_per_second;
-		gint id;
-
-		id = (gint)wblock.data.packet.interface_id;
-		int_data = g_array_index(pcapng->interface_data, interface_data_t, id);
-		time_units_per_second = int_data.time_units_per_second;
-		/* XXX - not WTAP_HAS_TS for an SPB */
-		wth->phdr.presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID;
-		if (wblock.data.packet.opt_comment != NULL)
-			wth->phdr.presence_flags |= WTAP_HAS_COMMENTS;
-		/* XXX - only if the option is present, for an EPB */
-		wth->phdr.presence_flags |= WTAP_HAS_DROP_COUNT;
-		/* XXX - only if the option is present */
-		wth->phdr.presence_flags |= WTAP_HAS_PACK_FLAGS;
-		wth->phdr.pkt_encap = int_data.wtap_encap;
-		wth->phdr.ts.secs = (time_t)(ts / time_units_per_second);
-		wth->phdr.ts.nsecs = (int)(((ts % time_units_per_second) * 1000000000) / time_units_per_second);
-
-		wth->phdr.interface_id = wblock.data.packet.interface_id;
-		wth->phdr.opt_comment  = wblock.data.packet.opt_comment;
-		wth->phdr.drop_count   = wblock.data.packet.drop_count;
-		wth->phdr.pack_flags   = wblock.data.packet.pack_flags;
 	} else {
 		wth->phdr.pkt_encap = WTAP_ENCAP_UNKNOWN;
 		*err = WTAP_ERR_BAD_FILE;
@@ -3067,7 +3062,6 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
 	wblock.data.packet.wtap_encap   = phdr->pkt_encap;
 
 	/* currently unused */
-	wblock.data.packet.drop_count   = phdr->drop_count;
 	wblock.data.packet.opt_comment  = phdr->opt_comment;
 	pcapng_debug1("pcapng_dump: Comment %s",phdr->opt_comment);
 
