@@ -7,7 +7,7 @@
 # Only "win32" and "win64" are valid (for now).
 # This can be defined in the system environment.
 !IFNDEF WIRESHARK_TARGET_PLATFORM
-WIRESHARK_TARGET_PLATFORM=win64
+WIRESHARK_TARGET_PLATFORM=win32
 !ENDIF
 
 ##### Versions #####
@@ -132,7 +132,7 @@ PROCESSOR_ARCHITECTURE=amd64
 
 # "Microsoft Visual C++ 2010 Express Edition"
 # Visual C++ 10.0, _MSC_VER 1600, msvcr100.dll
-MSVC_VARIANT=MSVC2010EE
+#MSVC_VARIANT=MSVC2010EE
 
 # The default if we haven't set a system environment variable or
 # uncommented an entry above.
