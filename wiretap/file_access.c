@@ -597,7 +597,7 @@ static const struct file_type_info dump_open_table_base[] = {
 	  NULL, NULL },
 
 	/* WTAP_FILE_MPEG_2_TS */
-	{ "MP2T", "mp2t", "mp2t", "mp2t;ts;mpg", FALSE, FALSE,
+	{ "MP2T", "mp2t", "mp2t", "ts;mpg", FALSE, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_K12TEXT  */
