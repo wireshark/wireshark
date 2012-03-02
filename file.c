@@ -3925,17 +3925,17 @@ cf_save(capture_file *cf, const char *fname, packet_range_t *range, guint save_f
 
       case CF_READ_OK:
       case CF_READ_ERROR:
-    /* Just because we got an error, that doesn't mean we were unable
-       to read any of the file; we handle what we could get from the
-       file. */
-    break;
+        /* Just because we got an error, that doesn't mean we were unable
+           to read any of the file; we handle what we could get from the
+           file. */
+        break;
 
       case CF_READ_ABORTED:
-    /* The user bailed out of re-reading the capture file; the
-       capture file has been closed - just return (without
-       changing any menu settings; "cf_close()" set them
-       correctly for the "no capture file open" state). */
-    break;
+        /* The user bailed out of re-reading the capture file; the
+           capture file has been closed - just return (without
+           changing any menu settings; "cf_close()" set them
+           correctly for the "no capture file open" state). */
+        break;
       }
       cf_callback_invoke(cf_cb_file_save_reload_finished, cf);
     }
