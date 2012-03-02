@@ -3848,8 +3848,9 @@ decode_sysex_common_nrt_sd_req( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 	/* sample number */
 	proto_tree_add_item( tree, hf_rtp_midi_sysex_common_nrt_sd_header_sn, tvb, offset, 2, ENC_BIG_ENDIAN );
+	/*Fix Clang Warning
 	offset += 2;
-	data_len -= 2;
+	data_len -= 2;*/
 	consumed += 2;
 
 	return consumed;
@@ -3917,8 +3918,9 @@ decode_sysex_common_nrt_sd_ext( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 		/* loop end */
 		proto_tree_add_item( tree, hf_rtp_midi_sysex_common_nrt_sd_header_le, tvb, offset, 3, ENC_BIG_ENDIAN );
+		/*Fix Clang Warning
 		offset += 3;
-		data_len -= 3;
+		data_len -= 3;*/
 		consumed += 3;
 
 	} else if ( sub_id == RTP_MIDI_SYSEX_COMMON_NRT_SD_EXT_LOOP_POINTS_REQUEST ) {
@@ -3937,8 +3939,9 @@ decode_sysex_common_nrt_sd_ext( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 		/* loop number */
 		proto_tree_add_item( tree, hf_rtp_midi_sysex_common_nrt_sd_ext_ln, tvb, offset, 2, ENC_BIG_ENDIAN );
+		/*Fix Clang Warning 
 		offset += 2;
-		data_len -= 2;
+		data_len -= 2; */
 		consumed += 2;
 
 	};
@@ -4019,8 +4022,9 @@ decode_sysex_common_nrt_gi( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 			return consumed;
 		}
 		proto_tree_add_item( tree, hf_rtp_midi_sysex_common_nrt_gi_software_rev, tvb, offset, 4, ENC_BIG_ENDIAN );
+		/*Fix Clang Warning
 		offset +=4 ;
-		data_len -= 4;
+		data_len -= 4;*/
 		consumed += 4;
 	};
 
@@ -4078,7 +4082,8 @@ decode_sysex_common_nrt_fd( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 
 			/* file-name */
 			proto_tree_add_item( tree, hf_rtp_midi_sysex_common_nrt_fd_name, tvb, offset, data_len, ENC_ASCII|ENC_NA );
-			offset += data_len;
+			/*Fix Clang Warning
+			offset += data_len;*/
 			data_len -= data_len;
 			consumed += data_len;
 		}
@@ -4146,7 +4151,8 @@ decode_sysex_common_nrt_fd( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 
 			/* file-name */
 			proto_tree_add_item( tree, hf_rtp_midi_sysex_common_nrt_fd_name, tvb, offset, data_len, ENC_ASCII|ENC_NA );
-			offset += data_len;
+			/*Fix Clang Warning
+			offset += data_len;*/
 			data_len -= data_len;
 			consumed += data_len;
 		}
@@ -4508,7 +4514,8 @@ decode_sysex_common_nrt_mtc( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
 		/* additional data */
 		proto_tree_add_item( tree, hf_rtp_midi_sysex_common_nrt_mtc_add, tvb, offset, data_len, ENC_NA );
-		offset += data_len;
+		/*Fix Clang Warning
+		offset += data_len;*/
 		data_len -= data_len;
 		consumed += data_len;
 	}
@@ -4554,7 +4561,8 @@ decode_sysex_common_rt_mtc_cue( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 		/* additional data */
 		proto_tree_add_item( tree, hf_rtp_midi_sysex_common_rt_mtc_cue_add, tvb, offset, data_len, ENC_NA );
-		offset += data_len;
+		/*Fix Clang Warning
+		offset += data_len;*/
 		data_len -= data_len;
 		consumed += data_len;
 	}
@@ -4861,8 +4869,9 @@ decode_sysex_common_rt_ni( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
 		/* bar number */
 		proto_tree_add_item( tree, hf_rtp_midi_sysex_common_rt_ni_bar_num, tvb, offset, 2, ENC_BIG_ENDIAN );
+		/*Fix Clang Warning
 		offset += 2;
-		data_len -= 2;
+		data_len -= 2;*/
 		consumed += 2;
 
 	} else if ( ( sub_id == RTP_MIDI_SYSEX_COMMON_RT_NT_TIME_SIGNATURE_IMMEDIATE ) ||
@@ -4957,8 +4966,9 @@ decode_sysex_common_rt_dc( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
 		/* volume */
 		proto_tree_add_item( tree, hf_rtp_midi_sysex_common_rt_dc_volume, tvb, offset, 2, ENC_BIG_ENDIAN );
+		/*Fix Clang Warning
 		offset += 2;
-		data_len -= 2;
+		data_len -= 2;*/
 		consumed += 2;
 
 	} else if ( sub_id == RTP_MIDI_SYSEX_COMMON_RT_DC_MASTER_BALANCE ) {
@@ -4968,8 +4978,9 @@ decode_sysex_common_rt_dc( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
 		/* balance */
 		proto_tree_add_item( tree, hf_rtp_midi_sysex_common_rt_dc_balance, tvb, offset, 2, ENC_BIG_ENDIAN );
+		/*Fix Clang Warning
 		offset += 2;
-		data_len -= 2;
+		data_len -= 2;*/
 		consumed += 2;
 
 	}
@@ -5240,7 +5251,8 @@ decode_sysex_start(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsi
 
 	/* set our pointers correct to move past already decoded data */
 	offset += ext_consumed;
-	data_len -= ext_consumed;
+	/*Fix Clang Warning
+	data_len -= ext_consumed;*/
 
 	proto_tree_add_item( command_tree, hf_rtp_midi_common_status, tvb, offset, 1, ENC_BIG_ENDIAN );
 
@@ -6141,7 +6153,7 @@ decode_cj_chapter_n( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 
 		for ( i = 0; i < octet_count; i++ ) {
 
-			proto_tree_add_item( ti, hf_rtp_midi_cj_chapter_n_log_octet, tvb, offset, 1, ENC_BIG_ENDIAN );
+			proto_tree_add_item(rtp_midi_loglist_tree, hf_rtp_midi_cj_chapter_n_log_octet, tvb, offset, 1, ENC_BIG_ENDIAN );
 
 			offset++;
 			consumed++;
@@ -6472,7 +6484,8 @@ decode_channel_journal( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 			return ext_consumed;
 		}
 		consumed += ext_consumed;
-		offset += ext_consumed;
+		/*Fix Clang Warning
+		offset += ext_consumed;*/
 	}
 
 	/* Make sanity check for consumed data vs. stated length of this channels journal */
@@ -6572,8 +6585,8 @@ decode_sj_chapter_d_f4( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		}
 
 		proto_tree_add_item( rtp_midi_field_tree, hf_rtp_midi_sj_chapter_d_syscom_data, tvb, offset, f4length, ENC_NA );
-
-		offset += f4length;
+		/*Fix Clang Warning
+		offset += f4length;*/
 		consumed += f4length;
 		/* must be a protocol error - since we have a length, we can recover...*/
 	}
@@ -6672,8 +6685,8 @@ decode_sj_chapter_d_f5( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		}
 
 		proto_tree_add_item( rtp_midi_field_tree, hf_rtp_midi_sj_chapter_d_syscom_data, tvb, offset, f5length, ENC_NA );
-
-		offset += f5length;
+		/*Fix Clang Warning
+		offset += f5length;*/
 		consumed += f5length;
 		/* must be a protocol error - since we have a length, we can recover...*/
 	}
@@ -6748,8 +6761,8 @@ decode_sj_chapter_d_f9( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		}
 
 		proto_tree_add_item( rtp_midi_field_tree, hf_rtp_midi_sj_chapter_d_sysreal_data, tvb, offset, f9length, ENC_NA );
-
-		offset += f9length;
+		/*Fix Clang Warning 
+		offset += f9length;*/
 		consumed += f9length;
 		/* must be a protocol error - since we have a length, we can recover...*/
 	}
@@ -6826,7 +6839,8 @@ decode_sj_chapter_d_fd( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 		proto_tree_add_item( rtp_midi_field_tree, hf_rtp_midi_sj_chapter_d_sysreal_data, tvb, offset, fdlength, ENC_NA );
 
-		offset += fdlength;
+		/*Fix Clang Warning
+		offset += fdlength;*/
 		consumed += fdlength;
 		/* must be a protocol error - since we have a length, we can recover...*/
 	}
@@ -6965,7 +6979,8 @@ decode_sj_chapter_d( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 			return ext_consumed;
 		}
 		consumed += ext_consumed;
-		offset += ext_consumed;
+		/*Fix Clang Warning
+		offset += ext_consumed;*/
 	}
 
 
@@ -7036,7 +7051,8 @@ decode_sj_chapter_q( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 		proto_tree_add_item( rtp_midi_sj_chapter_tree, hf_rtp_midi_sj_chapter_q_timetools, tvb, offset, 3, ENC_BIG_ENDIAN );
 
 		consumed += 3;
-		offset += 3;
+		/*Fix Clang Warning
+		offset += 3;*/
 	}
 
 	return consumed;
@@ -7130,7 +7146,8 @@ decode_sj_chapter_f( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 		proto_tree_add_item( rtp_midi_sj_field_tree, hf_rtp_midi_sj_chapter_f_mt7, tvb, offset, 4, ENC_BIG_ENDIAN );
 
 		consumed += 4;
-		offset += 4;
+		/*Fix Clang Warning
+		offset += 4;*/
 	}
 
 	return consumed;
@@ -7374,7 +7391,8 @@ decode_system_journal( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 			return ext_consumed;
 		}
 		consumed += ext_consumed;
-		offset += ext_consumed;
+		/*Fix Clang Warning
+		offset += ext_consumed;*/
 	}
 
 
