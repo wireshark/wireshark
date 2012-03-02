@@ -2045,7 +2045,6 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guin
 	gboolean	odd;
 
 	curr_offset = offset;
-	odd = FALSE;
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
