@@ -506,8 +506,10 @@ typedef proto_node proto_item;
 #define PI_DEBUG		0x08000000
 /** The protocol field violates a protocol specification, usually PI_WARN */
 #define PI_PROTOCOL             0x09000000
-/* The protocol field indicates a security probem (e.g. unsecure implementation) */
+/** The protocol field indicates a security probem (e.g. unsecure implementation) */
 #define PI_SECURITY		0x0a000000
+/** The protocol field indicates a packet comment */
+#define PI_COMMENTS_GROUP		0x0b000000
 
 /* add more, see http://wiki.wireshark.org/Development/ExpertInfo */
 

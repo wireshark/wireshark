@@ -70,15 +70,18 @@ enum
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _expert_comp_dlg_t {
     GtkWidget *win;
+    GtkWidget *pkt_comments_label;
     GtkWidget *chat_label;
     GtkWidget *note_label;
     GtkWidget *warn_label;
     GtkWidget *error_label;
     GtkWidget *all_label;
+    error_equiv_table pkt_comments_table;
     error_equiv_table chat_table;
     error_equiv_table note_table;
     error_equiv_table warn_table;
     error_equiv_table error_table;
+    guint32 pkt_comments_events;
     guint32 disp_events;
     guint32 chat_events;
     guint32 note_events;
@@ -91,6 +94,7 @@ struct expert_tapdata_s {
 	GtkWidget	*scrolled_window;
 	GtkTreeView *tree_view;
 	GtkWidget	*label;
+	guint32		pkt_comments_events;
 	guint32		disp_events;
 	guint32		chat_events;
 	guint32		note_events;
@@ -149,6 +153,7 @@ expert_dlg_reset(void *tapdata)
     etd->note_events = 0;
     etd->warn_events = 0;
     etd->error_events = 0;
+    etd->pkt_comments_events = 0;
     etd->last = 0;
     etd->first = 0;
     /* g_string_chunk_clear() is introduced in glib 2.14 */
@@ -172,6 +177,9 @@ expert_dlg_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_
     ei->summary = g_string_chunk_insert_const(etd->text, ei->summary);
 
     switch(ei->severity) {
+    case(PI_COMMENT):
+        etd->pkt_comments_events++;
+        break;
     case(PI_CHAT):
         etd->chat_events++;
         break;
@@ -215,6 +223,7 @@ error_reset(void *pss)
     ss->note_events = 0;
     ss->chat_events = 0;
     ss->disp_events = 0;
+	ss->pkt_comments_events = 0;
 
     reset_error_table_data(&ss->error_table);
     buf = g_strdup_printf("Errors: %u (0)", ss->error_table.num_procs);
@@ -237,6 +246,11 @@ error_reset(void *pss)
     g_free(buf);
 
     gtk_label_set_text( GTK_LABEL(ss->all_label), "Details: 0");
+
+	reset_error_table_data(&ss->pkt_comments_table);
+    buf = g_strdup_printf("Packet Coments: %u (0)", ss->pkt_comments_table.num_procs);
+    gtk_label_set_text( GTK_LABEL(ss->pkt_comments_label), buf);
+    g_free(buf);
     error_set_title(ss);
 }
 
@@ -272,6 +286,11 @@ error_packet(void *pss, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const v
         ss->chat_events++;
         init_error_table_row(&ss->chat_table, error_pkt);
         break;
+    case PI_COMMENT:
+        ss->disp_events++; /* Count ? */
+        ss->pkt_comments_events++;
+        init_error_table_row(&ss->pkt_comments_table, error_pkt);
+        break;
     default:
         return FALSE; /* Don't draw */
     }
@@ -305,6 +324,10 @@ expert_comp_draw(void *data)
     gtk_label_set_text( GTK_LABEL(ss->all_label), buf);
     g_free(buf);
 
+    buf = g_strdup_printf("Packet Comments: %u (%u)", ss->pkt_comments_table.num_procs, ss->pkt_comments_events);
+    gtk_label_set_text( GTK_LABEL(ss->pkt_comments_label), buf);
+    g_free(buf);
+
 }
 
 static void
@@ -325,6 +348,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
     free_error_table_data(&ss->warn_table);
     free_error_table_data(&ss->note_table);
     free_error_table_data(&ss->chat_table);
+    free_error_table_data(&ss->pkt_comments_table);
     g_free(ss);
 
 }
@@ -351,7 +375,7 @@ static expert_tapdata_t * expert_dlg_new_table(void)
 
     etd->ei_array = g_array_sized_new(FALSE, FALSE, sizeof(expert_info_t), 1000);
     etd->text = g_string_chunk_new(100);
-    etd->severity_report_level = PI_CHAT;
+    etd->severity_report_level = PI_COMMENT;
     return etd;
 }
 
@@ -367,13 +391,13 @@ expert_dlg_init_table(expert_tapdata_t * etd, GtkWidget *vbox)
 
     /* Create the store */
     store = gtk_list_store_new(N_COLUMNS,        /* Total number of columns */
-                               G_TYPE_UINT,      /* No                   */
-                               G_TYPE_POINTER,   /* Severity           */
-                               G_TYPE_POINTER,   /* Group              */
-                               G_TYPE_POINTER,    /* Protocol           */
-                               G_TYPE_POINTER,    /* Summary            */
-                               G_TYPE_STRING,    /* forground          */
-                               G_TYPE_STRING);   /* Background         */
+                               G_TYPE_UINT,      /* No                      */
+                               G_TYPE_POINTER,   /* Severity                */
+                               G_TYPE_POINTER,   /* Group                   */
+                               G_TYPE_POINTER,   /* Protocol                */
+                               G_TYPE_POINTER,   /* Summary                 */
+                               G_TYPE_STRING,    /* forground               */
+                               G_TYPE_STRING);   /* Background              */
 
     /* Create a view */
     tree = gtk_tree_view_new_with_model (GTK_TREE_MODEL (store));
@@ -410,7 +434,7 @@ expert_dlg_init_table(expert_tapdata_t * etd, GtkWidget *vbox)
     gtk_tree_view_column_set_sort_column_id(column, NO_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-    gtk_tree_view_column_set_min_width(column, 80);
+    gtk_tree_view_column_set_min_width(column, 40);
     gtk_tree_view_append_column (etd->tree_view, column);
 
     /* Severity */
@@ -571,6 +595,9 @@ expert_dlg_draw(void *data)
 
         /* set rows background color depending on severity */
         switch(ei->severity) {
+        case(PI_COMMENT):
+            color_str = expert_color_comment_str;
+            break;
         case(PI_CHAT):
             color_str = expert_color_chat_str;
             break;
@@ -607,9 +634,9 @@ expert_dlg_draw(void *data)
     }
 
     if(etd->label) {
-        title = g_strdup_printf("Errors: %u Warnings: %u Notes: %u Chats: %u",
+        title = g_strdup_printf("Errors: %u Warnings: %u Notes: %u Chats: %u, Packet comments",
                                 etd->error_events, etd->warn_events,
-                                etd->note_events, etd->chat_events);
+                                etd->note_events, etd->chat_events, etd->pkt_comments_events);
         gtk_label_set_text(GTK_LABEL(etd->label), title);
         g_free(title);
     }
@@ -627,7 +654,7 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
     expert_comp_dlg_t *ss;
     const char *filter=NULL;
     GString *error_string;
-    GtkWidget *temp_page;
+    GtkWidget *temp_page, *details_page;
     GtkWidget *main_nb;
     GtkWidget *vbox;
     GtkWidget *hbox;
@@ -639,6 +666,7 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
 
     ss=g_malloc(sizeof(expert_comp_dlg_t));
 
+	ss->pkt_comments_events = 0;
     ss->disp_events = 0;
     ss->chat_events = 0;
     ss->note_events = 0;
@@ -718,16 +746,25 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
     init_error_table(&ss->chat_table, 0, temp_page);
 
     /* Details */
-    temp_page = gtk_vbox_new(FALSE, 6);
+    details_page = gtk_vbox_new(FALSE, 6);
     ss->all_label = gtk_label_new("Details: 0");
-    gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), temp_page, ss->all_label);
+    gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), details_page, ss->all_label);
 
-    etd = expert_dlg_new_table();
+    /* Paket comments */
+    temp_page = gtk_vbox_new(FALSE, 6);
+    ss->pkt_comments_label = gtk_label_new("Packet Comments: 0/y");
+    gtk_widget_show(ss->pkt_comments_label);
+    hbox = gtk_hbox_new(FALSE, 3);
+    gtk_container_add(GTK_CONTAINER(hbox), ss->pkt_comments_label);
+    gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), temp_page, hbox);
+    init_error_table(&ss->pkt_comments_table, 0, temp_page);
+
+	etd = expert_dlg_new_table();
     etd->label=gtk_label_new("Please wait ...");
     gtk_misc_set_alignment(GTK_MISC(etd->label), 0.0f, 0.5f);
 
     etd->win=ss->win;
-    expert_dlg_init_table(etd, temp_page);
+    expert_dlg_init_table(etd, details_page);
 
     /* Add tap listener functions for expert details, From expert_dlg.c*/
     error_string=register_tap_listener("expert", etd, NULL /* fstring */,

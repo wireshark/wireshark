@@ -648,7 +648,7 @@ init_error_table(error_equiv_table *err, guint num_procs, GtkWidget *vbox)
     sortable = GTK_TREE_SORTABLE(store);
 
     /* Speed up the list display */
-      gtk_tree_view_set_fixed_height_mode(err->tree_view, TRUE);
+    gtk_tree_view_set_fixed_height_mode(err->tree_view, TRUE);
 
     gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW (tree), FALSE);
 
@@ -659,7 +659,8 @@ init_error_table(error_equiv_table *err, guint num_procs, GtkWidget *vbox)
     renderer = gtk_cell_renderer_text_new ();
 
     /* Create the first column, associating the "text" attribute of the
-     * cell_renderer to the first column of the model */
+     * cell_renderer to the first column of the model
+	 */
     column = gtk_tree_view_column_new_with_attributes ("Group", renderer, NULL);
     gtk_tree_view_column_set_sort_column_id(column, GROUP_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);

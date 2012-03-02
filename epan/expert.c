@@ -60,6 +60,7 @@ const value_string expert_group_vals[] = {
 	{ PI_DEBUG,             "Debug" },
 	{ PI_PROTOCOL,          "Protocol" },
 	{ PI_SECURITY,          "Security" },
+	{ PI_COMMENTS_GROUP,    "Comment" },
 	{ 0, NULL }
 };
 
@@ -68,6 +69,7 @@ const value_string expert_severity_vals[] = {
 	{ PI_WARN,              "Warn" },
 	{ PI_NOTE,              "Note" },
 	{ PI_CHAT,              "Chat" },
+	{ PI_COMMENT,           "Comment" },
 	{ 0,                    "Ok" },
 	{ 0, NULL }
 };

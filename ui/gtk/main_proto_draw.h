@@ -236,6 +236,7 @@ extern void select_bytes_view (GtkWidget *widget, gpointer data, gint view);
 extern void proto_draw_colors_init(void);
 
 /** the expert colors */
+extern GdkColor	expert_color_comment;
 extern GdkColor	expert_color_chat;
 extern GdkColor	expert_color_note;
 extern GdkColor	expert_color_warn;
@@ -243,6 +244,7 @@ extern GdkColor	expert_color_error;
 extern GdkColor	expert_color_foreground;
 
 /* string representation of expert colors */
+extern gchar *expert_color_comment_str;
 extern gchar *expert_color_chat_str;
 extern gchar *expert_color_note_str;
 extern gchar *expert_color_warn_str;

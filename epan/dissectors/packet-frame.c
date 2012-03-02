@@ -122,7 +122,7 @@ call_frame_end_routine(gpointer routine, gpointer dummy _U_)
 static void
 dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
-	proto_item	*volatile ti = NULL;
+	proto_item	*volatile ti = NULL, *comment_item;
 	guint		cap_len = 0, frame_len = 0;
 	proto_tree	*volatile tree;
 	proto_tree  *comments_tree;
@@ -185,9 +185,12 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	if(pinfo->fd->opt_comment){
 		item = proto_tree_add_item(tree, proto_pkt_comment, tvb, 0, -1, ENC_NA);
 		comments_tree = proto_item_add_subtree(item, ett_comments);
-		proto_tree_add_string_format(comments_tree, hf_comments_text, tvb, 0, -1,
+		comment_item = proto_tree_add_string_format(comments_tree, hf_comments_text, tvb, 0, -1,
 							                   pinfo->fd->opt_comment, "%s",
 							                   pinfo->fd->opt_comment);
+		expert_add_info_format(pinfo, comment_item, PI_COMMENTS_GROUP, PI_COMMENT,
+					                       "%s",  pinfo->fd->opt_comment);
+
 
 	}
 
