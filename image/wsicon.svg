@@ -1,26 +1,34 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
+
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:cc="http://creativecommons.org/ns#"
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns:sodipodi="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="744.09448819"
-   height="1052.3622047"
+   width="100"
+   height="100"
    id="svg1315"
    sodipodi:version="0.32"
-   inkscape:version="0.43"
-   sodipodi:docbase="/home/gerald/devel/wsweb/material"
+   inkscape:version="0.47 r22583"
    sodipodi:docname="wsicon.svg"
    inkscape:export-filename="/home/gerald/devel/wsweb/material/wsicon256.png"
    inkscape:export-xdpi="230.41"
-   inkscape:export-ydpi="230.41">
+   inkscape:export-ydpi="230.41"
+   version="1.1">
   <defs
      id="defs1317">
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 526.18109 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="744.09448 : 526.18109 : 1"
+       inkscape:persp3d-origin="372.04724 : 350.78739 : 1"
+       id="perspective2838" />
     <linearGradient
        id="linearGradient3953">
       <stop
@@ -74,7 +82,7 @@
        x2="173.63884"
        y2="317.43823"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1.023684,0.000000,0.000000,1.000000,-4.386892,-1.000000)" />
+       gradientTransform="matrix(1.023684,0,0,1,-4.386892,-1)" />
     <linearGradient
        inkscape:collect="always"
        xlink:href="#linearGradient3953"
@@ -104,17 +112,18 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="5.6789797"
-     inkscape:cx="183.67754"
-     inkscape:cy="732.13599"
+     inkscape:cx="10.885275"
+     inkscape:cy="54.257526"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
      showguides="true"
      inkscape:grid-points="true"
-     inkscape:window-width="893"
-     inkscape:window-height="733"
-     inkscape:window-x="226"
-     inkscape:window-y="130" />
+     inkscape:window-width="838"
+     inkscape:window-height="1029"
+     inkscape:window-x="0"
+     inkscape:window-y="19"
+     inkscape:window-maximized="0" />
   <metadata
      id="metadata1320">
     <rdf:RDF>
@@ -129,34 +138,35 @@
   <g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
-     id="layer1">
+     id="layer1"
+     transform="translate(-133.87682,-274.48372)">
     <rect
-       style="fill:url(#radialGradient2770);fill-opacity:1.0;stroke:#000000;stroke-width:4.5540000;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000;opacity:1.0000000"
+       style="fill:url(#radialGradient2770);fill-opacity:1;stroke:#000000;stroke-width:4.5539999;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
        id="rect5811"
-       width="95.442360"
+       width="95.44236"
        height="95.287926"
        x="136.15382"
        y="276.91879"
-       rx="10.000000"
-       ry="10.000000"
+       rx="10"
+       ry="10"
        inkscape:export-filename="/home/gerald/devel/wsweb/image/wsicon256.png"
        inkscape:export-xdpi="230.41"
        inkscape:export-ydpi="230.41" />
     <path
-       style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#000000;stroke-width:4.2972369;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dasharray:none;stroke-opacity:1.0000000"
-       d="M 136.88045,347.36218 L 160.88045,347.36218 C 160.88045,347.36218 164.66365,299.17449 206.73183,298.51080 C 193.16146,319.74868 205.88045,347.36218 205.88045,347.36218 L 230.88045,347.36218"
+       style="fill:none;stroke:#000000;stroke-width:4.29723692;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="m 136.88045,347.36218 24,0 c 0,0 3.7832,-48.18769 45.85138,-48.85138 -13.57037,21.23788 -0.85138,48.85138 -0.85138,48.85138 l 25,0"
        id="path1328"
        sodipodi:nodetypes="ccccc"
        inkscape:export-filename="/home/gerald/devel/wsweb/image/wsicon200.png"
        inkscape:export-xdpi="180.00999"
        inkscape:export-ydpi="180.00999" />
     <path
-       style="fill:url(#linearGradient1330);fill-opacity:1;stroke:none;stroke-width:0;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1"
-       d="M 141,277.36218 C 148.43358,275.84465 217.41021,275.36218 226,277.36218 C 234.03139,279.23216 204,305.36218 184,305.36218 C 164,305.36218 133.45763,278.90192 141,277.36218 z "
+       style="fill:url(#linearGradient1330);fill-opacity:1;stroke:none"
+       d="m 141,277.36218 c 7.43358,-1.51753 76.41021,-2 85,0 8.03139,1.86998 -22,28 -42,28 -20,0 -50.54237,-26.46026 -43,-28 z"
        id="rect3070"
        sodipodi:nodetypes="czzz" />
     <rect
-       style="opacity:1;fill:#ffffff;fill-opacity:0.01092894;stroke:none;stroke-width:0;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:#ffffff;fill-opacity:0.01092894;stroke:none"
        id="rect5705"
        width="1"
        height="0"
