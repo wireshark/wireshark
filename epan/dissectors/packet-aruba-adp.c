@@ -97,7 +97,7 @@ dissect_aruba_adp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(aruba_adp_tree, hf_adp_switchip, tvb, 6, 4, ENC_BIG_ENDIAN);
       switchip = tvb_ip_to_str(tvb, 6);
 
-	  col_add_fstr(pinfo->cinfo, COL_INFO, "ADP Response Switch IP: %s", switchip);
+        col_add_fstr(pinfo->cinfo, COL_INFO, "ADP Response Switch IP: %s", switchip);
 
       proto_item_append_text(ti, ", Response Switch IP: %s", switchip);
       break;
@@ -154,4 +154,16 @@ proto_reg_handoff_aruba_adp(void)
   dissector_add_uint("udp.port", UDP_PORT_ADP, adp_handle);
 }
 
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */
 
