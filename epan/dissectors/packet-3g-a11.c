@@ -616,7 +616,6 @@ static const gchar *dissect_3gpp2_service_option_profile(proto_tree * tree, tvbu
 	offset+=4;
 
 	while (tvb_length_remaining(tvb,offset)>0){
-		sub_type = tvb_get_guint8(tvb,offset);
 		sub_type_length = tvb_get_guint8(tvb,offset+1);
 
 		sub_type = tvb_get_guint8(tvb,offset);
@@ -664,7 +663,6 @@ static const gchar *dissect_3gpp2_radius_aut_flow_profile_ids(proto_tree * tree,
 			val_to_str(sub_type, a11_aut_flow_prof_subtype_vals, "Unknown"), value);
 		sub_tree = proto_item_add_subtree(item, ett_a11_aut_flow_profile_ids);
 
-		sub_type = tvb_get_guint8(tvb,offset);
 		proto_tree_add_item(sub_tree, hf_a11_aut_flow_prof_sub_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 		proto_tree_add_item(sub_tree, hf_a11_aut_flow_prof_sub_type_len, tvb, offset, 1, ENC_BIG_ENDIAN);
