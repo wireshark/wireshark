@@ -236,7 +236,6 @@ dissect_ppdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti;
 	proto_tree *pres_tree = NULL;
-	guint s_type;
 	asn1_ctx_t asn1_ctx;
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
@@ -257,8 +256,6 @@ dissect_ppdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 			}
 		}
 	}
-	/* get type of tag */
-	s_type = tvb_get_guint8(tvb, offset);
 	/*  set up type of PPDU */
 	col_add_str(pinfo->cinfo, COL_INFO,
 		    val_to_str(session->spdu_type, ses_vals, "Unknown PPDU type (0x%02x)"));
