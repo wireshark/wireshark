@@ -2061,7 +2061,7 @@ dissect_17221_stream_format(tvbuff_t *tvb, proto_tree *tree)
 
    /* subtree */
    stream_ti = proto_tree_add_item(tree, hf_aem_stream_format, tvb,
-         0, 8, FALSE);
+         0, 8, ENC_NA);
    stream_tree = proto_item_add_subtree(stream_ti, ett_aem_stream_format);
 
    /* get version */
@@ -2069,7 +2069,7 @@ dissect_17221_stream_format(tvbuff_t *tvb, proto_tree *tree)
 
    /* add the version to the tree */
    proto_tree_add_item(stream_tree, hf_aem_sf_version, tvb,
-         AEM_OFFSET_SF_VERSION, 1, FALSE);
+         AEM_OFFSET_SF_VERSION, 1, ENC_BIG_ENDIAN);
 
 
    if (version == 0) {       /* stream format version 0 */
@@ -2077,59 +2077,59 @@ dissect_17221_stream_format(tvbuff_t *tvb, proto_tree *tree)
       subtype = tvb_get_ntohs(tvb, 0) & AEM_MASK_SF_SUBTYPE;
 
       proto_tree_add_item(stream_tree, hf_aem_sf, tvb,
-            AEM_OFFSET_SF_SUBTYPE, 2, FALSE);
+            AEM_OFFSET_SF_SUBTYPE, 2, ENC_BIG_ENDIAN);
 
       switch(subtype) {
          case SF61883_IIDC_SUBTYPE:
             /* get sf */
             sf = tvb_get_guint8(tvb, 1) & 0x40;
             proto_tree_add_item(stream_tree, hf_aem_sf, tvb,
-                  AEM_OFFSET_SF, 1, FALSE);
+                  AEM_OFFSET_SF, 1, ENC_BIG_ENDIAN);
 
             if (sf == 0) { /* IIDC Stream Format */
                proto_tree_add_item(stream_tree, hf_aem_iidc_format, tvb,
-                     AEM_OFFSET_IIDC_FORMAT, 1, FALSE);
+                     AEM_OFFSET_IIDC_FORMAT, 1, ENC_BIG_ENDIAN);
                proto_tree_add_item(stream_tree, hf_aem_iidc_mode, tvb,
-                     AEM_OFFSET_IIDC_MODE, 1, FALSE);
+                     AEM_OFFSET_IIDC_MODE, 1, ENC_BIG_ENDIAN);
                proto_tree_add_item(stream_tree, hf_aem_iidc_rate, tvb,
-                     AEM_OFFSET_IIDC_RATE, 1, FALSE);
+                     AEM_OFFSET_IIDC_RATE, 1, ENC_BIG_ENDIAN);
 
             } else { /* 61883 Stream Format */
                proto_tree_add_item(stream_tree, hf_aem_fmt, tvb,
-                     AEM_OFFSET_FMT, 1, FALSE);
+                     AEM_OFFSET_FMT, 1, ENC_BIG_ENDIAN);
                fmt = tvb_get_guint8(tvb, AEM_OFFSET_FMT) & 0x3F;
                if (fmt == 0x40) {       /* 61883-6 Stream Format */
                   proto_tree_add_item(stream_tree, hf_aem_fdf_evt, tvb,
-                        AEM_OFFSET_FDF_EVT, 1, FALSE);
+                        AEM_OFFSET_FDF_EVT, 1, ENC_BIG_ENDIAN);
                   proto_tree_add_item(stream_tree, hf_aem_fdf_sfc, tvb,
-                        AEM_OFFSET_FDF_SFC, 1, FALSE);
+                        AEM_OFFSET_FDF_SFC, 1, ENC_BIG_ENDIAN);
                   proto_tree_add_item(stream_tree, hf_aem_dbs, tvb,
-                        AEM_OFFSET_DBS, 1, FALSE);
+                        AEM_OFFSET_DBS, 1, ENC_BIG_ENDIAN);
 
                   fdf_evt = tvb_get_guint8(tvb, AEM_OFFSET_FDF_EVT) & AEM_MASK_FDF_EVT;
 
                   proto_tree_add_item(stream_tree, hf_aem_b_flag, tvb,
-                        AEM_OFFSET_B, 1, FALSE);
+                        AEM_OFFSET_B, 1, ENC_BIG_ENDIAN);
                   proto_tree_add_item(stream_tree, hf_aem_nb_flag, tvb,
-                        AEM_OFFSET_NB, 1, FALSE);
+                        AEM_OFFSET_NB, 1, ENC_BIG_ENDIAN);
 
                  if (fdf_evt == 0x00) { /* 61883-6 AM824 Stream Format  */
                     proto_tree_add_item(stream_tree, hf_aem_label_iec_60958_cnt, tvb,
-                          AEM_OFFSET_LABEL_IEC_60958_CNT, 1, FALSE);
+                          AEM_OFFSET_LABEL_IEC_60958_CNT, 1, ENC_BIG_ENDIAN);
                     proto_tree_add_item(stream_tree, hf_aem_label_mbla_cnt, tvb,
-                          AEM_OFFSET_LABEL_MBLA_CNT, 1, FALSE);
+                          AEM_OFFSET_LABEL_MBLA_CNT, 1, ENC_BIG_ENDIAN);
                     proto_tree_add_item(stream_tree, hf_aem_label_midi_cnt, tvb,
-                          AEM_OFFSET_LABEL_MIDI_CNT, 1, FALSE);
+                          AEM_OFFSET_LABEL_MIDI_CNT, 1, ENC_BIG_ENDIAN);
                     proto_tree_add_item(stream_tree, hf_aem_label_smpte_cnt, tvb,
-                          AEM_OFFSET_LABEL_SMPTE_CNT, 1, FALSE);
+                          AEM_OFFSET_LABEL_SMPTE_CNT, 1, ENC_BIG_ENDIAN);
                   }
                } else if (fmt == 0x01) { /* 61883-8 Stream Format */
                   proto_tree_add_item(stream_tree, hf_aem_video_mode, tvb,
-                        AEM_OFFSET_VIDEO_MODE, 1, FALSE);
+                        AEM_OFFSET_VIDEO_MODE, 1, ENC_BIG_ENDIAN);
                   proto_tree_add_item(stream_tree, hf_aem_compress_mode, tvb,
-                        AEM_OFFSET_COMPRESS_MODE, 1, FALSE);
+                        AEM_OFFSET_COMPRESS_MODE, 1, ENC_BIG_ENDIAN);
                   proto_tree_add_item(stream_tree, hf_aem_color_space, tvb,
-                        AEM_OFFSET_COLOR_SPACE, 1, FALSE);
+                        AEM_OFFSET_COLOR_SPACE, 1, ENC_BIG_ENDIAN);
                }
             }
             break;
@@ -2161,48 +2161,48 @@ dissect_17221_media_format(tvbuff_t *tvb, proto_tree *tree)
 
    /* subtree */
    media_ti = proto_tree_add_item(tree, hf_aecp_media_format, tvb,
-         0, 16, FALSE);
+         0, 16, ENC_NA);
    media_tree = proto_item_add_subtree(media_ti, ett_aem_media_format);
 
    /* standard media formats */
    if (oui24 == OUI24_STANDARD_MEDIA_FORMAT) {
       /* Standard Media Format Fields */
       proto_tree_add_item(media_tree, hf_aem_oui24, tvb,
-            0, 3, FALSE);
+            0, 3, ENC_BIG_ENDIAN);
       proto_tree_add_item(media_tree, hf_aem_mfd_type, tvb,
-            AEM_OFFSET_MFD_TYPE, 1, FALSE);
+            AEM_OFFSET_MFD_TYPE, 1, ENC_BIG_ENDIAN);
 
       /* break down the standard media format types */
       switch(mfd_type) {
          case MFD_TYPE_VIDEO:
             proto_tree_add_item(media_tree, hf_aem_div, tvb,
-                  AEM_OFFSET_DIV, 1, FALSE);
+                  AEM_OFFSET_DIV, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(media_tree, hf_aem_interlace, tvb,
-                  AEM_OFFSET_INTERLACE, 2, FALSE);
+                  AEM_OFFSET_INTERLACE, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(media_tree, hf_aem_channels, tvb,
-                  AEM_OFFSET_CHANNELS, 1, FALSE);
+                  AEM_OFFSET_CHANNELS, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(media_tree, hf_aem_color_format, tvb,
-                  AEM_OFFSET_COLOR_FORMAT, 2, FALSE);
+                  AEM_OFFSET_COLOR_FORMAT, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(media_tree, hf_aem_bpp, tvb,
-                  AEM_OFFSET_BPP, 1, FALSE);
+                  AEM_OFFSET_BPP, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(media_tree, hf_aem_aspect_x, tvb,
-                  AEM_OFFSET_ASPECT_X, 1, FALSE);
+                  AEM_OFFSET_ASPECT_X, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(media_tree, hf_aem_aspect_y, tvb,
-                  AEM_OFFSET_ASPECT_Y, 1 ,FALSE);
+                  AEM_OFFSET_ASPECT_Y, 1 ,ENC_BIG_ENDIAN);
             proto_tree_add_item(media_tree, hf_aem_frame_rate, tvb,
-                  AEM_OFFSET_FRAME_RATE, 1, FALSE);
+                  AEM_OFFSET_FRAME_RATE, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(media_tree, hf_aem_comp1, tvb,
-                  AEM_OFFSET_COMP1, 2, FALSE);
+                  AEM_OFFSET_COMP1, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(media_tree, hf_aem_comp2, tvb,
-                  AEM_OFFSET_COMP2, 1, FALSE);
+                  AEM_OFFSET_COMP2, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(media_tree, hf_aem_comp3, tvb,
-                  AEM_OFFSET_COMP3, 2, FALSE);
+                  AEM_OFFSET_COMP3, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(media_tree, hf_aem_comp4, tvb,
-                  AEM_OFFSET_COMP4, 1, FALSE);
+                  AEM_OFFSET_COMP4, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(media_tree, hf_aem_mf_width, tvb,
-                  AEM_OFFSET_SVMF_WIDTH, 2, FALSE);
+                  AEM_OFFSET_SVMF_WIDTH, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(media_tree, hf_aem_mf_height, tvb,
-                  AEM_OFFSET_SVMF_HEIGHT, 2, FALSE);
+                  AEM_OFFSET_SVMF_HEIGHT, 2, ENC_BIG_ENDIAN);
             break;
          case MFD_TYPE_TRANSPORT_STRM:
             break;
@@ -2212,7 +2212,7 @@ dissect_17221_media_format(tvbuff_t *tvb, proto_tree *tree)
             break;
          case MFD_TYPE_CONTROL_PROTO:
             proto_tree_add_item(media_tree, hf_aem_cs_eui64, tvb,
-                  AEM_OFFSET_CS_EUI64, 8, FALSE);
+                  AEM_OFFSET_CS_EUI64, 8, ENC_BIG_ENDIAN);
             break;
          default:
             /* unsupported MFD type */
@@ -2240,7 +2240,7 @@ dissect_17221_ctrl_val(tvbuff_t *tvb, proto_tree *tree, guint16 num_ctrl_vals, g
 
    /* set up control values tree */
    ctrl_item = proto_tree_add_item(tree, hf_aem_ctrl_vals, tvb,
-         0, 0, FALSE);
+         0, 0, ENC_NA);
    ctrl_subtree = proto_item_add_subtree(ctrl_item, ett_aem_ctrl_vals);
 
    /* ctrl_val_type's are dissected below in this if/else block */
@@ -2257,55 +2257,55 @@ dissect_17221_ctrl_val(tvbuff_t *tvb, proto_tree *tree, guint16 num_ctrl_vals, g
    if (ctrl_val_type < 0xa) {
       for(i = 0; i < num_ctrl_vals; ++i) {
          proto_tree_add_item(ctrl_subtree, ref.hf, tvb,
-               ctrl_offset, ref.size, FALSE);
+               ctrl_offset, ref.size, ENC_BIG_ENDIAN);
          ctrl_offset += ref.size;
          proto_tree_add_item(ctrl_subtree, ref.hf, tvb,
-               ctrl_offset, ref.size, FALSE);
+               ctrl_offset, ref.size, ENC_BIG_ENDIAN);
          ctrl_offset += ref.size;
          proto_tree_add_item(ctrl_subtree, ref.hf, tvb,
-               ctrl_offset, ref.size, FALSE);
+               ctrl_offset, ref.size, ENC_BIG_ENDIAN);
          ctrl_offset += ref.size;
          proto_tree_add_item(ctrl_subtree, ref.hf, tvb,
-               ctrl_offset, ref.size, FALSE);
+               ctrl_offset, ref.size, ENC_BIG_ENDIAN);
          ctrl_offset += ref.size;
          proto_tree_add_item(ctrl_subtree, ref.hf, tvb,
-               ctrl_offset, ref.size, FALSE);
+               ctrl_offset, ref.size, ENC_BIG_ENDIAN);
          ctrl_offset += ref.size;
          proto_tree_add_item(ctrl_subtree, hf_aem_unit, tvb,
-               ctrl_offset, 2, FALSE);
+               ctrl_offset, 2, ENC_BIG_ENDIAN);
          ctrl_offset += 2;
          proto_tree_add_item(ctrl_subtree, hf_aem_string_ref, tvb,
-               ctrl_offset, 2, FALSE);
+               ctrl_offset, 2, ENC_BIG_ENDIAN);
          ctrl_offset += 2;
       }
 
       /* SELECTOR TYPES */
    } else if (ctrl_val_type > 0x9 && ctrl_val_type < 0x14) {
       proto_tree_add_item(ctrl_subtree, ref.hf, tvb,
-            ctrl_offset, ref.size, FALSE);
+            ctrl_offset, ref.size, ENC_BIG_ENDIAN);
       ctrl_offset += 2;
       proto_tree_add_item(ctrl_subtree, ref.hf, tvb,
-            ctrl_offset, ref.size, FALSE);
+            ctrl_offset, ref.size, ENC_BIG_ENDIAN);
       ctrl_offset += 2;
       for(i = 0; i < num_ctrl_vals; ++i) {
          proto_tree_add_item(ctrl_subtree, ref.hf, tvb,
-               ctrl_offset, ref.size, FALSE);
+               ctrl_offset, ref.size, ENC_BIG_ENDIAN);
          ctrl_offset += 2;
       }
       proto_tree_add_item(ctrl_subtree, hf_aem_unit, tvb,
-            ctrl_offset, 2, FALSE);
+            ctrl_offset, 2, ENC_BIG_ENDIAN);
 
       /* UTF8 STRING TYPE */
    } else if (ctrl_val_type == 0x14) {
       tvb_get_const_stringz(tvb, ctrl_offset, &string_length);
       proto_tree_add_item(ctrl_subtree, hf_aem_string, tvb,
-            ctrl_offset, string_length, FALSE);
+            ctrl_offset, string_length, ENC_ASCII|ENC_NA);
 
       /* BODE_PLOT TYPE */
    } else if (ctrl_val_type == 0x15) {
       for(i = 0; i < 12 + (num_ctrl_vals * 3); ++i) {
          proto_tree_add_item(ctrl_subtree, hf_aem_ctrl_float, tvb,
-               ctrl_offset, 4, FALSE);
+               ctrl_offset, 4, ENC_BIG_ENDIAN);
          ctrl_offset += 4;
       }
 
@@ -2314,14 +2314,14 @@ dissect_17221_ctrl_val(tvbuff_t *tvb, proto_tree *tree, guint16 num_ctrl_vals, g
       /* VENDOR CONTROL TYPE */
    } else if (ctrl_val_type == 0xfffe) {
       proto_tree_add_item(ctrl_subtree, hf_aem_guid, tvb,
-            ctrl_offset, 8, FALSE);
+            ctrl_offset, 8, ENC_BIG_ENDIAN);
       ctrl_offset += 8;
       bin_blob_size = tvb_get_ntohl(tvb, ctrl_offset);
       proto_tree_add_item(ctrl_subtree, hf_aem_blob_size, tvb,
-            ctrl_offset, 4, FALSE);
+            ctrl_offset, 4, ENC_BIG_ENDIAN);
       ctrl_offset += 4;
       proto_tree_add_item(ctrl_subtree, hf_aem_binary_blob, tvb,
-            ctrl_offset, bin_blob_size, FALSE);
+            ctrl_offset, bin_blob_size, ENC_NA);
    }
 }
 
@@ -2360,198 +2360,198 @@ dissect_17221_aem(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
    /* Load the descriptor type and id fields, add subtree */
    desc_ti = proto_tree_add_item(tree, hf_aecp_descriptor_type, tvb,
-         AEM_OFFSET_DESCRIPTOR_TYPE, 2, FALSE);
+         AEM_OFFSET_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
    aem_tree = proto_item_add_subtree(desc_ti, ett_aem_descriptor);
 
    proto_tree_add_item(aem_tree, hf_aecp_descriptor_id, tvb,
-         AEM_OFFSET_DESCRIPTOR_ID, 2, FALSE);
+         AEM_OFFSET_DESCRIPTOR_ID, 2, ENC_BIG_ENDIAN);
 
    /* Dissect descriptors based on type. Where possible multiple cases *
     * will fall through to the same code                               */
    switch(desc_type) {
       case AEM_DESCRIPTOR_ENTITY:
          proto_tree_add_item(aem_tree, hf_aem_entity_guid, tvb,
-               AEM_OFFSET_ENTITY_GUID, 8, FALSE);
+               AEM_OFFSET_ENTITY_GUID, 8, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_vendor_id, tvb,
-               AEM_OFFSET_VENDOR_ID, 4, FALSE);
+               AEM_OFFSET_VENDOR_ID, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_entity_model_id, tvb,
-               AEM_OFFSET_ENTITY_MODEL_ID, 4, FALSE);
+               AEM_OFFSET_ENTITY_MODEL_ID, 4, ENC_BIG_ENDIAN);
 
          proto_tree_add_item(aem_tree, hf_adp_entity_cap, tvb,
-               AEM_OFFSET_ENTITY_CAPABILITIES, 4, FALSE);
+               AEM_OFFSET_ENTITY_CAPABILITIES, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_adp_entity_cap_avdecc_ip, tvb,
-               AEM_OFFSET_ENTITY_CAPABILITIES, 4, FALSE);
+               AEM_OFFSET_ENTITY_CAPABILITIES, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_adp_entity_cap_zero_conf, tvb,
-               AEM_OFFSET_ENTITY_CAPABILITIES, 4, FALSE);
+               AEM_OFFSET_ENTITY_CAPABILITIES, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_adp_entity_cap_gateway_entity, tvb,
-               AEM_OFFSET_ENTITY_CAPABILITIES, 4, FALSE);
+               AEM_OFFSET_ENTITY_CAPABILITIES, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_adp_entity_cap_avdecc_control, tvb,
-               AEM_OFFSET_ENTITY_CAPABILITIES, 4, FALSE);
+               AEM_OFFSET_ENTITY_CAPABILITIES, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_adp_entity_cap_legacy_avc, tvb,
-               AEM_OFFSET_ENTITY_CAPABILITIES, 4, FALSE);
+               AEM_OFFSET_ENTITY_CAPABILITIES, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_adp_entity_cap_assoc_id_support, tvb,
-               AEM_OFFSET_ENTITY_CAPABILITIES, 4, FALSE);
+               AEM_OFFSET_ENTITY_CAPABILITIES, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_adp_entity_cap_assoc_id_valid, tvb,
-               AEM_OFFSET_ENTITY_CAPABILITIES, 4, FALSE);
+               AEM_OFFSET_ENTITY_CAPABILITIES, 4, ENC_BIG_ENDIAN);
 
          proto_tree_add_item(aem_tree, hf_adp_talker_stream_srcs, tvb,
-               AEM_OFFSET_TALKER_STREAM_SOURCES, 2, FALSE);
+               AEM_OFFSET_TALKER_STREAM_SOURCES, 2, ENC_BIG_ENDIAN);
 
          proto_tree_add_item(aem_tree, hf_adp_talker_cap, tvb,
-               AEM_OFFSET_TALKER_CAPABILITIES, 2, FALSE);
+               AEM_OFFSET_TALKER_CAPABILITIES, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_adp_talk_cap_implement, tvb,
-               AEM_OFFSET_TALKER_CAPABILITIES, 2, FALSE);
+               AEM_OFFSET_TALKER_CAPABILITIES, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_adp_talk_cap_other_src, tvb,
-               AEM_OFFSET_TALKER_CAPABILITIES, 2, FALSE);
+               AEM_OFFSET_TALKER_CAPABILITIES, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_adp_talk_cap_control_src, tvb,
-               AEM_OFFSET_TALKER_CAPABILITIES, 2, FALSE);
+               AEM_OFFSET_TALKER_CAPABILITIES, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_adp_talk_cap_media_clk_src, tvb,
-               AEM_OFFSET_TALKER_CAPABILITIES, 2, FALSE);
+               AEM_OFFSET_TALKER_CAPABILITIES, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_adp_talk_cap_smpte_src, tvb,
-               AEM_OFFSET_TALKER_CAPABILITIES, 2, FALSE);
+               AEM_OFFSET_TALKER_CAPABILITIES, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_adp_talk_cap_midi_src, tvb,
-               AEM_OFFSET_TALKER_CAPABILITIES, 2, FALSE);
+               AEM_OFFSET_TALKER_CAPABILITIES, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_adp_talk_cap_audio_src, tvb,
-               AEM_OFFSET_TALKER_CAPABILITIES, 2, FALSE);
+               AEM_OFFSET_TALKER_CAPABILITIES, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_adp_talk_cap_video_src, tvb,
-               AEM_OFFSET_TALKER_CAPABILITIES, 2, FALSE);
+               AEM_OFFSET_TALKER_CAPABILITIES, 2, ENC_BIG_ENDIAN);
 
          proto_tree_add_item(aem_tree, hf_adp_listener_stream_sinks, tvb,
-               AEM_OFFSET_LISTENER_STREAM_SINKS, 2, FALSE);
+               AEM_OFFSET_LISTENER_STREAM_SINKS, 2, ENC_BIG_ENDIAN);
 
          proto_tree_add_item(aem_tree, hf_adp_listener_cap, tvb,
-               AEM_OFFSET_LISTENER_CAPABILITIES, 2, FALSE);
+               AEM_OFFSET_LISTENER_CAPABILITIES, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_adp_list_cap_implement, tvb,
-               AEM_OFFSET_LISTENER_CAPABILITIES, 2, FALSE);
+               AEM_OFFSET_LISTENER_CAPABILITIES, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_adp_list_cap_other_sink, tvb,
-               AEM_OFFSET_LISTENER_CAPABILITIES, 2, FALSE);
+               AEM_OFFSET_LISTENER_CAPABILITIES, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_adp_list_cap_control_sink, tvb,
-               AEM_OFFSET_LISTENER_CAPABILITIES, 2, FALSE);
+               AEM_OFFSET_LISTENER_CAPABILITIES, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_adp_list_cap_media_clk_sink, tvb,
-               AEM_OFFSET_LISTENER_CAPABILITIES, 2, FALSE);
+               AEM_OFFSET_LISTENER_CAPABILITIES, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_adp_list_cap_smpte_sink, tvb,
-               AEM_OFFSET_LISTENER_CAPABILITIES, 2, FALSE);
+               AEM_OFFSET_LISTENER_CAPABILITIES, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_adp_list_cap_midi_sink, tvb,
-               AEM_OFFSET_LISTENER_CAPABILITIES, 2, FALSE);
+               AEM_OFFSET_LISTENER_CAPABILITIES, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_adp_list_cap_audio_sink, tvb,
-               AEM_OFFSET_LISTENER_CAPABILITIES, 2, FALSE);
+               AEM_OFFSET_LISTENER_CAPABILITIES, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_adp_list_cap_video_sink, tvb,
-               AEM_OFFSET_LISTENER_CAPABILITIES, 2, FALSE);
+               AEM_OFFSET_LISTENER_CAPABILITIES, 2, ENC_BIG_ENDIAN);
 
          proto_tree_add_item(aem_tree, hf_adp_controller_cap, tvb,
-               AEM_OFFSET_CONTROLLER_CAPABILITIES, 4, FALSE);
+               AEM_OFFSET_CONTROLLER_CAPABILITIES, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_adp_cont_cap_implement, tvb,
-               AEM_OFFSET_CONTROLLER_CAPABILITIES, 4, FALSE);
+               AEM_OFFSET_CONTROLLER_CAPABILITIES, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_adp_cont_cap_layer3_proxy, tvb,
-               AEM_OFFSET_CONTROLLER_CAPABILITIES, 4, FALSE);
+               AEM_OFFSET_CONTROLLER_CAPABILITIES, 4, ENC_BIG_ENDIAN);
 
          proto_tree_add_item(aem_tree, hf_adp_avail_index, tvb,
-               AEM_OFFSET_AVAILABLE_INDEX, 4, FALSE);
+               AEM_OFFSET_AVAILABLE_INDEX, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_adp_as_gm_id, tvb,
-               AEM_OFFSET_AS_GRANDMASTER_ID, 8, FALSE);
+               AEM_OFFSET_AS_GRANDMASTER_ID, 8, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aecp_association_id, tvb,
-               AEM_OFFSET_ASSOCIATION_ID, 8, FALSE);
+               AEM_OFFSET_ASSOCIATION_ID, 8, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_adp_entity_type, tvb,
-               AEM_OFFSET_ENTITY_TYPE, 4, FALSE);
+               AEM_OFFSET_ENTITY_TYPE, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_entity_name, tvb,
-               AEM_OFFSET_ENTITY_NAME, 64, FALSE);
+               AEM_OFFSET_ENTITY_NAME, 64, ENC_ASCII|ENC_NA);
          proto_tree_add_item(aem_tree, hf_aem_vendor_name_string, tvb,
-               AEM_OFFSET_VENDOR_NAME_STRING, 2, FALSE);
+               AEM_OFFSET_VENDOR_NAME_STRING, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_model_name_string, tvb,
-               AEM_OFFSET_MODEL_NAME_STRING, 2, FALSE);
+               AEM_OFFSET_MODEL_NAME_STRING, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_firmware_version, tvb,
-               AEM_OFFSET_FIRMWARE_VERSION, 64, FALSE);
+               AEM_OFFSET_FIRMWARE_VERSION, 64, ENC_ASCII|ENC_NA);
          proto_tree_add_item(aem_tree, hf_aem_group_name, tvb,
-               AEM_OFFSET_GROUP_NAME, 64, FALSE);
+               AEM_OFFSET_GROUP_NAME, 64, ENC_ASCII|ENC_NA);
          proto_tree_add_item(aem_tree, hf_aem_serial_number, tvb,
-               AEM_OFFSET_SERIAL_NUMBER, 64, FALSE);
+               AEM_OFFSET_SERIAL_NUMBER, 64, ENC_ASCII|ENC_NA);
          proto_tree_add_item(aem_tree, hf_aem_configurations_count, tvb,
-               AEM_OFFSET_CONFIGURATIONS_COUNT, 2, FALSE);
+               AEM_OFFSET_CONFIGURATIONS_COUNT, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_current_configuration, tvb,
-               AEM_OFFSET_CURRENT_CONFIGURATION, 2, FALSE);
+               AEM_OFFSET_CURRENT_CONFIGURATION, 2, ENC_BIG_ENDIAN);
          break;
       case AEM_DESCRIPTOR_CONFIGURATION:
          proto_tree_add_item(aem_tree, hf_aem_configuration_name, tvb,
-               AEM_OFFSET_CONFIGURATION_NAME, 64, FALSE);
+               AEM_OFFSET_CONFIGURATION_NAME, 64, ENC_ASCII|ENC_NA);
          proto_tree_add_item(aem_tree, hf_aem_configuration_name_string, tvb,
-               AEM_OFFSET_CONFIGURATION_NAME_STRING, 2, FALSE);
+               AEM_OFFSET_CONFIGURATION_NAME_STRING, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_descriptor_counts_count, tvb,
-               AEM_OFFSET_DESCRIPTOR_COUNTS_COUNT, 2, FALSE);
+               AEM_OFFSET_DESCRIPTOR_COUNTS_COUNT, 2, ENC_BIG_ENDIAN);
 
          /* set up subtree, counter, and offset for sample rates array */
          mr_item = proto_tree_add_item(aem_tree, hf_aem_descriptor_counts_offset, tvb,
-               AEM_OFFSET_DESCRIPTOR_COUNTS_OFFSET, 2, FALSE);
+               AEM_OFFSET_DESCRIPTOR_COUNTS_OFFSET, 2, ENC_BIG_ENDIAN);
          mr_counter = tvb_get_ntohs(tvb, AEM_OFFSET_DESCRIPTOR_COUNTS_COUNT);
          mr_subtree = proto_item_add_subtree(mr_item, ett_aem_desc_counts);
          mr_offset = AEM_OFFSET_DESCRIPTOR_COUNTS;
 
          for(i = 0; i < mr_counter; ++i)
          {
-            proto_tree_add_item(mr_subtree, hf_aecp_descriptor_type, tvb, mr_offset, 2, FALSE);
+            proto_tree_add_item(mr_subtree, hf_aecp_descriptor_type, tvb, mr_offset, 2, ENC_BIG_ENDIAN);
             mr_offset += 2;
-            proto_tree_add_item(mr_subtree, hf_aem_count, tvb, mr_offset, 2, FALSE);
+            proto_tree_add_item(mr_subtree, hf_aem_count, tvb, mr_offset, 2, ENC_BIG_ENDIAN);
             mr_offset += 2;
          }
          break;
       case AEM_DESCRIPTOR_AUDIO:
          proto_tree_add_item(aem_tree, hf_aem_number_of_stream_input_ports, tvb,
-               AEM_OFFSET_NUMBER_OF_STREAM_INPUT_PORTS, 2, FALSE);
+               AEM_OFFSET_NUMBER_OF_STREAM_INPUT_PORTS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_base_stream_input_port, tvb,
-               AEM_OFFSET_BASE_STREAM_INPUT_PORT, 2, FALSE);
+               AEM_OFFSET_BASE_STREAM_INPUT_PORT, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_number_of_stream_output_ports, tvb,
-               AEM_OFFSET_NUMBER_OF_STREAM_OUTPUT_PORTS, 2, FALSE);
+               AEM_OFFSET_NUMBER_OF_STREAM_OUTPUT_PORTS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_base_stream_output_port, tvb,
-               AEM_OFFSET_BASE_STREAM_OUTPUT_PORT, 2, FALSE);
+               AEM_OFFSET_BASE_STREAM_OUTPUT_PORT, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_number_of_external_input_ports, tvb,
-               AEM_OFFSET_NUMBER_OF_EXTERNAL_INPUT_PORTS, 2, FALSE);
+               AEM_OFFSET_NUMBER_OF_EXTERNAL_INPUT_PORTS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_base_external_input_port, tvb,
-               AEM_OFFSET_BASE_EXTERNAL_INPUT_PORT, 2, FALSE);
+               AEM_OFFSET_BASE_EXTERNAL_INPUT_PORT, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_number_of_external_output_ports, tvb,
-               AEM_OFFSET_NUMBER_OF_EXTERNAL_OUTPUT_PORTS, 2, FALSE);
+               AEM_OFFSET_NUMBER_OF_EXTERNAL_OUTPUT_PORTS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_base_external_output_port, tvb,
-               AEM_OFFSET_BASE_EXTERNAL_OUTPUT_PORT, 2, FALSE);
+               AEM_OFFSET_BASE_EXTERNAL_OUTPUT_PORT, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_number_of_internal_input_ports, tvb,
-               AEM_OFFSET_NUMBER_OF_INTERNAL_INPUT_PORTS, 2, FALSE);
+               AEM_OFFSET_NUMBER_OF_INTERNAL_INPUT_PORTS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_base_internal_input_port, tvb,
-               AEM_OFFSET_BASE_INTERNAL_INPUT_PORT, 2, FALSE);
+               AEM_OFFSET_BASE_INTERNAL_INPUT_PORT, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_number_of_internal_output_ports, tvb,
-               AEM_OFFSET_NUMBER_OF_INTERNAL_OUTPUT_PORTS, 2, FALSE);
+               AEM_OFFSET_NUMBER_OF_INTERNAL_OUTPUT_PORTS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_base_internal_output_port, tvb,
-               AEM_OFFSET_BASE_INTERNAL_OUTPUT_PORT, 2, FALSE);
+               AEM_OFFSET_BASE_INTERNAL_OUTPUT_PORT, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_clock_source_id, tvb,
-               AEM_OFFSET_CLOCK_SOURCE_ID, 2, FALSE);
+               AEM_OFFSET_CLOCK_SOURCE_ID, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_number_of_controls, tvb,
-               AEM_OFFSET_NUMBER_OF_CONTROLS, 2, FALSE);
+               AEM_OFFSET_NUMBER_OF_CONTROLS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_base_control, tvb,
-               AEM_OFFSET_BASE_CONTROL, 2, FALSE);
+               AEM_OFFSET_BASE_CONTROL, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_unit_name, tvb,
-               AEM_OFFSET_UNIT_NAME, 64, FALSE);
+               AEM_OFFSET_UNIT_NAME, 64, ENC_ASCII|ENC_NA);
          proto_tree_add_item(aem_tree, hf_aem_unit_name_string, tvb,
-               AEM_OFFSET_UNIT_NAME_STRING, 2, FALSE);
+               AEM_OFFSET_UNIT_NAME_STRING, 2, ENC_BIG_ENDIAN);
 
          proto_tree_add_item(aem_tree, hf_aem_number_signal_selectors, tvb,
-               AUDIO_UNIT_OFFSET_NUMBER_SIGNAL_SELECTORS, 2, FALSE);
+               AUDIO_UNIT_OFFSET_NUMBER_SIGNAL_SELECTORS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_base_signal_selector, tvb,
-               AUDIO_UNIT_OFFSET_BASE_SIGNAL_SELECTOR, 2, FALSE);
+               AUDIO_UNIT_OFFSET_BASE_SIGNAL_SELECTOR, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_number_mixers, tvb,
-               AUDIO_UNIT_OFFSET_NUMBER_MIXERS, 2, FALSE);
+               AUDIO_UNIT_OFFSET_NUMBER_MIXERS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_base_mixer, tvb,
-               AUDIO_UNIT_OFFSET_BASE_MIXER, 2, FALSE);
+               AUDIO_UNIT_OFFSET_BASE_MIXER, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_number_matrices, tvb,
-               AUDIO_UNIT_OFFSET_NUMBER_MATRICES, 2, FALSE);
+               AUDIO_UNIT_OFFSET_NUMBER_MATRICES, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_base_matrix, tvb,
-               AUDIO_UNIT_OFFSET_BASE_MATRIX, 2, FALSE);
+               AUDIO_UNIT_OFFSET_BASE_MATRIX, 2, ENC_BIG_ENDIAN);
 
          proto_tree_add_item(aem_tree, hf_aem_current_sample_rate, tvb,
-               AUDIO_UNIT_OFFSET_CURRENT_SAMPLE_RATE, 4, FALSE);
+               AUDIO_UNIT_OFFSET_CURRENT_SAMPLE_RATE, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_sample_rates_offset, tvb,
-               AUDIO_UNIT_OFFSET_SAMPLE_RATES_OFFSET, 2, FALSE);
+               AUDIO_UNIT_OFFSET_SAMPLE_RATES_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_sample_rates_count, tvb,
-               AUDIO_UNIT_OFFSET_SAMPLE_RATES_COUNT, 2, FALSE);
+               AUDIO_UNIT_OFFSET_SAMPLE_RATES_COUNT, 2, ENC_BIG_ENDIAN);
 
          /* set up subtree, counter, and offset for sample rates array */
          mr_item = proto_tree_add_item(aem_tree, hf_aem_sample_rates, tvb,
-               0, 0, FALSE);
+               0, 0, ENC_NA);
          mr_counter = tvb_get_ntohs(tvb, AUDIO_UNIT_OFFSET_SAMPLE_RATES_COUNT);
          mr_subtree = proto_item_add_subtree(mr_item, ett_aem_sample_rates);;
          mr_offset = AUDIO_UNIT_OFFSET_SAMPLE_RATES;
@@ -2559,9 +2559,9 @@ dissect_17221_aem(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
          /* loop to get the array values */
          for(i = 0; i < mr_counter; ++i) {
             proto_tree_add_item(mr_subtree, hf_aem_pull_field, tvb,
-                  mr_offset, 1, FALSE);
+                  mr_offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(mr_subtree, hf_aem_base_frequency, tvb,
-                  mr_offset, 4, FALSE);
+                  mr_offset, 4, ENC_BIG_ENDIAN);
             base_freq = tvb_get_ntohl(tvb, mr_offset);
             freq_mult = base_freq;
 
@@ -2584,106 +2584,106 @@ dissect_17221_aem(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
       case AEM_DESCRIPTOR_VIDEO:
       case AEM_DESCRIPTOR_SENSOR:
          proto_tree_add_item(aem_tree, hf_aem_number_of_stream_input_ports, tvb,
-               AEM_OFFSET_NUMBER_OF_STREAM_INPUT_PORTS, 2, FALSE);
+               AEM_OFFSET_NUMBER_OF_STREAM_INPUT_PORTS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_base_stream_input_port, tvb,
-               AEM_OFFSET_BASE_STREAM_INPUT_PORT, 2, FALSE);
+               AEM_OFFSET_BASE_STREAM_INPUT_PORT, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_number_of_stream_output_ports, tvb,
-               AEM_OFFSET_NUMBER_OF_STREAM_OUTPUT_PORTS, 2, FALSE);
+               AEM_OFFSET_NUMBER_OF_STREAM_OUTPUT_PORTS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_base_stream_output_port, tvb,
-               AEM_OFFSET_BASE_STREAM_OUTPUT_PORT, 2, FALSE);
+               AEM_OFFSET_BASE_STREAM_OUTPUT_PORT, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_number_of_external_input_ports, tvb,
-               AEM_OFFSET_NUMBER_OF_EXTERNAL_INPUT_PORTS, 2, FALSE);
+               AEM_OFFSET_NUMBER_OF_EXTERNAL_INPUT_PORTS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_base_external_input_port, tvb,
-               AEM_OFFSET_BASE_EXTERNAL_INPUT_PORT, 2, FALSE);
+               AEM_OFFSET_BASE_EXTERNAL_INPUT_PORT, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_number_of_external_output_ports, tvb,
-               AEM_OFFSET_NUMBER_OF_EXTERNAL_OUTPUT_PORTS, 2, FALSE);
+               AEM_OFFSET_NUMBER_OF_EXTERNAL_OUTPUT_PORTS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_base_external_output_port, tvb,
-               AEM_OFFSET_BASE_EXTERNAL_OUTPUT_PORT, 2, FALSE);
+               AEM_OFFSET_BASE_EXTERNAL_OUTPUT_PORT, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_number_of_internal_input_ports, tvb,
-               AEM_OFFSET_NUMBER_OF_INTERNAL_INPUT_PORTS, 2, FALSE);
+               AEM_OFFSET_NUMBER_OF_INTERNAL_INPUT_PORTS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_base_internal_input_port, tvb,
-               AEM_OFFSET_BASE_INTERNAL_INPUT_PORT, 2, FALSE);
+               AEM_OFFSET_BASE_INTERNAL_INPUT_PORT, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_number_of_internal_output_ports, tvb,
-               AEM_OFFSET_NUMBER_OF_INTERNAL_OUTPUT_PORTS, 2, FALSE);
+               AEM_OFFSET_NUMBER_OF_INTERNAL_OUTPUT_PORTS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_base_internal_output_port, tvb,
-               AEM_OFFSET_BASE_INTERNAL_OUTPUT_PORT, 2, FALSE);
+               AEM_OFFSET_BASE_INTERNAL_OUTPUT_PORT, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_clock_source_id, tvb,
-               AEM_OFFSET_CLOCK_SOURCE_ID, 2, FALSE);
+               AEM_OFFSET_CLOCK_SOURCE_ID, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_number_of_controls, tvb,
-               AEM_OFFSET_NUMBER_OF_CONTROLS, 2, FALSE);
+               AEM_OFFSET_NUMBER_OF_CONTROLS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_base_control, tvb,
-               AEM_OFFSET_BASE_CONTROL, 2, FALSE);
+               AEM_OFFSET_BASE_CONTROL, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_unit_name, tvb,
-               AEM_OFFSET_UNIT_NAME, 64, FALSE);
+               AEM_OFFSET_UNIT_NAME, 64, ENC_ASCII|ENC_NA);
          proto_tree_add_item(aem_tree, hf_aem_unit_name_string, tvb,
-               AEM_OFFSET_UNIT_NAME_STRING, 2, FALSE);
+               AEM_OFFSET_UNIT_NAME_STRING, 2, ENC_BIG_ENDIAN);
 
          proto_tree_add_item(aem_tree, hf_aem_number_signal_selectors, tvb,
-               VIDEO_UNIT_OFFSET_NUMBER_SIGNAL_SELECTORS, 2, FALSE);
+               VIDEO_UNIT_OFFSET_NUMBER_SIGNAL_SELECTORS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_base_signal_selector, tvb,
-               VIDEO_UNIT_OFFSET_BASE_SIGNAL_SELECTOR, 2, FALSE);
+               VIDEO_UNIT_OFFSET_BASE_SIGNAL_SELECTOR, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_number_mixers, tvb,
-               VIDEO_UNIT_OFFSET_NUMBER_MIXERS, 2, FALSE);
+               VIDEO_UNIT_OFFSET_NUMBER_MIXERS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_base_mixer, tvb,
-               VIDEO_UNIT_OFFSET_BASE_MIXER, 2, FALSE);
+               VIDEO_UNIT_OFFSET_BASE_MIXER, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_number_matrices, tvb,
-               VIDEO_UNIT_OFFSET_NUMBER_MATRICES, 2, FALSE);
+               VIDEO_UNIT_OFFSET_NUMBER_MATRICES, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_base_matrix, tvb,
-               VIDEO_UNIT_OFFSET_BASE_MATRIX, 2, FALSE);
+               VIDEO_UNIT_OFFSET_BASE_MATRIX, 2, ENC_BIG_ENDIAN);
          break;
       case AEM_DESCRIPTOR_STREAM_INPUT:
       case AEM_DESCRIPTOR_STREAM_OUTPUT:
          proto_tree_add_item(aem_tree, hf_aem_stream_name, tvb,
-               AEM_OFFSET_STREAM_NAME, 64, FALSE);
+               AEM_OFFSET_STREAM_NAME, 64, ENC_ASCII|ENC_NA);
          proto_tree_add_item(aem_tree, hf_aem_stream_name_string, tvb,
-               AEM_OFFSET_STREAM_NAME_STRING, 2, FALSE);
+               AEM_OFFSET_STREAM_NAME_STRING, 2, ENC_BIG_ENDIAN);
          /* set up a flags subtree */
          mr_item = proto_tree_add_item(aem_tree, hf_aem_stream_flags, tvb,
-               AEM_OFFSET_STREAM_FLAGS, 2, FALSE);
+               AEM_OFFSET_STREAM_FLAGS, 2, ENC_BIG_ENDIAN);
          mr_subtree = proto_item_add_subtree(mr_item, ett_aem_stream_flags);
          /* add flags to new subtree */
          proto_tree_add_item(mr_subtree, hf_aem_flags_clock_sync_source, tvb,
-               AEM_OFFSET_STREAM_FLAGS, 2, FALSE);
+               AEM_OFFSET_STREAM_FLAGS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(mr_subtree, hf_aem_flags_class_a, tvb,
-               AEM_OFFSET_STREAM_FLAGS, 2, FALSE);
+               AEM_OFFSET_STREAM_FLAGS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(mr_subtree, hf_aem_flags_class_b, tvb,
-               AEM_OFFSET_STREAM_FLAGS, 2, FALSE);
+               AEM_OFFSET_STREAM_FLAGS, 2, ENC_BIG_ENDIAN);
          /* done adding flags, continue with fields */
          proto_tree_add_item(aem_tree, hf_aem_stream_channels, tvb,
-               AEM_OFFSET_STREAM_CHANNELS, 2, FALSE);
+               AEM_OFFSET_STREAM_CHANNELS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_clock_source_id, tvb,
-               AEM_OFFSET_CLOCK_SOURCE_ID_STREAM, 2, FALSE);
+               AEM_OFFSET_CLOCK_SOURCE_ID_STREAM, 2, ENC_BIG_ENDIAN);
 
          /* stream format dissection */
          next_tvb = tvb_new_subset(tvb, AEM_OFFSET_CURRENT_FORMAT, 8, 8);
          dissect_17221_stream_format(next_tvb, aem_tree);
 
          proto_tree_add_item(aem_tree, hf_aem_formats_offset, tvb,
-               AEM_OFFSET_FORMATS_OFFSET, 2, FALSE);
+               AEM_OFFSET_FORMATS_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_number_of_formats, tvb,
-               AEM_OFFSET_NUMBER_OF_FORMATS, 2, FALSE);
+               AEM_OFFSET_NUMBER_OF_FORMATS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_backup_talker_guid_0, tvb,
-               AEM_OFFSET_BACKUP_TALKER_GUID_0, 8, FALSE);
+               AEM_OFFSET_BACKUP_TALKER_GUID_0, 8, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_backup_talker_unique_0, tvb,
-               AEM_OFFSET_BACKUP_TALKER_UNIQUE_0, 2, FALSE);
+               AEM_OFFSET_BACKUP_TALKER_UNIQUE_0, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_backup_talker_guid_1, tvb,
-               AEM_OFFSET_BACKUP_TALKER_GUID_1, 8, FALSE);
+               AEM_OFFSET_BACKUP_TALKER_GUID_1, 8, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_backup_talker_unique_1, tvb,
-               AEM_OFFSET_BACKUP_TALKER_UNIQUE_1, 2, FALSE);
+               AEM_OFFSET_BACKUP_TALKER_UNIQUE_1, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_backup_talker_guid_2, tvb,
-               AEM_OFFSET_BACKUP_TALKER_GUID_2, 8, FALSE);
+               AEM_OFFSET_BACKUP_TALKER_GUID_2, 8, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_backup_talker_unique_2, tvb,
-               AEM_OFFSET_BACKUP_TALKER_UNIQUE_2, 2, FALSE);
+               AEM_OFFSET_BACKUP_TALKER_UNIQUE_2, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_backedup_talker_guid, tvb,
-               AEM_OFFSET_BACKEDUP_TALKER_GUID, 8, FALSE);
+               AEM_OFFSET_BACKEDUP_TALKER_GUID, 8, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_backedup_talker_unique, tvb,
-               AEM_OFFSET_BACKEDUP_TALKER_UNIQUE, 2, FALSE);
+               AEM_OFFSET_BACKEDUP_TALKER_UNIQUE, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_avb_interface_id, tvb,
-               AEM_OFFSET_AVB_INTERFACE_ID, 2, FALSE);
+               AEM_OFFSET_AVB_INTERFACE_ID, 2, ENC_BIG_ENDIAN);
 
          /* set up subtree, counter, and offset for formats array */
          mr_item = proto_tree_add_item(aem_tree, hf_aem_stream_formats, tvb,
-               0, 0, FALSE);
+               0, 0, ENC_NA);
          mr_subtree = proto_item_add_subtree(mr_item, ett_aem_stream_formats);
          mr_counter = tvb_get_ntohs(tvb, AEM_OFFSET_NUMBER_OF_FORMATS);
          mr_offset =  AEM_OFFSET_FORMATS;
@@ -2697,59 +2697,59 @@ dissect_17221_aem(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
       case AEM_DESCRIPTOR_EXTERNAL_JACK_INPUT:
       case AEM_DESCRIPTOR_EXTERNAL_JACK_OUTPUT:
          proto_tree_add_item(aem_tree, hf_aem_jack_name, tvb,
-               AEM_OFFSET_JACK_NAME, 64, FALSE);
+               AEM_OFFSET_JACK_NAME, 64, ENC_ASCII|ENC_NA);
          proto_tree_add_item(aem_tree, hf_aem_jack_name_string, tvb,
-               AEM_OFFSET_JACK_NAME_STRING, 2, FALSE);
+               AEM_OFFSET_JACK_NAME_STRING, 2, ENC_BIG_ENDIAN);
 
          /* set up jack flags subtree */
          mr_item = proto_tree_add_item(aem_tree, hf_aem_jack_flags, tvb,
-               AEM_OFFSET_JACK_FLAGS, 2, FALSE);
+               AEM_OFFSET_JACK_FLAGS, 2, ENC_BIG_ENDIAN);
          mr_subtree = proto_item_add_subtree(mr_item, ett_aem_jack_flags);
          proto_tree_add_item(mr_subtree, hf_aem_flags_captive, tvb,
-               AEM_OFFSET_JACK_FLAGS, 2, FALSE);
+               AEM_OFFSET_JACK_FLAGS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(mr_subtree, hf_aem_flags_clock_sync_source, tvb,
-               AEM_OFFSET_JACK_FLAGS, 2, FALSE);
+               AEM_OFFSET_JACK_FLAGS, 2, ENC_BIG_ENDIAN);
          /* end jack flags subtree */
 
          proto_tree_add_item(aem_tree, hf_aem_jack_type, tvb,
-               AEM_OFFSET_JACK_TYPE, 2, FALSE);
+               AEM_OFFSET_JACK_TYPE, 2, ENC_BIG_ENDIAN);
          break;
       case AEM_DESCRIPTOR_AUDIO_PORT_INPUT:
       case AEM_DESCRIPTOR_AUDIO_PORT_OUTPUT:
          /* set up port_flags subtree */
          mr_item = proto_tree_add_item(aem_tree, hf_aem_port_flags, tvb,
-               AEM_OFFSET_PORT_FLAGS, 2, FALSE);
+               AEM_OFFSET_PORT_FLAGS, 2, ENC_BIG_ENDIAN);
          mr_subtree = proto_item_add_subtree(mr_item, ett_aem_port_flags);
          proto_tree_add_item(mr_subtree, hf_aem_flags_clock_sync_source, tvb,
-               AEM_OFFSET_PORT_FLAGS, 2, FALSE);
+               AEM_OFFSET_PORT_FLAGS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(mr_subtree, hf_aem_flags_async_sample_rate_conv, tvb,
-               AEM_OFFSET_PORT_FLAGS, 2, FALSE);
+               AEM_OFFSET_PORT_FLAGS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(mr_subtree, hf_aem_flags_sync_sample_rate_conv, tvb,
-               AEM_OFFSET_PORT_FLAGS, 2, FALSE);
+               AEM_OFFSET_PORT_FLAGS, 2, ENC_BIG_ENDIAN);
          /* end port_flags subtree */
          proto_tree_add_item(aem_tree, hf_aem_audio_channels, tvb,
-               AEM_OFFSET_AUDIO_CHANNELS, 2, FALSE);
+               AEM_OFFSET_AUDIO_CHANNELS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_number_of_clusters, tvb,
-               AEM_OFFSET_NUMBER_OF_CLUSTERS, 2, FALSE);
+               AEM_OFFSET_NUMBER_OF_CLUSTERS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_base_cluster, tvb,
-               AEM_OFFSET_BASE_CLUSTER, 2, FALSE);
+               AEM_OFFSET_BASE_CLUSTER, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_base_audio_map, tvb,
-               AUDIO_PORT_OFFSET_BASE_AUDIO_MAP, 2, FALSE);
+               AUDIO_PORT_OFFSET_BASE_AUDIO_MAP, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_number_audio_maps, tvb,
-               AUDIO_PORT_OFFSET_NUMBER_AUDIO_MAPS, 2, FALSE);
+               AUDIO_PORT_OFFSET_NUMBER_AUDIO_MAPS, 2, ENC_BIG_ENDIAN);
          break;
       case AEM_DESCRIPTOR_VIDEO_PORT_INPUT:
       case AEM_DESCRIPTOR_VIDEO_PORT_OUTPUT:
          /* set up port_flags subtree */
          mr_item = proto_tree_add_item(aem_tree, hf_aem_port_flags, tvb,
-               AEM_OFFSET_PORT_FLAGS, 2, FALSE);
+               AEM_OFFSET_PORT_FLAGS, 2, ENC_BIG_ENDIAN);
          mr_subtree = proto_item_add_subtree(mr_item, ett_aem_port_flags);
          proto_tree_add_item(mr_subtree, hf_aem_flags_clock_sync_source, tvb,
-               AEM_OFFSET_PORT_FLAGS, 2, FALSE);
+               AEM_OFFSET_PORT_FLAGS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(mr_subtree, hf_aem_flags_async_sample_rate_conv, tvb,
-               AEM_OFFSET_PORT_FLAGS, 2, FALSE);
+               AEM_OFFSET_PORT_FLAGS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(mr_subtree, hf_aem_flags_sync_sample_rate_conv, tvb,
-               AEM_OFFSET_PORT_FLAGS, 2, FALSE);
+               AEM_OFFSET_PORT_FLAGS, 2, ENC_BIG_ENDIAN);
          /* end port_flags subtree */
 
          /* media format subdissection */
@@ -2757,17 +2757,17 @@ dissect_17221_aem(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
          dissect_17221_media_format(next_tvb, aem_tree);
 
          proto_tree_add_item(aem_tree, hf_aem_signal_type, tvb,
-               AEM_OFFSET_SOURCE_TYPE, 2, FALSE);
+               AEM_OFFSET_SOURCE_TYPE, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_signal_id, tvb,
-               AEM_OFFSET_SOURCE_ID, 2, FALSE);
+               AEM_OFFSET_SOURCE_ID, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_stream_id, tvb,
-               AEM_OFFSET_STREAM_ID, 2, FALSE);
+               AEM_OFFSET_STREAM_ID, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_formats_offset, tvb,
-               AEM_OFFSET_FORMATS_OFFSET_VID, 2, FALSE);
+               AEM_OFFSET_FORMATS_OFFSET_VID, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_formats_count, tvb,
-               AEM_OFFSET_FORMATS_COUNT_VID, 2, FALSE);
+               AEM_OFFSET_FORMATS_COUNT_VID, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_block_latency, tvb,
-               VIDEO_PORT_OFFSET_BLOCK_LATENCY, 4, FALSE);
+               VIDEO_PORT_OFFSET_BLOCK_LATENCY, 4, ENC_BIG_ENDIAN);
 
          /* load formats array */
          mr_counter = tvb_get_ntohs(tvb, AEM_OFFSET_FORMATS_COUNT_VID);
@@ -2782,190 +2782,190 @@ dissect_17221_aem(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
       case AEM_DESCRIPTOR_EXTERNAL_PORT_OUTPUT:
          /* set up port_flags subtree */
          mr_item = proto_tree_add_item(aem_tree, hf_aem_port_flags, tvb,
-               AEM_OFFSET_PORT_FLAGS, 2, FALSE);
+               AEM_OFFSET_PORT_FLAGS, 2, ENC_BIG_ENDIAN);
          mr_subtree = proto_item_add_subtree(mr_item, ett_aem_port_flags);
          proto_tree_add_item(mr_subtree, hf_aem_flags_clock_sync_source, tvb,
-               AEM_OFFSET_PORT_FLAGS, 2, FALSE);
+               AEM_OFFSET_PORT_FLAGS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(mr_subtree, hf_aem_flags_async_sample_rate_conv, tvb,
-               AEM_OFFSET_PORT_FLAGS, 2, FALSE);
+               AEM_OFFSET_PORT_FLAGS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(mr_subtree, hf_aem_flags_sync_sample_rate_conv, tvb,
-               AEM_OFFSET_PORT_FLAGS, 2, FALSE);
+               AEM_OFFSET_PORT_FLAGS, 2, ENC_BIG_ENDIAN);
          /* end port_flags subtree */
          proto_tree_add_item(aem_tree, hf_aem_signal_type, tvb,
-               AEM_OFFSET_SOURCE_TYPE_EXT, 2, FALSE);
+               AEM_OFFSET_SOURCE_TYPE_EXT, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_signal_id, tvb,
-               AEM_OFFSET_SOURCE_ID_EXT, 2, FALSE);
+               AEM_OFFSET_SOURCE_ID_EXT, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_jack_id, tvb,
-               EXTERNAL_PORT_OFFSET_JACK_ID, 2, FALSE);
+               EXTERNAL_PORT_OFFSET_JACK_ID, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_block_latency, tvb,
-               EXTERNAL_PORT_OFFSET_BLOCK_LATENCY, 4, FALSE);
+               EXTERNAL_PORT_OFFSET_BLOCK_LATENCY, 4, ENC_BIG_ENDIAN);
          break;
       case AEM_DESCRIPTOR_SENSOR_PORT_INPUT:
       case AEM_DESCRIPTOR_SENSOR_PORT_OUTPUT:
          /* set up port_flags subtree */
          mr_item = proto_tree_add_item(aem_tree, hf_aem_port_flags, tvb,
-               AEM_OFFSET_PORT_FLAGS, 2, FALSE);
+               AEM_OFFSET_PORT_FLAGS, 2, ENC_BIG_ENDIAN);
          mr_subtree = proto_item_add_subtree(mr_item, ett_aem_port_flags);
          proto_tree_add_item(mr_subtree, hf_aem_flags_clock_sync_source, tvb,
-               AEM_OFFSET_PORT_FLAGS, 2, FALSE);
+               AEM_OFFSET_PORT_FLAGS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(mr_subtree, hf_aem_flags_async_sample_rate_conv, tvb,
-               AEM_OFFSET_PORT_FLAGS, 2, FALSE);
+               AEM_OFFSET_PORT_FLAGS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(mr_subtree, hf_aem_flags_sync_sample_rate_conv, tvb,
-               AEM_OFFSET_PORT_FLAGS, 2, FALSE);
+               AEM_OFFSET_PORT_FLAGS, 2, ENC_BIG_ENDIAN);
          /* end port_flags subtree */
          proto_tree_add_item(aem_tree, hf_aem_signal_type, tvb,
-               AEM_OFFSET_SOURCE_TYPE_EXT, 2, FALSE);
+               AEM_OFFSET_SOURCE_TYPE_EXT, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_signal_id, tvb,
-               AEM_OFFSET_SOURCE_ID_EXT, 2, FALSE);
+               AEM_OFFSET_SOURCE_ID_EXT, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_stream_id, tvb,
-               AEM_OFFSET_STREAM_ID_SEN, 2, FALSE);
+               AEM_OFFSET_STREAM_ID_SEN, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_block_latency, tvb,
-               SENSOR_PORT_OFFSET_BLOCK_LATENCY, 4, FALSE);
+               SENSOR_PORT_OFFSET_BLOCK_LATENCY, 4, ENC_BIG_ENDIAN);
          break;
       case AEM_DESCRIPTOR_INTERNAL_PORT_INPUT:
       case AEM_DESCRIPTOR_INTERNAL_PORT_OUTPUT:
          /* set up port_flags subtree */
          mr_item = proto_tree_add_item(aem_tree, hf_aem_port_flags, tvb,
-               AEM_OFFSET_PORT_FLAGS, 2, FALSE);
+               AEM_OFFSET_PORT_FLAGS, 2, ENC_BIG_ENDIAN);
          mr_subtree = proto_item_add_subtree(mr_item, ett_aem_port_flags);
          proto_tree_add_item(mr_subtree, hf_aem_flags_clock_sync_source, tvb,
-               AEM_OFFSET_PORT_FLAGS, 2, FALSE);
+               AEM_OFFSET_PORT_FLAGS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(mr_subtree, hf_aem_flags_async_sample_rate_conv, tvb,
-               AEM_OFFSET_PORT_FLAGS, 2, FALSE);
+               AEM_OFFSET_PORT_FLAGS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(mr_subtree, hf_aem_flags_sync_sample_rate_conv, tvb,
-               AEM_OFFSET_PORT_FLAGS, 2, FALSE);
+               AEM_OFFSET_PORT_FLAGS, 2, ENC_BIG_ENDIAN);
          /* end port_flags subtree */
          proto_tree_add_item(aem_tree, hf_aem_signal_type, tvb,
-               AEM_OFFSET_SOURCE_TYPE_EXT, 2, FALSE);
+               AEM_OFFSET_SOURCE_TYPE_EXT, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_signal_id, tvb,
-               AEM_OFFSET_SOURCE_ID_EXT, 2, FALSE);
+               AEM_OFFSET_SOURCE_ID_EXT, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_internal_id, tvb,
-               AEM_OFFSET_INTERNAL_ID, 2, FALSE);
+               AEM_OFFSET_INTERNAL_ID, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_block_latency, tvb,
-               INTERNAL_PORT_OFFSET_BLOCK_LATENCY, 4, FALSE);
+               INTERNAL_PORT_OFFSET_BLOCK_LATENCY, 4, ENC_BIG_ENDIAN);
          break;
       case AEM_DESCRIPTOR_AVB_INTERFACE:
          proto_tree_add_item(aem_tree, hf_aecp_mac_address, tvb,
-               AEM_OFFSET_MAC_ADDRESS, 6, FALSE);
+               AEM_OFFSET_MAC_ADDRESS, 6, ENC_NA);
          proto_tree_add_item(aem_tree, hf_adp_as_gm_id, tvb,
-               AEM_OFFSET_AS_GRANDMASTER_ID_AVB, 8, FALSE);
+               AEM_OFFSET_AS_GRANDMASTER_ID_AVB, 8, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_msrp_mappings_offset, tvb,
-               AEM_OFFSET_MSRP_MAPPINGS_OFFSET, 2, FALSE);
+               AEM_OFFSET_MSRP_MAPPINGS_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_msrp_mappings_count, tvb,
-               AEM_OFFSET_MSRP_MAPPINGS_COUNT, 2, FALSE);
+               AEM_OFFSET_MSRP_MAPPINGS_COUNT, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_interface_name, tvb,
-               AVB_INTERFACE_OFFSET_INTERFACE_NAME, 64, FALSE);
+               AVB_INTERFACE_OFFSET_INTERFACE_NAME, 64, ENC_ASCII|ENC_NA);
          proto_tree_add_item(aem_tree, hf_aem_interface_name_string, tvb,
-               AVB_INTERFACE_OFFSET_INTERFACE_NAME_STRING, 2, FALSE);
+               AVB_INTERFACE_OFFSET_INTERFACE_NAME_STRING, 2, ENC_BIG_ENDIAN);
 
          /* set up subtree for mappings array */
          mr_item = proto_tree_add_item(aem_tree, hf_aem_msrp_mappings, tvb,
-               AVB_INTERFACE_MSRP_MAPPINGS, 0, FALSE);
+               AVB_INTERFACE_MSRP_MAPPINGS, 0, ENC_NA);
          mr_subtree = proto_item_add_subtree(mr_item, ett_aem_msrp_mappings);
          mr_offset = AVB_INTERFACE_MSRP_MAPPINGS;
          mr_counter = tvb_get_ntohs(tvb, AEM_OFFSET_MSRP_MAPPINGS_COUNT);
 
          for(i = 0; i < mr_counter; ++i) {
            proto_tree_add_item(mr_subtree, hf_aem_msrp_mapping_traffic_class, tvb,
-                 mr_offset, 1, FALSE);
+                 mr_offset, 1, ENC_BIG_ENDIAN);
            ++mr_offset;
            proto_tree_add_item(mr_subtree, hf_aem_msrp_mapping_priority, tvb,
-                 mr_offset, 1, FALSE);
+                 mr_offset, 1, ENC_BIG_ENDIAN);
            ++mr_offset;
            proto_tree_add_item(mr_subtree, hf_aem_msrp_vlan_id, tvb,
-                 mr_offset, 2, FALSE);
+                 mr_offset, 2, ENC_BIG_ENDIAN);
            mr_offset += 2;
          }
          break;
       case AEM_DESCRIPTOR_CLOCK_SOURCE:
          proto_tree_add_item(aem_tree, hf_aem_clock_source_name, tvb,
-               AEM_OFFSET_CLOCK_SOURCE_NAME, 64, FALSE);
+               AEM_OFFSET_CLOCK_SOURCE_NAME, 64, ENC_ASCII|ENC_NA);
          proto_tree_add_item(aem_tree, hf_aem_clock_source_name_string, tvb,
-               AEM_OFFSET_CLOCK_SOURCE_NAME_STRING, 2, FALSE);
+               AEM_OFFSET_CLOCK_SOURCE_NAME_STRING, 2, ENC_BIG_ENDIAN);
          /* set up clock_source_flags subtree */
          mr_item = proto_tree_add_item(aem_tree, hf_aem_clock_source_flags, tvb,
-               AEM_OFFSET_CLOCK_SOURCE_FLAGS, 2, FALSE);
+               AEM_OFFSET_CLOCK_SOURCE_FLAGS, 2, ENC_BIG_ENDIAN);
          mr_subtree = proto_item_add_subtree(mr_item, ett_aem_clock_source_flags);
          /* all flags reserved */
          /* end clock_source_flags subtree */
          proto_tree_add_item(aem_tree, hf_aem_clock_source_type, tvb,
-               AEM_OFFSET_CLOCK_SOURCE_TYPE, 2, FALSE);
+               AEM_OFFSET_CLOCK_SOURCE_TYPE, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aecp_clock_source_id, tvb,
-               AEM_OFFSET_CLOCK_SOURCE_ID_CLK, 8, FALSE);
+               AEM_OFFSET_CLOCK_SOURCE_ID_CLK, 8, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_clock_source_location_type, tvb,
-               AEM_OFFSET_CLOCK_SOURCE_LOCATION_TYPE, 2, FALSE);
+               AEM_OFFSET_CLOCK_SOURCE_LOCATION_TYPE, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_clock_source_location_id, tvb,
-               AEM_OFFSET_CLOCK_SOURCE_LOCATION_ID, 2, FALSE);
+               AEM_OFFSET_CLOCK_SOURCE_LOCATION_ID, 2, ENC_BIG_ENDIAN);
          break;
       case AEM_DESCRIPTOR_AUDIO_MAP:
          proto_tree_add_item(aem_tree, hf_aem_mappings_offset, tvb,
-               AEM_OFFSET_MAPPINGS_OFFSET, 2, FALSE);
+               AEM_OFFSET_MAPPINGS_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_number_of_mappings, tvb,
-               AEM_OFFSET_NUMBER_OF_MAPPINGS, 2, FALSE);
+               AEM_OFFSET_NUMBER_OF_MAPPINGS, 2, ENC_BIG_ENDIAN);
          /* prepare mappings subtree */
          mr_item = proto_tree_add_item(aem_tree, hf_aem_mappings, tvb,
-               0, 0, FALSE);
+               0, 0, ENC_NA);
          mr_subtree = proto_item_add_subtree(mr_item, ett_aem_mappings);
          mr_offset = AEM_OFFSET_MAPPINGS;
          mr_counter = tvb_get_ntohs(tvb, AEM_OFFSET_NUMBER_OF_MAPPINGS);
 
          for(i = 0; i < mr_counter; ++i) {
             proto_tree_add_item(mr_subtree, hf_aem_mapping_stream_index, tvb,
-               mr_offset, 2, FALSE);
+               mr_offset, 2, ENC_BIG_ENDIAN);
             mr_offset += 2;
             proto_tree_add_item(mr_subtree, hf_aem_mapping_stream_channel, tvb,
-               mr_offset, 2, FALSE);
+               mr_offset, 2, ENC_BIG_ENDIAN);
             mr_offset += 2;
             proto_tree_add_item(mr_subtree, hf_aem_mapping_audio_channel, tvb,
-               mr_offset, 2, FALSE);
+               mr_offset, 2, ENC_BIG_ENDIAN);
             mr_offset += 2;
          }
          break;
       case AEM_DESCRIPTOR_AUDIO_CLUSTER:
          proto_tree_add_item(aem_tree, hf_aem_channel_count, tvb,
-               AUDIO_CLUSTER_OFFSET_CHANNEL_COUNT, 2, FALSE);
+               AUDIO_CLUSTER_OFFSET_CHANNEL_COUNT, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_path_latency, tvb,
-               AUDIO_CLUSTER_OFFSET_PATH_LATENCY, 4, FALSE);
+               AUDIO_CLUSTER_OFFSET_PATH_LATENCY, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_am824_label, tvb,
-               AUDIO_CLUSTER_OFFSET_AM824_LABEL, 1, FALSE);
+               AUDIO_CLUSTER_OFFSET_AM824_LABEL, 1, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_cluster_name, tvb,
-               AUDIO_CLUSTER_OFFSET_CLUSTER_NAME, 64, FALSE);
+               AUDIO_CLUSTER_OFFSET_CLUSTER_NAME, 64, ENC_ASCII|ENC_NA);
          proto_tree_add_item(aem_tree, hf_aem_cluster_name_string, tvb,
-               AUDIO_CLUSTER_OFFSET_CLUSTER_NAME_STRING, 2, FALSE);
+               AUDIO_CLUSTER_OFFSET_CLUSTER_NAME_STRING, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_signal_type, tvb,
-               AUDIO_CLUSTER_OFFSET_SIGNAL_TYPE, 2, FALSE);
+               AUDIO_CLUSTER_OFFSET_SIGNAL_TYPE, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_signal_id, tvb,
-               AUDIO_CLUSTER_OFFSET_SIGNAL_ID, 2, FALSE);
+               AUDIO_CLUSTER_OFFSET_SIGNAL_ID, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_block_latency, tvb,
-               AUDIO_CLUSTER_OFFSET_BLOCK_LATENCY, 4, FALSE);
+               AUDIO_CLUSTER_OFFSET_BLOCK_LATENCY, 4, ENC_BIG_ENDIAN);
          break;
       case AEM_DESCRIPTOR_CONTROL:
          proto_tree_add_item(aem_tree, hf_aem_control_type, tvb,
-               AEM_OFFSET_CONTROL_TYPE, 8, FALSE);
+               AEM_OFFSET_CONTROL_TYPE, 8, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_control_location_type, tvb,
-               AEM_OFFSET_CONTROL_LOCATION_TYPE, 2, FALSE);
+               AEM_OFFSET_CONTROL_LOCATION_TYPE, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_control_location_id, tvb,
-               AEM_OFFSET_CONTROL_LOCATION_ID, 2, FALSE);
+               AEM_OFFSET_CONTROL_LOCATION_ID, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_control_value_type, tvb,
-               AEM_OFFSET_CONTROL_VALUE_TYPE, 2, FALSE);
+               AEM_OFFSET_CONTROL_VALUE_TYPE, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_control_domain, tvb,
-               AEM_OFFSET_CONTROL_DOMAIN, 2, FALSE);
+               AEM_OFFSET_CONTROL_DOMAIN, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_control_name, tvb,
-               AEM_OFFSET_CONTROL_NAME, 64, FALSE);
+               AEM_OFFSET_CONTROL_NAME, 64, ENC_ASCII|ENC_NA);
          proto_tree_add_item(aem_tree, hf_aem_control_name_string, tvb,
-               AEM_OFFSET_CONTROL_NAME_STRING, 2, FALSE);
+               AEM_OFFSET_CONTROL_NAME_STRING, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_values_offset, tvb,
-               AEM_OFFSET_VALUES_OFFSET_CTRL, 2, FALSE);
+               AEM_OFFSET_VALUES_OFFSET_CTRL, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_number_of_values, tvb,
-               AEM_OFFSET_NUMBER_OF_VALUES_CTRL, 2, FALSE);
+               AEM_OFFSET_NUMBER_OF_VALUES_CTRL, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_signal_type, tvb,
-               AEM_OFFSET_SOURCE_TYPE_CTRL, 2, FALSE);
+               AEM_OFFSET_SOURCE_TYPE_CTRL, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_signal_id, tvb,
-               AEM_OFFSET_SOURCE_ID_CTRL, 2, FALSE);
+               AEM_OFFSET_SOURCE_ID_CTRL, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_block_latency, tvb,
-               CONTROL_OFFSET_BLOCK_LATENCY, 4, FALSE);
+               CONTROL_OFFSET_BLOCK_LATENCY, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_control_latency, tvb,
-               CONTROL_OFFSET_CONTROL_LATENCY, 4, FALSE);
+               CONTROL_OFFSET_CONTROL_LATENCY, 4, ENC_BIG_ENDIAN);
 
          ctrl_val_type = tvb_get_ntohs(tvb, AEM_OFFSET_CONTROL_VALUE_TYPE);
          num_ctrl_vals = tvb_get_ntohs(tvb, AEM_OFFSET_NUMBER_OF_VALUES_CTRL);
@@ -2975,85 +2975,85 @@ dissect_17221_aem(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
          break;
       case AEM_DESCRIPTOR_SIGNAL_SELECTOR:
          proto_tree_add_item(aem_tree, hf_aem_control_location_type, tvb,
-               AEM_OFFSET_CONTROL_LOCATION_TYPE_SIGS, 2, FALSE);
+               AEM_OFFSET_CONTROL_LOCATION_TYPE_SIGS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_control_location_id, tvb,
-               AEM_OFFSET_CONTROL_LOCATION_ID_SIGS, 2, FALSE);
+               AEM_OFFSET_CONTROL_LOCATION_ID_SIGS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_control_domain, tvb,
-               AEM_OFFSET_CONTROL_DOMAIN_SIGS, 2, FALSE);
+               AEM_OFFSET_CONTROL_DOMAIN_SIGS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_control_name, tvb,
-               AEM_OFFSET_CONTROL_NAME_SIGS, 64, FALSE);
+               AEM_OFFSET_CONTROL_NAME_SIGS, 64, ENC_ASCII|ENC_NA);
          proto_tree_add_item(aem_tree, hf_aem_control_name_string, tvb,
-               AEM_OFFSET_CONTROL_NAME_STRING_SIGS, 2, FALSE);
+               AEM_OFFSET_CONTROL_NAME_STRING_SIGS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_sources_offset, tvb,
-               AEM_OFFSET_SOURCES_OFFSET_SIGS, 2, FALSE);
+               AEM_OFFSET_SOURCES_OFFSET_SIGS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_number_of_sources, tvb,
-               AEM_OFFSET_NUMBER_OF_SOURCES_SIGS, 2, FALSE);
+               AEM_OFFSET_NUMBER_OF_SOURCES_SIGS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_current_signal_type, tvb,
-               AEM_OFFSET_CURRENT_SOURCE_TYPE_SIGS, 2, FALSE);
+               AEM_OFFSET_CURRENT_SOURCE_TYPE_SIGS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_current_signal_id, tvb,
-               AEM_OFFSET_CURRENT_SOURCE_ID_SIGS, 2, FALSE);
+               AEM_OFFSET_CURRENT_SOURCE_ID_SIGS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_default_signal_type, tvb,
-               AEM_OFFSET_DEFAULT_SOURCE_TYPE_SIGS, 2, FALSE);
+               AEM_OFFSET_DEFAULT_SOURCE_TYPE_SIGS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_default_signal_id, tvb,
-               AEM_OFFSET_DEFAULT_SOURCE_ID_SIGS, 2, FALSE);
+               AEM_OFFSET_DEFAULT_SOURCE_ID_SIGS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_block_latency, tvb,
-               SIGNAL_SELECTOR_OFFSET_BLOCK_LATENCY, 4, FALSE);
+               SIGNAL_SELECTOR_OFFSET_BLOCK_LATENCY, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_control_latency, tvb,
-               SIGNAL_SELECTOR_OFFSET_CONTROL_LATENCY, 4, FALSE);
+               SIGNAL_SELECTOR_OFFSET_CONTROL_LATENCY, 4, ENC_BIG_ENDIAN);
 
          /* set up sources subtree */
          mr_item = proto_tree_add_item(aem_tree, hf_aem_sources, tvb,
-               0, 0, FALSE);
+               0, 0, ENC_NA);
          mr_subtree = proto_item_add_subtree(mr_item, ett_aem_sources);
          mr_counter = tvb_get_ntohs(tvb, AEM_OFFSET_NUMBER_OF_SOURCES_SIGS);
          mr_offset = SIGNAL_SELECTOR_OFFSET_SOURCES;
 
          for(i = 0; i < mr_counter; ++i) {
            proto_tree_add_item(mr_subtree, hf_aem_signal_type, tvb,
-                 mr_offset, 2, FALSE);
+                 mr_offset, 2, ENC_BIG_ENDIAN);
            mr_offset += 2;
            proto_tree_add_item(mr_subtree, hf_aem_signal_id, tvb,
-                 mr_offset, 2, FALSE);
+                 mr_offset, 2, ENC_BIG_ENDIAN);
            mr_offset += 2;
          }
          break;
       case AEM_DESCRIPTOR_MIXER:
          proto_tree_add_item(aem_tree, hf_aem_control_location_type, tvb,
-               AEM_OFFSET_CONTROL_LOCATION_TYPE_MXR, 2, FALSE);
+               AEM_OFFSET_CONTROL_LOCATION_TYPE_MXR, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_control_location_id, tvb,
-               AEM_OFFSET_CONTROL_LOCATION_ID_MXR, 2, FALSE);
+               AEM_OFFSET_CONTROL_LOCATION_ID_MXR, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_control_value_type, tvb,
-               AEM_OFFSET_CONTROL_VALUE_TYPE_MXR, 2, FALSE);
+               AEM_OFFSET_CONTROL_VALUE_TYPE_MXR, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_control_domain, tvb,
-               AEM_OFFSET_CONTROL_DOMAIN_MXR, 2 ,FALSE);
+               AEM_OFFSET_CONTROL_DOMAIN_MXR, 2 ,ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_control_name, tvb,
-               AEM_OFFSET_CONTROL_NAME_MXR, 64, FALSE);
+               AEM_OFFSET_CONTROL_NAME_MXR, 64, ENC_ASCII|ENC_NA);
          proto_tree_add_item(aem_tree, hf_aem_control_name_string, tvb,
-               AEM_OFFSET_CONTROL_NAME_STRING_MXR, 2, FALSE);
+               AEM_OFFSET_CONTROL_NAME_STRING_MXR, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_sources_offset, tvb,
-               AEM_OFFSET_SOURCES_OFFSET_MXR, 2, FALSE);
+               AEM_OFFSET_SOURCES_OFFSET_MXR, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_number_of_sources, tvb,
-               AEM_OFFSET_NUMBER_OF_SOURCES_MXR, 2, FALSE);
+               AEM_OFFSET_NUMBER_OF_SOURCES_MXR, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_value_offset, tvb,
-               AEM_OFFSET_VALUE_OFFSET_MXR, 2, FALSE);
+               AEM_OFFSET_VALUE_OFFSET_MXR, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_block_latency, tvb,
-               MIXER_OFFSET_BLOCK_LATENCY, 2, FALSE);
+               MIXER_OFFSET_BLOCK_LATENCY, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_control_latency, tvb,
-               MIXER_OFFSET_CONTROL_LATENCY, 2, FALSE);
+               MIXER_OFFSET_CONTROL_LATENCY, 2, ENC_BIG_ENDIAN);
 
          /* set up subtree for sources */
          mr_item = proto_tree_add_item(aem_tree, hf_aem_sources, tvb,
-               0, 0, FALSE);
+               0, 0, ENC_NA);
          mr_subtree = proto_item_add_subtree(mr_item, ett_aem_sources);
          mr_counter = tvb_get_ntohs(tvb, AEM_OFFSET_NUMBER_OF_SOURCES_MXR);
          mr_offset = MIXER_OFFSET_SOURCES;
 
          for(i = 0; i < mr_counter; ++i) {
            proto_tree_add_item(mr_subtree, hf_aem_signal_type, tvb,
-                 mr_offset, 2, FALSE);
+                 mr_offset, 2, ENC_BIG_ENDIAN);
            mr_offset += 2;
            proto_tree_add_item(mr_subtree, hf_aem_signal_id, tvb,
-                 mr_offset, 2, FALSE);
+                 mr_offset, 2, ENC_BIG_ENDIAN);
            mr_offset += 2;
          }
 
@@ -3066,40 +3066,40 @@ dissect_17221_aem(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
          break;
       case AEM_DESCRIPTOR_MATRIX:
          proto_tree_add_item(aem_tree, hf_aem_control_type, tvb,
-               AEM_OFFSET_CONTROL_TYPE_MTRX, 8, FALSE);
+               AEM_OFFSET_CONTROL_TYPE_MTRX, 8, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_control_location_type, tvb,
-               AEM_OFFSET_CONTROL_LOCATION_TYPE_MTRX, 2, FALSE);
+               AEM_OFFSET_CONTROL_LOCATION_TYPE_MTRX, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_control_location_id, tvb,
-               AEM_OFFSET_CONTROL_LOCATION_ID_MTRX, 2, FALSE);
+               AEM_OFFSET_CONTROL_LOCATION_ID_MTRX, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_control_value_type, tvb,
-               AEM_OFFSET_CONTROL_VALUE_TYPE_MTRX, 2, FALSE);
+               AEM_OFFSET_CONTROL_VALUE_TYPE_MTRX, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_control_domain, tvb,
-               AEM_OFFSET_CONTROL_DOMAIN_MTRX, 2 ,FALSE);
+               AEM_OFFSET_CONTROL_DOMAIN_MTRX, 2 ,ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_control_name, tvb,
-               AEM_OFFSET_CONTROL_NAME_MTRX, 64, FALSE);
+               AEM_OFFSET_CONTROL_NAME_MTRX, 64, ENC_ASCII|ENC_NA);
          proto_tree_add_item(aem_tree, hf_aem_control_name_string, tvb,
-               AEM_OFFSET_CONTROL_NAME_STRING_MTRX, 2, FALSE);
+               AEM_OFFSET_CONTROL_NAME_STRING_MTRX, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_width, tvb,
-               AEM_OFFSET_WIDTH_MTRX, 2, FALSE);
+               AEM_OFFSET_WIDTH_MTRX, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_height, tvb,
-               AEM_OFFSET_HEIGHT_MTRX, 2, FALSE);
+               AEM_OFFSET_HEIGHT_MTRX, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_values_offset, tvb,
-               AEM_OFFSET_VALUES_OFFSET_MTRX, 2, FALSE);
+               AEM_OFFSET_VALUES_OFFSET_MTRX, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_number_of_values, tvb,
-               AEM_OFFSET_NUMBER_OF_VALUES_MTRX, 2, FALSE);
+               AEM_OFFSET_NUMBER_OF_VALUES_MTRX, 2, ENC_BIG_ENDIAN);
 
          proto_tree_add_item(aem_tree, hf_aem_block_latency, tvb,
-               MATRIX_OFFSET_BLOCK_LATENCY, 4, FALSE);
+               MATRIX_OFFSET_BLOCK_LATENCY, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_control_latency, tvb,
-               MATRIX_OFFSET_CONTROL_LATENCY, 4, FALSE);
+               MATRIX_OFFSET_CONTROL_LATENCY, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_number_of_sources, tvb,
-               MATRIX_OFFSET_NUMBER_SOURCES, 2, FALSE);
+               MATRIX_OFFSET_NUMBER_SOURCES, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_base_source, tvb,
-               MATRIX_OFFSET_BASE_SOURCE, 2, FALSE);
+               MATRIX_OFFSET_BASE_SOURCE, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_number_destinations, tvb,
-               MATRIX_OFFSET_NUMBER_DESTINATIONS, 2, FALSE);
+               MATRIX_OFFSET_NUMBER_DESTINATIONS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_base_destination, tvb,
-               MATRIX_OFFSET_BASE_DESTINATION, 2, FALSE);
+               MATRIX_OFFSET_BASE_DESTINATION, 2, ENC_BIG_ENDIAN);
 
          ctrl_val_type = tvb_get_ntohs(tvb, AEM_OFFSET_CONTROL_VALUE_TYPE_MTRX);
          num_ctrl_vals = tvb_get_ntohs(tvb, AEM_OFFSET_NUMBER_OF_VALUES_MTRX);
@@ -3108,60 +3108,60 @@ dissect_17221_aem(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
          break;
       case AEM_DESCRIPTOR_LOCALE:
          proto_tree_add_item(aem_tree, hf_aem_locale_identifier, tvb,
-               AEM_OFFSET_LOCALE_IDENTIFIER, 64, FALSE);
+               AEM_OFFSET_LOCALE_IDENTIFIER, 64, ENC_ASCII|ENC_NA);
          proto_tree_add_item(aem_tree, hf_aem_number_of_strings, tvb,
-               AEM_OFFSET_NUMBER_OF_STRINGS, 2, FALSE);
+               AEM_OFFSET_NUMBER_OF_STRINGS, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_base_strings, tvb,
-               AEM_OFFSET_BASE_STRINGS, 2, FALSE);
+               AEM_OFFSET_BASE_STRINGS, 2, ENC_BIG_ENDIAN);
          break;
       case AEM_DESCRIPTOR_STRINGS:
          mr_offset = AEM_OFFSET_STRING0;
          for(i = 0; i < 7; ++i) {
             proto_tree_add_item(aem_tree, hf_aem_string, tvb,
-                  mr_offset, 64, FALSE);
+                  mr_offset, 64, ENC_ASCII|ENC_NA);
          }
          mr_offset += 64;
          break;
       case AEM_DESCRIPTOR_MATRIX_SIGNAL:
          proto_tree_add_item(aem_tree, hf_aem_signals_count, tvb,
-               MATRIX_SIGNAL_OFFSET_SIGNALS_COUNT, 2, FALSE);
+               MATRIX_SIGNAL_OFFSET_SIGNALS_COUNT, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_signals_offset, tvb,
-               MATRIX_SIGNAL_OFFSET_SIGNALS_OFFSET, 2, FALSE);
+               MATRIX_SIGNAL_OFFSET_SIGNALS_OFFSET, 2, ENC_BIG_ENDIAN);
          /* set up subtree for signals */
          mr_item = proto_tree_add_item(aem_tree, hf_aem_sources, tvb,
-               0, 0, FALSE);
+               0, 0, ENC_NA);
          mr_subtree = proto_item_add_subtree(mr_item, ett_aem_sources);
          mr_counter = tvb_get_ntohs(tvb, MATRIX_SIGNAL_OFFSET_SIGNALS_COUNT);
          mr_offset = MATRIX_SIGNAL_OFFSET_SIGNALS_OFFSET;
 
          for(i = 0; i < mr_counter; ++i) {
            proto_tree_add_item(mr_subtree, hf_aem_signal_type, tvb,
-                 mr_offset, 2, FALSE);
+                 mr_offset, 2, ENC_BIG_ENDIAN);
            mr_offset += 2;
            proto_tree_add_item(mr_subtree, hf_aem_signal_id, tvb,
-                 mr_offset, 2, FALSE);
+                 mr_offset, 2, ENC_BIG_ENDIAN);
            mr_offset += 2;
          }
          break;
       case AEM_DESCRIPTOR_MEMORY_OBJECT:
          proto_tree_add_item(aem_tree, hf_aem_memory_object_type, tvb,
-               MEMORY_OBJECT_OFFSET_MEMORY_OBJECT_TYPE, 2, FALSE);
+               MEMORY_OBJECT_OFFSET_MEMORY_OBJECT_TYPE, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_target_descriptor_type, tvb,
-               MEMORY_OBJECT_OFFSET_TARGET_DESCRIPTOR_TYPE, 2, FALSE);
+               MEMORY_OBJECT_OFFSET_TARGET_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_target_descriptor_id, tvb,
-               MEMORY_OBJECT_OFFSET_TARGET_DESCRIPTOR_ID, 2, FALSE);
+               MEMORY_OBJECT_OFFSET_TARGET_DESCRIPTOR_ID, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_object_name, tvb,
-               MEMORY_OBJECT_OFFSET_OBJECT_NAME, 64, FALSE);
+               MEMORY_OBJECT_OFFSET_OBJECT_NAME, 64, ENC_ASCII|ENC_NA);
          proto_tree_add_item(aem_tree, hf_aem_object_name_string, tvb,
-               MEMORY_OBJECT_OFFSET_OBJECT_NAME_STRING, 2, FALSE);
+               MEMORY_OBJECT_OFFSET_OBJECT_NAME_STRING, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_start_address, tvb,
-               MEMORY_OBJECT_OFFSET_START_ADDRESS, 8, FALSE);
+               MEMORY_OBJECT_OFFSET_START_ADDRESS, 8, ENC_BIG_ENDIAN);
          proto_tree_add_item(aem_tree, hf_aem_length, tvb,
-               MEMORY_OBJECT_OFFSET_LENGTH, 8, FALSE);
+               MEMORY_OBJECT_OFFSET_LENGTH, 8, ENC_BIG_ENDIAN);
          break;
       default:
          proto_tree_add_item(aem_tree, hf_aem_unknown_descriptor, tvb,
-               4, tvb_length(tvb) - 4, FALSE);
+               4, tvb_length(tvb) - 4, ENC_NA);
          break;
    }
 }
@@ -3190,19 +3190,19 @@ dissect_17221_aecp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aecp_tree)
 
    /* AEM Common Format Fields */
    proto_tree_add_item(aecp_tree, hf_aecp_message_type, tvb,
-         AECP_VERSION_OFFSET, 1, FALSE);
+         AECP_VERSION_OFFSET, 1, ENC_BIG_ENDIAN);
    proto_tree_add_item(aecp_tree, hf_aecp_cd_length, tvb,
-         AECP_CD_LENGTH_OFFSET, 2, FALSE);
+         AECP_CD_LENGTH_OFFSET, 2, ENC_BIG_ENDIAN);
    proto_tree_add_item(aecp_tree, hf_aecp_target_guid, tvb,
-         AECP_TARGET_GUID_OFFSET, 8, FALSE);
+         AECP_TARGET_GUID_OFFSET, 8, ENC_BIG_ENDIAN);
    proto_tree_add_item(aecp_tree, hf_aecp_controller_guid, tvb,
-         AECP_CONTROLLER_GUID_OFFSET, 8, FALSE);
+         AECP_CONTROLLER_GUID_OFFSET, 8, ENC_BIG_ENDIAN);
    proto_tree_add_item(aecp_tree, hf_aecp_sequence_id, tvb,
-         AECP_SEQUENCE_ID_OFFSET, 2, FALSE);
+         AECP_SEQUENCE_ID_OFFSET, 2, ENC_BIG_ENDIAN);
    proto_tree_add_item(aecp_tree, hf_aecp_u_flag, tvb,
-         AECP_U_FLAG_OFFSET, 1, FALSE);
+         AECP_U_FLAG_OFFSET, 1, ENC_BIG_ENDIAN);
    proto_tree_add_item(aecp_tree, hf_aecp_command_type, tvb,
-         AECP_COMMAND_TYPE_OFFSET, 2, FALSE);
+         AECP_COMMAND_TYPE_OFFSET, 2, ENC_BIG_ENDIAN);
 
    /* get the command type for detailed dissection */
    c_type = tvb_get_ntohs(tvb, AECP_COMMAND_TYPE_OFFSET) & AECP_COMMAND_TYPE_MASK;
@@ -3225,20 +3225,20 @@ dissect_17221_aecp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aecp_tree)
    switch(c_type) {
       case AECP_COMMAND_LOCK_ENTITY:
          proto_tree_add_item(aecp_tree, hf_aecp_unlock_flag, tvb,
-               AECP_FLAGS_OFFSET, 4, FALSE);
+               AECP_FLAGS_OFFSET, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_locked_guid, tvb,
-               AECP_LOCKED_GUID_OFFSET, 8, FALSE);
+               AECP_LOCKED_GUID_OFFSET, 8, ENC_BIG_ENDIAN);
          break;
       case AECP_COMMAND_READ_DESCRIPTOR:
          proto_tree_add_item(aecp_tree, hf_aecp_configuration, tvb,
-               AECP_CONFIGURATION_OFFSET, 2, FALSE);
+               AECP_CONFIGURATION_OFFSET, 2, ENC_BIG_ENDIAN);
 
          if (mess_type == AECP_AEM_COMMAND_MESSAGE)
          {
             proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
-                  AECP_DESCRIPTOR_TYPE_OFFSET_28, 2, FALSE);
+                  AECP_DESCRIPTOR_TYPE_OFFSET_28, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(aecp_tree, hf_aecp_descriptor_id, tvb,
-                  AECP_DESCRIPTOR_ID_OFFSET_30, 2, FALSE);
+                  AECP_DESCRIPTOR_ID_OFFSET_30, 2, ENC_BIG_ENDIAN);
          }
          else
          {
@@ -3248,7 +3248,7 @@ dissect_17221_aecp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aecp_tree)
          break;
       case AECP_COMMAND_WRITE_DESCRIPTOR:
          proto_tree_add_item(aecp_tree, hf_aecp_configuration, tvb,
-               AECP_CONFIGURATION_OFFSET, 2, FALSE);
+               AECP_CONFIGURATION_OFFSET, 2, ENC_BIG_ENDIAN);
 
          /* on command descriptor is value to write
           * on response descriptor is command value if successful
@@ -3259,550 +3259,550 @@ dissect_17221_aecp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aecp_tree)
       case AECP_COMMAND_ACQUIRE_ENTITY:
          /* set up the flags subtree */
          flags_ti = proto_tree_add_item(aecp_tree, hf_aecp_flags_32, tvb,
-               AECP_OFFSET_ACQUIRE_ENTITY_FLAGS, 4, FALSE);
+               AECP_OFFSET_ACQUIRE_ENTITY_FLAGS, 4, ENC_BIG_ENDIAN);
          flags_tree = proto_item_add_subtree(flags_ti, ett_acmp_flags);
          proto_tree_add_item(flags_tree, hf_aecp_persistent_flag, tvb,
-               AECP_OFFSET_ACQUIRE_ENTITY_FLAGS, 4, FALSE);
+               AECP_OFFSET_ACQUIRE_ENTITY_FLAGS, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_release_flag, tvb,
-               AECP_OFFSET_ACQUIRE_ENTITY_FLAGS, 4, FALSE);
+               AECP_OFFSET_ACQUIRE_ENTITY_FLAGS, 4, ENC_BIG_ENDIAN);
          /* end flags subtree */
          proto_tree_add_item(aecp_tree, hf_aecp_owner_guid, tvb,
-               AECP_OFFSET_ACQUIRE_ENTITY_OWNER_GUID, 8, FALSE);
+               AECP_OFFSET_ACQUIRE_ENTITY_OWNER_GUID, 8, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
-               AECP_OFFSET_ACQUIRE_ENTITY_DESCRIPTOR_TYPE, 2, FALSE);
+               AECP_OFFSET_ACQUIRE_ENTITY_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_descriptor_id, tvb,
-               AECP_OFFSET_ACQUIRE_ENTITY_DESCRIPTOR_ID, 2, FALSE);
+               AECP_OFFSET_ACQUIRE_ENTITY_DESCRIPTOR_ID, 2, ENC_BIG_ENDIAN);
          break;
       case AECP_COMMAND_SET_CLOCK_SOURCE:
       case AECP_COMMAND_GET_CLOCK_SOURCE:
          proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
-               AECP_OFFSET_CLOCK_SOURCE_DESCRIPTOR_TYPE, 2, FALSE);
+               AECP_OFFSET_CLOCK_SOURCE_DESCRIPTOR_TYPE, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_descriptor_id, tvb,
-               AECP_OFFSET_CLOCK_SOURCE_DESCRIPTOR_ID, 2, FALSE);
+               AECP_OFFSET_CLOCK_SOURCE_DESCRIPTOR_ID, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aem_clock_source_id, tvb,
-               AECP_OFFSET_CLOCK_SOURCE_CLOCK_SOURCE_ID, 2, FALSE);
+               AECP_OFFSET_CLOCK_SOURCE_CLOCK_SOURCE_ID, 2, ENC_BIG_ENDIAN);
          break;
       case AECP_COMMAND_SET_STREAM_FORMAT:
       case AECP_COMMAND_GET_STREAM_FORMAT:
          proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
-               AECP_DESCRIPTOR_TYPE_OFFSET, 2, FALSE);
+               AECP_DESCRIPTOR_TYPE_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_descriptor_id, tvb,
-               AECP_DESCRIPTOR_ID_OFFSET, 2, FALSE);
+               AECP_DESCRIPTOR_ID_OFFSET, 2, ENC_BIG_ENDIAN);
          next_tvb = tvb_new_subset(tvb, AECP_STREAM_FORMAT_OFFSET, 8, 8);
          dissect_17221_stream_format(next_tvb, aecp_tree);
          break;
       case AECP_COMMAND_SET_CONFIGURATION:
       case AECP_COMMAND_GET_CONFIGURATION:
          proto_tree_add_item(aecp_tree, hf_aecp_configuration,
-               tvb, AECP_CONFIGURATION_OFFSET, 2, FALSE);
+               tvb, AECP_CONFIGURATION_OFFSET, 2, ENC_BIG_ENDIAN);
          break;
       case AECP_COMMAND_SET_CONTROL_VALUE:
       case AECP_COMMAND_GET_CONTROL_VALUE:
       case AECP_COMMAND_SET_MIXER:
       case AECP_COMMAND_GET_MIXER:
          proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
-               AECP_DESCRIPTOR_TYPE_OFFSET, 2, FALSE);
+               AECP_DESCRIPTOR_TYPE_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_descriptor_id, tvb,
-               AECP_DESCRIPTOR_ID_OFFSET, 2, FALSE);
+               AECP_DESCRIPTOR_ID_OFFSET, 2, ENC_BIG_ENDIAN);
          break;
       case AECP_COMMAND_SET_SIGNAL_SELECTOR:
       case AECP_COMMAND_GET_SIGNAL_SELECTOR:
          proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
-               AECP_DESCRIPTOR_TYPE_OFFSET, 2, FALSE);
+               AECP_DESCRIPTOR_TYPE_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_descriptor_id, tvb,
-               AECP_DESCRIPTOR_ID_OFFSET, 2, FALSE);
+               AECP_DESCRIPTOR_ID_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_signal_type, tvb,
-               AECP_SOURCE_TYPE_OFFSET, 2, FALSE);
+               AECP_SOURCE_TYPE_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_signal_id, tvb,
-               AECP_SOURCE_ID_OFFSET, 2, FALSE);
+               AECP_SOURCE_ID_OFFSET, 2, ENC_BIG_ENDIAN);
          break;
       case AECP_COMMAND_SET_MATRIX:
          proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
-               AECP_DESCRIPTOR_TYPE_OFFSET, 2, FALSE);
+               AECP_DESCRIPTOR_TYPE_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_descriptor_id, tvb,
-               AECP_DESCRIPTOR_ID_OFFSET, 2, FALSE);
+               AECP_DESCRIPTOR_ID_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_matrix_column, tvb,
-               AECP_MATRIX_COLUMN_OFFSET, 2, FALSE);
+               AECP_MATRIX_COLUMN_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_matrix_row, tvb,
-               AECP_MATRIX_ROW_OFFSET, 2, FALSE);
+               AECP_MATRIX_ROW_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_matrix_region_width, tvb,
-               AECP_MATRIX_REGION_WIDTH_OFFSET, 2, FALSE);
+               AECP_MATRIX_REGION_WIDTH_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_matrix_region_height, tvb,
-               AECP_MATRIX_REGION_HEIGHT_OFFSET, 2, FALSE);
+               AECP_MATRIX_REGION_HEIGHT_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_matrix_rep, tvb,
-               AECP_MATRIX_REP_OFFSET, 1, FALSE);
+               AECP_MATRIX_REP_OFFSET, 1, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_matrix_direction, tvb,
-               AECP_MATRIX_DIRECTION_OFFSET, 1, FALSE);
+               AECP_MATRIX_DIRECTION_OFFSET, 1, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_matrix_value_count, tvb,
-               AECP_MATRIX_VALUE_COUNT_OFFSET, 2, FALSE);
+               AECP_MATRIX_VALUE_COUNT_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_matrix_item_offset, tvb,
-               AECP_MATRIX_ITEM_OFFSET_OFFSET, 3, FALSE);
+               AECP_MATRIX_ITEM_OFFSET_OFFSET, 3, ENC_BIG_ENDIAN);
 
          if (mess_type == AECP_AEM_RESPONSE_MESSAGE) {
             proto_tree_add_item(aecp_tree, hf_aecp_matrix_affected_item_count, tvb,
-                  AECP_MATRIX_AFFECTED_ITEM_COUNT_OFFSET, 4, FALSE);
+                  AECP_MATRIX_AFFECTED_ITEM_COUNT_OFFSET, 4, ENC_BIG_ENDIAN);
          }
          break;
       case AECP_COMMAND_GET_MATRIX:
          proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
-               AECP_DESCRIPTOR_TYPE_OFFSET, 2, FALSE);
+               AECP_DESCRIPTOR_TYPE_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_descriptor_id, tvb,
-               AECP_DESCRIPTOR_ID_OFFSET, 2, FALSE);
+               AECP_DESCRIPTOR_ID_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_matrix_column, tvb,
-               AECP_MATRIX_COLUMN_OFFSET, 2, FALSE);
+               AECP_MATRIX_COLUMN_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_matrix_row, tvb,
-               AECP_MATRIX_ROW_OFFSET, 2, FALSE);
+               AECP_MATRIX_ROW_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_matrix_region_width, tvb,
-               AECP_MATRIX_REGION_WIDTH_OFFSET, 2, FALSE);
+               AECP_MATRIX_REGION_WIDTH_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_matrix_region_height, tvb,
-               AECP_MATRIX_REGION_HEIGHT_OFFSET, 2, FALSE);
+               AECP_MATRIX_REGION_HEIGHT_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_matrix_direction, tvb,
-               AECP_MATRIX_DIRECTION_OFFSET, 1, FALSE);
+               AECP_MATRIX_DIRECTION_OFFSET, 1, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_matrix_value_count, tvb,
-               AECP_MATRIX_VALUE_COUNT_OFFSET, 2, FALSE);
+               AECP_MATRIX_VALUE_COUNT_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_matrix_item_offset, tvb,
-               AECP_MATRIX_ITEM_OFFSET_OFFSET, 2, FALSE);
+               AECP_MATRIX_ITEM_OFFSET_OFFSET, 2, ENC_BIG_ENDIAN);
          /* values */
          break;
       case AECP_COMMAND_START_STREAMING:
       case AECP_COMMAND_STOP_STREAMING:
       case AECP_COMMAND_REBOOT:
          proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
-               AECP_DESCRIPTOR_TYPE_OFFSET, 2, FALSE);
+               AECP_DESCRIPTOR_TYPE_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_descriptor_id, tvb,
-               AECP_DESCRIPTOR_ID_OFFSET, 2, FALSE);
+               AECP_DESCRIPTOR_ID_OFFSET, 2, ENC_BIG_ENDIAN);
          break;
       case AECP_COMMAND_SET_STREAM_INFO:
          proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
-               AECP_DESCRIPTOR_TYPE_OFFSET, 2, FALSE);
+               AECP_DESCRIPTOR_TYPE_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_descriptor_id, tvb,
-               AECP_DESCRIPTOR_ID_OFFSET, 2, FALSE);
+               AECP_DESCRIPTOR_ID_OFFSET, 2, ENC_BIG_ENDIAN);
 
          /* set up the flags subtree */
          flags_ti = proto_tree_add_item(aecp_tree, hf_aecp_flags_32, tvb,
-               AECP_FLAGS_32_OFFSET, 4, FALSE);
+               AECP_FLAGS_32_OFFSET, 4, ENC_BIG_ENDIAN);
          flags_tree = proto_item_add_subtree(flags_ti, ett_acmp_flags);
          proto_tree_add_item(flags_tree, hf_acmp_flags_class_b, tvb,
-               AECP_FLAGS_32_OFFSET, 4, FALSE);
+               AECP_FLAGS_32_OFFSET, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_acmp_flags_fast_connect, tvb,
-               AECP_FLAGS_32_OFFSET, 4, FALSE);
+               AECP_FLAGS_32_OFFSET, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_acmp_flags_saved_state, tvb,
-               AECP_FLAGS_32_OFFSET, 4, FALSE);
+               AECP_FLAGS_32_OFFSET, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_acmp_flags_streaming_wait, tvb,
-               AECP_FLAGS_32_OFFSET, 4, FALSE);
+               AECP_FLAGS_32_OFFSET, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_msrp_acc_lat_valid_flag, tvb,
-               AECP_FLAGS_32_OFFSET, 4, FALSE);
+               AECP_FLAGS_32_OFFSET, 4, ENC_BIG_ENDIAN);
          /* end flags subtree */
          proto_tree_add_item(aecp_tree, hf_aecp_msrp_accumulated_latency, tvb,
-               AECP_SET_MSRP_ACC_LAT_OFFSET, 4, FALSE);
+               AECP_SET_MSRP_ACC_LAT_OFFSET, 4, ENC_BIG_ENDIAN);
          break;
       case AECP_COMMAND_GET_STREAM_INFO:
          proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
-               AECP_DESCRIPTOR_TYPE_OFFSET, 2, FALSE);
+               AECP_DESCRIPTOR_TYPE_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_descriptor_id, tvb,
-               AECP_DESCRIPTOR_ID_OFFSET, 2, FALSE);
+               AECP_DESCRIPTOR_ID_OFFSET, 2, ENC_BIG_ENDIAN);
          if (mess_type == AECP_AEM_RESPONSE_MESSAGE) { /* if response */
             proto_tree_add_item(aecp_tree, hf_acmp_flags_class_b, tvb,
-                  AECP_FLAGS28_OFFSET, 4, FALSE);
+                  AECP_FLAGS28_OFFSET, 4, ENC_BIG_ENDIAN);
             proto_tree_add_item(aecp_tree, hf_acmp_flags_fast_connect, tvb,
-                  AECP_FLAGS28_OFFSET, 4, FALSE);
+                  AECP_FLAGS28_OFFSET, 4, ENC_BIG_ENDIAN);
             proto_tree_add_item(aecp_tree, hf_acmp_flags_saved_state, tvb,
-                  AECP_FLAGS28_OFFSET, 4, FALSE);
+                  AECP_FLAGS28_OFFSET, 4, ENC_BIG_ENDIAN);
             proto_tree_add_item(aecp_tree, hf_acmp_flags_streaming_wait, tvb,
-                  AECP_FLAGS28_OFFSET, 4, FALSE);
+                  AECP_FLAGS28_OFFSET, 4, ENC_BIG_ENDIAN);
             proto_tree_add_item(aecp_tree, hf_aecp_connected_flag, tvb,
-                  AECP_FLAGS28_OFFSET, 4, FALSE);
+                  AECP_FLAGS28_OFFSET, 4, ENC_BIG_ENDIAN);
             proto_tree_add_item(aecp_tree, hf_aecp_stream_id_valid_flag, tvb,
-                  AECP_FLAGS28_OFFSET, 4, FALSE);
+                  AECP_FLAGS28_OFFSET, 4, ENC_BIG_ENDIAN);
             proto_tree_add_item(aecp_tree, hf_aecp_msrp_acc_lat_valid_flag, tvb,
-                  AECP_FLAGS28_OFFSET, 4, FALSE);
+                  AECP_FLAGS28_OFFSET, 4, ENC_BIG_ENDIAN);
             proto_tree_add_item(aecp_tree, hf_aecp_dest_mac_valid_flag, tvb,
-                  AECP_FLAGS28_OFFSET, 4, FALSE);
+                  AECP_FLAGS28_OFFSET, 4, ENC_BIG_ENDIAN);
 
             proto_tree_add_item(aecp_tree, hf_aecp_stream_format, tvb,
-                  AECP_OFFSET_GET_STREAM_INFO_STREAM_FORMAT, 8, FALSE);
+                  AECP_OFFSET_GET_STREAM_INFO_STREAM_FORMAT, 8, ENC_BIG_ENDIAN);
             proto_tree_add_item(aecp_tree, hf_acmp_stream_id, tvb,
-                  AECP_OFFSET_GET_STREAM_INFO_STREAM_ID, 8, FALSE);
+                  AECP_OFFSET_GET_STREAM_INFO_STREAM_ID, 8, ENC_BIG_ENDIAN);
 
             proto_tree_add_item(aecp_tree, hf_aecp_msrp_accumulated_latency, tvb,
-                  AECP_MSRP_ACC_LAT_OFFSET, 4, FALSE);
+                  AECP_MSRP_ACC_LAT_OFFSET, 4, ENC_BIG_ENDIAN);
             proto_tree_add_item(aecp_tree, hf_acmp_stream_dest_mac, tvb,
-                  AECP_DEST_MAC_OFFSET, 6, FALSE);
+                  AECP_DEST_MAC_OFFSET, 6, ENC_NA);
             proto_tree_add_item(aecp_tree, hf_aem_clock_source_id, tvb,
-                  AECP_STREAM_CLOCK_SOURCE_ID_OFFSET, 2, FALSE);
+                  AECP_STREAM_CLOCK_SOURCE_ID_OFFSET, 2, ENC_BIG_ENDIAN);
          }
          break;
       case AECP_COMMAND_SET_NAME:
          proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
-               AECP_DESCRIPTOR_TYPE_OFFSET, 2, FALSE);
+               AECP_DESCRIPTOR_TYPE_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_descriptor_id, tvb,
-               AECP_DESCRIPTOR_ID_OFFSET, 2, FALSE);
+               AECP_DESCRIPTOR_ID_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_name_index, tvb,
-               AECP_NAME_INDEX_OFFSET, 2, FALSE);
+               AECP_NAME_INDEX_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_name, tvb,
-               AECP_NAME_OFFSET, 64, FALSE);
+               AECP_NAME_OFFSET, 64, ENC_ASCII|ENC_NA);
       case AECP_COMMAND_GET_NAME:
          proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
-               AECP_DESCRIPTOR_TYPE_OFFSET, 2, FALSE);
+               AECP_DESCRIPTOR_TYPE_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_descriptor_id, tvb,
-               AECP_DESCRIPTOR_ID_OFFSET, 2, FALSE);
+               AECP_DESCRIPTOR_ID_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_name_index, tvb,
-               AECP_NAME_INDEX_OFFSET, 2, FALSE);
+               AECP_NAME_INDEX_OFFSET, 2, ENC_BIG_ENDIAN);
          if (mess_type == AECP_AEM_RESPONSE_MESSAGE) {
             proto_tree_add_item(aecp_tree, hf_aecp_name, tvb,
-                  AECP_NAME_OFFSET, 64, FALSE);
+                  AECP_NAME_OFFSET, 64, ENC_ASCII|ENC_NA);
          }
          break;
       case AECP_COMMAND_SET_ASSOCIATION_ID:
       case AECP_COMMAND_GET_ASSOCIATION_ID:
          proto_tree_add_item(aecp_tree, hf_aecp_association_id, tvb,
-               AECP_ASSOCIATION_ID_OFFSET, 8, FALSE);
+               AECP_ASSOCIATION_ID_OFFSET, 8, ENC_BIG_ENDIAN);
          break;
       case AECP_COMMAND_AUTH_ADD_KEY:
       case AECP_COMMAND_AUTH_GET_KEY:
       case AECP_COMMAND_AUTH_GET_KEY_COUNT:
       case AECP_COMMAND_AUTH_REVOKE_KEY:
          proto_tree_add_item(aecp_tree, hf_aecp_keychain_id, tvb,
-               AECP_KEYCHAIN_ID_OFFSET, 1, FALSE);
+               AECP_KEYCHAIN_ID_OFFSET, 1, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_keytype, tvb,
-               AECP_OFFSET_AUTH_ADD_KEY_KEYTYPE, 1, FALSE);
+               AECP_OFFSET_AUTH_ADD_KEY_KEYTYPE, 1, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_key_number, tvb,
-               AECP_KEY_ID_OFFSET, 2, FALSE);
+               AECP_KEY_ID_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_continued_flag, tvb,
-               AECP_OFFSET_AUTH_ADD_KEY_CONTINUED, 1, FALSE);
+               AECP_OFFSET_AUTH_ADD_KEY_CONTINUED, 1, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_key_part, tvb,
-               AECP_OFFSET_AUTH_ADD_KEY_KEY_PART, 1, FALSE);
+               AECP_OFFSET_AUTH_ADD_KEY_KEY_PART, 1, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_key_length, tvb,
-               AECP_OFFSET_AUTH_ADD_KEY_LENGTH, 2, FALSE);
+               AECP_OFFSET_AUTH_ADD_KEY_LENGTH, 2, ENC_BIG_ENDIAN);
 
          /* set up key permissions flag subtree */
          flags_ti = proto_tree_add_item(aecp_tree, hf_aecp_flags_32, tvb,
-               AECP_OFFSET_AUTH_ADD_KEY_KEY_PERMISSIONS, 4, FALSE);
+               AECP_OFFSET_AUTH_ADD_KEY_KEY_PERMISSIONS, 4, ENC_BIG_ENDIAN);
          flags_tree = proto_item_add_subtree(flags_ti, ett_acmp_flags);
 
          proto_tree_add_item(flags_tree, hf_aecp_private_key_read_flag, tvb,
-               AECP_OFFSET_AUTH_ADD_KEY_KEY_PERMISSIONS, 4, FALSE);
+               AECP_OFFSET_AUTH_ADD_KEY_KEY_PERMISSIONS, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_private_key_write_flag, tvb,
-               AECP_OFFSET_AUTH_ADD_KEY_KEY_PERMISSIONS, 4, FALSE);
+               AECP_OFFSET_AUTH_ADD_KEY_KEY_PERMISSIONS, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_public_key_write_flag, tvb,
-               AECP_OFFSET_AUTH_ADD_KEY_KEY_PERMISSIONS, 4, FALSE);
+               AECP_OFFSET_AUTH_ADD_KEY_KEY_PERMISSIONS, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_connection_flag, tvb,
-               AECP_OFFSET_AUTH_ADD_KEY_KEY_PERMISSIONS, 4, FALSE);
+               AECP_OFFSET_AUTH_ADD_KEY_KEY_PERMISSIONS, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_control_admin_flag, tvb,
-               AECP_OFFSET_AUTH_ADD_KEY_KEY_PERMISSIONS, 4, FALSE);
+               AECP_OFFSET_AUTH_ADD_KEY_KEY_PERMISSIONS, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_mem_obj_admin_flag, tvb,
-               AECP_OFFSET_AUTH_ADD_KEY_KEY_PERMISSIONS, 4, FALSE);
+               AECP_OFFSET_AUTH_ADD_KEY_KEY_PERMISSIONS, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_mem_obj_settings_flag, tvb,
-               AECP_OFFSET_AUTH_ADD_KEY_KEY_PERMISSIONS, 4, FALSE);
+               AECP_OFFSET_AUTH_ADD_KEY_KEY_PERMISSIONS, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_control_user_l4, tvb,
-               AECP_OFFSET_AUTH_ADD_KEY_KEY_PERMISSIONS, 4, FALSE);
+               AECP_OFFSET_AUTH_ADD_KEY_KEY_PERMISSIONS, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_control_user_l3, tvb,
-               AECP_OFFSET_AUTH_ADD_KEY_KEY_PERMISSIONS, 4, FALSE);
+               AECP_OFFSET_AUTH_ADD_KEY_KEY_PERMISSIONS, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_control_user_l2, tvb,
-               AECP_OFFSET_AUTH_ADD_KEY_KEY_PERMISSIONS, 4, FALSE);
+               AECP_OFFSET_AUTH_ADD_KEY_KEY_PERMISSIONS, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_control_user_l1, tvb,
-               AECP_OFFSET_AUTH_ADD_KEY_KEY_PERMISSIONS, 4, FALSE);
+               AECP_OFFSET_AUTH_ADD_KEY_KEY_PERMISSIONS, 4, ENC_BIG_ENDIAN);
          /* end key permissions flag subtree */
 
          proto_tree_add_item(aecp_tree, hf_aecp_key_guid, tvb,
-               AECP_OFFSET_AUTH_ADD_KEY_KEY_GUID, 8, FALSE);
+               AECP_OFFSET_AUTH_ADD_KEY_KEY_GUID, 8, ENC_BIG_ENDIAN);
 
          mr_counter = tvb_get_ntohs(tvb, AECP_OFFSET_AUTH_ADD_KEY_LENGTH) & AECP_KEY_LENGTH_MASK;
          mr_offset = AECP_OFFSET_AUTH_ADD_KEY_KEY;
          proto_tree_add_item(aecp_tree, hf_aecp_key, tvb,
-               mr_offset, mr_counter, FALSE);
+               mr_offset, mr_counter, ENC_NA);
          break;
       case AECP_COMMAND_AUTHENTICATE:
       case AECP_COMMAND_DEAUTHENTICATE:
          proto_tree_add_item(aecp_tree, hf_aecp_token_length, tvb,
-               AECP_OFFSET_AUTHENTICATE_TOKEN_LENGTH, 2, FALSE);
+               AECP_OFFSET_AUTHENTICATE_TOKEN_LENGTH, 2, ENC_BIG_ENDIAN);
          /* set up key permissions flag subtree */
          flags_ti = proto_tree_add_item(aecp_tree, hf_aecp_flags_32, tvb,
-               AECP_OFFSET_AUTHENTICATE_KEY_PERMISSIONS, 4, FALSE);
+               AECP_OFFSET_AUTHENTICATE_KEY_PERMISSIONS, 4, ENC_BIG_ENDIAN);
          flags_tree = proto_item_add_subtree(flags_ti, ett_acmp_flags);
 
          proto_tree_add_item(flags_tree, hf_aecp_private_key_read_flag, tvb,
-               AECP_OFFSET_AUTHENTICATE_KEY_PERMISSIONS, 4, FALSE);
+               AECP_OFFSET_AUTHENTICATE_KEY_PERMISSIONS, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_private_key_write_flag, tvb,
-               AECP_OFFSET_AUTHENTICATE_KEY_PERMISSIONS, 4, FALSE);
+               AECP_OFFSET_AUTHENTICATE_KEY_PERMISSIONS, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_public_key_write_flag, tvb,
-               AECP_OFFSET_AUTHENTICATE_KEY_PERMISSIONS, 4, FALSE);
+               AECP_OFFSET_AUTHENTICATE_KEY_PERMISSIONS, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_connection_flag, tvb,
-               AECP_OFFSET_AUTHENTICATE_KEY_PERMISSIONS, 4, FALSE);
+               AECP_OFFSET_AUTHENTICATE_KEY_PERMISSIONS, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_control_admin_flag, tvb,
-               AECP_OFFSET_AUTHENTICATE_KEY_PERMISSIONS, 4, FALSE);
+               AECP_OFFSET_AUTHENTICATE_KEY_PERMISSIONS, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_mem_obj_admin_flag, tvb,
-               AECP_OFFSET_AUTHENTICATE_KEY_PERMISSIONS, 4, FALSE);
+               AECP_OFFSET_AUTHENTICATE_KEY_PERMISSIONS, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_mem_obj_settings_flag, tvb,
-               AECP_OFFSET_AUTHENTICATE_KEY_PERMISSIONS, 4, FALSE);
+               AECP_OFFSET_AUTHENTICATE_KEY_PERMISSIONS, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_control_user_l4, tvb,
-               AECP_OFFSET_AUTHENTICATE_KEY_PERMISSIONS, 4, FALSE);
+               AECP_OFFSET_AUTHENTICATE_KEY_PERMISSIONS, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_control_user_l3, tvb,
-               AECP_OFFSET_AUTHENTICATE_KEY_PERMISSIONS, 4, FALSE);
+               AECP_OFFSET_AUTHENTICATE_KEY_PERMISSIONS, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_control_user_l2, tvb,
-               AECP_OFFSET_AUTHENTICATE_KEY_PERMISSIONS, 4, FALSE);
+               AECP_OFFSET_AUTHENTICATE_KEY_PERMISSIONS, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_control_user_l1, tvb,
-               AECP_OFFSET_AUTHENTICATE_KEY_PERMISSIONS, 4, FALSE);
+               AECP_OFFSET_AUTHENTICATE_KEY_PERMISSIONS, 4, ENC_BIG_ENDIAN);
          /* end key permissions flag subtree */
          proto_tree_add_item(aecp_tree, hf_aecp_key_guid, tvb,
-               AECP_OFFSET_AUTHENTICATE_KEY_GUID, 8, FALSE);
+               AECP_OFFSET_AUTHENTICATE_KEY_GUID, 8, ENC_BIG_ENDIAN);
 
          mr_counter = tvb_get_ntohs(tvb, AECP_OFFSET_AUTHENTICATE_TOKEN_LENGTH)
             & AECP_TOKEN_LENGTH_MASK;
          mr_offset = AECP_OFFSET_AUTHENTICATE_AUTH_TOKEN;
          proto_tree_add_item(aecp_tree, hf_aecp_auth_token, tvb,
-               mr_offset, mr_counter, FALSE);
+               mr_offset, mr_counter, ENC_NA);
          break;
       case AECP_COMMAND_GET_COUNTERS:
          proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
-               AECP_DESCRIPTOR_TYPE_OFFSET, 2, FALSE);
+               AECP_DESCRIPTOR_TYPE_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_descriptor_id, tvb,
-               AECP_DESCRIPTOR_ID_OFFSET, 2, FALSE);
+               AECP_DESCRIPTOR_ID_OFFSET, 2, ENC_BIG_ENDIAN);
          /* begin counters_valid flags field */
          flags_ti = proto_tree_add_item(aecp_tree, hf_aecp_flags_32, tvb,
-               AECP_OFFSET_GET_COUNTERS_VALID, 4, FALSE);
+               AECP_OFFSET_GET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
          flags_tree = proto_item_add_subtree(flags_ti, ett_acmp_flags);
 
          proto_tree_add_item(flags_tree, hf_aecp_gptp_unlocked_valid, tvb,
-               AECP_OFFSET_GET_COUNTERS_VALID, 4, FALSE);
+               AECP_OFFSET_GET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_gtpt_locked_valid, tvb,
-               AECP_OFFSET_GET_COUNTERS_VALID, 4, FALSE);
+               AECP_OFFSET_GET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_media_unlocked_valid, tvb,
-               AECP_OFFSET_GET_COUNTERS_VALID, 4, FALSE);
+               AECP_OFFSET_GET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_media_locked_valid, tvb,
-               AECP_OFFSET_GET_COUNTERS_VALID, 4, FALSE);
+               AECP_OFFSET_GET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_stream_reset_valid, tvb,
-               AECP_OFFSET_GET_COUNTERS_VALID, 4, FALSE);
+               AECP_OFFSET_GET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_srp_refused_valid, tvb,
-               AECP_OFFSET_GET_COUNTERS_VALID, 4, FALSE);
+               AECP_OFFSET_GET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_backup_stream_switch_valid, tvb,
-               AECP_OFFSET_GET_COUNTERS_VALID, 4, FALSE);
+               AECP_OFFSET_GET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_missed_avdecc_response_valid, tvb,
-               AECP_OFFSET_GET_COUNTERS_VALID, 4, FALSE);
+               AECP_OFFSET_GET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_refused_avdecc_command_valid, tvb,
-               AECP_OFFSET_GET_COUNTERS_VALID, 4, FALSE);
+               AECP_OFFSET_GET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_seq_num_mismatch_valid, tvb,
-               AECP_OFFSET_GET_COUNTERS_VALID, 4, FALSE);
+               AECP_OFFSET_GET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_media_clock_toggles_valid, tvb,
-               AECP_OFFSET_GET_COUNTERS_VALID, 4, FALSE);
+               AECP_OFFSET_GET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_timestamp_uncertains_valid, tvb,
-               AECP_OFFSET_GET_COUNTERS_VALID, 4, FALSE);
+               AECP_OFFSET_GET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_timestamp_valids_valid, tvb,
-               AECP_OFFSET_GET_COUNTERS_VALID, 4, FALSE);
+               AECP_OFFSET_GET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_unsupported_formats_valid, tvb,
-               AECP_OFFSET_GET_COUNTERS_VALID, 4, FALSE);
+               AECP_OFFSET_GET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_bad_presentation_times_valid, tvb,
-               AECP_OFFSET_GET_COUNTERS_VALID, 4, FALSE);
+               AECP_OFFSET_GET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_srp_latency_violations_valid, tvb,
-               AECP_OFFSET_GET_COUNTERS_VALID, 4, FALSE);
+               AECP_OFFSET_GET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_packets_tx_valid, tvb,
-               AECP_OFFSET_GET_COUNTERS_VALID, 4, FALSE);
+               AECP_OFFSET_GET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_packets_rx_valid, tvb,
-               AECP_OFFSET_GET_COUNTERS_VALID, 4, FALSE);
+               AECP_OFFSET_GET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_packets_interest_rx_valid, tvb,
-               AECP_OFFSET_GET_COUNTERS_VALID, 4, FALSE);
+               AECP_OFFSET_GET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_talker_bw_reserved_valid, tvb,
-               AECP_OFFSET_GET_COUNTERS_VALID, 4, FALSE);
+               AECP_OFFSET_GET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_reserved1_valid, tvb,
-               AECP_OFFSET_GET_COUNTERS_VALID, 4, FALSE);
+               AECP_OFFSET_GET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_reserved2_valid, tvb,
-               AECP_OFFSET_GET_COUNTERS_VALID, 4, FALSE);
+               AECP_OFFSET_GET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_entity_specific1_valid, tvb,
-               AECP_OFFSET_GET_COUNTERS_VALID, 4, FALSE);
+               AECP_OFFSET_GET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_entity_specific2_valid, tvb,
-               AECP_OFFSET_GET_COUNTERS_VALID, 4, FALSE);
+               AECP_OFFSET_GET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_entity_specific3_valid, tvb,
-               AECP_OFFSET_GET_COUNTERS_VALID, 4, FALSE);
+               AECP_OFFSET_GET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_entity_specific4_valid, tvb,
-               AECP_OFFSET_GET_COUNTERS_VALID, 4, FALSE);
+               AECP_OFFSET_GET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_entity_specific5_valid, tvb,
-               AECP_OFFSET_GET_COUNTERS_VALID, 4, FALSE);
+               AECP_OFFSET_GET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_entity_specific6_valid, tvb,
-               AECP_OFFSET_GET_COUNTERS_VALID, 4, FALSE);
+               AECP_OFFSET_GET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_entity_specific7_valid, tvb,
-               AECP_OFFSET_GET_COUNTERS_VALID, 4, FALSE);
+               AECP_OFFSET_GET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(flags_tree, hf_aecp_entity_specific8_valid, tvb,
-               AECP_OFFSET_GET_COUNTERS_VALID, 4, FALSE);
+               AECP_OFFSET_GET_COUNTERS_VALID, 4, ENC_BIG_ENDIAN);
          /* end counters_valid flags field */
 
          proto_tree_add_item(aecp_tree, hf_aecp_gptp_gm_changed, tvb,
-               AECP_OFFSET_COUNTERS_VALID_GPTP_GM_CHANGED, 4, FALSE);
+               AECP_OFFSET_COUNTERS_VALID_GPTP_GM_CHANGED, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_gptp_unlocked, tvb,
-               AECP_OFFSET_COUNTERS_VALID_GPTP_UNLOCKED, 4, FALSE);
+               AECP_OFFSET_COUNTERS_VALID_GPTP_UNLOCKED, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_gptp_locked, tvb,
-               AECP_OFFSET_COUNTERS_VALID_GPTP_LOCKED, 4, FALSE);
+               AECP_OFFSET_COUNTERS_VALID_GPTP_LOCKED, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_media_unlocked, tvb,
-               AECP_OFFSET_COUNTERS_VALID_MEDIA_UNLOCKED, 4, FALSE);
+               AECP_OFFSET_COUNTERS_VALID_MEDIA_UNLOCKED, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_media_locked, tvb,
-               AECP_OFFSET_COUNTERS_VALID_MEDIA_LOCKED, 4, FALSE);
+               AECP_OFFSET_COUNTERS_VALID_MEDIA_LOCKED, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_media_seq_error, tvb,
-               AECP_OFFSET_COUNTERS_VALID_MEDIA_SEQ_ERROR, 4, FALSE);
+               AECP_OFFSET_COUNTERS_VALID_MEDIA_SEQ_ERROR, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_stream_reset, tvb,
-               AECP_OFFSET_COUNTERS_VALID_STREAM_RESET, 4, FALSE);
+               AECP_OFFSET_COUNTERS_VALID_STREAM_RESET, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_srp_refused, tvb,
-               AECP_OFFSET_COUNTERS_VALID_SRP_REFUSED, 4, FALSE);
+               AECP_OFFSET_COUNTERS_VALID_SRP_REFUSED, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_backup_stream_switch, tvb,
-               AECP_OFFSET_COUNTERS_VALID_BACKUP_STREAM_SWITCH, 4, FALSE);
+               AECP_OFFSET_COUNTERS_VALID_BACKUP_STREAM_SWITCH, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_missed_avdecc_response, tvb,
-               AECP_OFFSET_COUNTERS_VALID_MISSED_AVDECC_RESPONSE, 4, FALSE);
+               AECP_OFFSET_COUNTERS_VALID_MISSED_AVDECC_RESPONSE, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_refused_avdecc_command, tvb,
-               AECP_OFFSET_COUNTERS_VALID_REFUSED_AVDECC_COMMAND, 4, FALSE);
+               AECP_OFFSET_COUNTERS_VALID_REFUSED_AVDECC_COMMAND, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_seq_num_mismatch, tvb,
-               AECP_OFFSET_COUNTERS_VALID_SEQ_NUM_MISMATCH, 4, FALSE);
+               AECP_OFFSET_COUNTERS_VALID_SEQ_NUM_MISMATCH, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_media_clock_toggles, tvb,
-               AECP_OFFSET_COUNTERS_VALID_MEDIA_CLOCK_TOGGLES, 4, FALSE);
+               AECP_OFFSET_COUNTERS_VALID_MEDIA_CLOCK_TOGGLES, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_timestamp_uncertains, tvb,
-               AECP_OFFSET_COUNTERS_VALID_TIMESTAMP_UNCERTAINS, 4, FALSE);
+               AECP_OFFSET_COUNTERS_VALID_TIMESTAMP_UNCERTAINS, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_timestamp_valids, tvb,
-               AECP_OFFSET_COUNTERS_VALID_TIMESTAMP_VALIDS, 4, FALSE);
+               AECP_OFFSET_COUNTERS_VALID_TIMESTAMP_VALIDS, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_unsupported_formats, tvb,
-               AECP_OFFSET_COUNTERS_VALID_UNSUPPORTED_FORMATS, 4, FALSE);
+               AECP_OFFSET_COUNTERS_VALID_UNSUPPORTED_FORMATS, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_bad_presentation_times, tvb,
-               AECP_OFFSET_COUNTERS_VALID_BAD_PRESENTATION_TIMES, 4, FALSE);
+               AECP_OFFSET_COUNTERS_VALID_BAD_PRESENTATION_TIMES, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_srp_latency_violations, tvb,
-               AECP_OFFSET_COUNTERS_VALID_SRP_LATENCY_VIOLATIONS, 4, FALSE);
+               AECP_OFFSET_COUNTERS_VALID_SRP_LATENCY_VIOLATIONS, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_packets_tx, tvb,
-               AECP_OFFSET_COUNTERS_VALID_PACKETS_TX, 4, FALSE);
+               AECP_OFFSET_COUNTERS_VALID_PACKETS_TX, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_packets_rx, tvb,
-               AECP_OFFSET_COUNTERS_VALID_PACKETS_RX, 4, FALSE);
+               AECP_OFFSET_COUNTERS_VALID_PACKETS_RX, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_packets_interest_rx, tvb,
-               AECP_OFFSET_COUNTERS_VALID_PACKETS_OF_INTEREST_RX, 4, FALSE);
+               AECP_OFFSET_COUNTERS_VALID_PACKETS_OF_INTEREST_RX, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_talker_bw_reserved, tvb,
-               AECP_OFFSET_COUNTERS_VALID_TALKER_BW_RESERVED, 4, FALSE);
+               AECP_OFFSET_COUNTERS_VALID_TALKER_BW_RESERVED, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_reserved_counter, tvb,
-               AECP_OFFSET_COUNTERS_VALID_RESERVED1, 4, FALSE);
+               AECP_OFFSET_COUNTERS_VALID_RESERVED1, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_reserved_counter, tvb,
-               AECP_OFFSET_COUNTERS_VALID_RESERVED2, 4, FALSE);
+               AECP_OFFSET_COUNTERS_VALID_RESERVED2, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_entity_specific1, tvb,
-               AECP_OFFSET_COUNTERS_VALID_ENTITY_SPECIFIC_1, 4, FALSE);
+               AECP_OFFSET_COUNTERS_VALID_ENTITY_SPECIFIC_1, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_entity_specific2, tvb,
-               AECP_OFFSET_COUNTERS_VALID_ENTITY_SPECIFIC_2, 4, FALSE);
+               AECP_OFFSET_COUNTERS_VALID_ENTITY_SPECIFIC_2, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_entity_specific3, tvb,
-               AECP_OFFSET_COUNTERS_VALID_ENTITY_SPECIFIC_3, 4, FALSE);
+               AECP_OFFSET_COUNTERS_VALID_ENTITY_SPECIFIC_3, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_entity_specific4, tvb,
-               AECP_OFFSET_COUNTERS_VALID_ENTITY_SPECIFIC_4, 4, FALSE);
+               AECP_OFFSET_COUNTERS_VALID_ENTITY_SPECIFIC_4, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_entity_specific5, tvb,
-               AECP_OFFSET_COUNTERS_VALID_ENTITY_SPECIFIC_5, 4, FALSE);
+               AECP_OFFSET_COUNTERS_VALID_ENTITY_SPECIFIC_5, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_entity_specific6, tvb,
-               AECP_OFFSET_COUNTERS_VALID_ENTITY_SPECIFIC_6, 4, FALSE);
+               AECP_OFFSET_COUNTERS_VALID_ENTITY_SPECIFIC_6, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_entity_specific7, tvb,
-               AECP_OFFSET_COUNTERS_VALID_ENTITY_SPECIFIC_7, 4, FALSE);
+               AECP_OFFSET_COUNTERS_VALID_ENTITY_SPECIFIC_7, 4, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_entity_specific8, tvb,
-               AECP_OFFSET_COUNTERS_VALID_ENTITY_SPECIFIC_8, 4, FALSE);
+               AECP_OFFSET_COUNTERS_VALID_ENTITY_SPECIFIC_8, 4, ENC_BIG_ENDIAN);
          break;
       case AECP_COMMAND_SET_MEDIA_FORMAT:
       case AECP_COMMAND_GET_MEDIA_FORMAT:
          proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
-               AECP_DESCRIPTOR_TYPE_OFFSET, 2, FALSE);
+               AECP_DESCRIPTOR_TYPE_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_descriptor_id, tvb,
-               AECP_DESCRIPTOR_ID_OFFSET, 2, FALSE);
+               AECP_DESCRIPTOR_ID_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_media_format, tvb,
-               AECP_MEDIA_FORMAT_OFFSET, 16, FALSE);
+               AECP_MEDIA_FORMAT_OFFSET, 16, ENC_NA);
          next_tvb = tvb_new_subset(tvb, AECP_OFFSET_SETMF_MEDIA_FMT, 16, 16);
          dissect_17221_media_format(next_tvb, aecp_tree);
          break;
       case AECP_COMMAND_REGISTER_STATE_NOTIFICATION:
          if (mess_type == AECP_AEM_RESPONSE_MESSAGE) {
             proto_tree_add_item(aecp_tree, hf_aecp_address_type, tvb,
-                  AECP_ADDRESS_TYPE_OFFSET, 2, FALSE);
+                  AECP_ADDRESS_TYPE_OFFSET, 2, ENC_BIG_ENDIAN);
             addr_type = tvb_get_ntohs(tvb, AECP_ADDRESS_TYPE_OFFSET);
             if (addr_type == AECP_ADDRESS_MAC) {
                proto_tree_add_item(aecp_tree, hf_aecp_mac_address, tvb,
-                     AECP_ADDRESS_OFFSET, 6, FALSE);
+                     AECP_ADDRESS_OFFSET, 6, ENC_NA);
             } else if (addr_type == AECP_ADDRESS_IPV4) {
                proto_tree_add_item(aecp_tree, hf_aecp_ipv4_address, tvb,
-                     AECP_ADDRESS_OFFSET, 4, FALSE);
+                     AECP_ADDRESS_OFFSET, 4, ENC_BIG_ENDIAN);
             } else if (addr_type == AECP_ADDRESS_IPV6) {
                proto_tree_add_item(aecp_tree, hf_aecp_ipv6_address, tvb,
-                     AECP_ADDRESS_OFFSET, 8, FALSE);
+                     AECP_ADDRESS_OFFSET, 8, ENC_NA);
             }
          }
          break;
       case AECP_COMMAND_REGISTER_QUERY_NOTIFICATION:
          proto_tree_add_item(aecp_tree, hf_aecp_query_period, tvb,
-               AECP_QUERY_PERIOD_OFFSET, 2, FALSE);
+               AECP_QUERY_PERIOD_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_query_limit, tvb,
-               AECP_QUERY_LIMIT_OFFSET, 2, FALSE);
+               AECP_QUERY_LIMIT_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_query_type, tvb,
-               AECP_QUERY_TYPE_OFFSET, 2, FALSE);
+               AECP_QUERY_TYPE_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_query_id, tvb,
-               AECP_QUERY_ID_OFFSET, 2, FALSE);
+               AECP_QUERY_ID_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
-               AECP_QUERY_DESC_T_OFFSET, 2, FALSE);
+               AECP_QUERY_DESC_T_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_descriptor_id, tvb,
-               AECP_QUERY_DESC_ID_OFFSET, 2, FALSE);
+               AECP_QUERY_DESC_ID_OFFSET, 2, ENC_BIG_ENDIAN);
          /* TODO - add query specific fields */
          break;
       case AECP_COMMAND_DEREGISTER_QUERY_NOTIFICATION:
          proto_tree_add_item(aecp_tree, hf_aecp_query_id, tvb,
-               AECP_DEREG_QUERY_ID_OFFSET, 2, FALSE);
+               AECP_DEREG_QUERY_ID_OFFSET, 2, ENC_BIG_ENDIAN);
          break;
       case AECP_COMMAND_IDENTIFY_NOTIFICATION:
          proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
-               AECP_DESCRIPTOR_TYPE_OFFSET, 2, FALSE);
+               AECP_DESCRIPTOR_TYPE_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_descriptor_id, tvb,
-               AECP_DESCRIPTOR_ID_OFFSET, 2, FALSE);
+               AECP_DESCRIPTOR_ID_OFFSET, 2, ENC_BIG_ENDIAN);
          break;
       case AECP_COMMAND_STATE_CHANGE_NOTIFICATION:
          proto_tree_add_item(aecp_tree, hf_aecp_count, tvb,
-               AECP_COUNT_OFFSET, 2, FALSE);
+               AECP_COUNT_OFFSET, 2, ENC_BIG_ENDIAN);
 
          mr_counter = tvb_get_ntohs(tvb, AECP_COUNT_OFFSET);
          mr_offset = AECP_DESCRIPTORS_OFFSET_DQN;
          mr_item = proto_tree_add_item(aecp_tree, hf_aecp_descriptors, tvb,
-               mr_offset, mr_counter * 4, FALSE);
+               mr_offset, mr_counter * 4, ENC_NA);
          mr_subtree = proto_item_add_subtree(mr_item, ett_aecp_descriptors);
 
          for(i = 0; i < mr_counter; ++i) {
             proto_tree_add_item(mr_subtree, hf_aecp_descriptor_type, tvb,
-                  mr_offset, 2, FALSE);
+                  mr_offset, 2, ENC_BIG_ENDIAN);
             mr_offset += 2;
             proto_tree_add_item(mr_subtree, hf_aecp_descriptor_id, tvb,
-                  mr_offset, 2, FALSE);
+                  mr_offset, 2, ENC_BIG_ENDIAN);
             mr_offset += 2;
          }
          break;
       case AECP_COMMAND_INCREMENT_CONTROL_VALUE:
       case AECP_COMMAND_DECREMENT_CONTROL_VALUE:
          proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
-               AECP_DESCRIPTOR_TYPE_OFFSET, 2, FALSE);
+               AECP_DESCRIPTOR_TYPE_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_descriptor_id, tvb,
-               AECP_DESCRIPTOR_ID_OFFSET, 2, FALSE);
+               AECP_DESCRIPTOR_ID_OFFSET, 2, ENC_BIG_ENDIAN);
          if (mess_type == AECP_AEM_COMMAND_MESSAGE) {
             proto_tree_add_item(aecp_tree, hf_aecp_values_count, tvb,
-                  AECP_VALUES_COUNT_OFFSET, 2, FALSE);
+                  AECP_VALUES_COUNT_OFFSET, 2, ENC_BIG_ENDIAN);
             mr_counter = tvb_get_ntohs(tvb, AECP_VALUES_COUNT_OFFSET);
             proto_tree_add_item(aecp_tree, hf_aecp_values, tvb,
-                  AECP_VALUES_OFFSET, mr_counter, FALSE);
+                  AECP_VALUES_OFFSET, mr_counter, ENC_NA);
          }
          break;
       case AECP_COMMAND_START_OPERATION:
       case AECP_COMMAND_ABORT_OPERATION:
          proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
-               AECP_DESCRIPTOR_TYPE_OFFSET, 2, FALSE);
+               AECP_DESCRIPTOR_TYPE_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_descriptor_id, tvb,
-               AECP_DESCRIPTOR_ID_OFFSET, 2, FALSE);
+               AECP_DESCRIPTOR_ID_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_operation_id, tvb,
-               AECP_OPERATION_ID_OFFSET, 2, FALSE);
+               AECP_OPERATION_ID_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_operation_type, tvb,
-               AECP_OPERATION_TYPE_OFFSET, 2, FALSE);
+               AECP_OPERATION_TYPE_OFFSET, 2, ENC_BIG_ENDIAN);
          /* TODO - add values support when operation types are defined */
          break;
       case AECP_COMMAND_OPERATION_STATUS:
          proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
-               AECP_DESCRIPTOR_TYPE_OFFSET, 2, FALSE);
+               AECP_DESCRIPTOR_TYPE_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_descriptor_id, tvb,
-               AECP_DESCRIPTOR_ID_OFFSET, 2, FALSE);
+               AECP_DESCRIPTOR_ID_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_operation_id, tvb,
-               AECP_OPERATION_ID_OFFSET, 2, FALSE);
+               AECP_OPERATION_ID_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_percent_complete, tvb,
-               AECP_PERCENT_COMPLETE_OFFSET, 2, FALSE);
+               AECP_PERCENT_COMPLETE_OFFSET, 2, ENC_BIG_ENDIAN);
          break;
       case AECP_COMMAND_GET_AS_PATH:
          proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
-               AECP_DESCRIPTOR_TYPE_OFFSET, 2, FALSE);
+               AECP_DESCRIPTOR_TYPE_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_descriptor_id, tvb,
-               AECP_DESCRIPTOR_ID_OFFSET, 2, FALSE);
+               AECP_DESCRIPTOR_ID_OFFSET, 2, ENC_BIG_ENDIAN);
          if (mess_type == AECP_AEM_RESPONSE_MESSAGE) {
             /* TODO - how big is path sequence? */
          }
@@ -3838,155 +3838,155 @@ dissect_17221_adp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *adp_tree)
    proto_tree *chan_format_tree;
 
 
-   proto_tree_add_item(adp_tree, hf_adp_message_type, tvb, ADP_VERSION_OFFSET, 1, FALSE);
-   proto_tree_add_item(adp_tree, hf_adp_valid_time, tvb, ADP_VALID_TIME_OFFSET, 1, FALSE);
-   proto_tree_add_item(adp_tree, hf_adp_cd_length, tvb, ADP_CD_LENGTH_OFFSET, 1, FALSE);
-   proto_tree_add_item(adp_tree, hf_adp_entity_guid, tvb, ADP_ENTITY_GUID_OFFSET, 8, FALSE);
-   proto_tree_add_item(adp_tree, hf_adp_vendor_id, tvb, ADP_VENDOR_ID_OFFSET, 4, FALSE);
-   proto_tree_add_item(adp_tree, hf_adp_model_id, tvb, ADP_MODEL_ID_OFFSET, 4, FALSE);
+   proto_tree_add_item(adp_tree, hf_adp_message_type, tvb, ADP_VERSION_OFFSET, 1, ENC_BIG_ENDIAN);
+   proto_tree_add_item(adp_tree, hf_adp_valid_time, tvb, ADP_VALID_TIME_OFFSET, 1, ENC_BIG_ENDIAN);
+   proto_tree_add_item(adp_tree, hf_adp_cd_length, tvb, ADP_CD_LENGTH_OFFSET, 1, ENC_BIG_ENDIAN);
+   proto_tree_add_item(adp_tree, hf_adp_entity_guid, tvb, ADP_ENTITY_GUID_OFFSET, 8, ENC_BIG_ENDIAN);
+   proto_tree_add_item(adp_tree, hf_adp_vendor_id, tvb, ADP_VENDOR_ID_OFFSET, 4, ENC_BIG_ENDIAN);
+   proto_tree_add_item(adp_tree, hf_adp_model_id, tvb, ADP_MODEL_ID_OFFSET, 4, ENC_BIG_ENDIAN);
 
    /* Subtree for entity_capabilities field */
-   ent_cap_ti = proto_tree_add_item(adp_tree, hf_adp_entity_cap, tvb, ADP_ENTITY_CAP_OFFSET, 4, FALSE);
+   ent_cap_ti = proto_tree_add_item(adp_tree, hf_adp_entity_cap, tvb, ADP_ENTITY_CAP_OFFSET, 4, ENC_BIG_ENDIAN);
    ent_cap_flags_tree = proto_item_add_subtree(ent_cap_ti, ett_adp_ent_cap);
 
    proto_tree_add_item(ent_cap_flags_tree,
-         hf_adp_entity_cap_avdecc_ip, tvb, ADP_ENTITY_CAP_OFFSET, 4, FALSE);
+         hf_adp_entity_cap_avdecc_ip, tvb, ADP_ENTITY_CAP_OFFSET, 4, ENC_BIG_ENDIAN);
    proto_tree_add_item(ent_cap_flags_tree,
-         hf_adp_entity_cap_zero_conf, tvb, ADP_ENTITY_CAP_OFFSET, 4, FALSE);
+         hf_adp_entity_cap_zero_conf, tvb, ADP_ENTITY_CAP_OFFSET, 4, ENC_BIG_ENDIAN);
    proto_tree_add_item(ent_cap_flags_tree,
-         hf_adp_entity_cap_gateway_entity, tvb, ADP_ENTITY_CAP_OFFSET, 4, FALSE);
+         hf_adp_entity_cap_gateway_entity, tvb, ADP_ENTITY_CAP_OFFSET, 4, ENC_BIG_ENDIAN);
    proto_tree_add_item(ent_cap_flags_tree,
-         hf_adp_entity_cap_avdecc_control, tvb, ADP_ENTITY_CAP_OFFSET, 4, FALSE);
+         hf_adp_entity_cap_avdecc_control, tvb, ADP_ENTITY_CAP_OFFSET, 4, ENC_BIG_ENDIAN);
    proto_tree_add_item(ent_cap_flags_tree,
-         hf_adp_entity_cap_legacy_avc, tvb, ADP_ENTITY_CAP_OFFSET, 4, FALSE);
+         hf_adp_entity_cap_legacy_avc, tvb, ADP_ENTITY_CAP_OFFSET, 4, ENC_BIG_ENDIAN);
    proto_tree_add_item(ent_cap_flags_tree,
-         hf_adp_entity_cap_assoc_id_support, tvb, ADP_ENTITY_CAP_OFFSET, 4, FALSE);
+         hf_adp_entity_cap_assoc_id_support, tvb, ADP_ENTITY_CAP_OFFSET, 4, ENC_BIG_ENDIAN);
    proto_tree_add_item(ent_cap_flags_tree,
-         hf_adp_entity_cap_assoc_id_valid, tvb, ADP_ENTITY_CAP_OFFSET, 4, FALSE);
+         hf_adp_entity_cap_assoc_id_valid, tvb, ADP_ENTITY_CAP_OFFSET, 4, ENC_BIG_ENDIAN);
 
-   proto_tree_add_item(adp_tree, hf_adp_talker_stream_srcs, tvb, ADP_TALKER_STREAM_SRCS_OFFSET, 2, FALSE);
+   proto_tree_add_item(adp_tree, hf_adp_talker_stream_srcs, tvb, ADP_TALKER_STREAM_SRCS_OFFSET, 2, ENC_BIG_ENDIAN);
 
-   talk_cap_ti = proto_tree_add_item(adp_tree, hf_adp_talker_cap, tvb, ADP_TALKER_CAP_OFFSET, 2, FALSE);
+   talk_cap_ti = proto_tree_add_item(adp_tree, hf_adp_talker_cap, tvb, ADP_TALKER_CAP_OFFSET, 2, ENC_BIG_ENDIAN);
    talk_cap_flags_tree = proto_item_add_subtree(talk_cap_ti, ett_adp_talk_cap);
 
    proto_tree_add_item(talk_cap_flags_tree,
-         hf_adp_talk_cap_implement, tvb, ADP_TALKER_CAP_OFFSET, 2, FALSE);
+         hf_adp_talk_cap_implement, tvb, ADP_TALKER_CAP_OFFSET, 2, ENC_BIG_ENDIAN);
    proto_tree_add_item(talk_cap_flags_tree,
-         hf_adp_talk_cap_other_src, tvb, ADP_TALKER_CAP_OFFSET, 2, FALSE);
+         hf_adp_talk_cap_other_src, tvb, ADP_TALKER_CAP_OFFSET, 2, ENC_BIG_ENDIAN);
    proto_tree_add_item(talk_cap_flags_tree,
-         hf_adp_talk_cap_control_src, tvb, ADP_TALKER_CAP_OFFSET, 2, FALSE);
+         hf_adp_talk_cap_control_src, tvb, ADP_TALKER_CAP_OFFSET, 2, ENC_BIG_ENDIAN);
    proto_tree_add_item(talk_cap_flags_tree,
-         hf_adp_talk_cap_media_clk_src, tvb, ADP_TALKER_CAP_OFFSET, 2, FALSE);
+         hf_adp_talk_cap_media_clk_src, tvb, ADP_TALKER_CAP_OFFSET, 2, ENC_BIG_ENDIAN);
    proto_tree_add_item(talk_cap_flags_tree,
-         hf_adp_talk_cap_smpte_src, tvb, ADP_TALKER_CAP_OFFSET, 2, FALSE);
+         hf_adp_talk_cap_smpte_src, tvb, ADP_TALKER_CAP_OFFSET, 2, ENC_BIG_ENDIAN);
    proto_tree_add_item(talk_cap_flags_tree,
-         hf_adp_talk_cap_midi_src, tvb, ADP_TALKER_CAP_OFFSET, 2, FALSE);
+         hf_adp_talk_cap_midi_src, tvb, ADP_TALKER_CAP_OFFSET, 2, ENC_BIG_ENDIAN);
    proto_tree_add_item(talk_cap_flags_tree,
-         hf_adp_talk_cap_audio_src, tvb, ADP_TALKER_CAP_OFFSET, 2, FALSE);
+         hf_adp_talk_cap_audio_src, tvb, ADP_TALKER_CAP_OFFSET, 2, ENC_BIG_ENDIAN);
    proto_tree_add_item(talk_cap_flags_tree,
-         hf_adp_talk_cap_video_src, tvb, ADP_TALKER_CAP_OFFSET, 2, FALSE);
+         hf_adp_talk_cap_video_src, tvb, ADP_TALKER_CAP_OFFSET, 2, ENC_BIG_ENDIAN);
 
    proto_tree_add_item(adp_tree, hf_adp_listener_stream_sinks,
-         tvb, ADP_LISTENER_STREAM_SINKS_OFFSET, 2, FALSE);
+         tvb, ADP_LISTENER_STREAM_SINKS_OFFSET, 2, ENC_BIG_ENDIAN);
 
-   list_cap_ti = proto_tree_add_item(adp_tree, hf_adp_listener_cap, tvb, ADP_LISTENER_CAP_OFFSET, 2, FALSE);
+   list_cap_ti = proto_tree_add_item(adp_tree, hf_adp_listener_cap, tvb, ADP_LISTENER_CAP_OFFSET, 2, ENC_BIG_ENDIAN);
    list_cap_flags_tree = proto_item_add_subtree(list_cap_ti, ett_adp_list_cap);
 
    proto_tree_add_item(list_cap_flags_tree,
-         hf_adp_list_cap_implement, tvb, ADP_LISTENER_CAP_OFFSET, 2, FALSE);
+         hf_adp_list_cap_implement, tvb, ADP_LISTENER_CAP_OFFSET, 2, ENC_BIG_ENDIAN);
    proto_tree_add_item(list_cap_flags_tree,
-         hf_adp_list_cap_other_sink, tvb, ADP_LISTENER_CAP_OFFSET, 2, FALSE);
+         hf_adp_list_cap_other_sink, tvb, ADP_LISTENER_CAP_OFFSET, 2, ENC_BIG_ENDIAN);
    proto_tree_add_item(list_cap_flags_tree,
-         hf_adp_list_cap_control_sink, tvb, ADP_LISTENER_CAP_OFFSET, 2, FALSE);
+         hf_adp_list_cap_control_sink, tvb, ADP_LISTENER_CAP_OFFSET, 2, ENC_BIG_ENDIAN);
    proto_tree_add_item(list_cap_flags_tree,
-         hf_adp_list_cap_media_clk_sink, tvb, ADP_LISTENER_CAP_OFFSET, 2, FALSE);
+         hf_adp_list_cap_media_clk_sink, tvb, ADP_LISTENER_CAP_OFFSET, 2, ENC_BIG_ENDIAN);
    proto_tree_add_item(list_cap_flags_tree,
-         hf_adp_list_cap_smpte_sink, tvb, ADP_LISTENER_CAP_OFFSET, 2, FALSE);
+         hf_adp_list_cap_smpte_sink, tvb, ADP_LISTENER_CAP_OFFSET, 2, ENC_BIG_ENDIAN);
    proto_tree_add_item(list_cap_flags_tree,
-         hf_adp_list_cap_midi_sink, tvb, ADP_LISTENER_CAP_OFFSET, 2, FALSE);
+         hf_adp_list_cap_midi_sink, tvb, ADP_LISTENER_CAP_OFFSET, 2, ENC_BIG_ENDIAN);
    proto_tree_add_item(list_cap_flags_tree,
-         hf_adp_list_cap_audio_sink, tvb, ADP_LISTENER_CAP_OFFSET, 2, FALSE);
+         hf_adp_list_cap_audio_sink, tvb, ADP_LISTENER_CAP_OFFSET, 2, ENC_BIG_ENDIAN);
    proto_tree_add_item(list_cap_flags_tree,
-         hf_adp_list_cap_video_sink, tvb, ADP_LISTENER_CAP_OFFSET, 2, FALSE);
+         hf_adp_list_cap_video_sink, tvb, ADP_LISTENER_CAP_OFFSET, 2, ENC_BIG_ENDIAN);
 
-   cont_cap_ti = proto_tree_add_item(adp_tree, hf_adp_controller_cap, tvb, ADP_CONTROLLER_CAP_OFFSET, 4, FALSE);
+   cont_cap_ti = proto_tree_add_item(adp_tree, hf_adp_controller_cap, tvb, ADP_CONTROLLER_CAP_OFFSET, 4, ENC_BIG_ENDIAN);
    cont_cap_flags_tree = proto_item_add_subtree(cont_cap_ti, ett_adp_cont_cap);
 
    proto_tree_add_item(cont_cap_flags_tree,
-         hf_adp_cont_cap_implement, tvb, ADP_CONTROLLER_CAP_OFFSET, 4, FALSE);
+         hf_adp_cont_cap_implement, tvb, ADP_CONTROLLER_CAP_OFFSET, 4, ENC_BIG_ENDIAN);
    proto_tree_add_item(cont_cap_flags_tree,
-         hf_adp_cont_cap_layer3_proxy, tvb, ADP_CONTROLLER_CAP_OFFSET, 4, FALSE);
+         hf_adp_cont_cap_layer3_proxy, tvb, ADP_CONTROLLER_CAP_OFFSET, 4, ENC_BIG_ENDIAN);
 
-   proto_tree_add_item(adp_tree, hf_adp_avail_index, tvb, ADP_AVAIL_INDEX_OFFSET, 4, FALSE);
-   proto_tree_add_item(adp_tree, hf_adp_as_gm_id, tvb, ADP_AS_GM_ID_OFFSET, 8, FALSE);
+   proto_tree_add_item(adp_tree, hf_adp_avail_index, tvb, ADP_AVAIL_INDEX_OFFSET, 4, ENC_BIG_ENDIAN);
+   proto_tree_add_item(adp_tree, hf_adp_as_gm_id, tvb, ADP_AS_GM_ID_OFFSET, 8, ENC_BIG_ENDIAN);
 
-   aud_format_ti = proto_tree_add_item(adp_tree, hf_adp_def_aud_format, tvb, ADP_DEF_AUDIO_FORMAT_OFFSET, 4, FALSE);
+   aud_format_ti = proto_tree_add_item(adp_tree, hf_adp_def_aud_format, tvb, ADP_DEF_AUDIO_FORMAT_OFFSET, 4, ENC_BIG_ENDIAN);
    aud_format_tree = proto_item_add_subtree(aud_format_ti, ett_adp_aud_format);
 
    samp_rates_ti = proto_tree_add_item(aud_format_tree,
-         hf_adp_def_aud_sample_rates, tvb, ADP_DEF_AUDIO_FORMAT_OFFSET, 1, FALSE);
+         hf_adp_def_aud_sample_rates, tvb, ADP_DEF_AUDIO_FORMAT_OFFSET, 1, ENC_BIG_ENDIAN);
    samp_rates_tree = proto_item_add_subtree(samp_rates_ti, ett_adp_samp_rates);
 
    proto_tree_add_item(samp_rates_tree,
-         hf_adp_samp_rate_44k1, tvb, ADP_DEF_AUDIO_FORMAT_OFFSET, 1, FALSE);
+         hf_adp_samp_rate_44k1, tvb, ADP_DEF_AUDIO_FORMAT_OFFSET, 1, ENC_BIG_ENDIAN);
    proto_tree_add_item(samp_rates_tree,
-         hf_adp_samp_rate_48k, tvb, ADP_DEF_AUDIO_FORMAT_OFFSET, 1, FALSE);
+         hf_adp_samp_rate_48k, tvb, ADP_DEF_AUDIO_FORMAT_OFFSET, 1, ENC_BIG_ENDIAN);
    proto_tree_add_item(samp_rates_tree,
-         hf_adp_samp_rate_88k2, tvb, ADP_DEF_AUDIO_FORMAT_OFFSET, 1, FALSE);
+         hf_adp_samp_rate_88k2, tvb, ADP_DEF_AUDIO_FORMAT_OFFSET, 1, ENC_BIG_ENDIAN);
    proto_tree_add_item(samp_rates_tree,
-         hf_adp_samp_rate_96k, tvb, ADP_DEF_AUDIO_FORMAT_OFFSET, 1, FALSE);
+         hf_adp_samp_rate_96k, tvb, ADP_DEF_AUDIO_FORMAT_OFFSET, 1, ENC_BIG_ENDIAN);
    proto_tree_add_item(samp_rates_tree,
-         hf_adp_samp_rate_176k4, tvb, ADP_DEF_AUDIO_FORMAT_OFFSET, 1, FALSE);
+         hf_adp_samp_rate_176k4, tvb, ADP_DEF_AUDIO_FORMAT_OFFSET, 1, ENC_BIG_ENDIAN);
    proto_tree_add_item(samp_rates_tree,
-         hf_adp_samp_rate_192k, tvb, ADP_DEF_AUDIO_FORMAT_OFFSET, 1, FALSE);
+         hf_adp_samp_rate_192k, tvb, ADP_DEF_AUDIO_FORMAT_OFFSET, 1, ENC_BIG_ENDIAN);
 
    proto_tree_add_item(aud_format_tree,
-         hf_adp_def_aud_max_chan, tvb, ADP_DEF_AUDIO_FORMAT_OFFSET, 2, FALSE);
+         hf_adp_def_aud_max_chan, tvb, ADP_DEF_AUDIO_FORMAT_OFFSET, 2, ENC_BIG_ENDIAN);
    proto_tree_add_item(aud_format_tree,
-         hf_adp_def_aud_saf_flag, tvb, ADP_DEF_AUDIO_FORMAT_OFFSET, 2, FALSE);
+         hf_adp_def_aud_saf_flag, tvb, ADP_DEF_AUDIO_FORMAT_OFFSET, 2, ENC_BIG_ENDIAN);
    proto_tree_add_item(aud_format_tree,
-         hf_adp_def_aud_float_flag, tvb, ADP_DEF_AUDIO_FORMAT_OFFSET, 2, FALSE);
+         hf_adp_def_aud_float_flag, tvb, ADP_DEF_AUDIO_FORMAT_OFFSET, 2, ENC_BIG_ENDIAN);
 
    chan_format_ti = proto_tree_add_item(aud_format_tree,
-         hf_adp_def_aud_chan_formats, tvb, ADP_CHAN_FORMAT_OFFSET, 2, FALSE);
+         hf_adp_def_aud_chan_formats, tvb, ADP_CHAN_FORMAT_OFFSET, 2, ENC_BIG_ENDIAN);
    chan_format_tree = proto_item_add_subtree(chan_format_ti, ett_adp_chan_format);
 
    proto_tree_add_item(chan_format_tree,
-         hf_adp_chan_format_mono, tvb, ADP_CHAN_FORMAT_OFFSET, 2, FALSE);
+         hf_adp_chan_format_mono, tvb, ADP_CHAN_FORMAT_OFFSET, 2, ENC_BIG_ENDIAN);
    proto_tree_add_item(chan_format_tree,
-         hf_adp_chan_format_2ch, tvb, ADP_CHAN_FORMAT_OFFSET, 2, FALSE);
+         hf_adp_chan_format_2ch, tvb, ADP_CHAN_FORMAT_OFFSET, 2, ENC_BIG_ENDIAN);
    proto_tree_add_item(chan_format_tree,
-         hf_adp_chan_format_3ch, tvb, ADP_CHAN_FORMAT_OFFSET, 2, FALSE);
+         hf_adp_chan_format_3ch, tvb, ADP_CHAN_FORMAT_OFFSET, 2, ENC_BIG_ENDIAN);
    proto_tree_add_item(chan_format_tree,
-         hf_adp_chan_format_4ch, tvb, ADP_CHAN_FORMAT_OFFSET, 2, FALSE);
+         hf_adp_chan_format_4ch, tvb, ADP_CHAN_FORMAT_OFFSET, 2, ENC_BIG_ENDIAN);
    proto_tree_add_item(chan_format_tree,
-         hf_adp_chan_format_5ch, tvb, ADP_CHAN_FORMAT_OFFSET, 2, FALSE);
+         hf_adp_chan_format_5ch, tvb, ADP_CHAN_FORMAT_OFFSET, 2, ENC_BIG_ENDIAN);
    proto_tree_add_item(chan_format_tree,
-         hf_adp_chan_format_6ch, tvb, ADP_CHAN_FORMAT_OFFSET, 2, FALSE);
+         hf_adp_chan_format_6ch, tvb, ADP_CHAN_FORMAT_OFFSET, 2, ENC_BIG_ENDIAN);
    proto_tree_add_item(chan_format_tree,
-         hf_adp_chan_format_7ch, tvb, ADP_CHAN_FORMAT_OFFSET, 2, FALSE);
+         hf_adp_chan_format_7ch, tvb, ADP_CHAN_FORMAT_OFFSET, 2, ENC_BIG_ENDIAN);
    proto_tree_add_item(chan_format_tree,
-         hf_adp_chan_format_8ch, tvb, ADP_CHAN_FORMAT_OFFSET, 2, FALSE);
+         hf_adp_chan_format_8ch, tvb, ADP_CHAN_FORMAT_OFFSET, 2, ENC_BIG_ENDIAN);
    proto_tree_add_item(chan_format_tree,
-         hf_adp_chan_format_10ch, tvb, ADP_CHAN_FORMAT_OFFSET, 2, FALSE);
+         hf_adp_chan_format_10ch, tvb, ADP_CHAN_FORMAT_OFFSET, 2, ENC_BIG_ENDIAN);
    proto_tree_add_item(chan_format_tree,
-         hf_adp_chan_format_12ch, tvb, ADP_CHAN_FORMAT_OFFSET, 2, FALSE);
+         hf_adp_chan_format_12ch, tvb, ADP_CHAN_FORMAT_OFFSET, 2, ENC_BIG_ENDIAN);
    proto_tree_add_item(chan_format_tree,
-         hf_adp_chan_format_14ch, tvb, ADP_CHAN_FORMAT_OFFSET, 2, FALSE);
+         hf_adp_chan_format_14ch, tvb, ADP_CHAN_FORMAT_OFFSET, 2, ENC_BIG_ENDIAN);
    proto_tree_add_item(chan_format_tree,
-         hf_adp_chan_format_16ch, tvb, ADP_CHAN_FORMAT_OFFSET, 2, FALSE);
+         hf_adp_chan_format_16ch, tvb, ADP_CHAN_FORMAT_OFFSET, 2, ENC_BIG_ENDIAN);
    proto_tree_add_item(chan_format_tree,
-         hf_adp_chan_format_18ch, tvb, ADP_CHAN_FORMAT_OFFSET, 2, FALSE);
+         hf_adp_chan_format_18ch, tvb, ADP_CHAN_FORMAT_OFFSET, 2, ENC_BIG_ENDIAN);
    proto_tree_add_item(chan_format_tree,
-         hf_adp_chan_format_20ch, tvb, ADP_CHAN_FORMAT_OFFSET, 2, FALSE);
+         hf_adp_chan_format_20ch, tvb, ADP_CHAN_FORMAT_OFFSET, 2, ENC_BIG_ENDIAN);
    proto_tree_add_item(chan_format_tree,
-         hf_adp_chan_format_22ch, tvb, ADP_CHAN_FORMAT_OFFSET, 2, FALSE);
+         hf_adp_chan_format_22ch, tvb, ADP_CHAN_FORMAT_OFFSET, 2, ENC_BIG_ENDIAN);
    proto_tree_add_item(chan_format_tree,
-         hf_adp_chan_format_24ch, tvb, ADP_CHAN_FORMAT_OFFSET, 2, FALSE);
+         hf_adp_chan_format_24ch, tvb, ADP_CHAN_FORMAT_OFFSET, 2, ENC_BIG_ENDIAN);
 
-   proto_tree_add_item(adp_tree, hf_adp_def_vid_format, tvb, ADP_DEF_VIDEO_FORMAT_OFFSET, 4, FALSE);
-   proto_tree_add_item(adp_tree, hf_adp_assoc_id, tvb, ADP_ASSOC_ID_OFFSET, 8, FALSE);
-   proto_tree_add_item(adp_tree, hf_adp_entity_type, tvb, ADP_ENTITY_TYPE_OFFSET, 4, FALSE);
+   proto_tree_add_item(adp_tree, hf_adp_def_vid_format, tvb, ADP_DEF_VIDEO_FORMAT_OFFSET, 4, ENC_BIG_ENDIAN);
+   proto_tree_add_item(adp_tree, hf_adp_assoc_id, tvb, ADP_ASSOC_ID_OFFSET, 8, ENC_BIG_ENDIAN);
+   proto_tree_add_item(adp_tree, hf_adp_entity_type, tvb, ADP_ENTITY_TYPE_OFFSET, 4, ENC_BIG_ENDIAN);
 }
 
 static void
@@ -3995,28 +3995,28 @@ dissect_17221_acmp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *acmp_tree)
    proto_item *flags_ti;
    proto_tree *flags_tree;
 
-   proto_tree_add_item(acmp_tree, hf_acmp_message_type, tvb, ACMP_VERSION_OFFSET, 1, FALSE);
-   proto_tree_add_item(acmp_tree, hf_acmp_status_field, tvb, ACMP_STATUS_FIELD_OFFSET, 1, FALSE);
-   proto_tree_add_item(acmp_tree, hf_acmp_cd_length, tvb, ACMP_CD_LENGTH_OFFSET, 1, FALSE);
-   proto_tree_add_item(acmp_tree, hf_acmp_stream_id, tvb, ACMP_STREAM_ID_OFFSET, 8, FALSE);
-   proto_tree_add_item(acmp_tree, hf_acmp_controller_guid, tvb, ACMP_CONTROLLER_GUID_OFFSET, 8, FALSE);
-   proto_tree_add_item(acmp_tree, hf_acmp_talker_guid, tvb, ACMP_TALKER_GUID_OFFSET, 8, FALSE);
-   proto_tree_add_item(acmp_tree, hf_acmp_listener_guid, tvb, ACMP_LISTENER_GUID_OFFSET, 8, FALSE);
-   proto_tree_add_item(acmp_tree, hf_acmp_talker_unique_id, tvb, ACMP_TALKER_UNIQUE_ID_OFFSET, 2, FALSE);
-   proto_tree_add_item(acmp_tree, hf_acmp_listener_unique_id, tvb, ACMP_LISTENER_UNIQUE_ID_OFFSET, 2, FALSE);
-   proto_tree_add_item(acmp_tree, hf_acmp_stream_dest_mac, tvb, ACMP_DEST_MAC_OFFSET, 6, FALSE);
-   proto_tree_add_item(acmp_tree, hf_acmp_connection_count, tvb, ACMP_CONNECTION_COUNT_OFFSET, 2, FALSE);
-   proto_tree_add_item(acmp_tree, hf_acmp_sequence_id, tvb, ACMP_SEQUENCE_ID_OFFSET, 2, FALSE);
+   proto_tree_add_item(acmp_tree, hf_acmp_message_type, tvb, ACMP_VERSION_OFFSET, 1, ENC_BIG_ENDIAN);
+   proto_tree_add_item(acmp_tree, hf_acmp_status_field, tvb, ACMP_STATUS_FIELD_OFFSET, 1, ENC_BIG_ENDIAN);
+   proto_tree_add_item(acmp_tree, hf_acmp_cd_length, tvb, ACMP_CD_LENGTH_OFFSET, 1, ENC_BIG_ENDIAN);
+   proto_tree_add_item(acmp_tree, hf_acmp_stream_id, tvb, ACMP_STREAM_ID_OFFSET, 8, ENC_BIG_ENDIAN);
+   proto_tree_add_item(acmp_tree, hf_acmp_controller_guid, tvb, ACMP_CONTROLLER_GUID_OFFSET, 8, ENC_BIG_ENDIAN);
+   proto_tree_add_item(acmp_tree, hf_acmp_talker_guid, tvb, ACMP_TALKER_GUID_OFFSET, 8, ENC_BIG_ENDIAN);
+   proto_tree_add_item(acmp_tree, hf_acmp_listener_guid, tvb, ACMP_LISTENER_GUID_OFFSET, 8, ENC_BIG_ENDIAN);
+   proto_tree_add_item(acmp_tree, hf_acmp_talker_unique_id, tvb, ACMP_TALKER_UNIQUE_ID_OFFSET, 2, ENC_BIG_ENDIAN);
+   proto_tree_add_item(acmp_tree, hf_acmp_listener_unique_id, tvb, ACMP_LISTENER_UNIQUE_ID_OFFSET, 2, ENC_BIG_ENDIAN);
+   proto_tree_add_item(acmp_tree, hf_acmp_stream_dest_mac, tvb, ACMP_DEST_MAC_OFFSET, 6, ENC_NA);
+   proto_tree_add_item(acmp_tree, hf_acmp_connection_count, tvb, ACMP_CONNECTION_COUNT_OFFSET, 2, ENC_BIG_ENDIAN);
+   proto_tree_add_item(acmp_tree, hf_acmp_sequence_id, tvb, ACMP_SEQUENCE_ID_OFFSET, 2, ENC_BIG_ENDIAN);
 
-   flags_ti = proto_tree_add_item(acmp_tree, hf_acmp_flags, tvb, ACMP_FLAGS_OFFSET, 2, FALSE);
+   flags_ti = proto_tree_add_item(acmp_tree, hf_acmp_flags, tvb, ACMP_FLAGS_OFFSET, 2, ENC_BIG_ENDIAN);
    flags_tree = proto_item_add_subtree(flags_ti, ett_acmp_flags);
 
-   proto_tree_add_item(flags_tree, hf_acmp_flags_class_b, tvb, ACMP_FLAGS_OFFSET, 2, FALSE);
-   proto_tree_add_item(flags_tree, hf_acmp_flags_fast_connect, tvb, ACMP_FLAGS_OFFSET, 2, FALSE);
-   proto_tree_add_item(flags_tree, hf_acmp_flags_saved_state, tvb, ACMP_FLAGS_OFFSET, 2, FALSE);
-   proto_tree_add_item(flags_tree, hf_acmp_flags_streaming_wait, tvb, ACMP_FLAGS_OFFSET, 2, FALSE);
+   proto_tree_add_item(flags_tree, hf_acmp_flags_class_b, tvb, ACMP_FLAGS_OFFSET, 2, ENC_BIG_ENDIAN);
+   proto_tree_add_item(flags_tree, hf_acmp_flags_fast_connect, tvb, ACMP_FLAGS_OFFSET, 2, ENC_BIG_ENDIAN);
+   proto_tree_add_item(flags_tree, hf_acmp_flags_saved_state, tvb, ACMP_FLAGS_OFFSET, 2, ENC_BIG_ENDIAN);
+   proto_tree_add_item(flags_tree, hf_acmp_flags_streaming_wait, tvb, ACMP_FLAGS_OFFSET, 2, ENC_BIG_ENDIAN);
 
-   proto_tree_add_item(acmp_tree, hf_acmp_default_format, tvb, ACMP_DEFAULT_FORMAT_OFFSET, 4, FALSE);
+   proto_tree_add_item(acmp_tree, hf_acmp_default_format, tvb, ACMP_DEFAULT_FORMAT_OFFSET, 4, ENC_BIG_ENDIAN);
 }
 
 static void
@@ -4070,7 +4070,8 @@ dissect_17221(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 /* Register the protocol with Wireshark */
-void proto_register_17221(void)
+void
+proto_register_17221(void)
 {
    static hf_register_info hf[] = {
       { &hf_adp_message_type,
@@ -6030,7 +6031,8 @@ void proto_register_17221(void)
    proto_register_subtree_array(ett, array_length(ett));
 }
 
-void proto_reg_handoff_17221(void)
+void
+proto_reg_handoff_17221(void)
 {
 
    dissector_handle_t avb17221_handle;
