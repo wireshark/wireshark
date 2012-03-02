@@ -585,7 +585,6 @@ static void dissect_bittorrent_message (tvbuff_t *tvb, packet_info *pinfo, proto
    proto_item *ti;
    guint32 piece_index, piece_begin, piece_length;
    guint32 stringlen;
-   guint16 dht_port;
 
    if (tvb_bytes_exist(tvb, offset + BITTORRENT_HEADER_LENGTH, 1)) {
       /* Check for data from the middle of a message. */
@@ -695,8 +694,7 @@ static void dissect_bittorrent_message (tvbuff_t *tvb, packet_info *pinfo, proto
 
    case BITTORRENT_MESSAGE_PORT:
       /* port as payload */
-      dht_port = tvb_get_ntohs(tvb, offset);
-      proto_tree_add_uint(mtree, hf_bittorrent_port, tvb, offset, 2, dht_port); offset += 2;
+      proto_tree_add_uint(mtree, hf_bittorrent_port, tvb, offset, 2, ENC_BIG_ENDIAN);
       break;
 
    case BITTORRENT_MESSAGE_EXTENDED:
@@ -757,7 +755,7 @@ static void dissect_bittorrent_message (tvbuff_t *tvb, packet_info *pinfo, proto
    }
 }
 
-static void dissect_bittorrent_welcome (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int dissect_bittorrent_welcome (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
    int offset = 0;
    int i;
@@ -787,6 +785,7 @@ static void dissect_bittorrent_welcome (tvbuff_t *tvb, packet_info *pinfo _U_, p
       }
    }
    offset += 20;
+   return offset;
 }
 
 static void dissect_bittorrent_tcp_pdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
