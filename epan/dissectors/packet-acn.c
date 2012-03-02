@@ -1478,18 +1478,18 @@ dissect_acn_sdt_wrapped_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree 
   } else {
     /* use last values */
     data_offset = last_pdu_offsets->data;
-    data_length = last_pdu_offsets->data_length;
+    /*data_length = last_pdu_offsets->data_length;*/
   }
 
   switch (vector) {
     case ACN_SDT_VECTOR_ACK:
       proto_tree_add_item(pdu_tree, hf_acn_reliable_sequence_number, tvb, data_offset, 4, ENC_BIG_ENDIAN);
-      data_offset += 4;
+      /*data_offset += 4;*/
       break;
     case ACN_SDT_VECTOR_CHANNEL_PARAMS:
       data_offset = acn_add_channel_parameter(tvb, pinfo, pdu_tree, data_offset);
       data_offset = acn_add_address(tvb, pinfo, pdu_tree, data_offset, "Ad-hoc Address:");
-      data_offset = acn_add_expiry(tvb, pinfo, pdu_tree, data_offset, "Ad-hoc Expiry:");
+      /*data_offset =*/ acn_add_expiry(tvb, pinfo, pdu_tree, data_offset, "Ad-hoc Expiry:");
       break;
     case ACN_SDT_VECTOR_LEAVE:
       /* nothing more */
@@ -1497,31 +1497,31 @@ dissect_acn_sdt_wrapped_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree 
     case ACN_SDT_VECTOR_CONNECT:
       /* Protocol ID item */
       proto_tree_add_item(pdu_tree, hf_acn_protocol_id, tvb, data_offset, 4, ENC_BIG_ENDIAN);
-      data_offset += 4;
+      /*data_offset += 4;*/
       break;
     case ACN_SDT_VECTOR_CONNECT_ACCEPT:
       /* Protocol ID item */
       proto_tree_add_item(pdu_tree, hf_acn_protocol_id, tvb, data_offset, 4, ENC_BIG_ENDIAN);
-      data_offset += 4;
+      /*data_offset += 4;*/
       break;
     case ACN_SDT_VECTOR_CONNECT_REFUSE:
       /* Protocol ID item */
       proto_tree_add_item(pdu_tree, hf_acn_protocol_id, tvb, data_offset, 4, ENC_BIG_ENDIAN);
       data_offset += 4;
       proto_tree_add_item(pdu_tree, hf_acn_refuse_code, tvb, data_offset, 1, ENC_BIG_ENDIAN);
-      data_offset++;
+      /*data_offset++;*/
       break;
     case ACN_SDT_VECTOR_DISCONNECT:
       /* Protocol ID item */
       proto_tree_add_item(pdu_tree, hf_acn_protocol_id, tvb, data_offset, 4, ENC_BIG_ENDIAN);
-      data_offset += 4;
+      /*data_offset += 4;*/
       break;
     case ACN_SDT_VECTOR_DISCONNECTING:
       /* Protocol ID item */
       proto_tree_add_item(pdu_tree, hf_acn_protocol_id, tvb, data_offset, 4, ENC_BIG_ENDIAN);
       data_offset += 4;
       proto_tree_add_item(pdu_tree, hf_acn_reason_code, tvb, data_offset, 1, ENC_BIG_ENDIAN);
-      data_offset++;
+      /*data_offset++;*/
       break;
 
   }
@@ -1643,7 +1643,7 @@ dissect_acn_sdt_client_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
   /* add association item */
   association = tvb_get_ntohs(tvb, header_offset);
   proto_tree_add_uint(pdu_tree, hf_acn_association, tvb, header_offset, 2, association);
-  header_offset += 2;
+  /*header_offset += 2;*/
 
   /* Adjust data */
   if (pdu_flags & ACN_PDU_FLAG_D) {
@@ -2102,7 +2102,7 @@ dissect_acn_dmx_pdu(guint32 protocol_id, tvbuff_t *tvb, packet_info *pinfo, prot
   } else {
     /* use last values */
     data_offset = last_pdu_offsets->data;
-    data_length = last_pdu_offsets->data_length;
+    /*data_length = last_pdu_offsets->data_length;*/
   }
 
   /* process based on vector */
@@ -2146,7 +2146,7 @@ dissect_acn_dmx_pdu(guint32 protocol_id, tvbuff_t *tvb, packet_info *pinfo, prot
       col_append_fstr(pinfo->cinfo,COL_INFO, ", Universe %d, Seq %3d", universe, sequence );
       proto_item_append_text(ti, ", Universe: %d, Priority: %d", universe, priority);
 
-      data_offset = dissect_acn_dmx_data_pdu(protocol_id, tvb, pinfo, pdu_tree, data_offset, &pdu_offsets);
+      /*data_offset =*/ dissect_acn_dmx_data_pdu(protocol_id, tvb, pinfo, pdu_tree, data_offset, &pdu_offsets);
 
       break;
   }
@@ -2303,7 +2303,7 @@ dissect_acn_sdt_base_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
       data_offset += 4;
       data_offset = acn_add_address(tvb, pinfo, pdu_tree, data_offset, "Destination Address:");
       data_offset = acn_add_channel_parameter(tvb, pinfo, pdu_tree, data_offset);
-      data_offset = acn_add_expiry(tvb, pinfo, pdu_tree, data_offset, "Ad-hoc Expiry:");
+      /*data_offset =*/ acn_add_expiry(tvb, pinfo, pdu_tree, data_offset, "Ad-hoc Expiry:");
       break;
     case ACN_SDT_VECTOR_JOIN_REFUSE:
       pi = proto_tree_add_item(pdu_tree, hf_acn_cid, tvb, data_offset, 16, ENC_BIG_ENDIAN);
@@ -2316,7 +2316,7 @@ dissect_acn_sdt_base_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
       proto_tree_add_item(pdu_tree, hf_acn_reliable_sequence_number, tvb, data_offset, 4, ENC_BIG_ENDIAN);
       data_offset += 4;
       proto_tree_add_item(pdu_tree, hf_acn_refuse_code, tvb, data_offset, 1, ENC_BIG_ENDIAN);
-      data_offset ++;
+      /*data_offset ++;*/
       break;
     case ACN_SDT_VECTOR_JOIN_ACCEPT:
       pi = proto_tree_add_item(pdu_tree, hf_acn_cid, tvb, data_offset, 16, ENC_BIG_ENDIAN);
@@ -2329,7 +2329,7 @@ dissect_acn_sdt_base_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
       proto_tree_add_item(pdu_tree, hf_acn_reliable_sequence_number, tvb, data_offset, 4, ENC_BIG_ENDIAN);
       data_offset += 4;
       proto_tree_add_item(pdu_tree, hf_acn_reciprocal_channel, tvb, data_offset, 2, ENC_BIG_ENDIAN);
-      data_offset += 2;
+      /*data_offset += 2;*/
       break;
     case ACN_SDT_VECTOR_LEAVE:
       break;
@@ -2371,20 +2371,20 @@ dissect_acn_sdt_base_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
       proto_tree_add_item(pdu_tree, hf_acn_first_missed_sequence, tvb, data_offset, 4, ENC_BIG_ENDIAN);
       data_offset += 4;
       proto_tree_add_item(pdu_tree, hf_acn_last_missed_sequence, tvb, data_offset, 4, ENC_BIG_ENDIAN);
-      data_offset += 4;
+      /*data_offset += 4;*/
       break;
     case ACN_SDT_VECTOR_GET_SESSION:
       proto_tree_add_item(pdu_tree, hf_acn_cid, tvb, data_offset, 16, ENC_BIG_ENDIAN);
-      data_offset += 16;
+      /*data_offset += 16;*/
       break;
     case ACN_SDT_VECTOR_SESSIONS:
       member_id = tvb_get_ntohs(tvb, data_offset);
       switch (member_id) {
         case 0:
-          data_offset = acn_add_channel_owner_info_block(tvb, pinfo, pdu_tree, data_offset);
+          /*data_offset =*/ acn_add_channel_owner_info_block(tvb, pinfo, pdu_tree, data_offset);
           break;
         case 1:
-          data_offset = acn_add_channel_member_info_block(tvb, pinfo, pdu_tree, data_offset);
+          /*data_offset =*/ acn_add_channel_member_info_block(tvb, pinfo, pdu_tree, data_offset);
           break;
       }
       break;
@@ -2508,7 +2508,7 @@ dissect_acn_root_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
         col_add_fstr(pinfo->cinfo,COL_INFO, "CID %s", guid_to_str(&guid));
 
         proto_tree_add_item(pdu_tree, hf_acn_cid, tvb, header_offset, 16, ENC_BIG_ENDIAN);
-        header_offset += 16;
+        /*header_offset += 16;*/
 
         /* Adjust data */
         if (pdu_flags & ACN_PDU_FLAG_D) {
@@ -2554,7 +2554,7 @@ dissect_acn_root_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
       proto_item_append_text(ti, ", Src: %s", guid_to_str(&guid));
 
       proto_tree_add_item(pdu_tree, hf_acn_cid, tvb, header_offset, 16, ENC_BIG_ENDIAN);
-      header_offset += 16;
+      /*header_offset += 16;*/
 
       /* Adjust data */
       if (pdu_flags & ACN_PDU_FLAG_D) {
