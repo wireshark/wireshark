@@ -229,7 +229,7 @@ dissect_applemidi_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 			proto_tree_add_item( applemidi_tree, hf_applemidi_ssrc, tvb, offset, 4, ENC_BIG_ENDIAN );
 			offset += 4;
 
-			ti = proto_tree_add_item( applemidi_tree, hf_applemidi_rtp_bitrate_limit, tvb, offset, 4, ENC_BIG_ENDIAN );
+			proto_tree_add_item( applemidi_tree, hf_applemidi_rtp_bitrate_limit, tvb, offset, 4, ENC_BIG_ENDIAN );
 			offset += 4;
 		}
 		/* If there is any remaining data (possibly because an unknown command was encountered),
