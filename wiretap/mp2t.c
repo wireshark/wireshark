@@ -88,6 +88,7 @@ mp2t_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
     }
 
     mp2t->offset += MP2T_SIZE;
+    /* XXX - relative, not absolute, time stamps */
     wth->phdr.presence_flags = WTAP_HAS_TS;
 
     /* It would be really cool to be able to configure the bitrate... */

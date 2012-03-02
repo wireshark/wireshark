@@ -232,7 +232,8 @@ mpeg_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 				packet_size, err, err_info))
 		return FALSE;
 	wth->data_offset += packet_size;
-	wth->phdr.presence_flags = WTAP_HAS_TS; /* XXX - relative, not absolute! */
+	/* XXX - relative, not absolute, time stamps */
+	wth->phdr.presence_flags = WTAP_HAS_TS;
 	wth->phdr.ts = ts;
 	wth->phdr.caplen = packet_size;
 	wth->phdr.len = packet_size;
