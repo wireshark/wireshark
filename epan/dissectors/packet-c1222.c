@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-c1222.c                                                             */
-/* ../../../tools/asn2wrs.py -b -p c1222 -c ../../../asn1/c1222/c1222.cnf -s ../../../asn1/c1222/packet-c1222-template -D ../../../asn1/c1222 -O ../../../epan/dissectors c1222.asn */
+/* ../../tools/asn2wrs.py -b -p c1222 -c ./c1222.cnf -s ./packet-c1222-template -D . -O ../../epan/dissectors c1222.asn */
 
 /* Input file: packet-c1222-template.c */
 
@@ -472,7 +472,7 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
     case C1222_CMD_FULL_READ:
 	if (*length >= 2) {
 	    table = tvb_get_ntohs(tvb, *offset);
-	    item = proto_tree_add_uint(tree, hf_c1222_read_table, tvb, *offset, 2, table);
+	    proto_tree_add_uint(tree, hf_c1222_read_table, tvb, *offset, 2, table);
 	    proto_item_set_text(tree, "C12.22 EPSEM: %s (%s-%d)",
 		    val_to_str(cmd,commandnames,"Unknown (0x%02x)"), 
 		    val_to_str((table >> 8) & 0xF8, tableflags,"Unknown (0x%04x)"), table & 0x7FF);
@@ -485,7 +485,7 @@ parse_c1222_detailed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int cm
     case C1222_CMD_PARTIAL_READ_OFFSET:
 	if (*length >= 7) {
 	    table = tvb_get_ntohs(tvb, *offset);
-	    item = proto_tree_add_uint(tree, hf_c1222_read_table, tvb, *offset, 2, table);
+	    proto_tree_add_uint(tree, hf_c1222_read_table, tvb, *offset, 2, table);
 	    *offset += 2;
 	    *length -= 2;
 	    proto_tree_add_item(tree, hf_c1222_read_offset, tvb, *offset, 3, ENC_BIG_ENDIAN);
@@ -879,7 +879,7 @@ ber_len_ok(tvbuff_t *tvb, int offset)
 	  return TRUE;
 	} else if (tvb_offset_exists(tvb, offset)) {
 	  ch = tvb_get_guint8(tvb, offset);
-	  offset++;
+	  /*offset++;*/
 	  if (!(ch & 0x80)) {
 	    return TRUE;
 	  }

@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-c1222.h                                                             */
-/* ../../../tools/asn2wrs.py -b -p c1222 -c ../../../asn1/c1222/c1222.cnf -s ../../../asn1/c1222/packet-c1222-template -D ../../../asn1/c1222 -O ../../../epan/dissectors c1222.asn */
+/* ../../tools/asn2wrs.py -b -p c1222 -c ./c1222.cnf -s ./packet-c1222-template -D . -O ../../epan/dissectors c1222.asn */
 
 /* Input file: packet-c1222-template.h */
 
