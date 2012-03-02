@@ -4,6 +4,8 @@
  *                 Dave Olsen <dave.olsen@harman.com>
  *                 Levi Pearson <levi.pearson@harman.com>
  *
+ * Copyright 2011, Thomas Bottom <tom.bottom@labxtechnologies.com>
+ *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
@@ -116,15 +118,19 @@ static int ett_1722 = -1;
 static int ett_1722_audio = -1;
 static int ett_1722_sample = -1;
 
-static void dissect_1722(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static dissector_table_t avb_dissector_table;
+
+static void
+dissect_1722(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_item *ti = NULL;
-    proto_tree *ieee1722_tree = NULL;
-    proto_tree *audio_tree = NULL;
-    proto_tree *sample_tree = NULL;
-    gint offset = 0;
-    guint16 datalen = 0;
-    guint8 dbs = 0;
+    proto_item *ti;
+    proto_tree *ieee1722_tree;
+    proto_tree *audio_tree;
+    proto_tree *sample_tree;
+    gint offset;
+    guint16 datalen;
+    guint8 dbs;
+    guint8 subtype;
     int i, j;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IEEE1722");
@@ -148,6 +154,13 @@ static void dissect_1722(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item(ieee1722_tree, hf_1722_mrfield, tvb, IEEE_1722_VERSION_OFFSET, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(ieee1722_tree, hf_1722_gvfield, tvb, IEEE_1722_VERSION_OFFSET, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(ieee1722_tree, hf_1722_tvfield, tvb, IEEE_1722_VERSION_OFFSET, 1, ENC_BIG_ENDIAN);
+
+        /* Version field ends the common AVTPDU. Now parse the specfic packet type */
+        subtype = tvb_get_guint8(tvb, IEEE_1722_CD_OFFSET);
+        subtype &= 0x7F;
+
+        /* call subtype dissectors for 1722.1 */
+        if (dissector_try_uint(avb_dissector_table, subtype, tvb, pinfo, tree)) return;
 
         /* Add the rest of the packet fields */
         proto_tree_add_item(ieee1722_tree, hf_1722_seqnum, tvb,
@@ -373,6 +386,10 @@ void proto_register_1722(void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_1722, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    
+    /* Sub-dissector for 1772.1 */
+    avb_dissector_table = register_dissector_table("ieee1722.subtype",
+                          "AVBTP Subtype", FT_UINT8, BASE_HEX);
 }
 
 void proto_reg_handoff_1722(void)

@@ -679,6 +679,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-idp.c
 	dissectors/packet-iec104.c
 	dissectors/packet-ieee1722.c
+	dissectors/packet-ieee17221.c
 	dissectors/packet-ieee80211.c
 	dissectors/packet-ieee80211-prism.c
 	dissectors/packet-ieee80211-radio.c
