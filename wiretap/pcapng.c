@@ -2115,7 +2115,7 @@ typedef struct {
 } pcapng_dump_t;
 
 static gboolean
-pcapng_write_section_header_block(wtap_dumper *wdh, wtapng_block_t *wblock, int *err)
+pcapng_write_section_header_block(wtap_dumper *wdh, int *err)
 {
 	pcapng_block_header_t bh;
 	pcapng_section_header_block_t shb;
@@ -2182,7 +2182,7 @@ pcapng_write_section_header_block(wtap_dumper *wdh, wtapng_block_t *wblock, int 
 	}
 
 	/* write block header */
-	bh.block_type = wblock->type;
+	bh.block_type = BLOCK_TYPE_SHB;
 	bh.block_total_length = sizeof(bh) + sizeof(shb) + options_total_length + 4;
 	pcapng_debug2("pcapng_write_section_header_block: Total len %u, Options total len %u",bh.block_total_length, options_total_length);
 
@@ -3043,16 +3043,10 @@ static gboolean pcapng_dump_close(wtap_dumper *wdh, int *err _U_)
 gboolean
 pcapng_dump_open(wtap_dumper *wdh, int *err)
 {
-	wtapng_block_t wblock;
 	pcapng_dump_t *pcapng;
 	int i;
 	interface_data_t interface_data;
 	
-	wblock.frame_buffer  = NULL;
-	wblock.pseudo_header = NULL;
-	wblock.packet_header = NULL;
-	wblock.file_encap    = NULL;
-
 	pcapng_debug0("pcapng_dump_open");
 	/* This is a pcapng file */
 	wdh->subtype_write = pcapng_dump;
@@ -3068,23 +3062,7 @@ pcapng_dump_open(wtap_dumper *wdh, int *err)
 	}
 
 	/* write the section header block */
-	wblock.type = BLOCK_TYPE_SHB;
-	wblock.data.section.section_length = -1;
-
-	/* Options */
-	if (wdh->shb_hdr) {
-		wblock.data.section.opt_comment   = wdh->shb_hdr->opt_comment;
-		wblock.data.section.shb_hardware  = wdh->shb_hdr->shb_hardware;
-		wblock.data.section.shb_os        = wdh->shb_hdr->shb_os;
-		wblock.data.section.shb_user_appl = wdh->shb_hdr->shb_user_appl;
-	} else {
-		wblock.data.section.opt_comment   = NULL;
-		wblock.data.section.shb_hardware  = NULL;
-		wblock.data.section.shb_os        = NULL;
-		wblock.data.section.shb_user_appl = NULL;
-	}
-
-	if (!pcapng_write_section_header_block(wdh, &wblock, err)) {
+	if (!pcapng_write_section_header_block(wdh, err)) {
 		return FALSE;
 	}
 	pcapng_debug0("pcapng_dump_open: wrote section header block.");
