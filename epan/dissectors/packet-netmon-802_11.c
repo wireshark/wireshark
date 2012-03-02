@@ -69,7 +69,7 @@ static gint ett_netmon_802_11_op_mode = -1;
 
 static dissector_handle_t ieee80211_handle;
 
-static void
+static int
 dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *wlan_tree, *opmode_tree;
@@ -111,7 +111,8 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(wlan_tree, hf_netmon_802_11_length, tvb, offset, 2,
                         ENC_LITTLE_ENDIAN);
     offset += 2;
-    ti = proto_tree_add_item(wlan_tree, hf_netmon_802_11_op_mode, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    ti = proto_tree_add_item(wlan_tree, hf_netmon_802_11_op_mode, tvb, offset,
+                        4, ENC_LITTLE_ENDIAN);
     opmode_tree = proto_item_add_subtree(ti, ett_netmon_802_11_op_mode);
     proto_tree_add_item(opmode_tree, hf_netmon_802_11_op_mode_sta, tvb, offset,
                         4, ENC_LITTLE_ENDIAN);
@@ -159,7 +160,10 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(wlan_tree, hf_netmon_802_11_timestamp, tvb, offset, 8,
                         ENC_LITTLE_ENDIAN);
     offset += 8;
+
   }
+
+  return offset;
 
 skip:
   offset = length;
@@ -167,6 +171,7 @@ skip:
   /* dissect the 802.11 header next */
   next_tvb = tvb_new_subset(tvb, offset, -1, -1);
   call_dissector(ieee80211_handle, next_tvb, pinfo, tree);
+  return offset;
 }
 
 void
@@ -233,7 +238,7 @@ proto_reg_handoff_netmon_802_11(void)
 
   /* handle for 802.11 dissector */
   ieee80211_handle = find_dissector("wlan");
-  netmon_802_11_handle = create_dissector_handle(dissect_netmon_802_11,
+  netmon_802_11_handle = new_create_dissector_handle(dissect_netmon_802_11,
                                                  proto_netmon_802_11);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE802_11_NETMON_RADIO, netmon_802_11_handle);
 }
