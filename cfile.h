@@ -70,7 +70,7 @@ typedef struct _capture_file {
   gchar       *filename;        /* Name of capture file */
   gchar       *source;          /* Temp file source, e.g. "Pipe from elsewhere" */
   gboolean     is_tempfile;     /* Is capture file a temporary file? */
-  gboolean     user_saved;      /* If capture file is temporary, has it been saved by user yet? */
+  gboolean     user_saved;      /* If capture file is temporary or modified, has it been saved by user yet? */
   gint64       f_datalen;       /* Size of capture file data (uncompressed) */
   guint16      cd_t;            /* File type of capture file */
   int          lnk_t;           /* Link-layer type with which to save capture */
