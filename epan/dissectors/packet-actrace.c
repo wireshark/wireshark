@@ -597,7 +597,6 @@ static void dissect_actrace_cas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *a
 
 	value = tvb_get_ntohl(tvb, offset);
 	proto_tree_add_int(actrace_tree, hf_actrace_cas_connection_id, tvb, offset, 4, value);
-	offset += 4;
 
 	/* Add tap info for the Voip Graph */
 	if (source == ACTRACE_CAS_SOURCE_DSP) {
