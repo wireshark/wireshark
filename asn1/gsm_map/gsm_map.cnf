@@ -264,14 +264,12 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
 		proto_tree_add_item(subtree, hf_gsm_map_disc_par, parameter_tvb, 0,1,FALSE);
 		if ( octet == 0) {/* DISCRIMINATION TS 48 006(GSM 08.06 version 5.3.0) */
 			/* Strip off discrimination and length */
-			length = tvb_get_guint8(parameter_tvb,0);
 			proto_tree_add_item(subtree, hf_gsm_map_len, parameter_tvb, 1,1,FALSE);
 			next_tvb = tvb_new_subset_remaining(parameter_tvb, 2);
 			dissect_bssmap(next_tvb, actx->pinfo, subtree);
 		}else if(octet==1){
 			proto_tree_add_item(subtree, hf_gsm_map_dlci, parameter_tvb, 1,1,FALSE);
 			proto_tree_add_item(subtree, hf_gsm_map_len, parameter_tvb, 2,1,FALSE);
-			length = tvb_get_guint8(parameter_tvb,0);
 			next_tvb = tvb_new_subset_remaining(parameter_tvb, 3);
 			call_dissector(dtap_handle, next_tvb, actx->pinfo, subtree);
 		}
@@ -707,7 +705,6 @@ if (!actx->value_ptr)
 	case 3:
 	/* gsm-BSSMAP -- Value 3 is reserved and must not be used*/
 		octet = tvb_get_guint8(actx->value_ptr,0);
-		length = tvb_get_guint8(actx->value_ptr,1);
 		if ( octet == 0) {/* DISCRIMINATION TS 48 006 */
 			next_tvb = tvb_new_subset_remaining(actx->value_ptr, 2);
 			dissect_bssmap(next_tvb, actx->pinfo, subtree);
@@ -788,7 +785,6 @@ if (!actx->value_ptr)
 	case 3:
 	/* gsm-BSSMAP TODO Is it correct to stripp off two first octets here?*/
 		octet = tvb_get_guint8(actx->value_ptr,0);
-		length = tvb_get_guint8(actx->value_ptr,1);
 		if ( octet == 0) {/* DISCRIMINATION TS 48 006 */
 			next_tvb = tvb_new_subset_remaining(actx->value_ptr, 2);
 			dissect_bssmap(next_tvb, actx->pinfo, subtree);
