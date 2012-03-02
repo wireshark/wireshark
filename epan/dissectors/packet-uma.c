@@ -1382,7 +1382,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		if ( octet == 0 ){
 			ie_offset = dissect_e212_mcc_mnc(tvb, pinfo, urr_ie_tree, ie_offset, TRUE);
 			proto_tree_add_item(urr_ie_tree, hf_uma_urr_lac, tvb, ie_offset, 2, ENC_BIG_ENDIAN);
-			ie_offset = ie_offset + 2;
+			/*ie_offset = ie_offset + 2;*/
 			/* The octets 9-12 are coded as shown in 3GPP TS 25.331, Table 'Cell identity'.
 			 * 10.3.2.2 Cell identity
 			 * This information element identifies a cell unambiguously within a PLMN.
@@ -1421,7 +1421,6 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		break;
 	case 72:
 		/* 11.2.72 Broadcast Container */
-		octet = tvb_get_guint8(tvb,ie_offset);
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_num_of_cbs_frms , tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		/* The coding of the page of the CBS message is defined in sub-clause 9.4.1 in TS 23.041. */
 		proto_tree_add_text(urr_ie_tree, tvb, ie_offset + 1, ie_len-1,"CBS Frames - Not decoded");
