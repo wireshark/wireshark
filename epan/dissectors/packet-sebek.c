@@ -118,7 +118,7 @@ static gint ett_sebek = -1;
  * pinfo - packet info
  * proto_tree - resolved protocol tree
  */
-static void
+static int
 dissect_sebek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree      *sebek_tree;
@@ -272,6 +272,7 @@ dissect_sebek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		}
 	}
+	return offset;
 }
 
 void
@@ -350,6 +351,6 @@ proto_reg_handoff_sebek(void)
 {
 	dissector_handle_t sebek_handle;
 
-	sebek_handle = create_dissector_handle(dissect_sebek, proto_sebek);
+	sebek_handle = new_create_dissector_handle(dissect_sebek, proto_sebek);
 	dissector_add_uint("udp.port", UDP_PORT_SEBEK, sebek_handle);
 }
