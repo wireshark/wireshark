@@ -61,14 +61,14 @@ static int hf_usb_urb_ts_sec = -1;
 static int hf_usb_urb_ts_usec = -1;
 static int hf_usb_urb_status = -1;
 static int hf_usb_urb_len = -1;
-static int hf_usb_data_len = -1;
+static int hf_usb_urb_data_len = -1;
 
 static int hf_usb_request = -1;
 static int hf_usb_request_unknown_class = -1;
 static int hf_usb_value = -1;
 static int hf_usb_index = -1;
 static int hf_usb_length = -1;
-static int hf_usb_data = -1;
+static int hf_usb_data_len = -1;
 static int hf_usb_capdata = -1;
 static int hf_usb_wFeatureSelector = -1;
 static int hf_usb_wInterface = -1;
@@ -1490,7 +1490,8 @@ dissect_usb_setup_get_descriptor_response(packet_info *pinfo, proto_tree *tree, 
         item=proto_tree_add_text(tree, tvb, offset, -1, "GET DESCRIPTOR data (unknown descriptor type)");
         tree=proto_item_add_subtree(item, ett_descriptor_device);
         tvb_memcpy(tvb, (guint8 *)&data_len, offset, 4);
-        proto_tree_add_uint(tree, hf_usb_data, tvb, offset, 4, data_len);
+        proto_tree_add_uint(tree, hf_usb_data_len, tvb, offset, 4, data_len);
+	/* XXX add the data as FT_BYTES? */
         offset += data_len;
         break;
     }
@@ -1915,7 +1916,7 @@ dissect_linux_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     proto_tree_add_uint(tree, hf_usb_urb_len, tvb, 32, 4, val32);
 
     tvb_memcpy(tvb, (guint8 *)&val32, 36, 4);
-    proto_tree_add_uint(tree, hf_usb_data_len, tvb, 36, 4, val32);
+    proto_tree_add_uint(tree, hf_usb_urb_data_len, tvb, 36, 4, val32);
 }
 
 /*
@@ -2527,7 +2528,7 @@ proto_register_usb(void)
           { "URB length [bytes]", "usb.urb_len", FT_UINT32, BASE_DEC, NULL, 0x0,
             "URB length in bytes", HFILL }},
 
-        { &hf_usb_data_len,
+        { &hf_usb_urb_data_len,
           { "Data length [bytes]", "usb.data_len", FT_UINT32, BASE_DEC, NULL, 0x0,
             "URB data length in bytes", HFILL }},
 
@@ -2605,10 +2606,10 @@ proto_register_usb(void)
            FT_BYTES, BASE_NONE, NULL, 0x0,
            NULL, HFILL }},
     /* --------------------------------- */
-        { &hf_usb_data,
-          {"Application Data", "usb.data",
-           FT_BYTES, BASE_NONE, NULL, 0x0,
-           "Payload is application data", HFILL }},
+        { &hf_usb_data_len,
+          {"Application Data Length", "usb.data.length",
+           FT_UINT32, BASE_DEC, NULL, 0x0,
+           NULL, HFILL }},
 
         { &hf_usb_capdata,
           {"Leftover Capture Data", "usb.capdata",
