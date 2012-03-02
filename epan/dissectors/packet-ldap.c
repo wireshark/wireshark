@@ -4597,7 +4597,6 @@ dissect_ldap_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint32 sasl_len;
 	guint32 ldap_len;
-	int offset;
 	gboolean ind;
         conversation_t *conversation;
 	ldap_conv_info_t *ldap_info = NULL;
@@ -5611,7 +5610,7 @@ void proto_register_ldap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 2070 "../../asn1/ldap/packet-ldap-template.c"
+#line 2069 "../../asn1/ldap/packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -5686,7 +5685,7 @@ void proto_register_ldap(void) {
     &ett_ldap_T_warning,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 2083 "../../asn1/ldap/packet-ldap-template.c"
+#line 2082 "../../asn1/ldap/packet-ldap-template.c"
   };
 
     module_t *ldap_module;
@@ -5817,7 +5816,7 @@ proto_reg_handoff_ldap(void)
 
 
 /*--- End of included file: packet-ldap-dis-tab.c ---*/
-#line 2197 "../../asn1/ldap/packet-ldap-template.c"
+#line 2196 "../../asn1/ldap/packet-ldap-template.c"
 
 
 }
