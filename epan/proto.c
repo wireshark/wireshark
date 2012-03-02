@@ -4954,6 +4954,7 @@ tmp_fld_check_assert(header_field_info *hfinfo) {
 	}
 }
 
+#define PROTO_PRE_ALLOC_HF_FIELDS_MEM 120000
 static int
 proto_register_field_init(header_field_info *hfinfo, const int parent)
 {
@@ -4972,11 +4973,12 @@ proto_register_field_init(header_field_info *hfinfo, const int parent)
 	/* if we always add and never delete, then id == len - 1 is correct */
 	if(gpa_hfinfo.len>=gpa_hfinfo.allocated_len){
 		if(!gpa_hfinfo.hfi){
-			gpa_hfinfo.allocated_len=100000;
-			gpa_hfinfo.hfi=g_malloc(sizeof(header_field_info *)*100000);
+			gpa_hfinfo.allocated_len=PROTO_PRE_ALLOC_HF_FIELDS_MEM;
+			gpa_hfinfo.hfi=g_malloc(sizeof(header_field_info *)*PROTO_PRE_ALLOC_HF_FIELDS_MEM);
 		} else {
 			gpa_hfinfo.allocated_len+=1000;
 			gpa_hfinfo.hfi=g_realloc(gpa_hfinfo.hfi, sizeof(header_field_info *)*gpa_hfinfo.allocated_len);
+			/*g_warning("gpa_hfinfo.allocated_len %u",gpa_hfinfo.allocated_len);*/
 		}
 	}
 	gpa_hfinfo.hfi[gpa_hfinfo.len]=hfinfo;
