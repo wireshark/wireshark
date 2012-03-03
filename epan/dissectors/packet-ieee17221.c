@@ -36,7 +36,7 @@
 #include "config.h"
 #endif
 
-#include <stdio.h>
+/* #include <stdio.h> */
 
 #include <epan/packet.h>
 #include <epan/etypes.h>
@@ -1957,12 +1957,6 @@ static int ett_aem_stream_format = -1;
 
 static int ett_aecp_descriptors = -1;
 static int ett_aecp_flags_32 = -1;
-
-static const value_string avb_bool_vals[] = {
-   {1, "True"},
-   {0, "False"},
-   {0,  NULL}
-};
 
 typedef struct {
    int hf;
@@ -4105,31 +4099,31 @@ proto_register_17221(void)
       /* Entity Capability Flags Begin */
       { &hf_adp_entity_cap_avdecc_ip,
          { "AVDECC_IP", "ieee17221.entity_capabilities.avdecc_ip",
-            FT_UINT32, BASE_DEC, VALS(avb_bool_vals), ADP_AVDECC_IP_BITMASK, NULL, HFILL }
+            FT_BOOLEAN, 32, NULL, ADP_AVDECC_IP_BITMASK, NULL, HFILL }
       },
       { &hf_adp_entity_cap_zero_conf,
          { "ZERO_CONF", "ieee17221.entity_capabilities.zero_conf",
-            FT_UINT32, BASE_DEC, VALS(avb_bool_vals), ADP_ZERO_CONF_BITMASK, NULL, HFILL }
+            FT_BOOLEAN, 32, NULL, ADP_ZERO_CONF_BITMASK, NULL, HFILL }
       },
       { &hf_adp_entity_cap_gateway_entity,
          { "GATEWAY_ENTITY", "ieee17221.entity_capabilities.gateway_entity",
-            FT_UINT32, BASE_DEC, VALS(avb_bool_vals), ADP_GATEWAY_ENTITY_BITMASK, NULL, HFILL }
+            FT_BOOLEAN, 32, NULL, ADP_GATEWAY_ENTITY_BITMASK, NULL, HFILL }
       },
       { &hf_adp_entity_cap_avdecc_control,
          { "AVDECC_CONTROL", "ieee17221.entity_capabilities.avdecc_control",
-            FT_UINT32, BASE_DEC, VALS(avb_bool_vals), ADP_AVDECC_CONTROL_BITMASK, NULL, HFILL }
+            FT_BOOLEAN, 32, NULL, ADP_AVDECC_CONTROL_BITMASK, NULL, HFILL }
       },
       { &hf_adp_entity_cap_legacy_avc,
          { "LEGACY_AVC", "ieee17221.entity_capabilities.legacy_avc",
-            FT_UINT32, BASE_DEC, VALS(avb_bool_vals), ADP_LEGACY_AVC_BITMASK, NULL, HFILL }
+            FT_BOOLEAN, 32, NULL, ADP_LEGACY_AVC_BITMASK, NULL, HFILL }
       },
       { &hf_adp_entity_cap_assoc_id_support,
          { "ASSOCIATION_ID_SUPPORTED", "ieee17221.entity_capabilities.association_id_supported",
-            FT_UINT32, BASE_DEC, VALS(avb_bool_vals), ADP_ASSOC_ID_SUPPORT_BITMASK, NULL, HFILL }
+            FT_BOOLEAN, 32, NULL, ADP_ASSOC_ID_SUPPORT_BITMASK, NULL, HFILL }
       },
       { &hf_adp_entity_cap_assoc_id_valid,
          { "ASSOCIATION_ID_VALID", "ieee17221.entity_capabilities.association_id_valid",
-            FT_UINT32, BASE_DEC, VALS(avb_bool_vals), ADP_ASSOC_ID_VALID_BITMASK, NULL, HFILL }
+            FT_BOOLEAN, 32, NULL, ADP_ASSOC_ID_VALID_BITMASK, NULL, HFILL }
       },
       /* Entity Capability Flags End */
       { &hf_adp_talker_stream_srcs,
@@ -4143,35 +4137,35 @@ proto_register_17221(void)
       /* Talker Capability Flags Begin */
       { &hf_adp_talk_cap_implement,
          { "IMPLEMENTED", "ieee17221.talker_capabilities.implemented",
-            FT_UINT16, BASE_DEC, VALS(avb_bool_vals), ADP_TALK_IMPLEMENTED_BITMASK, NULL, HFILL }
+            FT_BOOLEAN, 16, NULL, ADP_TALK_IMPLEMENTED_BITMASK, NULL, HFILL }
       },
       { &hf_adp_talk_cap_other_src,
          { "OTHER_SOURCE", "ieee17221.talker_capabilities.other_source",
-            FT_UINT16, BASE_DEC, VALS(avb_bool_vals), ADP_TALK_OTHER_SRC_BITMASK, NULL, HFILL }
+            FT_BOOLEAN, 16, NULL, ADP_TALK_OTHER_SRC_BITMASK, NULL, HFILL }
       },
       { &hf_adp_talk_cap_control_src,
          { "CONTROL_SOURCE", "ieee17221.talker_capabilities.control_source",
-            FT_UINT16, BASE_DEC, VALS(avb_bool_vals), ADP_TALK_CONTROL_SRC_BITMASK, NULL, HFILL }
+            FT_BOOLEAN, 16, NULL, ADP_TALK_CONTROL_SRC_BITMASK, NULL, HFILL }
       },
       { &hf_adp_talk_cap_media_clk_src,
          { "MEDIA_CLOCK_SOURCE", "ieee17221.talker_capabilities.media_clock_source",
-            FT_UINT16, BASE_DEC, VALS(avb_bool_vals), ADP_TALK_MEDIA_CLK_SRC_BITMASK, NULL, HFILL }
+            FT_BOOLEAN, 16, NULL, ADP_TALK_MEDIA_CLK_SRC_BITMASK, NULL, HFILL }
       },
       { &hf_adp_talk_cap_smpte_src,
          { "SMPTE_SOURCE", "ieee17221.talker_capabilities.smpte_source",
-            FT_UINT16, BASE_DEC, VALS(avb_bool_vals), ADP_TALK_SMPTE_SRC_BITMASK, NULL, HFILL }
+            FT_BOOLEAN, 16, NULL, ADP_TALK_SMPTE_SRC_BITMASK, NULL, HFILL }
       },
       { &hf_adp_talk_cap_midi_src,
          { "MIDI_SOURCE", "ieee17221.talker_capabilities.midi_source",
-            FT_UINT16, BASE_DEC, VALS(avb_bool_vals), ADP_TALK_MIDI_SRC_BITMASK, NULL, HFILL }
+            FT_BOOLEAN, 16, NULL, ADP_TALK_MIDI_SRC_BITMASK, NULL, HFILL }
       },
       { &hf_adp_talk_cap_audio_src,
          { "AUDIO_SOURCE", "ieee17221.talker_capabilities.audio_source",
-            FT_UINT16, BASE_DEC, VALS(avb_bool_vals), ADP_TALK_AUDIO_SRC_BITMASK, NULL, HFILL }
+            FT_BOOLEAN, 16, NULL, ADP_TALK_AUDIO_SRC_BITMASK, NULL, HFILL }
       },
       { &hf_adp_talk_cap_video_src,
          { "VIDEO_SOURCE", "ieee17221.talker_capabilities.video_source",
-            FT_UINT16, BASE_DEC, VALS(avb_bool_vals), ADP_TALK_VIDEO_SRC_BITMASK, NULL, HFILL }
+            FT_BOOLEAN, 16, NULL, ADP_TALK_VIDEO_SRC_BITMASK, NULL, HFILL }
       },
       /* Talker Capability Flags End */
       { &hf_adp_listener_stream_sinks,
@@ -4185,35 +4179,35 @@ proto_register_17221(void)
       /* Listener Capability Flags Begin */
       { &hf_adp_list_cap_implement,
          { "IMPLEMENTED", "ieee17221.listener_capabilities.implemented",
-            FT_UINT16, BASE_DEC, VALS(avb_bool_vals), ADP_LIST_IMPLEMENTED_BITMASK, NULL, HFILL }
+            FT_BOOLEAN, 16, NULL, ADP_LIST_IMPLEMENTED_BITMASK, NULL, HFILL }
       },
       { &hf_adp_list_cap_other_sink,
          { "OTHER_SINK", "ieee17221.listener_capabilities.other_source",
-            FT_UINT16, BASE_DEC, VALS(avb_bool_vals), ADP_LIST_OTHER_SINK_BITMASK, NULL, HFILL }
+            FT_BOOLEAN, 16, NULL, ADP_LIST_OTHER_SINK_BITMASK, NULL, HFILL }
       },
       { &hf_adp_list_cap_control_sink,
          { "CONTROL_SINK", "ieee17221.listener_capabilities.control_source",
-            FT_UINT16, BASE_DEC, VALS(avb_bool_vals), ADP_LIST_CONTROL_SINK_BITMASK, NULL, HFILL }
+            FT_BOOLEAN, 16, NULL, ADP_LIST_CONTROL_SINK_BITMASK, NULL, HFILL }
       },
       { &hf_adp_list_cap_media_clk_sink,
          { "MEDIA_CLOCK_SINK", "ieee17221.listener_capabilities.media_clock_source",
-            FT_UINT16, BASE_DEC, VALS(avb_bool_vals), ADP_LIST_MEDIA_CLK_SINK_BITMASK, NULL, HFILL }
+            FT_BOOLEAN, 16, NULL, ADP_LIST_MEDIA_CLK_SINK_BITMASK, NULL, HFILL }
       },
       { &hf_adp_list_cap_smpte_sink,
          { "SMPTE_SINK", "ieee17221.listener_capabilities.smpte_source",
-            FT_UINT16, BASE_DEC, VALS(avb_bool_vals), ADP_LIST_SMPTE_SINK_BITMASK, NULL, HFILL }
+            FT_BOOLEAN, 16, NULL, ADP_LIST_SMPTE_SINK_BITMASK, NULL, HFILL }
       },
       { &hf_adp_list_cap_midi_sink,
          { "MIDI_SINK", "ieee17221.listener_capabilities.midi_source",
-            FT_UINT16, BASE_DEC, VALS(avb_bool_vals), ADP_LIST_MIDI_SINK_BITMASK, NULL, HFILL }
+            FT_BOOLEAN, 16, NULL, ADP_LIST_MIDI_SINK_BITMASK, NULL, HFILL }
       },
       { &hf_adp_list_cap_audio_sink,
          { "AUDIO_SINK", "ieee17221.listener_capabilities.audio_source",
-            FT_UINT16, BASE_DEC, VALS(avb_bool_vals), ADP_LIST_AUDIO_SINK_BITMASK, NULL, HFILL }
+            FT_BOOLEAN, 16, NULL, ADP_LIST_AUDIO_SINK_BITMASK, NULL, HFILL }
       },
       { &hf_adp_list_cap_video_sink,
          { "VIDEO_SINK", "ieee17221.listener_capabilities.video_source",
-            FT_UINT16, BASE_DEC, VALS(avb_bool_vals), ADP_LIST_VIDEO_SINK_BITMASK, NULL, HFILL }
+            FT_BOOLEAN, 16, NULL, ADP_LIST_VIDEO_SINK_BITMASK, NULL, HFILL }
       },
       /* Listener Capability Flags End */
       { &hf_adp_controller_cap,
@@ -4223,12 +4217,13 @@ proto_register_17221(void)
       /* Controller Capability Flags Begin */
       { &hf_adp_cont_cap_implement,
          { "IMPLEMENTED", "ieee17221.controller_capabilities.implemented",
-            FT_UINT16, BASE_DEC, VALS(avb_bool_vals), ADP_CONT_IMPLEMENTED_BITMASK, NULL, HFILL }
+            FT_BOOLEAN, 16, NULL, ADP_CONT_IMPLEMENTED_BITMASK, NULL, HFILL }
       },
       { &hf_adp_cont_cap_layer3_proxy,
          { "LAYER3_PROXY", "ieee17221.controller_capabilities.layer3_proxy",
-            FT_UINT16, BASE_DEC, VALS(avb_bool_vals), ADP_CONT_LAYER3_PROXY_BITMASK, NULL, HFILL }
+            FT_BOOLEAN, 16, NULL, ADP_CONT_LAYER3_PROXY_BITMASK, NULL, HFILL }
       },
+      /* Controller Capability Flags End */
       { &hf_adp_avail_index,
          { "Available Index", "ieee17221.available_index",
             FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL }
@@ -4249,27 +4244,27 @@ proto_register_17221(void)
       /* Sample rates Begin */
       { &hf_adp_samp_rate_44k1,
          { "44.1kHz", "ieee17221.default_audio_format.sample_rates.44k1",
-            FT_UINT8, BASE_DEC, VALS(avb_bool_vals), ADP_SAMP_RATE_44K1_BITMASK, NULL, HFILL }
+            FT_BOOLEAN, 8, NULL, ADP_SAMP_RATE_44K1_BITMASK, NULL, HFILL }
       },
       { &hf_adp_samp_rate_48k,
          { "48kHz", "ieee17221.default_audio_format.sample_rates.48k",
-            FT_UINT8, BASE_DEC, VALS(avb_bool_vals), ADP_SAMP_RATE_48K_BITMASK, NULL, HFILL }
+            FT_BOOLEAN, 8, NULL, ADP_SAMP_RATE_48K_BITMASK, NULL, HFILL }
       },
       { &hf_adp_samp_rate_88k2,
          { "88.2kHz", "ieee17221.default_audio_format.sample_rates.88k2",
-            FT_UINT8, BASE_DEC, VALS(avb_bool_vals), ADP_SAMP_RATE_88K2_BITMASK, NULL, HFILL }
+            FT_BOOLEAN, 8, NULL, ADP_SAMP_RATE_88K2_BITMASK, NULL, HFILL }
       },
       { &hf_adp_samp_rate_96k,
          { "96kHz", "ieee17221.default_audio_format.sample_rates.96k",
-            FT_UINT8, BASE_DEC, VALS(avb_bool_vals), ADP_SAMP_RATE_96K_BITMASK, NULL, HFILL }
+            FT_BOOLEAN, 8, NULL, ADP_SAMP_RATE_96K_BITMASK, NULL, HFILL }
       },
       { &hf_adp_samp_rate_176k4,
          { "176.4kHz", "ieee17221.default_audio_format.sample_rates.176k4",
-            FT_UINT8, BASE_DEC, VALS(avb_bool_vals), ADP_SAMP_RATE_176K4_BITMASK, NULL, HFILL }
+            FT_BOOLEAN, 8, NULL, ADP_SAMP_RATE_176K4_BITMASK, NULL, HFILL }
       },
       { &hf_adp_samp_rate_192k,
          { "192kHz", "ieee17221.default_audio_format.sample_rates.192k",
-            FT_UINT8, BASE_DEC, VALS(avb_bool_vals), ADP_SAMP_RATE_192K_BITMASK, NULL, HFILL }
+            FT_BOOLEAN, 8, NULL, ADP_SAMP_RATE_192K_BITMASK, NULL, HFILL }
       },
       /* Sample rates End */
       { &hf_adp_def_aud_max_chan,
@@ -4278,11 +4273,11 @@ proto_register_17221(void)
       },
       { &hf_adp_def_aud_saf_flag,
          { "saf", "ieee17221.default_audio_format.saf",
-            FT_UINT16, BASE_DEC, VALS(avb_bool_vals), ADP_DEF_AUDIO_SAF_MASK, NULL, HFILL }
+            FT_BOOLEAN, 16, NULL, ADP_DEF_AUDIO_SAF_MASK, NULL, HFILL }
       },
       { &hf_adp_def_aud_float_flag,
          { "float", "ieee17221.default_audio_format.float",
-            FT_UINT16, BASE_DEC, VALS(avb_bool_vals), ADP_DEF_AUDIO_FLOAT_MASK, NULL, HFILL }
+            FT_BOOLEAN, 16, NULL, ADP_DEF_AUDIO_FLOAT_MASK, NULL, HFILL }
       },
       { &hf_adp_def_aud_chan_formats,
          { "Channel Formats", "ieee17221.default_audio_format.channel_formats",
@@ -4291,67 +4286,67 @@ proto_register_17221(void)
       /* Channel Formats Fields Start */
       { &hf_adp_chan_format_mono,
          { "MONO", "ieee17221.default_audio_format.channel_formats.mono",
-            FT_UINT16, BASE_DEC, VALS(avb_bool_vals), ADP_CHAN_FORMAT_MONO, NULL, HFILL }
+            FT_BOOLEAN, 16, NULL, ADP_CHAN_FORMAT_MONO, NULL, HFILL }
       },
       { &hf_adp_chan_format_2ch,
          { "2_CH", "ieee17221.default_audio_format.channel_formats.2_ch",
-            FT_UINT16, BASE_DEC, VALS(avb_bool_vals), ADP_CHAN_FORMAT_2CH, NULL, HFILL }
+            FT_BOOLEAN, 16, NULL, ADP_CHAN_FORMAT_2CH, NULL, HFILL }
       },
       { &hf_adp_chan_format_3ch,
          { "3_CH", "ieee17221.default_audio_format.channel_formats.3_ch",
-            FT_UINT16, BASE_DEC, VALS(avb_bool_vals), ADP_CHAN_FORMAT_3CH, NULL, HFILL }
+            FT_BOOLEAN, 16, NULL, ADP_CHAN_FORMAT_3CH, NULL, HFILL }
       },
       { &hf_adp_chan_format_4ch,
          { "4_CH", "ieee17221.default_audio_format.channel_formats.4_ch",
-            FT_UINT16, BASE_DEC, VALS(avb_bool_vals), ADP_CHAN_FORMAT_4CH, NULL, HFILL }
+            FT_BOOLEAN, 16, NULL, ADP_CHAN_FORMAT_4CH, NULL, HFILL }
       },
       { &hf_adp_chan_format_5ch,
          { "5_CH", "ieee17221.default_audio_format.channel_formats.5_ch",
-            FT_UINT16, BASE_DEC, VALS(avb_bool_vals), ADP_CHAN_FORMAT_5CH, NULL, HFILL }
+            FT_BOOLEAN, 16, NULL, ADP_CHAN_FORMAT_5CH, NULL, HFILL }
       },
       { &hf_adp_chan_format_6ch,
          { "6_CH", "ieee17221.default_audio_format.channel_formats.6_ch",
-            FT_UINT16, BASE_DEC, VALS(avb_bool_vals), ADP_CHAN_FORMAT_6CH, NULL, HFILL }
+            FT_BOOLEAN, 16, NULL, ADP_CHAN_FORMAT_6CH, NULL, HFILL }
       },
       { &hf_adp_chan_format_7ch,
          { "7_CH", "ieee17221.default_audio_format.channel_formats.7_ch",
-            FT_UINT16, BASE_DEC, VALS(avb_bool_vals), ADP_CHAN_FORMAT_7CH, NULL, HFILL }
+            FT_BOOLEAN, 16, NULL, ADP_CHAN_FORMAT_7CH, NULL, HFILL }
       },
       { &hf_adp_chan_format_8ch,
          { "8_CH", "ieee17221.default_audio_format.channel_formats.8_ch",
-            FT_UINT16, BASE_DEC, VALS(avb_bool_vals), ADP_CHAN_FORMAT_8CH, NULL, HFILL }
+            FT_BOOLEAN, 16, NULL, ADP_CHAN_FORMAT_8CH, NULL, HFILL }
       },
       { &hf_adp_chan_format_10ch,
          { "10_CH", "ieee17221.default_audio_format.channel_formats.10_ch",
-            FT_UINT16, BASE_DEC, VALS(avb_bool_vals), ADP_CHAN_FORMAT_10CH, NULL, HFILL }
+            FT_BOOLEAN, 16, NULL, ADP_CHAN_FORMAT_10CH, NULL, HFILL }
       },
       { &hf_adp_chan_format_12ch,
          { "12_CH", "ieee17221.default_audio_format.channel_formats.12_ch",
-            FT_UINT16, BASE_DEC, VALS(avb_bool_vals), ADP_CHAN_FORMAT_12CH, NULL, HFILL }
+            FT_BOOLEAN, 16, NULL, ADP_CHAN_FORMAT_12CH, NULL, HFILL }
       },
       { &hf_adp_chan_format_14ch,
          { "14_CH", "ieee17221.default_audio_format.channel_formats.14_ch",
-            FT_UINT16, BASE_DEC, VALS(avb_bool_vals), ADP_CHAN_FORMAT_14CH, NULL, HFILL }
+            FT_BOOLEAN, 16, NULL, ADP_CHAN_FORMAT_14CH, NULL, HFILL }
       },
       { &hf_adp_chan_format_16ch,
          { "16_CH", "ieee17221.default_audio_format.channel_formats.16_ch",
-            FT_UINT16, BASE_DEC, VALS(avb_bool_vals), ADP_CHAN_FORMAT_16CH, NULL, HFILL }
+            FT_BOOLEAN, 16, NULL, ADP_CHAN_FORMAT_16CH, NULL, HFILL }
       },
       { &hf_adp_chan_format_18ch,
          { "18_CH", "ieee17221.default_audio_format.channel_formats.18_ch",
-            FT_UINT16, BASE_DEC, VALS(avb_bool_vals), ADP_CHAN_FORMAT_18CH, NULL, HFILL }
+            FT_BOOLEAN, 16, NULL, ADP_CHAN_FORMAT_18CH, NULL, HFILL }
       },
       { &hf_adp_chan_format_20ch,
          { "20_CH", "ieee17221.default_audio_format.channel_formats.20_ch",
-            FT_UINT16, BASE_DEC, VALS(avb_bool_vals), ADP_CHAN_FORMAT_20CH, NULL, HFILL }
+            FT_BOOLEAN, 16, NULL, ADP_CHAN_FORMAT_20CH, NULL, HFILL }
       },
       { &hf_adp_chan_format_22ch,
          { "22_CH", "ieee17221.default_audio_format.channel_formats.22_ch",
-            FT_UINT16, BASE_DEC, VALS(avb_bool_vals), ADP_CHAN_FORMAT_22CH, NULL, HFILL }
+            FT_BOOLEAN, 16, NULL, ADP_CHAN_FORMAT_22CH, NULL, HFILL }
       },
       { &hf_adp_chan_format_24ch,
          { "24_CH", "ieee17221.default_audio_format.channel_formats.24_ch",
-            FT_UINT16, BASE_DEC, VALS(avb_bool_vals), ADP_CHAN_FORMAT_24CH, NULL, HFILL }
+            FT_BOOLEAN, 16, NULL, ADP_CHAN_FORMAT_24CH, NULL, HFILL }
       },
       /* Channel Formats Fields End */
       /* Default Audio Formats Fields End */
@@ -4378,7 +4373,7 @@ proto_register_17221(void)
       },
       { &hf_acmp_cd_length,
          { "Control Data Length", "ieee17221.control_data_length",
-            FT_UINT16, BASE_DEC, NULL, ACMP_CD_LENGTH_MASK, NULL, HFILL }
+           FT_UINT16, BASE_DEC, NULL, ACMP_CD_LENGTH_MASK, NULL, HFILL }
       },
       { &hf_acmp_stream_id,
          { "Stream ID", "ieee17221.stream_id",
@@ -4423,19 +4418,19 @@ proto_register_17221(void)
       /* ACMP Flags Begin */
       { &hf_acmp_flags_class_b,
          { "CLASS_B", "ieee17221.flags.class_b",
-            FT_UINT8, BASE_DEC, VALS(avb_bool_vals), ACMP_FLAG_CLASS_B_BITMASK, NULL, HFILL }
+            FT_BOOLEAN, 8, NULL, ACMP_FLAG_CLASS_B_BITMASK, NULL, HFILL }
       },
       { &hf_acmp_flags_fast_connect,
          { "FAST_CONNECT", "ieee17221.flags.fast_connect",
-            FT_UINT8, BASE_DEC, VALS(avb_bool_vals), ACMP_FLAG_FAST_CONNECT_BITMASK, NULL, HFILL }
+            FT_BOOLEAN, 8, NULL, ACMP_FLAG_FAST_CONNECT_BITMASK, NULL, HFILL }
       },
       { &hf_acmp_flags_saved_state,
          { "SAVED_STATE", "ieee17221.flags.saved_state",
-            FT_UINT8, BASE_DEC, VALS(avb_bool_vals), ACMP_FLAG_SAVED_STATE_BITMASK, NULL, HFILL }
+            FT_BOOLEAN, 8, NULL, ACMP_FLAG_SAVED_STATE_BITMASK, NULL, HFILL }
       },
       { &hf_acmp_flags_streaming_wait,
          { "STREAMING_WAIT", "ieee17221.flags.streaming_wait",
-            FT_UINT8, BASE_DEC, VALS(avb_bool_vals), ACMP_FLAG_STREAMING_WAIT_BITMASK, NULL, HFILL }
+            FT_BOOLEAN, 8, NULL, ACMP_FLAG_STREAMING_WAIT_BITMASK, NULL, HFILL }
       },
       /* ACMP Flags End */
       { &hf_acmp_default_format,
@@ -5847,11 +5842,11 @@ proto_register_17221(void)
       },
       { &hf_aem_div,
          {"Div Flag", "ieee17221.div",
-            FT_BOOLEAN, 8, NULL, 0x00, NULL, HFILL }
+            FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
       },
       { &hf_aem_interlace,
          {"Interlace Flag", "ieee17221.interlace",
-            FT_BOOLEAN, 8, NULL, 0x00, NULL, HFILL }
+            FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
       },
       { &hf_aem_channels,
          {"Video Channel Count", "iee17221.channels",
@@ -6044,3 +6039,16 @@ proto_reg_handoff_17221(void)
    dissector_add_uint("ieee1722.subtype", 0x7B, avb17221_handle);
    dissector_add_uint("ieee1722.subtype", 0x7C, avb17221_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 3
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=3 tabstop=8 expandtab:
+ * :indentSize=3:tabSize=8:noTabs=true:
+ */
