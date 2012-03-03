@@ -710,7 +710,7 @@ get_capture_device_open_failure_messages(const char *open_err_str,
     static const char ppamsg[] = "can't find PPA for ";
 
     /* If we got a "can't find PPA for X" message, warn the user (who
-       is running dumcap on HP-UX) that they don't have a version of
+       is running dumpcap on HP-UX) that they don't have a version of
        libpcap that properly handles HP-UX (libpcap 0.6.x and later
        versions, which properly handle HP-UX, say "can't find /dev/dlpi
        PPA for X" rather than "can't find PPA for X"). */
@@ -2342,7 +2342,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
     if ((use_threads == FALSE) &&
         (capture_opts->ifaces->len > 1)) {
         g_snprintf(errmsg, (gulong) errmsg_len,
-                   "Using threads is required for capturing on mulitple interfaces!");
+                   "Using threads is required for capturing on multiple interfaces!");
         return FALSE;
     }
 
@@ -2607,7 +2607,7 @@ capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *err
     if ((capture_opts->use_pcapng == FALSE) &&
         (capture_opts->ifaces->len > 1)) {
         g_snprintf(errmsg, errmsg_len,
-                   "Using PCAPNG is required for capturing on mulitple interfaces! Use the -n option.");
+                   "Using PCAPNG is required for capturing on multiple interfaces! Use the -n option.");
         return FALSE;
     }
 
@@ -3232,7 +3232,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
         /* init the input filter from the network interface (capture pipe will do nothing) */
         /*
          * When remote capturing WinPCap crashes when the capture filter
-         * is NULL. This might be a bug in WPCap. Therefore we provide an emtpy
+         * is NULL. This might be a bug in WPCap. Therefore we provide an empty
          * string.
          */
         switch (capture_loop_init_filter(pcap_opts->pcap_h, pcap_opts->from_cap_pipe,

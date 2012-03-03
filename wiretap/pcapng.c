@@ -268,7 +268,7 @@ typedef struct wtapng_section_s {
  * if_filter     11  The filter (e.g. "capture only TCP traffic") used to capture traffic. The first byte of the Option Data keeps a code of the filter used (e.g. if this is a libpcap string, or BPF bytecode, and more). More details about this format will be presented in Appendix XXX (TODO). (TODO: better use different options for different fields? e.g. if_filter_pcap, if_filter_bpf, ...) 00 "tcp port 23 and host 10.0.0.5" 
  * if_os         12  A UTF-8 string containing the name of the operating system of the machine in which this interface is installed. This can be different from the same information that can be contained by the Section Header Block (Section 3.1 (Section Header Block (mandatory))) because the capture can have been done on a remote machine. "Windows XP SP2" / "openSUSE 10.2" / ... 
  * if_fcslen     13  An integer value that specified the length of the Frame Check Sequence (in bits) for this interface. For link layers whose FCS length can change during time, the Packet Block Flags Word can be used (see Appendix A (Packet Block Flags Word)). 4 
- * if_tsoffset   14  A 64 bits integer value that specifies an offset (in seconds) that must be added to the timestamp of each packet to obtain the absolute timestamp of a packet. If the option is missing, the timestamps stored in the packet must be considered absolute timestamps. The time zone of the offset can be specified with the option if_tzone. TODO: won't a if_tsoffset_low for fractional second offsets be useful for highly syncronized capture systems? 1234 
+ * if_tsoffset   14  A 64 bits integer value that specifies an offset (in seconds) that must be added to the timestamp of each packet to obtain the absolute timestamp of a packet. If the option is missing, the timestamps stored in the packet must be considered absolute timestamps. The time zone of the offset can be specified with the option if_tzone. TODO: won't a if_tsoffset_low for fractional second offsets be useful for highly synchronized capture systems? 1234 
  */
 
 typedef struct wtapng_if_descr_s {
@@ -379,8 +379,8 @@ typedef struct interface_data_s {
 } interface_data_t;
 
 typedef struct {
-	gboolean shb_read;						/**< Set when fisrt SHB read, second read will fail */
-	gboolean read_idbs;						/**< Idicates that it is the first read after a SHB, atl east one IDB is expected */
+	gboolean shb_read;						/**< Set when first SHB read, second read will fail */
+	gboolean read_idbs;						/**< Indicates that it is the first read after a SHB, at least one IDB is expected */
 	gboolean byte_swapped;
 	guint16 version_major;
 	guint16 version_minor;
@@ -695,7 +695,7 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 		      wblock->data.if_descr.snap_len);
 
 	if (wblock->data.if_descr.snap_len > WTAP_MAX_PACKET_SIZE) {
-		/* This is unrealisitic, but text2pcap currently uses 102400.
+		/* This is unrealistic, but text2pcap currently uses 102400.
 		 * We do not use this value, maybe we should check the
 		 * snap_len of the packets against it. For now, only warn.
 		 */
@@ -860,7 +860,7 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 			 * if_tsoffset   14  A 64 bits integer value that specifies an offset (in seconds) that must be added to the timestamp of each packet
 			 * to obtain the absolute timestamp of a packet. If the option is missing, the timestamps stored in the packet must be considered absolute timestamps. 
 			 * The time zone of the offset can be specified with the option if_tzone. 
-			 * TODO: won't a if_tsoffset_low for fractional second offsets be useful for highly syncronized capture systems? 1234 
+			 * TODO: won't a if_tsoffset_low for fractional second offsets be useful for highly synchronized capture systems? 1234 
 			 */
 		    default:
 			pcapng_debug2("pcapng_read_if_descr_block: unknown option %u - ignoring %u bytes",
@@ -1899,7 +1899,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
 	wth->interface_data = g_array_new(FALSE, FALSE, sizeof(wtapng_if_descr_t));
 	wth->number_of_interfaces = 0;
 
-	/* Loop ower all IDB:s that appear before any packets */
+	/* Loop over all IDB:s that appear before any packets */
 	while(1){
 		bytes_read = pcapng_read_block(wth->fh, FALSE, &pn, &wblock, err, err_info);
 		wth->data_offset += bytes_read;
@@ -2176,7 +2176,7 @@ pcapng_write_section_header_block(wtap_dumper *wdh, int *err)
 			options_total_length = options_total_length + shb_user_appl_len + shb_user_appl_pad_len + 4 /* options tag */ ;
 		}
 		if (have_options) {
-			/* End-of-optios tag */
+			/* End-of-options tag */
 			options_total_length += 4;
 		}
 	}
@@ -2433,7 +2433,7 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_if_descr_t *int_data, int *
 	 */
 
 	if (have_options) {
-		/* End-of-optios tag */
+		/* End-of-options tag */
 		options_total_length += 4;
 	}
 
@@ -3160,7 +3160,7 @@ int pcapng_dump_can_write_encap(int wtap_encap)
 	              wtap_encap,
 	              wtap_encap_string(wtap_encap));
 
-	/* Per-packet encapsulations is supported. */
+	/* Per-packet encapsulation is supported. */
 	if (wtap_encap == WTAP_ENCAP_PER_PACKET)
 		return 0;
 
