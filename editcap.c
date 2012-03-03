@@ -829,6 +829,8 @@ main(int argc, char *argv[])
   struct wtap_pkthdr snap_phdr;
   const struct wtap_pkthdr *phdr;
   int err_type;
+  wtapng_section_t *shb_hdr;
+  wtapng_iface_descriptions_t *idb_inf;
   guint8 *buf;
   guint32 read_count = 0;
   int split_packet_count = 0;
@@ -1100,6 +1102,9 @@ main(int argc, char *argv[])
             wtap_file_type_string(wtap_file_type(wth)));
   }
 
+  shb_hdr = wtap_file_get_shb_info(wth);
+  idb_inf = wtap_file_get_idb_info(wth);
+
   /*
    * Now, process the rest, if any ... we only write if there is an extra
    * argument or so ...
@@ -1140,9 +1145,9 @@ main(int argc, char *argv[])
         } else
           filename = g_strdup(argv[optind+1]);
 
-        pdh = wtap_dump_open(filename, out_file_type, out_frame_type,
+        pdh = wtap_dump_open_ng(filename, out_file_type, out_frame_type,
           snaplen ? MIN(snaplen, wtap_snapshot_length(wth)) : wtap_snapshot_length(wth),
-          FALSE /* compressed */, &err);
+          FALSE /* compressed */, shb_hdr, idb_inf, &err);
         if (pdh == NULL) {
           fprintf(stderr, "editcap: Can't open or create %s: %s\n", filename,
                   wtap_strerror(err));
