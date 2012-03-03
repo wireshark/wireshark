@@ -2783,7 +2783,16 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh,
 	wdh->bytes_dumped += sizeof bh;
 
 	/* write block fixed content */
-	epb.interface_id	= phdr->interface_id;
+	if (phdr->presence_flags & WTAP_HAS_INTERFACE_ID)
+		epb.interface_id	= phdr->interface_id;
+	else {
+		/*
+		 * XXX - we should support writing WTAP_ENCAP_PER_PACKET
+		 * data to pcap-NG files even if we *don't* have interface
+		 * IDs.
+		 */
+		epb.interface_id	= 0;
+	}
 	/* Split the 64-bit timestamp into two 32-bit pieces */
 	ts = (((guint64)phdr->ts.secs) * 1000000) + (phdr->ts.nsecs / 1000);
 	epb.timestamp_high	= (guint32)(ts >> 32);
