@@ -2319,7 +2319,7 @@ protocol or field labels to the proto_tree:
 		ett, fields, little_endian, flags);
 
         proto_item *
-        proto_tree_add_split_bits_ret_val(tree, hf_index, tvb, bit_offset,
+        proto_tree_add_split_bits_item_ret_val(tree, hf_index, tvb, bit_offset,
                 crumb_spec, return_value);
 
         void 
@@ -2680,7 +2680,7 @@ proto_tree_add_bits_ret_val()
 -----------------------------
 Works in the same way but also returns the value of the read bits.
 
-proto_tree_add_split_bits_ret_val()
+proto_tree_add_split_bits_item_ret_val()
 -----------------------------------
 Similar, but is used for items that are made of 2 or more smaller sets of bits (crumbs)
 which are not contiguous, but are concatenated to form the actual value.  The size of 
