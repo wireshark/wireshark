@@ -666,9 +666,10 @@ channelised_fill_sdh_g707_format(sdh_g707_format_t* in_fmt, guint16 bit_flds, gu
 static void
 channelised_fill_vc_id_string(char* out_string, int maxstrlen, sdh_g707_format_t* in_fmt)
 {
-  int i = 0;
-  int cur_len = 0, print_index = 0;
-  guint8 is_printed = 0;
+  int      i;
+  int      print_index;
+  gboolean is_printed  = FALSE;
+
   static char* g_vc_size_strings[] =  {
                   "unknown", /* 0x0 */
                   "VC3", /*0x1*/
@@ -678,18 +679,24 @@ channelised_fill_vc_id_string(char* out_string, int maxstrlen, sdh_g707_format_t
                   "VC4-64c", /*0x5*/
                   "VC4-256c", /*0x6*/};
 
-  print_index = g_snprintf(out_string, maxstrlen,"%s(",g_vc_size_strings[in_fmt->m_vc_size]);
+  print_index = g_snprintf(out_string, maxstrlen, "%s(",
+                           (in_fmt->m_vc_size < array_length(g_vc_size_strings)) ?
+                           g_vc_size_strings[in_fmt->m_vc_size] : g_vc_size_strings[0] );
 
   if (in_fmt->m_sdh_line_rate <= 0 )
   {
     /* line rate is not given */
     for (i = (DECHAN_MAX_AUG_INDEX -1); i >= 0; i--)
     {
-      if ( (in_fmt->m_vc_index_array[i] > 0) || (is_printed) )
+      if (print_index >= (maxstrlen-1))
+        break;
+      if ((in_fmt->m_vc_index_array[i] > 0) || (is_printed) )
       {
-        cur_len = g_snprintf(out_string+print_index, maxstrlen,"%s%d",((is_printed)?", ":""),     in_fmt->m_vc_index_array[i]);
-        print_index += cur_len;
-        is_printed = 1;
+        print_index += g_snprintf(out_string+print_index, maxstrlen-print_index,
+                                  "%s%d",
+                                  ((is_printed)?", ":""),
+                                  in_fmt->m_vc_index_array[i]);
+        is_printed = TRUE;
       }
     }
 
@@ -698,9 +705,13 @@ channelised_fill_vc_id_string(char* out_string, int maxstrlen, sdh_g707_format_t
   {
     for (i = in_fmt->m_sdh_line_rate - 2; i >= 0; i--)
     {
-      cur_len = g_snprintf(out_string+print_index, maxstrlen,"%s%d",((is_printed)?", ":""),     in_fmt->m_vc_index_array[i]);
-      print_index += cur_len;
-      is_printed = 1;
+      if (print_index >= (maxstrlen-1))
+        break;
+      print_index += g_snprintf(out_string+print_index, maxstrlen-print_index,
+                                "%s%d",
+                                ((is_printed)?", ":""),
+                                in_fmt->m_vc_index_array[i]);
+      is_printed = TRUE;
     }
   }
   if ( ! is_printed )
@@ -708,12 +719,16 @@ channelised_fill_vc_id_string(char* out_string, int maxstrlen, sdh_g707_format_t
     /* Not printed . possibly its a ocXc packet with (0,0,0...) */
     for ( i =0; i < in_fmt->m_vc_size - 2; i++)
     {
-      cur_len = g_snprintf(out_string+print_index, maxstrlen,"%s0",((is_printed)?", ":""));
-      print_index += cur_len;
-      is_printed = 1;
+      if (print_index >= (maxstrlen-1))
+        break;
+      print_index += g_snprintf(out_string+print_index, maxstrlen-print_index,
+                                "%s0",
+                                ((is_printed)?", ":""));
+      is_printed = TRUE;
     }
   }
-  g_snprintf(out_string+print_index, maxstrlen, ")");
+  if (print_index < (maxstrlen-1))
+    g_snprintf(out_string+print_index, maxstrlen-print_index, ")");
   return;
 }
 
