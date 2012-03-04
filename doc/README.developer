@@ -1905,7 +1905,7 @@ Extended value strings can be created at run time by calling
                         <value_string_name>);
 
 For hf[] array FT_(U)INT* fields that need a 'valstringname_ext' struct, the
-'strings' field would be set to '&valstringname_ext)'. Furthermore, 'display'
+'strings' field would be set to '&valstringname_ext'. Furthermore, the 'display'
 field must be ORed with 'BASE_EXT_STRING' (e.g. BASE_DEC|BASE_EXT_STRING).
 
 
