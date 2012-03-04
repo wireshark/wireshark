@@ -2546,7 +2546,7 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_if_descr_t *int_data, int *
 	 */
 	if (int_data->if_filter_str) {
 		have_options = TRUE;
-		if_filter_str_len = (guint32)strlen(int_data->if_filter_str) & 0xffff+1;
+		if_filter_str_len = (guint32)(strlen(int_data->if_filter_str) + 1) & 0xffff;
 		if ((if_filter_str_len % 4)) {
 			if_filter_str_pad_len = 4 - (if_filter_str_len % 4);
 		} else {
