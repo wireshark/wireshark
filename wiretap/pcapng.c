@@ -2465,7 +2465,7 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_if_descr_t *int_data, int *
 	struct option option_hdr;                   /* guint16 type, guint16 value_length; */
 	guint32 options_total_length = 0;
 	guint32 comment_len = 0, if_name_len = 0, if_description_len = 0 , if_os_len = 0, if_filter_str_len = 0;
-	guint32 comment_pad_len = 0, if_name_pad_len = 0, if_description_pad_len = 0, if_os_pad_len = 0, if_filter_str_pad_len;
+	guint32 comment_pad_len = 0, if_name_pad_len = 0, if_description_pad_len = 0, if_os_pad_len = 0, if_filter_str_pad_len = 0;
 
 
 	pcapng_debug3("pcapng_write_if_descr_block: encap = %d (%s), snaplen = %d",
