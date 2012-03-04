@@ -714,7 +714,9 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 	/* XXX: if_EUIaddr */
 	wblock->data.if_descr.if_speed = 0;			/* "unknown" */
 	wblock->data.if_descr.if_tsresol = 6;			/* default is 6 for microsecond resolution */
-	wblock->data.if_descr.if_filter = NULL;
+	wblock->data.if_descr.if_filter_str = NULL;
+	wblock->data.if_descr.bpf_filter_len = 0;
+	wblock->data.if_descr.if_filter_bpf_bytes = NULL;
 	wblock->data.if_descr.if_os = NULL;
 	wblock->data.if_descr.if_fcslen = -1;			/* unknown or changes between packets */
 	/* XXX: guint64	if_tsoffset; */
@@ -827,8 +829,17 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 			 */
 		    case(11): /* if_filter */
 			if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
-				wblock->data.if_descr.if_filter = g_strndup(option_content, oh.option_length);
-				pcapng_debug1("pcapng_read_if_descr_block: if_filter %s", wblock->data.if_descr.if_filter);
+				/* The first byte of the Option Data keeps a code of the filter used (e.g. if this is a libpcap string,
+				 * or BPF bytecode.
+				 */
+				if (option_content[0] == 0){
+					wblock->data.if_descr.if_filter_str = g_strndup(option_content+1, oh.option_length-1);
+					pcapng_debug1("pcapng_read_if_descr_block: if_filter_str %s", wblock->data.if_descr.if_filter_str);
+				}else if(option_content[0] == 1) {
+					wblock->data.if_descr.bpf_filter_len = oh.option_length-1;
+					wblock->data.if_descr.if_filter_bpf_bytes = g_malloc(oh.option_length-1);
+					memcpy(&wblock->data.if_descr.if_filter_bpf_bytes, option_content+1, oh.option_length-1);
+				}
 			} else {
 				pcapng_debug1("pcapng_read_if_descr_block: if_filter length %u seems strange", oh.option_length);
 			}
@@ -2055,7 +2066,9 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
 		int_data.if_speed = wblock.data.if_descr.if_speed;
 		int_data.if_tsresol = wblock.data.if_descr.if_tsresol;
 		/* XXX: if_tzone      10  Time zone for GMT support (TODO: specify better). */
-		int_data.if_filter = wblock.data.if_descr.if_filter;
+		int_data.if_filter_str = wblock.data.if_descr.if_filter_str;
+		int_data.bpf_filter_len = wblock.data.if_descr.bpf_filter_len;
+		int_data.if_filter_bpf_bytes = wblock.data.if_descr.if_filter_bpf_bytes;
 		int_data.if_os = wblock.data.if_descr.if_os;
 		int_data.if_fcslen = wblock.data.if_descr.if_fcslen;
 		/* XXX if_tsoffset; opt 14  A 64 bits integer value that specifies an offset (in seconds)...*/
@@ -2451,8 +2464,8 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_if_descr_t *int_data, int *
 	gboolean have_options = FALSE;
 	struct option option_hdr;                   /* guint16 type, guint16 value_length; */
 	guint32 options_total_length = 0;
-	guint32 comment_len = 0, if_name_len = 0, if_description_len = 0 , if_os_len = 0;
-	guint32 comment_pad_len = 0, if_name_pad_len = 0, if_description_pad_len = 0, if_os_pad_len = 0;
+	guint32 comment_len = 0, if_name_len = 0, if_description_len = 0 , if_os_len = 0, if_filter_str_len = 0;
+	guint32 comment_pad_len = 0, if_name_pad_len = 0, if_description_pad_len = 0, if_os_pad_len = 0, if_filter_str_pad_len;
 
 
 	pcapng_debug3("pcapng_write_if_descr_block: encap = %d (%s), snaplen = %d",
@@ -2531,7 +2544,15 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_if_descr_t *int_data, int *
 	 * if_filter     11  The filter (e.g. "capture only TCP traffic") used to capture traffic.
 	 * The first byte of the Option Data keeps a code of the filter used (e.g. if this is a libpcap string, or BPF bytecode, and more).
 	 */
-	if (int_data->if_filter) {
+	if (int_data->if_filter_str) {
+		have_options = TRUE;
+		if_filter_str_len = (guint32)strlen(int_data->if_filter_str) & 0xffff+1;
+		if ((if_filter_str_len % 4)) {
+			if_filter_str_pad_len = 4 - (if_filter_str_len % 4);
+		} else {
+			if_filter_str_pad_len = 0;
+		}
+		options_total_length = options_total_length + if_filter_str_len + if_filter_str_pad_len + 4 /* comment options tag */ ;
 	}
 	/*
 	 * if_os         12  A UTF-8 string containing the name of the operating system of the machine in which this interface is installed. 
@@ -2580,7 +2601,7 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_if_descr_t *int_data, int *
 	wdh->bytes_dumped += sizeof idb;
 
 	/* XXX - write (optional) block options */
-	if (comment_len) {
+	if (comment_len != 0) {
 		option_hdr.type		 = OPT_COMMENT;
 		option_hdr.value_length = comment_len;
 		if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
@@ -2603,7 +2624,7 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_if_descr_t *int_data, int *
 	/*
 	 * if_name        2  A UTF-8 string containing the name of the device used to capture data.
 	 */
-	if (if_name_len) {
+	if (if_name_len !=0) {
 		option_hdr.type = IDB_OPT_IF_NAME;
 		option_hdr.value_length = if_name_len;
 		if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
@@ -2626,7 +2647,7 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_if_descr_t *int_data, int *
 	/*
 	 * if_description 3  A UTF-8 string containing the description of the device used to capture data. 
 	 */
-	if (if_description_len) {
+	if (if_description_len != 0) {
 		option_hdr.type		 = IDB_OPT_IF_NAME;
 		option_hdr.value_length = if_description_len;
 		if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
@@ -2697,10 +2718,36 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_if_descr_t *int_data, int *
 	/*
 	 * if_filter     11  The filter (e.g. "capture only TCP traffic") used to capture traffic. 
 	 */
+	/* Libpcap string variant */
+	if (if_filter_str_len !=0) {
+		option_hdr.type		 = IDB_OPT_IF_FILTER;
+		option_hdr.value_length = if_filter_str_len;
+		if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
+			return FALSE;
+		wdh->bytes_dumped += 4;
+
+		/* Write the zero indicaling libpcap filter variant */
+		if (!wtap_dump_file_write(wdh, &zero_pad, 1, err))
+			return FALSE;
+		wdh->bytes_dumped += 1;
+
+		/* Write the comments string */
+		pcapng_debug3("pcapng_write_if_descr_block, if_filter_str:'%s' if_filter_str_len %u if_filter_str_pad_len %u" , int_data->if_filter_str, if_filter_str_len, if_filter_str_len);
+		if (!wtap_dump_file_write(wdh, int_data->if_filter_str, if_filter_str_len, err))
+			return FALSE;
+		wdh->bytes_dumped += comment_len;
+
+		/* write padding (if any) */
+		if (if_filter_str_pad_len != 0) {
+			if (!wtap_dump_file_write(wdh, &zero_pad, if_filter_str_pad_len, err))
+				return FALSE;
+			wdh->bytes_dumped += if_filter_str_pad_len;
+		}
+	}
 	/*
 	 * if_os         12  A UTF-8 string containing the name of the operating system of the machine in which this interface is installed. 
 	 */
-	if (if_os_len) {
+	if (if_os_len != 0) {
 		option_hdr.type		 = IDB_OPT_IF_OS;
 		option_hdr.value_length = if_os_len;
 		if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))

@@ -1020,7 +1020,9 @@ wtap_dumper* wtap_dump_open_ng(const char *filename, int filetype, int encap,
 		descr.if_description = NULL;
 		descr.if_speed = 0;
 		descr.if_tsresol = 6;
-		descr.if_filter= NULL;
+		descr.if_filter_str= NULL;
+		descr.bpf_filter_len= 0;
+		descr.if_filter_bpf_bytes= NULL;
 		descr.if_os = NULL;
 		descr.if_fcslen = -1;
 		wdh->number_of_interfaces= 1;

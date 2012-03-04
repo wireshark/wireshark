@@ -907,29 +907,29 @@ typedef struct wtapng_iface_descriptions_s {
  * Interface description data
  */
 typedef struct wtapng_if_descr_s {
-	int					wtap_encap;    /**< link_type translated to wtap_encap */
+	int					wtap_encap;				/**< link_type translated to wtap_encap */
 	guint64				time_units_per_second;
 	/* mandatory */
 	guint16				link_type;
 	guint32				snap_len;
 	/* options */
-	gchar				*opt_comment;	/**< NULL if not available */
-	gchar				*if_name;		/**< NULL if not available, opt 2 A UTF-8 string containing the name of the device used to capture data. */
-	gchar				*if_description;/**< NULL if not available, opt 3 A UTF-8 string containing the description of the device used to capture data. */
+	gchar				*opt_comment;			/**< NULL if not available */
+	gchar				*if_name;				/**< NULL if not available, opt 2 A UTF-8 string containing the name of the device used to capture data. */
+	gchar				*if_description;		/**< NULL if not available, opt 3 A UTF-8 string containing the description of the device used to capture data. */
 	/* XXX: if_IPv4addr opt 4  Interface network address and netmask.*/
 	/* XXX: if_IPv6addr opt 5  Interface network address and prefix length (stored in the last byte).*/
 	/* XXX: if_MACaddr  opt 6  Interface Hardware MAC address (48 bits).*/
 	/* XXX: if_EUIaddr  opt 7  Interface Hardware EUI address (64 bits)*/
-	guint64				if_speed;	/**< 0xFFFFFFFF if unknown, opt 8  Interface speed (in bps). 100000000 for 100Mbps */
-	guint8				if_tsresol;	/**< default is 6 for microsecond resolution, opt 9  Resolution of timestamps. 
-									 * If the Most Significant Bit is equal to zero, the remaining bits indicates the resolution of the timestamp as as a negative power of 10
-									 */
+	guint64				if_speed;				/**< 0xFFFFFFFF if unknown, opt 8  Interface speed (in bps). 100000000 for 100Mbps */
+	guint8				if_tsresol;				/**< default is 6 for microsecond resolution, opt 9  Resolution of timestamps. 
+												 * If the Most Significant Bit is equal to zero, the remaining bits indicates the resolution of the timestamp as as a negative power of 10
+												 */
 	/* XXX: if_tzone      10  Time zone for GMT support (TODO: specify better). */
-	gchar				*if_filter;	/**< NULL if not available, opt 11  The filter (e.g. "capture only TCP traffic") used to capture traffic.
-									 * The first byte of the Option Data keeps a code of the filter used (e.g. if this is a libpcap string, or BPF bytecode, and more).
-									 */
-	gchar				*if_os;		/**< NULL if not available, 12  A UTF-8 string containing the name of the operating system of the machine in which this interface is installed. */
-	gint8				if_fcslen;	/**< -1 if unknown or changes between packets, opt 13  An integer value that specified the length of the Frame Check Sequence (in bits) for this interface. */
+	gchar				*if_filter_str;			/**< NULL if not available, opt 11  libpcap string. */
+	guint16				bpf_filter_len;			/** Opt 11 variant II BPF filter len 0 if not used*/
+	gchar				*if_filter_bpf_bytes;	/** Opt 11 BPF filter or NULL */
+	gchar				*if_os;					/**< NULL if not available, 12  A UTF-8 string containing the name of the operating system of the machine in which this interface is installed. */
+	gint8				if_fcslen;				/**< -1 if unknown or changes between packets, opt 13  An integer value that specified the length of the Frame Check Sequence (in bits) for this interface. */
 	/* XXX: guint64	if_tsoffset; opt 14  A 64 bits integer value that specifies an offset (in seconds)...*/
 } wtapng_if_descr_t;
 
