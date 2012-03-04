@@ -6671,11 +6671,11 @@ static int netlogon_dissect_neg_options(tvbuff_t *tvb,proto_tree *tree,guint32 f
           hf_netlogon_neg_flags_2000000,
           tvb, offset, 4, flags);
           proto_tree_add_boolean (negotiate_flags_tree,
-          hf_netlogon_neg_flags_1000000,
-          tvb, offset, 4, flags);
-          proto_tree_add_boolean (negotiate_flags_tree,
           hf_netlogon_neg_flags_800000,
           tvb, offset, 4, flags);*/
+        proto_tree_add_boolean (negotiate_flags_tree,
+                                hf_netlogon_neg_flags_1000000,
+                                tvb, offset, 4, flags);
         proto_tree_add_boolean (negotiate_flags_tree,
                                 hf_netlogon_neg_flags_400000,
                                 tvb, offset, 4, flags);
@@ -8821,7 +8821,7 @@ proto_register_dcerpc_netlogon(void)
           { "Not used 2000000", "ntlmssp.neg_flags.na200000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_2000000, "Not used", HFILL }},
 
         { &hf_netlogon_neg_flags_1000000,
-          { "Not used 1000000", "ntlmssp.neg_flags.na100000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_1000000, "Not used", HFILL }},
+          { "AES supported", "ntlmssp.neg_flags.na100000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_1000000, "AES", HFILL }},
 
         { &hf_netlogon_neg_flags_800000,
           { "Not used 800000", "ntlmssp.neg_flags.na8000000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_800000, "Not used", HFILL }},
