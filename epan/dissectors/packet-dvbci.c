@@ -150,6 +150,7 @@
 #define RES_CLASS_RM  0x01
 #define RES_CLASS_AP  0x02
 #define RES_CLASS_CA  0x03
+#define RES_CLASS_AUT 0x10
 #define RES_CLASS_HC  0x20
 #define RES_CLASS_DT  0x24
 #define RES_CLASS_MMI 0x40
@@ -411,6 +412,10 @@ dissect_dvbci_payload_ca(guint32 tag, gint len_field,
         tvbuff_t *tvb, gint offset, packet_info *pinfo,
         proto_tree *tree);
 static void
+dissect_dvbci_payload_aut(guint32 tag, gint len_field _U_,
+        tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
+        proto_tree *tree);
+static void
 dissect_dvbci_payload_hc(guint32 tag, gint len_field _U_,
         tvbuff_t *tvb, gint offset, packet_info *pinfo,
         proto_tree *tree);
@@ -465,6 +470,8 @@ dissect_dvbci_payload_sas(guint32 tag, gint len_field _U_,
 #define T_CA_INFO                       0x9F8031
 #define T_CA_PMT                        0x9F8032
 #define T_CA_PMT_REPLY                  0x9F8033
+#define T_AUTH_REQ                      0x9F8200
+#define T_AUTH_RESP                     0x9F8201
 #define T_TUNE                          0x9F8400
 #define T_REPLACE                       0x9F8401
 #define T_CLEAR_REPLACE                 0x9F8402
@@ -562,6 +569,9 @@ static const apdu_info_t apdu_info[] = {
     {T_CA_PMT,              6, LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_ca},
     {T_CA_PMT_REPLY,        8, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_ca},
 
+    {T_AUTH_REQ,            2, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_aut},
+    {T_AUTH_RESP,           2, LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_aut},
+
     {T_TUNE,                0, 8,             DATA_CAM_TO_HOST, dissect_dvbci_payload_hc},
     {T_REPLACE,             0, 5,             DATA_CAM_TO_HOST, dissect_dvbci_payload_hc},
     {T_CLEAR_REPLACE,       0, 1,             DATA_CAM_TO_HOST, dissect_dvbci_payload_hc},
@@ -658,6 +668,8 @@ static const value_string dvbci_apdu_tag[] = {
     { T_CA_INFO,                       "CA info" },
     { T_CA_PMT,                        "CA PMT" },
     { T_CA_PMT_REPLY,                  "CA PMT reply" },
+    { T_AUTH_REQ,                      "Authentication request" },
+    { T_AUTH_RESP,                     "Authentication response" },
     { T_TUNE,                          "Tune" },
     { T_REPLACE,                       "Replace" },
     { T_CLEAR_REPLACE,                 "Clear replace" },
@@ -823,6 +835,9 @@ static int hf_dvbci_descr_len = -1;
 static int hf_dvbci_ca_pid = -1;
 static int hf_dvbci_ca_enable_flag = -1;
 static int hf_dvbci_ca_enable = -1;
+static int hf_dvbci_auth_proto_id = -1;
+static int hf_dvbci_auth_req_bytes = -1;
+static int hf_dvbci_auth_resp_bytes = -1;
 static int hf_dvbci_network_id = -1;
 static int hf_dvbci_original_network_id = -1;
 static int hf_dvbci_transport_stream_id = -1;
@@ -1115,6 +1130,7 @@ static const value_string dvbci_res_class[] = {
     { RES_CLASS_RM,  "Resource Manager" },
     { RES_CLASS_AP,  "Application Info" },
     { RES_CLASS_CA,  "Conditional Access" },
+    { RES_CLASS_AUT, "Authentication" },
     { RES_CLASS_HC,  "Host Control" },
     { RES_CLASS_DT,  "Date-Time" },
     { RES_CLASS_MMI, "Man-machine interface (MMI)" },
@@ -2390,6 +2406,32 @@ dissect_dvbci_payload_ca(guint32 tag, gint len_field,
                 pinfo->cinfo, COL_INFO, NULL, "descrambling possible");
         }
      }
+}
+
+
+static void
+dissect_dvbci_payload_aut(guint32 tag, gint len_field _U_,
+        tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
+        proto_tree *tree)
+{
+    gint bytes_len;
+
+    proto_tree_add_item(tree, hf_dvbci_auth_proto_id,
+            tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    bytes_len = tvb_reported_length_remaining(tvb, offset);
+    if (bytes_len <= 0)
+        return;
+
+    if (tag==T_AUTH_REQ) {
+        proto_tree_add_item(tree, hf_dvbci_auth_req_bytes,
+            tvb, offset, bytes_len, ENC_BIG_ENDIAN);
+    }
+    else if (tag==T_AUTH_RESP) {
+        proto_tree_add_item(tree, hf_dvbci_auth_resp_bytes,
+            tvb, offset, bytes_len, ENC_BIG_ENDIAN);
+    }
 }
 
 
@@ -4503,6 +4545,15 @@ proto_register_dvbci(void)
         { &hf_dvbci_ca_enable,
             { "CA enable", "dvb-ci.ca.ca_enable", FT_UINT8, BASE_HEX,
                 VALS(dvbci_ca_enable), 0x7F, NULL, HFILL } },
+         { &hf_dvbci_auth_proto_id,
+           { "Authentication protocol ID", "dvb-ci.aut.proto_id", FT_UINT16,
+               BASE_HEX, NULL, 0, NULL, HFILL } },
+         { &hf_dvbci_auth_req_bytes,
+           { "Authentication request data", "dvb-ci.aut.req", FT_BYTES,
+               BASE_NONE, NULL, 0, NULL, HFILL } },
+         { &hf_dvbci_auth_resp_bytes,
+           { "Authentication response data", "dvb-ci.aut.resp", FT_BYTES,
+               BASE_NONE, NULL, 0, NULL, HFILL } },
          { &hf_dvbci_network_id,
            { "Network ID", "dvb-ci.hc.nid", FT_UINT16, BASE_HEX,
               NULL, 0, NULL, HFILL } },
