@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2012-02-24
+# 2012-03-02
 # 
 # Note
 # 
@@ -14155,7 +14155,8 @@ snss	11171/udp	# Surgical Notes Security      [David_Lethe]                     
 oemcacao-jmxmp	11172/tcp	# OEM cacao JMX-remoting       [David_Sechrest]                          [David_Sechrest]                                          2010-09-22
 # access point
 # 11172       udp    Reserved
-# 11173              Unassigned
+t5-straton	11173/tcp	# Straton Runtime Programing   [COPALP]                                  [Jerome_FOLLUT]                                           2012-03-01
+# 11173       udp    Reserved
 oemcacao-rmi	11174/tcp	# OEM cacao rmi registry       [David_Sechrest]                          [David_Sechrest]                                          2010-09-22
 # access point
 # 11174       udp    Reserved
@@ -15603,6 +15604,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # aeroflex                              software                     [David_Hagood]                            [David_Hagood]                                                                                                                                    (optional) ID of licensed product
 # txtvers="*IDN?=<identifier>" (optional) as per LXI
 # specification (for not yet LXI compatible instruments)
+# airdrop                        tcp    Airdrop                      [Apple_Inc]                               [Marc_Krochmal_2]                                         2012-03-02                                                                              Defined TXT keys: flags, phash, ehash, cname
 # airport                               AirPort Base Station         [Bob_Bradley_2]                           [Bob_Bradley_2]                                                                                                                                   Defined TXT keys: waMA;
 # Defined TXT keys: mac=<MAC address> ip=<IP address>
 # airprojector                          AirProjector                 [Yoshinori_Nakayama]                      [Yoshinori_Nakayama]                                                                                                                              note=<Location> use=<Status> mainprog=<Main program version>
@@ -16530,6 +16532,9 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # tri-vis-server                        triCerat Simplify Visibility [Christopher_Karper]                      [Christopher_Karper]                                                                                                                              Defined TXT keys: None
 # Server
 # tryst                                 Tryst                        [Francisco_Ryan_Tolma]                    [Francisco_Ryan_Tolma]                                                                                                                            Defined TXT keys: None
+# The Social Broadband                                                                                                                                                                                                     Defined TXT keys: there is no TXT keys defined for this
+# tsbiis                         tcp    Interference Information     [Sergio_Luis]                             [Sergio_Luis]                                             2012-02-27                                                                              protocol
+# Sharing
 # tt4inarow                             Trivial Technology's 4 in a  [Nicolas_Payette]                         [Nicolas_Payette]                                                                                                                                 Defined TXT keys: None
 # Row
 # ttcheckers                            Trivial Technology's         [Nicolas_Payette]                         [Nicolas_Payette]                                                                                                                                 Defined TXT keys: None
@@ -16924,6 +16929,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Anush_Kumar]                                             Anush Kumar                                     mailto:anushk&microsoft.com
 # [Apple]                                                                             Apple                 mailto:vaughan&apple.com                                      2011-10-12
 # [Apple_2]                                                                           Apple                 mailto:justin.ko&apple.com                                    2011-10-20
+# [Apple_Inc]                                                                         Apple Inc.            mailto:marc&apple.com                                         2012-03-02
 # [AppMac_Software]                                         AppMac Software                                 mailto:appmac&appmac.com
 # [Apple_Computer]                                          Apple Computer                                  mailto:perftools-feedback&group.apple.com
 # [Archishmat_Gore]                                         Archishmat Gore                                 mailto:archisgore&yahoo.com                                   2004-11
@@ -17434,6 +17440,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Conny_Larsson]                                           Conny Larsson                                   mailto:cocke&vnet.ibm.com
 # [Control_Technology_Inc]                                                            Control Technology    mailto:ceskew&controltechnology.com                           2011-10-28
 # Inc.
+# [COPALP]                                                                            COPALP                mailto:jf&copalp.com                                          2012-03-01
 # [Corey_Burnett]                                           Corey Burnett                                   mailto:corey.burnett&biopop.com
 # [Corey_Clinton]                                           Corey Clinton                                   mailto:ccclinton&travisassoc.com                              2011-02-02
 # [Corey_Corrick]                                           Corey Corrick                                   mailto:corey.corrick&flamenconetworks.com
@@ -18603,6 +18610,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Jerome_AERTS]                                            Jerome AERTS                                    mailto:info&pcsoft.fr                                         2010-11-30
 # [Jerome_Albin]                                            Jerome Albin                                    mailto:albin&taec.enet.dec.com
 # [Jerome_Dusautois]                                        Jerome Dusautois                                mailto:jdusautois&scrypto.fr                                  2002-03
+# [Jerome_FOLLUT]                                           Jerome FOLLUT             COPALP                mailto:jf&copalp.com                                          2012-03-01
 # [Jerome_Forissier]                                        Jerome Forissier                                mailto:Jerome.Forissier&hp.com                                2005-12
 # [Jerome_Grimbert]                                         Jerome Grimbert                                 mailto:jerome.grimbert&atosorigin.com
 # [Jerome_Laheurte]                                         Jerome Laheurte                                 mailto:fraca7&users.sourceforge.net
@@ -19202,6 +19210,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Marc_Goossens]                                           Marc Goossens                                   mailto:mgoossens&eiba.com                                     2003-01
 # [Marc_Horowitz]                                           Marc Horowitz                                   mailto:marc&mit.edu
 # [Marc_Krochmal]                                           Marc Krochmal                                   mailto:marc&apple.com
+# [Marc_Krochmal_2]                                         Marc Krochmal             Apple Inc.            mailto:marc&apple.com                                         2012-03-02
 # [Marc_Majka]                                              Marc Majka                                      mailto:majka&apple.com                                        2002-08
 # [Marc_Manthey]                                            Marc Manthey                                    mailto:codewarrior&cuseeme.de                                 2006-07
 # [Marc_Manthey_2]                                          Marc Manthey                                    mailto:marc&let.de
@@ -20467,6 +20476,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Sergey_Bolshedvorsky]                                    Sergey Bolshedvorsky      Smart Apps LTD        mailto:info&smartapps.co                                      2011-10-11
 # [Sergey_Burnevsky]                                        Sergey Burnevsky                                mailto:sergey.burnevsky&nokia.com                             2006-08
 # [Sergio_Heker]                                            Sergio Heker                                    mailto:heker&jvncc.csc.org
+# [Sergio_Luis]                                             Sergio Luis Dias Lima                           mailto:slgramacho&gmail.com                                   2012-02-27
+# Gramacho
 # [Serguei_Osokine]                                         Serguei Osokine                                 mailto:osokin&paragraph.com
 # [Serguei_Tevs]                                            Serguei Tevs                                    mailto:STevs&ivecon.com                                       2002-02
 # [Service_Desk_Product]                                    Service Desk Product                            mailto:info&hp.com                                            2006-05
