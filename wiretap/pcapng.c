@@ -1344,7 +1344,52 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
 #define NRES_IP6RECORD 2
 #define PADDING4(x) ((((x + 3) >> 2) << 2) - x)
 /* IPv6 + MAXNAMELEN */
-#define MAX_NRB_REC_SIZE (16 + 64)
+#define INITIAL_NRB_REC_SIZE (16 + 64)
+
+/*
+ * Find the end of the NUL-terminated name the beginning of which is pointed
+ * to by p; record_len is the number of bytes remaining in the record.
+ *
+ * Return the length of the name, including the terminating NUL.
+ *
+ * If we don't find the terminating NUL, or if the name is zero-length
+ * (not counting the terminating NUL), return -1 and set *err and
+ * *err_info appropriately.
+ */
+static int
+name_resolution_block_find_name_end(guint8 *p, guint record_len, int *err,
+    gchar **err_info)
+{
+	int namelen;
+
+	namelen = 0;
+	for (;;) {
+		if (record_len == 0) {
+			/*
+			 * We ran out of bytes in the record without
+			 * finding a NUL.
+			 */
+			*err = WTAP_ERR_BAD_FILE;
+			*err_info = g_strdup("pcapng_read_name_resolution_block: NRB record has non-null-terminated host name");
+			return -1;
+		}
+		if (*p == '\0')
+			break;	/* that's the terminating NUL */
+		p++;
+		record_len--;
+		namelen++;	/* count this byte */
+	}
+	if (namelen == 0) {
+		/* The name is empty. */
+		*err = WTAP_ERR_BAD_FILE;
+		*err_info = g_strdup("pcapng_read_name_resolution_block: NRB record has empty host name");
+		return -1;
+	}
+
+	/* Include the NUL in the name length. */
+	return namelen + 1;
+}
+
 static int
 pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wtapng_block_t *wblock _U_,int *err, gchar **err_info)
 {
@@ -1353,8 +1398,11 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t
 	int to_read;
 	guint64 file_offset64;
 	pcapng_name_resolution_block_t nrb;
-	guint8 nrb_rec[MAX_NRB_REC_SIZE];
+	Buffer nrb_rec;
 	guint32 v4_addr;
+	guint record_len;
+	guint8 *namep;
+	int namelen;
 
 	/*
 	 * Is this block long enough to be an NRB?
@@ -1374,12 +1422,18 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t
 	
 	pcapng_debug1("pcapng_read_name_resolution_block, total %d bytes", bh->block_total_length);
 
+	/*
+	 * Start out with a buffer big enough for an IPv6 address and one
+	 * 64-byte name; we'll make the buffer bigger if necessary.
+	 */
+	buffer_init(&nrb_rec, INITIAL_NRB_REC_SIZE);
 	while (block_read < to_read) {
 		/*
 		 * There must be at least one record's worth of data
 		 * here.
 		 */
 		if ((size_t)(to_read - block_read) < sizeof nrb) {
+			buffer_free(&nrb_rec);
 			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup_printf("pcapng_read_name_resolution_block: %d bytes left in the block < NRB record header size %u",
 				      to_read - block_read,
@@ -1388,6 +1442,7 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t
 		}
 		bytes_read = file_read(&nrb, sizeof nrb, fh);
 		if (bytes_read != sizeof nrb) {
+			buffer_free(&nrb_rec);
 			pcapng_debug0("pcapng_read_name_resolution_block: failed to read record header");
 			*err = file_error(fh, err_info);
 			return 0;
@@ -1400,6 +1455,7 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t
 		}
 
 		if (to_read - block_read < nrb.record_len + PADDING4(nrb.record_len)) {
+			buffer_free(&nrb_rec);
 			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup_printf("pcapng_read_name_resolution_block: %d bytes left in the block < NRB record length + padding %u",
 				      to_read - block_read,
@@ -1412,18 +1468,32 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t
 				to_read = 0;
 				break;
 			case NRES_IP4RECORD:
+				/*
+				 * The smallest possible record must have
+				 * a 4-byte IPv4 address, hence a minimum
+				 * of 4 bytes.
+				 *
+				 * (The pcap-NG spec really indicates
+				 * that it must be at least 5 bytes,
+				 * as there must be at least one name,
+				 * and it really must be at least 6
+				 * bytes, as the name mustn't be null,
+				 * but there's no need to fail if there
+				 * aren't any names at all, and we
+				 * should report a null name as such.)
+				 */
 				if (nrb.record_len < 4) {
+					buffer_free(&nrb_rec);
 					*err = WTAP_ERR_BAD_FILE;
 					*err_info = g_strdup_printf("pcapng_read_name_resolution_block: NRB record length for IPv4 record %u < minimum length 4",
 						      nrb.record_len);
 					return -1;
 				}
-				if (nrb.record_len > MAX_NRB_REC_SIZE) {
-					pcapng_debug0("pcapng_read_name_resolution_block: bad length or insufficient data for IPv4 record");
-					return 0;
-				}
-				bytes_read = file_read(nrb_rec, nrb.record_len, fh);
+				buffer_assure_space(&nrb_rec, nrb.record_len);
+				bytes_read = file_read(buffer_start_ptr(&nrb_rec),
+				    nrb.record_len, fh);
 				if (bytes_read != nrb.record_len) {
+					buffer_free(&nrb_rec);
 					pcapng_debug0("pcapng_read_name_resolution_block: failed to read IPv4 record data");
 					*err = file_error(fh, err_info);
 					return 0;
@@ -1431,14 +1501,33 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t
 				block_read += bytes_read;
 
 				if (pn->add_new_ipv4) {
-					memcpy(&v4_addr, nrb_rec, 4);
+					/*
+					 * Scan through all the names in
+					 * the record and add them.
+					 */
+					memcpy(&v4_addr,
+					    buffer_start_ptr(&nrb_rec), 4);
 					if (pn->byte_swapped)
 						v4_addr = BSWAP32(v4_addr);
-					pn->add_new_ipv4(v4_addr, nrb_rec + 4);
+					for (namep = buffer_start_ptr(&nrb_rec) + 4, record_len = nrb.record_len - 4;
+					    record_len != 0;
+					    namep += namelen, record_len -= namelen) {
+						/*
+						 * Scan forward for a null
+						 * byte.
+						 */
+						namelen = name_resolution_block_find_name_end(namep, record_len, err, err_info);
+						if (namelen == -1) {
+							buffer_free(&nrb_rec);
+							return -1;	/* fail */
+						}
+						pn->add_new_ipv4(v4_addr, namep);
+					}
 				}
 
 				file_offset64 = file_seek(fh, PADDING4(nrb.record_len), SEEK_CUR, err);
 				if (file_offset64 <= 0) {
+					buffer_free(&nrb_rec);
 					if (*err != 0)
 						return -1;
 					return 0;
@@ -1446,18 +1535,37 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t
 				block_read += PADDING4(nrb.record_len);
 				break;
 			case NRES_IP6RECORD:
+				/*
+				 * The smallest possible record must have
+				 * a 16-byte IPv6 address, hence a minimum
+				 * of 16 bytes.
+				 *
+				 * (The pcap-NG spec really indicates
+				 * that it must be at least 17 bytes,
+				 * as there must be at least one name,
+				 * and it really must be at least 18
+				 * bytes, as the name mustn't be null,
+				 * but there's no need to fail if there
+				 * aren't any names at all, and we
+				 * should report a null name as such.)
+				 */
 				if (nrb.record_len < 16) {
+					buffer_free(&nrb_rec);
 					*err = WTAP_ERR_BAD_FILE;
 					*err_info = g_strdup_printf("pcapng_read_name_resolution_block: NRB record length for IPv6 record %u < minimum length 16",
 						      nrb.record_len);
 					return -1;
 				}
-				if (nrb.record_len > MAX_NRB_REC_SIZE || to_read < nrb.record_len) {
-					pcapng_debug0("pcapng_read_name_resolution_block: bad length or insufficient data for IPv6 record");
+				if (to_read < nrb.record_len) {
+					buffer_free(&nrb_rec);
+					pcapng_debug0("pcapng_read_name_resolution_block: insufficient data for IPv6 record");
 					return 0;
 				}
-				bytes_read = file_read(nrb_rec, nrb.record_len, fh);
+				buffer_assure_space(&nrb_rec, nrb.record_len);
+				bytes_read = file_read(buffer_start_ptr(&nrb_rec),
+				    nrb.record_len, fh);
 				if (bytes_read != nrb.record_len) {
+					buffer_free(&nrb_rec);
 					pcapng_debug0("pcapng_read_name_resolution_block: failed to read IPv6 record data");
 					*err = file_error(fh, err_info);
 					return 0;
@@ -1465,11 +1573,26 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t
 				block_read += bytes_read;
 
 				if (pn->add_new_ipv6) {
-					pn->add_new_ipv6(nrb_rec, nrb_rec + 16);
+					for (namep = buffer_start_ptr(&nrb_rec) + 16, record_len = nrb.record_len - 16;
+					    record_len != 0;
+					    namep += namelen, record_len -= namelen) {
+						/*
+						 * Scan forward for a null
+						 * byte.
+						 */
+						namelen = name_resolution_block_find_name_end(namep, record_len, err, err_info);
+						if (namelen == -1) {
+							buffer_free(&nrb_rec);
+							return -1;	/* fail */
+						}
+						pn->add_new_ipv6(buffer_start_ptr(&nrb_rec),
+						    namep);
+					}
 				}
 
 				file_offset64 = file_seek(fh, PADDING4(nrb.record_len), SEEK_CUR, err);
 				if (file_offset64 <= 0) {
+					buffer_free(&nrb_rec);
 					if (*err != 0)
 						return -1;
 					return 0;
@@ -1480,6 +1603,7 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t
 				pcapng_debug1("pcapng_read_name_resolution_block: unknown record type 0x%x", nrb.record_type);
 				file_offset64 = file_seek(fh, nrb.record_len + PADDING4(nrb.record_len), SEEK_CUR, err);
 				if (file_offset64 <= 0) {
+					buffer_free(&nrb_rec);
 					if (*err != 0)
 						return -1;
 					return 0;
@@ -1489,6 +1613,7 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t
 		}
 	}
 
+	buffer_free(&nrb_rec);
 	return block_read;
 }
 
