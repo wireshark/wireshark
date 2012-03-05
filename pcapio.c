@@ -492,7 +492,7 @@ libpcap_write_interface_description_block(FILE *fp,
 	}
 
 	/* write filter string if applicable
-	 * We only write version 1 of the fileter, libpcap string 
+	 * We only write version 1 of the filter, libpcap string 
 	 */
 	if ((filter != NULL) && (strlen(filter) > 0) && (strlen(filter) < G_MAXUINT16)) {
 		option.type = IDB_FILTER;
@@ -502,8 +502,8 @@ libpcap_write_interface_description_block(FILE *fp,
 		/* The first byte of the Option Data keeps a code of the filter used, 0 = lipbpcap filter string */
 		WRITE_DATA(fp, &padding, 1, *bytes_written, err);
 		WRITE_DATA(fp, filter, strlen(filter) + 1, *bytes_written, err);
-		if ((strlen(filter) + 1) % 4) {
-			WRITE_DATA(fp, &padding, 4 - (strlen(filter) + 1) % 4 , *bytes_written, err);
+		if ((strlen(filter) + 2) % 4) {
+			WRITE_DATA(fp, &padding, 4 - (strlen(filter) + 2) % 4 , *bytes_written, err);
 		}
 	}
 

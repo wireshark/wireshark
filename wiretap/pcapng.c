@@ -834,7 +834,7 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 				 */
 				if (option_content[0] == 0){
 					wblock->data.if_descr.if_filter_str = g_strndup(option_content+1, oh.option_length-1);
-					pcapng_debug1("pcapng_read_if_descr_block: if_filter_str %s", wblock->data.if_descr.if_filter_str);
+					pcapng_debug2("pcapng_read_if_descr_block: if_filter_str %s oh.option_length %u", wblock->data.if_descr.if_filter_str, oh.option_length);
 				}else if(option_content[0] == 1) {
 					wblock->data.if_descr.bpf_filter_len = oh.option_length-1;
 					wblock->data.if_descr.if_filter_bpf_bytes = g_malloc(oh.option_length-1);
