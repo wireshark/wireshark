@@ -42,8 +42,8 @@ set(CPACK_PACKAGE_INSTALL_DIRECTORY "/usr")
 # Linux/Unix: DEB, RPM, STGZ, TBZ2, TZ, SOURCE_TZ, SOURCE_TGZ
 # OSX:        PACKAGEMAKER, OSXX11
 # Syntax: "Type1;Type2;Type3"
-set(CPACK_GENERATOR "TGZ")
-#set(CPACK_SOURCE_GENERATOR "TGZ")
+set(CPACK_GENERATOR "TBZ2")
+set(CPACK_SOURCE_GENERATOR "TBZ2")
 
 #===============================================
 # IF(APPLE)
