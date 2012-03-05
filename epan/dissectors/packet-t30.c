@@ -644,6 +644,7 @@ dissect_t30_partial_page_request(tvbuff_t *tvb, int offset, packet_info *pinfo, 
         for (;bit;) {
             if (octet & bit) {
                 ++frame_count;
+                DISSECTOR_ASSERT((buf_top-buf) < BUF_SIZE);
                 buf_top += g_snprintf(buf_top, BUF_SIZE - (gulong)(buf_top - buf), "%u, ", frame);
             }
             bit >>= 1;
