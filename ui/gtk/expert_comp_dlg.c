@@ -57,6 +57,15 @@
 
 enum
 {
+    NO_COLUMN_C_TABLE,
+    SUMMARY_COLUMN_C_TABLE,
+    FOREGROUND_COLOR_COL_C_TABLE,
+    BACKGROUND_COLOR_COL_C_TABLE,
+    N_COLUMNS_COMMENT_TBL
+};
+
+enum
+{
     NO_COLUMN,
     SEVERITY_COLUMN,
     GROUP_COLUMN,
@@ -76,7 +85,6 @@ typedef struct _expert_comp_dlg_t {
     GtkWidget *warn_label;
     GtkWidget *error_label;
     GtkWidget *all_label;
-    error_equiv_table pkt_comments_table;
     error_equiv_table chat_table;
     error_equiv_table note_table;
     error_equiv_table warn_table;
@@ -93,6 +101,8 @@ struct expert_tapdata_s {
 	GtkWidget	*win;
 	GtkWidget	*scrolled_window;
 	GtkTreeView *tree_view;
+	GtkWidget	*scrolled_window_comments;
+	GtkTreeView *tree_view_comments;
 	GtkWidget	*label;
 	guint32		pkt_comments_events;
 	guint32		disp_events;
@@ -100,7 +110,7 @@ struct expert_tapdata_s {
 	guint32		note_events;
 	guint32		warn_events;
 	guint32		error_events;
-	int		severity_report_level;
+	int			severity_report_level;
 
 	GArray		*ei_array;	/* expert info items */
 	guint		first;
@@ -247,11 +257,9 @@ error_reset(void *pss)
 
     gtk_label_set_text( GTK_LABEL(ss->all_label), "Details: 0");
 
-	reset_error_table_data(&ss->pkt_comments_table);
-    buf = g_strdup_printf("Packet Coments: %u (0)", ss->pkt_comments_table.num_procs);
-    gtk_label_set_text( GTK_LABEL(ss->pkt_comments_label), buf);
-    g_free(buf);
-    error_set_title(ss);
+    gtk_label_set_text( GTK_LABEL(ss->pkt_comments_label), "Packet comments: 0");
+
+	error_set_title(ss);
 }
 
 static gboolean
@@ -289,7 +297,6 @@ error_packet(void *pss, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const v
     case PI_COMMENT:
         ss->disp_events++; /* Count ? */
         ss->pkt_comments_events++;
-        init_error_table_row(&ss->pkt_comments_table, error_pkt);
         break;
     default:
         return FALSE; /* Don't draw */
@@ -324,7 +331,7 @@ expert_comp_draw(void *data)
     gtk_label_set_text( GTK_LABEL(ss->all_label), buf);
     g_free(buf);
 
-    buf = g_strdup_printf("Packet Comments: %u (%u)", ss->pkt_comments_table.num_procs, ss->pkt_comments_events);
+    buf = g_strdup_printf("Packet Comments: %u", ss->pkt_comments_events);
     gtk_label_set_text( GTK_LABEL(ss->pkt_comments_label), buf);
     g_free(buf);
 
@@ -348,7 +355,6 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
     free_error_table_data(&ss->warn_table);
     free_error_table_data(&ss->note_table);
     free_error_table_data(&ss->chat_table);
-    free_error_table_data(&ss->pkt_comments_table);
     g_free(ss);
 
 }
@@ -377,6 +383,103 @@ static expert_tapdata_t * expert_dlg_new_table(void)
     etd->text = g_string_chunk_new(100);
     etd->severity_report_level = PI_COMMENT;
     return etd;
+}
+
+
+static void
+expert_dlg_init_comments_table(expert_tapdata_t * etd, GtkWidget *vbox)
+{
+    GtkListStore *store;
+    GtkWidget *tree;
+    GtkTreeViewColumn *column;
+    GtkCellRenderer *renderer;
+    GtkTreeSortable *sortable;
+    GtkTreeSelection  *selection;
+
+    /* Create the store */
+    store = gtk_list_store_new(N_COLUMNS_COMMENT_TBL,        /* Total number of columns */
+                               G_TYPE_UINT,      /* No                      */
+							   G_TYPE_POINTER,   /* Summary                 */
+                               G_TYPE_STRING,    /* forground               */
+                               G_TYPE_STRING);   /* Background              */
+
+    /* Create a view */
+    tree = gtk_tree_view_new_with_model (GTK_TREE_MODEL (store));
+    etd->tree_view_comments = GTK_TREE_VIEW(tree);
+    sortable = GTK_TREE_SORTABLE(store);
+
+    /* Speed up the list display */
+    gtk_tree_view_set_fixed_height_mode(etd->tree_view_comments, TRUE);
+
+    /* Setup the sortable columns */
+    gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW (tree), FALSE);
+
+    /* The view now holds a reference.  We can get rid of our own reference */
+    g_object_unref (G_OBJECT (store));
+
+    /* Let the font be the default one to have the same look as the rest of the tabs
+	 * Bug https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4388
+	 * gtk_widget_modify_font(GTK_WIDGET (etd->tree_view), user_font_get_regular());
+	 */
+
+    /* Create a cell renderer */
+    renderer = gtk_cell_renderer_text_new ();
+    g_object_set(renderer, "ypad", 0, NULL);
+    g_object_set(renderer, "xalign", 1.0, NULL);
+
+    /* Create the first column, associating the "text" attribute of the
+     * cell_renderer to the first column of the model */
+    /* No */
+    column = gtk_tree_view_column_new_with_attributes ("No", renderer,
+        "text", NO_COLUMN_C_TABLE,
+        "foreground", FOREGROUND_COLOR_COL_C_TABLE,
+        "background", BACKGROUND_COLOR_COL_C_TABLE,
+        NULL);
+    gtk_tree_view_column_set_sort_column_id(column, NO_COLUMN_C_TABLE);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 40);
+    gtk_tree_view_append_column (etd->tree_view_comments, column);
+
+
+    /* Summary. */
+    renderer = gtk_cell_renderer_text_new ();
+    g_object_set(renderer, "ypad", 0, NULL);
+    column = gtk_tree_view_column_new_with_attributes ("Summary", renderer,
+        "foreground", FOREGROUND_COLOR_COL_C_TABLE,
+        "background", BACKGROUND_COLOR_COL_C_TABLE,
+        NULL);
+	gtk_tree_view_column_set_cell_data_func(column, renderer, str_ptr_data_func,
+		GINT_TO_POINTER(SUMMARY_COLUMN_C_TABLE), NULL);
+
+	gtk_tree_sortable_set_sort_func(sortable, SUMMARY_COLUMN, str_ptr_sort_func,
+		GINT_TO_POINTER(SUMMARY_COLUMN_C_TABLE), NULL);
+
+    gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+    gtk_tree_view_column_set_min_width(column, 90);
+    gtk_tree_view_column_set_sort_column_id(column, SUMMARY_COLUMN_C_TABLE);
+    gtk_tree_view_column_set_resizable(column, TRUE);
+    gtk_tree_view_append_column (etd->tree_view_comments, column);
+
+    gtk_tree_view_set_search_column (etd->tree_view_comments, SUMMARY_COLUMN_C_TABLE); /* Allow searching the summary */
+    gtk_tree_view_set_reorderable (etd->tree_view_comments, TRUE);   /* Allow user to reorder data with drag n drop */
+
+    /* Now enable the sorting of each column */
+    gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(etd->tree_view_comments), TRUE);
+    gtk_tree_view_set_headers_clickable(GTK_TREE_VIEW(etd->tree_view_comments), TRUE);
+
+    /* Setup the selection handler */
+    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(etd->tree_view_comments));
+    gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
+
+    g_signal_connect (G_OBJECT (selection), "changed", /* select_row */
+                  G_CALLBACK (select_row_cb),
+                  NULL);
+
+    etd->scrolled_window_comments=scrolled_window_new(NULL, NULL);
+    gtk_container_add(GTK_CONTAINER(etd->scrolled_window_comments), GTK_WIDGET (etd->tree_view_comments));
+
+    gtk_box_pack_start(GTK_BOX(vbox), etd->scrolled_window_comments, TRUE, TRUE, 0);
 }
 
 static void
@@ -546,7 +649,7 @@ expert_dlg_draw(void *data)
     expert_info_t *ei;
     gchar *title;
     const char *entries[2];   /**< column entries */
-    GtkListStore *list_store;
+    GtkListStore *list_store, *comments_list_store;
     GtkTreeIter iter;
     gchar *color_str = NULL;
     guint packet_no = 0;
@@ -561,6 +664,9 @@ expert_dlg_draw(void *data)
             g_free(title);
         }
     }
+
+    list_store = GTK_LIST_STORE(gtk_tree_view_get_model(etd->tree_view)); /* Get store */
+	comments_list_store = GTK_LIST_STORE(gtk_tree_view_get_model(etd->tree_view_comments)); 
 
     /* append new events (remove from new list, append to displayed list and clist) */
     while(etd->first < etd->last){
@@ -597,6 +703,12 @@ expert_dlg_draw(void *data)
         switch(ei->severity) {
         case(PI_COMMENT):
             color_str = expert_color_comment_str;
+			gtk_list_store_insert_with_values( comments_list_store , &iter, G_MAXINT,
+						NO_COLUMN_C_TABLE, packet_no,
+                        SUMMARY_COLUMN_C_TABLE, entries[1],
+	                    FOREGROUND_COLOR_COL_C_TABLE, expert_color_foreground_str,
+	                    BACKGROUND_COLOR_COL_C_TABLE, color_str,
+	                    -1);
             break;
         case(PI_CHAT):
             color_str = expert_color_chat_str;
@@ -614,7 +726,6 @@ expert_dlg_draw(void *data)
             g_assert_not_reached();
         }
 
-        list_store = GTK_LIST_STORE(gtk_tree_view_get_model(etd->tree_view)); /* Get store */
 
         /* Creates a new row at position. iter will be changed to point to this new row.
          * If position is larger than the number of rows on the list, then the new row will be appended to the list.
@@ -654,7 +765,7 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
     expert_comp_dlg_t *ss;
     const char *filter=NULL;
     GString *error_string;
-    GtkWidget *temp_page, *details_page;
+    GtkWidget *temp_page, *details_page, *comments_page;
     GtkWidget *main_nb;
     GtkWidget *vbox;
     GtkWidget *hbox;
@@ -751,13 +862,12 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
     gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), details_page, ss->all_label);
 
     /* Paket comments */
-    temp_page = gtk_vbox_new(FALSE, 6);
+    comments_page = gtk_vbox_new(FALSE, 6);
     ss->pkt_comments_label = gtk_label_new("Packet Comments: 0/y");
     gtk_widget_show(ss->pkt_comments_label);
     hbox = gtk_hbox_new(FALSE, 3);
     gtk_container_add(GTK_CONTAINER(hbox), ss->pkt_comments_label);
-    gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), temp_page, hbox);
-    init_error_table(&ss->pkt_comments_table, 0, temp_page);
+    gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), comments_page, hbox);
 
 	etd = expert_dlg_new_table();
     etd->label=gtk_label_new("Please wait ...");
@@ -765,6 +875,7 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
 
     etd->win=ss->win;
     expert_dlg_init_table(etd, details_page);
+    expert_dlg_init_comments_table(etd, comments_page);
 
     /* Add tap listener functions for expert details, From expert_dlg.c*/
     error_string=register_tap_listener("expert", etd, NULL /* fstring */,
