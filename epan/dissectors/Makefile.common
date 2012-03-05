@@ -1192,7 +1192,6 @@ DISSECTOR_INCLUDES =	\
 	packet-dsp.h	\
 	packet-dtn.h	\
 	packet-enip.h	\
-	packet-erf.h	\
 	packet-dvmrp.h	\
 	packet-e164.h   \
 	packet-e212.h   \
