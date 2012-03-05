@@ -60,9 +60,10 @@ mp2t_read_data(guint8 *dest, int length, int *err, gchar **err_info, FILE_T fh)
     int bytes_read;
 
     bytes_read = file_read(dest, length, fh);
-    if (MP2T_SIZE != bytes_read) {
+    if (length != bytes_read) {
         *err = file_error(fh, err_info);
-        if (*err == 0) {
+        /* bytes_read==0 is end of file, not a short read */
+        if (bytes_read>0 && *err == 0) {
             *err = WTAP_ERR_SHORT_READ;
         }
         return FALSE;
