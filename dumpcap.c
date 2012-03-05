@@ -2464,7 +2464,8 @@ capture_loop_close_output(capture_options *capture_opts, loop_data *ld, int *err
         return ringbuf_libpcap_dump_close(&capture_opts->save_file, err_close);
     } else {
         if (capture_opts->use_pcapng) {
-            libpcap_write_interface_statistics_block(ld->pdh, 0, ld->pcap_h, &ld->bytes_written, err_close);
+            if (!ld->from_cap_pipe)
+                libpcap_write_interface_statistics_block(ld->pdh, 0, ld->pcap_h, &ld->bytes_written, err_close);
         }
         return libpcap_dump_close(ld->pdh, err_close);
     }
