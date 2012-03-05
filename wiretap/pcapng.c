@@ -2722,6 +2722,7 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_if_descr_t *int_data, int *
 	if (if_filter_str_len !=0) {
 		option_hdr.type		 = IDB_OPT_IF_FILTER;
 		option_hdr.value_length = if_filter_str_len;
+		/* if_filter_str_len includes the leading byte indicating filter type (libpcap str or BPF code) */
 		if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
 			return FALSE;
 		wdh->bytes_dumped += 4;
@@ -2733,7 +2734,8 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_if_descr_t *int_data, int *
 
 		/* Write the comments string */
 		pcapng_debug3("pcapng_write_if_descr_block, if_filter_str:'%s' if_filter_str_len %u if_filter_str_pad_len %u" , int_data->if_filter_str, if_filter_str_len, if_filter_str_len);
-		if (!wtap_dump_file_write(wdh, int_data->if_filter_str, if_filter_str_len, err))
+		/* if_filter_str_len includes the leading byte indicating filter type (libpcap str or BPF code) */
+		if (!wtap_dump_file_write(wdh, int_data->if_filter_str, if_filter_str_len-1, err))
 			return FALSE;
 		wdh->bytes_dumped += comment_len;
 
