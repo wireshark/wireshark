@@ -1445,7 +1445,7 @@ decode_ip_device_routing(proto_tree *tree _U_,
 			offset++;
 			length--;
 
-			while(length > 0)
+			while(length > 0 && tone_nb_entries)
 			{
 				for(i = 1; i <= tone_nb_entries; i++)
 				{
