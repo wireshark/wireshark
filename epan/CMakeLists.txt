@@ -891,6 +891,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-pcep.c
 	dissectors/packet-pcli.c
 	dissectors/packet-pcnfsd.c
+	dissectors/packet-pcp.c
 	dissectors/packet-pdcp-lte.c
 	dissectors/packet-per.c
 	dissectors/packet-pflog.c

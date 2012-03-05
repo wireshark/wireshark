@@ -810,6 +810,7 @@ DISSECTOR_SRC = \
 	packet-pcep.c		\
 	packet-pcli.c		\
 	packet-pcnfsd.c		\
+	packet-pcp.c		\
 	packet-pdcp-lte.c	\
 	packet-per.c		\
 	packet-pflog.c		\
