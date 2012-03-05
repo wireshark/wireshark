@@ -5849,7 +5849,7 @@ proto_register_17221(void)
             FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
       },
       { &hf_aem_channels,
-         {"Video Channel Count", "iee17221.channels",
+         {"Video Channel Count", "ieee17221.channels",
             FT_UINT8, BASE_DEC, NULL, AEM_MASK_CHANNELS, NULL, HFILL }
       },
       { &hf_aem_color_format,
