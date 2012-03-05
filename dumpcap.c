@@ -2208,7 +2208,7 @@ cap_pipe_dispatch(loop_data *ld, pcap_options *pcap_opts, guchar *data, char *er
         g_snprintf(errmsg, errmsgl, "cap_pipe_dispatch: invalid state");
         result = PD_ERR;
 
-    } /* switch (ld->cap_pipe_state) */
+    } /* switch (pcap_opts->cap_pipe_state) */
 
     /*
      * We've now read as much data as we were expecting, so process it.
