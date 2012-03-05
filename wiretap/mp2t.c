@@ -153,6 +153,19 @@ mp2t_open(wtap *wth, int *err, gchar **err_info)
     if (-1 == file_seek(wth->fh, first, SEEK_SET, err)) {
         return -1;
     }
+    /* read the first 10 packets and make sure they all start with a sync byte */
+    for (i = 0; i < 10; i++) {
+       bytes_read = file_read(buffer, sizeof(buffer), wth->fh);
+       if (bytes_read < 0)
+          return -1;  /* read error */
+       if (bytes_read < (int)sizeof(buffer))
+          break;  /* file has < 10 packets, that's ok if we're still in sync */
+       if (buffer[0] != MP2T_SYNC_BYTE)
+          return 0;  /* not a valid mpeg2 ts */
+    }
+    if (-1 == file_seek(wth->fh, first, SEEK_SET, err)) {
+        return -1;
+    }
 
     wth->file_type = WTAP_FILE_MPEG_2_TS;
     wth->file_encap = WTAP_ENCAP_MPEG_2_TS;
