@@ -1421,7 +1421,6 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
 
     atm_hdr = tvb_get_ntohl(tvb, 0);
-    aal2_cid = ((struct erf_aal2_hdrx *)(&pinfo->pseudo_header->erf.subhdr.mc_hdr))->byte0;
 
     /* Change wtap pseudo_header from erf to atm for atm dissector */
     memset(&pinfo->pseudo_header->atm, 0, sizeof(pinfo->pseudo_header->atm));
