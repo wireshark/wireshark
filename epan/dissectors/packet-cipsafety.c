@@ -48,39 +48,39 @@ static dissector_handle_t cip_class_s_supervisor_handle;
 static dissector_handle_t cip_class_s_validator_handle;
 
 /* CIP Safety field identifiers */
-static int hf_cipsafety_data                 = -1;
-static int hf_cipsafety_mode_byte            = -1;
-static int hf_cipsafety_mode_byte_run_idle   = -1;
-static int hf_cipsafety_mode_byte_not_run_idle = -1;
-static int hf_cipsafety_mode_byte_tbd_2_bit  = -1;
-static int hf_cipsafety_mode_byte_tbd_2_copy = -1;
-static int hf_cipsafety_mode_byte_ping_count = -1;
-static int hf_cipsafety_mode_byte_tbd        = -1;
-static int hf_cipsafety_mode_byte_not_tbd    = -1;
-static int hf_cipsafety_crc_s1               = -1;
-static int hf_cipsafety_crc_s2               = -1;
-static int hf_cipsafety_crc_s3               = -1;
-static int hf_cipsafety_timestamp            = -1;
-static int hf_cipsafety_ack_byte             = -1;
+static int hf_cipsafety_data                      = -1;
+static int hf_cipsafety_mode_byte                 = -1;
+static int hf_cipsafety_mode_byte_run_idle        = -1;
+static int hf_cipsafety_mode_byte_not_run_idle    = -1;
+static int hf_cipsafety_mode_byte_tbd_2_bit       = -1;
+static int hf_cipsafety_mode_byte_tbd_2_copy      = -1;
+static int hf_cipsafety_mode_byte_ping_count      = -1;
+static int hf_cipsafety_mode_byte_tbd             = -1;
+static int hf_cipsafety_mode_byte_not_tbd         = -1;
+static int hf_cipsafety_crc_s1                    = -1;
+static int hf_cipsafety_crc_s2                    = -1;
+static int hf_cipsafety_crc_s3                    = -1;
+static int hf_cipsafety_timestamp                 = -1;
+static int hf_cipsafety_ack_byte                  = -1;
 static int hf_cipsafety_ack_byte_ping_count_reply = -1;
-static int hf_cipsafety_ack_byte_reserved1   = -1;
-static int hf_cipsafety_ack_byte_ping_response = -1;
-static int hf_cipsafety_ack_byte_reserved2   = -1;
-static int hf_cipsafety_ack_byte_parity_even = -1;
-static int hf_cipsafety_ack_byte2            = -1;
-static int hf_cipsafety_consumer_time_value  = -1;
-static int hf_cipsafety_mcast_byte           = -1;
-static int hf_cipsafety_mcast_byte_consumer_num = -1;
-static int hf_cipsafety_mcast_byte_reserved1 = -1;
-static int hf_cipsafety_mcast_byte_mai       = -1;
-static int hf_cipsafety_mcast_byte_reserved2 = -1;
-static int hf_cipsafety_mcast_byte_parity_even = -1;
-static int hf_cipsafety_mcast_byte2          = -1;
-static int hf_cipsafety_time_correction      = -1;
-static int hf_cipsafety_crc_s5_0             = -1;
-static int hf_cipsafety_crc_s5_1             = -1;
-static int hf_cipsafety_crc_s5_2             = -1;
-static int hf_cipsafety_complement_data      = -1;
+static int hf_cipsafety_ack_byte_reserved1        = -1;
+static int hf_cipsafety_ack_byte_ping_response    = -1;
+static int hf_cipsafety_ack_byte_reserved2        = -1;
+static int hf_cipsafety_ack_byte_parity_even      = -1;
+static int hf_cipsafety_ack_byte2                 = -1;
+static int hf_cipsafety_consumer_time_value       = -1;
+static int hf_cipsafety_mcast_byte                = -1;
+static int hf_cipsafety_mcast_byte_consumer_num   = -1;
+static int hf_cipsafety_mcast_byte_reserved1      = -1;
+static int hf_cipsafety_mcast_byte_mai            = -1;
+static int hf_cipsafety_mcast_byte_reserved2      = -1;
+static int hf_cipsafety_mcast_byte_parity_even    = -1;
+static int hf_cipsafety_mcast_byte2               = -1;
+static int hf_cipsafety_time_correction           = -1;
+static int hf_cipsafety_crc_s5_0                  = -1;
+static int hf_cipsafety_crc_s5_1                  = -1;
+static int hf_cipsafety_crc_s5_2                  = -1;
+static int hf_cipsafety_complement_data           = -1;
 
 /* CIP Safety header field identifiers */
 static int hf_cip_reqrsp            = -1;
@@ -1603,12 +1603,12 @@ proto_register_cipsafety(void)
       { &hf_cipsafety_data, { "Data", "enip.connection_transport_data", FT_BYTES, BASE_NONE, NULL, 0, "Connection Transport Data", HFILL }},
       { &hf_cipsafety_mode_byte, { "Mode Byte", "cipsafety.mode_byte", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cipsafety_mode_byte_ping_count, { "Ping Count", "cipsafety.mode_byte.ping_count", FT_UINT8, BASE_DEC, NULL, 0x03, NULL, HFILL }},
-      { &hf_cipsafety_mode_byte_not_tbd, { "Not TBD Bit", "cipsafety.mode_byte.not_tbd", FT_BOOLEAN, BASE_DEC, NULL, 0x04, NULL, HFILL }},
-      { &hf_cipsafety_mode_byte_tbd_2_copy, { "TBD 2 Bit Copy", "cipsafety.mode_byte.tbd_2_copy", FT_BOOLEAN, BASE_DEC, NULL, 0x08, NULL, HFILL }},
-      { &hf_cipsafety_mode_byte_not_run_idle, { "Not Run/Idle", "cipsafety.mode_byte.not_run_idle", FT_BOOLEAN, BASE_DEC, NULL, 0x10, NULL, HFILL }},
-      { &hf_cipsafety_mode_byte_tbd, { "TBD Bit", "cipsafety.mode_byte.tbd", FT_BOOLEAN, BASE_DEC, NULL, 0x20, NULL, HFILL }},
-      { &hf_cipsafety_mode_byte_tbd_2_bit, { "TBD 2 Bit", "cipsafety.mode_byte.tbd_2_bit", FT_BOOLEAN, BASE_DEC, NULL, 0x40, NULL, HFILL }},
-      { &hf_cipsafety_mode_byte_run_idle, { "Run/Idle", "cipsafety.mode_byte.run_idle", FT_BOOLEAN, BASE_DEC, NULL, 0x80, NULL, HFILL }},
+      { &hf_cipsafety_mode_byte_not_tbd, { "Not TBD Bit", "cipsafety.mode_byte.not_tbd", FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }},
+      { &hf_cipsafety_mode_byte_tbd_2_copy, { "TBD 2 Bit Copy", "cipsafety.mode_byte.tbd_2_copy", FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }},
+      { &hf_cipsafety_mode_byte_not_run_idle, { "Not Run/Idle", "cipsafety.mode_byte.not_run_idle", FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }},
+      { &hf_cipsafety_mode_byte_tbd, { "TBD Bit", "cipsafety.mode_byte.tbd", FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL }},
+      { &hf_cipsafety_mode_byte_tbd_2_bit, { "TBD 2 Bit", "cipsafety.mode_byte.tbd_2_bit", FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL }},
+      { &hf_cipsafety_mode_byte_run_idle, { "Run/Idle", "cipsafety.mode_byte.run_idle", FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }},
       { &hf_cipsafety_crc_s1, { "CRC S1", "cipsafety.crc_s1", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cipsafety_crc_s2, { "CRC S2", "cipsafety.crc_s2", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cipsafety_crc_s3, { "CRC S3", "cipsafety.crc_s3", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
@@ -1616,9 +1616,9 @@ proto_register_cipsafety(void)
       { &hf_cipsafety_ack_byte, { "ACK Byte", "cipsafety.ack_byte", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cipsafety_ack_byte_ping_count_reply, { "Ping Count Reply", "cipsafety.ack_byte.ping_count_reply", FT_UINT8, BASE_HEX, NULL, 0x03, NULL, HFILL }},
       { &hf_cipsafety_ack_byte_reserved1, { "Reserved", "cipsafety.ack_byte.reserved1", FT_UINT8, BASE_HEX, NULL, 0x04, NULL, HFILL }},
-      { &hf_cipsafety_ack_byte_ping_response, { "Ping Response", "cipsafety.ack_byte.ping_response", FT_BOOLEAN, BASE_DEC, NULL, 0x08, NULL, HFILL }},
+      { &hf_cipsafety_ack_byte_ping_response, { "Ping Response", "cipsafety.ack_byte.ping_response", FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }},
       { &hf_cipsafety_ack_byte_reserved2, { "Reserved", "cipsafety.ack_byte.reserved2", FT_UINT8, BASE_HEX, NULL, 0x70, NULL, HFILL }},
-      { &hf_cipsafety_ack_byte_parity_even, { "Parity Even", "cipsafety.ack_byte.parity_even", FT_BOOLEAN, BASE_DEC, NULL, 0x80, NULL, HFILL }},
+      { &hf_cipsafety_ack_byte_parity_even, { "Parity Even", "cipsafety.ack_byte.parity_even", FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }},
       { &hf_cipsafety_ack_byte2, { "ACK Byte 2", "cipsafety.ack_byte2", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cipsafety_consumer_time_value, { "Consumer Time Value", "cipsafety.consumer_time_value", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cipsafety_mcast_byte, { "MCAST Byte", "cipsafety.mcast_byte", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
@@ -1626,7 +1626,7 @@ proto_register_cipsafety(void)
       { &hf_cipsafety_mcast_byte_reserved1, { "Reserved", "cipsafety.mcast_byte.reserved1", FT_UINT8, BASE_HEX, NULL, 0x10, NULL, HFILL }},
       { &hf_cipsafety_mcast_byte_mai, { "Multicast Active/Idle", "cipsafety.mcast_byte.active_idle", FT_BOOLEAN, 8, TFS(&cip_safety_vals_active_idle), 0x20, NULL, HFILL }},
       { &hf_cipsafety_mcast_byte_reserved2, { "Reserved", "cipsafety.mcast_byte.reserved2", FT_UINT8, BASE_HEX, NULL, 0x40, NULL, HFILL }},
-      { &hf_cipsafety_mcast_byte_parity_even, { "Parity Even", "cipsafety.mcast_byte.parity_even", FT_BOOLEAN, BASE_DEC, NULL, 0x80, NULL, HFILL }},
+      { &hf_cipsafety_mcast_byte_parity_even, { "Parity Even", "cipsafety.mcast_byte.parity_even", FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }},
       { &hf_cipsafety_mcast_byte2, { "MCAST Byte 2", "cipsafety.mcast_byte2", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cipsafety_time_correction, { "Time Correction", "cipsafety.time_correction", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cipsafety_crc_s5_0, { "CRC S5_0", "cipsafety.crc_s5_0", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
@@ -1729,14 +1729,14 @@ proto_register_cipsafety(void)
       { &hf_cip_ssupervisor_exception_detail_warning_ded_detail, { "Device Exeception Detail Data", "cipsafety.ssupervisor.exception_detail_warning.ded.detail", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
       { &hf_cip_ssupervisor_exception_detail_warning_med_size, { "Manufacturer Exeception Detail Size", "cipsafety.ssupervisor.exception_detail_warning.med.size", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_cip_ssupervisor_exception_detail_warning_med_detail, { "Manufacturer Exeception Detail Data", "cipsafety.ssupervisor.exception_detail_warning.med.detail", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-      { &hf_cip_ssupervisor_alarm_enable, { "Exception Detail Alarm", "cipsafety.ssupervisor.alarm_enable", FT_BOOLEAN, BASE_DEC, TFS(&tfs_true_false), 0, NULL, HFILL }},
-      { &hf_cip_ssupervisor_warning_enable, { "Exception Detail Warning", "cipsafety.ssupervisor.warning_enable", FT_BOOLEAN, BASE_DEC, TFS(&tfs_true_false), 0, NULL, HFILL }},
+      { &hf_cip_ssupervisor_alarm_enable, { "Exception Detail Alarm", "cipsafety.ssupervisor.alarm_enable", FT_BOOLEAN, BASE_NONE, TFS(&tfs_true_false), 0, NULL, HFILL }},
+      { &hf_cip_ssupervisor_warning_enable, { "Exception Detail Warning", "cipsafety.ssupervisor.warning_enable", FT_BOOLEAN, BASE_NONE, TFS(&tfs_true_false), 0, NULL, HFILL }},
       { &hf_cip_ssupervisor_time, { "Time", "cipsafety.ssupervisor.time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0, NULL, HFILL }},
       { &hf_cip_ssupervisor_clock_power_cycle_behavior, { "Clock Power Cycle Behavior", "cipsafety.ssupervisor.clock_power_cycle_behavior", FT_UINT8, BASE_DEC, VALS(cip_ssupervisor_clock_power_cycle_type_vals), 0, NULL, HFILL }},
       { &hf_cip_ssupervisor_last_maintenance_date, { "Last Maintenance Date", "cipsafety.ssupervisor.last_maintenance_date", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_cip_ssupervisor_next_scheduled_maintenance_date, { "Next Scheduled Maintenance Date", "cipsafety.ssupervisor.next_scheduled_maintenance_date", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_cip_ssupervisor_scheduled_maintenance_expiration_timer, { "Scheduled Maintenance Expiration Timer", "cipsafety.ssupervisor.scheduled_maintenance_expiration_timer", FT_INT16, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_cip_ssupervisor_scheduled_maintenance_expiration_warning_enable, { "Scheduled Maintenance Expiration Warning Enable", "cipsafety.ssupervisor.scheduled_maintenance_expiration_warning", FT_BOOLEAN, BASE_DEC, TFS(&tfs_enabled_disabled), 0, NULL, HFILL }},
+      { &hf_cip_ssupervisor_scheduled_maintenance_expiration_warning_enable, { "Scheduled Maintenance Expiration Warning Enable", "cipsafety.ssupervisor.scheduled_maintenance_expiration_warning", FT_BOOLEAN, BASE_NONE, TFS(&tfs_enabled_disabled), 0, NULL, HFILL }},
       { &hf_cip_ssupervisor_run_hours, { "Run Hours", "cipsafety.ssupervisor.run_hours", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_cip_ssupervisor_configuration_lock, { "Configuration Lock", "cipsafety.ssupervisor.configuration_lock", FT_UINT8, BASE_DEC, VALS(cip_ssupervisor_lock_vals), 0, NULL, HFILL }},
       { &hf_cip_ssupervisor_configuration_unid_ssn_timestamp, { "Configuration UNID SSN Timestamp", "cipsafety.ssupervisor.configuration_unid.ssn.timestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0, NULL, HFILL }},
