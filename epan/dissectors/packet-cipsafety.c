@@ -300,11 +300,9 @@ const value_string cipsafety_ssn_date_vals[8] = {
    { 0,     NULL }
 };
 
-static const value_string cip_safety_vals_active_idle[] = {
-   { 0,        "Idle" },
-   { 1,        "Active"   },
-
-   { 0,        NULL          }
+static const true_false_string cip_safety_vals_active_idle = {
+   "Idle",
+   "Active"
 };
 
 /* Translate function to string - CIP Service codes for Safety Supervisor */
@@ -1626,7 +1624,7 @@ proto_register_cipsafety(void)
       { &hf_cipsafety_mcast_byte, { "MCAST Byte", "cipsafety.mcast_byte", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cipsafety_mcast_byte_consumer_num, { "Consumer #", "cipsafety.mcast_byte.consumer_num", FT_UINT8, BASE_HEX, NULL, 0x0F, NULL, HFILL }},
       { &hf_cipsafety_mcast_byte_reserved1, { "Reserved", "cipsafety.mcast_byte.reserved1", FT_UINT8, BASE_HEX, NULL, 0x10, NULL, HFILL }},
-      { &hf_cipsafety_mcast_byte_mai, { "Multicast Active/Idle", "cipsafety.mcast_byte.active_idle", FT_BOOLEAN, BASE_DEC, VALS(cip_safety_vals_active_idle), 0x20, NULL, HFILL }},
+      { &hf_cipsafety_mcast_byte_mai, { "Multicast Active/Idle", "cipsafety.mcast_byte.active_idle", FT_BOOLEAN, 8, TFS(&cip_safety_vals_active_idle), 0x20, NULL, HFILL }},
       { &hf_cipsafety_mcast_byte_reserved2, { "Reserved", "cipsafety.mcast_byte.reserved2", FT_UINT8, BASE_HEX, NULL, 0x40, NULL, HFILL }},
       { &hf_cipsafety_mcast_byte_parity_even, { "Parity Even", "cipsafety.mcast_byte.parity_even", FT_BOOLEAN, BASE_DEC, NULL, 0x80, NULL, HFILL }},
       { &hf_cipsafety_mcast_byte2, { "MCAST Byte 2", "cipsafety.mcast_byte2", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},

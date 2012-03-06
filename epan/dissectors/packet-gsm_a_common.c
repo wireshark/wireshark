@@ -916,10 +916,9 @@ static const value_string gsm_a_velocity_type_vals[] = {
 	{ 0,	NULL }
 };
 
-static const value_string gsm_a_dir_of_ver_speed_vals[] = {
-    { 0, "Downward" },
-    { 1, "Upward" },
-    { 0, NULL}
+static const true_false_string gsm_a_dir_of_ver_speed_vals = {
+    "Downward",
+    "Upward"
 };
 
 guint16
@@ -962,7 +961,7 @@ dissect_description_of_velocity(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 			velocity_item = proto_tree_add_item(tree, hf_gsm_a_horizontal_speed, tvb, offset, 2, ENC_BIG_ENDIAN);
 			proto_item_append_text(velocity_item," km/h");
 			curr_offset+=2;
-			/* Vertical Speed Octet 5 
+			/* Vertical Speed Octet 5
 			 * Vertical speed is encoded in increments of 1 kilometre per hour using 8 bits giving a number N between 0 and 28-1.
 			 */
 			velocity_item = proto_tree_add_item(tree, hf_gsm_a_vertical_speed, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -980,7 +979,7 @@ dissect_description_of_velocity(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 			velocity_item = proto_tree_add_item(tree, hf_gsm_a_horizontal_speed, tvb, offset, 2, ENC_BIG_ENDIAN);
 			proto_item_append_text(velocity_item," km/h");
 			curr_offset+=2;
-			/* Uncertainty Speed Octet 5 
+			/* Uncertainty Speed Octet 5
 			 * Uncertainty speed is encoded in increments of 1 kilometre per hour using an 8 bit binary coded number N. The value of
 			 * N gives the uncertainty speed except for N=255 which indicates that the uncertainty is not specified.
 			 */
@@ -1006,7 +1005,7 @@ dissect_description_of_velocity(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 			velocity_item = proto_tree_add_item(tree, hf_gsm_a_horizontal_speed, tvb, offset, 2, ENC_BIG_ENDIAN);
 			proto_item_append_text(velocity_item," km/h");
 			curr_offset+=2;
-			/* Vertical Speed Octet 5 
+			/* Vertical Speed Octet 5
 			 * Vertical speed is encoded in increments of 1 kilometre per hour using 8 bits giving a number N between 0 and 28-1.
 			 */
 			velocity_item = proto_tree_add_item(tree, hf_gsm_a_vertical_speed, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1220,7 +1219,7 @@ guint16 elem_tlv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 iei
 
 /*
  * Type Extendable Length Value (TELV) element dissector
- * This is a version where the length field can be one or two octets depending 
+ * This is a version where the length field can be one or two octets depending
  * if the extension bit is set or not (TS 48.016 p 10.1.2).
  *         8        7 6 5 4 3 2 1
  * octet 2 0/1 ext  length
@@ -3242,7 +3241,7 @@ de_nas_cont_for_ps_ho(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
 	curr_offset = offset;
 
 	proto_tree_add_text(tree, tvb, curr_offset, len, "IE not dissected yet");
-	/*     8     7     6     5     4     3     2      1 
+	/*     8     7     6     5     4     3     2      1
 	 *     0     0     0   old     0     Type of ciphering
 	 * spare  spare  spare XID  spare      algorithm
 	 */
@@ -3255,7 +3254,7 @@ de_nas_cont_for_ps_ho(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
 	 */
 	proto_tree_add_item(tree, hf_gsm_a_iov_ui, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
 	curr_offset+=4;
-	
+
 	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
 
 	return(curr_offset - offset);
@@ -4034,7 +4033,7 @@ proto_register_gsm_a_common(void)
 	},
 	{ &hf_gsm_a_d,
 		{ "Direction of Vertical Speed", "gsm_a.gad.d",
-		FT_BOOLEAN, 8, VALS(gsm_a_dir_of_ver_speed_vals), 0x08,
+		FT_BOOLEAN, 8, TFS(&gsm_a_dir_of_ver_speed_vals), 0x08,
 		NULL, HFILL}
 	},
 	{ &hf_gsm_a_geo_loc_D,

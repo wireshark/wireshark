@@ -1181,7 +1181,7 @@ proto_register_abis_om2000(void)
 		},
 		{ &hf_om2k_icm_cr,
 		  { "ICM Channel Rate", "om2000.icm_cr",
-		    FT_BOOLEAN, 1, VALS(om2k_icmcr_vals), 0,
+		    FT_UINT8, BASE_DEC, VALS(om2k_icmcr_vals), 0,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_lsc_fm,
@@ -1221,7 +1221,7 @@ proto_register_abis_om2000(void)
 		},
 		{ &hf_om2k_fill_mark,
 		  { "Filling Marker", "om2000.filling",
-		    FT_BOOLEAN, 0x01, VALS(om2k_fill_vals), 0,
+		    FT_UINT8, BASE_DEC, VALS(om2k_fill_vals), 0,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_bcc,
