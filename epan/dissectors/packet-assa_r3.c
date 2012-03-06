@@ -2399,7 +2399,7 @@ static hf_register_info hf [] =
   { &hf_r3_definetimezone_calendar,          { "Calendar",         "r3.definetimezone.calendar",         FT_NONE,    BASE_NONE,    NULL, 0x0, NULL, HFILL }},
 
   { &hf_r3_rmtauthretry_sequence, { "Remote Auth Retry Sequence",  "r3.rmtauthretry.sequence",  FT_UINT16,  BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
-  { &hf_r3_rmtauthretry_retry,    { "Remote Auth Retry Mode",      "r3.rmtauthretry.mode",      FT_BOOLEAN, 8, TFS (&tfs_rmtauthretry_flags), 0x0, NULL, HFILL }},
+  { &hf_r3_rmtauthretry_retry,    { "Remote Auth Retry Mode",      "r3.rmtauthretry.mode",      FT_BOOLEAN, BASE_NONE, TFS (&tfs_rmtauthretry_flags), 0x0, NULL, HFILL }},
 
   { &hf_r3_eventlogdump_starttime_year,    { "Start Year",    "r3.eventlogdump.start.year",     FT_UINT8,  BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
   { &hf_r3_eventlogdump_starttime_month,   { "Start Month",   "r3.eventlogdump.start.month",    FT_UINT8,  BASE_DEC_HEX|BASE_EXT_STRING, &r3_monthnames_ext, 0x0, NULL, HFILL }},
@@ -2462,7 +2462,7 @@ static hf_register_info hf [] =
 
   { &hf_r3_alarm_length, { "Length", "r3.alarm.length", FT_UINT8,   BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
   { &hf_r3_alarm_id,     { "ID",     "r3.alarm.id",     FT_UINT8,   BASE_DEC_HEX|BASE_EXT_STRING, &r3_alarmidnames_ext, 0x0, NULL, HFILL }},
-  { &hf_r3_alarm_state,  { "State",  "r3.alarm.state",  FT_BOOLEAN, 8,            TFS (&tfs_enabled_disabled), 0x0, NULL, HFILL }},
+  { &hf_r3_alarm_state,  { "State",  "r3.alarm.state",  FT_BOOLEAN, BASE_NONE,            TFS (&tfs_enabled_disabled), 0x0, NULL, HFILL }},
 
   { &hf_r3_mfgfield_length, { "Field Length", "r3.mfgfield.length",  FT_UINT8, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
   { &hf_r3_mfgfield,        { "Field",        "r3.mfgfield.field",   FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_mfgfieldnames_ext, 0x0, NULL, HFILL }},
@@ -2511,11 +2511,11 @@ static hf_register_info hf [] =
   { &hf_r3_checksumresults ,       { "Checksum Results", "r3.checksumresults",        FT_NONE,    BASE_NONE, NULL, 0x0, NULL, HFILL }},
   { &hf_r3_checksumresults_field,  { "Field",            "r3.checksumresults.field",  FT_UINT8,   BASE_HEX|BASE_EXT_STRING, & r3_checksumresultnames_ext, 0x0, NULL, HFILL }},
   { &hf_r3_checksumresults_length, { "Length",           "r3.checksumresults.length", FT_UINT8,   BASE_HEX,  NULL, 0x0, NULL, HFILL }},
-  { &hf_r3_checksumresults_state,  { "State",            "r3.checksumresults.state",  FT_BOOLEAN, 8,         TFS (&tfs_errornoerror_flags), 0x0, NULL, HFILL }},
+  { &hf_r3_checksumresults_state,  { "State",            "r3.checksumresults.state",  FT_BOOLEAN, BASE_NONE,         TFS (&tfs_errornoerror_flags), 0x0, NULL, HFILL }},
 
   { &hf_r3_forceoptions_item,      { "Item",   "r3.forceoptions.item",   FT_UINT8,   BASE_HEX_DEC|BASE_EXT_STRING, &r3_forceitemnames_ext, 0x0, NULL, HFILL }},
   { &hf_r3_forceoptions_length,    { "Length", "r3.forceoptions.length", FT_UINT8,   BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
-  { &hf_r3_forceoptions_state_8,   { "State",  "r3.forceoptions.state",  FT_BOOLEAN, 8,            TFS (&tfs_enabled_disabled), 0x0, NULL, HFILL }},
+  { &hf_r3_forceoptions_state_8,   { "State",  "r3.forceoptions.state",  FT_BOOLEAN, BASE_NONE,    TFS (&tfs_enabled_disabled), 0x0, NULL, HFILL }},
   { &hf_r3_forceoptions_state_16,  { "State",  "r3.forceoptions.state",  FT_UINT16,  BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
   { &hf_r3_forceoptions_state_24,  { "State",  "r3.forceoptions.state",  FT_UINT24,  BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
   { &hf_r3_forceoptions_state_32,  { "State",  "r3.forceoptions.state",  FT_UINT32,  BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
@@ -2574,7 +2574,7 @@ static hf_register_info hf [] =
 /*  { &hf_r3_mortisestatelog,             { "Mortise State Log",       "r3.mortisestatelog",             FT_NONE,    BASE_NONE,    NULL, 0x0, NULL, HFILL }}, */
   { &hf_r3_mortisestatelog_pointer,     { "Event Pointer",           "r3.mortisestatelog.pointer",     FT_UINT8,   BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
   { &hf_r3_mortisestatelog_mortisetype, { "Mortise Type",            "r3.mortisestatelog.mortisetype", FT_UINT8,   BASE_HEX_DEC|BASE_EXT_STRING, &r3_mortisetypenames_ext, 0x0, NULL, HFILL }},
-  { &hf_r3_mortisestatelog_waiting,     { "Waiting For Door Closed", "r3.mortisestatelog.waiting",     FT_BOOLEAN, 8,            TFS (&tfs_true_false ), 0x00, NULL, HFILL }},
+  { &hf_r3_mortisestatelog_waiting,     { "Waiting For Door Closed", "r3.mortisestatelog.waiting",     FT_BOOLEAN, BASE_NONE,   TFS (&tfs_true_false ), 0x00, NULL, HFILL }},
   { &hf_r3_mortisestatelog_state,       { "State",                   "r3.mortisestatelog.state",       FT_UINT8,   BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
   { &hf_r3_mortisestatelog_last,        { "Last State",              "r3.mortisestatelog.laststate",   FT_UINT8,   BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
   { &hf_r3_mortisestatelog_event,       { "Event",                   "r3.mortisestatelog.event",       FT_UINT8,   BASE_HEX_DEC|BASE_EXT_STRING, &r3_mortiseeventnames_ext, 0x0, NULL, HFILL }},

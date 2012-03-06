@@ -106,9 +106,7 @@ static int hf_adwin_config_command                = -1;
 static int hf_adwin_config_data                   = -1;
 static int hf_adwin_config_date                   = -1;
 static int hf_adwin_config_description            = -1;
-static int hf_adwin_config_dhcp8                  = -1;
-static int hf_adwin_config_dhcp16                 = -1;
-static int hf_adwin_config_dhcp32                 = -1;
+static int hf_adwin_config_dhcp                   = -1;
 static int hf_adwin_config_filename               = -1;
 static int hf_adwin_config_filesize               = -1;
 static int hf_adwin_config_gateway                = -1;
@@ -187,7 +185,7 @@ dissect_UDPStatus(tvbuff_t *tvb, proto_tree *adwin_tree)
 	ADWIN_ADD_BE(adwin_tree, mac,                20,  6);
 	ADWIN_ADD_LE(debug_tree, unused,             26,  2);
 	ADWIN_ADD_BE(adwin_tree, port16,             28,  2);
-	ADWIN_ADD_LE(adwin_tree, dhcp8,              30,  1);
+	ADWIN_ADD_LE(adwin_tree, dhcp,               30,  1);
 	ADWIN_ADD_LE(adwin_tree, netmask_count,      31,  1);
 	ADWIN_ADD_BE(adwin_tree, gateway,            32,  4);
 	ADWIN_ADD_LE(debug_tree, unused,             36, 11);
@@ -249,7 +247,7 @@ dissect_UDPMessage(tvbuff_t *tvb, proto_tree *adwin_tree)
 	ADWIN_ADD_LE(adwin_tree, unused,             28,  4);
 	ADWIN_ADD_LE(adwin_tree, gateway,            32,  4);
 	ADWIN_ADD_LE(adwin_tree, unused,             36,  4);
-	ADWIN_ADD_LE(adwin_tree, dhcp32,             40,  4);
+	ADWIN_ADD_LE(adwin_tree, dhcp,               40,  4);
 	ADWIN_ADD_LE(adwin_tree, port32,             44,  4);
 	ADWIN_ADD_LE(adwin_tree, password,           48, 10);
 	ADWIN_ADD_LE(adwin_tree, bootloader,         58,  1);
@@ -314,7 +312,7 @@ dissect_UDPOut(tvbuff_t *tvb, proto_tree *adwin_tree)
 	ADWIN_ADD_BE(adwin_tree, mac,                 4,  6);
 	ADWIN_ADD_LE(adwin_tree, netmask,            10,  4);
 	ADWIN_ADD_BE(adwin_tree, gateway,            14,  4);
-	ADWIN_ADD_LE(adwin_tree, dhcp16,             18,  2);
+	ADWIN_ADD_LE(adwin_tree, dhcp,               18,  2);
 	ADWIN_ADD_BE(adwin_tree, port16,             20,  2);
 }
 
@@ -517,7 +515,7 @@ proto_register_adwin_config(void)
 	static hf_register_info hf[] = {
 		{ &hf_adwin_config_bootloader,
 		  { "Enable Bootloader", "adwin_config.bootloader",
-		    FT_BOOLEAN, BASE_DEC, NULL, 0x0,
+		    FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_adwin_config_command,
@@ -540,19 +538,9 @@ proto_register_adwin_config(void)
 		    FT_STRING, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }
 		},
-		{ &hf_adwin_config_dhcp8,
+		{ &hf_adwin_config_dhcp,
 		  { "DHCP enabled", "adwin_config.dhcp",
-		    FT_BOOLEAN, 8, NULL, 0x0,
-		    NULL, HFILL }
-		},
-		{ &hf_adwin_config_dhcp16,
-		  { "DHCP enabled", "adwin_config.dhcp",
-		    FT_BOOLEAN, 16, NULL, 0x0,
-		    NULL, HFILL }
-		},
-		{ &hf_adwin_config_dhcp32,
-		  { "DHCP enabled", "adwin_config.dhcp",
-		    FT_BOOLEAN, 32, NULL, 0x0,
+		    FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_adwin_config_filename,
@@ -612,7 +600,7 @@ proto_register_adwin_config(void)
 		},
 		{ &hf_adwin_config_reboot,
 		  { "Reboot", "adwin_config.reboot",
-		    FT_BOOLEAN, 32, NULL, 0x0,
+		    FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		    "Number of system reboots.", HFILL }
 		},
 		{ &hf_adwin_config_scan_id,
@@ -622,7 +610,7 @@ proto_register_adwin_config(void)
 		},
 		{ &hf_adwin_config_reply_broadcast, /* send_normal in UDPStatus */
 		  { "Reply with broadcast", "adwin_config.reply_broadcast",
-		    FT_BOOLEAN, 8, NULL, 0x0,
+		    FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		    "If this bit is set, the scanned system should reply with a broadcast.", HFILL }
 		},
 		{ &hf_adwin_config_revision,

@@ -3409,24 +3409,24 @@ void proto_register_batadv(void)
 		},
 		{ &hf_msg_fragment_overlap,
 		  {"Message fragment overlap", "batadv.unicast_frag.fragment.overlap",
-		    FT_BOOLEAN, 0, NULL, 0x00,
+		    FT_BOOLEAN, BASE_NONE, NULL, 0x00,
 		    NULL, HFILL }
 		},
 		{ &hf_msg_fragment_overlap_conflicts,
 		   {"Message fragment overlapping with conflicting data",
 		    "batadv.unicast_frag.fragment.overlap.conflicts",
-		    FT_BOOLEAN, 0, NULL, 0x00,
+		    FT_BOOLEAN, BASE_NONE, NULL, 0x00,
 		    NULL, HFILL }
 		},
 		{ &hf_msg_fragment_multiple_tails,
 		  {"Message has multiple tail fragments",
 		    "batadv.unicast_frag.fragment.multiple_tails",
-		    FT_BOOLEAN, 0, NULL, 0x00,
+		    FT_BOOLEAN, BASE_NONE, NULL, 0x00,
 		    NULL, HFILL }
 		},
 		{ &hf_msg_fragment_too_long_fragment,
 		  {"Message fragment too long", "batadv.unicast_frag.fragment.too_long_fragment",
-		    FT_BOOLEAN, 0, NULL, 0x00,
+		    FT_BOOLEAN, BASE_NONE, NULL, 0x00,
 		    NULL, HFILL }
 		},
 		{ &hf_msg_fragment_error,

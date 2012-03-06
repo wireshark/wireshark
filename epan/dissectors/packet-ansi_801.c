@@ -218,7 +218,7 @@ for_req_pseudo_meas(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 
 	SHORT_DATA_CHECK(len, 3);
 	saved_offset = offset;
-	bit_offset = offset << 3;
+	bit_offset   = offset << 3;
 
 	/* PREF_RESP_QUAL */
 	proto_tree_add_bits_item(tree, hf_ansi_801_pref_resp_qual, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
@@ -586,7 +586,7 @@ for_pr_gps_sense_ass(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 			    num_dr_p);
 
 	offset += 2;
-	oct = tvb_get_guint8(tvb, offset);
+	oct     = tvb_get_guint8(tvb, offset);
 
 	other_decode_bitfield_value(bigbuf, value, 0x0001, 16);
 	value = ((value & 0x0001) << 7) | ((oct & 0xfe) >> 1);
@@ -650,7 +650,7 @@ for_pr_gps_almanac(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 
 	SHORT_DATA_CHECK(len, 4);
 
-	value = tvb_get_ntohl(tvb, offset);
+	value  = tvb_get_ntohl(tvb, offset);
 	num_sv = (value & 0xfc000000) >> 26;
 
 	other_decode_bitfield_value(bigbuf, value, 0xfc000000, 32);
@@ -703,7 +703,7 @@ for_pr_gps_nav_msg_bits(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offs
 
 	SHORT_DATA_CHECK(len, 2);
 
-	value = tvb_get_ntohs(tvb, offset);
+	value  = tvb_get_ntohs(tvb, offset);
 	num_sv = (value & 0xfc00) >> 10;
 
 	other_decode_bitfield_value(bigbuf, value, 0xfc00, 16);
@@ -753,7 +753,7 @@ pr_loc_response(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 
 	SHORT_DATA_CHECK(len, 11);
 	saved_offset = offset;
-	bit_offset = offset << 3;
+	bit_offset   = offset << 3;
 
 	/* TIME_REF_CDMA */
 	value = tvb_get_bits16(tvb, bit_offset, 14, ENC_BIG_ENDIAN);
@@ -769,14 +769,14 @@ pr_loc_response(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 	bit_offset += 25;
 
 	/* LONG */
-	value = tvb_get_bits32(tvb, bit_offset, 26, ENC_BIG_ENDIAN);
+	value    = tvb_get_bits32(tvb, bit_offset, 26, ENC_BIG_ENDIAN);
 	fl_value = (float)(-180.0 + ((float)value * 180 / 33554432));
 	proto_tree_add_float_bits_format_value(tree, hf_ansi_801_long, tvb, bit_offset, 26, fl_value,
 					       "%.5f degrees %s (0x%08x)", fabs(fl_value), fl_value < 0 ? "West" : "East", value);
 	bit_offset += 26;
 
 	/* LOC_UNCRTNTY_ANG */
-	value = tvb_get_bits8(tvb, bit_offset, 4);
+	value    = tvb_get_bits8(tvb, bit_offset, 4);
 	fl_value = (float)(5.625 * value);
 	proto_tree_add_float_bits_format_value(tree, hf_ansi_801_loc_uncrtnty_ang, tvb, bit_offset, 4, fl_value,
 					       "%.5f degrees (0x%02x)", fl_value, value);
@@ -922,7 +922,7 @@ for_pr_gps_sat_health(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset
 
 	SHORT_DATA_CHECK(len, 1);
 	saved_offset = offset;
-	bit_offset = offset << 3;
+	bit_offset   = offset << 3;
 
 	/* BAD_SV_PRESENT */
 	proto_tree_add_bits_ret_val(tree, hf_ansi_801_bad_sv_present, tvb, bit_offset++, 1, &bad_sv_present, ENC_BIG_ENDIAN);
@@ -965,7 +965,7 @@ rev_req_gps_acq_ass(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 
 	SHORT_DATA_CHECK(len, 1);
 	saved_offset = offset;
-	bit_offset = offset << 3;
+	bit_offset   = offset << 3;
 
 	proto_tree_add_bits_item(tree, hf_ansi_801_dopp_req, tvb, bit_offset++, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_bits_item(tree, hf_ansi_801_add_dopp_req, tvb, bit_offset++, 1, ENC_BIG_ENDIAN);
@@ -1493,7 +1493,7 @@ for_request(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, guint8 pd_msg_ty
 	proto_item  *item;
 
 	offset = *offset_p;
-	oct = tvb_get_guint8(tvb, offset);
+	oct    = tvb_get_guint8(tvb, offset);
 
 	if (pd_msg_type == 0x00)
 	{
@@ -1565,7 +1565,7 @@ for_response(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p)
 	proto_item  *item;
 
 	offset = *offset_p;
-	oct = tvb_get_guint8(tvb, offset);
+	oct    = tvb_get_guint8(tvb, offset);
 
 	other_decode_bitfield_value(bigbuf, oct, 0xe0, 8);
 	proto_tree_add_text(tree, tvb, offset, 1,
@@ -1628,7 +1628,7 @@ rev_request(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, guint8 pd_msg_ty
 	proto_item  *item;
 
 	offset = *offset_p;
-	oct = tvb_get_guint8(tvb, offset);
+	oct    = tvb_get_guint8(tvb, offset);
 
 	if (pd_msg_type == 0x00)
 	{
@@ -1697,7 +1697,7 @@ rev_response(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p)
 	proto_item  *item;
 
 	offset = *offset_p;
-	oct = tvb_get_guint8(tvb, offset);
+	oct    = tvb_get_guint8(tvb, offset);
 
 	other_decode_bitfield_value(bigbuf, oct, 0xe0, 8);
 	proto_tree_add_text(tree, tvb, offset, 1,
@@ -1760,7 +1760,7 @@ dissect_ansi_801_for_message(tvbuff_t *tvb, proto_tree *tree)
 	proto_item  *hidden_item;
 
 	offset = 0;
-	oct = tvb_get_guint8(tvb, offset);
+	oct    = tvb_get_guint8(tvb, offset);
 
 	other_decode_bitfield_value(bigbuf, oct, 0x80, 8);
 	proto_tree_add_text(tree, tvb, offset, 1,
@@ -1947,7 +1947,7 @@ dissect_ansi_801_rev_message(tvbuff_t *tvb, proto_tree *tree)
 	proto_item  *hidden_item;
 
 	offset = 0;
-	oct = tvb_get_guint8(tvb, offset);
+	oct    = tvb_get_guint8(tvb, offset);
 
 	other_decode_bitfield_value(bigbuf, oct, 0x80, 8);
 	proto_tree_add_text(tree, tvb, offset, 1,
@@ -2242,12 +2242,12 @@ proto_register_ansi_801(void)
 			},
 			{ &hf_ansi_801_fix_type,
 			  { "Fix type (FIX_TYPE)", "ansi_801.fix_type",
-			    FT_BOOLEAN, 8, TFS(&ansi_801_fix_type_vals), 0x00,
+			    FT_BOOLEAN, BASE_NONE, TFS(&ansi_801_fix_type_vals), 0x00,
 			    NULL, HFILL }
 			},
 			{ &hf_ansi_801_velocity_incl,
 			  { "Velocity information included (VELOCITY_INCL)", "ansi_801.velocity_incl",
-			    FT_BOOLEAN, 8, NULL, 0x00,
+			    FT_BOOLEAN, BASE_NONE, NULL, 0x00,
 			    NULL, HFILL }
 			},
 			{ &hf_ansi_801_velocity_hor,
@@ -2267,7 +2267,7 @@ proto_register_ansi_801(void)
 			},
 			{ &hf_ansi_801_clock_incl,
 			  { "Clock information included (CLOCK_INCL)", "ansi_801.clock_incl",
-			    FT_BOOLEAN, 8, NULL, 0x00,
+			    FT_BOOLEAN, BASE_NONE, NULL, 0x00,
 			    NULL, HFILL }
 			},
 			{ &hf_ansi_801_clock_bias,
@@ -2282,7 +2282,7 @@ proto_register_ansi_801(void)
 			},
 			{ &hf_ansi_801_height_incl,
 			  { "Height information included (HEIGHT_INCL)", "ansi_801.height_incl",
-			    FT_BOOLEAN, 8, NULL, 0x00,
+			    FT_BOOLEAN, BASE_NONE, NULL, 0x00,
 			    NULL, HFILL }
 			},
 			{ &hf_ansi_801_height,
@@ -2302,7 +2302,7 @@ proto_register_ansi_801(void)
 			},
 			{ &hf_ansi_801_bad_sv_present,
 			  { "Bad GPS satellites present (BAD_SV_PRESENT)", "ansi_801.bad_sv_present",
-			    FT_BOOLEAN, 8, NULL, 0x00,
+			    FT_BOOLEAN, BASE_NONE, NULL, 0x00,
 			    NULL, HFILL }
 			},
 			{ &hf_ansi_801_num_bad_sv,
@@ -2317,22 +2317,22 @@ proto_register_ansi_801(void)
 			},
 			{ &hf_ansi_801_dopp_req,
 			  { "Doppler (0th order) term requested (DOPP_REQ)", "ansi_801.dopp_req",
-			    FT_BOOLEAN, 8, NULL, 0x00,
+			    FT_BOOLEAN, BASE_NONE, NULL, 0x00,
 			    NULL, HFILL }
 			},
 			{ &hf_ansi_801_add_dopp_req,
 			  { "Additional Doppler terms requested (ADD_DOPP_REQ)", "ansi_801.add_dopp_req",
-			    FT_BOOLEAN, 8, NULL, 0x00,
+			    FT_BOOLEAN, BASE_NONE, NULL, 0x00,
 			    NULL, HFILL }
 			},
 			{ &hf_ansi_801_code_ph_par_req,
 			  { "Code phase parameters requested (CODE_PH_PAR_REQ)", "ansi_801.code_ph_par_req",
-			    FT_BOOLEAN, 8, NULL, 0x00,
+			    FT_BOOLEAN, BASE_NONE, NULL, 0x00,
 			    NULL, HFILL }
 			},
 			{ &hf_ansi_801_az_el_req,
 			  { "Azimuth and elevation angle requested (AZ_EL_REQ)", "ansi_801.az_el_req",
-			    FT_BOOLEAN, 8, NULL, 0x00,
+			    FT_BOOLEAN, BASE_NONE, NULL, 0x00,
 			    NULL, HFILL }
 			},
 			{ &hf_ansi_801_pref_resp_qual,
@@ -2352,7 +2352,7 @@ proto_register_ansi_801(void)
 			},
 			{ &hf_ansi_801_offset_req,
 			  { "Offset requested (OFFSET_REQ)", "ansi_801.offset_req",
-			    FT_BOOLEAN, 8, NULL, 0x00,
+			    FT_BOOLEAN, BASE_NONE, NULL, 0x00,
 			    NULL, HFILL }
 			},
 		};
