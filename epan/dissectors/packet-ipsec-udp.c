@@ -37,16 +37,16 @@ static dissector_handle_t esp_handle;
 static dissector_handle_t isakmp_handle;
 
 /*
- * UDP Encapsulation of IPsec Packets	
+ * UDP Encapsulation of IPsec Packets
  * draft-ietf-ipsec-udp-encaps-06.txt
  */
 static void
 dissect_udpencap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  tvbuff_t *next_tvb;
+  tvbuff_t   *next_tvb;
   proto_tree *udpencap_tree = NULL;
-  proto_item *ti = NULL;
-  guint32 spi;
+  proto_item *ti            = NULL;
+  guint32     spi;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "UDPENCAP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -67,16 +67,16 @@ dissect_udpencap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (spi == 0) {
       col_set_str(pinfo->cinfo, COL_INFO, "ISAKMP");
       if (tree) {
-	proto_tree_add_text(udpencap_tree, tvb, 0, sizeof(spi),
-		"Non-ESP Marker");
-	proto_item_set_len(ti, sizeof(spi));
+        proto_tree_add_text(udpencap_tree, tvb, 0, sizeof(spi),
+                "Non-ESP Marker");
+        proto_item_set_len(ti, sizeof(spi));
       }
-      next_tvb = tvb_new_subset(tvb, sizeof(spi), -1, -1);
+      next_tvb = tvb_new_subset_remaining(tvb, sizeof(spi));
       call_dissector(isakmp_handle, next_tvb, pinfo, tree);
     } else {
       col_set_str(pinfo->cinfo, COL_INFO, "ESP");
       if (tree)
-	proto_item_set_len(ti, 0);
+        proto_item_set_len(ti, 0);
       call_dissector(esp_handle, tvb, pinfo, tree);
     }
   }
@@ -90,7 +90,7 @@ proto_register_udpencap(void)
   };
 
   proto_udpencap = proto_register_protocol(
-	"UDP Encapsulation of IPsec Packets", "UDPENCAP", "udpencap");
+        "UDP Encapsulation of IPsec Packets", "UDPENCAP", "udpencap");
   proto_register_subtree_array(ett, array_length(ett));
 }
 

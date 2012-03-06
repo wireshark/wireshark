@@ -60,9 +60,9 @@ dissect_atmtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     proto_item *ti;
     proto_tree *atmtcp_tree;
-    guint offset=0;
-    gint32 length;
-    tvbuff_t *next_tvb;
+    guint       offset = 0;
+    gint32      length;
+    tvbuff_t   *next_tvb;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATMTCP");
 
@@ -77,7 +77,7 @@ dissect_atmtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item(atmtcp_tree, hf_atmtcp_vpi, tvb, offset, 2, ENC_NA);
     }
     offset += 2;
-            
+
 
     if (tree) {
         /* VCI */
@@ -102,7 +102,7 @@ dissect_atmtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += 4;
 
     /* Data (for the moment...) */
-    next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+    next_tvb = tvb_new_subset_remaining(tvb, offset);
     call_dissector(data_handle, next_tvb, pinfo, tree);
     return tvb_length(tvb);
 }
@@ -143,7 +143,7 @@ proto_register_atmtcp(void)
 
     atmtcp_module = prefs_register_protocol(proto_atmtcp, proto_reg_handoff_atmtcp);
 
-    prefs_register_uint_preference(atmtcp_module, "tcp.port", "ATMTCP TCP Port", 
+    prefs_register_uint_preference(atmtcp_module, "tcp.port", "ATMTCP TCP Port",
                                     "ATMTCP TCP port if other than the default",
                                     10, &global_atmtcp_tcp_port);
 }

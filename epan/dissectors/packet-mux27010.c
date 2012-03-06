@@ -796,7 +796,7 @@ getControlChannelValues(tvbuff_t *tvb, proto_tree *field_tree_ctr){
 /*Get values information field*/
 static void
 getFrameInformation(tvbuff_t *tvb, proto_tree *field_tree){
-    char information_field_content[52];
+    char  information_field_content[52];
     char *information_field, *save_information_field_ptr;
 
     /*Get the data from information field as string*/
@@ -843,8 +843,8 @@ getFrameInformation(tvbuff_t *tvb, proto_tree *field_tree){
 static void
 dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_item *ti = NULL;
-    proto_item *tf = NULL, *tf_extended_header, *tf_addr, *tf_ctr;
+    proto_item *ti            = NULL;
+    proto_item *tf            = NULL, *tf_extended_header, *tf_addr, *tf_ctr;
     proto_tree *mux27010_tree = NULL;
     proto_tree *field_tree, *field_tree_extended_header, *field_tree_addr, *field_tree_ctr;
 
@@ -1045,11 +1045,11 @@ dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 msg_flag  = tvb_get_guint8(tvb, tmpOffset); tmpOffset += 1;
 
                 if (msg_end <= msg_start) {
-		    proto_item *pi;
+                    proto_item *pi;
                     pi = proto_tree_add_text(field_tree, tvb, tmpOffset-3, 2,
                         "Message start and end are illogical, aborting dissection");
                     expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
-		        "Message start and end are illogical");
+                                           "Message start and end are illogical");
                     continue;
                 }
 
@@ -1079,7 +1079,7 @@ dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 }
 
                 if (new_tvb) { /* take it all */
-                    next_tvb2 = tvb_new_subset(new_tvb, 1, -1, -1);
+                    next_tvb2 = tvb_new_subset_remaining(new_tvb, 1);
                     call_dissector(ppp_handle, next_tvb2, pinfo, tree);
                 }
 

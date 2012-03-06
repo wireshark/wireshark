@@ -113,7 +113,7 @@ dissect_tdmoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 
 		/* The rest is SAMPLES * CHANNELS bytes of channel data */
-		next_client = tvb_new_subset(tvb, offset, -1, -1);
+		next_client = tvb_new_subset_remaining(tvb, offset);
 		return call_dissector(data_handle, next_client, pinfo, tdmoe_tree);
 	}
 

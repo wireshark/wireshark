@@ -30,8 +30,8 @@
 #endif
 
 #include <glib.h>
-#include <epan/prefs.h>
 #include <epan/packet.h>
+#include <epan/prefs.h>
 #include <epan/emem.h>
 #include "packet-ppp.h"
 #include <epan/ppptypes.h>
@@ -1665,11 +1665,11 @@ fcs32(tvbuff_t * tvbuff)
 tvbuff_t *
 decode_fcs(tvbuff_t *tvb, proto_tree *fh_tree, int fcs_decode, int proto_offset)
 {
-  tvbuff_t   *next_tvb;
-  gint       len, reported_len;
-  int        rx_fcs_offset;
-  guint32    rx_fcs_exp;
-  guint32    rx_fcs_got;
+  tvbuff_t *next_tvb;
+  gint      len, reported_len;
+  int       rx_fcs_offset;
+  guint32   rx_fcs_exp;
+  guint32   rx_fcs_got;
 
   /*
    * Remove the FCS, if any, from the packet data.
@@ -1837,16 +1837,17 @@ dissect_lcp_async_map_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
                           guint length, packet_info *pinfo _U_,
                           proto_tree *tree)
 {
-  guint32 map;
+  guint32     map;
   const char *mapstr;
+
   static const char *ctrlchars[32] = {
     "NUL", "SOH",       "STX", "ETX",        "EOT",      "ENQ", "ACK", "BEL",
     "BS",  "HT",        "NL",  "VT",         "NP (FF)",  "CR",  "SO",  "SI",
     "DLE", "DC1 (XON)", "DC2", "DC3 (XOFF)", "DC4",      "NAK", "SYN", "ETB",
     "CAN", "EM",        "SUB", "ESC",        "FS",       "GS",  "RS",  "US"
   };
-  gint returned_length, str_index;
-  int i;
+  gint        returned_length, str_index;
+  int         i;
 
   /*
    * XXX - walk through the map and show the characters to map?
@@ -1882,7 +1883,7 @@ dissect_lcp_protocol_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
                          guint length, packet_info *pinfo _U_,
                          proto_tree *tree)
 {
-  guint16 protocol;
+  guint16     protocol;
   proto_item *tf;
   proto_tree *field_tree = NULL;
 
@@ -1906,8 +1907,8 @@ dissect_lcp_authprot_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
                          guint length, packet_info *pinfo _U_,
                          proto_tree *tree)
 {
-  guint16 protocol;
-  guint8 algorithm;
+  guint16     protocol;
+  guint8      algorithm;
   proto_item *tf;
   proto_tree *field_tree = NULL;
 
@@ -1952,7 +1953,7 @@ dissect_lcp_fcs_alternatives_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 {
   proto_item *tf;
   proto_tree *field_tree = NULL;
-  guint8 alternatives;
+  guint8      alternatives;
 
   alternatives = tvb_get_guint8(tvb, offset + 2);
   tf = proto_tree_add_text(tree, tvb, offset, length, "%s: 0x%02x",
@@ -2019,7 +2020,7 @@ dissect_lcp_callback_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 {
   proto_item *tf;
   proto_tree *field_tree = NULL;
-  guint8 operation;
+  guint8      operation;
 
   tf = proto_tree_add_text(tree, tvb, offset, length, "%s: %u byte%s",
                            optp->name, length, plurality(length, "", "s"));
@@ -2070,7 +2071,7 @@ dissect_lcp_multilink_ep_disc_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 {
   proto_item *tf;
   proto_tree *field_tree = NULL;
-  guint8 ep_disc_class;
+  guint8      ep_disc_class;
 
   tf = proto_tree_add_text(tree, tvb, offset, length, "%s: %u byte%s",
                            optp->name, length, plurality(length, "", "s"));
@@ -2183,7 +2184,7 @@ dissect_lcp_internationalization_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 {
   proto_item *tf;
   proto_tree *field_tree = NULL;
-  guint32 charset;
+  guint32     charset;
 
   tf = proto_tree_add_text(tree, tvb, offset, length, "%s: %u byte%s",
                            optp->name, length, plurality(length, "", "s"));
@@ -2240,8 +2241,8 @@ dissect_ipcp_compress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
                           int offset, guint length, packet_info *pinfo _U_,
                           proto_tree *tree)
 {
-  guint8  ub;
-  guint16 us;
+  guint8      ub;
+  guint16     us;
   proto_item *tf;
   proto_tree *field_tree = NULL;
 
@@ -2368,7 +2369,7 @@ dissect_ipcp_iphc_disableprot_opt(const ip_tcp_opt *optp,
 {
   proto_item *tf;
   proto_tree *field_tree;
-  guint8 param;
+  guint8      param;
 
   tf = proto_tree_add_text(tree, tvb, offset, length, "%s", optp->name);
   field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
@@ -2388,7 +2389,7 @@ dissect_osicp_align_npdu_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 {
   proto_item *tf;
   proto_tree *field_tree;
-  guint8 alignment;
+  guint8      alignment;
 
   tf = proto_tree_add_text(tree, tvb, offset, length, "%s", optp->name);
   field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
@@ -2416,7 +2417,7 @@ dissect_ccp_stac_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 {
   proto_item *tf;
   proto_tree *field_tree;
-  guint8 check_mode;
+  guint8      check_mode;
 
   if (length == 6) {
     proto_tree_add_text(tree, tvb, offset, length,
@@ -2444,7 +2445,7 @@ dissect_ccp_mppc_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 {
   proto_item *tf;
   proto_tree *flags_tree;
-  guint32 supported_bits;
+  guint32     supported_bits;
 
   supported_bits = tvb_get_ntohl(tvb, offset + 2);
   tf = proto_tree_add_text(tree, tvb, offset, length,
@@ -2495,8 +2496,8 @@ dissect_ccp_lzsdcp_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 {
   proto_item *tf;
   proto_tree *field_tree;
-  guint8 check_mode;
-  guint8 process_mode;
+  guint8      check_mode;
+  guint8      process_mode;
 
   tf = proto_tree_add_text(tree, tvb, offset, length, "%s", optp->name);
   field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
@@ -2544,7 +2545,7 @@ dissect_ccp_deflate_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 {
   proto_item *tf;
   proto_tree *field_tree;
-  guint8 method;
+  guint8      method;
 
   tf = proto_tree_add_text(tree, tvb, offset, length, "%s", optp->name);
   field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
@@ -2576,8 +2577,8 @@ dissect_cbcp_callback_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
   proto_item *tf;
   proto_tree *field_tree;
   proto_tree *addr_tree;
-  guint8 addr_type;
-  guint addr_len;
+  guint8      addr_type;
+  guint       addr_len;
 
   tf = proto_tree_add_text(tree, tvb, offset, length, "%s", optp->name);
   field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
@@ -2633,7 +2634,7 @@ dissect_bap_link_type_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 {
   proto_item *tf;
   proto_tree *field_tree;
-  guint8 link_type;
+  guint8      link_type;
 
   tf = proto_tree_add_text(tree, tvb, offset, length, "%s", optp->name);
   field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
@@ -2656,8 +2657,8 @@ dissect_bap_phone_delta_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
   proto_tree *field_tree;
   proto_item *ti;
   proto_tree *suboption_tree;
-  guint8 subopt_type;
-  guint8 subopt_len;
+  guint8      subopt_type;
+  guint8      subopt_len;
 
   tf = proto_tree_add_text(tree, tvb, offset, length, "%s", optp->name);
   field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
@@ -2769,7 +2770,7 @@ dissect_bap_call_status_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 {
   proto_item *tf;
   proto_tree *field_tree;
-  guint8 status, action;
+  guint8      status, action;
 
   tf = proto_tree_add_text(tree, tvb, offset, length, "%s", optp->name);
   field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
@@ -3027,10 +3028,10 @@ dissect_vsncp_pco_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
       {0x000A,    "IP address allocation via NAS signalling"    },
       {0,         NULL                                          }
     };
-  int off = offset+3;
-  guint8 i = 0;
+  int     off = offset+3;
+  guint8  i   = 0;
   guint16 pcotype;
-  guint8 len;
+  guint8  len;
 
   proto_item *tf;
   proto_tree *field_tree;
@@ -3066,13 +3067,13 @@ dissect_cp( tvbuff_t *tvb, int proto_id, int proto_subtree_index,
   proto_item *tf;
   proto_tree *field_tree;
 
-  guint8 code;
-  guint8 id;
-  int length, offset;
+  guint8  code;
+  guint8  id;
+  int     length, offset;
   guint16 protocol;
 
-  code = tvb_get_guint8(tvb, 0);
-  id = tvb_get_guint8(tvb, 1);
+  code   = tvb_get_guint8(tvb, 0);
+  id     = tvb_get_guint8(tvb, 1);
   length = tvb_get_ntohs(tvb, 2);
 
   if(check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -3351,7 +3352,7 @@ dissect_vsnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_item *vsnp_item = NULL;
   proto_tree *vsnp_tree = NULL;
-  guint32 offset = 0;
+  guint32     offset    = 0;
 
   /* To pass it on to IP */
   tvbuff_t *next_tvb;
@@ -3368,7 +3369,7 @@ dissect_vsnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     proto_tree_add_item(vsnp_tree, hf_vsnp_pdnid, tvb, offset, 1, ENC_BIG_ENDIAN);
   }
-  next_tvb = tvb_new_subset(tvb, 1, -1, -1);
+  next_tvb = tvb_new_subset_remaining(tvb, 1);
 
   /* do lookup with the subdissector table */
   if (!dissector_try_uint(ppp_subdissector_table, PPP_IP, next_tvb, pinfo, tree))
@@ -3652,15 +3653,15 @@ dissect_pppmuxcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_pppmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_tree *mux_tree, *hdr_tree, *sub_tree, *flag_tree;
-  proto_tree *info_tree;
-  proto_item *ti = NULL,*sub_ti = NULL;
-  guint8 flags, byte;
-  guint16 length;
-  static guint16 pid;
-  tvbuff_t *next_tvb;
-  int offset = 0, length_remaining;
-  int length_field = 0, pid_field = 0,hdr_length = 0;
+  proto_tree     *mux_tree, *hdr_tree, *sub_tree, *flag_tree;
+  proto_tree     *info_tree;
+  proto_item     *ti           = NULL,*sub_ti = NULL;
+  guint8          flags, byte;
+  guint16         length;
+  static guint16  pid;
+  tvbuff_t       *next_tvb;
+  int             offset       = 0, length_remaining;
+  int             length_field = 0, pid_field = 0,hdr_length = 0;
 
   col_set_str(pinfo->cinfo,COL_PROTOCOL, "PPP PPPMux");
 
@@ -3782,18 +3783,18 @@ dissect_iphc_crtp_fh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *fh_tree, *info_tree;
   proto_item *ti = NULL;
 
-  guint ip_hdr_len, flags;
-  guint length;
-  guint hdr_len;
+  guint     ip_hdr_len, flags;
+  guint     length;
+  guint     hdr_len;
   tvbuff_t *next_tvb;
 
-  int offset_seq;
-  int offset_cid;
+  int       offset_seq;
+  int       offset_cid;
 
-  guint8 ip_version;
-  guint8 next_protocol;
+  guint8    ip_version;
+  guint8    next_protocol;
 
-  guchar* ip_packet;
+  guchar   *ip_packet;
 
   length = tvb_reported_length(tvb);
 
@@ -3889,10 +3890,10 @@ static void
 dissect_iphc_crtp_cudp16(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *cudp_tree;
-  proto_item *ti = NULL;
-  guint length;
-  guint hdr_length;
-  int offset = 0;
+  proto_item *ti     = NULL;
+  guint       length;
+  guint       hdr_length;
+  int         offset = 0;
 
   col_set_str(pinfo->cinfo,COL_PROTOCOL, "CRTP");
 
@@ -3924,10 +3925,10 @@ static void
 dissect_iphc_crtp_cudp8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *cudp_tree;
-  proto_item *ti = NULL;
-  guint length;
-  guint hdr_length;
-  int offset = 0;
+  proto_item *ti     = NULL;
+  guint       length;
+  guint       hdr_length;
+  int         offset = 0;
 
   col_set_str(pinfo->cinfo,COL_PROTOCOL, "CRTP");
 
@@ -3960,10 +3961,10 @@ static void
 dissect_iphc_crtp_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *cs_tree;
-  proto_item *ti = NULL;
-  guint8 flags, cnt;
-  guint length, cid_size;
-  guint offset = 2, hf;
+  proto_item *ti     = NULL;
+  guint8      flags, cnt;
+  guint       length, cid_size;
+  guint       offset = 2, hf;
 
   col_set_str(pinfo->cinfo,COL_PROTOCOL, "CRTP");
 
@@ -4109,7 +4110,7 @@ dissect_mp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  */
 static void
 dissect_ppp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
-  proto_item *ti = NULL;
+  proto_item *ti      = NULL;
   proto_tree *fh_tree = NULL;
 
   if(tree) {
@@ -4123,11 +4124,11 @@ dissect_ppp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
 static void
 dissect_ppp_hdlc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_item *ti = NULL;
+  proto_item *ti      = NULL;
   proto_tree *fh_tree = NULL;
-  guint8     byte0;
-  int        proto_offset;
-  tvbuff_t  *next_tvb;
+  guint8      byte0;
+  int         proto_offset;
+  tvbuff_t   *next_tvb;
 
   byte0 = tvb_get_guint8(tvb, 0);
 
@@ -4252,7 +4253,7 @@ dissect_ppp_raw_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
   gint        offset, end_offset, data_offset;
   int         length, data_length;
   tvbuff_t   *ppp_tvb;
-  gboolean    first = TRUE;
+  gboolean    first   = TRUE;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP");
 
@@ -4457,10 +4458,10 @@ dissect_pap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
   proto_item *ti, *data_ti;
   proto_tree *fh_tree, *data_tree = NULL;
 
-  guint8 code;
-  gchar *peer_id, *password, *message;
-  guint8 peer_id_length, password_length, message_length;
-  int offset=0;
+  guint8  code;
+  gchar  *peer_id, *password, *message;
+  guint8  peer_id_length, password_length, message_length;
+  int     offset = 0;
 
   code = tvb_get_guint8(tvb, 0);
 
@@ -4539,9 +4540,9 @@ dissect_chap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
   proto_item *tf;
   proto_tree *field_tree;
 
-  guint8 code, value_size;
+  guint8  code, value_size;
   guint32 length;
-  int offset;
+  int     offset;
 
   code = tvb_get_guint8(tvb, 0);
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP CHAP");
@@ -5021,7 +5022,7 @@ void
 proto_reg_handoff_bcp(void)
 {
   dissector_handle_t bcp_handle;
-  eth_withfcs_handle = find_dissector("eth_withfcs");
+  eth_withfcs_handle    = find_dissector("eth_withfcs");
   eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
 
   bcp_handle = create_dissector_handle(dissect_bcp, proto_bcp);

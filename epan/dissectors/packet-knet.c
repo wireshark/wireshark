@@ -181,7 +181,7 @@ dissect_packetid(tvbuff_t *buffer, int offset, proto_tree *tree)
 {
     guint32 packetid;
 
-    packetid = tvb_get_bits8(buffer, offset * 8 + 16, 8) << 14;
+    packetid  = tvb_get_bits8(buffer, offset * 8 + 16, 8) << 14;
     packetid += tvb_get_bits8(buffer, offset * 8 + 8, 8) << 6;
     packetid += tvb_get_bits8(buffer, offset * 8, 8) & 63;
     if(offset == 0 && tree != NULL)
@@ -537,8 +537,8 @@ dissect_knet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item *message_ti;
     proto_tree *message_tree;
 
-    tvbuff_t *next_tvb;
-    gboolean  bytes_left;
+    tvbuff_t   *next_tvb;
+    gboolean    bytes_left;
 
     int offset;
     int length;
@@ -613,7 +613,7 @@ dissect_knet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if(tvb_get_bits8(tvb, 1, 1) == 1) /* If Reliable flag is 1 */
             offset += dissect_reliable_message_index_base(tvb, 3, datagram_tree); /* Calculate RMIB */
 
-        next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+        next_tvb = tvb_new_subset_remaining(tvb, offset);
 
         while(bytes_left)
         {
@@ -637,7 +637,7 @@ dissect_knet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 offset += length; /* Move the offset the amount of the payload */
 
-                next_tvb = tvb_new_subset(next_tvb, offset, -1, -1); /* Prepare the next tvb for the next message */
+                next_tvb = tvb_new_subset_remaining(next_tvb, offset); /* Prepare the next tvb for the next message */
             }
 
             else bytes_left = FALSE;  /* We dont have any bytes left to process... Hopefully */

@@ -403,6 +403,7 @@ get_pid_analysis(guint32 pid, conversation_t *conv)
 
 	pid_analysis_data_t  *pid_data  = NULL;
 	mp2t_analysis_data_t *mp2t_data = NULL;
+
 	mp2t_data = get_mp2t_conversation_data(conv);
 
 	pid_data = se_tree_lookup32(mp2t_data->pid_table, pid);
@@ -458,10 +459,10 @@ mp2t_get_packet_length(tvbuff_t *tvb, guint offset, packet_info *pinfo,
 			guint32 frag_id, enum pid_payload_type pload_type)
 {
 
-	fragment_data *frag = NULL;
-	tvbuff_t *len_tvb = NULL, *frag_tvb = NULL, *data_tvb = NULL;
-	gint pkt_len = 0;
-	guint remaining_len;
+	fragment_data *frag    = NULL;
+	tvbuff_t      *len_tvb = NULL, *frag_tvb = NULL, *data_tvb = NULL;
+	gint           pkt_len = 0;
+	guint          remaining_len;
 
 
 	remaining_len = tvb_length_remaining(tvb, offset);
@@ -487,7 +488,7 @@ mp2t_get_packet_length(tvbuff_t *tvb, guint offset, packet_info *pinfo,
 		len_tvb = tvb_new_composite();
 		tvb_composite_append(len_tvb, frag_tvb);
 
-		data_tvb = tvb_new_subset(tvb, offset, -1, -1);
+		data_tvb = tvb_new_subset_remaining(tvb, offset);
 		tvb_composite_append(len_tvb, data_tvb);
 		tvb_composite_finalize(len_tvb);
 
@@ -528,8 +529,8 @@ mp2t_fragment_handle(tvbuff_t *tvb, guint offset, packet_info *pinfo,
 {
 	/* proto_item *ti; */
 	fragment_data *frag_msg = NULL;
-	tvbuff_t *new_tvb = NULL;
-	gboolean save_fragmented;
+	tvbuff_t      *new_tvb  = NULL;
+	gboolean       save_fragmented;
 
 	save_fragmented = pinfo->fragmented;
 	pinfo->fragmented = TRUE;
@@ -581,17 +582,17 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
                                 proto_tree *tree, proto_tree *header_tree, guint32 pusi_flag,
 				pid_analysis_data_t *pid_analysis)
 {
-	tvbuff_t *next_tvb;
-	guint8 pointer = 0;
-	proto_item *pi;
-	guint stuff_len = 0;
-	proto_item *si;
-	proto_tree *stuff_tree;
-	packed_analysis_data_t *pdata = NULL;
-	subpacket_analysis_data_t *spdata = NULL;
-	guint32 frag_cur_pos = 0, frag_tot_len = 0;
-	gboolean fragmentation = FALSE;
-	guint32 frag_id = 0;
+	tvbuff_t                  *next_tvb;
+	guint8                     pointer       = 0;
+	proto_item                *pi;
+	guint                      stuff_len     = 0;
+	proto_item                *si;
+	proto_tree                *stuff_tree;
+	packed_analysis_data_t    *pdata         = NULL;
+	subpacket_analysis_data_t *spdata        = NULL;
+	guint32                    frag_cur_pos  = 0, frag_tot_len = 0;
+	gboolean                   fragmentation = FALSE;
+	guint32                    frag_id       = 0;
 
 	if (pusi_flag && pid_analysis->pload_type == pid_pload_unknown
 		&& remaining_len > 3) {
@@ -953,16 +954,17 @@ static void
 dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
 	    proto_tree *tree, conversation_t *conv)
 {
-	guint32 header;
-	guint afc;
-	gint start_offset = offset;
-	volatile gint payload_len;
+	guint32              header;
+	guint                afc;
+	gint                 start_offset = offset;
+	volatile gint        payload_len;
 	pid_analysis_data_t *pid_analysis;
 
-	guint32 skips;
-	guint32 pid;
-	guint32 cc;
-	guint32 pusi_flag;
+	guint32     skips;
+	guint32     pid;
+	guint32     cc;
+	guint32     pusi_flag;
+
 	/* guint8 pointer; */
 
 	proto_item *ti = NULL;
@@ -1244,10 +1246,10 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
 static void
 dissect_mp2t( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 {
-	guint offset = 0;
-	conversation_t *conv;
-	conv = find_or_create_conversation(pinfo);
+	guint		 offset = 0;
+	conversation_t	*conv;
 
+	conv = find_or_create_conversation(pinfo);
 
 	for  (; tvb_reported_length_remaining(tvb, offset) >= MP2T_PACKET_SIZE; offset += MP2T_PACKET_SIZE) {
 

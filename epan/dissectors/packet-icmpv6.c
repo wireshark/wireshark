@@ -1075,7 +1075,7 @@ static const value_string rpl_option_vals[] = {
 static int
 dissect_contained_icmpv6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-    gboolean save_in_error_pkt;
+    gboolean  save_in_error_pkt;
     tvbuff_t *next_tvb;
 
     /* Save the current value of the "we're inside an error packet"
@@ -1121,11 +1121,11 @@ static conversation_t *_find_or_create_conversation(packet_info *pinfo)
 /* ======================================================================= */
 static icmp_transaction_t *transaction_start(packet_info *pinfo, proto_tree *tree, guint32 *key)
 {
-    conversation_t *conversation;
+    conversation_t     *conversation;
     icmpv6_conv_info_t *icmpv6_info;
     icmp_transaction_t *icmpv6_trans;
-    emem_tree_key_t icmpv6_key[2];
-    proto_item *it;
+    emem_tree_key_t     icmpv6_key[2];
+    proto_item         *it;
 
     /* Handle the conversation tracking */
     conversation = _find_or_create_conversation(pinfo);
@@ -1173,12 +1173,12 @@ static icmp_transaction_t *transaction_start(packet_info *pinfo, proto_tree *tre
 /* ======================================================================= */
 static icmp_transaction_t *transaction_end(packet_info *pinfo, proto_tree *tree, guint32 *key)
 {
-    conversation_t *conversation;
+    conversation_t     *conversation;
     icmpv6_conv_info_t *icmpv6_info;
     icmp_transaction_t *icmpv6_trans;
-    emem_tree_key_t icmpv6_key[2];
-    proto_item *it;
-    nstime_t ns;
+    emem_tree_key_t     icmpv6_key[2];
+    proto_item         *it;
+    nstime_t            ns;
 
     conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
         pinfo->ptype, 0, 0, 0);
@@ -1230,9 +1230,9 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 {
     proto_tree *icmp6opt_tree, *flag_tree;
     proto_item *ti, *ti_opt, *ti_opt_len;
-    guint8 opt_type;
-    int opt_len;
-    int opt_offset;
+    guint8      opt_type;
+    int         opt_len;
+    int         opt_offset;
 
     while ((int)tvb_reported_length(tvb) > offset) {
         /* there are more options */
@@ -2144,9 +2144,9 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 {
     proto_tree *icmp6opt_tree, *flag_tree;
     proto_item *ti, *ti_opt, *ti_opt_len;
-    guint8 opt_type;
-    int opt_len;
-    int opt_offset;
+    guint8      opt_type;
+    int         opt_len;
+    int         opt_offset;
 
     while ((int)tvb_reported_length(tvb) > offset) {
         /* there are more options */
@@ -2717,7 +2717,7 @@ dissect_nodeinfo(tvbuff_t *tvb, int ni_offset, packet_info *pinfo _U_, proto_tre
 {
     proto_tree *flag_tree;
     proto_item *ti;
-    guint16 qtype;
+    guint16     qtype;
 
     /* Qtype */
     proto_tree_add_item(tree, hf_icmpv6_ni_qtype, tvb, ni_offset, 2, ENC_BIG_ENDIAN);
@@ -2824,7 +2824,7 @@ static int
 dissect_rrenum(tvbuff_t *tvb, int rr_offset, packet_info *pinfo _U_, proto_tree *tree, guint8 icmp6_type _U_, guint8 icmp6_code)
 {
     proto_tree *flag_tree, *mp_tree, *up_tree, *rm_tree;
-    proto_item *ti, *ti_mp, *ti_up, *ti_rm;
+    proto_item *ti,        *ti_mp,   *ti_up,   *ti_rm;
 
     /* Sequence Number */
     proto_tree_add_item(tree, hf_icmpv6_rr_sequencenumber, tvb, rr_offset, 4, ENC_BIG_ENDIAN);
@@ -3031,7 +3031,7 @@ dissect_mldrv2( tvbuff_t *tvb, guint32 offset, packet_info *pinfo _U_, proto_tre
 {
     proto_tree *mar_tree;
     proto_item *ti_mar;
-    int mldr_offset = offset;
+    int         mldr_offset = offset;
 
     /* Reserved */
     proto_tree_add_item(tree, hf_icmpv6_reserved, tvb, mldr_offset, 2, ENC_NA );
@@ -3095,17 +3095,17 @@ dissect_mldrv2( tvbuff_t *tvb, guint32 offset, packet_info *pinfo _U_, proto_tre
 static int
 dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree *icmp6_tree = NULL, *flag_tree = NULL;
-    proto_item *ti = NULL, *hidden_item, *checksum_item = NULL, *code_item = NULL, *ti_flag = NULL;
-    const char *code_name = NULL;
-    guint length = 0, reported_length;
-    vec_t cksum_vec[4];
-    guint32 phdr[2];
-    guint16 cksum, computed_cksum;
-    int offset;
-    tvbuff_t *next_tvb;
-    guint8 icmp6_type, icmp6_code;
-    icmp_transaction_t *trans = NULL;
+    proto_tree         *icmp6_tree = NULL, *flag_tree = NULL;
+    proto_item         *ti         = NULL, *hidden_item, *checksum_item = NULL, *code_item = NULL, *ti_flag = NULL;
+    const char         *code_name  = NULL;
+    guint               length     = 0, reported_length;
+    vec_t               cksum_vec[4];
+    guint32             phdr[2];
+    guint16             cksum, computed_cksum;
+    int                 offset;
+    tvbuff_t           *next_tvb;
+    guint8              icmp6_type, icmp6_code;
+    icmp_transaction_t *trans      = NULL;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICMPv6");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -3262,15 +3262,15 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     trans = transaction_end(pinfo, icmp6_tree, conv_key);
                 }
             }
-            next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+            next_tvb = tvb_new_subset_remaining(tvb, offset);
             offset += call_dissector(data_handle, next_tvb, pinfo, icmp6_tree);
         }
     }
 
     if (1) { /* There are expert infos buried in here so always execute */
         /* decode... */
-	/* FIXME: The following messages MUST have a TTL^WHop-Limit of 255:
-		133-137, 141-142, 148-149. Detect this and add expert items. */
+        /* FIXME: The following messages MUST have a TTL^WHop-Limit of 255:
+                133-137, 141-142, 148-149. Detect this and add expert items. */
         switch (icmp6_type) {
             case ICMP6_DST_UNREACH: /* Destination Unreachable (1) */
             case ICMP6_TIME_EXCEEDED: /* Time Exceeded (3) */

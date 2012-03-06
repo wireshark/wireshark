@@ -161,12 +161,12 @@ const value_string lisp_typevals[] = {
 static int
 dissect_lisp_locator(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_mapping_tree)
 {
-    gint offset = 0;
-    guint8 prio, weight, m_prio, m_weight;
-    guint16 flags, loc_afi;
-    guint32 locator_v4;
-    struct e_in6_addr locator_v6;
-    tvbuff_t *next_tvb;
+    gint               offset = 0;
+    guint8             prio, weight, m_prio, m_weight;
+    guint16            flags, loc_afi;
+    guint32            locator_v4;
+    struct e_in6_addr  locator_v6;
+    tvbuff_t          *next_tvb;
 
     prio     = tvb_get_guint8(tvb, offset); offset += 1;
     weight   = tvb_get_guint8(tvb, offset); offset += 1;
@@ -200,7 +200,7 @@ dissect_lisp_locator(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_mapping
             break;
         default:
             proto_tree_add_text(lisp_mapping_tree, tvb, 0, 2, "Unexpected AFI, cannot decode");
-            next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+            next_tvb = tvb_new_subset_remaining(tvb, offset);
             call_dissector(data_handle, next_tvb, pinfo, lisp_mapping_tree);
     }
 
@@ -228,18 +228,19 @@ dissect_lisp_locator(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_mapping
 static int
 dissect_lisp_mapping(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree, guint8 rec_cnt)
 {
-    int i;
-    gint offset = 0;
-    gint mapver_offset = 0;
-    guint32 ttl;
-    guint8 loc_cnt;
-    guint8 prefix_mask, flags, act;
-    guint16 prefix_afi;
-    guint32 prefix_v4;
-    struct e_in6_addr prefix_v6;
-    proto_item *tir;
-    proto_tree *lisp_mapping_tree;
-    tvbuff_t *next_tvb;
+    int                i;
+    gint               offset        = 0;
+    gint               mapver_offset = 0;
+    guint32            ttl;
+    guint8             loc_cnt;
+    guint8             prefix_mask, flags, act;
+    guint16            prefix_afi;
+    guint32            prefix_v4;
+    struct e_in6_addr  prefix_v6;
+    proto_item        *tir;
+    proto_tree        *lisp_mapping_tree;
+    tvbuff_t          *next_tvb;
+
     const char *lisp_actions[] = {
         "No-Action",
         "Natively-Forward",
@@ -288,7 +289,7 @@ dissect_lisp_mapping(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree, g
             break;
         default:
             proto_tree_add_text(lisp_tree, tvb, 0, 2, "Unexpected AFI, cannot decode");
-            next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+            next_tvb = tvb_new_subset_remaining(tvb, offset);
             call_dissector(data_handle, next_tvb, pinfo, lisp_tree);
             return offset;
     }
@@ -306,7 +307,7 @@ dissect_lisp_mapping(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree, g
         tvbuff_t *loc_tvb;
         int len = 0;
 
-        loc_tvb = tvb_new_subset(tvb, offset, -1, -1);
+        loc_tvb = tvb_new_subset_remaining(tvb, offset);
         len = dissect_lisp_locator(loc_tvb, pinfo, lisp_mapping_tree);
         offset += len;
     }
@@ -347,15 +348,15 @@ dissect_lisp_mapping(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree, g
 static void
 dissect_lisp_map_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree)
 {
-    int i;
-    gint offset = 0;
-    gboolean mrep = FALSE;
-    guint8 flags;
-    guint8 itr_rec_cnt = 0;
-    guint8 rec_cnt = 0;
-    guint16 src_eid_afi;
-    struct e_in6_addr e_in6_addr;
-    tvbuff_t *next_tvb;
+    int                i;
+    gint               offset      = 0;
+    gboolean           mrep        = FALSE;
+    guint8             flags;
+    guint8             itr_rec_cnt = 0;
+    guint8             rec_cnt     = 0;
+    guint16            src_eid_afi;
+    struct e_in6_addr  e_in6_addr;
+    tvbuff_t          *next_tvb;
 
     /* Flags (6 bits)*/
     flags = tvb_get_guint8(tvb, offset);
@@ -408,7 +409,7 @@ dissect_lisp_map_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tre
         default:
             proto_tree_add_text(lisp_tree, tvb, offset, 0,
                     "Unexpected Source EID AFI, cannot decode");
-            next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+            next_tvb = tvb_new_subset_remaining(tvb, offset);
             call_dissector(data_handle, next_tvb, pinfo, lisp_tree);
             return;
     }
@@ -447,7 +448,7 @@ dissect_lisp_map_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tre
             default:
                 proto_tree_add_text(lisp_tree, tvb, offset, 2,
                         "Unexpected ITR-RLOC-AFI, cannot decode");
-                next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+                next_tvb = tvb_new_subset_remaining(tvb, offset);
                 call_dissector(data_handle, next_tvb, pinfo, lisp_tree);
                 return;
         }
@@ -510,7 +511,7 @@ dissect_lisp_map_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tre
                 break;
             default:
                 proto_tree_add_text(lisp_tree, tvb, offset, 2, "Unexpected AFI, cannot decode");
-                next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+                next_tvb = tvb_new_subset_remaining(tvb, offset);
                 call_dissector(data_handle, next_tvb, pinfo, lisp_tree);
                 return;
         }
@@ -526,12 +527,12 @@ dissect_lisp_map_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tre
         tim = proto_tree_add_text(lisp_tree, tvb, offset, -1, "Map-Reply record");
         lisp_mr_tree = proto_item_add_subtree(tim, ett_lisp_mr);
 
-        rep_tvb = tvb_new_subset(tvb, offset, -1, -1);
+        rep_tvb = tvb_new_subset_remaining(tvb, offset);
         len = dissect_lisp_mapping(rep_tvb, pinfo, lisp_mr_tree, 0);
         offset += len;
     }
 
-    next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+    next_tvb = tvb_new_subset_remaining(tvb, offset);
     call_dissector(data_handle, next_tvb, pinfo, lisp_tree);
 }
 
@@ -568,9 +569,9 @@ dissect_lisp_map_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tre
 static void
 dissect_lisp_map_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree)
 {
-    int i;
-    gint offset = 0;
-    guint8 rec_cnt = 0;
+    int       i;
+    gint      offset  = 0;
+    guint8    rec_cnt = 0;
     tvbuff_t *next_tvb;
 
     /* Flags (2 bits) */
@@ -595,12 +596,12 @@ dissect_lisp_map_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree)
         tvbuff_t *rec_tvb;
         int len = 0;
 
-        rec_tvb = tvb_new_subset(tvb, offset, -1, -1);
+        rec_tvb = tvb_new_subset_remaining(tvb, offset);
         len = dissect_lisp_mapping(rec_tvb, pinfo, lisp_tree, rec_cnt);
         offset += len;
     }
 
-    next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+    next_tvb = tvb_new_subset_remaining(tvb, offset);
     call_dissector(data_handle, next_tvb, pinfo, lisp_tree);
 }
 
@@ -641,11 +642,11 @@ dissect_lisp_map_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree)
 static void
 dissect_lisp_map_register(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree)
 {
-    int i;
-    gint offset = 0;
-    guint8 rec_cnt = 0;
+    int       i;
+    gint      offset  = 0;
+    guint8    rec_cnt = 0;
     tvbuff_t *next_tvb;
-    guint16 authlen = 0;
+    guint16   authlen = 0;
 
     /* Flags (1 bit) */
     proto_tree_add_item(lisp_tree, hf_lisp_mreg_flags_pmr, tvb, offset, 3, ENC_BIG_ENDIAN);
@@ -684,12 +685,12 @@ dissect_lisp_map_register(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tr
         tvbuff_t *rec_tvb;
         int len = 0;
 
-        rec_tvb = tvb_new_subset(tvb, offset, -1, -1);
+        rec_tvb = tvb_new_subset_remaining(tvb, offset);
         len = dissect_lisp_mapping(rec_tvb, pinfo, lisp_tree, rec_cnt);
         offset += len;
     }
 
-    next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+    next_tvb = tvb_new_subset_remaining(tvb, offset);
     call_dissector(data_handle, next_tvb, pinfo, lisp_tree);
 }
 
@@ -730,11 +731,11 @@ dissect_lisp_map_register(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tr
 static void
 dissect_lisp_map_notify(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree)
 {
-    int i;
-    gint offset = 0;
-    guint8 rec_cnt = 0;
+    int       i;
+    gint      offset  = 0;
+    guint8    rec_cnt = 0;
     tvbuff_t *next_tvb;
-    guint16 authlen = 0;
+    guint16   authlen = 0;
 
     /* Reserved bits (20 bits) */
     proto_tree_add_item(lisp_tree, hf_lisp_mnot_res, tvb, offset, 3, ENC_BIG_ENDIAN);
@@ -767,12 +768,12 @@ dissect_lisp_map_notify(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree
         tvbuff_t *rec_tvb;
         int len = 0;
 
-        rec_tvb = tvb_new_subset(tvb, offset, -1, -1);
+        rec_tvb = tvb_new_subset_remaining(tvb, offset);
         len = dissect_lisp_mapping(rec_tvb, pinfo, lisp_tree, rec_cnt);
         offset += len;
     }
 
-    next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+    next_tvb = tvb_new_subset_remaining(tvb, offset);
     call_dissector(data_handle, next_tvb, pinfo, lisp_tree);
 }
 
@@ -793,12 +794,12 @@ static void
 dissect_lisp_ecm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *lisp_tree)
 {
     tvbuff_t *next_tvb;
-    guint8 ip_ver;
+    guint8    ip_ver;
 
     proto_tree_add_item(lisp_tree, hf_lisp_ecm_res, tvb, 0, 4, ENC_BIG_ENDIAN);
 
     /* Determine if encapsulated packet is IPv4 or IPv6, and call dissector */
-    next_tvb = tvb_new_subset(tvb, LISP_ECM_HEADER_LEN, -1, -1);
+    next_tvb = tvb_new_subset_remaining(tvb, LISP_ECM_HEADER_LEN);
     ip_ver = tvb_get_bits8(next_tvb, 0, 4);
 
     switch (ip_ver) {

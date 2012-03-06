@@ -114,10 +114,10 @@ dissect_mactelnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *mactelnet_tree;
 	proto_item *mactelnet_control_item;
 	proto_tree *mactelnet_control_tree;
-	int foundping = -1;
-	int foundclient = -1;
-	int foundserver = -1;
-	guint16 type;
+	int         foundping   = -1;
+	int         foundclient = -1;
+	int         foundserver = -1;
+	guint16     type;
 
 	/* Check that there's enough data */
 	if (tvb_length(tvb) < 18)
@@ -216,7 +216,7 @@ dissect_mactelnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (type == 1) {
 			while(tvb_reported_length_remaining(tvb, offset) > 0) {
 				if (tvb_reported_length_remaining(tvb, offset) > 4 && tvb_get_ntohl(tvb, offset) == control_packet) {
-					guint8 datatype;
+					guint8  datatype;
 					guint32 datalength;
 
 					/* Add subtree for control packet */
@@ -268,13 +268,13 @@ dissect_mactelnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					offset += datalength;
 				} else {
 					/* Data packet, let wireshark handle it */
-					tvbuff_t *next_client = tvb_new_subset(tvb, offset, -1, -1);
+					tvbuff_t *next_client = tvb_new_subset_remaining(tvb, offset);
 					return call_dissector(data_handle, next_client, pinfo, mactelnet_tree);
 				}
 			}
 		} else if (type == 4 || type == 5) {
 			/* Data packet, let wireshark handle it */
-			tvbuff_t *next_client = tvb_new_subset(tvb, offset, -1, -1);
+			tvbuff_t *next_client = tvb_new_subset_remaining(tvb, offset);
 			return call_dissector(data_handle, next_client, pinfo, mactelnet_tree);
 		}
 

@@ -82,10 +82,10 @@ static dissector_handle_t data_handle;
 static int
 dissect_lisp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    gint offset = 0;
-    guint8 flags;
-    guint8 ip_ver;
-    tvbuff_t *next_tvb;
+    gint        offset = 0;
+    guint8      flags;
+    guint8      ip_ver;
+    tvbuff_t   *next_tvb;
     proto_item *ti;
     proto_item *tif;
     proto_tree *lisp_data_tree;
@@ -180,7 +180,7 @@ dissect_lisp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Check if there is stuff left in the buffer, and return if not */
 
     /* Determine if encapsulated packet is IPv4 or IPv6, and call dissector */
-    next_tvb = tvb_new_subset(tvb, LISP_DATA_HEADER_LEN, -1, -1);
+    next_tvb = tvb_new_subset_remaining(tvb, LISP_DATA_HEADER_LEN);
     ip_ver = tvb_get_bits8(next_tvb, 0, 4);
     switch (ip_ver) {
         case 4:

@@ -193,8 +193,8 @@ dissect_scop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item  *proto_root;
     proto_tree  *scop_tree;
 
-    guint       offset = 0;
-    scop_packet packet;
+    guint        offset = 0;
+    scop_packet  packet;
 
     memset(&packet, 0, sizeof(packet));
 
@@ -245,16 +245,16 @@ dissect_scop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Call the appropriate helper routine to dissect based on the service type. */
     switch (packet.service) {
         case SCOP_SERVICE_SCOP:
-            dissect_scop_zip(tvb_new_subset(next_tvb, offset, -1, -1), pinfo, scop_tree);
+            dissect_scop_zip(tvb_new_subset_remaining(next_tvb, offset), pinfo, scop_tree);
             break;
         case SCOP_SERVICE_BRIDGE:
-            dissect_scop_bridge(tvb_new_subset(next_tvb, offset, -1, -1), pinfo, scop_tree);
+            dissect_scop_bridge(tvb_new_subset_remaining(next_tvb, offset), pinfo, scop_tree);
             break;
         case SCOP_SERVICE_GATEWAY:
             /* Nothing yet defined for the gateway. Fall-Through. */
         default:
             /* Unknown Service Type. */
-            call_dissector(data_handle, tvb_new_subset(next_tvb, offset, -1, -1), pinfo, tree);
+            call_dissector(data_handle, tvb_new_subset_remaining(next_tvb, offset), pinfo, tree);
             break;
     }
 } /* dissect_scop() */
@@ -293,7 +293,7 @@ dissect_scop_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* If there are any bytes left over, pass them to the data dissector. */
     if (offset < tvb_length(tvb)) {
-        tvbuff_t    *payload_tvb = tvb_new_subset(tvb, offset, -1, -1);
+        tvbuff_t    *payload_tvb = tvb_new_subset_remaining(tvb, offset);
         proto_tree  *root        = proto_tree_get_root(tree);
         call_dissector(data_handle, payload_tvb, pinfo, root);
     }

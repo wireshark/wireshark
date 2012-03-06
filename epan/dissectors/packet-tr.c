@@ -151,7 +151,7 @@ static
 int check_for_old_linux_tvb(tvbuff_t *tvb)
 {
 	const guint8	*data;
-	int		x, bytes;
+	int		 x, bytes;
 
 	/* Restrict our looping to the boundaries of the frame */
 	bytes = tvb_length(tvb);
@@ -324,7 +324,7 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree	*tr_tree, *bf_tree;
 	proto_item	*ti, *hidden_item;
-	guint8		rcf1, rcf2;
+	guint8		 rcf1, rcf2;
 	tvbuff_t	*next_tvb;
 
 	volatile int		frame_type;
@@ -364,7 +364,7 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (x != 0) {
 		/* Actually packet starts x bytes into what we have got but with all
 		   source routing compressed. See comment above */
-		tr_tvb = tvb_new_subset((tvbuff_t*) tvb, x, -1, -1);
+		tr_tvb = tvb_new_subset_remaining((tvbuff_t*) tvb, x);
 	}
 	else {
 		tr_tvb = tvb;
@@ -590,9 +590,9 @@ static void
 add_ring_bridge_pairs(int rcf_len, tvbuff_t *tvb, proto_tree *tree)
 {
 	proto_item *hidden_item;
-	int 	j, size;
-	int 	segment, brdgnmb, unprocessed_rif;
-	int	buff_offset=0;
+	int 	    j, size;
+	int 	    segment, brdgnmb, unprocessed_rif;
+	int	    buff_offset=0;
 
 #define RIF_OFFSET		16
 #define RIF_BYTES_TO_PROCESS	30

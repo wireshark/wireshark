@@ -28,18 +28,17 @@
 #endif
 
 #include <glib.h>
-#include <string.h>
 
-#include <epan/bitswap.h>
 #include <epan/packet.h>
+#include <epan/bitswap.h>
 #include <epan/asn1.h> /* needed for packet-gsm_map.h */
 
 #include "packet-cell_broadcast.h"
 #include "packet-gsm_map.h"
 
-static int dissect_bmc_cbs_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static int dissect_bmc_cbs_message     (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_bmc_schedule_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-static int dissect_bmc_cbs41_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static int dissect_bmc_cbs41_message   (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static int proto_bmc = -1;
 static int hf_bmc_message_type = -1;
@@ -88,13 +87,13 @@ static gint ett_bmc_message_description = -1;
 static int
 dissect_bmc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint8 message_type;
-    guint8 *p_rev, *reversing_buffer;
-    gint offset = 0;
-    gint i, len;
+    guint8      message_type;
+    guint8     *p_rev, *reversing_buffer;
+    gint        offset = 0;
+    gint        i, len;
     proto_item *ti;
     proto_tree *bmc_tree;
-    tvbuff_t *bit_reversed_tvb;
+    tvbuff_t   *bit_reversed_tvb;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BMC");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -143,7 +142,7 @@ static int
 dissect_bmc_cbs_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
     tvbuff_t *cell_broadcast_tvb;
-    gint offset=1;
+    gint      offset = 1;
 
     dissect_cbs_message_identifier(tvb, tree, offset);
     offset += 2;
@@ -154,7 +153,7 @@ dissect_bmc_cbs_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
     dissect_cbs_data_coding_scheme(tvb, pinfo, tree, offset);
     offset += 1;
 
-    cell_broadcast_tvb = tvb_new_subset(tvb, offset, -1, -1);
+    cell_broadcast_tvb = tvb_new_subset_remaining(tvb, offset);
     dissect_umts_cell_broadcast_message(cell_broadcast_tvb, pinfo, tree);
     offset = tvb_length(cell_broadcast_tvb);
 
@@ -164,14 +163,14 @@ dissect_bmc_cbs_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static int
 dissect_bmc_schedule_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    gint offset=1, i, saved_offset;
-    guint8 new_message_bitmap_len;
-    guint8 length_of_cbs_schedule_period;
-    guint8 message_description_type;
-    guint8 future_extension_bitmap;
-    guint8 length_of_serial_number_list;
-    guint8 entry;
-    guint8 mask, bit;
+    gint        offset = 1, i, saved_offset;
+    guint8      new_message_bitmap_len;
+    guint8      length_of_cbs_schedule_period;
+    guint8      message_description_type;
+    guint8      future_extension_bitmap;
+    guint8      length_of_serial_number_list;
+    guint8      entry;
+    guint8      mask, bit;
     proto_tree *message_description_tree;
     proto_item *ti;
 
@@ -197,7 +196,12 @@ dissect_bmc_schedule_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     for (i=0; i<new_message_bitmap_len; i++) {
         for(mask=1; bit<=length_of_cbs_schedule_period; mask<<=1, bit++) {
             message_description_type = tvb_get_guint8(tvb,offset);
-            proto_tree_add_uint_format(message_description_tree, hf_bmc_message_description_type, tvb, offset, 1, message_description_type, "Message %d Message Description Type: %s (%d)", bit, val_to_str(message_description_type, message_description_type_vals,"Unknown"), message_description_type);
+            proto_tree_add_uint_format(message_description_tree, hf_bmc_message_description_type,
+                                       tvb, offset, 1, message_description_type,
+                                       "Message %d Message Description Type: %s (%d)",
+                                       bit,
+                                       val_to_str(message_description_type, message_description_type_vals,"Unknown"),
+                                       message_description_type);
             offset += 1;
 
             if ((message_description_type==1) || (message_description_type==5)) {
@@ -205,7 +209,8 @@ dissect_bmc_schedule_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
                 offset += 2;
             }
             else if ((message_description_type==0) || (message_description_type==4)) {
-                proto_tree_add_item(message_description_tree, hf_bmc_offset_to_ctch_bs_index_of_first_transmission, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(message_description_tree, hf_bmc_offset_to_ctch_bs_index_of_first_transmission,
+                                    tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
             }
         }

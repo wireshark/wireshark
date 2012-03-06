@@ -52,18 +52,18 @@ static int hf_trill_options= -1 ;
 
 static dissector_handle_t eth_dissector ;
 
-#define TRILL_VERSION_MASK 0xC000
-#define TRILL_RESERVED_MASK 0x3000
+#define TRILL_VERSION_MASK   0xC000
+#define TRILL_RESERVED_MASK  0x3000
 #define TRILL_MULTI_DST_MASK 0x0800
-#define TRILL_OP_LEN_MASK 0x07C0
-#define TRILL_HOP_CNT_MASK 0x003F
+#define TRILL_OP_LEN_MASK    0x07C0
+#define TRILL_HOP_CNT_MASK   0x003F
 
 #define TRILL_PROTO_COL_NAME "TRILL"
 #define TRILL_PROTO_COL_INFO "TRILL Encapsulated Frame"
 
-#define TRILL_MIN_FRAME_LENGTH 6
-#define TRILL_BIT_FIELDS_LEN 2
-#define TRILL_NICKNAME_LEN 2
+#define TRILL_MIN_FRAME_LENGTH     6
+#define TRILL_BIT_FIELDS_LEN       2
+#define TRILL_NICKNAME_LEN         2
 #define TRILL_OP_LENGTH_BYTE_UNITS 0x4
 
 static const true_false_string multi_dst_strings = {
@@ -97,9 +97,9 @@ dissect_trill( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 {
   proto_item *ti ;
   proto_tree *trill_tree ;
-  guint32 op_len ;
-  tvbuff_t *next_tvb ;
-  int offset = 0 ;
+  guint32     op_len ;
+  tvbuff_t   *next_tvb ;
+  int         offset = 0 ;
 
   col_set_str( pinfo->cinfo, COL_PROTOCOL, TRILL_PROTO_COL_NAME ) ;
   col_set_str( pinfo->cinfo, COL_INFO, TRILL_PROTO_COL_INFO ) ;
@@ -140,7 +140,7 @@ dissect_trill( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
   }
 
   /* call the eth dissector */
-  next_tvb = tvb_new_subset( tvb, TRILL_MIN_FRAME_LENGTH + op_len , -1, -1 ) ;
+  next_tvb = tvb_new_subset_remaining( tvb, TRILL_MIN_FRAME_LENGTH + op_len ) ;
   call_dissector( eth_dissector, next_tvb, pinfo, tree ) ;
 
   return tvb_length( tvb ) ;

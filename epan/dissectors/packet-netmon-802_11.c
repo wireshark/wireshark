@@ -1,6 +1,6 @@
 /*
  *  packet-netmon-802_11.c
- *	Decode packets with a Network Monitor 802.11 radio header
+ *       Decode packets with a Network Monitor 802.11 radio header
  *
  * $Id$
  *
@@ -28,26 +28,25 @@
 #endif
 
 #include <glib.h>
-#include <string.h>
 
 #include <epan/packet.h>
 
 /* protocol */
 static int proto_netmon_802_11 = -1;
 
-#define MIN_HEADER_LEN	32
+#define MIN_HEADER_LEN  32
 
 /* op_mode */
-#define OP_MODE_STA	0x00000001	/* station mode */
-#define OP_MODE_AP	0x00000002	/* AP mode */
-#define OP_MODE_STA_EXT	0x00000004	/* extensible station mode */
-#define OP_MODE_MON	0x80000000	/* monitor mode */
+#define OP_MODE_STA     0x00000001      /* station mode */
+#define OP_MODE_AP      0x00000002      /* AP mode */
+#define OP_MODE_STA_EXT 0x00000004      /* extensible station mode */
+#define OP_MODE_MON     0x80000000      /* monitor mode */
 
 /* phy_type */
-#define PHY_TYPE_11A	4
-#define PHY_TYPE_11B	5
-#define PHY_TYPE_11G	6
-#define PHY_TYPE_11N	7
+#define PHY_TYPE_11A    4
+#define PHY_TYPE_11B    5
+#define PHY_TYPE_11G    6
+#define PHY_TYPE_11N    7
 
 static int hf_netmon_802_11_version = -1;
 static int hf_netmon_802_11_length = -1;
@@ -74,14 +73,14 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *wlan_tree, *opmode_tree;
   proto_item *ti;
-  tvbuff_t *next_tvb;
-  int offset;
-  guint8 version;
-  guint16 length;
-  guint32 flags;
-  guint32 channel;
-  gint32 rssi;
-  guint8 rate;
+  tvbuff_t   *next_tvb;
+  int         offset;
+  guint8      version;
+  guint16     length;
+  guint32     flags;
+  guint32     channel;
+  gint32      rssi;
+  guint8      rate;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "WLAN");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -169,7 +168,7 @@ skip:
   offset = length;
 
   /* dissect the 802.11 header next */
-  next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+  next_tvb = tvb_new_subset_remaining(tvb, offset);
   call_dissector(ieee80211_handle, next_tvb, pinfo, tree);
   return offset;
 }
@@ -187,37 +186,37 @@ proto_register_netmon_802_11(void)
 
   static hf_register_info hf[] = {
     { &hf_netmon_802_11_version, { "Header revision", "netmon_802_11.version", FT_UINT8,
-			  BASE_DEC, NULL, 0x0, NULL, HFILL } },
+                          BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_netmon_802_11_length, { "Header length", "netmon_802_11.length", FT_UINT16,
-			 BASE_DEC, NULL, 0x0, NULL, HFILL } },
+                          BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_netmon_802_11_op_mode, { "Operation mode", "netmon_802_11.op_mode", FT_UINT32,
-			  BASE_HEX, NULL, 0x0, NULL, HFILL } },
+                          BASE_HEX, NULL, 0x0, NULL, HFILL } },
     { &hf_netmon_802_11_op_mode_sta, { "Station mode", "netmon_802_11.op_mode.sta", FT_UINT32,
-			  BASE_HEX, NULL, OP_MODE_STA, NULL, HFILL } },
+                          BASE_HEX, NULL, OP_MODE_STA, NULL, HFILL } },
     { &hf_netmon_802_11_op_mode_ap, { "AP mode", "netmon_802_11.op_mode.ap", FT_UINT32,
-			  BASE_HEX, NULL, OP_MODE_AP, NULL, HFILL } },
+                          BASE_HEX, NULL, OP_MODE_AP, NULL, HFILL } },
     { &hf_netmon_802_11_op_mode_sta_ext, { "Extensible station mode", "netmon_802_11.op_mode.sta_ext", FT_UINT32,
-			  BASE_HEX, NULL, OP_MODE_STA_EXT, NULL, HFILL } },
+                          BASE_HEX, NULL, OP_MODE_STA_EXT, NULL, HFILL } },
     { &hf_netmon_802_11_op_mode_mon, { "Monitor mode", "netmon_802_11.op_mode.on", FT_UINT32,
-			  BASE_HEX, NULL, OP_MODE_MON, NULL, HFILL } },
+                          BASE_HEX, NULL, OP_MODE_MON, NULL, HFILL } },
     { &hf_netmon_802_11_flags, { "Flags", "netmon_802_11.flags", FT_UINT32,
-			  BASE_HEX, NULL, 0x0, NULL, HFILL } },
+                          BASE_HEX, NULL, 0x0, NULL, HFILL } },
     { &hf_netmon_802_11_phy_type, { "PHY type", "netmon_802_11.phy_type", FT_UINT32,
-			  BASE_DEC, VALS(phy_type), 0x0, NULL, HFILL } },
+                          BASE_DEC, VALS(phy_type), 0x0, NULL, HFILL } },
     { &hf_netmon_802_11_channel, { "Channel", "netmon_802_11.channel", FT_UINT32,
-			  BASE_DEC, NULL, 0x0, NULL, HFILL } },
+                          BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_netmon_802_11_frequency, { "Center frequency", "netmon_802_11.frequency", FT_UINT32,
-			  BASE_DEC, NULL, 0x0, NULL, HFILL } },
+                          BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_netmon_802_11_rssi, { "RSSI", "netmon_802_11.rssi", FT_INT32,
-			  BASE_DEC, NULL, 0x0, NULL, HFILL } },
+                          BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_netmon_802_11_datarate, { "Data rate", "netmon_802_11.datarate", FT_UINT32,
-			  BASE_DEC, NULL, 0x0, NULL, HFILL } },
+                          BASE_DEC, NULL, 0x0, NULL, HFILL } },
     /*
      * XXX - is this host, or MAC, time stamp?
      * It might be a FILETIME.
      */
     { &hf_netmon_802_11_timestamp, { "Timestamp", "netmon_802_11.timestamp", FT_UINT64,
-			  BASE_DEC, NULL, 0x0, NULL, HFILL } },
+                          BASE_DEC, NULL, 0x0, NULL, HFILL } },
   };
   static gint *ett[] = {
     &ett_netmon_802_11,

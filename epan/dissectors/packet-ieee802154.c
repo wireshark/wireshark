@@ -398,9 +398,9 @@ static gboolean ieee802154_extend_auth = TRUE;
 static void
 dissect_ieee802154_fcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee802154_packet *packet, guint *offset)
 {
-    guint16         fcf;
-    proto_tree      *field_tree;
-    proto_item      *ti;
+    guint16     fcf;
+    proto_tree *field_tree;
+    proto_item *ti;
 
     /* Get the FCF field. */
     fcf = tvb_get_letohs(tvb, *offset);
@@ -458,13 +458,13 @@ dissect_ieee802154_fcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee
 static void
 dissect_ieee802154_nonask_phy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree          *ieee802154_tree = NULL;
-    proto_item          *proto_root = NULL;
+    proto_tree *ieee802154_tree = NULL;
+    proto_item *proto_root      = NULL;
 
-    guint offset=0;
-    guint32 preamble;
-    guint8 sfd,phr;
-    tvbuff_t* mac;
+    guint       offset          = 0;
+    guint32     preamble;
+    guint8      sfd,phr;
+    tvbuff_t*   mac;
 
     /* Create the protocol tree. */
     if (tree) {
@@ -1279,8 +1279,8 @@ dissect_ieee802154_fcs:
 static void
 dissect_ieee802154_superframe(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint *offset)
 {
-    proto_tree  *field_tree = NULL;
-    proto_item  *ti;
+    proto_tree *field_tree = NULL;
+    proto_item *ti;
     guint16     superframe;
 
     /* Parse the superframe spec. */
@@ -1320,9 +1320,9 @@ dissect_ieee802154_superframe(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 static void
 dissect_ieee802154_gtsinfo(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint *offset)
 {
-    proto_tree  *field_tree = NULL;
-    proto_tree  *subtree = NULL;
-    proto_item  *ti;
+    proto_tree *field_tree = NULL;
+    proto_tree *subtree    = NULL;
+    proto_item *ti;
     guint8      gts_spec;
     guint8      gts_count;
 
@@ -1410,8 +1410,8 @@ dissect_ieee802154_gtsinfo(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 static void
 dissect_ieee802154_pendaddr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint *offset)
 {
-    proto_tree  *subtree = NULL;
-    proto_item  *ti;
+    proto_tree *subtree = NULL;
+    proto_item *ti;
     guint8      pend_spec;
     guint8      pend_num16;
     guint8      pend_num64;
@@ -1457,9 +1457,9 @@ dissect_ieee802154_pendaddr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 static void
 dissect_ieee802154_assoc_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee802154_packet *packet)
 {
-    proto_tree          *subtree = NULL;
-    proto_item *        ti;
-    guint8              capability;
+    proto_tree   *subtree = NULL;
+    proto_item *  ti;
+    guint8        capability;
 
     /* Create a subtree for this command frame. */
     if (tree) {
@@ -1485,7 +1485,7 @@ dissect_ieee802154_assoc_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     /* Call the data dissector for any leftover bytes. */
     if (tvb_length(tvb) > 1) {
-        call_dissector(data_handle, tvb_new_subset(tvb, 1, -1, -1), pinfo, tree);
+        call_dissector(data_handle, tvb_new_subset_remaining(tvb, 1), pinfo, tree);
     }
 } /* dissect_ieee802154_assoc_req */
 
@@ -1507,11 +1507,11 @@ dissect_ieee802154_assoc_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 static void
 dissect_ieee802154_assoc_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee802154_packet *packet)
 {
-    proto_tree          *subtree = NULL;
-    proto_item          *ti;
-    guint16             short_addr;
-    guint8              status;
-    guint               offset = 0;
+    proto_tree *subtree = NULL;
+    proto_item *ti;
+    guint16     short_addr;
+    guint8      status;
+    guint       offset  = 0;
 
     /* Create a subtree for this command frame. */
     if (tree) {
@@ -1563,7 +1563,7 @@ dissect_ieee802154_assoc_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     /* Call the data dissector for any leftover bytes. */
     if (tvb_length(tvb) > offset) {
-        call_dissector(data_handle, tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
+        call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
     }
 } /* dissect_ieee802154_assoc_rsp */
 
@@ -1584,9 +1584,9 @@ dissect_ieee802154_assoc_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 static void
 dissect_ieee802154_disassoc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee802154_packet *packet)
 {
-    proto_tree          *subtree = NULL;
-    proto_item          *ti;
-    guint8              reason;
+    proto_tree *subtree = NULL;
+    proto_item *ti;
+    guint8      reason;
 
     /* Create a subtree for this command frame. */
     if (tree) {
@@ -1624,7 +1624,7 @@ dissect_ieee802154_disassoc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* Call the data dissector for any leftover bytes. */
     if (tvb_length(tvb) > 1) {
-        call_dissector(data_handle, tvb_new_subset(tvb, 1, -1, -1), pinfo, tree);
+        call_dissector(data_handle, tvb_new_subset_remaining(tvb, 1), pinfo, tree);
     }
 } /* dissect_ieee802154_disassoc */
 
@@ -1646,13 +1646,13 @@ dissect_ieee802154_disassoc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static void
 dissect_ieee802154_realign(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee802154_packet *packet)
 {
-    proto_tree          *subtree = NULL;
-    proto_item          *ti;
-    guint16             pan_id;
-    guint16             coord_addr;
-    guint8              channel;
-    guint16             short_addr;
-    guint               offset = 0;
+    proto_tree *subtree = NULL;
+    proto_item *ti;
+    guint16     pan_id;
+    guint16     coord_addr;
+    guint8      channel;
+    guint16     short_addr;
+    guint       offset  = 0;
 
     /* Create a subtree for this command frame. */
     if (tree) {
@@ -1707,7 +1707,7 @@ dissect_ieee802154_realign(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
     /* Call the data dissector for any leftover bytes. */
     if (tvb_length(tvb) > offset) {
-        call_dissector(data_handle, tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
+        call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
     }
 } /* dissect_ieee802154_realign */
 
@@ -1733,12 +1733,12 @@ dissect_ieee802154_realign(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 static void
 dissect_ieee802154_gtsreq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee802154_packet *packet)
 {
-    proto_tree          *subtree = NULL;
-    proto_item          *ti;
-    guint8              characteristics;
-    guint8              length;
-    guint8              direction;
-    guint8              type;
+    proto_tree *subtree = NULL;
+    proto_item *ti;
+    guint8      characteristics;
+    guint8      length;
+    guint8      direction;
+    guint8      type;
 
     /* Create a subtree for this command frame. */
     if (tree) {
@@ -1766,7 +1766,7 @@ dissect_ieee802154_gtsreq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
     /* Call the data dissector for any leftover bytes. */
     if (tvb_length(tvb) > 1) {
-        call_dissector(data_handle, tvb_new_subset(tvb, 1, -1, -1), pinfo, tree);
+        call_dissector(data_handle, tvb_new_subset_remaining(tvb, 1), pinfo, tree);
     }
 } /* dissect_ieee802154_gtsreq */
 
@@ -2093,9 +2093,9 @@ static gboolean
 ccm_cbc_mac(const gchar *key _U_, const gchar *iv _U_, const gchar *a _U_, gint a_len _U_, const gchar *m _U_, gint m_len _U_, gchar *mic _U_)
 {
 #ifdef HAVE_LIBGCRYPT
-    gcry_cipher_hd_t    cipher_hd;
-    guint               i = 0;
-    unsigned char       block[16];
+    gcry_cipher_hd_t cipher_hd;
+    guint            i = 0;
+    unsigned char    block[16];
 
     /* Open the cipher. */
     if (gcry_cipher_open(&cipher_hd, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CBC, GCRY_CIPHER_CBC_MAC)) return FALSE;
@@ -2234,9 +2234,9 @@ gboolean ieee802154_long_addr_equal(gconstpointer a, gconstpointer b)
 ieee802154_map_rec *ieee802154_addr_update(ieee802154_map_tab_t *au_ieee802154_map,
         guint16 short_addr, guint16 pan, guint64 long_addr, const char *proto, guint fnum)
 {
-    ieee802154_short_addr   addr16;
-    ieee802154_map_rec     *p_map_rec;
-    gpointer                old_key;
+    ieee802154_short_addr  addr16;
+    ieee802154_map_rec    *p_map_rec;
+    gpointer               old_key;
 
     /* Look up short address hash */
     addr16.pan = pan;
@@ -2301,8 +2301,8 @@ ieee802154_map_rec *ieee802154_addr_update(ieee802154_map_tab_t *au_ieee802154_m
  */
 gboolean ieee802154_short_addr_invalidate(guint16 short_addr, guint16 pan, guint fnum)
 {
-    ieee802154_short_addr   addr16;
-    ieee802154_map_rec   *map_rec;
+    ieee802154_short_addr  addr16;
+    ieee802154_map_rec    *map_rec;
 
     addr16.pan = pan;
     addr16.addr = short_addr;
@@ -2786,13 +2786,13 @@ void proto_register_ieee802154(void)
  */
 void proto_reg_handoff_ieee802154(void)
 {
-    static gboolean prefs_initialized = FALSE;
+    static gboolean            prefs_initialized = FALSE;
     static dissector_handle_t  ieee802154_handle;
     static dissector_handle_t  ieee802154_nonask_phy_handle;
     static dissector_handle_t  ieee802154_nofcs_handle;
-    static unsigned int old_ieee802154_ethertype;
-    GByteArray *bytes;
-    gboolean    res;
+    static unsigned int        old_ieee802154_ethertype;
+    GByteArray                *bytes;
+    gboolean                   res;
 
     if (!prefs_initialized){
         /* Get the dissector handles. */

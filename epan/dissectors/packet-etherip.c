@@ -39,20 +39,20 @@ static gint ett_etherip = -1;
 static dissector_handle_t eth_withoutfcs_handle;
 
 #ifndef offsetof
-#define	offsetof(type, member)	((size_t)(&((type *)0)->member))
+#define offsetof(type, member)  ((size_t)(&((type *)0)->member))
 #endif
 
 
 /*
  * RFC 3378: EtherIP: Tunneling Ethernet Frames in IP Datagrams
  *
- *	Bits 0-3:  Protocol version
- *	Bits 4-15: Reserved for future use
+ *      Bits 0-3:  Protocol version
+ *      Bits 4-15: Reserved for future use
  */
 
 struct etheriphdr {
-	guint8 ver;                /* version/reserved */
-	guint8 pad;                /* required padding byte */
+  guint8 ver;                /* version/reserved */
+  guint8 pad;                /* required padding byte */
 };
 
 #define ETHERIP_VERS_MASK 0x0f
@@ -78,8 +78,8 @@ dissect_etherip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ti = proto_tree_add_protocol_format(tree, proto_etherip, tvb, 0,
              sizeof(etheriph),
              "EtherIP, Version %d",
-	     etheriph.ver
-	     );
+             etheriph.ver
+             );
     etherip_tree = proto_item_add_subtree(ti, ett_etherip);
 
     proto_tree_add_uint(etherip_tree, hf_etherip_ver, tvb,
@@ -88,7 +88,7 @@ dissect_etherip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   /* Set the tvbuff for the payload after the header */
-  next_tvb = tvb_new_subset(tvb, sizeof(etheriph), -1, -1);
+  next_tvb = tvb_new_subset_remaining(tvb, sizeof(etheriph));
 
   call_dissector(eth_withoutfcs_handle, next_tvb, pinfo, tree);
 }
@@ -98,15 +98,15 @@ proto_register_etherip(void)
 {
   static hf_register_info hf_etherip[] = {
     { &hf_etherip_ver,
-      { "Version",	"etherip.ver",	FT_UINT8,	BASE_HEX, NULL, 0x0,
-      	NULL, HFILL }},
+      { "Version", "etherip.ver", FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
   };
   static gint *ett[] = {
     &ett_etherip,
   };
 
   proto_etherip = proto_register_protocol("Ethernet over IP",
-					  "ETHERIP", "etherip");
+                                          "ETHERIP", "etherip");
   proto_register_field_array(proto_etherip, hf_etherip, array_length(hf_etherip));
   proto_register_subtree_array(ett, array_length(ett));
 
