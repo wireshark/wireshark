@@ -32,6 +32,10 @@
  *  @ingroup dialog_group
  */
 
+/** Initialize background capture filter syntax checking
+ */
+void capture_filter_init(void);
+
 /** User requested the "Capture Options" dialog box by menu or toolbar.
  *
  * @param widget parent widget (unused)
