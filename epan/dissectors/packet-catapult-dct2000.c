@@ -1351,6 +1351,13 @@ static dissector_handle_t look_for_dissector(const char *protocol_name)
         return find_dissector("s1ap");
     }
     else
+    /* Always try lookup for now */
+    if (strncmp(protocol_name, "x2ap_r8_lte", strlen("x2ap_r8_lte")) == 0) {
+
+        return find_dissector("x2ap");
+    }
+
+    else
     if (strcmp(protocol_name, "gtpv2_r8_lte") == 0) {
         return find_dissector("gtpv2");
     }
