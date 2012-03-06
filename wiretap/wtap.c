@@ -558,7 +558,10 @@ static struct encap_type_info encap_table_base[] = {
 	{ "ISO/IEC 13818-1 MPEG2-TS", "mp2ts" },
 
 	/* WTAP_ENCAP_PPP_ETHER */
-	{ "PPP-over-Ethernet session", "pppoes" }
+	{ "PPP-over-Ethernet session", "pppoes" },
+
+	/* WTAP_ENCAP_NFC_LLCP */
+	{ "LLCP", "llcp" }
 };
 
 gint wtap_num_encap_types = sizeof(encap_table_base) / sizeof(struct encap_type_info);

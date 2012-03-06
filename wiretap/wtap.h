@@ -229,6 +229,7 @@ extern "C" {
 #define WTAP_ENCAP_IP_OVER_IB                   137
 #define WTAP_ENCAP_MPEG_2_TS                    138
 #define WTAP_ENCAP_PPP_ETHER			139
+#define WTAP_ENCAP_NFC_LLCP                     140
 
 #define WTAP_NUM_ENCAP_TYPES                    wtap_get_num_encap_types()
 
@@ -685,6 +686,12 @@ struct erf_mc_phdr {
   } subhdr;
 };
 
+#define LLCP_PHDR_FLAG_SENT 0
+struct llcp_phdr {
+	guint8 adapter;
+	guint8 flags;
+};
+
 #define SITA_FRAME_DIR_TXED		(0x00)		/* values of sita_phdr.flags */
 #define SITA_FRAME_DIR_RXED		(0x01)
 #define SITA_FRAME_DIR			(0x01)		/* mask */
@@ -815,6 +822,7 @@ union wtap_pseudo_header {
 	struct i2c_phdr		i2c;
 	struct gsm_um_phdr	gsm_um;
 	struct nstr_phdr	nstr;
+	struct llcp_phdr	llcp;
 };
 
 struct wtap_nstime {

@@ -385,6 +385,8 @@ static const struct {
 	{ 242,		WTAP_ENCAP_IP_OVER_IB },
 	/* ISO/IEC 13818-1 MPEG2-TS packets */
 	{ 243,		WTAP_ENCAP_MPEG_2_TS },
+	/* NFC LLCP */
+	{ 245,		WTAP_ENCAP_NFC_LLCP },
 
 	/*
 	 * To repeat:
@@ -715,6 +717,13 @@ wtap_wtap_encap_to_pcap_encap(int encap)
 #define LAPD_SLL_ADDR_OFFSET		6	/* address - 8 bytes */
 #define LAPD_SLL_PROTOCOL_OFFSET	14	/* protocol, should be ETH_P_LAPD - 2 bytes */
 #define LAPD_SLL_LEN			16	/* length of the header */
+
+/*
+ * The NFC LLCP per-packet header.
+ */
+#define LLCP_ADAPTER_OFFSET		0
+#define LLCP_FLAGS_OFFSET		1
+#define LLCP_HEADER_LEN			2
 
 /*
  * I2C link-layer on-disk format
@@ -1217,6 +1226,26 @@ pcap_read_bt_pseudoheader(FILE_T fh,
 }
 
 static gboolean
+pcap_read_llcp_pseudoheader(FILE_T fh,
+    union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info)
+{
+	int bytes_read;
+	guint8 phdr[LLCP_HEADER_LEN];
+
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = file_read(phdr, LLCP_HEADER_LEN, fh);
+	if (bytes_read != LLCP_HEADER_LEN) {
+		*err = file_error(fh, err_info);
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return FALSE;
+	}
+	pseudo_header->llcp.adapter = phdr[LLCP_ADAPTER_OFFSET];
+	pseudo_header->llcp.flags = phdr[LLCP_FLAGS_OFFSET];
+	return TRUE;
+}
+
+static gboolean
 pcap_read_ppp_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info)
 {
@@ -1554,6 +1583,17 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 			return -1;	/* Read error */
 
 		phdr_len = (int)sizeof (struct libpcap_bt_phdr);
+		break;
+
+	case WTAP_ENCAP_NFC_LLCP:
+		if (check_packet_size && packet_size < LLCP_HEADER_LEN) {
+			*err = WTAP_ERR_BAD_FILE;
+			*err_info = g_strdup_printf("pcap: libpcap llcp file too short");
+			return -1;
+		}
+		if (!pcap_read_llcp_pseudoheader(fh, pseudo_header, err, err_info))
+			return -1;	/* Read error */
+		phdr_len = LLCP_HEADER_LEN;
 		break;
 
 	case WTAP_ENCAP_PPP_WITH_PHDR:
