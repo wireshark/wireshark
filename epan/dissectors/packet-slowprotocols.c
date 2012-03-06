@@ -52,12 +52,12 @@
 
 /* Offsets of fields within a LACPDU */
 
-#define LACPDU_VERSION_NUMBER           1
+#define LACPDU_VERSION_NUMBER            1
 
-#define LACPDU_ACTOR_TYPE               2
-#define LACPDU_ACTOR_INFO_LEN           3
-#define LACPDU_ACTOR_SYS_PRIORITY       4
-#define LACPDU_ACTOR_SYSTEM             6
+#define LACPDU_ACTOR_TYPE                2
+#define LACPDU_ACTOR_INFO_LEN            3
+#define LACPDU_ACTOR_SYS_PRIORITY        4
+#define LACPDU_ACTOR_SYSTEM              6
 #define LACPDU_ACTOR_KEY                12
 #define LACPDU_ACTOR_PORT_PRIORITY      14
 #define LACPDU_ACTOR_PORT               16
@@ -202,10 +202,10 @@
 
 
 static const value_string subtype_vals[] = {
-    { LACP_SUBTYPE, "LACP" },
-    { MARKER_SUBTYPE, "Marker Protocol" },
-    { OAM_SUBTYPE, "OAM" },
-    { OSSP_SUBTYPE, "Organization Specific Slow Protocol" },
+    { LACP_SUBTYPE   , "LACP" },
+    { MARKER_SUBTYPE , "Marker Protocol" },
+    { OAM_SUBTYPE    , "OAM" },
+    { OSSP_SUBTYPE   , "Organization Specific Slow Protocol" },
     { 0, NULL }
 };
 
@@ -217,32 +217,32 @@ static const value_string marker_vals[] = {
 
 /* see IEEE802.3, table 57-4 */
 static const value_string code_vals[] = {
-    { 0, "Information" },
-    { 1, "Event Notification" },
-    { 2, "Variable Request" },
-    { 3, "Variable Response" },
-    { 4, "Loopback Control"},
-    { 0xFE, "Organization Specific" },
+    { 0    , "Information" },
+    { 1    , "Event Notification" },
+    { 2    , "Variable Request" },
+    { 3    , "Variable Response" },
+    { 4    , "Loopback Control"},
+    { 0xFE , "Organization Specific" },
     { 0, NULL }
 };
 
 /* see IEEE802.3, table 57-6 */
 static const value_string info_type_vals[] = {
-    { 0, "End of TLV marker" },
-    { 1, "Local Information TLV" },
-    { 2, "Remote Information TLV" },
-    { 0xFE, "Organization Specific Information TLV" },
+    { 0    , "End of TLV marker" },
+    { 1    , "Local Information TLV" },
+    { 2    , "Remote Information TLV" },
+    { 0xFE , "Organization Specific Information TLV" },
     { 0, NULL }
 };
 
 /* see IEEE802.3, table 57-12 */
 static const value_string event_type_vals[] = {
-    { 0, "End of TLV marker" },
-    { 1, "Errored Symbol Period Event" },
-    { 2, "Errored Frame Event" },
-    { 3, "Errored Frame Period Event" },
-    { 4, "Errored Frame Seconds Summary Event" },
-    { 0xFE, "Organization Specific Event TLV" },
+    { 0    , "End of TLV marker" },
+    { 1    , "Errored Symbol Period Event" },
+    { 2    , "Errored Frame Event" },
+    { 3    , "Errored Frame Period Event" },
+    { 4    , "Errored Frame Seconds Summary Event" },
+    { 0xFE , "Organization Specific Event TLV" },
     { 0, NULL }
 };
 
@@ -280,9 +280,9 @@ static const value_string object_vals[] = {
 
 /*
  * In the OAM protocol the {iso(1) member-body(2) us(840) ieee802dot3(10006)
- * csmacdmgt(30)} prefix for the objects is pre-define. Only the
+ * csmacdmgt(30)} prefix for the objects is pre-defined. Only the
  * package(4) is put in the branch and the leaf is one of the
- * following value:
+ * following values:
  */
 static const value_string package_vals[] = {
     {  1, "macMandatoryPkg" },
@@ -321,9 +321,9 @@ static const value_string package_vals[] = {
 
 /*
  * In the OAM protocol the {iso(1) member-body(2) us(840) ieee802dot3(10006)
- * csmacdmgt(30)} prefix for the objects is pre-define. Only the
+ * csmacdmgt(30)} prefix for the objects is pre-defined. Only the
  * nameBinding(6) is put in the branch and the leaf is one of the
- * following value:
+ * following values:
  */
 static const value_string binding_vals[] = {
     { 26, "repeaterPortName"},
@@ -332,9 +332,9 @@ static const value_string binding_vals[] = {
 
 /*
  * In the OAM protocol the {iso(1) member-body(2) us(840) ieee802dot3(10006)
- * csmacdmgt(30)} prefix for the objects is pre-define. Only the
+ * csmacdmgt(30)} prefix for the objects is pre-defined. Only the
  * attribute(7) is put in the branch and the leaf is one of the
- * following value:
+ * following values:
  */
 static const value_string attribute_vals[] = {
     {   1, "aMACID" },
@@ -568,14 +568,13 @@ static const value_string attribute_vals[] = {
     { 340, "aOAMDuplicateEventNotificationTx" },
     { 0, NULL }
 };
-
 static value_string_ext attribute_vals_ext = VALUE_STRING_EXT_INIT(attribute_vals);
 
 /*
  * In the OAM protocol the {iso(1) member-body(2) us(840) ieee802dot3(10006)
- * csmacdmgt(30)} prefix for the objects is pre-define. Only the
+ * csmacdmgt(30)} prefix for the objects is pre-defined. Only the
  * package(4) is put in the branch and the leaf is one of the
- * following value:
+ * following values:
  */
 static const value_string indication_vals[] = {
     { 0x01, "Variable Container(s) exceeded OAMPDU data field" },
@@ -1024,15 +1023,15 @@ dissect_itu_ossp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
  * Name: dissect_slow_protocols
  *
  * Description:
- *    This function is used to dissect the slow protocols define in IEEE802.3
- *    CSMA/CD. The current slow protocols subtype are define in ANNEX 43B of
- *    the 802.3 document. In case of an unsupported slow protocols, we only
+ *    This function is used to dissect the slow protocols defined in IEEE802.3
+ *    CSMA/CD. The current slow protocols subtypes are define in ANNEX 43B of
+ *    the 802.3 document. In case of an unsupported slow protocol, we only
  *    fill the protocol and info columns.
  *
  * Input Arguments:
- *    tvb: buffer associate with the rcv packet (see tvbuff.h).
- *    pinfo: structure associate with the rcv packet (see packet_info.h).
- *    tree: the protocol tree associate with the rcv packet (see proto.h).
+ *    tvb:   buffer associated with the rcv packet (see tvbuff.h).
+ *    pinfo: structure associated with the rcv packet (see packet_info.h).
+ *    tree:  the protocol tree associated with the rcv packet (see proto.h).
  *
  * Return Values:
  *    None
@@ -1043,7 +1042,7 @@ dissect_itu_ossp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
  *      + add support for Marker slow protocol (defined in clause 43).
  *    Artem Tamazov (artem.tamazov@telllabs.com)
  *      + add support for ESMC (Ethernet Synchronization Messaging Channel),
- *        G.8264/Y.1364 clause 11).
+ *        (defined in G.8264/Y.1364 clause 11).
  */
 static void
 dissect_slow_protocols(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -1094,12 +1093,12 @@ dissect_slow_protocols(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  *
  * Description:
  *    This function is used to dissect the Link Aggregation Control Protocol
- *    slow protocols define in IEEE802.3 clause 43.3.
+ *    slow protocols defined in IEEE802.3 clause 43.3.
  *
  * Input Arguments:
- *    tvb: buffer associate with the rcv packet (see tvbuff.h).
- *    pinfo: structure associate with the rcv packet (see packet_info.h).
- *    tree: the protocol tree associate with the rcv packet (see proto.h).
+ *    tvb:   buffer associated with the rcv packet (see tvbuff.h).
+ *    pinfo: structure associated with the rcv packet (see packet_info.h).
+ *    tree:  the protocol tree associated with the rcv packet (see proto.h).
  *
  * Return Values: None
  *
@@ -1424,14 +1423,14 @@ dissect_lacp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  *
  * Description:
  *    This function is used to dissect the Link Aggregation Marker Protocol
- *    slow protocols define in IEEE802.3 clause 43.5 (The PDUs are define
- *    in section 43.5.3.2). The TLV type are, 0x01 for a marker TLV and 0x02
- *    for a marker response. A value of 0x00 indicate an end of message.
+ *    slow protocols defined in IEEE802.3 clause 43.5 (The PDUs are defined
+ *    in section 43.5.3.2). The TLV types are 0x01 for a marker TLV and 0x02
+ *    for a marker response. A value of 0x00 indicates an end of message.
  *
  * Input Arguments:
- *    tvb: buffer associate with the rcv packet (see tvbuff.h).
- *    pinfo: structure associate with the rcv packet (see packet_info.h).
- *    tree: the protocol tree associate with the rcv packet (see proto.h).
+ *    tvb:   buffer associated with the rcv packet (see tvbuff.h).
+ *    pinfo: structure associated with the rcv packet (see packet_info.h).
+ *    tree:  the protocol tree associated with the rcv packet (see proto.h).
  *
  * Return Values: None
  *
@@ -1523,9 +1522,9 @@ dissect_marker_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  *    slow protocol as defined in ITU-T G.8264 is implemented
  *
  * Input Arguments:
- *    tvb: buffer associate with the rcv packet (see tvbuff.h).
- *    pinfo: structure associate with the rcv packet (see packet_info.h).
- *    tree: the protocol tree associate with the rcv packet (see proto.h).
+ *    tvb:   buffer associated with the rcv packet (see tvbuff.h).
+ *    pinfo: structure associated with the rcv packet (see packet_info.h).
+ *    tree:  the protocol tree associated with the rcv packet (see proto.h).
  *
  * Return Values: None
  *
@@ -1561,22 +1560,22 @@ dissect_ossp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item_append_text(oui_item, " (%s)", str);
     offset += 3;
 
-    ossp_tvb = tvb_new_subset(tvb, offset, -1, -1);
+    ossp_tvb = tvb_new_subset_remaining(tvb, offset);
     if (tvb_memeql(tvb, 1, itu_oui, OUI_SIZE) == 0)
     {
        dissect_itu_ossp(ossp_tvb, pinfo, ossp_tree);
     }
-/*    new Organization Specific Slow Protocols go hereafter
- *
- *  else if (tvb_memeql(tvb, 1, xxx_oui, OUI_SIZE) == 0)
- *  {
- *      dissect_xxx_ossp(ossp_tvb, pinfo, ossp_tree);
- *  }
- *  else if (tvb_memeql(tvb, 1, yyy_oui, OUI_SIZE) == 0)
- *  {
- *      dissect_yyy_ossp(ossp_tvb, pinfo, ossp_tree);
- *  }
- */
+/*    new Organization Specific Slow Protocols go hereafter */
+#if 0
+    else if (tvb_memeql(tvb, 1, xxx_oui, OUI_SIZE) == 0)
+    {
+        dissect_xxx_ossp(ossp_tvb, pinfo, ossp_tree);
+    }
+    else if (tvb_memeql(tvb, 1, yyy_oui, OUI_SIZE) == 0)
+    {
+        dissect_yyy_ossp(ossp_tvb, pinfo, ossp_tree);
+    }
+#endif
     else
     {
         proto_item_append_text(oui_item, " (Unknown OSSP organization)");
@@ -1594,9 +1593,9 @@ dissect_ossp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  *    is implemented
  *
  * Input Arguments:
- *    tvb: buffer associate with the rcv packet (see tvbuff.h).
- *    pinfo: structure associate with the rcv packet (see packet_info.h).
- *    tree: the protocol tree associate with the rcv packet (see proto.h).
+ *    tvb:     buffer associated with the rcv packet (see tvbuff.h).
+ *    pinfo:   structure associated with the rcv packet (see packet_info.h).
+ *    tree:    the protocol tree associated with the rcv packet (see proto.h).
  *    subtype: the protocol subtype (according to IEEE802.3 annex 57B)
  *
  * Return Values: None
@@ -1623,12 +1622,12 @@ dissect_itu_ossp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             dissect_esmc_pdu(tvb, pinfo, itu_ossp_tree);
             break;
 
-/*    Other ITU-T defined slow protocols go hereafter
- *
- *    case XXXX_ITU_SUBTYPE:
- *      dissect_xxxx_pdu(tvb, pinfo, itu_ossp_tree);
- *      break;
- */
+/*  Other ITU-T defined slow protocols go hereafter */
+#if 0
+        case XXXX_ITU_SUBTYPE:
+            dissect_xxxx_pdu(tvb, pinfo, itu_ossp_tree);
+            break;
+#endif
         default:
             proto_item_append_text(itu_ossp_tree, " (Unknown)");
     }
@@ -1893,22 +1892,23 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
  *
  * Description:
  *    This function is used to dissect the Operation, Administration, and
- *    Maintenance slow protocol define in IEEE802.3 clause 57 (The OAMPDUs
- *    common part is define in section 57.4).
+ *    Maintenance slow protocol defined in IEEE802.3 clause 57 (The OAMPDUs
+ *    common part is defined in section 57.4).
  *
- *    Only the 6 folowing code are currently define in the 2004 version of this
+ *    Only the 6 folowing codes are currently defined in the 2004 version of this
  *    protocol:
- *       OAMPDU_INFORMATION: 0x0
+
+ *       OAMPDU_INFORMATION:        0x0
  *       OAMPDU_EVENT_NOTIFICATION: 0x1
- *       OAMPDU_VAR_REQUEST: 0x2
- *       OAMPDU_VAR_RESPONSE: 0x3
- *       OAMPDU_LOOPBACK_CTRL: 0x4
- *       OAMPDU_VENDOR_SPECIFIC: 0xFE
+ *       OAMPDU_VAR_REQUEST:        0x2
+ *       OAMPDU_VAR_RESPONSE:       0x3
+ *       OAMPDU_LOOPBACK_CTRL:      0x4
+ *       OAMPDU_VENDOR_SPECIFIC:    0xFE
  *
  * Input Arguments:
- *    tvb: buffer associate with the rcv packet (see tvbuff.h).
- *    pinfo: structure associate with the rcv packet (see packet_info.h).
- *    tree: the protocol tree associate with the rcv packet (see proto.h).
+ *    tvb:   buffer associated with the rcv packet (see tvbuff.h).
+ *    pinfo: structure associated with the rcv packet (see packet_info.h).
+ *    tree:  the protocol tree associated with the rcv packet (see proto.h).
  *
  * Return Values: None
  *
@@ -2085,13 +2085,13 @@ dissect_oampdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  * Name: dissect_oampdu_information
  *
  * Description:
- *    This function is used to dissect the Information TLVs define in IEEE802.3
- *    section 57.5.2).
+ *    This function is used to dissect the Information TLVs defined in IEEE802.3
+ *    section 57.5.2.
  *
  *
  * Input Arguments:
- *    tvb: buffer associate with the rcv packet (see tvbuff.h).
- *    tree: the protocol tree associate with the oampdu (see proto.h).
+ *    tvb:  buffer associated with the rcv packet (see tvbuff.h).
+ *    tree: the protocol tree associated with the oampdu (see proto.h).
  *
  * Return Values: None
  *
@@ -2277,13 +2277,13 @@ dissect_oampdu_information(tvbuff_t *tvb, proto_tree *tree)
  * Name: dissect_oampdu_event_notification
  *
  * Description:
- *    This function is used to dissect the Event Notification TLVs define in
- *    IEEE802.3 section 57.5.3).
+ *    This function is used to dissect the Event Notification TLVs defined in
+ *    IEEE802.3 section 57.5.3.
  *
  *
  * Input Arguments:
- *    tvb: buffer associate with the rcv packet (see tvbuff.h).
- *    tree: the protocol tree associate with the oampdu (see proto.h).
+ *    tvb:  buffer associated with the rcv packet (see tvbuff.h).
+ *    tree: the protocol tree associated with the oampdu (see proto.h).
  *
  * Return Values: None
  *
@@ -2552,13 +2552,13 @@ dissect_oampdu_event_notification(tvbuff_t *tvb, proto_tree *tree)
  * Name: dissect_oampdu_variable_request
  *
  * Description:
- *    This function is used to dissect the Variable Request TLVs define in
- *    IEEE802.3 section 57.6).
+ *    This function is used to dissect the Variable Request TLVs defined in
+ *    IEEE802.3 section 57.6.
  *
  *
  * Input Arguments:
- *    tvb: buffer associate with the rcv packet (see tvbuff.h).
- *    tree: the protocol tree associate with the oampdu (see proto.h).
+ *    tvb:  buffer associated with the rcv packet (see tvbuff.h).
+ *    tree: the protocol tree associated with the oampdu (see proto.h).
  *
  * Return Values: None
  *
@@ -2629,13 +2629,13 @@ dissect_oampdu_variable_request(tvbuff_t *tvb, proto_tree *tree)
  * Name: dissect_oampdu_variable_response
  *
  * Description:
- *    This function is used to dissect the Variable Response TLVs define in
- *    IEEE802.3 section 57.6).
+ *    This function is used to dissect the Variable Response TLVs defined in
+ *    IEEE802.3 section 57.6.
  *
  *
  * Input Arguments:
- *    tvb: buffer associate with the rcv packet (see tvbuff.h).
- *    tree: the protocol tree associate with the oampdu (see proto.h).
+ *    tvb:  buffer associated with the rcv packet (see tvbuff.h).
+ *    tree: the protocol tree associated with the oampdu (see proto.h).
  *
  * Return Values: None
  *
@@ -2732,13 +2732,13 @@ dissect_oampdu_variable_response(tvbuff_t *tvb, proto_tree *tree)
  * Name: dissect_oampdu_loopback_control
  *
  * Description:
- *    This function is used to dissect the Variable Request TLVs define in
- *    IEEE802.3 section 57.6).
+ *    This function is used to dissect the Variable Request TLVs defined in
+ *    IEEE802.3 section 57.6.
  *
  *
  * Input Arguments:
- *    tvb: buffer associate with the rcv packet (see tvbuff.h).
- *    tree: the protocol tree associate with the oampdu (see proto.h).
+ *    tvb:  buffer associated with the rcv packet (see tvbuff.h).
+ *    tree: the protocol tree associated with the oampdu (see proto.h).
  *
  * Return Values: None
  *
@@ -2792,13 +2792,13 @@ dissect_oampdu_loopback_control(tvbuff_t *tvb, proto_tree *tree)
  * Name: dissect_oampdu_vendor_specific
  *
  * Description:
- *    This function is used to dissect the Vendor Specific TLV define in
- *    IEEE802.3 section 57.4.3.6).
+ *    This function is used to dissect the Vendor Specific TLV defined in
+ *    IEEE802.3 section 57.4.3.6.
  *
  *
  * Input Arguments:
- *    tvb: buffer associate with the rcv packet (see tvbuff.h).
- *    tree: the protocol tree associate with the oampdu (see proto.h).
+ *    tvb:  buffer associated with the rcv packet (see tvbuff.h).
+ *    tree: the protocol tree associated with the oampdu (see proto.h).
  *
  * Return Values: None
  *
