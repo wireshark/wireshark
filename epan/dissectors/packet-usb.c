@@ -1817,8 +1817,8 @@ static const value_string bmrequesttype_type_vals[] = {
 static const value_string bmrequesttype_recipient_vals[] = {
     {RQT_SETUP_RECIPIENT_DEVICE,    "Device" },
     {RQT_SETUP_RECIPIENT_INTERFACE, "Interface" },
-    {RQT_SETUP_RECIPIENT_INTERFACE, "Endpoint" },
-    {RQT_SETUP_RECIPIENT_INTERFACE, "Other" },
+    {RQT_SETUP_RECIPIENT_ENDPOINT,  "Endpoint" },
+    {RQT_SETUP_RECIPIENT_OTHER,     "Other" },
     {0, NULL }
 };
 
