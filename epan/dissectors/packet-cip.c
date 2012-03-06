@@ -5624,7 +5624,7 @@ proto_register_cip(void)
       { &hf_cip_path_segment, { "Path Segment", "cip.path_segment", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_path_segment_type, { "Path Segment Type", "cip.path_segment.type", FT_UINT8, BASE_DEC, VALS(cip_path_seg_vals), CI_SEGMENT_TYPE_MASK, NULL, HFILL }},
       { &hf_cip_port_segment, { "Port Segment", "cip.port_segment", FT_UINT8, BASE_HEX, NULL, CI_SEGMENT_TYPE_MASK, NULL, HFILL }},
-      { &hf_cip_port_ex_link_addr, { "Extended Link Address", "cip.ex_linkaddress", FT_BOOLEAN, BASE_DEC, TFS(&tfs_true_false), CI_PORT_SEG_EX_LINK_ADDRESS, NULL, HFILL }},
+      { &hf_cip_port_ex_link_addr, { "Extended Link Address", "cip.ex_linkaddress", FT_BOOLEAN, 8, TFS(&tfs_true_false), CI_PORT_SEG_EX_LINK_ADDRESS, NULL, HFILL }},
       { &hf_cip_port, { "Port", "cip.port", FT_UINT8, BASE_DEC, NULL, CI_PORT_SEG_PORT_ID_MASK, "Port Identifier", HFILL }},
       { &hf_cip_link_address_byte, { "Link Address", "cip.linkaddress", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_cip_link_address_size, { "Link Address Size", "cip.linkaddress_size", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
