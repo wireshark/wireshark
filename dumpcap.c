@@ -373,6 +373,9 @@ create_timestamp(void) {
      *
      * I think DWORD might be signed, so cast both parts of "now"
      * to guint32 so that the sign bit doesn't get treated specially.
+     *
+     * Windows 8 provides GetSystemTimePreciseAsFileTime which we
+     * might want to use instead.
      */
     GetSystemTimeAsFileTime(&now);
     timestamp = (((guint64)(guint32)now.dwHighDateTime) << 32) +

@@ -158,9 +158,9 @@ struct option {
 	guint16 value_length;
 };
 #define OPT_ENDOFOPT      0
-#define OPT_COMMENT       1 
+#define OPT_COMMENT       1
 #define SHB_HARDWARE      2 /* currently not used */
-#define SHB_OS            3 
+#define SHB_OS            3
 #define SHB_USERAPPL      4
 #define IDB_NAME          2
 #define IDB_DESCRIPTION   3
@@ -492,7 +492,7 @@ libpcap_write_interface_description_block(FILE *fp,
 	}
 
 	/* write filter string if applicable
-	 * We only write version 1 of the filter, libpcap string 
+	 * We only write version 1 of the filter, libpcap string
 	 */
 	if ((filter != NULL) && (strlen(filter) > 0) && (strlen(filter) < G_MAXUINT16)) {
 		option.type = IDB_FILTER;
@@ -614,6 +614,9 @@ libpcap_write_interface_statistics_block(FILE *fp,
 	 *
 	 * I think DWORD might be signed, so cast both parts of "now"
 	 * to guint32 so that the sign bit doesn't get treated specially.
+	 *
+	 * Windows 8 provides GetSystemTimePreciseAsFileTime which we
+	 * might want to use instead.
 	 */
 	GetSystemTimeAsFileTime(&now);
 	timestamp = (((guint64)(guint32)now.dwHighDateTime) << 32) +
