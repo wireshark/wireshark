@@ -143,7 +143,7 @@ dissect_papi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti;
 	proto_tree *papi_tree;
-  	guint     offset = 0;
+	guint     offset = 0;
 	tvbuff_t *next_tvb;
 
 
@@ -204,8 +204,8 @@ dissect_papi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset = dissect_papi_debug(tvb, offset, papi_tree);
 		}
 
-                next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-                call_dissector(data_handle,next_tvb, pinfo, tree);
+		next_tvb = tvb_new_subset_remaining(tvb, offset);
+		call_dissector(data_handle,next_tvb, pinfo, tree);
 	}
 
 	return(TRUE);

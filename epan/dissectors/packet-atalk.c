@@ -554,7 +554,7 @@ value_string_ext asp_error_vals_ext = VALUE_STRING_EXT_INIT(asp_error_vals);
 static int dissect_pascal_string(tvbuff_t *tvb, int offset, proto_tree *tree,
                                  int hf_index)
 {
-  int len;
+  int   len;
   char *tmp;
 
   len = tvb_get_guint8(tvb, offset);
@@ -570,7 +570,7 @@ static int dissect_pascal_string(tvbuff_t *tvb, int offset, proto_tree *tree,
      * code, we could perhaps avoid allocating and freeing
      * this string buffer.
      */
-    tmp = (gchar*)tvb_get_ephemeral_string(tvb, offset, len);
+    tmp  = (gchar*)tvb_get_ephemeral_string(tvb, offset, len);
     item = proto_tree_add_string(tree, hf_index, tvb, offset-1, len+1, tmp);
 
     subtree = proto_item_add_subtree(item, ett_pstring);
@@ -587,7 +587,7 @@ static void
 dissect_rtmp_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   proto_tree *rtmp_tree;
   proto_item *ti;
-  guint8 function;
+  guint8      function;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTMP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -609,11 +609,11 @@ static void
 dissect_rtmp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   proto_tree *rtmp_tree;
   proto_item *ti;
-  int offset = 0;
-  guint16 net;
-  guint8 nodelen,nodelen_bits;
-  guint16 node; /* might be more than 8 bits */
-  int i;
+  int         offset = 0;
+  guint16     net;
+  guint8      nodelen,nodelen_bits;
+  guint16     node;             /* might be more than 8 bits */
+  int         i;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTMP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -694,16 +694,16 @@ dissect_nbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   proto_tree *nbp_tree;
   proto_tree *nbp_info_tree;
   proto_item *ti, *info_item;
-  int offset = 0;
-  guint8 info;
-  guint op, count;
-  guint i;
+  int         offset = 0;
+  guint8      info;
+  guint       op, count;
+  guint       i;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "NBP");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  info = tvb_get_guint8(tvb, offset);
-  op = info >> 4;
+  info  = tvb_get_guint8(tvb, offset);
+  op    = info >> 4;
   count = info & 0x0F;
 
   col_add_fstr(pinfo->cinfo, COL_INFO, "Op: %s  Count: %u",
@@ -724,7 +724,7 @@ dissect_nbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     proto_tree_add_item(nbp_tree, hf_nbp_tid, tvb, offset+1, 1, ENC_BIG_ENDIAN);
     offset += 2;
 
-    for (i=0; i<count; i++) {
+    for (i = 0; i < count; i++) {
       proto_tree *node_item,*node_tree;
       int soffset = offset;
 
@@ -758,26 +758,26 @@ dissect_nbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 */
 static void
 dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
-  proto_tree *atp_tree = NULL;
-  proto_item *ti;
-  proto_tree *atp_info_tree;
-  proto_item *info_item;
-  int offset = 0;
-  guint8 ctrlinfo;
-  guint8 frag_number = 0;
-  guint op;
-  guint16 tid;
-  guint8 query;
-  struct aspinfo aspinfo;
-  tvbuff_t   *new_tvb = NULL;
-  gboolean save_fragmented;
-  gboolean more_fragment = FALSE;
-  int len;
-  guint8 bitmap;
-  guint8 nbe = 0;
-  guint8 t = 0;
+  proto_tree      *atp_tree      = NULL;
+  proto_item      *ti;
+  proto_tree      *atp_info_tree;
+  proto_item      *info_item;
+  int              offset        = 0;
+  guint8           ctrlinfo;
+  guint8           frag_number   = 0;
+  guint            op;
+  guint16          tid;
+  guint8           query;
+  struct aspinfo   aspinfo;
+  tvbuff_t        *new_tvb       = NULL;
+  gboolean         save_fragmented;
+  gboolean         more_fragment = FALSE;
+  int              len;
+  guint8           bitmap;
+  guint8           nbe           = 0;
+  guint8           t             = 0;
   conversation_t  *conversation;
-  asp_request_val *request_val = NULL;
+  asp_request_val *request_val   = NULL;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATP");
 
@@ -905,7 +905,7 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   }
   else {
     /* full packet */
-    new_tvb = tvb_new_subset(tvb, ATP_HDRSIZE -1, -1,- 1);
+    new_tvb = tvb_new_subset_remaining(tvb, ATP_HDRSIZE -1 );
   }
 
   if (new_tvb) {
@@ -962,27 +962,27 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 static gint
 dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
-  proto_tree    *sub_tree;
-  proto_item    *ti;
+  proto_tree *sub_tree;
+  proto_item *ti;
 
-  guint16 ofs;
-  guint16 flag;
-  guint16 machine_ofs;
-  guint16 sign_ofs = 0;
-  guint16 adr_ofs = 0;
-  guint16 dir_ofs = 0;
-  guint16 utf_ofs = 0;
-  guint8  nbe;
-  guint   len;
-  guint   i;
+  guint16     ofs;
+  guint16     flag;
+  guint16     machine_ofs;
+  guint16     sign_ofs = 0;
+  guint16     adr_ofs  = 0;
+  guint16     dir_ofs  = 0;
+  guint16     utf_ofs  = 0;
+  guint8      nbe;
+  guint       len;
+  guint       i;
 
   proto_tree *adr_tree;
-  char *tmp;
-  guint16 net;
-  guint8  node;
-  guint16 port;
+  char       *tmp;
+  guint16     net;
+  guint8      node;
+  guint16     port;
 
-  guint16 ulen;
+  guint16     ulen;
 
   if (!tree)
     return offset;
@@ -1180,12 +1180,12 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 static int
 dissect_pap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  int offset = 0;
-  guint8 fn;
-  guint8 connID;
+  int         offset   = 0;
+  guint8      fn;
+  guint8      connID;
   proto_tree *pap_tree = NULL;
   proto_item *ti;
-  int len;
+  int         len;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "PAP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -1270,11 +1270,11 @@ dissect_pap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static struct aspinfo *
 get_transaction(tvbuff_t *tvb, packet_info *pinfo)
 {
-  struct aspinfo *aspinfo = pinfo->private_data;
-  conversation_t *conversation;
-  asp_request_key request_key, *new_request_key;
+  struct aspinfo  *aspinfo = pinfo->private_data;
+  conversation_t  *conversation;
+  asp_request_key  request_key, *new_request_key;
   asp_request_val *request_val;
-  guint8 fn;
+  guint8           fn;
 
   conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
                                    pinfo->srcport, pinfo->destport, 0);
@@ -1313,11 +1313,11 @@ static int
 dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   struct aspinfo *aspinfo;
-  int offset = 0;
-  proto_tree *asp_tree = NULL;
-  proto_item *ti;
-  guint8 fn;
-  int len;
+  int             offset   = 0;
+  proto_tree     *asp_tree = NULL;
+  proto_item     *ti;
+  guint8          fn;
+  int             len;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ASP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -1456,13 +1456,13 @@ static void
 dissect_atp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   struct aspinfo *aspinfo;
-  int offset = 0;
-  proto_tree *zip_tree;
-  proto_tree *sub_tree;
-  proto_item *ti;
-  guint8 fn;
-  guint16 count;
-  guint8 len;
+  int             offset = 0;
+  proto_tree     *zip_tree;
+  proto_tree     *sub_tree;
+  proto_item     *ti;
+  guint8          fn;
+  guint16         count;
+  guint8          len;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ZIP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -1515,7 +1515,7 @@ dissect_atp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       ti = proto_tree_add_item(zip_tree, hf_zip_count, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
       sub_tree = proto_item_add_subtree(ti, ett_zip_zones_list);
-      for (i= 0; i < count; i++) {
+      for (i = 0; i < count; i++) {
         len = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(sub_tree, hf_zip_zone_name, tvb, offset, 1,ENC_ASCII|ENC_BIG_ENDIAN);
         offset += len +1;
@@ -1530,16 +1530,16 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *zip_tree = NULL;
   proto_item *ti;
-  guint8  fn;
-  guint8  len;
-  gint    offset = 0;
+  guint8      fn;
+  guint8      len;
+  gint        offset   = 0;
   proto_tree *flag_tree;
   proto_tree *sub_tree;
   proto_tree *net_tree;
-  guint8 flag;
-  guint16  net;
-  guint i;
-  guint count;
+  guint8      flag;
+  guint16     net;
+  guint       i;
+  guint       count;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ZIP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -1560,10 +1560,10 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   switch (fn) {
   case 1: /* Query */
     count = tvb_get_guint8(tvb, offset);
-    ti = proto_tree_add_item(zip_tree, hf_zip_network_count, tvb, offset, 1, ENC_BIG_ENDIAN);
+    ti    = proto_tree_add_item(zip_tree, hf_zip_network_count, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     sub_tree = proto_item_add_subtree(ti, ett_zip_network_list);
-    for (i= 0; i < count; i++) {
+    for (i = 0; i < count; i++) {
       proto_tree_add_item(sub_tree, hf_zip_network, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
     }
@@ -1599,7 +1599,7 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ti = proto_tree_add_item(zip_tree, hf_zip_network_count, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     sub_tree = proto_item_add_subtree(ti, ett_zip_network_list);
-    for (i= 0; i < count; i++) {
+    for (i = 0; i < count; i++) {
       net = tvb_get_ntohs(tvb, offset);
       ti = proto_tree_add_text(sub_tree, tvb, offset , 2, "Zone for network : %u", net);
       net_tree = proto_item_add_subtree(ti, ett_zip_network_list);
@@ -1656,14 +1656,14 @@ static void
 dissect_ddp_short(tvbuff_t *tvb, packet_info *pinfo, guint8 dnode,
                   guint8 snode, proto_tree *tree)
 {
-  guint16 len;
-  guint8  dport;
-  guint8  sport;
-  guint8  type;
-  proto_tree *ddp_tree = NULL;
-  proto_item *ti, *hidden_item;
-  static struct atalk_ddp_addr src, dst;
-  tvbuff_t   *new_tvb;
+  guint16                       len;
+  guint8                        dport;
+  guint8                        sport;
+  guint8                        type;
+  proto_tree                   *ddp_tree = NULL;
+  proto_item                   *ti, *hidden_item;
+  static struct atalk_ddp_addr  src, dst;
+  tvbuff_t                     *new_tvb;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "DDP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -1719,11 +1719,11 @@ dissect_ddp_short(tvbuff_t *tvb, packet_info *pinfo, guint8 dnode,
 static void
 dissect_ddp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  e_ddp       ddp;
-  proto_tree *ddp_tree;
-  proto_item *ti, *hidden_item;
-  static struct atalk_ddp_addr src, dst;
-  tvbuff_t   *new_tvb;
+  e_ddp                         ddp;
+  proto_tree                   *ddp_tree;
+  proto_item                   *ti, *hidden_item;
+  static struct atalk_ddp_addr  src, dst;
+  tvbuff_t                     *new_tvb;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "DDP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -2457,7 +2457,7 @@ proto_reg_handoff_atalk(void)
   pap_handle = new_create_dissector_handle(dissect_pap, proto_pap);
 
   rtmp_request_handle = create_dissector_handle(dissect_rtmp_request, proto_rtmp);
-  rtmp_data_handle = create_dissector_handle(dissect_rtmp_data, proto_rtmp);
+  rtmp_data_handle    = create_dissector_handle(dissect_rtmp_data, proto_rtmp);
   dissector_add_uint("ddp.type", DDP_RTMPREQ, rtmp_request_handle);
   dissector_add_uint("ddp.type", DDP_RTMPDATA, rtmp_data_handle);
 
@@ -2472,7 +2472,7 @@ proto_reg_handoff_atalk(void)
   register_init_routine( atp_init);
   register_init_routine( &asp_reinit);
 
-  afp_handle = find_dissector("afp");
+  afp_handle  = find_dissector("afp");
   data_handle = find_dissector("data");
 }
 
