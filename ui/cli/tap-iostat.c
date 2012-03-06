@@ -76,7 +76,7 @@ typedef struct _io_stat_t {
         *items;           /* Each item is a single cell in the table */   
 	const char **filters; /* 'io,stat' cmd strings (e.g., "AVG(smb.time)smb.time") */
     guint64 *max_vals;    /* The max value sans the decimal or nsecs portion in each stat column */
-    guint32 *max_frames;  /* The max number of frames in each stat column */
+    guint32 *max_frame;   /* The max frame number displayed in each stat column */
 } io_stat_t;
 
 typedef struct _io_stat_item_t {
@@ -404,8 +404,8 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
     switch(it->calc_type) {
 	    case CALC_TYPE_FRAMES:
 	    case CALC_TYPE_FRAMES_AND_BYTES:
-            parent->max_frames[it->colnum] = 
-                MAX(parent->max_frames[it->colnum], it->frames);
+            parent->max_frame[it->colnum] = 
+                MAX(parent->max_frame[it->colnum], it->frames);
             if (it->calc_type==CALC_TYPE_FRAMES_AND_BYTES)
                 parent->max_vals[it->colnum] = 
                     MAX(parent->max_vals[it->colnum], it->counter);
@@ -483,10 +483,10 @@ magnitude (guint64 val, int max_w)
 static void
 printcenter (const char *label, int lenval, int numpad)
 {
-    int lenlab = strlen(label), len;
+    int lenlab = (int) strlen(label), len;
     const char spaces[]="      ", *spaces_ptr;
 
-    len = strlen(spaces) - (((lenval-lenlab) / 2) + numpad);
+    len = (int) (strlen(spaces)) - (((lenval-lenlab) / 2) + numpad);
     if (len > 0 && len < 6) {
         spaces_ptr = &spaces[len];       
         if ((lenval-lenlab)%2==0) {
@@ -598,12 +598,12 @@ iostat_draw(void *arg)
         if (type==CALC_TYPE_FRAMES_AND_BYTES) {
             namelen = 5;
         } else {
-            namelen = strlen(calc_type_table[type].func_name);
+            namelen = (int) strlen(calc_type_table[type].func_name);
         }
         if(type==CALC_TYPE_FRAMES
 	    || type==CALC_TYPE_FRAMES_AND_BYTES) {
 
-            fr_mag = magnitude(iot->max_frames[j], 15);
+            fr_mag = magnitude(iot->max_frame[j], 15);
             fr_mag = MAX(6, fr_mag);
             col_w[j].fr = fr_mag;
             tabrow_w += col_w[j].fr + 3;
@@ -695,7 +695,7 @@ iostat_draw(void *arg)
     maxfltr_w = 0;
     for(j=0; j<num_cols; j++) {
         if (iot->filters[j]) {
-            k = strlen(iot->filters[j]) + 11;
+            k = (int) (strlen(iot->filters[j]) + 11);
             maxfltr_w = MAX(maxfltr_w, k);
         } else {
             maxfltr_w = MAX(maxfltr_w, 26);
@@ -759,7 +759,6 @@ iostat_draw(void *arg)
     /* Display the list of filters and their column numbers vertically */
     printf("|\n| Col");
     for(j=0; j<num_cols; j++){
-        /*printf((j==0 ? "%2u: %s" : "|    %2u: %s"), j+1);*/
         printf((j==0 ? "%2u: " : "|    %2u: "), j+1);
         if (!iot->filters[j] || (iot->filters[j]==0)) { 
             /* 
@@ -768,7 +767,7 @@ iostat_draw(void *arg)
             printf("Frames and bytes%s|\n", spaces_s);
         } else {
             filter = iot->filters[j];
-            len_filt = strlen(filter);
+            len_filt = (int) strlen(filter);
             
             /* If the width of the widest filter exceeds the width of the stat table, borderlen has
             *  been set to 102 bytes above and filters wider than 102 will wrap at 91 bytes. */
@@ -781,23 +780,24 @@ iostat_draw(void *arg)
                 printf("|\n");
             } else {
                 gchar *sfilter1, *sfilter2;
-                const char *pos;
-                int len, next_start, max_w=borderlen-11;
+                const gchar *pos;
+                gsize len;
+                int next_start, max_w=borderlen-11;
                 
                 do {
                     if (len_filt > max_w) {
-                        sfilter1 = g_strndup(filter, max_w);
+                        sfilter1 = g_strndup( (gchar *) filter, (gsize) max_w);
                         /* 
                         * Find the pos of the last space in sfilter1. If a space is found, set
-                        * sfilter2 to the string prior to that space, and print it; otherwise, wrap
+                        * sfilter2 to the string prior to that space and print it; otherwise, wrap
                         * the filter at max_w. */
-                        pos = strrchr(sfilter1, ' ');
+                        pos = g_strrstr(sfilter1, " ");
                         if (pos) {
-                            len = pos-sfilter1;
-                            next_start = len+1;
+                            len = (gsize)(pos-sfilter1);
+                            next_start = (int) len+1;
                         } else {
-                            len = strlen(sfilter1);
-                            next_start = len;
+                            len = (gsize) strlen(sfilter1);
+                            next_start = (int)len;
                         }
                         sfilter2 = g_strndup(sfilter1, len);
                         printf("%s%s|\n", sfilter2, &spaces[len+10]);
@@ -806,9 +806,9 @@ iostat_draw(void *arg)
 
                         printf("|        ");
                         filter = &filter[next_start];
-                        len_filt = strlen(filter);
+                        len_filt = (int) strlen(filter);
                     } else {
-                        printf("%s%s|\n", filter, &spaces[(strlen(filter))+10]);
+                        printf("%s%s|\n", filter, &spaces[((int)strlen(filter))+10]);
                         break;
                     }
                 } while (1); 
@@ -1227,13 +1227,13 @@ iostat_init(const char *optarg, void* userdata _U_)
 	}
 
 	io->items = (io_stat_item_t *) g_malloc(sizeof(io_stat_item_t) * io->num_cols);
-	io->filters = g_malloc(sizeof(char *) * io->num_cols);
+	io->filters = (char **) g_malloc(sizeof(char *) * io->num_cols);
     io->max_vals = (guint64 *) g_malloc(sizeof(guint64) * io->num_cols);
-    io->max_frames = (guint32 *) g_malloc(sizeof(guint64) * io->num_cols);
+    io->max_frame = (guint32 *) g_malloc(sizeof(guint32) * io->num_cols);
 
     for (i=0; i<io->num_cols; i++) {
         io->max_vals[i] = 0;
-        io->max_frames[i] = 0;
+        io->max_frame[i] = 0;
     } 
 
     /* Register a tap listener for each filter */
