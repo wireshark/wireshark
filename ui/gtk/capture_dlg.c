@@ -1766,8 +1766,8 @@ save_options_cb(GtkWidget *win _U_, gpointer user_data _U_)
 #endif
 
   interface_t device;
-  gpointer  ptr;
-  int       dlt;
+  gpointer  ptr = NULL;
+  int       dlt = -1;
   const gchar *filter_text;
   
   device = g_array_index(global_capture_opts.all_ifaces, interface_t, marked_interface);
@@ -1785,11 +1785,11 @@ save_options_cb(GtkWidget *win _U_, gpointer user_data _U_)
 
   linktype_combo_box = (GtkWidget *) g_object_get_data(G_OBJECT(opt_edit_w), E_CAP_LT_CBX_KEY);
 
-  if (device.links != NULL && !ws_combo_box_get_active_pointer(GTK_COMBO_BOX(linktype_combo_box), &ptr)) {
-    g_assert_not_reached();  /* Programming error: somehow nothing is active */
-  }
-  if ((dlt = GPOINTER_TO_INT(ptr)) == -1 && device.links != NULL) {
-    g_assert_not_reached();  /* Programming error: somehow managed to select an "unsupported" entry */
+  if (device.links != NULL) {
+     if (!ws_combo_box_get_active_pointer(GTK_COMBO_BOX(linktype_combo_box), &ptr))
+        g_assert_not_reached();  /* Programming error: somehow nothing is active */
+     if (ptr != NULL && (dlt = GPOINTER_TO_INT(ptr)) == -1) 
+        g_assert_not_reached();  /* Programming error: somehow managed to select an "unsupported" entry */
   }
   device.active_dlt = dlt;
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
