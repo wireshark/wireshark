@@ -901,7 +901,7 @@ proto_register_gsm_bsslap(void)
 		},
 		{ &hf_gsm_bsslap_rrlp_flg,
 			{"RRLP Flag", "gsm_bsslap.rrlp_flg",
-			FT_UINT8, BASE_DEC, TFS(&gsm_bsslap_rrlp_flg_vals), 0x01,
+			FT_BOOLEAN, 8, TFS(&gsm_bsslap_rrlp_flg_vals), 0x01,
 			"Cause", HFILL }
 		},
 		{ &hf_gsm_bsslap_tfi,

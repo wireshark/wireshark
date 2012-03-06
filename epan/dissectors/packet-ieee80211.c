@@ -15193,7 +15193,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_tag_measure_report_frame_info_frame_type,
      {"Reported Frame Type", "wlan_mgt.measure.rep.frameinfo.frametype",
-      FT_UINT8, BASE_HEX, TFS(&ieee80211_tag_measure_report_frame_info_frame_type_flag), 0x80, NULL, HFILL }},
+      FT_BOOLEAN, 8, TFS(&ieee80211_tag_measure_report_frame_info_frame_type_flag), 0x80, NULL, HFILL }},
 
     {&hf_ieee80211_tag_measure_report_rcpi,
      {"Received Channel Power Indicator (RCPI)", "wlan_mgt.measure.rep.rcpi",
@@ -16064,7 +16064,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_qos_info_field_queue_req,
       {"Queue Request", "wlan_mgt.tag.qos_cap.qos_info.queue_req",
-        FT_UINT8, BASE_DEC, TFS(&qos_info_field_queue_req_flags), 0x07, NULL, HFILL}},
+        FT_BOOLEAN, 8, TFS(&qos_info_field_queue_req_flags), 0x07, NULL, HFILL}},
 
     {&hf_ieee80211_qos_info_field_txop_req,
       {"TXOP Request", "wlan_mgt.tag.qos_cap.qos_info.txop_req",

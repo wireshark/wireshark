@@ -990,11 +990,11 @@ static void display_channel_list(guint8 *list, tvbuff_t *tvb, proto_tree *tree, 
 
 /**
  * Checks that the remaining "rest octets" all contain the default padding value.
- * If not, it can be assumed that there is a protocol extension 
- * that we don't handle, 
- * or a malformed PDU. 
- * 
- * len:        total length of buffer 
+ * If not, it can be assumed that there is a protocol extension
+ * that we don't handle,
+ * or a malformed PDU.
+ *
+ * len:        total length of buffer
  * bit_offset: bit offset in TVB of first bit to be examined
  */
 static void gsm_rr_csn_padding_bits(proto_tree* tree, tvbuff_t* tvb, guint16 bit_offset, guint8 octet_len)
@@ -1012,15 +1012,15 @@ static void gsm_rr_csn_padding_bits(proto_tree* tree, tvbuff_t* tvb, guint16 bit
                non_padding_found = TRUE;
         }
         else
-        {   
-           for (i=octet_offset+1; (i<octet_len) && !non_padding_found; i++) 
+        {
+           for (i=octet_offset+1; (i<octet_len) && !non_padding_found; i++)
            {
                if (tvb_get_guint8(tvb, i) != PADDING_BYTE)
                    non_padding_found = TRUE;
            }
         }
 
-        if (non_padding_found) 
+        if (non_padding_found)
         {
             /* there is something here we don't understand */
             proto_tree_add_text(tree, tvb, octet_offset, -1,"Padding Bits: Unknown extension detected or malformed PDU (Not decoded)");
@@ -1145,7 +1145,7 @@ static void dissect_channel_list_n_range(tvbuff_t *tvb, proto_tree *tree, packet
       jwi = 0;            /* reset the count of wi at this size */
       nwi <<= 1;          /* get twice as many of the next size */
       wsize--;            /* make the next size 1 bit smaller */
-    } 
+    }
   }
 
   for (i=1; i<=iused; i++) {
@@ -2822,7 +2822,7 @@ de_rr_ia_rest_oct_egprs_packet_uplink_assignment(tvbuff_t *tvb, proto_tree *tree
                curr_bit_offset += 1;
            }
         }
-        
+
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_egprs_mcs, tvb, curr_bit_offset, 4, ENC_BIG_ENDIAN);
         curr_bit_offset += 4;
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_tlli_block_channel_coding, tvb, curr_bit_offset, 1, ENC_BIG_ENDIAN);
@@ -3000,7 +3000,7 @@ de_rr_ia_rest_oct_multiple_blocks_packet_downlink_assignment(tvbuff_t *tvb, prot
 
     if (gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "", "default 0 bit", "Reserved Value"))
     {
-        if (0 == gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "MBMS Assignment", "(Non-distribution)", "(Distribution)"))  
+        if (0 == gsm_rr_csn_flag(tvb, subtree, curr_bit_offset++, "MBMS Assignment", "(Non-distribution)", "(Distribution)"))
         {/* MBMS Assignment (Distribution) */
             curr_bit_offset += de_rr_ia_rest_oct_tmgi(tvb, tree, curr_bit_offset);
         }
@@ -3301,7 +3301,7 @@ de_rr_ia_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, gu
     bit_offset = curr_offset << 3;
     if (0 == gsm_rr_csn_HL_flag(tvb, subtree, 0, bit_offset++, "First Discriminator Bit", "High", "Low"))
     {
-        if (0 == gsm_rr_csn_HL_flag(tvb, subtree, 0, bit_offset++, "Second Discriminator Bit", "High", "Low"))  
+        if (0 == gsm_rr_csn_HL_flag(tvb, subtree, 0, bit_offset++, "Second Discriminator Bit", "High", "Low"))
         {
            /* LL */
            gsm_rr_csn_HL_flag(tvb, subtree, 0,bit_offset++, "A compressed version of the INTER RAT HANDOVER INFO message ", "shall be used", "shall not be used");
@@ -3327,7 +3327,7 @@ de_rr_ia_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, gu
     }
     else
     {
-        if (0 == gsm_rr_csn_HL_flag(tvb, subtree, 0, bit_offset++, "Second Discriminator Bit", "High", "Low"))  
+        if (0 == gsm_rr_csn_HL_flag(tvb, subtree, 0, bit_offset++, "Second Discriminator Bit", "High", "Low"))
         {
            /* HL */
             proto_tree_add_bits_ret_val(subtree, hf_gsm_a_rr_ma_length, tvb, bit_offset, 6, &ma_length, ENC_BIG_ENDIAN);
@@ -3355,7 +3355,7 @@ de_rr_ia_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, gu
         {
             if (0 == gsm_rr_csn_flag(tvb, subtree, bit_offset++, "Discriminator Bit", "Second Part Packet Assignment", "Packet Assignment"))
             {
-                if (0 == gsm_rr_csn_flag(tvb, subtree, bit_offset++, "Discriminator Bit", "Packet Downlink Assignment", "Packet Uplink Assignment"))  
+                if (0 == gsm_rr_csn_flag(tvb, subtree, bit_offset++, "Discriminator Bit", "Packet Downlink Assignment", "Packet Uplink Assignment"))
                 {
                       /* 00  < Packet Uplink Assignment > */
                     bit_offset += de_rr_ia_rest_oct_packet_uplink_assignment(tvb, subtree, bit_offset, bit_len);
@@ -5872,7 +5872,7 @@ de_rr_eutran_measurement_param_desc(tvbuff_t *tvb, proto_tree *tree, gint bit_of
             proto_item_append_text(item, " (%d dB step)", 1 + tvb_get_bits8(tvb,curr_bit_offset,1));
         }
         curr_bit_offset += 1;
-    }    
+    }
 
     return(curr_bit_offset - bit_offset);
 }
@@ -6783,8 +6783,8 @@ de_rr_si3_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, g
     { /* GPRS indicator */
         bit_offset += de_rr_rest_oct_gprs_indicator(tvb, subtree, bit_offset);
     }
-    gsm_rr_csn_HL_flag(tvb, subtree, 0, bit_offset++, "3G Early Classmark Sending Restriction", 
-                                    "The sending of UTRAN,CDMA2000 and GERAN IU MODE CLASSMARK CHANGE messages are controlled by the Early Classmark Sending Control parameter", 
+    gsm_rr_csn_HL_flag(tvb, subtree, 0, bit_offset++, "3G Early Classmark Sending Restriction",
+                                    "The sending of UTRAN,CDMA2000 and GERAN IU MODE CLASSMARK CHANGE messages are controlled by the Early Classmark Sending Control parameter",
                                     "Neither UTRAN, CDMA2000 nor GERAN IU MODE CLASSMARK CHANGE message shall be sent with the Early classmark sending");
     if (gsm_rr_csn_HL_flag(tvb, subtree, 0, bit_offset++, "SI2quater Indicator", "Present", "Not present"))
     { /* SI2quater Indicator */
@@ -6921,8 +6921,8 @@ de_rr_si4_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, g
     }
     else
     { /* Break indicator */
-        gsm_rr_csn_HL_flag(tvb, subtree, bit_len, bit_offset++, "Break Indicator", 
-                           "Additional parameters \"SI4 Rest Octets_S\" are sent in SYSTEM INFORMATION TYPE 7 and 8", 
+        gsm_rr_csn_HL_flag(tvb, subtree, bit_len, bit_offset++, "Break Indicator",
+                           "Additional parameters \"SI4 Rest Octets_S\" are sent in SYSTEM INFORMATION TYPE 7 and 8",
                            "Additional parameters \"SI4 Rest Octets_S\" are not sent in SYSTEM INFORMATION TYPE 7 and 8");
     }
     /* Truncation allowed (see 44.018 section 8.9 */
@@ -7520,7 +7520,7 @@ de_rr_si13_rest_oct(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, 
            { /* Additions in release 99 */
                proto_tree_add_bits_item(subtree, hf_gsm_a_rr_sgsnr, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
                bit_offset += 1;
-   
+
                /* Null breakpoint */
                if (bit_offset < bit_len)
                {
@@ -9957,12 +9957,12 @@ sacch_rr_enh_meas_report(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
            bit_offset_sav = bit_offset;
            item = proto_tree_add_text(tree, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_REPORTING_QUANTITY].strptr);
            subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_REPORTING_QUANTITY]);
-   
+
            bitmap_length = tvb_get_bits8(tvb,bit_offset,7);
            bitmap_length += 1;
            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_emr_bitmap_length, tvb, bit_offset, 7, ENC_BIG_ENDIAN);
            bit_offset += 7;
-   
+
            /* REPORTING_QUANTITY */
            idx = 0;
            while ((guint)(bit_offset>>3) <= (offset + len) && (idx < bitmap_length) )
@@ -9975,7 +9975,7 @@ sacch_rr_enh_meas_report(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
                }
                idx += 1;
            }
-   
+
            /* E-UTRAN Measurement Report */
            if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, "E-UTRAN Measurement Report", "Present", "Not Present"))
            {
@@ -10324,7 +10324,7 @@ static void (*sacch_msg_rr_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *
     NULL,                       /* NONE */
 };
 
-static void 
+static void
 get_rr_short_pd_msg_params(guint8 mess_type, const gchar **msg_str, int *ett_tree, int *hf_idx, msg_fcn *msg_fcn_p)
 {
     gint                        idx;
@@ -11926,7 +11926,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_eutran_measurement_control_eutran,
               { "Measurement_Control_E-UTRAN", "gsm_a.rr.eutran_measurement_control_eutran",
-                FT_UINT8, BASE_DEC, TFS(&measurement_control_eutran), 0x00,
+                FT_BOOLEAN, BASE_NONE, TFS(&measurement_control_eutran), 0x00,
                 NULL, HFILL }
             },
             { &hf_gsm_a_rr_qsearch_p_eutran,
