@@ -68,320 +68,320 @@ static dissector_handle_t cip_class_cco_handle;
 static heur_dissector_list_t  heur_subdissector_service;
 
 /* Initialize the protocol and registered fields */
-static int proto_cip               = -1;
+static int proto_cip = -1;
 static int proto_cip_class_generic = -1;
-static int proto_cip_class_cm      = -1;
-static int proto_cip_class_mb      = -1;
-static int proto_cip_class_cco     = -1;
-static int proto_enip              = -1;
-static int proto_modbus            = -1;
+static int proto_cip_class_cm = -1;
+static int proto_cip_class_mb = -1;
+static int proto_cip_class_cco = -1;
+static int proto_enip = -1;
+static int proto_modbus = -1;
 
-static int hf_cip_data              = -1;
-static int hf_cip_service           = -1;
-static int hf_cip_service_code      = -1;
-static int hf_cip_reqrsp            = -1;
-static int hf_cip_epath             = -1;
-static int hf_cip_genstat           = -1;
-static int hf_cip_addstat_size      = -1;
-static int hf_cip_add_stat          = -1;
+static int hf_cip_data = -1;
+static int hf_cip_service = -1;
+static int hf_cip_service_code = -1;
+static int hf_cip_reqrsp = -1;
+static int hf_cip_epath = -1;
+static int hf_cip_genstat = -1;
+static int hf_cip_addstat_size = -1;
+static int hf_cip_add_stat = -1;
 static int hf_cip_request_path_size = -1;
 
-static int hf_cip_cm_sc                   = -1;
-static int hf_cip_cm_genstat              = -1;
-static int hf_cip_cm_addstat_size         = -1;
-static int hf_cip_cm_add_status           = -1;
-static int hf_cip_cm_ext_status           = -1;
-static int hf_cip_cm_priority             = -1;
-static int hf_cip_cm_tick_time            = -1;
-static int hf_cip_cm_timeout_tick         = -1;
-static int hf_cip_cm_timeout              = -1;
-static int hf_cip_cm_ot_connid            = -1;
-static int hf_cip_cm_to_connid            = -1;
-static int hf_cip_cm_conn_serial_num      = -1;
-static int hf_cip_cm_orig_serial_num      = -1;
-static int hf_cip_cm_vendor               = -1;
-static int hf_cip_cm_timeout_multiplier   = -1;
-static int hf_cip_cm_ot_rpi               = -1;
-static int hf_cip_cm_ot_net_params32      = -1;
-static int hf_cip_cm_ot_net_params16      = -1;
-static int hf_cip_cm_to_rpi               = -1;
-static int hf_cip_cm_to_net_params32      = -1;
-static int hf_cip_cm_to_net_params16      = -1;
-static int hf_cip_cm_transport_type_trigger   = -1;
-static int hf_cip_cm_conn_path_size       = -1;
-static int hf_cip_cm_ot_api               = -1;
-static int hf_cip_cm_to_api               = -1;
-static int hf_cip_cm_app_reply_size       = -1;
-static int hf_cip_cm_app_reply_data       = -1;
-static int hf_cip_cm_remain_path_size     = -1;
-static int hf_cip_cm_msg_req_size         = -1;
-static int hf_cip_cm_route_path_size      = -1;
-static int hf_cip_cm_fwo_con_size         = -1;
-static int hf_cip_cm_lfwo_con_size        = -1;
-static int hf_cip_cm_fwo_fixed_var        = -1;
-static int hf_cip_cm_lfwo_fixed_var       = -1;
-static int hf_cip_cm_fwo_prio             = -1;
-static int hf_cip_cm_lfwo_prio            = -1;
-static int hf_cip_cm_fwo_typ              = -1;
-static int hf_cip_cm_lfwo_typ             = -1;
-static int hf_cip_cm_fwo_own              = -1;
-static int hf_cip_cm_lfwo_own             = -1;
-static int hf_cip_cm_fwo_dir              = -1;
-static int hf_cip_cm_fwo_trigg            = -1;
-static int hf_cip_cm_fwo_class            = -1;
-static int hf_cip_cm_gco_conn             = -1;
-static int hf_cip_cm_gco_coo_conn         = -1;
-static int hf_cip_cm_gco_roo_conn         = -1;
-static int hf_cip_cm_gco_last_action      = -1;
-static int hf_cip_cm_ext112_ot_rpi_type   = -1;
-static int hf_cip_cm_ext112_to_rpi_type   = -1;
-static int hf_cip_cm_ext112_ot_rpi        = -1;
-static int hf_cip_cm_ext112_to_rpi        = -1;
-static int hf_cip_cm_ext126_size          = -1;
-static int hf_cip_cm_ext127_size          = -1;
-static int hf_cip_cm_ext128_size          = -1;
+static int hf_cip_cm_sc = -1;
+static int hf_cip_cm_genstat = -1;
+static int hf_cip_cm_addstat_size = -1;
+static int hf_cip_cm_add_status = -1;
+static int hf_cip_cm_ext_status = -1;
+static int hf_cip_cm_priority = -1;
+static int hf_cip_cm_tick_time = -1;
+static int hf_cip_cm_timeout_tick = -1;
+static int hf_cip_cm_timeout = -1;
+static int hf_cip_cm_ot_connid = -1;
+static int hf_cip_cm_to_connid = -1;
+static int hf_cip_cm_conn_serial_num = -1;
+static int hf_cip_cm_orig_serial_num = -1;
+static int hf_cip_cm_vendor = -1;
+static int hf_cip_cm_timeout_multiplier = -1;
+static int hf_cip_cm_ot_rpi = -1;
+static int hf_cip_cm_ot_net_params32 = -1;
+static int hf_cip_cm_ot_net_params16 = -1;
+static int hf_cip_cm_to_rpi = -1;
+static int hf_cip_cm_to_net_params32 = -1;
+static int hf_cip_cm_to_net_params16 = -1;
+static int hf_cip_cm_transport_type_trigger = -1;
+static int hf_cip_cm_conn_path_size = -1;
+static int hf_cip_cm_ot_api = -1;
+static int hf_cip_cm_to_api = -1;
+static int hf_cip_cm_app_reply_size = -1;
+static int hf_cip_cm_app_reply_data = -1;
+static int hf_cip_cm_remain_path_size = -1;
+static int hf_cip_cm_msg_req_size = -1;
+static int hf_cip_cm_route_path_size = -1;
+static int hf_cip_cm_fwo_con_size = -1;
+static int hf_cip_cm_lfwo_con_size = -1;
+static int hf_cip_cm_fwo_fixed_var = -1;
+static int hf_cip_cm_lfwo_fixed_var = -1;
+static int hf_cip_cm_fwo_prio = -1;
+static int hf_cip_cm_lfwo_prio = -1;
+static int hf_cip_cm_fwo_typ = -1;
+static int hf_cip_cm_lfwo_typ = -1;
+static int hf_cip_cm_fwo_own = -1;
+static int hf_cip_cm_lfwo_own = -1;
+static int hf_cip_cm_fwo_dir = -1;
+static int hf_cip_cm_fwo_trigg = -1;
+static int hf_cip_cm_fwo_class = -1;
+static int hf_cip_cm_gco_conn = -1;
+static int hf_cip_cm_gco_coo_conn = -1;
+static int hf_cip_cm_gco_roo_conn = -1;
+static int hf_cip_cm_gco_last_action = -1;
+static int hf_cip_cm_ext112_ot_rpi_type = -1;
+static int hf_cip_cm_ext112_to_rpi_type = -1;
+static int hf_cip_cm_ext112_ot_rpi = -1;
+static int hf_cip_cm_ext112_to_rpi = -1;
+static int hf_cip_cm_ext126_size = -1;
+static int hf_cip_cm_ext127_size = -1;
+static int hf_cip_cm_ext128_size = -1;
 
-static int hf_cip_mb_sc                                   = -1;
-static int hf_cip_mb_read_coils_start_addr                = -1;
-static int hf_cip_mb_read_coils_num_coils                 = -1;
-static int hf_cip_mb_read_coils_data                      = -1;
-static int hf_cip_mb_read_discrete_inputs_start_addr      = -1;
-static int hf_cip_mb_read_discrete_inputs_num_inputs      = -1;
-static int hf_cip_mb_read_discrete_inputs_data            = -1;
-static int hf_cip_mb_read_holding_register_start_addr     = -1;
-static int hf_cip_mb_read_holding_register_num_registers  = -1;
-static int hf_cip_mb_read_holding_register_data           = -1;
-static int hf_cip_mb_read_input_register_start_addr       = -1;
-static int hf_cip_mb_read_input_register_num_registers    = -1;
-static int hf_cip_mb_read_input_register_data             = -1;
-static int hf_cip_mb_write_coils_start_addr               = -1;
-static int hf_cip_mb_write_coils_outputs_forced           = -1;
-static int hf_cip_mb_write_coils_num_coils                = -1;
-static int hf_cip_mb_write_coils_data                     = -1;
-static int hf_cip_mb_write_registers_start_addr           = -1;
-static int hf_cip_mb_write_registers_outputs_forced       = -1;
-static int hf_cip_mb_write_registers_num_registers        = -1;
-static int hf_cip_mb_write_registers_data                 = -1;
-static int hf_cip_mb_data                                 = -1;
+static int hf_cip_mb_sc = -1;
+static int hf_cip_mb_read_coils_start_addr = -1;
+static int hf_cip_mb_read_coils_num_coils = -1;
+static int hf_cip_mb_read_coils_data = -1;
+static int hf_cip_mb_read_discrete_inputs_start_addr = -1;
+static int hf_cip_mb_read_discrete_inputs_num_inputs = -1;
+static int hf_cip_mb_read_discrete_inputs_data = -1;
+static int hf_cip_mb_read_holding_register_start_addr = -1;
+static int hf_cip_mb_read_holding_register_num_registers = -1;
+static int hf_cip_mb_read_holding_register_data = -1;
+static int hf_cip_mb_read_input_register_start_addr = -1;
+static int hf_cip_mb_read_input_register_num_registers = -1;
+static int hf_cip_mb_read_input_register_data = -1;
+static int hf_cip_mb_write_coils_start_addr = -1;
+static int hf_cip_mb_write_coils_outputs_forced = -1;
+static int hf_cip_mb_write_coils_num_coils = -1;
+static int hf_cip_mb_write_coils_data = -1;
+static int hf_cip_mb_write_registers_start_addr = -1;
+static int hf_cip_mb_write_registers_outputs_forced = -1;
+static int hf_cip_mb_write_registers_num_registers = -1;
+static int hf_cip_mb_write_registers_data = -1;
+static int hf_cip_mb_data = -1;
 
-static int hf_cip_cco_con_type            = -1;
-static int hf_cip_cco_ot_rtf              = -1;
-static int hf_cip_cco_to_rtf              = -1;
-static int hf_cip_cco_sc                  = -1;
-static int hf_cip_cco_format_number       = -1;
-static int hf_cip_cco_edit_signature      = -1;
-static int hf_cip_cco_con_flags           = -1;
-static int hf_cip_cco_tdi_vendor          = -1;
-static int hf_cip_cco_tdi_devtype         = -1;
-static int hf_cip_cco_tdi_prodcode        = -1;
-static int hf_cip_cco_tdi_compatibility   = -1;
-static int hf_cip_cco_tdi_comp_bit        = -1;
-static int hf_cip_cco_tdi_majorrev        = -1;
-static int hf_cip_cco_tdi_minorrev        = -1;
-static int hf_cip_cco_pdi_vendor          = -1;
-static int hf_cip_cco_pdi_devtype         = -1;
-static int hf_cip_cco_pdi_prodcode        = -1;
-static int hf_cip_cco_pdi_compatibility   = -1;
-static int hf_cip_cco_pdi_comp_bit        = -1;
-static int hf_cip_cco_pdi_majorrev        = -1;
-static int hf_cip_cco_pdi_minorrev        = -1;
-static int hf_cip_cco_cs_data_index       = -1;
-static int hf_cip_cco_ot_rpi              = -1;
-static int hf_cip_cco_to_rpi              = -1;
-static int hf_cip_cco_ot_net_param16      = -1;
-static int hf_cip_cco_to_net_param16      = -1;
-static int hf_cip_cco_fwo_own             = -1;
-static int hf_cip_cco_fwo_typ             = -1;
-static int hf_cip_cco_fwo_prio            = -1;
-static int hf_cip_cco_fwo_fixed_var       = -1;
-static int hf_cip_cco_fwo_con_size        = -1;
-static int hf_cip_cco_ot_net_param32      = -1;
-static int hf_cip_cco_to_net_param32      = -1;
-static int hf_cip_cco_lfwo_own            = -1;
-static int hf_cip_cco_lfwo_typ            = -1;
-static int hf_cip_cco_lfwo_prio           = -1;
-static int hf_cip_cco_lfwo_fixed_var      = -1;
-static int hf_cip_cco_lfwo_con_size       = -1;
-static int hf_cip_cco_conn_path_size      = -1;
-static int hf_cip_cco_proxy_config_size   = -1;
-static int hf_cip_cco_target_config_size  = -1;
+static int hf_cip_cco_con_type = -1;
+static int hf_cip_cco_ot_rtf = -1;
+static int hf_cip_cco_to_rtf = -1;
+static int hf_cip_cco_sc = -1;
+static int hf_cip_cco_format_number = -1;
+static int hf_cip_cco_edit_signature = -1;
+static int hf_cip_cco_con_flags = -1;
+static int hf_cip_cco_tdi_vendor = -1;
+static int hf_cip_cco_tdi_devtype = -1;
+static int hf_cip_cco_tdi_prodcode = -1;
+static int hf_cip_cco_tdi_compatibility = -1;
+static int hf_cip_cco_tdi_comp_bit = -1;
+static int hf_cip_cco_tdi_majorrev = -1;
+static int hf_cip_cco_tdi_minorrev = -1;
+static int hf_cip_cco_pdi_vendor = -1;
+static int hf_cip_cco_pdi_devtype = -1;
+static int hf_cip_cco_pdi_prodcode = -1;
+static int hf_cip_cco_pdi_compatibility = -1;
+static int hf_cip_cco_pdi_comp_bit = -1;
+static int hf_cip_cco_pdi_majorrev = -1;
+static int hf_cip_cco_pdi_minorrev = -1;
+static int hf_cip_cco_cs_data_index = -1;
+static int hf_cip_cco_ot_rpi = -1;
+static int hf_cip_cco_to_rpi = -1;
+static int hf_cip_cco_ot_net_param16 = -1;
+static int hf_cip_cco_to_net_param16 = -1;
+static int hf_cip_cco_fwo_own = -1;
+static int hf_cip_cco_fwo_typ = -1;
+static int hf_cip_cco_fwo_prio = -1;
+static int hf_cip_cco_fwo_fixed_var = -1;
+static int hf_cip_cco_fwo_con_size = -1;
+static int hf_cip_cco_ot_net_param32 = -1;
+static int hf_cip_cco_to_net_param32 = -1;
+static int hf_cip_cco_lfwo_own = -1;
+static int hf_cip_cco_lfwo_typ = -1;
+static int hf_cip_cco_lfwo_prio = -1;
+static int hf_cip_cco_lfwo_fixed_var = -1;
+static int hf_cip_cco_lfwo_con_size = -1;
+static int hf_cip_cco_conn_path_size = -1;
+static int hf_cip_cco_proxy_config_size = -1;
+static int hf_cip_cco_target_config_size = -1;
 static int hf_cip_cco_iomap_format_number = -1;
-static int hf_cip_cco_iomap_size          = -1;
-static int hf_cip_cco_connection_disable  = -1;
+static int hf_cip_cco_iomap_size = -1;
+static int hf_cip_cco_connection_disable = -1;
 static int hf_cip_cco_net_conn_param_attr = -1;
-static int hf_cip_cco_timeout_multiplier  = -1;
+static int hf_cip_cco_timeout_multiplier = -1;
 static int hf_cip_cco_transport_type_trigger = -1;
-static int hf_cip_cco_fwo_dir             = -1;
-static int hf_cip_cco_fwo_trigger         = -1;
-static int hf_cip_cco_fwo_class           = -1;
-static int hf_cip_cco_proxy_config_data   = -1;
-static int hf_cip_cco_target_config_data  = -1;
-static int hf_cip_cco_iomap_attribute     = -1;
-static int hf_cip_cco_safety              = -1;
-static int hf_cip_cco_change_type         = -1;
+static int hf_cip_cco_fwo_dir = -1;
+static int hf_cip_cco_fwo_trigger = -1;
+static int hf_cip_cco_fwo_class = -1;
+static int hf_cip_cco_proxy_config_data = -1;
+static int hf_cip_cco_target_config_data = -1;
+static int hf_cip_cco_iomap_attribute = -1;
+static int hf_cip_cco_safety = -1;
+static int hf_cip_cco_change_type = -1;
 
-static int hf_cip_vendor              = -1;
-static int hf_cip_devtype             = -1;
-static int hf_cip_path_segment        = -1;
-static int hf_cip_path_segment_type   = -1;
-static int hf_cip_port_segment        = -1;
-static int hf_cip_port_ex_link_addr   = -1;
-static int hf_cip_port                = -1;
-static int hf_cip_link_address_size   = -1;
-static int hf_cip_link_address_byte   = -1;
+static int hf_cip_vendor = -1;
+static int hf_cip_devtype = -1;
+static int hf_cip_path_segment = -1;
+static int hf_cip_path_segment_type = -1;
+static int hf_cip_port_segment = -1;
+static int hf_cip_port_ex_link_addr = -1;
+static int hf_cip_port = -1;
+static int hf_cip_link_address_size = -1;
+static int hf_cip_link_address_byte = -1;
 static int hf_cip_link_address_string = -1;
-static int hf_cip_logical_seg_type    = -1;
-static int hf_cip_logical_seg_format  = -1;
-static int hf_cip_class8              = -1;
-static int hf_cip_class16             = -1;
-static int hf_cip_class32             = -1;
-static int hf_cip_instance8           = -1;
-static int hf_cip_instance16          = -1;
-static int hf_cip_instance32          = -1;
-static int hf_cip_member8             = -1;
-static int hf_cip_member16            = -1;
-static int hf_cip_member32            = -1;
-static int hf_cip_attribute8          = -1;
-static int hf_cip_attribute16         = -1;
-static int hf_cip_attribute32         = -1;
-static int hf_cip_conpoint8           = -1;
-static int hf_cip_conpoint16          = -1;
-static int hf_cip_conpoint32          = -1;
-static int hf_cip_ekey                = -1;
-static int hf_cip_ekey_format         = -1;
-static int hf_cip_ekey_vendor         = -1;
-static int hf_cip_ekey_devtype        = -1;
-static int hf_cip_ekey_prodcode       = -1;
-static int hf_cip_ekey_compatibility  = -1;
-static int hf_cip_ekey_comp_bit       = -1;
-static int hf_cip_ekey_majorrev       = -1;
-static int hf_cip_ekey_minorrev       = -1;
-static int hf_cip_data_seg_type       = -1;
-static int hf_cip_data_seg_size       = -1;
-static int hf_cip_data_seg_item       = -1;
-static int hf_cip_symbol              = -1;
-static int hf_cip_network_seg_type    = -1;
-static int hf_cip_seg_schedule        = -1;
-static int hf_cip_seg_fixed_tag       = -1;
-static int hf_cip_seg_prod_inhibit_time   = -1;
-static int hf_cip_seg_network_size    = -1;
-static int hf_cip_seg_safety_format   = -1;
+static int hf_cip_logical_seg_type = -1;
+static int hf_cip_logical_seg_format = -1;
+static int hf_cip_class8 = -1;
+static int hf_cip_class16 = -1;
+static int hf_cip_class32 = -1;
+static int hf_cip_instance8 = -1;
+static int hf_cip_instance16 = -1;
+static int hf_cip_instance32 = -1;
+static int hf_cip_member8 = -1;
+static int hf_cip_member16 = -1;
+static int hf_cip_member32 = -1;
+static int hf_cip_attribute8 = -1;
+static int hf_cip_attribute16 = -1;
+static int hf_cip_attribute32 = -1;
+static int hf_cip_conpoint8 = -1;
+static int hf_cip_conpoint16 = -1;
+static int hf_cip_conpoint32 = -1;
+static int hf_cip_ekey = -1;
+static int hf_cip_ekey_format = -1;
+static int hf_cip_ekey_vendor = -1;
+static int hf_cip_ekey_devtype = -1;
+static int hf_cip_ekey_prodcode = -1;
+static int hf_cip_ekey_compatibility = -1;
+static int hf_cip_ekey_comp_bit = -1;
+static int hf_cip_ekey_majorrev = -1;
+static int hf_cip_ekey_minorrev = -1;
+static int hf_cip_data_seg_type = -1;
+static int hf_cip_data_seg_size = -1;
+static int hf_cip_data_seg_item = -1;
+static int hf_cip_symbol = -1;
+static int hf_cip_network_seg_type = -1;
+static int hf_cip_seg_schedule = -1;
+static int hf_cip_seg_fixed_tag = -1;
+static int hf_cip_seg_prod_inhibit_time = -1;
+static int hf_cip_seg_network_size = -1;
+static int hf_cip_seg_safety_format = -1;
 static int hf_cip_seg_safety_reserved = -1;
 static int hf_cip_seg_safety_configuration_crc = -1;
 static int hf_cip_seg_safety_configuration_timestamp = -1;
 static int hf_cip_seg_safety_configuration_date = -1;
 static int hf_cip_seg_safety_configuration_time = -1;
-static int hf_cip_seg_safety_time_correction_epi   = -1;
-static int hf_cip_seg_safety_time_correction_net_params   = -1;
-static int hf_cip_seg_safety_time_correction_own   = -1;
-static int hf_cip_seg_safety_time_correction_typ   = -1;
-static int hf_cip_seg_safety_time_correction_prio   = -1;
-static int hf_cip_seg_safety_time_correction_fixed_var   = -1;
-static int hf_cip_seg_safety_time_correction_con_size   = -1;
+static int hf_cip_seg_safety_time_correction_epi = -1;
+static int hf_cip_seg_safety_time_correction_net_params = -1;
+static int hf_cip_seg_safety_time_correction_own = -1;
+static int hf_cip_seg_safety_time_correction_typ = -1;
+static int hf_cip_seg_safety_time_correction_prio = -1;
+static int hf_cip_seg_safety_time_correction_fixed_var = -1;
+static int hf_cip_seg_safety_time_correction_con_size = -1;
 static int hf_cip_seg_safety_tunid = -1;
-static int hf_cip_seg_safety_tunid_ssn_timestamp   = -1;
-static int hf_cip_seg_safety_tunid_ssn_date   = -1;
-static int hf_cip_seg_safety_tunid_ssn_time   = -1;
-static int hf_cip_seg_safety_tunid_macid   = -1;
-static int hf_cip_seg_safety_ounid   = -1;
-static int hf_cip_seg_safety_ounid_ssn_timestamp   = -1;
-static int hf_cip_seg_safety_ounid_ssn_date   = -1;
-static int hf_cip_seg_safety_ounid_ssn_time   = -1;
-static int hf_cip_seg_safety_ounid_macid   = -1;
-static int hf_cip_seg_safety_ping_eri_multiplier   = -1;
-static int hf_cip_seg_safety_time_coord_msg_min_multiplier   = -1;
-static int hf_cip_seg_safety_network_time_expected_multiplier   = -1;
-static int hf_cip_seg_safety_timeout_multiplier   = -1;
-static int hf_cip_seg_safety_max_consumer_number   = -1;
-static int hf_cip_seg_safety_conn_param_crc   = -1;
-static int hf_cip_seg_safety_time_correction_conn_id   = -1;
-static int hf_cip_seg_safety_max_fault_number   = -1;
-static int hf_cip_seg_safety_init_timestamp   = -1;
-static int hf_cip_seg_safety_init_rollover   = -1;
-static int hf_cip_seg_safety_data     = -1;
-static int hf_cip_class_rev           = -1;
-static int hf_cip_class_max_inst32    = -1;
-static int hf_cip_class_num_inst32    = -1;
-static int hf_cip_reserved8           = -1;
-static int hf_cip_reserved16          = -1;
-static int hf_cip_reserved24          = -1;
-static int hf_cip_pad8                = -1;
+static int hf_cip_seg_safety_tunid_ssn_timestamp = -1;
+static int hf_cip_seg_safety_tunid_ssn_date = -1;
+static int hf_cip_seg_safety_tunid_ssn_time = -1;
+static int hf_cip_seg_safety_tunid_macid = -1;
+static int hf_cip_seg_safety_ounid = -1;
+static int hf_cip_seg_safety_ounid_ssn_timestamp = -1;
+static int hf_cip_seg_safety_ounid_ssn_date = -1;
+static int hf_cip_seg_safety_ounid_ssn_time = -1;
+static int hf_cip_seg_safety_ounid_macid = -1;
+static int hf_cip_seg_safety_ping_eri_multiplier = -1;
+static int hf_cip_seg_safety_time_coord_msg_min_multiplier = -1;
+static int hf_cip_seg_safety_network_time_expected_multiplier = -1;
+static int hf_cip_seg_safety_timeout_multiplier = -1;
+static int hf_cip_seg_safety_max_consumer_number = -1;
+static int hf_cip_seg_safety_conn_param_crc = -1;
+static int hf_cip_seg_safety_time_correction_conn_id = -1;
+static int hf_cip_seg_safety_max_fault_number = -1;
+static int hf_cip_seg_safety_init_timestamp = -1;
+static int hf_cip_seg_safety_init_rollover = -1;
+static int hf_cip_seg_safety_data = -1;
+static int hf_cip_class_rev = -1;
+static int hf_cip_class_max_inst32 = -1;
+static int hf_cip_class_num_inst32 = -1;
+static int hf_cip_reserved8 = -1;
+static int hf_cip_reserved16 = -1;
+static int hf_cip_reserved24 = -1;
+static int hf_cip_pad8 = -1;
 
-static int hf_cip_sc_get_attr_list_attr_count      = -1;
-static int hf_cip_sc_get_attr_list_attr_item       = -1;
-static int hf_cip_sc_get_attr_list_attr_status     = -1;
-static int hf_cip_sc_get_attr_list_attr_data       = -1;
-static int hf_cip_sc_set_attr_list_attr_count      = -1;
-static int hf_cip_sc_set_attr_list_attr_item       = -1;
-static int hf_cip_sc_set_attr_list_attr_status     = -1;
-static int hf_cip_sc_set_attr_list_attr_data       = -1;
-static int hf_cip_sc_reset_param                   = -1;
-static int hf_cip_sc_get_attribute_all_data        = -1;
-static int hf_cip_sc_set_attribute_all_data        = -1;
-static int hf_cip_sc_reset_data                    = -1;
-static int hf_cip_sc_start_data                    = -1;
-static int hf_cip_sc_stop_data                     = -1;
-static int hf_cip_sc_create_instance               = -1;
-static int hf_cip_sc_create_data                   = -1;
-static int hf_cip_sc_delete_data                   = -1;
-static int hf_cip_sc_mult_serv_pack_num_services   = -1;
-static int hf_cip_sc_mult_serv_pack_offset         = -1;
-static int hf_cip_sc_mult_serv_pack_num_replies    = -1;
-static int hf_cip_sc_apply_attributes_data         = -1;
-static int hf_cip_sc_set_attr_single_data          = -1;
-static int hf_cip_sc_get_attr_single_data          = -1;
-static int hf_cip_find_next_object_max_instance    = -1;
-static int hf_cip_find_next_object_num_instances   = -1;
-static int hf_cip_find_next_object_instance_item   = -1;
-static int hf_cip_sc_restore_data                  = -1;
-static int hf_cip_sc_save_data                     = -1;
-static int hf_cip_sc_noop_data                     = -1;
-static int hf_cip_sc_get_member_data               = -1;
-static int hf_cip_sc_set_member_data               = -1;
-static int hf_cip_sc_insert_member_data            = -1;
-static int hf_cip_sc_remove_member_data            = -1;
-static int hf_cip_sc_group_sync_is_sync            = -1;
-static int hf_cip_sc_group_sync_data               = -1;
+static int hf_cip_sc_get_attr_list_attr_count = -1;
+static int hf_cip_sc_get_attr_list_attr_item = -1;
+static int hf_cip_sc_get_attr_list_attr_status = -1;
+static int hf_cip_sc_get_attr_list_attr_data = -1;
+static int hf_cip_sc_set_attr_list_attr_count = -1;
+static int hf_cip_sc_set_attr_list_attr_item = -1;
+static int hf_cip_sc_set_attr_list_attr_status = -1;
+static int hf_cip_sc_set_attr_list_attr_data = -1;
+static int hf_cip_sc_reset_param = -1;
+static int hf_cip_sc_get_attribute_all_data = -1;
+static int hf_cip_sc_set_attribute_all_data = -1;
+static int hf_cip_sc_reset_data = -1;
+static int hf_cip_sc_start_data = -1;
+static int hf_cip_sc_stop_data = -1;
+static int hf_cip_sc_create_instance = -1;
+static int hf_cip_sc_create_data = -1;
+static int hf_cip_sc_delete_data = -1;
+static int hf_cip_sc_mult_serv_pack_num_services = -1;
+static int hf_cip_sc_mult_serv_pack_offset = -1;
+static int hf_cip_sc_mult_serv_pack_num_replies = -1;
+static int hf_cip_sc_apply_attributes_data = -1;
+static int hf_cip_sc_set_attr_single_data = -1;
+static int hf_cip_sc_get_attr_single_data = -1;
+static int hf_cip_find_next_object_max_instance = -1;
+static int hf_cip_find_next_object_num_instances = -1;
+static int hf_cip_find_next_object_instance_item = -1;
+static int hf_cip_sc_restore_data = -1;
+static int hf_cip_sc_save_data = -1;
+static int hf_cip_sc_noop_data = -1;
+static int hf_cip_sc_get_member_data = -1;
+static int hf_cip_sc_set_member_data = -1;
+static int hf_cip_sc_insert_member_data = -1;
+static int hf_cip_sc_remove_member_data = -1;
+static int hf_cip_sc_group_sync_is_sync = -1;
+static int hf_cip_sc_group_sync_data = -1;
 
 /* Parsed Attributes */
-static int hf_id_vendor_id                         = -1;
-static int hf_id_device_type                       = -1;
-static int hf_id_produce_code                      = -1;
-static int hf_id_major_rev                         = -1;
-static int hf_id_minor_rev                         = -1;
-static int hf_id_status                            = -1;
-static int hf_id_serial_number                     = -1;
-static int hf_id_product_name                      = -1;
-static int hf_msg_rout_num_classes                 = -1;
-static int hf_msg_rout_classes                     = -1;
-static int hf_msg_rout_num_available               = -1;
-static int hf_msg_rout_num_active                  = -1;
-static int hf_msg_rout_active_connections          = -1;
-static int hf_conn_mgr_open_requests               = -1;
-static int hf_conn_mgr_open_format_rejects         = -1;
-static int hf_conn_mgr_open_resource_rejects       = -1;
-static int hf_conn_mgr_other_open_rejects          = -1;
-static int hf_conn_mgr_close_requests              = -1;
-static int hf_conn_close_format_requests           = -1;
-static int hf_conn_mgr_close_other_requests        = -1;
-static int hf_conn_mgr_conn_timouts                = -1;
+static int hf_id_vendor_id = -1;
+static int hf_id_device_type = -1;
+static int hf_id_produce_code = -1;
+static int hf_id_major_rev = -1;
+static int hf_id_minor_rev = -1;
+static int hf_id_status = -1;
+static int hf_id_serial_number = -1;
+static int hf_id_product_name = -1;
+static int hf_msg_rout_num_classes = -1;
+static int hf_msg_rout_classes = -1;
+static int hf_msg_rout_num_available = -1;
+static int hf_msg_rout_num_active = -1;
+static int hf_msg_rout_active_connections = -1;
+static int hf_conn_mgr_open_requests = -1;
+static int hf_conn_mgr_open_format_rejects = -1;
+static int hf_conn_mgr_open_resource_rejects = -1;
+static int hf_conn_mgr_other_open_rejects = -1;
+static int hf_conn_mgr_close_requests = -1;
+static int hf_conn_close_format_requests = -1;
+static int hf_conn_mgr_close_other_requests = -1;
+static int hf_conn_mgr_conn_timouts = -1;
 
 /* Initialize the subtree pointers */
-static gint ett_cip               = -1;
+static gint ett_cip = -1;
 static gint ett_cip_class_generic = -1;
-static gint ett_cip_class_cm      = -1;
-static gint ett_cip_class_mb      = -1;
-static gint ett_cip_class_cco     = -1;
+static gint ett_cip_class_cm = -1;
+static gint ett_cip_class_mb = -1;
+static gint ett_cip_class_cco = -1;
 
-static gint ett_path          = -1;
-static gint ett_path_seg      = -1;
-static gint ett_ekey_path     = -1;
-static gint ett_mcsc          = -1;
-static gint ett_cia_path      = -1;
-static gint ett_data_seg      = -1;
+static gint ett_path = -1;
+static gint ett_path_seg = -1;
+static gint ett_ekey_path = -1;
+static gint ett_mcsc = -1;
+static gint ett_cia_path = -1;
+static gint ett_data_seg = -1;
 static gint ett_data_seg_data = -1;
-static gint ett_port_path     = -1;
-static gint ett_network_seg   = -1;
+static gint ett_port_path = -1;
+static gint ett_network_seg = -1;
 static gint ett_network_seg_safety = -1;
 static gint ett_network_seg_safety_time_correction_net_params = -1;
 static gint ett_cip_seg_safety_tunid = -1;
@@ -389,36 +389,36 @@ static gint ett_cip_seg_safety_tunid_ssn = -1;
 static gint ett_cip_seg_safety_ounid = -1;
 static gint ett_cip_seg_safety_ounid_ssn = -1;
 
-static gint ett_rrsc          = -1;
-static gint ett_status_item   = -1;
+static gint ett_rrsc = -1;
+static gint ett_status_item = -1;
 static gint ett_add_status_item = -1;
-static gint ett_cmd_data      = -1;
+static gint ett_cmd_data = -1;
 
-static gint ett_cip_get_attribute_list      = -1;
+static gint ett_cip_get_attribute_list = -1;
 static gint ett_cip_get_attribute_list_item = -1;
-static gint ett_cip_set_attribute_list      = -1;
+static gint ett_cip_set_attribute_list = -1;
 static gint ett_cip_set_attribute_list_item = -1;
-static gint ett_cip_mult_service_packet     = -1;
+static gint ett_cip_mult_service_packet = -1;
 
-static gint ett_cm_rrsc     = -1;
-static gint ett_cm_ncp      = -1;
-static gint ett_cm_mes_req  = -1;
+static gint ett_cm_rrsc = -1;
+static gint ett_cm_ncp = -1;
+static gint ett_cm_mes_req = -1;
 static gint ett_cm_cmd_data = -1;
-static gint ett_cm_ttt      = -1;
+static gint ett_cm_ttt = -1;
 static gint ett_cm_add_status_item = -1;
 
-static gint ett_mb_rrsc     = -1;
+static gint ett_mb_rrsc = -1;
 static gint ett_mb_cmd_data = -1;
 
-static gint ett_cco_iomap    = -1;
+static gint ett_cco_iomap = -1;
 static gint ett_cco_con_status = -1;
 static gint ett_cco_con_flag = -1;
-static gint ett_cco_tdi      = -1;
-static gint ett_cco_pdi      = -1;
-static gint ett_cco_ncp      = -1;
-static gint ett_cco_rrsc     = -1;
+static gint ett_cco_tdi = -1;
+static gint ett_cco_pdi = -1;
+static gint ett_cco_ncp = -1;
+static gint ett_cco_rrsc = -1;
 static gint ett_cco_cmd_data = -1;
-static gint ett_cco_ttt      = -1;
+static gint ett_cco_ttt = -1;
 
 dissector_table_t   subdissector_class_table;
 static dissector_table_t   subdissector_symbol_table;
@@ -2178,42 +2178,42 @@ value_string_ext cip_vendor_vals_ext = VALUE_STRING_EXT_INIT(cip_vendor_vals);
 
 /* Translate Device Profile's */
 static const value_string cip_devtype_vals[] = {
-   { 0x00,        "Generic Device (deprecated)" },
-   { 0x02,        "AC Drive"                    },
-   { 0x03,        "Motor Overload"              },
-   { 0x04,        "Limit Switch"                },
-   { 0x05,        "Inductive Proximity Switch"  },
-   { 0x06,        "Photoelectric Sensor"        },
-   { 0x07,        "General Purpose Discrete I/O"},
-   { 0x09,        "Resolver"                    },
-   { 0x0C,        "Communications Adapter"      },
-   { 0x0E,        "Programmable Logic Controller"      },
-   { 0x10,        "Position Controller",        },
-   { 0x13,        "DC Drive"                    },
-   { 0x15,        "Contactor",                  },
-   { 0x16,        "Motor Starter",              },
-   { 0x17,        "Soft Start",                 },
-   { 0x18,        "Human-Machine Interface"     },
-   { 0x1A,        "Mass Flow Controller"        },
-   { 0x1B,        "Pneumatic Valve"             },
-   { 0x1C,        "Vacuum Pressure Gauge"       },
-   { 0x1D,        "Process Control Value"       },
-   { 0x1E,        "Residual Gas Analyzer"       },
-   { 0x1F,        "DC Power Generator"       },
-   { 0x20,        "RF Power Generator"       },
-   { 0x21,        "Turbomolecular Vacuum Pump"       },
-   { 0x22,        "Encoder"       },
-   { 0x23,        "Safety Discrete I/O Device"       },
-   { 0x24,        "Fluid Flow Controller"       },
-   { 0x25,        "CIP Motion Drive"       },
-   { 0x26,        "CompoNet Repeater"       },
-   { 0x27,        "Mass Flow Controller, Enhanced"       },
-   { 0x28,        "CIP Modbus Device"       },
-   { 0x29,        "CIP Modbus Translator"       },
-   { 0x2A,        "Safety Analog I/O Device"       },
-   { 0x2B,        "Generic Device (keyable)"       },
-   { 0x2C,        "Managed Switch"       },
-   { 0x32,        "ControlNet Physical Layer Component"       },
+   { 0x00,        "Generic Device (deprecated)"         },
+   { 0x02,        "AC Drive"                            },
+   { 0x03,        "Motor Overload"                      },
+   { 0x04,        "Limit Switch"                        },
+   { 0x05,        "Inductive Proximity Switch"          },
+   { 0x06,        "Photoelectric Sensor"                },
+   { 0x07,        "General Purpose Discrete I/O"        },
+   { 0x09,        "Resolver"                            },
+   { 0x0C,        "Communications Adapter"              },
+   { 0x0E,        "Programmable Logic Controller"       },
+   { 0x10,        "Position Controller",                },
+   { 0x13,        "DC Drive"                            },
+   { 0x15,        "Contactor",                          },
+   { 0x16,        "Motor Starter",                      },
+   { 0x17,        "Soft Start",                         },
+   { 0x18,        "Human-Machine Interface"             },
+   { 0x1A,        "Mass Flow Controller"                },
+   { 0x1B,        "Pneumatic Valve"                     },
+   { 0x1C,        "Vacuum Pressure Gauge"               },
+   { 0x1D,        "Process Control Value"               },
+   { 0x1E,        "Residual Gas Analyzer"               },
+   { 0x1F,        "DC Power Generator"                  },
+   { 0x20,        "RF Power Generator"                  },
+   { 0x21,        "Turbomolecular Vacuum Pump"          },
+   { 0x22,        "Encoder"                             },
+   { 0x23,        "Safety Discrete I/O Device"          },
+   { 0x24,        "Fluid Flow Controller"               },
+   { 0x25,        "CIP Motion Drive"                    },
+   { 0x26,        "CompoNet Repeater"                   },
+   { 0x27,        "Mass Flow Controller, Enhanced"      },
+   { 0x28,        "CIP Modbus Device"                   },
+   { 0x29,        "CIP Modbus Translator"               },
+   { 0x2A,        "Safety Analog I/O Device"            },
+   { 0x2B,        "Generic Device (keyable)"            },
+   { 0x2C,        "Managed Switch"                      },
+   { 0x32,        "ControlNet Physical Layer Component" },
 
    { 0, NULL }
 };
@@ -3223,8 +3223,8 @@ static int
 dissect_cip_attribute(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                          attribute_info_t* attr, int offset, int total_len)
 {
-	int i, temp_data, temp_time, hour, min, sec, ms,
-       consumed = 0;
+   int i, temp_data, temp_time, hour, min, sec, ms,
+      consumed = 0;
    time_t computed_time;
    struct tm* date;
    char date_str[20];
@@ -5386,8 +5386,8 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info 
    service = tvb_get_guint8( tvb, offset );
 
    /* Add Service code & Request/Response tree */
-	rrsc_item = proto_tree_add_uint_format_value(cip_tree, hf_cip_service,
-		tvb, offset, 1, service, "%s (%s)",
+   rrsc_item = proto_tree_add_uint_format_value(cip_tree, hf_cip_service,
+                               tvb, offset, 1, service, "%s (%s)",
                                val_to_str( ( service & 0x7F ), cip_sc_vals , "Unknown Service (0x%02x)"),
                                val_to_str( ( service & 0x80 )>>7, cip_sc_rr, ""));
 
