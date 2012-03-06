@@ -1572,6 +1572,14 @@ sub check_hf_entries($$)
                         print STDERR "Error: $abbrev uses a value_string but is an FT_BOOLEAN in $filename\n";
                         $errorCount++;
 		}
+##		if (($ft eq "FT_BOOLEAN") && ($bitmask =~ /^(0x)?0+$/) && ($display ne "BASE_NONE")) {
+##			print STDERR "Error: $abbrev FT_BOOLEAN with no bitmask must use BASE_NONE for 'display' in $filename\n";
+##                        $errorCount++;
+##                }
+##		if (($ft eq "FT_BOOLEAN") && ($bitmask !~ /^(0x)?0+$/) && ($display !~ /^\d+$/)) {
+##			print STDERR "Error: $abbrev FT_BOOLEAN with a bitmask must use a numeric vale for 'display' in $filename\n";
+##                        $errorCount++;
+##                }
         }
 
         return $errorCount;
