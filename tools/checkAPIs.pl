@@ -1564,6 +1564,14 @@ sub check_hf_entries($$)
                         print STDERR "Error: abbreviation is the hf_variable_name in field $name ($abbrev) in $filename\n";
                         $errorCount++;
                 }
+		if ($ft ne "FT_BOOLEAN" && $convert =~ m/^TFS\(.*\)/) {
+                        print STDERR "Error: $abbrev uses a true/false string but is an $ft instead of FT_BOOLEAN in $filename\n";
+                        $errorCount++;
+		}
+		if ($ft eq "FT_BOOLEAN" && $convert =~ m/^VALS\(.*\)/) {
+                        print STDERR "Error: $abbrev uses a value_string but is an FT_BOOLEAN in $filename\n";
+                        $errorCount++;
+		}
         }
 
         return $errorCount;
