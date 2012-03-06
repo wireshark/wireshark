@@ -60,6 +60,12 @@ Wireshark Info
 
         <listitem>
           <para>
+            You can now add, edit, and save packet annototations.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
             Wireshark, TShark, and their associated utilities now save files
 	    using the pcap-ng file format by default. (Your copy of Wireshark
 	    might still use the pcap file format if pcap-ng is disabled in
