@@ -3236,7 +3236,7 @@ dissect_17221_aecp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aecp_tree)
          }
          else
          {
-            next_tvb = tvb_new_subset(tvb, 28, -1, -1);
+            next_tvb = tvb_new_subset_remaining(tvb, 28);
             dissect_17221_aem(next_tvb, pinfo, aecp_tree);
          }
          break;
@@ -3247,7 +3247,7 @@ dissect_17221_aecp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aecp_tree)
          /* on command descriptor is value to write
           * on response descriptor is command value if successful
           * or old value if unsuccessful */
-         next_tvb = tvb_new_subset(tvb, 28, -1, -1);
+         next_tvb = tvb_new_subset_remaining(tvb, 28);
          dissect_17221_aem(next_tvb, pinfo, aecp_tree);
          break;
       case AECP_COMMAND_ACQUIRE_ENTITY:
