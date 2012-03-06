@@ -1227,7 +1227,7 @@ iostat_init(const char *optarg, void* userdata _U_)
 	}
 
 	io->items = (io_stat_item_t *) g_malloc(sizeof(io_stat_item_t) * io->num_cols);
-	io->filters = (char **) g_malloc(sizeof(char *) * io->num_cols);
+	io->filters = g_malloc(sizeof(char *) * io->num_cols);
     io->max_vals = (guint64 *) g_malloc(sizeof(guint64) * io->num_cols);
     io->max_frame = (guint32 *) g_malloc(sizeof(guint32) * io->num_cols);
 
