@@ -1130,24 +1130,27 @@ FIELDTYPE	FT_NONE, FT_BOOLEAN, FT_UINT8, FT_UINT16, FT_UINT24,
 		FT_RELATIVE_TIME, FT_STRING, FT_STRINGZ, FT_EUI64,
 		FT_UINT_STRING,	FT_ETHER, FT_BYTES, FT_UINT_BYTES, FT_IPv4,
 		FT_IPv6, FT_IPXNET, FT_FRAMENUM, FT_PROTOCOL, FT_GUID, FT_OID
-FIELDDISPLAY	For FT_UINT{8,16,24,32,64} and FT_INT{8,16,24,32,64):
+FIELDDISPLAY	--For FT_UINT{8,16,24,32,64} and FT_INT{8,16,24,32,64):
 
-		BASE_DEC, BASE_HEX, BASE_OCT, BASE_DEC_HEX, BASE_HEX_DEC,
-		or BASE_CUSTOM, possibly ORed with BASE_RANGE_STRING
+		  BASE_DEC, BASE_HEX, BASE_OCT, BASE_DEC_HEX, BASE_HEX_DEC,
+		  or BASE_CUSTOM, possibly ORed with BASE_RANGE_STRING
 
-		For FT_ABSOLUTE_TIME:
+		--For FT_ABSOLUTE_TIME:
 
-		ABSOLUTE_TIME_LOCAL, ABSOLUTE_TIME_UTC, or
-		ABSOLUTE_TIME_DOY_UTC
+		  ABSOLUTE_TIME_LOCAL, ABSOLUTE_TIME_UTC, or
+		  ABSOLUTE_TIME_DOY_UTC
 
-		For FT_BOOLEAN if BITMASK is non-zero:
+		--For FT_BOOLEAN:
 
-		Number of bits in the field containing the FT_BOOLEAN
-		bitfield
+                  if BITMASK is non-zero:
+		    Number of bits in the field containing the FT_BOOLEAN
+		    bitfield.
+                  otherwise:
+                    (must be) BASE_NONE
 
-		For all other types:
+		--For all other types:
 
-		BASE_NONE
+		  BASE_NONE
 FIELDCONVERT	VALS(x), RVALS(x), TFS(x), NULL
 BITMASK		Usually 0x0 unless using the TFS(x) field conversion.
 FIELDDESCR	A brief description of the field, or NULL. [Please do not use ""].
@@ -1825,9 +1828,12 @@ custom_fmt_func_t in epan/proto.h, specifically:
 The first argument is a pointer to a buffer of the ITEM_LABEL_LENGTH size
 and the second argument is the value to be formatted.
 
-For FT_BOOLEAN fields that are also bitfields (i.e. 'bitmask' is non-zero),
-'display' is used to tell the proto_tree how wide the parent bitfield is.
-With integers this is not needed since the type of integer itself
+For FT_BOOLEAN fields that are also bitfields (i.e., 'bitmask' is non-zero),
+'display' is used specify a "field-width" (i.e., tell the proto_tree how
+wide the parent bitfield is). (If the FT_BOOLEAN 'bitmask' is zero, then
+'display' must be BASE_NONE).
+
+For integer fields a "field-width" is not needed since the type of integer itself
 (FT_UINT8, FT_UINT16, FT_UINT24, FT_UINT32, etc.) tells the proto_tree how
 wide the parent bitfield is.
 
