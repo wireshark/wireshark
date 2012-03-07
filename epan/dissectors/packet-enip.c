@@ -1257,7 +1257,7 @@ attribute_info_t enip_attribute_vals[29] = {
    {0xF6, FALSE, 10, "Interface Label", cip_short_string, &hf_elink_interface_label, NULL},
 
    /* QoS object */
-   {0x48, FALSE, 1, "802.1Q Tag Enable", cip_usint, &hf_qos_8021q_enable, NULL},
+   {0x48, FALSE, 1, "802.1Q Tag Enable", cip_bool, &hf_qos_8021q_enable, NULL},
    {0x48, FALSE, 2, "DSCP PTP Event", cip_usint, &hf_qos_dscp_ptp_event, NULL},
    {0x48, FALSE, 3, "DSCP PTP General", cip_usint, &hf_qos_dscp_ptp_general, NULL},
    {0x48, FALSE, 4, "DSCP Urgent", cip_usint, &hf_qos_dscp_urgent, NULL},
@@ -2158,7 +2158,7 @@ proto_register_enip(void)
       { &hf_tcpip_lcd_acd_activity, { "ACD Activity", "cip.tcpip.last_conflict.acd_activity", FT_UINT8, BASE_DEC, enip_tcpip_acd_activity_vals, 0, NULL, HFILL }},
       { &hf_tcpip_lcd_remote_mac, { "RemoteMAC", "cip.tcpip.last_conflict.remote_mac", FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
       { &hf_tcpip_lcd_arp_pdu, { "Arp PDU", "cip.tcpip.last_conflict.arp_pdu", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-      { &hf_tcpip_quick_connect, { "Ethernet/IP Quick Connection", "cip.tcpip.quick_connect", FT_BOOLEAN, BASE_DEC, TFS(&tfs_enabled_disabled), 0x1, NULL, HFILL }},
+      { &hf_tcpip_quick_connect, { "Ethernet/IP Quick Connection", "cip.tcpip.quick_connect", FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x1, NULL, HFILL }},
 
       { &hf_elink_interface_speed, { "Interface Speed", "cip.elink.interface_speed", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_elink_interface_flags, { "Interface Flags", "cip.elink.iflags", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
@@ -2202,7 +2202,7 @@ proto_register_enip(void)
       { &hf_elink_admin_state, { "Admin State", "cip.elink.admin_state", FT_UINT8, BASE_DEC, enip_elink_admin_state_vals, 0, NULL, HFILL }},
       { &hf_elink_interface_label, { "Interface Label", "cip.elink.interface_label", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 
-      { &hf_qos_8021q_enable, { "802.1Q Tag Enable", "cip.qos.8021q_enable", FT_BOOLEAN, BASE_DEC, TFS(&tfs_enabled_disabled), 0x1, NULL, HFILL }},
+      { &hf_qos_8021q_enable, { "802.1Q Tag Enable", "cip.qos.8021q_enable", FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x1, NULL, HFILL }},
       { &hf_qos_dscp_ptp_event, { "DSCP PTP Event", "cip.qos.ptp_event", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_qos_dscp_ptp_general, { "DSCP PTP General", "cip.qos.ptp_general", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_qos_dscp_urgent, { "DSCP Urgent", "cip.qos.urgent", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
