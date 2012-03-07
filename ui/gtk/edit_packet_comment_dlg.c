@@ -83,7 +83,7 @@ pkt_comment_text_buff_save_cb(GtkWidget *w _U_, GtkWidget *view)
 
   new_packet_list_update_packet_comment(new_packet_comment);
 
-  /*window_destroy(w);*/
+  window_destroy(edit_or_add_pkt_comment_dlg);
 
 }
 
@@ -109,7 +109,7 @@ capture_comment_text_buff_save_cb(GtkWidget *w _U_, GtkWidget *view)
   cfile.user_saved = FALSE;
   set_menus_for_capture_file(&cfile);
 
-  /*window_destroy(w);*/
+  window_destroy(edit_or_add_capture_comment_dlg);
 
 }
 
@@ -149,17 +149,17 @@ edit_packet_comment_dlg (GtkAction *action _U_, gpointer data _U_)
   gtk_widget_show (view);
 
   /* Button row. */
-  bbox = dlg_button_row_new (GTK_STOCK_SAVE, GTK_STOCK_CLEAR, GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
+  bbox = dlg_button_row_new (GTK_STOCK_OK, GTK_STOCK_CLEAR, GTK_STOCK_CANCEL, GTK_STOCK_HELP, NULL);
   gtk_box_pack_end (GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
-  save_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_SAVE);
+  save_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_OK);
   g_signal_connect (save_bt, "clicked", G_CALLBACK(pkt_comment_text_buff_save_cb), view);
   gtk_widget_set_sensitive (save_bt, TRUE);
 
   clear_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLEAR);
   g_signal_connect(clear_bt, "clicked", G_CALLBACK(comment_text_buff_clear_cb), view);
 
-  close_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_CLOSE);
+  close_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_CANCEL);
   window_set_cancel_button (edit_or_add_pkt_comment_dlg, close_bt, window_cancel_button_cb);
 
   help_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_HELP);
@@ -229,17 +229,17 @@ edit_capture_dlg_launch (void)
   gtk_widget_show (view);
 
   /* Button row. */
-  bbox = dlg_button_row_new (GTK_STOCK_SAVE, GTK_STOCK_CLEAR, GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
+  bbox = dlg_button_row_new (GTK_STOCK_OK, GTK_STOCK_CLEAR, GTK_STOCK_CANCEL, GTK_STOCK_HELP, NULL);
   gtk_box_pack_end (GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
-  save_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_SAVE);
+  save_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_OK);
   g_signal_connect (save_bt, "clicked", G_CALLBACK(capture_comment_text_buff_save_cb), view);
   gtk_widget_set_sensitive (save_bt, TRUE);
 
   clear_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLEAR);
   g_signal_connect(clear_bt, "clicked", G_CALLBACK(comment_text_buff_clear_cb), view);
 
-  close_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_CLOSE);
+  close_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_CANCEL);
   window_set_cancel_button (edit_or_add_capture_comment_dlg, close_bt, window_cancel_button_cb);
 
   help_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_HELP);
