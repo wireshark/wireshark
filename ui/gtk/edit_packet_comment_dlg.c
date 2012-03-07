@@ -66,7 +66,7 @@ comment_text_buff_clear_cb(GtkWidget *w _U_, GtkWidget *view)
 }
 
 static void
-pkt_comment_text_buff_save_cb(GtkWidget *w _U_, GtkWidget *view)
+pkt_comment_text_buff_ok_cb(GtkWidget *w _U_, GtkWidget *view)
 {
   GtkTextBuffer *buffer;
   GtkTextIter start_iter;
@@ -89,7 +89,7 @@ pkt_comment_text_buff_save_cb(GtkWidget *w _U_, GtkWidget *view)
 
 
 static void
-capture_comment_text_buff_save_cb(GtkWidget *w _U_, GtkWidget *view)
+capture_comment_text_buff_ok_cb(GtkWidget *w _U_, GtkWidget *view)
 {
   GtkTextBuffer *buffer;
   GtkTextIter start_iter;
@@ -120,7 +120,7 @@ edit_packet_comment_dlg (GtkAction *action _U_, gpointer data _U_)
   GtkWidget *vbox;
   GtkWidget *view;
   GtkWidget *bbox;
-  GtkWidget *save_bt, *clear_bt, *close_bt, *help_bt;
+  GtkWidget *ok_bt, *clear_bt, *cancel_bt, *help_bt;
   GtkTextBuffer *buffer = NULL;
   gchar *opt_comment;
   const gchar *buf_str;
@@ -152,15 +152,15 @@ edit_packet_comment_dlg (GtkAction *action _U_, gpointer data _U_)
   bbox = dlg_button_row_new (GTK_STOCK_OK, GTK_STOCK_CLEAR, GTK_STOCK_CANCEL, GTK_STOCK_HELP, NULL);
   gtk_box_pack_end (GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
-  save_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_OK);
-  g_signal_connect (save_bt, "clicked", G_CALLBACK(pkt_comment_text_buff_save_cb), view);
-  gtk_widget_set_sensitive (save_bt, TRUE);
+  ok_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_OK);
+  g_signal_connect (ok_bt, "clicked", G_CALLBACK(pkt_comment_text_buff_ok_cb), view);
+  gtk_widget_set_sensitive (ok_bt, TRUE);
 
   clear_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLEAR);
   g_signal_connect(clear_bt, "clicked", G_CALLBACK(comment_text_buff_clear_cb), view);
 
-  close_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_CANCEL);
-  window_set_cancel_button (edit_or_add_pkt_comment_dlg, close_bt, window_cancel_button_cb);
+  cancel_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_CANCEL);
+  window_set_cancel_button (edit_or_add_pkt_comment_dlg, cancel_bt, window_cancel_button_cb);
 
   help_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_HELP);
 #if 0
@@ -168,7 +168,7 @@ edit_packet_comment_dlg (GtkAction *action _U_, gpointer data _U_)
 #endif
   gtk_widget_set_sensitive (help_bt, FALSE);
 
-  gtk_widget_grab_default (save_bt);
+  gtk_widget_grab_default (ok_bt);
   g_signal_connect (edit_or_add_pkt_comment_dlg, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
 
 
@@ -191,7 +191,7 @@ edit_capture_dlg_launch (void)
   GtkWidget *vbox;
   GtkWidget *view;
   GtkWidget *bbox;
-  GtkWidget *save_bt, *clear_bt, *close_bt, *help_bt;
+  GtkWidget *ok_bt, *clear_bt, *cancel_bt, *help_bt;
   GtkTextBuffer *buffer = NULL;
   const gchar *comment_str = NULL;
   const gchar *buf_str;
@@ -232,15 +232,15 @@ edit_capture_dlg_launch (void)
   bbox = dlg_button_row_new (GTK_STOCK_OK, GTK_STOCK_CLEAR, GTK_STOCK_CANCEL, GTK_STOCK_HELP, NULL);
   gtk_box_pack_end (GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
-  save_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_OK);
-  g_signal_connect (save_bt, "clicked", G_CALLBACK(capture_comment_text_buff_save_cb), view);
-  gtk_widget_set_sensitive (save_bt, TRUE);
+  ok_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_OK);
+  g_signal_connect (ok_bt, "clicked", G_CALLBACK(capture_comment_text_buff_ok_cb), view);
+  gtk_widget_set_sensitive (ok_bt, TRUE);
 
   clear_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLEAR);
   g_signal_connect(clear_bt, "clicked", G_CALLBACK(comment_text_buff_clear_cb), view);
 
-  close_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_CANCEL);
-  window_set_cancel_button (edit_or_add_capture_comment_dlg, close_bt, window_cancel_button_cb);
+  cancel_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_CANCEL);
+  window_set_cancel_button (edit_or_add_capture_comment_dlg, cancel_bt, window_cancel_button_cb);
 
   help_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_HELP);
 #if 0
@@ -248,7 +248,7 @@ edit_capture_dlg_launch (void)
 #endif
   gtk_widget_set_sensitive (help_bt, FALSE);
 
-  gtk_widget_grab_default (save_bt);
+  gtk_widget_grab_default (ok_bt);
   g_signal_connect (edit_or_add_capture_comment_dlg, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
 
 
