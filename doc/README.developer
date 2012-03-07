@@ -1133,7 +1133,8 @@ FIELDTYPE	FT_NONE, FT_BOOLEAN, FT_UINT8, FT_UINT16, FT_UINT24,
 FIELDDISPLAY	--For FT_UINT{8,16,24,32,64} and FT_INT{8,16,24,32,64):
 
 		  BASE_DEC, BASE_HEX, BASE_OCT, BASE_DEC_HEX, BASE_HEX_DEC,
-		  or BASE_CUSTOM, possibly ORed with BASE_RANGE_STRING
+		  or BASE_CUSTOM, possibly ORed with BASE_RANGE_STRING or
+                  BASE_EXT_STRING
 
 		--For FT_ABSOLUTE_TIME:
 
@@ -1152,7 +1153,8 @@ FIELDDISPLAY	--For FT_UINT{8,16,24,32,64} and FT_INT{8,16,24,32,64):
 
 		  BASE_NONE
 FIELDCONVERT	VALS(x), RVALS(x), TFS(x), NULL
-BITMASK		Usually 0x0 unless using the TFS(x) field conversion.
+BITMASK		Used to mask a field not 8-bit aligned or with a size other
+                than a multiple of 8 bits
 FIELDDESCR	A brief description of the field, or NULL. [Please do not use ""].
 PARENT_SUBFIELD	Lower level protocol field used for lookup, i.e. "tcp.port"
 ID_VALUE	Lower level protocol field value that identifies this protocol
