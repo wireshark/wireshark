@@ -117,6 +117,8 @@
 #include <QDebug>
 #include <QDateTime>
 #include <QTextCodec>
+#include <qtranslator.h>
+#include <qlocale.h>
 
 capture_file cfile;
 
@@ -654,6 +656,16 @@ int main(int argc, char *argv[])
     dfilter_t           *jump_to_filter = NULL;
     int                  optind_initial;
     int                  status;
+
+
+    //initialize language !
+
+    QString locale = QLocale::system().name();
+
+    g_log(NULL, G_LOG_LEVEL_DEBUG, "Translator %s", locale.toStdString().c_str());
+    QTranslator translator;
+    translator.load(QString(":/i18n/qtshark_") + locale);
+    a.installTranslator(&translator);
 
     // Hopefully we won't have to use QString::fromUtf8() in as many places.
     QTextCodec *utf8codec = QTextCodec::codecForName("UTF-8");

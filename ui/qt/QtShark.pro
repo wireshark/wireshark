@@ -290,7 +290,11 @@ win32 {
 RESOURCES += \
     toolbar.qrc \
     welcome.qrc \
-    display_filter.qrc
+    display_filter.qrc \
+    i18n.qrc
+
+TRANSLATIONS = \
+        qtshark_fr.ts
 
 ICON = ../../packaging/macosx/Resources/Wireshark.icns
 

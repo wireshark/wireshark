@@ -46,7 +46,7 @@ InterfaceTree::InterfaceTree(QWidget *parent) :
     header()->setVisible(false);
     setRootIsDecorated(false);
     setUniformRowHeights(true);
-    setAccessibleName("Welcome screen list");
+    setAccessibleName(tr("Welcome screen list"));
 
     setStyleSheet(
             "QTreeWidget {"
@@ -60,7 +60,7 @@ InterfaceTree::InterfaceTree(QWidget *parent) :
 
     if (if_list == NULL && err == CANT_GET_INTERFACE_LIST) {
         ti = new QTreeWidgetItem();
-        QLabel *label = new QLabel(QString("<h3>No interfaces found</h3>%1").arg(QString().fromUtf8(err_str)));
+        QLabel *label = new QLabel(QString(tr("<h3>No interfaces found</h3>%1")).arg(QString().fromUtf8(err_str)));
         label->setWordWrap(true);
 
         setDisabled(true);

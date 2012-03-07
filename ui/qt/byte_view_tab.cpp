@@ -29,7 +29,7 @@
 ByteViewTab::ByteViewTab(QWidget *parent) :
     QTabWidget(parent)
 {
-    setAccessibleName("Packet bytes");
+    setAccessibleName(tr("Packet bytes"));
     addTab();
 }
 

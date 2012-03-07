@@ -148,6 +148,7 @@ void MainWindow::captureFileReadStarted(const capture_file *cf) {
 //    main_set_for_capture_file(TRUE);
 
     ui->statusBar->popFileStatus();
+    //TODO:i10n
     QString msg = QString().sprintf("Loading: %s", get_basename(cf->filename));
     ui->statusBar->pushFileStatus(msg);
 }
@@ -379,7 +380,7 @@ void MainWindow::updateRecentFiles() {
         recentMenu->insertAction(NULL, ra);
 
         ra = new QAction(recentMenu);
-        ra->setText("Clear Menu");
+        ra->setText(tr("Clear Menu"));
         recentMenu->insertAction(NULL, ra);
         connect(ra, SIGNAL(triggered()), wsApp, SLOT(clearRecentItems()));
     } else {

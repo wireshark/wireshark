@@ -88,7 +88,7 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent) :
     m_syntaxState = Empty;
     emptyFilterMessage = QString::fromUtf8("Apply a display filter" UTF8_HORIZONTAL_ELLIPSIS " <%1/>").arg(DEFAULT_MODIFIER);
 
-    setAccessibleName("Dispaly filter entry");
+    setAccessibleName(tr("Display filter entry"));
 
     //   DFCombo
     //     Bookmark (star)
@@ -280,7 +280,7 @@ void DisplayFilterEdit::checkFilter(const QString& text)
         dfilter_free(dfp);
     } else {
         m_syntaxState = Invalid;
-        QString invalidMsg("Invalid filter");
+        QString invalidMsg(tr("Invalid filter"));
         if (dfilter_error_msg) {
             invalidMsg.append(QString().sprintf(": %s", dfilter_error_msg));
         }

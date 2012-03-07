@@ -38,9 +38,9 @@
 #include <QSplitter>
 
 #ifdef HAVE_LIBPCAP
-#define DEF_READY_MESSAGE " Ready to load or capture"
+#define DEF_READY_MESSAGE QObject::tr(" Ready to load or capture")
 #else
-#define DEF_READY_MESSAGE " Ready to load file"
+#define DEF_READY_MESSAGE QObject::tr(" Ready to load file")
 #endif
 
 // XXX - The GTK+ code assigns priorities to these and pushes/pops accordingly.
@@ -93,15 +93,15 @@ packets_bar_update(void)
 
     /* Do we have any packets? */
     if (cfile.count) {
-        packetsStr.append(QString("Packets: %1 Displayed: %2 Marked: %3")
+        packetsStr.append(QString(QObject::tr("Packets: %1 Displayed: %2 Marked: %3"))
                           .arg(cfile.count)
                           .arg(cfile.displayed_count)
                           .arg(cfile.marked_count));
         if(cfile.drops_known) {
-            packetsStr.append(QString(" Dropped: %1").arg(cfile.drops));
+            packetsStr.append(QString(QObject::tr(" Dropped: %1")).arg(cfile.drops));
         }
         if(cfile.ignored_count > 0) {
-            packetsStr.append(QString(" Ignored: %1").arg(cfile.ignored_count));
+            packetsStr.append(QString(QObject::tr(" Ignored: %1")).arg(cfile.ignored_count));
         }
         if(!cfile.is_tempfile) {
             /* Loading an existing file */
@@ -112,7 +112,7 @@ packets_bar_update(void)
                                         computed_elapsed%1000));
         }
     } else {
-        packetsStr.append("No Packets");
+        packetsStr.append(QObject::tr("No Packets"));
     }
 
     cur_main_status_bar->pushPacketStatus(packetsStr);

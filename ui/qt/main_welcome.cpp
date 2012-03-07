@@ -93,7 +93,7 @@ MainWelcome::MainWelcome(QWidget *parent) :
     grid->setColumnStretch(0, 60);
 
     // Banner row, 3 column span
-    QString banner = QString("Wireshark");
+    QString banner = QString(tr("Wireshark"));
     heading = new QLabel(banner);
     grid->addWidget(heading, 0, 0, 1, 3);
 
@@ -101,13 +101,13 @@ MainWelcome::MainWelcome(QWidget *parent) :
     column = new QVBoxLayout();
     grid->addLayout(column, 1, 0, Qt::AlignTop);
 
-    heading = new QLabel("<h1>Capture</h1>");
+    heading = new QLabel(tr("<h1>Capture</h1>"));
     column->addWidget(heading);
 
     iface_tree = new InterfaceTree(this);
     column->addWidget(iface_tree);
 
-    heading = new QLabel("<h1>Capture Help</h1>");
+    heading = new QLabel(tr("<h1>Capture Help</h1>"));
     column->addWidget(heading);
 
     // Column 2: Files
@@ -115,7 +115,7 @@ MainWelcome::MainWelcome(QWidget *parent) :
     grid->addLayout(column, 1, 1, Qt::AlignTop);
     grid->setColumnStretch(1, 70);
 
-    heading = new QLabel("<h1>Files</h1>");
+    heading = new QLabel(tr("<h1>Files</h1>"));
     column->addWidget(heading);
 
     m_recent_files.setStyleSheet(
@@ -133,7 +133,7 @@ MainWelcome::MainWelcome(QWidget *parent) :
     grid->addLayout(column, 1, 2, Qt::AlignTop);
     grid->setColumnStretch(2, 50);
 
-    heading = new QLabel("<h1>Online</h1>");
+    heading = new QLabel(tr("<h1>Online</h1>"));
     column->addWidget(heading);
 
     // Sigh. This doesn't work in Qt 4.7 on OS X.
@@ -171,7 +171,7 @@ void MainWelcome::updateRecentFiles() {
                 itemLabel.append(QString("%1 Bytes").arg(ri->size));
             }
         } else {
-            itemLabel.append("not found)");
+            itemLabel.append(tr("not found)"));
         }
         rfFont.setItalic(!ri->accessible);
         rfItem = m_recent_files.item(rfRow);

@@ -142,7 +142,7 @@ proto_tree_draw_node(proto_node *node, gpointer data)
 ProtoTree::ProtoTree(QWidget *parent) :
     QTreeWidget(parent)
 {
-    setAccessibleName("Packet details");
+    setAccessibleName(tr("Packet details"));
     setFont(get_monospace_font());
 
     connect(this, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)),
@@ -184,9 +184,9 @@ void ProtoTree::updateSelectionStatus(QTreeWidgetItem* item) {
 
             finfo_length = fi->length + fi->appendix_length;
             if (finfo_length == 1) {
-                itemInfo.append(", 1 byte");
+                itemInfo.append(tr(", 1 byte"));
             } else if (finfo_length > 1) {
-                itemInfo.append(QString(", %1 bytes").arg(finfo_length));
+                itemInfo.append(QString(tr(", %1 bytes")).arg(finfo_length));
             }
 
             emit protoItemUnselected();
