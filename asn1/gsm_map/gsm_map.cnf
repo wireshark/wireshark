@@ -860,6 +860,36 @@ if (!actx->value_ptr)
 	subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_apn_str);
 	proto_tree_add_string(subtree, hf_gsm_apn_str, parameter_tvb, 0, -1, apn_str);
 
+
+#.FN_BODY LocationNumber VAL_PTR = &parameter_tvb
+ tvbuff_t	*parameter_tvb;
+ proto_tree	*subtree;
+ const char	*digit_str;
+ guint8		na;
+ guint8		np;
+%(DEFAULT_BODY)s
+  if (!parameter_tvb)
+      return offset;
+
+  subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_LocationNumber);
+
+  proto_tree_add_item(subtree, hf_gsm_map_locationnumber_odd_even, tvb, 0, 1, ENC_BIG_ENDIAN);
+  na = tvb_get_guint8(tvb,0) & 0x7f;
+  proto_tree_add_item(subtree, hf_gsm_map_locationnumber_nai, tvb, 0, 1, ENC_BIG_ENDIAN);
+
+  proto_tree_add_item(subtree, hf_gsm_map_locationnumber_inn, tvb, 1, 1, ENC_BIG_ENDIAN);
+  np = (tvb_get_guint8(tvb,1) & 0x70) >> 4;
+  proto_tree_add_item(subtree, hf_gsm_map_locationnumber_npi, tvb, 1, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(subtree, hf_gsm_map_locationnumber_apri, tvb, 1, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(subtree, hf_gsm_map_locationnumber_screening_ind, tvb, 1, 1, ENC_BIG_ENDIAN);
+
+ digit_str = unpack_digits(tvb, 1);
+
+ proto_tree_add_string(tree, hf_gsm_map_locationnumber_digits, tvb, 1, -1, digit_str);
+
+ if ((na == 3) && (np==1))/*International Number & E164*/
+	dissect_e164_cc(tvb, tree, 1, TRUE);
+
 #----------------------------------------------------------------------------------------
 #.TYPE_ATTR
 SS-Code  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ssCode_vals)

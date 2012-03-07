@@ -140,6 +140,13 @@ static int hf_gsm_map_len = -1;
 static int hf_gsm_map_disc_par = -1;
 static int hf_gsm_map_dlci = -1;
 static int hf_gsm_apn_str = -1;
+static int hf_gsm_map_locationnumber_odd_even = -1;
+static int hf_gsm_map_locationnumber_nai = -1;
+static int hf_gsm_map_locationnumber_inn = -1;
+static int hf_gsm_map_locationnumber_npi = -1; 
+static int hf_gsm_map_locationnumber_apri = -1;
+static int hf_gsm_map_locationnumber_screening_ind = -1;
+static int hf_gsm_map_locationnumber_digits = -1;
 
 #include "packet-gsm_map-hf.c"
 
@@ -167,6 +174,7 @@ static gint ett_gsm_map_cbs_data_coding = -1;
 static gint ett_gsm_map_GlobalCellId = -1;
 static gint ett_gsm_map_GeographicalInformation = -1;
 static gint ett_gsm_map_apn_str = -1;
+static gint ett_gsm_map_LocationNumber = -1;
 
 #include "packet-gsm_map-ett.c"
 
@@ -234,6 +242,56 @@ static const value_string gsm_map_tag_vals[] = {
 static const value_string gsm_map_disc_par_vals[] = {
   {  0, "Not Transparent" },
   {  1, "Transparent" },
+  { 0, NULL }
+};
+
+
+/* ITU-T Q.763 (12/1999)
+ * 3.30 Location number
+ */
+/* b) Nature of address indicator */
+static const range_string gsm_map_na_vals[] = {
+    { 0, 0, "spare" },
+    { 1, 1, "reserved for subscriber number (national use)" },
+    { 2, 2, "reserved for unknown (national use)" },
+    { 3, 3, "national (significant) number (national use)" },
+    { 4, 4, "international number" },
+    { 5, 0x6f, "spare" },
+    { 0x70, 0x7e, "spare" },
+    { 0x70, 0x7e, "reserved for national use" },
+    { 0x7f, 0x7f, "spare" },
+    { 0,           0,          NULL                   }
+};
+
+/* d) Numbering plan indicator */
+static const value_string gsm_map_np_vals[] = {
+  {  0, "spare" },
+  {  1, "ISDN (telephony) numbering plan (ITU-T Recommendation E.164)" },
+  {  2, "spare" },
+  {  3, "Data numbering plan (ITU-T Recommendation X.121) (national use)" },
+  {  4, "Telex numbering plan (ITU-T Recommendation F.69) (national use)" },
+  {  5, "private numbering plan" },
+  {  6, "reserved for national use" },
+  {  7, "spare" },
+  { 0, NULL }
+};
+/*
+ * e) Address presentation restricted indicator
+ */
+static const value_string gsm_map_addr_pres_rest_vals[] = {
+  {  0, "presentation allowed" },
+  {  1, "presentation restricted" },
+  {  2, "address not available (national use)" },
+  {  3, "spare" },
+  { 0, NULL }
+};
+
+/* f) Screening indicator */
+static const value_string gsm_map_screening_ind_vals[] = {
+  {  0, "reserved" },
+  {  1, "user provided, verified and passed" },
+  {  2, "reserved" },
+  {  3, "network provided" },
   { 0, NULL }
 };
 
@@ -2478,6 +2536,34 @@ void proto_register_gsm_map(void) {
         { "APN", "gsm_map.apn_str",
           FT_STRING, BASE_NONE, NULL, 0,
           NULL, HFILL }},
+	  { &hf_gsm_map_locationnumber_odd_even,
+        { "Odd/Even", "gsm_map.locationnumber.odd_even",
+          FT_BOOLEAN, 8, NULL, 0x80,
+          NULL, HFILL }},
+      { &hf_gsm_map_locationnumber_nai,
+        { "Nature of address indicator", "gsm_map.locationnumber.nai",
+          FT_UINT8, BASE_RANGE_STRING | BASE_DEC, RVALS(&gsm_map_na_vals), 0x3f,
+          NULL, HFILL }},
+      { &hf_gsm_map_locationnumber_inn,
+        { "Internal Network Number indicator (INN)", "gsm_map.locationnumber.inn",
+          FT_BOOLEAN, 8, NULL, 0x80,
+          NULL, HFILL }},
+      { &hf_gsm_map_locationnumber_npi,
+        { "Numbering plan indicator", "gsm_map.locationnumber.npi",
+          FT_UINT8, BASE_DEC, VALS(gsm_map_np_vals), 0x30,
+          NULL, HFILL }},
+      { &hf_gsm_map_locationnumber_apri,
+        { "Address presentation restricted indicator", "gsm_map.locationnumber.apri",
+          FT_UINT8, BASE_DEC, VALS(gsm_map_addr_pres_rest_vals), 0x0c,
+          NULL, HFILL }},
+      { &hf_gsm_map_locationnumber_screening_ind,
+        { "Screening indicator", "gsm_map.locationnumber.screening_ind",
+          FT_UINT8, BASE_DEC, VALS(gsm_map_screening_ind_vals), 0x03,
+          NULL, HFILL }},
+      { &hf_gsm_map_locationnumber_digits,
+        { "Address digits", "gsm_map._locationnumber.digits",
+          FT_STRING, BASE_NONE, NULL, 0,
+          NULL, HFILL }},
 
 #include "packet-gsm_map-hfarr.c"
   };
@@ -2507,6 +2593,7 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_GlobalCellId,
     &ett_gsm_map_GeographicalInformation,
 	&ett_gsm_map_apn_str,
+	&ett_gsm_map_LocationNumber,
 
 #include "packet-gsm_map-ettarr.c"
   };
