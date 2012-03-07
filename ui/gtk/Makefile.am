@@ -109,6 +109,13 @@ expert_indicators.h:
 		gdk-pixbuf-csource --raw --name=expert_$${elevel}_pb_data ../../image/expert_$${elevel}.png >> $@ ;\
 	done
 
+capture_comment_icons.h:
+	echo "/* This file was automatically generated. DO NOT EDIT. */" > $@
+	echo >> $@
+	for caction in add update disabled ; do \
+		gdk-pixbuf-csource --raw --name=capture_comment_$${caction}_pb_data ../../image/capture_comment_$${caction}.png >> $@ ;\
+	done
+
 network_icons.h:
 	echo "/* This file was automatically generated. DO NOT EDIT. */" > $@
 	echo >> $@

@@ -150,7 +150,7 @@ WIRESHARK_GTK_SRC = \
 	$(WIRESHARK_CUSTOM_GTK_SRC)
 
 about_dlg.c main_welcome.c: ../../image/wssplash.xpm ../../image/wssplash-dev.xpm remote_icons.h
-main_statusbar.c: expert_indicators.h
+main_statusbar.c: expert_indicators.h capture_comment_icons.h
 capture_if_dlg.c: network_icons.h remote_icons.h pipe_icon.h
 
 WIRESHARK_TAP_SRC = \
@@ -345,4 +345,3 @@ noinst_HEADERS = \
 	voip_calls_dlg.h \
 	webbrowser.h	\
 	$(WIRESHARK_CUSTOM_HDRS)
-

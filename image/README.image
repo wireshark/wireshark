@@ -55,3 +55,8 @@ stock_dialog_info_48.xpm		"ftp://ftp.gtk.org/pub/gtk/v2.0/gtk+-2.0.6.tar.bz2"
 stock_dialog_question_48.xpm	in the zip directory "gtk+-2.0.6/gtk/stock-icons"
 stock_dialog_warning_48.xpm
 stock_dialog_stop_48.xpm
+
+image/capture_comment.svg		Capture comment (annotation) icons
+image/capture_comment_add.png		created from elements in 
+image/capture_comment_disabled.png	accessories-text-editor.svg and
+image/capture_comment_update.png	paper-sheets.svg

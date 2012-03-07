@@ -57,6 +57,7 @@
 #include "ui/gtk/profile_dlg.h"
 #include "ui/gtk/main_welcome.h"
 #include "ui/gtk/expert_indicators.h"
+#include "ui/gtk/capture_comment_icons.h"
 #include "ui/gtk/keys.h"
 #include "ui/gtk/menus.h"
 #include "ui/gtk/edit_packet_comment_dlg.h"
@@ -313,8 +314,8 @@ statusbar_new(void)
     /* expert info indicator */
     status_expert_new();
 
-	/* Capture comments indicator */
-	status_capture_comment_new();
+    /* Capture comments indicator */
+    status_capture_comment_new();
 
     /* Pane for the statusbar */
     status_pane_left = gtk_hpaned_new();
@@ -368,7 +369,7 @@ statusbar_widgets_emptying(GtkWidget *statusbar)
     g_object_ref(G_OBJECT(capture_comment));
     g_object_ref(G_OBJECT(capture_comment_none));
 
-	
+
     /* empty all containers participating */
     gtk_container_foreach(GTK_CONTAINER(statusbar),     foreach_remove_a_child, statusbar);
     gtk_container_foreach(GTK_CONTAINER(status_pane_left),   foreach_remove_a_child, status_pane_left);
@@ -626,24 +627,24 @@ status_expert_update(void)
 static void
 status_capture_comment_new(void)
 {
-	GtkWidget *comment_image;
+    GtkWidget *comment_image;
 
-	/* XXX Comment exist LED, change to use it's own stuff and other color? */
-    comment_image = pixbuf_to_widget(expert_chat_pb_data);
+    comment_image = pixbuf_to_widget(capture_comment_update_pb_data);
     gtk_widget_set_tooltip_text(comment_image, "Capture comment present, click to read");
     gtk_widget_show(comment_image);
     capture_comment = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(capture_comment), comment_image);
     g_signal_connect(capture_comment, "button_press_event", G_CALLBACK(edit_capture_comment_dlg_event_cb), NULL);
 
-	/* XXX No Comment exist LED, change to use it's own stuff and other color? */
-    comment_image = pixbuf_to_widget(expert_none_pb_data);
+    comment_image = pixbuf_to_widget(capture_comment_add_pb_data);
     gtk_widget_set_tooltip_text(comment_image, "No capture comment, click to add");
     gtk_widget_show(comment_image);
     capture_comment_none = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(capture_comment_none), comment_image);
     g_signal_connect(capture_comment_none, "button_press_event", G_CALLBACK(edit_capture_comment_dlg_event_cb), NULL);
     gtk_widget_show(capture_comment_none);
+
+    /* comment_image = pixbuf_to_widget(capture_comment_disabled_pb_data); ... */
 
 }
 
@@ -658,17 +659,17 @@ status_capture_comment_hide(void)
 void
 status_capture_comment_update(void)
 {
-	const gchar *comment_str;
+    const gchar *comment_str;
 
     status_capture_comment_hide();
 
-	comment_str = cf_read_shb_comment(&cfile);
+    comment_str = cf_read_shb_comment(&cfile);
 
-	if(comment_str != NULL){
-		gtk_widget_show(capture_comment);
-	}else{
-		gtk_widget_show(capture_comment_none);
-	}
+    if(comment_str != NULL){
+            gtk_widget_show(capture_comment);
+    }else{
+            gtk_widget_show(capture_comment_none);
+    }
 
 }
 
