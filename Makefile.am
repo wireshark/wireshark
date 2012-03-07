@@ -715,6 +715,7 @@ EXTRA_DIST = \
 	idl/parlay/ui_data.idl	\
 	idl/parlay/ui_interfaces.idl	\
 	image/capinfos.rc.in	\
+	image/capture_comment.svg	\
 	image/capture_comment_add.png	\
 	image/capture_comment_disabled.png	\
 	image/capture_comment_update.png	\
