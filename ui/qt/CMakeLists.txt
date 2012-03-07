@@ -92,14 +92,21 @@ set(QTSHARK_UI
 
 set(QTSHARK_QRC
 	display_filter.qrc
+	i18n.qrc
 	toolbar.qrc
 	welcome.qrc
+)
+
+set(QTSHARK_TS
+	qtshark_fr.ts
 )
 
 include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_BINARY_DIR}
 )
+
+QT4_ADD_TRANSLATION(QTSHARK_TS_QM ${QTSHARK_TS})
 
 QT4_ADD_RESOURCES(QTSHARK_QRC_SRC ${QTSHARK_QRC})
 
@@ -132,6 +139,7 @@ add_library(qtui STATIC
 	${QTSHARK_UI_SRC}
 	${QTSHARK_MOC_SRC}
 	${QTSHARK_QRC_SRC}
+	${QTSHARK_TS_QM}
 )
 set_target_properties(qtui PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 
