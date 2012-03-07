@@ -725,8 +725,12 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 			break;
 		if (tree)
 		{
-			dissect_ber_integer(FALSE, &asn1_ctx, param_tree, tvb, offset,
-			    hf_activity_identifier, NULL);
+			/* 8.3.29.2 The parameter fields shall be as specified in Table 37.
+			 * Activity Identifier m 41 6 octets maximum
+			 */
+			proto_tree_add_item(param_tree,
+				hf_activity_identifier,
+				tvb, offset, param_len, ENC_NA);
 		}
 		break;
 
@@ -1715,7 +1719,7 @@ proto_register_ses(void)
 			{
 				"Activity Identifier",
 				"ses.activity_identifier",
-				FT_UINT32, BASE_DEC,
+				FT_BYTES, BASE_NONE,
 				NULL,
 				0x0,
 				NULL,
