@@ -77,7 +77,7 @@ pkt_comment_text_buff_save_cb(GtkWidget *w _U_, GtkWidget *view)
   gtk_text_buffer_get_start_iter (buffer, &start_iter);
   gtk_text_buffer_get_end_iter (buffer, &end_iter);
 
-  new_packet_comment = gtk_text_buffer_get_text (buffer, &start_iter, &end_iter, FALSE /* whether to include invisible text */);  
+  new_packet_comment = gtk_text_buffer_get_text (buffer, &start_iter, &end_iter, FALSE /* whether to include invisible text */);
 
   /*g_warning("The new comment is '%s'",new_packet_comment);*/
 
@@ -100,14 +100,15 @@ capture_comment_text_buff_save_cb(GtkWidget *w _U_, GtkWidget *view)
   gtk_text_buffer_get_start_iter (buffer, &start_iter);
   gtk_text_buffer_get_end_iter (buffer, &end_iter);
 
-  new_capture_comment = gtk_text_buffer_get_text (buffer, &start_iter, &end_iter, FALSE /* whether to include invisible text */);  
+  new_capture_comment = gtk_text_buffer_get_text (buffer, &start_iter, &end_iter, FALSE /* whether to include invisible text */);
 
   /*g_warning("The new comment is '%s'",new_capture_comment);*/
   cf_update_capture_comment(&cfile, new_capture_comment);
 
   /* Mark the file as unsaved, caues a popup asking to save the file if we quit the file */
   cfile.user_saved = FALSE;
- 
+  set_menus_for_capture_file(&cfile);
+
   /*window_destroy(w);*/
 
 }
@@ -126,13 +127,13 @@ edit_packet_comment_dlg (GtkAction *action _U_, gpointer data _U_)
 
   edit_or_add_pkt_comment_dlg = dlg_window_new ("Edit or Add Packet Comments");
   gtk_widget_set_size_request (edit_or_add_pkt_comment_dlg, 500, 160);
-  gtk_window_set_resizable (GTK_WINDOW (edit_or_add_pkt_comment_dlg), TRUE); 
+  gtk_window_set_resizable (GTK_WINDOW (edit_or_add_pkt_comment_dlg), TRUE);
   gtk_container_set_border_width (GTK_CONTAINER (edit_or_add_pkt_comment_dlg), 0);
 
   vbox = gtk_vbox_new (FALSE, 0);
   gtk_container_add (GTK_CONTAINER (edit_or_add_pkt_comment_dlg), vbox);
   gtk_widget_show (vbox);
-  
+
   view = gtk_text_view_new ();
   buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (view));
 
@@ -183,7 +184,7 @@ edit_capture_comment_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
   edit_or_add_capture_comment_dlg = NULL;
 }
 
-void 
+void
 edit_capture_dlg_launch (void)
 {
 
@@ -203,7 +204,7 @@ edit_capture_dlg_launch (void)
 
   edit_or_add_capture_comment_dlg = dlg_window_new ("Edit or Add Capture Comments");
   gtk_widget_set_size_request (edit_or_add_capture_comment_dlg, 500, 160);
-  gtk_window_set_resizable (GTK_WINDOW (edit_or_add_capture_comment_dlg), TRUE); 
+  gtk_window_set_resizable (GTK_WINDOW (edit_or_add_capture_comment_dlg), TRUE);
   gtk_container_set_border_width (GTK_CONTAINER (edit_or_add_capture_comment_dlg), 0);
 
   g_signal_connect(edit_or_add_capture_comment_dlg, "destroy",
@@ -212,7 +213,7 @@ edit_capture_dlg_launch (void)
   vbox = gtk_vbox_new (FALSE, 0);
   gtk_container_add (GTK_CONTAINER (edit_or_add_capture_comment_dlg), vbox);
   gtk_widget_show (vbox);
-  
+
   view = gtk_text_view_new ();
   buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (view));
 

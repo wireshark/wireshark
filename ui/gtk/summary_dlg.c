@@ -52,6 +52,7 @@
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/help_dlg.h"
+#include "ui/gtk/menus.h"
 
 #define SUM_STR_MAX     1024
 #define FILTER_SNIP_LEN 50
@@ -141,13 +142,14 @@ summary_comment_text_buff_save_cb(GtkWidget *w _U_, GtkWidget *view)
   gtk_text_buffer_get_start_iter (buffer, &start_iter);
   gtk_text_buffer_get_end_iter (buffer, &end_iter);
 
-  new_comment = gtk_text_buffer_get_text (buffer, &start_iter, &end_iter, FALSE /* whether to include invisible text */);  
+  new_comment = gtk_text_buffer_get_text (buffer, &start_iter, &end_iter, FALSE /* whether to include invisible text */);
 
   /*g_warning("The new comment is '%s'",new_packet_comment);*/
 
   summary_update_comment(&cfile, new_comment);
   /* Mark the file as unsaved, caues a popup asking to save the file if we quit the file */
   cfile.user_saved = FALSE;
+  set_menus_for_capture_file(&cfile);
 
 }
 
@@ -380,7 +382,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   renderer = gtk_cell_renderer_text_new();
   column = gtk_tree_view_column_new_with_attributes("Packet size limit", renderer, "text", 4, NULL);
   gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column);
-      
+
   store = gtk_list_store_new(5, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
   for (i = 0; i < summary.ifaces->len; i++) {
     iface = g_array_index(summary.ifaces, iface_options, i);

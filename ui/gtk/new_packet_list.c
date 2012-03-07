@@ -1737,6 +1737,7 @@ new_packet_list_update_packet_comment(gchar *new_packet_comment)
 	record->fdata->opt_comment = new_packet_comment;
 	/* Mark the file as unsaved, caues a popup asking to save the file if we quit the file */
 	cfile.user_saved = FALSE;
+	set_menus_for_capture_file(&cfile);
 
 	new_packet_list_queue_draw();
 
