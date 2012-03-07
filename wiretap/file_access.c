@@ -405,7 +405,8 @@ success:
 	return wth;
 }
 
-/* Table of the file types we know about. */
+/* Table of the file types we know about.
+   Entries must be sorted by WTAP_FILE_xxx values in ascending order */
 static const struct file_type_info dump_open_table_base[] = {
 	/* WTAP_FILE_UNKNOWN (only used internally for initialization) */
 	{ NULL, NULL, NULL, NULL, FALSE, FALSE,
@@ -588,16 +589,12 @@ static const struct file_type_info dump_open_table_base[] = {
 	{ "WildPackets Ether/Token/AiroPeek (V7)", "peek7", "pkt", "tpc;apc;wpz", FALSE, FALSE,
 	  NULL, NULL },
 
-	/* WTAP_FILE_ETHERPEEK_V9 */
+	/* WTAP_FILE_AIROPEEK_V9 */
 	{ "WildPackets Ether/AiroPeek (V9)", "peek9", "pkt", "tpc;apc;wpz", FALSE, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_MPEG */
 	{ "MPEG", "mpeg", "mpeg", "mpg;mp3", FALSE, FALSE,
-	  NULL, NULL },
-
-	/* WTAP_FILE_MPEG_2_TS */
-	{ "MP2T", "mp2t", "mp2t", "ts;mpg", FALSE, FALSE,
 	  NULL, NULL },
 
 	/* WTAP_FILE_K12TEXT  */
@@ -655,6 +652,11 @@ static const struct file_type_info dump_open_table_base[] = {
 	/* WTAP_FILE_AETHRA */
 	{ "Aethra .aps file", "aethra", "aps", NULL, FALSE, FALSE,
 	  NULL, NULL },
+
+	/* WTAP_FILE_MPEG_2_TS */
+	{ "MPEG2 transport stream", "mp2t", "mp2t", "ts;mpg", FALSE, FALSE,
+	  NULL, NULL }
+
 };
 
 gint wtap_num_file_types = sizeof(dump_open_table_base) / sizeof(struct file_type_info);
