@@ -263,9 +263,9 @@ typedef struct attribute_info {
    guint class_id;
    gboolean class_instance;
    guint attribute;
-	const char	*text;
-	enum cip_datatype datatype;
-	int* phf;
+   const char	*text;
+   enum cip_datatype datatype;
+   int* phf;
    attribute_dissector_func* pdissect;
 } attribute_info_t;
 
@@ -322,3 +322,16 @@ extern value_string_ext cip_cm_ext_st_vals_ext;
 extern value_string_ext cip_vendor_vals_ext;
 extern value_string_ext cip_devtype_vals_ext;
 extern value_string_ext cip_class_names_vals_ext;
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 3
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=3 tabstop=8 expandtab:
+ * :indentSize=3:tabSize=8:noTabs=true:
+ */
