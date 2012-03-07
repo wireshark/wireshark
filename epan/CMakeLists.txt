@@ -760,6 +760,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-lapd.c
 	dissectors/packet-lapdm.c
 	dissectors/packet-laplink.c
+	dissectors/packet-lapsat.c
 	dissectors/packet-ldp.c
 	dissectors/packet-ldss.c
 	dissectors/packet-lge_monitor.c

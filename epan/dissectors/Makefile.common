@@ -678,6 +678,7 @@ DISSECTOR_SRC = \
 	packet-lapbether.c	\
 	packet-lapd.c		\
 	packet-lapdm.c		\
+	packet-lapsat.c		\
 	packet-laplink.c	\
 	packet-ldp.c		\
 	packet-ldss.c		\
