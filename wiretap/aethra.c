@@ -105,7 +105,7 @@ struct aethrarec_hdr {
  * There are also records of an unknown type with 0x02, probably
  * ORed with the direction flag.
  */
-#define AETHRA_N_TO_U				0x01	/* set for NT->TE */
+#define AETHRA_U_TO_N				0x01	/* set for TE->NT */
 
 #define AETHRA_ISDN_LINK_SUBTYPE		0xFE
 #define AETHRA_ISDN_LINK_LAPD			0x00	/* LAPD frame */
@@ -281,7 +281,7 @@ fprintf(stderr, "    subtype 0x%02x (AETHRA_ISDN_LINK_ALL_ALARMS_CLEARED)\n", hd
 			default:
 #if 0
 fprintf(stderr, "    subtype 0x%02x, packet_size %u, direction 0x%02x\n",
-hdr.flags & AETHRA_ISDN_LINK_SUBTYPE, packet_size, hdr.flags & AETHRA_N_TO_U);
+hdr.flags & AETHRA_ISDN_LINK_SUBTYPE, packet_size, hdr.flags & AETHRA_U_TO_N);
 #endif
 				break;
 			}
@@ -345,7 +345,7 @@ aethra_read_rec_header(FILE_T fh, struct aethrarec_hdr *hdr,
 		return FALSE;
 	}
 
-	pseudo_header->isdn.uton = !(hdr->flags & AETHRA_N_TO_U);
+	pseudo_header->isdn.uton = (hdr->flags & AETHRA_U_TO_N);
 	pseudo_header->isdn.channel = 0;	/* XXX - D channel */
 
 	return TRUE;
