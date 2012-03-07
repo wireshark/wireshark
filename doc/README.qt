@@ -126,3 +126,15 @@ should provide everything you need. Build the top-level directory using CMake
 DO NOT simply port things over. Every feature, window, and element should be
 re-thought. For example, should the user have to navigate two dialogs to get
 HTTP request statistics?
+
+3. Translations (i18)
+For make your own translation of QtShark ! it is easy !
+
+- Add your translation (qtshark_XX.ts) in QtShark.pro and i18n.qrc
+- Launch "lupdate QtShark.pro" to generate/update your translation file
+- Translate with Qt Linguist
+- Launch "lrelease QtShark.pro" to create/update qtshark_xx.qm file
+- Attach your modification ("svn diff") in Wireshark Bug Tracker 
+
+More information about Qt Linguist 
+http://qt-project.org/doc/qt-4.8/linguist-manual.html
