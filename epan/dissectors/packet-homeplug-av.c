@@ -2929,19 +2929,19 @@ proto_register_homeplug_av(void)
 	},
 	{ &hf_homeplug_av_fc_cfs,
 	  { "Contention free session", "homeplug_av.fc.cfs",
-	  FT_BOOLEAN, BASE_NONE, NULL, 0x01, NULL, HFILL }
+	  FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }
 	},
 	{ &hf_homeplug_av_fc_bdf,
 	  { "Beacon detect flag", "homeplug_av.fc.bdf",
-	  FT_BOOLEAN, BASE_NONE, NULL, 0x02, NULL, HFILL }
+	  FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }
 	},
 	{ &hf_homeplug_av_fc_hp10df,
 	  { "Homeplug AV version 1.0", "homeplug_av.fc.hp10df",
-	  FT_BOOLEAN, BASE_NONE, NULL, 0x04, NULL, HFILL }
+	  FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }
 	},
 	{ &hf_homeplug_av_fc_hp11df,
 	  { "Homeplug AV version 1.1", "homeplug_av.fc.hp11df",
-	  FT_BOOLEAN, BASE_NONE, NULL, 0x08, NULL, HFILL }
+	  FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }
 	},
 	{ &hf_homeplug_av_fc_ppb,
 	  { "Pending PHY blocks", "homeplug_av.fc.ppb",
@@ -2953,7 +2953,7 @@ proto_register_homeplug_av(void)
 	},
 	{ &hf_homeplug_av_fc_pbsz,
 	  { "PHY block size", "homeplug_av.fc.pbsz",
-	  FT_BOOLEAN, BASE_NONE, NULL, 0x01, NULL, HFILL }
+	  FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }
 	},
 	{ &hf_homeplug_av_fc_num_sym,
 	  { "Number of symbols", "homeplug_av.fc.num_sym",
@@ -2993,19 +2993,19 @@ proto_register_homeplug_av(void)
 	},
 	{ &hf_homeplug_av_fc_rsr,
 	  { "Request SACK transmission", "homeplug_av.fc.rsr",
-	  FT_BOOLEAN, BASE_NONE, NULL, 0x80, NULL, HFILL }
+	  FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }
 	},
 	{ &hf_homeplug_av_fc_mcf,
 	  { "Multicast", "homeplug_av.fc.mcf",
-	  FT_BOOLEAN, BASE_NONE, NULL, 0x01, NULL, HFILL }
+	  FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }
 	},
 	{ &hf_homeplug_av_fc_dccpcf,
 	  { "Different CP PHY clock", "homeplug_av.fc.dccpcf",
-	  FT_BOOLEAN, BASE_NONE, NULL, 0x02, NULL, HFILL }
+	  FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }
 	},
 	{ &hf_homeplug_av_fc_mnbf,
 	  { "Multinetwork broadcast", "homeplug_av.fc.mnbf",
-	  FT_BOOLEAN, BASE_NONE, NULL, 0x04, NULL, HFILL }
+	  FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }
 	},
 	/* Beacon body */
 	{ &hf_homeplug_av_bcn,

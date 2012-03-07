@@ -3748,7 +3748,7 @@ proto_register_rtcp(void)
                 "Multiplexing supported",
                 "rtcp.app.mux.mux",
                 FT_BOOLEAN,
-                BASE_NONE,
+                8,
                 NULL,
                 0x80,
                 NULL, HFILL
@@ -3760,7 +3760,7 @@ proto_register_rtcp(void)
                 "Header compression supported",
                 "rtcp.app.mux.cp",
                 FT_BOOLEAN,
-                BASE_NONE,
+                8,
                 NULL,
                 0x40,
                 NULL, HFILL

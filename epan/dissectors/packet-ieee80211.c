@@ -12277,7 +12277,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_qos_amsdu_present,
      {"Payload Type", "wlan.qos.amsdupresent", FT_BOOLEAN, BASE_NONE,
-      TFS (&ieee80211_qos_amsdu_present_flag), 0x0, NULL, HFILL }},
+      TFS(&ieee80211_qos_amsdu_present_flag), 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_qos_txop_limit,
      {"TXOP Limit", "wlan.qos.txop_limit", FT_UINT16, BASE_DEC, NULL, 0,
@@ -16068,11 +16068,11 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_qos_info_field_txop_req,
       {"TXOP Request", "wlan_mgt.tag.qos_cap.qos_info.txop_req",
-        FT_BOOLEAN, BASE_NONE, TFS(&tfs_true_false), 0x40, NULL, HFILL}},
+        FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x40, NULL, HFILL}},
 
     {&hf_ieee80211_qos_info_field_reserved,
       {"Reserved", "wlan_mgt.tag.qos_cap.qos_info.reserved",
-        FT_BOOLEAN, BASE_NONE, NULL, 0x80, NULL, HFILL}},
+        FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL}},
 
     {&hf_ieee80211_tag_ext_supp_rates,
      {"Extented Supported Rates", "wlan_mgt.extented_supported_rates",
