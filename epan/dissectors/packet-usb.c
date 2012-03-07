@@ -1453,8 +1453,6 @@ dissect_usb_setup_get_descriptor_request(packet_info *pinfo, proto_tree *tree, t
 static int
 dissect_usb_setup_get_descriptor_response(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, usb_trans_info_t *usb_trans_info, usb_conv_info_t *usb_conv_info)
 {
-    proto_item *item=NULL;
-    guint32 data_len;
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
         col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
@@ -1487,12 +1485,8 @@ dissect_usb_setup_get_descriptor_response(packet_info *pinfo, proto_tree *tree, 
         /* else fall through as default/unknown */
     default:
         /* XXX dissect the descriptor coming back from the device */
-        item=proto_tree_add_text(tree, tvb, offset, -1, "GET DESCRIPTOR data (unknown descriptor type)");
-        tree=proto_item_add_subtree(item, ett_descriptor_device);
-        tvb_memcpy(tvb, (guint8 *)&data_len, offset, 4);
-        proto_tree_add_uint(tree, hf_usb_data_len, tvb, offset, 4, data_len);
-	/* XXX add the data as FT_BYTES? */
-        offset += data_len;
+        proto_tree_add_text(tree, tvb, offset, -1, "GET DESCRIPTOR data (unknown descriptor type %u)",usb_trans_info->u.get_descriptor.type);
+        offset = tvb_length(tvb);
         break;
     }
 
