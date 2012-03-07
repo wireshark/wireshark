@@ -29,6 +29,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <prefs.h>
 #include "packet-sll.h"
 
 /* controller area network (CAN) kernel definitions
@@ -54,6 +55,9 @@ static gint ett_can = -1;
 static int proto_can = -1;
 
 static dissector_handle_t data_handle;
+static dissector_handle_t canopen_handle;
+
+static module_t *can_module;
 
 #define LINUX_CAN_STD 0
 #define LINUX_CAN_EXT 1
@@ -62,6 +66,19 @@ static dissector_handle_t data_handle;
 
 #define CAN_LEN_OFFSET 4
 #define CAN_DATA_OFFSET 8
+
+typedef enum {
+  DATA_DISSECTOR = 1,
+  CANOPEN_DISSECTOR = 2
+} Dissector_Option;
+
+static enum_val_t can_high_level_protocol_dissector_options[] = {
+  { "raw",	"Raw data (no further dissection)",	DATA_DISSECTOR },
+  { "CANopen",	"CANopen protocol",	CANOPEN_DISSECTOR },
+  { NULL,	NULL,				0 }
+};
+
+static guint can_high_level_protocol_dissector = DATA_DISSECTOR;
 
 static const value_string frame_type_vals[] =
 {
@@ -112,11 +129,31 @@ dissect_socketcan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(can_tree, hf_can_errflag, tvb, 0, 4, ENC_BIG_ENDIAN );
 		proto_tree_add_item(can_tree, hf_can_len, tvb, CAN_LEN_OFFSET, 1, ENC_BIG_ENDIAN );
 
-		next_tvb =  tvb_new_subset(tvb, CAN_DATA_OFFSET, tvb_get_guint8(tvb, CAN_LEN_OFFSET), 8 );
-		call_dissector(data_handle, next_tvb, pinfo, tree );
+		switch (can_high_level_protocol_dissector)
+		{
+			case DATA_DISSECTOR:
+				next_tvb =  tvb_new_subset(tvb, CAN_DATA_OFFSET, tvb_get_guint8(tvb, CAN_LEN_OFFSET), 8 );
+				call_dissector(data_handle, next_tvb, pinfo, tree );
+				break;
+			case CANOPEN_DISSECTOR:
+				call_dissector(canopen_handle, tvb, pinfo, tree );
+				break;
+		}
 	}
 }
 
+void
+proto_reg_handoff_socketcan(void)
+{
+	dissector_handle_t can_handle;
+
+	data_handle = find_dissector("data");
+	canopen_handle = find_dissector("canopen");
+
+	can_handle = create_dissector_handle(dissect_socketcan, proto_can);
+	dissector_add_uint("wtap_encap", WTAP_ENCAP_SOCKETCAN, can_handle);
+	dissector_add_uint("sll.ltype", LINUX_SLL_P_CAN, can_handle);
+}
 
 void
 proto_register_socketcan(void)
@@ -184,20 +221,14 @@ proto_register_socketcan(void)
 
 	proto_register_field_array(proto_can, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	can_module = prefs_register_protocol(proto_can, proto_reg_handoff_socketcan);
+
+	prefs_register_enum_preference(can_module, "protocol",
+					 "Next level protocol",
+					 "Next level protocol like CANopen etc.",
+					 (gint *)&can_high_level_protocol_dissector,
+					 can_high_level_protocol_dissector_options, FALSE);
 }
-
-
-void
-proto_reg_handoff_socketcan(void)
-{
-	dissector_handle_t can_handle;
-
-	data_handle = find_dissector("data");
-
-	can_handle = create_dissector_handle(dissect_socketcan, proto_can);
-	dissector_add_uint("wtap_encap", WTAP_ENCAP_SOCKETCAN, can_handle);
-	dissector_add_uint("sll.ltype", LINUX_SLL_P_CAN, can_handle);
-}
-
 
 /* eof */
