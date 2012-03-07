@@ -607,7 +607,7 @@ proto_register_btobex(void)
 		},
 		{&hf_final_flag,
 			{"Final Flag", "btobex.final_flag",
-			FT_BOOLEAN, BASE_HEX, TFS(&true_false), 0x80,
+			FT_BOOLEAN, 8, TFS(&true_false), 0x80,
 			NULL, HFILL}
 		},
 		{&hf_length,

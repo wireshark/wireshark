@@ -537,7 +537,7 @@ proto_register_hdcp(void)
             { "r_tx", "hdcp2.r_tx", FT_UINT64, BASE_HEX,
                 NULL, 0, NULL, HFILL } },
         { &hf_hdcp2_repeater,
-            { "Repeater", "hdcp2.repeater", FT_BOOLEAN, BASE_NONE,
+            { "Repeater", "hdcp2.repeater", FT_BOOLEAN, 8,
                 NULL, 0x1, NULL, HFILL } },
         { &hf_hdcp2_cert_rcv_id,
             { "Receiver ID", "hdcp2.cert.rcv_id", FT_BYTES, BASE_NONE,
