@@ -2096,8 +2096,15 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                     tvbuff_t *payload_tvb = tvb_new_subset(tvb, offset,
                                                            tvb_length_remaining(tvb, offset) - 4,
                                                            tvb_length_remaining(tvb, offset) - 4);
-                    /* Don't worry about 'Layer' preferences - we always want to see RRC in info column */
+                    gboolean was_writable = col_get_writable(pinfo->cinfo);
+
+                    /* We always want to see this in the info column */
+                    col_set_writable(pinfo->cinfo, TRUE);
+
                     call_dissector_only(rrc_handle, payload_tvb, pinfo, pdcp_tree);
+
+                    /* Restore to whatever it was */
+                    col_set_writable(pinfo->cinfo, was_writable);
                 }
                 else {
                      /* Just show data */
