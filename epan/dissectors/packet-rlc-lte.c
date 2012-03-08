@@ -1971,7 +1971,7 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
     /*************************************/
     /* UM header extension               */
     if (fixed_extension) {
-        offset = dissect_rlc_lte_extension_header(tvb, pinfo, tree, offset);
+        offset = dissect_rlc_lte_extension_header(tvb, pinfo, um_header_tree, offset);
     }
 
     /* Extract these 2 flags from framing_info */
@@ -2347,7 +2347,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
     /*************************************/
     /* AM header extension               */
     if (fixed_extension) {
-        offset = dissect_rlc_lte_extension_header(tvb, pinfo, tree, offset);
+        offset = dissect_rlc_lte_extension_header(tvb, pinfo, am_header_tree, offset);
     }
 
     /* Header is now complete */
