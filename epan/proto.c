@@ -7385,6 +7385,7 @@ proto_tree_add_split_bits_item_ret_val(proto_tree *tree, const int hf_index, tvb
                                   guint64 *return_value)
 {
     proto_item *pi;
+    gint no_of_bits = 0;
 	gint	octet_offset, mask_initial_bit_offset, mask_greatest_bit_offset = 0;
 	guint	octet_length;
 	guint8	i = 0;
@@ -7411,6 +7412,7 @@ proto_tree_add_split_bits_item_ret_val(proto_tree *tree, const int hf_index, tvb
         DISSECTOR_ASSERT(i < 64);
         crumb_value = tvb_get_bits64(tvb, bit_offset + crumb_spec[i].crumb_bit_offset, crumb_spec[i].crumb_bit_length, ENC_BIG_ENDIAN);
         value += crumb_value;
+        no_of_bits += crumb_spec[i].crumb_bit_length;
 
         /* the bitmask is 64 bit, left-aligned, starting at the first bit of the octet containing the initial offset */
         /* if the mask is beyond 32 bits, then give up on bit map display
@@ -7430,6 +7432,21 @@ proto_tree_add_split_bits_item_ret_val(proto_tree *tree, const int hf_index, tvb
         /* shift left for the next segment */
         value <<= crumb_spec[++i].crumb_bit_length;
     }
+
+    /* Sign extend for signed types */
+    switch(hf_field->type){
+    case FT_INT8:
+    case FT_INT16:
+    case FT_INT24:
+    case FT_INT32:
+    case FT_INT64:
+        if (value & (G_GINT64_CONSTANT(1) << (no_of_bits-1)))
+            value |= (G_GINT64_CONSTANT(-1) << no_of_bits);
+        break;
+    default:
+        break;
+    }
+
     if(return_value){
         *return_value=value;
     }
