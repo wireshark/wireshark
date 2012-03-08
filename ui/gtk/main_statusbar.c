@@ -586,7 +586,6 @@ status_expert_new(void)
     expert_info_none = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(expert_info_none), expert_image);
     g_signal_connect(expert_info_none, "button_press_event", G_CALLBACK(expert_comp_dlg_event_cb), NULL);
-    gtk_widget_show(expert_info_none);
 }
 
 static void
@@ -642,8 +641,7 @@ status_capture_comment_new(void)
     capture_comment_none = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(capture_comment_none), comment_image);
     g_signal_connect(capture_comment_none, "button_press_event", G_CALLBACK(edit_capture_comment_dlg_event_cb), NULL);
-    gtk_widget_show(capture_comment_none);
-
+   
     /* comment_image = pixbuf_to_widget(capture_comment_disabled_pb_data); ... */
 
 }
@@ -719,6 +717,10 @@ statusbar_cf_file_closed_cb(capture_file *cf _U_)
 {
     /* go back to "No packets" */
     packets_bar_update();
+	/* Remove comments icon */
+	status_capture_comment_hide();
+	/* Remove experts icon */
+	status_expert_hide();
 }
 
 
