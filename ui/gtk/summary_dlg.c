@@ -175,9 +175,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   GtkTreeIter    iter;
   GtkCellRenderer *renderer;
   GtkTreeViewColumn *column;
-#ifdef HAVE_LIBPCAP
   const char    *dl_description;
-#endif
   static const char *titles[] = { "Traffic", "Captured", "Displayed", "Marked" };
 
   gchar         string_buff[SUM_STR_MAX];
