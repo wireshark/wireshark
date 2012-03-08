@@ -1168,6 +1168,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
           case SSL_HND_HELLO_REQUEST:
           case SSL_HND_CLIENT_HELLO:
           case SSL_HND_HELLO_VERIFY_REQUEST:
+          case SSL_HND_NEWSESSION_TICKET:
           case SSL_HND_SERVER_HELLO:
           case SSL_HND_CERTIFICATE:
           case SSL_HND_SERVER_KEY_EXCHG:
@@ -1313,6 +1314,10 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
 
           case SSL_HND_HELLO_VERIFY_REQUEST:
             dissect_dtls_hnd_hello_verify_request(sub_tvb, ssl_hand_tree, 0,  ssl);
+            break;
+
+          case SSL_HND_NEWSESSION_TICKET:
+            /* Content depends on implementation, so nothing to do! */
             break;
 
           case SSL_HND_SERVER_HELLO:
@@ -2129,6 +2134,7 @@ dtls_is_valid_handshake_type(guint8 type)
   case SSL_HND_CLIENT_HELLO:
   case SSL_HND_SERVER_HELLO:
   case SSL_HND_HELLO_VERIFY_REQUEST:
+  case SSL_HND_NEWSESSION_TICKET:
   case SSL_HND_CERTIFICATE:
   case SSL_HND_SERVER_KEY_EXCHG:
   case SSL_HND_CERT_REQUEST:

@@ -474,6 +474,7 @@ const value_string ssl_31_handshake_type[] = {
     { SSL_HND_CLIENT_HELLO,      "Client Hello" },
     { SSL_HND_SERVER_HELLO,      "Server Hello" },
     { SSL_HND_HELLO_VERIFY_REQUEST, "Hello Verify Request"},
+    { SSL_HND_NEWSESSION_TICKET, "New Session Ticket" },
     { SSL_HND_CERTIFICATE,       "Certificate" },
     { SSL_HND_SERVER_KEY_EXCHG,  "Server Key Exchange" },
     { SSL_HND_CERT_REQUEST,      "Certificate Request" },

@@ -77,6 +77,7 @@
 #define SSL_HND_CLIENT_HELLO           1
 #define SSL_HND_SERVER_HELLO           2
 #define SSL_HND_HELLO_VERIFY_REQUEST   3
+#define SSL_HND_NEWSESSION_TICKET      4
 #define SSL_HND_CERTIFICATE            11
 #define SSL_HND_SERVER_KEY_EXCHG       12
 #define SSL_HND_CERT_REQUEST           13

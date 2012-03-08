@@ -1945,6 +1945,10 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 dissect_ssl3_hnd_srv_hello(tvb, ssl_hand_tree, offset, length, ssl);
                 break;
 
+            case SSL_HND_NEWSESSION_TICKET:
+                /* Content depends on implementation, so nothing to do! */
+                break;
+
             case SSL_HND_CERTIFICATE:
                 dissect_ssl3_hnd_cert(tvb, ssl_hand_tree, offset, pinfo);
                 break;
@@ -4446,6 +4450,7 @@ ssl_is_valid_handshake_type(const guint8 type)
     case SSL_HND_HELLO_REQUEST:
     case SSL_HND_CLIENT_HELLO:
     case SSL_HND_SERVER_HELLO:
+    case SSL_HND_NEWSESSION_TICKET:
     case SSL_HND_CERTIFICATE:
     case SSL_HND_SERVER_KEY_EXCHG:
     case SSL_HND_CERT_REQUEST:
