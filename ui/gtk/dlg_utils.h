@@ -69,6 +69,28 @@
 #ifndef __DLG_UTILS_H__
 #define __DLG_UTILS_H__
 
+#if defined(_WIN32)
+/*
+ * We should calculate these values dynamically using MapDialogRect().
+ * Unfortunately that requires passing a valid dialog HWND, which we
+ * don't have in many cases.
+ * http://msdn.microsoft.com/en-us/library/windows/desktop/aa511279.aspx#sizingspacing
+ */
+
+#define DLG_OUTER_MARGIN 11
+#define DLG_BUTTON_SPACING 7
+#define DLG_UNRELATED_SPACING 11
+
+/* elif defined (__APPLE__) */
+#else /* Use the GNOME HIG */
+
+/* http://developer.gnome.org/hig-book/3.2/design-window.html.en */
+
+#define DLG_OUTER_MARGIN 12
+#define DLG_BUTTON_SPACING 6
+#define DLG_UNRELATED_SPACING 12
+
+#endif
 
 /** Create a dialog box window that belongs to Wireshark's main window.
  * If you want to create a window, use window_new() instead.
