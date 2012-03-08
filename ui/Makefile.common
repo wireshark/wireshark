@@ -41,6 +41,7 @@ GENERATED_FILES = \
 GENERATOR_FILES =
 
 WIRESHARK_UI_SRC = \
+	alert_box.c	\
 	util.c
 
 noinst_HEADERS = \

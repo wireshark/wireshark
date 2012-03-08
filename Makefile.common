@@ -103,7 +103,6 @@ wireshark_SOURCES =	\
 	$(WIRESHARK_COMMON_SRC)	\
 	$(SHARK_COMMON_CAPTURE_SRC) \
 	airpcap_loader.c \
-	alert_box.c	\
 	capture.c	\
 	capture_info.c	\
 	capture_opts.c \
