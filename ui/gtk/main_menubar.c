@@ -613,8 +613,8 @@ main_toolbar_show_hide_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
     GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/MainToolbar");
 
-	recent.main_toolbar_show = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget));
-	main_widgets_show_or_hide();
+    recent.main_toolbar_show = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget));
+    main_widgets_show_or_hide();
 
 }
 
@@ -623,8 +623,8 @@ filter_toolbar_show_hide_cb(GtkAction * action _U_, gpointer user_data _U_)
 {
     GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/FilterToolbar");
 
-	recent.filter_toolbar_show = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget));
-	main_widgets_show_or_hide();
+    recent.filter_toolbar_show = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget));
+    main_widgets_show_or_hide();
 }
 
 static void
@@ -633,8 +633,8 @@ wireless_toolbar_show_hide_cb(GtkAction *action _U_, gpointer user_data _U_)
 #ifdef HAVE_AIRPCAP
     GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/WirelessToolbar");
 
-	recent.airpcap_toolbar_show = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget));
-	main_widgets_show_or_hide();
+    recent.airpcap_toolbar_show = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget));
+    main_widgets_show_or_hide();
 #endif /* HAVE_AIRPCAP */
 }
 
@@ -643,38 +643,38 @@ status_bar_show_hide_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
     GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/Statusbar");
 
-	recent.statusbar_show = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget));
-	main_widgets_show_or_hide();
+    recent.statusbar_show = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget));
+    main_widgets_show_or_hide();
 }
 static void
 packet_list_show_hide_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
     GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/PacketList");
 
-	recent.packet_list_show = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget));
-	main_widgets_show_or_hide();
+    recent.packet_list_show = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget));
+    main_widgets_show_or_hide();
 }
 static void
 packet_details_show_hide_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
     GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/PacketDetails");
 
-	recent.tree_view_show = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget));
-	main_widgets_show_or_hide();
+    recent.tree_view_show = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget));
+    main_widgets_show_or_hide();
 }
 static void
 packet_bytes_show_hide_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
     GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/PacketBytes");
 
-	recent.byte_view_show = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget));
-	main_widgets_show_or_hide();
+    recent.byte_view_show = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget));
+    main_widgets_show_or_hide();
 }
 
 static void
 timestamp_seconds_time_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
-	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/TimeDisplayFormat/DisplaySecondsWithHoursAndMinutes");
+    GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/TimeDisplayFormat/DisplaySecondsWithHoursAndMinutes");
 
     if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget))) {
         recent.gui_seconds_format = TS_SECONDS_HOUR_MIN_SEC;
@@ -3577,9 +3577,9 @@ void register_lua_menu_bar_menu_items(
 
 }
 
-#define XMENU_MAX_DEPTH		(1 + 32)		/* max number of menus in an xpath (+1 for Menubar) */
-#define XMENU_HEADER		"<ui><menubar name='Menubar'>\n"
-#define XMENU_FOOTER		"</menubar></ui>\n"
+#define XMENU_MAX_DEPTH         (1 + 32)        /* max number of menus in an xpath (+1 for Menubar) */
+#define XMENU_HEADER            "<ui><menubar name='Menubar'>\n"
+#define XMENU_FOOTER            "</menubar></ui>\n"
 
 /**
  * Creates an XML string, containing a UI definition that can be merged
@@ -3591,15 +3591,15 @@ void register_lua_menu_bar_menu_items(
  * leading/trailing spaces.
  *
  * Examples:
- * 	make_menu_xml("/Foo/Bar/I_tem");
+ *      make_menu_xml("/Foo/Bar/I_tem");
  *   -->
- * 		"<ui><menubar name='Menubar'>
- * 		<menu action='Foo'>
- * 		<menu action='Bar'>
- * 		<menuitem action='I_tem'/>    <!-- puts shortcut on 't' -->
- * 		</menu>
- * 		</menu>
- * 		<menubar></ui>"
+ *              "<ui><menubar name='Menubar'>
+ *              <menu action='Foo'>
+ *              <menu action='Bar'>
+ *              <menuitem action='I_tem'/>    <!-- puts shortcut on 't' -->
+ *              </menu>
+ *              </menu>
+ *              <menubar></ui>"
  *
  *  make_menu_xml("/Foo/Bar/-/Baz/Item");
  *    -->
@@ -3794,30 +3794,30 @@ merge_lua_menu_items(GList *merge_lua_menu_items_list _U_)
         menu_item_data = merge_lua_menu_items_list->data;
         xpath = g_strdup_printf("%s/%s", menu_item_data->gui_path, menu_item_data->name);
 
-		xml = make_menu_xml(xpath);
-		if (xml != NULL) {
+        xml = make_menu_xml(xpath);
+        if (xml != NULL) {
 
-			/* create action group for menu elements */
-			action_group = make_menu_actions(xpath, menu_item_data);
-			gtk_ui_manager_insert_action_group (ui_manager_main_menubar, action_group, 0);
+            /* create action group for menu elements */
+            action_group = make_menu_actions(xpath, menu_item_data);
+            gtk_ui_manager_insert_action_group (ui_manager_main_menubar, action_group, 0);
 
-			/* add menu elements to menu bar */
-			err = NULL;
-			merge_id = gtk_ui_manager_add_ui_from_string (ui_manager_main_menubar, xml, -1, &err);
-			if (err != NULL) {
-				fprintf (stderr, "Warning: building Lua menus failed: %s\n",
-						err->message);
-				g_error_free (err);
+            /* add menu elements to menu bar */
+            err = NULL;
+            merge_id = gtk_ui_manager_add_ui_from_string (ui_manager_main_menubar, xml, -1, &err);
+            if (err != NULL) {
+                fprintf (stderr, "Warning: building Lua menus failed: %s\n",
+                        err->message);
+                g_error_free (err);
 
-				/* undo the mess */
-				gtk_ui_manager_remove_ui (ui_manager_main_menubar, merge_id);
-				gtk_ui_manager_remove_action_group (ui_manager_main_menubar, action_group);
-			}
-			g_free ((gchar*)xml);
-			g_object_unref (action_group);
-		}
+                /* undo the mess */
+                gtk_ui_manager_remove_ui (ui_manager_main_menubar, merge_id);
+                gtk_ui_manager_remove_action_group (ui_manager_main_menubar, action_group);
+            }
+            g_free ((gchar*)xml);
+            g_object_unref (action_group);
+        }
 
-		g_free(xpath);
+        g_free(xpath);
         merge_lua_menu_items_list = g_list_next(merge_lua_menu_items_list);
     }
 #endif
@@ -4611,7 +4611,8 @@ set_menus_for_capture_file(capture_file *cf)
     } else {
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Merge", cf_can_save_as(cf));
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Close", TRUE);
-        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Save", !cf->user_saved);
+        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Save",
+                             (cf->state != FILE_READ_IN_PROGRESS && !cf->user_saved));
         /*
          * "Save As..." works only if we can write the file out in at least
          * one format (so we can save the whole file or just a subset) or
