@@ -3256,7 +3256,8 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         /* Make sure the PDU isn't bigger than reported! */
         if (offset > p_mac_lte_info->length) {
             expert_add_info_format(pinfo, padding_length_ti, PI_MALFORMED, PI_ERROR,
-                                   "MAC PDU is longer than reported length (reported=%u, actual=%u)",
+                                   "%s MAC PDU is longer than reported length (reported=%u, actual=%u)",
+                                   (direction == DIRECTION_UPLINK) ? "UL-SCH" : "DL-SCH",
                                    p_mac_lte_info->length, offset);
         }
     }
@@ -3265,14 +3266,16 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         if (!is_truncated && (offset < p_mac_lte_info->length)) {
             /* There is a problem if we haven't used all of the PDU */
             expert_add_info_format(pinfo, pdu_ti, PI_MALFORMED, PI_ERROR,
-                                   "PDU for UE %u is shorter than reported length (reported=%u, actual=%u)",
+                                   "%s PDU for UE %u is shorter than reported length (reported=%u, actual=%u)",
+                                   (direction == DIRECTION_UPLINK) ? "UL-SCH" : "DL-SCH",
                                    p_mac_lte_info->ueid, p_mac_lte_info->length, offset);
         }
 
         if (!is_truncated && (offset > p_mac_lte_info->length)) {
             /* There is a problem if the PDU is longer than rpeported */
             expert_add_info_format(pinfo, pdu_ti, PI_MALFORMED, PI_ERROR,
-                                   "PDU for UE %u is longer than reported length (reported=%u, actual=%u)",
+                                   "%s PDU for UE %u is longer than reported length (reported=%u, actual=%u)",
+                                   (direction == DIRECTION_UPLINK) ? "UL-SCH" : "DL-SCH",
                                    p_mac_lte_info->ueid, p_mac_lte_info->length, offset);
         }
     }
@@ -4237,7 +4240,7 @@ void proto_register_mac_lte(void)
         { &hf_mac_lte_context_grant_subframe_number,
             { "Grant Subframe",
               "mac-lte.grant-subframe", FT_UINT16, BASE_DEC, 0, 0x0,
-              "Subframe grant for this PDU was received", HFILL
+              "Subframe when grant for this PDU was received", HFILL
             }
         },
         { &hf_mac_lte_context_predefined_frame,
