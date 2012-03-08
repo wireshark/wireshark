@@ -629,19 +629,19 @@ status_capture_comment_new(void)
     GtkWidget *comment_image;
 
     comment_image = pixbuf_to_widget(capture_comment_update_pb_data);
-    gtk_widget_set_tooltip_text(comment_image, "Capture comment present, click to read");
+    gtk_widget_set_tooltip_text(comment_image, "Read or edit the comment for this capture file");
     gtk_widget_show(comment_image);
     capture_comment = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(capture_comment), comment_image);
     g_signal_connect(capture_comment, "button_press_event", G_CALLBACK(edit_capture_comment_dlg_event_cb), NULL);
 
     comment_image = pixbuf_to_widget(capture_comment_add_pb_data);
-    gtk_widget_set_tooltip_text(comment_image, "No capture comment, click to add");
+    gtk_widget_set_tooltip_text(comment_image, "Add a comment to this capture file");
     gtk_widget_show(comment_image);
     capture_comment_none = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(capture_comment_none), comment_image);
     g_signal_connect(capture_comment_none, "button_press_event", G_CALLBACK(edit_capture_comment_dlg_event_cb), NULL);
-   
+
     /* comment_image = pixbuf_to_widget(capture_comment_disabled_pb_data); ... */
 
 }
