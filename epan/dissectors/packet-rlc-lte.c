@@ -2695,7 +2695,7 @@ static void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                              (p_rlc_lte_info->direction == 0) ? "UL" : "DL",
                              val_to_str_const(p_rlc_lte_info->rlcMode, rlc_mode_short_vals, "Unknown"));
     if (p_rlc_lte_info->ueid != 0) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "UEId=%u ", p_rlc_lte_info->ueid);
+        col_append_fstr(pinfo->cinfo, COL_INFO, "UEId=%-4u ", p_rlc_lte_info->ueid);
     }
     if (p_rlc_lte_info->channelId == 0) {
         write_pdu_label_and_info(top_ti, NULL, pinfo, "%s",
