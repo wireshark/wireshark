@@ -238,6 +238,7 @@ noinst_HEADERS = \
 	about_dlg.h	\
 	airpcap_dlg.h \
 	airpcap_gui_utils.h \
+	capture_comment_icons.h \
 	capture_dlg.h	\
 	capture_file_dlg.h	\
 	capture_globals.h	\
