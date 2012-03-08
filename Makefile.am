@@ -723,6 +723,12 @@ EXTRA_DIST = \
 	image/clist_descend.xpm	\
 	image/dumpcap.rc.in	\
 	image/editcap.rc.in	\
+	image/expert_chat.png	\
+	image/expert_error.png	\
+	image/expert_indicators.svg	\
+	image/expert_none.png	\
+	image/expert_note.png	\
+	image/expert_warn.png	\
 	image/file_dlg_win32.rc \
 	image/hi16-app-wireshark.png	\
 	image/hi32-app-wireshark.png	\
@@ -738,6 +744,7 @@ EXTRA_DIST = \
 	image/lo16-app-wireshark.png	\
 	image/lo32-app-wireshark.png	\
 	image/lo48-app-wireshark.png	\
+	image/make-icons	\
 	image/Makefile.nmake	\
 	image/mergecap.rc.in	\
 	image/nsis-checked.bmp	\
@@ -750,7 +757,6 @@ EXTRA_DIST = \
 	image/stock_dialog_stop_48.xpm	\
 	image/stock_dialog_warning_48.xpm	\
 	image/text2pcap.rc.in	\
-	image/WiresharkDoc_24.xpm	\
 	image/toolbar/analyze_24.xpm \
 	image/toolbar/audio_player_24.xpm	\
 	image/toolbar/autoscroll_24.xpm	\
@@ -816,6 +822,8 @@ EXTRA_DIST = \
 	image/wireshark.exe.manifest.in \
 	image/wireshark.ico	\
 	image/wireshark.rc.in	\
+	image/wiresharkdoc.ico	\
+	image/wiresharkinst.ico	\
 	image/WiresharkDoc-128.png	\
 	image/WiresharkDoc-16.png	\
 	image/WiresharkDoc-24.png	\
@@ -823,8 +831,7 @@ EXTRA_DIST = \
 	image/WiresharkDoc-32.png	\
 	image/WiresharkDoc-48.png	\
 	image/WiresharkDoc-64.png	\
-	image/wiresharkdoc.ico	\
-	image/wiresharkinst.ico	\
+	image/WiresharkDoc_24.xpm	\
 	image/wiretap.rc.in	\
 	image/wsicon.svg	\
 	image/wsicon16.png	\
@@ -843,6 +850,7 @@ EXTRA_DIST = \
 	image/wsiconcap48.xpm	\
 	image/wsiconinst.svg	\
 	image/wsiconinst256.png	\
+	image/wslogo-dev.svg	\
 	image/wslogo.eps	\
 	image/wslogo.svg	\
 	image/wssplash-dev.xpm	\
