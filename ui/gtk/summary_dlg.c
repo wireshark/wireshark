@@ -262,7 +262,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
 	  GtkWidget *view;
 	  GtkTextBuffer *buffer = NULL;
 	  const gchar *buf_str;
-	  GtkWidget *save_bt, *clear_bt;
+	  GtkWidget *ok_bt, *clear_bt;
 
 	  comment_vbox = gtk_vbox_new (FALSE, 0);
 	  gtk_container_add (GTK_CONTAINER (main_vb), comment_vbox);
@@ -280,14 +280,14 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
 	  gtk_widget_show (view);
 
 	  /* Button row. */
-	  bbox = dlg_button_row_new (GTK_STOCK_SAVE, GTK_STOCK_CLEAR, NULL);
+	  bbox = dlg_button_row_new (GTK_STOCK_OK, GTK_STOCK_CLEAR, NULL);
 	  gtk_box_pack_end (GTK_BOX(comment_vbox), bbox, FALSE, FALSE, 0);
 
-	  save_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_SAVE);
-	  g_signal_connect (save_bt, "clicked", G_CALLBACK(summary_comment_text_buff_save_cb), view);
-	  gtk_widget_set_sensitive (save_bt, TRUE);
-	  gtk_widget_set_tooltip_text(save_bt,
-			     "You need to save the the capture file as well to save the updated comment");
+	  ok_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_OK);
+	  g_signal_connect (ok_bt, "clicked", G_CALLBACK(summary_comment_text_buff_save_cb), view);
+	  gtk_widget_set_sensitive (ok_bt, TRUE);
+	  gtk_widget_set_tooltip_text(ok_bt,
+			     "Updates the comment, you need to save the the capture file as well to save the updated comment");
 
 
 	  clear_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLEAR);
@@ -295,7 +295,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
 	  gtk_widget_set_tooltip_text(clear_bt,
 			     "Clears the text from the box, not the capture");
 
-	  gtk_widget_grab_default (save_bt);
+	  gtk_widget_grab_default (ok_bt);
 
   }else{
 	  if (summary.opt_comment != NULL) {
