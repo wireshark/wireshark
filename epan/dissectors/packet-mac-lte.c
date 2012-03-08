@@ -1720,6 +1720,7 @@ static void call_rlc_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     }
     ENDTRY
 
+    /* Let columns be written to again */
     col_set_writable(pinfo->cinfo, TRUE);
 }
 
@@ -2724,7 +2725,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 
     /* Append summary to overall PDU header root */
-    proto_item_append_text(pdu_header_ti, " (%u subheaders)",
+    proto_item_append_text(pdu_header_ti, "  [%u subheaders]",
                            number_of_headers);
 
     /* And set its length to offset */
