@@ -258,14 +258,20 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
 
   /* Only allow editing of comment if filetype is PCAPNG */
   if(summary.file_type == WTAP_FILE_PCAPNG){
+	  GtkWidget *frame;
 	  GtkWidget *comment_vbox;
 	  GtkWidget *view;
 	  GtkTextBuffer *buffer = NULL;
 	  const gchar *buf_str;
 	  GtkWidget *ok_bt, *clear_bt;
 
+	  frame = gtk_frame_new ("Capture comments");
+	  gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_ETCHED_IN);
+	  gtk_container_add (GTK_CONTAINER (main_vb), frame);
+	  gtk_widget_show (frame);
+
 	  comment_vbox = gtk_vbox_new (FALSE, 0);
-	  gtk_container_add (GTK_CONTAINER (main_vb), comment_vbox);
+	  gtk_container_add (GTK_CONTAINER (frame), comment_vbox);
 	  gtk_widget_show (comment_vbox);
 
 	  view = gtk_text_view_new ();
@@ -400,7 +406,6 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
     } else {
       g_snprintf(string_buff2, SUM_STR_MAX, "unknown");
     }
-#ifdef HAVE_LIBPCAP
     /* Capture filter */
     if (iface.cfilter && iface.cfilter[0] != '\0') {
       g_snprintf(string_buff3, SUM_STR_MAX, "%s", iface.cfilter);
@@ -411,16 +416,13 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
         g_snprintf(string_buff3, SUM_STR_MAX, "unknown");
       }
     }
-    dl_description = pcap_datalink_val_to_description(iface.linktype);
+    dl_description = wtap_encap_string(iface.linktype);
     if (dl_description != NULL)
       g_snprintf(string_buff4, SUM_STR_MAX, "%s", dl_description);
     else
       g_snprintf(string_buff4, SUM_STR_MAX, "DLT %d", iface.linktype);
-#else
-    g_snprintf(string_buff3, SUM_STR_MAX, "unknown");
-    g_snprintf(string_buff4, SUM_STR_MAX, "unknown");
-#endif
-    g_snprintf(string_buff5, SUM_STR_MAX, "%u bytes", iface.snap);
+
+	g_snprintf(string_buff5, SUM_STR_MAX, "%u bytes", iface.snap);
     gtk_list_store_append(store, &iter);
     gtk_list_store_set(store, &iter, 0, string_buff, 1, string_buff2, 2, string_buff3, 3, string_buff4, 4, string_buff5,-1);
   }
