@@ -672,7 +672,6 @@ set(LIBEPAN_LIBS
 if( (BUILD_wireshark AND GTK_FOUND) OR (BUILD_qtshark AND QT_FOUND) )
 	set(wireshark_FILES
 		airpcap_loader.c
-		alert_box.c
 		capture.c
 		capture_info.c
 		capture_opts.c
@@ -688,6 +687,7 @@ if( (BUILD_wireshark AND GTK_FOUND) OR (BUILD_qtshark AND QT_FOUND) )
 		summary.c
 		tempfile.c
 		u3.c
+		ui/alert_box.c
 		ui/util.c
 		${SHARK_COMMON_CAPTURE_SRC}
 		${WIRESHARK_COMMON_SRC}
