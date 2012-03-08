@@ -6297,6 +6297,24 @@ dissect_nfs_utf8string(tvbuff_t *tvb, int offset,
 }
 
 static int
+dissect_nfs_deviceid4(tvbuff_t *tvb, int offset,
+                     proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_nfs_deviceid4, tvb, offset, 16, ENC_NA);
+	offset += 16;
+	return offset;
+}
+
+static int
+dissect_nfs_sessionid4(tvbuff_t *tvb, int offset,
+                     proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_nfs_sessionid4, tvb, offset, 16, ENC_NA);
+	offset += 16;
+	return offset;
+}
+
+static int
 dissect_nfs_specdata4(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_specdata1, offset);
@@ -8782,9 +8800,7 @@ dissect_nfs_devicelist4(tvbuff_t *tvb, int offset, proto_tree *tree)
 	count = tvb_get_ntohl(tvb, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_devicenum4, offset);
 	for (i = 0; i < count; i++) {
-		offset = dissect_rpc_opaque_data(tvb, offset, tree, NULL,
-						hf_nfs_deviceid4, TRUE, 16,
-						FALSE, NULL, NULL);
+		offset = dissect_nfs_deviceid4(tvb, offset, tree);
 	}
 	return offset;
 }
@@ -8926,8 +8942,7 @@ dissect_nfs_layout(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 		/* NFS Files */
 		offset += 4; /* Skip past opaque count */
 
-		offset = dissect_rpc_opaque_data(tvb, offset, newtree, NULL,
-				hf_nfs_deviceid4, TRUE, 16, FALSE, NULL, NULL);
+		offset = dissect_nfs_deviceid4(tvb, offset, newtree);
 
 		offset = dissect_rpc_uint32(tvb, newtree, hf_nfs_nfl_util, offset);
 		offset = dissect_rpc_uint32(tvb, newtree, hf_nfs_nfl_first_stripe_index, offset);
@@ -9433,9 +9448,7 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 			/* Minor Version 1 */
 		case NFS4_OP_BIND_CONN_TO_SESSION:
-			offset = dissect_rpc_opaque_data(tvb, offset, newftree,
-				NULL, hf_nfs_sessionid4, TRUE, 16,
-				FALSE, NULL, NULL);
+			offset = dissect_nfs_sessionid4(tvb, offset, newftree);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_bctsa_dir, offset);
 			offset = dissect_rpc_bool(tvb, newftree, hf_nfs_bctsa_use_conn_in_rdma_mode, offset);
 			break;
@@ -9493,9 +9506,7 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			break;
 
 		case NFS4_OP_DESTROY_SESSION:
-			offset = dissect_rpc_opaque_data(tvb, offset, newftree, NULL,
-											 hf_nfs_sessionid4, TRUE, 16,
-											 FALSE, NULL, NULL);
+			offset = dissect_nfs_sessionid4(tvb, offset, newftree);
 			break;
 
 			/* pNFS */
@@ -9536,9 +9547,7 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			break;
 
 		case NFS4_OP_GETDEVINFO:
-			offset = dissect_rpc_opaque_data(tvb, offset, newftree, NULL,
-							hf_nfs_deviceid4, TRUE, 16,
-							FALSE, NULL, NULL);
+			offset = dissect_nfs_deviceid4(tvb, offset, newftree);
 
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_layouttype4,
 										offset);
@@ -9558,9 +9567,7 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			break;
 
 		case NFS4_OP_SEQUENCE:
-			offset = dissect_rpc_opaque_data(tvb, offset, newftree, NULL,
-											 hf_nfs_sessionid4, TRUE, 16,
-											 FALSE, NULL, NULL);
+			offset = dissect_nfs_sessionid4(tvb, offset, newftree);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_seqid4, offset);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_slotid4, offset);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_high_slotid4, offset);
@@ -9901,9 +9908,7 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 			/* Minor Version 1 */
 		case NFS4_OP_BIND_CONN_TO_SESSION:
-			offset = dissect_rpc_opaque_data(tvb, offset, newftree,
-				NULL, hf_nfs_sessionid4, TRUE, 16,
-				FALSE, NULL, NULL);
+			offset = dissect_nfs_sessionid4(tvb, offset, newftree);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_bctsr_dir, offset);
 			offset = dissect_rpc_bool(tvb, newftree, hf_nfs_bctsr_use_conn_in_rdma_mode, offset);
 			break;
@@ -9940,9 +9945,7 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			}
 			break;
 		case NFS4_OP_CREATE_SESSION:
-			offset = dissect_rpc_opaque_data(tvb, offset, newftree,
-					NULL, hf_nfs_sessionid4, TRUE, 16,
-					FALSE, NULL, NULL);
+			offset = dissect_nfs_sessionid4(tvb, offset, newftree);
 			offset = dissect_rpc_uint32(tvb, newftree,
 					hf_nfs_seqid4, offset);
 			offset = dissect_nfs_create_session_flags(tvb, offset, newftree, "csa_flags");
@@ -9983,9 +9986,7 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			break;
 
 		case NFS4_OP_SEQUENCE:
-			offset = dissect_rpc_opaque_data(tvb, offset, newftree, NULL,
-											 hf_nfs_sessionid4, TRUE, 16,
-											 FALSE, NULL, NULL);
+			offset = dissect_nfs_sessionid4(tvb, offset, newftree);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_seqid4, offset);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_slotid4, offset);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_high_slotid4, offset);
@@ -10372,8 +10373,7 @@ dissect_nfs_cb_referring_calls(tvbuff_t *tvb, int offset, proto_tree *tree)
 	rl_tree = proto_item_add_subtree(rl_item, ett_nfs_cb_reflists);
 
 	for (i = 0; i < num_reflists; i++) {
-		offset = dissect_rpc_opaque_data(tvb, offset, rl_tree, NULL,
-				hf_nfs_sessionid4, TRUE, 16, FALSE, NULL, NULL);
+		offset = dissect_nfs_sessionid4(tvb, offset, rl_tree);
 		num_refcalls = tvb_get_ntohl(tvb, offset);
 		rc_item = proto_tree_add_text(rl_tree, tvb, offset, 4,
 				"referring calls (count: %u)", num_refcalls);
@@ -10469,8 +10469,7 @@ dissect_nfs_cb_argop(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 		case NFS4_OP_CB_RECALL_SLOT:
 		  break;
 		case NFS4_OP_CB_SEQUENCE:
-			offset = dissect_rpc_opaque_data(tvb, offset, newftree, NULL, hf_nfs_sessionid4,
-							 TRUE, 16, FALSE, NULL, NULL);
+			offset = dissect_nfs_sessionid4(tvb, offset, newftree);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_seqid4, offset);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_slotid4, offset);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_slotid4, offset);
@@ -10568,9 +10567,7 @@ dissect_nfs_cb_resop(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 		case NFS4_OP_CB_RECALL_SLOT:
 			break;
 		case NFS4_OP_CB_SEQUENCE:
-			offset = dissect_rpc_opaque_data(tvb, offset, newftree, NULL,
-							 hf_nfs_sessionid4, TRUE, 16,
-							 FALSE, NULL, NULL);
+			offset = dissect_nfs_sessionid4(tvb, offset, newftree);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_seqid4, offset);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_slotid4, offset);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_slotid4, offset);
