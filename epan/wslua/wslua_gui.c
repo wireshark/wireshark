@@ -52,13 +52,13 @@ WSLUA_FUNCTION wslua_gui_enabled(lua_State* L) { /* Checks whether the GUI facil
 
 static void lua_menu_callback(gpointer data) {
     struct _lua_menu_data* md = data;
-	lua_State* L = md->L;
+    lua_State* L = md->L;
 
-	lua_settop(L,0);
+    lua_settop(L,0);
     lua_pushcfunction(L,menu_cb_error_handler);
     lua_rawgeti(L, LUA_REGISTRYINDEX, md->cb_ref);
 
-	switch ( lua_pcall(L,0,0,1) ) {
+    switch ( lua_pcall(L,0,0,1) ) {
         case 0:
             break;
         case LUA_ERRRUN:
@@ -83,23 +83,23 @@ WSLUA_FUNCTION wslua_register_menu(lua_State* L) { /*  Register a menu item in o
     const gchar* name = luaL_checkstring(L,WSLUA_ARG_register_menu_NAME);
     struct _lua_menu_data* md;
     gboolean retap = FALSE;
-	register_stat_group_t group = (int)luaL_optnumber(L,WSLUA_OPTARG_register_menu_GROUP,REGISTER_STAT_GROUP_GENERIC);
+    register_stat_group_t group = (int)luaL_optnumber(L,WSLUA_OPTARG_register_menu_GROUP,REGISTER_STAT_GROUP_GENERIC);
 
-	if ( group > REGISTER_TOOLS_GROUP_UNSORTED)
-		WSLUA_OPTARG_ERROR(register_menu,GROUP,"Must be a defined MENU_* (see init.lua)");
+    if ( group > REGISTER_TOOLS_GROUP_UNSORTED)
+        WSLUA_OPTARG_ERROR(register_menu,GROUP,"Must be a defined MENU_* (see init.lua)");
 
-	if(!name)
-		WSLUA_ARG_ERROR(register_menu,NAME,"Must be a string");
+    if(!name)
+        WSLUA_ARG_ERROR(register_menu,NAME,"Must be a string");
 
     if (!lua_isfunction(L,WSLUA_ARG_register_menu_ACTION))
-		WSLUA_ARG_ERROR(register_menu,ACTION,"Must be a function");
+        WSLUA_ARG_ERROR(register_menu,ACTION,"Must be a function");
 
     md = g_malloc(sizeof(struct _lua_menu_data));
     md->L = L;
 
-	lua_pushvalue(L, 2);
-	md->cb_ref = luaL_ref(L, LUA_REGISTRYINDEX);
-	lua_remove(L,2);
+    lua_pushvalue(L, 2);
+    md->cb_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+    lua_remove(L,2);
 
     funnel_register_menu(name,
                          group,
@@ -251,9 +251,9 @@ WSLUA_FUNCTION wslua_new_dialog(lua_State* L) { /* Pops up a new dialog */
     for (i = 1; i <= top; i++) {
         gchar* label = (void*)luaL_checkstring(L,i);
 
-		/* XXX leaks labels on error */
-		if (! label)
-			WSLUA_ERROR(new_dialog,"All fields must be strings");
+        /* XXX leaks labels on error */
+        if (! label)
+            WSLUA_ERROR(new_dialog,"All fields must be strings");
 
         g_ptr_array_add(labels,label);
     }
@@ -287,7 +287,7 @@ WSLUA_CONSTRUCTOR ProgDlg_new(lua_State* L) { /* Creates a new TextWindow. */
 
     pushProgDlg(L,pd);
 
-	WSLUA_RETURN(1); /* The newly created TextWindow object. */
+    WSLUA_RETURN(1); /* The newly created TextWindow object. */
 }
 
 WSLUA_METHOD ProgDlg_update(lua_State* L) { /* Appends text */
@@ -304,9 +304,9 @@ WSLUA_METHOD ProgDlg_update(lua_State* L) { /* Appends text */
     g_free(pd->task);
     pd->task = g_strdup(task);
 
-	/* XXX, dead code: pd already dereferenced. should it be: !pd->task?
-	if (!pd) {
-		WSLUA_ERROR(ProgDlg_update,"Cannot be called for something not a ProgDlg");
+    /* XXX, dead code: pd already dereferenced. should it be: !pd->task?
+    if (!pd) {
+        WSLUA_ERROR(ProgDlg_update,"Cannot be called for something not a ProgDlg");
     } */
 
     if (pr >= 0.0 || pr <= 1.0) {
@@ -321,13 +321,13 @@ WSLUA_METHOD ProgDlg_update(lua_State* L) { /* Appends text */
 WSLUA_METHOD ProgDlg_stopped(lua_State* L) { /* Checks wheher the user has pressed the stop button.  */
     ProgDlg pd = checkProgDlg(L,1);
 
-	if (!pd) {
-		WSLUA_ERROR(ProgDlg_stopped,"Cannot be called for something not a ProgDlg");
+    if (!pd) {
+        WSLUA_ERROR(ProgDlg_stopped,"Cannot be called for something not a ProgDlg");
     }
 
     lua_pushboolean(L,pd->stopped);
 
-	WSLUA_RETURN(1); /* true if the user has asked to stop the progress. */
+    WSLUA_RETURN(1); /* true if the user has asked to stop the progress. */
 }
 
 
@@ -339,8 +339,8 @@ WSLUA_METHOD ProgDlg_close(lua_State* L) { /* Appends text */
         WSLUA_ERROR(ProgDlg_close,"GUI not available");
     }
     
-	if (!pd) {
-		WSLUA_ERROR(ProgDlg_update,"Cannot be called for something not a ProgDlg");
+    if (!pd) {
+        WSLUA_ERROR(ProgDlg_update,"Cannot be called for something not a ProgDlg");
     }
 
     if (pd->pw) {
@@ -398,7 +398,7 @@ int ProgDlg_register(lua_State* L) {
 
     ops = funnel_get_funnel_ops();
 
-	WSLUA_REGISTER_CLASS(ProgDlg);
+    WSLUA_REGISTER_CLASS(ProgDlg);
 
     return 1;
 }
@@ -437,7 +437,7 @@ WSLUA_CONSTRUCTOR TextWindow_new(lua_State* L) { /* Creates a new TextWindow. */
 
     pushTextWindow(L,tw);
 
-	WSLUA_RETURN(1); /* The newly created TextWindow object. */
+    WSLUA_RETURN(1); /* The newly created TextWindow object. */
 }
 
 WSLUA_METHOD TextWindow_set_atclose(lua_State* L) { /* Set the function that will be called when the window closes */
@@ -450,8 +450,8 @@ WSLUA_METHOD TextWindow_set_atclose(lua_State* L) { /* Set the function that wil
         WSLUA_ERROR(TextWindow_set_atclose,"GUI not available");
     }
     
-	if (!tw)
-		WSLUA_ERROR(TextWindow_at_close,"Cannot be called for something not a TextWindow");
+    if (!tw)
+        WSLUA_ERROR(TextWindow_at_close,"Cannot be called for something not a TextWindow");
 
     lua_settop(L,2);
 
@@ -466,7 +466,7 @@ WSLUA_METHOD TextWindow_set_atclose(lua_State* L) { /* Set the function that wil
 
     ops->set_close_cb(tw->ws_tw,text_win_close_cb,cbd);
 
-	WSLUA_RETURN(1); /* The TextWindow object. */
+    WSLUA_RETURN(1); /* The TextWindow object. */
 }
 
 WSLUA_METHOD TextWindow_set(lua_State* L) { /* Sets the text. */
@@ -475,21 +475,21 @@ WSLUA_METHOD TextWindow_set(lua_State* L) { /* Sets the text. */
     TextWindow tw = checkTextWindow(L,1);
     const gchar* text = luaL_checkstring(L,WSLUA_ARG_TextWindow_set_TEXT);
 
-	if (!ops->set_text)
-		WSLUA_ERROR(TextWindow_set,"GUI not available");
+    if (!ops->set_text)
+        WSLUA_ERROR(TextWindow_set,"GUI not available");
     
-	if (!tw)
-		WSLUA_ERROR(TextWindow_set,"Cannot be called for something not a TextWindow");
+    if (!tw)
+        WSLUA_ERROR(TextWindow_set,"Cannot be called for something not a TextWindow");
 
     if (tw->expired)
-		WSLUA_ERROR(TextWindow_set,"Expired TextWindow");
+        WSLUA_ERROR(TextWindow_set,"Expired TextWindow");
 
     if (!text)
-		WSLUA_ARG_ERROR(TextWindow_set,TEXT,"Must be a string");
+        WSLUA_ARG_ERROR(TextWindow_set,TEXT,"Must be a string");
 
     ops->set_text(tw->ws_tw,text);
 
-	WSLUA_RETURN(1); /* The TextWindow object. */
+    WSLUA_RETURN(1); /* The TextWindow object. */
 }
 
 WSLUA_METHOD TextWindow_append(lua_State* L) { /* Appends text */
@@ -497,21 +497,21 @@ WSLUA_METHOD TextWindow_append(lua_State* L) { /* Appends text */
     TextWindow tw = checkTextWindow(L,1);
     const gchar* text = luaL_checkstring(L,WSLUA_ARG_TextWindow_append_TEXT);
 
-        if (!ops->append_text)
-		WSLUA_ERROR(TextWindow_append,"GUI not available");
+    if (!ops->append_text)
+        WSLUA_ERROR(TextWindow_append,"GUI not available");
     
-	if (!tw)
-		WSLUA_ERROR(TextWindow_append,"Cannot be called for something not a TextWindow");
+    if (!tw)
+        WSLUA_ERROR(TextWindow_append,"Cannot be called for something not a TextWindow");
 
     if (tw->expired)
-		WSLUA_ERROR(TextWindow_append,"Expired TextWindow");
+        WSLUA_ERROR(TextWindow_append,"Expired TextWindow");
 
-	if (!text)
-		WSLUA_ARG_ERROR(TextWindow_append,TEXT,"Must be a string");
+    if (!text)
+        WSLUA_ARG_ERROR(TextWindow_append,TEXT,"Must be a string");
 
     ops->append_text(tw->ws_tw,text);
 
-	WSLUA_RETURN(1); /* The TextWindow object. */
+    WSLUA_RETURN(1); /* The TextWindow object. */
 }
 
 WSLUA_METHOD TextWindow_prepend(lua_State* L) { /* Prepends text */
@@ -519,73 +519,73 @@ WSLUA_METHOD TextWindow_prepend(lua_State* L) { /* Prepends text */
     TextWindow tw = checkTextWindow(L,1);
     const gchar* text = luaL_checkstring(L,WSLUA_ARG_TextWindow_prepend_TEXT);
 
-	if (!ops->prepend_text)
-		WSLUA_ERROR(TextWindow_prepend,"GUI not available");
+    if (!ops->prepend_text)
+        WSLUA_ERROR(TextWindow_prepend,"GUI not available");
     
-	if (!tw)
-		WSLUA_ERROR(TextWindow_prepend,"Cannot be called for something not a TextWindow");
+    if (!tw)
+        WSLUA_ERROR(TextWindow_prepend,"Cannot be called for something not a TextWindow");
 
     if (tw->expired)
-		WSLUA_ERROR(TextWindow_prepend,"Expired TextWindow");
+        WSLUA_ERROR(TextWindow_prepend,"Expired TextWindow");
 
- 	if (!text)
-		WSLUA_ARG_ERROR(TextWindow_prepend,TEXT,"Must be a string");
+     if (!text)
+        WSLUA_ARG_ERROR(TextWindow_prepend,TEXT,"Must be a string");
 
     ops->prepend_text(tw->ws_tw,text);
 
-	WSLUA_RETURN(1); /* The TextWindow object. */
+    WSLUA_RETURN(1); /* The TextWindow object. */
 }
 
 WSLUA_METHOD TextWindow_clear(lua_State* L) { /* Erases all text in the window. */
     TextWindow tw = checkTextWindow(L,1);
 
-	if (!ops->clear_text)
-		WSLUA_ERROR(TextWindow_clear,"GUI not available");
+    if (!ops->clear_text)
+        WSLUA_ERROR(TextWindow_clear,"GUI not available");
     
-	if (!tw)
-		WSLUA_ERROR(TextWindow_clear,"Cannot be called for something not a TextWindow");
+    if (!tw)
+        WSLUA_ERROR(TextWindow_clear,"Cannot be called for something not a TextWindow");
 
     if (tw->expired)
-		WSLUA_ERROR(TextWindow_clear,"Expired TextWindow");
+        WSLUA_ERROR(TextWindow_clear,"Expired TextWindow");
 
     ops->clear_text(tw->ws_tw);
 
-	WSLUA_RETURN(1); /* The TextWindow object. */
+    WSLUA_RETURN(1); /* The TextWindow object. */
 }
 
 WSLUA_METHOD TextWindow_get_text(lua_State* L) { /* Get the text of the window */
     TextWindow tw = checkTextWindow(L,1);
-	const gchar* text;
+    const gchar* text;
 
-	if (!ops->get_text)
-		WSLUA_ERROR(TextWindow_get_text,"GUI not available");
+    if (!ops->get_text)
+        WSLUA_ERROR(TextWindow_get_text,"GUI not available");
         
-	if (!tw)
-		WSLUA_ERROR(TextWindow_get_text,"Cannot be called for something not a TextWindow");
+    if (!tw)
+        WSLUA_ERROR(TextWindow_get_text,"Cannot be called for something not a TextWindow");
 
     if (tw->expired)
-		WSLUA_ERROR(TextWindow_get_text,"Expired TextWindow");
+        WSLUA_ERROR(TextWindow_get_text,"Expired TextWindow");
 
-	text = ops->get_text(tw->ws_tw);
+    text = ops->get_text(tw->ws_tw);
 
     lua_pushstring(L,text);
-	WSLUA_RETURN(1); /* The TextWindow's text. */
+    WSLUA_RETURN(1); /* The TextWindow's text. */
 }
 
 static int TextWindow__gc(lua_State* L) {
     TextWindow tw = checkTextWindow(L,1);
 
-	if (!tw)
-		return 0;
+    if (!tw)
+        return 0;
 
-	if (!tw->expired) {
-		tw->expired = TRUE;
-		if (ops->destroy_text_window) {
-			ops->destroy_text_window(tw->ws_tw);
-		}
-	} else {
-		g_free(tw);
-	}
+    if (!tw->expired) {
+        tw->expired = TRUE;
+        if (ops->destroy_text_window) {
+            ops->destroy_text_window(tw->ws_tw);
+        }
+    } else {
+        g_free(tw);
+    }
 
 
     return 0;
@@ -594,111 +594,111 @@ static int TextWindow__gc(lua_State* L) {
 WSLUA_METHOD TextWindow_set_editable(lua_State* L) { /* Make this window editable */
 #define WSLUA_OPTARG_TextWindow_set_editable_EDITABLE 2 /* A boolean flag, defaults to true */
 
-	TextWindow tw = checkTextWindow(L,1);
-	gboolean editable = wslua_optbool(L,WSLUA_OPTARG_TextWindow_set_editable_EDITABLE,TRUE);
+    TextWindow tw = checkTextWindow(L,1);
+    gboolean editable = wslua_optbool(L,WSLUA_OPTARG_TextWindow_set_editable_EDITABLE,TRUE);
 
-	if (!ops->set_editable)
-		WSLUA_ERROR(TextWindow_set_editable,"GUI not available");
+    if (!ops->set_editable)
+        WSLUA_ERROR(TextWindow_set_editable,"GUI not available");
         
-	if (!tw)
-		WSLUA_ERROR(TextWindow_set_editable,"Cannot be called for something not a TextWindow");
+    if (!tw)
+        WSLUA_ERROR(TextWindow_set_editable,"Cannot be called for something not a TextWindow");
 
     if (tw->expired)
-		WSLUA_ERROR(TextWindow_set_editable,"Expired TextWindow");
+        WSLUA_ERROR(TextWindow_set_editable,"Expired TextWindow");
 
-	if (ops->set_editable)
-		ops->set_editable(tw->ws_tw,editable);
+    if (ops->set_editable)
+        ops->set_editable(tw->ws_tw,editable);
 
-	WSLUA_RETURN(1); /* The TextWindow object. */
+    WSLUA_RETURN(1); /* The TextWindow object. */
 }
 
 typedef struct _wslua_bt_cb_t {
-	lua_State* L;
-	int func_ref;
-	int wslua_tw_ref;
+    lua_State* L;
+    int func_ref;
+    int wslua_tw_ref;
 } wslua_bt_cb_t;
 
 static gboolean wslua_button_callback(funnel_text_window_t* ws_tw, void* data) {
-	wslua_bt_cb_t* cbd = data;
-	lua_State* L = cbd->L;
-	(void) ws_tw; /* ws_tw is unused since we need wslua_tw_ref and it is stored in cbd */
+    wslua_bt_cb_t* cbd = data;
+    lua_State* L = cbd->L;
+    (void) ws_tw; /* ws_tw is unused since we need wslua_tw_ref and it is stored in cbd */
 
-	lua_settop(L,0);
-	lua_pushcfunction(L,dlg_cb_error_handler);
-	lua_rawgeti(L, LUA_REGISTRYINDEX, cbd->func_ref);
-	lua_rawgeti(L, LUA_REGISTRYINDEX, cbd->wslua_tw_ref);
+    lua_settop(L,0);
+    lua_pushcfunction(L,dlg_cb_error_handler);
+    lua_rawgeti(L, LUA_REGISTRYINDEX, cbd->func_ref);
+    lua_rawgeti(L, LUA_REGISTRYINDEX, cbd->wslua_tw_ref);
 
-	switch ( lua_pcall(L,1,0,1) ) {
-		case 0:
-			break;
-		case LUA_ERRRUN:
-			g_warning("Runtime error while calling button callback");
-			break;
-		case LUA_ERRMEM:
-			g_warning("Memory alloc error while calling button callback");
-			break;
-		default:
-			g_assert_not_reached();
-			break;
-	}
+    switch ( lua_pcall(L,1,0,1) ) {
+        case 0:
+            break;
+        case LUA_ERRRUN:
+            g_warning("Runtime error while calling button callback");
+            break;
+        case LUA_ERRMEM:
+            g_warning("Memory alloc error while calling button callback");
+            break;
+        default:
+            g_assert_not_reached();
+            break;
+    }
 
-	return TRUE;
+    return TRUE;
 }
 
 WSLUA_METHOD TextWindow_add_button(lua_State* L) {
 #define WSLUA_ARG_TextWindow_add_button_LABEL 2 /* The label of the button */
 #define WSLUA_ARG_TextWindow_add_button_FUNCTION 3 /* The function to be called when clicked */
-	TextWindow tw = checkTextWindow(L,1);
-	const gchar* label = luaL_checkstring(L,WSLUA_ARG_TextWindow_add_button_LABEL);
+    TextWindow tw = checkTextWindow(L,1);
+    const gchar* label = luaL_checkstring(L,WSLUA_ARG_TextWindow_add_button_LABEL);
 
-	funnel_bt_t* fbt;
-	wslua_bt_cb_t* cbd;
+    funnel_bt_t* fbt;
+    wslua_bt_cb_t* cbd;
 
-	if (!ops->add_button)
-		WSLUA_ERROR(TextWindow_add_button,"GUI not available");
+    if (!ops->add_button)
+        WSLUA_ERROR(TextWindow_add_button,"GUI not available");
         
-	if (!tw)
-		WSLUA_ERROR(TextWindow_add_button,"Cannot be called for something not a TextWindow");
+    if (!tw)
+        WSLUA_ERROR(TextWindow_add_button,"Cannot be called for something not a TextWindow");
 
     if (tw->expired)
-		WSLUA_ERROR(TextWindow_add_button,"Expired TextWindow");
+        WSLUA_ERROR(TextWindow_add_button,"Expired TextWindow");
 
-	if (! lua_isfunction(L,WSLUA_ARG_TextWindow_add_button_FUNCTION) )
-		WSLUA_ARG_ERROR(TextWindow_add_button,FUNCTION,"must be a function");
+    if (! lua_isfunction(L,WSLUA_ARG_TextWindow_add_button_FUNCTION) )
+        WSLUA_ARG_ERROR(TextWindow_add_button,FUNCTION,"must be a function");
 
-	lua_settop(L,3);
+    lua_settop(L,3);
 
-	if (ops->add_button) {
-		fbt = g_malloc(sizeof(funnel_bt_t));
-		cbd = g_malloc(sizeof(wslua_bt_cb_t));
+    if (ops->add_button) {
+        fbt = g_malloc(sizeof(funnel_bt_t));
+        cbd = g_malloc(sizeof(wslua_bt_cb_t));
 
-		fbt->tw = tw->ws_tw;
-		fbt->func = wslua_button_callback;
-		fbt->data = cbd;
-		fbt->free_fcn = g_free;
-		fbt->free_data_fcn = g_free;
+        fbt->tw = tw->ws_tw;
+        fbt->func = wslua_button_callback;
+        fbt->data = cbd;
+        fbt->free_fcn = g_free;
+        fbt->free_data_fcn = g_free;
 
-		cbd->L = L;
-		cbd->func_ref = luaL_ref(L, LUA_REGISTRYINDEX);
-		cbd->wslua_tw_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+        cbd->L = L;
+        cbd->func_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+        cbd->wslua_tw_ref = luaL_ref(L, LUA_REGISTRYINDEX);
 
-		ops->add_button(tw->ws_tw,fbt,label);
-	}
+        ops->add_button(tw->ws_tw,fbt,label);
+    }
 
-	WSLUA_RETURN(1); /* The TextWindow object. */
+    WSLUA_RETURN(1); /* The TextWindow object. */
 }
 
 WSLUA_METHODS TextWindow_methods[] = {
-	WSLUA_CLASS_FNREG(TextWindow,new),
-	WSLUA_CLASS_FNREG(TextWindow,set),
-	WSLUA_CLASS_FNREG(TextWindow,new),
-	WSLUA_CLASS_FNREG(TextWindow,append),
-	WSLUA_CLASS_FNREG(TextWindow,prepend),
-	WSLUA_CLASS_FNREG(TextWindow,clear),
-	WSLUA_CLASS_FNREG(TextWindow,set_atclose),
-	WSLUA_CLASS_FNREG(TextWindow,set_editable),
-	WSLUA_CLASS_FNREG(TextWindow,get_text),
-	WSLUA_CLASS_FNREG(TextWindow,add_button),
+    WSLUA_CLASS_FNREG(TextWindow,new),
+    WSLUA_CLASS_FNREG(TextWindow,set),
+    WSLUA_CLASS_FNREG(TextWindow,new),
+    WSLUA_CLASS_FNREG(TextWindow,append),
+    WSLUA_CLASS_FNREG(TextWindow,prepend),
+    WSLUA_CLASS_FNREG(TextWindow,clear),
+    WSLUA_CLASS_FNREG(TextWindow,set_atclose),
+    WSLUA_CLASS_FNREG(TextWindow,set_editable),
+    WSLUA_CLASS_FNREG(TextWindow,get_text),
+    WSLUA_CLASS_FNREG(TextWindow,add_button),
     {0, 0}
 };
 
@@ -712,169 +712,169 @@ int TextWindow_register(lua_State* L) {
 
     ops = funnel_get_funnel_ops();
 
-	WSLUA_REGISTER_CLASS(TextWindow);
+    WSLUA_REGISTER_CLASS(TextWindow);
 
     return 1;
 }
 
 
 WSLUA_FUNCTION wslua_retap_packets(lua_State* L) {
-	/*
-	 Rescan all packets and just run taps - don't reconstruct the display.
-	 */
-	if ( ops->retap_packets ) {
-		ops->retap_packets();
-	} else {
-		WSLUA_ERROR(wslua_retap_packets, "GUI not available");
-	}
+    /*
+     Rescan all packets and just run taps - don't reconstruct the display.
+     */
+    if ( ops->retap_packets ) {
+        ops->retap_packets();
+    } else {
+        WSLUA_ERROR(wslua_retap_packets, "GUI not available");
+    }
 
-	return 0;
+    return 0;
 }
 
 
 WSLUA_FUNCTION wslua_copy_to_clipboard(lua_State* L) { /* Copy a string into the clipboard */
 #define WSLUA_ARG_copy_to_clipboard_TEXT 1 /* The string to be copied into the clipboard. */
-	const char* copied_str = luaL_checkstring(L,WSLUA_ARG_copy_to_clipboard_TEXT);
-	GString* gstr;
-	if (!ops->copy_to_clipboard) {
-		WSLUA_ERROR(copy_to_clipboard, "GUI not available");
-	}
+    const char* copied_str = luaL_checkstring(L,WSLUA_ARG_copy_to_clipboard_TEXT);
+    GString* gstr;
+    if (!ops->copy_to_clipboard) {
+        WSLUA_ERROR(copy_to_clipboard, "GUI not available");
+    }
 
-	if (!copied_str) {
-		WSLUA_ARG_ERROR(copy_to_clipboard,TEXT,"Must be a string");
-	}
+    if (!copied_str) {
+        WSLUA_ARG_ERROR(copy_to_clipboard,TEXT,"Must be a string");
+    }
 
-	gstr = g_string_new(copied_str);
+    gstr = g_string_new(copied_str);
 
-	ops->copy_to_clipboard(gstr);
+    ops->copy_to_clipboard(gstr);
 
-	g_string_free(gstr,TRUE);
+    g_string_free(gstr,TRUE);
 
-	return 0;
+    return 0;
 }
 
 WSLUA_FUNCTION wslua_open_capture_file(lua_State* L) { /* Open and display a capture file */
 #define WSLUA_ARG_open_capture_file_FILENAME 1 /* The name of the file to be opened. */
 #define WSLUA_ARG_open_capture_file_FILTER 2 /* A filter to be applied as the file gets opened. */
 
-	const char* fname = luaL_checkstring(L,WSLUA_ARG_open_capture_file_FILENAME);
-	const char* filter = luaL_optstring(L,WSLUA_ARG_open_capture_file_FILTER,NULL);
-	const char* error = NULL;
+    const char* fname = luaL_checkstring(L,WSLUA_ARG_open_capture_file_FILENAME);
+    const char* filter = luaL_optstring(L,WSLUA_ARG_open_capture_file_FILTER,NULL);
+    const char* error = NULL;
 
-	if (!ops->open_file) {
-		WSLUA_ERROR(open_capture_file, "GUI not available");
-	}
+    if (!ops->open_file) {
+        WSLUA_ERROR(open_capture_file, "GUI not available");
+    }
 
-	if (!fname) {
-		WSLUA_ARG_ERROR(open_capture_file,FILENAME,"Must be a string");
-	}
+    if (!fname) {
+        WSLUA_ARG_ERROR(open_capture_file,FILENAME,"Must be a string");
+    }
 
-	if (! ops->open_file(fname,filter,&error) ) {
-		lua_pushboolean(L,FALSE);
+    if (! ops->open_file(fname,filter,&error) ) {
+        lua_pushboolean(L,FALSE);
 
-		if (error)
-			lua_pushstring(L,error);
-		else
-			lua_pushnil(L);
+        if (error)
+            lua_pushstring(L,error);
+        else
+            lua_pushnil(L);
 
-		return 2;
-	} else {
-		lua_pushboolean(L,TRUE);
-		return 1;
-	}
+        return 2;
+    } else {
+        lua_pushboolean(L,TRUE);
+        return 1;
+    }
 }
 
 WSLUA_FUNCTION wslua_set_filter(lua_State* L) { /* Set the main filter text */
 #define WSLUA_ARG_set_filter_TEXT 1 /* The filter's text. */
-	const char* filter_str = luaL_checkstring(L,WSLUA_ARG_set_filter_TEXT);
+    const char* filter_str = luaL_checkstring(L,WSLUA_ARG_set_filter_TEXT);
 
-	if (!ops->set_filter) {
-		WSLUA_ERROR(set_filter, "GUI not available");
-	}
+    if (!ops->set_filter) {
+        WSLUA_ERROR(set_filter, "GUI not available");
+    }
 
-	if (!filter_str) {
-		WSLUA_ARG_ERROR(set_filter,TEXT,"Must be a string");
-	}
+    if (!filter_str) {
+        WSLUA_ARG_ERROR(set_filter,TEXT,"Must be a string");
+    }
 
-	ops->set_filter(filter_str);
+    ops->set_filter(filter_str);
 
-	return 0;
+    return 0;
 }
 
 WSLUA_FUNCTION wslua_set_color_filter_slot(lua_State* L) { /* Set packet-coloring rule for the current session */
 #define WSLUA_ARG_set_color_filter_slot_ROW 1 /* The index of the desired color in the temporary coloring rules list */
 #define WSLUA_ARG_set_color_filter_slot_TEXT  2 /* Display filter for selecting packets to be colorized */
-	guint8 row = luaL_checkint(L,WSLUA_ARG_set_color_filter_slot_ROW);
-	const gchar* filter_str = luaL_checkstring(L,WSLUA_ARG_set_color_filter_slot_TEXT);
+    guint8 row = luaL_checkint(L,WSLUA_ARG_set_color_filter_slot_ROW);
+    const gchar* filter_str = luaL_checkstring(L,WSLUA_ARG_set_color_filter_slot_TEXT);
 
-	if (!ops->set_color_filter_slot) {
-		WSLUA_ERROR(set_color_filter_slot, "GUI not available");
-	}
+    if (!ops->set_color_filter_slot) {
+        WSLUA_ERROR(set_color_filter_slot, "GUI not available");
+    }
 
-	if (!filter_str) {
-		WSLUA_ARG_ERROR(set_color_filter_slot,TEXT,"Must be a string");
-	}
+    if (!filter_str) {
+        WSLUA_ARG_ERROR(set_color_filter_slot,TEXT,"Must be a string");
+    }
 
-	ops->set_color_filter_slot(row, filter_str);
+    ops->set_color_filter_slot(row, filter_str);
 
-	return 0;
+    return 0;
 }
 
 WSLUA_FUNCTION wslua_apply_filter(lua_State* L) { /* Apply the filter in the main filter box */
-	if (!ops->apply_filter) {
-		WSLUA_ERROR(apply_filter, "GUI not available");
-	}
+    if (!ops->apply_filter) {
+        WSLUA_ERROR(apply_filter, "GUI not available");
+    }
 
-	ops->apply_filter();
+    ops->apply_filter();
 
-	return 0;
+    return 0;
 }
 
 
 WSLUA_FUNCTION wslua_reload(lua_State* L) { /* Reload the current capture file */
 
-	if (!ops->reload) {
-		WSLUA_ERROR(reload, "GUI not available");
-	}
+    if (!ops->reload) {
+        WSLUA_ERROR(reload, "GUI not available");
+    }
 
-	ops->reload();
+    ops->reload();
 
-	return 0;
+    return 0;
 }
 
 
 WSLUA_FUNCTION wslua_browser_open_url(lua_State* L) { /* Open an url in a browser */
 #define WSLUA_ARG_browser_open_url_URL 1 /* The url. */
-	const char* url = luaL_checkstring(L,WSLUA_ARG_browser_open_url_URL);
+    const char* url = luaL_checkstring(L,WSLUA_ARG_browser_open_url_URL);
 
-	if (!ops->browser_open_url) {
-		WSLUA_ERROR(browser_open_url, "GUI not available");
-	}
+    if (!ops->browser_open_url) {
+        WSLUA_ERROR(browser_open_url, "GUI not available");
+    }
 
-	if (!url) {
-		WSLUA_ARG_ERROR(browser_open_url,URL,"Must be a string");
-	}
+    if (!url) {
+        WSLUA_ARG_ERROR(browser_open_url,URL,"Must be a string");
+    }
 
-	ops->browser_open_url(url);
+    ops->browser_open_url(url);
 
-	return 0;
+    return 0;
 }
 
 WSLUA_FUNCTION wslua_browser_open_data_file(lua_State* L) { /* Open an file in a browser */
 #define WSLUA_ARG_browser_open_data_file_FILENAME 1 /* The url. */
-	const char* file = luaL_checkstring(L,WSLUA_ARG_browser_open_data_file_FILENAME);
+    const char* file = luaL_checkstring(L,WSLUA_ARG_browser_open_data_file_FILENAME);
 
-	if (!ops->browser_open_data_file) {
-		WSLUA_ERROR(browser_open_data_file, "GUI not available");
-	}
+    if (!ops->browser_open_data_file) {
+        WSLUA_ERROR(browser_open_data_file, "GUI not available");
+    }
 
-	if (!file) {
-		WSLUA_ARG_ERROR(browser_open_data_file,FILENAME,"Must be a string");
-	}
+    if (!file) {
+        WSLUA_ARG_ERROR(browser_open_data_file,FILENAME,"Must be a string");
+    }
 
-	ops->browser_open_data_file(file);
+    ops->browser_open_data_file(file);
 
-	return 0;
+    return 0;
 }
 
 
