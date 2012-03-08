@@ -313,6 +313,13 @@ static gboolean global_pdcp_dissect_signalling_plane_as_rrc = FALSE;
 static gint     global_pdcp_check_sequence_numbers = FALSE;
 static gboolean global_pdcp_dissect_rohc = FALSE;
 
+/* Which layer info to show in the info column */
+enum layer_to_show {
+    ShowRLCLayer, ShowPDCPLayer, ShowTrafficLayer
+};
+static gint     global_pdcp_lte_layer_to_show = (gint)ShowRLCLayer;
+
+
 
 /**************************************************/
 /* Sequence number analysis                       */
@@ -2004,8 +2011,21 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     gboolean           ip_id_needed = TRUE;
 #endif
 
+
     /* Append this protocol name rather than replace. */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PDCP-LTE");
+
+    /* Don't want to overwrite the RLC Info column if configured not to */
+    if ((global_pdcp_lte_layer_to_show == ShowRLCLayer) &&
+        (p_get_proto_data(pinfo->fd, proto_rlc_lte) != NULL)) {
+
+        col_set_writable(pinfo->cinfo, FALSE);
+    }
+    else {
+        /* TODO: won't help with multiple PDCP PDUs / frame */
+        col_clear(pinfo->cinfo, COL_INFO);
+        col_set_writable(pinfo->cinfo, TRUE);
+    }
 
     /* Create pdcp tree. */
     if (tree) {
@@ -2076,6 +2096,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                     tvbuff_t *payload_tvb = tvb_new_subset(tvb, offset,
                                                            tvb_length_remaining(tvb, offset) - 4,
                                                            tvb_length_remaining(tvb, offset) - 4);
+                    /* Don't worry about 'Layer' preferences - we always want to see RRC in info column */
                     call_dissector_only(rrc_handle, payload_tvb, pinfo, pdcp_tree);
                 }
                 else {
@@ -2249,13 +2270,18 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         write_pdu_label_and_info(root_ti, pinfo, " No-Header ");
     }
 
-
     /* If not compressed with ROHC, show as user-plane data */
     if (!p_pdcp_info->rohc_compression) {
         if (tvb_length_remaining(tvb, offset) > 0) {
             if (p_pdcp_info->plane == USER_PLANE) {
                 if (global_pdcp_dissect_user_plane_as_ip) {
                     tvbuff_t *payload_tvb = tvb_new_subset_remaining(tvb, offset);
+
+                    /* Don't update info column for ROHC unless configured to */
+                    if (global_pdcp_lte_layer_to_show != ShowTrafficLayer) {
+                        col_set_writable(pinfo->cinfo, FALSE);
+                    }
+
                     switch (tvb_get_guint8(tvb, offset) & 0xf0) {
                         case 0x40:
                             call_dissector_only(ip_handle, payload_tvb, pinfo, pdcp_tree);
@@ -2267,6 +2293,12 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                             call_dissector_only(data_handle, payload_tvb, pinfo, pdcp_tree);
                             break;
                     }
+
+                    /* Freeze the columns again because we don't want other layers writing to info */
+                    if (global_pdcp_lte_layer_to_show == ShowTrafficLayer) {
+                        col_set_writable(pinfo->cinfo, FALSE);
+                    }
+
                 }
                 else {
                     proto_tree_add_item(pdcp_tree, hf_pdcp_lte_user_plane_data, tvb, offset, -1, ENC_NA);
@@ -2282,6 +2314,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                         tvbuff_t *payload_tvb = tvb_new_subset(tvb, offset,
                                                                tvb_length_remaining(tvb, offset),
                                                                tvb_length_remaining(tvb, offset));
+
                         call_dissector_only(rrc_handle, payload_tvb, pinfo, pdcp_tree);
                     }
                     else {
@@ -2298,6 +2331,10 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             write_pdu_label_and_info(root_ti, pinfo, "(%u bytes data)",
                                      tvb_length_remaining(tvb, offset));
         }
+
+        /* Let RLC write to columns again */
+        col_set_writable(pinfo->cinfo, global_pdcp_lte_layer_to_show == ShowRLCLayer);
+
         return;
     }
 
@@ -2338,7 +2375,16 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     pinfo->private_data = p_rohc_info;
 
+    /* Only enable writing to column if configured to show ROHC */
+    if (global_pdcp_lte_layer_to_show != ShowTrafficLayer) {
+        col_set_writable(pinfo->cinfo, FALSE);
+    }
+
     call_dissector(rohc_handle, rohc_tvb, pinfo, tree);
+
+    /* Let RLC write to columns again */
+    col_set_writable(pinfo->cinfo, global_pdcp_lte_layer_to_show == ShowRLCLayer);
+
     return;
 
 #if 0
@@ -3202,7 +3248,15 @@ void proto_register_pdcp(void)
         {NULL, NULL, -1}
     };
 
+    static enum_val_t show_info_col_vals[] = {
+        {"show-rlc", "RLC Info", ShowRLCLayer},
+        {"show-pdcp", "PDCP Info", ShowPDCPLayer},
+        {"show-traffic", "Traffic Info", ShowTrafficLayer},
+        {NULL, NULL, -1}
+    };
+
     module_t *pdcp_lte_module;
+
 
     /* Register protocol. */
     proto_pdcp_lte = proto_register_protocol("PDCP-LTE", "PDCP-LTE", "pdcp-lte");
@@ -3248,6 +3302,12 @@ void proto_register_pdcp(void)
         "When enabled, use heuristic dissector to find PDCP-LTE frames sent with "
         "UDP framing",
         &global_pdcp_lte_heur);
+
+    prefs_register_enum_preference(pdcp_lte_module, "layer_to_show",
+        "Which layer info to show in Info column",
+        "Can show RLC, PDCP or Traffic layer info in Info column",
+        &global_pdcp_lte_layer_to_show, show_info_col_vals, FALSE);
+
 
     register_init_routine(&pdcp_lte_init_protocol);
 }
