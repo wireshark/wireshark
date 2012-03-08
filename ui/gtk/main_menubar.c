@@ -4598,8 +4598,8 @@ popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
 void
 set_menus_for_capture_file(capture_file *cf)
 {
-    if (cf == NULL) {
-        /* We have no capture file */
+    if (cf == NULL || cf->state == FILE_READ_IN_PROGRESS) {
+        /* We have no capture file or we're currently reading a file */
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Merge", FALSE);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Close", FALSE);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Save", FALSE);
@@ -4611,8 +4611,7 @@ set_menus_for_capture_file(capture_file *cf)
     } else {
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Merge", cf_can_save_as(cf));
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Close", TRUE);
-        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Save",
-                             (cf->state != FILE_READ_IN_PROGRESS && !cf->user_saved));
+        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Save", !cf->user_saved);
         /*
          * "Save As..." works only if we can write the file out in at least
          * one format (so we can save the whole file or just a subset) or
