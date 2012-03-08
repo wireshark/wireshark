@@ -1,4 +1,63 @@
 #!/bin/sh
-svn add $*
-svn ps svn:keywords Id $*
-svn ps svn:eol-style native $*
+
+#
+# Originally written by LEGO, no copyright notice included.
+# Copyright 2012 Jeff Morriss <jeff.morriss.ws [AT] gmail.com>
+#
+# A little shell script to make it easy to set the appropriate SVN properties.
+#
+# $Id: fix-encoding-args.pl 39567 2011-10-25 17:04:48Z wmeier $
+#
+# Wireshark - Network traffic analyzer
+# By Gerald Combs <gerald@wireshark.org>
+# Copyright 1998 Gerald Combs
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+#
+
+for file in $*
+do
+	if [ ! -r "$file" ]
+	then
+		printf "ERROR: No such file: $file.  Skipping it.\n"
+		continue
+	fi
+
+	svn add $file
+
+	case "$file" in
+		*.png)
+			svn ps svn:mime-type image/png $file
+			;;
+		*.svg)
+			svn ps svn:mime-type image/svg+xml $file
+			;;
+		*.ico)
+			svn ps svn:mime-type image/x-icon $file
+			;;
+		*.xpm)
+			svn ps svn:eol-style native $file
+			;;
+		*.pl|*.bat|*.py|*.sh|*.cmd)
+			svn ps svn:keywords Id $file
+			svn ps svn:executable '*' $file
+			svn ps svn:eol-style native $file
+			;;
+		*)
+			svn ps svn:keywords Id $file
+			svn ps svn:eol-style native $file
+			;;
+	esac
+done
