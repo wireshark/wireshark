@@ -113,27 +113,27 @@ capture_comment_icons.h:
 	echo "/* This file was automatically generated. DO NOT EDIT. */" > $@
 	echo >> $@
 	for caction in add update disabled ; do \
-		gdk-pixbuf-csource --raw --name=capture_comment_$${caction}_pb_data ../../image/capture_comment_$${caction}.png >> $@ ;\
+		gdk-pixbuf-csource --raw --name=capture_comment_$${caction}_pb_data $(top_srcdir)/image/capture_comment_$${caction}.png >> $@ ;\
 	done
 
 network_icons.h:
 	echo "/* This file was automatically generated. DO NOT EDIT. */" > $@
 	echo >> $@
 	for icon in bluetooth usb wired wireless ; do \
-		gdk-pixbuf-csource --raw --name=network_$${icon}_pb_data ../../image/toolbar/network_$${icon}_16.png >> $@ ;\
+		gdk-pixbuf-csource --raw --name=network_$${icon}_pb_data $(top_srcdir)/image/toolbar/network_$${icon}_16.png >> $@ ;\
 	done
 
 remote_icons.h:
 	echo "/* This file was automatically generated. DO NOT EDIT. */" > $@
 	echo >> $@
 	for icon in arrow globe sat ; do \
-		gdk-pixbuf-csource --raw --name=remote_$${icon}_pb_data ../../image/toolbar/remote_$${icon}_16.png >> $@ ;\
+		gdk-pixbuf-csource --raw --name=remote_$${icon}_pb_data $(top_srcdir)/image/toolbar/remote_$${icon}_16.png >> $@ ;\
 	done
 
 pipe_icon.h:
 	echo "/* This file was automatically generated. DO NOT EDIT. */" > $@
 	echo >> $@
-	gdk-pixbuf-csource --raw --name=pipe_pb_data ../../image/toolbar/pipe_16.png >> $@
+	gdk-pixbuf-csource --raw --name=pipe_pb_data $(top_srcdir)/image/toolbar/pipe_16.png >> $@
 
 EXTRA_DIST = \
 	$(GENERATOR_FILES)		\
