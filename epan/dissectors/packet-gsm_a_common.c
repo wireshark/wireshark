@@ -1084,6 +1084,9 @@ const char* get_gsm_a_msg_string(int pdu_type, int idx)
 	case BSSGP_PDU_TYPE:
 		msg_string = bssgp_elem_strings[idx].strptr;
 		break;
+	case GMR1_IE_COMMON:
+		msg_string = gmr1_ie_common_strings[idx].strptr; 
+		break;
 	default:
 		DISSECTOR_ASSERT_NOT_REACHED();
 	}
@@ -1134,6 +1137,9 @@ static int get_hf_elem_id(int pdu_type)
 		break;
 	case BSSGP_PDU_TYPE:
 		hf_elem_id = hf_bssgp_elem_id;
+		break;
+	case GMR1_IE_COMMON:
+		hf_elem_id = hf_gmr1_elem_id;
 		break;
 	default:
 		DISSECTOR_ASSERT_NOT_REACHED();

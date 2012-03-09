@@ -151,6 +151,11 @@ extern gint ett_bssgp_elem[];
 extern elem_fcn bssgp_elem_fcn[];
 extern int hf_bssgp_elem_id;
 
+extern const value_string gmr1_ie_common_strings[];
+extern elem_fcn gmr1_ie_common_func[];
+extern gint ett_gmr1_ie_common[];
+extern int hf_gmr1_elem_id;
+
 extern sccp_msg_info_t* sccp_msg;
 extern sccp_assoc_info_t* sccp_assoc;
 
@@ -192,6 +197,7 @@ extern int hf_gsm_a_lac;
 #define NAS_PDU_TYPE_ESM            11
 #define SGSAP_PDU_TYPE              12
 #define BSSGP_PDU_TYPE              13
+#define GMR1_IE_COMMON              14
 
 extern const char* get_gsm_a_msg_string(int pdu_type, int idx);
 
@@ -320,6 +326,11 @@ extern const char* get_gsm_a_msg_string(int pdu_type, int idx);
         SEV_elem_names = bssgp_elem_strings; \
         SEV_elem_ett = ett_bssgp_elem; \
         SEV_elem_funcs = bssgp_elem_fcn; \
+        break; \
+    case GMR1_IE_COMMON: \
+        SEV_elem_names = gmr1_ie_common_strings; \
+        SEV_elem_ett = ett_gmr1_ie_common; \
+        SEV_elem_funcs = gmr1_ie_common_func; \
         break; \
     default: \
         proto_tree_add_text(tree, \

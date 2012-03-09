@@ -526,6 +526,7 @@ DISSECTOR_SRC = \
 	packet-gmhdr.c		\
 	packet-gmrp.c		\
 	packet-gmr1_bcch.c	\
+	packet-gmr1_common.c	\
 	packet-gnutella.c	\
 	packet-gopher.c		\
 	packet-gpef.c		\
@@ -1223,6 +1224,7 @@ DISSECTOR_INCLUDES =	\
 	packet-frame.h	\
 	packet-ftam.h	\
 	packet-giop.h	\
+	packet-gmr1_common.h	\
 	packet-gnm.h	\
 	packet-gnutella.h	\
 	packet-gprscdr.h \
