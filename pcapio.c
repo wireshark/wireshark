@@ -398,50 +398,50 @@ libpcap_write_interface_description_block(FILE *fp,
 	gboolean have_options = FALSE;
 
 	block_total_length = sizeof(struct idb) + sizeof(guint32);
-	/* OPT_COMMENT */
+	/* 01 - OPT_COMMENT */
 	if ((comment != NULL) && (strlen(comment) > 0) && (strlen(comment) < G_MAXUINT16)) {
 		block_total_length += sizeof(struct option) +
 		                      (guint16)(ADD_PADDING(strlen(comment) + 1));
 		have_options = TRUE;
 	}
 
-	/* IDB_DESCRIPTION */
-	if ((descr != NULL) && (strlen(descr) > 0) && (strlen(descr) < G_MAXUINT16)) {
-		block_total_length += sizeof(struct option) +
-		                      (guint16)(ADD_PADDING(strlen(descr) + 1));
-		have_options = TRUE;
-	}
-
-	/* IDB_NAME */
+	/* 02 - IDB_NAME */
 	if ((name != NULL) && (strlen(name) > 0) && (strlen(name) < G_MAXUINT16)) {
 		block_total_length += sizeof(struct option) +
 		                      (guint16)(ADD_PADDING(strlen(name) + 1));
 		have_options = TRUE;
 	}
 
-	/* IDB_FILTER */
-	if ((filter != NULL) && (strlen(filter) > 0) && (strlen(filter) < G_MAXUINT16)) {
+	/* 03 - IDB_DESCRIPTION */
+	if ((descr != NULL) && (strlen(descr) > 0) && (strlen(descr) < G_MAXUINT16)) {
 		block_total_length += sizeof(struct option) +
-		                      (guint16)(ADD_PADDING(strlen(filter) + 1)+1);
+		                      (guint16)(ADD_PADDING(strlen(descr) + 1));
 		have_options = TRUE;
 	}
 
-	/* IDB_OS */
-	if ((os != NULL) && (strlen(os) > 0) && (strlen(os) < G_MAXUINT16)) {
-		block_total_length += sizeof(struct option) +
-		                     (guint16)(ADD_PADDING(strlen(os) + 1));
-		have_options = TRUE;
-	}
-
-	/* IDB_IF_SPEED       8 */
+	/* 08 - IDB_IF_SPEED */
 	if (if_speed != 0) {
 		block_total_length += sizeof(struct option) + sizeof(guint64);
 		have_options = TRUE;
 	}
 
-	/* IDB_TSRESOL        9 */
+	/* 09 - IDB_TSRESOL */
 	if (tsresol != 0) {
 		block_total_length += sizeof(struct option) + sizeof(struct option);
+		have_options = TRUE;
+	}
+
+	/* 11 - IDB_FILTER */
+	if ((filter != NULL) && (strlen(filter) > 0) && (strlen(filter) < G_MAXUINT16)) {
+		block_total_length += sizeof(struct option) +
+		                      (guint16)(ADD_PADDING(strlen(filter) + 1 + 1));
+		have_options = TRUE;
+	}
+
+	/* 12 - IDB_OS */
+	if ((os != NULL) && (strlen(os) > 0) && (strlen(os) < G_MAXUINT16)) {
+		block_total_length += sizeof(struct option) +
+		                     (guint16)(ADD_PADDING(strlen(os) + 1));
 		have_options = TRUE;
 	}
 
@@ -458,7 +458,7 @@ libpcap_write_interface_description_block(FILE *fp,
 	idb.snap_len = snap_len;
 	WRITE_DATA(fp, &idb, sizeof(struct idb), *bytes_written, err);
 
-	/* write comment string if applicable */
+	/* 01 - OPT_COMMENT - write comment string if applicable */
 	if ((comment != NULL) && (strlen(comment) > 0) && (strlen(comment) < G_MAXUINT16)) {
 		option.type = OPT_COMMENT;
 		option.value_length = (guint16)(strlen(comment) + 1);
@@ -469,7 +469,7 @@ libpcap_write_interface_description_block(FILE *fp,
 		}
 	}
 
-	/* write interface name string if applicable */
+	/* 02 - IDB_NAME - write interface name string if applicable */
 	if ((name != NULL) && (strlen(name) > 0) && (strlen(name) < G_MAXUINT16)) {
 		option.type = IDB_NAME;
 		option.value_length = (guint16)(strlen(name) + 1);
@@ -480,6 +480,7 @@ libpcap_write_interface_description_block(FILE *fp,
 		}
 	}
 
+	/* 03 - IDB_DESCRIPTION */
 	/* write interface description string if applicable */
 	if ((descr != NULL) && (strlen(descr) > 0) && (strlen(descr) < G_MAXUINT16)) {
 		option.type = IDB_DESCRIPTION;
@@ -491,7 +492,24 @@ libpcap_write_interface_description_block(FILE *fp,
 		}
 	}
 
-	/* write filter string if applicable
+	/* 08 - IDB_IF_SPEED */
+	if (if_speed != 0) {
+		option.type = IDB_IF_SPEED;
+		option.value_length = sizeof(guint64);
+		WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
+		WRITE_DATA(fp, &if_speed, sizeof(guint64), *bytes_written, err);
+	}
+
+	/* 09 - IDB_TSRESOL */
+	if (tsresol != 0) {
+		option.type = IDB_TSRESOL;
+		option.value_length = sizeof(guint8);
+		WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
+		WRITE_DATA(fp, &tsresol, sizeof(guint8), *bytes_written, err);
+		WRITE_DATA(fp, &padding, 3 , *bytes_written, err);
+	}
+
+	/* 11 - IDB_FILTER - write filter string if applicable
 	 * We only write version 1 of the filter, libpcap string
 	 */
 	if ((filter != NULL) && (strlen(filter) > 0) && (strlen(filter) < G_MAXUINT16)) {
@@ -507,7 +525,7 @@ libpcap_write_interface_description_block(FILE *fp,
 		}
 	}
 
-	/* write os string if applicable */
+	/* 12 - IDB_OS - write os string if applicable */
 	if ((os != NULL) && (strlen(os) > 0) && (strlen(os) < G_MAXUINT16)) {
 		option.type = IDB_OS;
 		option.value_length = (guint16)(strlen(os) + 1);
@@ -516,23 +534,6 @@ libpcap_write_interface_description_block(FILE *fp,
 		if ((strlen(os) + 1) % 4) {
 			WRITE_DATA(fp, &padding, 4 - (strlen(os) + 1) % 4 , *bytes_written, err);
 		}
-	}
-
-	/* IDB_IF_SPEED       8 */
-	if (if_speed != 0) {
-		option.type = IDB_IF_SPEED;
-		option.value_length = sizeof(guint64);
-		WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
-		WRITE_DATA(fp, &if_speed, sizeof(guint64), *bytes_written, err);
-	}
-
-	/* IDB_TSRESOL        9 */
-	if (tsresol != 0) {
-		option.type = IDB_TSRESOL;
-		option.value_length = sizeof(guint8);
-		WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
-		WRITE_DATA(fp, &tsresol, sizeof(guint8), *bytes_written, err);
-		WRITE_DATA(fp, &padding, 3 , *bytes_written, err);
 	}
 
 	if (have_options) {
