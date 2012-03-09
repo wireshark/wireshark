@@ -242,11 +242,19 @@ elem_fcn gmr1_ie_common_func[NUM_GMR1_IE_COMMON] = {
 /* Messages and IEs parsing                                                 */
 /* ------------------------------------------------------------------------ */
 
+extern void
+gmr1_get_msg_rr_params(guint8 oct, int dcch, const gchar **msg_str,
+                       int *ett_tree, int *hf_idx, gmr1_msg_func_t *msg_func_p);
+
 void
-gmr1_get_msg_params(gmr1_pd_e pd, guint8 oct _U_, const gchar **msg_str,
+gmr1_get_msg_params(gmr1_pd_e pd, guint8 oct, const gchar **msg_str,
                     int *ett_tree, int *hf_idx, gmr1_msg_func_t *msg_func_p)
 {
 	switch (pd) {
+	case GMR1_PD_RR:
+		gmr1_get_msg_rr_params(oct, 1, msg_str, ett_tree, hf_idx, msg_func_p);
+		break;
+
 	default:
 		*msg_str = NULL;
 		*ett_tree = -1;

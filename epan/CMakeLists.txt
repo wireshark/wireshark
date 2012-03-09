@@ -608,6 +608,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-gmrp.c
 	dissectors/packet-gmr1_bcch.c
 	dissectors/packet-gmr1_common.c
+	dissectors/packet-gmr1_rr.c
 	dissectors/packet-gnutella.c
 	dissectors/packet-gopher.c
 	dissectors/packet-gpef.c
