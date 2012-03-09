@@ -99,24 +99,24 @@ typedef struct _expert_comp_dlg_t {
 } expert_comp_dlg_t;
 
 struct expert_tapdata_s {
-	GtkWidget	*win;
-	GtkWidget	*scrolled_window;
-	GtkTreeView *tree_view;
-	GtkWidget	*scrolled_window_comments;
-	GtkTreeView *tree_view_comments;
-	GtkWidget	*label;
-	guint32		pkt_comments_events;
-	guint32		disp_events;
-	guint32		chat_events;
-	guint32		note_events;
-	guint32		warn_events;
-	guint32		error_events;
-	int			severity_report_level;
+    GtkWidget   *win;
+    GtkWidget   *scrolled_window;
+    GtkTreeView *tree_view;
+    GtkWidget   *scrolled_window_comments;
+    GtkTreeView *tree_view_comments;
+    GtkWidget   *label;
+    guint32     pkt_comments_events;
+    guint32     disp_events;
+    guint32     chat_events;
+    guint32     note_events;
+    guint32     warn_events;
+    guint32     error_events;
+    int         severity_report_level;
 
-	GArray		*ei_array;	/* expert info items */
-	guint		first;
-	guint		last;
-	GStringChunk*	text;		/* summary text */
+    GArray      *ei_array;      /* expert info items */
+    guint       first;
+    guint       last;
+    GStringChunk *text;  /* summary text */
 };
 
 static GtkWidget  *expert_comp_dlg_w = NULL;
@@ -234,7 +234,7 @@ error_reset(void *pss)
     ss->note_events = 0;
     ss->chat_events = 0;
     ss->disp_events = 0;
-	ss->pkt_comments_events = 0;
+    ss->pkt_comments_events = 0;
 
     reset_error_table_data(&ss->error_table);
     buf = g_strdup_printf("Errors: %u (0)", ss->error_table.num_procs);
@@ -260,7 +260,7 @@ error_reset(void *pss)
 
     gtk_label_set_text( GTK_LABEL(ss->pkt_comments_label), "Packet comments: 0");
 
-	error_set_title(ss);
+    error_set_title(ss);
 }
 
 static gboolean
@@ -388,9 +388,9 @@ static expert_tapdata_t * expert_dlg_new_table(void)
 
 static void
 coments_row_double_click_cb(GtkTreeView *treeview _U_, GtkTreePath *path _U_,
-				GtkTreeViewColumn *col _U_, gpointer userdata _U_)
+                            GtkTreeViewColumn *col _U_, gpointer userdata _U_)
 {
-	edit_packet_comment_dlg(NULL, NULL);
+    edit_packet_comment_dlg(NULL, NULL);
 }
 
 static void
@@ -406,7 +406,7 @@ expert_dlg_init_comments_table(expert_tapdata_t * etd, GtkWidget *vbox)
     /* Create the store */
     store = gtk_list_store_new(N_COLUMNS_COMMENT_TBL,        /* Total number of columns */
                                G_TYPE_UINT,      /* No                      */
-							   G_TYPE_POINTER,   /* Summary                 */
+                               G_TYPE_POINTER,   /* Summary                 */
                                G_TYPE_STRING,    /* forground               */
                                G_TYPE_STRING);   /* Background              */
 
@@ -425,9 +425,9 @@ expert_dlg_init_comments_table(expert_tapdata_t * etd, GtkWidget *vbox)
     g_object_unref (G_OBJECT (store));
 
     /* Let the font be the default one to have the same look as the rest of the tabs
-	 * Bug https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4388
-	 * gtk_widget_modify_font(GTK_WIDGET (etd->tree_view), user_font_get_regular());
-	 */
+     * Bug https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4388
+     * gtk_widget_modify_font(GTK_WIDGET (etd->tree_view), user_font_get_regular());
+     */
 
     /* Create a cell renderer */
     renderer = gtk_cell_renderer_text_new ();
@@ -456,11 +456,11 @@ expert_dlg_init_comments_table(expert_tapdata_t * etd, GtkWidget *vbox)
         "foreground", FOREGROUND_COLOR_COL_C_TABLE,
         "background", BACKGROUND_COLOR_COL_C_TABLE,
         NULL);
-	gtk_tree_view_column_set_cell_data_func(column, renderer, str_ptr_data_func,
-		GINT_TO_POINTER(SUMMARY_COLUMN_C_TABLE), NULL);
+    gtk_tree_view_column_set_cell_data_func(column, renderer, str_ptr_data_func,
+        GINT_TO_POINTER(SUMMARY_COLUMN_C_TABLE), NULL);
 
-	gtk_tree_sortable_set_sort_func(sortable, SUMMARY_COLUMN, str_ptr_sort_func,
-		GINT_TO_POINTER(SUMMARY_COLUMN_C_TABLE), NULL);
+    gtk_tree_sortable_set_sort_func(sortable, SUMMARY_COLUMN, str_ptr_sort_func,
+        GINT_TO_POINTER(SUMMARY_COLUMN_C_TABLE), NULL);
 
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
     gtk_tree_view_column_set_min_width(column, 90);
@@ -483,8 +483,8 @@ expert_dlg_init_comments_table(expert_tapdata_t * etd, GtkWidget *vbox)
                   G_CALLBACK (select_row_cb),
                   NULL);
 
-	g_signal_connect(tree, "row-activated",
-			 G_CALLBACK(coments_row_double_click_cb), NULL);
+    g_signal_connect(tree, "row-activated",
+                     G_CALLBACK(coments_row_double_click_cb), NULL);
 
     etd->scrolled_window_comments=scrolled_window_new(NULL, NULL);
     gtk_container_add(GTK_CONTAINER(etd->scrolled_window_comments), GTK_WIDGET (etd->tree_view_comments));
@@ -527,9 +527,9 @@ expert_dlg_init_table(expert_tapdata_t * etd, GtkWidget *vbox)
     g_object_unref (G_OBJECT (store));
 
     /* Let the font be the default one to have the same look as the rest of the tabs
-	 * Bug https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4388
-	 * gtk_widget_modify_font(GTK_WIDGET (etd->tree_view), user_font_get_regular());
-	 */
+     * Bug https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4388
+     * gtk_widget_modify_font(GTK_WIDGET (etd->tree_view), user_font_get_regular());
+     */
 
     /* Create a cell renderer */
     renderer = gtk_cell_renderer_text_new ();
@@ -559,11 +559,11 @@ expert_dlg_init_table(expert_tapdata_t * etd, GtkWidget *vbox)
         "background", BACKGROUND_COLOR_COL,
         NULL);
 
-	gtk_tree_view_column_set_cell_data_func(column, renderer, str_ptr_data_func,
-		GINT_TO_POINTER(SEVERITY_COLUMN), NULL);
+    gtk_tree_view_column_set_cell_data_func(column, renderer, str_ptr_data_func,
+        GINT_TO_POINTER(SEVERITY_COLUMN), NULL);
 
-	gtk_tree_sortable_set_sort_func(sortable, SEVERITY_COLUMN, str_ptr_sort_func,
-		GINT_TO_POINTER(SEVERITY_COLUMN), NULL);
+    gtk_tree_sortable_set_sort_func(sortable, SEVERITY_COLUMN, str_ptr_sort_func,
+        GINT_TO_POINTER(SEVERITY_COLUMN), NULL);
 
     gtk_tree_view_column_set_sort_column_id(column, SEVERITY_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
@@ -580,11 +580,11 @@ expert_dlg_init_table(expert_tapdata_t * etd, GtkWidget *vbox)
         "background", BACKGROUND_COLOR_COL,
         NULL);
 
-	gtk_tree_view_column_set_cell_data_func(column, renderer, str_ptr_data_func,
-		GINT_TO_POINTER(GROUP_COLUMN), NULL);
+    gtk_tree_view_column_set_cell_data_func(column, renderer, str_ptr_data_func,
+        GINT_TO_POINTER(GROUP_COLUMN), NULL);
 
-	gtk_tree_sortable_set_sort_func(sortable, GROUP_COLUMN, str_ptr_sort_func,
-		GINT_TO_POINTER(GROUP_COLUMN), NULL);
+    gtk_tree_sortable_set_sort_func(sortable, GROUP_COLUMN, str_ptr_sort_func,
+        GINT_TO_POINTER(GROUP_COLUMN), NULL);
 
     gtk_tree_view_column_set_sort_column_id(column, GROUP_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
@@ -600,11 +600,11 @@ expert_dlg_init_table(expert_tapdata_t * etd, GtkWidget *vbox)
         "foreground", FOREGROUND_COLOR_COL,
         "background", BACKGROUND_COLOR_COL,
         NULL);
-	gtk_tree_view_column_set_cell_data_func(column, renderer, str_ptr_data_func,
-		GINT_TO_POINTER(PROTOCOL_COLUMN), NULL);
+    gtk_tree_view_column_set_cell_data_func(column, renderer, str_ptr_data_func,
+        GINT_TO_POINTER(PROTOCOL_COLUMN), NULL);
 
-	gtk_tree_sortable_set_sort_func(sortable, PROTOCOL_COLUMN, str_ptr_sort_func,
-		GINT_TO_POINTER(PROTOCOL_COLUMN), NULL);
+    gtk_tree_sortable_set_sort_func(sortable, PROTOCOL_COLUMN, str_ptr_sort_func,
+        GINT_TO_POINTER(PROTOCOL_COLUMN), NULL);
 
     gtk_tree_view_column_set_sort_column_id(column, PROTOCOL_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
@@ -619,11 +619,11 @@ expert_dlg_init_table(expert_tapdata_t * etd, GtkWidget *vbox)
         "foreground", FOREGROUND_COLOR_COL,
         "background", BACKGROUND_COLOR_COL,
         NULL);
-	gtk_tree_view_column_set_cell_data_func(column, renderer, str_ptr_data_func,
-		GINT_TO_POINTER(SUMMARY_COLUMN), NULL);
+    gtk_tree_view_column_set_cell_data_func(column, renderer, str_ptr_data_func,
+        GINT_TO_POINTER(SUMMARY_COLUMN), NULL);
 
-	gtk_tree_sortable_set_sort_func(sortable, SUMMARY_COLUMN, str_ptr_sort_func,
-		GINT_TO_POINTER(SUMMARY_COLUMN), NULL);
+    gtk_tree_sortable_set_sort_func(sortable, SUMMARY_COLUMN, str_ptr_sort_func,
+        GINT_TO_POINTER(SUMMARY_COLUMN), NULL);
 
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
     gtk_tree_view_column_set_min_width(column, 90);
@@ -663,8 +663,8 @@ expert_dlg_draw(void *data)
     GtkTreeIter iter;
     gchar *color_str = NULL;
     guint packet_no = 0;
-	const gchar *group_str;
-	const gchar *severity_str;
+    const gchar *group_str;
+    const gchar *severity_str;
 
 
     if(etd->label) {
@@ -676,7 +676,7 @@ expert_dlg_draw(void *data)
     }
 
     list_store = GTK_LIST_STORE(gtk_tree_view_get_model(etd->tree_view)); /* Get store */
-	comments_list_store = GTK_LIST_STORE(gtk_tree_view_get_model(etd->tree_view_comments)); 
+    comments_list_store = GTK_LIST_STORE(gtk_tree_view_get_model(etd->tree_view_comments)); 
 
     /* append new events (remove from new list, append to displayed list and clist) */
     while(etd->first < etd->last){
@@ -695,9 +695,9 @@ expert_dlg_draw(void *data)
 
         /*  match_strval return a static string or NULL
             severity */
-		severity_str = match_strval(ei->severity, expert_severity_vals);
+        severity_str = match_strval(ei->severity, expert_severity_vals);
         /* group */
-		group_str = match_strval(ei->group, expert_group_vals);
+        group_str = match_strval(ei->group, expert_group_vals);
 
         /* protocol */
         if(ei->protocol) {
@@ -713,12 +713,12 @@ expert_dlg_draw(void *data)
         switch(ei->severity) {
         case(PI_COMMENT):
             color_str = expert_color_comment_str;
-			gtk_list_store_insert_with_values( comments_list_store , &iter, G_MAXINT,
-						NO_COLUMN_C_TABLE, packet_no,
-                        SUMMARY_COLUMN_C_TABLE, entries[1],
-	                    FOREGROUND_COLOR_COL_C_TABLE, expert_color_foreground_str,
-	                    BACKGROUND_COLOR_COL_C_TABLE, color_str,
-	                    -1);
+            gtk_list_store_insert_with_values(comments_list_store , &iter, G_MAXINT,
+                NO_COLUMN_C_TABLE, packet_no,
+                SUMMARY_COLUMN_C_TABLE, entries[1],
+                FOREGROUND_COLOR_COL_C_TABLE, expert_color_foreground_str,
+                BACKGROUND_COLOR_COL_C_TABLE, color_str,
+                -1);
             break;
         case(PI_CHAT):
             color_str = expert_color_chat_str;
@@ -787,7 +787,7 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
 
     ss=g_malloc(sizeof(expert_comp_dlg_t));
 
-	ss->pkt_comments_events = 0;
+    ss->pkt_comments_events = 0;
     ss->disp_events = 0;
     ss->chat_events = 0;
     ss->note_events = 0;
@@ -879,7 +879,7 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
     gtk_container_add(GTK_CONTAINER(hbox), ss->pkt_comments_label);
     gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), comments_page, hbox);
 
-	etd = expert_dlg_new_table();
+    etd = expert_dlg_new_table();
     etd->label=gtk_label_new("Please wait ...");
     gtk_misc_set_alignment(GTK_MISC(etd->label), 0.0f, 0.5f);
 
