@@ -54,6 +54,7 @@
 #include "ui/gtk/expert_indicators.h"
 #include "ui/gtk/main_proto_draw.h"
 #include "ui/gtk/old-gtk-compat.h"
+#include "ui/gtk/edit_packet_comment_dlg.h"
 
 enum
 {
@@ -385,6 +386,12 @@ static expert_tapdata_t * expert_dlg_new_table(void)
     return etd;
 }
 
+static void
+coments_row_double_click_cb(GtkTreeView *treeview, GtkTreePath *path _U_,
+				GtkTreeViewColumn *col _U_, gpointer userdata _U_)
+{
+	edit_packet_comment_dlg(NULL, NULL);
+}
 
 static void
 expert_dlg_init_comments_table(expert_tapdata_t * etd, GtkWidget *vbox)
@@ -475,6 +482,9 @@ expert_dlg_init_comments_table(expert_tapdata_t * etd, GtkWidget *vbox)
     g_signal_connect (G_OBJECT (selection), "changed", /* select_row */
                   G_CALLBACK (select_row_cb),
                   NULL);
+
+	g_signal_connect(tree, "row-activated",
+			 G_CALLBACK(coments_row_double_click_cb), NULL);
 
     etd->scrolled_window_comments=scrolled_window_new(NULL, NULL);
     gtk_container_add(GTK_CONTAINER(etd->scrolled_window_comments), GTK_WIDGET (etd->tree_view_comments));
