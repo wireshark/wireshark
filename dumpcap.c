@@ -2656,7 +2656,7 @@ capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *err
                                                                        pcap_opts->snaplen,
                                                                        &(global_ld.bytes_written),
                                                                        0,                                                 /* IDB_IF_SPEED      8 */
-                                                                       0,                                                 /* IDB_TSRESOL       9 */
+                                                                       6,                                                 /* IDB_TSRESOL       9 */
                                                                        &global_ld.err);
             }
 
