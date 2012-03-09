@@ -586,10 +586,10 @@ extern guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     if ((signed)curr_len <= 0) return;      \
 }
 
-#define ELEM_MAND_VV_SHORT(EMV_pdu_type, EMV_elem_idx1, EMV_elem_idx2) \
+#define ELEM_MAND_VV_SHORT(EMV_pdu_type1, EMV_elem_idx1, EMV_pdu_type2, EMV_elem_idx2) \
 {\
-    elem_v_short(tvb, tree, pinfo, EMV_pdu_type, EMV_elem_idx1, curr_offset, RIGHT_NIBBLE); \
-    elem_v_short(tvb, tree, pinfo, EMV_pdu_type, EMV_elem_idx2, curr_offset, LEFT_NIBBLE); \
+    elem_v_short(tvb, tree, pinfo, EMV_pdu_type1, EMV_elem_idx1, curr_offset, RIGHT_NIBBLE); \
+    elem_v_short(tvb, tree, pinfo, EMV_pdu_type2, EMV_elem_idx2, curr_offset, LEFT_NIBBLE); \
     curr_offset ++ ; /* consumed length is 1, regardless of contents */ \
     curr_len -- ; \
     if ((signed)curr_len <= 0) return;      \
