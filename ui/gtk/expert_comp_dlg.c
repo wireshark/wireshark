@@ -387,7 +387,7 @@ static expert_tapdata_t * expert_dlg_new_table(void)
 }
 
 static void
-coments_row_double_click_cb(GtkTreeView *treeview, GtkTreePath *path _U_,
+coments_row_double_click_cb(GtkTreeView *treeview _U_, GtkTreePath *path _U_,
 				GtkTreeViewColumn *col _U_, gpointer userdata _U_)
 {
 	edit_packet_comment_dlg(NULL, NULL);
