@@ -2658,7 +2658,7 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_if_descr_t *int_data, int *
 		pcapng_debug3("pcapng_write_if_descr_block, if_description:'%s' if_description_len %u if_description_pad_len %u" , int_data->if_description, if_description_len, if_description_pad_len);
 		if (!wtap_dump_file_write(wdh, int_data->if_description, if_description_len, err))
 			return FALSE;
-		wdh->bytes_dumped += comment_len;
+		wdh->bytes_dumped += if_description_len;
 
 		/* write padding (if any) */
 		if (if_description_pad_len != 0) {
@@ -2727,17 +2727,17 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_if_descr_t *int_data, int *
 			return FALSE;
 		wdh->bytes_dumped += 4;
 
-		/* Write the zero indicaling libpcap filter variant */
+		/* Write the zero indicating libpcap filter variant */
 		if (!wtap_dump_file_write(wdh, &zero_pad, 1, err))
 			return FALSE;
 		wdh->bytes_dumped += 1;
 
 		/* Write the comments string */
-		pcapng_debug3("pcapng_write_if_descr_block, if_filter_str:'%s' if_filter_str_len %u if_filter_str_pad_len %u" , int_data->if_filter_str, if_filter_str_len, if_filter_str_len);
+		pcapng_debug3("pcapng_write_if_descr_block, if_filter_str:'%s' if_filter_str_len %u if_filter_str_pad_len %u" , int_data->if_filter_str, if_filter_str_len, if_filter_str_pad_len);
 		/* if_filter_str_len includes the leading byte indicating filter type (libpcap str or BPF code) */
 		if (!wtap_dump_file_write(wdh, int_data->if_filter_str, if_filter_str_len-1, err))
 			return FALSE;
-		wdh->bytes_dumped += comment_len;
+		wdh->bytes_dumped += if_filter_str_len - 1;
 
 		/* write padding (if any) */
 		if (if_filter_str_pad_len != 0) {
@@ -2760,7 +2760,7 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_if_descr_t *int_data, int *
 		pcapng_debug3("pcapng_write_if_descr_block, if_os:'%s' if_os_len %u if_os_pad_len %u" , int_data->if_os, if_os_len, if_os_pad_len);
 		if (!wtap_dump_file_write(wdh, int_data->if_os, if_os_len, err))
 			return FALSE;
-		wdh->bytes_dumped += comment_len;
+		wdh->bytes_dumped += if_os_len;
 
 		/* write padding (if any) */
 		if (if_os_pad_len != 0) {
