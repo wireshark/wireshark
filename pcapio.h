@@ -33,7 +33,7 @@ libpcap_fdopen(int fd, int *err);
    Returns TRUE on success, FALSE on failure.
    Sets "*err" to an error code, or 0 for a short write, on failure*/
 extern gboolean
-libpcap_write_file_header(FILE *fp, int linktype, int snaplen, long *bytes_written, int *err);
+libpcap_write_file_header(FILE *fp, int linktype, int snaplen, gboolean ts_nsecs, long *bytes_written, int *err);
 
 /** Write a record for a packet to a dump file.
    Returns TRUE on success, FALSE on failure. */
@@ -49,13 +49,13 @@ libpcap_write_session_header_block(FILE *fp,             /**< File pointer */
                                    const char *comment,  /**< Comment on the section, Optinon 1 opt_comment
                                                           * A UTF-8 string containing a comment that is associated to the current block.
                                                           */
-                                   const char *hw,       /**< HW, Optinon 2 shb_hardware 
+                                   const char *hw,       /**< HW, Optinon 2 shb_hardware
                                                           * An UTF-8 string containing the description of the hardware  used to create this section.
                                                           */
-                                   const char *os,       /**< Operating system name, Optinon 3 shb_os 
+                                   const char *os,       /**< Operating system name, Optinon 3 shb_os
                                                           * An UTF-8 string containing the name of the operating system used to create this section.
                                                           */
-                                   const char *appname,  /**< Application name, Optinon 4 shb_userappl 
+                                   const char *appname,  /**< Application name, Optinon 4 shb_userappl
                                                           * An UTF-8 string containing the name of the application  used to create this section.
                                                           */
                                    guint64 section_length,
@@ -90,6 +90,7 @@ extern gboolean
 libpcap_write_enhanced_packet_block(FILE *fp,
                                     const struct pcap_pkthdr *phdr,
                                     guint32 interface_id,
+                                    guint ts_mul,
                                     const u_char *pd,
                                     long *bytes_written,
                                     int *err);

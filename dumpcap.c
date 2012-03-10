@@ -227,6 +227,7 @@ typedef struct _pcap_options {
     GThread        *tid;
     int            snaplen;
     int            linktype;
+    gboolean       ts_nsec;               /* TRUE if we're using nanosecond precision. */
     /* capture pipe (unix only "input file") */
     gboolean       from_cap_pipe;         /* TRUE if we are capturing data from a capture pipe */
     struct pcap_hdr cap_pipe_hdr;         /* Pcap header when capturing from a pipe */
@@ -1970,10 +1971,12 @@ cap_pipe_open_live(char *pipename,
 
     switch (magic) {
     case PCAP_MAGIC:
+    case PCAP_NSEC_MAGIC:
         /* Host that wrote it has our byte order, and was running
            a program using either standard or ss990417 libpcap. */
         pcap_opts->cap_pipe_byte_swapped = FALSE;
         pcap_opts->cap_pipe_modified = FALSE;
+        pcap_opts->ts_nsec = magic == PCAP_NSEC_MAGIC;
         break;
     case PCAP_MODIFIED_MAGIC:
         /* Host that wrote it has our byte order, but was running
@@ -1982,11 +1985,13 @@ cap_pipe_open_live(char *pipename,
         pcap_opts->cap_pipe_modified = TRUE;
         break;
     case PCAP_SWAPPED_MAGIC:
+    case PCAP_SWAPPED_NSEC_MAGIC:
         /* Host that wrote it has a byte order opposite to ours,
            and was running a program using either standard or
            ss990417 libpcap. */
         pcap_opts->cap_pipe_byte_swapped = TRUE;
         pcap_opts->cap_pipe_modified = FALSE;
+        pcap_opts->ts_nsec = magic == PCAP_SWAPPED_NSEC_MAGIC;
         break;
     case PCAP_SWAPPED_MODIFIED_MAGIC:
         /* Host that wrote it out has a byte order opposite to
@@ -1995,7 +2000,6 @@ cap_pipe_open_live(char *pipename,
         pcap_opts->cap_pipe_byte_swapped = TRUE;
         pcap_opts->cap_pipe_modified = TRUE;
         break;
-    /* XXX - Add support for PCAP_NSEC_MAGIC and PCAP_SWAPPED_NSEC_MAGIC? */
     default:
         /* Not a "libpcap" type we know about. */
         g_snprintf(errmsg, errmsgl, "Unrecognized libpcap format");
@@ -2368,6 +2372,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
         pcap_opts->tid = NULL;
         pcap_opts->snaplen = 0;
         pcap_opts->linktype = -1;
+        pcap_opts->ts_nsec = FALSE;
         pcap_opts->from_cap_pipe = FALSE;
         memset(&pcap_opts->cap_pipe_hdr, 0, sizeof(struct pcap_hdr));
         memset(&pcap_opts->cap_pipe_rechdr, 0, sizeof(struct pcaprec_modified_hdr));
@@ -2656,7 +2661,7 @@ capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *err
                                                                        pcap_opts->snaplen,
                                                                        &(global_ld.bytes_written),
                                                                        0,                                                 /* IDB_IF_SPEED      8 */
-                                                                       6,                                                 /* IDB_TSRESOL       9 */
+                                                                       pcap_opts->ts_nsec ? 9 : 6,                        /* IDB_TSRESOL       9 */
                                                                        &global_ld.err);
             }
 
@@ -2670,7 +2675,7 @@ capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *err
                 pcap_opts->snaplen = pcap_snapshot(pcap_opts->pcap_h);
             }
             successful = libpcap_write_file_header(ld->pdh, pcap_opts->linktype, pcap_opts->snaplen,
-                                                   &ld->bytes_written, &err);
+                                                   pcap_opts->ts_nsec, &ld->bytes_written, &err);
         }
         if (!successful) {
             fclose(ld->pdh);
@@ -3114,7 +3119,7 @@ do_file_switch_or_stop(capture_options *capture_opts,
                                                                            pcap_opts->snaplen,
                                                                            &(global_ld.bytes_written),
                                                                            0,                                                 /* IDB_IF_SPEED       8 */
-                                                                           0,                                                 /* IDB_TSRESOL        9 */
+                                                                           pcap_opts->ts_nsec ? 9 : 6,                        /* IDB_TSRESOL        9 */
                                                                            &global_ld.err);
                 }
 
@@ -3123,7 +3128,7 @@ do_file_switch_or_stop(capture_options *capture_opts,
             } else {
                 pcap_opts = g_array_index(global_ld.pcaps, pcap_options *, 0);
                 successful = libpcap_write_file_header(global_ld.pdh, pcap_opts->linktype, pcap_opts->snaplen,
-                                                       &global_ld.bytes_written, &global_ld.err);
+                                                       pcap_opts->ts_nsec, &global_ld.bytes_written, &global_ld.err);
             }
             if (!successful) {
                 fclose(global_ld.pdh);
@@ -3724,6 +3729,7 @@ capture_loop_write_packet_cb(u_char *pcap_opts_p, const struct pcap_pkthdr *phdr
 {
     pcap_options *pcap_opts = (pcap_options *) (void *) pcap_opts_p;
     int err;
+    guint ts_mul = pcap_opts->ts_nsec ? 1000000000 : 1000000;
 
     /* We may be called multiple times from pcap_dispatch(); if we've set
        the "stop capturing" flag, ignore this packet, as we're not
@@ -3738,7 +3744,7 @@ capture_loop_write_packet_cb(u_char *pcap_opts_p, const struct pcap_pkthdr *phdr
            If this fails, set "ld->go" to FALSE, to stop the capture, and set
            "ld->err" to the error. */
         if (global_capture_opts.use_pcapng) {
-            successful = libpcap_write_enhanced_packet_block(global_ld.pdh, phdr, pcap_opts->interface_id, pd, &global_ld.bytes_written, &err);
+            successful = libpcap_write_enhanced_packet_block(global_ld.pdh, phdr, pcap_opts->interface_id, ts_mul, pd, &global_ld.bytes_written, &err);
         } else {
             successful = libpcap_write_packet(global_ld.pdh, phdr, pd, &global_ld.bytes_written, &err);
         }

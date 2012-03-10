@@ -212,12 +212,12 @@ libpcap_fdopen(int fd, int *err)
    Returns TRUE on success, FALSE on failure.
    Sets "*err" to an error code, or 0 for a short write, on failure*/
 gboolean
-libpcap_write_file_header(FILE *fp, int linktype, int snaplen, long *bytes_written, int *err)
+libpcap_write_file_header(FILE *fp, int linktype, int snaplen, gboolean ts_nsecs, long *bytes_written, int *err)
 {
 	struct pcap_hdr file_hdr;
 	size_t nwritten;
 
-	file_hdr.magic = PCAP_MAGIC;
+	file_hdr.magic = ts_nsecs ? PCAP_NSEC_MAGIC : PCAP_MAGIC;
 	/* current "libpcap" format is 2.4 */
 	file_hdr.version_major = 2;
 	file_hdr.version_minor = 4;
@@ -554,6 +554,7 @@ gboolean
 libpcap_write_enhanced_packet_block(FILE *fp,
                                     const struct pcap_pkthdr *phdr,
                                     guint32 interface_id,
+				    guint ts_mul,
                                     const u_char *pd,
                                     long *bytes_written,
                                     int *err)
@@ -566,7 +567,7 @@ libpcap_write_enhanced_packet_block(FILE *fp,
 	block_total_length = sizeof(struct epb) +
 	                     ADD_PADDING(phdr->caplen) +
 	                     sizeof(guint32);
-	timestamp = (guint64)(phdr->ts.tv_sec) * 1000000 +
+	timestamp = (guint64)(phdr->ts.tv_sec) * ts_mul +
 	            (guint64)(phdr->ts.tv_usec);
 	epb.block_type = ENHANCED_PACKET_BLOCK_TYPE;
 	epb.block_total_length = block_total_length;

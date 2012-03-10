@@ -253,22 +253,22 @@ typedef struct wtapng_section_s {
 #if 0
 /* Moved to wtap.h */
 
-/* Interface Description 
+/* Interface Description
  *
  * Options:
- * if_name        2  A UTF-8 string containing the name of the device used to capture data. "eth0" / "\Device\NPF_{AD1CE675-96D0-47C5-ADD0-2504B9126B68}" / ... 
- * if_description 3  A UTF-8 string containing the description of the device used to capture data. "Broadcom NetXtreme" / "First Ethernet Interface" / ... 
- * if_IPv4addr    4  Interface network address and netmask. This option can be repeated multiple times within the same Interface Description Block when multiple IPv4 addresses are assigned to the interface. 192 168 1 1 255 255 255 0 
- * if_IPv6addr    5  Interface network address and prefix length (stored in the last byte). This option can be repeated multiple times within the same Interface Description Block when multiple IPv6 addresses are assigned to the interface. 2001:0db8:85a3:08d3:1319:8a2e:0370:7344/64 is written (in hex) as "20 01 0d b8 85 a3 08 d3 13 19 8a 2e 03 70 73 44 40" 
- * if_MACaddr     6  Interface Hardware MAC address (48 bits). 00 01 02 03 04 05 
- * if_EUIaddr     7  Interface Hardware EUI address (64 bits), if available. TODO: give a good example 
- * if_speed       8  Interface speed (in bps). 100000000 for 100Mbps 
- * if_tsresol     9  Resolution of timestamps. If the Most Significant Bit is equal to zero, the remaining bits indicates the resolution of the timestamp as as a negative power of 10 (e.g. 6 means microsecond resolution, timestamps are the number of microseconds since 1/1/1970). If the Most Significant Bit is equal to one, the remaining bits indicates the resolution as as negative power of 2 (e.g. 10 means 1/1024 of second). If this option is not present, a resolution of 10^-6 is assumed (i.e. timestamps have the same resolution of the standard 'libpcap' timestamps). 6 
- * if_tzone      10  Time zone for GMT support (TODO: specify better). TODO: give a good example 
- * if_filter     11  The filter (e.g. "capture only TCP traffic") used to capture traffic. The first byte of the Option Data keeps a code of the filter used (e.g. if this is a libpcap string, or BPF bytecode, and more). More details about this format will be presented in Appendix XXX (TODO). (TODO: better use different options for different fields? e.g. if_filter_pcap, if_filter_bpf, ...) 00 "tcp port 23 and host 10.0.0.5" 
- * if_os         12  A UTF-8 string containing the name of the operating system of the machine in which this interface is installed. This can be different from the same information that can be contained by the Section Header Block (Section 3.1 (Section Header Block (mandatory))) because the capture can have been done on a remote machine. "Windows XP SP2" / "openSUSE 10.2" / ... 
- * if_fcslen     13  An integer value that specified the length of the Frame Check Sequence (in bits) for this interface. For link layers whose FCS length can change during time, the Packet Block Flags Word can be used (see Appendix A (Packet Block Flags Word)). 4 
- * if_tsoffset   14  A 64 bits integer value that specifies an offset (in seconds) that must be added to the timestamp of each packet to obtain the absolute timestamp of a packet. If the option is missing, the timestamps stored in the packet must be considered absolute timestamps. The time zone of the offset can be specified with the option if_tzone. TODO: won't a if_tsoffset_low for fractional second offsets be useful for highly synchronized capture systems? 1234 
+ * if_name        2  A UTF-8 string containing the name of the device used to capture data. "eth0" / "\Device\NPF_{AD1CE675-96D0-47C5-ADD0-2504B9126B68}" / ...
+ * if_description 3  A UTF-8 string containing the description of the device used to capture data. "Broadcom NetXtreme" / "First Ethernet Interface" / ...
+ * if_IPv4addr    4  Interface network address and netmask. This option can be repeated multiple times within the same Interface Description Block when multiple IPv4 addresses are assigned to the interface. 192 168 1 1 255 255 255 0
+ * if_IPv6addr    5  Interface network address and prefix length (stored in the last byte). This option can be repeated multiple times within the same Interface Description Block when multiple IPv6 addresses are assigned to the interface. 2001:0db8:85a3:08d3:1319:8a2e:0370:7344/64 is written (in hex) as "20 01 0d b8 85 a3 08 d3 13 19 8a 2e 03 70 73 44 40"
+ * if_MACaddr     6  Interface Hardware MAC address (48 bits). 00 01 02 03 04 05
+ * if_EUIaddr     7  Interface Hardware EUI address (64 bits), if available. TODO: give a good example
+ * if_speed       8  Interface speed (in bps). 100000000 for 100Mbps
+ * if_tsresol     9  Resolution of timestamps. If the Most Significant Bit is equal to zero, the remaining bits indicates the resolution of the timestamp as as a negative power of 10 (e.g. 6 means microsecond resolution, timestamps are the number of microseconds since 1/1/1970). If the Most Significant Bit is equal to one, the remaining bits indicates the resolution as as negative power of 2 (e.g. 10 means 1/1024 of second). If this option is not present, a resolution of 10^-6 is assumed (i.e. timestamps have the same resolution of the standard 'libpcap' timestamps). 6
+ * if_tzone      10  Time zone for GMT support (TODO: specify better). TODO: give a good example
+ * if_filter     11  The filter (e.g. "capture only TCP traffic") used to capture traffic. The first byte of the Option Data keeps a code of the filter used (e.g. if this is a libpcap string, or BPF bytecode, and more). More details about this format will be presented in Appendix XXX (TODO). (TODO: better use different options for different fields? e.g. if_filter_pcap, if_filter_bpf, ...) 00 "tcp port 23 and host 10.0.0.5"
+ * if_os         12  A UTF-8 string containing the name of the operating system of the machine in which this interface is installed. This can be different from the same information that can be contained by the Section Header Block (Section 3.1 (Section Header Block (mandatory))) because the capture can have been done on a remote machine. "Windows XP SP2" / "openSUSE 10.2" / ...
+ * if_fcslen     13  An integer value that specified the length of the Frame Check Sequence (in bits) for this interface. For link layers whose FCS length can change during time, the Packet Block Flags Word can be used (see Appendix A (Packet Block Flags Word)). 4
+ * if_tsoffset   14  A 64 bits integer value that specifies an offset (in seconds) that must be added to the timestamp of each packet to obtain the absolute timestamp of a packet. If the option is missing, the timestamps stored in the packet must be considered absolute timestamps. The time zone of the offset can be specified with the option if_tzone. TODO: won't a if_tsoffset_low for fractional second offsets be useful for highly synchronized capture systems? 1234
  */
 
 typedef struct wtapng_if_descr_s {
@@ -285,7 +285,7 @@ typedef struct wtapng_if_descr_s {
 	/* XXX: if_MACaddr  opt 6  Interface Hardware MAC address (48 bits).*/
 	/* XXX: if_EUIaddr  opt 7  Interface Hardware EUI address (64 bits)*/
 	guint64				if_speed;	/* 0 if unknown, opt 8  Interface speed (in bps). 100000000 for 100Mbps */
-	guint8				if_tsresol;	/* default is 6 for microsecond resolution, opt 9  Resolution of timestamps. 
+	guint8				if_tsresol;	/* default is 6 for microsecond resolution, opt 9  Resolution of timestamps.
 									 * If the Most Significant Bit is equal to zero, the remaining bits indicates the resolution of the timestamp as as a negative power of 10
 									 */
 	/* XXX: if_tzone      10  Time zone for GMT support (TODO: specify better). */
@@ -774,10 +774,10 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 			}
 			break;
 			/*
-			 * if_IPv4addr    4  Interface network address and netmask. This option can be repeated multiple times within the same Interface Description Block when multiple IPv4 addresses are assigned to the interface. 192 168 1 1 255 255 255 0 
-			 * if_IPv6addr    5  Interface network address and prefix length (stored in the last byte). This option can be repeated multiple times within the same Interface Description Block when multiple IPv6 addresses are assigned to the interface. 2001:0db8:85a3:08d3:1319:8a2e:0370:7344/64 is written (in hex) as "20 01 0d b8 85 a3 08 d3 13 19 8a 2e 03 70 73 44 40" 
-			 * if_MACaddr     6  Interface Hardware MAC address (48 bits). 00 01 02 03 04 05 
-			 * if_EUIaddr     7  Interface Hardware EUI address (64 bits), if available. TODO: give a good example 
+			 * if_IPv4addr    4  Interface network address and netmask. This option can be repeated multiple times within the same Interface Description Block when multiple IPv4 addresses are assigned to the interface. 192 168 1 1 255 255 255 0
+			 * if_IPv6addr    5  Interface network address and prefix length (stored in the last byte). This option can be repeated multiple times within the same Interface Description Block when multiple IPv6 addresses are assigned to the interface. 2001:0db8:85a3:08d3:1319:8a2e:0370:7344/64 is written (in hex) as "20 01 0d b8 85 a3 08 d3 13 19 8a 2e 03 70 73 44 40"
+			 * if_MACaddr     6  Interface Hardware MAC address (48 bits). 00 01 02 03 04 05
+			 * if_EUIaddr     7  Interface Hardware EUI address (64 bits), if available. TODO: give a good example
 			 */
 		    case(8): /* if_speed */
 			if (oh.option_length == 8) {
@@ -817,15 +817,15 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 				if (time_units_per_second > (((guint64)1) << 32)) {
 					pcapng_debug0("pcapng_open: time conversion might be inaccurate");
 				}
-				pcapng_debug1("pcapng_read_if_descr_block: if_tsresol %u", wblock->data.if_descr.if_tsresol);
 				wblock->data.if_descr.time_units_per_second = time_units_per_second;
 				wblock->data.if_descr.if_tsresol = if_tsresol;
+				pcapng_debug2("pcapng_read_if_descr_block: if_tsresol %u, units/s %" G_GINT64_MODIFIER "u", wblock->data.if_descr.if_tsresol, wblock->data.if_descr.time_units_per_second);
 			} else {
 				pcapng_debug1("pcapng_read_if_descr_block: if_tsresol length %u not 1 as expected", oh.option_length);
 			}
 			break;
 			/*
-			 * if_tzone      10  Time zone for GMT support (TODO: specify better). TODO: give a good example 
+			 * if_tzone      10  Time zone for GMT support (TODO: specify better). TODO: give a good example
 			 */
 		    case(11): /* if_filter */
 			if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
@@ -846,9 +846,9 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 			break;
 			case(12): /* if_os */
 			/*
-			 * if_os         12  A UTF-8 string containing the name of the operating system of the machine in which this interface is installed. 
-			 * This can be different from the same information that can be contained by the Section Header Block (Section 3.1 (Section Header Block (mandatory))) 
-			 * because the capture can have been done on a remote machine. "Windows XP SP2" / "openSUSE 10.2" / ... 
+			 * if_os         12  A UTF-8 string containing the name of the operating system of the machine in which this interface is installed.
+			 * This can be different from the same information that can be contained by the Section Header Block (Section 3.1 (Section Header Block (mandatory)))
+			 * because the capture can have been done on a remote machine. "Windows XP SP2" / "openSUSE 10.2" / ...
 			 */
 			if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
 			    wblock->data.if_descr.if_os = g_strndup(option_content, oh.option_length);
@@ -869,9 +869,9 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 			break;
 			/*
 			 * if_tsoffset   14  A 64 bits integer value that specifies an offset (in seconds) that must be added to the timestamp of each packet
-			 * to obtain the absolute timestamp of a packet. If the option is missing, the timestamps stored in the packet must be considered absolute timestamps. 
-			 * The time zone of the offset can be specified with the option if_tzone. 
-			 * TODO: won't a if_tsoffset_low for fractional second offsets be useful for highly synchronized capture systems? 1234 
+			 * to obtain the absolute timestamp of a packet. If the option is missing, the timestamps stored in the packet must be considered absolute timestamps.
+			 * The time zone of the offset can be specified with the option if_tzone.
+			 * TODO: won't a if_tsoffset_low for fractional second offsets be useful for highly synchronized capture systems? 1234
 			 */
 		    default:
 			pcapng_debug2("pcapng_read_if_descr_block: unknown option %u - ignoring %u bytes",
@@ -1123,7 +1123,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 	/* FCS length default */
 	fcslen = pn->if_fcslen;
 
-	/* Options 
+	/* Options
 	 * opt_comment    1
 	 * epb_flags      2
 	 * epb_hash       3
@@ -1430,7 +1430,7 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t
 
 	errno = WTAP_ERR_CANT_READ;
 	to_read = bh->block_total_length - 8 - 4; /* We have read the header adn should not read the final block_total_length */
-	
+
 	pcapng_debug1("pcapng_read_name_resolution_block, total %d bytes", bh->block_total_length);
 
 	/*
@@ -2013,7 +2013,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
 	 * some other type of file, so we can't return 0, as that
 	 * means "this isn't a pcap-NG file, try some other file
 	 * type".
-	 */	 
+	 */
 	wth->shb_hdr.opt_comment = wblock.data.section.opt_comment;
 	wth->shb_hdr.shb_hardware = wblock.data.section.shb_hardware;
 	wth->shb_hdr.shb_os = wblock.data.section.shb_os;
@@ -2077,7 +2077,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
 		wth->number_of_interfaces++;
 
 		interface_data.wtap_encap = wblock.data.if_descr.wtap_encap;
-		interface_data.time_units_per_second = 1000000; /* default */
+		interface_data.time_units_per_second = wblock.data.if_descr.time_units_per_second;
 
 		g_array_append_val(pcapng->interface_data, interface_data);
 		pcapng->number_of_interfaces++;
@@ -2261,7 +2261,7 @@ pcapng_write_section_header_block(wtap_dumper *wdh, int *err)
 	gboolean have_options = FALSE;
 	struct option option_hdr;                   /* guint16 type, guint16 value_length; */
 	guint32 options_total_length = 0;
-	guint32 comment_len = 0, shb_hardware_len = 0, shb_os_len = 0, shb_user_appl_len = 0; 
+	guint32 comment_len = 0, shb_hardware_len = 0, shb_os_len = 0, shb_user_appl_len = 0;
 	guint32	comment_pad_len = 0, shb_hardware_pad_len = 0, shb_os_pad_len = 0, shb_user_appl_pad_len = 0;
 
 	if (wdh->shb_hdr) {
@@ -2339,11 +2339,11 @@ pcapng_write_section_header_block(wtap_dumper *wdh, int *err)
 		return FALSE;
 	wdh->bytes_dumped += sizeof shb;
 
-	/* XXX - write (optional) block options 
-	 * opt_comment  1 
+	/* XXX - write (optional) block options
+	 * opt_comment  1
 	 * shb_hardware 2
-	 * shb_os       3 
-	 * shb_user_appl 4 
+	 * shb_os       3
+	 * shb_user_appl 4
 	 */
 
 	if (comment_len) {
@@ -2491,7 +2491,7 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_if_descr_t *int_data, int *
 	}
 
 	/*
-	 * if_name        2  A UTF-8 string containing the name of the device used to capture data. 
+	 * if_name        2  A UTF-8 string containing the name of the device used to capture data.
 	 */
 	if (int_data->if_name){
 		have_options = TRUE;
@@ -2505,7 +2505,7 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_if_descr_t *int_data, int *
 	}
 
 	/*
-	 * if_description 3  A UTF-8 string containing the description of the device used to capture data. 
+	 * if_description 3  A UTF-8 string containing the description of the device used to capture data.
 	 */
 	if (int_data->if_description) {
 		have_options = TRUE;
@@ -2519,12 +2519,12 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_if_descr_t *int_data, int *
 	}
 	/* Currently not handled
 	 * if_IPv4addr    4  Interface network address and netmask.
-	 * if_IPv6addr    5  Interface network address and prefix length (stored in the last byte). 
-	 * if_MACaddr     6  Interface Hardware MAC address (48 bits). 00 01 02 03 04 05 
+	 * if_IPv6addr    5  Interface network address and prefix length (stored in the last byte).
+	 * if_MACaddr     6  Interface Hardware MAC address (48 bits). 00 01 02 03 04 05
 	 * if_EUIaddr     7  Interface Hardware EUI address (64 bits), if available. TODO: give a good example
 	 */
 	/*
-	 * if_speed       8  Interface speed (in bps). 100000000 for 100Mbps 
+	 * if_speed       8  Interface speed (in bps). 100000000 for 100Mbps
 	 */
 	if (int_data->if_speed != 0) {
 		have_options = TRUE;
@@ -2538,7 +2538,7 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_if_descr_t *int_data, int *
 		options_total_length = options_total_length + 4 + 4;
 	}
 	/* Not used
-	 * if_tzone      10  Time zone for GMT support (TODO: specify better). TODO: give a good example 
+	 * if_tzone      10  Time zone for GMT support (TODO: specify better). TODO: give a good example
 	 */
 	/*
 	 * if_filter     11  The filter (e.g. "capture only TCP traffic") used to capture traffic.
@@ -2555,7 +2555,7 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_if_descr_t *int_data, int *
 		options_total_length = options_total_length + if_filter_str_len + if_filter_str_pad_len + 4 /* comment options tag */ ;
 	}
 	/*
-	 * if_os         12  A UTF-8 string containing the name of the operating system of the machine in which this interface is installed. 
+	 * if_os         12  A UTF-8 string containing the name of the operating system of the machine in which this interface is installed.
 	 */
 	if (int_data->if_os) {
 		have_options = TRUE;
@@ -2568,13 +2568,13 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_if_descr_t *int_data, int *
 		options_total_length = options_total_length + if_os_len + if_os_pad_len + 4 /* comment options tag */ ;
 	}
 	/*
-	 * if_fcslen     13  An integer value that specified the length of the Frame Check Sequence (in bits) for this interface. 
+	 * if_fcslen     13  An integer value that specified the length of the Frame Check Sequence (in bits) for this interface.
 	 * -1 if unknown or changes between packets, opt 13  An integer value that specified the length of the Frame Check Sequence (in bits) for this interface.
 	 */
 	if (int_data->if_fcslen != 0) {
 	}
 	/* Not used
-	 * if_tsoffset   14  A 64 bits integer value that specifies an offset (in seconds) that must be added to the timestamp of each packet 
+	 * if_tsoffset   14  A 64 bits integer value that specifies an offset (in seconds) that must be added to the timestamp of each packet
 	 * to obtain the absolute timestamp of a packet. If the option is missing, the timestamps stored in the packet must be considered absolute timestamps.
 	 */
 
@@ -2645,7 +2645,7 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_if_descr_t *int_data, int *
 		}
 	}
 	/*
-	 * if_description 3  A UTF-8 string containing the description of the device used to capture data. 
+	 * if_description 3  A UTF-8 string containing the description of the device used to capture data.
 	 */
 	if (if_description_len != 0) {
 		option_hdr.type		 = IDB_OPT_IF_NAME;
@@ -2669,12 +2669,12 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_if_descr_t *int_data, int *
 	}
 	/* Currently not handled
 	 * if_IPv4addr    4  Interface network address and netmask.
-	 * if_IPv6addr    5  Interface network address and prefix length (stored in the last byte). 
-	 * if_MACaddr     6  Interface Hardware MAC address (48 bits). 00 01 02 03 04 05 
+	 * if_IPv6addr    5  Interface network address and prefix length (stored in the last byte).
+	 * if_MACaddr     6  Interface Hardware MAC address (48 bits). 00 01 02 03 04 05
 	 * if_EUIaddr     7  Interface Hardware EUI address (64 bits), if available. TODO: give a good example
 	 */
 	/*
-	 * if_speed       8  Interface speed (in bps). 100000000 for 100Mbps 
+	 * if_speed       8  Interface speed (in bps). 100000000 for 100Mbps
 	 */
 	if (int_data->if_speed != 0) {
 		printf("HJKHJHK\n");
@@ -2713,10 +2713,10 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_if_descr_t *int_data, int *
 		wdh->bytes_dumped += 3;
 	}
 	/* not used
-	 * if_tzone      10  Time zone for GMT support (TODO: specify better). TODO: give a good example 
+	 * if_tzone      10  Time zone for GMT support (TODO: specify better). TODO: give a good example
 	 */
 	/*
-	 * if_filter     11  The filter (e.g. "capture only TCP traffic") used to capture traffic. 
+	 * if_filter     11  The filter (e.g. "capture only TCP traffic") used to capture traffic.
 	 */
 	/* Libpcap string variant */
 	if (if_filter_str_len !=0) {
@@ -2747,7 +2747,7 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_if_descr_t *int_data, int *
 		}
 	}
 	/*
-	 * if_os         12  A UTF-8 string containing the name of the operating system of the machine in which this interface is installed. 
+	 * if_os         12  A UTF-8 string containing the name of the operating system of the machine in which this interface is installed.
 	 */
 	if (if_os_len != 0) {
 		option_hdr.type		 = IDB_OPT_IF_OS;
@@ -2779,10 +2779,10 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_if_descr_t *int_data, int *
 	}
 
 	/*
-	 * if_fcslen     13  An integer value that specified the length of the Frame Check Sequence (in bits) for this interface. 
+	 * if_fcslen     13  An integer value that specified the length of the Frame Check Sequence (in bits) for this interface.
 	 */
 	/*
-	 * if_tsoffset   14  A 64 bits integer value that specifies an offset (in seconds) that must be added to the timestamp of each packet 
+	 * if_tsoffset   14  A 64 bits integer value that specifies an offset (in seconds) that must be added to the timestamp of each packet
 	 * to obtain the absolute timestamp of a packet. If the option is missing, the timestamps stored in the packet must be considered absolute timestamps.
 	 */
 
@@ -2921,7 +2921,7 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh,
 	guint32 phdr_len;
 	gboolean have_options = FALSE;
 	guint32 options_total_length = 0;
-	guint32 options_hdr = 0; 
+	guint32 options_hdr = 0;
 	guint32 comment_len = 0, comment_pad_len = 0;
 
 	phdr_len = (guint32)pcap_get_phdr_size(phdr->pkt_encap, pseudo_header);
@@ -2997,25 +2997,25 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh,
 	}
 
 	/* XXX - write (optional) block options */
-	/* options defined in Section 2.5 (Options) 
-	 * Name           Code Length     Description 
-	 * opt_comment    1    variable   A UTF-8 string containing a comment that is associated to the current block. 
+	/* options defined in Section 2.5 (Options)
+	 * Name           Code Length     Description
+	 * opt_comment    1    variable   A UTF-8 string containing a comment that is associated to the current block.
 	 *
 	 * Enhanced Packet Block options
-	 * epb_flags      2    4          A flags word containing link-layer information. A complete specification of 
-	 *                                the allowed flags can be found in Appendix A (Packet Block Flags Word). 
-	 * epb_hash       3    variable   This option contains a hash of the packet. The first byte specifies the hashing algorithm, 
-	 *                                while the following bytes contain the actual hash, whose size depends on the hashing algorithm, 
-	 *								  and hence from the value in the first bit. The hashing algorithm can be: 2s complement 
-	 *								  (algorithm byte = 0, size=XXX), XOR (algorithm byte = 1, size=XXX), CRC32 (algorithm byte = 2, size = 4), 
-	 *								  MD-5 (algorithm byte = 3, size=XXX), SHA-1 (algorithm byte = 4, size=XXX). 
-	 *								  The hash covers only the packet, not the header added by the capture driver: 
-	 *								  this gives the possibility to calculate it inside the network card. 
-	 *								  The hash allows easier comparison/merging of different capture files, and reliable data transfer between the 
-	 *								  data acquisition system and the capture library. 
-	 * epb_dropcount   4   8          A 64bit integer value specifying the number of packets lost (by the interface and the operating system) 
+	 * epb_flags      2    4          A flags word containing link-layer information. A complete specification of
+	 *                                the allowed flags can be found in Appendix A (Packet Block Flags Word).
+	 * epb_hash       3    variable   This option contains a hash of the packet. The first byte specifies the hashing algorithm,
+	 *                                while the following bytes contain the actual hash, whose size depends on the hashing algorithm,
+	 *								  and hence from the value in the first bit. The hashing algorithm can be: 2s complement
+	 *								  (algorithm byte = 0, size=XXX), XOR (algorithm byte = 1, size=XXX), CRC32 (algorithm byte = 2, size = 4),
+	 *								  MD-5 (algorithm byte = 3, size=XXX), SHA-1 (algorithm byte = 4, size=XXX).
+	 *								  The hash covers only the packet, not the header added by the capture driver:
+	 *								  this gives the possibility to calculate it inside the network card.
+	 *								  The hash allows easier comparison/merging of different capture files, and reliable data transfer between the
+	 *								  data acquisition system and the capture library.
+	 * epb_dropcount   4   8          A 64bit integer value specifying the number of packets lost (by the interface and the operating system)
 	 *                                between this packet and the preceding one.
-	 * opt_endofopt    0   0          It delimits the end of the optional fields. This block cannot be repeated within a given list of options. 
+	 * opt_endofopt    0   0          It delimits the end of the optional fields. This block cannot be repeated within a given list of options.
 	 */
 	if(phdr->opt_comment){
 		options_hdr = comment_len;
@@ -3229,7 +3229,7 @@ pcapng_dump_open(wtap_dumper *wdh, int *err)
 	pcapng_dump_t *pcapng;
 	int i;
 	interface_data_t interface_data;
-	
+
 	pcapng_debug0("pcapng_dump_open");
 	/* This is a pcapng file */
 	wdh->subtype_write = pcapng_dump;
@@ -3261,7 +3261,7 @@ pcapng_dump_open(wtap_dumper *wdh, int *err)
 		int_data = g_array_index(wdh->interface_data, wtapng_if_descr_t, i);
 
 		interface_data.wtap_encap = int_data.wtap_encap;
-		interface_data.time_units_per_second = int_data.time_units_per_second; 
+		interface_data.time_units_per_second = int_data.time_units_per_second;
 
 		g_array_append_val(pcapng->interface_data, interface_data);
 		pcapng->number_of_interfaces++;
