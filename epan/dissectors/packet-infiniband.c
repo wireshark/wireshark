@@ -180,38 +180,38 @@ static gboolean parse_SUBA_Attribute(proto_tree*, tvbuff_t*, gint *offset, MAD_D
 * Subnet Management */
 static void parse_NoticesAndTraps(proto_tree*, tvbuff_t*, gint *offset);
 static void parse_NodeDescription(proto_tree*, tvbuff_t*, gint *offset);
-static void parse_NodeInfo(proto_tree*, tvbuff_t*, gint *offset);
-static void parse_SwitchInfo(proto_tree*, tvbuff_t*, gint *offset);
-static void parse_GUIDInfo(proto_tree*, tvbuff_t*, gint *offset);
-static void parse_PortInfo(proto_tree*, tvbuff_t*, gint *offset);
+static int parse_NodeInfo(proto_tree*, tvbuff_t*, gint *offset);
+static int parse_SwitchInfo(proto_tree*, tvbuff_t*, gint *offset);
+static int parse_GUIDInfo(proto_tree*, tvbuff_t*, gint *offset);
+static int parse_PortInfo(proto_tree*, tvbuff_t*, gint *offset);
 static void parse_P_KeyTable(proto_tree*, tvbuff_t*, gint *offset);
 static void parse_SLtoVLMappingTable(proto_tree*, tvbuff_t*, gint *offset);
 static void parse_VLArbitrationTable(proto_tree*, tvbuff_t*, gint *offset);
 static void parse_LinearForwardingTable(proto_tree*, tvbuff_t*, gint *offset);
 static void parse_RandomForwardingTable(proto_tree*, tvbuff_t*, gint *offset);
 static void parse_MulticastForwardingTable(proto_tree*, tvbuff_t*, gint *offset);
-static void parse_SMInfo(proto_tree*, tvbuff_t*, gint *offset);
-static void parse_VendorDiag(proto_tree*, tvbuff_t*, gint *offset);
+static int parse_SMInfo(proto_tree*, tvbuff_t*, gint *offset);
+static int parse_VendorDiag(proto_tree*, tvbuff_t*, gint *offset);
 static void parse_LedInfo(proto_tree*, tvbuff_t*, gint *offset);
-static void parse_LinkSpeedWidthPairsTable(proto_tree*, tvbuff_t*, gint *offset);
+static int parse_LinkSpeedWidthPairsTable(proto_tree*, tvbuff_t*, gint *offset);
 
 /* These methods parse individual attributes for specific MAD management classes.
 * Naming convention FunctionHandle = "parse_" + [Management Class] + "_" + [Attribute Name];
 * Where [Management Class] is the shorthand name for the management class as defined
 * in the MAD Management Classes section below in this file, and [Attribute Name] is the
 * attribute identifier from the corresponding chapter of the IB Specification */
-static void parse_PERF_PortCounters(proto_tree* parentTree, tvbuff_t* tvb, packet_info *pinfo, gint *offset);
-static void parse_PERF_PortCountersExtended(proto_tree* parentTree, tvbuff_t* tvb, packet_info *pinfo, gint *offset);
+static int parse_PERF_PortCounters(proto_tree* parentTree, tvbuff_t* tvb, packet_info *pinfo, gint *offset);
+static int parse_PERF_PortCountersExtended(proto_tree* parentTree, tvbuff_t* tvb, packet_info *pinfo, gint *offset);
 
 /* Subnet Administration */
-static void parse_InformInfo(proto_tree*, tvbuff_t*, gint *offset);
-static void parse_LinkRecord(proto_tree*, tvbuff_t*, gint *offset);
-static void parse_ServiceRecord(proto_tree*, tvbuff_t*, gint *offset);
-static void parse_PathRecord(proto_tree*, tvbuff_t*, gint *offset);
-static void parse_MCMemberRecord(proto_tree*, tvbuff_t*, gint *offset);
-static void parse_TraceRecord(proto_tree*, tvbuff_t*, gint *offset);
-static void parse_MultiPathRecord(proto_tree*, tvbuff_t*, gint *offset);
-static void parse_ServiceAssociationRecord(proto_tree*, tvbuff_t*, gint *offset);
+static int parse_InformInfo(proto_tree*, tvbuff_t*, gint *offset);
+static int parse_LinkRecord(proto_tree*, tvbuff_t*, gint *offset);
+static int parse_ServiceRecord(proto_tree*, tvbuff_t*, gint *offset);
+static int parse_PathRecord(proto_tree*, tvbuff_t*, gint *offset);
+static int parse_MCMemberRecord(proto_tree*, tvbuff_t*, gint *offset);
+static int parse_TraceRecord(proto_tree*, tvbuff_t*, gint *offset);
+static int parse_MultiPathRecord(proto_tree*, tvbuff_t*, gint *offset);
+static int parse_ServiceAssociationRecord(proto_tree*, tvbuff_t*, gint *offset);
 
 /* Subnet Administration */
 static void parse_RID(proto_tree*, tvbuff_t*, gint *offset, MAD_Data*);
@@ -1613,7 +1613,6 @@ dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
     /* General Variables */
     gboolean bthFollows = FALSE;    /* Tracks if we are parsing a BTH.  This is a significant decision point */
-    guint8 virtualLane = 0;         /* IB VirtualLane.  Keyed off of for detecting subnet admin/management */
     guint8 opCode = 0;              /* OpCode from BTH header. */
     gint32 nextHeaderSequence = -1; /* defined by this dissector. #define which indicates the upcoming header sequence from OpCode */
     guint8 nxtHdr = 0;              /* Keyed off for header dissection order */
@@ -1686,12 +1685,6 @@ dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     local_route_header_tree = proto_item_add_subtree(local_route_header_item, ett_lrh);
 
     proto_tree_add_item(local_route_header_tree, hf_infiniband_virtual_lane,            tvb, offset, 1, ENC_BIG_ENDIAN);
-
-
-    /* Get the Virtual Lane.  We'll use this to identify Subnet Management and Subnet Administration Packets. */
-    virtualLane =  tvb_get_guint8(tvb, offset);
-    virtualLane = virtualLane & 0xF0;
-
 
     proto_tree_add_item(local_route_header_tree, hf_infiniband_link_version,            tvb, offset, 1, ENC_BIG_ENDIAN); offset+=1;
     proto_tree_add_item(local_route_header_tree, hf_infiniband_service_level,           tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1889,9 +1882,9 @@ skip_lrh:
                 parse_DETH(all_headers_tree, pinfo, tvb, &offset);
                 parse_RETH(all_headers_tree, tvb, &offset);
 
-                packetLength -= 4; /* RDETH */
-                packetLength -= 8; /* DETH */
-                packetLength -= 16; /* RETH */
+                /*packetLength -= 4;*/ /* RDETH */
+                /*packetLength -= 8;*/ /* DETH */
+                /*packetLength -= 16;*/ /* RETH */
 
                 break;
             case RDETH_AETH_PAYLD:
@@ -1913,8 +1906,8 @@ skip_lrh:
             case RDETH_AETH:
                 parse_AETH(all_headers_tree, tvb, &offset);
 
-                packetLength -= 4; /* RDETH */
-                packetLength -= 4; /* AETH */
+                /*packetLength -= 4;*/ /* RDETH */
+                /*packetLength -= 4;*/ /* AETH */
 
 
                 break;
@@ -1923,9 +1916,9 @@ skip_lrh:
                 parse_AETH(all_headers_tree, tvb, &offset);
                 parse_ATOMICACKETH(all_headers_tree, tvb, &offset);
 
-                packetLength -= 4; /* RDETH */
-                packetLength -= 4; /* AETH */
-                packetLength -= 8; /* AtomicAckETH */
+                /*packetLength -= 4;*/ /* RDETH */
+                /*packetLength -= 4;*/ /* AETH */
+                /*packetLength -= 8;*/ /* AtomicAckETH */
 
 
                 break;
@@ -1934,17 +1927,17 @@ skip_lrh:
                 parse_DETH(all_headers_tree, pinfo, tvb, &offset);
                 parse_ATOMICETH(all_headers_tree, tvb, &offset);
 
-                packetLength -= 4; /* RDETH */
-                packetLength -= 8; /* DETH */
-                packetLength -= 28; /* AtomicETH */
+                /*packetLength -= 4;*/ /* RDETH */
+                /*packetLength -= 8;*/ /* DETH */
+                /*packetLength -= 28;*/ /* AtomicETH */
 
                 break;
             case RDETH_DETH:
                 parse_RDETH(all_headers_tree, tvb, &offset);
                 parse_DETH(all_headers_tree, pinfo, tvb, &offset);
 
-                packetLength -= 4; /* RDETH */
-                packetLength -= 8; /* DETH */
+                /*packetLength -= 4;*/ /* RDETH */
+                /*packetLength -= 8;*/ /* DETH */
 
                 break;
             case DETH_PAYLD:
@@ -1975,7 +1968,7 @@ skip_lrh:
             case RETH:
                 parse_RETH(all_headers_tree, tvb, &offset);
 
-                packetLength -= 16; /* RETH */
+                /*packetLength -= 16;*/ /* RETH */
 
                 break;
             case AETH_PAYLD:
@@ -1988,21 +1981,21 @@ skip_lrh:
             case AETH:
                 parse_AETH(all_headers_tree, tvb, &offset);
 
-                packetLength -= 4; /* AETH */
+                /*packetLength -= 4;*/ /* AETH */
 
                 break;
             case AETH_ATOMICACKETH:
                 parse_AETH(all_headers_tree, tvb, &offset);
                 parse_ATOMICACKETH(all_headers_tree, tvb, &offset);
 
-                packetLength -= 4; /* AETH */
-                packetLength -= 8; /* AtomicAckETH */
+                /*packetLength -= 4;*/ /* AETH */
+                /*packetLength -= 8;*/ /* AtomicAckETH */
 
                 break;
             case ATOMICETH:
                 parse_ATOMICETH(all_headers_tree, tvb, &offset);
 
-                packetLength -= 28; /* AtomicETH */
+                /*packetLength -= 28;*/ /* AtomicETH */
 
                 break;
             case IETH_PAYLD:
@@ -2115,7 +2108,6 @@ dissect_infiniband_link(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset += 2;
 
         proto_tree_add_item(link_tree, hf_infiniband_link_lpcrc, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
     }
 
 }
@@ -2757,7 +2749,7 @@ static gboolean parse_EoIB(proto_tree *tree, tvbuff_t *tvb, gint offset, packet_
 
     proto_tree_add_item(header_subtree, hf_infiniband_ms, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(header_subtree, hf_infiniband_seg_off, tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
-    proto_tree_add_item(header_subtree, hf_infiniband_seg_id, tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
+    proto_tree_add_item(header_subtree, hf_infiniband_seg_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 
     if (seg_offset || ms) {
         /* this is a fragment of an encapsulated Ethernet jumbo frame, parse as data */
@@ -3821,7 +3813,8 @@ static gint parse_NoticeDataDetails(proto_tree* parentTree, tvbuff_t* tvb, gint 
             proto_item_set_text(DataDetails_header_item, "%s", "Vendor Specific Subnet Management Trap"); local_offset +=54;
             break;
     }
-return local_offset;
+
+    return local_offset;
 }
 
 /* Parse NoticesAndTraps Attribute
@@ -3882,13 +3875,13 @@ static void parse_NodeDescription(proto_tree* parentTree, tvbuff_t* tvb, gint *o
 *       tvb - The tvbbuff of packet data
 *       offset - The offset in TVB where the attribute begins
 *       MadHeader - The common MAD header of the current SMP/SMA  */
-static void parse_NodeInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
+static int parse_NodeInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 {
     gint local_offset = *offset;
     proto_tree *NodeInfo_header_tree = NULL;
 
     if(!parentTree)
-        return;
+        return *offset;
 
     NodeInfo_header_tree = parentTree;
 
@@ -3905,6 +3898,8 @@ static void parse_NodeInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
     proto_tree_add_item(NodeInfo_header_tree, hf_infiniband_NodeInfo_LocalPortNum,      tvb, local_offset, 1, ENC_BIG_ENDIAN); local_offset +=1;
     proto_tree_add_item(NodeInfo_header_tree, hf_infiniband_NodeInfo_VendorID,          tvb, local_offset, 3, ENC_BIG_ENDIAN); local_offset +=3;
 
+    return local_offset;
+
 }
 
 /* Parse SwitchInfo Attribute
@@ -3912,13 +3907,13 @@ static void parse_NodeInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 *       tvb - The tvbbuff of packet data
 *       offset - The offset in TVB where the attribute begins
 *       MadHeader - The common MAD header of the current SMP/SMA  */
-static void parse_SwitchInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
+static int parse_SwitchInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 {
     gint local_offset = *offset;
     proto_tree *SwitchInfo_header_tree = NULL;
 
     if(!parentTree)
-        return;
+        return *offset;
 
     SwitchInfo_header_tree = parentTree;
 
@@ -3939,6 +3934,8 @@ static void parse_SwitchInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset
     proto_tree_add_item(SwitchInfo_header_tree, hf_infiniband_SwitchInfo_FilterRawInboundCap,               tvb, local_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(SwitchInfo_header_tree, hf_infiniband_SwitchInfo_FilterRawOutboundCap,              tvb, local_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(SwitchInfo_header_tree, hf_infiniband_SwitchInfo_EnhancedPortZero,                  tvb, local_offset, 1, ENC_BIG_ENDIAN); local_offset +=1;
+
+    return local_offset;
 }
 
 /* Parse GUIDInfo Attribute
@@ -3946,7 +3943,7 @@ static void parse_SwitchInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset
 *       tvb - The tvbbuff of packet data
 *       offset - The offset in TVB where the attribute begins
 *       MadHeader - The common MAD header of the current SMP/SMA  */
-static void parse_GUIDInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
+static int parse_GUIDInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 {
     gint local_offset = *offset;
     proto_tree *GUIDInfo_header_tree = NULL;
@@ -3954,7 +3951,7 @@ static void parse_GUIDInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
     gint i = 0;
 
     if(!parentTree)
-        return;
+        return *offset;
 
     GUIDInfo_header_tree = parentTree;
 
@@ -3963,7 +3960,7 @@ static void parse_GUIDInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
         proto_tree_add_item(GUIDInfo_header_tree, hf_infiniband_GUIDInfo_GUID, tvb, local_offset, 8, ENC_BIG_ENDIAN); local_offset +=8;
         proto_item_append_text(tempItemLow, "(%u)", i);
     }
-
+    return local_offset;
 }
 
 /* Parse PortInfo Attribute
@@ -3971,7 +3968,7 @@ static void parse_GUIDInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 *       tvb - The tvbbuff of packet data
 *       offset - The offset in TVB where the attribute begins
 *       MadHeader - The common MAD header of the current SMP/SMA  */
-static void parse_PortInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
+static int parse_PortInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 {
     gint local_offset = *offset;
     proto_tree *PortInfo_header_tree = NULL;
@@ -3981,7 +3978,7 @@ static void parse_PortInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
     guint16 temp_val = 0;
 
     if(!parentTree)
-        return;
+        return *offset;
 
     PortInfo_header_tree = parentTree;
 
@@ -4201,6 +4198,8 @@ static void parse_PortInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
     proto_tree_add_item(PortInfo_header_tree, hf_infiniband_PortInfo_OverrunErrors,         tvb, local_offset, 1, ENC_BIG_ENDIAN); local_offset +=1;
     proto_tree_add_item(PortInfo_header_tree, hf_infiniband_PortInfo_MaxCreditHint,         tvb, local_offset, 2, ENC_BIG_ENDIAN); local_offset +=3; /* 2 + 1 Reserved */
     proto_tree_add_item(PortInfo_header_tree, hf_infiniband_PortInfo_LinkRoundTripLatency,  tvb, local_offset, 3, ENC_BIG_ENDIAN); local_offset +=3;
+
+    return local_offset;
 }
 
 /* Parse P_KeyTable Attribute
@@ -4386,14 +4385,14 @@ static void parse_MulticastForwardingTable(proto_tree* parentTree, tvbuff_t* tvb
 *       tvb - The tvbbuff of packet data
 *       offset - The offset in TVB where the attribute begins
 *       MadHeader - The common MAD header of the current SMP/SMA  */
-static void parse_SMInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
+static int parse_SMInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 {
     gint local_offset = *offset;
     proto_tree *SMInfo_header_tree = NULL;
     proto_item *SMInfo_header_item = NULL;
 
     if(!parentTree)
-        return;
+        return *offset;
 
     SMInfo_header_item = proto_tree_add_item(parentTree, hf_infiniband_smp_data, tvb, local_offset, 64, ENC_NA);
     proto_item_set_text(SMInfo_header_item, "%s", "SMInfo");
@@ -4404,6 +4403,7 @@ static void parse_SMInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
     proto_tree_add_item(SMInfo_header_tree, hf_infiniband_SMInfo_ActCount,  tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset +=4;
     proto_tree_add_item(SMInfo_header_tree, hf_infiniband_SMInfo_Priority,  tvb, local_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(SMInfo_header_tree, hf_infiniband_SMInfo_SMState,   tvb, local_offset, 1, ENC_BIG_ENDIAN); local_offset +=1;
+    return local_offset;
 }
 
 /* Parse VendorDiag Attribute
@@ -4411,14 +4411,14 @@ static void parse_SMInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 *       tvb - The tvbbuff of packet data
 *       offset - The offset in TVB where the attribute begins
 *       MadHeader - The common MAD header of the current SMP/SMA  */
-static void parse_VendorDiag(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
+static int parse_VendorDiag(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 {
     gint local_offset = *offset;
     proto_tree *VendorDiag_header_tree = NULL;
     proto_item *VendorDiag_header_item = NULL;
 
     if(!parentTree)
-        return;
+        return *offset;
 
     VendorDiag_header_item = proto_tree_add_item(parentTree, hf_infiniband_smp_data, tvb, local_offset, 64, ENC_NA);
     proto_item_set_text(VendorDiag_header_item, "%s", "VendorDiag");
@@ -4426,6 +4426,8 @@ static void parse_VendorDiag(proto_tree* parentTree, tvbuff_t* tvb, gint *offset
 
     proto_tree_add_item(VendorDiag_header_tree, hf_infiniband_VendorDiag_NextIndex,     tvb, local_offset, 2, ENC_BIG_ENDIAN); local_offset +=2;
     proto_tree_add_item(VendorDiag_header_tree, hf_infiniband_VendorDiag_DiagData,      tvb, local_offset, 62, ENC_NA); local_offset +=62;
+
+    return local_offset;
 }
 
 /* Parse LedInfo Attribute
@@ -4454,14 +4456,14 @@ static void parse_LedInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 *       tvb - The tvbbuff of packet data
 *       offset - The offset in TVB where the attribute begins
 *       MadHeader - The common MAD header of the current SMP/SMA  */
-static void parse_LinkSpeedWidthPairsTable(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
+static int parse_LinkSpeedWidthPairsTable(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 {
     gint local_offset = *offset;
     proto_tree *LinkSpeedWidthPairsTable_header_tree = NULL;
     proto_item *LinkSpeedWidthPairsTable_header_item = NULL;
 
     if(!parentTree)
-        return;
+        return *offset;
 
     LinkSpeedWidthPairsTable_header_item = proto_tree_add_item(parentTree, hf_infiniband_smp_data, tvb, local_offset, 64, ENC_NA);
     proto_item_set_text(LinkSpeedWidthPairsTable_header_item, "%s", "LinkSpeedWidthPairsTable");
@@ -4472,6 +4474,8 @@ static void parse_LinkSpeedWidthPairsTable(proto_tree* parentTree, tvbuff_t* tvb
     proto_tree_add_item(LinkSpeedWidthPairsTable_header_tree, hf_infiniband_LinkSpeedWidthPairsTable_SpeedTwoFive,  tvb, local_offset, 1, ENC_BIG_ENDIAN); local_offset +=1;
     proto_tree_add_item(LinkSpeedWidthPairsTable_header_tree, hf_infiniband_LinkSpeedWidthPairsTable_SpeedFive,     tvb, local_offset, 1, ENC_BIG_ENDIAN); local_offset +=1;
     proto_tree_add_item(LinkSpeedWidthPairsTable_header_tree, hf_infiniband_LinkSpeedWidthPairsTable_SpeedTen,      tvb, local_offset, 1, ENC_BIG_ENDIAN); local_offset +=1;
+
+   return local_offset;
 }
 
 /* Parse RID Field from Subnet Administraiton Packets.
@@ -4590,14 +4594,14 @@ static void parse_RID(proto_tree* SA_header_tree, tvbuff_t* tvb, gint *offset, M
 *       tvb - The tvbbuff of packet data
 *       offset - The offset in TVB where the attribute begins
 *       MadHeader - The common MAD header of the current SMP/SMA  */
-static void parse_InformInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
+static int parse_InformInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 {
     gint local_offset = *offset;
     proto_tree *InformInfo_header_tree = NULL;
     proto_item *InformInfo_header_item = NULL;
     if(!parentTree)
     {
-        return;
+        return *offset;
     }
     InformInfo_header_item = proto_tree_add_item(parentTree, hf_infiniband_SA, tvb, local_offset, 36, ENC_NA);
     proto_item_set_text(InformInfo_header_item, "%s", "InformInfo");
@@ -4616,13 +4620,14 @@ static void parse_InformInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset
     local_offset+=1;
     proto_tree_add_item(InformInfo_header_tree, hf_infiniband_InformInfo_ProducerTypeVendorID,  tvb, local_offset, 3, ENC_BIG_ENDIAN); local_offset+=3;
 
+   return local_offset;
 }
 /* Parse LinkRecord Attribute
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
 *       offset - The offset in TVB where the attribute begins
 *       MadHeader - The common MAD header of the current SMP/SMA  */
-static void parse_LinkRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
+static int parse_LinkRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 {
     gint local_offset = *offset;
     proto_tree *LinkRecord_header_tree = NULL;
@@ -4630,7 +4635,7 @@ static void parse_LinkRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *offset
 
     if(!parentTree)
     {
-        return;
+        return *offset;
     }
 
     LinkRecord_header_item = proto_tree_add_item(parentTree, hf_infiniband_SA, tvb, local_offset, 3, ENC_NA);
@@ -4640,13 +4645,15 @@ static void parse_LinkRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *offset
     proto_tree_add_item(LinkRecord_header_tree, hf_infiniband_LinkRecord_ToPort,    tvb, local_offset, 1, ENC_BIG_ENDIAN); local_offset+=1;
     proto_tree_add_item(LinkRecord_header_tree, hf_infiniband_LinkRecord_ToLID,     tvb, local_offset, 2, ENC_BIG_ENDIAN); local_offset +=2;
 
+   return local_offset;
+
 }
 /* Parse ServiceRecord Attribute
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
 *       offset - The offset in TVB where the attribute begins
 *       MadHeader - The common MAD header of the current SMP/SMA  */
-static void parse_ServiceRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
+static int parse_ServiceRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 {
     gint local_offset = *offset;
     proto_tree *ServiceRecord_header_tree = NULL;
@@ -4655,7 +4662,7 @@ static void parse_ServiceRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *off
 
     if(!parentTree)
     {
-        return;
+        return *offset;
     }
 
     ServiceRecord_header_item = proto_tree_add_item(parentTree, hf_infiniband_SA, tvb, local_offset, 176, ENC_NA);
@@ -4675,13 +4682,15 @@ static void parse_ServiceRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *off
     tempData = proto_tree_add_item(ServiceRecord_header_tree, hf_infiniband_ServiceRecord_ServiceData,      tvb, local_offset, 16, ENC_NA); local_offset+=16;
     proto_item_append_text(tempData, "%s", "(ServiceData 64.1, 64.2)");
 
+    return local_offset;
+
 }
 /* Parse PathRecord Attribute
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
 *       offset - The offset in TVB where the attribute begins
 *       MadHeader - The common MAD header of the current SMP/SMA  */
-static void parse_PathRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
+static int parse_PathRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 {
     gint local_offset = *offset;
     proto_tree *PathRecord_header_tree = NULL;
@@ -4689,7 +4698,7 @@ static void parse_PathRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *offset
 
     if(!parentTree)
     {
-        return;
+        return *offset;
     }
 
     PathRecord_header_item = proto_tree_add_item(parentTree, hf_infiniband_SA, tvb, local_offset, 64, ENC_NA);
@@ -4716,13 +4725,15 @@ static void parse_PathRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *offset
     proto_tree_add_item(PathRecord_header_tree, hf_infiniband_PathRecord_PacketLifeTimeSelector,    tvb, local_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(PathRecord_header_tree, hf_infiniband_PathRecord_PacketLifeTime,            tvb, local_offset, 1, ENC_BIG_ENDIAN); local_offset+=1;
     proto_tree_add_item(PathRecord_header_tree, hf_infiniband_PathRecord_Preference,                tvb, local_offset, 1, ENC_BIG_ENDIAN); local_offset+=1;
+
+    return local_offset;
 }
 /* Parse MCMemberRecord Attribute
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
 *       offset - The offset in TVB where the attribute begins
 *       MadHeader - The common MAD header of the current SMP/SMA  */
-static void parse_MCMemberRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
+static int parse_MCMemberRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 {
     gint local_offset = *offset;
     proto_tree *MCMemberRecord_header_tree = NULL;
@@ -4730,7 +4741,7 @@ static void parse_MCMemberRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *of
 
     if(!parentTree)
     {
-        return;
+        return *offset;
     }
 
     MCMemberRecord_header_item = proto_tree_add_item(parentTree, hf_infiniband_SA, tvb, local_offset, 64, ENC_NA);
@@ -4754,13 +4765,15 @@ static void parse_MCMemberRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *of
     proto_tree_add_item(MCMemberRecord_header_tree, hf_infiniband_MCMemberRecord_JoinState,     tvb, local_offset, 1, ENC_BIG_ENDIAN); local_offset+=1;
     proto_tree_add_item(MCMemberRecord_header_tree, hf_infiniband_MCMemberRecord_ProxyJoin,     tvb, local_offset, 1, ENC_BIG_ENDIAN); local_offset+=3;
 
+    return local_offset;
+
 }
 /* Parse TraceRecord Attribute
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
 *       offset - The offset in TVB where the attribute begins
 *       MadHeader - The common MAD header of the current SMP/SMA  */
-static void parse_TraceRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
+static int parse_TraceRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 {
     gint local_offset = *offset;
     proto_tree *TraceRecord_header_tree = NULL;
@@ -4768,7 +4781,7 @@ static void parse_TraceRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *offse
 
     if(!parentTree)
     {
-        return;
+        return *offset;
     }
 
     TraceRecord_header_item = proto_tree_add_item(parentTree, hf_infiniband_SA, tvb, local_offset, 46, ENC_NA);
@@ -4785,13 +4798,15 @@ static void parse_TraceRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *offse
     proto_tree_add_item(TraceRecord_header_tree, hf_infiniband_TraceRecord_ExitPortID,      tvb, local_offset, 8, ENC_BIG_ENDIAN); local_offset+=8;
     proto_tree_add_item(TraceRecord_header_tree, hf_infiniband_TraceRecord_EntryPort,       tvb, local_offset, 1, ENC_BIG_ENDIAN); local_offset+=1;
     proto_tree_add_item(TraceRecord_header_tree, hf_infiniband_TraceRecord_ExitPort,        tvb, local_offset, 1, ENC_BIG_ENDIAN); local_offset+=1;
+
+    return local_offset;
 }
 /* Parse MultiPathRecord Attribute
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
 *       offset - The offset in TVB where the attribute begins
 *       MadHeader - The common MAD header of the current SMP/SMA  */
-static void parse_MultiPathRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
+static int parse_MultiPathRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 {
     gint local_offset = *offset;
     proto_tree *MultiPathRecord_header_tree = NULL;
@@ -4803,7 +4818,7 @@ static void parse_MultiPathRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *o
 
     if(!parentTree)
     {
-        return;
+        return *offset;
     }
 
     MultiPathRecord_header_item = proto_tree_add_item(parentTree, hf_infiniband_SA, tvb, local_offset, 200, ENC_NA);
@@ -4844,13 +4859,15 @@ static void parse_MultiPathRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *o
         SDGID = proto_tree_add_item(MultiPathRecord_header_tree, hf_infiniband_MultiPathRecord_SDGID,       tvb, local_offset, 16, ENC_NA); local_offset+=16;
         proto_item_set_text(SDGID, "(%s%u)","DGID", i);
     }
+
+    return local_offset;
 }
 /* Parse ServiceAssociationRecord Attribute
 * IN:   parentTree - The tree to add the dissection to
 *       tvb - The tvbbuff of packet data
 *       offset - The offset in TVB where the attribute begins
 *       MadHeader - The common MAD header of the current SMP/SMA  */
-static void parse_ServiceAssociationRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
+static int parse_ServiceAssociationRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *offset)
 {
     gint local_offset = *offset;
     proto_tree *ServiceAssociationRecord_header_tree = NULL;
@@ -4858,7 +4875,7 @@ static void parse_ServiceAssociationRecord(proto_tree* parentTree, tvbuff_t* tvb
 
     if(!parentTree)
     {
-        return;
+        return *offset;
     }
 
     ServiceAssociationRecord_header_item = proto_tree_add_item(parentTree, hf_infiniband_SA, tvb, local_offset, 80, ENC_NA);
@@ -4867,6 +4884,8 @@ static void parse_ServiceAssociationRecord(proto_tree* parentTree, tvbuff_t* tvb
 
     proto_tree_add_item(ServiceAssociationRecord_header_tree, hf_infiniband_ServiceAssociationRecord_ServiceKey,        tvb, local_offset, 16, ENC_NA); local_offset +=16;
     proto_tree_add_item(ServiceAssociationRecord_header_tree, hf_infiniband_ServiceAssociationRecord_ServiceName,       tvb, local_offset, 64, ENC_ASCII|ENC_NA); local_offset +=64;
+
+    return local_offset;
 }
 
 /* Parse PortCounters MAD from the Performance management class.
@@ -4874,7 +4893,7 @@ static void parse_ServiceAssociationRecord(proto_tree* parentTree, tvbuff_t* tvb
 *       tvb - The tvbbuff of packet data
 *       offset - The offset in TVB where the attribute begins
 *       pinfo - The packet info structure with column information  */
-static void parse_PERF_PortCounters(proto_tree* parentTree, tvbuff_t* tvb, packet_info *pinfo, gint *offset)
+static int parse_PERF_PortCounters(proto_tree* parentTree, tvbuff_t* tvb, packet_info *pinfo, gint *offset)
 {
     proto_item *perf_item = NULL;
     proto_tree *perf_tree = NULL;
@@ -4909,7 +4928,7 @@ static void parse_PERF_PortCounters(proto_tree* parentTree, tvbuff_t* tvb, packe
     proto_tree_add_item(perf_tree, hf_infiniband_PortCounters_PortRcvPkts, tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset += 4;
 
     *offset = local_offset; /* update caller's offset to point to end of the PortCounters payload */
-    return;
+    return local_offset;
 }
 
 /* Parse PortCountersExtended MAD from the Performance management class.
@@ -4917,7 +4936,7 @@ static void parse_PERF_PortCounters(proto_tree* parentTree, tvbuff_t* tvb, packe
 *       tvb - The tvbbuff of packet data
 *       offset - The offset in TVB where the attribute begins
 *       pinfo - The packet info structure with column information  */
-static void parse_PERF_PortCountersExtended(proto_tree* parentTree, tvbuff_t* tvb, packet_info *pinfo, gint *offset)
+static int parse_PERF_PortCountersExtended(proto_tree* parentTree, tvbuff_t* tvb, packet_info *pinfo, gint *offset)
 {
     proto_item *perf_item = NULL;
     proto_tree *perf_tree = NULL;
@@ -4943,7 +4962,7 @@ static void parse_PERF_PortCountersExtended(proto_tree* parentTree, tvbuff_t* tv
     proto_tree_add_item(perf_tree, hf_infiniband_PortCountersExt_PortMulticastRcvPkts, tvb, local_offset, 8, ENC_BIG_ENDIAN); local_offset += 8;
 
     *offset = local_offset; /* update caller's offset to point to end of the PortCountersExt payload */
-    return;
+    return local_offset;
 }
 
 /* dissect_general_info
