@@ -256,56 +256,56 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
 
   /* Only allow editing of comment if filetype is PCAPNG */
   if(summary.file_type == WTAP_FILE_PCAPNG){
-	  GtkWidget *frame;
-	  GtkWidget *comment_vbox;
-	  GtkWidget *view;
-	  GtkTextBuffer *buffer = NULL;
-	  const gchar *buf_str;
-	  GtkWidget *ok_bt, *clear_bt;
+    GtkWidget *frame;
+    GtkWidget *comment_vbox;
+    GtkWidget *view;
+    GtkTextBuffer *buffer = NULL;
+    const gchar *buf_str;
+    GtkWidget *ok_bt, *clear_bt;
 
-	  frame = gtk_frame_new ("Capture comments");
-	  gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_ETCHED_IN);
-	  gtk_container_add (GTK_CONTAINER (main_vb), frame);
-	  gtk_widget_show (frame);
+    frame = gtk_frame_new ("Capture comments");
+    gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_ETCHED_IN);
+    gtk_container_add (GTK_CONTAINER (main_vb), frame);
+    gtk_widget_show (frame);
 
-	  comment_vbox = gtk_vbox_new (FALSE, 0);
-	  gtk_container_add (GTK_CONTAINER (frame), comment_vbox);
-	  gtk_widget_show (comment_vbox);
+    comment_vbox = gtk_vbox_new (FALSE, 0);
+    gtk_container_add (GTK_CONTAINER (frame), comment_vbox);
+    gtk_widget_show (comment_vbox);
 
-	  view = gtk_text_view_new ();
-	  buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (view));
-	  if(summary.opt_comment == NULL){
-		  buf_str = g_strdup_printf("[None]");
-	  }else{
-		  buf_str = g_strdup_printf("%s", summary.opt_comment);
-	  }
-	  gtk_text_buffer_set_text (buffer, buf_str, -1);
-	  gtk_container_add(GTK_CONTAINER(comment_vbox), view);
-	  gtk_widget_show (view);
+    view = gtk_text_view_new ();
+    buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (view));
+    if(summary.opt_comment == NULL){
+      buf_str = g_strdup_printf("[None]");
+    }else{
+      buf_str = g_strdup_printf("%s", summary.opt_comment);
+    }
+    gtk_text_buffer_set_text (buffer, buf_str, -1);
+    gtk_container_add(GTK_CONTAINER(comment_vbox), view);
+    gtk_widget_show (view);
 
-	  /* Button row. */
-	  bbox = dlg_button_row_new (GTK_STOCK_OK, GTK_STOCK_CLEAR, NULL);
-	  gtk_box_pack_end (GTK_BOX(comment_vbox), bbox, FALSE, FALSE, 0);
+    /* Button row. */
+    bbox = dlg_button_row_new (GTK_STOCK_OK, GTK_STOCK_CLEAR, NULL);
+    gtk_box_pack_end (GTK_BOX(comment_vbox), bbox, FALSE, FALSE, 0);
 
-	  ok_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_OK);
-	  g_signal_connect (ok_bt, "clicked", G_CALLBACK(summary_comment_text_buff_save_cb), view);
-	  gtk_widget_set_sensitive (ok_bt, TRUE);
-	  gtk_widget_set_tooltip_text(ok_bt,
-			     "Updates the comment, you need to save the the capture file as well to save the updated comment");
+    ok_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_OK);
+    g_signal_connect (ok_bt, "clicked", G_CALLBACK(summary_comment_text_buff_save_cb), view);
+    gtk_widget_set_sensitive (ok_bt, TRUE);
+    gtk_widget_set_tooltip_text(ok_bt,
+           "Updates the comment, you need to save the the capture file as well to save the updated comment");
 
 
-	  clear_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLEAR);
-	  g_signal_connect(clear_bt, "clicked", G_CALLBACK(summary_comment_text_buff_clear_cb), view);
-	  gtk_widget_set_tooltip_text(clear_bt,
-			     "Clears the text from the box, not the capture");
+    clear_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLEAR);
+    g_signal_connect(clear_bt, "clicked", G_CALLBACK(summary_comment_text_buff_clear_cb), view);
+    gtk_widget_set_tooltip_text(clear_bt,
+           "Clears the text from the box, not the capture");
 
-	  gtk_widget_grab_default (ok_bt);
+    gtk_widget_grab_default (ok_bt);
 
   }else{
-	  if (summary.opt_comment != NULL) {
-		/* comment */
-		add_string_to_table(table, &row, "Comment:", summary.opt_comment);
-	  }
+    if (summary.opt_comment != NULL) {
+    /* comment */
+    add_string_to_table(table, &row, "Comment:", summary.opt_comment);
+    }
  }
 
   /*
@@ -350,19 +350,19 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   add_string_to_table(table, &row, "", "");
   add_string_to_table_sensitive(table, &row, "Capture", "", (summary.ifaces->len > 0));
   if(summary.shb_hardware){
-	  /* trucate the string to a reasonable length */
-	  g_snprintf(string_buff, SHB_STR_SNIP_LEN, "%s",summary.shb_hardware);
-      add_string_to_table(table, &row, "Capture HW:",string_buff);
+    /* trucate the string to a reasonable length */
+    g_snprintf(string_buff, SHB_STR_SNIP_LEN, "%s",summary.shb_hardware);
+    add_string_to_table(table, &row, "Capture HW:",string_buff);
   }
   if(summary.shb_os){
-	  /* trucate the strings to a reasonable length */
-	  g_snprintf(string_buff, SHB_STR_SNIP_LEN, "%s",summary.shb_os);
-      add_string_to_table(table, &row, "OS:", string_buff);
+    /* trucate the strings to a reasonable length */
+    g_snprintf(string_buff, SHB_STR_SNIP_LEN, "%s",summary.shb_os);
+    add_string_to_table(table, &row, "OS:", string_buff);
   }
   if(summary.shb_user_appl){
-	  /* trucate the string to a reasonable length */
-	  g_snprintf(string_buff, SHB_STR_SNIP_LEN, "%s",summary.shb_user_appl);
-      add_string_to_table(table, &row, "Capture application:", string_buff);
+    /* trucate the string to a reasonable length */
+    g_snprintf(string_buff, SHB_STR_SNIP_LEN, "%s",summary.shb_user_appl);
+    add_string_to_table(table, &row, "Capture application:", string_buff);
   }
   scrolled_window = gtk_scrolled_window_new (NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (scrolled_window), 5);
@@ -420,7 +420,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
     else
       g_snprintf(string_buff4, SUM_STR_MAX, "DLT %d", iface.linktype);
 
-	g_snprintf(string_buff5, SUM_STR_MAX, "%u bytes", iface.snap);
+    g_snprintf(string_buff5, SUM_STR_MAX, "%u bytes", iface.snap);
     gtk_list_store_append(store, &iter);
     gtk_list_store_set(store, &iter, 0, string_buff, 1, string_buff2, 2, string_buff3, 3, string_buff4, 4, string_buff5,-1);
   }
