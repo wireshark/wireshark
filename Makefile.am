@@ -119,6 +119,7 @@ radius_DATA = \
 	radius/dictionary.alcatel  \
 	radius/dictionary.alcatel.esam \
 	radius/dictionary.alcatel.sr \
+	radius/dictionary.alcatel-lucent.xylan \
 	radius/dictionary.alteon  \
 	radius/dictionary.altiga  \
 	radius/dictionary.alvarion \
@@ -247,7 +248,6 @@ radius_DATA = \
 	radius/dictionary.wimax.wichorus \
 	radius/dictionary.wispr  \
 	radius/dictionary.xedia \
-	radius/dictionary.xylan \
 	radius/dictionary.zyxel
 
 #
