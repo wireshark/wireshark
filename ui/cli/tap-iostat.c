@@ -384,7 +384,6 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
 				while (val > 0) {
 					if (val < (guint64)parent->interval) {
 						pit->counter += val;
-						val = 0;
 						break;
 					}
 					pit->counter += parent->interval;
