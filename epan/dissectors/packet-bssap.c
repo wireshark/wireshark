@@ -531,7 +531,7 @@ dissect_bssap_var_parameter(tvbuff_t *tvb, packet_info *pinfo,
     return(parameter_length + length_length);
 }
 
-static void
+static int
 dissect_bssap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bssap_tree,
              proto_tree *tree)
 {
@@ -586,6 +586,7 @@ dissect_bssap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bssap_tree,
         dissect_bssap_unknown_message(tvb, bssap_tree);
         break;
     }
+    return offset;
 }
 
 static void
