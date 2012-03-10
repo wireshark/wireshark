@@ -2116,7 +2116,7 @@ dissect_isup_subsequent_number_parameter(tvbuff_t *parameter_tvb, proto_tree *pa
       if (i > MAXDIGITS)
         THROW(ReportedBoundsError);
   }
-  called_number[i++] = '\0';
+  called_number[i+1] = '\0';
 
   proto_item_set_text(address_digits_item, "Subsequent Number: %s", called_number);
   proto_item_set_text(parameter_item, "Subsequent Number: %s", called_number);
@@ -3231,7 +3231,6 @@ extern int dissect_codec_mode(proto_tree *tree, tvbuff_t *tvb, int offset, int l
       proto_tree_add_uint(tree, hf_etsi_codec_type , tvb, offset, 1, tempdata );
       if ( len > 2 ) {
         offset = offset + 1;
-        tempdata = tvb_get_guint8(tvb, offset);
 
         acs_item = proto_tree_add_item(tree, hf_active_code_set, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         acs_tree = proto_item_add_subtree(acs_item,ett_acs);
@@ -3247,7 +3246,6 @@ extern int dissect_codec_mode(proto_tree *tree, tvbuff_t *tvb, int offset, int l
       }
       if ( len > 3 ) {
         offset = offset + 1;
-        tempdata = tvb_get_guint8(tvb, offset);
 
         scs_item = proto_tree_add_item(tree, hf_supported_code_set, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         scs_tree = proto_item_add_subtree(scs_item,ett_scs);
@@ -3932,7 +3930,7 @@ dissect_isup_original_called_number_parameter(tvbuff_t *parameter_tvb, proto_tre
       if (i > MAXDIGITS)
         THROW(ReportedBoundsError);
   }
-  calling_number[i++] = '\0';
+  calling_number[i+1] = '\0';
 
   proto_item_set_text(address_digits_item, "Original Called Number: %s", calling_number);
   proto_item_set_text(parameter_item, "Original Called Number: %s", calling_number);
@@ -3997,7 +3995,7 @@ dissect_isup_redirecting_number_parameter(tvbuff_t *parameter_tvb, proto_tree *p
       if (i > MAXDIGITS)
         THROW(ReportedBoundsError);
   }
-  calling_number[i++] = '\0';
+  calling_number[i+1] = '\0';
 
   proto_item_set_text(address_digits_item, "Redirecting Number: %s", calling_number);
   proto_tree_add_string(address_digits_tree, hf_isup_redirecting, parameter_tvb, offset - length, length, calling_number);
@@ -4054,7 +4052,7 @@ dissect_isup_redirection_number_parameter(tvbuff_t *parameter_tvb, proto_tree *p
       if (i > MAXDIGITS)
         THROW(ReportedBoundsError);
   }
-  called_number[i++] = '\0';
+  called_number[i+1] = '\0';
 
   proto_item_set_text(address_digits_item, "Redirection Number: %s", called_number);
   proto_item_set_text(parameter_item, "Redirection Number: %s", called_number);
@@ -4080,7 +4078,7 @@ dissect_isup_connection_request_parameter(tvbuff_t *parameter_tvb, proto_tree *p
   offset += PROTOCOL_CLASS_LENGTH;
   credit = tvb_get_guint8(parameter_tvb, offset);
   proto_tree_add_text(parameter_tree, parameter_tvb, offset, CREDIT_LENGTH, "Credit: %u", credit);
-  offset += CREDIT_LENGTH;
+  /*offset += CREDIT_LENGTH;*/
 
   proto_item_set_text(parameter_item, "Connection request: Local Reference = %u, SPC = %u, Protocol Class = %u, Credit = %u", local_ref, spc, protocol_class, credit);
 }
@@ -4892,7 +4890,7 @@ dissect_isup_location_number_parameter(tvbuff_t *parameter_tvb, proto_tree *para
       if (i > MAXDIGITS)
         THROW(ReportedBoundsError);
   }
-  calling_number[i++] = '\0';
+  calling_number[i+1] = '\0';
 
   proto_item_set_text(address_digits_item, "Location number: %s", calling_number);
   proto_item_set_text(parameter_item, "Location number: %s", calling_number);
@@ -5004,7 +5002,7 @@ dissect_isup_call_transfer_number_parameter(tvbuff_t *parameter_tvb, proto_tree 
       if (i > MAXDIGITS)
         THROW(ReportedBoundsError);
   }
-  calling_number[i++] = '\0';
+  calling_number[i+1] = '\0';
 
   proto_item_set_text(address_digits_item, "Call transfer number: %s", calling_number);
   proto_item_set_text(parameter_item, "Call transfer number: %s", calling_number);
@@ -5150,7 +5148,7 @@ dissect_isup_called_in_number_parameter(tvbuff_t *parameter_tvb, proto_tree *par
       if (i > MAXDIGITS)
         THROW(ReportedBoundsError);
   }
-  calling_number[i++] = '\0';
+  calling_number[i+1] = '\0';
 
   proto_item_set_text(address_digits_item, "Called IN Number: %s", calling_number);
   proto_item_set_text(parameter_item, "Called IN Number: %s", calling_number);
@@ -5358,7 +5356,7 @@ dissect_isup_generic_number_parameter(tvbuff_t *parameter_tvb, proto_tree *param
       if (i > MAXDIGITS)
         THROW(ReportedBoundsError);
   }
-  calling_number[i++] = '\0';
+  calling_number[i+1] = '\0';
 
   /*
    * Indicators1 = Nature of address
@@ -5415,7 +5413,7 @@ dissect_isup_jurisdiction_parameter(tvbuff_t *parameter_tvb, proto_tree *paramet
       if (i > MAXDIGITS)
         THROW(ReportedBoundsError);
   }
-  called_number[i++] = '\0';
+  called_number[i+1] = '\0';
 
   proto_item_set_text(address_digits_item, "Jurisdiction: %s", called_number);
   proto_item_set_text(parameter_item, "Jurisdiction: %s", called_number);
@@ -5504,7 +5502,7 @@ dissect_isup_charge_number_parameter(tvbuff_t *parameter_tvb, proto_tree *parame
       if (i > MAXDIGITS)
         THROW(ReportedBoundsError);
   }
-  calling_number[i++] = '\0';
+  calling_number[i+1] = '\0';
 
   proto_item_set_text(address_digits_item, "Charge Number: %s", calling_number);
   proto_item_set_text(parameter_item, "Charge Number: %s", calling_number);
