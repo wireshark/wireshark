@@ -288,7 +288,7 @@ GMR1_IE_FUNC(gmr1_ie_rr_chan_desc)
 	/* Channel Type (5 bits) */
 	proto_tree_add_bits_item(tree, hf_rr_chan_desc_chan_type, tvb,
 	                         bit_offset, 5, ENC_BIG_ENDIAN);
-	bit_offset += 5;
+	/*bit_offset += 5;*/
 
 	return 4;
 }
@@ -472,7 +472,7 @@ GMR1_IE_FUNC(gmr1_ie_rr_timing_ofs)
 	/* Value */
 	proto_tree_add_bits_item(tree, hf_rr_timing_ofs_value, tvb,
 	                         bit_offset, 15, ENC_BIG_ENDIAN);
-	bit_offset += 15;
+	/*bit_offset += 15;*/
 
 	return 2;
 }
@@ -576,7 +576,7 @@ GMR1_IE_FUNC(gmr1_ie_rr_freq_ofs)
 	/* Spare */
 	proto_tree_add_bits_item(tree, hf_rr_freq_ofs_spare, tvb,
 	                         bit_offset, 3, ENC_BIG_ENDIAN);
-	bit_offset += 3;
+	/*bit_offset += 3;*/
 
 	return 2;
 }
@@ -718,7 +718,7 @@ GMR1_IE_FUNC(gmr1_ie_rr_bcch_carrier)
 	/* Spare */
 	proto_tree_add_bits_item(tree, hf_rr_bcch_carrier_spare,
 	                         tvb, bit_offset, 3, ENC_BIG_ENDIAN);
-	bit_offset += 3;
+	/*bit_offset += 3;*/
 
 	return 2;
 }
