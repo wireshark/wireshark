@@ -138,4 +138,7 @@ typedef struct _usb_tap_data_t {
 #define RQT_SETUP_RECIPIENT_ENDPOINT    2
 #define RQT_SETUP_RECIPIENT_OTHER       3
 
+void dissect_usb_descriptor_header(proto_tree *tree, tvbuff_t *tvb, int offset);
+void dissect_usb_endpoint_address(proto_tree *tree, tvbuff_t *tvb, int offset);
+
 #endif
