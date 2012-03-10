@@ -161,9 +161,11 @@ static gboolean try_heuristics = TRUE;
 
 static dissector_table_t usb_bulk_dissector_table;
 static dissector_table_t usb_control_dissector_table;
+static dissector_table_t usb_interrupt_dissector_table;
 static dissector_table_t usb_descriptor_dissector_table;
 static heur_dissector_list_t heur_bulk_subdissector_list;
 static heur_dissector_list_t heur_control_subdissector_list;
+static heur_dissector_list_t heur_interrupt_subdissector_list;
 
 /* http://www.usb.org/developers/docs/USB_LANGIDs.pdf */
 static const value_string usb_langid_vals[] = {
@@ -2067,6 +2069,37 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         }
         }
         break;
+    case URB_INTERRUPT:
+        {
+        proto_item *item;
+
+        item=proto_tree_add_uint(tree, hf_usb_bInterfaceClass, tvb, 0, 0, usb_conv_info->interfaceClass);
+        PROTO_ITEM_SET_GENERATED(item);
+
+        /* Skip setup/isochronous header - it's not applicable */
+        offset += 8;
+
+        /*
+         * If this has a 64-byte header, process the extra 16 bytes of
+         * pseudo-header information.
+         */
+        if (header_len_64_bytes)
+            offset = dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree);
+
+        if(tvb_reported_length_remaining(tvb, offset)){
+            tvbuff_t *next_tvb;
+
+            pinfo->usb_conv_info=usb_conv_info;
+            next_tvb=tvb_new_subset_remaining(tvb, offset);
+            if (try_heuristics && dissector_try_heuristic(heur_interrupt_subdissector_list, next_tvb, pinfo, parent)) {
+                return;
+            }
+            else if(dissector_try_uint(usb_interrupt_dissector_table, usb_conv_info->interfaceClass, next_tvb, pinfo, parent)){
+                return;
+            }
+        }
+        }
+        break;
     case URB_CONTROL:
         {
         const usb_setup_dissector_table_t *tmp;
@@ -2836,6 +2869,9 @@ proto_register_usb(void)
     usb_control_dissector_table = register_dissector_table("usb.control",
         "USB control endpoint", FT_UINT8, BASE_DEC);
     register_heur_dissector_list("usb.control", &heur_control_subdissector_list);
+    usb_interrupt_dissector_table = register_dissector_table("usb.interrupt",
+        "USB interrupt endpoint", FT_UINT8, BASE_DEC);
+    register_heur_dissector_list("usb.interrupt", &heur_interrupt_subdissector_list);
     usb_descriptor_dissector_table = register_dissector_table("usb.descriptor",
         "USB descriptor", FT_UINT8, BASE_DEC);
 
@@ -2843,7 +2879,7 @@ proto_register_usb(void)
     prefs_register_bool_preference(usb_module, "try_heuristics",
         "Try heuristic sub-dissectors",
         "Try to decode a packet using a heuristic sub-dissector before "
-        "attempting to dissect the packet using the \"usb.bulk\" or "
+        "attempting to dissect the packet using the \"usb.bulk\", \"usb.interrupt\" or "
         "\"usb.control\" dissector tables.", &try_heuristics);
 
     usb_tap=register_tap("usb");
