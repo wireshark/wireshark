@@ -1374,8 +1374,6 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
 
 		oct = tvb_get_guint8(tvb, curr_offset);
 
-		extended = (oct & 0x80) ? FALSE : TRUE;
-
 		proto_tree_add_item(subtree, hf_gsm_a_extension, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 		other_decode_bitfield_value(a_bigbuf, oct, 0x40, 8);
@@ -1558,8 +1556,6 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
 	subtree = proto_item_add_subtree(item, ett_bc_oct_5b);
 
 	oct = tvb_get_guint8(tvb, curr_offset);
-
-	extended = (oct & 0x80) ? FALSE : TRUE;
 
 	proto_tree_add_item(subtree, hf_gsm_a_extension, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
@@ -2074,8 +2070,6 @@ bc_octet_6:
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
-	extended = (oct & 0x80) ? FALSE : TRUE;
-
 	proto_tree_add_item(subtree, hf_gsm_a_extension, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	if (is_uplink == IS_UPLINK_TRUE)
@@ -2149,7 +2143,6 @@ bc_octet_7:
 		"Octet 7");
 
 	subtree = proto_item_add_subtree(item, ett_bc_oct_7);
-		extended = (oct & 0x80) ? FALSE : TRUE;
 		oct = tvb_get_guint8(tvb, curr_offset);
 
 		proto_tree_add_item(subtree, hf_gsm_a_extension, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
@@ -4070,7 +4063,7 @@ de_tp_epc_ue_test_loop_mode(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo 
 	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, 6, ENC_BIG_ENDIAN);
 	bit_offset += 6;
 	proto_tree_add_bits_item(tree, hf_gsm_a_dtap_epc_ue_tl_mode, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
-	bit_offset += 2;
+	/*bit_offset += 2;*/
 	/* Store test loop mode to know how to dissect Close UE Test Loop message */
 	epc_test_loop_mode = tvb_get_guint8(tvb, curr_offset) & 0x03;
 	curr_offset++;
