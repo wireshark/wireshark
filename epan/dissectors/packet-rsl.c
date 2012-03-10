@@ -728,7 +728,8 @@ dissect_rsl_ie_link_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
     if((octet&0x20) == 0x20){
         /* Not applicable */
         proto_tree_add_item(ie_tree, hf_rsl_na, tvb, offset, 1, ENC_BIG_ENDIAN);
-        return offset++;
+        offset++;
+        return offset;
     }
     /* channel type */
     proto_tree_add_item(ie_tree, hf_rsl_ch_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3098,7 +3099,7 @@ dissct_rsl_ipaccess_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,				
 	/* parse TLV attributes */
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		guint8 tag;
-		unsigned int len, hlen, len_len;
+		unsigned int len, hlen;
 		const struct tlv_def *tdef;
 		proto_item *ti;
 		proto_tree *ie_tree;
@@ -3109,33 +3110,27 @@ dissct_rsl_ipaccess_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,				
 		switch (tdef->type) {
 		case TLV_TYPE_FIXED:
 			hlen = 1;
-			len_len = 0;
 			len = tdef->fixed_len;
 			break;
 		case TLV_TYPE_T:
 			hlen = 1;
-			len_len = 0;
 			len = 0;
 			break;
 		case TLV_TYPE_TV:
 			hlen = 1;
-			len_len = 0;
 			len = 1;
 			break;
 		case TLV_TYPE_TLV:
 			hlen = 2;
-			len_len = 1;
 			len = tvb_get_guint8(tvb, offset+1);
 			break;
 		case TLV_TYPE_TL16V:
 			hlen = 3;
-			len_len = 2;
 			len = tvb_get_guint8(tvb, offset+1) << 8 |
 					tvb_get_guint8(tvb, offset+2);
 			break;
 		case TLV_TYPE_UNKNOWN:
 		default:
-			hlen = len_len = len = 0;
 			DISSECTOR_ASSERT_NOT_REACHED();
 			break;
 		}
@@ -3862,7 +3857,7 @@ static const value_string rsl_ipacc_rtp_csd_fmt_ir_vals[] = {
 	{ 0,	NULL }
 };
 
-static void
+static int
 dissect_rsl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *ti;
@@ -3888,7 +3883,7 @@ dissect_rsl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		guint8 msg_disc = tvb_get_guint8(tvb, offset) >> 1;
 
 		if (msg_disc == RSL_MSGDISC_IPACCESS)
-			return;
+			return 0;
 	}
         rsl_tree = proto_item_add_subtree(ti, ett_rsl);
 
@@ -3899,7 +3894,7 @@ dissect_rsl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset = dissct_rsl_msg(tvb, pinfo, rsl_tree, offset);
 
     }
-
+    return offset;
 }
 
 /* Register the protocol with Wireshark */
@@ -4482,7 +4477,7 @@ void proto_register_rsl(void)
     proto_register_field_array(proto_rsl, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    register_dissector("gsm_abis_rsl", dissect_rsl, proto_rsl);
+    new_register_dissector("gsm_abis_rsl", dissect_rsl, proto_rsl);
 
 	rsl_module = prefs_register_protocol(proto_rsl, proto_reg_handoff_rsl);
 	prefs_register_bool_preference(rsl_module, "use_ipaccess_rsl",
@@ -4496,7 +4491,7 @@ proto_reg_handoff_rsl(void)
 {
     dissector_handle_t rsl_handle;
 
-    rsl_handle = create_dissector_handle(dissect_rsl, proto_rsl);
+    rsl_handle = new_create_dissector_handle(dissect_rsl, proto_rsl);
     dissector_add_uint("lapd.gsm.sapi", LAPD_GSM_SAPI_RA_SIG_PROC, rsl_handle);
 
     gsm_cbch_handle = find_dissector("gsm_cbch");
