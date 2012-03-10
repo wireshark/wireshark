@@ -11210,9 +11210,9 @@ proto_reg_handoff_rtp_midi( void )
 	else {
 		dissector_delete_uint( "rtp.pt", saved_payload_type_value, rtp_midi_handle );
 	}
-
-	saved_payload_type_value = rtp_midi_payload_type_value;
-
-	dissector_add_uint( "rtp.pt", saved_payload_type_value, rtp_midi_handle );
+	if ( rtp_midi_payload_type_value > 95 ){
+		saved_payload_type_value = rtp_midi_payload_type_value;
+		dissector_add_uint( "rtp.pt", saved_payload_type_value, rtp_midi_handle );
+	}
 
 }
