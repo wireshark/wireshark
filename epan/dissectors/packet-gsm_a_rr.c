@@ -1116,8 +1116,6 @@ static void dissect_channel_list_n_range(tvbuff_t *tvb, proto_tree *tree, packet
       imax = 28;
       break;
     default:
-      wsize=0;
-      imax = 0;
       DISSECTOR_ASSERT_NOT_REACHED();
     }
   }
@@ -2554,7 +2552,7 @@ de_rr_gprs_broadcast_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
     bit_offset = curr_offset << 3;
 
     bit_offset += de_rr_rest_oct_gprs_cell_options(tvb, tree, bit_offset);
-    bit_offset += de_rr_rest_oct_gprs_power_control_parameters(tvb, tree, bit_offset);
+    /*bit_offset += */de_rr_rest_oct_gprs_power_control_parameters(tvb, tree, bit_offset);
     curr_offset += len;
 
     return (curr_offset - offset);
@@ -9940,7 +9938,6 @@ sacch_rr_enh_meas_report(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
     }
     if (gsm_rr_csn_flag(tvb, tree, bit_offset++, "Bitmap Type Reporting", "Present", "Not Present"))
     { /* Bitmap Type Reporting */
-        bit_offset_sav = bit_offset;
         item = proto_tree_add_text(tree, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_BITMAP_TYPE_REPORTING].strptr);
         subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_BITMAP_TYPE_REPORTING]);
         idx = 0;
@@ -10162,7 +10159,7 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     oct_2 = 0;
 
     /* Skip pseudo hdr here - it is dissected later */
-    offset = 1;
+    offset += 1;
 
     /*
      * get protocol discriminator
