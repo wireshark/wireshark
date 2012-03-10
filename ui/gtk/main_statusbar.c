@@ -464,9 +464,9 @@ profile_bar_new(void)
     gtk_container_add(GTK_CONTAINER(profile_bar_event), profile_bar);
     g_signal_connect(profile_bar_event, "button_press_event", G_CALLBACK(profile_show_popup_cb), NULL);
     g_signal_connect(profile_bar_event, "button_press_event", G_CALLBACK(popup_menu_handler),
-		     g_object_get_data(G_OBJECT(popup_menu_object), PM_STATUSBAR_PROFILES_KEY));
+                     g_object_get_data(G_OBJECT(popup_menu_object), PM_STATUSBAR_PROFILES_KEY));
     profile_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(profile_bar), "profile");
-	gtk_widget_set_tooltip_text(profile_bar_event, "Click to change configuration profile");
+    gtk_widget_set_tooltip_text(profile_bar_event, "Click to change configuration profile");
     profile_bar_update();
 
     gtk_widget_show(profile_bar);
@@ -486,7 +486,7 @@ packets_bar_update(void)
             gtk_statusbar_pop(GTK_STATUSBAR(packets_bar), packets_ctx);
         } else {
             packets_str = g_string_new ("");
-	}
+        }
 
         /* Do we have any packets? */
         if(cfile.count) {
@@ -717,10 +717,10 @@ statusbar_cf_file_closed_cb(capture_file *cf _U_)
 {
     /* go back to "No packets" */
     packets_bar_update();
-	/* Remove comments icon */
-	status_capture_comment_hide();
-	/* Remove experts icon */
-	status_expert_hide();
+    /* Remove comments icon */
+    status_capture_comment_hide();
+    /* Remove experts icon */
+    status_expert_hide();
 }
 
 
@@ -743,7 +743,7 @@ statusbar_cf_file_read_finished_cb(capture_file *cf)
 {
     statusbar_pop_file_msg();
     statusbar_set_filename(cf->filename, cf->f_datalen, &(cf->elapsed_time));
-	status_capture_comment_update();
+    status_capture_comment_update();
 }
 
 
