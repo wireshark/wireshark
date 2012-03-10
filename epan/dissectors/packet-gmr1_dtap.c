@@ -130,7 +130,7 @@ dissect_gmr1_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Message type - [1] 11.4 */
 	proto_tree_add_uint_format(
-		dtap_tree, hf_idx, tvb, offset, 1, oct[1],
+		pd_tree, hf_idx, tvb, offset, 1, oct[1],
 		"Message Type: %s", msg_str ? msg_str : "(Unknown)"
 	);
 
@@ -138,9 +138,9 @@ dissect_gmr1_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Decode elements */
 	if (msg_func) {
-		(*msg_func)(tvb, dtap_tree, pinfo, offset, len - offset);
+		(*msg_func)(tvb, pd_tree, pinfo, offset, len - offset);
 	} else {
-		proto_tree_add_text(dtap_tree, tvb, offset, len - offset,
+		proto_tree_add_text(pd_tree, tvb, offset, len - offset,
 		                    "Message Elements");
 	}
 
