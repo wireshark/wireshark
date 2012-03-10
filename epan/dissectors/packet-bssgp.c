@@ -2020,7 +2020,6 @@ de_bssgp_ran_app_error_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo 
             break;
         default :
             proto_tree_add_text(tree, tvb, curr_offset, len, "Unknown Application Error Container");
-            curr_offset+=len;
             break;
     }
     return(len);
@@ -2228,7 +2227,7 @@ de_bssgp_rim_routing_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
              * and is coded as the value part (octet 3 to octet 10) of the
              * Cell Identifier information element specified in sub-clause 11.3.9.
              */
-            curr_offset = curr_offset + de_bssgp_cell_id(tvb, tree, pinfo, curr_offset, len, add_string, string_len);
+            de_bssgp_cell_id(tvb, tree, pinfo, curr_offset, len, add_string, string_len);
             break;
         case 1:
             /* RIM Routing Address discriminator = 0001:
@@ -2240,7 +2239,6 @@ de_bssgp_rim_routing_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
             /* Octet 10 - 11 RNC-ID (or Extended RNC-ID) */
             rnc_id = tvb_get_ntohs(tvb, curr_offset);
             proto_tree_add_item(tree, hf_bssgp_rnc_id, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
-            curr_offset+=2;
 
             if (add_string)
                 g_snprintf(add_string, string_len, " %s, RNC-ID %u", add_string, rnc_id);
