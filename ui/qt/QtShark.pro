@@ -84,7 +84,7 @@ win32:INCLUDEPATH += \
 
 SOURCES_WS_C = \
     ../../airpcap_loader.c \
-    ../../alert_box.c     \
+    ../../ui/alert_box.c     \
     ../../capture-pcap-util.c     \
     ../../capture.c       \
     ../../capture_ifinfo.c \
