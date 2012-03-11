@@ -3031,6 +3031,12 @@ main(int argc, char *argv[])
       /* "-k" was specified; start a capture. */
       show_main_window(TRUE);
       check_and_warn_user_startup(cf_name);
+
+      /* If no user interfaces were specified on the command line,
+         copy the list of selected interfaces to the set of interfaces
+         to use for this capture. */
+      if (global_capture_opts.ifaces->len == 0)
+        collect_ifaces(&global_capture_opts);
       if (capture_start(&global_capture_opts)) {
         /* The capture started.  Open stat windows; we do so after creating
            the main window, to avoid GTK warnings, and after successfully

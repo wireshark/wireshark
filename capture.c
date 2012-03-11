@@ -138,13 +138,7 @@ capture_start(capture_options *capture_opts)
   guint i;
   GString *source = g_string_new("");
 
-  if (capture_opts->state != CAPTURE_STOPPED)
-    return FALSE;
   capture_opts->state = CAPTURE_PREPARING;
-
-  /* close the currently loaded capture file */
-  cf_close(capture_opts->cf);
-  collect_ifaces(capture_opts);
   g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Start ...");
 #ifdef _WIN32
   if (capture_opts->ifaces->len < 2) {
@@ -654,6 +648,10 @@ capture_input_closed(capture_options *capture_opts, gchar *msg)
     if (capture_opts->ifaces->len == 0) {
       collect_ifaces(capture_opts);
     }
+
+    /* close the currently loaded capture file */
+    cf_close(capture_opts->cf);
+
     capture_start(capture_opts);
   } else {
     /* We're not doing a capture any more, so we don't have a save file. */
