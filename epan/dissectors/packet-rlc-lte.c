@@ -2143,6 +2143,12 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
                                        ack_sn);
             }
 
+            /* NACK should always be 'behind' the ACK */
+            if ((1024 + ack_sn - nack_sn) % 1024 > 512) {
+                expert_add_info_format(pinfo, nack_ti, PI_MALFORMED, PI_ERROR,
+                                       "NACK must not be ahead of ACK in status PDU");
+            }
+
             /* Copy into struct, but don't exceed buffer */
             if (nack_count < MAX_NACKs) {
                 tap_info->NACKs[nack_count++] = (guint16)nack_sn;
