@@ -2476,6 +2476,7 @@ main(int argc, char *argv[])
       case 'k':        /* Start capture immediately */
       case 'H':        /* Hide capture info dialog box */
       case 'p':        /* Don't capture in promiscuous mode */
+      case 'i':        /* Use interface x */
 #ifdef HAVE_PCAP_CREATE
       case 'I':        /* Capture in monitor mode, if available */
 #endif
@@ -2504,18 +2505,6 @@ main(int argc, char *argv[])
         break;
 #endif
 
-#ifdef HAVE_LIBPCAP
-      case 'i':       /* Use interface xxx */
-        status = capture_opts_add_iface_opt(&global_capture_opts, optarg);
-        if (status != 0) {
-            exit(status);
-        }
-#else
-        capture_option_specified = TRUE;
-        arg_error = TRUE;
-#endif
-        break;
-        
       /*** all non capture option specific ***/
       case 'C':
         /* Configuration profile settings were already processed just ignore them this time*/
