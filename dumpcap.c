@@ -658,7 +658,7 @@ open_capture_device(interface_options *interface_opts,
                   "Calling pcap_set_snaplen() with snaplen %d.", interface_opts->snaplen);
             pcap_set_snaplen(pcap_h, interface_opts->snaplen);
             g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
-                  "Calling pcap_set_snaplen() with promisc_mode %d.", interface_opts->promisc_mode);
+                  "Calling pcap_set_promisc() with promisc_mode %d.", interface_opts->promisc_mode);
             pcap_set_promisc(pcap_h, interface_opts->promisc_mode);
             pcap_set_timeout(pcap_h, CAP_READ_TIMEOUT);
 
