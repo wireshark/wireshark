@@ -2338,7 +2338,7 @@ Alejandro Vaquero	<alejandro.vaquero [AT] verso.com> {
 Francesco Fondelli	<francesco.fondelli [AT] gmail.com> {
 	ICE protocol support
 	DCCP protocol support
-	MPLS OAM support, Y.1711
+	ITU-T Y.1711 (OAM mechanism for MPLS networks) support
 	RSVP/OSPF Extensions for Support of Diffserv-aware MPLS-TE, RFC 4124
 	Linux Packet Generator support
 	rval_to_str() and alike
