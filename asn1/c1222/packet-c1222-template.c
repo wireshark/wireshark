@@ -757,10 +757,10 @@ keylookup(guint8 *keybuff, guint8 keyid)
  * \param decrypt TRUE if packet is to be authenticated and decrypted; FALSE if authentication only is requested
  * \returns TRUE if the requested operation was successful; otherwise FALSE
  */
+#ifdef HAVE_LIBGCRYPT
 static gboolean 
 decrypt_packet(guchar *buffer, guint32 length, gboolean decrypt)
 {
-#ifdef HAVE_LIBGCRYPT
 #define CANONBUFFSIZE 300U
   guchar canonbuff[CANONBUFFSIZE];
   guint8 c1222_key[EAX_SIZEOF_KEY];
@@ -796,14 +796,14 @@ decrypt_packet(guchar *buffer, guint32 length, gboolean decrypt)
 		  decrypt ? EAX_MODE_CIPHERTEXT_AUTH : EAX_MODE_CLEARTEXT_AUTH);
   }
   return status;
-#else /* HAVE_LIBCRYPT */  
-  /* these are to silence compiler unreferenced variable warnings */
-  buffer=buffer;
-  length=length;
-  decrypt=decrypt;
-  return FALSE;
-#endif /* HAVE_LIBGCRYPT */
 }
+#else /* HAVE_LIBCRYPT */  
+static gboolean 
+decrypt_packet(guchar *buffer _U_, guint32 length _U_, gboolean decrypt _U_)
+{
+  return FALSE;
+}
+#endif /* HAVE_LIBGCRYPT */
 
 /**
  * Checks to make sure that a complete, valid BER-encoded length is in the buffer.
