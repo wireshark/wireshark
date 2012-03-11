@@ -965,6 +965,10 @@ static gboolean capture_opts_output_to_pipe(const char *save_file, gboolean *is_
   return 0;
 }
 
+/*
+ * Add all non-hidden selected interfaces in the "all interfaces" list
+ * to the list of interfaces for the capture.
+ */
 void
 collect_ifaces(capture_options *capture_opts)
 {
