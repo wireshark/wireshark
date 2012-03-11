@@ -229,13 +229,13 @@ static void dissect_schedule_message(tvbuff_t *tvb, packet_info *pinfo, proto_tr
                                       new_slots[i], octet1);
                }
             }
-            else if ((octet1 == 0x40))
+            else if (octet1 == 0x40)
             {
                /* MDT 010000000 */
                proto_tree_add_text(sched_subtree, tvb, offset++, 1, "Slot: %d Free Message Slot, optional reading", new_slots[k]);
                other_slots[new_slots[i] - 1] = 0xFFFE;
             }
-            else if ((octet1 == 0x41))
+            else if (octet1 == 0x41)
             {
                /* MDT 010000001 */
                proto_tree_add_text(sched_subtree, tvb, offset++, 1, "Slot: %d Free Message Slot, reading advised", new_slots[k]);
@@ -297,12 +297,12 @@ static void dissect_schedule_message(tvbuff_t *tvb, packet_info *pinfo, proto_tr
                                       ++k, octet1);
                }
             }
-            else if ((octet1 == 0x40))
+            else if (octet1 == 0x40)
             {
                /* MDT 010000000 */
                proto_tree_add_text(sched_subtree, tvb, offset++, 1, "Slot: %d Free Message Slot, optional reading", ++k);
             }
-            else if ((octet1 == 0x41))
+            else if (octet1 == 0x41)
             {
                /* MDT 010000001 */
                proto_tree_add_text(sched_subtree, tvb, offset++, 1, "Slot: %d Free Message Slot, reading advised", ++k);
