@@ -2119,7 +2119,7 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
                 /* Dissect the setup header - it's applicable */
 
-                ti = proto_tree_add_protocol_format(tree, proto_usb, tvb, offset, 8, "URB setup");
+                ti = proto_tree_add_protocol_format(parent, proto_usb, tvb, offset, 8, "URB setup");
                 setup_tree = proto_item_add_subtree(ti, usb_setup_hdr);
                 usb_trans_info->requesttype=tvb_get_guint8(tvb, offset);
                 offset=dissect_usb_bmrequesttype(setup_tree, tvb, offset, &type_2);
@@ -2168,10 +2168,10 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                 case RQT_SETUP_TYPE_CLASS:
                     /* Try to find a class specific dissector */
                     next_tvb=tvb_new_subset_remaining(tvb, offset);
-                    if (try_heuristics && dissector_try_heuristic(heur_control_subdissector_list, next_tvb, pinfo, tree)) {
+                    if (try_heuristics && dissector_try_heuristic(heur_control_subdissector_list, next_tvb, pinfo, setup_tree)) {
                         return;
                     }
-                    if(dissector_try_uint(usb_control_dissector_table, usb_conv_info->interfaceClass, next_tvb, pinfo, tree)){
+                    if(dissector_try_uint(usb_control_dissector_table, usb_conv_info->interfaceClass, next_tvb, pinfo, setup_tree)){
                         return;
                     }
                     /* Else no class dissector, just display generic fields */
@@ -2211,10 +2211,10 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                 tvbuff_t *next_tvb;
 
                 next_tvb = tvb_new_subset_remaining(tvb, offset);
-                if (try_heuristics && dissector_try_heuristic(heur_control_subdissector_list, next_tvb, pinfo, tree)) {
+                if (try_heuristics && dissector_try_heuristic(heur_control_subdissector_list, next_tvb, pinfo, parent)) {
                     return;
                 }
-                if(dissector_try_uint(usb_control_dissector_table, usb_conv_info->interfaceClass, next_tvb, pinfo, tree)){
+                if(dissector_try_uint(usb_control_dissector_table, usb_conv_info->interfaceClass, next_tvb, pinfo, parent)){
                     return;
                 }
             }
@@ -2236,10 +2236,10 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
             if(usb_trans_info){
                 /* Try to find a class specific dissector */
                 next_tvb=tvb_new_subset_remaining(tvb, offset);
-                if (try_heuristics && dissector_try_heuristic(heur_control_subdissector_list, next_tvb, pinfo, tree)) {
+                if (try_heuristics && dissector_try_heuristic(heur_control_subdissector_list, next_tvb, pinfo, parent)) {
                     return;
                 }
-                if(dissector_try_uint(usb_control_dissector_table, usb_conv_info->interfaceClass, next_tvb, pinfo, tree)){
+                if(dissector_try_uint(usb_control_dissector_table, usb_conv_info->interfaceClass, next_tvb, pinfo, parent)){
                     return;
                 }
 
@@ -2265,17 +2265,17 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                     }
 
                     if(dissector){
-                        offset = dissector(pinfo, tree, tvb, offset, usb_conv_info->usb_trans_info, usb_conv_info);
+                        offset = dissector(pinfo, parent, tvb, offset, usb_conv_info->usb_trans_info, usb_conv_info);
                     } else {
                         if (tvb_reported_length_remaining(tvb, offset) != 0) {
-                            proto_tree_add_text(tree, tvb, offset, -1, "CONTROL response data");
+                            proto_tree_add_text(parent, tvb, offset, -1, "CONTROL response data");
                             offset += tvb_length_remaining(tvb, offset);
                         }
                     }
                     break;
                 default:
                     if (tvb_reported_length_remaining(tvb, offset) != 0) {
-                        proto_tree_add_text(tree, tvb, offset, -1, "CONTROL response data");
+                        proto_tree_add_text(parent, tvb, offset, -1, "CONTROL response data");
                         offset += tvb_length_remaining(tvb, offset);
                     }
                     break;
@@ -2283,7 +2283,7 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
             } else {
                 /* no matching request available */
                 if (tvb_reported_length_remaining(tvb, offset) != 0) {
-                    proto_tree_add_text(tree, tvb, offset, -1, "CONTROL response data");
+                    proto_tree_add_text(parent, tvb, offset, -1, "CONTROL response data");
                     offset += tvb_length_remaining(tvb, offset);
                 }
             }
@@ -2312,7 +2312,7 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
             /* Dissect the setup header - it's applicable */
 
-            ti = proto_tree_add_protocol_format(tree, proto_usb, tvb, offset, 8, "URB setup");
+            ti = proto_tree_add_protocol_format(parent, proto_usb, tvb, offset, 8, "URB setup");
             setup_tree = proto_item_add_subtree(ti, usb_setup_hdr);
 
             offset = dissect_usb_bmrequesttype(setup_tree, tvb, offset, &type_2);
@@ -2417,7 +2417,7 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
             /* Dissect the setup header - it's applicable */
 
-            ti = proto_tree_add_protocol_format(tree, proto_usb, tvb, offset, 8, "URB setup");
+            ti = proto_tree_add_protocol_format(parent, proto_usb, tvb, offset, 8, "URB setup");
             setup_tree = proto_item_add_subtree(ti, usb_setup_hdr);
 
             offset=dissect_usb_bmrequesttype(setup_tree, tvb, offset, &type_2);
@@ -2446,7 +2446,7 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
     if (tvb_reported_length_remaining(tvb, offset) != 0) {
         /* There is leftover capture data to add (padding?) */
-        proto_tree_add_item(tree, hf_usb_capdata, tvb, offset, -1, ENC_NA);
+        proto_tree_add_item(parent, hf_usb_capdata, tvb, offset, -1, ENC_NA);
     }
 }
 
