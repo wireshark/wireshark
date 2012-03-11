@@ -1513,8 +1513,9 @@ pipe_read_block(int pipe_fd, char *indicator, int len, char *msg,
     /* does the data fit into the given buffer? */
     if(required > len) {
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
-              "read %d length error, required %d > len %d, indicator: %u",
-              pipe_fd, required, len, *indicator);
+              "read %d length error, required %d > len %d, header: 0x%02x 0x%02x 0x%02x 0x%02x",
+              pipe_fd, required, len,
+              header[0], header[1], header[2], header[3]);
 
         /* we have a problem here, try to read some more bytes from the pipe to debug where the problem really is */
         memcpy(msg, header, sizeof(header));
