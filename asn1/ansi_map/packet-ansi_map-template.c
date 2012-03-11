@@ -3850,7 +3850,6 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
         break;
         /*End N.S0011-0 v 1.0 */
     case  57: /*Information Backward*/
-        offset = offset;
         break;
         /*  N.S0008-0 v 1.0 */
     case  58: /*Change Facilities*/
@@ -3915,7 +3914,6 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
         break;
         /*END N.S0013 */
     case  77: /*Release*/
-        offset = offset;
         break;
     case  78: /*SMS Delivery Point to Point Ack*/
         offset = dissect_ansi_map_SMSDeliveryPointToPointAck(TRUE, tvb, offset, actx, tree, hf_ansi_map_smsDeliveryPointToPointAck);
@@ -3969,7 +3967,6 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
         offset = dissect_ansi_map_CallTerminationReport(TRUE, tvb, offset, actx, tree, hf_ansi_map_callTerminationReport);
         break;
     case  93: /*Geo Position Directive*/
-        offset = offset;
         break;
     case  94: /*Geo Position Request*/
         offset = dissect_ansi_map_GeoPositionRequest(TRUE, tvb, offset, actx, tree, hf_ansi_map_interSystemPositionRequest);
@@ -4364,7 +4361,6 @@ dissect_ansi_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *ansi_map_item;
     proto_tree *ansi_map_tree = NULL;
-    int        offset = 0;
     struct ansi_tcap_private_t *p_private_tcap;
     asn1_ctx_t asn1_ctx;
     asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
