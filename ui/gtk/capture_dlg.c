@@ -2741,6 +2741,7 @@ pipe_del_bt_clicked_cb(GtkWidget *w _U_, gpointer data _U_)
         g_free(optname);
       }
     }
+    g_free(name);
   }
 
   if (gtk_tree_model_get_iter_first (model, &iter)) {
@@ -2752,7 +2753,6 @@ pipe_del_bt_clicked_cb(GtkWidget *w _U_, gpointer data _U_)
   if (get_welcome_window() != NULL) {
      welcome_if_panel_reload();
   }
-  g_free(name);
 }
 
 static void
