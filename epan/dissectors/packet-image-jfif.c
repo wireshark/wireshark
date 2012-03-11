@@ -548,6 +548,7 @@ process_app0_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
                     break;
             }
         }
+        offset = 10;
     } else { /* Unknown */
         proto_item_append_text(ti, " (unknown identifier)");
         offset = 4 + str_size;
