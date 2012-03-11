@@ -84,7 +84,7 @@ typedef enum {
 static GtkWidget    *status_pane_left, *status_pane_right;
 static GtkWidget    *info_bar, *info_bar_event, *packets_bar, *profile_bar, *profile_bar_event;
 static GtkWidget    *expert_info_error, *expert_info_warn, *expert_info_note;
-static GtkWidget    *expert_info_chat, *expert_info_none;
+static GtkWidget    *expert_info_chat, *expert_info_comment, *expert_info_none;
 
 static GtkWidget    *capture_comment_none, *capture_comment;
 
@@ -365,6 +365,7 @@ statusbar_widgets_emptying(GtkWidget *statusbar)
     g_object_ref(G_OBJECT(expert_info_warn));
     g_object_ref(G_OBJECT(expert_info_note));
     g_object_ref(G_OBJECT(expert_info_chat));
+    g_object_ref(G_OBJECT(expert_info_comment));
     g_object_ref(G_OBJECT(expert_info_none));
     g_object_ref(G_OBJECT(capture_comment));
     g_object_ref(G_OBJECT(capture_comment_none));
@@ -383,6 +384,7 @@ statusbar_widgets_pack(GtkWidget *statusbar)
     gtk_box_pack_start(GTK_BOX(statusbar), expert_info_warn, FALSE, FALSE, 2);
     gtk_box_pack_start(GTK_BOX(statusbar), expert_info_note, FALSE, FALSE, 2);
     gtk_box_pack_start(GTK_BOX(statusbar), expert_info_chat, FALSE, FALSE, 2);
+    gtk_box_pack_start(GTK_BOX(statusbar), expert_info_comment, FALSE, FALSE, 2);
     gtk_box_pack_start(GTK_BOX(statusbar), expert_info_none, FALSE, FALSE, 2);
     gtk_box_pack_start(GTK_BOX(statusbar), capture_comment, FALSE, FALSE, 2);
     gtk_box_pack_start(GTK_BOX(statusbar), capture_comment_none, FALSE, FALSE, 2);
@@ -580,6 +582,13 @@ status_expert_new(void)
     gtk_container_add(GTK_CONTAINER(expert_info_chat), expert_image);
     g_signal_connect(expert_info_chat, "button_press_event", G_CALLBACK(expert_comp_dlg_event_cb), NULL);
 
+    expert_image = gtk_image_new_from_stock(GTK_STOCK_YES, GTK_ICON_SIZE_MENU);
+    gtk_widget_set_tooltip_text(expert_image, "COMMENT is the highest expert info level");
+    gtk_widget_show(expert_image);
+    expert_info_comment = gtk_event_box_new();
+    gtk_container_add(GTK_CONTAINER(expert_info_comment), expert_image);
+    g_signal_connect(expert_info_comment, "button_press_event", G_CALLBACK(expert_comp_dlg_event_cb), NULL);
+
     expert_image = pixbuf_to_widget(expert_none_pb_data);
     gtk_widget_set_tooltip_text(expert_image, "No expert info");
     gtk_widget_show(expert_image);
@@ -596,6 +605,7 @@ status_expert_hide(void)
     gtk_widget_hide(expert_info_warn);
     gtk_widget_hide(expert_info_note);
     gtk_widget_hide(expert_info_chat);
+    gtk_widget_hide(expert_info_comment);
     gtk_widget_hide(expert_info_none);
 }
 
@@ -616,6 +626,9 @@ status_expert_update(void)
         break;
     case(PI_CHAT):
         gtk_widget_show(expert_info_chat);
+        break;
+    case(PI_COMMENT):
+        gtk_widget_show(expert_info_comment);
         break;
     default:
         gtk_widget_show(expert_info_none);
