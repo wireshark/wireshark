@@ -30,7 +30,6 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 
 static int proto_dvb_data_mpe = -1;
 static int hf_dvb_data_mpe_reserved = -1;
@@ -57,7 +56,7 @@ static dissector_handle_t llc_handle;
 #define DVB_DATA_MPE_CURRENT_NEXT_INDICATOR_MASK	0x01
 
 static const value_string dvb_rcs_cur_next_vals[] = {
-	
+
 	{ 0x0, "Not yet applicable" },
 	{ 0x1, "Currently applicable" },
 	{ 0, NULL },
@@ -65,25 +64,23 @@ static const value_string dvb_rcs_cur_next_vals[] = {
 };
 
 
-void
+static void
 dissect_dvb_data_mpe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
-	guint offset = 0;
-	guint8 llc_snap_flag = 0;
-	int i;
+	guint       offset            = 0;
+	guint8      llc_snap_flag     = 0;
+	int         i;
 
-	proto_item *ti = NULL;
+	proto_item *ti                = NULL;
 	proto_tree *dvb_data_mpe_tree = NULL;
-	tvbuff_t *mac_tvb = NULL;
-	tvbuff_t *mac_bytes_tvb[6] = {0};
-	tvbuff_t *data_tvb = NULL;
+	tvbuff_t   *mac_tvb           = NULL;
+	tvbuff_t   *mac_bytes_tvb[6];
+	tvbuff_t   *data_tvb          = NULL;
 
 	/* The TVB should start right after the section_length in the Section packet */
 
-	col_clear(pinfo->cinfo, COL_PROTOCOL);
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DVB-DATA");
-	col_clear(pinfo->cinfo, COL_INFO);
 	col_set_str(pinfo->cinfo, COL_INFO, "MultiProtocol Encapsulation");
 
 	if (!tree)
@@ -126,18 +123,15 @@ dissect_dvb_data_mpe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	tvb_composite_finalize(mac_tvb);
 
 	proto_tree_add_item(dvb_data_mpe_tree, hf_dvb_data_mpe_dst_mac, mac_tvb, 0 , 6, ENC_NA);
-	col_clear(pinfo->cinfo, COL_RES_DL_DST);
 	col_add_str(pinfo->cinfo, COL_RES_DL_DST, tvb_ether_to_str(mac_tvb, 0));
 
-	data_tvb = tvb_new_subset(tvb, offset, -1, -1);
+	data_tvb = tvb_new_subset_remaining(tvb, offset);
 
 	if (llc_snap_flag) {
 		call_dissector(llc_handle, data_tvb, pinfo, tree);
 	} else {
 		call_dissector(ip_handle, data_tvb, pinfo, tree);
 	}
-
-	
 
 	return;
 
@@ -148,7 +142,7 @@ proto_register_dvb_data_mpe(void)
 {
 
 	static hf_register_info hf[] = {
-		
+
 		/* DSM-CC common fields */
 		{ &hf_dvb_data_mpe_reserved, {
 			"Reserved", "dvb_data_mpe.reserved",
@@ -164,7 +158,7 @@ proto_register_dvb_data_mpe(void)
 			"Address Scrambling Control", "dvb_data_mpe.addr_scrambling",
 			FT_UINT8, BASE_HEX, NULL, DVB_DATA_MPE_ADDRESS_SCRAMBLING_MASK, NULL, HFILL
 		} },
-		
+
 		{ &hf_dvb_data_mpe_llc_snap_flag, {
 			"LLC SNAP Flag", "dvb_data_mpe.llc_snap_flag",
 			FT_UINT8, BASE_HEX, NULL, DVB_DATA_MPE_LLC_SNAP_FLAG_MASK, NULL, HFILL
@@ -179,7 +173,7 @@ proto_register_dvb_data_mpe(void)
 			"Section Number", "dvb_data_mpe.sect_num",
 			FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
 		} },
-			
+
 		{ &hf_dvb_data_mpe_last_section_number, {
 			"Last Section Number", "dvb_data_mpe.last_sect_num",
 			FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
@@ -201,19 +195,20 @@ proto_register_dvb_data_mpe(void)
 	proto_register_field_array(proto_dvb_data_mpe, hf, array_length(hf));
 
 	proto_register_subtree_array(ett, array_length(ett));
-	
+
 }
 
 
 void
 proto_reg_handoff_dvb_data_mpe(void)
 {
+
 	dissector_handle_t dvb_data_mpe_handle;
 
 	dvb_data_mpe_handle = create_dissector_handle(dissect_dvb_data_mpe, proto_dvb_data_mpe);
 	dissector_add_uint("mpeg_sect.tid", DVB_DATA_MPE_TID, dvb_data_mpe_handle);
 
-	ip_handle = find_dissector("ip");
+	ip_handle  = find_dissector("ip");
 	llc_handle = find_dissector("llc");
 
 }
