@@ -436,7 +436,7 @@ get_auth_arguments(capture_options *capture_opts, const char *arg)
 }
 #endif
 
-int
+static int
 capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str_p)
 {
     long        adapter_index;
