@@ -29,9 +29,9 @@
  * chandle, cid, dlci and direction
  */
 typedef struct _btrfcomm_data_t {
-	guint16 chandle;  /* only low 12 bits used */
-	guint16 cid;
-	guint8 dlci;
+    guint16 chandle;  /* only low 12 bits used */
+    guint16 cid;
+    guint8 dlci;
 } btrfcomm_data_t;
 
 #endif

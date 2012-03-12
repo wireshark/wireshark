@@ -24,31 +24,31 @@
 #ifndef __PACKET_BTL2CAP_H__
 #define __PACKET_BTL2CAP_H__
 
-#define BTL2CAP_PSM_SDP			0x0001
-#define BTL2CAP_PSM_RFCOMM		0x0003
-#define BTL2CAP_PSM_BNEP		0x000f
-#define BTL2CAP_PSM_HID_CTRL	0x0011
-#define BTL2CAP_PSM_HID_INTR	0x0013
-#define BTL2CAP_PSM_AVCTP_CTRL	0x0017
-#define BTL2CAP_PSM_AVDTP		0x0019
-#define BTL2CAP_PSM_AVCTP_BRWS	0x001b
+#define BTL2CAP_PSM_SDP             0x0001
+#define BTL2CAP_PSM_RFCOMM          0x0003
+#define BTL2CAP_PSM_BNEP            0x000f
+#define BTL2CAP_PSM_HID_CTRL        0x0011
+#define BTL2CAP_PSM_HID_INTR        0x0013
+#define BTL2CAP_PSM_AVCTP_CTRL      0x0017
+#define BTL2CAP_PSM_AVDTP           0x0019
+#define BTL2CAP_PSM_AVCTP_BRWS      0x001b
 
 #define BTL2CAP_DYNAMIC_PSM_START   0x1000
 
-#define BTL2CAP_FIXED_CID_NULL		0x0000
-#define BTL2CAP_FIXED_CID_SIGNAL	0x0001
-#define BTL2CAP_FIXED_CID_CONNLESS	0x0002
-#define BTL2CAP_FIXED_CID_AMP_MAN	0x0003
-#define BTL2CAP_FIXED_CID_AMP_TEST	0x003F
-#define BTL2CAP_FIXED_CID_MAX		0x0040
+#define BTL2CAP_FIXED_CID_NULL      0x0000
+#define BTL2CAP_FIXED_CID_SIGNAL    0x0001
+#define BTL2CAP_FIXED_CID_CONNLESS  0x0002
+#define BTL2CAP_FIXED_CID_AMP_MAN   0x0003
+#define BTL2CAP_FIXED_CID_AMP_TEST  0x003F
+#define BTL2CAP_FIXED_CID_MAX       0x0040
 
 /* This structure is passed to higher layer protocols through
  * pinfo->private_data so that they can track "conversations" based on
  * chandle, cid and direction
  */
 typedef struct _btl2cap_data_t {
-	guint16 chandle;  /* only low 12 bits used */
-	guint16 cid;
+    guint16 chandle;  /* only low 12 bits used */
+    guint16 cid;
 } btl2cap_data_t;
 
 #endif
