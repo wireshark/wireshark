@@ -86,7 +86,7 @@ static const value_string command_code_vals[] = {
 };
 
 static const value_string reason_vals[] = {
-    { 0x0000,   "Command not understood" },
+    { 0x0000, "Command not understood" },
     { 0, NULL }
 };
 
@@ -109,25 +109,25 @@ static const value_string controller_status_vals[] = {
 };
 
 static const value_string status_vals[] = {
-    { 0x0000,   "Success" },
-    { 0x0001,   "Invalid Controller ID" },
+    { 0x0000, "Success" },
+    { 0x0001, "Invalid Controller ID" },
     { 0, NULL }
 };
 
 static const value_string create_status_vals[] = {
-    { 0x0000,   "Success" },
-    { 0x0001,   "Invalid Controller ID" },
-    { 0x0002,   "Failed - Unable to start link creation" },
-    { 0x0003,   "Failed - Collision Occurred" },
-    { 0x0004,   "Failed - AMP Disconnected Physical Link Request packet received" },
-    { 0x0005,   "Failed - Physical Link Already Exists" },
+    { 0x0000, "Success" },
+    { 0x0001, "Invalid Controller ID" },
+    { 0x0002, "Failed - Unable to start link creation" },
+    { 0x0003, "Failed - Collision Occurred" },
+    { 0x0004, "Failed - AMP Disconnected Physical Link Request packet received" },
+    { 0x0005, "Failed - Physical Link Already Exists" },
     { 0, NULL }
 };
 
 static const value_string disc_status_vals[] = {
-    { 0x0000,   "Success" },
-    { 0x0001,   "Invalid Controller ID" },
-    { 0x0002,   "Failed - No Physical Link exists and no Physical Link creation is in progress" },
+    { 0x0000, "Success" },
+    { 0x0001, "Invalid Controller ID" },
+    { 0x0002, "Failed - No Physical Link exists and no Physical Link creation is in progress" },
     { 0, NULL }
 };
 
@@ -138,9 +138,9 @@ dissect_comrej(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tr
 
     reason = tvb_get_letohs(tvb, offset);
     proto_tree_add_item(tree, hf_btamp_rej_reason, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    offset+=2;
+    offset += 2;
 
-    switch(reason){
+    switch (reason) {
     case 0x0000: /* Command not understood */
         break;
 
@@ -155,10 +155,10 @@ static int
 dissect_discoverrequest(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_btamp_mtu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    offset+=2;
+    offset += 2;
 
     proto_tree_add_item(tree, hf_btamp_extfeatures, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    offset+=2;
+    offset += 2;
 
     return offset;
 }
@@ -166,23 +166,23 @@ dissect_discoverrequest(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto
 static int
 dissect_controller_entry(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint16 idx)
 {
-    proto_tree *btamp_controller_entry_tree=NULL;
-    proto_item *ti_controller_entry=NULL;
+    proto_item *ti_controller_entry;
+    proto_tree *btamp_controller_entry_tree;
 
-    ti_controller_entry=proto_tree_add_none_format(tree,
+    ti_controller_entry = proto_tree_add_none_format(tree,
             hf_btamp_controllers, tvb,
             offset, 3,
             "Entry: %u", idx);
-    btamp_controller_entry_tree=proto_item_add_subtree(ti_controller_entry, ett_btamp_controller_entry);
+    btamp_controller_entry_tree = proto_item_add_subtree(ti_controller_entry, ett_btamp_controller_entry);
 
     proto_tree_add_item(btamp_controller_entry_tree, hf_btamp_controller_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    offset+=1;
+    offset += 1;
 
     proto_tree_add_item(btamp_controller_entry_tree, hf_btamp_controller_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    offset+=1;
+    offset += 1;
 
     proto_tree_add_item(btamp_controller_entry_tree, hf_btamp_controller_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    offset+=1;
+    offset += 1;
 
     return offset;
 }
@@ -190,27 +190,27 @@ dissect_controller_entry(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 static int
 dissect_discoverresponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-    guint16 length;
-    guint16 idx = 1;
-    proto_tree *btamp_controller_list_tree=NULL;
-    proto_item *ti_controller_list=NULL;
+    guint16     length;
+    guint16     idx = 1;
+    proto_item *ti_controller_list;
+    proto_tree *btamp_controller_list_tree;
 
     proto_tree_add_item(tree, hf_btamp_mtu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    offset+=2;
+    offset += 2;
 
     proto_tree_add_item(tree, hf_btamp_extfeatures, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    offset+=2;
+    offset += 2;
 
     length = tvb_length_remaining(tvb, offset);
-    ti_controller_list=proto_tree_add_none_format(tree,
+    ti_controller_list = proto_tree_add_none_format(tree,
             hf_btamp_controller_list, tvb,
             offset, length,
             "Controller list");
-    btamp_controller_list_tree=proto_item_add_subtree(ti_controller_list, ett_btamp_controller_list);
+    btamp_controller_list_tree = proto_item_add_subtree(ti_controller_list, ett_btamp_controller_list);
 
     while (tvb_length_remaining(tvb, offset) >= 3) {
         offset = dissect_controller_entry(tvb, offset, pinfo, btamp_controller_list_tree, idx);
-        ++idx;
+        idx += 1;
     }
 
     return offset;
@@ -219,21 +219,21 @@ dissect_discoverresponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 static int
 dissect_changenotify(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-    guint16 length;
-    guint16 idx = 1;
-    proto_tree *btamp_controller_list_tree=NULL;
-    proto_item *ti_controller_list=NULL;
+    guint16     length;
+    guint16     idx = 1;
+    proto_item *ti_controller_list;
+    proto_tree *btamp_controller_list_tree;
 
     length = tvb_length_remaining(tvb, offset);
-    ti_controller_list=proto_tree_add_none_format(tree,
+    ti_controller_list = proto_tree_add_none_format(tree,
             hf_btamp_controller_list, tvb,
             offset, length,
             "Controller list");
-    btamp_controller_list_tree=proto_item_add_subtree(ti_controller_list, ett_btamp_controller_list);
+    btamp_controller_list_tree = proto_item_add_subtree(ti_controller_list, ett_btamp_controller_list);
 
     while (tvb_length_remaining(tvb, offset) >= 3) {
         offset = dissect_controller_entry(tvb, offset, pinfo, btamp_controller_list_tree, idx);
-        ++idx;
+        idx += 1;
     }
 
     return offset;
@@ -249,7 +249,7 @@ static int
 dissect_getinforequest(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_btamp_controller_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    offset+=1;
+    offset += 1;
 
     return offset;
 }
@@ -257,34 +257,34 @@ dissect_getinforequest(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
 static int
 dissect_getinforesponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree *btamp_controller_tree=NULL;
-    proto_item *ti_controller=NULL;
+    proto_item *ti_controller;
+    proto_tree *btamp_controller_tree;
 
     proto_tree_add_item(tree, hf_btamp_controller_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    offset+=1;
+    offset += 1;
 
     proto_tree_add_item(tree, hf_btamp_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    offset+=1;
+    offset += 1;
 
     proto_tree_add_item(tree, hf_btamp_total_bw, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    offset+=4;
+    offset += 4;
 
     proto_tree_add_item(tree, hf_btamp_max_guaran_bw, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    offset+=4;
+    offset += 4;
 
     proto_tree_add_item(tree, hf_btamp_min_latency, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    offset+=4;
+    offset += 4;
 
-    ti_controller=proto_tree_add_none_format(tree,
+    ti_controller = proto_tree_add_none_format(tree,
             hf_btamp_pal_caps_mask, tvb,
             offset, 2,
             "PAL Capabilities");
-    btamp_controller_tree=proto_item_add_subtree(ti_controller, ett_btamp_caps);
+    btamp_controller_tree = proto_item_add_subtree(ti_controller, ett_btamp_caps);
     proto_tree_add_item(btamp_controller_tree, hf_btamp_pal_caps_guaranteed, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    offset+=2;
+    offset += 2;
 
     proto_tree_add_item(tree, hf_btamp_amp_assoc_size, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    offset+=2;
+    offset += 2;
 
     return offset;
 }
@@ -293,7 +293,7 @@ static int
 dissect_getampassocrequest(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_btamp_controller_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    offset+=1;
+    offset += 1;
 
     return offset;
 }
@@ -302,7 +302,7 @@ static int
 dissect_ampassoc(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_btamp_amp_assoc, tvb, offset, tvb_length_remaining(tvb, offset), ENC_NA);
-    offset+=tvb_length_remaining(tvb, offset);
+    offset += tvb_length_remaining(tvb, offset);
 
     return offset;
 }
@@ -311,12 +311,12 @@ static int
 dissect_getampassocresponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_btamp_controller_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    offset+=1;
+    offset += 1;
 
     proto_tree_add_item(tree, hf_btamp_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    offset+=1;
+    offset += 1;
 
-    offset=dissect_ampassoc(tvb, offset, pinfo, tree);
+    offset = dissect_ampassoc(tvb, offset, pinfo, tree);
 
     return offset;
 }
@@ -325,12 +325,12 @@ static int
 dissect_createphysicalrequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_btamp_lcontroller_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    offset+=1;
+    offset += 1;
 
     proto_tree_add_item(tree, hf_btamp_rcontroller_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    offset+=1;
+    offset += 1;
 
-    offset=dissect_ampassoc(tvb, offset, pinfo, tree);
+    offset = dissect_ampassoc(tvb, offset, pinfo, tree);
 
     return offset;
 }
@@ -339,13 +339,13 @@ static int
 dissect_createphysicalresponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_btamp_lcontroller_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    offset+=1;
+    offset += 1;
 
     proto_tree_add_item(tree, hf_btamp_rcontroller_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    offset+=1;
+    offset += 1;
 
     proto_tree_add_item(tree, hf_btamp_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    offset+=1;
+    offset += 1;
 
     return offset;
 }
@@ -354,10 +354,10 @@ static int
 dissect_discphysicalchanrequest(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_btamp_lcontroller_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    offset+=1;
+    offset += 1;
 
     proto_tree_add_item(tree, hf_btamp_rcontroller_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    offset+=1;
+    offset += 1;
 
     return offset;
 }
@@ -366,27 +366,27 @@ static int
 dissect_discphysicalchanresponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_btamp_lcontroller_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    offset+=1;
+    offset += 1;
 
     proto_tree_add_item(tree, hf_btamp_rcontroller_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    offset+=1;
+    offset += 1;
 
     proto_tree_add_item(tree, hf_btamp_controller_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    offset+=1;
+    offset += 1;
 
     return offset;
 }
 
-static int dissect_btamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_btamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    int offset=0;
-    proto_item *ti=NULL;
-    proto_tree *btamp_tree=NULL;
-    guint16 length;
-    proto_tree *btamp_cmd_tree=NULL;
-    proto_item *ti_command=NULL;
-    guint8 cmd_code;
-    guint16 cmd_length;
+    int         offset         = 0;
+    proto_tree *btamp_tree     = NULL;
+    guint16     length;
+    proto_item *ti_command;
+    proto_tree *btamp_cmd_tree;
+    guint8      cmd_code;
+    guint16     cmd_length;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "AMP");
     switch (pinfo->p2p_dir) {
@@ -409,92 +409,94 @@ static int dissect_btamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
     }
 
-    if(tree){
-        ti=proto_tree_add_item(tree, proto_btamp, tvb, offset, -1, ENC_NA);
-        btamp_tree=proto_item_add_subtree(ti, ett_btamp);
+    if (tree) {
+        proto_item *ti;
+        ti = proto_tree_add_item(tree, proto_btamp, tvb, offset, -1, ENC_NA);
+        btamp_tree = proto_item_add_subtree(ti, ett_btamp);
     }
 
     length = tvb_length_remaining(tvb, offset);
-    ti_command=proto_tree_add_none_format(btamp_tree,
+    ti_command = proto_tree_add_none_format(btamp_tree,
             hf_btamp_command, tvb,
             offset, length,
             "Command: ");
-    btamp_cmd_tree=proto_item_add_subtree(ti_command, ett_btamp_cmd);
+    btamp_cmd_tree = proto_item_add_subtree(ti_command, ett_btamp_cmd);
 
-    cmd_code=tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(btamp_cmd_tree, hf_btamp_cmd_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    offset++;
+    cmd_code = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(btamp_cmd_tree, hf_btamp_cmd_code,   tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
 
-    proto_tree_add_item(btamp_cmd_tree, hf_btamp_cmd_ident, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    offset++;
+    proto_tree_add_item(btamp_cmd_tree, hf_btamp_cmd_ident,  tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
 
-    cmd_length=tvb_get_letohs(tvb, offset);
+    cmd_length = tvb_get_letohs(tvb, offset);
     proto_tree_add_item(btamp_cmd_tree, hf_btamp_cmd_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     proto_item_set_len(ti_command, cmd_length+4);
-    offset+=2;
+    offset += 2;
 
     switch(cmd_code) {
     case 0x01: /* Command Reject */
-        offset=dissect_comrej(tvb, offset, pinfo, btamp_cmd_tree);
+        offset = dissect_comrej(tvb, offset, pinfo, btamp_cmd_tree);
         break;
 
     case 0x02: /* Discover Request */
-        offset=dissect_discoverrequest(tvb, offset, pinfo, btamp_cmd_tree);
+        offset = dissect_discoverrequest(tvb, offset, pinfo, btamp_cmd_tree);
         break;
 
     case 0x03: /* Discover Response */
-        offset=dissect_discoverresponse(tvb, offset, pinfo, btamp_cmd_tree);
+        offset = dissect_discoverresponse(tvb, offset, pinfo, btamp_cmd_tree);
         break;
 
     case 0x04: /* AMP Change Notify */
-        offset=dissect_changenotify(tvb, offset, pinfo, btamp_cmd_tree);
+        offset = dissect_changenotify(tvb, offset, pinfo, btamp_cmd_tree);
         break;
 
     case 0x05: /* AMP Change Response */
-        offset=dissect_changeresponse(tvb, offset, pinfo, btamp_cmd_tree);
+        offset = dissect_changeresponse(tvb, offset, pinfo, btamp_cmd_tree);
         break;
 
     case 0x06: /* AMP Get Info Request */
-        offset=dissect_getinforequest(tvb, offset, pinfo, btamp_cmd_tree);
+        offset = dissect_getinforequest(tvb, offset, pinfo, btamp_cmd_tree);
         break;
 
     case 0x07: /* AMP Get Info Response */
-        offset=dissect_getinforesponse(tvb, offset, pinfo, btamp_cmd_tree);
+        offset = dissect_getinforesponse(tvb, offset, pinfo, btamp_cmd_tree);
         break;
 
     case 0x08: /* Get AMP Assoc Request */
-        offset=dissect_getampassocrequest(tvb, offset, pinfo, btamp_cmd_tree);
+        offset = dissect_getampassocrequest(tvb, offset, pinfo, btamp_cmd_tree);
         break;
 
     case 0x09: /* Get AMP Assoc Response */
-        offset=dissect_getampassocresponse(tvb, offset, pinfo, btamp_cmd_tree);
+        offset = dissect_getampassocresponse(tvb, offset, pinfo, btamp_cmd_tree);
         break;
 
     case 0x0A: /* Create Physical Link Request */
-        offset=dissect_createphysicalrequest(tvb, offset, pinfo, btamp_cmd_tree);
+        offset = dissect_createphysicalrequest(tvb, offset, pinfo, btamp_cmd_tree);
         break;
 
     case 0x0B: /* Create Physical Link Response */
-        offset=dissect_createphysicalresponse(tvb, offset, pinfo, btamp_cmd_tree);
+        offset = dissect_createphysicalresponse(tvb, offset, pinfo, btamp_cmd_tree);
         break;
 
     case 0x0c: /* Disconnect Physical Link Request */
-        offset=dissect_discphysicalchanrequest(tvb, offset, pinfo, btamp_cmd_tree);
+        offset = dissect_discphysicalchanrequest(tvb, offset, pinfo, btamp_cmd_tree);
         break;
 
     case 0x0d: /* Disconnect Physical Link Response */
-        offset=dissect_discphysicalchanresponse(tvb, offset, pinfo, btamp_cmd_tree);
+        offset = dissect_discphysicalchanresponse(tvb, offset, pinfo, btamp_cmd_tree);
         break;
 
     default:
         proto_tree_add_item(btamp_cmd_tree, hf_btamp_cmd_data, tvb, offset, -1, ENC_NA);
-        offset+=tvb_length_remaining(tvb, offset);
+        offset += tvb_length_remaining(tvb, offset);
         break;
     }
 
     proto_item_append_text(ti_command, "%s", val_to_str(cmd_code, command_code_vals, "Unknown PDU (%u)"));
     col_append_str(pinfo->cinfo, COL_INFO, val_to_str(cmd_code, command_code_vals, "Unknown PDU (%u)"));
-return offset;
+
+    return offset;
 }
 
 /* Register the protocol with Wireshark */
