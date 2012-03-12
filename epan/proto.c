@@ -7440,7 +7440,7 @@ proto_tree_add_split_bits_item_ret_val(proto_tree *tree, const int hf_index, tvb
     case FT_INT24:
     case FT_INT32:
     case FT_INT64:
-        if (value & (G_GINT64_CONSTANT(1) << (no_of_bits-1)))
+        if (value & no_of_bits && (G_GINT64_CONSTANT(1) << (no_of_bits-1)))
             value |= (G_GINT64_CONSTANT(-1) << no_of_bits);
         break;
     default:
