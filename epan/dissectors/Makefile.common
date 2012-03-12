@@ -872,6 +872,7 @@ DISSECTOR_SRC = \
 	packet-retix-bpdu.c	\
 	packet-rfc2190.c	\
 	packet-rfid-felica.c	\
+	packet-rfid-pn532.c	\
 	packet-rgmp.c		\
 	packet-rip.c		\
 	packet-ripng.c		\

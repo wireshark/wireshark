@@ -953,6 +953,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-retix-bpdu.c
 	dissectors/packet-rfc2190.c
 	dissectors/packet-rfid-felica.c
+	dissectors/packet-rfid-pn532.c
 	dissectors/packet-rgmp.c
 	dissectors/packet-rip.c
 	dissectors/packet-ripng.c
