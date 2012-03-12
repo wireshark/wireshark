@@ -129,8 +129,14 @@ static int hf_ipv6_6to4_sla_id                  = -1;
 static int hf_ipv6_teredo_server_ipv4           = -1;
 static int hf_ipv6_teredo_port                  = -1;
 static int hf_ipv6_teredo_client_ipv4           = -1;
+static int hf_ipv6_opt                          = -1;
+static int hf_ipv6_opt_type                     = -1;
+static int hf_ipv6_opt_length                   = -1;
 static int hf_ipv6_opt_pad1                     = -1;
 static int hf_ipv6_opt_padn                     = -1;
+static int hf_ipv6_opt_rtalert                  = -1;
+static int hf_ipv6_opt_jumbo                    = -1;
+static int hf_ipv6_opt_unknown                  = -1;
 static int hf_ipv6_dst_opt                      = -1;
 static int hf_ipv6_hop_opt                      = -1;
 static int hf_ipv6_unk_hdr                      = -1;
@@ -152,8 +158,6 @@ static int hf_ipv6_fragment_count               = -1;
 static int hf_ipv6_reassembled_in               = -1;
 static int hf_ipv6_reassembled_length           = -1;
 
-static int hf_ipv6_mipv6_type                   = -1;
-static int hf_ipv6_mipv6_length                 = -1;
 static int hf_ipv6_mipv6_home_address           = -1;
 
 static int hf_ipv6_routing_hdr_rpl_cmprI  = -1;
@@ -228,6 +232,7 @@ static int hf_geoip_dst_lon             = -1;
 #endif /* HAVE_GEOIP_V6 */
 
 static gint ett_ipv6                    = -1;
+static gint ett_ipv6_opt                = -1;
 static gint ett_ipv6_version            = -1;
 static gint ett_ipv6_shim6              = -1;
 static gint ett_ipv6_shim6_option       = -1;
@@ -288,6 +293,30 @@ static gboolean ipv6_use_geoip = TRUE;
  */
 static GHashTable *ipv6_fragment_table = NULL;
 static GHashTable *ipv6_reassembled_table = NULL;
+
+/* http://www.iana.org/assignments/icmpv6-parameters (last updated 2012-12-22) */
+static const value_string ipv6_opt_vals[] = {
+    { IP6OPT_PAD1, "Pad1" },
+    { IP6OPT_PADN, "PadN" },
+    { IP6OPT_TEL, "Tunnel Encapsulation Limit" },
+    { IP6OPT_RTALERT, "Router Alert" },
+    { IP6OPT_CALIPSO, "Calipso" },
+    { IP6OPT_QUICKSTART, "Quick Start" },
+    { IP6OPT_ENDI, "Endpoint Identification" },
+    { IP6OPT_EXP_1E, "Experimental (0x1E)" },
+    { IP6OPT_EXP_3E, "Experimental (0x3E)" },
+    { IP6OPT_EXP_5E, "Experimental (0x5E)" },
+    { IP6OPT_RPL, "RPL Option" },
+    { IP6OPT_EXP_7E, "Experimental (0x7E)" },
+    { IP6OPT_EXP_9E, "Experimental (0x9E)" },
+    { IP6OPT_EXP_BE, "Experimental (0xBE)" },
+    { IP6OPT_JUMBO, "Jumbo" },
+    { IP6OPT_HOME_ADDRESS, "Home Address" },
+    { IP6OPT_EXP_DE, "Experimental (0xDE)" },
+    { IP6OPT_EXP_FE, "Experimental (0xFE)" },
+    { 0, NULL }
+};
+
 
 void
 capture_ipv6(const guchar *pd, int offset, int len, packet_counts *ld)
@@ -745,34 +774,10 @@ dissect_frag6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
     }
     return len;
 }
-
-static int
-dissect_mipv6_hoa(tvbuff_t *tvb, proto_tree *dstopt_tree, int offset, packet_info *pinfo)
-{
-    int len = 0;
-
-    proto_tree_add_uint_format(dstopt_tree, hf_ipv6_mipv6_type, tvb,
-        offset + len, 1,
-        tvb_get_guint8(tvb, offset + len),
-        "Option Type: %u (0x%02x) - Home Address Option",
-        tvb_get_guint8(tvb, offset + len),
-        tvb_get_guint8(tvb, offset + len));
-    len += 1;
-
-    proto_tree_add_uint(dstopt_tree, hf_ipv6_mipv6_length, tvb, offset + len,
-        1, tvb_get_guint8(tvb, offset + len));
-    len += 1;
-
-    proto_tree_add_item(dstopt_tree, hf_ipv6_mipv6_home_address, tvb,
-                        offset + len, 16, ENC_NA);
-    SET_ADDRESS(&pinfo->src, AT_IPv6, 16, tvb_get_ptr(tvb, offset + len, 16));
-    len += 16;
-    return len;
-}
-
 static const value_string rtalertvals[] = {
     { IP6OPT_RTALERT_MLD, "MLD" },
     { IP6OPT_RTALERT_RSVP, "RSVP" },
+    { IP6OPT_RTALERT_ACTNET, "Active Network" },
     { 0, NULL }
 };
 
@@ -904,16 +909,14 @@ dissect_unknown_option(tvbuff_t *tvb, int offset, proto_tree *tree)
 static int
 dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, const int hf_option_item)
 {
-    struct ip6_ext ext;
     int len;
-    proto_tree *dstopt_tree;
-    proto_item *ti;
-    gint p;
-    guint8 tmp;
-    int mip_offset = 0, delta = 0;
+    int offset_end;
+    proto_tree *dstopt_tree, *opt_tree;
+    proto_item *ti, *ti_len, *ti_opt, *ti_opt_len;
+    guint8 opt_len, opt_type;
 
-    tvb_memcpy(tvb, (guint8 *)&ext, offset, sizeof(ext));
-    len = (ext.ip6e_len + 1) << 3;
+    len = (tvb_get_guint8(tvb, offset + 1) + 1) << 3;
+    offset_end = offset + len;
 
     if (tree) {
         /* !!! specify length */
@@ -921,26 +924,43 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
 
         dstopt_tree = proto_item_add_subtree(ti, ett_ipv6);
 
-        proto_tree_add_text(dstopt_tree, tvb,
-            offset + offsetof(struct ip6_ext, ip6e_nxt), 1,
-            "Next header: %s (%u)", ipprotostr(ext.ip6e_nxt), ext.ip6e_nxt);
+        proto_tree_add_item(dstopt_tree, hf_ipv6_nxt, tvb, offset, 1, ENC_NA);
+        offset += 1;
 
-        proto_tree_add_text(dstopt_tree, tvb,
-            offset + offsetof(struct ip6_ext, ip6e_len), 1,
-            "Length: %u (%d bytes)", ext.ip6e_len, len);
+        ti_len = proto_tree_add_item(dstopt_tree, hf_ipv6_opt_length, tvb, offset, 1, ENC_NA);
+        proto_item_append_text(ti_len, " (%d byte%s)", len, plurality(len, "", "s"));
+        offset += 1;
 
-        mip_offset = offset;
-        mip_offset += 2;
+        while (offset_end > offset) {
+            /* there are more options */
 
-        p = offset + 2;
+            /* IPv6 Option */
+            ti_opt = proto_tree_add_item(dstopt_tree, hf_ipv6_opt, tvb, offset, 1, ENC_NA);
+            opt_tree = proto_item_add_subtree(ti_opt, ett_ipv6_opt);
 
-        while (p < offset + len) {
-            switch (tvb_get_guint8(tvb, p)) {
-            case IP6OPT_PAD1:
-                proto_tree_add_item(dstopt_tree, hf_ipv6_opt_pad1, tvb, p, 1, ENC_NA);
-                p++;
-                mip_offset++;
-                break;
+            /* Option type */
+            proto_tree_add_item(opt_tree, hf_ipv6_opt_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+            opt_type = tvb_get_guint8(tvb, offset);
+            offset += 1;
+
+            /* Add option name to option root label */
+            proto_item_append_text(ti_opt, " (%s", val_to_str(opt_type, ipv6_opt_vals, "Unknown %d"));
+
+            /* The Pad1 option is a special case, and contains no data. */
+            if (opt_type == IP6OPT_PAD1) {
+                proto_tree_add_item(opt_tree, hf_ipv6_opt_pad1, tvb, offset, 1, ENC_NA);
+                offset += 1;
+                proto_item_append_text(ti, ")");
+                continue;
+            }
+
+            /* Option length */
+            ti_opt_len = proto_tree_add_item(opt_tree, hf_ipv6_opt_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+            opt_len = tvb_get_guint8(tvb, offset);
+            proto_item_set_len(ti_opt, opt_len + 2);
+            offset += 1;
+
+            switch (opt_type) {
             case IP6OPT_PADN:
                 /* RFC 2460 states :
                  * "The PadN option is used to insert two or more octets of
@@ -948,62 +968,51 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
                  * padding, the Opt Data Len field contains the value N-2, and
                  * the Option Data consists of N-2 zero-valued octets."
                  */
-                tmp = tvb_get_guint8(tvb, p + 1);
-                proto_tree_add_uint_format(dstopt_tree, hf_ipv6_opt_padn, tvb,
-                                            p, tmp + 2, tmp + 2,
-                                            "PadN: %u bytes", tmp + 2);
-                p += tmp + 2;
-                mip_offset += tvb_get_guint8(tvb, mip_offset + 1) + 2;
+                proto_tree_add_item(opt_tree, hf_ipv6_opt_padn, tvb,
+                                            offset, opt_len, ENC_NA);
+                offset += opt_len;
                 break;
             case IP6OPT_JUMBO:
-                tmp = tvb_get_guint8(tvb, p + 1);
-                if (tmp == 4) {
-                    proto_tree_add_text(dstopt_tree, tvb, p, tmp + 2,
-                        "Jumbo payload: %u (%u bytes)",
-                        tvb_get_ntohl(tvb, p + 2), tmp + 2);
-                } else {
-                    ti = proto_tree_add_text(dstopt_tree, tvb, p, tmp + 2,
-                        "Jumbo payload: Invalid length (%u bytes)",  tmp);
-                    expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
-                        "Jumbo payload: Invalid length (%u bytes)", tmp);
+                if (opt_len != 4) {
+                    expert_add_info_format(pinfo, ti_opt_len, PI_MALFORMED, PI_ERROR,
+                        "Jumbo payload: Invalid length (%u bytes)", opt_len);
                 }
-                p += tmp + 2;
-                mip_offset += tvb_get_guint8(tvb, mip_offset+1)+2;
+                proto_tree_add_item(opt_tree, hf_ipv6_opt_jumbo, tvb,
+                                            offset, 4, ENC_BIG_ENDIAN);
+                offset += opt_len;
                 break;
             case IP6OPT_RTALERT:
               {
-                tmp = tvb_get_guint8(tvb, p + 1);
-                if (tmp == 2) {
-                    proto_tree_add_text(dstopt_tree, tvb, p , tmp + 2,
-                            "Router alert: %s (%u bytes)",
-                            val_to_str(tvb_get_ntohs(tvb, p + 2),
-                                        rtalertvals, "Unknown"),
-                            tmp + 2);
-                } else {
-                    ti = proto_tree_add_text(dstopt_tree, tvb, p , tmp + 2,
+                if (opt_len != 2) {
+                    expert_add_info_format(pinfo, ti_opt_len, PI_MALFORMED, PI_ERROR,
                             "Router alert: Invalid Length (%u bytes)",
-                            tmp + 2);
-                    expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
-                            "Router alert: Invalid Length (%u bytes)",
-                            tmp + 2);
+                            opt_len + 2);
                 }
-
-                p += tmp + 2;
-                mip_offset += tvb_get_guint8(tvb, mip_offset + 1) + 2;
+                proto_tree_add_item(opt_tree, hf_ipv6_opt_rtalert, tvb,
+                                            offset, 2, ENC_BIG_ENDIAN);
+                offset += opt_len;
                 break;
               }
             case IP6OPT_HOME_ADDRESS:
-                delta = dissect_mipv6_hoa(tvb, dstopt_tree, mip_offset, pinfo);
-                p += delta;
-                mip_offset += delta;
+                if (opt_len != 16) {
+                    expert_add_info_format(pinfo, ti_opt_len, PI_MALFORMED, PI_ERROR,
+                        "Home Address: Invalid length (%u bytes)", opt_len);
+                }
+                proto_tree_add_item(opt_tree, hf_ipv6_mipv6_home_address, tvb,
+                                    offset, 16, ENC_NA);
+                SET_ADDRESS(&pinfo->src, AT_IPv6, 16, tvb_get_ptr(tvb, offset, 16));
+                offset += opt_len;
                 break;
             default:
-                p = offset + len;
+                proto_tree_add_item(opt_tree, hf_ipv6_opt_unknown, tvb,
+                                    offset, opt_len, ENC_NA);
+                offset += opt_len;
                 break;
             }
+        /* Close the ) to option root label */
+        proto_item_append_text(ti_opt, ")");
         }
 
-        /* decode... */
     }
     return len;
 }
@@ -2069,7 +2078,7 @@ proto_register_ipv6(void)
                                 FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     { &hf_ipv6_nxt,
       { "Next header",          "ipv6.nxt",
-                                FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+                                FT_UINT8, BASE_DEC|BASE_EXT_STRING, &ipproto_val_ext, 0x0, NULL, HFILL }},
     { &hf_ipv6_hlim,
       { "Hop limit",            "ipv6.hlim",
                                 FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -2270,14 +2279,6 @@ proto_register_ipv6(void)
 #endif /* HAVE_GEOIP_V6 */
 
 
-    { &hf_ipv6_opt_pad1,
-      { "Pad1",                 "ipv6.opt.pad1",
-                                FT_NONE, BASE_NONE, NULL, 0x0,
-                                "Pad1 Option", HFILL }},
-    { &hf_ipv6_opt_padn,
-      { "PadN",                 "ipv6.opt.padn",
-                                FT_UINT8, BASE_DEC, NULL, 0x0,
-                                "PadN Option", HFILL }},
     { &hf_ipv6_dst_opt,
       { "Destination Option",   "ipv6.dst_opt",
                                 FT_NONE, BASE_NONE, NULL, 0x0,
@@ -2289,6 +2290,38 @@ proto_register_ipv6(void)
     { &hf_ipv6_unk_hdr,
       { "Unknown Extension Header",     "ipv6.unknown_hdr",
                                 FT_NONE, BASE_NONE, NULL, 0x0,
+                                NULL, HFILL }},
+    { &hf_ipv6_opt,
+      { "IPv6 Option",          "ipv6.opt",
+                                  FT_NONE, BASE_NONE, NULL, 0x0,
+                                  "Option", HFILL }},
+    { &hf_ipv6_opt_type,
+      { "Type",                   "ipv6.opt.type", 
+                                  FT_UINT8, BASE_DEC, VALS(ipv6_opt_vals), 0x0,
+                                  "Options type", HFILL }},
+    { &hf_ipv6_opt_length,
+      { "Length",                 "ipv6.opt.length",
+                                FT_UINT8, BASE_DEC, NULL, 0x0,
+                                "Length in units of 8 octets", HFILL }},
+    { &hf_ipv6_opt_pad1,
+      { "Pad1",                 "ipv6.opt.pad1",
+                                FT_NONE, BASE_NONE, NULL, 0x0,
+                                "Pad1 Option", HFILL }},
+    { &hf_ipv6_opt_padn,
+      { "PadN",                 "ipv6.opt.padn",
+                                FT_BYTES, BASE_NONE, NULL, 0x0,
+                                "PadN Option", HFILL }},
+    { &hf_ipv6_opt_rtalert,
+      { "Router Alert",         "ipv6.opt.router_alert",
+                                FT_UINT16, BASE_DEC, VALS(rtalertvals), 0x0,
+                                NULL, HFILL }},
+    { &hf_ipv6_opt_jumbo,
+      { "Jumbo",                "ipv6.opt.jumbo",
+                                FT_UINT32, BASE_DEC, NULL, 0x0,
+                                "Length of the IPv6 packet in octets", HFILL }},
+    { &hf_ipv6_opt_unknown,
+      { "Unknown Option Payload","ipv6.opt.unknown",
+                                FT_BYTES, BASE_NONE, NULL, 0x0,
                                 NULL, HFILL }},
     { &hf_ipv6_routing_hdr_opt,
       { "Routing Header, Type","ipv6.routing_hdr",
@@ -2405,14 +2438,6 @@ proto_register_ipv6(void)
         "Uncompressed IPv6 Address", HFILL }},
 
     /* Mobile IPv6 */
-    { &hf_ipv6_mipv6_type,
-      { "Option Type",          "ipv6.mipv6_type",
-                                FT_UINT8, BASE_DEC, NULL, 0x0,
-                                NULL, HFILL }},
-    { &hf_ipv6_mipv6_length,
-      { "Option Length",        "ipv6.mipv6_length",
-                                FT_UINT8, BASE_DEC, NULL, 0x0,
-                                NULL, HFILL }},
     { &hf_ipv6_mipv6_home_address,
       { "Home Address", "ipv6.mipv6_home_address",
                                 FT_IPv6, BASE_NONE, NULL, 0x0,
@@ -2608,6 +2633,7 @@ proto_register_ipv6(void)
   };
   static gint *ett[] = {
     &ett_ipv6,
+    &ett_ipv6_opt,
     &ett_ipv6_version,
     &ett_ipv6_shim6,
     &ett_ipv6_shim6_option,
