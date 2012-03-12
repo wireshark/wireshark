@@ -3102,7 +3102,7 @@ do_file_switch_or_stop(capture_options *capture_opts,
                                 NULL,                        /* HW */
                                 os_info_str->str,            /* OS */
                                 appname,
-								-1,                          /* section_length */
+                                                                -1,                          /* section_length */
                                 &(global_ld.bytes_written),
                                 &global_ld.err);
 
@@ -3111,10 +3111,10 @@ do_file_switch_or_stop(capture_options *capture_opts,
                     pcap_opts = g_array_index(global_ld.pcaps, pcap_options *, i);
                     successful = libpcap_write_interface_description_block(global_ld.pdh,
                                                                            NULL,                                              /* OPT_COMMENT       1 */
-                                                                           interface_opts.name,                               /* IDB_NAME	       2 */
+                                                                           interface_opts.name,                               /* IDB_NAME              2 */
                                                                            interface_opts.descr,                              /* IDB_DESCRIPTION   3 */
                                                                            interface_opts.cfilter?interface_opts.cfilter:"",  /* IDB_FILTER       11 */
-                                                                           os_info_str->str,                                  /* IDB_OS	          12 */
+                                                                           os_info_str->str,                                  /* IDB_OS           12 */
                                                                            pcap_opts->linktype,
                                                                            pcap_opts->snaplen,
                                                                            &(global_ld.bytes_written),
