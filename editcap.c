@@ -1515,6 +1515,8 @@ main(int argc, char *argv[])
       exit(2);
 
     }
+    g_free(idb_inf);
+    g_free(shb_hdr);
     g_free(filename);
   }
 

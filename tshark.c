@@ -2826,6 +2826,8 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
                 break;
               }
               wtap_dump_close(pdh, &err);
+              g_free(idb_inf);
+              g_free(shb_hdr);
               exit(2);
             }
           }
@@ -2876,6 +2878,8 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
               break;
             }
             wtap_dump_close(pdh, &err);
+            g_free(idb_inf);
+            g_free(shb_hdr);
             exit(2);
           }
         }
@@ -2982,6 +2986,8 @@ out:
   cf->wth = NULL;
 
   g_free(save_file_string);
+  g_free(idb_inf);
+  g_free(shb_hdr);
 
   return err;
 }
