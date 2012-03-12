@@ -2067,7 +2067,7 @@ header_fields_initialize_cb(void)
 	guint i;
 	gchar* header_name;
 
-	if (header_fields_hash) {
+	if (header_fields_hash && hf) {
 		guint hf_size = g_hash_table_size (header_fields_hash);
 		/* Unregister all fields */
 		for (i = 0; i < hf_size; i++) {
