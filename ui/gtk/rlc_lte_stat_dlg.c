@@ -203,6 +203,7 @@ typedef struct rlc_lte_stat_t {
     GtkWidget  *dl_filter_bt;
     GtkWidget  *uldl_filter_bt;
     GtkWidget  *show_only_control_pdus_cb;
+    GtkWidget  *show_mac_rach_cb;
     GtkWidget  *show_mac_srs_cb;
     GtkWidget  *show_dct_errors_cb;
     GtkWidget  *dct_error_substring_lb;
@@ -240,6 +241,7 @@ static void enable_filter_controls(guint8 enabled, guint8 rlcMode, rlc_lte_stat_
     gtk_widget_set_sensitive(hs->ul_filter_bt, enabled);
     gtk_widget_set_sensitive(hs->dl_filter_bt, enabled);
     gtk_widget_set_sensitive(hs->uldl_filter_bt, enabled);
+    gtk_widget_set_sensitive(hs->show_mac_rach_cb, enabled);
     gtk_widget_set_sensitive(hs->show_mac_srs_cb, enabled);
     gtk_widget_set_sensitive(hs->show_dct_errors_cb, enabled);
 
@@ -981,6 +983,7 @@ static void set_channel_filter_expression(guint16  ueid,
                                           ChannelDirection_t channelDirection,
                                           gint     filterOnSN,
                                           gint     statusOnlyPDUs,
+                                          gint     showMACRACH,
                                           gint     showMACSRs,
                                           gint     showDCTErrors,
                                           const gchar    *DCTErrorSubstring,
@@ -989,6 +992,13 @@ static void set_channel_filter_expression(guint16  ueid,
     #define MAX_FILTER_LEN 1024
     static char buffer[MAX_FILTER_LEN];
     int offset = 0;
+
+    /* Show MAC RACH (preamble attempts and RAR PDUs) */
+    if (showMACSRs) {
+        offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset,
+                                         "(mac-lte.rar or (mac-lte.preamble-sent and mac-lte.ueid == %u)) or (",
+                                         ueid);
+    }
 
     /* Show MAC SRs */
     if (showMACSRs) {
@@ -1096,7 +1106,7 @@ static void set_channel_filter_expression(guint16  ueid,
     }
 
     /* Close () if open */
-    if (showDCTErrors) {
+    if (showMACRACH) {
         offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset, ")");
     }
 
@@ -1105,6 +1115,10 @@ static void set_channel_filter_expression(guint16  ueid,
         offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset, ")");
     }
 
+    /* Close () if open */
+    if (showDCTErrors) {
+        offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset, ")");
+    }
 
     /* Set its value to our new string */
     gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), buffer);
@@ -1135,6 +1149,7 @@ static void ul_filter_clicked(GtkWindow *win _U_, rlc_lte_stat_t* hs)
 
     set_channel_filter_expression(ueid, rlcMode, channelType, channelId, UL_Only, sn,
                                   gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hs->show_only_control_pdus_cb)),
+                                  gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hs->show_mac_rach_cb)),
                                   gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hs->show_mac_srs_cb)),
                                   gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hs->show_dct_errors_cb)),
                                   gtk_entry_get_text(GTK_ENTRY(hs->dct_error_substring_te)),
@@ -1163,6 +1178,7 @@ static void dl_filter_clicked(GtkWindow *win _U_, rlc_lte_stat_t* hs)
 
     set_channel_filter_expression(ueid, rlcMode, channelType, channelId, DL_Only, sn,
                                   gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hs->show_only_control_pdus_cb)),
+                                  gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hs->show_mac_rach_cb)),
                                   gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hs->show_mac_srs_cb)),
                                   gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hs->show_dct_errors_cb)),
                                   gtk_entry_get_text(GTK_ENTRY(hs->dct_error_substring_te)),
@@ -1191,6 +1207,7 @@ static void uldl_filter_clicked(GtkWindow *win _U_, rlc_lte_stat_t* hs)
 
     set_channel_filter_expression(ueid, rlcMode, channelType, channelId, UL_and_DL, sn,
                                   gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hs->show_only_control_pdus_cb)),
+                                  gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hs->show_mac_rach_cb)),
                                   gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hs->show_mac_srs_cb)),
                                   gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hs->show_dct_errors_cb)),
                                   gtk_entry_get_text(GTK_ENTRY(hs->dct_error_substring_te)),
@@ -1483,12 +1500,19 @@ static void gtk_rlc_lte_stat_init(const char *optarg, void *userdata _U_)
     gtk_widget_set_tooltip_text(hs->show_only_control_pdus_cb, "Generated filters will only show AM status PDUs "
                          "(i.e. if you filter on UL you'll see ACKs/NACK replies sent in the DL)");
 
+    /* Show MAC RACH */
+    hs->show_mac_rach_cb = gtk_check_button_new_with_mnemonic("Show MAC RACH");
+    gtk_container_add(GTK_CONTAINER(sn_filter_hb), hs->show_mac_rach_cb);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(hs->show_mac_rach_cb), FALSE);
+    gtk_widget_set_tooltip_text(hs->show_mac_rach_cb, "When checked, generated filters will show "
+                         "MAC RACH attempts for the UE");
+
     /* Show MAC SRs */
     hs->show_mac_srs_cb = gtk_check_button_new_with_mnemonic("Show MAC SRs");
     gtk_container_add(GTK_CONTAINER(sn_filter_hb), hs->show_mac_srs_cb);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(hs->show_mac_srs_cb), FALSE);
     gtk_widget_set_tooltip_text(hs->show_mac_srs_cb, "When checked, generated filters will show "
-                         "MAC Srs for the UE");
+                         "MAC SRs for the UE");
 
     /* Allow DCT errors to be shown... */
     hs->show_dct_errors_cb = gtk_check_button_new_with_mnemonic("Show DCT2000 error strings...");
