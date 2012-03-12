@@ -180,6 +180,8 @@ typedef struct mac_lte_stat_t {
     GtkWidget  *dl_filter_bt;
     GtkWidget  *uldl_filter_bt;
 
+    GtkWidget  *show_mac_rach_cb;
+    GtkWidget  *show_mac_srs_cb;
     GtkWidget  *show_dct_errors_cb;
     GtkWidget  *dct_error_substring_lb;
     GtkWidget  *dct_error_substring_te;
@@ -214,8 +216,7 @@ typedef struct mac_lte_stat_t {
 
 
 /* Reset the statistics window */
-static void
-mac_lte_stat_reset(void *phs)
+static void mac_lte_stat_reset(void *phs)
 {
     mac_lte_stat_t* mac_lte_stat = (mac_lte_stat_t *)phs;
     mac_lte_ep_t* list = mac_lte_stat->ep_list;
@@ -329,9 +330,8 @@ static void update_ueid_rnti_counts(guint16 rnti, guint16 ueid, mac_lte_stat_t *
 
 
 /* Process stat struct for a MAC LTE frame */
-static int
-mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
-                    const void *phi)
+static int mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
+                               const void *phi)
 {
     int n;
 
@@ -524,8 +524,7 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
 
 
 /* Draw the UE details table according to the current UE selection */
-static void
-mac_lte_ue_details(mac_lte_ep_t *mac_stat_ep, mac_lte_stat_t *hs)
+static void mac_lte_ue_details(mac_lte_ep_t *mac_stat_ep, mac_lte_stat_t *hs)
 {
     int n;
     gchar buff[32];
@@ -613,6 +612,8 @@ mac_lte_ue_details(mac_lte_ep_t *mac_stat_ep, mac_lte_stat_t *hs)
     gtk_widget_set_sensitive(hs->ul_filter_bt, mac_stat_ep != NULL);
     gtk_widget_set_sensitive(hs->dl_filter_bt, mac_stat_ep != NULL);
     gtk_widget_set_sensitive(hs->uldl_filter_bt, mac_stat_ep != NULL);
+    gtk_widget_set_sensitive(hs->show_mac_rach_cb, mac_stat_ep != NULL);
+    gtk_widget_set_sensitive(hs->show_mac_srs_cb, mac_stat_ep != NULL);
     gtk_widget_set_sensitive(hs->show_dct_errors_cb, mac_stat_ep != NULL);
 
     /* Enabling substring control only if errors enabled */
@@ -637,8 +638,7 @@ static float calculate_bw(nstime_t *start_time, nstime_t *stop_time, guint32 byt
 
 
 /* (Re)draw the whole dialog window */
-static void
-mac_lte_stat_draw(void *phs)
+static void mac_lte_stat_draw(void *phs)
 {
     gchar   buff[32];
     guint16 number_of_ues = 0;
@@ -766,18 +766,36 @@ mac_lte_stat_draw(void *phs)
 
 /* Compose and set appropriate display filter */
 typedef enum Direction_t {UL_Only, DL_Only, UL_and_DL} Direction_t;
+
 static void set_filter_expression(guint16  ueid,
                                   guint16  rnti,
                                   Direction_t direction,
+                                  gint     showRACH,
+                                  gint     showSRs,
                                   gint     showDCTErrors,
                                   const gchar    *DCTErrorSubstring,
                                   mac_lte_stat_t *hs)
 {
-    #define MAX_FILTER_LEN 256
+    #define MAX_FILTER_LEN 512
     static char buffer[MAX_FILTER_LEN];
     int offset = 0;
 
     /* Create the filter expression */
+
+
+    /* Show MAC RACH (preamble attempts and RAR PDUs) */
+    if (showSRs) {
+        offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset,
+                                         "(mac-lte.rar or (mac-lte.preamble-sent and mac-lte.ueid == %u)) or (",
+                                         ueid);
+    }
+
+    /* Show MAC SRs */
+    if (showSRs) {
+        offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset,
+                                         "(mac-lte.sr-req and mac-lte.ueid == %u) or (",
+                                         ueid);
+    }
 
     /* Errors */
     if (showDCTErrors) {
@@ -814,7 +832,18 @@ static void set_filter_expression(guint16  ueid,
                          "mac-lte.rnti == %u and mac-lte.ueid == %u",
                          rnti, ueid);
 
-    /* Close parenthesis */
+    /* Close () if open */
+    if (showRACH) {
+        offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset, ")");
+    }
+
+    /* Close () if open */
+    if (showSRs) {
+        offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset, ")");
+    }
+
+
+    /* Close () if open */
     if (showDCTErrors) {
             offset += g_snprintf(buffer+offset, MAX_FILTER_LEN-offset,
                                  ")");
@@ -843,6 +872,8 @@ static void ul_filter_clicked(GtkWindow *win _U_, mac_lte_stat_t* hs)
         gtk_tree_model_get(model, &iter, TABLE_COLUMN, &ep, -1);
 
         set_filter_expression(ep->stats.ueid, ep->stats.rnti, UL_Only,
+                              gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hs->show_mac_rach_cb)),
+                              gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hs->show_mac_srs_cb)),
                               gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hs->show_dct_errors_cb)),
                               gtk_entry_get_text(GTK_ENTRY(hs->dct_error_substring_te)),
                               hs);
@@ -865,6 +896,8 @@ static void dl_filter_clicked(GtkWindow *win _U_, mac_lte_stat_t* hs)
         gtk_tree_model_get(model, &iter, TABLE_COLUMN, &ep, -1);
 
         set_filter_expression(ep->stats.ueid, ep->stats.rnti, DL_Only,
+                              gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hs->show_mac_rach_cb)),
+                              gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hs->show_mac_srs_cb)),
                               gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hs->show_dct_errors_cb)),
                               gtk_entry_get_text(GTK_ENTRY(hs->dct_error_substring_te)),
                               hs);
@@ -888,6 +921,8 @@ static void uldl_filter_clicked(GtkWindow *win _U_, mac_lte_stat_t* hs)
         gtk_tree_model_get(model, &iter, TABLE_COLUMN, &ep, -1);
 
         set_filter_expression(ep->stats.ueid, ep->stats.rnti, UL_and_DL,
+                              gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hs->show_mac_rach_cb)),
+                              gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hs->show_mac_srs_cb)),
                               gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(hs->show_dct_errors_cb)),
                               gtk_entry_get_text(GTK_ENTRY(hs->dct_error_substring_te)),
                               hs);
@@ -1218,7 +1253,7 @@ static void gtk_mac_lte_stat_init(const char *optarg, void *userdata _U_)
     /* Filter buttons */
 
     /* UL only */
-    hs->ul_filter_bt = gtk_button_new_with_label("Set UL display filter on selected this RNTI / UEId");
+    hs->ul_filter_bt = gtk_button_new_with_label("Set UL display filter on selected this UE");
     gtk_box_pack_start(GTK_BOX(filter_buttons_hb), hs->ul_filter_bt, FALSE, FALSE, 0);
     g_signal_connect(hs->ul_filter_bt, "clicked", G_CALLBACK(ul_filter_clicked), hs);
     gtk_widget_set_sensitive(hs->ul_filter_bt, FALSE);
@@ -1227,7 +1262,7 @@ static void gtk_mac_lte_stat_init(const char *optarg, void *userdata _U_)
                          "Generate and set a filter showing only UL frames with selected RNTI and UEId");
 
     /* DL only */
-    hs->dl_filter_bt = gtk_button_new_with_label("Set DL display filter on selected this RNTI / UEId");
+    hs->dl_filter_bt = gtk_button_new_with_label("Set DL display filter on selected this UE");
     gtk_box_pack_start(GTK_BOX(filter_buttons_hb), hs->dl_filter_bt, FALSE, FALSE, 0);
     g_signal_connect(hs->dl_filter_bt, "clicked", G_CALLBACK(dl_filter_clicked), hs);
     gtk_widget_set_sensitive(hs->dl_filter_bt, FALSE);
@@ -1236,13 +1271,29 @@ static void gtk_mac_lte_stat_init(const char *optarg, void *userdata _U_)
                          "Generate and set a filter showing only DL frames with selected RNTI and UEId");
 
     /* UL and DL */
-    hs->uldl_filter_bt = gtk_button_new_with_label("Set UL / DL display filter on selected this RNTI / UEId");
+    hs->uldl_filter_bt = gtk_button_new_with_label("Set UL / DL display filter on selected this UE");
     gtk_box_pack_start(GTK_BOX(filter_buttons_hb), hs->uldl_filter_bt, FALSE, FALSE, 0);
     g_signal_connect(hs->uldl_filter_bt, "clicked", G_CALLBACK(uldl_filter_clicked), hs);
     gtk_widget_set_sensitive(hs->uldl_filter_bt, FALSE);
     gtk_widget_show(hs->uldl_filter_bt);
     gtk_widget_set_tooltip_text(hs->uldl_filter_bt,
                          "Generate and set a filter showing only frames with selected RNTI and UEId");
+
+    /* Show MAC RACH */
+    hs->show_mac_rach_cb = gtk_check_button_new_with_mnemonic("Show MAC RACH");
+    gtk_widget_set_sensitive(hs->show_mac_rach_cb, FALSE);
+    gtk_container_add(GTK_CONTAINER(filter_buttons_hb), hs->show_mac_rach_cb);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(hs->show_mac_rach_cb), FALSE);
+    gtk_widget_set_tooltip_text(hs->show_mac_rach_cb, "When checked, generated filters will show "
+                         "MAC RACH attempts for the UE");
+
+    /* Show MAC SRs */
+    hs->show_mac_srs_cb = gtk_check_button_new_with_mnemonic("Show MAC SRs");
+    gtk_widget_set_sensitive(hs->show_mac_srs_cb, FALSE);
+    gtk_container_add(GTK_CONTAINER(filter_buttons_hb), hs->show_mac_srs_cb);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(hs->show_mac_srs_cb), FALSE);
+    gtk_widget_set_tooltip_text(hs->show_mac_srs_cb, "When checked, generated filters will show "
+                         "MAC SRs for the UE");
 
 
     /* Allow DCT errors to be shown... */
