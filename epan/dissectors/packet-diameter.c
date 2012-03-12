@@ -314,7 +314,7 @@ compare_avps (gconstpointer  a, gconstpointer  b)
 /* Special decoding of some AVP:s */
 
 static int
-dissect_diameter_vedor_id(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_)
+dissect_diameter_vendor_id(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_)
 {
 
 	int offset = 0;
@@ -1300,21 +1300,21 @@ build_simple_avp(const avp_type_t* type, guint32 code, const diam_vnd_t* vendor,
 
 
 static const avp_type_t basic_types[] = {
-	{"octetstring"				, simple_avp	, simple_avp	, FT_BYTES			, BASE_NONE		, build_simple_avp  },
-	{"utf8string"				, utf8_avp		, utf8_avp		, FT_STRING			, BASE_NONE		, build_simple_avp  },
-	{"grouped"					, grouped_avp	, grouped_avp	, FT_BYTES			, BASE_NONE		, build_simple_avp  },
-	{"integer32"				, integer32_avp	, integer32_avp	, FT_INT32			, BASE_DEC		, build_simple_avp  },
-	{"unsigned32"				, unsigned32_avp, unsigned32_avp, FT_UINT32			, BASE_DEC		, build_simple_avp  },
-	{"integer64"				, integer64_avp	, integer64_avp	, FT_INT64			, BASE_DEC		, build_simple_avp  },
-	{"unsigned64"				, unsigned64_avp, unsigned64_avp, FT_UINT64			, BASE_DEC		, build_simple_avp  },
-	{"float32"					, float32_avp	, float32_avp	, FT_FLOAT			, BASE_NONE		, build_simple_avp  },
-	{"float64"					, float64_avp	, float64_avp	, FT_DOUBLE			, BASE_NONE		, build_simple_avp  },
-	{"ipaddress"				,  NULL			, NULL			, FT_NONE			, BASE_NONE		, build_address_avp },
-	{"diameteruri"				, utf8_avp		, utf8_avp		, FT_STRING			, BASE_NONE		, build_simple_avp  },
-	{"diameteridentity"			, utf8_avp		, utf8_avp		, FT_STRING			, BASE_NONE		, build_simple_avp  },
-	{"ipfilterrule"				, utf8_avp		, utf8_avp		, FT_STRING			, BASE_NONE		, build_simple_avp  },
-	{"qosfilterrule"			, utf8_avp		, utf8_avp		, FT_STRING			, BASE_NONE		, build_simple_avp  },
-	{"time"						, time_avp		, time_avp		, FT_ABSOLUTE_TIME	, ABSOLUTE_TIME_UTC	, build_simple_avp  },
+	{"octetstring"		, simple_avp		, simple_avp	, FT_BYTES		, BASE_NONE		, build_simple_avp  },
+	{"utf8string"		, utf8_avp		, utf8_avp	, FT_STRING		, BASE_NONE		, build_simple_avp  },
+	{"grouped"		, grouped_avp		, grouped_avp	, FT_BYTES		, BASE_NONE		, build_simple_avp  },
+	{"integer32"		, integer32_avp		, integer32_avp	, FT_INT32		, BASE_DEC		, build_simple_avp  },
+	{"unsigned32"		, unsigned32_avp	, unsigned32_avp, FT_UINT32		, BASE_DEC		, build_simple_avp  },
+	{"integer64"		, integer64_avp		, integer64_avp	, FT_INT64		, BASE_DEC		, build_simple_avp  },
+	{"unsigned64"		, unsigned64_avp	, unsigned64_avp, FT_UINT64		, BASE_DEC		, build_simple_avp  },
+	{"float32"		, float32_avp		, float32_avp	, FT_FLOAT		, BASE_NONE		, build_simple_avp  },
+	{"float64"		, float64_avp		, float64_avp	, FT_DOUBLE		, BASE_NONE		, build_simple_avp  },
+	{"ipaddress"		, NULL			, NULL		, FT_NONE		, BASE_NONE		, build_address_avp },
+	{"diameteruri"		, utf8_avp		, utf8_avp	, FT_STRING		, BASE_NONE		, build_simple_avp  },
+	{"diameteridentity"	, utf8_avp		, utf8_avp	, FT_STRING		, BASE_NONE		, build_simple_avp  },
+	{"ipfilterrule"		, utf8_avp		, utf8_avp	, FT_STRING		, BASE_NONE		, build_simple_avp  },
+	{"qosfilterrule"	, utf8_avp		, utf8_avp	, FT_STRING		, BASE_NONE		, build_simple_avp  },
+	{"time"			, time_avp		, time_avp	, FT_ABSOLUTE_TIME	, ABSOLUTE_TIME_UTC	, build_simple_avp  },
 	{NULL, NULL, NULL, FT_NONE, BASE_NONE, NULL }
 };
 
@@ -1777,7 +1777,7 @@ proto_reg_handoff_diameter(void)
 		/* Register special decoding for some AVP:s */
 		/* AVP Code: 266 Vendor-Id */
 		dissector_add_uint("diameter.base", 266,
-				new_create_dissector_handle(dissect_diameter_vedor_id, proto_diameter));
+				new_create_dissector_handle(dissect_diameter_vendor_id, proto_diameter));
 		/* AVP Code: 462 EAP-Payload */
 		dissector_add_uint("diameter.base", 462,
 			new_create_dissector_handle(dissect_diameter_eap_payload, proto_diameter));
