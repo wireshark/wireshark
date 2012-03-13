@@ -3886,6 +3886,24 @@ guint get_interface_type(gchar *name, gchar *description)
      *
      * On Mac OS X, one might be able to get the information one wants from
      * IOKit.
+     *
+     * XXX - this is wrong on a MacBook Air, as en0 is the AirPort
+     * interface, and it's also wrong on a Mac that has no AirPort
+     * interfaces and has multiple Ethernet interfaces.
+     *
+     * The SystemConfiguration framework is your friend here.
+     * SCNetworkInterfaceGetInterfaceType() will get the interface
+     * type.  SCNetworkInterfaceCopyAll() gets all network-capable
+     * interfaces on the system; SCNetworkInterfaceGetBSDName()
+     * gets the "BSD name" of the interface, so we look for
+     * an interface with the specified "BSD name" and get its
+     * interface type.  The interface type is a CFString, and:
+     *
+     *    kSCNetworkInterfaceTypeIEEE80211 means IF_WIRELESS;
+     *    kSCNetworkInterfaceTypeBluetooth means IF_BLUETOOTH;
+     *    kSCNetworkInterfaceTypeModem or
+     *    kSCNetworkInterfaceTypePPP or
+     *    maybe kSCNetworkInterfaceTypeWWAN means IF_DIALUP
      */
     if (strcmp(name, "en1") == 0) {
         return IF_WIRELESS;
