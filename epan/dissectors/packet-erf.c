@@ -41,7 +41,7 @@
 #define EXT_HDR_TYPE_RAW_LINK        5
 #define EXT_HDR_TYPE_BFS             6
 #define EXT_HDR_TYPE_CHANNELISED    12
-#define EXT_HDR_TYPE_NEW_BFS        14
+#define EXT_HDR_TYPE_SIGNATURE      14
 
 #define DECHAN_MAX_AUG_INDEX 4
 
@@ -162,10 +162,10 @@ static int hf_erf_ehdr_chan_assoc_virt_container_size = -1;
 static int hf_erf_ehdr_chan_speed                     = -1;
 static int hf_erf_ehdr_chan_type                      = -1;
 
-/* New BFS extension header */
-static int hf_erf_ehdr_new_bfs_payload_hash = -1;
-static int hf_erf_ehdr_new_bfs_color = -1;
-static int hf_erf_ehdr_new_bfs_flow_hash = -1;
+/* Filter Hash extension header */
+static int hf_erf_ehdr_signature_payload_hash = -1;
+static int hf_erf_ehdr_signature_color = -1;
+static int hf_erf_ehdr_signature_flow_hash = -1;
 
 /* Unknown extension header */
 static int hf_erf_ehdr_unk = -1;
@@ -440,7 +440,7 @@ static const value_string ehdr_type_vals[] = {
   { EXT_HDR_TYPE_RAW_LINK       , "Raw Link"},
   { EXT_HDR_TYPE_BFS            , "BFS Filter/Hash"},
   { EXT_HDR_TYPE_CHANNELISED    , "Channelised"},
-  { EXT_HDR_TYPE_NEW_BFS        , "New BFS Filter/Hash"},
+  { EXT_HDR_TYPE_SIGNATURE      , "Signature"},
   { 0, NULL }
 };
 
@@ -836,21 +836,21 @@ dissect_channelised_ex_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *ps
 }
 
 static void
-dissect_new_bfs_ex_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pseudo_hdr_tree, int idx)
+dissect_signature_ex_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pseudo_hdr_tree, int idx)
 {
   if(pseudo_hdr_tree) {
     proto_item *int_item;
     proto_item *int_tree;
     guint64     hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
 
-    int_item = proto_tree_add_text(pseudo_hdr_tree, tvb, 0, 0, "New BFS Filter/Hash");
+    int_item = proto_tree_add_text(pseudo_hdr_tree, tvb, 0, 0, "Signature");
     int_tree = proto_item_add_subtree(int_item, ett_erf_pseudo_hdr);
     PROTO_ITEM_SET_GENERATED(int_item);
 
     proto_tree_add_uint(int_tree, hf_erf_ehdr_t,                    tvb, 0, 0, (guint8)((hdr >> 56) & 0x7F));
-    proto_tree_add_uint(int_tree, hf_erf_ehdr_new_bfs_payload_hash, tvb, 0, 0, (guint32)((hdr >> 32) & 0xFFFFFF));
-    proto_tree_add_uint(int_tree, hf_erf_ehdr_new_bfs_color,        tvb, 0, 0, (guint8)((hdr >> 24) & 0xFF));
-    proto_tree_add_uint(int_tree, hf_erf_ehdr_new_bfs_flow_hash,    tvb, 0, 0, (guint32)(hdr & 0xFFFFFF));
+    proto_tree_add_uint(int_tree, hf_erf_ehdr_signature_payload_hash, tvb, 0, 0, (guint32)((hdr >> 32) & 0xFFFFFF));
+    proto_tree_add_uint(int_tree, hf_erf_ehdr_signature_color,        tvb, 0, 0, (guint8)((hdr >> 24) & 0xFF));
+    proto_tree_add_uint(int_tree, hf_erf_ehdr_signature_flow_hash,    tvb, 0, 0, (guint32)(hdr & 0xFFFFFF));
   }
 }
 
@@ -1173,8 +1173,8 @@ dissect_erf_pseudo_extension_header(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     case EXT_HDR_TYPE_CHANNELISED:
       dissect_channelised_ex_header(tvb, pinfo, pseudo_hdr_tree, i);
       break;
-    case EXT_HDR_TYPE_NEW_BFS:
-      dissect_new_bfs_ex_header(tvb, pinfo, pseudo_hdr_tree, i);
+    case EXT_HDR_TYPE_SIGNATURE:
+      dissect_signature_ex_header(tvb, pinfo, pseudo_hdr_tree, i);
       break;
     default:
       dissect_unknown_ex_header(tvb, pinfo, pseudo_hdr_tree, i);
@@ -1639,15 +1639,15 @@ proto_register_erf(void)
       { "Frame Part Type", "erf.ehdr.chan.type",
         FT_UINT8, BASE_HEX, VALS(channelised_type), 0, NULL, HFILL } },
 
-    /* New BFS Extension Header */
-    { &hf_erf_ehdr_new_bfs_payload_hash,
-      { "Payload Hash", "erf.hdr.newbfs.payloadhash",
+    /* Signature Extension Header */
+    { &hf_erf_ehdr_signature_payload_hash,
+      { "Payload Hash", "erf.hdr.signature.payloadhash",
         FT_UINT24, BASE_HEX, NULL, 0, NULL, HFILL } },
-    { &hf_erf_ehdr_new_bfs_color,
-      { "Filter Color", "erf.hdr.newbfs.color",
+    { &hf_erf_ehdr_signature_color,
+      { "Filter Color", "erf.hdr.signature.color",
         FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
-    { &hf_erf_ehdr_new_bfs_flow_hash,
-      { "Flow Hash", "erf.hdr.newbfs.flowhash",
+    { &hf_erf_ehdr_signature_flow_hash,
+      { "Flow Hash", "erf.hdr.signature.flowhash",
         FT_UINT24, BASE_HEX, NULL, 0, NULL, HFILL } },
 
     /* Unknown Extension Header */
