@@ -258,6 +258,12 @@ static int hf_diameter_answer_in = -1;
 static int hf_diameter_answer_to = -1;
 static int hf_diameter_answer_time = -1;
 
+/* AVPs with special/extra decoding */
+static int hf_framed_ipv6_prefix_reserved = -1;
+static int hf_framed_ipv6_prefix_length = -1;
+static int hf_framed_ipv6_prefix_bytes = -1;
+static int hf_framed_ipv6_prefix_ipv6 = -1;
+
 static gint ett_diameter = -1;
 static gint ett_diameter_flags = -1;
 static gint ett_diameter_avp_flags = -1;
@@ -316,14 +322,12 @@ compare_avps (gconstpointer  a, gconstpointer  b)
 static int
 dissect_diameter_vendor_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-
 	int offset = 0;
 
 	proto_tree_add_item(tree, hf_diameter_vendor_id, tvb, 0, 4, ENC_BIG_ENDIAN);
 
 	offset++;
 	return offset;
-
 }
 
 static int
@@ -339,6 +343,29 @@ dissect_diameter_eap_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	col_set_writable(pinfo->cinfo, save_writable);
 	return tvb_length(tvb);
+}
+
+/* From RFC 3162 section 2.3 */
+static int
+dissect_diameter_base_framed_ipv6_prefix(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    guint8 prefix_len, prefix_len_bytes;
+
+    proto_tree_add_item(tree, hf_framed_ipv6_prefix_reserved, tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_framed_ipv6_prefix_length, tvb, 1, 1, ENC_BIG_ENDIAN);
+
+    prefix_len = tvb_get_guint8(tvb, 1);
+    prefix_len_bytes = prefix_len / 8;
+    if (prefix_len % 8)
+	    prefix_len_bytes++;
+
+    proto_tree_add_item(tree, hf_framed_ipv6_prefix_bytes, tvb, 2, prefix_len_bytes, ENC_NA);
+
+    /* If we have a fully IPv6 address, display it as such */
+    if (prefix_len_bytes == 16)
+	proto_tree_add_item(tree, hf_framed_ipv6_prefix_ipv6, tvb, 2, prefix_len_bytes, ENC_NA);
+
+    return(prefix_len_bytes+2);
 }
 
 /* Dissect an AVP at offset */
@@ -386,7 +413,7 @@ dissect_diameter_avp(diam_ctx_t* c, tvbuff_t* tvb, int offset)
 		{ /* Debug code */
 			value_string* vendor_avp_vs=VALUE_STRING_EXT_VS_P(vendor->vs_avps_ext);
 			gint i = 0;
-			while(vendor_avp_vs[i].strptr!=NULL){
+			while(vendor_avp_vs[i].strptr!=NULL) {
 				g_warning("%u %s",vendor_avp_vs[i].value,vendor_avp_vs[i].strptr);
 				i++;
 			}
@@ -477,7 +504,7 @@ dissect_diameter_avp(diam_ctx_t* c, tvbuff_t* tvb, int offset)
 	if (avp_str) proto_item_append_text(avp_item," val=%s", avp_str);
 
 	/* Call subdissectors for AVP:s */
-	switch (vendorid){
+	switch (vendorid) {
 	case 0:
 		dissector_try_uint(diameter_dissector_table, code, subtvb, c->pinfo, avp_tree);
 		break;
@@ -1073,11 +1100,11 @@ static void
 dissect_diameter_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	/* Check if we have the start of a PDU or if this is segment */
-	if (!check_diameter(tvb)){
+	if (!check_diameter(tvb)) {
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "DIAMETER");
 		col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
 		call_dissector(data_handle, tvb, pinfo, tree);
-	}else{
+	} else {
 		tcp_dissect_pdus(tvb, pinfo, tree, gbl_diameter_desegment, 4,
 				 get_diameter_pdu_len, dissect_diameter_common);
 	}
@@ -1118,7 +1145,7 @@ reginfo(int* hf_ptr, const char* name, const char* abbr, const char* desc,
 				g_strdup(desc),
 				HFILL }};
 
-	if(vs_ext){
+	if(vs_ext) {
 		hf.hfinfo.strings = vs_ext;
 	}
 
@@ -1141,7 +1168,7 @@ basic_avp_reginfo(diam_avp_t* a, const char* name, enum ftenum ft,
 
 	hf->hfinfo.name = g_strdup_printf("%s",name);
 	hf->hfinfo.abbrev = alnumerize(g_strdup_printf("diameter.%s",name));
-	if(vs_ext){
+	if(vs_ext) {
 		hf->hfinfo.strings = vs_ext;
 	}
 
@@ -1679,7 +1706,22 @@ proto_register_diameter(void)
 	{ &hf_diameter_answer_time,
 		{ "Response Time", "diameter.resp_time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
 		"The time between the request and the answer", HFILL }},
-
+	{ &hf_framed_ipv6_prefix_reserved,
+	    { "Framed IPv6 Prefix Reserved byte", "diameter.framed_ipv6_prefix_reserved",
+	    FT_UINT8, BASE_HEX, NULL, 0,
+	    NULL, HFILL }},
+	{ &hf_framed_ipv6_prefix_length,
+	    { "Framed IPv6 Prefix length (in bits)", "diameter.framed_ipv6_prefix_length",
+	    FT_UINT8, BASE_DEC, NULL, 0,
+	    NULL, HFILL }},
+	{ &hf_framed_ipv6_prefix_bytes,
+	    { "Framed IPv6 Prefix as a bytestring", "diameter.framed_ipv6_prefix_bytes",
+	    FT_BYTES, BASE_NONE, NULL, 0,
+	    NULL, HFILL }},
+	{ &hf_framed_ipv6_prefix_ipv6,
+	    { "Framed IPv6 Prefix as an IPv6 address", "diameter.framed_ipv6_prefix_ipv6",
+	    FT_IPv6, BASE_NONE, NULL, 0,
+	    "This field is present only if the prefix length is 128", HFILL }}
 	};
 
 	gint *ett_base[] = {
@@ -1774,10 +1816,14 @@ proto_reg_handoff_diameter(void)
 							      proto_diameter);
 		data_handle = find_dissector("data");
 		eap_handle = find_dissector("eap");
+
 		/* Register special decoding for some AVP:s */
+		/* AVP Code: 97 Framed-IPv6-Address */
+		dissector_add_uint("diameter.base", 97,
+			new_create_dissector_handle(dissect_diameter_base_framed_ipv6_prefix, proto_diameter));
 		/* AVP Code: 266 Vendor-Id */
 		dissector_add_uint("diameter.base", 266,
-				new_create_dissector_handle(dissect_diameter_vendor_id, proto_diameter));
+			new_create_dissector_handle(dissect_diameter_vendor_id, proto_diameter));
 		/* AVP Code: 462 EAP-Payload */
 		dissector_add_uint("diameter.base", 462,
 			new_create_dissector_handle(dissect_diameter_eap_payload, proto_diameter));
