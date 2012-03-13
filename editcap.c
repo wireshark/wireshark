@@ -1147,8 +1147,10 @@ main(int argc, char *argv[])
           filename = g_strdup(argv[optind+1]);
 
         /* If we don't have an application name add Editcap */
-        if(shb_hdr->shb_user_appl == NULL)
+        if(shb_hdr->shb_user_appl == NULL) {
           g_snprintf(appname, sizeof(appname), "Editcap " VERSION);
+          shb_hdr->shb_user_appl = appname;
+        }
 
         pdh = wtap_dump_open_ng(filename, out_file_type, out_frame_type,
           snaplen ? MIN(snaplen, wtap_snapshot_length(wth)) : wtap_snapshot_length(wth),

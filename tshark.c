@@ -2703,8 +2703,10 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
       snapshot_length = WTAP_MAX_PACKET_SIZE;
     }
     /* If we don't have an application name add Tshark */
-    if(shb_hdr->shb_user_appl == NULL)
+    if(shb_hdr->shb_user_appl == NULL) {
         g_snprintf(appname, sizeof(appname), "TShark " VERSION "%s", wireshark_svnversion);
+        shb_hdr->shb_user_appl = appname;
+    }
 
     pdh = wtap_dump_open_ng(save_file, out_file_type, linktype, snapshot_length,
         FALSE /* compressed */, shb_hdr, idb_inf, &err);
