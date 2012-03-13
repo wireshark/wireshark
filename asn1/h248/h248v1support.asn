@@ -26,8 +26,8 @@ BEGIN
 	-- V1
 	EventParameterV1 ::= SEQUENCE
 	{
-		eventParamterName		[0] Name,
-		value					[1] ValueV1
+		eventParamterName		[0] EventParameterName,
+		value					[1] EventParamValueV1
 	}
 		
 	-- V1
@@ -47,10 +47,12 @@ BEGIN
 	-- V1
 	SigParameterV1 ::= SEQUENCE
 	{
-		sigParameterName	[0] Name,
-		value				[1] ValueV1
+		sigParameterName	[0] SigParameterName,
+		value				[1] SigParamValueV1
 	}
 	
 	ValueV1 ::= OCTET STRING
+	EventParamValueV1 ::= OCTET STRING
+	SigParamValueV1 ::= OCTET STRING
 
 END

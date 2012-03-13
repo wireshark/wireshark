@@ -21,6 +21,8 @@ EventName
 EventParameterName
 EventParamValue
 ContextID
+EventParamValueV1
+#SigParamValueV1
 
 #.TYPE_RENAME
 IndAudMediaDescriptor/streams			IndAudMediaDescriptorStreams
@@ -81,6 +83,12 @@ TransactionRequest/transactionId	transactionId
 SegmentReply/transactionId			seg_rep_transactionId
 TransactionReply/transactionId		trep_transactionId
 TransactionPending/transactionId	tpend_transactionId
+PropertyParmV1/values		prop_param_values
+EventParameterV1/value		event_param_value
+SigParameterV1/value		sig_param_value
+PropertyParmV1/value		prop_parm_value
+AuditReplyV1/auditResult	audit_result
+PropertyParmV1/extraInfo	extra_info
 
 #.FN_HDR Message
     curr_info.msg = gcp_msg(actx->pinfo,tvb_raw_offset(tvb),keep_persistent_data);
@@ -395,7 +403,7 @@ TransactionPending/transactionId	tpend_transactionId
 
 #.FN_BODY EventParameter
 /* H248 v1 support */
-	if (h248_version >1) {
+	if (h248_version > 1) {
 		%(DEFAULT_BODY)s
 } else {
 		offset = dissect_h248_EventParameterV1( implicit_tag, tvb, offset, actx, tree, hf_index);

@@ -1291,6 +1291,34 @@ static int dissect_h248_EventParamValue(gboolean implicit_tag _U_, tvbuff_t *tvb
     return end_offset;
 }
 
+static int dissect_h248_EventParamValueV1(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,  asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) {
+    tvbuff_t *next_tvb;
+    int end_offset;
+    gint8 class;
+    gboolean pc, ind;
+    gint32 tag;
+    guint32 len;
+
+    offset=dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
+    offset=dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind);
+    end_offset=offset+len;
+
+    if( (class!=BER_CLASS_UNI)
+        ||(tag!=BER_UNI_TAG_OCTETSTRING) ){
+        proto_tree_add_text(tree, tvb, offset-2, 2, "H.248 BER Error: OctetString expected but Class:%d PC:%d Tag:%d was unexpected", class, pc, tag);
+        return end_offset;
+    }
+
+
+    next_tvb = tvb_new_subset(tvb,offset,len,len);
+
+    if ( curr_info.par && curr_info.par->dissector) {
+        curr_info.par->dissector(tree, next_tvb, actx->pinfo, *(curr_info.par->hfid), &curr_info, curr_info.par->data);
+    }
+
+    return end_offset;
+}
+
 static int dissect_h248_MtpAddress(gboolean implicit_tag, tvbuff_t *tvb, int offset,  asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {
     tvbuff_t *new_tvb;
     proto_tree *mtp_tree=NULL;
