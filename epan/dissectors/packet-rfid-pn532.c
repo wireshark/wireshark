@@ -125,54 +125,54 @@ static int hf_pn532_14443b_proto_info = -1;
 #define JEWEL_14443A_106	0x04
 
 static const value_string pn532_commands[] = {
-    {DIAGNOSE, "Diagnose"},
+    {DIAGNOSE,			"Diagnose"},
 
     /* Discover the device's firmware version */
-    {GET_FIRMWARE_VERSION_REQ, "GetFirmwareVersion"},
-    {GET_FIRMWARE_VERSION_RSP, "GetFirmwareVersion (Response)"},
+    {GET_FIRMWARE_VERSION_REQ,	"GetFirmwareVersion"},
+    {GET_FIRMWARE_VERSION_RSP,	"GetFirmwareVersion (Response)"},
 
-    {GET_GENERAL_STATUS, "GetGeneralStatus"},
-    {READ_REGISTER, "ReadRegister"},
-    {WRITE_REGISTER, "WriteRegister"},
-    {READ_GPIO, "ReadGPIO"},
-    {WRITE_GPIO, "WriteGPIO"},
-    {SET_SERIAL_BAUD_RATE, "SetSerialBaudRate"},
-    {SET_PARAMETERS, "SetParameters"},
-    {SAM_CONFIGURATION, "SAMConfiguration"},
-    {POWER_DOWN, "PowerDown"},
-    {RF_CONFIGURATION, "RFConfiguration"},
-    {RF_REGULATION_TEST, "RFRegulationTest"},
-    {IN_JUMP_FOR_DEP, "InJumpForDEP"},
-    {IN_JUMP_FOR_PSL, "InJumpForPSL"},
+    {GET_GENERAL_STATUS,	"GetGeneralStatus"},
+    {READ_REGISTER,		"ReadRegister"},
+    {WRITE_REGISTER,		"WriteRegister"},
+    {READ_GPIO,			"ReadGPIO"},
+    {WRITE_GPIO,		"WriteGPIO"},
+    {SET_SERIAL_BAUD_RATE,	"SetSerialBaudRate"},
+    {SET_PARAMETERS,		"SetParameters"},
+    {SAM_CONFIGURATION,		"SAMConfiguration"},
+    {POWER_DOWN,		"PowerDown"},
+    {RF_CONFIGURATION,		"RFConfiguration"},
+    {RF_REGULATION_TEST,	"RFRegulationTest"},
+    {IN_JUMP_FOR_DEP,		"InJumpForDEP"},
+    {IN_JUMP_FOR_PSL,		"InJumpForPSL"},
 
     /* List tags in the proximity of the reader's field */
     {IN_LIST_PASSIVE_TARGET_REQ, "InListPassiveTarget"},
     {IN_LIST_PASSIVE_TARGET_RSP, "InListPassiveTarget (Response)"},
 
-    {IN_ATR, "InATR"},
-    {IN_PSL, "InPSL"},
-    {IN_DATA_EXCHANGE, "InDataExchange"},
-    
+    {IN_ATR,			"InATR"},
+    {IN_PSL,			"InPSL"},
+    {IN_DATA_EXCHANGE,		"InDataExchange"},
+
     /* Communicate through */
-    {IN_COMMUNICATE_THRU_REQ, "InCommunicateThru"},
-    {IN_COMMUNICATE_THRU_RSP, "InCommunicateThru (Response)"},
-    
-    {IN_DESELECT, "InDeselect"},
-    {IN_RELEASE, "InRelease"},
-    {IN_SELECT, "InSelect"},
+    {IN_COMMUNICATE_THRU_REQ,	"InCommunicateThru"},
+    {IN_COMMUNICATE_THRU_RSP,	"InCommunicateThru (Response)"},
+
+    {IN_DESELECT,		"InDeselect"},
+    {IN_RELEASE,		"InRelease"},
+    {IN_SELECT,			"InSelect"},
 
     /* Automatic/long-time polling */
-    {IN_AUTO_POLL_REQ, "InAutoPoll"},
-    {IN_AUTO_POLL_RES, "InAutoPoll (Response)"},
+    {IN_AUTO_POLL_REQ,		"InAutoPoll"},
+    {IN_AUTO_POLL_RES,		"InAutoPoll (Response)"},
 
-    {TG_INIT_AS_TARGET, "TgInitAsTarget"},
-    {TG_SET_GENERAL_BYTES, "TgSetGeneralBytes"},
-    {TG_GET_DATA, "TgGetData"},
-    {TG_SET_DATA, "TgSetData"},
-    {TG_SET_METADATA, "TgSetMetaData"},
-    {TG_GET_INITIATOR_CMD, "TgGetInitiatorCommand"},
-    {TG_RESP_TO_INITIATOR, "TgResponseToInitiator"},
-    {TG_GET_TARGET_STATUS, "TgGetTargetStatus"},
+    {TG_INIT_AS_TARGET,		"TgInitAsTarget"},
+    {TG_SET_GENERAL_BYTES,	"TgSetGeneralBytes"},
+    {TG_GET_DATA,		"TgGetData"},
+    {TG_SET_DATA,		"TgSetData"},
+    {TG_SET_METADATA,		"TgSetMetaData"},
+    {TG_GET_INITIATOR_CMD,	"TgGetInitiatorCommand"},
+    {TG_RESP_TO_INITIATOR,	"TgResponseToInitiator"},
+    {TG_GET_TARGET_STATUS,	"TgGetTargetStatus"},
 
     /* End of commands */
     {0x00, NULL}
@@ -180,8 +180,8 @@ static const value_string pn532_commands[] = {
 
 /* TFI - 1 byte frame identifier; specifying direction of communication */
 static const value_string pn532_directions[] = {
-    {HOST_TO_PN532, "Host to PN532"},
-    {PN532_TO_HOST, "PN532 to Host"},
+    {HOST_TO_PN532,		"Host to PN532"},
+    {PN532_TO_HOST,		"PN532 to Host"},
 
     /* End of directions */
     {0x00, NULL}
@@ -189,11 +189,11 @@ static const value_string pn532_directions[] = {
 
 /* Baud rates and modulation types */
 static const value_string pn532_brtypes[] = {
-    {ISO_IEC_14443A_106, "ISO/IEC 14443-A at 106 kbps"},
-    {FELICA_212, "FeliCa at 212 kbps"},
-    {FELICA_424, "FeliCa at 424 kbps"},
-    {ISO_IEC_14443B_106, "ISO/IEC 14443-B at 106 kbps"},
-    {JEWEL_14443A_106, "InnoVision Jewel/Topaz at 106 kbps"},
+    {ISO_IEC_14443A_106,	"ISO/IEC 14443-A at 106 kbps"},
+    {FELICA_212,		"FeliCa at 212 kbps"},
+    {FELICA_424,		"FeliCa at 424 kbps"},
+    {ISO_IEC_14443B_106,	"ISO/IEC 14443-B at 106 kbps"},
+    {JEWEL_14443A_106,		"InnoVision Jewel/Topaz at 106 kbps"},
 
     /* End of directions */
     {0x00, NULL}
@@ -207,7 +207,8 @@ static dissector_table_t pn532_dissector_table;
 /* Subtree handles: set by register_subtree_array */
 static gint ett_pn532 = -1;
 
-static void dissect_pn532(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+static void
+dissect_pn532(tvbuff_t * tvb, packet_info * pinfo, proto_tree *tree)
 {
     proto_item *item;
     proto_tree *pn532_tree;
@@ -217,20 +218,19 @@ static void dissect_pn532(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PN532");
     col_set_str(pinfo->cinfo, COL_INFO, "PN532 Packet");
 
+    /* Start with a top-level item to add everything else to */
+    item = proto_tree_add_item(tree, proto_pn532, tvb, 0, -1, ENC_NA);
+    pn532_tree = proto_item_add_subtree(item, ett_pn532);
+
+    proto_tree_add_item(pn532_tree, hf_pn532_direction, tvb, 0, 1, ENC_NA);
+    proto_tree_add_item(pn532_tree, hf_pn532_command, tvb, 1, 1, ENC_NA);
+
+    /* Direction byte */
+    cmd = tvb_get_guint8(tvb, 1);
+
+    col_set_str(pinfo->cinfo, COL_INFO, val_to_str(cmd, pn532_commands, "Unknown"));
+
     if (tree) {
-	/* Start with a top-level item to add everything else to */
-
-	item = proto_tree_add_item(tree, proto_pn532, tvb, 0, -1, ENC_NA);
-	pn532_tree = proto_item_add_subtree(item, ett_pn532);
-
-	proto_tree_add_item(pn532_tree, hf_pn532_direction, tvb, 0, 1, ENC_NA);
-	proto_tree_add_item(pn532_tree, hf_pn532_command, tvb, 1, 1, ENC_NA);
-
-	/* Direction byte */
-	cmd = tvb_get_guint8(tvb, 1);
-	
-	col_set_str(pinfo->cinfo, COL_INFO, val_to_str(cmd, pn532_commands, "Unknown"));
-
 	switch (cmd) {
 
 	case DIAGNOSE:
@@ -322,8 +322,8 @@ static void dissect_pn532(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
 	    }
 
 	    /* Probably one of:
-	     * a MiFare DESFire card (23 bytes), 
-	     * an MF UltraLight tag (17 bytes) 
+	     * a MiFare DESFire card (23 bytes),
+	     * an MF UltraLight tag (17 bytes)
 	     * an MF Classic card with a 4 byte UID (14 bytes) */
 
 	    if (tvb_reported_length(tvb) == 23 || (tvb_reported_length(tvb) == 17) || (tvb_reported_length(tvb) == 14)) {
@@ -419,7 +419,7 @@ static void dissect_pn532(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
 	default:
 	    break;
 	}
-	
+
     }
 }
 
