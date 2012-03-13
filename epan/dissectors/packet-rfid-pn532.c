@@ -230,196 +230,193 @@ dissect_pn532(tvbuff_t * tvb, packet_info * pinfo, proto_tree *tree)
 
     col_set_str(pinfo->cinfo, COL_INFO, val_to_str(cmd, pn532_commands, "Unknown"));
 
-    if (tree) {
-	switch (cmd) {
+    switch (cmd) {
 
-	case DIAGNOSE:
-	    break;
+    case DIAGNOSE:
+	break;
 
-	    /* Device Firmware Version */
-	case GET_FIRMWARE_VERSION_REQ:
-	    break;
+	/* Device Firmware Version */
+    case GET_FIRMWARE_VERSION_REQ:
+	break;
 
-	case GET_FIRMWARE_VERSION_RSP:
-	    proto_tree_add_item(pn532_tree, hf_pn532_ic_version, tvb, 2, 1, ENC_NA);
-	    proto_tree_add_item(pn532_tree, hf_pn532_fw_version, tvb, 3, 1, ENC_NA);
-	    proto_tree_add_item(pn532_tree, hf_pn532_fw_revision, tvb, 4, 1, ENC_NA);
-	    proto_tree_add_item(pn532_tree, hf_pn532_fw_support, tvb, 5, 1, ENC_NA);
-	    break;
+    case GET_FIRMWARE_VERSION_RSP:
+	proto_tree_add_item(pn532_tree, hf_pn532_ic_version, tvb, 2, 1, ENC_NA);
+	proto_tree_add_item(pn532_tree, hf_pn532_fw_version, tvb, 3, 1, ENC_NA);
+	proto_tree_add_item(pn532_tree, hf_pn532_fw_revision, tvb, 4, 1, ENC_NA);
+	proto_tree_add_item(pn532_tree, hf_pn532_fw_support, tvb, 5, 1, ENC_NA);
+	break;
 
-	case GET_GENERAL_STATUS:
-	    break;
+    case GET_GENERAL_STATUS:
+	break;
 
-	case READ_REGISTER:
-	    break;
+    case READ_REGISTER:
+	break;
 
-	case WRITE_REGISTER:
-	    break;
+    case WRITE_REGISTER:
+	break;
 
-	case READ_GPIO:
-	    break;
+    case READ_GPIO:
+	break;
 
-	case WRITE_GPIO:
-	    break;
+    case WRITE_GPIO:
+	break;
 
-	case SET_SERIAL_BAUD_RATE:
-	    break;
+    case SET_SERIAL_BAUD_RATE:
+	break;
 
-	case SET_PARAMETERS:
-	    break;
+    case SET_PARAMETERS:
+	break;
 
-	case SAM_CONFIGURATION:
-	    break;
+    case SAM_CONFIGURATION:
+	break;
 
-	case POWER_DOWN:
-	    break;
+    case POWER_DOWN:
+	break;
 
-	case RF_CONFIGURATION:
-	    break;
+    case RF_CONFIGURATION:
+	break;
 
-	case RF_REGULATION_TEST:
-	    break;
+    case RF_REGULATION_TEST:
+	break;
 
-	case IN_JUMP_FOR_DEP:
-	    break;
+    case IN_JUMP_FOR_DEP:
+	break;
 
-	case IN_JUMP_FOR_PSL:
-	    break;
+    case IN_JUMP_FOR_PSL:
+	break;
 
-	    /* List targets (tags) in the field */
-	case IN_LIST_PASSIVE_TARGET_REQ:
+	/* List targets (tags) in the field */
+    case IN_LIST_PASSIVE_TARGET_REQ:
 
-	    /* Maximum number of supported tags */
-	    proto_tree_add_item(pn532_tree, hf_pn532_MaxTg, tvb, 2, 1, ENC_BIG_ENDIAN);
+	/* Maximum number of supported tags */
+	proto_tree_add_item(pn532_tree, hf_pn532_MaxTg, tvb, 2, 1, ENC_BIG_ENDIAN);
 
-	    /* Modulation and Baud Rate Type */
-	    proto_tree_add_item(pn532_tree, hf_pn532_BrTy, tvb, 3, 1, ENC_BIG_ENDIAN);
+	/* Modulation and Baud Rate Type */
+	proto_tree_add_item(pn532_tree, hf_pn532_BrTy, tvb, 3, 1, ENC_BIG_ENDIAN);
 
-	    /* Attempt to dissect FeliCa payloads */
-	    if (tvb_get_guint8(tvb, 3) == FELICA_212 || tvb_get_guint8(tvb, 3) == FELICA_424) {
+	/* Attempt to dissect FeliCa payloads */
+	if (tvb_get_guint8(tvb, 3) == FELICA_212 || tvb_get_guint8(tvb, 3) == FELICA_424) {
 
-		next_tvb = tvb_new_subset_remaining(tvb, 4);
-		call_dissector(felica_handle, next_tvb, pinfo, tree);
+	    next_tvb = tvb_new_subset_remaining(tvb, 4);
+	    call_dissector(felica_handle, next_tvb, pinfo, tree);
 
-	    }
-
-	    break;
-
-	case IN_LIST_PASSIVE_TARGET_RSP:
-	    proto_tree_add_item(pn532_tree, hf_pn532_NbTg, tvb, 2, 1, ENC_BIG_ENDIAN);
-
-	    /* Probably an ISO/IEC 14443-B tag */
-	    if (tvb_reported_length(tvb) == 20) {
-
-		/* Add the PUPI */
-		proto_tree_add_item(pn532_tree, hf_pn532_14443b_pupi, tvb, 5, 4, ENC_BIG_ENDIAN);
-
-		/* Add the Application Data */
-		proto_tree_add_item(pn532_tree, hf_pn532_14443b_app_data, tvb, 9, 4, ENC_BIG_ENDIAN);
-
-		/* Add the Protocol Info */
-		proto_tree_add_item(pn532_tree, hf_pn532_14443b_proto_info, tvb, 13, 3, ENC_BIG_ENDIAN);
-	    }
-
-	    /* Probably one of:
-	     * a MiFare DESFire card (23 bytes),
-	     * an MF UltraLight tag (17 bytes)
-	     * an MF Classic card with a 4 byte UID (14 bytes) */
-
-	    if (tvb_reported_length(tvb) == 23 || (tvb_reported_length(tvb) == 17) || (tvb_reported_length(tvb) == 14)) {
-
-		/* Add the ATQA/SENS_RES */
-		proto_tree_add_item(pn532_tree, hf_pn532_14443a_atqa, tvb, 4, 2, ENC_BIG_ENDIAN);
-
-		/* Add the SAK/SEL_RES value */
-		proto_tree_add_item(pn532_tree, hf_pn532_14443a_sak, tvb, 6, 1, ENC_BIG_ENDIAN);
-
-		/* Add the UID */
-		if (tvb_reported_length(tvb) != 14) {
-		    proto_tree_add_item(pn532_tree, hf_pn532_14443a_uid, tvb, 8, 7, ENC_BIG_ENDIAN);
-
-		    /* Probably MiFare DESFire, or some other 14443-A card with an ATS value/7 byte UID */
-		    if (tvb_reported_length(tvb) == 23) {
-
-			/* Add the ATS value */
-			proto_tree_add_item(pn532_tree, hf_pn532_14443a_ats, tvb, 16, 5, ENC_BIG_ENDIAN);
-		    }
-		}
-		/* Probably MiFare Classic with a 4 byte UID */
-		else {
-		    proto_tree_add_item(pn532_tree, hf_pn532_14443a_uid, tvb, 7, 4, ENC_BIG_ENDIAN);
-		}
-
-	    }
-
-	    /* See if we've got a FeliCa payload with a System Code */
-	    if (tvb_reported_length(tvb) == 26) {
-
-		/* For FeliCa, this is at position 4. This doesn't exist for other payload types. */
-		proto_tree_add_item(pn532_tree, hf_pn532_payload_length, tvb, 4, 1, ENC_BIG_ENDIAN);
-
-		/* Use the length value (20?) at position 5, and skip the Status Word (9000) at the end */
-		next_tvb = tvb_new_subset(tvb, 5, tvb_get_guint8(tvb, 4) - 1, 19);
-		call_dissector(felica_handle, next_tvb, pinfo, tree);
-	    }
-
-	    break;
-
-	case IN_ATR:
-	    break;
-
-	case IN_PSL:
-	    break;
-
-	case IN_DATA_EXCHANGE:
-	    break;
-
-	case IN_COMMUNICATE_THRU_REQ:
-	    break;
-
-	case IN_DESELECT:
-	    break;
-
-	case IN_RELEASE:
-	    break;
-
-	case IN_SELECT:
-	    break;
-
-	case IN_AUTO_POLL_REQ:
-	    break;
-
-	case IN_AUTO_POLL_RES:
-	    break;
-
-	case TG_INIT_AS_TARGET:
-	    break;
-
-	case TG_SET_GENERAL_BYTES:
-	    break;
-
-	case TG_GET_DATA:
-	    break;
-
-	case TG_SET_DATA:
-	    break;
-
-	case TG_SET_METADATA:
-	    break;
-
-	case TG_GET_INITIATOR_CMD:
-	    break;
-
-	case TG_RESP_TO_INITIATOR:
-	    break;
-
-	case TG_GET_TARGET_STATUS:
-	    break;
-
-	default:
-	    break;
 	}
 
+	break;
+
+    case IN_LIST_PASSIVE_TARGET_RSP:
+	proto_tree_add_item(pn532_tree, hf_pn532_NbTg, tvb, 2, 1, ENC_BIG_ENDIAN);
+
+	/* Probably an ISO/IEC 14443-B tag */
+	if (tvb_reported_length(tvb) == 20) {
+
+	    /* Add the PUPI */
+	    proto_tree_add_item(pn532_tree, hf_pn532_14443b_pupi, tvb, 5, 4, ENC_BIG_ENDIAN);
+
+	    /* Add the Application Data */
+	    proto_tree_add_item(pn532_tree, hf_pn532_14443b_app_data, tvb, 9, 4, ENC_BIG_ENDIAN);
+
+	    /* Add the Protocol Info */
+	    proto_tree_add_item(pn532_tree, hf_pn532_14443b_proto_info, tvb, 13, 3, ENC_BIG_ENDIAN);
+	}
+
+	/* Probably one of:
+	 * a MiFare DESFire card (23 bytes),
+	 * an MF UltraLight tag (17 bytes)
+	 * an MF Classic card with a 4 byte UID (14 bytes) */
+
+	if (tvb_reported_length(tvb) == 23 || (tvb_reported_length(tvb) == 17) || (tvb_reported_length(tvb) == 14)) {
+
+	    /* Add the ATQA/SENS_RES */
+	    proto_tree_add_item(pn532_tree, hf_pn532_14443a_atqa, tvb, 4, 2, ENC_BIG_ENDIAN);
+
+	    /* Add the SAK/SEL_RES value */
+	    proto_tree_add_item(pn532_tree, hf_pn532_14443a_sak, tvb, 6, 1, ENC_BIG_ENDIAN);
+
+	    /* Add the UID */
+	    if (tvb_reported_length(tvb) != 14) {
+		proto_tree_add_item(pn532_tree, hf_pn532_14443a_uid, tvb, 8, 7, ENC_BIG_ENDIAN);
+
+		/* Probably MiFare DESFire, or some other 14443-A card with an ATS value/7 byte UID */
+		if (tvb_reported_length(tvb) == 23) {
+
+		    /* Add the ATS value */
+		    proto_tree_add_item(pn532_tree, hf_pn532_14443a_ats, tvb, 16, 5, ENC_BIG_ENDIAN);
+		}
+	    }
+	    /* Probably MiFare Classic with a 4 byte UID */
+	    else {
+		proto_tree_add_item(pn532_tree, hf_pn532_14443a_uid, tvb, 7, 4, ENC_BIG_ENDIAN);
+	    }
+
+	}
+
+	/* See if we've got a FeliCa payload with a System Code */
+	if (tvb_reported_length(tvb) == 26) {
+
+	    /* For FeliCa, this is at position 4. This doesn't exist for other payload types. */
+	    proto_tree_add_item(pn532_tree, hf_pn532_payload_length, tvb, 4, 1, ENC_BIG_ENDIAN);
+
+	    /* Use the length value (20?) at position 5, and skip the Status Word (9000) at the end */
+	    next_tvb = tvb_new_subset(tvb, 5, tvb_get_guint8(tvb, 4) - 1, 19);
+	    call_dissector(felica_handle, next_tvb, pinfo, tree);
+	}
+
+	break;
+
+    case IN_ATR:
+	break;
+
+    case IN_PSL:
+	break;
+
+    case IN_DATA_EXCHANGE:
+	break;
+
+    case IN_COMMUNICATE_THRU_REQ:
+	break;
+
+    case IN_DESELECT:
+	break;
+
+    case IN_RELEASE:
+	break;
+
+    case IN_SELECT:
+	break;
+
+    case IN_AUTO_POLL_REQ:
+	break;
+
+    case IN_AUTO_POLL_RES:
+	break;
+
+    case TG_INIT_AS_TARGET:
+	break;
+
+    case TG_SET_GENERAL_BYTES:
+	break;
+
+    case TG_GET_DATA:
+	break;
+
+    case TG_SET_DATA:
+	break;
+
+    case TG_SET_METADATA:
+	break;
+
+    case TG_GET_INITIATOR_CMD:
+	break;
+
+    case TG_RESP_TO_INITIATOR:
+	break;
+
+    case TG_GET_TARGET_STATUS:
+	break;
+
+    default:
+	break;
     }
 }
 
