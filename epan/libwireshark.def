@@ -122,6 +122,10 @@ crc32_ccitt_tvb
 crc32_ccitt_tvb_offset
 crc32_ccitt_tvb_seed
 crc32_ccitt_tvb_offset_seed
+crc32_mpeg2_tvb
+crc32_mpeg2_tvb_offset
+crc32_mpeg2_tvb_seed
+crc32_mpeg2_tvb_offset_seed
 create_dissector_handle
 create_persconffile_dir
 create_persconffile_profile

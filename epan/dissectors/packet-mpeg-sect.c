@@ -37,11 +37,12 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/crc32-tvb.h>
+#include <epan/expert.h>
 
 static int proto_mpeg_sect = -1;
 static int hf_mpeg_sect_table_id = -1;
 static int hf_mpeg_sect_syntax_indicator = -1;
-static int hf_mpeg_sect_zero = -1;
 static int hf_mpeg_sect_reserved = -1;
 static int hf_mpeg_sect_length = -1;
 static int hf_mpeg_sect_crc = -1;
@@ -50,11 +51,9 @@ static gint ett_mpeg_sect = -1;
 
 static dissector_table_t mpeg_sect_tid_dissector_table;
 
-#define MPEG_SECT_TABLE_ID_MASK		0xFF0000
-#define MPEG_SECT_SYNTAX_INDICATOR_MASK	0x008000
-#define MPEG_SECT_ZERO_MASK		0x004000
-#define MPEG_SECT_RESERVED_MASK		0x003000
-#define MPEG_SECT_LENGTH_MASK		0x000FFF
+#define MPEG_SECT_SYNTAX_INDICATOR_MASK	0x8000
+#define MPEG_SECT_RESERVED_MASK		0x7000
+#define MPEG_SECT_LENGTH_MASK		0x0FFF
 
 /* From ISO/IEC 13818-1 */
 enum {
@@ -135,115 +134,129 @@ static const value_string mpeg_sect_table_id_vals[] = {
 	{ 0, NULL }
 };
 
+guint
+packet_mpeg_sect_header(tvbuff_t *tvb, guint offset,
+				proto_tree *tree, guint *sect_len, gboolean *ssi)
+{
+	guint tmp;
+	guint len = 0;
+
+	if (tree) 
+		proto_tree_add_item(tree, hf_mpeg_sect_table_id, tvb, offset + len, 1, ENC_BIG_ENDIAN);
+
+	len++;
+
+	if (tree) {
+		proto_tree_add_item(tree, hf_mpeg_sect_syntax_indicator, tvb, offset + len, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_mpeg_sect_reserved, tvb, offset + len, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_mpeg_sect_length, tvb, offset + len, 2, ENC_BIG_ENDIAN);
+	}
+
+	tmp = tvb_get_ntohs(tvb, offset + len); 
+
+	if (sect_len)
+		*sect_len = MPEG_SECT_LENGTH_MASK & tmp;
+	
+	if (ssi)
+		*ssi = (MPEG_SECT_SYNTAX_INDICATOR_MASK & tmp);
+
+	len += 2;
+
+	return len;
+}
+
+
+void
+packet_mpeg_sect_crc(tvbuff_t *tvb, packet_info *pinfo,
+						proto_tree *tree, guint start, guint end)
+{
+	guint32 crc, calculated_crc;
+
+	crc = tvb_get_ntohl(tvb, end);
+	calculated_crc = crc32_mpeg2_tvb_offset(tvb, start, end);
+
+	if (calculated_crc == crc) {
+		proto_tree_add_uint_format( tree, hf_mpeg_sect_crc, tvb,
+			end, 4, crc, "CRC: 0x%08x [Verified]", crc);
+	} else {
+		proto_item *msg_error = NULL;
+
+		msg_error = proto_tree_add_uint_format( tree, hf_mpeg_sect_crc, tvb,
+							end, 4, crc,
+							"CRC: 0x%08x [Failed Verification (Calculated: 0x%08x)]",
+							crc, calculated_crc );
+		PROTO_ITEM_SET_GENERATED(msg_error);
+		expert_add_info_format( pinfo, msg_error, PI_MALFORMED,
+					PI_ERROR, "Invalid CRC" );
+	}
+}
+
+
 void
 dissect_mpeg_sect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-
 	gint offset = 0;
-
 	guint8 table_id = 0;
-	guint16 header = 0;
-	guint16 section_length = 0;
-	guint16 syntax_indicator = 0;
+	guint section_length = 0;
+	gboolean syntax_indicator;
 
 	proto_item *ti = NULL;
 	proto_tree *mpeg_sect_tree = NULL;
 
-	tvbuff_t *pload_tvb = NULL;
-
 	table_id = tvb_get_guint8(tvb, offset);
-	header = tvb_get_ntohs(tvb, offset + 1);
-	syntax_indicator = header & MPEG_SECT_SYNTAX_INDICATOR_MASK;
-	section_length = header & MPEG_SECT_LENGTH_MASK;
 
-	set_actual_length(tvb, section_length + 3);
+	/* Check if a dissector can parse the current table */
+	if (dissector_try_uint(mpeg_sect_tid_dissector_table, table_id, tvb, pinfo, tree))
+		return;
 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MPEG SECT");
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Table ID 0x%08x", table_id);
-
-	ti = proto_tree_add_item(tree, proto_mpeg_sect, tvb, offset, -1, ENC_NA);
-	mpeg_sect_tree = proto_item_add_subtree(ti, ett_mpeg_sect);
-
-	proto_item_append_text(ti, " Table_ID=0x%08x", table_id);
-
-	if (syntax_indicator) {
-		/* Pass everything but the CRC */
-		section_length -= sizeof(guint32);
-	}
-
+	/* If no dissector is registered, use the common one */
 	if (tree) {
 
-		proto_tree_add_item(mpeg_sect_tree, hf_mpeg_sect_table_id, tvb, offset, 3, ENC_BIG_ENDIAN);
-		proto_tree_add_item(mpeg_sect_tree, hf_mpeg_sect_syntax_indicator, tvb, offset, 3, ENC_BIG_ENDIAN);
-		proto_tree_add_item(mpeg_sect_tree, hf_mpeg_sect_zero, tvb, offset, 3, ENC_BIG_ENDIAN);
-		proto_tree_add_item(mpeg_sect_tree, hf_mpeg_sect_reserved, tvb, offset, 3, ENC_BIG_ENDIAN);
-		proto_tree_add_item(mpeg_sect_tree, hf_mpeg_sect_length, tvb, offset, 3, ENC_BIG_ENDIAN);
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "MPEG SECT");
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Table ID 0x%02x", table_id);
 
-		offset += 3;
+		ti = proto_tree_add_item(tree, proto_mpeg_sect, tvb, offset, -1, ENC_NA);
+		mpeg_sect_tree = proto_item_add_subtree(ti, ett_mpeg_sect);
 
-		if (syntax_indicator)
-			proto_tree_add_item(mpeg_sect_tree, hf_mpeg_sect_crc, tvb, offset + section_length, 4, ENC_BIG_ENDIAN);
+		proto_item_append_text(ti, " Table_ID=0x%02x", table_id);
+
+		offset += packet_mpeg_sect_header(tvb, offset, mpeg_sect_tree,
+								&section_length, &syntax_indicator);
+
+		if (syntax_indicator) 
+			packet_mpeg_sect_crc(tvb, pinfo, mpeg_sect_tree, 0, (section_length-1));
 	}
-
-	
-	pload_tvb = tvb_new_subset(tvb, 3, section_length, -1);
-	dissector_try_uint(mpeg_sect_tid_dissector_table, table_id, pload_tvb, pinfo, tree);
-
-	return;
-
 }
 
-
-static gboolean
-heur_dissect_mpeg_sect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	guint16 section_length = 0;
-
-	section_length = (tvb_get_ntohs(tvb, 1) & MPEG_SECT_LENGTH_MASK) + 3;
-	if (tvb_length_remaining(tvb, 0) < section_length)
-		return FALSE;
-
-	dissect_mpeg_sect(tvb, pinfo, tree);
-	return TRUE;
-}
 
 void
 proto_register_mpeg_sect(void)
 {
-
 	static hf_register_info hf[] = {
-		
 		{ &hf_mpeg_sect_table_id, {
 			"Table ID", "mpeg_sect.tid",
-			FT_UINT24, BASE_HEX, VALS(mpeg_sect_table_id_vals), MPEG_SECT_TABLE_ID_MASK, NULL, HFILL
+			FT_UINT8, BASE_HEX, VALS(mpeg_sect_table_id_vals), 0, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_sect_syntax_indicator, {
 			"Syntax indicator", "mpeg_sect.syntax_indicator",
-			FT_UINT24, BASE_DEC, NULL, MPEG_SECT_SYNTAX_INDICATOR_MASK, NULL, HFILL
-		} },
-
-		{ &hf_mpeg_sect_zero, {
-			"Zero or reserved", "mpeg_sect.zero",
-			FT_UINT24, BASE_DEC, NULL, MPEG_SECT_ZERO_MASK, NULL, HFILL
+			FT_UINT16, BASE_DEC, NULL, MPEG_SECT_SYNTAX_INDICATOR_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_sect_reserved, {
 			"Reserved", "mpeg_sect.reserved",
-			FT_UINT24, BASE_HEX, NULL, MPEG_SECT_RESERVED_MASK, NULL, HFILL
+			FT_UINT16, BASE_HEX, NULL, MPEG_SECT_RESERVED_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_sect_length, {
 			"Length", "mpeg_sect.len",
-			FT_UINT24, BASE_DEC, NULL, MPEG_SECT_LENGTH_MASK, NULL, HFILL
+			FT_UINT16, BASE_DEC, NULL, MPEG_SECT_LENGTH_MASK, NULL, HFILL
 		} },
 
 		{ &hf_mpeg_sect_crc, {
 			"CRC 32", "mpeg_sect.crc",
 			FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL
-		} },
-			
-
+		} }
 	};
 
 	static gint *ett[] = {
@@ -260,12 +273,3 @@ proto_register_mpeg_sect(void)
 	mpeg_sect_tid_dissector_table = register_dissector_table("mpeg_sect.tid", "MPEG SECT Table ID", FT_UINT8, BASE_HEX);
 
 }
-
-
-void
-proto_reg_handoff_mpeg_sect(void)
-{
-	heur_dissector_add("mp2t.pid", heur_dissect_mpeg_sect, proto_mpeg_sect);
-}
-
-

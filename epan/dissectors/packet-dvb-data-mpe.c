@@ -30,6 +30,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/dissectors/packet-mpeg-sect.h>
 
 static int proto_dvb_data_mpe = -1;
 static int hf_dvb_data_mpe_reserved = -1;
@@ -46,7 +47,7 @@ static gint ett_dvb_data_mpe = -1;
 static dissector_handle_t ip_handle;
 static dissector_handle_t llc_handle;
 
-#define DVB_DATA_MPE_TID 0x3E
+#define DVB_DATA_MPE_TID	0x3E
 
 
 #define DVB_DATA_MPE_RESERVED_MASK			0xC0
@@ -68,7 +69,7 @@ static void
 dissect_dvb_data_mpe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
-	guint       offset            = 0;
+	guint       offset            = 0, tot_len = 0;
 	guint8      llc_snap_flag     = 0;
 	int         i;
 
@@ -88,6 +89,9 @@ dissect_dvb_data_mpe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	ti = proto_tree_add_item(tree, proto_dvb_data_mpe, tvb, offset, -1, ENC_NA);
 	dvb_data_mpe_tree = proto_item_add_subtree(ti, ett_dvb_data_mpe);
+
+	offset += packet_mpeg_sect_header(tvb, offset, dvb_data_mpe_tree, &tot_len, NULL);
+
 
 	/* Parse the DMC-CC private section header */
 
@@ -133,6 +137,7 @@ dissect_dvb_data_mpe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		call_dissector(ip_handle, data_tvb, pinfo, tree);
 	}
 
+	packet_mpeg_sect_crc(tvb, pinfo, dvb_data_mpe_tree, 0, tot_len - 1);
 	return;
 
 }

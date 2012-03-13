@@ -31,6 +31,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/dissectors/packet-mpeg-sect.h>
 
 static int proto_mpeg_pat = -1;
 static int hf_mpeg_pat_transport_stream_id = -1;
@@ -48,7 +49,7 @@ static int hf_mpeg_pat_program_map_pid = -1;
 static gint ett_mpeg_pat = -1;
 static gint ett_mpeg_pat_prog = -1;
 
-#define MPEG_PAT_TID				0x00
+#define MPEG_PAT_TID	0x00
 
 #define MPEG_PAT_RESERVED_MASK			0xC0
 #define MPEG_PAT_VERSION_NUMBER_MASK		0x3E
@@ -86,7 +87,8 @@ dissect_mpeg_pat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (!tree)
 		return;
 
-	length = tvb_reported_length_remaining(tvb, offset);
+	offset += packet_mpeg_sect_header(tvb, offset, mpeg_pat_tree, &length, NULL);
+	length -= 4;
 
 	proto_tree_add_item(mpeg_pat_tree, hf_mpeg_pat_transport_stream_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
@@ -124,8 +126,7 @@ dissect_mpeg_pat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		
 	}
 
-	return;
-
+	packet_mpeg_sect_crc(tvb, pinfo, mpeg_pat_tree, 0, offset);
 }
 
 

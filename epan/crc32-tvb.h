@@ -68,6 +68,35 @@ extern guint32 crc32_ccitt_tvb_offset_seed(tvbuff_t *tvb, guint offset,
  @return The IEEE 802.x CRC32 checksum. */
 extern guint32 crc32_802_tvb(tvbuff_t *tvb, guint len);
 
+
+/** Compute MPEG-2 CRC32 checksum of a tv buffer.
+ @param tvb The tv buffer containing the data.
+ @param len The number of bytes to include in the computation.
+ @return The MPEG-2 CRC32 checksum. */
+extern guint32 crc32_mpeg2_tvb(tvbuff_t *tvb, guint len);
+
+/** Compute MPEG-2 CRC32 checksum of a tv buffer.
+ @param tvb The tv buffer containing the data.
+ @param offset The offset into the tv buffer.
+ @param len The number of bytes to include in the computation.
+ @return The MPEG-2 CRC32 checksum. */
+extern guint32 crc32_mpeg2_tvb_offset(tvbuff_t *tvb, guint offset, guint len);
+
+/** Compute MPEG-2 CRC32 checksum of a buffer of data.
+ @param tvb The tv buffer containing the data.
+ @param len The number of bytes to include in the computation.
+ @param seed The seed to use.
+ @return The CRC32 MPEG-2 checksum (using the given seed). */
+extern guint32 crc32_mpeg2_tvb_seed(tvbuff_t *tvb, guint len, guint32 seed);
+
+/** Compute MPEG-2 CRC32 checksum of a buffer of data.
+ @param tvb The tv buffer containing the data.
+ @param offset The offset into the tv buffer.
+ @param len The number of bytes to include in the computation.
+ @param seed The seed to use.
+ @return The CRC32 MPEG-2 checksum (using the given seed). */
+extern guint32 crc32_mpeg2_tvb_offset_seed(tvbuff_t *tvb, guint offset,
+                                           guint len, guint32 seed);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

@@ -30,7 +30,8 @@ extern "C" {
 #endif /* __cplusplus */
 
 #define CRC32_CCITT_SEED 0xFFFFFFFF
-#define CRC32C_PRELOAD 0xffffffff
+#define CRC32C_PRELOAD   0xffffffff
+#define CRC32_MPEG2_SEED 0xFFFFFFFF
 
 /*
  * Byte swap fix contributed by Dave Wysochanski <davidw@netapp.com>.
@@ -78,6 +79,13 @@ extern guint32 crc32_ccitt(const guint8 *buf, guint len);
  @param seed The seed to use.
  @return The CRC32 CCITT checksum (using the given seed). */
 extern guint32 crc32_ccitt_seed(const guint8 *buf, guint len, guint32 seed);
+
+/** Compute MPEG-2 CRC32 checksum of a buffer of data.
+ @param buf The buffer containing the data.
+ @param len The number of bytes to include in the computation.
+ @param seed The seed to use.
+ @return The CRC32 MPEG-2 checksum (using the given seed). */
+extern guint32 crc32_mpeg2_seed(const guint8 *buf, guint len, guint32 seed);
 
 int AirPDcapWepDecrypt(
 	const guchar *seed,

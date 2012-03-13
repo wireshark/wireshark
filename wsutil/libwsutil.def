@@ -36,6 +36,7 @@ crc32_ccitt_table_lookup
 crc32c_calculate
 crc32c_calculate_no_swap
 crc32c_table_lookup
+crc32_mpeg2_seed
 
 ; crcdrm.c
 crc_drm
