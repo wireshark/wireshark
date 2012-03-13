@@ -38,12 +38,12 @@
 # coloring the output
 if [ $USE_COLOR -eq 1 ] ; then
         color_reset="tput sgr0"
-        color_green='\E[32;40m'
-        color_red='\E[31;40m'
-        color_yellow='\E[33;40m'
-        color_blue='\E[36;40m'
+        color_green='[32;40m'
+        color_red='[31;40m'
+        color_yellow='[33;40m'
+        color_blue='[36;40m'
 else
-        color_reset="/bin/true"
+        color_reset="true"
         color_green=''
         color_red=''
         color_yellow=''

@@ -62,6 +62,7 @@ source suite-clopts.sh
 source suite-io.sh
 source suite-capture.sh
 source suite-unittests.sh
+source suite-fileformats.sh
 
 
 #check prerequisites
@@ -93,6 +94,7 @@ test_suite() {
 	test_suite_add "File I/O" io_suite
 	test_suite_add "Capture" capture_suite
 	test_suite_add "Unit tests" unittests_suite
+	test_suite_add "File formats" fileformats_suite
 }
 
 
