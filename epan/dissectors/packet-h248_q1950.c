@@ -53,6 +53,8 @@ static const value_string h248_pkg_BCP_parameters[] _U_ = {
 };
 
 static const value_string h248_pkg_BCP_props_vals[] = {
+	{0, "Bearer Characteristics Q.1950 Annex A (bcp)" },
+	{1, "BNC Characteristics (BNCChar)"},
 	{1,"BNCChar"},
 	{0,NULL}
 };
@@ -91,6 +93,7 @@ static const value_string h248_pkg_BNCCT_parameters[] _U_ = {
 };
 
 static const value_string h248_pkg_BNCCT_props_vals[] = {
+	{0,"Bearer Network Connection Cut Q.1950 Annex A" },
 	{1,"BNCCT"},
 	{0,NULL}
 };
@@ -130,7 +133,8 @@ static int hf_h248_pkg_RII= -1;
 static gint ett_h248_pkg_RI= -1;
 
 static const value_string h248_pkg_RI_parameters[] = {
-	{   0x0001, "Reuse Idle Indication" },
+	{ 0x0000, "Reuse Idle Q.1950 Annex A" },
+	{ 0x0001, "Reuse Idle Indication" },
 	{ 0, NULL }
 };
 
@@ -252,11 +256,16 @@ static const h248_pkg_sig_t h248_pkg_GB_signals[] = {
 	{ 0, NULL, NULL, NULL, NULL}
 };
 
+static const value_string h248_pkg_GB_props_vals[] = {
+	{ 0x0000, "Generic Bearer Connection Q.1950 Annex A (gb)" },
+	{ 0, NULL }
+};
+
 static h248_package_t h248_pkg_GB = {
 	0x0021,
 	&hf_h248_pkg_GB,
 	&ett_h248_pkg_GB,
-	NULL,
+	h248_pkg_GB_props_vals,
 	h248_pkg_GB_signals_vals,
 	h248_pkg_GB_events_vals,
 	NULL,
@@ -306,15 +315,16 @@ static void dissect_bt_tunneled_proto(proto_tree* tree, tvbuff_t* tvb, packet_in
 
 /* Properties */
 static const value_string h248_pkg_bt_props_vals[] = {
-	{1,"Tunnelling Options"},
-	{0,NULL}
+	{ 0, "Bearer Control Tunnelling Q.1950 Annex A" },
+	{ 1, "Tunnelling Options"},
+	{ 0, NULL}
 };
 
 static const  value_string h248_pkg_bt_tunopt_vals[] _U_ = {
-	{1,"1 (In the same message as the command response to the command which generated the bearer control tunnel)"},
-	{2,"2 (Tunnel message at any time)"},
-	{3,"NO"},
-	{0,NULL}
+	{ 1, "1 (In the same message as the command response to the command which generated the bearer control tunnel)"},
+	{ 2, "2 (Tunnel message at any time)"},
+	{ 3, "NO"},
+	{ 0, NULL}
 };
 
 static const h248_pkg_param_t h248_pkg_bt_props[] _U_ = {
@@ -397,6 +407,19 @@ static h248_pkg_param_t  h248_pkg_h248_pkg_bcg_sig_bdt_params[] = {
 	{ 0, NULL, NULL, NULL}
 };
 
+static const value_string h248_pkg_bcg_signals_vals[] = {
+	{ 0x0041, "Dial Tone (bdt)" },
+	{ 0x0042, "Ringing Tone (brt)" },
+	{ 0x0043, "Busy Tone (bbt)" },
+	{ 0x0044, "Congestion Tone (bct)" },
+	{ 0x0045, "Warning Tone (bwt)" },
+	{ 0x0046, "Payphone Recognition Tone (bpt)" },
+	{ 0x0047, "Call Waiting Tone (bcw)" },
+	{ 0x0048, "Caller Waiting Tone (bcr)" },
+	{ 0x0049, "Pay Tone (bpy)" },
+	{ 0, NULL }
+};
+	
 static h248_pkg_sig_t h248_pkg_bcg_signals[] = {
 	/* All the tones have the same parameters */
 	{ 0x0040, &hf_h248_pkg_bcg_sig_bdt, &ett_h248_pkg_bcg_sig_bdt, h248_pkg_h248_pkg_bcg_sig_bdt_params, NULL },
@@ -412,13 +435,18 @@ static h248_pkg_sig_t h248_pkg_bcg_signals[] = {
 	{ 0, NULL, NULL, NULL,NULL}
 };
 
+static const value_string h248_pkg_bcg_props_vals[] = {
+	{ 0, "Basic Call Progress Tones Q.1950 Annex A" },
+	{ 0, NULL }
+};
+
 /* Packet defenitions */
 static h248_package_t h248_pkg_bcg = {
 	0x0023,
 	&hf_h248_pkg_bcg,
 	&ett_h248_pkg_bcg,
-	NULL,
-	NULL,
+	h248_pkg_bcg_props_vals,
+	h248_pkg_bcg_signals_vals,
 	NULL,
 	NULL,
 	NULL,						/* Properties */

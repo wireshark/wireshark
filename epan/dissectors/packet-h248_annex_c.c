@@ -180,6 +180,7 @@ static gint ett_vpvc = -1;
 static gint ett_codec = -1;
 
 static const value_string h248_annexc_package_properties_vals[] = {
+	{ 0x0000, "Media stream properties H.248.1 Annex C" },
 	{ 0x1001, "media" },
 	{ 0x1002, "transmission mode" },
 	{ 0x1003, "num_of_channels" },
