@@ -975,6 +975,25 @@ collect_ifaces(capture_options *capture_opts)
   guint i;
   interface_t device;
   interface_options interface_opts;
+
+  /* Empty out the existing list of interfaces. */
+  for (i = capture_opts->ifaces->len; i != 0; i--) {
+    interface_opts = g_array_index(capture_opts->ifaces, interface_options, i - 1);
+    g_free(interface_opts.name);
+    g_free(interface_opts.descr);
+    g_free(interface_opts.cfilter);
+#ifdef HAVE_PCAP_REMOTE
+    if (interface_opts.src_type == CAPTURE_IFREMOTE) {
+      g_free(interface_opts.remote_host);
+      g_free(interface_opts.remote_port);
+      g_free(interface_opts.auth_username);
+      g_free(interface_opts.auth_password);
+    }
+#endif
+    capture_opts->ifaces = g_array_remove_index(capture_opts->ifaces, i - 1);
+  }
+
+  /* Now fill the list up again. */
   for (i = 0; i < capture_opts->all_ifaces->len; i++) {
     device = g_array_index(capture_opts->all_ifaces, interface_t, i);
     if (!device.hidden && device.selected) {

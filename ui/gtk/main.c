@@ -1403,10 +1403,6 @@ npf_warning_dialog_cb(gpointer dialog, gint btn _U_, gpointer data _U_)
 static void
 main_cf_cb_file_closing(capture_file *cf)
 {
-#ifdef HAVE_LIBPCAP
-    int i;
-#endif
-
     /* if we have more than 10000 packets, show a splash screen while closing */
     /* XXX - don't know a better way to decide whether to show or not,
      * as most of the time is spend in a single eth_clist_clear function,
@@ -1423,14 +1419,6 @@ main_cf_cb_file_closing(capture_file *cf)
        capture file we're closing. */
     destroy_packet_wins();
     file_save_as_destroy();
-
-#ifdef HAVE_LIBPCAP
-    if (global_capture_opts.ifaces && global_capture_opts.ifaces->len > 0) {
-        for (i = (int)global_capture_opts.ifaces->len-1; i >= 0; i--) {
-            global_capture_opts.ifaces = g_array_remove_index(global_capture_opts.ifaces, i);
-        }
-    }
-#endif
 
     /* Restore the standard title bar message. */
     set_main_window_name("The Wireshark Network Analyzer");
