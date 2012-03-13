@@ -842,6 +842,7 @@ main(int argc, char *argv[])
   nstime_t block_start;
   gchar *fprefix = NULL;
   gchar *fsuffix = NULL;
+  char appname[100];
 
 #ifdef HAVE_PLUGINS
   char* init_progfile_dir_error;
@@ -1144,6 +1145,10 @@ main(int argc, char *argv[])
           filename = fileset_get_filename_by_pattern(block_cnt++, &phdr->ts, fprefix, fsuffix);
         } else
           filename = g_strdup(argv[optind+1]);
+
+        /* If we don't have an application name add Editcap */
+        if(shb_hdr->shb_user_appl == NULL)
+          g_snprintf(appname, sizeof(appname), "Editcap " VERSION);
 
         pdh = wtap_dump_open_ng(filename, out_file_type, out_frame_type,
           snaplen ? MIN(snaplen, wtap_snapshot_length(wth)) : wtap_snapshot_length(wth),

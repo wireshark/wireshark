@@ -2679,6 +2679,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
   guint        tap_flags;
   wtapng_section_t *shb_hdr;
   wtapng_iface_descriptions_t *idb_inf;
+  char         appname[100];
 
   shb_hdr = wtap_file_get_shb_info(cf->wth);
   idb_inf = wtap_file_get_idb_info(cf->wth);
@@ -2701,6 +2702,10 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
       /* Snapshot length of input file not known. */
       snapshot_length = WTAP_MAX_PACKET_SIZE;
     }
+    /* If we don't have an application name add Tshark */
+    if(shb_hdr->shb_user_appl == NULL)
+        g_snprintf(appname, sizeof(appname), "TShark " VERSION "%s", wireshark_svnversion);
+
     pdh = wtap_dump_open_ng(save_file, out_file_type, linktype, snapshot_length,
         FALSE /* compressed */, shb_hdr, idb_inf, &err);
 
