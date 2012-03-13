@@ -3884,9 +3884,6 @@ guint get_interface_type(gchar *name, gchar *description)
      * however, FreeBSD 7.0 and OpenBSD 4.2, at least, appear to have
      * made the same mistake, at least for my Belkin ZyDAS stick.
      *
-     * On Mac OS X, one might be able to get the information one wants from
-     * IOKit.
-     *
      * XXX - this is wrong on a MacBook Air, as en0 is the AirPort
      * interface, and it's also wrong on a Mac that has no AirPort
      * interfaces and has multiple Ethernet interfaces.
