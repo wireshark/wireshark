@@ -1169,7 +1169,7 @@ static value_string_ext cause_type_ext = VALUE_STRING_EXT_INIT(cause_type);
 static const value_string gsn_addr_type[] = {
     {0x00, "IPv4"},
     {0x01, "IPv6"},
-    {0, NULL},
+    {0, NULL}
 };
 
 static const value_string pdp_type[] = {
@@ -6346,7 +6346,7 @@ static const value_string gtp_bssgp_ra_discriminator_vals[] = {
     { 0, "A Cell Identifier is used to identify a GERAN cell" },
     { 1, "A Global RNC-ID is used to identify a UTRAN RNC" },
     { 2, "An eNB identifier is used to identify an E-UTRAN eNodeB or HeNB" },
-    { 0, NULL },
+    { 0, NULL }
 };
 
 static int
