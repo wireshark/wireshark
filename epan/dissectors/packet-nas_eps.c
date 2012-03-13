@@ -258,6 +258,7 @@ static const value_string nas_msg_emm_strings[] = {
     { 0x69, "Uplink generic NAS transport"},
     { 0,    NULL }
 };
+static value_string_ext nas_msg_emm_strings_ext = VALUE_STRING_EXT_INIT(nas_msg_emm_strings);
 
 /* Table 9.8.2: Message types for EPS session management */
 
@@ -287,6 +288,7 @@ static const value_string nas_msg_esm_strings[] = {
     { 0xe8, "ESM status"},
     { 0,    NULL }
 };
+static value_string_ext nas_msg_esm_strings_ext = VALUE_STRING_EXT_INIT(nas_msg_esm_strings);
 
 static const value_string security_header_type_vals[] = {
     { 0,    "Plain NAS message, not security protected"},
@@ -323,6 +325,7 @@ const value_string nas_eps_common_elem_strings[] = {
     { 0x00, "Supported codec list" },                   /* 9.9.2.10 Supported codec list */
     { 0, NULL }
 };
+
 /* Utility functions */
 static guint16
 calc_bitrate(guint8 value){
@@ -378,6 +381,7 @@ typedef enum
     DE_EPS_COMMON_NONE                          /* NONE */
 }
 nas_eps_common_elem_idx_t;
+
 /*
  * 9.9.2    Common information elements
  */
@@ -615,70 +619,70 @@ const value_string nas_emm_elem_strings[] = {
 gint ett_nas_eps_emm_elem[NUM_NAS_EMM_ELEM];
 
 #if 0
-This enum has been moved to packet-gsm_a_common to
+/* This enum has been moved to packet-gsm_a_common to
 make it possible to use element dissection from this dissector
 in other dissectors.
 It is left here as a comment for easier reference.
-
+*/
+/*
 Note this enum must be of the same size as the element decoding list
-
+*/
 typedef enum
 {
-    /. 9.9.3    EPS Mobility Management (EMM) information elements ./
-    DE_EMM_ADD_UPD_RES,         /. 9.9.3.0A Additional update result ./
-    DE_EMM_ADD_UPD_TYPE,        /. 9.9.3.0B Additional update type ./
-    DE_EMM_AUTH_FAIL_PAR,       /. 9.9.3.1  Authentication failure parameter (dissected in packet-gsm_a_dtap.c)./
-    DE_EMM_AUTN,                /. 9.9.3.2  Authentication parameter AUTN ./
-    DE_EMM_AUTH_PAR_RAND,       /. 9.9.3.3  Authentication parameter RAND ./
-    DE_EMM_AUTH_RESP_PAR,       /. 9.9.3.4  Authentication response parameter ./
-    DE_EMM_CSFB_RESP,           /. 9.9.3.5  CSFB response ./
-    DE_EMM_DAYL_SAV_T,          /. 9.9.3.6  Daylight saving time ./
-    DE_EMM_DET_TYPE,            /. 9.9.3.7  Detach type ./
-    DE_EMM_DRX_PAR,             /. 9.9.3.8  DRX parameter (dissected in packet-gsm_a_gm.c)./
-    DE_EMM_CAUSE,               /. 9.9.3.9  EMM cause ./
-    DE_EMM_ATT_RES,             /. 9.9.3.10 EPS attach result (Coded inline ./
-    DE_EMM_ATT_TYPE,            /. 9.9.3.11 EPS attach type (Coded Inline)./
-    DE_EMM_EPS_MID,             /. 9.9.3.12 EPS mobile identity ./
-    DE_EMM_EPS_NET_FEATURE_SUP, /. 9.9.3.12A EPS network feature support ./
-    DE_EMM_EPS_UPD_RES,         /. 9.9.3.13 EPS update result ( Coded inline)./
-    DE_EMM_EPS_UPD_TYPE,        /. 9.9.3.14 EPS update type ./
-    DE_EMM_ESM_MSG_CONT,        /. 9.9.3.15 ESM message conta ./
-    DE_EMM_GPRS_TIMER,          /. 9.9.3.16 GPRS timer ,See subclause 10.5.7.3 in 3GPP TS 24.008 [6]. ./
-    DE_EMM_ID_TYPE_2,           /. 9.9.3.17 Identity type 2 ,See subclause 10.5.5.9 in 3GPP TS 24.008 [6]. ./
-    DE_EMM_IMEISV_REQ,          /. 9.9.3.18 IMEISV request ,See subclause 10.5.5.10 in 3GPP TS 24.008 [6]. ./
-    DE_EMM_KSI_AND_SEQ_NO,      /. 9.9.3.19 KSI and sequence number ./
-    DE_EMM_MS_NET_CAP,          /. 9.9.3.20 MS network capability ,See subclause 10.5.5.12 in 3GPP TS 24.008 [6]. ./
-    DE_EMM_NAS_KEY_SET_ID,      /. 9.9.3.21 NAS key set identifier (coded inline)./
-    DE_EMM_NAS_MSG_CONT,        /. 9.9.3.22 NAS message container ./
-    DE_EMM_NAS_SEC_ALGS,        /. 9.9.3.23 NAS security algorithms ./
-    DE_EMM_NET_NAME,            /. 9.9.3.24 Network name, See subclause 10.5.3.5a in 3GPP TS 24.008 [6]. ./
-    DE_EMM_NONCE,               /. 9.9.3.25 Nonce ./
-    DE_EMM_PAGING_ID,           /. 9.9.3.25A Paging identity ./
-    DE_EMM_P_TMSI_SIGN,         /. 9.9.3.26 P-TMSI signature, See subclause 10.5.5.8 in 3GPP TS 24.008 [6]. ./
-    DE_EMM_SERV_TYPE,           /. 9.9.3.27 Service type ./
-    DE_EMM_SHORT_MAC,           /. 9.9.3.28 Short MAC ./
-    DE_EMM_TZ,                  /. 9.9.3.29 Time zone, See subclause 10.5.3.8 in 3GPP TS 24.008 [6]. ./
-    DE_EMM_TZ_AND_T,            /. 9.9.3.30 Time zone and time, See subclause 10.5.3.9 in 3GPP TS 24.008 [6]. ./
-    DE_EMM_TMSI_STAT,           /. 9.9.3.31 TMSI status, See subclause 10.5.5.4 in 3GPP TS 24.008 [6]. ./
-    DE_EMM_TRAC_AREA_ID,        /. 9.9.3.32 Tracking area identity ./
-    DE_EMM_TRAC_AREA_ID_LST,    /. 9.9.3.33 Tracking area identity list ./
-    DE_EMM_UE_NET_CAP,          /. 9.9.3.34 UE network capability ./
-    DE_EMM_UE_RA_CAP_INF_UPD_NEED,  /. 9.9.3.35 UE radio capability information update needed ./
-    DE_EMM_UE_SEC_CAP,          /. 9.9.3.36 UE security capability ./
-    DE_EMM_EMERG_NUM_LST,       /. 9.9.3.37 Emergency Number List ./
-    DE_EMM_CLI,                 /. 9.9.3.38 CLI ./
-    DE_EMM_SS_CODE,             /. 9.9.3.39 SS Code ./
-    DE_EMM_LCS_IND,             /. 9.9.3.40 LCS indicator ./
-    DE_EMM_LCS_CLIENT_ID,       /. 9.9.3.41 LCS client identity ./
-    DE_EMM_GEN_MSG_CONT_TYPE,   /. 9.9.3.42 Generic message container type ./
-    DE_EMM_GEN_MSG_CONT,        /. 9.9.3.43 Generic message container ./
-    DE_EMM_VOICE_DMN_PREF,      /. 9.9.3.44 Voice domain preference and UEs usage setting ./
-    DE_EMM_NONE                 /. NONE ./
-
+    /* 9.9.3    EPS Mobility Management (EMM) information elements */
+    DE_EMM_ADD_UPD_RES,         /* 9.9.3.0A Additional update result */
+    DE_EMM_ADD_UPD_TYPE,        /* 9.9.3.0B Additional update type */
+    DE_EMM_AUTH_FAIL_PAR,       /* 9.9.3.1  Authentication failure parameter (dissected in packet-gsm_a_dtap.c)*/
+    DE_EMM_AUTN,                /* 9.9.3.2  Authentication parameter AUTN */
+    DE_EMM_AUTH_PAR_RAND,       /* 9.9.3.3  Authentication parameter RAND */
+    DE_EMM_AUTH_RESP_PAR,       /* 9.9.3.4  Authentication response parameter */
+    DE_EMM_CSFB_RESP,           /* 9.9.3.5  CSFB response */
+    DE_EMM_DAYL_SAV_T,          /* 9.9.3.6  Daylight saving time */
+    DE_EMM_DET_TYPE,            /* 9.9.3.7  Detach type */
+    DE_EMM_DRX_PAR,             /* 9.9.3.8  DRX parameter (dissected in packet-gsm_a_gm.c)*/
+    DE_EMM_CAUSE,               /* 9.9.3.9  EMM cause */
+    DE_EMM_ATT_RES,             /* 9.9.3.10 EPS attach result (Coded inline */
+    DE_EMM_ATT_TYPE,            /* 9.9.3.11 EPS attach type (Coded Inline)*/
+    DE_EMM_EPS_MID,             /* 9.9.3.12 EPS mobile identity */
+    DE_EMM_EPS_NET_FEATURE_SUP, /* 9.9.3.12A EPS network feature support */
+    DE_EMM_EPS_UPD_RES,         /* 9.9.3.13 EPS update result ( Coded inline)*/
+    DE_EMM_EPS_UPD_TYPE,        /* 9.9.3.14 EPS update type */
+    DE_EMM_ESM_MSG_CONT,        /* 9.9.3.15 ESM message conta */
+    DE_EMM_GPRS_TIMER,          /* 9.9.3.16 GPRS timer ,See subclause 10.5.7.3 in 3GPP TS 24.008 [6]. */
+    DE_EMM_ID_TYPE_2,           /* 9.9.3.17 Identity type 2 ,See subclause 10.5.5.9 in 3GPP TS 24.008 [6]. */
+    DE_EMM_IMEISV_REQ,          /* 9.9.3.18 IMEISV request ,See subclause 10.5.5.10 in 3GPP TS 24.008 [6]. */
+    DE_EMM_KSI_AND_SEQ_NO,      /* 9.9.3.19 KSI and sequence number */
+    DE_EMM_MS_NET_CAP,          /* 9.9.3.20 MS network capability ,See subclause 10.5.5.12 in 3GPP TS 24.008 [6]. */
+    DE_EMM_NAS_KEY_SET_ID,      /* 9.9.3.21 NAS key set identifier (coded inline)*/
+    DE_EMM_NAS_MSG_CONT,        /* 9.9.3.22 NAS message container */
+    DE_EMM_NAS_SEC_ALGS,        /* 9.9.3.23 NAS security algorithms */
+    DE_EMM_NET_NAME,            /* 9.9.3.24 Network name, See subclause 10.5.3.5a in 3GPP TS 24.008 [6]. */
+    DE_EMM_NONCE,               /* 9.9.3.25 Nonce */
+    DE_EMM_PAGING_ID,           /* 9.9.3.25A Paging identity */
+    DE_EMM_P_TMSI_SIGN,         /* 9.9.3.26 P-TMSI signature, See subclause 10.5.5.8 in 3GPP TS 24.008 [6]. */
+    DE_EMM_SERV_TYPE,           /* 9.9.3.27 Service type */
+    DE_EMM_SHORT_MAC,           /* 9.9.3.28 Short MAC */
+    DE_EMM_TZ,                  /* 9.9.3.29 Time zone, See subclause 10.5.3.8 in 3GPP TS 24.008 [6]. */
+    DE_EMM_TZ_AND_T,            /* 9.9.3.30 Time zone and time, See subclause 10.5.3.9 in 3GPP TS 24.008 [6]. */
+    DE_EMM_TMSI_STAT,           /* 9.9.3.31 TMSI status, See subclause 10.5.5.4 in 3GPP TS 24.008 [6]. */
+    DE_EMM_TRAC_AREA_ID,        /* 9.9.3.32 Tracking area identity */
+    DE_EMM_TRAC_AREA_ID_LST,    /* 9.9.3.33 Tracking area identity list */
+    DE_EMM_UE_NET_CAP,          /* 9.9.3.34 UE network capability */
+    DE_EMM_UE_RA_CAP_INF_UPD_NEED,  /* 9.9.3.35 UE radio capability information update needed */
+    DE_EMM_UE_SEC_CAP,          /* 9.9.3.36 UE security capability */
+    DE_EMM_EMERG_NUM_LST,       /* 9.9.3.37 Emergency Number List */
+    DE_EMM_CLI,                 /* 9.9.3.38 CLI */
+    DE_EMM_SS_CODE,             /* 9.9.3.39 SS Code */
+    DE_EMM_LCS_IND,             /* 9.9.3.40 LCS indicator */
+    DE_EMM_LCS_CLIENT_ID,       /* 9.9.3.41 LCS client identity */
+    DE_EMM_GEN_MSG_CONT_TYPE,   /* 9.9.3.42 Generic message container type */
+    DE_EMM_GEN_MSG_CONT,        /* 9.9.3.43 Generic message container */
+    DE_EMM_VOICE_DMN_PREF,      /* 9.9.3.44 Voice domain preference and UEs usage setting */
+    DE_EMM_NONE                 /* NONE */
 }
 nas_emm_elem_idx_t;
-
 #endif
+
 /* TODO: Update to latest spec */
 /* 9.9.3    EPS Mobility Management (EMM) information elements
  */
@@ -884,6 +888,7 @@ static const value_string nas_eps_emm_cause_values[] = {
     { 0x6f, "Protocol error, unspecified"},
     { 0, NULL }
 };
+static value_string_ext nas_eps_emm_cause_values_ext = VALUE_STRING_EXT_INIT(nas_eps_emm_cause_values);
 
 static guint16
 de_emm_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
@@ -4283,7 +4288,7 @@ get_nas_esm_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf
 {
     gint            idx;
 
-    *msg_str = match_strval_idx((guint32) (oct & 0xff), nas_msg_esm_strings, &idx);
+    *msg_str = match_strval_idx_ext((guint32) (oct & 0xff), &nas_msg_esm_strings_ext, &idx);
     *ett_tree = ett_nas_msg_esm[idx];
     *hf_idx = hf_nas_eps_msg_esm_type;
     *msg_fcn_p = nas_msg_esm_fcn[idx];
@@ -4339,7 +4344,7 @@ get_nas_emm_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf
 {
     gint            idx;
 
-    *msg_str = match_strval_idx((guint32) (oct & 0xff), nas_msg_emm_strings, &idx);
+    *msg_str = match_strval_idx_ext((guint32) (oct & 0xff), &nas_msg_emm_strings_ext, &idx);
     *ett_tree = ett_nas_msg_emm[idx];
     *hf_idx = hf_nas_eps_msg_emm_type;
     *msg_fcn_p = nas_msg_emm_fcn[idx];
@@ -4612,12 +4617,14 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              * Ref 3GPP TS 24.007 version 8.0.0 Release 8, Table 11.2: Protocol discriminator values
              */
             if (gsm_a_dtap_handle){
-                tvbuff_t *new_tvb = tvb_new_subset(tvb, offset, -1, -1);
+                tvbuff_t *new_tvb = tvb_new_subset_remaining(tvb, offset);
                 call_dissector(gsm_a_dtap_handle, new_tvb, pinfo, nas_eps_tree);
                 break;
             } /* else fall through default */
         default:
-            proto_tree_add_text(nas_eps_tree, tvb, offset, -1, "Not a NAS EPS PD %u(%s)",pd,val_to_str(pd, protocol_discriminator_vals,"unknown"));
+            proto_tree_add_text(nas_eps_tree, tvb, offset, -1, "Not a NAS EPS PD %u(%s)",
+                                pd,
+                                val_to_str_const(pd, protocol_discriminator_vals, "unknown"));
             break;
     }
 
@@ -4659,18 +4666,21 @@ dissect_nas_eps_plain(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              * Ref 3GPP TS 24.007 version 8.0.0 Release 8, Table 11.2: Protocol discriminator values
              */
             if (gsm_a_dtap_handle){
-                tvbuff_t *new_tvb = tvb_new_subset(tvb, offset, -1, -1);
+                tvbuff_t *new_tvb = tvb_new_subset_remaining(tvb, offset);
                 call_dissector(gsm_a_dtap_handle, new_tvb,pinfo, nas_eps_tree);
                 break;
             } /* else fall through default */
         default:
-            proto_tree_add_text(nas_eps_tree, tvb, offset, -1, "Not a NAS EPS PD %u(%s)",pd,val_to_str(pd, protocol_discriminator_vals,"unknown"));
+            proto_tree_add_text(nas_eps_tree, tvb, offset, -1, "Not a NAS EPS PD %u(%s)",
+                                pd,
+                                val_to_str_const(pd, protocol_discriminator_vals, "unknown"));
             break;
     }
 
 }
 
-void proto_register_nas_eps(void) {
+void
+proto_register_nas_eps(void) {
     guint       i;
     guint       last_offset;
 
@@ -4679,7 +4689,7 @@ void proto_register_nas_eps(void) {
   static hf_register_info hf[] = {
     { &hf_nas_eps_msg_emm_type,
         { "NAS EPS Mobility Management Message Type",   "nas_eps.nas_msg_emm_type",
-        FT_UINT8, BASE_HEX, VALS(nas_msg_emm_strings), 0x0,
+        FT_UINT8, BASE_HEX|BASE_EXT_STRING, &nas_msg_emm_strings_ext, 0x0,
         NULL, HFILL }
     },
     { &hf_nas_eps_common_elem_id,
@@ -4819,7 +4829,7 @@ void proto_register_nas_eps(void) {
     },
     { &hf_nas_eps_emm_paging_id,
         { "Paging identity value","nas_eps.emm.paging_id",
-        FT_BOOLEAN, 8, TFS(&nas_eps_emm_paging_id_vals), 0x0,
+        FT_BOOLEAN, BASE_NONE, TFS(&nas_eps_emm_paging_id_vals), 0x0,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_eps_att_type,
@@ -4944,7 +4954,7 @@ void proto_register_nas_eps(void) {
     },
     { &hf_nas_eps_emm_cause,
         { "Cause","nas_eps.emm.cause",
-        FT_UINT8, BASE_DEC, VALS(nas_eps_emm_cause_values), 0x0,
+        FT_UINT8, BASE_DEC|BASE_EXT_STRING, &nas_eps_emm_cause_values_ext, 0x0,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_id_type2,
@@ -5372,7 +5382,7 @@ void proto_register_nas_eps(void) {
     /* ESM hf cvariables */
     { &hf_nas_eps_msg_esm_type,
         { "NAS EPS session management messages",    "nas_eps.nas_msg_esm_type",
-        FT_UINT8, BASE_HEX, VALS(nas_msg_esm_strings), 0x0,
+        FT_UINT8, BASE_HEX|BASE_EXT_STRING, &nas_msg_esm_strings_ext, 0x0,
         NULL, HFILL }
     },
     { &hf_nas_eps_esm_elem_id,
