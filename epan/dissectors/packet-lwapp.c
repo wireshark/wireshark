@@ -73,11 +73,11 @@ static dissector_handle_t data_handle;
 static gboolean swap_frame_control;
 
 typedef struct {
-    guint8 flags;
-    guint8 fragmentId;
+    guint8  flags;
+    guint8  fragmentId;
     guint16 length;
-    guint8 rssi;
-    guint8 snr;
+    guint8  rssi;
+    guint8  snr;
 } LWAPP_Header;
 
 typedef struct {
@@ -86,9 +86,9 @@ typedef struct {
 } CNTL_Data_Header;
 
 typedef struct {
-    guint8    type;
-    guint8    seqNo;
-    guint16   length;
+    guint8  type;
+    guint8  seqNo;
+    guint16 length;
 } CNTL_Header;
 
 #if 0
@@ -164,83 +164,86 @@ typedef enum
     DATA_TRANSFER,
     DATA_TRANSFER_RES,
     RESET_REQ_CLEAR_CONFIG
-  }CNTLMsgType;
+  } CNTLMsgType;
 
 static const value_string control_msg_vals[] = {
-    {DISCOVERY_REQUEST, "DISCOVERY_REQUEST"},
-    {DISCOVERY_REPLY, "DISCOVERY_REPLY"},
-    {JOIN_REQUEST, "JOIN_REQUEST"},
-    {JOIN_REPLY, "JOIN_REPLY"},
-    {HANDOFF_REQUEST, "HANDOFF_REQUEST"},
-    {HANDOFF_REPLY, "HANDOFF_REPLY"},
-    {HANDOFF_COMMAND, "HANDOFF_COMMAND"},
-    {HANDOFF_RESPONSE, "HANDOFF_RESPONSE"},
-    {HANDOFF_CONFIRM, "HANDOFF_CONFIRM"},
-    {CONFIGURE_REQUEST, "CONFIGURE_REQUEST"},
-    {CONFIGURE_RESPONSE, "CONFIGURE_RESPONSE"},
-    {CONFIGURE_COMMAND, "CONFIGURE_COMMAND"},
-    {CONFIGURE_COMMAND_RES, "CONFIGURE_COMMAND_RES"},
-    {STATISTICS_INFO, "STATISTICS_INFO"},
-    {STATISTICS_INFO_RES, "STATISTICS_INFO_RES"},
-    {CHANGE_STATE_EVENT, "CHANGE_STATE_EVENT"},
-    {CHANGE_STATE_EVENT_RES, "CHANGE_STATE_EVENT_RES"},
-    {RRM_CONTROL_REQ, "RRM_CONTROL_REQ"},
-    {RRM_CONTROL_RES, "RRM_CONTROL_RES"},
-    {RRM_DATA_REQ, "RRM_DATA_REQ"},
-    {RRM_DATA_RES, "RRM_DATA_RES"},
-    {ECHO_REQUEST, "ECHO_REQUEST"},
-    {ECHO_RESPONSE, "ECHO_RESPONSE"},
-    {IMAGE_DATA, "IMAGE_DATA"},
-    {IMAGE_DATA_RES, "IMAGE_DATA_RES"},
-    {RESET_REQ, "RESET_REQ"},
-    {RESET_RES, "RESET_RES"},
-    {I_AM_UP_RES, "I_AM_UP_RES"},
-    {I_AM_UP_RES, "I_AM_UP_RES"},
-    {KEY_UPDATE_REQ, "KEY_UPDATE_REQ"},
-    {KEY_UPDATE_RES, "KEY_UPDATE_RES"},
-    {PRIMARY_DISCOVERY_REQ, "PRIMARY_DISCOVERY_REQ"},
-    {PRIMARY_DISCOVERY_RES, "PRIMARY_DISCOVERY_RES"},
-    {DATA_TRANSFER, "DATA_TRANSFER"},
-    {DATA_TRANSFER_RES, "DATA_TRANSFER_RES"},
-    {RESET_REQ_CLEAR_CONFIG, "RESET_REQ_CLEAR_CONFIG"},
+    {DISCOVERY_REQUEST      , "DISCOVERY_REQUEST"},
+    {DISCOVERY_REPLY        , "DISCOVERY_REPLY"},
+    {JOIN_REQUEST           , "JOIN_REQUEST"},
+    {JOIN_REPLY             , "JOIN_REPLY"},
+    {HANDOFF_REQUEST        , "HANDOFF_REQUEST"},
+    {HANDOFF_REPLY          , "HANDOFF_REPLY"},
+    {HANDOFF_COMMAND        , "HANDOFF_COMMAND"},
+    {HANDOFF_RESPONSE       , "HANDOFF_RESPONSE"},
+    {HANDOFF_CONFIRM        , "HANDOFF_CONFIRM"},
+    {CONFIGURE_REQUEST      , "CONFIGURE_REQUEST"},
+    {CONFIGURE_RESPONSE     , "CONFIGURE_RESPONSE"},
+    {CONFIGURE_COMMAND      , "CONFIGURE_COMMAND"},
+    {CONFIGURE_COMMAND_RES  , "CONFIGURE_COMMAND_RES"},
+    {STATISTICS_INFO        , "STATISTICS_INFO"},
+    {STATISTICS_INFO_RES    , "STATISTICS_INFO_RES"},
+    {CHANGE_STATE_EVENT     , "CHANGE_STATE_EVENT"},
+    {CHANGE_STATE_EVENT_RES , "CHANGE_STATE_EVENT_RES"},
+    {RRM_CONTROL_REQ        , "RRM_CONTROL_REQ"},
+    {RRM_CONTROL_RES        , "RRM_CONTROL_RES"},
+    {RRM_DATA_REQ           , "RRM_DATA_REQ"},
+    {RRM_DATA_RES           , "RRM_DATA_RES"},
+    {ECHO_REQUEST           , "ECHO_REQUEST"},
+    {ECHO_RESPONSE          , "ECHO_RESPONSE"},
+    {IMAGE_DATA             , "IMAGE_DATA"},
+    {IMAGE_DATA_RES         , "IMAGE_DATA_RES"},
+    {RESET_REQ              , "RESET_REQ"},
+    {RESET_RES              , "RESET_RES"},
+    {I_AM_UP_RES            , "I_AM_UP_RES"},
+    {I_AM_UP_RES            , "I_AM_UP_RES"},
+    {KEY_UPDATE_REQ         , "KEY_UPDATE_REQ"},
+    {KEY_UPDATE_RES         , "KEY_UPDATE_RES"},
+    {PRIMARY_DISCOVERY_REQ  , "PRIMARY_DISCOVERY_REQ"},
+    {PRIMARY_DISCOVERY_RES  , "PRIMARY_DISCOVERY_RES"},
+    {DATA_TRANSFER          , "DATA_TRANSFER"},
+    {DATA_TRANSFER_RES      , "DATA_TRANSFER_RES"},
+    {RESET_REQ_CLEAR_CONFIG , "RESET_REQ_CLEAR_CONFIG"},
 
     { 0, NULL}
 };
+static value_string_ext control_msg_vals_ext = VALUE_STRING_EXT_INIT(control_msg_vals);
+
 #if 0
 static const value_string control_tag_vals[] = {
 
-    {RESULT_CODE, "RESULT_CODE"},
-    {MWAR_ADDR_PAYLOAD, "MWAR_ADDR_PAYLOAD"},
-    {RAD_PAYLOAD, "RAD_PAYLOAD"},
-    {RAD_SLOT_PAYLOAD, "RAD_SLOT_PAYLOAD"},
-    {RAD_NAME_PAYLOAD, "RAD_NAME_PAYLOAD"},
-    {MWAR_PAYLOAD, "MWAR_PAYLOAD"},
-    {VAP_PAYLOAD, "VAP_PAYLOAD"},
-    {STATION_CFG_PAYLOAD, "STATION_CFG_PAYLOAD"},
-    {OPERATION_RATE_SET_PAYLOAD, "OPERATION_RATE_SET_PAYLOAD"},
-    {MULTI_DOMAIN_CAPABILITY_PAYLOAD, "MULTI_DOMAIN_CAPABILITY_PAYLOAD"},
-    {MAC_OPERATION_PAYLOAD, "MAC_OPERATION_PAYLOAD"},
-    {PHY_TX_POWER_PAYLOAD, "PHY_TX_POWER_PAYLOAD"},
-    {PHY_TX_POWER_LEVEL_PAYLOAD, "PHY_TX_POWER_LEVEL_PAYLOAD"},
-    {PHY_DSSS_PAYLOAD, "PHY_DSSS_PAYLOAD"},
-    {PHY_OFDM_PAYLOAD, "PHY_OFDM_PAYLOAD"},
-    {SUPPORTED_RATES_PAYLOAD, "SUPPORTED_RATES_PAYLOAD"},
-    {AUTH_PAYLOAD, "AUTH_PAYLOAD"},
-    {TEST_PAYLOAD, "TEST_PAYLOAD"},
-    {RRM_NEIGHBOR_CTRL_PAYLOAD, "RRM_NEIGHBOR_CTRL_PAYLOAD"},
-    {RRM_NOISE_CTRL_PAYLOAD, "RRM_NOISE_CTRL_PAYLOAD"},
-    {RRM_NOISE_DATA_PAYLOAD, "RRM_NOISE_DATA_PAYLOAD"},
-    {RRM_INTERFERENCE_CTRL_PAYLOAD, "RRM_INTERFERENCE_CTRL_PAYLOAD"},
-    {RRM_INTERFERENCE_DATA_PAYLOAD, "RRM_INTERFERENCE_DATA_PAYLOAD"},
-    {RRM_LOAD_CTRL_PAYLOAD, "RRM_LOAD_CTRL_PAYLOAD"},
-    {RRM_LOAD_DATA_PAYLOAD, "RRM_LOAD_DATA_PAYLOAD"},
-    {CHANGE_STATE_EVENT_PAYLOAD, "CHANGE_STATE_EVENT_PAYLOAD"},
-    {ADMIN_STATE_PAYLOAD, "ADMIN_STATE_PAYLOAD"},
-    {DELETE_VAP_PAYLOAD, "DELETE_VAP_PAYLOAD"},
-    {ADD_MOBILE_PAYLOAD, "ADD_MOBILE_PAYLOAD"},
-    {DELETE_MOBILE_PAYLOAD, "DELETE_MOBILE_PAYLOAD"},
+    {RESULT_CODE                     , "RESULT_CODE"},
+    {MWAR_ADDR_PAYLOAD               , "MWAR_ADDR_PAYLOAD"},
+    {RAD_PAYLOAD                     , "RAD_PAYLOAD"},
+    {RAD_SLOT_PAYLOAD                , "RAD_SLOT_PAYLOAD"},
+    {RAD_NAME_PAYLOAD                , "RAD_NAME_PAYLOAD"},
+    {MWAR_PAYLOAD                    , "MWAR_PAYLOAD"},
+    {VAP_PAYLOAD                     , "VAP_PAYLOAD"},
+    {STATION_CFG_PAYLOAD             , "STATION_CFG_PAYLOAD"},
+    {OPERATION_RATE_SET_PAYLOAD      , "OPERATION_RATE_SET_PAYLOAD"},
+    {MULTI_DOMAIN_CAPABILITY_PAYLOAD , "MULTI_DOMAIN_CAPABILITY_PAYLOAD"},
+    {MAC_OPERATION_PAYLOAD           , "MAC_OPERATION_PAYLOAD"},
+    {PHY_TX_POWER_PAYLOAD            , "PHY_TX_POWER_PAYLOAD"},
+    {PHY_TX_POWER_LEVEL_PAYLOAD      , "PHY_TX_POWER_LEVEL_PAYLOAD"},
+    {PHY_DSSS_PAYLOAD                , "PHY_DSSS_PAYLOAD"},
+    {PHY_OFDM_PAYLOAD                , "PHY_OFDM_PAYLOAD"},
+    {SUPPORTED_RATES_PAYLOAD         , "SUPPORTED_RATES_PAYLOAD"},
+    {AUTH_PAYLOAD                    , "AUTH_PAYLOAD"},
+    {TEST_PAYLOAD                    , "TEST_PAYLOAD"},
+    {RRM_NEIGHBOR_CTRL_PAYLOAD       , "RRM_NEIGHBOR_CTRL_PAYLOAD"},
+    {RRM_NOISE_CTRL_PAYLOAD          , "RRM_NOISE_CTRL_PAYLOAD"},
+    {RRM_NOISE_DATA_PAYLOAD          , "RRM_NOISE_DATA_PAYLOAD"},
+    {RRM_INTERFERENCE_CTRL_PAYLOAD   , "RRM_INTERFERENCE_CTRL_PAYLOAD"},
+    {RRM_INTERFERENCE_DATA_PAYLOAD   , "RRM_INTERFERENCE_DATA_PAYLOAD"},
+    {RRM_LOAD_CTRL_PAYLOAD           , "RRM_LOAD_CTRL_PAYLOAD"},
+    {RRM_LOAD_DATA_PAYLOAD           , "RRM_LOAD_DATA_PAYLOAD"},
+    {CHANGE_STATE_EVENT_PAYLOAD      , "CHANGE_STATE_EVENT_PAYLOAD"},
+    {ADMIN_STATE_PAYLOAD             , "ADMIN_STATE_PAYLOAD"},
+    {DELETE_VAP_PAYLOAD              , "DELETE_VAP_PAYLOAD"},
+    {ADD_MOBILE_PAYLOAD              , "ADD_MOBILE_PAYLOAD"},
+    {DELETE_MOBILE_PAYLOAD           , "DELETE_MOBILE_PAYLOAD"},
     {0, NULL}
 };
+static value_string_ext control_tag_vals_ext = VALUE_STRING_EXT_INIT(control_tag_vals);
 #endif
 
 static const true_false_string lwapp_flags_type = {
@@ -248,21 +251,17 @@ static const true_false_string lwapp_flags_type = {
     "Encapsulated 80211"
 };
 
-static const true_false_string lwapp_set_truth = {
-    "Not Set",
-    "Set"
-};
-
 /*
  * dissect lwapp control packets.  This is not fully implemented,
  * but it's a good start.
  */
-static void dissect_control(tvbuff_t *tvb, packet_info *pinfo,
+static void
+dissect_control(tvbuff_t *tvb, packet_info *pinfo,
                          proto_tree *tree)
 {
-    CNTL_Header header;
-    proto_tree      *control_tree;
-    tvbuff_t        *next_tvb;
+    CNTL_Header  header;
+    proto_tree  *control_tree;
+    tvbuff_t    *next_tvb;
 
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_item      *ti;
@@ -284,26 +283,26 @@ static void dissect_control(tvbuff_t *tvb, packet_info *pinfo,
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
         col_append_str(pinfo->cinfo, COL_INFO,
-            val_to_str(header.type, control_msg_vals, "Bad Type: 0x%02x"));
+            val_to_str_ext(header.type, &control_msg_vals_ext, "Bad Type: 0x%02x"));
     }
 
     /* In the interest of speed, if "tree" is NULL, don't do any work not
        necessary to generate protocol tree items. */
     if (tree) {
-	/* create display subtree for the protocol */
-	ti = proto_tree_add_item(tree, proto_lwapp_control, tvb, offset,
-				 -1, ENC_NA);
-	control_tree = proto_item_add_subtree(ti, ett_lwapp_control);
+        /* create display subtree for the protocol */
+        ti = proto_tree_add_item(tree, proto_lwapp_control, tvb, offset,
+                                 -1, ENC_NA);
+        control_tree = proto_item_add_subtree(ti, ett_lwapp_control);
 
-	proto_tree_add_uint(control_tree, hf_lwapp_control_type,
+        proto_tree_add_uint(control_tree, hf_lwapp_control_type,
                                tvb, offset, 1, header.type);
         offset++;
 
-	proto_tree_add_uint(control_tree, hf_lwapp_control_seq_no,
+        proto_tree_add_uint(control_tree, hf_lwapp_control_seq_no,
                                tvb, offset, 1, header.seqNo);
         offset++;
 
-	proto_tree_add_uint(control_tree, hf_lwapp_control_length,
+        proto_tree_add_uint(control_tree, hf_lwapp_control_length,
                                tvb, offset, 2, header.length);
         offset += 2;
 
@@ -319,29 +318,30 @@ static void dissect_control(tvbuff_t *tvb, packet_info *pinfo,
  * the start of the packet, so it simply re-calls the ethernet
  * dissector on the packet.
  */
-static void dissect_lwapp_l3(tvbuff_t *tvb, packet_info *pinfo,
+static void
+dissect_lwapp_l3(tvbuff_t *tvb, packet_info *pinfo,
                             proto_tree *tree)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item      *ti;
-    proto_tree      *lwapp_tree;
-    gint             offset=0;
-    tvbuff_t        *next_client;
+    proto_item *ti;
+    proto_tree *lwapp_tree;
+    gint        offset = 0;
+    tvbuff_t   *next_client;
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "LWAPP-L3");
     col_set_str(pinfo->cinfo, COL_INFO, "802.3 Packets over Layer 3");
 
     if (tree) {
-	/* create display subtree for the protocol */
-	ti = proto_tree_add_item(tree, proto_lwapp_l3, tvb, offset,
-				 -1, ENC_NA);
-	lwapp_tree = proto_item_add_subtree(ti, ett_lwapp_l3);
+        /* create display subtree for the protocol */
+        ti = proto_tree_add_item(tree, proto_lwapp_l3, tvb, offset,
+                                 -1, ENC_NA);
+        lwapp_tree = proto_item_add_subtree(ti, ett_lwapp_l3);
     } else {
         lwapp_tree = NULL;
     }
     /* Dissect as Ethernet */
-    next_client	= tvb_new_subset_remaining(tvb, 0);
+    next_client = tvb_new_subset_remaining(tvb, 0);
     call_dissector(eth_withoutfcs_handle, next_client, pinfo, lwapp_tree);
     return;
 
@@ -353,7 +353,8 @@ static void dissect_lwapp_l3(tvbuff_t *tvb, packet_info *pinfo,
  * lwapp payload in the data, and doesn't care whether the data was
  * from a UDP packet, or a Layer 2 one.
  */
-static void dissect_lwapp(tvbuff_t *tvb, packet_info *pinfo,
+static void
+dissect_lwapp(tvbuff_t *tvb, packet_info *pinfo,
                         proto_tree *tree)
 {
     LWAPP_Header header;
@@ -410,9 +411,9 @@ static void dissect_lwapp(tvbuff_t *tvb, packet_info *pinfo,
        necessary to generate protocol tree items. */
     if (tree) {
 
-	/* create display subtree for the protocol */
-	ti = proto_tree_add_item(tree, proto_lwapp, tvb, offset, -1, ENC_NA);
-	lwapp_tree = proto_item_add_subtree(ti, ett_lwapp);
+        /* create display subtree for the protocol */
+        ti = proto_tree_add_item(tree, proto_lwapp, tvb, offset, -1, ENC_NA);
+        lwapp_tree = proto_item_add_subtree(ti, ett_lwapp);
 
         if (have_destmac) {
             proto_tree_add_ether(lwapp_tree, hf_lwapp_control_mac, tvb, offset,
@@ -420,42 +421,42 @@ static void dissect_lwapp(tvbuff_t *tvb, packet_info *pinfo,
             offset += 6;
         }
 
-	proto_tree_add_uint(lwapp_tree, hf_lwapp_version,
+        proto_tree_add_uint(lwapp_tree, hf_lwapp_version,
                                tvb, offset, 1, version);
-	proto_tree_add_uint(lwapp_tree, hf_lwapp_slotid,
+        proto_tree_add_uint(lwapp_tree, hf_lwapp_slotid,
                                tvb, offset, 1, slotId);
 
-	flags_tree = proto_item_add_subtree(lwapp_tree, ett_lwapp_flags);
-	proto_tree_add_boolean(flags_tree, hf_lwapp_flags_type,
+        flags_tree = proto_item_add_subtree(lwapp_tree, ett_lwapp_flags);
+        proto_tree_add_boolean(flags_tree, hf_lwapp_flags_type,
                                tvb, offset, 1, header.flags);
-	proto_tree_add_boolean(flags_tree, hf_lwapp_flags_fragment,
+        proto_tree_add_boolean(flags_tree, hf_lwapp_flags_fragment,
                                tvb, offset, 1, header.flags);
-	proto_tree_add_boolean(flags_tree, hf_lwapp_flags_fragment_type,
+        proto_tree_add_boolean(flags_tree, hf_lwapp_flags_fragment_type,
                                tvb, offset, 1, header.flags);
         offset++;
 
-	proto_tree_add_uint(lwapp_tree, hf_lwapp_fragment_id,
+        proto_tree_add_uint(lwapp_tree, hf_lwapp_fragment_id,
                                tvb, offset, 1, header.fragmentId);
         offset++;
 
-	proto_tree_add_uint(lwapp_tree, hf_lwapp_length,
+        proto_tree_add_uint(lwapp_tree, hf_lwapp_length,
                                tvb, offset, 2, header.length);
         offset += 2;
 
-	proto_tree_add_uint(lwapp_tree, hf_lwapp_rssi,
+        proto_tree_add_uint(lwapp_tree, hf_lwapp_rssi,
                                tvb, offset, 1, header.rssi);
         offset++;
-	proto_tree_add_uint(lwapp_tree, hf_lwapp_snr,
+        proto_tree_add_uint(lwapp_tree, hf_lwapp_snr,
                                tvb, offset, 1, header.snr);
         offset++;
 
 
     }  /* tree */
 
-    next_client = tvb_new_subset(tvb, (have_destmac?6:0) + sizeof(LWAPP_Header), -1, -1);
+    next_client = tvb_new_subset_remaining(tvb, (have_destmac?6:0) + sizeof(LWAPP_Header));
     if ((header.flags & LWAPP_FLAGS_T) == 0) {
-	call_dissector(swap_frame_control ? wlan_bsfc_handle : wlan_handle,
-			next_client, pinfo, tree);
+        call_dissector(swap_frame_control ? wlan_bsfc_handle : wlan_handle,
+                       next_client, pinfo, tree);
     } else {
         dissect_control(next_client, pinfo, tree);
     }
@@ -479,11 +480,11 @@ proto_register_lwapp(void)
             TFS(&lwapp_flags_type), LWAPP_FLAGS_T, NULL, HFILL }},
         { &hf_lwapp_flags_fragment,
           { "Fragment", "lwapp.flags.fragment", FT_BOOLEAN, 8,
-            TFS(&lwapp_set_truth), LWAPP_FLAGS_F,
+            TFS(&tfs_set_notset), LWAPP_FLAGS_F,
             NULL, HFILL }},
         { &hf_lwapp_flags_fragment_type,
           { "Fragment Type", "lwapp.flags.fragmentType", FT_BOOLEAN, 8,
-            TFS(&lwapp_set_truth), LWAPP_FLAGS_FT,
+            TFS(&tfs_set_notset), LWAPP_FLAGS_FT,
             NULL, HFILL }},
         { &hf_lwapp_fragment_id,
           { "Fragment Id","lwapp.fragmentId", FT_UINT8, BASE_HEX,
@@ -504,7 +505,7 @@ proto_register_lwapp(void)
           { "AP Identity", "lwapp.apid", FT_ETHER, BASE_NONE, NULL, 0x0,
               "Access Point Identity", HFILL }},
         { &hf_lwapp_control_type,
-          { "Control Type", "lwapp.control.type", FT_UINT8, BASE_DEC, NULL, 0x00,
+          { "Control Type", "lwapp.control.type", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &control_msg_vals_ext, 0x00,
             NULL, HFILL }},
         { &hf_lwapp_control_seq_no,
           { "Control Sequence Number", "lwapp.control.seqno", FT_UINT8, BASE_DEC, NULL, 0x00,
@@ -535,8 +536,8 @@ proto_register_lwapp(void)
     lwapp_module = prefs_register_protocol(proto_lwapp, NULL);
 
     prefs_register_bool_preference(lwapp_module,"swap_fc","Swap Frame Control",
-			           "Swap frame control bytes (needed for some APs",
-				    &swap_frame_control);
+                                   "Swap frame control bytes (needed for some APs",
+                                   &swap_frame_control);
 
 } /* proto_register_diameter */
 
