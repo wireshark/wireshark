@@ -168,203 +168,200 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "USBCCID");
     col_set_str(pinfo->cinfo, COL_INFO,     "CCID Packet");
 
-    if (tree) {
-        /* Start with a top-level item to add everything else to */
+    /* Start with a top-level item to add everything else to */
+    item = proto_tree_add_item(tree, proto_ccid, tvb, 0, -1, ENC_NA);
+    ccid_tree = proto_item_add_subtree(item, ett_ccid);
 
-        item = proto_tree_add_item(tree, proto_ccid, tvb, 0, -1, ENC_NA);
-        ccid_tree = proto_item_add_subtree(item, ett_ccid);
+    proto_tree_add_item(ccid_tree, hf_ccid_bMessageType, tvb, 0, 1, ENC_NA);
+    cmd = tvb_get_guint8(tvb, 0);
 
-        proto_tree_add_item(ccid_tree, hf_ccid_bMessageType, tvb, 0, 1, ENC_NA);
-        cmd = tvb_get_guint8(tvb, 0);
+    switch (cmd) {
 
-        switch (cmd) {
+    case PC_RDR_SET_PARAMS:
+	proto_tree_add_item(ccid_tree, hf_ccid_dwLength, tvb, 1, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(ccid_tree, hf_ccid_bSlot, tvb, 5, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(ccid_tree, hf_ccid_bSeq, tvb, 6, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(ccid_tree, hf_ccid_bProtocolNum, tvb, 7, 1, ENC_LITTLE_ENDIAN);
 
-        case PC_RDR_SET_PARAMS:
-            proto_tree_add_item(ccid_tree, hf_ccid_dwLength, tvb, 1, 4, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(ccid_tree, hf_ccid_bSlot, tvb, 5, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(ccid_tree, hf_ccid_bSeq, tvb, 6, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(ccid_tree, hf_ccid_bProtocolNum, tvb, 7, 1, ENC_LITTLE_ENDIAN);
+	/* Placeholder for abRFU */
+	proto_tree_add_text(ccid_tree, tvb, 8, 2, "Reserved for Future Use");
 
-            /* Placeholder for abRFU */
-            proto_tree_add_text(ccid_tree, tvb, 8, 2, "Reserved for Future Use");
+	next_tvb = tvb_new_subset_remaining(tvb, 10);
+	call_dissector(sub_handles[SUB_DATA], next_tvb, pinfo, ccid_tree);
 
-            next_tvb = tvb_new_subset_remaining(tvb, 10);
-            call_dissector(sub_handles[SUB_DATA], next_tvb, pinfo, ccid_tree);
+	col_set_str(pinfo->cinfo, COL_INFO, "PC to Reader: Set Parameters");
+	break;
 
-            col_set_str(pinfo->cinfo, COL_INFO, "PC to Reader: Set Parameters");
-            break;
+    case PC_RDR_ICC_ON:
+	proto_tree_add_item(ccid_tree, hf_ccid_dwLength, tvb, 1, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(ccid_tree, hf_ccid_bSlot, tvb, 5, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(ccid_tree, hf_ccid_bSeq, tvb, 6, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(ccid_tree, hf_ccid_bPowerSelect, tvb, 7, 1, ENC_LITTLE_ENDIAN);
 
-        case PC_RDR_ICC_ON:
-            proto_tree_add_item(ccid_tree, hf_ccid_dwLength, tvb, 1, 4, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(ccid_tree, hf_ccid_bSlot, tvb, 5, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(ccid_tree, hf_ccid_bSeq, tvb, 6, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(ccid_tree, hf_ccid_bPowerSelect, tvb, 7, 1, ENC_LITTLE_ENDIAN);
+	/* Placeholder for abRFU */
+	proto_tree_add_text(ccid_tree, tvb, 8, 2, "Reserved for Future Use");
 
-            /* Placeholder for abRFU */
-            proto_tree_add_text(ccid_tree, tvb, 8, 2, "Reserved for Future Use");
+	col_set_str(pinfo->cinfo, COL_INFO, "PC to Reader: ICC Power On");
+	break;
 
-            col_set_str(pinfo->cinfo, COL_INFO, "PC to Reader: ICC Power On");
-            break;
+    case PC_RDR_ICC_OFF:
+	proto_tree_add_item(ccid_tree, hf_ccid_dwLength, tvb, 1, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(ccid_tree, hf_ccid_bSlot, tvb, 5, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(ccid_tree, hf_ccid_bSeq, tvb, 6, 1, ENC_LITTLE_ENDIAN);
 
-        case PC_RDR_ICC_OFF:
-            proto_tree_add_item(ccid_tree, hf_ccid_dwLength, tvb, 1, 4, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(ccid_tree, hf_ccid_bSlot, tvb, 5, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(ccid_tree, hf_ccid_bSeq, tvb, 6, 1, ENC_LITTLE_ENDIAN);
+	/* Placeholder for abRFU */
+	proto_tree_add_text(ccid_tree, tvb, 7, 3, "Reserved for Future Use");
 
-            /* Placeholder for abRFU */
-            proto_tree_add_text(ccid_tree, tvb, 7, 3, "Reserved for Future Use");
+	col_set_str(pinfo->cinfo, COL_INFO, "PC to Reader: ICC Power Off");
+	break;
 
-            col_set_str(pinfo->cinfo, COL_INFO, "PC to Reader: ICC Power Off");
-            break;
+    case PC_RDR_GET_SLOT_STATUS:
+	proto_tree_add_item(ccid_tree, hf_ccid_dwLength, tvb, 1, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(ccid_tree, hf_ccid_bSlot, tvb, 5, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(ccid_tree, hf_ccid_bSeq, tvb, 6, 1, ENC_LITTLE_ENDIAN);
 
-        case PC_RDR_GET_SLOT_STATUS:
-            proto_tree_add_item(ccid_tree, hf_ccid_dwLength, tvb, 1, 4, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(ccid_tree, hf_ccid_bSlot, tvb, 5, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(ccid_tree, hf_ccid_bSeq, tvb, 6, 1, ENC_LITTLE_ENDIAN);
+	/* Placeholder for abRFU */
+	proto_tree_add_text(ccid_tree, tvb, 7, 3, "Reserved for Future Use");
 
-            /* Placeholder for abRFU */
-            proto_tree_add_text(ccid_tree, tvb, 7, 3, "Reserved for Future Use");
+	col_set_str(pinfo->cinfo, COL_INFO, "PC to Reader: Get Slot Status");
+	break;
 
-            col_set_str(pinfo->cinfo, COL_INFO, "PC to Reader: Get Slot Status");
-            break;
+    case PC_RDR_SECURE:
+	col_set_str(pinfo->cinfo, COL_INFO, "PC to Reader: Secure");
+	break;
 
-        case PC_RDR_SECURE:
-            col_set_str(pinfo->cinfo, COL_INFO, "PC to Reader: Secure");
-            break;
+    case PC_RDR_T0APDU:
+	col_set_str(pinfo->cinfo, COL_INFO, "PC to Reader: T=0 APDU");
+	break;
 
-        case PC_RDR_T0APDU:
-            col_set_str(pinfo->cinfo, COL_INFO, "PC to Reader: T=0 APDU");
-            break;
+    case PC_RDR_ESCAPE:
+	col_set_str(pinfo->cinfo, COL_INFO, "PC to Reader: Escape");
+	break;
 
-        case PC_RDR_ESCAPE:
-            col_set_str(pinfo->cinfo, COL_INFO, "PC to Reader: Escape");
-            break;
+    case PC_RDR_GET_PARAMS:
+	proto_tree_add_item(ccid_tree, hf_ccid_dwLength, tvb, 1, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(ccid_tree, hf_ccid_bSlot, tvb, 5, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(ccid_tree, hf_ccid_bSeq, tvb, 6, 1, ENC_LITTLE_ENDIAN);
 
-        case PC_RDR_GET_PARAMS:
-            proto_tree_add_item(ccid_tree, hf_ccid_dwLength, tvb, 1, 4, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(ccid_tree, hf_ccid_bSlot, tvb, 5, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(ccid_tree, hf_ccid_bSeq, tvb, 6, 1, ENC_LITTLE_ENDIAN);
+	/* Placeholder for abRFU */
+	proto_tree_add_text(ccid_tree, tvb, 7, 3, "Reserved for Future Use");
 
-            /* Placeholder for abRFU */
-            proto_tree_add_text(ccid_tree, tvb, 7, 3, "Reserved for Future Use");
+	col_set_str(pinfo->cinfo, COL_INFO, "PC to Reader: Get Parameters");
+	break;
 
-            col_set_str(pinfo->cinfo, COL_INFO, "PC to Reader: Get Parameters");
-            break;
+    case PC_RDR_RESET_PARAMS:
+	col_set_str(pinfo->cinfo, COL_INFO, "PC to Reader: Reset Parameters");
+	break;
 
-        case PC_RDR_RESET_PARAMS:
-            col_set_str(pinfo->cinfo, COL_INFO, "PC to Reader: Reset Parameters");
-            break;
+    case PC_RDR_ICC_CLOCK:
+	col_set_str(pinfo->cinfo, COL_INFO, "PC to Reader: ICC Clock");
+	break;
 
-        case PC_RDR_ICC_CLOCK:
-            col_set_str(pinfo->cinfo, COL_INFO, "PC to Reader: ICC Clock");
-            break;
+    case PC_RDR_XFR_BLOCK:
+	col_set_str(pinfo->cinfo, COL_INFO, "PC to Reader: Transfer Block");
 
-        case PC_RDR_XFR_BLOCK:
-            col_set_str(pinfo->cinfo, COL_INFO, "PC to Reader: Transfer Block");
-	    
-            proto_tree_add_item(ccid_tree, hf_ccid_dwLength, tvb, 1, 4, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(ccid_tree, hf_ccid_bSlot, tvb, 5, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(ccid_tree, hf_ccid_bSeq, tvb, 6, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(ccid_tree, hf_ccid_bBWI, tvb, 7, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(ccid_tree, hf_ccid_wLevelParameter, tvb, 8, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(ccid_tree, hf_ccid_dwLength, tvb, 1, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(ccid_tree, hf_ccid_bSlot, tvb, 5, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(ccid_tree, hf_ccid_bSeq, tvb, 6, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(ccid_tree, hf_ccid_bBWI, tvb, 7, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(ccid_tree, hf_ccid_wLevelParameter, tvb, 8, 2, ENC_LITTLE_ENDIAN);
 
-            next_tvb = tvb_new_subset_remaining(tvb, 10);
-            
-	/* See if the dissector isn't Data */
-        if (sub_selected != SUB_DATA) {
-	  
-	  /* See if we're in PN532-with-ACS PseudoHeader Mode */
-	  if (sub_selected == SUB_PN532_ACS_PSEUDO_APDU) {
-		    		    
-		    /* See if the payload starts with 0xD4 (Host -> PN532) */
-		    if (tvb_get_guint8(tvb, 15) == 0xD4) {
-		      
-		      /* Skip the 5 byte ACS Pseudo-Header */
-		      call_dissector(sub_handles[sub_selected], tvb_new_subset_remaining(tvb, 15), pinfo, tree);		      
-		    }
-		    
-		    else {
-		      
-		      /* We've probably got an APDU addressed elsewhere */
-		      call_dissector(sub_handles[SUB_DATA], next_tvb, pinfo, tree);
-		   }
-	  }
-	  
-	  /* The user probably wanted GSM SIM, or something else */
-	  else {
-	    call_dissector(sub_handles[sub_selected], next_tvb, pinfo, tree);
-	  }
-	  
+	next_tvb = tvb_new_subset_remaining(tvb, 10);
+
+    /* See if the dissector isn't Data */
+    if (sub_selected != SUB_DATA) {
+
+      /* See if we're in PN532-with-ACS PseudoHeader Mode */
+      if (sub_selected == SUB_PN532_ACS_PSEUDO_APDU) {
+
+		/* See if the payload starts with 0xD4 (Host -> PN532) */
+		if (tvb_get_guint8(tvb, 15) == 0xD4) {
+
+		  /* Skip the 5 byte ACS Pseudo-Header */
+		  call_dissector(sub_handles[sub_selected], tvb_new_subset_remaining(tvb, 15), pinfo, tree);
+		}
+
+		else {
+
+		  /* We've probably got an APDU addressed elsewhere */
+		  call_dissector(sub_handles[SUB_DATA], next_tvb, pinfo, tree);
+	       }
+      }
+
+      /* The user probably wanted GSM SIM, or something else */
+      else {
+	call_dissector(sub_handles[sub_selected], next_tvb, pinfo, tree);
+      }
+
+    }
+
+    /* The user only wants plain data */
+    else {
+      call_dissector(sub_handles[SUB_DATA], next_tvb, pinfo, tree);
+    }
+
+    break;
+
+    case PC_RDR_MECH:
+	col_set_str(pinfo->cinfo, COL_INFO, "PC to Reader: Mechanical");
+	break;
+
+    case PC_RDR_ABORT:
+	col_set_str(pinfo->cinfo, COL_INFO, "PC to Reader: Abort");
+	break;
+
+    case PC_RDR_DATA_CLOCK:
+	col_set_str(pinfo->cinfo, COL_INFO, "PC to Reader: Set Data Rate and Clock Frequency");
+	break;
+
+    case RDR_PC_DATA_BLOCK:
+	col_set_str(pinfo->cinfo, COL_INFO, "Reader to PC: Data Block");
+	proto_tree_add_item(ccid_tree, hf_ccid_dwLength, tvb, 1, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(ccid_tree, hf_ccid_bSlot, tvb, 5, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(ccid_tree, hf_ccid_bSeq, tvb, 6, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(ccid_tree, hf_ccid_bStatus, tvb, 7, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(ccid_tree, hf_ccid_bError, tvb, 8, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(ccid_tree, hf_ccid_bChainParameter, tvb, 9, 1, ENC_LITTLE_ENDIAN);
+
+	next_tvb = tvb_new_subset_remaining(tvb, 10);
+
+	/* If the user has opted to use the PN532 dissector for PC -> Reader comms, then use it here */
+	if (sub_selected == SUB_PN532_ACS_PSEUDO_APDU && tvb_get_guint8(tvb, 10) == 0xD5) {
+	  call_dissector(sub_handles[SUB_PN532_ACS_PSEUDO_APDU], next_tvb, pinfo, ccid_tree);
 	}
-	
-	/* The user only wants plain data */
+
 	else {
-	  call_dissector(sub_handles[SUB_DATA], next_tvb, pinfo, tree);
+	  call_dissector(sub_handles[SUB_DATA], next_tvb, pinfo, ccid_tree);
 	}
 
 	break;
 
-        case PC_RDR_MECH:
-            col_set_str(pinfo->cinfo, COL_INFO, "PC to Reader: Mechanical");
-            break;
+    case RDR_PC_SLOT_STATUS:
+	proto_tree_add_item(ccid_tree, hf_ccid_dwLength, tvb, 1, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(ccid_tree, hf_ccid_bSlot, tvb, 5, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(ccid_tree, hf_ccid_bSeq, tvb, 6, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(ccid_tree, hf_ccid_bStatus, tvb, 7, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(ccid_tree, hf_ccid_bError, tvb, 8, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(ccid_tree, hf_ccid_bClockStatus, tvb, 9, 1, ENC_LITTLE_ENDIAN);
 
-        case PC_RDR_ABORT:
-            col_set_str(pinfo->cinfo, COL_INFO, "PC to Reader: Abort");
-            break;
+	col_set_str(pinfo->cinfo, COL_INFO, "Reader to PC: Slot Status");
+	break;
 
-        case PC_RDR_DATA_CLOCK:
-            col_set_str(pinfo->cinfo, COL_INFO, "PC to Reader: Set Data Rate and Clock Frequency");
-            break;
+    case RDR_PC_PARAMS:
+	col_set_str(pinfo->cinfo, COL_INFO, "Reader to PC: Parameters");
+	break;
 
-        case RDR_PC_DATA_BLOCK:
-            col_set_str(pinfo->cinfo, COL_INFO, "Reader to PC: Data Block");
-            proto_tree_add_item(ccid_tree, hf_ccid_dwLength, tvb, 1, 4, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(ccid_tree, hf_ccid_bSlot, tvb, 5, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(ccid_tree, hf_ccid_bSeq, tvb, 6, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(ccid_tree, hf_ccid_bStatus, tvb, 7, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(ccid_tree, hf_ccid_bError, tvb, 8, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(ccid_tree, hf_ccid_bChainParameter, tvb, 9, 1, ENC_LITTLE_ENDIAN);
+    case RDR_PC_ESCAPE:
+	col_set_str(pinfo->cinfo, COL_INFO, "Reader to PC: Escape");
+	break;
 
-            next_tvb = tvb_new_subset_remaining(tvb, 10);
-	    
-	    /* If the user has opted to use the PN532 dissector for PC -> Reader comms, then use it here */ 
-	    if (sub_selected == SUB_PN532_ACS_PSEUDO_APDU && tvb_get_guint8(tvb, 10) == 0xD5) {
-	      call_dissector(sub_handles[SUB_PN532_ACS_PSEUDO_APDU], next_tvb, pinfo, ccid_tree);
-	    }
-	    
-	    else {
-	      call_dissector(sub_handles[SUB_DATA], next_tvb, pinfo, ccid_tree);	      
-	    }
-	    
-            break;
+    case RDR_PC_DATA_CLOCK:
+	col_set_str(pinfo->cinfo, COL_INFO, "Reader to PC: Data Rate and Clock Frequency");
+	break;
 
-        case RDR_PC_SLOT_STATUS:
-            proto_tree_add_item(ccid_tree, hf_ccid_dwLength, tvb, 1, 4, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(ccid_tree, hf_ccid_bSlot, tvb, 5, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(ccid_tree, hf_ccid_bSeq, tvb, 6, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(ccid_tree, hf_ccid_bStatus, tvb, 7, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(ccid_tree, hf_ccid_bError, tvb, 8, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(ccid_tree, hf_ccid_bClockStatus, tvb, 9, 1, ENC_LITTLE_ENDIAN);
-
-            col_set_str(pinfo->cinfo, COL_INFO, "Reader to PC: Slot Status");
-            break;
-
-        case RDR_PC_PARAMS:
-            col_set_str(pinfo->cinfo, COL_INFO, "Reader to PC: Parameters");
-            break;
-
-        case RDR_PC_ESCAPE:
-            col_set_str(pinfo->cinfo, COL_INFO, "Reader to PC: Escape");
-            break;
-
-        case RDR_PC_DATA_CLOCK:
-            col_set_str(pinfo->cinfo, COL_INFO, "Reader to PC: Data Rate and Clock Frequency");
-            break;
-
-        default:
-            col_set_str(pinfo->cinfo, COL_INFO, "Unknown type");
-            break;
-        }
+    default:
+	col_set_str(pinfo->cinfo, COL_INFO, "Unknown type");
+	break;
     }
 }
 
@@ -421,14 +418,14 @@ proto_register_ccid(void)
         { "gsm_sim", "GSM SIM", SUB_GSM_SIM },
 	{ "pn532", "NXP PN532 with ACS Pseudo-Header", SUB_PN532_ACS_PSEUDO_APDU},
         { NULL, NULL, 0 }
-    }; 
-    
+    };
+
     module_t *pref_mod;
-    
+
     proto_ccid = proto_register_protocol("USB CCID", "USBCCID", "usbccid");
     proto_register_field_array(proto_ccid, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    
+
     pref_mod = prefs_register_protocol(proto_ccid, NULL);
     prefs_register_enum_preference(pref_mod, "prtype", "PC -> Reader Payload Type", "How commands from the PC to the reader are interpreted",
         &sub_selected, sub_enum_vals, FALSE);
@@ -447,10 +444,10 @@ proto_reg_handoff_ccid(void)
 
     usb_ccid_bulk_handle = find_dissector("usbccid");
     dissector_add_uint("usb.bulk", IF_CLASS_SMART_CARD, usb_ccid_bulk_handle);
-    
+
     sub_handles[SUB_DATA] = find_dissector("data");
     sub_handles[SUB_GSM_SIM] = find_dissector("gsm_sim");
-    sub_handles[SUB_PN532_ACS_PSEUDO_APDU] = find_dissector("pn532");    
+    sub_handles[SUB_PN532_ACS_PSEUDO_APDU] = find_dissector("pn532");
 }
 
 /*
