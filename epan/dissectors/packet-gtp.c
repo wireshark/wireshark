@@ -1924,7 +1924,7 @@ msisdn_to_str(tvbuff_t *tvb, gint offset, int len)
         else
             j++;
     }
-    str[j] = '\0';
+    str[j-1] = '\0';
 
     return str;
 }
