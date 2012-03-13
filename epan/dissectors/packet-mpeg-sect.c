@@ -51,6 +51,8 @@ static gint ett_mpeg_sect = -1;
 
 static dissector_table_t mpeg_sect_tid_dissector_table;
 
+static gboolean mpeg_sect_check_crc = FALSE;
+
 #define MPEG_SECT_SYNTAX_INDICATOR_MASK	0x8000
 #define MPEG_SECT_RESERVED_MASK		0x7000
 #define MPEG_SECT_LENGTH_MASK		0x0FFF
@@ -171,13 +173,20 @@ packet_mpeg_sect_crc(tvbuff_t *tvb, packet_info *pinfo,
 						proto_tree *tree, guint start, guint end)
 {
 	guint32 crc, calculated_crc;
+	const char *label;
 
 	crc = tvb_get_ntohl(tvb, end);
-	calculated_crc = crc32_mpeg2_tvb_offset(tvb, start, end);
+
+	calculated_crc = crc;
+	label = "Unverified";
+	if (mpeg_sect_check_crc) {
+		label = "Verified";
+		calculated_crc = crc32_mpeg2_tvb_offset(tvb, start, end);
+	}
 
 	if (calculated_crc == crc) {
 		proto_tree_add_uint_format( tree, hf_mpeg_sect_crc, tvb,
-			end, 4, crc, "CRC: 0x%08x [Verified]", crc);
+			end, 4, crc, "CRC: 0x%08x [%s]", crc, label);
 	} else {
 		proto_item *msg_error = NULL;
 
@@ -262,6 +271,7 @@ proto_register_mpeg_sect(void)
 	static gint *ett[] = {
 		&ett_mpeg_sect
 	};
+	module_t *mpeg_sect_module;
 
 	proto_mpeg_sect = proto_register_protocol("MPEG2 Section", "MPEG SECT", "mpeg_sect");
 	register_dissector("mpeg_sect", dissect_mpeg_sect, proto_mpeg_sect);
@@ -269,7 +279,13 @@ proto_register_mpeg_sect(void)
 	proto_register_field_array(proto_mpeg_sect, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	
+	mpeg_sect_module = prefs_register_protocol(proto_mpeg_sect, NULL);
+
+	prefs_register_bool_preference(mpeg_sect_module, "verify_crc",
+		"Verify the section CRC",
+		"Whether the section dissector should verify the CRC",
+		&mpeg_sect_check_crc);
+
 	mpeg_sect_tid_dissector_table = register_dissector_table("mpeg_sect.tid", "MPEG SECT Table ID", FT_UINT8, BASE_HEX);
 
 }
