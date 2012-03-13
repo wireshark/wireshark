@@ -1647,7 +1647,6 @@ main_capture_cb_capture_fixed_finished(capture_options *capture_opts _U_)
         main_do_quit();
     }
 }
-
 #endif  /* HAVE_LIBPCAP */
 
 static void
@@ -1790,6 +1789,9 @@ main_capture_callback(gint event, capture_options *capture_opts, gpointer user_d
         theApp = g_object_new(GTK_TYPE_OSX_APPLICATION, NULL);
         gtk_osxapplication_set_dock_icon_pixbuf(theApp,gdk_pixbuf_new_from_xpm_data(wsicon64_xpm));
 #endif
+        break;
+    case(capture_cb_capture_failed):
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture failed");
         break;
     default:
         g_warning("main_capture_callback: event %u unknown", event);
@@ -3017,7 +3019,7 @@ main(int argc, char *argv[])
         g_free(s);
       }
       /* "-k" was specified; start a capture. */
-      show_main_window(TRUE);
+      show_main_window(FALSE);
       check_and_warn_user_startup(cf_name);
 
       /* If no user interfaces were specified on the command line,

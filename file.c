@@ -364,6 +364,9 @@ fail:
  * want the UI to go from "file open" to "file closed" back to
  * "file open", we want it to go from "old file open" to "new file
  * open and being read".
+ *
+ * XXX - currently, cf_open() calls cf_close(), rather than
+ * cf_reset_state().
  */
 static void
 cf_reset_state(capture_file *cf)
@@ -428,18 +431,16 @@ cf_reset_state(capture_file *cf)
 void
 cf_close(capture_file *cf)
 {
-  /* do GUI things even if file is already closed,
-   * e.g. to cleanup things if a capture couldn't be started */
-  cf_callback_invoke(cf_cb_file_closing, cf);
+  if(cf->state != FILE_CLOSED) {
+    cf_callback_invoke(cf_cb_file_closing, cf);
 
   /* close things, if not already closed before */
-  if(cf->state != FILE_CLOSED) {
     color_filters_cleanup();
     cf_reset_state(cf);
     cleanup_dissection();
-  }
 
-  cf_callback_invoke(cf_cb_file_closed, cf);
+    cf_callback_invoke(cf_cb_file_closed, cf);
+  }
 }
 
 /* an out of memory exception occured, wait for a user button press to exit */

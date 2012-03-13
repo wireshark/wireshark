@@ -899,6 +899,20 @@ statusbar_capture_fixed_finished_cb(capture_options *capture_opts _U_)
     gtk_statusbar_pop(GTK_STATUSBAR(packets_bar), packets_ctx);
 }
 
+static void
+statusbar_capture_failed_cb(capture_options *capture_opts _U_)
+{
+#if 0
+    capture_file *cf = capture_opts->cf;
+#endif
+
+    /* Pop the "<live capture in progress>" message off the status bar. */
+    statusbar_pop_file_msg();
+    welcome_header_pop_msg();
+
+    /* Pop the "<capturing>" message off the status bar */
+    gtk_statusbar_pop(GTK_STATUSBAR(packets_bar), packets_ctx);
+}
 #endif /* HAVE_LIBPCAP */
 
 
@@ -1010,6 +1024,9 @@ statusbar_capture_callback(gint event, capture_options *capture_opts,
     case(capture_cb_capture_stopping):
         /* Beware: this state won't be called, if the capture child
          * closes the capturing on it's own! */
+        break;
+    case(capture_cb_capture_failed):
+        statusbar_capture_failed_cb(capture_opts);
         break;
     default:
         g_warning("statusbar_capture_callback: event %u unknown", event);

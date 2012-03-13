@@ -549,75 +549,73 @@ capture_input_closed(capture_options *capture_opts, gchar *msg)
   if (msg != NULL)
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", msg);
 
-  /* if we didn't start the capture, do a fake start. */
-  /* (happens if we got an error message - we won't get a filename then). */
   if(capture_opts->state == CAPTURE_PREPARING) {
-    if(capture_opts->real_time_mode) {
-      capture_callback_invoke(capture_cb_capture_update_started, capture_opts);
-    } else {
-      capture_callback_invoke(capture_cb_capture_fixed_started, capture_opts);
-    }
-  }
-
-  if(capture_opts->real_time_mode) {
-    cf_read_status_t status;
-
-    /* Read what remains of the capture file. */
-    status = cf_finish_tail(capture_opts->cf, &err);
-
-    /* XXX: If -Q (quit-after-cap) then cf->count clr'd below so save it first */
-    packet_count_save = cf_get_packet_count(capture_opts->cf);
-    /* Tell the GUI we are not doing a capture any more.
-       Must be done after the cf_finish_tail(), so file lengths are 
-       correctly displayed */
-    capture_callback_invoke(capture_cb_capture_update_finished, capture_opts);
-
-    /* Finish the capture. */
-    switch (status) {
-
-    case CF_READ_OK:
-      if ((packet_count_save == 0) && !capture_opts->restart) {
-        simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
-          "%sNo packets captured!%s\n"
-          "\n"
-          "As no data was captured, closing the %scapture file!\n"
-          "\n"
-          "\n"
-          "Help about capturing can be found at:\n"
-          "\n"
-          "       http://wiki.wireshark.org/CaptureSetup"
-#ifdef _WIN32
-          "\n\n"
-          "Wireless (Wi-Fi/WLAN):\n"
-          "Try to switch off promiscuous mode in the Capture Options!"
-#endif
-          "",
-          simple_dialog_primary_start(), simple_dialog_primary_end(),
-          cf_is_tempfile(capture_opts->cf) ? "temporary " : "");
-        cf_close(capture_opts->cf);
-      }
-      break;
-    case CF_READ_ERROR:
-      /* Just because we got an error, that doesn't mean we were unable
-         to read any of the file; we handle what we could get from the
-         file. */
-      break;
-
-    case CF_READ_ABORTED:
-      /* Exit by leaving the main loop, so that any quit functions
-         we registered get called. */
-      main_window_quit();
-      break;
-    }
-
+    /* We didn't start a capture; note that the attempt to start it
+       failed. */
+    capture_callback_invoke(capture_cb_capture_failed, capture_opts);
   } else {
-    /* first of all, we are not doing a capture any more */
-    capture_callback_invoke(capture_cb_capture_fixed_finished, capture_opts);
+    /* We started a capture; process what's left of the capture file if
+       we were in "update list of packets in real time" mode, or process
+       all of it if we weren't. */
+    if(capture_opts->real_time_mode) {
+      cf_read_status_t status;
 
-    /* this is a normal mode capture and if no error happened, read in the capture file data */
-    if(capture_opts->save_file != NULL) {
-      capture_input_read_all(capture_opts, cf_is_tempfile(capture_opts->cf),
-        cf_get_drops_known(capture_opts->cf), cf_get_drops(capture_opts->cf));
+      /* Read what remains of the capture file. */
+      status = cf_finish_tail(capture_opts->cf, &err);
+
+      /* XXX: If -Q (quit-after-cap) then cf->count clr'd below so save it first */
+      packet_count_save = cf_get_packet_count(capture_opts->cf);
+      /* Tell the GUI we are not doing a capture any more.
+         Must be done after the cf_finish_tail(), so file lengths are 
+         correctly displayed */
+      capture_callback_invoke(capture_cb_capture_update_finished, capture_opts);
+
+      /* Finish the capture. */
+      switch (status) {
+
+      case CF_READ_OK:
+        if ((packet_count_save == 0) && !capture_opts->restart) {
+          simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
+            "%sNo packets captured!%s\n"
+            "\n"
+            "As no data was captured, closing the %scapture file!\n"
+            "\n"
+            "\n"
+            "Help about capturing can be found at:\n"
+            "\n"
+            "       http://wiki.wireshark.org/CaptureSetup"
+#ifdef _WIN32
+            "\n\n"
+            "Wireless (Wi-Fi/WLAN):\n"
+            "Try to switch off promiscuous mode in the Capture Options!"
+#endif
+            "",
+            simple_dialog_primary_start(), simple_dialog_primary_end(),
+            cf_is_tempfile(capture_opts->cf) ? "temporary " : "");
+          cf_close(capture_opts->cf);
+        }
+        break;
+      case CF_READ_ERROR:
+        /* Just because we got an error, that doesn't mean we were unable
+           to read any of the file; we handle what we could get from the
+           file. */
+        break;
+
+      case CF_READ_ABORTED:
+        /* Exit by leaving the main loop, so that any quit functions
+           we registered get called. */
+        main_window_quit();
+        break;
+      }
+    } else {
+      /* first of all, we are not doing a capture any more */
+      capture_callback_invoke(capture_cb_capture_fixed_finished, capture_opts);
+
+      /* this is a normal mode capture and if no error happened, read in the capture file data */
+      if(capture_opts->save_file != NULL) {
+        capture_input_read_all(capture_opts, cf_is_tempfile(capture_opts->cf),
+          cf_get_drops_known(capture_opts->cf), cf_get_drops(capture_opts->cf));
+      }
     }
   }
 

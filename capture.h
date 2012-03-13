@@ -45,7 +45,8 @@ typedef enum {
     capture_cb_capture_fixed_started,
     capture_cb_capture_fixed_continue,
     capture_cb_capture_fixed_finished,
-    capture_cb_capture_stopping
+    capture_cb_capture_stopping,
+    capture_cb_capture_failed
 } capture_cbs;
 
 typedef void (*capture_callback_t) (gint event, capture_options *capture_opts,
