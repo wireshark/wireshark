@@ -147,6 +147,7 @@ static gint ett_ccid = -1;
 enum {
     SUB_DATA = 0,
     SUB_GSM_SIM,
+    SUB_PN532_ACS_PSEUDO_APDU,
 
     SUB_MAX
 };
@@ -259,6 +260,8 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
 
         case PC_RDR_XFR_BLOCK:
+            col_set_str(pinfo->cinfo, COL_INFO, "PC to Reader: Transfer Block");
+	    
             proto_tree_add_item(ccid_tree, hf_ccid_dwLength, tvb, 1, 4, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(ccid_tree, hf_ccid_bSlot, tvb, 5, 1, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(ccid_tree, hf_ccid_bSeq, tvb, 6, 1, ENC_LITTLE_ENDIAN);
@@ -266,15 +269,40 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_item(ccid_tree, hf_ccid_wLevelParameter, tvb, 8, 2, ENC_LITTLE_ENDIAN);
 
             next_tvb = tvb_new_subset_remaining(tvb, 10);
-
+            
+	/* See if the dissector isn't Data */
         if (sub_selected != SUB_DATA) {
-            call_dissector(sub_handles[sub_selected], next_tvb, pinfo, tree);
-		} else {
-		  call_dissector(sub_handles[SUB_DATA], next_tvb, pinfo, tree);
-		}
+	  
+	  /* See if we're in PN532-with-ACS PseudoHeader Mode */
+	  if (sub_selected == SUB_PN532_ACS_PSEUDO_APDU) {
+		    		    
+		    /* See if the payload starts with 0xD4 (Host -> PN532) */
+		    if (tvb_get_guint8(tvb, 15) == 0xD4) {
+		      
+		      /* Skip the 5 byte ACS Pseudo-Header */
+		      call_dissector(sub_handles[sub_selected], tvb_new_subset_remaining(tvb, 15), pinfo, tree);		      
+		    }
+		    
+		    else {
+		      
+		      /* We've probably got an APDU addressed elsewhere */
+		      call_dissector(sub_handles[SUB_DATA], next_tvb, pinfo, tree);
+		   }
+	  }
+	  
+	  /* The user probably wanted GSM SIM, or something else */
+	  else {
+	    call_dissector(sub_handles[sub_selected], next_tvb, pinfo, tree);
+	  }
+	  
+	}
+	
+	/* The user only wants plain data */
+	else {
+	  call_dissector(sub_handles[SUB_DATA], next_tvb, pinfo, tree);
+	}
 
-            col_set_str(pinfo->cinfo, COL_INFO, "PC to Reader: Transfer Block");
-            break;
+	break;
 
         case PC_RDR_MECH:
             col_set_str(pinfo->cinfo, COL_INFO, "PC to Reader: Mechanical");
@@ -298,7 +326,16 @@ dissect_ccid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_item(ccid_tree, hf_ccid_bChainParameter, tvb, 9, 1, ENC_LITTLE_ENDIAN);
 
             next_tvb = tvb_new_subset_remaining(tvb, 10);
-            call_dissector(sub_handles[SUB_DATA], next_tvb, pinfo, ccid_tree);
+	    
+	    /* If the user has opted to use the PN532 dissector for PC -> Reader comms, then use it here */ 
+	    if (sub_selected == SUB_PN532_ACS_PSEUDO_APDU && tvb_get_guint8(tvb, 10) == 0xD5) {
+	      call_dissector(sub_handles[SUB_PN532_ACS_PSEUDO_APDU], next_tvb, pinfo, ccid_tree);
+	    }
+	    
+	    else {
+	      call_dissector(sub_handles[SUB_DATA], next_tvb, pinfo, ccid_tree);	      
+	    }
+	    
             break;
 
         case RDR_PC_SLOT_STATUS:
@@ -382,8 +419,9 @@ proto_register_ccid(void)
     static const enum_val_t sub_enum_vals[] = {
         { "data", "Data", SUB_DATA },
         { "gsm_sim", "GSM SIM", SUB_GSM_SIM },
+	{ "pn532", "NXP PN532 with ACS Pseudo-Header", SUB_PN532_ACS_PSEUDO_APDU},
         { NULL, NULL, 0 }
-    };
+    }; 
     
     module_t *pref_mod;
     
@@ -412,6 +450,7 @@ proto_reg_handoff_ccid(void)
     
     sub_handles[SUB_DATA] = find_dissector("data");
     sub_handles[SUB_GSM_SIM] = find_dissector("gsm_sim");
+    sub_handles[SUB_PN532_ACS_PSEUDO_APDU] = find_dissector("pn532");    
 }
 
 /*
