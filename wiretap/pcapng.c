@@ -2678,7 +2678,6 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_if_descr_t *int_data, int *
          * if_speed       8  Interface speed (in bps). 100000000 for 100Mbps
          */
         if (int_data->if_speed != 0) {
-                printf("HJKHJHK\n");
                 option_hdr.type          = IDB_OPT_IF_SPEED;
                 option_hdr.value_length = 8;
                 if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
