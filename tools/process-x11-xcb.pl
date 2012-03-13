@@ -130,9 +130,10 @@ my %struct =  # Not reset; contains structures already defined.
     CountedString8 => 1,
 );
 my %enum;  # Not reset; contains enums already defined.
+my %enum_name;
 my $header;
 my $extname;
-my $parentclass;
+my @incname;
 my %request;
 my %event;
 my %reply;
@@ -495,7 +496,7 @@ sub register_element($$$;$)
     
     my $enum = $e->att('enum') // $e->att('altenum');
     if (defined $enum) {
-	my $enumname = dump_enum_values($enum);
+	my $enumname = dump_enum_values($enum_name{$enum});
 	$vals = "VALS($enumname)";
 
 	# Wireshark does not allow FT_BYTES or BASE_NONE to have an enum
@@ -506,7 +507,7 @@ sub register_element($$$;$)
     $enum = $e->att('mask');
     if (defined $enum) {
 	# Create subtree items:
-	defined($enum{$enum}) or die("Enum $enum not found");
+	defined($enum{$enum_name{$enum}}) or die("Enum $enum not found");
 
 	# Wireshark does not allow FT_BYTES or BASE_NONE to have an enum
 	$ft =~ s/FT_BYTES/FT_UINT8/;
@@ -514,7 +515,7 @@ sub register_element($$$;$)
 
 	my $bitsize = $info->{'size'} * 8;
 
-	my $bit = $enum{$enum}{bit};
+	my $bit = $enum{$enum_name{$enum}}{bit};
 	for my $val (sort { $a <=> $b } keys %$bit) {
 	    my $itemname = $$bit{$val};
 	    my $item = $regname . '_mask_' . $itemname;
@@ -586,7 +587,7 @@ sub dissect_element($$$$;$$)
 		    say $impl $indent."    proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);";
 
 		    my $bytesize = $info->{'size'};
-		    my $bit = $enum{$e->att('mask')}{bit};
+		    my $bit = $enum{$enum_name{$e->att('mask')}}{bit};
 		    for my $val (sort { $a <=> $b } keys %$bit) {
 			my $item = $regname . '_mask_' . $$bit{$val};
 
@@ -653,9 +654,9 @@ sub dissect_element($$$$;$$)
 		my $ref = $case->first_child('enumref');
 		my $enum_ref = $ref->att('ref');
 		my $field = $ref->text();
-		my $bit = $enum{$enum_ref}{rbit}{$field};
+		my $bit = $enum{$enum_name{$enum_ref}}{rbit}{$field};
 		if (! defined($bit)) {
-		    for my $foo (keys %{$enum{$enum_ref}{rbit}}) { say "'$foo'"; }
+		    for my $foo (keys %{$enum{$enum_name{$enum_ref}}{rbit}}) { say "'$foo'"; }
 		    die ("Field '$field' not found in '$enum_ref'");
 		}
 		$bit = "(1 << $bit)";
@@ -934,8 +935,12 @@ eot
 sub enum {
     my ($t, $elt) = @_;
     my $name = $elt->att('name');
+    my $fullname = $incname[0].'_'.$name;
 
-    if (defined $enum{$name}) {
+    $enum_name{$name} = $fullname;
+    $enum_name{$incname[0].':'.$name} = $fullname;
+
+    if (defined $enum{$fullname}) {
 	$t->purge;
 	return;
     }
@@ -947,7 +952,7 @@ sub enum {
     my $value = {};
     my $bit = {};
     my $rbit = {};
-    $enum{$name} = { value => $value, bit => $bit, rbit => $rbit };
+    $enum{$fullname} = { value => $value, bit => $bit, rbit => $rbit };
 
     my $nextvalue = 0;
 
@@ -1165,6 +1170,16 @@ eot
     $t->purge;
 }
 
+sub include_start {
+    my ($t, $elt) = @_;
+    my $header = $elt->att('header');
+    unshift @incname, $header;
+}
+
+sub include_end {
+    shift @incname;
+}
+
 sub include
 {
     my ($t, $elt) = @_;
@@ -1172,6 +1187,9 @@ sub include
 
     print " - Import $include\n";
     my $xml = XML::Twig->new(
+		start_tag_handlers => {
+		    'xcb' => \&include_start,
+		},
 		twig_roots => {
 		    'import' => \&include,
 		    'struct' => \&struct,
@@ -1179,6 +1197,9 @@ sub include
 		    'xidunion' => \&xidtype,
 		    'typedef' => \&typedef,
 		    'enum' => \&enum,
+		},
+		end_tag_handlers => {
+		    'xcb' => \&include_end,
 		});
     $xml->parsefile("xcbproto/src/$include.xml") or die ("Cannot open $include.xml\n");
 
@@ -1190,15 +1211,16 @@ sub xcb_start {
     my ($t, $elt) = @_;
     $header = $elt->att('header');
     $extname = ($elt->att('extension-name') or $header);
+    unshift @incname, $header;
 
     print("Extension $extname\n");
 
-    $parentclass = 'XProto';
     undef %request;
     undef %event;
     undef %reply;
 
     %simpletype = ();
+    %enum_name = ();
 
     print $error "const char *$header"."_errors[] = {\n";
 }
