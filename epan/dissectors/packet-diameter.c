@@ -314,7 +314,7 @@ compare_avps (gconstpointer  a, gconstpointer  b)
 /* Special decoding of some AVP:s */
 
 static int
-dissect_diameter_vendor_id(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_)
+dissect_diameter_vendor_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 
 	int offset = 0;
@@ -327,7 +327,7 @@ dissect_diameter_vendor_id(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
 }
 
 static int
-dissect_diameter_eap_payload(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_)
+dissect_diameter_eap_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	gboolean save_writable;
 
