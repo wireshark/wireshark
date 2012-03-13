@@ -939,7 +939,29 @@ typedef struct wtapng_if_descr_s {
 	gchar				*if_os;					/**< NULL if not available, 12  A UTF-8 string containing the name of the operating system of the machine in which this interface is installed. */
 	gint8				if_fcslen;				/**< -1 if unknown or changes between packets, opt 13  An integer value that specified the length of the Frame Check Sequence (in bits) for this interface. */
 	/* XXX: guint64	if_tsoffset; opt 14  A 64 bits integer value that specifies an offset (in seconds)...*/
+	guint8				num_stat_entries;
+	GArray				*interface_statistics;		/**< An array holding the interface statistics from pcapng ISB:s or equivalent(?)*/
 } wtapng_if_descr_t;
+
+
+/** 
+ * Interface Statistics. pcap-ng Interface Statistics Block (ISB).
+ */
+typedef struct wtapng_if_stats_s {
+	/* mandatory */
+	guint32				interface_id;
+	guint32				ts_high;
+	guint32				ts_low;
+	/* options */
+	gchar				*opt_comment;	/**< NULL if not available */
+	guint64				isb_starttime;
+	guint64				isb_endtime;
+	guint64				isb_ifrecv;
+	guint64				isb_ifdrop;
+	guint64				isb_filteraccept;
+	guint64				isb_osdrop;
+	guint64				isb_usrdeliv;
+} wtapng_if_stats_t;
 
 struct Buffer;
 struct wtap_dumper;

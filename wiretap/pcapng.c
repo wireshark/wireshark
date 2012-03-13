@@ -329,7 +329,8 @@ typedef struct wtapng_name_res_s {
         /* XXX */
 } wtapng_name_res_t;
 
-/* Interface Statistics */
+#if 0
+/* Interface Statistics moved to wtap.h*/
 typedef struct wtapng_if_stats_s {
         /* mandatory */
         guint32                         interface_id;
@@ -345,7 +346,7 @@ typedef struct wtapng_if_stats_s {
         guint64                         isb_osdrop;
         guint64                         isb_usrdeliv;
 } wtapng_if_stats_t;
-
+#endif
 
 typedef struct wtapng_block_s {
         guint32                                 type;           /* block_type as defined by pcapng */
