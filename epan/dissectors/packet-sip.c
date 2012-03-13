@@ -1136,7 +1136,7 @@ uri_host_end_found:
  *                            hi-entry *(COMMA hi-entry)
  *
  *          hi-entry = hi-targeted-to-uri *( SEMI hi-param )
- *          hi-targeted-to-uri= name-addr 
+ *          hi-targeted-to-uri= name-addr
  *
  *
  *          hi-param = hi-index / hi-extension
@@ -1665,7 +1665,7 @@ dissect_sip_reason_header(tvbuff_t *tvb, proto_tree *tree, gint start_offset, gi
 		length = line_end_offset - current_offset;
 
 		/* q850_cause_code_vals */
-		cause_value = atoi(tvb_get_ephemeral_string(tvb, current_offset, length));
+		cause_value = strtoul(tvb_get_ephemeral_string(tvb, current_offset, length), NULL, 10);
 		proto_tree_add_text(tree, tvb, current_offset, length,
 			"Cause: %u(0x%x)[%s]", cause_value,cause_value,
 			val_to_str_ext(cause_value, &q850_cause_code_vals_ext, "Unknown (%d)" ));
@@ -2576,7 +2576,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 
 					case POS_CSEQ :
 						/* Store the sequence number */
-						cseq_number = atoi(value);
+						cseq_number = (guint32)strtoul(value, NULL, 10);
 						cseq_number_set = 1;
 						stat_info->tap_cseq_number=cseq_number;
 
@@ -2668,7 +2668,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 							{
 								proto_tree_add_uint(rack_tree, hf_sip_rack_rseq_no,
 								                    tvb, value_offset, sub_value_offset,
-								                    atoi(value));
+								                    strtoul(value, NULL, 10));
 								break;
 							}
 						}
@@ -2692,7 +2692,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 								proto_tree_add_uint(rack_tree, hf_sip_rack_cseq_no,
 								                    tvb, value_offset+cseq_no_offset,
 								                    sub_value_offset-cseq_no_offset,
-								                    atoi(value+cseq_no_offset));
+								                    strtoul(value+cseq_no_offset, NULL, 10));
 								break;
 							}
 						}
@@ -2816,7 +2816,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 							sip_element_item = proto_tree_add_uint(hdr_tree,
 							                    hf_header_array[hf_index], tvb,
 							                    offset, next_offset - offset,
-							                    atoi(value));
+							                    strtoul(value, NULL, 10));
 						}
 						break;
 
