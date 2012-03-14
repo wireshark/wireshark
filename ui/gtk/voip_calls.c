@@ -130,13 +130,13 @@ typedef struct _voip_rtp_stream_info {
 	guint32 ssrc;
 	guint32  pt;
 	gchar *pt_str;
-	gboolean is_srtp;  
+	gboolean is_srtp;
 	guint32 npackets;
 	gboolean end_stream;
 
 	guint32 setup_frame_number; /* frame number of setup message */
 	/* The frame_data struct holds the frame number and timing information needed. */
-	frame_data *start_fd; 
+	frame_data *start_fd;
 	frame_data *stop_fd;
 	gint32 rtp_event;
 } voip_rtp_stream_info_t;
@@ -264,7 +264,7 @@ static void add_to_graph(voip_calls_tapinfo_t *tapinfo _U_, packet_info *pinfo, 
 	gai->display=FALSE;
 
 	tapinfo->graph_analysis->list = g_list_prepend(tapinfo->graph_analysis->list, gai);
-	g_hash_table_insert(tapinfo->graph_analysis->ht, &gai->fd->num, gai); 
+	g_hash_table_insert(tapinfo->graph_analysis->ht, &gai->fd->num, gai);
 
 }
 
@@ -596,7 +596,7 @@ static void RTP_packet_draw(void *prs _U_)
 	voip_rtp_tapinfo_t *rtp_tapinfo = &the_tapinfo_rtp_struct;
 	GList *rtp_streams_list;
 	voip_rtp_stream_info_t *rtp_listinfo;
-	GList *voip_calls_graph_list;
+	/* GList *voip_calls_graph_list; */
 	graph_analysis_item_t *gai;
 	graph_analysis_item_t *new_gai;
 	guint16 conv_num;
@@ -609,11 +609,11 @@ static void RTP_packet_draw(void *prs _U_)
 		rtp_listinfo = rtp_streams_list->data;
 
 		/* using the setup frame number of the RTP stream, we get the call number that it belongs to*/
-		voip_calls_graph_list = g_list_first(the_tapinfo_struct.graph_analysis->list);
+		/* voip_calls_graph_list = g_list_first(the_tapinfo_struct.graph_analysis->list); */
 
 		gai = g_hash_table_lookup(the_tapinfo_struct.graph_analysis->ht, &rtp_listinfo->setup_frame_number);
 		if(gai != NULL){
-			/* Found the setup frame*/ 
+			/* Found the setup frame*/
 			conv_num = gai->conv_num;
 			/* if RTP was already in the Graph, just update the comment information */
 			gai = g_hash_table_lookup(the_tapinfo_struct.graph_analysis->ht, &rtp_listinfo->start_fd->num);
@@ -1001,7 +1001,7 @@ SIPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 			callsinfo->call_num = tapinfo->ncalls++;
 			tapinfo->callsinfo_list = g_list_prepend(tapinfo->callsinfo_list, callsinfo);
 			/* insert the call information in the SIP_HASH */
-			g_hash_table_insert(tapinfo->callsinfo_hashtable[SIP_HASH], 
+			g_hash_table_insert(tapinfo->callsinfo_hashtable[SIP_HASH],
 				tmp_sipinfo->call_identifier, callsinfo);
 		}
 	}
@@ -3749,8 +3749,8 @@ skinny_calls_init_tap(void)
 		 * doesn't fill in the info passed to the tap's packet
 		 * routine.
 		 */
-		error_string = register_tap_listener("skinny", 
-			&(the_tapinfo_struct.skinny_dummy), 
+		error_string = register_tap_listener("skinny",
+			&(the_tapinfo_struct.skinny_dummy),
 			NULL,
 			TL_REQUIRES_PROTO_TREE,
 			voip_calls_dlg_reset,
@@ -3933,8 +3933,8 @@ iax2_calls_init_tap(void)
 		 * dissectors, but, unless I've missed something, it doesn't
 		 * appear to be true of the IAX2 dissector.
 		 */
-		error_string = register_tap_listener("IAX2", 
-			&(the_tapinfo_struct.iax2_dummy), 
+		error_string = register_tap_listener("IAX2",
+			&(the_tapinfo_struct.iax2_dummy),
 			NULL,
 			TL_REQUIRES_PROTO_TREE,
 			voip_calls_dlg_reset,
