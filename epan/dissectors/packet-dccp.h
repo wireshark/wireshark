@@ -1,6 +1,6 @@
 /* packet-dccp.h
  * Definitions for Datagram Congestion Control Protocol, "DCCP" dissection:
- * it should be conformance to draft-ietf-dccp-spec-11.txt
+ * it should conform to RFC 4340
  *
  * Copyright 2005 _FF_
  *
@@ -33,8 +33,7 @@
 #define __PACKET_DCCP_H__
 
 /* DCCP structs and definitions */
-typedef struct _e_dccphdr
-{
+typedef struct _e_dccphdr {
     guint16 sport;
     guint16 dport;
     guint8 data_offset;
@@ -64,3 +63,16 @@ typedef struct _e_dccphdr
 } e_dccphdr;
 
 #endif /* __PACKET_DCCP_H__ */
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 4
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=4 expandtab:
+ * :indentSize=4:tabSize=4:noTabs=true:
+ */
