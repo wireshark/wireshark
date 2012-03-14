@@ -642,7 +642,7 @@ static int hf_gsm_a_e_utra_tdd_support			= -1;
 static int hf_gsm_a_e_utra_meas_and_report_support	= -1;
 static int hf_gsm_a_prio_based_resel_support = -1;
 static int hf_gsm_a_utra_csg_cells_reporting = -1;
-static int hg_gsm_a_vamos_level = -1;
+static int hf_gsm_a_vamos_level = -1;
 
 static int hf_gsm_a_geo_loc_type_of_shape = -1;
 static int hf_gsm_a_geo_loc_sign_of_lat	= -1;
@@ -3016,7 +3016,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	 * Extract VAMOS Level
 	 */
 	AVAILABLE_BITS_CHECK(2);
-	proto_tree_add_bits_item(tree, hg_gsm_a_vamos_level, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_bits_item(tree, hf_gsm_a_vamos_level, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
 	bit_offset = bit_offset + 2;
 
 	/*
@@ -3963,7 +3963,7 @@ proto_register_gsm_a_common(void)
 		FT_BOOLEAN, 8, TFS(&utra_csg_cells_reporting_vals), 0x00,
 		NULL, HFILL}
 	},
-	{ &hg_gsm_a_vamos_level,
+	{ &hf_gsm_a_vamos_level,
 		{ "VAMOS Level", "gsm_a.classmark3.vamos_level",
 		FT_UINT8, BASE_DEC, VALS(vamos_level_vals), 0x00,
 		NULL, HFILL}
