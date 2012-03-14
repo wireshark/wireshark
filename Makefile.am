@@ -857,7 +857,6 @@ EXTRA_DIST = \
 	image/wssplash.xpm	\
 	ipmap.html		\
 	macosx-setup.sh		\
-	macosx-support-lib-patches/glib-gconvert.patch \
 	macosx-support-lib-patches/glib-pkgconfig.patch \
 	macosx-support-lib-patches/gnutls-pkgconfig.patch \
 	make-version.pl		\

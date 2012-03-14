@@ -18,7 +18,7 @@
 # The following libraries are required.
 #
 GETTEXT_VERSION=0.18.1.1
-GLIB_VERSION=2.31.8
+GLIB_VERSION=2.31.20
 #
 # pkg-config 0.26 appears to have broken the "we have our own GLib"
 # stuff, even if you explicitly set GLIB_CFLAGS and GLIB_LIBS.
@@ -176,12 +176,7 @@ cd glib-$GLIB_VERSION
 # script doesn't try to use pkg-config to get the appropriate
 # CFLAGS and LIBS.
 #
-LIBFFI_CFLAGS="-I/usr/include/ffi" LIBFFI_LIBS="-L/usr/lib" ./configure || exit 1
-#
-# Mac OS X on 64-bit platforms provides libiconv, but in a form that
-# confuses GLib.
-#
-patch -p1 < ../../macosx-support-lib-patches/glib-gconvert.patch || exit 1
+LIBFFI_CFLAGS="-I/usr/include/ffi" LIBFFI_LIBS="-lffi" ./configure || exit 1
 make -j 3 || exit 1
 # Apply patch: we depend on libffi, but pkg-config doesn't get told.
 patch -p0 <../../macosx-support-lib-patches/glib-pkgconfig.patch || exit 1
