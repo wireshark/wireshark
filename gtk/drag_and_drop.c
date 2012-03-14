@@ -137,6 +137,12 @@ dnd_uri2filename(gchar *cf_name)
                     src++;
                 }
             }
+#ifdef _WIN32
+        } else if (*src == '/') {
+            *dest = '\\';
+            src++;
+            dest++;
+#endif
         } else {
             *dest = *src;
             src++;

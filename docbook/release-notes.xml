@@ -72,6 +72,72 @@ Wireshark Info
         </para></listitem>
 -->
 
+        <listitem><para>
+          Forward slashes in URI need to be converted to backslashes if WIN32.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5237">Bug
+          5237</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Some PGM options are not parsed correctly.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5687">Bug
+          5687</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          packetBB dissector bug: More than 1000000 items in the tree -- possible infinite loop.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6687">Bug
+          6687</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          GOOSE Messages don't use the length field to perform the dissection.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6734">Bug
+          6734</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Ethernet traces in K12 text format sometimes give bogus &quot;malformed frame&quot; errors and other problems.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6735">Bug
+          6735</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          max_ul_ext isn't printed/decoded to the packet details log in GTP protocol packet.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6761">Bug
+          6761</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          lua proto registration fails for uppercase proto / g_ascii_strdown problem.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6766">Bug
+          6766</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          no menu item Fle-&gt;Export-&gt;SSL Session Keys in GTK.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6813">Bug
+          6813</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          IAX2 dissector reads past end of packet for unknown IEs.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6815">Bug
+          6815</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          TShark 1.6.5 immediately crashes on SSL decryption (every time).
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6817">Bug
+          6817</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  MySQL dissector assertion.
+          (<ulink url="http://ask.wireshark.org/questions/8649">Ask
+          8649</ulink>)
+        </para></listitem>
+
 
      </itemizedlist>
 

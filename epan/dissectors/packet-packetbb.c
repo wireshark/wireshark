@@ -618,6 +618,10 @@ static int dissect_pbb_message(tvbuff_t *tvb, proto_tree *tree, guint offset) {
     offset += 2;
   }
 
+  if (offset >= messageEnd) {
+    /* this is an error, tlv block is mandatory */
+    return tvb_reported_length(tvb);
+  }
   offset = dissect_pbb_tlvblock(tvb, message_tree, offset, messageEnd, 0);
   while (offset < messageEnd) {
     offset = dissect_pbb_addressblock(tvb, message_tree, offset, messageEnd, addressType, addressSize);

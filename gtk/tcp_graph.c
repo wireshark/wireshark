@@ -53,14 +53,6 @@
 #include "gtk/dlg_utils.h"
 #include "gtk/gui_stat_menu.h"
 
-
-#define TH_FIN    0x01
-#define TH_SYN    0x02
-#define TH_RST    0x04
-#define TH_PUSH   0x08
-#define TH_ACK    0x10
-#define TH_URG    0x20
-
 #define TCP_SYN(flags)		( flags & TH_SYN )
 #define TCP_ACK(flags)		( flags & TH_ACK )
 #define TCP_FIN(flags)		( flags & TH_FIN )
@@ -493,9 +485,9 @@ static void wscale_make_elmtlist(struct graph *);
 static int rint (double );	/* compiler template for Windows */
 #endif
 
-/* 
- * Uncomment the following define to revert WIN32 to 
- * use original mouse button controls 
+/*
+ * Uncomment the following define to revert WIN32 to
+ * use original mouse button controls
  */
 
 /* #define ORIGINAL_WIN32_BUTTONS 1 */
@@ -558,7 +550,7 @@ static char helptext[] =
 static void debug_coord (struct graph *g, const char *c)
 {
 	static unsigned count = 0;
-	
+
 	count++;
 	printf("%u: %s\n", count, c);
 	printf("%u:  g->geom.width %d\n", count, g->geom.width);
@@ -580,14 +572,14 @@ static void set_busy_cursor(GdkWindow *w)
 
 	cursor = gdk_cursor_new(GDK_WATCH);
 	gdk_window_set_cursor(w, cursor);
-  	gdk_flush(); 
+  	gdk_flush();
 	gdk_cursor_destroy(cursor);
 }
 
 static void unset_busy_cursor(GdkWindow *w)
 {
 	gdk_window_set_cursor(w, NULL);
-  	gdk_flush(); 
+  	gdk_flush();
 }
 #ifdef MAIN_MENU_USE_UIMANAGER
 void tcp_graph_cb (GtkAction *action, gpointer user_data)
@@ -1548,7 +1540,7 @@ static GtkWidget *control_panel_create_graph_type_group (struct graph *g)
 	gtk_box_pack_start (GTK_BOX (graph_box), graph_tput, TRUE, TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (graph_box), graph_tseqstevens, TRUE, TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (graph_box), graph_tseqttrace, TRUE, TRUE, 0);
-	gtk_box_pack_start (GTK_BOX (graph_box), graph_wscale, TRUE, TRUE, 0); 
+	gtk_box_pack_start (GTK_BOX (graph_box), graph_wscale, TRUE, TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (graph_box), graph_sep, TRUE, TRUE, 0);
 	gtk_box_pack_start (GTK_BOX (graph_box), graph_init, TRUE, TRUE, 0);
 	graph_frame = gtk_frame_new ("Graph type:");
@@ -2692,7 +2684,7 @@ static void magnify_create (struct graph *g, int x, int y)
 	offsetpos.x = offsetpos.x >= 0 ? offsetpos.x : 0;
 	offsetpos.y = g->magnify.y + g->magnify.offset.y;
 	offsetpos.y = offsetpos.y >= 0 ? offsetpos.y : 0;
-	gtk_window_set_position (GTK_WINDOW(mg->drawing_area), GTK_WIN_POS_NONE);	
+	gtk_window_set_position (GTK_WINDOW(mg->drawing_area), GTK_WIN_POS_NONE);
 	magnify_get_geom (g, x, y);
 
 	gtk_widget_show (mg->drawing_area);
@@ -3036,7 +3028,7 @@ static void do_wscale_graph (struct graph *g)
 
 static void do_rtt_graph (struct graph *g)
 {
-        gtk_toggle_button_set_active (g->gt.graph_rtt, TRUE); 
+        gtk_toggle_button_set_active (g->gt.graph_rtt, TRUE);
 }
 
 static void do_throughput_graph (struct graph *g)
@@ -3288,7 +3280,7 @@ static gboolean key_press_event (GtkWidget *widget, GdkEventKey *event, gpointer
 		do_key_motion_down (g, step);
 		break;
 	case GDK_F1:
-	        callback_create_help (NULL, NULL);	
+	        callback_create_help (NULL, NULL);
 		break;
 	default:
 		break;
@@ -4226,7 +4218,7 @@ static void wscale_read_config(struct graph* g)
 	g->x_axis->label[1] = NULL;
 }
 
-/* 
+/*
     (1) Find maximum and minimum values for Window-Size(scaled) and seconds
     (2) call function to define window related values
 */
@@ -4238,7 +4230,7 @@ static void wscale_initialize(struct graph* g)
 	guint32	wsize_min = 0;
 	gdouble sec_max = 0.0;
 	gdouble sec_base = -1.0;
-	
+
 	wscale_read_config (g);
 
 	debug(DBS_FENTRY) puts ("wscale_initialize()");
@@ -4267,7 +4259,7 @@ static void wscale_initialize(struct graph* g)
 			if ( sec_max < sec )
 				sec_max = sec;
 
-		} 
+		}
 
 	}
 
@@ -4297,10 +4289,10 @@ static void wscale_make_elmtlist(struct graph* g)
 	{
 		int n = 1 + get_num_dsegs(g);
 		e = elements = (struct element*)g_malloc(n*sizeof(struct element));
-	} 
-	else 
+	}
+	else
 		e = elements = g->elists->elements;
-	
+
 
 	for ( segm = g->segments; segm; segm = segm->next )
 	{
@@ -4332,7 +4324,7 @@ static void wscale_make_elmtlist(struct graph* g)
 				e->p.arc.angle1 = 0;
 				e->p.arc.angle2 = 0x5A00;
 				e++;
-			} 
+			}
 		}
 	}
 	/* finished populating element list */
@@ -4360,7 +4352,7 @@ static int rint (double x)
 #ifdef MAIN_MENU_USE_UIMANAGER
 gboolean tcp_graph_selected_packet_enabled(frame_data *current_frame, epan_dissect_t *edt, gpointer callback_data _U_)
 #else
-static 
+static
 gboolean tcp_graph_selected_packet_enabled(frame_data *current_frame, epan_dissect_t *edt, gpointer callback_data _U_)
 #endif
 {

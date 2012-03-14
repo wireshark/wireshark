@@ -378,14 +378,14 @@ build_conversation_filter(int action, gboolean show_dialog)
     return buf;
 }
 
-static void 
+static void
 new_window_cb(GtkWidget *widget)
 {
 	new_packet_window(widget, FALSE);
 }
 
 #ifdef WANT_PACKET_EDITOR
-static void 
+static void
 edit_window_cb(GtkWidget *widget)
 {
 	new_packet_window(widget, TRUE);
@@ -607,7 +607,7 @@ tree_view_menu_prepare_or_not_selected_cb(GtkAction *action _U_, gpointer user_d
 }
 
 /* Prepare for use of GTKUImanager */
-#ifdef MAIN_MENU_USE_UIMANAGER 
+#ifdef MAIN_MENU_USE_UIMANAGER
 
 static void
 copy_description_cb(GtkAction *action _U_, gpointer user_data)
@@ -936,67 +936,67 @@ help_menu_wireshark_cb(GtkAction *action _U_, gpointer user_data _U_)
 static void
 help_menu_wireshark_flt_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
- 	topic_menu_cb(NULL/*widget _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_WIRESHARK_FILTER)); 
+ 	topic_menu_cb(NULL/*widget _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_WIRESHARK_FILTER));
 }
 
 static void
 help_menu_Tshark_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
- 	topic_menu_cb(NULL/*widget _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_TSHARK)); 
+ 	topic_menu_cb(NULL/*widget _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_TSHARK));
 }
 
 static void
 help_menu_RawShark_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
- 	topic_menu_cb(NULL/*widget _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_RAWSHARK));  
+ 	topic_menu_cb(NULL/*widget _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_RAWSHARK));
 }
 
 static void
 help_menu_Dumpcap_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
- 	topic_menu_cb(NULL/*widget _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_DUMPCAP));   
+ 	topic_menu_cb(NULL/*widget _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_DUMPCAP));
 }
 
 static void
 help_menu_Mergecap_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
- 	topic_menu_cb(NULL/*widget _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_MERGECAP));   
+ 	topic_menu_cb(NULL/*widget _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_MERGECAP));
 }
 
 static void
 help_menu_Editcap_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
- 	topic_menu_cb(NULL/* widget _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_EDITCAP));   
+ 	topic_menu_cb(NULL/* widget _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_EDITCAP));
 }
 
 static void
 help_menu_Text2pcap_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
- 	topic_menu_cb(NULL/* widget _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_TEXT2PCAP));   
+ 	topic_menu_cb(NULL/* widget _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(LOCALPAGE_MAN_TEXT2PCAP));
 }
 
 static void
 help_menu_Website_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
- 	topic_menu_cb(NULL/* widget _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(ONLINEPAGE_HOME));   
+ 	topic_menu_cb(NULL/* widget _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(ONLINEPAGE_HOME));
 }
 
 static void
 help_menu_Wiki_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
- 	topic_menu_cb(NULL/* widget _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(ONLINEPAGE_WIKI));   
+ 	topic_menu_cb(NULL/* widget _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(ONLINEPAGE_WIKI));
 }
 
 static void
 help_menu_Downloads_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
- 	topic_menu_cb(NULL/* widget _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(ONLINEPAGE_DOWNLOAD)); 
+ 	topic_menu_cb(NULL/* widget _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(ONLINEPAGE_DOWNLOAD));
 }
 
 static void
 help_menu_SampleCaptures_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
- 	topic_menu_cb( NULL/* widget_U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(ONLINEPAGE_SAMPLE_FILES));   
+ 	topic_menu_cb( NULL/* widget_U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(ONLINEPAGE_SAMPLE_FILES));
 }
 
 static const char *ui_desc_menubar =
@@ -1036,6 +1036,7 @@ static const char *ui_desc_menubar =
 "        </menu>\n"
 #endif /* _WIN32 */
 "      <menuitem name='SelectedPacketBytes' action='/File/Export/SelectedPacketBytes'/>\n"
+"      <menuitem name='SSLSessionKeys' action='/File/Export/SslSessionKeys'/>\n"
 "        <menu name= 'Objects' action='/File/Export/Objects'>\n"
 "          <menuitem name='HTTP' action='/File/Export/Objects/HTTP'/>\n"
 "          <menuitem name='DICOM' action='/File/Export/Objects/DICOM'/>\n"
@@ -1362,7 +1363,7 @@ static const char *ui_desc_menubar =
  * circumstances, make a change that keeps them from doing so.
  */
 
-/* 
+/*
  * GtkActionEntry
  * typedef struct {
  *   const gchar     *name;
@@ -1372,19 +1373,19 @@ static const char *ui_desc_menubar =
  *   const gchar     *tooltip;
  *   GCallback  callback;
  * } GtkActionEntry;
- * const gchar *name;			The name of the action.  
- * const gchar *stock_id;		The stock id for the action, or the name of an icon from the icon theme.  
- * const gchar *label;			The label for the action. This field should typically be marked for translation, 
- *								see gtk_action_group_set_translation_domain(). 
- *								If label is NULL, the label of the stock item with id stock_id is used.  
- * const gchar *accelerator;	The accelerator for the action, in the format understood by gtk_accelerator_parse().  
- * const gchar *tooltip;		The tooltip for the action. This field should typically be marked for translation, 
- *                              see gtk_action_group_set_translation_domain().  
- * GCallback callback;			The function to call when the action is activated.  
+ * const gchar *name;			The name of the action.
+ * const gchar *stock_id;		The stock id for the action, or the name of an icon from the icon theme.
+ * const gchar *label;			The label for the action. This field should typically be marked for translation,
+ *								see gtk_action_group_set_translation_domain().
+ *								If label is NULL, the label of the stock item with id stock_id is used.
+ * const gchar *accelerator;	The accelerator for the action, in the format understood by gtk_accelerator_parse().
+ * const gchar *tooltip;		The tooltip for the action. This field should typically be marked for translation,
+ *                              see gtk_action_group_set_translation_domain().
+ * GCallback callback;			The function to call when the action is activated.
  *
  */
 static const GtkActionEntry main_menu_bar_entries[] = {
-  /* Top level */ 
+  /* Top level */
   { "/File",					NULL,							"_File",			NULL,					NULL,			NULL },
   { "/Edit",					NULL,							"_Edit",			NULL,					NULL,			NULL },
   { "/View",					NULL,							"_View",			NULL,					NULL,			NULL },
@@ -1429,7 +1430,7 @@ static const GtkActionEntry main_menu_bar_entries[] = {
 																					NULL,					NULL,			G_CALLBACK(export_carrays_cmd_cb) },
   { "/File/Export/File/PSML",			NULL,		"as XML - \"P_SML\" (packet summary) file...",
 																					NULL,					NULL,			G_CALLBACK(export_psml_cmd_cb) },
-  { "/File/Export/File/PDML",			NULL,		"as XML - \"P_DML\" (packet details) file...",	
+  { "/File/Export/File/PDML",			NULL,		"as XML - \"P_DML\" (packet details) file...",
 																					NULL,					NULL,			G_CALLBACK(export_pdml_cmd_cb) },
 #endif /* _WIN32 */
   { "/File/Export/SelectedPacketBytes",	NULL,		"Selected Packet _Bytes...",	"<control>H",			NULL,			G_CALLBACK(savehex_cb) },
@@ -1655,7 +1656,7 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Analyze/ServiceResponseTime",						NULL,				"Service _Response Time",		NULL, NULL, NULL },
 
    { "/Analyze/BACnet",										NULL,				"BACnet",						NULL, NULL, NULL },
-   
+
    { "/Analyze/StatisticsMenu/FlowGraph",		WIRESHARK_STOCK_FLOW_GRAPH,		"Flo_w Graph...",				NULL, NULL,	G_CALLBACK(flow_graph_launch) },
    { "/Analyze/StatisticsMenu/HTTP",			NULL,				"HTTP",							NULL, NULL, NULL },
    { "/Analyze/StatisticsMenu/TCPStreamGraphMenu",	NULL,			"TCP StreamGraph",							NULL, NULL, NULL },
@@ -1701,7 +1702,7 @@ static const GtkActionEntry main_menu_bar_entries[] = {
 
    { "/Internals/Dissectortables",	NULL,							"_Dissector tables",		NULL,						NULL,				G_CALLBACK(dissector_tables_dlg_cb) },
    { "/Internals/SupportedProtocols", NULL,					"_Supported Protocols (slow!)",		NULL,						NULL,				G_CALLBACK(supported_cb) },
-   
+
    { "/Help/Contents",				GTK_STOCK_HELP,					"_Contents",			"F1",							NULL,				G_CALLBACK(help_menu_cont_cb) },
    { "/Help/ManualPages",			NULL,							"ManualPages",			NULL,							NULL,				NULL },
    { "/Help/ManualPages/Wireshark", NULL,							"Wireshark",			NULL,							NULL,				G_CALLBACK(help_menu_wireshark_cb) },
@@ -1721,19 +1722,19 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Help/AboutWireshark",		WIRESHARK_STOCK_ABOUT,			"_About Wireshark",		NULL,							NULL,				G_CALLBACK(about_wireshark_cb) },
 };
 
-static const GtkToggleActionEntry main_menu_bar_toggle_action_entries[] = 
+static const GtkToggleActionEntry main_menu_bar_toggle_action_entries[] =
 {
 	/* name, stock id, label, accel, tooltip, callback, is_active */
-	{"/View/MainToolbar",	NULL, "_Main Toolbar",	NULL, NULL,	G_CALLBACK(main_toolbar_show_hide_cb), TRUE}, 
-	{"/View/FilterToolbar", NULL, "_FilterToolbar", NULL, NULL,	G_CALLBACK(filter_toolbar_show_hide_cb), TRUE}, 
+	{"/View/MainToolbar",	NULL, "_Main Toolbar",	NULL, NULL,	G_CALLBACK(main_toolbar_show_hide_cb), TRUE},
+	{"/View/FilterToolbar", NULL, "_FilterToolbar", NULL, NULL,	G_CALLBACK(filter_toolbar_show_hide_cb), TRUE},
 #ifdef HAVE_AIRPCAP
-	{"/View/WirelessToolbar", NULL, "_WirelessToolbar", NULL, NULL,	G_CALLBACK(wireless_toolbar_show_hide_cb), TRUE}, 
+	{"/View/WirelessToolbar", NULL, "_WirelessToolbar", NULL, NULL,	G_CALLBACK(wireless_toolbar_show_hide_cb), TRUE},
 #endif /* HAVE_AIRPCAP */
-	{"/View/Statusbar",		NULL, "_Statusbar", NULL, NULL,	G_CALLBACK(status_bar_show_hide_cb), TRUE}, 
-	{"/View/PacketList",	NULL, "Packet _List", NULL, NULL,	G_CALLBACK(packet_list_show_hide_cb), TRUE}, 
-	{"/View/PacketDetails",	NULL, "Packet _Details", NULL, NULL,	G_CALLBACK(packet_details_show_hide_cb), TRUE}, 
-	{"/View/PacketBytes",	NULL, "Packet _Bytes", NULL, NULL,	G_CALLBACK(packet_bytes_show_hide_cb), TRUE}, 
-	{"/View/TimeDisplayFormat/DisplaySecondsWithHoursAndMinutes",	NULL, "Display Seconds with hours and minutes", NULL, NULL,	G_CALLBACK(view_menu_seconds_time_cb), FALSE}, 
+	{"/View/Statusbar",		NULL, "_Statusbar", NULL, NULL,	G_CALLBACK(status_bar_show_hide_cb), TRUE},
+	{"/View/PacketList",	NULL, "Packet _List", NULL, NULL,	G_CALLBACK(packet_list_show_hide_cb), TRUE},
+	{"/View/PacketDetails",	NULL, "Packet _Details", NULL, NULL,	G_CALLBACK(packet_details_show_hide_cb), TRUE},
+	{"/View/PacketBytes",	NULL, "Packet _Bytes", NULL, NULL,	G_CALLBACK(packet_bytes_show_hide_cb), TRUE},
+	{"/View/TimeDisplayFormat/DisplaySecondsWithHoursAndMinutes",	NULL, "Display Seconds with hours and minutes", NULL, NULL,	G_CALLBACK(view_menu_seconds_time_cb), FALSE},
 	{"/View/NameResolution/ResolveName",							NULL, "_Resolve Name",							NULL, NULL,	G_CALLBACK(resolve_name_cb), FALSE},
 	{"/View/NameResolution/EnableforMACLayer",						NULL, "Enable for _MAC Layer",					NULL, NULL, G_CALLBACK(view_menu_en_for_MAC_cb), TRUE},
 	{"/View/NameResolution/EnableforNetworkLayer",					NULL, "Enable for _Network Layer",				NULL, NULL, G_CALLBACK(view_menu_en_for_network_cb), TRUE },
@@ -3716,7 +3717,7 @@ menus_init(void) {
 
         /* main */
 #ifdef MAIN_MENU_USE_UIMANAGER
-        main_menu_bar_action_group = gtk_action_group_new ("MenuActionGroup"); 
+        main_menu_bar_action_group = gtk_action_group_new ("MenuActionGroup");
         gtk_action_group_add_actions (main_menu_bar_action_group,                       /* the action group */
                                     main_menu_bar_entries,                              /* an array of action descriptions */
                                     G_N_ELEMENTS(main_menu_bar_entries),                /* the number of entries */
@@ -3745,13 +3746,13 @@ menus_init(void) {
 
         ui_manager_main_menubar = gtk_ui_manager_new ();
         gtk_ui_manager_insert_action_group (ui_manager_main_menubar, main_menu_bar_action_group, 0);
-        gtk_ui_manager_add_ui_from_string (ui_manager_main_menubar,ui_desc_menubar, -1, &error); 
-        if (error != NULL) 
-        { 
-            fprintf (stderr, "Warning: building main menubar failed: %s\n", 
-                    error->message); 
-            g_error_free (error); 
-            error = NULL; 
+        gtk_ui_manager_add_ui_from_string (ui_manager_main_menubar,ui_desc_menubar, -1, &error);
+        if (error != NULL)
+        {
+            fprintf (stderr, "Warning: building main menubar failed: %s\n",
+                    error->message);
+            g_error_free (error);
+            error = NULL;
         }
         g_object_unref(main_menu_bar_action_group);
         gtk_window_add_accel_group (GTK_WINDOW(top_level),
@@ -4061,7 +4062,7 @@ gboolean    enabled = FALSE;
      * the main menu.
      */
     tap_menu_item_add(
-        group, gui_path, name, label, stock_id, 
+        group, gui_path, name, label, stock_id,
         accelerator, tooltip, callback, enabled,
         selected_packet_enabled, selected_tree_row_enabled,
         callback_data, curnode);
@@ -4124,7 +4125,7 @@ register_stat_menu_item_stock(
     register_stat_menu_item_stock(
         name,
         group,
-		NULL,         /* stock_id */              
+		NULL,         /* stock_id */
         callback,
         selected_packet_enabled,
         selected_tree_row_enabled,
@@ -4693,12 +4694,12 @@ recent_changed_cb (GtkUIManager *ui_manager,
 
   merge_id = GPOINTER_TO_UINT (g_object_get_data (G_OBJECT (ui_manager),
                                "recent-files-merge-id"));
-  
+
   /* remove the UI */
   gtk_ui_manager_remove_ui (ui_manager, merge_id);
 
   /* remove the action group; gtk_ui_manager_remove_action_group()
-   * should really take the action group's name instead of its 
+   * should really take the action group's name instead of its
    * pointer.
    */
   action_groups = gtk_ui_manager_get_action_groups (ui_manager);
@@ -4731,7 +4732,7 @@ recent_clear_cb(GtkAction *action _U_, gpointer user_data _U_)
 	g_list_free(recent_files_list);
 	recent_files_list = NULL;
 	g_object_set_data(G_OBJECT(submenu_recent_files), "recent-files-list", recent_files_list);
-	/* Calling recent_changed_cb will rebuild the GUI call add_recent_items which will in turn call 
+	/* Calling recent_changed_cb will rebuild the GUI call add_recent_items which will in turn call
 	 * main_welcome_reset_recent_capture_files
 	 */
 	recent_changed_cb(ui_manager_main_menubar, NULL);
@@ -4780,7 +4781,7 @@ add_recent_items (guint merge_id, GtkUIManager *ui_manager)
                  "recent-info-empty",
                  GTK_UI_MANAGER_MENUITEM,
                  FALSE);
-      
+
       return;
     }
 
@@ -4840,7 +4841,7 @@ add_recent_items (guint merge_id, GtkUIManager *ui_manager)
              "clear-recent-info",
              GTK_UI_MANAGER_MENUITEM,
              FALSE);
-  
+
 }
 #endif /* MAIN_MENU_USE_UIMANAGER */
 
@@ -5812,11 +5813,11 @@ set_menus_for_capture_file(capture_file *cf)
         set_menu_sensitivity_old("/View/Reload", FALSE);
 #endif /* MAIN_MENU_USE_UIMANAGER */
 
-        set_toolbar_for_capture_file(FALSE);
+        set_toolbar_for_capture_file(FALSE, FALSE);
         set_toolbar_for_unsaved_capture_file(FALSE);
     } else {
 #ifdef MAIN_MENU_USE_UIMANAGER
-        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Merge", TRUE);
+        set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Merge", cf_can_save_as(cf));
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Close", TRUE);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/FileMenu/Save", !cf->user_saved);
         /*
@@ -5845,7 +5846,7 @@ set_menus_for_capture_file(capture_file *cf)
         set_menu_sensitivity_old("/View/Reload", TRUE);
 #endif /* MAIN_MENU_USE_UIMANAGER */
         set_toolbar_for_unsaved_capture_file(!cf->user_saved);
-        set_toolbar_for_capture_file(TRUE);
+        set_toolbar_for_capture_file(TRUE, cf_can_save_as(cf) || !cf->user_saved);
     }
 }
 
@@ -7085,4 +7086,3 @@ void set_menus_for_profiles(gboolean default_profile)
  * ex: set shiftwidth=4 tabstop=8 expandtab
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-

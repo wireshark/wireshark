@@ -230,13 +230,11 @@ dtls_init(void)
 
 /* parse dtls related preferences (private keys and ports association strings) */
 static void
-dtls_parse(void)
+dtls_parse_uat(void)
 {
   ep_stack_t tmp_stack;
   SslAssociation *tmp_assoc;
   guint i;
-  gchar **old_keys, **parts, *err;
-  GString *uat_entry = g_string_new("");
 
   if (dtls_key_hash)
     {
@@ -250,6 +248,31 @@ dtls_parse(void)
   while ((tmp_assoc = ep_stack_pop(tmp_stack)) != NULL) {
     ssl_association_remove(dtls_associations, tmp_assoc);
   }
+
+  /* parse private keys string, load available keys and put them in key hash*/
+  dtls_key_hash = g_hash_table_new(ssl_private_key_hash, ssl_private_key_equal);
+
+  ssl_set_debug(dtls_debug_file_name);
+
+  if (ndtlsdecrypt > 0)
+  {
+    for (i = 0; i < ndtlsdecrypt; i++)
+    {
+      ssldecrypt_assoc_t *d = &(dtlskeylist_uats[i]);
+      ssl_parse_key_list(d, dtls_key_hash, dtls_associations, dtls_handle, FALSE);
+    }
+  }
+
+  dissector_add_handle("sctp.port", dtls_handle);
+  dissector_add_handle("udp.port", dtls_handle);
+}
+
+static void
+dtls_parse_old_keys(void)
+{
+  gchar          **old_keys, **parts, *err;
+  guint            i;
+  GString         *uat_entry = g_string_new("");
 
   /* Import old-style keys */
   if (dtlsdecrypt_uat && dtls_keys_list && dtls_keys_list[0]) {
@@ -270,23 +293,6 @@ dtls_parse(void)
   }
   g_string_free(uat_entry, TRUE);
 
-
-  /* parse private keys string, load available keys and put them in key hash*/
-  dtls_key_hash = g_hash_table_new(ssl_private_key_hash, ssl_private_key_equal);
-
-  ssl_set_debug(dtls_debug_file_name);
-
-  if (ndtlsdecrypt > 0)
-  {
-	  for (i = 0; i < ndtlsdecrypt; i++)
-	  {
-		  ssldecrypt_assoc_t *d = &(dtlskeylist_uats[i]);
-		  ssl_parse_key_list(d, dtls_key_hash, dtls_associations, dtls_handle, FALSE);
-	  }
-  }
-
-  dissector_add_handle("sctp.port", dtls_handle);
-  dissector_add_handle("udp.port", dtls_handle);
 }
 
 /*
@@ -2019,6 +2025,8 @@ UAT_CSTRING_CB_DEF(sslkeylist_uats,keyfile,ssldecrypt_assoc_t)
 UAT_CSTRING_CB_DEF(sslkeylist_uats,password,ssldecrypt_assoc_t)
 #endif
 
+void proto_reg_handoff_dtls(void);
+
 /*********************************************************************
  *
  * Standard Wireshark Protocol Registration and housekeeping
@@ -2346,7 +2354,7 @@ proto_register_dtls(void)
 
 #ifdef HAVE_LIBGNUTLS
   {
-    module_t *dtls_module = prefs_register_protocol(proto_dtls, dtls_parse);
+    module_t *dtls_module = prefs_register_protocol(proto_dtls, proto_reg_handoff_dtls);
 
 	static uat_field_t dtlskeylist_uats_flds[] = {
 		UAT_FLD_CSTRING_OTHER(sslkeylist_uats, ipaddr, "IP address", ssldecrypt_uat_fld_ip_chk_cb, "IPv4 or IPv6 address"),
@@ -2368,7 +2376,7 @@ proto_register_dtls(void)
 		dtlsdecrypt_copy_cb,
 		NULL, /* dtlsdecrypt_update_cb? */
 		dtlsdecrypt_free_cb,
-		dtls_parse,
+                              dtls_parse_uat,
 		dtlskeylist_uats_flds);
 
 	prefs_register_uat_preference(dtls_module, "cfg",
@@ -2465,9 +2473,14 @@ dissect_dtls_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_reg_handoff_dtls(void)
 {
+  static gboolean initialized = FALSE;
 
   /* add now dissector to default ports.*/
-  dtls_parse();
+  dtls_parse_uat();
+  dtls_parse_old_keys();
 
+  if (initialized == FALSE)
   heur_dissector_add("udp", dissect_dtls_heur, proto_dtls);
+
+  initialized = TRUE;
 }

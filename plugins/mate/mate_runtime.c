@@ -61,7 +61,7 @@ static FILE* dbg_facility = NULL;
 static gboolean destroy_mate_pdus(gpointer k _U_, gpointer v, gpointer p _U_) {
 	mate_pdu* pdu = (mate_pdu*) v;
 	if (pdu->avpl) delete_avpl(pdu->avpl,TRUE);
-	g_mem_chunk_free(rd->mate_items,pdu);
+	g_slice_free(mate_max_size, (mate_max_size *)pdu);
 	return TRUE;
 }
 
@@ -78,7 +78,7 @@ static gboolean destroy_mate_gops(gpointer k _U_, gpointer v, gpointer p _U_) {
 		g_free(gop->gop_key);
 	}
 
-	g_mem_chunk_free(rd->mate_items,gop);
+	g_slice_free(mate_max_size,(mate_max_size*)gop);
 
 	return TRUE;
 }
@@ -96,7 +96,7 @@ static gboolean destroy_mate_gogs(gpointer k _U_, gpointer v, gpointer p _U_) {
 		g_ptr_array_free(gog->gog_keys,FALSE);
 	}
 
-	g_mem_chunk_free(rd->mate_items,gog);
+	g_slice_free(mate_max_size,(mate_max_size*)gog);
 
 	return TRUE;
 }
@@ -140,7 +140,6 @@ extern void initialize_mate_runtime(void) {
 	if (( mc = mate_cfg() )) {
 		if (rd == NULL ) {
 			rd = g_malloc(sizeof(mate_runtime_data));
-			rd->mate_items = g_mem_chunk_new("mate_items",sizeof(mate_max_size),1024,G_ALLOC_AND_FREE);
 		} else {
 			g_hash_table_foreach(mc->pducfgs,destroy_pdus_in_cfg,NULL);
 			g_hash_table_foreach(mc->gopcfgs,destroy_gops_in_cfg,NULL);
@@ -173,7 +172,7 @@ extern void initialize_mate_runtime(void) {
 
 
 static mate_gop* new_gop(mate_cfg_gop* cfg, mate_pdu* pdu, gchar* key) {
-	mate_gop* gop = g_mem_chunk_alloc(rd->mate_items);
+	mate_gop* gop = (mate_gop*)g_slice_new(mate_max_size);
 
 	gop->id = ++(cfg->last_id);
 	gop->cfg = cfg;
@@ -237,8 +236,7 @@ static void adopt_gop(mate_gog* gog, mate_gop* gop) {
 }
 
 static mate_gog* new_gog(mate_cfg_gog* cfg, mate_gop* gop) {
-	mate_gog* gog = g_mem_chunk_alloc(rd->mate_items);
-
+	mate_gog* gog = (mate_gog*)g_slice_new(mate_max_size);
 	gog->id = ++(cfg->last_id);
 	gog->cfg = cfg;
 
@@ -709,7 +707,7 @@ static void get_pdu_fields(gpointer k, gpointer v, gpointer p) {
 }
 
 static mate_pdu* new_pdu(mate_cfg_pdu* cfg, guint32 framenum, field_info* proto, proto_tree* tree) {
-	mate_pdu* pdu = g_mem_chunk_alloc(rd->mate_items);
+	mate_pdu* pdu = (mate_pdu*)g_slice_new(mate_max_size);
 	field_info* cfi;
 	GPtrArray* ptrs;
 	mate_range* range;
@@ -880,7 +878,7 @@ extern void mate_analyze_frame(packet_info *pinfo, proto_tree* tree) {
 							 || ( ! criterium_match && cfg->criterium_accept_mode == ACCEPT_MODE )) {
 
 							delete_avpl(pdu->avpl,TRUE);
-							g_mem_chunk_free(rd->mate_items,pdu);
+							g_slice_free(mate_max_size,(mate_max_size*)pdu);
 							pdu = NULL;
 
 							continue;
@@ -891,7 +889,7 @@ extern void mate_analyze_frame(packet_info *pinfo, proto_tree* tree) {
 
 					if ( ! pdu->gop && cfg->drop_unassigned) {
 						delete_avpl(pdu->avpl,TRUE);
-						g_mem_chunk_free(rd->mate_items,pdu);
+						g_slice_free(mate_max_size,(mate_max_size*)pdu);
 						pdu = NULL;
 						continue;
 					}
