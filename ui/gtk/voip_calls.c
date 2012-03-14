@@ -605,7 +605,7 @@ static void RTP_packet_draw(void *prs _U_)
 	{
 		rtp_listinfo = rtp_streams_list->data;
 
-		/* using the setup frame number of the RTP stream, we get the call number that it belongs */
+		/* using the setup frame number of the RTP stream, we get the call number that it belongs to*/
 		voip_calls_graph_list = g_list_first(the_tapinfo_struct.graph_analysis->list);
 		while (voip_calls_graph_list)
 		{
@@ -1026,7 +1026,6 @@ voip_calls_tapinfo_t* voip_calls_get_info(void)
 {
 	return &the_tapinfo_struct;
 }
-
 
 /****************************************************************************/
 /* TAP INTERFACE */

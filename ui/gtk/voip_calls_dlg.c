@@ -316,6 +316,24 @@ voip_calls_on_select_all(GtkButton *button _U_, gpointer user_data _U_)
 	gtk_tree_selection_select_all(selection);
 }
 
+
+
+/* compare two list entries by packet no */
+static gint
+graph_analysis_sort_compare(gconstpointer a, gconstpointer b)
+{
+    const graph_analysis_item_t *entry_a = (const graph_analysis_item_t *)a;
+    const graph_analysis_item_t *entry_b = (const graph_analysis_item_t *)b;
+
+	if(entry_a->fd->num < entry_b->fd->num)
+		return -1;
+
+	if(entry_a->fd->num > entry_b->fd->num)
+		return 1;
+
+	return 0;
+}
+
 /****************************************************************************/
 static void
 on_graph_bt_clicked(GtkButton *button _U_, gpointer user_data _U_)
@@ -329,7 +347,7 @@ on_graph_bt_clicked(GtkButton *button _U_, gpointer user_data _U_)
 		voip_calls_get_info()->callsinfo_list=
 			g_list_reverse(voip_calls_get_info()->callsinfo_list);
 		voip_calls_get_info()->graph_analysis->list=
-			g_list_reverse(voip_calls_get_info()->graph_analysis->list);
+			g_list_sort(voip_calls_get_info()->graph_analysis->list, graph_analysis_sort_compare);
 		voip_calls_get_info()->reversed=1;
 	}
 	/* reset the "display" parameter in graph analysis */
