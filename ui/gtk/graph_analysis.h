@@ -37,51 +37,51 @@
 
 #define MAX_NUM_NODES 40
 
-/* defines an entry in for the graph analysis */
+/** defines an entry for the graph analysis */
 typedef struct _graph_analysis_item {
-	frame_data *fd;				/* Holds the frame number and time information */
+	frame_data *fd;				/**< Holds the frame number and time information */
 	address src_addr;
 	guint16 port_src;
 	address dst_addr;
 	guint16 port_dst;
-	gchar *frame_label;			/* the label on top of the arrow */
-	gchar *comment;				/* a comment that appears at the left of the graph */
-	guint16 conv_num;			/* the conversation number, each conversation will be colored */
-	gboolean display;			/* indicate if the packet is displayed or not in the graph */
-	guint16 src_node;			/* this is used by graph_analysis.c to identify the node */
-	guint16 dst_node;			/* a node is an IP address that will be displayed in columns */
-	guint16 line_style;			/* the arrow line width in pixels*/
+	gchar *frame_label;			/**< the label on top of the arrow */
+	gchar *comment;				/**< a comment that appears at the left of the graph */
+	guint16 conv_num;			/**< the conversation number, each conversation will be colored */
+	gboolean display;			/**< indicate if the packet is displayed or not in the graph */
+	guint16 src_node;			/**< this is used by graph_analysis.c to identify the node */
+	guint16 dst_node;			/**< a node is an IP address that will be displayed in columns */
+	guint16 line_style;			/**< the arrow line width in pixels*/
 } graph_analysis_item_t;
 
-/* defines the graph analysis structure */
+/** defines the graph analysis structure */
 typedef struct _graph_analysis_info {
-	int     nconv;       /* number of conversations in the list */
-	GList*  list;        /* list with the graph analysis items */
-	GHashTable *ht;      /* hash table for retrieving graph analysis items */
+	int     nconv;       /**< number of conversations in the list */
+	GList*  list;        /**< list with the graph analysis items */
+	GHashTable *ht;      /**< hash table for retrieving graph analysis items */
 } graph_analysis_info_t;
 
-/* max number of nodes to display, each node will be an IP address */
+/** max number of nodes to display, each node will be an IP address */
 #define MAX_NUM_COL_CONV 10
 #define NODE_OVERFLOW MAX_NUM_NODES+1
 #define NUM_DISPLAY_ITEMS 1000
 
 typedef struct _display_items {
-	frame_data *fd;				/* Holds the frame number and time information */
+	frame_data *fd;				/**< Holds the frame number and time information */
 	guint16 port_src;
 	guint16 port_dst;
-	gchar *frame_label;			/* the label on top of the arrow */
-	gchar *comment;				/* a comment that appears at the left of the graph */
-	guint16 conv_num;			/* the conversation number, each conversation will be colored */
-	guint16 src_node;			/* this is used by graph_analysis.c to identify the node */
-	guint16 dst_node;			/* a node is an IP address that will be displayed in columns */
-	guint16 line_style;			/* the arrow line width in pixels*/
+	gchar *frame_label;			/**< the label on top of the arrow */
+	gchar *comment;				/**< a comment that appears at the left of the graph */
+	guint16 conv_num;			/**< the conversation number, each conversation will be colored */
+	guint16 src_node;			/**< this is used by graph_analysis.c to identify the node */
+	guint16 dst_node;			/**< a node is an IP address that will be displayed in columns */
+	guint16 line_style;			/**< the arrow line width in pixels*/
 } display_items_t;
 
 typedef struct _graph_analysis_dialog_data_t {
 	GtkWidget *window;
 	GtkWidget *parent_w;
 	gboolean needs_redraw;
-	gboolean inverse;          /* set the nodes in reverse mode as "dst <---- src" instead of "src ----> dst"*/
+	gboolean inverse;          /**< set the nodes in reverse mode as "dst <---- src" instead of "src ----> dst"*/
 	gint selected_row;
 	GtkWidget *draw_area_time;
 	GtkWidget *draw_area;
@@ -103,29 +103,29 @@ typedef struct _graph_analysis_dialog_data_t {
 	GtkWidget *hpane;
 	int surface_width;
 	int surface_height;
-	guint16 first_node;			/* the first node on the left to show in the screen */
-	guint32	first_item;			/* the first item (row) to show from the top */
-	guint32	selected_item;		/* the selected item */
+	guint16 first_node;			/**< the first node on the left to show in the screen */
+	guint32	first_item;			/**< the first item (row) to show from the top */
+	guint32	selected_item;		/**< the selected item */
 	display_items_t items[NUM_DISPLAY_ITEMS];
 	guint32 left_x_border;
 	char *save_file;
-	char *title; 				/* Graph analysis window's title */
+	char *title; 				/**< Graph analysis window's title */
 } graph_analysis_dialog_data_t;
 
 typedef void (*destroy_user_data_cb)(void *data);
 
-/* structure that holds general information and the dialog */
+/** structure that holds general information and the dialog */
 typedef struct _graph_analysis_data_t {
-	/* graphic data */
+	/**> graphic data */
 	graph_analysis_info_t *graph_info;
 
-	/* dialog associated data */
+	/**> dialog associated data */
 	graph_analysis_dialog_data_t dlg;
 	address nodes[MAX_NUM_NODES];
 	guint32 num_nodes;
 	guint32 num_items;
-	destroy_user_data_cb on_destroy_user_data;  /* callback info for destroy */
-	void *data; /* data to be passes when on destroy */
+	destroy_user_data_cb on_destroy_user_data;  /**< callback info for destroy */
+	void *data;									/**< data to be passes when on destroy */
 } graph_analysis_data_t;
 
 graph_analysis_data_t* graph_analysis_init(void);

@@ -385,6 +385,7 @@ static void insert_to_graph_t38(voip_calls_tapinfo_t *tapinfo _U_, packet_info *
 		gai = list->data;
 		if (gai->fd->num > frame_num){
 			the_tapinfo_struct.graph_analysis->list = g_list_insert(the_tapinfo_struct.graph_analysis->list, new_gai, item_num);
+			g_hash_table_insert(tapinfo->graph_analysis->ht, &new_gai->fd->num, new_gai);
 			inserted = TRUE;
 			break;
 		}
@@ -392,7 +393,10 @@ static void insert_to_graph_t38(voip_calls_tapinfo_t *tapinfo _U_, packet_info *
 		item_num++;
 	}
 
-	if (!inserted) tapinfo->graph_analysis->list = g_list_prepend(tapinfo->graph_analysis->list, new_gai);
+	if (!inserted){
+		tapinfo->graph_analysis->list = g_list_prepend(tapinfo->graph_analysis->list, new_gai);
+		g_hash_table_insert(tapinfo->graph_analysis->ht, &new_gai->fd->num, new_gai);
+	}
 }
 
 /****************************************************************************/
@@ -593,6 +597,65 @@ static void RTP_packet_draw(void *prs _U_)
 	GList *rtp_streams_list;
 	voip_rtp_stream_info_t *rtp_listinfo;
 	GList *voip_calls_graph_list;
+	graph_analysis_item_t *gai;
+	graph_analysis_item_t *new_gai;
+	guint16 conv_num;
+	guint32 duration;
+
+	/* add each rtp stream to the graph */
+	rtp_streams_list = g_list_first(rtp_tapinfo->list);
+	while (rtp_streams_list)
+	{
+		rtp_listinfo = rtp_streams_list->data;
+
+		/* using the setup frame number of the RTP stream, we get the call number that it belongs to*/
+		voip_calls_graph_list = g_list_first(the_tapinfo_struct.graph_analysis->list);
+
+		gai = g_hash_table_lookup(the_tapinfo_struct.graph_analysis->ht, &rtp_listinfo->setup_frame_number);
+		if(gai != NULL){
+			/* Found the setup frame*/ 
+			conv_num = gai->conv_num;
+			/* if RTP was already in the Graph, just update the comment information */
+			gai = g_hash_table_lookup(the_tapinfo_struct.graph_analysis->ht, &rtp_listinfo->start_fd->num);
+			if(gai != NULL){
+				duration = (guint32)(nstime_to_msec(&rtp_listinfo->stop_fd->rel_ts) - nstime_to_msec(&rtp_listinfo->start_fd->rel_ts));
+				g_free(gai->comment);
+				gai->comment = g_strdup_printf("%s Num packets:%u  Duration:%u.%03us SSRC:0x%X",
+												(rtp_listinfo->is_srtp)?"SRTP":"RTP", rtp_listinfo->npackets,
+												duration/1000,(duration%1000), rtp_listinfo->ssrc);
+			}else{
+				new_gai = g_malloc(sizeof(graph_analysis_item_t));
+				new_gai->fd = rtp_listinfo->start_fd;
+				COPY_ADDRESS(&(new_gai->src_addr),&(rtp_listinfo->src_addr));
+				COPY_ADDRESS(&(new_gai->dst_addr),&(rtp_listinfo->dest_addr));
+				new_gai->port_src = rtp_listinfo->src_port;
+				new_gai->port_dst = rtp_listinfo->dest_port;
+				duration = (guint32)(nstime_to_msec(&rtp_listinfo->stop_fd->rel_ts) - nstime_to_msec(&rtp_listinfo->start_fd->rel_ts));
+				new_gai->frame_label = g_strdup_printf("%s (%s) %s",
+										(rtp_listinfo->is_srtp)?"SRTP":"RTP",
+										rtp_listinfo->pt_str,
+										(rtp_listinfo->rtp_event == -1)?
+										    "":val_to_str_const(rtp_listinfo->rtp_event, rtp_event_type_values, "Unknown RTP Event"));
+				new_gai->comment = g_strdup_printf("%s Num packets:%u  Duration:%u.%03us SSRC:0x%X",
+													(rtp_listinfo->is_srtp)?"SRTP":"RTP", rtp_listinfo->npackets,
+													duration/1000,(duration%1000), rtp_listinfo->ssrc);
+				new_gai->conv_num = conv_num;
+				new_gai->display=FALSE;
+				new_gai->line_style = 2;  /* the arrow line will be 2 pixels width */
+				the_tapinfo_struct.graph_analysis->list = g_list_prepend(the_tapinfo_struct.graph_analysis->list, new_gai);
+				g_hash_table_insert(the_tapinfo_struct.graph_analysis->ht, &rtp_listinfo->start_fd, new_gai);
+			}
+		}
+		rtp_streams_list = g_list_next(rtp_streams_list);
+	}/* while (rtp_streams_list) */
+}
+#if 0
+static void RTP_packet_draw(void *prs _U_)
+{
+	voip_rtp_tapinfo_t *rtp_tapinfo = &the_tapinfo_rtp_struct;
+	GList *rtp_streams_list;
+	voip_rtp_stream_info_t *rtp_listinfo;
+	GList *voip_calls_graph_list;
 	guint item;
 	graph_analysis_item_t *gai;
 	graph_analysis_item_t *new_gai;
@@ -664,7 +727,7 @@ static void RTP_packet_draw(void *prs _U_)
 		rtp_streams_list = g_list_next(rtp_streams_list);
 	}
 }
-
+#endif
 static gboolean have_RTP_tap_listener=FALSE;
 /****************************************************************************/
 void
