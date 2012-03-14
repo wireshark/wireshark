@@ -1009,7 +1009,6 @@ wtap_dumper* wtap_dump_open_ng(const char *filename, int filetype, int encap,
 	if ((idb_inf != NULL) && (idb_inf->number_of_interfaces > 0)) {
 		wdh->number_of_interfaces = idb_inf->number_of_interfaces;
 		wdh->interface_data = idb_inf->interface_data;
-		g_free(idb_inf);
 	} else {
 		wtapng_if_descr_t descr;
 

@@ -2711,6 +2711,9 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
     pdh = wtap_dump_open_ng(save_file, out_file_type, linktype, snapshot_length,
         FALSE /* compressed */, shb_hdr, idb_inf, &err);
 
+    g_free(idb_inf);
+    idb_inf = NULL;
+
     if (pdh == NULL) {
       /* We couldn't set up to write to the capture file. */
       switch (err) {
@@ -2833,7 +2836,6 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
                 break;
               }
               wtap_dump_close(pdh, &err);
-              g_free(idb_inf);
               g_free(shb_hdr);
               exit(2);
             }
@@ -2885,7 +2887,6 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
               break;
             }
             wtap_dump_close(pdh, &err);
-            g_free(idb_inf);
             g_free(shb_hdr);
             exit(2);
           }
@@ -2993,7 +2994,6 @@ out:
   cf->wth = NULL;
 
   g_free(save_file_string);
-  g_free(idb_inf);
   g_free(shb_hdr);
 
   return err;

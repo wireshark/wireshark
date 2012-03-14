@@ -1155,11 +1155,15 @@ main(int argc, char *argv[])
         pdh = wtap_dump_open_ng(filename, out_file_type, out_frame_type,
           snaplen ? MIN(snaplen, wtap_snapshot_length(wth)) : wtap_snapshot_length(wth),
           FALSE /* compressed */, shb_hdr, idb_inf, &err);
+
         if (pdh == NULL) {
           fprintf(stderr, "editcap: Can't open or create %s: %s\n", filename,
                   wtap_strerror(err));
           exit(2);
         }
+
+        g_free(idb_inf);
+        idb_inf = NULL;
       }
 
       g_assert(filename);
@@ -1522,7 +1526,6 @@ main(int argc, char *argv[])
       exit(2);
 
     }
-    g_free(idb_inf);
     g_free(shb_hdr);
     g_free(filename);
   }
