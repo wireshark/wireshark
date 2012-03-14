@@ -58,18 +58,18 @@
 
 
 typedef struct __subtree_lvl {
-  gint cursor_offset;
-  proto_item * it;
-  proto_tree * tree;
-}subtree_lvl;
+	gint cursor_offset;
+	proto_item  *it;
+	proto_tree  *tree;
+} subtree_lvl;
 
 struct ptvcursor {
-	subtree_lvl	*pushed_tree;
-	guint8		pushed_tree_index;
-	guint8		pushed_tree_max;
-	proto_tree	*tree;
-	tvbuff_t	*tvb;
-	gint		offset;
+	subtree_lvl *pushed_tree;
+	guint8	     pushed_tree_index;
+	guint8	     pushed_tree_max;
+	proto_tree  *tree;
+	tvbuff_t    *tvb;
+	gint	     offset;
 };
 
 /* Candidates for assembler */
@@ -104,7 +104,7 @@ wrs_count_bitshift(const guint32 bitmask)
 	   not to do so. \
 	*/								\
 	if (!tree)							\
-		return(NULL);						\
+		return NULL;						\
 	PTREE_DATA(tree)->count++;					\
 	if (PTREE_DATA(tree)->count > MAX_TREE_ITEMS) {			\
 		if (getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG") != NULL) \
@@ -115,11 +115,11 @@ wrs_count_bitshift(const guint32 bitmask)
 			ep_strdup_printf("More than %d items in the tree -- possible infinite loop", MAX_TREE_ITEMS)); \
 	}								\
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);			\
-	if(!(PTREE_DATA(tree)->visible)){				\
-		if(PTREE_FINFO(tree)){					\
-			if((hfinfo->ref_type != HF_REF_TYPE_DIRECT)	\
-			&& (hfinfo->type!=FT_PROTOCOL ||		\
-				PTREE_DATA(tree)->fake_protocols)){	\
+	if (!(PTREE_DATA(tree)->visible)) {				\
+		if (PTREE_FINFO(tree)) {				\
+			if ((hfinfo->ref_type != HF_REF_TYPE_DIRECT)	\
+			    && (hfinfo->type != FT_PROTOCOL ||		\
+				PTREE_DATA(tree)->fake_protocols)) {	\
 				/* just return tree back to the caller */\
 				return tree;				\
 			}						\
@@ -132,7 +132,7 @@ wrs_count_bitshift(const guint32 bitmask)
 #if 1
 #define TRY_TO_FAKE_THIS_REPR(tree, pi) \
 	DISSECTOR_ASSERT(tree); \
-	if(!(PTREE_DATA(tree)->visible)) { \
+	if (!(PTREE_DATA(tree)->visible)) { \
 		/* If the tree (GUI) isn't visible it's pointless for us to generate the protocol \
 		 * items string representation */ \
 		return pi; \
@@ -248,15 +248,15 @@ int hf_text_only = -1;
 
 /* Structure for information about a protocol */
 struct _protocol {
-	const char *name;		/* long description */
-	const char *short_name;		/* short description */
-	const char *filter_name;	/* name of this protocol in filters */
-	int	proto_id;		/* field ID for this protocol */
-	GList	*fields;		/* fields for this protocol */
-	GList	*last_field;		/* pointer to end of list of fields */
-	gboolean is_enabled;		/* TRUE if protocol is enabled */
-	gboolean can_toggle;		/* TRUE if is_enabled can be changed */
-	gboolean is_private;		/* TRUE is protocol is private */
+	const char *name;         /* long description */
+	const char *short_name;   /* short description */
+	const char *filter_name;  /* name of this protocol in filters */
+	int         proto_id;     /* field ID for this protocol */
+	GList      *fields;       /* fields for this protocol */
+	GList      *last_field;   /* pointer to end of list of fields */
+	gboolean    is_enabled;   /* TRUE if protocol is enabled */
+	gboolean    can_toggle;   /* TRUE if is_enabled can be changed */
+	gboolean    is_private;   /* TRUE is protocol is private */
 };
 
 /* List of all protocols */
@@ -269,7 +269,7 @@ static GList *protocols = NULL;
 static struct ws_memory_slab field_info_slab =
 	WS_MEMORY_SLAB_INIT(field_info, 128);
 
-static field_info *field_info_tmp=NULL;
+static field_info *field_info_tmp = NULL;
 #define FIELD_INFO_NEW(fi)					\
 	fi = sl_alloc(&field_info_slab)
 #define FIELD_INFO_FREE(fi)					\
@@ -299,12 +299,12 @@ static struct ws_memory_slab item_label_slab =
 
 #define PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo) \
 	DISSECTOR_ASSERT((guint)hfindex < gpa_hfinfo.len); \
-	hfinfo=gpa_hfinfo.hfi[hfindex];
+	hfinfo = gpa_hfinfo.hfi[hfindex];
 
 /* List which stores protocols and fields that have been registered */
 typedef struct _gpa_hfinfo_t {
-	guint32 len;
-	guint32 allocated_len;
+	guint32             len;
+	guint32             allocated_len;
 	header_field_info **hfi;
 } gpa_hfinfo_t;
 gpa_hfinfo_t gpa_hfinfo;
@@ -315,7 +315,7 @@ static header_field_info *same_name_hfinfo;
 
 static void save_same_name_hfinfo(gpointer data)
 {
-  same_name_hfinfo = (header_field_info*)data;
+	same_name_hfinfo = (header_field_info*)data;
 }
 
 /* Points to the first element of an array of Booleans, indexed by
@@ -360,10 +360,10 @@ proto_init(void (register_all_protocols_func)(register_cb cb, gpointer client_da
 	proto_short_names = g_hash_table_new(wrs_str_hash, g_str_equal);
 	proto_filter_names = g_hash_table_new(wrs_str_hash, g_str_equal);
 
-	gpa_hfinfo.len=0;
-	gpa_hfinfo.allocated_len=0;
-	gpa_hfinfo.hfi=NULL;
-	gpa_name_tree = g_tree_new_full(wrs_strcmp_with_data, NULL, NULL, save_same_name_hfinfo);
+	gpa_hfinfo.len           = 0;
+	gpa_hfinfo.allocated_len = 0;
+	gpa_hfinfo.hfi           = NULL;
+	gpa_name_tree            = g_tree_new_full(wrs_strcmp_with_data, NULL, NULL, save_same_name_hfinfo);
 
 	/* Initialize the ftype subsystem */
 	ftypes_initialize();
@@ -380,7 +380,7 @@ proto_init(void (register_all_protocols_func)(register_cb cb, gpointer client_da
 	register_all_protocols_func(cb, client_data);
 #ifdef HAVE_PYTHON
 	/* Now scan for python protocols */
-	if(cb)
+	if (cb)
 		(*cb)(RA_PYTHON_REGISTER, NULL, client_data);
 	register_all_py_protocols_func();
 #endif
@@ -388,7 +388,7 @@ proto_init(void (register_all_protocols_func)(register_cb cb, gpointer client_da
 #ifdef HAVE_PLUGINS
 	/* Now scan for plugins and load all the ones we find, calling
 	   their register routines to do the stuff described above. */
-	if(cb)
+	if (cb)
 		(*cb)(RA_PLUGIN_REGISTER, NULL, client_data);
 	init_plugins();
 	register_all_plugin_registrations();
@@ -402,14 +402,14 @@ proto_init(void (register_all_protocols_func)(register_cb cb, gpointer client_da
 
 #ifdef HAVE_PYTHON
 	/* Now do the same with python dissectors */
-	if(cb)
+	if (cb)
 		(*cb)(RA_PYTHON_HANDOFF, NULL, client_data);
 	register_all_py_handoffs_func();
 #endif
 
 #ifdef HAVE_PLUGINS
 	/* Now do the same with plugins. */
-	if(cb)
+	if (cb)
 		(*cb)(RA_PLUGIN_HANDOFF, NULL, client_data);
 	register_all_plugin_handoffs();
 #endif
@@ -458,11 +458,11 @@ proto_cleanup(void)
 		proto_filter_names = NULL;
 	}
 
-	if(gpa_hfinfo.allocated_len){
-		gpa_hfinfo.len=0;
-		gpa_hfinfo.allocated_len=0;
+	if (gpa_hfinfo.allocated_len) {
+		gpa_hfinfo.len           = 0;
+		gpa_hfinfo.allocated_len = 0;
 		g_free(gpa_hfinfo.hfi);
-		gpa_hfinfo.hfi=NULL;
+		gpa_hfinfo.hfi           = NULL;
 	}
 	g_free(tree_is_expanded);
 	tree_is_expanded = NULL;
@@ -488,8 +488,7 @@ proto_tree_traverse_pre_order(proto_tree *tree, proto_tree_traverse_func func,
 		 */
 		current = child;
 		child = current->next;
-		if (proto_tree_traverse_pre_order((proto_tree *)current, func,
-			data))
+		if (proto_tree_traverse_pre_order((proto_tree *)current, func, data))
 			return TRUE;
 	}
 
@@ -513,8 +512,7 @@ proto_tree_traverse_post_order(proto_tree *tree, proto_tree_traverse_func func,
 		 */
 		current = child;
 		child = current->next;
-		if (proto_tree_traverse_post_order((proto_tree *)current, func,
-			data))
+		if (proto_tree_traverse_post_order((proto_tree *)current, func, data))
 			return TRUE;
 	}
 	if (func(pnode, data))
@@ -548,17 +546,17 @@ proto_tree_free(proto_tree *tree)
 static void
 free_GPtrArray_value(gpointer key, gpointer value, gpointer user_data _U_)
 {
-	GPtrArray	*ptrs = value;
-	gint hfid = (gint)(long)key;
+	GPtrArray         *ptrs = value;
+	gint               hfid = (gint)(long)key;
 	header_field_info *hfinfo;
 
 	PROTO_REGISTRAR_GET_NTH(hfid, hfinfo);
-	if(hfinfo->ref_type != HF_REF_TYPE_NONE) {
+	if (hfinfo->ref_type != HF_REF_TYPE_NONE) {
 		/* when a field is referenced by a filter this also
 		   affects the refcount for the parent protocol so we need
 		   to adjust the refcount for the parent as well
 		*/
-		if( hfinfo->parent != -1 ) {
+		if (hfinfo->parent != -1) {
 			header_field_info *parent_hfinfo;
 			PROTO_REGISTRAR_GET_NTH(hfinfo->parent, parent_hfinfo);
 			parent_hfinfo->ref_type = HF_REF_TYPE_NONE;
@@ -586,7 +584,7 @@ free_node_tree_data(tree_data_t *tree_data)
 }
 
 #define FREE_NODE_FIELD_INFO(finfo)	\
-	if(finfo->rep){			\
+	if (finfo->rep) {			\
 		ITEM_LABEL_FREE(finfo->rep);	\
 	}				\
 	FVALUE_CLEANUP(&finfo->value);	\
@@ -603,7 +601,8 @@ proto_tree_free_node(proto_node *node, gpointer data _U_)
 	if (finfo == NULL) {
 		/* This is the root node. Destroy the per-tree data.
 		 * There is no field_info to destroy. */
-		if (PTREE_DATA(node)) free_node_tree_data(PTREE_DATA(node));
+		if (PTREE_DATA(node))
+			free_node_tree_data(PTREE_DATA(node));
 	}
 	else {
 		/* This is a child node. Don't free the per-tree data, but
@@ -698,7 +697,7 @@ proto_field_is_referenced(proto_tree *tree, int proto_id)
 header_field_info *
 proto_registrar_get_nth(guint hfindex)
 {
-	register header_field_info	*hfinfo;
+	register header_field_info *hfinfo;
 
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 	return hfinfo;
@@ -716,7 +715,7 @@ static guint
 prefix_hash (gconstpointer key) {
 	/* end the string at the dot and compute its hash */
 	gchar* copy = ep_strdup(key);
-	gchar* c = copy;
+	gchar* c    = copy;
 
 	for (;*c ;c++) {
 		if (*c == '.') {
@@ -730,7 +729,7 @@ prefix_hash (gconstpointer key) {
 
 /* are both strings equal up to the end or the dot? */
 static gboolean
-prefix_equal (gconstpointer ap,gconstpointer bp) {
+prefix_equal (gconstpointer ap, gconstpointer bp) {
 	const gchar* a = ap;
 	const gchar* b = bp;
 
@@ -738,13 +737,13 @@ prefix_equal (gconstpointer ap,gconstpointer bp) {
 		gchar ac = *a++;
 		gchar bc = *b++;
 
-		if ((ac == '.' || ac == '\0') && (bc == '.' || bc == '\0')) return TRUE;
+		if ( (ac == '.' || ac == '\0') &&   (bc == '.' || bc == '\0') ) return TRUE;
 
 		if ( (ac == '.' || ac == '\0') && ! (bc == '.' || bc == '\0') ) return FALSE;
 		if ( (bc == '.' || bc == '\0') && ! (ac == '.' || ac == '\0') ) return FALSE;
 
 		if (ac != bc) return FALSE;
-	} while(1);
+	} while (1);
 
 	return FALSE;
 }
@@ -758,10 +757,10 @@ static GHashTable* prefixes = NULL;
 void
 proto_register_prefix(const char *prefix, prefix_initializer_t pi ) {
 	if (! prefixes ) {
-		prefixes = g_hash_table_new(prefix_hash,prefix_equal);
+		prefixes = g_hash_table_new(prefix_hash, prefix_equal);
 	}
 
-	g_hash_table_insert(prefixes,(gpointer)prefix,pi);
+	g_hash_table_insert(prefixes, (gpointer)prefix, pi);
 }
 
 /* helper to call all prefix initializers */
@@ -785,21 +784,23 @@ proto_initialize_all_prefixes(void) {
 header_field_info *
 proto_registrar_get_byname(const char *field_name)
 {
-	header_field_info* hfinfo;
-	prefix_initializer_t pi;
+	header_field_info    *hfinfo;
+	prefix_initializer_t  pi;
 
 	if (!field_name)
 		return NULL;
 
 	hfinfo = g_tree_lookup(gpa_name_tree, field_name);
 
-	if (hfinfo) return hfinfo;
+	if (hfinfo)
+		return hfinfo;
 
-	if	(!prefixes) return NULL;
+	if (!prefixes)
+		return NULL;
 
-	if(( pi = g_hash_table_lookup(prefixes,field_name) )) {
+	if ((pi = g_hash_table_lookup(prefixes, field_name) )) {
 		pi(field_name);
-		g_hash_table_remove(prefixes,field_name);
+		g_hash_table_remove(prefixes, field_name);
 	} else {
 		return NULL;
 	}
@@ -809,9 +810,9 @@ proto_registrar_get_byname(const char *field_name)
 
 
 static void
-ptvcursor_new_subtree_levels(ptvcursor_t * ptvc)
+ptvcursor_new_subtree_levels(ptvcursor_t *ptvc)
 {
-	subtree_lvl * pushed_tree;
+	subtree_lvl *pushed_tree;
 
 	DISSECTOR_ASSERT(ptvc->pushed_tree_max <= SUBTREE_MAX_LEVELS-SUBTREE_ONCE_ALLOCATION_NUMBER);
 	ptvc->pushed_tree_max += SUBTREE_ONCE_ALLOCATION_NUMBER;
@@ -824,11 +825,11 @@ ptvcursor_new_subtree_levels(ptvcursor_t * ptvc)
 }
 
 static void
-ptvcursor_free_subtree_levels(ptvcursor_t * ptvc)
+ptvcursor_free_subtree_levels(ptvcursor_t *ptvc)
 {
-	ptvc->pushed_tree = NULL;
-	ptvc->pushed_tree_max = 0;
-	DISSECTOR_ASSERT(ptvc->pushed_tree_index ==0);
+	ptvc->pushed_tree       = NULL;
+	ptvc->pushed_tree_max   = 0;
+	DISSECTOR_ASSERT(ptvc->pushed_tree_index == 0);
 	ptvc->pushed_tree_index = 0;
 }
 
@@ -839,13 +840,13 @@ ptvcursor_new(proto_tree *tree, tvbuff_t *tvb, gint offset)
 {
 	ptvcursor_t	*ptvc;
 
-	ptvc = ep_alloc(sizeof(ptvcursor_t));
-	ptvc->tree	= tree;
-	ptvc->tvb	= tvb;
-	ptvc->offset	= offset;
-	ptvc->pushed_tree= NULL;
-	ptvc->pushed_tree_max= 0;
-	ptvc->pushed_tree_index= 0;
+	ptvc                    = ep_alloc(sizeof(ptvcursor_t));
+	ptvc->tree              = tree;
+	ptvc->tvb               = tvb;
+	ptvc->offset            = offset;
+	ptvc->pushed_tree       = NULL;
+	ptvc->pushed_tree_max   = 0;
+	ptvc->pushed_tree_index = 0;
 	return ptvc;
 }
 
@@ -860,20 +861,20 @@ ptvcursor_free(ptvcursor_t *ptvc)
 
 /* Returns tvbuff. */
 tvbuff_t *
-ptvcursor_tvbuff(ptvcursor_t* ptvc)
+ptvcursor_tvbuff(ptvcursor_t *ptvc)
 {
 	return ptvc->tvb;
 }
 
 /* Returns current offset. */
 gint
-ptvcursor_current_offset(ptvcursor_t* ptvc)
+ptvcursor_current_offset(ptvcursor_t *ptvc)
 {
 	return ptvc->offset;
 }
 
 proto_tree *
-ptvcursor_tree(ptvcursor_t* ptvc)
+ptvcursor_tree(ptvcursor_t *ptvc)
 {
 	if (!ptvc)
 		return NULL;
@@ -882,7 +883,7 @@ ptvcursor_tree(ptvcursor_t* ptvc)
 }
 
 void
-ptvcursor_set_tree(ptvcursor_t* ptvc, proto_tree *tree)
+ptvcursor_set_tree(ptvcursor_t *ptvc, proto_tree *tree)
 {
 	ptvc->tree = tree;
 }
@@ -891,7 +892,7 @@ ptvcursor_set_tree(ptvcursor_t* ptvc, proto_tree *tree)
 proto_tree *
 ptvcursor_push_subtree(ptvcursor_t *ptvc, proto_item *it, gint ett_subtree)
 {
-	subtree_lvl * subtree;
+	subtree_lvl *subtree;
 	if (ptvc->pushed_tree_index >= ptvc->pushed_tree_max)
 		ptvcursor_new_subtree_levels(ptvc);
 
@@ -906,7 +907,7 @@ ptvcursor_push_subtree(ptvcursor_t *ptvc, proto_item *it, gint ett_subtree)
 void
 ptvcursor_pop_subtree(ptvcursor_t *ptvc)
 {
-	subtree_lvl * subtree;
+	subtree_lvl *subtree;
 	if (ptvc->pushed_tree_index <= 0)
 		return;
 
@@ -920,9 +921,9 @@ ptvcursor_pop_subtree(ptvcursor_t *ptvc)
 
 /* saves the current tvb offset and the item in the current subtree level */
 static void
-ptvcursor_subtree_set_item(ptvcursor_t * ptvc, proto_item * it)
+ptvcursor_subtree_set_item(ptvcursor_t *ptvc, proto_item *it)
 {
-	subtree_lvl * subtree;
+	subtree_lvl *subtree;
 
 	DISSECTOR_ASSERT(ptvc->pushed_tree_index > 0);
 
@@ -941,7 +942,7 @@ ptvcursor_set_subtree(ptvcursor_t *ptvc, proto_item *it, gint ett_subtree)
 }
 
 static proto_tree *
-ptvcursor_add_subtree_item(ptvcursor_t * ptvc, proto_item * it, gint ett_subtree, gint length)
+ptvcursor_add_subtree_item(ptvcursor_t *ptvc, proto_item *it, gint ett_subtree, gint length)
 {
 	ptvcursor_push_subtree(ptvc, it, ett_subtree);
 	if (length == SUBTREE_UNDEFINED_LENGTH)
@@ -955,10 +956,10 @@ ptvcursor_add_subtree_item(ptvcursor_t * ptvc, proto_item * it, gint ett_subtree
  * be equal to the advancement of the cursor since the creation of the subtree.
  */
 proto_tree *
-ptvcursor_add_with_subtree(ptvcursor_t * ptvc, int hfindex, gint length,
+ptvcursor_add_with_subtree(ptvcursor_t *ptvc, int hfindex, gint length,
 			   const guint encoding, gint ett_subtree)
 {
-	proto_item * it;
+	proto_item *it;
 
 	it = ptvcursor_add_no_advance(ptvc, hfindex, length, encoding);
 	return ptvcursor_add_subtree_item(ptvc, it, ett_subtree, length);
@@ -973,12 +974,12 @@ proto_tree_add_text_node(proto_tree *tree, tvbuff_t *tvb, gint start, gint lengt
  * to the advancement of the cursor since the creation of the subtree.
  */
 proto_tree *
-ptvcursor_add_text_with_subtree(ptvcursor_t * ptvc, gint length,
+ptvcursor_add_text_with_subtree(ptvcursor_t *ptvc, gint length,
 				gint ett_subtree, const char *format, ...)
 {
-	proto_item *	it;
-	va_list	ap;
-	header_field_info	*hfinfo;
+	proto_item        *it;
+	va_list            ap;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(ptvcursor_tree(ptvc), hf_text_only, hfinfo);
 
@@ -986,7 +987,7 @@ ptvcursor_add_text_with_subtree(ptvcursor_t * ptvc, gint length,
 				      ptvcursor_current_offset(ptvc), length);
 
 	if (it == NULL)
-		return(NULL);
+		return NULL;
 
 	va_start(ap, format);
 	proto_tree_set_representation(it, format, ap);
@@ -999,11 +1000,11 @@ ptvcursor_add_text_with_subtree(ptvcursor_t * ptvc, gint length,
 static proto_item *
 proto_tree_add_text_node(proto_tree *tree, tvbuff_t *tvb, gint start, gint length)
 {
-	proto_item	*pi;
+	proto_item *pi;
 
 	pi = proto_tree_add_pi(tree, hf_text_only, tvb, start, &length, NULL);
 	if (pi == NULL)
-		return(NULL);
+		return NULL;
 
 	return pi;
 }
@@ -1013,15 +1014,15 @@ proto_item *
 proto_tree_add_text(proto_tree *tree, tvbuff_t *tvb, gint start, gint length,
 		    const char *format, ...)
 {
-	proto_item		*pi;
-	va_list			ap;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	va_list		   ap;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hf_text_only, hfinfo);
 
 	pi = proto_tree_add_text_node(tree, tvb, start, length);
 	if (pi == NULL)
-		return(NULL);
+		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -1037,14 +1038,14 @@ proto_item *
 proto_tree_add_text_valist(proto_tree *tree, tvbuff_t *tvb, gint start,
 			   gint length, const char *format, va_list ap)
 {
-	proto_item	*pi;
-	header_field_info	*hfinfo;
+	proto_item        *pi;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hf_text_only, hfinfo);
 
 	pi = proto_tree_add_text_node(tree, tvb, start, length);
 	if (pi == NULL)
-		return(NULL);
+		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -1059,8 +1060,8 @@ proto_tree_add_text_valist(proto_tree *tree, tvbuff_t *tvb, gint start,
 proto_item *
 proto_tree_add_debug_text(proto_tree *tree, const char *format, ...)
 {
-	proto_item	*pi;
-	va_list		ap;
+	proto_item *pi;
+	va_list	    ap;
 
 	pi = proto_tree_add_text_node(tree, NULL, 0, 0);
 
@@ -1197,14 +1198,14 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 		    tvbuff_t *tvb, gint start, gint length,
 		    const guint encoding_arg)
 {
-	guint		encoding = encoding_arg;
-	proto_item	*pi;
-	guint32		value, n;
-	float		floatval;
-	double		doubleval;
-	const char	*string;
-	nstime_t	time_stamp;
-	GPtrArray	*ptrs;
+	guint	    encoding = encoding_arg;
+	proto_item *pi;
+	guint32	    value, n;
+	float	    floatval;
+	double	    doubleval;
+	const char *string;
+	nstime_t    time_stamp;
+	GPtrArray  *ptrs;
 
 	/* there is a possibility here that we might raise an exception
 	 * and thus would lose track of the field_info.
@@ -1215,7 +1216,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 	   if we ever go multithreaded for calls to this function
 	   we have to change this code to use per thread variable.
 	*/
-	if(field_info_tmp){
+	if (field_info_tmp) {
 		/* oops, last one we got must have been lost due
 		 * to an exception.
 		 * good thing we saved it, now we can reverse the
@@ -1226,9 +1227,9 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 	/* we might throw an exception, keep track of this one
 	 * across the "dangerous" section below.
 	*/
-	field_info_tmp=new_fi;
+	field_info_tmp = new_fi;
 
-	switch(new_fi->hfinfo->type) {
+	switch (new_fi->hfinfo->type) {
 		case FT_NONE:
 			/* no value to set for FT_NONE */
 			break;
@@ -1336,7 +1337,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			break;
 
 		case FT_IPv6:
-			DISSECTOR_ASSERT(length >=0 && length <= FT_IPv6_LEN);
+			DISSECTOR_ASSERT(length >= 0 && length <= FT_IPv6_LEN);
 			proto_tree_set_ipv6_tvb(new_fi, tvb, start, length);
 			break;
 
@@ -1682,7 +1683,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 	/* we did not raise an exception so we dont have to remember this
 	 * field_info struct any more.
 	 */
-	field_info_tmp=NULL;
+	field_info_tmp = NULL;
 
 	/* If the proto_tree wants to keep a record of this finfo
 	 * for quick lookup, then record it. */
@@ -1699,11 +1700,11 @@ proto_item *
 ptvcursor_add(ptvcursor_t *ptvc, int hfindex, gint length,
 	      const guint encoding)
 {
-	field_info		*new_fi;
-	header_field_info	*hfinfo;
-	gint			item_length;
-	guint32			n;
-	int			offset;
+	field_info	  *new_fi;
+	header_field_info *hfinfo;
+	gint		   item_length;
+	guint32		   n;
+	int		   offset;
 
 	/* We can't fake it just yet. We have to advance the cursor
 	TRY_TO_FAKE_THIS_ITEM(ptvc->tree, hfindex, hfinfo); */
@@ -1738,15 +1739,15 @@ proto_item *
 proto_tree_add_item(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
 		    const gint start, gint length, const guint encoding)
 {
-	field_info	*new_fi;
-	header_field_info	*hfinfo;
+	field_info        *new_fi;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	new_fi = alloc_field_info(tree, hfindex, tvb, start, &length);
 
 	if (new_fi == NULL)
-		return(NULL);
+		return NULL;
 
 	return proto_tree_new_item(new_fi, tree, tvb, start,
 		length, encoding);
@@ -1758,9 +1759,9 @@ proto_tree_add_none_format(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
 			   const gint start, gint length, const char *format,
 			   ...)
 {
-	proto_item		*pi;
-	va_list			ap;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	va_list		   ap;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
@@ -1784,7 +1785,7 @@ proto_item *
 ptvcursor_add_no_advance(ptvcursor_t* ptvc, int hf, gint length,
 			 const guint encoding)
 {
-	proto_item	*item;
+	proto_item *item;
 
 	item = proto_tree_add_item(ptvc->tree, hf, ptvc->tvb, ptvc->offset,
 				   length, encoding);
@@ -1812,10 +1813,10 @@ proto_item *
 proto_tree_add_protocol_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			       gint start, gint length, const char *format, ...)
 {
-	proto_item		*pi;
-	va_list			ap;
-	field_info		*new_fi;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	va_list		   ap;
+	field_info	  *new_fi;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
@@ -1840,9 +1841,9 @@ proto_item *
 proto_tree_add_bytes(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 		     gint length, const guint8 *start_ptr)
 {
-	proto_item		*pi;
-	field_info		*new_fi;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	field_info	  *new_fi;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
@@ -1860,9 +1861,9 @@ proto_tree_add_bytes_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 				  const guint8 *start_ptr,
 				  const char *format, ...)
 {
-	proto_item		*pi;
-	va_list			ap;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	va_list		   ap;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
@@ -1874,7 +1875,7 @@ proto_tree_add_bytes_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 					  tvb_get_ptr(tvb, start, length));
 
 	if (pi == NULL)
-		return (NULL);
+		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -1890,9 +1891,9 @@ proto_tree_add_bytes_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			    gint start, gint length, const guint8 *start_ptr,
 			    const char *format, ...)
 {
-	proto_item		*pi;
-	va_list			ap;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	va_list		   ap;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
@@ -1904,7 +1905,7 @@ proto_tree_add_bytes_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 					  tvb_get_ptr(tvb, start, length));
 
 	if (pi == NULL)
-		return (NULL);
+		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -1918,7 +1919,7 @@ proto_tree_add_bytes_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 static void
 proto_tree_set_bytes(field_info *fi, const guint8* start_ptr, gint length)
 {
-	GByteArray		*bytes;
+	GByteArray *bytes;
 
 	bytes = g_byte_array_new();
 	if (length > 0) {
@@ -1939,9 +1940,9 @@ proto_item *
 proto_tree_add_time(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 		    gint length, nstime_t *value_ptr)
 {
-	proto_item		*pi;
-	field_info		*new_fi;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	field_info	  *new_fi;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
@@ -1959,15 +1960,15 @@ proto_tree_add_time_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 				 gint start, gint length, nstime_t *value_ptr,
 				 const char *format, ...)
 {
-	proto_item		*pi;
-	va_list			ap;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	va_list		   ap;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_time(tree, hfindex, tvb, start, length, value_ptr);
 	if (pi == NULL)
-		return (NULL);
+		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -1983,15 +1984,15 @@ proto_tree_add_time_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			   gint start, gint length, nstime_t *value_ptr,
 			   const char *format, ...)
 {
-	proto_item		*pi;
-	va_list			ap;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	va_list		   ap;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_time(tree, hfindex, tvb, start, length, value_ptr);
 	if (pi == NULL)
-		return (NULL);
+		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -2016,9 +2017,9 @@ proto_item *
 proto_tree_add_ipxnet(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 		      gint length, guint32 value)
 {
-	proto_item		*pi;
-	field_info		*new_fi;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	field_info	  *new_fi;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
@@ -2035,15 +2036,15 @@ proto_tree_add_ipxnet_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 				   gint start, gint length, guint32 value,
 				   const char *format, ...)
 {
-	proto_item		*pi;
-	va_list			ap;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	va_list		   ap;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_ipxnet(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
-		return (NULL);
+		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -2059,15 +2060,15 @@ proto_tree_add_ipxnet_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			     gint start, gint length, guint32 value,
 			     const char *format, ...)
 {
-	proto_item		*pi;
-	va_list			ap;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	va_list		   ap;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_ipxnet(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
-		return (NULL);
+		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -2090,9 +2091,9 @@ proto_item *
 proto_tree_add_ipv4(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 		    gint length, guint32 value)
 {
-	proto_item		*pi;
-	field_info		*new_fi;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	field_info	  *new_fi;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
@@ -2109,15 +2110,15 @@ proto_tree_add_ipv4_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 				 gint start, gint length, guint32 value,
 				 const char *format, ...)
 {
-	proto_item		*pi;
-	va_list			ap;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	va_list		   ap;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_ipv4(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
-		return (NULL);
+		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -2133,15 +2134,15 @@ proto_tree_add_ipv4_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			   gint start, gint length, guint32 value,
 			   const char *format, ...)
 {
-	proto_item		*pi;
-	va_list			ap;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	va_list		   ap;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_ipv4(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
-		return (NULL);
+		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -2164,9 +2165,9 @@ proto_item *
 proto_tree_add_ipv6(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 		    gint length, const guint8* value_ptr)
 {
-	proto_item		*pi;
-	field_info		*new_fi;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	field_info	  *new_fi;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
@@ -2184,15 +2185,15 @@ proto_tree_add_ipv6_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 				 const guint8* value_ptr,
 				 const char *format, ...)
 {
-	proto_item		*pi;
-	va_list			ap;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	va_list		   ap;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_ipv6(tree, hfindex, tvb, start, length, value_ptr);
 	if (pi == NULL)
-		return (NULL);
+		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -2208,15 +2209,15 @@ proto_tree_add_ipv6_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			   gint start, gint length, const guint8* value_ptr,
 			   const char *format, ...)
 {
-	proto_item		*pi;
-	va_list			ap;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	va_list		   ap;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_ipv6(tree, hfindex, tvb, start, length, value_ptr);
 	if (pi == NULL)
-		return (NULL);
+		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -2246,9 +2247,9 @@ proto_item *
 proto_tree_add_guid(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 		    gint length, const e_guid_t *value_ptr)
 {
-	proto_item		*pi;
-	field_info		*new_fi;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	field_info	  *new_fi;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
@@ -2266,15 +2267,15 @@ proto_tree_add_guid_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 				 const e_guid_t *value_ptr,
 				 const char *format, ...)
 {
-	proto_item		*pi;
-	va_list			ap;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	va_list		   ap;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_guid(tree, hfindex, tvb, start, length, value_ptr);
 	if (pi == NULL)
-		return (NULL);
+		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -2290,15 +2291,15 @@ proto_tree_add_guid_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			   gint start, gint length, const e_guid_t *value_ptr,
 			   const char *format, ...)
 {
-	proto_item		*pi;
-	va_list			ap;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	va_list		   ap;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_guid(tree, hfindex, tvb, start, length, value_ptr);
 	if (pi == NULL)
-		return (NULL);
+		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -2332,9 +2333,9 @@ proto_item *
 proto_tree_add_oid(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 		   gint length, const guint8* value_ptr)
 {
-	proto_item		*pi;
-	field_info		*new_fi;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	field_info	  *new_fi;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
@@ -2352,15 +2353,15 @@ proto_tree_add_oid_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 				const guint8* value_ptr,
 				const char *format, ...)
 {
-	proto_item		*pi;
-	va_list			ap;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	va_list		   ap;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_oid(tree, hfindex, tvb, start, length, value_ptr);
 	if (pi == NULL)
-		return (NULL);
+		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -2376,15 +2377,15 @@ proto_tree_add_oid_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			  gint start, gint length, const guint8* value_ptr,
 			  const char *format, ...)
 {
-	proto_item		*pi;
-	va_list			ap;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	va_list		   ap;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_oid(tree, hfindex, tvb, start, length, value_ptr);
 	if (pi == NULL)
-		return (NULL);
+		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -2399,7 +2400,7 @@ proto_tree_add_oid_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 static void
 proto_tree_set_oid(field_info *fi, const guint8* value_ptr, gint length)
 {
-	GByteArray		*bytes;
+	GByteArray *bytes;
 
 	DISSECTOR_ASSERT(value_ptr != NULL);
 
@@ -2433,11 +2434,11 @@ proto_tree_set_uint64_tvb(field_info *fi, tvbuff_t *tvb, gint start,
 			  guint length, const guint encoding)
 {
 	guint64 value = 0;
-	guint8* b = ep_tvb_memdup(tvb,start,length);
+	guint8* b = ep_tvb_memdup(tvb, start, length);
 
-	if(encoding) {
+	if (encoding) {
 		b += length;
-		switch(length) {
+		switch (length) {
 			default: DISSECTOR_ASSERT_NOT_REACHED();
 			case 8: value <<= 8; value += *--b;
 			case 7: value <<= 8; value += *--b;
@@ -2450,7 +2451,7 @@ proto_tree_set_uint64_tvb(field_info *fi, tvbuff_t *tvb, gint start,
 				break;
 		}
 	} else {
-		switch(length) {
+		switch (length) {
 			default: DISSECTOR_ASSERT_NOT_REACHED();
 			case 8: value <<= 8; value += *b++;
 			case 7: value <<= 8; value += *b++;
@@ -2473,9 +2474,9 @@ proto_item *
 proto_tree_add_string(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 		      gint length, const char* value)
 {
-	proto_item		*pi;
-	field_info		*new_fi;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	field_info	  *new_fi;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
@@ -2494,15 +2495,15 @@ proto_tree_add_string_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 				   const char *format,
 				   ...)
 {
-	proto_item		*pi;
-	va_list			ap;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	va_list		   ap;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_string(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
-		return (NULL);
+		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -2518,15 +2519,15 @@ proto_tree_add_string_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			     gint start, gint length, const char* value,
 			     const char *format, ...)
 {
-	proto_item		*pi;
-	va_list			ap;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	va_list		   ap;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_string(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
-		return (NULL);
+		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -2556,9 +2557,9 @@ proto_tree_add_string_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 void
 proto_item_append_string(proto_item *pi, const char *str)
 {
-	field_info *fi;
+	field_info        *fi;
 	header_field_info *hfinfo;
-	gchar *old_str, *new_str;
+	gchar             *old_str, *new_str;
 
 	if (!pi)
 		return;
@@ -2608,9 +2609,9 @@ proto_item *
 proto_tree_add_ether(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 		     gint length, const guint8* value)
 {
-	proto_item		*pi;
-	field_info		*new_fi;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	field_info	  *new_fi;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
@@ -2627,15 +2628,15 @@ proto_tree_add_ether_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 				  gint start, gint length, const guint8* value,
 				  const char *format, ...)
 {
-	proto_item		*pi;
-	va_list			ap;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	va_list		   ap;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_ether(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
-		return (NULL);
+		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -2651,15 +2652,15 @@ proto_tree_add_ether_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			    gint start, gint length, const guint8* value,
 			    const char *format, ...)
 {
-	proto_item		*pi;
-	va_list			ap;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	va_list		   ap;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_ether(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
-		return (NULL);
+		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -2688,9 +2689,9 @@ proto_item *
 proto_tree_add_boolean(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 		       gint length, guint32 value)
 {
-	proto_item		*pi;
-	field_info		*new_fi;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	field_info	  *new_fi;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
@@ -2707,15 +2708,15 @@ proto_tree_add_boolean_format_value(proto_tree *tree, int hfindex,
 				    tvbuff_t *tvb, gint start, gint length,
 				    guint32 value, const char *format, ...)
 {
-	proto_item		*pi;
-	va_list			ap;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	va_list		   ap;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_boolean(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
-		return (NULL);
+		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -2731,15 +2732,15 @@ proto_tree_add_boolean_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			      gint start, gint length, guint32 value,
 			      const char *format, ...)
 {
-	proto_item		*pi;
-	va_list			ap;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	va_list		   ap;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_boolean(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
-		return (NULL);
+		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -2762,9 +2763,9 @@ proto_item *
 proto_tree_add_float(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 		     gint length, float value)
 {
-	proto_item		*pi;
-	field_info		*new_fi;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	field_info	  *new_fi;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
@@ -2781,15 +2782,15 @@ proto_tree_add_float_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 				  gint start, gint length, float value,
 				  const char *format, ...)
 {
-	proto_item		*pi;
-	va_list			ap;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	va_list		   ap;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_float(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
-		return (NULL);
+		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -2805,15 +2806,15 @@ proto_tree_add_float_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			    gint start, gint length, float value,
 			    const char *format, ...)
 {
-	proto_item		*pi;
-	va_list			ap;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	va_list		   ap;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_float(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
-		return (NULL);
+		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -2836,9 +2837,9 @@ proto_item *
 proto_tree_add_double(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 		      gint length, double value)
 {
-	proto_item		*pi;
-	field_info		*new_fi;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	field_info	  *new_fi;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
@@ -2855,15 +2856,15 @@ proto_tree_add_double_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 				   gint start, gint length, double value,
 				   const char *format, ...)
 {
-	proto_item		*pi;
-	va_list			ap;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	va_list		   ap;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_double(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
-		return (NULL);
+		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -2879,15 +2880,15 @@ proto_tree_add_double_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			     gint start, gint length, double value,
 			     const char *format, ...)
 {
-	proto_item		*pi;
-	va_list			ap;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	va_list		   ap;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_double(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
-		return (NULL);
+		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -2910,13 +2911,13 @@ proto_item *
 proto_tree_add_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 		    gint length, guint32 value)
 {
-	proto_item		*pi = NULL;
-	field_info		*new_fi;
-	header_field_info	*hfinfo;
+	proto_item	  *pi = NULL;
+	field_info	  *new_fi;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
-	switch(hfinfo->type) {
+	switch (hfinfo->type) {
 		case FT_UINT8:
 		case FT_UINT16:
 		case FT_UINT24:
@@ -2939,15 +2940,15 @@ proto_tree_add_uint_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 				 gint start, gint length, guint32 value,
 				 const char *format, ...)
 {
-	proto_item		*pi;
-	va_list			ap;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	va_list		   ap;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_uint(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
-		return (NULL);
+		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -2963,15 +2964,15 @@ proto_tree_add_uint_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			   gint start, gint length, guint32 value,
 			   const char *format, ...)
 {
-	proto_item		*pi;
-	va_list			ap;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	va_list		   ap;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_uint(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
-		return (NULL);
+		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -2986,8 +2987,8 @@ proto_tree_add_uint_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 static void
 proto_tree_set_uint(field_info *fi, guint32 value)
 {
-	header_field_info	*hfinfo;
-	guint32			integer;
+	header_field_info *hfinfo;
+	guint32		   integer;
 
 	hfinfo = fi->hfinfo;
 	integer = value;
@@ -3010,9 +3011,9 @@ proto_item *
 proto_tree_add_uint64(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 		      gint length, guint64 value)
 {
-	proto_item		*pi = NULL;
-	field_info		*new_fi;
-	header_field_info	*hfinfo;
+	proto_item	  *pi = NULL;
+	field_info	  *new_fi;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
@@ -3029,15 +3030,15 @@ proto_tree_add_uint64_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 				   gint start, gint length, guint64 value,
 				   const char *format, ...)
 {
-	proto_item		*pi;
-	va_list			ap;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	va_list		   ap;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_uint64(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
-		return (NULL);
+		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -3053,15 +3054,15 @@ proto_tree_add_uint64_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			     gint start, gint length, guint64 value,
 			     const char *format, ...)
 {
-	proto_item		*pi;
-	va_list			ap;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	va_list		   ap;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_uint64(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
-		return (NULL);
+		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -3077,13 +3078,13 @@ proto_item *
 proto_tree_add_int(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 		   gint length, gint32 value)
 {
-	proto_item		*pi = NULL;
-	field_info		*new_fi;
-	header_field_info	*hfinfo;
+	proto_item	  *pi = NULL;
+	field_info	  *new_fi;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
-	switch(hfinfo->type) {
+	switch (hfinfo->type) {
 		case FT_INT8:
 		case FT_INT16:
 		case FT_INT24:
@@ -3105,15 +3106,15 @@ proto_tree_add_int_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 				gint start, gint length, gint32 value,
 				const char *format, ...)
 {
-	proto_item		*pi = NULL;
-	va_list			ap;
-	header_field_info	*hfinfo;
+	proto_item	  *pi = NULL;
+	va_list		   ap;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_int(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
-		return (NULL);
+		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -3129,15 +3130,15 @@ proto_tree_add_int_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			  gint start, gint length, gint32 value,
 			  const char *format, ...)
 {
-	proto_item		*pi = NULL;
-	va_list			ap;
-	header_field_info	*hfinfo;
+	proto_item	  *pi = NULL;
+	va_list		   ap;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_int(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
-		return (NULL);
+		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -3152,8 +3153,8 @@ proto_tree_add_int_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 static void
 proto_tree_set_int(field_info *fi, gint32 value)
 {
-	header_field_info	*hfinfo;
-	guint32			integer;
+	header_field_info *hfinfo;
+	guint32		   integer;
 
 	hfinfo = fi->hfinfo;
 	integer = (guint32) value;
@@ -3176,9 +3177,9 @@ proto_item *
 proto_tree_add_int64(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 		     gint length, gint64 value)
 {
-	proto_item		*pi = NULL;
-	field_info		*new_fi;
-	header_field_info	*hfinfo;
+	proto_item	  *pi = NULL;
+	field_info	  *new_fi;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
@@ -3195,15 +3196,15 @@ proto_tree_add_int64_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 				  gint start, gint length, gint64 value,
 				  const char *format, ...)
 {
-	proto_item		*pi;
-	va_list			ap;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	va_list		   ap;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_int64(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
-		return (NULL);
+		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -3219,15 +3220,15 @@ proto_tree_add_int64_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			   gint start, gint length, gint64 value,
 			   const char *format, ...)
 {
-	proto_item		*pi;
-	va_list			ap;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	va_list		   ap;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_int64(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
-		return (NULL);
+		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -3242,9 +3243,9 @@ proto_item *
 proto_tree_add_eui64(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 		     gint length, const guint64 value)
 {
-	proto_item		*pi;
-	field_info		*new_fi;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	field_info	  *new_fi;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
@@ -3261,15 +3262,15 @@ proto_tree_add_eui64_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 				  gint start, gint length, const guint64 value,
 				  const char *format, ...)
 {
-	proto_item		*pi;
-	va_list			ap;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	va_list		   ap;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_eui64(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
-		return (NULL);
+		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -3285,15 +3286,15 @@ proto_tree_add_eui64_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			    gint start, gint length, const guint64 value,
 			    const char *format, ...)
 {
-	proto_item		*pi;
-	va_list			ap;
-	header_field_info	*hfinfo;
+	proto_item	  *pi;
+	va_list		   ap;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
 	pi = proto_tree_add_eui64(tree, hfindex, tvb, start, length, value);
 	if (pi == NULL)
-		return (NULL);
+		return NULL;
 
 	TRY_TO_FAKE_THIS_REPR(tree, pi);
 
@@ -3313,10 +3314,10 @@ proto_tree_set_eui64(field_info *fi, const guint64 value)
 static void
 proto_tree_set_eui64_tvb(field_info *fi, tvbuff_t *tvb, gint start, const guint encoding)
 {
-	if(encoding)
+	if (encoding)
 	{
 		proto_tree_set_eui64(fi, tvb_get_letoh64(tvb, start));
-	}else {
+	} else {
 		proto_tree_set_eui64(fi, tvb_get_ntoh64(tvb, start));
 	}
 }
@@ -3361,7 +3362,7 @@ proto_tree_add_node(proto_tree *tree, field_info *fi)
 		tnode->first_child = pnode;
 	tnode->last_child = pnode;
 
-	return (proto_item*)pnode;
+	return (proto_item *)pnode;
 }
 
 
@@ -3372,12 +3373,12 @@ static proto_item *
 proto_tree_add_pi(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 		  gint *length, field_info **pfi)
 {
-	proto_item	*pi;
-	field_info	*fi;
-	GPtrArray	*ptrs;
+	proto_item *pi;
+	field_info *fi;
+	GPtrArray  *ptrs;
 
 	if (!tree)
-		return(NULL);
+		return NULL;
 
 	fi = alloc_field_info(tree, hfindex, tvb, start, length);
 	pi = proto_tree_add_node(tree, fi);
@@ -3401,8 +3402,8 @@ static header_field_info *
 get_hfi_and_length(int hfindex, tvbuff_t *tvb, const gint start, gint *length,
 		   gint *item_length)
 {
-	header_field_info	*hfinfo;
-	gint			length_remaining;
+	header_field_info *hfinfo;
+	gint		   length_remaining;
 
 	/*
 	 * We only allow a null tvbuff if the item has a zero length,
@@ -3535,25 +3536,25 @@ static field_info *
 new_field_info(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb,
 	       const gint start, const gint item_length)
 {
-	field_info		*fi;
+	field_info *fi;
 
 	FIELD_INFO_NEW(fi);
 
-	fi->hfinfo = hfinfo;
-	fi->start = start;
-	fi->start+=(tvb)?tvb_raw_offset(tvb):0;
-	fi->length = item_length;
-	fi->tree_type = -1;
-	fi->flags = 0;
+	fi->hfinfo     = hfinfo;
+	fi->start      = start;
+	fi->start     += (tvb)?tvb_raw_offset(tvb):0;
+	fi->length     = item_length;
+	fi->tree_type  = -1;
+	fi->flags      = 0;
 	if (!PTREE_DATA(tree)->visible)
 		FI_SET_FLAG(fi, FI_HIDDEN);
 	fvalue_init(&fi->value, fi->hfinfo->type);
-	fi->rep = NULL;
+	fi->rep        = NULL;
 
 	/* add the data source tvbuff */
-	fi->ds_tvb=tvb?tvb_get_ds_tvb(tvb):NULL;
+	fi->ds_tvb = tvb ? tvb_get_ds_tvb(tvb) : NULL;
 
-	fi->appendix_start = 0;
+	fi->appendix_start  = 0;
 	fi->appendix_length = 0;
 
 	return fi;
@@ -3563,8 +3564,8 @@ static field_info *
 alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, const gint start,
 		 gint *length)
 {
-	header_field_info	*hfinfo;
-	gint			item_length;
+	header_field_info *hfinfo;
+	gint		   item_length;
 
 	hfinfo = get_hfi_and_length(hfindex, tvb, start, length, &item_length);
 	return new_field_info(tree, hfinfo, tvb, start, item_length);
@@ -3577,8 +3578,8 @@ alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, const gint start,
 static void
 proto_tree_set_representation_value(proto_item *pi, const char *format, va_list ap)
 {
-	int	ret;	/*tmp return value */
-	field_info *fi = PITEM_FINFO(pi);
+	int                ret;	/*tmp return value */
+	field_info        *fi = PITEM_FINFO(pi);
 	header_field_info *hf;
 
 	DISSECTOR_ASSERT(fi);
@@ -3636,7 +3637,7 @@ proto_tree_set_representation_value(proto_item *pi, const char *format, va_list 
 static void
 proto_tree_set_representation(proto_item *pi, const char *format, va_list ap)
 {
-	int					ret;	/*tmp return value */
+	int	    ret;	/*tmp return value */
 	field_info *fi = PITEM_FINFO(pi);
 
 	DISSECTOR_ASSERT(fi);
@@ -3666,22 +3667,23 @@ proto_tree_set_representation(proto_item *pi, const char *format, va_list ap)
 /* -------------------------- */
 const gchar *
 proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
-                 gchar *result, gchar *expr, const int size)
+		 gchar *result, gchar *expr, const int size)
 {
-	guint32		u_integer;
-	gint32		integer;
-	guint8		*bytes;
-	ipv4_addr	*ipv4;
+	guint32            u_integer;
+	gint32             integer;
+	guint8            *bytes;
+	ipv4_addr         *ipv4;
 	struct e_in6_addr *ipv6;
-	address		addr;
-	guint32		n_addr; /* network-order IPv4 address */
+	address            addr;
+	guint32            n_addr; /* network-order IPv4 address */
 
 	const true_false_string  *tfstring;
-	int		len, prev_len=0, last, i, offset_r=0, offset_e=0;
-	GPtrArray	*finfos;
-	field_info	*finfo = NULL;
-	header_field_info* hfinfo;
-	const gchar     *abbrev = NULL;
+
+	int                 len, prev_len = 0, last, i, offset_r = 0, offset_e = 0;
+	GPtrArray          *finfos;
+	field_info         *finfo         = NULL;
+	header_field_info*  hfinfo;
+	const gchar        *abbrev        = NULL;
 
 	g_assert(field_id >= 0);
 
@@ -3710,250 +3712,306 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 			continue;
 		}
 
-                /* Are there enough occurrences of the field? */
-                if ((occurrence-prev_len > len) || (occurrence+prev_len < -len)) {
-                        if (occurrence < 0) {
-                                hfinfo = hfinfo->same_name_next;
-                        } else {
-                                hfinfo = hfinfo->same_name_prev;
-                        }
-                        prev_len += len;
-                        continue;
-                }
+		/* Are there enough occurrences of the field? */
+		if ((occurrence-prev_len > len) || (occurrence+prev_len < -len)) {
+			if (occurrence < 0) {
+				hfinfo = hfinfo->same_name_next;
+			} else {
+				hfinfo = hfinfo->same_name_prev;
+			}
+			prev_len += len;
+			continue;
+		}
 
-                /* Calculate single index or set outer bounderies */
-                if (occurrence < 0) {
-                        i = occurrence + len + prev_len;
-                        last = i;
-                } else if (occurrence > 0) {
-                        i = occurrence - 1 - prev_len;
-                        last = i;
-                } else {
-                        i = 0;
-                        last = len - 1;
-                }
+		/* Calculate single index or set outer bounderies */
+		if (occurrence < 0) {
+			i = occurrence + len + prev_len;
+			last = i;
+		} else if (occurrence > 0) {
+			i = occurrence - 1 - prev_len;
+			last = i;
+		} else {
+			i = 0;
+			last = len - 1;
+		}
 
-                prev_len += len; /* Count handled occurrences */
+		prev_len += len; /* Count handled occurrences */
 
-                while (i <= last) {
-                        finfo = g_ptr_array_index(finfos, i);
+		while (i <= last) {
+			finfo = g_ptr_array_index(finfos, i);
 
-                        if (offset_r && (offset_r < size-2))
-                                result[offset_r++]=',';
+			if (offset_r && (offset_r < size-2))
+				result[offset_r++] = ',';
 
-                        if (offset_e && (offset_e < size-2))
-                                expr[offset_e++]=',';
+			if (offset_e && (offset_e < size-2))
+				expr[offset_e++] = ',';
 
-                        switch(hfinfo->type) {
+			switch (hfinfo->type) {
 
-                        case FT_NONE: /* Nothing to add */
-                                if (offset_r == 0) {
-                                        result[0] = '\0';
-                                } else if (result[offset_r-1] == ',') {
-                                        result[offset_r-1] = '\0';
-                                }
-                                break;
+			case FT_NONE: /* Nothing to add */
+				if (offset_r == 0) {
+					result[0] = '\0';
+				} else if (result[offset_r-1] == ',') {
+					result[offset_r-1] = '\0';
+				}
+				break;
 
-                        case FT_PROTOCOL:
-                                /* prevent multiple "yes" entries by setting result directly */
-                                g_strlcpy(result, "Yes", size);
-                                break;
+			case FT_PROTOCOL:
+				/* prevent multiple "yes" entries by setting result directly */
+				g_strlcpy(result, "Yes", size);
+				break;
 
-                        case FT_UINT_BYTES:
-                        case FT_BYTES:
-                                bytes = fvalue_get(&finfo->value);
-                                offset_r += (int)g_strlcpy(result+offset_r, bytes_to_str(bytes, fvalue_length(&finfo->value)), size-offset_r);
-                                break;
+			case FT_UINT_BYTES:
+			case FT_BYTES:
+				bytes = fvalue_get(&finfo->value);
+				offset_r += (int)g_strlcpy(result+offset_r,
+							   bytes_to_str(bytes,
+									fvalue_length(&finfo->value)),
+							   size-offset_r);
+				break;
 
-                        case FT_ABSOLUTE_TIME:
-                                offset_r += (int)g_strlcpy(result+offset_r,
-                                        abs_time_to_str(fvalue_get(&finfo->value), hfinfo->display, TRUE),
-                                        size-offset_r);
-                                break;
+			case FT_ABSOLUTE_TIME:
+				offset_r += (int)g_strlcpy(result+offset_r,
+							   abs_time_to_str(fvalue_get(&finfo->value),
+									   hfinfo->display, TRUE),
+							   size-offset_r);
+				break;
 
-                        case FT_RELATIVE_TIME:
-                                offset_r += (int)g_strlcpy(result+offset_r, rel_time_to_secs_str(fvalue_get(&finfo->value)), size-offset_r);
-                                break;
+			case FT_RELATIVE_TIME:
+				offset_r += (int)g_strlcpy(result+offset_r,
+							   rel_time_to_secs_str(fvalue_get(&finfo->value)),
+							   size-offset_r);
+				break;
 
-                        case FT_BOOLEAN:
-                                u_integer = fvalue_get_uinteger(&finfo->value);
-                                tfstring = (const true_false_string *)&tfs_true_false;
-                                if (hfinfo->strings) {
-                                        tfstring = (const struct true_false_string*) hfinfo->strings;
-                                }
-                                offset_r += (int)g_strlcpy(result+offset_r, u_integer ? tfstring->true_string : tfstring->false_string, size-offset_r);
+			case FT_BOOLEAN:
+				u_integer = fvalue_get_uinteger(&finfo->value);
+				tfstring = (const true_false_string *)&tfs_true_false;
+				if (hfinfo->strings) {
+					tfstring = (const struct true_false_string*) hfinfo->strings;
+				}
+				offset_r += (int)g_strlcpy(result+offset_r,
+							   u_integer ?
+							     tfstring->true_string :
+							     tfstring->false_string, size-offset_r);
 
-                                g_snprintf(expr+offset_e, size-offset_e, "%u", fvalue_get_uinteger(&finfo->value) ? 1 : 0);
-                                offset_e = (int)strlen(expr);
-                                break;
+				g_snprintf(expr+offset_e, size-offset_e, "%u",
+					   fvalue_get_uinteger(&finfo->value) ? 1 : 0);
+				offset_e = (int)strlen(expr);
+				break;
 
-                        case FT_UINT8:
-                        case FT_UINT16:
-                        case FT_UINT24:
-                        case FT_UINT32:
-                        case FT_FRAMENUM:
-                                u_integer = fvalue_get_uinteger(&finfo->value);
-                                if (hfinfo->strings) {
-                                        if (hfinfo->display & BASE_CUSTOM) {
-                                                g_snprintf(result+offset_r, size-offset_r, "%u", u_integer);
-                                        } else if (hfinfo->display & BASE_RANGE_STRING) {
-                                                g_strlcpy(result+offset_r, rval_to_str(u_integer, hfinfo->strings, "%u"), size-offset_r);
-                                        } else if (hfinfo->display & BASE_EXT_STRING) {
-                                                g_strlcpy(result+offset_r, val_to_str_ext(u_integer, (value_string_ext *) (hfinfo->strings), "%u"), size-offset_r);
-                                        } else {
-                                                g_strlcpy(result+offset_r, val_to_str(u_integer, cVALS(hfinfo->strings), "%u"), size-offset_r);
-                                        }
-                                } else if (IS_BASE_DUAL(hfinfo->display)) {
-                                        g_snprintf(result+offset_r, size-offset_r, hfinfo_uint_value_format(hfinfo), u_integer, u_integer);
-                                } else {
-                                        g_snprintf(result+offset_r, size-offset_r, hfinfo_uint_value_format(hfinfo), u_integer);
-                                }
+			case FT_UINT8:
+			case FT_UINT16:
+			case FT_UINT24:
+			case FT_UINT32:
+			case FT_FRAMENUM:
+				u_integer = fvalue_get_uinteger(&finfo->value);
+				if (hfinfo->strings) {
+					if (hfinfo->display & BASE_CUSTOM) {
+						g_snprintf(result+offset_r, size-offset_r, "%u", u_integer);
+					} else if (hfinfo->display & BASE_RANGE_STRING) {
+						g_strlcpy(result+offset_r,
+							  rval_to_str(u_integer, hfinfo->strings, "%u"),
+							  size-offset_r);
+					} else if (hfinfo->display & BASE_EXT_STRING) {
+						g_strlcpy(result+offset_r,
+							  val_to_str_ext(u_integer,
+									 (value_string_ext *)(hfinfo->strings),
+									 "%u"), size-offset_r);
+					} else {
+						g_strlcpy(result+offset_r,
+							  val_to_str(u_integer, cVALS(hfinfo->strings), "%u"),
+							  size-offset_r);
+					}
+				} else if (IS_BASE_DUAL(hfinfo->display)) {
+					g_snprintf(result+offset_r, size-offset_r,
+						   hfinfo_uint_value_format(hfinfo), u_integer, u_integer);
+				} else {
+					g_snprintf(result+offset_r, size-offset_r,
+						   hfinfo_uint_value_format(hfinfo), u_integer);
+				}
 
-                                if (hfinfo->strings && (hfinfo->display & BASE_DISPLAY_E_MASK) == BASE_NONE) {
-                                        g_snprintf(expr+offset_e, size-offset_e, "\"%s\"", result+offset_r);
-                                } else {
-                                        g_snprintf(expr+offset_e, size-offset_e, hfinfo_numeric_value_format(hfinfo), fvalue_get_uinteger(&finfo->value));
-                                }
+				if (hfinfo->strings && (hfinfo->display & BASE_DISPLAY_E_MASK) == BASE_NONE) {
+					g_snprintf(expr+offset_e, size-offset_e,
+						   "\"%s\"", result+offset_r);
+				} else {
+					g_snprintf(expr+offset_e, size-offset_e,
+						   hfinfo_numeric_value_format(hfinfo),
+						   fvalue_get_uinteger(&finfo->value));
+				}
 
-                                offset_r = (int)strlen(result);
-                                offset_e = (int)strlen(expr);
-                                break;
+				offset_r = (int)strlen(result);
+				offset_e = (int)strlen(expr);
+				break;
 
-                        case FT_INT64:
-                                g_snprintf(result+offset_r, size-offset_r, "%" G_GINT64_MODIFIER "d", fvalue_get_integer64(&finfo->value));
-                                offset_r = (int)strlen(result);
-                                break;
-                        case FT_UINT64:
-                                g_snprintf(result+offset_r, size-offset_r, "%" G_GINT64_MODIFIER "u", fvalue_get_integer64(&finfo->value));
-                                offset_r = (int)strlen(result);
-                                break;
-                        case FT_EUI64:
-                                offset_r += (int)g_strlcpy(result+offset_r, eui64_to_str(fvalue_get_integer64(&finfo->value)), size-offset_r);
-                                break;
-                        /* XXX - make these just FT_INT? */
-                        case FT_INT8:
-                        case FT_INT16:
-                        case FT_INT24:
-                        case FT_INT32:
-                                integer = fvalue_get_sinteger(&finfo->value);
-                                if (hfinfo->strings) {
-                                        if (hfinfo->display & BASE_CUSTOM) {
-                                                g_snprintf(result+offset_r, size-offset_r, "%d", integer);
-                                        } else if (hfinfo->display & BASE_RANGE_STRING) {
-                                                g_strlcpy(result+offset_r, rval_to_str(integer, hfinfo->strings, "%d"), size-offset_r);
-                                        } else if (hfinfo->display & BASE_EXT_STRING) {
-                                                g_strlcpy(result+offset_r, val_to_str_ext(integer, (value_string_ext *) (hfinfo->strings), "%d"), size-offset_r);
-                                        } else {
-                                                g_strlcpy(result+offset_r, val_to_str(integer, cVALS(hfinfo->strings), "%d"), size-offset_r);
-                                        }
-                                } else if (IS_BASE_DUAL(hfinfo->display)) {
-                                        g_snprintf(result+offset_r, size-offset_r, hfinfo_int_value_format(hfinfo), integer, integer);
-                                } else {
-                                        g_snprintf(result+offset_r, size-offset_r, hfinfo_int_value_format(hfinfo), integer);
-                                }
+			case FT_INT64:
+				g_snprintf(result+offset_r, size-offset_r,
+					   "%" G_GINT64_MODIFIER "d",
+					   fvalue_get_integer64(&finfo->value));
+				offset_r = (int)strlen(result);
+				break;
+			case FT_UINT64:
+				g_snprintf(result+offset_r, size-offset_r,
+					   "%" G_GINT64_MODIFIER "u",
+					   fvalue_get_integer64(&finfo->value));
+				offset_r = (int)strlen(result);
+				break;
+			case FT_EUI64:
+				offset_r += (int)g_strlcpy(result+offset_r,
+							   eui64_to_str(fvalue_get_integer64(&finfo->value)),
+							   size-offset_r);
+				break;
+			/* XXX - make these just FT_INT? */
+			case FT_INT8:
+			case FT_INT16:
+			case FT_INT24:
+			case FT_INT32:
+				integer = fvalue_get_sinteger(&finfo->value);
+				if (hfinfo->strings) {
+					if (hfinfo->display & BASE_CUSTOM) {
+						g_snprintf(result+offset_r, size-offset_r, "%d", integer);
+					} else if (hfinfo->display & BASE_RANGE_STRING) {
+						g_strlcpy(result+offset_r,
+							  rval_to_str(integer, hfinfo->strings, "%d"),
+							  size-offset_r);
+					} else if (hfinfo->display & BASE_EXT_STRING) {
+						g_strlcpy(result+offset_r,
+							  val_to_str_ext(integer,
+									 (value_string_ext *)(hfinfo->strings),
+									 "%d"),
+							  size-offset_r);
+					} else {
+						g_strlcpy(result+offset_r,
+							  val_to_str(integer, cVALS(hfinfo->strings), "%d"),
+							  size-offset_r);
+					}
+				} else if (IS_BASE_DUAL(hfinfo->display)) {
+					g_snprintf(result+offset_r, size-offset_r,
+						   hfinfo_int_value_format(hfinfo), integer, integer);
+				} else {
+					g_snprintf(result+offset_r, size-offset_r,
+						   hfinfo_int_value_format(hfinfo), integer);
+				}
 
-                                if (hfinfo->strings && (hfinfo->display & BASE_DISPLAY_E_MASK) == BASE_NONE) {
-                                        g_snprintf(expr+offset_e, size-offset_e, "\"%s\"", result+offset_r);
-                                } else {
-                                        g_snprintf(expr+offset_e, size-offset_e, hfinfo_numeric_value_format(hfinfo), fvalue_get_sinteger(&finfo->value));
-                                }
+				if (hfinfo->strings && (hfinfo->display & BASE_DISPLAY_E_MASK) == BASE_NONE) {
+					g_snprintf(expr+offset_e, size-offset_e, "\"%s\"", result+offset_r);
+				} else {
+					g_snprintf(expr+offset_e, size-offset_e,
+						   hfinfo_numeric_value_format(hfinfo),
+						   fvalue_get_sinteger(&finfo->value));
+				}
 
-                                offset_r = (int)strlen(result);
-                                offset_e = (int)strlen(expr);
-                                break;
+				offset_r = (int)strlen(result);
+				offset_e = (int)strlen(expr);
+				break;
 
-                        case FT_IPv4:
-                                ipv4 = fvalue_get(&finfo->value);
-                                n_addr = ipv4_get_net_order_addr(ipv4);
-                                offset_r += (int)g_strlcpy(result+offset_r, ip_to_str((guint8 *)&n_addr), size-offset_r);
-                                break;
+			case FT_IPv4:
+				ipv4 = fvalue_get(&finfo->value);
+				n_addr = ipv4_get_net_order_addr(ipv4);
+				offset_r += (int)g_strlcpy(result+offset_r,
+							   ip_to_str((guint8 *)&n_addr),
+							   size-offset_r);
+				break;
 
-                        case FT_IPv6:
-                                ipv6 = fvalue_get(&finfo->value);
-                                SET_ADDRESS (&addr, AT_IPv6, sizeof(struct e_in6_addr), ipv6);
-                                address_to_str_buf(&addr, result+offset_r, size-offset_r);
-                                offset_r = (int)strlen(result);
-                                break;
+			case FT_IPv6:
+				ipv6 = fvalue_get(&finfo->value);
+				SET_ADDRESS (&addr, AT_IPv6, sizeof(struct e_in6_addr), ipv6);
+				address_to_str_buf(&addr, result+offset_r, size-offset_r);
+				offset_r = (int)strlen(result);
+				break;
 
-                        case FT_ETHER:
-                                offset_r += (int)g_strlcpy(result+offset_r, bytes_to_str_punct(fvalue_get(&finfo->value), FT_ETHER_LEN, ':'), size-offset_r);
-                                break;
+			case FT_ETHER:
+				offset_r += (int)g_strlcpy(result+offset_r,
+							   bytes_to_str_punct(fvalue_get(&finfo->value),
+									      FT_ETHER_LEN, ':'),
+							   size-offset_r);
+				break;
 
-                        case FT_GUID:
-                                offset_r += (int)g_strlcpy(result+offset_r, guid_to_str((e_guid_t *)fvalue_get(&finfo->value)), size-offset_r);
-                                break;
+			case FT_GUID:
+				offset_r += (int)g_strlcpy(result+offset_r,
+							   guid_to_str((e_guid_t *)fvalue_get(&finfo->value)),
+							   size-offset_r);
+				break;
 
-                        case FT_OID:
-                                bytes = fvalue_get(&finfo->value);
-                                offset_r += (int)g_strlcpy(result+offset_r, oid_resolved_from_encoded(bytes, fvalue_length(&finfo->value)), size-offset_r);
-                                offset_e += (int)g_strlcpy(expr+offset_e, oid_encoded2string(bytes, fvalue_length(&finfo->value)), size-offset_e);
-                                break;
+			case FT_OID:
+				bytes = fvalue_get(&finfo->value);
+				offset_r += (int)g_strlcpy(result+offset_r,
+							   oid_resolved_from_encoded(bytes,
+										     fvalue_length(&finfo->value)),
+							   size-offset_r);
+				offset_e += (int)g_strlcpy(expr+offset_e,
+							   oid_encoded2string(bytes, fvalue_length(&finfo->value)),
+							   size-offset_e);
+				break;
 
-                        case FT_FLOAT:
-                                g_snprintf(result+offset_r, size-offset_r, "%." STRINGIFY(FLT_DIG) "g", fvalue_get_floating(&finfo->value));
-                                offset_r = (int)strlen(result);
-                                break;
+			case FT_FLOAT:
+				g_snprintf(result+offset_r, size-offset_r,
+					   "%." STRINGIFY(FLT_DIG) "g", fvalue_get_floating(&finfo->value));
+				offset_r = (int)strlen(result);
+				break;
 
-                        case FT_DOUBLE:
-                                g_snprintf(result+offset_r, size-offset_r, "%." STRINGIFY(DBL_DIG) "g", fvalue_get_floating(&finfo->value));
-                                offset_r = (int)strlen(result);
-                                break;
+			case FT_DOUBLE:
+				g_snprintf(result+offset_r, size-offset_r,
+					   "%." STRINGIFY(DBL_DIG) "g", fvalue_get_floating(&finfo->value));
+				offset_r = (int)strlen(result);
+				break;
 
-                        case FT_STRING:
-                        case FT_STRINGZ:
-                        case FT_UINT_STRING:
-                                bytes = fvalue_get(&finfo->value);
-                                offset_r += (int)g_strlcpy(result+offset_r, format_text(bytes, strlen(bytes)), size-offset_r);
-                                break;
+			case FT_STRING:
+			case FT_STRINGZ:
+			case FT_UINT_STRING:
+				bytes = fvalue_get(&finfo->value);
+				offset_r += (int)g_strlcpy(result+offset_r,
+							   format_text(bytes, strlen(bytes)),
+							   size-offset_r);
+				break;
 
-                        case FT_IPXNET: /*XXX really No column custom ?*/
-                        case FT_PCRE:
-                        default:
-                                g_error("hfinfo->type %d (%s) not handled\n",
-                                                hfinfo->type,
-                                                ftype_name(hfinfo->type));
-                                DISSECTOR_ASSERT_NOT_REACHED();
-                                break;
-                        }
-                        i++;
-                }
+			case FT_IPXNET: /*XXX really No column custom ?*/
+			case FT_PCRE:
+			default:
+				g_error("hfinfo->type %d (%s) not handled\n",
+						hfinfo->type,
+						ftype_name(hfinfo->type));
+				DISSECTOR_ASSERT_NOT_REACHED();
+				break;
+			}
+			i++;
+		}
 
-                switch(hfinfo->type) {
+		switch (hfinfo->type) {
 
-                case FT_BOOLEAN:
-                case FT_UINT8:
-                case FT_UINT16:
-                case FT_UINT24:
-                case FT_UINT32:
-                case FT_FRAMENUM:
-                case FT_INT8:
-                case FT_INT16:
-                case FT_INT24:
-                case FT_INT32:
-                case FT_OID:
-                        /* for these types, "expr" is filled in the loop above */
-                        break;
+		case FT_BOOLEAN:
+		case FT_UINT8:
+		case FT_UINT16:
+		case FT_UINT24:
+		case FT_UINT32:
+		case FT_FRAMENUM:
+		case FT_INT8:
+		case FT_INT16:
+		case FT_INT24:
+		case FT_INT32:
+		case FT_OID:
+			/* for these types, "expr" is filled in the loop above */
+			break;
 
-                default:
-                        /* for all others, just copy "result" to "expr" */
-                        g_strlcpy(expr, result, size);
-                        break;
-                }
+		default:
+			/* for all others, just copy "result" to "expr" */
+			g_strlcpy(expr, result, size);
+			break;
+		}
 
-                if (!abbrev) {
-                        /* Store abbrev for return value */
-                        abbrev = hfinfo->abbrev;
-                }
+		if (!abbrev) {
+			/* Store abbrev for return value */
+			abbrev = hfinfo->abbrev;
+		}
 
-                if (occurrence == 0) {
-                        /* Fetch next hfinfo with same name (abbrev) */
-                        hfinfo = hfinfo->same_name_prev;
-                } else {
-                        hfinfo = NULL;
-                }
-        }
+		if (occurrence == 0) {
+			/* Fetch next hfinfo with same name (abbrev) */
+			hfinfo = hfinfo->same_name_prev;
+		} else {
+			hfinfo = NULL;
+		}
+	}
 
-        return abbrev ? abbrev : "";
+	return abbrev ? abbrev : "";
 }
 
 
@@ -3962,17 +4020,17 @@ void
 proto_item_set_text(proto_item *pi, const char *format, ...)
 {
 	field_info *fi = NULL;
-	va_list	ap;
+	va_list     ap;
 
-	if (pi==NULL) {
+	if (pi == NULL) {
 		return;
 	}
 
 	fi = PITEM_FINFO(pi);
-	if (fi==NULL)
+	if (fi == NULL)
 		return;
 
-	if(fi->rep){
+	if (fi->rep) {
 		ITEM_LABEL_FREE(fi->rep);
 	}
 
@@ -3986,15 +4044,15 @@ void
 proto_item_append_text(proto_item *pi, const char *format, ...)
 {
 	field_info *fi = NULL;
-	size_t curlen;
-	va_list	ap;
+	size_t      curlen;
+	va_list     ap;
 
-	if (pi==NULL) {
+	if (pi == NULL) {
 		return;
 	}
 
 	fi = PITEM_FINFO(pi);
-	if (fi==NULL) {
+	if (fi == NULL) {
 		return;
 	}
 
@@ -4023,15 +4081,15 @@ void
 proto_item_prepend_text(proto_item *pi, const char *format, ...)
 {
 	field_info *fi = NULL;
-	char representation[ITEM_LABEL_LENGTH];
-	va_list	ap;
+	char        representation[ITEM_LABEL_LENGTH];
+	va_list     ap;
 
-	if (pi==NULL) {
+	if (pi == NULL) {
 		return;
 	}
 
 	fi = PITEM_FINFO(pi);
-	if (fi==NULL) {
+	if (fi == NULL) {
 		return;
 	}
 
@@ -4119,11 +4177,11 @@ proto_item_get_len(const proto_item *pi)
 gboolean
 proto_item_set_expert_flags(proto_item *pi, const int group, const guint severity)
 {
-	if(pi == NULL || PITEM_FINFO(pi) == NULL)
+	if (pi == NULL || PITEM_FINFO(pi) == NULL)
 		return FALSE;
 
 	/* only change things if severity is worse or at least equal than before */
-	if(severity >= FI_GET_FLAG(PITEM_FINFO(pi), PI_SEVERITY_MASK)) {
+	if (severity >= FI_GET_FLAG(PITEM_FINFO(pi), PI_SEVERITY_MASK)) {
 		FI_REPLACE_FLAGS(PITEM_FINFO(pi), PI_GROUP_MASK, group);
 		FI_REPLACE_FLAGS(PITEM_FINFO(pi), PI_SEVERITY_MASK, severity);
 
@@ -4136,7 +4194,7 @@ proto_item_set_expert_flags(proto_item *pi, const int group, const guint severit
 proto_tree *
 proto_tree_create_root(void)
 {
-	proto_node	*pnode;
+	proto_node *pnode;
 
 	/* Initialize the proto_node */
 	PROTO_NODE_NEW(pnode);
@@ -4159,7 +4217,7 @@ proto_tree_create_root(void)
 	/* Keep track of the number of children */
 	pnode->tree_data->count = 0;
 
-	return (proto_tree*) pnode;
+	return (proto_tree *)pnode;
 }
 
 
@@ -4196,17 +4254,17 @@ proto_item_add_subtree(proto_item *pi,	const gint idx) {
 	field_info *fi;
 
 	if (!pi)
-		return(NULL);
+		return NULL;
 
 	DISSECTOR_ASSERT(idx >= 0 && idx < num_tree_types);
 
 	fi = PITEM_FINFO(pi);
 	if (!fi)
-		return (proto_tree*) pi;
+		return (proto_tree *)pi;
 
 	fi->tree_type = idx;
 
-	return (proto_tree*) pi;
+	return (proto_tree *)pi;
 }
 
 proto_tree *
@@ -4214,28 +4272,28 @@ proto_item_get_subtree(const proto_item *pi) {
 	field_info *fi;
 
 	if (!pi)
-		return(NULL);
+		return NULL;
 	fi = PITEM_FINFO(pi);
 	if ( (!fi) || (fi->tree_type == -1) )
-		return(NULL);
-	return (proto_tree*) pi;
+		return NULL;
+	return (proto_tree *)pi;
 }
 
 proto_item *
 proto_item_get_parent(const proto_item *ti) {
 	if (!ti)
-		return (NULL);
+		return NULL;
 	return ti->parent;
 }
 
 proto_item *
 proto_item_get_parent_nth(proto_item *ti, int gen) {
 	if (!ti)
-		return (NULL);
+		return NULL;
 	while (gen--) {
 		ti = ti->parent;
 		if (!ti)
-			return (NULL);
+			return NULL;
 	}
 	return ti;
 }
@@ -4244,14 +4302,14 @@ proto_item_get_parent_nth(proto_item *ti, int gen) {
 proto_item *
 proto_tree_get_parent(const proto_tree *tree) {
 	if (!tree)
-		return (NULL);
-	return (proto_item*) tree;
+		return NULL;
+	return (proto_item *)tree;
 }
 
 proto_tree *
 proto_tree_get_root(proto_tree *tree) {
 	if (!tree)
-		return (NULL);
+		return NULL;
 	while (tree->parent) {
 		tree = tree->parent;
 	}
@@ -4277,7 +4335,7 @@ proto_tree_move_item(proto_tree *tree, proto_item *fixed_item,
 	/*** cut item_to_move out ***/
 
 	/* is item_to_move the first? */
-	if(tree->first_child == item_to_move) {
+	if (tree->first_child == item_to_move) {
 		/* simply change first child to next */
 		tree->first_child = item_to_move->next;
 
@@ -4286,7 +4344,7 @@ proto_tree_move_item(proto_tree *tree, proto_item *fixed_item,
 		proto_item *curr_item;
 		/* find previous and change it's next */
 		for(curr_item = tree->first_child; curr_item != NULL; curr_item = curr_item->next) {
-			if(curr_item->next == item_to_move) {
+			if (curr_item->next == item_to_move) {
 				break;
 			}
 		}
@@ -4296,7 +4354,7 @@ proto_tree_move_item(proto_tree *tree, proto_item *fixed_item,
 		curr_item->next = item_to_move->next;
 
 		/* fix last_child if required */
-		if(tree->last_child == item_to_move) {
+		if (tree->last_child == item_to_move) {
 			tree->last_child = curr_item;
 		}
 	}
@@ -4304,7 +4362,7 @@ proto_tree_move_item(proto_tree *tree, proto_item *fixed_item,
 	/*** insert to_move after fixed ***/
 	item_to_move->next = fixed_item->next;
 	fixed_item->next = item_to_move;
-	if(tree->last_child == fixed_item) {
+	if (tree->last_child == fixed_item) {
 		tree->last_child = item_to_move;
 	}
 }
@@ -4466,7 +4524,7 @@ proto_get_first_protocol(void **cookie)
 int
 proto_get_next_protocol(void **cookie)
 {
-	GList *list_item = *cookie;
+	GList      *list_item = *cookie;
 	protocol_t *protocol;
 
 	list_item = g_list_next(list_item);
@@ -4480,7 +4538,7 @@ proto_get_next_protocol(void **cookie)
 header_field_info *
 proto_get_first_protocol_field(const int proto_id, void **cookie)
 {
-	protocol_t *protocol = find_protocol_by_id(proto_id);
+	protocol_t       *protocol = find_protocol_by_id(proto_id);
 	hf_register_info *ptr;
 
 	if ((protocol == NULL) || (protocol->fields == NULL))
@@ -4494,7 +4552,7 @@ proto_get_first_protocol_field(const int proto_id, void **cookie)
 header_field_info *
 proto_get_next_protocol_field(void **cookie)
 {
-	GList *list_item = *cookie;
+	GList            *list_item = *cookie;
 	hf_register_info *ptr;
 
 	list_item = g_list_next(list_item);
@@ -4511,11 +4569,11 @@ find_protocol_by_id(const int proto_id)
 {
 	header_field_info *hfinfo;
 
-	if(proto_id<0)
+	if (proto_id < 0)
 		return NULL;
 
 	PROTO_REGISTRAR_GET_NTH(proto_id, hfinfo);
-	DISSECTOR_ASSERT(hfinfo->type==FT_PROTOCOL);
+	DISSECTOR_ASSERT(hfinfo->type == FT_PROTOCOL);
 	return (protocol_t *)hfinfo->strings;
 }
 
@@ -4523,7 +4581,7 @@ static gint compare_filter_name(gconstpointer proto_arg,
 				gconstpointer filter_name)
 {
 	const protocol_t *protocol = proto_arg;
-	const gchar* f_name = filter_name;
+	const gchar      *f_name   = filter_name;
 
 	return (strcmp(protocol->filter_name, f_name));
 }
@@ -4536,7 +4594,7 @@ proto_get_id(const protocol_t *protocol)
 
 int proto_get_id_by_filter_name(const gchar* filter_name)
 {
-	GList *list_entry;
+	GList      *list_entry;
 	protocol_t *protocol;
 
 	list_entry = g_list_find_custom(protocols, filter_name,
@@ -4616,7 +4674,7 @@ void
 proto_enable_all(void)
 {
 	protocol_t *protocol;
-	GList *list_item = protocols;
+	GList      *list_item = protocols;
 
 	if (protocols == NULL)
 		return;
@@ -4643,9 +4701,9 @@ of the header_field_info struct contained within the hf_register_info struct */
 void
 proto_register_field_array(const int parent, hf_register_info *hf, const int num_records)
 {
-	int			field_id, i;
-	hf_register_info	*ptr = hf;
-	protocol_t		*proto;
+	int		  field_id, i;
+	hf_register_info *ptr = hf;
+	protocol_t	 *proto;
 
 	proto = find_protocol_by_id(parent);
 	for (i = 0; i < num_records; i++, ptr++) {
@@ -4683,8 +4741,8 @@ void
 proto_unregister_field (const int parent, gint hf_id)
 {
 	hf_register_info *hf;
-	protocol_t  *proto;
-	GList *field;
+	protocol_t       *proto;
+	GList            *field;
 
 	if (hf_id == -1 || hf_id == 0)
 		return;
@@ -4709,80 +4767,80 @@ proto_unregister_field (const int parent, gint hf_id)
 /* chars allowed in field abbrev */
 static
 const guchar fld_abbrev_chars[256] = {
- 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0x00-0x0F */
- 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0x10-0x1F */
- 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, /* 0x20-0x2F '-', '.'	   */
- 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, /* 0x30-0x3F '0'-'9'	   */
- 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, /* 0x40-0x4F 'A'-'O'	   */
- 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, /* 0x50-0x5F 'P'-'Z', '_' */
- 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, /* 0x60-0x6F 'a'-'o'	   */
- 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, /* 0x70-0x7F 'p'-'z'	   */
- 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0x80-0x8F */
- 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0x90-0x9F */
- 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0xA0-0xAF */
- 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0xB0-0xBF */
- 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0xC0-0xCF */
- 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0xD0-0xDF */
- 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0xE0-0xEF */
- 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0xF0-0xFF */
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0x00-0x0F */
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0x10-0x1F */
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, /* 0x20-0x2F '-', '.'	   */
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, /* 0x30-0x3F '0'-'9'	   */
+	0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, /* 0x40-0x4F 'A'-'O'	   */
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, /* 0x50-0x5F 'P'-'Z', '_' */
+	0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, /* 0x60-0x6F 'a'-'o'	   */
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, /* 0x70-0x7F 'p'-'z'	   */
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0x80-0x8F */
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0x90-0x9F */
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0xA0-0xAF */
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0xB0-0xBF */
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0xC0-0xCF */
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0xD0-0xDF */
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0xE0-0xEF */
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0xF0-0xFF */
 };
 
 /* temporary function containing assert part for easier profiling */
 static void
 tmp_fld_check_assert(header_field_info *hfinfo) {
 	static const value_string hf_types[] = {
-	    { FT_NONE,		"FT_NONE" },
-	    { FT_PROTOCOL,	"FT_PROTOCOL" },
-	    { FT_BOOLEAN,	"FT_BOOLEAN" },
-	    { FT_UINT8,		"FT_UINT8" },
-	    { FT_UINT16,	"FT_UINT16" },
-	    { FT_UINT24,	"FT_UINT24" },
-	    { FT_UINT32,	"FT_UINT32" },
-	    { FT_UINT64,	"FT_UINT64" },
-	    { FT_INT8,		"FT_INT8" },
-	    { FT_INT16,		"FT_INT16" },
-	    { FT_INT24,		"FT_INT24" },
-	    { FT_INT32,		"FT_INT32" },
-	    { FT_INT64,		"FT_INT64" },
-	    { FT_EUI64,		"FT_EUI64" },
-	    { FT_FLOAT,		"FT_FLOAT" },
-	    { FT_DOUBLE,	"FT_DOUBLE" },
-	    { FT_ABSOLUTE_TIME,	"FT_ABSOLUTE_TIME" },
-	    { FT_RELATIVE_TIME,	"FT_RELATIVE_TIME" },
-	    { FT_STRING,	"FT_STRING" },
-	    { FT_STRINGZ,	"FT_STRINGZ" },
-	    { FT_UINT_STRING,	"FT_UINT_STRING" },
-	    { FT_ETHER,		"FT_ETHER" },
-	    { FT_BYTES,		"FT_BYTES" },
-	    { FT_UINT_BYTES,	"FT_UINT_BYTES" },
-	    { FT_IPv4,		"FT_IPv4" },
-	    { FT_IPv6,		"FT_IPv6" },
-	    { FT_IPXNET,	"FT_IPXNET" },
-	    { FT_FRAMENUM,	"FT_FRAMENUM" },
-	    { FT_PCRE,		"FT_PCR" },
-	    { FT_GUID,		"FT_GUID" },
-	    { FT_OID,		"FT_OID" },
-	    { 0,		NULL } };
+		{ FT_NONE,	    "FT_NONE"	       },
+		{ FT_PROTOCOL,	    "FT_PROTOCOL"      },
+		{ FT_BOOLEAN,	    "FT_BOOLEAN"       },
+		{ FT_UINT8,	    "FT_UINT8"	       },
+		{ FT_UINT16,	    "FT_UINT16"	       },
+		{ FT_UINT24,	    "FT_UINT24"	       },
+		{ FT_UINT32,	    "FT_UINT32"	       },
+		{ FT_UINT64,	    "FT_UINT64"	       },
+		{ FT_INT8,	    "FT_INT8"	       },
+		{ FT_INT16,	    "FT_INT16"	       },
+		{ FT_INT24,	    "FT_INT24"	       },
+		{ FT_INT32,	    "FT_INT32"	       },
+		{ FT_INT64,	    "FT_INT64"	       },
+		{ FT_EUI64,	    "FT_EUI64"	       },
+		{ FT_FLOAT,	    "FT_FLOAT"	       },
+		{ FT_DOUBLE,	    "FT_DOUBLE"	       },
+		{ FT_ABSOLUTE_TIME, "FT_ABSOLUTE_TIME" },
+		{ FT_RELATIVE_TIME, "FT_RELATIVE_TIME" },
+		{ FT_STRING,	    "FT_STRING"	       },
+		{ FT_STRINGZ,	    "FT_STRINGZ"       },
+		{ FT_UINT_STRING,   "FT_UINT_STRING"   },
+		{ FT_ETHER,	    "FT_ETHER"	       },
+		{ FT_BYTES,	    "FT_BYTES"	       },
+		{ FT_UINT_BYTES,    "FT_UINT_BYTES"    },
+		{ FT_IPv4,	    "FT_IPv4"	       },
+		{ FT_IPv6,	    "FT_IPv6"	       },
+		{ FT_IPXNET,	    "FT_IPXNET"	       },
+		{ FT_FRAMENUM,	    "FT_FRAMENUM"      },
+		{ FT_PCRE,	    "FT_PCR"	       },
+		{ FT_GUID,	    "FT_GUID"	       },
+		{ FT_OID,	    "FT_OID"	       },
+		{ 0,		NULL } };
 
 	static const value_string hf_display[] = {
-	    { BASE_NONE,			"BASE_NONE" },
-	    { BASE_DEC,				"BASE_DEC" },
-	    { BASE_HEX,				"BASE_HEX" },
-	    { BASE_OCT,				"BASE_OCT" },
-	    { BASE_DEC_HEX,			"BASE_DEC_HEX" },
-	    { BASE_HEX_DEC,			"BASE_HEX_DEC" },
-	    { BASE_CUSTOM,			"BASE_CUSTOM" },
-	    { BASE_NONE|BASE_RANGE_STRING,	"BASE_NONE|BASE_RANGE_STRING" },
-	    { BASE_DEC|BASE_RANGE_STRING,	"BASE_DEC|BASE_RANGE_STRING" },
-	    { BASE_HEX|BASE_RANGE_STRING,	"BASE_HEX|BASE_RANGE_STRING" },
-	    { BASE_OCT|BASE_RANGE_STRING,	"BASE_OCT|BASE_RANGE_STRING" },
-	    { BASE_DEC_HEX|BASE_RANGE_STRING,	"BASE_DEC_HEX|BASE_RANGE_STRING" },
-	    { BASE_HEX_DEC|BASE_RANGE_STRING,	"BASE_HEX_DEC|BASE_RANGE_STRING" },
-	    { BASE_CUSTOM|BASE_RANGE_STRING,	"BASE_CUSTOM|BASE_RANGE_STRING" },
-	    { ABSOLUTE_TIME_LOCAL,		"ABSOLUTE_TIME_LOCAL" },
-	    { ABSOLUTE_TIME_UTC,		"ABSOLUTE_TIME_UTC" },
-	    { ABSOLUTE_TIME_DOY_UTC,		"ABSOLUTE_TIME_DOY_UTC" },
-	    { 0,				NULL } };
+		{ BASE_NONE,                      "BASE_NONE"			   },
+		{ BASE_DEC,			  "BASE_DEC"			   },
+		{ BASE_HEX,			  "BASE_HEX"			   },
+		{ BASE_OCT,			  "BASE_OCT"			   },
+		{ BASE_DEC_HEX,                   "BASE_DEC_HEX"		   },
+		{ BASE_HEX_DEC,                   "BASE_HEX_DEC"		   },
+		{ BASE_CUSTOM,                    "BASE_CUSTOM"			   },
+		{ BASE_NONE|BASE_RANGE_STRING,    "BASE_NONE|BASE_RANGE_STRING"	   },
+		{ BASE_DEC|BASE_RANGE_STRING,     "BASE_DEC|BASE_RANGE_STRING"	   },
+		{ BASE_HEX|BASE_RANGE_STRING,     "BASE_HEX|BASE_RANGE_STRING"	   },
+		{ BASE_OCT|BASE_RANGE_STRING,     "BASE_OCT|BASE_RANGE_STRING"	   },
+		{ BASE_DEC_HEX|BASE_RANGE_STRING, "BASE_DEC_HEX|BASE_RANGE_STRING" },
+		{ BASE_HEX_DEC|BASE_RANGE_STRING, "BASE_HEX_DEC|BASE_RANGE_STRING" },
+		{ BASE_CUSTOM|BASE_RANGE_STRING,  "BASE_CUSTOM|BASE_RANGE_STRING"  },
+		{ ABSOLUTE_TIME_LOCAL,            "ABSOLUTE_TIME_LOCAL"		   },
+		{ ABSOLUTE_TIME_UTC,              "ABSOLUTE_TIME_UTC"		   },
+		{ ABSOLUTE_TIME_DOY_UTC,	  "ABSOLUTE_TIME_DOY_UTC"	   },
+		{ 0,				NULL } };
 
 	/* The field must have a name (with length > 0) */
 	if (!hfinfo->name || !hfinfo->name[0]) {
@@ -4803,18 +4861,19 @@ tmp_fld_check_assert(header_field_info *hfinfo) {
 	 *  true_false_strings or a protocol_t struct
 	 */
 	if (hfinfo->strings != NULL && !(
-	    (hfinfo->type == FT_UINT8) ||
-	    (hfinfo->type == FT_UINT16) ||
-	    (hfinfo->type == FT_UINT24) ||
-	    (hfinfo->type == FT_UINT32) ||
-	    (hfinfo->type == FT_INT8) ||
-	    (hfinfo->type == FT_INT16) ||
-	    (hfinfo->type == FT_INT24) ||
-	    (hfinfo->type == FT_INT32) ||
-	    (hfinfo->type == FT_BOOLEAN) ||
-	    (hfinfo->type == FT_PROTOCOL) ||
-	    (hfinfo->type == FT_FRAMENUM) ))
-		g_error("Field '%s' (%s) has a 'strings' value but is of type %s (which is not allowed to have strings)\n",
+		    (hfinfo->type == FT_UINT8)    ||
+		    (hfinfo->type == FT_UINT16)   ||
+		    (hfinfo->type == FT_UINT24)   ||
+		    (hfinfo->type == FT_UINT32)   ||
+		    (hfinfo->type == FT_INT8)     ||
+		    (hfinfo->type == FT_INT16)    ||
+		    (hfinfo->type == FT_INT24)    ||
+		    (hfinfo->type == FT_INT32)    ||
+		    (hfinfo->type == FT_BOOLEAN)  ||
+		    (hfinfo->type == FT_PROTOCOL) ||
+		    (hfinfo->type == FT_FRAMENUM) ))
+		g_error("Field '%s' (%s) has a 'strings' value but is of type %s"
+			" (which is not allowed to have strings)\n",
 			hfinfo->name, hfinfo->abbrev,
 			val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"));
 
@@ -4826,19 +4885,19 @@ tmp_fld_check_assert(header_field_info *hfinfo) {
 	   There are lots that have the same value *and* string, so for now only
 	   report those that have same value but different string. */
 	if (hfinfo->strings != NULL &&
-		!(hfinfo->display & BASE_EXT_STRING) &&
-		!(hfinfo->display & BASE_RANGE_STRING) &&
-		!(hfinfo->display & BASE_CUSTOM) &&
-		(
-	    (hfinfo->type == FT_UINT8) ||
-	    (hfinfo->type == FT_UINT16) ||
-	    (hfinfo->type == FT_UINT24) ||
-	    (hfinfo->type == FT_UINT32) ||
-	    (hfinfo->type == FT_INT8) ||
-	    (hfinfo->type == FT_INT16) ||
-	    (hfinfo->type == FT_INT24) ||
-	    (hfinfo->type == FT_INT32) ||
-	    (hfinfo->type == FT_FRAMENUM) )) {
+	    !(hfinfo->display & BASE_EXT_STRING) &&
+	    !(hfinfo->display & BASE_RANGE_STRING) &&
+	    !(hfinfo->display & BASE_CUSTOM) &&
+	    (
+		    (hfinfo->type == FT_UINT8)  ||
+		    (hfinfo->type == FT_UINT16) ||
+		    (hfinfo->type == FT_UINT24) ||
+		    (hfinfo->type == FT_UINT32) ||
+		    (hfinfo->type == FT_INT8)   ||
+		    (hfinfo->type == FT_INT16)  ||
+		    (hfinfo->type == FT_INT24)  ||
+		    (hfinfo->type == FT_INT32)  ||
+		    (hfinfo->type == FT_FRAMENUM) )) {
 
 		int n, m;
 		value_string *start_values = (value_string*)hfinfo->strings;
@@ -4855,10 +4914,11 @@ tmp_fld_check_assert(header_field_info *hfinfo) {
 				/* There are lots of duplicates with the same string,
 				   so only report if different... */
 				if ((start_values[m].value == current->value) &&
-					(strcmp(start_values[m].strptr, current->strptr) != 0)) {
-					g_warning("Field '%s' (%s) has a conflicting entry in its value_string: %u is at indices %u (%s) and %u (%s))\n",
-						hfinfo->name, hfinfo->abbrev,
-						current->value, m, start_values[m].strptr, n, current->strptr);
+				    (strcmp(start_values[m].strptr, current->strptr) != 0)) {
+					g_warning("Field '%s' (%s) has a conflicting entry in its"
+                                                  " value_string: %u is at indices %u (%s) and %u (%s))\n",
+						  hfinfo->name, hfinfo->abbrev,
+						  current->value, m, start_values[m].strptr, n, current->strptr);
 				}
 			}
 		}
@@ -4868,89 +4928,90 @@ tmp_fld_check_assert(header_field_info *hfinfo) {
 
 	switch (hfinfo->type) {
 
-	case FT_INT8:
-	case FT_INT16:
-	case FT_INT24:
-	case FT_INT32:
-	case FT_INT64:
-		/*	Hexadecimal and octal are, in printf() and everywhere
-		 *	else, unsigned so don't allow dissectors to register a
-		 *	signed field to be displayed unsigned.  (Else how would
-		 *	we display negative values?)
-		 *
-		 *	If you want to take out this check, be sure to fix
-		 *	hfinfo_numeric_format() so that it does not assert out
-		 *	when trying to construct a hexadecimal representation of
-		 *	FT_INT*.
-		 */
-		if (hfinfo->display == BASE_HEX ||
-		    hfinfo->display == BASE_OCT)
-			g_error("Field '%s' (%s) is signed (%s) but is being displayed unsigned (%s)\n",
-				hfinfo->name, hfinfo->abbrev,
-				val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"),
-				val_to_str(hfinfo->display, hf_display, "(Bit count: %d)"));
-		/* FALL THROUGH */
-	case FT_UINT8:
-	case FT_UINT16:
-	case FT_UINT24:
-	case FT_UINT32:
-	case FT_UINT64:
-		if (hfinfo->strings == NULL) {
-			/*  Require integral types (other than frame number,
-			 *  which is always displayed in decimal) to have a
-			 *  number base */
-			if (hfinfo->display == BASE_NONE)
-				g_error("Field '%s' (%s) is an integral value (%s) without strings but is being displayed as BASE_NONE\n",
+		case FT_INT8:
+		case FT_INT16:
+		case FT_INT24:
+		case FT_INT32:
+		case FT_INT64:
+			/*	Hexadecimal and octal are, in printf() and everywhere
+			 *	else, unsigned so don't allow dissectors to register a
+			 *	signed field to be displayed unsigned.  (Else how would
+			 *	we display negative values?)
+			 *
+			 *	If you want to take out this check, be sure to fix
+			 *	hfinfo_numeric_format() so that it does not assert out
+			 *	when trying to construct a hexadecimal representation of
+			 *	FT_INT*.
+			 */
+			if (hfinfo->display == BASE_HEX ||
+			    hfinfo->display == BASE_OCT)
+				g_error("Field '%s' (%s) is signed (%s) but is being displayed unsigned (%s)\n",
+					hfinfo->name, hfinfo->abbrev,
+					val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"),
+					val_to_str(hfinfo->display, hf_display, "(Bit count: %d)"));
+			/* FALL THROUGH */
+		case FT_UINT8:
+		case FT_UINT16:
+		case FT_UINT24:
+		case FT_UINT32:
+		case FT_UINT64:
+			if (hfinfo->strings == NULL) {
+				/*  Require integral types (other than frame number,
+				 *  which is always displayed in decimal) to have a
+				 *  number base */
+				if (hfinfo->display == BASE_NONE)
+					g_error("Field '%s' (%s) is an integral value (%s)"
+                                                " without strings but is being displayed as BASE_NONE\n",
+						hfinfo->name, hfinfo->abbrev,
+						val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"));
+			}
+			break;
+
+		case FT_PROTOCOL:
+		case FT_FRAMENUM:
+			if (hfinfo->display != BASE_NONE)
+				g_error("Field '%s' (%s) is an %s but is being displayed as %s instead of BASE_NONE\n",
+					hfinfo->name, hfinfo->abbrev,
+					val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"),
+					val_to_str(hfinfo->display, hf_display, "(Bit count: %d)"));
+			if (hfinfo->bitmask != 0)
+				g_error("Field '%s' (%s) is an %s but has a bitmask\n",
 					hfinfo->name, hfinfo->abbrev,
 					val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"));
-		}
-		break;
+			break;
 
-	case FT_PROTOCOL:
-	case FT_FRAMENUM:
-		if (hfinfo->display != BASE_NONE)
-			g_error("Field '%s' (%s) is an %s but is being displayed as %s instead of BASE_NONE\n",
-				hfinfo->name, hfinfo->abbrev,
-				val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"),
-				val_to_str(hfinfo->display, hf_display, "(Bit count: %d)"));
-		if (hfinfo->bitmask != 0)
-			g_error("Field '%s' (%s) is an %s but has a bitmask\n",
-				hfinfo->name, hfinfo->abbrev,
-				val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"));
-		break;
+		case FT_BOOLEAN:
+			break;
 
-	case FT_BOOLEAN:
-		break;
+		case FT_ABSOLUTE_TIME:
+			if (!(hfinfo->display == ABSOLUTE_TIME_LOCAL ||
+			      hfinfo->display == ABSOLUTE_TIME_UTC   ||
+			      hfinfo->display == ABSOLUTE_TIME_DOY_UTC))
+				g_error("Field '%s' (%s) is a %s but is being displayed as %s instead of as a time\n",
+					hfinfo->name, hfinfo->abbrev,
+					val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"),
+					val_to_str(hfinfo->display, hf_display, "(Bit count: %d)"));
+			if (hfinfo->bitmask != 0)
+				g_error("Field '%s' (%s) is an %s but has a bitmask\n",
+					hfinfo->name, hfinfo->abbrev,
+					val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"));
+			break;
 
-	case FT_ABSOLUTE_TIME:
-		if (!(hfinfo->display == ABSOLUTE_TIME_LOCAL ||
-		    hfinfo->display == ABSOLUTE_TIME_UTC ||
-		    hfinfo->display == ABSOLUTE_TIME_DOY_UTC))
-			g_error("Field '%s' (%s) is a %s but is being displayed as %s instead of as a time\n",
-				hfinfo->name, hfinfo->abbrev,
-				val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"),
-				val_to_str(hfinfo->display, hf_display, "(Bit count: %d)"));
-		if (hfinfo->bitmask != 0)
-			g_error("Field '%s' (%s) is an %s but has a bitmask\n",
-				hfinfo->name, hfinfo->abbrev,
-				val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"));
-		break;
-
-	default:
-		if (hfinfo->display != BASE_NONE)
-			g_error("Field '%s' (%s) is an %s but is being displayed as %s instead of BASE_NONE\n",
-				hfinfo->name, hfinfo->abbrev,
-				val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"),
-				val_to_str(hfinfo->display, hf_display, "(Bit count: %d)"));
-		if (hfinfo->bitmask != 0)
-			g_error("Field '%s' (%s) is an %s but has a bitmask\n",
-				hfinfo->name, hfinfo->abbrev,
-				val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"));
-		if (hfinfo->strings != NULL)
-			g_error("Field '%s' (%s) is an %s but has a strings value\n",
-				hfinfo->name, hfinfo->abbrev,
-				val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"));
-		break;
+		default:
+			if (hfinfo->display != BASE_NONE)
+				g_error("Field '%s' (%s) is an %s but is being displayed as %s instead of BASE_NONE\n",
+					hfinfo->name, hfinfo->abbrev,
+					val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"),
+					val_to_str(hfinfo->display, hf_display, "(Bit count: %d)"));
+			if (hfinfo->bitmask != 0)
+				g_error("Field '%s' (%s) is an %s but has a bitmask\n",
+					hfinfo->name, hfinfo->abbrev,
+					val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"));
+			if (hfinfo->strings != NULL)
+				g_error("Field '%s' (%s) is an %s but has a strings value\n",
+					hfinfo->name, hfinfo->abbrev,
+					val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"));
+			break;
 	}
 }
 
@@ -4966,22 +5027,23 @@ proto_register_field_init(header_field_info *hfinfo, const int parent)
 		hfinfo->bitshift = wrs_count_bitshift(hfinfo->bitmask);
 	}
 
-	hfinfo->parent = parent;
+	hfinfo->parent         = parent;
 	hfinfo->same_name_next = NULL;
 	hfinfo->same_name_prev = NULL;
 
 	/* if we always add and never delete, then id == len - 1 is correct */
-	if(gpa_hfinfo.len>=gpa_hfinfo.allocated_len){
-		if(!gpa_hfinfo.hfi){
-			gpa_hfinfo.allocated_len=PROTO_PRE_ALLOC_HF_FIELDS_MEM;
-			gpa_hfinfo.hfi=g_malloc(sizeof(header_field_info *)*PROTO_PRE_ALLOC_HF_FIELDS_MEM);
+	if (gpa_hfinfo.len >= gpa_hfinfo.allocated_len) {
+		if (!gpa_hfinfo.hfi) {
+			gpa_hfinfo.allocated_len = PROTO_PRE_ALLOC_HF_FIELDS_MEM;
+			gpa_hfinfo.hfi = g_malloc(sizeof(header_field_info *)*PROTO_PRE_ALLOC_HF_FIELDS_MEM);
 		} else {
-			gpa_hfinfo.allocated_len+=1000;
-			gpa_hfinfo.hfi=g_realloc(gpa_hfinfo.hfi, sizeof(header_field_info *)*gpa_hfinfo.allocated_len);
-			/*g_warning("gpa_hfinfo.allocated_len %u",gpa_hfinfo.allocated_len);*/
+			gpa_hfinfo.allocated_len += 1000;
+			gpa_hfinfo.hfi = g_realloc(gpa_hfinfo.hfi,
+						   sizeof(header_field_info *)*gpa_hfinfo.allocated_len);
+			/*g_warning("gpa_hfinfo.allocated_len %u", gpa_hfinfo.allocated_len);*/
 		}
 	}
-	gpa_hfinfo.hfi[gpa_hfinfo.len]=hfinfo;
+	gpa_hfinfo.hfi[gpa_hfinfo.len] = hfinfo;
 	gpa_hfinfo.len++;
 	hfinfo->id = gpa_hfinfo.len - 1;
 
@@ -5082,16 +5144,15 @@ proto_register_subtree_array(gint *const *indices, const int num_indices)
 void
 proto_item_fill_label(field_info *fi, gchar *label_str)
 {
-	header_field_info		*hfinfo;
-
-	guint8				*bytes;
-	guint32				integer;
-	guint64				integer64;
-	ipv4_addr			*ipv4;
-	e_guid_t			*guid;
-	guint32				n_addr; /* network-order IPv4 address */
-	const gchar			*name;
-	int				ret;	/*tmp return value */
+	header_field_info *hfinfo;
+	guint8		  *bytes;
+	guint32		   integer;
+	guint64		   integer64;
+	ipv4_addr	  *ipv4;
+	e_guid_t	  *guid;
+	guint32		   n_addr; /* network-order IPv4 address */
+	const gchar	  *name;
+	int		   ret;	   /*tmp return value */
 
 	if (!fi) {
 		if (label_str)
@@ -5102,7 +5163,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 
 	hfinfo = fi->hfinfo;
 
-	switch(hfinfo->type) {
+	switch (hfinfo->type) {
 		case FT_NONE:
 		case FT_PROTOCOL:
 			g_strlcpy(label_str, hfinfo->name, ITEM_LABEL_LENGTH);
@@ -5282,13 +5343,13 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 static void
 fill_label_boolean(field_info *fi, gchar *label_str)
 {
-	char	*p = label_str;
-	int	bitfield_byte_length = 0, bitwidth;
-	guint32	unshifted_value;
-	guint32	value;
+	char	*p                    = label_str;
+	int      bitfield_byte_length = 0, bitwidth;
+	guint32  unshifted_value;
+	guint32  value;
 
-	header_field_info		*hfinfo = fi->hfinfo;
-	const true_false_string		*tfstring = (const true_false_string *)&tfs_true_false;
+	header_field_info	*hfinfo   = fi->hfinfo;
+	const true_false_string	*tfstring = (const true_false_string *)&tfs_true_false;
 
 	if (hfinfo->strings) {
 		tfstring = (const struct true_false_string*) hfinfo->strings;
@@ -5321,12 +5382,12 @@ static void
 fill_label_bitfield(field_info *fi, gchar *label_str)
 {
 	const char *format = NULL;
-	char *p;
-	int bitfield_byte_length, bitwidth;
-	guint32 unshifted_value;
-	guint32 value;
+	char       *p;
+	int         bitfield_byte_length, bitwidth;
+	guint32     unshifted_value;
+	guint32     value;
 
-	header_field_info	*hfinfo = fi->hfinfo;
+	header_field_info *hfinfo = fi->hfinfo;
 
 	/* Figure out the bit width */
 	bitwidth = hfinfo_bitwidth(hfinfo);
@@ -5383,9 +5444,9 @@ fill_label_bitfield(field_info *fi, gchar *label_str)
 static void
 fill_label_uint(field_info *fi, gchar *label_str)
 {
-	const char *format = NULL;
-	header_field_info	*hfinfo = fi->hfinfo;
-	guint32 value;
+	const char        *format = NULL;
+	header_field_info *hfinfo = fi->hfinfo;
+	guint32            value;
 
 	value = fvalue_get_uinteger(&fi->value);
 
@@ -5429,13 +5490,13 @@ fill_label_uint(field_info *fi, gchar *label_str)
 static void
 fill_label_uint64(field_info *fi, gchar *label_str)
 {
-	const char *format = NULL;
+	const char        *format = NULL;
 	header_field_info *hfinfo = fi->hfinfo;
-	guint64 value;
+	guint64            value;
 
 	/* Pick the proper format string */
 	format = hfinfo_uint64_format(hfinfo);
-	value = fvalue_get_integer64(&fi->value);
+	value  = fvalue_get_integer64(&fi->value);
 
 	/* Fill in the textual info */
 	if (IS_BASE_DUAL(hfinfo->display)) {
@@ -5450,9 +5511,9 @@ fill_label_uint64(field_info *fi, gchar *label_str)
 static void
 fill_label_int(field_info *fi, gchar *label_str)
 {
-	const char *format = NULL;
-	header_field_info	*hfinfo = fi->hfinfo;
-	guint32 value;
+	const char        *format = NULL;
+	header_field_info *hfinfo = fi->hfinfo;
+	guint32            value;
 
 	value = fvalue_get_sinteger(&fi->value);
 
@@ -5496,13 +5557,13 @@ fill_label_int(field_info *fi, gchar *label_str)
 static void
 fill_label_int64(field_info *fi, gchar *label_str)
 {
-	const char *format = NULL;
-	header_field_info	*hfinfo = fi->hfinfo;
-	guint64 value;
+	const char        *format = NULL;
+	header_field_info *hfinfo = fi->hfinfo;
+	guint64            value;
 
 	/* Pick the proper format string */
 	format = hfinfo_int64_format(hfinfo);
-	value = fvalue_get_integer64(&fi->value);
+	value  = fvalue_get_integer64(&fi->value);
 
 	/* Fill in the textual info */
 	if (IS_BASE_DUAL(hfinfo->display)) {
@@ -5523,7 +5584,7 @@ hfinfo_bitwidth(const header_field_info *hfinfo)
 		return 0;
 	}
 
-	switch(hfinfo->type) {
+	switch (hfinfo->type) {
 		case FT_UINT8:
 		case FT_INT8:
 			bitwidth = 8;
@@ -5556,7 +5617,7 @@ hfinfo_uint_vals_format(const header_field_info *hfinfo)
 	const char *format = NULL;
 
 	/* Get the underlying BASE_ value */
-	switch(hfinfo->display & BASE_DISPLAY_E_MASK) {
+	switch (hfinfo->display & BASE_DISPLAY_E_MASK) {
 		case BASE_NONE:
 			format = "%s: %s";
 			break;
@@ -5569,7 +5630,7 @@ hfinfo_uint_vals_format(const header_field_info *hfinfo)
 			break;
 		case BASE_HEX:
 		case BASE_HEX_DEC:
-			switch(hfinfo->type) {
+			switch (hfinfo->type) {
 				case FT_UINT8:
 					format = "%s: %s (0x%02x)";
 					break;
@@ -5606,12 +5667,12 @@ hfinfo_uint_format(const header_field_info *hfinfo)
 		 */
 		format = "%s: %u";
 	} else {
-		switch(hfinfo->display) {
+		switch (hfinfo->display) {
 			case BASE_DEC:
 				format = "%s: %u";
 				break;
 			case BASE_DEC_HEX:
-				switch(hfinfo->type) {
+				switch (hfinfo->type) {
 					case FT_UINT8:
 						format = "%s: %u (0x%02x)";
 						break;
@@ -5633,7 +5694,7 @@ hfinfo_uint_format(const header_field_info *hfinfo)
 				format = "%s: %#o";
 				break;
 			case BASE_HEX:
-				switch(hfinfo->type) {
+				switch (hfinfo->type) {
 					case FT_UINT8:
 						format = "%s: 0x%02x";
 						break;
@@ -5652,7 +5713,7 @@ hfinfo_uint_format(const header_field_info *hfinfo)
 				}
 				break;
 			case BASE_HEX_DEC:
-				switch(hfinfo->type) {
+				switch (hfinfo->type) {
 					case FT_UINT8:
 						format = "%s: 0x%02x (%u)";
 						break;
@@ -5690,12 +5751,12 @@ hfinfo_uint_value_format(const header_field_info *hfinfo)
 		 */
 		format = "%u";
 	} else {
-		switch(hfinfo->display) {
+		switch (hfinfo->display) {
 			case BASE_DEC:
 				format = "%u";
 				break;
 			case BASE_DEC_HEX:
-				switch(hfinfo->type) {
+				switch (hfinfo->type) {
 					case FT_UINT8:
 						format = "%u (0x%02x)";
 						break;
@@ -5717,7 +5778,7 @@ hfinfo_uint_value_format(const header_field_info *hfinfo)
 				format = "%#o";
 				break;
 			case BASE_HEX:
-				switch(hfinfo->type) {
+				switch (hfinfo->type) {
 					case FT_UINT8:
 						format = "0x%02x";
 						break;
@@ -5736,7 +5797,7 @@ hfinfo_uint_value_format(const header_field_info *hfinfo)
 				}
 				break;
 			case BASE_HEX_DEC:
-				switch(hfinfo->type) {
+				switch (hfinfo->type) {
 					case FT_UINT8:
 						format = "0x%02x (%u)";
 						break;
@@ -5768,7 +5829,7 @@ hfinfo_int_vals_format(const header_field_info *hfinfo)
 	const char *format = NULL;
 
 	/* Get the underlying BASE_ value */
-	switch(hfinfo->display & BASE_DISPLAY_E_MASK) {
+	switch (hfinfo->display & BASE_DISPLAY_E_MASK) {
 		case BASE_NONE:
 			format = "%s: %s";
 			break;
@@ -5781,7 +5842,7 @@ hfinfo_int_vals_format(const header_field_info *hfinfo)
 			break;
 		case BASE_HEX:
 		case BASE_HEX_DEC:
-			switch(hfinfo->type) {
+			switch (hfinfo->type) {
 				case FT_INT8:
 					format = "%s: %s (0x%02x)";
 					break;
@@ -5812,7 +5873,7 @@ hfinfo_uint64_format(const header_field_info *hfinfo)
 	const char *format = NULL;
 
 	/* Pick the proper format string */
-	switch(hfinfo->display) {
+	switch (hfinfo->display) {
 		case BASE_DEC:
 			format = "%s: %" G_GINT64_MODIFIER "u";
 			break;
@@ -5841,12 +5902,12 @@ hfinfo_int_format(const header_field_info *hfinfo)
 	const char *format = NULL;
 
 	/* Pick the proper format string */
-	switch(hfinfo->display) {
+	switch (hfinfo->display) {
 		case BASE_DEC:
 			format = "%s: %d";
 			break;
 		case BASE_DEC_HEX:
-			switch(hfinfo->type) {
+			switch (hfinfo->type) {
 				case FT_INT8:
 					format = "%s: %d (0x%02x)";
 					break;
@@ -5868,7 +5929,7 @@ hfinfo_int_format(const header_field_info *hfinfo)
 			format = "%s: %#o";
 			break;
 		case BASE_HEX:
-			switch(hfinfo->type) {
+			switch (hfinfo->type) {
 				case FT_INT8:
 					format = "%s: 0x%02x";
 					break;
@@ -5887,7 +5948,7 @@ hfinfo_int_format(const header_field_info *hfinfo)
 			}
 			break;
 		case BASE_HEX_DEC:
-			switch(hfinfo->type) {
+			switch (hfinfo->type) {
 				case FT_INT8:
 					format = "%s: 0x%02x (%d)";
 					break;
@@ -5918,12 +5979,12 @@ hfinfo_int_value_format(const header_field_info *hfinfo)
 	const char *format = NULL;
 
 	/* Pick the proper format string */
-	switch(hfinfo->display) {
+	switch (hfinfo->display) {
 		case BASE_DEC:
 			format = "%d";
 			break;
 		case BASE_DEC_HEX:
-			switch(hfinfo->type) {
+			switch (hfinfo->type) {
 				case FT_INT8:
 					format = "%d (0x%02x)";
 					break;
@@ -5945,7 +6006,7 @@ hfinfo_int_value_format(const header_field_info *hfinfo)
 			format = "%#o";
 			break;
 		case BASE_HEX:
-			switch(hfinfo->type) {
+			switch (hfinfo->type) {
 				case FT_INT8:
 					format = "0x%02x";
 					break;
@@ -5964,7 +6025,7 @@ hfinfo_int_value_format(const header_field_info *hfinfo)
 			}
 			break;
 		case BASE_HEX_DEC:
-			switch(hfinfo->type) {
+			switch (hfinfo->type) {
 				case FT_INT8:
 					format = "0x%02x (%d)";
 					break;
@@ -5995,7 +6056,7 @@ hfinfo_int64_format(const header_field_info *hfinfo)
 	const char *format = NULL;
 
 	/* Pick the proper format string */
-	switch(hfinfo->display) {
+	switch (hfinfo->display) {
 		case BASE_DEC:
 			format = "%s: %" G_GINT64_MODIFIER "d";
 			break;
@@ -6129,8 +6190,8 @@ proto_tracking_interesting_fields(const proto_tree *tree)
 
 /* Helper struct for proto_find_info() and	proto_all_finfos() */
 typedef struct {
-	GPtrArray	*array;
-	int		id;
+	GPtrArray *array;
+	int	   id;
 } ffdata_t;
 
 /* Helper function for proto_find_info() */
@@ -6157,7 +6218,7 @@ find_finfo(proto_node *node, gpointer data)
 GPtrArray *
 proto_find_finfo(proto_tree *tree, const int id)
 {
-	ffdata_t	ffdata;
+	ffdata_t ffdata;
 
 	ffdata.array = g_ptr_array_new();
 	ffdata.id = id;
@@ -6184,7 +6245,7 @@ every_finfo(proto_node *node, gpointer data)
 GPtrArray *
 proto_all_finfos(proto_tree *tree)
 {
-	ffdata_t	ffdata;
+	ffdata_t ffdata;
 
 	ffdata.array = g_ptr_array_new();
 	ffdata.id = 0;
@@ -6196,16 +6257,16 @@ proto_all_finfos(proto_tree *tree)
 
 
 typedef struct {
-	guint		offset;
-	field_info	*finfo;
-	tvbuff_t	*tvb;
+	guint	    offset;
+	field_info *finfo;
+	tvbuff_t   *tvb;
 } offset_search_t;
 
 static gboolean
 check_for_offset(proto_node *node, const gpointer data)
 {
-	field_info			*fi = PNODE_FINFO(node);
-	offset_search_t		*offsearch = data;
+	field_info	*fi        = PNODE_FINFO(node);
+	offset_search_t	*offsearch = data;
 
 	/* !fi == the top most container node which holds nothing */
 	if (fi && !PROTO_ITEM_IS_HIDDEN(node) && fi->ds_tvb && offsearch->tvb == fi->ds_tvb) {
@@ -6230,11 +6291,11 @@ check_for_offset(proto_node *node, const gpointer data)
 field_info *
 proto_find_field_from_offset(proto_tree *tree, guint offset, tvbuff_t *tvb)
 {
-	offset_search_t		offsearch;
+	offset_search_t	offsearch;
 
 	offsearch.offset = offset;
-	offsearch.finfo = NULL;
-	offsearch.tvb = tvb;
+	offsearch.finfo  = NULL;
+	offsearch.tvb    = tvb;
 
 	proto_tree_traverse_pre_order(tree, check_for_offset, &offsearch);
 
@@ -6254,9 +6315,9 @@ proto_find_field_from_offset(proto_tree *tree, guint offset, tvbuff_t *tvb)
 void
 proto_registrar_dump_protocols(void)
 {
-	protocol_t		*protocol;
-	int			i;
-	void			*cookie = NULL;
+	protocol_t *protocol;
+	int	    i;
+	void	   *cookie = NULL;
 
 	for (i = proto_get_first_protocol(&cookie); i != -1;
 		i = proto_get_next_protocol(&cookie)) {
@@ -6350,16 +6411,16 @@ proto_registrar_dump_values(void)
 			tfs   = NULL;
 
 			if ((hfinfo->display & BASE_DISPLAY_E_MASK) != BASE_CUSTOM &&
-				(hfinfo->type == FT_UINT8 ||
-				hfinfo->type == FT_UINT16 ||
-				hfinfo->type == FT_UINT24 ||
-				hfinfo->type == FT_UINT32 ||
-				hfinfo->type == FT_UINT64 ||
-				hfinfo->type == FT_INT8 ||
-				hfinfo->type == FT_INT16 ||
-				hfinfo->type == FT_INT24 ||
-				hfinfo->type == FT_INT32 ||
-				hfinfo->type == FT_INT64)) {
+				(hfinfo->type == FT_UINT8  ||
+				 hfinfo->type == FT_UINT16 ||
+				 hfinfo->type == FT_UINT24 ||
+				 hfinfo->type == FT_UINT32 ||
+				 hfinfo->type == FT_UINT64 ||
+				 hfinfo->type == FT_INT8   ||
+				 hfinfo->type == FT_INT16  ||
+				 hfinfo->type == FT_INT24  ||
+				 hfinfo->type == FT_INT32  ||
+				 hfinfo->type == FT_INT64)) {
 
 				if (hfinfo->display & BASE_EXT_STRING) {
 					vals = VALUE_STRING_EXT_VS_P((value_string_ext *)hfinfo->strings);
@@ -6377,10 +6438,10 @@ proto_registrar_dump_values(void)
 			if (vals) {
 				if (hfinfo->display & BASE_EXT_STRING) {
 					value_string_ext *vse_p = (value_string_ext *)hfinfo->strings;
-                                        if (!value_string_ext_validate(vse_p)) {
-                                            g_warning("Invalid value_string_ext ptr for: %s", hfinfo->abbrev);
-                                            continue;
-                                        }
+					if (!value_string_ext_validate(vse_p)) {
+						g_warning("Invalid value_string_ext ptr for: %s", hfinfo->abbrev);
+						continue;
+					}
 					match_strval_ext(0, vse_p); /* "prime" the extended value_string */
 					printf("E\t%s\t%d\t%s\t%s\n",
 					       hfinfo->abbrev,
@@ -6485,12 +6546,12 @@ proto_registrar_dump_values(void)
 void
 proto_registrar_dump_fields(const int format)
 {
-	header_field_info	*hfinfo, *parent_hfinfo;
-	int			i, len;
-	const char		*enum_name;
-	const char		*base_name;
-	const char		*blurb;
-	char			width[5];
+	header_field_info *hfinfo, *parent_hfinfo;
+	int		   i, len;
+	const char	  *enum_name;
+	const char	  *base_name;
+	const char	  *blurb;
+	char		   width[5];
 
 	len = gpa_hfinfo.len;
 	for (i = 0; i < len ; i++) {
@@ -6530,19 +6591,19 @@ proto_registrar_dump_fields(const int format)
 			base_name = "";
 
 			if (format > 1) {
-				if (hfinfo->type == FT_UINT8 ||
-					hfinfo->type == FT_UINT16 ||
-					hfinfo->type == FT_UINT24 ||
-					hfinfo->type == FT_UINT32 ||
-					hfinfo->type == FT_UINT64 ||
-					hfinfo->type == FT_INT8 ||
-					hfinfo->type == FT_INT16 ||
-					hfinfo->type == FT_INT24 ||
-					hfinfo->type == FT_INT32 ||
-					hfinfo->type == FT_INT64) {
+				if (hfinfo->type == FT_UINT8  ||
+				    hfinfo->type == FT_UINT16 ||
+				    hfinfo->type == FT_UINT24 ||
+				    hfinfo->type == FT_UINT32 ||
+				    hfinfo->type == FT_UINT64 ||
+				    hfinfo->type == FT_INT8   ||
+				    hfinfo->type == FT_INT16  ||
+				    hfinfo->type == FT_INT24  ||
+				    hfinfo->type == FT_INT32  ||
+				    hfinfo->type == FT_INT64) {
 
 
-					switch(hfinfo->display & BASE_DISPLAY_E_MASK) {
+					switch (hfinfo->display & BASE_DISPLAY_E_MASK) {
 						case BASE_NONE:
 							base_name = "BASE_NONE";
 							break;
@@ -6636,12 +6697,12 @@ hfinfo_numeric_format(const header_field_info *hfinfo)
 		format = "%s == %u";
 	} else {
 		/* Get the underlying BASE_ value */
-		switch(hfinfo->display & BASE_DISPLAY_E_MASK) {
+		switch (hfinfo->display & BASE_DISPLAY_E_MASK) {
 			case BASE_DEC:
 			case BASE_DEC_HEX:
 			case BASE_OCT: /* I'm lazy */
 			case BASE_CUSTOM:
-				switch(hfinfo->type) {
+				switch (hfinfo->type) {
 					case FT_UINT8:
 					case FT_UINT16:
 					case FT_UINT24:
@@ -6667,7 +6728,7 @@ hfinfo_numeric_format(const header_field_info *hfinfo)
 				break;
 			case BASE_HEX:
 			case BASE_HEX_DEC:
-				switch(hfinfo->type) {
+				switch (hfinfo->type) {
 					case FT_UINT8:
 					case FT_INT8:
 						format = "%s == 0x%02x";
@@ -6714,13 +6775,13 @@ hfinfo_numeric_value_format(const header_field_info *hfinfo)
 		format = "%u";
 	} else {
 		/* Get the underlying BASE_ value */
-		switch(hfinfo->display & BASE_DISPLAY_E_MASK) {
+		switch (hfinfo->display & BASE_DISPLAY_E_MASK) {
 			case BASE_NONE:
 			case BASE_DEC:
 			case BASE_DEC_HEX:
 			case BASE_OCT: /* I'm lazy */
 			case BASE_CUSTOM:
-				switch(hfinfo->type) {
+				switch (hfinfo->type) {
 					case FT_UINT8:
 					case FT_UINT16:
 					case FT_UINT24:
@@ -6746,7 +6807,7 @@ hfinfo_numeric_value_format(const header_field_info *hfinfo)
 				break;
 			case BASE_HEX:
 			case BASE_HEX_DEC:
-				switch(hfinfo->type) {
+				switch (hfinfo->type) {
 					case FT_UINT8:
 					case FT_INT8:
 						format = "0x%02x";
@@ -6792,24 +6853,24 @@ static gboolean
 construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 				char **filter)
 {
-	header_field_info	*hfinfo;
-	int				abbrev_len;
-	char			*ptr;
-	int				buf_len;
-	const char		*format;
-	int				dfilter_len, i;
-	gint			start, length, length_remaining;
-	guint8			c;
-	gchar			is_signed_num = FALSE;
+	header_field_info *hfinfo;
+	int		   abbrev_len;
+	char		  *ptr;
+	int		   buf_len;
+	const char	  *format;
+	int		   dfilter_len, i;
+	gint		   start, length, length_remaining;
+	guint8		   c;
+	gchar		   is_signed_num = FALSE;
 
-	hfinfo = finfo->hfinfo;
+	hfinfo     = finfo->hfinfo;
 	DISSECTOR_ASSERT(hfinfo);
 	abbrev_len = (int) strlen(hfinfo->abbrev);
 
 	if (hfinfo->strings && (hfinfo->display & BASE_DISPLAY_E_MASK) == BASE_NONE) {
 		const gchar *str = NULL;
 
-		switch(hfinfo->type) {
+		switch (hfinfo->type) {
 
 		case FT_INT8:
 		case FT_INT16:
@@ -6867,7 +6928,7 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 	 * if the field is Boolean or an enumerated integer type,
 	 * the tables used to generate human-readable values.
 	 */
-	switch(hfinfo->type) {
+	switch (hfinfo->type) {
 
 		case FT_INT8:
 		case FT_INT16:
@@ -6881,7 +6942,7 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 		case FT_UINT32:
 			if (filter != NULL) {
 				format = hfinfo_numeric_format(hfinfo);
-				if(is_signed_num) {
+				if (is_signed_num) {
 					*filter = ep_strdup_printf(format,
 						   hfinfo->abbrev,
 						   fvalue_get_sinteger(&finfo->value));
@@ -6976,7 +7037,7 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 
 				ptr += g_snprintf(ptr, (gulong) (buf_len-(ptr-*filter)),
 					"frame[%d:%d] == ", finfo->start, length);
-				for (i=0;i<length; i++) {
+				for (i=0; i<length; i++) {
 					c = tvb_get_guint8(finfo->ds_tvb, start);
 					start++;
 					if (i == 0 ) {
@@ -7065,29 +7126,30 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 			    const guint encoding, const int flags,
 			    gboolean first)
 {
-	guint32 value = 0, tmpval;
-	proto_tree *tree = NULL;
+	guint32            value = 0;
+	guint32            tmpval;
+	proto_tree        *tree  = NULL;
 	header_field_info *hf;
-	const char *fmt;
+	const char        *fmt;
 
 	switch (len) {
-	case 1:
-		value = tvb_get_guint8(tvb, offset);
-		break;
-	case 2:
-		value = encoding ? tvb_get_letohs(tvb, offset) :
+		case 1:
+			value = tvb_get_guint8(tvb, offset);
+			break;
+		case 2:
+			value = encoding ? tvb_get_letohs(tvb, offset) :
 			tvb_get_ntohs(tvb, offset);
-		break;
-	case 3:
-		value = encoding ? tvb_get_letoh24(tvb, offset) :
+			break;
+		case 3:
+			value = encoding ? tvb_get_letoh24(tvb, offset) :
 			tvb_get_ntoh24(tvb, offset);
-		break;
-	case 4:
-		value = encoding ? tvb_get_letohl(tvb, offset) :
+			break;
+		case 4:
+			value = encoding ? tvb_get_letohl(tvb, offset) :
 			tvb_get_ntohl(tvb, offset);
-		break;
-	default:
-		g_assert_not_reached();
+			break;
+		default:
+			g_assert_not_reached();
 	}
 
 	tree = proto_item_add_subtree(item, ett);
@@ -7206,9 +7268,9 @@ proto_tree_add_bitmask(proto_tree *parent_tree, tvbuff_t *tvb,
 		       const gint ett, const int **fields,
 		       const guint encoding)
 {
-	proto_item *item = NULL;
+	proto_item        *item = NULL;
 	header_field_info *hf;
-	int len;
+	int                len;
 
 	hf = proto_registrar_get_nth(hf_hdr);
 	DISSECTOR_ASSERT(IS_FT_INT(hf->type) || IS_FT_UINT(hf->type));
@@ -7250,7 +7312,7 @@ proto_tree_add_bits_item(proto_tree *tree, const int hf_index, tvbuff_t *tvb,
 			 const gint bit_offset, const gint no_of_bits,
 			 const guint encoding)
 {
-	header_field_info	*hfinfo;
+	header_field_info *hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hf_index, hfinfo);
 
@@ -7268,25 +7330,29 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb
 			    const gint bit_offset, const gint no_of_bits,
 			    guint64 *return_value, const guint encoding)
 {
-	gint	offset;
-	guint	length;
-	guint8	tot_no_bits;
-	char *bf_str, lbl_str[ITEM_LABEL_LENGTH];
+	gint     offset;
+	guint    length;
+	guint8   tot_no_bits;
+	char    *bf_str;
+	char     lbl_str[ITEM_LABEL_LENGTH];
+	guint64  value = 0;
+
+	proto_item        *pi;
 	header_field_info *hf_field;
-	proto_item *pi;
-	guint64 value = 0;
+
 	const true_false_string *tfstring;
 
 	/* We can't fake it just yet. We have to fill in the 'return_value' parameter */
 	PROTO_REGISTRAR_GET_NTH(hf_index, hf_field);
 
-	if(hf_field -> bitmask != 0) {
-		REPORT_DISSECTOR_BUG(ep_strdup_printf("Incompatible use of proto_tree_add_bits_ret_val with field '%s' (%s) with bitmask != 0",
-				     hf_field->abbrev, hf_field->name));
+	if (hf_field->bitmask != 0) {
+		REPORT_DISSECTOR_BUG(ep_strdup_printf("Incompatible use of proto_tree_add_bits_ret_val"
+						      " with field '%s' (%s) with bitmask != 0",
+						      hf_field->abbrev, hf_field->name));
 	}
 
 	DISSECTOR_ASSERT(bit_offset >= 0);
-	DISSECTOR_ASSERT(no_of_bits > 0);
+	DISSECTOR_ASSERT(no_of_bits >  0);
 
 	/* Byte align offset */
 	offset = bit_offset>>3;
@@ -7300,7 +7366,7 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb
 	if (tot_no_bits & 0x07)
 		length++;
 
-	if(no_of_bits < 65){
+	if (no_of_bits < 65) {
 		value = tvb_get_bits64(tvb, bit_offset, no_of_bits, encoding);
 	}else{
 		DISSECTOR_ASSERT_NOT_REACHED();
@@ -7308,22 +7374,22 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb
 	}
 
 	/* Sign extend for signed types */
-	switch(hf_field->type){
-	case FT_INT8:
-	case FT_INT16:
-	case FT_INT24:
-	case FT_INT32:
-	case FT_INT64:
-		if (value & (G_GINT64_CONSTANT(1) << (no_of_bits-1)))
-			value |= (G_GINT64_CONSTANT(-1) << no_of_bits);
-		break;
+	switch (hf_field->type) {
+		case FT_INT8:
+		case FT_INT16:
+		case FT_INT24:
+		case FT_INT32:
+		case FT_INT64:
+			if (value & (G_GINT64_CONSTANT(1) << (no_of_bits-1)))
+				value |= (G_GINT64_CONSTANT(-1) << no_of_bits);
+			break;
 
-	default:
-		break;
+		default:
+			break;
 	}
 
-	if(return_value){
-		*return_value=value;
+	if (return_value) {
+		*return_value = value;
 	}
 
 	/* Coast clear. Try and fake it */
@@ -7331,12 +7397,12 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb
 
 	bf_str = decode_bits_in_field(bit_offset, no_of_bits, value);
 
-	switch(hf_field->type){
+	switch (hf_field->type) {
 	case FT_BOOLEAN:
 		/* Boolean field */
 		tfstring = (const true_false_string *) &tfs_true_false;
 		if (hf_field->strings)
-			tfstring = (const true_false_string *) hf_field->strings;
+			tfstring = (const true_false_string *)hf_field->strings;
 		return proto_tree_add_boolean_format(tree, hf_index, tvb, offset, length, (guint32)value,
 			"%s = %s: %s",
 			bf_str, hf_field->name,
@@ -7381,108 +7447,128 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb
 
 proto_item *
 proto_tree_add_split_bits_item_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb,
-			                      const gint bit_offset, const crumb_spec_t *crumb_spec, 
-                                  guint64 *return_value)
+				       const gint bit_offset, const crumb_spec_t *crumb_spec,
+				       guint64 *return_value)
 {
-    proto_item *pi;
-    gint no_of_bits = 0;
-	gint	octet_offset, mask_initial_bit_offset, mask_greatest_bit_offset = 0;
-	guint	octet_length;
-	guint8	i = 0;
-	char *bf_str = NULL, lbl_str[ITEM_LABEL_LENGTH];
-	header_field_info *hf_field;
-	guint64 value = 0, composite_bitmask = 0, composite_bitmap = 0;
+	proto_item *pi;
+	gint        no_of_bits;
+	gint        octet_offset;
+	gint        mask_initial_bit_offset;
+	gint        mask_greatest_bit_offset;
+	guint       octet_length;
+	guint8      i;
+	char       *bf_str;
+	char        lbl_str[ITEM_LABEL_LENGTH];
+	guint64     value;
+	guint64     composite_bitmask;
+	guint64     composite_bitmap;
+
+	header_field_info       *hf_field;
 	const true_false_string *tfstring;
 
 	/* We can't fake it just yet. We have to fill in the 'return_value' parameter */
 	PROTO_REGISTRAR_GET_NTH(hf_index, hf_field);
 
-	if(hf_field -> bitmask != 0) {
-		REPORT_DISSECTOR_BUG(ep_strdup_printf("Incompatible use of proto_tree_add_bits_ret_val with field '%s' (%s) with bitmask != 0",
-				     hf_field->abbrev, hf_field->name));
+	if (hf_field->bitmask != 0) {
+		REPORT_DISSECTOR_BUG(ep_strdup_printf(
+					     "Incompatible use of proto_tree_add_split_bits_item_ret_val"
+					     " with field '%s' (%s) with bitmask != 0",
+					     hf_field->abbrev, hf_field->name));
 	}
 
-    mask_initial_bit_offset = bit_offset % 8;
+	mask_initial_bit_offset = bit_offset % 8;
 
-    while(crumb_spec[i].crumb_bit_length != 0)
-    {   
-        guint64 crumb_mask, crumb_value;
-        guint8 crumb_end_bit_offset;
+	no_of_bits = 0;
+	value      = 0;
+	i          = 0;
+	mask_greatest_bit_offset = 0;
+	composite_bitmask        = 0;
+	composite_bitmap         = 0;
 
-        DISSECTOR_ASSERT(i < 64);
-        crumb_value = tvb_get_bits64(tvb, bit_offset + crumb_spec[i].crumb_bit_offset, crumb_spec[i].crumb_bit_length, ENC_BIG_ENDIAN);
-        value += crumb_value;
-        no_of_bits += crumb_spec[i].crumb_bit_length;
+	while (crumb_spec[i].crumb_bit_length != 0) {
+		guint64 crumb_mask, crumb_value;
+		guint8	crumb_end_bit_offset;
 
-        /* the bitmask is 64 bit, left-aligned, starting at the first bit of the octet containing the initial offset */
-        /* if the mask is beyond 32 bits, then give up on bit map display
-           this could be improved in future, probably showing a table of 32 or 64 bits per row */
-        if (mask_greatest_bit_offset < 32)
-        {
-           crumb_end_bit_offset = mask_initial_bit_offset + crumb_spec[i].crumb_bit_offset + crumb_spec[i].crumb_bit_length;
-           crumb_mask = (1 << crumb_spec[i].crumb_bit_length) - 1;
+		DISSECTOR_ASSERT(i < 64);
+		crumb_value = tvb_get_bits64(tvb,
+					     bit_offset + crumb_spec[i].crumb_bit_offset,
+					     crumb_spec[i].crumb_bit_length,
+					     ENC_BIG_ENDIAN);
+		value      += crumb_value;
+		no_of_bits += crumb_spec[i].crumb_bit_length;
 
-           if(crumb_end_bit_offset > mask_greatest_bit_offset)
-           {
-               mask_greatest_bit_offset = crumb_end_bit_offset;
-           }
-           composite_bitmask |= (crumb_mask << (64 - crumb_end_bit_offset));
-           composite_bitmap |= (crumb_value << (64 - crumb_end_bit_offset));
-        }
-        /* shift left for the next segment */
-        value <<= crumb_spec[++i].crumb_bit_length;
-    }
+		/* The bitmask is 64 bit, left-aligned, starting at the first bit of the
+		   octet containing the initial offset.
+		   If the mask is beyond 32 bits, then give up on bit map display.
+		   This could be improved in future, probably showing a table
+		   of 32 or 64 bits per row */
+		if (mask_greatest_bit_offset < 32) {
+			crumb_end_bit_offset = mask_initial_bit_offset
+				+ crumb_spec[i].crumb_bit_offset
+				+ crumb_spec[i].crumb_bit_length;
+			crumb_mask = (1 << crumb_spec[i].crumb_bit_length) - 1;
 
-    /* Sign extend for signed types */
-    switch(hf_field->type){
-    case FT_INT8:
-    case FT_INT16:
-    case FT_INT24:
-    case FT_INT32:
-    case FT_INT64:
-        if (value & no_of_bits && (G_GINT64_CONSTANT(1) << (no_of_bits-1)))
-            value |= (G_GINT64_CONSTANT(-1) << no_of_bits);
-        break;
-    default:
-        break;
-    }
+			if (crumb_end_bit_offset > mask_greatest_bit_offset) {
+				mask_greatest_bit_offset = crumb_end_bit_offset;
+			}
+			composite_bitmask |= (crumb_mask  << (64 - crumb_end_bit_offset));
+			composite_bitmap  |= (crumb_value << (64 - crumb_end_bit_offset));
+		}
+		/* Shift left for the next segment */
+		value <<= crumb_spec[++i].crumb_bit_length;
+	}
 
-    if(return_value){
-        *return_value=value;
-    }
+	/* Sign extend for signed types */
+	switch (hf_field->type) {
+		case FT_INT8:
+		case FT_INT16:
+		case FT_INT24:
+		case FT_INT32:
+		case FT_INT64:
+			if (value & no_of_bits && (G_GINT64_CONSTANT(1) << (no_of_bits-1)))
+				value |= (G_GINT64_CONSTANT(-1) << no_of_bits);
+			break;
+		default:
+			break;
+	}
 
-    /* Coast clear. Try and fake it */
-    TRY_TO_FAKE_THIS_ITEM(tree, hf_index, hf_field);
+	if (return_value) {
+		*return_value = value;
+	}
 
-    /* initialise the fromat string */
-    bf_str=ep_alloc(256);
-    bf_str[0] = '\0';
+	/* Coast clear. Try and fake it */
+	TRY_TO_FAKE_THIS_ITEM(tree, hf_index, hf_field);
 
-    octet_offset = bit_offset >> 3;
+	/* initialise the format string */
+	bf_str    = ep_alloc(256);
+	bf_str[0] = '\0';
 
-    /* round up mask length to nearest octet */
-    octet_length = ((mask_greatest_bit_offset + 7) >> 3);
-    mask_greatest_bit_offset = octet_length << 3;
+	octet_offset = bit_offset >> 3;
 
-    /* as noted above, we currently only produce a bitmap if the crumbs span less than 4 octets of the tvb,
-       it would be a useful enhancement to eliminate this restriction. */
-    if (mask_greatest_bit_offset <= 32)
-    {
-       other_decode_bitfield_value(bf_str, (guint32)(composite_bitmap >> (64 - mask_greatest_bit_offset)), 
-                                   (guint32)(composite_bitmask >> (64 - mask_greatest_bit_offset)), 
-                                   mask_greatest_bit_offset);
-    }
+	/* Round up mask length to nearest octet */
+	octet_length = ((mask_greatest_bit_offset + 7) >> 3);
+	mask_greatest_bit_offset = octet_length << 3;
 
-	switch(hf_field->type){
+	/* As noted above, we currently only produce a bitmap if the crumbs span less than 4 octets of the tvb.
+	   It would be a useful enhancement to eliminate this restriction. */
+	if (mask_greatest_bit_offset <= 32) {
+		other_decode_bitfield_value(bf_str,
+					    (guint32)(composite_bitmap  >> (64 - mask_greatest_bit_offset)),
+					    (guint32)(composite_bitmask >> (64 - mask_greatest_bit_offset)),
+					    mask_greatest_bit_offset);
+	}
+
+	switch (hf_field->type) {
 	case FT_BOOLEAN: /* it is a bit odd to have a boolean encoded as split-bits, but possible, I suppose? */
 		/* Boolean field */
 		tfstring = (const true_false_string *) &tfs_true_false;
 		if (hf_field->strings)
 			tfstring = (const true_false_string *) hf_field->strings;
-		return proto_tree_add_boolean_format(tree, hf_index, tvb, octet_offset, octet_length, (guint32)value,
-			"%s = %s: %s",
-			bf_str, hf_field->name,
-			(guint32)value ? tfstring->true_string : tfstring->false_string);
+		return proto_tree_add_boolean_format(tree, hf_index,
+						     tvb, octet_offset, octet_length, (guint32)value,
+						     "%s = %s: %s",
+						     bf_str, hf_field->name,
+						     (guint32)value ? tfstring->true_string : tfstring->false_string);
 		break;
 
 	case FT_UINT8:
@@ -7520,18 +7606,24 @@ proto_tree_add_split_bits_item_ret_val(proto_tree *tree, const int hf_index, tvb
 	return pi;
 }
 
-void 
-proto_tree_add_split_bits_crumb(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const gint bit_offset, 
-                                const crumb_spec_t *crumb_spec, guint16 crumb_index)
+void
+proto_tree_add_split_bits_crumb(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const gint bit_offset,
+				const crumb_spec_t *crumb_spec, guint16 crumb_index)
 {
-   header_field_info	*hf_info;
+	header_field_info *hf_info;
 
-   PROTO_REGISTRAR_GET_NTH(hf_index, hf_info);
-   proto_tree_add_text(tree, tvb, bit_offset >> 3, ((bit_offset + crumb_spec[crumb_index].crumb_bit_length - 1) >> 3) - (bit_offset >> 3) + 1,
-                       "%s crumb %d of %s (decoded above)", 
-                       decode_bits_in_field(bit_offset, crumb_spec[crumb_index].crumb_bit_length, 
-                                            tvb_get_bits(tvb, bit_offset, crumb_spec[crumb_index].crumb_bit_length, ENC_BIG_ENDIAN)), 
-                                            crumb_index, hf_info->name);
+	PROTO_REGISTRAR_GET_NTH(hf_index, hf_info);
+	proto_tree_add_text(tree, tvb,
+			    bit_offset >> 3,
+			    ((bit_offset + crumb_spec[crumb_index].crumb_bit_length - 1) >> 3) - (bit_offset >> 3) + 1,
+			    "%s crumb %d of %s (decoded above)",
+			    decode_bits_in_field(bit_offset, crumb_spec[crumb_index].crumb_bit_length,
+						 tvb_get_bits(tvb,
+							      bit_offset,
+							      crumb_spec[crumb_index].crumb_bit_length,
+							      ENC_BIG_ENDIAN)),
+			    crumb_index,
+			    hf_info->name);
 }
 
 proto_item *
@@ -7541,7 +7633,9 @@ proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb,
 {
 	proto_item *item;
 
-	if ((item = _proto_tree_add_bits_ret_val(tree, hf_index, tvb, bit_offset, no_of_bits, return_value, encoding))) {
+	if ((item = _proto_tree_add_bits_ret_val(tree, hf_index, tvb,
+						 bit_offset, no_of_bits,
+						 return_value, encoding))) {
 		FI_SET_FLAG(PNODE_FINFO(item), FI_BITS_OFFSET(bit_offset));
 		FI_SET_FLAG(PNODE_FINFO(item), FI_BITS_SIZE(no_of_bits));
 	}
@@ -7554,19 +7648,21 @@ _proto_tree_add_bits_format_value(proto_tree *tree, const int hf_index,
 				 const gint no_of_bits, void *value_ptr,
 				 gchar *value_str)
 {
-	gint	offset;
-	guint	length;
-	guint8	tot_no_bits;
-	char *str;
+	gint     offset;
+	guint    length;
+	guint8   tot_no_bits;
+	char    *str;
+	guint64  value = 0;
 	header_field_info *hf_field;
-	guint64 value = 0;
 
 	/* We do not have to return a value, try to fake it as soon as possible */
 	TRY_TO_FAKE_THIS_ITEM(tree, hf_index, hf_field);
 
-	if(hf_field -> bitmask != 0) {
-		REPORT_DISSECTOR_BUG(ep_strdup_printf("Incompatible use of proto_tree_add_bits_ret_val with field '%s' (%s) with bitmask != 0",
-				     hf_field->abbrev, hf_field->name));
+	if (hf_field->bitmask != 0) {
+		REPORT_DISSECTOR_BUG(ep_strdup_printf(
+					     "Incompatible use of proto_tree_add_bits_format_value"
+					     " with field '%s' (%s) with bitmask != 0",
+					     hf_field->abbrev, hf_field->name));
 	}
 
 	DISSECTOR_ASSERT(bit_offset >= 0);
@@ -7579,22 +7675,22 @@ _proto_tree_add_bits_format_value(proto_tree *tree, const int hf_index,
 	 * Calculate the number of octets used to hold the bits
 	 */
 	tot_no_bits = ((bit_offset&0x7)+no_of_bits);
-	length = tot_no_bits>>3;
+	length      = tot_no_bits>>3;
 	/* If we are using part of the next octet, increase length by 1 */
 	if (tot_no_bits & 0x07)
 		length++;
 
-	if(no_of_bits < 65){
+	if (no_of_bits < 65) {
 		value = tvb_get_bits64(tvb, bit_offset, no_of_bits, ENC_BIG_ENDIAN);
-	}else{
+	} else {
 		DISSECTOR_ASSERT_NOT_REACHED();
 		return NULL;
 	}
 
 	str = decode_bits_in_field(bit_offset, no_of_bits, value);
 
-	strcat(str," = ");
-	strcat(str,hf_field->name);
+	strcat(str, " = ");
+	strcat(str, hf_field->name);
 
 	/*
 	 * This function does not receive an actual value but a dimensionless pointer to that value.
@@ -7603,10 +7699,10 @@ _proto_tree_add_bits_format_value(proto_tree *tree, const int hf_index,
 	 * The caller of this function must make sure that for the specific header field type the address of
 	 * a compatible value is provided.
 	 */
-	switch(hf_field->type){
+	switch (hf_field->type) {
 	case FT_BOOLEAN:
 		return proto_tree_add_boolean_format(tree, hf_index, tvb, offset, length, *(guint32 *)value_ptr,
-			"%s: %s", str, value_str);
+						     "%s: %s", str, value_str);
 		break;
 
 	case FT_UINT8:
@@ -7614,12 +7710,12 @@ _proto_tree_add_bits_format_value(proto_tree *tree, const int hf_index,
 	case FT_UINT24:
 	case FT_UINT32:
 		return proto_tree_add_uint_format(tree, hf_index, tvb, offset, length, *(guint32 *)value_ptr,
-				"%s: %s", str, value_str);
+						  "%s: %s", str, value_str);
 		break;
 
 	case FT_UINT64:
 		return proto_tree_add_uint64_format(tree, hf_index, tvb, offset, length, *(guint64 *)value_ptr,
-				"%s: %s", str, value_str);
+						    "%s: %s", str, value_str);
 		break;
 
 	case FT_INT8:
@@ -7627,17 +7723,17 @@ _proto_tree_add_bits_format_value(proto_tree *tree, const int hf_index,
 	case FT_INT24:
 	case FT_INT32:
 		return proto_tree_add_int_format(tree, hf_index, tvb, offset, length, *(gint32 *)value_ptr,
-				"%s: %s", str, value_str);
+						 "%s: %s", str, value_str);
 		break;
 
 	case FT_INT64:
 		return proto_tree_add_int64_format(tree, hf_index, tvb, offset, length, *(gint64 *)value_ptr,
-				"%s: %s", str, value_str);
+						   "%s: %s", str, value_str);
 		break;
 
 	case FT_FLOAT:
 		return proto_tree_add_float_format(tree, hf_index, tvb, offset, length, *(float *)value_ptr,
-				"%s: %s", str, value_str);
+						   "%s: %s", str, value_str);
 		break;
 
 	default:
@@ -7655,7 +7751,9 @@ proto_tree_add_bits_format_value(proto_tree *tree, const int hf_index,
 {
 	proto_item *item;
 
-	if ((item = _proto_tree_add_bits_format_value(tree, hf_index, tvb, bit_offset, no_of_bits, value_ptr, value_str))) {
+	if ((item = _proto_tree_add_bits_format_value(tree, hf_index,
+						      tvb, bit_offset, no_of_bits,
+						      value_ptr, value_str))) {
 		FI_SET_FLAG(PNODE_FINFO(item), FI_BITS_OFFSET(bit_offset));
 		FI_SET_FLAG(PNODE_FINFO(item), FI_BITS_SIZE(no_of_bits));
 	}
@@ -7663,7 +7761,7 @@ proto_tree_add_bits_format_value(proto_tree *tree, const int hf_index,
 }
 
 #define CREATE_VALUE_STRING(dst,format,ap) \
-	va_start(ap,format); \
+	va_start(ap, format); \
 	dst = ep_strdup_vprintf(format, ap); \
 	va_end(ap);
 
@@ -7674,25 +7772,25 @@ proto_tree_add_uint_bits_format_value(proto_tree *tree, const int hf_index,
 				      const char *format, ...)
 {
 	va_list ap;
-	gchar* dst;
+	gchar  *dst;
 	header_field_info *hf_field;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hf_index, hf_field);
 
-	switch(hf_field->type){
-	case FT_UINT8:
-	case FT_UINT16:
-	case FT_UINT24:
-	case FT_UINT32:
-		break;
+	switch (hf_field->type) {
+		case FT_UINT8:
+		case FT_UINT16:
+		case FT_UINT24:
+		case FT_UINT32:
+			break;
 
-	default:
-		DISSECTOR_ASSERT_NOT_REACHED();
-		return NULL;
-		break;
+		default:
+			DISSECTOR_ASSERT_NOT_REACHED();
+			return NULL;
+			break;
 	}
 
-	CREATE_VALUE_STRING(dst,format,ap);
+	CREATE_VALUE_STRING(dst, format, ap);
 
 	return proto_tree_add_bits_format_value(tree, hf_index, tvb, bit_offset, no_of_bits, &value, dst);
 }
@@ -7704,14 +7802,14 @@ proto_tree_add_float_bits_format_value(proto_tree *tree, const int hf_index,
 				       const char *format, ...)
 {
 	va_list ap;
-	gchar* dst;
+	gchar  *dst;
 	header_field_info *hf_field;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hf_index, hf_field);
 
 	DISSECTOR_ASSERT(hf_field->type == FT_FLOAT);
 
-	CREATE_VALUE_STRING(dst,format,ap);
+	CREATE_VALUE_STRING(dst, format, ap);
 
 	return proto_tree_add_bits_format_value(tree, hf_index, tvb, bit_offset, no_of_bits, &value, dst);
 }
@@ -7723,25 +7821,25 @@ proto_tree_add_int_bits_format_value(proto_tree *tree, const int hf_index,
 				     const char *format, ...)
 {
 	va_list ap;
-	gchar* dst;
+	gchar  *dst;
 	header_field_info *hf_field;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hf_index, hf_field);
 
-	switch(hf_field->type){
-	case FT_INT8:
-	case FT_INT16:
-	case FT_INT24:
-	case FT_INT32:
-		break;
+	switch (hf_field->type) {
+		case FT_INT8:
+		case FT_INT16:
+		case FT_INT24:
+		case FT_INT32:
+			break;
 
-	default:
-		DISSECTOR_ASSERT_NOT_REACHED();
-		return NULL;
-		break;
+		default:
+			DISSECTOR_ASSERT_NOT_REACHED();
+			return NULL;
+			break;
 	}
 
-	CREATE_VALUE_STRING(dst,format,ap);
+	CREATE_VALUE_STRING(dst, format, ap);
 
 	return proto_tree_add_bits_format_value(tree, hf_index, tvb, bit_offset, no_of_bits, &value, dst);
 }
@@ -7753,14 +7851,14 @@ proto_tree_add_boolean_bits_format_value(proto_tree *tree, const int hf_index,
 					 const char *format, ...)
 {
 	va_list ap;
-	gchar* dst;
+	gchar  *dst;
 	header_field_info *hf_field;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hf_index, hf_field);
 
 	DISSECTOR_ASSERT(hf_field->type == FT_BOOLEAN);
 
-	CREATE_VALUE_STRING(dst,format,ap);
+	CREATE_VALUE_STRING(dst, format, ap);
 
 	return proto_tree_add_bits_format_value(tree, hf_index, tvb, bit_offset, no_of_bits, &value, dst);
 }
@@ -7768,5 +7866,5 @@ proto_tree_add_boolean_bits_format_value(proto_tree *tree, const int hf_index,
 guchar
 proto_check_field_name(const gchar *field_name)
 {
-  return wrs_check_charset(fld_abbrev_chars, field_name);
+	return wrs_check_charset(fld_abbrev_chars, field_name);
 }
