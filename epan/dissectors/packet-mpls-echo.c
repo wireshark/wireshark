@@ -196,7 +196,7 @@ static const value_string mpls_echo_returncode[] = {
   {12, "Protocol not associated with interface at FEC stack depth RSC"},
   {13, "Premature termination, label stack shrinking to a single label"},
   {14, "See DDM TLV for meaning of Return Code and Return SubCode"}, /*[RFC6424] */
-  {15, "Label switched with FEC change"}, /*[RFC6424]
+  {15, "Label switched with FEC change"}, /*[RFC6424] */
   /* 16-251 Unassigned */
   /* 252-255 Reserved for Vendor private use [RFC4379 */
   {0, NULL}
