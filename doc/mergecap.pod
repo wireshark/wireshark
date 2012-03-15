@@ -91,15 +91,6 @@ appear to reject Ethernet frames larger than the standard Ethernet MTU,
 making them incapable of handling gigabit Ethernet captures if jumbo
 frames were used).
 
-=item -v
-
-Causes B<mergecap> to print a number of messages while it's working.
-
-=item -w  E<lt>outfileE<gt>|-
-
-Sets the output filename. If the name is 'B<->', stdout will be used.
-This setting is mandatory.
-
 =item -T  E<lt>encapsulation typeE<gt>
 
 Sets the packet encapsulation type of the output capture file.
@@ -115,6 +106,15 @@ encapsulation type of the input capture file to the specified
 encapsulation type (for example, it will not translate an Ethernet
 capture to an FDDI capture if an Ethernet capture is read and 'B<-T
 fddi>' is specified).
+
+=item -v
+
+Causes B<mergecap> to print a number of messages while it's working.
+
+=item -w  E<lt>outfileE<gt>|-
+
+Sets the output filename. If the name is 'B<->', stdout will be used.
+This setting is mandatory.
 
 =back
 
