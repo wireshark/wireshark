@@ -1309,68 +1309,73 @@ dissect_dtls_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
   nstime_t gmt_unix_time;
   guint8  session_id_length;
   session_id_length = 0;
-  if (ssl)
+  if (tree || ssl)
     {
-      /* get proper peer information*/
-      StringInfo* rnd;
-      if (from_server)
-        rnd = &ssl->server_random;
-      else
-        rnd = &ssl->client_random;
+      if (ssl)
+	{
+	  /* get proper peer information*/
+	  StringInfo* rnd;
+	  if (from_server)
+	    rnd = &ssl->server_random;
+	  else
+	    rnd = &ssl->client_random;
 
-      /* get provided random for keyring generation*/
-      tvb_memcpy(tvb, rnd->data, offset, 32);
-      rnd->data_len = 32;
-      if (from_server)
-        ssl->state |= SSL_SERVER_RANDOM;
-      else
-        ssl->state |= SSL_CLIENT_RANDOM;
-      ssl_debug_printf("dissect_dtls_hnd_hello_common found random state %X\n",
-                       ssl->state);
+	  /* get provided random for keyring generation*/
+	  tvb_memcpy(tvb, rnd->data, offset, 32);
+	  rnd->data_len = 32;
+	  if (from_server)
+	    ssl->state |= SSL_SERVER_RANDOM;
+	  else
+	    ssl->state |= SSL_CLIENT_RANDOM;
+	  ssl_debug_printf("dissect_dtls_hnd_hello_common found random state %X\n",
+			   ssl->state);
+	}
 
-      session_id_length = tvb_get_guint8(tvb, offset + 32);
-      /* check stored session id info */
-      if (from_server && (session_id_length == ssl->session_id.data_len) &&
-          (tvb_memeql(tvb, offset+33, ssl->session_id.data, session_id_length) == 0))
-        {
-          /* clinet/server id match: try to restore a previous cached session*/
-          ssl_restore_session(ssl, dtls_session_hash);
-        }
-      else {
-        tvb_memcpy(tvb,ssl->session_id.data, offset+33, session_id_length);
-        ssl->session_id.data_len = session_id_length;
-      }
-    }
-
-  if (tree)
-    {
       /* show the time */
-      gmt_unix_time.secs = tvb_get_ntohl(tvb, offset);
-      gmt_unix_time.nsecs = 0;
-      proto_tree_add_time(tree, hf_dtls_handshake_random_time,
-                          tvb, offset, 4, &gmt_unix_time);
+      if (tree)
+	{
+	  gmt_unix_time.secs = tvb_get_ntohl(tvb, offset);
+	  gmt_unix_time.nsecs = 0;
+	  proto_tree_add_time(tree, hf_dtls_handshake_random_time,
+			      tvb, offset, 4, &gmt_unix_time);
+	}
       offset += 4;
 
       /* show the random bytes */
-      proto_tree_add_item(tree, hf_dtls_handshake_random_bytes,
-                          tvb, offset, 28, 0);
+      if (tree)
+	  proto_tree_add_item(tree, hf_dtls_handshake_random_bytes,
+			      tvb, offset, 28, 0);
       offset += 28;
 
       /* show the session id */
       session_id_length = tvb_get_guint8(tvb, offset);
-      proto_tree_add_item(tree, hf_dtls_handshake_session_id_len,
-                          tvb, offset++, 1, 0);
-      if (session_id_length > 0)
+      if (tree)
+	  proto_tree_add_item(tree, hf_dtls_handshake_session_id_len,
+				  tvb, offset, 1, ENC_BIG_ENDIAN);
+      offset++;
+      if (ssl)
         {
-          proto_tree_add_bytes_format(tree, hf_dtls_handshake_session_id,
-                                      tvb, offset, session_id_length,
-                                      NULL, "Session ID (%u byte%s)",
-                                      session_id_length,
-                                      plurality(session_id_length, "", "s"));
+          /* check stored session id info */
+          if (from_server && (session_id_length == ssl->session_id.data_len) &&
+              (tvb_memeql(tvb, offset, ssl->session_id.data, session_id_length) == 0))
+            {
+              /* clinet/server id match: try to restore a previous cached session*/
+              ssl_restore_session(ssl, dtls_session_hash);
+            }
+          else {
+            tvb_memcpy(tvb,ssl->session_id.data, offset, session_id_length);
+            ssl->session_id.data_len = session_id_length;
+          }
+        }
+	  if (tree && session_id_length > 0)
+	      proto_tree_add_bytes_format(tree, hf_dtls_handshake_session_id,
+					  tvb, offset, session_id_length,
+					  NULL, "Session ID (%u byte%s)",
+					  session_id_length,
+					  plurality(session_id_length, "", "s"));
           offset += session_id_length;
         }
 
-    }
 
   /* XXXX */
   return session_id_length+33;
@@ -1676,6 +1681,10 @@ dissect_dtls_hnd_srv_hello(tvbuff_t *tvb,
         ssl->state |= SSL_HAVE_SESSION_KEY;
       }
     no_cipher:
+      if (ssl) {
+        /* store selected compression method for decompression */
+        ssl->compression = tvb_get_guint8(tvb, offset+2);
+      }
       if (!tree)
         return;
 

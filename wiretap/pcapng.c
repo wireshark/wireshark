@@ -613,9 +613,7 @@ pcapng_read_section_header_block(FILE_T fh, gboolean first_block,
 	g_free(option_content);
 
 	if (pn->interface_data != NULL) {
-		g_array_free(pn->interface_data, TRUE);
-		pn->interface_data = NULL;
-		*err = WTAP_ERR_BAD_RECORD;
+		*err = WTAP_ERR_UNSUPPORTED;
 		*err_info = g_strdup_printf("pcapng: multiple section header blocks not supported.");
 		return 0;
 	}
@@ -1061,7 +1059,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 	/* FCS length default */
 	fcslen = pn->if_fcslen;
 
-	/* Options 
+	/* Options
 	 * opt_comment    1
 	 * epb_flags      2
 	 * epb_hash       3
@@ -1334,7 +1332,7 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t
 
 	errno = WTAP_ERR_CANT_READ;
 	to_read = bh->block_total_length - 8 - 4; /* We have read the header adn should not read the final block_total_length */
-	
+
 	pcapng_debug1("pcapng_read_name_resolution_block, total %d bytes", bh->block_total_length);
 
 	/*

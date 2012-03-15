@@ -132,7 +132,7 @@ echo -e "\nCREATE WIRESHARK PACKAGE\n"
 pkg_title="$volume_name $version $architecture"
 pkg_file="$pkg_title.pkg"
 rm -rf "$pkg_file"
-/Developer/usr/bin/packagemaker --doc "Wireshark package.pmdoc" \
+/Developer/usr/bin/packagemaker --doc "Wireshark_package.pmdoc" \
     --title "$pkg_title" \
     --version "$version" \
     --verbose || exit 1

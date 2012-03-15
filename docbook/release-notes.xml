@@ -127,6 +127,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          ZEP dissector: Timestamp not always displayed correctly. Fractional seconds never displayed.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6703">Bug
+          6703</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           GOOSE Messages don't use the length field to perform the dissection.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6734">Bug
           6734</ulink>)
@@ -142,6 +148,12 @@ Wireshark Info
           max_ul_ext isn't printed/decoded to the packet details log in GTP protocol packet.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6761">Bug
           6761</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          non-IPP packets to or from port 631 are dissected as IPP.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6765">Bug
+          6765</ulink>)
         </para></listitem>
 
         <listitem><para>
@@ -166,6 +178,12 @@ Wireshark Info
           TShark 1.6.5 immediately crashes on SSL decryption (every time).
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6817">Bug
           6817</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Patch to fix DTLS decryption.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6847">Bug
+          6847</ulink>)
         </para></listitem>
 
         <listitem><para>
@@ -208,7 +226,9 @@ GSM Management,
 GTP,
 IAX2,
 IEEE 802.11,
+IPP,
 MySQL,
+NTP,
 PacketBB,
 PGM,
 SSL,
@@ -221,7 +241,7 @@ WSP
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-Tektronix K12
+Endace ERF, Tektronix K12
 
     </para>
     </section>
