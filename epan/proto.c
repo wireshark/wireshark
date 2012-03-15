@@ -58,9 +58,9 @@
 
 
 typedef struct __subtree_lvl {
-	gint cursor_offset;
-	proto_item  *it;
-	proto_tree  *tree;
+	gint        cursor_offset;
+	proto_item *it;
+	proto_tree *tree;
 } subtree_lvl;
 
 struct ptvcursor {
@@ -327,8 +327,8 @@ gboolean	*tree_is_expanded;
 int		num_tree_types;
 
 /* Name hashtables for fast detection of duplicate names */
-static GHashTable* proto_names = NULL;
-static GHashTable* proto_short_names = NULL;
+static GHashTable* proto_names        = NULL;
+static GHashTable* proto_short_names  = NULL;
 static GHashTable* proto_filter_names = NULL;
 
 static gint
@@ -356,8 +356,8 @@ proto_init(void (register_all_protocols_func)(register_cb cb, gpointer client_da
 
 	proto_cleanup();
 
-	proto_names = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, NULL);
-	proto_short_names = g_hash_table_new(wrs_str_hash, g_str_equal);
+	proto_names        = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, NULL);
+	proto_short_names  = g_hash_table_new(wrs_str_hash, g_str_equal);
 	proto_filter_names = g_hash_table_new(wrs_str_hash, g_str_equal);
 
 	gpa_hfinfo.len           = 0;
@@ -432,7 +432,7 @@ proto_cleanup(void)
 	}
 
 	while (protocols) {
-		protocol_t *protocol = protocols->data;
+		protocol_t        *protocol = protocols->data;
 		header_field_info *hfinfo;
 		PROTO_REGISTRAR_GET_NTH(protocol->proto_id, hfinfo);
 		DISSECTOR_ASSERT(protocol->proto_id == hfinfo->id);
@@ -487,7 +487,7 @@ proto_tree_traverse_pre_order(proto_tree *tree, proto_tree_traverse_func func,
 		 * calling that routine.
 		 */
 		current = child;
-		child = current->next;
+		child   = current->next;
 		if (proto_tree_traverse_pre_order((proto_tree *)current, func, data))
 			return TRUE;
 	}
@@ -511,7 +511,7 @@ proto_tree_traverse_post_order(proto_tree *tree, proto_tree_traverse_func func,
 		 * calling that routine.
 		 */
 		current = child;
-		child = current->next;
+		child   = current->next;
 		if (proto_tree_traverse_post_order((proto_tree *)current, func, data))
 			return TRUE;
 	}
@@ -531,7 +531,7 @@ proto_tree_children_foreach(proto_tree *tree, proto_tree_foreach_func func,
 	node = node->first_child;
 	while (node != NULL) {
 		current = node;
-		node = current->next;
+		node    = current->next;
 		func((proto_tree *)current, data);
 	}
 }
@@ -593,7 +593,7 @@ free_node_tree_data(tree_data_t *tree_data)
 static gboolean
 proto_tree_free_node(proto_node *node, gpointer data _U_)
 {
-	field_info *finfo = PNODE_FINFO(node);
+	field_info *finfo  = PNODE_FINFO(node);
 #if 0
 	proto_node *parent = node->parent;
 #endif
@@ -717,7 +717,7 @@ prefix_hash (gconstpointer key) {
 	gchar* copy = ep_strdup(key);
 	gchar* c    = copy;
 
-	for (;*c ;c++) {
+	for (; *c; c++) {
 		if (*c == '.') {
 			*c = 0;
 			break;
@@ -798,7 +798,7 @@ proto_registrar_get_byname(const char *field_name)
 	if (!prefixes)
 		return NULL;
 
-	if ((pi = g_hash_table_lookup(prefixes, field_name) )) {
+	if ((pi = g_hash_table_lookup(prefixes, field_name) ) != NULL) {
 		pi(field_name);
 		g_hash_table_remove(prefixes, field_name);
 	} else {
@@ -838,7 +838,7 @@ ptvcursor_free_subtree_levels(ptvcursor_t *ptvc)
 ptvcursor_t *
 ptvcursor_new(proto_tree *tree, tvbuff_t *tvb, gint offset)
 {
-	ptvcursor_t	*ptvc;
+	ptvcursor_t *ptvc;
 
 	ptvc                    = ep_alloc(sizeof(ptvcursor_t));
 	ptvc->tree              = tree;
@@ -896,7 +896,7 @@ ptvcursor_push_subtree(ptvcursor_t *ptvc, proto_item *it, gint ett_subtree)
 	if (ptvc->pushed_tree_index >= ptvc->pushed_tree_max)
 		ptvcursor_new_subtree_levels(ptvc);
 
-	subtree = ptvc->pushed_tree+ptvc->pushed_tree_index;
+	subtree = ptvc->pushed_tree + ptvc->pushed_tree_index;
 	subtree->tree = ptvc->tree;
 	subtree->it= NULL;
 	ptvc->pushed_tree_index++;
@@ -908,11 +908,12 @@ void
 ptvcursor_pop_subtree(ptvcursor_t *ptvc)
 {
 	subtree_lvl *subtree;
+
 	if (ptvc->pushed_tree_index <= 0)
 		return;
 
 	ptvc->pushed_tree_index--;
-	subtree = ptvc->pushed_tree+ptvc->pushed_tree_index;
+	subtree = ptvc->pushed_tree + ptvc->pushed_tree_index;
 	if (subtree->it != NULL)
 		proto_item_set_len(subtree->it, ptvcursor_current_offset(ptvc) - subtree->cursor_offset);
 
@@ -927,8 +928,8 @@ ptvcursor_subtree_set_item(ptvcursor_t *ptvc, proto_item *it)
 
 	DISSECTOR_ASSERT(ptvc->pushed_tree_index > 0);
 
-	subtree = ptvc->pushed_tree+ptvc->pushed_tree_index-1;
-	subtree->it = it;
+	subtree                = ptvc->pushed_tree + ptvc->pushed_tree_index - 1;
+	subtree->it            = it;
 	subtree->cursor_offset = ptvcursor_current_offset(ptvc);
 }
 
@@ -3713,7 +3714,7 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 		}
 
 		/* Are there enough occurrences of the field? */
-		if ((occurrence-prev_len > len) || (occurrence+prev_len < -len)) {
+		if (((occurrence - prev_len) > len) || ((occurrence + prev_len) < -len)) {
 			if (occurrence < 0) {
 				hfinfo = hfinfo->same_name_next;
 			} else {
@@ -3740,10 +3741,10 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 		while (i <= last) {
 			finfo = g_ptr_array_index(finfos, i);
 
-			if (offset_r && (offset_r < size-2))
+			if (offset_r && (offset_r < (size - 2)))
 				result[offset_r++] = ',';
 
-			if (offset_e && (offset_e < size-2))
+			if (offset_e && (offset_e < (size - 2)))
 				expr[offset_e++] = ',';
 
 			switch (hfinfo->type) {
@@ -4408,17 +4409,18 @@ proto_register_protocol(const char *name, const char *short_name,
 	 * This situation has to be fixed to not register more than one
 	 * protocol with the same name.
 	 *
-	 * This is done by reducing the number of strcmp (and alike) calls as much as possible,
-	 * as this significally slows down startup time.
+	 * This is done by reducing the number of strcmp (and alike) calls
+	 * as much as possible, as this significally slows down startup time.
 	 *
 	 * Drawback: As a hash value is used to reduce insert time,
 	 * this might lead to a hash collision.
-	 * However, as we have around 500+ protocols and we're using a 32 bit int this is very,
-	 * very unlikely.
+	 * However, although we have somewhat over 1000 protocols, we're using
+	 * a 32 bit int so this is very, very unlikely.
 	 */
 
-	key = g_malloc (sizeof(gint));
+	key  = g_malloc (sizeof(gint));
 	*key = wrs_str_hash(name);
+
 	existing_name = g_hash_table_lookup(proto_names, key);
 	if (existing_name != NULL) {
 		/* g_error will terminate the program */
@@ -5118,7 +5120,7 @@ proto_register_subtree_array(gint *const *indices, const int num_indices)
 	if (tree_is_expanded != NULL) {
 		tree_is_expanded =
 			g_realloc(tree_is_expanded,
-				  (num_tree_types+num_indices)*sizeof (gboolean));
+				  (num_tree_types + num_indices)*sizeof (gboolean));
 		memset(tree_is_expanded + num_tree_types, 0,
 		       num_indices*sizeof (gboolean));
 	}
@@ -7360,7 +7362,7 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb
 	/*
 	 * Calculate the number of octets used to hold the bits
 	 */
-	tot_no_bits = ((bit_offset&0x7)+no_of_bits);
+	tot_no_bits = ((bit_offset&0x7) + no_of_bits);
 	length = tot_no_bits>>3;
 	/* If we are using part of the next octet, increase length by 1 */
 	if (tot_no_bits & 0x07)
@@ -7368,7 +7370,7 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb
 
 	if (no_of_bits < 65) {
 		value = tvb_get_bits64(tvb, bit_offset, no_of_bits, encoding);
-	}else{
+	} else {
 		DISSECTOR_ASSERT_NOT_REACHED();
 		return NULL;
 	}
@@ -7674,7 +7676,7 @@ _proto_tree_add_bits_format_value(proto_tree *tree, const int hf_index,
 	/*
 	 * Calculate the number of octets used to hold the bits
 	 */
-	tot_no_bits = ((bit_offset&0x7)+no_of_bits);
+	tot_no_bits = ((bit_offset&0x7) + no_of_bits);
 	length      = tot_no_bits>>3;
 	/* If we are using part of the next octet, increase length by 1 */
 	if (tot_no_bits & 0x07)
