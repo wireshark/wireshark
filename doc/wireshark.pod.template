@@ -20,8 +20,8 @@ S<[ B<-h> ]>
 S<[ B<-H> ]>
 S<[ B<-i> E<lt>capture interfaceE<gt>|- ]>
 S<[ B<-I> ]>
-S<[ B<-J> E<lt>jump filterE<gt> ]>
 S<[ B<-j> ]>
+S<[ B<-J> E<lt>jump filterE<gt> ]>
 S<[ B<-k> ]>
 S<[ B<-K> E<lt>keytabE<gt> ]>
 S<[ B<-l> ]>
@@ -34,13 +34,13 @@ S<[ B<-p> ]>
 S<[ B<-P> E<lt>path settingE<gt>]>
 S<[ B<-r> E<lt>infileE<gt> ]>
 S<[ B<-R> E<lt>read (display) filterE<gt> ]>
-S<[ B<-S> ]>
 S<[ B<-s> E<lt>capture snaplenE<gt> ]>
+S<[ B<-S> ]>
 S<[ B<-t> ad|a|r|d|dd|e ]>
 S<[ B<-v> ]>
 S<[ B<-w> E<lt>outfileE<gt> ]>
-S<[ B<-y> E<lt>capture link typeE<gt> ]>
 S<[ B<-X> E<lt>eXtension optionE<gt> ]>
+S<[ B<-y> E<lt>capture link typeE<gt> ]>
 S<[ B<-z> E<lt>statisticsE<gt> ]>
 S<[ E<lt>infileE<gt> ]>
 
@@ -390,16 +390,16 @@ If used after an B<-i> option, it enables the monitor mode for
 the interface specified by the last B<-i> option occurring before
 this option.
 
+=item -j
+
+Use after B<-J> to change the behavior when no exact match is found for
+the filter.  With this option select the first packet before.
+
 =item -J  E<lt>jump filterE<gt>
 
 After reading in a capture file using the B<-r> flag, jump to the packet
 matching the filter (display filter syntax).  If no exact match is found
 the first packet after that is selected.
-
-=item -j
-
-Use after B<-J> to change the behavior when no exact match is found for
-the filter.  With this option select the first packet before.
 
 =item -k
 
@@ -523,10 +523,6 @@ specified filter (which uses the syntax of display filters, rather than
 that of capture filters) to be applied to all packets read from the
 capture file; packets not matching the filter are discarded.
 
-=item -S
-
-Automatically update the packet display as packets are coming in.
-
 =item -s  E<lt>capture snaplenE<gt>
 
 Set the default snapshot length to use when capturing live data.
@@ -540,6 +536,10 @@ If used after an B<-i> option, it sets the snapshot length for
 the interface specified by the last B<-i> option occurring before
 this option.  If the snapshot length is not set specifically,
 the default snapshot length is used if provided.
+
+=item -S
+
+Automatically update the packet display as packets are coming in.
 
 =item -t  ad|a|r|d|dd|e
 
@@ -573,6 +573,17 @@ Print the version and exit.
 
 Set the default capture file name.
 
+=item -X E<lt>eXtension optionsE<gt>
+
+Specify an option to be passed to an B<Wireshark> module.  The eXtension option
+is in the form I<extension_key>B<:>I<value>, where I<extension_key> can be:
+
+B<lua_script>:I<lua_script_filename> tells B<Wireshark> to load the given script in addition to the
+default Lua scripts.
+
+B<stdin_descr>:I<description> tells B<Wireshark> to use the given description when
+capturing from standard input (B<-i ->).
+
 =item -y  E<lt>capture link typeE<gt>
 
 If a capture is started from the command line with B<-k>, set the data
@@ -586,17 +597,6 @@ the interface specified by the last B<-i> option occurring before
 this option.  If the capture link type is not set specifically,
 the default capture link type is used if provided.
 
-=item -X E<lt>eXtension optionsE<gt>
-
-Specify an option to be passed to an B<Wireshark> module.  The eXtension option
-is in the form I<extension_key>B<:>I<value>, where I<extension_key> can be:
-
-B<lua_script>:I<lua_script_filename> tells B<Wireshark> to load the given script in addition to the
-default Lua scripts.
-
-B<stdin_descr>:I<description> tells B<Wireshark> to use the given description when
-capturing from standard input (B<-i ->).
-
 =item -z  E<lt>statisticsE<gt>
 
 Get B<Wireshark> to collect various types of statistics and display the result
@@ -605,183 +605,6 @@ in a window that updates in semi-real time.
 Currently implemented statistics are:
 
 =over 4
-
-=item B<-z> dcerpc,srt,I<uuid>,I<major>.I<minor>[,I<filter>]
-
-Collect call/reply SRT (Service Response Time) data for DCERPC interface I<uuid>,
-version I<major>.I<minor>.
-Data collected is the number of calls for each procedure, MinSRT, MaxSRT
-and AvgSRT.
-
-Example: S<B<-z dcerpc,srt,12345778-1234-abcd-ef00-0123456789ac,1.0>> will collect data for the CIFS SAMR Interface.
-
-This option can be used multiple times on the command line.
-
-If the optional I<filter>  is provided, the stats will only be calculated
-on those calls that match that filter.
-
-Example: S<B<-z dcerpc,srt,12345778-1234-abcd-ef00-0123456789ac,1.0,ip.addr==1.2.3.4>> will collect SAMR
-SRT statistics for a specific host.
-
-=item B<-z> io,stat
-
-Collect packet/bytes statistics for the capture in intervals of 1 second.
-This option will open a window with up to 5 color-coded graphs where
-number-of-packets-per-second or number-of-bytes-per-second statistics
-can be calculated and displayed.
-
-This option can be used multiple times on the command line.
-
-This graph window can also be opened from the Analyze:Statistics:Traffic:IO-Stat
-menu item.
-
-=item B<-z> rpc,srt,I<program>,I<version>[,<filter>]
-
-Collect call/reply SRT (Service Response Time) data for I<program>/I<version>.  Data collected
-is the number of calls for each procedure, MinSRT, MaxSRT and AvgSRT.
-
-Example: B<-z rpc,srt,100003,3> will collect data for NFS v3.
-
-This option can be used multiple times on the command line.
-
-If the optional I<filter> is provided, the stats will only be calculated
-on those calls that match that filter.
-
-Example: S<B<-z rpc,srt,100003,3,nfs.fh.hash==0x12345678>> will collect NFS v3
-SRT statistics for a specific file.
-
-=item B<-z> rpc,programs
-
-Collect call/reply SRT data for all known ONC-RPC programs/versions.
-Data collected is the number of calls for each protocol/version, MinSRT,
-MaxSRT and AvgSRT.
-
-=item B<-z> scsi,srt,I<cmdset>[,<filter>]
-
-Collect call/reply SRT (Service Response Time) data for SCSI commandset <cmdset>.
-
-Commandsets are 0:SBC   1:SSC  5:MMC
-
-Data collected
-is the number of calls for each procedure, MinSRT, MaxSRT and AvgSRT.
-
-Example: B<-z scsi,srt,0> will collect data for SCSI BLOCK COMMANDS (SBC).
-
-This option can be used multiple times on the command line.
-
-If the optional I<filter> is provided, the stats will only be calculated
-on those calls that match that filter.
-
-Example: B<-z scsi,srt,0,ip.addr==1.2.3.4> will collect SCSI SBC
-SRT statistics for a specific iscsi/ifcp/fcip host.
-
-=item B<-z> smb,srt[,I<filter>]
-
-Collect call/reply SRT (Service Response Time) data for SMB.  Data collected
-is the number of calls for each SMB command, MinSRT, MaxSRT and AvgSRT.
-
-Example: B<-z smb,srt>
-
-The data will be presented as separate tables for all normal SMB commands,
-all Transaction2 commands and all NT Transaction commands.
-Only those commands that are seen in the capture will have their stats
-displayed.
-Only the first command in a xAndX command chain will be used in the
-calculation.  So for common SessionSetupAndX + TreeConnectAndX chains,
-only the SessionSetupAndX call will be used in the statistics.
-This is a flaw that might be fixed in the future.
-
-This option can be used multiple times on the command line.
-
-If the optional I<filter> is provided, the stats will only be calculated
-on those calls that match that filter.
-
-Example: B<-z "smb,srt,ip.addr==1.2.3.4"> will collect stats only for
-SMB packets exchanged by the host at IP address 1.2.3.4 .
-
-=item B<-z> fc,srt[,I<filter>]
-
-Collect call/reply SRT (Service Response Time) data for FC.  Data collected
-is the number of calls for each Fibre Channel command, MinSRT, MaxSRT and AvgSRT.
-
-Example: B<-z fc,srt>
-will calculate the Service Response Time as the time delta between the
-First packet of the exchange and the Last packet of the exchange.
-
-The data will be presented as separate tables for all normal FC commands,
-Only those commands that are seen in the capture will have its stats
-displayed.
-
-This option can be used multiple times on the command line.
-
-If the optional I<filter> is provided, the stats will only be calculated
-on those calls that match that filter.
-
-Example: B<-z "fc,srt,fc.id==01.02.03"> will collect stats only for
-FC packets exchanged by the host at FC address 01.02.03 .
-
-=item B<-z> ldap,srt[,I<filter>]
-
-Collect call/reply SRT (Service Response Time) data for LDAP.  Data collected
-is the number of calls for each implemented LDAP command, MinSRT, MaxSRT and AvgSRT.
-
-Example: B<-z ldap,srt>
-will calculate the Service Response Time as the time delta between the
-Request and the Response.
-
-The data will be presented as separate tables for all implemented LDAP commands,
-Only those commands that are seen in the capture will have its stats
-displayed.
-
-This option can be used multiple times on the command line.
-
-If the optional I<filter> is provided, the stats will only be calculated
-on those calls that match that filter.
-
-Example: use B<-z "ldap,srt,ip.addr==10.1.1.1"> will collect stats only for
-LDAP packets exchanged by the host at IP address 10.1.1.1 .
-
-The only LDAP commands that are currently implemented and for which the stats will be available are:
-BIND
-SEARCH
-MODIFY
-ADD
-DELETE
-MODRDN
-COMPARE
-EXTENDED
-
-=item B<-z> mgcp,srt[I<,filter>]
-
-Collect request/response SRT (Service Response Time) data for MGCP.
-(This is similar to B<-z smb,srt>).  Data collected is the number of calls
-for each known MGCP Type, Minimum SRT, Maximum SRT and Average SRT.
-
-Example: B<-z mgcp,srt>
-
-This option can be used multiple times on the command line.
-
-If the optional I<filter> is provided, the stats will only be calculated
-on those calls that match that filter.
-
-Example: B<-z "mgcp,srt,ip.addr==1.2.3.4"> will collect stats only for
-MGCP packets exchanged by the host at IP address 1.2.3.4 .
-
-=item B<-z> megaco,srt[I<,filter>]
-
-Collect request/response SRT (Service Response Time) data for MEGACO.
-(This is similar to B<-z smb,srt>).  Data collected is the number of calls
-for each known MEGACO Command, Minimum SRT, Maximum SRT and Average SRT.
-
-Example: B<-z megaco,srt>
-
-This option can be used multiple times on the command line.
-
-If the optional I<filter> is provided, the stats will only be calculated
-on those calls that match that filter.
-
-Example: B<-z "megaco,srt,ip.addr==1.2.3.4"> will collect stats only for
-MEGACO packets exchanged by the host at IP address 1.2.3.4 .
 
 =item B<-z> conv,I<type>[,I<filter>]
 
@@ -809,6 +632,44 @@ the total number of packets.
 
 These tables can also be generated at runtime by selecting the appropriate
 conversation type from the menu "Tools/Statistics/Conversation List/".
+
+=item B<-z> dcerpc,srt,I<uuid>,I<major>.I<minor>[,I<filter>]
+
+Collect call/reply SRT (Service Response Time) data for DCERPC interface I<uuid>,
+version I<major>.I<minor>.
+Data collected is the number of calls for each procedure, MinSRT, MaxSRT
+and AvgSRT.
+
+Example: S<B<-z dcerpc,srt,12345778-1234-abcd-ef00-0123456789ac,1.0>> will collect data for the CIFS SAMR Interface.
+
+This option can be used multiple times on the command line.
+
+If the optional I<filter>  is provided, the stats will only be calculated
+on those calls that match that filter.
+
+Example: S<B<-z dcerpc,srt,12345778-1234-abcd-ef00-0123456789ac,1.0,ip.addr==1.2.3.4>> will collect SAMR
+SRT statistics for a specific host.
+
+=item B<-z> fc,srt[,I<filter>]
+
+Collect call/reply SRT (Service Response Time) data for FC.  Data collected
+is the number of calls for each Fibre Channel command, MinSRT, MaxSRT and AvgSRT.
+
+Example: B<-z fc,srt>
+will calculate the Service Response Time as the time delta between the
+First packet of the exchange and the Last packet of the exchange.
+
+The data will be presented as separate tables for all normal FC commands,
+Only those commands that are seen in the capture will have its stats
+displayed.
+
+This option can be used multiple times on the command line.
+
+If the optional I<filter> is provided, the stats will only be calculated
+on those calls that match that filter.
+
+Example: B<-z "fc,srt,fc.id==01.02.03"> will collect stats only for
+FC packets exchanged by the host at FC address 01.02.03 .
 
 =item B<-z> h225,counter[I<,filter>]
 
@@ -845,6 +706,121 @@ on those calls that match that filter.
 Example: B<-z "h225,srt,ip.addr==1.2.3.4"> will collect stats only for
 ITU-T H.225 RAS packets exchanged by the host at IP address 1.2.3.4 .
 
+=item B<-z> io,stat
+
+Collect packet/bytes statistics for the capture in intervals of 1 second.
+This option will open a window with up to 5 color-coded graphs where
+number-of-packets-per-second or number-of-bytes-per-second statistics
+can be calculated and displayed.
+
+This option can be used multiple times on the command line.
+
+This graph window can also be opened from the Analyze:Statistics:Traffic:IO-Stat
+menu item.
+
+=item B<-z> ldap,srt[,I<filter>]
+
+Collect call/reply SRT (Service Response Time) data for LDAP.  Data collected
+is the number of calls for each implemented LDAP command, MinSRT, MaxSRT and AvgSRT.
+
+Example: B<-z ldap,srt>
+will calculate the Service Response Time as the time delta between the
+Request and the Response.
+
+The data will be presented as separate tables for all implemented LDAP commands,
+Only those commands that are seen in the capture will have its stats
+displayed.
+
+This option can be used multiple times on the command line.
+
+If the optional I<filter> is provided, the stats will only be calculated
+on those calls that match that filter.
+
+Example: use B<-z "ldap,srt,ip.addr==10.1.1.1"> will collect stats only for
+LDAP packets exchanged by the host at IP address 10.1.1.1 .
+
+The only LDAP commands that are currently implemented and for which the stats will be available are:
+BIND
+SEARCH
+MODIFY
+ADD
+DELETE
+MODRDN
+COMPARE
+EXTENDED
+
+=item B<-z> megaco,srt[I<,filter>]
+
+Collect request/response SRT (Service Response Time) data for MEGACO.
+(This is similar to B<-z smb,srt>).  Data collected is the number of calls
+for each known MEGACO Command, Minimum SRT, Maximum SRT and Average SRT.
+
+Example: B<-z megaco,srt>
+
+This option can be used multiple times on the command line.
+
+If the optional I<filter> is provided, the stats will only be calculated
+on those calls that match that filter.
+
+Example: B<-z "megaco,srt,ip.addr==1.2.3.4"> will collect stats only for
+MEGACO packets exchanged by the host at IP address 1.2.3.4 .
+
+=item B<-z> mgcp,srt[I<,filter>]
+
+Collect request/response SRT (Service Response Time) data for MGCP.
+(This is similar to B<-z smb,srt>).  Data collected is the number of calls
+for each known MGCP Type, Minimum SRT, Maximum SRT and Average SRT.
+
+Example: B<-z mgcp,srt>
+
+This option can be used multiple times on the command line.
+
+If the optional I<filter> is provided, the stats will only be calculated
+on those calls that match that filter.
+
+Example: B<-z "mgcp,srt,ip.addr==1.2.3.4"> will collect stats only for
+MGCP packets exchanged by the host at IP address 1.2.3.4 .
+
+=item B<-z> rpc,programs
+
+Collect call/reply SRT data for all known ONC-RPC programs/versions.
+Data collected is the number of calls for each protocol/version, MinSRT,
+MaxSRT and AvgSRT.
+
+=item B<-z> rpc,srt,I<program>,I<version>[,<filter>]
+
+Collect call/reply SRT (Service Response Time) data for I<program>/I<version>.  Data collected
+is the number of calls for each procedure, MinSRT, MaxSRT and AvgSRT.
+
+Example: B<-z rpc,srt,100003,3> will collect data for NFS v3.
+
+This option can be used multiple times on the command line.
+
+If the optional I<filter> is provided, the stats will only be calculated
+on those calls that match that filter.
+
+Example: S<B<-z rpc,srt,100003,3,nfs.fh.hash==0x12345678>> will collect NFS v3
+SRT statistics for a specific file.
+
+=item B<-z> scsi,srt,I<cmdset>[,<filter>]
+
+Collect call/reply SRT (Service Response Time) data for SCSI commandset <cmdset>.
+
+Commandsets are 0:SBC   1:SSC  5:MMC
+
+Data collected
+is the number of calls for each procedure, MinSRT, MaxSRT and AvgSRT.
+
+Example: B<-z scsi,srt,0> will collect data for SCSI BLOCK COMMANDS (SBC).
+
+This option can be used multiple times on the command line.
+
+If the optional I<filter> is provided, the stats will only be calculated
+on those calls that match that filter.
+
+Example: B<-z scsi,srt,0,ip.addr==1.2.3.4> will collect SCSI SBC
+SRT statistics for a specific iscsi/ifcp/fcip host.
+
 =item B<-z> sip,stat[I<,filter>]
 
 This option will activate a counter for SIP messages.  You will get the number
@@ -860,6 +836,30 @@ on those calls that match that filter.
 
 Example: B<-z "sip,stat,ip.addr==1.2.3.4"> will collect stats only for
 SIP packets exchanged by the host at IP address 1.2.3.4 .
+
+=item B<-z> smb,srt[,I<filter>]
+
+Collect call/reply SRT (Service Response Time) data for SMB.  Data collected
+is the number of calls for each SMB command, MinSRT, MaxSRT and AvgSRT.
+
+Example: B<-z smb,srt>
+
+The data will be presented as separate tables for all normal SMB commands,
+all Transaction2 commands and all NT Transaction commands.
+Only those commands that are seen in the capture will have their stats
+displayed.
+Only the first command in a xAndX command chain will be used in the
+calculation.  So for common SessionSetupAndX + TreeConnectAndX chains,
+only the SessionSetupAndX call will be used in the statistics.
+This is a flaw that might be fixed in the future.
+
+This option can be used multiple times on the command line.
+
+If the optional I<filter> is provided, the stats will only be calculated
+on those calls that match that filter.
+
+Example: B<-z "smb,srt,ip.addr==1.2.3.4"> will collect stats only for
+SMB packets exchanged by the host at IP address 1.2.3.4 .
 
 =item B<-z> voip,calls
 
