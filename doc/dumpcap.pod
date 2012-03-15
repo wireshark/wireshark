@@ -17,8 +17,8 @@ S<[ B<-h> ]>
 S<[ B<-i> E<lt>capture interfaceE<gt>|- ]>
 S<[ B<-I> ]>
 S<[ B<-L> ]>
-S<[ B<-n> ]>
 S<[ B<-M> ]>
+S<[ B<-n> ]>
 S<[ B<-p> ]>
 S<[ B<-P> ]>
 S<[ B<-q> ]>
