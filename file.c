@@ -3665,7 +3665,7 @@ cf_read_shb_comment(capture_file *cf)
   /* Get info from SHB */
   shb_inf = wtap_file_get_shb_info(cf->wth);
   if(shb_inf == NULL)
-	  return NULL;
+        return NULL;
   temp_str = shb_inf->opt_comment;
   g_free(shb_inf);
 
@@ -3855,6 +3855,9 @@ cf_save(capture_file *cf, const char *fname, packet_range_t *range, guint save_f
 
     pdh = wtap_dump_open_ng(fname, save_format, cf->lnk_t, cf->snap,
         compressed, shb_hdr, idb_inf, &err);
+    g_free(idb_inf);
+    idb_inf = NULL;
+
     if (pdh == NULL) {
       cf_open_failure_alert_box(fname, err, NULL, TRUE, save_format);
       goto fail;
@@ -3863,7 +3866,7 @@ cf_save(capture_file *cf, const char *fname, packet_range_t *range, guint save_f
     /* Add address resolution */
     wtap_dump_set_addrinfo_list(pdh, get_addrinfo_list());
 
-	/* XXX - we let the user save a subset of the packets.
+    /* XXX - we let the user save a subset of the packets.
 
        If we do that, should we make that file the current file?  If so,
        it means we can no longer get at the other packets.  What does
