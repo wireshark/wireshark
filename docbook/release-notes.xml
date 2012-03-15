@@ -52,6 +52,24 @@ Wireshark Info
           </para> -->
         </listitem>
 
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-05.html">wnpa-sec-2012-05</ulink>
+          </para>
+          <para>
+            The IEEE 802.11 dissector could go into an infinite loop.
+            <!-- Fixed in trunk: r40967 -->
+            <!-- Fixed in trunk-1.6: r41576 -->
+            <!-- Fixed in trunk-1.4: r????? -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6809">Bug
+            6809</ulink>)
+          </para>
+          <para>Versions affected: 1.6.0 to 1.6.5.</para>
+          <!-- <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-????">CVE-2012-????</ulink>
+          </para> -->
+        </listitem>
+
       </itemizedlist>
 
     </para>
@@ -171,6 +189,7 @@ GOOSE,
 GSM Management,
 GTP,
 IAX2,
+IEEE 802.11,
 MySQL,
 PacketBB,
 PGM,
