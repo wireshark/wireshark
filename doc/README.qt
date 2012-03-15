@@ -127,7 +127,7 @@ DO NOT simply port things over. Every feature, window, and element should be
 re-thought. For example, should the user have to navigate two dialogs to get
 HTTP request statistics?
 
-3. Translations (i18)
+3. Translations (i18n)
 For make your own translation of QtShark ! it is easy !
 
 - Add your translation (qtshark_XX.ts) in QtShark.pro and i18n.qrc
