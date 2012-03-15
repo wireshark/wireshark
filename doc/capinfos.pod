@@ -163,12 +163,6 @@ Display the snaplen (if any) for a file.
 snaplen (if available) is determined from the capture file header
 and by looking for truncated records in the capture file.
 
-=item -o
-
-Displays "True" if packets exist in strict chronological order
-or "False" if one or more packets in the capture exists
-"out-of-order" time-wise.
-
 =item -L
 
 Generate long report.  Capinfos can generate two
@@ -191,6 +185,12 @@ any quoting characters around the various values and
 using a TAB delimiter produces a very "clean" table
 report that is easily parsed with CLI tools.  By
 default infos are B<NOT> quoted.
+
+=item -o
+
+Displays "True" if packets exist in strict chronological order
+or "False" if one or more packets in the capture exists
+"out-of-order" time-wise.
 
 =item -q
 
