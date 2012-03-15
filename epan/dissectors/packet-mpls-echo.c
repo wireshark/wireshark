@@ -179,14 +179,15 @@ static const value_string mpls_echo_replymode[] = {
   {0, NULL}
 };
 
+/* http://www.iana.org/assignments/mpls-lsp-ping-parameters/mpls-lsp-ping-parameters.xml */
 static const value_string mpls_echo_returncode[] = {
   {0, "No return code"},
   {1, "Malformed echo request received"},
   {2, "One or more of the TLVs was not understood"},
   {3, "Replying router is an egress for the FEC at stack depth RSC"},
   {4, "Replying router has no mapping for the FEC at stack depth RSC"},
-  {5, "Reserved"},
-  {6, "Reserved"},
+  {5, "Downstream Mapping Mismatch"}, /*[RFC4379] */
+  {6, "Upstream Interface Index Unknown"}, /*[RFC4379]*/
   {7, "Reserved"},
   {8, "Label switched at stack-depth RSC"},
   {9, "Label switched but no MPLS forwarding at stack-depth RSC"},
@@ -194,6 +195,10 @@ static const value_string mpls_echo_returncode[] = {
   {11, "No label entry at stack-depth RSC"},
   {12, "Protocol not associated with interface at FEC stack depth RSC"},
   {13, "Premature termination, label stack shrinking to a single label"},
+  {14, "See DDM TLV for meaning of Return Code and Return SubCode"}, /*[RFC6424] */
+  {15, "Label switched with FEC change"}, /*[RFC6424]
+  /* 16-251 Unassigned */
+  /* 252-255 Reserved for Vendor private use [RFC4379 */
   {0, NULL}
 };
 
