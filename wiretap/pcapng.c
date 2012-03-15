@@ -1674,9 +1674,12 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
         pcapng_debug1("pcapng_read_interface_statistics_block: interface_id %u", wblock->data.if_stats.interface_id);
 
         /* Option defaults */
-        wblock->data.if_stats.opt_comment = NULL;
-        wblock->data.if_stats.isb_ifrecv  = -1;
-        wblock->data.if_stats.isb_ifdrop  = -1;
+        wblock->data.if_stats.opt_comment          = NULL;
+        wblock->data.if_stats.isb_ifrecv           = -1;
+        wblock->data.if_stats.isb_ifdrop           = -1;
+        wblock->data.if_stats.isb_filteraccept     = -1;
+        wblock->data.if_stats.isb_osdrop           = -1;
+        wblock->data.if_stats.isb_usrdeliv         = -1;
 
         /* Options */
         errno = WTAP_ERR_CANT_READ;

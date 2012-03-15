@@ -33,17 +33,18 @@ typedef struct iface_options_tag {
     char	*name;
     char	*descr;
     char	*cfilter;
-    guint64	drops;		/* number of packet drops */
-    gboolean	drops_known;	/* TRUE if number of packet drops is known */
-    gboolean	has_snap;	/* TRUE if maximum capture packet length is known */
-    int		snap;		/* Maximum captured packet length */
-    int		linktype;	/* wiretap encapsulation type */
+	char	*isb_comment;
+    guint64	drops;				/**< number of packet drops */
+    gboolean	drops_known;	/**< TRUE if number of packet drops is known */
+    gboolean	has_snap;		/**< TRUE if maximum capture packet length is known */
+    int		snap;				/**< Maximum captured packet length */
+    int		linktype;			/**< wiretap encapsulation type */
 } iface_options;
 
 typedef struct _summary_tally {
-    guint64	bytes;			/**< total bytes */
-    double	start_time;		/**< seconds, with msec resolution */
-    double	stop_time;		/**< seconds, with msec resolution */
+    guint64	bytes;				/**< total bytes */
+    double	start_time;			/**< seconds, with msec resolution */
+    double	stop_time;			/**< seconds, with msec resolution */
     double	elapsed_time;		/**< seconds, with msec resolution,
 					   includes time before first packet
 					   and after last packet */

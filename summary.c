@@ -185,6 +185,7 @@ summary_fill_in_capture(capture_file *cf,capture_options *capture_opts, summary_
   guint i;
   wtapng_iface_descriptions_t* idb_info;
   wtapng_if_descr_t wtapng_if_descr;
+  wtapng_if_stats_t *if_stats;
 
   while (st->ifaces->len > 0) {
     iface = g_array_index(st->ifaces, iface_options, 0);
@@ -221,6 +222,13 @@ summary_fill_in_capture(capture_file *cf,capture_options *capture_opts, summary_
       iface.snap = wtapng_if_descr.snap_len;
       iface.has_snap = (iface.snap != 65535);
       iface.linktype = wtapng_if_descr.link_type;
+	  if(wtapng_if_descr.num_stat_entries == 1){
+		  /* dumpcap only writes one ISB, only handle that for now */
+		  if_stats = &g_array_index(wtapng_if_descr.interface_statistics, wtapng_if_stats_t, 0);
+		  iface.drops_known = TRUE;
+		  iface.drops = if_stats->isb_ifdrop;
+		  iface.isb_comment = if_stats->opt_comment;
+	  }
       g_array_append_val(st->ifaces, iface);
     }
     g_free(idb_info);
