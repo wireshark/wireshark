@@ -718,6 +718,10 @@ g_fast_seek_item_free(gpointer data, gpointer user_data _U_)
 void
 wtap_close(wtap *wth)
 {
+	gint i;
+	wtapng_if_descr_t *wtapng_if_descr;
+	wtapng_if_stats_t *if_stats;
+
 	wtap_sequential_close(wth);
 
 	if (wth->subtype_close != NULL)
@@ -732,6 +736,39 @@ wtap_close(wtap *wth)
 	if (wth->fast_seek != NULL) {
 		g_ptr_array_foreach(wth->fast_seek, g_fast_seek_item_free, NULL);
 		g_ptr_array_free(wth->fast_seek, TRUE);
+	}
+	for(i = 0; i < (gint)wth->number_of_interfaces; i++) {
+		wtapng_if_descr = &g_array_index(wth->interface_data, wtapng_if_descr_t, i);
+		if(wtapng_if_descr->opt_comment != NULL){
+			g_free(wtapng_if_descr->opt_comment);
+		}
+		if(wtapng_if_descr->if_name != NULL){
+			g_free(wtapng_if_descr->if_name);
+		}
+		if(wtapng_if_descr->if_description != NULL){
+			g_free(wtapng_if_descr->if_description);
+		}
+		if(wtapng_if_descr->if_filter_str != NULL){
+			g_free(wtapng_if_descr->if_filter_str);
+		}
+		if(wtapng_if_descr->if_filter_bpf_bytes != NULL){
+			g_free(wtapng_if_descr->if_filter_bpf_bytes);
+		}
+		if(wtapng_if_descr->if_os != NULL){
+			g_free(wtapng_if_descr->if_os);
+		}
+		for(i = 0; i < (gint)wtapng_if_descr->num_stat_entries; i++) {
+			if_stats = &g_array_index(wtapng_if_descr->interface_statistics, wtapng_if_stats_t, i);
+			if(if_stats->opt_comment != NULL){
+				g_free(if_stats->opt_comment);
+			}
+		}
+		if(wtapng_if_descr->num_stat_entries != 0){
+			 g_array_free(wtapng_if_descr->interface_statistics, TRUE);
+		}
+	}
+	if(wth->number_of_interfaces != 0){
+		 g_array_free(wth->interface_data, TRUE);
 	}
 	g_free(wth);
 }

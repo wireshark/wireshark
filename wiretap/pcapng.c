@@ -2128,6 +2128,8 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
         pcapng_t *pcapng = (pcapng_t *)wth->priv;
         int bytes_read;
         wtapng_block_t wblock;
+		wtapng_if_descr_t *wtapng_if_descr;
+		wtapng_if_stats_t if_stats;
 
         pcapng_debug1("pcapng_read: wth->data_offset is initially %" G_GINT64_MODIFIER "u", wth->data_offset);
         *data_offset = wth->data_offset;
@@ -2164,11 +2166,43 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
                 if (wblock.type == BLOCK_TYPE_PB || wblock.type == BLOCK_TYPE_EPB) {
                         break;
                 }
+                if (wblock.type == BLOCK_TYPE_ISB ){
+                    pcapng_debug0("pcapng_read: block type BLOCK_TYPE_ISB");
+                    *data_offset += bytes_read;
+                    pcapng_debug1("pcapng_read: *data_offset is updated to %" G_GINT64_MODIFIER "u", *data_offset);
+                    if(wth->number_of_interfaces < wblock.data.if_stats.interface_id){
+                        pcapng_debug1("pcapng_read: BLOCK_TYPE_ISB wblock.if_stats.interface_id %u > number_of_interfaces", wblock.data.if_stats.interface_id);
+                    }else{
+                        /* Get the interface description */
+                        wtapng_if_descr = &g_array_index(wth->interface_data, wtapng_if_descr_t, wblock.data.if_stats.interface_id);
+                        if(wtapng_if_descr->num_stat_entries == 0){
+                            /* First ISB found, no previous entry */
+                            pcapng_debug0("pcapng_read: block type BLOCK_TYPE_ISB. First ISB found, no previous entry");
+                            wtapng_if_descr->interface_statistics = g_array_new(FALSE, FALSE, sizeof(wtapng_if_stats_t));
+                        }
 
-                /* XXX - improve handling of "unknown" blocks */
-                pcapng_debug1("pcapng_read: block type 0x%x not PB/EPB", wblock.type);
-                *data_offset += bytes_read;
-                pcapng_debug1("pcapng_read: *data_offset is updated to %" G_GINT64_MODIFIER "u", *data_offset);
+                        if_stats.interface_id       = wblock.data.if_stats.interface_id;
+                        if_stats.ts_high            = wblock.data.if_stats.ts_high;
+                        if_stats.ts_low             = wblock.data.if_stats.ts_low;
+                        /* options */
+                        if_stats.opt_comment        = wblock.data.if_stats.opt_comment;	/* NULL if not available */
+                        if_stats.isb_starttime      = wblock.data.if_stats.isb_starttime;
+                        if_stats.isb_endtime        = wblock.data.if_stats.isb_endtime;
+                        if_stats.isb_ifrecv         = wblock.data.if_stats.isb_ifrecv;
+                        if_stats.isb_ifdrop         = wblock.data.if_stats.isb_ifdrop;
+                        if_stats.isb_filteraccept   = wblock.data.if_stats.isb_filteraccept;
+                        if_stats.isb_osdrop         = wblock.data.if_stats.isb_osdrop;
+                        if_stats.isb_usrdeliv       = wblock.data.if_stats.isb_usrdeliv;
+
+						g_array_append_val(wtapng_if_descr->interface_statistics, if_stats);
+						wtapng_if_descr->num_stat_entries++;
+                    }
+                }else{
+                    /* XXX - improve handling of "unknown" blocks */
+                    pcapng_debug1("pcapng_read: block type 0x%x not PB/EPB", wblock.type);
+                    *data_offset += bytes_read;
+                    pcapng_debug1("pcapng_read: *data_offset is updated to %" G_GINT64_MODIFIER "u", *data_offset);
+                }
         }
 
         if (wblock.data.packet.interface_id < pcapng->number_of_interfaces) {
