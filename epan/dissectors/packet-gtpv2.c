@@ -525,7 +525,7 @@ static const value_string gtpv2_message_type_vals[] = {
     /* 213 to 230 For future use */
     /* MBMS GW to MME/SGSN (Sm/Sn) */
     {231, "MBMS Session Start Request"},
-    {323, "MBMS Session Start Response"},
+    {232, "MBMS Session Start Response"},
     {233, "MBMS Session Update Request"},
     {234, "MBMS Session Update Response"},
     {235, "MBMS Session Stop Request"},
