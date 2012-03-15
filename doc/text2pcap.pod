@@ -6,20 +6,20 @@ text2pcap - Generate a capture file from an ASCII hexdump of packets
 =head1 SYNOPSIS
 
 B<text2pcap>
-S<[ B<-h> ]>
+S<[ B<-a> ]>
 S<[ B<-d> ]>
-S<[ B<-q> ]>
-S<[ B<-o> hex|oct|dec ]>
-S<[ B<-l> E<lt>typenumE<gt> ]>
 S<[ B<-e> E<lt>l3pidE<gt> ]>
+S<[ B<-h> ]>
 S<[ B<-i> E<lt>protoE<gt> ]>
+S<[ B<-l> E<lt>typenumE<gt> ]>
 S<[ B<-m> E<lt>max-packetE<gt> ]>
-S<[ B<-u> E<lt>srcportE<gt>,E<lt>destportE<gt> ]>
-S<[ B<-T> E<lt>srcportE<gt>,E<lt>destportE<gt> ]>
+S<[ B<-o> hex|oct|dec ]>
+S<[ B<-q> ]>
 S<[ B<-s> E<lt>srcportE<gt>,E<lt>destportE<gt>,E<lt>tagE<gt> ]>
 S<[ B<-S> E<lt>srcportE<gt>,E<lt>destportE<gt>,E<lt>ppiE<gt> ]>
 S<[ B<-t> E<lt>timefmtE<gt> ]>
-S<[ B<-a> ]>
+S<[ B<-T> E<lt>srcportE<gt>,E<lt>destportE<gt> ]>
+S<[ B<-u> E<lt>srcportE<gt>,E<lt>destportE<gt> ]>
 E<lt>I<infile>E<gt>|-
 E<lt>I<outfile>E<gt>|-
 
@@ -88,32 +88,17 @@ handle these dumps.
 
 =over 4
 
-=item -h
+=item -a
 
-Displays a help message.
+Enables ASCII text dump identification. It allows to identify the start of
+the ASCII text dump and not include it in the packet even if it looks like HEX.
+
+B<NOTE:> Do not enable it if the input file does not contain the ASCII text dump.
 
 =item -d
 
 Displays debugging information during the process. Can be used
 multiple times to generate more debugging information.
-
-=item -q
-
-Be completely quiet during the process.
-
-=item -o hex|oct|dec
-
-Specify the radix for the offsets (hex, octal or decimal). Defaults to
-hex. This corresponds to the C<-A> option for I<od>.
-
-=item -l
-
-Specify the link-layer header type of this packet.  Default is Ethernet
-(1).  See L<http://www.tcpdump.org/linktypes.html> for the complete list
-of possible encapsulations.  Note that this option should be used if
-your dump is a complete hex dump of an encapsulated packet and you wish
-to specify the exact type of encapsulation.  Example: I<-l 7> for ARCNet
-packets.
 
 =item -e E<lt>l3pidE<gt>
 
@@ -128,6 +113,10 @@ I<-l 12> does not work for any non-IP Layer 3 packet (e.g. ARP),
 whereas generating a dummy Ethernet header with I<-e> works for any
 sort of L3 packet.
 
+=item -h
+
+Displays a help message.
+
 =item -i E<lt>protoE<gt>
 
 Include dummy IP headers before each packet. Specify the IP protocol
@@ -136,6 +125,15 @@ of an IP packet (i.e. has complete L4 information) but does not have
 an IP header with each packet. Note that an appropriate Ethernet header
 is automatically included with each packet as well.
 Example: I<-i 46> to specify an RSVP packet (IP protocol 46).
+
+=item -l
+
+Specify the link-layer header type of this packet.  Default is Ethernet
+(1).  See L<http://www.tcpdump.org/linktypes.html> for the complete list
+of possible encapsulations.  Note that this option should be used if
+your dump is a complete hex dump of an encapsulated packet and you wish
+to specify the exact type of encapsulation.  Example: I<-l 7> for ARCNet
+packets.
 
 =item -m E<lt>max-packetE<gt>
 
@@ -148,23 +146,14 @@ I<od -Ax -tx1 stream | text2pcap -m1460 -T1234,1234 - stream.pcap>
 will convert from plain datastream format to a sequence of Ethernet
 TCP packets.
 
-=item -u E<lt>srcportE<gt>,E<lt>destportE<gt>
+=item -o hex|oct|dec
 
-Include dummy UDP headers before each packet. Specify the source and
-destination UDP ports for the packet in decimal. Use this option if
-your dump is the UDP payload of a packet but does not include any UDP,
-IP or Ethernet headers. Note that appropriate Ethernet and IP headers
-are automatically also included with each packet.
-Example: I<-u1000,69> to make the packets look like TFTP/UDP packets.
+Specify the radix for the offsets (hex, octal or decimal). Defaults to
+hex. This corresponds to the C<-A> option for I<od>.
 
-=item -T E<lt>srcportE<gt>,E<lt>destportE<gt>
+=item -q
 
-Include dummy TCP headers before each packet. Specify the source and
-destination TCP ports for the packet in decimal. Use this option if
-your dump is the TCP payload of a packet but does not include any TCP,
-IP or Ethernet headers. Note that appropriate Ethernet and IP headers
-are automatically also included with each packet.
-Sequence numbers will start at 0.
+Be completely quiet during the process.
 
 =item -s E<lt>srcportE<gt>,E<lt>destportE<gt>,E<lt>tagE<gt>
 
@@ -199,12 +188,23 @@ a second.
 B<NOTE:> Date/time fields from the current date/time are
 used as the default for unspecified fields.
 
-=item -a
+=item -T E<lt>srcportE<gt>,E<lt>destportE<gt>
 
-Enables ASCII text dump identification. It allows to identify the start of
-the ASCII text dump and not include it in the packet even if it looks like HEX.
+Include dummy TCP headers before each packet. Specify the source and
+destination TCP ports for the packet in decimal. Use this option if
+your dump is the TCP payload of a packet but does not include any TCP,
+IP or Ethernet headers. Note that appropriate Ethernet and IP headers
+are automatically also included with each packet.
+Sequence numbers will start at 0.
 
-B<NOTE:> Do not enable it if the input file does not contain the ASCII text dump.
+=item -u E<lt>srcportE<gt>,E<lt>destportE<gt>
+
+Include dummy UDP headers before each packet. Specify the source and
+destination UDP ports for the packet in decimal. Use this option if
+your dump is the UDP payload of a packet but does not include any UDP,
+IP or Ethernet headers. Note that appropriate Ethernet and IP headers
+are automatically also included with each packet.
+Example: I<-u1000,69> to make the packets look like TFTP/UDP packets.
 
 =back
 
