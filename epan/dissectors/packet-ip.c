@@ -2329,19 +2329,19 @@ proto_register_ip(void)
         NULL, 0x0, FLAGS_OFFSET_WIDTH_MSG(IP_FLAGS_WIDTH), HFILL }},
 
     { &hf_ip_flags_sf,
-      { "Security flag", "ip.flags.sf", FT_BOOLEAN, IP_FLAGS_WIDTH,
+      { "Security flag", "ip.flags.sf", FT_BOOLEAN, BASE_NONE,
         TFS(&flags_sf_set_evil), 0x0, "Security flag (RFC 3514)", HFILL }},
 
     { &hf_ip_flags_rf,
-      { "Reserved bit", "ip.flags.rb", FT_BOOLEAN, IP_FLAGS_WIDTH,
+      { "Reserved bit", "ip.flags.rb", FT_BOOLEAN, BASE_NONE,
         TFS(&tfs_set_notset), 0x0, NULL, HFILL }},
 
     { &hf_ip_flags_df,
-      { "Don't fragment", "ip.flags.df", FT_BOOLEAN, IP_FLAGS_WIDTH,
+      { "Don't fragment", "ip.flags.df", FT_BOOLEAN, BASE_NONE,
         TFS(&tfs_set_notset), 0x0, NULL, HFILL }},
 
     { &hf_ip_flags_mf,
-      { "More fragments", "ip.flags.mf", FT_BOOLEAN, IP_FLAGS_WIDTH,
+      { "More fragments", "ip.flags.mf", FT_BOOLEAN, BASE_NONE,
         TFS(&tfs_set_notset), 0x0, NULL, HFILL }},
 
     { &hf_ip_frag_offset,
