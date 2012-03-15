@@ -50,6 +50,12 @@ do
 		*.xpm)
 			svn ps svn:eol-style native $file
 			;;
+		*.pcapng)
+			svn ps svn:mime-type application/octet-stream $file
+			;;
+		*.pcap)
+			svn ps svn:mime-type application/vnd.tcpdump.pcap $file
+			;;
 		*.pl|*.bat|*.py|*.sh|*.cmd)
 			svn ps svn:keywords Id $file
 			svn ps svn:executable '*' $file
