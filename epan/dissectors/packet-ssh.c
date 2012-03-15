@@ -52,6 +52,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/emem.h>
+#include <epan/sctpppids.h>
 
 #include "packet-tcp.h"
 #include <epan/prefs.h>
@@ -1339,4 +1340,5 @@ proto_reg_handoff_ssh(void)
 
 	dissector_add_uint("tcp.port", TCP_PORT_SSH, ssh_handle);
 	dissector_add_uint("sctp.port", SCTP_PORT_SSH, ssh_handle);
+	dissector_add_uint("sctp.ppi", SSH_PAYLOAD_PROTOCOL_ID, ssh_handle);
 }

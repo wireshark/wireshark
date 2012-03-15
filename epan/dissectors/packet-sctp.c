@@ -329,7 +329,7 @@ static const value_string chunk_type_values[] = {
 
 /*
  * Based on http://www.iana.org/assignments/sctp-parameters
- * as of November 10th, 2010
+ * as of March 15th, 2012
  */
 static const value_string sctp_payload_proto_id_values[] = {
   { NOT_SPECIFIED_PROTOCOL_ID,           "not specified" },
@@ -377,6 +377,7 @@ static const value_string sctp_payload_proto_id_values[] = {
   { PROTO_3GPP_RNA_PROTOCOL_ID,          "3GPP RNA" },
   { PROTO_3GPP_M2AP_PROTOCOL_ID,         "3GPP M2AP" },
   { PROTO_3GPP_M3AP_PROTOCOL_ID,         "3GPP M3AP" },
+  { SSH_PAYLOAD_PROTOCOL_ID,             "SSH" },
   { 0,                                   NULL } };
 
 
