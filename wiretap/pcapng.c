@@ -2076,6 +2076,9 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
                 int_data.if_os = wblock.data.if_descr.if_os;
                 int_data.if_fcslen = wblock.data.if_descr.if_fcslen;
                 /* XXX if_tsoffset; opt 14  A 64 bits integer value that specifies an offset (in seconds)...*/
+                /* Interface statistics */
+                int_data.num_stat_entries = 0;
+                int_data.interface_statistics = NULL;
 
                 g_array_append_val(wth->interface_data, int_data);
                 wth->number_of_interfaces++;
@@ -2131,8 +2134,8 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
         pcapng_t *pcapng = (pcapng_t *)wth->priv;
         int bytes_read;
         wtapng_block_t wblock;
-		wtapng_if_descr_t *wtapng_if_descr;
-		wtapng_if_stats_t if_stats;
+        wtapng_if_descr_t *wtapng_if_descr;
+        wtapng_if_stats_t if_stats;
 
         pcapng_debug1("pcapng_read: wth->data_offset is initially %" G_GINT64_MODIFIER "u", wth->data_offset);
         *data_offset = wth->data_offset;
@@ -2197,8 +2200,8 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
                         if_stats.isb_osdrop         = wblock.data.if_stats.isb_osdrop;
                         if_stats.isb_usrdeliv       = wblock.data.if_stats.isb_usrdeliv;
 
-						g_array_append_val(wtapng_if_descr->interface_statistics, if_stats);
-						wtapng_if_descr->num_stat_entries++;
+                        g_array_append_val(wtapng_if_descr->interface_statistics, if_stats);
+                        wtapng_if_descr->num_stat_entries++;
                     }
                 }else{
                     /* XXX - improve handling of "unknown" blocks */
