@@ -1,4 +1,4 @@
-/* packet-gsm_a_rr.c
+ /* packet-gsm_a_rr.c
  * Routines for GSM A Interface (actually A-bis really) RR dissection - A.K.A. GSM layer 3 Radio Resource Protocol
  *
  * Copyright 2003, Michael Lum <mlum [AT] telostech.com>
@@ -10504,7 +10504,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_ba_list_pref_length,
               { "Length of BA List Pref","gsm_a.rr.ba_list_pref_length",
-                FT_UINT8, BASE_DEC,  NULL, 0xff,
+                FT_UINT8, BASE_DEC,  NULL, 0x00,
                 NULL, HFILL }
             },
             { &hf_gsm_a_rr_ba_freq,
@@ -10514,7 +10514,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_utran_freq_list_length,
               { "Length of UTRAN freq list","gsm_a.rr.utran_freq_length",
-                FT_UINT8, BASE_DEC,  NULL, 0xff,
+                FT_UINT8, BASE_DEC,  NULL, 0x00,
                 NULL, HFILL }
             },
             { &hf_gsm_a_rr_ho_ref_val,
@@ -11795,12 +11795,12 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_3g_priority_param_desc_utran_start,
               { "UTRAN Start", "gsm_a.rr.3g_priority.utran_start",
-                FT_BOOLEAN, BASE_DEC, TFS(&priority_utran_start), 0x00,
+                FT_BOOLEAN, BASE_NONE, TFS(&priority_utran_start), 0x00,
                 NULL, HFILL }
             },
             { &hf_gsm_a_rr_3g_priority_param_desc_utran_stop,
               { "UTRAN Stop", "gsm_a.rr.3g_priority.utran_stop",
-                FT_BOOLEAN, BASE_DEC, TFS(&priority_utran_stop), 0x00,
+                FT_BOOLEAN, BASE_NONE, TFS(&priority_utran_stop), 0x00,
                 NULL, HFILL }
             },
             { &hf_gsm_a_rr_3g_priority_param_desc_default_utran_prio,
@@ -11845,17 +11845,17 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_eutran_ccn_active,
               { "E-UTRAN_CCN_ACTIVE", "gsm_a.rr.3g_priority.eutran_ccn_active",
-                FT_BOOLEAN, BASE_DEC, TFS(&eutran_ccn_active), 0x00,
+                FT_BOOLEAN, BASE_NONE, TFS(&eutran_ccn_active), 0x00,
                 NULL, HFILL }
             },
             { &hf_gsm_a_rr_eutran_start,
               { "E-UTRAN Start", "gsm_a.rr.3g_priority.eutran_start",
-                FT_BOOLEAN, BASE_DEC, TFS(&priority_utran_start), 0x00,
+                FT_BOOLEAN, BASE_NONE, TFS(&priority_utran_start), 0x00,
                 NULL, HFILL }
             },
             { &hf_gsm_a_rr_eutran_stop,
               { "E-UTRAN Stop", "gsm_a.rr.3g_priority.utran_stop",
-                FT_BOOLEAN, BASE_DEC, TFS(&priority_utran_stop), 0x00,
+                FT_BOOLEAN, BASE_NONE, TFS(&priority_utran_stop), 0x00,
                 NULL, HFILL }
             },
             { &hf_gsm_a_rr_qsearch_c_eutran_initial,
@@ -12015,7 +12015,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_eutran_pcid_pattern_sense,
               { "PCID_pattern_sense", "gsm_a.rr.pcid_pattern_sense",
-                FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_rr_pcid_pattern_sense), 0x00,
+                FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rr_pcid_pattern_sense), 0x00,
                 NULL, HFILL }
             },
             { &hf_gsm_a_rr_eutran_frequency_index,
@@ -12035,7 +12035,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_utran_psc_pattern_sense,
               { "PSC_pattern_sense", "gsm_a.rr.psc_pattern_sense",
-                FT_BOOLEAN, BASE_DEC, NULL, 0x00,
+                FT_BOOLEAN, BASE_NONE, NULL, 0x00,
                 NULL, HFILL }
             },
             { &hf_gsm_a_rr_utran_csg_fdd_uarfcn,
@@ -12055,7 +12055,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_3g_control_param_desc_meas_ctrl_utran,
               { "PCID_pattern_sense", "gsm_a.rr._meas_ctrl_utran",
-                FT_BOOLEAN, BASE_DEC, TFS(&measurement_control_utran), 0x00,
+                FT_BOOLEAN, BASE_NONE, TFS(&measurement_control_utran), 0x00,
                 NULL, HFILL }
             },
             { &hf_gsm_a_rr_extended_ra,
@@ -12075,7 +12075,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_polling,
               { "Polling", "gsm_a.rr.polling",
-                FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_polling_vals), 0x00,
+                FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_polling_vals), 0x00,
                 NULL, HFILL }
             },
             { &hf_gsm_a_rr_usf,
@@ -12085,7 +12085,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_usf_granularity,
               { "USF_granularity", "gsm_a.rr.usf_granularity",
-                FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_usf_granularity_vals), 0x00,
+                FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_usf_granularity_vals), 0x00,
                 NULL, HFILL }
             },
             { &hf_gsm_a_rr_p0,
@@ -12095,7 +12095,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_pr_mode,
               { "pr_mode", "gsm_a.rr.pr_mode",
-                FT_BOOLEAN, BASE_DEC, NULL, 0x00,
+                FT_BOOLEAN, BASE_NONE, NULL, 0x00,
                 NULL, HFILL }
             },
             { &hf_gsm_a_rr_egprs_mcs,
@@ -12105,7 +12105,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_tlli_block_channel_coding,
               { "TLLI_Block_Channel_Coding", "gsm_a.rr.tlli_block_cs",
-                FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_tlli_block_channel_coding_vals), 0x00,
+                FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_tlli_block_channel_coding_vals), 0x00,
                 NULL, HFILL }
             },
             { &hf_gsm_a_rr_bep_period2,
@@ -12115,7 +12115,7 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_resegment,
               { "Resegment", "gsm_a.rr.resegment",
-                FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_resegment_vals), 0x00,
+                FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_resegment_vals), 0x00,
                 NULL, HFILL }
             },
             { &hf_gsm_a_rr_egprs_window_size,
@@ -12170,12 +12170,12 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_rlc_mode,
               { "RLC_Mode", "gsm_a.rr.rlc_mode",
-                FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_rlc_mode_vals), 0x00,
+                FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_rlc_mode_vals), 0x00,
                 NULL, HFILL }
             },
             { &hf_gsm_a_rr_ta_valid,
               { "TA_Valid", "gsm_a.rr.ta_valid",
-                FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_ta_valid_vals), 0x00,
+                FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_ta_valid_vals), 0x00,
                 NULL, HFILL }
             },
             { &hf_gsm_a_rr_link_quality_meas_mode,
