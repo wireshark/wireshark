@@ -750,6 +750,30 @@ Currently implemented statistics are:
 
 =item B<-z> camel,srt
 
+=item B<-z> conv,I<type>[,I<filter>]
+
+Create a table that lists all conversations that could be seen in the
+capture.  I<type> specifies the conversation endpoint types for which we
+want to generate the statistics; currently the supported ones are:
+
+  "eth"   Ethernet addresses
+  "fc"    Fibre Channel addresses
+  "fddi"  FDDI addresses
+  "ip"    IPv4 addresses
+  "ipv6"  IPv6 addresses
+  "ipx"   IPX addresses
+  "tcp"   TCP/IP socket pairs  Both IPv4 and IPv6 are supported
+  "tr"    Token Ring addresses
+  "udp"   UDP/IP socket pairs  Both IPv4 and IPv6 are supported
+
+If the optional I<filter> is specified, only those packets that match the
+filter will be used in the calculations.
+
+The table is presented with one line for each conversation and displays
+the number of packets/bytes in each direction as well as the total
+number of packets/bytes.  The table is sorted according to the total
+number of frames.
+
 =item B<-z> dcerpc,srt,I<uuid>,I<major>.I<minor>[,I<filter>]
 
 Collect call/reply SRT (Service Response Time) data for DCERPC interface I<uuid>,
@@ -766,6 +790,154 @@ on those calls that match that filter.
 
 Example: S<B<-z dcerpc,srt,12345778-1234-abcd-ef00-0123456789ac,1.0,ip.addr==1.2.3.4>> will collect SAMR
 SRT statistics for a specific host.
+
+=item B<-z> diameter,avp[,I<cmd.code>,I<field>,I<field>,I<...>]
+
+This option enables extraction of most important diameter fields from large capture files.
+Exactly one text line for each diameter message with matched B<diameter.cmd.code> will be printed.
+
+Empty diameter command code or '*' can be specified to mach any B<diameter.cmd.code>
+
+Example: B<-z diameter,avp>  extract default field set from diameter messages.
+
+Example: B<-z diameter,avp,280>  extract default field set from diameter DWR messages.
+
+Example: B<-z diameter,avp,272>  extract default field set from diameter CC messages.
+
+Extract most important fields from diameter CC messages:
+
+B<tshark -r file.cap.gz -q -z diameter,avp,272,CC-Request-Type,CC-Request-Number,Session-Id,Subscription-Id-Data,Rating-Group,Result-Code>
+
+Following fields will be printed out for each diameter message:
+
+  "frame"        Frame number.
+  "time"         Unix time of the frame arrival.
+  "src"          Source address.
+  "srcport"      Source port.
+  "dst"          Destination address.
+  "dstport"      Destination port.
+  "proto"        Constant string 'diameter', which can be used for post processing of tshark output.  E.g. grep/sed/awk.
+  "msgnr"        seq. number of diameter message within the frame.  E.g. '2' for the third diameter message in the same frame.
+  "is_request"   '0' if message is a request, '1' if message is an answer.
+  "cmd"          diameter.cmd_code, E.g. '272' for credit control messages.
+  "req_frame"    Number of frame where matched request was found or '0'.
+  "ans_frame"    Number of frame where matched answer was found or '0'.
+  "resp_time"    response time in seconds, '0' in case if matched Request/Answer is not found in trace.  E.g. in the begin or end of capture.
+
+B<-z diameter,avp> option is much faster than B<-V -T text> or B<-T pdml> options.
+
+B<-z diameter,avp> option is more powerful than B<-T field> and B<-z proto,colinfo> options.
+
+Multiple diameter messages in one frame are supported.
+
+Several fields with same name within one diameter message are supported, e.g. I<diameter.Subscription-Id-Data> or I<diameter.Rating-Group>.
+
+Note: B<tshark -q> option is recommended to suppress default B<tshark> output.
+
+=item B<-z> expert[I<,error|,warn|,note|,chat>][I<,filter>]
+
+Collects information about all expert info, and will display them in order,
+grouped by severity.
+
+Example: B<-z expert,sip> will show expert items of all severity for frames that
+match the sip protocol.
+
+This option can be used multiple times on the command line.
+
+If the optional I<filter> is provided, the stats will only be calculated
+on those calls that match that filter.
+
+Example: B<-z "expert,note,tcp"> will only collect expert items for frames that
+include the tcp protocol, with a severity of note or higher.
+
+=item B<-z> follow,I<prot>,I<mode>,I<filter>[I<,range>]
+
+Displays the contents of a TCP or UDP stream between two nodes.  The data
+sent by the second node is prefixed with a tab to differentiate it from the
+data sent by the first node.
+
+I<prot> specifies the transport protocol.  It can be one of:
+  B<tcp>   TCP
+  B<udp>   UDP
+
+I<mode> specifies the output mode.  It can be one of:
+  B<ascii> ASCII output with dots for non-printable characters
+  B<hex>   Hexadecimal and ASCII data with offsets
+  B<raw>   Hexadecimal data
+
+Since the output in B<ascii> mode may contain newlines, the length of each section
+of output plus a newline precedes each section of output.
+
+I<filter> specifies the stream to be displayed.  UDP streams are selected with
+IP address plus port pairs.  TCP streams are selected with either the stream
+index or IP address plus port pairs.  For example:
+  B<ip-addr0>:B<port0>,B<ip-addr1>:B<port1>
+  B<tcp-stream-index>
+
+I<range> optionally specifies which "chunks" of the stream should be displayed.
+
+Example: B<-z "follow,tcp,hex,1"> will display the contents of the first TCP
+stream in "hex" format.
+
+  ===================================================================
+  Follow: tcp,hex
+  Filter: tcp.stream eq 1
+  Node 0: 200.57.7.197:32891
+  Node 1: 200.57.7.198:2906
+  00000000  00 00 00 22 00 00 00 07  00 0a 85 02 07 e9 00 02  ...".... ........
+  00000010  07 e9 06 0f 00 0d 00 04  00 00 00 01 00 03 00 06  ........ ........
+  00000020  1f 00 06 04 00 00                                 ......
+      00000000  00 01 00 00                                       ....
+      00000026  00 02 00 00
+
+Example: B<-z "follow,tcp,ascii,200.57.7.197:32891,200.57.7.198:2906"> will
+display the contents of a TCP stream between 200.57.7.197 port 32891 and
+200.57.7.98 port 2906.
+
+  ===================================================================
+  Follow: tcp,ascii
+  Filter: (ommitted for readability)
+  Node 0: 200.57.7.197:32891
+  Node 1: 200.57.7.198:2906
+  38
+  ...".....
+  ................
+      4
+      ....
+
+=item B<-z> h225,counter[I<,filter>]
+
+Count ITU-T H.225 messages and their reasons.  In the first column you get a
+list of H.225 messages and H.225 message reasons, which occur in the current
+capture file.  The number of occurrences of each message or reason is displayed
+in the second column.
+
+Example: B<-z h225,counter>.
+
+If the optional I<filter> is provided, the stats will only be calculated
+on those calls that match that filter.
+Example: use B<-z "h225,counter,ip.addr==1.2.3.4"> to only collect stats for
+H.225 packets exchanged by the host at IP address 1.2.3.4 .
+
+This option can be used multiple times on the command line.
+
+=item B<-z> h225,srt[I<,filter>]
+
+Collect requests/response SRT (Service Response Time) data for ITU-T H.225 RAS.
+Data collected is number of calls of each ITU-T H.225 RAS Message Type,
+Minimum SRT, Maximum SRT, Average SRT, Minimum in Packet, and Maximum in Packet.
+You will also get the number of Open Requests (Unresponded Requests),
+Discarded Responses (Responses without matching request) and Duplicate Messages.
+
+Example: B<-z h225,srt>
+
+This option can be used multiple times on the command line.
+
+If the optional I<filter> is provided, the stats will only be calculated
+on those calls that match that filter.
+
+Example: B<-z "h225,srt,ip.addr==1.2.3.4"> will only collect stats for
+ITU-T H.225 RAS packets exchanged by the host at IP address 1.2.3.4 .
 
 =item B<-z> hosts[,ipv4][,ipv6]
 
@@ -961,29 +1133,52 @@ the total number of bytes transmitted to the client (unidirectionally) at IP add
   000.000-                    33576         29721685            33576         29721685              870         29004801
   =======================================================================================================================
 
-=item B<-z> conv,I<type>[,I<filter>]
+=item B<-z> mac-lte,stat[I<,filter>]
 
-Create a table that lists all conversations that could be seen in the
-capture.  I<type> specifies the conversation endpoint types for which we
-want to generate the statistics; currently the supported ones are:
+This option will activate a counter for LTE MAC messages.  You will get
+information about the maximum number of UEs/TTI, common messages and
+various counters for each UE that appears in the log.
 
-  "eth"   Ethernet addresses
-  "fc"    Fibre Channel addresses
-  "fddi"  FDDI addresses
-  "ip"    IPv4 addresses
-  "ipv6"  IPv6 addresses
-  "ipx"   IPX addresses
-  "tcp"   TCP/IP socket pairs  Both IPv4 and IPv6 are supported
-  "tr"    Token Ring addresses
-  "udp"   UDP/IP socket pairs  Both IPv4 and IPv6 are supported
+Example: B<-z mac-lte,stat>.
 
-If the optional I<filter> is specified, only those packets that match the
-filter will be used in the calculations.
+This option can be used multiple times on the command line.
 
-The table is presented with one line for each conversation and displays
-the number of packets/bytes in each direction as well as the total
-number of packets/bytes.  The table is sorted according to the total
-number of frames.
+If the optional I<filter> is provided, the stats will only be calculated
+for those frames that match that filter.
+Example: B<-z "mac-lte,stat,mac-lte.rnti>3000"> will only collect stats for
+UEs with an assigned RNTI whose value is more than 3000.
+
+=item B<-z> megaco,rtd[I<,filter>]
+
+Collect requests/response RTD (Response Time Delay) data for MEGACO.
+(This is similar to B<-z smb,srt>).  Data collected is the number of calls
+for each known MEGACO Type, MinRTD, MaxRTD and AvgRTD.
+Additionally you get the number of duplicate requests/responses,
+unresponded requests, responses, which don't match with any request.
+Example: B<-z megaco,rtd>.
+
+If the optional I<filter> is provided, the stats will only be calculated
+on those calls that match that filter.
+Example: B<-z "megaco,rtd,ip.addr==1.2.3.4"> will only collect stats for
+MEGACO packets exchanged by the host at IP address 1.2.3.4 .
+
+This option can be used multiple times on the command line.
+
+=item B<-z> mgcp,rtd[I<,filter>]
+
+Collect requests/response RTD (Response Time Delay) data for MGCP.
+(This is similar to B<-z smb,srt>).  Data collected is the number of calls
+for each known MGCP Type, MinRTD, MaxRTD and AvgRTD.
+Additionally you get the number of duplicate requests/responses,
+unresponded requests, responses, which don't match with any request.
+Example: B<-z mgcp,rtd>.
+
+This option can be used multiple times on the command line.
+
+If the optional I<filter> is provided, the stats will only be calculated
+on those calls that match that filter.
+Example: B<-z "mgcp,rtd,ip.addr==1.2.3.4"> will only collect stats for
+MGCP packets exchanged by the host at IP address 1.2.3.4 .
 
 =item B<-z> proto,colinfo,I<filter>,I<field>
 
@@ -1013,48 +1208,27 @@ B<-z "proto,colinfo,nfs.fh.hash && ip.src==1.2.3.4,nfs.fh.hash">
 
 This option can be used multiple times on the command line.
 
-=item B<-z> diameter,avp[,I<cmd.code>,I<field>,I<field>,I<...>]
+=item B<-z> rlc-lte,stat[I<,filter>]
 
-This option enables extraction of most important diameter fields from large capture files.
-Exactly one text line for each diameter message with matched B<diameter.cmd.code> will be printed.
+This option will activate a counter for LTE RLC messages.  You will get
+information about common messages and various counters for each UE that appears
+in the log.
 
-Empty diameter command code or '*' can be specified to mach any B<diameter.cmd.code>
+Example: B<-z rlc-lte,stat>.
 
-Example: B<-z diameter,avp>  extract default field set from diameter messages.
+This option can be used multiple times on the command line.
 
-Example: B<-z diameter,avp,280>  extract default field set from diameter DWR messages.
+If the optional I<filter> is provided, the stats will only be calculated
+for those frames that match that filter.
+Example: B<-z "rlc-lte,stat,rlc-lte.ueid>3000"> will only collect stats for
+UEs with a UEId of more than 3000.
 
-Example: B<-z diameter,avp,272>  extract default field set from diameter CC messages.
+=item B<-z> rpc,programs
 
-Extract most important fields from diameter CC messages:
-
-B<tshark -r file.cap.gz -q -z diameter,avp,272,CC-Request-Type,CC-Request-Number,Session-Id,Subscription-Id-Data,Rating-Group,Result-Code>
-
-Following fields will be printed out for each diameter message:
-
-  "frame"        Frame number.
-  "time"         Unix time of the frame arrival.
-  "src"          Source address.
-  "srcport"      Source port.
-  "dst"          Destination address.
-  "dstport"      Destination port.
-  "proto"        Constant string 'diameter', which can be used for post processing of tshark output.  E.g. grep/sed/awk.
-  "msgnr"        seq. number of diameter message within the frame.  E.g. '2' for the third diameter message in the same frame.
-  "is_request"   '0' if message is a request, '1' if message is an answer.
-  "cmd"          diameter.cmd_code, E.g. '272' for credit control messages.
-  "req_frame"    Number of frame where matched request was found or '0'.
-  "ans_frame"    Number of frame where matched answer was found or '0'.
-  "resp_time"    response time in seconds, '0' in case if matched Request/Answer is not found in trace.  E.g. in the begin or end of capture.
-
-B<-z diameter,avp> option is much faster than B<-V -T text> or B<-T pdml> options.
-
-B<-z diameter,avp> option is more powerful than B<-T field> and B<-z proto,colinfo> options.
-
-Multiple diameter messages in one frame are supported.
-
-Several fields with same name within one diameter message are supported, e.g. I<diameter.Subscription-Id-Data> or I<diameter.Rating-Group>.
-
-Note: B<tshark -q> option is recommended to suppress default B<tshark> output.
+Collect call/reply SRT data for all known ONC-RPC programs/versions.
+Data collected is number of calls for each protocol/version, MinSRT,
+MaxSRT and AvgSRT.
+This option can only be used once on the command line.
 
 =item B<-z> rpc,srt,I<program>,I<version>[,I<filter>]
 
@@ -1070,13 +1244,6 @@ on those calls that match that filter.
 
 Example: B<-z rpc,srt,100003,3,nfs.fh.hash==0x12345678> will collect NFS v3
 SRT statistics for a specific file.
-
-=item B<-z> rpc,programs
-
-Collect call/reply SRT data for all known ONC-RPC programs/versions.
-Data collected is number of calls for each protocol/version, MinSRT,
-MaxSRT and AvgSRT.
-This option can only be used once on the command line.
 
 =item B<-z> rtp,streams
 
@@ -1102,6 +1269,35 @@ on those calls that match that filter.
 Example: B<-z scsi,srt,0,ip.addr==1.2.3.4> will collect SCSI SBC
 SRT statistics for a specific iscsi/ifcp/fcip host.
 
+=item B<-z> sip,stat[I<,filter>]
+
+This option will activate a counter for SIP messages.  You will get the number
+of occurrences of each SIP Method and of each SIP Status-Code.  Additionally
+you also get the number of resent SIP Messages (only for SIP over UDP).
+
+Example: B<-z sip,stat>.
+
+This option can be used multiple times on the command line.
+
+If the optional I<filter> is provided, the stats will only be calculated
+on those calls that match that filter.
+Example: B<-z "sip,stat,ip.addr==1.2.3.4"> will only collect stats for
+SIP packets exchanged by the host at IP address 1.2.3.4 .
+
+=item B<-z> smb,sids
+
+When this feature is used B<TShark> will print a report with all the
+discovered SID and account name mappings.  Only those SIDs where the
+account name is known will be presented in the table.
+
+For this feature to work you will need to either to enable
+"Edit/Preferences/Protocols/SMB/Snoop SID to name mappings" in the
+preferences or you can override the preferences by specifying
+S<B<-o "smb.sid_name_snooping:TRUE">> on the B<TShark> command line.
+
+The current method used by B<TShark> to find the SID->name mapping
+is relatively restricted with a hope of future expansion.
+
 =item B<-z> smb,srt[,I<filter>]
 
 Collect call/reply SRT (Service Response Time) data for SMB.  Data collected
@@ -1125,202 +1321,6 @@ on those calls that match that filter.
 
 Example: B<-z "smb,srt,ip.addr==1.2.3.4"> will only collect stats for
 SMB packets exchanged by the host at IP address 1.2.3.4 .
-
-=item B<-z> smb,sids
-
-When this feature is used B<TShark> will print a report with all the
-discovered SID and account name mappings.  Only those SIDs where the
-account name is known will be presented in the table.
-
-For this feature to work you will need to either to enable
-"Edit/Preferences/Protocols/SMB/Snoop SID to name mappings" in the
-preferences or you can override the preferences by specifying
-S<B<-o "smb.sid_name_snooping:TRUE">> on the B<TShark> command line.
-
-The current method used by B<TShark> to find the SID->name mapping
-is relatively restricted with a hope of future expansion.
-
-=item B<-z> mgcp,rtd[I<,filter>]
-
-Collect requests/response RTD (Response Time Delay) data for MGCP.
-(This is similar to B<-z smb,srt>).  Data collected is the number of calls
-for each known MGCP Type, MinRTD, MaxRTD and AvgRTD.
-Additionally you get the number of duplicate requests/responses,
-unresponded requests, responses, which don't match with any request.
-Example: B<-z mgcp,rtd>.
-
-This option can be used multiple times on the command line.
-
-If the optional I<filter> is provided, the stats will only be calculated
-on those calls that match that filter.
-Example: B<-z "mgcp,rtd,ip.addr==1.2.3.4"> will only collect stats for
-MGCP packets exchanged by the host at IP address 1.2.3.4 .
-
-=item B<-z> megaco,rtd[I<,filter>]
-
-Collect requests/response RTD (Response Time Delay) data for MEGACO.
-(This is similar to B<-z smb,srt>).  Data collected is the number of calls
-for each known MEGACO Type, MinRTD, MaxRTD and AvgRTD.
-Additionally you get the number of duplicate requests/responses,
-unresponded requests, responses, which don't match with any request.
-Example: B<-z megaco,rtd>.
-
-If the optional I<filter> is provided, the stats will only be calculated
-on those calls that match that filter.
-Example: B<-z "megaco,rtd,ip.addr==1.2.3.4"> will only collect stats for
-MEGACO packets exchanged by the host at IP address 1.2.3.4 .
-
-This option can be used multiple times on the command line.
-
-=item B<-z> h225,counter[I<,filter>]
-
-Count ITU-T H.225 messages and their reasons.  In the first column you get a
-list of H.225 messages and H.225 message reasons, which occur in the current
-capture file.  The number of occurrences of each message or reason is displayed
-in the second column.
-
-Example: B<-z h225,counter>.
-
-If the optional I<filter> is provided, the stats will only be calculated
-on those calls that match that filter.
-Example: use B<-z "h225,counter,ip.addr==1.2.3.4"> to only collect stats for
-H.225 packets exchanged by the host at IP address 1.2.3.4 .
-
-This option can be used multiple times on the command line.
-
-=item B<-z> h225,srt[I<,filter>]
-
-Collect requests/response SRT (Service Response Time) data for ITU-T H.225 RAS.
-Data collected is number of calls of each ITU-T H.225 RAS Message Type,
-Minimum SRT, Maximum SRT, Average SRT, Minimum in Packet, and Maximum in Packet.
-You will also get the number of Open Requests (Unresponded Requests),
-Discarded Responses (Responses without matching request) and Duplicate Messages.
-
-Example: B<-z h225,srt>
-
-This option can be used multiple times on the command line.
-
-If the optional I<filter> is provided, the stats will only be calculated
-on those calls that match that filter.
-
-Example: B<-z "h225,srt,ip.addr==1.2.3.4"> will only collect stats for
-ITU-T H.225 RAS packets exchanged by the host at IP address 1.2.3.4 .
-
-=item B<-z> sip,stat[I<,filter>]
-
-This option will activate a counter for SIP messages.  You will get the number
-of occurrences of each SIP Method and of each SIP Status-Code.  Additionally
-you also get the number of resent SIP Messages (only for SIP over UDP).
-
-Example: B<-z sip,stat>.
-
-This option can be used multiple times on the command line.
-
-If the optional I<filter> is provided, the stats will only be calculated
-on those calls that match that filter.
-Example: B<-z "sip,stat,ip.addr==1.2.3.4"> will only collect stats for
-SIP packets exchanged by the host at IP address 1.2.3.4 .
-
-=item B<-z> mac-lte,stat[I<,filter>]
-
-This option will activate a counter for LTE MAC messages.  You will get
-information about the maximum number of UEs/TTI, common messages and
-various counters for each UE that appears in the log.
-
-Example: B<-z mac-lte,stat>.
-
-This option can be used multiple times on the command line.
-
-If the optional I<filter> is provided, the stats will only be calculated
-for those frames that match that filter.
-Example: B<-z "mac-lte,stat,mac-lte.rnti>3000"> will only collect stats for
-UEs with an assigned RNTI whose value is more than 3000.
-
-=item B<-z> rlc-lte,stat[I<,filter>]
-
-This option will activate a counter for LTE RLC messages.  You will get
-information about common messages and various counters for each UE that appears
-in the log.
-
-Example: B<-z rlc-lte,stat>.
-
-This option can be used multiple times on the command line.
-
-If the optional I<filter> is provided, the stats will only be calculated
-for those frames that match that filter.
-Example: B<-z "rlc-lte,stat,rlc-lte.ueid>3000"> will only collect stats for
-UEs with a UEId of more than 3000.
-
-=item B<-z> expert[I<,error|,warn|,note|,chat>][I<,filter>]
-
-Collects information about all expert info, and will display them in order,
-grouped by severity.
-
-Example: B<-z expert,sip> will show expert items of all severity for frames that
-match the sip protocol.
-
-This option can be used multiple times on the command line.
-
-If the optional I<filter> is provided, the stats will only be calculated
-on those calls that match that filter.
-
-Example: B<-z "expert,note,tcp"> will only collect expert items for frames that
-include the tcp protocol, with a severity of note or higher.
-
-=item B<-z> follow,I<prot>,I<mode>,I<filter>[I<,range>]
-
-Displays the contents of a TCP or UDP stream between two nodes.  The data
-sent by the second node is prefixed with a tab to differentiate it from the
-data sent by the first node.
-
-I<prot> specifies the transport protocol.  It can be one of:
-  B<tcp>   TCP
-  B<udp>   UDP
-
-I<mode> specifies the output mode.  It can be one of:
-  B<ascii> ASCII output with dots for non-printable characters
-  B<hex>   Hexadecimal and ASCII data with offsets
-  B<raw>   Hexadecimal data
-
-Since the output in B<ascii> mode may contain newlines, the length of each section
-of output plus a newline precedes each section of output.
-
-I<filter> specifies the stream to be displayed.  UDP streams are selected with
-IP address plus port pairs.  TCP streams are selected with either the stream
-index or IP address plus port pairs.  For example:
-  B<ip-addr0>:B<port0>,B<ip-addr1>:B<port1>
-  B<tcp-stream-index>
-
-I<range> optionally specifies which "chunks" of the stream should be displayed.
-
-Example: B<-z "follow,tcp,hex,1"> will display the contents of the first TCP
-stream in "hex" format.
-
-  ===================================================================
-  Follow: tcp,hex
-  Filter: tcp.stream eq 1
-  Node 0: 200.57.7.197:32891
-  Node 1: 200.57.7.198:2906
-  00000000  00 00 00 22 00 00 00 07  00 0a 85 02 07 e9 00 02  ...".... ........
-  00000010  07 e9 06 0f 00 0d 00 04  00 00 00 01 00 03 00 06  ........ ........
-  00000020  1f 00 06 04 00 00                                 ......
-      00000000  00 01 00 00                                       ....
-      00000026  00 02 00 00
-
-Example: B<-z "follow,tcp,ascii,200.57.7.197:32891,200.57.7.198:2906"> will
-display the contents of a TCP stream between 200.57.7.197 port 32891 and
-200.57.7.98 port 2906.
-
-  ===================================================================
-  Follow: tcp,ascii
-  Filter: (ommitted for readability)
-  Node 0: 200.57.7.197:32891
-  Node 1: 200.57.7.198:2906
-  38
-  ...".....
-  ................
-      4
-      ....
 
 =back
 
