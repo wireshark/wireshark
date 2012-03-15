@@ -78,7 +78,15 @@ static void lua_menu_callback(gpointer data) {
 WSLUA_FUNCTION wslua_register_menu(lua_State* L) { /*  Register a menu item in one of the main menus. */
 #define WSLUA_ARG_register_menu_NAME 1 /* The name of the menu item. The submenus are to be separated by '/'s. (string) */
 #define WSLUA_ARG_register_menu_ACTION 2 /* The function to be called when the menu item is invoked. (function taking no arguments and returning nothing)  */
-#define WSLUA_OPTARG_register_menu_GROUP 3 /* The menu group into which the menu item is to be inserted. If omitted, defaults to MENU_STAT_GENERIC. One of MENU_STAT_UNSORTED (Statistics), MENU_STAT_GENERIC (Statistics, first section), MENU_STAT_CONVERSATION (Statistics/Conversation List), MENU_STAT_ENDPOINT (Statistics/Endpoint List), MENU_STAT_RESPONSE (Statistics/Service Response Time), MENU_STAT_TELEPHONY (Telephony), MENU_ANALYZE (Analyze), MENU_ANALYZE_CONVERSATION (Analyze/Conversation Filter), MENU_TOOLS_UNSORTED (Tools). (number) */
+#define WSLUA_OPTARG_register_menu_GROUP 3 /* The menu group into which the menu item is to be inserted. If omitted, defaults to MENU_STAT_GENERIC. One of:
+                                              MENU_STAT_UNSORTED (Statistics),
+                                              MENU_STAT_GENERIC (Statistics, first section),
+                                              MENU_STAT_CONVERSATION (Statistics/Conversation List),
+                                              MENU_STAT_ENDPOINT (Statistics/Endpoint List),
+                                              MENU_STAT_RESPONSE (Statistics/Service Response Time),
+                                              MENU_STAT_TELEPHONY (Telephony), MENU_ANALYZE (Analyze),
+                                              MENU_ANALYZE_CONVERSATION (Analyze/Conversation Filter),
+                                              MENU_TOOLS_UNSORTED (Tools). (number) */
 
     const gchar* name = luaL_checkstring(L,WSLUA_ARG_register_menu_NAME);
     struct _lua_menu_data* md;
@@ -221,7 +229,7 @@ WSLUA_FUNCTION wslua_new_dialog(lua_State* L) { /* Pops up a new dialog */
     if (!ops->new_dialog) {
         WSLUA_ERROR(new_dialog,"GUI not available");
     }
-    
+
     if (! (title  = luaL_checkstring(L,WSLUA_ARG_new_dialog_TITLE)) ) {
         WSLUA_ARG_ERROR(new_dialog,TITLE,"Must be a string");
     }
@@ -282,7 +290,7 @@ WSLUA_CONSTRUCTOR ProgDlg_new(lua_State* L) { /* Creates a new TextWindow. */
     if (ops->new_progress_window) {
         pd->pw = ops->new_progress_window(pd->title,pd->task,TRUE,&(pd->stopped));
     } else {
-        WSLUA_ERROR(ProgDlg_new, "GUI not available");   
+        WSLUA_ERROR(ProgDlg_new, "GUI not available");
     }
 
     pushProgDlg(L,pd);
@@ -300,7 +308,7 @@ WSLUA_METHOD ProgDlg_update(lua_State* L) { /* Appends text */
     if (!ops->update_progress) {
         WSLUA_ERROR(ProgDlg_update,"GUI not available");
     }
-    
+
     g_free(pd->task);
     pd->task = g_strdup(task);
 
@@ -338,7 +346,7 @@ WSLUA_METHOD ProgDlg_close(lua_State* L) { /* Appends text */
     if (!ops->destroy_progress_window) {
         WSLUA_ERROR(ProgDlg_close,"GUI not available");
     }
-    
+
     if (!pd) {
         WSLUA_ERROR(ProgDlg_update,"Cannot be called for something not a ProgDlg");
     }
@@ -370,7 +378,7 @@ static int ProgDlg__gc(lua_State* L) {
         if (pd->pw && ops->destroy_progress_window) {
             ops->destroy_progress_window(pd->pw);
         }
-        
+
         g_free(pd);
     } else {
         luaL_error(L, "ProgDlg__gc has being passed something else!");
@@ -421,7 +429,7 @@ WSLUA_CONSTRUCTOR TextWindow_new(lua_State* L) { /* Creates a new TextWindow. */
     if (!ops->new_text_window || !ops->set_close_cb) {
         WSLUA_ERROR(TextWindow_new,"GUI not available");
     }
-    
+
     title = luaL_optstring(L,WSLUA_OPTARG_TextWindow_new_TITLE,"Untitled Window");
     tw = g_malloc(sizeof(struct _wslua_tw));
     tw->expired = FALSE;
@@ -449,7 +457,7 @@ WSLUA_METHOD TextWindow_set_atclose(lua_State* L) { /* Set the function that wil
     if (!ops->set_close_cb) {
         WSLUA_ERROR(TextWindow_set_atclose,"GUI not available");
     }
-    
+
     if (!tw)
         WSLUA_ERROR(TextWindow_at_close,"Cannot be called for something not a TextWindow");
 
@@ -477,7 +485,7 @@ WSLUA_METHOD TextWindow_set(lua_State* L) { /* Sets the text. */
 
     if (!ops->set_text)
         WSLUA_ERROR(TextWindow_set,"GUI not available");
-    
+
     if (!tw)
         WSLUA_ERROR(TextWindow_set,"Cannot be called for something not a TextWindow");
 
@@ -499,7 +507,7 @@ WSLUA_METHOD TextWindow_append(lua_State* L) { /* Appends text */
 
     if (!ops->append_text)
         WSLUA_ERROR(TextWindow_append,"GUI not available");
-    
+
     if (!tw)
         WSLUA_ERROR(TextWindow_append,"Cannot be called for something not a TextWindow");
 
@@ -521,7 +529,7 @@ WSLUA_METHOD TextWindow_prepend(lua_State* L) { /* Prepends text */
 
     if (!ops->prepend_text)
         WSLUA_ERROR(TextWindow_prepend,"GUI not available");
-    
+
     if (!tw)
         WSLUA_ERROR(TextWindow_prepend,"Cannot be called for something not a TextWindow");
 
@@ -541,7 +549,7 @@ WSLUA_METHOD TextWindow_clear(lua_State* L) { /* Erases all text in the window. 
 
     if (!ops->clear_text)
         WSLUA_ERROR(TextWindow_clear,"GUI not available");
-    
+
     if (!tw)
         WSLUA_ERROR(TextWindow_clear,"Cannot be called for something not a TextWindow");
 
@@ -559,7 +567,7 @@ WSLUA_METHOD TextWindow_get_text(lua_State* L) { /* Get the text of the window *
 
     if (!ops->get_text)
         WSLUA_ERROR(TextWindow_get_text,"GUI not available");
-        
+
     if (!tw)
         WSLUA_ERROR(TextWindow_get_text,"Cannot be called for something not a TextWindow");
 
@@ -599,7 +607,7 @@ WSLUA_METHOD TextWindow_set_editable(lua_State* L) { /* Make this window editabl
 
     if (!ops->set_editable)
         WSLUA_ERROR(TextWindow_set_editable,"GUI not available");
-        
+
     if (!tw)
         WSLUA_ERROR(TextWindow_set_editable,"Cannot be called for something not a TextWindow");
 
@@ -656,7 +664,7 @@ WSLUA_METHOD TextWindow_add_button(lua_State* L) {
 
     if (!ops->add_button)
         WSLUA_ERROR(TextWindow_add_button,"GUI not available");
-        
+
     if (!tw)
         WSLUA_ERROR(TextWindow_add_button,"Cannot be called for something not a TextWindow");
 
