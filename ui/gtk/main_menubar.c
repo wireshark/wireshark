@@ -3590,24 +3590,29 @@ void register_lua_menu_bar_menu_items(
  * elements are the names of parent menus. Path elements are stripped of
  * leading/trailing spaces.
  *
+ * |'s separate an existing menu's name from its action.
+ * If the action has a / in it, it must have been "escaped" into a # before
+ * entering this function; this function will translate it back to a /.
+ * There must be an easier way!
+ *
  * Examples:
- *      make_menu_xml("/Foo/Bar/I_tem");
+ *      make_menu_xml("/Foo/Bar|/BarAction/I_tem");
  *   -->
  *              "<ui><menubar name='Menubar'>
  *              <menu action='Foo'>
- *              <menu action='Bar'>
+ *              <menu name='Bar' action='/BarAction'>
  *              <menuitem action='I_tem'/>    <!-- puts shortcut on 't' -->
  *              </menu>
  *              </menu>
  *              <menubar></ui>"
  *
- *  make_menu_xml("/Foo/Bar/-/Baz/Item");
+ *  make_menu_xml("/Foo/Bar|BarAction/-/Baz|BarAction#BazAction/Item");
  *    -->
  *      "<ui><menubar name='Menubar'>
  *      <menu action='Foo'>
- *      <menu action='Bar'>
+ *      <menu name='Bar' action='/BarAction'>
  *      <separator/>
- *      <menu action='Baz'>
+ *      <menu name='Baz' action='BarAction/BazAction'>
  *      <menuitem action='Item'/>
  *      </menu>
  *      </menu>
@@ -3621,11 +3626,12 @@ const gchar*
 make_menu_xml(const char *path) {
     GString     *xml;
     char        **p;
-    char        **tokens;
+    char        **tokens, **name_action_tokens;
     const char  *tok = path;
     gchar       *markup;
     guint       num_menus;
     size_t      len;
+    int i;
 
     if (path == NULL) return NULL;
 
@@ -3651,9 +3657,27 @@ make_menu_xml(const char *path) {
         if (g_strcmp0(tok, "-") == 0) {
             xml = g_string_append(xml, "<separator/>\n");
         } else {
-            markup = g_markup_printf_escaped("<menu action='%s'>\n", tok);
+            /* Split the name of the menu from its action (if any) */
+            name_action_tokens = g_strsplit(tok, "|", 2);
+
+            if (name_action_tokens[1]) {
+                i = -1;
+                /* Replace #'s with /'s.
+                 * Necessary for menus whose action includes a "/".
+                 * There MUST be an easier way...
+                 */
+                while (name_action_tokens[1][++i])
+                    if (name_action_tokens[1][i] == '#')
+                        name_action_tokens[1][i] = '/';
+            }
+
+            if (name_action_tokens[1])
+                markup = g_markup_printf_escaped("<menu name='%s' action='/%s'>\n", name_action_tokens[0], name_action_tokens[1]);
+            else
+                markup = g_markup_printf_escaped("<menu action='%s'>\n", tok);
             xml = g_string_append(xml, markup);
             g_free(markup);
+            g_strfreev(name_action_tokens);
             num_menus++;
         }
     }

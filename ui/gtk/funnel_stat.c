@@ -32,7 +32,7 @@
  *
  * (From original checkin message:
  * The funneled GUI mini API.
- * A very reduced set of gui ops (by now just a text window) 
+ * A very reduced set of gui ops (by now just a text window)
  * that can be funneled to dissectors (even plugins) via epan.
  */
 
@@ -608,19 +608,20 @@ static void our_menu_callback(void* unused _U_, gpointer data) {
 }
 
 static const char* stat_group_name(register_stat_group_t group _U_) {
+    /* See make_menu_xml() for an explanation of the string format */
     static const value_string VALS_GROUP_NAMES[] = {
-        {REGISTER_ANALYZE_GROUP_UNSORTED,            "/Menubar/AnalyzeMenu|_Analyze"},               /* unsorted analyze stuff */
-        {REGISTER_ANALYZE_GROUP_CONVERSATION_FILTER, "/Menubar/AnalyzeMenu/ConversationFilterMenu|Conversation Filter"}, /* conversation filters */
+        {REGISTER_ANALYZE_GROUP_UNSORTED,            "/Menubar/AnalyzeMenu|Analyze"},               /* unsorted analyze stuff */
+        {REGISTER_ANALYZE_GROUP_CONVERSATION_FILTER, "/Menubar/AnalyzeMenu|Analyze/ConversationFilterMenu|Analyze#ConversationFilter"}, /* conversation filters */
         {REGISTER_STAT_GROUP_UNSORTED,               "/Menubar/StatisticsMenu|Statistics"},          /* unsorted statistic function */
         {REGISTER_STAT_GROUP_GENERIC,                "/Menubar/StatisticsMenu|Statistics"},          /* generic statistic function, not specific to a protocol */
-        {REGISTER_STAT_GROUP_CONVERSATION_LIST,      "/Menubar/StatisticsMenu|Statistics/ConversationListMenu|_Conversation List"},        /* member of the conversation list */
-        {REGISTER_STAT_GROUP_ENDPOINT_LIST,          "/Menubar/StatisticsMenu|Statistics/EndpointListMenu|_Endpoint List"},                /* member of the endpoint list */
-        {REGISTER_STAT_GROUP_RESPONSE_TIME,          "/Menubar/StatisticsMenu|Statistics/ServiceResponseTimeMenu|Service _Response Time"}, /* member of the service response time list */
-        {REGISTER_STAT_GROUP_TELEPHONY,              "/Menubar/TelephonyMenu|Telephon_y"},           /* telephony specific */
-        {REGISTER_TOOLS_GROUP_UNSORTED,              "/Menubar/ToolsMenu|_Tools"},                   /* unsorted tools */
+        {REGISTER_STAT_GROUP_CONVERSATION_LIST,      "/Menubar/StatisticsMenu|Statistics/ConversationListMenu|Statistics#ConversationList"},        /* member of the conversation list */
+        {REGISTER_STAT_GROUP_ENDPOINT_LIST,          "/Menubar/StatisticsMenu|Statistics/EndpointListMenu|Statistics#EndpointList"},                /* member of the endpoint list */
+        {REGISTER_STAT_GROUP_RESPONSE_TIME,          "/Menubar/StatisticsMenu|Statistics/ServiceResponseTimeMenu|Statistics#ServiceResponseTime"}, /* member of the service response time list */
+        {REGISTER_STAT_GROUP_TELEPHONY,              "/Menubar/TelephonyMenu|Telephony"},           /* telephony specific */
+        {REGISTER_TOOLS_GROUP_UNSORTED,              "/Menubar/ToolsMenu|Tools"},                   /* unsorted tools */
         {0, NULL}
     };
-    return val_to_str_const(group, VALS_GROUP_NAMES, "/Menubar/ToolsMenu|_Tools");
+    return val_to_str_const(group, VALS_GROUP_NAMES, "/Menubar/ToolsMenu|Tools");
 }
 
 static void register_menu_cb(const char *name,
