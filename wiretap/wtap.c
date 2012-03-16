@@ -718,7 +718,7 @@ g_fast_seek_item_free(gpointer data, gpointer user_data _U_)
 void
 wtap_close(wtap *wth)
 {
-	gint i;
+	gint i, j;
 	wtapng_if_descr_t *wtapng_if_descr;
 	wtapng_if_stats_t *if_stats;
 
@@ -757,8 +757,8 @@ wtap_close(wtap *wth)
 		if(wtapng_if_descr->if_os != NULL){
 			g_free(wtapng_if_descr->if_os);
 		}
-		for(i = 0; i < (gint)wtapng_if_descr->num_stat_entries; i++) {
-			if_stats = &g_array_index(wtapng_if_descr->interface_statistics, wtapng_if_stats_t, i);
+		for(j = 0; j < (gint)wtapng_if_descr->num_stat_entries; j++) {
+			if_stats = &g_array_index(wtapng_if_descr->interface_statistics, wtapng_if_stats_t, j);
 			if(if_stats->opt_comment != NULL){
 				g_free(if_stats->opt_comment);
 			}
