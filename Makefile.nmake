@@ -274,8 +274,8 @@ wireshark.bsc:
 
 pdb_zip: all
 	cd $(INSTALL_DIR)
-	rm -f ../wireshark-pdb-$(WIRESHARK_TARGET_PLATFORM)-$(VERSION).zip
-	zip -9 ../wireshark-pdb-$(WIRESHARK_TARGET_PLATFORM)-$(VERSION).zip *.pdb *.lib
+	rm -f ../[Ww]ireshark-pdb-$(WIRESHARK_TARGET_PLATFORM)-$(VERSION).zip
+	zip -9 ../Wireshark-pdb-$(WIRESHARK_TARGET_PLATFORM)-$(VERSION).zip *.pdb *.lib
 	cd ..
 
 $(RESOURCES): image

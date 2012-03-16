@@ -49,7 +49,7 @@ VIProductVersion "${PRODUCT_VERSION}"
 
 
 ; The file to write
-OutFile "wireshark-${WIRESHARK_TARGET_PLATFORM}-${VERSION}.exe"
+OutFile "${PROGRAM_NAME}-${WIRESHARK_TARGET_PLATFORM}-${VERSION}.exe"
 
 ; Icon of installer and uninstaller
 Icon "..\..\image\wiresharkinst.ico"

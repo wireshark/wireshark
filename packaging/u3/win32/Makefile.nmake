@@ -95,7 +95,7 @@ test:		pack
 	wireshark.bat -D
 
 package:	verify-tools test
-	zip -r wireshark-$(VERSION).u3p $(MANIFEST) $(DEVICE) $(DATA) $(HOST) wireshark.bat
+	zip -r Wireshark-$(VERSION).u3p $(MANIFEST) $(DEVICE) $(DATA) $(HOST) wireshark.bat
 
 CFLAGS	= -DWINPCAP_PACKAGE="\"\\\\WinPcap_$(PCAP_VERSION).exe\""
 
