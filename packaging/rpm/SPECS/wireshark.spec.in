@@ -1,5 +1,7 @@
 # Note that this is NOT a relocatable package
 # $Id$
+# @configure_input@
+
 %define ver      @VERSION@
 %define rel      2
 %define prefix   /usr

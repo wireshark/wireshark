@@ -1,4 +1,5 @@
 #!/bin/sh
+# @configure_input@
 #
 # Checkinstall - perform preinstallation install checks.
 #
