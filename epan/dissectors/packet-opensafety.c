@@ -452,10 +452,10 @@ void proto_reg_handoff_opensafety(void);
 static guint16
 findFrame1Position ( guint8 byteStream[], guint8 dataLength, gboolean checkIfSlimMistake )
 {
-    guint16 i_wFrame1Position = 0;
+    guint16 i_wFrame1Position                   = 0;
     guint16 i_payloadLength, i_calculatedLength = 0;
-    guint16 i_offset = 0, calcCRC = 0, frameCRC = 0;
-    guint8 b_tempByte = 0;
+    guint16 i_offset                            = 0, calcCRC = 0, frameCRC = 0;
+    guint8  b_tempByte                          = 0;
 
     /*
      * First, a normal package get's assumed. Calculation of frame 1 position is
@@ -514,11 +514,11 @@ findFrame1Position ( guint8 byteStream[], guint8 dataLength, gboolean checkIfSli
 /*
  * This function applies the given UDID to the bytestream, considering the start of frame 2
  */
-static guint8 * unxorFrame(guint dataLength, guint8 byteStream[], guint16 frameStart1, guint16 frameStart2, guint8 scmUDID[])
+static guint8 *unxorFrame(guint dataLength, guint8 byteStream[], guint16 frameStart1, guint16 frameStart2, guint8 scmUDID[])
 {
     guint8 * pb_sendMemBlock;
-    guint k;
-    guint8 frame1Size;
+    guint    k;
+    guint8   frame1Size;
 
     frame1Size = ( frameStart2 > frameStart1 ? frameStart2 : dataLength - frameStart1 );
     frame1Size = MIN(frame1Size, dataLength);
@@ -533,11 +533,11 @@ static guint8 * unxorFrame(guint dataLength, guint8 byteStream[], guint16 frameS
     return pb_sendMemBlock;
 }
 
-static guint8 findSafetyFrame ( guint8 * pBuffer, guint32 length, guint u_Offset, gboolean b_frame2first, guint *u_frameOffset, guint *u_frameLength )
+static guint8 findSafetyFrame ( guint8 *pBuffer, guint32 length, guint u_Offset, gboolean b_frame2first, guint *u_frameOffset, guint *u_frameLength )
 {
-    guint n;
-    guint16 crc, calcCrc;
-    guint8 b_ID, b_Length, crcOffset, leftShifted;
+    guint    n;
+    guint16  crc, calcCrc;
+    guint8   b_ID, b_Length, crcOffset, leftShifted;
     gboolean found;
 
     found = 0;
@@ -622,14 +622,14 @@ static guint8 findSafetyFrame ( guint8 * pBuffer, guint32 length, guint u_Offset
 
 static void
 dissect_opensafety_spdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *opensafety_tree,
-        guint8 * bytes, guint16 frameStart1, guint16 frameStart2 , gboolean validSCMUDID)
+        guint8 *bytes, guint16 frameStart1, guint16 frameStart2 , gboolean validSCMUDID)
 {
     proto_item *item;
     proto_tree *spdo_tree;
-    guint16 ct;
-    gint16 taddr;
-    guint dataLength;
-    guint8 tr, b_ID, conn_Valid;
+    guint16     ct;
+    gint16      taddr;
+    guint       dataLength;
+    guint8      tr, b_ID, conn_Valid;
 
     dataLength = tvb_get_guint8(message_tvb, OSS_FRAME_POS_LEN + frameStart1);
     b_ID = ( bytes[frameStart1 + 1] >> 3 ) << 3;
@@ -711,17 +711,17 @@ dissect_opensafety_spdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
 
 
 static void
-dissect_opensafety_ssdo_message(tvbuff_t *message_tvb , packet_info * pinfo, proto_tree *opensafety_tree ,
-        guint8 * bytes, guint16 frameStart1, guint16 frameStart2 , gboolean validSCMUDID)
+dissect_opensafety_ssdo_message(tvbuff_t *message_tvb , packet_info *pinfo, proto_tree *opensafety_tree ,
+        guint8 *bytes, guint16 frameStart1, guint16 frameStart2 , gboolean validSCMUDID)
 {
     proto_item *item;
     proto_tree *ssdo_tree, *ssdo_sacmd_tree;
-    guint16 taddr = 0    ;
-    guint32 abortcode;
-    guint8 db0Offset, db0, sacmd, payloadOffset, payloadSize, n;
-    guint dataLength;
-    gboolean isRequest;
-    guint8 * payload;
+    guint16     taddr = 0    ;
+    guint32     abortcode;
+    guint8      db0Offset, db0, sacmd, payloadOffset, payloadSize, n;
+    guint       dataLength;
+    gboolean    isRequest;
+    guint8     *payload;
 
     dataLength = tvb_get_guint8(message_tvb, OSS_FRAME_POS_LEN + frameStart1);
 
@@ -885,13 +885,13 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb , packet_info * pinfo, pro
 
 static void
 dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo , proto_tree *opensafety_tree,
-        guint8 * bytes, guint16 frameStart1, guint16 frameStart2 )
+        guint8 *bytes, guint16 frameStart1, guint16 frameStart2 )
 {
     proto_item *item;
     proto_tree *snmt_tree;
-    guint16 addr, taddr;
-    guint8 db0, byte;
-    guint dataLength;
+    guint16     addr, taddr;
+    guint8      db0, byte;
+    guint       dataLength;
 
     dataLength = OSS_FRAME_LENGTH(bytes, frameStart1);
 
@@ -1030,15 +1030,15 @@ dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo , prot
 }
 
 static gboolean
-dissect_opensafety_checksum(tvbuff_t *message_tvb, proto_tree *opensafety_tree, guint8 * bytes, guint16 frameStart1 )
+dissect_opensafety_checksum(tvbuff_t *message_tvb, proto_tree *opensafety_tree, guint8 *bytes, guint16 frameStart1 )
 {
-    guint16 frameCrc;
-    guint16 calcCrc;
-    guint dataLength;
-    proto_item * item;
+    guint16     frameCrc;
+    guint16     calcCrc;
+    guint       dataLength;
+    proto_item *item;
     proto_tree *checksum_tree;
-    gint start;
-    gint length;
+    gint        start;
+    gint        length;
 
     dataLength = OSS_FRAME_LENGTH(bytes, frameStart1);
     start = OSS_FRAME_POS_DATA + dataLength  + frameStart1;
@@ -1071,13 +1071,13 @@ dissect_opensafety_message(guint16 frameStart1, guint16 frameStart2, guint8 type
                            tvbuff_t *message_tvb, packet_info *pinfo,
                            proto_item *opensafety_item, proto_tree *opensafety_tree, guint8 u_nrInPackage)
 {
-    guint8 b_ID;
-    guint length;
-    guint8 * bytes;
+    guint8      b_ID;
+    guint       length;
+    guint8     *bytes;
     GByteArray *scmUDID = NULL;
-    gboolean validSCMUDID;
-    proto_item * item;
-    gboolean messageTypeUnknown, crcValid;
+    gboolean    validSCMUDID;
+    proto_item *item;
+    gboolean    messageTypeUnknown, crcValid;
 
     messageTypeUnknown = FALSE;
     length = tvb_length(message_tvb);
@@ -1125,7 +1125,8 @@ dissect_opensafety_message(guint16 frameStart1, guint16 frameStart2, guint8 type
 
             item = proto_tree_add_boolean(opensafety_tree, hf_oss_scm_udid_valid, message_tvb, 0, 0, validSCMUDID);
             if ( scmUDID->len != 6 )
-            	expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "openSAFETY protocol settings are invalid! SCM UDID first octet will be assumed to be 00" );
+            	expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN,
+                                       "openSAFETY protocol settings are invalid! SCM UDID first octet will be assumed to be 00" );
             PROTO_ITEM_SET_GENERATED(item);
 
             g_byte_array_free( scmUDID, TRUE);
@@ -1145,7 +1146,8 @@ dissect_opensafety_message(guint16 frameStart1, guint16 frameStart2, guint8 type
         }
 
         crcValid = FALSE;
-        item = proto_tree_add_uint(opensafety_tree, hf_oss_length, message_tvb, OSS_FRAME_POS_LEN + frameStart1, 1, OSS_FRAME_LENGTH(bytes, frameStart1));
+        item = proto_tree_add_uint(opensafety_tree, hf_oss_length,
+                                   message_tvb, OSS_FRAME_POS_LEN + frameStart1, 1, OSS_FRAME_LENGTH(bytes, frameStart1));
         if ( messageTypeUnknown )
         {
             expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Unknown openSAFETY message type" );
@@ -1178,25 +1180,25 @@ dissect_opensafety_message(guint16 frameStart1, guint16 frameStart2, guint8 type
 }
 
 static gboolean
-opensafety_package_dissector(const gchar * protocolName, const gchar * sub_diss_handle,
+opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_handle,
                              gboolean b_frame2First, gboolean do_byte_swap, guint8 force_nr_in_package,
                              tvbuff_t *message_tvb , packet_info *pinfo , proto_tree *tree )
 {
-    tvbuff_t *next_tvb;
-    guint length, len, frameOffset, frameLength, nodeAddress;
-    guint8 *bytes, *bytesOffset;
-    gboolean handled, dissectorCalled, call_sub_dissector, markAsMalformed;
-    guint8 type, found, packageCounter, i, tempByte;
-    guint16 frameStart1, frameStart2;
-    gint reported_len;
-    dissector_handle_t protocol_dissector = NULL;
-    proto_item *opensafety_item;
-    proto_tree *opensafety_tree;
+    tvbuff_t           *next_tvb;
+    guint               length, len, frameOffset, frameLength, nodeAddress;
+    guint8             *bytes, *bytesOffset;
+    gboolean            handled, dissectorCalled, call_sub_dissector, markAsMalformed;
+    guint8              type, found, packageCounter, i, tempByte;
+    guint16             frameStart1, frameStart2;
+    gint                reported_len;
+    dissector_handle_t  protocol_dissector = NULL;
+    proto_item         *opensafety_item;
+    proto_tree         *opensafety_tree;
 
-    handled = FALSE;
-    dissectorCalled = FALSE;
+    handled            = FALSE;
+    dissectorCalled    = FALSE;
     call_sub_dissector = FALSE;
-    markAsMalformed = FALSE;
+    markAsMalformed    = FALSE;
 
     length = tvb_length(message_tvb);
     /* Minimum package length is 11 */
@@ -1406,8 +1408,8 @@ static gboolean
 dissect_opensafety_epl(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree *tree )
 {
     static gboolean calledOnce = FALSE;
-    gboolean result = FALSE;
-    guint8 firstByte;
+    gboolean        result     = FALSE;
+    guint8          firstByte;
 
     /* We will call the epl dissector by using call_dissector(). The epl dissector will then call
      * the heuristic openSAFETY dissector again. By setting this information, we prevent a dissector
@@ -1436,8 +1438,8 @@ static gboolean
 dissect_opensafety_siii(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree *tree )
 {
     static gboolean calledOnce = FALSE;
-    gboolean result = FALSE;
-    guint8 firstByte;
+    gboolean        result     = FALSE;
+    guint8          firstByte;
 
     if ( pinfo->ipproto == IPPROTO_UDP )
     {
@@ -1470,7 +1472,7 @@ static gboolean
 dissect_opensafety_pn_io(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree *tree )
 {
     static gboolean calledOnce = FALSE;
-    gboolean result = FALSE;
+    gboolean        result     = FALSE;
 
     /* We will call the epl dissector by using call_dissector(). The epl dissector will then call
      * the heuristic openSAFETY dissector again. By setting this information, we prevent a dissector
@@ -1499,7 +1501,7 @@ dissect_opensafety_mbtcp(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree
 static gboolean
 dissect_opensafety_udpdata(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree *tree )
 {
-	gboolean result = FALSE;
+	gboolean       result   = FALSE;
 	static guint32 frameNum = 0;
 	static guint32 frameIdx = 0;
 
@@ -1528,8 +1530,8 @@ static void
 apply_prefs ( void )
 {
     static gboolean opensafety_init = FALSE;
-    static guint opensafety_udp_port_number;
-    static guint opensafety_udp_siii_port_number;
+    static guint    opensafety_udp_port_number;
+    static guint    opensafety_udp_siii_port_number;
 
     /* It only should delete dissectors, if run for any time except the first */
     if ( opensafety_init )
@@ -1699,7 +1701,7 @@ proto_register_opensafety(void)
         /* SPDO Specific fields */
         { &hf_oss_spdo_connection_valid,
           { "Connection Valid Bit", "opensafety.spdo.connection_valid",
-            FT_BOOLEAN,  8, TFS(&opensafety_set_notset),  0x0, NULL, HFILL } },
+            FT_BOOLEAN,  BASE_NONE, TFS(&opensafety_set_notset),  0x0, NULL, HFILL } },
         { &hf_oss_spdo_payload,
           { "SPDO Payload", "opensafety.spdo.payload",
             FT_BYTES,  BASE_NONE, NULL,    0x0, NULL, HFILL } },

@@ -2154,7 +2154,7 @@ proto_register_enip(void)
       { &hf_tcpip_mcast_reserved, { "Reserved", "cip.tcpip.mcast.reserved", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_tcpip_mcast_num_mcast, { "Num MCast", "cip.tcpip.mcast.num_mcast", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_tcpip_mcast_addr_start, { "MCast Start Addr", "cip.tcpip.mcast.addr_start", FT_IPv4, BASE_NONE, NULL, 0, NULL, HFILL }},
-      { &hf_tcpip_select_acd, { "Select ACD", "cip.tcpip.select_acd", FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0, NULL, HFILL }},
+      { &hf_tcpip_select_acd, { "Select ACD", "cip.tcpip.select_acd", FT_BOOLEAN, BASE_NONE, TFS(&tfs_enabled_disabled), 0, NULL, HFILL }},
       { &hf_tcpip_lcd_acd_activity, { "ACD Activity", "cip.tcpip.last_conflict.acd_activity", FT_UINT8, BASE_DEC, enip_tcpip_acd_activity_vals, 0, NULL, HFILL }},
       { &hf_tcpip_lcd_remote_mac, { "RemoteMAC", "cip.tcpip.last_conflict.remote_mac", FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
       { &hf_tcpip_lcd_arp_pdu, { "Arp PDU", "cip.tcpip.last_conflict.arp_pdu", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},

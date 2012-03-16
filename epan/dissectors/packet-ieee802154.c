@@ -31,7 +31,7 @@
  *------------------------------------------------------------
  *
  *  In IEEE 802.15.4 packets, all fields are little endian. And
- *  Each byte is transmitted least significan bit first (reflected
+ *  Each byte is transmitted least significant bit first (reflected
  *  bit ordering).
  *------------------------------------------------------------
  *
@@ -107,7 +107,7 @@ static gboolean ieee802154_fcs_ok = TRUE;
 static const gchar *ieee802154_key_str = NULL;
 static gboolean     ieee802154_key_valid;
 static guint8       ieee802154_key[IEEE802154_CIPHER_SIZE];
-static const char  *ieee802154_user = "User";
+static const char  *ieee802154_user    = "User";
 
 /*-------------------------------------
  * Address Hash Tables
@@ -121,22 +121,22 @@ static ieee802154_map_tab_t ieee802154_map = { NULL, NULL };
  */
 /* UAT entry structure. */
 typedef struct {
-    guchar *    eui64;
-    guint       eui64_len;
-    guint       addr16;
-    guint       pan;
+    guchar *eui64;
+    guint   eui64_len;
+    guint   addr16;
+    guint   pan;
 } static_addr_t;
 
 /* UAT variables */
-static uat_t *          static_addr_uat = NULL;
-static static_addr_t *  static_addrs = NULL;
-static guint            num_static_addrs = 0;
+static uat_t         *static_addr_uat  = NULL;
+static static_addr_t *static_addrs     = NULL;
+static guint          num_static_addrs = 0;
 
 /* Sanity-checks a UAT record. */
 static void
-addr_uat_update_cb(void* r, const char** err)
+addr_uat_update_cb(void *r, const char **err)
 {
-    static_addr_t *     map = r;
+    static_addr_t *map = r;
     /* Ensure a valid short address */
     if (map->addr16 >= IEEE802154_NO_ADDR16) {
         *err = "Invalid short address";
@@ -655,7 +655,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         col_add_fstr(pinfo->cinfo, COL_PACKET_LENGTH, "%i", tvb_length(tvb));
     }
 
-    /* Add the packet length to the filter field */    
+    /* Add the packet length to the filter field */
     hidden_item = proto_tree_add_uint(tree, hf_ieee802154_frame_length, NULL, 0, 0, tvb_reported_length(tvb));
     PROTO_ITEM_SET_HIDDEN(hidden_item);
 
@@ -2613,7 +2613,7 @@ void proto_register_ieee802154(void)
             "Whether the PAN coordinator is accepting GTS requests or not.", HFILL }},
 
         { &hf_ieee802154_gts_direction,
-        { "Direction",                  "wpan.gts.direction", FT_BOOLEAN, 8, TFS(&ieee802154_gts_direction_tfs), 0x0,
+        { "Direction",                  "wpan.gts.direction", FT_BOOLEAN, BASE_NONE, TFS(&ieee802154_gts_direction_tfs), 0x0,
             "A flag defining the direction of the GTS Slot.", HFILL }},
 
         { &hf_ieee802154_pending16,

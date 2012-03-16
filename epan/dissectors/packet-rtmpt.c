@@ -405,11 +405,11 @@ typedef struct rtmpt_frag {
  * ID - used for defaulting short headers
  */
 typedef struct rtmpt_id {
-        guint32 ts;             /* bytes 1-3 */
+        guint32 ts;   /* bytes 1-3 */
         guint32 tsd;
-        guint32 len;            /* bytes 4-6 */
-        guint32 src;            /* bytes 8-11 */
-        guint8  cmd;            /* byte 7 */
+        guint32 len;  /* bytes 4-6 */
+        guint32 src;  /* bytes 8-11 */
+        guint8  cmd;  /* byte 7 */
 
         emem_tree_t *packets;
 } rtmpt_id_t;
@@ -916,7 +916,7 @@ dissect_rtmpt_body_command(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree, g
                                                  iPropertyOffset,
                                                  iPropertyLength+iValueExtra+iValueLength,
                                                  "Property '%s' %s%s",
-                                                 sProperty, val_to_str(iObjType, rtmpt_type_vals, "Unknown"), sValue);
+                                                 sProperty, val_to_str_const(iObjType, rtmpt_type_vals, "Unknown"), sValue);
                         rtmpt_tree_prop = proto_item_add_subtree(ti, ett_rtmpt_property);
 
                         ti = proto_tree_add_text(rtmpt_tree_prop, tvb,
@@ -934,7 +934,7 @@ dissect_rtmpt_body_command(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree, g
                         ti = proto_tree_add_text(rtmpt_tree_prop, tvb,
                                                  iValueOffset-iValueExtra, iValueExtra+iValueLength,
                                                  "%s%s",
-                                                 val_to_str(iObjType, rtmpt_type_vals, "Unknown"), sValue);
+                                                 val_to_str_const(iObjType, rtmpt_type_vals, "Unknown"), sValue);
                         val_tree = proto_item_add_subtree(ti, ett_rtmpt_value);
 
                         proto_tree_add_item(val_tree, hf_rtmpt_amf_type, tvb, iValueOffset-iValueExtra, 1, ENC_BIG_ENDIAN);
@@ -943,7 +943,7 @@ dissect_rtmpt_body_command(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree, g
                         } else if (iObjType==RTMPT_AMF_LONG_STRING || iObjType==RTMPT_AMF_XML) {
                                 proto_tree_add_item(val_tree, hf_rtmpt_amf_longstringlength, tvb, iValueOffset-iValueExtra+1, 4, ENC_BIG_ENDIAN);
                         }
-                        if (iValueLength>0 && hfvalue!=-1) {
+                        if (iValueLength>0 && hfvalue != -1) {
                                 proto_tree_add_item(val_tree, hfvalue, tvb, iValueOffset, iValueLength, FALSE);
                         }
                 }
@@ -1006,10 +1006,10 @@ dissect_rtmpt_body_audio(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree)
         iCtl = tvb_get_guint8(tvb, offset);
         ai = proto_tree_add_uint_format(rtmpt_tree, hf_rtmpt_audio_control, tvb, offset, 1, iCtl,
                                         "Control: 0x%02x (%s %s %s %s)", iCtl,
-                                        val_to_str((iCtl & 0xf0)>>4, rtmpt_audio_codecs, "Unknown codec"),
-                                        val_to_str((iCtl & 0x0c)>>2, rtmpt_audio_rates, "Unknown rate"),
-                                        val_to_str((iCtl & 0x02)>>1, rtmpt_audio_sizes, "Unknown sample size"),
-                                        val_to_str(iCtl & 0x01, rtmpt_audio_types, "Unknown channel count"));
+                                        val_to_str_const((iCtl & 0xf0)>>4, rtmpt_audio_codecs, "Unknown codec"),
+                                        val_to_str_const((iCtl & 0x0c)>>2, rtmpt_audio_rates, "Unknown rate"),
+                                        val_to_str_const((iCtl & 0x02)>>1, rtmpt_audio_sizes, "Unknown sample size"),
+                                        val_to_str_const(iCtl & 0x01, rtmpt_audio_types, "Unknown channel count"));
 
         at = proto_item_add_subtree(ai, ett_rtmpt_audio_control);
         proto_tree_add_uint(at, hf_rtmpt_audio_format, tvb, offset, 1, iCtl);
@@ -1029,8 +1029,8 @@ dissect_rtmpt_body_video(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree)
         iCtl = tvb_get_guint8(tvb, offset);
         vi = proto_tree_add_uint_format(rtmpt_tree, hf_rtmpt_video_control, tvb, offset, 1, iCtl,
                                         "Control: 0x%02x (%s %s)", iCtl,
-                                        val_to_str((iCtl & 0xf0)>>4, rtmpt_video_types, "Unknown frame type"),
-                                        val_to_str(iCtl & 0x0f, rtmpt_video_codecs, "Unknown codec"));
+                                        val_to_str_const((iCtl & 0xf0)>>4, rtmpt_video_types, "Unknown frame type"),
+                                        val_to_str_const(iCtl & 0x0f, rtmpt_video_codecs, "Unknown codec"));
 
         vt = proto_item_add_subtree(vi, ett_rtmpt_video_control);
         proto_tree_add_uint(vt, hf_rtmpt_video_type, tvb, offset, 1, iCtl);
@@ -1054,7 +1054,8 @@ dissect_rtmpt_body_aggregate(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree)
                 iTagType = tvb_get_guint8(tvb, offset + 0);
                 iDataSize = tvb_get_ntoh24(tvb, offset + 1);
 
-                tag_item = proto_tree_add_text(rtmpt_tree, tvb, offset, 11+iDataSize+4, "%s", val_to_str(iTagType, rtmpt_tag_vals, "Unknown Tag"));
+                tag_item = proto_tree_add_text(rtmpt_tree, tvb, offset, 11+iDataSize+4, "%s",
+                                               val_to_str_const(iTagType, rtmpt_tag_vals, "Unknown Tag"));
                 tag_tree = proto_item_add_subtree(tag_item, ett_rtmpt_tag);
                 proto_tree_add_item(tag_tree, hf_rtmpt_tag_type, tvb, offset+0, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tag_tree, hf_rtmpt_tag_datasize, tvb, offset+1, 3, ENC_BIG_ENDIAN);
@@ -1089,17 +1090,17 @@ dissect_rtmpt_body_aggregate(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree)
 static void
 dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_conv_t *rconv, int cdir, rtmpt_packet_t *tp)
 {
-        proto_tree      *rtmpt_tree = NULL;
-        proto_tree      *rtmptroot_tree = NULL;
-        proto_item      *ti = NULL;
-        static guint      iPreviousFrameNumber = 0;
-        gint offset = 0;
+        proto_tree   *rtmpt_tree           = NULL;
+        proto_tree   *rtmptroot_tree       = NULL;
+        proto_item   *ti                   = NULL;
+        static guint  iPreviousFrameNumber = 0;
+        gint          offset               = 0;
 
-        gchar *sDesc = NULL;
-        gint deschasopcode = FALSE;
-        gboolean haveETS = FALSE;
-        guint32 iBodyOffset = 0;
-        guint32 iBodyRemain = 0;
+        gchar        *sDesc                = NULL;
+        gint          deschasopcode        = FALSE;
+        gboolean      haveETS              = FALSE;
+        guint32       iBodyOffset          = 0;
+        guint32       iBodyRemain          = 0;
 
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTMP");
 
@@ -1953,7 +1954,7 @@ proto_register_rtmpt(void)
                     NULL, 0x0, "RTMPT AMF number", HFILL }},
 
                 { &hf_rtmpt_amf_boolean,
-                  { "Boolean", "rtmpt.amf.boolean", FT_BOOLEAN, BASE_DEC,
+                  { "Boolean", "rtmpt.amf.boolean", FT_BOOLEAN, BASE_NONE,
                     NULL, 0x0, "RTMPT AMF boolean", HFILL }},
 
                 { &hf_rtmpt_amf_stringlength,

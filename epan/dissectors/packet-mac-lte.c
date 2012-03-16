@@ -1289,16 +1289,16 @@ static gint dissect_rar_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                               proto_item *pdu_ti,
                               gint offset, guint8 rapid)
 {
-    guint8 reserved;
-    guint start_body_offset = offset;
+    guint8      reserved;
+    guint       start_body_offset = offset;
     proto_item *ti;
     proto_item *rar_body_ti;
     proto_tree *rar_body_tree;
     proto_tree *ul_grant_tree;
     proto_item *ul_grant_ti;
-    guint16 timing_advance;
-    guint32 ul_grant;
-    guint16 temp_crnti;
+    guint16     timing_advance;
+    guint32     ul_grant;
+    guint16     temp_crnti;
 
     /* Create tree for this Body */
     rar_body_ti = proto_tree_add_item(tree,
@@ -1379,17 +1379,17 @@ static gint dissect_rar_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *pdu_ti,
                         gint offset, mac_lte_info *p_mac_lte_info, mac_lte_tap_info *tap_info)
 {
-    gint     number_of_rars = 0;   /* No of RAR bodies expected following headers */
-    guint8   *rapids = ep_alloc(MAX_RAR_PDUS * sizeof(guint8));
-    gboolean backoff_indicator_seen = FALSE;
-    guint8   backoff_indicator = 0;
-    guint8   extension;
-    gint     n;
+    gint        number_of_rars         = 0; /* No of RAR bodies expected following headers */
+    guint8     *rapids                 = ep_alloc(MAX_RAR_PDUS * sizeof(guint8));
+    gboolean    backoff_indicator_seen = FALSE;
+    guint8      backoff_indicator      = 0;
+    guint8      extension;
+    gint        n;
     proto_tree *rar_headers_tree;
     proto_item *ti;
     proto_item *rar_headers_ti;
     proto_item *padding_length_ti;
-    int        start_headers_offset = offset;
+    int         start_headers_offset   = offset;
 
     write_pdu_label_and_info(pdu_ti, NULL, pinfo,
                              "RAR (RA-RNTI=%u, SF=%u) ",
@@ -1670,7 +1670,7 @@ static void call_rlc_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                                guint8 UMSequenceNumberLength,
                                guint8 priority)
 {
-    tvbuff_t *srb_tvb = tvb_new_subset(tvb, offset, data_length, data_length);
+    tvbuff_t            *srb_tvb = tvb_new_subset(tvb, offset, data_length, data_length);
     struct rlc_lte_info *p_rlc_lte_info;
 
     /* Get RLC dissector handle */
@@ -2025,12 +2025,12 @@ static SRResult *GetSRResult(guint32 frameNum, gboolean can_create)
 static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
                         tvbuff_t *tvb, mac_lte_info *p_mac_lte_info, gint idx, proto_item *event_ti)
 {
-    SRResult *result = NULL;
-    SRState *state;
-    SRResult *resultForSRFrame = NULL;
+    SRResult   *result           = NULL;
+    SRState    *state;
+    SRResult   *resultForSRFrame = NULL;
 
-    guint16 rnti;
-    guint16 ueid;
+    guint16     rnti;
+    guint16     ueid;
     proto_item *ti;
 
     /* Get appropriate identifiers */
@@ -2350,7 +2350,7 @@ static void lookup_rlc_channel_from_lcid(guint8 lcid,
     /* Zero params (in case no match is found) */
     *rlc_channel_type = rlcRaw;
     *UM_seqnum_length = 0;
-    *drb_id = 0;
+    *drb_id           = 0;
 
     if (global_mac_lte_lcid_drb_source == (int)FromStaticTable) {
 
@@ -2417,16 +2417,16 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                    proto_item *retx_ti,
                                    proto_tree *context_tree)
 {
-    guint8           extension;
-    volatile guint16 n;
+    guint8            extension;
+    volatile guint16  n;
     proto_item       *truncated_ti;
     proto_item       *padding_length_ti;
     proto_item       *hidden_root_ti;
 
     /* Keep track of LCIDs and lengths as we dissect the header */
     volatile guint16 number_of_headers = 0;
-    guint8  lcids[MAX_HEADERS_IN_PDU];
-    gint16  pdu_lengths[MAX_HEADERS_IN_PDU];
+    guint8           lcids[MAX_HEADERS_IN_PDU];
+    gint16           pdu_lengths[MAX_HEADERS_IN_PDU];
 
     proto_item *pdu_header_ti;
     proto_tree *pdu_header_tree;
@@ -3285,8 +3285,8 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *pdu_ti,
                         volatile guint32 offset, mac_lte_info *p_mac_lte_info)
 {
-    guint8           extension;
-    volatile guint16 n;
+    guint8            extension;
+    volatile guint16  n;
     proto_item       *truncated_ti;
     proto_item       *padding_length_ti;
     proto_item       *hidden_root_ti;
@@ -3440,7 +3440,7 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
                                                 tvb, offset*8 + 1, 7, &length, ENC_BIG_ENDIAN);
                     offset++;
                 }
-				if ((lcids[number_of_headers] == MCH_SCHEDULING_INFO_LCID) && (length & 0x01)) {
+                if ((lcids[number_of_headers] == MCH_SCHEDULING_INFO_LCID) && (length & 0x01)) {
                     expert_add_info_format(pinfo, lcid_ti, PI_MALFORMED, PI_WARN,
                                            "MCH Scheduling Information MAC Control Element should have an even size");
                 }
@@ -3682,15 +3682,15 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 /* Main dissection function. */
 void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree             *mac_lte_tree;
-    proto_item             *pdu_ti;
-    proto_tree             *context_tree;
-    proto_item             *context_ti;
-    proto_item             *retx_ti = NULL;
-    proto_item             *ti;
-    gint                   offset = 0;
-    struct mac_lte_info    *p_mac_lte_info = NULL;
-    gint                   n;
+    proto_tree          *mac_lte_tree;
+    proto_item          *pdu_ti;
+    proto_tree          *context_tree;
+    proto_item          *context_ti;
+    proto_item          *retx_ti        = NULL;
+    proto_item          *ti;
+    gint                 offset         = 0;
+    struct mac_lte_info *p_mac_lte_info = NULL;
+    gint                 n;
 
     /* Allocate and zero tap struct */
     mac_lte_tap_info *tap_info = ep_alloc0(sizeof(mac_lte_tap_info));
@@ -4113,8 +4113,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Initializes the hash tables each time a new
  * file is loaded or re-loaded in wireshark */
-static void
-mac_lte_init_protocol(void)
+static void mac_lte_init_protocol(void)
 {
     /* Destroy any existing tables. */
     if (mac_lte_msg3_hash) {
@@ -4172,7 +4171,7 @@ mac_lte_init_protocol(void)
 static void* lcid_drb_mapping_copy_cb(void* dest, const void* orig, size_t len _U_)
 {
     const lcid_drb_mapping_t *o = orig;
-    lcid_drb_mapping_t *d = dest;
+    lcid_drb_mapping_t       *d = dest;
 
     /* Copy all items over */
     d->lcid = o->lcid;
@@ -4395,7 +4394,7 @@ void proto_register_mac_lte(void)
         },
         { &hf_mac_lte_context_phy_dl_retx,
             { "DL Retx",
-              "mac-lte.dl-phy.dl-retx", FT_BOOLEAN, BASE_DEC, NULL, 0x0,
+              "mac-lte.dl-phy.dl-retx", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
               NULL, HFILL
             }
         },
@@ -5193,8 +5192,7 @@ void set_mac_lte_proto_data(packet_info *pinfo, mac_lte_info *p_mac_lte_info)
     p_add_proto_data(pinfo->fd, proto_mac_lte, p_mac_lte_info);
 }
 
-void
-proto_reg_handoff_mac_lte(void)
+void proto_reg_handoff_mac_lte(void)
 {
     static dissector_handle_t mac_lte_handle;
     if (!mac_lte_handle) {

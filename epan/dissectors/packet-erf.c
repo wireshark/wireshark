@@ -1616,10 +1616,10 @@ proto_register_erf(void)
     /* Channelised Extension Header */
     { &hf_erf_ehdr_chan_morebits,
       { "More Bits", "erf.ehdr.chan.morebits",
-        FT_BOOLEAN, BASE_HEX, NULL, 0, NULL, HFILL } },
+        FT_BOOLEAN, BASE_NONE, NULL, 0, NULL, HFILL } },
     { &hf_erf_ehdr_chan_morefrag,
       { "More Fragments", "erf.ehdr.chan.morefrag",
-        FT_BOOLEAN, BASE_HEX, NULL, 0, NULL, HFILL } },
+        FT_BOOLEAN, BASE_NONE, NULL, 0, NULL, HFILL } },
     { &hf_erf_ehdr_chan_seqnum,
       { "Sequence Number", "erf.ehdr.chan.seqnum",
         FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },

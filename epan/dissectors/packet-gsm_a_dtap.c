@@ -6622,7 +6622,7 @@ proto_register_gsm_a_dtap(void)
 	},
 	{ &hf_gsm_a_dtap_csmt,
 		{ "CSMT", "gsm_a.dtap.csmt",
-		FT_BOOLEAN, 8, TFS(&gsm_a_dtap_csmt_vals), 0x0,
+		FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_dtap_csmt_vals), 0x0,
 		NULL, HFILL }
 	},
 	{ &hf_gsm_a_dtap_alerting_pattern,

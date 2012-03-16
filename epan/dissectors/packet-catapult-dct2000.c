@@ -313,7 +313,7 @@ static gboolean find_ipprim_data_offset(tvbuff_t *tvb, int *data_offset, guint8 
                                         guint16 *conn_id_offset)
 {
     guint8 length;
-    int offset = *data_offset;
+    int    offset = *data_offset;
 
     /* Get the ipprim command code. */
     guint8 tag = tvb_get_guint8(tvb, offset++);
@@ -493,9 +493,9 @@ static gboolean find_sctpprim_variant3_data_offset(tvbuff_t *tvb, int *data_offs
                                                    guint16 *dest_addr_length,
                                                    guint32 *dest_port_offset)
 {
-    guint16 tag = 0;
+    guint16 tag    = 0;
     guint16 length = 0;
-    int offset = *data_offset;
+    int     offset = *data_offset;
 
     /* Get the sctpprim (2 byte) command code. */
     guint16 top_tag = tvb_get_ntohs(tvb, offset);
@@ -683,13 +683,13 @@ static void dissect_rlc_umts(tvbuff_t *tvb, gint offset,
                              packet_info *pinfo, proto_tree *tree,
                              gboolean is_sent)
 {
-    guint8  tag;
-    gboolean ueid_set = FALSE, rbid_set=FALSE;
-    guint32 ueid = 0;
-    guint8  rbid = 0;
-    guint8  length;
-    tvbuff_t   *rlc_tvb;
-    dissector_handle_t rlc_umts_handle = 0;
+    guint8              tag;
+    gboolean            ueid_set        = FALSE, rbid_set=FALSE;
+    guint32             ueid            = 0;
+    guint8              rbid            = 0;
+    guint8              length;
+    tvbuff_t           *rlc_tvb;
+    dissector_handle_t  rlc_umts_handle = 0;
 
     /* Top-level opcode */
     tag = tvb_get_guint8(tvb, offset++);
@@ -820,13 +820,13 @@ static void dissect_rlc_umts(tvbuff_t *tvb, gint offset,
 static void dissect_rrc_lte(tvbuff_t *tvb, gint offset,
                             packet_info *pinfo, proto_tree *tree)
 {
-    guint8  tag;
-    dissector_handle_t protocol_handle = 0;
-    gboolean isUplink = FALSE;
-    LogicalChannelType logicalChannelType;
-    guint16  cell_id;
-    guint8   bcch_transport = 0;
-    tvbuff_t *rrc_tvb;
+    guint8              tag;
+    dissector_handle_t  protocol_handle = 0;
+    gboolean            isUplink        = FALSE;
+    LogicalChannelType  logicalChannelType;
+    guint16             cell_id;
+    guint8              bcch_transport  = 0;
+    tvbuff_t           *rrc_tvb;
 
     /* Top-level opcode */
     tag = tvb_get_guint8(tvb, offset++);
@@ -1016,11 +1016,11 @@ static void dissect_rrc_lte(tvbuff_t *tvb, gint offset,
 static void dissect_ccpri_lte(tvbuff_t *tvb, gint offset,
                               packet_info *pinfo, proto_tree *tree)
 {
-    guint8  opcode;
-    guint8  tag;
-    tvbuff_t *ccpri_tvb;
-    dissector_handle_t protocol_handle = 0;
-    guint16  length;
+    guint8              opcode;
+    guint8              tag;
+    tvbuff_t           *ccpri_tvb;
+    dissector_handle_t  protocol_handle = 0;
+    guint16             length;
 
     /* Top-level opcode */
     proto_tree_add_item(tree, hf_catapult_dct2000_lte_ccpri_opcode, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1081,12 +1081,12 @@ static void dissect_ccpri_lte(tvbuff_t *tvb, gint offset,
 static void dissect_pdcp_lte(tvbuff_t *tvb, gint offset,
                              packet_info *pinfo, proto_tree *tree)
 {
-    guint8                 opcode;
-    guint8                 tag;
-    struct pdcp_lte_info   *p_pdcp_lte_info = NULL;
-    tvbuff_t               *pdcp_lte_tvb;
-    guint16                ueid;
-    guint8                 channelId;
+    guint8                opcode;
+    guint8                tag;
+    struct pdcp_lte_info *p_pdcp_lte_info = NULL;
+    tvbuff_t             *pdcp_lte_tvb;
+    guint16               ueid;
+    guint8                channelId;
 
     /* Look this up so can update channel info */
     p_pdcp_lte_info = p_get_proto_data(pinfo->fd, proto_pdcp_lte);
@@ -1373,7 +1373,7 @@ static dissector_handle_t look_for_dissector(const char *protocol_name)
 /* Populate outhdr_values array with numbers found in outhdr_string */
 static void parse_outhdr_string(const guchar *outhdr_string)
 {
-    int n = 0;
+    int   n                 = 0;
     guint outhdr_string_len = (guint)strlen((const gchar*)outhdr_string);
 
     /* Populate values array */
@@ -1613,8 +1613,9 @@ static void attach_fp_info(packet_info *pinfo, gboolean received, const char *pr
 static void attach_rlc_info(packet_info *pinfo, guint32 urnti, guint8 rbid, gboolean is_sent)
 {
     /* Only need to set info once per session. */
-    struct fp_info *p_fp_info = p_get_proto_data(pinfo->fd, proto_fp);
+    struct fp_info  *p_fp_info  = p_get_proto_data(pinfo->fd, proto_fp);
     struct rlc_info *p_rlc_info = p_get_proto_data(pinfo->fd, proto_rlc);
+
     if (p_rlc_info != NULL) {
         return;
     }
@@ -1686,7 +1687,7 @@ static void attach_rlc_info(packet_info *pinfo, guint32 urnti, guint8 rbid, gboo
 static void attach_mac_lte_info(packet_info *pinfo)
 {
     struct mac_lte_info *p_mac_lte_info;
-    unsigned int i=0;
+    unsigned int         i = 0;
 
     /* Only need to set info once per session. */
     p_mac_lte_info = get_mac_lte_proto_data(pinfo);
@@ -1803,7 +1804,7 @@ static void attach_mac_lte_info(packet_info *pinfo)
 static void attach_rlc_lte_info(packet_info *pinfo)
 {
     struct rlc_lte_info *p_rlc_lte_info;
-    unsigned int i=0;
+    unsigned int         i = 0;
 
     /* Only need to set info once per session. */
     p_rlc_lte_info = p_get_proto_data(pinfo->fd, proto_rlc_lte);
@@ -1832,7 +1833,7 @@ static void attach_rlc_lte_info(packet_info *pinfo)
 static void attach_pdcp_lte_info(packet_info *pinfo)
 {
     struct pdcp_lte_info *p_pdcp_lte_info;
-    unsigned int i=0;
+    unsigned int          i = 0;
 
     /* Only need to set info once per session. */
     p_pdcp_lte_info = p_get_proto_data(pinfo->fd, proto_pdcp_lte);
@@ -1870,8 +1871,8 @@ static void attach_pdcp_lte_info(packet_info *pinfo)
 static void dissect_tty_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
     gint        next_offset;
-    proto_tree  *tty_tree;
-    proto_item  *ti;
+    proto_tree *tty_tree;
+    proto_item *ti;
     int         lines = 0;
 
     /* Create tty tree. */
@@ -1933,15 +1934,15 @@ static void dissect_tty_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static void check_for_oob_mac_lte_events(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree,
                                          const char *string)
 {
-    guint number_of_ues;
-    guint ueids[MAX_SRs];
-    guint rntis[MAX_SRs];
-    guint rapid;
-    guint rach_attempt_number;
-    mac_lte_oob_event oob_event;
+    guint                number_of_ues;
+    guint                ueids[MAX_SRs];
+    guint                rntis[MAX_SRs];
+    guint                rapid;
+    guint                rach_attempt_number;
+    mac_lte_oob_event    oob_event;
     struct mac_lte_info *p_mac_lte_info;
-    tvbuff_t *mac_lte_tvb = NULL;
-    guint16 n;
+    tvbuff_t            *mac_lte_tvb = NULL;
+    guint16              n;
 
     /* Look for strings matching expected formats */
     if (sscanf(string, ">> RACH Preamble Request[UE =  %u]    [RAPID =  %u]    [Attempt = %u]",
@@ -2045,27 +2046,27 @@ static void check_for_oob_mac_lte_events(packet_info *pinfo, tvbuff_t *tvb, prot
 static void
 dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree  *dct2000_tree = NULL;
-    proto_item  *ti = NULL;
-    gint        offset = 0;
-    gint        context_length;
-    const char  *context_name;
-    guint8      port_number;
-    gint        protocol_length;
-    gint        timestamp_length;
-    const char  *timestamp_string;
-    gint        variant_length;
-    const char  *variant_string;
-    gint        outhdr_length;
-    const char  *outhdr_string;
-    guint8      direction;
-    tvbuff_t    *next_tvb;
-    int         encap;
-    dissector_handle_t protocol_handle = 0;
-    dissector_handle_t heur_protocol_handle = 0;
-    int sub_dissector_result = 0;
-    const char   *protocol_name;
-    gboolean    is_comment;
+    proto_tree         *dct2000_tree = NULL;
+    proto_item         *ti           = NULL;
+    gint                offset       = 0;
+    gint                context_length;
+    const char         *context_name;
+    guint8              port_number;
+    gint                protocol_length;
+    gint                timestamp_length;
+    const char         *timestamp_string;
+    gint                variant_length;
+    const char         *variant_string;
+    gint                outhdr_length;
+    const char         *outhdr_string;
+    guint8              direction;
+    tvbuff_t           *next_tvb;
+    int                 encap;
+    dissector_handle_t  protocol_handle = 0;
+    dissector_handle_t  heur_protocol_handle = 0;
+    int                 sub_dissector_result = 0;
+    const char         *protocol_name;
+    gboolean            is_comment;
 
     /* Set Protocol */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DCT2000");
@@ -3167,7 +3168,7 @@ void proto_register_catapult_dct2000(void)
         },
         { &hf_catapult_dct2000_last_in_seg_set,
             { "Last in seg set",
-              "dct2000.last-in-seg-set", FT_BOOLEAN, BASE_DEC, TFS(&tfs_yes_no), 0x0,
+              "dct2000.last-in-seg-set", FT_BOOLEAN, BASE_NONE, TFS(&tfs_yes_no), 0x0,
               NULL, HFILL
             }
         },

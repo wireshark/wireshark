@@ -4289,10 +4289,10 @@ void proto_register_dmp (void)
       { "Reporting Name Number", "dmp.reporting_name", FT_NONE,
         BASE_NONE, NULL, 0x0, "Reporting Name", HFILL } },
     { &hf_addr_dl_expanded,
-      { "DL Expanded", "dmp.dl_expanded", FT_BOOLEAN, 8,
+      { "DL Expanded", "dmp.dl_expanded", FT_BOOLEAN, BASE_NONE,
         NULL, 0x0, "Message has been DL expanded", HFILL } },
     { &hf_addr_int_rec,
-      { "Intended Recipient", "dmp.int_rec", FT_BOOLEAN, 8,
+      { "Intended Recipient", "dmp.int_rec", FT_BOOLEAN, BASE_NONE,
         NULL, 0x0, "Message has an intended recipient", HFILL } },
 
     /*

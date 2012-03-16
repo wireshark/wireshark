@@ -88,8 +88,8 @@ static const value_string vnc_security_types_vs[] = {
 };
 
 static const true_false_string auth_result_tfs = {
-       "Failed",
-       "OK"
+	"Failed",
+	"OK"
 };
 
 static const value_string yes_no_vs[] = {
@@ -621,13 +621,13 @@ static void
 dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	gboolean ret;
-	gint offset = 0;
+	gint     offset = 0;
 
 	/* Set up structures needed to add the protocol subtree and manage it */
-	proto_item *ti=NULL;
-	proto_tree *vnc_tree=NULL;
+	proto_item	   *ti	     = NULL;
+	proto_tree	   *vnc_tree = NULL;
 
-	conversation_t *conversation;
+	conversation_t     *conversation;
 	vnc_conversation_t *per_conversation_info;
 
 	conversation = find_or_create_conversation(pinfo);
@@ -1257,7 +1257,7 @@ vnc_client_to_server(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 {
 	guint8 message_type;
 
-	proto_item *ti=NULL;
+	proto_item *ti = NULL;
 	proto_tree *vnc_client_message_type_tree;
 
 	message_type = tvb_get_guint8(tvb, *offset);
@@ -1318,7 +1318,7 @@ vnc_server_to_client(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	guint8 message_type;
 	gint bytes_needed = 0, length_remaining;
 
-	proto_item *ti=NULL;
+	proto_item *ti = NULL;
 	proto_tree *vnc_server_message_type_tree;
 
 	start_offset = *offset;
@@ -1434,8 +1434,8 @@ static void
 vnc_client_set_encodings(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 			 proto_tree *tree)
 {
-	guint16 number_of_encodings;
-	guint counter;
+	guint16       number_of_encodings;
+	guint         counter;
 	vnc_packet_t *per_packet_info;
 
 	per_packet_info = p_get_proto_data(pinfo->fd, proto_vnc);
@@ -1586,10 +1586,10 @@ static guint
 vnc_server_framebuffer_update(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 			      proto_tree *tree)
 {
-	gint i;
-	guint16 num_rects, width, height;
-	guint bytes_needed = 0;
-	guint32 encoding_type;
+	gint        i;
+	guint16     num_rects, width, height;
+	guint       bytes_needed = 0;
+	guint32     encoding_type;
 	proto_item *ti, *ti_x, *ti_y, *ti_width, *ti_height;
 	proto_tree *vnc_rect_tree, *vnc_encoding_type_tree;
 
@@ -1745,7 +1745,7 @@ static guint32
 vnc_extended_desktop_size(tvbuff_t *tvb, gint *offset, proto_tree *tree)
 {
 
-	guint8 i, num_of_screens;
+	guint8      i, num_of_screens;
 	proto_item *ti;
 	proto_tree *screen_tree;
 
@@ -1814,9 +1814,9 @@ static guint
 vnc_rre_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 		 proto_tree *tree, const guint16 width _U_, const guint16 height _U_)
 {
-	guint8 bytes_per_pixel = vnc_get_bytes_per_pixel(pinfo);
-	guint32 num_subrects, i;
-	guint bytes_needed;
+	guint8      bytes_per_pixel = vnc_get_bytes_per_pixel(pinfo);
+	guint32     num_subrects, i;
+	guint       bytes_needed;
 	proto_item *ti;
 	proto_tree *subrect_tree;
 
@@ -1879,12 +1879,12 @@ static guint
 vnc_hextile_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 		     proto_tree *tree, const guint16 width, const guint16 height)
 {
-	guint8 bytes_per_pixel = vnc_get_bytes_per_pixel(pinfo);
-	guint8 i, subencoding_mask, num_subrects, subrect_len, tile_height, tile_width;
-	guint32 raw_length;
+	guint8      bytes_per_pixel = vnc_get_bytes_per_pixel(pinfo);
+	guint8      i, subencoding_mask, num_subrects, subrect_len, tile_height, tile_width;
+	guint32     raw_length;
 	proto_tree *tile_tree, *subencoding_mask_tree, *subrect_tree, *num_subrects_tree;
 	proto_item *ti, *tile_item;
-	guint16 current_height = 0, current_width;
+	guint16     current_height  = 0, current_width;
 
 	while(current_height != height) {
 		if (current_height + 16 > height)
@@ -2353,10 +2353,10 @@ vnc_rich_cursor_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 			 proto_tree *tree, const guint16 width, const guint16 height)
 {
 	guint8 bytes_per_pixel = vnc_get_bytes_per_pixel(pinfo);
-	guint pixels_bytes, mask_bytes;
+	guint  pixels_bytes, mask_bytes;
 
 	pixels_bytes = width * height * bytes_per_pixel;
-	mask_bytes = ((width + 7) / 8) * height;
+	mask_bytes   = ((width + 7) / 8) * height;
 
 	return decode_cursor(tvb, offset, tree,
 			     pixels_bytes, mask_bytes);
@@ -2368,7 +2368,7 @@ vnc_x_cursor_encoding(tvbuff_t *tvb, packet_info *pinfo _U_, gint *offset,
 		      proto_tree *tree, const guint16 width, const guint16 height)
 {
 	gint bitmap_row_bytes = (width + 7) / 8;
-	gint mask_bytes = bitmap_row_bytes * height;
+	gint mask_bytes       = bitmap_row_bytes * height;
 
 	VNC_BYTES_NEEDED (6);
 	proto_tree_add_item(tree, hf_vnc_cursor_x_fore_back, tvb, *offset, 6, ENC_NA);
@@ -2465,7 +2465,7 @@ static guint
 vnc_server_cut_text(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 		    proto_tree *tree)
 {
-	guint32 text_len;
+	guint32     text_len;
 	proto_item *pi;
 
 	col_set_str(pinfo->cinfo, COL_INFO, "Server cut text");
@@ -2908,7 +2908,7 @@ proto_register_vnc(void)
 		/* Client Key Event */
 		{ &hf_vnc_key_down,
 		  { "Key down", "vnc.key_down",
-		    FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x0,
+		    FT_BOOLEAN, BASE_NONE, TFS(&tfs_yes_no), 0x0,
 		    "Specifies whether the key is being pressed or not", HFILL }
 		},
 		{ &hf_vnc_key,

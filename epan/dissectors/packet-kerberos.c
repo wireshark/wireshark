@@ -5251,7 +5251,7 @@ proto_register_kerberos(void)
                 "TransitedEncoding", "kerberos.TransitedEncoding", FT_NONE, BASE_NONE,
                 NULL, 0, "This is a Kerberos TransitedEncoding sequence", HFILL }},
         { &hf_krb_PA_PAC_REQUEST_flag, {
-                "PAC Request", "kerberos.pac_request.flag", FT_BOOLEAN, 32,
+                "PAC Request", "kerberos.pac_request.flag", FT_BOOLEAN, BASE_NONE,
                 NULL, 0, "This is a MS PAC Request Flag", HFILL }},
         { &hf_krb_w2k_pac_entries, {
                 "Num Entries", "kerberos.pac.entries", FT_UINT32, BASE_DEC,
