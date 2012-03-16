@@ -601,7 +601,7 @@ void proto_register_tetra (void)
 		{ "Timer", "tetra.timer", FT_UINT16, BASE_HEX, NULL, 0x0,
 		 "Timer Register", HFILL }},
 		{ &hf_tetra_crc,
-		{ "CRC", "tetra.crc", FT_BOOLEAN, BASE_DEC, NULL, 0x0,
+		{ "CRC", "tetra.crc", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 		 "CRC result", HFILL }},
 		{ &hf_tetra_len0,
 		{ "Length", "tetra.len0", FT_UINT16, BASE_DEC, NULL, 0x0,
