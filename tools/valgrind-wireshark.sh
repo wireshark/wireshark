@@ -11,13 +11,20 @@ BIN_DIR=.
 # Use tshark by default
 COMMAND=tshark
 COMMAND_ARGS="-nVxr"
+COMMAND_ARGS2=
 
-while getopts ":b:lw" OPTCHAR ; do
+while getopts ":b:lwce" OPTCHAR ; do
     case $OPTCHAR in
         b) BIN_DIR=$OPTARG ;;
         l) LEAK_CHECK="--leak-check=full" ;;
 	w) COMMAND=wireshark
 	   COMMAND_ARGS="-nr" ;;
+	c) COMMAND=capinfos
+	   COMMAND_ARGS="" ;;
+	e) COMMAND=editcap
+	   COMMAND_ARGS="-E 0.02"
+	   # We don't care about the output of editcap
+	   COMMAND_ARGS2="/dev/null" ;;
     esac
 done
 shift $(($OPTIND - 1))
@@ -36,4 +43,4 @@ export WIRESHARK_DEBUG_EP_NO_CHUNKS=
 export WIRESHARK_DEBUG_SE_NO_CHUNKS=
 export G_SLICE=always-malloc # or debug-blocks
 
-libtool --mode=execute valgrind $LEAK_CHECK $BIN_DIR/$COMMAND $COMMAND_ARGS $1 > /dev/null
+libtool --mode=execute valgrind $LEAK_CHECK $BIN_DIR/$COMMAND $COMMAND_ARGS $1 $COMMAND_ARGS2 > /dev/null
