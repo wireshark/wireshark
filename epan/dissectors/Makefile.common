@@ -730,7 +730,10 @@ DISSECTOR_SRC = \
 	packet-mount.c		\
 	packet-mp2t.c		\
 	packet-mp4ves.c		\
+	packet-mpeg-ca.c \
+	packet-mpeg-descriptor.c \
 	packet-mpeg-pat.c	\
+	packet-mpeg-pmt.c \
 	packet-mpeg-sect.c	\
 	packet-mpeg1.c		\
 	packet-mpls.c		\
@@ -1300,6 +1303,7 @@ DISSECTOR_INCLUDES =	\
 	packet-mms.h	\
 	packet-mount.h	\
 	packet-mp4ves.h		\
+	packet-mpeg-descriptor..h \
 	packet-mpeg-sect.h	\
 	packet-mpls.h	\
 	packet-mq.h	\
