@@ -684,13 +684,12 @@ dissect_om2k_attrs(tvbuff_t *tvb, gint offset, proto_tree *tree)
 					    offset++, 1, ENC_BIG_ENDIAN);
 			break;
 		case 0x0c: /* CCCH Options */
-			tmp = tvb_get_guint8(tvb, offset);
 			proto_tree_add_item(tree, hf_om2k_cr, tvb,
 					    offset, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(tree, hf_om2k_ipt3, tvb,
 					    offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_uint(tree, hf_om2k_aop, tvb,
-					    offset, 1, (tmp & 0x3f) >> 2);
+			proto_tree_add_item(tree, hf_om2k_aop, tvb,
+					    offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 			break;
 		case 0x0d: /* Calendar Time */
@@ -1111,12 +1110,12 @@ proto_register_abis_om2000(void)
 		},
 		{ &hf_om2k_ext_range,
 		  { "Extended Range", "om2000.ext_range",
-		    FT_BOOLEAN, 1, NULL, 0,
+		    FT_BOOLEAN, 1, NULL, 0,          /* XXX: bitmask needed? 'FT_BOOLEAN, 8, NULL, 0x01' ? */
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_irc,
 		  { "Interference Rejection Combining", "om2000.irc",
-		    FT_BOOLEAN, 1, NULL, 0,
+		    FT_BOOLEAN, 1, NULL, 0,          /* XXX: bitmask needed? 'FT_BOOLEAN, 8, NULL, 0x01,' ? */
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_bs_pa_mfrms,
@@ -1136,17 +1135,17 @@ proto_register_abis_om2000(void)
 		},
 		{ &hf_om2k_cr,
 		  { "CCCH Repeat", "om2000.ccch_repeat",
-		    FT_BOOLEAN, 1, NULL, 0,
+		    FT_BOOLEAN, 1, NULL, 0,          /* XXX: bitmask needed? 'FT_BOOLEAN, 8, NULL, 0x01,' ? */
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_ipt3,
 		  { "Inhibit Paging Request Type 3", "om2000.ipt3",
-		    FT_BOOLEAN, 2, NULL, 0,
+		    FT_BOOLEAN, 2, NULL, 0,          /* XXX: bitmask needed? 'FT_BOOLEAN, 8, NULL, 0x02,' ? */
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_aop,
 		  { "Age Of Paging", "om2000.aop",
-		    FT_UINT8, BASE_DEC, NULL, 0,
+		    FT_UINT8, BASE_DEC, NULL, 0x3C,  /* XXX: Verify bitmask */
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_t3105,
@@ -1161,7 +1160,7 @@ proto_register_abis_om2000(void)
 		},
 		{ &hf_om2k_cbi,
 		  { "CBCH Indicator", "om2000.ny1",
-		    FT_BOOLEAN, 1, NULL, 0,
+		    FT_BOOLEAN, 1, NULL, 0,          /* XXX: bitmask needed? 'FT_BOOLEAN, 8, NULL, 0x01,' ? */
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_tsc,
@@ -1171,7 +1170,7 @@ proto_register_abis_om2000(void)
 		},
 		{ &hf_om2k_icm,
 		  { "Idle Channel Measurement", "om2000.icm",
-		    FT_BOOLEAN, 1, NULL, 0,
+		    FT_BOOLEAN, 1, NULL, 0,          /* XXX: bitmask needed? 'FT_BOOLEAN, 8, NULL, 0x01,' ? */
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_tta,
@@ -1186,17 +1185,17 @@ proto_register_abis_om2000(void)
 		},
 		{ &hf_om2k_lsc_fm,
 		  { "LSC Dummy Frequency Measurement", "om2000.lsc.fm",
-		    FT_BOOLEAN, 0x80, NULL, 0,
+		    FT_BOOLEAN, 8, NULL, 0x80,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_lsc_lsi,
 		  { "LSC Idle Channels", "om2000.ls.lsi",
-		    FT_BOOLEAN, 0x01, NULL, 0,
+		    FT_BOOLEAN, 8, NULL, 0x01,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_lsc_lsa,
 		  { "LSC Active Channels", "om2000.ls.lsa",
-		    FT_BOOLEAN, 0x02, NULL, 0,
+		    FT_BOOLEAN, 8, NULL, 0x02,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_ls_ft,
@@ -1266,12 +1265,12 @@ proto_register_abis_om2000(void)
 		},
 		{ &hf_om2k_brr,
 		  { "BTS Requested Restart", "om2000.brr",
-		    FT_BOOLEAN, 0x01, NULL, 0,
+		    FT_BOOLEAN, 0x01, NULL, 0,          /* XXX: bitmask needed? 'FT_BOOLEAN, 8, NULL, 0x??,' ? */
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_bfr,
 		  { "BTS Requested File Relation", "om2000.bfr",
-		    FT_BOOLEAN, 0x01, NULL, 0,
+		    FT_BOOLEAN, 0x01, NULL, 0,          /* XXX: bitmask needed? 'FT_BOOLEAN, 8, NULL, 0x??,' ? */
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_hwinfo_sig,
@@ -1303,7 +1302,7 @@ proto_register_abis_om2000(void)
 		},
 		{ &hf_om2k_filerel_ilr,
 		  { "Immediate Load Requested", "om2000.filerel.ilr",
-		    FT_BOOLEAN, 0x08, NULL, 0,
+		    FT_BOOLEAN, 8, NULL, 0x08,
 		    NULL, HFILL }
 		},
 		{ &hf_om2k_filerel_cur,
