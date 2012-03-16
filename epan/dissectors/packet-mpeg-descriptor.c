@@ -201,7 +201,7 @@ static const value_string mpeg_descr_video_stream_multiple_frame_rate_flag_vals[
 	{ 0x00, NULL }
 };
 
-void
+static void
 proto_mpeg_descriptor_dissect_video_stream(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 
@@ -262,7 +262,7 @@ static const value_string mpeg_descr_audio_stream_variable_rate_audio_indicator_
 
 };
 
-void
+static void
 proto_mpeg_descriptor_dissect_audio_stream(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_mpeg_descr_audio_stream_free_format_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -285,7 +285,7 @@ static const value_string mpeg_descr_data_stream_alignment_vals[] = {
 	{ 0x00, NULL }
 };
 
-void
+static void
 proto_mpeg_descriptor_dissect_data_stream_alignment(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_mpeg_descr_data_stream_alignment, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -300,7 +300,7 @@ static int hf_mpeg_descr_ca_private = -1;
 #define MPEG_DESCR_CA_RESERVED_MASK	0xE000
 #define MPEG_DESCR_CA_PID_MASK		0x1FFF
 
-void
+static void
 proto_mpeg_descriptor_dissect_ca(tvbuff_t *tvb, guint offset, guint8 len, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_mpeg_descr_ca_system_id, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -328,7 +328,7 @@ static const value_string mpeg_descr_iso639_type_vals[] = {
 	{ 0x00, NULL }
 };
 
-void
+static void
 proto_mpeg_descriptor_dissect_iso639(tvbuff_t *tvb, guint offset, guint8 len, proto_tree *tree)
 {
 	if (len > 1)
@@ -350,7 +350,7 @@ static int hf_mpeg_descr_system_clock_reserved2 = -1;
 #define MPEG_DESCR_SYSTEM_CLOCK_ACCURACY_EXPONENT_MASK			0xE0
 #define MPEG_DESCR_SYSTEM_CLOCK_RESERVED2_MASK				0x1F
 
-void
+static void
 proto_mpeg_descriptor_dissect_system_clock(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_mpeg_descr_system_clock_external_clock_reference_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -369,7 +369,7 @@ static int hf_mpeg_descr_max_bitrate = -1;
 #define MPEG_DESCR_MAX_BITRATE_RESERVED_MASK	0xC00000
 #define MPEG_DESCR_MAX_BITRATE_MASK		0x3FFFFF
 
-void
+static void
 proto_mpeg_descriptor_dissect_max_bitrate(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 	proto_item *rate_item = NULL;
@@ -392,7 +392,7 @@ static int hf_mpeg_descr_smoothing_buffer_size = -1;
 #define MPEG_DESCR_SMOOTHING_BUFFER_RESERVED2_MASK	0xC00000
 #define MPEG_DESCR_SMOOTHING_BUFFER_SIZE_MASK		0x3FFFFF
 
-void
+static void
 proto_mpeg_descriptor_dissect_smoothing_buffer(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 	proto_item *leak_rate_item = NULL;
@@ -416,7 +416,7 @@ static int hf_mpeg_descr_std_leak_valid = -1;
 #define MPEG_DESCR_STD_RESERVED_MASK	0xFE
 #define MPEG_DESCR_STD_LEAK_VALID_MASK	0x01
 
-void
+static void
 proto_mpeg_descriptor_dissect_std(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_mpeg_descr_std_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -444,7 +444,7 @@ static const value_string mpeg_descr_carousel_identifier_format_id_vals[] = {
 	{ 0, NULL }
 };
 
-void
+static void
 proto_mpeg_descriptor_dissect_carousel_identifier(tvbuff_t *tvb, guint offset, guint8 len, proto_tree *tree)
 {
 	guint8 key_len = 0, format_id = 0;
@@ -505,7 +505,7 @@ static int hf_mpeg_descr_association_tag_timeout = -1;
 static int hf_mpeg_descr_association_tag_selector_bytes = -1;
 static int hf_mpeg_descr_association_tag_private_bytes = -1;
 
-void
+static void
 proto_mpeg_descriptor_dissect_association_tag(tvbuff_t *tvb, guint offset, guint8 len, proto_tree *tree)
 {
 	guint end = offset + len;
@@ -560,7 +560,7 @@ static int hf_mpeg_descr_avc_vid_reserved = -1;
 #define MPEG_DESCR_AVC_VID_24H_PICTURE_FLAG_MASK	0x40
 #define MPEG_DESCR_AVC_VID_RESERVED_MASK		0x3F
 
-void
+static void
 proto_mpeg_descriptor_dissect_avc_vid(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_mpeg_descr_avc_vid_profile_idc, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -696,7 +696,7 @@ static const value_string mpeg_descr_service_type_vals[] = {
 
 };
 
-void
+static void
 proto_mpeg_descriptor_dissect_service(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 	guint8 descr_len = 0, name_len = 0;
@@ -726,7 +726,7 @@ static int hf_mpeg_descr_short_event_name = -1;
 static int hf_mpeg_descr_short_event_text_length = -1;
 static int hf_mpeg_descr_short_event_text = -1;
 
-void
+static void
 proto_mpeg_descriptor_dissect_short_event(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 	guint8 name_len = 0, text_len = 0;
@@ -766,7 +766,7 @@ static int hf_mpeg_descr_extended_event_text_char = -1;
 
 static gint ett_mpeg_descriptor_extended_event_item = -1;
 
-void
+static void
 proto_mpeg_descriptor_dissect_extended_event(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 
@@ -917,7 +917,7 @@ static const value_string mpeg_descr_component_content_type_vals[] = {
 };
 
 
-void
+static void
 proto_mpeg_descriptor_dissect_component(tvbuff_t *tvb, guint offset, guint8 len, proto_tree *tree)
 {
 
@@ -948,7 +948,7 @@ proto_mpeg_descriptor_dissect_component(tvbuff_t *tvb, guint offset, guint8 len,
 /* 0x52 Stream Identifier Descriptor */
 static int hf_mpeg_descr_stream_identifier_component_tag = -1;
 
-void
+static void
 proto_mpeg_descriptor_dissect_stream_identifier(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_mpeg_descr_stream_identifier_component_tag, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -957,7 +957,7 @@ proto_mpeg_descriptor_dissect_stream_identifier(tvbuff_t *tvb, guint offset, pro
 /* 0x53 CA Identifier Descriptor */
 static int hf_mpeg_descr_ca_identifier_system_id = -1;
 
-void
+static void
 proto_mpeg_descriptor_dissect_ca_identifier(tvbuff_t *tvb, guint offset, guint8 len, proto_tree *tree)
 {
 	guint end = offset + len;
@@ -1104,7 +1104,7 @@ static const value_string mpeg_descr_content_nibble_level_1_vals[] = {
 	{ 0x00, NULL }
 };
 
-void
+static void
 proto_mpeg_descriptor_dissect_content(tvbuff_t *tvb, guint offset, guint8 len, proto_tree *tree)
 {
 	proto_item *ni = NULL;
@@ -1150,7 +1150,7 @@ static const value_string mpeg_descr_parental_rating_vals[] = {
 	{ 0x00, NULL }
 };
 
-void
+static void
 proto_mpeg_descriptor_dissect_parental_rating(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 	guint8 rating = 0;
@@ -1183,7 +1183,7 @@ static const value_string mpeg_descr_teletext_type_vals[] = {
 
 };
 
-void
+static void
 proto_mpeg_descriptor_dissect_teletext(tvbuff_t *tvb, guint offset, guint8 len, proto_tree *tree)
 {
 	guint end = offset + len;
@@ -1228,7 +1228,8 @@ static const value_string mpeg_descr_subtitling_type_vals[] = {
 
 	{ 0, NULL }
 };
-void
+
+static void
 proto_mpeg_descriptor_dissect_subtitling(tvbuff_t *tvb, guint offset, guint8 len, proto_tree *tree)
 {
 	guint end = offset + len;
@@ -1252,7 +1253,7 @@ proto_mpeg_descriptor_dissect_subtitling(tvbuff_t *tvb, guint offset, guint8 len
 /* 0x5F Private Data Specifier */
 static int hf_mpeg_descr_private_data_specifier_id = -1;
 
-void
+static void
 proto_mpeg_descriptor_dissect_private_data_specifier(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_mpeg_descr_private_data_specifier_id, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1287,7 +1288,7 @@ static const value_string mpeg_descr_data_bcast_id_vals[] = {
 	{ 0, NULL }
 };
 
-void
+static void
 proto_mpeg_descriptor_dissect_data_bcast(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 
@@ -1323,7 +1324,7 @@ proto_mpeg_descriptor_dissect_data_bcast(tvbuff_t *tvb, guint offset, proto_tree
 static int hf_mpeg_descr_data_bcast_id_bcast_id = -1;
 static int hf_mpeg_descr_data_bcast_id_id_selector_bytes = -1;
 
-void
+static void
 proto_mpeg_descriptor_dissect_data_bcast_id(tvbuff_t *tvb, guint offset, guint8 len, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_mpeg_descr_data_bcast_id_bcast_id, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1339,7 +1340,7 @@ proto_mpeg_descriptor_dissect_data_bcast_id(tvbuff_t *tvb, guint offset, guint8 
 /* 0x73 Default Authority Descriptor */
 static int hf_mpeg_descr_default_authority_name = -1;
 
-void
+static void
 proto_mpeg_descriptor_dissect_default_authority(tvbuff_t *tvb, guint offset, guint8 len, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_mpeg_descr_default_authority_name, tvb, offset, len, ENC_BIG_ENDIAN);
@@ -1373,7 +1374,7 @@ static const value_string mpeg_descr_content_identifier_crid_location_vals[] = {
 	{ 0, NULL }
 };
 
-void
+static void
 proto_mpeg_descriptor_dissect_content_identifier(tvbuff_t *tvb, guint offset, guint8 len, proto_tree *tree)
 {
 	guint end = offset + len, crid_len = 0;
@@ -1482,7 +1483,7 @@ static int hf_mpeg_descr_logon_initialize_rbdc_timeout = -1;
 #define MPEG_DESCR_LOGON_INITIALIZE_VDBC_MAX_MASK				0x0700
 
 
-void
+static void
 proto_mpeg_descriptor_dissect_logon_initialize(tvbuff_t *tvb, guint offset, guint8 len, proto_tree *tree)
 {
 
@@ -1563,7 +1564,7 @@ proto_mpeg_descriptor_dissect_logon_initialize(tvbuff_t *tvb, guint offset, guin
 /* 0xA7 RCS Content Descriptor */
 static int hf_mpeg_descr_rcs_content_table_id = -1;
 
-void
+static void
 proto_mpeg_descriptor_dissect_rcs_content(tvbuff_t *tvb, guint offset, guint8 len, proto_tree *tree)
 {
 	guint end = offset + len;
