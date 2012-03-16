@@ -453,7 +453,9 @@ if test "x$GCC" = "xyes" ; then
 	solaris*)
 		# the X11 headers don't automatically include prototype info
 		# and a lot don't include the return type
-		CFLAGS="$CFLAGS -Wno-return-type -DFUNCPROTO=15"
+		CPPFLAGS="$CPPFLAGS -DFUNCPROTO=15"
+		CFLAGS="$CFLAGS -Wno-return-type"
+		CXXFLAGS="$CXXFLAGS -Wno-return-type"
 		AC_MSG_RESULT(GCC on Solaris - added -Wno-return-type -DFUNCPROTO=15)
 		;;
 	darwin*)
@@ -493,7 +495,12 @@ else
 		# "-Ae" for ANSI C plus extensions such as "long long".
 		# "+O2", for optimization.  XXX - works with "-g"?
 		#
+		# HP's ANSI C++ compiler doesn't support "-Ae", but
+		# does support "+O2", at least according to the
+		# documentation I can find online.
+		#
 		CFLAGS="-Ae +O2 $CFLAGS"
+		CXXFLAGS="+O2 $CFLAGS"
 		AC_MSG_RESULT(HP ANSI C compiler - added -Ae +O2)
 		;;
 	darwin*)
@@ -754,6 +761,7 @@ if test "x$enable_profile_build" = "xyes" ; then
 	if test "x$GCC" = "xyes" -o "x$CLANG" = "xyes" ; then
 		AC_MSG_RESULT(yes)
 		CFLAGS=" -pg $CFLAGS"
+		CXXFLAGS=" -pg $CXXFLAGS"
 	else
 		AC_MSG_RESULT(no)
 		echo "Building profile binaries currently only supported for GCC and clang."
