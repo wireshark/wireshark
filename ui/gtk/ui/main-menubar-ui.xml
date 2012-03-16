@@ -212,21 +212,21 @@ xml description of Wireshark's main menubar, loaded from main_menubar.c in the g
       <menuitem name='PacketLengths' action='/Statistics/plen'/>
       <menuitem name='IOGraphs' action='/Statistics/IOGraphs'/>
       <separator/>
-      <menu name= 'ConversationListMenu' action='/Stataistics/ConversationList'>
-        <menuitem name='Ethernet' action='/Stataistics/ConversationList/Ethernet'/>
-        <menuitem name='FibreChannel' action='/Stataistics/ConversationList/FibreChannel'/>
-        <menuitem name='FDDI' action='/Stataistics/ConversationList/FDDI'/>
-        <menuitem name='IP' action='/Stataistics/ConversationList/IP'/>
-        <menuitem name='IPv6' action='/Stataistics/ConversationList/IPv6'/>
-        <menuitem name='JXTA' action='/Stataistics/ConversationList/JXTA'/>
-        <menuitem name='NCP' action='/Stataistics/ConversationList/NCP'/>
-        <menuitem name='RSVP' action='/Stataistics/ConversationList/RSVP'/>
-        <menuitem name='SCTP' action='/Stataistics/ConversationList/SCTP'/>
-        <menuitem name='TCPIP' action='/Stataistics/ConversationList/TCPIP'/>
-        <menuitem name='TR' action='/Stataistics/ConversationList/TR'/>
-        <menuitem name='UDPIP' action='/Stataistics/ConversationList/UDPIP'/>
-        <menuitem name='USB' action='/Stataistics/ConversationList/USB'/>
-        <menuitem name='WLAN' action='/Stataistics/ConversationList/WLAN'/>
+      <menu name= 'ConversationListMenu' action='/Statistics/ConversationList'>
+        <menuitem name='Ethernet' action='/Statistics/ConversationList/Ethernet'/>
+        <menuitem name='FibreChannel' action='/Statistics/ConversationList/FibreChannel'/>
+        <menuitem name='FDDI' action='/Statistics/ConversationList/FDDI'/>
+        <menuitem name='IP' action='/Statistics/ConversationList/IP'/>
+        <menuitem name='IPv6' action='/Statistics/ConversationList/IPv6'/>
+        <menuitem name='JXTA' action='/Statistics/ConversationList/JXTA'/>
+        <menuitem name='NCP' action='/Statistics/ConversationList/NCP'/>
+        <menuitem name='RSVP' action='/Statistics/ConversationList/RSVP'/>
+        <menuitem name='SCTP' action='/Statistics/ConversationList/SCTP'/>
+        <menuitem name='TCPIP' action='/Statistics/ConversationList/TCPIP'/>
+        <menuitem name='TR' action='/Statistics/ConversationList/TR'/>
+        <menuitem name='UDPIP' action='/Statistics/ConversationList/UDPIP'/>
+        <menuitem name='USB' action='/Statistics/ConversationList/USB'/>
+        <menuitem name='WLAN' action='/Statistics/ConversationList/WLAN'/>
       </menu>
       <menu name= 'EndpointListMenu' action='/Statistics/EndpointList'>
         <menuitem name='Ethernet' action='/Statistics/EndpointList/Ethernet'/>
@@ -350,8 +350,8 @@ xml description of Wireshark's main menubar, loaded from main_menubar.c in the g
     </menu>
     <menu name= 'ToolsMenu' action='/Tools'>
       <menuitem name='FirewallACLRules' action='/Tools/FirewallACLRules'/>
-      <menu name='LUA' action='/Tools/LUA'>
-        <placeholder name='LUA-menu-items'/>
+      <menu name='Lua' action='/Tools/Lua'>
+        <placeholder name='Lua-menu-items'/>
       </menu>
     </menu>
     <menu name= 'InternalsMenu' action='/Internals'>

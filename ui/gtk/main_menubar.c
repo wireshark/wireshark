@@ -1193,21 +1193,21 @@ static const char *ui_desc_menubar =
 "      <menuitem name='PacketLengths' action='/Statistics/plen'/>\n"
 "      <menuitem name='IOGraphs' action='/Statistics/IOGraphs'/>\n"
 "      <separator/>\n"
-"      <menu name= 'ConversationListMenu' action='/Stataistics/ConversationList'>\n"
-"        <menuitem name='Ethernet' action='/Stataistics/ConversationList/Ethernet'/>\n"
-"        <menuitem name='FibreChannel' action='/Stataistics/ConversationList/FibreChannel'/>\n"
-"        <menuitem name='FDDI' action='/Stataistics/ConversationList/FDDI'/>\n"
-"        <menuitem name='IP' action='/Stataistics/ConversationList/IP'/>\n"
-"        <menuitem name='IPv6' action='/Stataistics/ConversationList/IPv6'/>\n"
-"        <menuitem name='JXTA' action='/Stataistics/ConversationList/JXTA'/>\n"
-"        <menuitem name='NCP' action='/Stataistics/ConversationList/NCP'/>\n"
-"        <menuitem name='RSVP' action='/Stataistics/ConversationList/RSVP'/>\n"
-"        <menuitem name='SCTP' action='/Stataistics/ConversationList/SCTP'/>\n"
-"        <menuitem name='TCPIP' action='/Stataistics/ConversationList/TCPIP'/>\n"
-"        <menuitem name='TR' action='/Stataistics/ConversationList/TR'/>\n"
-"        <menuitem name='UDPIP' action='/Stataistics/ConversationList/UDPIP'/>\n"
-"        <menuitem name='USB' action='/Stataistics/ConversationList/USB'/>\n"
-"        <menuitem name='WLAN' action='/Stataistics/ConversationList/WLAN'/>\n"
+"      <menu name= 'ConversationListMenu' action='/Statistics/ConversationList'>\n"
+"        <menuitem name='Ethernet' action='/Statistics/ConversationList/Ethernet'/>\n"
+"        <menuitem name='FibreChannel' action='/Statistics/ConversationList/FibreChannel'/>\n"
+"        <menuitem name='FDDI' action='/Statistics/ConversationList/FDDI'/>\n"
+"        <menuitem name='IP' action='/Statistics/ConversationList/IP'/>\n"
+"        <menuitem name='IPv6' action='/Statistics/ConversationList/IPv6'/>\n"
+"        <menuitem name='JXTA' action='/Statistics/ConversationList/JXTA'/>\n"
+"        <menuitem name='NCP' action='/Statistics/ConversationList/NCP'/>\n"
+"        <menuitem name='RSVP' action='/Statistics/ConversationList/RSVP'/>\n"
+"        <menuitem name='SCTP' action='/Statistics/ConversationList/SCTP'/>\n"
+"        <menuitem name='TCPIP' action='/Statistics/ConversationList/TCPIP'/>\n"
+"        <menuitem name='TR' action='/Statistics/ConversationList/TR'/>\n"
+"        <menuitem name='UDPIP' action='/Statistics/ConversationList/UDPIP'/>\n"
+"        <menuitem name='USB' action='/Statistics/ConversationList/USB'/>\n"
+"        <menuitem name='WLAN' action='/Statistics/ConversationList/WLAN'/>\n"
 "      </menu>\n"
 "      <menu name= 'EndpointListMenu' action='/Statistics/EndpointList'>\n"
 "        <menuitem name='Ethernet' action='/Statistics/EndpointList/Ethernet'/>\n"
@@ -1649,22 +1649,22 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Analyze/ConversationFilter",                         NULL,       "Conversation Filter",                  NULL, NULL, NULL },
 
 
-   { "/Stataistics/ConversationList",                           NULL,       "_Conversation List",                   NULL, NULL, NULL },
-   { "/Stataistics/ConversationList/Ethernet",      WIRESHARK_STOCK_CONVERSATIONS,  "Ethernet",                     NULL, NULL, G_CALLBACK(eth_endpoints_cb) },
-   { "/Stataistics/ConversationList/FibreChannel",  WIRESHARK_STOCK_CONVERSATIONS,  "Fibre Channel",                NULL, NULL, G_CALLBACK(fc_endpoints_cb) },
-   { "/Stataistics/ConversationList/FDDI",          WIRESHARK_STOCK_CONVERSATIONS,  "FDDI",                         NULL, NULL, G_CALLBACK(fddi_endpoints_cb) },
-   { "/Stataistics/ConversationList/IP",            WIRESHARK_STOCK_CONVERSATIONS,  "IPv4",                         NULL, NULL, G_CALLBACK(ip_endpoints_cb) },
-   { "/Stataistics/ConversationList/IPv6",          WIRESHARK_STOCK_CONVERSATIONS,  "IPv6",                         NULL, NULL, G_CALLBACK(ipv6_endpoints_cb) },
-   { "/Stataistics/ConversationList/IPX",           WIRESHARK_STOCK_CONVERSATIONS,  "IPX",                          NULL, NULL, G_CALLBACK(ipx_endpoints_cb) },
-   { "/Stataistics/ConversationList/JXTA",          WIRESHARK_STOCK_CONVERSATIONS,  "JXTA",                         NULL, NULL, G_CALLBACK(jxta_conversation_cb) },
-   { "/Stataistics/ConversationList/NCP",           WIRESHARK_STOCK_CONVERSATIONS,  "NCP",                          NULL, NULL, G_CALLBACK(ncp_endpoints_cb) },
-   { "/Stataistics/ConversationList/RSVP",          WIRESHARK_STOCK_CONVERSATIONS,  "RSVP",                         NULL, NULL, G_CALLBACK(rsvp_endpoints_cb) },
-   { "/Stataistics/ConversationList/SCTP",          WIRESHARK_STOCK_CONVERSATIONS,  "SCTP",                         NULL, NULL, G_CALLBACK(sctp_conversation_cb) },
-   { "/Stataistics/ConversationList/TCPIP",         WIRESHARK_STOCK_CONVERSATIONS,  "TCP (IPv4 & IPv6)",            NULL, NULL, G_CALLBACK(tcpip_conversation_cb) },
-   { "/Stataistics/ConversationList/TR",            WIRESHARK_STOCK_CONVERSATIONS,  "Token Ring",                   NULL, NULL, G_CALLBACK(tr_conversation_cb) },
-   { "/Stataistics/ConversationList/UDPIP",         WIRESHARK_STOCK_CONVERSATIONS,  "UDP (IPv4 & IPv6)",            NULL, NULL, G_CALLBACK(udpip_conversation_cb) },
-   { "/Stataistics/ConversationList/USB",           WIRESHARK_STOCK_CONVERSATIONS,  "USB",                          NULL, NULL, G_CALLBACK(usb_endpoints_cb) },
-   { "/Stataistics/ConversationList/WLAN",          WIRESHARK_STOCK_CONVERSATIONS,  "WLAN",                         NULL, NULL, G_CALLBACK(wlan_endpoints_cb) },
+   { "/Statistics/ConversationList",                           NULL,       "_Conversation List",                   NULL, NULL, NULL },
+   { "/Statistics/ConversationList/Ethernet",      WIRESHARK_STOCK_CONVERSATIONS,  "Ethernet",                     NULL, NULL, G_CALLBACK(eth_endpoints_cb) },
+   { "/Statistics/ConversationList/FibreChannel",  WIRESHARK_STOCK_CONVERSATIONS,  "Fibre Channel",                NULL, NULL, G_CALLBACK(fc_endpoints_cb) },
+   { "/Statistics/ConversationList/FDDI",          WIRESHARK_STOCK_CONVERSATIONS,  "FDDI",                         NULL, NULL, G_CALLBACK(fddi_endpoints_cb) },
+   { "/Statistics/ConversationList/IP",            WIRESHARK_STOCK_CONVERSATIONS,  "IPv4",                         NULL, NULL, G_CALLBACK(ip_endpoints_cb) },
+   { "/Statistics/ConversationList/IPv6",          WIRESHARK_STOCK_CONVERSATIONS,  "IPv6",                         NULL, NULL, G_CALLBACK(ipv6_endpoints_cb) },
+   { "/Statistics/ConversationList/IPX",           WIRESHARK_STOCK_CONVERSATIONS,  "IPX",                          NULL, NULL, G_CALLBACK(ipx_endpoints_cb) },
+   { "/Statistics/ConversationList/JXTA",          WIRESHARK_STOCK_CONVERSATIONS,  "JXTA",                         NULL, NULL, G_CALLBACK(jxta_conversation_cb) },
+   { "/Statistics/ConversationList/NCP",           WIRESHARK_STOCK_CONVERSATIONS,  "NCP",                          NULL, NULL, G_CALLBACK(ncp_endpoints_cb) },
+   { "/Statistics/ConversationList/RSVP",          WIRESHARK_STOCK_CONVERSATIONS,  "RSVP",                         NULL, NULL, G_CALLBACK(rsvp_endpoints_cb) },
+   { "/Statistics/ConversationList/SCTP",          WIRESHARK_STOCK_CONVERSATIONS,  "SCTP",                         NULL, NULL, G_CALLBACK(sctp_conversation_cb) },
+   { "/Statistics/ConversationList/TCPIP",         WIRESHARK_STOCK_CONVERSATIONS,  "TCP (IPv4 & IPv6)",            NULL, NULL, G_CALLBACK(tcpip_conversation_cb) },
+   { "/Statistics/ConversationList/TR",            WIRESHARK_STOCK_CONVERSATIONS,  "Token Ring",                   NULL, NULL, G_CALLBACK(tr_conversation_cb) },
+   { "/Statistics/ConversationList/UDPIP",         WIRESHARK_STOCK_CONVERSATIONS,  "UDP (IPv4 & IPv6)",            NULL, NULL, G_CALLBACK(udpip_conversation_cb) },
+   { "/Statistics/ConversationList/USB",           WIRESHARK_STOCK_CONVERSATIONS,  "USB",                          NULL, NULL, G_CALLBACK(usb_endpoints_cb) },
+   { "/Statistics/ConversationList/WLAN",          WIRESHARK_STOCK_CONVERSATIONS,  "WLAN",                         NULL, NULL, G_CALLBACK(wlan_endpoints_cb) },
 
    { "/Statistics/EndpointList",                                NULL,               "_Endpoint List",               NULL, NULL, NULL },
    { "/Statistics/EndpointList/Ethernet",           WIRESHARK_STOCK_ENDPOINTS,      "Ethernet",                     NULL, NULL, G_CALLBACK(gtk_eth_hostlist_cb) },
