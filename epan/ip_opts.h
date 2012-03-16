@@ -1,6 +1,6 @@
 /* ip_opts.h
  * Definitions of structures and routines for dissection of options that
- * work like IPv4 or IPv6 options
+ * work like IPv4 options
  *
  * $Id$
  *
@@ -56,12 +56,5 @@ typedef struct ip_tcp_opt {
 extern void dissect_ip_tcp_options(tvbuff_t *, int, guint,
                                    const ip_tcp_opt *, int, int,
                                    packet_info *, proto_tree *, proto_item *);
-
-/** Routine to dissect options that work like IPv6 options, where the
-   length field in the option, if present, includes only the data, not
-   the type and length bytes. */
-extern void dissect_ipv6_options(tvbuff_t *, int, guint,
-                                 const ip_tcp_opt *, int, int,
-                                 packet_info *, proto_tree *);
 
 #endif
