@@ -260,7 +260,7 @@ dissect_eiss_descriptors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 }
 
-void
+static void
 dissect_eiss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint offset = 0, packet_length, sect_len;
