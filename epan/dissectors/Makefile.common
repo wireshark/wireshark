@@ -1303,7 +1303,7 @@ DISSECTOR_INCLUDES =	\
 	packet-mms.h	\
 	packet-mount.h	\
 	packet-mp4ves.h		\
-	packet-mpeg-descriptor..h \
+	packet-mpeg-descriptor.h \
 	packet-mpeg-sect.h	\
 	packet-mpls.h	\
 	packet-mq.h	\
