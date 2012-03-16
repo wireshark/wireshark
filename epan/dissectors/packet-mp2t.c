@@ -190,11 +190,13 @@ static const value_string mp2t_pid_vals[] = {
 	{ 0, NULL }
 };
 
+
+/* Values below according ETSI ETR 289 */
 static const value_string mp2t_tsc_vals[] = {
 	{ 0, "Not scrambled" },
-	{ 1, "User-defined" },
-	{ 2, "User-defined" },
-	{ 3, "User-defined" },
+	{ 1, "Reserved" },
+	{ 2, "Packet scrambled with Even Key" },
+	{ 3, "Packet scrambled with Odd Key" },
 	{ 0, NULL }
 };
 
@@ -503,9 +505,9 @@ mp2t_get_packet_length(tvbuff_t *tvb, guint offset, packet_info *pinfo,
 			pkt_len = tvb_get_ntohs(len_tvb, offset + 2) + 6;
 			break;
 		case pid_pload_pes:
-			pkt_len = tvb_get_ntohs(len_tvb, offset + 3);
+			pkt_len = tvb_get_ntohs(len_tvb, offset + 4);
 			if (pkt_len) /* A size of 0 means size not bounded */
-				pkt_len += 2;
+				pkt_len += 6;
 			break;
 		case pid_pload_sect:
 			pkt_len = (tvb_get_ntohs(len_tvb, offset + 1) & 0xFFF) + 3;
@@ -778,7 +780,7 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
 
 	/* There are remaining bytes. Add them to the fragment list */
 
-	if (frag_cur_pos + remaining_len >= frag_tot_len) {
+	if ((frag_tot_len && frag_cur_pos + remaining_len >= frag_tot_len) || (!frag_tot_len && pusi_flag)) {
 		mp2t_fragment_handle(tvb, offset, pinfo, tree, frag_id, frag_cur_pos, remaining_len, TRUE, pid_analysis->pload_type);
 		frag_id++;
 		fragmentation = FALSE;
@@ -965,7 +967,7 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
 	guint32     cc;
 	guint32     pusi_flag;
 
-	/* guint8 pointer; */
+	guint32 tsc;
 
 	proto_item *ti = NULL;
 	proto_item *hi = NULL;
@@ -983,6 +985,7 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
 
 	pid = (header & MP2T_PID_MASK) >> MP2T_PID_SHIFT;
 	cc  = (header & MP2T_CC_MASK)  >> MP2T_CC_SHIFT;
+	tsc = (header & MP2T_TSC_MASK);
 	pusi_flag = (header & 0x00400000);
 	proto_item_append_text(ti, " PID=0x%x CC=%d", pid, cc);
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MPEG TS");
@@ -998,12 +1001,6 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
 	proto_tree_add_item( mp2t_header_tree, hf_mp2t_tsc, tvb, offset, 4, ENC_BIG_ENDIAN);
 	afci = proto_tree_add_item( mp2t_header_tree, hf_mp2t_afc, tvb, offset, 4, ENC_BIG_ENDIAN);
 	proto_tree_add_item( mp2t_header_tree, hf_mp2t_cc, tvb, offset, 4, ENC_BIG_ENDIAN);
-
-
-	/*
-	if (pusi_flag)
-		pointer = tvb_get_guint8(tvb, offset);
-	*/
 
 	afc = (header & MP2T_AFC_MASK) >> MP2T_AFC_SHIFT;
 
@@ -1021,7 +1018,6 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
 	if (pid_analysis->pload_type == pid_pload_docsis && afc) {
 		/* DOCSIS packets should not have an adaptation field */
 		proto_item_append_text(afci, " (Invalid for DOCSIS packets, should be 0)");
-		return;
 	}
 
 	if (pid_analysis->pload_type == pid_pload_null) {
@@ -1237,7 +1233,12 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
 		offset += payload_len;
 	}
 
-	mp2t_process_fragmented_payload(tvb, offset, payload_len, pinfo, tree, mp2t_tree, pusi_flag, pid_analysis);
+	if (!tsc) {
+		mp2t_process_fragmented_payload(tvb, offset, payload_len, pinfo, tree, mp2t_tree, pusi_flag, pid_analysis);
+	} else {
+		/* Payload is scrambled */
+		col_set_str(pinfo->cinfo, COL_INFO, "Scrambled TS payload");
+	}
 
 	return;
 }
