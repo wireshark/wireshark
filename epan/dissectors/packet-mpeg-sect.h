@@ -26,13 +26,28 @@
 #ifndef __PACKET_MPEG_SECT_H_
 #define __PACKET_MPEG_SECT_H__
 
+#define PACKET_MPEG_SECT_PI__TABLE_ID	0
+#define PACKET_MPEG_SECT_PI__SSI	1
+#define PACKET_MPEG_SECT_PI__RESERVED	2
+#define PACKET_MPEG_SECT_PI__LENGTH	3
+#define PACKET_MPEG_SECT_PI__SIZE	4
+
 /*
  *  Used to process the 'standard' mpeg section header that is described below
  *  and populate the data into the tree
  */
 extern guint
 packet_mpeg_sect_header(tvbuff_t *tvb, guint offset,
-						proto_tree *tree, guint *sect_len, gboolean *ssi);
+			proto_tree *tree, guint *sect_len, gboolean *ssi);
+
+/*
+ *  Used to return all the values & items for 'strict' processing of the
+ *  sub-dissectors that make use of this dissector
+ */
+extern guint
+packet_mpeg_sect_header_extra(tvbuff_t *tvb, guint offset, proto_tree *tree,
+				guint *sect_len, guint *reserved, gboolean *ssi,
+				proto_item **items);
 
 /*
  *  Used to process the mpeg CRC information & report erorrs found with it.

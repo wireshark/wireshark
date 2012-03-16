@@ -39,6 +39,7 @@
 #include <epan/prefs.h>
 #include <epan/crc32-tvb.h>
 #include <epan/expert.h>
+#include <epan/dissectors/packet-mpeg-sect.h>
 
 static int proto_mpeg_sect = -1;
 static int hf_mpeg_sect_table_id = -1;
@@ -105,6 +106,11 @@ enum {
 	TID_DVB_MPE = 0x3E
 };
 
+/* From OC-SP-ETV-AM 1.0-IO5 */
+enum {
+	TID_ETV_EISS = 0xE0
+};
+
 static const value_string mpeg_sect_table_id_vals[] = {
 
 	{ TID_PAT, "Program Association Table (PAT)" },
@@ -132,6 +138,7 @@ static const value_string mpeg_sect_table_id_vals[] = {
 	{ TID_TBTP, "Terminal Burst Time Plan (TBTP)" },
 	{ TID_TIM, "Terminal Information Message (TIM)" },
 	{ TID_DVB_MPE, "DVB MultiProtocol Encapsulation (MPE)" },
+	{ TID_ETV_EISS, "ETV Integrated Signaling Stream (EISS)" },
 	{ TID_FORBIDEN, "Forbidden" },
 	{ 0, NULL }
 };
@@ -140,18 +147,44 @@ guint
 packet_mpeg_sect_header(tvbuff_t *tvb, guint offset,
 				proto_tree *tree, guint *sect_len, gboolean *ssi)
 {
+	return packet_mpeg_sect_header_extra(tvb, offset, tree, sect_len,
+							NULL, ssi, NULL);
+}
+
+guint
+packet_mpeg_sect_header_extra(tvbuff_t *tvb, guint offset, proto_tree *tree,
+				guint *sect_len, guint *reserved, gboolean *ssi,
+				proto_item **items)
+{
 	guint tmp;
 	guint len = 0;
+	proto_item *pi[PACKET_MPEG_SECT_PI__SIZE];
+	gint i;
 
-	if (tree) 
-		proto_tree_add_item(tree, hf_mpeg_sect_table_id, tvb, offset + len, 1, ENC_BIG_ENDIAN);
+	for (i = 0; i < PACKET_MPEG_SECT_PI__SIZE; i++) {
+		pi[i] = NULL;
+	}
+
+	if (tree) {
+		pi[PACKET_MPEG_SECT_PI__TABLE_ID] =
+			proto_tree_add_item(tree, hf_mpeg_sect_table_id,
+					tvb, offset + len, 1, ENC_BIG_ENDIAN);
+	}
 
 	len++;
 
 	if (tree) {
-		proto_tree_add_item(tree, hf_mpeg_sect_syntax_indicator, tvb, offset + len, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(tree, hf_mpeg_sect_reserved, tvb, offset + len, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(tree, hf_mpeg_sect_length, tvb, offset + len, 2, ENC_BIG_ENDIAN);
+		pi[PACKET_MPEG_SECT_PI__SSI] =
+			proto_tree_add_item(tree, hf_mpeg_sect_syntax_indicator,
+					tvb, offset + len, 2, ENC_BIG_ENDIAN);
+
+		pi[PACKET_MPEG_SECT_PI__RESERVED] =
+			proto_tree_add_item(tree, hf_mpeg_sect_reserved, tvb,
+					offset + len, 2, ENC_BIG_ENDIAN);
+
+		pi[PACKET_MPEG_SECT_PI__LENGTH] =
+			proto_tree_add_item(tree, hf_mpeg_sect_length, tvb,
+					offset + len, 2, ENC_BIG_ENDIAN);
 	}
 
 	tmp = tvb_get_ntohs(tvb, offset + len); 
@@ -159,8 +192,17 @@ packet_mpeg_sect_header(tvbuff_t *tvb, guint offset,
 	if (sect_len)
 		*sect_len = MPEG_SECT_LENGTH_MASK & tmp;
 	
+	if (reserved)
+		*reserved = (MPEG_SECT_RESERVED_MASK & tmp) >> 12;
+	
 	if (ssi)
 		*ssi = (MPEG_SECT_SYNTAX_INDICATOR_MASK & tmp);
+
+	if (items) {
+		for (i = 0; i < PACKET_MPEG_SECT_PI__SIZE; i++) {
+			items[i] = pi[i];
+		}
+	}
 
 	len += 2;
 
@@ -232,9 +274,10 @@ dissect_mpeg_sect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += packet_mpeg_sect_header(tvb, offset, mpeg_sect_tree,
 								&section_length, &syntax_indicator);
 
-		if (syntax_indicator) 
-			packet_mpeg_sect_crc(tvb, pinfo, mpeg_sect_tree, 0, (section_length-1));
 	}
+
+	if (syntax_indicator) 
+		packet_mpeg_sect_crc(tvb, pinfo, mpeg_sect_tree, 0, (section_length-1));
 }
 
 

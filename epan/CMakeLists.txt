@@ -199,6 +199,7 @@ set(ASN1_DISSECTOR_SRC
 	dissectors/packet-disp.c
 	dissectors/packet-dop.c
 	dissectors/packet-dsp.c
+	dissectors/packet-eiss.c
 	dissectors/packet-ess.c
 	dissectors/packet-ftam.c
 	dissectors/packet-goose.c
