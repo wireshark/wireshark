@@ -1155,10 +1155,10 @@ void proto_register_pnrp(void)
                 NULL, HFILL }},
         /* Ack Flags */
         { &hf_pnrp_message_ack_flags_reserved,
-            { "Reserved", "pnrp.segment.ack.flags.reserved", FT_BOOLEAN, BASE_DEC, NULL, 0x0,
+            { "Reserved", "pnrp.segment.ack.flags.reserved", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
         { &hf_pnrp_message_ack_flags_Nbit,
-            { "(N)ot found Bit", "pnrp.segment.ack.flags.Nbit", FT_BOOLEAN, BASE_DEC, NULL, 0x0,
+            { "(N)ot found Bit", "pnrp.segment.ack.flags.Nbit", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
         /* Authority Flags */
         { &hf_pnrp_message_authority_flags,
@@ -1184,10 +1184,10 @@ void proto_register_pnrp(void)
                 NULL, HFILL }},
         /* Flood Control Flags */
         { &hf_pnrp_message_flood_flags_reserved1,
-            { "Reserved", "pnrp.segment.flood.flags.reserved", FT_BOOLEAN, BASE_DEC, NULL, 0x0,
+            { "Reserved", "pnrp.segment.flood.flags.reserved", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
         { &hf_pnrp_message_flood_flags_Dbit,
-            { "(D)on't send ACK", "pnrp.segment.flood.flags.Dbit", FT_BOOLEAN, BASE_DEC, NULL, 0x0,
+            { "(D)on't send ACK", "pnrp.segment.flood.flags.Dbit", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
         /* Split Controls */
         { &hf_pnrp_message_splitControls_authorityBuffer,
