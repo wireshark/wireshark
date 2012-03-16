@@ -251,7 +251,7 @@ static const value_string mpeg_descr_audio_stream_id_vals[] = {
 	{ 0x00, "ID not set to 1 in all the frames" },
 	{ 0x01, "ID set to 1 in all the frames" },
 
-	{ 0x00, NULL },
+	{ 0x00, NULL }
 };
 
 static const value_string mpeg_descr_audio_stream_variable_rate_audio_indicator_vals[] = {
@@ -325,7 +325,7 @@ static const value_string mpeg_descr_iso639_type_vals[] = {
 	{ 0x02, "Hearing Impaired" },
 	{ 0x03, "Visual Impaired Comentary" },
 
-	{ 0x00, NULL },
+	{ 0x00, NULL }
 };
 
 void
@@ -631,10 +631,10 @@ proto_mpeg_descriptor_dissect_vbi_data(tvbuff_t *tvb, guint offset, guint8 len, 
 
 		proto_tree_add_item(svc_tree, hf_mpeg_descr_vbi_data_service_id, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
-		
+
 		proto_tree_add_item(svc_tree, hf_mpeg_descr_vbi_data_descr_len, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
-	
+
 		switch (svc_id) {
 			case 0x01:
 			case 0x02:
@@ -840,10 +840,11 @@ static const value_string mpeg_descr_component_stream_content_vals[] = {
 	{ 0x06, "Audio (HE-AAC)" },
 	{ 0x07, "Audio (DTS)" },
 
+	{ 0x0, NULL }
 };
 
 static const value_string mpeg_descr_component_content_type_vals[] = {
-	
+
 	{ 0x0101, "MPEG-2 video, 4:3 aspect ratio, 25 Hz" },
 	{ 0x0102, "MPEG-2 video, 16:9 aspect ratio with pan vectors, 25 Hz" },
 	{ 0x0103, "MPEG-2 video, 16:9 aspect ratio without pan vectors, 25 Hz" },
@@ -919,7 +920,7 @@ static const value_string mpeg_descr_component_content_type_vals[] = {
 void
 proto_mpeg_descriptor_dissect_component(tvbuff_t *tvb, guint offset, guint8 len, proto_tree *tree)
 {
-	
+
 	proto_item *cti = NULL;
 	proto_tree *content_type_tree = NULL;
 
@@ -1087,7 +1088,7 @@ static const value_string mpeg_descr_content_nibble_vals[] = {
 };
 
 static const value_string mpeg_descr_content_nibble_level_1_vals[] = {
-	
+
 	{ 0x1, "Movie/Drama" },
 	{ 0x2, "News/Current affairs" },
 	{ 0x3, "Show/Game show" },
@@ -1099,7 +1100,7 @@ static const value_string mpeg_descr_content_nibble_level_1_vals[] = {
 	{ 0x9, "Education/Science/Factual topics" },
 	{ 0xA, "Leisure hobbies" },
 	{ 0xB, "Special characteristics" },
-	
+
 	{ 0x00, NULL }
 };
 
@@ -1146,7 +1147,7 @@ static const value_string mpeg_descr_parental_rating_vals[] = {
 	{ 0x0E, "Minimum 17 year old" },
 	{ 0x0F, "Minimum 18 year old" },
 
-	{ 0x00, NULL },
+	{ 0x00, NULL }
 };
 
 void
@@ -1231,7 +1232,7 @@ void
 proto_mpeg_descriptor_dissect_subtitling(tvbuff_t *tvb, guint offset, guint8 len, proto_tree *tree)
 {
 	guint end = offset + len;
-	
+
 	while (offset < end) {
 		proto_tree_add_item(tree, hf_mpeg_descr_subtitling_lang_code, tvb, offset, 3, ENC_NA);
 		offset += 3;
@@ -1306,7 +1307,7 @@ proto_mpeg_descriptor_dissect_data_bcast(tvbuff_t *tvb, guint offset, proto_tree
 		proto_tree_add_item(tree, hf_mpeg_descr_data_bcast_selector_bytes, tvb, offset, selector_len, ENC_BIG_ENDIAN);
 		offset += selector_len;
 	}
-	
+
 	proto_tree_add_item(tree, hf_mpeg_descr_data_bcast_lang_code, tvb, offset, 3, ENC_NA);
 	offset += 3;
 
@@ -1490,10 +1491,10 @@ proto_mpeg_descriptor_dissect_logon_initialize(tvbuff_t *tvb, guint offset, guin
 
 	proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_group_id, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
-	
+
 	proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_logon_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
-	
+
 	proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_continuous_carrier_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_continuous_carrier, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_security_handshake_required, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1508,9 +1509,9 @@ proto_mpeg_descriptor_dissect_logon_initialize(tvbuff_t *tvb, guint offset, guin
 	proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_capacity_type_flag_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_capacity_type_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_traffic_burst_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-	if (flags & MPEG_DESCR_LOGON_INITIALIZE_TRAFFIC_BURST_TYPE_MASK) { 
+	if (flags & MPEG_DESCR_LOGON_INITIALIZE_TRAFFIC_BURST_TYPE_MASK) {
 		proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_connectivity, tvb, offset, 2, ENC_BIG_ENDIAN);
-		if (flags & MPEG_DESCR_LOGON_INITIALIZE_CONNECTIVITY_MASK) { 
+		if (flags & MPEG_DESCR_LOGON_INITIALIZE_CONNECTIVITY_MASK) {
 			proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_return_signalling_vpi_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_return_signalling_vpi, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
@@ -1564,7 +1565,7 @@ static int hf_mpeg_descr_rcs_content_table_id = -1;
 
 void
 proto_mpeg_descriptor_dissect_rcs_content(tvbuff_t *tvb, guint offset, guint8 len, proto_tree *tree)
-{ 
+{
 	guint end = offset + len;
 
 	while (offset < end) {
@@ -2133,7 +2134,7 @@ proto_register_mpeg_descriptor(void)
 			"Last Descriptor Number", "mpeg_descr.ext_evt.last_descr_num",
 			FT_UINT8, BASE_DEC, NULL, MPEG_DESCR_EXTENDED_EVENT_LAST_DESCRIPTOR_NUMBER_MASK, NULL, HFILL
 		} },
-		
+
 		{ &hf_mpeg_descr_extended_event_lang_code, {
 			"Language Code", "mpeg_descr.ext_evt.lang_code",
 			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
@@ -2507,7 +2508,7 @@ proto_register_mpeg_descriptor(void)
 			"Forward Signalling VCI", "mpeg_descr.logon_init.forward_signalling_vci",
 			FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
 		} },
-		
+
 		{ &hf_mpeg_descr_logon_initialize_cra_level, {
 			"CRA Level", "mpeg_descr.logon_init.cra_level",
 			FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL
