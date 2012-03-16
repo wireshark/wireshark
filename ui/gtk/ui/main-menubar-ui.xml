@@ -350,9 +350,6 @@ xml description of Wireshark's main menubar, loaded from main_menubar.c in the g
     </menu>
     <menu name= 'ToolsMenu' action='/Tools'>
       <menuitem name='FirewallACLRules' action='/Tools/FirewallACLRules'/>
-      <menu name='Lua' action='/Tools/Lua'>
-        <placeholder name='Lua-menu-items'/>
-      </menu>
     </menu>
     <menu name= 'InternalsMenu' action='/Internals'>
       <menuitem name='Dissectortables' action='/Internals/Dissectortables'/>
