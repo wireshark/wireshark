@@ -1574,6 +1574,7 @@ fi
 # AC_WIRESHARK_GCC_CFLAGS_CHECK
 #
 # $1 : cflags to test
+# $2 : if supplied, C for C-only flags, CXX for C++-only flags
 #
 # The macro first determines if the compiler supports GCC-style flags.
 # Then it attempts to compile with the defined cflags.  The defined
@@ -1590,24 +1591,81 @@ fi
 #
 AC_DEFUN([AC_WIRESHARK_GCC_CFLAGS_CHECK],
 [GCC_OPTION="$1"
-AC_MSG_CHECKING(whether we can add $GCC_OPTION to CFLAGS)
+case "$2" in
+C)
+  AC_MSG_CHECKING(whether we can add $GCC_OPTION to CFLAGS)
+  ;;
+
+CXX)
+  AC_MSG_CHECKING(whether we can add $GCC_OPTION to CXXFLAGS)
+  ;;
+
+*)
+  AC_MSG_CHECKING(whether we can add $GCC_OPTION to CFLAGS and CXXFLAGS)
+  ;;
+esac
+
 if test "x$ac_supports_gcc_flags" = "xyes" ; then
-  CFLAGS_saved="$CFLAGS"
-  CFLAGS="$CFLAGS $GCC_OPTION"
-  if test "x$CC" = "xclang" ; then
-    CFLAGS="$CFLAGS -Werror=unknown-warning-option"
+  if test "$2" != CXX ; then
+    #
+    # Not C++-only; if this can be added to the C compiler flags, add them.
+    #
+    CFLAGS_saved="$CFLAGS"
+    CFLAGS="$CFLAGS $GCC_OPTION"
+    if test "x$CC" = "xclang" ; then
+      #
+      # Force clang to fail on an unknown warning option; by default,
+      # it whines but doesn't fail, so we add unknown options and,
+      # as a result, get a lot of that whining when we compile.
+      #
+      CFLAGS="$CFLAGS -Werror=unknown-warning-option"
+    fi
+    AC_COMPILE_IFELSE([
+      AC_LANG_SOURCE([[
+                        int foo;
+                    ]])],
+                    [
+                      AC_MSG_RESULT(yes)
+                      #
+                      # Remove -Werror=unknown-warning-option, if we
+                      # added it, by setting CFLAGS to the saved value
+                      # plus just the new option.
+                      #
+                      CFLAGS="$CFLAGS_saved $GCC_OPTION"
+                      if test "$2" != C ; then
+                        #
+                        # Add it to the C++ flags as well.
+                        #
+                        CXXFLAGS="$CXXFLAGS $GCC_OPTION"
+                      fi
+                    ],
+                    [
+                      AC_MSG_RESULT(no)
+                      CFLAGS="$CFLAGS_saved"
+                    ])
+  else
+    #
+    # C++-only; if this can be added to the C++ compiler flags, add them.
+    #
+    CXXFLAGS_saved="$CXXFLAGS"
+    CXXFLAGS="$CXXFLAGS $GCC_OPTION"
+    if test "x$CC" = "xclang" ; then
+      CXXFLAGS="$CXXFLAGS -Werror=unknown-warning-option"
+    fi
+    AC_LANG_PUSH([C++])
+    AC_COMPILE_IFELSE([
+      AC_LANG_SOURCE([[
+                        int foo;
+                    ]])],
+                    [
+                      AC_MSG_RESULT(yes)
+                    ],
+                    [
+                      AC_MSG_RESULT(no)
+                      CXXFLAGS="$CXXFLAGS_saved"
+                    ])
+    AC_LANG_POP([C++])
   fi
-  AC_COMPILE_IFELSE([
-    AC_LANG_SOURCE([[
-                      int foo;
-                  ]])],
-                  [
-                    AC_MSG_RESULT(yes)
-                  ],
-                  [
-                    AC_MSG_RESULT(no)
-                    CFLAGS="$CFLAGS_saved"
-                  ])
 else
   AC_MSG_RESULT(no)
 fi

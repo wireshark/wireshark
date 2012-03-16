@@ -324,19 +324,18 @@ AC_ARG_ENABLE(extra-gcc-checks,
 #		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wunreachable-code)
 #		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wunsafe-loop-optimizations)
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wno-long-long)
-		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wbad-function-cast)
+		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wbad-function-cast, C)
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wcast-qual)
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Waddress)
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Warray-bounds)
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wattributes)
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wdiv-by-zero)
-		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wformat-security)
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wignored-qualifiers)
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wpragmas)
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wredundant-decls)
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wvla)
-		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wc++-compat)
-		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wjump-misses-init)
+		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wc++-compat, C)
+		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wjump-misses-init, C)
 		#
 		# epan/dissectors/packet-ncp2222.inc blocks this one
 		# for now.
@@ -363,14 +362,14 @@ AC_ARG_ENABLE(extra-gcc-checks,
 ],)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wall -W) # -W is now known as -Wextra
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wextra) # -W is now known as -Wextra
-AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wdeclaration-after-statement)
+AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wdeclaration-after-statement, C)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wendif-labels)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wpointer-arith)
-AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wno-pointer-sign)
+AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wno-pointer-sign, C)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Warray-bounds)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wcast-align)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wformat-security)
-AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wold-style-definition)
+AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wold-style-definition, C)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wno-error=unused-but-set-variable)    ##  for now
 #
 # Use the faster pre gcc 4.5 floating point precision if available;
