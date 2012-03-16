@@ -164,7 +164,6 @@ dissect_eiss_descriptors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	if (0xe0 == tag) {
 		guint8 total_length;
-		guint16 irl_length;
 
 		total_length = tvb_get_guint8(tvb, offset+1);
 		pi = proto_tree_add_text(tree, tvb, offset, (2+total_length),
@@ -173,8 +172,8 @@ dissect_eiss_descriptors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		proto_tree_add_item(sub_tree, hf_eiss_descriptor_tag,
 					tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
-		pi = proto_tree_add_item(sub_tree, hf_eiss_descriptor_length,
-					tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(sub_tree, hf_eiss_descriptor_length, tvb,
+					offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 		proto_tree_add_item(sub_tree, hf_eiss_aid_app_control_code, tvb,
 					offset, 1, ENC_BIG_ENDIAN);
@@ -202,8 +201,6 @@ dissect_eiss_descriptors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		offset++;
 		proto_tree_add_item(sub_tree, hf_eiss_irl_type, tvb, offset, 2,
 					ENC_BIG_ENDIAN);
-		irl_length = tvb_get_ntohs(tvb, offset);
-		irl_length &= 0x3ff;
 		proto_tree_add_item(sub_tree, hf_eiss_irl_length, tvb, offset,
 					2, ENC_BIG_ENDIAN);
 		offset += 2;
@@ -217,8 +214,8 @@ dissect_eiss_descriptors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		proto_tree_add_item(sub_tree, hf_eiss_descriptor_tag,
 					tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
-		pi = proto_tree_add_item(sub_tree, hf_eiss_descriptor_length,
-					tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(sub_tree, hf_eiss_descriptor_length, tvb,
+					offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 		proto_tree_add_item(sub_tree, hf_eiss_mtd_time_value, tvb,
 					offset, 4, ENC_BIG_ENDIAN);
@@ -234,10 +231,10 @@ dissect_eiss_descriptors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		proto_tree_add_item(sub_tree, hf_eiss_descriptor_tag,
 					tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
-		pi = proto_tree_add_item(sub_tree, hf_eiss_sed_reserved,
-					tvb, offset, 2, ENC_BIG_ENDIAN);
-		pi = proto_tree_add_item(sub_tree, hf_eiss_sed_descriptor_length,
-					tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(sub_tree, hf_eiss_sed_reserved, tvb,
+					offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(sub_tree, hf_eiss_sed_descriptor_length, tvb,
+					offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 		proto_tree_add_item(sub_tree, hf_eiss_sed_time_value, tvb,
 					offset, 4, ENC_BIG_ENDIAN);
