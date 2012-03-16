@@ -246,7 +246,7 @@ dissect_mpeg_sect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gint offset = 0;
 	guint8 table_id = 0;
 	guint section_length = 0;
-	gboolean syntax_indicator;
+	gboolean syntax_indicator = 0;
 
 	proto_item *ti = NULL;
 	proto_tree *mpeg_sect_tree = NULL;
@@ -268,7 +268,7 @@ dissect_mpeg_sect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		proto_item_append_text(ti, " Table_ID=0x%02x", table_id);
 
-		offset += packet_mpeg_sect_header(tvb, offset, mpeg_sect_tree,
+		packet_mpeg_sect_header(tvb, offset, mpeg_sect_tree,
 								&section_length, &syntax_indicator);
 
 	}
