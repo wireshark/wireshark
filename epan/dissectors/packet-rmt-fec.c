@@ -90,7 +90,7 @@ void fec_info_column(struct _fec *fec, packet_info *pinfo)
 /* Decode an EXT_FTI extension and fill FEC array */
 void fec_decode_ext_fti(struct _ext *e, tvbuff_t *tvb, proto_tree *tree, gint ett, struct _fec_ptr f)
 {
-	proto_item* ti = NULL;
+	proto_item* ti = NULL, *item = NULL;
 	proto_tree *ext_tree;
 
 	if (tree)
@@ -112,8 +112,13 @@ void fec_decode_ext_fti(struct _ext *e, tvbuff_t *tvb, proto_tree *tree, gint et
 			f.fec->instance_id = (guint8) tvb_get_ntohs(tvb, e->offset+8);
 		}
 
-		if (tree)
+		if (tree){
 			proto_tree_add_uint64(ext_tree, f.hf->fti_transfer_length, tvb, e->offset+2, 6, f.fec->transfer_length);
+			item = proto_tree_add_item(ext_tree, f.hf->instance_id, tvb,  e->offset+8, 2, ENC_BIG_ENDIAN);
+			if(f.fec->instance_id_present == FALSE){
+				proto_item_append_text(item," - [FEC Encoding ID < 128, should be zero]");
+			}
+		}
 
 		switch (f.fec->encoding_id)
 		{
