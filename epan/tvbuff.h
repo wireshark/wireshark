@@ -69,24 +69,29 @@ typedef struct tvbuff tvbuff_t;
  *
  *  Consider a collection of tvbs as being a chain or stack of tvbs.
  *
- *  The top-level dissector (packet.c) pushes the initial tvb onto the stack
- *  (starts the chain) and then calls a sub-dissector which in turn calls the next
- *  sub-dissector and so on. Each sub-dissector may chain additional tvbs to
- *  the tvb handed to that dissector. After dissection is complete and control has
- *  returned to the top-level dissector, the chain of tvbs (stack) is free'd
- *  via a call to tvb_free_chain() (in epan_dissect_cleanup()).
+ *  When dissecting a frame:
+ *   The top-level dissector (packet.c) pushes the initial tvb (containing
+ *   the complete frame) onto the stack (starts the chain) and then calls
+ *   a sub-dissector which in turn calls the next sub-dissector and so on.
+ *   Each sub-dissector may chain additional tvbs (see below) to the tvb
+ *   handed to that dissector. After dissection is complete and control has
+ *   returned to the top-level dissector, the chain of tvbs (stack) is free'd
+ *   via a call to tvb_free_chain() (in epan_dissect_cleanup()).
  *
  * A dissector:
- * - Can chain new tvbs (real, subset, composite) to the tvb
- *    handed to the dissector via tvb_subset(), tvb_new_child_real_data(), etc.
- *    (Subset and Composite tvbs should reference only tvbs which are
- *    already part of the chain).
- * - Must not save a pointer to a tvb handed to the dissector for
- *    use when dissecting another frame; A higher level function
- *    may very well free the chain). This also applies to any tvbs chained
- *    by the dissector to the tvb handed to the dissector.
- * - Can create its own tvb chain (using tvb_new_real_data() which
- *    the dissector is free to manage as desired. */
+ *  - Can chain new tvbs (subset, real, composite) to the
+ *    tvb handed to the dissector using tvb_new_subset(),
+ *    tvb_new_subset_remaining(), tvb_new_child_real_data(),
+ *    tvb_set_child_real_data_tvbuff(), tvb_composite_finalize(), and
+ *    tvb_child_uncompress(). (Composite tvbs should reference
+ *    only tvbs which are already part of the chain).
+ *  - Must not save for later use (e.g., when dissecting another frame) a
+ *    pointer to a tvb handed to the dissector; (A higher level function
+ *    may very well free the chain thus leaving a dangling pointer).
+ *    This (obviously) also applies to any tvbs chained to the tvb handed
+ *    to the dissector.
+ *  - Can create its own tvb chain (using tvb_new_real_data() which the
+ *    dissector is free to manage as desired. */
 
 /** TVBUFF_REAL_DATA contains a guint8* that points to real data.
  * The data is allocated and contiguous.
