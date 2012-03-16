@@ -49,6 +49,7 @@
 #include "u3.h"
 
 #include <wsutil/file_util.h>
+#include <wsutil/str_util.h>
 
 #define RECENT_KEY_MAIN_TOOLBAR_SHOW        "gui.toolbar_main_show"
 #define RECENT_KEY_FILTER_TOOLBAR_SHOW      "gui.filter_toolbar_show"
@@ -728,6 +729,9 @@ static prefs_set_pref_e
 read_set_recent_pair_dynamic(gchar *key, gchar *value, void *private_data _U_,
 			     gboolean return_range_errors _U_)
 {
+  if (!isprint_string(value)) {
+    return PREFS_SET_SYNTAX_ERR;
+  }
   if (strcmp(key, RECENT_KEY_CAPTURE_FILE) == 0) {
     if(u3_active())
       add_menu_recent_capture_file(u3_expand_device_path(value));
