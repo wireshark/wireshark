@@ -50,14 +50,14 @@ static gint ett_mpeg_ca = -1;
 #define MPEG_CA_CURRENT_NEXT_INDICATOR_MASK	0x000001
 
 static const value_string mpeg_ca_cur_next_vals[] = {
-	
+
 	{ 0x0, "Not yet applicable" },
 	{ 0x1, "Currently applicable" },
-	{ 0x0, NULL },
+	{ 0x0, NULL }
 
 };
 
-void
+static void
 dissect_mpeg_ca(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
@@ -80,7 +80,7 @@ dissect_mpeg_ca(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	offset += packet_mpeg_sect_header(tvb, offset, mpeg_ca_tree, &length, NULL);
 	length -= 4;
-	
+
 	proto_tree_add_item(mpeg_ca_tree, hf_mpeg_ca_reserved, tvb, offset, 3, ENC_BIG_ENDIAN);
 	proto_tree_add_item(mpeg_ca_tree, hf_mpeg_ca_version_number, tvb, offset, 3, ENC_BIG_ENDIAN);
 	proto_tree_add_item(mpeg_ca_tree, hf_mpeg_ca_current_next_indicator, tvb, offset, 3, ENC_BIG_ENDIAN);
@@ -106,7 +106,7 @@ proto_register_mpeg_ca(void)
 {
 
 	static hf_register_info hf[] = {
-		
+
 		{ &hf_mpeg_ca_reserved, {
 			"Reserved", "mpeg_ca.reserved",
 			FT_UINT24, BASE_HEX, NULL, MPEG_CA_RESERVED_MASK, NULL, HFILL
@@ -126,7 +126,7 @@ proto_register_mpeg_ca(void)
 			"Section Number", "mpeg_ca.sect_num",
 			FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
 		} },
-			
+
 		{ &hf_mpeg_ca_last_section_number, {
 			"Last Section Number", "mpeg_ca.last_sect_num",
 			FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
@@ -142,7 +142,7 @@ proto_register_mpeg_ca(void)
 
 	proto_register_field_array(proto_mpeg_ca, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	
+
 }
 
 

@@ -75,7 +75,7 @@ static gint ett_mpeg_pmt_stream = -1;
 
 
 static const value_string mpeg_pmt_cur_next_vals[] = {
-	
+
 	{ 0x0, "Not yet applicable" },
 	{ 0x1, "Currently applicable" },
 
@@ -113,11 +113,10 @@ static const value_string mpeg_pmt_stream_type_vals[] = {
 	{ 0x1A, "IPMP stream (defined in ISO/IEC 13818-11, MPEG-2 IPMP)" },
 	{ 0x1B, "AVC video stream as defined in ITU-T Rec. H.264 | ISO/IEC 14496-10 Video" },
 	{ 0x7F, "IPMP stream" },
-	{ 0x00, NULL },
-
+	{ 0x00, NULL }
 };
 
-void
+static void
 dissect_mpeg_pmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
@@ -169,12 +168,12 @@ dissect_mpeg_pmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	descriptor_end = offset + prog_info_len;
 	while (offset < descriptor_end)
 		offset += proto_mpeg_descriptor_dissect(tvb, offset, mpeg_pmt_tree);
-	
+
 	while (offset < length) {
-		
+
 		pid = tvb_get_ntohs(tvb, offset + 1) & MPEG_PMT_STREAM_ELEMENTARY_PID_MASK;
 		es_info_len = tvb_get_ntohs(tvb, offset + 3) & MPEG_PMT_STREAM_ES_INFO_LENGTH_MASK;
-		
+
 		si = proto_tree_add_text(mpeg_pmt_tree, tvb, offset, 5 + es_info_len, "Stream PID=0x%04hx", pid);
 		mpeg_pmt_stream_tree = proto_item_add_subtree(si, ett_mpeg_pmt_stream);
 
@@ -188,7 +187,7 @@ dissect_mpeg_pmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(mpeg_pmt_stream_tree, hf_mpeg_pmt_stream_reserved2, tvb, offset, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(mpeg_pmt_stream_tree, hf_mpeg_pmt_stream_es_info_length, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
-		
+
 		descriptor_end = offset + es_info_len;
 		while (offset < descriptor_end)
 			offset += proto_mpeg_descriptor_dissect(tvb, offset, mpeg_pmt_stream_tree);
@@ -204,7 +203,7 @@ proto_register_mpeg_pmt(void)
 {
 
 	static hf_register_info hf[] = {
-		
+
 		{ &hf_mpeg_pmt_program_number, {
 			"Program Number", "mpeg_pmt.pg_num",
 			FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
@@ -229,7 +228,7 @@ proto_register_mpeg_pmt(void)
 			"Section Number", "mpeg_pmt.sect_num",
 			FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
 		} },
-			
+
 		{ &hf_mpeg_pmt_last_section_number, {
 			"Last Section Number", "mpeg_pmt.last_sect_num",
 			FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
@@ -292,7 +291,7 @@ proto_register_mpeg_pmt(void)
 
 	proto_register_field_array(proto_mpeg_pmt, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	
+
 }
 
 

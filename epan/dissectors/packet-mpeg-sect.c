@@ -66,7 +66,7 @@ enum {
 	TID_TS_DESC,
 	TID_SCENE_DESC,
 	TID_OBJECT_DESC,
-	TID_FORBIDEN = 0xFF,
+	TID_FORBIDEN = 0xFF
 };
 
 /* From ETSI EN 300 468 */
@@ -81,9 +81,7 @@ enum {
 	TID_TDT = 0x70,
 	TID_RST,
 	TID_ST,
-	TID_TOT,
-
-
+	TID_TOT
 };
 
 /* From ETSI EN 301 790 */
@@ -97,8 +95,7 @@ enum {
 	TID_CMT,
 	TID_TBTP,
 	TID_PCR,
-	TID_TIM = 0xB0,
-
+	TID_TIM = 0xB0
 };
 
 /* From ESTI EN 301 192 */
@@ -145,10 +142,10 @@ static const value_string mpeg_sect_table_id_vals[] = {
 
 guint
 packet_mpeg_sect_header(tvbuff_t *tvb, guint offset,
-				proto_tree *tree, guint *sect_len, gboolean *ssi)
+			proto_tree *tree, guint *sect_len, gboolean *ssi)
 {
 	return packet_mpeg_sect_header_extra(tvb, offset, tree, sect_len,
-							NULL, ssi, NULL);
+					     NULL, ssi, NULL);
 }
 
 guint
@@ -187,14 +184,14 @@ packet_mpeg_sect_header_extra(tvbuff_t *tvb, guint offset, proto_tree *tree,
 					offset + len, 2, ENC_BIG_ENDIAN);
 	}
 
-	tmp = tvb_get_ntohs(tvb, offset + len); 
+	tmp = tvb_get_ntohs(tvb, offset + len);
 
 	if (sect_len)
 		*sect_len = MPEG_SECT_LENGTH_MASK & tmp;
-	
+
 	if (reserved)
 		*reserved = (MPEG_SECT_RESERVED_MASK & tmp) >> 12;
-	
+
 	if (ssi)
 		*ssi = (MPEG_SECT_SYNTAX_INDICATOR_MASK & tmp);
 
@@ -212,7 +209,7 @@ packet_mpeg_sect_header_extra(tvbuff_t *tvb, guint offset, proto_tree *tree,
 
 void
 packet_mpeg_sect_crc(tvbuff_t *tvb, packet_info *pinfo,
-						proto_tree *tree, guint start, guint end)
+		     proto_tree *tree, guint start, guint end)
 {
 	guint32 crc, calculated_crc;
 	const char *label;
@@ -243,7 +240,7 @@ packet_mpeg_sect_crc(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 
-void
+static void
 dissect_mpeg_sect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	gint offset = 0;
@@ -276,7 +273,7 @@ dissect_mpeg_sect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	}
 
-	if (syntax_indicator) 
+	if (syntax_indicator)
 		packet_mpeg_sect_crc(tvb, pinfo, mpeg_sect_tree, 0, (section_length-1));
 }
 
