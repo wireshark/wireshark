@@ -153,7 +153,7 @@ struct _lct_ptr
 		{ &base_structure.tsi,	\
 			{ "Transport Session Identifier", base_protocol ".lct.tsi", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},	\
 		{ &base_structure.toi,	\
-			{ "Transport Object Identifier (up to 64 bites)", base_protocol ".lct.toi", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},	\
+			{ "Transport Object Identifier (up to 64 bits)", base_protocol ".lct.toi", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},	\
 		{ &base_structure.toi_extended,	\
 			{ "Transport Object Identifier (up to 112 bits)", base_protocol ".lct.toi_extended", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},	\
 		{ &base_structure.sct,	\
