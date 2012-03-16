@@ -122,6 +122,7 @@ qtshark
 # Misc #
 ########
 *.swp
+*~
 .DS_Store
 packaging/macosx/COPYING.txt
 packaging/macosx/Info.plist
