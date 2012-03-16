@@ -892,15 +892,14 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 
 		AC_CHECK_LIB(lua, luaL_register,
 		[
-		    #
-		    #  Lua 5.1 found
-		    #
+			#
+			#  Lua 5.1 found
+			#
 			if test "x$lua_dir" != "x"
 			then
 				#
-				# Put the "-I" and "-L" flags for lua at
-				# the beginning of CFLAGS, CPPFLAGS,
-				# LDFLAGS, and LIBS.
+				# Put the "-I" and "-L" flags for lua into
+				# LUA_INCLUDES and LUA_LIBS, respectively.
 				#
 				LUA_LIBS="-L$lua_dir/lib -llua -lm"
 				LUA_INCLUDES="-I$lua_dir/include"
@@ -1053,9 +1052,9 @@ AC_DEFUN([AC_WIRESHARK_LIBPORTAUDIO_CHECK],[
 			if test "x$portaudio_dir" != "x"
 			then
 				#
-				# Put the "-I" and "-L" flags for portaudio at
-				# the beginning of CFLAGS, CPPFLAGS,
-				# LDFLAGS, and LIBS.
+				# Put the "-I" and "-L" flags for portaudio
+				# into PORTAUDIO_INCLUDES and PORTAUDIO_LIBS,
+				# respectively.
 				#
 				PORTAUDIO_LIBS="-L$portaudio_dir/lib -lportaudio"
 				PORTAUDIO_INCLUDES="-I$portaudio_dir/include"
