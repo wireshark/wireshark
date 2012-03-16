@@ -148,7 +148,7 @@ yes
 #endif],
 				[v6type=$i; v6lib=v6;
 				v6libdir=/usr/local/v6/lib;
-				CFLAGS="-I/usr/local/v6/include $CFLAGS"])
+				CPPFLAGS="-I/usr/local/v6/include $CPPFLAGS"])
 			;;
 		toshiba)
 			AC_EGREP_CPP(yes, [
@@ -158,7 +158,7 @@ yes
 #endif],
 				[v6type=$i; v6lib=inet6;
 				v6libdir=/usr/local/v6/lib;
-				CFLAGS="-DINET6 $CFLAGS"])
+				CPPFLAGS="-DINET6 $CPPFLAGS"])
 			;;
 		kame)
 			AC_EGREP_CPP(yes, [
@@ -168,7 +168,7 @@ yes
 #endif],
 				[v6type=$i; v6lib=inet6;
 				v6libdir=/usr/local/v6/lib;
-				CFLAGS="-DINET6 $CFLAGS"])
+				CPPFLAGS="-DINET6 $CPPFLAGS"])
 			;;
 		inria)
 			AC_EGREP_CPP(yes, [
@@ -176,7 +176,7 @@ yes
 #ifdef IPV6_INRIA_VERSION
 yes
 #endif],
-				[v6type=$i; CFLAGS="-DINET6 $CFLAGS"])
+				[v6type=$i; CPPFLAGS="-DINET6 $CPPFLAGS"])
 			;;
 		zeta)
 			AC_EGREP_CPP(yes, [
@@ -186,14 +186,14 @@ yes
 #endif],
 				[v6type=$i; v6lib=inet6;
 				v6libdir=/usr/local/v6/lib;
-				CFLAGS="-DINET6 $CFLAGS"])
+				CPPFLAGS="-DINET6 $CPPFLAGS"])
 			;;
 		linux)
 			if test -d /usr/inet6; then
 				v6type=$i
 				v6lib=inet6
 				v6libdir=/usr/inet6
-				CFLAGS="-DINET6 $CFLAGS"
+				CPPFLAGS="-DINET6 $CPPFLAGS"
 			fi
 			;;
 		linux-glibc)
@@ -204,13 +204,13 @@ yes
 yes
 #endif
 #endif],
-			[v6type=$i; v6lib=inet6; CFLAGS="-DINET6 $CFLAGS"])
+			[v6type=$i; v6lib=inet6; CPPFLAGS="-DINET6 $CPPFLAGS"])
 			;;
 		solaris8)
 			if test "`uname -s`" = "SunOS" && test "`uname -r`" = "5.8"; then
 				v6type=$i
 				v6lib=inet6
-				[CFLAGS="-DINET6 -DSOLARIS8_INET6 $CFLAGS"]
+				[CPPFLAGS="-DINET6 -DSOLARIS8_INET6 $CPPFLAGS"]
 			fi
 			;;
 		esac
@@ -361,7 +361,6 @@ AC_DEFUN([AC_WIRESHARK_PCAP_CHECK],
 	    # Found it, and it's usable; use it to get the include flags
 	    # for libpcap.
 	    #
-	    CFLAGS="$CFLAGS `\"$PCAP_CONFIG\" --cflags`"
 	    CPPFLAGS="$CPPFLAGS `\"$PCAP_CONFIG\" --cflags`"
 	  else
 	    #
@@ -387,7 +386,6 @@ AC_DEFUN([AC_WIRESHARK_PCAP_CHECK],
 	    do
 	      if test -d $pcap_dir ; then
 		if test x$pcap_dir != x/usr/include -a x$pcap_dir != x/usr/local/include ; then
-		    CFLAGS="$CFLAGS -I$pcap_dir"
 		    CPPFLAGS="$CPPFLAGS -I$pcap_dir"
 		fi
 		found_pcap_dir=" $found_pcap_dir -I$pcap_dir"
@@ -409,12 +407,11 @@ AC_DEFUN([AC_WIRESHARK_PCAP_CHECK],
 	  # of that directory to the library search path.
 	  #
 	  # XXX - if there's also a libpcap in a directory that's
-	  # already in CFLAGS, CPPFLAGS, or LDFLAGS, this won't
-	  # make us find the version in the specified directory,
-	  # as the compiler and/or linker will search that other
-	  # directory before it searches the specified directory.
+	  # already in CPPFLAGS or LDFLAGS, this won't make us find
+	  # the version in the specified directory, as the compiler
+	  # and/or linker will search that other directory before it
+	  # searches the specified directory.
 	  #
-	  CFLAGS="$CFLAGS -I$pcap_dir/include"
 	  CPPFLAGS="$CPPFLAGS -I$pcap_dir/include"
 	  AC_WIRESHARK_ADD_DASH_L(LDFLAGS, $pcap_dir/lib)
 	fi
@@ -632,13 +629,11 @@ AC_DEFUN([AC_WIRESHARK_ZLIB_CHECK],
 	  # of that directory to the library search path.
 	  #
 	  # XXX - if there's also a zlib in a directory that's
-	  # already in CFLAGS, CPPFLAGS, or LDFLAGS, this won't
-	  # make us find the version in the specified directory,
-	  # as the compiler and/or linker will search that other
-	  # directory before it searches the specified directory.
+	  # already in CPPFLAGS or LDFLAGS, this won't make us find
+	  # the version in the specified directory, as the compiler
+	  # and/or linker will search that other directory before it
+	  # searches the specified directory.
 	  #
-	  wireshark_save_CFLAGS="$CFLAGS"
-	  CFLAGS="$CFLAGS -I$zlib_dir/include"
 	  wireshark_save_CPPFLAGS="$CPPFLAGS"
 	  CPPFLAGS="$CPPFLAGS -I$zlib_dir/include"
 	  wireshark_save_LIBS="$LIBS"
@@ -690,9 +685,8 @@ AC_DEFUN([AC_WIRESHARK_ZLIB_CHECK],
 		if test "x$zlib_dir" != "x"
 		then
 			#
-			# Put the "-I" and "-L" flags for zlib at
-			# the beginning of CFLAGS, CPPFLAGS, and
-			# LIBS.
+			# Put the "-L" flags for zlib at the beginning
+			# of LIBS.
 			#
 			LIBS=""
 			AC_WIRESHARK_ADD_DASH_L(LIBS, $zlib_dir/lib)
@@ -734,12 +728,10 @@ AC_DEFUN([AC_WIRESHARK_ZLIB_CHECK],
 		fi
 	else
 		#
-		# Restore the versions of CFLAGS, CPPFLAGS,
-		# and LIBS before we added the "-with-zlib="
-		# directory, as we didn't actually find
-		# zlib there.
+		# Restore the versions of CPPFLAGS and LIBS before
+		# we added the "-with-zlib=" directory, as we didn't
+		# actually find zlib there.
 		#
-		CFLAGS="$wireshark_save_CFLAGS"
 		CPPFLAGS="$wireshark_save_CPPFLAGS"
 		LIBS="$wireshark_save_LIBS"
 		want_zlib=no
@@ -760,13 +752,11 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 		# of that directory to the library search path.
 		#
 		# XXX - if there's also a liblua in a directory that's
-		# already in CFLAGS, CPPFLAGS, or LDFLAGS, this won't
-		# make us find the version in the specified directory,
-		# as the compiler and/or linker will search that other
-		# directory before it searches the specified directory.
+		# already in CPPFLAGS or LDFLAGS, this won't make us find
+		# the version in the specified directory, as the compiler
+		# and/or linker will search that other directory before it
+		# searches the specified directory.
 		#
-		wireshark_save_CFLAGS="$CFLAGS"
-		CFLAGS="$CFLAGS -I$lua_dir/include"
 		wireshark_save_CPPFLAGS="$CPPFLAGS"
 		CPPFLAGS="$CPPFLAGS -I$lua_dir/include"
 		wireshark_save_LIBS="$LIBS"
@@ -778,7 +768,6 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 		# The user specified no directory in which liblua resides,
 		# so just add "-llua -lliblua" to the used libs.
 		#
-		wireshark_save_CFLAGS="$CFLAGS"
 		wireshark_save_CPPFLAGS="$CPPFLAGS"
 		wireshark_save_LDFLAGS="$LDFLAGS"
 		wireshark_save_LIBS="$LIBS"
@@ -826,12 +815,11 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 				else
 					AC_MSG_RESULT(not found)
 					#
-					# Restore the versions of CFLAGS, CPPFLAGS,
+					# Restore the versions of CPPFLAGS,
 					# LDFLAGS, and LIBS before we added the
 					# "--with-lua=" directory, as we didn't
 					# actually find lua there.
 					#
-					CFLAGS="$wireshark_save_CFLAGS"
 					CPPFLAGS="$wireshark_save_CPPFLAGS"
 					LDFLAGS="$wireshark_save_LDFLAGS"
 					LIBS="$wireshark_save_LIBS"
@@ -852,12 +840,11 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 		],
 		[
 			#
-			# Restore the versions of CFLAGS, CPPFLAGS,
-			# LDFLAGS, and LIBS before we added the
-			# "--with-lua=" directory, as we didn't
-			# actually find lua there.
+			# Restore the versions of CPPFLAGS, LDFLAGS,
+			# and LIBS before we added the "--with-lua="
+			# directory, as we didn't actually find lua
+			# there.
 			#
-			CFLAGS="$wireshark_save_CFLAGS"
 			CPPFLAGS="$wireshark_save_CPPFLAGS"
 			LDFLAGS="$wireshark_save_LDFLAGS"
 			LIBS="$wireshark_save_LIBS"
@@ -941,12 +928,11 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 			    want_lua=yes
 			],[
 				#
-				# Restore the versions of CFLAGS, CPPFLAGS,
-				# LDFLAGS, and LIBS before we added the
-				# "--with-lua=" directory, as we didn't
-				# actually find lua there.
+				# Restore the versions of CPPFLAGS, LDFLAGS,
+				# and LIBS before we added the "--with-lua="
+				# directory, as we didn't actually find lua
+				# there.
 				#
-				CFLAGS="$wireshark_save_CFLAGS"
 				CPPFLAGS="$wireshark_save_CPPFLAGS"
 				LDFLAGS="$wireshark_save_LDFLAGS"
 				LIBS="$wireshark_save_LIBS"
@@ -960,7 +946,6 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 			])
 		])
 
-	CFLAGS="$wireshark_save_CFLAGS"
 	CPPFLAGS="$wireshark_save_CPPFLAGS"
 	LDFLAGS="$wireshark_save_LDFLAGS"
 	LIBS="$wireshark_save_LIBS"
@@ -984,13 +969,11 @@ AC_DEFUN([AC_WIRESHARK_LIBPORTAUDIO_CHECK],[
 		# of that directory to the library search path.
 		#
 		# XXX - if there's also a libportaudio in a directory that's
-		# already in CFLAGS, CPPFLAGS, or LDFLAGS, this won't
-		# make us find the version in the specified directory,
-		# as the compiler and/or linker will search that other
-		# directory before it searches the specified directory.
+		# already in CPPFLAGS or LDFLAGS, this won't make us find
+		# the version in the specified directory, as the compiler
+		# and/or linker will search that other directory before it
+		# searches the specified directory.
 		#
-		wireshark_save_CFLAGS="$CFLAGS"
-		CFLAGS="$CFLAGS -I$portaudio_dir/include"
 		wireshark_save_CPPFLAGS="$CPPFLAGS"
 		CPPFLAGS="$CPPFLAGS -I$portaudio_dir/include"
 		wireshark_save_LIBS="$LIBS"
@@ -1002,7 +985,6 @@ AC_DEFUN([AC_WIRESHARK_LIBPORTAUDIO_CHECK],[
 		# The user specified no directory in which libportaudio resides,
 		# so just add "-lportaudio" to the used libs.
 		#
-		wireshark_save_CFLAGS="$CFLAGS"
 		wireshark_save_CPPFLAGS="$CPPFLAGS"
 		wireshark_save_LDFLAGS="$LDFLAGS"
 		wireshark_save_LIBS="$LIBS"
@@ -1026,7 +1008,6 @@ AC_DEFUN([AC_WIRESHARK_LIBPORTAUDIO_CHECK],[
 			#
 			AC_MSG_ERROR([libportaudio header not found in directory specified in --with-portaudio])
 		else
-			CFLAGS="$wireshark_save_CFLAGS"
 			CPPFLAGS="$wireshark_save_CPPFLAGS"
 			LDFLAGS="$wireshark_save_LDFLAGS"
 			LIBS="$wireshark_save_LIBS"
@@ -1086,12 +1067,11 @@ AC_DEFUN([AC_WIRESHARK_LIBPORTAUDIO_CHECK],[
 			want_portaudio=yes
 		],[
 			#
-			# Restore the versions of CFLAGS, CPPFLAGS,
-			# LDFLAGS, and LIBS before we added the
-			# "--with-portaudio=" directory, as we didn't
-			# actually find portaudio there.
+			# Restore the versions of CPPFLAGS, LDFLAGS, and
+			# LIBS before we added the "--with-portaudio="
+			# directory, as we didn't actually find portaudio
+			# there.
 			#
-			CFLAGS="$wireshark_save_CFLAGS"
 			CPPFLAGS="$wireshark_save_CPPFLAGS"
 			LDFLAGS="$wireshark_save_LDFLAGS"
 			LIBS="$wireshark_save_LIBS"
@@ -1104,7 +1084,6 @@ AC_DEFUN([AC_WIRESHARK_LIBPORTAUDIO_CHECK],[
 			want_portaudio=no
 		])
 
-	CFLAGS="$wireshark_save_CFLAGS"
 	CPPFLAGS="$wireshark_save_CPPFLAGS"
 	LDFLAGS="$wireshark_save_LDFLAGS"
 	LIBS="$wireshark_save_LIBS"
@@ -1248,7 +1227,6 @@ AC_DEFUN([AC_WIRESHARK_LIBCAP_CHECK],
 #
 AC_DEFUN([AC_WIRESHARK_KRB5_CHECK],
 [
-	wireshark_save_CFLAGS="$CFLAGS"
 	wireshark_save_CPPFLAGS="$CPPFLAGS"
 	if test "x$krb5_dir" != "x"
 	then
@@ -1259,12 +1237,11 @@ AC_DEFUN([AC_WIRESHARK_KRB5_CHECK],
 	  # of that directory to the library search path.
 	  #
 	  # XXX - if there's also a kerberos in a directory that's
-	  # already in CFLAGS, CPPFLAGS, or LDFLAGS, this won't
-	  # make us find the version in the specified directory,
-	  # as the compiler and/or linker will search that other
-	  # directory before it searches the specified directory.
+	  # already in CPPFLAGS or LDFLAGS, this won't make us find
+	  # the version in the specified directory, as the compiler
+	  # and/or linker will search that other directory before it
+	  # searches the specified directory.
 	  #
-	  CFLAGS="$CFLAGS -I$krb5_dir/include"
 	  CPPFLAGS="$CPPFLAGS -I$krb5_dir/include"
 	  ac_heimdal_version=`grep heimdal $krb5_dir/include/krb5.h | head -n 1 | sed 's/^.*heimdal.*$/HEIMDAL/'`
 	  # MIT Kerberos moved krb5.h to krb5/krb5.h starting with release 1.5
@@ -1287,7 +1264,6 @@ AC_DEFUN([AC_WIRESHARK_KRB5_CHECK],
 	  then
 	    KRB5_FLAGS=`"$KRB5_CONFIG" --cflags`
 	    KRB5_LIBS=`"$KRB5_CONFIG" --libs`
-	    CFLAGS="$CFLAGS $KRB5_FLAGS"
 	    CPPFLAGS="$CPPFLAGS $KRB5_FLAGS"
 	    #
 	    # If -lcrypto is in KRB5_FLAGS, we require it to build
@@ -1423,11 +1399,10 @@ AC_DEFUN([AC_WIRESHARK_KRB5_CHECK],
 			AC_MSG_ERROR(Usable $ac_krb5_version not found)
 		    else
 			#
-			# Restore the versions of CFLAGS and CPPFLAGS
-			# from before we added the flags for Kerberos.
+			# Restore the versions of CPPFLAGS from before we
+			# added the flags for Kerberos.
 			#
 			AC_MSG_RESULT(Usable $ac_krb5_version not found - disabling dissection for some kerberos data in packet decoding)
-			CFLAGS="$wireshark_save_CFLAGS"
 			CPPFLAGS="$wireshark_save_CPPFLAGS"
 			KRB5_LIBS=""
 			want_krb5=no
@@ -1475,11 +1450,10 @@ AC_DEFUN([AC_WIRESHARK_KRB5_CHECK],
 		    AC_MSG_ERROR(Kerberos not found)
 		else
 		    #
-		    # Restore the versions of CFLAGS and CPPFLAGS
-		    # from before we added the flags for Kerberos.
+		    # Restore the versions of CPPFLAGS from before we
+		    # added the flags for Kerberos.
 		    #
 		    AC_MSG_RESULT(Kerberos not found - disabling dissection for some kerberos data in packet decoding)
-		    CFLAGS="$wireshark_save_CFLAGS"
 		    CPPFLAGS="$wireshark_save_CPPFLAGS"
 		    KRB5_LIBS=""
 		    want_krb5=no
@@ -1491,10 +1465,9 @@ AC_DEFUN([AC_WIRESHARK_KRB5_CHECK],
 	    # say whether they wanted us to use it but we found
 	    # that we couldn't.
 	    #
-	    # Restore the versions of CFLAGS and CPPFLAGS
-	    # from before we added the flags for Kerberos.
+	    # Restore the versions of CPPFLAGS from before we added
+	    # the flags for Kerberos.
 	    #
-	    CFLAGS="$wireshark_save_CFLAGS"
 	    CPPFLAGS="$wireshark_save_CPPFLAGS"
 	    KRB5_LIBS=""
 	    want_krb5=no

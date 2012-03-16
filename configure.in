@@ -379,7 +379,7 @@ AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wno-error=unused-but-set-variable)    ##  for now
 # annoying warnings.
 #
 if test "x$CC" != "xclang" ; then
-AC_WIRESHARK_GCC_CFLAGS_CHECK(-fexcess-precision=fast)
+  AC_WIRESHARK_GCC_CFLAGS_CHECK(-fexcess-precision=fast)
 fi
 
 AC_WIRESHARK_LDFLAGS_CHECK([-Wl,--as-needed])
@@ -391,7 +391,7 @@ AC_WIRESHARK_LDFLAGS_CHECK([-Wl,--as-needed])
 
 #
 # If we're running GCC or clang, add '-D_U_="__attribute__((unused))"' to
-# CFLAGS as well, so we can use _U_ to flag unused function arguments and
+# CPPFLAGS as well, so we can use _U_ to flag unused function arguments and
 # not get warnings about them. Otherwise, add '-D_U_=""', so that _U_ used
 # to flag an unused function argument will compile with non-GCC, non-clang
 # compilers.
@@ -399,16 +399,16 @@ AC_WIRESHARK_LDFLAGS_CHECK([-Wl,--as-needed])
 # XXX - other compilers?
 #
 if test "x$GCC" = "xyes" -o "x$CC" = "xclang" ; then
-  CFLAGS="-D_U_=\"__attribute__((unused))\" $CFLAGS"
+  CPPFLAGS="-D_U_=\"__attribute__((unused))\" $CPPFLAGS"
 else
-  CFLAGS="-D_U_=\"\" $CFLAGS"
+  CPPFLAGS="-D_U_=\"\" $CPPFLAGS"
 fi
 
 # If we're running GCC or CLang, always use FORTIFY_SOURCE=2
 # See: http://gcc.gnu.org/ml/gcc-patches/2004-09/msg02055.html
 # Note: FORTIFY_SOURCE is only effective for gcc -O2 (and -O1 ?)
 if test "x$GCC" = "xyes" -o "x$CC" = "xclang" ; then
-  CFLAGS="-D_FORTIFY_SOURCE=2 $CFLAGS"
+  CPPFLAGS="-D_FORTIFY_SOURCE=2 $CPPFLAGS"
 fi
 
 #
@@ -635,7 +635,6 @@ if test "x$prefix" != "x" ; then
 		# Arrange that we search for header files in "$prefix/include", as
 		# various packages we use may have been installed under "$prefix/include".
 		#
-		CFLAGS="$CFLAGS -I$prefix/include"
 		CPPFLAGS="$CPPFLAGS -I$prefix/include"
 
 		#
@@ -666,7 +665,6 @@ if test "x$ac_cv_enable_usr_local" = "xyes" ; then
 		# as various packages we use ("libpcap", "zlib", "adns")
 		# may have been installed under "/usr/local/include".
 		#
-		CFLAGS="$CFLAGS -I/usr/local/include"
 		CPPFLAGS="$CPPFLAGS -I/usr/local/include"
 
 		#
@@ -863,27 +861,27 @@ else
 	# Don't use GLIB_CFLAGS
 	AM_PATH_GLIB_2_0(2.14.0, , AC_MSG_ERROR(GLib 2.14 or later distribution not found.), gthread gmodule)
 
-	CFLAGS="-DGTK_DISABLE_SINGLE_INCLUDES $CFLAGS"
+	CPPFLAGS="-DGTK_DISABLE_SINGLE_INCLUDES $CPPFLAGS"
 	## Define GTK_DISABLE_DEPRECATED only if GTK lt 3.2
 	## GTK 3.2 deprecates GtkVBox & GtkHBox which are currently used extensively by Wireshark.
 	if test $gtk_config_major_version -eq 2 -o $gtk_config_minor_version -lt 2; then
-		CFLAGS="-DGTK_DISABLE_DEPRECATED $CFLAGS"
+		CPPFLAGS="-DGTK_DISABLE_DEPRECATED $CPPFLAGS"
 	fi
-	# CFLAGS="-DGDK_DISABLE_DEPRECATED $CFLAGS"
+	# CPPFLAGS="-DGDK_DISABLE_DEPRECATED $CPPFLAGS"
 	if test $gtk_config_major_version -eq 2 -a $gtk_config_minor_version -ge 20; then
 		# Enable GSEAL when building with GTK > 2.20 and < 3.0
 		# (Versions prior to 2.22 lacked some necessary accessors.)
-		CFLAGS="-DGSEAL_ENABLE $CFLAGS"
+		CPPFLAGS="-DGSEAL_ENABLE $CPPFLAGS"
 	fi
 fi
 
 # Error out if a glib header other than a "top level" header
 #  (glib.h, glib-object.h, gio.h) or certain other headers( e.g.,gmodule.h)
 #  is used.
-CFLAGS="-DG_DISABLE_SINGLE_INCLUDES $CFLAGS"
+CPPFLAGS="-DG_DISABLE_SINGLE_INCLUDES $CPPFLAGS"
 
 # Error out on the usage of deprecated glib functions
-CFLAGS="-DG_DISABLE_DEPRECATED $CFLAGS"
+CPPFLAGS="-DG_DISABLE_DEPRECATED $CPPFLAGS"
 
 #
 # Check whether GLib modules are supported, to determine whether we
