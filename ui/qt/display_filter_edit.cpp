@@ -86,7 +86,8 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent) :
 {
     fieldNameOnly = false;
     m_syntaxState = Empty;
-    emptyFilterMessage = QString::fromUtf8("Apply a display filter" UTF8_HORIZONTAL_ELLIPSIS " <%1/>").arg(DEFAULT_MODIFIER);
+    emptyFilterMessage = QString(tr("Apply a display filter %1 <%2/>")).arg(UTF8_HORIZONTAL_ELLIPSIS)
+.arg(DEFAULT_MODIFIER);
 
     setAccessibleName(tr("Display filter entry"));
 

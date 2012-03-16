@@ -106,10 +106,15 @@ packets_bar_update(void)
         if(!cfile.is_tempfile) {
             /* Loading an existing file */
             gulong computed_elapsed = cf_get_computed_elapsed();
-            packetsStr.append(QString().sprintf(" Load time: %lu:%02lu.%03lu",
+            packetsStr.append(QString(QObject::tr(" Load time: %1:%2.%3"))
+                                        .arg(computed_elapsed/60000)
+                                        .arg(computed_elapsed%60000/1000)
+                                        .arg(computed_elapsed%1000));
+            /*packetsStr.append(QString().sprintf(QObject::tr(" Load time: %lu:%02lu.%03lu",
                                         computed_elapsed/60000,
                                         computed_elapsed%60000/1000,
-                                        computed_elapsed%1000));
+                                        computed_elapsed%1000)));
+            */
         }
     } else {
         packetsStr.append(QObject::tr("No Packets"));

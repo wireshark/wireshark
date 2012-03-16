@@ -20,13 +20,18 @@
 <context>
     <name>DisplayFilterEdit</name>
     <message>
-        <location filename="display_filter_edit.cpp" line="91"/>
+        <location filename="display_filter_edit.cpp" line="89"/>
+        <source>Apply a display filter %1 &lt;%2/&gt;</source>
+        <translation>Appliquer un filtre d&apos;affichage %1 &lt;%2/&gt;</translation>
+    </message>
+    <message>
+        <location filename="display_filter_edit.cpp" line="92"/>
         <source>Display filter entry</source>
         <oldsource>Dispaly filter entry</oldsource>
         <translation>Filtre d&apos;entrée</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="283"/>
+        <location filename="display_filter_edit.cpp" line="284"/>
         <source>Invalid filter</source>
         <translation>Filtre invalide</translation>
     </message>
@@ -175,12 +180,17 @@
         <translation>Pas de fichier trouvé</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="293"/>
+        <location filename="main_window.cpp" line="151"/>
+        <source>Loading: %1</source>
+        <translation>Chargement: %1</translation>
+    </message>
+    <message>
+        <location filename="main_window.cpp" line="292"/>
         <source>Wireshark: Open Capture File</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="383"/>
+        <location filename="main_window.cpp" line="382"/>
         <source>Clear Menu</source>
         <translation>Effacer les fichiers récemment ouverts</translation>
     </message>
@@ -208,12 +218,12 @@
     <message>
         <location filename="main_status_bar.cpp" line="41"/>
         <source> Ready to load or capture</source>
-        <translation>Prêt pour ouvrir ou capturer</translation>
+        <translation> Prêt pour ouvrir ou capturer</translation>
     </message>
     <message>
         <location filename="main_status_bar.cpp" line="43"/>
         <source> Ready to load file</source>
-        <translation>Prêt pour ouvrir un fichier</translation>
+        <translation> Prêt pour ouvrir un fichier</translation>
     </message>
     <message>
         <location filename="main_status_bar.cpp" line="96"/>
@@ -223,7 +233,7 @@
     <message>
         <location filename="main_status_bar.cpp" line="101"/>
         <source> Dropped: %1</source>
-        <translation>Supprimé: %1</translation>
+        <translation> Supprimé: %1</translation>
     </message>
     <message>
         <location filename="main_status_bar.cpp" line="104"/>
@@ -231,7 +241,12 @@
         <translation> Ignoré: %1</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="115"/>
+        <location filename="main_status_bar.cpp" line="109"/>
+        <source> Load time: %1:%2.%3</source>
+        <translation> Temps de Chargement: %1:%2.%3</translation>
+    </message>
+    <message>
+        <location filename="main_status_bar.cpp" line="120"/>
         <source>No Packets</source>
         <translation>Pas de paquets</translation>
     </message>

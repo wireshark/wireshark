@@ -148,8 +148,7 @@ void MainWindow::captureFileReadStarted(const capture_file *cf) {
 //    main_set_for_capture_file(TRUE);
 
     ui->statusBar->popFileStatus();
-    //TODO:i18n
-    QString msg = QString().sprintf("Loading: %s", get_basename(cf->filename));
+    QString msg = QString(tr("Loading: %1")).arg(get_basename(cf->filename));
     ui->statusBar->pushFileStatus(msg);
 }
 
