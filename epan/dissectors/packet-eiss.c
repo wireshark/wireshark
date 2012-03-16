@@ -536,17 +536,17 @@ proto_register_eiss(void)
 		} },
 
 		{ &hf_eiss_irl_type, {
-			"Initial Resource Locator Type ", "eiss.aid.irl.type",
+			"Initial Resource Locator Type", "eiss.aid.irl.type",
 			FT_UINT16, BASE_HEX, NULL, 0xfc00, NULL, HFILL
 		} },
 
 		{ &hf_eiss_irl_length, {
-			"Initial Resource Locator Length ", "eiss.aid.irl.length",
+			"Initial Resource Locator Length", "eiss.aid.irl.length",
 			FT_UINT16, BASE_DEC, NULL, 0x03ff, NULL, HFILL
 		} },
 
 		{ &hf_eiss_irl_string, {
-			"Initial Resource Locator String ", "eiss.aid.irl.string",
+			"Initial Resource Locator String", "eiss.aid.irl.string",
 			FT_UINT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
 		} },
 
