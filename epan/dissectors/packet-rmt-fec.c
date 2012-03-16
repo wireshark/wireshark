@@ -55,11 +55,17 @@
 const value_string string_fec_encoding_id[] =
 {
 	{ 0, "Compact No-Code" },
-	{ 2, "Simple XOR, Reed-Solomon, and Parity Check Matrix-based FEC Codes" },
+	{ 1, "Raptor" },
+	{ 2, "Reed-Solomon Codes over GF(2^^m)" },
+	{ 3, "LDPC Staircase Codes" },
+	{ 4, "LDPC Triangle Codes" },
+	{ 5, "Reed-Solomon Codes over GF(2^^8)" },
+	{ 6, "RaptorQ Code" },
+	/* 7-127 Unassigned  */
 	{ 128, "Small Block, Large Block and Expandable FEC Codes" },
 	{ 129, "Small Block Systematic FEC Codes" },
 	{ 130, "Compact FEC Codes" },
-	{ 132, "Simple XOR, Reed-Solomon, and Parity Check Matrix-based FEC Codes" },
+	/* 131-255 Unassigned  */
 	{ 0, NULL }
 };
 
