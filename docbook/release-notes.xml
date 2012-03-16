@@ -121,6 +121,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Unable to rearrange columns in preferences on Windows.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6077">Bug
+          6077</ulink>) (Note: this bug still affects the 64-bit package)
+        </para></listitem>
+
+        <listitem><para>
           packetBB dissector bug: More than 1000000 items in the tree -- possible infinite loop.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6687">Bug
           6687</ulink>)
@@ -191,7 +197,6 @@ Wireshark Info
           (<ulink url="http://ask.wireshark.org/questions/8649">Ask
           8649</ulink>)
         </para></listitem>
-
 
      </itemizedlist>
 
