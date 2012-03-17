@@ -986,7 +986,7 @@ de_bssgp_omc_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
 	curr_offset = offset;
 
 	/* octet 3-22 For the OMC identity, see 3GPP TS 12.20 */
-	proto_tree_add_item(tree, hf_bssgp_omc_id, tvb, curr_offset, len, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_bssgp_omc_id, tvb, curr_offset, len, ENC_NA);
 
 	return len;
 }
@@ -1332,7 +1332,7 @@ de_bssgp_trigger_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 
 	curr_offset = offset;
 
-	proto_tree_add_item(tree, hf_bssgp_trigger_id, tvb, curr_offset, len, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_bssgp_trigger_id, tvb, curr_offset, len, ENC_NA);
 
 	return(len);
 }
@@ -2641,7 +2641,7 @@ de_bssgp_src_to_trg_transp_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 	 * In inter-RAT handovers ... RANAP specification 3GPP TS 25.413, excluding RANAP tag.
 	 * In inter-RAT handover to E-UTRAN ... encoding is defined in 3GPP TS 36.413
 	 */
-	proto_tree_add_item(tree, hf_bssgp_src_to_trg_transp_cont, tvb, curr_offset, len, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_bssgp_src_to_trg_transp_cont, tvb, curr_offset, len, ENC_NA);
 
 	return(len);
 }
@@ -2664,7 +2664,7 @@ de_bssgp_trg_to_src_transp_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 	 * RRCConnectionReconfiguration radio interface message (as
 	 * defined in 3GPP TS 36.331)
 	 */
-	proto_tree_add_item(tree, hf_bssgp_trg_to_src_transp_cont, tvb, curr_offset, len, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_bssgp_trg_to_src_transp_cont, tvb, curr_offset, len, ENC_NA);
 
 	return(len);
 }
@@ -2853,7 +2853,7 @@ de_bssgp_ps_ho_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 	* radio interface message as defined in 3GPP TS 44.060 (carrying
 	* the PS Handover to A/Gb Mode Payload)
 	*/
-	proto_tree_add_item(tree, hf_bssgp_ps_ho_cmd, tvb, curr_offset, len, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_bssgp_ps_ho_cmd, tvb, curr_offset, len, ENC_NA);
 
 
 	return(len);
