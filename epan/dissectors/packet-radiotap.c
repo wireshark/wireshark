@@ -1338,6 +1338,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	guint8 version;
 	guint length;
 	guint32 rate, freq, flags;
+	proto_item *rate_ti;
 	gint8 dbm, db;
 	guint8 rflags = 0;
 	/* backward compat with bit 14 == fcs in header */
@@ -2033,12 +2034,13 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%.1f",
 					     ieee80211_float_htrates[mcs][bandwidth][gi_length]);
 				if (tree) {
-					proto_tree_add_float_format(radiotap_tree,
-								    hf_radiotap_datarate,
-								    tvb, offset, 1,
-								    ieee80211_float_htrates[mcs][bandwidth][gi_length],
-								    "Data Rate: %.1f Mb/s",
-								    ieee80211_float_htrates[mcs][bandwidth][gi_length]);
+					rate_ti = proto_tree_add_float_format(radiotap_tree,
+					    hf_radiotap_datarate,
+					    tvb, offset, 3,
+					    ieee80211_float_htrates[mcs][bandwidth][gi_length],
+					    "Data Rate: %.1f Mb/s",
+					    ieee80211_float_htrates[mcs][bandwidth][gi_length]);
+					PROTO_ITEM_SET_GENERATED(rate_ti);
 				}
 			}
 			break;
