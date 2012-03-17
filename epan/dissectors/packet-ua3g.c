@@ -680,7 +680,6 @@ decode_ip_device_routing(proto_tree *tree _U_,
 					{
 					case 0x00: /* Update Mode */
 						{
-							int i;
 							static const value_string str_update_mode[] = {
 								{0x00, "NOE Update Mode"},
 								{0x01, "Bootloader"},
@@ -1373,7 +1372,7 @@ decode_ip_device_routing(proto_tree *tree _U_,
 					level_1 = (signed char)(tvb_get_guint8(tvb, offset + 2)) / 2;
 					frequency_2 = tvb_get_ntohs(tvb, offset + 3);
 					level_2 = (signed char)(tvb_get_guint8(tvb, offset + 5)) / 2;
-				
+
 					ua3g_param_item = proto_tree_add_text(ua3g_body_tree,
 						tvb,
 						offset,
@@ -1515,7 +1514,7 @@ decode_ip_device_routing(proto_tree *tree _U_,
 				{0x04, "Canal Number"},
 				{0, NULL}
 			};
-			
+
 			while(length > 0)
 			{
 				parameter_id = tvb_get_guint8(tvb, offset);
@@ -1894,7 +1893,7 @@ decode_ip_device_routing(proto_tree *tree _U_,
 				{0x14, "Canal Identifier"},
 				{0, NULL}
 			};
-			
+
 			while(length > 0)
 			{
 				parameter_id = tvb_get_guint8(tvb, offset);
@@ -1989,7 +1988,7 @@ decode_ip_device_routing(proto_tree *tree _U_,
 				{0x30	, "MD5 Authentication"},
 				{0, NULL}
 			};
-			
+
 			while(length > 0)
 			{
 				parameter_id = tvb_get_guint8(tvb, offset);
@@ -2168,7 +2167,7 @@ decode_led_command(proto_tree *tree _U_,
 		{0x07, "All Led Off"},
 		{0, NULL}
 	};
-	
+
 	/* add text to the frame tree */
 	proto_item_append_text(ua3g_item,
 		", %s",
@@ -2220,7 +2219,8 @@ decode_lcd_line_cmd(proto_tree *tree _U_,
 					proto_item *ua3g_item,
 					proto_item *ua3g_body_item)
 {
-	guint8 i, lcd_options, command, column_n;
+	guint8 lcd_options, command, column_n;
+	guint i;
 	proto_tree *ua3g_body_tree;
 	proto_item *ua3g_param_item;
 	proto_tree *ua3g_param_tree;
@@ -2275,7 +2275,7 @@ decode_lcd_line_cmd(proto_tree *tree _U_,
 		col_append_fstr(pinfo->cinfo, COL_INFO, ": %s %d",
 		val_to_str(command, str_command, "Unknown"),
 		column_n);
-	
+
 	ep_strbuf_truncate(strbuf, 0); ep_strbuf_append(strbuf, "\"");
 	for(i = 0; i < length - 2; i++)
 	{
@@ -4543,7 +4543,7 @@ decode_cs_ip_device_routing(proto_tree *tree _U_,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
 		val_to_str(command, str_command, "Unknown"));
-	
+
 	proto_tree_add_uint_format(ua3g_body_tree,
 		hf_ua3g_ip,
 		tvb,
@@ -4699,17 +4699,17 @@ decode_cs_ip_device_routing(proto_tree *tree _U_,
 								if(parameter_length == 2)
 								{
 									ep_strbuf_truncate(strbuf, 0); ep_strbuf_append_printf(strbuf,
-										"Port Lan Speed: %d - Port Lan Duplex: %d", 
-										tvb_get_guint8(tvb, offset + 2), 
+										"Port Lan Speed: %d - Port Lan Duplex: %d",
+										tvb_get_guint8(tvb, offset + 2),
 										tvb_get_guint8(tvb, offset + 3));
 								}
 								else if(parameter_length == 4)
 								{
 									ep_strbuf_truncate(strbuf, 0); ep_strbuf_append_printf(strbuf,
-										"Port Lan Speed: %d - Port Lan Duplex: %d - Port PC Speed: %d - Port PC Duplex: %d", 
-										tvb_get_guint8(tvb, offset + 2), 
-										tvb_get_guint8(tvb, offset + 3), 
-										tvb_get_guint8(tvb, offset + 4), 
+										"Port Lan Speed: %d - Port Lan Duplex: %d - Port PC Speed: %d - Port PC Duplex: %d",
+										tvb_get_guint8(tvb, offset + 2),
+										tvb_get_guint8(tvb, offset + 3),
+										tvb_get_guint8(tvb, offset + 4),
 										tvb_get_guint8(tvb, offset + 5));
 								}
 								else
@@ -5265,7 +5265,7 @@ decode_cs_ip_device_routing(proto_tree *tree _U_,
 							break;
 						}
 					}
-							
+
 				}
 				break;
 			}
@@ -5925,7 +5925,7 @@ static void dissect_ua3g(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	{
 		ua3g_item = proto_tree_add_item(tree, proto_ua3g, tvb, 0, -1, ENC_NA);
 		ua3g_tree = proto_item_add_subtree(ua3g_item, ett_ua3g);
-		
+
 		if(message_direction == SYS_TO_TERM)
 		{
 			opcodes_vals = opcodes_vals_sys;
@@ -6342,7 +6342,7 @@ void proto_register_ua3g(void)
 				}
 			},
 		};
-	
+
 	static gint *ett[] =
 	{
 	&ett_ua3g,
@@ -6355,7 +6355,7 @@ void proto_register_ua3g(void)
 	proto_ua3g = proto_register_protocol("UA3G Message",
 		"UA3G",
 		"ua3g");
-	
+
 	proto_register_field_array(proto_ua3g, hf_ua3g, array_length(hf_ua3g));
 
 	register_dissector("ua3g", dissect_ua3g, proto_ua3g);
@@ -6374,6 +6374,6 @@ void proto_reg_handoff_ua3g(void)
 		"ua3g.opcode",
 		FT_UINT8,
 		BASE_HEX);
-	
+
 	dissector_add_uint("ua3g.opcode", 0x15, handle_ua3g);
 }
