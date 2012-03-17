@@ -1151,9 +1151,9 @@ dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree, tvb
              * but the new endpoint.
              */
             usb_addr.device=((usb_address_t *)(pinfo->src.data))->device;
-            usb_addr.endpoint=endpoint;
+            usb_addr.endpoint = htolel(endpoint);
             SET_ADDRESS(&tmp_addr, AT_USB, USB_ADDR_LEN, (char *)&usb_addr);
-            conversation=get_usb_conversation(pinfo, &tmp_addr, &pinfo->dst, endpoint, pinfo->destport);
+            conversation=get_usb_conversation(pinfo, &tmp_addr, &pinfo->dst, usb_addr.endpoint, pinfo->destport);
         } else {
             static address tmp_addr;
             static usb_address_t usb_addr;
@@ -1162,9 +1162,9 @@ dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree, tvb
              * but the new endpoint.
              */
             usb_addr.device=((usb_address_t *)(pinfo->dst.data))->device;
-            usb_addr.endpoint=endpoint;
+            usb_addr.endpoint = htolel(endpoint);
             SET_ADDRESS(&tmp_addr, AT_USB, USB_ADDR_LEN, (char *)&usb_addr);
-            conversation=get_usb_conversation(pinfo, &pinfo->src, &tmp_addr, pinfo->srcport, endpoint);
+            conversation=get_usb_conversation(pinfo, &pinfo->src, &tmp_addr, pinfo->srcport, usb_addr.endpoint);
         }
 
         conversation_add_proto_data(conversation, proto_usb, usb_trans_info->interface_info);

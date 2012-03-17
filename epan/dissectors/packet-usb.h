@@ -74,11 +74,11 @@ typedef struct _usb_tap_data_t {
     usb_trans_info_t *trans_info;
 } usb_tap_data_t;
 
-/* This is the endpoint number user for "no endpoint" or the fake endpoint 
+/* This is the endpoint number used for "no endpoint" or the fake endpoint
  * for the host side since we need two endpoints to manage conversations
  * properly.
  */
-#define NO_ENDPOINT 0xffff
+#define NO_ENDPOINT 0xffffffff
 
 /*
  * Values from the Linux USB pseudo-header.
