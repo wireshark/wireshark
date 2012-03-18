@@ -4472,9 +4472,9 @@ decode_unsolicited_msg(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo,
     TM KEY PUSHED - 2Dh (MESSAGE FROM THE TERMINAL)
     ---------------------------------------------------------------------------*/
 static void
-decode_key_number(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo _U_,
+decode_key_number(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_,
 		  guint offset, guint length, guint8 opcode _U_,
-		  proto_item *ua3g_body_item)
+		  proto_item *ua3g_body_item _U_)
 {
 /*    proto_tree *ua3g_body_tree;*/
 /*
@@ -4488,7 +4488,7 @@ decode_key_number(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo _U_,
 */
 	if(length > 0) {
 /*		ua3g_body_tree = proto_item_add_subtree(ua3g_body_item, ett_ua3g_body);*/
-		proto_tree_add_text(ua3g_body_item, tvb, offset, length,
+		proto_tree_add_text(tree, tvb, offset, length,
 			"Key Number: Row %d, Column %d",
 			(tvb_get_guint8(tvb, offset) & 0xF0), (tvb_get_guint8(tvb, offset) & 0x0F));
 	}
