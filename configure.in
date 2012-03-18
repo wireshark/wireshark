@@ -221,11 +221,15 @@ if test "x$with_gcrypt" = "xyes"; then
   )
 fi
 
+AC_ARG_WITH([qt],
+  AC_HELP_STRING( [--with-qt=@<:@yes/no@:>@],
+                  [use Qt instead of GTK+ @<:@default=no@:>@]),
+  with_qt="$withval", with_qt="no")
+
 AC_ARG_WITH([gtk3],
   AC_HELP_STRING( [--with-gtk3=@<:@yes/no@:>@],
                   [use GTK+ 3.0 instead of 2.0 @<:@default=no@:>@]),
   with_gtk3="$withval", with_gtk3="no")
-
 
 # libsmi
 # FIXME: currently the path argument to with-libsmi is being ignored
@@ -793,34 +797,73 @@ docdir=`(
 )`
 AC_DEFINE_UNQUOTED(DOC_DIR, "$docdir", [Directory for docs])
 
-# GTK checks; we require GTK+ 2.12 or later.
-# We don't add $GLIB_LIBS to LIBS, because we don't want to force all
-# programs to be built with GTK+.
+# GTK+ and Qt checks; we require GTK+ 2.12 or later, and, for now,
+# don't require any particular version of Qt (except perhaps by
+# implication, as older versions might not support pkgconfig).
+#
+# We only do those if we're going to be building Wireshark;
+# otherwise, we don't have any GUI to build, so we don't use
+# GTK+ or Qt.
+#
+# We don't add $GTK_LIBS or $Qt_LIBS to LIBS, because we don't want to
+# force all programs to be built with GTK+ or Qt.
 #
 if test "x$enable_wireshark" = "xyes"; then
-	if test "x$with_gtk3" = "xyes"; then
-		AM_PATH_GTK_3_0(3.0.0,
-	        [
-        	        CFLAGS="$CFLAGS $GTK_CFLAGS"
-                	CXXFLAGS="$CXXFLAGS $GTK_CFLAGS"
-			have_gtk=yes
-	                AC_DEFINE(HAVE_GTK, 1,
-			    [Define to 1 if compiling with GTK])
-	        ], have_gtk=no)
-
-	else
-		AM_PATH_GTK_2_0(2.12.0,
+	if test "x$with_qt" = "xyes"; then
+		PKG_CHECK_MODULES([Qt], [QtCore QtGui],
 		[
-			CFLAGS="$CFLAGS $GTK_CFLAGS"
-			CXXFLAGS="$CXXFLAGS $GTK_CFLAGS"
-			have_gtk=yes
-			AC_DEFINE(HAVE_GTK, 1,
-			    [Define to 1 if compiling with GTK])
-		], have_gtk=no)
+			CFLAGS="$CFLAGS $Qt_CFLAGS"
+			CXXFLAGS="$CXXFLAGS $Qt_CFLAGS"
+			#
+			# XXX - greasy hack to make ui/gtk/recent.c
+			# compile.
+			#
+			CPPFLAGS="-DQT_GUI_LIB $CPPFLAGS"
+			UI_LIBS='$(wireshark_QT_UI_LIBS)'
+			have_qt=yes
+		],
+		[
+			AC_MSG_ERROR([Qt is not available])
+		])
+
+		#
+		# We don't know whether we have GTK+, but we
+		# won't be using it, so it's as if we don't
+		# have it.
+		#
+		have_gtk=no
+	else
+		#
+		# Not Qt - either GTK+ 3.x or 2.x.
+		#
+		if test "x$with_gtk3" = "xyes"; then
+			AM_PATH_GTK_3_0(3.0.0,
+			[
+				CFLAGS="$CFLAGS $GTK_CFLAGS"
+				CXXFLAGS="$CXXFLAGS $GTK_CFLAGS"
+				have_gtk=yes
+				UI_LIBS='$(wireshark_GTK_UI_LIBS)'
+				AC_DEFINE(HAVE_GTK, 1,
+				    [Define to 1 if compiling with GTK])
+			], have_gtk=no)
+
+		else
+			AM_PATH_GTK_2_0(2.12.0,
+			[
+				CFLAGS="$CFLAGS $GTK_CFLAGS"
+				CXXFLAGS="$CXXFLAGS $GTK_CFLAGS"
+				have_gtk=yes
+				UI_LIBS='$(wireshark_GTK_UI_LIBS)'
+				AC_DEFINE(HAVE_GTK, 1,
+				    [Define to 1 if compiling with GTK])
+			], have_gtk=no)
+		fi
 	fi
 else
+	have_qt=no
 	have_gtk=no
 fi
+AC_SUBST(UI_LIBS)
 
 # GLib checks; we require GLib 2.14 or later, and require gmodule
 # support, as we need that for dynamically loading plugins.
@@ -838,20 +881,38 @@ fi
 if test "$have_gtk" = "no" ; then
 	#
 	# We don't have GTK+.
-	# If they didn't explicitly say "--disable-wireshark", fail (so
-	# that, unless they explicitly indicated that they don't want
-	# Wireshark, we stop so they know they won't be getting
-	# Wireshark unless they fix the GTK+ problem).
 	#
-	if test "x$enable_wireshark" = "xyes"; then
-		if test "x$with_gtk3" = "xyes"; then
-			AC_MSG_ERROR([GTK+ 3.0 or later isn't available, so Wireshark can't be compiled])
-		else
-			AC_MSG_ERROR([GTK+ 2.12 or later isn't available, so Wireshark can't be compiled])
+	if test "$have_qt" = "yes" ; then
+		#
+		# However, we do have Qt, and thus will be building
+		# Wireshark (if the user had explicitly disabled
+		# Wireshark, we wouldn't have looked for Qt, so we
+		# wouldn't think we had it, and thus wouldn't be here).
+		#
+		wireshark_bin="wireshark\$(EXEEXT)"
+		wireshark_man="wireshark.1"
+	        wireshark_SUBDIRS="codecs ui/qt"
+	else
+		#
+		# We don't have Qt, either, which means we have no UI
+		# toolkit.
+		#
+		# If they didn't explicitly say "--disable-wireshark",
+		# fail (so that, unless they explicitly indicated that
+		# they don't want Wireshark, we stop so they know they
+		# won't be getting Wireshark unless they fix the GTK+/Qt
+		# problem).
+		#
+		if test "x$enable_wireshark" = "xyes"; then
+			if test "x$with_gtk3" = "xyes"; then
+				AC_MSG_ERROR([GTK+ 3.0 or later isn't available, so Wireshark can't be compiled])
+			else
+				AC_MSG_ERROR([Neither Qt nor GTK+ 2.12 or later are available, so Wireshark can't be compiled])
+			fi
 		fi
+		wireshark_bin=""
+		wireshark_man=""
 	fi
-	wireshark_bin=""
-	wireshark_man=""
 	# Use GLIB_CFLAGS
 	AM_PATH_GLIB_2_0(2.14.0,
 	[
@@ -860,8 +921,9 @@ if test "$have_gtk" = "no" ; then
 	], AC_MSG_ERROR(GLib 2.14 or later distribution not found.), gthread gmodule)
 else
 	#
-	# We have GTK+, and thus will be building Wireshark unless the
-	# user explicitly disabled it.
+	# We have GTK+, and thus will be building Wireshark (if the user
+	# had explicitly disabled Wireshark, we wouldn't have looked for
+	# GTK+, so we wouldn't think we had it, and thus wouldn't be here).
 	#
 	wireshark_bin="wireshark\$(EXEEXT)"
 	wireshark_man="wireshark.1"
@@ -1991,6 +2053,7 @@ AC_OUTPUT(
   ui/gtk/Makefile
   ui/gtk/doxygen.cfg
   ui/cli/Makefile
+  ui/qt/Makefile
   help/Makefile
   packaging/Makefile
   packaging/macosx/Info.plist
@@ -2028,16 +2091,20 @@ dnl AC_CONFIG_FILES([tools/setuid-root.pl], [chmod +x tools/setuid-root.pl])
 
 # Pretty messages
 
-if test "x$have_gtk" = "xyes"; then
-	if test "x$with_gtk3" = "xyes"; then
-		gui_lib_message=" (with GTK+ 3"
-	else
-		gui_lib_message=" (with GTK+ 2"
-	fi
-	if test "x$have_ige_mac" = "xyes"; then
-		gui_lib_message="$gui_lib_message and Mac OS X integration)"
-	else
-		gui_lib_message="$gui_lib_message)"
+if test "x$have_qt" = "xyes"; then
+	gui_lib_message=" (with Qt)"
+else
+	if test "x$have_gtk" = "xyes"; then
+		if test "x$with_gtk3" = "xyes"; then
+			gui_lib_message=" (with GTK+ 3"
+		else
+			gui_lib_message=" (with GTK+ 2"
+		fi
+		if test "x$have_ige_mac" = "xyes"; then
+			gui_lib_message="$gui_lib_message and Mac OS X integration)"
+		else
+			gui_lib_message="$gui_lib_message)"
+		fi
 	fi
 fi
 

@@ -378,6 +378,26 @@ else
 wireshark_LDFLAGS = -export-dynamic
 endif
 
+#
+# XXX - hack to force C++ linking.
+#
+nodist_EXTRA_wireshark_SOURCES = dummy.cpp
+
+#
+# UI code for Wireshark with Qt.
+#
+wireshark_QT_UI_LIBS = \
+	ui/qt/libui.a		\
+	@Qt_LIBS@
+
+#
+# UI code for Wireshark with GTK+.
+#
+wireshark_GTK_UI_LIBS = \
+	ui/gtk/libgtkui.a	\
+	ui/gtk/libgtkui_dirty.a	\
+	@GTK_LIBS@ -lm
+
 # Libraries and plugin flags with which to link wireshark.
 #
 # Note that Wireshark doesn't have to be linked with @GLIB_LIBS@, as
@@ -386,8 +406,7 @@ endif
 # @GTK_LIBS@ (as those are also needed for X applications, and GTK+
 # applications are X applications).
 wireshark_LDADD = \
-	ui/gtk/libgtkui.a		\
-	ui/gtk/libgtkui_dirty.a		\
+	@UI_LIBS@			\
 	ui/libui.a			\
 	codecs/libcodec.a		\
 	wiretap/libwiretap.la		\
@@ -396,7 +415,6 @@ wireshark_LDADD = \
 	@SSL_LIBS@			\
 	$(plugin_ldadd)			\
 	@PCAP_LIBS@			\
-	@GTK_LIBS@ -lm			\
 	@C_ARES_LIBS@			\
 	@ADNS_LIBS@			\
 	@KRB5_LIBS@			\
@@ -953,7 +971,7 @@ endif
 endif
 
 
-DIST_SUBDIRS = asn1 codecs doc epan ui ui/cli ui/gtk help packaging plugins tools wiretap wsutil docbook
+DIST_SUBDIRS = asn1 codecs doc epan ui ui/cli ui/gtk ui/qt help packaging plugins tools wiretap wsutil docbook
 
 if HAVE_PLUGINS
 SUBDIRS = tools wsutil wiretap epan plugins packaging help ui @wireshark_SUBDIRS@ ui/cli . doc
