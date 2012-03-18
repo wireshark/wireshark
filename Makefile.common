@@ -102,7 +102,6 @@ SHARK_COMMON_CAPTURE_INCLUDES =	\
 wireshark_SOURCES =	\
 	$(WIRESHARK_COMMON_SRC)	\
 	$(SHARK_COMMON_CAPTURE_SRC) \
-	ui/qt/main.cpp \
 	airpcap_loader.c \
 	capture.c	\
 	capture_info.c	\
