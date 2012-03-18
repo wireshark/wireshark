@@ -820,6 +820,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-mpls.c
 	dissectors/packet-mpls-echo.c
 	dissectors/packet-mpls-pm.c
+	dissectors/packet-mpls-psc.c
 	dissectors/packet-mpls-y1711.c
 	dissectors/packet-mq.c
 	dissectors/packet-mq-pcf.c

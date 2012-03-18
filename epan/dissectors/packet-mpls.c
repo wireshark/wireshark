@@ -106,6 +106,7 @@ static dissector_handle_t dissector_mpls_pm_ilm;
 static dissector_handle_t dissector_mpls_pm_dm;
 static dissector_handle_t dissector_mpls_pm_dlm_dm;
 static dissector_handle_t dissector_mpls_pm_ilm_dm;
+static dissector_handle_t dissector_mpls_psc;
 static dissector_handle_t dissector_pw_eth_heuristic;
 static dissector_handle_t dissector_pw_fr;
 static dissector_handle_t dissector_pw_hdlc_nocw_fr;
@@ -293,7 +294,7 @@ static const value_string mpls_pwac_types[] = {
     { 0x0021, "IPv4 packet" },
     { 0x0022, "MPLS-TP CC message"},
     { 0x0023, "MPLS-TP CV message"},
-    { 0x0024, "Protection State Coordination Protocol - Channel Type (PSC-CT)"},
+    { 0x0024, "Protection State Coordination Protocol (PSC)"},
     { 0x0025, "On-Demand CV"},
     { 0x0026, "LI"},
     { 0x0057, "IPv6 packet" },	
@@ -455,6 +456,10 @@ dissect_pw_ach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     else if (channel_type == 0x000E) /* FF: MPLS PM, RFC 6374, ILM+DM */
     {
         call_dissector(dissector_mpls_pm_ilm_dm, next_tvb, pinfo, tree);
+    }
+    else if (channel_type == 0x0024) /* FF: PSC, RFC 6378 */
+    {
+        call_dissector(dissector_mpls_psc, next_tvb, pinfo, tree);
     }
     else
     {
@@ -778,6 +783,7 @@ proto_reg_handoff_mpls(void)
     dissector_mpls_pm_dm            = find_dissector("mpls_pm_dm");
     dissector_mpls_pm_dlm_dm        = find_dissector("mpls_pm_dlm_dm");
     dissector_mpls_pm_ilm_dm        = find_dissector("mpls_pm_ilm_dm");
+    dissector_mpls_psc              = find_dissector("mpls_psc");
     dissector_pw_eth_heuristic      = find_dissector("pw_eth_heuristic");
     dissector_pw_fr                 = find_dissector("pw_fr");
     dissector_pw_hdlc_nocw_fr       = find_dissector("pw_hdlc_nocw_fr");
