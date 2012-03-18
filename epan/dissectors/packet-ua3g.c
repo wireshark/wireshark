@@ -1145,11 +1145,11 @@ decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo
 
 			tone_nb_entries = tvb_get_guint8(tvb, offset);
 
-			proto_tree_add_text(ua3g_body_tree, tvb, offset, 1, "Nomber Of Entries: %d", tone_nb_entries);
+			proto_tree_add_text(ua3g_body_tree, tvb, offset, 1, "Number Of Entries: %d", tone_nb_entries);
 			offset++;
 			length--;
 
-			while(length > 0) {
+			while(length > 0 && tone_nb_entries) {
 				for(i = 1; i <= tone_nb_entries; i++) {
 					frequency_1 = tvb_get_ntohs(tvb, offset);
 					level_1 = (signed char)(tvb_get_guint8(tvb, offset + 2)) / 2;
@@ -1197,7 +1197,7 @@ decode_ip_device_routing(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo
 			tone_nb_entries = tvb_get_guint8(tvb, offset);
 
 			proto_tree_add_text(ua3g_body_tree, tvb, offset, 1,
-				"Direction: %s - Nomber Of Entries: %d",
+				"Direction: %s - Number Of Entries: %d",
 				val_to_str(tone_direction, str_tone_direction, "Unknown"), tone_nb_entries);
 			offset++;
 			length--;
