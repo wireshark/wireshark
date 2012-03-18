@@ -7500,7 +7500,7 @@ void proto_register_gtp(void)
         {&hf_gtp_tft_eval, {"Evaluation precedence", "gtp.tft_eval", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL}},
         {&hf_gtp_tid, {"TID", "gtp.tid", FT_STRING, BASE_NONE, NULL, 0, "Tunnel Identifier", HFILL}},
         {&hf_gtp_tlli, {"TLLI", "gtp.tlli", FT_UINT32, BASE_HEX, NULL, 0, "Temporary Logical Link Identity", HFILL}},
-        {&hf_gtp_tr_comm, {"Packet transfer command", "gtp.tr_comm", FT_UINT8, BASE_DEC, VALS(tr_comm_type), 0, "Packet transfer command", HFILL}},
+        {&hf_gtp_tr_comm, {"Packet transfer command", "gtp.tr_comm", FT_UINT8, BASE_DEC, VALS(tr_comm_type), 0, NULL, HFILL}},
         {&hf_gtp_trace_ref, {"Trace reference", "gtp.trace_ref", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL}},
         {&hf_gtp_trace_type, {"Trace type", "gtp.trace_type", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL}},
         {&hf_gtp_unknown, {"Unknown data (length)", "gtp.unknown", FT_UINT16, BASE_DEC, NULL, 0, "Unknown data", HFILL}},
