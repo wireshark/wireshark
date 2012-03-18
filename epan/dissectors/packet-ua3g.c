@@ -2794,7 +2794,7 @@ decode_icon_cmd(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo _U_,
 	for(i = 0; i < 8; i++) {
 		proto_tree_add_text(ua3g_body_tree, tvb, offset, 2,
 			"Segment %d: %s (%d)", i,
-			val_to_str((((tvb_get_guint8(tvb, offset) << 1) >> i) & 0x02) + ((tvb_get_guint8(tvb, offset + 1) >> i) & 0x01),str_state, "Unknwon"),
+			val_to_str((((tvb_get_guint8(tvb, offset) << 1) >> i) & 0x02) + ((tvb_get_guint8(tvb, offset + 1) >> i) & 0x01),str_state, "Unknown"),
 			(((tvb_get_guint8(tvb, offset) << 1) >> i) & 0x02) + ((tvb_get_guint8(tvb, offset + 1) >> i) & 0x01));
 	}
 }

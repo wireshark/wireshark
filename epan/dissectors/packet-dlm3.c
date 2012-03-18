@@ -1133,7 +1133,7 @@ proto_register_dlm3(void)
     DLM3_REGISTER_HF_EXFLAGS(rf_lsflags, "rf.lsflags"),
 
     { &hf_dlm3_rf_unused,
-      { "Unsed area", "dlm3.rf.lsflags.unused",
+      { "Unused area", "dlm3.rf.lsflags.unused",
         FT_UINT64, BASE_HEX, NULL, 0x0,
         NULL, HFILL}},
 

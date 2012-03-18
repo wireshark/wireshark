@@ -1589,9 +1589,9 @@ proto_register_btl2cap(void)
             "Bi-Directional QOS support", HFILL }
         },
         { &hf_btl2cap_info_enh_retransmission,
-          { "Enhancded Retransmission Mode", "btl2cap.info_enh_retransmission",
+          { "Enhanced Retransmission Mode", "btl2cap.info_enh_retransmission",
             FT_UINT32, BASE_DEC, NULL, 0x08,
-            "Enhancded Retransmission mode support", HFILL }
+            "Enhanced Retransmission mode support", HFILL }
         },
         { &hf_btl2cap_info_streaming,
           { "Streaming Mode", "btl2cap.info_streaming",

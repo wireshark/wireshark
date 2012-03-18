@@ -385,7 +385,7 @@ dissect_draft_error_code_parameter(tvbuff_t *parameter_tvb, proto_tree *paramete
 static const value_string error_code_values[] = {
   { MGMT_ERROR_INVALID_VERSION,                       "Invalid version" },
   { MGMT_ERROR_INVALID_IF_ID,                         "Invalid interface identifier" },
-  { MGMT_ERROR_UNSUPPORTED_MSG_CLASS,                 "Unsuported message class" },
+  { MGMT_ERROR_UNSUPPORTED_MSG_CLASS,                 "Unsupported message class" },
   { MGMT_ERROR_UNSUPPORTED_MSG_TYPE,                  "Unsupported message type" },
   { MGMT_ERROR_UNSUPPORTED_TRAFFIC_HANDLING_MODE,     "Unsupported traffic handling mode" },
   { MGMT_ERROR_UNEXPECTED_MSG,                        "Unexpected message" },

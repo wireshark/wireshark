@@ -1337,7 +1337,7 @@ proto_register_mp2t(void)
 		{ &hf_mp2t_analysis_skips, {
 			"TS Continuity Counter Skips", "mp2t.analysis.skips",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"Missing TS frames accoding to CC counter values", HFILL
+			"Missing TS frames according to CC counter values", HFILL
 		} } ,
 		{ &hf_mp2t_analysis_drops, {
 			"Some frames dropped", "mp2t.analysis.drops",

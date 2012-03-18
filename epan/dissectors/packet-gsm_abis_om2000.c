@@ -499,7 +499,7 @@ static const value_string om2k_la_state_vals[] = {
 
 static const value_string filerel_state_vals[] = {
 	{ 0x00, "Not known in current state (unknown file)" },
-	{ 0x01, "alllowed, already loaded" },
+	{ 0x01, "allowed, already loaded" },
 	{ 0x02, "allowed, not loaded" },
 	{ 0x03, "not allowed" },
 	{ 0, NULL }

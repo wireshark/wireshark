@@ -10599,7 +10599,7 @@ proto_register_cigi(void)
                 "Specifies whether the symbol should be hidden, visible, or destroyed", HFILL }
         },
         { &hf_cigi3_3_short_symbol_control_attach_state,
-            { "Atach State", "cigi.short_symbol_control.attach_state",
+            { "Attach State", "cigi.short_symbol_control.attach_state",
                 FT_BOOLEAN, 8, TFS(&cigi3_3_symbol_control_attach_state_tfs), 0x04,
                 "Specifies whether this symbol should be attached to another", HFILL }
         },

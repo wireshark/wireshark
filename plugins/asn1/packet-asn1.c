@@ -4783,7 +4783,7 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 				/* showNode(pos.node, 3, 4); */
 				pos.type = gettype(pos.node); /* the resulting type */
 				info = getinfo(pos.node);
-				tmp = "inknown tag";
+				tmp = "unknown tag";
 				if ((info->tclass == BER_CLASS_UNI) && (info->tag < 31)) {
 					tmp = asn1_tag[info->tag];
 					pos.type = asn1_uni_type[info->tag]; /* get univsrsal type */
@@ -5155,7 +5155,7 @@ proto_reg_handoff_asn1(void) {
   pcount = 0;
 
 #ifdef JUST_ONE_PORT
-  if (asn1_verbose) g_message("prefs change: tcpport=%u, udpport=%u, sctpport=%u, desegnment=%d, "
+  if (asn1_verbose) g_message("prefs change: tcpport=%u, udpport=%u, sctpport=%u, desegment=%d, "
 		"asn1file=%s, pduname=%s, first_offset=%d, debug=%d, msg_win=%d, verbose=%d",
   	  global_tcp_port_asn1, global_udp_port_asn1, global_sctp_port_asn1, asn1_desegment,
 	  asn1_filename, asn1_pduname, first_pdu_offset, asn1_debug, asn1_message_win, asn1_verbose);
@@ -5165,7 +5165,7 @@ proto_reg_handoff_asn1(void) {
     tcp_ports_asn1_string = range_convert_range(global_tcp_ports_asn1);
     udp_ports_asn1_string = range_convert_range(global_udp_ports_asn1);
     sctp_ports_asn1_string = range_convert_range(global_sctp_ports_asn1);
-    g_message("prefs change: tcpports=%s, udpports=%s, sctpports=%s, desegnment=%d, "
+    g_message("prefs change: tcpports=%s, udpports=%s, sctpports=%s, desegment=%d, "
 		"asn1file=%s, pduname=%s, first_offset=%d, debug=%d, msg_win=%d, verbose=%d",
   	  tcp_ports_asn1_string, udp_ports_asn1_string, sctp_ports_asn1_string, asn1_desegment,
 	  asn1_filename, asn1_pduname, first_pdu_offset, asn1_debug, asn1_message_win, asn1_verbose);

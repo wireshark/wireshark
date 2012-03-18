@@ -104,7 +104,7 @@ static const value_string comp_tlv_tag_vals[] = {
 	{ 0x12, "File List" },
 	{ 0x13, "Location Information" },
 	{ 0x14, "IMEI" },
-	{ 0x15, "Help requeest" },
+	{ 0x15, "Help request" },
 	{ 0x16, "Network Measurement Results" },
 	{ 0x17, "Default Text" },
 	{ 0x18, "Items Next Action Indicator" },

@@ -5438,7 +5438,7 @@ proto_register_docsis_tlv (void)
       "SID Cluster ID", HFILL}
      },
     {&hf_docsis_sid_cl_map_us_ch_id,
-     {"...1 Upstraem Channel ID", "docsis_tlv.sid.enc.map.uschid",
+     {"...1 Upstream Channel ID", "docsis_tlv.sid.enc.map.uschid",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Upstream Channel ID", HFILL}
      },

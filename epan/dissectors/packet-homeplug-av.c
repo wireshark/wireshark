@@ -3312,7 +3312,7 @@ proto_register_homeplug_av(void)
 	  FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
 	},
 	{ &hf_homeplug_av_st_mac_req_img_load,
-	  { "Image Load Starting Addres", "homeplug_av.st_mac_req.img_load",
+	  { "Image Load Starting Address", "homeplug_av.st_mac_req.img_load",
 	  FT_UINT32, BASE_HEX, NULL, 0x00, "Unknown", HFILL }
 	},
 	{ &hf_homeplug_av_st_mac_req_img_len,

@@ -4549,7 +4549,7 @@ static void
 report_create_context_malformed_buffer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, const char *buffer_desc)
 {
 	proto_tree_add_text(tree, tvb, 0, tvb_length_remaining(tvb, 0),
-			    "%s SHOULD NOT be generated. Malformed packeet", buffer_desc);
+			    "%s SHOULD NOT be generated. Malformed packet", buffer_desc);
 }
 static void
 dissect_smb2_ExtA_buffer_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *si)

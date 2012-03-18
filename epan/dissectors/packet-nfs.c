@@ -10645,7 +10645,7 @@ proto_register_nfs(void)
 			"V4 Procedure", "nfs.procedure_v4", FT_UINT32, BASE_DEC,
 			VALS(nfsv4_proc_vals), 0, NULL, HFILL }},
 		{ &hf_nfs_impl_id4_len, {
-			"Implemetation ID length", "nfs.impl_id4.length", FT_UINT32, BASE_DEC,
+			"Implementation ID length", "nfs.impl_id4.length", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_nfs_fh_length, {
 			"length", "nfs.fh.length", FT_UINT32, BASE_DEC,

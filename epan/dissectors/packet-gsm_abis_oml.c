@@ -945,7 +945,7 @@ static const value_string oml_fom_objclass_vals[] = {
 	{ NM_OC_BASEB_TRANSC,		"Baseband Transceiver" },
 
 	/* proprietary, vendor specific */
-	{ NM_OC_BS11_ADJC,		"SIE Adjacend Channel" },
+	{ NM_OC_BS11_ADJC,		"SIE Adjacent Channel" },
 	{ NM_OC_BS11_HANDOVER,		"SIE Handover" },
 	{ NM_OC_BS11_PWR_CTRL,		"SIE Power Control" },
 	{ NM_OC_BS11_BTSE,		"SIE BTSE" },

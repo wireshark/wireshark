@@ -1505,7 +1505,7 @@ void proto_register_noe(void)
 			BASE_NONE,
 			NULL,
 			0x0,
-			"Method Acknowlege",
+			"Method Acknowledge",
 			HFILL
 		}
 		},

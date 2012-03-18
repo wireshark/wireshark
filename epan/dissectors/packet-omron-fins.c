@@ -788,7 +788,7 @@ static const value_string omron_days[] = {
 static const value_string omron_file_parameter_codes[] = {
     { 0x0000, "Write new file, do not overwrite" },
     { 0x0001, "Write new file, overwrite" },
-    { 0x0002, "Appened to file " },
+    { 0x0002, "Append to file " },
     { 0x0003, "Overwite file" },
     { 0,      NULL  } };
 

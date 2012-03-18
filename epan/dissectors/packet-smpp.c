@@ -1056,7 +1056,7 @@ static const value_string vals_operation_result[] = {
     { 0x0f, "MO account balance is not enough" },
     { 0x10, "MT account balance is not enough" },
     { 0x11, "MO VAS is not supported" },
-    { 0x12, "MT VAS is not suppoeted" },
+    { 0x12, "MT VAS is not supported" },
     { 0x13, "MO user is post-paid user and checked success" },
     { 0x14, "MT user is post-paid user and checked success" },
     { 0x15, "MO post-paid user status is incorrect" },

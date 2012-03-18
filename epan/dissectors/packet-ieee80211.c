@@ -12025,7 +12025,7 @@ proto_register_ieee80211 (void)
   };
 
   static const true_false_string hwmp_targ_usn_flags = {
-    "[USN = 1] Target Sequence Number Unkwown at Originator",
+    "[USN = 1] Target Sequence Number Unknown at Originator",
     "[USN = 0] Target Sequence Number Known at Originator"
   };
 

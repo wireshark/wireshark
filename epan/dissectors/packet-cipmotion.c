@@ -387,7 +387,7 @@ static const value_string cip_pos_data_type_vals[] = {
 
 /* Translate function to string - axis response values */
 static const value_string cip_axis_response_vals[] = {
-   { 0,    "No Acknowlede"                 },
+   { 0,    "No Acknowledge"                 },
    { 1,    "Enable Acknowledge"            },
    { 2,    "Disable Acknowledge"           },
    { 3,    "Shutdown Acknowledge"          },

@@ -1249,7 +1249,7 @@ void proto_register_pnrp(void)
             { "Service Location", "pnrp.encodedCPA.serviceLocation", FT_BYTES,BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
         { &hf_pnrp_encodedCPA_binaryAuthority,
-            { "Binary Authoriy", "pnrp.encodedCPA.binaryAuthority", FT_BYTES,BASE_NONE, NULL, 0x0,
+            { "Binary Authority", "pnrp.encodedCPA.binaryAuthority", FT_BYTES,BASE_NONE, NULL, 0x0,
                 "SHA-1 Hash of PublicKey Data field", HFILL }},
         { &hf_pnrp_encodedCPA_classifiertHash,
             { "Classifiert Hash", "pnrp.encodedCPA.classifierHash", FT_BYTES,BASE_NONE, NULL, 0x0,

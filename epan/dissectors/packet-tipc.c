@@ -1910,7 +1910,7 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 					 * part of the changeover procedure. This message type may be regarded as an empty
 					 * ORIGINAL_MSG, where message count is zero, and no packet is wrapped inside.
 					 */
-					proto_tree_add_text(tipc_tree, tvb, offset, -1, "TIPC_CHANGEOVER_PROTOCOL Protol/dissection Error");
+					proto_tree_add_text(tipc_tree, tvb, offset, -1, "TIPC_CHANGEOVER_PROTOCOL Protocol/dissection Error");
 					break;
 			}
 			break;

@@ -190,7 +190,7 @@ static const value_string aformat_vals[] = {
 	{ XTP_ADDR_XEROX, "Xerox Network System Address" },
 	{ XTP_ADDR_IPX, "IPX Address" },
 	{ XTP_ADDR_LOCAL, "Local Address" },
-	{ XTP_ADDR_IP6, "Internet Protocl Version 6 Address"  },
+	{ XTP_ADDR_IP6, "Internet Protocol Version 6 Address"  },
 	{ 0, NULL }
 };
 

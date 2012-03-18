@@ -465,7 +465,7 @@ proto_register_ppi_antenna(void) {
         { &hf_ppi_antennaflags_mimo,
           { "mimo", "ppi_antenna.antennaflags.mimo",
             FT_BOOLEAN, 32, NULL, PPI_ANTENNAFLAGS_MASK_MIMO,
-            "Antena is part of MIMO system", HFILL } },
+            "Antenna is part of MIMO system", HFILL } },
         { &hf_ppi_antennaflags_horizpol,
           { "horizontally polarized", "ppi_antenna.antennaflags.horizpol",
             FT_BOOLEAN, 32, NULL, PPI_ANTENNAFLAGS_MASK_HPOL,

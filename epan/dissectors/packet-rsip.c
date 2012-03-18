@@ -210,7 +210,7 @@ static const value_string error_number_vals[] = {
 	{ 106,	"Unsupported RSIP Version" },
 	{ 201,	"Missing Parameter" },
 	{ 202,	"Duplicate Parameter" },
-	{ 203,	"Extra Paramter" },
+	{ 203,	"Extra Parameter" },
 	{ 204,	"Illegal Parameter" },
 	{ 205,	"Bad Parameter" },
 	{ 206,	"Illegal Message" },

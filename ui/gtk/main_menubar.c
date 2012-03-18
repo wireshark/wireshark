@@ -3197,7 +3197,7 @@ static void menu_dissector_filter(capture_file *cf) {
 
       action = g_object_new (GTK_TYPE_ACTION,
                  "name", "filter-list-empty",
-                 "label", "No fileters",
+                 "label", "No filters",
                  "sensitive", FALSE,
                  NULL);
       gtk_action_group_add_action (action_group, action);
@@ -3338,7 +3338,7 @@ menus_init(void) {
 #endif
         if (error != NULL)
         {
-            fprintf (stderr, "Warning: building TreeWiew Pop-Up menu failed: %s\n",
+            fprintf (stderr, "Warning: building TreeView Pop-Up menu failed: %s\n",
                     error->message);
             g_error_free (error);
             error = NULL;

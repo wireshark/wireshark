@@ -244,7 +244,7 @@ dissect_schedule_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree
                 else
                 {
                     /* reserved MDT */
-                    proto_tree_add_text(sched_subtree, tvb, offset, 1, "Slot: %d reseved MDT: %x", new_slots[k], octet1);
+                    proto_tree_add_text(sched_subtree, tvb, offset, 1, "Slot: %d reserved MDT: %x", new_slots[k], octet1);
                     other_slots[new_slots[i] - 1] = 0xFFFE;
                 }
             }

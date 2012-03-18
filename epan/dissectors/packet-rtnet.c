@@ -979,7 +979,7 @@ proto_register_rtmac(void) {
       { "Padding",
         "tdma-v1.msg.ack_conf.padding",
         FT_UINT8, BASE_HEX, NULL, 0x0,
-        "TDMA PAdding", HFILL }},
+        "TDMA Padding", HFILL }},
 
     { &hf_tdma_v1_msg_ack_conf_mtu,
       { "MTU",

@@ -2264,7 +2264,7 @@ static const value_string pn_io_fiber_optic_cable_type[] = {
 static const value_string pn_io_im_revision_prefix_vals[] = {
     { 'V', "V - Officially released version" },
     { 'R', "R - Revision" },
-    { 'P', "P - Protoype" },
+    { 'P', "P - Prototype" },
     { 'U', "U - Under Test (Field Test)" },
     { 'T', "T - Test Device" },
     /*all others reserved */

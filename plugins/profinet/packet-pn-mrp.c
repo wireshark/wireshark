@@ -421,7 +421,7 @@ proto_register_pn_mrp (void)
 	{ &hf_pn_mrp_ring_state,
 		{ "RingState", "pn_mrp.ring_state", FT_UINT16, BASE_HEX, VALS(pn_mrp_ring_state_vals), 0x0, NULL, HFILL }},
 	{ &hf_pn_mrp_interval,
-		{ "Interval", "pn_mrp.interval", FT_UINT16, BASE_DEC, NULL, 0x0, "Interval for next topologie change event (in ms)", HFILL }},
+		{ "Interval", "pn_mrp.interval", FT_UINT16, BASE_DEC, NULL, 0x0, "Interval for next topology change event (in ms)", HFILL }},
 	{ &hf_pn_mrp_transition,
 		{ "Transition", "pn_mrp.transition", FT_UINT16, BASE_HEX, NULL, 0x0, "Number of transitions between media redundancy lost and ok states", HFILL }},
 	{ &hf_pn_mrp_time_stamp,

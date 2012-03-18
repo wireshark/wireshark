@@ -3081,7 +3081,7 @@ dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
             /* no filter for length items */
             app_dom_id_len = tvb_get_guint8(tvb, offset);
             proto_tree_add_text(tree, tvb, offset, 1,
-                    "Application Domain Indentifier length %d", app_dom_id_len);
+                    "Application Domain Identifier length %d", app_dom_id_len);
             offset++;
             init_obj_len = tvb_get_guint8(tvb, offset);
             proto_tree_add_text(tree, tvb, offset, 1,
