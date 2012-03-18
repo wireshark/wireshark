@@ -412,10 +412,10 @@ static const int *eigrp_stub_flag_fields[] = {
 };
 
 /* tid */
-static gint hf_eigrp_tidlist = -1;
+static gint hf_eigrp_tidlist_tid = -1;
 static gint hf_eigrp_tidlist_flags = -1;
 static gint hf_eigrp_tidlist_len = -1;
-static gint ett_eigrp_tidlist_flags = -1;
+static gint ett_eigrp_tidlist = -1;
 
 /* 1.2 and 3.0 metric */
 static gint hf_eigrp_legacy_metric_delay = -1;
@@ -940,8 +940,9 @@ static void
 dissect_eigrp_peer_tidlist (proto_tree *tree, tvbuff_t *tvb)
 {
     proto_item *sub_ti;
+    proto_tree *sub_tree;
     int         offset = 0;
-    guint16     size, tid ;
+    guint16     size;
 
     proto_tree_add_item(tree, hf_eigrp_tidlist_flags, tvb, offset, 2,
                         ENC_BIG_ENDIAN);
@@ -952,11 +953,11 @@ dissect_eigrp_peer_tidlist (proto_tree *tree, tvbuff_t *tvb)
                         ENC_BIG_ENDIAN);
     offset += 2;
 
-    sub_ti = proto_tree_add_item(tree, hf_eigrp_tidlist, tvb, offset,
-                                 (size * 2), ENC_BIG_ENDIAN);
+    sub_ti = proto_tree_add_text(tree, tvb, offset, (size*2), "%d TIDs", size);
+    sub_tree = proto_item_add_subtree(sub_ti, ett_eigrp_tidlist);
     for (; size ; size--) {
-        tid = tvb_get_ntohs(tvb, offset);
-        proto_item_append_text(sub_ti, " %u", tid);
+        proto_tree_add_item(sub_tree, hf_eigrp_tidlist_tid, tvb, offset, 2,
+                            ENC_BIG_ENDIAN);
         offset += 2;
     }
 }
@@ -2971,7 +2972,7 @@ proto_register_eigrp(void)
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * EIGRP 3.0 TIDLIST TLV  (only survivor in MTR)
  */
-        { &hf_eigrp_tidlist,
+        { &hf_eigrp_tidlist_tid,
           { "TID List", "eigrp.tidlist",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
@@ -3331,7 +3332,7 @@ proto_register_eigrp(void)
         &ett_eigrp_tlv_attr,
         &ett_eigrp_tlv_extdata,
 
-        &ett_eigrp_tidlist_flags,
+        &ett_eigrp_tidlist,
         &ett_eigrp_stub_flags,
         &ett_eigrp_saf_reachability,
 
