@@ -853,7 +853,7 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
             if (opt_type == IP6OPT_PAD1) {
                 proto_tree_add_item(opt_tree, hf_ipv6_opt_pad1, tvb, offset, 1, ENC_NA);
                 offset += 1;
-                proto_item_append_text(ti, ")");
+                proto_item_append_text(ti_opt, ")");
                 continue;
             }
 
