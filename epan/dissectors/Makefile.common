@@ -571,6 +571,7 @@ DISSECTOR_SRC = \
 	packet-h263.c		\
 	packet-h263p.c		\
 	packet-h264.c		\
+	packet-hartip.c		\
 	packet-hazelcast.c	\
 	packet-hci_h1.c		\
 	packet-hci_h4.c		\

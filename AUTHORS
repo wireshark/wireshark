@@ -2569,7 +2569,7 @@ Kyle J. Harms		<kyle.j.harms [AT] boeing.com> {
 	CIGI dissection
 }
 
-Eric Wedel              <ewedel [AT] bluearc.com> {
+Eric Wedel		<ewedel [AT] bluearc.com> {
 	KPASSWD over TCP support
 }
 
@@ -2796,7 +2796,7 @@ Jens Bräuer		<jensb [AT] cs.tu-berlin.de> {
 	Wifi Simple Config aka Wifi Protected Setup
 }
 
-Sake Blok               <sake [AT] euronet.nl> {
+Sake Blok		<sake [AT] euronet.nl> {
 	Cisco proprietary MST format support
 	"Copy as Filter" functionality
 	Split time_delta in time delta captured and time delta displayed
@@ -3012,7 +3012,7 @@ Florian Forster		<octo [AT] verplant.org> {
 	CollectD dissector
 }
 
-Ivan Sy Jr.             <ivan_jr [AT] yahoo.com> {
+Ivan Sy Jr.		<ivan_jr [AT] yahoo.com> {
         Added DNS RRs: DLV, SSHFP, SPF, HIP, DHCID, NSEC3PARAM, APL, PX,
                        GPOS, NSAP, NSAP-PTR, AFSDB, RP, X25, ISDN, RT, RR
         Allow some network control block addresses with ttl != 1.
@@ -3335,12 +3335,12 @@ Glenn Matthews		<glenn.matthews [AT] cisco.com> {
 	XMCP dissector
 }
 
-Donnie Savage           <dsavage [AT] cisco.com> {
+Donnie Savage		<dsavage [AT] cisco.com> {
 	EIGRP TLV 2.0 and 3.0 support
 	SAF support
 }
 
-Spenser Sheng           <spenser.sheng [AT] ericsson.com> {
+Spenser Sheng		<spenser.sheng [AT] ericsson.com> {
 	LCS-AP support
 }
 
@@ -3360,7 +3360,7 @@ Iain Arnell		<iarnell [AT] epo.org> {
 	ajp13 enhancements
 }
 
-Mariusz Okrój 		<okrojmariusz [AT] gmail.com> {
+Mariusz Okrój		<okrojmariusz [AT] gmail.com> {
 	XMPP enhancements
 }
 
@@ -3372,11 +3372,11 @@ Kari Vatjus-Anttila	<kari.vatjus-anttila [AT] cie.fi> {
 	kNet (KristalliNet) dissector
 }
 
-Shobhank Sharma         <ssharma5 [AT] ncsu.edu> {
+Shobhank Sharma		<ssharma5 [AT] ncsu.edu> {
 	MPLS Enhancement - Generic Associated Channel, as per RFC 5586
 }
 
-Salil Kanitkar         <sskanitk [AT] ncsu.edu> {
+Salil Kanitkar		<sskanitk [AT] ncsu.edu> {
 	OSPF Router Informational Capabilities - Opaque RI TLV - RFC4970
 	OSPF Dynamic Hostname TLV in RI Opaque TLV - RFC5642
 }
@@ -3399,9 +3399,14 @@ Holger Hans Peter Freyther <zecke [AT] selfish.org> {
 	DVB-H IPDC ESG
 }
 
-Paul Erkkila <pee [AT] erkkila.org> {
+Paul Erkkila 		<pee [AT] erkkila.org> {
 	Hazelcast Dissector
 }
+
+Bill Schiller		<bill.schiller [AT] emerson.com> {
+	HART/IP dissector
+}
+
 
 and by:
 

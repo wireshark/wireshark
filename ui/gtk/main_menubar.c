@@ -1254,6 +1254,7 @@ static const char *ui_desc_menubar =
 "      <menuitem name='Collectd' action='/StatisticsMenu/collectd'/>\n"
 "      <menuitem name='Compare' action='/StatisticsMenu/compare'/>\n"
 "      <menuitem name='FlowGraph' action='/StatisticsMenu/FlowGraph'/>\n"
+"      <menuitem name='HART-IP' action='/StatisticsMenu/hart_ip'/>\n"
 "      <menu name= 'HTTPMenu' action='/StatisticsMenu/HTTP'>\n"
 "        <menuitem name='http' action='/StatisticsMenu/HTTP/http'/>\n"
 "        <menuitem name='http_req' action='/StatisticsMenu/HTTP/http_req'/>\n"
@@ -1712,6 +1713,7 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/StatisticsMenu/collectd",                        NULL,       "Collectd...",                      NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
    { "/StatisticsMenu/compare",                         NULL,       "Compare...",                       NULL, NULL, G_CALLBACK(gtk_comparestat_cb) },
    { "/StatisticsMenu/FlowGraph",       WIRESHARK_STOCK_FLOW_GRAPH, "Flo_w Graph...",                   NULL, NULL, G_CALLBACK(flow_graph_launch) },
+   { "/StatisticsMenu/hart_ip",                         NULL,       "HART-IP",                          NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
    { "/StatisticsMenu/HTTP",                            NULL,       "HTTP",                             NULL, NULL, NULL },
    { "/StatisticsMenu/HTTP/http",                       NULL,       "Packet Counter",                   NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },
    { "/StatisticsMenu/HTTP/http_req",                   NULL,       "Requests",                         NULL, NULL, G_CALLBACK(gtk_stats_tree_cb) },

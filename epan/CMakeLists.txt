@@ -652,6 +652,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-h263.c
 	dissectors/packet-h263p.c
 	dissectors/packet-h264.c
+	dissectors/packet-hartip.c
 	dissectors/packet-hazelcast.c
 	dissectors/packet-hci_h1.c
 	dissectors/packet-hci_h4.c
