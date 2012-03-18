@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2012-03-09
+# 2012-03-15
 # 
 # Note
 # 
@@ -8673,8 +8673,8 @@ jibe-eb	3777/tcp	# Jibe EdgeBurst               [Chap_Tippin]                   
 jibe-eb	3777/udp	# Jibe EdgeBurst               [Chap_Tippin]                             [Chap_Tippin]                                             2003-06
 c-h-it-port	3778/tcp	# Cutler-Hammer IT Port        [Thomas_Ruchti]                           [Thomas_Ruchti]                                           2003-06
 c-h-it-port	3778/udp	# Cutler-Hammer IT Port        [Thomas_Ruchti]                           [Thomas_Ruchti]                                           2003-06
-cognima	3779/tcp	# Cognima Replication          [Raplh_Greenwell]                         [Raplh_Greenwell]                                         2003-06
-cognima	3779/udp	# Cognima Replication          [Raplh_Greenwell]                         [Raplh_Greenwell]                                         2003-06
+cognima	3779/tcp	# Cognima Replication          [Ralph_Greenwell]                         [Ralph_Greenwell]                                         2003-06
+cognima	3779/udp	# Cognima Replication          [Ralph_Greenwell]                         [Ralph_Greenwell]                                         2003-06
 nnp	3780/tcp	# Nuzzler Network Protocol     [Andreas_Schwarz_2]                       [Andreas_Schwarz_2]                                       2003-06
 nnp	3780/udp	# Nuzzler Network Protocol     [Andreas_Schwarz_2]                       [Andreas_Schwarz_2]                                       2003-06
 abcvoice-port	3781/tcp	# ABCvoice server port         [Carlos_Gonzalez_Roma]                    [Carlos_Gonzalez_Roma]                                    2003-06
@@ -11281,7 +11281,13 @@ pmip6-data	5437/udp	# pmip6-data                                                
 # 5438-5442            Unassigned
 spss	5443/tcp	# Pearson HTTPS                [Pearson]                                 [Pearson]                                                 2008-01-17
 spss	5443/udp	# Pearson HTTPS                [Pearson]                                 [Pearson]                                                 2008-01-17
-# 5444-5452            Unassigned
+# 5444               Unassigned
+smbdirect	5445/tcp	# Server Message Block over    [Microsoft_Corporation_2]                 [Tom_Talpey]                                              2012-03-15
+# Remote Direct Memory Access
+# 5445        udp    Reserved
+smbdirect	5445/sctp	# Server Message Block over    [Microsoft_Corporation_2]                 [Tom_Talpey]                                              2012-03-15
+# Remote Direct Memory Access
+# 5446-5452            Unassigned
 surebox	5453/tcp	# SureBox                      [Emin_BORU]                               [Emin_BORU]                                               2004-11
 surebox	5453/udp	# SureBox                      [Emin_BORU]                               [Emin_BORU]                                               2004-11
 apc-5454	5454/tcp	# APC 5454                     [American_Power_Conve]                    [American_Power_Conve]
@@ -13347,7 +13353,14 @@ canon-bjnp4	8614/tcp	# Canon BJNP Port 4            [Atsushi_Nakamura]          
 canon-bjnp4	8614/udp	# Canon BJNP Port 4            [Atsushi_Nakamura]                        [Atsushi_Nakamura]                                        2003-11
 imink	8615/tcp	# Imink Service Control        [Canon_Inc]                               [KEN_ICHI_FUJII]                                          2011-10-10
 # 8615        udp    Reserved
-# 8616-8685            Unassigned
+# 8616-8674            Unassigned
+# Motorola Solutions Customer
+msi-cps-rm	8675/tcp	# Programming Software for     [Motorola_Solutions_Inc]                  [Jenish_Amin]                                             2012-03-14
+# Radio Management
+# Motorola Solutions Customer
+msi-cps-rm-disc	8675/udp	# Programming Software for     [Motorola_Solutions_Inc]                  [Jenish_Amin]                                             2012-03-14
+# Radio Management Discovery
+# 8676-8685            Unassigned
 sun-as-jmxrmi	8686/tcp	# Sun App Server - JMX/RMI     [Abhijit_Kumar]                           [Abhijit_Kumar]                                           2005-11
 sun-as-jmxrmi	8686/udp	# Sun App Server - JMX/RMI     [Abhijit_Kumar]                           [Abhijit_Kumar]                                           2005-11
 # 8687-8698            Unassigned
@@ -13529,7 +13542,10 @@ xmltec-xmlmail	9091/tcp	# xmltec-xmlmail               [Mitch_Kaufman]          
 xmltec-xmlmail	9091/udp	# xmltec-xmlmail               [Mitch_Kaufman]                           [Mitch_Kaufman]
 XmlIpcRegSvc	9092/tcp	# Xml-Ipc Server Reg           [Casey_Harrington]                        [Casey_Harrington]                                        2006-01
 XmlIpcRegSvc	9092/udp	# Xml-Ipc Server Reg           [Casey_Harrington]                        [Casey_Harrington]                                        2006-01
-# 9093-9099            Unassigned
+copycat	9093/tcp	# Copycat database replication [Microtec_Informatique]                   [Raphael_Neve]                                            2012-03-15
+# service
+# 9093        udp    Reserved
+# 9094-9099            Unassigned
 hp-pdl-datastr	9100/tcp	# PDL Data Streaming Port      [Shivaun_Albright]                        [Shivaun_Albright]                                        2002-04
 hp-pdl-datastr	9100/udp	# PDL Data Streaming Port      [Shivaun_Albright]                        [Shivaun_Albright]                                        2002-04
 # The protocol name "pdl-datastream" is primarily registered
@@ -13908,7 +13924,11 @@ acis	9953/udp	# 9953                         [Thomas_Guth]                      
 hinp	9954/tcp	# HaloteC Instrument Network   [HaloteC_Instruments]                     [Michel_Stam]                                             2012-02-07
 # Protocol
 # 9954        udp    Reserved
-# 9955               Unassigned
+alljoyn-stm	9955/tcp	# Contact Port for AllJoyn     [Qualcomm_Innovation_Center]              [Craig_Dowell]                                            2012-03-14
+# standard messaging
+# Contact Port for AllJoyn
+alljoyn-mcm	9955/udp	# multiplexed constrained      [Qualcomm_Innovation_Center]              [Craig_Dowell]                                            2012-03-14
+# messaging
 # 9956        tcp    Reserved
 alljoyn	9956/udp	# Alljoyn Name Service         [Qualcomm_Innovation_Center]              [Craig_Dowell]                                            2011-12-21
 # 9957-9965            Unassigned
@@ -15257,7 +15277,12 @@ fairview	38202/udp	# Fairview Message Service     [Jim_Lyle]                    
 # DevStat=<device status>
 agpolicy	38203/tcp	# AppGate Policy Server        [Martin_Forssen]                          [Martin_Forssen]                                          2004-11
 agpolicy	38203/udp	# AppGate Policy Server        [Martin_Forssen]                          [Martin_Forssen]                                          2004-11
-# 38204-39680           Unassigned
+# 38204-38864           Unassigned
+# Security approval process
+secrmmsafecopya	38865/tcp	# for use of the secRMM        [Squadra_Technologies]                    [Anthony_LaMark]                                          2012-03-14
+# SafeCopy program
+# 38865       udp    Reserved
+# 38866-39680           Unassigned
 turbonote-1	39681/tcp	# TurboNote Default Port       [Peter_Hyde]                              [Peter_Hyde]
 turbonote-1	39681/udp	# TurboNote Default Port       [Peter_Hyde]                              [Peter_Hyde]
 # 39682-39999           Unassigned
@@ -16917,6 +16942,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Anthony_Gonzalez]                                        Anthony Gonzalez                                mailto:agonzal1&telcordia.com
 # [Anthony_Greatorex]                                       Anthony Greatorex                               mailto:greatore&ugs.com                                       2004-11
 # [Anthony_Johnson]                                         Anthony Johnson                                 mailto:stxadmin&storix.com                                    2005-08
+# [Anthony_LaMark]                                          Anthony LaMark            Squadra Technologies  mailto:anthony&squadratechnologies.com                        2012-03-14
 # [Anthony_Payne]                                           Anthony Payne                                   mailto:opayne&pacbell.net                                     2004-02
 # [Anthony_Stahler]                                         Anthony Stahler                                 mailto:imunfair&yahoo.com                                     2004-11
 # [Anthony_Walker]                                          Anthony Walker                                  mailto:anthony_walker&hp.com                                  2002-03
@@ -18593,6 +18619,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Jeffrey_Zinkerman]                                       Jeffrey Zinkerman                               mailto:jeff&zinknet.com
 # [Jeffry_Dwight]                                           Jeffry Dwight                                   mailto:jeffryd&greyware.com
 # [Jem_Treadwell]                                           Jem Treadwell                                   mailto:Jem.Treadwell&compaq.com
+# [Jenish_Amin]                                             Jenish Amin               Motorola Solutions,   mailto:jenish&motorolasolutions.com                           2012-03-14
+# Inc.
 # [Jennifer_Grace]                                          Jennifer Grace                                  mailto:Jennifer_Grace&3com.com
 # [Jens_Alfke]                                              Jens Alfke                                      mailto:jens&apple.com
 # [Jens_Edlund]                                             Jens Edlund                                     mailto:edlund&speech.kth.se                                   2005-08
@@ -19550,6 +19578,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # B.V.
 # [Micromat]                                                Micromat                                        mailto:support&micromat.com
 # [Microsoft_Corporation]                                                             Microsoft Corporation mailto:pratshar&microsoft.com                                 2011-08-04
+# [Microsoft_Corporation_2]                                                           Microsoft Corporation mailto:stdsreq&microsoft.com                                  2012-03-15
+# [Microtec_Informatique]                                                             Microtec Informatique mailto:raph&microtec.fr                                       2012-03-15
 # [MIDI_Manufacturers_Assoc_Inc]                                                      MIDI Manufacturers    mailto:info&midi.org                                          2011-11-14
 # Assoc Inc
 # [Miguel_Angel_Fernand]                                    Miguel Angel Fernandez                          mailto:mafg&tid.es
@@ -19645,6 +19675,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Moshe_Beeri]                                             Moshe Beeri                                     mailto:moshe&whale-com.com
 # [Moshe_Leibovitch]                                        Moshe Leibovitch                                mailto:moshe&softlinkusa.com
 # [Moshe_Livne]                                             Moshe Livne                                     mailto:moshe&softlinkusa.com
+# [Motorola_Solutions_Inc]                                                            Motorola Solutions,   mailto:jenish&motorolasolutions.com                           2012-03-14
+# Inc.
 # [Murali_Ranganathan]                                      Murali Ranganathan                              mailto:murali_ranganathan&quickmail.apple.com
 # [Murray_Freeman]                                          Murray Freeman                                  mailto:murray&officedomain.com
 # [Murthy_Parthasarathi]                                    Murthy Parthasarathi                            mailto:pvmurthy&effigent.com
@@ -20084,7 +20116,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Randy_Maas]                                              Randy Maas                                      mailto:randym&xiotech.com
 # [Randy_Martin]                                            Randy Martin                                    mailto:exlmoc&clemson.edu
 # [Randy_Thompson]                                          Randy Thompson                                  mailto:thompr&earthlink.net                                   2002-08
-# [Raplh_Greenwell]                                         Raplh Greenwell                                 mailto:iana&cognima.com                                       2003-06
+# [Raphael_Neve]                                            Raphael Neve              Microtec Informatique mailto:raph&microtec.fr                                       2012-03-15
+# [Ralph_Greenwell]                                         Ralph Greenwell                                 mailto:iana&cognima.com                                       2012-03-15
 # [Ratnadeep_Bhattachar]                                    Ratnadeep Bhattacharjee                         mailto:ratnadeep.bhattacharjee&sun.com                        2002-11
 # [Ravi_Gokhale]                                            Ravi Gokhale                                    mailto:rgokhale&bindview.com                                  2002-10
 # [Ravi_Kollipara]                                          Ravi Kollipara                                  mailto:ravi.kollipara&actifio.com                             2010-06-18
@@ -20572,6 +20605,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Spencer_Teran_2]                                         Spencer Teran                                   mailto:steran&ars.com                                         2004-11
 # [Sphera_Software]                                         Sphera Software                                 mailto:contact&sphera-soft.com
 # [SpinetiX_S_A]                                                                      SpinetiX S.A.         mailto:Diego.SantaCruz&spinetix.com                           2011-10-18
+# [Squadra_Technologies]                                                              Squadra Technologies  mailto:anthony&squadratechnologies.com                        2012-03-14
 # [Square_Connect_Inc]                                                                Square Connect, Inc.  mailto:mat&squareconnect.com                                  2011-10-07
 # [Squee_Application_Development]                                                     Squee! Application    mailto:tristan&squee.co                                       2011-07-19
 # Development
@@ -20932,6 +20966,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Tom_Snauwaert]                                           Tom Snauwaert                                   mailto:tom.snauwaert&st-electronics.be
 # [Tom_Spidell]                                             Tom Spidell                                     mailto:spidell&persoft.com
 # [Tom_Strack]                                              Tom Strack                                      mailto:TSTRACK&advnw.com
+# [Tom_Talpey]                                              Tom Talpey                Microsoft Corporation mailto:ttalpey&microsoft.com                                  2012-03-15
 # [Tom_Taylor]                                              Tom Taylor                                      mailto:Tom.Taylor&unisys.com
 # [Tom_Taylor_2]                                            Tom Taylor                                      mailto:taylor&nortelnetworks.com
 # [Tom_Taylor_3]                                            Tom Taylor                                      mailto:taylor&nortel.com                                      2006-09
