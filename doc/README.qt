@@ -18,11 +18,12 @@ QMake and make or nmake should work.
 There are several ways of building qtshark:
 
 1) Using qtcreator:
-   The ui/qt directory is loosely coupled with the rest of the codebase. The main
-   Wireshark sources must be built beforehand using CMake on Linux and OS X and
-   nmake on Windows. Autotools + QMake is a basket full of crazy that hasn't yet
-   been sorted and folded.  (Autotools + Boring Old Make, without using
-   QMake at all, might actually be simpler:
+
+   The ui/qt directory is loosely coupled with the rest of the codebase.
+   The main Wireshark sources must be built beforehand using CMake on Linux
+   and OS X and nmake on Windows. Autotools + QMake is a basket full of
+   crazy that hasn't yet been sorted and folded.  (Autotools + Boring Old
+   Make, without using QMake at all, might actually be simpler:
 
 	http://www.mail-archive.com/automake@gnu.org/msg11149.html
 
@@ -44,26 +45,28 @@ Before compiling you need the Qt SDK and Qt Creator.
 
 1.1.1 OS X
 
-Download the latest Qt SDK (currently 1.1.4) and install it. Build the
-top-level directory using CMake.
+Download the latest Qt SDK (currently 1.1.4) from
+http://qt.nokia.com/downloads/ and install it. Build the top-level
+directory using CMake.
 
 1.1.2 Windows
 
-The default Qt SDK libraries are built using MinGW, which isn't supported for
-Wireshark. Instead of downloading the Qt SDK all-in-one package, download the
-Qt Libraries package that matches your compiler (VS 2008 or VS 2010) and Qt
-Creator for Windows.
+The default Qt SDK libraries are built using MinGW, which isn't supported
+for Wireshark. Instead of downloading the Qt SDK all-in-one package,
+download the Qt Libraries package from http://qt.nokia.com/downloads/ that
+matches your compiler (VS 2008 or VS 2010) and Qt Creator for Windows.
 
 Settings in config.nmake are passed to the Qt environment via
 ui/qt/config.pri. This file should be created automatically when you
-compile Wireshark in the top-level source directory. You can create it
-by hand by running "nmake -f Makefile.nmake ui\qt\config.pri".
+compile Wireshark in the top-level source directory. You can create it by
+hand by running "nmake -f Makefile.nmake ui\qt\config.pri".
 
-Qt Creator can be used to compile and run Wireshark.
-Alternatively qmake and nmake at the cmd line can be used.
+Qt Creator can be used to compile and run Wireshark.  Alternatively qmake
+and nmake at the cmd line can be used.
 
-The Windows Qt version of Wireshark will be compiled and linked with essentially
-the same options as that used when building the Gtk version of Wireshark.
+The Windows Qt version of Wireshark will be compiled and linked with
+essentially the same options as that used when building the Gtk version of
+Wireshark.
 
 1.1.2.1 Qt Creator
 
