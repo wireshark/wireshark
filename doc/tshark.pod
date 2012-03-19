@@ -1579,9 +1579,9 @@ auditing code.
 
 =item WIRESHARK_ABORT_ON_OUT_OF_MEMORY
 
-This environment variable, if present, causes abort() to be called if certain
+This environment variable, if present, causes abort(3) to be called if certain
 out-of-memory conditions (which normally result in an exception and an
-explanatory error message)) are experienced.  This can be useful to developers
+explanatory error message) are experienced.  This can be useful to developers
 debugging out-of-memory conditions.
 
 =back
