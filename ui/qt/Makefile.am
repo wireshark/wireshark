@@ -125,6 +125,7 @@ EXTRA_DIST = \
 	$(GENERATOR_FILES)		\
 	CMakeLists.txt			\
 	doxygen.cfg.in			\
+	main.cpp			\
 	Makefile.common			\
 	Makefile_custom.common		\
 	main_window.ui
