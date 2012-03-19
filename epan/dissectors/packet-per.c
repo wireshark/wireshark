@@ -210,7 +210,7 @@ tvbuff_t *new_octet_aligned_subset_bits(tvbuff_t *tvb, guint32 boffset, asn1_ctx
 
   new_length = no_of_bits/8;
   remainderval = no_of_bits % 8;
-  
+
   if(remainderval){
 	  new_length++;
   }else{
@@ -385,9 +385,7 @@ dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _
 	}else{
 		char *str;
 		guint32 val;
-		gint val_start;
 
-		val_start = offset>>3;
 		val = 0;
 		str=ep_alloc(256);
 
@@ -617,7 +615,7 @@ dissect_per_IA5String(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tre
 	return offset;
 }
 
-/* XXX we dont do >64k length strings   yet */
+/* XXX we don't do >64k length strings   yet */
 static guint32
 dissect_per_restricted_character_string_sorted(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension _U_,const char *alphabet, int alphabet_length, tvbuff_t **value_tvb)
 {
@@ -677,14 +675,14 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 			bits_per_char=8;
 		}
 	}
-	/* 27.4	If the type is extensible for PER encodings (see 9.3.16), 
-	 * then a bit-field consisting of a single bit shall be added to the field-list. 
+	/* 27.4	If the type is extensible for PER encodings (see 9.3.16),
+	 * then a bit-field consisting of a single bit shall be added to the field-list.
 	 * The single bit shall be set to zero if the value is within the range of the extension root,
-	 * and to one otherwise. If the value is outside the range of the extension root, 
-	 * then the following encoding shall be as if there was no effective size constraint, 
-	 * and shall have an effective permitted-alphabet constraint that consists of the set of characters 
+	 * and to one otherwise. If the value is outside the range of the extension root,
+	 * then the following encoding shall be as if there was no effective size constraint,
+	 * and shall have an effective permitted-alphabet constraint that consists of the set of characters
 	 * of the unconstrained type.
-	 * 	NOTE - Only the known-multiplier character string types can be extensible for PER encodings. 
+	 * 	NOTE - Only the known-multiplier character string types can be extensible for PER encodings.
 	 * Extensibility markers on other character string types do not affect the PER encoding.
 	 */
 
@@ -719,7 +717,7 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 	}
 
 	if(!length){
-		/* there is no string at all, so dont do any byte alignment */
+		/* there is no string at all, so don't do any byte alignment */
 		/* byte_aligned=FALSE; */
 		/* Advance offset to next 'element' */
 		offset = offset + 1;	}
@@ -1211,7 +1209,6 @@ dissect_per_constrained_integer(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx,
 	nstime_t timeval;
 	header_field_info *hfi;
 	int num_bits;
-	int pad;
 	gboolean tmp;
 
 DEBUG_ENTRY("dissect_per_constrained_integer");
@@ -1252,7 +1249,6 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 	}
 
 	num_bits=0;
-	pad=0;
 	val=0;
 	timeval.secs=val; timeval.nsecs=0;
 	/* 10.5.4 If "range" has the value 1, then the result of the encoding shall be an empty bit-field (no bits).*/
@@ -1331,7 +1327,6 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 	} else if(range==256){
 		/* 10.5.7.2 */
 		num_bits=8;
-		pad=7-(offset&0x07);
 
 		/* in the aligned case, align to byte boundary */
 		BYTE_ALIGN_OFFSET(offset);
@@ -1343,7 +1338,6 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 	} else if(range<=65536){
 		/* 10.5.7.3 */
 		num_bits=16;
-		pad=7-(offset&0x07);
 
 		/* in the aligned case, align to byte boundary */
 		BYTE_ALIGN_OFFSET(offset);
@@ -1406,7 +1400,6 @@ dissect_per_constrained_integer_64b(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *a
 	nstime_t timeval;
 	header_field_info *hfi;
 	int num_bits;
-	int pad;
 	gboolean tmp;
 
 DEBUG_ENTRY("dissect_per_constrained_integer_64b");
@@ -1452,7 +1445,6 @@ DEBUG_ENTRY("dissect_per_constrained_integer_64b");
 	}
 
 	num_bits=0;
-	pad=0;
 	val=0;
 	timeval.secs=0; timeval.nsecs=0;
 	/* 10.5.4 If "range" has the value 1, then the result of the encoding shall be an empty bit-field (no bits).*/
@@ -1531,7 +1523,6 @@ DEBUG_ENTRY("dissect_per_constrained_integer_64b");
 	} else if(range==256){
 		/* 10.5.7.2 */
 		num_bits=8;
-		pad=7-(offset&0x07);
 
 		/* in the aligned case, align to byte boundary */
 		BYTE_ALIGN_OFFSET(offset);
@@ -1543,7 +1534,6 @@ DEBUG_ENTRY("dissect_per_constrained_integer_64b");
 	} else if(range<=65536){
 		/* 10.5.7.3 */
 		num_bits=16;
-		pad=7-(offset&0x07);
 
 		/* in the aligned case, align to byte boundary */
 		BYTE_ALIGN_OFFSET(offset);
@@ -1599,7 +1589,8 @@ DEBUG_ENTRY("dissect_per_constrained_integer_64b");
 	}
 	actx->created_item = it;
 	if (value) *value = val;
-	return offset;}
+	return offset;
+}
 
 /* 13 Encoding the enumerated type */
 guint32
@@ -1676,7 +1667,7 @@ dissect_per_real(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tr
 guint32
 dissect_per_choice(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, gint ett_index, const per_choice_t *choice, gint *value)
 {
-	gboolean extension_present, extension_flag;
+	gboolean /*extension_present,*/ extension_flag;
 	int extension_root_entries;
 	int extension_addition_entries;
 	guint32 choice_index;
@@ -1692,10 +1683,10 @@ DEBUG_ENTRY("dissect_per_choice");
 
 	/* 22.5 */
 	if (choice[0].extension == ASN1_NO_EXTENSIONS){
-		extension_present = FALSE;
+		/*extension_present = FALSE; ?? */
 		extension_flag = FALSE;
 	} else {
-		extension_present = TRUE;
+		/*extension_present = TRUE; ?? */
 		offset = dissect_per_boolean(tvb, offset, actx, tree, hf_per_extension_bit, &extension_flag);
 		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
 	}
@@ -1832,7 +1823,7 @@ index_get_field_name(const per_sequence_t *sequence, int idx)
 guint32
 dissect_per_sequence(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *parent_tree, int hf_index, gint ett_index, const per_sequence_t *sequence)
 {
-	gboolean extension_present, extension_flag, optional_field_flag;
+	gboolean /*extension_present,*/ extension_flag, optional_field_flag;
 	proto_item *item;
 	proto_tree *tree;
 	guint32 old_offset=offset;
@@ -1851,9 +1842,9 @@ DEBUG_ENTRY("dissect_per_sequence");
 	/* 18.1 */
 	extension_flag=0;
 	if(sequence[0].extension==ASN1_NO_EXTENSIONS){
-		extension_present=0;
+		/*extension_present=0;  ?? */
 	} else {
-		extension_present=1;
+		/*extension_present=1; ?? */
 		offset=dissect_per_boolean(tvb, offset, actx, tree, hf_per_extension_bit, &extension_flag);
 		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
 	}
@@ -1919,13 +1910,13 @@ DEBUG_ENTRY("dissect_per_sequence");
 		   In my book, there is a semantic difference between having
 		   a comment that says that the value can not be zero
 		   and stating that the lb is 1.
-		   I dont know if this is right or not but it makes
+		   I don't know if this is right or not but it makes
 		   some of the very few captures I have decode properly.
 
 		   It could also be that the captures I have are generated by
 		   a broken implementation.
-		   If this is wrong and you dont report it as a bug
-		   then it wont get fixed!
+		   If this is wrong and you don't report it as a bug
+		   then it won't get fixed!
 		*/
 		num_extensions+=1;
 
@@ -1966,7 +1957,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 			offset=dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_open_type_length, &length);
 
 			if(i>=num_known_extensions){
-				/* we dont know how to decode this extension */
+				/* we don't know how to decode this extension */
 				offset+=length*8;
 				expert_add_info_format(actx->pinfo, item, PI_UNDECODED, PI_NOTE, "unknown sequence extension");
 				continue;
@@ -2021,9 +2012,9 @@ static tvbuff_t *dissect_per_bit_string_display(tvbuff_t *tvb, guint32 offset, a
 	tvbuff_t *out_tvb = NULL;
 	guint32  pad_length=0;
 	guint64  value;
-	
+
 	out_tvb = new_octet_aligned_subset_bits(tvb, offset, actx, length);
-	
+
 	if (hfi) {
 		actx->created_item = proto_tree_add_item(tree, hf_index, out_tvb, 0, -1, FALSE);
 		proto_item_append_text(actx->created_item, " [bit length %u", length);
@@ -2031,7 +2022,7 @@ static tvbuff_t *dissect_per_bit_string_display(tvbuff_t *tvb, guint32 offset, a
 			pad_length = 8-(length%8);
 			proto_item_append_text(actx->created_item, ", %u LSB pad bits", pad_length);
 		}
-		 
+
 		if (length<=64) { /* if read into 64 bits also handle length <= 24, 40, 48, 56 bits */
 			if (length<=8) {
 				value = tvb_get_bits8(out_tvb, 0, length);
@@ -2060,7 +2051,7 @@ static tvbuff_t *dissect_per_bit_string_display(tvbuff_t *tvb, guint32 offset, a
 			}else {
 				value = tvb_get_bits64(out_tvb, 0, length, FALSE);
 			}
-			proto_item_append_text(actx->created_item, ", %s decimal value %" G_GINT64_MODIFIER "u", 
+			proto_item_append_text(actx->created_item, ", %s decimal value %" G_GINT64_MODIFIER "u",
 				decode_bits_in_field(0, length, value), value);
 		}
 		proto_item_append_text(actx->created_item, "]");
@@ -2071,7 +2062,7 @@ static tvbuff_t *dissect_per_bit_string_display(tvbuff_t *tvb, guint32 offset, a
 guint32
 dissect_per_bit_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension, tvbuff_t **value_tvb)
 {
-	gint val_start, val_length;
+	/*gint val_start, val_length;*/
 	guint32 length;
 	header_field_info *hfi;
 	tvbuff_t *out_tvb = NULL;
@@ -2088,7 +2079,7 @@ DEBUG_ENTRY("dissect_per_bit_string");
 		min_len = 0;
 	}
 	/* 15.6	If an extension marker is present in the size constraint specification of the bitstring type,
-	 * a single bit shall be added to the field-list in a bit-field of length one. 
+	 * a single bit shall be added to the field-list in a bit-field of length one.
 	 * The bit shall be set to 1 if the length of this encoding is not within the range of the extension root,
 	 * and zero otherwise.
 	 */
@@ -2104,8 +2095,9 @@ DEBUG_ENTRY("dissect_per_bit_string");
 				}
 				out_tvb = dissect_per_bit_string_display(tvb, offset, actx, tree, hf_index, hfi, length);
 			}
-			val_start = offset>>3;
-			val_length = (length+7)/8;
+			/* XXX: ?? */
+			/*val_start = offset>>3;*/
+			/*val_length = (length+7)/8;*/
 			offset+=length;
 
 			if (value_tvb)
@@ -2156,8 +2148,9 @@ DEBUG_ENTRY("dissect_per_bit_string");
 		}
 		out_tvb = dissect_per_bit_string_display(tvb, offset, actx, tree, hf_index, hfi, length);
 	}
-	val_start = offset>>3;
-	val_length = (length+7)/8;
+	/* XXX: ?? */
+	/*val_start = offset>>3;*/
+	/*val_length = (length+7)/8;*/
 	offset+=length;
 
 	if (value_tvb)
