@@ -5055,35 +5055,195 @@ Note: The AVP codes from 1506 to 1599 are reserved for TS 29.273
 		<avp name="Geodetic-Information" code="1609" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="OctetString"/>
 		</avp>
+		<avp name="Current-Location-Retrieved" code="1610" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="ACTIVE-LOCATION-RETRIEVAL" code="0"/>
+		</avp>
+		<avp name="Age-Of-Location-Information" code="1611" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Active-APN" code="1612" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Context-Identifier"/>
+				<gavp name="Service-Selection"/>
+				<gavp name="MIP6-Agent-Info"/>
+				<gavp name="Visited-Network-Identifier"/>
+				<gavp name="Specific-APN-Info"/>
+			</grouped>
+		</avp>
+		<avp name="SIPTO-Permission" code="1613" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="SIPTO_ALLOWED" code="0"/>
+			<enum name="SIPTO_NOTALLOWED" code="1"/>
+		</avp>
+		<avp name="Error-Diagnostic" code="1614" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="GPRS_DATA_SUBSCRIBED" code="0"/>
+			<enum name="NO_GPRS_DATA_SUBSCRIBED" code="1"/>
+			<enum name="ODB-ALL-APN" code="2"/>
+			<enum name="ODB-HPLMN-APN" code="3"/>
+			<enum name="ODB-VPLMN-APN" code="4"/>
+		</avp>
+		<avp name="UE-SRVCC-Capability" code="1615" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="UE-SRVCC-NOT-SUPPORTED" code="0"/>
+			<enum name="UE-SRVCC-SUPPORTED" code="1"/>
+		</avp>
+		<avp name="MPS-Priority" code="1616" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="VPLMN-LIPA-Allowed" code="1617" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="LIPA-NOTALLOWED" code="0"/>
+			<enum name="LIPA-ALLOWED" code="1"/>
+		</avp>
+		<avp name="LIPA-Permission" code="1618" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="LIPA-PROHIBITED" code="0"/>
+			<enum name="LIPA-ONLY" code="1"/>
+			<enum name="LIPA-CONDITIONAL" code="2"/>
+		</avp>
+		<avp name="Subscribed-Periodic-RAU-TAU-Timer" code="1619" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Ext-PDP-Type" code="1620" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Ext-PDP-Address" code="1621" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="IPAddress"/>
+		</avp>
+		<avp name="MDT-Configuration" code="1622" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Job-Type"/>
+				<gavp name="Area-Scope"/>
+				<gavp name="List-Of-Measurements"/>
+				<gavp name="Reporting-Trigger"/>
+				<gavp name="Report-Interval"/>
+				<gavp name="Report-Amount"/>
+				<gavp name="Event-Threshold-RSRP"/>
+				<gavp name="Event-Threshold-RSRQ"/>
+				<gavp name="Logging-Interval"/>
+				<gavp name="Logging-Duration"/>
+			</grouped>
+		</avp>
+		<avp name="Job-Type" code="1623" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="Immediate-MDT-only" code="0"/>
+			<enum name="Logged-MDT-only" code="1"/>
+			<enum name="Trace-only" code="2"/>
+			<enum name="Immediate-MDT-and-Trace" code="3"/>
+			<enum name="RLF-reports-only" code="4"/>
+		</avp>
+		<avp name="Area-Scope" code="1624" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Cell-Global-Identity"/>
+				<gavp name="E-UTRAN-Cell-Global-Identity"/>
+				<gavp name="Routing-Area-Identity"/>
+				<gavp name="Location-Area-Identity"/>
+				<gavp name="Tracking-Area-Identity"/>
+			</grouped>
+		</avp>
+		<avp name="List-Of-Measurements" code="1625" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Reporting-Trigger" code="1626" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Report-Interval" code="1627" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="UMTS_250_ms" code="0"/>
+			<enum name="UMTS_500_ms" code="1"/>
+			<enum name="UMTS_1000_ms" code="2"/>
+			<enum name="UMTS_2000_ms" code="3"/>
+			<enum name="UMTS_3000_ms" code="4"/>
+			<enum name="UMTS_4000_ms" code="5"/>
+			<enum name="UMTS_6000_ms" code="6"/>
+			<enum name="UMTS_8000_ms" code="7"/>
+			<enum name="UMTS_12000_ms" code="8"/>
+			<enum name="UMTS_16000_ms" code="9"/>
+			<enum name="UMTS_20000_ms" code="10"/>
+			<enum name="UMTS_24000_ms" code="11"/>
+			<enum name="UMTS_28000_ms" code="12"/>
+			<enum name="UMTS_32000_ms" code="13"/>
+			<enum name="UMTS_64000_ms" code="14"/>
+			<enum name="LTE_120_ms" code="15"/>
+			<enum name="LTE_240_ms" code="16"/>
+			<enum name="LTE_480_ms" code="17"/>
+			<enum name="LTE_640_ms" code="18"/>
+			<enum name="LTE_1024_ms" code="19"/>
+			<enum name="LTE_2048_ms" code="20"/>
+			<enum name="LTE_5120_ms" code="21"/>
+			<enum name="LTE_10240_ms" code="22"/>
+			<enum name="LTE_60000_ms" code="23"/>
+			<enum name="LTE_360000_ms" code="24"/>
+			<enum name="LTE_720000_ms" code="25"/>
+			<enum name="LTE_1800000_ms" code="26"/>
+			<enum name="LTE_3600000_ms" code="27"/>
+		</avp>
+		<avp name="Report-Amount" code="1628" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="1" code="0"/>
+			<enum name="2" code="1"/>
+			<enum name="4" code="2"/>
+			<enum name="8" code="3"/>
+			<enum name="16" code="4"/>
+			<enum name="32" code="5"/>
+			<enum name="64" code="6"/>
+			<enum name="infinity" code="7"/>
+		</avp>
+		<avp name="Event-Threshold-RSRP" code="1629" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Event-Threshold-RSRQ" code="1630" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Logging-Interval" code="1631" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="1.28" code="0"/>
+			<enum name="2.56" code="1"/>
+			<enum name="5.12" code="2"/>
+			<enum name="10.24" code="3"/>
+			<enum name="20.48" code="4"/>
+			<enum name="30.72" code="5"/>
+			<enum name="40.96" code="6"/>
+			<enum name="61.44" code="7"/>
+		</avp>
+		<avp name="Logging-Duration" code="1632" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="600_sec" code="0"/>
+			<enum name="1200_sec" code="1"/>
+			<enum name="2400_sec" code="2"/>
+			<enum name="3600_sec" code="3"/>
+			<enum name="5400_sec" code="4"/>
+			<enum name="7200_sec" code="5"/>
+		</avp>
+		<avp name="Relay-Node-Indicator" code="1633" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="NOT_RELAY_NODE" code="0"/>
+			<enum name="RELAY_NODE" code="1"/>
+		</avp>
+		<avp name="MDT-User-Consent" code="1634" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="CONSENT_NOT_GIVEN" code="0"/>
+			<enum name="CONSENT_GIVEN" code="1"/>
+		</avp>
+		<avp name="PUR-Flags" code="1635" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Subscribed-VSRVCC" code="1636" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="VSRVCC_SUBSCRIBED" code="0"/>
+		</avp>
+		<avp name="Equivalent-PLMN-List" code="1637" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Visited-PLMN-Id"/>
+			</grouped>
+		</avp>
 
 <!--
-1610 Current-Location-Retrieved Enumerated
-1611 Age-Of-Location-Information Unsigned32
-1612 Active-APN Grouped
-1613	SIPTO-Permission	Enumerated
-1614	Error-Diagnostic	Enumerated
-1615	UE-SRVCC-Capability	Enumerated
-1616	MPS-Priority	Unsigned32
-1617	VPLMN-LIPA-Allowed	Enumerated
-1618	LIPA-Permission	Enumerated
-1619	Subscribed-Periodic-RAU-TAU-Timer	Unsigned32
-1620	Ext-PDP-Type	OctetString
-1621	Ext-PDP-Address	Address
-1622	MDT-Configuration	Grouped
-1623	Job-Type	Enumerated
-1624	Area-Scope	Grouped
-1625	List-Of-Measurements	Unsigned32
-1626	Reporting-Trigger	Unsigned32
-1627	Report-Interval	Enumerated
-1628	Report-Amount	Enumerated
-1629	Event-ThresholdRSRP	Unsigned32
-1630	Event-ThresholdRSRQ	Unsigned32
-1631	Logging-Interval	Enumerated
-1632	Logging-Duration	Enumerated
-1633	Relay-Node-Indicator	Enumerated
-
-Note: The AVP codes from 1634 to 1699 are reserved for TS 29.272.
+Note: The AVP codes from 1638 to 1699 are reserved for TS 29.272.
 -->
+
 		<avp name="SMS-Information" code="2000" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
 				<gavp name="SMS-Node"/>
