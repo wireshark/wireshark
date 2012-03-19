@@ -1300,7 +1300,7 @@ build_simple_avp(const avp_type_t* type, guint32 code, const diam_vnd_t* vendor,
 			break;
 
 		default:
-			fprintf(stderr,"Diameter Dictionary: AVP %s has a list of values but isn't of a 32-bit or shorter integral type\n",
+			fprintf(stderr,"Diameter Dictionary: AVP '%s' has a list of values but isn't of a 32-bit or shorter integral type\n",
 				name);
 			return NULL;
 		}
@@ -1444,6 +1444,13 @@ dictionary_load(void)
 		const avp_type_t* parent = NULL;
 		/* try to get the parent type */
 
+		if (t->name == NULL) {
+			fprintf(stderr,"Diameter Dictionary: Invalid Type (empty name): parent==%s\n",
+				t->parent ? t->parent : "(null)");
+			continue;
+		}
+
+
 		if (g_hash_table_lookup(build_dict.types,t->name))
 			continue;
 
@@ -1474,6 +1481,11 @@ dictionary_load(void)
 		for ( ; v; v = v->next) {
 			value_string item = {v->code,v->name};
 
+			if (v->name == NULL) {
+				fprintf(stderr,"Diameter Dictionary: Invalid Vendor (empty name): code==%d\n",v->code);
+				continue;
+			}
+
 			if (g_hash_table_lookup(vendors,v->name))
 				continue;
 
@@ -1494,13 +1506,19 @@ dictionary_load(void)
 
 	if ((c = d->cmds)) {
 		for (; c; c = c->next) {
+			if (c->vendor == NULL) {
+				fprintf(stderr,"Diameter Dictionary: Invalid Vendor (empty name) for command %s\n",
+					c->name ? c->name : "(null)");
+				continue;
+			}
+
 			if ((vnd = g_hash_table_lookup(vendors,c->vendor))) {
 				value_string item = {c->code,c->name};
 				g_array_append_val(vnd->vs_cmds,item);
 				/* Also add to all_cmds as used by RFC version */
 				g_array_append_val(all_cmds,item);
 			} else {
-				fprintf(stderr,"Diameter Dictionary: No Vendor: %s",c->vendor);
+				fprintf(stderr,"Diameter Dictionary: No Vendor: %s\n",c->vendor);
 			}
 		}
 	}
@@ -1513,11 +1531,16 @@ dictionary_load(void)
 		ddict_xmlpi_t* x;
 		void* avp_data = NULL;
 
+		if (a->name == NULL) {
+			fprintf(stderr,"Diameter Dictionary: Invalid AVP (empty name)\n");
+			continue;
+		}
+
 		if ((vnd = g_hash_table_lookup(vendors,vend))) {
 			value_string vndvs = {a->code,a->name};
 			g_array_append_val(vnd->vs_avps,vndvs);
 		} else {
-			fprintf(stderr,"Diameter Dictionary: No Vendor: %s",vend);
+			fprintf(stderr,"Diameter Dictionary: No Vendor: %s\n",vend);
 			vnd = &unknown_vendor;
 		}
 
