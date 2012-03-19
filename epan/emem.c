@@ -640,7 +640,10 @@ emem_create_chunk(size_t size)
 
 	if (npc->buf == NULL) {
 		g_free(npc);
-		THROW(OutOfMemoryError);
+		if (getenv("WIRESHARK_ABORT_ON_OUT_OF_MEMORY"))
+			abort();
+		else
+			THROW(OutOfMemoryError);
 	}
 
 #elif defined(USE_GUARD_PAGES)
@@ -649,7 +652,10 @@ emem_create_chunk(size_t size)
 
 	if (npc->buf == MAP_FAILED) {
 		g_free(npc);
-		THROW(OutOfMemoryError);
+		if (getenv("WIRESHARK_ABORT_ON_OUT_OF_MEMORY"))
+			abort();
+		else
+			THROW(OutOfMemoryError);
 	}
 
 #else /* Is there a draft in here? */

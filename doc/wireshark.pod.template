@@ -2724,7 +2724,7 @@ This comes at the expense of significant extra memory usage.
 
 =item WIRESHARK_DEBUG_SCRUB_MEMORY
 
-If this environment variable is exported, the contents of per-packet and
+If this environment variable is set, the contents of per-packet and
 per-file memory is initialized to 0xBADDCAFE when the memory is allocated
 and is reset to 0xDEADBEEF when the memory is freed.  This functionality is
 useful mainly to developers looking for bugs in the way memory is handled.
@@ -2775,14 +2775,14 @@ with a protocol dissector.
 
 =item WIRESHARK_EP_VERIFY_POINTERS
 
-This environment variable, if exported, causes certain uses of pointers to be
+This environment variable, if set, causes certain uses of pointers to be
 audited to ensure they do not point to memory that is deallocated after each
 packet has been fully dissected.  This can be useful to developers writing or
 auditing code.
 
 =item WIRESHARK_SE_VERIFY_POINTERS
 
-This environment variable, if exported, causes certain uses of pointers to be
+This environment variable, if set, causes certain uses of pointers to be
 audited to ensure they do not point to memory that is deallocated after when
 a capture file is closed.  This can be useful to developers writing or
 auditing code.
@@ -2794,6 +2794,13 @@ doesn't automatically start a capture; you must still use B<-k> to do
 that.  You must also specify an autostop condition, e.g.  B<-c> or B<-a
 duration:...>.  This means that you will not be able to see the results
 of the capture after it stops; it's primarily useful for testing.
+
+=item WIRESHARK_ABORT_ON_OUT_OF_MEMORY
+
+This environment variable, if present, causes abort() to be called if certain
+out-of-memory conditions (which normally result in an exception and an
+explanatory error message)) are experienced.  This can be useful to developers
+debugging out-of-memory conditions.
 
 =back
 

@@ -46,6 +46,9 @@ export WIRESHARK_DEBUG_SE_USE_CANARY=
 export WIRESHARK_EP_VERIFY_POINTERS=
 export WIRESHARK_SE_VERIFY_POINTERS=
 
+# abort instead of giving a nice error message
+export WIRESHARK_ABORT_ON_OUT_OF_MEMORY=
+
 # Turn on GLib memory debugging (since 2.13)
 export G_SLICE=debug-blocks
 # Cause glibc (Linux) to abort() if some memory errors are found
