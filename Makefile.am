@@ -340,11 +340,6 @@ wireshark_LDFLAGS = -export-dynamic
 endif
 
 #
-# XXX - hack to force C++ linking.
-#
-nodist_EXTRA_wireshark_SOURCES = dummy.cpp
-
-#
 # UI code for Wireshark with Qt.
 #
 wireshark_QT_UI_LIBS = \
