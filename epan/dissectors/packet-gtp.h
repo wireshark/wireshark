@@ -138,4 +138,6 @@ typedef struct gtp_msg_hash_entry {
 #define GTP_MSG_END_MARKER          0xFE /* 254 */
 #define GTP_MSG_TPDU                0xFF
 
+extern value_string_ext cause_type_ext;
+
 #endif /* __PACKET_GTP_H*/

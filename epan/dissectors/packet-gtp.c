@@ -1090,7 +1090,9 @@ static const value_string cause_type[] = {
     {  3, "No identity needed"},
     {  4, "MS refuses"},
     {  5, "MS is not GPRS responding"},
-    /* For future use 6-48 */
+	{  6, "Reactivation Requested"},
+	{  7, "PDP address inactivity timer expires"},
+    /* For future use 8-48 */
     /* Cause values reserved for GPRS charging
      * protocol use (see GTP' in 3GPP TS 32.295 [33])
      * 49-63
@@ -1148,7 +1150,9 @@ static const value_string cause_type[] = {
     {226, "MBMS Bearer Context Superseded"},
     {227, "Bearer Control Mode violation"},
     {228, "Collision with network initiated request"},
-    /* For future use 229-240 */
+    {229, "APN Congestion"},
+    {230, "Bearer handling not supported"},
+    /* For future use 231-240 */
     /* Cause values reserved for GPRS charging
      * protocol use (see GTP' in 3GPP TS 32.295 [33])
      * 241-255
@@ -1159,7 +1163,7 @@ static const value_string cause_type[] = {
     {255, "Request not fulfilled"}, /* charging */
     {0, NULL}
 };
-static value_string_ext cause_type_ext = VALUE_STRING_EXT_INIT(cause_type);
+value_string_ext cause_type_ext = VALUE_STRING_EXT_INIT(cause_type);
 
 /* GPRS:    9.02 v7.7.0
  * UMTS:    29.002 v4.2.1, chapter 17.5, page 268
@@ -7506,7 +7510,7 @@ void proto_register_gtp(void)
         {&hf_gtp_unknown, {"Unknown data (length)", "gtp.unknown", FT_UINT16, BASE_DEC, NULL, 0, "Unknown data", HFILL}},
         {&hf_gtp_user_addr_pdp_org,
          {"PDP type organization", "gtp.user_addr_pdp_org", FT_UINT8, BASE_DEC, VALS(pdp_org_type), 0, NULL, HFILL}},
-        {&hf_gtp_user_addr_pdp_type, {"PDP type number", "gtp.user_addr_pdp_type", FT_UINT8, BASE_HEX, VALS(pdp_type), 0, "PDP type", HFILL}},
+        {&hf_gtp_user_addr_pdp_type, {"PDP type number", "gtp.user_addr_pdp_type", FT_UINT8, BASE_HEX, VALS(pdp_type), 0, NULL, HFILL}},
         {&hf_gtp_user_ipv4, {"End user address IPv4", "gtp.user_ipv4", FT_IPv4, BASE_NONE, NULL, 0, NULL, HFILL}},
         {&hf_gtp_user_ipv6, {"End user address IPv6", "gtp.user_ipv6", FT_IPv6, BASE_NONE, NULL, 0, NULL, HFILL}},
         {&hf_gtp_security_mode,
