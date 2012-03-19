@@ -109,6 +109,12 @@ Wireshark Info
 -->
 
         <listitem><para>
+          ISO SSAP: ActivityStart: Invalid decoding the activity parameter as a BER Integer.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2873">Bug
+          2873</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Forward slashes in URI need to be converted to backslashes if WIN32.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5237">Bug
           5237</ulink>)
@@ -124,6 +130,12 @@ Wireshark Info
           Unable to rearrange columns in preferences on Windows.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6077">Bug
           6077</ulink>) (Note: this bug still affects the 64-bit package)
+        </para></listitem>
+
+        <listitem><para>
+          Corrupted Diameter dictionary file that crashes Wireshark.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6664">Bug
+          6664</ulink>)
         </para></listitem>
 
         <listitem><para>
@@ -187,13 +199,49 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          USB: unknown GET DESCRIPTOR response triggers assert failure.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6826">Bug
+          6826</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          IEEE1588 PTPv2 over IPv6.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6836">Bug
+          6836</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Patch to fix DTLS decryption.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6847">Bug
           6847</ulink>)
         </para></listitem>
 
         <listitem><para>
+          Expression... dialog crash.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6891">Bug
+          6891</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          display filter &quot;gtp.msisdn&quot; not working.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6947">Bug
+          6947</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Multiprotocol Label Switching Echo - Return Code: Reserved (5).
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6951">Bug
+          6951</ulink>)
+        </para></listitem>
+
+        <listitem><para>
 	  MySQL dissector assertion.
+          (<ulink url="http://ask.wireshark.org/questions/8649">Ask
+          8649</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  Radiotap header format data rate alignment issues.
           (<ulink url="http://ask.wireshark.org/questions/8649">Ask
           8649</ulink>)
         </para></listitem>
@@ -225,6 +273,8 @@ There are no new protocols in this release.
 <!-- Sort alphabetically -->
 
 ANSI A,
+BSSGP,
+DIAMETER,
 DTLS,
 GOOSE,
 GSM Management,
@@ -232,12 +282,17 @@ GTP,
 IAX2,
 IEEE 802.11,
 IPP,
+ISO SSAP,
+MP2T,
+MPLS,
 MySQL,
 NTP,
 PacketBB,
 PGM,
+Radiotap,
 SSL,
 TCP,
+USB,
 WSP
 
     </para>
@@ -246,7 +301,7 @@ WSP
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-Endace ERF, Tektronix K12
+Endace ERF, Pcap-NG, Tektronix K12
 
     </para>
     </section>
