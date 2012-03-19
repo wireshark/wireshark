@@ -35,7 +35,8 @@ CLEANFILES = \
 	*~
 
 MAINTAINERCLEANFILES = \
-	$(GENERATED_FILES)	\
+	$(GENERATED_FILES)		\
+	$(GENERATED_NODIST_FILES)	\
 	Makefile.in
 
 RUNLEX=$(top_srcdir)/tools/runlex.sh
@@ -43,9 +44,15 @@ RUNLEX=$(top_srcdir)/tools/runlex.sh
 libqtui_a_SOURCES = \
 	$(WIRESHARK_QT_SRC) \
 	$(GENERATED_C_FILES) \
+	$(GENERATED_CPP_FILES) \
 	$(GENERATED_H_FILES) \
 	$(noinst_HEADERS) \
 	$(WIRESHARK_TAP_SRC)
+
+nodist_libqtui_a_SOURCES = \
+	$(GENERATED_NODIST_C_FILES) \
+	$(GENERATED_NODIST_CPP_FILES) \
+	$(GENERATED_NODIST_H_FILES)
 
 libqtui_a_CFLAGS = $(AM_CLEAN_CFLAGS)
 
