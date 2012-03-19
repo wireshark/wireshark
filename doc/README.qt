@@ -121,7 +121,9 @@ XXX: (WMeier): I've not had too much satisfaction using the "native Windows debu
 Install the Qt libraries and Qt Creator via your package manager or from
 http://qt.nokia.com/downloads/. On Debian and Ubuntu the "qt-sdk" meta-package
 should provide everything you need. Build the top-level directory using CMake
-(no out of tree builds yet). Inside ui/qt/ do "qtcreate QtShark.pro".
+(see section "Using cmake" above).
+As an alternative do an in-tree build without QT and then inside ui/qt/ do
+"qtcreate QtShark.pro".
 
 
 2. Going forward
