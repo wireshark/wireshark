@@ -749,6 +749,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-k12.c
 	dissectors/packet-kadm5.c
 	dissectors/packet-kdp.c
+	dissectors/packet-kdsp.c
 	dissectors/packet-kerberos.c
 	dissectors/packet-kerberos4.c
 	dissectors/packet-kingfisher.c

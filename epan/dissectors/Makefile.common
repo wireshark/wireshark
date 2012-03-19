@@ -668,6 +668,7 @@ DISSECTOR_SRC = \
 	packet-k12.c		\
 	packet-kadm5.c		\
 	packet-kdp.c		\
+	packet-kdsp.c		\
 	packet-kerberos.c	\
 	packet-kerberos4.c	\
 	packet-kingfisher.c	\
