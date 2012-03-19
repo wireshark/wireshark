@@ -49,23 +49,18 @@ GENERATED_NODIST_CPP_FILES = \
 	$(MOC_SRC) \
 	$(QRC_SRC)
 
-# Generated headers that we want in the distribution.
-GENERATED_H_FILES =
-
 # All the generated files we want in the distribution.
 GENERATED_FILES = \
 	$(GENERATED_HEADER_FILES) \
 	$(GENERATED_C_FILES) \
 	$(GENERATED_CPP_FILES) \
-	$(GENERATED_H_FILES) \
 	$(DIRTY_GENERATED_C_FILES)
 
 # All the generated files we don't want in the distribution.
 GENERATED_NODIST_FILES = \
 	$(GENERATED_NODIST_HEADER_FILES) \
 	$(GENERATED_NODIST_C_FILES) \
-	$(GENERATED_NODIST_CPP_FILES) \
-	$(GENERATED_NODIST_H_FILES)
+	$(GENERATED_NODIST_CPP_FILES)
 
 # Files that generate compileable files
 GENERATOR_FILES =
