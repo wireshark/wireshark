@@ -2054,6 +2054,7 @@ AC_OUTPUT(
   ui/gtk/doxygen.cfg
   ui/cli/Makefile
   ui/qt/Makefile
+  ui/qt/doxygen.cfg
   help/Makefile
   packaging/Makefile
   packaging/macosx/Info.plist
