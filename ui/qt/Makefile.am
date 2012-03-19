@@ -121,4 +121,3 @@ EXTRA_DIST = \
 	Makefile.common			\
 	Makefile_custom.common		\
 	main_window.ui
-
