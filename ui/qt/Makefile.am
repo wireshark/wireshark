@@ -111,10 +111,11 @@ remote_icons.h:
 		gdk-pixbuf-csource --raw --name=remote_$${icon}_pb_data ../../image/toolbar/remote_$${icon}_16.png >> $@ ;\
 	done
 
+# XXX to be created
+#	libui.vcproj
 EXTRA_DIST = \
-	$(GENERATOR_FILES)	\
+	$(GENERATOR_FILES)		\
 	doxygen.cfg.in			\
-	libui.vcproj			\
 	Makefile.common			\
 	Makefile.nmake			\
 	CMakeLists.txt			\
