@@ -43,6 +43,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/asn1.h>
+#include <epan/dissectors/packet-mpeg-descriptor.h>
 #include <epan/dissectors/packet-x509af.h>
 
 #include "packet-ber.h"
@@ -847,7 +848,6 @@ static int hf_dvbci_replaced_pid = -1;
 static int hf_dvbci_replacement_pid = -1;
 static int hf_dvbci_pmt_flag = -1;
 static int hf_dvbci_hc_desc_loop_len = -1;
-static int hf_dvbci_hc_desc_loop = -1;
 static int hf_dvbci_hc_pmt = -1;
 static int hf_dvbci_hc_status = -1;
 static int hf_dvbci_resp_intv = -1;
@@ -970,7 +970,6 @@ static int hf_dvbci_sig_strength = -1;
 static int hf_dvbci_sig_qual = -1;
 static int hf_dvbci_opp_tune_status = -1;
 static int hf_dvbci_opp_desc_loop_len = -1;
-static int hf_dvbci_opp_desc_loop = -1;
 static int hf_dvbci_sas_app_id = -1;
 static int hf_dvbci_sas_sess_state = -1;
 static int hf_dvbci_sas_msg_nb = -1;
@@ -1447,20 +1446,29 @@ dvbci_init(void)
 
 /* dissect a delivery system descriptor loop
    and the preceding length field
-   (used for host control and operator profile) */
+   (used for host control and operator profile)
+   return the number of bytes dissected */
 static gint
-dissect_desc_loop(int len_hf, int data_hf,
+dissect_desc_loop(int len_hf, 
         tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tree)
 {
+    gint offset_start;
     guint16 desc_loop_len;
+    guint desc_len;
+
+    offset_start = offset;
 
     desc_loop_len = tvb_get_ntohs(tvb, offset) & 0x0FFF;
     proto_tree_add_item(tree, len_hf, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
-    if (desc_loop_len>0)
-        proto_tree_add_item(tree, data_hf, tvb, offset, desc_loop_len, ENC_NA);
+    while (offset-offset_start < 2+desc_loop_len) {
+        desc_len = proto_mpeg_descriptor_dissect(tvb, offset, tree);
+        if (desc_len==0)
+            break;
+        offset += desc_len;
+    }
 
-    return 2+desc_loop_len;
+    return offset-offset_start;
 }
 
 
@@ -2503,9 +2511,8 @@ dissect_dvbci_payload_hc(guint32 tag, gint len_field _U_,
             proto_tree_add_item(
                     tree, hf_dvbci_service_id, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
-            desc_loop_len = dissect_desc_loop(
-                    hf_dvbci_hc_desc_loop_len, hf_dvbci_hc_desc_loop,
-                    tvb, offset, pinfo, tree);
+            desc_loop_len = dissect_desc_loop(hf_dvbci_hc_desc_loop_len,
+                                tvb, offset, pinfo, tree);
             if (desc_loop_len<0)
                 break;
             offset += desc_loop_len;
@@ -3492,13 +3499,11 @@ dissect_dvbci_payload_opp(guint32 tag, gint len_field _U_,
           offset++;
           proto_tree_add_item(tree, hf_dvbci_opp_tune_status,
                   tvb, offset, 1, ENC_BIG_ENDIAN);
-          dissect_desc_loop(
-                  hf_dvbci_opp_desc_loop_len, hf_dvbci_opp_desc_loop,
+          dissect_desc_loop(hf_dvbci_opp_desc_loop_len,
                   tvb, offset, pinfo, tree);
           break;
         case T_OPERATOR_TUNE:
-          dissect_desc_loop(
-                  hf_dvbci_opp_desc_loop_len, hf_dvbci_opp_desc_loop,
+          dissect_desc_loop(hf_dvbci_opp_desc_loop_len,
                   tvb, offset, pinfo, tree);
           break;
         default:
@@ -4649,10 +4654,6 @@ proto_register_dvbci(void)
           { "Descriptor loop length", "dvb-ci.hc.desc_loop_len",
             FT_UINT16, BASE_DEC, NULL, 0x0FFF, NULL, HFILL }
         },
-        { &hf_dvbci_hc_desc_loop,
-          { "Descriptor loop", "dvb-ci.hc.desc_loop",
-            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
-        },
         { &hf_dvbci_hc_pmt,
           { "Program map section", "dvb-ci.hc.pmt",
             FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
@@ -5149,10 +5150,6 @@ proto_register_dvbci(void)
         { &hf_dvbci_opp_desc_loop_len,
           { "Descriptor loop length", "dvb-ci.opp.desc_loop_len",
             FT_UINT16, BASE_DEC, NULL, 0x0FFF, NULL, HFILL }
-        },
-        { &hf_dvbci_opp_desc_loop,
-          { "Descriptor loop", "dvb-ci.opp.desc_loop",
-            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
         },
         { &hf_dvbci_sas_app_id,
           { "Application ID", "dvb-ci.sas.app_id",
