@@ -27,7 +27,8 @@
 include Makefile_custom.common
 
 # Generated header files that we want in the distribution.
-GENERATED_HEADER_FILES =
+GENERATED_HEADER_FILES = \
+	ui_main_window.h
 
 # Generated C source files that we want in the distribution.
 GENERATED_C_FILES =
