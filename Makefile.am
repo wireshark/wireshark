@@ -348,7 +348,7 @@ nodist_EXTRA_wireshark_SOURCES = dummy.cpp
 # UI code for Wireshark with Qt.
 #
 wireshark_QT_UI_LIBS = \
-	ui/qt/libui.a		\
+	ui/qt/libqtui.a		\
 	@Qt_LIBS@
 
 #

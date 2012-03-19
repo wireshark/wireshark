@@ -32,9 +32,15 @@ GENERATED_HEADER_FILES =
 # Generated C source files that we want in the distribution.
 GENERATED_C_FILES =
 
-GENERATED_H_FILES =
-
 DIRTY_GENERATED_C_FILES =
+
+# Generated C++ source files that we want in the distribution.
+GENERATED_CPP_FILES = \
+	$(MOC_SRC) \
+	$(QRC_SRC)
+
+# Generated headers that we want in the distribution.
+GENERATED_H_FILES =
 
 # All the generated files we want in the distribution.
 GENERATED_FILES = \
@@ -100,8 +106,6 @@ QRC_FILES = \
 QRC_SRC = $(QRC_FILES:.qrc=.rcc.cpp)
 
 WIRESHARK_QT_SRC = \
-	$(MOC_SRC) \
-	$(QRC_SRC) \
 	byte_view_tab.cpp \
 	byte_view_text.cpp \
 	capture_file_dialog.cpp \

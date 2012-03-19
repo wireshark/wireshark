@@ -28,10 +28,10 @@ if HAVE_WARNINGS_AS_ERRORS
 AM_CLEAN_CFLAGS = -Werror
 endif
 
-noinst_LIBRARIES = libui.a
+noinst_LIBRARIES = libqtui.a
 
 CLEANFILES = \
-	libui.a		\
+	libqtui.a		\
 	*~
 
 MAINTAINERCLEANFILES = \
@@ -40,16 +40,16 @@ MAINTAINERCLEANFILES = \
 
 RUNLEX=$(top_srcdir)/tools/runlex.sh
 
-libui_a_SOURCES = \
+libqtui_a_SOURCES = \
 	$(WIRESHARK_QT_SRC) \
 	$(GENERATED_C_FILES) \
 	$(GENERATED_H_FILES) \
 	$(noinst_HEADERS) \
 	$(WIRESHARK_TAP_SRC)
 
-libui_a_CFLAGS = $(AM_CLEAN_CFLAGS)
+libqtui_a_CFLAGS = $(AM_CLEAN_CFLAGS)
 
-libui_a_DEPENDENCIES =
+libqtui_a_DEPENDENCIES =
 
 # Common headers
 AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap $(LIBGCRYPT_CFLAGS) $(LIBGNUTLS_CFLAGS) $(PORTAUDIO_INCLUDES)
@@ -112,11 +112,13 @@ remote_icons.h:
 	done
 
 # XXX to be created
-#	libui.vcproj
+#	libqtui.vcproj
+#	Makefile.nmake
 EXTRA_DIST = \
 	$(GENERATOR_FILES)		\
+	CMakeLists.txt			\
 	doxygen.cfg.in			\
 	Makefile.common			\
-	Makefile.nmake			\
-	CMakeLists.txt			\
-	Makefile_custom.common
+	Makefile_custom.common		\
+	main_window.ui
+
