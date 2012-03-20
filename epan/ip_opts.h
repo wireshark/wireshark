@@ -57,4 +57,37 @@ extern void dissect_ip_tcp_options(tvbuff_t *, int, guint,
                                    const ip_tcp_opt *, int, int,
                                    packet_info *, proto_tree *, proto_item *);
 
+/* Quick-Start option, as defined by RFC4782 */
+#define QS_FUNC_MASK        0xf0
+#define QS_RATE_MASK        0x0f
+#define QS_RATE_REQUEST     0
+#define QS_RATE_REPORT      8
+
+static const value_string qs_func_vals[] = {
+  {QS_RATE_REQUEST, "Rate request"},
+  {QS_RATE_REPORT,  "Rate report"},
+  {0,               NULL}
+};
+
+static const value_string qs_rate_vals[] = {
+  { 0, "0 bit/s"},
+  { 1, "80 Kbit/s"},
+  { 2, "160 Kbit/s"},
+  { 3, "320 Kbit/s"},
+  { 4, "640 Kbit/s"},
+  { 5, "1.28 Mbit/s"},
+  { 6, "2.56 Mbit/s"},
+  { 7, "5.12 Mbit/s"},
+  { 8, "10.24 Mbit/s"},
+  { 9, "20.48 Mbit/s"},
+  {10, "40.96 Mbit/s"},
+  {11, "81.92 Mbit/s"},
+  {12, "163.84 Mbit/s"},
+  {13, "327.68 Mbit/s"},
+  {14, "655.36 Mbit/s"},
+  {15, "1.31072 Gbit/s"},
+  {0, NULL}
+};
+
+
 #endif

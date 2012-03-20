@@ -1253,40 +1253,7 @@ dissect_ipopt_ra(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
   proto_tree_add_item(field_tree, hf_ip_opt_ra, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 }
 
-/* Quick start */
-#define QS_FUNC_MASK        0xf0
-#define QS_RATE_MASK        0x0f
-#define QS_RATE_REQUEST     0
-#define QS_RATE_REPORT      8
-
-static const value_string qs_func_vals[] = {
-  {QS_RATE_REQUEST, "Rate request"},
-  {QS_RATE_REPORT,  "Rate report"},
-  {0,               NULL}
-};
-
-/* Quick-Start TCP option, as defined by RFC4782 */
-static const value_string qs_rate_vals[] = {
-  { 0, "0 bit/s"},
-  { 1, "80 Kbit/s"},
-  { 2, "160 Kbit/s"},
-  { 3, "320 Kbit/s"},
-  { 4, "640 Kbit/s"},
-  { 5, "1.28 Mbit/s"},
-  { 6, "2.56 Mbit/s"},
-  { 7, "5.12 Mbit/s"},
-  { 8, "10.24 Mbit/s"},
-  { 9, "20.48 Mbit/s"},
-  {10, "40.96 Mbit/s"},
-  {11, "81.92 Mbit/s"},
-  {12, "163.84 Mbit/s"},
-  {13, "327.68 Mbit/s"},
-  {14, "655.36 Mbit/s"},
-  {15, "1.31072 Gbit/s"},
-  {0, NULL}
-};
 static value_string_ext qs_rate_vals_ext = VALUE_STRING_EXT_INIT(qs_rate_vals);
-
 static void
 dissect_ipopt_qs(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
                  guint optlen, packet_info *pinfo, proto_tree *opt_tree)
@@ -2423,11 +2390,11 @@ proto_register_ip(void)
 
     { &hf_ip_opt_qs_nonce,
       { "QS Nonce", "ip.opt.qs_nonce", FT_UINT32, BASE_HEX,
-        NULL, 0xFFFC, NULL, HFILL }},
+        NULL, 0xFFFFFFFC, NULL, HFILL }},
 
     { &hf_ip_opt_qs_reserved,
       { "Reserved", "ip.opt.qs_reserved", FT_UINT32, BASE_HEX,
-        NULL, 0x0003, NULL, HFILL }},
+        NULL, 0x00000003, NULL, HFILL }},
 
     { &hf_ip_rec_rt,
       { "Recorded Route", "ip.rec_rt", FT_IPv4, BASE_NONE, NULL, 0x0,

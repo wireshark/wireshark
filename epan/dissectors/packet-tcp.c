@@ -2818,31 +2818,12 @@ dissect_tcpopt_cc(const ip_tcp_opt *optp, tvbuff_t *tvb,
     tcp_info_append_uint(pinfo, "CC", cc);
 }
 
+static value_string_ext qs_rate_vals_ext = VALUE_STRING_EXT_INIT(qs_rate_vals);
+
 static void
 dissect_tcpopt_qs(const ip_tcp_opt *optp, tvbuff_t *tvb,
     int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree)
 {
-    /* Quick-Start TCP option, as defined by RFC4782 */
-    static const value_string qs_rates[] = {
-        { 0, "0 bit/s"},
-        { 1, "80 kbit/s"},
-        { 2, "160 kbit/s"},
-        { 3, "320 kbit/s"},
-        { 4, "640 kbit/s"},
-        { 5, "1.28 Mbit/s"},
-        { 6, "2.56 Mbit/s"},
-        { 7, "5.12 Mbit/s"},
-        { 8, "10.24 Mbit/s"},
-        { 9, "20.48 Mbit/s"},
-        {10, "40.96 Mbit/s"},
-        {11, "81.92 Mbit/s"},
-        {12, "163.84 Mbit/s"},
-        {13, "327.68 Mbit/s"},
-        {14, "655.36 Mbit/s"},
-        {15, "1.31072 Gbit/s"},
-        {0, NULL}
-    };
-    static value_string_ext qs_rates_ext = VALUE_STRING_EXT_INIT(qs_rates);
 
     proto_item *hidden_item;
 
@@ -2860,9 +2841,9 @@ dissect_tcpopt_qs(const ip_tcp_opt *optp, tvbuff_t *tvb,
     PROTO_ITEM_SET_HIDDEN(hidden_item);
     proto_tree_add_text(opt_tree, tvb, offset,      optlen,
                         "%s: Rate response, %s, TTL diff %u ", optp->name,
-                        val_to_str_ext(rate, &qs_rates_ext, "Unknown"),
+                        val_to_str_ext(rate, &qs_rate_vals_ext, "Unknown"),
                         tvb_get_guint8(tvb, offset + 3));
-    col_append_fstr(pinfo->cinfo, COL_INFO, " QSresp=%s", val_to_str_ext(rate, &qs_rates_ext, "Unknown"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, " QSresp=%s", val_to_str_ext(rate, &qs_rate_vals_ext, "Unknown"));
 }
 
 

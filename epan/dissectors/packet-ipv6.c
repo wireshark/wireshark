@@ -136,6 +136,13 @@ static int hf_ipv6_opt_pad1                     = -1;
 static int hf_ipv6_opt_padn                     = -1;
 static int hf_ipv6_opt_rtalert                  = -1;
 static int hf_ipv6_opt_jumbo                    = -1;
+static int hf_ipv6_opt_qs_func                  = -1;
+static int hf_ipv6_opt_qs_rate                  = -1;
+static int hf_ipv6_opt_qs_ttl                   = -1;
+static int hf_ipv6_opt_qs_ttl_diff              = -1;
+static int hf_ipv6_opt_qs_unused                = -1;
+static int hf_ipv6_opt_qs_nonce                 = -1;
+static int hf_ipv6_opt_qs_reserved              = -1;
 static int hf_ipv6_opt_unknown                  = -1;
 static int hf_ipv6_dst_opt                      = -1;
 static int hf_ipv6_hop_opt                      = -1;
@@ -809,6 +816,8 @@ dissect_unknown_option(tvbuff_t *tvb, int offset, proto_tree *tree)
     return len;
 }
 
+static value_string_ext qs_rate_vals_ext = VALUE_STRING_EXT_INIT(qs_rate_vals);
+
 static int
 dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, const int hf_option_item)
 {
@@ -838,7 +847,7 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
             /* there are more options */
 
             /* IPv6 Option */
-            ti_opt = proto_tree_add_item(dstopt_tree, hf_ipv6_opt, tvb, offset, 1, ENC_NA);
+            ti_opt = proto_tree_add_item(dstopt_tree, hf_ipv6_opt, tvb, offset, 2, ENC_NA);
             opt_tree = proto_item_add_subtree(ti_opt, ett_ipv6_opt);
 
             /* Option type */
@@ -906,6 +915,49 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
                 SET_ADDRESS(&pinfo->src, AT_IPv6, 16, tvb_get_ptr(tvb, offset, 16));
                 offset += opt_len;
                 break;
+
+            case IP6OPT_QUICKSTART:
+              {
+
+                guint8 command = tvb_get_guint8(tvb, offset);
+                guint8 function = command >> 4;
+                guint8 rate = command & QS_RATE_MASK;
+                guint8 ttl_diff;
+
+                proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_func, tvb, offset, 1, ENC_NA);
+
+                if (function == QS_RATE_REQUEST) {
+                  proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_rate, tvb, offset, 1, ENC_NA);
+                  offset += 1;
+                  proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_ttl, tvb, offset, 1, ENC_NA);
+                  ttl_diff = (pinfo->ip_ttl - tvb_get_guint8(tvb, offset) % 256);
+                  offset += 1;
+                  ti = proto_tree_add_uint_format_value(opt_tree, hf_ipv6_opt_qs_ttl_diff,
+                                                        tvb, offset, 1, ttl_diff,
+                                                        "%u", ttl_diff);
+                  PROTO_ITEM_SET_GENERATED(ti);
+                  proto_item_append_text(ti_opt, ", %s, QS TTL %u, QS TTL diff %u",
+                                         val_to_str_ext_const(rate, &qs_rate_vals_ext, "Unknown"),
+                                         tvb_get_guint8(tvb, offset), ttl_diff);
+                  offset += 1;
+                  proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_nonce, tvb, offset, 4, ENC_NA);
+                  proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_reserved, tvb, offset, 4, ENC_NA);
+                  offset += 4;
+                } else if (function == QS_RATE_REPORT) {
+                  proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_rate, tvb, offset, 1, ENC_NA);
+                  offset += 1;
+                  proto_item_append_text(ti_opt, ", %s",
+                                         val_to_str_ext_const(rate, &qs_rate_vals_ext, "Unknown (%u)"));
+                  proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_unused, tvb, offset, 1, ENC_NA);
+                  offset += 1;
+                  proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_nonce, tvb, offset, 4, ENC_NA);
+                  proto_tree_add_item(opt_tree, hf_ipv6_opt_qs_reserved, tvb, offset, 4, ENC_NA);
+                  offset += 4;
+                }
+
+              }
+              break;
+
             default:
                 proto_tree_add_item(opt_tree, hf_ipv6_opt_unknown, tvb,
                                     offset, opt_len, ENC_NA);
@@ -1595,6 +1647,8 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     proto_tree_add_item(ipv6_tree, hf_ipv6_hlim, tvb,
                         offset + offsetof(struct ip6_hdr, ip6_hlim), 1, ENC_BIG_ENDIAN);
+    /* Yes, there is not TTL in IPv6 Header... but it is the same of Hop Limit...*/
+    pinfo->ip_ttl = tvb_get_guint8(tvb, offset + offsetof(struct ip6_hdr, ip6_hlim));
 
     /* Add the different items for the source address */
     proto_tree_add_item(ipv6_tree, hf_ipv6_src, tvb,
@@ -2222,6 +2276,34 @@ proto_register_ipv6(void)
       { "Jumbo",                "ipv6.opt.jumbo",
                                 FT_UINT32, BASE_DEC, NULL, 0x0,
                                 "Length of the IPv6 packet in octets", HFILL }},
+    { &hf_ipv6_opt_qs_func,
+      { "Function",             "ipv6.opt.qs_func",
+                                FT_UINT8, BASE_DEC, VALS(qs_func_vals), QS_FUNC_MASK,
+                                NULL, HFILL }},
+    { &hf_ipv6_opt_qs_rate,
+      { "Rate",                 "ipv6.opt.qs_rate",
+                                FT_UINT8, BASE_DEC | BASE_EXT_STRING, &(qs_rate_vals_ext), QS_RATE_MASK,
+                                NULL, HFILL }},
+    { &hf_ipv6_opt_qs_ttl,
+      { "QS TTL",               "ipv6.opt.qs_ttl",
+                                FT_UINT8, BASE_DEC, NULL, 0x0,
+                                NULL, HFILL }},
+    { &hf_ipv6_opt_qs_ttl_diff,
+      { "TTL Diff",             "ipv6.opt.qs_ttl_diff",
+                                FT_UINT8, BASE_DEC, NULL, 0x0,
+                                NULL, HFILL }},
+    { &hf_ipv6_opt_qs_unused,
+      { "Not Used",             "ipv6.opt.qs_unused",
+                                FT_UINT8, BASE_DEC, NULL, 0x0,
+                                NULL, HFILL }},
+    { &hf_ipv6_opt_qs_nonce,
+      { "QS Nonce",             "ipv6.opt.qs_nonce",
+                                FT_UINT32, BASE_HEX, NULL, 0xFFFFFFFC,
+                                NULL, HFILL }},
+    { &hf_ipv6_opt_qs_reserved,
+      { "Reserved",             "ipv6.opt.qs_reserved",
+                                FT_UINT32, BASE_HEX, NULL, 0x0003,
+                                NULL, HFILL }},
     { &hf_ipv6_opt_unknown,
       { "Unknown Option Payload","ipv6.opt.unknown",
                                 FT_BYTES, BASE_NONE, NULL, 0x0,
