@@ -2881,27 +2881,27 @@ pcapng_write_interface_statistics_block(wtap_dumper *wdh, wtapng_if_stats_t *if_
                 options_total_length = options_total_length + 8 + 4 /* options tag */ ;
         }
         /*guint64				isb_ifrecv */
-        if (if_stats->isb_ifrecv != -1) {
+        if (if_stats->isb_ifrecv != G_GUINT64_CONSTANT(0xFFFFFFFFFFFFFFFF)) {
                 have_options = TRUE;
                 options_total_length = options_total_length + 8 + 4 /* options tag */ ;
         }
         /*guint64				isb_ifdrop */
-        if (if_stats->isb_ifdrop != -1) {
+        if (if_stats->isb_ifdrop != G_GUINT64_CONSTANT(0xFFFFFFFFFFFFFFFF)) {
                 have_options = TRUE;
                 options_total_length = options_total_length + 8 + 4 /* options tag */ ;
         }
         /*guint64				isb_filteraccept */
-        if (if_stats->isb_filteraccept != -1) {
+        if (if_stats->isb_filteraccept != G_GUINT64_CONSTANT(0xFFFFFFFFFFFFFFFF)) {
                 have_options = TRUE;
                 options_total_length = options_total_length + 8 + 4 /* options tag */ ;
         }
         /*guint64				isb_osdrop */
-        if (if_stats->isb_osdrop != -1) {
+        if (if_stats->isb_osdrop != G_GUINT64_CONSTANT(0xFFFFFFFFFFFFFFFF)) {
                 have_options = TRUE;
                 options_total_length = options_total_length + 8 + 4 /* options tag */ ;
         }
         /*guint64				isb_usrdeliv */
-        if (if_stats->isb_usrdeliv != -1) {
+        if (if_stats->isb_usrdeliv != G_GUINT64_CONSTANT(0xFFFFFFFFFFFFFFFF)) {
                 have_options = TRUE;
                 options_total_length = options_total_length + 8 + 4 /* options tag */ ;
         }
@@ -2980,7 +2980,7 @@ pcapng_write_interface_statistics_block(wtap_dumper *wdh, wtapng_if_stats_t *if_
                 wdh->bytes_dumped += 8;
         }
         /*guint64               isb_ifrecv;*/
-        if (if_stats->isb_ifrecv != -1) {
+        if (if_stats->isb_ifrecv != G_GUINT64_CONSTANT(0xFFFFFFFFFFFFFFFF)) {
                 option_hdr.type          = ISB_IFRECV;
                 option_hdr.value_length  = 8;
                 if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
@@ -2994,7 +2994,7 @@ pcapng_write_interface_statistics_block(wtap_dumper *wdh, wtapng_if_stats_t *if_
                 wdh->bytes_dumped += 8;
         }
         /*guint64               isb_ifdrop;*/
-        if (if_stats->isb_ifdrop != -1) {
+        if (if_stats->isb_ifdrop != G_GUINT64_CONSTANT(0xFFFFFFFFFFFFFFFF)) {
                 option_hdr.type          = ISB_IFDROP;
                 option_hdr.value_length  = 8;
                 if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
@@ -3008,7 +3008,7 @@ pcapng_write_interface_statistics_block(wtap_dumper *wdh, wtapng_if_stats_t *if_
                 wdh->bytes_dumped += 8;
         }
         /*guint64               isb_filteraccept;*/
-        if (if_stats->isb_filteraccept != -1) {
+        if (if_stats->isb_filteraccept != G_GUINT64_CONSTANT(0xFFFFFFFFFFFFFFFF)) {
                 option_hdr.type          = ISB_FILTERACCEPT;
                 option_hdr.value_length  = 8;
                 if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
@@ -3022,7 +3022,7 @@ pcapng_write_interface_statistics_block(wtap_dumper *wdh, wtapng_if_stats_t *if_
                 wdh->bytes_dumped += 8;
         }
         /*guint64               isb_osdrop;*/
-        if (if_stats->isb_osdrop != -1) {
+        if (if_stats->isb_osdrop != G_GUINT64_CONSTANT(0xFFFFFFFFFFFFFFFF)) {
                 option_hdr.type          = ISB_OSDROP;
                 option_hdr.value_length  = 8;
                 if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
@@ -3036,7 +3036,7 @@ pcapng_write_interface_statistics_block(wtap_dumper *wdh, wtapng_if_stats_t *if_
                 wdh->bytes_dumped += 8;
         }
         /*guint64               isb_usrdeliv;*/
-        if (if_stats->isb_usrdeliv != -1) {
+        if (if_stats->isb_usrdeliv != G_GUINT64_CONSTANT(0xFFFFFFFFFFFFFFFF)) {
                 option_hdr.type          = ISB_USRDELIV;
                 option_hdr.value_length  = 8;
                 if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
