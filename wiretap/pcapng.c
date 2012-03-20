@@ -70,7 +70,7 @@
 #include "pcap-encap.h"
 #include "pcapng.h"
 
-#if 0
+#if 1
 #define pcapng_debug0(str) g_warning(str)
 #define pcapng_debug1(str,p1) g_warning(str,p1)
 #define pcapng_debug2(str,p1,p2) g_warning(str,p1,p2)
@@ -2835,9 +2835,16 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtapng_if_descr_t *int_data, int *
         return TRUE;
 }
 
-#if 0
+#define ISB_STARTTIME     2
+#define ISB_ENDTIME       3
+#define ISB_IFRECV        4
+#define ISB_IFDROP        5
+#define ISB_FILTERACCEPT  6
+#define ISB_OSDROP        7
+#define ISB_USRDELIV      8
+
 static gboolean
-pcapng_write_interface_statistics_block(wtap_dumper *wdh, wtapng_block_t *wblock, int *err)
+pcapng_write_interface_statistics_block(wtap_dumper *wdh, wtapng_if_stats_t *if_stats, int *err)
 {
 
         pcapng_block_header_t bh;
@@ -2853,9 +2860,9 @@ pcapng_write_interface_statistics_block(wtap_dumper *wdh, wtapng_block_t *wblock
 
 
         /* Calculate options length */
-        if (wblock->data.if_descr.opt_comment) {
+        if (if_stats->opt_comment) {
                 have_options = TRUE;
-                comment_len = (guint32)strlen(wblock->data.if_descr.opt_comment) & 0xffff;
+                comment_len = (guint32)strlen(if_stats->opt_comment) & 0xffff;
                 if ((comment_len % 4)){
                         comment_pad_len = 4 - (comment_len % 4);
                 } else {
@@ -2863,17 +2870,41 @@ pcapng_write_interface_statistics_block(wtap_dumper *wdh, wtapng_block_t *wblock
                 }
                 options_total_length = options_total_length + comment_len + comment_pad_len + 4 /* comment options tag */ ;
         }
-        /* XXX */
-        /*guint32                       isb_starttime_high;*/
-        /*guint32                       isb_starttime_low;*/
-        /*guint32                       isb_endtime_high;*/
-        /*guint32                       isb_endtime_low;*/
-        /*guint64                               isb_ifrecv;*/
-        /*guint64                               isb_ifdrop;*/
-        /*guint64                       isb_filteraccept;*/
-        /*guint64                       isb_osdrop;*/
-        /*guint64                       isb_usrdeliv;*/
-
+        /*guint64				isb_starttime */
+        if (if_stats->isb_starttime != 0) {
+                have_options = TRUE;
+                options_total_length = options_total_length + 8 + 4 /* options tag */ ;
+        }
+        /*guint64				isb_endtime */
+        if (if_stats->isb_endtime != 0) {
+                have_options = TRUE;
+                options_total_length = options_total_length + 8 + 4 /* options tag */ ;
+        }
+        /*guint64				isb_ifrecv */
+        if (if_stats->isb_ifrecv != -1) {
+                have_options = TRUE;
+                options_total_length = options_total_length + 8 + 4 /* options tag */ ;
+        }
+        /*guint64				isb_ifdrop */
+        if (if_stats->isb_ifdrop != -1) {
+                have_options = TRUE;
+                options_total_length = options_total_length + 8 + 4 /* options tag */ ;
+        }
+        /*guint64				isb_filteraccept */
+        if (if_stats->isb_filteraccept != -1) {
+                have_options = TRUE;
+                options_total_length = options_total_length + 8 + 4 /* options tag */ ;
+        }
+        /*guint64				isb_osdrop */
+        if (if_stats->isb_osdrop != -1) {
+                have_options = TRUE;
+                options_total_length = options_total_length + 8 + 4 /* options tag */ ;
+        }
+        /*guint64				isb_usrdeliv */
+        if (if_stats->isb_usrdeliv != -1) {
+                have_options = TRUE;
+                options_total_length = options_total_length + 8 + 4 /* options tag */ ;
+        }
 
         /* write block header */
         if (have_options) {
@@ -2882,7 +2913,7 @@ pcapng_write_interface_statistics_block(wtap_dumper *wdh, wtapng_block_t *wblock
         }
 
         /* write block header */
-        bh.block_type = wblock->type;
+        bh.block_type = BLOCK_TYPE_ISB;
         bh.block_total_length = sizeof(bh) + sizeof(isb) + options_total_length + 4;
 
         if (!wtap_dump_file_write(wdh, &bh, sizeof bh, err))
@@ -2890,9 +2921,9 @@ pcapng_write_interface_statistics_block(wtap_dumper *wdh, wtapng_block_t *wblock
         wdh->bytes_dumped += sizeof bh;
 
         /* write block fixed content */
-        isb.interface_id                = wblock->data.if_stats.interface_id;
-        isb.timestamp_high              = wblock->data.if_stats.ts_high;
-        isb.timestamp_low               = wblock->data.if_stats.ts_low;
+        isb.interface_id                = if_stats->interface_id;
+        isb.timestamp_high              = if_stats->ts_high;
+        isb.timestamp_low               = if_stats->ts_low;
 
 
         if (!wtap_dump_file_write(wdh, &isb, sizeof isb, err))
@@ -2902,14 +2933,14 @@ pcapng_write_interface_statistics_block(wtap_dumper *wdh, wtapng_block_t *wblock
         /* write (optional) block options */
         if (comment_len) {
                 option_hdr.type          = OPT_COMMENT;
-                option_hdr.value_length = comment_len;
+                option_hdr.value_length  = comment_len;
                 if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
                         return FALSE;
                 wdh->bytes_dumped += 4;
 
                 /* Write the comments string */
-                pcapng_debug3("pcapng_write_if_descr_block, comment:'%s' comment_len %u comment_pad_len %u" , wblock->data.if_descr.opt_comment, comment_len, comment_pad_len);
-                if (!wtap_dump_file_write(wdh, wblock->data.if_descr.opt_comment, comment_len, err))
+                pcapng_debug3("pcapng_write_interface_statistics_block, comment:'%s' comment_len %u comment_pad_len %u" , if_stats->opt_comment, comment_len, comment_pad_len);
+                if (!wtap_dump_file_write(wdh, if_stats->opt_comment, comment_len, err))
                         return FALSE;
                 wdh->bytes_dumped += comment_len;
 
@@ -2920,14 +2951,104 @@ pcapng_write_interface_statistics_block(wtap_dumper *wdh, wtapng_block_t *wblock
                         wdh->bytes_dumped += comment_pad_len;
                 }
         }
-        /* XXX */
-        /*guint32                       isb_starttime */
-        /*guint32                       isb_endtime */
-        /*guint64                       isb_ifrecv;*/
-        /*guint64                       isb_ifdrop;*/
-        /*guint64                       isb_filteraccept;*/
-        /*guint64                       isb_osdrop;*/
-        /*guint64                       isb_usrdeliv;*/
+        /*guint64               isb_starttime */
+        if (if_stats->isb_starttime != 0) {
+                option_hdr.type          = ISB_STARTTIME;
+                option_hdr.value_length  = 8;
+                if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
+                        return FALSE;
+                wdh->bytes_dumped += 4;
+
+                /* Write isb_starttime */
+                pcapng_debug1("pcapng_write_interface_statistics_block, isb_starttime: %" G_GINT64_MODIFIER "u" , if_stats->isb_starttime);
+                if (!wtap_dump_file_write(wdh, &if_stats->isb_starttime, 8, err))
+                        return FALSE;
+                wdh->bytes_dumped += 8;
+        }
+        /*guint64               isb_endtime */
+        if (if_stats->isb_endtime != 0) {
+                option_hdr.type          = ISB_ENDTIME;
+                option_hdr.value_length  = 8;
+                if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
+                        return FALSE;
+                wdh->bytes_dumped += 4;
+
+                /* Write isb_endtime */
+                pcapng_debug1("pcapng_write_interface_statistics_block, isb_starttime: %" G_GINT64_MODIFIER "u" , if_stats->isb_endtime);
+                if (!wtap_dump_file_write(wdh, &if_stats->isb_endtime, 8, err))
+                        return FALSE;
+                wdh->bytes_dumped += 8;
+        }
+        /*guint64               isb_ifrecv;*/
+        if (if_stats->isb_ifrecv != -1) {
+                option_hdr.type          = ISB_IFRECV;
+                option_hdr.value_length  = 8;
+                if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
+                        return FALSE;
+                wdh->bytes_dumped += 4;
+
+                /* Write isb_ifrecv */
+                pcapng_debug1("pcapng_write_interface_statistics_block, isb_ifrecv: %" G_GINT64_MODIFIER "u" , if_stats->isb_ifrecv);
+                if (!wtap_dump_file_write(wdh, &if_stats->isb_ifrecv, 8, err))
+                        return FALSE;
+                wdh->bytes_dumped += 8;
+        }
+        /*guint64               isb_ifdrop;*/
+        if (if_stats->isb_ifdrop != -1) {
+                option_hdr.type          = ISB_IFDROP;
+                option_hdr.value_length  = 8;
+                if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
+                        return FALSE;
+                wdh->bytes_dumped += 4;
+
+                /* Write isb_ifdrop */
+                pcapng_debug1("pcapng_write_interface_statistics_block, isb_ifdrop: %" G_GINT64_MODIFIER "u" , if_stats->isb_ifdrop);
+                if (!wtap_dump_file_write(wdh, &if_stats->isb_ifdrop, 8, err))
+                        return FALSE;
+                wdh->bytes_dumped += 8;
+        }
+        /*guint64               isb_filteraccept;*/
+        if (if_stats->isb_filteraccept != -1) {
+                option_hdr.type          = ISB_FILTERACCEPT;
+                option_hdr.value_length  = 8;
+                if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
+                        return FALSE;
+                wdh->bytes_dumped += 4;
+
+                /* Write isb_filteraccept */
+                pcapng_debug1("pcapng_write_interface_statistics_block, isb_filteraccept: %" G_GINT64_MODIFIER "u" , if_stats->isb_filteraccept);
+                if (!wtap_dump_file_write(wdh, &if_stats->isb_filteraccept, 8, err))
+                        return FALSE;
+                wdh->bytes_dumped += 8;
+        }
+        /*guint64               isb_osdrop;*/
+        if (if_stats->isb_osdrop != -1) {
+                option_hdr.type          = ISB_OSDROP;
+                option_hdr.value_length  = 8;
+                if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
+                        return FALSE;
+                wdh->bytes_dumped += 4;
+
+                /* Write isb_osdrop */
+                pcapng_debug1("pcapng_write_interface_statistics_block, isb_osdrop: %" G_GINT64_MODIFIER "u" , if_stats->isb_osdrop);
+                if (!wtap_dump_file_write(wdh, &if_stats->isb_osdrop, 8, err))
+                        return FALSE;
+                wdh->bytes_dumped += 8;
+        }
+        /*guint64               isb_usrdeliv;*/
+        if (if_stats->isb_usrdeliv != -1) {
+                option_hdr.type          = ISB_USRDELIV;
+                option_hdr.value_length  = 8;
+                if (!wtap_dump_file_write(wdh, &option_hdr, 4, err))
+                        return FALSE;
+                wdh->bytes_dumped += 4;
+
+                /* Write isb_usrdeliv */
+                pcapng_debug1("pcapng_write_interface_statistics_block, isb_usrdeliv: %" G_GINT64_MODIFIER "u" , if_stats->isb_usrdeliv);
+                if (!wtap_dump_file_write(wdh, &if_stats->isb_usrdeliv, 8, err))
+                        return FALSE;
+                wdh->bytes_dumped += 8;
+        }
 
         if (have_options) {
                 option_hdr.type = OPT_EOFOPT;
@@ -2946,7 +3067,7 @@ pcapng_write_interface_statistics_block(wtap_dumper *wdh, wtapng_block_t *wblock
         return TRUE;
 
 }
-#endif
+
 
 static gboolean
 pcapng_write_enhanced_packet_block(wtap_dumper *wdh,
@@ -3252,7 +3373,27 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
    Returns TRUE on success, FALSE on failure. */
 static gboolean pcapng_dump_close(wtap_dumper *wdh, int *err _U_)
 {
+        int i, j;
         pcapng_dump_t *pcapng = (pcapng_dump_t *)wdh->priv;
+
+        if ((wdh->number_of_interfaces > 0) && (wdh->interface_data != NULL)) {
+            for (i = 0; i < (int)wdh->number_of_interfaces; i++) {
+
+                /* Get the interface description */
+                wtapng_if_descr_t int_data;
+
+                int_data = g_array_index(wdh->interface_data, wtapng_if_descr_t, i);
+                for (j = 0; j < (int)int_data.num_stat_entries; j++) {
+                    wtapng_if_stats_t if_stats;
+
+                    if_stats = g_array_index(int_data.interface_statistics, wtapng_if_stats_t, j);
+                    pcapng_debug1("pcapng_dump_close: write ISB for interface %u",if_stats.interface_id);
+					if (!pcapng_write_interface_statistics_block(wdh, &if_stats, err)){
+						return FALSE;
+					}
+                }
+            }
+        }
 
         pcapng_debug0("pcapng_dump_close");
         g_array_free(pcapng->interface_data, TRUE);
