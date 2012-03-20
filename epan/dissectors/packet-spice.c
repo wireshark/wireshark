@@ -171,7 +171,10 @@ static const value_string playback_mode_vals[] = {
 /* main channel */
 
 #define SPICE_MAIN_CAP_SEMI_SEAMLESS_MIGRATE 0
+#define SPICE_MAIN_CAP_VM_NAME_UUID 1
 #define SPICE_MAIN_CAP_SEMI_SEAMLESS_MIGRATE_MASK (1 << SPICE_MAIN_CAP_SEMI_SEAMLESS_MIGRATE)
+#define SPICE_MAIN_CAP_VM_NAME_UUID_MASK (1 << SPICE_MAIN_CAP_VM_NAME_UUID)
+
 /* main channel server messages */
 #define SPICE_MAIN_MIGRATE_BEGIN        101
 #define SPICE_MAIN_MIGRATE_CANCEL       102
@@ -183,6 +186,10 @@ static const value_string playback_mode_vals[] = {
 #define SPICE_MAIN_AGENT_DISCONNECTED   108
 #define SPICE_MAIN_AGENT_DATA           109
 #define SPICE_MAIN_AGENT_TOKEN          110
+#define SPICE_MAIN_MIGRATE_SWITCH_HOST  111
+#define SPICE_MAIN_MIGRATE_END          112
+#define SPICE_MAIN_NAME                 113
+#define SPICE_MAIN_UUID                 114
 
 static const value_string main_server_message_types[] = {
     { SPICE_MAIN_MIGRATE_BEGIN,       "Server MIGRATE_BEGIN" },
@@ -195,6 +202,10 @@ static const value_string main_server_message_types[] = {
     { SPICE_MAIN_AGENT_DISCONNECTED,  "Server AGENT_DISCONNECTED" },
     { SPICE_MAIN_AGENT_DATA,          "Server AGENT_DATA" },
     { SPICE_MAIN_AGENT_TOKEN,         "Server AGENT_TOKEN" },
+    { SPICE_MAIN_MIGRATE_SWITCH_HOST, "Server MIGRATE_SWITCH_HOST" },
+    { SPICE_MAIN_MIGRATE_END,         "Server MIGRATE_END" },
+    { SPICE_MAIN_NAME,                "Server VM_NAME" },
+    { SPICE_MAIN_UUID,                "Server VM_UUID" },
     { 0, NULL }
 };
 
@@ -879,6 +890,7 @@ static int hf_ticket_client = -1;
 static int hf_auth_select_client = -1;
 static int hf_ticket_server = -1;
 static int hf_main_cap_semi_migrate = -1;
+static int hf_main_cap_vm_name_uuid = -1;
 static int hf_display_cap = -1;
 static int hf_inputs_cap = -1;
 static int hf_cursor_cap = -1;
@@ -983,6 +995,8 @@ static int hf_spice_sasl_auth_result = -1;
 static int hf_playback_cap_celt = -1;
 static int hf_playback_cap_volume = -1;
 static int hf_record_cap_celt = -1;
+static int hf_vm_uuid = -1;
+static int hf_vm_name = -1;
 
 static dissector_handle_t jpeg_handle;
 
@@ -2370,7 +2384,7 @@ dissect_spice_agent_message(tvbuff_t *tvb, proto_tree *tree, const guint32 messa
 static guint32
 dissect_spice_main_server(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 offset)
 {
-    guint32 num_channels, i, agent_msg_type, agent_msg_len;
+    guint32 num_channels, i, agent_msg_type, agent_msg_len, name_len;
     guint8 channel_type;
 
     switch(message_type) {
@@ -2391,6 +2405,17 @@ dissect_spice_main_server(tvbuff_t *tvb, proto_tree *tree, const guint16 message
             offset += 4;
             proto_tree_add_item(tree, hf_ram_hint, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
+            break;
+        case SPICE_MAIN_NAME:
+            name_len = tvb_get_letohl(tvb, offset);
+            proto_tree_add_text(tree, tvb, offset, 4, "Name length (bytes): %u", name_len);
+            offset += 4;
+            proto_tree_add_item(tree, hf_vm_name, tvb, offset, name_len, ENC_NA);
+            offset += name_len;
+            break;
+        case SPICE_MAIN_UUID:
+            proto_tree_add_item(tree, hf_vm_uuid, tvb, offset, 16, ENC_BIG_ENDIAN);
+            offset += 16;
             break;
         case SPICE_MAIN_CHANNELS_LIST:
             num_channels = tvb_get_letohl(tvb, offset);
@@ -2801,6 +2826,7 @@ dissect_spice_link_capabilities(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
                         ti = proto_tree_add_item(tree, hf_common_cap_byte1, tvb, offset, 4, ENC_LITTLE_ENDIAN);
                         cap_tree = proto_item_add_subtree(ti, ett_cap_tree);
                         proto_tree_add_boolean(cap_tree, hf_main_cap_semi_migrate, tvb, offset, 4, val);
+                        proto_tree_add_boolean(cap_tree, hf_main_cap_vm_name_uuid, tvb, offset, 4, val); /*Note: only relevant for client. TODO: dissect only for client */
                         break;
                     default:
                         break;
@@ -3507,6 +3533,11 @@ proto_register_spice(void)
             FT_BOOLEAN, 3, TFS(&tfs_set_notset), SPICE_MAIN_CAP_SEMI_SEAMLESS_MIGRATE_MASK,
             NULL, HFILL }
         },
+        { &hf_main_cap_vm_name_uuid,
+          { "VM name and UUID messages capability", "spice.main_cap_vm_name_uuid",
+            FT_BOOLEAN, 3, TFS(&tfs_set_notset), SPICE_MAIN_CAP_VM_NAME_UUID_MASK,
+            NULL, HFILL }
+        },
         { &hf_display_cap,
           { "Display channelcapability", "spice.display_cap",
             FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -3975,6 +4006,16 @@ proto_register_spice(void)
         { &hf_spice_sasl_auth_result,
           { "Authentication result", "spice.sasl_auth_result",
             FT_UINT8, BASE_DEC, VALS(spice_sasl_auth_result_vs), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_vm_uuid,
+          { "VM UUID", "spice.vm_uuid",
+            FT_GUID, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_vm_name,
+          { "VM Name", "spice.vm_name",
+            FT_STRINGZ, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         }
     };
