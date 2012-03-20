@@ -903,6 +903,7 @@ add_interface_to_list(guint index)
 }
 #endif
 
+#ifdef HAVE_LIBPCAP
 static void
 clear_capture_box(void)
 {
@@ -926,7 +927,7 @@ clear_capture_box(void)
         if_view = NULL;
     }
 }
-
+#endif /* HAVE_LIBPCAP */
 #ifdef HAVE_LIBPCAP
 static void fill_capture_box(void)
 {
