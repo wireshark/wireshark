@@ -917,6 +917,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-pnrp.c
 	dissectors/packet-pop.c
 	dissectors/packet-portmap.c
+	dissectors/packet-ppcap.c
 	dissectors/packet-ppi.c
 	dissectors/packet-ppi-antenna.c
 	dissectors/packet-ppi-geolocation-common.c

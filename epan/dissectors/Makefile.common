@@ -836,6 +836,7 @@ DISSECTOR_SRC = \
 	packet-pnrp.c		\
 	packet-pop.c		\
 	packet-portmap.c	\
+	packet-ppcap.c		\
 	packet-ppi.c		\
 	packet-ppi-antenna.c	\
 	packet-ppi-geolocation-common.c	\
