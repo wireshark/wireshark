@@ -933,12 +933,17 @@ clear_capture_box(void)
 static void fill_capture_box(void)
 {
     GtkWidget         *box_to_fill;
-    GtkWidget         *item_hb_interface_list, *item_hb_capture, *item_hb_start, *label, *w;
+    GtkWidget         *item_hb_interface_list, *item_hb_capture, *item_hb_start, *label, *w, *item_hb;
     GtkTreeSelection  *selection;
     GtkCellRenderer   *renderer;
     GtkTreeViewColumn *column;
-    int               error;
+    int               error = 0;
     gchar             *label_text;
+#ifdef _WIN32
+    DWORD reg_ret;
+    DWORD chimney_enabled = 0;
+    DWORD ce_size = sizeof(chimney_enabled);
+#endif
   
     label = g_object_get_data(G_OBJECT(welcome_hb), CAPTURE_LABEL);
     if (label) {
@@ -1198,7 +1203,6 @@ welcome_new(void)
     int       error;
 #endif
 #ifdef _WIN32
-    LONG reg_ret;
     DWORD chimney_enabled = 0;
     DWORD ce_size = sizeof(chimney_enabled);
 #endif
