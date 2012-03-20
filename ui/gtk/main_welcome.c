@@ -114,6 +114,11 @@ static GSList *status_messages = NULL;
 
 static GMutex *recent_mtx;
 
+#ifdef HAVE_LIBPCAP
+static void capture_if_start(GtkWidget *w _U_, gpointer data _U_);
+static gboolean activate_link_cb(GtkLabel *label _U_, gchar *uri, gpointer user_data _U_);
+#endif
+
 /* The "scroll box dynamic" is a (complicated) pseudo widget to */
 /* place a vertically list of widgets in (currently the interfaces and recent files). */
 /* Once this list get's higher than a specified amount, */
@@ -121,11 +126,17 @@ static GMutex *recent_mtx;
 /* This is all complicated, the scrolled window is a bit ugly, */
 /* the sizes might not be the same on all systems, ... */
 /* ... but that's the best what we currently have */
-#define SCROLL_BOX_CHILD_BOX        "ScrollBoxDynamic_ChildBox"
-#define SCROLL_BOX_MAX_CHILDS       "ScrollBoxDynamic_MaxChilds"
-#define SCROLL_BOX_SCROLLW_Y_SIZE   "ScrollBoxDynamic_Scrollw_Y_Size"
-#define SCROLL_BOX_SCROLLW          "ScrollBoxDynamic_Scrollw"
-#define TREE_VIEW_INTERFACES        "TreeViewInterfaces"
+#define SCROLL_BOX_CHILD_BOX          "ScrollBoxDynamic_ChildBox"
+#define SCROLL_BOX_MAX_CHILDS         "ScrollBoxDynamic_MaxChilds"
+#define SCROLL_BOX_SCROLLW_Y_SIZE     "ScrollBoxDynamic_Scrollw_Y_Size"
+#define SCROLL_BOX_SCROLLW            "ScrollBoxDynamic_Scrollw"
+#define TREE_VIEW_INTERFACES          "TreeViewInterfaces"
+#define CAPTURE_VIEW                  "CaptureView"
+#define CAPTURE_LABEL                 "CaptureLabel"
+#define CAPTURE_HB_BOX_INTERFACE_LIST "CaptureHorizontalBoxInterfaceList"
+#define CAPTURE_HB_BOX_START          "CaptureHorizontalBoxStart"
+#define CAPTURE_HB_BOX_CAPTURE        "CaptureHorizontalBoxCapture"
+
 
 static GtkWidget *
 scroll_box_dynamic_new(GtkWidget *child_box, guint max_childs, guint scrollw_y_size) {
@@ -642,7 +653,7 @@ welcome_filename_link_new(const gchar *filename, GtkWidget **label, GObject *men
     /* event box */
     eb = gtk_event_box_new();
 #if GTK_CHECK_VERSION(3,0,0)
-	gtk_widget_override_background_color(eb, GTK_STATE_NORMAL, &rgba_topic_item_idle_bg);
+    gtk_widget_override_background_color(eb, GTK_STATE_NORMAL, &rgba_topic_item_idle_bg);
 #else
     gtk_widget_modify_bg(eb, GTK_STATE_NORMAL, &topic_item_idle_bg);
 #endif
@@ -853,19 +864,19 @@ change_interface_name(gchar *oldname, guint index)
     entry = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
     model = gtk_tree_view_get_model(GTK_TREE_VIEW(view));
 
-		device = g_array_index(global_capture_opts.all_ifaces, interface_t, index);
-		if (gtk_tree_model_get_iter_first (model, &iter)) {
-      	do {
-      			gtk_tree_model_get(model, &iter, IFACE_NAME, &optname, -1);
-      			if (strcmp(optname, oldname) == 0) {
-    						gtk_list_store_set(GTK_LIST_STORE(model), &iter, ICON, gtk_image_get_pixbuf(GTK_IMAGE(capture_get_if_icon(&device))), IFACE_DESCR, device.display_name, IFACE_NAME, device.name, -1);
-    						if (device.selected) {
-        						gtk_tree_selection_select_iter(entry, &iter);
-   							}
-   							break;
-    				}
-    		} while (gtk_tree_model_iter_next(model, &iter));
-    		g_free(optname);
+    device = g_array_index(global_capture_opts.all_ifaces, interface_t, index);
+    if (gtk_tree_model_get_iter_first (model, &iter)) {
+        do {
+            gtk_tree_model_get(model, &iter, IFACE_NAME, &optname, -1);
+            if (strcmp(optname, oldname) == 0) {
+                gtk_list_store_set(GTK_LIST_STORE(model), &iter, ICON, gtk_image_get_pixbuf(GTK_IMAGE(capture_get_if_icon(&device))), IFACE_DESCR, device.display_name, IFACE_NAME, device.name, -1);
+                if (device.selected) {
+                    gtk_tree_selection_select_iter(entry, &iter);
+                }
+                break;
+            }
+        } while (gtk_tree_model_iter_next(model, &iter));
+        g_free(optname);
     }
 }
 #endif
@@ -894,6 +905,174 @@ add_interface_to_list(guint index)
 }
 #endif
 
+static void
+clear_capture_box(void)
+{
+    GtkWidget         *item_hb;
+    
+    item_hb = g_object_get_data(G_OBJECT(welcome_hb), CAPTURE_HB_BOX_INTERFACE_LIST);
+    if (item_hb) {
+        gtk_widget_destroy(item_hb);
+    }
+    item_hb = g_object_get_data(G_OBJECT(welcome_hb), CAPTURE_HB_BOX_START);
+    if (item_hb) {
+        gtk_widget_destroy(item_hb);
+    }
+    item_hb = g_object_get_data(G_OBJECT(welcome_hb), CAPTURE_HB_BOX_CAPTURE);
+    if (item_hb) {
+        gtk_widget_destroy(item_hb);
+    }
+    if (swindow) {
+        gtk_widget_destroy(swindow);
+        swindow = NULL;
+        if_view = NULL;
+    }
+}
+
+#ifdef HAVE_LIBPCAP
+static void fill_capture_box(void)
+{
+    GtkWidget         *box_to_fill;
+    GtkWidget         *item_hb_interface_list, *item_hb_capture, *item_hb_start, *label, *w;
+    GtkTreeSelection  *selection;
+    GtkCellRenderer   *renderer;
+    GtkTreeViewColumn *column;
+    int               error;
+    gchar             *label_text;
+  
+    label = g_object_get_data(G_OBJECT(welcome_hb), CAPTURE_LABEL);
+    if (label) {
+        gtk_widget_destroy(label);
+    }
+    box_to_fill = g_object_get_data(G_OBJECT(welcome_hb), CAPTURE_VIEW);
+    if (global_capture_opts.all_ifaces->len > 0) {
+        item_hb_interface_list = welcome_button(WIRESHARK_STOCK_CAPTURE_INTERFACES,
+                                                "Interface List",
+                                                "Live list of the capture interfaces\n(counts incoming packets)",
+                                                "Same as Capture/Interfaces menu or toolbar item",
+                                                welcome_button_callback_helper, capture_if_cb);
+        gtk_box_pack_start(GTK_BOX(box_to_fill), item_hb_interface_list, FALSE, FALSE, 5);
+        swindow = gtk_scrolled_window_new (NULL, NULL);
+        gtk_widget_set_size_request(swindow, FALSE, 100);
+        gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(swindow), GTK_SHADOW_IN);
+        gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(swindow), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+        g_object_set_data(G_OBJECT(welcome_hb), CAPTURE_HB_BOX_INTERFACE_LIST, item_hb_interface_list);
+
+        if_view = gtk_tree_view_new ();
+        g_object_set(G_OBJECT(if_view), "headers-visible", FALSE, NULL);
+        g_signal_connect(if_view, "row-activated", G_CALLBACK(options_interface_cb), (gpointer)welcome_hb);
+        g_object_set_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES, if_view);
+        column = gtk_tree_view_column_new();
+        renderer = gtk_cell_renderer_pixbuf_new();
+        gtk_tree_view_column_pack_start(column, renderer, FALSE);
+        gtk_tree_view_column_set_attributes(column, renderer, "pixbuf", ICON, NULL);
+        renderer = gtk_cell_renderer_text_new();
+        gtk_tree_view_column_pack_start(column, renderer, TRUE);
+        gtk_tree_view_column_set_attributes(column, renderer, "text", IFACE_DESCR, NULL);
+        gtk_tree_view_append_column(GTK_TREE_VIEW(if_view), column);
+        gtk_tree_view_column_set_resizable(gtk_tree_view_get_column(GTK_TREE_VIEW(if_view), 0), TRUE);
+        renderer = gtk_cell_renderer_text_new();
+        column = gtk_tree_view_column_new_with_attributes ("",
+                                                           GTK_CELL_RENDERER(renderer),
+                                                           "text", IFACE_NAME,
+                                                           NULL);
+        gtk_tree_view_append_column(GTK_TREE_VIEW(if_view), column);
+        gtk_tree_view_column_set_visible(column, FALSE);
+        selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(if_view));
+        gtk_tree_selection_set_mode(selection, GTK_SELECTION_MULTIPLE);
+        item_hb_start = welcome_button(WIRESHARK_STOCK_CAPTURE_START,
+                                       "Start",
+                                       "Choose one or more interfaces to capture from, then <b>Start</b>",
+                                       "Same as Capture/Interfaces with default options",
+                                       (welcome_button_callback_t)capture_if_start, (gpointer)if_view);
+        gtk_box_pack_start(GTK_BOX(box_to_fill), item_hb_start, FALSE, FALSE, 5);
+        welcome_if_tree_load();
+        gtk_container_add (GTK_CONTAINER (swindow), if_view);
+        gtk_container_add(GTK_CONTAINER(box_to_fill), swindow);
+        g_object_set_data(G_OBJECT(welcome_hb), CAPTURE_HB_BOX_START, item_hb_start);
+
+        item_hb_capture = welcome_button(WIRESHARK_STOCK_CAPTURE_OPTIONS,
+                                         "Capture Options",
+                                         "Start a capture with detailed options",
+                                         "Same as Capture/Options menu or toolbar item",
+                                         welcome_button_callback_helper, capture_prep_cb);
+        gtk_box_pack_start(GTK_BOX(box_to_fill), item_hb_capture, FALSE, FALSE, 5);
+        g_object_set_data(G_OBJECT(welcome_hb), CAPTURE_HB_BOX_CAPTURE, item_hb_capture);
+#ifdef _WIN32
+        /* Check for chimney offloading */
+        reg_ret = RegQueryValueEx(HKEY_LOCAL_MACHINE,
+                                  _T("SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\EnableTCPChimney"),
+                                  NULL, NULL, (LPBYTE) &chimney_enabled, &ce_size);
+        if (reg_ret == ERROR_SUCCESS && chimney_enabled) {
+            item_hb = welcome_button(WIRESHARK_STOCK_WIKI,
+                                     "Offloading Detected",
+                                     "TCP Chimney offloading is enabled. You \nmight not capture much data.",
+                                     topic_online_url(ONLINEPAGE_CHIMNEY),
+                                     topic_menu_cb, GINT_TO_POINTER(ONLINEPAGE_CHIMNEY));
+            gtk_box_pack_start(GTK_BOX(box_to_fill), item_hb_capture, FALSE, FALSE, 5);
+        }
+#endif /* _WIN32 */
+    } else {
+       if (if_view) {
+           clear_capture_box();
+       }
+       if (error != NO_INTERFACES_FOUND) {
+            if (error == CANT_GET_INTERFACE_LIST) {
+                label_text = g_strdup("No interface can be used for capturing in "
+                                      "this system with the current configuration.\n"
+                                      "\n"
+                                      "See Capture Help below for details.");
+            } else {
+                label_text = g_strdup("WinPcap doesn't appear to be installed.  "
+                                      "In order to capture packets, WinPcap "
+                                      "must be installed; see\n"
+                                      "\n"
+#if GTK_CHECK_VERSION(2,18,0)
+                                      "        <a href=\"http://www.winpcap.org/\">http://www.winpcap.org/</a>\n"
+#else
+                                      "        http://www.winpcap.org/\n"
+#endif
+                                      "\n"
+                                      "or the mirror at\n"
+                                      "\n"
+#if GTK_CHECK_VERSION(2,18,0)
+                                      "        <a href=\"http://www.mirrors.wiretapped.net/security/packet-capture/winpcap/\">http://www.mirrors.wiretapped.net/security/packet-capture/winpcap/</a>\n"
+#else
+                                      "        http://www.mirrors.wiretapped.net/security/packet-capture/winpcap/\n"
+#endif
+                                      "\n"
+                                      "or the mirror at\n"
+                                      "\n"
+#if GTK_CHECK_VERSION(2,18,0)
+                                      "        <a href=\"http://winpcap.cs.pu.edu.tw/\">http://winpcap.cs.pu.edu.tw/</a>\n"
+#else
+                                      "        http://winpcap.cs.pu.edu.tw/\n"
+#endif
+                                      "\n"
+                                      "for a downloadable version of WinPcap "
+                                      "and for instructions on how to install "
+                                      "WinPcap.");
+            }
+        } else {
+            label_text = g_strdup("No interface can be used for capturing in "
+                                  "this system with the current configuration.\n"
+                                  "\n"
+                                  "See Capture Help below for details.");
+        }
+        w = gtk_label_new(label_text);
+        gtk_label_set_markup(GTK_LABEL(w), label_text);
+        gtk_label_set_line_wrap(GTK_LABEL(w), TRUE);
+        g_free (label_text);
+        gtk_misc_set_alignment (GTK_MISC(w), 0.0f, 0.0f);
+        gtk_box_pack_start(GTK_BOX(box_to_fill), w, FALSE, FALSE, 5);
+#if GTK_CHECK_VERSION(2,18,0)
+        g_signal_connect(w, "activate-link", G_CALLBACK(activate_link_cb), NULL);
+#endif
+        g_object_set_data(G_OBJECT(welcome_hb), CAPTURE_LABEL, w);
+    }
+}
+#endif
+
 /* list the interfaces */
 void
 welcome_if_tree_load(void)
@@ -902,38 +1081,43 @@ welcome_if_tree_load(void)
     guint               i;
     GtkListStore        *store = NULL;
     GtkTreeIter         iter;
-    GtkWidget           *view;
     GtkTreeSelection    *entry;
     interface_t         device;
     gboolean            changed = FALSE;
-    int			error;
+    int                 error;
 
-    view = g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES);
-    entry = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
-    gtk_tree_selection_unselect_all(entry);
-    store = gtk_list_store_new(NUMCOLUMNS, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING);
+    if (if_view && swindow) {
+        entry = gtk_tree_view_get_selection(GTK_TREE_VIEW(if_view));
+        gtk_tree_selection_unselect_all(GTK_TREE_SELECTION(entry));
+        store = gtk_list_store_new(NUMCOLUMNS, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING);
 
-     gtk_list_store_clear(store);
-     gtk_tree_view_set_model(GTK_TREE_VIEW(if_view), GTK_TREE_MODEL (store));
-    /* LOAD THE INTERFACES */
-    if (global_capture_opts.all_ifaces->len == 0) {
-      scan_local_interfaces(&global_capture_opts, &error);
-    } else {
-        for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-            device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-            if (!device.hidden) {
-                gtk_list_store_append (store, &iter);
-                gtk_list_store_set (store, &iter, ICON, gtk_image_get_pixbuf(GTK_IMAGE(capture_get_if_icon(&device))), IFACE_DESCR, device.display_name, IFACE_NAME, device.name, -1);
-                if (device.selected) {
-                    gtk_tree_selection_select_iter(entry, &iter);
+        gtk_list_store_clear(store);
+        gtk_tree_view_set_model(GTK_TREE_VIEW(if_view), GTK_TREE_MODEL (store));
+        /* LOAD THE INTERFACES */
+        if (global_capture_opts.all_ifaces->len == 0) {
+            scan_local_interfaces(&global_capture_opts, &error);
+            if (global_capture_opts.all_ifaces->len == 0) {
+                fill_capture_box();
+            }
+        } else {
+            for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+                device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+                if (!device.hidden) {
+                    gtk_list_store_append (store, &iter);
+                    gtk_list_store_set (store, &iter, ICON, gtk_image_get_pixbuf(GTK_IMAGE(capture_get_if_icon(&device))), IFACE_DESCR, device.display_name, IFACE_NAME, device.name, -1);
+                    if (device.selected) {
+                        gtk_tree_selection_select_iter(entry, &iter);
+                    }
                 }
             }
+            changed = TRUE;
+            gtk_tree_selection_set_select_function(GTK_TREE_SELECTION(entry), on_selection_changed, (gpointer)&changed, NULL);
+            if (gtk_widget_is_focus(GTK_WIDGET(if_view)) && dlg_window_present()) {
+                update_all_rows();
+            }
         }
-        changed = TRUE;
-    }
-    gtk_tree_selection_set_select_function(entry, on_selection_changed, (gpointer)&changed, NULL);
-    if (gtk_widget_is_focus(view) && dlg_window_present()) {
-        update_all_rows();
+    } else {
+        fill_capture_box();    
     }
 #endif  /* HAVE_LIBPCAP */
 }
@@ -1007,8 +1191,9 @@ welcome_new(void)
     GtkWidget *header;
     GtkWidget *topic_vb;
     GtkWidget *topic_to_fill;
-    GtkWidget *file_child_box;
+    GtkWidget *topic_capture_to_fill;
     gchar     *label_text;
+    GtkWidget *file_child_box;
 #ifdef HAVE_LIBPCAP
     int       error;
 #endif
@@ -1017,15 +1202,9 @@ welcome_new(void)
     DWORD chimney_enabled = 0;
     DWORD ce_size = sizeof(chimney_enabled);
 #endif
-#ifdef HAVE_LIBPCAP
-    GtkTreeSelection *selection;
-    GtkCellRenderer *renderer;
-    GtkTreeViewColumn *column;
-#endif
-
     /* prepare colors */
 #if 0
-	/* Allocating collor isn't necessary? */
+    /* Allocating color isn't necessary? */
 
     /* "page" background */
     get_color(&welcome_bg);
@@ -1080,132 +1259,16 @@ welcome_new(void)
     gtk_box_pack_start(GTK_BOX(welcome_hb), column_vb, TRUE, TRUE, 0);
 
     /* capture topic */
-    topic_vb = welcome_topic_new("Capture", &topic_to_fill);
+    topic_vb = welcome_topic_new("Capture", &topic_capture_to_fill);
     gtk_box_pack_start(GTK_BOX(column_vb), topic_vb, TRUE, TRUE, 0);
+    g_object_set_data(G_OBJECT(welcome_hb), CAPTURE_VIEW, topic_capture_to_fill);
 
 #ifdef HAVE_LIBPCAP
     if (global_capture_opts.all_ifaces->len == 0) {
         scan_local_interfaces(&global_capture_opts, &error);
     }
-    if (global_capture_opts.all_ifaces->len > 0) {
-        item_hb = welcome_button(WIRESHARK_STOCK_CAPTURE_INTERFACES,
-            "Interface List",
-            "Live list of the capture interfaces\n(counts incoming packets)",
-            "Same as Capture/Interfaces menu or toolbar item",
-            welcome_button_callback_helper, capture_if_cb);
-        gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 
-        swindow = gtk_scrolled_window_new (NULL, NULL);
-        gtk_widget_set_size_request(swindow, FALSE, 100);
-        gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(swindow), GTK_SHADOW_IN);
-        gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(swindow), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-
-        if_view = gtk_tree_view_new ();
-        g_object_set(G_OBJECT(if_view), "headers-visible", FALSE, NULL);
-        g_signal_connect(if_view, "row-activated", G_CALLBACK(options_interface_cb), (gpointer)welcome_hb);
-        g_object_set_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES, if_view);
-        column = gtk_tree_view_column_new();
-        renderer = gtk_cell_renderer_pixbuf_new();
-        gtk_tree_view_column_pack_start(column, renderer, FALSE);
-        gtk_tree_view_column_set_attributes(column, renderer, "pixbuf", ICON, NULL);
-        renderer = gtk_cell_renderer_text_new();
-        gtk_tree_view_column_pack_start(column, renderer, TRUE);
-        gtk_tree_view_column_set_attributes(column, renderer, "text", IFACE_DESCR, NULL);
-        gtk_tree_view_append_column(GTK_TREE_VIEW(if_view), column);
-        gtk_tree_view_column_set_resizable(gtk_tree_view_get_column(GTK_TREE_VIEW(if_view), 0), TRUE);
-        renderer = gtk_cell_renderer_text_new();
-        column = gtk_tree_view_column_new_with_attributes ("",
-                                               GTK_CELL_RENDERER(renderer),
-                                               "text", IFACE_NAME,
-                                               NULL);
-        gtk_tree_view_append_column(GTK_TREE_VIEW(if_view), column);
-        gtk_tree_view_column_set_visible(column, FALSE);
-        selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(if_view));
-        gtk_tree_selection_set_mode(selection, GTK_SELECTION_MULTIPLE);
-        item_hb = welcome_button(WIRESHARK_STOCK_CAPTURE_START,
-            "Start",
-            "Choose one or more interfaces to capture from, then <b>Start</b>",
-            "Same as Capture/Interfaces with default options",
-            (welcome_button_callback_t)capture_if_start, (gpointer)if_view);
-        gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
-        welcome_if_tree_load();
-        gtk_container_add (GTK_CONTAINER (swindow), if_view);
-        gtk_container_add(GTK_CONTAINER(topic_to_fill), swindow);
-
-        item_hb = welcome_button(WIRESHARK_STOCK_CAPTURE_OPTIONS,
-                "Capture Options",
-                "Start a capture with detailed options",
-                "Same as Capture/Options menu or toolbar item",
-                welcome_button_callback_helper, capture_prep_cb);
-        gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
-#ifdef _WIN32
-        /* Check for chimney offloading */
-        reg_ret = RegQueryValueEx(HKEY_LOCAL_MACHINE,
-                                  _T("SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\EnableTCPChimney"),
-                                  NULL, NULL, (LPBYTE) &chimney_enabled, &ce_size);
-        if (reg_ret == ERROR_SUCCESS && chimney_enabled) {
-            item_hb = welcome_button(WIRESHARK_STOCK_WIKI,
-                    "Offloading Detected",
-                    "TCP Chimney offloading is enabled. You \nmight not capture much data.",
-                    topic_online_url(ONLINEPAGE_CHIMNEY),
-                    topic_menu_cb, GINT_TO_POINTER(ONLINEPAGE_CHIMNEY));
-            gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
-        }
-#endif /* _WIN32 */
-    } else {
-       if (error != NO_INTERFACES_FOUND) {
-            if (error == CANT_GET_INTERFACE_LIST) {
-                label_text = g_strdup("No interface can be used for capturing in "
-                                      "this system with the current configuration.\n"
-                                      "\n"
-                                      "See Capture Help below for details.");
-            } else {
-                label_text = g_strdup("WinPcap doesn't appear to be installed.  "
-                                      "In order to capture packets, WinPcap "
-                                      "must be installed; see\n"
-                                      "\n"
-#if GTK_CHECK_VERSION(2,18,0)
-                                      "        <a href=\"http://www.winpcap.org/\">http://www.winpcap.org/</a>\n"
-#else
-                                      "        http://www.winpcap.org/\n"
-#endif
-                                      "\n"
-                                      "or the mirror at\n"
-                                      "\n"
-#if GTK_CHECK_VERSION(2,18,0)
-                                      "        <a href=\"http://www.mirrors.wiretapped.net/security/packet-capture/winpcap/\">http://www.mirrors.wiretapped.net/security/packet-capture/winpcap/</a>\n"
-#else
-                                      "        http://www.mirrors.wiretapped.net/security/packet-capture/winpcap/\n"
-#endif
-                                      "\n"
-                                      "or the mirror at\n"
-                                      "\n"
-#if GTK_CHECK_VERSION(2,18,0)
-                                      "        <a href=\"http://winpcap.cs.pu.edu.tw/\">http://winpcap.cs.pu.edu.tw/</a>\n"
-#else
-                                      "        http://winpcap.cs.pu.edu.tw/\n"
-#endif
-                                      "\n"
-                                      "for a downloadable version of WinPcap "
-                                      "and for instructions on how to install "
-                                      "WinPcap.");
-            }
-        } else {
-            label_text = g_strdup("No interface can be used for capturing in "
-                                  "this system with the current configuration.\n"
-                                  "\n"
-                                  "See Capture Help below for details.");
-        }
-        w = gtk_label_new(label_text);
-        gtk_label_set_markup(GTK_LABEL(w), label_text);
-        gtk_label_set_line_wrap(GTK_LABEL(w), TRUE);
-        g_free (label_text);
-        gtk_misc_set_alignment (GTK_MISC(w), 0.0f, 0.0f);
-        gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 5);
-#if GTK_CHECK_VERSION(2,18,0)
-        g_signal_connect(w, "activate-link", G_CALLBACK(activate_link_cb), NULL);
-#endif
-    }
+    fill_capture_box();
 
     /* capture help topic */
     topic_vb = welcome_topic_new("Capture Help", &topic_to_fill);
@@ -1230,12 +1293,12 @@ welcome_new(void)
     gtk_label_set_markup(GTK_LABEL(w), label_text);
     g_free (label_text);
     gtk_misc_set_alignment (GTK_MISC(w), 0.0f, 0.0f);
-    gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 5);
+    gtk_box_pack_start(GTK_BOX(topic_capture_to_fill), w, FALSE, FALSE, 5);
 #endif  /* HAVE_LIBPCAP */
 
     /* fill bottom space */
     w = gtk_label_new("");
-    gtk_box_pack_start(GTK_BOX(topic_to_fill), w, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(topic_capture_to_fill), w, TRUE, TRUE, 0);
 
 
     /* column files */

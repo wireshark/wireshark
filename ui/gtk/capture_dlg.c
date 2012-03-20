@@ -766,7 +766,7 @@ iftype_combo_box_new(void)
   if (g_hash_table_size (remote_host_list) > 0) {
     /* Add remote hosts */
     g_hash_table_foreach (remote_host_list, iftype_combo_box_add_remote_host, iftype_cbx);
-	iftype_combo_box_add_remote_separators (iftype_cbx);
+    iftype_combo_box_add_remote_separators (iftype_cbx);
   }
 
   g_signal_connect(iftype_cbx, "changed", G_CALLBACK(select_if_type_cb), NULL);
@@ -1137,31 +1137,31 @@ select_if_type_cb(GtkComboBox *iftype_cbx, gpointer data _U_)
 
   if (new_iftype != -1 && new_iftype == num_remote+1) {
     g_hash_table_foreach_remove (remote_host_list, free_remote_host, NULL);
-	num_remote += 2;
-	while (num_remote--) { /* Remove separator lines and "Clear" item */
-	  gtk_combo_box_text_remove (GTK_COMBO_BOX_TEXT(iftype_cbx), num_remote);
-	}
+    num_remote += 2;
+    while (num_remote--) { /* Remove separator lines and "Clear" item */
+      gtk_combo_box_text_remove (GTK_COMBO_BOX_TEXT(iftype_cbx), num_remote);
+    }
     remote_w = g_object_get_data(G_OBJECT(new_interfaces_w), E_CAP_REMOTE_DIALOG_PTR_KEY);
-	window_destroy(GTK_WIDGET(remote_w));
+    window_destroy(GTK_WIDGET(remote_w));
     capture_remote_cb(GTK_WIDGET(iftype_cbx), FALSE);
   } else {
     string = gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT(iftype_cbx));
-	rh = g_hash_table_lookup (remote_host_list, string);
-	g_free (string);
-	if (rh) {
-	  remote_w = g_object_get_data(G_OBJECT(new_interfaces_w), E_CAP_REMOTE_DIALOG_PTR_KEY);
-	  port_te = g_object_get_data(G_OBJECT(remote_w), E_REMOTE_PORT_TE_KEY);
+    rh = g_hash_table_lookup (remote_host_list, string);
+    g_free (string);
+    if (rh) {
+      remote_w = g_object_get_data(G_OBJECT(new_interfaces_w), E_CAP_REMOTE_DIALOG_PTR_KEY);
+      port_te = g_object_get_data(G_OBJECT(remote_w), E_REMOTE_PORT_TE_KEY);
       gtk_entry_set_text(GTK_ENTRY(port_te), rh->remote_port);
-	  auth_rb = g_object_get_data(G_OBJECT(remote_w), E_REMOTE_AUTH_PASSWD_KEY);
-	  if (rh->auth_type == CAPTURE_AUTH_PWD) {
+      auth_rb = g_object_get_data(G_OBJECT(remote_w), E_REMOTE_AUTH_PASSWD_KEY);
+      if (rh->auth_type == CAPTURE_AUTH_PWD) {
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(auth_rb), TRUE);
-	  } else {
+      } else {
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(auth_rb), FALSE);
-	  }
+      }
       user_te = g_object_get_data(G_OBJECT(remote_w), E_REMOTE_USERNAME_TE_KEY);
-	  gtk_entry_set_text(GTK_ENTRY(user_te), rh->auth_username);
+      gtk_entry_set_text(GTK_ENTRY(user_te), rh->auth_username);
       pass_te = g_object_get_data(G_OBJECT(remote_w), E_REMOTE_PASSWD_TE_KEY);
-	  gtk_entry_set_text(GTK_ENTRY(pass_te), rh->auth_password);
+      gtk_entry_set_text(GTK_ENTRY(pass_te), rh->auth_password);
     }
   }
 }
@@ -2588,7 +2588,7 @@ add_pipe_cb(gpointer w _U_)
   GtkTreeModel *model;
   GtkTreeIter  iter;
   gchar        *temp, *path_str, *snaplen_string;
-  GtkWidget 	 *pipe_te;
+  GtkWidget    *pipe_te;
   const gchar  *g_save_file;
   gchar        *name;
   guint        i;
@@ -2614,7 +2614,7 @@ add_pipe_cb(gpointer w _U_)
         return;
       }
     }
-    pipe_name 					= g_strdup(g_save_file);
+    pipe_name           = g_strdup(g_save_file);
     device.name         = g_strdup(g_save_file);
     device.display_name = g_strdup_printf("%s", device.name);
     device.hidden       = FALSE;
@@ -2778,7 +2778,7 @@ static void
 fill_pipe_list(void)
 {
   guint          i;
-  interface_t	   device;
+  interface_t    device;
   GtkTreeIter    iter;
   GtkTreeView   *pipe_l = GTK_TREE_VIEW(g_object_get_data(G_OBJECT(new_interfaces_w), E_CAP_PIPE_L_KEY));
   GtkListStore  *store  = GTK_LIST_STORE(gtk_tree_view_get_model(pipe_l));
@@ -2831,7 +2831,7 @@ static void
 fill_local_list(void)
 {
   guint          i;
-  interface_t	   device;
+  interface_t    device;
   GtkTreeIter    iter;
   GtkListStore  *store;
   GtkTreeView   *local_l = GTK_TREE_VIEW(g_object_get_data(G_OBJECT(new_interfaces_w), E_CAP_LOCAL_L_KEY));
@@ -2857,7 +2857,7 @@ static void local_hide_cb(GtkCellRendererToggle *cell _U_,
   gboolean hide;
   GtkTreeModel  *model;
   GtkTreeIter    iter;
-  GtkTreePath 	*path = gtk_tree_path_new_from_string (path_str);
+  GtkTreePath   *path = gtk_tree_path_new_from_string (path_str);
   GtkTreeView   *local_l = GTK_TREE_VIEW(g_object_get_data(G_OBJECT(new_interfaces_w), E_CAP_LOCAL_L_KEY));
 
   model = gtk_tree_view_get_model(local_l);
@@ -2931,15 +2931,13 @@ rescan_local_cb(GtkWidget *button, gpointer *data _U_)
 
   gtk_widget_set_sensitive(GTK_WIDGET(button), FALSE);
   scan_local_interfaces(&global_capture_opts, &error);
-  if (global_capture_opts.all_ifaces->len > 0) {
-    fill_local_list();
-    update_all_rows();
-    if (interfaces_dialog_window_present()) {
-      refresh_if_window();
-    }
-    if (get_welcome_window() != NULL) {
-      welcome_if_panel_reload ();
-    }
+  fill_local_list();
+  update_all_rows();
+  if (interfaces_dialog_window_present()) {
+    refresh_if_window();
+  }
+  if (get_welcome_window() != NULL) {
+    welcome_if_panel_reload ();
   }
   gtk_widget_set_sensitive(GTK_WIDGET(button), TRUE);
 }
@@ -2967,9 +2965,9 @@ fill_remote_list(void)
     } else {
       /* fill the store */
       if (strcmp(host, device.remote_opts.remote_host_opts.remote_host) != 0) {
-		remote_w = g_object_get_data(G_OBJECT(new_interfaces_w), E_CAP_REMOTE_DIALOG_PTR_KEY);
-		host_te = (GtkWidget *)g_object_get_data(G_OBJECT(remote_w), E_REMOTE_HOST_TE_KEY);
-	    iftype_combo_box_add (host_te, &device);
+        remote_w = g_object_get_data(G_OBJECT(new_interfaces_w), E_CAP_REMOTE_DIALOG_PTR_KEY);
+        host_te = (GtkWidget *)g_object_get_data(G_OBJECT(remote_w), E_REMOTE_HOST_TE_KEY);
+        iftype_combo_box_add (host_te, &device);
         host = g_strdup(device.remote_opts.remote_host_opts.remote_host);
         gtk_tree_store_append(store, &iter, NULL);
         gtk_tree_store_set(store, &iter, 0, host, 3, "FALSE", -1);
@@ -3006,7 +3004,7 @@ static void remote_hide_cb(GtkCellRendererToggle *cell _U_,
   gboolean hide;
   GtkTreeModel  *model;
   GtkTreeIter    iter;
-  GtkTreePath 	*path = gtk_tree_path_new_from_string (path_str);
+  GtkTreePath   *path = gtk_tree_path_new_from_string (path_str);
   GtkTreeView   *remote_l = GTK_TREE_VIEW(g_object_get_data(G_OBJECT(new_interfaces_w), E_CAP_REMOTE_L_KEY));
 
   model = gtk_tree_view_get_model(remote_l);
@@ -3076,7 +3074,7 @@ select_host_cb(GtkTreeSelection *selection _U_,
   gtk_tree_model_get_iter (model, &iter, path);
   if (gtk_tree_model_iter_has_child(model, &iter)) {
     num_selected++;
-	gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(new_interfaces_w), E_REMOTE_DEL_BT_KEY), TRUE);
+    gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(new_interfaces_w), E_REMOTE_DEL_BT_KEY), TRUE);
     return TRUE;
   } else {
     return FALSE;
@@ -3105,7 +3103,7 @@ remove_remote_host(GtkWidget *w _U_, gpointer data _U_)
       }
     }
     gtk_tree_store_remove(GTK_TREE_STORE(model), &iter);
-	  if (--num_selected == 0) {
+    if (--num_selected == 0) {
       gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(new_interfaces_w), E_REMOTE_DEL_BT_KEY), FALSE);
     }
     for (i = global_capture_opts.all_ifaces->len-1; i >= 0; i--) {
@@ -3353,7 +3351,7 @@ show_add_interfaces_dialog(void)
   gtk_widget_show(bbox);
   gtk_widget_show(temp_page);
 
-	
+
 #if defined (HAVE_PCAP_REMOTE)
   /* remote interfaces */
   temp_page = gtk_vbox_new(FALSE, 6);
