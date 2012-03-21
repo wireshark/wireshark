@@ -1218,8 +1218,8 @@ dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree, tvb
 /* ECN */
 static int
 dissect_usb_interface_assn_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree,
-	tvbuff_t *tvb, int offset, usb_trans_info_t *usb_trans_info _U_,
-	usb_conv_info_t *usb_conv_info _U_)
+        tvbuff_t *tvb, int offset, usb_trans_info_t *usb_trans_info _U_,
+        usb_conv_info_t *usb_conv_info _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -2291,24 +2291,26 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
             offset += 8;
 
             /* Make sure we have the proper conversation */
-            if (USB_TYPE(usb_trans_info->setup.requesttype) == RQT_SETUP_TYPE_CLASS) {
-                if (USB_RECIPIENT(usb_trans_info->setup.requesttype) == RQT_SETUP_RECIPIENT_INTERFACE) {
-                    guint32 if_port = htolel(INTERFACE_PORT | (usb_trans_info->setup.wIndex & 0xff));
-                    conversation = get_usb_conversation(pinfo, &pinfo->src, &pinfo->dst, if_port, pinfo->destport);
-                    usb_conv_info = get_usb_conv_info(conversation);
-                    usb_conv_info->usb_trans_info = usb_trans_info;
-                    pinfo->usb_conv_info = usb_conv_info;
-                } else if (USB_RECIPIENT(usb_trans_info->setup.requesttype) == RQT_SETUP_RECIPIENT_ENDPOINT) {
-                    static address endpoint_addr;
-                    endpoint = usb_trans_info->setup.wIndex & 0x0f;
+            if (usb_trans_info) {
+                if (USB_TYPE(usb_trans_info->setup.requesttype) == RQT_SETUP_TYPE_CLASS) {
+                    if (USB_RECIPIENT(usb_trans_info->setup.requesttype) == RQT_SETUP_RECIPIENT_INTERFACE) {
+                        guint32 if_port = htolel(INTERFACE_PORT | (usb_trans_info->setup.wIndex & 0xff));
+                        conversation = get_usb_conversation(pinfo, &pinfo->src, &pinfo->dst, if_port, pinfo->destport);
+                        usb_conv_info = get_usb_conv_info(conversation);
+                        usb_conv_info->usb_trans_info = usb_trans_info;
+                        pinfo->usb_conv_info = usb_conv_info;
+                    } else if (USB_RECIPIENT(usb_trans_info->setup.requesttype) == RQT_SETUP_RECIPIENT_ENDPOINT) {
+                        static address endpoint_addr;
+                        endpoint = usb_trans_info->setup.wIndex & 0x0f;
 
-                    src_addr.endpoint = src_endpoint = htolel(endpoint);
-                    SET_ADDRESS(&endpoint_addr, AT_USB, USB_ADDR_LEN, (char *)&src_addr);
+                        src_addr.endpoint = src_endpoint = htolel(endpoint);
+                        SET_ADDRESS(&endpoint_addr, AT_USB, USB_ADDR_LEN, (char *)&src_addr);
 
-                    conversation = get_usb_conversation(pinfo, &endpoint_addr, &pinfo->dst, src_endpoint, pinfo->destport);
-                    usb_conv_info = get_usb_conv_info(conversation);
-                    usb_conv_info->usb_trans_info = usb_trans_info;
-                    pinfo->usb_conv_info = usb_conv_info;
+                        conversation = get_usb_conversation(pinfo, &endpoint_addr, &pinfo->dst, src_endpoint, pinfo->destport);
+                        usb_conv_info = get_usb_conv_info(conversation);
+                        usb_conv_info->usb_trans_info = usb_trans_info;
+                        pinfo->usb_conv_info = usb_conv_info;
+                    }
                 }
             }
 
