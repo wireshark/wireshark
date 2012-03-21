@@ -3435,6 +3435,7 @@ dissect_17221_aecp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aecp_tree)
                AECP_NAME_INDEX_OFFSET, 2, ENC_BIG_ENDIAN);
          proto_tree_add_item(aecp_tree, hf_aecp_name, tvb,
                AECP_NAME_OFFSET, 64, ENC_ASCII|ENC_NA);
+         break;
       case AECP_COMMAND_GET_NAME:
          proto_tree_add_item(aecp_tree, hf_aecp_descriptor_type, tvb,
                AECP_DESCRIPTOR_TYPE_OFFSET, 2, ENC_BIG_ENDIAN);
