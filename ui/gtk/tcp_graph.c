@@ -1832,16 +1832,36 @@ static void graph_segment_list_get (struct graph *g)
 
 typedef struct _th_t {
 	int num_hdrs;
-	struct tcpheader *tcphdr;
+	#define MAX_SUPPORTED_TCP_HEADERS 8
+	struct tcpheader *tcphdrs[MAX_SUPPORTED_TCP_HEADERS];
 } th_t;
 
 static int
 tap_tcpip_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *vip)
 {
+	int n;
+	gboolean is_unique = TRUE;
 	th_t *th=pct;
+	struct tcpheader *header = (struct tcpheader *)vip;
 
-	th->num_hdrs++;
-	th->tcphdr=(struct tcpheader *)vip;
+	/* Check new header details against any/all stored ones */
+	for (n=0; n < th->num_hdrs; n++) {
+		struct tcpheader *stored = th->tcphdrs[n];
+
+		if (compare_headers(&stored->ip_src, &stored->ip_dst,
+		                    stored->th_sport, stored->th_dport,
+		                    &header->ip_src, &header->ip_dst,
+		                    header->th_sport, stored->th_dport,
+		                    COMPARE_CURR_DIR)) {
+			is_unique = FALSE;
+			break;
+		}
+	}
+
+	/* Add address if unique and have space for it */
+	if (is_unique && (th->num_hdrs < MAX_SUPPORTED_TCP_HEADERS)) {
+		th->tcphdrs[th->num_hdrs++] = header;
+	}
 
 	return 0;
 }
@@ -1858,7 +1878,7 @@ static struct tcpheader *select_tcpip_session (capture_file *cf, struct segment 
 	epan_dissect_t edt;
 	dfilter_t *sfcode;
 	GString *error_string;
-	th_t th = {0, NULL};
+	th_t th = {0, {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}};
 
 	fdata = cf->current_frame;
 
@@ -1904,26 +1924,27 @@ static struct tcpheader *select_tcpip_session (capture_file *cf, struct segment 
 	if(th.num_hdrs>1){
 		/* can only handle a single tcp layer yet */
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		    "The selected packet has more than one TCP"
-		    "header in it.");
+		    "The selected packet has more than one TCP unique conversation "
+		    "in it.");
 		return NULL;
 	}
 
+	/* For now, still always choose the first/only one */
 	hdrs->num = fdata->num;
 	hdrs->rel_secs = (guint32) fdata->rel_ts.secs;
 	hdrs->rel_usecs = fdata->rel_ts.nsecs/1000;
 	hdrs->abs_secs = (guint32) fdata->abs_ts.secs;
 	hdrs->abs_usecs = fdata->abs_ts.nsecs/1000;
-	hdrs->th_seq=th.tcphdr->th_seq;
-	hdrs->th_ack=th.tcphdr->th_ack;
-	hdrs->th_win=th.tcphdr->th_win;
-	hdrs->th_flags=th.tcphdr->th_flags;
-	hdrs->th_sport=th.tcphdr->th_sport;
-	hdrs->th_dport=th.tcphdr->th_dport;
-	hdrs->th_seglen=th.tcphdr->th_seglen;
-	COPY_ADDRESS(&hdrs->ip_src, &th.tcphdr->ip_src);
-	COPY_ADDRESS(&hdrs->ip_dst, &th.tcphdr->ip_dst);
-	return th.tcphdr;
+	hdrs->th_seq=th.tcphdrs[0]->th_seq;
+	hdrs->th_ack=th.tcphdrs[0]->th_ack;
+	hdrs->th_win=th.tcphdrs[0]->th_win;
+	hdrs->th_flags=th.tcphdrs[0]->th_flags;
+	hdrs->th_sport=th.tcphdrs[0]->th_sport;
+	hdrs->th_dport=th.tcphdrs[0]->th_dport;
+	hdrs->th_seglen=th.tcphdrs[0]->th_seglen;
+	COPY_ADDRESS(&hdrs->ip_src, &th.tcphdrs[0]->ip_src);
+	COPY_ADDRESS(&hdrs->ip_dst, &th.tcphdrs[0]->ip_dst);
+	return th.tcphdrs[0];
 
 }
 
