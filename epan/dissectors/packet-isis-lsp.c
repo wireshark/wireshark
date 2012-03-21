@@ -1109,8 +1109,6 @@ dissect_isis_rt_capable_clv(tvbuff_t *tvb,
                     mt_desc = "INVALID";
                     ti = proto_tree_add_text(tree, tvb, offset, (rt_block&0x00ff)+2, "%s sub tlv", mt_desc);
 
-                    proto_item_add_subtree(ti, ett_isis_lsp_clv_rt_capable_IPv4_prefx);
-
                     offset = offset+1;
                     length = length-2-(tvb_get_guint8(tvb, offset));
                     offset = offset+1+(tvb_get_guint8(tvb, offset));
