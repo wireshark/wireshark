@@ -2597,7 +2597,7 @@ add_pipe_cb(gpointer w _U_)
   pipe_te = (GtkWidget *) g_object_get_data(G_OBJECT(new_interfaces_w), E_CAP_PIPE_TE_KEY);
   g_save_file = gtk_entry_get_text(GTK_ENTRY(pipe_te));
   name = g_strdup(g_save_file);
-  if (strcmp(name, "New pipe") == 0) {
+  if (strcmp(name, "New pipe") == 0 || strcmp(name, "") == 0) {
     return;
   }
   if (strcmp(pipe_name, "New pipe") != 0) {

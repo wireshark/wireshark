@@ -944,7 +944,7 @@ static void fill_capture_box(void)
     GtkCellRenderer   *renderer;
     GtkTreeViewColumn *column;
     int               error = 0;
-    gchar             *label_text;
+    gchar             *label_text, *err_str;
 #ifdef _WIN32
     DWORD reg_ret;
     DWORD chimney_enabled = 0;
@@ -1027,6 +1027,7 @@ static void fill_capture_box(void)
        if (if_view) {
            clear_capture_box();
        }
+       capture_interface_list(&error, &err_str);
        switch (error) {
 
        case CANT_GET_INTERFACE_LIST:
