@@ -550,8 +550,8 @@ dissect_usb_hub_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Check valid values for bmRequestType and bRequest */
 	for (tmp = setup_dissectors; tmp->dissector; tmp++) {
-		if (tmp->request_type == usb_trans_info->requesttype &&
-		    tmp->request == usb_trans_info->request) {
+		if (tmp->request_type == usb_trans_info->setup.requesttype &&
+		    tmp->request == usb_trans_info->setup.request) {
 			dissector = tmp->dissector;
 			break;
 		}
@@ -567,7 +567,7 @@ dissect_usb_hub_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
-		val_to_str(usb_trans_info->request, setup_request_names_vals, "Unknown type %x"),
+		val_to_str(usb_trans_info->setup.request, setup_request_names_vals, "Unknown type %x"),
 			is_request ? "Request" : "Response");
 	}
 

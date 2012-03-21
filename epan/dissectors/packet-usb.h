@@ -30,6 +30,11 @@ typedef struct _usb_address_t {
 } usb_address_t;
 #define USB_ADDR_LEN (sizeof(usb_address_t))
 
+/* Flag used to mark usb_address_t.endpoint as an interface
+ * address instead of the normal endpoint address.
+ */
+#define INTERFACE_PORT	0x80000000
+
 
 typedef struct _usb_conv_info_t usb_conv_info_t;
 
@@ -38,8 +43,17 @@ typedef struct _usb_trans_info_t {
     guint32 request_in;
     guint32 response_in;
     nstime_t req_time;
-    guint8 requesttype;
-    guint8 request;
+    gboolean header_len_64;
+
+    /* Valid only for SETUP transactions */
+    struct _usb_setup {
+        guint8 requesttype;
+        guint8 request;
+        guint16 wValue;
+        guint16 wIndex;
+    } setup;
+
+    /* Valid only during GET DESCRIPTOR transactions */
     union {
         struct {
             guint8 type;
@@ -53,6 +67,7 @@ typedef struct _usb_trans_info_t {
      * descriptors so that we can create a
      * conversation with the appropriate class
      * once we know the endpoint.
+     * Valid only during GET CONFIGURATION response.
      */
     usb_conv_info_t *interface_info;
 } usb_trans_info_t;
@@ -133,6 +148,8 @@ typedef struct _usb_tap_data_t {
 #define RQT_SETUP_TYPE_CLASS	1
 #define RQT_SETUP_TYPE_VENDOR	2
 
+#define USB_RECIPIENT_MASK              0x1F
+#define USB_RECIPIENT(type)             ((type) & USB_RECIPIENT_MASK)
 #define RQT_SETUP_RECIPIENT_DEVICE      0
 #define RQT_SETUP_RECIPIENT_INTERFACE   1
 #define RQT_SETUP_RECIPIENT_ENDPOINT    2
