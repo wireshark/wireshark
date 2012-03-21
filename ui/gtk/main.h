@@ -354,5 +354,10 @@ extern GtkWidget *pkt_scrollw;
 
 void hide_interface(gchar* new_hide);
 
+/*
+ * Fetch the list of local interfaces with capture_interface_list()
+ * and add it to *capture_opts.
+ */
+extern void scan_local_interfaces(capture_options* capture_opts, int *error);
 
 #endif /* __MAIN_H__ */

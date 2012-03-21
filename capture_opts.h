@@ -280,9 +280,6 @@ typedef struct {
 cap_settings_t
 capture_get_cap_settings (gchar *if_name);
 
-extern void 
-scan_local_interfaces(capture_options* capture_opts, int *error);
-
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
