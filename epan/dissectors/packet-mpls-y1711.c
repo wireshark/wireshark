@@ -132,9 +132,6 @@ dissect_mpls_y1711(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /* sanity checks */
-    if (!tree)
-        return 0;
-
     if (!tvb_bytes_exist(tvb, offset, 44)) {
         /*
          * ITU-T Y.1711, 5.3: PDUs must have a minimum payload length of
