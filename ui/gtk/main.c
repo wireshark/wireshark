@@ -3971,7 +3971,8 @@ guint get_interface_type(gchar *name, gchar *description)
 
 /*
  * Fetch the list of local interfaces with capture_interface_list()
- * and add it to *capture_opts.
+ * and set the list of "all interfaces" in *capture_opts to include
+ * those interfaces.
  */
 void
 scan_local_interfaces(capture_options* capture_opts, int *error)

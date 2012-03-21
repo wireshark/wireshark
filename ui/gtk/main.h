@@ -356,7 +356,8 @@ void hide_interface(gchar* new_hide);
 
 /*
  * Fetch the list of local interfaces with capture_interface_list()
- * and add it to *capture_opts.
+ * and set the list of "all interfaces" in *capture_opts to include
+ * those interfaces.
  */
 extern void scan_local_interfaces(capture_options* capture_opts, int *error);
 
