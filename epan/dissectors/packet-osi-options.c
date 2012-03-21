@@ -229,7 +229,7 @@ dissect_option_route( guchar parm_type, int offset, guchar parm_len,
     netl     = tvb_get_guint8(tvb, next_hop + 2 );
     this_hop = offset + 2;         /* points to first netl */
     
-    ti = proto_tree_add_text( tree, tvb, offset + next_hop, netl,
+    proto_tree_add_text( tree, tvb, offset + next_hop, netl,
             "Source Routing: %s   ( Next Hop Highlighted In Data Buffer )",
             (tvb_get_guint8(tvb, offset) == 0) ? "Partial Source Routing" :
                                                  "Complete Source Routing"  );
