@@ -4036,7 +4036,7 @@ dissect_vid(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
   proto_item_append_text(tree," : %s", vendorstring);
 
   /* Check Point VID */
-  if (length >= 20 && memcmp(pVID, VID_CP, 20) == 0)
+  if (length >= 24 && memcmp(pVID, VID_CP, 20) == 0)
   {
     offset += 20;
     proto_tree_add_item(tree, hf_isakmp_vid_cp_product, tvb, offset, 4, ENC_BIG_ENDIAN);
