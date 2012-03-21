@@ -1382,7 +1382,7 @@ proto_mpeg_descriptor_dissect_content_identifier(tvbuff_t *tvb, guint offset, gu
 
 	while (offset < end) {
 		crid = tvb_get_guint8(tvb, offset);
-		crid_type = (crid & MPEG_DESCR_CONTENT_IDENTIFIER_CRID_LOCATION_MASK) >> 2;
+		crid_type = (crid & MPEG_DESCR_CONTENT_IDENTIFIER_CRID_TYPE_MASK) >> 2;
 		crid_location = crid & MPEG_DESCR_CONTENT_IDENTIFIER_CRID_LOCATION_MASK;
 
 		if (crid_location == 0) {
@@ -1486,6 +1486,7 @@ proto_mpeg_descriptor_dissect_logon_initialize(tvbuff_t *tvb, guint offset, guin
 
 	guint end = offset + len;
 	guint8 flags = 0;
+	guint16 flags2 = 0;
 
 	proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_group_id, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
@@ -1509,7 +1510,8 @@ proto_mpeg_descriptor_dissect_logon_initialize(tvbuff_t *tvb, guint offset, guin
 	proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_traffic_burst_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 	if (flags & MPEG_DESCR_LOGON_INITIALIZE_TRAFFIC_BURST_TYPE_MASK) {
 		proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_connectivity, tvb, offset, 2, ENC_BIG_ENDIAN);
-		if (flags & MPEG_DESCR_LOGON_INITIALIZE_CONNECTIVITY_MASK) {
+		flags2 = tvb_get_ntohs(tvb, offset);
+		if (flags2 & MPEG_DESCR_LOGON_INITIALIZE_CONNECTIVITY_MASK) {
 			proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_return_signalling_vpi_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_return_signalling_vpi, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
@@ -1541,7 +1543,7 @@ proto_mpeg_descriptor_dissect_logon_initialize(tvbuff_t *tvb, guint offset, guin
 		offset += 2;
 	}
 
-	if (offset < end && (flags & MPEG_DESCR_LOGON_INITIALIZE_CONNECTIVITY_MASK)) {
+	if (offset < end && (flags & MPEG_DESCR_LOGON_INITIALIZE_CAPACITY_TYPE_FLAG_MASK)) {
 
 		proto_tree_add_item(tree, hf_mpeg_descr_logon_initialize_cra_level, tvb, offset, 3, ENC_BIG_ENDIAN);
 		offset += 3;
