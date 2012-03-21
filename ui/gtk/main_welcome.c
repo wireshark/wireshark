@@ -995,9 +995,7 @@ static void fill_capture_box(void)
                                        "Same as Capture/Interfaces with default options",
                                        (welcome_button_callback_t)capture_if_start, (gpointer)if_view);
         gtk_box_pack_start(GTK_BOX(box_to_fill), item_hb_start, FALSE, FALSE, 5);
-#if 0
         welcome_if_tree_load();
-#endif
         gtk_container_add (GTK_CONTAINER (swindow), if_view);
         gtk_container_add(GTK_CONTAINER(box_to_fill), swindow);
         g_object_set_data(G_OBJECT(welcome_hb), CAPTURE_HB_BOX_START, item_hb_start);
