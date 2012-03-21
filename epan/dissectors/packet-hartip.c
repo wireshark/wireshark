@@ -946,7 +946,7 @@ dissect_hartip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       ti = proto_tree_add_uint(hdr_tree, hf_hartip_hdr_message_id, tvb, offset++, 1,
         hdr.message_id);
       proto_item_set_text(ti, "Message ID: %s", msg_id_str);
-      ti = proto_tree_add_uint(hdr_tree, hf_hartip_hdr_status, tvb, offset++, 1,
+      proto_tree_add_uint(hdr_tree, hf_hartip_hdr_status, tvb, offset++, 1,
         hdr.status);
 
       proto_tree_add_uint(hdr_tree, hf_hartip_hdr_transaction_id, tvb, offset, 2,
@@ -958,7 +958,7 @@ dissect_hartip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       /* add body elements. */
       if (bodylen < 0) {
-        body_node = proto_tree_add_text(hartip_tree, tvb, offset, hdr.length - HARTIP_HEADER_LENGTH,
+        proto_tree_add_text(hartip_tree, tvb, offset, hdr.length - HARTIP_HEADER_LENGTH,
           "HART_IP Body - Invalid size");
         return;
       } else {
