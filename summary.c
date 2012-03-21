@@ -157,8 +157,6 @@ summary_fill_in(capture_file *cf, summary_tally *st)
 
   /* Get info from SHB */
   shb_inf = wtap_file_get_shb_info(cf->wth);
-
-  shb_inf = wtap_file_get_shb_info(cf->wth);
   if(shb_inf == NULL){
 	  st->opt_comment    = NULL;
 	  st->shb_hardware   = NULL;
