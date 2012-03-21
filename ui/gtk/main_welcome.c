@@ -105,8 +105,10 @@ static GdkColor topic_item_idle_bg;
 static GdkColor topic_item_entered_bg = { 0, 0xd3d3, 0xd8d8, 0xdada };
 #endif
 static GtkWidget *welcome_file_panel_vb = NULL;
+#ifdef HAVE_LIBPCAP
 static GtkWidget *if_view = NULL;
 static GtkWidget *swindow;
+#endif
 
 static GSList *status_messages = NULL;
 
