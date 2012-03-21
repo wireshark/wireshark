@@ -117,6 +117,7 @@ static GMutex *recent_mtx;
 #ifdef HAVE_LIBPCAP
 static void capture_if_start(GtkWidget *w _U_, gpointer data _U_);
 static gboolean activate_link_cb(GtkLabel *label _U_, gchar *uri, gpointer user_data _U_);
+static void welcome_if_tree_load(void);
 #endif
 
 /* The "scroll box dynamic" is a (complicated) pseudo widget to */
@@ -1079,7 +1080,7 @@ static void fill_capture_box(void)
 #endif
 
 /* list the interfaces */
-void
+static void
 welcome_if_tree_load(void)
 {
 #ifdef HAVE_LIBPCAP

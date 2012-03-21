@@ -51,8 +51,6 @@ void main_welcome_add_recent_capture_file(const char *widget_cf_name, GObject *m
 /* reload the list of interfaces */
 void welcome_if_panel_reload(void);
 
-void welcome_if_tree_load(void);
-
 /** Push a status message into the welcome screen header similar to
  *  statusbar_push_*_msg(). This hides everything under the header.
  *  If msg is dynamically allocated, it is up to the caller to free
