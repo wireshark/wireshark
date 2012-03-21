@@ -934,7 +934,10 @@ clear_capture_box(void)
 static void fill_capture_box(void)
 {
     GtkWidget         *box_to_fill;
-    GtkWidget         *item_hb_interface_list, *item_hb_capture, *item_hb_start, *label, *w, *item_hb;
+    GtkWidget         *item_hb_interface_list, *item_hb_capture, *item_hb_start, *label, *w;
+#ifdef _WIN32
+    GtkWidget         *item_hb;
+#endif
     GtkTreeSelection  *selection;
     GtkCellRenderer   *renderer;
     GtkTreeViewColumn *column;
