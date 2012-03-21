@@ -911,7 +911,7 @@ static void
 clear_capture_box(void)
 {
     GtkWidget         *item_hb;
-    
+
     item_hb = g_object_get_data(G_OBJECT(welcome_hb), CAPTURE_HB_BOX_INTERFACE_LIST);
     if (item_hb) {
         gtk_widget_destroy(item_hb);
@@ -948,7 +948,7 @@ static void fill_capture_box(void)
     DWORD chimney_enabled = 0;
     DWORD ce_size = sizeof(chimney_enabled);
 #endif
-  
+
     label = g_object_get_data(G_OBJECT(welcome_hb), CAPTURE_LABEL);
     if (label) {
         gtk_widget_destroy(label);
@@ -1082,11 +1082,11 @@ static void fill_capture_box(void)
 }
 #endif
 
+#ifdef HAVE_LIBPCAP
 /* list the interfaces */
 static void
 welcome_if_tree_load(void)
 {
-#ifdef HAVE_LIBPCAP
     guint               i;
     GtkListStore        *store = NULL;
     GtkTreeIter         iter;
@@ -1126,10 +1126,10 @@ welcome_if_tree_load(void)
             }
         }
     } else {
-        fill_capture_box();    
+        fill_capture_box();
     }
-#endif  /* HAVE_LIBPCAP */
 }
+#endif  /* HAVE_LIBPCAP */
 
 
 /* reload the list of interfaces */
