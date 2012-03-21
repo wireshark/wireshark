@@ -116,7 +116,9 @@ static GMutex *recent_mtx;
 
 #ifdef HAVE_LIBPCAP
 static void capture_if_start(GtkWidget *w _U_, gpointer data _U_);
+#if GTK_CHECK_VERSION(2,18,0)
 static gboolean activate_link_cb(GtkLabel *label _U_, gchar *uri, gpointer user_data _U_);
+#endif
 static void welcome_if_tree_load(void);
 #endif
 
