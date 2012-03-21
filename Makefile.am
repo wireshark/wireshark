@@ -339,21 +339,6 @@ else
 wireshark_LDFLAGS = -export-dynamic
 endif
 
-#
-# UI code for Wireshark with Qt.
-#
-wireshark_QT_UI_LIBS = \
-	ui/qt/libqtui.a		\
-	@Qt_LIBS@
-
-#
-# UI code for Wireshark with GTK+.
-#
-wireshark_GTK_UI_LIBS = \
-	ui/gtk/libgtkui.a	\
-	ui/gtk/libgtkui_dirty.a	\
-	@GTK_LIBS@ -lm
-
 # Libraries and plugin flags with which to link wireshark.
 #
 # Note that Wireshark doesn't have to be linked with @GLIB_LIBS@, as
@@ -362,7 +347,8 @@ wireshark_GTK_UI_LIBS = \
 # @GTK_LIBS@ (as those are also needed for X applications, and GTK+
 # applications are X applications).
 wireshark_LDADD = \
-	@UI_LIBS@			\
+	ui/gtk/libgtkui.a		\
+	ui/gtk/libgtkui_dirty.a		\
 	ui/libui.a			\
 	codecs/libcodec.a		\
 	wiretap/libwiretap.la		\
@@ -380,7 +366,9 @@ wireshark_LDADD = \
 	@LIBGCRYPT_LIBS@		\
 	@LIBGNUTLS_LIBS@		\
 	@LIBSMI_LDFLAGS@		\
-	@PORTAUDIO_LIBS@
+	@PORTAUDIO_LIBS@		\
+	@GTK_LIBS@ -lm
+
 wireshark_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
 
 if ENABLE_STATIC

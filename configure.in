@@ -819,7 +819,6 @@ if test "x$enable_wireshark" = "xyes"; then
 			# compile.
 			#
 			CPPFLAGS="-DQT_GUI_LIB $CPPFLAGS"
-			UI_LIBS='$(wireshark_QT_UI_LIBS)'
 			have_qt=yes
 		],
 		[
@@ -842,7 +841,6 @@ if test "x$enable_wireshark" = "xyes"; then
 				CFLAGS="$CFLAGS $GTK_CFLAGS"
 				CXXFLAGS="$CXXFLAGS $GTK_CFLAGS"
 				have_gtk=yes
-				UI_LIBS='$(wireshark_GTK_UI_LIBS)'
 				AC_DEFINE(HAVE_GTK, 1,
 				    [Define to 1 if compiling with GTK])
 			], have_gtk=no)
@@ -853,7 +851,6 @@ if test "x$enable_wireshark" = "xyes"; then
 				CFLAGS="$CFLAGS $GTK_CFLAGS"
 				CXXFLAGS="$CXXFLAGS $GTK_CFLAGS"
 				have_gtk=yes
-				UI_LIBS='$(wireshark_GTK_UI_LIBS)'
 				AC_DEFINE(HAVE_GTK, 1,
 				    [Define to 1 if compiling with GTK])
 			], have_gtk=no)
@@ -863,7 +860,6 @@ else
 	have_qt=no
 	have_gtk=no
 fi
-AC_SUBST(UI_LIBS)
 
 # GLib checks; we require GLib 2.14 or later, and require gmodule
 # support, as we need that for dynamically loading plugins.
