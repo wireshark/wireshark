@@ -178,13 +178,14 @@ AM_CONDITIONAL(HAVE_DOXYGEN, test x$HAVE_DOXYGEN = xyes)
 AC_SYS_LARGEFILE
 
 # GnuTLS
+# Version 3.0 switched from LGPLv2.1+ to LGPLv3+. 
 tls_message="no"
 AC_ARG_WITH([gnutls],
   AC_HELP_STRING( [--with-gnutls=@<:@yes/no@:>@],
 		  [use GnuTLS library @<:@default=yes@:>@]),
   with_gnutls="$withval", with_gnutls="yes")
 if test "x$with_gnutls" = "xyes"; then
-  PKG_CHECK_MODULES([LIBGNUTLS], [gnutls >= 1.2.0],
+  PKG_CHECK_MODULES([LIBGNUTLS], [gnutls >= 1.2.0 gnutls < 3],
         [
                 echo "GnuTLS found, enabling SSL decryption"
                 AC_DEFINE(HAVE_LIBGNUTLS, 1, [Define to use GnuTLS library])
