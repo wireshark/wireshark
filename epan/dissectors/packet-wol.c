@@ -88,10 +88,10 @@ static gint ett_wol_macblock = -1;
 static int
 dissect_wol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint len;
-    gint offset;
-    guint8 sync[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
-    guint8 *mac;
+    guint         len;
+    gint          offset;
+    guint8        sync[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
+    guint8       *mac;
     const guint8 *passwd;
 
 /* Set up structures needed to add the protocol subtree and manage it */
@@ -352,11 +352,10 @@ proto_reg_handoff_wol(void)
  *
  * Local variables:
  * c-basic-offset: 4
- * tab-width: 4
+ * tab-width: 8
  * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=4 tabstop=4 expandtab:
- * :indentSize=4:tabSize=4:noTabs=true:
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
  */
-

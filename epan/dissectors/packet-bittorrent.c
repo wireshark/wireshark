@@ -45,19 +45,19 @@
  * http://bitconjurer.org/BitTorrent/protocol.html
  */
 
-#define BITTORRENT_MESSAGE_CHOKE          0
-#define BITTORRENT_MESSAGE_UNCHOKE        1
-#define BITTORRENT_MESSAGE_INTERESTED     2
-#define BITTORRENT_MESSAGE_NOT_INTERESTED 3
-#define BITTORRENT_MESSAGE_HAVE           4
-#define BITTORRENT_MESSAGE_BITFIELD       5
-#define BITTORRENT_MESSAGE_REQUEST        6
-#define BITTORRENT_MESSAGE_PIECE          7
-#define BITTORRENT_MESSAGE_CANCEL         8
-#define BITTORRENT_MESSAGE_PORT           9
-#define BITTORRENT_MESSAGE_EXTENDED      20
+#define BITTORRENT_MESSAGE_CHOKE            0
+#define BITTORRENT_MESSAGE_UNCHOKE          1
+#define BITTORRENT_MESSAGE_INTERESTED       2
+#define BITTORRENT_MESSAGE_NOT_INTERESTED   3
+#define BITTORRENT_MESSAGE_HAVE             4
+#define BITTORRENT_MESSAGE_BITFIELD         5
+#define BITTORRENT_MESSAGE_REQUEST          6
+#define BITTORRENT_MESSAGE_PIECE            7
+#define BITTORRENT_MESSAGE_CANCEL           8
+#define BITTORRENT_MESSAGE_PORT             9
+#define BITTORRENT_MESSAGE_EXTENDED        20
 
-#define BITTORRENT_HEADER_LENGTH          4
+#define BITTORRENT_HEADER_LENGTH            4
 
 /*
  * Azureus messages are specified by name so these are made up numbers
@@ -74,23 +74,23 @@
 
 
 static const value_string bittorrent_messages[] = {
-   { BITTORRENT_MESSAGE_CHOKE, "Choke" },
-   { BITTORRENT_MESSAGE_UNCHOKE, "Unchoke" },
-   { BITTORRENT_MESSAGE_INTERESTED, "Interested" },
+   { BITTORRENT_MESSAGE_CHOKE,          "Choke" },
+   { BITTORRENT_MESSAGE_UNCHOKE,        "Unchoke" },
+   { BITTORRENT_MESSAGE_INTERESTED,     "Interested" },
    { BITTORRENT_MESSAGE_NOT_INTERESTED, "Not Interested" },
-   { BITTORRENT_MESSAGE_HAVE, "Have" },
-   { BITTORRENT_MESSAGE_BITFIELD, "Bitfield" },
-   { BITTORRENT_MESSAGE_REQUEST, "Request" },
-   { BITTORRENT_MESSAGE_PIECE, "Piece" },
-   { BITTORRENT_MESSAGE_CANCEL, "Cancel" },
-   { BITTORRENT_MESSAGE_PORT, "Port" },
-   { BITTORRENT_MESSAGE_EXTENDED, "Extended" },
-   { AZUREUS_MESSAGE_KEEP_ALIVE, "Keepalive" },
-   { AZUREUS_MESSAGE_HANDSHAKE, "Azureus Handshake" },
-   { AZUREUS_MESSAGE_BT_HANDSHAKE, "Azureus BitTorrent Handshake" },
-   { AZUREUS_MESSAGE_PEER_EXCHANGE, "Azureus Peer Exchange" },
-   { AZUREUS_MESSAGE_JPC_HELLO, "Azureus PeerCache Hello" },
-   { AZUREUS_MESSAGE_JPC_REPLY, "Azureus PeerCache Reply" },
+   { BITTORRENT_MESSAGE_HAVE,           "Have" },
+   { BITTORRENT_MESSAGE_BITFIELD,       "Bitfield" },
+   { BITTORRENT_MESSAGE_REQUEST,        "Request" },
+   { BITTORRENT_MESSAGE_PIECE,          "Piece" },
+   { BITTORRENT_MESSAGE_CANCEL,         "Cancel" },
+   { BITTORRENT_MESSAGE_PORT,           "Port" },
+   { BITTORRENT_MESSAGE_EXTENDED,       "Extended" },
+   { AZUREUS_MESSAGE_KEEP_ALIVE,        "Keepalive" },
+   { AZUREUS_MESSAGE_HANDSHAKE,         "Azureus Handshake" },
+   { AZUREUS_MESSAGE_BT_HANDSHAKE,      "Azureus BitTorrent Handshake" },
+   { AZUREUS_MESSAGE_PEER_EXCHANGE,     "Azureus Peer Exchange" },
+   { AZUREUS_MESSAGE_JPC_HELLO,         "Azureus PeerCache Hello" },
+   { AZUREUS_MESSAGE_JPC_REPLY,         "Azureus PeerCache Reply" },
    { 0, NULL }
 };
 
@@ -104,27 +104,27 @@ static const value_string azureus_priorities[] = {
 
 struct amp_message {
    const char *name;
-   guint32 value;
+   guint32     value;
 };
 
 static const struct amp_message amp_messages[] = {
-   { "BT_KEEP_ALIVE", AZUREUS_MESSAGE_KEEP_ALIVE },
-   { "BT_CHOKE", BITTORRENT_MESSAGE_CHOKE },
-   { "BT_UNCHOKE", BITTORRENT_MESSAGE_UNCHOKE },
-   { "BT_INTERESTED", BITTORRENT_MESSAGE_INTERESTED },
-   { "BT_UNINTERESTED", BITTORRENT_MESSAGE_NOT_INTERESTED },
-   { "BT_HAVE", BITTORRENT_MESSAGE_HAVE },
-   { "BT_BITFIELD", BITTORRENT_MESSAGE_BITFIELD },
-   { "BT_REQUEST", BITTORRENT_MESSAGE_REQUEST },
-   { "BT_PIECE", BITTORRENT_MESSAGE_PIECE },
-   { "BT_CANCEL", BITTORRENT_MESSAGE_CANCEL },
-   { "BT_PORT", BITTORRENT_MESSAGE_PORT },
-   { "BT_EXTENDED", BITTORRENT_MESSAGE_EXTENDED },
-   { "AZ_HANDSHAKE", AZUREUS_MESSAGE_HANDSHAKE },
-   { "BT_HANDSHAKE", AZUREUS_MESSAGE_BT_HANDSHAKE },
+   { "BT_KEEP_ALIVE",    AZUREUS_MESSAGE_KEEP_ALIVE },
+   { "BT_CHOKE",         BITTORRENT_MESSAGE_CHOKE },
+   { "BT_UNCHOKE",       BITTORRENT_MESSAGE_UNCHOKE },
+   { "BT_INTERESTED",    BITTORRENT_MESSAGE_INTERESTED },
+   { "BT_UNINTERESTED",  BITTORRENT_MESSAGE_NOT_INTERESTED },
+   { "BT_HAVE",          BITTORRENT_MESSAGE_HAVE },
+   { "BT_BITFIELD",      BITTORRENT_MESSAGE_BITFIELD },
+   { "BT_REQUEST",       BITTORRENT_MESSAGE_REQUEST },
+   { "BT_PIECE",         BITTORRENT_MESSAGE_PIECE },
+   { "BT_CANCEL",        BITTORRENT_MESSAGE_CANCEL },
+   { "BT_PORT",          BITTORRENT_MESSAGE_PORT },
+   { "BT_EXTENDED",      BITTORRENT_MESSAGE_EXTENDED },
+   { "AZ_HANDSHAKE",     AZUREUS_MESSAGE_HANDSHAKE },
+   { "BT_HANDSHAKE",     AZUREUS_MESSAGE_BT_HANDSHAKE },
    { "AZ_PEER_EXCHANGE", AZUREUS_MESSAGE_PEER_EXCHANGE },
-   { "JPC_HELLO", AZUREUS_MESSAGE_JPC_HELLO },
-   { "JPC_REPLY", AZUREUS_MESSAGE_JPC_REPLY },
+   { "JPC_HELLO",        AZUREUS_MESSAGE_JPC_HELLO },
+   { "JPC_REPLY",        AZUREUS_MESSAGE_JPC_REPLY },
    { NULL, 0 }
 };
 
@@ -162,20 +162,20 @@ static gint hf_azureus_jpc_session      = -1;
 static gint hf_bittorrent_port          = -1;
 static gint hf_bittorrent_extended      = -1;
 
-static gint ett_bittorrent = -1;
-static gint ett_bittorrent_msg = -1;
-static gint ett_peer_id = -1;
-static gint ett_bittorrent_bdict = -1;
-static gint ett_bittorrent_bdict_entry = -1;
-static gint ett_bittorrent_blist = -1;
+static gint ett_bittorrent              = -1;
+static gint ett_bittorrent_msg          = -1;
+static gint ett_peer_id                 = -1;
+static gint ett_bittorrent_bdict        = -1;
+static gint ett_bittorrent_bdict_entry  = -1;
+static gint ett_bittorrent_blist        = -1;
 
-static gboolean bittorrent_desegment = TRUE;
+static gboolean bittorrent_desegment      = TRUE;
 static gboolean decode_client_information = FALSE;
 
 struct client_information {
-   char id[5];       /* string length must be <= 4 to allow space for NUL termination byte */
-   char ver_len;
-   const char *name; /* NULL means array entry terminates the array */
+   char        id[5];     /* string length must be <= 4 to allow space for NUL termination byte */
+   char        ver_len;
+   const char *name;      /* NULL means array entry terminates the array */
 };
 
 static struct client_information peer_id[] = {
@@ -265,19 +265,20 @@ static struct client_information peer_id[] = {
    {"",     0, NULL}
 };
 
-static guint get_bittorrent_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+static guint
+get_bittorrent_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
-   guint8 type;
+   guint8  type;
    guint32 length;
 
    if (tvb_get_guint8(tvb, offset) == 19 &&
        tvb_memeql(tvb, offset + 1, "BitTorrent protocol", 19) == 0) {
       /* Return the length of a Handshake message */
-      return 1 + /* pstrlen */
-         19 +    /* pstr */
-         8 +     /* reserved */
-         20 +    /* SHA1 hash of the info key */
-         20;     /* peer id */
+      return  1 + /* pstrlen */
+             19 + /* pstr */
+              8 + /* reserved */
+             20 + /* SHA1 hash of the info key */
+             20;  /* peer id */
    } else {
       /* Try to validate the length of the message indicated by the header. */
       length = tvb_get_ntohl(tvb, offset);
@@ -312,13 +313,14 @@ static guint get_bittorrent_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb, in
    }
 }
 
-static int dissect_bencoding_str(tvbuff_t *tvb, packet_info *pinfo _U_,
+static int
+dissect_bencoding_str(tvbuff_t *tvb, packet_info *pinfo _U_,
                                  int offset, int length, proto_tree *tree, proto_item *ti, int treeadd)
 {
    guint8 ch;
-   int stringlen = 0, nextstringlen;
-   int used;
-   int izero = 0;
+   int    stringlen = 0, nextstringlen;
+   int    used;
+   int    izero     = 0;
 
    if (length<2) {
       if (tree) {
@@ -379,8 +381,9 @@ static int dissect_bencoding_str(tvbuff_t *tvb, packet_info *pinfo _U_,
    return -1;
 }
 
-static int dissect_bencoding_int(tvbuff_t *tvb, packet_info *pinfo _U_,
-                                 int offset, int length, proto_tree *tree, proto_item *ti, int treeadd)
+static int
+dissect_bencoding_int(tvbuff_t *tvb, packet_info *pinfo _U_,
+                      int offset, int length, proto_tree *tree, proto_item *ti, int treeadd)
 {
    gint32 ival=0;
    int neg = 0;
@@ -446,12 +449,13 @@ static int dissect_bencoding_int(tvbuff_t *tvb, packet_info *pinfo _U_,
    return -1;
 }
 
-static int dissect_bencoding_rec(tvbuff_t *tvb, packet_info *pinfo _U_,
-                                 int offset, int length, proto_tree *tree, int level, proto_item *treei, int treeadd)
+static int
+dissect_bencoding_rec(tvbuff_t *tvb, packet_info *pinfo _U_,
+                      int offset, int length, proto_tree *tree, int level, proto_item *treei, int treeadd)
 {
    guint8 op;
-   int oplen = 0, op1len, op2len;
-   int used;
+   int    oplen = 0, op1len, op2len;
+   int    used;
 
    proto_item *ti = NULL, *td = NULL;
    proto_tree *itree = NULL, *dtree = NULL;
@@ -565,26 +569,28 @@ static int dissect_bencoding_rec(tvbuff_t *tvb, packet_info *pinfo _U_,
    return -1;
 }
 
-static void dissect_bencoding(tvbuff_t *tvb, packet_info *pinfo _U_,
+static void
+dissect_bencoding(tvbuff_t *tvb, packet_info *pinfo _U_,
                               int offset, int length, proto_tree *tree)
 {
-  dissect_bencoding_rec(tvb, pinfo, offset, length, tree, 0, NULL, 0);
+   dissect_bencoding_rec(tvb, pinfo, offset, length, tree, 0, NULL, 0);
 }
 
-static void dissect_bittorrent_message (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void
+dissect_bittorrent_message (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-   int offset = 0;
-   int i;
-   int isamp = 0;
+   int         offset  = 0;
+   int         i;
+   int         isamp   = 0;
    proto_tree *mtree;
-   guint16 type = 0;
-   guint32 typelen = 0;
-   guint8 prio = 0;
-   guint32 length;
+   guint16     type    = 0;
+   guint32     typelen = 0;
+   guint8      prio    = 0;
+   guint32     length;
    const char *msgtype = NULL;
    proto_item *ti;
-   guint32 piece_index, piece_begin, piece_length;
-   guint32 stringlen;
+   guint32     piece_index, piece_begin, piece_length;
+   guint32     stringlen;
 
    if (tvb_bytes_exist(tvb, offset + BITTORRENT_HEADER_LENGTH, 1)) {
       /* Check for data from the middle of a message. */
@@ -688,9 +694,9 @@ static void dissect_bittorrent_message (tvbuff_t *tvb, packet_info *pinfo, proto
       proto_tree_add_uint(mtree, hf_bittorrent_piece_length, tvb, offset, 4, piece_length);
       proto_item_append_text(ti, ", Piece (Idx:0x%x,Begin:0x%x,Len:0x%x)", piece_index, piece_begin, piece_length);
 
-	  col_append_fstr(pinfo->cinfo, COL_INFO, ", Piece (Idx:0x%x,Begin:0x%x,Len:0x%x)", piece_index, piece_begin, piece_length);
+      col_append_fstr(pinfo->cinfo, COL_INFO, ", Piece (Idx:0x%x,Begin:0x%x,Len:0x%x)", piece_index, piece_begin, piece_length);
 
-	  break;
+      break;
 
    case BITTORRENT_MESSAGE_PORT:
       /* port as payload */
@@ -707,16 +713,16 @@ static void dissect_bittorrent_message (tvbuff_t *tvb, packet_info *pinfo, proto
       proto_tree_add_item(mtree, hf_bittorrent_piece_index, tvb, offset, 4, ENC_BIG_ENDIAN);
       proto_item_append_text(ti, ", Piece (Idx:0x%x)", piece_index);
 
-	  col_append_fstr(pinfo->cinfo, COL_INFO, ", Piece (Idx:0x%x)", piece_index);
+      col_append_fstr(pinfo->cinfo, COL_INFO, ", Piece (Idx:0x%x)", piece_index);
 
-	  break;
+      break;
 
    case BITTORRENT_MESSAGE_BITFIELD:
       proto_tree_add_item(mtree, hf_bittorrent_bitfield_data, tvb, offset, length, ENC_NA);
       proto_item_append_text(ti, ", Len:0x%x", length);
       col_append_fstr(pinfo->cinfo, COL_INFO, ", Len:0x%x", length);
 
-	  break;
+      break;
 
    case BITTORRENT_MESSAGE_PIECE:
       piece_index = tvb_get_ntohl(tvb, offset);
@@ -731,7 +737,7 @@ static void dissect_bittorrent_message (tvbuff_t *tvb, packet_info *pinfo, proto
       proto_item_append_text(ti, ", Idx:0x%x,Begin:0x%x,Len:0x%x", piece_index, piece_begin, length);
       col_append_fstr(pinfo->cinfo, COL_INFO, ", Idx:0x%x,Begin:0x%x,Len:0x%x", piece_index, piece_begin, length);
 
-	  break;
+      break;
 
    case AZUREUS_MESSAGE_HANDSHAKE:
    case AZUREUS_MESSAGE_PEER_EXCHANGE:
@@ -755,10 +761,11 @@ static void dissect_bittorrent_message (tvbuff_t *tvb, packet_info *pinfo, proto
    }
 }
 
-static int dissect_bittorrent_welcome (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int
+dissect_bittorrent_welcome (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-   int offset = 0;
-   int i;
+   int   offset = 0;
+   int   i;
    char *version;
 
    col_set_str(pinfo->cinfo, COL_INFO, "Handshake");
@@ -788,7 +795,8 @@ static int dissect_bittorrent_welcome (tvbuff_t *tvb, packet_info *pinfo _U_, pr
    return offset;
 }
 
-static void dissect_bittorrent_tcp_pdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static
+void dissect_bittorrent_tcp_pdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
    proto_item *ti;
 
@@ -811,14 +819,16 @@ static void dissect_bittorrent_tcp_pdu (tvbuff_t *tvb, packet_info *pinfo, proto
 
 }
 
-static void dissect_bittorrent (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static
+void dissect_bittorrent (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
    tcp_dissect_pdus(tvb, pinfo, tree, bittorrent_desegment, BITTORRENT_HEADER_LENGTH,
                     get_bittorrent_pdu_length, dissect_bittorrent_tcp_pdu);
 }
 
-static gboolean test_bittorrent_packet (tvbuff_t *tvb, packet_info *pinfo,
-                                        proto_tree *tree)
+static
+gboolean test_bittorrent_packet (tvbuff_t *tvb, packet_info *pinfo,
+                                 proto_tree *tree)
 {
    conversation_t *conversation;
 
@@ -985,10 +995,10 @@ proto_reg_handoff_bittorrent(void)
  *
  * Local Variables:
  * c-basic-offset: 3
- * tab-width: 3
+ * tab-width: 8
  * indent-tabs-mode: nil
  * End:
  *
- * ex: set shiftwidth=3 tabstop=3 expandtab:
- * :indentSize=3:tabSize=3:noTabs=true:
+ * ex: set shiftwidth=3 tabstop=8 expandtab:
+ * :indentSize=3:tabSize=8:noTabs=true:
  */

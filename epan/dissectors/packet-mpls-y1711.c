@@ -101,12 +101,13 @@ static const value_string y1711_defect_type_vals[] = {
 static int
 dissect_mpls_y1711(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree *mpls_y1711_tree = NULL;
-    struct mplsinfo *mplsinfo = pinfo->private_data;
-    proto_item *ti = NULL;
-    int functype = -1;
-    int offset = 0;
-    const guint8 allone[] = { 0xff, 0xff };
+    proto_tree      *mpls_y1711_tree = NULL;
+    struct mplsinfo *mplsinfo        = pinfo->private_data;
+    proto_item      *ti              = NULL;
+    int              functype        = -1;
+    int              offset          = 0;
+
+    const guint8 allone[]  = { 0xff, 0xff };
     const guint8 allzero[] = { 0x00, 0x00, 0x00, 0x00, 0x00,
                                0x00, 0x00, 0x00, 0x00, 0x00,
                                0x00, 0x00, 0x00, 0x00, 0x00,
@@ -152,7 +153,7 @@ dissect_mpls_y1711(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* checks for exp, bos and ttl encoding */
     if (mplsinfo->label != LABEL_OAM_ALERT)
         proto_tree_add_text(mpls_y1711_tree, tvb, offset - 4, 3,
-                            "Warning: Y.1711 but no OAM alert label (%d) ?!", 
+                            "Warning: Y.1711 but no OAM alert label (%d) ?!",
                             LABEL_OAM_ALERT);
 
     if (mplsinfo->exp != 0)
@@ -421,7 +422,7 @@ void
 proto_reg_handoff_mpls_y1711(void)
 {
     mpls_y1711_handle = find_dissector("mpls_y1711");
-    dissector_add_uint("mpls.label", 
+    dissector_add_uint("mpls.label",
                        LABEL_OAM_ALERT /* 14 */,
                        mpls_y1711_handle);
 }
@@ -431,10 +432,10 @@ proto_reg_handoff_mpls_y1711(void)
  *
  * Local variables:
  * c-basic-offset: 4
- * tab-width: 4
+ * tab-width: 8
  * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=4 tabstop=4 expandtab:
- * :indentSize=4:tabSize=4:noTabs=true:
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
  */

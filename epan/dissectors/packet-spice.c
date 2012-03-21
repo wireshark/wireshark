@@ -165,7 +165,7 @@ static const value_string playback_mode_vals[] = {
 #define SPICE_PLAYBACK_CAP_CELT_0_5_1 0
 #define SPICE_PLAYBACK_CAP_VOLUME 1
 
-#define SPICE_PLAYBACK_CAP_CELT_0_5_1_MASK (1 << SPICE_PLAYBACK_CAP_CELT_0_5_1) 
+#define SPICE_PLAYBACK_CAP_CELT_0_5_1_MASK (1 << SPICE_PLAYBACK_CAP_CELT_0_5_1)
 #define SPICE_PLAYBACK_CAP_VOLUME_MASK (1 << SPICE_PLAYBACK_CAP_VOLUME) /* 0x2 */
 
 /* main channel */
@@ -296,7 +296,7 @@ static const value_string record_client_message_types[] = {
 /* record channel capabilities - same as playback */
 #define SPICE_RECORD_CAP_CELT_0_5_1 0
 
-#define SPICE_RECORD_CAP_CELT_0_5_1_MASK (1 << SPICE_RECORD_CAP_CELT_0_5_1) 
+#define SPICE_RECORD_CAP_CELT_0_5_1_MASK (1 << SPICE_RECORD_CAP_CELT_0_5_1)
 
 /* display channel */
 /* display channel server messages */
@@ -615,8 +615,8 @@ typedef struct {
     gint16 y;
 } point16_t;
 
-#define    SPICE_BRUSH_TYPE_NONE 0
-#define    SPICE_BRUSH_TYPE_SOLID 1
+#define    SPICE_BRUSH_TYPE_NONE    0
+#define    SPICE_BRUSH_TYPE_SOLID   1
 #define    SPICE_BRUSH_TYPE_PATTERN 2
 
 static const value_string brush_types_vs[] = {
@@ -701,8 +701,8 @@ static const value_string image_type_vs[] = {
 };
 
 /* FIXME - those flags should be bit-wise, I guess! */
-#define IMAGE_FLAGS_CACHE_ME    (1 << 0)
-#define IMAGE_FLAGS_HIGH_BITS_SET    (1 << 1)
+#define IMAGE_FLAGS_CACHE_ME      (1 << 0)
+#define IMAGE_FLAGS_HIGH_BITS_SET (1 << 1)
 #define IMAGE_FLAGS_REPLACE_ME    (1 << 2)
 static const value_string image_flags_vs[] = {
     { 0,                         "None" },
@@ -728,11 +728,11 @@ static const value_string rop_descriptor_vs[] = {
 };
 
 #define QUIC_IMAGE_TYPE_INVALID 0
-#define QUIC_IMAGE_TYPE_GRAY 1
-#define QUIC_IMAGE_TYPE_RGB16 2
-#define QUIC_IMAGE_TYPE_RGB24 3
-#define QUIC_IMAGE_TYPE_RGB32 4
-#define QUIC_IMAGE_TYPE_RGBA 5
+#define QUIC_IMAGE_TYPE_GRAY    1
+#define QUIC_IMAGE_TYPE_RGB16   2
+#define QUIC_IMAGE_TYPE_RGB24   3
+#define QUIC_IMAGE_TYPE_RGB32   4
+#define QUIC_IMAGE_TYPE_RGBA    5
 
 static const value_string quic_type_vs[] = {
     { QUIC_IMAGE_TYPE_INVALID, "INVALID" },
@@ -795,20 +795,20 @@ static const value_string Pixmap_types_vs[] = {
 
 
 #define SPICE_COMMON_CAP_PROTOCOL_AUTH_SELECTION 0
-#define SPICE_COMMON_CAP_AUTH_SPICE 1
-#define SPICE_COMMON_CAP_AUTH_SASL 2
-#define SPICE_COMMON_CAP_MINI_HEADER 3
+#define SPICE_COMMON_CAP_AUTH_SPICE              1
+#define SPICE_COMMON_CAP_AUTH_SASL               2
+#define SPICE_COMMON_CAP_MINI_HEADER             3
 
 #define SPICE_COMMON_CAP_PROTOCOL_AUTH_SELECTION_MASK (1 << SPICE_COMMON_CAP_PROTOCOL_AUTH_SELECTION) /* 0x1 */
-#define SPICE_COMMON_CAP_AUTH_SPICE_MASK (1 << SPICE_COMMON_CAP_AUTH_SPICE) /* 0x2 */
-#define SPICE_COMMON_CAP_AUTH_SASL_MASK (1 << SPICE_COMMON_CAP_AUTH_SASL) /*0x4 */
-#define SPICE_COMMON_CAP_MINI_HEADER_MASK (1 << SPICE_COMMON_CAP_MINI_HEADER)
+#define SPICE_COMMON_CAP_AUTH_SPICE_MASK              (1 << SPICE_COMMON_CAP_AUTH_SPICE)              /* 0x2 */
+#define SPICE_COMMON_CAP_AUTH_SASL_MASK               (1 << SPICE_COMMON_CAP_AUTH_SASL)               /* 0x4 */
+#define SPICE_COMMON_CAP_MINI_HEADER_MASK             (1 << SPICE_COMMON_CAP_MINI_HEADER)
 
 static const value_string spice_auth_select_vs[] = {
     { SPICE_COMMON_CAP_PROTOCOL_AUTH_SELECTION, "Auth Selection" },
-    { SPICE_COMMON_CAP_AUTH_SPICE, "Spice" },
-    { SPICE_COMMON_CAP_AUTH_SASL, "SASL" },
-    { SPICE_COMMON_CAP_MINI_HEADER, "Mini header" },
+    { SPICE_COMMON_CAP_AUTH_SPICE,              "Spice" },
+    { SPICE_COMMON_CAP_AUTH_SASL,               "SASL" },
+    { SPICE_COMMON_CAP_MINI_HEADER,             "Mini header" },
     { 0, NULL }
 };
 
@@ -1012,10 +1012,10 @@ dissect_ID(tvbuff_t *tvb, proto_tree *tree, const guint32 offset)
 static guint32
 dissect_Pixmap(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 {
-    proto_item *ti=NULL;
+    proto_item *ti = NULL;
     proto_tree *Pixmap_tree;
-    guint32 PixmapSize;
-    guint32 strides, height, pallete_ptr;
+    guint32     PixmapSize;
+    guint32     strides, height, pallete_ptr;
 
     ti = proto_tree_add_text(tree, tvb, offset, 0, "Pixmap"); /* size is fixed later */
     Pixmap_tree = proto_item_add_subtree(ti, ett_Pixmap);
@@ -1049,9 +1049,10 @@ dissect_Pixmap(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 static guint8
 dissect_CursorHeader(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint16 *width, guint16 *height)
 {
-    proto_item *ti=NULL;
-    proto_tree *CursorHeader_tree;
-    const guint8 type = tvb_get_guint8(tvb, offset + 8);
+    proto_item   *ti   = NULL;
+    proto_tree   *CursorHeader_tree;
+    const guint8  type = tvb_get_guint8(tvb, offset + 8);
+
     *width  = tvb_get_letohs(tvb, offset + 8 + 1);
     *height = tvb_get_letohs(tvb, offset + 8 + 1 + 2);
 
@@ -1078,12 +1079,12 @@ dissect_CursorHeader(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint16 *w
 static guint32
 dissect_RedCursor(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 {
-    proto_item *ti=NULL;
-    proto_tree *RedCursor_tree;
-    guint8 type;
-    guint16 height, width;
-    guint32 init_offset = offset, data_size = 0;
-    const guint16 flags = tvb_get_letohs(tvb, offset);
+    proto_item    *ti          = NULL;
+    proto_tree    *RedCursor_tree;
+    guint8         type;
+    guint16        height, width;
+    guint32        init_offset = offset, data_size = 0;
+    const guint16  flags       = tvb_get_letohs(tvb, offset);
 
     ti = proto_tree_add_text(tree, tvb, offset, 2, "RedCursor"); /* FIXME - fix size if flag is not NONE */
     RedCursor_tree = proto_item_add_subtree(ti, ett_RedCursor);
@@ -1137,9 +1138,9 @@ dissect_RedCursor(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 static guint8
 dissect_ImageDescriptor(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 {
-    proto_item *ti=NULL;
-    proto_tree *ImageDescriptor_tree;
-    const guint8 type = tvb_get_guint8(tvb, offset + 8);
+    proto_item   *ti   = NULL;
+    proto_tree   *ImageDescriptor_tree;
+    const guint8  type = tvb_get_guint8(tvb, offset + 8);
 
     if (tree) {
         ti = proto_tree_add_text(tree, tvb, offset, sizeof_ImageDescriptor, "Image Descriptor");
@@ -1162,9 +1163,9 @@ dissect_ImageDescriptor(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 static guint32
 dissect_ImageQuic(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 {
-    proto_item *ti=NULL;
-    proto_tree *ImageQuic_tree;
-    const guint32 QuicSize = tvb_get_letohl(tvb, offset);
+    proto_item    *ti       = NULL;
+    proto_tree    *ImageQuic_tree;
+    const guint32  QuicSize = tvb_get_letohl(tvb, offset);
 
     if (tree) {
         ti = proto_tree_add_text(tree, tvb, offset, QuicSize + 4, "QUIC Image");
@@ -1264,9 +1265,9 @@ dissect_ImageLZ_common(tvbuff_t *tvb, proto_tree *tree, guint32 offset, const gb
 static guint32
 dissect_ImageLZ_JPEG(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 {
-    proto_item *ti=NULL;
-    proto_tree *LZ_JPEG_tree;
-    const guint32 LZ_JPEGSize = tvb_get_letohl(tvb, offset);
+    proto_item    *ti          = NULL;
+    proto_tree    *LZ_JPEG_tree;
+    const guint32  LZ_JPEGSize = tvb_get_letohl(tvb, offset);
 
     ti = proto_tree_add_text(tree, tvb, offset, LZ_JPEGSize + 4, "LZ_JPEG Image");
     LZ_JPEG_tree = proto_item_add_subtree(ti, ett_LZ_JPEG);
@@ -1281,9 +1282,9 @@ dissect_ImageLZ_JPEG(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 static guint32
 dissect_ImageGLZ_RGB(tvbuff_t *tvb, proto_tree *tree, guint32 offset, const guint32 size)
 {
-    proto_item *ti=NULL;
+    proto_item *ti = NULL;
     proto_tree *GLZ_RGB_tree;
-    guint32 GLZ_RGBSize;
+    guint32     GLZ_RGBSize;
 
     if (size == 0) { /* if no size was passed to us, need to fetch it. Otherwise, we already have it from the callee */
         GLZ_RGBSize = tvb_get_letohl(tvb, offset);
@@ -1305,9 +1306,9 @@ dissect_ImageGLZ_RGB(tvbuff_t *tvb, proto_tree *tree, guint32 offset, const guin
 static guint32
 dissect_ImageLZ_RGB(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 {
-    proto_item *ti=NULL;
-    proto_tree *LZ_RGB_tree;
-    const guint32 LZ_RGBSize = tvb_get_letohl(tvb, offset);
+    proto_item    *ti         = NULL;
+    proto_tree    *LZ_RGB_tree;
+    const guint32  LZ_RGBSize = tvb_get_letohl(tvb, offset);
 
     ti = proto_tree_add_text(tree, tvb, offset, LZ_RGBSize + 4, "LZ_RGB Image");
     LZ_RGB_tree = proto_item_add_subtree(ti, ett_LZ_RGB);
@@ -1322,9 +1323,9 @@ dissect_ImageLZ_RGB(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 static guint32
 dissect_ImageLZ_PLT(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 {
-    proto_item *ti=NULL;
+    proto_item *ti = NULL;
     proto_tree *LZ_PLT_tree;
-    guint32 LZ_PLTSize, pal_size;
+    guint32     LZ_PLTSize, pal_size;
 
     const guint32 current_offset = offset;
 
@@ -1368,10 +1369,10 @@ dissect_ImageLZ_PLT(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 static guint32
 dissect_ImageJPEG_Alpha(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset)
 {
-    proto_item *ti=NULL;
+    proto_item *ti = NULL;
     proto_tree *JPEG_tree;
-    tvbuff_t *jpeg_tvb;
-    guint32 JPEG_Size, Data_Size;
+    tvbuff_t   *jpeg_tvb;
+    guint32     JPEG_Size, Data_Size;
 
     /*TODO: const guint8 flags = tvb_get_guint8(tvb, offset); dissect and present */
     offset += 1;
@@ -1397,9 +1398,9 @@ dissect_ImageJPEG_Alpha(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 static guint32
 dissect_ImageJPEG(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, const guint32 offset)
 {
-    proto_item *ti=NULL;
+    proto_item *ti = NULL;
     proto_tree *JPEG_tree;
-    tvbuff_t *jpeg_tvb;
+    tvbuff_t   *jpeg_tvb;
 
     const guint32 JPEG_Size = tvb_get_letohl(tvb, offset);
     ti = proto_tree_add_text(tree, tvb, offset, JPEG_Size + 4, "JPEG Image (%u bytes)", JPEG_Size);
@@ -1442,9 +1443,9 @@ dissect_ImageZLIB_GLZ_stream(tvbuff_t *tvb, proto_tree *ZLIB_GLZ_tree, packet_in
 static guint32
 dissect_ImageZLIB_GLZ(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset)
 {
-    proto_item *ti=NULL;
+    proto_item *ti = NULL;
     proto_tree *ZLIB_GLZ_tree;
-    guint32 ZLIB_GLZSize, ZLIB_uncompSize;
+    guint32     ZLIB_GLZSize, ZLIB_uncompSize;
 
     ZLIB_uncompSize = tvb_get_letohl(tvb, offset);
     ZLIB_GLZSize = tvb_get_letohl(tvb, offset + 4); /* compressed size */
@@ -1466,8 +1467,8 @@ dissect_ImageZLIB_GLZ(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
 static guint32
 dissect_Image(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset)
 {
-    guint32 ImageSize = 0;
-    const guint8 type = dissect_ImageDescriptor(tvb, tree, offset);;
+    guint32      ImageSize = 0;
+    const guint8 type      = dissect_ImageDescriptor(tvb, tree, offset);;
 
     offset += sizeof_ImageDescriptor;
 
@@ -1516,9 +1517,9 @@ dissect_Image(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offse
 static SpiceRect
 dissect_SpiceRect(tvbuff_t *tvb, proto_tree *tree, const guint32 offset, const gint32 id)
 {
-    proto_item *ti=NULL;
+    proto_item *ti = NULL;
     proto_tree *rect_tree;
-    SpiceRect rect;
+    SpiceRect   rect;
 
     rect.left   = tvb_get_letohl(tvb, offset);
     rect.top    = tvb_get_letohl(tvb, offset + 4);
@@ -1553,10 +1554,10 @@ rect_is_empty(const SpiceRect r)
 static guint32
 dissect_RectList(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 {
-    proto_item *ti=NULL;
-    proto_tree *rectlist_tree;
-    guint32 i;
-    const guint32 rectlist_size = tvb_get_letohl(tvb, offset);
+    proto_item    *ti            = NULL;
+    proto_tree    *rectlist_tree;
+    guint32        i;
+    const guint32  rectlist_size = tvb_get_letohl(tvb, offset);
 
     if (tree) {
         ti = proto_tree_add_text(tree, tvb, offset, 4 + (rectlist_size * sizeof_SpiceRect),
@@ -1578,9 +1579,9 @@ dissect_RectList(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 static guint8
 dissect_Clip(tvbuff_t *tvb, proto_tree *tree, const guint32 offset)
 {
-    proto_item *ti=NULL;
-    proto_tree *Clip_tree;
-    const guint8 type = tvb_get_guint8(tvb, offset);
+    proto_item   *ti   = NULL;
+    proto_tree   *Clip_tree;
+    const guint8  type = tvb_get_guint8(tvb, offset);
 
     if (tree) {
         ti = proto_tree_add_text(tree, tvb, offset, 1, "SpiceClip");
@@ -1594,9 +1595,9 @@ dissect_Clip(tvbuff_t *tvb, proto_tree *tree, const guint32 offset)
 static point32_t
 dissect_POINT32(tvbuff_t *tvb, proto_tree *tree, const guint32 offset)
 {
-    proto_item *ti=NULL;
+    proto_item *ti = NULL;
     proto_tree *point_tree;
-    point32_t point;
+    point32_t   point;
 
     point.x = tvb_get_letohl(tvb, offset);
     point.y = tvb_get_letohl(tvb, offset + 4);
@@ -1615,9 +1616,9 @@ dissect_POINT32(tvbuff_t *tvb, proto_tree *tree, const guint32 offset)
 static point16_t
 dissect_POINT16(tvbuff_t *tvb, proto_tree *tree, const guint32 offset)
 {
-    proto_item *ti=NULL;
+    proto_item *ti = NULL;
     proto_tree *point16_tree;
-    point16_t point16;
+    point16_t   point16;
 
     point16.x = tvb_get_letohs(tvb, offset);
     point16.y = tvb_get_letohs(tvb, offset + 2);
@@ -1636,9 +1637,9 @@ dissect_POINT16(tvbuff_t *tvb, proto_tree *tree, const guint32 offset)
 static guint32
 dissect_Mask(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 {
-    proto_item *ti=NULL;
+    proto_item *ti = NULL;
     proto_tree *Mask_tree;
-    guint32 bitmap;
+    guint32     bitmap;
 
     ti = proto_tree_add_text(tree, tvb, offset, sizeof_Mask, "Mask");
     Mask_tree = proto_item_add_subtree(ti, ett_Mask);
@@ -1668,9 +1669,9 @@ dissect_Mask(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 static guint32
 dissect_Brush(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 {
-    proto_item *ti=NULL;
-    proto_tree *brush_tree;
-    const guint8 type = tvb_get_guint8(tvb, offset);
+    proto_item   *ti   = NULL;
+    proto_tree   *brush_tree;
+    const guint8  type = tvb_get_guint8(tvb, offset);
 
     switch(type) {
         case SPICE_BRUSH_TYPE_SOLID:
@@ -1710,11 +1711,12 @@ dissect_Brush(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 static guint32
 dissect_DisplayBase(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 {
-    proto_item *ti=NULL;
+    proto_item *ti        = NULL;
     proto_tree *DisplayBase_tree;
-    SpiceRect rect;
-    guint8 clip_type;
-    guint32 clip_size = 0;
+    SpiceRect   rect;
+    guint8      clip_type;
+    guint32     clip_size = 0;
+
     ti = proto_tree_add_text(tree, tvb, offset, sizeof_DisplayBase, "SpiceMsgDisplayBase");
     DisplayBase_tree = proto_item_add_subtree(ti, ett_DisplayBase);
     proto_tree_add_item(DisplayBase_tree, hf_display_surface_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -1732,7 +1734,8 @@ dissect_DisplayBase(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     return sizeof_DisplayBase;
 }
 
-static const gchar* get_message_type_string(const guint16 message_type, const spice_conversation_t *spice_info, const gboolean client_message)
+static const gchar* get_message_type_string(const guint16 message_type, const spice_conversation_t *spice_info,
+                                            const gboolean client_message)
 {
 
     if (message_type < SPICE_FIRST_AVAIL_MESSAGE) { /* this is a common message */
@@ -1788,7 +1791,8 @@ static const gchar* get_message_type_string(const guint16 message_type, const sp
     return "Unknown message";
 }
 static void
-dissect_spice_mini_data_header(tvbuff_t *tvb, proto_tree *tree, const spice_conversation_t *spice_info, const gboolean client_message, const guint16 message_type, guint32 offset)
+dissect_spice_mini_data_header(tvbuff_t *tvb, proto_tree *tree, const spice_conversation_t *spice_info,
+                               const gboolean client_message, const guint16 message_type, guint32 offset)
 {
     if (tree) {
         proto_tree_add_text(tree, tvb, offset, 2, "Message type: %s (%d)", get_message_type_string(message_type, spice_info, client_message), message_type);
@@ -1798,7 +1802,8 @@ dissect_spice_mini_data_header(tvbuff_t *tvb, proto_tree *tree, const spice_conv
 }
 
 static void
-dissect_spice_data_header(tvbuff_t *tvb, proto_tree *tree, const spice_conversation_t *spice_info, const gboolean client_message, const guint16 message_type, guint32 *sublist_size, guint32 offset)
+dissect_spice_data_header(tvbuff_t *tvb, proto_tree *tree, const spice_conversation_t *spice_info,
+                          const gboolean client_message, const guint16 message_type, guint32 *sublist_size, guint32 offset)
 {
     *sublist_size = tvb_get_letohl(tvb, offset + 14);
 
@@ -1854,9 +1859,9 @@ dissect_spice_common_client_messages(tvbuff_t *tvb, proto_tree *tree, const guin
 static guint32
 dissect_spice_common_server_messages(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 offset, const guint32 total_message_size)
 {
-    proto_item *ti=NULL;
+    proto_item *ti = NULL;
     proto_tree *server_message_tree;
-    guint32 message_len, severity, visibility;
+    guint32     message_len, severity, visibility;
 
     switch(message_type) {
         /*
@@ -1971,11 +1976,11 @@ dissect_spice_display_client(tvbuff_t *tvb, proto_tree *tree, const guint16 mess
 static guint32
 dissect_spice_display_server(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, const guint16 message_type, guint32 offset)
 {
-    guint32 data_size, displayBaseLen;
-    guint8 clip_type;
-    guint16 glyphs;
-    SpiceRect r;
-    tvbuff_t *jpeg_tvb;
+    guint32    data_size, displayBaseLen;
+    guint8     clip_type;
+    guint16    glyphs;
+    SpiceRect  r;
+    tvbuff_t  *jpeg_tvb;
 
     switch(message_type) {
         case SPICE_DISPLAY_MODE:
@@ -2088,15 +2093,15 @@ dissect_spice_display_server(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
             /* source area */
             dissect_SpiceRect(tvb, tree, offset, -1);
             offset += sizeof_SpiceRect;
-            
+
             data_size = dissect_Brush(tvb, tree, offset);
             offset += data_size;
 
             proto_tree_add_text(tree, tvb, offset, 1, "ROP3");
-            offset += 1; 
+            offset += 1;
             proto_tree_add_text(tree, tvb, offset, 1, "scale mode");
             offset += 1;
-            
+
             offset += dissect_Mask(tvb, tree, offset);
             /*FIXME - need to understand what the rest of the message contains. */
             data_size = dissect_Image(tvb, tree, pinfo, offset);
@@ -2385,7 +2390,7 @@ static guint32
 dissect_spice_main_server(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 offset)
 {
     guint32 num_channels, i, agent_msg_type, agent_msg_len, name_len;
-    guint8 channel_type;
+    guint8  channel_type;
 
     switch(message_type) {
         case SPICE_MAIN_INIT:
@@ -2469,9 +2474,9 @@ dissect_spice_main_server(tvbuff_t *tvb, proto_tree *tree, const guint16 message
 static guint32
 dissect_spice_main_client(tvbuff_t *tvb, proto_tree *tree, const guint16 message_type, guint32 offset)
 {
-    proto_item *ti=NULL;
+    proto_item *ti = NULL;
     proto_tree *main_tree;
-    guint32 agent_msg_type, agent_msg_len;
+    guint32     agent_msg_type, agent_msg_len;
 
     switch(message_type) {
         case SPICEC_MAIN_MOUSE_MODE_REQUEST:
@@ -2608,11 +2613,12 @@ dissect_spice_inputs_server(tvbuff_t *tvb, proto_tree *tree, const guint16 messa
 static guint32
 dissect_spice_data_server_pdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, spice_conversation_t *spice_info, guint32 offset, const guint32 total_message_size)
 {
-    proto_item *ti=NULL, *msg_ti=NULL;
+    proto_item *ti = NULL, *msg_ti=NULL;
     proto_tree *data_header_tree, *message_tree;
-    guint16 message_type;
-    guint32 message_size, sublist_size, old_offset;
-    guint32 header_size;
+    guint16     message_type;
+    guint32     message_size, sublist_size, old_offset;
+    guint32     header_size;
+
     if (spice_info->client_mini_header && spice_info->server_mini_header) {
         header_size = sizeof_SpiceMiniDataHeader;
         message_type = tvb_get_letohs(tvb, offset);
@@ -2690,11 +2696,11 @@ dissect_spice_data_server_pdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
 static guint32
 dissect_spice_data_client_pdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, spice_conversation_t *spice_info, guint32 offset)
 {
-    proto_item *ti=NULL;
+    proto_item *ti = NULL;
     proto_tree *data_header_tree;
-    guint16 message_type;
+    guint16     message_type;
     guint32 /** message_size,**/ sublist_size;
-    guint32 header_size;
+    guint32     header_size;
 
     if (spice_info->client_mini_header && spice_info->server_mini_header) {
         header_size = sizeof_SpiceMiniDataHeader;
@@ -2758,9 +2764,9 @@ static void
 dissect_spice_common_capabilities(tvbuff_t *tvb, proto_tree *tree, guint32 offset, const int caps_len, spice_conversation_t *spice_info, gboolean is_client)
 {
 /* TODO: save common and per-channel capabilities in spice_info ? */
-    int i;
-    guint32 val;
-    proto_item *ti=NULL;
+    int         i;
+    guint32     val;
+    proto_item *ti = NULL;
     proto_tree *auth_tree;
 
     for(i = 0; i != caps_len ; i++) {
@@ -2800,11 +2806,11 @@ static void
 dissect_spice_link_capabilities(tvbuff_t *tvb, proto_tree *tree, guint32 offset, const int caps_len, const spice_conversation_t *spice_info)
 {
 /* TODO: save common and per-channel capabilities in spice_info ? */
-    int i;
-    guint32 val;
-    proto_item *ti=NULL;
+    int         i;
+    guint32     val;
+    proto_item *ti = NULL;
     proto_tree *cap_tree;
-    
+
     for(i = 0; i != caps_len ; i++) {
         val = tvb_get_letohl(tvb, offset);
         switch (spice_info->channel_type) {
@@ -2863,11 +2869,11 @@ dissect_spice_link_capabilities(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
 static void
 dissect_spice_link_client_pdu(tvbuff_t *tvb, proto_tree *tree, spice_conversation_t *spice_info)
 {
-    guint32 offset;
-    guint32 common_caps_len, channel_caps_len;
-    proto_item *ti=NULL;
+    guint32     offset;
+    guint32     common_caps_len, channel_caps_len;
+    proto_item *ti               = NULL;
     proto_tree *link_header_tree = NULL;
-    proto_tree *caps_tree = NULL;
+    proto_tree *caps_tree        = NULL;
 
      if (tree) {
         ti = proto_tree_add_item(tree, hf_link_client, tvb, 0, sizeof_SpiceLinkHeader, ENC_NA);
@@ -2915,9 +2921,9 @@ dissect_spice_link_client_pdu(tvbuff_t *tvb, proto_tree *tree, spice_conversatio
 static void
 dissect_spice_link_server_pdu(tvbuff_t *tvb, proto_tree *tree, spice_conversation_t *spice_info)
 {
-    guint32 offset;
-    guint32 common_caps_len, channel_caps_len;
-    proto_item *ti=NULL;
+    guint32     offset;
+    guint32     common_caps_len, channel_caps_len;
+    proto_item *ti        = NULL;
     proto_tree *link_tree = NULL;
     proto_tree *caps_tree = NULL;
 
@@ -2964,18 +2970,18 @@ static int
 dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
-    conversation_t *conversation;
+    conversation_t       *conversation;
     spice_conversation_t *spice_info;
-    spice_packet_t *per_packet_info;
-    guint32 avail;
-    guint32 pdu_len = 0;
-    guint32 offset;
-    proto_item *ti=NULL;
-    proto_tree *spice_tree=NULL;
-    proto_tree *spice_data_tree=NULL;
-    gboolean client_sasl_list=FALSE;
-    gboolean first_record_in_frame;
-    guint8 sasl_auth_result;
+    spice_packet_t       *per_packet_info;
+    guint32               avail;
+    guint32               pdu_len          = 0;
+    guint32               offset;
+    proto_item           *ti               = NULL;
+    proto_tree           *spice_tree       = NULL;
+    proto_tree           *spice_data_tree  = NULL;
+    gboolean              client_sasl_list = FALSE;
+    gboolean              first_record_in_frame;
+    guint8                sasl_auth_result;
 
     conversation = find_or_create_conversation(pinfo);
 
@@ -3512,7 +3518,7 @@ proto_register_spice(void)
           { "Volume playback channel support", "spice.playback_cap_volume",
             FT_BOOLEAN, 3, TFS(&tfs_set_notset), SPICE_PLAYBACK_CAP_VOLUME_MASK,
             NULL, HFILL }
-        },        
+        },
         { &hf_record_cap_celt,
           { "CELT 0.5.1 record channel support", "spice.record_cap_celt",
             FT_BOOLEAN, 3, TFS(&tfs_set_notset), SPICE_RECORD_CAP_CELT_0_5_1_MASK,
@@ -4092,11 +4098,11 @@ proto_reg_handoff_spice(void)
  *
  * Local variables:
  * c-basic-offset: 4
- * tab-width: 4
+ * tab-width: 8
  * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=4 tabstop=4 expandtab:
- * :indentSize=4:tabSize=4:noTabs=true:
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
  */
 

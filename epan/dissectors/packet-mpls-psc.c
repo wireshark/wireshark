@@ -1,6 +1,6 @@
 /* packet-mpls-psc.c
  *
- * Routines for MPLS[-TP] Protection State Coordination (PSC) Protocol: it 
+ * Routines for MPLS[-TP] Protection State Coordination (PSC) Protocol: it
  * should conform to RFC 6378.
  *
  * Copyright 2012 _FF_
@@ -119,17 +119,17 @@ const range_string mpls_psc_dpath_rvals[] = {
 static void
 dissect_mpls_psc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_item *ti = NULL;
+    proto_item *ti       = NULL;
     proto_tree *psc_tree = NULL;
-    guint32 offset = 0;
-    guint8 req = 0;
-    guint8 fpath = 0;
-    guint8 path = 0;
+    guint32     offset   = 0;
+    guint8      req      = 0;
+    guint8      fpath    = 0;
+    guint8      path     = 0;
 
     /* build cinfo */
-    req = (tvb_get_guint8(tvb, offset) & 0x3C) >> 2;
+    req   = (tvb_get_guint8(tvb, offset) & 0x3C) >> 2;
     fpath = tvb_get_guint8(tvb, offset + 2);
-    path = tvb_get_guint8(tvb, offset + 3);
+    path  = tvb_get_guint8(tvb, offset + 3);
 
     col_clear(pinfo->cinfo, COL_PROTOCOL);
     col_clear(pinfo->cinfo, COL_INFO);
@@ -144,7 +144,7 @@ dissect_mpls_psc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (!tree) {
         return;
     }
-    
+
     /* create display subtree for the protocol */
     ti = proto_tree_add_item(tree, proto_mpls_psc, tvb, 0, -1, ENC_NA);
     psc_tree = proto_item_add_subtree(ti, ett_mpls_psc);
@@ -166,7 +166,7 @@ dissect_mpls_psc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(psc_tree, hf_mpls_psc_dpath, tvb, offset, 1, ENC_NA);
     offset += 1;
     /* tlv len */
-    proto_tree_add_item(psc_tree, hf_mpls_psc_tlvlen, tvb, offset, 1, 
+    proto_tree_add_item(psc_tree, hf_mpls_psc_tlvlen, tvb, offset, 1,
                         ENC_BIG_ENDIAN);
 }
 
@@ -184,9 +184,9 @@ proto_register_mpls_psc(void)
         {
             &hf_mpls_psc_req,
             {
-                "Request", "mpls.psc.req", FT_UINT8, 
+                "Request", "mpls.psc.req", FT_UINT8,
                 BASE_RANGE_STRING | BASE_DEC,
-                RVALS(&mpls_psc_req_rvals), 
+                RVALS(&mpls_psc_req_rvals),
                 0x3C, NULL, HFILL
             }
         },
@@ -195,7 +195,7 @@ proto_register_mpls_psc(void)
             {
                 "Protection Type", "mpls.psc.pt", FT_UINT8,
                 BASE_RANGE_STRING | BASE_DEC,
-                RVALS(&mpls_psc_pt_rvals),  
+                RVALS(&mpls_psc_pt_rvals),
                 0x03, NULL, HFILL
             }
         },
@@ -204,7 +204,7 @@ proto_register_mpls_psc(void)
             {
                 "R", "mpls.psc.rev", FT_UINT8,
                 BASE_RANGE_STRING | BASE_DEC,
-                RVALS(&mpls_psc_rev_rvals), 
+                RVALS(&mpls_psc_rev_rvals),
                 0x80, NULL, HFILL
             }
         },
@@ -213,7 +213,7 @@ proto_register_mpls_psc(void)
             {
                 "Fault Path", "mpls.psc.fpath", FT_UINT8,
                 BASE_RANGE_STRING | BASE_DEC,
-                RVALS(&mpls_psc_fpath_rvals), 
+                RVALS(&mpls_psc_fpath_rvals),
                 0x0, NULL, HFILL
             }
         },
@@ -229,7 +229,7 @@ proto_register_mpls_psc(void)
         {
             &hf_mpls_psc_tlvlen,
             {
-                "TLV Length", "mpls.psc.tlvlen", FT_UINT16, BASE_DEC, NULL, 
+                "TLV Length", "mpls.psc.tlvlen", FT_UINT16, BASE_DEC, NULL,
                 0x0, NULL, HFILL
             }
         },
@@ -262,10 +262,10 @@ proto_reg_handoff_mpls_psc(void)
  *
  * Local variables:
  * c-basic-offset: 4
- * tab-width: 4
+ * tab-width: 8
  * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=4 tabstop=4 expandtab:
- * :indentSize=4:tabSize=4:noTabs=true:
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
  */

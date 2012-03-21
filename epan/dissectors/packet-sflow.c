@@ -115,12 +115,12 @@ static const value_string sflow_5_ieee80211_versions [] = {
 #define SFLOW_245_COUNTERS_VLAN 7
 
 static const value_string sflow_245_counterstype[] = {
-    { SFLOW_245_COUNTERS_GENERIC, "Generic counters"},
+    { SFLOW_245_COUNTERS_GENERIC,  "Generic counters"},
     { SFLOW_245_COUNTERS_ETHERNET, "Ethernet counters"},
-    { SFLOW_245_COUNTERS_FDDI, "FDDI counters"},
-    { SFLOW_245_COUNTERS_VG, "100baseVG counters"},
-    { SFLOW_245_COUNTERS_WAN, "WAN counters"},
-    { SFLOW_245_COUNTERS_VLAN, "VLAN counters"},
+    { SFLOW_245_COUNTERS_FDDI,     "FDDI counters"},
+    { SFLOW_245_COUNTERS_VG,       "100baseVG counters"},
+    { SFLOW_245_COUNTERS_WAN,      "WAN counters"},
+    { SFLOW_245_COUNTERS_VLAN,     "VLAN counters"},
     { 0, NULL}
 };
 
@@ -132,8 +132,8 @@ static const value_string sflow_245_counterstype[] = {
 
 static const value_string sflow_245_packet_information_type[] = {
     { SFLOW_245_PACKET_DATA_TYPE_HEADER, "Packet headers are sampled"},
-    { SFLOW_245_PACKET_DATA_TYPE_IPV4, "IP Version 4 data"},
-    { SFLOW_245_PACKET_DATA_TYPE_IPV6, "IP Version 6 data"},
+    { SFLOW_245_PACKET_DATA_TYPE_IPV4,   "IP Version 4 data"},
+    { SFLOW_245_PACKET_DATA_TYPE_IPV6,   "IP Version 6 data"},
     { 0, NULL}
 };
 
@@ -156,22 +156,22 @@ static const value_string sflow_245_packet_information_type[] = {
 #define SFLOW_5_HEADER_80211_AMSDU_SUBFRAME 17
 
 static const value_string sflow_245_header_protocol[] = {
-    { SFLOW_245_HEADER_ETHERNET, "Ethernet"},
-    { SFLOW_245_HEADER_TOKENBUS, "Token Bus"},
-    { SFLOW_245_HEADER_TOKENRING, "Token Ring"},
-    { SFLOW_245_HEADER_FDDI, "FDDI"},
-    { SFLOW_245_HEADER_FRAME_RELAY, "Frame Relay"},
-    { SFLOW_245_HEADER_X25, "X.25"},
-    { SFLOW_245_HEADER_PPP, "PPP"},
-    { SFLOW_245_HEADER_SMDS, "SMDS"},
-    { SFLOW_245_HEADER_AAL5, "ATM AAL5"},
-    { SFLOW_245_HEADER_AAL5_IP, "ATM AAL5-IP (e.g., Cisco AAL5 mux)"},
-    { SFLOW_245_HEADER_IPv4, "IPv4"},
-    { SFLOW_245_HEADER_IPv6, "IPv6"},
-    { SFLOW_245_HEADER_MPLS, "MPLS"},
-    { SFLOW_5_HEADER_POS, "PPP over SONET/SDH (RFC 1662, 2615)"},
-    { SFLOW_5_HEADER_80211_MAC, "802.11 MAC"},
-    { SFLOW_5_HEADER_80211_AMPDU, "802.11n Aggregated MPDU"},
+    { SFLOW_245_HEADER_ETHERNET,           "Ethernet"},
+    { SFLOW_245_HEADER_TOKENBUS,           "Token Bus"},
+    { SFLOW_245_HEADER_TOKENRING,          "Token Ring"},
+    { SFLOW_245_HEADER_FDDI,               "FDDI"},
+    { SFLOW_245_HEADER_FRAME_RELAY,        "Frame Relay"},
+    { SFLOW_245_HEADER_X25,                "X.25"},
+    { SFLOW_245_HEADER_PPP,                "PPP"},
+    { SFLOW_245_HEADER_SMDS,               "SMDS"},
+    { SFLOW_245_HEADER_AAL5,               "ATM AAL5"},
+    { SFLOW_245_HEADER_AAL5_IP,            "ATM AAL5-IP (e.g., Cisco AAL5 mux)"},
+    { SFLOW_245_HEADER_IPv4,               "IPv4"},
+    { SFLOW_245_HEADER_IPv6,               "IPv6"},
+    { SFLOW_245_HEADER_MPLS,               "MPLS"},
+    { SFLOW_5_HEADER_POS,                  "PPP over SONET/SDH (RFC 1662, 2615)"},
+    { SFLOW_5_HEADER_80211_MAC,            "802.11 MAC"},
+    { SFLOW_5_HEADER_80211_AMPDU,          "802.11n Aggregated MPDU"},
     { SFLOW_5_HEADER_80211_AMSDU_SUBFRAME, "A-MSDU Subframe"},
     { 0, NULL}
 };
@@ -2393,11 +2393,11 @@ dissect_sflow_5_expanded_flow_sample(tvbuff_t *tvb, packet_info *pinfo,
 static gint
 dissect_sflow_24_counters_sample(tvbuff_t *tvb, proto_tree *tree, gint offset, proto_item *parent) {
     struct sflow_24_counters_sample_header counters_header;
-    struct if_counters ifc;
-    struct ethernet_counters ethc;
+    struct if_counters         ifc;
+    struct ethernet_counters   ethc;
     struct token_ring_counters tokc;
-    struct vg_counters vgc;
-    struct vlan_counters vlanc;
+    struct vg_counters         vgc;
+    struct vlan_counters       vlanc;
 
     /* grab the flow header.  This will remain in network byte
        order, so must convert each item before use */
@@ -2580,8 +2580,8 @@ dissect_sflow_5_expanded_counters_sample(tvbuff_t *tvb, proto_tree *tree, gint o
 static gint
 dissect_sflow_245_samples(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, guint32 version) {
     proto_tree *sflow_245_sample_tree;
-    proto_item *ti; /* tree item */
-    guint32 sample_type, enterprise, format, length;
+    proto_item *ti;             /* tree item */
+    guint32     sample_type, enterprise, format, length;
 
     /* decide what kind of sample it is. */
     sample_type = tvb_get_ntohl(tvb, offset);
@@ -2657,15 +2657,15 @@ static int
 dissect_sflow_245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
     /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item *ti;
-    proto_tree *sflow_245_tree;
-    guint32 version, sub_agent_id, seqnum;
-    struct sflow_address_details addr_details;
-    struct sflow_address_type addr_type = {hf_sflow_agent_address_v4, hf_sflow_agent_address_v6};
+    proto_item                   *ti;
+    proto_tree                   *sflow_245_tree;
+    guint32                       version, sub_agent_id, seqnum;
+    struct sflow_address_details  addr_details;
+    struct sflow_address_type     addr_type = {hf_sflow_agent_address_v4, hf_sflow_agent_address_v6};
 
-    guint32 numsamples;
+    guint32        numsamples;
     volatile guint offset = 0;
-    guint i = 0;
+    guint          i      = 0;
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "sFlow");
@@ -3471,10 +3471,10 @@ proto_reg_handoff_sflow_245(void) {
  *
  * Local Variables:
  * c-basic-offset: 4
- * tab-width: 4
+ * tab-width: 8
  * indent-tabs-mode: nil
  * End:
  *
- * ex: set shiftwidth=4 tabstop=4 noexpandtab
- * :indentSize=4:tabSize=4:noTabs=true:
+ * ex: set shiftwidth=4 tabstop=8 noexpandtab
+ * :indentSize=4:tabSize=8:noTabs=true:
  */

@@ -71,8 +71,8 @@
  * Some definitions and the dissect_options() logic have been taken
  * from Arnaldo Carvalho de Melo's DCCP implementation, thanks!
  */
-#define DCCP_HDR_LEN 16     /* base DCCP header length, with 48 bits seqnums */
-#define DCCP_HDR_LEN_MIN 12 /* with 24 bits seqnum */
+#define DCCP_HDR_LEN 16               /* base DCCP header length, with 48 bits seqnums */
+#define DCCP_HDR_LEN_MIN 12           /* with 24 bits seqnum */
 #define DCCP_HDR_PKT_TYPES_LEN_MAX 12 /* max per packet type extra
                                        * header length
                                        */
@@ -190,15 +190,15 @@ static dissector_handle_t data_handle;
 
 /* preferences */
 static gboolean dccp_summary_in_tree = TRUE;
-static gboolean try_heuristic_first = FALSE;
-static gboolean dccp_check_checksum = TRUE;
+static gboolean try_heuristic_first  = FALSE;
+static gboolean dccp_check_checksum  = TRUE;
 
 static void
 decode_dccp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
                   proto_tree *tree, int sport, int dport)
 {
     tvbuff_t *next_tvb;
-    int low_port, high_port;
+    int       low_port, high_port;
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
 
@@ -236,10 +236,10 @@ decode_dccp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
      * number of 0 to disable the port.
      */
     if (sport > dport) {
-        low_port = dport;
+        low_port  = dport;
         high_port = sport;
     } else {
-        low_port = sport;
+        low_port  = sport;
         high_port = dport;
     }
 
@@ -275,7 +275,7 @@ static guint64
 tvb_get_ntoh_var(tvbuff_t *tvb, gint offset, guint nbytes)
 {
     const guint8 *ptr;
-    guint64 value = 0;
+    guint64       value = 0;
 
     ptr = tvb_get_ptr(tvb, offset, nbytes);
     if (nbytes > 5)
@@ -299,9 +299,9 @@ dissect_feature_options(proto_tree *dccp_options_tree, tvbuff_t *tvb,
                         int offset, guint8 option_len,
                         guint8 option_type)
 {
-    guint8 feature_number = tvb_get_guint8(tvb, offset + 2);
+    guint8      feature_number = tvb_get_guint8(tvb, offset + 2);
     proto_item *dccp_item, *hidden_item;
-    int i;
+    int         i;
 
     hidden_item =
         proto_tree_add_uint(dccp_options_tree, hf_dccp_feature_number, tvb,
@@ -386,12 +386,12 @@ dissect_options(tvbuff_t *tvb, packet_info *pinfo _U_,
      * if here I'm sure there is at least offset_end - offset_start bytes
      * in tvb and it should be options
      */
-    int offset = offset_start;
-    guint8 option_type = 0;
-    guint8 option_len = 0;
-    int i;
-    guint32 p;
-    proto_item *dccp_item = NULL;
+    int         offset      = offset_start;
+    guint8      option_type = 0;
+    guint8      option_len  = 0;
+    int         i;
+    guint32     p;
+    proto_item *dccp_item   = NULL;
     proto_item *hidden_item;
 
     while (offset < offset_end) {
@@ -635,19 +635,19 @@ dccp_csum_coverage(const e_dccphdr *dccph, guint len)
 static void
 dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree *dccp_tree = NULL;
+    proto_tree *dccp_tree         = NULL;
     proto_tree *dccp_options_tree = NULL;
-    proto_item *dccp_item = NULL;
+    proto_item *dccp_item         = NULL;
     proto_item *hidden_item;
 
-    vec_t cksum_vec[4];
-    guint32 phdr[2];
-    guint16 computed_cksum;
-    guint offset = 0;
-    guint len = 0;
-    guint reported_len = 0;
-    guint advertised_dccp_header_len = 0;
-    guint options_len = 0;
+    vec_t      cksum_vec[4];
+    guint32    phdr[2];
+    guint16    computed_cksum;
+    guint      offset                     = 0;
+    guint      len                        = 0;
+    guint      reported_len               = 0;
+    guint      advertised_dccp_header_len = 0;
+    guint      options_len                = 0;
     e_dccphdr *dccph;
 
     /* get at least a full message header */
@@ -1436,10 +1436,10 @@ proto_reg_handoff_dccp(void)
  *
  * Local variables:
  * c-basic-offset: 4
- * tab-width: 4
+ * tab-width: 8
  * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=4 tabstop=4 expandtab:
- * :indentSize=4:tabSize=4:noTabs=true:
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
  */
