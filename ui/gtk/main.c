@@ -4125,24 +4125,24 @@ scan_local_interfaces(capture_options* capture_opts, int *error)
 #endif
         
         if (capture_opts->ifaces->len > 0) {
-        	for (j = 0; j < capture_opts->ifaces->len; j++) {
-        		interface_opts = g_array_index(capture_opts->ifaces, interface_options, j);
-        		if (strcmp(interface_opts.name, device.name) == 0) {       		    
+            for (j = 0; j < capture_opts->ifaces->len; j++) {
+                interface_opts = g_array_index(capture_opts->ifaces, interface_options, j);
+                if (strcmp(interface_opts.name, device.name) == 0) {                   
 #if defined(HAVE_PCAP_CREATE)
-        			device.buffer = interface_opts.buffer_size;
-        			device.monitor_mode_enabled = interface_opts.monitor_mode;
+                    device.buffer = interface_opts.buffer_size;
+                    device.monitor_mode_enabled = interface_opts.monitor_mode;
 #endif
-        			device.pmode = interface_opts.promisc_mode;
-        			device.has_snaplen = interface_opts.has_snaplen;
-        			device.snaplen = interface_opts.snaplen; 
-        			device.cfilter = g_strdup(interface_opts.cfilter);
-        			device.active_dlt = interface_opts.linktype;
-					device.selected = TRUE;
-					capture_opts->num_selected++;
-					break;
-				}
-			}
-		}
+                    device.pmode = interface_opts.promisc_mode;
+                    device.has_snaplen = interface_opts.has_snaplen;
+                    device.snaplen = interface_opts.snaplen; 
+                    device.cfilter = g_strdup(interface_opts.cfilter);
+                    device.active_dlt = interface_opts.linktype;
+                    device.selected = TRUE;
+                    capture_opts->num_selected++;
+                    break;
+                }
+            }
+        }
         if (capture_opts->all_ifaces->len <= count) {
             g_array_append_val(capture_opts->all_ifaces, device);
             count = capture_opts->all_ifaces->len;
@@ -4159,33 +4159,33 @@ scan_local_interfaces(capture_options* capture_opts, int *error)
     free_interface_list(if_list);
     /* see whether there are additional interfaces in ifaces */
     for (j = 0; j < capture_opts->ifaces->len; j++) {
-    	interface_opts = g_array_index(capture_opts->ifaces, interface_options, j);
-    	found = FALSE;
-    	for (i = 0; i < (int)capture_opts->all_ifaces->len; i++) {
-    		device = g_array_index(capture_opts->all_ifaces, interface_t, i);
-    		if (strcmp(device.name, interface_opts.name) == 0) {
-    			found = TRUE;
-    			break;
-    		}
-    	}
-    	if (!found) {  /* new interface, maybe a pipe */
-    		device.name         = g_strdup(interface_opts.name);
+        interface_opts = g_array_index(capture_opts->ifaces, interface_options, j);
+        found = FALSE;
+        for (i = 0; i < (int)capture_opts->all_ifaces->len; i++) {
+            device = g_array_index(capture_opts->all_ifaces, interface_t, i);
+            if (strcmp(device.name, interface_opts.name) == 0) {
+                found = TRUE;
+                break;
+            }
+        }
+        if (!found) {  /* new interface, maybe a pipe */
+            device.name         = g_strdup(interface_opts.name);
             device.display_name = g_strdup_printf("%s", device.name);
             device.hidden       = FALSE;
             device.selected     = TRUE;
             device.type         = IF_PIPE;
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-        	device.buffer = interface_opts.buffer_size;
+            device.buffer = interface_opts.buffer_size;
 #endif
 #if defined(HAVE_PCAP_CREATE)
-        	device.monitor_mode_enabled = interface_opts.monitor_mode;
-        	device.monitor_mode_supported = FALSE;
+            device.monitor_mode_enabled = interface_opts.monitor_mode;
+            device.monitor_mode_supported = FALSE;
 #endif
-        	device.pmode = interface_opts.promisc_mode;
-        	device.has_snaplen = interface_opts.has_snaplen;
-        	device.snaplen = interface_opts.snaplen; 
-        	device.cfilter = g_strdup(interface_opts.cfilter);
-        	device.active_dlt = interface_opts.linktype;
+            device.pmode = interface_opts.promisc_mode;
+            device.has_snaplen = interface_opts.has_snaplen;
+            device.snaplen = interface_opts.snaplen; 
+            device.cfilter = g_strdup(interface_opts.cfilter);
+            device.active_dlt = interface_opts.linktype;
             device.addresses    = NULL;
             device.no_addresses = 0;
             device.last_packets = 0;
