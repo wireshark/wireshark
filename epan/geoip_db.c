@@ -558,5 +558,5 @@ geoip_db_get_paths(void) {
  * End:
  *
  * ex: set shiftwidth=4 tabstop=8 expandtab:
- * :indentSize=4:tabSize=4:noTabs=true:
+ * :indentSize=4:tabSize=8:noTabs=true:
  */
