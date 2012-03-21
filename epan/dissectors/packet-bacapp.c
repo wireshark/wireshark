@@ -6250,6 +6250,7 @@ fLoggingRecord (tvbuff_t *tvb, packet_info *pinfo  _U_, proto_tree *tree, guint 
             break;
         case 3: /* accumulatorStatus */
             offset  = fEnumeratedTag (tvb, tree, offset, "Accumulator Status: ", BACnetAccumulatorStatus);
+            break;
         default:
             return offset;
         }

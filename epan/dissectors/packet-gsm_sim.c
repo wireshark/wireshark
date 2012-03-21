@@ -760,6 +760,7 @@ static const gchar *get_sw_string(guint16 sw)
 	case 0x92:
 		if ((sw & 0xf0) == 0x00)
 			return "Command successful but after internal retry routine";
+		break;
 	case 0x67:
 		return "Incorrect parameter P3";
 	case 0x6d:

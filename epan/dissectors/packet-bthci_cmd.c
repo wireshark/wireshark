@@ -934,7 +934,7 @@ dissect_bthci_ext_inquiry_response(tvbuff_t *tvb, int offset, packet_info *pinfo
                     break;
                 case 0x0A: /* Tx Power Level */
                     proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_cmd_tx_power, tvb, offset+i+2, 1, ENC_LITTLE_ENDIAN);
-
+                    break;
                 default:
                     proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_cmd_eir_data, tvb, offset+i+2, length-1, ENC_NA);
                     break;
