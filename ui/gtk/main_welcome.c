@@ -1027,48 +1027,57 @@ static void fill_capture_box(void)
        if (if_view) {
            clear_capture_box();
        }
-       if (error != NO_INTERFACES_FOUND) {
-            if (error == CANT_GET_INTERFACE_LIST) {
-                label_text = g_strdup("No interface can be used for capturing in "
-                                      "this system with the current configuration.\n"
-                                      "\n"
-                                      "See Capture Help below for details.");
-            } else {
-                label_text = g_strdup("WinPcap doesn't appear to be installed.  "
-                                      "In order to capture packets, WinPcap "
-                                      "must be installed; see\n"
-                                      "\n"
-#if GTK_CHECK_VERSION(2,18,0)
-                                      "        <a href=\"http://www.winpcap.org/\">http://www.winpcap.org/</a>\n"
-#else
-                                      "        http://www.winpcap.org/\n"
-#endif
-                                      "\n"
-                                      "or the mirror at\n"
-                                      "\n"
-#if GTK_CHECK_VERSION(2,18,0)
-                                      "        <a href=\"http://www.mirrors.wiretapped.net/security/packet-capture/winpcap/\">http://www.mirrors.wiretapped.net/security/packet-capture/winpcap/</a>\n"
-#else
-                                      "        http://www.mirrors.wiretapped.net/security/packet-capture/winpcap/\n"
-#endif
-                                      "\n"
-                                      "or the mirror at\n"
-                                      "\n"
-#if GTK_CHECK_VERSION(2,18,0)
-                                      "        <a href=\"http://winpcap.cs.pu.edu.tw/\">http://winpcap.cs.pu.edu.tw/</a>\n"
-#else
-                                      "        http://winpcap.cs.pu.edu.tw/\n"
-#endif
-                                      "\n"
-                                      "for a downloadable version of WinPcap "
-                                      "and for instructions on how to install "
-                                      "WinPcap.");
-            }
-        } else {
+       switch (error) {
+
+       case CANT_GET_INTERFACE_LIST:
             label_text = g_strdup("No interface can be used for capturing in "
                                   "this system with the current configuration.\n"
                                   "\n"
                                   "See Capture Help below for details.");
+            break;
+
+       case NO_INTERFACES_FOUND:
+            label_text = g_strdup("No interface can be used for capturing in "
+                                  "this system with the current configuration.\n"
+                                  "\n"
+                                  "See Capture Help below for details.");
+            break;
+
+       case DONT_HAVE_PCAP:
+            label_text = g_strdup("WinPcap doesn't appear to be installed.  "
+                                  "In order to capture packets, WinPcap "
+                                  "must be installed; see\n"
+                                  "\n"
+#if GTK_CHECK_VERSION(2,18,0)
+                                  "        <a href=\"http://www.winpcap.org/\">http://www.winpcap.org/</a>\n"
+#else
+                                  "        http://www.winpcap.org/\n"
+#endif
+                                  "\n"
+                                  "or the mirror at\n"
+                                  "\n"
+#if GTK_CHECK_VERSION(2,18,0)
+                                  "        <a href=\"http://www.mirrors.wiretapped.net/security/packet-capture/winpcap/\">http://www.mirrors.wiretapped.net/security/packet-capture/winpcap/</a>\n"
+#else
+                                  "        http://www.mirrors.wiretapped.net/security/packet-capture/winpcap/\n"
+#endif
+                                  "\n"
+                                  "or the mirror at\n"
+                                  "\n"
+#if GTK_CHECK_VERSION(2,18,0)
+                                  "        <a href=\"http://winpcap.cs.pu.edu.tw/\">http://winpcap.cs.pu.edu.tw/</a>\n"
+#else
+                                  "        http://winpcap.cs.pu.edu.tw/\n"
+#endif
+                                  "\n"
+                                  "for a downloadable version of WinPcap "
+                                  "and for instructions on how to install "
+                                  "WinPcap.");
+            break;
+
+        default:
+            label_text = g_strdup_printf("Error = %d; this \"can't happen\".", error);
+            break;
         }
         w = gtk_label_new(label_text);
         gtk_label_set_markup(GTK_LABEL(w), label_text);
