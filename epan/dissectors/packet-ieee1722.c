@@ -151,17 +151,21 @@ dissect_1722(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         proto_tree_add_item(ieee1722_tree, hf_1722_svfield, tvb, IEEE_1722_VERSION_OFFSET, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(ieee1722_tree, hf_1722_verfield, tvb, IEEE_1722_VERSION_OFFSET, 1, ENC_BIG_ENDIAN);
+    }
+        
+
+    /* Version field ends the common AVTPDU. Now parse the specfic packet type */
+    subtype = tvb_get_guint8(tvb, IEEE_1722_CD_OFFSET);
+    subtype &= 0x7F;
+
+    /* call any registered subtype dissectors which use only the common AVTPDU (e.g. 1722.1 and MAAP) */
+    if (dissector_try_uint(avb_dissector_table, subtype, tvb, pinfo, tree)) return;
+
+    if (tree) {
         proto_tree_add_item(ieee1722_tree, hf_1722_mrfield, tvb, IEEE_1722_VERSION_OFFSET, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(ieee1722_tree, hf_1722_gvfield, tvb, IEEE_1722_VERSION_OFFSET, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(ieee1722_tree, hf_1722_tvfield, tvb, IEEE_1722_VERSION_OFFSET, 1, ENC_BIG_ENDIAN);
-
-        /* Version field ends the common AVTPDU. Now parse the specfic packet type */
-        subtype = tvb_get_guint8(tvb, IEEE_1722_CD_OFFSET);
-        subtype &= 0x7F;
-
-        /* call subtype dissectors for 1722.1 */
-        if (dissector_try_uint(avb_dissector_table, subtype, tvb, pinfo, tree)) return;
-
+        
         /* Add the rest of the packet fields */
         proto_tree_add_item(ieee1722_tree, hf_1722_seqnum, tvb,
                             IEEE_1722_SEQ_NUM_OFFSET, 1, ENC_BIG_ENDIAN);
