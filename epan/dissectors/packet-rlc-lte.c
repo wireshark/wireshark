@@ -2197,12 +2197,12 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
 
             if ((guint16)so_end == 0x7fff) {
                 write_pdu_label_and_info(top_ti, NULL, pinfo,
-                                         "  (SOstart=%u SOend=<END-OF_PDU>)",
+                                         " (SOstart=%u SOend=<END-OF_PDU>)",
                                          (guint16)so_start);
             }
             else {
                 write_pdu_label_and_info(top_ti, NULL, pinfo,
-                                         "  (SOstart=%u SOend=%u)",
+                                         " (SOstart=%u SOend=%u)",
                                          (guint16)so_start, (guint16)so_end);
             }
 
