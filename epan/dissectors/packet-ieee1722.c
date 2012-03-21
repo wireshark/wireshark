@@ -124,7 +124,7 @@ static void
 dissect_1722(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *ti;
-    proto_tree *ieee1722_tree;
+    proto_tree *ieee1722_tree = NULL;
     proto_tree *audio_tree;
     proto_tree *sample_tree;
     gint offset;
