@@ -1876,7 +1876,7 @@ static void dissect_sig(tvbuff_t *, int, int, proto_tree *);
 static void dissect_nonce(tvbuff_t *, int, int, proto_tree *);
 static void dissect_notif(tvbuff_t *, int, int, proto_tree *, int);
 static void dissect_delete(tvbuff_t *, int, int, proto_tree *, int);
-static void dissect_vid(tvbuff_t *, int, int, proto_tree *);
+static int dissect_vid(tvbuff_t *, int, int, proto_tree *);
 static void dissect_config(tvbuff_t *, int, int, proto_tree *, int);
 static void dissect_nat_discovery(tvbuff_t *, int, int, proto_tree * );
 static void dissect_nat_original_address(tvbuff_t *, int, int, proto_tree *, int );
@@ -3680,7 +3680,7 @@ dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_v
 }
 
 static void
-dissect_cert(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_version, packet_info *pinfo )
+dissect_cert(tvbuff_t *tvb, int offset, int length _U_, proto_tree *tree, int isakmp_version, packet_info *pinfo )
 {
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
@@ -3694,7 +3694,6 @@ dissect_cert(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp
   }
 
   offset += 1;
-  length -= 1;
 
   dissect_x509af_Certificate(FALSE, tvb, offset, &asn1_ctx, tree, hf_isakmp_cert_data);
 }
@@ -3789,7 +3788,7 @@ dissect_cisco_fragmentation(tvbuff_t *tvb, int offset, int length, proto_tree *t
   last = tvb_get_guint8(tvb, offset);
   proto_tree_add_item(tree, hf_isakmp_cisco_frag_last, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
-  length-=4;
+  /*length-=4;*/
 
   /* Start Reassembly stuff for Cisco IKE fragmentation */
   {
@@ -3938,8 +3937,6 @@ dissect_notif(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakm
                   proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_org_resp_gw_ident, tvb, offset+2, tvb_get_guint8(tvb,offset+1), ENC_NA);
                 break;
                }
-               length -= tvb_get_guint8(tvb, offset+1) - 2;
-               offset += tvb_get_guint8(tvb, offset+1) + 2;
           break;
           case 16409: /* TICKET_LT_OPAQUE */
                proto_tree_add_item(tree, hf_isakmp_notify_data_ticket_lifetime, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -4022,7 +4019,7 @@ dissect_delete(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isak
 }
 
 
-static void
+static int
 dissect_vid(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 {
   const guint8 * pVID;
@@ -4078,6 +4075,7 @@ dissect_vid(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
     proto_tree_add_item(tree, hf_isakmp_vid_aruba_via_auth_profile, tvb, offset, length-19, ENC_ASCII|ENC_NA);
     offset += 4;
   }
+  return offset;
 }
 /* Returns the number of bytes consumed by this option. */
 static int
@@ -4286,7 +4284,6 @@ dissect_config_attribute(tvbuff_t *tvb, proto_tree *cfg_attr_type_tree, int offs
 		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_link_interface, tvb, offset, 8, ENC_BIG_ENDIAN);
 		offset += 8;
 		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_link_id, tvb, offset, optlen-8, ENC_NA);
-		offset += optlen-8;
 		break;
 	case INTERNAL_IP6_PREFIX: /* 18 */
 		offset_end = offset + optlen;
@@ -4392,7 +4389,7 @@ dissect_nat_discovery(tvbuff_t *tvb, int offset, int length, proto_tree *tree )
 }
 
 static void
-dissect_nat_original_address(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_version)
+dissect_nat_original_address(tvbuff_t *tvb, int offset, int length _U_, proto_tree *tree, int isakmp_version)
 {
   guint8 id_type;
 
@@ -4405,7 +4402,6 @@ dissect_nat_original_address(tvbuff_t *tvb, int offset, int length, proto_tree *
      proto_tree_add_item(tree, hf_isakmp_id_type_v2, tvb, offset, 1, ENC_BIG_ENDIAN);
   }
   offset += 1;
-  length -= 1;
 
   offset += 3;		/* reserved */
 
@@ -4659,7 +4655,6 @@ dissect_enc(tvbuff_t *tvb,
       } else {
         proto_item_append_text(icd_item, "[not validated]");
       }
-      offset += icd_len;
     }
 
     /*
