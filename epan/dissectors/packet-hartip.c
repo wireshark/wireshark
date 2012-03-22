@@ -316,13 +316,12 @@ dissect_empty_body(proto_tree *tree, tvbuff_t *tvb,
 
 static gint
 dissect_session_init(proto_tree *body_tree, tvbuff_t *tvb,
-  gint8 msg_type_val, gint offset, gint bodylen)
+  gint offset, gint bodylen)
 {
   proto_item *ti;
   guint8      master_type;
   const char *master_type_str;
 
-  msg_type_val = msg_type_val;
   if (bodylen == 5) {
     master_type = tvb_get_guint8(tvb, offset);
     ti = proto_tree_add_uint(body_tree, hf_hartip_master_type, tvb, offset, 1,
@@ -359,17 +358,15 @@ dissect_error(proto_tree *body_tree, tvbuff_t *tvb,
 
 static gint
 dissect_session_close(proto_tree *body_tree, tvbuff_t *tvb,
-  gint8 msg_type_val, gint offset, gint bodylen)
+  gint offset, gint bodylen)
 {
-  msg_type_val = msg_type_val;
   return dissect_empty_body(body_tree, tvb, offset, bodylen);
 }
 
 static gint
 dissect_keep_alive(proto_tree *body_tree, tvbuff_t *tvb,
-  gint8 msg_type_val, gint offset, gint bodylen)
+  gint offset, gint bodylen)
 {
-  msg_type_val = msg_type_val;
   return dissect_empty_body(body_tree, tvb, offset, bodylen);
 }
 
@@ -715,7 +712,7 @@ dissect_parse_hart_cmds(proto_tree *body_tree, tvbuff_t *tvb,
 
 static gint
 dissect_pass_through(proto_tree *body_tree, tvbuff_t *tvb,
-  gint8 msg_type_val, gint offset, gint bodylen)
+  gint offset, gint bodylen)
 {
   proto_item *ti;
   guint8      delimiter;
@@ -727,8 +724,6 @@ dissect_pass_through(proto_tree *body_tree, tvbuff_t *tvb,
   gint        is_rsp        = 0;
   gint        num_preambles = 0;
   gint        result;
-
-  msg_type_val = msg_type_val;
 
   /* find number of preambles */
   while (length > num_preambles) {
@@ -974,16 +969,16 @@ dissect_hartip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           /*  Dissect the various HARTIP messages. */
           switch(hdr.message_id) {
           case SESSION_INITIATE_ID:
-            offset += dissect_session_init(body_tree, tvb, hdr.message_type, offset, bodylen);
+            offset += dissect_session_init(body_tree, tvb, offset, bodylen);
             break;
           case SESSION_CLOSE_ID:
-            offset += dissect_session_close(body_tree, tvb, hdr.message_type, offset, bodylen);
+            offset += dissect_session_close(body_tree, tvb, offset, bodylen);
             break;
           case KEEP_ALIVE_ID:
-            offset += dissect_keep_alive(body_tree, tvb, hdr.message_type, offset, bodylen);
+            offset += dissect_keep_alive(body_tree, tvb, offset, bodylen);
             break;
           case PASS_THROUGH_ID:
-            offset += dissect_pass_through(body_tree, tvb, hdr.message_type, offset, bodylen);
+            offset += dissect_pass_through(body_tree, tvb, offset, bodylen);
             break;
           default:
             proto_tree_add_item(body_tree, hf_hartip_data, tvb, offset,
