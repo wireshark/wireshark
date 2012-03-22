@@ -1031,7 +1031,56 @@ dissect_h264_profile(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	}
 
 }
+/*
+ * 7.3.1 NAL unit syntax
+ * Un escape the NAL tvb
+ *
+ *
+ * nal_unit( NumBytesInNALunit ) { C Descriptor
+ *   forbidden_zero_bit All f(1)
+ *   nal_ref_idc All u(2)
+ *   nal_unit_type All u(5)
+ *   NumBytesInRBSP = 0
+ *   for( i = 1; i < NumBytesInNALunit; i++ ) {
+ *     if( i + 2 < NumBytesInNALunit && next_bits( 24 ) = = 0x000003 ) {
+ *       rbsp_byte[ NumBytesInRBSP++ ] All b(8)
+ *       rbsp_byte[ NumBytesInRBSP++ ] All b(8)
+ *       i += 2
+ *       emulation_prevention_three_byte / * equal to 0x03 * / All f(8)
+ *     } else
+ *       rbsp_byte[ NumBytesInRBSP++ ] All b(8)
+ *     }
+ *   }
+ */ 
 
+static tvbuff_t *
+dissect_h265_unescap_nal_unit(tvbuff_t *tvb, packet_info *pinfo, int offset)
+{
+	tvbuff_t *tvb_rbsp;
+	int length = tvb_length_remaining(tvb, offset);
+	int NumBytesInRBSP = 0;
+	int i;
+	gchar *buff;
+
+	buff = g_malloc(length);
+	for( i = 0; i < length; i++ ) {
+		if((i + 2 < length) && (tvb_get_ntoh24(tvb,offset) == 0x000003) ) {
+			buff[NumBytesInRBSP++] = tvb_get_guint8(tvb,offset);
+			buff[NumBytesInRBSP++] = tvb_get_guint8(tvb,offset+1);
+			i += 2;
+			offset+=3;
+		}else{
+			buff[ NumBytesInRBSP++] = tvb_get_guint8(tvb,offset);
+			offset++;
+		}
+	}
+
+	tvb_rbsp = tvb_new_child_real_data(tvb, buff,NumBytesInRBSP,NumBytesInRBSP);
+	tvb_set_free_cb( tvb_rbsp, g_free );
+	add_new_data_source(pinfo, tvb_rbsp, "Unescaped RSP Data");
+
+	return tvb_rbsp;
+}
 /*
  * 7.3.2.8 Slice layer without partitioning RBSP syntax
  * slice_layer_without_partitioning_rbsp( )
@@ -1796,6 +1845,7 @@ dissect_h264(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *item, *ti, *stream_item, *fua_item;
 	proto_tree *h264_tree, *h264_nal_tree, *stream_tree, *fua_tree;
 	guint8 type;
+	tvbuff_t *rbsp_tvb;
 
 
 /* Make entries in Protocol column and Info column on summary display */
@@ -1847,32 +1897,36 @@ dissect_h264(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			else
 				return;
 		}
+
+		/* Unescape NAL unit */
+		rbsp_tvb = dissect_h265_unescap_nal_unit(tvb, pinfo, offset);
+
 		stream_item =proto_tree_add_text(h264_tree, tvb, offset, -1, "H264 bitstream");
 		stream_tree = proto_item_add_subtree(stream_item, ett_h264_stream);
 		switch(type){
 		case 1:				/* 1 Coded slice of a non-IDR picture */
-			dissect_h264_slice_layer_without_partitioning_rbsp(stream_tree, tvb, pinfo, offset);
+			dissect_h264_slice_layer_without_partitioning_rbsp(stream_tree, rbsp_tvb, pinfo, 0);
 			break;
 		case 3:	/* Coded slice data partition B */
-			dissect_h264_slice_data_partition_b_layer_rbsp(h264_nal_tree, tvb, pinfo, offset);
+			dissect_h264_slice_data_partition_b_layer_rbsp(h264_nal_tree, rbsp_tvb, pinfo, 0);
 			break;
 		case 4:	/* Coded slice data partition C */
-			dissect_h264_slice_data_partition_c_layer_rbsp(h264_nal_tree, tvb, pinfo, offset);
+			dissect_h264_slice_data_partition_c_layer_rbsp(h264_nal_tree, rbsp_tvb, pinfo, 0);
 			break;
 		case 5:	/* Coded slice of an IDR picture */
-			dissect_h264_slice_layer_without_partitioning_rbsp(stream_tree, tvb, pinfo, offset);
+			dissect_h264_slice_layer_without_partitioning_rbsp(stream_tree, rbsp_tvb, pinfo, 0);
 			break;
 		case 6:	/* Supplemental enhancement information (SEI) */
 			dissect_h264_sei_rbsp(stream_tree, tvb, pinfo, offset);
 			break;
 		case H264_SEQ_PAR_SET:	/* 7 Sequence parameter set*/
-			dissect_h264_seq_parameter_set_rbsp(stream_tree, tvb, pinfo, offset);
+			dissect_h264_seq_parameter_set_rbsp(stream_tree, rbsp_tvb, pinfo, 0);
 			break;
 		case H264_PIC_PAR_SET:	/* 8 Picture parameter set */
-			dissect_h264_pic_parameter_set_rbsp(stream_tree, tvb, pinfo, offset);
+			dissect_h264_pic_parameter_set_rbsp(stream_tree, rbsp_tvb, pinfo, 0);
 			break;
 		case 19:	/* Coded slice of an auxiliary coded picture without partitioning */
-			dissect_h264_slice_layer_without_partitioning_rbsp(stream_tree, tvb, pinfo, offset);
+			dissect_h264_slice_layer_without_partitioning_rbsp(stream_tree, rbsp_tvb, pinfo, 0);
 			break;
 		default:
 			break;
