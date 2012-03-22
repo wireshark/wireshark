@@ -199,7 +199,6 @@ set(ASN1_DISSECTOR_SRC
 	dissectors/packet-disp.c
 	dissectors/packet-dop.c
 	dissectors/packet-dsp.c
-	dissectors/packet-eiss.c
 	dissectors/packet-ess.c
 	dissectors/packet-ftam.c
 	dissectors/packet-goose.c
@@ -564,6 +563,8 @@ set(DISSECTOR_SRC
 	dissectors/packet-etherip.c
 	dissectors/packet-ethertype.c
 	dissectors/packet-etsi_card_app_toolkit.c
+	dissectors/packet-eiss.c
+	dissectors/packet-etv.c
 	dissectors/packet-evrc.c
 	dissectors/packet-exec.c
 	dissectors/packet-extreme.c
@@ -815,6 +816,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-mp4ves.c
 	dissectors/packet-mpeg-ca.c
 	dissectors/packet-mpeg-descriptor.c
+	dissectors/packet-mpeg-dsmcc.c
 	dissectors/packet-mpeg-pat.c
 	dissectors/packet-mpeg-pmt.c
 	dissectors/packet-mpeg-sect.c

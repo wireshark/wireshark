@@ -105,7 +105,9 @@ enum {
 
 /* From OC-SP-ETV-AM 1.0-IO5 */
 enum {
-	TID_ETV_EISS = 0xE0
+	TID_ETV_EISS = 0xE0,
+	TID_ETV_DII = 0xE3,
+	TID_ETV_DDB = 0xE4
 };
 
 static const value_string mpeg_sect_table_id_vals[] = {
@@ -136,6 +138,8 @@ static const value_string mpeg_sect_table_id_vals[] = {
 	{ TID_TIM, "Terminal Information Message (TIM)" },
 	{ TID_DVB_MPE, "DVB MultiProtocol Encapsulation (MPE)" },
 	{ TID_ETV_EISS, "ETV Integrated Signaling Stream (EISS)" },
+	{ TID_ETV_DII, "ETV Download Info Indication" },
+	{ TID_ETV_DDB, "ETV Download Data Block" },
 	{ TID_FORBIDEN, "Forbidden" },
 	{ 0, NULL }
 };

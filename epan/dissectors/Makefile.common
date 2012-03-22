@@ -466,6 +466,7 @@ DISSECTOR_SRC = \
 	packet-ehdlc.c		\
 	packet-ehs.c		\
 	packet-eigrp.c		\
+	packet-eiss.c		\
 	packet-elcom.c		\
 	packet-enc.c		\
 	packet-enip.c		\
@@ -482,7 +483,7 @@ DISSECTOR_SRC = \
 	packet-etherip.c	\
 	packet-ethertype.c	\
 	packet-etsi_card_app_toolkit.c	\
-	packet-eiss.c		\
+	packet-etv.c		\
 	packet-evrc.c		\
 	packet-exec.c		\
 	packet-extreme.c	\
@@ -734,6 +735,7 @@ DISSECTOR_SRC = \
 	packet-mp4ves.c		\
 	packet-mpeg-ca.c \
 	packet-mpeg-descriptor.c \
+	packet-mpeg-dsmcc.c	\
 	packet-mpeg-pat.c	\
 	packet-mpeg-pmt.c \
 	packet-mpeg-sect.c	\

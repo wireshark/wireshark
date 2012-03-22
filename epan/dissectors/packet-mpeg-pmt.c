@@ -113,6 +113,8 @@ static const value_string mpeg_pmt_stream_type_vals[] = {
 	{ 0x1A, "IPMP stream (defined in ISO/IEC 13818-11, MPEG-2 IPMP)" },
 	{ 0x1B, "AVC video stream as defined in ITU-T Rec. H.264 | ISO/IEC 14496-10 Video" },
 	{ 0x7F, "IPMP stream" },
+	{ 0xA1, "ETV-AM BIF Data Stream" },
+	{ 0xC0, "ETV-AM EISS Signaling" },
 	{ 0x00, NULL }
 };
 
