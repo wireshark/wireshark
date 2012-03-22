@@ -67,6 +67,15 @@
 #define	NSPR_PDPKTRACEPARTTXB_V23	0xF5	/* In transmit buffer */
 #define	NSPR_PDPKTRACEPARTRX_V23	0xF6	/* Received */
 
+/* cluster tracing*/
+#define NSPR_PDPKTRACEFULLTX_V24    0xF8    /* Transmitted */
+#define NSPR_PDPKTRACEFULLTXB_V24   0xF9    /* In transmit buffer */
+#define NSPR_PDPKTRACEFULLRX_V24    0xFA    /* Received packets before NIC pipelining */
+#define NSPR_PDPKTRACEFULLNEWRX_V24	0xfB	/* Received packets after NIC pipelining */
+#define NSPR_PDPKTRACEPARTTX_V24    0xFC    /* Transmitted */
+#define NSPR_PDPKTRACEPARTTXB_V24   0xFD    /* In transmit buffer */
+#define NSPR_PDPKTRACEPARTRX_V24    0xFE    /* Received packets before NIC pipelining */
+#define NSPR_PDPKTRACEPARTNEWRX_V24	0xFF    /* Received packets after NIC pipelining */
 
 /* Record types */
 #define	NSPR_HEADER_VERSION100 0x10
@@ -74,7 +83,7 @@
 #define	NSPR_HEADER_VERSION201 0x21
 #define	NSPR_HEADER_VERSION202 0x22
 #define NSPR_HEADER_VERSION203 0x23
-
+#define NSPR_HEADER_VERSION204 0x24
 int nstrace_open(wtap *wth, int *err, gchar **err_info);
 int nstrace_10_dump_can_write_encap(int encap);
 int nstrace_20_dump_can_write_encap(int encap);

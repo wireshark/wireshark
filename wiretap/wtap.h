@@ -346,6 +346,9 @@ struct nstr_phdr {
 	guint8 rec_type;
 	guint8 vlantag_offset;
 	guint8 coreid_offset;
+	guint8 srcnodeid_offset;
+	guint8 destnodeid_offset;
+	guint8 clflags_offset;
 };
 
 /* Packet "pseudo-header" information for Ethernet capture files. */

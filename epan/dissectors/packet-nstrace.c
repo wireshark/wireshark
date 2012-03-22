@@ -41,7 +41,18 @@ static int hf_ns_devno = -1;
 static int hf_ns_vlantag = -1;
 static int hf_ns_coreid = -1;
 
+static int hf_ns_snode = -1;
+static int hf_ns_dnode = -1;
+static int hf_ns_clflags = -1;
+static int hf_ns_clflags_res = -1;
+static int hf_ns_clflags_rssh = -1;
+static int hf_ns_clflags_rss = -1;
+static int hf_ns_clflags_dfd = -1;
+static int hf_ns_clflags_fr = -1;
+static int hf_ns_clflags_fp = -1;
+
 static gint ett_ns = -1;
+static gint ett_ns_flags = -1;
 
 static const value_string ns_dir_vals[] = {
 	{ NSPR_PDPKTRACEFULLTX_V10, "TX" },
@@ -64,31 +75,49 @@ static const value_string ns_dir_vals[] = {
 	{ NSPR_PDPKTRACEPARTRX_V21, "RX" },
 	{ NSPR_PDPKTRACEFULLTX_V22, "TX" },
 	{ NSPR_PDPKTRACEFULLTX_V23, "TX" },
+	{ NSPR_PDPKTRACEFULLTX_V24, "TX" },
 	{ NSPR_PDPKTRACEFULLTXB_V22, "TXB" },
 	{ NSPR_PDPKTRACEFULLTXB_V23, "TXB" },
+	{ NSPR_PDPKTRACEFULLTXB_V24, "TXB" },
 	{ NSPR_PDPKTRACEFULLRX_V22, "RX" },
 	{ NSPR_PDPKTRACEFULLRX_V23, "RX" },
+	{ NSPR_PDPKTRACEFULLRX_V24, "RX" },
+	{ NSPR_PDPKTRACEFULLNEWRX_V24, "NEW_RX" },
 	{ NSPR_PDPKTRACEPARTTX_V22, "TX" },
 	{ NSPR_PDPKTRACEPARTTX_V23, "TX" },
+	{ NSPR_PDPKTRACEPARTTX_V24, "TX" },
 	{ NSPR_PDPKTRACEPARTTXB_V22, "TXB" },
 	{ NSPR_PDPKTRACEPARTTXB_V23, "TXB" },
+	{ NSPR_PDPKTRACEPARTTXB_V24, "TXB" },
 	{ NSPR_PDPKTRACEPARTRX_V22, "RX" },
 	{ NSPR_PDPKTRACEPARTRX_V23, "RX" },
+	{ NSPR_PDPKTRACEPARTRX_V24, "RX" },
+	{ NSPR_PDPKTRACEPARTNEWRX_V24, "NEW_RX" },
 	{ 0,              NULL }
 };
 
 static dissector_handle_t eth_withoutfcs_handle;
 
+#define CL_FP 	0x01
+#define CL_FR 	0x02
+#define CL_DFD	0x04
+#define CL_RSS	0x08
+#define CL_RSSH	0x10
+#define CL_RES	0xE0
 
 static void
 dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_tree   *ns_tree = NULL;
-	proto_item   *ti = NULL;
+	proto_tree   *ns_tree = NULL, *flagtree = NULL;
+	proto_item   *ti = NULL, *flagitem = NULL;
 	struct nstr_phdr *pnstr = &(pinfo->pseudo_header->nstr);
 	tvbuff_t     *next_tvb_eth_client;
-	guint8        offset;
-
+	guint8      offset;
+	guint      	i, bpos;
+	emem_strbuf_t *flags_strbuf = ep_strbuf_new_label("None");
+	const gchar *flags[] = {"FP", "FR", "DFD", "SRSS", "RSSH"};
+	gboolean 	first_flag = TRUE;
+	guint8		flagoffset, flagval;
 
 	ti = proto_tree_add_protocol_format(tree, proto_nstrace, tvb, 0, pnstr->eth_offset, "NetScaler Packet Trace");
 	ns_tree = proto_item_add_subtree(ti, ett_ns);
@@ -98,6 +127,37 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	switch (pnstr->rec_type)
 	{
+
+	case NSPR_HEADER_VERSION204:
+
+		flagoffset = pnstr->clflags_offset;
+		flagval = tvb_get_guint8(tvb, flagoffset);	
+
+		for (i = 0; i < 5; i++) {
+			bpos = 1 << i;
+			if (flagval & bpos) {
+				if (first_flag) {
+					ep_strbuf_truncate(flags_strbuf, 0);
+				}
+				ep_strbuf_append_printf(flags_strbuf, "%s%s", first_flag ? "" : ", ", flags[i]);
+				first_flag = FALSE;
+			}
+		}
+		
+		proto_tree_add_item(ns_tree, hf_ns_snode, tvb, pnstr->srcnodeid_offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(ns_tree, hf_ns_dnode, tvb, pnstr->destnodeid_offset, 2, ENC_LITTLE_ENDIAN);
+		
+		flagitem = proto_tree_add_uint_format(ns_tree, hf_ns_clflags, tvb, flagoffset, 1, flagval,
+						"Cluster Flags: 0x%02x (%s)", flagval, flags_strbuf->str);
+		flagtree = proto_item_add_subtree(flagitem, ett_ns_flags);
+
+		proto_tree_add_boolean(flagtree, hf_ns_clflags_res, tvb, flagoffset, 1, flagval);
+		proto_tree_add_boolean(flagtree, hf_ns_clflags_rssh, tvb, flagoffset, 1, flagval);
+		proto_tree_add_boolean(flagtree, hf_ns_clflags_rss, tvb, flagoffset, 1, flagval);
+		proto_tree_add_boolean(flagtree, hf_ns_clflags_dfd, tvb, flagoffset, 1, flagval);
+		proto_tree_add_boolean(flagtree, hf_ns_clflags_fr, tvb, flagoffset, 1, flagval);
+		proto_tree_add_boolean(flagtree, hf_ns_clflags_fp, tvb, flagoffset, 1, flagval);
+
 	case NSPR_HEADER_VERSION203:
 		proto_tree_add_item(ns_tree, hf_ns_coreid, tvb, pnstr->coreid_offset, 2, ENC_LITTLE_ENDIAN);
 		/* fall through to next case */
@@ -161,10 +221,46 @@ proto_register_ns(void)
 		  { "Vlan",		"nstrace.vlan", FT_UINT16, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},	
 
+		{ &hf_ns_snode,
+		  { "Source Node",		"nstrace.snode", FT_INT16, BASE_DEC, NULL, 0x0,
+			NULL, HFILL }},	
+		
+		{ &hf_ns_dnode,
+		  { "Destination Node",		"nstrace.dnode", FT_INT16, BASE_DEC, NULL, 0x0,
+			NULL, HFILL }},	
+		
+		{ &hf_ns_clflags,
+		  { "Cluster Flags",	"nstrace.flags", FT_UINT8, BASE_HEX, NULL, 0x0,
+			  NULL, HFILL }},
+
+		{ &hf_ns_clflags_res,
+		  { "Reserved",	"nstrace.flags.res", FT_BOOLEAN, 8, TFS(&tfs_set_notset), CL_RES,
+			  NULL, HFILL}},
+		
+		{ &hf_ns_clflags_rssh,
+		  { "RSSHASH",	"nstrace.flags.rssh", FT_BOOLEAN, 8, TFS(&tfs_set_notset), CL_RSSH,
+			  NULL, HFILL}},
+		
+		{ &hf_ns_clflags_rss,
+		  { "SRSS",	"nstrace.flags.srss", FT_BOOLEAN, 8, TFS(&tfs_set_notset), CL_RSS,
+			  NULL, HFILL}},
+		
+		{ &hf_ns_clflags_dfd,
+		  { "DFD",	"nstrace.flags.dfd", FT_BOOLEAN, 8, TFS(&tfs_set_notset), CL_DFD,
+			  NULL, HFILL}},
+		
+		{ &hf_ns_clflags_fr,
+		  { "Flow receiver (FR)",	"nstrace.flags.fr", FT_BOOLEAN, 8, TFS(&tfs_set_notset), CL_FR,
+			  NULL, HFILL}},
+		
+		{ &hf_ns_clflags_fp,
+		  { "Flow processor (FP)",	"nstrace.flags.fp", FT_BOOLEAN, 8, TFS(&tfs_set_notset), CL_FP,
+			  NULL, HFILL}},
 	};
 
 	static gint *ett[] = {
 		&ett_ns,
+		&ett_ns_flags,
 	};
 
 	proto_nstrace = proto_register_protocol("NetScaler Trace", "NS Trace", "ns");
