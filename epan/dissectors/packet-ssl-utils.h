@@ -146,10 +146,12 @@
 #define PCT_ERR_SERVER_AUTH_FAILED     0x05
 #define PCT_ERR_SPECS_MISMATCH         0x06
 
+#define SSL_HND_HELLO_EXT_SERVER_NAME        0x0
 #define SSL_HND_HELLO_EXT_ELLIPTIC_CURVES    0x000a
 #define SSL_HND_HELLO_EXT_EC_POINT_FORMATS   0x000b
 #define SSL_HND_HELLO_EXT_HEARTBEAT          0x000f
-
+#define SSL_HND_HELLO_EXT_RENEG_INFO         0xff01
+#define SSL_HND_HELLO_EXT_NPN                0x3374
 #define SSL_HND_CERT_STATUS_TYPE_OCSP  1
 
 /*
@@ -188,6 +190,7 @@ extern const value_string tls_cert_status_type[];
 extern const value_string ssl_extension_curves[];
 extern const value_string ssl_extension_ec_point_formats[];
 extern const value_string ssl_curve_types[];
+extern const value_string tls_hello_ext_server_name_type_vs[];
 
 /* XXX Should we use GByteArray instead? */
 typedef struct _StringInfo {

@@ -172,6 +172,14 @@ static gint hf_ssl_handshake_extension_elliptic_curves      = -1;
 static gint hf_ssl_handshake_extension_elliptic_curve       = -1;
 static gint hf_ssl_handshake_extension_ec_point_formats_len = -1;
 static gint hf_ssl_handshake_extension_ec_point_format      = -1;
+static gint hf_ssl_handshake_extension_npn_len = -1;
+static gint hf_ssl_handshake_extension_npn_str_len = -1;
+static gint hf_ssl_handshake_extension_npn_str = -1;
+static gint hf_ssl_handshake_extension_reneg_info_len = -1;
+static gint hf_ssl_handshake_extension_server_name_len = -1;
+static gint hf_ssl_handshake_extension_server_name_list_len = -1;
+static gint hf_ssl_handshake_extension_server_name_type = -1;
+static gint hf_ssl_handshake_extension_server_name = -1;
 static gint hf_ssl_handshake_certificates_len = -1;
 static gint hf_ssl_handshake_certificates     = -1;
 static gint hf_ssl_handshake_certificate      = -1;
@@ -272,6 +280,9 @@ static gint ett_ssl_comp_methods      = -1;
 static gint ett_ssl_extension         = -1;
 static gint ett_ssl_extension_curves  = -1;
 static gint ett_ssl_extension_curves_point_formats = -1;
+static gint ett_ssl_extension_npn     = -1;
+static gint ett_ssl_extension_reneg_info = -1;
+static gint ett_ssl_extension_server_name = -1;
 static gint ett_ssl_certs             = -1;
 static gint ett_ssl_cert_types        = -1;
 static gint ett_ssl_sig_hash_algs     = -1;
@@ -474,6 +485,15 @@ static gint dissect_ssl3_hnd_hello_ext_elliptic_curves(tvbuff_t *tvb,
 
 static gint dissect_ssl3_hnd_hello_ext_ec_point_formats(tvbuff_t *tvb,
                                                         proto_tree *tree, guint32 offset);
+
+static gint dissect_ssl3_hnd_hello_ext_npn(tvbuff_t *tvb,
+                                           proto_tree *tree, guint32 offset, guint32 ext_len);
+
+static gint dissect_ssl3_hnd_hello_ext_reneg_info(tvbuff_t *tvb,
+                                           proto_tree *tree, guint32 offset, guint32 ext_len);
+
+static gint dissect_ssl3_hnd_hello_ext_server_name(tvbuff_t *tvb,
+                                           proto_tree *tree, guint32 offset, guint32 ext_len);
 
 static void dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb, packet_info *pinfo,
                                        proto_tree *tree,
@@ -2349,6 +2369,15 @@ dissect_ssl3_hnd_hello_ext(tvbuff_t *tvb,
         case SSL_HND_HELLO_EXT_EC_POINT_FORMATS:
             offset = dissect_ssl3_hnd_hello_ext_ec_point_formats(tvb, ext_tree, offset);
             break;
+        case SSL_HND_HELLO_EXT_NPN:
+             offset = dissect_ssl3_hnd_hello_ext_npn(tvb, ext_tree, offset, ext_len);
+             break;
+        case SSL_HND_HELLO_EXT_RENEG_INFO:
+             offset = dissect_ssl3_hnd_hello_ext_reneg_info(tvb, ext_tree, offset, ext_len);
+             break;
+        case SSL_HND_HELLO_EXT_SERVER_NAME:
+             offset = dissect_ssl3_hnd_hello_ext_server_name(tvb, ext_tree, offset, ext_len);
+             break;
         case SSL_HND_HELLO_EXT_HEARTBEAT:
             proto_tree_add_item(ext_tree, hf_ssl_heartbeat_extension_mode,
                                 tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2365,6 +2394,110 @@ dissect_ssl3_hnd_hello_ext(tvbuff_t *tvb,
         left -= 2 + 2 + ext_len;
     }
 
+    return offset;
+}
+
+static gint
+dissect_ssl3_hnd_hello_ext_npn(tvbuff_t *tvb,
+                               proto_tree *tree, guint32 offset, guint32 ext_len)
+{
+    guint8 npn_length;
+    proto_tree *npn_tree, *ti;
+
+    if (ext_len == 0) {
+       return offset;
+    }
+
+    ti = proto_tree_add_text(tree, tvb, offset, ext_len, "Next Protocol Negotiation");
+    npn_tree = proto_item_add_subtree(ti, ett_ssl_extension_npn); 
+
+    while (ext_len > 0) {
+          npn_length = tvb_get_guint8(tvb, offset);
+          proto_tree_add_item(npn_tree, hf_ssl_handshake_extension_npn_str_len,
+              tvb, offset, 1, ENC_NA);
+          offset++;
+          ext_len--;
+
+          if (npn_length > 0) {
+             tvb_ensure_bytes_exist(tvb, offset, npn_length);
+             proto_tree_add_item(npn_tree, hf_ssl_handshake_extension_npn_str,
+                 tvb, offset, npn_length, ENC_NA);
+             offset += npn_length;
+             ext_len -= npn_length;
+          }
+    }
+
+    return offset;
+}
+
+static gint
+dissect_ssl3_hnd_hello_ext_reneg_info(tvbuff_t *tvb,
+                               proto_tree *tree, guint32 offset, guint32 ext_len)
+{
+    guint8 reneg_info_length;
+    proto_tree *reneg_info_tree, *ti;
+
+    if (ext_len == 0) {
+       return offset;
+    }
+
+    ti = proto_tree_add_text(tree, tvb, offset, ext_len, "Renegotiation Info extension");
+    reneg_info_tree = proto_item_add_subtree(ti, ett_ssl_extension_reneg_info);
+
+    reneg_info_length = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(reneg_info_tree, hf_ssl_handshake_extension_reneg_info_len,
+              tvb, offset, 1, ENC_NA);
+    offset++;
+
+    if (reneg_info_length > 0) {
+       tvb_ensure_bytes_exist(tvb, offset, reneg_info_length);
+       proto_tree_add_text(reneg_info_tree, tvb, offset, reneg_info_length, "Renegotiation Info"); 
+       offset += reneg_info_length;
+    }
+
+    return offset;
+}
+
+static gint
+dissect_ssl3_hnd_hello_ext_server_name(tvbuff_t *tvb,
+                               proto_tree *tree, guint32 offset, guint32 ext_len)
+{
+    guint8 server_name_length;
+    proto_tree *server_name_tree, *ti;
+
+
+   if (ext_len == 0) {
+      return offset;
+   }
+
+    ti = proto_tree_add_text(tree, tvb, offset, ext_len, "Server Name Indication extension");
+    server_name_tree = proto_item_add_subtree(ti, ett_ssl_extension_server_name);
+
+    proto_tree_add_item(server_name_tree, hf_ssl_handshake_extension_server_name_list_len,
+         tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    ext_len -= 2;
+
+    while (ext_len > 0) {
+          proto_tree_add_item(server_name_tree, hf_ssl_handshake_extension_server_name_type,
+              tvb, offset, 2, ENC_BIG_ENDIAN);
+          offset += 2;
+          ext_len -= 2;
+
+          server_name_length = tvb_get_guint8(tvb, offset);
+          proto_tree_add_item(server_name_tree, hf_ssl_handshake_extension_server_name_len,
+              tvb, offset, 1, ENC_NA);
+          offset++;
+          ext_len--;
+
+          if (server_name_length > 0) {
+             tvb_ensure_bytes_exist(tvb, offset, server_name_length);
+             proto_tree_add_item(server_name_tree, hf_ssl_handshake_extension_server_name,
+                   tvb, offset, server_name_length, ENC_NA);
+             offset += server_name_length;
+             ext_len -= server_name_length;
+          }
+    }
     return offset;
 }
 
@@ -4962,6 +5095,46 @@ proto_register_ssl(void)
             FT_UINT8, BASE_DEC, VALS(ssl_extension_ec_point_formats), 0x0,
             "Elliptic curves point format", HFILL }
         },
+        { &hf_ssl_handshake_extension_npn_len,
+          { "NPN extension length", "ssl.handshake.extensions_npn_length",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Length of NPN extension", HFILL }
+        },
+        { &hf_ssl_handshake_extension_npn_str_len,
+          { "Protocol string length", "ssl.handshake.extensions_npn_str_len",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            "Length of next protocol string", HFILL }
+        },
+        { &hf_ssl_handshake_extension_npn_str,
+          { "Next Protocol", "ssl.handshake.extensions_npn",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            "Next Protocol", HFILL }
+        },
+        { &hf_ssl_handshake_extension_reneg_info_len,
+          { "Renegotiation info extension length", "ssl.handshake.extensions_reneg_info_len",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            "Renegotiation info extension length", HFILL }
+        },
+        { &hf_ssl_handshake_extension_server_name_list_len,
+          { "Server Name list length", "ssl.handshake.extensions_server_name_list_len",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Length of server name list", HFILL }
+        },
+        { &hf_ssl_handshake_extension_server_name_len,
+          { "Server Name length", "ssl.handshake.extensions_server_name_len",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Length of server name string", HFILL }
+        },
+        { &hf_ssl_handshake_extension_server_name_type,
+          { "Server Name Type", "ssl.handshake.extensions_server_name_type",
+            FT_UINT16, BASE_DEC, VALS(tls_hello_ext_server_name_type_vs), 0x0,
+            "Server name type", HFILL }
+        },
+        { &hf_ssl_handshake_extension_server_name,
+          { "Server Name", "ssl.handshake.extensions_server_name",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            "Server name", HFILL }
+        },
         { &hf_ssl_handshake_certificates_len,
           { "Certificates Length", "ssl.handshake.certificates_length",
             FT_UINT24, BASE_DEC, NULL, 0x0,
@@ -5402,6 +5575,9 @@ proto_register_ssl(void)
         &ett_ssl_extension,
         &ett_ssl_extension_curves,
         &ett_ssl_extension_curves_point_formats,
+        &ett_ssl_extension_npn,
+        &ett_ssl_extension_reneg_info,
+        &ett_ssl_extension_server_name,
         &ett_ssl_certs,
         &ett_ssl_cert_types,
         &ett_ssl_sig_hash_algs,

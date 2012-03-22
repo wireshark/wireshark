@@ -898,7 +898,7 @@ const value_string pct_error_code[] = {
 
 /* RFC 4366 */
 const value_string tls_hello_extension_types[] = {
-    { 0, "server_name" },
+    { SSL_HND_HELLO_EXT_SERVER_NAME, "server_name" }, /* RFC 3546 */
     { 1, "max_fragment_length" },
     { 2, "client_certificate_url" },
     { 3, "trusted_ca_keys" },
@@ -915,7 +915,13 @@ const value_string tls_hello_extension_types[] = {
     { 14, "use_srtp" },
     { SSL_HND_HELLO_EXT_HEARTBEAT, "Heartbeat" },  /* RFC 6520 */
     { 35, "SessionTicket TLS" },  /* RFC 4507 */
-    { 65281, "renegotiation_info" },
+    { SSL_HND_HELLO_EXT_NPN, "next_protocol_negotiation"}, /* http://technotes.googlecode.com/git/nextprotoneg.html */
+    { SSL_HND_HELLO_EXT_RENEG_INFO, "renegotiation_info" }, /* RFC 5746 */
+    { 0, NULL }
+};
+
+const value_string tls_hello_ext_server_name_type_vs[] = {
+    { 0, "host_name" },
     { 0, NULL }
 };
 
