@@ -178,7 +178,7 @@ AM_CONDITIONAL(HAVE_DOXYGEN, test x$HAVE_DOXYGEN = xyes)
 AC_SYS_LARGEFILE
 
 # GnuTLS
-# Version 3.0 switched from LGPLv2.1+ to LGPLv3+. 
+# Version 3.0 switched from LGPLv2.1+ to LGPLv3+.
 tls_message="no"
 AC_ARG_WITH([gnutls],
   AC_HELP_STRING( [--with-gnutls=@<:@yes/no@:>@],
@@ -1684,7 +1684,7 @@ AC_MSG_CHECKING(whether to use the Python interpreter for scripting)
 
 AC_ARG_WITH(python,
     AC_HELP_STRING( [--with-python@<:@=DIR@:>@],
-                    [use Python interpreter (installed in DIR, if supplied) @<:@default=no@:>@ (EXPERIMENTAL)]),
+                    [use Python interpreter (installed in DIR, if supplied) @<:@default=no@:>@ (BROKEN/UNSTABLE)]),
 [
 	pythondir='${libdir}/wireshark/python/${VERSION}'
 	if test "x$withval" = "xno"
