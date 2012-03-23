@@ -30,7 +30,7 @@
 /*          command-line option works OK.          */
 /*                                                 */
 /* debug:   Do output of "rule acceptance" info    */
-/*           during parse                          */ 
+/*           during parse                          */
 /*                                                 */
 /* %option noline  */
 /* %option debug   */
@@ -166,9 +166,11 @@ static void finalize_frame(void) {
 
 /* Fill in pseudo-header according to the encapsulation type             */
 
-static void k12text_set_pseudo_header(wtap *wth, union wtap_pseudo_header *pseudo_header) {
+static void
+k12text_set_pseudo_header(gint encap, union wtap_pseudo_header *pseudo_header)
+{
 	/* The file-encap is WTAP_ENCAP_PER_PACKET */
-	switch(wth->phdr.pkt_encap) {
+	switch(encap) {
 	    case WTAP_ENCAP_ETHERNET:
 		    pseudo_header->eth.fcs_len = 0;
 		    break;
@@ -220,7 +222,7 @@ static gboolean k12text_read(wtap *wth, int *err, char ** err_info, gint64 *data
 
 	/* We seek to the file position after the end of the previous frame processed by         */
 	/* k12text_read (kept in wth->data_offset). We do this each time since the lexer         */
-	/* undoubtedly did some amount of look-ahead when processing the previous frame.         */ 
+	/* undoubtedly did some amount of look-ahead when processing the previous frame.         */
 	/* We also clear out any lexer state (eg: look-ahead buffer) and init vars set by lexer. */
 
 	if ( file_seek(wth->fh, wth->data_offset, SEEK_SET, err) == -1) {
@@ -251,7 +253,7 @@ static gboolean k12text_read(wtap *wth, int *err, char ** err_info, gint64 *data
 	wth->phdr.caplen = wth->phdr.len = ii;
 
 	wth->phdr.pkt_encap = g_encap;
-	k12text_set_pseudo_header(wth, &wth->pseudo_header);
+	k12text_set_pseudo_header(g_encap, &wth->pseudo_header);
 
 	buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
 	memcpy(buffer_start_ptr(wth->frame_buffer), bb, wth->phdr.caplen);
@@ -288,7 +290,7 @@ static gboolean k12text_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_
 		return FALSE;
 	}
 
-	k12text_set_pseudo_header(wth, pseudo_header);
+	k12text_set_pseudo_header(g_encap, pseudo_header);
 
 	memcpy(pd, bb, length);
 
@@ -420,7 +422,7 @@ int k12text_dump_can_write_encap(int encap) {
 
 /*
  * We want to stop processing when we get to the end of the input.
- * (%option noyywrap is not used because if used then 
+ * (%option noyywrap is not used because if used then
  * some flex versions (eg: 2.5.35) generate code which causes
  * warnings by the Windows VC compiler).
  */

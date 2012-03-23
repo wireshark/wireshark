@@ -1222,7 +1222,7 @@ main_menu_new(GtkAccelGroup ** table) {
     GtkOSXApplicationMenuGroup *group;
     GtkWidget * dock_menu;
 #endif
-	
+
     grp = gtk_accel_group_new();
 
     if (initialize)
@@ -1259,10 +1259,10 @@ main_menu_new(GtkAccelGroup ** table) {
     g_signal_connect(quit_item, "activate", G_CALLBACK(file_quit_cmd_cb), NULL);
     ige_mac_menu_set_quit_menu_item(GTK_MENU_ITEM(quit_item));
 #endif
-	
+
 #ifdef HAVE_GTKOSXAPPLICATION
     theApp = g_object_new(GTK_TYPE_OSX_APPLICATION, NULL);
-	
+
     if(prefs.gui_macosx_style) {
         gtk_osxapplication_set_menu_bar(theApp, GTK_MENU_SHELL(menubar));
         gtk_osxapplication_set_use_quartz_accelerators(theApp, TRUE);
@@ -2627,10 +2627,10 @@ set_menus_for_capture_file(capture_file *cf)
         set_menu_sensitivity(main_menu_factory, "/File/Save As...", FALSE);
         set_menu_sensitivity(main_menu_factory, "/File/Export", FALSE);
         set_menu_sensitivity(main_menu_factory, "/View/Reload", FALSE);
-        set_toolbar_for_capture_file(FALSE);
+        set_toolbar_for_capture_file(FALSE, FALSE);
         set_toolbar_for_unsaved_capture_file(FALSE);
     } else {
-        set_menu_sensitivity(main_menu_factory, "/File/Merge...", TRUE);
+        set_menu_sensitivity(main_menu_factory, "/File/Merge...", cf_can_save_as(cf));
         set_menu_sensitivity(main_menu_factory, "/File/Close", TRUE);
         set_menu_sensitivity(main_menu_factory, "/File/Save", !cf->user_saved);
         /*
@@ -2644,7 +2644,7 @@ set_menus_for_capture_file(capture_file *cf)
         set_menu_sensitivity(main_menu_factory, "/File/Export", TRUE);
         set_menu_sensitivity(main_menu_factory, "/View/Reload", TRUE);
         set_toolbar_for_unsaved_capture_file(!cf->user_saved);
-        set_toolbar_for_capture_file(TRUE);
+        set_toolbar_for_capture_file(TRUE, cf_can_save_as(cf) || !cf->user_saved);
     }
 }
 
@@ -3608,4 +3608,3 @@ void set_menus_for_file_set(gboolean file_set, gboolean previous_file, gboolean 
  * ex: set shiftwidth=4 tabstop=8 expandtab
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-

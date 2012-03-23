@@ -53,14 +53,6 @@
 #include "gtk/dlg_utils.h"
 #include "gtk/gui_stat_menu.h"
 
-
-#define TH_FIN    0x01
-#define TH_SYN    0x02
-#define TH_RST    0x04
-#define TH_PUSH   0x08
-#define TH_ACK    0x10
-#define TH_URG    0x20
-
 #define TCP_SYN(flags)		( flags & TH_SYN )
 #define TCP_ACK(flags)		( flags & TH_ACK )
 #define TCP_FIN(flags)		( flags & TH_FIN )
@@ -481,9 +473,9 @@ static void rtt_toggle_seq_origin (struct graph * );
 static int rint (double );	/* compiler template for Windows */
 #endif
 
-/* 
- * Uncomment the following define to revert WIN32 to 
- * use original mouse button controls 
+/*
+ * Uncomment the following define to revert WIN32 to
+ * use original mouse button controls
  */
 
 /* #define ORIGINAL_WIN32_BUTTONS 1 */
@@ -545,7 +537,7 @@ static char helptext[] =
 static void debug_coord (struct graph *g, const char *c)
 {
 	static unsigned count = 0;
-	
+
 	count++;
 	printf("%u: %s\n", count, c);
 	printf("%u:  g->geom.width %d\n", count, g->geom.width);
@@ -567,14 +559,14 @@ static void set_busy_cursor(GdkWindow *w)
 
 	cursor = gdk_cursor_new(GDK_WATCH);
 	gdk_window_set_cursor(w, cursor);
-  	gdk_flush(); 
+  	gdk_flush();
 	gdk_cursor_destroy(cursor);
 }
 
 static void unset_busy_cursor(GdkWindow *w)
 {
 	gdk_window_set_cursor(w, NULL);
-  	gdk_flush(); 
+  	gdk_flush();
 }
 
 static void tcp_graph_cb (GtkWidget *w _U_, gpointer data, guint callback_action /*graph_type*/ _U_)
@@ -2620,7 +2612,7 @@ static void magnify_create (struct graph *g, int x, int y)
 	offsetpos.x = offsetpos.x >= 0 ? offsetpos.x : 0;
 	offsetpos.y = g->magnify.y + g->magnify.offset.y;
 	offsetpos.y = offsetpos.y >= 0 ? offsetpos.y : 0;
-	gtk_window_set_position (GTK_WINDOW(mg->drawing_area), GTK_WIN_POS_NONE);	
+	gtk_window_set_position (GTK_WINDOW(mg->drawing_area), GTK_WIN_POS_NONE);
 	magnify_get_geom (g, x, y);
 
 	gtk_widget_show (mg->drawing_area);
@@ -2959,7 +2951,7 @@ static void do_select_segment (struct graph *g)
 
 static void do_rtt_graph (struct graph *g)
 {
-        gtk_toggle_button_set_active (g->gt.graph_rtt, TRUE); 
+        gtk_toggle_button_set_active (g->gt.graph_rtt, TRUE);
 }
 
 static void do_throughput_graph (struct graph *g)
@@ -3208,7 +3200,7 @@ static gint key_press_event (GtkWidget *widget, GdkEventKey *event)
 		do_key_motion_down (g, step);
 		break;
 	case GDK_F1:
-	        callback_create_help (NULL, NULL);	
+	        callback_create_help (NULL, NULL);
 		break;
 	default:
 		break;

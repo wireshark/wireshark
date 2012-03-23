@@ -29,16 +29,17 @@
 #endif
 
 /* TCP flags */
-#define TH_FIN  0x01
-#define TH_SYN  0x02
-#define TH_RST  0x04
-#define TH_PUSH 0x08
-#define TH_ACK  0x10
-#define TH_URG  0x20
-#define TH_ECN  0x40
-#define TH_CWR  0x80
-#define TH_NS   0x100
-#define TH_RES  0xE00 /* 3 reserved bits */
+#define TH_FIN  0x0001
+#define TH_SYN  0x0002
+#define TH_RST  0x0004
+#define TH_PUSH 0x0008
+#define TH_ACK  0x0010
+#define TH_URG  0x0020
+#define TH_ECN  0x0040
+#define TH_CWR  0x0080
+#define TH_NS   0x0100
+#define TH_RES  0x0E00 /* 3 reserved bits */
+#define TH_MASK 0x0FFF
 
 /* Idea for gt: either x > y, or y is much bigger (assume wrap) */
 #define GT_SEQ(x, y) ((gint32)((y) - (x)) < 0)

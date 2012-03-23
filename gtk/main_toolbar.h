@@ -53,8 +53,9 @@ void toolbar_auto_scroll_live_changed(gboolean auto_scroll_live);
 /** We have (or don't have) a capture file now.
  *
  * @param have_capture_file TRUE, if we have a capture file
+ * @param can_save_as TRUE, if we can save this capture file
  */
-void set_toolbar_for_capture_file(gboolean have_capture_file);
+void set_toolbar_for_capture_file(gboolean have_capture_file, gboolean can_save_as);
 
 /** We have (or don't have) an unsaved capture file now.
  *

@@ -72,6 +72,36 @@ Wireshark Info
         </para></listitem>
 -->
 
+        <listitem><para>
+          Some PGM options are not parsed correctly.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5687">Bug
+          5687</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          packetBB dissector bug: More than 1000000 items in the tree -- possible infinite loop.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6687">Bug
+          6687</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Ethernet traces in K12 text format sometimes give bogus &quot;malformed frame&quot; errors and other problems.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6735">Bug
+          6735</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          IAX2 dissector reads past end of packet for unknown IEs.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6815">Bug
+          6815</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  MySQL dissector assertion.
+          (<ulink url="http://ask.wireshark.org/questions/8649">Ask
+          8649</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
@@ -99,7 +129,10 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
-.
+MySQL,
+PacketBB,
+PGM,
+TCP,
 
     </para>
     </section>
