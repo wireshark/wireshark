@@ -32,6 +32,15 @@
 #define PACKET_MPEG_SECT_PI__LENGTH	3
 #define PACKET_MPEG_SECT_PI__SIZE	4
 
+/* convert a byte that contains two 4bit BCD digits into a decimal value */
+#define MPEG_SECT_BCD44_TO_DEC(x)  (((x&0xf0) >> 4) * 10 + (x&0x0f))
+
+/*
+ * Used to read a date provided in MJD format into a utc_time structure
+ */
+extern gint
+packet_mpeg_sect_mjd_to_utc_time(tvbuff_t *tvb, gint offset, nstime_t *utc_time);
+
 /*
  *  Used to process the 'standard' mpeg section header that is described below
  *  and populate the data into the tree
