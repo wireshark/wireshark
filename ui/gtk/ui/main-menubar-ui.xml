@@ -110,6 +110,7 @@ xml description of Wireshark's main menubar, loaded from main_menubar.c in the g
       </menu>
       <menu name= 'NameResolution' action='/View/NameResolution'>
         <menuitem name='ResolveName' action='/View/NameResolution/ResolveName'/>
+        <menuitem name='ManuallyResolveName' action='/View/NameResolution/ManuallyResolveName'/>
         <separator/>
         <menuitem name='EnableforMACLayer' action='/View/NameResolution/EnableforMACLayer'/>
         <menuitem name='EnableforNetworkLayer' action='/View/NameResolution/EnableforNetworkLayer'/>

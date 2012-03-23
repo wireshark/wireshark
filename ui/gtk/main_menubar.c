@@ -1091,6 +1091,7 @@ static const char *ui_desc_menubar =
 "      </menu>\n"
 "      <menu name= 'NameResolution' action='/View/NameResolution'>\n"
 "         <menuitem name='ResolveName' action='/View/NameResolution/ResolveName'/>\n"
+"         <menuitem name='ManuallyResolveName' action='/View/NameResolution/ManuallyResolveName'/>\n"
 "         <separator/>\n"
 "         <menuitem name='EnableforMACLayer' action='/View/NameResolution/EnableforMACLayer'/>\n"
 "         <menuitem name='EnableforNetworkLayer' action='/View/NameResolution/EnableforNetworkLayer'/>\n"
@@ -1563,7 +1564,10 @@ static const GtkActionEntry main_menu_bar_entries[] = {
 
    { "/View/TimeDisplayFormat",     NULL,                   "_Time Display Format",                 NULL,                       NULL,           NULL },
 
-   { "/View/NameResolution",            NULL,                   "Name Resol_ution",                     NULL,                       NULL,           NULL },
+   { "/View/NameResolution",                    NULL,        "Name Resol_ution",                     NULL,                       NULL,           NULL },
+   { "/View/NameResolution/ResolveName",        NULL,        "_Resolve Name",                        NULL,                       NULL,           G_CALLBACK(resolve_name_cb) },
+   { "/View/NameResolution/ManuallyResolveName",NULL,        "Manually Resolve Name",                NULL,                       NULL,           G_CALLBACK(manual_addr_resolv_dlg) },
+
    { "/View/ZoomIn",                GTK_STOCK_ZOOM_IN,      "_Zoom In",                             "<control>plus",            NULL,           G_CALLBACK(view_zoom_in_cb) },
    { "/View/ZoomOut",               GTK_STOCK_ZOOM_OUT,     "Zoom _Out",                            "<control>minus",           NULL,           G_CALLBACK(view_zoom_out_cb) },
    { "/View/NormalSize",            GTK_STOCK_ZOOM_100,     "_Normal Size",                         "<control>equal",           NULL,           G_CALLBACK(view_zoom_100_cb) },
@@ -1820,15 +1824,14 @@ static const GtkActionEntry main_menu_bar_entries[] = {
 static const GtkToggleActionEntry main_menu_bar_toggle_action_entries[] =
 {
     /* name, stock id, label, accel, tooltip, callback, is_active */
-    {"/View/MainToolbar",   NULL, "_Main Toolbar",  NULL, NULL, G_CALLBACK(main_toolbar_show_hide_cb), TRUE},
-    {"/View/FilterToolbar", NULL, "_FilterToolbar", NULL, NULL, G_CALLBACK(filter_toolbar_show_hide_cb), TRUE},
-    {"/View/WirelessToolbar", NULL, "_WirelessToolbar", NULL, NULL, G_CALLBACK(wireless_toolbar_show_hide_cb), FALSE},
-    {"/View/Statusbar",     NULL, "_Statusbar", NULL, NULL, G_CALLBACK(status_bar_show_hide_cb), TRUE},
-    {"/View/PacketList",    NULL, "Packet _List", NULL, NULL,   G_CALLBACK(packet_list_show_hide_cb), TRUE},
-    {"/View/PacketDetails", NULL, "Packet _Details", NULL, NULL,    G_CALLBACK(packet_details_show_hide_cb), TRUE},
-    {"/View/PacketBytes",   NULL, "Packet _Bytes", NULL, NULL,  G_CALLBACK(packet_bytes_show_hide_cb), TRUE},
+    {"/View/MainToolbar",                                           NULL, "_Main Toolbar",                          NULL, NULL, G_CALLBACK(main_toolbar_show_hide_cb), TRUE},
+    {"/View/FilterToolbar",                                         NULL, "_FilterToolbar",                         NULL, NULL, G_CALLBACK(filter_toolbar_show_hide_cb), TRUE},
+    {"/View/WirelessToolbar",                                       NULL, "_WirelessToolbar",                       NULL, NULL, G_CALLBACK(wireless_toolbar_show_hide_cb), FALSE},
+    {"/View/Statusbar",                                             NULL, "_Statusbar",                             NULL, NULL, G_CALLBACK(status_bar_show_hide_cb), TRUE},
+    {"/View/PacketList",                                            NULL, "Packet _List",                           NULL, NULL, G_CALLBACK(packet_list_show_hide_cb), TRUE},
+    {"/View/PacketDetails",                                         NULL, "Packet _Details",                        NULL, NULL, G_CALLBACK(packet_details_show_hide_cb), TRUE},
+    {"/View/PacketBytes",                                           NULL, "Packet _Bytes",                          NULL, NULL, G_CALLBACK(packet_bytes_show_hide_cb), TRUE},
     {"/View/TimeDisplayFormat/DisplaySecondsWithHoursAndMinutes",   NULL, "Display Seconds with hours and minutes", NULL, NULL, G_CALLBACK(timestamp_seconds_time_cb), FALSE},
-    {"/View/NameResolution/ResolveName",                            NULL, "_Resolve Name",                          NULL, NULL, G_CALLBACK(resolve_name_cb), FALSE},
     {"/View/NameResolution/EnableforMACLayer",                      NULL, "Enable for _MAC Layer",                  NULL, NULL, G_CALLBACK(view_menu_en_for_MAC_cb), TRUE},
     {"/View/NameResolution/EnableforNetworkLayer",                  NULL, "Enable for _Network Layer",              NULL, NULL, G_CALLBACK(view_menu_en_for_network_cb), TRUE },
     {"/View/NameResolution/EnableforTransportLayer",                NULL, "Enable for _Transport Layer",            NULL, NULL, G_CALLBACK(view_menu_en_for_transport_cb), TRUE },
