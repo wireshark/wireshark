@@ -93,10 +93,22 @@ man_addr_resolv_ok (GtkWidget *w _U_, gpointer data _U_)
 }
 
 static void
-name_te_changed_cb(GtkWidget *name_te, GtkWidget *ok_bt)
+changed_cb(GtkWidget *w _U_, GtkWidget *ok_bt)
 {
-  const gchar *name = gtk_entry_get_text (GTK_ENTRY (name_te));
-  gtk_widget_set_sensitive (ok_bt, strlen (name) > 0 ? TRUE : FALSE);
+  const gchar *name;
+  const gchar *addr;
+  GtkWidget   *addr_cb, *name_cb, *resolv_cb;
+  gboolean    active;
+
+  name_cb   = g_object_get_data (G_OBJECT(man_addr_resolv_dlg), "name");
+  addr_cb   = g_object_get_data (G_OBJECT(man_addr_resolv_dlg), "address");
+  resolv_cb = g_object_get_data (G_OBJECT(man_addr_resolv_dlg), "resolv");
+
+  name = gtk_entry_get_text (GTK_ENTRY (name_cb));
+  addr = gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT(addr_cb));
+  active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(resolv_cb));
+
+  gtk_widget_set_sensitive (ok_bt, strlen(name) > 0 && strlen(addr) && active ? TRUE : FALSE);
 }
 
 void
@@ -157,7 +169,10 @@ manual_addr_resolv_dlg (GtkWidget *w _U_, gpointer data)
   ok_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_OK);
   g_signal_connect (ok_bt, "clicked", G_CALLBACK(man_addr_resolv_ok), NULL);
   gtk_widget_set_sensitive (ok_bt, FALSE);
-  g_signal_connect(name_te, "changed", G_CALLBACK(name_te_changed_cb), ok_bt);
+
+  g_signal_connect(name_te, "changed", G_CALLBACK(changed_cb), ok_bt);
+  g_signal_connect(addr_cb, "changed", G_CALLBACK(changed_cb), ok_bt);
+  g_signal_connect(resolv_cb, "toggled", G_CALLBACK(changed_cb), ok_bt);
   dlg_set_activate(name_te, ok_bt);
 
   close_bt = g_object_get_data (G_OBJECT(bbox), GTK_STOCK_CLOSE);
