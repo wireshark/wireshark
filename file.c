@@ -3658,9 +3658,8 @@ cf_unignore_frame(capture_file *cf, frame_data *frame)
 const gchar* 
 cf_read_shb_comment(capture_file *cf)
 {
-  wtapng_section_t* shb_inf;
+  wtapng_section_t *shb_inf;
   const gchar *temp_str;
-
 
   /* Get info from SHB */
   shb_inf = wtap_file_get_shb_info(cf->wth);
@@ -3676,10 +3675,23 @@ cf_read_shb_comment(capture_file *cf)
 void
 cf_update_capture_comment(capture_file *cf, gchar *comment)
 {
+  wtapng_section_t *shb_inf;
 
   /* Get info from SHB */
-  wtap_write_shb_comment(cf->wth, comment);
+  shb_inf = wtap_file_get_shb_info(cf->wth);
 
+  /* See if the comment has changed or not */
+  if (shb_inf && shb_inf->opt_comment) {
+    if (strcmp(shb_inf->opt_comment, comment) == 0) {
+      g_free(comment);
+      return;
+    }
+  }
+
+  /* The comment has changed, let's update it */
+  wtap_write_shb_comment(cf->wth, comment);
+  /* Mark the file as unsaved */
+  cf->user_saved = FALSE;
 }
 
 typedef struct {

@@ -96,7 +96,8 @@ wtap_file_tsprecision(wtap *wth)
 	return wth->tsprecision;
 }
 
-wtapng_section_t* wtap_file_get_shb_info(wtap *wth)
+wtapng_section_t *
+wtap_file_get_shb_info(wtap *wth)
 {
 	wtapng_section_t		*shb_hdr;
 
@@ -114,21 +115,23 @@ wtapng_section_t* wtap_file_get_shb_info(wtap *wth)
 	return shb_hdr;
 }
 
-void wtap_write_shb_comment(wtap *wth, gchar *comment)
+void
+wtap_write_shb_comment(wtap *wth, gchar *comment)
 {
 	g_free(wth->shb_hdr.opt_comment);
 	wth->shb_hdr.opt_comment = comment;
 
 }
 
-wtapng_iface_descriptions_t* wtap_file_get_idb_info(wtap *wth)
+wtapng_iface_descriptions_t *
+wtap_file_get_idb_info(wtap *wth)
 {
 	wtapng_iface_descriptions_t *idb_info;
 
 	idb_info = g_new(wtapng_iface_descriptions_t,1);
 
 	idb_info->number_of_interfaces	= wth->number_of_interfaces;
-	idb_info->interface_data		= wth->interface_data;
+	idb_info->interface_data	= wth->interface_data;
 
 	return idb_info;
 }
@@ -601,8 +604,8 @@ int wtap_register_encap_type(char* name, char* short_name) {
 
 
 /* Name that should be somewhat descriptive. */
-const char
-*wtap_encap_string(int encap)
+const char *
+wtap_encap_string(int encap)
 {
 	if (encap < WTAP_ENCAP_PER_PACKET || encap >= WTAP_NUM_ENCAP_TYPES)
 		return "Illegal";
@@ -613,8 +616,8 @@ const char
 }
 
 /* Name to use in, say, a command-line flag specifying the type. */
-const char
-*wtap_encap_short_string(int encap)
+const char *
+wtap_encap_short_string(int encap)
 {
 	if (encap < WTAP_ENCAP_PER_PACKET || encap >= WTAP_NUM_ENCAP_TYPES)
 		return "illegal";
@@ -664,8 +667,8 @@ static const char *wtap_errlist[] = {
 };
 #define	WTAP_ERRLIST_SIZE	(sizeof wtap_errlist / sizeof wtap_errlist[0])
 
-const char
-*wtap_strerror(int err)
+const char *
+wtap_strerror(int err)
 {
 	static char errbuf[128];
 	unsigned int wtap_errlist_index;
@@ -845,19 +848,19 @@ wtap_read_so_far(wtap *wth)
 	return file_tell_raw(wth->fh);
 }
 
-struct wtap_pkthdr*
+struct wtap_pkthdr *
 wtap_phdr(wtap *wth)
 {
 	return &wth->phdr;
 }
 
-union wtap_pseudo_header*
+union wtap_pseudo_header *
 wtap_pseudoheader(wtap *wth)
 {
 	return &wth->pseudo_header;
 }
 
-guint8*
+guint8 *
 wtap_buf_ptr(wtap *wth)
 {
 	return buffer_start_ptr(wth->frame_buffer);

@@ -1733,9 +1733,20 @@ new_packet_list_update_packet_comment(gchar *new_packet_comment)
 		return;
 
 	record = new_packet_list_get_record(model, &iter);
+
+	/* Check if the comment has changed */
+	if (record->fdata->opt_comment) {
+		if (strcmp(record->fdata->opt_comment, new_packet_comment) == 0) {
+			g_free(new_packet_comment);
+			return;
+		}
+	}
+
+	/* The comment has changed, let's update it */
 	g_free(record->fdata->opt_comment);
 	record->fdata->opt_comment = new_packet_comment;
-	/* Mark the file as unsaved, caues a popup asking to save the file if we quit the file */
+
+	/* Mark the file as unsaved */
 	cfile.user_saved = FALSE;
 	set_menus_for_capture_file(&cfile);
 

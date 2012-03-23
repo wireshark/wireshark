@@ -105,8 +105,7 @@ capture_comment_text_buff_ok_cb(GtkWidget *w _U_, GtkWidget *view)
   /*g_warning("The new comment is '%s'",new_capture_comment);*/
   cf_update_capture_comment(&cfile, new_capture_comment);
 
-  /* Mark the file as unsaved, caues a popup asking to save the file if we quit the file */
-  cfile.user_saved = FALSE;
+  /* Update the menus in case the file might need to be saved */
   set_menus_for_capture_file(&cfile);
 
   window_destroy(edit_or_add_capture_comment_dlg);
