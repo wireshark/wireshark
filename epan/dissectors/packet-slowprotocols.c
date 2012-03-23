@@ -2539,7 +2539,7 @@ dissect_oampdu_event_notification(tvbuff_t *tvb, proto_tree *tree)
 
                 offset += OAMPDU_EVENT_LENGTH_SZ;
 
-                offset += (raw_word-2);
+                offset += (raw_octet-2);
                 break;
             }
             default:
