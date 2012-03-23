@@ -2551,8 +2551,8 @@ dissect_17221_aem(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
             base_freq &= 0x1fffffff;
             /* replace this with something not horrible */
             frequency = freq_mult == 0 ? 1 :
-               freq_mult == 1 ? 1 / 1.001 :
-               freq_mult == 2 ? 1.001 :
+               freq_mult == 1 ? 1 / (gfloat)1.001 :
+               freq_mult == 2 ? (gfloat)1.001 :
                freq_mult == 3 ? 24 / 25 :
                freq_mult == 4 ? 54 / 24 : 0;
 
