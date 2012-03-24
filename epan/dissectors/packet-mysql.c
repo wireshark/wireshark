@@ -48,6 +48,7 @@
 
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/prefs.h>
+#include <epan/expert.h>
 
 /* port for protocol registration */
 #define TCP_PORT_MySQL   3306
