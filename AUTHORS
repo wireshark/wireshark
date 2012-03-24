@@ -3407,6 +3407,15 @@ Bill Schiller		<bill.schiller [AT] emerson.com> {
 	HART/IP dissector
 }
 
+Guy Martin		<gmsoft [AT] tuxicoman.be> {
+	DVB-DATA MultiProtocol Encapsulation dissector
+	DVB Event Information Table (EIT) dissector
+	MPEG2 Conditional Access Table (CA) dissector
+	MPEG2 descriptors dissector
+	MPEG2 Program Associate Table (PAT) dissector
+	MPEG2 Program Map Table (PMT) dissector
+	MPEG2 Section dissector
+}
 
 and by:
 
