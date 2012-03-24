@@ -70,6 +70,7 @@
 #define ISIS_CLV_IIH_SEQNR           241 /* draft-shen-isis-iih-sequence-00 */
 #define ISIS_CLV_RT_CAPABLE          242 /* TRILL use of IS-IS RFC 6326 */
 #define ISIS_CLV_VENDOR_PRIVATE      250 /* draft-ietf-isis-proprietary-tlv-00 */
+#define ISIS_GRP_ADDR                142 /*draft-ieft-trill-isis-05*//* Our sub-packet dismantle structure for CLV's */
 
 /*
  * Our sub-packet dismantle structure for CLV's

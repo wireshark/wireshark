@@ -26,7 +26,7 @@
  * Copyright 2011, Malgi Nikitha Vivekananda <malgi.nikitha@ipinfusion.com>
  *                 Krishnamurthy Mayya <krishnamurthy.mayya@ipinfusion.com>
  *                    - Decoding for Router Capability TLV and associated subTLVs as per RFC 6326
- *
+ *                    - Decoding for Group Address TLV and associated subTLVs as per RFC 6326
  */
 
 #ifdef HAVE_CONFIG_H
@@ -55,6 +55,12 @@
 #define INTERESTED_VLANS         10
 #define VLAN_GROUP               13
 
+
+/*Sub-TLVs under Group Address TLV*/
+#define GRP_MAC_ADDRESS 1
+#define FP_HMAC_SWID_MASK  G_GINT64_CONSTANT(0xFFFF00000000)
+#define FP_HMAC_SSWID_MASK G_GINT64_CONSTANT(0x0000FFFF0000)
+#define FP_HMAC_LID_MASK   G_GINT64_CONSTANT(0x00000000FFFF)
 
 
 /* lsp packets */
@@ -107,7 +113,8 @@ static gint ett_isis_lsp_clv_mt_is = -1;
 static gint ett_isis_lsp_part_of_clv_mt_is = -1;
 static gint ett_isis_lsp_clv_mt_reachable_IPv4_prefx = -1;  /* CLV 235 */
 static gint ett_isis_lsp_clv_mt_reachable_IPv6_prefx = -1;  /* CLV 237 */
-static gint ett_isis_lsp_clv_rt_capable_IPv4_prefx = -1;  /* CLV 242 */
+static gint ett_isis_lsp_clv_rt_capable_IPv4_prefx = -1;   /* CLV 242 */
+static gint ett_isis_lsp_clv_grp_address_IPv4_prefx = -1;  /* CLV 142 */
 
 static const value_string isis_lsp_istype_vals[] = {
 	{ ISIS_LSP_TYPE_UNUSED0,	"Unused 0x0 (invalid)"},
@@ -166,7 +173,10 @@ static void dissect_lsp_mt_reachable_IPv6_prefx_clv(tvbuff_t *tvb,
         proto_tree *tree, int offset, int id_length, int length);
 static void dissect_isis_rt_capable_clv(tvbuff_t *tvb,
         proto_tree *tree, int offset, int id_length, int length);
-
+static void dissect_isis_grp_address_clv(tvbuff_t *tvb,
+        proto_tree *tree, int offset, int id_length,int length);
+static void
+        fp_get_hmac_addr (guint64 hmac, guint16 *swid, guint16 *sswid, guint16 *lid);
 
 static const isis_clv_handle_t clv_l1_lsp_opts[] = {
 	{
@@ -289,6 +299,12 @@ static const isis_clv_handle_t clv_l1_lsp_opts[] = {
 		&ett_isis_lsp_clv_rt_capable_IPv4_prefx,
 		dissect_isis_rt_capable_clv
 	},
+	 {
+                ISIS_GRP_ADDR,
+                "GROUP ADDRESS TLV",
+		&ett_isis_lsp_clv_grp_address_IPv4_prefx,
+		dissect_isis_grp_address_clv
+	 },
 
 	{
 		0,
@@ -427,6 +443,18 @@ static const isis_clv_handle_t clv_l2_lsp_opts[] = {
 	}
 };
 
+
+static void
+fp_get_hmac_addr (guint64 hmac, guint16 *swid, guint16 *sswid, guint16 *lid) {
+
+	if (!swid || !sswid || !lid) {
+		return;
+	}
+
+	*swid  = (guint16) ((hmac & FP_HMAC_SWID_MASK) >> 32);
+	*sswid = (guint16) ((hmac & FP_HMAC_SSWID_MASK) >> 16);
+	*lid   = (guint16)  (hmac & FP_HMAC_LID_MASK);
+}
 /*
  * Name: dissect_lsp_mt_id()
  *
@@ -788,9 +816,148 @@ dissect_lsp_ext_ip_reachability_clv(tvbuff_t *tvb, proto_tree *tree,
 	}
 }
 
+/*
+ * Name: dissect_isis_grp_address_clv()
+ *
+ * Description: Decode GROUP ADDRESS subTLVs
+ *              The  Group Address  TLV is composed of 1 octet for the type,
+ *              1 octet that specifies the number of bytes in the value field, and a
+ *              Variable length value field that can have any or all of the subTLVs that are listed in the
+ *              - below section
+ *
+ *Input:
+ *   tvbuff_t * : tvbuffer for packet data
+ *   proto_tree * : proto tree to build on (may be null)
+ *   int : current offset into packet data
+ *   int : length of IDs in packet.
+ *   int : length of this clv
+ *
+ * Output:
+ *   void, will modify proto_tree if not null.
+ */
+
+static void
+dissect_isis_grp_address_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
+	int tree_id,int length)
+{
+	gint len;
+	gint record_num;
+	gint source_num;
+	gint k=1;
+	guint16 mt_block;
+	guint64 hmac_src;
+	guint16 swid = 0;
+	guint16 sswid = 0;
+	guint16 lid = 0;
+
+	proto_item *ti=NULL;
+	proto_tree *rt_tree=NULL;
+
+	const char *mt_desc;
 
 
 
+	while (length>0) {
+		/* length can only be a multiple of 2, otherwise there is
+		   something broken -> so decode down until length is 1 */
+		if (length!=1) {
+			/* fetch two bytes */
+			mt_block=tvb_get_ntohs(tvb, offset);
+			/* Mask out the lower 8 bits */
+			switch((mt_block&0xff00)>>8) {
+
+
+				case GRP_MAC_ADDRESS:
+					mt_desc="GROUP MAC ADDRESS";
+
+					ti = proto_tree_add_text (tree, tvb, offset,(mt_block&0x00ff)+2 , "%s SUB TLV", mt_desc);
+					rt_tree = proto_item_add_subtree(ti,ett_isis_lsp_clv_grp_address_IPv4_prefx);
+
+					length=length-1;
+					offset=offset+1;
+
+					len=tvb_get_guint8(tvb, offset);/* 1 byte fetched displays the length*/
+					proto_tree_add_text (rt_tree, tvb, offset,1,"   Length :%d ",len);
+
+					if(len < 5) {
+						length=length-len;
+						offset=offset+len;
+						break;
+					}
+
+					length=length-1;
+					offset=offset+1;
+
+
+					mt_block=tvb_get_ntohs(tvb, offset);/* Fetch the data in the next two bytes for display*/
+					proto_tree_add_text (rt_tree, tvb, offset,2,"   Topology ID:%d ",(mt_block&0x0fff) );
+
+
+					length=length-2;
+					offset=offset+2;
+					len=len-2;
+
+					mt_block=tvb_get_ntohs(tvb, offset);/* Fetch the data in the next two bytes for display*/
+					proto_tree_add_text (rt_tree,tvb, offset,2,"   VLAN ID:%d ",(mt_block&0x0fff) );
+
+					length=length-2;
+					offset=offset+2;
+					len=len-2;
+
+					record_num=tvb_get_guint8(tvb, offset);/* 1 byte fetched displays the length*/
+					proto_tree_add_text (rt_tree,tvb, offset,1, "   Number of records :%d ",record_num);
+
+					length=length-1;
+					offset=offset+1;
+					len=len-1;
+
+					while(len > 0) {
+
+						source_num=tvb_get_guint8(tvb, offset);
+						proto_tree_add_text (rt_tree,tvb, offset,1,"   Number of sources :%d ",source_num);
+
+						length=length-1;
+						offset=offset+1;
+						len=len-1;
+
+						hmac_src=tvb_get_ntoh48(tvb, offset);/* Fetch the data in the next two bytes for display*/
+
+						fp_get_hmac_addr (hmac_src, &swid, &sswid, &lid);
+						proto_tree_add_text (rt_tree,tvb, offset,6,"  Group Address:%04x.%04x.%04x ",swid, sswid, lid );
+
+						length=length-6;
+						offset=offset+6;
+						len=len-6;
+
+				   		while((len > 0) && (source_num > 0)) {
+							hmac_src = tvb_get_ntoh48 (tvb, offset);
+							fp_get_hmac_addr (hmac_src, &swid, &sswid, &lid);
+							proto_tree_add_text (rt_tree,tvb, offset,6,"  Source Address (%d):%04x.%04x.%04x",k,swid, sswid, lid);
+
+							k=k+1;
+							length=length-6;
+							offset=offset+6;
+							len=len-6;
+							source_num--;
+						}
+					}
+
+					break;
+
+
+				default:
+					mt_desc="INVALID";
+					proto_tree_add_uint_format ( tree, tree_id, tvb, offset,(mt_block&0x00ff)+2,
+							mt_block,
+							"%s SUB TLV",mt_desc );
+					offset=offset+1;
+					length=length-2-(tvb_get_guint8(tvb, offset));
+					offset=offset+1+(tvb_get_guint8(tvb, offset));
+					break;
+			}
+		}
+	}
+}
 
 /*
  * Name: dissect_isis_rt_capable_clv()
@@ -799,7 +966,7 @@ dissect_lsp_ext_ip_reachability_clv(tvbuff_t *tvb, proto_tree *tree,
  *
  *   The Router Capability TLV is composed of 1 octet for the type,
  *   1 octet that specifies the number of bytes in the value field, and a
- *   variable length value field that can have any or all of the subTLVs 
+ *   variable length value field that can have any or all of the subTLVs
  *   that are listed in the below section
  *
  * Input:
@@ -827,7 +994,7 @@ dissect_isis_rt_capable_clv(tvbuff_t *tvb,
 
         const char *mt_desc;
         gint root_id = 1;       /* To display the root id */
-        gint sec_vlan_id = 1;   /* To display the seconadary VLAN id */ 
+        gint sec_vlan_id = 1;   /* To display the seconadary VLAN id */
         length = length - 5;    /* Ignoring the 5 reserved bytes */
         offset = offset + 5;
 
@@ -853,7 +1020,7 @@ dissect_isis_rt_capable_clv(tvbuff_t *tvb,
 
                     len = tvb_get_guint8(tvb, offset); /* 1 byte fetched displays the length */
                     proto_tree_add_text(rt_tree, tvb, offset, 1, "Length: %d", len);
-            
+
                     rt_block = tvb_get_ntohs(tvb, offset); /* Fetch the data in the next two bytes for display */
                     proto_tree_add_text(rt_tree, tvb, offset+1, 1, "Maximum version: %d", (rt_block&0x00ff));
 
@@ -861,13 +1028,13 @@ dissect_isis_rt_capable_clv(tvbuff_t *tvb,
                     offset = offset+2;
 
                     break;
-    
+
                 case TREES:
                     mt_desc = "Trees";
                     ti = proto_tree_add_text(tree, tvb, offset, (rt_block&0x00ff)+2, "%s sub tlv", mt_desc);
 
                     rt_tree = proto_item_add_subtree(ti, ett_isis_lsp_clv_rt_capable_IPv4_prefx);
-                
+
                     length = length-1;
                     offset = offset+1;
 
@@ -903,7 +1070,7 @@ dissect_isis_rt_capable_clv(tvbuff_t *tvb,
                     ti=proto_tree_add_text(tree, tvb, offset, (rt_block&0x00ff)+2, "%s sub tlv", mt_desc);
 
                     rt_tree = proto_item_add_subtree(ti, ett_isis_lsp_clv_rt_capable_IPv4_prefx);
-               
+
                     length = length-1;
                     offset = offset+1;
 
@@ -995,8 +1162,8 @@ dissect_isis_rt_capable_clv(tvbuff_t *tvb,
                     rt_block = tvb_get_ntohs(tvb, offset);
 
                     proto_tree_add_text(rt_tree, tvb, offset, 2,
-                                        "%s%s", (rt_block&0x8000) ? "IPv4 multicast router set, " : "IPv4 multicast router not set, ", 
-                                                (rt_block&0x4000) ? "IPv6 multicast router set" : "IPv6 multicast router not set"); 
+                                        "%s%s", (rt_block&0x8000) ? "IPv4 multicast router set, " : "IPv4 multicast router not set, ",
+                                                (rt_block&0x4000) ? "IPv6 multicast router set" : "IPv6 multicast router not set");
                     proto_tree_add_text(rt_tree, tvb, offset, 2, "Vlan start id: %x", (rt_block&0x0fff));
 
                     length = length-2;
@@ -1032,7 +1199,7 @@ dissect_isis_rt_capable_clv(tvbuff_t *tvb,
 
                 case TREES_USED_IDENTIFIER:
                     mt_desc = "Trees used identifier";
-                
+
                     ti=proto_tree_add_text(tree, tvb, offset, (rt_block&0x00ff)+2, "%s sub tlv", mt_desc);
 
                     rt_tree = proto_item_add_subtree(ti, ett_isis_lsp_clv_rt_capable_IPv4_prefx);
@@ -1070,7 +1237,7 @@ dissect_isis_rt_capable_clv(tvbuff_t *tvb,
 
                     length = length-1;
                     offset = offset+1;
- 
+
                     len = tvb_get_guint8(tvb, offset);
                     proto_tree_add_text(rt_tree, tvb, offset, 1, "Length: %d", len);
 
@@ -1080,14 +1247,14 @@ dissect_isis_rt_capable_clv(tvbuff_t *tvb,
 
                     rt_block = tvb_get_ntohs(tvb, offset);
                     proto_tree_add_text(rt_tree, tvb, offset, 2, "Primary vlan id: %d", (rt_block&0x0fff));
-                
+
                     length = length-2;
                     offset = offset+2;
                     len = len-2;
 
                     rt_block = tvb_get_ntohs(tvb, offset);
                     proto_tree_add_text(rt_tree, tvb, offset, 2, "Secondary vlan id: %d", (rt_block&0x0fff));
-        
+
                     length = length-2;
                     offset = offset+2;
                     len = len-2;
@@ -2009,7 +2176,7 @@ dissect_lsp_partition_dis_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	}
 	length -= id_length;
 	offset += id_length;
-	if ( length > 0 ){
+	if ( length > 0 ) {
 		isis_dissect_unknown(tvb, tree, offset,
 				"Long lsp partition DIS, %d left over", length );
 		return;
@@ -2185,8 +2352,7 @@ isis_dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 
 	if (tree) {
 		checksum = lifetime ? tvb_get_ntohs(tvb, offset) : 0;
-		switch (check_and_get_checksum(tvb, offset_checksum, pdu_length-12, checksum, offset, &cacl_checksum))
-		{
+		switch (check_and_get_checksum(tvb, offset_checksum, pdu_length-12, checksum, offset, &cacl_checksum)) {
 			case NO_CKSUM :
 				checksum = tvb_get_ntohs(tvb, offset);
 				proto_tree_add_uint_format(lsp_tree, hf_isis_lsp_checksum, tvb, offset, 2, checksum,
@@ -2257,7 +2423,7 @@ isis_dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 	 * Now, we need to decode our CLVs.  We need to pass in
 	 * our list of valid ones!
 	 */
-	if (lsp_type == ISIS_TYPE_L1_LSP){
+	if (lsp_type == ISIS_TYPE_L1_LSP) {
 		isis_dissect_clvs(tvb, lsp_tree, offset,
 			clv_l1_lsp_opts, len, id_length,
 			ett_isis_lsp_clv_unknown );
@@ -2386,6 +2552,7 @@ isis_register_lsp(int proto_isis) {
 		&ett_isis_lsp_clv_mt_is,
 		&ett_isis_lsp_part_of_clv_mt_is,
 		&ett_isis_lsp_clv_rt_capable_IPv4_prefx,
+                &ett_isis_lsp_clv_grp_address_IPv4_prefx,    /*CLV 142*/
 		&ett_isis_lsp_clv_mt_reachable_IPv4_prefx,
 		&ett_isis_lsp_clv_mt_reachable_IPv6_prefx
 	};
