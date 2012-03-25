@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2012-03-15
+# 2012-03-23
 # 
 # Note
 # 
@@ -385,7 +385,10 @@ tacnews	98/tcp	# TAC News                     [Jon_Postel]                      
 tacnews	98/udp	# TAC News                     [Jon_Postel]                              [Jon_Postel]
 metagram	99/tcp	# Metagram Relay               [Geoff_Goodfellow]                        [Geoff_Goodfellow]
 metagram	99/udp	# Metagram Relay               [Geoff_Goodfellow]                        [Geoff_Goodfellow]
-newacct	100/tcp	# [unauthorized use]
+# 100
+# 100               Unassigned                                                                                                                                    2012-03-21                                                    Unauthorized
+# use by
+# 'newacct'
 hostname	101/tcp	# NIC Host Name Server         [Jon_Postel]                              [Jon_Postel]
 hostname	101/udp	# NIC Host Name Server         [Jon_Postel]                              [Jon_Postel]
 iso-tsap	102/tcp	# ISO-TSAP Class 0             [Marshall_Rose]                           [Marshall_Rose]
@@ -1416,10 +1419,10 @@ timed	525/tcp	# timeserver
 timed	525/udp	# timeserver
 tempo	526/tcp	# newdate
 tempo	526/udp	# newdate
-stx	527/tcp	# Stock IXChange
-stx	527/udp	# Stock IXChange
-custix	528/tcp	# Customer IXChange            [Ferdi_Ladeira]                           [Ferdi_Ladeira]
-custix	528/udp	# Customer IXChange            [Ferdi_Ladeira]                           [Ferdi_Ladeira]
+stx	527/tcp	# Stock IXChange               [Fraxion_Software]                        [Ferdi_Ladeira]                                                        2012-03-21
+stx	527/udp	# Stock IXChange               [Fraxion_Software]                        [Ferdi_Ladeira]                                                        2012-03-21
+custix	528/tcp	# Customer IXChange            [Fraxion_Software]                        [Ferdi_Ladeira]                                                        2012-03-21
+custix	528/udp	# Customer IXChange            [Fraxion_Software]                        [Ferdi_Ladeira]                                                        2012-03-21
 irc-serv	529/tcp	# IRC-SERV                     [Brian_Tackett]                           [Brian_Tackett]
 irc-serv	529/udp	# IRC-SERV                     [Brian_Tackett]                           [Brian_Tackett]
 courier	530/tcp	# rpc
@@ -2113,7 +2116,7 @@ blackjack	1025/tcp	# network blackjack
 blackjack	1025/udp	# network blackjack
 cap	1026/tcp	# Calendar Access Protocol     [Doug_Royer]                              [Doug_Royer]                                              2010-12-09
 cap	1026/udp	# Calendar Access Protocol     [Doug_Royer]                              [Doug_Royer]                                              2010-12-09
-# 1027        tcp    Unassigned                                                                                                                                    2005-09-16
+# 1027               Unassigned                                                                                                                                    2005-09-16
 # 1028               Deprecated                                                                                                                                    2004-02
 solid-mux	1029/tcp	# Solid Mux Server             [Anders_Borg]                             [Anders_Borg]                                             2004-11
 solid-mux	1029/udp	# Solid Mux Server             [Anders_Borg]                             [Anders_Borg]                                             2004-11
@@ -10819,7 +10822,10 @@ tag-pm	5073/tcp	# Advantage Group Port Mgr     [James_Goddard]                  
 tag-pm	5073/udp	# Advantage Group Port Mgr     [James_Goddard]                           [James_Goddard]                                           2005-08
 alesquery	5074/tcp	# ALES Query                   [Tim_Maloney]                             [Tim_Maloney]                                             2005-08
 alesquery	5074/udp	# ALES Query                   [Tim_Maloney]                             [Tim_Maloney]                                             2005-08
-# 5075-5078            Unassigned
+pvaccess	5075/tcp	# Experimental Physics and     [Matej_Sekoranja]                         [Matej_Sekoranja]                                         2012-03-23
+# Industrial Control System
+# 5075        udp    Reserved
+# 5076-5078            Unassigned
 # 5079        tcp    Reserved
 cp-spxrpts	5079/udp	# Cambridge Pixel SPx Reports  [Richard_Warren]                          [Richard_Warren]                                          2008-09-17
 onscreen	5080/tcp	# OnScreen Data Collection     [Christopher_Miller_2]                    [Christopher_Miller_2]                                    2008-01-14
@@ -16298,6 +16304,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # Protocol                                                                                                                                                                                                                 number of c_n attributes is variable
 # puzzle                                Protocol used for puzzle     [Michael_Thomason]                        [Michael_Thomason]                                                                                                                                Defined TXT keys: None
 # games
+# pvaccess                       tcp    Experimental Physics and     [Matej_Sekoranja]                         [Matej_Sekoranja]                                         2012-03-23                                                                              Defined TXT keys: None
+# Industrial Control System
 # qbox                                  QBox Appliance Locator       [Geoff_Back_4]                            [Geoff_Back_4]                                                                                                                                    Defined TXT keys: None
 # qttp                                  QuickTime Transfer Protocol  [Stuart_Cheshire_5]                       [Stuart_Cheshire_5]                                                                                                                               Defined TXT keys: u=<username> p=<password> path=<path to
 # document> (Same as for _http._tcp)
@@ -18035,7 +18043,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Federico_Lucifredi]                                      Federico Lucifredi                              mailto:flucifredi&novell.com                                  2009-09-25
 # [Feitian_Technologies]                                    Feitian Technologies                            mailto:product&ftsafe.com                                     2010-09-15
 # [Felisa_Ares]                                             Felisa Ares                                     mailto:faa06&tid.es                                           2003-04
-# [Ferdi_Ladeira]                                           Ferdi Ladeira                                   mailto:ferdil&fraxion.biz
+# [Ferdi_Ladeira]                                           Ferdi Ladeira             Fraxion Software      mailto:f.lad.mail&gmail.com                                   2012-03-21
 # [Ferruccio_Barletta]                                      Ferruccio Barletta                              mailto:ferruccio.barletta&compaq.com
 # [Fieldbus_Foundation]                                     Fieldbus Foundation                             mailto:dave.glanzer&fieldbus.org                              2002-10
 # [Filip_Zawadiak]                                          Filip Zawadiak            DOMIQ Sp. z o.o.      mailto:fzawadiak&domiq.pl                                     2011-08-29
@@ -18082,6 +18090,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Frans_Lundberg]                                          Frans Lundberg                                  mailto:frans&linova.com                                       2004-11
 # [Frans_S_C_Witte]                                         Frans S.C. Witte                                mailto:fscwitte&dicgroep.nl
 # [Franz_Josef_Leuders]                                     Franz-Josef Leuders                             mailto:development&tobit.com
+# [Fraxion_Software]                                                                  Fraxion Software      mailto:info&fraxion.biz                                       2012-03-21
 # [Fred_Batty]                                              Fred Batty                                      mailto:fredb&sun.com                                          2007-12-03
 # [Fred_Cohen]                                              Fred Cohen                                      mailto:fc&all.net
 # [Fred_Fierling]                                           Fred Fierling                                   mailto:fff&exegin.com                                         2006-02
@@ -19412,6 +19421,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Massimo_Cafaro]                                          Massimo Cafaro                                  mailto:massimo.cafaro&unile.it                                2004-11
 # [Massive_Flow_Product]                                    Massive Flow Productions                        mailto:info&massiveflow.de
 # [Matahari_Project]                                                                  Matahari Project      mailto:matahari&lists.fedorahosted.org                        2011-08-31
+# [Matej_Sekoranja]                                         Matej Sekoranja                                 mailto:matej.sekoranja&cosylab.com                            2012-03-23
 # [Math_Game_House_Soft]                                    Math Game House Software                        mailto:mathgamehouse&mac.com
 # [Mathew_Pitchforth]                                       Mathew Pitchforth                               mailto:mathew&adinstruments.co.nz                             2005-08
 # [Mathieu_Garcia]                                          Mathieu Garcia                                  mailto:mathieu.garcia&intua.net
