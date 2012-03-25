@@ -423,7 +423,9 @@ config.h	: config.h.win32 config.nmake
 ui\qt\config.pri: config.nmake Makefile.nmake
 	@echo Creating <<ui\qt\config.pri
 # Automatically generated from Makefile.nmake. Edit there, not here.
-VERSION = $(VERSION)
+# qmake apparently requires a three-part numeric VERSION.
+VERSION = $(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_MICRO)
+VERSION_FULL = $(VERSION)
 !IFDEF MANIFEST_INFO_REQUIRED
 CONFIG += wireshark_manifest_info_required
 !ENDIF
