@@ -217,7 +217,7 @@ proto_mpeg_descriptor_dissect_video_stream(tvbuff_t *tvb, guint offset, proto_tr
 
 	offset++;
 
-	if (mpeg1_only_flag) {
+	if (mpeg1_only_flag == 0) {
 
 		proto_tree_add_item(tree, hf_mpeg_descr_video_stream_profile_and_level_indication, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
@@ -477,8 +477,11 @@ proto_mpeg_descriptor_dissect_carousel_identifier(tvbuff_t *tvb, guint offset, g
 		proto_tree_add_item(tree, hf_mpeg_descr_carousel_identifier_original_size, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 
-		key_len = tvb_get_guint8(tvb, offset);
 		proto_tree_add_item(tree, hf_mpeg_descr_carousel_identifier_timeout, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset++;
+
+		key_len = tvb_get_guint8(tvb, offset);
+		proto_tree_add_item(tree, hf_mpeg_descr_carousel_identifier_object_key_len, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 
 		proto_tree_add_item(tree, hf_mpeg_descr_carousel_identifier_object_key_data, tvb, offset, key_len, ENC_NA);
@@ -1976,7 +1979,7 @@ proto_mpeg_descriptor_dissect_ac3(tvbuff_t *tvb, guint offset, guint8 len, proto
 	}
 
 	if (flags & MPEG_DESCR_AC3_ASVC_FLAG_MASK) {
-		proto_tree_add_item(tree, hf_mpeg_descr_ac3_asvc_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_mpeg_descr_ac3_asvc, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 	}
 
@@ -2277,6 +2280,9 @@ proto_mpeg_descriptor_dissect(tvbuff_t *tvb, guint offset, proto_tree *tree)
 
 	proto_tree_add_item(descriptor_tree, hf_mpeg_descriptor_length, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
+
+	if (len == 0)
+		return 2;
 
 	switch (tag) {
 		case 0x02: /* Video Stream Descriptor */
