@@ -29,6 +29,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/dissectors/packet-mpeg-sect.h>
 
 static int proto_mpeg_descriptor = -1;
 static int hf_mpeg_descriptor_tag = -1;
@@ -580,6 +581,250 @@ proto_mpeg_descriptor_dissect_avc_vid(tvbuff_t *tvb, guint offset, proto_tree *t
 	proto_tree_add_item(tree, hf_mpeg_descr_avc_vid_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
+/* 0x40 Network Name Descriptor */
+static int hf_mpeg_descr_network_name_descriptor = -1;
+
+static void
+proto_mpeg_descriptor_dissect_network_name(tvbuff_t *tvb, guint offset, guint8 len, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_mpeg_descr_network_name_descriptor, tvb, offset, len, ENC_NA);
+}
+
+/* 0x41 Service List Descriptor */
+static int hf_mpeg_descr_service_list_id = -1;
+static int hf_mpeg_descr_service_list_type = -1;
+
+static gint ett_mpeg_descriptor_service_list = -1;
+
+static void
+proto_mpeg_descriptor_dissect_service_list(tvbuff_t *tvb, guint offset, guint8 len, proto_tree *tree)
+{
+	guint end = offset + len;
+	guint16 svc_id;
+	proto_item *si = NULL;
+	proto_tree *svc_tree = NULL;
+
+
+	while (offset < end) {
+		svc_id = tvb_get_ntohs(tvb, offset);
+
+		si = proto_tree_add_text(tree, tvb, offset, 3, "Service 0x%02x", svc_id);
+		svc_tree = proto_item_add_subtree(si, ett_mpeg_descriptor_service_list);
+
+		proto_tree_add_item(svc_tree, hf_mpeg_descr_service_list_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset += 2;
+
+		proto_tree_add_item(svc_tree, hf_mpeg_descr_service_list_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset++;
+	}
+}
+
+/* 0x43 Satellite Delivery System Descriptor */
+static int hf_mpeg_descr_satellite_delivery_frequency = -1;
+static int hf_mpeg_descr_satellite_delivery_orbital_position = -1;
+static int hf_mpeg_descr_satellite_delivery_west_east_flag = -1;
+static int hf_mpeg_descr_satellite_delivery_polarization = -1;
+static int hf_mpeg_descr_satellite_delivery_roll_off = -1;
+static int hf_mpeg_descr_satellite_delivery_zero = -1;
+static int hf_mpeg_descr_satellite_delivery_modulation_system = -1;
+static int hf_mpeg_descr_satellite_delivery_modulation_type = -1;
+static int hf_mpeg_descr_satellite_delivery_symbol_rate = -1;
+static int hf_mpeg_descr_satellite_delivery_fec_inner = -1;
+
+#define MPEG_DESCR_SATELLITE_DELIVERY_WEST_EAST_FLAG_MASK	0x80
+#define MPEG_DESCR_SATELLITE_DELIVERY_POLARIZATION_MASK		0x60
+#define MPEG_DESCR_SATELLITE_DELIVERY_ROLL_OFF_MASK		0x18
+#define MPEG_DESCR_SATELLITE_DELIVERY_ZERO_MASK			0x18
+#define MPEG_DESCR_SATELLITE_DELIVERY_MODULATION_SYSTEM_MASK	0x06
+#define MPEG_DESCR_SATELLITE_DELIVERY_MODULATION_TYPE_MASK	0x01
+#define MPEG_DESCR_SATELLITE_DELIVERY_FEC_INNER_MASK		0x0F
+
+static const value_string mpeg_descr_satellite_delivery_west_east_flag_vals[] = {
+	{ 0x0, "West" },
+	{ 0x1, "East" },
+
+	{ 0x0, NULL }
+};
+
+static const value_string mpeg_descr_satellite_delivery_polarization_vals[] = {
+	{ 0x0, "Linear - Horizontal" },
+	{ 0x1, "Linear - Vertical" },
+	{ 0x2, "Circular - Left" },
+	{ 0x3, "Circular - Right" },
+
+	{ 0x0, NULL }
+};
+
+static const value_string mpeg_descr_satellite_delivery_roll_off_vals[] = {
+	{ 0x0, "alpha = 0,35" },
+	{ 0x1, "alpha = 0,25" },
+	{ 0x2, "alpha = 0,20" },
+
+	{ 0x0, NULL }
+};
+
+static const value_string mpeg_descr_satellite_delivery_modulation_system_vals[] = {
+	{ 0x0, "DVB-S" },
+	{ 0x1, "DVB-S2" },
+
+	{ 0x0, NULL }
+};
+
+static const value_string mpeg_descr_satellite_delivery_modulation_type_vals[] = {
+	{ 0x0, "Auto" },
+	{ 0x1, "QPSK" },
+	{ 0x2, "8PSK" },
+	{ 0x3, "16-QAM (n/a for DVB-S2)" },
+
+	{ 0x0, NULL }
+};
+
+static const value_string mpeg_descr_satellite_delivery_fec_inner_vals[] = {
+	{ 0x0, "Not defined" },
+	{ 0x1, "1/2 convolutional code rate" },
+	{ 0x2, "2/3 convolutional code rate" },
+	{ 0x3, "3/4 convolutional code rate" },
+	{ 0x4, "5/6 convolutional code rate" },
+	{ 0x5, "7/8 convolutional code rate" },
+	{ 0x6, "8/9 convolutional code rate" },
+	{ 0x7, "3/5 convolutional code rate" },
+	{ 0x8, "4/5 convolutional code rate" },
+	{ 0x9, "9/10 convolutional code rate" },
+	{ 0xF, "No convolutional coding" },
+
+	{ 0x0, NULL }
+};
+
+static void
+proto_mpeg_descriptor_dissect_satellite_delivery(tvbuff_t *tvb, guint offset, proto_tree *tree)
+{
+
+	guint32 frequency = 0, symbol_rate = 0;
+	guint16 orbital_position = 0;
+	guint8 modulation_system = 0;
+
+	frequency = tvb_get_ntohl(tvb, offset);
+	proto_tree_add_string_format_value(tree, hf_mpeg_descr_satellite_delivery_frequency, tvb, offset, 4, "Frequency", "%2u%01u,%01u%02u%02u GHz",
+		MPEG_SECT_BCD44_TO_DEC(frequency >> 24),
+		MPEG_SECT_BCD44_TO_DEC(frequency >> 16) / 10,
+		MPEG_SECT_BCD44_TO_DEC(frequency >> 16) % 10,
+		MPEG_SECT_BCD44_TO_DEC(frequency >> 8),
+		MPEG_SECT_BCD44_TO_DEC(frequency));
+	offset += 4;
+
+	orbital_position = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_string_format_value(tree, hf_mpeg_descr_satellite_delivery_orbital_position, tvb, offset, 2, "Orbital Position", "%2u%1u,%1u degrees",
+		MPEG_SECT_BCD44_TO_DEC(orbital_position >> 8),
+		MPEG_SECT_BCD44_TO_DEC(orbital_position) / 10,
+		MPEG_SECT_BCD44_TO_DEC(orbital_position) % 10);
+	offset += 2;
+
+	modulation_system = tvb_get_guint8(tvb, offset) & MPEG_DESCR_SATELLITE_DELIVERY_MODULATION_SYSTEM_MASK;
+
+	proto_tree_add_item(tree, hf_mpeg_descr_satellite_delivery_west_east_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_mpeg_descr_satellite_delivery_polarization, tvb, offset, 1, ENC_BIG_ENDIAN);
+	if (modulation_system)
+		proto_tree_add_item(tree, hf_mpeg_descr_satellite_delivery_roll_off, tvb, offset, 1, ENC_BIG_ENDIAN);
+	else
+		proto_tree_add_item(tree, hf_mpeg_descr_satellite_delivery_zero, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_mpeg_descr_satellite_delivery_modulation_system, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_mpeg_descr_satellite_delivery_modulation_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset++;
+
+	symbol_rate = tvb_get_ntohl(tvb, offset) >> 4;
+	proto_tree_add_string_format_value(tree, hf_mpeg_descr_satellite_delivery_symbol_rate, tvb, offset, 4, "Symbol Rate", "%2u%02u%02u%01u,%01u KSymbol/s",
+		MPEG_SECT_BCD44_TO_DEC(symbol_rate >> 24),
+		MPEG_SECT_BCD44_TO_DEC(symbol_rate >> 16),
+		MPEG_SECT_BCD44_TO_DEC(symbol_rate >> 8),
+		MPEG_SECT_BCD44_TO_DEC(symbol_rate) / 10,
+		MPEG_SECT_BCD44_TO_DEC(symbol_rate) % 10);
+
+	offset += 3;
+	proto_tree_add_item(tree, hf_mpeg_descr_satellite_delivery_fec_inner, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+}
+
+/* 0x44 Cable Delivery System Descriptor */
+static int hf_mpeg_descr_cable_delivery_frequency = -1;
+static int hf_mpeg_descr_cable_delivery_reserved = -1;
+static int hf_mpeg_descr_cable_delivery_fec_outer = -1;
+static int hf_mpeg_descr_cable_delivery_modulation = -1;
+static int hf_mpeg_descr_cable_delivery_symbol_rate = -1;
+static int hf_mpeg_descr_cable_delivery_fec_inner = -1;
+
+#define MPEG_DESCR_CABLE_DELIVERY_RESERVED_MASK		0xFFF0
+#define MPEG_DESCR_CABLE_DELIVERY_FEC_OUTER_MASK	0x000F
+#define MPEG_DESCR_CABLE_DELIVERY_FEC_INNER_MASK	0x0F
+
+static const value_string mpeg_descr_cable_delivery_fec_outer_vals[] = {
+	{ 0x0, "Not defined" },
+	{ 0x1, "No outer FEC coding" },
+	{ 0x2, "RS(204/188)" },
+
+	{ 0x0, NULL }
+};
+
+static const value_string mpeg_descr_cable_delivery_modulation_vals[] = {
+	{ 0x00, "Not defined" },
+	{ 0x01, "16-QAM" },
+	{ 0x02, "32-QAM" },
+	{ 0x03, "64-QAM" },
+	{ 0x04, "128-QAM" },
+	{ 0x05, "256-QAM" },
+
+	{ 0x0, NULL }
+};
+
+static const value_string mpeg_descr_cable_delivery_fec_inner_vals[] = {
+	{ 0x0, "Not defined" },
+	{ 0x1, "1/2 convolutional code rate" },
+	{ 0x2, "2/3 convolutional code rate" },
+	{ 0x3, "3/4 convolutional code rate" },
+	{ 0x4, "5/6 convolutional code rate" },
+	{ 0x5, "7/8 convolutional code rate" },
+	{ 0x6, "8/9 convolutional code rate" },
+	{ 0x7, "3/5 convolutional code rate" },
+	{ 0x8, "4/5 convolutional code rate" },
+	{ 0x9, "9/10 convolutional code rate" },
+	{ 0xF, "No convolutional coding" },
+
+	{ 0x0, NULL }
+};
+
+static void
+proto_mpeg_descriptor_dissect_cable_delivery(tvbuff_t *tvb, guint offset, proto_tree *tree) {
+
+	guint32 frequency = 0, symbol_rate = 0;
+
+	frequency = tvb_get_ntohl(tvb, offset);
+	proto_tree_add_string_format_value(tree, hf_mpeg_descr_cable_delivery_frequency, tvb, offset, 4, "Frequency", "%2u%02u,%02u%02u MHz",
+		MPEG_SECT_BCD44_TO_DEC(frequency >> 24),
+		MPEG_SECT_BCD44_TO_DEC(frequency >> 16),
+		MPEG_SECT_BCD44_TO_DEC(frequency >> 8),
+		MPEG_SECT_BCD44_TO_DEC(frequency));
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_mpeg_descr_cable_delivery_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_mpeg_descr_cable_delivery_fec_outer, tvb, offset, 2, ENC_BIG_ENDIAN);
+	offset += 2;
+
+	proto_tree_add_item(tree, hf_mpeg_descr_cable_delivery_modulation, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset++;
+
+	symbol_rate = tvb_get_ntohl(tvb, offset) >> 4;
+	proto_tree_add_string_format_value(tree, hf_mpeg_descr_cable_delivery_symbol_rate, tvb, offset, 4, "Symbol Rate", "%2u%02u%02u%01u,%01u KSymbol/s",
+		MPEG_SECT_BCD44_TO_DEC(symbol_rate >> 24),
+		MPEG_SECT_BCD44_TO_DEC(symbol_rate >> 16),
+		MPEG_SECT_BCD44_TO_DEC(symbol_rate >> 8),
+		MPEG_SECT_BCD44_TO_DEC(symbol_rate) / 10,
+		MPEG_SECT_BCD44_TO_DEC(symbol_rate) % 10);
+
+	offset += 3;
+	proto_tree_add_item(tree, hf_mpeg_descr_cable_delivery_fec_inner, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+
+}
+
 /* 0x45 VBI Data Descriptor */
 static int hf_mpeg_descr_vbi_data_service_id = -1;
 static int hf_mpeg_descr_vbi_data_descr_len = -1;
@@ -615,8 +860,9 @@ static const value_string mpeg_descr_vbi_data_field_parity_vals[] = {
 	{ 0, NULL }
 };
 
-void
-proto_mpeg_descriptor_dissect_vbi_data(tvbuff_t *tvb, guint offset, guint8 len, proto_tree *tree) {
+static void
+proto_mpeg_descriptor_dissect_vbi_data(tvbuff_t *tvb, guint offset, guint8 len, proto_tree *tree)
+{
 
 	guint8 svc_id = 0, svc_len = 0;
 	guint end = offset + len, svc_end = 0;
@@ -717,6 +963,134 @@ proto_mpeg_descriptor_dissect_service(tvbuff_t *tvb, guint offset, proto_tree *t
 
 	proto_tree_add_item(tree, hf_mpeg_descr_service_name, tvb, offset, name_len, ENC_NA);
 
+}
+
+/* 0x4A Linkage Descriptor */
+static int hf_mpeg_descr_linkage_transport_stream_id = -1;
+static int hf_mpeg_descr_linkage_original_network_id = -1;
+static int hf_mpeg_descr_linkage_service_id = -1;
+static int hf_mpeg_descr_linkage_linkage_type = -1;
+
+static int hf_mpeg_descr_linkage_hand_over_type = -1;
+static int hf_mpeg_descr_linkage_reserved1 = -1;
+static int hf_mpeg_descr_linkage_origin_type = -1;
+static int hf_mpeg_descr_linkage_network_id = -1;
+static int hf_mpeg_descr_linkage_initial_service_id = -1;
+
+static int hf_mpeg_descr_linkage_target_event_id = -1;
+static int hf_mpeg_descr_linkage_target_listed = -1;
+static int hf_mpeg_descr_linkage_event_simulcast = -1;
+static int hf_mpeg_descr_linkage_reserved2 = -1;
+
+static int hf_mpeg_descr_linkage_private_data_byte = -1;
+
+#define MPEG_DESCR_LINKAGE_HAND_OVER_TYPE_MASK	0xF0
+#define MPEG_DESCR_LINKAGE_HAND_OVER_TYPE_SHIFT	0x04
+#define MPEG_DESCR_LINKAGE_RESERVED1_MASK	0x0E
+#define MPEG_DESCR_LINKAGE_ORIGIN_TYPE_MASK	0x01
+
+#define MPEG_DESCR_LINKAGE_TARGET_LISTED_MASK	0x80
+#define MPEG_DESCR_LINKAGE_EVENT_SIMULCAST_MASK	0x40
+#define MPEG_DESCR_LINKAGE_RESERVED2_MASK	0x3F
+
+static const value_string mpeg_descr_linkage_linkage_type_vals[] = {
+	{ 0x01, "Information service" },
+	{ 0x02, "EPG service" },
+	{ 0x03, "CA replacement service" },
+	{ 0x04, "TS containing complete Network/Bouquet SI" },
+	{ 0x05, "Service replacement service" },
+	{ 0x06, "Data broadcast service" },
+	{ 0x07, "RCS Map" },
+	{ 0x08, "Mobile hand-over" },
+	{ 0x09, "System Software Update Service" },
+	{ 0x0A, "TS containing SSU BAT or NIT" },
+	{ 0x0B, "IP/MAC Notification Service" },
+	{ 0x0C, "TS containing INT BAT or NIT" },
+	{ 0x0D, "Event linkage" },
+
+	{ 0x00, NULL }
+};
+
+static const value_string mpeg_descr_linkage_hand_over_type_vals[] = {
+	{ 0x01, "DVB hand-over to an identical service in a neighbouring country" },
+	{ 0x02, "DVB hand-over to a local variation of the same service" },
+	{ 0x03, "DVB hand-over to an associated service" },
+
+	{ 0x00, NULL }
+};
+
+static const value_string mpeg_descr_linkage_origin_type_vals[] = {
+	{ 0x0, "NIT" },
+	{ 0x1, "SDT" },
+
+	{ 0x0, NULL }
+};
+
+static const value_string mpeg_descr_linkage_target_listed_vals[] = {
+	{ 0x0, "Service may not be included in SDT" },
+	{ 0x1, "Service should be included in SDT" },
+
+	{ 0x0, NULL}
+};
+
+static const value_string mpeg_descr_linkage_event_simulcast_vals[] = {
+	{ 0x0, "Events are offset in time" },
+	{ 0x1, "Target and source events are being sumulcast" },
+
+	{ 0x0, NULL }
+};
+
+static void
+proto_mpeg_descriptor_dissect_linkage(tvbuff_t *tvb, guint offset, guint8 len, proto_tree *tree)
+{
+
+	guint8 linkage_type, hand_over_type, origin_type;
+	guint end = offset + len;
+
+	proto_tree_add_item(tree, hf_mpeg_descr_linkage_transport_stream_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+	offset += 2;
+
+	proto_tree_add_item(tree, hf_mpeg_descr_linkage_original_network_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+	offset += 2;
+
+	proto_tree_add_item(tree, hf_mpeg_descr_linkage_service_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+	offset += 2;
+
+	proto_tree_add_item(tree, hf_mpeg_descr_linkage_linkage_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+	linkage_type = tvb_get_guint8(tvb, offset);
+	offset++;
+
+	if (linkage_type == 0x08) {
+		proto_tree_add_item(tree, hf_mpeg_descr_linkage_hand_over_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_mpeg_descr_linkage_reserved1, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_mpeg_descr_linkage_origin_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+		hand_over_type = (tvb_get_guint8(tvb, offset) & MPEG_DESCR_LINKAGE_HAND_OVER_TYPE_MASK) >> MPEG_DESCR_LINKAGE_HAND_OVER_TYPE_SHIFT;
+		origin_type = tvb_get_guint8(tvb, offset) & MPEG_DESCR_LINKAGE_ORIGIN_TYPE_MASK;
+		offset++;
+
+		if (hand_over_type == 1 || hand_over_type == 2 || hand_over_type == 3) {
+			proto_tree_add_item(tree, hf_mpeg_descr_linkage_network_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset += 2;
+		}
+
+		if (origin_type) {
+			proto_tree_add_item(tree, hf_mpeg_descr_linkage_initial_service_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset += 2;
+		}
+
+	}
+
+	if (linkage_type == 0x0D) {
+		proto_tree_add_item(tree, hf_mpeg_descr_linkage_target_event_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset += 2;
+
+		proto_tree_add_item(tree, hf_mpeg_descr_linkage_target_listed, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_mpeg_descr_linkage_event_simulcast, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_mpeg_descr_linkage_reserved2, tvb, offset, 1, ENC_BIG_ENDIAN);
+	}
+
+	if (end - offset > 0)
+		proto_tree_add_item(tree, hf_mpeg_descr_linkage_private_data_byte, tvb, offset, end - offset, ENC_NA);
 }
 
 /* 0x4D Short Event Descriptor */
@@ -1247,6 +1621,152 @@ proto_mpeg_descriptor_dissect_subtitling(tvbuff_t *tvb, guint offset, guint8 len
 	}
 }
 
+/* 0x5A Terrestrial Delivery System Descriptor */
+static int hf_mpeg_descr_terrestrial_delivery_centre_frequency = -1;
+static int hf_mpeg_descr_terrestrial_delivery_bandwidth = -1;
+static int hf_mpeg_descr_terrestrial_delivery_priority = -1;
+static int hf_mpeg_descr_terrestrial_delivery_time_slicing_indicator = -1;
+static int hf_mpeg_descr_terrestrial_delivery_mpe_fec_indicator = -1;
+static int hf_mpeg_descr_terrestrial_delivery_reserved1 = -1;
+static int hf_mpeg_descr_terrestrial_delivery_constellation = -1;
+static int hf_mpeg_descr_terrestrial_delivery_hierarchy_information = -1;
+static int hf_mpeg_descr_terrestrial_delivery_code_rate_hp_stream = -1;
+static int hf_mpeg_descr_terrestrial_delivery_code_rate_lp_stream = -1;
+static int hf_mpeg_descr_terrestrial_delivery_guard_interval = -1;
+static int hf_mpeg_descr_terrestrial_delivery_transmission_mode = -1;
+static int hf_mpeg_descr_terrestrial_delivery_other_frequency_flag = -1;
+static int hf_mpeg_descr_terrestrial_delivery_reserved2 = -1;
+
+#define MPEG_DESCR_TERRESTRIAL_DELIVERY_BANDWIDTH_MASK			0xE0
+#define MPEG_DESCR_TERRESTRIAL_DELIVERY_PRIORITY_MASK			0x10
+#define MPEG_DESCR_TERRESTRIAL_DELIVERY_TIME_SLICING_INDICATOR_MASK	0x08
+#define MPEG_DESCR_TERRESTRIAL_DELIVERY_MPE_FEC_INDICATOR_MASK		0x04
+#define MPEG_DESCR_TERRESTRIAL_DELIVERY_RESERVED1_MASK			0x03
+#define MPEG_DESCR_TERRESTRIAL_DELIVERY_CONSTELLATION_MASK		0xC0
+#define MPEG_DESCR_TERRESTRIAL_DELIVERY_HIERARCHY_INFORMATION_MASK	0x38
+#define MPEG_DESCR_TERRESTRIAL_DELIVERY_CODE_RATE_HP_STREAM_MASK	0x07
+#define MPEG_DESCR_TERRESTRIAL_DELIVERY_CODE_RATE_LP_STREAM_MASK	0xE0
+#define MPEG_DESCR_TERRESTRIAL_DELIVERY_GUARD_INTERVAL_MASK		0x18
+#define MPEG_DESCR_TERRESTRIAL_DELIVERY_TRANSMISSION_MODE_MASK		0x06
+#define MPEG_DESCR_TERRESTRIAL_DELIVERY_OTHER_FREQUENCY_FLAG_MASK	0x01
+
+static const value_string mpeg_descr_terrestrial_delivery_bandwidth_vals[] = {
+	{ 0x0, "8 MHz" },
+	{ 0x1, "7 MHz" },
+	{ 0x2, "6 MHz" },
+	{ 0x3, "5 Mhz" },
+
+	{ 0x0, NULL }
+};
+
+static const value_string mpeg_descr_terrestrial_delivery_priority_vals[] = {
+	{ 0x0, "Low Priority" },
+	{ 0x1, "High Priority (or N/A if not hierarchical stream)" },
+
+	{ 0x0, NULL }
+};
+
+static const value_string mpeg_descr_terrestrial_delivery_time_slicing_indicator_vals[] = {
+	{ 0x0, "At least one elementary stream uses Time Slicing" },
+	{ 0x1, "Time Slicing not used" },
+
+	{ 0x0, NULL }
+};
+
+static const value_string mpeg_descr_terrestrial_delivery_mpe_fec_indicator_vals[] = {
+	{ 0x0, "At least one elementary stream uses MPE-FEC" },
+	{ 0x1, "MPE-FEC not used" },
+
+	{ 0x0, NULL }
+};
+
+static const value_string mpeg_descr_terrestrial_delivery_constellation_vals[] = {
+	{ 0x0, "QPSK" },
+	{ 0x1, "16-QAM" },
+	{ 0x2, "64-QAM" },
+
+	{ 0x0, NULL }
+};
+
+static const value_string mpeg_descr_terrestrial_delivery_hierarchy_information_vals[] = {
+	{ 0x0, "Non-hierarchical, native interleaver" },
+	{ 0x1, "alpha = 1, native interleaver" },
+	{ 0x2, "alpha = 2, native interleaver" },
+	{ 0x3, "alpha = 4, native interleaver" },
+	{ 0x4, "Non-hierarchical, in-depth interleaver" },
+	{ 0x5, "alpha = 1, in-depth interleaver" },
+	{ 0x6, "alpha = 2, in-depth interleaver" },
+	{ 0x7, "alpha = 4, in-depth interleaver" },
+
+	{ 0x0, NULL }
+};
+
+static const value_string mpeg_descr_terrestrial_delivery_code_rate_vals[] = {
+	{ 0x0, "1/2 convolutional code rate" },
+	{ 0x1, "2/3 convolutional code rate" },
+	{ 0x2, "3/4 convolutional code rate" },
+	{ 0x3, "5/6 convolutional code rate" },
+	{ 0x4, "7/8 convolutional code rate" },
+
+	{ 0x0, NULL }
+};
+
+static const value_string mpeg_descr_terrestrial_delivery_guard_interval_vals[] = {
+	{ 0x0, "1/32" },
+	{ 0x1, "1/16" },
+	{ 0x2, "1/8" },
+	{ 0x3, "1/4" },
+
+	{ 0x0, NULL }
+};
+
+static const value_string mpeg_descr_terrestrial_delivery_other_frequency_flag_vals[] = {
+	{ 0x0, "No other frequency is in use" },
+	{ 0x1, "One or more frequencies are in use" },
+
+	{ 0x0, NULL }
+};
+
+static const value_string mpeg_descr_terrestrial_delivery_transmission_mode_vals[] = {
+	{ 0x0, "2k mode" },
+	{ 0x1, "8k mode" },
+	{ 0x2, "4k mode" },
+
+	{ 0x0, NULL }
+};
+
+static void
+proto_mpeg_descriptor_dissect_terrestrial_delivery(tvbuff_t *tvb, guint offset, proto_tree *tree)
+{
+	guint32 centre_freq;
+
+	centre_freq = tvb_get_ntohl(tvb, offset);
+	proto_tree_add_string_format_value(tree, hf_mpeg_descr_terrestrial_delivery_centre_frequency, tvb, offset, 4, "CentreFrequency", "%u0 Hz", centre_freq);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_mpeg_descr_terrestrial_delivery_bandwidth, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_mpeg_descr_terrestrial_delivery_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_mpeg_descr_terrestrial_delivery_time_slicing_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_mpeg_descr_terrestrial_delivery_mpe_fec_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_mpeg_descr_terrestrial_delivery_reserved1, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset++;
+
+	proto_tree_add_item(tree, hf_mpeg_descr_terrestrial_delivery_constellation, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_mpeg_descr_terrestrial_delivery_hierarchy_information, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_mpeg_descr_terrestrial_delivery_code_rate_hp_stream, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset++;
+
+	proto_tree_add_item(tree, hf_mpeg_descr_terrestrial_delivery_code_rate_lp_stream, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_mpeg_descr_terrestrial_delivery_guard_interval, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_mpeg_descr_terrestrial_delivery_transmission_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_mpeg_descr_terrestrial_delivery_other_frequency_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset++;
+
+	proto_tree_add_item(tree, hf_mpeg_descr_terrestrial_delivery_reserved2, tvb, offset, 4, ENC_BIG_ENDIAN);
+
+}
+
+
 /* 0x5F Private Data Specifier */
 static int hf_mpeg_descr_private_data_specifier_id = -1;
 
@@ -1331,8 +1851,138 @@ proto_mpeg_descriptor_dissect_data_bcast_id(tvbuff_t *tvb, guint offset, guint8 
 		proto_tree_add_item(tree, hf_mpeg_descr_data_bcast_id_id_selector_bytes, tvb, offset, len - 2, ENC_NA);
 }
 
-/* 0xA2 Logon Initialize Descriptor */
+/* 0x6A AC-3 Descriptor */
+static int hf_mpeg_descr_ac3_component_type_flag = -1;
+static int hf_mpeg_descr_ac3_bsid_flag = -1;
+static int hf_mpeg_descr_ac3_mainid_flag = -1;
+static int hf_mpeg_descr_ac3_asvc_flag = -1;
+static int hf_mpeg_descr_ac3_reserved = -1;
+static int hf_mpeg_descr_ac3_component_type_reserved_flag = -1;
+static int hf_mpeg_descr_ac3_component_type_full_service_flag = -1;
+static int hf_mpeg_descr_ac3_component_type_service_type_flags = -1;
+static int hf_mpeg_descr_ac3_component_type_number_of_channels_flags = -1;
+static int hf_mpeg_descr_ac3_bsid = -1;
+static int hf_mpeg_descr_ac3_mainid = -1;
+static int hf_mpeg_descr_ac3_asvc = -1;
+static int hf_mpeg_descr_ac3_additional_info = -1;
 
+static gint ett_mpeg_descriptor_ac3_component_type = -1;
+
+#define MPEG_DESCR_AC3_COMPONENT_TYPE_FLAG_MASK	0x80
+#define MPEG_DESCR_AC3_BSID_FLAG_MASK		0x40
+#define MPEG_DESCR_AC3_MAINID_FLAG_MASK		0x20
+#define MPEG_DESCR_AC3_ASVC_FLAG_MASK		0x10
+#define MPEG_DESCR_AC3_RESERVED_MASK		0x0F
+
+#define MPEG_DESCR_AC3_COMPONENT_TYPE_RESERVED_FLAG_MASK	0x80
+#define MPEG_DESCR_AC3_COMPONENT_TYPE_FULL_SERVICE_FLAG_MASK	0x40
+#define MPEG_DESCR_AC3_COMPONENT_TYPE_SERVICE_TYPE_FLAGS_MASK	0x38
+#define MPEG_DESCR_AC3_COMPONENT_TYPE_NUMBER_OF_CHANNELS_FLAGS	0x07
+
+static const value_string mpeg_descr_ac3_component_type_flag_vals[] = {
+	{ 0x0, "Component type field not included" },
+	{ 0x1, "Component type field included" },
+
+	{ 0x0, NULL }
+};
+
+static const value_string mpeg_descr_ac3_bsid_flag_vals[] = {
+	{ 0x0, "BSID field not included" },
+	{ 0x1, "BSID field included" },
+
+	{ 0x0, NULL }
+};
+
+static const value_string mpeg_descr_ac3_mainid_flag_vals[] = {
+	{ 0x0, "Main ID field not included" },
+	{ 0x1, "Main ID field included" },
+
+	{ 0x0, NULL }
+};
+
+static const value_string mpeg_descr_ac3_asvc_flag_vals[] = {
+	{ 0x0, "ASVC field not included" },
+	{ 0x1, "ASVC field included" },
+
+	{ 0x0, NULL }
+};
+
+static const value_string mpeg_descr_ac3_component_type_full_service_flag_vals[] = {
+	{ 0x0, "Decoded audio stream is intended to be combined with another decoded audio stream" },
+	{ 0x1, "Decoded audio stream is a full service" },
+
+	{ 0x0, NULL}
+};
+
+static const value_string mpeg_descr_ac3_component_type_service_type_flags_vals[] = {
+	{ 0x0, "Complete Main (CM)" },
+	{ 0x1, "Music and effects (ME)" },
+	{ 0x2, "Visually impaired (VI)" },
+	{ 0x3, "Hearing impaired (HI)" },
+	{ 0x4, "Dialogue (D)" },
+	{ 0x5, "Commentary (C)" },
+	{ 0x6, "Emergency (E)" },
+	{ 0x7, "Voiceover (VO) if Full Service Flag is 0, else Karaoke" },
+
+	{ 0x0, NULL }
+};
+
+static const value_string mpeg_descr_ac3_component_type_number_of_channels_flags_vals[] = {
+	{ 0x0, "Mono" },
+	{ 0x1, "1+1 Mode" },
+	{ 0x2, "2 Channel (stereo)" },
+	{ 0x3, "2 Channel Dolby surround encoded (stereo)" },
+	{ 0x4, "Multichannel audio (> 2 channels)" },
+
+	{ 0x0, NULL }
+};
+
+static void
+proto_mpeg_descriptor_dissect_ac3(tvbuff_t *tvb, guint offset, guint8 len, proto_tree *tree)
+{
+	guint end = offset + len;
+	guint8 flags = 0, component_type = 0;
+
+	proto_item *ci = NULL;
+	proto_tree *component_type_tree = NULL;
+
+	flags = tvb_get_guint8(tvb, offset);
+	proto_tree_add_item(tree, hf_mpeg_descr_ac3_component_type_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_mpeg_descr_ac3_bsid_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_mpeg_descr_ac3_mainid_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_mpeg_descr_ac3_asvc_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_mpeg_descr_ac3_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset++;
+
+	if (flags & MPEG_DESCR_AC3_COMPONENT_TYPE_FLAG_MASK) {
+		component_type = tvb_get_guint8(tvb, offset);
+		ci = proto_tree_add_text(tree, tvb, offset, 3, "Component Type 0x%02x", component_type);
+		component_type_tree = proto_item_add_subtree(ci, ett_mpeg_descriptor_ac3_component_type);
+		proto_tree_add_item(component_type_tree, hf_mpeg_descr_ac3_component_type_reserved_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(component_type_tree, hf_mpeg_descr_ac3_component_type_full_service_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(component_type_tree, hf_mpeg_descr_ac3_component_type_service_type_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(component_type_tree, hf_mpeg_descr_ac3_component_type_number_of_channels_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset++;
+	}
+
+	if (flags & MPEG_DESCR_AC3_BSID_FLAG_MASK) {
+		proto_tree_add_item(tree, hf_mpeg_descr_ac3_bsid, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset++;
+	}
+
+	if (flags & MPEG_DESCR_AC3_MAINID_FLAG_MASK) {
+		proto_tree_add_item(tree, hf_mpeg_descr_ac3_mainid, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset++;
+	}
+
+	if (flags & MPEG_DESCR_AC3_ASVC_FLAG_MASK) {
+		proto_tree_add_item(tree, hf_mpeg_descr_ac3_asvc_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset++;
+	}
+
+	if (offset < end)
+		proto_tree_add_item(tree, hf_mpeg_descr_ac3_additional_info, tvb, offset, end - offset, ENC_BIG_ENDIAN);
+}
 
 /* 0x73 Default Authority Descriptor */
 static int hf_mpeg_descr_default_authority_name = -1;
@@ -1416,7 +2066,38 @@ proto_mpeg_descriptor_dissect_content_identifier(tvbuff_t *tvb, guint offset, gu
 
 }
 
-/* A2 Logon Initialize Descriptor */
+/* 0x7F Extension Descriptor */
+static int hf_mpeg_descr_extension_tag_extension = -1;
+static int hf_mpeg_descr_extension_data = -1;
+
+static const value_string mpeg_descr_extension_tag_extension_vals[] = {
+	{ 0x00, "Image Icon Descriptor" },
+	{ 0x01, "CPCM Delivery Dignalling Descriptor" },
+	{ 0x02, "CP Descriptor" },
+	{ 0x03, "CP Identifier Descriptor" },
+	{ 0x04, "T2 Delivery System Descriptor" },
+	{ 0x05, "SH Delivery System Descriptor" },
+	{ 0x06, "Supplementary Audio Descriptor" },
+	{ 0x07, "Network Change Notify Descriptor" },
+	{ 0x08, "Message Descriptor" },
+	{ 0x09, "Target Region Descriptor" },
+	{ 0x0A, "Target Region Name Descriptor" },
+	{ 0x0B, "Service Relocated Descriptor" },
+
+	{ 0x0, NULL },
+};
+
+static void
+proto_mpeg_descriptor_dissect_extension(tvbuff_t *tvb, guint offset, guint8 len, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_mpeg_descr_extension_tag_extension, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset++;
+	len--;
+
+	proto_tree_add_item(tree, hf_mpeg_descr_extension_data, tvb, offset, len, ENC_NA);
+}
+
+/* 0xA2 Logon Initialize Descriptor */
 static int hf_mpeg_descr_logon_initialize_group_id = -1;
 static int hf_mpeg_descr_logon_initialize_logon_id = -1;
 static int hf_mpeg_descr_logon_initialize_continuous_carrier_reserved = -1;
@@ -1634,11 +2315,26 @@ proto_mpeg_descriptor_dissect(tvbuff_t *tvb, guint offset, proto_tree *tree)
 		case 0x28: /* AVC Video Descriptor */
 			proto_mpeg_descriptor_dissect_avc_vid(tvb, offset, descriptor_tree);
 			break;
+		case 0x40: /* Network Name Descriptor */
+			proto_mpeg_descriptor_dissect_network_name(tvb, offset, len, descriptor_tree);
+			break;
+		case 0x41: /* Service List Descriptor */
+			proto_mpeg_descriptor_dissect_service_list(tvb, offset, len, descriptor_tree);
+			break;
+		case 0x43: /* Satellite Delivery System Descriptor */
+			proto_mpeg_descriptor_dissect_satellite_delivery(tvb, offset, descriptor_tree);
+			break;
+		case 0x44: /* Cable Delivery System Descriptor */
+			proto_mpeg_descriptor_dissect_cable_delivery(tvb, offset, descriptor_tree);
+			break;
 		case 0x45: /* VBI Data Descriptor */
 			proto_mpeg_descriptor_dissect_vbi_data(tvb, offset, len, descriptor_tree);
 			break;
 		case 0x48: /* Service Descriptor */
 			proto_mpeg_descriptor_dissect_service(tvb, offset, descriptor_tree);
+			break;
+		case 0x4A: /* Linkage Descriptor */
+			proto_mpeg_descriptor_dissect_linkage(tvb, offset, len, descriptor_tree);
 			break;
 		case 0x4D: /* Short Event Descriptor */
 			proto_mpeg_descriptor_dissect_short_event(tvb, offset, descriptor_tree);
@@ -1667,6 +2363,9 @@ proto_mpeg_descriptor_dissect(tvbuff_t *tvb, guint offset, proto_tree *tree)
 		case 0x59: /* Subtitling Descriptor */
 			proto_mpeg_descriptor_dissect_subtitling(tvb, offset, len, descriptor_tree);
 			break;
+		case 0x5A: /* Terrestrial Delivery System Descriptor */
+			proto_mpeg_descriptor_dissect_terrestrial_delivery(tvb, offset, descriptor_tree);
+			break;
 		case 0x5F: /* Private Data Specifier Descriptor */
 			proto_mpeg_descriptor_dissect_private_data_specifier(tvb, offset, descriptor_tree);
 			break;
@@ -1676,11 +2375,17 @@ proto_mpeg_descriptor_dissect(tvbuff_t *tvb, guint offset, proto_tree *tree)
 		case 0x66: /* Data Broadcast ID Descriptor */
 			proto_mpeg_descriptor_dissect_data_bcast_id(tvb, offset, len, descriptor_tree);
 			break;
+		case 0x6A: /* AC-3 Descriptor */
+			proto_mpeg_descriptor_dissect_ac3(tvb, offset, len, descriptor_tree);
+			break;
 		case 0x73: /* Default Authority Descriptor */
 			proto_mpeg_descriptor_dissect_default_authority(tvb, offset, len, descriptor_tree);
 			break;
 		case 0x76: /* Content Identifier Descriptor */
 			proto_mpeg_descriptor_dissect_content_identifier(tvb, offset, len, descriptor_tree);
+			break;
+		case 0x7F: /* Extension Descriptor */
+			proto_mpeg_descriptor_dissect_extension(tvb, offset, len, descriptor_tree);
 			break;
 		case 0xA2: /* Logon Initialize Descriptor */
 			proto_mpeg_descriptor_dissect_logon_initialize(tvb, offset, len, descriptor_tree);
@@ -1824,7 +2529,7 @@ proto_register_mpeg_descriptor(void)
 		} },
 
 		{ &hf_mpeg_descr_iso639_type, {
-			"ISO 639 Language Code", "mpeg_descr.lang.type",
+			"ISO 639 Language Type", "mpeg_descr.lang.type",
 			FT_UINT8, BASE_HEX, VALS(mpeg_descr_iso639_type_vals), 0, NULL, HFILL
 		} },
 
@@ -2041,6 +2746,105 @@ proto_register_mpeg_descriptor(void)
 			FT_UINT8, BASE_HEX, NULL, MPEG_DESCR_AVC_VID_RESERVED_MASK, NULL, HFILL
 		} },
 
+		/* 0x40 Network Name Descriptor */
+		{ &hf_mpeg_descr_network_name_descriptor, {
+			"Network Name", "mpeg_descr.net_name.name",
+			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
+		} },
+
+		/* 0x41 Service List Descriptor */
+		{ &hf_mpeg_descr_service_list_id, {
+			"Service ID", "mpeg_descr.svc_list.id",
+			FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_service_list_type, {
+			"Service Type", "mpeg_descr.svc_list.type",
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_service_type_vals), 0, NULL, HFILL
+		} },
+
+		/* 0x43 Satellite Delivery System Descriptor */
+		{ &hf_mpeg_descr_satellite_delivery_frequency, {
+			"Frequency", "mpeg_descr.sat_delivery.freq",
+			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_satellite_delivery_orbital_position, {
+			"Orbital Position", "mpeg_descr.sat_delivery.orbital_pos",
+			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_satellite_delivery_west_east_flag, {
+			"West East Flag", "mpeg_descr.sat_delivery.west_east_flag",
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_satellite_delivery_west_east_flag_vals), MPEG_DESCR_SATELLITE_DELIVERY_WEST_EAST_FLAG_MASK, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_satellite_delivery_polarization, {
+			"Polarization", "mpeg_descr.sat_delivery.polarization",
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_satellite_delivery_polarization_vals), MPEG_DESCR_SATELLITE_DELIVERY_POLARIZATION_MASK, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_satellite_delivery_roll_off, {
+			"Roll Off", "mpeg_descr.sat_delivery.roll_off",
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_satellite_delivery_roll_off_vals), MPEG_DESCR_SATELLITE_DELIVERY_ROLL_OFF_MASK, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_satellite_delivery_zero, {
+			"Zero", "mpeg_descr.sat_delivery.zero",
+			FT_UINT8, BASE_HEX, NULL, MPEG_DESCR_SATELLITE_DELIVERY_ZERO_MASK, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_satellite_delivery_modulation_system, {
+			"Modulation System", "mpeg_descr.sat_delivery.modulation_system",
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_satellite_delivery_modulation_system_vals), MPEG_DESCR_SATELLITE_DELIVERY_MODULATION_SYSTEM_MASK, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_satellite_delivery_modulation_type, {
+			"Modulation Type", "mpeg_descr.sat_delivery.modulation_type",
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_satellite_delivery_modulation_type_vals), MPEG_DESCR_SATELLITE_DELIVERY_MODULATION_TYPE_MASK, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_satellite_delivery_symbol_rate, {
+			"Symbol Rate", "mpeg_descr.sat_delivery.symbol_rate",
+			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_satellite_delivery_fec_inner, {
+			"FEC Inner", "mpeg_descr.sat_delivery.fec_inner",
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_satellite_delivery_fec_inner_vals), MPEG_DESCR_SATELLITE_DELIVERY_FEC_INNER_MASK, NULL, HFILL
+		} },
+
+		/* 0x44 Cable Delivery System Descriptor */
+		{ &hf_mpeg_descr_cable_delivery_frequency, {
+			"Frequency", "mpeg_descr.cable_delivery.freq",
+			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_cable_delivery_reserved, {
+			"Reserved", "mpeg_descr.cable_delivery.reserved",
+			FT_UINT16, BASE_HEX, NULL, MPEG_DESCR_CABLE_DELIVERY_RESERVED_MASK, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_cable_delivery_fec_outer, {
+			"FEC Outer", "mpeg_descr.cable_delivery.fec_outer",
+			FT_UINT16, BASE_HEX, VALS(mpeg_descr_cable_delivery_fec_outer_vals), MPEG_DESCR_CABLE_DELIVERY_FEC_OUTER_MASK, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_cable_delivery_modulation, {
+			"Modulation", "mpeg_descr.cable_delivery.modulation",
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_cable_delivery_modulation_vals), 0, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_cable_delivery_symbol_rate, {
+			"Symbol Rate", "mpeg_descr.cable_delivery.sym_rate",
+			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_cable_delivery_fec_inner, {
+			"FEC Inner", "mpeg_descr.cable_delivery.fec_inner",
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_cable_delivery_fec_inner_vals), MPEG_DESCR_CABLE_DELIVERY_FEC_INNER_MASK, NULL, HFILL
+		} },
+
 		/* 0x45 VBI Data Descriptor */
 		{ &hf_mpeg_descr_vbi_data_service_id, {
 			"Data Service ID", "mpeg_descr.vbi_data.svc_id",
@@ -2097,6 +2901,78 @@ proto_register_mpeg_descriptor(void)
 			"Service Name", "mpeg_descr.svc.svc_name",
 			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
 		} },
+
+		/* 0x4A Linkage Descriptor */
+		{ &hf_mpeg_descr_linkage_transport_stream_id, {
+			"Transport Stream ID", "mpeg_descr.linkage.tsid",
+			FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_linkage_original_network_id, {
+			"Original Network ID", "mpeg_descr.linkage.original_nid",
+			FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_linkage_service_id, {
+			"Service ID", "mpeg_descr.linkage.svc_id",
+			FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_linkage_linkage_type, {
+			"Linkage Type", "mpeg_descr.linkage.type",
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_linkage_linkage_type_vals), 0, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_linkage_hand_over_type, {
+			"Hand-Over Type", "mpeg_descr.linkage.hand_over_type",
+			FT_UINT8, BASE_HEX, NULL, MPEG_DESCR_LINKAGE_HAND_OVER_TYPE_MASK, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_linkage_reserved1, {
+			"Reserved", "mpeg_descr.linkage.reserved1",
+			FT_UINT8, BASE_HEX, NULL, MPEG_DESCR_LINKAGE_RESERVED1_MASK, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_linkage_origin_type, {
+			"Origin Type", "mpeg_descr.linkage.origin_type",
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_linkage_origin_type_vals), 0, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_linkage_network_id, {
+			"Network ID", "mpeg_descr.linkage.network_id",
+			FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_linkage_initial_service_id, {
+			"Initial Service ID", "mpeg_descr.linkage.initial_svc_id",
+			FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_linkage_target_event_id, {
+			"Target Event ID", "mpeg_descr.linkage.target_evt_id",
+			FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_linkage_target_listed, {
+			"Target Listed", "mpeg_descr.linkage.target_listed",
+			FT_UINT8, BASE_DEC, VALS(mpeg_descr_linkage_target_listed_vals), MPEG_DESCR_LINKAGE_TARGET_LISTED_MASK, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_linkage_event_simulcast, {
+			"Event Simulcast", "mpeg_descr.linkage.evt_simulcast",
+			FT_UINT8, BASE_DEC, VALS(mpeg_descr_linkage_event_simulcast_vals), MPEG_DESCR_LINKAGE_EVENT_SIMULCAST_MASK, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_linkage_reserved2, {
+			"Reserved", "mpeg_descr.linkage.reserved2",
+			FT_UINT8, BASE_HEX, NULL, MPEG_DESCR_LINKAGE_RESERVED2_MASK, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_linkage_private_data_byte, {
+			"Private Data", "mpeg_descr.linkage.private_data",
+			FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
+		} },
+
 
 		/* 0x4D Short Event Descriptor */
 		{ &hf_mpeg_descr_short_event_lang_code, {
@@ -2298,6 +3174,78 @@ proto_register_mpeg_descriptor(void)
 			FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL
 		} },
 
+		/* 0x5A Terrestrial Delivery System Descriptor */
+		{ &hf_mpeg_descr_terrestrial_delivery_centre_frequency, {
+			"Centre Frequency", "mpeg_descr_terr_delivery.centre_freq",
+			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_terrestrial_delivery_bandwidth, {
+			"Bandwidth", "mpeg_descr_terr_delivery.bandwidth",
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_terrestrial_delivery_bandwidth_vals), MPEG_DESCR_TERRESTRIAL_DELIVERY_BANDWIDTH_MASK, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_terrestrial_delivery_priority, {
+			"Priority", "mpeg_descr_terr_delivery.priority",
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_terrestrial_delivery_priority_vals), MPEG_DESCR_TERRESTRIAL_DELIVERY_PRIORITY_MASK, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_terrestrial_delivery_time_slicing_indicator, {
+			"Time Slicing Indicator", "mpeg_descr_terr_delivery.time_slicing_ind",
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_terrestrial_delivery_time_slicing_indicator_vals), MPEG_DESCR_TERRESTRIAL_DELIVERY_TIME_SLICING_INDICATOR_MASK, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_terrestrial_delivery_mpe_fec_indicator, {
+			"MPE-FEC Indicator", "mpeg_descr_terr_delivery.mpe_fec_ind",
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_terrestrial_delivery_mpe_fec_indicator_vals), MPEG_DESCR_TERRESTRIAL_DELIVERY_MPE_FEC_INDICATOR_MASK, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_terrestrial_delivery_reserved1, {
+			"Reserved", "mpeg_descr_terr_delivery.reserved1",
+			FT_UINT8, BASE_HEX, NULL, MPEG_DESCR_TERRESTRIAL_DELIVERY_RESERVED1_MASK, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_terrestrial_delivery_constellation, {
+			"Constellation", "mpeg_descr_terr_delivery.constellation",
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_terrestrial_delivery_constellation_vals), MPEG_DESCR_TERRESTRIAL_DELIVERY_CONSTELLATION_MASK, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_terrestrial_delivery_hierarchy_information, {
+			"Hierarchy Information", "mpeg_descr_terr_delivery.hierarchy_information",
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_terrestrial_delivery_hierarchy_information_vals), MPEG_DESCR_TERRESTRIAL_DELIVERY_HIERARCHY_INFORMATION_MASK, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_terrestrial_delivery_code_rate_hp_stream, {
+			"Code Rate High Priority Stream", "mpeg_descr_terr_delivery.code_rate_hp_stream",
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_terrestrial_delivery_code_rate_vals), MPEG_DESCR_TERRESTRIAL_DELIVERY_CODE_RATE_HP_STREAM_MASK, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_terrestrial_delivery_code_rate_lp_stream, {
+			"Code Rate Low Priority Stream", "mpeg_descr_terr_delivery.code_rate_lp_stream",
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_terrestrial_delivery_code_rate_vals), MPEG_DESCR_TERRESTRIAL_DELIVERY_CODE_RATE_LP_STREAM_MASK, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_terrestrial_delivery_guard_interval, {
+			"Guard Interval", "mpeg_descr_terr_delivery.guard_interval",
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_terrestrial_delivery_guard_interval_vals), MPEG_DESCR_TERRESTRIAL_DELIVERY_GUARD_INTERVAL_MASK, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_terrestrial_delivery_transmission_mode, {
+			"Transmission Mode", "mpeg_descr_terr_delivery.transmission_mode",
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_terrestrial_delivery_transmission_mode_vals), MPEG_DESCR_TERRESTRIAL_DELIVERY_TRANSMISSION_MODE_MASK, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_terrestrial_delivery_other_frequency_flag, {
+			"Other Frequency Flag", "mpeg_descr_terr_delivery.other_freq_flag",
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_terrestrial_delivery_other_frequency_flag_vals), MPEG_DESCR_TERRESTRIAL_DELIVERY_OTHER_FREQUENCY_FLAG_MASK, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_terrestrial_delivery_reserved2, {
+			"Reserved", "mpeg_descr_terr_delivery.reserved2",
+			FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL
+		} },
+
+
 		/* 0x5F Private Data Specifier */
 		{ &hf_mpeg_descr_private_data_specifier_id, {
 			"Private Data Specifier", "mpeg_descr.private_data_specifier.id",
@@ -2351,6 +3299,72 @@ proto_register_mpeg_descriptor(void)
 			FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
 		} },
 
+		/* 0x6A AC-3 Descriptor */
+		{ &hf_mpeg_descr_ac3_component_type_flag, {
+			"Component Type Flag", "mpeg_descr.ac3.component_type_flag",
+			FT_UINT8, BASE_DEC, VALS(mpeg_descr_ac3_component_type_flag_vals), MPEG_DESCR_AC3_COMPONENT_TYPE_FLAG_MASK, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_ac3_bsid_flag, {
+			"BSID Flag", "mpeg_descr.ac3.bsid_flag",
+			FT_UINT8, BASE_DEC, VALS(mpeg_descr_ac3_bsid_flag_vals), MPEG_DESCR_AC3_BSID_FLAG_MASK, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_ac3_mainid_flag, {
+			"Main ID Flag", "mpeg_descr.ac3_main_id_flag",
+			FT_UINT8, BASE_DEC, VALS(mpeg_descr_ac3_mainid_flag_vals), MPEG_DESCR_AC3_MAINID_FLAG_MASK, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_ac3_asvc_flag, {
+			"ASVC Flag", "mpeg_descr.ac3.asvc_flag",
+			FT_UINT8, BASE_DEC, VALS(mpeg_descr_ac3_asvc_flag_vals), MPEG_DESCR_AC3_ASVC_FLAG_MASK, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_ac3_reserved, {
+			"Reserved", "mpeg_descr.ac3.reserved",
+			FT_UINT8, BASE_HEX, NULL, MPEG_DESCR_AC3_RESERVED_MASK, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_ac3_component_type_reserved_flag, {
+			"Type Reserved Flag", "mpeg_descr.ac3.component_type.reserved_flag",
+			FT_UINT8, BASE_HEX, NULL, MPEG_DESCR_AC3_COMPONENT_TYPE_RESERVED_FLAG_MASK, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_ac3_component_type_full_service_flag, {
+			"Full Service Flag", "mpeg_descr.ac3.component_type.full_service_flag",
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_ac3_component_type_full_service_flag_vals), MPEG_DESCR_AC3_COMPONENT_TYPE_FULL_SERVICE_FLAG_MASK, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_ac3_component_type_service_type_flags, {
+			"Service Type Flags", "mpeg_descr.ac3.component_type.service_type_flags",
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_ac3_component_type_service_type_flags_vals), MPEG_DESCR_AC3_COMPONENT_TYPE_SERVICE_TYPE_FLAGS_MASK, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_ac3_component_type_number_of_channels_flags, {
+			"Number of Channels Flags", "mpeg_descr.ac3.component_type.number_chan_flags",
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_ac3_component_type_number_of_channels_flags_vals), MPEG_DESCR_AC3_COMPONENT_TYPE_NUMBER_OF_CHANNELS_FLAGS, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_ac3_bsid, {
+			"BSID", "mpeg_descr.ac3.bsid",
+			FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_ac3_mainid, {
+			"Main ID", "mpeg_descr.ac3.mainid",
+			FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_ac3_asvc, {
+			"ASVC", "mpeg_descr.ac3.asvc",
+			FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_ac3_additional_info, {
+			"Additional Info", "mpeg_descr.ac3.additional_info",
+			FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
+		} },
+
 		/* 0x73 Default Authority Descriptor */
 		{ &hf_mpeg_descr_default_authority_name, {
 			"Default Authority Name", "mpeg_descr.default_authority.name",
@@ -2381,6 +3395,17 @@ proto_register_mpeg_descriptor(void)
 		{ &hf_mpeg_descr_content_identifier_cird_ref, {
 			"CRID Reference", "mpeg_descr.content_identifier.crid_ref",
 			FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
+		} },
+
+		/* 0x7F Extension Descriptor */
+		{ &hf_mpeg_descr_extension_tag_extension, {
+			"Descriptor Tag Extension", "mpeg_descr.ext.tag",
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_extension_tag_extension_vals), 0, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_extension_data, {
+			"Descriptor Extension Data", "mpeg_descr.ext.data",
+			FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
 		} },
 
 		/* 0xA2 Logon Initialize Descriptor */
@@ -2538,7 +3563,7 @@ proto_register_mpeg_descriptor(void)
 		{ &hf_mpeg_descr_rcs_content_table_id, {
 			"Table ID", "mpeg_descr.rcs_content.tid",
 			FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL
-		} },
+		} }
 	};
 
 	static gint *ett[] = {
@@ -2547,7 +3572,9 @@ proto_register_mpeg_descriptor(void)
 		&ett_mpeg_descriptor_component_content_type,
 		&ett_mpeg_descriptor_content_nibble,
 		&ett_mpeg_descriptor_vbi_data_service,
-		&ett_mpeg_descriptor_content_identifier_crid
+		&ett_mpeg_descriptor_content_identifier_crid,
+		&ett_mpeg_descriptor_service_list,
+		&ett_mpeg_descriptor_ac3_component_type
 	};
 
 	proto_mpeg_descriptor = proto_register_protocol("MPEG2 Descriptors", "MPEG Descriptor", "mpeg_descr");

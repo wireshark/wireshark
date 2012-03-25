@@ -3410,6 +3410,7 @@ Bill Schiller		<bill.schiller [AT] emerson.com> {
 Guy Martin		<gmsoft [AT] tuxicoman.be> {
 	DVB-DATA MultiProtocol Encapsulation dissector
 	DVB Event Information Table (EIT) dissector
+	DVB Network Information Table (NIT) dissector
 	MPEG2 Conditional Access Table (CA) dissector
 	MPEG2 descriptors dissector
 	MPEG2 Program Associate Table (PAT) dissector
