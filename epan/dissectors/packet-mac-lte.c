@@ -97,6 +97,7 @@ static int hf_mac_lte_context_phy_dl_tb = -1;
 /* Out-of-band events */
 static int hf_mac_lte_oob_send_preamble = -1;
 static int hf_mac_lte_oob_send_sr = -1;
+static int hf_mac_lte_number_of_srs = -1;
 static int hf_mac_lte_oob_sr_failure = -1;
 
 /* MAC SCH/MCH header fields */
@@ -3777,6 +3778,12 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                        p_mac_lte_info->rach_attempt_number);
                 break;
             case ltemac_send_sr:
+                    /* Count of SRs */
+                    ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_number_of_srs,
+                                             tvb, 0, 0, p_mac_lte_info->number_of_srs);
+                    PROTO_ITEM_SET_GENERATED(ti);
+
+
                 for (n=0; n < p_mac_lte_info->number_of_srs; n++) {
                     proto_item *sr_ti;
                     proto_tree *sr_tree;
@@ -4440,6 +4447,12 @@ void proto_register_mac_lte(void)
             { "Scheduling Request sent",
               "mac-lte.sr-req", FT_NONE, BASE_NONE, NULL, 0x0,
               NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_number_of_srs,
+            { "Number of SRs",
+              "mac-lte.sr-req.count", FT_UINT32, BASE_DEC, 0, 0x0,
+              "Number of UEs doing SR in this frame", HFILL
             }
         },
         { &hf_mac_lte_oob_sr_failure,
