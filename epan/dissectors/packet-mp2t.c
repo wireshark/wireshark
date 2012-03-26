@@ -346,6 +346,7 @@ mp2t_depi_docsis_process_payload(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     guint32  pusi_flag;
     tvbuff_t *next_tvb;
     guint8   pointer;
+    proto_item *pi;
     proto_item *ti;
     proto_tree *dmpt_tree;
     static gboolean fragmentation = FALSE;
@@ -357,9 +358,14 @@ mp2t_depi_docsis_process_payload(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
     if (pusi_flag) {
         pointer = tvb_get_guint8(tvb, offset);
-        proto_tree_add_text(header_tree, tvb, offset, 1,
+        pi = proto_tree_add_text(header_tree, tvb, offset, 1,
             "Pointer: %u", tvb_get_guint8(tvb, offset));
         offset += 1;
+        if (pointer > 183) {
+            /* Bogus pointer */
+            expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
+                "Pointer value is too large (> 183)");
+        }
     }
 
     /* get tail of MAC frame */
@@ -385,6 +391,15 @@ mp2t_depi_docsis_process_payload(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     /* Get start of MAC frame or get complete frame */
     if (pusi_flag && !fragmentation) {
         guint16 remaining_length;
+
+        if (pointer > 183) {
+            /*
+             * Quit, so we don't use the bogus pointer value;
+             * that could cause remaining_len to become "negative",
+	     * meaning it becomes a very large positive value.
+             */
+            return;
+        }
 
         remaining_length = 183 - pointer;
         offset += pointer;
