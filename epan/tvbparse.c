@@ -1094,8 +1094,18 @@ static gboolean (*comps_f[])(void*, const void*) = {comp_gt_f,comp_ge_f,comp_eq_
 
 static gboolean (**comps[])(void*, const void*) = {comps_u,comps_i,comps_f};
 
-static void* (*extract_n[])(tvbuff_t* tvb, guint offset)  =  {	NULL, NULL, NULL, extract_u8, extract_uns, extract_un24, extract_unl, extract_un64, extract_u8, extract_ins, extract_in24, extract_inl, extract_in64, extract_inf, extract_ind, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,NULL, NULL };
-static void* (*extract_le[])(tvbuff_t* tvb, guint offset)  =  {	NULL, NULL, NULL, extract_u8, extract_ules, extract_ule24, extract_ulel, extract_ule64, extract_u8, extract_iles, extract_ile24, extract_ilel, extract_ile64, extract_ilef, extract_iled, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,NULL, NULL };
+static void* (*extract_n[])(tvbuff_t* tvb, guint offset)  =  {
+    NULL, NULL, NULL, extract_u8, extract_uns, extract_un24, extract_unl,
+    extract_un64, extract_u8, extract_ins, extract_in24, extract_inl,
+    extract_in64, extract_inf, extract_ind, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL,NULL, NULL
+};
+static void* (*extract_le[])(tvbuff_t* tvb, guint offset)  =  {
+    NULL, NULL, NULL, extract_u8, extract_ules, extract_ule24, extract_ulel,
+    extract_ule64, extract_u8, extract_iles, extract_ile24, extract_ilel,
+    extract_ile64, extract_ilef, extract_iled, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL,NULL, NULL
+};
 
 static void* (**extracts[])(tvbuff_t* tvb, guint offset) = { extract_n, extract_le};
 
