@@ -622,6 +622,15 @@ proto_mpeg_descriptor_dissect_service_list(tvbuff_t *tvb, guint offset, guint8 l
 	}
 }
 
+/* 0x42 Stuffing Descriptor */
+static int hf_mpeg_descr_stuffing = -1;
+
+static void
+proto_mpeg_descriptor_stuffing(tvbuff_t *tvb, guint offset, guint8 len, proto_tree *tree)
+{
+	proto_tree_add_item(tree, hf_mpeg_descr_stuffing, tvb, offset, len, ENC_NA);
+}
+
 /* 0x43 Satellite Delivery System Descriptor */
 static int hf_mpeg_descr_satellite_delivery_frequency = -1;
 static int hf_mpeg_descr_satellite_delivery_orbital_position = -1;
@@ -1575,6 +1584,64 @@ proto_mpeg_descriptor_dissect_teletext(tvbuff_t *tvb, guint offset, guint8 len, 
 	}
 }
 
+/* 0x58 Local Time Offset Descriptor */
+static int hf_mpeg_descr_local_time_offset_country_code = -1;
+static int hf_mpeg_descr_local_time_offset_region_id = -1;
+static int hf_mpeg_descr_local_time_offset_reserved = -1;
+static int hf_mpeg_descr_local_time_offset_polarity = -1;
+static int hf_mpeg_descr_local_time_offset_offset = -1;
+static int hf_mpeg_descr_local_time_offset_time_of_change = -1;
+static int hf_mpeg_descr_local_time_offset_next_time_offset = -1;
+
+#define MPEG_DESCR_LOCAL_TIME_OFFSET_COUNTRY_REGION_ID_MASK	0xFC
+#define MPEG_DESCR_LOCAL_TIME_OFFSET_RESERVED_MASK		0x02
+#define MPEG_DESCR_LOCAL_TIME_OFFSET_POLARITY			0x01
+
+static const value_string mpeg_descr_local_time_offset_polarity_vals[] = {
+	{ 0x0, "Positive (local time ahead of UTC)" },
+	{ 0x1, "Negative (local time behind UTC)" },
+
+	{ 0x0, NULL }
+};
+
+static void
+proto_mpeg_descriptor_dissect_local_time_offset(tvbuff_t *tvb, guint offset, guint8 len, proto_tree *tree)
+{
+	guint end = offset + len;
+	guint16 time_offset = 0;
+	nstime_t time_of_change;
+
+	while (offset < end) {
+		proto_tree_add_item(tree, hf_mpeg_descr_local_time_offset_country_code, tvb, offset, 3, ENC_ASCII|ENC_NA);
+		offset += 3;
+
+		proto_tree_add_item(tree, hf_mpeg_descr_local_time_offset_region_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_mpeg_descr_local_time_offset_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_mpeg_descr_local_time_offset_polarity, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset++;
+
+		time_offset = tvb_get_ntohs(tvb, offset);
+		proto_tree_add_string_format_value(tree, hf_mpeg_descr_local_time_offset_offset, tvb, offset, 2, "Local Time Offset", "%02u:%02u",
+			MPEG_SECT_BCD44_TO_DEC(time_offset >> 8),
+			MPEG_SECT_BCD44_TO_DEC(time_offset));
+		offset += 2;
+
+
+		if (packet_mpeg_sect_mjd_to_utc_time(tvb, offset, &time_of_change) < 0) {
+			proto_tree_add_text(tree, tvb, offset, 5, "Time of Change : Unparseable time");
+		} else {
+			proto_tree_add_time_format(tree, hf_mpeg_descr_local_time_offset_time_of_change, tvb, offset, 5, &time_of_change, "Time of Change : %s UTC", abs_time_to_str(&time_of_change, ABSOLUTE_TIME_UTC, FALSE));
+		}
+		offset += 5;
+
+		time_offset = tvb_get_ntohs(tvb, offset);
+		proto_tree_add_string_format_value(tree, hf_mpeg_descr_local_time_offset_next_time_offset, tvb, offset, 2, "Next Time Offset", "%02u:%02u",
+			MPEG_SECT_BCD44_TO_DEC(time_offset >> 8),
+			MPEG_SECT_BCD44_TO_DEC(time_offset));
+		offset += 2;
+	}
+}
+
 /* 0x59 Subtitling Descriptor */
 static int hf_mpeg_descr_subtitling_lang_code = -1;
 static int hf_mpeg_descr_subtitling_type = -1;
@@ -2087,7 +2154,7 @@ static const value_string mpeg_descr_extension_tag_extension_vals[] = {
 	{ 0x0A, "Target Region Name Descriptor" },
 	{ 0x0B, "Service Relocated Descriptor" },
 
-	{ 0x0, NULL },
+	{ 0x0, NULL }
 };
 
 static void
@@ -2327,6 +2394,9 @@ proto_mpeg_descriptor_dissect(tvbuff_t *tvb, guint offset, proto_tree *tree)
 		case 0x41: /* Service List Descriptor */
 			proto_mpeg_descriptor_dissect_service_list(tvb, offset, len, descriptor_tree);
 			break;
+		case 0x42: /* Stuffing Descriptor */
+			proto_mpeg_descriptor_stuffing(tvb, offset, len, descriptor_tree);
+			break;
 		case 0x43: /* Satellite Delivery System Descriptor */
 			proto_mpeg_descriptor_dissect_satellite_delivery(tvb, offset, descriptor_tree);
 			break;
@@ -2365,6 +2435,9 @@ proto_mpeg_descriptor_dissect(tvbuff_t *tvb, guint offset, proto_tree *tree)
 			break;
 		case 0x56: /* Teletext Descriptor */
 			proto_mpeg_descriptor_dissect_teletext(tvb, offset, len, descriptor_tree);
+			break;
+		case 0x58: /* Local Time Offset Descriptor */
+			proto_mpeg_descriptor_dissect_local_time_offset(tvb, offset, len, descriptor_tree);
 			break;
 		case 0x59: /* Subtitling Descriptor */
 			proto_mpeg_descriptor_dissect_subtitling(tvb, offset, len, descriptor_tree);
@@ -2705,7 +2778,6 @@ proto_register_mpeg_descriptor(void)
 			FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
 		} },
 
-
 		/* 0x28 AVC Video Descriptor */
 		{ &hf_mpeg_descr_avc_vid_profile_idc, {
 			"Profile IDC", "mpeg_descr.avc_vid.profile_idc",
@@ -2767,6 +2839,12 @@ proto_register_mpeg_descriptor(void)
 		{ &hf_mpeg_descr_service_list_type, {
 			"Service Type", "mpeg_descr.svc_list.type",
 			FT_UINT8, BASE_HEX, VALS(mpeg_descr_service_type_vals), 0, NULL, HFILL
+		} },
+
+		/* 0x42 Stuffing Descriptor */
+		{ &hf_mpeg_descr_stuffing, {
+			"Stuffing", "mpeg_descr.stuffing",
+			FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
 		} },
 
 		/* 0x43 Satellite Delivery System Descriptor */
@@ -2979,7 +3057,6 @@ proto_register_mpeg_descriptor(void)
 			FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
 		} },
 
-
 		/* 0x4D Short Event Descriptor */
 		{ &hf_mpeg_descr_short_event_lang_code, {
 			"Language Code", "mpeg_descr.short_evt.lang_code",
@@ -3147,7 +3224,6 @@ proto_register_mpeg_descriptor(void)
 			FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
 		} },
 
-
 		/* 0x55 Parental Rating Descriptor */
 		{ &hf_mpeg_descr_parental_rating_country_code, {
 			"Country Code", "mpeg_descr.parental_rating.country_code",
@@ -3157,6 +3233,42 @@ proto_register_mpeg_descriptor(void)
 		{ &hf_mpeg_descr_parental_rating_rating, {
 			"Rating", "mpeg_descr.parental_rating.rating",
 			FT_UINT8, BASE_HEX, VALS(mpeg_descr_parental_rating_vals), 0, NULL, HFILL
+		} },
+
+		/* 0x58 Local Time Offset Descriptor */
+		{ &hf_mpeg_descr_local_time_offset_country_code, {
+			"Country Code", "mpeg_descr.local_time_offset.country_code",
+			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_local_time_offset_region_id, {
+			"Region ID", "mpeg_descr.local_time_offset.region_id",
+			FT_UINT8, BASE_HEX, NULL, MPEG_DESCR_LOCAL_TIME_OFFSET_COUNTRY_REGION_ID_MASK, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_local_time_offset_reserved, {
+			"Reserved", "mpeg_descr.local_time_offset.reserved",
+			FT_UINT8, BASE_HEX, NULL, MPEG_DESCR_LOCAL_TIME_OFFSET_RESERVED_MASK, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_local_time_offset_polarity, {
+			"Time Offset Polarity", "mpeg_descr.local_time_offset.polarity",
+			FT_UINT8, BASE_HEX, VALS(mpeg_descr_local_time_offset_polarity_vals), MPEG_DESCR_LOCAL_TIME_OFFSET_POLARITY, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_local_time_offset_offset, {
+			"Time Offset", "mpeg_descr.local_time_offset.offset",
+			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_local_time_offset_time_of_change, {
+			"Time of Change", "mpeg_descr.local_time_offset.time_of_change",
+			FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0, NULL, HFILL
+		} },
+
+		{ &hf_mpeg_descr_local_time_offset_next_time_offset, {
+			"Next Time Offset", "mpeg_descr.local_time_offset.next_time_offset",
+			FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
 		} },
 
 		/* 0x59 Subtitling Descriptor */

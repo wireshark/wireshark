@@ -409,7 +409,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-cimetrics.c
 	dissectors/packet-cip.c
 	dissectors/packet-cipmotion.c
-	dissectors/packet-cipsafety.c	
+	dissectors/packet-cipsafety.c
 	dissectors/packet-cisco-erspan.c
 	dissectors/packet-cisco-oui.c
 	dissectors/packet-cisco-sm.c
@@ -537,6 +537,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-dvb-nit.c
 	dissectors/packet-dvb-sdt.c
 	dissectors/packet-dvb-tdt.c
+	dissectors/packet-dvb-tot.c
 	dissectors/packet-dvbci.c
 	dissectors/packet-dvmrp.c
 	dissectors/packet-e100.c
