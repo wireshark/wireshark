@@ -94,7 +94,7 @@ dumpabi: all abi-descriptor.xml
 	rm -rf abi-check-headers abi_dumps .libs/*.abi.tar.gz; \
 	mkdir abi-check-headers; cp *.h abi-check-headers/; \
 	abi-compliance-checker -l libwiretap -v1 `ls  .libs/libwiretap.so.?.?.?|sed 's/.*\.so\.//'` \
-		-relpath $(abs_srcdir) -dump-abi abi-descriptor.xml && \
+		-relpath $(abs_srcdir) -dump-abi abi-descriptor.xml ; \
 	cp -f abi_dumps/libwiretap/libwiretap_* .libs/; \
 	cd .libs; ln -sf libwiretap_*.abi.tar.gz libwiretap.abi.tar.gz
 

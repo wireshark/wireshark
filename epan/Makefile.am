@@ -315,7 +315,7 @@ dumpabi: all abi-descriptor.xml
 	mkdir abi-check-headers/dissectors; cp dissectors/*.h abi-check-headers/dissectors; \
 	mkdir abi-check-headers/ftypes; cp ftypes/*.h abi-check-headers/ftypes; \
 	abi-compliance-checker -l libwireshark -v1 `ls  .libs/libwireshark.so.?.?.?|sed 's/.*\.so\.//'` \
-		-relpath $(abs_srcdir) -dump-abi abi-descriptor.xml && \
+		-relpath $(abs_srcdir) -dump-abi abi-descriptor.xml ; \
 	cp -f abi_dumps/libwireshark/libwireshark_* .libs/; \
 	cd .libs; ln -sf libwireshark_*.abi.tar.gz libwireshark.abi.tar.gz
 
