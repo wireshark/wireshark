@@ -65,7 +65,7 @@ const value_string inap_opr_code_strings[] = {
 /* INAP ERRORS */
 static const value_string inap_err_code_string_vals[] = {
 #.TABLE_BODY ERROR.&errorCode
-	{ %(&errorCode)-40s, "%(_ident)s" },  
+	{ %(&errorCode)-40s, "%(_ident)s" },
 #.TABLE_FTR
   { 0, NULL }
 };
@@ -84,10 +84,12 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
       offset= %(_argument_pdu)s(tvb, actx->pinfo , tree);
       break;
 #.TABLE2_FTR
-    cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob");
-    proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
-    expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "Unknown invokeData %d",opcode);
-    /* todo call the asn.1 dissector */
+    default:
+      cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob");
+      proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
+      expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "Unknown invokeData %d",opcode);
+      /* todo call the asn.1 dissector */
+      break;
   }
   return offset;
 }
@@ -162,13 +164,13 @@ static const inap_err_t inap_err_tab[] = {
 #.FN_BODY Code/local  VAL_PTR = &opcode
   %(DEFAULT_BODY)s
   	if (inap_opcode_type == INAP_OPCODE_RETURN_ERROR){
-	  errorCode = opcode;	
-	    col_append_str(actx->pinfo->cinfo, COL_INFO, 
+	  errorCode = opcode;
+	    col_append_str(actx->pinfo->cinfo, COL_INFO,
 	       val_to_str(errorCode, inap_err_code_string_vals, "Unknown INAP error (%%u)"));
 	    col_append_str(actx->pinfo->cinfo, COL_INFO, " ");
 	    col_set_fence(actx->pinfo->cinfo, COL_INFO);
 	}else{
-	    col_append_str(actx->pinfo->cinfo, COL_INFO, 
+	    col_append_str(actx->pinfo->cinfo, COL_INFO,
 	       val_to_str(opcode, inap_opr_code_strings, "Unknown INAP (%%u)"));
 	    col_append_str(actx->pinfo->cinfo, COL_INFO, " ");
 	    col_set_fence(actx->pinfo->cinfo, COL_INFO);

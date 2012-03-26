@@ -1219,23 +1219,23 @@ const value_string camel_opr_code_strings[] = {
 
 /* CAMEL ERRORS */
 static const value_string camel_err_code_string_vals[] = {
-	{ errcode_canceled, "canceled" },  
-	{ errcode_cancelFailed, "cancelFailed" },  
-	{ errcode_eTCFailed, "eTCFailed" },  
-	{ errcode_improperCallerResponse, "improperCallerResponse" },  
-	{ errcode_missingCustomerRecord, "missingCustomerRecord" },  
-	{ errcode_missingParameter, "missingParameter" },  
-	{ errcode_parameterOutOfRange, "parameterOutOfRange" },  
-	{ errcode_requestedInfoError, "requestedInfoError" },  
-	{ errcode_systemFailure, "systemFailure" },  
-	{ errcode_taskRefused, "taskRefused" },  
-	{ errcode_unavailableResource, "unavailableResource" },  
-	{ errcode_unexpectedComponentSequence, "unexpectedComponentSequence" },  
-	{ errcode_unexpectedDataValue, "unexpectedDataValue" },  
-	{ errcode_unexpectedParameter, "unexpectedParameter" },  
-	{ errcode_unknownLegID, "unknownLegID" },  
-	{ errcode_unknownCSID, "unknownCSID" },  
-	{ errcode_unknownPDPID, "unknownPDPID" },  
+	{ errcode_canceled, "canceled" },
+	{ errcode_cancelFailed, "cancelFailed" },
+	{ errcode_eTCFailed, "eTCFailed" },
+	{ errcode_improperCallerResponse, "improperCallerResponse" },
+	{ errcode_missingCustomerRecord, "missingCustomerRecord" },
+	{ errcode_missingParameter, "missingParameter" },
+	{ errcode_parameterOutOfRange, "parameterOutOfRange" },
+	{ errcode_requestedInfoError, "requestedInfoError" },
+	{ errcode_systemFailure, "systemFailure" },
+	{ errcode_taskRefused, "taskRefused" },
+	{ errcode_unavailableResource, "unavailableResource" },
+	{ errcode_unexpectedComponentSequence, "unexpectedComponentSequence" },
+	{ errcode_unexpectedDataValue, "unexpectedDataValue" },
+	{ errcode_unexpectedParameter, "unexpectedParameter" },
+	{ errcode_unknownLegID, "unknownLegID" },
+	{ errcode_unknownCSID, "unknownCSID" },
+	{ errcode_unknownPDPID, "unknownPDPID" },
   { 0, NULL }
 };
 
@@ -2171,20 +2171,20 @@ dissect_camel_T_local(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
   if (is_ExtensionField){
 	hf_index = hf_camel_extension_code_local;
   }else if (camel_opcode_type == CAMEL_OPCODE_RETURN_ERROR){
-	hf_index = hf_camel_error_code_local;  
-  }		
+	hf_index = hf_camel_error_code_local;
+  }
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &opcode);
 
   if (is_ExtensionField == FALSE){
 	if (camel_opcode_type == CAMEL_OPCODE_RETURN_ERROR){
-	  errorCode = opcode;	
-	  col_append_str(actx->pinfo->cinfo, COL_INFO, 
+	  errorCode = opcode;
+	  col_append_str(actx->pinfo->cinfo, COL_INFO,
 	      val_to_str(errorCode, camel_err_code_string_vals, "Unknown CAMEL error (%u)"));
 	  col_append_str(actx->pinfo->cinfo, COL_INFO, " ");
 	  col_set_fence(actx->pinfo->cinfo, COL_INFO);
 	}else{
-	  col_append_str(actx->pinfo->cinfo, COL_INFO, 
+	  col_append_str(actx->pinfo->cinfo, COL_INFO,
 	     val_to_str(opcode, camel_opr_code_strings, "Unknown CAMEL (%u)"));
 	  col_append_str(actx->pinfo->cinfo, COL_INFO, " ");
 	  col_set_fence(actx->pinfo->cinfo, COL_INFO);
@@ -3084,7 +3084,7 @@ static int
 dissect_camel_DateAndTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
 
-/* 
+/*
 * date_option = 1 european dd:mm:yyyy
 * date_option = 2 american mm:dd:yyyy
 */
@@ -3096,17 +3096,17 @@ dissect_camel_DateAndTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 */
 
   guint8 digit_pair;
-  guint8 i = 0, curr_offset; 
+  guint8 i = 0, curr_offset;
   char camel_time[CAMEL_DATE_AND_TIME_LEN];
   char c[CAMEL_DATE_AND_TIME_LEN]; /*temporary container*/
 
   /* 2 digits per octet, 7 octets total + 5 delimiters */
-    
-  for (curr_offset = 0; curr_offset < 7 ; curr_offset++)    
+
+  for (curr_offset = 0; curr_offset < 7 ; curr_offset++)
   /*Loop to extract date*/
   {
       digit_pair = tvb_get_guint8(tvb, curr_offset);
-      
+
       proto_tree_add_uint(tree,
                           hf_digit,
                           tvb,
@@ -3120,18 +3120,18 @@ dissect_camel_DateAndTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
                           curr_offset,
                           1,
                           digit_pair >>4);
-			  
-      
+
+
       c[i] = camel_number_to_char( digit_pair & 0x0F);
       i++;
       c[i] = camel_number_to_char( digit_pair >>4);
       i++;
   }
-  
+
   /* Pretty print date */
   /* XXX - Should we use sprintf here instead of assembling the string by
    * hand? */
-  
+
   camel_time[0] = c[8];
   camel_time[1] = c[9];
   camel_time[2] = ':';
@@ -3145,7 +3145,7 @@ dissect_camel_DateAndTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
   {
     camel_time[9] = c[6]; /*day*/
     camel_time[10] = c[7];
-    camel_time[11] = '/'; 
+    camel_time[11] = '/';
     camel_time[12] = c[4]; /*month*/
     camel_time[13] = c[5];
   }
@@ -3153,7 +3153,7 @@ dissect_camel_DateAndTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
   {
     camel_time[9] = c[4]; /*month*/
     camel_time[10] = c[5];
-    camel_time[11] = '/'; 
+    camel_time[11] = '/';
     camel_time[12] = c[6]; /*day*/
     camel_time[13] = c[7];
   }
@@ -3164,14 +3164,14 @@ dissect_camel_DateAndTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
   camel_time[18] = c[3];
 
   camel_time[CAMEL_DATE_AND_TIME_LEN - 1] = '\0';
- 
+
 /*start = 0, length = 7*/
- 
-  proto_tree_add_string(tree, 
-		      hf_index, 
+
+  proto_tree_add_string(tree,
+		      hf_index,
 		      tvb,
-		      0, 
-		      7, 
+		      0,
+		      7,
 		      camel_time);
 
   return 7; /* 7  octets eaten*/
@@ -3299,7 +3299,7 @@ dissect_camel_T_pDPTypeOrganization(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
  if (!parameter_tvb)
 	return offset;
- PDPTypeOrganization  = (tvb_get_guint8(parameter_tvb,0) &0x0f);	
+ PDPTypeOrganization  = (tvb_get_guint8(parameter_tvb,0) &0x0f);
 
   return offset;
 }
@@ -3318,7 +3318,7 @@ dissect_camel_T_pDPTypeNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
  if (!parameter_tvb)
 	return offset;
- PDPTypeNumber = tvb_get_guint8(parameter_tvb,0);	
+ PDPTypeNumber = tvb_get_guint8(parameter_tvb,0);
  subtree = proto_item_add_subtree(actx->created_item, ett_camel_pdptypenumber);
  switch (PDPTypeOrganization){
  case 0: /* ETSI */
@@ -7150,10 +7150,12 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     case opcode_resetTimerSMS:  /* resetTimerSMS */
       offset= dissect_ResetTimerSMSArg_PDU(tvb, actx->pinfo , tree);
       break;
-    cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob");
-    proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
-    expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "Unknown invokeData %d",opcode);
-    /* todo call the asn.1 dissector */
+    default:
+      cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob");
+      proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
+      expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "Unknown invokeData %d",opcode);
+      /* todo call the asn.1 dissector */
+      break;
   }
   return offset;
 }
