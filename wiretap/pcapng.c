@@ -1648,7 +1648,7 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
                  */
                 *err = WTAP_ERR_BAD_FILE;
                 *err_info = g_strdup_printf("pcapng_read_interface_statistics_block: total block length %u is too small (< %u)",
-                              bh->block_total_length, MIN_NRB_SIZE);
+                              bh->block_total_length, MIN_ISB_SIZE);
                 return -1;
         }
 
