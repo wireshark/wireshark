@@ -856,105 +856,100 @@ dissect_isis_grp_address_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	const char *mt_desc;
 
 
-
 	while (length>0) {
-		/* length can only be a multiple of 2, otherwise there is
-		   something broken -> so decode down until length is 1 */
-		if (length!=1) {
-			/* fetch two bytes */
-			mt_block=tvb_get_ntohs(tvb, offset);
-			/* Mask out the lower 8 bits */
-			switch((mt_block&0xff00)>>8) {
+		/* fetch two bytes */
+		mt_block=tvb_get_ntohs(tvb, offset);
+		/* Mask out the lower 8 bits */
+		switch((mt_block&0xff00)>>8) {
 
 
-				case GRP_MAC_ADDRESS:
-					mt_desc="GROUP MAC ADDRESS";
+			case GRP_MAC_ADDRESS:
+				mt_desc="GROUP MAC ADDRESS";
 
-					ti = proto_tree_add_text (tree, tvb, offset,(mt_block&0x00ff)+2 , "%s SUB TLV", mt_desc);
-					rt_tree = proto_item_add_subtree(ti,ett_isis_lsp_clv_grp_address_IPv4_prefx);
+				ti = proto_tree_add_text (tree, tvb, offset,(mt_block&0x00ff)+2 , "%s SUB TLV", mt_desc);
+				rt_tree = proto_item_add_subtree(ti,ett_isis_lsp_clv_grp_address_IPv4_prefx);
 
-					length=length-1;
-					offset=offset+1;
+				length=length-1;
+				offset=offset+1;
 
-					len=tvb_get_guint8(tvb, offset);/* 1 byte fetched displays the length*/
-					proto_tree_add_text (rt_tree, tvb, offset,1,"   Length :%d ",len);
+				len=tvb_get_guint8(tvb, offset);/* 1 byte fetched displays the length*/
+				proto_tree_add_text (rt_tree, tvb, offset,1,"   Length :%d ",len);
 
-					if(len < 5) {
-						length=length-len;
-						offset=offset+len;
-						break;
-					}
+				if(len < 5) {
+					length=length-len;
+					offset=offset+len;
+					break;
+				}
 
-					length=length-1;
-					offset=offset+1;
-
-
-					mt_block=tvb_get_ntohs(tvb, offset);/* Fetch the data in the next two bytes for display*/
-					proto_tree_add_text (rt_tree, tvb, offset,2,"   Topology ID:%d ",(mt_block&0x0fff) );
+				length=length-1;
+				offset=offset+1;
 
 
-					length=length-2;
-					offset=offset+2;
-					len=len-2;
+				mt_block=tvb_get_ntohs(tvb, offset);/* Fetch the data in the next two bytes for display*/
+				proto_tree_add_text (rt_tree, tvb, offset,2,"   Topology ID:%d ",(mt_block&0x0fff) );
 
-					mt_block=tvb_get_ntohs(tvb, offset);/* Fetch the data in the next two bytes for display*/
-					proto_tree_add_text (rt_tree,tvb, offset,2,"   VLAN ID:%d ",(mt_block&0x0fff) );
 
-					length=length-2;
-					offset=offset+2;
-					len=len-2;
+				length=length-2;
+				offset=offset+2;
+				len=len-2;
 
-					record_num=tvb_get_guint8(tvb, offset);/* 1 byte fetched displays the length*/
-					proto_tree_add_text (rt_tree,tvb, offset,1, "   Number of records :%d ",record_num);
+				mt_block=tvb_get_ntohs(tvb, offset);/* Fetch the data in the next two bytes for display*/
+				proto_tree_add_text (rt_tree,tvb, offset,2,"   VLAN ID:%d ",(mt_block&0x0fff) );
+
+				length=length-2;
+				offset=offset+2;
+				len=len-2;
+
+				record_num=tvb_get_guint8(tvb, offset);/* 1 byte fetched displays the length*/
+				proto_tree_add_text (rt_tree,tvb, offset,1, "   Number of records :%d ",record_num);
+
+				length=length-1;
+				offset=offset+1;
+				len=len-1;
+
+				while(len > 0) {
+
+					source_num=tvb_get_guint8(tvb, offset);
+					proto_tree_add_text (rt_tree,tvb, offset,1,"   Number of sources :%d ",source_num);
 
 					length=length-1;
 					offset=offset+1;
 					len=len-1;
 
-					while(len > 0) {
+					hmac_src=tvb_get_ntoh48(tvb, offset);/* Fetch the data in the next two bytes for display*/
 
-						source_num=tvb_get_guint8(tvb, offset);
-						proto_tree_add_text (rt_tree,tvb, offset,1,"   Number of sources :%d ",source_num);
+					fp_get_hmac_addr (hmac_src, &swid, &sswid, &lid);
+					proto_tree_add_text (rt_tree,tvb, offset,6,"  Group Address:%04x.%04x.%04x ",swid, sswid, lid );
 
-						length=length-1;
-						offset=offset+1;
-						len=len-1;
+					length=length-6;
+					offset=offset+6;
+					len=len-6;
 
-						hmac_src=tvb_get_ntoh48(tvb, offset);/* Fetch the data in the next two bytes for display*/
-
+					while((len > 0) && (source_num > 0)) {
+						hmac_src = tvb_get_ntoh48 (tvb, offset);
 						fp_get_hmac_addr (hmac_src, &swid, &sswid, &lid);
-						proto_tree_add_text (rt_tree,tvb, offset,6,"  Group Address:%04x.%04x.%04x ",swid, sswid, lid );
+						proto_tree_add_text (rt_tree,tvb, offset,6,"  Source Address (%d):%04x.%04x.%04x",k,swid, sswid, lid);
 
+						k=k+1;
 						length=length-6;
 						offset=offset+6;
 						len=len-6;
-
-				   		while((len > 0) && (source_num > 0)) {
-							hmac_src = tvb_get_ntoh48 (tvb, offset);
-							fp_get_hmac_addr (hmac_src, &swid, &sswid, &lid);
-							proto_tree_add_text (rt_tree,tvb, offset,6,"  Source Address (%d):%04x.%04x.%04x",k,swid, sswid, lid);
-
-							k=k+1;
-							length=length-6;
-							offset=offset+6;
-							len=len-6;
-							source_num--;
-						}
+						source_num--;
 					}
+				}
 
-					break;
+				break;
 
 
-				default:
-					mt_desc="INVALID";
-					proto_tree_add_uint_format ( tree, tree_id, tvb, offset,(mt_block&0x00ff)+2,
-							mt_block,
-							"%s SUB TLV",mt_desc );
-					offset=offset+1;
-					length=length-2-(tvb_get_guint8(tvb, offset));
-					offset=offset+1+(tvb_get_guint8(tvb, offset));
-					break;
-			}
+			default:
+				mt_desc="INVALID";
+				proto_tree_add_uint_format ( tree, tree_id, tvb, offset,(mt_block&0x00ff)+2,
+						mt_block,
+						"%s SUB TLV",mt_desc );
+				offset=offset+1;
+				length=length-2-(tvb_get_guint8(tvb, offset));
+				offset=offset+1+(tvb_get_guint8(tvb, offset));
+				break;
 		}
 	}
 }
