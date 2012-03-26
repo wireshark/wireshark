@@ -43,9 +43,27 @@ Wireshark Info
             The ANSI A dissector could dereference a NULL pointer and crash.
             <!-- Fixed in trunk: r40962 -->
             <!-- Fixed in trunk-1.6: r41568 -->
-            <!-- Fixed in trunk-1.4: r41767 -->
+            <!-- Fixed in trunk-1.4: r41768 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6823">Bug
             6823</ulink>)
+          </para>
+          <para>Versions affected: 1.4.0 to 1.4.11, 1.6.0 to 1.6.5.</para>
+          <!-- <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-????">CVE-2012-????</ulink>
+          </para> -->
+        </listitem>
+
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-06.html">wnpa-sec-2012-06</ulink>
+          </para>
+          <para>
+            The pcap and pcap-ng file parsers could crash trying to read ERF data.
+            <!-- Fixed in trunk: r41008 -->
+            <!-- Fixed in trunk-1.6: r41578 -->
+            <!-- Fixed in trunk-1.4: r41769 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6809">Bug
+            6809</ulink>)
           </para>
           <para>Versions affected: 1.4.0 to 1.4.11, 1.6.0 to 1.6.5.</para>
           <!-- <para>
