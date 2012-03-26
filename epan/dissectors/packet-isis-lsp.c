@@ -1274,7 +1274,7 @@ dissect_isis_rt_capable_clv(tvbuff_t *tvb,
 
                 default:
                     mt_desc = "INVALID";
-                    ti = proto_tree_add_text(tree, tvb, offset, (rt_block&0x00ff)+2, "%s sub tlv", mt_desc);
+                    proto_tree_add_text(tree, tvb, offset, (rt_block&0x00ff)+2, "%s sub tlv", mt_desc);
 
                     offset = offset+1;
                     length = length-2-(tvb_get_guint8(tvb, offset));
