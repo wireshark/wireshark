@@ -42,7 +42,7 @@ Wireshark Info
             The ANSI A dissector could dereference a NULL pointer and crash.
             <!-- Fixed in trunk: r40962 -->
             <!-- Fixed in trunk-1.6: r41568 -->
-            <!-- Fixed in trunk-1.4: r????? -->
+            <!-- Fixed in trunk-1.4: r41768 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6823">Bug
             6823</ulink>)
           </para>
@@ -60,7 +60,6 @@ Wireshark Info
             The IEEE 802.11 dissector could go into an infinite loop.
             <!-- Fixed in trunk: r40967 -->
             <!-- Fixed in trunk-1.6: r41576 -->
-            <!-- Fixed in trunk-1.4: r????? -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6809">Bug
             6809</ulink>)
           </para>
@@ -78,9 +77,27 @@ Wireshark Info
             The pcap and pcap-ng file parsers could crash trying to read ERF data.
             <!-- Fixed in trunk: r41008 -->
             <!-- Fixed in trunk-1.6: r41578 -->
-            <!-- Fixed in trunk-1.4: r????? -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6809">Bug
-            6809</ulink>)
+            <!-- Fixed in trunk-1.4: r41769 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6804">Bug
+            6804</ulink>)
+          </para>
+          <para>Versions affected: 1.4.0 to 1.4.11, 1.6.0 to 1.6.5.</para>
+          <!-- <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-????">CVE-2012-????</ulink>
+          </para> -->
+        </listitem>
+
+        <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2012-07.html">wnpa-sec-2012-07</ulink>
+          </para>
+          <para>
+            The MP2T dissector could try to allocate too much memory and crash.
+            <!-- Fixed in trunk: r41001, r41002 -->
+            <!-- Fixed in trunk-1.6: r41057 -->
+            <!-- Fixed in trunk-1.4: r41776 -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6804">Bug
+            6804</ulink>)
           </para>
           <para>Versions affected: 1.4.0 to 1.4.11, 1.6.0 to 1.6.5.</para>
           <!-- <para>
@@ -121,15 +138,39 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Character echo pauses in Capture Filter field in Capture Options.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5356">Bug
+          5356</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Some PGM options are not parsed correctly.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5687">Bug
           5687</ulink>)
         </para></listitem>
 
         <listitem><para>
+          dumpcap crashes when capturing from pipe to a pcap-ng file (e.g., when passing data from CACE Pilot to Wireshark).
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5939">Bug
+          5939</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Unable to rearrange columns in preferences on Windows.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6077">Bug
           6077</ulink>) (Note: this bug still affects the 64-bit package)
+        </para></listitem>
+
+        <listitem><para>
+          No error for UDP/IPv6 packet with zero checksum.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6232">Bug
+          6232</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Wireshark installer doesn't add access_bpf in 10.5.8.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6526">Bug
+          6526</ulink>)
         </para></listitem>
 
         <listitem><para>
@@ -235,6 +276,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          ISAKMP : VendorID CheckPoint : Malformed Packet.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6972">Bug
+          6972</ulink>)
+        </para></listitem>
+
+        <listitem><para>
 	  MySQL dissector assertion.
           (<ulink url="http://ask.wireshark.org/questions/8649">Ask
           8649</ulink>)
@@ -282,6 +329,7 @@ GTP,
 IAX2,
 IEEE 802.11,
 IPP,
+ISAKMP,
 ISO SSAP,
 MP2T,
 MPLS,
@@ -292,6 +340,7 @@ PGM,
 Radiotap,
 SSL,
 TCP,
+UDP,
 USB,
 WSP
 

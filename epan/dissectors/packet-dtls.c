@@ -1367,14 +1367,14 @@ dissect_dtls_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
             ssl->session_id.data_len = session_id_length;
           }
         }
-	  if (tree && session_id_length > 0)
-	      proto_tree_add_bytes_format(tree, hf_dtls_handshake_session_id,
-					  tvb, offset, session_id_length,
-					  NULL, "Session ID (%u byte%s)",
-					  session_id_length,
-					  plurality(session_id_length, "", "s"));
-          offset += session_id_length;
-        }
+      if (tree && session_id_length > 0)
+	  proto_tree_add_bytes_format(tree, hf_dtls_handshake_session_id,
+				      tvb, offset, session_id_length,
+				      NULL, "Session ID (%u byte%s)",
+				      session_id_length,
+				      plurality(session_id_length, "", "s"));
+      offset += session_id_length;
+    }
 
 
   /* XXXX */
