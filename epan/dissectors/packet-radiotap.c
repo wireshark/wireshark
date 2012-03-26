@@ -565,7 +565,7 @@ static int hf_radiotap_present_dbm_antnoise = -1;
 static int hf_radiotap_present_lock_quality = -1;
 static int hf_radiotap_present_tx_attenuation = -1;
 static int hf_radiotap_present_db_tx_attenuation = -1;
-static int hf_radiotap_present_dbm_tx_attenuation = -1;
+static int hf_radiotap_present_dbm_tx_power = -1;
 static int hf_radiotap_present_antenna = -1;
 static int hf_radiotap_present_db_antsignal = -1;
 static int hf_radiotap_present_db_antnoise = -1;
@@ -833,13 +833,13 @@ void proto_register_radiotap(void)
 		  HFILL}},
 
 		{&hf_radiotap_present_dbm_antsignal,
-		 {"DBM Antenna Signal", "radiotap.present.dbm_antsignal",
+		 {"dBm Antenna Signal", "radiotap.present.dbm_antsignal",
 		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(DBM_ANTSIGNAL),
 		  "Specifies if the antenna signal strength in dBm is present",
 		  HFILL}},
 
 		{&hf_radiotap_present_dbm_antnoise,
-		 {"DBM Antenna Noise", "radiotap.present.dbm_antnoise",
+		 {"dBm Antenna Noise", "radiotap.present.dbm_antnoise",
 		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(DBM_ANTNOISE),
 		  "Specifies if the RF noise power at antenna field is present",
 		  HFILL}},
@@ -852,19 +852,19 @@ void proto_register_radiotap(void)
 		{&hf_radiotap_present_tx_attenuation,
 		 {"TX Attenuation", "radiotap.present.tx_attenuation",
 		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(TX_ATTENUATION),
-		  "Specifies if the transmit power from max power field is present",
+		  "Specifies if the transmit power distance from max power field is present",
 		  HFILL}},
 
 		{&hf_radiotap_present_db_tx_attenuation,
-		 {"DB TX Attenuation", "radiotap.present.db_tx_attenuation",
+		 {"dB TX Attenuation", "radiotap.present.db_tx_attenuation",
 		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(DB_TX_ATTENUATION),
-		  "Specifies if the transmit power from max power (in dB) field is present",
+		  "Specifies if the transmit power distance from max power (in dB) field is present",
 		  HFILL}},
 
-		{&hf_radiotap_present_dbm_tx_attenuation,
-		 {"DBM TX Attenuation", "radiotap.present.dbm_tx_attenuation",
-		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(DB_TX_ATTENUATION),
-		  "Specifies if the transmit power from max power (in dBm) field is present",
+		{&hf_radiotap_present_dbm_tx_power,
+		 {"dBm TX Power", "radiotap.present.dbm_tx_power",
+		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(DBM_TX_POWER),
+		  "Specifies if the transmit power (in dBm) field is present",
 		  HFILL}},
 
 		{&hf_radiotap_present_antenna,
@@ -873,13 +873,13 @@ void proto_register_radiotap(void)
 		  "Specifies if the antenna number field is present", HFILL}},
 
 		{&hf_radiotap_present_db_antsignal,
-		 {"DB Antenna Signal", "radiotap.present.db_antsignal",
+		 {"dB Antenna Signal", "radiotap.present.db_antsignal",
 		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(DB_ANTSIGNAL),
 		  "Specifies if the RF signal power at antenna in dB field is present",
 		  HFILL}},
 
 		{&hf_radiotap_present_db_antnoise,
-		 {"DB Antenna Noise", "radiotap.present.db_antnoise",
+		 {"dB Antenna Noise", "radiotap.present.db_antnoise",
 		  FT_BOOLEAN, 32, NULL, RADIOTAP_MASK(DB_ANTNOISE),
 		  "Specifies if the RF signal power at antenna in dBm field is present",
 		  HFILL}},
@@ -1482,7 +1482,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 					    hf_radiotap_present_db_tx_attenuation,
 					    tvb, offset + 4, 4, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(present_tree,
-					    hf_radiotap_present_dbm_tx_attenuation,
+					    hf_radiotap_present_dbm_tx_power,
 					    tvb, offset + 4, 4, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(present_tree,
 					    hf_radiotap_present_antenna, tvb,
