@@ -75,6 +75,11 @@ typedef struct pcapng_block_header_s {
 	/* guint32 block_total_length */
 } pcapng_block_header_t;
 
+/*
+ * Minimum block size = size of block header + size of block trailer.
+ */
+#define MIN_BLOCK_SIZE	((guint32)(sizeof(pcapng_block_header_t) + sizeof(guint32)))
+
 /* pcapng: section header block */
 typedef struct pcapng_section_header_block_s {
 	/* pcapng_block_header_t */
@@ -85,6 +90,11 @@ typedef struct pcapng_section_header_block_s {
 	/* ... Options ... */
 } pcapng_section_header_block_t;
 
+/*
+ * Minimum SHB size = minimum block size + size of fixed length portion of SHB.
+ */
+#define MIN_SHB_SIZE	((guint32)(MIN_BLOCK_SIZE + sizeof(pcapng_section_header_block_t)))
+
 /* pcapng: interface description block */
 typedef struct pcapng_interface_description_block_s {
 	guint16 linktype;
@@ -92,6 +102,11 @@ typedef struct pcapng_interface_description_block_s {
 	guint32 snaplen;
 	/* ... Options ... */
 } pcapng_interface_description_block_t;
+
+/*
+ * Minimum IDB size = minimum block size + size of fixed length portion of IDB.
+ */
+#define MIN_IDB_SIZE	((guint32)(MIN_BLOCK_SIZE + sizeof(pcapng_interface_description_block_t)))
 
 /* pcapng: packet block (obsolete) */
 typedef struct pcapng_packet_block_s {
@@ -106,6 +121,11 @@ typedef struct pcapng_packet_block_s {
 	/* ... Options ... */
 } pcapng_packet_block_t;
 
+/*
+ * Minimum PB size = minimum block size + size of fixed length portion of PB.
+ */
+#define MIN_PB_SIZE	((guint32)(MIN_BLOCK_SIZE + sizeof(pcapng_packet_block_t)))
+
 /* pcapng: enhanced packet block */
 typedef struct pcapng_enhanced_packet_block_s {
 	guint32 interface_id;
@@ -118,12 +138,22 @@ typedef struct pcapng_enhanced_packet_block_s {
 	/* ... Options ... */
 } pcapng_enhanced_packet_block_t;
 
+/*
+ * Minimum EPB size = minimum block size + size of fixed length portion of EPB.
+ */
+#define MIN_EPB_SIZE	((guint32)(MIN_BLOCK_SIZE + sizeof(pcapng_enhanced_packet_block_t)))
+
 /* pcapng: simple packet block */
 typedef struct pcapng_simple_packet_block_s {
 	guint32 packet_len;
 	/* ... Packet Data ... */
 	/* ... Padding ... */
 } pcapng_simple_packet_block_t;
+
+/*
+ * Minimum SPB size = minimum block size + size of fixed length portion of SPB.
+ */
+#define MIN_SPB_SIZE	((guint32)(MIN_BLOCK_SIZE + sizeof(pcapng_simple_packet_block_t)))
 
 /* pcapng: interface statistics block */
 typedef struct pcapng_interface_statistics_block_s {
@@ -132,6 +162,11 @@ typedef struct pcapng_interface_statistics_block_s {
 	guint32 timestamp_low;
 	/* ... Options ... */
 } pcapng_interface_statistics_block_t;
+
+/*
+ * Minimum ISB size = minimum block size + size of fixed length portion of ISB.
+ */
+#define MIN_ISB_SIZE	((guint32)(MIN_BLOCK_SIZE + sizeof(pcapng_interface_statistics_block_t)))
 
 /* pcapng: common option header for every option type */
 typedef struct pcapng_option_header_s {
@@ -369,6 +404,20 @@ pcapng_read_section_header_block(FILE_T fh, gboolean first_block,
 	pcapng_option_header_t oh;
 	char *option_content = NULL; /* Allocate as large as the options block */
 
+	/*
+	 * Is this block long enough to be an SHB?
+	 */
+	if (bh->block_total_length < MIN_SHB_SIZE) {
+		/*
+		 * No.
+		 */
+		if (first_block)
+			return 0;	/* probably not a pcap-ng file */
+		*err = WTAP_ERR_BAD_RECORD;
+		*err_info = g_strdup_printf("pcapng_read_section_header_block: total block length %u of an SHB is less than the minimum SHB size %u",
+			      bh->block_total_length, MIN_SHB_SIZE);
+		return -1;
+	}
 
 	/* read block content */
 	errno = WTAP_ERR_CANT_READ;
@@ -456,10 +505,7 @@ pcapng_read_section_header_block(FILE_T fh, gboolean first_block,
 
 	/* Options */
 	errno = WTAP_ERR_CANT_READ;
-	to_read = bh->block_total_length
-        - (int)sizeof(pcapng_block_header_t)
-        - (int)sizeof (pcapng_section_header_block_t)
-        - (int)sizeof(bh->block_total_length);
+	to_read = bh->block_total_length - MIN_SHB_SIZE;
 
 	/* Allocate enough memory to hold all options */
 	opt_cont_buf_len = to_read;
@@ -554,6 +600,18 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 	gint encap;
 	char *option_content = NULL; /* Allocate as large as the options block */
 
+	/*
+	 * Is this block long enough to be an IDB?
+	 */
+	if (bh->block_total_length < MIN_IDB_SIZE) {
+		/*
+		 * No.
+		 */
+		*err = WTAP_ERR_BAD_RECORD;
+		*err_info = g_strdup_printf("pcapng_read_if_descr_block: total block length %u of an IDB is less than the minimum IDB size %u",
+			      bh->block_total_length, MIN_IDB_SIZE);
+		return -1;
+	}
 
 	/* read block content */
 	errno = WTAP_ERR_CANT_READ;
@@ -609,10 +667,7 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 
 	/* Options */
 	errno = WTAP_ERR_CANT_READ;
-	to_read = bh->block_total_length
-        - (int)sizeof(pcapng_block_header_t)
-        - (int)sizeof (pcapng_interface_description_block_t)
-        - (int)sizeof(bh->block_total_length);
+	to_read = bh->block_total_length - MIN_IDB_SIZE;
 
 	/* Allocate enough memory to hold all options */
 	opt_cont_buf_len = to_read;
@@ -757,6 +812,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 	pcapng_enhanced_packet_block_t epb;
 	pcapng_packet_block_t pb;
 	guint32 block_total_length;
+	guint32 padding;
 	pcapng_option_header_t oh;
 	gint wtap_encap;
 	int pseudo_header_len;
@@ -766,6 +822,18 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 	/* "(Enhanced) Packet Block" read fixed part */
 	errno = WTAP_ERR_CANT_READ;
 	if (enhanced) {
+		/*
+		 * Is this block long enough to be an EPB?
+		 */
+		if (bh->block_total_length < MIN_EPB_SIZE) {
+			/*
+			 * No.
+			 */
+			*err = WTAP_ERR_BAD_RECORD;
+			*err_info = g_strdup_printf("pcapng_read_packet_block: total block length %u of an EPB is less than the minimum EPB size %u",
+				      bh->block_total_length, MIN_EPB_SIZE);
+			return -1;
+		}
 		bytes_read = file_read(&epb, 1, sizeof epb, fh);
 		if (bytes_read != sizeof epb) {
 			pcapng_debug0("pcapng_read_packet_block: failed to read packet data");
@@ -790,6 +858,18 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 			wblock->data.packet.packet_len		= epb.packet_len;
 		}
 	} else {
+		/*
+		 * Is this block long enough to be a PB?
+		 */
+		if (bh->block_total_length < MIN_PB_SIZE) {
+			/*
+			 * No.
+			 */
+			*err = WTAP_ERR_BAD_RECORD;
+			*err_info = g_strdup_printf("pcapng_read_packet_block: total block length %u of a PB is less than the minimum PB size %u",
+				      bh->block_total_length, MIN_PB_SIZE);
+			return -1;
+		}
 		bytes_read = file_read(&pb, 1, sizeof pb, fh);
 		if (bytes_read != sizeof pb) {
 			pcapng_debug0("pcapng_read_packet_block: failed to read packet data");
@@ -812,6 +892,50 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 			wblock->data.packet.ts_low			= pb.timestamp_low;
 			wblock->data.packet.cap_len			= pb.captured_len;
 			wblock->data.packet.packet_len		= pb.packet_len;
+		}
+
+	}
+
+	/*
+	 * How much padding is there at the end of the packet data?
+	 */
+	if ((wblock->data.packet.cap_len % 4) != 0)
+		padding = 4 - (wblock->data.packet.cap_len % 4);
+	else
+		padding = 0;
+
+	/* add padding bytes to "block total length" */
+	/* (the "block total length" of some example files don't contain the packet data padding bytes!) */
+	if (bh->block_total_length % 4) {
+		block_total_length = bh->block_total_length + 4 - (bh->block_total_length % 4);
+	} else {
+		block_total_length = bh->block_total_length;
+	}
+
+	/*
+	 * Is this block long enough to hold the packet data?
+	 */
+	if (enhanced) {
+		if (block_total_length <
+		    MIN_EPB_SIZE + wblock->data.packet.cap_len + padding) {
+			/*
+			 * No.
+			 */
+			*err = WTAP_ERR_BAD_RECORD;
+			*err_info = g_strdup_printf("pcapng_read_packet_block: total block length %u of EPB is too small for %u bytes of packet data",
+				      block_total_length, wblock->data.packet.cap_len);
+			return -1;
+		}
+	} else {
+		if (block_total_length <
+		    MIN_PB_SIZE + wblock->data.packet.cap_len + padding) {
+			/*
+			 * No.
+			 */
+			*err = WTAP_ERR_BAD_RECORD;
+			*err_info = g_strdup_printf("pcapng_read_packet_block: total block length %u of PB is too small for %u bytes of packet data",
+				      block_total_length, wblock->data.packet.cap_len);
+			return -1;
 		}
 	}
 
@@ -878,22 +1002,14 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 	block_read += bytes_read;
 
 	/* jump over potential padding bytes at end of the packet data */
-	if( (wblock->data.packet.cap_len % 4) != 0) {
-		file_offset64 = file_seek(fh, 4 - (wblock->data.packet.cap_len % 4), SEEK_CUR, err);
+	if (padding != 0) {
+		file_offset64 = file_seek(fh, padding, SEEK_CUR, err);
 		if (file_offset64 <= 0) {
 			if (*err != 0)
 				return -1;
 			return 0;
 		}
-		block_read += 4 - (wblock->data.packet.cap_len % 4);
-	}
-
-	/* add padding bytes to "block total length" */
-	/* (the "block total length" of some example files don't contain the packet data padding bytes!) */
-	if (bh->block_total_length % 4) {
-		block_total_length = bh->block_total_length + 4 - (bh->block_total_length % 4);
-	} else {
-		block_total_length = bh->block_total_length;
+		block_read += padding;
 	}
 
 	/* Option defaults */
@@ -982,6 +1098,18 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
 	int pseudo_header_len;
 	pcapng_simple_packet_block_t spb;
 
+	/*
+	 * Is this block long enough to be an SPB?
+	 */
+	if (bh->block_total_length < MIN_SPB_SIZE) {
+		/*
+		 * No.
+		 */
+		*err = WTAP_ERR_BAD_RECORD;
+		*err_info = g_strdup_printf("pcapng_read_simple_packet_block: total block length %u of an SPB is less than the minimum SPB size %u",
+			      bh->block_total_length, MIN_SPB_SIZE);
+		return -1;
+	}
 
 	/* "Simple Packet Block" read fixed part */
 	errno = WTAP_ERR_CANT_READ;
@@ -1088,6 +1216,18 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
 	pcapng_option_header_t oh;
 	char *option_content = NULL; /* Allocate as large as the options block */
 
+	/*
+	 * Is this block long enough to be an ISB?
+	 */
+	if (bh->block_total_length < MIN_ISB_SIZE) {
+		/*
+		 * No.
+		 */
+		*err = WTAP_ERR_BAD_RECORD;
+		*err_info = g_strdup_printf("pcapng_read_interface_statistics_block: total block length %u is too small (< %u)",
+			      bh->block_total_length, MIN_ISB_SIZE);
+		return -1;
+	}
 
 	/* "Interface Statistics Block" read fixed part */
 	errno = WTAP_ERR_CANT_READ;
@@ -1117,10 +1257,8 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
 
 	/* Options */
 	errno = WTAP_ERR_CANT_READ;
-	to_read = bh->block_total_length
-        - sizeof(pcapng_block_header_t)
-        - block_read    /* fixed and variable part, including padding */
-        - sizeof(bh->block_total_length);
+	to_read = bh->block_total_length -
+	          (MIN_BLOCK_SIZE + block_read);    /* fixed and variable part, including padding */
 
 	/* Allocate enough memory to hold all options */
 	opt_cont_buf_len = to_read;
@@ -1186,18 +1324,24 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
 	}
 
 	g_free(option_content);
-    
+
 	return block_read;
 }
 
 
 static int
-pcapng_read_unknown_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn _U_, wtapng_block_t *wblock _U_,int *err, gchar **err_info _U_)
+pcapng_read_unknown_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn _U_, wtapng_block_t *wblock _U_, int *err, gchar **err_info)
 {
 	int block_read;
 	guint64 file_offset64;
 	guint32 block_total_length;
 
+	if (bh->block_total_length < MIN_BLOCK_SIZE) {
+		*err = WTAP_ERR_BAD_RECORD;
+		*err_info = g_strdup_printf("pcapng_read_unknown_block: total block length %u of an unknown block type is less than the minimum block size %u",
+			      bh->block_total_length, MIN_BLOCK_SIZE);
+		return -1;
+	}
 
 	/* add padding bytes to "block total length" */
 	/* (the "block total length" of some example files don't contain any padding bytes!) */
@@ -1207,7 +1351,7 @@ pcapng_read_unknown_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn _U_
 		block_total_length = bh->block_total_length;
 	}
 
-	block_read = block_total_length - (guint32)sizeof(pcapng_block_header_t) - (guint32)sizeof(bh->block_total_length);
+	block_read = block_total_length - MIN_BLOCK_SIZE;
 
 	/* jump over this unknown block */
 	file_offset64 = file_seek(fh, block_read, SEEK_CUR, err);

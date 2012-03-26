@@ -97,6 +97,18 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          dumpcap crashes when capturing from pipe to a pcap-ng file (e.g., when passing data from CACE Pilot to Wireshark).
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5939">Bug
+          5939</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          No error for UDP/IPv6 packet with zero checksum.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6232">Bug
+          6232</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           packetBB dissector bug: More than 1000000 items in the tree -- possible infinite loop.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6687">Bug
           6687</ulink>)
@@ -133,6 +145,18 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Expression... dialog is crash.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6891">Bug
+          6891</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          ISAKMP : VendorID CheckPoint : Malformed Packet.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6972">Bug
+          6972</ulink>)
+        </para></listitem>
+
+        <listitem><para>
 	  MySQL dissector assertion.
           (<ulink url="http://ask.wireshark.org/questions/8649">Ask
           8649</ulink>)
@@ -166,10 +190,12 @@ There are no new protocols in this release.
 <!-- Sort alphabetically -->
 
 HTTP,
+ISAKMP,
 MySQL,
 PacketBB,
 PGM,
 TCP,
+UDP
 
     </para>
     </section>
