@@ -175,6 +175,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          Radiotap dissector lists a bogus &quot;DBM TX Attenuation&quot; bit.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7000">Bug
+          7000</ulink>)
+        </para></listitem>
+
+        <listitem><para>
 	  MySQL dissector assertion.
           (<ulink url="http://ask.wireshark.org/questions/8649">Ask
           8649</ulink>)
