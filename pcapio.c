@@ -486,7 +486,7 @@ libpcap_write_interface_description_block(FILE *fp,
                 option.type = IDB_DESCRIPTION;
                 option.value_length = (guint16)strlen(descr);
                 WRITE_DATA(fp, &option, sizeof(struct option), *bytes_written, err);
-                WRITE_DATA(fp, name, strlen(descr), *bytes_written, err);
+                WRITE_DATA(fp, descr, strlen(descr), *bytes_written, err);
                 if (strlen(descr) % 4) {
                         WRITE_DATA(fp, &padding, 4 - strlen(descr) % 4 , *bytes_written, err);
                 }
